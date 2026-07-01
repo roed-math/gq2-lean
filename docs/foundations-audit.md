@@ -39,9 +39,10 @@ repo scaffolds minimal versions and flags them.
 | Finite group theory: normal closure, `IsPGroup`, subdirect/fibre products (Lemmas 2.1, 9.1) | ✅ | `Subgroup.normalClosure`, `IsPGroup`, `MonoidHom`/`Subgroup.prod` API. |
 | 2-core $O_2(G)$ (Lemmas 3.3, 10.1) | 🟡 | No dedicated `O_2`/`Fitting`-style API found; expressible as "the largest normal 2-subgroup" or handled via `IsPGroup` on normal closures. Minor build-out. |
 | Hopfian property of f.g. profinite groups (Lemma 2.5) | 🟡 | Mathlib has `Hopfian` for modules/general; the *profinite* statement ("surjective endomorphism of a topologically f.g. profinite group is injective") needs assembling from `ProfiniteGrp` + finiteness of `Sur(P, Pₙ)`. Not packaged. |
-| Continuous group cohomology $H^1,H^2$; cup products | 🟡/❌ | `Mathlib/RepresentationTheory/GroupCohomology/*` has *discrete* group cohomology in low degrees and cup products are being developed, but **continuous/profinite** cohomology and the local-field instances are absent. |
-| Local Tate duality; Euler characteristic | ❌ | Not present; no open PR. |
-| Local class field theory / reciprocity map (Lemma 3.5) | ❌ | Not present. Related nearby work only: valuations (#27451, #27437), "category of local extensions" (#37940 — an abstract-measure PR, not CFT). |
+| Group cohomology $H^1,H^2$; **Tate cohomology**, Herbrand quotient, corestriction/inflation-restriction | 🟡 ✅ **imported** | Mathlib has discrete low-degree cohomology; **`ClassFieldTheory` (imported, see below) adds `tateCohomology`, Herbrand quotient, `Corestriction`/`Inflation`/`InflationRestriction`, trivial-cohomology criteria** — the machinery §§5–8 need. Continuous/profinite cohomology + cup products still to assemble. |
+| Non-archimedean local fields; valuation, ramification/inertia, unramified extensions | ✅ **imported** | `ClassFieldTheory.IsNonarchimedeanLocalField.*` — the `IsNonarchimedeanLocalField` class (with a `ℚ_[p]` instance, currently upstream-`sorry`'d), `RamificationInertia`, `Unramified`, `UnramifiedCohomology`, `ValuationExactSequence`, Teichmüller lifts. Mathlib itself now also has `NumberTheory/LocalField/Basic`. |
+| Local Tate duality; Euler characteristic | 🟡 | Not directly; but the `ClassFieldTheory` cohomology stack (`LocalInv`, unramified cohomology) is the substrate to build it on. |
+| Local class field theory / reciprocity map (Lemma 3.5) | 🟡 **imported (in progress)** | **`kbuzzard/ClassFieldTheory` is now a dependency of this repo** (2025 Oxford CMI summer-school project; `LocalCFT/` is early — `Continuity`, `Teichmuller` — the Artin/reciprocity map is not yet complete upstream). Provides the local-field + cohomology foundation to build Lemma 3.5 on. |
 | Demushkin groups; Labute's classification (Prop. 1.1, Lemmas 3.4–3.8) | ❌ | `Demushkin`: **0 hits**, no open PR. This is the structural heart of §3.1. |
 | Dyadic Hilbert symbol / quadratic-form invariants over $\mathbf Q_2$ (§6) | 🟡/❌ | Mathlib has quadratic forms, Witt groups, and some Hilbert-symbol material over general fields, but not the explicit dyadic formulas used. |
 | Stiefel–Whitney / Evens classes, Fourier–Gauss sums over $\mathbf F_2[C]$ (§§5–8) | ❌ | Not present. |
@@ -61,10 +62,30 @@ Ranked by relevance to *this* project:
 4. **#41208 / #40866 / #41051** — `IsGaloisGroup` refactors/additions (`tb65536`, `xroblot`).
    General Galois-group ergonomics used throughout.
 
-**No open PR** provides free profinite groups, profinite presentations, $\widehat{\mathbf Z}$,
-Demushkin groups, local class field theory, local Tate duality, or continuous Galois
-cohomology with cup products. These are the true blockers and would each be substantial
-independent contributions.
+**No open Mathlib PR** provides free profinite groups, profinite presentations, $\widehat{\mathbf Z}$,
+or Demushkin groups. Local fields, Tate cohomology, and (partial) local class field theory are now
+available via the **`ClassFieldTheory` dependency** (§E), though the reciprocity map itself is not
+yet complete there.
+
+## E. The `ClassFieldTheory` dependency (added 2026-07-01)
+
+[`kbuzzard/ClassFieldTheory`](https://github.com/kbuzzard/ClassFieldTheory) — the 2025 Clay/CMI
+Oxford summer-school project formalizing local & global class field theory — is now a git
+dependency of this repo (`lakefile.toml`). This required realigning our toolchain to
+`leanprover/lean4:v4.31.0-rc2` and pinning Mathlib to CFT's commit `23b0068d` (near-complete Azure
+cache hit: 8546/8550 oleans). **All of our own proofs still build** against this Mathlib.
+
+What it gives us (see §B rows): the `IsNonarchimedeanLocalField` class with a `ℚ_[p]` instance,
+ramification/inertia, unramified extensions and their cohomology, Teichmüller lifts, and a full
+Tate-cohomology / Herbrand-quotient / corestriction stack — the substrate for the paper's §3 and
+§§5–8. `GQ2/CFTTest.lean` is a smoke test (`IsNonarchimedeanLocalField ℚ_[2]` resolves).
+
+**Caveats.** (1) Several CFT declarations — *including* the `ℚ_[p]`-is-a-local-field instance — are
+`sorry`'d **upstream**, so importing gives the *API to build on*, not finished theorems; anything we
+prove *through* those must be re-audited when CFT fills them in. (2) Our build is now coupled to a
+fast-moving research repo pinned to a specific Mathlib commit; if that commit's cache expires or CFT
+moves, a re-pin may be needed. Our **core lib does not import CFT** (only `CFTTest.lean` does), so
+`lake build GQ2` stays independent of it.
 
 ## D. Reproduce this audit
 
