@@ -1,5 +1,5 @@
 import Mathlib.FieldTheory.AbsoluteGaloisGroup
-import Mathlib.Data.Padics.PadicNumbers
+import Mathlib.NumberTheory.Padics.PadicNumbers
 
 /-!
 Sanity check: the absolute Galois group of `ℚ₂` is expressible with current Mathlib.
@@ -13,6 +13,8 @@ open Field
 noncomputable abbrev GQ2 : Type := absoluteGaloisGroup ℚ_[2]
 
 -- It is a topological group (Krull topology), inheriting Mathlib's instances.
-example : Group GQ2 := inferInstance
-example : TopologicalSpace GQ2 := inferInstance
-example : IsTopologicalGroup GQ2 := inferInstance
+-- (Each check is a separate `Prop` goal, so there is no code generation for the noncomputable
+-- Galois-group instances and no local-instance shadowing between the checks.)
+example : Nonempty (Group GQ2) := ⟨inferInstance⟩
+example : Nonempty (TopologicalSpace GQ2) := ⟨inferInstance⟩
+example : Nonempty (IsTopologicalGroup GQ2) := ⟨inferInstance⟩
