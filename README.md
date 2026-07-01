@@ -78,6 +78,19 @@ So this repo's realistic near-term deliverables are:
 | `docs/SESSION-LOG.md` | log of the 2026-07-01 autonomous proving session |
 | `GQ2/Omega2.lean` | `ω₂` specification + Appendix-B cross-check |
 | `GQ2/FreeProfinite.lean` | free profinite group + universal property |
+| `GQ2/CFTTest.lean` | smoke test of the `ClassFieldTheory` dependency (see below) |
+
+## Local class field theory dependency
+
+This repo now depends on [`kbuzzard/ClassFieldTheory`](https://github.com/kbuzzard/ClassFieldTheory)
+(the 2025 Oxford CMI class-field-theory project), pinned in `lakefile.toml`. It supplies the
+non-archimedean-local-field + Tate-cohomology substrate for the paper's §3 and §§5–8
+(`IsNonarchimedeanLocalField` with a `ℚ_[p]` instance, ramification/inertia, unramified cohomology,
+Teichmüller lifts, Herbrand quotient, corestriction). This required realigning the toolchain to
+`v4.31.0-rc2` and Mathlib to CFT's commit; **all of this repo's own proofs still build.** See
+[`docs/foundations-audit.md`](docs/foundations-audit.md) §E for details and caveats (notably: some
+CFT declarations, including the `ℚ_[p]` instance, are `sorry`'d *upstream*, and the core `GQ2` lib
+does not import CFT — only `CFTTest.lean` does).
 | `GQ2/Sanity.lean` | confirms `G_{ℚ₂}` is expressible with current Mathlib |
 | `GQ2/Words.lean` | the auxiliary words (1)–(3) + admissibility predicate (concrete, decidable) |
 | `GQ2/Reconstruction.lean` | Lemma 2.5 (one-sided profinite reconstruction) |
