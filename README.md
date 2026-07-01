@@ -59,9 +59,11 @@ So this repo's realistic near-term deliverables are:
 2. A precise **Mathlib foundation audit** + open-PR survey. ✅ [`docs/foundations-audit.md`](docs/foundations-audit.md)
 3. A **proof-architecture map** with the paper's dependency DAG and a per-node
    formalizability grade. ✅ [`docs/proof-architecture.md`](docs/proof-architecture.md)
-4. **Reachable sub-lemmas proved for real** against Mathlib (finite group theory:
-   the tame-quotient structure, coprime fibre products, the Schur–Zassenhaus splitting,
-   and the reconstruction lemma's skeleton). 🚧 in progress
+4. **Reachable sub-lemmas proved for real** against Mathlib. ✅ done so far: Lemma 3.1
+   (tame quotient: odd order, `⟨t⟩` normal, `C_e⋊C_n` structure), Lemma 9.1 (coprime fibre
+   product, via Goursat), Lemma 9.2 core (Schur–Zassenhaus splitting), the `ω₂` spec +
+   Appendix-B cross-check, and — closing the top audit gap — a **free profinite group**
+   with its universal property. See [`docs/SESSION-LOG.md`](docs/SESSION-LOG.md).
 5. Everything else stated with `sorry` and cross-referenced to the paper, so the gap map
    is encoded directly in the Lean source.
 
@@ -73,6 +75,9 @@ So this repo's realistic near-term deliverables are:
 | `docs/foundations-audit.md` | what Mathlib has / lacks, and which open PRs help |
 | `docs/proof-architecture.md` | the paper's proof DAG + formalization grades |
 | `docs/STATUS.md` | live ledger of statements: proved / `sorry` / axiomatized |
+| `docs/SESSION-LOG.md` | log of the 2026-07-01 autonomous proving session |
+| `GQ2/Omega2.lean` | `ω₂` specification + Appendix-B cross-check |
+| `GQ2/FreeProfinite.lean` | free profinite group + universal property |
 | `GQ2/Sanity.lean` | confirms `G_{ℚ₂}` is expressible with current Mathlib |
 | `GQ2/Words.lean` | the auxiliary words (1)–(3) + admissibility predicate (concrete, decidable) |
 | `GQ2/Reconstruction.lean` | Lemma 2.5 (one-sided profinite reconstruction) |
