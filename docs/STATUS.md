@@ -12,7 +12,8 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 | `GQ2.Tame.tame_odd_order` | `Tame.lean` | **Lemma 3.1, first assertion** | in a tame quotient `t` has odd order — full proof |
 | `GQ2.Tame.zpowers_sq_eq_of_odd` | `Tame.lean` | Lemma 3.1 (aux) | `⟨t²⟩ = ⟨t⟩` for odd-order `t` (squaring is an automorphism) |
 | `GQ2.Tame.zpowers_normal_of_tame` | `Tame.lean` | **Lemma 3.1 (normality)** | `⟨t⟩` is normal in `⟨s,t⟩` — full proof (normalizer = ⊤) |
-| `GQ2.Tame.tame_semidirect` | `Tame.lean` | **Lemma 3.1 (structure)** | `⟨t⟩` normal odd cyclic, `⟨s⟩` cyclic, `⟨t⟩ ⊔ ⟨s⟩ = ⊤` (the `C_e ⋊ C_n` shape, sans disjointness) |
+| `GQ2.Tame.tame_semidirect` | `Tame.lean` | **Lemma 3.1 (structure)** | `⟨t⟩` normal odd cyclic, `⟨s⟩` cyclic, `⟨t⟩ ⊔ ⟨s⟩ = ⊤` (the `C_e ⋊ C_n` shape) |
+| `GQ2.Tame.tame_zpowers_disjoint` | `Tame.lean` | **Lemma 3.1 (⋊ disjointness)** | `⟨t⟩ ∩ ⟨s⟩ = ⊥` via `sⁿ=1` — full proof; completes the semidirect decomposition |
 | `GQ2.FiniteGroup.oddOrder_twoQuotient_split` | `FiniteGroupLemmas.lean` | **Lemma 9.2 core** | odd normal subgroup with 2-group quotient splits (Schur–Zassenhaus) |
 | `GQ2.FiniteGroup.coprime_fiber_product` | `FiniteGroupLemmas.lean` | **Lemma 9.1** | coprime-kernel subdirect product is the full fibre product (via Mathlib's Goursat) |
 | `GQ2.omega2Exp`, `GQ2.powOmega2`, `conjP`, `commP` | `Words.lean` | (1)–(3), App. A–B | definitions of `ω₂`-power, conjugation, commutator |
@@ -31,8 +32,7 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 |---|---|---|---|
 | `GQ2.main_surjection_count` | `Statement.lean` | **Theorem 1.2, eq. (154)** | the entire §§3–9 tower (Demushkin, local CFT, cup products, Gauss sums) |
 | `GQ2.reconstruction` | `Reconstruction.lean` | **Lemma 2.5** | Hopfian property of top. f.g. profinite groups, packaged over `ProfiniteGrp` (grade F′); Mathlib has no `Hopfian` — must be built |
-| `GQ2.Tame.tame_zpowers_disjoint` | `Tame.lean` | Lemma 3.1 (⋊ disjointness) | `⟨t⟩ ∩ ⟨s⟩ = ⊥` via `sⁿ=1`; ℤ-exponent + quotient-order algebra (grade F, proof plan in-file) |
-| `GQ2.Tame.tame_normal_two_subgroup_central` | `Tame.lean` | Lemma 3.1 (last) | centrality of normal 2-subgroups (grade F) |
+| `GQ2.Tame.tame_normal_two_subgroup_central` | `Tame.lean` | Lemma 3.1 (last) | centrality of normal 2-subgroups: `N` centralizes `⟨t⟩` (easy), but `N ≤ Z(G)` needs `N ≤ ⟨sᵈ⟩` (central), a structural argument (grade F, ~100 lines) |
 
 ## Not yet stated (missing foundations — would need axioms/opaque stubs)
 

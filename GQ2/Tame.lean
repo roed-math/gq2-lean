@@ -128,7 +128,43 @@ with `sⁿ = tᵐ` while `s⁻¹ tᵐ s = t²ᵐ`, we get `tᵐ = t²ᵐ`, so `t
 `x ∈ ⟨t⟩ ∩ ⟨s⟩`, written `x = sᵇ`, has `(s : G⧸⟨t⟩)ᵇ = 1`, so `n ∣ b` and `x = sᵇ = 1`. -/
 theorem tame_zpowers_disjoint {s t : G} [Finite G] (hgen : Subgroup.closure {s, t} = ⊤)
     (h : s⁻¹ * t * s = t ^ 2) : Subgroup.zpowers t ⊓ Subgroup.zpowers s = ⊥ := by
-  sorry
+  haveI hC : (Subgroup.zpowers t).Normal := zpowers_normal_of_tame hgen h
+  set n := orderOf (QuotientGroup.mk s : G ⧸ Subgroup.zpowers t) with hn
+  -- Step 1: `sⁿ ∈ ⟨t⟩`.
+  have hmem : s ^ n ∈ Subgroup.zpowers t := by
+    have hz : (QuotientGroup.mk (s ^ n) : G ⧸ Subgroup.zpowers t) = 1 := by
+      rw [QuotientGroup.mk_pow]; exact pow_orderOf_eq_one _
+    exact (QuotientGroup.eq_one_iff _).mp hz
+  -- Step 2: `sⁿ = 1`.
+  have hsn : s ^ n = 1 := by
+    obtain ⟨m, hm⟩ := Subgroup.mem_zpowers_iff.mp hmem   -- hm : t ^ m = s ^ n
+    have hcomm : s⁻¹ * t ^ m * s = t ^ m := by rw [hm]; group
+    have hconj : s⁻¹ * t ^ m * s = (t ^ 2) ^ m := by
+      have hmap : (MulAut.conj s⁻¹) (t ^ m) = ((MulAut.conj s⁻¹) t) ^ m := map_zpow _ _ _
+      have ht2 : (MulAut.conj s⁻¹) t = t ^ 2 := by
+        show s⁻¹ * t * s⁻¹⁻¹ = t ^ 2; rw [inv_inv]; exact h
+      rw [ht2] at hmap
+      simpa [MulAut.conj_apply, inv_inv] using hmap
+    have hexp : (t ^ 2) ^ m = (t ^ m) ^ 2 := by
+      rw [pow_two t, Commute.mul_zpow (Commute.refl t), ← pow_two (t ^ m)]
+    have htm : (t ^ m) ^ 2 = t ^ m := by rw [← hexp, ← hconj]; exact hcomm
+    have htm1 : t ^ m = 1 := by
+      have hh : t ^ m * t ^ m = 1 * t ^ m := by rw [one_mul, ← pow_two]; exact htm
+      exact mul_right_cancel hh
+    rw [← hm, htm1]
+  -- Step 3: disjointness.
+  rw [eq_bot_iff]
+  intro x hx
+  rw [Subgroup.mem_inf] at hx
+  obtain ⟨hxt, hxs⟩ := hx
+  obtain ⟨b, hb⟩ := Subgroup.mem_zpowers_iff.mp hxs   -- hb : s ^ b = x
+  have hmkx : (QuotientGroup.mk x : G ⧸ Subgroup.zpowers t) = 1 := (QuotientGroup.eq_one_iff x).mpr hxt
+  have hzb : (QuotientGroup.mk s : G ⧸ Subgroup.zpowers t) ^ b = 1 := by
+    rw [← QuotientGroup.mk_zpow, hb]; exact hmkx
+  have hnb : (n : ℤ) ∣ b := by rw [hn]; exact orderOf_dvd_iff_zpow_eq_one.mpr hzb
+  obtain ⟨c, hc⟩ := hnb   -- b = n * c
+  have hx1 : x = 1 := by rw [← hb, hc, zpow_mul, zpow_natCast, hsn, one_zpow]
+  rw [Subgroup.mem_bot]; exact hx1
 
 /-- **Lemma 3.1 (normal 2-subgroups are central & unramified).** *(Statement scaffold.)* -/
 theorem tame_normal_two_subgroup_central {s t : G} [Finite G]
