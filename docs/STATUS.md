@@ -19,6 +19,8 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 | `GQ2.Marking.*` (all auxiliary words + predicates) | `Words.lean` | (1)–(3), §2 | `sigma2,u,d0,z0,c0,g0,dg,hc,h0`, `TameRel/WildRel/Generates/Pro2Core/Admissible` |
 | `GQ2.admissibleCount` | `Words.lean` | Prop. 2.3 (RHS of eq. 154) | the finite count `N(G)` |
 | `GQ2.main_presentation` (**modulo** its two `sorry` inputs) | `Statement.lean` | **Theorem 1.2 wiring** | the top-level logic *is checked*: `reconstruction` + `main_surjection_count` ⟹ the iso |
+| `GQ2.FreeProfiniteGroup` + `.of` + `.homEquiv` | `FreeProfinite.lean` | foundation | **free profinite group** (absent from Mathlib) built from `profiniteCompletion ∘ FreeGroup`, with universal property `(FreeProfiniteGroup X ⟶ P) ≃ (X → P)` |
+| `GQ2.grpCatHomEquiv` | `FreeProfinite.lean` | foundation | `(GrpCat.of A ⟶ GrpCat.of P) ≃ (A →* P)` |
 
 ## Stated with `sorry` (faithful target, proof deferred)
 
