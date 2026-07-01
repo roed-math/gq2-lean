@@ -11,6 +11,7 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 | `GQ2.Tame.conj_pow_iterate` | `Tame.lean` | Lemma 3.1 (aux) | `(sⁿ)⁻¹ t sⁿ = t^(2ⁿ)` by induction |
 | `GQ2.Tame.tame_odd_order` | `Tame.lean` | **Lemma 3.1, first assertion** | in a tame quotient `t` has odd order — full proof |
 | `GQ2.FiniteGroup.oddOrder_twoQuotient_split` | `FiniteGroupLemmas.lean` | **Lemma 9.2 core** | odd normal subgroup with 2-group quotient splits (Schur–Zassenhaus) |
+| `GQ2.FiniteGroup.coprime_fiber_product` | `FiniteGroupLemmas.lean` | **Lemma 9.1** | coprime-kernel subdirect product is the full fibre product (via Mathlib's Goursat) |
 | `GQ2.omega2Exp`, `GQ2.powOmega2`, `conjP`, `commP` | `Words.lean` | (1)–(3), App. A–B | definitions of `ω₂`-power, conjugation, commutator |
 | `GQ2.oddPart_dvd_omega2Exp` | `Omega2.lean` | ω₂ spec | odd part of `n` divides `omega2Exp n` (`ω₂ ≡ 0` on odd part) |
 | `GQ2.omega2Exp_modEq_one` | `Omega2.lean` | ω₂ spec | `omega2Exp n ≡ 1 (mod 2^{v₂n})` (`ω₂ ≡ 1` on 2-part) — via Euler |
@@ -24,8 +25,7 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 | declaration | file | paper ref | blocker (see foundations-audit.md) |
 |---|---|---|---|
 | `GQ2.main_surjection_count` | `Statement.lean` | **Theorem 1.2, eq. (154)** | the entire §§3–9 tower (Demushkin, local CFT, cup products, Gauss sums) |
-| `GQ2.reconstruction` | `Reconstruction.lean` | **Lemma 2.5** | Hopfian property of top. f.g. profinite groups, packaged over `ProfiniteGrp` (grade F′) |
-| `GQ2.FiniteGroup.coprime_fiber_product` | `FiniteGroupLemmas.lean` | Lemma 9.1 | Goursat-style argument (grade F — genuinely reachable next) |
+| `GQ2.reconstruction` | `Reconstruction.lean` | **Lemma 2.5** | Hopfian property of top. f.g. profinite groups, packaged over `ProfiniteGrp` (grade F′); Mathlib has no `Hopfian` — must be built |
 | `GQ2.Tame.tame_semidirect` | `Tame.lean` | Lemma 3.1 (structure) | semidirect recognition (grade F/F′) |
 | `GQ2.Tame.tame_normal_two_subgroup_central` | `Tame.lean` | Lemma 3.1 (last) | centrality of normal 2-subgroups (grade F) |
 
