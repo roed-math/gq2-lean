@@ -70,8 +70,8 @@ variable [Finite G] (f : G →* H) (t : Marking G)
 @[simp] lemma map_h0 : (t.map f).h0 = f t.h0 := by
   simp only [h0, map_x₀, map_g0, map_dg, map_d0, map_hc, map_conjP, map_mul, map_pow]
 
-/-- The tame relation transfers along any group hom. -/
 omit [Finite G] in
+/-- The tame relation transfers along any group hom. -/
 lemma map_tameRel (h : t.TameRel) : (t.map f).TameRel := by
   have h' : conjP t.τ t.σ = t.τ ^ 2 := h
   show conjP (f t.τ) (f t.σ) = (f t.τ) ^ 2
