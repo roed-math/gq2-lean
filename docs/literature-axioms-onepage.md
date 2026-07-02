@@ -11,7 +11,7 @@ Lemma 2.5's only classical input is *proved* in the formalization (see foot); eq
 |---|---|---|:--:|
 | B1 | `G_ℚ₂` is topologically finitely generated (`N+3` generators) | NSW **(7.5.14)** (Jannsen–Wingberg) | ✓ |
 | B2 | 2-adic cyclotomic character `Gal(ℚ̄/ℚ) → ℤ₂ˣ` is surjective | Washington, *Cyclotomic Fields*, **Ch. 2 Thm 2.5** | ✓ |
-| B3 | Demushkin pro-`p` groups classified by rank and invariant `q` | Labute (1967), **Thm 4 (case 2), Thm 8** | q |
+| B3 | Demushkin classification; `G_ℚ₂(2) ≅ ⟨A,S,Y \| A²S⁴[S,Y]=1⟩` | Labute **Thm 8** (`d=1`), **Thm 4 case (2)** | ✓ |
 | B4 | `G_ℚ₂(2)` is a Demushkin group of rank `3` (`q=2`) | NSW **(7.5.11)(ii)** | ✓ |
 | B5 | local reciprocity: `(G_k, k̄ˣ)` is a class formation | NSW **(7.1.1)**, **(7.1.5)** | ✓ |
 | B6 | local Tate duality: `H^i(k,A)×H^{2-i}(k,A′) → ℚ/ℤ` perfect (`0≤i≤2`) | NSW **(7.2.6)**; Serre *GC* **II §5.2 Thm 2** | ✓✓ |
@@ -24,11 +24,11 @@ Lemma 2.5's only classical input is *proved* in the formalization (see foot); eq
 **Ribes–Zalesskiĭ Prop. 2.5.2** (a finitely generated profinite group is Hopfian — Lemma 2.5's only
 classical input) and **Schur–Zassenhaus** (§9.1 terminal case).
 
-**Status.** Every leaf has a theorem number + statement checked against the source PDF (`✓`; `✓✓` =
-two independent sources) **except B3**, whose numbers are taken verbatim from the paper's own
-citation (`q`) — Labute is the one source not to hand.
+**Status.** **All ten leaves are source-verified** — each has an exact theorem number and a verbatim
+statement checked against the cited book/paper (`✓`; `✓✓` = two independent sources). Nothing in the
+classical layer is left unchecked.
 
-**Legend / refs.** `✓` checked against source; `✓✓` two sources; `q` paper-quoted. — **NSW** =
+**Legend / refs.** `✓` checked against source; `✓✓` two sources. — **NSW** =
 Neukirch–Schmidt–Wingberg, *Cohomology of Number Fields*, 2nd ed.; **Serre *GC*** = *Galois
 Cohomology*; **Evens/Kahn/Kozlowski** = the three Evens–Kahn-formula papers; Labute, *Classification
 of Demushkin groups*, Canad. J. Math. 19 (1967).

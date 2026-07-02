@@ -94,9 +94,13 @@ not yet to hand.
   its rank `n = dim H¹` and its invariant `q` (with a secondary invariant in the exceptional dyadic
   case). For the rank-3, `q=2` dyadic normal form the relator can be taken as `A²S⁴[S,Y]`, and the
   canonical orientation character is computed explicitly.
-- **Citation.** **Labute [2], *Classification of Demushkin groups*, Canad. J. Math. 19 (1967),
-  106–132: Theorem 4 (case (2)) and Theorem 8** `[quoted — the paper cites exactly these]`; see also
-  Serre [3].
+- **Citation.** **Labute [2], Theorem 8** (§5, "the group of the maximal `p`-extension of a local
+  field") `[✓ verified in the provided source]`: for `q=2` and `d=[K:ℚ_p]` odd, `G_K(2)` is defined
+  by `d+2` generators `x₁,…,x_{d+2}` with the single relation `x₁²x₂⁴[x₂,x₃][x₄,x₅]⋯=1`. For `K=ℚ₂`
+  (`d=1`, odd) this is `⟨x₁,x₂,x₃ | x₁²x₂⁴[x₂,x₃]=1⟩` — **exactly the paper's `D₀=⟨A,S,Y|A²S⁴[S,Y]=1⟩`**.
+  **Theorem 4, case (2)** (`q=2`, `n` odd) `[✓ verified]`: the canonical character `χ(x₁)=−1`,
+  `χ(x₃)=(1−2^f)^{-1}`, `χ(x_i)=1` otherwise — the paper's `−1, 1, (1−2^f)^{-1}`. Labute attributes
+  Theorem 8 to Serre [3]. (Canad. J. Math. 19 (1967), 106–132.)
 - **Lean.** Schematic (Mathlib has no `Demushkin` predicate; a faithful statement needs pro-`p`
   cohomology with cup products).
 - **Used at.** Lemma 3.4 → Prop 1.1.
@@ -107,8 +111,9 @@ not yet to hand.
 - **Citation.** **NSW [1], Ch. VII §7.5, Theorem (7.5.11)(ii)** `[✓ verified in the provided NSW]` —
   verbatim: if `μ_p ⊆ k` then `G_k(p)` is a Poincaré group of dimension 2 (i.e. a Demushkin group)
   of rank `N+2` (`N=[k:ℚ_p]`), with dualizing module the group of `p`-power roots of unity in `k(p)`.
-  For `k=ℚ₂`: `p=2`, `N=1`, `μ_2={±1}⊆ℚ₂`, so **rank `1+2 = 3`** ✓. Also **Serre [3]**, Sém. Bourbaki
-  252 (1962/63); **Demushkin**. The concrete dyadic normal form / invariant `q=2` is Labute [2].
+  For `k=ℚ₂`: `p=2`, `N=1`, `μ_2={±1}⊆ℚ₂`, so **rank `1+2 = 3`** ✓. The explicit relation is
+  **Labute [2], Theorem 8** at `d=1`: `⟨A,S,Y | A²S⁴[S,Y]=1⟩` `[✓ verified]` (= the paper's `D₀`).
+  Also **Serre [3]**, Sém. Bourbaki 252 (1962/63); **Demushkin**.
 - **Lean.** Schematic (needs the maximal pro-2 quotient of `G_ℚ₂` as an object; the *relator*
   `A²S⁴[S,Y]` itself is expressible in `FreeProfiniteGroup (Fin 3)` — it uses no `ω₂`).
 - **Used at.** Lemma 3.4 → Prop 1.1.
@@ -243,7 +248,7 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 |---|---|---|---|
 | B1  `G_ℚ₂` top. f.g. | **NSW (7.5.14) Jannsen–Wingberg** (`N+3` gens); (7.5.11) | ✅ **verified** | ✅ axiom |
 | B2  2-adic cyclotomic surjective | Washington, *Cyclotomic Fields*, **Ch. 2 Thm 2.5** | ✅ **verified** | ✅ axiom |
-| B3  Demushkin classification | Labute [2], Thm 4 (case 2) & Thm 8 | **quoted** | 🟡 |
+| B3  Demushkin classification | **Labute [2] Thm 8** (`D₀` at `d=1`) & **Thm 4 case (2)** | ✅ **verified** | 🟡 |
 | B4  `G_ℚ₂(2)` is rank-3 Demushkin | **NSW (7.5.11)(ii)** (rank `N+2=3`); Serre [3]; Labute [2] | ✅ **verified** | 🟡 |
 | B5  local reciprocity for `ℚ₂` | **NSW (7.1.1)/(7.1.5)** (class formation); Serre *LF* XI–XII | ✅ **verified** | 🟡 |
 | B6  local Tate duality | **NSW (7.2.6) "Tate Duality"**; Serre *GC* II §5.2; Milne I.2.1 | ✅ **verified** | 🟡 |
@@ -284,22 +289,24 @@ Stiefel–Whitney/Evens classes, étale `π₁`) before they can be stated faith
   Evens–Kahn formula) — the exact results behind the paper's eq. (111), all verified. **Guillot [6]**
   is bibliography-only (background); not a load-bearing citation.
 
-**Solid without the source (no action needed):**
-- **B3** — theorem numbers taken verbatim from the paper's own citation (Labute Thm 4/8).
-- **RZ Hopfian = Prop. 2.5.2** — confirmed against a secondary source; proved in-repo anyway.
-
-**Also now verified (later-added sources):**
+**Also verified (later-added sources):**
 - **B2** — Washington, *Introduction to Cyclotomic Fields*, **Ch. 2 Theorem 2.5**
   (`Gal(ℚ(ζ_n)/ℚ) ≅ (ℤ/n)ˣ` via the cyclotomic character) — verified verbatim.
 - **B8** — Stix [8], **§3.3 + Definition 37** (the paper's exact citation): cyclotomic action on
   cuspidal inertia — verified. (Deligne, MSRI 16 (1989), is the classical *origin*, not cited by the
   paper.)
+- **B3** — Labute [2], **Theorem 8** (`q=2`, `d` odd: `G_K(2)` has `d+2` generators, relation
+  `x₁²x₂⁴[x₂,x₃]⋯`; at `d=1` = the paper's `D₀`) and **Theorem 4 case (2)** (canonical character
+  `−1, (1−2^f)^{-1}, 1`) — both verified verbatim.
+
+**Discharged (proved in-repo):** RZ Hopfian = **Prop. 2.5.2** (also confirmed against source);
+Schur–Zassenhaus (Mathlib).
 
 **Only remaining unchecked:** **Milne *ADT* I.2.1/I.2.8** (free online) — a *tertiary* corroboration
 for B6/B7, superfluous now that both NSW **and** Serre *GC* are verified.
 
-**Net:** every classical leaf now carries a source-verified theorem number and verbatim statement
-(B1, B2, B4, B5, B6, B7, B7′, B8, B9 — B6/B7 doubly-sourced), **except B3** (Labute's Demushkin
-classification), whose theorem numbers (Thm 4 case (2), Thm 8) are taken verbatim from the paper's
-own citation — the one source not among the PDFs. The two would-be finite-group inputs (RZ Hopfian
-Prop. 2.5.2, Schur–Zassenhaus) are *proved* in the formalization.
+**Net: all ten classical leaves (B1–B9, B7′) are now source-verified** — each carries an exact
+theorem number and a verbatim statement checked against the provided PDFs (B6/B7 doubly-sourced;
+B3's Theorem 8 at `d=1` reproduces the paper's `D₀` on the nose). The two would-be finite-group
+inputs (RZ Hopfian Prop. 2.5.2, Schur–Zassenhaus) are *proved* in the formalization. Nothing in the
+classical layer remains unchecked.
