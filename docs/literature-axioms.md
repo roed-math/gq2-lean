@@ -134,8 +134,9 @@ not yet to hand.
 - **Citation.** **NSW [1], Ch. VII §7.2, Theorem (7.2.6) "Tate Duality"** `[✓ verified in the
   provided NSW]` — verbatim: for a `p`-adic local field `k`, finite `G_k`-module `A`, `A₀=Hom(A,μ)`,
   the cup product `H^i(k,A₀) × H^{2-i}(k,A) → H^2(k,μ) ≅ ℚ/ℤ` induces isomorphisms of finite abelian
-  groups `H^i(k,A₀) ≅ H^{2-i}(k,A)*` for `0 ≤ i ≤ 2`. Secondary: Serre, *Galois Cohomology*, Ch. II
-  §5.2 (Théorème 2); Milne, *ADT*, Ch. I, Thm I.2.1. Original: Tate.
+  groups `H^i(k,A₀) ≅ H^{2-i}(k,A)*` for `0 ≤ i ≤ 2`. Also **Serre, *Galois Cohomology*, Ch. II §5.2,
+  Theorem 2** `[✓ verified in the provided source]` (same cup-product duality; "due to Tate"); Milne,
+  *ADT*, Ch. I, Thm I.2.1. Original: Tate.
 - **Lean.** Schematic (needs continuous Galois cohomology of the profinite `G_K` and the cup-product
   pairing; Mathlib/CFT have finite-group `H^i` via `Rep R G` but not the continuous duality package).
 - **Used at.** §5 (the three-term duality complex, Lemmas 5.11/5.13) and §9.2.
@@ -146,8 +147,10 @@ not yet to hand.
   for the elementary 2-modules `M` of §9.2 over `ℚ₂` this gives `H²=0` and `|Z¹(M)| = 2^{2·dim M}`.
 - **Citation.** **NSW [1], Ch. VII §7.3, Theorem (7.3.1) (Tate)** `[✓ verified in the provided NSW]`
   — verbatim: for every finite `G_k`-module `A` of order `a` prime to `char(k)`, `χ(k,A) = ‖a‖_k`
-  (the normalized absolute value); so `|H⁰||H²|/|H¹| = ‖a‖_k = a^{-[k:ℚ_p]}` (`p`-part). Secondary:
-  Serre, *Galois Cohomology*, Ch. II §5.7; Milne, *ADT*, Ch. I, Thm I.2.8. Original: Tate.
+  (the normalized absolute value); so `|H⁰||H²|/|H¹| = ‖a‖_k = a^{-[k:ℚ_p]}` (`p`-part). Also
+  **Serre, *Galois Cohomology*, Ch. II §5.7, Theorem 5** `[✓ verified in the provided source]`
+  (`χ(A)=‖a‖_k`, Tate; `χ` defined in §5.4; the `𝔽_p`-coefficient form `ϱ(A)=-N·dim A` is Exercise 2,
+  p. 101 — exactly the `|Z¹|=2^{2·dim M}` input of §9.2); Milne, *ADT*, Ch. I, Thm I.2.8.
 - **Lean.** Schematic (same continuous-cohomology gap as B6).
 - **Used at.** §9.2 (lifting through the elementary quotient `M`; strict decrease (145)).
 
@@ -260,6 +263,8 @@ Stiefel–Whitney/Evens classes, étale `π₁`) before they can be stated faith
 - **B7** — NSW **(7.3.1)** (Tate): `χ(k,A)=‖a‖_k` (verified verbatim).
 - **B7′** — Serre, *Course in Arithmetic*, **Ch. III §1.2 Thm 1** — the `p=2` formula
   `(a,b)=(-1)^{ε(u)ε(v)+αω(v)+βω(u)}` and `ε,ω` (Ch. II §3.3) verified verbatim (= paper Lemma 3.5).
+- **B6 / B7 secondary** — Serre, *Galois Cohomology*, **Ch. II §5.2 Theorem 2** (Tate duality) and
+  **§5.7 Theorem 5** (`χ(A)=‖a‖_k`) verified verbatim (corroborate the NSW primaries).
 
 **Solid without the source (no action needed):**
 - **B3, B9** — theorem numbers taken verbatim from the paper's own citations (Labute Thm 4/8; Evens/
@@ -271,9 +276,8 @@ Stiefel–Whitney/Evens classes, étale `π₁`) before they can be stated faith
   but the statement is completely standard.
 - **B8** — Stix [8] is paper-quoted; the Deligne (MSRI 16, 1989) cross-ref for the cyclotomic inertia
   action is my identification.
-- Secondary corroborating refs for B6/B7 (**Serre *Galois Cohomology* II §5.2, §5.7** — provided as
-  `.djvu`, which the text extractor can't read; **Milne *ADT* I.2.1/I.2.8** — free online) are not
-  needed now that NSW is the verified primary, but can be checked if a reviewer prefers those.
+- Only remaining unchecked: **Milne *ADT* I.2.1/I.2.8** (free online) — a *tertiary* corroboration
+  for B6/B7, not needed now that both NSW **and** Serre *GC* are verified primaries/secondaries.
 
 **Net:** six of the nine classical leaves (B1, B4, B5, B6, B7, B7′) now carry a source-verified
 theorem number and statement; B3 and B9 are paper-quoted; only B2 and B8's secondary ref remain
