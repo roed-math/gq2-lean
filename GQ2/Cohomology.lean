@@ -380,6 +380,100 @@ theorem H0_eq_top_of_trivial : H0 G M = ⊤ := by
 
 end Trivial
 
+/-! ## Cocycle algebra (T-03)
+
+A few more identities for continuous 1-cocycles, beyond `Z1_apply_one`. -/
+
+section CocycleAlgebra
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable {M : Type*} [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGroup M]
+  [DistribMulAction G M] [ContinuousSMul G M]
+
+omit [IsTopologicalGroup G] [ContinuousSMul G M] in
+/-- The value of a 1-cocycle at an inverse: `φ(g⁻¹) = −g⁻¹ • φ(g)`. -/
+theorem Z1_apply_inv (φ : Z1 G M) (g : G) : φ.1 g⁻¹ = - (g⁻¹ • φ.1 g) := by
+  have hcyc := (mem_Z1_iff.mp φ.2).2
+  have h := hcyc g g⁻¹
+  rw [mul_inv_cancel, Z1_apply_one] at h
+  have h2 : g • φ.1 g⁻¹ = - φ.1 g := eq_neg_of_add_eq_zero_right h.symm
+  have h3 := congrArg (g⁻¹ • ·) h2
+  simpa only [smul_smul, inv_mul_cancel, one_smul, smul_neg] using h3
+
+end CocycleAlgebra
+
+/-! ## Coefficient functoriality (T-03)
+
+The `π = id` special case of `Hicomap`: a continuous `G`-equivariant additive map `f : N →+ M`
+(same group `G`) induces `Hⁱ(G,N) →+ Hⁱ(G,M)`.  Needed by B6/B9 (pairing- and connecting-maps
+on coefficients). -/
+
+section Coefficients
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable {M : Type*} [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGroup M]
+  [DistribMulAction G M] [ContinuousSMul G M]
+variable {N : Type*} [AddCommGroup N] [TopologicalSpace N] [IsTopologicalAddGroup N]
+  [DistribMulAction G N] [ContinuousSMul G N]
+variable (f : N →+ M) (hf : Continuous f) (hcompat : ∀ (g : G) (n : N), f (g • n) = g • f n)
+
+/-- Coefficient functoriality in degree 0. -/
+def mapCoeff0 : H0 G N →+ H0 G M :=
+  H0comap (ContinuousMonoidHom.id G) f fun g n => hcompat g n
+
+/-- Coefficient functoriality in degree 1. -/
+def mapCoeff1 : H1 G N →+ H1 G M :=
+  H1comap (ContinuousMonoidHom.id G) f hf fun g n => hcompat g n
+
+/-- Coefficient functoriality in degree 2. -/
+def mapCoeff2 : H2 G N →+ H2 G M :=
+  H2comap (ContinuousMonoidHom.id G) f hf fun g n => hcompat g n
+
+end Coefficients
+
+/-! ## Inflation (T-03)
+
+The `f = id` special case of `Hicomap` along a continuous hom `π : G →ₜ* Q` whose associated
+`Q`-action on `M` agrees, through `π`, with a given `G`-action (`hπ : π g • m = g • m`).  For a
+continuous surjection `π : G ↠ Q` this is inflation `Hⁱ(Q,M) →+ Hⁱ(G,M)` from a quotient. -/
+
+section Inflation
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable {Q : Type*} [Group Q] [TopologicalSpace Q] [IsTopologicalGroup Q]
+variable {M : Type*} [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGroup M]
+  [DistribMulAction G M] [ContinuousSMul G M] [DistribMulAction Q M] [ContinuousSMul Q M]
+variable (π : ContinuousMonoidHom G Q) (hπ : ∀ (g : G) (m : M), π g • m = g • m)
+
+/-- Inflation in degree 0. -/
+def inf0 : H0 Q M →+ H0 G M :=
+  H0comap π (AddMonoidHom.id M) fun g m => hπ g m
+
+/-- Inflation in degree 1. -/
+def inf1 : H1 Q M →+ H1 G M :=
+  H1comap π (AddMonoidHom.id M) continuous_id fun g m => hπ g m
+
+/-- Inflation in degree 2. -/
+def inf2 : H2 Q M →+ H2 G M :=
+  H2comap π (AddMonoidHom.id M) continuous_id fun g m => hπ g m
+
+end Inflation
+
+/-!
+## Note: comparison with Mathlib's finite group cohomology (deferred)
+
+The plan lists a stress test that for **finite** `G` these definitions agree with Mathlib's
+`groupCohomology.H1/H2`.  We deliberately **defer** it: Mathlib's group cohomology is built over
+`Rep k G` (`k`-linear representations, `ModuleCat`-based, no topology), so a comparison needs a
+bridge `Rep ℤ G ↝ ` (our `DistribMulAction`-modules) matching the inhomogeneous-cochain
+conventions of `cocycles₁`/`cocycles₂` (for finite `G` continuity is automatic, so the underlying
+groups do coincide).  That bridge is a *verification* task (step 3), **not** needed to state any
+of B3/B6/B7/B9 — those are phrased entirely in terms of the `ContCoh` API here.  The
+human-checkability of the definitions is already secured by the explicit cocycle-identity forms
+`mem_Z1_iff`/`mem_Z2_iff` (Serre GC I §2.2) and the trivial-action characterization
+`H1equivZ1OfTrivial`.
+-/
+
 end ContCoh
 
 end GQ2

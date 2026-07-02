@@ -302,3 +302,50 @@ Next per plan (wave 2): T-03 (cohomology lemma layer + finite-`G` comparison), T
 products relative to a pairing — the `Z`-level API is ready for it), T-13 (Kummer), T-15 (μ);
 T-05/T-07/T-00 still open for Opus. Note for T-09: state Demushkin ranks via `Nat.card`
 (`= 2^n`, `= 2`) to avoid `Module 𝔽₂` instances on quotient types.
+
+---
+
+# Session 2026-07-02 (Opus): T-03 + T-04 — cohomology lemma layer and cup products
+
+Extended `GQ2/Cohomology.lean` (T-03) and added `GQ2/CupProduct.lean` (T-04); build green, all
+declarations at the standard axioms.
+
+**T-03 (lemma layer, in `Cohomology.lean`):**
+- `mapCoeff0/1/2` — coefficient functoriality, the `π = id` specialization of the `Hicomap`
+  workhorse (a G-equivariant continuous `f : N →+ M` induces `Hⁱ(G,N) →+ Hⁱ(G,M)`).
+- `inf0/1/2` — inflation, the `f = id` specialization along `π : G →ₜ* Q` with the `Q`-action on
+  `M` agreeing through `π` (`hπ : π g • m = g • m`).  So restriction/inflation/coefficient-maps
+  are all one construction.
+- `Z1_apply_inv` (`φ(g⁻¹) = −g⁻¹·φ(g)`).
+- **Deferred, documented in-file**: finite-`G` comparison to Mathlib `groupCohomology.H1/H2`.
+  Mathlib's is over `Rep k G` (ModuleCat, no topology); the comparison needs a `Rep ℤ G` bridge
+  matching inhomogeneous-cochain conventions — a step-3 *verification* task, not needed to state
+  any B-axiom.  The trivial-action characterization (T-02) already validates `H¹`.
+
+**T-04 (cup products, `CupProduct.lean`):** relative to a `G`-equivariant pairing
+`μ : M →+ N →+ P`, coefficients `M, N` **discrete** (finite-discrete axiom setting → every cup
+cochain is continuous with no continuity hypothesis on `μ`).
+- `cup11 : H¹ →+ H¹ →+ H²` — the B3-critical one.  Cochain `(a∪b)(g,h)=μ(a g)(g·b h)`; cocycle
+  identity `cup11_mem_Z2`; **descent in both variables** (`cup11_{a,b}cobound`, each using the
+  opposite factor's cocycle identity).
+- `cup02 : H⁰ →+ H² →+ H²`, `cup20 : H² →+ H⁰ →+ H²` — the shapes B6 needs; single-variable
+  descent (the other factor is `H⁰`-invariant, which trivializes the `(g₁…gₚ)·` action).
+- Bilinearity by construction (`→+ →+`); `∪0=0`/`0∪=0` are `map_zero`; `cup11_mk_mk` computes on
+  explicit cocycle classes; `cup11_mapCoeff_target` = coefficient naturality
+  (`cup(fP∘μ)=mapCoeff2 fP∘cup(μ)`, `postPairing` = `(compHom fP)∘μ`).
+
+Assembly pattern that worked (after a fight): build the bi-hom at the **cocycle** level via
+`AddMonoidHom.mk'` with **named** function-level `..Fun_add_left/right` helpers (NOT inline
+`simp` inside `Subtype.ext`), then descend the quotient slot with a single
+`QuotientAddGroup.lift`, using `AddMonoidHom.flip` when the quotient is the second slot (`cup02`).
+Lean gotchas recorded: (i) `include hμ in` before any lemma using `hμ` only in its proof — else
+"unknown identifier `hμ`" and call-site arity mismatch; (ii) `n.2` for `n : ↥(H0 …)` is a
+*membership prop* — `have hn : ∀ x, x • n.1 = n.1 := n.2` before using it in `simp`;
+(iii) give each cup cochain its own `continuous_*Fun` lemma so `mem_Z2`'s continuity slot
+head-unifies; (iv) function-additivity helpers need `Pi.add_apply` in the `simp` set;
+(v) `cup11_mk_mk` is `rfl` because `QuotientAddGroup.lift` computes on `mk`.
+
+Wave-2 cohomology infrastructure (T-01/02/03/04) is now complete.  Remaining Opus wave-2:
+T-05 (max pro-p), T-07 (Hilbert symbol), T-00 (CFT survey), plus T-13 (Kummer)/T-15 (μ).
+Then wave-3 axiom statements (mostly Fable): B3 uses `cup11` nondegeneracy; B6 uses all three
+cups + `mapCoeff`; B7 uses `Nat.card Hⁱ`.

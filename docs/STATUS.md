@@ -64,6 +64,10 @@ deferred), or scaffold. Updated 2026-07-02. Build: Mathlib `v4.31.0`, `lake buil
 | `GQ2.ContCoh.H0/C1/C2/dZero/dOne/dTwo/Z1/Z2/B1/B2/H1/H2` (+`H1mk`,`H2mk`, `AddCommGroup` instances) | `Cohomology.lean` | **continuous cohomology ≤ 2 (T-02/U2)** | inhomogeneous continuous cochains, Serre GC I §2.2 conventions; `Z = C ⊓ ker δ`; readable `mem_Z1_iff`/`mem_Z2_iff`; `δ∘δ = 0`; `B ≤ Z`. The coefficient system for B3/B6/B7/B9 |
 | `GQ2.ContCoh.H0comap/Z1comap/Z2comap/H1comap/H2comap`, `res0/res1/res2` | `Cohomology.lean` | **functoriality (T-02)** | one pullback along a compatible pair (`π : G →ₜ* Q`, intertwining `f : N →+ M`) in degrees ≤ 2; restriction to subgroups as the `(inclusion, id)` case; inflation = the `DistribMulAction.compHom` recipe (docstring) |
 | `GQ2.ContCoh.mem_Z1_iff_of_trivial`, `B1_eq_bot_of_trivial`, `H1equivZ1OfTrivial`, `H0_eq_top_of_trivial`, `Z1_apply_one` | `Cohomology.lean` | T-02 stress | trivial action: `H¹ ≃+ Z¹` = continuous "additive homs"; `H⁰ = ⊤`; cocycles vanish at `1` |
+| `GQ2.ContCoh.mapCoeff0/1/2`, `inf0/1/2`, `Z1_apply_inv` | `Cohomology.lean` | **lemma layer (T-03)** | coefficient functoriality (`π = id`) and inflation (`f = id`, actions agree through `π`) as the two specializations of the `Hicomap` workhorse; `φ(g⁻¹) = −g⁻¹·φ(g)`. Finite-`G` comparison to Mathlib deferred (verification concern, needs a `Rep ℤ G` bridge) |
+| `GQ2.ContCoh.cup11` (+`cup11_mk_mk`, `cup11_add_left/right`, `cup11_zero_left/right`) | `CupProduct.lean` | **cup product `(1,1)` (T-04)** | `H¹(G,M) →+ H¹(G,N) →+ H²(G,P)` rel. a `G`-pairing `μ`; the B3-critical one (nondegeneracy of `H¹ × H¹ → H²`). Full Leibniz descent in both variables; bilinear + `∪0=0` by construction |
+| `GQ2.ContCoh.cup02`, `GQ2.ContCoh.cup20` | `CupProduct.lean` | **cup products `(0,2)`,`(2,0)` (T-04)** | `H⁰ →+ H² →+ H²` and `H² →+ H⁰ →+ H²` — the shapes B6 (local Tate duality) needs for `H^i × H^{2−i} → H²` |
+| `GQ2.ContCoh.cup11_mapCoeff_target`, `postPairing` | `CupProduct.lean` | T-04 coefficient naturality | cup commutes with a target `G`-map: `cup(fP∘μ) = mapCoeff2 fP ∘ cup(μ)` |
 
 ## Stated with `sorry` (faithful target, proof deferred)
 

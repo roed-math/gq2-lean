@@ -14,8 +14,8 @@ states conventions + paper-equation cross-reference; all `axiom`s live in
 | T-00 | CFT repo survey (blueprint + PRs + unramified/Frobenius API) | ⭐⭐ | O | — | ◐ (skimmed; write `docs/cft-survey.md`) |
 | T-01 | I1: finite discrete `G`-modules via Mathlib classes | ⭐ | O | — | ☑ 2026-07-02 (`GQ2/DiscreteModule.lean`, folded into the T-02 session) |
 | T-02 | U2: continuous `H⁰/H¹/H²` — API design + core defs | ⭐⭐⭐ | **F** | T-01 | ☑ 2026-07-02 (`GQ2/Cohomology.lean`) |
-| T-03 | I2b: cohomology lemma layer (cocycle algebra, inflation, restriction, functoriality) | ⭐⭐ | O | T-02 | ☐ |
-| T-04 | I3: cup products (0,2),(1,1),(2,0) rel. a pairing + bilinearity | ⭐⭐ | O | T-02 | ☐ |
+| T-03 | I2b: cohomology lemma layer (cocycle algebra, inflation, restriction, functoriality) | ⭐⭐ | O | T-02 | ☑ 2026-07-02 (`GQ2/Cohomology.lean`) |
+| T-04 | I3: cup products (0,2),(1,1),(2,0) rel. a pairing + bilinearity | ⭐⭐ | O | T-02 | ☑ 2026-07-02 (`GQ2/CupProduct.lean`) |
 | T-05 | I4: `maxProPQuotient` + pro-`p`-ness + universal property | ⭐⭐ | O | — | ☐ |
 | T-06 | U1: `Zhat` via `profiniteCompletion ℤ`; `x ^ᶻ γ`; `ω₂ : Zhat`; finite-quotient compat | ⭐⭐ | **F**→O | — | ☑ 2026-07-02 (`GQ2/Zhat.lean`) |
 | T-07 | B7′: Hilbert symbol def + `ε`,`ω` + axiom (Serre CiA III§1.2 Thm 1) + stress tests | ⭐⭐ | O | — | ☐ |
@@ -72,7 +72,29 @@ axioms only in `Axioms.lean`; docstrings carry citations + conventions.
   only in theorems (via `GQ2/DiscreteModule.lean`).
   Note for T-09: `IsDemushkin` can state its rank conditions via `Nat.card (H1 …) = 2 ^ n` and
   `Nat.card (H2 …) = 2`, avoiding `Module 𝔽₂` instances on the quotients entirely.
-- **T-04**: cup bilinearity; `(a ∪ 0) = 0`; compatibility with coefficient maps.
+- **T-03** ☑: coefficient functoriality `mapCoeff0/1/2` (the `π = id` case of `Hicomap`),
+  inflation `inf0/1/2` (the `f = id` case, actions agreeing through `π`), cocycle algebra
+  (`Z1_apply_inv`).  Restriction (`res0/1/2`) already shipped with T-02.  *Done, extending
+  `GQ2/Cohomology.lean`.*  **Deferred (documented in-file)**: the finite-`G` comparison to
+  Mathlib's `groupCohomology.H1/H2` — Mathlib's is over `Rep k G` (`ModuleCat`, no topology), so
+  a comparison needs a `Rep ℤ G` bridge; it is a **step-3 verification** concern, not needed to
+  *state* any axiom, and the trivial-action characterization already validates `H¹`.
+- **T-04** ☑: `cup11 : H¹ →+ H¹ →+ H²`, `cup02 : H⁰ →+ H² →+ H²`, `cup20 : H² →+ H⁰ →+ H²`
+  relative to a `G`-equivariant pairing `μ : M →+ N →+ P` (coefficients `M, N` discrete → all
+  cup cochains continuous, no continuity hypothesis on `μ`).  Bilinearity is by construction
+  (`→+ →+`); `∪ 0 = 0` / `0 ∪ = 0` are `map_zero`; coefficient naturality
+  `cup11_mapCoeff_target` (post-composing the pairing with a target `G`-map = `mapCoeff2` after
+  cupping).  `cup11_mk_mk` computes the pairing on explicit cocycle classes (for B3).
+  *Done (`GQ2/CupProduct.lean`); all at standard axioms.*
+  Key proof facts: `(1,1)` is the hard one (full Leibniz descent in **both** variables, using the
+  opposite factor's cocycle identity); `(0,2)`/`(2,0)` descend in one variable (the other is
+  `H⁰`-invariant).  Assembly pattern that worked: bundle the bi-hom at the **cocycle** level
+  (`AddMonoidHom.mk'` with function-level `..Fun_add_left/right` helpers), then descend the
+  quotient slot with a single `QuotientAddGroup.lift` (+ `AddMonoidHom.flip` when the quotient is
+  the second slot, as in `cup02`).  Lean gotchas: inline `simp` inside `Subtype.ext` is fragile —
+  use a named `cupFun_add_*` helper; `n.2` for `n : ↥(H0 …)` is a *membership prop*, coerce it
+  with `have hn : ∀ x, x • n.1 = n.1 := n.2` before `simp`; give each cup cochain a dedicated
+  `continuous_*Fun` lemma so `mem_Z2` continuity unifies on the right head.
 - **T-05**: defs + `IsPGroup`-quotient lemma + universal property (`∀ pro-p P, Hom_cont(G,P) ≃
   Hom_cont(G(p),P)` or factorization form); stress: finite case; idempotence.
 - **T-06** ☑: `Zhat`, `zpowHat`, notation; naturality (`lift_unique`); `ω₂ : Zhat` with
