@@ -38,4 +38,12 @@ noncomputable def profinitePresentation {X : Type u} (rels : Set (FreeProfiniteG
     Subgroup.isClosed_topologicalClosure _
   profiniteQuotient (relatorSubgroup rels)
 
+/-- The presentation does impose the relations: each relator maps to `1` under the quotient
+projection `FreeProfiniteGroup X → FreeProfiniteGroup X ⧸ relatorSubgroup rels`. -/
+theorem relator_quotientMk_eq_one {X : Type u} (rels : Set (FreeProfiniteGroup X))
+    {r : FreeProfiniteGroup X} (hr : r ∈ rels) :
+    quotientMk (relatorSubgroup rels) r = 1 := by
+  rw [quotientMk_eq_one_iff]
+  exact Subgroup.le_topologicalClosure _ (Subgroup.subset_normalClosure hr)
+
 end GQ2

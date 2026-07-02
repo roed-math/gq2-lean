@@ -70,4 +70,21 @@ instance instTotallyDisconnectedSpace_quotient [IsClosed (N : Set G)] :
 def profiniteQuotient [IsClosed (N : Set G)] : ProfiniteGrp :=
   ProfiniteGrp.of (G ⧸ N)
 
+omit [CompactSpace G] [TotallyDisconnectedSpace G] in
+/-- The quotient projection `G → G ⧸ N` as a continuous homomorphism. -/
+def quotientMk : ContinuousMonoidHom G (G ⧸ N) :=
+  ⟨QuotientGroup.mk' N, QuotientGroup.continuous_mk⟩
+
+omit [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+theorem quotientMk_surjective : Function.Surjective (quotientMk N) :=
+  QuotientGroup.mk_surjective
+
+omit [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+@[simp] theorem quotientMk_apply (g : G) : quotientMk N g = QuotientGroup.mk g := rfl
+
+omit [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+/-- An element lies in the kernel of the quotient projection iff it lies in `N`. -/
+theorem quotientMk_eq_one_iff {g : G} : quotientMk N g = 1 ↔ g ∈ N :=
+  QuotientGroup.eq_one_iff g
+
 end GQ2
