@@ -1,0 +1,76 @@
+# Ticket board — step 1 (formalized statements of B1–B9)
+
+Source of truth for the statement-formalization effort. See `docs/formalization-plan.md` for the
+rationale and designs. Difficulty: ⭐ easy · ⭐⭐ medium · ⭐⭐⭐ hard/design-sensitive.
+Model: **F** = Fable (design-heavy), **O** = Opus (well-specified). Status: ☐ open · ◐ in
+progress · ☑ done.
+
+Rule: every definition ships with its stress tests in the same commit; every axiom's docstring
+states conventions + paper-equation cross-reference; all `axiom`s live in
+`GQ2/Foundations/Axioms.lean` only.
+
+| ID | Title | Diff | Model | Deps | Status |
+|---|---|---|---|---|---|
+| T-00 | CFT repo survey (blueprint + PRs + unramified/Frobenius API) | ⭐⭐ | O | — | ◐ (skimmed; write `docs/cft-survey.md`) |
+| T-01 | I1: finite discrete `G`-modules via Mathlib classes | ⭐ | O | — | ☐ |
+| T-02 | U2: continuous `H⁰/H¹/H²` — API design + core defs | ⭐⭐⭐ | **F** | T-01 | ☐ |
+| T-03 | I2b: cohomology lemma layer (cocycle algebra, inflation, restriction, functoriality) | ⭐⭐ | O | T-02 | ☐ |
+| T-04 | I3: cup products (0,2),(1,1),(2,0) rel. a pairing + bilinearity | ⭐⭐ | O | T-02 | ☐ |
+| T-05 | I4: `maxProPQuotient` + pro-`p`-ness + universal property | ⭐⭐ | O | — | ☐ |
+| T-06 | U1: `Zhat` via `profiniteCompletion ℤ`; `x ^ᶻ γ`; `ω₂ : Zhat`; finite-quotient compat | ⭐⭐ | **F**→O | — | ☐ |
+| T-07 | B7′: Hilbert symbol def + `ε`,`ω` + axiom (Serre CiA III§1.2 Thm 1) + stress tests | ⭐⭐ | O | — | ☐ |
+| T-08 | B4: axiom `G_ℚ₂(2) ≅ profinitePresentation (Fin 3) {A²S⁴[S,Y]}` | ⭐⭐ | O | T-05 | ☐ |
+| T-09 | B3a: `IsDemushkin` definition + invariants + stress tests | ⭐⭐⭐ | **F** | T-02, T-04 | ☐ |
+| T-10 | B3b: rank-3 `q=2` classification statement (optional if B3c ships) | ⭐⭐ | O | T-09 | ☐ |
+| T-11 | B3c: canonical orientation — choose route (Labute Prop 6 vs cyclotomic interface) | ⭐⭐⭐ | **F** | T-08 (+T-09 for route i) | ☐ |
+| T-12 | B8: Lemma 3.6 group-theoretic statement on `Δ = maxPro2(FreeProfinite (Fin 2))` | ⭐⭐ | O | T-05, T-06 | ☐ |
+| T-13 | I5: Kummer class cocycle `kˣ → H¹(k,𝔽₂)` | ⭐⭐ | O | T-02 | ☐ |
+| T-14 | B6: local Tate duality axiom (μ-pairing, perfectness, per-`n` form) | ⭐⭐⭐ | **F** draft, O finish | T-02, T-04, T-15 | ☐ |
+| T-15 | I10: `μ_n` as finite discrete `G_ℚ₂`-module | ⭐⭐ | O | T-01 | ☐ |
+| T-16 | B7: Euler-characteristic axiom (`card H¹ = card H⁰ · card H² · 2^{v₂#M}` + finiteness) | ⭐ | O | T-02 | ☐ |
+| T-17 | B5: reciprocity bundle axiom (`rec`, `ν_ur`; norm-kernels, `ν_ur∘rec = −v₂`, `χ_cyc∘rec = (·)⁻¹`) | ⭐⭐⭐ | **F** | T-00 | ☐ |
+| T-18 | B9: Kummer/cor/Evens-norm/transfer-form defs + eq. (111) axiom (deg ≤ 2) | ⭐⭐⭐ | **F** design, O finish | T-02, T-04, T-13 | ☐ |
+| T-19 | Meta: `GQ2/Foundations/Axioms.lean` consolidation + `scripts/check_axioms.sh` guard | ⭐ | O | first axioms landed | ☐ |
+| T-20 | Meta: human-review packet v2 (Lean names per B-leaf + deviations table) | ⭐ | O | statements frozen | ☐ |
+| T-21 | Γ_A literal (`profinitePresentation (Fin 4)` with `ω₂`-words) + literal Thm 1.2 statement | ⭐⭐ | O | T-06 | ☐ |
+
+## Per-ticket acceptance criteria
+
+Common to all: `lake build GQ2` green; `#print axioms` of every *theorem* = standard three;
+axioms only in `Axioms.lean`; docstrings carry citations + conventions.
+
+- **T-00**: `docs/cft-survey.md` covering: finite-level reciprocity shape (blueprint §3, incl.
+  `rec(F_k) = π_k N(lˣ)` normalization), status of Inf-Res PRs (#126, #68), what
+  `IsNonarchimedeanLocalField.Unramified`/Frobenius API provides for T-17, anything reusable for
+  cup products / H¹H² explicit cocycles.
+- **T-01**: no new structures; a `class`-alias or notation-free section conventions; lemmas:
+  action kernel is open; stabilizers open; action factors through a finite quotient
+  (`∃ U : OpenNormalSubgroup G, ∀ u ∈ U, ∀ m, u • m = m`).
+- **T-02**: `GQ2/Foundations/Cohomology.lean` with `Z¹ C¹ B¹ H¹ Z² B² H²` (`AddCommGroup`
+  instances), `H⁰`; inflation/restriction maps; stress: `H¹ ≃ ContinuousAddMonoidHom G M`
+  (trivial action); `B¹ ≤ Z¹` etc. definitional sanity; finite-`G` comparison may defer to T-03.
+- **T-04**: cup bilinearity; `(a ∪ 0) = 0`; compatibility with coefficient maps.
+- **T-05**: defs + `IsPGroup`-quotient lemma + universal property (`∀ pro-p P, Hom_cont(G,P) ≃
+  Hom_cont(G(p),P)` or factorization form); stress: finite case; idempotence.
+- **T-06**: `Zhat`, `zpowHat`, notation; naturality (`lift_unique`); `ω₂ : Zhat` with
+  compatibility lemma `N ∣ M → omega2Exp M ≡ omega2Exp N [MOD N]`; headline:
+  `f (x ^ᶻ ω₂) = powOmega2 (f x)` for `f` into finite groups. Ring structure explicitly out of
+  scope.
+- **T-07**: `hilbertSymbol`; `ε`, `ω`; axiom `B7'` with the exact CiA formula; theorems:
+  symmetry, `(a,−a)=1`, square-class invariance in one slot.
+- **T-08**: `r₀` via `FreeProfiniteGroup.of`; axiom; stress: image of the generators under a
+  concrete finite marking (via `homEquiv` + `decide`-able finite group) behaves as expected.
+- **T-09**: `IsDemushkin`; `demushkinRank`; stress tests per plan (incl. one *negative* example).
+- **T-12**: statement with `c_P, c_T, c_C` conjugators and `P ^ᶻ ι(u)`; documented deviation note
+  (axiom = Lemma 3.6's conclusion; literature proof = Stix §3.3+Def 37).
+- **T-14**: per-`n` duality; Pontryagin-dual encoding decided + documented; μ-coefficient `H²`
+  target with bundled `inv`.
+- **T-17**: the three-clause bundle (a)(b)(c) from the plan; every clause cross-referenced to
+  paper eq. (13)/Lemma 3.5; convention table in docstring.
+- **T-18**: defs as in plan; axiom = eq. (111) scoped to the forms used in Lemma 6.16; deviation
+  note (truncation to deg ≤ 2, concrete diagonal representatives).
+- **T-21**: the four words (`τ^σ τ⁻²`-relator and `h₀u₁⁻¹x₁^σc₀`-relator) as elements of
+  `FreeProfiniteGroup (Fin 4)` using `^ᶻ ω₂`; `ΓA : ProfiniteGrp`; statement
+  `theorem main_presentation_literal : Nonempty (ContinuousMulEquiv ΓA AbsGalQ2)` (sorried, tied
+  into `Statement.lean`); stress: image of each word under a finite marking = the `Marking` word
+  (connects to `Words.lean` via T-06 headline lemma — this is the key faithfulness check).
