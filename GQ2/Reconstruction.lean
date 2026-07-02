@@ -39,4 +39,40 @@ theorem reconstruction
     Nonempty (ContinuousMulEquiv P Q) := by
   sorry
 
+/-- **Finite core of the reconstruction lemma.**  For *finite* groups, having the same number of
+surjections onto every finite group forces an isomorphism.  This is the counting heart of
+Lemma 2.5 (the profinite case reduces to it, level by level, along the finite quotient system):
+`|Sur(P,P)| ≥ 1` gives a surjection `Q ↠ P`, symmetrically `P ↠ Q`, so `|P| = |Q|`, and a
+surjection between equinumerous finite groups is an isomorphism. -/
+theorem reconstruction_finite {P Q : Type} [Group P] [Group Q] [Finite P] [Finite Q]
+    (hcount : ∀ (H : Type) [Group H] [Finite H],
+        Nat.card {f : P →* H // Function.Surjective f}
+          = Nat.card {f : Q →* H // Function.Surjective f}) :
+    Nonempty (P ≃* Q) := by
+  classical
+  haveI : Finite (P →* P) := Finite.of_injective _ DFunLike.coe_injective
+  haveI : Finite (Q →* P) := Finite.of_injective _ DFunLike.coe_injective
+  haveI : Finite (P →* Q) := Finite.of_injective _ DFunLike.coe_injective
+  haveI : Finite (Q →* Q) := Finite.of_injective _ DFunLike.coe_injective
+  -- A surjection `Q ↠ P` exists, since `|Sur(Q,P)| = |Sur(P,P)| ≥ 1` (identity).
+  have hposP : 0 < Nat.card {f : P →* P // Function.Surjective f} :=
+    Nat.card_pos_iff.mpr ⟨⟨⟨MonoidHom.id P, Function.surjective_id⟩⟩, inferInstance⟩
+  obtain ⟨g, hg⟩ : Nonempty {f : Q →* P // Function.Surjective f} :=
+    (Nat.card_pos_iff.mp (by rw [← hcount P]; exact hposP)).1
+  -- Symmetrically a surjection `P ↠ Q`.
+  have hposQ : 0 < Nat.card {f : Q →* Q // Function.Surjective f} :=
+    Nat.card_pos_iff.mpr ⟨⟨⟨MonoidHom.id Q, Function.surjective_id⟩⟩, inferInstance⟩
+  obtain ⟨f, hf⟩ : Nonempty {f : P →* Q // Function.Surjective f} :=
+    (Nat.card_pos_iff.mp (by rw [hcount Q]; exact hposQ)).1
+  -- Mutual surjections between finite groups force equal cardinality.
+  have hcard : Nat.card Q = Nat.card P :=
+    le_antisymm (Nat.card_le_card_of_surjective f hf) (Nat.card_le_card_of_surjective g hg)
+  -- A surjection between equinumerous finite groups is bijective.
+  haveI : Fintype P := Fintype.ofFinite P
+  haveI : Fintype Q := Fintype.ofFinite Q
+  have hbij : Function.Bijective g :=
+    (Fintype.bijective_iff_surjective_and_card g).mpr
+      ⟨hg, by rw [← Nat.card_eq_fintype_card, ← Nat.card_eq_fintype_card, hcard]⟩
+  exact ⟨(MulEquiv.ofBijective g hbij).symm⟩
+
 end GQ2
