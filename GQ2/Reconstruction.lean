@@ -126,7 +126,7 @@ here rather than the novel content of the paper.  Execution recipe:
 
 Stated here; proof deferred. -/
 theorem exists_contSurj_of_card_le
-    {S R : Type*} [Group S] [TopologicalSpace S] [IsTopologicalGroup S]
+    {S R : Type} [Group S] [TopologicalSpace S] [IsTopologicalGroup S]
       [CompactSpace S] [TotallyDisconnectedSpace S]
     [Group R] [TopologicalSpace R] [IsTopologicalGroup R]
       [CompactSpace R] [TotallyDisconnectedSpace R]
@@ -172,7 +172,7 @@ forces the counts to be genuinely finite (via `P`'s finiteness) and so is not va
 level sets — see the note on `reconstruction`.  Proved in full modulo the standard compactness
 input `exists_contSurj_of_card_le`. -/
 theorem reconstruction_of_equinum
-    {P Q : Type*}
+    {P Q : Type}
     [Group P] [TopologicalSpace P] [IsTopologicalGroup P]
       [CompactSpace P] [TotallyDisconnectedSpace P]
     [Group Q] [TopologicalSpace Q] [IsTopologicalGroup Q]
