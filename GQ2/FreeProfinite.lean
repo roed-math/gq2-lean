@@ -46,4 +46,16 @@ noncomputable def FreeProfiniteGroup.homEquiv (X : Type u) (P : ProfiniteGrp.{u}
   (ProfiniteGrp.ProfiniteCompletion.homEquiv (GrpCat.of (FreeGroup X)) P).trans <|
     (grpCatHomEquiv (FreeGroup X) P).trans FreeGroup.lift.symm
 
+/-- **Naturality / usability of the universal property.**  The bijection `homEquiv` sends a
+continuous hom `f : FreeProfiniteGroup X ⟶ P` to the set map `x ↦ f (of x)` — i.e. `homEquiv`
+really is "restrict to the generators".  This makes the universal property usable for defining maps
+out of `FreeProfiniteGroup X` (and, in turn, profinite presentations such as `Γ_A`). -/
+@[simp]
+lemma FreeProfiniteGroup.homEquiv_apply {X : Type u} (P : ProfiniteGrp.{u})
+    (f : FreeProfiniteGroup X ⟶ P) (x : X) :
+    FreeProfiniteGroup.homEquiv X P f x = f (FreeProfiniteGroup.of x) := by
+  simp only [FreeProfiniteGroup.homEquiv, grpCatHomEquiv,
+    ProfiniteGrp.ProfiniteCompletion.homEquiv]
+  rfl
+
 end GQ2

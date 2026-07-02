@@ -38,6 +38,7 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 | `GQ2.main_presentation` (**modulo** its two `sorry` inputs) | `Statement.lean` | **Theorem 1.2 wiring** | the top-level logic *is checked*: `reconstruction` + `main_surjection_count` ⟹ the iso |
 | `GQ2.FreeProfiniteGroup` + `.of` + `.homEquiv` | `FreeProfinite.lean` | foundation | **free profinite group** (absent from Mathlib) built from `profiniteCompletion ∘ FreeGroup`, with universal property `(FreeProfiniteGroup X ⟶ P) ≃ (X → P)` |
 | `GQ2.grpCatHomEquiv` | `FreeProfinite.lean` | foundation | `(GrpCat.of A ⟶ GrpCat.of P) ≃ (A →* P)` |
+| `GQ2.FreeProfiniteGroup.homEquiv_apply` | `FreeProfinite.lean` | foundation | **naturality of the universal property**: `homEquiv X P f x = f (of x)` — `homEquiv` is genuinely "restrict to generators", making it usable for defining maps out of `FreeProfiniteGroup X` (and profinite presentations `Γ_A`) |
 
 ## Stated with `sorry` (faithful target, proof deferred)
 
@@ -60,8 +61,9 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 2. `tame_normal_two_subgroup_central` (Lemma 3.1 last) — `[N, I] ≤ N ∩ I = 1` centralizing argument.
 3. `reconstruction` (Lemma 2.5) — the big F′ item; build the profinite-Hopfian lemma on
    `ProfiniteGrp` (Mathlib has `denseRange`/`lift`/`homEquiv` in `ProfiniteGrp.Completion` to build on).
-4. `FreeProfiniteGroup.homEquiv_naturality` — the `of`-compatibility (`homEquiv f x = f (of x)`),
-   making the universal property fully usable; then define `Γ_A` as a profinite presentation quotient.
+4. ~~`FreeProfiniteGroup.homEquiv_naturality`~~ **done** (`homEquiv_apply`: `homEquiv f x = f (of x)`).
+   Next: define `Γ_A` as a profinite presentation quotient (closed normal closure of the relators in
+   `FreeProfiniteGroup (Fin 4)`), now that maps out of the free profinite group are usable.
 5. `ℤ̂` as a topological **ring** + the `ω₂`-power action on profinite groups — the last foundation
    needed to state Theorem 1.2 literally (currently `main_surjection_count` sidesteps it).
 6. A **computable** `powOmega2` variant + `#eval` cross-check of the relator against App. B.
