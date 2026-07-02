@@ -11,7 +11,7 @@ states conventions + paper-equation cross-reference; all `axiom`s live in
 
 | ID | Title | Diff | Model | Deps | Status |
 |---|---|---|---|---|---|
-| T-00 | CFT repo survey (blueprint + PRs + unramified/Frobenius API) | ⭐⭐ | O | — | ◐ (skimmed; write `docs/cft-survey.md`) |
+| T-00 | Mathlib + CFT survey (what already exists vs the B-leaves/tickets) | ⭐⭐ | O | — | ☑ 2026-07-03 (`docs/mathlib-cft-survey.md`) |
 | T-01 | I1: finite discrete `G`-modules via Mathlib classes | ⭐ | O | — | ☑ 2026-07-02 (`GQ2/DiscreteModule.lean`, folded into the T-02 session) |
 | T-02 | U2: continuous `H⁰/H¹/H²` — API design + core defs | ⭐⭐⭐ | **F** | T-01 | ☑ 2026-07-02 (`GQ2/Cohomology.lean`) |
 | T-03 | I2b: cohomology lemma layer (cocycle algebra, inflation, restriction, functoriality) | ⭐⭐ | O | T-02 | ☑ 2026-07-02 (`GQ2/Cohomology.lean`) |
