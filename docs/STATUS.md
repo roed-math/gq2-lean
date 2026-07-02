@@ -26,7 +26,8 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 | `GQ2.powOmega2_prod` | `Omega2.lean` | ω₂ on products | `powOmega2 (a,b) = (powOmega2 a, powOmega2 b)` (coordinatewise; enables Lemma 2.1) |
 | `GQ2.Marking.map_*` (word ledger) | `Subdirect.lean` | §2 | each auxiliary word commutes with group homs (`(t.map f).w = f t.w`), via `powOmega2_map` |
 | `GQ2.Marking.map_tameRel`, `map_wildRel` | `Subdirect.lean` | §2 | both relations transfer along any group hom |
-| `GQ2.Marking.map_admissible` | `Subdirect.lean` | **Lemmas 2.1–2.2** | admissibility pushes forward along a surjective quotient map (cofinality of admissible quotients) |
+| `GQ2.Marking.map_admissible` | `Subdirect.lean` | **Lemma 2.2** | admissibility pushes forward along a surjective quotient map (cofinality of admissible quotients) |
+| `GQ2.Marking.prod_tameRel`, `prod_wildRel` | `Subdirect.lean` | **Lemma 2.1** | both relations transfer to subdirect products of markings (via the word-ledger + `powOmega2_prod`) |
 | `GQ2.reconstruction_finite` | `Reconstruction.lean` | **Lemma 2.5 (finite core)** | for finite groups, equal surjection-counts to all finite groups ⟹ iso (mutual surjections + equal cardinality). The profinite case reduces to this level-by-level. |
 | `GQ2.Marking.*` (all auxiliary words + predicates) | `Words.lean` | (1)–(3), §2 | `sigma2,u,d0,z0,c0,g0,dg,hc,h0`, `TameRel/WildRel/Generates/Pro2Core/Admissible` |
 | `GQ2.admissibleCount` | `Words.lean` | Prop. 2.3 (RHS of eq. 154) | the finite count `N(G)` |
