@@ -1,3 +1,57 @@
+# Autonomous session log — 2026-07-02 (session 3)
+
+Focused on **Lemma 2.5 (reconstruction)** and the **profinite-presentation foundations**, per a
+request to prioritize content that is *non-standard* in the literature (e.g. the Artin map is
+standard, so deprioritized). The project still builds green; standard axioms only for everything
+proved. Notably this session **found and fixed a soundness bug** in the previous session's
+`reconstruction` statement.
+
+## Proved this session
+
+| declaration | file | significance |
+|---|---|---|
+| `finite_continuousMonoidHom` | `Reconstruction.lean` | `Hom_cont(P,H)` finite for top. f.g. profinite `P`, finite discrete `H` (a continuous hom is pinned by its values on a topological generating set) |
+| `profinite_hopfian` | `Reconstruction.lean` | **the profinite Hopfian property** (absent from Mathlib): a continuous surjective endomorphism of a top. f.g. profinite group is injective. Elementary counting proof (precomposition by φ is an injective, hence surjective, self-map of the finite hom-set) |
+| `continuousMulEquivOfBijective` | `Reconstruction.lean` | bijective continuous hom compact→T2 is a topological iso |
+| `reconstruction_of_equinum` | `Reconstruction.lean` | **Lemma 2.5, faithful form** — proved in full modulo the one standard input `exists_contSurj_of_card_le` |
+| `FreeProfiniteGroup.homEquiv_apply` | `FreeProfinite.lean` | naturality of the free-profinite universal property (`homEquiv f x = f (of x)`) |
+| `instTotallyDisconnectedSpace_quotient`, `profiniteQuotient` | `ProfiniteQuotient.lean` | **`G ⧸ N` is profinite** for `N` closed normal (the `TotallyDisconnected` instance Mathlib lacked, via a clopen basis) — the profinite-presentation gap in the audit |
+| `quotientMk`, `quotientLift` (+ API) | `ProfiniteQuotient.lean` | projection and **universal property** of the profinite quotient (maps out = maps killing `N`) |
+| `relatorSubgroup`, `profinitePresentation`, `relator_quotientMk_eq_one` | `ProfinitePresentation.lean` | the profinite group **presented** by generators + relators; `Γ_A = profinitePresentation (Fin 4) rels`; relators die in the quotient |
+| `omega2Exp_appendixB_value` | `Omega2.lean` | the *computable* `omega2Exp 85667662080 = 40491355905` **exactly** — the definition matches the paper's App. B serialization (standard axioms, no `native_decide`) |
+
+## ⚠ Soundness bug found and fixed: `reconstruction` is FALSE as stated
+
+The session-2 `GQ2.reconstruction` uses `Nat.card (ContSurj P H) = Nat.card (ContSurj Q H)`.
+`Nat.card` sends *infinite* sets to `0`, so this equality fails to encode "equal *finite* counts".
+**Counterexample**: `P = Unit` (top. f.g.), `Q = (ℤ/2)^ℕ`; for every finite `H` both cards are `1`
+(trivial `H`) or `0` (else — the `Q`-side is `0` because there are infinitely many surjections
+`(ℤ/2)^ℕ ↠ H`), so the hypotheses hold but `P ≇ Q`.
+
+Fix: the statement of `reconstruction` was left untouched (header-fenced — **needs a user decision**
+to amend `hcount`), its body reverted to `sorry` + a warning note. The faithful
+`reconstruction_of_equinum` uses genuine equinumerosity `Nonempty (ContSurj P H ≃ ContSurj Q H)`,
+which forces the counts finite (via `P` f.g.) and is proved in full modulo the standard compactness
+lemma `exists_contSurj_of_card_le` (target has finite level-sets ⇒ finite König over
+`OpenNormalSubgroup R`; recipe recorded in that lemma's docstring). Both are now over `Type` (Type 0)
+so the finite quotients match the `H : Type` count quantifier.
+
+## The one remaining reachable `sorry` here
+
+`exists_contSurj_of_card_le` — the standard (Ribes–Zalesskiĭ) compactness assembly of a surjection
+`S ↠ R` from the finite, nonempty level-sets `{S ↠ R/V}` over `OpenNormalSubgroup R` (a
+`SemilatticeInf`, hence cofiltered): apply `nonempty_sections_of_finite_cofiltered_system`, turn the
+section into a cone over `ProfiniteGrp.diagram R`, transport through `isoLimittoFiniteQuotientFunctor`,
+and conclude surjectivity from the dense (compact ⇒ closed) image. Deferred as *standard*; it is the
+biggest remaining categorical chunk for Lemma 2.5.
+
+## Net effect on `Γ_A`
+
+`Γ_A` is now expressible as `profinitePresentation (X := Fin 4) rels`. The sole remaining blocker to
+writing it *literally* is a genuine profinite `ω₂`-exponent (`ℤ̂`, still absent — roadmap item 5).
+
+---
+
 # Autonomous session log — 2026-07-02 (session 2)
 
 Continued the autonomous push. **The whole project now builds green with only 2 `sorry`s left**
