@@ -23,6 +23,46 @@ def ContSurj (P : Type*) [Group P] [TopologicalSpace P]
     (H : Type*) [Group H] [TopologicalSpace H] : Type _ :=
   {f : ContinuousMonoidHom P H // Function.Surjective f}
 
+/-- A bijective continuous group homomorphism from a compact group to a Hausdorff group is a
+topological isomorphism.  (Mirrors `ProfiniteGrp.continuousMulEquivLimittoFiniteQuotientFunctor`,
+but stated for bare types so it can be used on the reconstruction hypotheses.) -/
+noncomputable def continuousMulEquivOfBijective
+    {P Q : Type*} [Group P] [TopologicalSpace P] [Group Q] [TopologicalSpace Q]
+    [CompactSpace P] [T2Space Q]
+    (f : ContinuousMonoidHom P Q) (hf : Function.Bijective f) :
+    ContinuousMulEquiv P Q :=
+  { Continuous.homeoOfEquivCompactToT2 (f := Equiv.ofBijective _ hf) f.continuous_toFun with
+    map_mul' := f.map_mul' }
+
+/-- **Profinite Hopfian property** (paper Lemma 2.5, key input): a continuous surjective
+endomorphism of a *topologically finitely generated* profinite group is injective.  Non-standard;
+absent from Mathlib.  Proof idea: a topologically f.g. profinite group has only finitely many open
+subgroups of each index, so a surjective endomorphism acts as a surjection — hence a bijection — on
+each finite quotient level, forcing injectivity in the limit.  Stated here; proof deferred. -/
+theorem profinite_hopfian
+    {P : Type*} [Group P] [TopologicalSpace P] [IsTopologicalGroup P]
+      [CompactSpace P] [TotallyDisconnectedSpace P]
+    (hPfg : ∃ s : Finset P, (Subgroup.closure (s : Set P)).topologicalClosure = ⊤)
+    (φ : ContinuousMonoidHom P P) (hφ : Function.Surjective φ) :
+    Function.Injective φ := by
+  sorry
+
+/-- **Surjection assembly from surjection counts** (paper Lemma 2.5, compactness input): if a
+profinite group `S` continuously surjects onto at least as many finite groups (counted with
+multiplicity) as a profinite group `R` does, then `S` continuously surjects onto `R`.  Taking `H`
+to range over the finite quotients `R/V` shows every level `S ↠ R/V` is inhabited; the surjection
+`S ↠ R` is assembled from these by compactness (König's lemma on the cofiltered system of finite
+quotients of `R`).  Stated here; proof deferred. -/
+theorem exists_contSurj_of_card_le
+    {S R : Type*} [Group S] [TopologicalSpace S] [IsTopologicalGroup S]
+      [CompactSpace S] [TotallyDisconnectedSpace S]
+    [Group R] [TopologicalSpace R] [IsTopologicalGroup R]
+      [CompactSpace R] [TotallyDisconnectedSpace R]
+    (h : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
+        Nat.card (ContSurj R H) ≤ Nat.card (ContSurj S H)) :
+    Nonempty (ContSurj S R) := by
+  sorry
+
 /-- **Lemma 2.5 (one-sided profinite reconstruction).** *(Statement scaffold; proof deferred.)*
 `P` is a topologically finitely generated profinite group, `Q` is profinite, and they have the
 same (finite) number of continuous surjections onto every finite group; then `P ≅ Q` as
@@ -37,7 +77,22 @@ theorem reconstruction
     (hcount : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
         Nat.card (ContSurj P H) = Nat.card (ContSurj Q H)) :
     Nonempty (ContinuousMulEquiv P Q) := by
-  sorry
+  -- A continuous surjection `Q ↠ P` (from `|Sur(P,H)| = |Sur(Q,H)|`, so `≥`).
+  obtain ⟨⟨g, hg⟩⟩ : Nonempty (ContSurj Q P) :=
+    exists_contSurj_of_card_le (fun H => le_of_eq (hcount H))
+  -- A continuous surjection `P ↠ Q` (symmetric count).
+  obtain ⟨⟨f, hf⟩⟩ : Nonempty (ContSurj P Q) :=
+    exists_contSurj_of_card_le (fun H => ge_of_eq (hcount H))
+  -- The composite `P → Q → P` is a continuous surjective endomorphism of the top. f.g. profinite `P`.
+  have hcoe : (⇑(g.comp f) : P → P) = ⇑g ∘ ⇑f := rfl
+  have hcomp : Function.Surjective (g.comp f : ContinuousMonoidHom P P) := by
+    rw [hcoe]; exact hg.comp hf
+  -- Hopfian ⇒ the composite is injective ⇒ `f` is injective.
+  have hginj : Function.Injective (⇑(g.comp f) : P → P) := profinite_hopfian hPfg _ hcomp
+  rw [hcoe] at hginj
+  have hfinj : Function.Injective (f : P → Q) := hginj.of_comp
+  -- `f` is a continuous bijection `P → Q`, hence a topological isomorphism.
+  exact ⟨continuousMulEquivOfBijective f ⟨hfinj, hf⟩⟩
 
 /-- **Finite core of the reconstruction lemma.**  For *finite* groups, having the same number of
 surjections onto every finite group forces an isomorphism.  This is the counting heart of
