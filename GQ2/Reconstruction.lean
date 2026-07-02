@@ -34,6 +34,30 @@ noncomputable def continuousMulEquivOfBijective
   { Continuous.homeoOfEquivCompactToT2 (f := Equiv.ofBijective _ hf) f.continuous_toFun with
     map_mul' := f.map_mul' }
 
+/-- For a topologically finitely generated profinite group `P` and a finite discrete group `H`,
+there are only finitely many continuous homomorphisms `P → H`: such a hom is determined by its
+values on a topological generating set (it is continuous, and two continuous homs agreeing on a
+dense subgroup agree everywhere), giving an injection into `s → H`. -/
+theorem finite_continuousMonoidHom
+    {P : Type*} [Group P] [TopologicalSpace P] [IsTopologicalGroup P]
+      [CompactSpace P] [TotallyDisconnectedSpace P]
+    (hPfg : ∃ s : Finset P, (Subgroup.closure (s : Set P)).topologicalClosure = ⊤)
+    (H : Type*) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H] :
+    Finite (ContinuousMonoidHom P H) := by
+  obtain ⟨s, hs⟩ := hPfg
+  have hdense : Dense (↑(Subgroup.closure (s : Set P)) : Set P) := by
+    rw [dense_iff_closure_eq, ← Subgroup.topologicalClosure_coe, hs, Subgroup.coe_top]
+  refine Finite.of_injective (fun (φ : ContinuousMonoidHom P H) => fun (x : s) => φ (x : P)) ?_
+  intro φ ψ hφψ
+  have heq : Set.EqOn (⇑φ.toMonoidHom) (⇑ψ.toMonoidHom) (s : Set P) := by
+    intro x hx
+    exact congrFun hφψ ⟨x, hx⟩
+  have hcl : Set.EqOn (⇑φ.toMonoidHom) (⇑ψ.toMonoidHom) (↑(Subgroup.closure (s : Set P))) :=
+    MonoidHom.eqOn_closure heq
+  have hfun : (⇑φ : P → H) = ⇑ψ :=
+    Continuous.ext_on hdense φ.continuous_toFun ψ.continuous_toFun hcl
+  exact DFunLike.coe_injective hfun
+
 /-- **Profinite Hopfian property** (paper Lemma 2.5, key input): a continuous surjective
 endomorphism of a *topologically finitely generated* profinite group is injective.  Non-standard;
 absent from Mathlib.  Proof idea: a topologically f.g. profinite group has only finitely many open
@@ -45,7 +69,39 @@ theorem profinite_hopfian
     (hPfg : ∃ s : Finset P, (Subgroup.closure (s : Set P)).topologicalClosure = ⊤)
     (φ : ContinuousMonoidHom P P) (hφ : Function.Surjective φ) :
     Function.Injective φ := by
-  sorry
+  rw [injective_iff_map_eq_one]
+  intro x hx
+  by_contra hx1
+  -- Separate `x` from `1` by an open normal subgroup `U`, so `x ∉ U`.
+  obtain ⟨U, hUsub⟩ := ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one
+    (U := ({x}ᶜ : Set P)) isOpen_compl_singleton
+    (Set.mem_compl_singleton_iff.mpr fun h => hx1 h.symm)
+  haveI : DiscreteTopology (P ⧸ U.toSubgroup) := inferInstance
+  haveI : Finite (P ⧸ U.toSubgroup) := inferInstance
+  -- The (continuous, surjective) projection `π : P ↠ P ⧸ U` onto the finite discrete quotient.
+  let π : ContinuousMonoidHom P (P ⧸ U.toSubgroup) :=
+    ⟨QuotientGroup.mk' U.toSubgroup, QuotientGroup.continuous_mk⟩
+  have hπx : π x ≠ 1 := by
+    intro hcontra
+    have hxmem : x ∈ U.toSubgroup := (QuotientGroup.eq_one_iff x).mp hcontra
+    exact absurd (hUsub hxmem) (by simp)
+  -- `Hom(P, P⧸U)` is finite, and precomposition by the surjection `φ` is injective on it,
+  -- hence (finite pigeonhole) surjective: some `β` satisfies `β ∘ φ = π`.
+  haveI : Finite (ContinuousMonoidHom P (P ⧸ U.toSubgroup)) :=
+    finite_continuousMonoidHom hPfg (P ⧸ U.toSubgroup)
+  have hprecomp_inj :
+      Function.Injective (fun α : ContinuousMonoidHom P (P ⧸ U.toSubgroup) => α.comp φ) := by
+    intro a b hab
+    have hcoe : (⇑a : P → _) ∘ ⇑φ = (⇑b : P → _) ∘ ⇑φ := by
+      have := congrArg (fun γ : ContinuousMonoidHom P (P ⧸ U.toSubgroup) => (⇑γ : P → _)) hab
+      simpa only [ContinuousMonoidHom.coe_comp] using this
+    exact DFunLike.coe_injective (hφ.injective_comp_right hcoe)
+  obtain ⟨β, hβ⟩ := (Finite.injective_iff_surjective.mp hprecomp_inj) π
+  -- Then `π x = β (φ x) = β 1 = 1`, contradicting `π x ≠ 1`.
+  apply hπx
+  have hβ' : β.comp φ = π := hβ
+  rw [← hβ']
+  simp only [ContinuousMonoidHom.coe_comp, Function.comp_apply, hx, map_one]
 
 /-- **Surjection assembly from surjection counts** (paper Lemma 2.5, compactness input): if a
 profinite group `S` continuously surjects onto at least as many finite groups (counted with
