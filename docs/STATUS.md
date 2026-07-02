@@ -21,6 +21,7 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 | `GQ2.oddPart_dvd_omega2Exp` | `Omega2.lean` | ω₂ spec | odd part of `n` divides `omega2Exp n` (`ω₂ ≡ 0` on odd part) |
 | `GQ2.omega2Exp_modEq_one` | `Omega2.lean` | ω₂ spec | `omega2Exp n ≡ 1 (mod 2^{v₂n})` (`ω₂ ≡ 1` on 2-part) — via Euler |
 | `GQ2.omega2_appendixB` | `Omega2.lean` | **App. B** | cross-check: paper's `ω₂ = 40491355905 (mod 85667662080)` satisfies both defining congruences |
+| `GQ2.omega2Exp_appendixB_value` | `Omega2.lean` | **App. B (exact)** | the computable `omega2Exp 85667662080 = 40491355905` **exactly** — the definition, not just a hard-coded residue, matches the paper (standard axioms: `v₂` bounds + kernel `Nat` arithmetic) |
 | `GQ2.powOmega2_pow_eq` | `Omega2.lean` | ω₂ well-def | `x^(ω₂ via any multiple of orderOf x) = powOmega2 x` (CRT on the 2-part/odd-part specs) |
 | `GQ2.powOmega2_map` | `Omega2.lean` | ω₂ naturality | `f (x^ω₂) = (f x)^ω₂` for every group hom `f` — the functorial characterization of the 2-primary projection |
 | `GQ2.powOmega2_prod` | `Omega2.lean` | ω₂ on products | `powOmega2 (a,b) = (powOmega2 a, powOmega2 b)` (coordinatewise; enables Lemma 2.1) |
@@ -59,17 +60,20 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 
 ## Next reachable targets (in priority order)
 
-1. `tame_zpowers_disjoint` (Lemma 3.1 ⋊) — finish the `sⁿ=1` argument (needs ℤ-exponent +
-   `orderOf (mk s)` lemmas; proof plan is in the docstring). Completes Lemma 3.1 fully.
-2. `tame_normal_two_subgroup_central` (Lemma 3.1 last) — `[N, I] ≤ N ∩ I = 1` centralizing argument.
-3. `reconstruction` (Lemma 2.5) — the big F′ item; build the profinite-Hopfian lemma on
-   `ProfiniteGrp` (Mathlib has `denseRange`/`lift`/`homEquiv` in `ProfiniteGrp.Completion` to build on).
-4. ~~`FreeProfiniteGroup.homEquiv_naturality`~~ **done** (`homEquiv_apply`: `homEquiv f x = f (of x)`).
-   Next: define `Γ_A` as a profinite presentation quotient (closed normal closure of the relators in
-   `FreeProfiniteGroup (Fin 4)`), now that maps out of the free profinite group are usable.
+1. ~~Lemma 3.1 (`tame_*`)~~ **done** (see Proved table).
+2. ~~`reconstruction` (Lemma 2.5)~~ **done** in faithful form (`reconstruction_of_equinum`), modulo
+   the standard compactness input `exists_contSurj_of_card_le` (recipe in its docstring).  ⚠ The
+   original `Nat.card`-hypothesis `reconstruction` is *false* — decide whether to amend it.
+3. **`exists_contSurj_of_card_le`** — the one remaining sorry in `reconstruction_of_equinum`: König
+   assembly of `S ↠ R` from finite level-sets over `OpenNormalSubgroup R` (`SemilatticeInf`, so
+   cofiltered) via `nonempty_sections_of_finite_cofiltered_system`, then a cone through
+   `isoLimittoFiniteQuotientFunctor R` + dense/compact image. Standard; the biggest remaining chunk.
+4. ~~`homEquiv_naturality`~~ + ~~profinite quotient/presentation foundations~~ **done**
+   (`homEquiv_apply`, `profiniteQuotient`, `profinitePresentation`, `relator_quotientMk_eq_one`).
 5. `ℤ̂` as a topological **ring** + the `ω₂`-power action on profinite groups — the last foundation
-   needed to state Theorem 1.2 literally (currently `main_surjection_count` sidesteps it).
-6. A **computable** `powOmega2` variant + `#eval` cross-check of the relator against App. B.
+   needed to write the four relators literally, hence to define `Γ_A := profinitePresentation …`
+   and to state Theorem 1.2 literally (currently `main_surjection_count` sidesteps it).
+6. ~~computable `ω₂` cross-check against App. B~~ **done** (`omega2Exp_appendixB_value`).
 
 ## What this autonomous session added (2026-07-01)
 

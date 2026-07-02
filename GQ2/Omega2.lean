@@ -120,4 +120,22 @@ theorem omega2_appendixB :
     (40491355905 : ℕ) < 85667662080 := by
   refine ⟨by norm_num, by norm_num, by norm_num, by norm_num, by norm_num⟩
 
+/-- **Appendix B, exact match.**  Our *computable* representative `omega2Exp`, evaluated at the
+paper's modulus `M = 85667662080 = 2⁸·3²·5·7·11·13·17·19·23`, reproduces the Appendix-B
+serialization `40491355905` **exactly** (not merely up to the defining congruences).  This certifies
+that the definition `omega2Exp`, and not just the hard-coded residue of `omega2_appendixB`, agrees
+with the paper.  Proved with only the standard axioms: the 2-adic valuation `v₂(M) = 8` is pinned by
+`p^k ∣ M` bounds, and the remaining `334639305 ^ 2⁷ % M` is closed by kernel `Nat` arithmetic. -/
+theorem omega2Exp_appendixB_value : omega2Exp 85667662080 = 40491355905 := by
+  have hn : (85667662080 : ℕ) ≠ 0 := by norm_num
+  have hfac : (85667662080 : ℕ).factorization 2 = 8 := by
+    have h8 : 8 ≤ (85667662080 : ℕ).factorization 2 :=
+      (Nat.Prime.pow_dvd_iff_le_factorization Nat.prime_two hn).mp (by decide)
+    have h9 : ¬ 9 ≤ (85667662080 : ℕ).factorization 2 := fun h =>
+      absurd ((Nat.Prime.pow_dvd_iff_le_factorization Nat.prime_two hn).mpr h) (by decide)
+    omega
+  unfold omega2Exp
+  simp only [hfac]
+  norm_num
+
 end GQ2
