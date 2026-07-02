@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "lean-lsp": {
+      "command": "uvx",
+      "args": ["lean-lsp-mcp", "--lean-project-path", "/Users/roed/claude/gq2-lean"]
+    }
+  }
+}
