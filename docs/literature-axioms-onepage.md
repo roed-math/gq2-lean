@@ -18,7 +18,7 @@ Lemma 2.5's only classical input is *proved* in the formalization (see foot); eq
 | B7 | local Euler characteristic: `χ(A) = ‖#A‖_k` | NSW **(7.3.1)**; Serre *GC* **II §5.7 Thm 5** | ✓✓ |
 | B7′ | dyadic Hilbert symbol `(2^α u, 2^β v)₂ = (-1)^{ε(u)ε(v)+αω(v)+βω(u)}` | Serre, *Course in Arithmetic*, **III §1.2 Thm 1** | ✓ |
 | B8 | Galois action on `π₁^{(2)}(ℙ¹∖{0,1,∞})`: cyclotomic on peripheral inertia | Stix (2012); Deligne (1989) | q |
-| B9 | Evens transfer / Evens–Kahn total Stiefel–Whitney class | Evens (1963); Kahn (1984); Kozlowski (1984); Guillot (2010) | q |
+| B9 | Evens norm + Evens–Kahn formula for the total Stiefel–Whitney class | Evens **§§4–5 Thm 1**; Kahn **Thm 1–3**; Kozlowski **Thm 1.1** | ✓ |
 
 **Discharged (proved in the Lean formalization, not axioms).**
 **Ribes–Zalesskiĭ Prop. 2.5.2** (a finitely generated profinite group is Hopfian — Lemma 2.5's only

@@ -181,13 +181,22 @@ not yet to hand.
 - **Statement.** The Evens multiplicative transfer and the Evens–Kahn formula for the total
   Stiefel–Whitney class of an induced/quadratic representation, used to normalize the half-orbit
   Evens class and compute the base Arf invariant over `𝔽₂[C]`.
-- **Citation.** **Evens [9], *A generalization of the transfer map in the cohomology of groups*,
-  Trans. AMS 108 (1963), 54–65** (the multiplicative transfer / norm); **Kahn [10], Invent. Math. 78
-  (1984), 223–256**; **Kozlowski [11], *The Evens–Kahn formula for the total Stiefel–Whitney class*,
-  Proc. AMS 91 (1984), 309–313**; **Guillot [6], *The computation of Stiefel–Whitney classes*, Ann.
-  Inst. Fourier 60 (2010), 565–606** `[all quoted]`. Background: Brown [5], *Cohomology of Groups*.
+- **Citation** (precise; verified against the provided PDFs):
+  * **Evens norm** `N_{H→G} : H²(H,k) → H²(G,k)`, with `N(1+x) = 1 + tr_{H→G}(x) + N(x)` for index 2,
+    and its double-coset (Mackey) restriction formula: **Evens [9], §§4–5, Theorem 1**
+    `[✓ verified]` (Trans. AMS 108 (1963), 54–65).
+  * **Total SW class of a transferred quadratic form**: **Kahn [10], Théorème 2**
+    `w(T(q)) = N′(w(q))·w(T(1))^r` — with **Théorème 1** (induced reps `w(Ind ρ)=N′(w(ρ))w(Ind1)^r`)
+    and **Théorème 3** `w(T⟨a⟩)=w(Ind ρ_a)(1+(2,d))`; topological version **Théorème 1.3.2**
+    `[✓ verified]` (Invent. Math. 78 (1984), 223–256).
+  * **Index-2 Evens–Kahn formula** (total SW class of an index-2 induced rep): **Kozlowski [11],
+    Theorem 1.1** (index-2 special case) `[✓ verified]` (Proc. AMS 91 (1984), 309–313).
+  The paper's eq. (111) `w(Tr_{L/k}⟨a⟩) = w(Tr_{L/k}⟨1⟩)(1 + cor_{L/k}[a] + N^{Ev}_{L/k}[a])` is
+  Kahn Th. 2 at `q=⟨a⟩` (rank 1) expanded via Evens Th. 1. **Guillot [6]** is a *background* reference
+  (in the bibliography only — no body citation).
 - **Lean.** Schematic (no Stiefel–Whitney/Evens classes in Mathlib).
-- **Used at.** §6 (Lemmas 6.13, 6.15, 6.8, 6.16, 6.21).
+- **Used at.** §6 (Lemmas 6.13 (Evens norm normalization), 6.16 (deep-unit Evens norm)); the
+  Shapiro–corestriction of Lemma 6.15 is Kahn Th. 2's Shapiro case.
 
 **Already discharged (not leaves).**
 - **Ribes–Zalesskiĭ Hopfian** (a finitely generated profinite group is Hopfian): **RZ [4],
@@ -236,7 +245,7 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 | B7  local Euler characteristic | **NSW (7.3.1) (Tate)** `χ=‖a‖`; Serre *GC* II §5.7; Milne I.2.8 | ✅ **verified** | 🟡 |
 | B7′ dyadic Hilbert symbol | **Serre *Course in Arithmetic* Ch. III §1.2 Thm 1** (`ε,ω`: Ch. II §3.3) | ✅ **verified** | 🟡 |
 | B8  Galois action on `π₁(ℙ¹∖{0,1,∞})` | Stix [8]; Deligne, MSRI 16 (1989) §§8,15–19 | quoted / ~ | 🟡 |
-| B9  Evens / Stiefel–Whitney | Evens [9]; Kahn [10]; Kozlowski [11]; Guillot [6] | **quoted** | 🟡 |
+| B9  Evens / Stiefel–Whitney | **Evens [9] §§4–5 Thm 1**; **Kahn [10] Thm 1–3**; **Kozlowski [11] Thm 1.1** (Guillot [6]: background only) | ✅ **verified** | 🟡 |
 | — RZ Hopfian | RZ [4], Prop. 2.5.2 | **confirmed** | ✅ **proved** |
 | — Schur–Zassenhaus | Mathlib | — | ✅ **proved** |
 
@@ -265,10 +274,13 @@ Stiefel–Whitney/Evens classes, étale `π₁`) before they can be stated faith
   `(a,b)=(-1)^{ε(u)ε(v)+αω(v)+βω(u)}` and `ε,ω` (Ch. II §3.3) verified verbatim (= paper Lemma 3.5).
 - **B6 / B7 secondary** — Serre, *Galois Cohomology*, **Ch. II §5.2 Theorem 2** (Tate duality) and
   **§5.7 Theorem 5** (`χ(A)=‖a‖_k`) verified verbatim (corroborate the NSW primaries).
+- **B9** — **Evens [9] §§4–5 Thm 1** (norm map; `N(1+x)=1+tr(x)+N(x)`, index 2), **Kahn [10]
+  Théorèmes 1–3** (SW class of induced/transferred forms), **Kozlowski [11] Theorem 1.1** (index-2
+  Evens–Kahn formula) — the exact results behind the paper's eq. (111), all verified. **Guillot [6]**
+  is bibliography-only (background); not a load-bearing citation.
 
 **Solid without the source (no action needed):**
-- **B3, B9** — theorem numbers taken verbatim from the paper's own citations (Labute Thm 4/8; Evens/
-  Kahn/Kozlowski/Guillot).
+- **B3** — theorem numbers taken verbatim from the paper's own citation (Labute Thm 4/8).
 - **RZ Hopfian = Prop. 2.5.2** — confirmed against a secondary source; proved in-repo anyway.
 
 **Still `~` (minor; primary already verified, so these are optional corroboration):**
@@ -279,6 +291,6 @@ Stiefel–Whitney/Evens classes, étale `π₁`) before they can be stated faith
 - Only remaining unchecked: **Milne *ADT* I.2.1/I.2.8** (free online) — a *tertiary* corroboration
   for B6/B7, not needed now that both NSW **and** Serre *GC* are verified primaries/secondaries.
 
-**Net:** six of the nine classical leaves (B1, B4, B5, B6, B7, B7′) now carry a source-verified
-theorem number and statement; B3 and B9 are paper-quoted; only B2 and B8's secondary ref remain
-identified-but-unchecked, both entirely standard.
+**Net:** seven of the nine classical leaves (B1, B4, B5, B6, B7, B7′, B9) now carry source-verified
+theorem numbers and statements; B3 is paper-quoted (Labute Thm 4/8); only B2 (Washington, not sent)
+and B8's secondary Deligne ref remain identified-but-unchecked, both entirely standard.
