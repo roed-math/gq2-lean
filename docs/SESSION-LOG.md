@@ -255,3 +255,50 @@ the `GammaA`-vs-`F₄⧸NA` defeq); `NA` noncomputable (`FreeProfiniteGroup` is)
 
 Step-2 entry point is now concrete: **Prop. 2.3** (`Nat.card (ContSurj GammaA G) =
 admissibleCount G`) from `NA_le_ker` + bridges + `Subdirect.lean` + `quotientLift`.
+
+---
+
+# Session 2026-07-02 (Fable, cont.): T-01 + T-02 — discrete modules and continuous H⁰/H¹/H²
+
+Two new files, build green, every declaration at the standard axioms (several need only
+`propext`/`Quot.sound`).
+
+**`GQ2/DiscreteModule.lean` (T-01, folded in):** the module conventions — pure Mathlib
+typeclasses, no new structures (`AddCommGroup` + topology + `DistribMulAction` +
+`ContinuousSMul`, `DiscreteTopology`/`Finite` as needed) — validated by the smoothness facts:
+`isOpen_stabilizer`, `isOpen_iInf_stabilizer` (open action kernel, finite `M`), and
+`exists_openNormalSubgroup_smul_eq_self` (over profinite `G` the action factors through a
+finite quotient — the future bridge to finite group cohomology, T-03).
+
+**`GQ2/Cohomology.lean` (T-02, namespace `GQ2.ContCoh`):** continuous inhomogeneous cochain
+cohomology in degrees ≤ 2 (Serre GC I §2.2), the coefficient system for B3/B6/B7/B9.
+- Carriers: plain function spaces; continuity carried by subgroups (`C1`, `C2`);
+  `Z1 = C1 ⊓ ker δ¹`, `Z2 = C2 ⊓ ker δ²` (closure free, mirrors Mathlib `groupCohomology`),
+  `B1 = δ⁰(M)`, `B2 = δ¹(C1)`; `H1`/`H2` = quotients (`AddCommGroup` instances), `H0` =
+  invariants subgroup. Readable membership: `mem_Z1_iff`, `mem_Z2_iff` (Serre's identity).
+- Chain sanity: `dOne_comp_dZero = 0`, `dTwo_comp_dOne = 0`; `B1_le_Z1`, `B2_le_Z2`;
+  `Z1_apply_one`.
+- **Functoriality via one workhorse**: pullback along a compatible pair (`π : G →ₜ* Q`,
+  `f : N →+ M` continuous, `f (π g • n) = g • f n`) in all three degrees
+  (`H0comap/H1comap/H2comap`); restriction `res0/1/2` = `(subgroup inclusion, id)` — Mathlib's
+  `Subgroup.continuousSMul` instance makes the compatibility `rfl`; inflation = instantiate the
+  source action by `DistribMulAction.compHom` (recipe in docstring; the two-actions-on-one-type
+  encoding is deliberately avoided).
+- Trivial-action stress trio (wrapper-free form of the acceptance test): `mem_Z1_iff_of_trivial`
+  (`Z¹` = continuous additive-style homs), `B1_eq_bot_of_trivial`, `H1equivZ1OfTrivial`
+  (`H¹ ≃+ Z¹`), plus `H0_eq_top_of_trivial`.
+- Generality: defs for arbitrary topological groups and topological modules; profiniteness and
+  discreteness only enter theorems.
+
+Lean gotchas recorded: theorems consumed via `.mp`-dot-notation must have their carriers
+**implicit** (explicit section variables silently break generalized field notation — restructure
+into a defs-section (explicit) + lemmas-section (implicit)); hypotheses used only in *proofs*
+need `include htriv in` (section variables are auto-included from statements only); the
+`QuotientAddGroup.map` monotonicity goal is `comap`-membership (rewrite `mem_comap` before
+`mem_addSubgroupOf`); range/image membership equalities against subtype coercions are best
+consumed via `congrFun … |>.symm` (defeq) rather than `rw`.
+
+Next per plan (wave 2): T-03 (cohomology lemma layer + finite-`G` comparison), T-04 (cup
+products relative to a pairing — the `Z`-level API is ready for it), T-13 (Kummer), T-15 (μ);
+T-05/T-07/T-00 still open for Opus. Note for T-09: state Demushkin ranks via `Nat.card`
+(`= 2^n`, `= 2`) to avoid `Module 𝔽₂` instances on quotient types.

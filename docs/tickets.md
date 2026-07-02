@@ -12,8 +12,8 @@ states conventions + paper-equation cross-reference; all `axiom`s live in
 | ID | Title | Diff | Model | Deps | Status |
 |---|---|---|---|---|---|
 | T-00 | CFT repo survey (blueprint + PRs + unramified/Frobenius API) | ⭐⭐ | O | — | ◐ (skimmed; write `docs/cft-survey.md`) |
-| T-01 | I1: finite discrete `G`-modules via Mathlib classes | ⭐ | O | — | ☐ |
-| T-02 | U2: continuous `H⁰/H¹/H²` — API design + core defs | ⭐⭐⭐ | **F** | T-01 | ☐ |
+| T-01 | I1: finite discrete `G`-modules via Mathlib classes | ⭐ | O | — | ☑ 2026-07-02 (`GQ2/DiscreteModule.lean`, folded into the T-02 session) |
+| T-02 | U2: continuous `H⁰/H¹/H²` — API design + core defs | ⭐⭐⭐ | **F** | T-01 | ☑ 2026-07-02 (`GQ2/Cohomology.lean`) |
 | T-03 | I2b: cohomology lemma layer (cocycle algebra, inflation, restriction, functoriality) | ⭐⭐ | O | T-02 | ☐ |
 | T-04 | I3: cup products (0,2),(1,1),(2,0) rel. a pairing + bilinearity | ⭐⭐ | O | T-02 | ☐ |
 | T-05 | I4: `maxProPQuotient` + pro-`p`-ness + universal property | ⭐⭐ | O | — | ☐ |
@@ -43,12 +43,35 @@ axioms only in `Axioms.lean`; docstrings carry citations + conventions.
   `rec(F_k) = π_k N(lˣ)` normalization), status of Inf-Res PRs (#126, #68), what
   `IsNonarchimedeanLocalField.Unramified`/Frobenius API provides for T-17, anything reusable for
   cup products / H¹H² explicit cocycles.
-- **T-01**: no new structures; a `class`-alias or notation-free section conventions; lemmas:
-  action kernel is open; stabilizers open; action factors through a finite quotient
-  (`∃ U : OpenNormalSubgroup G, ∀ u ∈ U, ∀ m, u • m = m`).
-- **T-02**: `GQ2/Foundations/Cohomology.lean` with `Z¹ C¹ B¹ H¹ Z² B² H²` (`AddCommGroup`
-  instances), `H⁰`; inflation/restriction maps; stress: `H¹ ≃ ContinuousAddMonoidHom G M`
-  (trivial action); `B¹ ≤ Z¹` etc. definitional sanity; finite-`G` comparison may defer to T-03.
+- **T-01** ☑: no new structures; section conventions (documented in the module docstring:
+  `[AddCommGroup M] [TopologicalSpace M] (+[DiscreteTopology M]) [DistribMulAction G M]
+  [ContinuousSMul G M]`, `IsTopologicalAddGroup M` for general `M`); lemmas: stabilizers open
+  (`isOpen_stabilizer`); action kernel open for finite `M` (`isOpen_iInf_stabilizer`); action
+  factors through a finite quotient over profinite `G`
+  (`exists_openNormalSubgroup_smul_eq_self`).  *Done (`GQ2/DiscreteModule.lean`).*
+- **T-02** ☑: `Z¹ C¹ B¹ H¹ Z² C² B² H²` (`AddCommGroup` instances), `H⁰`;
+  inflation/restriction; stress: trivial-action `H¹`-characterization; `B¹ ≤ Z¹` etc.;
+  finite-`G` comparison deferred to T-03.
+  *Done (`GQ2/Cohomology.lean`, namespace `GQ2.ContCoh`; all proofs at standard axioms).*
+  Design decisions (differences from this sketch are deliberate):
+  (i) flat file, not `GQ2/Foundations/` — the directory migration is T-19;
+  (ii) cochains are plain functions, continuity lives in the subgroups; `Z¹ = C¹ ⊓ ker δ¹`,
+  `Z² = C² ⊓ ker δ²` (closure properties free; mirrors Mathlib's `groupCohomology` shape for
+  the T-03 comparison), `B² = δ¹(C¹)`; readable forms `mem_Z1_iff`/`mem_Z2_iff` (Serre I §2.2
+  conventions); chain-complex sanity `δ¹∘δ⁰ = 0`, `δ²∘δ¹ = 0`;
+  (iii) **one** functoriality workhorse: pullback along a compatible pair
+  (`π : G →ₜ* Q`, `f : N →+ M` continuous, `f (π g • n) = g • f n`) giving
+  `H0comap/H1comap/H2comap`; `res0/res1/res2` are the `(inclusion, id)` instance (Mathlib's
+  `Subgroup.continuousSMul` makes `hcompat` `rfl`), inflation is the
+  `DistribMulAction.compHom`-instance recipe (documented, no separate def — avoids two actions
+  on one type);
+  (iv) the trivial-action stress test is delivered wrapper-free as a trio
+  (`mem_Z1_iff_of_trivial` + `B1_eq_bot_of_trivial` + `H1equivZ1OfTrivial : H¹ ≃+ Z¹`) rather
+  than via `Multiplicative`-wrapped `ContinuousAddMonoidHom`;
+  (v) defs are for arbitrary topological groups/modules — profiniteness and discreteness enter
+  only in theorems (via `GQ2/DiscreteModule.lean`).
+  Note for T-09: `IsDemushkin` can state its rank conditions via `Nat.card (H1 …) = 2 ^ n` and
+  `Nat.card (H2 …) = 2`, avoiding `Module 𝔽₂` instances on the quotients entirely.
 - **T-04**: cup bilinearity; `(a ∪ 0) = 0`; compatibility with coefficient maps.
 - **T-05**: defs + `IsPGroup`-quotient lemma + universal property (`∀ pro-p P, Hom_cont(G,P) ≃
   Hom_cont(G(p),P)` or factorization form); stress: finite case; idempotence.
