@@ -22,6 +22,9 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 | `GQ2.omega2Exp_modEq_one` | `Omega2.lean` | ω₂ spec | `omega2Exp n ≡ 1 (mod 2^{v₂n})` (`ω₂ ≡ 1` on 2-part) — via Euler |
 | `GQ2.omega2_appendixB` | `Omega2.lean` | **App. B** | cross-check: paper's `ω₂ = 40491355905 (mod 85667662080)` satisfies both defining congruences |
 | `GQ2.omega2Exp_appendixB_value` | `Omega2.lean` | **App. B (exact)** | the computable `omega2Exp 85667662080 = 40491355905` **exactly** — the definition, not just a hard-coded residue, matches the paper (standard axioms: `v₂` bounds + kernel `Nat` arithmetic) |
+| `GQ2.powOmega2_eq_one_of_odd`, `GQ2.powOmega2_eq_self_of_orderOf_two_pow` | `AppendixB.lean` | **App. A ledger** | how `ω₂` acts elementwise: `= 1` on odd-order, `= x` on `2`-power-order elements (Lemma 5.1 content) |
+| `GQ2.markOmega2` + `markOmega2_eq_powOmega2` | `AppendixB.lean` | **App. B** | the *computable* `ω₂`-power `x ↦ x^40491355905`, proved `= powOmega2` for orders dividing `M` |
+| `GQ2.Marking.markS3_admissible` | `AppendixB.lean` | **App. A/B (verification)** | a fully machine-checked admissible marking `(sr 0, r 1, 1, 1)` in `S₃`: both relations (`τ^σ=τ²` by `decide`; wild relator collapses), generation, and `Pro2Core` |
 | `GQ2.powOmega2_pow_eq` | `Omega2.lean` | ω₂ well-def | `x^(ω₂ via any multiple of orderOf x) = powOmega2 x` (CRT on the 2-part/odd-part specs) |
 | `GQ2.powOmega2_map` | `Omega2.lean` | ω₂ naturality | `f (x^ω₂) = (f x)^ω₂` for every group hom `f` — the functorial characterization of the 2-primary projection |
 | `GQ2.powOmega2_prod` | `Omega2.lean` | ω₂ on products | `powOmega2 (a,b) = (powOmega2 a, powOmega2 b)` (coordinatewise; enables Lemma 2.1) |

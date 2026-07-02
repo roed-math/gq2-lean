@@ -105,6 +105,39 @@ theorem markS3_wildRel : markS3.WildRel := by
   show Odd (orderOf (DihedralGroup.r 1 : DihedralGroup 3))
   rw [DihedralGroup.orderOf_r_one]; decide
 
+/-- The wild generators of `markS3` are trivial, so their normal closure is `⊥` — vacuously a
+`2`-group (`Pro2Core`). -/
+theorem markS3_pro2Core : markS3.Pro2Core := by
+  have hbot : Subgroup.normalClosure ({markS3.x₀, markS3.x₁} : Set (DihedralGroup 3)) = ⊥ := by
+    refine le_antisymm (Subgroup.normalClosure_le_normal ?_) bot_le
+    rintro x (rfl | rfl) <;> simp [markS3]
+  rw [Marking.Pro2Core, hbot]
+  intro g
+  exact ⟨0, by simp [show g = 1 from Subtype.ext (Subgroup.mem_bot.mp g.2)]⟩
+
+/-- `σ = sr 0` and `τ = r 1` generate `S₃`, so the marking generates. -/
+theorem markS3_generates : markS3.Generates := by
+  rw [Marking.Generates, eq_top_iff]
+  set H := Subgroup.closure ({markS3.σ, markS3.τ, markS3.x₀, markS3.x₁} : Set (DihedralGroup 3))
+  have hr1 : DihedralGroup.r 1 ∈ H := Subgroup.subset_closure (by simp [markS3])
+  have hsr0 : DihedralGroup.sr 0 ∈ H := Subgroup.subset_closure (by simp [markS3])
+  have hrk : ∀ k : ZMod 3, DihedralGroup.r k ∈ H := fun k => by
+    rw [show DihedralGroup.r k = DihedralGroup.r 1 ^ k.val by
+      rw [DihedralGroup.r_one_pow, ZMod.natCast_zmod_val]]
+    exact pow_mem hr1 k.val
+  rintro x -
+  rcases x with i | i
+  · exact hrk i
+  · rw [show DihedralGroup.sr i = DihedralGroup.sr 0 * DihedralGroup.r i by
+      rw [DihedralGroup.sr_mul_r, zero_add]]
+    exact mul_mem hsr0 (hrk i)
+
+/-- **`markS3` is admissible**: it generates `S₃`, satisfies both relations, and its (trivial) wild
+generators have `2`-group normal closure.  A fully machine-checked instance of the paper's admissible
+marked quadruple. -/
+theorem markS3_admissible : markS3.Admissible :=
+  ⟨markS3_generates, markS3_tameRel, markS3_wildRel, markS3_pro2Core⟩
+
 end Marking
 
 /-- `markOmega2` on `S₃` reproduces the `ω₂`-action elementwise: the odd-order rotation `r 1` is
