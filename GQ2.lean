@@ -1,6 +1,7 @@
 import GQ2.Sanity
 import GQ2.Words
 import GQ2.Omega2
+import GQ2.AppendixB
 import GQ2.FreeProfinite
 import GQ2.ProfiniteQuotient
 import GQ2.ProfinitePresentation
