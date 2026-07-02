@@ -103,10 +103,39 @@ theorem profinite_hopfian
   rw [← hβ']
   simp only [ContinuousMonoidHom.coe_comp, Function.comp_apply, hx, map_one]
 
+/-- The arithmetic heart of `exists_contSurj_of_card_le`, isolated and proved: under its hypotheses,
+`S` continuously surjects onto **every finite quotient** `R ⧸ V` of `R`, and only finitely many
+ways.  (The projection witnesses `ContSurj R (R ⧸ V)`, which is finite by `hRfin`, so its count is
+`≥ 1`; the count hypothesis `h` transports this to `S`, and `Nat.card_pos_iff` unpacks it as
+nonempty-and-finite — the latter automatically, since an infinite level set would have count `0`.)
+These level sets, over `V : OpenNormalSubgroup R` (a `SemilatticeInf`, hence cofiltered), are the
+nonempty finite objects fed to König in the deferred assembly. -/
+theorem contSurj_quotient_nonempty_finite
+    {S R : Type} [Group S] [TopologicalSpace S] [IsTopologicalGroup S]
+      [CompactSpace S] [TotallyDisconnectedSpace S]
+    [Group R] [TopologicalSpace R] [IsTopologicalGroup R]
+      [CompactSpace R] [TotallyDisconnectedSpace R]
+    (hRfin : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
+        Finite (ContSurj R H))
+    (h : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
+        Nat.card (ContSurj R H) ≤ Nat.card (ContSurj S H))
+    (V : OpenNormalSubgroup R) :
+    Nonempty (ContSurj S (R ⧸ V.toSubgroup)) ∧ Finite (ContSurj S (R ⧸ V.toSubgroup)) := by
+  haveI : Finite (R ⧸ V.toSubgroup) := inferInstance
+  haveI : DiscreteTopology (R ⧸ V.toSubgroup) := inferInstance
+  -- the projection `R ↠ R ⧸ V` witnesses `ContSurj R (R ⧸ V)`
+  have hproj : Nonempty (ContSurj R (R ⧸ V.toSubgroup)) :=
+    ⟨⟨⟨QuotientGroup.mk' V.toSubgroup, QuotientGroup.continuous_mk⟩, QuotientGroup.mk_surjective⟩⟩
+  haveI : Finite (ContSurj R (R ⧸ V.toSubgroup)) := hRfin _
+  have hposR : 0 < Nat.card (ContSurj R (R ⧸ V.toSubgroup)) := Nat.card_pos_iff.mpr ⟨hproj, ‹_›⟩
+  have hposS : 0 < Nat.card (ContSurj S (R ⧸ V.toSubgroup)) := lt_of_lt_of_le hposR (h _)
+  exact Nat.card_pos_iff.mp hposS
+
 /-- **Surjection assembly from surjection counts** (paper Lemma 2.5, compactness input): if a
 profinite group `S` continuously surjects onto at least as many finite groups (counted with
 multiplicity) as a profinite group `R` **whose surjection sets are all finite** (`hRfin`), then
-`S` continuously surjects onto `R`.  Finiteness of the *target* level sets is essential: without it
+`S` continuously surjects onto `R`.  The nonempty finite level sets are supplied by
+`contSurj_quotient_nonempty_finite`; only the (standard) König/cone assembly is deferred.  Finiteness of the *target* level sets is essential: without it
 `Nat.card` collapses an infinite level set to `0` and the count hypothesis becomes vacuous (e.g.
 `R = (ℤ/2)^ℕ`, `S = 1`).
 
