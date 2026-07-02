@@ -1,7 +1,7 @@
 # Status ledger
 
 Live record of every Lean declaration in the repo: **proved**, `sorry` (target stated, proof
-deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake build` green
+deferred), or scaffold. Updated 2026-07-02. Build: Mathlib `v4.31.0`, `lake build` green
 (all `sorry`s are intentional and reported as warnings).
 
 ## Proved (no `sorry`, no new axioms)
@@ -46,6 +46,14 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 | `GQ2.quotientMk`, `GQ2.quotientLift` (+ `quotientMk_surjective`, `quotientLift_quotientMk`) | `ProfiniteQuotient.lean` | foundation | the quotient as a categorical quotient of profinite groups: projection `G ↠ G ⧸ N` and its **universal property** (a continuous hom killing `N` factors uniquely through `G ⧸ N`) — the tool for defining maps *out of* `Γ_A` |
 | `GQ2.profinitePresentation`, `GQ2.relatorSubgroup` | `ProfinitePresentation.lean` | **foundation (Γ_A shape)** | the profinite group presented by generators `X` and relators `rels`: `FreeProfiniteGroup X` modulo the closed normal closure of `rels`. `Γ_A` is this for `X = Fin 4` + the four relators (writing the literal relators still needs `ZHat`). |
 | `GQ2.FreeProfiniteGroup.homEquiv_apply` | `FreeProfinite.lean` | foundation | **naturality of the universal property**: `homEquiv X P f x = f (of x)` — `homEquiv` is genuinely "restrict to generators", making it usable for defining maps out of `FreeProfiniteGroup X` (and profinite presentations `Γ_A`) |
+| `GQ2.omega2Exp_modEq` | `Omega2.lean` | ω₂ coherence | **compatibility across levels**: `N ∣ M → omega2Exp M ≡ omega2Exp N (mod N)` (CRT on the two defining congruences); `powOmega2_pow_eq` is now its corollary |
+| `GQ2.orderOf_mk_ofAdd_one`, `ofAdd_mem_iff_index_dvd`, `mk_ofAdd_eq_mk_ofAdd_iff` | `Zhat.lean` | foundation (T-06) | classes in `ℤ/H` are integers mod the index, with **no classification of subgroups of `ℤ`** (the generator's class has order = index) |
+| `GQ2.completion_exists_level` | `Zhat.lean` | foundation (T-06) | **congruence neighborhoods are a basis** in any profinite completion: open `U ∋ γ` contains the full "agrees with `γ` at level `H₀`" class — the tool for evaluating continuous maps on completions |
+| `GQ2.Zhat` + `Zhat.ofInt` (+ `ofInt_add`, `denseRange_ofInt`, `funext_ofInt`, `commute`) | `Zhat.lean` | **foundation: `ℤ̂` (T-06/U1)** | `ℤ̂ = lim ℤ/N` via Mathlib's `ProfiniteCompletion`; dense embedding of `ℤ`; extensionality-by-density; commutativity. Group structure only (ring deferred by design) |
+| `GQ2.omega2` | `Zhat.lean` | **`ω₂ ∈ ℤ̂` (App. A/B, §1)** | the profinite idempotent, componentwise `(omega2Exp N)_N`; compatibility = `omega2Exp_modEq` |
+| `GQ2.zpowHat` (`x ^ᶻ γ`) + `zpowHatHom`, `zpowHat_ofInt`, `zpowHat_mul`, `map_zpowHat` | `Zhat.lean` | **foundation: `ẑ`-exponentiation (T-06/U1)** | continuous extension of `n ↦ xⁿ` to `γ : ℤ̂` in any profinite group, via `ProfiniteCompletion.lift`; extends `ℤ`-powers; **naturality** `f (x ^ᶻ γ) = (f x) ^ᶻ γ` via `lift_unique` |
+| `GQ2.zpowHat_omega2`, `GQ2.map_zpowHat_omega2` | `Zhat.lean` | **`ω₂` evaluation (T-06 headline)** | in finite quotients the profinite `ω₂` computes the paper's finite calculus: `f (x ^ᶻ ω₂) = powOmega2 (f x)` — ties `omega2` to the entire App. A/B word ledger |
+| `GQ2.zpowHat_omega2_s3_rotation`, `..._s3_reflection` | `Zhat.lean` | App. A/B sanity | in `S₃`: `(r 1) ^ᶻ ω₂ = 1`, `(sr 0) ^ᶻ ω₂ = sr 0` — concrete profinite-to-finite cross-check |
 
 ## Stated with `sorry` (faithful target, proof deferred)
 
@@ -58,8 +66,8 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 
 | object | why deferred |
 |---|---|
-| the literal presented profinite group `Γ_A` | shape now available: `Γ_A := profinitePresentation (X := Fin 4) rels`. Only remaining blocker is writing the four `rels : Set (FreeProfiniteGroup (Fin 4))` literally, which needs a genuine profinite `ω₂`-exponent (`ZHat`, below). |
-| `ℤ̂`, `ω₂` as a genuine profinite exponent | needs `ZHat` (absent). On finite quotients `GQ2.powOmega2` already suffices. |
+| the literal presented profinite group `Γ_A` | **unblocked** (ticket T-21): `ℤ̂`/`ω₂`/`^ᶻ` now exist (`Zhat.lean`), so the four relator words are writable in `FreeProfiniteGroup (Fin 4)` and `Γ_A := profinitePresentation (Fin 4) rels` is definable. Remaining work is just writing the words and the faithfulness stress test (image under a finite marking = the `Words.lean` words, via `map_zpowHat_omega2`). |
+| ~~`ℤ̂`, `ω₂` as a genuine profinite exponent~~ | **done 2026-07-02** (`Zhat.lean`, ticket T-06): `Zhat`, `omega2`, `zpowHat` with naturality and finite-quotient evaluation. Ring structure on `ℤ̂` remains deliberately out of scope. |
 
 ## Next reachable targets (in priority order)
 
@@ -75,9 +83,10 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
    `isoLimittoFiniteQuotientFunctor R` + dense/compact image. Standard; the biggest remaining chunk.
 4. ~~`homEquiv_naturality`~~ + ~~profinite quotient/presentation foundations~~ **done**
    (`homEquiv_apply`, `profiniteQuotient`, `profinitePresentation`, `relator_quotientMk_eq_one`).
-5. `ℤ̂` as a topological **ring** + the `ω₂`-power action on profinite groups — the last foundation
-   needed to write the four relators literally, hence to define `Γ_A := profinitePresentation …`
-   and to state Theorem 1.2 literally (currently `main_surjection_count` sidesteps it).
+5. ~~`ℤ̂` + the `ω₂`-power action on profinite groups~~ **done** as a topological *group* with
+   `^ᶻ`-action (`Zhat.lean`, T-06; the ring structure was not needed for the relators). Next:
+   **T-21** — write the four relator words literally and define
+   `Γ_A := profinitePresentation (Fin 4) …`, stating Theorem 1.2 in its literal form.
 6. ~~computable `ω₂` cross-check against App. B~~ **done** (`omega2Exp_appendixB_value`).
 
 ## What this autonomous session added (2026-07-01)

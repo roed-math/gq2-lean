@@ -17,7 +17,7 @@ states conventions + paper-equation cross-reference; all `axiom`s live in
 | T-03 | I2b: cohomology lemma layer (cocycle algebra, inflation, restriction, functoriality) | ⭐⭐ | O | T-02 | ☐ |
 | T-04 | I3: cup products (0,2),(1,1),(2,0) rel. a pairing + bilinearity | ⭐⭐ | O | T-02 | ☐ |
 | T-05 | I4: `maxProPQuotient` + pro-`p`-ness + universal property | ⭐⭐ | O | — | ☐ |
-| T-06 | U1: `Zhat` via `profiniteCompletion ℤ`; `x ^ᶻ γ`; `ω₂ : Zhat`; finite-quotient compat | ⭐⭐ | **F**→O | — | ☐ |
+| T-06 | U1: `Zhat` via `profiniteCompletion ℤ`; `x ^ᶻ γ`; `ω₂ : Zhat`; finite-quotient compat | ⭐⭐ | **F**→O | — | ☑ 2026-07-02 (`GQ2/Zhat.lean`) |
 | T-07 | B7′: Hilbert symbol def + `ε`,`ω` + axiom (Serre CiA III§1.2 Thm 1) + stress tests | ⭐⭐ | O | — | ☐ |
 | T-08 | B4: axiom `G_ℚ₂(2) ≅ profinitePresentation (Fin 3) {A²S⁴[S,Y]}` | ⭐⭐ | O | T-05 | ☐ |
 | T-09 | B3a: `IsDemushkin` definition + invariants + stress tests | ⭐⭐⭐ | **F** | T-02, T-04 | ☐ |
@@ -52,10 +52,20 @@ axioms only in `Axioms.lean`; docstrings carry citations + conventions.
 - **T-04**: cup bilinearity; `(a ∪ 0) = 0`; compatibility with coefficient maps.
 - **T-05**: defs + `IsPGroup`-quotient lemma + universal property (`∀ pro-p P, Hom_cont(G,P) ≃
   Hom_cont(G(p),P)` or factorization form); stress: finite case; idempotence.
-- **T-06**: `Zhat`, `zpowHat`, notation; naturality (`lift_unique`); `ω₂ : Zhat` with
+- **T-06** ☑: `Zhat`, `zpowHat`, notation; naturality (`lift_unique`); `ω₂ : Zhat` with
   compatibility lemma `N ∣ M → omega2Exp M ≡ omega2Exp N [MOD N]`; headline:
   `f (x ^ᶻ ω₂) = powOmega2 (f x)` for `f` into finite groups. Ring structure explicitly out of
   scope.
+  *Done (`GQ2/Zhat.lean`, all criteria met; `#print axioms` = standard three throughout).* Extras
+  shipped: `completion_exists_level` (congruence-neighborhood basis for **any** profinite
+  completion — reusable for T-12/T-21), `Zhat.ofInt`/`denseRange_ofInt`/`funext_ofInt` (density
+  API), `Zhat.commute`, and `S₃` sanity evaluations tying `^ᶻ ω₂` to the App. A/B ledger.
+  Design notes: `ω₂` built **componentwise** (Mathlib's `completion` is the literal subtype of
+  compatible families, so `⟨fun H => mk (ofAdd (omega2Exp H.index)), …⟩` typechecks); classes in
+  `ℤ/H` handled *without* classifying subgroups of `ℤ` (`orderOf_mk_ofAdd_one`: the generator's
+  class has order = index); finite-quotient evaluation via `completion_exists_level` at level
+  `H₀` + integer representative at level `lcm(index H₀, orderOf x)` — no unfolding of
+  Mathlib's `lift`/`isLimitCone` internals needed. **T-21 and T-12's `P ^ᶻ ι(u)` are unblocked.**
 - **T-07**: `hilbertSymbol`; `ε`, `ω`; axiom `B7'` with the exact CiA formula; theorems:
   symmetry, `(a,−a)=1`, square-class invariance in one slot.
 - **T-08**: `r₀` via `FreeProfiniteGroup.of`; axiom; stress: image of the generators under a

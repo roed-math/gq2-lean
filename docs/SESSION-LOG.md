@@ -171,3 +171,46 @@ genuinely missing foundation.
    then a profinite-presentation quotient to define `Γ_A`; and `ℤ̂` as a topological ring with the
    `ω₂`-power action, to state Theorem 1.2 literally rather than only in surjection-count form.
 5. Consider upstreaming `FreeProfiniteGroup` to Mathlib.
+
+---
+
+# Session 2026-07-02 (Fable): T-06 — `ℤ̂`, `ω₂`, and `ẑ`-exponentiation
+
+First execution ticket of the step-1 program (`docs/formalization-plan.md`). New file
+`GQ2/Zhat.lean` (+ `omega2Exp_modEq` in `Omega2.lean`); build green; every declaration
+`#print axioms`-checked to the standard three.
+
+- **`omega2Exp_modEq`** (`Omega2.lean`): `N ∣ M → omega2Exp M ≡ omega2Exp N [MOD N]` — the
+  CRT argument extracted from `powOmega2_pow_eq` (now a corollary). This is the coherence of the
+  family `(omega2Exp N)_N`.
+- **`Zhat`** := Mathlib's `ProfiniteCompletion.completion` of `Multiplicative ℤ` (`= lim ℤ/N`);
+  `Zhat.ofInt` dense embedding, `funext_ofInt` (extensionality by density), `Zhat.commute`.
+- **Integer levels without classification** (`orderOf_mk_ofAdd_one`, `ofAdd_mem_iff_index_dvd`,
+  `mk_ofAdd_eq_mk_ofAdd_iff`): in `ℤ/H` the class of `1` has order `= H.index` (generator +
+  `Nat.card_zpowers`), so membership/equality are congruences mod the index — no
+  `Int.subgroup_cyclic`, no `AddSubgroup` transfer.
+- **`omega2 : Zhat`** constructed componentwise — Mathlib's completion is definitionally the
+  subtype of compatible families, so the anonymous constructor works; compatibility is
+  `omega2Exp_modEq` + `index_dvd_of_le`.
+- **`zpowHat` / `x ^ᶻ γ`**: `ProfiniteCompletion.lift` of `zpowersHom G x`, for `G` any
+  typeclass-profinite group (`Type 0`, matching `Reconstruction.lean` conventions).
+  `zpowHat_ofInt` (extends `ℤ`-powers; proof is literally `congr_hom lift_eta`),
+  `zpowHat_mul`/`zpowHat_one`/`one_zpowHat`, **naturality `map_zpowHat`** via `lift_unique`.
+- **`completion_exists_level`**: in any profinite completion, "agrees with `γ` at one
+  finite-index level" refines any open neighborhood of `γ` (isOpen_pi_iff + finite `iInf`,
+  same skeleton as Mathlib's `denseRange`). The workhorse for evaluation.
+- **Evaluation theorems**: `zpowHat_omega2 : x ^ᶻ ω₂ = powOmega2 x` in finite discrete groups
+  (level `H₀` from `completion_exists_level`, integer representative at level
+  `lcm(index H₀, orderOf x)`, close with `powOmega2_pow_eq`); headline
+  **`map_zpowHat_omega2 : f (x ^ᶻ ω₂) = powOmega2 (f x)`** for continuous `f` into finite
+  groups. Sanity in `S₃`: `(r 1) ^ᶻ ω₂ = 1`, `(sr 0) ^ᶻ ω₂ = sr 0`.
+
+Lean gotchas recorded: `Zhat`-vs-`completion` semireducibility breaks `rw`-motives inside
+categorical goals (state key equations at the `lift` level, extract with defeq-tolerant
+`exact`); `rw` won't see through `↥(GrpCat.of _)` in quotient types (use `exact ...mpr` instead);
+`omega2` must be `noncomputable` (`Subgroup.index` is); the anchor equation
+`x ^ᶻ ofInt n = x ^ n` is *definitionally* `congr_hom lift_eta (ofAdd n)`.
+
+**Unblocked**: T-21 (literal `Γ_A` + literal Theorem 1.2) and T-12's `P ^ᶻ ι(u)` notation.
+Next per plan: T-02 (continuous cohomology API design, Fable); T-01/T-05/T-07/T-00 ready for
+Opus in parallel.
