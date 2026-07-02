@@ -36,8 +36,13 @@ noncomputable def contSurjCount (G : Type) [Group G] [TopologicalSpace G] [Discr
 surjections `G_{ℚ₂} ↠ G` equals `admissibleCount G`, the number of admissible marked generating
 quadruples `(σ,τ,x₀,x₁) ∈ G⁴` (paper eq. (154) + Prop. 2.3).
 
-*Status:* the honest computational content of the paper; proof deferred (needs the §§3–9 tower —
-see `docs/proof-architecture.md`). -/
+*Status:* the honest computational content of the paper; proof deferred (needs the §§3–9 tower).
+The paper proves this via eq. (154) `|Sur(Γ_A,G)| = |Sur(G_ℚ₂,G)|` (Lemma 10.1 + Theorem 4.2 +
+Prop 2.3). That tower reduces to a **minimal list of nine classical literature results** (Demushkin
+classification, `G_ℚ₂(2)` Demushkin, local reciprocity, local Tate duality, local Euler
+characteristic, dyadic Hilbert symbol, 2-adic cyclotomic surjectivity, `G_ℚ₂` top. f.g., Evens/
+Stiefel–Whitney) — enumerated with precise statements and citations in `docs/literature-axioms.md`,
+and (where Mathlib has the types) stated in `GQ2/Foundations.lean`. -/
 theorem main_surjection_count
     (G : Type) [Group G] [Finite G] [TopologicalSpace G] [DiscreteTopology G] :
     contSurjCount G = admissibleCount G := by
