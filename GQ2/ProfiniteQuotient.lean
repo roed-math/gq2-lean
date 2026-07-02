@@ -87,4 +87,22 @@ omit [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
 theorem quotientMk_eq_one_iff {g : G} : quotientMk N g = 1 ↔ g ∈ N :=
   QuotientGroup.eq_one_iff g
 
+section Lift
+variable {P : Type*} [Group P] [TopologicalSpace P] [IsTopologicalGroup P]
+
+omit [CompactSpace G] [TotallyDisconnectedSpace G] in
+/-- **Universal property of the profinite quotient.**  A continuous homomorphism `f : G →ₜ* P`
+whose kernel contains `N` factors through the quotient projection as a continuous homomorphism
+`G ⧸ N →ₜ* P`.  (Continuity is automatic: `G → G ⧸ N` is a quotient map.) -/
+noncomputable def quotientLift (f : ContinuousMonoidHom G P)
+    (hf : N ≤ f.toMonoidHom.ker) : ContinuousMonoidHom (G ⧸ N) P :=
+  ⟨QuotientGroup.lift N f.toMonoidHom hf,
+    (QuotientGroup.isQuotientMap_mk N).continuous_iff.mpr f.continuous_toFun⟩
+
+omit [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] [IsTopologicalGroup P] in
+@[simp] theorem quotientLift_quotientMk (f : ContinuousMonoidHom G P)
+    (hf : N ≤ f.toMonoidHom.ker) (g : G) : quotientLift N f hf (quotientMk N g) = f g := rfl
+
+end Lift
+
 end GQ2
