@@ -349,3 +349,43 @@ Wave-2 cohomology infrastructure (T-01/02/03/04) is now complete.  Remaining Opu
 T-05 (max pro-p), T-07 (Hilbert symbol), T-00 (CFT survey), plus T-13 (Kummer)/T-15 (μ).
 Then wave-3 axiom statements (mostly Fable): B3 uses `cup11` nondegeneracy; B6 uses all three
 cups + `mapCoeff`; B7 uses `Nat.card Hⁱ`.
+
+---
+
+# Session 2026-07-02 (Opus): integrate with Hill's continuous cohomology (steps 1–2)
+
+Per user: build cup products on Richard Hill's `rmhi/ctsToDiscrete` continuous cohomology.
+
+**Dependency + bump** (commit e92738a): added ctsToDiscrete as editable path dep `../ctsToDiscrete`;
+bumped mathlib 23b0068→ec410d2 (clean 80-commit fast-forward; forced by his transitive dep set).
+GQ2 builds unchanged.
+
+**KEY DISCOVERY**: continuous cohomology is now IN MATHLIB (`Mathlib.Algebra.Category.
+ContinuousCohomology.Basic`, Hill's work upstreamed at ec410d2) — `continuousCohomology (n) :
+Action (TopModuleCat R) G ⥤ TopModuleCat R`, over Mathlib's `TopRep`/`ContRepresentation`.
+It is MORE complete than his standalone repo: Mathlib has `continuousCohomologyZeroIso :
+continuousCohomology R G 0 ≅ invariants R G` PROVED, whereas his repo `#exit`s + sorries it.
+His standalone repo *redefines* the now-upstreamed core, so importing it alongside Mathlib
+collides (`ContinuousCohomology.MultiInd.d` double-declared) — it is NOT co-importable. So we
+bridge to the canonical Mathlib object (= his upstreamed work), not his repo copy.
+
+**New file `GQ2/CtsCohBridge.lean`** (all standard axioms, build green):
+- Step 1 (coefficient bridge): `smulCLM g : M →L[ℤ] M` (= `m↦g•m`); `toContRep : ContRepresentation
+  ℤ G M`; `toTopRep : TopRep ℤ G`; `toAction : Action (TopModuleCat ℤ) G` built DIRECTLY (not via
+  the `TopRep≌Action` equivalence) so `.V=M`, `(.ρ g).hom = (m↦g•m)` are defeq — keeps invariants
+  concrete. (`End` mul is `a*b = b≫a`, so `ρ(gh)=ρ(h)≫ρ(g)` matches `(gh)•x=g•(h•x)`; morphism
+  equalities via `ConcreteCategory.ext`.)
+- Step 2, i=0 (H⁰ bridge, DONE): `invariantsEquivH0 : (invariants ℤ G).obj (toAction M) ≃+ H0 G M`
+  (identity on carriers — the two membership predicates `∀g,(ρ g).hom x=x` and `∀g,g•x=x` are
+  DEFEQ, so `⟨x.1,x.2⟩` typechecks both ways, proof is `rfl`); `H0Equiv : (continuousCohomology
+  ℤ G 0).obj (toAction M) ≃+ H0 G M` via `continuousCohomologyZeroIso` +
+  `Iso.toContinuousLinearEquiv.toLinearEquiv.toAddEquiv`. **Our H⁰ = Mathlib's continuous H⁰.**
+
+**REMAINING (i=1, i=2, cup transport)**: needs the homogeneous↔inhomogeneous n-ary cochain iso in
+low degree — Mathlib's OWN open TODO for ContinuousCohomology. Degree 1: inhomog `c:G→M`
+(`c(gh)=c(g)+g•c(h)`) ↔ homog `f(g₀,g₁)=g₀•c(g₀⁻¹g₁)`, a chain iso. Substantial (Mathlib's abstract
+`Rep R G` analogue is multi-hundred lines). Natural coordination point with Hill/mathlib. Once
+H1/H2 bridges exist, CupProduct.lean cups transport (step 3). Documented in CtsCohBridge.lean tail.
+
+Note: ctsToDiscrete path dep is currently dormant (collides with mathlib → not imported). Keep as
+contribution reference or remove — user's call.

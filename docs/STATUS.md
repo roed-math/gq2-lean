@@ -68,6 +68,8 @@ deferred), or scaffold. Updated 2026-07-02. Build: Mathlib `v4.31.0`, `lake buil
 | `GQ2.ContCoh.cup11` (+`cup11_mk_mk`, `cup11_add_left/right`, `cup11_zero_left/right`) | `CupProduct.lean` | **cup product `(1,1)` (T-04)** | `H¹(G,M) →+ H¹(G,N) →+ H²(G,P)` rel. a `G`-pairing `μ`; the B3-critical one (nondegeneracy of `H¹ × H¹ → H²`). Full Leibniz descent in both variables; bilinear + `∪0=0` by construction |
 | `GQ2.ContCoh.cup02`, `GQ2.ContCoh.cup20` | `CupProduct.lean` | **cup products `(0,2)`,`(2,0)` (T-04)** | `H⁰ →+ H² →+ H²` and `H² →+ H⁰ →+ H²` — the shapes B6 (local Tate duality) needs for `H^i × H^{2−i} → H²` |
 | `GQ2.ContCoh.cup11_mapCoeff_target`, `postPairing` | `CupProduct.lean` | T-04 coefficient naturality | cup commutes with a target `G`-map: `cup(fP∘μ) = mapCoeff2 fP ∘ cup(μ)` |
+| `GQ2.ContCoh.toContRep`, `toTopRep`, `toAction` | `CtsCohBridge.lean` | **bridge to Mathlib continuous cohomology** | a topological `G`-module `M` as a continuous `ℤ`-rep `g ↦ (m↦g•m)`, hence `TopRep ℤ G` and (directly) `Action (TopModuleCat ℤ) G` — the coefficient of Mathlib's `continuousCohomology` |
+| `GQ2.ContCoh.invariantsEquivH0`, `GQ2.ContCoh.H0Equiv` | `CtsCohBridge.lean` | **degree-0 bridge** | `(invariants ℤ G).obj (toAction M) ≃+ H0 G M` (both `Mᴳ`, defeq predicates) and `(continuousCohomology ℤ G 0).obj (toAction M) ≃+ H0 G M` (via Mathlib's `continuousCohomologyZeroIso`). Our `H⁰` = Mathlib's continuous `H⁰` |
 
 ## Stated with `sorry` (faithful target, proof deferred)
 

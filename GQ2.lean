@@ -6,6 +6,7 @@ import GQ2.Zhat
 import GQ2.DiscreteModule
 import GQ2.Cohomology
 import GQ2.CupProduct
+import GQ2.CtsCohBridge
 import GQ2.FreeProfinite
 import GQ2.ProfiniteQuotient
 import GQ2.ProfinitePresentation
