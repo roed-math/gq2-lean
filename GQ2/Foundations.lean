@@ -39,9 +39,10 @@ open scoped Classical
 generated* (by `[K : ℚ_p] + 3` elements when `μ_p ⊆ K`).  For `K = ℚ₂` this is the input `hfgG` that
 `main_presentation` feeds to `reconstruction`.
 
-Citation: Jannsen–Wingberg, *Die Struktur der absoluten Galoisgruppe `p`-adischer Zahlkörper*,
-Invent. Math. 70 (1982/83), 71–98 (the full presentation, so a fortiori finite generation); finite
-generation alone is Jannsen, Invent. Math. 70 (1982), 53–69.  Reproduced in NSW [1], Ch. VII §7.5.
+Citation: NSW [1], Ch. VII §7.5, Theorem (7.5.14) (Jannsen–Wingberg) — `G_k` has `N+3` generators
+(`N=[k:ℚ_p]`) with the tame + one wild relation, so is topologically finitely generated; also
+(7.5.11). Original: Jannsen–Wingberg, Invent. Math. 70 (1982/83), 71–98. (Verified against the
+NSW PDF in `references/`.)
 
 This is a genuine, faithful Lean statement: it is exactly the topological-finite-generation
 predicate used throughout `Reconstruction.lean`. -/
