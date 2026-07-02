@@ -38,6 +38,7 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 | `GQ2.main_presentation` (**modulo** its two `sorry` inputs) | `Statement.lean` | **Theorem 1.2 wiring** | the top-level logic *is checked*: `reconstruction` + `main_surjection_count` ⟹ the iso |
 | `GQ2.FreeProfiniteGroup` + `.of` + `.homEquiv` | `FreeProfinite.lean` | foundation | **free profinite group** (absent from Mathlib) built from `profiniteCompletion ∘ FreeGroup`, with universal property `(FreeProfiniteGroup X ⟶ P) ≃ (X → P)` |
 | `GQ2.grpCatHomEquiv` | `FreeProfinite.lean` | foundation | `(GrpCat.of A ⟶ GrpCat.of P) ≃ (A →* P)` |
+| `GQ2.instTotallyDisconnectedSpace_quotient`, `GQ2.profiniteQuotient` | `ProfiniteQuotient.lean` | **foundation (profinite presentations)** | for `G` profinite and `N` closed normal, `G ⧸ N` is profinite (the missing `TotallyDisconnectedSpace` instance, via a clopen basis) — packaged as `profiniteQuotient : ProfiniteGrp`. The construction behind `Γ_A`. Absent from Mathlib. |
 | `GQ2.FreeProfiniteGroup.homEquiv_apply` | `FreeProfinite.lean` | foundation | **naturality of the universal property**: `homEquiv X P f x = f (of x)` — `homEquiv` is genuinely "restrict to generators", making it usable for defining maps out of `FreeProfiniteGroup X` (and profinite presentations `Γ_A`) |
 
 ## Stated with `sorry` (faithful target, proof deferred)
@@ -51,7 +52,7 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 
 | object | why deferred |
 |---|---|
-| the literal presented profinite group `Γ_A` | needs `FreeProfiniteGroup (Fin 4)` + profinite presentations (absent from Mathlib & PRs) |
+| the literal presented profinite group `Γ_A` | foundations now in place: `FreeProfiniteGroup (Fin 4)` + `profiniteQuotient` (quotient by a closed normal subgroup). Remaining: express the relators as elements and take the closed normal closure, then `Γ_A := profiniteQuotient …`. |
 | `ℤ̂`, `ω₂` as a genuine profinite exponent | needs `ZHat` (absent). On finite quotients `GQ2.powOmega2` already suffices. |
 
 ## Next reachable targets (in priority order)
