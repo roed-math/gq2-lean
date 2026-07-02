@@ -3,6 +3,7 @@ import GQ2.Words
 import GQ2.Omega2
 import GQ2.FreeProfinite
 import GQ2.ProfiniteQuotient
+import GQ2.ProfinitePresentation
 import GQ2.Tame
 import GQ2.FiniteGroupLemmas
 import GQ2.Subdirect
