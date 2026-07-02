@@ -7,14 +7,21 @@ autoImplicit = false
 relaxedAutoImplicit = false
 
 [[require]]
-name = "mathlib"
-git = "https://github.com/leanprover-community/mathlib4.git"
-rev = "23b0068da67bca4257d9d77bee7ba2f0181e10e6"
-
-[[require]]
 name = "ClassFieldTheory"
 git = "https://github.com/kbuzzard/ClassFieldTheory.git"
 rev = "3565c752f7e1ef45afbb969f9c6d6279bb46962e"
+
+[[require]]
+name = "ctsToDiscrete"
+path = "../ctsToDiscrete"
+
+# `require mathlib` last so Mathlib's pinned versions of shared transitive
+# dependencies (proofwidgets, batteries, …) take precedence over those of the
+# other requires.  Bumped 23b0068 → ec410d2 (2026-06-12) to match ctsToDiscrete.
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4.git"
+rev = "ec410d23dfa4e7540d4663405b5e0dc71f3c3363"
 
 [[lean_lib]]
 name = "GQ2"
