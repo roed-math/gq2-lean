@@ -166,40 +166,13 @@ theorem exists_contSurj_of_card_le
     Nonempty (ContSurj S R) := by
   sorry
 
-/-- **Lemma 2.5 (one-sided profinite reconstruction).** *(Statement scaffold; proof deferred.)*
-`P` is a topologically finitely generated profinite group, `Q` is profinite, and they have the
-same (finite) number of continuous surjections onto every finite group; then `P ≅ Q` as
-topological groups. -/
-theorem reconstruction
-    {P Q : Type*}
-    [Group P] [TopologicalSpace P] [IsTopologicalGroup P]
-      [CompactSpace P] [TotallyDisconnectedSpace P]
-    [Group Q] [TopologicalSpace Q] [IsTopologicalGroup Q]
-      [CompactSpace Q] [TotallyDisconnectedSpace Q]
-    (hPfg : ∃ s : Finset P, (Subgroup.closure (s : Set P)).topologicalClosure = ⊤)
-    (hcount : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
-        Nat.card (ContSurj P H) = Nat.card (ContSurj Q H)) :
-    Nonempty (ContinuousMulEquiv P Q) := by
-  -- ⚠ NOTE (found 2026-07-02): this statement is FALSE as written, so it cannot be proved.
-  -- `Nat.card` sends an infinite set to `0`, so the `hcount` equality does NOT capture "equal
-  -- finite counts" once `Q` has infinitely many continuous surjections onto some finite group.
-  -- Counterexample: `P = Unit` (topologically f.g.), `Q = (ℤ/2)^ℕ`.  For every finite `H`,
-  -- `Nat.card (ContSurj P H)` and `Nat.card (ContSurj Q H)` are both `1` at the trivial group and
-  -- `0` otherwise (the `Q`-side is 0 at nontrivial `H` because there are *infinitely many*
-  -- surjections `(ℤ/2)^ℕ ↠ H`), so `hcount` and `hPfg` hold — yet `P ≇ Q`.
-  -- The faithful statement replaces the `Nat.card` equality by genuine equinumerosity of the
-  -- surjection sets; that version, `reconstruction_of_equinum` below, IS provable (modulo the
-  -- standard compactness input `exists_contSurj_of_card_le`).  This declaration is left as `sorry`
-  -- pending a decision to amend its hypothesis (its statement is otherwise unchanged).
-  sorry
-
-/-- **Lemma 2.5 (faithful form).**  `P` is a topologically finitely generated profinite group, `Q`
-is profinite, and for every finite group `H` the continuous-surjection sets are *equinumerous*
-(`ContSurj P H ≃ ContSurj Q H`); then `P ≅ Q` as topological groups.  This is the intended reading
-of Lemma 2.5 ("the same *number* of surjections"): equinumerosity, unlike equality of `Nat.card`,
-forces the counts to be genuinely finite (via `P`'s finiteness) and so is not vacuous on infinite
-level sets — see the note on `reconstruction`.  Proved in full modulo the standard compactness
-input `exists_contSurj_of_card_le`. -/
+/-- **Lemma 2.5 (equinumerosity form).**  `P` is a topologically finitely generated profinite group,
+`Q` is profinite, and for every finite group `H` the continuous-surjection sets are *equinumerous*
+(`ContSurj P H ≃ ContSurj Q H`); then `P ≅ Q` as topological groups.  Equinumerosity, unlike equality
+of `Nat.card`, forces the counts to be genuinely finite (via `P`'s finiteness) and so is not vacuous
+on infinite level sets; it is the most general faithful reading of "the same *number* of surjections"
+and does not need `Q` finitely generated as a separate hypothesis (it follows).  Proved in full
+modulo the standard compactness input `exists_contSurj_of_card_le`. -/
 theorem reconstruction_of_equinum
     {P Q : Type}
     [Group P] [TopologicalSpace P] [IsTopologicalGroup P]
@@ -240,6 +213,42 @@ theorem reconstruction_of_equinum
   rw [hcoe] at hginj
   have hfinj : Function.Injective (f : P → Q) := hginj.of_comp
   exact ⟨continuousMulEquivOfBijective f ⟨hfinj, hf⟩⟩
+
+/-- **Lemma 2.5 (one-sided profinite reconstruction).**  `P` and `Q` are topologically finitely
+generated profinite groups with the same (finite) number of continuous surjections onto every finite
+group; then `P ≅ Q` as topological groups.
+
+Both `P` and `Q` are assumed topologically finitely generated (`hPfg`, `hQfg`).  The finite
+generation of `Q` is essential and *cannot* be dropped while keeping the `Nat.card` hypothesis: for
+`Q` not finitely generated some `ContSurj Q H` is infinite, so `Nat.card` reads it as `0` and the
+count equality no longer means "equally many".  (Counterexample without `hQfg`: `P = Unit`,
+`Q = (ℤ/2)^ℕ` satisfy `hcount` but are not isomorphic.)  With both groups finitely generated the
+counts are genuinely finite, so `hcount` is real equinumerosity and this reduces to
+`reconstruction_of_equinum`. -/
+theorem reconstruction
+    {P Q : Type}
+    [Group P] [TopologicalSpace P] [IsTopologicalGroup P]
+      [CompactSpace P] [TotallyDisconnectedSpace P]
+    [Group Q] [TopologicalSpace Q] [IsTopologicalGroup Q]
+      [CompactSpace Q] [TotallyDisconnectedSpace Q]
+    (hPfg : ∃ s : Finset P, (Subgroup.closure (s : Set P)).topologicalClosure = ⊤)
+    (hQfg : ∃ s : Finset Q, (Subgroup.closure (s : Set Q)).topologicalClosure = ⊤)
+    (hcount : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
+        Nat.card (ContSurj P H) = Nat.card (ContSurj Q H)) :
+    Nonempty (ContinuousMulEquiv P Q) := by
+  refine reconstruction_of_equinum hPfg (fun H _ _ _ _ => ?_)
+  -- both surjection sets are finite (both groups top. f.g.), so equal `Nat.card` gives an equiv
+  haveI := finite_continuousMonoidHom hPfg H
+  haveI := finite_continuousMonoidHom hQfg H
+  haveI : Finite (ContSurj P H) :=
+    Finite.of_injective (fun s : ContSurj P H => s.val) (fun _ _ h => Subtype.ext h)
+  haveI : Finite (ContSurj Q H) :=
+    Finite.of_injective (fun s : ContSurj Q H => s.val) (fun _ _ h => Subtype.ext h)
+  haveI := Fintype.ofFinite (ContSurj P H)
+  haveI := Fintype.ofFinite (ContSurj Q H)
+  refine Fintype.card_eq.mp ?_
+  rw [← Nat.card_eq_fintype_card, ← Nat.card_eq_fintype_card]
+  exact hcount H
 
 /-- **Finite core of the reconstruction lemma.**  For *finite* groups, having the same number of
 surjections onto every finite group forces an isomorphism.  This is the counting heart of

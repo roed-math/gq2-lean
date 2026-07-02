@@ -33,7 +33,7 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 | `GQ2.finite_continuousMonoidHom` | `Reconstruction.lean` | **Lemma 2.5 (input)** | for top. f.g. profinite `P` and finite discrete `H`, `Hom_cont(P,H)` is finite (a continuous hom is pinned down by its values on a topological generating set) |
 | `GQ2.profinite_hopfian` | `Reconstruction.lean` | **Lemma 2.5 (Hopfian core)** | a continuous surjective endomorphism of a top. f.g. profinite group is injective — elementary counting proof (precomposition is an injective, hence surjective, self-map of the finite hom-set). Absent from Mathlib. |
 | `GQ2.continuousMulEquivOfBijective` | `Reconstruction.lean` | helper | a bijective continuous group hom from a compact group to a Hausdorff group is a topological iso |
-| `GQ2.reconstruction_of_equinum` (**modulo** `exists_contSurj_of_card_le`) | `Reconstruction.lean` | **Lemma 2.5 (faithful form)** | the full assembly is checked: from *equinumerosity* `ContSurj P H ≃ ContSurj Q H` (which forces finite counts via `P` f.g.), get `Q↠P` and `P↠Q`; composite `P→Q→P` is Hopfian ⟹ `f` injective ⟹ bijective ⟹ topological iso. Only the (standard) compactness assembly remains. |
+| `GQ2.reconstruction`, `GQ2.reconstruction_of_equinum` (**modulo** `exists_contSurj_of_card_le`) | `Reconstruction.lean` | **Lemma 2.5** | `reconstruction`: `P`, `Q` both top. f.g. profinite with equal `Nat.card` surjection counts ⟹ iso (finite generation of *both* makes the counts genuinely finite; reduces to the equinum form). `reconstruction_of_equinum`: the more general equinumerosity form (`ContSurj P H ≃ ContSurj Q H`, no separate `Q` f.g.). Assembly checked: `Q↠P`, `P↠Q`, composite Hopfian ⟹ iso. Only the (standard) compactness assembly remains. |
 | `GQ2.Marking.*` (all auxiliary words + predicates) | `Words.lean` | (1)–(3), §2 | `sigma2,u,d0,z0,c0,g0,dg,hc,h0`, `TameRel/WildRel/Generates/Pro2Core/Admissible` |
 | `GQ2.admissibleCount` | `Words.lean` | Prop. 2.3 (RHS of eq. 154) | the finite count `N(G)` |
 | `GQ2.main_presentation` (**modulo** its two `sorry` inputs) | `Statement.lean` | **Theorem 1.2 wiring** | the top-level logic *is checked*: `reconstruction` + `main_surjection_count` ⟹ the iso |
@@ -50,7 +50,6 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 |---|---|---|---|
 | `GQ2.main_surjection_count` | `Statement.lean` | **Theorem 1.2, eq. (154)** | the entire §§3–9 tower (Demushkin, local CFT, cup products, Gauss sums) |
 | `GQ2.exists_contSurj_of_card_le` | `Reconstruction.lean` | **Lemma 2.5 (compactness input)** | assemble `S↠R` from surjection-counts, given the *target* `R` has finite surjection sets (`hRfin`), via König on the cofiltered system of finite quotients of `R`. Standard profinite theory (Ribes–Zalesskiĭ); recipe + Mathlib lemmas in the docstring. Its arithmetic heart is **proved** (`contSurj_quotient_nonempty_finite`: each `R/V` level is nonempty+finite); only the König/cone assembly is deferred. `profinite_hopfian` and `reconstruction_of_equinum` are fully proved; this is the only remaining input to the latter. |
-| `GQ2.reconstruction` (**⚠ FALSE as stated**) | `Reconstruction.lean` | **Lemma 2.5** | the `Nat.card`-equality hypothesis is too weak: `Nat.card` sends infinite sets to 0, so it fails to encode "equal *finite* counts". Counterexample `P=1`, `Q=(ℤ/2)^ℕ` satisfies the hypotheses but `P≇Q`. Left as `sorry` with a warning; the faithful form is `reconstruction_of_equinum` (equinumerosity). **Decision needed: amend the `hcount` hypothesis.** |
 
 ## Not yet stated (missing foundations — would need axioms/opaque stubs)
 
@@ -62,9 +61,11 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 ## Next reachable targets (in priority order)
 
 1. ~~Lemma 3.1 (`tame_*`)~~ **done** (see Proved table).
-2. ~~`reconstruction` (Lemma 2.5)~~ **done** in faithful form (`reconstruction_of_equinum`), modulo
-   the standard compactness input `exists_contSurj_of_card_le` (recipe in its docstring).  ⚠ The
-   original `Nat.card`-hypothesis `reconstruction` is *false* — decide whether to amend it.
+2. ~~`reconstruction` (Lemma 2.5)~~ **done**, modulo the standard compactness input
+   `exists_contSurj_of_card_le` (recipe in its docstring).  The `Nat.card`-hypothesis form was
+   repaired by adding topological finite generation of *both* `P` and `Q` (`hQfg`); the general
+   equinumerosity form is `reconstruction_of_equinum`. `main_presentation` correspondingly now
+   assumes `G_{ℚ₂}` is topologically f.g. (`hfgG`, a true but unformalized fact).
 3. **`exists_contSurj_of_card_le`** — the one remaining sorry in `reconstruction_of_equinum`: König
    assembly of `S ↠ R` from finite level-sets over `OpenNormalSubgroup R` (`SemilatticeInf`, so
    cofiltered) via `nonempty_sections_of_finite_cofiltered_system`, then a cone through

@@ -67,17 +67,20 @@ This wiring is recorded as a `sorry`-backed target so the top-level logic is exp
 yet in Mathlib) is continuously isomorphic to `G_{ℚ₂}`.
 
 `ΓA` stands in for the presented profinite group; `hΓA` is Prop. 2.3 (its finite quotients are the
-admissible markings); `hfg` is topological finite generation. The conclusion is Theorem 1.2. -/
+admissible markings); `hfgΓ`/`hfgG` are topological finite generation of `Γ_A` and of `G_{ℚ₂}`
+(both true — `G_{ℚ₂}` is topologically finitely generated, being the absolute Galois group of a
+local field; assumed here as it is not yet formalized). The conclusion is Theorem 1.2. -/
 theorem main_presentation
     (ΓA : Type)
     [Group ΓA] [TopologicalSpace ΓA] [IsTopologicalGroup ΓA]
       [CompactSpace ΓA] [TotallyDisconnectedSpace ΓA]
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hfgΓ : ∃ s : Finset ΓA, (Subgroup.closure (s : Set ΓA)).topologicalClosure = ⊤)
+    (hfgG : ∃ s : Finset AbsGalQ2, (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤)
     (hΓA : ∀ (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [Finite G],
         Nat.card (ContSurj ΓA G) = admissibleCount G) :
     Nonempty (ContinuousMulEquiv ΓA AbsGalQ2) := by
-  apply reconstruction hfgΓ
+  apply reconstruction hfgΓ hfgG
   intro G _ _ _ _
   rw [hΓA G]
   -- `admissibleCount G = |Sur(G_{ℚ₂}, G)|` is `main_surjection_count` (reversed).
