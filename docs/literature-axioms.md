@@ -81,9 +81,10 @@ not yet to hand.
 
 ### B2. 2-adic cyclotomic character is surjective  ✅ faithful
 - **Statement.** `χ_cyc : Gal(ℚ̄/ℚ) → ℤ₂ˣ` is surjective; equivalently `Gal(ℚ(μ_{2^∞})/ℚ) ≅ ℤ₂ˣ`.
-- **Citation.** Classical. **Washington, *Introduction to Cyclotomic Fields*, 2nd ed., GTM 83,
-  Theorem 2.5 / §2** (`Gal(ℚ(μ_{p^n})/ℚ) ≅ (ℤ/p^n)ˣ`, hence the inverse limit `≅ ℤ_pˣ`) `[likely]`;
-  also NSW [1] §7.5. `[the math is standard]`
+- **Citation.** **Washington, *Introduction to Cyclotomic Fields*, 2nd ed., GTM 83, Ch. 2,
+  Theorem 2.5** `[✓ verified in the provided source]` — verbatim: `deg(ℚ(ζ_n)/ℚ) = φ(n)` and
+  `Gal(ℚ(ζ_n)/ℚ) ≅ (ℤ/nℤ)ˣ`, with `a` corresponding to `ζ_n ↦ ζ_n^a` (the cyclotomic character).
+  Taking `n = 2^k` and the inverse limit gives `Gal(ℚ(μ_{2^∞})/ℚ) ≅ ℤ₂ˣ`, whence surjectivity.
 - **Lean.** `GQ2.Foundations.cyclotomicCharacter_two_surjective` (via Mathlib `cyclotomicCharacter 2`).
 - **Used at.** Lemma 3.6 (cyclotomic powering of the three peripheral inertia classes).
 
@@ -170,10 +171,14 @@ not yet to hand.
 - **Statement.** The outer Galois action `G_ℚ → Out(Δ)` on the geometric maximal pro-2 fundamental
   group `Δ = π₁^{pro-2}(ℙ¹_{ℚ̄}∖{0,1,∞})` sends the three peripheral inertia generators `P,T,C` to
   cyclotomic conjugates (`φ_u(P) = c_P^{-1} P^u c_P`, etc., for `u ∈ ℤ₂ˣ`).
-- **Citation.** **Stix [8], *On cuspidal sections of algebraic fundamental groups*, in Galois–
-  Teichmüller Theory and Arithmetic Geometry, ASPM 63 (2012), 519–563** `[quoted]`; the cyclotomic
-  action on inertia originates with **Deligne, *Le groupe fondamental de la droite projective moins
-  trois points*, in Galois Groups over ℚ, MSRI Publ. 16 (1989), §§8, 15–19** `[likely]`; Ihara.
+- **Citation.** **Stix [8], §3.3 ("Cusps and inertia subgroups") and Definition 37 ("local
+  orientation at each cusp")** `[✓ verified in the provided source]` — exactly the paper's citation
+  `[8, Section 3.3 and Definition 37]`: the decomposition group of a rational cusp acts on the
+  procyclic inertia group through the cyclotomic character. (Full ref: J. Stix, *On cuspidal sections
+  of algebraic fundamental groups*, in *Galois–Teichmüller Theory and Arithmetic Geometry*, ASPM 63
+  (2012), 519–563.) The paper does **not** cite Deligne; the classical *origin* of the cyclotomic
+  inertia action is Deligne, *Le groupe fondamental de la droite projective moins trois points*, in
+  *Galois Groups over ℚ* (Ihara–Ribet–Serre, eds.), MSRI Publ. 16 (1989), §§8, 15–19.
 - **Lean.** Schematic (no étale/anabelian `π₁` in Mathlib).
 - **Used at.** Lemma 3.6.
 
@@ -237,14 +242,14 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 | leaf | precise citation | conf. | Lean |
 |---|---|---|---|
 | B1  `G_ℚ₂` top. f.g. | **NSW (7.5.14) Jannsen–Wingberg** (`N+3` gens); (7.5.11) | ✅ **verified** | ✅ axiom |
-| B2  2-adic cyclotomic surjective | Washington, *Cyclotomic Fields*, Thm 2.5 | ~ (source not provided) | ✅ axiom |
+| B2  2-adic cyclotomic surjective | Washington, *Cyclotomic Fields*, **Ch. 2 Thm 2.5** | ✅ **verified** | ✅ axiom |
 | B3  Demushkin classification | Labute [2], Thm 4 (case 2) & Thm 8 | **quoted** | 🟡 |
 | B4  `G_ℚ₂(2)` is rank-3 Demushkin | **NSW (7.5.11)(ii)** (rank `N+2=3`); Serre [3]; Labute [2] | ✅ **verified** | 🟡 |
 | B5  local reciprocity for `ℚ₂` | **NSW (7.1.1)/(7.1.5)** (class formation); Serre *LF* XI–XII | ✅ **verified** | 🟡 |
 | B6  local Tate duality | **NSW (7.2.6) "Tate Duality"**; Serre *GC* II §5.2; Milne I.2.1 | ✅ **verified** | 🟡 |
 | B7  local Euler characteristic | **NSW (7.3.1) (Tate)** `χ=‖a‖`; Serre *GC* II §5.7; Milne I.2.8 | ✅ **verified** | 🟡 |
 | B7′ dyadic Hilbert symbol | **Serre *Course in Arithmetic* Ch. III §1.2 Thm 1** (`ε,ω`: Ch. II §3.3) | ✅ **verified** | 🟡 |
-| B8  Galois action on `π₁(ℙ¹∖{0,1,∞})` | Stix [8]; Deligne, MSRI 16 (1989) §§8,15–19 | quoted / ~ | 🟡 |
+| B8  Galois action on `π₁(ℙ¹∖{0,1,∞})` | **Stix [8] §3.3 + Def 37** (Deligne MSRI 16: classical origin) | ✅ **verified** | 🟡 |
 | B9  Evens / Stiefel–Whitney | **Evens [9] §§4–5 Thm 1**; **Kahn [10] Thm 1–3**; **Kozlowski [11] Thm 1.1** (Guillot [6]: background only) | ✅ **verified** | 🟡 |
 | — RZ Hopfian | RZ [4], Prop. 2.5.2 | **confirmed** | ✅ **proved** |
 | — Schur–Zassenhaus | Mathlib | — | ✅ **proved** |
@@ -283,14 +288,18 @@ Stiefel–Whitney/Evens classes, étale `π₁`) before they can be stated faith
 - **B3** — theorem numbers taken verbatim from the paper's own citation (Labute Thm 4/8).
 - **RZ Hopfian = Prop. 2.5.2** — confirmed against a secondary source; proved in-repo anyway.
 
-**Still `~` (minor; primary already verified, so these are optional corroboration):**
-- **B2** — Washington *Cyclotomic Fields* Thm 2.5 (`Gal(ℚ(μ_{p^n})/ℚ)≅(ℤ/p^n)ˣ`): source not provided,
-  but the statement is completely standard.
-- **B8** — Stix [8] is paper-quoted; the Deligne (MSRI 16, 1989) cross-ref for the cyclotomic inertia
-  action is my identification.
-- Only remaining unchecked: **Milne *ADT* I.2.1/I.2.8** (free online) — a *tertiary* corroboration
-  for B6/B7, not needed now that both NSW **and** Serre *GC* are verified primaries/secondaries.
+**Also now verified (later-added sources):**
+- **B2** — Washington, *Introduction to Cyclotomic Fields*, **Ch. 2 Theorem 2.5**
+  (`Gal(ℚ(ζ_n)/ℚ) ≅ (ℤ/n)ˣ` via the cyclotomic character) — verified verbatim.
+- **B8** — Stix [8], **§3.3 + Definition 37** (the paper's exact citation): cyclotomic action on
+  cuspidal inertia — verified. (Deligne, MSRI 16 (1989), is the classical *origin*, not cited by the
+  paper.)
 
-**Net:** seven of the nine classical leaves (B1, B4, B5, B6, B7, B7′, B9) now carry source-verified
-theorem numbers and statements; B3 is paper-quoted (Labute Thm 4/8); only B2 (Washington, not sent)
-and B8's secondary Deligne ref remain identified-but-unchecked, both entirely standard.
+**Only remaining unchecked:** **Milne *ADT* I.2.1/I.2.8** (free online) — a *tertiary* corroboration
+for B6/B7, superfluous now that both NSW **and** Serre *GC* are verified.
+
+**Net:** every classical leaf now carries a source-verified theorem number and verbatim statement
+(B1, B2, B4, B5, B6, B7, B7′, B8, B9 — B6/B7 doubly-sourced), **except B3** (Labute's Demushkin
+classification), whose theorem numbers (Thm 4 case (2), Thm 8) are taken verbatim from the paper's
+own citation — the one source not among the PDFs. The two would-be finite-group inputs (RZ Hopfian
+Prop. 2.5.2, Schur–Zassenhaus) are *proved* in the formalization.

@@ -54,8 +54,9 @@ axiom absGalQ2_isTopologicallyFinitelyGenerated :
 powering of the three peripheral inertia classes of `π₁(ℙ¹∖{0,1,∞})`).  Stated here against Mathlib's
 `cyclotomicCharacter 2` on an algebraic closure of `ℚ`.
 
-Citation: `Gal(ℚ(μ_{p^n})/ℚ) ≅ (ℤ/p^n)ˣ` (Washington, *Introduction to Cyclotomic Fields*, 2nd ed.,
-GTM 83, Thm 2.5), whence the inverse limit `Gal(ℚ(μ_{p^∞})/ℚ) ≅ ℤ_pˣ`. -/
+Citation: `Gal(ℚ(ζ_n)/ℚ) ≅ (ℤ/nℤ)ˣ` via `a ↦ (ζ ↦ ζ^a)` (Washington, *Introduction to Cyclotomic
+Fields*, 2nd ed., GTM 83, Ch. 2, Theorem 2.5, verified), whence the inverse limit
+`Gal(ℚ(μ_{2^∞})/ℚ) ≅ ℤ₂ˣ`. -/
 axiom cyclotomicCharacter_two_surjective :
     Function.Surjective
       (cyclotomicCharacter (L := AlgebraicClosure ℚ) 2)
