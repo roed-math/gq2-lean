@@ -50,6 +50,24 @@ biggest remaining categorical chunk for Lemma 2.5.
 `Γ_A` is now expressible as `profinitePresentation (X := Fin 4) rels`. The sole remaining blocker to
 writing it *literally* is a genuine profinite `ω₂`-exponent (`ℤ̂`, still absent — roadmap item 5).
 
+## Reconstruction repaired + literature-axiom reduction (later, session 3)
+
+- **`reconstruction` repaired.** Review pointed out the `Nat.card` counterexample used a non-f.g. `Q`.
+  Added `hQfg` (both `P,Q` topologically f.g.); with both f.g. the counts are finite, so equal
+  `Nat.card` is genuine equinumerosity and `reconstruction` reduces to `reconstruction_of_equinum`.
+  `reconstruction` is now **proved** (modulo the standard `exists_contSurj_of_card_le`).
+  `main_presentation` gained `hfgG` (`G_ℚ₂` is topologically f.g. — true, assumed). Whole project
+  down to **2 `sorry`s**: `exists_contSurj_of_card_le` (Mathlib-provable) and `main_surjection_count`.
+- **Literature-axiom reduction (for expert review — Hill/Buzzard).** Reduced `main_surjection_count`
+  to a minimal list of **nine classical results** (B1–B9) in `docs/literature-axioms.md`: precise
+  statements + citations (NSW/Labute/Serre/Milne/Stix/Evens/Kahn/Guillot) + the dependency structure
+  from paper App. D. `GQ2/Foundations.lean` states the two that Mathlib can type faithfully (B1 `G_ℚ₂`
+  top. f.g.; B2 2-adic cyclotomic surjective); B3–B9 (Demushkin, local reciprocity, local Tate
+  duality, local Euler char, dyadic Hilbert symbol, Galois action on `π₁(ℙ¹∖{0,1,∞})`, Evens/SW) need
+  absent infrastructure and are documented. Two would-be inputs are already discharged: RZ Hopfian
+  (`profinite_hopfian`) and Schur–Zassenhaus (Mathlib). `exists_contSurj_of_card_le` is Mathlib-
+  provable, not a literature gap.
+
 ---
 
 # Autonomous session log — 2026-07-02 (session 2)
