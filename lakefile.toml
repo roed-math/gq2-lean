@@ -11,13 +11,10 @@ name = "ClassFieldTheory"
 git = "https://github.com/kbuzzard/ClassFieldTheory.git"
 rev = "3565c752f7e1ef45afbb969f9c6d6279bb46962e"
 
-[[require]]
-name = "ctsToDiscrete"
-path = "../ctsToDiscrete"
-
 # `require mathlib` last so Mathlib's pinned versions of shared transitive
 # dependencies (proofwidgets, batteries, …) take precedence over those of the
-# other requires.  Bumped 23b0068 → ec410d2 (2026-06-12) to match ctsToDiscrete.
+# other requires.  Pinned at ec410d2 (2026-06-12): this is the Mathlib that has
+# `Mathlib.Algebra.Category.ContinuousCohomology` (used by `GQ2/CtsCohBridge.lean`).
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"
