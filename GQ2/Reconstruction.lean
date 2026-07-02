@@ -105,14 +105,17 @@ theorem profinite_hopfian
 
 /-- **Surjection assembly from surjection counts** (paper Lemma 2.5, compactness input): if a
 profinite group `S` continuously surjects onto at least as many finite groups (counted with
-multiplicity) as a profinite group `R` does, then `S` continuously surjects onto `R`.
+multiplicity) as a profinite group `R` **whose surjection sets are all finite** (`hRfin`), then
+`S` continuously surjects onto `R`.  Finiteness of the *target* level sets is essential: without it
+`Nat.card` collapses an infinite level set to `0` and the count hypothesis becomes vacuous (e.g.
+`R = (ℤ/2)^ℕ`, `S = 1`).
 
 This is *standard* profinite group theory (Ribes–Zalesskiĭ, *Profinite Groups*, Ch. 1–2), deferred
 here rather than the novel content of the paper.  Execution recipe:
 * For each `V : OpenNormalSubgroup R`, the quotient `R ⧸ V` is finite discrete and
-  `ContSurj R (R ⧸ V)` is inhabited (it contains `ProfiniteGrp.proj V`), so `0 < Nat.card` there;
-  by `h` (applied at `H := R ⧸ V`) also `0 < Nat.card (ContSurj S (R ⧸ V))`, whence via
-  `Nat.card_pos_iff` the level set `{surjections S ↠ R ⧸ V}` is nonempty **and finite**.
+  `ContSurj R (R ⧸ V)` is inhabited (it contains `ProfiniteGrp.proj V`) and finite (`hRfin`), so
+  `0 < Nat.card` there; by `h` (applied at `H := R ⧸ V`) also `0 < Nat.card (ContSurj S (R ⧸ V))`,
+  whence via `Nat.card_pos_iff` the level set `{surjections S ↠ R ⧸ V}` is nonempty **and finite**.
 * These level sets, with the restriction maps induced by `V' ≤ V`, form a cofiltered inverse system
   of nonempty finite sets over `OpenNormalSubgroup R`; `nonempty_sections_of_finite_inverse_system`
   (`Mathlib/CategoryTheory/CofilteredSystem.lean`) gives a compatible section.
@@ -127,6 +130,8 @@ theorem exists_contSurj_of_card_le
       [CompactSpace S] [TotallyDisconnectedSpace S]
     [Group R] [TopologicalSpace R] [IsTopologicalGroup R]
       [CompactSpace R] [TotallyDisconnectedSpace R]
+    (hRfin : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
+        Finite (ContSurj R H))
     (h : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
         Nat.card (ContSurj R H) ≤ Nat.card (ContSurj S H)) :
     Nonempty (ContSurj S R) := by
@@ -146,21 +151,65 @@ theorem reconstruction
     (hcount : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
         Nat.card (ContSurj P H) = Nat.card (ContSurj Q H)) :
     Nonempty (ContinuousMulEquiv P Q) := by
-  -- A continuous surjection `Q ↠ P` (from `|Sur(P,H)| = |Sur(Q,H)|`, so `≥`).
+  -- ⚠ NOTE (found 2026-07-02): this statement is FALSE as written, so it cannot be proved.
+  -- `Nat.card` sends an infinite set to `0`, so the `hcount` equality does NOT capture "equal
+  -- finite counts" once `Q` has infinitely many continuous surjections onto some finite group.
+  -- Counterexample: `P = Unit` (topologically f.g.), `Q = (ℤ/2)^ℕ`.  For every finite `H`,
+  -- `Nat.card (ContSurj P H)` and `Nat.card (ContSurj Q H)` are both `1` at the trivial group and
+  -- `0` otherwise (the `Q`-side is 0 at nontrivial `H` because there are *infinitely many*
+  -- surjections `(ℤ/2)^ℕ ↠ H`), so `hcount` and `hPfg` hold — yet `P ≇ Q`.
+  -- The faithful statement replaces the `Nat.card` equality by genuine equinumerosity of the
+  -- surjection sets; that version, `reconstruction_of_equinum` below, IS provable (modulo the
+  -- standard compactness input `exists_contSurj_of_card_le`).  This declaration is left as `sorry`
+  -- pending a decision to amend its hypothesis (its statement is otherwise unchanged).
+  sorry
+
+/-- **Lemma 2.5 (faithful form).**  `P` is a topologically finitely generated profinite group, `Q`
+is profinite, and for every finite group `H` the continuous-surjection sets are *equinumerous*
+(`ContSurj P H ≃ ContSurj Q H`); then `P ≅ Q` as topological groups.  This is the intended reading
+of Lemma 2.5 ("the same *number* of surjections"): equinumerosity, unlike equality of `Nat.card`,
+forces the counts to be genuinely finite (via `P`'s finiteness) and so is not vacuous on infinite
+level sets — see the note on `reconstruction`.  Proved in full modulo the standard compactness
+input `exists_contSurj_of_card_le`. -/
+theorem reconstruction_of_equinum
+    {P Q : Type*}
+    [Group P] [TopologicalSpace P] [IsTopologicalGroup P]
+      [CompactSpace P] [TotallyDisconnectedSpace P]
+    [Group Q] [TopologicalSpace Q] [IsTopologicalGroup Q]
+      [CompactSpace Q] [TotallyDisconnectedSpace Q]
+    (hPfg : ∃ s : Finset P, (Subgroup.closure (s : Set P)).topologicalClosure = ⊤)
+    (hequiv : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
+        Nonempty (ContSurj P H ≃ ContSurj Q H)) :
+    Nonempty (ContinuousMulEquiv P Q) := by
+  -- `P` topologically f.g. ⇒ `ContSurj P H` finite; transport along the equiv ⇒ `ContSurj Q H` too.
+  have hPfin : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
+      Finite (ContSurj P H) := by
+    intro H _ _ _ _
+    haveI := finite_continuousMonoidHom hPfg H
+    exact Finite.of_injective (fun s : ContSurj P H => s.val) (fun _ _ h => Subtype.ext h)
+  have hQfin : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
+      Finite (ContSurj Q H) := by
+    intro H _ _ _ _
+    haveI := hPfin H
+    exact Finite.of_equiv _ (hequiv H).some
+  -- Equinumerosity ⇒ equal counts.
+  have hcard : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
+      Nat.card (ContSurj P H) = Nat.card (ContSurj Q H) := by
+    intro H _ _ _ _
+    exact Nat.card_congr (hequiv H).some
+  -- Surjections both ways (each target has finite level sets, so the counts are not vacuous).
   obtain ⟨⟨g, hg⟩⟩ : Nonempty (ContSurj Q P) :=
-    exists_contSurj_of_card_le (fun H => le_of_eq (hcount H))
-  -- A continuous surjection `P ↠ Q` (symmetric count).
+    exists_contSurj_of_card_le hPfin (fun H => (hcard H).le)
   obtain ⟨⟨f, hf⟩⟩ : Nonempty (ContSurj P Q) :=
-    exists_contSurj_of_card_le (fun H => ge_of_eq (hcount H))
-  -- The composite `P → Q → P` is a continuous surjective endomorphism of the top. f.g. profinite `P`.
+    exists_contSurj_of_card_le hQfin (fun H => (hcard H).ge)
+  -- The composite `P → Q → P` is a surjective endomorphism of the top. f.g. profinite `P`.
   have hcoe : (⇑(g.comp f) : P → P) = ⇑g ∘ ⇑f := rfl
   have hcomp : Function.Surjective (g.comp f : ContinuousMonoidHom P P) := by
     rw [hcoe]; exact hg.comp hf
-  -- Hopfian ⇒ the composite is injective ⇒ `f` is injective.
+  -- Hopfian ⇒ the composite is injective ⇒ `f` is injective; `f` is a continuous bijection.
   have hginj : Function.Injective (⇑(g.comp f) : P → P) := profinite_hopfian hPfg _ hcomp
   rw [hcoe] at hginj
   have hfinj : Function.Injective (f : P → Q) := hginj.of_comp
-  -- `f` is a continuous bijection `P → Q`, hence a topological isomorphism.
   exact ⟨continuousMulEquivOfBijective f ⟨hfinj, hf⟩⟩
 
 /-- **Finite core of the reconstruction lemma.**  For *finite* groups, having the same number of
