@@ -32,7 +32,7 @@ states conventions + paper-equation cross-reference; all `axiom`s live in
 | T-18 | B9: Kummer/cor/Evens-norm/transfer-form defs + eq. (111) axiom (deg ≤ 2) | ⭐⭐⭐ | **F** design, O finish | T-02, T-04, T-13 | ☐ |
 | T-19 | Meta: `GQ2/Foundations/Axioms.lean` consolidation + `scripts/check_axioms.sh` guard | ⭐ | O | first axioms landed | ☐ |
 | T-20 | Meta: human-review packet v2 (Lean names per B-leaf + deviations table) | ⭐ | O | statements frozen | ☐ |
-| T-21 | Γ_A literal (`profinitePresentation (Fin 4)` with `ω₂`-words) + literal Thm 1.2 statement | ⭐⭐ | O | T-06 | ☐ |
+| T-21 | Γ_A literal (paper eq. (7) marked quotient; `ω₂`-relator words + bridges) + literal Thm 1.2 statement | ⭐⭐ | O | T-06 | ☑ 2026-07-02 (`GQ2/GammaA.lean`) |
 
 ## Per-ticket acceptance criteria
 
@@ -79,8 +79,21 @@ axioms only in `Axioms.lean`; docstrings carry citations + conventions.
   paper eq. (13)/Lemma 3.5; convention table in docstring.
 - **T-18**: defs as in plan; axiom = eq. (111) scoped to the forms used in Lemma 6.16; deviation
   note (truncation to deg ≤ 2, concrete diagonal representatives).
-- **T-21**: the four words (`τ^σ τ⁻²`-relator and `h₀u₁⁻¹x₁^σc₀`-relator) as elements of
-  `FreeProfiniteGroup (Fin 4)` using `^ᶻ ω₂`; `ΓA : ProfiniteGrp`; statement
-  `theorem main_presentation_literal : Nonempty (ContinuousMulEquiv ΓA AbsGalQ2)` (sorried, tied
-  into `Statement.lean`); stress: image of each word under a finite marking = the `Marking` word
-  (connects to `Words.lean` via T-06 headline lemma — this is the key faithfulness check).
+- **T-21** ☑: the relator words (`τ^σ τ⁻²` and `h₀u₁⁻¹x₁^σc₀`, ledger (1)–(3)) with `^ᶻ ω₂`;
+  `GammaA : ProfiniteGrp`; statement
+  `theorem main_presentation_literal : Nonempty (ContinuousMulEquiv GammaA AbsGalQ2)` (sorried,
+  tied into `Statement.lean`); stress: image of each word under a finite marking = the `Marking`
+  word (connects to `Words.lean` via T-06 headline lemma — this is the key faithfulness check).
+  *Done (`GQ2/GammaA.lean`; proved parts `#print axioms` = standard three).*
+  **Faithfulness correction vs this ticket's sketch**: the paper's `Γ_A` (§2.1, eq. (7)) is the
+  **marked quotient** `F₄ ⧸ N_A`, `N_A = ⋂ ker(admissible finite quotients)` — the pro-2
+  condition on `⟨⟨x₀,x₁⟩⟩` is part of the presentation data, so `Γ_A` is *not* the bare
+  two-relator `profinitePresentation`. We formalized eq. (7) verbatim (`IsAdmissibleU` over open
+  normal subgroups + `NA` + `GammaA := profiniteQuotient NA`), with `NA_le_ker` certifying the
+  encoding captures the paper's full class `Q_A` (arbitrary finite targets). The `^ᶻ ω₂`-relator
+  words are provided on any profinite marking (`Marking.sigma2Hat … wildRelator`) with bridges
+  `map_tameRelator_eq_one_iff` / `map_wildRelator_eq_one_iff`: killing the profinite words in a
+  finite quotient ⟺ `Words.lean`'s `TameRel`/`WildRel` — so admissibility's two readings agree.
+  Bonus: `univMarking_map_toHom` (universal property round-trip), `gammaA_surjective_s3`
+  (`Γ_A ↠ S₃` via the App-B marking — nonvacuity), `FreeProfiniteGroup.homEquiv_symm_of`.
+  Step-2 consumers: Prop. 2.3 should combine `NA_le_ker`, the bridges, and `Subdirect.lean`.

@@ -54,6 +54,12 @@ deferred), or scaffold. Updated 2026-07-02. Build: Mathlib `v4.31.0`, `lake buil
 | `GQ2.zpowHat` (`x ^ᶻ γ`) + `zpowHatHom`, `zpowHat_ofInt`, `zpowHat_mul`, `map_zpowHat` | `Zhat.lean` | **foundation: `ẑ`-exponentiation (T-06/U1)** | continuous extension of `n ↦ xⁿ` to `γ : ℤ̂` in any profinite group, via `ProfiniteCompletion.lift`; extends `ℤ`-powers; **naturality** `f (x ^ᶻ γ) = (f x) ^ᶻ γ` via `lift_unique` |
 | `GQ2.zpowHat_omega2`, `GQ2.map_zpowHat_omega2` | `Zhat.lean` | **`ω₂` evaluation (T-06 headline)** | in finite quotients the profinite `ω₂` computes the paper's finite calculus: `f (x ^ᶻ ω₂) = powOmega2 (f x)` — ties `omega2` to the entire App. A/B word ledger |
 | `GQ2.zpowHat_omega2_s3_rotation`, `..._s3_reflection` | `Zhat.lean` | App. A/B sanity | in `S₃`: `(r 1) ^ᶻ ω₂ = 1`, `(sr 0) ^ᶻ ω₂ = sr 0` — concrete profinite-to-finite cross-check |
+| `GQ2.Marking.sigma2Hat … h0Hat`, `tameRelator`, `wildRelator` | `GammaA.lean` | **eqs. (1)–(3), (5), (6) profinitely (T-21)** | the auxiliary-word ledger and both relator words with genuine `ω₂ ∈ ℤ̂` exponents (`^ᶻ omega2`), on any marking of any profinite group |
+| `GQ2.Marking.map_sigma2Hat … map_h0Hat`, `map_tameRelator_eq_one_iff`, `map_wildRelator_eq_one_iff` | `GammaA.lean` | **relations (5)/(6): profinite = finite (T-21 stress)** | through any continuous hom to a finite group the `^ᶻω₂`-ledger computes the `powOmega2`-ledger of `Words.lean`; killing the relator words ⟺ `TameRel`/`WildRel` — the two readings of the relations provably agree |
+| `GQ2.FreeProfiniteGroup.homEquiv_symm_of`, `GQ2.Marking.toHom`, `GQ2.univMarking`, `univMarking_map_toHom` | `FreeProfinite.lean` / `GammaA.lean` | foundation | markings of profinite `P` ↔ continuous homs `F₄ ⟶ P`, with the round-trip (universal property is "evaluate at generators") |
+| `GQ2.IsAdmissibleU`, `GQ2.NA`, **`GQ2.GammaA`** | `GammaA.lean` | **`Γ_A` (paper §2.1, eq. (7))** | the marked quotient construction, verbatim: `N_A` = intersection of all admissible open normal subgroups of `F₄` (= kernels of admissible finite quotients), `Γ_A = F₄ ⧸ N_A` via `profiniteQuotient`. The pro-2 side condition is part of admissibility, exactly as in the paper |
+| `GQ2.NA_le_ker`, `GQ2.surjective_of_map_generates` | `GammaA.lean` | eq. (7) certificate | `N_A` is contained in the kernel of **every** admissible continuous hom to **any** finite group — our open-normal-subgroup encoding captures the paper's whole class `Q_A` |
+| `GQ2.isAdmissible_markS3_toHom`, `GQ2.gammaA_surjective_s3` | `GammaA.lean` | §2.1 nonvacuity | the App-B `S₃` marking classifies an admissible quotient, and `Γ_A ↠ S₃` — the construction is machine-checkably nonvacuous |
 
 ## Stated with `sorry` (faithful target, proof deferred)
 
@@ -61,12 +67,13 @@ deferred), or scaffold. Updated 2026-07-02. Build: Mathlib `v4.31.0`, `lake buil
 |---|---|---|---|
 | `GQ2.main_surjection_count` | `Statement.lean` | **Theorem 1.2, eq. (154)** | the entire §§3–9 tower (Demushkin, local CFT, cup products, Gauss sums) |
 | `GQ2.exists_contSurj_of_card_le` | `Reconstruction.lean` | **Lemma 2.5 (compactness input)** | assemble `S↠R` from surjection-counts, given the *target* `R` has finite surjection sets (`hRfin`), via König on the cofiltered system of finite quotients of `R`. Standard profinite theory (Ribes–Zalesskiĭ); recipe + Mathlib lemmas in the docstring. Its arithmetic heart is **proved** (`contSurj_quotient_nonempty_finite`: each `R/V` level is nonempty+finite); only the König/cone assembly is deferred. `profinite_hopfian` and `reconstruction_of_equinum` are fully proved; this is the only remaining input to the latter. |
+| `GQ2.main_presentation_literal` | `GammaA.lean` | **Theorem 1.2, literal form** | `Nonempty (ContinuousMulEquiv GammaA AbsGalQ2)` against the honest eq.-(7) `Γ_A`. Route (fixed): `main_presentation` (proved) at `Γ_A` + Prop. 2.3 (`|Sur(Γ_A,G)| = admissibleCount G` — step 2, from `NA_le_ker` + the relator bridges + `Subdirect.lean`) + top. f.g. of `Γ_A` + `main_surjection_count` (the B1–B9 tower) |
 
 ## Not yet stated (missing foundations — would need axioms/opaque stubs)
 
 | object | why deferred |
 |---|---|
-| the literal presented profinite group `Γ_A` | **unblocked** (ticket T-21): `ℤ̂`/`ω₂`/`^ᶻ` now exist (`Zhat.lean`), so the four relator words are writable in `FreeProfiniteGroup (Fin 4)` and `Γ_A := profinitePresentation (Fin 4) rels` is definable. Remaining work is just writing the words and the faithfulness stress test (image under a finite marking = the `Words.lean` words, via `map_zpowHat_omega2`). |
+| ~~the literal presented profinite group `Γ_A`~~ | **done 2026-07-02** (`GammaA.lean`, ticket T-21): `GammaA` is the paper's eq.-(7) marked quotient (NOT the bare two-relator presentation — the pro-2 condition is part of the presentation data), with the `^ᶻω₂`-relator words and the profinite=finite bridges. Theorem 1.2 is stated literally (`main_presentation_literal`, sorried). |
 | ~~`ℤ̂`, `ω₂` as a genuine profinite exponent~~ | **done 2026-07-02** (`Zhat.lean`, ticket T-06): `Zhat`, `omega2`, `zpowHat` with naturality and finite-quotient evaluation. Ring structure on `ℤ̂` remains deliberately out of scope. |
 
 ## Next reachable targets (in priority order)
@@ -83,10 +90,12 @@ deferred), or scaffold. Updated 2026-07-02. Build: Mathlib `v4.31.0`, `lake buil
    `isoLimittoFiniteQuotientFunctor R` + dense/compact image. Standard; the biggest remaining chunk.
 4. ~~`homEquiv_naturality`~~ + ~~profinite quotient/presentation foundations~~ **done**
    (`homEquiv_apply`, `profiniteQuotient`, `profinitePresentation`, `relator_quotientMk_eq_one`).
-5. ~~`ℤ̂` + the `ω₂`-power action on profinite groups~~ **done** as a topological *group* with
-   `^ᶻ`-action (`Zhat.lean`, T-06; the ring structure was not needed for the relators). Next:
-   **T-21** — write the four relator words literally and define
-   `Γ_A := profinitePresentation (Fin 4) …`, stating Theorem 1.2 in its literal form.
+5. ~~`ℤ̂` + the `ω₂`-power action~~ **done** (T-06); ~~literal `Γ_A` + literal Theorem 1.2~~
+   **done** (T-21, `GammaA.lean`). Next: **Prop. 2.3** — `Nat.card (ContSurj GammaA G) =
+   admissibleCount G` for finite `G` (step 2 entry point; ingredients ready: `NA_le_ker`,
+   the relator bridges, `Subdirect.lean`, `quotientLift`), which discharges `hΓA` in
+   `main_presentation` and reduces `main_presentation_literal` to `main_surjection_count`
+   + top. f.g. of `Γ_A`.
 6. ~~computable `ω₂` cross-check against App. B~~ **done** (`omega2Exp_appendixB_value`).
 
 ## What this autonomous session added (2026-07-01)

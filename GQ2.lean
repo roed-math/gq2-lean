@@ -11,4 +11,5 @@ import GQ2.FiniteGroupLemmas
 import GQ2.Subdirect
 import GQ2.Reconstruction
 import GQ2.Statement
+import GQ2.GammaA
 import GQ2.Foundations

@@ -214,3 +214,44 @@ categorical goals (state key equations at the `lift` level, extract with defeq-t
 **Unblocked**: T-21 (literal `Γ_A` + literal Theorem 1.2) and T-12's `P ^ᶻ ι(u)` notation.
 Next per plan: T-02 (continuous cohomology API design, Fable); T-01/T-05/T-07/T-00 ready for
 Opus in parallel.
+
+---
+
+# Session 2026-07-02 (Fable, cont.): T-21 — the literal `Γ_A` and Theorem 1.2
+
+New file `GQ2/GammaA.lean` (+ `homEquiv_symm_of` in `FreeProfinite.lean`); build green; all
+proved declarations at the standard three axioms; `main_presentation_literal` is the third
+(intentional) sorry.
+
+**Faithfulness finding (important):** the paper's `Γ_A` (§2.1, eq. (7)) is the **marked
+quotient** `F₄ ⧸ N_A` with `N_A = ⋂ ker φ` over *admissible* finite quotients φ — the pro-2
+condition on `⟨⟨x₀,x₁⟩⟩` is part of the presentation data, so `Γ_A` is NOT the bare two-relator
+`profinitePresentation` the ticket sketch assumed. We formalized eq. (7) verbatim:
+
+- `Marking.sigma2Hat … h0Hat, tameRelator, wildRelator` — the eqs. (1)–(3) ledger and relations
+  (5)/(6) as words with genuine `ω₂ ∈ ℤ̂` exponents, on any marking of any profinite group.
+- **Bridges** `map_sigma2Hat … map_h0Hat`, `map_tameRelator_eq_one_iff`,
+  `map_wildRelator_eq_one_iff`: through any continuous hom to a finite group the `^ᶻω₂`-ledger
+  computes the `powOmega2`-ledger of `Words.lean` (T-06 headline pushed through all ten words) —
+  killing the profinite relators ⟺ `TameRel`/`WildRel`. The two readings of the relations agree.
+- `Marking.toHom` / `univMarking` / `univMarking_map_toHom`: markings of profinite `P` ↔
+  continuous homs `F₄ ⟶ P` (universal property round-trip; `homEquiv_symm_of` added).
+- `IsAdmissibleU` (admissibility of an open normal subgroup via its canonical finite quotient),
+  `NA` (iInf over the admissible subtype; normal + closed), **`GammaA := profiniteQuotient NA`**.
+- `NA_le_ker`: `N_A ≤ ker f` for every admissible continuous `f` into ANY finite group — via
+  `surjective_of_map_generates`, kernel-as-OpenNormalSubgroup, and admissibility transfer along
+  `F₄ ⧸ ker f ≃* P` (`quotientKerEquivOfSurjective`; its `mk`-evaluation is `rfl`). This
+  certifies the open-normal encoding captures the paper's whole class `Q_A`.
+- **`main_presentation_literal : Nonempty (ContinuousMulEquiv GammaA AbsGalQ2)`** — Theorem 1.2
+  as printed, sorried; route documented (Prop. 2.3 + `main_presentation` + tower).
+- Sanity: `isAdmissible_markS3_toHom` (the App-B `S₃` marking classifies an admissible
+  quotient — pure plumbing round-trip) and `gammaA_surjective_s3` (`Γ_A ↠ S₃` via
+  `quotientLift`): the construction is nonvacuous.
+
+Lean gotchas: keep ONE coercion in bridge statements (`f.toMonoidHom` application, matching
+`Subdirect.lean`'s `map_*`; the CMH coercion is defeq but simp-invisible); Lean's
+surjectivity-transfer through `quotientLift` needs term-mode `trans` (rw motives fail across
+the `GammaA`-vs-`F₄⧸NA` defeq); `NA` noncomputable (`FreeProfiniteGroup` is).
+
+Step-2 entry point is now concrete: **Prop. 2.3** (`Nat.card (ContSurj GammaA G) =
+admissibleCount G`) from `NA_le_ker` + bridges + `Subdirect.lean` + `quotientLift`.

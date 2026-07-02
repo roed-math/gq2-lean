@@ -58,4 +58,12 @@ lemma FreeProfiniteGroup.homEquiv_apply {X : Type u} (P : ProfiniteGrp.{u})
     ProfiniteGrp.ProfiniteCompletion.homEquiv]
   rfl
 
+/-- Evaluation of the **inverse** of the universal property: the continuous hom classified by a
+set map `m : X → P` sends the generator `of x` to `m x`. -/
+@[simp]
+lemma FreeProfiniteGroup.homEquiv_symm_of {X : Type u} (P : ProfiniteGrp.{u}) (m : X → P) (x : X) :
+    (FreeProfiniteGroup.homEquiv X P).symm m (FreeProfiniteGroup.of x) = m x := by
+  conv_rhs => rw [← (FreeProfiniteGroup.homEquiv X P).apply_symm_apply m]
+  exact (FreeProfiniteGroup.homEquiv_apply P ((FreeProfiniteGroup.homEquiv X P).symm m) x).symm
+
 end GQ2

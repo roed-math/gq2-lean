@@ -51,25 +51,22 @@ theorem main_surjection_count
 /-!
 ## The literal presentation form (Theorem 1.2 as printed)
 
-To state `G_{ℚ₂} ≅ ⟨σ,τ,x₀,x₁ | τ^σ=τ², h₀u₁⁻¹x₁^σc₀=1, ⟨⟨x₀,x₁⟩⟩ pro-2⟩` literally, one needs
-two foundations **absent from Mathlib and its open PR queue** (see `docs/foundations-audit.md`):
+The honest candidate `Γ_A` is now constructed in `GQ2/GammaA.lean` (the paper's marked quotient
+construction, eq. (7), on `GQ2.FreeProfiniteGroup (Fin 4)`, with the relations readable both
+profinitely via `ℤ̂`/`ω₂`/`^ᶻ` from `GQ2/Zhat.lean` and finitely via `GQ2/Words.lean` — the two
+readings provably agree).  The literal Theorem 1.2 is stated there as
+`GQ2.main_presentation_literal : Nonempty (ContinuousMulEquiv GammaA AbsGalQ2)`.
 
-1. `FreeProfiniteGroup (Fin 4)` and profinite presentations (quotient by the closed normal
-   closure of the two relators), to build the candidate profinite group `Γ_A`.
-2. `ℤ̂` and its idempotent `ω₂`, to interpret `x ^ ω₂` in the profinite group directly
-   (on finite quotients this is `GQ2.powOmega2`, which we already have).
-
-Given those, the candidate `Γ_A` satisfies (paper Prop. 2.3)
-`Nat.card (ContSurj Γ_A G) = admissibleCount G` for every finite `G`, so
-`main_surjection_count` becomes `∀ G, |Sur(Γ_A, G)| = |Sur(G_{ℚ₂}, G)|`, and `reconstruction`
-(Lemma 2.5) delivers `Nonempty (ContinuousMulEquiv Γ_A G_{ℚ₂})` — Theorem 1.2.
-
-This wiring is recorded as a `sorry`-backed target so the top-level logic is explicit:
+The schematic form below keeps the top-level logic explicit and checked: given Prop. 2.3 for a
+candidate (`hΓA`: its continuous surjection counts are the admissible-marking counts) and
+topological finite generation, `reconstruction` (Lemma 2.5) + `main_surjection_count` deliver
+the isomorphism.  Instantiating it at `Γ_A` (i.e. discharging `hΓA` — paper §2, Prop. 2.3 — and
+`hfgΓ`) is step 2 of the program; see `docs/formalization-plan.md`.
 -/
 
-/-- **Theorem 1.2 (literal presentation form), schematic.** The candidate profinite group `Γ_A`
-(hypothesised here with the property proved in Prop. 2.3, since `FreeProfiniteGroup`/`ℤ̂` are not
-yet in Mathlib) is continuously isomorphic to `G_{ℚ₂}`.
+/-- **Theorem 1.2 (literal presentation form), schematic.** Any candidate profinite group `Γ_A`
+with the surjection-count property of Prop. 2.3 (the honest one is `GQ2.GammaA`)
+is continuously isomorphic to `G_{ℚ₂}`.
 
 `ΓA` stands in for the presented profinite group; `hΓA` is Prop. 2.3 (its finite quotients are the
 admissible markings); `hfgΓ`/`hfgG` are topological finite generation of `Γ_A` and of `G_{ℚ₂}`
