@@ -35,9 +35,13 @@ open scoped Classical
 
 /-! ## Leaves that are faithfully stateable against current Mathlib -/
 
-/-- **[Classical — NSW [1], §7.4 / Jannsen–Wingberg.]** The absolute Galois group of a `p`-adic
-local field is *topologically finitely generated* (by `[K : ℚ_p] + 3` elements when `μ_p ⊆ K`).
-For `K = ℚ₂` this is the input `hfgG` that `main_presentation` feeds to `reconstruction`.
+/-- **[Classical.]** The absolute Galois group of a `p`-adic local field is *topologically finitely
+generated* (by `[K : ℚ_p] + 3` elements when `μ_p ⊆ K`).  For `K = ℚ₂` this is the input `hfgG` that
+`main_presentation` feeds to `reconstruction`.
+
+Citation: Jannsen–Wingberg, *Die Struktur der absoluten Galoisgruppe `p`-adischer Zahlkörper*,
+Invent. Math. 70 (1982/83), 71–98 (the full presentation, so a fortiori finite generation); finite
+generation alone is Jannsen, Invent. Math. 70 (1982), 53–69.  Reproduced in NSW [1], Ch. VII §7.5.
 
 This is a genuine, faithful Lean statement: it is exactly the topological-finite-generation
 predicate used throughout `Reconstruction.lean`. -/
@@ -47,7 +51,10 @@ axiom absGalQ2_isTopologicallyFinitelyGenerated :
 /-- **[Classical.]** The `2`-adic cyclotomic character `Gal(ℚ̄/ℚ) → ℤ₂ˣ` is surjective, equivalently
 `Gal(ℚ(μ_{2^∞})/ℚ) ≅ ℤ₂ˣ`.  This is the surjectivity used in the paper's Lemma 3.6 (cyclotomic
 powering of the three peripheral inertia classes of `π₁(ℙ¹∖{0,1,∞})`).  Stated here against Mathlib's
-`cyclotomicCharacter 2` on an algebraic closure of `ℚ`. -/
+`cyclotomicCharacter 2` on an algebraic closure of `ℚ`.
+
+Citation: `Gal(ℚ(μ_{p^n})/ℚ) ≅ (ℤ/p^n)ˣ` (Washington, *Introduction to Cyclotomic Fields*, 2nd ed.,
+GTM 83, Thm 2.5), whence the inverse limit `Gal(ℚ(μ_{p^∞})/ℚ) ≅ ℤ_pˣ`. -/
 axiom cyclotomicCharacter_two_surjective :
     Function.Surjective
       (cyclotomicCharacter (L := AlgebraicClosure ℚ) 2)
