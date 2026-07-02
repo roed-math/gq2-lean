@@ -29,6 +29,10 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 | `GQ2.Marking.map_admissible` | `Subdirect.lean` | **Lemma 2.2** | admissibility pushes forward along a surjective quotient map (cofinality of admissible quotients) |
 | `GQ2.Marking.prod_tameRel`, `prod_wildRel` | `Subdirect.lean` | **Lemma 2.1** | both relations transfer to subdirect products of markings (via the word-ledger + `powOmega2_prod`) |
 | `GQ2.reconstruction_finite` | `Reconstruction.lean` | **Lemma 2.5 (finite core)** | for finite groups, equal surjection-counts to all finite groups ⟹ iso (mutual surjections + equal cardinality). The profinite case reduces to this level-by-level. |
+| `GQ2.finite_continuousMonoidHom` | `Reconstruction.lean` | **Lemma 2.5 (input)** | for top. f.g. profinite `P` and finite discrete `H`, `Hom_cont(P,H)` is finite (a continuous hom is pinned down by its values on a topological generating set) |
+| `GQ2.profinite_hopfian` | `Reconstruction.lean` | **Lemma 2.5 (Hopfian core)** | a continuous surjective endomorphism of a top. f.g. profinite group is injective — elementary counting proof (precomposition is an injective, hence surjective, self-map of the finite hom-set). Absent from Mathlib. |
+| `GQ2.continuousMulEquivOfBijective` | `Reconstruction.lean` | helper | a bijective continuous group hom from a compact group to a Hausdorff group is a topological iso |
+| `GQ2.reconstruction` (**modulo** `exists_contSurj_of_card_le`) | `Reconstruction.lean` | **Lemma 2.5** | the full assembly is checked: two surjection-count inputs give `Q↠P` and `P↠Q`; the composite `P→Q→P` is Hopfian ⟹ `f` injective ⟹ bijective ⟹ topological iso. Only the (standard) compactness assembly remains. |
 | `GQ2.Marking.*` (all auxiliary words + predicates) | `Words.lean` | (1)–(3), §2 | `sigma2,u,d0,z0,c0,g0,dg,hc,h0`, `TameRel/WildRel/Generates/Pro2Core/Admissible` |
 | `GQ2.admissibleCount` | `Words.lean` | Prop. 2.3 (RHS of eq. 154) | the finite count `N(G)` |
 | `GQ2.main_presentation` (**modulo** its two `sorry` inputs) | `Statement.lean` | **Theorem 1.2 wiring** | the top-level logic *is checked*: `reconstruction` + `main_surjection_count` ⟹ the iso |
@@ -40,7 +44,7 @@ deferred), or scaffold. Updated 2026-07-01. Build: Mathlib `v4.31.0`, `lake buil
 | declaration | file | paper ref | blocker (see foundations-audit.md) |
 |---|---|---|---|
 | `GQ2.main_surjection_count` | `Statement.lean` | **Theorem 1.2, eq. (154)** | the entire §§3–9 tower (Demushkin, local CFT, cup products, Gauss sums) |
-| `GQ2.reconstruction` | `Reconstruction.lean` | **Lemma 2.5** | Hopfian property of top. f.g. profinite groups, packaged over `ProfiniteGrp` (grade F′); Mathlib has no `Hopfian` — must be built |
+| `GQ2.exists_contSurj_of_card_le` | `Reconstruction.lean` | **Lemma 2.5 (compactness input)** | assemble a continuous surjection `S↠R` from equal/greater surjection-counts, via König on the cofiltered system of finite quotients of `R`. Standard profinite theory (Ribes–Zalesskiĭ); recipe + Mathlib lemmas recorded in the docstring. `reconstruction` and `profinite_hopfian` are now fully proved; this is the only remaining input. |
 
 ## Not yet stated (missing foundations — would need axioms/opaque stubs)
 

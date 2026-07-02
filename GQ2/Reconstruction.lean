@@ -105,10 +105,23 @@ theorem profinite_hopfian
 
 /-- **Surjection assembly from surjection counts** (paper Lemma 2.5, compactness input): if a
 profinite group `S` continuously surjects onto at least as many finite groups (counted with
-multiplicity) as a profinite group `R` does, then `S` continuously surjects onto `R`.  Taking `H`
-to range over the finite quotients `R/V` shows every level `S ↠ R/V` is inhabited; the surjection
-`S ↠ R` is assembled from these by compactness (König's lemma on the cofiltered system of finite
-quotients of `R`).  Stated here; proof deferred. -/
+multiplicity) as a profinite group `R` does, then `S` continuously surjects onto `R`.
+
+This is *standard* profinite group theory (Ribes–Zalesskiĭ, *Profinite Groups*, Ch. 1–2), deferred
+here rather than the novel content of the paper.  Execution recipe:
+* For each `V : OpenNormalSubgroup R`, the quotient `R ⧸ V` is finite discrete and
+  `ContSurj R (R ⧸ V)` is inhabited (it contains `ProfiniteGrp.proj V`), so `0 < Nat.card` there;
+  by `h` (applied at `H := R ⧸ V`) also `0 < Nat.card (ContSurj S (R ⧸ V))`, whence via
+  `Nat.card_pos_iff` the level set `{surjections S ↠ R ⧸ V}` is nonempty **and finite**.
+* These level sets, with the restriction maps induced by `V' ≤ V`, form a cofiltered inverse system
+  of nonempty finite sets over `OpenNormalSubgroup R`; `nonempty_sections_of_finite_inverse_system`
+  (`Mathlib/CategoryTheory/CofilteredSystem.lean`) gives a compatible section.
+* The section is a cone over `ProfiniteGrp.diagram R` with vertex `S`, hence — through
+  `ProfiniteGrp.isoLimittoFiniteQuotientFunctor R` (`R ≅ lim (diagram R)`) — a continuous hom
+  `S → R` that is surjective onto every `R ⧸ V`.  Its image is compact (closed) and dense
+  (surjective on every finite quotient), so it is all of `R`: the desired `S ↠ R`.
+
+Stated here; proof deferred. -/
 theorem exists_contSurj_of_card_le
     {S R : Type*} [Group S] [TopologicalSpace S] [IsTopologicalGroup S]
       [CompactSpace S] [TotallyDisconnectedSpace S]
