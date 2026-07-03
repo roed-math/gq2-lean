@@ -2,7 +2,11 @@
 
 A map of the paper's proof, its dependency DAG (from the body + Appendix D
 "Proof dependency certificate"), and a **formalizability grade** for each node.
-This is the plan-of-record for what to attempt in Lean and in what order.
+
+> **Note (2026-07-03).**  Written before step 1; the `P`/`H` grades below refer to
+> infrastructure gaps that are now closed by the ten axioms + def-layers.  The
+> plan-of-record for the proof phase is [`step2-plan.md`](step2-plan.md) (board:
+> [`tickets.md`](tickets.md)); this file remains the reference for the paper's DAG.
 
 Grades:
 - **F** — formalizable now against Mathlib (finite/abstract group theory).

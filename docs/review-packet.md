@@ -15,7 +15,8 @@ explicit `sorry`s, see §4) and (b) **ten classical literature results B1–B9**
 
 Full citations with per-result discussion: [`literature-axioms.md`](literature-axioms.md).
 Design rationale: [`formalization-plan.md`](formalization-plan.md).  Ticket-level acceptance
-records: [`tickets.md`](tickets.md).
+records: [`tickets-step1.md`](tickets-step1.md) (the live step-2 board is
+[`tickets.md`](tickets.md)).
 
 ## 1. How to verify mechanically
 
