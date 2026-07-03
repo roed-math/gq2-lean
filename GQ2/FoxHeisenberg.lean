@@ -930,6 +930,21 @@ theorem wildValueExp_eq_wildValue {G : Type*} [Group G] [Finite G] (t : Marking 
     Marking.g0, Marking.d0, Marking.u1, Marking.u0, Marking.u, Marking.sigma2, wildValueExp,
     hsig, hu0, hu1]
 
+/-- Divisibility form of `wildValueExp_eq_wildValue`: `wildValueExp t (omega2Exp N) = t.wildValue`
+for **any** `N ≠ 0` that is a multiple of the three `ω₂`-subword orders (`σ`, `x₀τ`, `x₁τ`).  Used
+to run the bridge at `N = exponent (H(A)⋊C)` on the *lower* groups `C` and `A^∨⋊C` (whose element
+orders divide that exponent via the injective section homs). -/
+theorem wildValueExp_eq_wildValue_of_dvd {G : Type*} [Group G] {N : ℕ} (hN : N ≠ 0)
+    (t : Marking G) (h0 : orderOf t.σ ∣ N) (h1 : orderOf (t.x₀ * t.τ) ∣ N)
+    (h2 : orderOf (t.x₁ * t.τ) ∣ N) :
+    t.wildValue = wildValueExp t (omega2Exp N) := by
+  have hsig : powOmega2 t.σ = t.σ ^ omega2Exp N := (powOmega2_pow_eq t.σ h0 hN).symm
+  have hu0 : powOmega2 (t.x₀ * t.τ) = (t.x₀ * t.τ) ^ omega2Exp N := (powOmega2_pow_eq _ h1 hN).symm
+  have hu1 : powOmega2 (t.x₁ * t.τ) = (t.x₁ * t.τ) ^ omega2Exp N := (powOmega2_pow_eq _ h2 hN).symm
+  simp only [Marking.wildValue, Marking.h0, Marking.c0, Marking.dg, Marking.hc, Marking.z0,
+    Marking.g0, Marking.d0, Marking.u1, Marking.u0, Marking.u, Marking.sigma2, wildValueExp,
+    hsig, hu0, hu1]
+
 /-- The projection `⟨a,λ,z,g⟩ ↦ ⟨λ, g⟩ : H(A) ⋊ C →* A^∨ ⋊ C` onto the dual lift group. -/
 def lgHom : HeisLift A C →* WordLift (ElemDual A) C where
   toFun p := ⟨p.l, p.g⟩
@@ -1009,6 +1024,126 @@ theorem bridge_wild [Finite A] [Finite C] (t : Marking C) (x : Fin 4 → A)
           (wildValueExp freeMarking (omega2Exp (Monoid.exponent (HeisLift A C)))) := by
   rw [heisMarking_eq_map, wildValueExp_eq_wildValue, ← wildValueExp_map]
 
+/-! ### The wild row of Prop 5.8
+
+The wild summand `(heisMarking t (d⁰a) y).wildValue.z` is computed exactly like the tame row
+(`mixedB_tameRow`), but the free relator word is `fgWild = wildValueExp freeMarking (omega2Exp N)`
+with `N = exponent (H(A)⋊C)`, and Lemma 5.7's hypotheses need `wildValueExp _ (omega2Exp N) = _`
+on the *lower* groups `C` (for `hr`) and `A^∨⋊C` (for the `.l`-bridge).  Both hold because `C` and
+`A^∨⋊C` embed into `H(A)⋊C` by injective section homs, so their element orders divide `N`. -/
+
+/-- The section `g ↦ ⟨0,0,0,g⟩ : C →* H(A) ⋊ C` of the base projection (injective). -/
+noncomputable def secHom : C →* HeisLift A C where
+  toFun g := ⟨0, 0, 0, g⟩
+  map_one' := rfl
+  map_mul' g g' := by
+    ext <;> simp [HeisLift.mul_a, HeisLift.mul_l, HeisLift.mul_z, HeisLift.mul_g,
+      ElemDual.zero_apply]
+
+theorem secHom_injective : Function.Injective (secHom (A := A) (C := C)) :=
+  fun _ _ h => congrArg HeisLift.g h
+
+/-- The section `⟨λ,g⟩ ↦ ⟨0,λ,0,g⟩ : A^∨ ⋊ C →* H(A) ⋊ C` (injective). -/
+noncomputable def secWL : WordLift (ElemDual A) C →* HeisLift A C where
+  toFun p := ⟨0, p.u, 0, p.g⟩
+  map_one' := rfl
+  map_mul' p q := by
+    ext <;> simp [HeisLift.mul_a, HeisLift.mul_l, HeisLift.mul_z, HeisLift.mul_g,
+      WordLift.mul_u, WordLift.mul_g, ElemDual.zero_apply]
+
+theorem secWL_injective : Function.Injective (secWL (A := A) (C := C)) := by
+  intro p q h
+  exact WordLift.ext (congrArg HeisLift.l h) (congrArg HeisLift.g h)
+
+/-- Every order in the lower group `C` divides `exponent (H(A) ⋊ C)`. -/
+theorem orderOf_dvd_exponent_heis [Finite A] [Finite C] (w : C) :
+    orderOf w ∣ Monoid.exponent (HeisLift A C) := by
+  rw [← orderOf_injective (secHom (A := A)) secHom_injective w]
+  exact Monoid.order_dvd_exponent _
+
+/-- Every order in the dual lift group `A^∨ ⋊ C` divides `exponent (H(A) ⋊ C)`. -/
+theorem orderOf_dvd_exponent_heis_wl [Finite A] [Finite C] (w : WordLift (ElemDual A) C) :
+    orderOf w ∣ Monoid.exponent (HeisLift A C) := by
+  rw [← orderOf_injective (secWL (A := A)) secWL_injective w]
+  exact Monoid.order_dvd_exponent _
+
+/-- `2 ∣ exponent (H(A) ⋊ C)`: the central element `z(1) = ⟨0,0,1,1⟩` has order `2`. -/
+theorem two_dvd_exponent_heis [Finite A] [Finite C] :
+    2 ∣ Monoid.exponent (HeisLift A C) := by
+  have hord : orderOf (HeisLift.zc (A := A) (C := C) 1) = 2 := by
+    refine orderOf_eq_prime ?_ ?_
+    · rw [pow_two, ← HeisLift.zc_add, show (1 : ZMod 2) + 1 = 0 from by decide]
+      exact HeisLift.zc_zero
+    · intro h; simpa [HeisLift.zc] using congrArg HeisLift.z h
+  rw [← hord]; exact Monoid.order_dvd_exponent _
+
+/-- The `ω₂`-representative at `N = exponent (H(A)⋊C)` is **odd** (its `𝔽₂`-cast is `1`), because
+`N` is even.  This is what makes the wild ε-correction reduce to `y_τ(τ·a)`, matching the tame. -/
+theorem omega2Exp_exponent_heis_cast [Finite A] [Finite C] :
+    (omega2Exp (Monoid.exponent (HeisLift A C)) : ZMod 2) = 1 := by
+  have hN : Monoid.exponent (HeisLift A C) ≠ 0 := Monoid.exponent_ne_zero_of_finite
+  have hv : (Monoid.exponent (HeisLift A C)).factorization 2 ≠ 0 :=
+    (Nat.Prime.factorization_pos_of_dvd Nat.prime_two hN two_dvd_exponent_heis).ne'
+  have h2 : omega2Exp (Monoid.exponent (HeisLift A C)) ≡ 1 [MOD 2] :=
+    (omega2Exp_modEq_one hN hv).of_dvd (dvd_pow_self 2 hv)
+  simpa using (ZMod.natCast_eq_natCast_iff _ _ _).mpr h2
+
+/-- The wild `hr`: `fgWild` has trivial lower value, from `WildRel` (via the paper's `ω₂`-ledger
+evaluated at the target exponent). -/
+theorem hr_wild [Finite A] [Finite C] (t : Marking C) (hw : t.WildRel) :
+    FreeGroup.lift (markVec t)
+        (wildValueExp freeMarking (omega2Exp (Monoid.exponent (HeisLift A C)))) = 1 := by
+  have hfm : freeMarking.map (FreeGroup.lift (markVec t)) = t := by
+    simp only [freeMarking, Marking.map, markVec, FreeGroup.lift_apply_of, Matrix.cons_val_zero,
+      Matrix.cons_val_one, Matrix.head_cons, Matrix.cons_val_two, Matrix.cons_val_three,
+      Matrix.tail_cons]
+  rw [wildValueExp_map, hfm,
+    ← wildValueExp_eq_wildValue_of_dvd Monoid.exponent_ne_zero_of_finite t
+      (orderOf_dvd_exponent_heis t.σ) (orderOf_dvd_exponent_heis (t.x₀ * t.τ))
+      (orderOf_dvd_exponent_heis (t.x₁ * t.τ))]
+  exact (Marking.wildValue_eq_one_iff t).mpr hw
+
+/-- The wild `.l`-bridge: the `.l`-coordinate of the `y`-only wild evaluation is `d¹`'s wild row
+on the dual (the analogue of `stokesEval_tame_l`). -/
+theorem stokesEval_wild_l [Finite A] [Finite C] (t : Marking C) (y : Fin 4 → ElemDual A) :
+    (stokesEval (markVec t) 0 y
+        (wildValueExp freeMarking (omega2Exp (Monoid.exponent (HeisLift A C))))).l
+      = (liftMarking t y).wildValue.u := by
+  have hlg : lgHom (stokesEval (markVec t) 0 y
+      (wildValueExp freeMarking (omega2Exp (Monoid.exponent (HeisLift A C)))))
+      = (liftMarking t y).wildValue := by
+    rw [wildValueExp_map, wildValueExp_map]
+    have hmap : (freeMarking.map (stokesEval (markVec t) 0 y)).map lgHom = liftMarking t y := by
+      rw [liftMarking_eq_map]; rfl
+    rw [hmap, ← wildValueExp_eq_wildValue_of_dvd Monoid.exponent_ne_zero_of_finite (liftMarking t y)
+      (orderOf_dvd_exponent_heis_wl _) (orderOf_dvd_exponent_heis_wl _)
+      (orderOf_dvd_exponent_heis_wl _)]
+  exact congrArg WordLift.u hlg
+
+/-- **The wild row of Prop 5.8 (41)**: the wild summand at the coboundary `d⁰a` equals the pairing
+`⟨a, L^{A^∨}_w(y)⟩` plus the ε-correction `y_τ(τ·a)` — the *same* correction as the tame row (the
+wild ε-vector `(0, e, 0, e+1)` reduces to `(0,1,0,0)` at the odd `ω₂`-representative). -/
+theorem mixedB_wildRow [Finite A] [Finite C] (t : Marking C) (hw : t.WildRel) (a : A)
+    (y : Fin 4 → ElemDual A) :
+    (heisMarking t (d0 t a) y).wildValue.z
+      = (d1Fun (A := ElemDual A) t y).2 a + y 1 (t.τ • a) := by
+  rw [bridge_wild, d0_eq_markVec,
+    lemma_5_7_left (markVec t) _ (hr_wild t hw) a y]
+  congr 1
+  · rw [stokesEval_wild_l]; rfl
+  · have hvec : ∀ i, Multiplicative.toAdd
+        (expMod2 i (wildValueExp freeMarking (omega2Exp (Monoid.exponent (HeisLift A C)))))
+        = (![0, 1, 0, 0] : Fin 4 → ZMod 2) i := by
+      intro i
+      rw [congrFun (expMod2_wildValueExp _) i]
+      have hc := omega2Exp_exponent_heis_cast (A := A) (C := C)
+      fin_cases i <;>
+        simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
+          Matrix.cons_val_two, Matrix.cons_val_three, Matrix.tail_cons, hc] <;> decide
+    simp only [hvec]
+    rw [Fin.sum_univ_four]
+    simp [markVec]
+
 /-- **Prop 5.8, display (41)** (= chain identity (47) of Prop 5.10 under the canonical
 identifications): `B_{ρ,A}(d⁰a, y) = ⟨a, L^{A^∨}_t(y) + L^{A^∨}_w(y)⟩`, where the dual
 first relation differentials are `d1Fun` on `A^∨`.
@@ -1020,11 +1155,13 @@ the wild summand comes from `bridge_wild` + `lemma_5_7_left` with ε-vector
 `⟨a, L^{A^∨}_w(y)⟩ + y_τ(τ·a)`; the two `y_τ(τ·a)` corrections cancel (char 2), which is exactly
 condition (40) for the `(1,1)` trace.  (An earlier apparent inconsistency here was a repo-side
 `h₀` transcription bug, resolved — see `docs/erratum-h0-transcription.md`.) -/
-theorem prop_5_8_left (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (a : A)
-    (y : Fin 4 → ElemDual A) :
+theorem prop_5_8_left [Finite A] [Finite C] (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (a : A) (y : Fin 4 → ElemDual A) :
     mixedB t (d0 t a) y
       = ((d1Fun (A := ElemDual A) t y).1 + (d1Fun (A := ElemDual A) t y).2) a := by
-  sorry
+  show (heisMarking t (d0 t a) y).tameValue.z + (heisMarking t (d0 t a) y).wildValue.z = _
+  rw [mixedB_tameRow t ht a y, mixedB_wildRow t hw a y, ElemDual.add_apply,
+    add_add_add_comm, CharTwo.add_self_eq_zero, add_zero]
 
 /-- **Prop 5.8, display (42)** (= chain identity (48)): `B_{ρ,A}(x, d⁰λ) = ⟨L_t(x)+L_w(x), λ⟩`.
 
