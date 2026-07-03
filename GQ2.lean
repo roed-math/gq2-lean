@@ -46,3 +46,4 @@ import GQ2.PropOneOne
 import GQ2.ZtwoPowering
 import GQ2.FrattiniCriterion
 import GQ2.AnabelianBridge
+import GQ2.ShapiroLedger
