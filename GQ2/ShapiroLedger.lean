@@ -27,16 +27,19 @@ identities).  No axioms (`Ax = ∅`).
 ## Status and remaining work (P-15c)
 
 * **Free orbits (104), `lemma_6_15_free_aux` — done, std-3.**
-* **Involution orbits (105) — routed, not yet formalized.**  The graph pullback of
-  `invOrbitDatum` (a `⟨ḡ⟩`-orbit sum with orientation corrections `m^g_c` via the `ε`-sign of
-  paper eq. (67)) equals `cor_{K₀/F} N^{Ev}_{K/K₀}(α)` where `N^{Ev} = evensNormFun` (the
-  two-point graph cocycle (98)) and `U₀ = ⟨N, ĝ⟩` is index-2 over `N`.  Route (paper (107)–
-  (109)): expand `evensNormFun`'s `if q.1 ∈ U` case-split via `evensAux`/`bS` (`GQ2/EvensKahn.lean`)
-  against the `(G/N)/⟨ḡ⟩`-transversal `.out`; the first `κ⁰`-summand matches the oriented
-  factor-set term of (107) and the second matches the orientation-reversal correction; the
-  residual `.out`-transversal discrepancy is again a `δ¹`-coboundary (same `H2ofFun_eq_of_sub_mem_B2`
-  engine).  This is a materially larger computation than the free case (case-split × orientation
-  × index-2 corestriction) and is the outstanding half of this ticket.
+* **Involution orbits (105) — foundations done (std-3), assembly outstanding.**  The graph
+  pullback of `invOrbitDatum` (a `⟨ḡ⟩`-orbit sum with orientation corrections `m^g_c` via the
+  `ε`-sign of paper eq. (67)) equals `cor_{K₀/F} N^{Ev}_{K/K₀}(α)` where `N^{Ev} = evensNormFun`
+  (the two-point graph cocycle (98)) and `U₀ = ⟨N, ĝ⟩` is index-2 over `N`.
+  **Landed here (§ "involution — foundations"):** `ghatQuot_sq` (`ḡ` is an involution of `G/N`),
+  `map_U0_eq_zpowers` (`U₀` maps onto `⟨ḡ⟩` under `G ↠ G/N`), `finite_quot_U0`, and the key
+  **index correspondence `invIndexEquiv : G/U₀ ≃ (G/N)/⟨ḡ⟩`** that bijects the two orbit index
+  sets.  **Remaining (a materially larger computation than the free case):** relate the `U₀`- and
+  `N`-transversal words (`lTrans`), expand `evensNormFun`'s `if q.1 ∈ U` case-split via
+  `evensAux`/`bS` (`GQ2/EvensKahn.lean`) so the first `κ⁰`-summand matches the oriented factor-set
+  term of (107) and the second matches the orientation-reversal correction (paper (108)/(109)),
+  then discharge the residual `.out`-transversal discrepancy as a `δ¹`-coboundary via the same
+  `H2ofFun_eq_of_sub_mem_B2` engine.
 
 ## Splice architecture note
 
@@ -365,6 +368,80 @@ theorem lemma_6_15_free_aux (hNo : IsOpen (N : Set G)) (α β : Z1 N (ZMod 2)) (
   abel
 
 end Free
+
+/-! ## Lemma 6.15, involution orbits (105) — foundations
+
+The involution case compares `graphPullback(invOrbitDatum_{N,ḡ})` with `cor_{U₀→G}` of the
+two-point Evens cocycle `evensNormFun_{N≤U₀}` (paper (107)–(109)), where `U₀ = ⟨N, ĝ⟩` is the
+index-2-over-`N` subgroup (fixed field `K₀ = K^{⟨ḡ⟩}`) and `ḡ = mk ĝ` is an involution of
+`G/N`.  These are the setup lemmas: `ḡ` is an involution, `G/U₀` is finite, and the two
+index sets `G/U₀` and `(G/N)/⟨ḡ⟩` correspond (`U₀` maps onto `⟨ḡ⟩` under `G ↠ G/N`). -/
+
+section Involution
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
+variable (N : Subgroup G) [N.Normal]
+
+/-- `ḡ = mk ĝ` is an involution of `G/N` when `ĝ² ∈ N`. -/
+theorem ghatQuot_sq (ghat : G) (hg2 : ghat * ghat ∈ N) :
+    (QuotientGroup.mk' N ghat) * (QuotientGroup.mk' N ghat) = 1 := by
+  rw [← map_mul, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]
+  exact hg2
+
+/-- The image of `U₀ = ⟨N, ĝ⟩` under `G ↠ G/N` is `⟨ḡ⟩` (`N` dies, `ĝ ↦ ḡ`). -/
+theorem map_U0_eq_zpowers (ghat : G) (U₀ : Subgroup G)
+    (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) :
+    U₀.map (QuotientGroup.mk' N) = Subgroup.zpowers (QuotientGroup.mk' N ghat) := by
+  rw [hU₀, Subgroup.map_sup, MonoidHom.map_zpowers]
+  have hN : N.map (QuotientGroup.mk' N) = ⊥ := by
+    rw [Subgroup.eq_bot_iff_forall]
+    intro y hy
+    obtain ⟨x, hx, rfl⟩ := hy
+    rw [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]
+    exact hx
+  rw [hN, bot_sup_eq]
+
+/-- `G/U₀` is finite (`U₀ ⊇ N` has index dividing the finite `N.index`). -/
+theorem finite_quot_U0 [Finite (G ⧸ N)] (ghat : G) (U₀ : Subgroup G)
+    (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) : Finite (G ⧸ U₀) := by
+  have hle : N ≤ U₀ := hU₀ ▸ le_sup_left
+  have hdvd : U₀.index ∣ N.index := Subgroup.index_dvd_of_le hle
+  have hN0 : N.index ≠ 0 := Subgroup.index_ne_zero_of_finite
+  haveI : U₀.FiniteIndex := ⟨fun h => hN0 (Nat.eq_zero_of_zero_dvd (h ▸ hdvd))⟩
+  exact Subgroup.finite_quotient_of_finiteIndex
+
+/-- **The index correspondence** `G/U₀ ≃ (G/N)/⟨ḡ⟩`: both are the coset space of the
+index-2-over-`N` subgroup `U₀ = ⟨N, ĝ⟩` (whose image in `G/N` is `⟨ḡ⟩`).  This bijects the two
+orbit index sets of the involution comparison. -/
+def invIndexEquiv (ghat : G) (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) :
+    (G ⧸ U₀) ≃ ((G ⧸ N) ⧸ Subgroup.zpowers (QuotientGroup.mk' N ghat)) where
+  toFun := Quotient.lift (fun g : G => (QuotientGroup.mk (QuotientGroup.mk g)))
+    (fun a b hab => Quotient.sound (QuotientGroup.leftRel_apply.mpr (by
+      have hm : (QuotientGroup.mk' N a)⁻¹ * QuotientGroup.mk' N b
+          ∈ U₀.map (QuotientGroup.mk' N) := by
+        rw [← map_inv, ← map_mul]
+        exact Subgroup.mem_map_of_mem _ (QuotientGroup.leftRel_apply.mp hab)
+      rwa [map_U0_eq_zpowers N ghat U₀ hU₀] at hm)))
+  invFun := Quotient.lift
+    (Quotient.lift (fun g : G => (QuotientGroup.mk g : G ⧸ U₀))
+      (fun a b hab => Quotient.sound (QuotientGroup.leftRel_apply.mpr
+        ((hU₀ ▸ le_sup_left : N ≤ U₀) (QuotientGroup.leftRel_apply.mp hab)))))
+    (Quotient.ind fun a => Quotient.ind fun b => fun hxy =>
+      Quotient.sound (QuotientGroup.leftRel_apply.mpr (by
+        have hxy' : (QuotientGroup.mk' N a)⁻¹ * QuotientGroup.mk' N b
+            ∈ Subgroup.zpowers (QuotientGroup.mk' N ghat) := QuotientGroup.leftRel_apply.mp hxy
+        rw [← map_inv, ← map_mul, ← map_U0_eq_zpowers N ghat U₀ hU₀, Subgroup.mem_map] at hxy'
+        obtain ⟨u, hu, hue⟩ := hxy'
+        have hn : u⁻¹ * (a⁻¹ * b) ∈ N := QuotientGroup.eq.mp (by
+          rw [← QuotientGroup.mk'_apply, ← QuotientGroup.mk'_apply]; exact hue)
+        have hrw : a⁻¹ * b = u * (u⁻¹ * (a⁻¹ * b)) := by group
+        rw [hrw]
+        exact mul_mem hu ((hU₀ ▸ le_sup_left : N ≤ U₀) hn))))
+  left_inv := Quotient.ind fun _ => rfl
+  right_inv := Quotient.ind fun y => QuotientGroup.induction_on y fun _ => rfl
+
+end Involution
 
 end ShapiroLedger
 
