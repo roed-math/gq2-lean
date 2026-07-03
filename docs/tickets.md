@@ -21,8 +21,8 @@ states conventions + paper-equation cross-reference; all `axiom`s live in
 | T-07 | B7′: Hilbert symbol def + `ε`,`ω` + axiom (Serre CiA III§1.2 Thm 1) + stress tests | ⭐⭐ | O | — | ☑ 2026-07-03 (`GQ2/HilbertSymbol.lean`) |
 | T-08 | B4: axiom `G_ℚ₂(2) ≅ profinitePresentation (Fin 3) {A²S⁴[S,Y]}` | ⭐⭐ | O | T-05 | ☑ 2026-07-03 (`GQ2/DyadicPresentation.lean`) |
 | T-09 | B3a: `IsDemushkin` definition + invariants + stress tests | ⭐⭐⭐ | **F** | T-02, T-04 | ☑ 2026-07-03 (`GQ2/Demushkin.lean`) |
-| T-10 | B3b: rank-3 `q=2` classification statement (optional if B3c ships) | ⭐⭐ | O | T-09 | ☐ |
-| T-11 | B3c: canonical orientation — choose route (Labute Prop 6 vs cyclotomic interface) | ⭐⭐⭐ | **F** | T-08 (+T-09 for route i) | ☐ |
+| T-10 | B3b: rank-3 `q=2` classification statement (optional if B3c ships) | ⭐⭐ | O | T-09 | ☑ 2026-07-04 (`demushkinQ` in `GQ2/Demushkin.lean`; no axiom — carried by B4, documented) |
+| T-11 | B3c: canonical orientation — choose route (Labute Prop 6 vs cyclotomic interface) | ⭐⭐⭐ | **F** | T-08 (+T-09 for route i) | ☑ 2026-07-04 (`GQ2/Orientation.lean`, route (ii)) |
 | T-12 | B8: Lemma 3.6 group-theoretic statement on `Δ = maxPro2(FreeProfinite (Fin 2))` | ⭐⭐ | O | T-05, T-06 | ☑ 2026-07-03 (`GQ2/PeripheralAction.lean`) |
 | T-13 | I5: Kummer class cocycle `kˣ → H¹(k,𝔽₂)` | ⭐⭐ | O | T-02 | ☑ 2026-07-03 (`GQ2/Kummer.lean`) |
 | T-14 | B6: local Tate duality axiom (μ-pairing, perfectness, per-`n` form) | ⭐⭐⭐ | **F** draft, O finish | T-02, T-04, T-15 | ☑ 2026-07-03 (`GQ2/TateDuality.lean`) |
@@ -182,6 +182,36 @@ axioms only in `Axioms.lean`; docstrings carry citations + conventions.
   `Multiplicative`-wrapped group — Mathlib's `Multiplicative.smul` transfer instance makes
   `g • m` mean base-multiplication and clashes with any trivial-action instance (hence
   `DihedralGroup 1`, not `Multiplicative (ZMod 2)`, in the stress test).
+- **T-10** ☑: *(Delivered as invariant + documentation, per the plan's explicit fallback — NO new
+  axiom.)*  `topAbelianization G := G ⧸ closure ⁅G,G⁆` and **`demushkinQ G`** := number of torsion
+  elements of `G^{ab}` (= Labute's `q` when `G^{ab} ≅ ℤ_p^{n−1} × ℤ/q`, `q ≠ 0`; junk otherwise —
+  the `q = 0` reading is not encoded, documented).  Stress: `demushkinQ_cyclicTwo = 2` (matching
+  `q(⟨x | x²⟩) = 2`; proved via `commutator = ⊥` by `decide` + discrete-closure + `quotientBot`,
+  std-3).  **Why no classification axiom**: stating abstract rank-3 `q=2` classification honestly
+  requires Labute's *canonical*-character characterization (Prop. 6 = route (i) of T-11, deferred);
+  an axiom quantified over an arbitrary character with the right image would be a *different and
+  possibly false* statement (risk rule #2).  At the field level the used instance **is** B4
+  (`absGalQ2_maxProTwo_presentation`), normalized by B3c.  Documented in `GQ2/Demushkin.lean`
+  §"The `q`-invariant" and in the `Foundations/Axioms.lean` header.
+- **T-11** ☑: **route (ii) — cyclotomic interface** (per the plan's recommendation; route (i),
+  Labute Prop. 6's abstract dualizing characterization, deliberately deferred — deviation flagged
+  in-module and at the axiom).
+  *Done (`GQ2/Orientation.lean` + named generators `d0A/d0S/d0Y` + `d0_relation` added to
+  `GQ2/DyadicPresentation.lean`; axiom `GQ2.dyadicOrientation : DyadicOrientation` in
+  `Foundations/Axioms.lean`, census 9→10; build + guard green).*
+  `DyadicOrientation` bundles: a **B4 isomorphism** `equiv : G_{ℚ₂}(2) ≅ D₀`; the **descent**
+  `chiTwo` of `chiCyc` through `maxProPMk` (continuous, `chiTwo_factors`; carried as data to avoid
+  formalizing `IsProP 2 ℤ₂ˣ` — an O-finish refinement: with it, descent follows from T-05's
+  `proPKernel_le_ker`); **surjectivity** (= the Thm 4(2) image invariant `{±1} × U₂⁽²⁾ = ℤ₂ˣ`,
+  the local B2); and the **values** `χ(A) = −1`, `χ(S) = 1`, `χ(Y) = (−3)⁻¹` under `equiv.symm`
+  (Labute Thm 4 case (2) at `f = 2` — the paper's `χ_D`-row of eq. (13); `−3` quantified via its
+  defining property, B5-stress-test style).  Stress (bundle-parametrized, axiom-free):
+  `orientation_values_consistent` (`(−1)²·1⁴·[χS,χY] = 1` — the values respect the Demushkin
+  relation; cross-checked by `orientation_relator_maps_to_one` via `d0_relation`),
+  `chiCyc_eq_neg_one_of_lift_A` / `chiCyc_eq_inv_neg_three_of_lift_Y` (full-group readings of
+  (13)) with `exists_lift_A` non-vacuity; `map_commP_eq_one` (commutators die in abelian targets).
+  Consistency web: the values match the B5 stress tests (`chiCyc_recip_neg4 = −1`,
+  `chiCyc_recip_neg3 = (−3)⁻¹` — eq. (13)'s two independent derivations agree).
 - **T-12**: statement with `c_P, c_T, c_C` conjugators and `P ^ᶻ ι(u)`; documented deviation note
   (axiom = Lemma 3.6's conclusion; literature proof = Stix §3.3+Def 37).
   *Done (`GQ2/PeripheralAction.lean` defs + bundle; axiom `peripheralCyclotomicAction` in

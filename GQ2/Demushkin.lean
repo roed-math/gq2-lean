@@ -160,6 +160,47 @@ theorem demushkinRank_eq_of_card [Fact p.Prime] {n : ℕ}
 
 end Api
 
+/-! ## The `q`-invariant  (ticket T-10, B3b)
+
+Labute's second invariant: for a Demushkin group, `G^{ab} ≅ ℤ_p^{n−1} × ℤ/q` with `q = p^s`
+(or `q = 0`, torsion-free), and the classification (his Théorème 8) is by `(n, q)` — plus, in
+the exceptional `q = 2` case, the image of the canonical orientation character.  We take
+`G^{ab}` to be the **topological** abelianization (quotient by the *closed* commutator — the
+right notion for profinite `G`) and read `q` off as the number of torsion elements
+(`#(ℤ/q) = q` when the torsion is finite cyclic; junk value otherwise, in particular the
+sensible reading of "`q = 0`" is not encoded — documented deviation).
+
+**B3b is deliberately *not* an axiom** (`docs/formalization-plan.md` §B3): stating the abstract
+rank-3 `q = 2` classification honestly requires Labute's *canonical* character (his Prop. 6
+dualizing characterization — route (i) of T-11, deferred); quantifying over an arbitrary
+continuous character with the right image would be a different (and possibly false) statement.
+At the field level the classification instance the paper uses **is** axiom B4
+(`G_{ℚ₂}(2) ≅ D₀`), whose orientation normalization is axiom B3c (`dyadicOrientation`,
+route (ii)).  This section supplies the invariant so that the classification *data*
+`(rank, q) = (3, 2)` is at least expressible; `demushkinQ D₀ = 2` itself is Labute-content and
+is not attempted. -/
+
+section QInvariant
+
+/-- The **topological abelianization** `G^{ab} = G ⧸ closure ⁅G,G⁆` (for profinite `G` this is
+the profinite abelianization; cf. `AbsGalQ2ab` in `GQ2/Reciprocity.lean`). -/
+def topAbelianization (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] :
+    Type _ :=
+  G ⧸ (commutator G).topologicalClosure
+
+noncomputable instance (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] :
+    Group (topAbelianization G) :=
+  inferInstanceAs (Group (G ⧸ (commutator G).topologicalClosure))
+
+/-- **The `q`-invariant** (Labute): the number of torsion elements of the topological
+abelianization — `= q` when `G^{ab} ≅ ℤ_p^{n−1} × ℤ/q` with `q ≠ 0`.  Junk value otherwise
+(see the section docstring). -/
+noncomputable def demushkinQ (G : Type*) [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] : ℕ :=
+  Nat.card {x : topAbelianization G // IsOfFinOrder x}
+
+end QInvariant
+
 /-! ## Positive stress test: `ℤ/2` is Demushkin of rank 1
 
 `ℤ/2` (as `DihedralGroup 1`, discrete) is the unique finite Demushkin group.  We compute
@@ -397,6 +438,36 @@ theorem isDemushkin_cyclicTwo : IsDemushkin 2 (DihedralGroup 1) where
 /-- `ℤ/2` has Demushkin rank 1. -/
 theorem demushkinRank_cyclicTwo : demushkinRank 2 (DihedralGroup 1) = 1 :=
   demushkinRank_eq_of_card (by rw [card_H1_cyclicTwo, pow_one])
+
+/-- **`ℤ/2` has `q`-invariant 2** (T-10 stress): it is abelian and finite, so
+`G^{ab} = G = ℤ/2` and every element is torsion — matching Labute's `q(⟨x | x²⟩) = 2`. -/
+theorem demushkinQ_cyclicTwo : demushkinQ (DihedralGroup 1) = 2 := by
+  -- the closed commutator is trivial (the group is abelian and discrete)
+  have hcomm : (commutator (DihedralGroup 1)).topologicalClosure = ⊥ := by
+    have h1 : commutator (DihedralGroup 1) = ⊥ := by
+      rw [commutator_def, eq_bot_iff]
+      refine Subgroup.commutator_le.mpr fun g _ h _ => ?_
+      rw [Subgroup.mem_bot]
+      show g * h * g⁻¹ * h⁻¹ = 1
+      exact (by decide : ∀ g h : DihedralGroup 1, g * h * g⁻¹ * h⁻¹ = 1) g h
+    rw [h1]
+    exact Subgroup.ext fun x => by
+      rw [← SetLike.mem_coe, Subgroup.topologicalClosure_coe,
+        IsClosed.closure_eq (isClosed_discrete _)]
+      rfl
+  -- every element of the (finite) abelianization is torsion
+  haveI : Finite (topAbelianization (DihedralGroup 1)) :=
+    inferInstanceAs (Finite (DihedralGroup 1 ⧸ _))
+  have htor : ∀ x : topAbelianization (DihedralGroup 1), IsOfFinOrder x :=
+    fun x => isOfFinOrder_of_finite x
+  rw [demushkinQ, Nat.card_congr (Equiv.subtypeUnivEquiv htor)]
+  -- `G^{ab} ≃ G ⧸ ⊥ ≃ G`, of cardinality 2
+  have e1 : topAbelianization (DihedralGroup 1) ≃* DihedralGroup 1 ⧸ (⊥ : Subgroup _) :=
+    QuotientGroup.quotientMulEquivOfEq hcomm
+  have e2 : DihedralGroup 1 ⧸ (⊥ : Subgroup (DihedralGroup 1)) ≃* DihedralGroup 1 :=
+    QuotientGroup.quotientBot
+  rw [Nat.card_congr e1.toEquiv, Nat.card_congr e2.toEquiv, Nat.card_eq_fintype_card]
+  decide
 
 end CyclicTwo
 
