@@ -551,15 +551,63 @@ def IsSimpleModTwo (C : Type*) [Group C] (V : Type*) [AddCommGroup V]
     ∀ W : AddSubgroup V, (∀ (g : C) (w : V), w ∈ W → g • w ∈ W) → W = ⊥ ∨ W = ⊤
 
 /-- **Lemma 5.12 (simple characteristic-two modules are tame)**: a normal 2-subgroup `L ◁ C`
-acts trivially on every simple `𝔽₂[C]`-module (fixed points of a 2-group on a nonzero
-`𝔽₂`-space are nonzero and `C`-stable).
-
-*Status*: sorried (P-13). -/
+acts trivially on every simple `𝔽₂[C]`-module.  Proof: the `L`-fixed subspace is nonzero (the
+`p`-group congruence `#V ≡ #Vᴸ (mod 2)` with `#V` even) and `C`-stable (`L` normal), so
+simplicity forces it to be all of `V`.  (Proved for P-13; the remaining §5 sorries concentrate
+in the Heisenberg word-evaluation core — `d1Fun_add`, 5.6, 5.7 — see the P-13 note.) -/
 theorem lemma_5_12 {V : Type*} [AddCommGroup V] [DistribMulAction C V] [Finite V]
     (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V)
     (L : Subgroup C) (hnormal : L.Normal) (hL : IsPGroup 2 L) :
     ∀ g ∈ L, ∀ v : V, g • v = v := by
-  sorry
+  classical
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  haveI : Nontrivial V := hsimple.1
+  -- The additive subgroup of `L`-fixed vectors.
+  let W : AddSubgroup V :=
+    { carrier := {v | ∀ g ∈ L, g • v = v}
+      zero_mem' := fun g _ => smul_zero g
+      add_mem' := fun {a b} ha hb g hg => by rw [smul_add, ha g hg, hb g hg]
+      neg_mem' := fun {a} ha g hg => by rw [smul_neg, ha g hg] }
+  have hmemW : ∀ {v : V}, v ∈ W ↔ ∀ g ∈ L, g • v = v := Iff.rfl
+  -- `W` is `C`-stable, since `L` is normal.
+  have hstable : ∀ (c : C) (w : V), w ∈ W → c • w ∈ W := by
+    intro c w hw g hg
+    have hgc : c⁻¹ * g * c ∈ L := by simpa using hnormal.conj_mem g hg c⁻¹
+    have hrw : g * c = c * (c⁻¹ * g * c) := by group
+    rw [← mul_smul, hrw, mul_smul, hmemW.mp hw _ hgc]
+  -- The `↥L`-fixed points coincide with `W` as sets.
+  have hset : (MulAction.fixedPoints ↥L V : Set V) = (W : Set V) := by
+    ext v
+    refine ⟨fun h g hg => h ⟨g, hg⟩, fun h g => h g.1 g.2⟩
+  -- `|V|` is even: a nonzero `𝔽₂`-space has an order-2 element.
+  have h2 : 2 ∣ Nat.card V := by
+    obtain ⟨v, hv⟩ := exists_ne (0 : V)
+    have hord : addOrderOf v = 2 := addOrderOf_eq_prime (by rw [two_nsmul]; exact hV₂ v) hv
+    exact hord ▸ addOrderOf_dvd_natCard v
+  -- Hence some nonzero vector is `L`-fixed: `W ≠ ⊥`.
+  have hWne : W ≠ ⊥ := by
+    intro hbot
+    have hmod := hL.card_modEq_card_fixedPoints (p := 2) V
+    have hsub : Subsingleton ↥(MulAction.fixedPoints ↥L V) := by
+      constructor
+      rintro ⟨a, ha⟩ ⟨b, hb⟩
+      have haW : a ∈ W := by rw [← SetLike.mem_coe, ← hset]; exact ha
+      have hbW : b ∈ W := by rw [← SetLike.mem_coe, ← hset]; exact hb
+      rw [hbot, AddSubgroup.mem_bot] at haW hbW
+      exact Subtype.ext (haW.trans hbW.symm)
+    have h0fp : (0 : V) ∈ MulAction.fixedPoints ↥L V := by
+      have : (0 : V) ∈ (W : Set V) := W.zero_mem
+      rwa [← hset] at this
+    have hfp1 : Nat.card ↥(MulAction.fixedPoints ↥L V) = 1 :=
+      Nat.card_eq_one_iff_unique.mpr ⟨hsub, ⟨⟨0, h0fp⟩⟩⟩
+    rw [hfp1] at hmod
+    have h0 : Nat.card V ≡ 0 [MOD 2] := (Nat.modEq_zero_iff_dvd).mpr h2
+    exact absurd (h0.symm.trans hmod) (by decide)
+  -- Simplicity forces `W = ⊤`, i.e. `L` acts trivially.
+  rcases hsimple.2 W hstable with h | h
+  · exact absurd h hWne
+  · intro g hg v
+    exact (h ▸ AddSubgroup.mem_top v : v ∈ W) g hg
 
 end Duality
 

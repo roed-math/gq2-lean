@@ -27,7 +27,7 @@ row ◐ before starting.  Paper: `paper/A_Profinite_Presentation_for_G__Q_2.pdf`
 | P-10 | B: Prop 1.1 proof — marked dyadic Demushkin normalization, `ν_ur = (−2,1,0)` | ⭐⭐ | O | P-06, P-07, P-08 | B3c, B4, B5, B7′ | ☐ |
 | P-11 | B: §4 design — boundary-framed marked targets, exact-image counts, **Thm 4.2 statement** | ⭐⭐⭐ | **F** | — | (statements) | ☑ 2026-07-03 (`GQ2/BoundaryFrame.lean`) |
 | P-12 | B: §5 design — Fox–Heisenberg word complex; 5.7/5.8/5.10/5.11/5.13/5.15 statements | ⭐⭐⭐ | **F** | P-11 | (statements) | ☑ 2026-07-03 (`GQ2/FoxHeisenberg.lean`) |
-| P-13 | B: §5 proofs (Stokes identities → chain map; dévissage; elementary-module duality 5.15) | ⭐⭐⭐ | O | P-12 | B6, B7 | ☐ |
+| P-13 | B: §5 proofs (Stokes identities → chain map; dévissage; elementary-module duality 5.15) | ⭐⭐⭐ | O | P-12 | B6, B7 | ◐ (Opus, 2026-07-03) |
 | P-14 | B: §§6–7 design — 6.13 (D₈ class), 6.15→6.17 (Shapiro/cor), 6.8/6.9 (Gauss sign), 6.16→6.18 (Hilbert ledger), 6.21 (transgression) statements | ⭐⭐⭐ | **F** | P-11 | (statements) | ◐ (Fable, 2026-07-03) |
 | P-15 | B: §§6–7 proofs | ⭐⭐⭐ | O | P-14 | B5, B6, B7′, B9 | ☐ |
 | P-16 | B: §8 — half-torsor count 8.6 + closed recursion Prop 8.9 (eqs. (136)–(142)) | ⭐⭐⭐ | **F** draft, O finish | P-11, P-14 | B6, B7, B9 | ☐ |
