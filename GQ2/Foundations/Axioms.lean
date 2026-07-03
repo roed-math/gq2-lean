@@ -3,6 +3,7 @@ import GQ2.ProfinitePresentation
 import GQ2.Cohomology
 import GQ2.HilbertSymbol
 import GQ2.Reciprocity
+import GQ2.TateDuality
 
 /-!
 # The axioms: classical literature inputs of Theorem 1.2  (ticket T-19)
@@ -23,6 +24,7 @@ current Mathlib plus this repo's `ContCoh` cohomology:
 * **B1** `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` — `G_ℚ₂` top. f.g.
 * **B2** `Foundations.cyclotomicCharacter_two_surjective` — 2-adic cyclotomic surjectivity.
 * **B5** `localReciprocity` — the local-reciprocity bundle (defs in `GQ2/Reciprocity.lean`).
+* **B6** `tateDuality` — local Tate duality, per-`n` bundle (defs in `GQ2/TateDuality.lean`).
 * **B7** `Foundations.absGalQ2_localEulerCharacteristic` — local Euler characteristic
   (cohomology from `GQ2/Cohomology.lean`).
 * **B7′** `HilbertSymbol.hilbertSymbol_dyadic` — the dyadic Hilbert-symbol formula
@@ -31,9 +33,8 @@ current Mathlib plus this repo's `ContCoh` cohomology:
 The remaining classical inputs are **not yet axiomatized** (statement infrastructure pending,
 see `docs/tickets.md`): B3 Demushkin classification (the *definition* `IsDemushkin` is done —
 `GQ2/Demushkin.lean`, T-09; the classification statement is T-10/T-11), B4 `G_ℚ₂(2) ≅ D₀`
-(T-08), B6 local Tate duality (T-14), B8 the `π₁(ℙ¹∖{0,1,∞})` action (T-12), B9 Evens/Kahn
-(T-18).  They are enumerated with precise statements and citations in
-`docs/literature-axioms.md`.
+(T-08), B8 the `π₁(ℙ¹∖{0,1,∞})` action (T-12), B9 Evens/Kahn (T-18).  They are enumerated
+with precise statements and citations in `docs/literature-axioms.md`.
 
 Consumers derive consequences by importing this file; the derived stress tests live next to
 their definitions (`GQ2/EulerCharacteristic.lean` for B7) or are parametrized over the bundle
@@ -153,5 +154,23 @@ parametrized over an arbitrary bundle and are therefore axiom-free. -/
 Citation: NSW [1] (7.1.1)/(7.1.5); Serre *Local Fields* [7] Ch. XI–XIII.  Paper: Lemma 3.5,
 eq. (13); Prop. 1.1. -/
 axiom localReciprocity : LocalReciprocity
+
+/-! ## B6 — local Tate duality (per-`n` bundle)
+
+The dual module `MuDual n M = Hom(M, μₙ)` (conjugation action), the evaluation cup pairing,
+and the bundle `TateDuality n` — with the encoding decisions and flagged deviations (per-`n`
+form, `ℤ/n`-valued Pontryagin duals, single currying, unnormalized `inv`) — are defined in
+`GQ2/TateDuality.lean`; its stress tests are parametrized over an arbitrary bundle and are
+therefore axiom-free. -/
+
+/-- **The B6 axiom.** Local Tate duality for `ℚ₂`, per-`n` bundle: an invariant map
+`inv : H²(G_ℚ₂, μₙ) ≃+ ℤ/n` making the evaluation cup pairings
+`Hⁱ(G_ℚ₂, Hom(M, μₙ)) × H^{2−i}(G_ℚ₂, M) → H²(G_ℚ₂, μₙ) ≅ ℤ/n` perfect for every finite
+discrete `n`-torsion module `M`, in the three degree pairs `(0,2)`, `(1,1)`, `(2,0)`.
+
+Citation: **NSW [1], Ch. VII §7.2, Theorem (7.2.6)** (local Tate duality); Serre, *Galois
+Cohomology* II §5.2, Theorem 2; Milne, *ADT* I.2.3.  Paper: §§5–8 (the `𝔽₂` dimension
+counts); `docs/literature-axioms.md` B6. -/
+axiom tateDuality (n : ℕ) [NeZero n] : TateDuality n
 
 end GQ2

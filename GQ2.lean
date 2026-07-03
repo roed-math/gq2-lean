@@ -25,3 +25,4 @@ import GQ2.HilbertSymbol
 import GQ2.Kummer
 import GQ2.Reciprocity
 import GQ2.MuN
+import GQ2.TateDuality

@@ -25,7 +25,7 @@ states conventions + paper-equation cross-reference; all `axiom`s live in
 | T-11 | B3c: canonical orientation — choose route (Labute Prop 6 vs cyclotomic interface) | ⭐⭐⭐ | **F** | T-08 (+T-09 for route i) | ☐ |
 | T-12 | B8: Lemma 3.6 group-theoretic statement on `Δ = maxPro2(FreeProfinite (Fin 2))` | ⭐⭐ | O | T-05, T-06 | ☐ |
 | T-13 | I5: Kummer class cocycle `kˣ → H¹(k,𝔽₂)` | ⭐⭐ | O | T-02 | ☑ 2026-07-03 (`GQ2/Kummer.lean`) |
-| T-14 | B6: local Tate duality axiom (μ-pairing, perfectness, per-`n` form) | ⭐⭐⭐ | **F** draft, O finish | T-02, T-04, T-15 | ☐ |
+| T-14 | B6: local Tate duality axiom (μ-pairing, perfectness, per-`n` form) | ⭐⭐⭐ | **F** draft, O finish | T-02, T-04, T-15 | ☑ 2026-07-03 (`GQ2/TateDuality.lean`) |
 | T-15 | I10: `μ_n` as finite discrete `G_ℚ₂`-module | ⭐⭐ | O | T-01 | ☑ 2026-07-03 (`GQ2/MuN.lean`) |
 | T-16 | B7: Euler-characteristic axiom (`card H¹ = card H⁰ · card H² · 2^{v₂#M}` + finiteness) | ⭐ | O | T-02 | ☑ 2026-07-03 (`GQ2/EulerCharacteristic.lean`) |
 | T-17 | B5: reciprocity bundle axiom (`rec`, `ν_ur`; norm-kernels, `ν_ur∘rec = −v₂`, `χ_cyc∘rec = (·)⁻¹`) | ⭐⭐⭐ | **F** | T-00 | ☑ 2026-07-03 (`GQ2/Reciprocity.lean`) |
@@ -193,8 +193,31 @@ axioms only in `Axioms.lean`; docstrings carry citations + conventions.
   theorem `InfiniteGalois.mem_range_algebraMap_iff_fixed`;
   (iv) root-independence (`κ` for `√a` and `−√a` coincide) makes `kummerClass` well-defined and
   drives `kummerClass_mul` (root `√a·√b` for `ab`).  **Unblocks T-18 (B9 Kummer/SW leg).**
-- **T-14**: per-`n` duality; Pontryagin-dual encoding decided + documented; μ-coefficient `H²`
+- **T-14** ☑: per-`n` duality; Pontryagin-dual encoding decided + documented; μ-coefficient `H²`
   target with bundled `inv`.
+  *Done (`GQ2/TateDuality.lean` + axiom `GQ2.tateDuality (n) [NeZero n] : TateDuality n` in
+  `Foundations/Axioms.lean`, census 5→6; full build + guard green; all theorems std-3, stress
+  tests bundle-parametrized hence axiom-free).*  🔴 decisions resolved (documented in-module):
+  **per-`n`** form (not the `μ = ⋃μₙ`/`ℚ⧸ℤ` colimit — suffices for the paper's `n = 2`; cross-`n`
+  compat of `inv` NOT asserted, flagged); **Pontryagin dual = `⋯ →+ ZMod n`** (for `n`-torsion
+  finite `A`, `Hom(A, ℚ/ℤ) ≅ Hom(A, ℤ/n)` — no `AddCircle`); dual module **`MuDual n M`** = `def`
+  synonym of `M →+ MuN n` with the conjugation action `(g•φ)(m) = g•φ(g⁻¹•m)` (a `def`, NOT
+  `abbrev`: Mathlib has a codomain-only `DistribMulAction M (A →+ B)` instance — diamond);
+  continuity via `continuousSMul_iff_stabilizer_isOpen` + T-01's `isOpen_iInf_stabilizer` (joint
+  action kernel on `M` and `μₙ` is open and fixes every `φ`); pairing = literal evaluation
+  (`muDualPairing := AddMonoidHom.id` under the synonym), equivariance is `inv_smul_smul`.
+  `TateDuality n` bundles `inv : H2(μₙ) ≃+ ZMod n` + perfectness in the three degree pairs —
+  exactly T-04's `cup02/cup11/cup20` shapes with `M′` left — as bijectivity of
+  `x ↦ inv ∘ (x ∪ ·)` onto `H^{2−i}(M) →+ ZMod n`; modules quantified over `Type` (Type 0,
+  Reconstruction precedent).  **Deviations flagged**: single currying per degree pair (opposite
+  follows by counting for finite modules); `inv` unnormalized (existence-form; the explicit
+  `n = 2` cup values enter via B7′, not `inv`).  Stress tests: `nsmul_muN_eq_zero` (`μₙ` is
+  `n`-torsion — feeds `μₙ` itself to the duality), `TateDuality.card_H2_muN` (`#H²(μₙ) = n`),
+  `card_H0/H1/H2_dual` (cardinality forms), `exists_cup_ne_zero_of_ne_zero` (the dimension-count
+  workhorse), self-instantiation at `M = μₙ`.  Lean gotchas recorded: the `ext` tactic recurses
+  through `Additive`/`Subtype` on `μₙ`-valued homs (use targeted `DFunLike.ext`); the synonym's
+  own `FunLike` head needs its own `zero_apply`/`add_apply` simp lemmas; section-variable
+  bundles used only in proofs need `include D`.
 - **T-15** ☑: `μ_n` as a legal `ContCoh` coefficient over `AbsGalQ2`.  *Done (`GQ2/MuN.lean`; every
   proof `#print axioms` = standard three).*  Deliverables: `galRootsOfUnity`
   (`MulDistribMulAction (L ≃ₐ[K] L) (rootsOfUnity n L)`, by restricting the units action — Mathlib
