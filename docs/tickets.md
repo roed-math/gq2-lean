@@ -16,19 +16,19 @@ states conventions + paper-equation cross-reference; all `axiom`s live in
 | T-02 | U2: continuous `H⁰/H¹/H²` — API design + core defs | ⭐⭐⭐ | **F** | T-01 | ☑ 2026-07-02 (`GQ2/Cohomology.lean`) |
 | T-03 | I2b: cohomology lemma layer (cocycle algebra, inflation, restriction, functoriality) | ⭐⭐ | O | T-02 | ☑ 2026-07-02 (`GQ2/Cohomology.lean`) |
 | T-04 | I3: cup products (0,2),(1,1),(2,0) rel. a pairing + bilinearity | ⭐⭐ | O | T-02 | ☑ 2026-07-02 (`GQ2/CupProduct.lean`) |
-| T-05 | I4: `maxProPQuotient` + pro-`p`-ness + universal property | ⭐⭐ | O | — | ☐ |
+| T-05 | I4: `maxProPQuotient` + pro-`p`-ness + universal property | ⭐⭐ | O | — | ☑ 2026-07-03 (`GQ2/MaxProP.lean`) |
 | T-06 | U1: `Zhat` via `profiniteCompletion ℤ`; `x ^ᶻ γ`; `ω₂ : Zhat`; finite-quotient compat | ⭐⭐ | **F**→O | — | ☑ 2026-07-02 (`GQ2/Zhat.lean`) |
-| T-07 | B7′: Hilbert symbol def + `ε`,`ω` + axiom (Serre CiA III§1.2 Thm 1) + stress tests | ⭐⭐ | O | — | ☐ |
+| T-07 | B7′: Hilbert symbol def + `ε`,`ω` + axiom (Serre CiA III§1.2 Thm 1) + stress tests | ⭐⭐ | O | — | ☑ 2026-07-03 (`GQ2/HilbertSymbol.lean`) |
 | T-08 | B4: axiom `G_ℚ₂(2) ≅ profinitePresentation (Fin 3) {A²S⁴[S,Y]}` | ⭐⭐ | O | T-05 | ☐ |
 | T-09 | B3a: `IsDemushkin` definition + invariants + stress tests | ⭐⭐⭐ | **F** | T-02, T-04 | ☐ |
 | T-10 | B3b: rank-3 `q=2` classification statement (optional if B3c ships) | ⭐⭐ | O | T-09 | ☐ |
 | T-11 | B3c: canonical orientation — choose route (Labute Prop 6 vs cyclotomic interface) | ⭐⭐⭐ | **F** | T-08 (+T-09 for route i) | ☐ |
 | T-12 | B8: Lemma 3.6 group-theoretic statement on `Δ = maxPro2(FreeProfinite (Fin 2))` | ⭐⭐ | O | T-05, T-06 | ☐ |
-| T-13 | I5: Kummer class cocycle `kˣ → H¹(k,𝔽₂)` | ⭐⭐ | O | T-02 | ☐ |
+| T-13 | I5: Kummer class cocycle `kˣ → H¹(k,𝔽₂)` | ⭐⭐ | O | T-02 | ☑ 2026-07-03 (`GQ2/Kummer.lean`) |
 | T-14 | B6: local Tate duality axiom (μ-pairing, perfectness, per-`n` form) | ⭐⭐⭐ | **F** draft, O finish | T-02, T-04, T-15 | ☐ |
-| T-15 | I10: `μ_n` as finite discrete `G_ℚ₂`-module | ⭐⭐ | O | T-01 | ☐ |
-| T-16 | B7: Euler-characteristic axiom (`card H¹ = card H⁰ · card H² · 2^{v₂#M}` + finiteness) | ⭐ | O | T-02 | ☐ |
-| T-17 | B5: reciprocity bundle axiom (`rec`, `ν_ur`; norm-kernels, `ν_ur∘rec = −v₂`, `χ_cyc∘rec = (·)⁻¹`) | ⭐⭐⭐ | **F** | T-00 | ☐ |
+| T-15 | I10: `μ_n` as finite discrete `G_ℚ₂`-module | ⭐⭐ | O | T-01 | ☑ 2026-07-03 (`GQ2/MuN.lean`) |
+| T-16 | B7: Euler-characteristic axiom (`card H¹ = card H⁰ · card H² · 2^{v₂#M}` + finiteness) | ⭐ | O | T-02 | ☑ 2026-07-03 (`GQ2/EulerCharacteristic.lean`) |
+| T-17 | B5: reciprocity bundle axiom (`rec`, `ν_ur`; norm-kernels, `ν_ur∘rec = −v₂`, `χ_cyc∘rec = (·)⁻¹`) | ⭐⭐⭐ | **F** | T-00 | ☑ 2026-07-03 (`GQ2/Reciprocity.lean`) |
 | T-18 | B9: Kummer/cor/Evens-norm/transfer-form defs + eq. (111) axiom (deg ≤ 2) | ⭐⭐⭐ | **F** design, O finish | T-02, T-04, T-13 | ☐ |
 | T-19 | Meta: `GQ2/Foundations/Axioms.lean` consolidation + `scripts/check_axioms.sh` guard | ⭐ | O | first axioms landed | ☐ |
 | T-20 | Meta: human-review packet v2 (Lean names per B-leaf + deviations table) | ⭐ | O | statements frozen | ☐ |
@@ -95,8 +95,28 @@ axioms only in `Axioms.lean`; docstrings carry citations + conventions.
   use a named `cupFun_add_*` helper; `n.2` for `n : ↥(H0 …)` is a *membership prop*, coerce it
   with `have hn : ∀ x, x • n.1 = n.1 := n.2` before `simp`; give each cup cochain a dedicated
   `continuous_*Fun` lemma so `mem_Z2` continuity unifies on the right head.
-- **T-05**: defs + `IsPGroup`-quotient lemma + universal property (`∀ pro-p P, Hom_cont(G,P) ≃
+- **T-05** ☑: defs + `IsPGroup`-quotient lemma + universal property (`∀ pro-p P, Hom_cont(G,P) ≃
   Hom_cont(G(p),P)` or factorization form); stress: finite case; idempotence.
+  *Done (`GQ2/MaxProP.lean`; every theorem `#print axioms` = standard three).*
+  `IsProP p P := ∀ U : OpenNormalSubgroup P, IsPGroup p (P ⧸ U.toSubgroup)`;
+  `proPKernel p G := ⨅ U : {U // IsPGroup p (G ⧸ U.toSubgroup)}, U.toSubgroup` (closed normal —
+  `proPKernel_isClosed`/`proPKernel_normal`); `maxProPQuotient p G := profiniteQuotient (proPKernel
+  p G) : ProfiniteGrp`; projection `maxProPMk`.
+  * **`IsPGroup`-quotient / pro-`p`-ness**: `isProP_maxProPQuotient` (and `isProP_quotient_proPKernel`
+    on the bare quotient type), via `isPGroup_quotient_of_proPKernel_le` — the compactness core:
+    a directed family (`isPGroup_quotient_inf` closes `𝒰` under `⊓`) of clopen sets whose
+    intersection lands in an open `Ŵ ≥ K` has a member `⊆ Ŵ`
+    (`IsCompact.nonempty_iInter_of_directed_nonempty_isCompact_isClosed`), so `G ⧸ Ŵ` is a quotient
+    of a `p`-group.
+  * **Universal property**: `maxProPHomEquiv : Hom_cont(G(p), P) ≃ Hom_cont(G, P)` for pro-`p` `P`,
+    resting on `proPKernel_le_ker` (each `f⁻¹ V` is an open normal subgroup with `G ⧸ f⁻¹V ↪ P ⧸ V`
+    a `p`-group; open normals of the profinite `P` intersect in `1` via
+    `eq_one_of_forall_mem_openNormalSubgroup`).
+  * **Stress**: idempotence `proPKernel_eq_bot_of_isProP` / `maxProPMk_bijective_of_isProP` /
+    `maxProPEquivSelf : ContinuousMulEquiv G (maxProPQuotient p G)` (pro-`p` ⇒ `G(p) ≅ G`, using
+    compact→T2); `isProP_of_isPGroup`; finite example `proPKernel 2 (Multiplicative (ZMod 4)) = ⊥`.
+  Consumers: **T-08** (`maxProPQuotient 2 AbsGalQ2`) and **T-12** (`maxProPQuotient 2
+  (FreeProfiniteGroup (Fin 2))`) are unblocked.
 - **T-06** ☑: `Zhat`, `zpowHat`, notation; naturality (`lift_unique`); `ω₂ : Zhat` with
   compatibility lemma `N ∣ M → omega2Exp M ≡ omega2Exp N [MOD N]`; headline:
   `f (x ^ᶻ ω₂) = powOmega2 (f x)` for `f` into finite groups. Ring structure explicitly out of
@@ -113,15 +133,83 @@ axioms only in `Axioms.lean`; docstrings carry citations + conventions.
   Mathlib's `lift`/`isLimitCone` internals needed. **T-21 and T-12's `P ^ᶻ ι(u)` are unblocked.**
 - **T-07**: `hilbertSymbol`; `ε`, `ω`; axiom `B7'` with the exact CiA formula; theorems:
   symmetry, `(a,−a)=1`, square-class invariance in one slot.
+  *Done (`GQ2/HilbertSymbol.lean`, namespace `GQ2.HilbertSymbol`; all proved parts `#print axioms` =
+  standard three).* Design: `hilbertSymbol : ℚ₂ˣ → ℚ₂ˣ → ℤˣ` via solvability of `a X²+b Y²=Z²`, so
+  symmetry, `(a,−a)=1` (witness `(1,1,0)`), and one-slot square-class invariance are **theorems from
+  the def**, not the axiom. `ε, ω : ℤ₂ˣ → 𝔽₂` factor through `ℤ₂ → ℤ/8` (`PadicInt.toZModPow 3`) with
+  the literal `(u−1)/2`, `(u²−1)/8` on `ZMod.val`; additivity on units (`ε_mul`/`ω_mul`) and the ε/ω
+  residue tables are `decide`, and the values on `−1` exercise the real `ℤ₂ˣ` reduction (`map_neg`).
+  Axiom `hilbertSymbol_dyadic` = Serre CiA III §1.2 Thm 1 (`p=2`), quantified over `a=2^α u`,
+  `b=2^β v` (`unit2^α * unitCoe u`) — covers all of `ℚ₂ˣ` with no valuation-decomposition lemma; an
+  `example` derives `(−1,−1)₂ = −1` from it as a sign-convention faithfulness check. **T-19**:
+  migrate the axiom to `Foundations/Axioms.lean`.
 - **T-08**: `r₀` via `FreeProfiniteGroup.of`; axiom; stress: image of the generators under a
   concrete finite marking (via `homEquiv` + `decide`-able finite group) behaves as expected.
 - **T-09**: `IsDemushkin`; `demushkinRank`; stress tests per plan (incl. one *negative* example).
 - **T-12**: statement with `c_P, c_T, c_C` conjugators and `P ^ᶻ ι(u)`; documented deviation note
   (axiom = Lemma 3.6's conclusion; literature proof = Stix §3.3+Def 37).
+- **T-13** ☑: `kummerClass : kˣ → H¹(G_k, 𝔽₂)` as the class of the explicit continuous 1-cocycle
+  `κ_a(g) = [g·√a = −√a]` (`= 0/1 ∈ ZMod 2`), over Mathlib's `Field.absoluteGaloisGroup` (spelled
+  `GaloisGroup k := k̄ ≃ₐ[k] k̄`, defeq `AbsGalQ2` for `k = ℚ₂`; `example`s certify).  Stress tests
+  (all at standard axioms, no new `axiom`s): `kummerCocycle_isHom` (continuous homomorphism — the
+  1-cocycle condition under the trivial `𝔽₂`-action, `ContCoh.mem_Z1_iff_of_trivial`),
+  `kummerClass_mul` (`[ab]=[a]+[b]`), `kummerClass_one`, and `kummerClass_eq_zero_iff`
+  (`[a]=0 ⟺ IsSquare a` — injectivity of `kˣ/(kˣ)² ↪ H¹`).
+  *Done (`GQ2/Kummer.lean`, namespace `GQ2.Kummer`).* Design notes:
+  (i) coefficients `𝔽₂ := ZMod 2` with the **trivial** action (`±1 ∈ k` fixed), supplied as a plain
+  `DistribMulAction (GaloisGroup k) (ZMod 2)` instance (no conflict — no other action of an absolute
+  Galois group on `ZMod 2` exists);
+  (ii) generality: works for any `[CharZero K]` field (covers `ℚ₂` and all its finite extensions —
+  B9's setting; char-0 gives both char `≠ 2` and `IsGalois k k̄` for free); most lemmas `omit
+  [CharZero K]`;
+  (iii) continuity is `IsLocallyConstant` from the stabilizer of `√a` being (cl)open in the Krull
+  topology (`stabilizer_isOpen_of_isIntegral`); the `= 0 ⟺ square` direction is the fixed-field
+  theorem `InfiniteGalois.mem_range_algebraMap_iff_fixed`;
+  (iv) root-independence (`κ` for `√a` and `−√a` coincide) makes `kummerClass` well-defined and
+  drives `kummerClass_mul` (root `√a·√b` for `ab`).  **Unblocks T-18 (B9 Kummer/SW leg).**
 - **T-14**: per-`n` duality; Pontryagin-dual encoding decided + documented; μ-coefficient `H²`
   target with bundled `inv`.
-- **T-17**: the three-clause bundle (a)(b)(c) from the plan; every clause cross-referenced to
+- **T-15** ☑: `μ_n` as a legal `ContCoh` coefficient over `AbsGalQ2`.  *Done (`GQ2/MuN.lean`; every
+  proof `#print axioms` = standard three).*  Deliverables: `galRootsOfUnity`
+  (`MulDistribMulAction (L ≃ₐ[K] L) (rootsOfUnity n L)`, by restricting the units action — Mathlib
+  has the `Lˣ` action but **not** its restriction to `μ_n`) and `galRootsOfUnityAdd` (the same action
+  through `Additive`, the project's additive discrete-module convention); then over `ℚ₂`,
+  `MuN n := Additive (rootsOfUnity n ℚ̄₂)` with `DistribMulAction`/`ContinuousSMul` over `AbsGalQ2`.
+  **Design decisions** (for the T-14 consumer and review):
+  (i) `AbsGalQ2 = Field.absoluteGaloisGroup ℚ_[2]` is an opaque `def` (semireducible), so the
+  `AlgEquiv` action/topology instances are transported to it by `inferInstanceAs` across the
+  definitional equality `AbsGalQ2 ≡ (ℚ̄₂ ≃ₐ[ℚ₂] ℚ̄₂)`;
+  (ii) **topology is inherited, not imposed** — `ℚ̄₂` carries the valued topology from
+  ClassFieldTheory's `PadicAlgCl`, so `μ_n` gets the subspace topology, which is *provably discrete*
+  (`Finite.instDiscreteTopology`: finite subset of a `T₁` space) — imposing `⊥` would diamond;
+  (iii) continuity via `continuousSMul_iff_stabilizer_isOpen` + `stabilizer_isOpen_of_isIntegral`
+  (Krull-open stabilizers), bridged by `stabilizer_additive_eq_field` (stabilizer of `x : μ_n` =
+  stabilizer of the underlying field element).  Stress tests: `H⁰/H¹/H²(G_ℚ₂, μ_n)` all form (the
+  faithfulness check), `Finite`, `DiscreteTopology`, `Nat.card (MuN n) = n` (⇒ `μ_n ≅ ℤ/n`), and
+  action–field coherence.  **T-14 is unblocked.**
+- **T-17** ☑: the three-clause bundle (a)(b)(c) from the plan; every clause cross-referenced to
   paper eq. (13)/Lemma 3.5; convention table in docstring.
+  *Done (`GQ2/Reciprocity.lean`; `#print axioms` of every stress test = standard three).* The
+  bundle is a `structure LocalReciprocity` (fields `recip`/`nu_ur` + clauses `norm_reciprocity`
+  (a), `nu_ur_recip` (b), `chiCyc_recip_unit`/`chiCyc_recip_uniformizer` (c)) with `axiom
+  localReciprocity : LocalReciprocity`. `χ_cyc = chiCycAb` is **Mathlib's own** `cyclotomicCharacter
+  (AlgClosure ℚ₂) 2` factored through the topological abelianization `AbsGalQ2ab =
+  Field.absoluteGaloisGroupAbelianization ℚ₂`; `rec` lands there. **Stress tests recompute paper
+  eq. (13) from the bundle**: `nu_ur_recip_{uniformizer,neg4,neg3}` = the `ν_ur(ā,s̄,ȳ)=(−2,1,0)`
+  row (`s̄=rec(2)⁻¹`); `chiCyc_recip_neg4` (`χ_D(ā)=−1`, flagship orientation check via
+  `−4=(−1)·2²`) and `chiCyc_recip_neg3` (`χ_D(ȳ)=(−3)⁻¹`) = the orientation row;
+  `abelianized_relator` = the abelianized relation `ā²s̄⁴=rec(1)=1`.
+  Key design points (for review): **(i) soundness trap** — `ν_ur` targets `Multiplicative ℤ₂`,
+  **not** `ℤ`: a continuous hom from compact `G^{ab}` to discrete `ℤ` is forced trivial, so the
+  `ℤ`-target axiom would be *inconsistent* (documented in-file, cf. the earlier `Nat.card` bug).
+  **(ii) instance diamond** — `AbsGalQ2 = Field.absoluteGaloisGroup ℚ₂` (a `def`) and Mathlib's raw
+  `Gal(K̄/ℚ₂) = K̄ ≃ₐ[ℚ₂] K̄` carry *different* `Group` instances; `chiCyc`/`restrictHom` are built
+  on the raw type and ascribed to the `AbsGalQ2` domain (defeq) to keep `commutator`/abelianization
+  on one instance path. **(iii) deviations flagged**: `rec` injectivity omitted (follows from (a) in
+  the limit `⋂_L N_{L/ℚ₂}Lˣ = 1`); axiom lives here pending the **T-19** migration to
+  `Foundations/Axioms.lean`. Clause (a) is stated faithfully over finite abelian layers `L/ℚ₂`
+  (`normSubgroup L` = image of `Algebra.norm`; `restrictAb L` = restriction factored through
+  `G^{ab}`), aligning with the ClassFieldTheory finite-level `Gal(L/ℚ₂) ≅ ℚ₂ˣ/N Lˣ` shape.
 - **T-18**: defs as in plan; axiom = eq. (111) scoped to the forms used in Lemma 6.16; deviation
   note (truncation to deg ≤ 2, concrete diagonal representatives).
 - **T-21** ☑: the relator words (`τ^σ τ⁻²` and `h₀u₁⁻¹x₁^σc₀`, ledger (1)–(3)) with `^ᶻ ω₂`;
