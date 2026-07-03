@@ -1076,8 +1076,11 @@ def IsSimpleModTwo (C : Type*) [Group C] (V : Type*) [AddCommGroup V]
 /-- **Lemma 5.12 (simple characteristic-two modules are tame)**: a normal 2-subgroup `L ◁ C`
 acts trivially on every simple `𝔽₂[C]`-module.  Proof: the `L`-fixed subspace is nonzero (the
 `p`-group congruence `#V ≡ #Vᴸ (mod 2)` with `#V` even) and `C`-stable (`L` normal), so
-simplicity forces it to be all of `V`.  (Proved for P-13; the remaining §5 sorries concentrate
-in the Heisenberg word-evaluation core — `d1Fun_add`, 5.6, 5.7 — see the P-13 note.) -/
+simplicity forces it to be all of `V`.  (Proved for P-13.  The Heisenberg word-evaluation core is
+now complete — `d1Fun_add`, `d1Fun_comp_d0`, Lemma 5.6, Lemma 5.7 both forms, and the tame row of
+Prop 5.8 — so the remaining §5 sorries concentrate in the *wild row* (Prop 5.8/Lemma 5.13, needing
+the target-dependent integer-`ω₂` representative of the wild word) and the mapping-cone dévissage
+Lemma 5.11.) -/
 theorem lemma_5_12 {V : Type*} [AddCommGroup V] [DistribMulAction C V] [Finite V]
     (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V)
     (L : Subgroup C) (hnormal : L.Normal) (hL : IsPGroup 2 L) :
