@@ -19,6 +19,7 @@ import GQ2.GammaA
 import GQ2.Foundations
 import GQ2.EulerCharacteristic
 import GQ2.MaxProP
+import GQ2.Demushkin
 import GQ2.HilbertSymbol
 import GQ2.Kummer
 import GQ2.Reciprocity

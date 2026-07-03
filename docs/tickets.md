@@ -20,7 +20,7 @@ states conventions + paper-equation cross-reference; all `axiom`s live in
 | T-06 | U1: `Zhat` via `profiniteCompletion ℤ`; `x ^ᶻ γ`; `ω₂ : Zhat`; finite-quotient compat | ⭐⭐ | **F**→O | — | ☑ 2026-07-02 (`GQ2/Zhat.lean`) |
 | T-07 | B7′: Hilbert symbol def + `ε`,`ω` + axiom (Serre CiA III§1.2 Thm 1) + stress tests | ⭐⭐ | O | — | ☑ 2026-07-03 (`GQ2/HilbertSymbol.lean`) |
 | T-08 | B4: axiom `G_ℚ₂(2) ≅ profinitePresentation (Fin 3) {A²S⁴[S,Y]}` | ⭐⭐ | O | T-05 | ☐ |
-| T-09 | B3a: `IsDemushkin` definition + invariants + stress tests | ⭐⭐⭐ | **F** | T-02, T-04 | ☐ |
+| T-09 | B3a: `IsDemushkin` definition + invariants + stress tests | ⭐⭐⭐ | **F** | T-02, T-04 | ☑ 2026-07-03 (`GQ2/Demushkin.lean`) |
 | T-10 | B3b: rank-3 `q=2` classification statement (optional if B3c ships) | ⭐⭐ | O | T-09 | ☐ |
 | T-11 | B3c: canonical orientation — choose route (Labute Prop 6 vs cyclotomic interface) | ⭐⭐⭐ | **F** | T-08 (+T-09 for route i) | ☐ |
 | T-12 | B8: Lemma 3.6 group-theoretic statement on `Δ = maxPro2(FreeProfinite (Fin 2))` | ⭐⭐ | O | T-05, T-06 | ☐ |
@@ -145,7 +145,33 @@ axioms only in `Axioms.lean`; docstrings carry citations + conventions.
   migrate the axiom to `Foundations/Axioms.lean`.
 - **T-08**: `r₀` via `FreeProfiniteGroup.of`; axiom; stress: image of the generators under a
   concrete finite marking (via `homEquiv` + `decide`-able finite group) behaves as expected.
-- **T-09**: `IsDemushkin`; `demushkinRank`; stress tests per plan (incl. one *negative* example).
+- **T-09** ☑: `IsDemushkin`; `demushkinRank`; stress tests per plan (incl. one *negative* example).
+  *Done (`GQ2/Demushkin.lean`; every theorem `#print axioms` = standard three; no axioms — all
+  constructions/proofs).*  Design decisions (deviations deliberate, documented in-module):
+  (i) `IsDemushkin p G : Prop` structure = Serre GC I §4.5 / NSW Def. 3.9.9 clauses over
+  `ContCoh` with literal `ZMod p` coefficients: `smul_trivial` (constrains the ambient action
+  instance — T-02/T-13 pattern), `isProP` (T-05), `finiteH1`, `cardH2 : Nat.card H² = p`
+  (dimension via `Nat.card`, per the T-02 note), and **two-sided** non-degeneracy of
+  `trivialCupPairing` (= T-04 `cup11` w.r.t. `AddMonoidHom.mul`; two-sided because
+  graded-commutativity of `cup11` is not formalized; `nondegen_left'/right'` consume the
+  clauses with any triviality proof, by proof irrelevance);
+  (ii) the "fin. gen." clause is omitted as redundant (⟺ `finiteH1` for pro-`p`, Burnside
+  basis NSW 3.9.1 — not needed to *state* B-leaves);
+  (iii) `demushkinRank p G := padicValNat p (Nat.card H¹)` with content lemmas
+  `IsDemushkin.card_H1_eq_pow` (`#H¹ = p ^ rank`, via `H¹` `p`-torsion + `IsPGroup.iff_card`)
+  and `demushkinRank_eq_of_card` (T-10's computation rule).
+  Stress tests: **positive** `isDemushkin_cyclicTwo` + `demushkinRank_cyclicTwo` — `ℤ/2` (as
+  `DihedralGroup 1`) is Demushkin of rank 1, with `H¹ ≃+ 𝔽₂` (`h1CyclicTwoEquiv`, the plan's
+  "H¹ = homs" check in wrapper-free T-02 form), `H² ≃+ 𝔽₂` (`h2CyclicTwoEquiv`, via the
+  evaluation functional `f ↦ f(1,1)+f(σ,σ)` that kills coboundaries), and the generator's cup
+  square = the product cocycle `(g,h) ↦ c₀(g)c₀(h)` (extension class of `ℤ/4`), *definitionally*
+  (`cup_generator := rfl`) and detected `≠ 0` by the functional; **negative**
+  `not_isDemushkin_punit` — the trivial group (free pro-`p` of rank 0) has `H² = 0` (`#H² = 1 ≠ p`),
+  the plan's "`H² = 0`, pick cheap ones".
+  **Gotcha for downstream users**: do NOT act on `ZMod`-coefficients with a
+  `Multiplicative`-wrapped group — Mathlib's `Multiplicative.smul` transfer instance makes
+  `g • m` mean base-multiplication and clashes with any trivial-action instance (hence
+  `DihedralGroup 1`, not `Multiplicative (ZMod 2)`, in the stress test).
 - **T-12**: statement with `c_P, c_T, c_C` conjugators and `P ^ᶻ ι(u)`; documented deviation note
   (axiom = Lemma 3.6's conclusion; literature proof = Stix §3.3+Def 37).
 - **T-13** ☑: `kummerClass : kˣ → H¹(G_k, 𝔽₂)` as the class of the explicit continuous 1-cocycle
