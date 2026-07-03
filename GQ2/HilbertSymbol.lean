@@ -167,7 +167,12 @@ theorem omegaResidue_table :
     omegaResidue 1 = 0 ∧ omegaResidue 3 = 1 ∧ omegaResidue 5 = 1 ∧ omegaResidue 7 = 0 := by
   decide
 
-/-! ## The dyadic Hilbert symbol formula (axiom B7′) -/
+/-! ## Inputs of the dyadic Hilbert-symbol formula (axiom B7′)
+
+The axiom itself — `(2^α u, 2^β v)₂ = (-1)^{ε(u)ε(v) + αω(v) + βω(u)}`, Serre CiA III §1.2
+Thm 1 — lives in `GQ2/Foundations/Axioms.lean` (`GQ2.HilbertSymbol.hilbertSymbol_dyadic`,
+consolidated there by T-19), together with its faithfulness check `(-1,-1)₂ = -1`.  Here we
+provide the two decomposition inputs of its statement. -/
 
 /-- The unit `2 ∈ ℚ₂ˣ`. -/
 noncomputable def unit2 : ℚ_[2]ˣ := Units.mk0 2 (by norm_num)
@@ -175,27 +180,5 @@ noncomputable def unit2 : ℚ_[2]ˣ := Units.mk0 2 (by norm_num)
 /-- The inclusion of units `ℤ₂ˣ → ℚ₂ˣ` induced by `ℤ₂ ↪ ℚ₂`. -/
 noncomputable def unitCoe (u : ℤ_[2]ˣ) : ℚ_[2]ˣ :=
   Units.map (PadicInt.Coe.ringHom (p := 2)).toMonoidHom u
-
-/-- **B7′ (dyadic Hilbert symbol), `[Classical.]`.**  Writing `a = 2^α u`, `b = 2^β v` with
-`u, v ∈ ℤ₂ˣ`, the Hilbert symbol over `ℚ₂` is
-`(a, b)₂ = (-1)^{ε(u) ε(v) + α ω(v) + β ω(u)}`.
-
-Citation: **Serre, *A Course in Arithmetic*, GTM 7, Ch. III §1.2, Theorem 1** (the `p = 2` case),
-with `ε, ω` the residue characters of Ch. II §3.3.  This is exactly the paper's Lemma 3.5 formula
-for the cup product on `H¹(ℚ₂, μ₂)`.  Convention: `signOf` sends the `𝔽₂`-valued exponent to
-`{±1} = ℤˣ`; every element of `ℚ₂ˣ` has the form `2^α u` (`α ∈ ℤ`, `u ∈ ℤ₂ˣ`), so this determines
-the symbol on all of `ℚ₂ˣ × ℚ₂ˣ`. -/
-axiom hilbertSymbol_dyadic (α β : ℤ) (u v : ℤ_[2]ˣ) :
-    hilbertSymbol (unit2 ^ α * unitCoe u) (unit2 ^ β * unitCoe v)
-      = signOf (ε u * ε v + (α : ZMod 2) * ω v + (β : ZMod 2) * ω u)
-
-/-- Faithfulness check on B7′: the axiom reproduces the canonical value `(-1, -1)₂ = -1` — the one
-nontrivial diagonal entry, which anchors the paper's initial cup form `α² + βγ + γβ`.  (Depends on
-`hilbertSymbol_dyadic`, so this is an `example`, not part of the unconditional API.) -/
-example : hilbertSymbol (unitCoe (-1)) (unitCoe (-1)) = -1 := by
-  have h := hilbertSymbol_dyadic 0 0 (-1) (-1)
-  rw [zpow_zero, one_mul] at h
-  rw [h, ε_neg_one, ω_neg_one]
-  decide
 
 end GQ2.HilbertSymbol

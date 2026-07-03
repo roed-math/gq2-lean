@@ -1,5 +1,6 @@
 import GQ2.Cohomology
 import GQ2.Statement
+import GQ2.Foundations.Axioms
 
 /-!
 # B7 — the local Euler–Poincaré characteristic of `G_ℚ₂`  (ticket T-16, leaf B7)
@@ -42,32 +43,18 @@ Turturean, §9.2 — lifting through an elementary quotient `M`; the strict-decr
 For the elementary `𝔽₂`-modules there (`#M = 2 ^ dim M`) this reads `#H¹ = #H⁰ · #H² · #M`
 (`card_H1_of_card_eq_two_pow`).
 
-All `axiom`s eventually consolidate into `GQ2/Foundations/Axioms.lean` (ticket T-19); until then
-this leaf lives in its own file next to the other classical inputs of `GQ2/Foundations.lean`.
+The axiom itself (`GQ2.Foundations.absGalQ2_localEulerCharacteristic`) lives in
+`GQ2/Foundations/Axioms.lean` (T-19 consolidation); this file documents its conventions and
+derives the consequences below from it.
 -/
 
 open GQ2.ContCoh
 
 namespace GQ2.Foundations
 
-/-- **[Classical — B7 (local Euler–Poincaré characteristic).]**  For every finite discrete
-`G_ℚ₂`-module `M`, the continuous cohomology groups `Hⁱ(G_ℚ₂, M)` are finite for `i = 0, 1, 2`, and
+/-! ## Consequences / stress tests
 
-  `#H¹(G_ℚ₂, M) = #H⁰(G_ℚ₂, M) · #H²(G_ℚ₂, M) · 2 ^ v₂(#M)`.
-
-Equivalently `χ := #H⁰ · #H² / #H¹ = ‖#M‖_{ℚ₂} = 2 ^ (−v₂(#M))`.
-
-Citation: **NSW [1], Ch. VII §7.3, Theorem (7.3.1) (Tate)** (`χ(k, A) = ‖#A‖_k`); Serre, *Galois
-Cohomology*, Ch. II §5.7 Theorem 5; Milne, *ADT* Thm I.2.8.  Paper: §9.2, eq. (145).  See the module
-docstring for conventions and for the (retained-for-faithfulness) redundancy of the `H⁰`-finiteness
-clause. -/
-axiom absGalQ2_localEulerCharacteristic (M : Type*) [AddCommGroup M] [TopologicalSpace M]
-    [DiscreteTopology M] [DistribMulAction AbsGalQ2 M] [ContinuousSMul AbsGalQ2 M] [Finite M] :
-    Finite (H0 AbsGalQ2 M) ∧ Finite (H1 AbsGalQ2 M) ∧ Finite (H2 AbsGalQ2 M) ∧
-      Nat.card (H1 AbsGalQ2 M)
-        = Nat.card (H0 AbsGalQ2 M) * Nat.card (H2 AbsGalQ2 M) * 2 ^ padicValNat 2 (Nat.card M)
-
-/-! ## Consequences / stress tests -/
+(The axiom `absGalQ2_localEulerCharacteristic` is stated in `GQ2/Foundations/Axioms.lean`.) -/
 
 section Consequences
 

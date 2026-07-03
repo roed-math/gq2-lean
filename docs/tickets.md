@@ -30,7 +30,7 @@ states conventions + paper-equation cross-reference; all `axiom`s live in
 | T-16 | B7: Euler-characteristic axiom (`card H¹ = card H⁰ · card H² · 2^{v₂#M}` + finiteness) | ⭐ | O | T-02 | ☑ 2026-07-03 (`GQ2/EulerCharacteristic.lean`) |
 | T-17 | B5: reciprocity bundle axiom (`rec`, `ν_ur`; norm-kernels, `ν_ur∘rec = −v₂`, `χ_cyc∘rec = (·)⁻¹`) | ⭐⭐⭐ | **F** | T-00 | ☑ 2026-07-03 (`GQ2/Reciprocity.lean`) |
 | T-18 | B9: Kummer/cor/Evens-norm/transfer-form defs + eq. (111) axiom (deg ≤ 2) | ⭐⭐⭐ | **F** design, O finish | T-02, T-04, T-13 | ☐ |
-| T-19 | Meta: `GQ2/Foundations/Axioms.lean` consolidation + `scripts/check_axioms.sh` guard | ⭐ | O | first axioms landed | ☐ |
+| T-19 | Meta: `GQ2/Foundations/Axioms.lean` consolidation + `scripts/check_axioms.sh` guard | ⭐ | O | first axioms landed | ☑ 2026-07-03 |
 | T-20 | Meta: human-review packet v2 (Lean names per B-leaf + deviations table) | ⭐ | O | statements frozen | ☐ |
 | T-21 | Γ_A literal (paper eq. (7) marked quotient; `ω₂`-relator words + bridges) + literal Thm 1.2 statement | ⭐⭐ | O | T-06 | ☑ 2026-07-02 (`GQ2/GammaA.lean`) |
 
@@ -141,8 +141,8 @@ axioms only in `Axioms.lean`; docstrings carry citations + conventions.
   residue tables are `decide`, and the values on `−1` exercise the real `ℤ₂ˣ` reduction (`map_neg`).
   Axiom `hilbertSymbol_dyadic` = Serre CiA III §1.2 Thm 1 (`p=2`), quantified over `a=2^α u`,
   `b=2^β v` (`unit2^α * unitCoe u`) — covers all of `ℚ₂ˣ` with no valuation-decomposition lemma; an
-  `example` derives `(−1,−1)₂ = −1` from it as a sign-convention faithfulness check. **T-19**:
-  migrate the axiom to `Foundations/Axioms.lean`.
+  `example` derives `(−1,−1)₂ = −1` from it as a sign-convention faithfulness check. *(Axiom since
+  migrated to `Foundations/Axioms.lean` by T-19, together with the `example`.)*
 - **T-08**: `r₀` via `FreeProfiniteGroup.of`; axiom; stress: image of the generators under a
   concrete finite marking (via `homEquiv` + `decide`-able finite group) behaves as expected.
 - **T-09** ☑: `IsDemushkin`; `demushkinRank`; stress tests per plan (incl. one *negative* example).
@@ -232,12 +232,37 @@ axioms only in `Axioms.lean`; docstrings carry citations + conventions.
   `Gal(K̄/ℚ₂) = K̄ ≃ₐ[ℚ₂] K̄` carry *different* `Group` instances; `chiCyc`/`restrictHom` are built
   on the raw type and ascribed to the `AbsGalQ2` domain (defeq) to keep `commutator`/abelianization
   on one instance path. **(iii) deviations flagged**: `rec` injectivity omitted (follows from (a) in
-  the limit `⋂_L N_{L/ℚ₂}Lˣ = 1`); axiom lives here pending the **T-19** migration to
-  `Foundations/Axioms.lean`. Clause (a) is stated faithfully over finite abelian layers `L/ℚ₂`
+  the limit `⋂_L N_{L/ℚ₂}Lˣ = 1`); axiom since migrated to `Foundations/Axioms.lean` by T-19
+  (stress tests stayed — they are bundle-parametrized and axiom-free).
+  Clause (a) is stated faithfully over finite abelian layers `L/ℚ₂`
   (`normSubgroup L` = image of `Algebra.norm`; `restrictAb L` = restriction factored through
   `G^{ab}`), aligning with the ClassFieldTheory finite-level `Gal(L/ℚ₂) ≅ ℚ₂ˣ/N Lˣ` shape.
 - **T-18**: defs as in plan; axiom = eq. (111) scoped to the forms used in Lemma 6.16; deviation
   note (truncation to deg ≤ 2, concrete diagonal representatives).
+- **T-19** ☑: *(Done: `GQ2/Foundations/Axioms.lean` + `scripts/check_axioms.sh`; full build green;
+  all five fully-qualified axiom names preserved.)*
+  **Layout**: `Axioms.lean` is the single file allowed to declare `axiom`s — currently five
+  (B1 `Foundations.absGalQ2_isTopologicallyFinitelyGenerated`, B2
+  `Foundations.cyclotomicCharacter_two_surjective`, B5 `GQ2.localReciprocity`, B7
+  `Foundations.absGalQ2_localEulerCharacteristic`, B7′ `HilbertSymbol.hilbertSymbol_dyadic`) —
+  with docstrings/citations moved verbatim and the original namespaces reproduced, so **no
+  consumer changes name**.  Import layering: definition files (`HilbertSymbol`, `Reciprocity`,
+  `Cohomology`, `Statement`) sit *below* `Axioms.lean`; consumers sit above it
+  (`EulerCharacteristic.lean` keeps B7's conventions docstring + the derived `finite_H1`/`card_H1`
+  suite and now imports `Foundations.Axioms`; `Reciprocity.lean`'s stress tests are
+  bundle-parametrized, hence axiom-free and unmoved; B7′'s faithfulness `example` moved next to
+  its axiom).  `GQ2/Foundations.lean` remains as a re-export shim, its stale
+  "cannot be written today" prose replaced by the refreshed review guide in `Axioms.lean`
+  (B5/B7/B7′ *are* now faithfully stated; remaining doc-only leaves: B3-classification/B4/B6/B8/B9
+  with their tickets).  Axiom-profile spot checks: `Foundations.card_H1` = std-3 + exactly its own
+  B7 axiom; `Foundations.finite_H0` and the Reciprocity stress tests = std-3 only.
+  **Guard** (`scripts/check_axioms.sh`, comment-aware — a nesting-correct `/- … -/`/`--` stripper,
+  so prose mentioning "axiom"/"sorry" doesn't trip it; negative-tested against a planted
+  axiom/sorry/native_decide file): (1) `axiom` only in `Foundations/Axioms.lean`; (2) `sorry`
+  allowlist = the three intentional leaves (`Reconstruction`/`Statement`/`GammaA`); (3) axiom
+  census = `EXPECTED_AXIOMS` (bump in the same commit that lands a new B-leaf); (4) no
+  `native_decide` anywhere.  Wave-4 axiom tickets (T-08, T-12, T-14, T-18) should declare their
+  axioms **directly in `Foundations/Axioms.lean`** and bump the census.
 - **T-21** ☑: the relator words (`τ^σ τ⁻²` and `h₀u₁⁻¹x₁^σc₀`, ledger (1)–(3)) with `^ᶻ ω₂`;
   `GammaA : ProfiniteGrp`; statement
   `theorem main_presentation_literal : Nonempty (ContinuousMulEquiv GammaA AbsGalQ2)` (sorried,

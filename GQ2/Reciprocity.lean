@@ -66,8 +66,9 @@ References: [1] Neukirch–Schmidt–Wingberg, *Cohomology of Number Fields*, 2n
 (class formation ⇒ local reciprocity); [7] Serre, *Local Fields*, Ch. XI–XIII.  Paper: Turturean,
 Lemma 3.5, eq. (13); Prop. 1.1.  Ticket: `docs/tickets.md` T-17.
 
-*Note:* the axiom `localReciprocity` lives here for parallel-development reasons; it should migrate to
-`GQ2/Foundations/Axioms.lean` in the T-19 consolidation.
+*Note:* the axiom `GQ2.localReciprocity` itself lives in `GQ2/Foundations/Axioms.lean` (T-19
+consolidation); this file holds the bundle *definition* and the axiom-free, bundle-parametrized
+stress tests.
 -/
 
 open scoped Classical
@@ -226,11 +227,8 @@ structure LocalReciprocity where
   totally ramified `ℚ₂(μ_{2^∞})/ℚ₂`).  [paper (13): needed for `χ_D(ā) = −1`] -/
   chiCyc_recip_uniformizer : chiCycAb (recip uniformizer) = 1
 
-/-- **The B5 axiom.** Local class field theory for `ℚ₂` provides the reciprocity bundle.
-
-AXIOM (leaf B5) — migrate to `GQ2/Foundations/Axioms.lean` in T-19.
-Citation: NSW [1] (7.1.1)/(7.1.5); Serre *Local Fields* [7] Ch. XI–XIII. -/
-axiom localReciprocity : LocalReciprocity
+/- The B5 axiom `GQ2.localReciprocity : LocalReciprocity` lives in
+`GQ2/Foundations/Axioms.lean` (consolidated there by T-19). -/
 
 /-! ## Stress tests: the bundle reproduces the paper's equation (13)
 
