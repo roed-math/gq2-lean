@@ -214,6 +214,21 @@ theorem conj_baseEmbed (v : A) (g : C) :
     abel
   · simp only [mul_g, inv_g, inv_one, one_mul, mul_one]
 
+/-- The base coordinate of a power is the power of the base (`.g` is multiplicative). -/
+@[simp] theorem pow_g (p : WordLift A C) (n : ℕ) : (p ^ n).g = p.g ^ n := by
+  induction n with
+  | zero => simp
+  | succ k ih => rw [pow_succ, pow_succ, mul_g, ih]
+
+/-- **The norm-of-power (geometric sum) formula** — the source of the paper's "norm projector"
+`P = 1 + T + ⋯ + Tᵉ⁻¹` in the finite Fox rules (Lemma 5.4/5.5).  The `A`-offset of `pⁿ` is the
+partial norm `(1 + g + ⋯ + gⁿ⁻¹) • u` of the offset `u` under the base action `g`. -/
+theorem pow_u (p : WordLift A C) (n : ℕ) :
+    (p ^ n).u = ∑ i ∈ Finset.range n, p.g ^ i • p.u := by
+  induction n with
+  | zero => simp
+  | succ k ih => rw [pow_succ, mul_u, ih, pow_g, Finset.sum_range_succ]
+
 end WordLift
 
 /-! ## The word complex (30)/(31) -/
@@ -1450,6 +1465,73 @@ theorem lemma_5_12 {V : Type*} [AddCommGroup V] [DistribMulAction C V] [Finite V
     exact (h ▸ AddSubgroup.mem_top v : v ∈ W) g hg
 
 end Duality
+
+/-! ## Lemma 5.2: the exact class-two identity (§5.1 ledger)
+
+The auxiliary word `h₀ = (x₀^{g₀})·x₀·d_g·d₀·d₀²·[d_g,d₀]` (`Marking.h0`) has the class-two shape
+`h_ϕ(X,D) = ϕ(X)·X·ϕ(D)·D·D²·[ϕ(D),D]` with `ϕ = (·)^{g₀}` (conjugation by `g₀`), `X = x₀`,
+`D = d₀`.  Paper Lemma 5.2 collapses it to `ϕ(X)·X·D⁻¹·ϕ(D)` (display (32)) in any group in which
+`[ϕ(D),D]` is central of order ≤ 2 and `D⁴ = 1` — the class-two setting of the coefficient
+Heisenberg/extraspecial groups.  This is the algebraic heart of the `h₀`-shadow (Lemma 5.3) and the
+mixed Hessian (Lemma 5.14): `h₀` may replace `x₀²` in every first-order, cup, and central ledger. -/
+
+section ClassTwo
+
+variable {G : Type*} [Group G]
+
+/-- **Lemma 5.2, core cancellation.**  If the commutator `k = [A,B]` (`commP` convention
+`A⁻¹B⁻¹AB`) is central and satisfies `k² = 1`, and `B⁴ = 1`, then `A·B·B²·[A,B] = B⁻¹·A`.
+This is display (32) after cancelling the common prefix `ϕ(X)·X` (with `A = ϕ(D)`, `B = D`).
+
+The proof is the paper's: from `A·B = B·A·k` (`hcomm`), `k` central and `k² = 1` give that `A`
+commutes with `B²`, and `B³ = B⁻¹`; then `A·B·B²·k = B·A·B² = B³·A = B⁻¹·A`.  The associativity
+bookkeeping is discharged by right-normalising with `simp only [mul_assoc, …]`, feeding the
+commutator relation in the right-associated form `A·(B·x) = B·(A·(k·x))` so it fires under the
+normal form. -/
+theorem classTwoCore (A B : G)
+    (hcentral : ∀ z : G, commP A B * z = z * commP A B)
+    (hk2 : commP A B * commP A B = 1) (hB4 : B ^ 4 = 1) :
+    A * B * B ^ 2 * commP A B = B⁻¹ * A := by
+  set k := commP A B with hk
+  have hcomm : A * B = B * A * k := by rw [hk, commP]; group
+  have hkB : k * B = B * k := hcentral B
+  have hcomm' : ∀ x : G, A * (B * x) = B * (A * (k * x)) := fun x => by
+    rw [← mul_assoc, hcomm, mul_assoc, mul_assoc]
+  have hkB' : ∀ x : G, k * (B * x) = B * (k * x) := fun x => by rw [← mul_assoc, hkB, mul_assoc]
+  have hBBBB : B * B * B * B = 1 := by
+    rw [show B * B * B * B = B ^ 4 from by rw [← pow_two, ← pow_succ, ← pow_succ]]; exact hB4
+  have hB3 : B * B * B = B⁻¹ := mul_eq_one_iff_eq_inv.mp hBBBB
+  rw [pow_two]
+  simp only [mul_assoc, hcomm', hkB, hkB', hk2, mul_one]
+  rw [← hB3]
+  simp only [mul_assoc]
+
+/-- **Lemma 5.2, display (32)**: `h_ϕ(X,D) = ϕ(X)·X·ϕ(D)·D·D²·[ϕ(D),D] = ϕ(X)·X·D⁻¹·ϕ(D)`,
+whenever `[ϕ(D),D]` is central of order ≤ 2 and `D⁴ = 1`.  (`ϕ` need not be a homomorphism for the
+identity; the paper's `ϕ` is a `Z`-fixing automorphism, which is what makes the hypotheses hold for
+the actual `h₀`.) -/
+theorem classTwoIdentity (φ : G → G) (X D : G)
+    (hcentral : ∀ z : G, commP (φ D) D * z = z * commP (φ D) D)
+    (hk2 : commP (φ D) D * commP (φ D) D = 1) (hD4 : D ^ 4 = 1) :
+    φ X * X * φ D * D * D ^ 2 * commP (φ D) D = φ X * X * D⁻¹ * φ D := by
+  calc φ X * X * φ D * D * D ^ 2 * commP (φ D) D
+      = φ X * X * (φ D * D * D ^ 2 * commP (φ D) D) := by simp only [mul_assoc]
+    _ = φ X * X * (D⁻¹ * φ D) := by rw [classTwoCore (φ D) D hcentral hk2 hD4]
+    _ = φ X * X * D⁻¹ * φ D := by simp only [mul_assoc]
+
+/-- **Lemma 5.2(ii)**: when `ϕ = id`, `h_ϕ(X,D) = X²` for every `D` (`[D,D] = 1`).  Used in the
+split (`P = 1`) branch of the `h₀`-shadow, where `g₀ = σ₂²` acts trivially. -/
+theorem classTwoIdentity_id (X D : G) (hD4 : D ^ 4 = 1) :
+    X * X * D * D * D ^ 2 * commP D D = X ^ 2 := by
+  have hc0 : commP D D = 1 := by rw [commP]; group
+  have hcc : ∀ z : G, commP D D * z = z * commP D D := by intro z; rw [hc0, one_mul, mul_one]
+  have hk2 : commP D D * commP D D = 1 := by rw [hc0, mul_one]
+  calc X * X * D * D * D ^ 2 * commP D D
+      = X * X * (D * D * D ^ 2 * commP D D) := by simp only [mul_assoc]
+    _ = X * X * (D⁻¹ * D) := by rw [classTwoCore D D hcc hk2 hD4]
+    _ = X ^ 2 := by rw [inv_mul_cancel, mul_one, pow_two]
+
+end ClassTwo
 
 section NormalForms
 
