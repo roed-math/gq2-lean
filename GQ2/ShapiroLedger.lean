@@ -32,14 +32,17 @@ identities).  No axioms (`Ax = ∅`).
   `ε`-sign of paper eq. (67)) equals `cor_{K₀/F} N^{Ev}_{K/K₀}(α)` where `N^{Ev} = evensNormFun`
   (the two-point graph cocycle (98)) and `U₀ = ⟨N, ĝ⟩` is index-2 over `N`.
   **Landed here (§ "involution — foundations"):** `ghatQuot_sq` (`ḡ` is an involution of `G/N`),
-  `map_U0_eq_zpowers` (`U₀` maps onto `⟨ḡ⟩` under `G ↠ G/N`), `finite_quot_U0`, and the key
-  **index correspondence `invIndexEquiv : G/U₀ ≃ (G/N)/⟨ḡ⟩`** that bijects the two orbit index
-  sets.  **Remaining (a materially larger computation than the free case):** relate the `U₀`- and
-  `N`-transversal words (`lTrans`), expand `evensNormFun`'s `if q.1 ∈ U` case-split via
-  `evensAux`/`bS` (`GQ2/EvensKahn.lean`) so the first `κ⁰`-summand matches the oriented factor-set
-  term of (107) and the second matches the orientation-reversal correction (paper (108)/(109)),
-  then discharge the residual `.out`-transversal discrepancy as a `δ¹`-coboundary via the same
-  `H2ofFun_eq_of_sub_mem_B2` engine.
+  `map_U0_eq_zpowers` (`U₀` maps onto `⟨ḡ⟩` under `G ↠ G/N`), `finite_quot_U0`, the key
+  **index correspondence `invIndexEquiv : G/U₀ ≃ (G/N)/⟨ḡ⟩`** bijecting the two orbit index sets,
+  and **both sides of the comparison in explicit form** — `phi_inv_eq` (the LHS graph pullback as
+  the two paper-(107) sums, oriented term + orientation correction) and `psi_inv_eq` (the RHS
+  corestriction as an `evensNormFun` sum over `G/U₀`).  **Remaining (a materially larger
+  computation than the free case):** reindex `psi_inv_eq`'s `G/U₀` sum over `(G/N)/⟨ḡ⟩` via
+  `invIndexEquiv`; relate the `U₀`- and `N`-transversal words (`lTrans`); expand `evensNormFun`'s
+  `if q.1 ∈ U` case-split via `evensAux`/`bS` (`GQ2/EvensKahn.lean`) so its two branches match the
+  two `phi_inv_eq` sums + orientation (paper (108)/(109)); then discharge the residual
+  two-transversal `.out` discrepancy as a `δ¹`-coboundary via the same `H2ofFun_eq_of_sub_mem_B2`
+  engine.
 
 ## Splice architecture note
 
@@ -462,6 +465,18 @@ theorem phi_inv_eq (α : Z1 N (ZMod 2)) (ghat : G) (γ η : G) :
               * (α.1 (lTrans N (orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * u.out)) η)
                 * α.1 (lTrans N (orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * u.out)
                     * QuotientGroup.mk' N ghat) η)) := rfl
+
+/-- The involution corestriction side, unfolded to an explicit sum over `G ⧸ U₀` (the
+`evensNormFun` two-point cocycle at the `U₀`-transversal words).  The remaining assembly
+reindexes this over `(G/N)/⟨ḡ⟩` via `invIndexEquiv`, expands `evensNormFun`'s `if _ ∈ N`
+case-split (`evensAux`/`bS`, `GQ2/EvensKahn.lean`) into `α`-values, matches the two `phi_inv_eq`
+sums + orientation, and discharges the two-transversal `.out` discrepancy as a `δ¹`-coboundary. -/
+theorem psi_inv_eq (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G) (hgU : ghat ∈ U₀)
+    (γ η : G) :
+    cor2Fun U₀ (fun p ↦ evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩
+        (fun u ↦ α.1 ⟨u.1.1, u.2⟩) (p.1, p.2)) (γ, η)
+      = ∑ᶠ v : G ⧸ U₀, evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (fun u ↦ α.1 ⟨u.1.1, u.2⟩)
+          (lTrans U₀ v γ, lTrans U₀ (γ⁻¹ • v) η) := rfl
 
 end Involution
 
