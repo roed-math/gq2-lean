@@ -488,6 +488,11 @@ noncomputable instance : Group (HeisLift A C) where
       linear_combination CharTwo.add_self_eq_zero p.z
     · simp
 
+/-- `H(A) ⋊ C` is finite when `A` and `C` are (all four coordinates range over finite types). -/
+instance [Finite A] [Finite C] : Finite (HeisLift A C) :=
+  Finite.of_injective (fun p : HeisLift A C => (p.a, p.l, p.z, p.g)) fun p q h => by
+    obtain ⟨pa, pl, pz, pg⟩ := p; obtain ⟨qa, ql, qz, qg⟩ := q; simpa using h
+
 /-- The base projection `HeisLift A C →* C`. -/
 def gHom : HeisLift A C →* C where
   toFun := HeisLift.g
@@ -954,13 +959,63 @@ theorem prop_5_8_right (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (x : Fi
 /-- **Lemma 5.6 (strict coefficient naturality)**, in the traced form Prop 5.10 uses: for an
 equivariant `f : A → A'`, `B_{A'}(f∗x, y') = B_A(x, f^∨ y')`.
 
-*Status*: sorried (P-13; evaluate in the mixed Heisenberg group `A × A'^∨ × 𝔽₂`). -/
-theorem lemma_5_6 {A' : Type*} [AddCommGroup A'] [DistribMulAction C A'] (f : A →+ A')
-    (hf : ∀ (g : C) (a : A), f (g • a) = g • f a) (t : Marking C) (x : Fin 4 → A)
-    (y' : Fin 4 → ElemDual A') :
+Proof (the paper's "evaluate in the mixed Heisenberg group"): the two markings live in
+`H(A') ⋊ C` and `H(A) ⋊ C`, related by `f` on the `A`-slot and `f^∨` on the dual slot.  They both
+sit inside the **mixed subgroup** `S ≤ H(A') ⋊ C × H(A) ⋊ C` cut out by "`f`-related `a`/`λ`,
+equal `z`, equal `g`" — a subgroup precisely because `f` is `C`-equivariant.  The two projections
+`π₁, π₂ : S →* …` carry the mixed marking to the two sides (`Marking.map_tameValue`/`map_wildValue`,
+the latter needing `S` finite for the `ω₂`-powers), and `S`'s defining `z`-equation makes the two
+relator `z`-coordinates agree — which is exactly the claim.
+
+(Requires `A`, `A'`, `C` finite, the paper's finite setting: `map_wildValue`'s `ω₂` push needs the
+source group finite.) -/
+theorem lemma_5_6 {A' : Type*} [AddCommGroup A'] [DistribMulAction C A'] [Finite A] [Finite A']
+    [Finite C] (f : A →+ A') (hf : ∀ (g : C) (a : A), f (g • a) = g • f a) (t : Marking C)
+    (x : Fin 4 → A) (y' : Fin 4 → ElemDual A') :
     mixedB t (fun i => f (x i)) y'
       = mixedB t x (fun i => ((y' i : A' →+ ZMod 2).comp f : ElemDual A)) := by
-  sorry
+  -- The dual (contragredient) `f^∨ : A'^∨ →+ A^∨`, `λ ↦ λ ∘ f`, bundled so results stay `ElemDual`.
+  let fStar : ElemDual A' →+ ElemDual A :=
+    { toFun := fun lam => lam.comp f
+      map_zero' := AddMonoidHom.zero_comp f
+      map_add' := fun a b => AddMonoidHom.add_comp a b f }
+  have fStar_apply : ∀ (lam : ElemDual A') (a : A), fStar lam a = lam (f a) := fun _ _ => rfl
+  -- Dual `f`-equivariance: `f^∨ (g • λ) = g • f^∨ λ`.
+  have hcomp : ∀ (g : C) (lam : ElemDual A'), fStar (g • lam) = g • fStar lam := by
+    intro g lam; ext a; simp only [fStar_apply, ElemDual.smul_apply, hf]
+  -- The mixed subgroup of `H(A') ⋊ C × H(A) ⋊ C`.
+  let S : Subgroup (HeisLift A' C × HeisLift A C) :=
+    { carrier := {pq | pq.1.a = f pq.2.a ∧ pq.2.l = fStar pq.1.l ∧ pq.1.z = pq.2.z ∧
+        pq.1.g = pq.2.g}
+      one_mem' := ⟨by simp, by simp, rfl, rfl⟩
+      mul_mem' := fun {P Q} hP hQ =>
+        ⟨by simp only [Prod.fst_mul, Prod.snd_mul, HeisLift.mul_a, map_add, hf, hP.1, hQ.1, hP.2.2.2],
+          by simp only [Prod.fst_mul, Prod.snd_mul, HeisLift.mul_l, map_add, hcomp,
+            hP.2.1, hQ.2.1, hP.2.2.2],
+          by simp only [Prod.fst_mul, Prod.snd_mul, HeisLift.mul_z, hP.2.2.1,
+            hQ.2.2.1, hP.2.1, hP.2.2.2, hQ.1, fStar_apply, hf],
+          by simp only [Prod.fst_mul, Prod.snd_mul, HeisLift.mul_g, hP.2.2.2, hQ.2.2.2]⟩
+      inv_mem' := fun {P} hP =>
+        ⟨by simp only [Prod.fst_inv, Prod.snd_inv, HeisLift.inv_a, map_neg, hf, hP.1, hP.2.2.2],
+          by simp only [Prod.fst_inv, Prod.snd_inv, HeisLift.inv_l, map_neg, hcomp,
+            hP.2.1, hP.2.2.2],
+          by simp only [Prod.fst_inv, Prod.snd_inv, HeisLift.inv_z, hP.2.2.1, hP.2.1, hP.1,
+            fStar_apply],
+          by simp only [Prod.fst_inv, Prod.snd_inv, HeisLift.inv_g, hP.2.2.2]⟩ }
+  -- The two projections and the mixed marking.
+  let π₁ : ↥S →* HeisLift A' C := (MonoidHom.fst (HeisLift A' C) (HeisLift A C)).comp S.subtype
+  let π₂ : ↥S →* HeisLift A C := (MonoidHom.snd (HeisLift A' C) (HeisLift A C)).comp S.subtype
+  let M : Marking ↥S :=
+    ⟨⟨(⟨f (x 0), y' 0, 0, t.σ⟩, ⟨x 0, (y' 0).comp f, 0, t.σ⟩), ⟨rfl, rfl, rfl, rfl⟩⟩,
+      ⟨(⟨f (x 1), y' 1, 0, t.τ⟩, ⟨x 1, (y' 1).comp f, 0, t.τ⟩), ⟨rfl, rfl, rfl, rfl⟩⟩,
+      ⟨(⟨f (x 2), y' 2, 0, t.x₀⟩, ⟨x 2, (y' 2).comp f, 0, t.x₀⟩), ⟨rfl, rfl, rfl, rfl⟩⟩,
+      ⟨(⟨f (x 3), y' 3, 0, t.x₁⟩, ⟨x 3, (y' 3).comp f, 0, t.x₁⟩), ⟨rfl, rfl, rfl, rfl⟩⟩⟩
+  have hπ₁ : M.map π₁ = heisMarking t (fun i => f (x i)) y' := rfl
+  have hπ₂ : M.map π₂ = heisMarking t x (fun i => ((y' i).comp f : ElemDual A)) := rfl
+  -- On `S`, the two projections have equal `z`-coordinate (the defining `z`-equation).
+  have key : ∀ w : ↥S, (π₁ w).z = (π₂ w).z := fun w => w.2.2.2.1
+  simp only [mixedB, ← hπ₁, ← hπ₂, Marking.map_tameValue, Marking.map_wildValue,
+    key M.tameValue, key M.wildValue]
 
 end Traced
 
