@@ -501,8 +501,68 @@ noncomputable def zc (w : ZMod 2) : HeisLift A C := ⟨0, 0, w, 1⟩
 
 @[simp] theorem zc_z (w : ZMod 2) : (zc (A := A) (C := C) w).z = w := rfl
 
+@[simp] theorem zc_zero : zc (A := A) (C := C) (0 : ZMod 2) = 1 := rfl
+
 theorem mul_zc (p : HeisLift A C) (w : ZMod 2) : p * zc w = ⟨p.a, p.l, p.z + w, p.g⟩ := by
   ext <;> simp [zc, mul_a, mul_l, mul_z, mul_g]
+
+@[simp] theorem mul_zc_z (p : HeisLift A C) (w : ZMod 2) : (p * zc w).z = p.z + w := by
+  rw [mul_zc]
+
+/-- `zc` is additive in its argument: `z(u+v) = z(u)·z(v)`. -/
+theorem zc_add (u v : ZMod 2) : zc (A := A) (C := C) (u + v) = zc u * zc v := by
+  ext <;> simp [zc, mul_a, mul_l, mul_z, mul_g, ElemDual.zero_apply]
+
+/-- `zc w` is central in `H(A) ⋊ C`. -/
+theorem zc_comm (w : ZMod 2) (q : HeisLift A C) : zc w * q = q * zc w := by
+  ext <;> simp [zc, mul_a, mul_l, mul_z, mul_g, ElemDual.zero_apply, one_smul, smul_zero, add_comm]
+
+/-- The central factor `z(·)` as a homomorphism `Multiplicative (ZMod 2) →* H(A) ⋊ C`. -/
+noncomputable def zcHom : Multiplicative (ZMod 2) →* HeisLift A C where
+  toFun w := zc (Multiplicative.toAdd w)
+  map_one' := rfl
+  map_mul' _ _ := zc_add _ _
+
+@[simp] theorem zcHom_apply (w : Multiplicative (ZMod 2)) :
+    zcHom (A := A) (C := C) w = zc (Multiplicative.toAdd w) := rfl
+
+/-- The image of `zcHom` is central. -/
+theorem zcHom_comm (v : Multiplicative (ZMod 2)) (q : HeisLift A C) :
+    zcHom v * q = q * zcHom v := zc_comm _ _
+
+/-- **The conjugation computation** `p_a⁻¹ · ⟨0,λ,0,g⟩ · p_a = ⟨g·a − a, λ, λ(g·a), g⟩`, where
+`p_a = ⟨a,0,0,1⟩`.  This is the algebraic heart of Lemma 5.7's left form: conjugating a
+`g=1`-slot generator by the `A`-translation `p_a` shifts its `A`-coordinate by the coboundary
+`g·a − a` and drops the central defect `λ(g·a)`. -/
+theorem conj_gen (a : A) (lam : ElemDual A) (g : C) :
+    (⟨a, 0, 0, 1⟩ : HeisLift A C)⁻¹ * ⟨0, lam, 0, g⟩ * ⟨a, 0, 0, 1⟩
+      = ⟨g • a - a, lam, lam (g • a), g⟩ := by
+  have hinv : (⟨a, 0, 0, 1⟩ : HeisLift A C)⁻¹ = ⟨-a, 0, 0, 1⟩ := by
+    ext <;> simp [inv_a, inv_l, inv_z, inv_g, ElemDual.zero_apply]
+  rw [hinv]
+  ext
+  · simp only [mul_a, mul_g, smul_zero, one_mul, add_zero]; abel
+  · simp [mul_l, mul_g, one_smul, smul_zero, one_mul, add_zero]
+  · simp [mul_z, mul_l, mul_g, one_smul, smul_zero, one_mul, add_zero, zero_add,
+      ElemDual.zero_apply]
+  · simp [mul_g, one_mul, mul_one]
+
+/-- **The dual conjugation computation** `q_λ⁻¹ · ⟨a,0,0,g⟩ · q_λ = ⟨a, g·λ − λ, −λ(a), g⟩`, where
+`q_λ = ⟨0,λ,0,1⟩`.  This is the algebraic heart of Lemma 5.7's right form: conjugating a
+`g=1`-slot generator by the dual translation `q_λ` shifts its dual coordinate by the coboundary
+`g·λ − λ` and records the central defect `−λ(a)`. -/
+theorem conj_gen_r (a : A) (lam : ElemDual A) (g : C) :
+    (⟨0, lam, 0, 1⟩ : HeisLift A C)⁻¹ * ⟨a, 0, 0, g⟩ * ⟨0, lam, 0, 1⟩
+      = ⟨a, g • lam - lam, -(lam a), g⟩ := by
+  have hinv : (⟨0, lam, 0, 1⟩ : HeisLift A C)⁻¹ = ⟨0, -lam, 0, 1⟩ := by
+    ext <;> simp [inv_a, inv_l, inv_z, inv_g, map_zero]
+  rw [hinv]
+  ext
+  · simp [mul_a, mul_g, one_smul, smul_zero, one_mul, add_zero, zero_add]
+  · simp only [mul_l, mul_g, smul_zero, one_mul, add_zero]; abel
+  · simp [mul_z, mul_l, mul_g, one_smul, smul_zero, one_mul, add_zero, zero_add,
+      map_zero, ElemDual.neg_apply]
+  · simp [mul_g, one_mul, mul_one]
 
 end HeisLift
 
@@ -558,28 +618,193 @@ theorem stokesEval_zero (c : Fin n → C) (y : Fin n → ElemDual A) (r : FreeGr
     exact ⟨by rw [HeisLift.mul_a, ih₁.1, ih₂.1, smul_zero, add_zero],
       by rw [HeisLift.mul_z, ih₁.2, ih₂.2, ih₂.1, smul_zero, map_zero, add_zero, add_zero]⟩
 
+/-! ### The conjugation model of the coboundary evaluation (Lemma 5.7, left form)
+
+The generic coboundary substitution `x = d⁰a` factors, one generator at a time, as
+`⟨cᵢa−a, yᵢ, 0, cᵢ⟩ = p_a⁻¹ · ⟨0, yᵢ, 0, cᵢ⟩ · p_a · z(yᵢ(cᵢa))`  (with `p_a = ⟨a,0,0,1⟩`).
+Because `z(·)` is central, the per-generator central factors telescope into a single
+`z(Σᵢ εᵢ(r)·yᵢ(cᵢa))`, and the conjugation commutes with word evaluation.  This makes
+`stokesEval c (d⁰a) y = conjPa a ∘ stokesEval c 0 y  ·  z ∘ epsWord` an identity of homomorphisms,
+which we prove by `FreeGroup.ext_hom` and then read off the `z`-coordinate. -/
+
+/-- Conjugation `q ↦ p_a⁻¹ · q · p_a` by the `A`-translation `p_a = ⟨a,0,0,1⟩`, as a group hom. -/
+noncomputable def conjPa (a : A) : HeisLift A C →* HeisLift A C where
+  toFun q := (⟨a, 0, 0, 1⟩ : HeisLift A C)⁻¹ * q * ⟨a, 0, 0, 1⟩
+  map_one' := by group
+  map_mul' q q' := by group
+
+@[simp] theorem conjPa_apply (a : A) (q : HeisLift A C) :
+    conjPa a q = (⟨a, 0, 0, 1⟩ : HeisLift A C)⁻¹ * q * ⟨a, 0, 0, 1⟩ := rfl
+
+/-- The `z`-coordinate of `p_a⁻¹ · q · p_a` when `q` sits in the `g`-slice (`q.a = 0`, `q.z = 0`):
+conjugation records the central defect `q.l (q.g · a)`. -/
+theorem conjPa_z (a : A) (q : HeisLift A C) (ha : q.a = 0) (hz : q.z = 0) :
+    (conjPa a q).z = q.l (q.g • a) := by
+  obtain ⟨qa, ql, qz, qg⟩ := q
+  subst ha; subst hz
+  rw [conjPa_apply, HeisLift.conj_gen]
+
+/-- The **central exponent word** `r ↦ ∏ᵢ z(εᵢ(r)·fᵢ)` for a mod-2 coefficient vector `f`,
+packaged as a hom to `Multiplicative (ZMod 2)` so that `z ∘ freeExp f` is the telescoped
+central factor of a Stokes evaluation. -/
+noncomputable def freeExp (f : Fin n → ZMod 2) : FreeGroup (Fin n) →* Multiplicative (ZMod 2) :=
+  FreeGroup.lift fun i => Multiplicative.ofAdd (f i)
+
+/-- The additive value of `freeExp f` is the ε-counting sum `Σᵢ εᵢ(r)·fᵢ` (mod 2): each generator
+`i` contributes `fᵢ` once per occurrence, so mod 2 exactly `εᵢ(r)` times. -/
+theorem freeExp_toAdd (f : Fin n → ZMod 2) (r : FreeGroup (Fin n)) :
+    Multiplicative.toAdd (freeExp f r) = ∑ i, Multiplicative.toAdd (expMod2 i r) * f i := by
+  refine FreeGroup.induction_on r ?_ ?_ ?_ ?_
+  · simp [freeExp, expMod2]
+  · intro k
+    rw [Finset.sum_eq_single_of_mem k (Finset.mem_univ k)]
+    · simp [freeExp, expMod2, FreeGroup.lift_apply_of]
+    · intro i _ hik
+      simp [expMod2, FreeGroup.lift_apply_of, if_neg (Ne.symm hik)]
+  · intro k ih
+    simp only [map_inv, toAdd_inv, CharTwo.neg_eq]
+    exact ih
+  · intro x1 x2 ih1 ih2
+    simp only [map_mul, toAdd_mul, add_mul, Finset.sum_add_distrib, ih1, ih2]
+
+/-- The **central ε-word** of the left form: `r ↦ ∏ᵢ z(εᵢ(r)·yᵢ(cᵢa))`. -/
+noncomputable def epsWord (c : Fin n → C) (a : A) (y : Fin n → ElemDual A) :
+    FreeGroup (Fin n) →* Multiplicative (ZMod 2) :=
+  freeExp (fun i => y i (c i • a))
+
+/-- `epsWord`'s additive value is the ε-counting sum `Σᵢ εᵢ(r)·yᵢ(cᵢa)` (mod 2). -/
+theorem epsWord_toAdd (c : Fin n → C) (a : A) (y : Fin n → ElemDual A) (r : FreeGroup (Fin n)) :
+    Multiplicative.toAdd (epsWord c a y r)
+      = ∑ i, Multiplicative.toAdd (expMod2 i r) * (y i (c i • a)) :=
+  freeExp_toAdd _ r
+
+/-- The RHS conjugation model of `stokesEval c (d⁰a) y`: conjugate the `y`-only evaluation by
+`p_a` and multiply by the telescoped central factor. -/
+noncomputable def stokesRhs (c : Fin n → C) (a : A) (y : Fin n → ElemDual A) :
+    FreeGroup (Fin n) →* HeisLift A C where
+  toFun w := conjPa a (stokesEval c 0 y w) * HeisLift.zcHom (epsWord c a y w)
+  map_one' := by simp
+  map_mul' w w' := by
+    simp only [map_mul]
+    set A1 := conjPa a (stokesEval c 0 y w) with hA1
+    set A2 := conjPa a (stokesEval c 0 y w') with hA2
+    set B1 : HeisLift A C := HeisLift.zcHom (epsWord c a y w) with hB1
+    set B2 : HeisLift A C := HeisLift.zcHom (epsWord c a y w') with hB2
+    have hc : B1 * A2 = A2 * B1 := HeisLift.zcHom_comm (epsWord c a y w) A2
+    rw [mul_assoc A1 A2 (B1 * B2), ← mul_assoc A2 B1 B2, ← hc, mul_assoc B1 A2 B2,
+      ← mul_assoc A1 B1 (A2 * B2)]
+
+/-- **The Lemma 5.7 factorization** (identity of homomorphisms): `stokesEval` at the coboundary
+`d⁰a` equals `conjPa a` of the `y`-only evaluation, corrected by the central ε-word. -/
+theorem stokesEval_eq_rhs (c : Fin n → C) (a : A) (y : Fin n → ElemDual A) :
+    stokesEval c (fun i => c i • a - a) y = stokesRhs c a y := by
+  refine FreeGroup.ext_hom _ _ (fun i => ?_)
+  have hE : stokesEval c (fun i => c i • a - a) y (FreeGroup.of i) = ⟨c i • a - a, y i, 0, c i⟩ := by
+    simp [stokesEval, FreeGroup.lift_apply_of]
+  have hE0 : stokesEval c 0 y (FreeGroup.of i) = ⟨0, y i, 0, c i⟩ := by
+    simp [stokesEval, FreeGroup.lift_apply_of]
+  have heps : epsWord c a y (FreeGroup.of i) = Multiplicative.ofAdd (y i (c i • a)) := by
+    simp [epsWord, freeExp, FreeGroup.lift_apply_of]
+  show stokesEval c (fun i => c i • a - a) y (FreeGroup.of i)
+      = conjPa a (stokesEval c 0 y (FreeGroup.of i)) * HeisLift.zcHom (epsWord c a y (FreeGroup.of i))
+  rw [hE, hE0, heps, conjPa_apply, HeisLift.conj_gen, HeisLift.zcHom_apply, toAdd_ofAdd,
+    HeisLift.mul_zc, CharTwo.add_self_eq_zero]
+
 /-- **Lemma 5.7, display (38)**: for a word `r` with trivial lower value, evaluating at the
 generic coboundary `x = d⁰a = ((cᵢ−1)a)ᵢ` gives
-`β_r(d⁰a, y) = ⟨a, L^{A^∨}_r(y)⟩ + Σᵢ εᵢ(r)·yᵢ(cᵢa)`.
-
-*Status*: sorried (P-13; central-conjugation bookkeeping in `H(A) ⋊ C`). -/
+`β_r(d⁰a, y) = ⟨a, L^{A^∨}_r(y)⟩ + Σᵢ εᵢ(r)·yᵢ(cᵢa)`. -/
 theorem lemma_5_7_left (c : Fin n → C) (r : FreeGroup (Fin n))
     (hr : FreeGroup.lift c r = 1) (a : A) (y : Fin n → ElemDual A) :
     (stokesEval c (fun i => c i • a - a) y r).z
       = (stokesEval c 0 y r).l a
         + ∑ i, (Multiplicative.toAdd (expMod2 i r)) * (y i (c i • a)) := by
-  sorry
+  rw [stokesEval_eq_rhs c a y]
+  show (conjPa a (stokesEval c 0 y r) * HeisLift.zcHom (epsWord c a y r)).z = _
+  rw [HeisLift.zcHom_apply, HeisLift.mul_zc_z, epsWord_toAdd]
+  have hg : (stokesEval c 0 y r).g = 1 := by rw [stokesEval_g]; exact hr
+  rw [conjPa_z a _ (stokesEval_zero c y r).1 (stokesEval_zero c y r).2, hg, one_smul]
+
+/-! ### The dual conjugation model (Lemma 5.7, right form)
+
+The dual coboundary substitution `y = d⁰λ` factors, one generator at a time, as
+`⟨xᵢ, cᵢλ−λ, 0, cᵢ⟩ = q_λ⁻¹ · ⟨xᵢ, 0, 0, cᵢ⟩ · q_λ · z(λ(xᵢ))`  (with `q_λ = ⟨0,λ,0,1⟩`),
+mirroring the left form with the roles of the `A`- and dual coordinates exchanged. -/
+
+/-- Conjugation `q ↦ q_λ⁻¹ · q · q_λ` by the dual translation `q_λ = ⟨0,λ,0,1⟩`. -/
+noncomputable def conjQlam (lam : ElemDual A) : HeisLift A C →* HeisLift A C where
+  toFun q := (⟨0, lam, 0, 1⟩ : HeisLift A C)⁻¹ * q * ⟨0, lam, 0, 1⟩
+  map_one' := by group
+  map_mul' q q' := by group
+
+@[simp] theorem conjQlam_apply (lam : ElemDual A) (q : HeisLift A C) :
+    conjQlam lam q = (⟨0, lam, 0, 1⟩ : HeisLift A C)⁻¹ * q * ⟨0, lam, 0, 1⟩ := rfl
+
+/-- The `z`-coordinate of `q_λ⁻¹ · q · q_λ` when `q` sits in the `g`-slice (`q.l = 0`, `q.z = 0`):
+conjugation records the central defect `λ(q.a)` (the sign is absorbed mod 2). -/
+theorem conjQlam_z (lam : ElemDual A) (q : HeisLift A C) (hl : q.l = 0) (hz : q.z = 0) :
+    (conjQlam lam q).z = lam q.a := by
+  obtain ⟨qa, ql, qz, qg⟩ := q
+  subst hl; subst hz
+  rw [conjQlam_apply, HeisLift.conj_gen_r]
+  exact CharTwo.neg_eq _
+
+/-- With zero dual offsets, the dual- and central coordinates of a Stokes evaluation vanish. -/
+theorem stokesEval_zero_r (c : Fin n → C) (x : Fin n → A) (r : FreeGroup (Fin n)) :
+    (stokesEval c x 0 r).l = 0 ∧ (stokesEval c x 0 r).z = 0 := by
+  refine FreeGroup.induction_on r ⟨rfl, rfl⟩ (fun i => ⟨by simp [stokesEval], by simp [stokesEval]⟩)
+    (fun i ih => ?_) (fun x₁ x₂ ih₁ ih₂ => ?_)
+  · rw [map_inv]
+    exact ⟨by rw [HeisLift.inv_l, ih.1, smul_zero, neg_zero],
+      by rw [HeisLift.inv_z, ih.2, ih.1, ElemDual.zero_apply, add_zero]⟩
+  · rw [map_mul]
+    exact ⟨by rw [HeisLift.mul_l, ih₁.1, ih₂.1, smul_zero, add_zero],
+      by rw [HeisLift.mul_z, ih₁.2, ih₂.2, ih₁.1, ElemDual.zero_apply, add_zero, add_zero]⟩
+
+/-- The RHS conjugation model of `stokesEval c x (d⁰λ)` (dual form). -/
+noncomputable def stokesRhsR (c : Fin n → C) (lam : ElemDual A) (x : Fin n → A) :
+    FreeGroup (Fin n) →* HeisLift A C where
+  toFun w := conjQlam lam (stokesEval c x 0 w) * HeisLift.zcHom (freeExp (fun i => lam (x i)) w)
+  map_one' := by simp
+  map_mul' w w' := by
+    simp only [map_mul]
+    set A1 := conjQlam lam (stokesEval c x 0 w) with hA1
+    set A2 := conjQlam lam (stokesEval c x 0 w') with hA2
+    set B1 : HeisLift A C := HeisLift.zcHom (freeExp (fun i => lam (x i)) w) with hB1
+    set B2 : HeisLift A C := HeisLift.zcHom (freeExp (fun i => lam (x i)) w') with hB2
+    have hc : B1 * A2 = A2 * B1 := HeisLift.zcHom_comm (freeExp (fun i => lam (x i)) w) A2
+    rw [mul_assoc A1 A2 (B1 * B2), ← mul_assoc A2 B1 B2, ← hc, mul_assoc B1 A2 B2,
+      ← mul_assoc A1 B1 (A2 * B2)]
+
+/-- **The Lemma 5.7 factorization** (dual form): `stokesEval` at the dual coboundary `d⁰λ` equals
+`conjQlam lam` of the `x`-only evaluation, corrected by the central ε-word. -/
+theorem stokesEval_eq_rhsR (c : Fin n → C) (lam : ElemDual A) (x : Fin n → A) :
+    stokesEval c x (fun i => c i • lam - lam) = stokesRhsR c lam x := by
+  refine FreeGroup.ext_hom _ _ (fun i => ?_)
+  have hE : stokesEval c x (fun i => c i • lam - lam) (FreeGroup.of i)
+      = ⟨x i, c i • lam - lam, 0, c i⟩ := by simp [stokesEval, FreeGroup.lift_apply_of]
+  have hE0 : stokesEval c x 0 (FreeGroup.of i) = ⟨x i, 0, 0, c i⟩ := by
+    simp [stokesEval, FreeGroup.lift_apply_of]
+  have heps : freeExp (fun i => lam (x i)) (FreeGroup.of i) = Multiplicative.ofAdd (lam (x i)) := by
+    simp [freeExp, FreeGroup.lift_apply_of]
+  show stokesEval c x (fun i => c i • lam - lam) (FreeGroup.of i)
+      = conjQlam lam (stokesEval c x 0 (FreeGroup.of i))
+        * HeisLift.zcHom (freeExp (fun i => lam (x i)) (FreeGroup.of i))
+  rw [hE, hE0, heps, conjQlam_apply, HeisLift.conj_gen_r, HeisLift.zcHom_apply, toAdd_ofAdd,
+    HeisLift.mul_zc, neg_add_cancel]
 
 /-- **Lemma 5.7, display (39)**: the dual-variable form,
-`β_r(x, d⁰λ) = ⟨L^A_r(x), λ⟩ + Σᵢ εᵢ(r)·λ(xᵢ)`.
-
-*Status*: sorried (P-13). -/
+`β_r(x, d⁰λ) = ⟨L^A_r(x), λ⟩ + Σᵢ εᵢ(r)·λ(xᵢ)`.  (The lower-value hypothesis `hr` is recorded for
+symmetry with the left form; the dual central defect is `g`-independent, so it is not needed here.) -/
 theorem lemma_5_7_right (c : Fin n → C) (r : FreeGroup (Fin n))
-    (hr : FreeGroup.lift c r = 1) (x : Fin n → A) (lam : ElemDual A) :
+    (_hr : FreeGroup.lift c r = 1) (x : Fin n → A) (lam : ElemDual A) :
     (stokesEval c x (fun i => c i • lam - lam) r).z
       = lam ((stokesEval c x 0 r).a)
         + ∑ i, (Multiplicative.toAdd (expMod2 i r)) * (lam (x i)) := by
-  sorry
+  rw [stokesEval_eq_rhsR c lam x]
+  show (conjQlam lam (stokesEval c x 0 r)
+    * HeisLift.zcHom (freeExp (fun i => lam (x i)) r)).z = _
+  rw [HeisLift.zcHom_apply, HeisLift.mul_zc_z, freeExp_toAdd,
+    conjQlam_z lam _ (stokesEval_zero_r c x r).1 (stokesEval_zero_r c x r).2]
 
 /-- The free-group tame word `τ^σ · (τ²)⁻¹` on four letters (for the exponent stress test). -/
 def fgTame : FreeGroup (Fin 4) :=
