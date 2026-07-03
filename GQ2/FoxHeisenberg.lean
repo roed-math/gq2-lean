@@ -839,12 +839,103 @@ def traceD2 {A : Type*} [AddCommGroup A] : A × A →+ A :=
     simp only [Prod.fst_add, Prod.snd_add]
     abel
 
+/-! ### The tame relator-word bridge (Lemma 5.7 ⇒ the tame row of Prop 5.8)
+
+`heisMarking`/`liftMarking` evaluate the paper's relators *directly in the target*; `stokesEval`
+evaluates the *free* relator word.  They agree because both are the pushforward of the free
+marking `⟨g₀,g₁,g₂,g₃⟩` on `Fin 4` along the classifying hom, and `Marking.map_tameValue` is
+natural.  Since the tame word carries no `ω₂`, no finiteness is needed — so `bridge_tame` is
+unconditional, and feeding it into Lemma 5.7 computes the tame relator's `z`-coordinate at `d⁰a`
+in closed form (the tame row of display (41)).
+
+The **wild** row is genuinely harder: `Marking.map_wildValue` needs the source finite, but the
+universal source `FreeGroup (Fin 4)` is infinite (and `freeMarking.wildValue`'s `ω₂`-powers are
+degenerate there).  The wild bridge therefore needs the target-dependent integer-`ω₂`
+representative of the wild word — the separate "wild-row" computation. -/
+
+/-- The four marked values `⟨t.σ, t.τ, t.x₀, t.x₁⟩` as a vector — the lower map of `stokesEval`. -/
+def markVec (t : Marking C) : Fin 4 → C := ![t.σ, t.τ, t.x₀, t.x₁]
+
+/-- The free marking `⟨g₀, g₁, g₂, g₃⟩` on `FreeGroup (Fin 4)` (the universal source). -/
+def freeMarking : Marking (FreeGroup (Fin 4)) :=
+  ⟨FreeGroup.of 0, FreeGroup.of 1, FreeGroup.of 2, FreeGroup.of 3⟩
+
+@[simp] theorem freeMarking_tameValue : freeMarking.tameValue = fgTame := rfl
+
+/-- The projection `⟨a,λ,z,g⟩ ↦ ⟨λ, g⟩ : H(A) ⋊ C →* A^∨ ⋊ C` onto the dual lift group. -/
+def lgHom : HeisLift A C →* WordLift (ElemDual A) C where
+  toFun p := ⟨p.l, p.g⟩
+  map_one' := rfl
+  map_mul' _ _ := rfl
+
+/-- `heisMarking t x y` is the free marking pushed through `stokesEval (markVec t) x y`. -/
+theorem heisMarking_eq_map (t : Marking C) (x : Fin 4 → A) (y : Fin 4 → ElemDual A) :
+    heisMarking t x y = freeMarking.map (stokesEval (markVec t) x y) := by
+  simp only [heisMarking, freeMarking, Marking.map, markVec, stokesEval, FreeGroup.lift_apply_of,
+    Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons, Matrix.cons_val_two,
+    Matrix.cons_val_three, Matrix.tail_cons]
+
+/-- `liftMarking t y` (dual coefficients) is the free marking pushed through `lgHom ∘ stokesEval`. -/
+theorem liftMarking_eq_map (t : Marking C) (y : Fin 4 → ElemDual A) :
+    liftMarking t y = freeMarking.map (lgHom.comp (stokesEval (markVec t) 0 y)) := by
+  simp only [liftMarking, freeMarking, Marking.map, markVec, MonoidHom.comp_apply, lgHom,
+    stokesEval, FreeGroup.lift_apply_of, Matrix.cons_val_zero, Matrix.cons_val_one,
+    Matrix.head_cons, Matrix.cons_val_two, Matrix.cons_val_three, Matrix.tail_cons,
+    MonoidHom.coe_mk, OneHom.coe_mk]
+
+/-- **Tame bridge**: the paper's tame relator value at `heisMarking` equals the free-word
+evaluation `stokesEval … fgTame`. -/
+theorem bridge_tame (t : Marking C) (x : Fin 4 → A) (y : Fin 4 → ElemDual A) :
+    (heisMarking t x y).tameValue = stokesEval (markVec t) x y fgTame := by
+  rw [heisMarking_eq_map, Marking.map_tameValue, freeMarking_tameValue]
+
+/-- The `.l`-coordinate of the `y`-only tame evaluation is `d¹`'s tame row on the dual. -/
+theorem stokesEval_tame_l (t : Marking C) (y : Fin 4 → ElemDual A) :
+    (stokesEval (markVec t) 0 y fgTame).l = (liftMarking t y).tameValue.u := by
+  rw [liftMarking_eq_map, Marking.map_tameValue, freeMarking_tameValue]
+  rfl
+
+/-- The lower value of `fgTame` is `t`'s tame relator value; it is `1` under `TameRel`. -/
+theorem lift_markVec_tameValue (t : Marking C) :
+    FreeGroup.lift (markVec t) fgTame = t.tameValue := by
+  rw [← freeMarking_tameValue, ← Marking.map_tameValue]
+  congr 1
+  simp only [freeMarking, Marking.map, markVec, FreeGroup.lift_apply_of, Matrix.cons_val_zero,
+    Matrix.cons_val_one, Matrix.head_cons, Matrix.cons_val_two, Matrix.cons_val_three,
+    Matrix.tail_cons]
+
+/-- `d⁰` in `stokesEval`'s form: `d⁰a i = (markVec t i)·a − a`. -/
+theorem d0_eq_markVec (t : Marking C) (a : A) : d0 t a = fun i => markVec t i • a - a := by
+  funext i
+  fin_cases i <;> rfl
+
+/-- **The tame row of Prop 5.8 (41)**: Lemma 5.7 applied to the actual tame relator computes its
+mixed central coordinate at the coboundary `d⁰a` — the pairing `⟨a, L^{A^∨}_t(y)⟩` plus the tame
+ε-correction `y_τ(τ·a)` (exponent vector `(0,1,0,0)`).  The wild row (and hence full Prop 5.8)
+awaits the wild bridge. -/
+theorem mixedB_tameRow (t : Marking C) (ht : t.TameRel) (a : A) (y : Fin 4 → ElemDual A) :
+    (heisMarking t (d0 t a) y).tameValue.z
+      = (d1Fun (A := ElemDual A) t y).1 a + y 1 (t.τ • a) := by
+  have hr : FreeGroup.lift (markVec t) fgTame = 1 := by
+    rw [lift_markVec_tameValue]; exact (Marking.tameValue_eq_one_iff t).mpr ht
+  rw [bridge_tame, d0_eq_markVec, lemma_5_7_left (markVec t) fgTame hr a y]
+  congr 1
+  · rw [stokesEval_tame_l]; rfl
+  · have he : ∀ i, Multiplicative.toAdd (expMod2 i fgTame) = (![0, 1, 0, 0] : Fin 4 → ZMod 2) i :=
+      fun i => congrFun expMod2_fgTame i
+    simp only [he]
+    rw [Fin.sum_univ_four]
+    simp [markVec]
+
 /-- **Prop 5.8, display (41)** (= chain identity (47) of Prop 5.10 under the canonical
 identifications): `B_{ρ,A}(d⁰a, y) = ⟨a, L^{A^∨}_t(y) + L^{A^∨}_w(y)⟩`, where the dual
 first relation differentials are `d1Fun` on `A^∨`.
 
-*Status*: sorried (P-13; via Lemma 5.7 at the two relator words with trace coefficients
-`(1,1)` — their mod-2 exponent vectors are both `(0,1,0,0)`, so the corrections cancel). -/
+*Status*: sorried (P-13).  The **tame** summand `(heisMarking t (d0 t a) y).tameValue.z` is now
+proved in closed form (`mixedB_tameRow`, via `bridge_tame` + Lemma 5.7); the remaining gap is the
+**wild** summand, which needs the wild relator's free-word bridge (the target-dependent
+integer-`ω₂` representative).  The two words' mod-2 exponent vectors are both `(0,1,0,0)`, so the
+ε-corrections cancel in the sum. -/
 theorem prop_5_8_left (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (a : A)
     (y : Fin 4 → ElemDual A) :
     mixedB t (d0 t a) y
