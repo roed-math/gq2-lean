@@ -4,6 +4,7 @@ import GQ2.Cohomology
 import GQ2.HilbertSymbol
 import GQ2.Reciprocity
 import GQ2.TateDuality
+import GQ2.EvensKahn
 
 /-!
 # The axioms: classical literature inputs of Theorem 1.2  (ticket T-19)
@@ -29,12 +30,14 @@ current Mathlib plus this repo's `ContCoh` cohomology:
   (cohomology from `GQ2/Cohomology.lean`).
 * **B7′** `HilbertSymbol.hilbertSymbol_dyadic` — the dyadic Hilbert-symbol formula
   (defs in `GQ2/HilbertSymbol.lean`).
+* **B9** `evensKahn_dyadic` — the Evens/Kahn eq. (111), degrees ≤ 2, at the paper's
+  diagonalizations (defs in `GQ2/EvensKahn.lean`).
 
 The remaining classical inputs are **not yet axiomatized** (statement infrastructure pending,
 see `docs/tickets.md`): B3 Demushkin classification (the *definition* `IsDemushkin` is done —
 `GQ2/Demushkin.lean`, T-09; the classification statement is T-10/T-11), B4 `G_ℚ₂(2) ≅ D₀`
-(T-08), B8 the `π₁(ℙ¹∖{0,1,∞})` action (T-12), B9 Evens/Kahn (T-18).  They are enumerated
-with precise statements and citations in `docs/literature-axioms.md`.
+(T-08), B8 the `π₁(ℙ¹∖{0,1,∞})` action (T-12).  They are enumerated with precise statements
+and citations in `docs/literature-axioms.md`.
 
 Consumers derive consequences by importing this file; the derived stress tests live next to
 their definitions (`GQ2/EulerCharacteristic.lean` for B7) or are parametrized over the bundle
@@ -172,5 +175,64 @@ Citation: **NSW [1], Ch. VII §7.2, Theorem (7.2.6)** (local Tate duality); Serr
 Cohomology* II §5.2, Theorem 2; Milne, *ADT* I.2.3.  Paper: §§5–8 (the `𝔽₂` dimension
 counts); `docs/literature-axioms.md` B6. -/
 axiom tateDuality (n : ℕ) [NeZero n] : TateDuality n
+
+/-! ## B9 — the Evens/Kahn formula (paper eq. (111)), degrees ≤ 2
+
+The ingredients — degree-1 corestriction `corH1Z`, the index-two Evens norm `evensNormH2Z`
+(the paper's two-point graph cocycle (98), Lemma 6.13), and the subgroup Kummer cocycle
+`kummerZ1On` — are all *defined* (with full well-formedness proofs) in `GQ2/EvensKahn.lean`;
+Stiefel–Whitney classes of the rank-2 transfer forms enter through the paper's fixed
+diagonalizations `Tr_{L/k}⟨a⟩ ≃ ⟨2u, 2dn/u⟩`, `Tr_{L/k}⟨1⟩ ≃ ⟨2, 2d⟩` (Lemma 6.16), with
+`w₁⟨x,y⟩ = [x]+[y]` and `w₂⟨x,y⟩ = [x]∪[y]` in Kummer classes.  The axiom asserts the
+degree-1 and degree-2 components of (111) for these representatives.  **Deviations (flagged;
+see `GQ2/EvensKahn.lean`)**: truncation to degrees ≤ 2; concrete diagonal representatives
+(Delzant well-definedness absorbed into the scoping); the degree-1 component is equivalent to
+the classical `cor[a] = [N_{L/k}a]` compatibility. -/
+
+/-- **The B9 axiom** (Kahn Théorème 2 at rank 1, expanded by Evens Theorem 1 / Kozlowski
+Thm 1.1 for index 2; paper eq. (111), degrees ≤ 2, at the Lemma 6.16 diagonalizations).
+
+Setting: `k = ℚ₂`, `L = k(δ)` with `δ² = d`, `G_L = N =` the stabilizer of `δ` (assumed of
+index 2 — i.e. `d` is a non-square), `s ∉ N`, and `a = u + vδ ∈ Lˣ` with norm
+`n = u² − dv²` and a square root `β = √a ∈ k̄ˣ`.  With `[x]` the Kummer classes (T-13),
+`∪ = trivialCupPairing` (T-04/T-09), `cor = corH1Z` and `N^{Ev} = evensNormH2Z` (T-18), the
+two components of (111) read:
+
+* degree 1: `[2u] + [2dn/u] = [2] + [2d] + cor[a]`;
+* degree 2: `[2u] ∪ [2dn/u] = [2] ∪ [2d] + ([2] + [2d]) ∪ cor[a] + N^{Ev}[a]`.
+
+Citation: Kahn, Invent. Math. 78 (1984), Théorème 2 (with Théorème 1); Kozlowski, Proc. AMS
+91 (1984), Thm 1.1; Evens, Trans. AMS 108 (1963), Thm 1.  Paper: §6, eq. (111),
+Lemmas 6.13/6.16.  `docs/literature-axioms.md` B9. -/
+axiom evensKahn_dyadic
+    (u n d : ℚ_[2]ˣ) (v : ℚ_[2])
+    (hn : (n : ℚ_[2]) = (u : ℚ_[2]) ^ 2 - (d : ℚ_[2]) * v ^ 2)
+    (δ β : AlgebraicClosure ℚ_[2])
+    (hδ : δ ^ 2 = algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) (d : ℚ_[2]))
+    (hβ : β ^ 2 = algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) (u : ℚ_[2])
+      + algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) v * δ)
+    (hβ0 : β ≠ 0)
+    (hidx : (MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).index = 2)
+    (s : Kummer.GaloisGroup ℚ_[2])
+    (hs : s ∉ MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ) :
+    (Kummer.kummerClass (HilbertSymbol.unit2 * u)
+        + Kummer.kummerClass (HilbertSymbol.unit2 * d * n * u⁻¹)
+      = Kummer.kummerClass HilbertSymbol.unit2
+        + Kummer.kummerClass (HilbertSymbol.unit2 * d)
+        + corH1Z Kummer.kummerTriv (stabilizer_isOpen_of_isIntegral δ) hidx hs
+            (kummerZ1On _ hβ hβ0 (stabilizer_fixes_linear (u : ℚ_[2]) v δ)))
+    ∧ (trivialCupPairing 2 (Kummer.GaloisGroup ℚ_[2]) Kummer.kummerTriv
+          (Kummer.kummerClass (HilbertSymbol.unit2 * u))
+          (Kummer.kummerClass (HilbertSymbol.unit2 * d * n * u⁻¹))
+      = trivialCupPairing 2 (Kummer.GaloisGroup ℚ_[2]) Kummer.kummerTriv
+          (Kummer.kummerClass HilbertSymbol.unit2)
+          (Kummer.kummerClass (HilbertSymbol.unit2 * d))
+        + trivialCupPairing 2 (Kummer.GaloisGroup ℚ_[2]) Kummer.kummerTriv
+            (Kummer.kummerClass HilbertSymbol.unit2
+              + Kummer.kummerClass (HilbertSymbol.unit2 * d))
+            (corH1Z Kummer.kummerTriv (stabilizer_isOpen_of_isIntegral δ) hidx hs
+              (kummerZ1On _ hβ hβ0 (stabilizer_fixes_linear (u : ℚ_[2]) v δ)))
+        + evensNormH2Z Kummer.kummerTriv (stabilizer_isOpen_of_isIntegral δ) hidx hs
+            (kummerZ1On _ hβ hβ0 (stabilizer_fixes_linear (u : ℚ_[2]) v δ)))
 
 end GQ2

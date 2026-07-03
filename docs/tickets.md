@@ -29,7 +29,7 @@ states conventions + paper-equation cross-reference; all `axiom`s live in
 | T-15 | I10: `μ_n` as finite discrete `G_ℚ₂`-module | ⭐⭐ | O | T-01 | ☑ 2026-07-03 (`GQ2/MuN.lean`) |
 | T-16 | B7: Euler-characteristic axiom (`card H¹ = card H⁰ · card H² · 2^{v₂#M}` + finiteness) | ⭐ | O | T-02 | ☑ 2026-07-03 (`GQ2/EulerCharacteristic.lean`) |
 | T-17 | B5: reciprocity bundle axiom (`rec`, `ν_ur`; norm-kernels, `ν_ur∘rec = −v₂`, `χ_cyc∘rec = (·)⁻¹`) | ⭐⭐⭐ | **F** | T-00 | ☑ 2026-07-03 (`GQ2/Reciprocity.lean`) |
-| T-18 | B9: Kummer/cor/Evens-norm/transfer-form defs + eq. (111) axiom (deg ≤ 2) | ⭐⭐⭐ | **F** design, O finish | T-02, T-04, T-13 | ☐ |
+| T-18 | B9: Kummer/cor/Evens-norm/transfer-form defs + eq. (111) axiom (deg ≤ 2) | ⭐⭐⭐ | **F** design, O finish | T-02, T-04, T-13 | ☑ 2026-07-03 (`GQ2/EvensKahn.lean`) |
 | T-19 | Meta: `GQ2/Foundations/Axioms.lean` consolidation + `scripts/check_axioms.sh` guard | ⭐ | O | first axioms landed | ☑ 2026-07-03 |
 | T-20 | Meta: human-review packet v2 (Lean names per B-leaf + deviations table) | ⭐ | O | statements frozen | ☐ |
 | T-21 | Γ_A literal (paper eq. (7) marked quotient; `ω₂`-relator words + bridges) + literal Thm 1.2 statement | ⭐⭐ | O | T-06 | ☑ 2026-07-02 (`GQ2/GammaA.lean`) |
@@ -260,8 +260,36 @@ axioms only in `Axioms.lean`; docstrings carry citations + conventions.
   Clause (a) is stated faithfully over finite abelian layers `L/ℚ₂`
   (`normSubgroup L` = image of `Algebra.norm`; `restrictAb L` = restriction factored through
   `G^{ab}`), aligning with the ClassFieldTheory finite-level `Gal(L/ℚ₂) ≅ ℚ₂ˣ/N Lˣ` shape.
-- **T-18**: defs as in plan; axiom = eq. (111) scoped to the forms used in Lemma 6.16; deviation
+- **T-18** ☑: defs as in plan; axiom = eq. (111) scoped to the forms used in Lemma 6.16; deviation
   note (truncation to deg ≤ 2, concrete diagonal representatives).
+  *Done (`GQ2/EvensKahn.lean` + axiom `GQ2.evensKahn_dyadic` in `Foundations/Axioms.lean`, census
+  6→7; full build + guard green; every theorem std-3 — all constructions proved, nothing bundled
+  into the axiom beyond (111) itself).*
+  **Definitions (fully proved, general `G` ⊇ index-2 open `U`, `s ∉ U`)**: `evensAux` = the (97)
+  Shapiro component `b(γ)₁` (with the simplification `b(γ)_s = b(s⁻¹γ)₁` = `bS`, recorded);
+  uniform expansion rules `evensAux_mul`/`bS_mul` (`b₁(xy) = b₁x + D₀(x;y)`, four subtype-mul
+  cases via `Subtype.ext + group`); `corFun = b₁ + b_s` (deg-1 corestriction; hom by the
+  cross-term recombination, `corFun_mem_Z1`, class `corH1`/`corH1Z`); **`evensNormFun` = the
+  paper's two-point graph cocycle (98)**, with `evensNormFun_mem_Z2` — the cocycle identity by
+  pairwise char-2 cancellation (`D₀(h;k)·D₁(h;k) = b₁(k)b_s(k)`; the two `p=1` cases need
+  `linear_combination CharTwo.add_self_eq_zero _`, plain `ring` can't kill `2x`), continuity via
+  `IsLocallyConstant` on the clopen pieces (`Continuous.if` + `IsClopen.frontier_eq`); class
+  `evensNormH2`/`evensNormH2Z` — the **index-two Evens norm as a definition** (Lemma 6.13/(99)),
+  exactly per plan.  Convention anchor: hand-checked `C₄ ⊇ C₂` model in the docstring.
+  `mul_mem_iff_of_index_two` (+`notMem_mul_mem` etc.) proved from `Subgroup.index_eq_two_iff'`.
+  **Subgroup Kummer (T-13 relativized)**: `kummerZ1On` — `[a] ∈ Z¹(G_L, 𝔽₂)` for `a = β²` fixed
+  by `N` (`two_values_of_fixed`, `ne_neg_of_ne_zero`, `kummerCocycleFun_hom_on`);
+  `stabilizer_fixes_linear` feeds `a = u + vδ` with `N = stab(δ)`.
+  **Axiom** `evensKahn_dyadic`: for `k = ℚ₂`, `L = k(δ)` (`δ² = d`, `stab(δ)` of index 2),
+  `a = u + vδ`, `n = u² − dv²`: the degree-1 and degree-2 components of (111) at the paper's
+  diagonalizations `Tr⟨a⟩ ≃ ⟨2u, 2dn/u⟩`, `Tr⟨1⟩ ≃ ⟨2, 2d⟩`, with `w₁⟨x,y⟩ = [x]+[y]`,
+  `w₂⟨x,y⟩ = [x]∪[y]` (`trivialCupPairing`, T-09).  **Deviations flagged** (in-module + axiom
+  docstring): deg-≤2 truncation; concrete diagonal representatives (no `QuadraticForm`
+  machinery — plan's recommendation; Delzant well-definedness absorbed into scoping); deg-1
+  component ⟺ the classical `cor[a] = [N_{L/k}a]`.  **O-finish follow-ups** (not blocking):
+  finite-level stress test of the Evens cocycle (e.g. `C₄ ⊇ C₂` in Lean, needs an `H²(C₄)`
+  computation like T-09's); Evens Thm 1 `N(1+x)` expansion shape; `cor∘res`/projection-formula
+  sanities.
 - **T-19** ☑: *(Done: `GQ2/Foundations/Axioms.lean` + `scripts/check_axioms.sh`; full build green;
   all five fully-qualified axiom names preserved.)*
   **Layout**: `Axioms.lean` is the single file allowed to declare `axiom`s — currently five

@@ -26,3 +26,4 @@ import GQ2.Kummer
 import GQ2.Reciprocity
 import GQ2.MuN
 import GQ2.TateDuality
+import GQ2.EvensKahn
