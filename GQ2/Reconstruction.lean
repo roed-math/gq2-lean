@@ -17,6 +17,7 @@ f.g. profinite groups is packaged. Stated here; proof deferred.
 namespace GQ2
 
 open scoped Classical
+open CategoryTheory
 
 /-- Continuous surjections from a topological group `P` onto a finite (discrete) group `H`. -/
 def ContSurj (P : Type*) [Group P] [TopologicalSpace P]
@@ -131,29 +132,84 @@ theorem contSurj_quotient_nonempty_finite
   have hposS : 0 < Nat.card (ContSurj S (R ⧸ V.toSubgroup)) := lt_of_lt_of_le hposR (h _)
   exact Nat.card_pos_iff.mp hposS
 
+/-! ### König assembly for `exists_contSurj_of_card_le`
+
+The compatible surjections onto the finite quotients are organized by the functor `konigFunctor`
+below (`U ↦ {S ↠ R/U}`), whose level sets are nonempty and finite by
+`contSurj_quotient_nonempty_finite`; `nonempty_sections_of_finite_cofiltered_system` (König) then
+picks a *compatible* choice.  The compatible family is assembled into the surjection `S ↠ R` by an
+elementary embedding of `R` into the product of its finite quotients + two applications of Cantor's
+intersection theorem — see the `exists_contSurj_of_card_le` proof. -/
+
+section KonigAssembly
+
+variable {R : Type} [Group R] [TopologicalSpace R]
+
+/-- The projection `R/U ↠ R/U'` for `U ≤ U'` (both open normal, so the quotients are discrete). -/
+noncomputable def projMap {U U' : Subgroup R} [U.Normal] [U'.Normal]
+    [DiscreteTopology (R ⧸ U)] (hle : U ≤ U') :
+    ContinuousMonoidHom (R ⧸ U) (R ⧸ U') :=
+  ⟨QuotientGroup.map U U' (MonoidHom.id R) hle, continuous_of_discreteTopology⟩
+
+@[simp] theorem projMap_mk {U U' : Subgroup R} [U.Normal] [U'.Normal]
+    [DiscreteTopology (R ⧸ U)] (hle : U ≤ U') (x : R) :
+    projMap hle (QuotientGroup.mk x) = QuotientGroup.mk x := rfl
+
+theorem projMap_surjective {U U' : Subgroup R} [U.Normal] [U'.Normal]
+    [DiscreteTopology (R ⧸ U)] (hle : U ≤ U') :
+    Function.Surjective (projMap hle) := by
+  intro y
+  obtain ⟨x, rfl⟩ := QuotientGroup.mk_surjective y
+  exact ⟨QuotientGroup.mk x, rfl⟩
+
+@[simp] theorem projMap_id {U : Subgroup R} [U.Normal] [DiscreteTopology (R ⧸ U)] (hle : U ≤ U) :
+    projMap hle = ContinuousMonoidHom.id (R ⧸ U) := by
+  apply ContinuousMonoidHom.ext
+  intro y
+  obtain ⟨x, rfl⟩ := QuotientGroup.mk_surjective y
+  rfl
+
+@[simp] theorem projMap_comp_apply {U U' U'' : Subgroup R} [U.Normal] [U'.Normal] [U''.Normal]
+    [DiscreteTopology (R ⧸ U)] [DiscreteTopology (R ⧸ U')]
+    (hle : U ≤ U') (hle' : U' ≤ U'') (y : R ⧸ U) :
+    projMap hle' (projMap hle y) = projMap (hle.trans hle') y := by
+  obtain ⟨x, rfl⟩ := QuotientGroup.mk_surjective y
+  rfl
+
+variable {S : Type} [Group S] [TopologicalSpace S] [IsTopologicalGroup S]
+  [CompactSpace S] [TotallyDisconnectedSpace S]
+  [IsTopologicalGroup R] [CompactSpace R] [TotallyDisconnectedSpace R]
+
+/-- The König functor: `U ↦ {continuous surjections S ↠ R/U}`, with restriction along `U ≤ U'`
+(post-composition with `projMap`).  Its sections are the compatible families of surjections. -/
+noncomputable def konigFunctor : OpenNormalSubgroup (ProfiniteGrp.of R) ⥤ Type where
+  obj U := {f : ContinuousMonoidHom S (R ⧸ U.toSubgroup) // Function.Surjective f}
+  map {U U'} hh :=
+    ↾(fun φ => ⟨(projMap (leOfHom hh)).comp φ.1, (projMap_surjective (leOfHom hh)).comp φ.2⟩)
+  map_id U := by ext φ; simp
+  map_comp {U U' U''} hh hh' := by ext φ; simp
+
+end KonigAssembly
+
 /-- **Surjection assembly from surjection counts** (paper Lemma 2.5, compactness input): if a
 profinite group `S` continuously surjects onto at least as many finite groups (counted with
 multiplicity) as a profinite group `R` **whose surjection sets are all finite** (`hRfin`), then
-`S` continuously surjects onto `R`.  The nonempty finite level sets are supplied by
-`contSurj_quotient_nonempty_finite`; only the (standard) König/cone assembly is deferred.  Finiteness of the *target* level sets is essential: without it
+`S` continuously surjects onto `R`.  Finiteness of the *target* level sets is essential: without it
 `Nat.card` collapses an infinite level set to `0` and the count hypothesis becomes vacuous (e.g.
 `R = (ℤ/2)^ℕ`, `S = 1`).
 
-This is *standard* profinite group theory (Ribes–Zalesskiĭ, *Profinite Groups*, Ch. 1–2), deferred
-here rather than the novel content of the paper.  Execution recipe:
-* For each `V : OpenNormalSubgroup R`, the quotient `R ⧸ V` is finite discrete and
-  `ContSurj R (R ⧸ V)` is inhabited (it contains `ProfiniteGrp.proj V`) and finite (`hRfin`), so
-  `0 < Nat.card` there; by `h` (applied at `H := R ⧸ V`) also `0 < Nat.card (ContSurj S (R ⧸ V))`,
-  whence via `Nat.card_pos_iff` the level set `{surjections S ↠ R ⧸ V}` is nonempty **and finite**.
-* These level sets, with the restriction maps induced by `V' ≤ V`, form a cofiltered inverse system
-  of nonempty finite sets over `OpenNormalSubgroup R`; `nonempty_sections_of_finite_inverse_system`
-  (`Mathlib/CategoryTheory/CofilteredSystem.lean`) gives a compatible section.
-* The section is a cone over `ProfiniteGrp.diagram R` with vertex `S`, hence — through
-  `ProfiniteGrp.isoLimittoFiniteQuotientFunctor R` (`R ≅ lim (diagram R)`) — a continuous hom
-  `S → R` that is surjective onto every `R ⧸ V`.  Its image is compact (closed) and dense
-  (surjective on every finite quotient), so it is all of `R`: the desired `S ↠ R`.
-
-Stated here; proof deferred. -/
+This is *standard* profinite group theory (Ribes–Zalesskiĭ, *Profinite Groups*, Ch. 1–2).  Proof:
+* For each `V : OpenNormalSubgroup R`, `contSurj_quotient_nonempty_finite` gives the level set
+  `{S ↠ R/V}` nonempty **and finite** (from `hRfin` + the count hypothesis `h`).  These, with the
+  restriction maps `projMap` for `V' ≤ V`, form `konigFunctor : OpenNormalSubgroup R ⥤ Type`, a
+  cofiltered system of nonempty finite sets; `nonempty_sections_of_finite_cofiltered_system` (König)
+  supplies a **compatible** family of surjections `σ V : S ↠ R/V`.
+* `R` embeds into `Q := ∏_V R/V` via `e = (mk_V)_V` (injective since the open normal subgroups meet
+  in `1`; a closed embedding as `R` is compact and `Q` is Hausdorff).  Cantor's intersection theorem
+  in the compact `R` realizes each compatible family `(σ V s)_V` as `e r`, so `ψ := e⁻¹ ∘ Φ`
+  (`Φ = (σ V)_V : S → Q`) is a well-defined continuous homomorphism with `mk_V ∘ ψ = σ V`.
+* A second Cantor intersection, in the compact `S`, shows `ψ` surjective: for each `r`, the
+  compatible closed sets `{s | σ V s = mk_V r}` meet, giving `s` with `ψ s = r`. -/
 theorem exists_contSurj_of_card_le
     {S R : Type} [Group S] [TopologicalSpace S] [IsTopologicalGroup S]
       [CompactSpace S] [TotallyDisconnectedSpace S]
@@ -164,7 +220,94 @@ theorem exists_contSurj_of_card_le
     (h : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
         Nat.card (ContSurj R H) ≤ Nat.card (ContSurj S H)) :
     Nonempty (ContSurj S R) := by
-  sorry
+  classical
+  haveI hne : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of R),
+      Nonempty ((konigFunctor (S := S) (R := R)).obj U) :=
+    fun U => (contSurj_quotient_nonempty_finite hRfin h U).1
+  haveI hfin : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of R),
+      Finite ((konigFunctor (S := S) (R := R)).obj U) :=
+    fun U => (contSurj_quotient_nonempty_finite hRfin h U).2
+  obtain ⟨sec, hsec⟩ :=
+    nonempty_sections_of_finite_cofiltered_system (konigFunctor (S := S) (R := R))
+  -- `σ U : S ↠ R/U`, with compatibility `projMap ∘ σ U = σ U'` for `U ≤ U'`.
+  set σ : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of R), ContinuousMonoidHom S (R ⧸ U.toSubgroup) :=
+    fun U => (sec U).1 with hσ
+  have hσsurj : ∀ U, Function.Surjective (σ U) := fun U => (sec U).2
+  have hcompat : ∀ {U U' : OpenNormalSubgroup (ProfiniteGrp.of R)} (hle : U ≤ U') (s : S),
+      projMap hle (σ U s) = σ U' s := by
+    intro U U' hle s
+    have := hsec hle.hom
+    exact congrArg (fun (t : {f : ContinuousMonoidHom S (R ⧸ U'.toSubgroup) // Function.Surjective f})
+      => t.1 s) this
+  -- Embed `R` into the product of its finite quotients.
+  let Q : Type := ∀ U : OpenNormalSubgroup (ProfiniteGrp.of R), R ⧸ U.toSubgroup
+  let e : R →* Q := MonoidHom.pi fun U => QuotientGroup.mk' U.toSubgroup
+  let Φ : S →* Q := MonoidHom.pi fun U => (σ U).toMonoidHom
+  have he_cont : Continuous e := continuous_pi fun U => continuous_quotient_mk'
+  have hΦ_cont : Continuous Φ := continuous_pi fun U => (σ U).continuous_toFun
+  haveI : Nonempty (OpenNormalSubgroup (ProfiniteGrp.of R)) := ⟨⟨⊤, Subgroup.normal_top⟩⟩
+  haveI hdisc : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of R),
+      DiscreteTopology (R ⧸ U.toSubgroup) := fun U => inferInstance
+  have he_inj : Function.Injective e := by
+    intro x y hxy
+    rw [← inv_mul_eq_one]
+    by_contra hne1
+    obtain ⟨U, hU⟩ := ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one
+      (U := ({x⁻¹ * y}ᶜ : Set R)) isOpen_compl_singleton
+      (Set.mem_compl_singleton_iff.mpr fun hc => hne1 hc.symm)
+    have hmk : QuotientGroup.mk x = QuotientGroup.mk (s := U.toSubgroup) y := congrFun hxy U
+    rw [QuotientGroup.eq] at hmk
+    exact hU hmk rfl
+  have he_emb : Topology.IsClosedEmbedding e := he_cont.isClosedEmbedding he_inj
+  -- Every `Φ s` is realised by a point of `R` (Cantor intersection over the finite quotients).
+  have hrealise : ∀ s : S, ∃ r : R, e r = Φ s := by
+    intro s
+    have : (⋂ U, {r : R | QuotientGroup.mk r = σ U s}).Nonempty := by
+      apply IsCompact.nonempty_iInter_of_directed_nonempty_isCompact_isClosed
+      · intro U U'
+        refine ⟨U ⊓ U', fun r hr => ?_, fun r hr => ?_⟩ <;>
+          simp only [Set.mem_setOf_eq] at hr ⊢
+        · rw [← hcompat inf_le_left s, ← hr, projMap_mk]
+        · rw [← hcompat inf_le_right s, ← hr, projMap_mk]
+      · exact fun U => QuotientGroup.mk_surjective (σ U s)
+      · exact fun U => (isClosed_singleton.preimage continuous_quotient_mk').isCompact
+      · exact fun U => isClosed_singleton.preimage continuous_quotient_mk'
+    obtain ⟨r, hr⟩ := this
+    refine ⟨r, funext fun U => ?_⟩
+    exact Set.mem_iInter.mp hr U
+  -- `ψ := e⁻¹ ∘ Φ` is a continuous homomorphism with `mk_U ∘ ψ = σ U`.
+  let ψ : S → R := fun s => Function.invFun e (Φ s)
+  have hψe : ∀ s, e (ψ s) = Φ s := fun s => by
+    obtain ⟨r, hr⟩ := hrealise s
+    show e (Function.invFun e (Φ s)) = Φ s
+    rw [← hr, Function.leftInverse_invFun he_inj r]
+  have hψ_hom : ∀ a b, ψ (a * b) = ψ a * ψ b := by
+    intro a b
+    apply he_inj
+    rw [hψe, map_mul, map_mul, hψe, hψe]
+  have hψ_cont : Continuous ψ := by
+    rw [he_emb.isEmbedding.continuous_iff]
+    exact hΦ_cont.congr fun s => (hψe s).symm
+  -- `ψ` is surjective: for any `r`, Cantor intersection in `S` finds `s` with `ψ s = r`.
+  have hψ_surj : Function.Surjective ψ := by
+    intro r
+    have : (⋂ U, {s : S | σ U s = QuotientGroup.mk r}).Nonempty := by
+      apply IsCompact.nonempty_iInter_of_directed_nonempty_isCompact_isClosed
+      · intro U U'
+        refine ⟨U ⊓ U', fun s hs => ?_, fun s hs => ?_⟩ <;>
+          simp only [Set.mem_setOf_eq] at hs ⊢
+        · rw [← hcompat inf_le_left s, hs, projMap_mk]
+        · rw [← hcompat inf_le_right s, hs, projMap_mk]
+      · exact fun U => (hσsurj U (QuotientGroup.mk r)).imp fun s hs => hs
+      · exact fun U => (isClosed_singleton.preimage (σ U).continuous_toFun).isCompact
+      · exact fun U => isClosed_singleton.preimage (σ U).continuous_toFun
+    obtain ⟨s, hs⟩ := this
+    refine ⟨s, he_inj ?_⟩
+    rw [hψe]
+    refine funext fun U => ?_
+    have : σ U s = QuotientGroup.mk r := Set.mem_iInter.mp hs U
+    simpa [e, Φ, MonoidHom.pi] using this
+  exact ⟨⟨⟨MonoidHom.mk' ψ hψ_hom, hψ_cont⟩, hψ_surj⟩⟩
 
 /-- **Lemma 2.5 (equinumerosity form).**  `P` is a topologically finitely generated profinite group,
 `Q` is profinite, and for every finite group `H` the continuous-surjection sets are *equinumerous*

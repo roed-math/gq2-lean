@@ -1,5 +1,6 @@
 import GQ2.ProfinitePresentation
 import GQ2.Subdirect
+import GQ2.MaxProP
 
 /-!
 # B4: the rank-3 dyadic Demushkin presentation `D₀ = ⟨A, S, Y | A²S⁴[S,Y]⟩`  (ticket T-08)
@@ -34,35 +35,54 @@ noncomputable def d0Relator : FreeProfiniteGroup (Fin 3) :=
   FreeProfiniteGroup.of 0 ^ 2 * FreeProfiniteGroup.of 1 ^ 4 *
     commP (FreeProfiniteGroup.of 1) (FreeProfiniteGroup.of 2)
 
-/-- **`D₀`** (paper Prop. 1.1): the profinite group presented by `⟨A, S, Y | A²S⁴[S,Y] = 1⟩`, i.e.
-the free profinite group on `Fin 3` modulo the closed normal closure of `d0Relator`.  This is the
-rank-3 dyadic Demushkin group; axiom **B4** asserts `G_{ℚ₂}(2) ≅ D₀`. -/
-noncomputable def D0 : ProfiniteGrp := profinitePresentation {d0Relator}
+/-- The full profinite presentation `⟨A, S, Y | A²S⁴[S,Y]⟩` (before taking the pro-2 quotient).
+The paper's `D₀ = G_{ℚ₂}(2)` is **pro-2**, so `D₀` is the maximal pro-2 quotient of this
+(`D0` below); the bare presentation is *not* pro-2 — e.g. `A,S ↦ 0, Y ↦ 1` gives a surjection
+onto `ℤ/3` (the relator dies in an abelian target), so its abelianization carries an odd part.
+Working with the pro-2 quotient is what makes `topAbelianization D₀ ≅ ℤ/2 × ℤ₂ × ℤ₂` (paper (11))
+and keeps axiom **B4** (`G_{ℚ₂}(2) ≅ D₀`, a pro-2 ≅ pro-2 statement) faithful. -/
+noncomputable def D0Full : ProfiniteGrp := profinitePresentation {d0Relator}
 
-/-- The relator holds in `D₀`: `A²S⁴[S,Y] = 1` in the presented group. -/
+/-- **`D₀`** (paper Prop. 1.1): the **pro-2** group presented by `⟨A, S, Y | A²S⁴[S,Y] = 1⟩`, i.e.
+the maximal pro-2 quotient of the free profinite presentation.  This is the rank-3 dyadic
+Demushkin group; axiom **B4** asserts `G_{ℚ₂}(2) ≅ D₀`. -/
+noncomputable def D0 : ProfiniteGrp := maxProPQuotient 2 D0Full
+
+/-- The relator holds in the full presentation: `A²S⁴[S,Y] = 1`. -/
 theorem d0Relator_quotientMk_eq_one :
     quotientMk (relatorSubgroup {d0Relator}) d0Relator = 1 :=
   relator_quotientMk_eq_one {d0Relator} rfl
 
-/-! ### The marked generators of `D₀`  (T-11 input) -/
+/-! ### The marked generators  (T-11 input) -/
 
-/-- The generator `A ∈ D₀` (image of `of 0`). -/
-noncomputable def d0A : D0 := quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 0)
+/-- The generator `A` in the full presentation `D0Full` (image of `of 0`). -/
+noncomputable def d0FullA : D0Full := quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 0)
+/-- The generator `S` in the full presentation `D0Full` (image of `of 1`). -/
+noncomputable def d0FullS : D0Full := quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 1)
+/-- The generator `Y` in the full presentation `D0Full` (image of `of 2`). -/
+noncomputable def d0FullY : D0Full := quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 2)
 
-/-- The generator `S ∈ D₀` (image of `of 1`). -/
-noncomputable def d0S : D0 := quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 1)
-
-/-- The generator `Y ∈ D₀` (image of `of 2`). -/
-noncomputable def d0Y : D0 := quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 2)
-
-/-- **The Demushkin relation on the named generators**: `A²S⁴[S,Y] = 1` in `D₀`. -/
-theorem d0_relation : d0A ^ 2 * d0S ^ 4 * commP d0S d0Y = 1 := by
+/-- The Demushkin relation `A²S⁴[S,Y] = 1` already in the full presentation `D0Full`. -/
+theorem d0Full_relation : d0FullA ^ 2 * d0FullS ^ 4 * commP d0FullS d0FullY = 1 := by
   have h := d0Relator_quotientMk_eq_one
   rw [d0Relator] at h
-  -- the quotient projection commutes with `*`, `^`, `⁻¹` definitionally; only `commP` needs
-  -- unfolding
-  simp only [commP] at h
+  simp only [commP, d0FullA, d0FullS, d0FullY] at h ⊢
   exact h
+
+/-- The generator `A ∈ D₀` (image of `A` under the pro-2 quotient map). -/
+noncomputable def d0A : D0 := maxProPMk 2 D0Full d0FullA
+/-- The generator `S ∈ D₀`. -/
+noncomputable def d0S : D0 := maxProPMk 2 D0Full d0FullS
+/-- The generator `Y ∈ D₀`. -/
+noncomputable def d0Y : D0 := maxProPMk 2 D0Full d0FullY
+
+/-- **The Demushkin relation on the named generators**: `A²S⁴[S,Y] = 1` in `D₀`.  It holds already
+in the full presentation `D0Full` (`d0Full_relation`) and is pushed through the pro-2 quotient
+homomorphism `maxProPMk` (which commutes with `*`, `^`, `commP` definitionally). -/
+theorem d0_relation : d0A ^ 2 * d0S ^ 4 * commP d0S d0Y = 1 := by
+  show maxProPMk 2 D0Full (d0FullA ^ 2 * d0FullS ^ 4 * commP d0FullS d0FullY) = 1
+  rw [d0Full_relation]
+  exact map_one _
 
 /-! ## Stress test: a concrete finite 2-group marking (`homEquiv` + `decide`)
 

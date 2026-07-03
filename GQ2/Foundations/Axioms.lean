@@ -24,7 +24,7 @@ near `main_surjection_count`.
 **How to read this for review.**  Each `axiom` below is a result that already
 exists in the literature; the docstring gives the precise statement, the citation, and the
 paper cross-reference.  The B-labels follow `docs/literature-axioms.md` (which also records the
-dependency structure, paper App. D).  Current census — eleven axioms, faithfully stated against
+dependency structure, paper App. D).  Current census — twelve axioms, faithfully stated against
 current Mathlib plus this repo's `ContCoh` cohomology:
 
 * **B1** `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` — `G_ℚ₂` top. f.g.
@@ -44,11 +44,18 @@ current Mathlib plus this repo's `ContCoh` cohomology:
 * **B8** `peripheralCyclotomicAction` — the cyclotomic action on the peripheral generators of
   `Δ = maxPro2(F₂)` (Lemma 3.6; defs + deviation note in `GQ2/PeripheralAction.lean`).
 * **B9** `evensKahn_dyadic` — the Evens/Kahn eq. (111), degrees ≤ 2, at the paper's
-  diagonalizations (defs in `GQ2/EvensKahn.lean`).
+  diagonalizations, over an arbitrary **finite dyadic base** `k` (defs in `GQ2/EvensKahn.lean`;
+  base-generalized from `k = ℚ₂` by explicit census decision, resolving the P-15 escalation —
+  the literature theorems are base-general and the paper applies (111) over general `k` in
+  Lemma 6.16).
 * **B10** `tameQuotient` — the tame quotient of `G_ℚ₂` (Iwasawa, NSW (7.5.3)): a closed
   normal pro-2 `W` with `G_ℚ₂/W ≅ T_tame` (defs + convention/deviation notes in
   `GQ2/TameQuotient.lean`; added post-kickoff by explicit census decision, resolving the
   P-06 escalation — Prop. 3.2's local side).
+* **B11** `dyadicNormCriterion` — the Hilbert-symbol norm criterion over finite dyadic bases
+  (`[a]∪[b] = 0 ⟺ b` is a norm from `k(√a)`) plus unramified unit-norm surjectivity
+  (same amendment decision as B9's base-generalization; consumed by Lemma 6.16's ledger and
+  6.17's (94)-orthogonality).
 
 **B3's remaining pieces are deliberately not axioms**: the *definition* `IsDemushkin` and the
 invariants (`demushkinRank`, `demushkinQ`) are done (`GQ2/Demushkin.lean`, T-09/T-10), and the
@@ -265,50 +272,62 @@ see `GQ2/EvensKahn.lean`)**: truncation to degrees ≤ 2; concrete diagonal repr
 the classical `cor[a] = [N_{L/k}a]` compatibility. -/
 
 /-- **The B9 axiom** (Kahn Théorème 2 at rank 1, expanded by Evens Theorem 1 / Kozlowski
-Thm 1.1 for index 2; paper eq. (111), degrees ≤ 2, at the Lemma 6.16 diagonalizations).
+Thm 1.1 for index 2; paper eq. (111), degrees ≤ 2, at the Lemma 6.16 diagonalizations), over an
+arbitrary **finite dyadic base** `k`.
 
-Setting: `k = ℚ₂`, `L = k(δ)` with `δ² = d`, `G_L = N =` the stabilizer of `δ` (assumed of
-index 2 — i.e. `d` is a non-square), `s ∉ N`, and `a = u + vδ ∈ Lˣ` with norm
-`n = u² − dv²` and a square root `β = √a ∈ k̄ˣ`.  With `[x]` the Kummer classes (T-13),
-`∪ = trivialCupPairing` (T-04/T-09), `cor = corH1Z` and `N^{Ev} = evensNormH2Z` (T-18), the
-two components of (111) read:
+Setting: `k/ℚ₂` finite (an `IntermediateField` of the fixed `ℚ̄₂`, so all classes live over the
+subtype group `G_k = k.fixingSubgroup ≤ G_ℚ₂`), `L = k(δ)` with `δ² = d ∈ kˣ`, `G_L = N =` the
+stabilizer of `δ` within `G_k` (assumed of index 2 — i.e. `d` is a non-square in `k`), `s ∉ N`,
+and `a = u + vδ ∈ Lˣ` with norm `n = u² − dv² ∈ kˣ` and a square root `β = √a ∈ k̄ˣ`.  With
+`[x] = kummerClassK k x` the base-general Kummer classes (canonical roots, `GQ2/EvensKahn.lean`),
+`∪ = trivialCupPairing`, `cor = corH1` and `N^{Ev} = evensNormH2` (the unbundled T-18 forms; the
+Kummer 1-cocycle `α(g) = κ_β(g)` of `a` over `N` enters via its defining equation `hαdef`, with
+its hom/continuity side-proofs quantified), the two components of (111) read:
 
 * degree 1: `[2u] + [2dn/u] = [2] + [2d] + cor[a]`;
 * degree 2: `[2u] ∪ [2dn/u] = [2] ∪ [2d] + ([2] + [2d]) ∪ cor[a] + N^{Ev}[a]`.
+
+**Base-generality (census amendment, 2026-07-03, user-approved; resolves the P-15 escalation)**:
+the cited theorems hold over any field of characteristic `≠ 2` (Kahn Th. 2 requires no local
+hypothesis; the dyadic scoping here is a *restriction*), and the paper invokes (111) over the
+general base `k` of Lemma 6.16 — the former `k = ℚ₂` scoping was the deviation.  The `k = ℚ₂`
+case is the bottom-field instance.
 
 Citation: Kahn, Invent. Math. 78 (1984), Théorème 2 (with Théorème 1); Kozlowski, Proc. AMS
 91 (1984), Thm 1.1; Evens, Trans. AMS 108 (1963), Thm 1.  Paper: §6, eq. (111),
 Lemmas 6.13/6.16.  `docs/literature-axioms.md` B9. -/
 axiom evensKahn_dyadic
-    (u n d : ℚ_[2]ˣ) (v : ℚ_[2])
-    (hn : (n : ℚ_[2]) = (u : ℚ_[2]) ^ 2 - (d : ℚ_[2]) * v ^ 2)
+    (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
+    (u n d : (↥k)ˣ) (v : ↥k)
+    (hn : (n : ↥k) = (u : ↥k) ^ 2 - (d : ↥k) * v ^ 2)
     (δ β : AlgebraicClosure ℚ_[2])
-    (hδ : δ ^ 2 = algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) (d : ℚ_[2]))
-    (hβ : β ^ 2 = algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) (u : ℚ_[2])
-      + algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) v * δ)
+    (hδ : δ ^ 2 = ((d : ↥k) : AlgebraicClosure ℚ_[2]))
+    (hβ : β ^ 2 = ((u : ↥k) : AlgebraicClosure ℚ_[2]) + (v : AlgebraicClosure ℚ_[2]) * δ)
     (hβ0 : β ≠ 0)
-    (hidx : (MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).index = 2)
-    (s : Kummer.GaloisGroup ℚ_[2])
-    (hs : s ∉ MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ) :
-    (Kummer.kummerClass (HilbertSymbol.unit2 * u)
-        + Kummer.kummerClass (HilbertSymbol.unit2 * d * n * u⁻¹)
-      = Kummer.kummerClass HilbertSymbol.unit2
-        + Kummer.kummerClass (HilbertSymbol.unit2 * d)
-        + corH1Z Kummer.kummerTriv (stabilizer_isOpen_of_isIntegral δ) hidx hs
-            (kummerZ1On _ hβ hβ0 (stabilizer_fixes_linear (u : ℚ_[2]) v δ)))
-    ∧ (trivialCupPairing 2 (Kummer.GaloisGroup ℚ_[2]) Kummer.kummerTriv
-          (Kummer.kummerClass (HilbertSymbol.unit2 * u))
-          (Kummer.kummerClass (HilbertSymbol.unit2 * d * n * u⁻¹))
-      = trivialCupPairing 2 (Kummer.GaloisGroup ℚ_[2]) Kummer.kummerTriv
-          (Kummer.kummerClass HilbertSymbol.unit2)
-          (Kummer.kummerClass (HilbertSymbol.unit2 * d))
-        + trivialCupPairing 2 (Kummer.GaloisGroup ℚ_[2]) Kummer.kummerTriv
-            (Kummer.kummerClass HilbertSymbol.unit2
-              + Kummer.kummerClass (HilbertSymbol.unit2 * d))
-            (corH1Z Kummer.kummerTriv (stabilizer_isOpen_of_isIntegral δ) hidx hs
-              (kummerZ1On _ hβ hβ0 (stabilizer_fixes_linear (u : ℚ_[2]) v δ)))
-        + evensNormH2Z Kummer.kummerTriv (stabilizer_isOpen_of_isIntegral δ) hidx hs
-            (kummerZ1On _ hβ hβ0 (stabilizer_fixes_linear (u : ℚ_[2]) v δ)))
+    (hidx : ((MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf
+        k.fixingSubgroup).index = 2)
+    (s : k.fixingSubgroup)
+    (hs : s ∉ (MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf k.fixingSubgroup)
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (hUo : IsOpen (((MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf
+        k.fixingSubgroup : Subgroup k.fixingSubgroup) : Set k.fixingSubgroup))
+    (α : ((MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf
+        k.fixingSubgroup) → ZMod 2)
+    (hαdef : ∀ g, α g = Kummer.kummerCocycleFun β
+        ((g : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]))
+    (hα : ∀ g h, α (g * h) = α g + α h)
+    (hαc : Continuous α) :
+    (kummerClassK k (twoUnit k * u) + kummerClassK k (twoUnit k * d * n * u⁻¹)
+      = kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d)
+        + corH1 htriv hUo hidx hs α hα hαc)
+    ∧ (trivialCupPairing 2 k.fixingSubgroup htriv
+          (kummerClassK k (twoUnit k * u)) (kummerClassK k (twoUnit k * d * n * u⁻¹))
+      = trivialCupPairing 2 k.fixingSubgroup htriv
+          (kummerClassK k (twoUnit k)) (kummerClassK k (twoUnit k * d))
+        + trivialCupPairing 2 k.fixingSubgroup htriv
+            (kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d))
+            (corH1 htriv hUo hidx hs α hα hαc)
+        + evensNormH2 htriv hUo hidx hs α hα hαc)
 
 /-! ## B10 — the tame quotient of `G_ℚ₂` (Iwasawa)
 
@@ -329,5 +348,47 @@ pro-`p` (Serre, *Local Fields* [7], Ch. IV).  (Verified against the NSW PDF in
 `references/`; see `GQ2/TameQuotient.lean` for the Frobenius-direction convention.)
 Paper: Prop. 3.2, local side.  `docs/literature-axioms.md` B10. -/
 axiom tameQuotient : TameQuotientData
+
+/-! ## B11 — the dyadic norm criterion over finite bases
+
+Added by the same explicit census decision as B9's base-generalization (2026-07-03,
+user-approved; resolves the P-15 escalation): §6.3's local ledger — Lemma 6.16's step-2
+arithmetic and Lemma 6.17's (94)-orthogonality — runs over arbitrary finite dyadic bases, and
+the two classical inputs below were previously available only in their `ℚ₂`-forms (inside the
+B5/B7′ layers).  The "`b` is a norm from `k(√a)`" condition is encoded by the **norm form**
+`b = x² − a y²` (elementary, no relative field-extension plumbing); unramifiedness of `k(√a)/k`
+by **equal norm value groups** through the spectral norm on `ℚ̄₂` (the `GQ2/SectionSix.lean`
+`IsDeepUnit`/`lemma_6_16` convention).
+
+Note for reviewers: the Steinberg relation `[x]∪[1−x] = 0` and `[2]∪[−1] = 0` used in
+Lemma 6.16's proof are *consequences* of the criterion clause (norm representations
+`1 − x = 1² − x·1²` and `−1 = 1² − 2·1²`), so they are deliberately not separate clauses. -/
+
+/-- **[Classical — B11.]**  The dyadic Hilbert-symbol **norm criterion** over a finite base
+`k/ℚ₂`, in Kummer-cup form, plus **unramified unit-norm surjectivity**:
+
+* (criterion) for `a, b ∈ kˣ`: `[a] ∪ [b] = 0` in `H²(G_k, 𝔽₂)` iff `b` is a norm from
+  `k(√a)` — iff `b = x² − a y²` has a solution in `k` (for `a` a square the norm form is
+  universal, so no non-square hypothesis is needed);
+* (unramified units) if `k(√a)/k` is unramified (equal norm value groups, elementwise via a
+  chosen root `δa`), then every unit of `k` (`‖u‖ = 1`) is such a norm.
+
+Citation: Serre, *Local Fields* [7], Ch. XIV §2 (the symbol–norm criterion; over `ℚ_p` also
+CiA [CiA] Ch. III §1.1 Prop. 1) and Ch. V §2 (norms of unramified extensions are the units
+times the norms of uniformizers).  *(Citation display numbers pending PDF verification —
+flagged for P-20.)*  Paper: §6.3, displays (93)/(94) and Lemma 6.16's proof.  -/
+axiom dyadicNormCriterion
+    (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m) :
+    (∀ a b : (↥k)ˣ,
+      trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k b) = 0
+        ↔ ∃ x y : ↥k, (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2)
+    ∧ ∀ (a : (↥k)ˣ) (δa : AlgebraicClosure ℚ_[2]),
+        δa ^ 2 = ((a : ↥k) : AlgebraicClosure ℚ_[2]) →
+        (∀ z : AlgebraicClosure ℚ_[2], z ≠ 0 →
+          (∃ x y : ↥k, z = (x : AlgebraicClosure ℚ_[2]) + (y : AlgebraicClosure ℚ_[2]) * δa) →
+          ∃ w : ↥k, w ≠ 0 ∧ ‖z‖ = ‖(w : AlgebraicClosure ℚ_[2])‖) →
+        ∀ u : (↥k)ˣ, ‖((u : ↥k) : AlgebraicClosure ℚ_[2])‖ = 1 →
+          ∃ x y : ↥k, (u : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2
 
 end GQ2

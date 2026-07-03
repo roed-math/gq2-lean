@@ -70,14 +70,9 @@ Paper: `ν_t : T_tame ↠ ℤ₂` (`σ ↦ 1, τ ↦ 0`) and `ν₂ : Π ↠ ℤ
 exactly P-11's `BoundaryMaps` bundle (eq. (27)); the two surjectivity claims below are the
 `↠`-content of the displayed arrows (flagged in `BoundaryFrame.lean` as P-06/P-09 scope). -/
 
-/-- `ν_t : T_tame ↠ Z₂` is surjective (Prop. 3.14's arrow).  (Proof ticket P-09:
-`ν_t(σ) = 1` and `1` topologically generates `Z₂`.) -/
-theorem nuT_surjective : Function.Surjective nuT := by
-  sorry
-
-/-- `ν₂ : Π ↠ Z₂` is surjective (eq. (21)'s arrow).  (Proof ticket P-09.) -/
-theorem nuTwo_surjective : Function.Surjective nuTwo := by
-  sorry
+/- The two surjectivity claims — `ν_t : T_tame ↠ Z₂` (Prop. 3.14's arrow) and
+`ν₂ : Π ↠ Z₂` (eq. (21)'s arrow) — are stated and **proved** in `GQ2/Prop32.lean`
+(`GQ2.SectionThree.nuT_surjective`, `GQ2.SectionThree.nuTwo_surjective`, ticket P-09). -/
 
 /-- **Prop. 3.14** (with Cor. 3.12 supplying the `G_{ℚ₂}`-side): the eq. (27) boundary data
 exists — tame and maximal pro-2 quotient maps for both sources, `ν`-compatible, jointly

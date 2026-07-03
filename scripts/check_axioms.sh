@@ -20,8 +20,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 AXIOMS_FILE='GQ2/Foundations/Axioms.lean'
-EXPECTED_AXIOMS=11  # B1, B2, B3c, B4, B5, B6, B7, B7', B8, B9, B10 (B10: post-kickoff census decision, P-06 escalation)
-SORRY_ALLOWLIST='GQ2/Reconstruction.lean GQ2/Statement.lean GQ2/GammaA.lean GQ2/BoundaryFrame.lean GQ2/SectionThree.lean GQ2/SectionThreeMarked.lean GQ2/FoxHeisenberg.lean'  # BoundaryFrame: P-11 thm_4_2 (removed by P-17); SectionThree(+Marked): P-06 §3 statements (removed by P-07/P-08/P-09/P-10); FoxHeisenberg: P-12 §5 statements (removed by P-13)
+EXPECTED_AXIOMS=12  # B1, B2, B3c, B4, B5, B6, B7, B7', B8, B9, B10, B11 (B10: census decision, P-06 escalation; B9 base-generalized + B11 added: census decision, P-15 escalation, 2026-07-03)
+SORRY_ALLOWLIST='GQ2/Statement.lean GQ2/GammaA.lean GQ2/BoundaryFrame.lean GQ2/SectionThree.lean GQ2/SectionThreeMarked.lean GQ2/FoxHeisenberg.lean GQ2/SectionSix.lean GQ2/SectionSeven.lean GQ2/SectionEight.lean'  # Reconstruction.lean removed: exists_contSurj_of_card_le proved (P-02). BoundaryFrame: P-11 thm_4_2 (removed by P-17); SectionThree(+Marked): P-06 §3 statements (removed by P-07/P-08/P-09/P-10); FoxHeisenberg: P-12 §5 statements (removed by P-13); SectionSix+SectionSeven: P-14 §§6–7 statements (removed by P-15); SectionEight: P-16 §8 statements — 8.2×2, 8.3, 8.6×2, prop_8_9 (removed by P-16 O-half)
 
 # Strip Lean comments: nested block comments `/- … -/` (incl. docstrings `/-- … -/`) and
 # line comments `-- …`.  Emits one output line per input line (line numbers preserved).

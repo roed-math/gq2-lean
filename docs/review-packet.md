@@ -7,8 +7,10 @@ axioms `propext`, `Classical.choice`, `Quot.sound` only — "std-3" below).
 
 **Context.**  The repo formalizes the *statement* of the paper's Theorem 1.2 (a profinite
 presentation of `G_{ℚ₂}`) and reduces its proof to (a) the paper's own §§3–9 argument (left as
-explicit `sorry`s, see §4) and (b) **ten classical literature results B1–B9**, stated as Lean
-`axiom`s.  The review question is:
+explicit `sorry`s, see §4) and (b) **twelve classical literature results B1–B11**, stated as
+Lean `axiom`s.  (The census was ten at the step-1 freeze; **B10** and the base-generalized
+**B9 + B11** were added by explicit, recorded census decisions during step 2 — see the
+amendment history at the end of §2.)  The review question is:
 
 > **Does each axiom below correctly state the cited literature result — including all
 > normalizations and conventions?**
@@ -22,9 +24,10 @@ records: [`tickets-step1.md`](tickets-step1.md) (the live step-2 board is
 
 ```bash
 lake exe cache get          # fetch Mathlib build cache (once)
-lake build GQ2              # full build: succeeds with exactly 3 intentional `sorry`s (§4)
+lake build GQ2              # full build: `sorry`s only in the allowlisted files (§4 + the
+                            # step-2 statement files tracked in docs/tickets.md)
 ./scripts/check_axioms.sh   # axiom hygiene: all `axiom`s in GQ2/Foundations/Axioms.lean,
-                            # census = 10, sorry allowlist = the 3 of §4, no native_decide
+                            # census = 12, sorries ⊆ allowlist, no native_decide
 ```
 
 For any individual theorem, `#print axioms <name>` in a scratch file shows its axiom
@@ -33,7 +36,7 @@ consequence suite) exactly the B-axiom it consumes.
 
 ## 2. The axioms: Lean names per B-leaf
 
-All ten live in [`GQ2/Foundations/Axioms.lean`](../GQ2/Foundations/Axioms.lean) — the single
+All twelve live in [`GQ2/Foundations/Axioms.lean`](../GQ2/Foundations/Axioms.lean) — the single
 file permitted to declare axioms.  "Defs" = the file with the supporting definitions (each of
 which is *fully proved*, never assumed).
 
@@ -48,7 +51,26 @@ which is *fully proved*, never assumed).
 | **B7** | local Euler characteristic: `#H¹ = #H⁰·#H²·2^{v₂(#M)}` (+ finiteness) | NSW (7.3.1) (Tate) | `GQ2.Foundations.absGalQ2_localEulerCharacteristic` | `GQ2/EulerCharacteristic.lean` |
 | **B7′** | dyadic Hilbert symbol: `(2^α u, 2^β v)₂ = (−1)^{ε(u)ε(v)+αω(v)+βω(u)}` | Serre CiA III §1.2 Thm 1 | `GQ2.HilbertSymbol.hilbertSymbol_dyadic` | `GQ2/HilbertSymbol.lean` |
 | **B8** | cyclotomic action on the peripheral generators of `Δ = maxPro2(F₂)` (Lemma 3.6) | Stix §3.3, Def. 37; Deligne | `GQ2.peripheralCyclotomicAction` | `GQ2/PeripheralAction.lean` |
-| **B9** | Evens/Kahn eq. (111): `w(Tr⟨a⟩) = w(Tr⟨1⟩)(1 + cor[a] + N^{Ev}[a])`, deg ≤ 2 | Kahn Th. 2; Kozlowski 1.1; Evens Th. 1 | `GQ2.evensKahn_dyadic` | `GQ2/EvensKahn.lean` |
+| **B9** | Evens/Kahn eq. (111): `w(Tr⟨a⟩) = w(Tr⟨1⟩)(1 + cor[a] + N^{Ev}[a])`, deg ≤ 2, over any **finite dyadic base `k`** | Kahn Th. 2; Kozlowski 1.1; Evens Th. 1 | `GQ2.evensKahn_dyadic` | `GQ2/EvensKahn.lean` |
+| **B10** | the tame quotient of `G_{ℚ₂}`: closed normal pro-2 `W` with `G_{ℚ₂}/W ≅ ⟨σ,τ ∣ τ^σ = τ²⟩_prof` | NSW (7.5.3) (Iwasawa), (7.5.2); Serre LF IV | `GQ2.tameQuotient` | `GQ2/TameQuotient.lean` |
+| **B11** | dyadic norm criterion over finite bases: `[a]∪[b] = 0 ⟺ b = x² − ay²` in `k`; units are norms from unramified quadratic extensions | Serre LF XIV §2, V §2 *(display numbers pending PDF verification)* | `GQ2.dyadicNormCriterion` | `GQ2/EvensKahn.lean` |
+
+### Census amendment history (step 2)
+
+* **B10** (`tameQuotient`) — added by explicit census decision resolving the **P-06 escalation**:
+  the step-1 census was 2-centric and had no prime-to-2 tame structure (needed by Prop. 3.2's
+  local side).  Census 10 → 11.
+* **B9 base-generalization + B11** — by explicit census decision (**P-15 escalation**,
+  user-approved 2026-07-03): the paper applies eq. (111) and the §6.3 symbol arithmetic over
+  *arbitrary finite dyadic bases* (Lemmas 6.16/6.17), while the step-1 layer had scoped B9 and
+  the symbol theory to `k = ℚ₂`.  The cited theorems are base-general (Kahn's Théorème 2 needs
+  no local hypothesis), so the former scoping was itself the deviation.  A reduction of the
+  general-base statements to the `ℚ₂` forms is **not** available: restriction from `ℚ₂` reaches
+  only a 3-dimensional subspace of `k^×/(k^×)²` (which has dimension `[k:ℚ₂]+2`), and the
+  corestriction route is equivalent to cor-invariant compatibility — itself a general-base CFT
+  input.  Census 11 → 12.  Review focus: the B9 statement is unchanged except for the base and
+  the (equivalent) canonical-root/subgroup-relative phrasing of the Kummer classes
+  (`kummerClassK`); B11 is new.
 
 **B3a/B3b are deliberately not axioms.**  B3a (the *definition* of a Demushkin group) is
 formalized and stress-tested (`GQ2.IsDemushkin`, `GQ2.demushkinRank`, `GQ2.demushkinQ` in
@@ -97,6 +119,10 @@ These are *constructions with full proofs* (std-3), so the review question is on
 | B8 | the **group-theoretic conclusion** of Lemma 3.6 only — no étale `π₁` | Mathlib has no anabelian `π₁`; reviewers check the implication "Lemma 3.6 ⇒ bundle", not a `π₁` formalization |
 | B8 | the cyclotomic exponent `ι : ℤ₂ˣ → ℤ̂` is bundle data, pinned by continuity and `ι(1) = ω₂` | full pinning is the ring structure of `ℤ̂`, out of scope |
 | B9 | truncated to degrees ≤ 2; asserted at the paper's fixed diagonalizations `Tr⟨a⟩ ≃ ⟨2u, 2dn/u⟩`, `Tr⟨1⟩ ≃ ⟨2, 2d⟩` with `w₁⟨x,y⟩ = [x]+[y]`, `w₂⟨x,y⟩ = [x]∪[y]` | no quadratic-form/SW machinery needed; Delzant well-definedness absorbed into the scoping; deg-1 component ⟺ classical `cor[a] = [N_{L/k}a]` |
+| B9 | Kummer classes over a general base `k` use canonical square roots (`sqrtCl`) and live over the subtype group `G_k = k.fixingSubgroup ≤ G_{ℚ₂}` (`kummerClassK`) | class independent of the root (proved, T-13); one fixed algebraic closure throughout — no closure-transport |
+| B11 | "`b` is a norm from `k(√a)`" encoded by the norm form `∃ x y, b = x² − ay²` | elementary and extension-plumbing-free; for `a` a square the norm form is universal, so the criterion needs no non-square hypothesis |
+| B11 | "`k(√a)/k` unramified" encoded as elementwise equality of norm value groups (spectral norm on `ℚ̄₂`) | matches the `IsDeepUnit`/`lemma_6_16` convention; avoids ramification-index bookkeeping (`e = v_k(2)`: depth `≥ e+1 ⟺ ‖·‖ < ‖2‖`) |
+| B11 | Steinberg `[x]∪[1−x] = 0` and `[2]∪[−1] = 0` are not separate clauses | consequences of the criterion via the norm representations `1−x = 1²−x·1²`, `−1 = 1²−2·1²` |
 | general | cohomology is this repo's explicit `ContCoh` (degrees ≤ 2), not Mathlib's homogeneous `continuousCohomology` | Mathlib's has no low-degree cochain surface yet; `H⁰` agreement is proved (`GQ2/CtsCohBridge.lean`), `H¹/H²` comparison is Mathlib's own open TODO ([`cts-cohomology-gap.md`](cts-cohomology-gap.md)) |
 
 Bundle-style axioms (B5, B6, B8, B3c) assert *existence of data with properties* (structure

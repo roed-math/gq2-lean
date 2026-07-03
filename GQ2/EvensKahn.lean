@@ -432,6 +432,61 @@ lemma stabilizer_fixes_linear (u v : K) (δ : AlgebraicClosure K) :
 
 end SubgroupKummer
 
+/-! ## Base-general Kummer classes over `G_k`  (B9/B11 amendment layer, P-15)
+
+The base-general forms of B9 and B11 (finite dyadic base `k` — the P-15 census amendment,
+`docs/section67-extraction.md` §P-15 amendments) phrase Kummer classes of units of `k` over the
+**subtype group** `G_k = ↥(k.fixingSubgroup)` inside the one fixed `G_ℚ₂` — no second algebraic
+closure is introduced, so the classes compose directly with the subgroup-relative corestriction
+and Evens norm above (exactly the shape `GQ2.SectionSix.lemma_6_16` consumes). -/
+
+section BaseGeneral
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+/-- A canonical square root in the algebraically closed `ℚ̄₂`. -/
+noncomputable def sqrtCl (x : ℚ̄₂) : ℚ̄₂ :=
+  (IsAlgClosed.exists_pow_nat_eq x two_pos).choose
+
+@[simp] lemma sqrtCl_sq (x : ℚ̄₂) : sqrtCl x ^ 2 = x :=
+  (IsAlgClosed.exists_pow_nat_eq x two_pos).choose_spec
+
+lemma sqrtCl_ne_zero {x : ℚ̄₂} (hx : x ≠ 0) : sqrtCl x ≠ 0 := by
+  intro h
+  apply hx
+  rw [← sqrtCl_sq x, h]
+  norm_num
+
+/-- `G_k = fixingSubgroup k` fixes the elements of `k`, in `•`-form. -/
+lemma fixingSubgroup_smul (k : IntermediateField ℚ_[2] ℚ̄₂)
+    {g : Kummer.GaloisGroup ℚ_[2]} (hg : g ∈ k.fixingSubgroup) (x : ↥k) :
+    g • (x : ℚ̄₂) = x :=
+  (mem_fixingSubgroup_iff _).mp hg x x.2
+
+/-- The `ℚ̄₂`-coercion of a unit of `k` is nonzero. -/
+lemma unitCoe_ne_zero (k : IntermediateField ℚ_[2] ℚ̄₂) (a : (↥k)ˣ) :
+    ((a : ↥k) : ℚ̄₂) ≠ 0 := fun h ↦ a.ne_zero (by exact_mod_cast h)
+
+/-- **The base-general Kummer class** `[a] ∈ H¹(G_k, 𝔽₂)` of a unit `a ∈ kˣ`, over the subtype
+group of `k.fixingSubgroup` and via the canonical root `sqrtCl` (class independent of the root,
+T-13's `kummerCocycleFun_root_indep`).  Specializes T-13's base-`ℚ₂` `kummerClass` to arbitrary
+finite dyadic bases; the input shape of the amended B9/B11 axioms. -/
+noncomputable def kummerClassK (k : IntermediateField ℚ_[2] ℚ̄₂) (a : (↥k)ˣ) :
+    H1 k.fixingSubgroup (ZMod 2) :=
+  H1mk _ _ ⟨fun g ↦ Kummer.kummerCocycleFun (sqrtCl ((a : ↥k) : ℚ̄₂))
+      ((g : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]),
+    (mem_Z1_iff_of_trivial (fun _ _ ↦ rfl)).mpr
+      ⟨(Kummer.kummerCocycleFun_continuous _).comp continuous_subtype_val,
+        fun g h ↦ kummerCocycleFun_hom_on (sqrtCl_sq _)
+          (sqrtCl_ne_zero (unitCoe_ne_zero k a))
+          (fun _ hg' ↦ fixingSubgroup_smul k hg' (a : ↥k)) g h⟩⟩
+
+/-- `2` as a unit of the intermediate field `k` (char 0). -/
+noncomputable def twoUnit (k : IntermediateField ℚ_[2] ℚ̄₂) : (↥k)ˣ :=
+  Units.mk0 (2 : ↥k) two_ne_zero
+
+end BaseGeneral
+
 /-! ## `Z¹`-level packaging (for the axiom statement) -/
 
 section Z1Wrappers

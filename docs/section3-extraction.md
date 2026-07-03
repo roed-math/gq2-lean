@@ -11,16 +11,16 @@ P-08 (3.7/3.8), P-09 (3.2), P-10 (1.1).
 |---|---|---|---|
 | §3 opening display (`T_tame`) | `GQ2.Ttame`/`tameSigma`/`tameTau` (P-11 layer), `GQ2.tame_relation` (`TameQuotient.lean`) | **proved** (def-layer) | — |
 | Lemma 3.1 | `GQ2.Tame` (step 1) | **proved** | — |
-| Prop. 3.2, `Γ_A` side | `prop_3_2_gammaA` | sorried | P-09 (Lemma 3.1 + T-21 bridges) |
-| Prop. 3.2, local side (+ Lemma 3.3 char.) | `LocalTameQuotient` (extends B10's `TameQuotientData`), `prop_3_2_local` | sorried | P-09 (B10 + Lemma 3.3 maximality; escalation **resolved**, see below) |
+| Prop. 3.2, `Γ_A` side | `prop_3_2_gammaA` | **proved** (`Prop32.lean`, std-3, no axioms) | P-09 ☑ |
+| Prop. 3.2, local side (+ Lemma 3.3 char.) | `LocalTameQuotient` (extends B10's `TameQuotientData`), `prop_3_2_local` | **proved** (`Prop32.lean`, std-3 + B10 exactly) | P-09 ☑ |
 | Lemma 3.3 (`O₂ = W`) | folded into `LocalTameQuotient.maximal` / design note §3.3 | — | — |
 | Lemma 3.4 | **absorbed** (see below) | — | — |
-| eq. (9)/(11) (`B = C₂t ⊕ ℤ₂S̄ ⊕ ℤ₂Ȳ`) | `BDecomposition`, `b_decomposition` | sorried | P-07 (std-3 presented-group algebra) |
+| eq. (9)/(11) (`B = C₂t ⊕ ℤ₂S̄ ⊕ ℤ₂Ȳ`) | `BDecomposition`, `b_decomposition` | **proved** | P-07 (std-3; coordinate homs `τ,σ,γ` via `d0LiftHom`+`abLift`, `φ` bijective) |
 | Lemma 3.5, `(ν_ur, χ_D)` rows of (13) | `GQ2.Reciprocity` stress tests (step 1) | **proved** | — |
 | Lemma 3.5, `ā²s̄⁴ = 1` | `GQ2.abelianized_relator` (step 1) | **proved** | — |
-| Lemma 3.5, marked abelianization | `lemma_3_5_marked_abelianization` | sorried | P-07 (B5) |
-| Lemma 3.5, cup/initial-form clause | `lemma_3_5_hilbert_ledger` | sorried | P-07 (B7′) |
-| Lemma 3.5, `(ν_ur, χ_D)` injective | `lemma_3_5_injective` | sorried | P-07 (via `b_decomposition`) |
+| Lemma 3.5, marked abelianization | `lemma_3_5_marked_abelianization` | **proved mod `markedHom_bijective`** | P-07 (B5; plumbing std-3, sole gap = census-gated reciprocity iso, Escalation 5) |
+| Lemma 3.5, cup/initial-form clause | `lemma_3_5_hilbert_ledger` | **proved** | P-07 (B7′) |
+| Lemma 3.5, `(ν_ur, χ_D)` injective | `lemma_3_5_injective` | **proved** | P-07 (std-3; via `D0ab_coord`, **not** `b_decomposition`) |
 | Lemma 3.6 | **absorbed** (= axiom B8) | — | P-08 notes below |
 | Lemma 3.7 (eq. (15)) | `lemma_3_7` | sorried | P-08 (B2, B8) |
 | Prop. 3.8, lifting half (eq. (17)/(18)) | `prop_3_8_lift` | sorried | P-08 |
@@ -59,10 +59,14 @@ close the ten sorries).
   `τ = of 1` — the paper's `⟨σ, τ | τ^σ = τ²⟩_prof` verbatim.  *(History: P-06 and P-11,
   dependency-free wave-1 tickets, initially built identical copies; **deduplicated onto the
   P-11 layer** in the B10 follow-up commit — `SectionThree`'s copy removed, `tame_relation`
-  proved in `GQ2/TameQuotient.lean`.)*  A dedup of the same kind remains open for `wildPart`
-  (`W_A`) versus whatever P-04's `AdmissibleLimit.lean` lands for the pro-2 core:
-  `SectionThree` is fully namespaced (`GQ2.SectionThree.*`), so there is no name-collision
-  risk meanwhile.
+  proved in `GQ2/TameQuotient.lean`.)*  The companion `wildPart` dedup **landed 2026-07-03**:
+  `SectionThree.wildPart` is now *definitionally* P-04's `GQ2.wildCore`
+  (`wildPart := wildCore`; the old `normalClosure {gammaX0, gammaX1}`-closure shape is kept
+  available as the `rfl`-lemma `wildPart_eq_closure`, and the generator spellings agree by
+  `rfl` — `gammaSigma_def`…`gammaX1_def` bridge to the raw `quotientMk` spelling of the
+  P-11 `BoundaryMaps` pinning fields).  Payoff: `isProP_wildPart` (= P-04's
+  `isProP_wildCore`, the pro-2 clause of eq. (7) in the limit) plus `wildPart_isClosed`
+  are now available to P-09/P-10 with no re-derivation.
 * **`W_F` (local wild inertia) is encoded intrinsically** as the maximal closed normal pro-2
   subgroup (the fields of `LocalTameQuotient`): Mathlib has no ramification theory, and paper
   **Lemma 3.3** proves `O₂(G_{ℚ₂}) = W_F`, so the 2-core characterization *is* the faithful
@@ -180,6 +184,56 @@ close the ten sorries).
    the hardest node (the anabelian bridge) and may warrant its own sub-ticket.  **Pending a
    census/scope decision** (as B10 was), P-08 stays open; no fake proofs land.  The `Ttame`
    dedup task (chip `task_88b19198`) is orthogonal and still stands.
+
+   *Resolution (user decision, 2026-07-03):* ticket **P-21** opened on the board (Fable) —
+   `GQ2/ZtwoPowering.lean`, delivering (i)+(ii) [with the `1+4ℤ₂` fact recast as
+   `IsProP 2 ℤ₂ˣ` + `η`-injectivity, the form P-07/P-08 actually consume] and scoping (iii)
+   Frattini as its phase 2; the `ι`-seam of `prop_3_10_local_marked` is (i)'s iso.  No new
+   axiom needed — the census stays 11.
+
+   *The (a) gap is closed (Fable, 2026-07-03, user-directed):* **`lemma_3_7` is proved** in
+   `GQ2/AnabelianBridge.lean` (`GQ2.lemma_3_7`, statement verbatim; `#print axioms` = std-3 + B8
+   only — `SectionThree.lemma_3_7` should delegate to it once P-07's co-owned edits to
+   `SectionThree.lean` settle).  Two structural notes:
+   1. **B8 statement amendment** (`hι_proj`, flagged in `GQ2/PeripheralAction.lean`'s
+      docstring): the T-12 bundle's `ι` was pinned only by continuity + `ι 1 = ω₂`, which is
+      *too weak to consume* — `ι u`'s action is undetermined for `u ≠ 1`.  P-21's
+      `zhatProjTwo` makes the intended pinning (`ι(u) ≡ u` on the pro-2 part) expressible:
+      `hι_proj : zhatProjTwo (ι u) = ofAdd u`.  Consistency at `u = 1` is the proved
+      `zhatProjTwo_omega2`; classically `ι(u) = u·ω₂` satisfies everything.  Same review
+      posture as before: Lemma 3.6 ⟹ the (strengthened) bundle.
+   2. **The paper's `E□`/θ_u/cube-root scaffolding is inlined** (deviation, documented in the
+      bridge's docstring): B8's three rows combine into one `Δ`-identity
+      (`peripheral_identity`), which is pushed along `λ : Δ → D₀` (`P ↦ s³, T ↦ s⁻³a⁻²`,
+      free — no relator check) to exactly the conjugation identity the `Ψ_u`-relator check
+      needs (in the HNN form (16), `demushkin_relator_iff`).  Surjectivity is the P-21 (iv)
+      Frattini criterion (index-2 quotients see `Ψ_u` as the identity on generators);
+      Hopficity closes.  The Tietze elimination and odd-power bijectivity are thereby not
+      needed for 3.7 (the latter remains available for `prop_3_8_lift`'s `Θ_b`-legs).
+
+5. **RAISED by P-07 (Opus, 2026-07-03) — `lemma_3_5_marked_abelianization` needs the pro-2
+   reciprocity *iso*, which B5 does not currently pin.**  The other three §3.5 clauses are
+   **done** (`lemma_3_5_hilbert_ledger` B7′; `lemma_3_5_injective`, `b_decomposition` std-3).
+   The marked-abelianization clause asks for `e : D₀^ab ≅ (G_ℚ₂(2))^ab` sending `Ā,S̄,Ȳ` to the
+   `rec`-classes `−4, 1/2, −3`.  **Reduction (worked out):** the lift-quantified matching is
+   `e(abMk d0A) = π(R.recip unitNeg4)` where `π : AbsGalQ2ab → (G_ℚ₂(2))^ab` is the descent of
+   `abMk ∘ maxProPMk` through `toAb` (abelian target; this discharges "all lifts agree").  A hom
+   `e` with these values *is definable* (the relation `π(rec(−4))²·π(rec(1/2))⁴ = π(rec(1)) = 1`
+   holds since `rec` is a hom and `(−4)²(1/2)⁴ = 1`) — but showing it is an **iso** needs
+   `{π(rec(−4)), π(rec(1/2)), π(rec(−3))}` to coordinatize `(G_ℚ₂(2))^ab`, i.e. that `rec`'s image
+   topologically generates the pro-2 abelianization and separates the three classes.  That is the
+   classical local-reciprocity iso on the pro-2 part (`ℚ₂ˣ`'s pro-2 completion `≅ ℤ₂×ℤ/2×ℤ₂`,
+   `{−4,1/2,−3}` a basis), which B5 gives only the *coordinate values* of (`nu_ur_recip_*`,
+   `chiCyc_recip_*`), not surjectivity/injectivity.  **The paper proves 3.5-marked *before* 3.8,
+   so this is NOT a `prop_3_8` dependency** — it is local CFT.  **Resolution (needs user census
+   decision, cf. B10/B11):** either (a) strengthen B5 with a "recip induces the pro-2-ab iso"
+   clause, or (b) derive it from B5's `norm_reciprocity` clause via a limit argument (substantial:
+   `ℚ₂ˣ` structure + dense image + the three-classes-generate).  Same infrastructure family as
+   P-10 (`prop_1_1`).  **Reduction landed in code (Opus, same day):** `markedPi` (the `π` descent),
+   `markedHom` (definable hom, relation `(−4)²·2⁻⁴=1` verified) and the three generator-matching
+   clauses are all **std-3**; `lemma_3_5_marked_abelianization` is **proved modulo the single lemma
+   `markedHom_bijective`** (`SectionThree.lean`, now the only remaining sorry — precisely this gap).
+   Whoever resolves the census decision just proves `markedHom_bijective : Bijective (markedHom R)`.
 
 ## Marked half (P-11 handoff): Prop. 3.10 / Prop. 3.14 — `GQ2/SectionThreeMarked.lean`
 

@@ -1,0 +1,889 @@
+import GQ2.BoundaryFrame
+import GQ2.EvensKahn
+import GQ2.TateDuality
+import GQ2.Omega2
+import GQ2.QuadraticFp2
+import GQ2.Corestriction
+
+/-!
+# §6: quadratic determinant obstructions — statements  (ticket P-14)
+
+Statement-first extraction of the paper's §6 (pages 21–37), per the P-14 scope: the **Gauss-sign
+pair** 6.8/6.9, the **`D₈`/Evens-norm normalization** 6.13, the **orbit–stabilizer Shapiro
+ledger** 6.15, the **Hilbert ledger** 6.16 → 6.17 → **6.18** (the dyadic base determinant
+theorem, the section's headline), and the **transgression/shear pair** 6.21/6.22.  Every
+`theorem … := by sorry` carries its paper display number; proofs are ticket P-15
+(Ax: B5, B6, B7′, B9).  The definitional layer here (factor sets, graph pullbacks, orbit
+cocycles, the local functional `ι_F`) is `sorry`-free; classes of not-yet-proved cocycles are
+formed with the junk-total `H2ofFun`/`H1ofFun` (`GQ2/Corestriction.lean`).
+
+Design rationale, statement-by-statement display map, and **flagged deviations** (democratic
+Arf, canonical transversals, 6.5/6.19 deferred to the P-12/P-16 seam, 6.13's (100) folded into
+6.15's (105), 6.21 in consequence form, (83) as the definition shape of `Q⁰_A`):
+`docs/section67-extraction.md`.
+
+## The §6 objects, as encoded here
+
+* **Factor-set data** (Lemma 6.1, eqs. (59)–(62)): `FactorSet C V` carries the normalized factor
+  set `f` and the equivariant-lift corrections `m_c`; `IsEquivariantFactorSet q dat` is the Prop
+  bundle (59)/(60) + square map + polar compatibility.  `kappa0` is the base central cocycle
+  (61) on `V ⋊ C`; `graphPullback dat ρ b` is its pullback (62) along a lower map `ρ` and a
+  1-cochain `b` — the only form the statements consume.
+* **The local functional `ι_F = inv_{ℚ₂}`** (§6 opening): `iotaF D : H²(G_ℚ₂, 𝔽₂) →+ 𝔽₂`
+  through the `𝔽₂ ≅ μ₂` coefficient bridge (`muTwoOfF2`) and B6's invariant `D.inv`
+  (`GQ2/TateDuality.lean`).  `Q0loc` (eq. (92)) is the base quadratic connecting map, on
+  `H¹`-classes via the canonical representative (`Quotient.out`; well-definedness = Lemma 6.4,
+  a P-15 obligation).
+* **Deep units** (§6.3, eqs. (93)/(94)): `IsDeepUnit N A` says `A = 1 + 2b` with `‖b‖ < 1`,
+  `A, b` fixed by `N` — i.e. `A ∈ U_{e+1}(K)` for `K` the fixed field of `N`, phrased through
+  the spectral norm on `ℚ̄₂` (Mathlib's `NormedField (AlgebraicClosure ℚ_[p])`), with **no
+  ramification-index bookkeeping**: `v_K(A−1) ≥ e+1 ⟺ ‖A−1‖ < ‖2‖`.
+* **Ramified/unramified** (for 6.9/6.18): the module's lower map factors through `GQ2.Ttame`
+  (`GQ2/BoundaryFrame.lean`), and the dichotomy is whether the inertia generator `tameTau` acts
+  trivially on `V`.  `U = S^{ω₂}` is `powOmega2` (`GQ2/Omega2.lean`) of the Frobenius image.
+
+Axioms: **none consumed here** (statement layer); the census stays at 10.
+-/
+
+namespace GQ2
+
+open ContCoh QuadraticFp2 Corestriction
+
+open scoped Classical
+
+noncomputable section
+
+/-! ## Instance transports: the trivial `G_ℚ₂`-action on `𝔽₂`
+
+`GQ2/Kummer.lean` registers the trivial action for `GaloisGroup ℚ₂ = ℚ̄₂ ≃ₐ[ℚ₂] ℚ̄₂`; we
+transport it to the `AbsGalQ2`-phrasing (definitionally the same group), following the
+`GQ2/MuN.lean` precedent. -/
+
+instance : DistribMulAction AbsGalQ2 (ZMod 2) :=
+  inferInstanceAs (DistribMulAction (Kummer.GaloisGroup ℚ_[2]) (ZMod 2))
+
+instance : ContinuousSMul AbsGalQ2 (ZMod 2) :=
+  inferInstanceAs (ContinuousSMul (Kummer.GaloisGroup ℚ_[2]) (ZMod 2))
+
+/-- The `G_ℚ₂`-action on `𝔽₂` is trivial (definitionally). -/
+lemma absGal_smul_zmodTwo (g : AbsGalQ2) (m : ZMod 2) : g • m = m := rfl
+
+namespace SectionSix
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+/-! ## The local functional `ι_F = inv_{ℚ₂}`  (§6 opening display) -/
+
+/-- `−1` as an element of `μ₂ ⊂ ℚ̄₂ˣ` (additively written). -/
+def negOneMuTwo : MuN 2 :=
+  Additive.ofMul (⟨-1, by rw [mem_rootsOfUnity]; exact neg_one_sq⟩ : rootsOfUnity 2 ℚ̄₂)
+
+/-- The coefficient bridge `𝔽₂ →+ μ₂`, `1 ↦ −1`. -/
+def muTwoOfF2 : ZMod 2 →+ MuN 2 :=
+  ZMod.lift 2 ⟨zmultiplesHom (MuN 2) negOneMuTwo, by
+    show ((2 : ℕ) : ℤ) • negOneMuTwo = 0
+    rw [natCast_zsmul]
+    exact nsmul_muN_eq_zero 2 negOneMuTwo⟩
+
+/-- Galois fixes `−1 ∈ μ₂` (it lies in the base field). -/
+lemma smul_negOneMuTwo (g : AbsGalQ2) : g • negOneMuTwo = negOneMuTwo := by
+  apply Additive.toMul.injective
+  apply Subtype.ext
+  apply Units.ext
+  have hval := val_smul_units (K := ℚ_[2]) (L := ℚ̄₂)
+    (show ℚ̄₂ ≃ₐ[ℚ_[2]] ℚ̄₂ from g) (-1 : ℚ̄₂ˣ)
+  refine hval.trans ?_
+  rw [Units.val_neg, Units.val_one]
+  show (show ℚ̄₂ ≃ₐ[ℚ_[2]] ℚ̄₂ from g) • (-1 : ℚ̄₂) = -1
+  rw [AlgEquiv.smul_def, map_neg, map_one]
+
+/-- The bridge is `G_ℚ₂`-equivariant (both actions relevant: trivial on `𝔽₂`, Galois on `μ₂`). -/
+lemma muTwoOfF2_equivariant (g : AbsGalQ2) (n : ZMod 2) :
+    muTwoOfF2 (g • n) = g • muTwoOfF2 n := by
+  rw [absGal_smul_zmodTwo]
+  have hcase : ∀ x : ZMod 2, x = 0 ∨ x = 1 := by decide
+  rcases hcase n with rfl | rfl
+  · rw [map_zero, smul_zero]
+  · have h1 : muTwoOfF2 1 = negOneMuTwo := by
+      show (1 : ℤ) • negOneMuTwo = negOneMuTwo
+      rw [one_zsmul]
+    rw [h1, smul_negOneMuTwo]
+
+/-- **The local source functional `ι_F = inv_{ℚ₂} : H²(G_ℚ₂, 𝔽₂) → 𝔽₂`** (§6 opening display),
+through the `𝔽₂ ≅ μ₂` bridge and B6's invariant map (`D.inv`, `GQ2/TateDuality.lean`).
+Parametrized by a duality bundle `D : TateDuality 2`, so the statement layer stays axiom-free. -/
+def iotaF (D : TateDuality 2) : H2 AbsGalQ2 (ZMod 2) →+ ZMod 2 :=
+  D.inv.toAddMonoidHom.comp
+    (mapCoeff2 muTwoOfF2 continuous_of_discreteTopology muTwoOfF2_equivariant)
+
+/-! ## Factor-set data  (Lemma 6.1, eqs. (59)–(62)) -/
+
+section FactorSets
+
+variable (C V : Type*) [Group C] [AddCommGroup V] [DistribMulAction C V]
+
+/-- **Factor-set datum** for a `C`-module `V` (Lemma 6.1): a normalized factor set `f` together
+with the central corrections `m_c` of a chosen equivariant lift.  The defining identities
+(59)/(60) and the compatibility with a quadratic form `q` are the Prop bundle
+`IsEquivariantFactorSet` below. -/
+structure FactorSet where
+  /-- The normalized factor set `f : V × V → 𝔽₂`. -/
+  f : V → V → ZMod 2
+  /-- The equivariant-lift corrections `m_c : V → 𝔽₂` (eq. (59)/(60)). -/
+  m : C → V → ZMod 2
+
+variable {C V}
+
+/-- The identities making `(f, m)` an **equivariant factor-set datum for `q`** (Lemma 6.1):
+`f` has square map `q` and polar form `B_q`, is normalized, and `m` satisfies (59)/(60) with
+`m_1 = 0`. -/
+structure IsEquivariantFactorSet (q : V → ZMod 2) (dat : FactorSet C V) : Prop where
+  /-- `f` is a genuine **factor set**: the (trivial-action, additive) 2-cocycle identity on `V`
+  — the associativity of the central extension `E_f` (Lemma 6.1's "normalized factor set").
+  [Field added in the P-15 pass: caught by proving `graphPullback_mem_Z2`, which is false
+  without it; all of the paper's concrete factor sets ((75)/(76)/(73)/(95)) are bilinear in the
+  coordinates, hence satisfy it.  Deviation ledger updated.] -/
+  f_cocycle : ∀ v w x, dat.f (v + w) x + dat.f v w = dat.f v (w + x) + dat.f w x
+  f_diag : ∀ v, dat.f v v = q v
+  f_polar : ∀ v w, dat.f v w + dat.f w v = polar q v w
+  f_zero_left : ∀ v, dat.f 0 v = 0
+  f_zero_right : ∀ v, dat.f v 0 = 0
+  /-- Eq. (59): `m_c(v+w) + m_c(v) + m_c(w) = f(cv, cw) + f(v, w)`. -/
+  m_quad : ∀ (c : C) (v w : V),
+    dat.m c (v + w) + dat.m c v + dat.m c w = dat.f (c • v) (c • w) + dat.f v w
+  /-- Eq. (60): `m_{cd}(v) = m_c(dv) + m_d(v)`. -/
+  m_mul : ∀ (c d : C) (v : V), dat.m (c * d) v = dat.m c (d • v) + dat.m d v
+  /-- Eq. (60): `m_1 = 0`. -/
+  m_one : ∀ v, dat.m 1 v = 0
+
+/-- The **base central cocycle** `κ⁰_q` on `V ⋊ C` (eq. (61)):
+`κ⁰((v,c),(w,d)) = f(v, c·w) + m_c(w)`, as a raw function on pairs. -/
+def kappa0 (dat : FactorSet C V) : (V × C) → (V × C) → ZMod 2 :=
+  fun p q ↦ dat.f p.1 (p.2 • q.1) + dat.m p.2 q.1
+
+/-- The **graph pullback** `(b, ρ)^* κ⁰_q` (eq. (62)) along a lower map `ρ : Γ → C` and a
+1-cochain `b : Γ → V`: `(g, h) ↦ f(b(g), ρ(g)·b(h)) + m_{ρ(g)}(b(h))`.  This is the only form
+in which the base class enters the §6 statements. -/
+def graphPullback {Γ : Type*} (dat : FactorSet C V) (ρ : Γ → C) (b : Γ → V) :
+    Γ × Γ → ZMod 2 :=
+  fun p ↦ dat.f (b p.1) (ρ p.1 • b p.2) + dat.m (ρ p.1) (b p.2)
+
+/-- Pullback of a factor-set datum along an equivariant additive map `i : V →+ W`
+(the `(i ⋊ 1)^*` of eq. (77), datum level). -/
+def FactorSet.comap {W : Type*} [AddCommGroup W] [DistribMulAction C W]
+    (dat : FactorSet C W) (i : V →+ W) : FactorSet C V where
+  f v w := dat.f (i v) (i w)
+  m c v := dat.m c (i v)
+
+end FactorSets
+
+/-! ## `Q⁰_loc`: the base quadratic connecting map  (§6.3, eq. (92)) -/
+
+section Q0loc
+
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
+
+/-- **`Q⁰_loc`** (eq. (92)): `Q⁰_loc([b]) = inv_{ℚ₂}((b, ρ)^* κ⁰_q)`, on `H¹(G_ℚ₂, V)` via the
+canonical cocycle representative.  Independence of the representative (and of the datum, given
+`IsEquivariantFactorSet`) is the Lemma 6.4 content — a P-15 obligation, not baked into the
+definition.  Junk value `0` when the pullback is not a cocycle (`H2ofFun`). -/
+def Q0loc (D : TateDuality 2) (dat : FactorSet C V) (ρ : ContinuousMonoidHom AbsGalQ2 C) :
+    H1 AbsGalQ2 V → ZMod 2 :=
+  fun x ↦ iotaF D (H2ofFun AbsGalQ2 (graphPullback dat ρ (Quotient.out x).1))
+
+/-- **Well-formedness of the graph pullback** (Lemma 6.1's cocycle assertion, specialized to the
+graph (62)): for an equivariant factor-set datum and a continuous 1-cocycle `b` (with the
+`G_ℚ₂`-action on `V` acting through `ρ`), the pullback is a continuous 2-cocycle.
+Paper: Lemma 6.1, display (62).  [P-14 statement; proof P-15.] -/
+theorem graphPullback_mem_Z2 {q : V → ZMod 2} (dat : FactorSet C V)
+    (hdat : IsEquivariantFactorSet q dat) (ρ : ContinuousMonoidHom AbsGalQ2 C)
+    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v) (b : Z1 AbsGalQ2 V) :
+    graphPullback dat ρ b.1 ∈ Z2 AbsGalQ2 (ZMod 2) := by
+  obtain ⟨hbc, hb⟩ := mem_Z1_iff.mp b.2
+  refine mem_Z2_iff.mpr ⟨?_, fun g h k ↦ ?_⟩
+  · -- continuity: factor through the finite discrete triple `C × V × V`
+    have hF : Continuous fun p : AbsGalQ2 × AbsGalQ2 ↦
+        ((ρ p.1, b.1 p.1, b.1 p.2) : C × V × V) :=
+      (ρ.continuous_toFun.comp continuous_fst).prodMk
+        ((hbc.comp continuous_fst).prodMk (hbc.comp continuous_snd))
+    exact (continuous_of_discreteTopology
+      (f := fun t : C × V × V ↦ dat.f t.2.1 (t.1 • t.2.2) + dat.m t.1 t.2.2)).comp hF
+  · -- the cocycle identity: (59) + (60) + the factor-set identity, in char 2
+    rw [absGal_smul_zmodTwo]
+    show dat.f (b.1 h) (ρ h • b.1 k) + dat.m (ρ h) (b.1 k)
+        + (dat.f (b.1 g) (ρ g • b.1 (h * k)) + dat.m (ρ g) (b.1 (h * k)))
+        = dat.f (b.1 (g * h)) (ρ (g * h) • b.1 k) + dat.m (ρ (g * h)) (b.1 k)
+        + (dat.f (b.1 g) (ρ g • b.1 h) + dat.m (ρ g) (b.1 h))
+    have hbk : b.1 (h * k) = b.1 h + ρ h • b.1 k := by rw [hb h k, hρ]
+    have hbg : b.1 (g * h) = b.1 g + ρ g • b.1 h := by rw [hb g h, hρ]
+    have hρm : ρ (g * h) = ρ g * ρ h := map_mul _ _ _
+    rw [hbk, hbg, hρm, smul_add, ← mul_smul]
+    have h59 := hdat.m_quad (ρ g) (b.1 h) (ρ h • b.1 k)
+    have h60 := hdat.m_mul (ρ g) (ρ h) (b.1 k)
+    have hco := hdat.f_cocycle (b.1 g) (ρ g • b.1 h) ((ρ g * ρ h) • b.1 k)
+    rw [← mul_smul] at h59
+    linear_combination h59 - h60 - hco
+      + CharTwo.add_self_eq_zero (dat.f (b.1 h) (ρ h • b.1 k))
+      - CharTwo.add_self_eq_zero (dat.m (ρ g) (b.1 h))
+      - CharTwo.add_self_eq_zero (dat.m (ρ g) (ρ h • b.1 k))
+
+end Q0loc
+
+/-! ## The Gauss-sign pair: Wall doubling and the candidate base counts
+(§6.2: Lemma 6.6, Lemma 6.8, Proposition 6.9)
+
+The candidate base form is taken in its evaluated shape (83): `Q⁰_A = q` when the inertia image
+is trivial (`T = 1`), and `Q⁰_A = q_U = qDouble q U` with `U = S^{ω₂}` when `V^T = 0` (ramified).
+Deriving (83) from the relator ledger is Prop 6.5 = the P-12 seam (deviation note §6.5). -/
+
+section GaussSign
+
+variable {V : Type*} [AddCommGroup V] [Finite V]
+
+/-- The additive endomorphism `1 + U` of `V` (char 2). -/
+def onePlusU (U : V ≃+ V) : V →+ V :=
+  AddMonoidHom.mk' (fun v ↦ v + U v) (by
+    intro v w
+    rw [map_add]
+    abel)
+
+/-- **Lemma 6.6 (Wall doubling), eq. (86)**: for a nonsingular `q` and an orthogonal operator
+`U` of 2-power order, the doubling `q_U(x) = q(x) + B(x, Ux)` is nonsingular and
+`Arf(q_U) = Arf(q) + rank(1 + U) (mod 2)`.  The rank enters as the exponent `k` of
+`#im(1 + U) = 2^k`.  [P-14 statement; proof P-15.] -/
+theorem lemma_6_6 (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (h2 : ∀ v : V, v + v = 0)
+    (hns : Nonsingular q) (U : V ≃+ V) (hUq : ∀ v, q (U v) = q v)
+    (hU2 : ∃ n : ℕ, (⇑U)^[2 ^ n] = id) :
+    Nonsingular (qDouble q ⇑U) ∧
+      ∃ k : ℕ, Nat.card (onePlusU U).range = 2 ^ k ∧
+        arf (qDouble q ⇑U) = arf q + (k : ZMod 2) := by
+  sorry
+
+variable {Hf : Type} [Group Hf] [TopologicalSpace Hf] [DiscreteTopology Hf] [Finite Hf]
+variable [DistribMulAction Hf V]
+
+/-- **Lemma 6.8 (ramified Hermitian model and Frobenius fixed space), eqs. (87)/(88)**:
+for a faithful simple ramified tame module `V` (tame image `Hf` marked by
+`c : T_tame ↠ Hf`; inertia `T = c(τ) ≠ 1`; `V|_⟨T⟩ ≅ W^{⊕s}` isotypic with
+`#W = 2^f`, `f = 2^a·r`, `r` odd, `a ≥ 1`) and an `Hf`-invariant nonsingular `q`:
+
+* (87) `Arf(q) ≡ s (mod 2)`;
+* (88) `#V^U = 2^{rs}` and `rank(1 + U) ≡ s (mod 2)`, for `U = S^{ω₂} = powOmega2 (c σ)`;
+* consequently `Arf(q_U) = 0` (the ramified candidate base form of (83)).
+
+[P-14 statement; proof P-15.] -/
+theorem lemma_6_8 (c : ContinuousMonoidHom Ttame Hf) (hc : Function.Surjective c)
+    (hfaith : ∀ h : Hf, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : Hf), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : c tameTau ≠ 1)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant Hf q)
+    (s r a : ℕ) (hr : Odd r) (ha : 1 ≤ a)
+    (Wt : Type) [AddCommGroup Wt] [DistribMulAction (Subgroup.zpowers (c tameTau)) Wt]
+    (hWcard : Nat.card Wt = 2 ^ (2 ^ a * r))
+    (e : V ≃+ (Fin s → Wt))
+    (he : ∀ (t : Subgroup.zpowers (c tameTau)) (v : V) (j : Fin s),
+      e ((t : Hf) • v) j = t • e v j) :
+    arf q = (s : ZMod 2) ∧
+      Nat.card {v : V // powOmega2 (c tameSigma) • v = v} = 2 ^ (r * s) ∧
+      (∃ k : ℕ,
+        Nat.card (onePlusU (DistribMulAction.toAddEquiv V (powOmega2 (c tameSigma)))).range
+            = 2 ^ k ∧
+          (k : ZMod 2) = (s : ZMod 2)) ∧
+      arf (qDouble q (powOmega2 (c tameSigma) • ·)) = 0 := by
+  sorry
+
+/-- **Proposition 6.9 (candidate base determinant zero count), eq. (91), unramified case**:
+if inertia acts trivially (`c(τ) = 1`, so `Q⁰_A = q` by (83)) and `#V = 2^{2m}`, then
+`#(Q⁰_A)⁻¹(0) = 2^{2m−1} − 2^{m−1}` (negative Gauss sign).  [P-14 statement; proof P-15.] -/
+theorem prop_6_9_unramified (c : ContinuousMonoidHom Ttame Hf) (hc : Function.Surjective c)
+    (hfaith : ∀ h : Hf, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : Hf), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hV : ∃ v : V, v ≠ 0) (hunram : c tameTau = 1)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant Hf q)
+    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
+    zeroCount q = 2 ^ (2 * m - 1) - 2 ^ (m - 1) := by
+  sorry
+
+/-- **Proposition 6.9, eq. (91), ramified case**: if inertia acts nontrivially
+(`Q⁰_A = q_U`, `U = S^{ω₂}`, by (83)) and `#V = 2^{2m}`, then
+`#(Q⁰_A)⁻¹(0) = 2^{2m−1} + 2^{m−1}` (positive Gauss sign).  [P-14 statement; proof P-15.] -/
+theorem prop_6_9_ramified (c : ContinuousMonoidHom Ttame Hf) (hc : Function.Surjective c)
+    (hfaith : ∀ h : Hf, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : Hf), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : c tameTau ≠ 1)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant Hf q)
+    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
+    zeroCount (qDouble q (powOmega2 (c tameSigma) • ·)) = 2 ^ (2 * m - 1) + 2 ^ (m - 1) := by
+  sorry
+
+end GaussSign
+
+/-! ## Lemma 6.13: the universal two-point class and the index-two Evens norm
+
+The repo *defines* the index-two Evens norm by the two-point graph cocycle (98)
+(`GQ2/EvensKahn.lean`, per the T-18 design), so the paper's eq. (99) is definitional here.
+The remaining 6.13 content is the universal model: the explicit `κ_J` on `E ⋊ J`
+(eq. (95)), its `D₈` fibre extension, and eq. (96) `[κ_J] = N^{Ev}(e₁^∨)`.
+Eq. (100) is folded into 6.15's (105) (deviation note). -/
+
+section TwoPoint
+
+/-- The swap module `E = 𝔽₂e₁ ⊕ 𝔽₂e_s` with `J = C₂` acting by the coordinate swap
+(Lemma 6.13).  The acting group is `Multiplicative (ZMod 2)`. -/
+abbrev swapE : Type := ZMod 2 × ZMod 2
+
+/-- The swap action function: `c · v = v` for `c = 1` and `v.swap` for the involution. -/
+def swapSmul (c : Multiplicative (ZMod 2)) (v : swapE) : swapE :=
+  if c.toAdd = 0 then v else v.swap
+
+instance : SMul (Multiplicative (ZMod 2)) swapE := ⟨swapSmul⟩
+
+@[simp] lemma swapSmul_def (c : Multiplicative (ZMod 2)) (v : swapE) :
+    c • v = if c.toAdd = 0 then v else v.swap := rfl
+
+/-- The swap action of `J = Multiplicative (ZMod 2)` on `E`. -/
+instance : DistribMulAction (Multiplicative (ZMod 2)) swapE where
+  smul := (· • ·)
+  one_smul v := by
+    rw [swapSmul_def, if_pos (by decide : (1 : Multiplicative (ZMod 2)).toAdd = 0)]
+  mul_smul c d v := by
+    have hcase : ∀ x : ZMod 2, x = 0 ∨ x = 1 := by decide
+    rw [swapSmul_def, swapSmul_def, swapSmul_def]
+    rcases hcase c.toAdd with hc | hc <;> rcases hcase d.toAdd with hd | hd <;>
+      simp +decide [toAdd_mul, hc, hd, Prod.swap]
+  smul_zero c := by
+    rw [swapSmul_def]
+    split <;> rfl
+  smul_add c v w := by
+    rw [swapSmul_def, swapSmul_def, swapSmul_def]
+    split <;> rfl
+
+/-- The factor-set datum of the universal two-point class (Lemma 6.13):
+`f_J(x, y) = x₁·y_s`, `m_1 = 0`, `m_s(y) = y₁·y_s`. -/
+def twoPointDatum : FactorSet (Multiplicative (ZMod 2)) swapE where
+  f x y := x.1 * y.2
+  m c y := if c.toAdd = 0 then 0 else y.1 * y.2
+
+/-- The central extension of a finite elementary abelian group by `𝔽₂` attached to a raw
+factor set `f`: the carrier `A × 𝔽₂` with `(v,z)·(w,t) = (v+w, z+t+f(v,w))`.  A `Group`
+instance is available exactly when `f` is a normalized 2-cocycle; for the concrete two-point
+`f_J` this is decidable (`twoPointExtGroup`). -/
+def CentralExt (A : Type*) (_f : A → A → ZMod 2) : Type _ := A × ZMod 2
+
+/-- The twisted multiplication on `CentralExt`. -/
+instance {A : Type*} [AddCommGroup A] (f : A → A → ZMod 2) : Mul (CentralExt A f) :=
+  ⟨fun p q ↦ (p.1 + q.1, p.2 + q.2 + f p.1 q.1)⟩
+
+/-- The fibre extension of the two-point class: `E_{f_J} = E × 𝔽₂` with the
+`f_J`-twisted multiplication. -/
+abbrev twoPointExt : Type := CentralExt swapE (twoPointDatum.f)
+
+instance : DecidableEq twoPointExt :=
+  inferInstanceAs (DecidableEq (swapE × ZMod 2))
+
+instance : Fintype twoPointExt := inferInstanceAs (Fintype (swapE × ZMod 2))
+
+/-- The group structure on the two-point fibre extension — the axioms are kernel-checked finite
+computations over the 8 elements (`decide`; the board's convention allows it, `native_decide`
+does not appear). -/
+instance twoPointExtGroup : Group twoPointExt where
+  mul := (· * ·)
+  one := ((0, 0), 0)
+  inv p := (-p.1, p.2 + twoPointDatum.f p.1 (-p.1))
+  mul_assoc := by decide
+  one_mul := by decide
+  mul_one := by decide
+  inv_mul_cancel := by decide
+
+/-- The exponent table of the powers of `a = ẽ₁ẽ_s` in `twoPointExt`: `a^i` has fibre
+coordinates `(i, i)` and central coordinate `1` exactly for `i ∈ {1, 2}`. -/
+private def dihedralToTwoPoint : DihedralGroup 4 → twoPointExt
+  | .r i => ((((i.val : ZMod 2)), ((i.val : ZMod 2))), (((i.val + 1) / 2 : ℕ) : ZMod 2))
+  | .sr i => ((((i.val : ZMod 2)) + 1, ((i.val : ZMod 2))),
+      (((i.val + 1) / 2 : ℕ) : ZMod 2) + ((i.val : ZMod 2)))
+
+/-- The exponent-table map as a monoid hom (kernel-checked). -/
+private def dihedralHom : DihedralGroup 4 →* twoPointExt where
+  toFun := dihedralToTwoPoint
+  map_one' := by decide
+  map_mul' := by decide
+
+/-- **Lemma 6.13, the `D₈` claim**: the fibre extension of the universal two-point class is the
+dihedral group of order 8 — via the explicit exponent-table map `r ↦ ẽ₁ẽ_s`, `sr 0 ↦ ẽ₁`;
+all axioms are kernel-checked finite computations.  Paper: Lemma 6.13.  [P-15.] -/
+theorem lemma_6_13_dihedral : Nonempty (twoPointExt ≃* DihedralGroup 4) :=
+  ⟨(MulEquiv.ofBijective dihedralHom (by decide)).symm⟩
+
+/-- The semidirect product `V ⋊ C` of an additive `C`-module, on the carrier `V × C` with
+`(v,c)·(w,d) = (v + c·w, cd)` — the group all §6 base classes live on (Lemma 6.1, display (66)).
+A bespoke synonym (rather than Mathlib's `SemidirectProduct`) avoids `Multiplicative` wrappers on
+the fibre; the paper's formulas transcribe verbatim. -/
+def SemiProd (C V : Type*) [Group C] [AddCommGroup V] [DistribMulAction C V] : Type _ := V × C
+
+namespace SemiProd
+
+variable {C V : Type*} [Group C] [AddCommGroup V] [DistribMulAction C V]
+
+instance : Mul (SemiProd C V) := ⟨fun p q ↦ (p.1 + p.2 • q.1, p.2 * q.2)⟩
+instance : One (SemiProd C V) := ⟨((0 : V), (1 : C))⟩
+instance : Inv (SemiProd C V) := ⟨fun p ↦ (-(p.2⁻¹ • p.1), p.2⁻¹)⟩
+
+@[simp] lemma mul_def (a b : SemiProd C V) : a * b = (a.1 + a.2 • b.1, a.2 * b.2) := rfl
+
+@[simp] lemma one_def : (1 : SemiProd C V) = ((0 : V), (1 : C)) := rfl
+
+@[simp] lemma inv_def (a : SemiProd C V) : a⁻¹ = (-(a.2⁻¹ • a.1), a.2⁻¹) := rfl
+
+instance : Group (SemiProd C V) :=
+  Group.ofLeftAxioms
+    (fun p q r ↦ by simp [mul_def, smul_add, mul_smul, add_assoc, mul_assoc])
+    (fun p ↦ by simp [mul_def, one_def])
+    (fun p ↦ by simp [mul_def, inv_def, one_def])
+
+/-- The fibre subgroup `V × {1} ≤ V ⋊ C`. -/
+def fibre : Subgroup (SemiProd C V) where
+  carrier := {p | p.2 = 1}
+  one_mem' := rfl
+  mul_mem' := by
+    intro a b (ha : a.2 = 1) (hb : b.2 = 1)
+    show a.2 * b.2 = 1
+    rw [ha, hb, one_mul]
+  inv_mem' := by
+    intro a (ha : a.2 = 1)
+    show a.2⁻¹ = 1
+    rw [ha, inv_one]
+
+instance : TopologicalSpace (SemiProd C V) := ⊥
+instance : DiscreteTopology (SemiProd C V) := ⟨rfl⟩
+
+/-- The trivial action of `V ⋊ C` on `𝔽₂` (every action on `ℤ/2` is trivial). -/
+instance : DistribMulAction (SemiProd C V) (ZMod 2) where
+  smul _ m := m
+  one_smul _ := rfl
+  mul_smul _ _ _ := rfl
+  smul_zero _ := rfl
+  smul_add _ _ _ := rfl
+
+instance : ContinuousSMul (SemiProd C V) (ZMod 2) := ⟨continuous_snd⟩
+
+end SemiProd
+
+/-- The first-coordinate functional `e₁^∨` on the fibre subgroup of `E ⋊ J`. -/
+def fibreCoord (u : (SemiProd.fibre : Subgroup (SemiProd (Multiplicative (ZMod 2)) swapE))) :
+    ZMod 2 :=
+  ((u : SemiProd (Multiplicative (ZMod 2)) swapE) : swapE × Multiplicative (ZMod 2)).1.1
+
+/-- **Lemma 6.13, eq. (96)**: on `E ⋊ J`, the class of the explicit two-point cocycle `κ_J`
+(eq. (95) — `kappa0 twoPointDatum` as a raw function on the `SemiProd` carrier) **is** the
+index-two Evens norm of the first coordinate functional `e₁^∨ ∈ H¹(E, 𝔽₂)`.  Since the repo
+*defines* the Evens norm by the two-point graph cocycle (98) (`GQ2/EvensKahn.lean`, so the
+paper's (99) is definitional), this statement is the normalization anchoring that definition to
+the paper's universal model.  Quantified over the side-condition proofs `evensNormH2` takes.
+[P-14 statement; proof P-15.] -/
+theorem lemma_6_13_evens
+    (sJ : SemiProd (Multiplicative (ZMod 2)) swapE)
+    (hsJ : sJ = ((0 : swapE), Multiplicative.ofAdd (1 : ZMod 2)))
+    (hUi : (SemiProd.fibre : Subgroup (SemiProd (Multiplicative (ZMod 2)) swapE)).index = 2)
+    (hUo : IsOpen ((SemiProd.fibre :
+        Subgroup (SemiProd (Multiplicative (ZMod 2)) swapE)) :
+        Set (SemiProd (Multiplicative (ZMod 2)) swapE)))
+    (hs : sJ ∉ (SemiProd.fibre : Subgroup (SemiProd (Multiplicative (ZMod 2)) swapE)))
+    (htriv : ∀ (g : SemiProd (Multiplicative (ZMod 2)) swapE) (m : ZMod 2), g • m = m)
+    (hα : ∀ u v, fibreCoord (u * v) = fibreCoord u + fibreCoord v)
+    (hαc : Continuous fibreCoord) :
+    H2ofFun (SemiProd (Multiplicative (ZMod 2)) swapE)
+        (fun p ↦ kappa0 twoPointDatum p.1 p.2)
+      = evensNormH2 htriv hUo hUi hs fibreCoord hα hαc := by
+  subst hsJ
+  have hcase : ∀ x : ZMod 2, x = 0 ∨ x = 1 := by decide
+  have hmemU : ∀ x : SemiProd (Multiplicative (ZMod 2)) swapE,
+      x ∈ SemiProd.fibre ↔ x.2 = 1 := fun _ ↦ Iff.rfl
+  -- `b₁((v,c)) = v₁` in both membership branches
+  have ha1 : ∀ x : SemiProd (Multiplicative (ZMod 2)) swapE,
+      evensAux SemiProd.fibre ((0 : swapE), Multiplicative.ofAdd (1 : ZMod 2))
+        fibreCoord x = x.1.1 := by
+    intro x
+    by_cases hx : x ∈ SemiProd.fibre
+    · rw [evensAux_of_mem fibreCoord hx]; rfl
+    · rw [evensAux_of_notMem hUi hs fibreCoord hx]
+      simp [fibreCoord, SemiProd.mul_def]
+  -- `b_s((w,d)) = w₂` in both branches
+  have hbs : ∀ x : SemiProd (Multiplicative (ZMod 2)) swapE,
+      bS SemiProd.fibre ((0 : swapE), Multiplicative.ofAdd (1 : ZMod 2))
+        fibreCoord x = x.1.2 := by
+    intro x
+    simp only [bS]
+    rw [ha1]
+    simp +decide [SemiProd.mul_def, SemiProd.inv_def, Prod.swap]
+  -- the two raw cocycles coincide on the nose
+  have hfun : (fun p : SemiProd (Multiplicative (ZMod 2)) swapE ×
+        SemiProd (Multiplicative (ZMod 2)) swapE ↦ kappa0 twoPointDatum p.1 p.2)
+      = evensNormFun SemiProd.fibre
+          ((0 : swapE), Multiplicative.ofAdd (1 : ZMod 2)) fibreCoord := by
+    funext p
+    rw [evensNormFun]
+    by_cases hp : p.1 ∈ SemiProd.fibre
+    · rw [if_pos hp, ha1, hbs]
+      have h1 : p.1.2 = 1 := (hmemU p.1).mp hp
+      show kappa0 twoPointDatum p.1 p.2 = _
+      rw [kappa0]
+      show twoPointDatum.f p.1.1 (p.1.2 • p.2.1) + twoPointDatum.m p.1.2 p.2.1 = _
+      rw [h1]
+      simp +decide [twoPointDatum]
+    · rw [if_neg hp, ha1, ha1, hbs]
+      have h1 : p.1.2 = Multiplicative.ofAdd 1 := by
+        rcases hcase p.1.2.toAdd with h | h
+        · exact absurd ((hmemU p.1).mpr (by
+            have h0 : p.1.2 = Multiplicative.ofAdd (0 : ZMod 2) := by
+              rw [← h]
+              exact (ofAdd_toAdd _).symm
+            simpa using h0)) hp
+        · rw [← h]
+          exact (ofAdd_toAdd _).symm
+      show kappa0 twoPointDatum p.1 p.2 = _
+      rw [kappa0]
+      show twoPointDatum.f p.1.1 (p.1.2 • p.2.1) + twoPointDatum.m p.1.2 p.2.1 = _
+      rw [h1]
+      simp +decide [twoPointDatum, Prod.swap]
+  have hmem : (fun p : SemiProd (Multiplicative (ZMod 2)) swapE ×
+        SemiProd (Multiplicative (ZMod 2)) swapE ↦ kappa0 twoPointDatum p.1 p.2)
+      ∈ Z2 (SemiProd (Multiplicative (ZMod 2)) swapE) (ZMod 2) := by
+    rw [hfun]
+    exact evensNormFun_mem_Z2 htriv hUo hUi hs fibreCoord hα hαc
+  rw [H2ofFun_of_mem hmem]
+  exact congrArg (H2mk _ _) (Subtype.ext hfun)
+
+end TwoPoint
+
+/-! ## Lemma 6.15: the quadratic orbit–stabilizer Shapiro ledger  (eqs. (103)–(105))
+
+Stated per orbit type on a single regular summand `W = 𝔽₂[G/N]` (the multi-orbit assembly is
+additivity of `graphPullback` in the datum; deviation note).  Here `G` is the ambient (profinite)
+group, `N ◁ G` open of finite index (`K/F` Galois with group `G/N`), `α ∈ Z¹(N, 𝔽₂)` the scalar
+Shapiro coordinate, and `b = Sh(α)` the normalized Shapiro cochain (`GQ2/Corestriction.lean`). -/
+
+section Shapiro
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
+variable (N : Subgroup G) [N.Normal]
+
+/-- The regular permutation module `𝔽₂[G/N]` (coordinates `X_h`, `h ∈ G/N`), as a type synonym
+carrying the left-regular action `(c·x)_h = x_{c⁻¹h}` (Lemma 6.2's convention). -/
+def RegRep : Type _ := (G ⧸ N) → ZMod 2
+
+instance : AddCommGroup (RegRep N) := inferInstanceAs (AddCommGroup ((G ⧸ N) → ZMod 2))
+
+/-- The left-regular action on `𝔽₂[G/N]`. -/
+instance : DistribMulAction (G ⧸ N) (RegRep N) where
+  smul c x := fun h ↦ x (c⁻¹ * h)
+  one_smul x := by funext h; show x _ = x h; rw [inv_one, one_mul]
+  mul_smul c d x := by funext h; show x _ = x _; rw [mul_inv_rev, mul_assoc]
+  smul_zero c := rfl
+  smul_add c x y := rfl
+
+/-- The **square-orbit datum** `S` (eq. (75)): `f(x,y) = Σ_h x_h y_h`, `m = 0`. -/
+def squareOrbitDatum : FactorSet (G ⧸ N) (RegRep N) where
+  f x y := ∑ᶠ h : G ⧸ N, x h * y h
+  m _ _ := 0
+
+/-- The **free-orbit datum** `C_{j,k,ḡ}` (eq. (76)) on two regular summands with shift `ḡ`:
+`f((x,x'),(y,y')) = Σ_h x_h y'_{hḡ}`, `m = 0`. -/
+def freeOrbitDatum (gbar : G ⧸ N) : FactorSet (G ⧸ N) (RegRep N × RegRep N) where
+  f x y := ∑ᶠ h : G ⧸ N, x.1 h * y.2 (h * gbar)
+  m _ _ := 0
+
+/-- The **involution-orbit datum** `E_ḡ` (Lemma 6.2, eqs. (67)–(70)) for an involution
+`ḡ ∈ G/N`: with `R` the canonical transversal of the `⟨ḡ⟩`-cosets,
+`f_g(x,y) = Σ_{u∈R} x_u y_{uḡ}` and `m^g_c(x) = Σ_{u∈R} ε_c(u)·x_{π_c(u)} x_{π_c(u)ḡ}`
+(orientation bookkeeping (67) via the canonical representatives). -/
+def invOrbitDatum (gbar : G ⧸ N) : FactorSet (G ⧸ N) (RegRep N) where
+  f x y := ∑ᶠ u : (G ⧸ N) ⧸ Subgroup.zpowers gbar, x u.out * y (u.out * gbar)
+  m c x := ∑ᶠ u : (G ⧸ N) ⧸ Subgroup.zpowers gbar,
+    (if c⁻¹ * u.out = ((c⁻¹ * u.out : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers gbar).out
+      then 0 else 1) *
+      (x ((c⁻¹ * u.out : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers gbar).out *
+        x ((((c⁻¹ * u.out : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers gbar).out) * gbar))
+
+variable [Finite (G ⧸ N)]
+
+/-- **Lemma 6.15, eq. (103) (square orbits)**: the graph pullback of the square-orbit datum at
+the Shapiro cochain of `α` is the corestriction of the cup square `α ⌣ α`.
+[P-14 statement; proof P-15.] -/
+theorem lemma_6_15_square (hNo : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) :
+    H2ofFun G (graphPullback (squareOrbitDatum N) (QuotientGroup.mk' N) (shapiroFun N α.1))
+      = H2ofFun G (cor2Fun N (fun p ↦ α.1 p.1 * α.1 p.2)) := by
+  sorry
+
+/-- **Lemma 6.15, eq. (104) (free orbits)**: the graph pullback of the free-orbit datum with
+shift `ḡ` at the Shapiro cochains of `α, β` is the corestriction of `α ⌣ ḡβ` (`ḡβ` = conjugate
+cocycle through a lift `ĝ` of `ḡ`).  [P-14 statement; proof P-15.] -/
+theorem lemma_6_15_free (hNo : IsOpen (N : Set G)) (α β : Z1 N (ZMod 2)) (ghat : G) :
+    H2ofFun G (graphPullback (freeOrbitDatum N (QuotientGroup.mk' N ghat))
+        (QuotientGroup.mk' N) (fun γ ↦ (shapiroFun N α.1 γ, shapiroFun N β.1 γ)))
+      = H2ofFun G (cor2Fun N (fun p ↦ α.1 p.1 *
+          β.1 ⟨ghat⁻¹ * (p.2 : G) * ghat, by
+            simpa using Subgroup.Normal.conj_mem ‹N.Normal› _ p.2.2 ghat⁻¹⟩)) := by
+  sorry
+
+/-- **Lemma 6.15, eq. (105) (involution orbits)**: for an involution `ḡ = mk ĝ` of `G/N`, the
+graph pullback of the involution-orbit datum at the Shapiro cochain of `α` is
+`cor_{K₀/F} N^{Ev}_{K/K₀}(α)`, where `U₀ = ⟨N, ĝ⟩` is the index-2-over-`N` subgroup (fixed field
+`K₀ = K^{⟨ḡ⟩}`) and the Evens norm is the repo's two-point graph cocycle (98).  This statement
+also absorbs the paper's eq. (100) (deviation note).  Quantified over the membership/side proofs.
+[P-14 statement; proof P-15.] -/
+theorem lemma_6_15_involution (hNo : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) (ghat : G)
+    (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
+    (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat)
+    (hs : (⟨ghat, by rw [hU₀]; exact Subgroup.mem_sup_right (Subgroup.mem_zpowers ghat)⟩ : U₀)
+        ∉ N.subgroupOf U₀) :
+    H2ofFun G (graphPullback (invOrbitDatum N (QuotientGroup.mk' N ghat))
+        (QuotientGroup.mk' N) (shapiroFun N α.1))
+      = H2ofFun G (cor2Fun U₀ (fun p ↦
+          evensNormFun (N.subgroupOf U₀)
+            ⟨ghat, by rw [hU₀]; exact Subgroup.mem_sup_right (Subgroup.mem_zpowers ghat)⟩
+            (fun u ↦ α.1 ⟨u.1.1, u.2⟩) (p.1, p.2))) := by
+  sorry
+
+end Shapiro
+
+/-! ## The Hilbert ledger: deep units  (Lemma 6.16 → Lemma 6.17 → Proposition 6.18) -/
+
+section DeepUnits
+
+/-- **Deep unit** relative to a subgroup `N ≤ G_ℚ₂` with fixed field `K` (§6.3, eqs. (93)/(94)):
+`A ∈ U_{e+1}(K) ⊂ K^×/K^{×2}` via the representative `A = 1 + 2b`, `b ∈ 𝔭_K` — phrased through
+the spectral norm on `ℚ̄₂` (`‖b‖ < 1 ⟺ v_K(b) ≥ 1`, so `‖A − 1‖ < ‖2‖ ⟺ v_K(A−1) ≥ e+1`,
+`e = v_K(2)`); `K`-rationality of `A` and `b` is `N`-fixedness.  No ramification-index
+bookkeeping is needed. -/
+def IsDeepUnit (N : Subgroup (Kummer.GaloisGroup ℚ_[2])) (A : ℚ̄₂) : Prop :=
+  A ≠ 0 ∧ (∀ g ∈ N, g • A = A) ∧
+    ∃ b : ℚ̄₂, (∀ g ∈ N, g • b = b) ∧ A = 1 + 2 * b ∧ ‖b‖ < 1
+
+/-- **Lemma 6.16 (deep-unit Evens norm), eq. (110)**: for an unramified quadratic extension
+`L/k` of finite dyadic local fields (encoded: `G_L ≤ G_k` of index 2, equal norm value groups)
+and a deep unit `a ∈ U_{e+1}(L)`, the index-two Evens norm of the Kummer class `[a]` vanishes:
+`N^{Ev}_{L/k}([a]) = 0` in `H²(G_k, 𝔽₂)`.
+
+The Evens norm is the repo's `evensNormH2Z` (the two-point graph cocycle (98)); the proof route
+is the Hilbert-symbol ledger (111)–(114) through axiom B9 and `GQ2/HilbertSymbol.lean`
+(P-15, Ax: B7′, B9).  Quantified over the side-condition proofs.  [P-14 statement.] -/
+theorem lemma_6_16 (k L : IntermediateField ℚ_[2] ℚ̄₂)
+    (hkL : k ≤ L)
+    (hindex : ((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)).index = 2)
+    (hunram : ∀ x : ℚ̄₂, x ≠ 0 → x ∈ L → ∃ y : ℚ̄₂, y ≠ 0 ∧ y ∈ k ∧ ‖x‖ = ‖y‖)
+    (A β : ℚ̄₂) (hdeep : IsDeepUnit L.fixingSubgroup A) (hβ : β ^ 2 = A) (hβ0 : β ≠ 0)
+    (s : k.fixingSubgroup) (hs : s ∉ (L.fixingSubgroup).subgroupOf (k.fixingSubgroup))
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (hUo : IsOpen (((L.fixingSubgroup).subgroupOf (k.fixingSubgroup) :
+        Subgroup k.fixingSubgroup) : Set k.fixingSubgroup))
+    (hα : ∀ u v : (L.fixingSubgroup).subgroupOf (k.fixingSubgroup),
+      Kummer.kummerCocycleFun β ((u * v : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2])
+        = Kummer.kummerCocycleFun β ((u : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2])
+          + Kummer.kummerCocycleFun β ((v : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]))
+    (hαc : Continuous fun u : (L.fixingSubgroup).subgroupOf (k.fixingSubgroup) ↦
+      Kummer.kummerCocycleFun β ((u : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2])) :
+    evensNormH2 htriv hUo hindex hs
+      (fun u ↦ Kummer.kummerCocycleFun β ((u : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]))
+      hα hαc = 0 := by
+  sorry
+
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
+
+/-- **The deep half `X₊`** (Lemma 6.17): the classes `x ∈ H¹(G_ℚ₂, V)` all of whose scalar
+Kummer coordinates are deep units — for every functional `φ ∈ V^∨`, the restriction of `φ∘x`
+to `N = ker ρ` (`= G_K`, `K` the splitting field) is the Kummer class of a deep unit of `K`.
+Encodes `X₊ = Hom_{H_V}(V^∨, U_{e+1}) ⊂ H¹(ℚ₂, V)` without the Kummer-theoretic
+identification of `H¹` (which is proof-side, P-15). -/
+def deepPart (ρ : ContinuousMonoidHom AbsGalQ2 C) : Set (H1 AbsGalQ2 V) :=
+  {x | ∀ φ : V →+ ZMod 2,
+    ∃ (A β : ℚ̄₂) (_ : IsDeepUnit (ρ.toMonoidHom.ker :
+        Subgroup AbsGalQ2) A) (_ : β ^ 2 = A) (_ : β ≠ 0),
+      H1ofFun ρ.toMonoidHom.ker
+          (fun n ↦ Kummer.kummerCocycleFun β (n : AbsGalQ2))
+        = H1ofFun ρ.toMonoidHom.ker (fun n ↦ φ ((Quotient.out x).1 (n : AbsGalQ2)))}
+
+/-- **Lemma 6.17 (the deep half is totally singular), dimension clause**: for a ramified module
+(inertia acts nontrivially through the tame lower map), `dim X₊ = ½ dim H¹(ℚ₂, V)` — stated
+multiplicatively: `#X₊² = #H¹`.  [P-14 statement; proof P-15, Ax: B6, B7.] -/
+theorem lemma_6_17_dim (B : BoundaryMaps) (c : ContinuousMonoidHom Ttame C)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
+    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, c tameTau • v ≠ v) :
+    Nat.card (deepPart (V := V) ρ) ^ 2 = Nat.card (H1 AbsGalQ2 V) := by
+  sorry
+
+/-- **Lemma 6.17, vanishing clause**: the base connecting map `Q⁰_loc` vanishes on the deep
+half `X₊` (free orbits die by (94), square orbits by `−1 ∈ U_e`, involution orbits by
+Lemma 6.16 through Lemmas 6.14/6.15).  [P-14 statement; proof P-15, Ax: B6, B7′, B9.] -/
+theorem lemma_6_17_vanish (D : TateDuality 2) (B : BoundaryMaps)
+    (c : ContinuousMonoidHom Ttame C)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
+    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, c tameTau • v ≠ v)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat) :
+    ∀ x ∈ deepPart (V := V) ρ, Q0loc D dat ρ x = 0 := by
+  sorry
+
+/-- **Proposition 6.18 (dyadic base determinant theorem), eq. (115), ramified case**: the local
+base determinant form has the positive Gauss sign,
+`#(Q⁰_loc)⁻¹(0) = 2^{2m−1} + 2^{m−1}` (`#V = 2^{2m}`).  With Prop 6.9 this is Corollary
+6.19(iv): the two sources have equal base Gauss sums.  [P-14 statement; proof P-15 (hyperbolicity
+via Lemma 6.17), Ax: B6, B7, B7′, B9.] -/
+theorem prop_6_18_ramified (D : TateDuality 2) (B : BoundaryMaps)
+    (c : ContinuousMonoidHom Ttame C)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
+    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, c tameTau • v ≠ v)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
+    Nat.card {x : H1 AbsGalQ2 V // Q0loc D dat ρ x = 0}
+      = 2 ^ (2 * m - 1) + 2 ^ (m - 1) := by
+  sorry
+
+/-- **Proposition 6.18, eq. (115), unramified case**: negative Gauss sign,
+`#(Q⁰_loc)⁻¹(0) = 2^{2m−1} − 2^{m−1}`.  [P-14 statement; proof P-15 (Hermitian-line model,
+Lemmas 6.4/6.7), Ax: B6, B7.] -/
+theorem prop_6_18_unramified (D : TateDuality 2) (B : BoundaryMaps)
+    (c : ContinuousMonoidHom Ttame C)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
+    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hV : ∃ v : V, v ≠ 0)
+    (hunram : ∀ v : V, c tameTau • v = v)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
+    Nat.card {x : H1 AbsGalQ2 V // Q0loc D dat ρ x = 0}
+      = 2 ^ (2 * m - 1) - 2 ^ (m - 1) := by
+  sorry
+
+/-- **Lemma 6.14 (regular-module realization), eq. (102)**: the base connecting map computed
+through an equivariant split embedding `i : V →+ W` into a regular-type module agrees with the
+`W`-level map at the pushed class: `Q⁰_{loc, i^*dat_W}(x) = Q⁰_{loc, dat_W}(i_* x)`.
+[P-14 statement; proof P-15 — the pullback identity (77) under the graph.] -/
+theorem lemma_6_14 (D : TateDuality 2)
+    {W : Type} [AddCommGroup W] [TopologicalSpace W] [DiscreteTopology W] [Finite W]
+    [DistribMulAction AbsGalQ2 W] [ContinuousSMul AbsGalQ2 W] [DistribMulAction C W]
+    (datW : FactorSet C W) (ρ : ContinuousMonoidHom AbsGalQ2 C)
+    (i : V →+ W) (hic : Continuous i) (hicompat : ∀ (g : AbsGalQ2) (v : V), i (g • v) = g • i v)
+    (x : H1 AbsGalQ2 V) :
+    Q0loc D (datW.comap i) ρ x = Q0loc D datW ρ (mapCoeff1 i hic hicompat x) := by
+  sorry
+
+end DeepUnits
+
+/-! ## Transgression and the marking-preserving shear  (§6.4: Lemmas 6.21, 6.22) -/
+
+section Transgression
+
+variable {C : Type} [Group C] [Finite C]
+variable {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
+
+/-- **Lemma 6.21 (determinant transgression), consequence form**: if a finite extension
+`1 → V → B → C → 1` (encoded: `p : B ↠ C` with central-kernel data `i`) admits a class
+`ξ ∈ Z²(B, 𝔽₂)` whose fibre restriction has square map a **nonsingular** `q` (i.e.
+`ξ(i v, i v) = q v`), then the extension splits: `B ≅ V ⋊ C` over `C`.  The paper's obstruction
+formula `d₂(q) = B_q^♭∘η` (eq. (116)) is the proof mechanism (P-15); only the splitting
+consequence is consumed (§§8–9).  Deviation note.  [P-14 statement; proof P-15.] -/
+theorem lemma_6_21 {B : Type} [Group B] [Finite B]
+    (p : B →* C) (hp : Function.Surjective p)
+    (i : Multiplicative V →* B) (hi : Function.Injective i)
+    (hrange : i.range = p.ker)
+    (hconj : ∀ (b : B) (v : V), b * i (Multiplicative.ofAdd v) * b⁻¹
+      = i (Multiplicative.ofAdd (p b • v)))
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
+    (ξ : B × B → ZMod 2)
+    (hcocycle : ∀ g h k : B, ξ (h, k) + ξ (g, h * k) = ξ (g * h, k) + ξ (g, h))
+    (hξq : ∀ v : V, ξ (i (Multiplicative.ofAdd v), i (Multiplicative.ofAdd v)) = q v) :
+    ∃ s : C →* B, ∀ cc : C, p (s cc) = cc := by
+  sorry
+
+/-- The filtration-one difference term `Γ_γ` (eq. (64)) as a raw function on the product
+carrier `V × C`: `Γ_γ((v,c),(w,d)) = γ(c)(c·w)`. -/
+def gammaEdge (γ : C → V →+ ZMod 2) : (V × C) → (V × C) → ZMod 2 :=
+  fun p q ↦ γ p.2 (p.2 • q.1)
+
+/-- The inflated scalar term `inf δ` as a raw function on `V × C`. -/
+def inflScalar (δ : C × C → ZMod 2) : (V × C) → (V × C) → ZMod 2 :=
+  fun p q ↦ δ (p.2, q.2)
+
+/-- The shear `s_a(v, c) = (v + a(c), c)` (Lemma 6.22). -/
+def shear (a : C → V) : V × C → V × C := fun p ↦ (p.1 + a p.2, p.2)
+
+/-- The base phase term `Θ⁰_q(a) = (a, id_C)^* κ⁰_q` (eq. (122)), a raw function on `C × C`. -/
+def thetaPhase (dat : FactorSet C V) (a : C → V) : C × C → ZMod 2 :=
+  graphPullback dat id a
+
+/-- The mixed term `(γ ⌣ a)(c, d) = γ(c)(c·a(d))` (eq. (123)). -/
+def gammaCupA (γ : C → V →+ ZMod 2) (a : C → V) : C × C → ZMod 2 :=
+  fun p ↦ γ p.1 (p.1 • a p.2)
+
+/-- **Lemma 6.22 (marking-preserving shear), eq. (121)**: pulling a general determinant class
+`κ = κ⁰_q + Γ_γ + inf δ` back along the shear `s_a` (for a 1-cocycle `a ∈ Z¹(C, V)`) shifts the
+edge by the polar adjoint and the scalar by the phase terms:
+
+  `s_a^*κ = κ⁰_q + Γ_{γ + B_q^♭ a} + inf(δ + Θ⁰_q(a) + γ ⌣ a)`,
+
+as an identity of `𝔽₂`-valued functions on `(V ⋊ C)²` **up to a normalized coboundary** — here
+stated cochain-exactly modulo the coboundary of an explicit 1-cochain `w`, quantified
+existentially.  In particular (`q` nonsingular) a unique edge-killing shear class exists —
+recorded as the paper's phase-cover input to §8 (Prop 8.8).  [P-14 statement; proof P-15.] -/
+theorem lemma_6_22 (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (γ : C → V →+ ZMod 2) (δ : C × C → ZMod 2)
+    (a : C → V) (ha : ∀ c d : C, a (c * d) = a c + c • a d) :
+    ∃ w : V × C → ZMod 2,
+      ∀ p q' : V × C,
+        (kappa0 dat (shear a p) (shear a q') + gammaEdge γ (shear a p) (shear a q')
+            + inflScalar δ (shear a p) (shear a q'))
+          = (kappa0 dat p q'
+              + gammaEdge (fun c ↦ γ c + AddMonoidHom.mk' (polar q (a c))
+                  (fun v v' ↦ hq.polar_add_right (a c) v v')) p q'
+              + inflScalar (fun cd ↦ δ cd + thetaPhase dat a cd + gammaCupA γ a cd) p q')
+            + (w (p.1 + p.2 • q'.1, p.2 * q'.2) + w p + w q') := by
+  -- the marking cochain: `w(v,c) = f(v, a(c))`
+  refine ⟨fun p => dat.f p.1 (a p.2), ?_⟩
+  rintro ⟨v, c⟩ ⟨w, d⟩
+  obtain ⟨fcoc, _fdiag, fpol, _fzl, _fzr, mquad, _mmul, _mone⟩ := hdat
+  simp only [kappa0, gammaEdge, inflScalar, shear, thetaPhase, gammaCupA, graphPullback,
+    id_eq, AddMonoidHom.add_apply, AddMonoidHom.mk'_apply, map_add, smul_add]
+  rw [ha c d]
+  set X := c • w with hX
+  set Y := c • a d with hY
+  -- structural identities
+  have hmq := mquad c w (a d)
+  rw [← hX, ← hY] at hmq
+  have hp := fpol (a c) X
+  have hc1 := fcoc v (a c) (X + Y)
+  have hc2 := fcoc v X (a c + Y)
+  have hc3 := fcoc (a c) X Y
+  have hc4 := fcoc X (a c) Y
+  -- normalize `dat.f` arguments so the atoms match across instances
+  have harg1 : a c + (X + Y) = X + (a c + Y) := by abel
+  have harg2 : a c + X = X + a c := by abel
+  rw [harg1] at hc1
+  rw [harg2] at hc3
+  linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
+    hmq + hp + hc1 + hc2 + hc3 + hc4
+
+end Transgression
+
+end SectionSix
+
+end
+
+end GQ2

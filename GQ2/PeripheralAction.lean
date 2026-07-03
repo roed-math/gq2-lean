@@ -2,6 +2,7 @@ import GQ2.MaxProP
 import GQ2.Zhat
 import GQ2.FreeProfinite
 import GQ2.Subdirect
+import GQ2.ZtwoPowering
 
 /-!
 # B8: the cyclotomic action on the peripheral generators (Lemma 3.6)  (ticket T-12)
@@ -22,10 +23,24 @@ Mathlib has no types for.  Following the ticket, we state **exactly the group-th
 * the cyclotomic power `P^u` is `P ^ᶻ (ι u)` (`GQ2/Zhat.lean` ẑ-exponentiation), where
   `ι : ℤ₂ˣ → ℤ̂` is the **2-adic cyclotomic exponent embedding** — `ι(u)` is `≡ u` on the pro-2
   part and `≡ 0` on the odd part, so on the pro-2 group `Δ` it computes the `u`-th power.  `ι` is
-  carried as *data* of the bundle (as `rec`/`inv` are for B5/B6), pinned by `hι_cont` (continuity)
-  and `hι_one : ι 1 = ω₂` (`GQ2.omega2`; the `u = 1` cyclotomic exponent is exactly the idempotent
-  of T-06 — on a pro-2 group `x ^ᶻ ω₂ = x`).  Its full pinning is the ring structure of `ℤ̂`
-  (`u ↦ u · ω₂`), out of scope per T-06.
+  carried as *data* of the bundle (as `rec`/`inv` are for B5/B6), pinned by `hι_cont` (continuity),
+  `hι_one : ι 1 = ω₂` (`GQ2.omega2`; the `u = 1` cyclotomic exponent is exactly the idempotent
+  of T-06 — on a pro-2 group `x ^ᶻ ω₂ = x`), and `hι_proj` (see below).
+
+**Statement amendment (P-21 follow-up, 2026-07-03 — flagged for reviewers).**  The T-12 bundle
+originally pinned `ι` by `hι_cont` + `hι_one` only, noting that the full pinning ("`ι(u) ≡ u` on
+the pro-2 part", i.e. `ι(u) = u·ω₂`) needed the ring structure of `ℤ̂`, out of scope.  That was
+**too weak to consume**: without it, `ι(u)`'s action on a pro-2 group is undetermined for `u ≠ 1`
+(e.g. `ι ≡ ω₂` satisfies both pinnings), so Lemma 3.7's proof cannot extract the `u`-th power.
+P-21's projection `GQ2.zhatProjTwo : ℤ̂ → ℤ₂` (`ker = proPKernel 2 ℤ̂`) makes the intended pinning
+expressible **without** any `ℤ̂`-ring structure, and `hι_proj` states exactly it:
+`zhatProjTwo (ι u) = ofAdd u`.  Consequently, on every pro-2 group `x ^ᶻ ι u = zpowZtwo x u`
+(`GQ2/ZtwoPowering.lean`'s `zpowHat_eq_zpowZtwo`) — the `u`-th 2-adic power, as Lemma 3.6 intends.
+Consistency: `ι(u) := u·ω₂` (classically) satisfies all four pinnings; for `u = 1` the
+compatibility of `hι_one` with `hι_proj` is the *proved* `GQ2.zhatProjTwo_omega2`
+(`zhatProjTwo ω₂ = ofAdd 1`, `GQ2/AnabelianBridge.lean`).  Reviewers re-check Lemma 3.6 ⟹ this
+(strengthened) bundle; the mathematical content is unchanged — the decomposition group acts on
+inertia through the cyclotomic character, whose 2-adic component at `u` **is** `u`.
 
 The axiom `GQ2.Foundations` `peripheralCyclotomicAction : PeripheralCyclotomicAction` asserts this
 bundle exists.  **Reviewers check the implication** (Lemma 3.6 ⟹ this bundle), **not a `π₁`
@@ -72,6 +87,10 @@ structure PeripheralCyclotomicAction where
   /-- `ι(1) = ω₂`: the `u = 1` cyclotomic exponent is the idempotent of T-06 (so `P ^ᶻ ι 1 = P` on
   the pro-2 group `Δ`). -/
   hι_one : ι 1 = omega2
+  /-- **`ι(u) ≡ u` on the pro-2 part** (the P-21 amendment; module docstring): the canonical
+  projection `ℤ̂ → ℤ₂` sends `ι u` to `u`.  This is what makes `x ^ᶻ ι u` the `u`-th 2-adic power
+  on every pro-2 group (`zpowHat_eq_zpowZtwo`). -/
+  hι_proj : ∀ u : ℤ_[2]ˣ, zhatProjTwo (ι u) = Multiplicative.ofAdd ((u : ℤ_[2]))
   /-- The continuous automorphism `φ_u` of `Δ` induced by `u ∈ ℤ₂ˣ`. -/
   aut : ℤ_[2]ˣ → ContinuousMulEquiv Delta Delta
   /-- The conjugator `c_P(u)` for the generator `P`. -/
