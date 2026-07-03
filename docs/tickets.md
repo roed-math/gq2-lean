@@ -19,7 +19,7 @@ states conventions + paper-equation cross-reference; all `axiom`s live in
 | T-05 | I4: `maxProPQuotient` + pro-`p`-ness + universal property | ⭐⭐ | O | — | ☑ 2026-07-03 (`GQ2/MaxProP.lean`) |
 | T-06 | U1: `Zhat` via `profiniteCompletion ℤ`; `x ^ᶻ γ`; `ω₂ : Zhat`; finite-quotient compat | ⭐⭐ | **F**→O | — | ☑ 2026-07-02 (`GQ2/Zhat.lean`) |
 | T-07 | B7′: Hilbert symbol def + `ε`,`ω` + axiom (Serre CiA III§1.2 Thm 1) + stress tests | ⭐⭐ | O | — | ☑ 2026-07-03 (`GQ2/HilbertSymbol.lean`) |
-| T-08 | B4: axiom `G_ℚ₂(2) ≅ profinitePresentation (Fin 3) {A²S⁴[S,Y]}` | ⭐⭐ | O | T-05 | ☐ |
+| T-08 | B4: axiom `G_ℚ₂(2) ≅ profinitePresentation (Fin 3) {A²S⁴[S,Y]}` | ⭐⭐ | O | T-05 | ☑ 2026-07-03 (`GQ2/DyadicPresentation.lean`) |
 | T-09 | B3a: `IsDemushkin` definition + invariants + stress tests | ⭐⭐⭐ | **F** | T-02, T-04 | ☑ 2026-07-03 (`GQ2/Demushkin.lean`) |
 | T-10 | B3b: rank-3 `q=2` classification statement (optional if B3c ships) | ⭐⭐ | O | T-09 | ☐ |
 | T-11 | B3c: canonical orientation — choose route (Labute Prop 6 vs cyclotomic interface) | ⭐⭐⭐ | **F** | T-08 (+T-09 for route i) | ☐ |
@@ -145,6 +145,16 @@ axioms only in `Axioms.lean`; docstrings carry citations + conventions.
   migrated to `Foundations/Axioms.lean` by T-19, together with the `example`.)*
 - **T-08**: `r₀` via `FreeProfiniteGroup.of`; axiom; stress: image of the generators under a
   concrete finite marking (via `homEquiv` + `decide`-able finite group) behaves as expected.
+  *Done (`GQ2/DyadicPresentation.lean` defs + stress tests, all `#print axioms` = standard three;
+  axiom `Foundations.absGalQ2_maxProTwo_presentation` in `Foundations/Axioms.lean`).* Design:
+  `d0Relator = A²S⁴[S,Y]` (`A,S,Y = of 0,1,2`, `[·,·] = commP` per `Words.lean`), `ω₂`-free so a
+  bare word in `FreeProfiniteGroup (Fin 3)`; `D0 := profinitePresentation {d0Relator}`. Axiom (B4) =
+  `Nonempty (ContinuousMulEquiv (maxProPQuotient 2 AbsGalQ2) D0)` — NSW (7.5.11)(ii) rank `N+2=3` +
+  Labute Thm 8 at `d=1`; `[CompactSpace/TotallyDisconnectedSpace AbsGalQ2]` hyps mirror
+  `main_presentation` (Mathlib gap). Stress test: the marking `A↦sr 0, S↦r 1, Y↦r 2` of
+  `DihedralGroup 4` (order 8) classifies `homD4 : F₃ ⟶ D₄` with `homD4_toMonoidHom_of` (generator
+  images) and `homD4_d0Relator` (relator dies, by `decide`); `d0Relator_quotientMk_eq_one` gives the
+  relation in `D0`. Guard `EXPECTED_AXIOMS` bumped 7→8.
 - **T-09** ☑: `IsDemushkin`; `demushkinRank`; stress tests per plan (incl. one *negative* example).
   *Done (`GQ2/Demushkin.lean`; every theorem `#print axioms` = standard three; no axioms — all
   constructions/proofs).*  Design decisions (deviations deliberate, documented in-module):

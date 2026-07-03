@@ -5,6 +5,8 @@ import GQ2.HilbertSymbol
 import GQ2.Reciprocity
 import GQ2.TateDuality
 import GQ2.EvensKahn
+import GQ2.MaxProP
+import GQ2.DyadicPresentation
 
 /-!
 # The axioms: classical literature inputs of Theorem 1.2  (ticket T-19)
@@ -19,11 +21,13 @@ near `main_surjection_count`.
 **How to read this for review (Hill/Buzzard).**  Each `axiom` below is a result that already
 exists in the literature; the docstring gives the precise statement, the citation, and the
 paper cross-reference.  The B-labels follow `docs/literature-axioms.md` (which also records the
-dependency structure, paper App. D).  Current census — five axioms, faithfully stated against
+dependency structure, paper App. D).  Current census — eight axioms, faithfully stated against
 current Mathlib plus this repo's `ContCoh` cohomology:
 
 * **B1** `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` — `G_ℚ₂` top. f.g.
 * **B2** `Foundations.cyclotomicCharacter_two_surjective` — 2-adic cyclotomic surjectivity.
+* **B4** `Foundations.absGalQ2_maxProTwo_presentation` — `G_ℚ₂(2) ≅ D₀`, the rank-3 dyadic
+  Demushkin presentation (defs in `GQ2/DyadicPresentation.lean`).
 * **B5** `localReciprocity` — the local-reciprocity bundle (defs in `GQ2/Reciprocity.lean`).
 * **B6** `tateDuality` — local Tate duality, per-`n` bundle (defs in `GQ2/TateDuality.lean`).
 * **B7** `Foundations.absGalQ2_localEulerCharacteristic` — local Euler characteristic
@@ -35,9 +39,9 @@ current Mathlib plus this repo's `ContCoh` cohomology:
 
 The remaining classical inputs are **not yet axiomatized** (statement infrastructure pending,
 see `docs/tickets.md`): B3 Demushkin classification (the *definition* `IsDemushkin` is done —
-`GQ2/Demushkin.lean`, T-09; the classification statement is T-10/T-11), B4 `G_ℚ₂(2) ≅ D₀`
-(T-08), B8 the `π₁(ℙ¹∖{0,1,∞})` action (T-12).  They are enumerated with precise statements
-and citations in `docs/literature-axioms.md`.
+`GQ2/Demushkin.lean`, T-09; the classification statement is T-10/T-11), B8 the
+`π₁(ℙ¹∖{0,1,∞})` action (T-12).  They are enumerated with precise statements and citations in
+`docs/literature-axioms.md`.
 
 Consumers derive consequences by importing this file; the derived stress tests live next to
 their definitions (`GQ2/EulerCharacteristic.lean` for B7) or are parametrized over the bundle
@@ -86,6 +90,27 @@ Cyclotomic Fields*, 2nd ed., GTM 83, Ch. 2, Theorem 2.5, verified), whence the i
 axiom cyclotomicCharacter_two_surjective :
     Function.Surjective
       (cyclotomicCharacter (L := AlgebraicClosure ℚ) 2)
+
+/-! ## B4 — the rank-3 dyadic Demushkin presentation
+
+The presented group `D₀ = ⟨A, S, Y | A²S⁴[S,Y]⟩` (the relator `d0Relator`) and its finite-marking
+stress test live in `GQ2/DyadicPresentation.lean`; the maximal pro-2 quotient `maxProPQuotient 2`
+and its universal property live in `GQ2/MaxProP.lean`. -/
+
+/-- **[Classical — B4.]** The maximal pro-2 quotient `G_ℚ₂(2) = maxProPQuotient 2 G_ℚ₂` of the
+absolute Galois group is the rank-3 dyadic Demushkin group `D₀ = ⟨A, S, Y | A²S⁴[S,Y] = 1⟩`:
+there is a continuous isomorphism `G_ℚ₂(2) ≅ D₀`.
+
+Citation: **NSW [1], Ch. VII §7.5, Theorem (7.5.11)(ii)** — if `μ_p ⊆ k` then `G_k(p)` is a
+Demushkin group of rank `[k:ℚ_p]+2`; for `k = ℚ₂` (`p=2`, `N=1`, `μ_2 = {±1} ⊆ ℚ₂`) this is
+rank `1+2 = 3`.  The explicit relation `A²S⁴[S,Y]` is **Labute [2], Theorem 8** at `d = 1` (the
+paper's `D₀`); also Serre [3].  Paper: Lemma 3.4 → Prop. 1.1.  `docs/literature-axioms.md` B4.
+
+The `CompactSpace`/`TotallyDisconnectedSpace` instance hypotheses on `AbsGalQ2` mirror
+`main_presentation` (Mathlib's `Field.absoluteGaloisGroup` does not yet carry them; open PR). -/
+axiom absGalQ2_maxProTwo_presentation
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
+    Nonempty (ContinuousMulEquiv (maxProPQuotient 2 AbsGalQ2) D0)
 
 /-! ## B7 — the local Euler–Poincaré characteristic
 
