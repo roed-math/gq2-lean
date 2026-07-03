@@ -883,28 +883,33 @@ def wildValueExp {G : Type*} [Group G] (t : Marking G) (e : ℕ) : G :=
   let h0 := conjP t.x₀ g0 * t.x₀ * dg * d0 ^ 2 * hc
   h0 * u1⁻¹ * conjP t.x₁ t.σ * c0
 
-/-- **The wild word carries `τ`-exponent zero.**  Because `expMod2` lands in the *abelian*
-`Multiplicative (ZMod 2)`, conjugations are exponent-invariant and commutators vanish; the two
-surviving `τ`-contributions (from `h₀ ~ d₀ ~ u₀` and from `u₁⁻¹`) are each `e·[τ]` and cancel
-(`2e ≡ 0`).  So the wild relator's `τ`-exponent is `0` for *every* `e` — unlike the tame relator's
-`(0,1,0,0)`.  This is the obstruction to Prop 5.8 as currently stated (see the P-13 note there). -/
+/-- **The wild word's mod-2 exponent vector is `(0, 0, e+1, e+1)`** (the wild analogue of
+`expMod2_fgTame`).  Because `expMod2` lands in the *abelian* `Multiplicative (ZMod 2)`,
+conjugations are exponent-invariant and commutators vanish, so only `σ₂, u₀, u₁` and the bare
+`x₀, x₁` letters contribute.  `σ` and `τ` cancel (`2e ≡ 0` and the conjugators drop); `x₀` and
+`x₁` survive with exponent `e+1`.  In particular the `τ`-exponent is `0` for *every* `e` — unlike
+the tame relator's `(0,1,0,0)` — which is the Prop 5.8 obstruction (see the P-13 note there). -/
+theorem expMod2_wildValueExp (e : ℕ) :
+    (fun i => Multiplicative.toAdd (expMod2 i (wildValueExp freeMarking e)))
+      = ![0, 0, (e : ZMod 2) + 1, (e : ZMod 2) + 1] := by
+  have hconj : ∀ (k : Fin 4) (a b : FreeGroup (Fin 4)), expMod2 k (conjP a b) = expMod2 k a := by
+    intro k a b; simp only [conjP, map_mul, map_inv]; rw [mul_right_comm, inv_mul_cancel, one_mul]
+  have hcomm : ∀ (k : Fin 4) (a b : FreeGroup (Fin 4)), expMod2 k (commP a b) = 1 := by
+    intro k a b; simp only [commP, map_mul, map_inv]
+    rw [mul_right_comm (expMod2 k a)⁻¹ (expMod2 k b)⁻¹ (expMod2 k a), inv_mul_cancel, one_mul,
+      inv_mul_cancel]
+  funext i
+  simp only [wildValueExp, freeMarking, map_mul, map_inv, map_pow, hconj, hcomm]
+  fin_cases i <;>
+    (simp only [expMod2, FreeGroup.lift_apply_of, toAdd_mul, toAdd_inv, toAdd_pow, toAdd_ofAdd,
+      toAdd_one, Fin.isValue]; ring_nf; generalize (e : ZMod 2) = x; revert x; decide)
+
+/-- The wild relator's `τ`-exponent is `0` (the `i = 1` component of `expMod2_wildValueExp`). -/
 theorem expMod2_wildValueExp_tau (e : ℕ) :
     expMod2 1 (wildValueExp freeMarking e) = 1 := by
-  have hconj : ∀ (a b : FreeGroup (Fin 4)), expMod2 1 (conjP a b) = expMod2 1 a := by
-    intro a b; simp only [conjP, map_mul, map_inv]; rw [mul_right_comm, inv_mul_cancel, one_mul]
-  have hcomm : ∀ (a b : FreeGroup (Fin 4)), expMod2 1 (commP a b) = 1 := by
-    intro a b; simp only [commP, map_mul, map_inv]
-    rw [mul_right_comm (expMod2 1 a)⁻¹ (expMod2 1 b)⁻¹ (expMod2 1 a), inv_mul_cancel, one_mul,
-      inv_mul_cancel]
-  simp only [wildValueExp, freeMarking, map_mul, map_inv, map_pow, hconj, hcomm]
-  simp only [expMod2, FreeGroup.lift_apply_of, show ((2 : Fin 4) = 1) = False from by decide,
-    show ((3 : Fin 4) = 1) = False from by decide, if_false, if_true, mul_one]
-  rw [ofAdd_zero]
-  simp only [one_mul, mul_one, inv_one]
-  have hgg : (Multiplicative.ofAdd (1 : ZMod 2)) ^ 2 = 1 := by decide
-  have hg2 : (Multiplicative.ofAdd (1 : ZMod 2) ^ e) ^ 2 = 1 := by
-    rw [← pow_mul, Nat.mul_comm, pow_mul, hgg, one_pow]
-  rw [hg2, mul_one, mul_inv_cancel]
+  have h : Multiplicative.toAdd (expMod2 1 (wildValueExp freeMarking e)) = 0 := by
+    have := congrFun (expMod2_wildValueExp e) 1; simpa using this
+  simpa using congrArg Multiplicative.ofAdd h
 
 /-- `wildValueExp` is natural in group homomorphisms — it uses only `mul`, `inv`, `pow`, `conjP`,
 `commP` (no `ω₂`), so no finiteness is needed. -/
