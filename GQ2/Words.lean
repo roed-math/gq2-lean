@@ -72,7 +72,7 @@ sigma2 = sigma^ω₂            g0 = sigma2^2
 u0 = (x0*tau)^ω₂             u1 = (x1*tau)^ω₂
 d0 = u0*x0⁻¹                 z0 = x0^sigma2
 c0 = [d0, z0]               dg = d0^g0
-hcomm = [dg, d0]            h0 = (x0^g0)*x0*dg*d0^2*hcomm
+hcomm = [dg, d0]            h0 = (x0^g0)*x0*dg*d0*d0^2*hcomm
 ``` -/
 
 /-- `σ₂ = σ ^ ω₂`. -/
@@ -95,8 +95,11 @@ def g0 : G := t.sigma2 ^ 2
 def dg : G := conjP t.d0 t.g0
 /-- `h_c = [d_g, d₀]`. -/
 def hc : G := commP t.dg t.d0
-/-- `h₀ = (x₀ ^ g₀) · x₀ · d_g · d₀² · h_c`. -/
-def h0 : G := (conjP t.x₀ t.g0) * t.x₀ * t.dg * t.d0 ^ 2 * t.hc
+/-- `h₀ = (x₀ ^ g₀) · x₀ · d_g · d₀ · d₀² · h_c`.  (Note the bare `d₀` between `d_g` and `d₀²` —
+paper eq. (3) and the App. B machine block agree on `dg*d0*d0^2`; it is what makes `h₀` an
+instance of the class-two word `h_ϕ(X,D) = ϕ(X)·X·ϕ(D)·D·D²·[ϕ(D),D]` of paper Lemma 5.2.
+A step-1 transcription dropped it; see `docs/erratum-h0-transcription.md`.) -/
+def h0 : G := (conjP t.x₀ t.g0) * t.x₀ * t.dg * t.d0 * t.d0 ^ 2 * t.hc
 
 /-! ### The two relations -/
 

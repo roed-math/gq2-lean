@@ -71,8 +71,9 @@ def g0Hat : G := t.sigma2Hat ^ 2
 def dgHat : G := conjP t.d0Hat t.g0Hat
 /-- `h_c = [d_g, d₀]` (eq. (3)). -/
 def hcHat : G := commP t.dgHat t.d0Hat
-/-- `h₀ = x₀^{g₀} · x₀ · d_g · d₀² · h_c` (eq. (3)). -/
-def h0Hat : G := (conjP t.x₀ t.g0Hat) * t.x₀ * t.dgHat * t.d0Hat ^ 2 * t.hcHat
+/-- `h₀ = x₀^{g₀} · x₀ · d_g · d₀ · d₀² · h_c` (eq. (3); note the bare `d₀`, cf.
+`docs/erratum-h0-transcription.md`). -/
+def h0Hat : G := (conjP t.x₀ t.g0Hat) * t.x₀ * t.dgHat * t.d0Hat * t.d0Hat ^ 2 * t.hcHat
 
 /-- The **tame relator** `τ^σ · (τ²)⁻¹` — relation (5) as a word. -/
 def tameRelator : G := conjP t.τ t.σ * (t.τ ^ 2)⁻¹

@@ -525,8 +525,9 @@ The `Γ_A`-side proof runs entirely over the P-04/P-05 layer: continuous charact
 `Γ_A` are `F₄`-generator values killing `N_A`; killing `N_A` forces `c(τ) = 1`
 (`tameRelator_mem_NA`), and conversely `c(τ) = 1` makes `ker c` admissible — because in an
 **exponent-2 abelian** quotient the whole `ω₂`-word ledger collapses and the wild relation
-(6) holds *unconditionally* (`wildRel_of_comm2` below, the §8 counterpart of the
-`AppendixB` ledger evaluations). -/
+(6) follows from `τ = 1` (`wildRel_of_comm2` below, the §8 counterpart of the
+`AppendixB` ledger evaluations; with the paper's `h₀` — eq. (3), including the bare `d₀` —
+the wild value at `τ ≠ 1` is `τ`, so the relation is *not* unconditional). -/
 
 section ExpTwoLedger
 
@@ -548,30 +549,28 @@ lemma commP_of_comm (hcomm : ∀ a b : A, a * b = b * a) (x y : A) : commP x y =
   rw [commP, mul_assoc x⁻¹ y⁻¹ x, hcomm y⁻¹ x, ← mul_assoc x⁻¹ x y⁻¹, inv_mul_cancel,
     one_mul, inv_mul_cancel]
 
-/-- **The wild relation holds in every exponent-2 abelian group** (the `ω₂`-ledger
-collapse: `σ₂ = σ`, `uᵢ = xᵢτ`, `d₀ = τ`, `c₀ = h_c = 1`, `g₀ = 1`, `h₀ = τ`, and (6)
-telescopes to `1`).  This is why scalar characters see no wild obstruction. -/
+/-- **The wild relation follows from `τ = 1` in an exponent-2 abelian group** (the `ω₂`-ledger
+collapse at `τ = 1`: `uᵢ = xᵢ`, `d₀ = 1`, `c₀ = h_c = 1`, `h₀ = x₀² = 1`, and (6) telescopes to
+`1`).  For scalar characters the hypothesis is free — the tame relation already forces `τ = 1`
+(`tameRel_iff_of_comm2`), so they see no *additional* wild obstruction.  (Without `τ = 1` the
+wild value is `τ`: the paper's `h₀` — eq. (3), with the bare `d₀` — evaluates to `1`, not `τ`.) -/
 lemma Marking.wildRel_of_comm2 (hcomm : ∀ a b : A, a * b = b * a)
-    (h2 : ∀ a : A, a * a = 1) (t : Marking A) : t.WildRel := by
+    (h2 : ∀ a : A, a * a = 1) (t : Marking A) (hτ : t.τ = 1) : t.WildRel := by
   have hpow : ∀ a : A, powOmega2 a = a := powOmega2_eq_self_of_sq h2
   have hconj : ∀ x g : A, conjP x g = x := conjP_of_comm hcomm
   have hcommP : ∀ x y : A, commP x y = 1 := commP_of_comm hcomm
-  have hσ2 : t.sigma2 = t.σ := by rw [Marking.sigma2, hpow]
-  have hu0 : t.u0 = t.x₀ * t.τ := by rw [Marking.u0, Marking.u, hpow]
-  have hu1 : t.u1 = t.x₁ * t.τ := by rw [Marking.u1, Marking.u, hpow]
-  have hd0 : t.d0 = t.τ := by
-    rw [Marking.d0, hu0, hcomm t.x₀ t.τ, mul_assoc, mul_inv_cancel, mul_one]
-  have hg0 : t.g0 = 1 := by rw [Marking.g0, pow_two, hσ2, h2]
-  have hz0 : t.z0 = t.x₀ := by rw [Marking.z0, hconj]
+  have hu1 : t.u1 = t.x₁ := by rw [Marking.u1, Marking.u, hpow, hτ, mul_one]
+  have hd0 : t.d0 = 1 := by
+    rw [Marking.d0, Marking.u0, Marking.u, hpow, hτ, mul_one, mul_inv_cancel]
   have hc0 : t.c0 = 1 := by rw [Marking.c0, hcommP]
-  have hdg : t.dg = t.τ := by rw [Marking.dg, hconj, hd0]
+  have hdg : t.dg = 1 := by rw [Marking.dg, hconj, hd0]
   have hhc : t.hc = 1 := by rw [Marking.hc, hcommP]
-  have hh0 : t.h0 = t.τ := by
-    rw [Marking.h0, hconj, hdg, hd0, hhc, pow_two, h2, h2]
-    simp only [one_mul, mul_one]
+  have hh0 : t.h0 = 1 := by
+    rw [Marking.h0, hconj, hdg, hd0, hhc]
+    simp only [one_pow, mul_one]
+    exact h2 t.x₀
   show t.h0 * t.u1⁻¹ * conjP t.x₁ t.σ * t.c0 = 1
-  rw [hh0, hu1, hconj, hc0, mul_one, mul_inv_rev, ← mul_assoc t.τ t.τ⁻¹ t.x₁⁻¹,
-    mul_inv_cancel, one_mul, inv_mul_cancel]
+  rw [hh0, hu1, hconj, hc0, one_mul, mul_one, inv_mul_cancel]
 
 /-- In an exponent-2 abelian group, the tame relation says exactly `τ = 1`. -/
 lemma Marking.tameRel_iff_of_comm2 (hcomm : ∀ a b : A, a * b = b * a)
@@ -712,11 +711,13 @@ theorem ker_char_NA_le_iff
     have hcommq : ∀ y z : FreeProfiniteGroup (Fin 4) ⧸ U.toSubgroup, y * z = z * y :=
       mul_comm_of_exp_two h2q
     -- `ker c` is admissible
+    have hτq : (univMarking.map (QuotientGroup.mk' U.toSubgroup)).τ = 1 := by
+      show QuotientGroup.mk' U.toSubgroup univMarking.τ = 1
+      exact (QuotientGroup.eq_one_iff _).mpr (MonoidHom.mem_ker.mpr hτ)
     have hadm : IsAdmissibleU U := by
-      refine ⟨generates_univMarking_map U, ?_, Marking.wildRel_of_comm2 hcommq h2q _, ?_⟩
-      · refine (Marking.tameRel_iff_of_comm2 hcommq h2q _).mpr ?_
-        show QuotientGroup.mk' U.toSubgroup univMarking.τ = 1
-        exact (QuotientGroup.eq_one_iff _).mpr (MonoidHom.mem_ker.mpr hτ)
+      refine ⟨generates_univMarking_map U, ?_,
+        Marking.wildRel_of_comm2 hcommq h2q _ hτq, ?_⟩
+      · exact (Marking.tameRel_iff_of_comm2 hcommq h2q _).mpr hτq
       · intro g
         refine ⟨1, ?_⟩
         ext

@@ -880,18 +880,21 @@ def wildValueExp {G : Type*} [Group G] (t : Marking G) (e : ℕ) : G :=
   let dg := conjP d0 g0
   let hc := commP dg d0
   let c0 := commP d0 z0
-  let h0 := conjP t.x₀ g0 * t.x₀ * dg * d0 ^ 2 * hc
+  let h0 := conjP t.x₀ g0 * t.x₀ * dg * d0 * d0 ^ 2 * hc
   h0 * u1⁻¹ * conjP t.x₁ t.σ * c0
 
-/-- **The wild word's mod-2 exponent vector is `(0, 0, e+1, e+1)`** (the wild analogue of
+/-- **The wild word's mod-2 exponent vector is `(0, e, 0, e+1)`** (the wild analogue of
 `expMod2_fgTame`).  Because `expMod2` lands in the *abelian* `Multiplicative (ZMod 2)`,
-conjugations are exponent-invariant and commutators vanish, so only `σ₂, u₀, u₁` and the bare
-`x₀, x₁` letters contribute.  `σ` and `τ` cancel (`2e ≡ 0` and the conjugators drop); `x₀` and
-`x₁` survive with exponent `e+1`.  In particular the `τ`-exponent is `0` for *every* `e` — unlike
-the tame relator's `(0,1,0,0)` — which is the Prop 5.8 obstruction (see the P-13 note there). -/
+conjugations are exponent-invariant and commutators vanish; in `h₀` the two `x₀`-letters and the
+two `d₀`-occurrences (`d_g` and the bare `d₀`) cancel and `d₀²` is even, so `ε(h₀) = 0` for
+*every* `e` (paper Prop 5.8's proof), leaving `ε(r_w) = ε(u₁⁻¹) + ε(x₁^σ) = (0, e, 0, e+1)`.
+At the odd representatives of `ω₂` (`omega2Exp` of any even exponent is odd) this is `(0,1,0,0)`,
+matching the tame vector — so condition (40) holds for the `(1,1)` trace and the Stokes
+corrections of Lemma 5.7 cancel in Prop 5.8.  (Cf. `docs/erratum-h0-transcription.md`: for the
+pre-erratum `h₀` missing the bare `d₀`, the vector was `(0, 0, e+1, e+1)` and they did not.) -/
 theorem expMod2_wildValueExp (e : ℕ) :
     (fun i => Multiplicative.toAdd (expMod2 i (wildValueExp freeMarking e)))
-      = ![0, 0, (e : ZMod 2) + 1, (e : ZMod 2) + 1] := by
+      = ![0, (e : ZMod 2), 0, (e : ZMod 2) + 1] := by
   have hconj : ∀ (k : Fin 4) (a b : FreeGroup (Fin 4)), expMod2 k (conjP a b) = expMod2 k a := by
     intro k a b; simp only [conjP, map_mul, map_inv]; rw [mul_right_comm, inv_mul_cancel, one_mul]
   have hcomm : ∀ (k : Fin 4) (a b : FreeGroup (Fin 4)), expMod2 k (commP a b) = 1 := by
@@ -903,13 +906,6 @@ theorem expMod2_wildValueExp (e : ℕ) :
   fin_cases i <;>
     (simp only [expMod2, FreeGroup.lift_apply_of, toAdd_mul, toAdd_inv, toAdd_pow, toAdd_ofAdd,
       toAdd_one, Fin.isValue]; ring_nf; generalize (e : ZMod 2) = x; revert x; decide)
-
-/-- The wild relator's `τ`-exponent is `0` (the `i = 1` component of `expMod2_wildValueExp`). -/
-theorem expMod2_wildValueExp_tau (e : ℕ) :
-    expMod2 1 (wildValueExp freeMarking e) = 1 := by
-  have h : Multiplicative.toAdd (expMod2 1 (wildValueExp freeMarking e)) = 0 := by
-    have := congrFun (expMod2_wildValueExp e) 1; simpa using this
-  simpa using congrArg Multiplicative.ofAdd h
 
 /-- `wildValueExp` is natural in group homomorphisms — it uses only `mul`, `inv`, `pow`, `conjP`,
 `commP` (no `ω₂`), so no finiteness is needed. -/
@@ -1004,8 +1000,8 @@ evaluation `stokesEval … fgWild`, where `fgWild = wildValueExp freeMarking (om
 H(A)⋊C))` is the target-dependent integer-`ω₂` representative of the wild word.  This is the wild
 analogue of `bridge_tame`; unlike the tame case it is genuinely target-dependent (the exponent is
 `Monoid.exponent (HeisLift A C)`), because `freeMarking.wildValue`'s `ω₂` is degenerate in the
-infinite free group.  Feeding this into Lemma 5.7 is what the (reconciled) wild row of Prop 5.8
-and the normal-form Lemma 5.13 will consume. -/
+infinite free group.  Feeding this into Lemma 5.7 is what the wild row of Prop 5.8
+and the normal-form Lemma 5.13 consume. -/
 theorem bridge_wild [Finite A] [Finite C] (t : Marking C) (x : Fin 4 → A)
     (y : Fin 4 → ElemDual A) :
     (heisMarking t x y).wildValue
@@ -1017,17 +1013,13 @@ theorem bridge_wild [Finite A] [Finite C] (t : Marking C) (x : Fin 4 → A)
 identifications): `B_{ρ,A}(d⁰a, y) = ⟨a, L^{A^∨}_t(y) + L^{A^∨}_w(y)⟩`, where the dual
 first relation differentials are `d1Fun` on `A^∨`.
 
-*Status*: sorried (P-13) — **and flagged as an apparent inconsistency** (design escalation).
-The **tame** summand is now proved in closed form (`mixedB_tameRow`): it equals
-`⟨a, L^{A^∨}_t(y)⟩ + y_τ(τ·a)`, carrying a genuine ε-correction `y_τ(τ·a)` (tame exponent vector
-`(0,1,0,0)`, `expMod2_fgTame`).  For the RHS here (no correction) to hold, the **wild** summand's
-correction would have to be the *same* `y_τ(τ·a)`, i.e. the wild relator would need `τ`-exponent
-`1`.  But `expMod2_wildValueExp_tau` **proves the wild relator's `τ`-exponent is `0` for every
-`e`** (in the abelian exponent target, conjugations are invariant and commutators vanish; the two
-surviving `τ`-contributions `2e` cancel).  So the corrections do **not** cancel and `y_τ(τ·a)`
-survives — this statement appears false for arbitrary `y`.  Likely fixes to review against the
-paper: restrict `y` to `Z1w` (cocycles), or carry the ε-correction explicitly in the RHS.  Do not
-force a proof until the statement is reconciled. -/
+*Status*: sorried (P-13), provable **as stated** (paper p. 17).  Proof plan: the tame summand is
+`mixedB_tameRow` — `⟨a, L^{A^∨}_t(y)⟩ + y_τ(τ·a)` (tame ε-vector `(0,1,0,0)`, `expMod2_fgTame`);
+the wild summand comes from `bridge_wild` + `lemma_5_7_left` with ε-vector
+`(0, e, 0, e+1) = (0,1,0,0)` at the odd `ω₂`-representative (`expMod2_wildValueExp`), i.e.
+`⟨a, L^{A^∨}_w(y)⟩ + y_τ(τ·a)`; the two `y_τ(τ·a)` corrections cancel (char 2), which is exactly
+condition (40) for the `(1,1)` trace.  (An earlier apparent inconsistency here was a repo-side
+`h₀` transcription bug, resolved — see `docs/erratum-h0-transcription.md`.) -/
 theorem prop_5_8_left (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (a : A)
     (y : Fin 4 → ElemDual A) :
     mixedB t (d0 t a) y
