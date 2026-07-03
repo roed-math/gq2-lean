@@ -16,9 +16,9 @@ row ◐ before starting.  Paper: `paper/A_Profinite_Presentation_for_G__Q_2.pdf`
 |---|---|---|---|---|---|---|
 | P-00 | Meta: step-2 plan + board + LeanBridge tooling import | ⭐ | **F** | — | — | ☑ 2026-07-03 (`docs/step2-plan.md`, `.claude/`) |
 | P-01 | Meta: `docs/STATUS.md` refresh + repo-wide axiom ledger (batch `#print axioms` check vs App. D) | ⭐⭐ | O | — | — | ☑ 2026-07-03 (`GQ2/AxiomLedger.lean`, `docs/STATUS.md`) |
-| P-02 | A: fill `exists_contSurj_of_card_le` (recipe at the sorry: cofiltered system + compactness) | ⭐⭐ | O | — | ∅ | ◐ (Opus, 2026-07-03) |
+| P-02 | A: fill `exists_contSurj_of_card_le` (recipe at the sorry: cofiltered system + compactness) | ⭐⭐ | O | — | ∅ | ☑ 2026-07-03 (`GQ2/Reconstruction.lean`) |
 | P-03 | A: t.f.g. — `FreeProfiniteGroup X` (finite `X`), quotients of t.f.g., `GammaA` t.f.g. | ⭐⭐ | O | — | ∅ | ☑ 2026-07-03 (`GQ2/FinitelyGenerated.lean`) |
-| P-04 | A: universal marking admissible-in-the-limit (relator words ∈ `N_A`; wild pair's closed normal closure pro-2 in `Γ_A`) | ⭐⭐⭐ | **F** | — | ∅ | ◐ (Fable, 2026-07-03) |
+| P-04 | A: universal marking admissible-in-the-limit (relator words ∈ `N_A`; wild pair's closed normal closure pro-2 in `Γ_A`) | ⭐⭐⭐ | **F** | — | ∅ | ☑ 2026-07-03 (`GQ2/AdmissibleLimit.lean`) |
 | P-05 | A: Prop 2.3 — `Nat.card (ContSurj GammaA G) = admissibleCount G` | ⭐⭐⭐ | **F** | P-04 | ∅ | ☐ |
 | P-06 | B: §3 statement extraction — Lemmas 3.4–3.8, Prop 3.2, Prop 1.1 as sorried statements + design note | ⭐⭐ | **F** | — | (statements) | ☑ 2026-07-03 (`GQ2/SectionThree.lean` + `GQ2/SectionThreeMarked.lean`, `docs/section3-extraction.md`) |
 | P-07 | B: Lemmas 3.4/3.5 proofs (eq. (13) ledger: square-class basis, χ/ν rows, cup form `α²+βγ+γβ`) | ⭐⭐ | O | P-06 | B5, B7′ | ☐ |
@@ -26,9 +26,9 @@ row ◐ before starting.  Paper: `paper/A_Profinite_Presentation_for_G__Q_2.pdf`
 | P-09 | B: Prop 3.2 proof — common tame quotient (`Γ_A` side: Lemma 3.1 ✓ + bridges; local side: B10 + Lemma 3.3 maximality) | ⭐⭐⭐ | O | P-06 | B5, B10 | ☐ |
 | P-10 | B: Prop 1.1 proof — marked dyadic Demushkin normalization, `ν_ur = (−2,1,0)` | ⭐⭐ | O | P-06, P-07, P-08 | B3c, B4, B5, B7′ | ☐ |
 | P-11 | B: §4 design — boundary-framed marked targets, exact-image counts, **Thm 4.2 statement** | ⭐⭐⭐ | **F** | — | (statements) | ☑ 2026-07-03 (`GQ2/BoundaryFrame.lean`) |
-| P-12 | B: §5 design — Fox–Heisenberg word complex; 5.7/5.8/5.10/5.11/5.13/5.15 statements | ⭐⭐⭐ | **F** | P-11 | (statements) | ☐ |
+| P-12 | B: §5 design — Fox–Heisenberg word complex; 5.7/5.8/5.10/5.11/5.13/5.15 statements | ⭐⭐⭐ | **F** | P-11 | (statements) | ☑ 2026-07-03 (`GQ2/FoxHeisenberg.lean`) |
 | P-13 | B: §5 proofs (Stokes identities → chain map; dévissage; elementary-module duality 5.15) | ⭐⭐⭐ | O | P-12 | B6, B7 | ☐ |
-| P-14 | B: §§6–7 design — 6.13 (D₈ class), 6.15→6.17 (Shapiro/cor), 6.8/6.9 (Gauss sign), 6.16→6.18 (Hilbert ledger), 6.21 (transgression) statements | ⭐⭐⭐ | **F** | P-11 | (statements) | ☐ |
+| P-14 | B: §§6–7 design — 6.13 (D₈ class), 6.15→6.17 (Shapiro/cor), 6.8/6.9 (Gauss sign), 6.16→6.18 (Hilbert ledger), 6.21 (transgression) statements | ⭐⭐⭐ | **F** | P-11 | (statements) | ◐ (Fable, 2026-07-03) |
 | P-15 | B: §§6–7 proofs | ⭐⭐⭐ | O | P-14 | B5, B6, B7′, B9 | ☐ |
 | P-16 | B: §8 — half-torsor count 8.6 + closed recursion Prop 8.9 (eqs. (136)–(142)) | ⭐⭐⭐ | **F** draft, O finish | P-11, P-14 | B6, B7, B9 | ☐ |
 | P-17 | B: §9 — induction on `\|L_Y\|`: regime 9.1 (Lemma 9.2 ✓), 9.2 (counts + strict decrease (145)/Lemma 9.4), 9.3 (Frattini/Fourier, central formula (151)) ⇒ **Thm 4.2 proof** | ⭐⭐⭐ | **F** design, O finish | P-11–P-16 | B6, B7, B7′, B8, B9 | ☐ |
@@ -55,11 +55,23 @@ paper eq./§ cross-references; new files, own board row only.
   consumers (its 6 Euler stress tests), gap map = 6 (the 3 root sorries + 3 transitive).
   `docs/STATUS.md` rewritten as a per-layer ledger (axiom layer, 3-sorry gap map, def-layers
   T-05…T-18, proved infra), with verify-from-scratch commands.
-- **P-02**: the sorry replaced following the in-file recipe (level sets nonempty+finite via `h`;
-  `nonempty_sections_of_finite_inverse_system`; assemble through
-  `ProfiniteGrp.isoLimittoFiniteQuotientFunctor`; image compact-dense ⇒ surjective).  Zero sorries
-  in `Reconstruction.lean`; allowlist entry removed; `reconstruction`/`reconstruction_of_equinum`
-  at std-3.
+- **P-02** ☑: sorry replaced; **zero sorries in `Reconstruction.lean`**, allowlist entry removed,
+  `exists_contSurj_of_card_le`/`reconstruction_of_equinum`/`reconstruction` all `#print axioms` =
+  std-3 (`lean_verify`'d), `check_axioms.sh` green (census 10).  Level sets nonempty+finite via
+  `contSurj_quotient_nonempty_finite`; the compatible family via `konigFunctor : OpenNormalSubgroup
+  (ProfiniteGrp.of R) ⥤ Type` + `nonempty_sections_of_finite_cofiltered_system` (König), as the
+  recipe said.  **Deviation from the recipe's assembly step**: instead of building a cone over
+  `ProfiniteGrp.diagram R` and `isLimitCone.lift`, the section is assembled by an **elementary**
+  embedding `e : R ↪ ∏_U R/U` (closed embedding, `R` compact/`Q` Hausdorff) + **two Cantor
+  intersections** (`IsCompact.nonempty_iInter_of_directed_nonempty_isCompact_isClosed`): one in `R`
+  realizes each compatible family as `e r` (⇒ `ψ := e⁻¹∘Φ` a continuous hom), one in `S` gives `ψ`
+  surjective.  **Why**: the `ProfiniteGrp.diagram` objects carry the discrete `⊥` topology, not
+  `R/U`'s coinduced (equal but not defeq) topology, and `(diagram R).obj U` won't even synthesize a
+  `TopologicalSpace` when used as a bare `ContinuousMonoidHom` codomain — so the categorical
+  cone/lift route fights Mathlib's `CompHausLike`/`FiniteGrp` coercions at every step.  The
+  product-embedding route stays in natural quotient topologies throughout.  Reusable spinoffs (top
+  of the file, `open CategoryTheory`): `projMap`(+`_mk`/`_surjective`/`_id`/`_comp_apply`) and
+  `konigFunctor` — for **P-04/P-05** (also over `OpenNormalSubgroup (ProfiniteGrp.of _)`).
 - **P-03**: `FreeProfiniteGroup X` is t.f.g. for finite `X` (the generators' images topologically
   generate — density of the free group in its completion); t.f.g. passes to `profiniteQuotient`;
   instantiate: `GammaA` t.f.g. in the exact `∃ s : Finset _, …` form `main_presentation` consumes.
@@ -69,11 +81,25 @@ paper eq./§ cross-references; new files, own board row only.
   (finite `X` — `ProfiniteGrp.ProfiniteCompletion.denseRange` + `FreeGroup.closure_range_of`);
   `gammaA_isTopologicallyFinGen` + `gammaA_topologicallyFinitelyGenerated` (the raw `∃`-form P-19 feeds
   to `main_presentation`).
-- **P-04**: (i) `tameRelator`/`wildRelator` of `univMarking` lie in `NA` (each dies in every
+- **P-04** ☑: (i) `tameRelator`/`wildRelator` of `univMarking` lie in `NA` (each dies in every
   admissible quotient — `map_*Relator_eq_one_iff` + `IsAdmissibleU`); (ii) the closed normal
   closure of `{x₀, x₁}`-images in `Γ_A` is pro-2 (`IsProP 2`, via `MaxProP.lean`'s
   characterization: every open normal subgroup of `Γ_A` pulls back to an admissible-dominated one —
   the Lemma 2.1 subdirect-closure argument).  Design note documenting the limit argument.
+  *Done (`GQ2/AdmissibleLimit.lean`; every theorem `#print axioms` = std-3; no allowlist changes —
+  pure proof ticket).*  Deliverables: (i) `tameRelator_mem_NA`/`wildRelator_mem_NA` +
+  `quotientMk_*Relator_eq_one` (relations (5)/(6) hold in `Γ_A`); (ii) `wildCore` (the closed
+  normal closure `⟨⟨x₀,x₁⟩⟩`, on the raw quotient `F₄ ⧸ NA` ≡ᵈᵉᶠ `GammaA`) with
+  `isProP_wildCore : IsProP 2 wildCore`.  **P-05 interface**: `isAdmissibleU_iff_NA_le`
+  (admissible opens = opens above `N_A`) and `generates_univMarking_map` (generation is automatic
+  in every finite quotient — density of `FreeGroup` in its completion).  Engine (design note in
+  the module docstring): `isAdmissibleU_top` (trivial quotient admissible — nonvacuity without
+  App. B) + `isAdmissibleU_inf` (Lemma 2.1 subdirect closure, elementwise 2-power form
+  `isPGroup_normalClosure_image_inf`) ⇒ directedness ⇒ compactness domination
+  (`exists_isAdmissibleU_le`, the `proPKernel`-style argument) ⇒ `isAdmissibleU_of_NA_le`
+  (Lemma 2.2 pushforward).  Lean gotcha recorded: state `wildCore` on `F₄ ⧸ NA`, not
+  `Subgroup GammaA` — mixing the `↥GammaA` and raw-quotient spellings breaks instance search
+  (`Membership`-instance mismatch), while everything is defeq on the raw type.
 - **P-05**: the bijection `ContSurj GammaA G ≃ {t : Marking G // t.Admissible}` for finite discrete
   `G`: forward = push `univMarking` (admissible by P-04 + Lemma 2.2 `map_admissible`); backward =
   `quotientLift` along `NA_le_ker` (T-21); round-trips via `univMarking_map_toHom` and topological
@@ -132,6 +158,27 @@ paper eq./§ cross-references; new files, own board row only.
   `X_Γ(C)` = `BoundaryLifts`; P-17 removes the sorry.
 - **P-12/P-14**: same statement-first discipline for §5 / §§6–7 (P-14 discovers §7's actual
   content at extraction — the step-1 docs only ever cite 6.x and 8.x).
+  *P-12 done (`GQ2/FoxHeisenberg.lean`, namespace `GQ2.FoxH`; proved layer std-3, zero B-axioms).*
+  Defs: `Marking.tameValue/wildValue` (relations (5)/(6) as elements, `= 1 ↔ Rel` proved);
+  `WordLift A C` (paper's `(u,g)(v,h) = (u+g•v, gh)`, own instances — no `Multiplicative`
+  wrappers); the word complex (30)/(31): `d0` proved-additive, `d1Fun` = the literal
+  A-coordinates of the evaluated relator values at `liftMarking`, with **Fox linearity
+  `d1Fun_add` as a named sorried obligation** (bundled `d1` built on it; `Z1w/H0w/H1w/H2w`
+  ContCoh-shaped total defs); `ElemDual` (T-14 recipe, contragredient action); `HeisLift`
+  (§5.2 Heisenberg ⋊, group laws proved incl. the char-2 center); `mixedB` = traced `β_t+β_w`;
+  `stokesEval`/`expMod2` (general 5.7 form on Mathlib `FreeGroup`); `dualEval` + `fixedPts`;
+  `x0Supported`, `IsSimpleModTwo`, `IsSelfDual` (the (56)-package: card numerics +
+  ∃-descended nondegenerate pairing).  Sorried statements (15, all tagged P-13):
+  `d1Fun_add`, `d1Fun_comp_d0`, 5.6, 5.7 (38)/(39), 5.8 (41)/(42), 5.11 (2-of-3 for
+  `IsSelfDual`), 5.12, 5.13 (split/ramified shapes + (54) pairings), 5.15, 5.16 (T-14-style
+  cup perfectness + `#H²(𝔽₂)=2` line clause; **B6/B7 enter only in its proof**).  Proved
+  stress: `d1Fun_tame` (the (34) tame row in closed form — validates the whole convention
+  stack), `expMod2_fgTame` ((0,1,0,0) exponent vector), `cor_5_17_card` (5.17-numerics wiring).
+  **Deviations flagged in-module**: 5.10 carried as 5.8+5.6 component identities (no
+  `HomologicalComplex`); 5.11 in quasi-iso-consequence form (cone (49) = proof device); 5.1
+  absorbed by `powOmega2` encoding; **5.17's adjoint-boundary (58) deferred** (needs
+  connecting-map infra in both theories — owner P-13, shape arbitrated by P-17); 5.2/5.3/5.4/
+  5.14 + Remark 5.9's GL₂(𝔽₂) regression test = P-13 proof layer.
 - **P-13/P-15/P-16**: proofs; each lemma cites its display number; `decide`-style finite
   verifications welcome where the paper's objects are literally finite (e.g. 6.13's two-point
   `D₈` class), `native_decide` still banned.
