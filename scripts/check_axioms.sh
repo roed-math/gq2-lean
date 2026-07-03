@@ -21,7 +21,7 @@ cd "$(dirname "$0")/.."
 
 AXIOMS_FILE='GQ2/Foundations/Axioms.lean'
 EXPECTED_AXIOMS=10  # B1, B2, B3c, B4, B5, B6, B7, B7', B8, B9
-SORRY_ALLOWLIST='GQ2/Reconstruction.lean GQ2/Statement.lean GQ2/GammaA.lean'
+SORRY_ALLOWLIST='GQ2/Reconstruction.lean GQ2/Statement.lean GQ2/GammaA.lean GQ2/BoundaryFrame.lean'  # BoundaryFrame: P-11 thm_4_2 (removed by P-17)
 
 # Strip Lean comments: nested block comments `/- … -/` (incl. docstrings `/-- … -/`) and
 # line comments `-- …`.  Emits one output line per input line (line numbers preserved).
