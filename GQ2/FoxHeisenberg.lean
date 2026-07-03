@@ -1556,6 +1556,40 @@ variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [DistribM
 /-- The degree-one tuple supported on the `x₀`-slot (display (53)'s normal form). -/
 def x0Supported (c : V) : Fin 4 → V := ![0, 0, c, 0]
 
+omit [Finite C] in
+/-- **The tame row in the split case, closed form** (unconditional — needs only `T = 1` and char
+2, no wild-core input): `L_t(x) = S⁻¹·x₁`.  This is the `x 1 = 0` half of `lemma_5_13_split`'s
+`Z¹` description, and holds verbatim from the general tame row `d1Fun_tame` with `T = 1`. -/
+theorem d1Fun_tame_split (t : Marking C) (ht : t.TameRel) (htau : ∀ v : V, t.τ • v = v)
+    (hV₂ : ∀ v : V, v + v = 0) (x : Fin 4 → V) :
+    (d1Fun t x).1 = t.σ⁻¹ • x 1 := by
+  rw [d1Fun_tame t ht x, htau (x 0), htau (x 1), sub_self, zero_add, hV₂ (x 1), sub_zero]
+
+omit [Finite C] in
+/-- **The `B¹` coboundary shape when the wild generators act trivially** (the paper's `B¹` in
+Lemma 5.13(i), with the trivial wild action made an explicit hypothesis — however it is obtained:
+directly, or via the proved `lemma_5_12` from `Pro2Core`; see
+`docs/p13-normal-form-hypothesis-gap.md`).  Under `T = 1` and `x₀, x₁` acting trivially, every
+coboundary `d⁰v` is supported on the `σ`-slot: `B¹ = {((S−1)v, 0, 0, 0)}`. -/
+theorem b1w_split_shape (t : Marking C)
+    (htau : ∀ v : V, t.τ • v = v) (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v)
+    (y : Fin 4 → V) :
+    y ∈ B1w (A := V) t ↔ ∃ v : V, y = ![t.σ • v - v, 0, 0, 0] := by
+  simp only [B1w, AddMonoidHom.mem_range]
+  constructor
+  · rintro ⟨v, rfl⟩
+    refine ⟨v, funext fun i => ?_⟩
+    fin_cases i <;>
+      simp only [d0, AddMonoidHom.mk'_apply, Matrix.cons_val_zero, Matrix.cons_val_one,
+        Matrix.head_cons, Matrix.cons_val_two, Matrix.cons_val_three, Matrix.tail_cons,
+        htau, hx0, hx1, sub_self]
+  · rintro ⟨v, rfl⟩
+    refine ⟨v, funext fun i => ?_⟩
+    fin_cases i <;>
+      simp only [d0, AddMonoidHom.mk'_apply, Matrix.cons_val_zero, Matrix.cons_val_one,
+        Matrix.head_cons, Matrix.cons_val_two, Matrix.cons_val_three, Matrix.tail_cons,
+        htau, hx0, hx1, sub_self]
+
 /-- **Lemma 5.13, split case (i), cocycle shape**: if `T = 1` (trivial `τ`-action on a
 nontrivial simple module), `Z¹ = {(a, 0, c, 0)}` and `B¹ = {((S−1)v, 0, 0, 0)}`.
 
