@@ -441,6 +441,28 @@ def invIndexEquiv (ghat : G) (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.
   left_inv := Quotient.ind fun _ => rfl
   right_inv := Quotient.ind fun y => QuotientGroup.induction_on y fun _ => rfl
 
+variable [Finite (G ⧸ N)]
+
+/-- The `⟨ḡ⟩`-orbit canonical representative of a `G/N`-element `z`. -/
+noncomputable def orbOut (ghat : G) (z : G ⧸ N) : G ⧸ N :=
+  ((z : (G ⧸ N) ⧸ Subgroup.zpowers (QuotientGroup.mk' N ghat)).out)
+
+open scoped Classical in
+/-- The involution graph pullback, unfolded to the two explicit sums of paper eq. (107)
+(the oriented factor-set term + the orientation-reversal correction). -/
+theorem phi_inv_eq (α : Z1 N (ZMod 2)) (ghat : G) (γ η : G) :
+    graphPullback (invOrbitDatum N (QuotientGroup.mk' N ghat)) (QuotientGroup.mk' N)
+        (shapiroFun N α.1) (γ, η)
+      = (∑ᶠ u : (G ⧸ N) ⧸ Subgroup.zpowers (QuotientGroup.mk' N ghat),
+          α.1 (lTrans N u.out γ)
+            * α.1 (lTrans N ((QuotientGroup.mk' N γ)⁻¹ * (u.out * QuotientGroup.mk' N ghat)) η))
+        + ∑ᶠ u : (G ⧸ N) ⧸ Subgroup.zpowers (QuotientGroup.mk' N ghat),
+            (if (QuotientGroup.mk' N γ)⁻¹ * u.out
+                  = orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * u.out) then 0 else 1)
+              * (α.1 (lTrans N (orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * u.out)) η)
+                * α.1 (lTrans N (orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * u.out)
+                    * QuotientGroup.mk' N ghat) η)) := rfl
+
 end Involution
 
 end ShapiroLedger
