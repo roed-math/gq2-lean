@@ -906,6 +906,29 @@ theorem expMod2_wildValueExp_tau (e : ℕ) :
     rw [← pow_mul, Nat.mul_comm, pow_mul, hgg, one_pow]
   rw [hg2, mul_one, mul_inv_cancel]
 
+/-- `wildValueExp` is natural in group homomorphisms — it uses only `mul`, `inv`, `pow`, `conjP`,
+`commP` (no `ω₂`), so no finiteness is needed. -/
+theorem wildValueExp_map {G H : Type*} [Group G] [Group H] (φ : G →* H) (t : Marking G) (e : ℕ) :
+    φ (wildValueExp t e) = wildValueExp (t.map φ) e := by
+  simp only [wildValueExp, Marking.map_σ, Marking.map_τ, Marking.map_x₀, Marking.map_x₁,
+    map_mul, map_inv, map_pow, Marking.map_conjP, Marking.map_commP]
+
+/-- For finite `G`, `wildValueExp` at `omega2Exp (Monoid.exponent G)` **is** `Marking.wildValue`:
+only `sigma2, u0, u1` carry `ω₂`, and each such element's order divides the exponent, so
+`powOmega2_pow_eq` rewrites the three `ω₂`-powers to the explicit `omega2Exp`-power. -/
+theorem wildValueExp_eq_wildValue {G : Type*} [Group G] [Finite G] (t : Marking G) :
+    t.wildValue = wildValueExp t (omega2Exp (Monoid.exponent G)) := by
+  have hN : Monoid.exponent G ≠ 0 := Monoid.exponent_ne_zero_of_finite
+  have hsig : powOmega2 t.σ = t.σ ^ omega2Exp (Monoid.exponent G) :=
+    (powOmega2_pow_eq t.σ (Monoid.order_dvd_exponent t.σ) hN).symm
+  have hu0 : powOmega2 (t.x₀ * t.τ) = (t.x₀ * t.τ) ^ omega2Exp (Monoid.exponent G) :=
+    (powOmega2_pow_eq _ (Monoid.order_dvd_exponent _) hN).symm
+  have hu1 : powOmega2 (t.x₁ * t.τ) = (t.x₁ * t.τ) ^ omega2Exp (Monoid.exponent G) :=
+    (powOmega2_pow_eq _ (Monoid.order_dvd_exponent _) hN).symm
+  simp only [Marking.wildValue, Marking.h0, Marking.c0, Marking.dg, Marking.hc, Marking.z0,
+    Marking.g0, Marking.d0, Marking.u1, Marking.u0, Marking.u, Marking.sigma2, wildValueExp,
+    hsig, hu0, hu1]
+
 /-- The projection `⟨a,λ,z,g⟩ ↦ ⟨λ, g⟩ : H(A) ⋊ C →* A^∨ ⋊ C` onto the dual lift group. -/
 def lgHom : HeisLift A C →* WordLift (ElemDual A) C where
   toFun p := ⟨p.l, p.g⟩
@@ -970,6 +993,20 @@ theorem mixedB_tameRow (t : Marking C) (ht : t.TameRel) (a : A) (y : Fin 4 → E
     simp only [he]
     rw [Fin.sum_univ_four]
     simp [markVec]
+
+/-- **Wild bridge**: the paper's wild relator value at `heisMarking` equals the free-word
+evaluation `stokesEval … fgWild`, where `fgWild = wildValueExp freeMarking (omega2Exp (exponent
+H(A)⋊C))` is the target-dependent integer-`ω₂` representative of the wild word.  This is the wild
+analogue of `bridge_tame`; unlike the tame case it is genuinely target-dependent (the exponent is
+`Monoid.exponent (HeisLift A C)`), because `freeMarking.wildValue`'s `ω₂` is degenerate in the
+infinite free group.  Feeding this into Lemma 5.7 is what the (reconciled) wild row of Prop 5.8
+and the normal-form Lemma 5.13 will consume. -/
+theorem bridge_wild [Finite A] [Finite C] (t : Marking C) (x : Fin 4 → A)
+    (y : Fin 4 → ElemDual A) :
+    (heisMarking t x y).wildValue
+      = stokesEval (markVec t) x y
+          (wildValueExp freeMarking (omega2Exp (Monoid.exponent (HeisLift A C)))) := by
+  rw [heisMarking_eq_map, wildValueExp_eq_wildValue, ← wildValueExp_map]
 
 /-- **Prop 5.8, display (41)** (= chain identity (47) of Prop 5.10 under the canonical
 identifications): `B_{ρ,A}(d⁰a, y) = ⟨a, L^{A^∨}_t(y) + L^{A^∨}_w(y)⟩`, where the dual
