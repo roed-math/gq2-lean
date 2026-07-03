@@ -114,6 +114,20 @@ noncomputable def Marking.wildValue {G : Type*} [Group G] (t : Marking G) : G :=
     t.wildValue = 1 ↔ t.WildRel :=
   Iff.rfl
 
+/-- **Naturality of the tame relator value** under a group homomorphism.  (No `ω₂`-power occurs
+in the tame word, so no finiteness is needed.) -/
+theorem Marking.map_tameValue {G H : Type*} [Group G] [Group H] (φ : G →* H) (t : Marking G) :
+    (t.map φ).tameValue = φ t.tameValue := by
+  simp only [tameValue, Marking.map_σ, Marking.map_τ, map_mul, map_inv, map_pow,
+    Marking.map_conjP]
+
+/-- **Naturality of the wild relator value** under a group homomorphism.  The `ω₂`-powers in the
+wild word push through `φ` via `powOmega2_map`, which needs the source group finite. -/
+theorem Marking.map_wildValue {G H : Type*} [Group G] [Group H] [Finite G] (φ : G →* H)
+    (t : Marking G) : (t.map φ).wildValue = φ t.wildValue := by
+  simp only [wildValue, Marking.map_h0, Marking.map_u1, Marking.map_x₁, Marking.map_σ,
+    Marking.map_c0, map_mul, map_inv, Marking.map_conjP]
+
 namespace FoxH
 
 /-! ## The lift group `A ⋊ C`  (paper convention `(u,g)(v,h) = (u + g•v, gh)`) -/
@@ -154,6 +168,35 @@ instance : Group (WordLift A C) where
   mul_one p := by ext <;> simp
   inv_mul_cancel p := by ext <;> simp
 
+/-- `WordLift A C ≃ A × C` (the underlying data), for the finiteness instance. -/
+def equivProd : WordLift A C ≃ A × C where
+  toFun p := (p.u, p.g)
+  invFun p := ⟨p.1, p.2⟩
+  left_inv _ := rfl
+  right_inv _ := rfl
+
+instance [Finite A] [Finite C] : Finite (WordLift A C) := Finite.of_equiv _ equivProd.symm
+
+variable {A' : Type*} [AddCommGroup A'] [DistribMulAction C A']
+
+/-- **Coefficient functoriality**: a `C`-equivariant `f : A →+ A'` induces a group homomorphism
+`WordLift A C →* WordLift A' C` (the identity on the base `C`). -/
+def map (f : A →+ A') (hf : ∀ (g : C) (a : A), f (g • a) = g • f a) :
+    WordLift A C →* WordLift A' C where
+  toFun p := ⟨f p.u, p.g⟩
+  map_one' := by ext <;> simp
+  map_mul' p q := by
+    ext
+    · show f (p.u + p.g • q.u) = f p.u + p.g • f q.u
+      rw [map_add, hf]
+    · rfl
+
+@[simp] theorem map_u (f : A →+ A') (hf : ∀ (g : C) (a : A), f (g • a) = g • f a)
+    (p : WordLift A C) : (map f hf p).u = f p.u := rfl
+
+@[simp] theorem map_g (f : A →+ A') (hf : ∀ (g : C) (a : A), f (g • a) = g • f a)
+    (p : WordLift A C) : (map f hf p).g = p.g := rfl
+
 end WordLift
 
 /-! ## The word complex (30)/(31) -/
@@ -180,16 +223,47 @@ noncomputable def d1Fun (t : Marking C) (x : Fin 4 → A) : A × A :=
   ((liftMarking t x).tameValue.u, (liftMarking t x).wildValue.u)
 
 /-- **`d¹` is additive in the lift variables** — the paper's "finite Fox rules" linearity
-(§5.1/§5.2, displays (36)–(37); route: uniform integer `ω₂`-representative via
-`powOmega2_pow_eq`, then word induction / the Lemma 5.4 ledger).
+(§5.1/§5.2, displays (36)–(37)).  Proof by *functoriality*: evaluate the relators over the
+coefficient module `A × A`, then push the value through the three `C`-equivariant maps
+`fst, snd, fst + snd : A × A →+ A` (`Marking.map_tameValue`/`map_wildValue` +
+`WordLift.map`); the `u`-coordinates give `d1Fun` at `x`, `y`, and `x + y` respectively.
 
-*Status*: sorried (P-13). -/
-theorem d1Fun_add (t : Marking C) (x y : Fin 4 → A) :
+(Requires `A`, `C` finite: the wild relator's `ω₂`-powers only push through coefficient maps in
+finite groups — `powOmega2_map`.  This is the paper's finite-word setting.) -/
+theorem d1Fun_add [Finite A] [Finite C] (t : Marking C) (x y : Fin 4 → A) :
     d1Fun t (x + y) = d1Fun t x + d1Fun t y := by
-  sorry
+  -- Coefficient maps `A × A →+ A`, all `C`-equivariant since the action is diagonal.
+  have hfst : ∀ (g : C) (a : A × A),
+      (AddMonoidHom.fst A A) (g • a) = g • (AddMonoidHom.fst A A) a := fun _ _ => rfl
+  have hsnd : ∀ (g : C) (a : A × A),
+      (AddMonoidHom.snd A A) (g • a) = g • (AddMonoidHom.snd A A) a := fun _ _ => rfl
+  have hsum : ∀ (g : C) (a : A × A), (AddMonoidHom.fst A A + AddMonoidHom.snd A A) (g • a)
+      = g • (AddMonoidHom.fst A A + AddMonoidHom.snd A A) a := by
+    intro g a
+    show (g • a).1 + (g • a).2 = g • (a.1 + a.2)
+    rw [Prod.smul_fst, Prod.smul_snd, smul_add]
+  set φ1 := WordLift.map (C := C) (AddMonoidHom.fst A A) hfst with hφ1
+  set φ2 := WordLift.map (C := C) (AddMonoidHom.snd A A) hsnd with hφ2
+  set φs := WordLift.map (C := C) (AddMonoidHom.fst A A + AddMonoidHom.snd A A) hsum with hφs
+  -- The paired lift over `A × A` recovers the single-variable lifts after pushing through the maps.
+  have hL1 : (liftMarking t (fun i => (x i, y i))).map φ1 = liftMarking t x := rfl
+  have hL2 : (liftMarking t (fun i => (x i, y i))).map φ2 = liftMarking t y := rfl
+  have hLs : (liftMarking t (fun i => (x i, y i))).map φs = liftMarking t (x + y) := rfl
+  -- Both relator coordinates read off the paired value via `fst`, `snd`, `fst + snd`.
+  refine Prod.ext ?_ ?_
+  · show (liftMarking t (x + y)).tameValue.u
+        = (liftMarking t x).tameValue.u + (liftMarking t y).tameValue.u
+    rw [← hL1, ← hL2, ← hLs, Marking.map_tameValue, Marking.map_tameValue, Marking.map_tameValue,
+      hφ1, hφ2, hφs, WordLift.map_u, WordLift.map_u, WordLift.map_u]
+    rfl
+  · show (liftMarking t (x + y)).wildValue.u
+        = (liftMarking t x).wildValue.u + (liftMarking t y).wildValue.u
+    rw [← hL1, ← hL2, ← hLs, Marking.map_wildValue, Marking.map_wildValue, Marking.map_wildValue,
+      hφ1, hφ2, hφs, WordLift.map_u, WordLift.map_u, WordLift.map_u]
+    rfl
 
-/-- **`d¹`** (display (30)), bundled on `d1Fun_add`. -/
-noncomputable def d1 (t : Marking C) : (Fin 4 → A) →+ A × A :=
+/-- **`d¹`** (display (30)), bundled on `d1Fun_add` (finite coefficients, per `d1Fun_add`). -/
+noncomputable def d1 [Finite A] [Finite C] (t : Marking C) : (Fin 4 → A) →+ A × A :=
   AddMonoidHom.mk' (d1Fun t) (d1Fun_add t)
 
 /-- **(30) is a complex**: `d¹ ∘ d⁰ = 0` when the marking satisfies the two relations.
@@ -203,27 +277,30 @@ theorem d1Fun_comp_d0 (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (v : A) 
 def H0w (t : Marking C) : AddSubgroup A := (d0 (A := A) t).ker
 
 /-- `Z¹_{A,ρ}(A) = ker d¹` (display (30)'s degree-one kernel). -/
-noncomputable def Z1w (t : Marking C) : AddSubgroup (Fin 4 → A) := (d1 (A := A) t).ker
+noncomputable def Z1w [Finite A] [Finite C] (t : Marking C) : AddSubgroup (Fin 4 → A) :=
+  (d1 (A := A) t).ker
 
 /-- `B¹_{A,ρ}(A) = im d⁰`. -/
 def B1w (t : Marking C) : AddSubgroup (Fin 4 → A) := (d0 (A := A) t).range
 
 /-- `H¹_{A,ρ}(A)` (as in `GQ2/Cohomology.lean`: the `addSubgroupOf`-quotient is total — the
 chain inclusion `B¹ ≤ Z¹` is `d1Fun_comp_d0`, needed only for lemmas). -/
-noncomputable def H1w (t : Marking C) : Type _ :=
+noncomputable def H1w [Finite A] [Finite C] (t : Marking C) : Type _ :=
   Z1w (A := A) t ⧸ (B1w (A := A) t).addSubgroupOf (Z1w (A := A) t)
 
-noncomputable instance (t : Marking C) : AddCommGroup (H1w (A := A) t) :=
+noncomputable instance [Finite A] [Finite C] (t : Marking C) : AddCommGroup (H1w (A := A) t) :=
   inferInstanceAs (AddCommGroup (_ ⧸ _))
 
 /-- The class of a degree-one cocycle in `H¹_{A,ρ}`. -/
-noncomputable def h1wMk (t : Marking C) (x : Z1w (A := A) t) : H1w (A := A) t :=
+noncomputable def h1wMk [Finite A] [Finite C] (t : Marking C) (x : Z1w (A := A) t) :
+    H1w (A := A) t :=
   QuotientAddGroup.mk x
 
 /-- `H²_{A,ρ}(A) = A² ⧸ im d¹`. -/
-noncomputable def H2w (t : Marking C) : Type _ := (A × A) ⧸ (d1 (A := A) t).range
+noncomputable def H2w [Finite A] [Finite C] (t : Marking C) : Type _ :=
+  (A × A) ⧸ (d1 (A := A) t).range
 
-noncomputable instance (t : Marking C) : AddCommGroup (H2w (A := A) t) :=
+noncomputable instance [Finite A] [Finite C] (t : Marking C) : AddCommGroup (H2w (A := A) t) :=
   inferInstanceAs (AddCommGroup (_ ⧸ _))
 
 /-- **The tame row of `d¹`, in closed form** — the general (pre-`𝔽₂`) form of display (34),
@@ -263,6 +340,9 @@ instance : FunLike (ElemDual A) A (ZMod 2) :=
 
 instance : AddMonoidHomClass (ElemDual A) A (ZMod 2) :=
   inferInstanceAs (AddMonoidHomClass (A →+ ZMod 2) A (ZMod 2))
+
+instance [Finite A] : Finite (ElemDual A) :=
+  Finite.of_injective (fun f : ElemDual A => (⇑f : A → ZMod 2)) DFunLike.coe_injective
 
 @[ext] theorem ext {lam mu : ElemDual A} (h : ∀ a, lam a = mu a) : lam = mu :=
   DFunLike.ext _ _ h
@@ -501,7 +581,7 @@ end Traced
 
 section Duality
 
-variable {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+variable {C : Type*} [Group C] [Finite C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
 
 /-- The `C`-fixed points of a module (the invariants `M^C`, as a `Set` — `Nat.card` needs no
 subgroup structure). -/
@@ -514,7 +594,8 @@ the display-(56) numerics and a perfect degree-one pairing descending the traced
 coordinate `B_{ρ,A}`.  "Perfect" is encoded as two-sided nondegeneracy (equivalent for finite
 elementary groups given the card clauses).  Lemma 5.11 is two-out-of-three for this
 predicate. -/
-def IsSelfDual (t : Marking C) (A : Type*) [AddCommGroup A] [DistribMulAction C A] : Prop :=
+def IsSelfDual (t : Marking C) (A : Type*) [AddCommGroup A] [DistribMulAction C A] [Finite A] :
+    Prop :=
   (Nat.card (H2w (A := A) t) = Nat.card (fixedPts C (ElemDual A))) ∧
   (Nat.card (Z1w (A := A) t) = Nat.card A ^ 2 * Nat.card (fixedPts C (ElemDual A))) ∧
   ∃ P : H1w (A := A) t → H1w (A := ElemDual A) t → ZMod 2,
@@ -613,7 +694,7 @@ end Duality
 
 section NormalForms
 
-variable {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
+variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
 
 /-- The degree-one tuple supported on the `x₀`-slot (display (53)'s normal form). -/
 def x0Supported (c : V) : Fin 4 → V := ![0, 0, c, 0]
@@ -664,7 +745,7 @@ end NormalForms
 
 section MainDuality
 
-variable {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+variable {C : Type*} [Group C] [Finite C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
 
 /-- **Prop 5.15 (candidate deformation duality)**: the Fox–Heisenberg chain map is a
 quasi-isomorphism for every finite elementary module — packaged: the display-(56) numerics
