@@ -20,7 +20,7 @@ row ◐ before starting.  Paper: `paper/A_Profinite_Presentation_for_G__Q_2.pdf`
 | P-03 | A: t.f.g. — `FreeProfiniteGroup X` (finite `X`), quotients of t.f.g., `GammaA` t.f.g. | ⭐⭐ | O | — | ∅ | ☑ 2026-07-03 (`GQ2/FinitelyGenerated.lean`) |
 | P-04 | A: universal marking admissible-in-the-limit (relator words ∈ `N_A`; wild pair's closed normal closure pro-2 in `Γ_A`) | ⭐⭐⭐ | **F** | — | ∅ | ◐ (Fable, 2026-07-03) |
 | P-05 | A: Prop 2.3 — `Nat.card (ContSurj GammaA G) = admissibleCount G` | ⭐⭐⭐ | **F** | P-04 | ∅ | ☐ |
-| P-06 | B: §3 statement extraction — Lemmas 3.4–3.8, Prop 3.2, Prop 1.1 as sorried statements + design note | ⭐⭐ | **F** | — | (statements) | ◐ (Fable, 2026-07-03) |
+| P-06 | B: §3 statement extraction — Lemmas 3.4–3.8, Prop 3.2, Prop 1.1 as sorried statements + design note | ⭐⭐ | **F** | — | (statements) | ☑ 2026-07-03 (`GQ2/SectionThree.lean` + `GQ2/SectionThreeMarked.lean`, `docs/section3-extraction.md`) |
 | P-07 | B: Lemmas 3.4/3.5 proofs (eq. (13) ledger: square-class basis, χ/ν rows, cup form `α²+βγ+γβ`) | ⭐⭐ | O | P-06 | B5, B7′ | ☐ |
 | P-08 | B: Lemmas 3.6–3.8 proofs (cyclotomic conjugation of peripherals; wild-relation shape) | ⭐⭐ | O | P-06 | B2, B8 | ☐ |
 | P-09 | B: Prop 3.2 proof — common tame quotient (`Γ_A` side: Lemma 3.1 ✓ + bridges; local side: B5 `ν_ur`) | ⭐⭐⭐ | O | P-06 | B5 | ☐ |
@@ -83,6 +83,23 @@ paper eq./§ cross-references; new files, own board row only.
   (`Reciprocity` bundle for eq. (13), `HilbertSymbol`/`Kummer` for 3.5, `PeripheralAction` for
   3.6, `Tame.lean` for the tame side, `DyadicPresentation`+`Orientation` for Prop 1.1's target).
   Design note mapping each statement to its paper display.  Allowlist entries added.
+  *Done (`GQ2/SectionThree.lean` — 10 sorries — plus `GQ2/SectionThreeMarked.lean` — 5 — both
+  allowlisted; design note `docs/section3-extraction.md`).*  Statements: Prop 1.1 (`prop_1_1`,
+  lift-read `ν_ur`-rows, `R : LocalReciprocity`-parametrized); Prop 3.2 split
+  (`prop_3_2_gammaA` generator-pinned; `prop_3_2_local` = `Nonempty LocalTameQuotient`, wild
+  inertia encoded as the maximal closed normal pro-2 subgroup per Lemma 3.3); eq. (11) bundle
+  (`BDecomposition`, `b_decomposition`); Lemma 3.5 residue (`lemma_3_5_marked_abelianization`,
+  `lemma_3_5_hilbert_ledger`, `lemma_3_5_injective` — the (13) rows are step-1-proved in
+  `Reciprocity.lean`); Lemma 3.7 (`lemma_3_7`); Prop 3.8 (`prop_3_8_lift`,
+  `prop_3_8_classification`).  **Absorptions**: Lemma 3.4 = B4 + B3c + the B3b no-axiom
+  decision; Lemma 3.6 = B8 verbatim.  **P-11 handoff taken**: Prop 3.10/3.14 stated against
+  `BoundaryFrame.lean` (`prop_3_10_gammaA`, `prop_3_10_local_marked`, `nuT_surjective`,
+  `nuTwo_surjective`, `prop_3_14 : Nonempty BoundaryMaps`) in `SectionThreeMarked.lean`
+  (separate file: it imports the P-11 layer, committed `f4f911e`, while the core file rests
+  on step-1 modules only).  **Escalation for P-09** (rule 1, pre-authorized in its bullet): `prop_3_2_local`
+  needs the classical tame-quotient description of `G_ℚ₂`, which no census axiom covers —
+  census discussion before P-09; options in the design note.  P-10 infra flagged:
+  `IsProP 2 (Multiplicative ℤ₂)` descent + the `Ztwo ≅ Multiplicative ℤ₂` bridge.
 - **P-07/P-08/P-09/P-10**: the P-06 statements proved, allowlist entries removed, axiom sets per
   the **Ax** column (this *is* the App. D certificate check for §3).  P-09's `Γ_A` side should
   consume `Tame.lean`'s Lemma 3.1 as-is; if the local side needs more than the B5 bundle exposes,
