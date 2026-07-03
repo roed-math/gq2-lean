@@ -139,6 +139,48 @@ close the ten sorries).
    `IsProP 2 ℤ₂ˣ` O-finish refinement of T-11.
 3. **Foreseen (P-14)**: the §6 cup↔symbol seam noted above.
 
+4. **RAISED by P-08 (Opus, 2026-07-03) — P-08 is infrastructure-blocked; needs a new
+   foundations ticket.**  When this note scoped 3.7/3.8 as "provable via B2/B8 + ℤ₂-linear
+   coordinate transcription", it under-estimated the depth: **all three** P-08 statements
+   route through infrastructure absent from the step-1 def-layers.  Precise gap map (against
+   the paper's own proofs of Lemma 3.7 / Prop. 3.8, pp. 8–9):
+
+   * **`lemma_3_7`** (Ψ_u ∈ Aut(D₀), Ā↦uĀ, S̄↦uS̄).  The paper *constructs* Ψ_u from B8's
+     φ_u on `Δ = ⟨P,T⟩_pro2` through: (a) the identification `E□ = ⟨P,T,A | PTA²⟩ ≅ ⟨P,A⟩`
+     and `E = ⟨S,A⟩` with `P = S³`, `T = S⁻³A⁻²` — a chain of **pro-2 free-group / one-relator
+     (HNN) manipulations** with no repo analogue; (b) **`x ↦ xᵐ` bijective for odd `m`, with
+     inverse `x ↦ x^{m⁻¹}`** (cube roots; `m⁻¹ ∈ ℤ₂`) — i.e. **ℤ₂-powering on pro-2 groups**,
+     which T-12 *explicitly deferred* (`maxPro2(ℤ̂) ≅ ℤ₂`, its "nice-to-have"; no `ι : ℤ₂ → ℤ̂`
+     exists — confirmed absent); (c) **surjective-on-Frattini ⇒ surjective** (pro-2 Burnside
+     basis theorem) feeding `profinite_hopfian` (have the Hopfian half; missing the Frattini
+     criterion).  None of (a)/(b)/(c) is ⭐⭐ proof-ticket work; (a)+the B8(`Fin 2`)→D₀(`Fin 3`)
+     transport is the paper's genuine anabelian argument.
+   * **`prop_3_8_lift`** = `lemma_3_7` (u-part, so all of the above) **plus** the shear
+     `Θ_b` (paper (19)) whose `Y ↦ Y·S^b`, `A ↦ A^{S^b}` need `S^b` for `b ∈ ℤ₂` — **ℤ₂-powering
+     again**.  (`Θ_b` for `b ∈ ℤ` *is* elementary and self-contained — a genuine
+     `ContinuousMulEquiv D0 D0` via `presentationLift` + the identity `Θ_b(r₀) = r₀^{Sᵇ}`; it is
+     the natural first deliverable once someone picks this up, but it only realizes `α_{1,b}`
+     for integer `b`, so it does not close the statement.)
+   * **`prop_3_8_classification`** (orientation-preserving auto of `B` ⟹ `α_{u,b}`, unique).
+     This one needs **no** pro-2 powering — it is `ℤ₂`-module algebra on
+     `B ≅ ℤ/2 × ℤ₂ × ℤ₂` — **but** its core step (`ξ(Ȳ) = Ȳ + b·S̄`, forcing the `Ȳ`-coordinate
+     to `1`) needs **`η = (−3)⁻¹` generates a torsion-free procyclic pro-2 group**
+     (`η^y = 1 → y = 0` for the `ℤ₂`-power, i.e. `1 + 4ℤ₂ ≅ ℤ₂` — the *exceptional `p = 2`*
+     `exp`/`log` iso, not in Mathlib's `PadicInt` API).  **This same 2-adic fact is a
+     prerequisite of P-07's `lemma_3_5_injective`** ("`η` topologically generates `1 + 4ℤ₂`",
+     escalation-note dictionary) — it is **shared P-07/P-08 infrastructure**.
+
+   **Recommended resolution** (mirrors escalation 1's option-(a) style, but a *foundations*
+   ticket, not an axiom): a new ticket **"P-2x: ℤ₂-powering on pro-2 groups"** delivering
+   (i) `x ^ᶻ⟨2⟩ u` for `u ∈ ℤ₂` on any pro-2 group (via `maxPro2(ℤ̂) ≅ ℤ₂`, finishing the
+   T-12 nice-to-have) with odd-power bijectivity, (ii) the `1 + 4ℤ₂ ≅ ℤ₂` procyclic fact for
+   the `η`-injectivity (shared with P-07), and (iii) the Frattini/Burnside "surjective-on-
+   `G/Φ(G)` ⇒ surjective" criterion for pro-2 groups.  With (i)–(iii): `prop_3_8_classification`
+   and the `Θ_b`/`α_{1,b}` half become tractable; `lemma_3_7`'s full B8→D₀ transport is still
+   the hardest node (the anabelian bridge) and may warrant its own sub-ticket.  **Pending a
+   census/scope decision** (as B10 was), P-08 stays open; no fake proofs land.  The `Ttame`
+   dedup task (chip `task_88b19198`) is orthogonal and still stands.
+
 ## Marked half (P-11 handoff): Prop. 3.10 / Prop. 3.14 — `GQ2/SectionThreeMarked.lean`
 
 Taken mid-ticket from P-11's board handoff ("P-06 states Prop 3.10/3.14 against these defs");

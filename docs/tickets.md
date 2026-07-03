@@ -22,7 +22,7 @@ row ◐ before starting.  Paper: `paper/A_Profinite_Presentation_for_G__Q_2.pdf`
 | P-05 | A: Prop 2.3 — `Nat.card (ContSurj GammaA G) = admissibleCount G` | ⭐⭐⭐ | **F** | P-04 | ∅ | ☐ |
 | P-06 | B: §3 statement extraction — Lemmas 3.4–3.8, Prop 3.2, Prop 1.1 as sorried statements + design note | ⭐⭐ | **F** | — | (statements) | ☑ 2026-07-03 (`GQ2/SectionThree.lean` + `GQ2/SectionThreeMarked.lean`, `docs/section3-extraction.md`) |
 | P-07 | B: Lemmas 3.4/3.5 proofs (eq. (13) ledger: square-class basis, χ/ν rows, cup form `α²+βγ+γβ`) | ⭐⭐ | O | P-06 | B5, B7′ | ☐ |
-| P-08 | B: Lemmas 3.6–3.8 proofs (cyclotomic conjugation of peripherals; wild-relation shape) | ⭐⭐ | O | P-06 | B2, B8 | ☐ |
+| P-08 | B: Lemmas 3.6–3.8 proofs (cyclotomic conjugation of peripherals; wild-relation shape) | ⭐⭐ | O | P-06 | B2, B8 | ⚠ escalated (Opus, 2026-07-03): infra-blocked, see `docs/section3-extraction.md` §Escalations 4 |
 | P-09 | B: Prop 3.2 proof — common tame quotient (`Γ_A` side: Lemma 3.1 ✓ + bridges; local side: B10 + Lemma 3.3 maximality) | ⭐⭐⭐ | O | P-06 | B5, B10 | ☐ |
 | P-10 | B: Prop 1.1 proof — marked dyadic Demushkin normalization, `ν_ur = (−2,1,0)` | ⭐⭐ | O | P-06, P-07, P-08 | B3c, B4, B5, B7′ | ☐ |
 | P-11 | B: §4 design — boundary-framed marked targets, exact-image counts, **Thm 4.2 statement** | ⭐⭐⭐ | **F** | — | (statements) | ☑ 2026-07-03 (`GQ2/BoundaryFrame.lean`) |
