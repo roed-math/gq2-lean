@@ -488,6 +488,22 @@ noncomputable instance : Group (HeisLift A C) where
       linear_combination CharTwo.add_self_eq_zero p.z
     · simp
 
+/-- The base projection `HeisLift A C →* C`. -/
+def gHom : HeisLift A C →* C where
+  toFun := HeisLift.g
+  map_one' := rfl
+  map_mul' _ _ := rfl
+
+@[simp] theorem gHom_apply (p : HeisLift A C) : gHom p = p.g := rfl
+
+/-- The central element `⟨0, 0, w, 1⟩` (the paper's `z(w)`).  It is genuinely central. -/
+noncomputable def zc (w : ZMod 2) : HeisLift A C := ⟨0, 0, w, 1⟩
+
+@[simp] theorem zc_z (w : ZMod 2) : (zc (A := A) (C := C) w).z = w := rfl
+
+theorem mul_zc (p : HeisLift A C) (w : ZMod 2) : p * zc w = ⟨p.a, p.l, p.z + w, p.g⟩ := by
+  ext <;> simp [zc, mul_a, mul_l, mul_z, mul_g]
+
 end HeisLift
 
 section Mixed
@@ -521,6 +537,26 @@ noncomputable def stokesEval (c : Fin n → C) (x : Fin n → A) (y : Fin n → 
 /-- The mod-2 total exponent `ε_i(r)` of the `i`-th generator in an ordinary word. -/
 def expMod2 {n : ℕ} (i : Fin n) : FreeGroup (Fin n) →* Multiplicative (ZMod 2) :=
   FreeGroup.lift fun j => Multiplicative.ofAdd (if j = i then 1 else 0)
+
+/-- The base coordinate of a Stokes evaluation is the underlying word value in `C`. -/
+@[simp] theorem stokesEval_g (c : Fin n → C) (x : Fin n → A) (y : Fin n → ElemDual A)
+    (r : FreeGroup (Fin n)) : (stokesEval c x y r).g = FreeGroup.lift c r := by
+  have h : (HeisLift.gHom).comp (stokesEval c x y) = FreeGroup.lift c :=
+    FreeGroup.ext_hom _ _ fun i => rfl
+  exact DFunLike.congr_fun h r
+
+/-- With zero `A`-offsets, the `A`- and central coordinates of a Stokes evaluation vanish (the
+elements `⟨0, λ, 0, g⟩` form a subgroup on which the central defect is inert). -/
+theorem stokesEval_zero (c : Fin n → C) (y : Fin n → ElemDual A) (r : FreeGroup (Fin n)) :
+    (stokesEval c 0 y r).a = 0 ∧ (stokesEval c 0 y r).z = 0 := by
+  refine FreeGroup.induction_on r ⟨rfl, rfl⟩ (fun i => ⟨by simp [stokesEval], by simp [stokesEval]⟩)
+    (fun i ih => ?_) (fun x₁ x₂ ih₁ ih₂ => ?_)
+  · rw [map_inv]
+    exact ⟨by rw [HeisLift.inv_a, ih.1, smul_zero, neg_zero],
+      by rw [HeisLift.inv_z, ih.2, ih.1, map_zero, add_zero]⟩
+  · rw [map_mul]
+    exact ⟨by rw [HeisLift.mul_a, ih₁.1, ih₂.1, smul_zero, add_zero],
+      by rw [HeisLift.mul_z, ih₁.2, ih₂.2, ih₂.1, smul_zero, map_zero, add_zero, add_zero]⟩
 
 /-- **Lemma 5.7, display (38)**: for a word `r` with trivial lower value, evaluating at the
 generic coboundary `x = d⁰a = ((cᵢ−1)a)ᵢ` gives
