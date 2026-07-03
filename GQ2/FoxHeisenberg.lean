@@ -197,6 +197,23 @@ def map (f : A →+ A') (hf : ∀ (g : C) (a : A), f (g • a) = g • f a) :
 @[simp] theorem map_g (f : A →+ A') (hf : ∀ (g : C) (a : A), f (g • a) = g • f a)
     (p : WordLift A C) : (map f hf p).g = p.g := rfl
 
+/-- The base embedding `C →* WordLift A C`, `g ↦ (0, g)` (the offset-zero lift). -/
+def baseEmbed : C →* WordLift A C where
+  toFun g := ⟨0, g⟩
+  map_one' := rfl
+  map_mul' g h := by ext <;> simp
+
+@[simp] theorem baseEmbed_apply (g : C) : (baseEmbed (A := A) g) = ⟨0, g⟩ := rfl
+
+/-- Conjugating a base generator `(0, g)` by `(v, 1)` produces the coboundary offset
+`(g • v − v, g)` — the shape of `d⁰`. -/
+theorem conj_baseEmbed (v : A) (g : C) :
+    (⟨v, 1⟩ : WordLift A C)⁻¹ * ⟨0, g⟩ * ⟨v, 1⟩ = ⟨g • v - v, g⟩ := by
+  ext
+  · simp only [mul_u, mul_g, inv_u, inv_g, inv_one, one_smul, smul_zero, one_mul, add_zero]
+    abel
+  · simp only [mul_g, inv_g, inv_one, one_mul, mul_one]
+
 end WordLift
 
 /-! ## The word complex (30)/(31) -/
@@ -267,11 +284,29 @@ noncomputable def d1 [Finite A] [Finite C] (t : Marking C) : (Fin 4 → A) →+ 
   AddMonoidHom.mk' (d1Fun t) (d1Fun_add t)
 
 /-- **(30) is a complex**: `d¹ ∘ d⁰ = 0` when the marking satisfies the two relations.
-
-*Status*: sorried (P-13). -/
-theorem d1Fun_comp_d0 (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (v : A) :
-    d1Fun t (d0 t v) = 0 := by
-  sorry
+Proof: `liftMarking t (d0 t v)` is `t` pushed through `g ↦ ⟨g•v − v, g⟩ = ⟨v,1⟩⁻¹⟨0,g⟩⟨v,1⟩`
+(conjugation of the base embedding), so its relator values are conjugates of `t`'s — which are
+`1` by the relations — hence have zero `A`-coordinate. -/
+theorem d1Fun_comp_d0 [Finite A] [Finite C] (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (v : A) : d1Fun t (d0 t v) = 0 := by
+  -- Conjugation by `⟨v,1⟩`, an inner automorphism, composed with the base embedding.
+  let φ : WordLift A C →* WordLift A C :=
+    { toFun := fun x => (⟨v, 1⟩ : WordLift A C)⁻¹ * x * ⟨v, 1⟩
+      map_one' := by group
+      map_mul' := fun a b => by group }
+  let ψ : C →* WordLift A C := φ.comp WordLift.baseEmbed
+  have hψ : ∀ g : C, ψ g = ⟨g • v - v, g⟩ := fun g => WordLift.conj_baseEmbed v g
+  -- The coboundary lift is `t` pushed through `ψ`.
+  have hkey : liftMarking t (d0 t v) = t.map ψ := by
+    simp only [liftMarking, Marking.map, hψ, Marking.mk.injEq]
+    refine ⟨?_, ?_, ?_, ?_⟩ <;> exact WordLift.ext (by simp [d0]) rfl
+  refine Prod.ext ?_ ?_
+  · show (liftMarking t (d0 t v)).tameValue.u = (0 : A × A).1
+    rw [hkey, Marking.map_tameValue, (Marking.tameValue_eq_one_iff t).mpr ht, map_one]
+    rfl
+  · show (liftMarking t (d0 t v)).wildValue.u = (0 : A × A).2
+    rw [hkey, Marking.map_wildValue, (Marking.wildValue_eq_one_iff t).mpr hw, map_one]
+    rfl
 
 /-- `H⁰_{A,ρ}(A) = ker d⁰` (the `t`-invariants). -/
 def H0w (t : Marking C) : AddSubgroup A := (d0 (A := A) t).ker
