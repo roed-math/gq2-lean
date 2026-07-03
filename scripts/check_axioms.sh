@@ -20,7 +20,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 AXIOMS_FILE='GQ2/Foundations/Axioms.lean'
-EXPECTED_AXIOMS=10  # B1, B2, B3c, B4, B5, B6, B7, B7', B8, B9
+EXPECTED_AXIOMS=11  # B1, B2, B3c, B4, B5, B6, B7, B7', B8, B9, B10 (B10: post-kickoff census decision, P-06 escalation)
 SORRY_ALLOWLIST='GQ2/Reconstruction.lean GQ2/Statement.lean GQ2/GammaA.lean GQ2/BoundaryFrame.lean GQ2/SectionThree.lean GQ2/SectionThreeMarked.lean'  # BoundaryFrame: P-11 thm_4_2 (removed by P-17); SectionThree(+Marked): P-06 §3 statements (removed by P-07/P-08/P-09/P-10)
 
 # Strip Lean comments: nested block comments `/- … -/` (incl. docstrings `/-- … -/`) and

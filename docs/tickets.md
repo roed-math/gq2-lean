@@ -6,7 +6,7 @@ Source of truth for the proof phase.  Rationale, DAG, conventions, and wave sche
 Difficulty: ⭐ easy · ⭐⭐ medium · ⭐⭐⭐ hard/design-sensitive.  Model: **F** = Fable
 (design-heavy), **O** = Opus (well-specified).  Status: ☐ open · ◐ in progress · ☑ done.
 
-Rules: **no new `axiom`s** (census frozen at 10); statement tickets add their sorried theorems to
+Rules: **no new `axiom`s** (census frozen at 11 — B10 added post-kickoff by explicit decision, P-06 escalation); statement tickets add their sorried theorems to
 `SORRY_ALLOWLIST` in `scripts/check_axioms.sh` (same commit, entry cites the ticket), proof
 tickets remove them; every ticket's new theorems satisfy `#print axioms` ⊆ std-3 ∪ the ticket's
 **Ax** column; `GQ2/Foundations/Axioms.lean` is frozen; sessions claim a ticket by marking its
@@ -23,7 +23,7 @@ row ◐ before starting.  Paper: `paper/A_Profinite_Presentation_for_G__Q_2.pdf`
 | P-06 | B: §3 statement extraction — Lemmas 3.4–3.8, Prop 3.2, Prop 1.1 as sorried statements + design note | ⭐⭐ | **F** | — | (statements) | ☑ 2026-07-03 (`GQ2/SectionThree.lean` + `GQ2/SectionThreeMarked.lean`, `docs/section3-extraction.md`) |
 | P-07 | B: Lemmas 3.4/3.5 proofs (eq. (13) ledger: square-class basis, χ/ν rows, cup form `α²+βγ+γβ`) | ⭐⭐ | O | P-06 | B5, B7′ | ☐ |
 | P-08 | B: Lemmas 3.6–3.8 proofs (cyclotomic conjugation of peripherals; wild-relation shape) | ⭐⭐ | O | P-06 | B2, B8 | ☐ |
-| P-09 | B: Prop 3.2 proof — common tame quotient (`Γ_A` side: Lemma 3.1 ✓ + bridges; local side: B5 `ν_ur`) | ⭐⭐⭐ | O | P-06 | B5 | ☐ |
+| P-09 | B: Prop 3.2 proof — common tame quotient (`Γ_A` side: Lemma 3.1 ✓ + bridges; local side: B10 + Lemma 3.3 maximality) | ⭐⭐⭐ | O | P-06 | B5, B10 | ☐ |
 | P-10 | B: Prop 1.1 proof — marked dyadic Demushkin normalization, `ν_ur = (−2,1,0)` | ⭐⭐ | O | P-06, P-07, P-08 | B3c, B4, B5, B7′ | ☐ |
 | P-11 | B: §4 design — boundary-framed marked targets, exact-image counts, **Thm 4.2 statement** | ⭐⭐⭐ | **F** | — | (statements) | ☑ 2026-07-03 (`GQ2/BoundaryFrame.lean`) |
 | P-12 | B: §5 design — Fox–Heisenberg word complex; 5.7/5.8/5.10/5.11/5.13/5.15 statements | ⭐⭐⭐ | **F** | P-11 | (statements) | ☐ |
@@ -100,6 +100,10 @@ paper eq./§ cross-references; new files, own board row only.
   needs the classical tame-quotient description of `G_ℚ₂`, which no census axiom covers —
   census discussion before P-09; options in the design note.  P-10 infra flagged:
   `IsProP 2 (Multiplicative ℤ₂)` descent + the `Ztwo ≅ Multiplicative ℤ₂` bridge.
+  *Escalation resolved (same day, user decision):* **B10** (`GQ2.tameQuotient`, NSW (7.5.3)
+  Iwasawa; defs `GQ2/TameQuotient.lean`) added, census 10 → 11; maximality (Lemma 3.3) kept
+  as P-09's theorem (`LocalTameQuotient extends TameQuotientData`); `Ttame` deduped onto the
+  P-11 layer (`SectionThree`'s copy removed; `tame_relation` now in `TameQuotient.lean`).
 - **P-07/P-08/P-09/P-10**: the P-06 statements proved, allowlist entries removed, axiom sets per
   the **Ax** column (this *is* the App. D certificate check for §3).  P-09's `Γ_A` side should
   consume `Tame.lean`'s Lemma 3.1 as-is; if the local side needs more than the B5 bundle exposes,

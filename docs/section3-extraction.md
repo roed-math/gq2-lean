@@ -9,10 +9,10 @@ P-08 (3.7/3.8), P-09 (3.2), P-10 (1.1).
 
 | Paper node | Lean name (`GQ2.SectionThree.*`) | Status | Proof ticket / Ax |
 |---|---|---|---|
-| §3 opening display (`T_tame`) | `Ttame`, `tameSigma`, `tameTau`, `tame_relation` | **proved** (def-layer) | — |
+| §3 opening display (`T_tame`) | `GQ2.Ttame`/`tameSigma`/`tameTau` (P-11 layer), `GQ2.tame_relation` (`TameQuotient.lean`) | **proved** (def-layer) | — |
 | Lemma 3.1 | `GQ2.Tame` (step 1) | **proved** | — |
 | Prop. 3.2, `Γ_A` side | `prop_3_2_gammaA` | sorried | P-09 (Lemma 3.1 + T-21 bridges) |
-| Prop. 3.2, local side (+ Lemma 3.3 char.) | `LocalTameQuotient`, `prop_3_2_local` | sorried | P-09 — **escalation, see below** |
+| Prop. 3.2, local side (+ Lemma 3.3 char.) | `LocalTameQuotient` (extends B10's `TameQuotientData`), `prop_3_2_local` | sorried | P-09 (B10 + Lemma 3.3 maximality; escalation **resolved**, see below) |
 | Lemma 3.3 (`O₂ = W`) | folded into `LocalTameQuotient.maximal` / design note §3.3 | — | — |
 | Lemma 3.4 | **absorbed** (see below) | — | — |
 | eq. (9)/(11) (`B = C₂t ⊕ ℤ₂S̄ ⊕ ℤ₂Ȳ`) | `BDecomposition`, `b_decomposition` | sorried | P-07 (std-3 presented-group algebra) |
@@ -55,14 +55,14 @@ close the ten sorries).
 
 ## Encoding decisions and deviations
 
-* **`T_tame`** is the profinite presentation `profinitePresentation {tameRelator2}` on
-  `σ = of 0`, `τ = of 1` — the paper's `⟨σ, τ | τ^σ = τ²⟩_prof` verbatim.  *Coordination:*
-  P-11's in-flight `GQ2/BoundaryFrame.lean` defines its own `GQ2.Ttame` with the same
-  relator word (both wave-1 tickets are dependency-free by design, so neither could import
-  the other).  The two constants are definitionally equal; **P-09 (or the P-12 review pass)
-  deduplicates** — a one-line refactor.  Same remark for `wildPart` (`W_A`) versus whatever
-  P-04's `AdmissibleLimit.lean` lands for the pro-2 core: `SectionThree` is fully namespaced
-  (`GQ2.SectionThree.*`), so there is no name-collision risk meanwhile.
+* **`T_tame`** is `GQ2.Ttame` = `profinitePresentation {tameWord}` on `σ = of 0`,
+  `τ = of 1` — the paper's `⟨σ, τ | τ^σ = τ²⟩_prof` verbatim.  *(History: P-06 and P-11,
+  dependency-free wave-1 tickets, initially built identical copies; **deduplicated onto the
+  P-11 layer** in the B10 follow-up commit — `SectionThree`'s copy removed, `tame_relation`
+  proved in `GQ2/TameQuotient.lean`.)*  A dedup of the same kind remains open for `wildPart`
+  (`W_A`) versus whatever P-04's `AdmissibleLimit.lean` lands for the pro-2 core:
+  `SectionThree` is fully namespaced (`GQ2.SectionThree.*`), so there is no name-collision
+  risk meanwhile.
 * **`W_F` (local wild inertia) is encoded intrinsically** as the maximal closed normal pro-2
   subgroup (the fields of `LocalTameQuotient`): Mathlib has no ramification theory, and paper
   **Lemma 3.3** proves `O₂(G_{ℚ₂}) = W_F`, so the 2-core characterization *is* the faithful
@@ -119,19 +119,19 @@ close the ten sorries).
 
 ## Escalations (step-2 rule 1)
 
-1. **Prop. 3.2, local side (`prop_3_2_local`) is not provable from the frozen census.**
-   The paper's proof cites "the standard description of the tame quotient in the geometric
-   normalization" — a classical input (NSW (7.5.2)-family: `G_{ℚ₂}/W_F ≅ Ẑ^{(2′)} ⋊ Ẑ`,
-   geometric Frobenius squaring) that no B-axiom covers: the census is 2-centric, and B5
-   sees only the abelianization (the tame quotient is metabelian-but-nonabelian and carries
-   the full prime-to-2 inertia).  The board row P-09's "local side: B5 `ν_ur`" is therefore
-   optimistic; its acceptance criteria already pre-authorize this flag ("if the local side
-   needs more than the B5 bundle exposes, that is a design escalation, not a bundle edit").
-   Options for the census discussion: (a) add the tame-quotient description as an eleventh
-   classical leaf (it is as citable as B1/B4); (b) restructure Lemma 10.1's consumption so
-   only the `Γ_A`-side identification plus abstract local wild-quotient data is needed —
-   whether that suffices depends on P-11's Thm 4.2 statement, so decide after P-11 lands.
-   Until resolved, `prop_3_2_local` is an honest, faithfully-stated gap.
+1. **RESOLVED — axiom B10 added (user census decision, same day).**  Prop. 3.2's local side
+   was not provable from the step-1 census (2-centric; B5 sees only the abelianization, and
+   the tame quotient carries the full prime-to-2 inertia).  Resolution = option (a): the
+   classical tame-quotient description is now axiom **B10** (`GQ2.tameQuotient :
+   TameQuotientData`, `GQ2/TameQuotient.lean` + `GQ2/Foundations/Axioms.lean`; census 10 →
+   11; citation NSW (7.5.3) (Iwasawa) + (7.5.2), verified against the PDF).  Deliberately
+   **minimal**: the axiom asserts a closed normal pro-2 `W` with `G_ℚ₂/W ≅ T_tame`;
+   Lemma 3.3's *maximality* (which pins `W` and makes the quotient canonical) is the paper's
+   own proved content and stays a theorem — `LocalTameQuotient extends TameQuotientData`
+   adds the `maximal` field, and P-09 proves `prop_3_2_local` from B10 + the Lemma 3.3
+   argument (`T_tame` has no nontrivial closed normal pro-2 subgroup, via `GQ2/Tame.lean`).
+   The `Ttame` dedup landed in the same change: `SectionThree` now uses the P-11 layer's
+   `GQ2.Ttame`/`tameSigma`/`tameTau`, and `tame_relation` moved to `GQ2/TameQuotient.lean`.
 2. **P-10 prerequisite (no census impact)**: the lift-quantified `ν_ur`-rows need "every two
    lifts agree", i.e. `ν_ur ∘ toAb` kills `proPKernel 2 AbsGalQ2` — via T-05's
    `proPKernel_le_ker` once `IsProP 2 (Multiplicative ℤ_[2])` is proved (open subgroups of

@@ -29,5 +29,6 @@ import GQ2.TateDuality
 import GQ2.EvensKahn
 import GQ2.Orientation
 import GQ2.BoundaryFrame
+import GQ2.TameQuotient
 import GQ2.SectionThree
 import GQ2.SectionThreeMarked

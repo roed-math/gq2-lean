@@ -52,7 +52,7 @@ Theorem 1.2 literal  (main_presentation_literal)                                
   │    ├─ NA_le_ker + relator bridges (T-21) ✓ · Lemmas 2.1/2.2 ✓
   │    └─ universal marking admissible-in-the-limit (relators ∈ N_A, pro-2 core)   ☐ P-04
   └─ eq. (154)  main_surjection_count                                              ☐ P-18
-       ├─ Prop 3.2  common tame quotient  (Γ_A side: Lemma 3.1 ✓; local: B5)       ☐ P-09
+       ├─ Prop 3.2  common tame quotient  (Γ_A side: Lemma 3.1 ✓; local: B10)      ☐ P-09
        ├─ Prop 1.1  marked Demushkin normalization  (B4 + B3c-interface + §3)      ☐ P-10
        │    └─ Lemmas 3.4–3.8  (eq. (13) ledger: B5, B7′, B2, B8, Kummer)          ☐ P-06..P-08
        ├─ Thm 4.2  boundary-framed exact-image theorem  (statement: P-11)          ☐ P-17
@@ -71,7 +71,7 @@ is fully parallelizable *now*.
 
 ## Conventions (delta from step 1)
 
-1. **No new axioms.**  The census is frozen at 10.  If a proof seems to need an unstated classical
+1. **No new axioms.**  The census is frozen at 11 (10 at kickoff; **B10**, the tame quotient of `G_ℚ₂`, added by explicit decision after the P-06 escalation).  If a proof seems to need an unstated classical
    input, that is a design escalation (flag on the board, discuss), never an `axiom` commit.
 2. **Statement-first for interior nodes.**  Every §4–§10 node lands first as a *sorried* theorem
    with paper eq./§ cross-references and a design note (an F-ticket), then its proof (O-tickets).

@@ -4,6 +4,7 @@ import GQ2.MaxProP
 import GQ2.Reciprocity
 import GQ2.HilbertSymbol
 import GQ2.GammaA
+import GQ2.TameQuotient
 
 /-!
 # §3 statements: the tame and maximal pro-2 quotients  (ticket P-06)
@@ -26,9 +27,12 @@ records the absorption/deviation/escalation decisions summarized here:
   `nu_ur_recip_uniformizer` / `nu_ur_recip_neg3`, `chiCyc_recip_neg4` / `chiCyc_recip_neg3`,
   `abelianized_relator`.  What remains here: the marked pro-2-abelianization identification,
   the Hilbert-symbol square-class ledger, and the injectivity of the pair `(ν_ur, χ_D)`.
-* **Prop. 3.2's local side carries a flagged design escalation** (see `prop_3_2_local`):
-  the classical description of `G_{ℚ₂}/W_F` is not derivable from the frozen ten-axiom
-  census.  Recorded per step-2 rule 1; see the design note §"escalations".
+* **Prop. 3.2's local side rests on axiom B10** (`GQ2.tameQuotient`, added by explicit
+  census decision after this ticket's escalation): the classical tame-quotient description
+  of `G_{ℚ₂}` (NSW (7.5.3), Iwasawa) is not derivable from the 2-centric step-1 census.
+  The bundle and citation discussion live in `GQ2/TameQuotient.lean`; what remains a
+  *theorem* here is Lemma 3.3's maximality (the `maximal` field `prop_3_2_local` adds on
+  top of the axiom's `TameQuotientData`).
 
 Conventions: `x ^ g = g⁻¹xg` (`conjP`), `[x,y] = x⁻¹y⁻¹xy` (`commP`), reciprocity/`ν_ur`
 normalizations as in the `LocalReciprocity` convention table (`GQ2/Reciprocity.lean`).
@@ -78,31 +82,10 @@ end TopAb
 
 /-! ## The finite-quotient tame group `T_tame`  (paper §3, first display)
 
-`T_tame = ⟨σ, τ | τ^σ = τ²⟩_prof`, as a profinite presentation on two generators.
+`T_tame = ⟨σ, τ | τ^σ = τ²⟩_prof` is `GQ2.Ttame` with marked generators
+`tameSigma`/`tameTau` (the P-11 layer, `GQ2/BoundaryFrame.lean`; the tame relation
+`τ^σ = τ²` is proved as `GQ2.tame_relation` in `GQ2/TameQuotient.lean`).
 `GQ2/Tame.lean` (Lemma 3.1, fully proved) describes its finite quotients. -/
-
-/-- The tame relator `τ^σ · (τ²)⁻¹` in the free profinite group on `σ = of 0`, `τ = of 1`
-(relation (5) restricted to the tame letters). -/
-noncomputable def tameRelator2 : FreeProfiniteGroup (Fin 2) :=
-  conjP (FreeProfiniteGroup.of 1) (FreeProfiniteGroup.of 0) * (FreeProfiniteGroup.of 1 ^ 2)⁻¹
-
-/-- **`T_tame`** (paper §3): the profinite group `⟨σ, τ | τ^σ = τ²⟩_prof`. -/
-noncomputable def Ttame : ProfiniteGrp := profinitePresentation {tameRelator2}
-
-/-- The marked generator `σ ∈ T_tame`. -/
-noncomputable def tameSigma : Ttame := quotientMk (relatorSubgroup {tameRelator2})
-  (FreeProfiniteGroup.of 0)
-
-/-- The marked generator `τ ∈ T_tame`. -/
-noncomputable def tameTau : Ttame := quotientMk (relatorSubgroup {tameRelator2})
-  (FreeProfiniteGroup.of 1)
-
-/-- The tame relation holds in `T_tame`: `τ^σ = τ²`. -/
-theorem tame_relation : conjP tameTau tameSigma = tameTau ^ 2 := by
-  have h := relator_quotientMk_eq_one {tameRelator2} rfl
-  rw [tameRelator2] at h
-  simp only [conjP] at h ⊢
-  exact mul_inv_eq_one.mp h
 
 /-! ## The marked generators of `Γ_A` and its wild subgroup `W_A`  (paper §2.1/§3)
 
@@ -154,37 +137,24 @@ theorem prop_3_2_gammaA :
       e (QuotientGroup.mk gammaTau) = tameTau := by
   sorry
 
-/-- **Prop. 3.2, local side + Lemma 3.3's characterization, bundled.**  The paper's wild
-inertia `W_F` is encoded *intrinsically* as the maximal closed normal pro-2 subgroup (the
-2-core `O₂(G_{ℚ₂})`) — by paper Lemma 3.3 these agree, and Mathlib has no ramification
-theory to say "wild inertia" directly (**deviation, flagged**).  The instance-binder field
-`normal` makes the quotient's group structure available to the `equiv` field. -/
-structure LocalTameQuotient [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] where
-  /-- The local wild subgroup `W_F ≤ G_{ℚ₂}`. -/
-  W : Subgroup AbsGalQ2
-  /-- `W_F` is normal. -/
-  [normal : W.Normal]
-  /-- `W_F` is closed. -/
-  isClosed : IsClosed (W : Set AbsGalQ2)
-  /-- `W_F` is pro-2. -/
-  isProP : IsProP 2 W
-  /-- `W_F` is the **maximal** closed normal pro-2 subgroup — Lemma 3.3's `O₂(G_{ℚ₂}) = W_F`,
-  which pins `W` uniquely (the "canonical" of Prop. 3.2 on the local side). -/
+/-- **Prop. 3.2, local side + Lemma 3.3's characterization, bundled.**  Extends the B10
+bundle `TameQuotientData` (`GQ2/TameQuotient.lean`: `W` closed normal pro-2 with
+`G_{ℚ₂}/W ≅ T_tame` — the paper's wild inertia, encoded intrinsically since Mathlib has no
+ramification theory; **deviation, flagged there**) by Lemma 3.3's **maximality**, which pins
+`W` uniquely (the "canonical" of Prop. 3.2 on the local side).  Maximality is deliberately
+*not* part of axiom B10 — it is the paper's own proved content. -/
+structure LocalTameQuotient extends TameQuotientData where
+  /-- `W_F` is the **maximal** closed normal pro-2 subgroup — Lemma 3.3's `O₂(G_{ℚ₂}) = W_F`. -/
   maximal : ∀ N : Subgroup AbsGalQ2, N.Normal → IsClosed (N : Set AbsGalQ2) →
     IsProP 2 N → N ≤ W
-  /-- **Prop. 3.2, local side**: `G_{ℚ₂}/W_F ≅ T_tame`. -/
-  equiv : ContinuousMulEquiv (AbsGalQ2 ⧸ W) Ttame
 
-/-- **Prop. 3.2, local side** (paper §3): the tame quotient of `G_{ℚ₂}` is `T_tame`.
+/-- **Prop. 3.2, local side** (paper §3): the tame quotient of `G_{ℚ₂}` is `T_tame`,
+by the maximal closed normal pro-2 subgroup.
 
-**Design escalation (step-2 rule 1, recorded here and in the design note):** the paper's
-proof cites *"the standard description of the tame quotient in the geometric normalization"*
-— a classical literature input (NSW (7.5.2)-family: `G_{ℚ₂}/W_F ≅ Ẑ^{(2')} ⋊ Ẑ`, Frobenius
-acting by squaring) that is **not derivable from the frozen ten-axiom census** (the census is
-2-centric; B5 sees only the abelianization).  P-09 cannot close this sorry from the declared
-`Ax = B5` alone; resolving it needs a census discussion (option A: extend by the tame
-description as a B-axiom; option B: re-scope what Lemma 10.1 consumes).  Until then this is
-an honest, faithfully-stated gap. -/
+(Proof ticket P-09, `Ax = B10`: take the axiom's `TameQuotientData` and prove Lemma 3.3's
+maximality — `T_tame` has no nontrivial closed normal pro-2 subgroup, via Lemma 3.1's finite
+analysis (`GQ2/Tame.lean`) and the order-`2^{2^m}−1` inertia levels of the paper's proof; the
+compactness hypotheses are for pushing a closed normal `N` through the quotient map.) -/
 theorem prop_3_2_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
     Nonempty LocalTameQuotient := by
   sorry

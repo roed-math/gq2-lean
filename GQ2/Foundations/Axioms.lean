@@ -9,6 +9,7 @@ import GQ2.MaxProP
 import GQ2.DyadicPresentation
 import GQ2.PeripheralAction
 import GQ2.Orientation
+import GQ2.TameQuotient
 
 /-!
 # The axioms: classical literature inputs of Theorem 1.2  (ticket T-19)
@@ -23,7 +24,7 @@ near `main_surjection_count`.
 **How to read this for review.**  Each `axiom` below is a result that already
 exists in the literature; the docstring gives the precise statement, the citation, and the
 paper cross-reference.  The B-labels follow `docs/literature-axioms.md` (which also records the
-dependency structure, paper App. D).  Current census — nine axioms, faithfully stated against
+dependency structure, paper App. D).  Current census — eleven axioms, faithfully stated against
 current Mathlib plus this repo's `ContCoh` cohomology:
 
 * **B1** `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` — `G_ℚ₂` top. f.g.
@@ -44,6 +45,10 @@ current Mathlib plus this repo's `ContCoh` cohomology:
   `Δ = maxPro2(F₂)` (Lemma 3.6; defs + deviation note in `GQ2/PeripheralAction.lean`).
 * **B9** `evensKahn_dyadic` — the Evens/Kahn eq. (111), degrees ≤ 2, at the paper's
   diagonalizations (defs in `GQ2/EvensKahn.lean`).
+* **B10** `tameQuotient` — the tame quotient of `G_ℚ₂` (Iwasawa, NSW (7.5.3)): a closed
+  normal pro-2 `W` with `G_ℚ₂/W ≅ T_tame` (defs + convention/deviation notes in
+  `GQ2/TameQuotient.lean`; added post-kickoff by explicit census decision, resolving the
+  P-06 escalation — Prop. 3.2's local side).
 
 **B3's remaining pieces are deliberately not axioms**: the *definition* `IsDemushkin` and the
 invariants (`demushkinRank`, `demushkinQ`) are done (`GQ2/Demushkin.lean`, T-09/T-10), and the
@@ -304,5 +309,25 @@ axiom evensKahn_dyadic
               (kummerZ1On _ hβ hβ0 (stabilizer_fixes_linear (u : ℚ_[2]) v δ)))
         + evensNormH2Z Kummer.kummerTriv (stabilizer_isOpen_of_isIntegral δ) hidx hs
             (kummerZ1On _ hβ hβ0 (stabilizer_fixes_linear (u : ℚ_[2]) v δ)))
+
+/-! ## B10 — the tame quotient of `G_ℚ₂` (Iwasawa)
+
+The bundle `TameQuotientData` (closed normal pro-2 `W` + `G_ℚ₂/W ≅ T_tame`), the NSW
+convention notes (arithmetic-vs-geometric Frobenius, `σ ↦ σ⁻¹`), and the flagged deviation
+(no ramification theory: `W` is characterized, not constructed; its **maximality** — paper
+Lemma 3.3 — is deliberately *not* asserted here, it stays a theorem obligation of P-09) are
+in `GQ2/TameQuotient.lean`.  Added by explicit census decision (P-06 escalation): the step-1
+census was 2-centric and did not cover the prime-to-2 tame structure. -/
+
+/-- **[Classical — B10.]**  The tame quotient of `G_ℚ₂`: there is a closed normal pro-2
+subgroup `W ≤ G_ℚ₂` (wild inertia) with `G_ℚ₂/W ≅ T_tame = ⟨σ, τ ∣ τ^σ = τ²⟩_prof`.
+
+Citation: **NSW [1], Ch. VII §7.5, Theorem (7.5.3) (Iwasawa)** — `G(k_tr|k)` is the
+profinite group on `σ, τ` with the single relation `στσ⁻¹ = τ^q` (`q = 2`); with
+**(7.5.2)** (split extension `1 → Ẑ^{(p′)}(1) → G(k_tr|k) → Γ → 1`) and `G(k̄|k_tr)`
+pro-`p` (Serre, *Local Fields* [7], Ch. IV).  (Verified against the NSW PDF in
+`references/`; see `GQ2/TameQuotient.lean` for the Frobenius-direction convention.)
+Paper: Prop. 3.2, local side.  `docs/literature-axioms.md` B10. -/
+axiom tameQuotient : TameQuotientData
 
 end GQ2
