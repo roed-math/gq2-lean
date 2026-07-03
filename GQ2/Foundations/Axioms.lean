@@ -8,6 +8,7 @@ import GQ2.EvensKahn
 import GQ2.MaxProP
 import GQ2.DyadicPresentation
 import GQ2.PeripheralAction
+import GQ2.Orientation
 
 /-!
 # The axioms: classical literature inputs of Theorem 1.2  (ticket T-19)
@@ -27,6 +28,10 @@ current Mathlib plus this repo's `ContCoh` cohomology:
 
 * **B1** `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` — `G_ℚ₂` top. f.g.
 * **B2** `Foundations.cyclotomicCharacter_two_surjective` — 2-adic cyclotomic surjectivity.
+* **B3c** `dyadicOrientation` — the canonical orientation character in cyclotomic-interface
+  form: a B4 isomorphism normalized so the descended cyclotomic character takes Labute's
+  Thm 4(2) values `(−1, 1, (−3)⁻¹)` on `A, S, Y` (defs + route decision in
+  `GQ2/Orientation.lean`).
 * **B4** `Foundations.absGalQ2_maxProTwo_presentation` — `G_ℚ₂(2) ≅ D₀`, the rank-3 dyadic
   Demushkin presentation (defs in `GQ2/DyadicPresentation.lean`).
 * **B5** `localReciprocity` — the local-reciprocity bundle (defs in `GQ2/Reciprocity.lean`).
@@ -40,10 +45,11 @@ current Mathlib plus this repo's `ContCoh` cohomology:
 * **B9** `evensKahn_dyadic` — the Evens/Kahn eq. (111), degrees ≤ 2, at the paper's
   diagonalizations (defs in `GQ2/EvensKahn.lean`).
 
-The remaining classical inputs are **not yet axiomatized** (statement infrastructure pending,
-see `docs/tickets.md`): B3 Demushkin classification (the *definition* `IsDemushkin` is done —
-`GQ2/Demushkin.lean`, T-09; the classification statement is T-10/T-11).  They are enumerated
-with precise statements and citations in `docs/literature-axioms.md`.
+**B3's remaining pieces are deliberately not axioms**: the *definition* `IsDemushkin` and the
+invariants (`demushkinRank`, `demushkinQ`) are done (`GQ2/Demushkin.lean`, T-09/T-10), and the
+abstract rank-3 `q = 2` classification statement (B3b) is carried by **B4** at the field level
+— stating it abstractly would require Labute's dualizing characterization of the canonical
+character (route (i) of T-11, deliberately deferred; see `docs/tickets.md` T-10/T-11).
 
 Consumers derive consequences by importing this file; the derived stress tests live next to
 their definitions (`GQ2/EulerCharacteristic.lean` for B7) or are parametrized over the bundle
@@ -172,6 +178,25 @@ example : hilbertSymbol (unitCoe (-1)) (unitCoe (-1)) = -1 := by
 end GQ2.HilbertSymbol
 
 namespace GQ2
+
+/-! ## B3c — the canonical dyadic orientation (cyclotomic interface)
+
+The bundle `DyadicOrientation` — a B4 isomorphism together with the descended cyclotomic
+character, normalized to Labute's Theorem 4(2) values on the marked generators — and the
+route-(ii) decision with its flagged deviations are in `GQ2/Orientation.lean`; its stress
+tests are bundle-parametrized and axiom-free. -/
+
+/-- **The B3c axiom** (Labute [2], Théorème 4, case (2): `q = 2`, `n = 3` odd, `f = 2`).
+There is a B4 isomorphism `ψ : G_{ℚ₂}(2) ≅ D₀` and a continuous descent `χ₂` of the cyclotomic
+character through `G_{ℚ₂} ↠ G_{ℚ₂}(2)`, surjective (image invariant `{±1} × U₂⁽²⁾ = ℤ₂ˣ`),
+with values `(χ(A), χ(S), χ(Y)) = (−1, 1, (−3)⁻¹)` — the paper's `χ_D`-row of eq. (13)
+(Lemmas 3.4/3.5).
+
+Deviation (route (ii), flagged in `GQ2/Orientation.lean`): the *abstract* dualizing
+characterization of the canonical character (Labute Prop. 6) is not formalized; the bundle
+asserts exactly the interface the paper consumes. -/
+axiom dyadicOrientation [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
+    DyadicOrientation
 
 /-! ## B5 — the local reciprocity bundle
 

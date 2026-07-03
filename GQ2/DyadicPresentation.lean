@@ -44,6 +44,26 @@ theorem d0Relator_quotientMk_eq_one :
     quotientMk (relatorSubgroup {d0Relator}) d0Relator = 1 :=
   relator_quotientMk_eq_one {d0Relator} rfl
 
+/-! ### The marked generators of `D₀`  (T-11 input) -/
+
+/-- The generator `A ∈ D₀` (image of `of 0`). -/
+noncomputable def d0A : D0 := quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 0)
+
+/-- The generator `S ∈ D₀` (image of `of 1`). -/
+noncomputable def d0S : D0 := quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 1)
+
+/-- The generator `Y ∈ D₀` (image of `of 2`). -/
+noncomputable def d0Y : D0 := quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 2)
+
+/-- **The Demushkin relation on the named generators**: `A²S⁴[S,Y] = 1` in `D₀`. -/
+theorem d0_relation : d0A ^ 2 * d0S ^ 4 * commP d0S d0Y = 1 := by
+  have h := d0Relator_quotientMk_eq_one
+  rw [d0Relator] at h
+  -- the quotient projection commutes with `*`, `^`, `⁻¹` definitionally; only `commP` needs
+  -- unfolding
+  simp only [commP] at h
+  exact h
+
 /-! ## Stress test: a concrete finite 2-group marking (`homEquiv` + `decide`)
 
 `DihedralGroup 4` is a non-abelian group of order `8 = 2³`.  The marking `A ↦ sr 0` (a reflection,

@@ -20,7 +20,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 AXIOMS_FILE='GQ2/Foundations/Axioms.lean'
-EXPECTED_AXIOMS=9   # B1, B2, B4, B5, B6, B7, B7', B8, B9
+EXPECTED_AXIOMS=10  # B1, B2, B3c, B4, B5, B6, B7, B7', B8, B9
 SORRY_ALLOWLIST='GQ2/Reconstruction.lean GQ2/Statement.lean GQ2/GammaA.lean'
 
 # Strip Lean comments: nested block comments `/- … -/` (incl. docstrings `/-- … -/`) and
