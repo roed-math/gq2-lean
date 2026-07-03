@@ -31,7 +31,7 @@ states conventions + paper-equation cross-reference; all `axiom`s live in
 | T-17 | B5: reciprocity bundle axiom (`rec`, `ν_ur`; norm-kernels, `ν_ur∘rec = −v₂`, `χ_cyc∘rec = (·)⁻¹`) | ⭐⭐⭐ | **F** | T-00 | ☑ 2026-07-03 (`GQ2/Reciprocity.lean`) |
 | T-18 | B9: Kummer/cor/Evens-norm/transfer-form defs + eq. (111) axiom (deg ≤ 2) | ⭐⭐⭐ | **F** design, O finish | T-02, T-04, T-13 | ☑ 2026-07-03 (`GQ2/EvensKahn.lean`) |
 | T-19 | Meta: `GQ2/Foundations/Axioms.lean` consolidation + `scripts/check_axioms.sh` guard | ⭐ | O | first axioms landed | ☑ 2026-07-03 |
-| T-20 | Meta: human-review packet v2 (Lean names per B-leaf + deviations table) | ⭐ | O | statements frozen | ☐ |
+| T-20 | Meta: human-review packet v2 (Lean names per B-leaf + deviations table) | ⭐ | O | statements frozen | ☑ 2026-07-04 (`docs/review-packet.md`) |
 | T-21 | Γ_A literal (paper eq. (7) marked quotient; `ω₂`-relator words + bridges) + literal Thm 1.2 statement | ⭐⭐ | O | T-06 | ☑ 2026-07-02 (`GQ2/GammaA.lean`) |
 
 ## Per-ticket acceptance criteria
@@ -365,6 +365,19 @@ axioms only in `Axioms.lean`; docstrings carry citations + conventions.
   census = `EXPECTED_AXIOMS` (bump in the same commit that lands a new B-leaf); (4) no
   `native_decide` anywhere.  Wave-4 axiom tickets (T-08, T-12, T-14, T-18) should declare their
   axioms **directly in `Foundations/Axioms.lean`** and bump the census.
+- **T-20** ☑: *Done (`docs/review-packet.md`).*  Contents: mechanical-verification instructions
+  (build + `check_axioms.sh` + `#print axioms`); the **Lean-name table** for all ten axioms
+  (B1, B2, B3c, B4, B5, B6, B7, B7′, B8, B9) with one-line statements, key citations, and
+  defs-file pointers; the supporting-definitions checklist (ContCoh/cups, maxProP, D₀, Kummer,
+  μₙ/duals, cor/Evens norm, Ẑ/ω₂/Γ_A); the **consolidated deviations table** (B3b no-axiom
+  decision, B3c route (ii) + descent-as-data, B5 minimality + ℤ₂-target soundness, B6 per-`n`
+  encoding choices, B7 faithful redundancy, B8 no-π₁ + ι-as-data, B9 deg-≤2 + concrete
+  diagonals, ContCoh-vs-Mathlib note); the three-`sorry` inventory with status; and the
+  machine-verified consistency cross-checks (B3c↔B5 eq.-(13) agreement, relator checks, B7′
+  anchor value).  Also this commit: **all personal reviewer-name references removed** from the
+  repository prose (docs + Lean docstrings) — the packet is audience-neutral; git dependency
+  URLs/slugs retained for reproducibility.  `literature-axioms.md` gains a pointer to the
+  packet (its citations remain the authoritative literature reference).
 - **T-21** ☑: the relator words (`τ^σ τ⁻²` and `h₀u₁⁻¹x₁^σc₀`, ledger (1)–(3)) with `^ᶻ ω₂`;
   `GammaA : ProfiniteGrp`; statement
   `theorem main_presentation_literal : Nonempty (ContinuousMulEquiv GammaA AbsGalQ2)` (sorried,

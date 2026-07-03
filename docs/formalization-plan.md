@@ -197,7 +197,7 @@ setting), degrees ≤ 2:
 - **Wave 3**: T-09 (B3a — Fable) · T-14 (B6 — Fable draft/Opus finish) · T-16 (B7 — Opus) ·
   T-17 (B5 — Fable) · T-18 (B9 — Fable design/Opus finish) · T-11 (B3c — Fable).
 - **Wave 4**: T-19 (Axioms.lean + guard) · T-20 (human review packet v2: Lean names beside each
-  B-entry + deviations table) → **hand to Hill/Buzzard before step 2**.
+  B-entry + deviations table) → **hand to expert reviewers before step 2**.
 
 ## Risks
 

@@ -27,7 +27,8 @@ subject to the three clauses of the plan (`docs/formalization-plan.md`, §B5):
   `ℚ₂ˣ → Gal(L/ℚ₂)` (i.e. `rec` followed by the abelianized restriction `restrictAb`) is surjective
   with kernel exactly the norm subgroup `N_{L/ℚ₂}(Lˣ)` (`normSubgroup`).  This is the class-formation
   reciprocity of **NSW [1] (7.1.1)/(7.1.5)** (finite-level `Gal(L/ℚ₂) ≅ ℚ₂ˣ / N Lˣ`), and is aligned
-  with the finite-level shape of the Buzzard–Oxford ClassFieldTheory blueprint.
+  with the finite-level shape of the Oxford ClassFieldTheory project blueprint (this repo's
+  `ClassFieldTheory` git dependency).
 * **(b) unramified normalization.** `ν_ur ∘ rec = −v₂` (`nu_ur_rec`).  Equivalently `ν_ur(rec 2) = −1`:
   `rec` sends the uniformizer `2` to *arithmetic* Frobenius, while `ν_ur` is normalized so that
   *geometric* Frobenius `= arithmetic⁻¹` has coordinate `+1` (paper's standing convention, line "νur

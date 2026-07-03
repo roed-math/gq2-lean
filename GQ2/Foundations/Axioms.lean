@@ -20,7 +20,7 @@ granted.  The paper's own intermediate propositions (Prop. 1.1, Prop. 3.2, Thm. 
 Lemma 10.1, …) are **not** here — they are the paper's contribution and live as sorried nodes
 near `main_surjection_count`.
 
-**How to read this for review (Hill/Buzzard).**  Each `axiom` below is a result that already
+**How to read this for review.**  Each `axiom` below is a result that already
 exists in the literature; the docstring gives the precise statement, the citation, and the
 paper cross-reference.  The B-labels follow `docs/literature-axioms.md` (which also records the
 dependency structure, paper App. D).  Current census — nine axioms, faithfully stated against

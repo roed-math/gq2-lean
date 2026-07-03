@@ -58,7 +58,7 @@ writing it *literally* is a genuine profinite `ω₂`-exponent (`ℤ̂`, still a
   `reconstruction` is now **proved** (modulo the standard `exists_contSurj_of_card_le`).
   `main_presentation` gained `hfgG` (`G_ℚ₂` is topologically f.g. — true, assumed). Whole project
   down to **2 `sorry`s**: `exists_contSurj_of_card_le` (Mathlib-provable) and `main_surjection_count`.
-- **Literature-axiom reduction (for expert review — Hill/Buzzard).** Reduced `main_surjection_count`
+- **Literature-axiom reduction (for expert review).** Reduced `main_surjection_count`
   to a minimal list of **nine classical results** (B1–B9) in `docs/literature-axioms.md`: precise
   statements + citations (NSW/Labute/Serre/Milne/Stix/Evens/Kahn/Guillot) + the dependency structure
   from paper App. D. `GQ2/Foundations.lean` states the two that Mathlib can type faithfully (B1 `G_ℚ₂`
@@ -352,16 +352,16 @@ cups + `mapCoeff`; B7 uses `Nat.card Hⁱ`.
 
 ---
 
-# Session 2026-07-02 (Opus): integrate with Hill's continuous cohomology (steps 1–2)
+# Session 2026-07-02 (Opus): integrate with the ctsToDiscrete continuous cohomology (steps 1–2)
 
-Per user: build cup products on Richard Hill's `rmhi/ctsToDiscrete` continuous cohomology.
+Per user: build cup products on the `rmhi/ctsToDiscrete` continuous cohomology.
 
 **Dependency + bump** (commit e92738a): added ctsToDiscrete as editable path dep `../ctsToDiscrete`;
 bumped mathlib 23b0068→ec410d2 (clean 80-commit fast-forward; forced by his transitive dep set).
 GQ2 builds unchanged.
 
 **KEY DISCOVERY**: continuous cohomology is now IN MATHLIB (`Mathlib.Algebra.Category.
-ContinuousCohomology.Basic`, Hill's work upstreamed at ec410d2) — `continuousCohomology (n) :
+ContinuousCohomology.Basic`, upstreamed at ec410d2) — `continuousCohomology (n) :
 Action (TopModuleCat R) G ⥤ TopModuleCat R`, over Mathlib's `TopRep`/`ContRepresentation`.
 It is MORE complete than his standalone repo: Mathlib has `continuousCohomologyZeroIso :
 continuousCohomology R G 0 ≅ invariants R G` PROVED, whereas his repo `#exit`s + sorries it.
@@ -384,7 +384,7 @@ bridge to the canonical Mathlib object (= his upstreamed work), not his repo cop
 **REMAINING (i=1, i=2, cup transport)**: needs the homogeneous↔inhomogeneous n-ary cochain iso in
 low degree — Mathlib's OWN open TODO for ContinuousCohomology. Degree 1: inhomog `c:G→M`
 (`c(gh)=c(g)+g•c(h)`) ↔ homog `f(g₀,g₁)=g₀•c(g₀⁻¹g₁)`, a chain iso. Substantial (Mathlib's abstract
-`Rep R G` analogue is multi-hundred lines). Natural coordination point with Hill/mathlib. Once
+`Rep R G` analogue is multi-hundred lines). Natural coordination point with mathlib upstream. Once
 H1/H2 bridges exist, CupProduct.lean cups transport (step 3). Documented in CtsCohBridge.lean tail.
 
 Note: ctsToDiscrete path dep is currently dormant (collides with mathlib → not imported). Keep as

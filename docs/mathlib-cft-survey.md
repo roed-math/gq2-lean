@@ -14,7 +14,7 @@ see `docs/literature-axioms.md`) and tickets need.  Each entry: **EXISTS**(name 
 
 - **Continuous group cohomology is in Mathlib** — `Mathlib.Algebra.Category.ContinuousCohomology`
   (`continuousCohomology (n) : Action (TopModuleCat R) G ⥤ TopModuleCat R`), degree-0 iso proved.
-  See `docs/cts-cohomology-gap.md`.  (Hill's `ctsToDiscrete`, upstreamed.)
+  See `docs/cts-cohomology-gap.md`.  (`ctsToDiscrete`, upstreamed.)
 - **`IsNonarchimedeanLocalField` is a Mathlib class** — `NumberTheory/LocalField/Basic.lean`
   (via `ValuativeRel` + `LocallyCompactSpace`).  The **`ℚ_[p]` instance is in CFT**
   (`IsNonarchimedeanLocalField/Basic.lean`, which now `import`s the Mathlib class).

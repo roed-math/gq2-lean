@@ -6,13 +6,13 @@ import GQ2.Cohomology
 Our `GQ2/Cohomology.lean` provides *explicit inhomogeneous* continuous cochains in degrees `≤ 2`
 over the elementary coefficient interface `[DistribMulAction G M] [ContinuousSMul G M]`.  Mathlib's
 `continuousCohomology (n) : Action (TopModuleCat R) G ⥤ TopModuleCat R` (built from **homogeneous**
-cochains; Richard Hill's `rmhi/ctsToDiscrete` upstreamed) is the general-degree, functorial object.
+cochains; upstreamed from `rmhi/ctsToDiscrete`) is the general-degree, functorial object.
 Its concrete low-degree cochain description is a stated TODO — except degree `0`, where Mathlib
 already has `ContinuousCohomology.continuousCohomologyZeroIso : continuousCohomology R G 0 ≅
 invariants R G`.  This file is the seam between the two.
 
-Note: Hill's standalone repo *redefines* this now-upstreamed core, so it is not co-importable with
-Mathlib; we build on the canonical Mathlib version (= his upstreamed work).
+Note: the standalone `ctsToDiscrete` repo *redefines* this now-upstreamed core, so it is not
+co-importable with Mathlib; we build on the canonical (upstreamed) Mathlib version.
 
 **Step 1: the coefficient bridge.**  A topological `G`-module `M` is a continuous `ℤ`-representation
 `g ↦ (m ↦ g • m)` (`toContRep`), hence an object `toTopRep : TopRep ℤ G` and, via

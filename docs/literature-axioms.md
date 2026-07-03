@@ -3,8 +3,13 @@
 **Purpose.** This document reduces the formalization of the paper *A Profinite Presentation of the
 Absolute Galois Group of `ℚ₂`* (D. C. Turturean, 2026) to a **minimal list of classical results that
 already exist in the literature**, and enumerates them with precise statements and citations. It is
-meant for a quick expert check (R. Hill, K. Buzzard): *does each "leaf" below correctly match a known
+meant for a quick expert check: *does each "leaf" below correctly match a known
 theorem in the cited reference?*
+
+> **Update (T-20):** all ten leaves are now *stated in Lean* — see
+> [`review-packet.md`](review-packet.md) for the Lean axiom name per leaf, the consolidated
+> deviations table, and mechanical verification instructions.  The citations and per-result
+> discussion below remain the authoritative literature reference.
 
 **Scope of the reduction.** The paper's *own* §§3–9 argument (its Propositions and Lemmas) is
 **granted** here — those are the paper's contribution, not literature, and are listed separately in

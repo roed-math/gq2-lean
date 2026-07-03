@@ -5,8 +5,7 @@ cohomology, so we don't rediscover it.  Companion to `GQ2/CtsCohBridge.lean`.
 
 ## What Mathlib has (as of mathlib `ec410d2`, 2026-06-12)
 
-`Mathlib.Algebra.Category.ContinuousCohomology.Basic` (Richard Hill's `rmhi/ctsToDiscrete`,
-upstreamed) defines continuous cohomology of a topological group with topological-module
+`Mathlib.Algebra.Category.ContinuousCohomology.Basic` (upstreamed from `rmhi/ctsToDiscrete`) defines continuous cohomology of a topological group with topological-module
 coefficients:
 
 - `continuousCohomology (n : ℕ) : Action (TopModuleCat R) G ⥤ TopModuleCat R`
@@ -50,7 +49,7 @@ One must check these are mutually inverse **continuous** maps and commute with t
 for `n ≤ 2`.  Scale: Mathlib's *abstract* analogue over `Rep R G`
 (`inhomogeneousCochainsFunctor` and the iso to `groupCohomology`; in `ctsToDiscrete`
 `FinHomogeneousToMathlib.lean`) is a multi-hundred-line development — this is a genuine
-formalization task, not a mechanical port, and the natural place to coordinate with Hill / the
+formalization task, not a mechanical port, and the natural place to coordinate with the upstream authors / the
 Mathlib effort.
 
 ## What we have built (and where it connects)
