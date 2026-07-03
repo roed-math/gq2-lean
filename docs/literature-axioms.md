@@ -254,7 +254,7 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 | B6  local Tate duality | **NSW (7.2.6) "Tate Duality"**; Serre *GC* II §5.2; Milne I.2.1 | ✅ **verified** | 🟡 |
 | B7  local Euler characteristic | **NSW (7.3.1) (Tate)** `χ=‖a‖`; Serre *GC* II §5.7; Milne I.2.8 | ✅ **verified** | 🟡 |
 | B7′ dyadic Hilbert symbol | **Serre *Course in Arithmetic* Ch. III §1.2 Thm 1** (`ε,ω`: Ch. II §3.3) | ✅ **verified** | 🟡 |
-| B8  Galois action on `π₁(ℙ¹∖{0,1,∞})` | **Stix [8] §3.3 + Def 37** (Deligne MSRI 16: classical origin) | ✅ **verified** | 🟡 |
+| B8  Galois action on `π₁(ℙ¹∖{0,1,∞})` | **Stix [8] §3.3 + Def 37** (Deligne MSRI 16: classical origin) | ✅ **verified** | ✅ axiom (bundle) |
 | B9  Evens / Stiefel–Whitney | **Evens [9] §§4–5 Thm 1**; **Kahn [10] Thm 1–3**; **Kozlowski [11] Thm 1.1** (Guillot [6]: background only) | ✅ **verified** | 🟡 |
 | — RZ Hopfian | RZ [4], Prop. 2.5.2 | **confirmed** | ✅ **proved** |
 | — Schur–Zassenhaus | Mathlib | — | ✅ **proved** |

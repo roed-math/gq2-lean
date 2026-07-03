@@ -53,8 +53,11 @@ genuine finite 2-group. -/
 
 section StressTest
 
-local instance : TopologicalSpace (DihedralGroup 4) := ⊥
-local instance : DiscreteTopology (DihedralGroup 4) := ⟨rfl⟩
+-- Explicit names: Lean's auto-namer does not encode the numeral, so an anonymous
+-- `DihedralGroup 4` instance would clash with `DihedralGroup 3` instances elsewhere (e.g. `Zhat`)
+-- once both are imported into `Foundations/Axioms.lean`.
+local instance instTopologicalSpaceDihedral4 : TopologicalSpace (DihedralGroup 4) := ⊥
+local instance instDiscreteTopologyDihedral4 : DiscreteTopology (DihedralGroup 4) := ⟨rfl⟩
 
 /-- A concrete marking `Fin 3 → DihedralGroup 4`: `A ↦ sr 0`, `S ↦ r 1`, `Y ↦ r 2`. -/
 def markD4 : Fin 3 → DihedralGroup 4 :=

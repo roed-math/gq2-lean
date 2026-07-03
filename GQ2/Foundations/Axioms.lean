@@ -7,6 +7,7 @@ import GQ2.TateDuality
 import GQ2.EvensKahn
 import GQ2.MaxProP
 import GQ2.DyadicPresentation
+import GQ2.PeripheralAction
 
 /-!
 # The axioms: classical literature inputs of Theorem 1.2  (ticket T-19)
@@ -21,7 +22,7 @@ near `main_surjection_count`.
 **How to read this for review (Hill/Buzzard).**  Each `axiom` below is a result that already
 exists in the literature; the docstring gives the precise statement, the citation, and the
 paper cross-reference.  The B-labels follow `docs/literature-axioms.md` (which also records the
-dependency structure, paper App. D).  Current census — eight axioms, faithfully stated against
+dependency structure, paper App. D).  Current census — nine axioms, faithfully stated against
 current Mathlib plus this repo's `ContCoh` cohomology:
 
 * **B1** `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` — `G_ℚ₂` top. f.g.
@@ -34,14 +35,15 @@ current Mathlib plus this repo's `ContCoh` cohomology:
   (cohomology from `GQ2/Cohomology.lean`).
 * **B7′** `HilbertSymbol.hilbertSymbol_dyadic` — the dyadic Hilbert-symbol formula
   (defs in `GQ2/HilbertSymbol.lean`).
+* **B8** `peripheralCyclotomicAction` — the cyclotomic action on the peripheral generators of
+  `Δ = maxPro2(F₂)` (Lemma 3.6; defs + deviation note in `GQ2/PeripheralAction.lean`).
 * **B9** `evensKahn_dyadic` — the Evens/Kahn eq. (111), degrees ≤ 2, at the paper's
   diagonalizations (defs in `GQ2/EvensKahn.lean`).
 
 The remaining classical inputs are **not yet axiomatized** (statement infrastructure pending,
 see `docs/tickets.md`): B3 Demushkin classification (the *definition* `IsDemushkin` is done —
-`GQ2/Demushkin.lean`, T-09; the classification statement is T-10/T-11), B8 the
-`π₁(ℙ¹∖{0,1,∞})` action (T-12).  They are enumerated with precise statements and citations in
-`docs/literature-axioms.md`.
+`GQ2/Demushkin.lean`, T-09; the classification statement is T-10/T-11).  They are enumerated
+with precise statements and citations in `docs/literature-axioms.md`.
 
 Consumers derive consequences by importing this file; the derived stress tests live next to
 their definitions (`GQ2/EulerCharacteristic.lean` for B7) or are parametrized over the bundle
@@ -200,6 +202,24 @@ Citation: **NSW [1], Ch. VII §7.2, Theorem (7.2.6)** (local Tate duality); Serr
 Cohomology* II §5.2, Theorem 2; Milne, *ADT* I.2.3.  Paper: §§5–8 (the `𝔽₂` dimension
 counts); `docs/literature-axioms.md` B6. -/
 axiom tateDuality (n : ℕ) [NeZero n] : TateDuality n
+
+/-! ## B8 — the cyclotomic action on peripheral generators (Lemma 3.6)
+
+The concrete group `Δ = maxPro2(FreeProfinite (Fin 2))`, its peripheral generators `P, T, C`, and
+the bundle `PeripheralCyclotomicAction` — with the flagged faithfulness deviation (the literal
+statement is about the outer action on an étale/anabelian `π₁`, absent from Mathlib) and the pinning
+of the exponent embedding `ι` — are defined in `GQ2/PeripheralAction.lean`. -/
+
+/-- **[Classical — B8.]** Local cyclotomic action on the peripheral inertia generators of
+`Δ = π₁^{pro-2}(ℙ¹ ∖ {0,1,∞})`: for every `u ∈ ℤ₂ˣ` there is a continuous automorphism `φ_u` of `Δ`
+sending each peripheral generator to a cyclotomic conjugate, `φ_u(P) = c_P⁻¹ · P^u · c_P` (and
+likewise `T`, `C`), the `u`-th power via ẑ-exponentiation.  This is Lemma 3.6's group-theoretic
+conclusion; see `GQ2/PeripheralAction.lean` for the deviation from the literal `π₁` statement.
+
+Citation: **Stix [8], §3.3 + Definition 37** (cuspidal inertia acts through the cyclotomic
+character — the paper's exact citation); classical origin Deligne, MSRI 16 (1989).  Paper:
+Lemma 3.6.  `docs/literature-axioms.md` B8. -/
+axiom peripheralCyclotomicAction : PeripheralCyclotomicAction
 
 /-! ## B9 — the Evens/Kahn formula (paper eq. (111)), degrees ≤ 2
 

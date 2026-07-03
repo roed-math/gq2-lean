@@ -23,7 +23,7 @@ states conventions + paper-equation cross-reference; all `axiom`s live in
 | T-09 | B3a: `IsDemushkin` definition + invariants + stress tests | ⭐⭐⭐ | **F** | T-02, T-04 | ☑ 2026-07-03 (`GQ2/Demushkin.lean`) |
 | T-10 | B3b: rank-3 `q=2` classification statement (optional if B3c ships) | ⭐⭐ | O | T-09 | ☐ |
 | T-11 | B3c: canonical orientation — choose route (Labute Prop 6 vs cyclotomic interface) | ⭐⭐⭐ | **F** | T-08 (+T-09 for route i) | ☐ |
-| T-12 | B8: Lemma 3.6 group-theoretic statement on `Δ = maxPro2(FreeProfinite (Fin 2))` | ⭐⭐ | O | T-05, T-06 | ☐ |
+| T-12 | B8: Lemma 3.6 group-theoretic statement on `Δ = maxPro2(FreeProfinite (Fin 2))` | ⭐⭐ | O | T-05, T-06 | ☑ 2026-07-03 (`GQ2/PeripheralAction.lean`) |
 | T-13 | I5: Kummer class cocycle `kˣ → H¹(k,𝔽₂)` | ⭐⭐ | O | T-02 | ☑ 2026-07-03 (`GQ2/Kummer.lean`) |
 | T-14 | B6: local Tate duality axiom (μ-pairing, perfectness, per-`n` form) | ⭐⭐⭐ | **F** draft, O finish | T-02, T-04, T-15 | ☑ 2026-07-03 (`GQ2/TateDuality.lean`) |
 | T-15 | I10: `μ_n` as finite discrete `G_ℚ₂`-module | ⭐⭐ | O | T-01 | ☑ 2026-07-03 (`GQ2/MuN.lean`) |
@@ -184,6 +184,17 @@ axioms only in `Axioms.lean`; docstrings carry citations + conventions.
   `DihedralGroup 1`, not `Multiplicative (ZMod 2)`, in the stress test).
 - **T-12**: statement with `c_P, c_T, c_C` conjugators and `P ^ᶻ ι(u)`; documented deviation note
   (axiom = Lemma 3.6's conclusion; literature proof = Stix §3.3+Def 37).
+  *Done (`GQ2/PeripheralAction.lean` defs + bundle; axiom `peripheralCyclotomicAction` in
+  `Foundations/Axioms.lean`).* Design: `Delta = maxProPQuotient 2 (FreeProfiniteGroup (Fin 2))`
+  (abbrev, so `^ᶻ`/group instances resolve), `deltaP/T/C` (`C = (PT)⁻¹`) via `maxProPMk`. **Bundle**
+  `PeripheralCyclotomicAction` (mirrors B5/B6): carries the exponent embedding `ι : ℤ₂ˣ → Zhat` as
+  *data* — pinned `hι_cont` + `hι_one : ι 1 = omega2` (the `u=1` exponent is T-06's idempotent;
+  `P ^ᶻ ω₂ = P` on pro-2) — plus `aut : ℤ₂ˣ → ContinuousMulEquiv Δ Δ`, `cP/cT/cC`, and
+  `hP/hT/hC : aut u P = conjP (P ^ᶻ ι u) (cP u)` (paper `x^c = c⁻¹xc`). Faithfulness deviation
+  (π₁ absent from Mathlib; ι's full pin = ring structure of Ẑ, out of scope) documented in-module for
+  reviewers. Also renamed `DyadicPresentation`'s `DihedralGroup 4` local instances (explicit names)
+  to avoid an auto-name clash with `Zhat`'s `DihedralGroup 3` instances now that both reach
+  `Axioms.lean`. Guard `EXPECTED_AXIOMS` bumped 8→9.
 - **T-13** ☑: `kummerClass : kˣ → H¹(G_k, 𝔽₂)` as the class of the explicit continuous 1-cocycle
   `κ_a(g) = [g·√a = −√a]` (`= 0/1 ∈ ZMod 2`), over Mathlib's `Field.absoluteGaloisGroup` (spelled
   `GaloisGroup k := k̄ ≃ₐ[k] k̄`, defeq `AbsGalQ2` for `k = ℚ₂`; `example`s certify).  Stress tests
