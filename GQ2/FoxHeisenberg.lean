@@ -1163,14 +1163,112 @@ theorem prop_5_8_left [Finite A] [Finite C] (t : Marking C) (ht : t.TameRel) (hw
   rw [mixedB_tameRow t ht a y, mixedB_wildRow t hw a y, ElemDual.add_apply,
     add_add_add_comm, CharTwo.add_self_eq_zero, add_zero]
 
-/-- **Prop 5.8, display (42)** (= chain identity (48)): `B_{ρ,A}(x, d⁰λ) = ⟨L_t(x)+L_w(x), λ⟩`.
+/-! ### The dual (right) row of Prop 5.8
 
-*Status*: sorried (P-13). -/
-theorem prop_5_8_right (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (x : Fin 4 → A)
-    (lam : ElemDual A) :
+Mirror of the left row with the `A`-coordinate projection `agHom : H(A)⋊C →* A⋊C` in place of the
+dual `lgHom`, and the section `secWA : A⋊C ↪ H(A)⋊C` for the exponent divisibilities.  Lemma 5.7's
+*right* form supplies the pairing `⟨L^A_r(x), λ⟩` and the ε-correction `Σᵢ εᵢ(r)·λ(xᵢ)`. -/
+
+/-- The projection `⟨a,λ,z,g⟩ ↦ ⟨a, g⟩ : H(A) ⋊ C →* A ⋊ C` onto the `A`-lift group. -/
+def agHom : HeisLift A C →* WordLift A C where
+  toFun p := ⟨p.a, p.g⟩
+  map_one' := rfl
+  map_mul' _ _ := rfl
+
+/-- The section `⟨u,g⟩ ↦ ⟨u,0,0,g⟩ : A ⋊ C →* H(A) ⋊ C` (injective). -/
+noncomputable def secWA : WordLift A C →* HeisLift A C where
+  toFun p := ⟨p.u, 0, 0, p.g⟩
+  map_one' := rfl
+  map_mul' p q := by
+    ext <;> simp [HeisLift.mul_a, HeisLift.mul_l, HeisLift.mul_z, HeisLift.mul_g,
+      WordLift.mul_u, WordLift.mul_g, ElemDual.zero_apply]
+
+theorem secWA_injective : Function.Injective (secWA (A := A) (C := C)) := by
+  intro p q h
+  exact WordLift.ext (congrArg HeisLift.a h) (congrArg HeisLift.g h)
+
+theorem orderOf_dvd_exponent_heis_wa [Finite A] [Finite C] (w : WordLift A C) :
+    orderOf w ∣ Monoid.exponent (HeisLift A C) := by
+  rw [← orderOf_injective (secWA (A := A)) secWA_injective w]
+  exact Monoid.order_dvd_exponent _
+
+/-- `liftMarking t x` (over `A`) is the free marking pushed through `agHom ∘ stokesEval`. -/
+theorem liftMarking_eq_map_a (t : Marking C) (x : Fin 4 → A) :
+    liftMarking t x = freeMarking.map (agHom.comp (stokesEval (markVec t) x 0)) := by
+  simp only [liftMarking, freeMarking, Marking.map, markVec, MonoidHom.comp_apply, agHom,
+    stokesEval, FreeGroup.lift_apply_of, Matrix.cons_val_zero, Matrix.cons_val_one,
+    Matrix.head_cons, Matrix.cons_val_two, Matrix.cons_val_three, Matrix.tail_cons,
+    MonoidHom.coe_mk, OneHom.coe_mk]
+
+/-- The `.a`-coordinate of the `x`-only tame evaluation is `d¹`'s tame row on `A`. -/
+theorem stokesEval_tame_a (t : Marking C) (x : Fin 4 → A) :
+    (stokesEval (markVec t) x 0 fgTame).a = (liftMarking t x).tameValue.u := by
+  rw [liftMarking_eq_map_a, Marking.map_tameValue, freeMarking_tameValue]
+  rfl
+
+/-- The `.a`-coordinate of the `x`-only wild evaluation is `d¹`'s wild row on `A`. -/
+theorem stokesEval_wild_a [Finite A] [Finite C] (t : Marking C) (x : Fin 4 → A) :
+    (stokesEval (markVec t) x 0
+        (wildValueExp freeMarking (omega2Exp (Monoid.exponent (HeisLift A C))))).a
+      = (liftMarking t x).wildValue.u := by
+  have hag : agHom (stokesEval (markVec t) x 0
+      (wildValueExp freeMarking (omega2Exp (Monoid.exponent (HeisLift A C)))))
+      = (liftMarking t x).wildValue := by
+    rw [wildValueExp_map, wildValueExp_map]
+    have hmap : (freeMarking.map (stokesEval (markVec t) x 0)).map agHom = liftMarking t x := by
+      rw [liftMarking_eq_map_a]; rfl
+    rw [hmap, ← wildValueExp_eq_wildValue_of_dvd Monoid.exponent_ne_zero_of_finite (liftMarking t x)
+      (orderOf_dvd_exponent_heis_wa _) (orderOf_dvd_exponent_heis_wa _)
+      (orderOf_dvd_exponent_heis_wa _)]
+  exact congrArg WordLift.u hag
+
+/-- **The tame row of Prop 5.8 (42)** (dual form): `⟨L^A_t(x), λ⟩ + λ(x_τ)`. -/
+theorem mixedB_tameRow_right (t : Marking C) (ht : t.TameRel) (x : Fin 4 → A) (lam : ElemDual A) :
+    (heisMarking t x (d0 (A := ElemDual A) t lam)).tameValue.z
+      = lam ((d1Fun t x).1) + lam (x 1) := by
+  have hr : FreeGroup.lift (markVec t) fgTame = 1 := by
+    rw [lift_markVec_tameValue]; exact (Marking.tameValue_eq_one_iff t).mpr ht
+  rw [bridge_tame, d0_eq_markVec, lemma_5_7_right (markVec t) fgTame hr x lam]
+  congr 1
+  · rw [stokesEval_tame_a]; rfl
+  · have he : ∀ i, Multiplicative.toAdd (expMod2 i fgTame) = (![0, 1, 0, 0] : Fin 4 → ZMod 2) i :=
+      fun i => congrFun expMod2_fgTame i
+    simp only [he]
+    rw [Fin.sum_univ_four]
+    simp
+
+/-- **The wild row of Prop 5.8 (42)** (dual form): `⟨L^A_w(x), λ⟩ + λ(x_τ)` — same correction as
+the tame row. -/
+theorem mixedB_wildRow_right [Finite A] [Finite C] (t : Marking C) (hw : t.WildRel)
+    (x : Fin 4 → A) (lam : ElemDual A) :
+    (heisMarking t x (d0 (A := ElemDual A) t lam)).wildValue.z
+      = lam ((d1Fun t x).2) + lam (x 1) := by
+  rw [bridge_wild, d0_eq_markVec, lemma_5_7_right (markVec t) _ (hr_wild t hw) x lam]
+  congr 1
+  · rw [stokesEval_wild_a]; rfl
+  · have hvec : ∀ i, Multiplicative.toAdd
+        (expMod2 i (wildValueExp freeMarking (omega2Exp (Monoid.exponent (HeisLift A C)))))
+        = (![0, 1, 0, 0] : Fin 4 → ZMod 2) i := by
+      intro i
+      rw [congrFun (expMod2_wildValueExp _) i]
+      have hc := omega2Exp_exponent_heis_cast (A := A) (C := C)
+      fin_cases i <;>
+        simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
+          Matrix.cons_val_two, Matrix.cons_val_three, Matrix.tail_cons, hc] <;> decide
+    simp only [hvec]
+    rw [Fin.sum_univ_four]
+    simp
+
+/-- **Prop 5.8, display (42)** (= chain identity (48)): `B_{ρ,A}(x, d⁰λ) = ⟨L_t(x)+L_w(x), λ⟩`.
+Proved as stated: `mixedB = tameRow + wildRow`, and the two `λ(x_τ)` corrections cancel (char 2). -/
+theorem prop_5_8_right [Finite A] [Finite C] (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (x : Fin 4 → A) (lam : ElemDual A) :
     mixedB t x (d0 (A := ElemDual A) t lam)
       = lam ((d1Fun t x).1 + (d1Fun t x).2) := by
-  sorry
+  show (heisMarking t x (d0 (A := ElemDual A) t lam)).tameValue.z
+      + (heisMarking t x (d0 (A := ElemDual A) t lam)).wildValue.z = _
+  rw [mixedB_tameRow_right t ht x lam, mixedB_wildRow_right t hw x lam, map_add,
+    add_add_add_comm, CharTwo.add_self_eq_zero, add_zero]
 
 /-- **Lemma 5.6 (strict coefficient naturality)**, in the traced form Prop 5.10 uses: for an
 equivariant `f : A → A'`, `B_{A'}(f∗x, y') = B_A(x, f^∨ y')`.
