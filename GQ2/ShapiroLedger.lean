@@ -478,6 +478,36 @@ theorem psi_inv_eq (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G) (hgU : gh
       = ∑ᶠ v : G ⧸ U₀, evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (fun u ↦ α.1 ⟨u.1.1, u.2⟩)
           (lTrans U₀ v γ, lTrans U₀ (γ⁻¹ • v) η) := rfl
 
+/-- `ḡ = mk ĝ` has order exactly 2 in `G/N` (`ĝ ∉ N`, `ĝ² ∈ N`). -/
+theorem orderOf_ghatQuot (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N) :
+    orderOf (QuotientGroup.mk' N ghat) = 2 := by
+  have hne : QuotientGroup.mk' N ghat ≠ 1 := by
+    rw [QuotientGroup.mk'_apply, Ne, QuotientGroup.eq_one_iff]; exact hg
+  have hsq : (QuotientGroup.mk' N ghat) ^ 2 = 1 := by
+    rw [sq]; exact ghatQuot_sq N ghat hg2
+  have hdvd : orderOf (QuotientGroup.mk' N ghat) ∣ 2 := orderOf_dvd_of_pow_eq_one hsq
+  rcases (Nat.dvd_prime Nat.prime_two).mp hdvd with h1 | h2
+  · exact absurd (orderOf_eq_one_iff.mp h1) hne
+  · exact h2
+
+/-- `N` has index 2 in `U₀ = ⟨N, ĝ⟩`: the map `U₀ → G/N` has kernel `N.subgroupOf U₀` and
+range `⟨ḡ⟩` (order 2), so `U₀/(N.subgroupOf U₀) ≅ ⟨ḡ⟩`. -/
+theorem subgroupOf_index_two (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
+    (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) :
+    (N.subgroupOf U₀).index = 2 := by
+  set f : U₀ →* G ⧸ N := (QuotientGroup.mk' N).comp U₀.subtype with hf
+  have hker : f.ker = N.subgroupOf U₀ := by
+    ext u
+    simp only [MonoidHom.mem_ker, hf, MonoidHom.comp_apply, QuotientGroup.mk'_apply,
+      QuotientGroup.eq_one_iff, Subgroup.mem_subgroupOf, Subgroup.coe_subtype]
+  have hrange : f.range = Subgroup.zpowers (QuotientGroup.mk' N ghat) := by
+    rw [hf, MonoidHom.range_comp, Subgroup.subtype_range, map_U0_eq_zpowers N ghat U₀ hU₀]
+  have hcard : Nat.card (U₀ ⧸ N.subgroupOf U₀) = 2 := by
+    rw [← hker]
+    rw [Nat.card_congr (QuotientGroup.quotientKerEquivRange f).toEquiv, hrange, Nat.card_zpowers,
+      orderOf_ghatQuot N ghat hg hg2]
+  rw [Subgroup.index, hcard]
+
 end Involution
 
 end ShapiroLedger
