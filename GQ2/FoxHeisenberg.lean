@@ -584,6 +584,22 @@ theorem conj_gen_r (a : A) (lam : ElemDual A) (g : C) :
       map_zero, ElemDual.neg_apply]
   · simp [mul_g, one_mul, mul_one]
 
+/-- **The Heisenberg commutator central coordinate (symplectic `B`-form)**, in the `g = 1` fiber
+`H(A) = A × A^∨ × 𝔽₂`.  For `p, q` with trivial base value, the central coordinate of the
+commutator `[p,q] = p⁻¹q⁻¹pq` is the alternating pairing `p.l(q.a) + q.l(p.a)` (the sign is
+absorbed in char 2).  This is the extraspecial/Heisenberg central kernel `B` of Lemma 5.14: it
+supplies the `[d₀,z₀]` mixed contribution `λ(U⁻¹c) + (U^∨λ)(c) = λ((U⁻¹+U)c)`. -/
+theorem commP_z_fiber (p q : HeisLift A C) (hp : p.g = 1) (hq : q.g = 1) :
+    (commP p q).z = p.l (q.a) + q.l (p.a) := by
+  simp only [commP, mul_z, mul_a, mul_l, mul_g, inv_z, inv_a, inv_l, inv_g, hp, hq,
+    inv_one, one_smul, one_mul, mul_one, map_neg, map_add, smul_zero, add_zero, zero_add,
+    ElemDual.add_apply, ElemDual.neg_apply]
+  -- What remains is a linear identity over `ZMod 2` in the six atomic central values;
+  -- generalise them and decide the `2⁶` cases.
+  generalize p.z = a1; generalize q.z = a2; generalize p.l p.a = a3
+  generalize q.l q.a = a4; generalize p.l q.a = a5; generalize q.l p.a = a6
+  revert a1 a2 a3 a4 a5 a6; decide
+
 end HeisLift
 
 section Mixed
