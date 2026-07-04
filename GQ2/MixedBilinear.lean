@@ -284,4 +284,71 @@ theorem heisMarking_h0_z_cocycle {C : Type*} [Group C] [Finite C] {V : Type*} [A
   show (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0 * M.d0 ^ 2 * M.hc).z = y 2 (x 2)
   rw [HeisLift.mul_z_of_trivial _ _ hQ4g, e4, hhcz, hhca, map_zero, add_zero, add_zero]
 
+/-- **Wild `.z` assembly on cocycles**: peeling `wildValue = h₀·u₁⁻¹·(x₁^σ)·c₀` keeps the sum of the
+four factor `.z`'s plus one cross-term.  The `u₁.l`-terms — from `inv_z` (`u₁⁻¹.z = u₁.z + u₁.l(u₁.a)`)
+and from the `(x₁^σ)`-cross (`(h₀u₁⁻¹).l = −u₁.l`) — **cancel** because `u₁.a = (x₁^σ).a = x₃` (both
+are the same primal Fox derivative), leaving the opaque `u₁.z` (the ω₂ scalar) confined to the
+`(3,3)` slot. -/
+theorem heisMarking_wildValue_z_cocycle {C : Type*} [Group C] [Finite C] {V : Type*}
+    [AddCommGroup V] [DistribMulAction C V] [Finite V] (htriv : ∀ (g : C) (a : V), g • a = a)
+    (hV₂ : ∀ v : V, v + v = 0) (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
+    (hx1 : x 1 = 0) (hy1 : y 1 = 0) :
+    (heisMarking t x y).wildValue.z = y 2 (x 2) + y 3 (x 0) - y 0 (x 3) + (heisMarking t x y).u1.z := by
+  have hx0 : ∀ v : V, t.x₀ • v = v := fun v => htriv t.x₀ v
+  have hx1act : ∀ v : V, t.x₁ • v = v := fun v => htriv t.x₁ v
+  have htau : ∀ v : V, t.τ • v = v := fun v => htriv t.τ v
+  have hU : ∀ v : V, t.sigma2 • v = v := fun v => htriv t.sigma2 v
+  have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := fun l => HeisLift.smul_elemdual_trivial t.x₀ hx0 l
+  have htaud : ∀ l : ElemDual V, t.τ • l = l := fun l => HeisLift.smul_elemdual_trivial t.τ htau l
+  have hUd : ∀ l : ElemDual V, t.sigma2 • l = l := fun l => HeisLift.smul_elemdual_trivial t.sigma2 hU l
+  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => by
+    ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]; exact CharTwo.add_self_eq_zero (l v)
+  set M := heisMarking t x y with hM
+  have hh0g : ∀ v : V, M.h0.g • v = v := heisMarking_h0_g_smul t x y hx0 htau hU
+  have hu1g : ∀ v : V, M.u1.g • v = v := heisMarking_u1_g_smul t x y hx1act htau
+  have hu1invg : ∀ v : V, M.u1⁻¹.g • v = v := fun v => HeisLift.inv_g_trivial M.u1 hu1g v
+  have hx1sigg : ∀ v : V, (conjP M.x₁ M.σ).g • v = v := HeisLift.conjP_g_trivial M.x₁ M.σ hx1act
+  have hh0z := heisMarking_h0_z_cocycle htriv hV₂ t x y hx1 hy1
+  have hh0l : M.h0.l = 0 := by
+    rw [heisMarking_h0_l t x y, liftMarking_h0_u t y hV₂d hx0d htaud hUd]
+  have hu1a : M.u1.a = x 3 := by
+    rw [heisMarking_u1_a t x y, liftMarking_u1_u t x hV₂ hx1act htau, hx1, add_zero]
+  have hx1siga : (conjP M.x₁ M.σ).a = x 3 := by
+    show (conjP (⟨x 3, y 3, 0, t.x₁⟩ : HeisLift V C) ⟨x 0, y 0, 0, t.σ⟩).a = x 3
+    simp only [conjP, HeisLift.mul_a, HeisLift.mul_g, HeisLift.inv_a, HeisLift.inv_g, htriv]
+    abel
+  have hx1sigz := heisMarking_x1sig_z_trivial htriv t x y
+  have hc0a : M.c0.a = 0 := (heisMarking_c0_a t x y).trans (liftMarking_c0_u t x hx0 htau hU)
+  have hc0z := heisMarking_c0_z_cocycle htriv hV₂ t x y hx1 hy1
+  have hu1invz : M.u1⁻¹.z = M.u1.z + M.u1.l (M.u1.a) := HeisLift.inv_z M.u1
+  have hu1invl : M.u1⁻¹.l = -M.u1.l := HeisLift.inv_l_of_trivial M.u1 hu1g
+  have hQ2g : ∀ v : V, (M.h0 * M.u1⁻¹).g • v = v := fun v =>
+    HeisLift.mul_g_trivial _ M.u1⁻¹ hh0g hu1invg v
+  have hQ3g : ∀ v : V, (M.h0 * M.u1⁻¹ * conjP M.x₁ M.σ).g • v = v := fun v =>
+    HeisLift.mul_g_trivial _ (conjP M.x₁ M.σ) hQ2g hx1sigg v
+  have hQ2l : (M.h0 * M.u1⁻¹).l = -M.u1.l := by
+    rw [HeisLift.mul_l, hh0l, zero_add, HeisLift.smul_elemdual_trivial M.h0.g hh0g, hu1invl]
+  have e1 : (M.h0 * M.u1⁻¹).z = y 2 (x 2) + M.u1⁻¹.z := by
+    rw [HeisLift.mul_z_of_trivial _ _ hh0g, hh0z, hh0l, ElemDual.zero_apply, add_zero]
+  have e2 : (M.h0 * M.u1⁻¹ * conjP M.x₁ M.σ).z
+      = y 2 (x 2) + M.u1⁻¹.z + (y 3 (x 0) - y 0 (x 3)) + (-M.u1.l) (x 3) := by
+    rw [HeisLift.mul_z_of_trivial _ _ hQ2g, e1, hx1sigz, hQ2l, hx1siga]
+  show (M.h0 * M.u1⁻¹ * conjP M.x₁ M.σ * M.c0).z = _
+  rw [HeisLift.mul_z_of_trivial _ _ hQ3g, e2, hc0z, hc0a, map_zero, add_zero, add_zero,
+    hu1invz, hu1a]
+  simp only [ElemDual.neg_apply]
+  abel
+
+/-- **The trivial-module degree-one pairing on cocycles**: `mixedB t x y = y₂(x₂) + y₃(x₀) − y₀(x₃) +
+u₁.z`, the tame part vanishing (`stokesEval_tame_z_trivial_cocycle`) and the wild part from the peel.
+The opaque `u₁.z` is the ω₂ scalar, confined to the `(3,3)` slot. -/
+theorem mixedB_cocycle {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V]
+    [DistribMulAction C V] [Finite V] (htriv : ∀ (g : C) (a : V), g • a = a)
+    (hV₂ : ∀ v : V, v + v = 0) (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
+    (hx1 : x 1 = 0) (hy1 : y 1 = 0) :
+    mixedB t x y = y 2 (x 2) + y 3 (x 0) - y 0 (x 3) + (heisMarking t x y).u1.z := by
+  show (heisMarking t x y).tameValue.z + (heisMarking t x y).wildValue.z = _
+  rw [bridge_tame, stokesEval_tame_z_trivial_cocycle htriv (markVec t) x y hx1 hy1,
+    heisMarking_wildValue_z_cocycle htriv hV₂ t x y hx1 hy1, zero_add]
+
 end GQ2.FoxH
