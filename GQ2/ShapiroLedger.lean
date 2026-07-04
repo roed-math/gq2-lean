@@ -592,6 +592,46 @@ theorem bS_alphaOn_notMem (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G) (h
     bS (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) y = α.1 ⟨ghat⁻¹ * (y : G), hmem⟩ :=
   bS_of_notMem hUi hs (alphaOn N α U₀) (fun h => hy (Subgroup.mem_subgroupOf.mp h))
 
+/-! ### Step 3 — the transversal reconciliation
+
+Both sides are now sums over `O = (G/N)/⟨ḡ⟩` (`phi_inv_eq`, `psi_inv_reindex`).  The pieces below
+bridge the `U₀`-transversal words (`ℓ^{U₀}`, used by `psi`) and the `N`-transversal words (`ℓ^N`,
+used by `phi`), and the orientation. -/
+
+/-- **Membership correspondence**: `ℓ^{U₀}_v(γ) ∈ N` iff the `N`-images of the chosen `U₀`-reps of
+`v` and `γ⁻¹•v` are `γ̄`-aligned.  (The `∉ N`/flipped case is the orientation reversal.) -/
+theorem lWordU0_mem_N_iff (U₀ : Subgroup G) (v : G ⧸ U₀) (γ : G) :
+    lWord U₀ v γ ∈ N ↔
+      QuotientGroup.mk' N ((γ⁻¹ • v).out)
+        = (QuotientGroup.mk' N γ)⁻¹ * QuotientGroup.mk' N v.out := by
+  rw [← QuotientGroup.eq_one_iff, lWord, ← QuotientGroup.mk'_apply, map_mul, map_mul, map_inv,
+    QuotientGroup.mk'_apply, QuotientGroup.mk'_apply, QuotientGroup.mk'_apply, mul_assoc,
+    inv_mul_eq_one]
+  constructor
+  · intro h; rw [h]; group
+  · intro h; rw [h]; group
+
+/-- The `G/N`-canonical lift of the `N`-image of the `U₀`-rep `v.out`. -/
+noncomputable def nLift (U₀ : Subgroup G) (v : G ⧸ U₀) : G :=
+  (QuotientGroup.mk' N (v.out : G)).out
+
+/-- The `U₀`- vs `N`-transversal correction: `v.out = nLift v · uCorr v` with `uCorr v ∈ N`. -/
+noncomputable def uCorr (U₀ : Subgroup G) (v : G ⧸ U₀) : G :=
+  (nLift N U₀ v)⁻¹ * (v.out : G)
+
+theorem uCorr_mem (U₀ : Subgroup G) (v : G ⧸ U₀) : uCorr N U₀ v ∈ N := by
+  have h : (QuotientGroup.mk (nLift N U₀ v) : G ⧸ N) = QuotientGroup.mk (v.out : G) := by
+    rw [nLift]; exact QuotientGroup.out_eq' _
+  rw [uCorr, ← QuotientGroup.eq_one_iff, QuotientGroup.mk_mul, QuotientGroup.mk_inv, h,
+    inv_mul_cancel]
+
+/-- **Word factorization** (`U₀` → `N`-canonical lifts): `ℓ^{U₀}_v(γ)` sandwiches the
+`nLift`-word between two `N`-corrections `uCorr`.  This is the `U₀`-analog of `lWord_shift`. -/
+theorem lWordU0_factor (U₀ : Subgroup G) (v : G ⧸ U₀) (γ : G) :
+    lWord U₀ v γ = (uCorr N U₀ v)⁻¹
+      * ((nLift N U₀ v)⁻¹ * γ * nLift N U₀ (γ⁻¹ • v)) * uCorr N U₀ (γ⁻¹ • v) := by
+  simp only [uCorr, lWord]; group
+
 end Involution
 
 end ShapiroLedger
