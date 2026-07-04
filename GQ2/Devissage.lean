@@ -99,4 +99,69 @@ noncomputable def H2wMap (t : Marking C) (φ : A →+ B)
 
 end Functoriality
 
+/-! ## The long exact sequence
+
+A module SES `0 → A' --f--> A --g--> A'' → 0` (with `C`-equivariant `f`, `g`) induces a short
+exact sequence of word complexes; the degreewise functors `(·)⁴` and `(·)²` are exact.  From this
+we build the connecting maps and the nine-term LES. -/
+
+section LES
+
+variable {A' A A'' : Type*}
+  [AddCommGroup A'] [DistribMulAction C A'] [Finite A']
+  [AddCommGroup A] [DistribMulAction C A] [Finite A]
+  [AddCommGroup A''] [DistribMulAction C A''] [Finite A''] [Finite C]
+  (f : A' →+ A) (g : A →+ A'')
+  (hf : ∀ (c : C) (a : A'), f (c • a) = c • f a) (hg : ∀ (c : C) (a : A), g (c • a) = c • g a)
+  (hinj : Function.Injective f) (hsurj : Function.Surjective g) (hexact : f.range = g.ker)
+
+include hsurj hexact
+
+/-- Degree-1 (`(·)⁴`) surjectivity: `g` applied componentwise is surjective. -/
+theorem pi_g_surjective : Function.Surjective (fun (x : Fin 4 → A) (i : Fin 4) => g (x i)) := by
+  intro y; choose x hx using fun i => hsurj (y i); exact ⟨x, funext hx⟩
+
+/-- Degree-1 exactness: `ker(g∘·) = range(f∘·)` on `Fin 4 → A`. -/
+theorem pi_exact (y : Fin 4 → A) :
+    (fun i => g (y i)) = 0 ↔ ∃ x : Fin 4 → A', (fun i => f (x i)) = y := by
+  constructor
+  · intro hy
+    have hmem : ∀ i, y i ∈ f.range := by
+      intro i
+      rw [hexact, AddMonoidHom.mem_ker]
+      exact congrFun hy i
+    choose x hx using fun i => (AddMonoidHom.mem_range).mp (hmem i)
+    exact ⟨x, funext hx⟩
+  · rintro ⟨x, rfl⟩
+    funext i
+    show g (f (x i)) = 0
+    have : f (x i) ∈ g.ker := by rw [← hexact]; exact AddMonoidHom.mem_range.mpr ⟨x i, rfl⟩
+    exact AddMonoidHom.mem_ker.mp this
+
+/-- Degree-2 (`(·)²`) surjectivity: `g × g` is surjective. -/
+theorem prod_g_surjective : Function.Surjective (g.prodMap g) := by
+  rintro ⟨u, v⟩
+  obtain ⟨a, ha⟩ := hsurj u
+  obtain ⟨b, hb⟩ := hsurj v
+  exact ⟨(a, b), by simp [AddMonoidHom.coe_prodMap, ha, hb]⟩
+
+/-- Degree-2 exactness: `ker(g × g) = range(f × f)` on `A × A`. -/
+theorem prod_exact (p : A × A) :
+    (g.prodMap g) p = 0 ↔ ∃ q : A' × A', (f.prodMap f) q = p := by
+  have hmem : ∀ x : A, x ∈ f.range ↔ g x = 0 := fun x => by
+    rw [hexact, AddMonoidHom.mem_ker]
+  rw [show (g.prodMap g) p = (g p.1, g p.2) from by rw [AddMonoidHom.coe_prodMap]; rfl,
+    Prod.mk_eq_zero]
+  constructor
+  · rintro ⟨h1, h2⟩
+    obtain ⟨a, ha⟩ := (hmem p.1).mpr h1
+    obtain ⟨b, hb⟩ := (hmem p.2).mpr h2
+    exact ⟨(a, b), by rw [AddMonoidHom.coe_prodMap]; exact Prod.ext ha hb⟩
+  · rintro ⟨q, hq⟩
+    rw [AddMonoidHom.coe_prodMap] at hq
+    exact ⟨(hmem p.1).mp ⟨q.1, congrArg Prod.fst hq⟩,
+      (hmem p.2).mp ⟨q.2, congrArg Prod.snd hq⟩⟩
+
+end LES
+
 end GQ2.FoxH
