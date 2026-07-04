@@ -27,22 +27,28 @@ identities).  No axioms (`Ax = ∅`).
 ## Status and remaining work (P-15c)
 
 * **Free orbits (104), `lemma_6_15_free_aux` — done, std-3.**
-* **Involution orbits (105) — foundations done (std-3), assembly outstanding.**  The graph
-  pullback of `invOrbitDatum` (a `⟨ḡ⟩`-orbit sum with orientation corrections `m^g_c` via the
-  `ε`-sign of paper eq. (67)) equals `cor_{K₀/F} N^{Ev}_{K/K₀}(α)` where `N^{Ev} = evensNormFun`
-  (the two-point graph cocycle (98)) and `U₀ = ⟨N, ĝ⟩` is index-2 over `N`.
-  **Landed here (§ "involution — foundations"):** `ghatQuot_sq` (`ḡ` is an involution of `G/N`),
-  `map_U0_eq_zpowers` (`U₀` maps onto `⟨ḡ⟩` under `G ↠ G/N`), `finite_quot_U0`, the key
-  **index correspondence `invIndexEquiv : G/U₀ ≃ (G/N)/⟨ḡ⟩`** bijecting the two orbit index sets,
-  and **both sides of the comparison in explicit form** — `phi_inv_eq` (the LHS graph pullback as
-  the two paper-(107) sums, oriented term + orientation correction) and `psi_inv_eq` (the RHS
-  corestriction as an `evensNormFun` sum over `G/U₀`).  **Remaining (a materially larger
-  computation than the free case):** reindex `psi_inv_eq`'s `G/U₀` sum over `(G/N)/⟨ḡ⟩` via
-  `invIndexEquiv`; relate the `U₀`- and `N`-transversal words (`lTrans`); expand `evensNormFun`'s
-  `if q.1 ∈ U` case-split via `evensAux`/`bS` (`GQ2/EvensKahn.lean`) so its two branches match the
-  two `phi_inv_eq` sums + orientation (paper (108)/(109)); then discharge the residual
-  two-transversal `.out` discrepancy as a `δ¹`-coboundary via the same `H2ofFun_eq_of_sub_mem_B2`
-  engine.
+* **Involution orbits (105) — foundations + Steps 1–2 done (std-3), reconciliation outstanding.**
+  The graph pullback of `invOrbitDatum` (a `⟨ḡ⟩`-orbit sum with orientation corrections `m^g_c`
+  via the `ε`-sign of paper eq. (67)) equals `cor_{K₀/F} N^{Ev}_{K/K₀}(α)` where
+  `N^{Ev} = evensNormFun` (the two-point graph cocycle (98)) and `U₀ = ⟨N, ĝ⟩` is index-2 over `N`.
+  **Landed here — foundations (§ "…foundations"):** `ghatQuot_sq` (`ḡ` is an involution of
+  `G/N`), `map_U0_eq_zpowers` (`U₀ ↠ ⟨ḡ⟩`), `finite_quot_U0`, the key **index correspondence
+  `invIndexEquiv : G/U₀ ≃ (G/N)/⟨ḡ⟩`** bijecting the orbit index sets, and **both sides in
+  explicit form** — `phi_inv_eq` (LHS as the two paper-(107) sums, oriented term + orientation
+  correction) and `psi_inv_eq` (RHS as an `evensNormFun` sum over `G/U₀`).
+  **Landed here — Step 1 (reindex):** `psi_inv_reindex` moves the RHS sum from `G/U₀` onto the
+  orbit set `O = (G/N)/⟨ḡ⟩` via `invIndexEquiv` (`finsum_comp_equiv`), lining it up with the
+  `phi_inv_eq` sums.  **Landed here — Step 2 (Evens-norm expansion):** the **free-action fact**
+  `orbit_free` (`ĝ ∉ N ⟹ z·ḡ ≠ z`, so every `⟨ḡ⟩`-orbit is a free 2-set `{z, z·ḡ}` — no
+  fixed-point/diagonal term), and `evensAux_alphaOn_{mem,notMem}` / `bS_alphaOn_{mem,notMem}`
+  reducing the `N^{Ev}` building blocks to explicit `α`-reads (`ĝ ∉ N`; `x·ĝ ∈ N ⟺ x ∉ N`), plus
+  `alphaOn`(`_hom`/`_continuous`) and `subgroupOf_isOpen`.  **Remaining — Step 3 (the hard core,
+  a materially larger computation than the free case):** (a) the **membership correspondence**
+  linking `ℓ^{U₀}_v(γ) ∈ N` to `phi`'s `ε`-orientation (using `orbit_free`), so the
+  `evensNormFun` `if`-branches match `phi_inv_eq`'s `f`-term + `m`-term (paper (108)/(109)); and
+  (b) discharging the residual **two-transversal `.out` discrepancy** (`.out^{U₀}` vs
+  `.out^{G/N}`, an `N`-correction analogous to but larger than the free case's `shiftCorr`) as a
+  `δ¹`-coboundary via the same `H2ofFun_eq_of_sub_mem_B2` engine.
 
 ## Splice architecture note
 
@@ -386,6 +392,18 @@ variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
   [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
 variable (N : Subgroup G) [N.Normal]
 
+/-- `ḡ = mk ĝ ≠ 1` in `G/N` when `ĝ ∉ N`. -/
+theorem ghatQuot_ne_one (ghat : G) (hg : ghat ∉ N) : QuotientGroup.mk' N ghat ≠ 1 := by
+  rw [Ne, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]; exact hg
+
+/-- **The involution acts freely on `G/N`**: `z·ḡ ≠ z` for every `z` (no fixed points), because
+`z·ḡ = z ⟹ ḡ = 1 ⟹ ĝ ∈ N`, contradicting `ĝ ∉ N`.  Hence every `⟨ḡ⟩`-orbit in `G/N` has
+exactly two elements `{z, z·ḡ}` — the structural fact behind the involution comparison (there is
+no diagonal/fixed-point term in the orbit sum). -/
+theorem orbit_free (ghat : G) (hg : ghat ∉ N) (z : G ⧸ N) :
+    z * (QuotientGroup.mk' N ghat) ≠ z := fun h =>
+  ghatQuot_ne_one N ghat hg (mul_left_cancel (h.trans (mul_one z).symm))
+
 /-- `ḡ = mk ĝ` is an involution of `G/N` when `ĝ² ∈ N`. -/
 theorem ghatQuot_sq (ghat : G) (hg2 : ghat * ghat ∈ N) :
     (QuotientGroup.mk' N ghat) * (QuotientGroup.mk' N ghat) = 1 := by
@@ -545,6 +563,34 @@ theorem psi_inv_reindex (α : Z1 N (ZMod 2)) (ghat : G)
   show (∑ᶠ v : G ⧸ U₀, evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀)
       (lTrans U₀ v γ, lTrans U₀ (γ⁻¹ • v) η)) = _
   exact (finsum_comp_equiv (invIndexEquiv N ghat U₀ hU₀).symm).symm
+
+/-! ### Step 2 — the Evens-norm building blocks as explicit `α`-values
+
+`evensAux`/`bS` on `U₀` (relative to `N.subgroupOf U₀`, shift `ĝ`) read `α` at the underlying
+`N`-element, using the index-2 side bookkeeping (`ĝ ∉ N`; `x·ĝ ∈ N ⟺ x ∉ N`). -/
+
+theorem evensAux_alphaOn_mem (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G) (hgU : ghat ∈ U₀)
+    (x : U₀) (hx : (x : G) ∈ N) :
+    evensAux (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) x = α.1 ⟨(x : G), hx⟩ :=
+  evensAux_of_mem (alphaOn N α U₀) (Subgroup.mem_subgroupOf.mpr hx)
+
+theorem evensAux_alphaOn_notMem (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G) (hgU : ghat ∈ U₀)
+    (hUi : (N.subgroupOf U₀).index = 2) (hs : (⟨ghat, hgU⟩ : U₀) ∉ N.subgroupOf U₀)
+    (x : U₀) (hx : (x : G) ∉ N) (hmem : (x : G) * ghat ∈ N) :
+    evensAux (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) x = α.1 ⟨(x : G) * ghat, hmem⟩ :=
+  evensAux_of_notMem hUi hs (alphaOn N α U₀) (fun h => hx (Subgroup.mem_subgroupOf.mp h))
+
+theorem bS_alphaOn_mem (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G) (hgU : ghat ∈ U₀)
+    (hUi : (N.subgroupOf U₀).index = 2) (hs : (⟨ghat, hgU⟩ : U₀) ∉ N.subgroupOf U₀)
+    (y : U₀) (hy : (y : G) ∈ N) (hmem : ghat⁻¹ * (y : G) * ghat ∈ N) :
+    bS (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) y = α.1 ⟨ghat⁻¹ * (y : G) * ghat, hmem⟩ :=
+  bS_of_mem hUi hs (alphaOn N α U₀) (Subgroup.mem_subgroupOf.mpr hy)
+
+theorem bS_alphaOn_notMem (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G) (hgU : ghat ∈ U₀)
+    (hUi : (N.subgroupOf U₀).index = 2) (hs : (⟨ghat, hgU⟩ : U₀) ∉ N.subgroupOf U₀)
+    (y : U₀) (hy : (y : G) ∉ N) (hmem : ghat⁻¹ * (y : G) ∈ N) :
+    bS (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) y = α.1 ⟨ghat⁻¹ * (y : G), hmem⟩ :=
+  bS_of_notMem hUi hs (alphaOn N α U₀) (fun h => hy (Subgroup.mem_subgroupOf.mp h))
 
 end Involution
 
