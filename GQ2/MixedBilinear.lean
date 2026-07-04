@@ -147,4 +147,25 @@ theorem stokesEval_tame_z_trivial_cocycle (htriv : ∀ (g : C) (a : A), g • a 
   rw [stokesEval_tame_z_trivial htriv, hx, hy]
   simp
 
+/-! ## Wild `.z`, piece 1: the `x₁^σ = σ⁻¹x₁σ` factor (trivial action)
+
+One factor of the wild relator `wildValue = h₀·u₁⁻¹·x₁^σ·c₀`.  Its central coordinate is the
+**symplectic pairing of the σ- and x₁-slots**, `y₃(x₀) − y₀(x₃)` — the (0,3)/(3,0) Gram entries. -/
+theorem heisMarking_x1sig_z_trivial {C : Type*} [Group C] {V : Type*} [AddCommGroup V]
+    [DistribMulAction C V] (htriv : ∀ (g : C) (a : V), g • a = a) (t : Marking C)
+    (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+    (conjP (heisMarking t x y).x₁ (heisMarking t x y).σ).z = y 3 (x 0) - y 0 (x 3) := by
+  have hdtriv : ∀ (g : C) (lam : ElemDual V), g • lam = lam := fun g lam => by
+    ext a; rw [ElemDual.smul_apply, htriv]
+  show (conjP (⟨x 3, y 3, 0, t.x₁⟩ : HeisLift V C) ⟨x 0, y 0, 0, t.σ⟩).z = _
+  simp only [conjP, HeisLift.mul_z, HeisLift.mul_l, HeisLift.mul_a, HeisLift.mul_g,
+    HeisLift.inv_z, HeisLift.inv_l, HeisLift.inv_a, HeisLift.inv_g, htriv, hdtriv,
+    map_add, map_neg, ElemDual.add_apply, ElemDual.neg_apply]
+  generalize y 3 (x 0) = a
+  generalize y 0 (x 3) = b
+  generalize y 0 (x 0) = d
+  generalize y 3 (x 3) = e
+  revert a b d e
+  decide
+
 end GQ2.FoxH
