@@ -2023,9 +2023,58 @@ theorem heisMarking_sigma2_g_eq (t : Marking C) (x : Fin 4 → V) (y : Fin 4 →
 
 /-- On the x₀-supported rep, `σ` (index 0) lands in the base slice, so `σ₂` and `g₀` are pure base
 elements: their `.a`, `.l`, `.z` all vanish (via `secHom`-slice + the square for `z`). -/
-theorem heisMarking_sigma2_u_zero (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
+theorem heisMarking_sigma2_u_zero (t : Marking C) (x : Fin 4 → V)
     (hx0 : x 0 = 0) : (liftMarking t x).sigma2.u = 0 :=
-  WordLift.powOmega2_u_zero _ (by show x 0 = 0; exact hx0)
+  WordLift.powOmega2_u_zero _ (show x 0 = 0 from hx0)
+
+/-! ### Base-triviality of the Heisenberg aux words (transferred from `liftMarking`). -/
+
+theorem heisMarking_sigma2_g_smul (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
+    (hU : ∀ v : V, t.sigma2 • v = v) (v : V) : (heisMarking t x y).sigma2.g • v = v := by
+  rw [heisMarking_sigma2_g_eq, liftMarking_sigma2_g]; exact hU v
+
+theorem heisMarking_d0_g_smul (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
+    (hx0 : ∀ v : V, t.x₀ • v = v) (htau : ∀ v : V, t.τ • v = v) (v : V) :
+    (heisMarking t x y).d0.g • v = v := by
+  rw [heisMarking_d0_g_eq]; exact liftMarking_d0_g_smul t x hx0 htau v
+
+theorem heisMarking_h0_g_smul (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
+    (hx0 : ∀ v : V, t.x₀ • v = v) (htau : ∀ v : V, t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v)
+    (v : V) : (heisMarking t x y).h0.g • v = v := by
+  rw [heisMarking_h0_g_eq]; exact liftMarking_h0_g_smul t x hx0 htau hU v
+
+theorem heisMarking_u1_g_smul (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
+    (hx1 : ∀ v : V, t.x₁ • v = v) (htau : ∀ v : V, t.τ • v = v) (v : V) :
+    (heisMarking t x y).u1.g • v = v := by
+  rw [heisMarking_u1_g_eq]; exact liftMarking_u1_g_smul t x hx1 htau v
+
+theorem heisMarking_g0_g_smul (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
+    (hU : ∀ v : V, t.sigma2 • v = v) (v : V) : (heisMarking t x y).g0.g • v = v := by
+  show ((heisMarking t x y).sigma2 ^ 2).g • v = v
+  rw [pow_two, HeisLift.mul_g, mul_smul, heisMarking_sigma2_g_smul t x y hU,
+    heisMarking_sigma2_g_smul t x y hU]
+
+theorem heisMarking_z0_g_smul (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
+    (hx0 : ∀ v : V, t.x₀ • v = v) (v : V) : (heisMarking t x y).z0.g • v = v :=
+  HeisLift.conjP_g_trivial (heisMarking t x y).x₀ (heisMarking t x y).sigma2 hx0 v
+
+theorem heisMarking_dg_g_smul (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
+    (hx0 : ∀ v : V, t.x₀ • v = v) (htau : ∀ v : V, t.τ • v = v) (v : V) :
+    (heisMarking t x y).dg.g • v = v :=
+  HeisLift.conjP_g_trivial (heisMarking t x y).d0 (heisMarking t x y).g0
+    (heisMarking_d0_g_smul t x y hx0 htau) v
+
+theorem heisMarking_hc_g_smul (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
+    (hx0 : ∀ v : V, t.x₀ • v = v) (htau : ∀ v : V, t.τ • v = v) (v : V) :
+    (heisMarking t x y).hc.g • v = v :=
+  HeisLift.commP_g_trivial (heisMarking t x y).dg (heisMarking t x y).d0
+    (heisMarking_dg_g_smul t x y hx0 htau) (heisMarking_d0_g_smul t x y hx0 htau) v
+
+theorem heisMarking_c0_g_smul (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
+    (hx0 : ∀ v : V, t.x₀ • v = v) (htau : ∀ v : V, t.τ • v = v) (v : V) :
+    (heisMarking t x y).c0.g • v = v :=
+  HeisLift.commP_g_trivial (heisMarking t x y).d0 (heisMarking t x y).z0
+    (heisMarking_d0_g_smul t x y hx0 htau) (heisMarking_z0_g_smul t x y hx0) v
 
 end HessianRow
 
