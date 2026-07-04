@@ -31,7 +31,7 @@ row ◐ before starting.  Paper: `paper/A_Profinite_Presentation_for_G__Q_2.pdf`
 | P-13a | B: §5 wild-Fox + mixed-Hessian engines & split §5.13 (Stokes 5.6–5.10; wild row 5.4/5.5; Hessian 5.14 toolkit; `lemma_5_13_split` + `lemma_5_13_pairing_split`) | ⭐⭐⭐ | O | P-12 | — | ☑ 2026-07-04 (Opus; `GQ2/FoxHeisenberg.lean`, all std-3) |
 | P-13b | B: §5.13 ramified normal form (`lemma_5_13_ramified`; V^T=0 ⇒ wild row S⁻¹d, unique x₀-supported rep) | ⭐⭐⭐ | O | P-13a | — | ☐ |
 | P-13c | B: §5.14 ramified mixed Hessian (`lemma_5_13_pairing_ramified`; λ((1+U+U⁻¹)c), U=σ₂ nontrivial) | ⭐⭐⭐ | O | P-13a | — | ☐ |
-| P-13d | B: §5 tameness rep-theory (simple 𝔽₂[⟨σ⟩]-module ⇒ σ odd order ⇒ σ₂=1, V^S=0; supplies hU/hVS to P-13f) | ⭐⭐⭐ | O | 5.12 (done) | — | ◐ (Opus, 2026-07-04) |
+| P-13d | B: §5 tameness rep-theory (central σ₂ 2-pow-order ⇒ σ₂=1; V^σ submodule ⇒ V^S=0; supplies hU/hVS to P-13f) | ⭐⭐⭐ | O | 5.12 (done) | — | ☑ 2026-07-04 (Opus; `GQ2/TameSimple.lean` std-3; `sigma2_smul_trivial`+`fixedPoints_sigma_eq_zero` via `central_pow2_smul_trivial`, the centrality-analogue of 5.12) |
 | P-13e | B: §5.11 dévissage (mapping-cone 2-of-3 for `IsSelfDual` along a module SES) | ⭐⭐⭐ | F | — | — | ◐ (Opus 2026-07-04): own file `GQ2/Devissage.lean`; naturality chain-map arrows `d0_natural`/`d1_natural` done (word complex `A→A⁴→A²` natural in the coeff module); LES + card/pairing 2-of-3 remain |
 | P-13f | B: §5.15 duality assembly (`prop_5_15`; trivial-module Gram + simple via 5.12/5.13 + dévissage) | ⭐⭐⭐ | O | P-13b, P-13c, P-13d, P-13e | — | ☐ |
 | P-13g | B: §5.16 local lifting duality (`prop_5_16`; local Tate duality — invokes existing axioms B6/B7, no axiom-layer change) | ⭐⭐⭐ | O | — | B6, B7 | ☐ |

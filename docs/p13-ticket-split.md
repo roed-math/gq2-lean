@@ -26,8 +26,9 @@ P-13g  local duality / prop_5_16  ── independent (invokes existing axioms B6
                                                                          already proved; consumes f + g)
 ```
 
-**Runnable in parallel right now:** P-13b, P-13c, P-13d, P-13e, P-13g (five agents).
-**Blocked until its deps land:** P-13f (needs b, c, d, e).
+**Runnable in parallel right now:** P-13b, P-13c, P-13e, P-13g.
+**Done:** P-13a, **P-13d** (`GQ2/TameSimple.lean`, all std-3).
+**Blocked until its deps land:** P-13f (needs b, c, e; d is in).
 
 ## What is already proven (P-13a — DONE)
 
@@ -65,16 +66,37 @@ g-slice (U acts nontrivially), so `φ = conj by g₀` no longer preserves the He
 the new work is tracking the `U`-action through the peel.  Reuses the whole Hessian toolkit
 (`commP_z_of_trivial`, naturality).  Model O.  Ax: —.
 
-### P-13d — tameness rep-theory (supplies `hU`/`hVS` to the assembly)
-**Deps: `lemma_5_12` (done, in P-13a's file); needs `t.Generates`.**  Currently the split lemmas
-take σ-tameness as explicit hypotheses (`hU : σ₂ acts trivially`, `hVS : V^S = 0`); this ticket
-**derives** them, so `prop_5_15` can supply them per simple factor.  Argument: with `τ, x₀, x₁`
-acting trivially (Pro2Core + Lemma 5.12) and `t.Generates`, the `C`-action on a simple `V` factors
-through the cyclic `⟨σ̄⟩`, so `V` is a simple `𝔽₂[⟨σ⟩] = 𝔽₂[x]/(irreducible)`-module — a finite
-field — on which `σ` acts as a unit of odd order (`2^d − 1`), whence `σ₂ = σ^{ω₂} = 1` and
-`V^S = V^C = 0`.  Needs Mathlib's simple-module-over-PID / finite-field-unit-order theory.  This is
-the "simple ⟹ tame at σ" input flagged in `docs/p13-normal-form-hypothesis-gap.md` §7.  Model O.
-Ax: —.
+### P-13d — tameness rep-theory (supplies `hU`/`hVS` to the assembly) — ☑ DONE
+**Deps: `lemma_5_12` (done); `t.Generates`.  File: `GQ2/TameSimple.lean` (new leaf, all std-3).**
+The split lemmas take σ-tameness as explicit hypotheses (`hU : σ₂ acts trivially`,
+`hVS : V^S = 0`); this ticket **derives** them, so `prop_5_15` can supply them per simple factor.
+
+**Realized approach — no finite-field theory needed.**  The originally-planned route (factor through
+`𝔽₂[⟨σ⟩]`, a finite field, and use unit-order) is replaced by a direct central-fixed-point argument,
+the exact analogue of `lemma_5_12` with *centrality* in place of *normality*:
+
+* `actionCommutant g` / `actionCentre` — the sub**group**s of `C` commuting (in the action) with a
+  fixed `g •`, resp. with the whole `C`-action.
+* **`central_pow2_smul_trivial`** — a 2-power-order element `g` whose action is central acts
+  trivially on a simple char-2 module.  Its fixed space `V^{⟨g⟩}` is `C`-stable (centrality) and
+  nonzero (`IsPGroup.card_modEq_card_fixedPoints`, char 2), so simplicity ⟹ `= ⊤`.  Mirrors
+  `lemma_5_12`.
+* **`orderOf_powOmega2_dvd_two_pow`** / **`isPGroup_zpowers_powOmega2`** — `σ₂ = σ^{ω₂}` has 2-power
+  order: the odd part of `orderOf σ` divides `ω₂` (`oddPart_dvd_omega2Exp`), so
+  `(σ^{ω₂})^{2^{v₂}} = 1`, hence `⟨σ₂⟩` is a 2-group.
+* **`central_of_commutes_sigma`** — with `τ, x₀, x₁` trivial (`htau` + `wild_acts_trivially`) and
+  `t.Generates`, an element commuting with `σ`'s action is central: the commutant contains all four
+  generators, so is `⊤`.  `σ` (trivially) and `σ₂ = σ^k` (as a power) both qualify.
+* **`sigma2_smul_trivial`** = `hU`: `σ₂` central + 2-power order ⟹ trivial via
+  `central_pow2_smul_trivial`.
+* **`fixedPoints_sigma_eq_zero`** = `hVS`: `V^σ` is a `C`-submodule (`σ` central), so `⊥`/`⊤`; the
+  nontriviality `hσ : ∃ v, σ•v ≠ v` kills `⊤`.  (`hσ` is the case selector: split-tame + `σ` fixed
+  everywhere ⟹ trivial module, handled by P-13f(i); `σ` nontrivial ⟹ this lemma.)
+
+Resolves the "simple ⟹ tame at σ" input flagged in `docs/p13-normal-form-hypothesis-gap.md` §7.
+Model O.  Ax: —.  **Note for P-13b (ramified):** the analogous `hTodd` (T = τ odd-order on `V`) is
+*not* central in general, so `central_pow2_smul_trivial` does not directly apply; that case needs its
+own argument.
 
 ### P-13e — dévissage (`lemma_5_11`)
 **Deps: none (independent, homological).**  Two-out-of-three for `IsSelfDual` along a short exact
@@ -112,7 +134,7 @@ were during P-15) — not currently expected.  Independent of b–f.  Note: the 
 | P-13a | B: §5 wild-Fox + mixed-Hessian engines & split §5.13 | ⭐⭐⭐ | O | P-12 | — | ☑ 2026-07-04 |
 | P-13b | B: §5.13 ramified normal form (`lemma_5_13_ramified`) | ⭐⭐⭐ | O | P-13a | — | ☐ |
 | P-13c | B: §5.14 ramified mixed Hessian (`lemma_5_13_pairing_ramified`) | ⭐⭐⭐ | O | P-13a | — | ☐ |
-| P-13d | B: §5 tameness rep-theory (simple-cyclic ⇒ σ₂=1, V^S=0) | ⭐⭐⭐ | O | 5.12 (done) | — | ☐ |
+| P-13d | B: §5 tameness rep-theory (central σ₂ ⇒ σ₂=1; V^σ simple ⇒ V^S=0) | ⭐⭐⭐ | O | 5.12 (done) | — | ☑ 2026-07-04 (Opus; `GQ2/TameSimple.lean`, all std-3) |
 | P-13e | B: §5.11 dévissage (mapping-cone 2-of-3 for `IsSelfDual`) | ⭐⭐⭐ | F | — | — | ☐ |
 | P-13f | B: §5.15 duality assembly (`prop_5_15`) | ⭐⭐⭐ | O | P-13b, P-13c, P-13d, P-13e | — | ☐ |
 | P-13g | B: §5.16 local lifting duality (`prop_5_16`; invokes existing B6/B7) | ⭐⭐⭐ | O | — | B6, B7 | ☐ |
