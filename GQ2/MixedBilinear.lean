@@ -118,4 +118,33 @@ theorem mixedB_add_right [Finite A] [Finite C] (t : Marking C) (x : Fin 4 → A)
     stokesEval_z_add_right, stokesEval_z_add_right]
   abel
 
+/-! ## The tame `.z` in closed form (trivial action)
+
+For a trivial `C`-action, `fgTame = g₀⁻¹ g₁ g₀ g₁⁻²` evaluates (untwisted Heisenberg) to the
+bilinear form below.  Crucially every term carries an index-`1` (`τ`) factor, so it **vanishes on the
+split cocycles** `{x₁ = 0}` — i.e. the trivial-module degree-one pairing is carried entirely by the
+wild relator, not the tame one. -/
+theorem stokesEval_tame_z_trivial (htriv : ∀ (g : C) (a : A), g • a = a) (c : Fin 4 → C)
+    (x : Fin 4 → A) (y : Fin 4 → ElemDual A) :
+    (stokesEval c x y fgTame).z = y 1 (x 0) - y 0 (x 1) + y 1 (x 1) := by
+  have hdtriv : ∀ (g : C) (lam : ElemDual A), g • lam = lam := fun g lam => by
+    ext a; rw [ElemDual.smul_apply, htriv]
+  simp only [fgTame, conjP, pow_two, map_mul, map_inv, stokesEval, FreeGroup.lift_apply_of,
+    HeisLift.mul_z, HeisLift.mul_l, HeisLift.mul_a, HeisLift.mul_g, HeisLift.inv_z, HeisLift.inv_l,
+    HeisLift.inv_a, HeisLift.inv_g, htriv, hdtriv, map_add, map_neg, ElemDual.add_apply,
+    ElemDual.neg_apply]
+  generalize (y 0) (x 0) = p
+  generalize (y 0) (x 1) = q
+  generalize (y 1) (x 0) = r
+  generalize (y 1) (x 1) = s
+  revert p q r s
+  decide
+
+/-- The tame `.z` (trivial action) vanishes on the split cocycles `x₁ = 0`, `y₁ = 0`. -/
+theorem stokesEval_tame_z_trivial_cocycle (htriv : ∀ (g : C) (a : A), g • a = a) (c : Fin 4 → C)
+    (x : Fin 4 → A) (y : Fin 4 → ElemDual A) (hx : x 1 = 0) (hy : y 1 = 0) :
+    (stokesEval c x y fgTame).z = 0 := by
+  rw [stokesEval_tame_z_trivial htriv, hx, hy]
+  simp
+
 end GQ2.FoxH
