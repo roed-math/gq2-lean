@@ -229,6 +229,40 @@ theorem pow_u (p : WordLift A C) (n : ℕ) :
   | zero => simp
   | succ k ih => rw [pow_succ, mul_u, ih, pow_g, Finset.sum_range_succ]
 
+/-- **Norm collapse under a trivially-acting base** — the engine that flattens every `ω₂`-power in
+the wild row once the wild inertia acts trivially.  If the base `p.g` acts trivially on the char-2
+module `A`, the `A`-offset of the 2-primary part `p^{ω₂}` (`powOmega2`) is just `p.u`.
+
+The `ω₂`-exponent `e = omega2Exp (orderOf p)` is *odd* exactly when `orderOf p` is even, which is
+exactly when `p.u ≠ 0` (then `addOrderOf p.u = 2 ∣ orderOf p`); for odd `e` and a 2-torsion `p.u`,
+`e • p.u = p.u`.  When `p.u = 0` both sides vanish, so the identity is uniform. -/
+theorem powOmega2_u_of_trivial [Finite A] [Finite C] (hA₂ : ∀ a : A, a + a = 0)
+    (p : WordLift A C) (hg : ∀ a : A, p.g • a = a) : (powOmega2 p).u = p.u := by
+  have hpow : ∀ k : ℕ, (p ^ k).u = k • p.u := by
+    intro k
+    rw [pow_u]
+    have hc : ∀ i, p.g ^ i • p.u = p.u := by
+      intro i; induction i with
+      | zero => simp
+      | succ j ih => rw [pow_succ, mul_smul, hg, ih]
+    simp only [hc, Finset.sum_const, Finset.card_range]
+  rw [powOmega2, hpow]
+  by_cases hpu : p.u = 0
+  · simp [hpu]
+  · have h2 : addOrderOf p.u = 2 := addOrderOf_eq_prime (by rw [two_nsmul]; exact hA₂ p.u) hpu
+    have hN0 : orderOf p ≠ 0 := (orderOf_pos p).ne'
+    have hdvd : (2 : ℕ) ∣ orderOf p := by
+      have hz : (orderOf p) • p.u = 0 := by rw [← hpow (orderOf p), pow_orderOf_eq_one]; rfl
+      rw [← h2]; exact addOrderOf_dvd_of_nsmul_eq_zero hz
+    have hv : (orderOf p).factorization 2 ≠ 0 :=
+      (Nat.Prime.factorization_pos_of_dvd Nat.prime_two hN0 hdvd).ne'
+    have hodd : Odd (omega2Exp (orderOf p)) := by
+      have h : omega2Exp (orderOf p) % 2 = 1 % 2 :=
+        (omega2Exp_modEq_one hN0 hv).of_dvd (dvd_pow_self 2 hv)
+      rw [Nat.odd_iff]; omega
+    obtain ⟨m, hm⟩ := hodd
+    rw [hm, add_nsmul, mul_nsmul, two_nsmul, hA₂, nsmul_zero, zero_add, one_nsmul]
+
 end WordLift
 
 /-! ## The word complex (30)/(31) -/
