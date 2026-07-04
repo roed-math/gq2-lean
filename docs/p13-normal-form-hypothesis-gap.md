@@ -119,15 +119,28 @@ act trivially on `V`.**
   ties into how §9 supplies tameness from the arithmetic (P-17), so it is left as a deliberate
   design choice rather than picked here.
 
-**Remaining proof machinery** (once tameness is fully modelled):
+## 8. Update 2 (split wild row + `lemma_5_13_split` DONE)
 
-* *Wild row (Lemma 5.5)* — expand `wildValue.u` in `WordLift V C` via the landed `WordLift.pow_u`.
-  With `σ₂, τ, x₀, x₁` all acting trivially, every ω₂-norm collapses to its mod-2 exponent
-  (`WordLift.pow_u` with `g • v = v` ⇒ `∑ = k • v`), and the only surviving action is the `S⁻¹`
-  from `x₁^σ` — giving `L_w = P·b + (P + S⁻¹)·d`.  Then `x 3 = 0` from `1 + S⁻¹` invertible
-  (`hσ` + simplicity, via `V^S = V^C = 0`).
-* *Hessian (Lemma 5.14)* — `wildValue.z` on x₀-supported reps: `h₀ ↦ λ(c)` (`classTwoIdentity`) plus
-  the `[d₀,z₀]` symplectic term (`HeisLift.commP_z_fiber`); the latter vanishes in the split case
-  since `P + 1 = 0` in char 2.
-* *prop_5_16* needs axioms **B6/B7** (local Tate duality).  `Foundations/Axioms.lean` is frozen
-  (no new axioms), so 5.16 stays sorried **by construction** — not a P-13 proof gap.
+* **Wild-Fox engine landed** (`WordLift`): `powOmega2_u_of_trivial` / `powOmega2_g_smul_of_trivial`
+  (norm collapse under trivially-acting base), the `.u`-additivity toolkit on the trivially-based
+  subgroup (`mul_u_of_trivial`, `inv_u_of_trivial`, `conjP_u_of_trivial`, `commP_u_of_trivial` +
+  base-closure), and `liftMarking_sigma2_g` (the σ₂ exponent obstruction resolved via
+  `powOmega2_pow_eq`).
+* **Split wild row proved** (Lemma 5.5): `liftMarking_wildValue_u : wildValue.u = x₁ + x₃ + S⁻¹·x₃`,
+  via `liftMarking_h0_u : D(h₀) = 0`, `liftMarking_c0_u : D(c₀) = 0`, and the aux-word derivatives.
+* **`lemma_5_13_split` CLOSED** (std-3): `hσ` refined to `hVS : ∀ v, σ•v = v → v = 0` (= `V^S = 0`,
+  the exact `1+S⁻¹` invertibility).  Z¹ = {x₁=0 ∧ x₃=0} from the tame row (`d1Fun_tame_split`) + the
+  wild row; B¹ from `b1w_split_shape`.
+
+**Still remaining:**
+
+* *Hessian (Lemma 5.14)* → the pairing lemmas — `wildValue.z` (central coord, in `HeisLift`) on
+  x₀-supported reps: `h₀ ↦ λ(c)` (`classTwoIdentity`, needs the class-2 hyps for the evaluated
+  `d₀,g₀`) plus the `[d₀,z₀]` symplectic term (`HeisLift.commP_z_fiber`, vanishes in split since
+  `P + 1 = 0`).  Separate machinery from the wild row (central coord is not additive).
+* *Ramified wild row* → `lemma_5_13_ramified` — `V^T = 0` means `τ` acts *non*-trivially, so the
+  ω₂-norms do **not** collapse; needs the norm projector `P = 1 + T + ⋯` (a `pow_u` geometric sum),
+  distinct from the split engine.
+* *`prop_5_15`* assembles 5.13 + `lemma_5_11` dévissage + the trivial-module base case.
+* *`prop_5_16`* needs axioms **B6/B7** (local Tate duality); `Foundations/Axioms.lean` is frozen, so
+  it stays sorried **by construction** — not a P-13 proof gap.
