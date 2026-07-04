@@ -508,6 +508,44 @@ theorem subgroupOf_index_two (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈
       orderOf_ghatQuot N ghat hg hg2]
   rw [Subgroup.index, hcard]
 
+/-! ### Involution assembly — setup -/
+
+/-- `N.subgroupOf U₀` is open in `U₀` (preimage of the open `N` under `U₀ ↪ G`). -/
+theorem subgroupOf_isOpen (hNo : IsOpen (N : Set G)) (U₀ : Subgroup G) :
+    IsOpen ((N.subgroupOf U₀ : Subgroup U₀) : Set U₀) := by
+  rw [Subgroup.coe_subgroupOf]
+  exact hNo.preimage continuous_subtype_val
+
+/-- The restriction of `α` to `N.subgroupOf U₀` (reading `α` at the underlying `N`-element). -/
+noncomputable def alphaOn (α : Z1 N (ZMod 2)) (U₀ : Subgroup G) :
+    (N.subgroupOf U₀) → ZMod 2 := fun u ↦ α.1 ⟨u.1.1, u.2⟩
+
+/-- `alphaOn` is additive (inherited from `α`, a hom on `N`). -/
+theorem alphaOn_hom (α : Z1 N (ZMod 2)) (U₀ : Subgroup G)
+    (x y : N.subgroupOf U₀) : alphaOn N α U₀ (x * y) = alphaOn N α U₀ x + alphaOn N α U₀ y := by
+  have h : (⟨(x * y).1.1, (x * y).2⟩ : N) = ⟨x.1.1, x.2⟩ * ⟨y.1.1, y.2⟩ := Subtype.ext rfl
+  simp only [alphaOn, h, z1_mul N α]
+
+/-- `alphaOn` is continuous. -/
+theorem alphaOn_continuous (α : Z1 N (ZMod 2)) (U₀ : Subgroup G) :
+    Continuous (alphaOn N α U₀) := by
+  have hα : Continuous α.1 := (mem_Z1_iff.mp α.2).1
+  exact hα.comp ((continuous_subtype_val.comp continuous_subtype_val).subtype_mk _)
+
+/-- **Step 1 (reindex).** The involution corestriction side, reindexed from a sum over `G/U₀` to
+a sum over the orbit set `O = (G/N)/⟨ḡ⟩` via the bijection `invIndexEquiv`. -/
+theorem psi_inv_reindex (α : Z1 N (ZMod 2)) (ghat : G)
+    (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (hgU : ghat ∈ U₀) (γ η : G) :
+    cor2Fun U₀ (fun p ↦ evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩
+        (alphaOn N α U₀) (p.1, p.2)) (γ, η)
+      = ∑ᶠ u : (G ⧸ N) ⧸ Subgroup.zpowers (QuotientGroup.mk' N ghat),
+          evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀)
+            (lTrans U₀ ((invIndexEquiv N ghat U₀ hU₀).symm u) γ,
+             lTrans U₀ (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀).symm u)) η) := by
+  show (∑ᶠ v : G ⧸ U₀, evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀)
+      (lTrans U₀ v γ, lTrans U₀ (γ⁻¹ • v) η)) = _
+  exact (finsum_comp_equiv (invIndexEquiv N ghat U₀ hU₀).symm).symm
+
 end Involution
 
 end ShapiroLedger
