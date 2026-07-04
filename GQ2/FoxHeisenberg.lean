@@ -263,6 +263,19 @@ theorem powOmega2_u_of_trivial [Finite A] [Finite C] (hA₂ : ∀ a : A, a + a =
     obtain ⟨m, hm⟩ := hodd
     rw [hm, add_nsmul, mul_nsmul, two_nsmul, hA₂, nsmul_zero, zero_add, one_nsmul]
 
+/-- If the base `p.g` acts trivially, so does the base of the 2-primary part `p^{ω₂}` (any power of
+a trivially-acting element acts trivially).  Companion to `powOmega2_u_of_trivial` for the
+`.g`-action, used to push offsets through the collapsed ω₂-powers in the wild row. -/
+theorem powOmega2_g_smul_of_trivial (p : WordLift A C) (hg : ∀ a : A, p.g • a = a) (a : A) :
+    (powOmega2 p).g • a = a := by
+  rw [powOmega2, pow_g]
+  have hk : ∀ k : ℕ, p.g ^ k • a = a := by
+    intro k
+    induction k with
+    | zero => rw [pow_zero, one_smul]
+    | succ j ih => rw [pow_succ, mul_smul, hg, ih]
+  exact hk _
+
 end WordLift
 
 /-! ## The word complex (30)/(31) -/
@@ -1582,6 +1595,94 @@ theorem classTwoIdentity_id (X D : G) (hD4 : D ^ 4 = 1) :
     _ = X ^ 2 := by rw [inv_mul_cancel, mul_one, pow_two]
 
 end ClassTwo
+
+/-! ## Lemma 5.4/5.5: the finite Fox derivatives of the wild aux words (tame case)
+
+At a tame lower map (the wild inertia `x₀, x₁` and, in the split case, `σ₂` acting trivially), the
+`ω₂`-powers in the auxiliary words collapse to their offsets via `WordLift.powOmega2_u_of_trivial`,
+so the first Fox derivatives `D(·)` become plain `𝔽₂`-combinations of the lift offsets `x`.  These
+mirror the paper's Lemma 5.4 ledger `D(uᵢ) = P(Dxᵢ + Dτ)`, `D(d₀) = Pb + (P+1)c` at `P = 1`. -/
+
+section WildRow
+
+variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
+  [Finite V]
+
+/-- **`D(u₀) = x₂ + x₁`** (tame case): with `x₀, τ` acting trivially the `ω₂`-power in
+`u₀ = (x₀τ)^{ω₂}` collapses (odd exponent, char 2), leaving the plain product offset. -/
+theorem liftMarking_u0_u (t : Marking C) (x : Fin 4 → V) (hV₂ : ∀ v : V, v + v = 0)
+    (hx0 : ∀ v : V, t.x₀ • v = v) (htau : ∀ v : V, t.τ • v = v) :
+    (liftMarking t x).u0.u = x 2 + x 1 := by
+  have hbase : ∀ v : V, ((liftMarking t x).x₀ * (liftMarking t x).τ).g • v = v := by
+    intro v
+    show (t.x₀ * t.τ) • v = v
+    rw [mul_smul, htau, hx0]
+  have hu0 : (liftMarking t x).u0 = powOmega2 ((liftMarking t x).x₀ * (liftMarking t x).τ) := rfl
+  rw [hu0, WordLift.powOmega2_u_of_trivial hV₂ _ hbase]
+  show x 2 + t.x₀ • x 1 = x 2 + x 1
+  rw [hx0]
+
+/-- **`D(u₁) = x₃ + x₁`** (tame case), the `x₁`-analogue of `liftMarking_u0_u`. -/
+theorem liftMarking_u1_u (t : Marking C) (x : Fin 4 → V) (hV₂ : ∀ v : V, v + v = 0)
+    (hx1 : ∀ v : V, t.x₁ • v = v) (htau : ∀ v : V, t.τ • v = v) :
+    (liftMarking t x).u1.u = x 3 + x 1 := by
+  have hbase : ∀ v : V, ((liftMarking t x).x₁ * (liftMarking t x).τ).g • v = v := by
+    intro v
+    show (t.x₁ * t.τ) • v = v
+    rw [mul_smul, htau, hx1]
+  have hu1 : (liftMarking t x).u1 = powOmega2 ((liftMarking t x).x₁ * (liftMarking t x).τ) := rfl
+  rw [hu1, WordLift.powOmega2_u_of_trivial hV₂ _ hbase]
+  show x 3 + t.x₁ • x 1 = x 3 + x 1
+  rw [hx1]
+
+/-- **`D(d₀) = x₁`** (tame case, `P = 1`): from `d₀ = u₀·x₀⁻¹`, `D(d₀) = D(u₀) − x₂ = (x₂+x₁) − x₂ =
+x₁`.  This is the paper's `Dd₀ = Pb + (P+1)c = b` at the split value `P = 1` (`c`-terms cancel). -/
+theorem liftMarking_d0_u (t : Marking C) (x : Fin 4 → V) (hV₂ : ∀ v : V, v + v = 0)
+    (hx0 : ∀ v : V, t.x₀ • v = v) (htau : ∀ v : V, t.τ • v = v) :
+    (liftMarking t x).d0.u = x 1 := by
+  have hbase : ∀ v : V, ((liftMarking t x).x₀ * (liftMarking t x).τ).g • v = v := by
+    intro v
+    show (t.x₀ * t.τ) • v = v
+    rw [mul_smul, htau, hx0]
+  have hx0inv : ∀ v : V, t.x₀⁻¹ • v = v := fun v => by rw [inv_smul_eq_iff]; exact (hx0 v).symm
+  have hu0g : ∀ v : V, (liftMarking t x).u0.g • v = v := fun v =>
+    WordLift.powOmega2_g_smul_of_trivial _ hbase v
+  have hd0 : (liftMarking t x).d0 = (liftMarking t x).u0 * (liftMarking t x).x₀⁻¹ := rfl
+  rw [hd0, WordLift.mul_u, liftMarking_u0_u t x hV₂ hx0 htau, WordLift.inv_u]
+  show x 2 + x 1 + (liftMarking t x).u0.g • -(t.x₀⁻¹ • x 2) = x 1
+  rw [hx0inv, hu0g]
+  abel
+
+/-- **`σ₂`'s base is exactly `t.sigma2`** — the `ω₂`-exponent taken in `WordLift V C` agrees with the
+one in `C` (Lemma 5.1, finite-exponent independence): `orderOf t.σ ∣ orderOf σ_WL`, so
+`powOmega2_pow_eq` identifies the two representatives.  Hence the σ-tameness `hU` (stated on
+`t.sigma2`) transfers to the wild-row evaluation — `hU v` gives `(liftMarking t x).sigma2.g • v = v`
+after `rw [liftMarking_sigma2_g]`. -/
+theorem liftMarking_sigma2_g (t : Marking C) (x : Fin 4 → V) :
+    (liftMarking t x).sigma2.g = t.sigma2 := by
+  have hg : (liftMarking t x).σ.g = t.σ := rfl
+  have hdvd : orderOf t.σ ∣ orderOf (liftMarking t x).σ := by
+    apply orderOf_dvd_of_pow_eq_one
+    have h1 : ((liftMarking t x).σ ^ orderOf (liftMarking t x).σ).g = (1 : WordLift V C).g :=
+      congrArg WordLift.g (pow_orderOf_eq_one _)
+    rwa [WordLift.pow_g, hg, WordLift.one_g] at h1
+  have hN : orderOf (liftMarking t x).σ ≠ 0 := (orderOf_pos _).ne'
+  rw [show (liftMarking t x).sigma2 =
+      (liftMarking t x).σ ^ omega2Exp (orderOf (liftMarking t x).σ) from rfl,
+    WordLift.pow_g, hg]
+  exact powOmega2_pow_eq t.σ hdvd hN
+
+omit [Finite V] [Finite C] in
+/-- **`D(x₁^σ) = S⁻¹·x₃`** (tame case): conjugating by `σ` shifts the `x₁`-offset by `t.σ⁻¹`, and the
+`x₀`-offsets contributed by the two `σ`'s cancel.  This is the sole surviving `S⁻¹` in the wild row
+(the paper's `xσ₁` ledger row `0 0 0 S⁻¹`). -/
+theorem liftMarking_conjP_x1_sigma_u (t : Marking C) (x : Fin 4 → V)
+    (hx1 : ∀ v : V, t.x₁ • v = v) :
+    (conjP (liftMarking t x).x₁ (liftMarking t x).σ).u = t.σ⁻¹ • x 3 := by
+  show -(t.σ⁻¹ • x 0) + t.σ⁻¹ • x 3 + (t.σ⁻¹ * t.x₁) • x 0 = t.σ⁻¹ • x 3
+  rw [mul_smul, hx1]; abel
+
+end WildRow
 
 section NormalForms
 
