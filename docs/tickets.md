@@ -57,9 +57,9 @@ row ◐ before starting.  Paper: `paper/A_Profinite_Presentation_for_G__Q_2.pdf`
 | P-24 | Meta: guard hardening — untracked-file WARN (tracked FAIL unchanged) + scratch convention in `step2-plan.md` — adversarial review rec 5 (the `WF72.lean` incident, since self-resolved; that P-15g prototype is now spliced into `SectionSeven` and the scratch DELETED 2026-07-04 — no live scratch remains) | ⭐ | O | — | — | ☐ |
 | P-25 | B: §3 boundary construction — Prop 3.10 (`Γ_A` half + local/Cor 3.12 half) + Prop 3.14 `Nonempty BoundaryMaps` (the orphaned `SectionThreeMarked.lean` sorries; see census) | ⭐⭐⭐ | O | P-09, P-10, P-21 | B5, B8, B3c, B10 (inherited via 1.1 / 3.2) | ◐ (Opus 2026-07-04) **`prop_3_10_gammaA` CLOSED — std-3, spliced** (`GQ2/BoundaryConstruction.lean`, own file): full marked iso `Γ_A(2) ≅ Π` (`prop_3_10_gammaA_proved`) via the τ=1 **word collapse** (`wildRelWord_eq`: wild relator (6) → pro-2 relator (20)), forward descent `phiP` + backward `PsiMax`, glued by density; `maxProPMk_gammaTau` (τ dies) + `piRelatorWord_maxA_eq_one` (M ⊨ Π's relation).  **`phiP` = Prop 3.14's `pro2A`** (with generator values) is banked.  **Remaining:** `prop_3_10_local_marked` (anabelian core: `prop_1_1` [P-10] + `ztwoEquivPadic` [P-21] + Nielsen) and `prop_3_14` (the 20-field BoundaryMaps bundle — Γ_A side mostly in hand, G_ℚ₂ `pro2F` side gated on local_marked).  Full build green (8652), guard all-pass, census 13. |
 
-## Proof-state census — the 14 remaining `sorry`s (audit 2026-07-04)
+## Proof-state census — the remaining `sorry`s (audit 2026-07-04; **13** after P-25 closed `prop_3_10_gammaA`)
 
-Authoritative snapshot of every bare `sorry` in the compiled tree (`lake build GQ2` green, 8649 jobs;
+Authoritative snapshot of every bare `sorry` in the compiled tree (`lake build GQ2` green, 8652 jobs;
 `check_axioms.sh` all-pass, census 13, no `native_decide`).  Each is an honest open obligation — no
 *proved* theorem depends on `sorryAx` except by explicitly taking the sorried result as a hypothesis
 (notably `(B : BoundaryMaps)`, discharged only by `prop_3_14` below).
@@ -79,8 +79,7 @@ Authoritative snapshot of every bare `sorry` in the compiled tree (`lake build G
 - `lemma_8_6_gammaA` / `lemma_8_6_local` / `prop_8_9` (`SectionEight.lean:1390/1399/1592`) → **P-16a–d** ◐.
 
 **§3 boundary construction — now tracked as ⟶ P-25 ◐** (was UNOWNED; fell through P-09/P-10 closure):
-- `prop_3_10_gammaA` (`SectionThreeMarked.lean:47`) — Prop 3.10 `Γ_A` half — design-note-assigned to
-  **P-09** (☑ CLOSED, which delivered only Prop 3.2 + the ν-surjectivities).
+- ~~`prop_3_10_gammaA`~~ — **DONE 2026-07-04 (P-25, std-3)**: marked iso `Γ_A(2) ≅ Π`, spliced.
 - `prop_3_10_local_marked` (`SectionThreeMarked.lean:63`) — Prop 3.10 / Cor 3.12 local half — assigned
   **P-10** (☑ CLOSED, which delivered only Prop 1.1).
 - `prop_3_14 : Nonempty BoundaryMaps` (`SectionThreeMarked.lean:83`) — assigned **P-09/P-10 jointly**;
