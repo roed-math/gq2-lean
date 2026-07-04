@@ -1959,12 +1959,73 @@ theorem heisMarking_map_agHom (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → E
 theorem heisMarking_map_lgHom (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
     (heisMarking t x y).map lgHom = liftMarking t y := rfl
 
-/-- Naturality: the `.a` of an aux word at `heisMarking` is the `liftMarking` `.u` (via `agHom`). -/
+/-- Naturality: the `.a` of an aux word at `heisMarking` is the `liftMarking` `.u` (via `agHom`);
+`.l` is the dual `liftMarking` `.u` (via `lgHom`); `.g` agrees (both project the base). -/
 theorem heisMarking_h0_a (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
-    (heisMarking t x y).h0.a = (liftMarking t x).h0.u := by
-  have h : agHom (heisMarking t x y).h0 = (liftMarking t x).h0 := by
-    rw [← Marking.map_h0, heisMarking_map_agHom]
-  exact congrArg WordLift.u h
+    (heisMarking t x y).h0.a = (liftMarking t x).h0.u :=
+  congrArg WordLift.u (show agHom (heisMarking t x y).h0 = (liftMarking t x).h0 by
+    rw [← Marking.map_h0, heisMarking_map_agHom])
+
+theorem heisMarking_h0_l (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+    (heisMarking t x y).h0.l = (liftMarking t y).h0.u :=
+  congrArg WordLift.u (show lgHom (heisMarking t x y).h0 = (liftMarking t y).h0 by
+    rw [← Marking.map_h0, heisMarking_map_lgHom])
+
+theorem heisMarking_h0_g_eq (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+    (heisMarking t x y).h0.g = (liftMarking t x).h0.g :=
+  congrArg WordLift.g (show agHom (heisMarking t x y).h0 = (liftMarking t x).h0 by
+    rw [← Marking.map_h0, heisMarking_map_agHom])
+
+theorem heisMarking_d0_a (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+    (heisMarking t x y).d0.a = (liftMarking t x).d0.u :=
+  congrArg WordLift.u (show agHom (heisMarking t x y).d0 = (liftMarking t x).d0 by
+    rw [← Marking.map_d0, heisMarking_map_agHom])
+
+theorem heisMarking_d0_l (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+    (heisMarking t x y).d0.l = (liftMarking t y).d0.u :=
+  congrArg WordLift.u (show lgHom (heisMarking t x y).d0 = (liftMarking t y).d0 by
+    rw [← Marking.map_d0, heisMarking_map_lgHom])
+
+theorem heisMarking_d0_g_eq (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+    (heisMarking t x y).d0.g = (liftMarking t x).d0.g :=
+  congrArg WordLift.g (show agHom (heisMarking t x y).d0 = (liftMarking t x).d0 by
+    rw [← Marking.map_d0, heisMarking_map_agHom])
+
+theorem heisMarking_c0_a (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+    (heisMarking t x y).c0.a = (liftMarking t x).c0.u :=
+  congrArg WordLift.u (show agHom (heisMarking t x y).c0 = (liftMarking t x).c0 by
+    rw [← Marking.map_c0, heisMarking_map_agHom])
+
+theorem heisMarking_c0_g_eq (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+    (heisMarking t x y).c0.g = (liftMarking t x).c0.g :=
+  congrArg WordLift.g (show agHom (heisMarking t x y).c0 = (liftMarking t x).c0 by
+    rw [← Marking.map_c0, heisMarking_map_agHom])
+
+theorem heisMarking_u1_g_eq (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+    (heisMarking t x y).u1.g = (liftMarking t x).u1.g :=
+  congrArg WordLift.g (show agHom (heisMarking t x y).u1 = (liftMarking t x).u1 by
+    rw [← Marking.map_u1, heisMarking_map_agHom])
+
+theorem heisMarking_sigma2_a (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+    (heisMarking t x y).sigma2.a = (liftMarking t x).sigma2.u :=
+  congrArg WordLift.u (show agHom (heisMarking t x y).sigma2 = (liftMarking t x).sigma2 by
+    rw [← Marking.map_sigma2, heisMarking_map_agHom])
+
+theorem heisMarking_sigma2_l (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+    (heisMarking t x y).sigma2.l = (liftMarking t y).sigma2.u :=
+  congrArg WordLift.u (show lgHom (heisMarking t x y).sigma2 = (liftMarking t y).sigma2 by
+    rw [← Marking.map_sigma2, heisMarking_map_lgHom])
+
+theorem heisMarking_sigma2_g_eq (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+    (heisMarking t x y).sigma2.g = (liftMarking t x).sigma2.g :=
+  congrArg WordLift.g (show agHom (heisMarking t x y).sigma2 = (liftMarking t x).sigma2 by
+    rw [← Marking.map_sigma2, heisMarking_map_agHom])
+
+/-- On the x₀-supported rep, `σ` (index 0) lands in the base slice, so `σ₂` and `g₀` are pure base
+elements: their `.a`, `.l`, `.z` all vanish (via `secHom`-slice + the square for `z`). -/
+theorem heisMarking_sigma2_u_zero (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
+    (hx0 : x 0 = 0) : (liftMarking t x).sigma2.u = 0 :=
+  WordLift.powOmega2_u_zero _ (by show x 0 = 0; exact hx0)
 
 end HessianRow
 
