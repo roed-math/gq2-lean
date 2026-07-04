@@ -254,6 +254,44 @@ noncomputable def phiP : ContinuousMonoidHom GammaA PiBd :=
     = piClassifier.hom (univMarking.x₁) from quotientLift_quotientMk _ _ _ _]
   exact piClassifier_x1
 
+/-! ## The backward descent `Π → Γ_A(2)` -/
+
+/-- The marked tame relation holds in `Γ_A` (relation (5) dies in the admissible limit). -/
+theorem gammaMarking_tameRel : conjP gammaTau gammaSigma = gammaTau ^ 2 := by
+  have h : quotientMk NA univMarking.tameRelator = 1 :=
+    (quotientMk_eq_one_iff NA).mpr tameRelator_mem_NA
+  have e : quotientMk NA univMarking.tameRelator
+      = conjP gammaTau gammaSigma * (gammaTau ^ 2)⁻¹ := by
+    rw [Marking.tameRelator]
+    simp only [map_mul, map_inv, map_pow, Marking.map_conjP]
+    rfl
+  exact mul_inv_eq_one.mp (e.symm.trans h)
+
+/-- **`τ` dies in the maximal pro-`2` quotient of `Γ_A`** (Lemma 3.1): in every finite `2`-group
+level the image of `τ` has both odd order (tame relation) and `2`-power order, hence is trivial. -/
+theorem maxProPMk_gammaTau : maxProPMk 2 GammaA gammaTau = 1 := by
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have hmem : gammaTau ∈ proPKernel 2 GammaA := by
+    rw [proPKernel, Subgroup.mem_iInf]
+    rintro ⟨U, hU⟩
+    haveI : Finite (GammaA ⧸ U.toSubgroup) := inferInstance
+    set q : GammaA →* GammaA ⧸ U.toSubgroup := QuotientGroup.mk' U.toSubgroup with hq
+    have hrel : conjP (q gammaTau) (q gammaSigma) = (q gammaTau) ^ 2 := by
+      have h := congrArg (⇑q) gammaMarking_tameRel
+      rwa [Marking.map_conjP, map_pow] at h
+    have hodd : Odd (orderOf (q gammaTau)) :=
+      Tame.tame_odd_order (orderOf_pos (q gammaSigma)).ne' hrel
+    obtain ⟨k, hk⟩ := (IsPGroup.iff_orderOf.mp hU) (q gammaTau)
+    have h1 : orderOf (q gammaTau) = 1 := by
+      rcases Nat.eq_zero_or_pos k with rfl | hpos
+      · simpa using hk
+      · exfalso
+        have h2dvd : 2 ∣ orderOf (q gammaTau) := hk ▸ dvd_pow_self 2 hpos.ne'
+        rw [Nat.odd_iff] at hodd
+        omega
+    exact (QuotientGroup.eq_one_iff _).mp (orderOf_eq_one_iff.mp h1)
+  exact (quotientMk_eq_one_iff (proPKernel 2 GammaA)).mpr hmem
+
 end SectionThree
 
 end GQ2
