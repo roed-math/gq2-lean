@@ -461,6 +461,60 @@ theorem topGen_maxA :
       · exact ⟨3, rfl⟩
   rwa [h1] at h
 
+/-- `Φ ∘ Ψ = id` on `Π` (both fix `πσ, πx₀, πx₁`; density). -/
+theorem PhiMax_PsiMax (x : PiBd) : PhiMax (PsiMax x) = x := by
+  have h := monoidHom_eq_of_topGen
+    (f := PhiMax.toMonoidHom.comp PsiMax.toMonoidHom) (g := MonoidHom.id PiBd)
+    (by rw [MonoidHom.coe_comp]
+        exact PhiMax.continuous_toFun.comp PsiMax.continuous_toFun) continuous_id
+    topGen_piBd ?_
+  · exact h x
+  · rintro z (rfl | rfl | rfl)
+    · show PhiMax (PsiMax piSigma) = piSigma
+      rw [PsiMax_piSigma, PhiMax_mk_gammaSigma]
+    · show PhiMax (PsiMax piX0) = piX0
+      rw [PsiMax_piX0, PhiMax_mk_gammaX0]
+    · show PhiMax (PsiMax piX1) = piX1
+      rw [PsiMax_piX1, PhiMax_mk_gammaX1]
+
+/-- `Ψ ∘ Φ = id` on `Γ_A(2)` (checked on the four marked generator images; density). -/
+theorem PsiMax_PhiMax (x : maxProPQuotient 2 GammaA) : PsiMax (PhiMax x) = x := by
+  have h := monoidHom_eq_of_topGen
+    (f := PsiMax.toMonoidHom.comp PhiMax.toMonoidHom) (g := MonoidHom.id _)
+    (by rw [MonoidHom.coe_comp]
+        exact PsiMax.continuous_toFun.comp PhiMax.continuous_toFun) continuous_id
+    topGen_maxA ?_
+  · exact h x
+  · rintro z (rfl | rfl | rfl | rfl)
+    · show PsiMax (PhiMax (maxProPMk 2 GammaA gammaSigma)) = maxProPMk 2 GammaA gammaSigma
+      rw [PhiMax_mk_gammaSigma, PsiMax_piSigma]
+    · show PsiMax (PhiMax (maxProPMk 2 GammaA gammaTau)) = maxProPMk 2 GammaA gammaTau
+      rw [PhiMax_mk_gammaTau, map_one, maxProPMk_gammaTau]
+    · show PsiMax (PhiMax (maxProPMk 2 GammaA gammaX0)) = maxProPMk 2 GammaA gammaX0
+      rw [PhiMax_mk_gammaX0, PsiMax_piX0]
+    · show PsiMax (PhiMax (maxProPMk 2 GammaA gammaX1)) = maxProPMk 2 GammaA gammaX1
+      rw [PhiMax_mk_gammaX1, PsiMax_piX1]
+
+/-- **The marked isomorphism `Γ_A(2) ≅ Π`** (Prop 3.10, `Γ_A` half). -/
+noncomputable def maxAEquiv : ContinuousMulEquiv (maxProPQuotient 2 GammaA) PiBd where
+  toFun := PhiMax
+  invFun := PsiMax
+  left_inv := PsiMax_PhiMax
+  right_inv := PhiMax_PsiMax
+  map_mul' := map_mul PhiMax
+  continuous_toFun := PhiMax.continuous_toFun
+  continuous_invFun := PsiMax.continuous_toFun
+
+/-- **Prop 3.10, `Γ_A` half** (proved): the maximal pro-`2` quotient of `Γ_A` is `Π`, matching
+the marked generators. -/
+theorem prop_3_10_gammaA_proved :
+    ∃ e : ContinuousMulEquiv (maxProPQuotient 2 GammaA) PiBd,
+      e (maxProPMk 2 GammaA (quotientMk NA univMarking.σ)) = piSigma ∧
+      e (maxProPMk 2 GammaA (quotientMk NA univMarking.τ)) = 1 ∧
+      e (maxProPMk 2 GammaA (quotientMk NA univMarking.x₀)) = piX0 ∧
+      e (maxProPMk 2 GammaA (quotientMk NA univMarking.x₁)) = piX1 :=
+  ⟨maxAEquiv, PhiMax_mk_gammaSigma, PhiMax_mk_gammaTau, PhiMax_mk_gammaX0, PhiMax_mk_gammaX1⟩
+
 end SectionThree
 
 end GQ2
