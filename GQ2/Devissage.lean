@@ -115,12 +115,12 @@ variable {A' A A'' : Type*}
   (hf : ∀ (c : C) (a : A'), f (c • a) = c • f a) (hg : ∀ (c : C) (a : A), g (c • a) = c • g a)
   (hinj : Function.Injective f) (hsurj : Function.Surjective g) (hexact : f.range = g.ker)
 
-include hsurj hexact
-
+include hsurj in
 /-- Degree-1 (`(·)⁴`) surjectivity: `g` applied componentwise is surjective. -/
 theorem pi_g_surjective : Function.Surjective (fun (x : Fin 4 → A) (i : Fin 4) => g (x i)) := by
   intro y; choose x hx using fun i => hsurj (y i); exact ⟨x, funext hx⟩
 
+include hexact in
 /-- Degree-1 exactness: `ker(g∘·) = range(f∘·)` on `Fin 4 → A`. -/
 theorem pi_exact (y : Fin 4 → A) :
     (fun i => g (y i)) = 0 ↔ ∃ x : Fin 4 → A', (fun i => f (x i)) = y := by
@@ -138,6 +138,7 @@ theorem pi_exact (y : Fin 4 → A) :
     have : f (x i) ∈ g.ker := by rw [← hexact]; exact AddMonoidHom.mem_range.mpr ⟨x i, rfl⟩
     exact AddMonoidHom.mem_ker.mp this
 
+include hsurj in
 /-- Degree-2 (`(·)²`) surjectivity: `g × g` is surjective. -/
 theorem prod_g_surjective : Function.Surjective (g.prodMap g) := by
   rintro ⟨u, v⟩
@@ -145,6 +146,7 @@ theorem prod_g_surjective : Function.Surjective (g.prodMap g) := by
   obtain ⟨b, hb⟩ := hsurj v
   exact ⟨(a, b), by simp [AddMonoidHom.coe_prodMap, ha, hb]⟩
 
+include hexact in
 /-- Degree-2 exactness: `ker(g × g) = range(f × f)` on `A × A`. -/
 theorem prod_exact (p : A × A) :
     (g.prodMap g) p = 0 ↔ ∃ q : A' × A', (f.prodMap f) q = p := by
@@ -161,6 +163,27 @@ theorem prod_exact (p : A × A) :
     rw [AddMonoidHom.coe_prodMap] at hq
     exact ⟨(hmem p.1).mp ⟨q.1, congrArg Prod.fst hq⟩,
       (hmem p.2).mp ⟨q.2, congrArg Prod.snd hq⟩⟩
+
+/-! ### The connecting map `δ¹ : H¹w(A'') → H²w(A')` (snake) -/
+
+include hsurj in
+/-- A chosen lift of a degree-1 `A''`-cochain to `A⁴` (via `g` surjective). -/
+noncomputable def snakeLift (c'' : Fin 4 → A'') : Fin 4 → A := fun i => (hsurj (c'' i)).choose
+
+include hsurj in
+@[simp] theorem snakeLift_spec (c'' : Fin 4 → A'') (i : Fin 4) : g (snakeLift g hsurj c'' i) = c'' i :=
+  (hsurj (c'' i)).choose_spec
+
+include hg hsurj in
+/-- For a cocycle `c'' ∈ Z¹w(A'')`, `d¹` of its lift lands in `ker(g × g)`. -/
+theorem snake_d1_mem (t : Marking C) (c'' : Z1w (A := A'') t) :
+    (g.prodMap g) (d1 t (snakeLift g hsurj c''.1)) = 0 := by
+  have h1 : d1 t (fun i => g (snakeLift g hsurj c''.1 i))
+      = (g.prodMap g) (d1 t (snakeLift g hsurj c''.1)) := by
+    rw [AddMonoidHom.coe_prodMap]; exact d1_natural t g hg (snakeLift g hsurj c''.1)
+  rw [← h1, show (fun i => g (snakeLift g hsurj c''.1 i)) = c''.1 from
+    funext (snakeLift_spec g hsurj c''.1)]
+  exact AddMonoidHom.mem_ker.mp c''.2
 
 end LES
 
