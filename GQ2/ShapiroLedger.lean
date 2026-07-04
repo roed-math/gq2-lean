@@ -44,13 +44,38 @@ identities).  No axioms (`Ax = ∅`).
   `orbit_free` (`ĝ ∉ N ⟹ z·ḡ ≠ z`, so every `⟨ḡ⟩`-orbit is a free 2-set `{z, z·ḡ}` — no
   fixed-point/diagonal term), and `evensAux_alphaOn_{mem,notMem}` / `bS_alphaOn_{mem,notMem}`
   reducing the `N^{Ev}` building blocks to explicit `α`-reads (`ĝ ∉ N`; `x·ĝ ∈ N ⟺ x ∉ N`), plus
-  `alphaOn`(`_hom`/`_continuous`) and `subgroupOf_isOpen`.  **Remaining — Step 3 (the hard core,
-  a materially larger computation than the free case):** (a) the **membership correspondence**
-  linking `ℓ^{U₀}_v(γ) ∈ N` to `phi`'s `ε`-orientation (using `orbit_free`), so the
-  `evensNormFun` `if`-branches match `phi_inv_eq`'s `f`-term + `m`-term (paper (108)/(109)); and
-  (b) discharging the residual **two-transversal `.out` discrepancy** (`.out^{U₀}` vs
-  `.out^{G/N}`, an `N`-correction analogous to but larger than the free case's `shiftCorr`) as a
-  `δ¹`-coboundary via the same `H2ofFun_eq_of_sub_mem_B2` engine.
+  `alphaOn`(`_hom`/`_continuous`) and `subgroupOf_isOpen`.
+  **Landed here — Step 3, γ-word machinery (all std-3):** `lWordU0_mem_N_iff` (the **membership
+  correspondence** `ℓ^{U₀}_v(γ) ∈ N ⟺ γ̄`-aligned reps, using `orbit_free`); the `U₀→N` **word
+  factorization** `nLift`/`uCorr`/`uCorr_mem`/`lWordU0_factor` (`ℓ^{U₀}_v(γ) = uCorr(v)⁻¹ ·
+  (nLift-word) · uCorr(γ⁻¹•v)`, isolating the `.out^{U₀}` vs `.out^{G/N}` discrepancy into the
+  `N`-corrections `uCorr`); `orbit_equiv` + `mem_zpowers_sq_one` + `zb_flipped` (the flipped
+  orientation `zb = (γ̄⁻¹za)·ḡ`); and **both** α-decompositions of the `evensAux` γ-reading —
+  `alpha_lWordU0_aligned` (`x ∈ N`: `α(x) = α(uCorr v) + α(ℓ^N_{mk v.out}(γ)) + α(uCorr(γ⁻¹•v))`)
+  and `alpha_lWordU0_flipped` (`x ∉ N`: `α(x·ĝ) = α(uCorr v) + α(ℓ^N_{mk v.out}(γ)) + α(W)`,
+  `W = ĝ·shiftCorr(γ⁻¹•za)·uCorr(γ⁻¹•v)·ĝ`), both reducing to the **same base word**
+  `ℓ^N_{mk v.out}(γ)` plus `N`-corrections.  The top-level reduction is also verified: applying
+  `H2ofFun_eq_of_sub_mem_B2` reduces the goal to `graphPullback(…) − cor2Fun(…) ∈ B²`.
+
+  **REMAINING — the coboundary assembly (the uncracked core, banked 2026-07-04).**  Need the
+  explicit `Λ : G → 𝔽₂` with `δ¹Λ = phi − psi` (then `H2ofFun_eq_of_sub_mem_B2`).  Two pieces:
+  1. **`bS(y)` / η-word decomposition.**  The γ-word (`evensAux(x)`) is done above; `evensAux(y)`
+     reuses those lemmas with `(v,γ) ↦ (γ⁻¹•v, η)`; but `bS(y)` reads `α` at `ĝ⁻¹yĝ` / `ĝ⁻¹y`
+     (conjugation by `ĝ`), needing its own decomposition (structurally like the γ one but with a
+     leading `ĝ⁻¹`).
+  2. **The η-index / Shapiro-composition reconciliation (the hard part).**  `psi`'s η-words are
+     indexed by `γ⁻¹•v` through the **`U₀`-transversal**; `phi`'s η-words (`phi_inv_eq`'s two
+     sums) are indexed by `γ̄⁻¹·u.out·ḡ` / `orbOut(γ̄⁻¹u.out)` through the **`G/N`-transversal +
+     orbit reps**.  Matching them is the corestriction/Shapiro-composition identity — the `G/N`
+     transversal factoring as `G/U₀ × {1,ĝ}` — and is a distinct, harder layer than the γ-word
+     transversal calculus above.  `Λ` is expected to be `Λ(γ) = ∑_{v : G/U₀}`
+     (`evensAux`/`bS`-reading of `ℓ^{U₀}_v(γ)`) · (`α`-correction `uCorr`/`W`), mirroring the free
+     case's `Λ(γ) = ∑_h α(ℓ_h γ)·Δ(γ⁻¹h)`, but its exact form requires the full per-term
+     expansion (piece 1 + the reconciliation of piece 2) before `δ¹Λ = phi − psi` can be checked
+     by the free case's reindex-over-`O` + char-2-cancellation route.
+
+  Everything above the assembly is committed and std-3; only the coboundary (`Λ` + `δ¹Λ = phi −
+  psi`, ~150 lines) remains.  A focused session should build piece 1, then attack piece 2.
 
 ## Splice architecture (resolved 2026-07-04)
 
