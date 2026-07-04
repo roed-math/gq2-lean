@@ -292,6 +292,56 @@ theorem maxProPMk_gammaTau : maxProPMk 2 GammaA gammaTau = 1 := by
     exact (QuotientGroup.eq_one_iff _).mp (orderOf_eq_one_iff.mp h1)
   exact (quotientMk_eq_one_iff (proPKernel 2 GammaA)).mpr hmem
 
+/-- **The pro-`2` relator (20) holds in the maximal pro-`2` quotient of `Γ_A`.**  In every finite
+`2`-group level the wild relation (6) holds (it dies in `Γ_A`, `wildRelator_mem_NA`) and `τ ↦ 1`,
+so the collapse gives `piRelator = 1`; separated by finite quotients, it vanishes in the limit. -/
+theorem piRelatorWord_maxA_eq_one :
+    conjP (maxProPMk 2 GammaA gammaX0) ((maxProPMk 2 GammaA gammaSigma) ^ 2)
+        * maxProPMk 2 GammaA gammaX0
+        * commP (maxProPMk 2 GammaA gammaX1) (maxProPMk 2 GammaA gammaSigma) = 1 := by
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  set mk := maxProPMk 2 GammaA with hmkdef
+  refine eq_one_of_forall_mem_openNormalSubgroup fun V => ?_
+  haveI : Finite (maxProPQuotient 2 GammaA ⧸ V.toSubgroup) := inferInstance
+  set q : ContinuousMonoidHom (maxProPQuotient 2 GammaA)
+      (maxProPQuotient 2 GammaA ⧸ V.toSubgroup) := quotientMk V.toSubgroup with hqdef
+  set g : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4))
+      (maxProPQuotient 2 GammaA ⧸ V.toSubgroup) := q.comp (mk.comp (quotientMk NA)) with hgdef
+  have h2grp : IsPGroup 2 (maxProPQuotient 2 GammaA ⧸ V.toSubgroup) := maxProPGammaA_isProP V
+  have ho : ∀ x : maxProPQuotient 2 GammaA ⧸ V.toSubgroup, powOmega2 x = x := fun x => by
+    obtain ⟨k, hk⟩ := (IsPGroup.iff_orderOf.mp h2grp) x
+    exact powOmega2_eq_self_of_orderOf_two_pow hk
+  have hgτ : g univMarking.τ = 1 := by
+    show q (mk (quotientMk NA univMarking.τ)) = 1
+    rw [show mk (quotientMk NA univMarking.τ) = mk gammaTau from rfl, maxProPMk_gammaTau, map_one]
+  -- the pushed marking satisfies (6) (kills `wildRelator`), and `τ ↦ 1`
+  have h0w : quotientMk NA univMarking.wildRelator = (1 : GammaA) :=
+    (quotientMk_eq_one_iff NA).mpr wildRelator_mem_NA
+  have hkill : g.toMonoidHom univMarking.wildRelator = 1 := by
+    show q (mk (quotientMk NA univMarking.wildRelator)) = 1
+    rw [h0w, map_one, map_one]
+  have hwild : (univMarking.map g.toMonoidHom).WildRel :=
+    (Marking.map_wildRelator_eq_one_iff g univMarking).mp hkill
+  have ht : univMarking.map g.toMonoidHom
+      = Marking.mk (q (mk gammaSigma)) 1 (q (mk gammaX0)) (q (mk gammaX1)) := by
+    have cσ : g.toMonoidHom univMarking.σ = q (mk gammaSigma) := by rw [hgdef]; rfl
+    have cτ : g.toMonoidHom univMarking.τ = 1 := hgτ
+    have cx0 : g.toMonoidHom univMarking.x₀ = q (mk gammaX0) := by rw [hgdef]; rfl
+    have cx1 : g.toMonoidHom univMarking.x₁ = q (mk gammaX1) := by rw [hgdef]; rfl
+    rw [show univMarking.map g.toMonoidHom = Marking.mk (g.toMonoidHom univMarking.σ)
+        (g.toMonoidHom univMarking.τ) (g.toMonoidHom univMarking.x₀)
+        (g.toMonoidHom univMarking.x₁) from rfl, Marking.mk.injEq]
+    exact ⟨cσ, cτ, cx0, cx1⟩
+  rw [ht, wildRel_iff_piRelatorWord (q (mk gammaSigma)) (q (mk gammaX0)) (q (mk gammaX1))
+    (ho _) (ho _) (ho _)] at hwild
+  refine (quotientMk_eq_one_iff V.toSubgroup).mp ?_
+  have hpull : q (conjP (mk gammaX0) ((mk gammaSigma) ^ 2) * mk gammaX0
+        * commP (mk gammaX1) (mk gammaSigma))
+      = conjP (q (mk gammaX0)) ((q (mk gammaSigma)) ^ 2) * q (mk gammaX0)
+        * commP (q (mk gammaX1)) (q (mk gammaSigma)) := by
+    simp only [conjP, commP, map_mul, map_inv, map_pow]
+  rw [hpull]; exact hwild
+
 end SectionThree
 
 end GQ2
