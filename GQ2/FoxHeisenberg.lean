@@ -1953,6 +1953,9 @@ section HessianRow
 variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
   [Finite V]
 
+/-- The degree-one tuple supported on the `x₀`-slot (display (53)'s normal form). -/
+def x0Supported (c : V) : Fin 4 → V := ![0, 0, c, 0]
+
 theorem heisMarking_map_agHom (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
     (heisMarking t x y).map agHom = liftMarking t x := rfl
 
@@ -2076,14 +2079,39 @@ theorem heisMarking_c0_g_smul (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → E
   HeisLift.commP_g_trivial (heisMarking t x y).d0 (heisMarking t x y).z0
     (heisMarking_d0_g_smul t x y hx0 htau) (heisMarking_z0_g_smul t x y hx0) v
 
+/-! ### `g₀ = σ₂²` is a base-slice element on the x₀-supported rep (`a = l = z = 0`). -/
+
+theorem heisMarking_sigma2_a_zero (t : Marking C) (c : V) (lam : ElemDual V) :
+    (heisMarking t (x0Supported c) (x0Supported lam)).sigma2.a = 0 := by
+  rw [heisMarking_sigma2_a]; exact heisMarking_sigma2_u_zero t (x0Supported c) rfl
+
+theorem heisMarking_sigma2_l_zero (t : Marking C) (c : V) (lam : ElemDual V) :
+    (heisMarking t (x0Supported c) (x0Supported lam)).sigma2.l = 0 := by
+  rw [heisMarking_sigma2_l]; exact WordLift.powOmega2_u_zero _ rfl
+
+theorem heisMarking_g0_a_zero (t : Marking C) (c : V) (lam : ElemDual V) :
+    (heisMarking t (x0Supported c) (x0Supported lam)).g0.a = 0 := by
+  have h := heisMarking_sigma2_a_zero t c lam
+  show ((heisMarking t (x0Supported c) (x0Supported lam)).sigma2 ^ 2).a = 0
+  rw [pow_two, HeisLift.mul_a, h, smul_zero, add_zero]
+
+theorem heisMarking_g0_l_zero (t : Marking C) (c : V) (lam : ElemDual V) :
+    (heisMarking t (x0Supported c) (x0Supported lam)).g0.l = 0 := by
+  have h := heisMarking_sigma2_l_zero t c lam
+  show ((heisMarking t (x0Supported c) (x0Supported lam)).sigma2 ^ 2).l = 0
+  rw [pow_two, HeisLift.mul_l, h, smul_zero, add_zero]
+
+theorem heisMarking_g0_z_zero (t : Marking C) (c : V) (lam : ElemDual V) :
+    (heisMarking t (x0Supported c) (x0Supported lam)).g0.z = 0 := by
+  have h := heisMarking_sigma2_a_zero t c lam
+  show ((heisMarking t (x0Supported c) (x0Supported lam)).sigma2 ^ 2).z = 0
+  rw [pow_two, HeisLift.mul_z, h, smul_zero, map_zero, add_zero, CharTwo.add_self_eq_zero]
+
 end HessianRow
 
 section NormalForms
 
 variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
-
-/-- The degree-one tuple supported on the `x₀`-slot (display (53)'s normal form). -/
-def x0Supported (c : V) : Fin 4 → V := ![0, 0, c, 0]
 
 /-- **The marked wild generators act trivially on a simple module** — the admissibility input the
 normal-form and pairing lemmas below need.  This is the paper's Lemma 5.12 ("simple char-2 modules
