@@ -57,4 +57,43 @@ theorem card_H1w_of_normalForm (t : Marking C)
       obtain ⟨c, hc, -⟩ := hnf x.val x.2
       exact ⟨c, (key ⟨x0Supported c, hx0mem c⟩ x).mpr hc⟩
 
+/-- **No invariants for a nontrivial simple module**: `H⁰w(A) = A^C = 0`.  `H⁰w` is the `C`-fixed
+space (`H0w_eq_fixedPts`, using `hgen`), a `C`-submodule, so `⊥` or `⊤` by simplicity; `⊤` would make
+the action trivial, contradicting `hnt`. -/
+theorem card_H0w_eq_one_of_nontrivial (t : Marking C) (hgen : t.Generates)
+    (hsimple : IsSimpleModTwo C A) (hnt : ∃ (c : C) (a : A), c • a ≠ a) :
+    Nat.card (H0w (A := A) t) = 1 := by
+  have hfix : (H0w (A := A) t : Set A) = fixedPts C A := H0w_eq_fixedPts t hgen
+  have hmem : ∀ w : A, w ∈ H0w (A := A) t → ∀ g : C, g • w = w := by
+    intro w hw g
+    have : w ∈ fixedPts C A := by rw [← hfix]; exact hw
+    exact this g
+  have hstable : ∀ (g : C) (w : A), w ∈ H0w (A := A) t → g • w ∈ H0w (A := A) t := by
+    intro g w hw; rw [hmem w hw g]; exact hw
+  rcases hsimple.2 (H0w (A := A) t) hstable with h | h
+  · rw [h]; exact AddSubgroup.card_bot
+  · exfalso
+    obtain ⟨c, a, hca⟩ := hnt
+    exact hca (hmem a (h ▸ AddSubgroup.mem_top a) c)
+
+/-- **Card clauses for a nontrivial simple module** (feeding `IsSelfDual`): `#H²w = 1` and
+`#Z¹w = #A²`, from `#H¹w = #A` (`card_H1w_of_normalForm`), `#H⁰w = 1`, and the Euler characteristic
+`card_H1w_eq` / `card_Z1w_eq_sq_mul_card_H2w`. -/
+theorem card_H2w_and_Z1w_of_nontrivial_simple (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (hgen : t.Generates) (hsimple : IsSimpleModTwo C A) (hnt : ∃ (c : C) (a : A), c • a ≠ a)
+    (hx0mem : ∀ c : A, x0Supported c ∈ Z1w (A := A) t)
+    (hnf : ∀ x ∈ Z1w (A := A) t, ∃! c : A, x - x0Supported c ∈ B1w (A := A) t) :
+    Nat.card (H2w (A := A) t) = 1 ∧ Nat.card (Z1w (A := A) t) = Nat.card A ^ 2 := by
+  have hApos : 0 < Nat.card A := Nat.card_pos
+  have hH0 : Nat.card (H0w (A := A) t) = 1 := card_H0w_eq_one_of_nontrivial t hgen hsimple hnt
+  have hH1 : Nat.card (H1w (A := A) t) = Nat.card A := card_H1w_of_normalForm t hx0mem hnf
+  have heuler := card_H1w_eq (A := A) t ht hw
+  rw [hH1, hH0, mul_one] at heuler
+  -- heuler : #A = #A * #H²w
+  have hH2 : Nat.card (H2w (A := A) t) = 1 := by
+    have : Nat.card A * 1 = Nat.card A * Nat.card (H2w (A := A) t) := by rw [mul_one]; exact heuler
+    exact (Nat.eq_of_mul_eq_mul_left hApos this).symm
+  refine ⟨hH2, ?_⟩
+  rw [card_Z1w_eq_sq_mul_card_H2w, hH2, mul_one]
+
 end GQ2.FoxH
