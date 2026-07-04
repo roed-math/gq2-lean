@@ -123,6 +123,44 @@ noncomputable def H1wMap (t : Marking C) (φ : A →+ B)
 
 end Functoriality
 
+/-! ## Rank-nullity on `d¹`: the two card clauses of `IsSelfDual` are equivalent
+
+`d¹ : A⁴ → A²` gives `#A⁴ = #Z¹w · #(im d¹)` (rank-nullity) and `#A² = #H²w · #(im d¹)`
+(`H²w = A²/im d¹`).  Eliminating `#(im d¹)` yields `#Z¹w = #A² · #H²w` for **every** `A`, so the
+two `IsSelfDual` card clauses (`#H²w = #fixedPts` and `#Z¹w = #A²·#fixedPts`) are equivalent —
+one need only track `#H²w`.  (Flagged in the module header as the key simplification.) -/
+
+section RankNullity
+
+variable {A : Type*} [AddCommGroup A] [DistribMulAction C A] [Finite A] [Finite C]
+
+/-- **Rank-nullity for the word complex**: `#Z¹w(A) = #A² · #H²w(A)`, for every finite `A`. -/
+theorem card_Z1w_eq_sq_mul_card_H2w (t : Marking C) :
+    Nat.card (Z1w (A := A) t) = Nat.card A ^ 2 * Nat.card (H2w (A := A) t) := by
+  have hrange_pos : 0 < Nat.card ((d1 (A := A) t).range) := Nat.card_pos
+  -- (i) `#A⁴ = #Z¹w · #(im d¹)` via `(A⁴/ker d¹) ≃ im d¹` and Lagrange.
+  have hi : Nat.card (Z1w (A := A) t) * Nat.card ((d1 (A := A) t).range) = Nat.card A ^ 4 := by
+    have e1 : Nat.card ((Fin 4 → A) ⧸ (d1 (A := A) t).ker)
+        = Nat.card ((d1 (A := A) t).range) :=
+      Nat.card_congr (QuotientAddGroup.quotientKerEquivRange (d1 (A := A) t)).toEquiv
+    have e2 : Nat.card (Fin 4 → A)
+        = Nat.card ((Fin 4 → A) ⧸ (d1 (A := A) t).ker) * Nat.card ((d1 (A := A) t).ker) :=
+      AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup _
+    rw [show Nat.card (Z1w (A := A) t) = Nat.card ((d1 (A := A) t).ker) from rfl, mul_comm, ← e1,
+      ← e2, Nat.card_fun]
+    simp
+  -- (ii) `#A² = #H²w · #(im d¹)` (Lagrange on the quotient `H²w = A²/im d¹`).
+  have hii : Nat.card (H2w (A := A) t) * Nat.card ((d1 (A := A) t).range) = Nat.card A ^ 2 := by
+    rw [show Nat.card (H2w (A := A) t)
+        = Nat.card ((A × A) ⧸ (d1 (A := A) t).range) from rfl,
+      ← AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup, Nat.card_prod, sq]
+  -- Eliminate `#(im d¹)`.
+  apply Nat.eq_of_mul_eq_mul_right hrange_pos
+  rw [hi, mul_assoc, hii]
+  ring
+
+end RankNullity
+
 /-! ## The long exact sequence
 
 A module SES `0 → A' --f--> A --g--> A'' → 0` (with `C`-equivariant `f`, `g`) induces a short
