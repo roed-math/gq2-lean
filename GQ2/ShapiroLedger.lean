@@ -1413,6 +1413,204 @@ theorem bS_lTransT_flipped (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ N)
   rw [hfac, z1_mul N α]
   rfl
 
+/-! ### The position identity (Step 4a)
+
+Per orbit position, the compatible-transversal `evensNormFun`-read equals `phi_inv_eq`'s
+two summands plus the three coboundary terms of the aligned-locus
+`Λ(σ) = Σ_{u aligned-for-σ} α(ℓ_{z_u}σ)·D(σ̄⁻¹•z_u)` — verified cell-by-cell over the four
+aligned/flipped combinations. -/
+
+/-- `ḡ²`-collapse on `G/N`. -/
+theorem quot_mul_ghat_sq (ghat : G) (hg2 : ghat * ghat ∈ N) (m : G ⧸ N) :
+    (m * (ghat : G ⧸ N)) * (ghat : G ⧸ N) = m := by
+  rw [mul_assoc, ← QuotientGroup.mk_mul,
+    (QuotientGroup.eq_one_iff (ghat * ghat)).mpr hg2, mul_one]
+
+/-- The `σ`-action commutes with right-`ḡ`: `σ⁻¹•(m·ḡ) = (σ⁻¹•m)·ḡ`. -/
+theorem smul_mul_ghat (ghat : G) (σ : G) (m : G ⧸ N) :
+    σ⁻¹ • (m * (ghat : G ⧸ N)) = (σ⁻¹ • m) * (ghat : G ⧸ N) := by
+  rw [quot_smul_eq_mk_mul, quot_smul_eq_mk_mul, mul_assoc]
+
+/-- The `mk'`-form of the plain shift. -/
+theorem mk'_inv_mul (σ : G) (m : G ⧸ N) :
+    (QuotientGroup.mk' N σ)⁻¹ * m = σ⁻¹ • m := by
+  rw [quot_smul_eq_mk_mul, QuotientGroup.mk_inv]
+  rfl
+
+/-- **(F,F) product membership**: two flipped words multiply into `N` (`ḡ² = 1`). -/
+theorem lWordT_mul_mem_of_notMem (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
+    (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat)
+    (T : G ⧸ U₀ → G) (hT : ∀ v : G ⧸ U₀, (T v : G ⧸ U₀) = v) (v : G ⧸ U₀) (γ η : G)
+    (hx : lWordT U₀ T v γ ∉ N) (hy : lWordT U₀ T (γ⁻¹ • v) η ∉ N) :
+    lWordT U₀ T v (γ * η) ∈ N := by
+  rw [← QuotientGroup.eq_one_iff, lWordT_mul U₀ T v γ η, QuotientGroup.mk_mul,
+    mk_eq_ghat_of_notMem N ghat hg hg2 U₀ hU₀ _ (lWordT_mem U₀ T hT v γ) hx,
+    mk_eq_ghat_of_notMem N ghat hg hg2 U₀ hU₀ _ (lWordT_mem U₀ T hT (γ⁻¹ • v) η) hy]
+  exact ghatQuot_sq N ghat hg2
+
+set_option maxHeartbeats 1000000 in
+open scoped Classical in
+/-- **The position identity**: at each orbit position, the compatible-transversal Evens-norm
+read equals the two `phi_inv_eq` summands plus the three coboundary terms of the aligned-locus
+`Λ`. -/
+theorem invPositionEval (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
+    (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (hgU : ghat ∈ U₀)
+    (hUi : (N.subgroupOf U₀).index = 2) (hs : (⟨ghat, hgU⟩ : U₀) ∉ N.subgroupOf U₀)
+    (v : G ⧸ U₀) (γ η : G) :
+    evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀)
+        (lTransT U₀ (invLift N ghat U₀ hU₀) (invLift_spec N ghat U₀ hU₀) v γ,
+         lTransT U₀ (invLift N ghat U₀ hU₀) (invLift_spec N ghat U₀ hU₀) (γ⁻¹ • v) η)
+      = α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) γ)
+          * α.1 (lTrans N ((QuotientGroup.mk' N γ)⁻¹
+              * ((invIndexEquiv N ghat U₀ hU₀ v).out * QuotientGroup.mk' N ghat)) η)
+        + (if (QuotientGroup.mk' N γ)⁻¹ * (invIndexEquiv N ghat U₀ hU₀ v).out
+              = orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * (invIndexEquiv N ghat U₀ hU₀ v).out)
+            then 0 else 1)
+          * (α.1 (lTrans N (orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹
+                * (invIndexEquiv N ghat U₀ hU₀ v).out)) η)
+             * α.1 (lTrans N (orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹
+                * (invIndexEquiv N ghat U₀ hU₀ v).out) * QuotientGroup.mk' N ghat) η))
+        + ((if lWordT U₀ (invLift N ghat U₀ hU₀) v γ ∈ N then
+              α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) γ)
+                * dRead N α ghat (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) else 0)
+          + (if lWordT U₀ (invLift N ghat U₀ hU₀) (γ⁻¹ • v) η ∈ N then
+              α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out) η)
+                * dRead N α ghat (η⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out)) else 0)
+          + (if lWordT U₀ (invLift N ghat U₀ hU₀) v (γ * η) ∈ N then
+              α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) (γ * η))
+                * dRead N α ghat ((γ * η)⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) else 0)) := by
+  classical
+  -- the `mk'`-form indices reduce to plain shifts (mk'-form throughout; the `↑ghat`-atoms the
+  -- R-lemmas introduce are converted at the end of each cell)
+  have hmk : (QuotientGroup.mk' N γ)⁻¹ * ((invIndexEquiv N ghat U₀ hU₀ v).out)
+      = γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out) :=
+    mk'_inv_mul N γ _
+  have hidx1 : (QuotientGroup.mk' N γ)⁻¹
+        * ((invIndexEquiv N ghat U₀ hU₀ v).out * QuotientGroup.mk' N ghat)
+      = (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) * QuotientGroup.mk' N ghat := by
+    rw [← mul_assoc, hmk]
+  have horb : orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * ((invIndexEquiv N ghat U₀ hU₀ v).out))
+      = (invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out :=
+    (invIndexEquiv_smul_out N ghat U₀ hU₀ v γ).symm
+  have hcond : ((QuotientGroup.mk' N γ)⁻¹ * ((invIndexEquiv N ghat U₀ hU₀ v).out)
+        = orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * ((invIndexEquiv N ghat U₀ hU₀ v).out)))
+      ↔ lWordT U₀ (invLift N ghat U₀ hU₀) v γ ∈ N :=
+    (lWordT_invLift_mem_N_iff N ghat U₀ hU₀ v γ).symm
+  have hXmem : (lTransT U₀ (invLift N ghat U₀ hU₀) (invLift_spec N ghat U₀ hU₀) v γ
+      ∈ N.subgroupOf U₀) ↔ lWordT U₀ (invLift N ghat U₀ hU₀) v γ ∈ N :=
+    Subgroup.mem_subgroupOf
+  have hcompose : (γ * η)⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)
+      = η⁻¹ • (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) := by
+    rw [← mul_smul, mul_inv_rev]
+  have hcoe : (ghat : G ⧸ N) = QuotientGroup.mk' N ghat := rfl
+  have h2 : (2 : ZMod 2) = 0 := by decide
+  by_cases hX : lWordT U₀ (invLift N ghat U₀ hU₀) v γ ∈ N
+  · -- `γ`-aligned: `z' = γ⁻¹•z`
+    have hz' : (invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out
+        = γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out) :=
+      invIndexEquiv_out_aligned N ghat U₀ hU₀ v γ hX
+    have hεpos : (QuotientGroup.mk' N γ)⁻¹ * ((invIndexEquiv N ghat U₀ hU₀ v).out)
+        = orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹
+            * ((invIndexEquiv N ghat U₀ hU₀ v).out)) := hcond.mpr hX
+    simp only [evensNormFun]
+    rw [if_pos (hXmem.mpr hX)]
+    rw [evensAux_lTransT_aligned N α ghat U₀ hU₀ hgU v γ hX]
+    by_cases hY : lWordT U₀ (invLift N ghat U₀ hU₀) (γ⁻¹ • v) η ∈ N
+    · -- cell (A,A)
+      have hXY : lWordT U₀ (invLift N ghat U₀ hU₀) v (γ * η) ∈ N := by
+        rw [lWordT_mul]
+        exact mul_mem hX hY
+      rw [bS_lTransT_aligned N α ghat hg hg2 U₀ hU₀ hgU hUi hs (γ⁻¹ • v) η hY]
+      rw [if_pos hX, if_pos hY, if_pos hXY, if_pos hεpos]
+      have hsplit : α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) (γ * η))
+          = α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) γ)
+            + α.1 (lTrans N (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) η) := by
+        rw [show lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) (γ * η)
+            = lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) γ
+              * lTrans N (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) η from
+          lTrans_mul' N _ γ η, z1_mul N α]
+      rw [hsplit, hidx1, hcompose, hz', hcoe]
+      linear_combination (-(dRead N α ghat (η⁻¹ • (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)))
+        * α.1 (lTrans N (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) η))) * h2
+    · -- cell (A,F)
+      have hXY : lWordT U₀ (invLift N ghat U₀ hU₀) v (γ * η) ∉ N := by
+        intro hmem
+        apply hY
+        have h1 : lWordT U₀ (invLift N ghat U₀ hU₀) (γ⁻¹ • v) η
+            = (lWordT U₀ (invLift N ghat U₀ hU₀) v γ)⁻¹
+              * lWordT U₀ (invLift N ghat U₀ hU₀) v (γ * η) := by
+          rw [lWordT_mul]; group
+        rw [h1]
+        exact mul_mem (inv_mem hX) hmem
+      rw [bS_lTransT_flipped N α ghat hg hg2 U₀ hU₀ hgU hUi hs (γ⁻¹ • v) η hY]
+      rw [if_pos hX, if_neg hY, if_neg hXY, if_pos hεpos]
+      rw [hidx1, hz', hcoe]
+      ring
+  · -- `γ`-flipped: `z' = (γ⁻¹•z)·ḡ`
+    have hz' : (invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out
+        = (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) * (ghat : G ⧸ N) :=
+      invIndexEquiv_out_flipped N ghat hg hg2 U₀ hU₀ v γ hX
+    have hεneg : ¬ ((QuotientGroup.mk' N γ)⁻¹ * ((invIndexEquiv N ghat U₀ hU₀ v).out)
+        = orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹
+            * ((invIndexEquiv N ghat U₀ hU₀ v).out))) := fun h => hX (hcond.mp h)
+    simp only [evensNormFun]
+    rw [if_neg (fun h => hX (hXmem.mp h))]
+    rw [evensAux_lTransT_flipped N α ghat hg hg2 U₀ hU₀ hgU hUi hs v γ hX]
+    by_cases hY : lWordT U₀ (invLift N ghat U₀ hU₀) (γ⁻¹ • v) η ∈ N
+    · -- cell (F,A)
+      have hXY : lWordT U₀ (invLift N ghat U₀ hU₀) v (γ * η) ∉ N := by
+        intro hmem
+        apply hX
+        have h1 : lWordT U₀ (invLift N ghat U₀ hU₀) v γ
+            = lWordT U₀ (invLift N ghat U₀ hU₀) v (γ * η)
+              * (lWordT U₀ (invLift N ghat U₀ hU₀) (γ⁻¹ • v) η)⁻¹ := by
+          rw [lWordT_mul]; group
+        rw [h1]
+        exact mul_mem hmem (inv_mem hY)
+      rw [evensAux_lTransT_aligned N α ghat U₀ hU₀ hgU (γ⁻¹ • v) η hY]
+      rw [bS_lTransT_aligned N α ghat hg hg2 U₀ hU₀ hgU hUi hs (γ⁻¹ • v) η hY]
+      rw [if_neg hX, if_pos hY, if_neg hXY, if_neg hεneg, horb]
+      rw [hidx1, hz']
+      rw [quot_mul_ghat_sq N ghat hg2 (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out))]
+      rw [smul_mul_ghat N ghat η (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out))]
+      rw [hcoe]
+      rw [show ((γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) * QuotientGroup.mk' N ghat)
+            * QuotientGroup.mk' N ghat = γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out) from
+        quot_mul_ghat_sq N ghat hg2 _]
+      linear_combination (α.1 (lTrans N
+          ((γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) * QuotientGroup.mk' N ghat) η)
+        * dRead N α ghat
+          ((γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) * QuotientGroup.mk' N ghat)) * h2
+    · -- cell (F,F)
+      have hXY : lWordT U₀ (invLift N ghat U₀ hU₀) v (γ * η) ∈ N :=
+        lWordT_mul_mem_of_notMem N ghat hg hg2 U₀ hU₀ _ (invLift_spec N ghat U₀ hU₀)
+          v γ η hX hY
+      rw [evensAux_lTransT_flipped N α ghat hg hg2 U₀ hU₀ hgU hUi hs (γ⁻¹ • v) η hY]
+      rw [bS_lTransT_flipped N α ghat hg hg2 U₀ hU₀ hgU hUi hs (γ⁻¹ • v) η hY]
+      rw [if_neg hX, if_neg hY, if_pos hXY, if_neg hεneg, horb]
+      have hsplit : α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) (γ * η))
+          = α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) γ)
+            + α.1 (lTrans N (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) η) := by
+        rw [show lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) (γ * η)
+            = lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) γ
+              * lTrans N (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) η from
+          lTrans_mul' N _ γ η, z1_mul N α]
+      rw [hsplit, hidx1, hz']
+      rw [quot_mul_ghat_sq N ghat hg2 (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out))]
+      rw [smul_mul_ghat N ghat η (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out))]
+      rw [quot_mul_ghat_sq N ghat hg2 (η⁻¹ • (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)))]
+      rw [hcompose, hcoe]
+      rw [show ((γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) * QuotientGroup.mk' N ghat)
+            * QuotientGroup.mk' N ghat = γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out) from
+        quot_mul_ghat_sq N ghat hg2 _]
+      linear_combination (α.1 (lTrans N
+            ((γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) * QuotientGroup.mk' N ghat) η)
+          * dRead N α ghat
+            ((γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) * QuotientGroup.mk' N ghat)
+        + dRead N α ghat
+            ((γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) * QuotientGroup.mk' N ghat)
+          * dRead N α ghat (η⁻¹ • (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)))) * h2
+
 end Involution
 
 end ShapiroLedger
