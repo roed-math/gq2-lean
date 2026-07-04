@@ -20,6 +20,26 @@ Everything downstream mirrors `GQ2/Prop32.lean`'s `Γ_A`-side Prop 3.2 (`phiA`/`
 `isAdmissible_tameClassifier_level`, `NA_le_ker_tameClassifier`) one presentation up, using the
 maximal-pro-`2`-quotient universal property (`GQ2/MaxProP.lean`: `proPKernel_le_ker`,
 `maxProPHomEquiv`, `isProP_quotient_proPKernel`).
+
+## STATUS (P-25, 2026-07-04)
+
+* **`prop_3_10_gammaA` — DONE** (`prop_3_10_gammaA_proved`, std-3; spliced into
+  `SectionThreeMarked.lean`).  Full marked iso `Γ_A(2) ≅ Π` via the forward descent `phiP`
+  (= `PhiMax`) and the backward `PsiMax`, glued by density (`PhiMax_PsiMax`/`PsiMax_PhiMax`).
+* **`phiP : Γ_A → Π` — DONE**; this is exactly Prop 3.14's `pro2A` field (with the four
+  `phiP_gamma*` generator values), ready for the `prop_3_14` bundle.
+* **`prop_3_14 : Nonempty BoundaryMaps` — REMAINING.**  The `BoundaryMaps` bundle
+  (`GQ2/BoundaryFrame.lean`) has 20 fields spanning **both** sides.  Γ_A side: `tameA` = P-09's
+  `phiA`, `pro2A` = `phiP` (done here), `compatA` (`nuT∘tameA = nuTwo∘pro2A` — a density check on
+  generators through `nuT_tame*`/`nuTwo_pi*`), `surjA`.  G_ℚ₂ side: `tameF`/`wild_isProP`/
+  `wild_isMax` from P-09's `prop_3_2_local` (`LocalTameQuotient`), `pro2F`/`ker_pro2F`/
+  `pro2F_surjective` = the max pro-`2` quotient map of `AbsGalQ2`, `compatF`, `surjF` — the last
+  three gated on `prop_3_10_local_marked`.
+* **`prop_3_10_local_marked : (Π,ν₂) ≅ (G_ℚ₂(2),ν_ur)` — REMAINING.**  The anabelian core:
+  `prop_1_1` (P-10, `PropOneOneAssembly.lean`: `G_ℚ₂(2) ≅ ⟨a,s,y | a²s⁴[s,y]⟩`, `ν_ur=(−2,1,0)`)
+  identified with `Π`'s presentation, plus the `Ztwo ≅ Multiplicative ℤ₂` seam
+  `ztwoEquivPadic` (P-21, `ZtwoPowering.lean`) for the two `ν`-targets, and the Nielsen change
+  of generators (Cor 3.12).
 -/
 
 namespace GQ2
