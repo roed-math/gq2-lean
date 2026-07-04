@@ -21,8 +21,28 @@ A key simplification: **rank-nullity on `d¹`** gives `dim Z¹w = 2·dim A + dim
 (`Z1w = ker d¹`, `H2w = coker d¹`), so the two card clauses of `IsSelfDual` are **equivalent** —
 the card part reduces to the single clause `#H²w(A) = #fixedPts(ElemDual A)`.
 
-This file builds that infrastructure bottom-up.  `Ax = ∅`; heavy work lives here, `lemma_5_11`
-gets a one-line splice in `FoxHeisenberg.lean`.
+## STATUS: the dévissage is PROVED (std-3, no sorries)
+
+**`selfdualW_two_of_three`** is the master theorem: two-out-of-three for **`IsSelfDualW`**, the
+*word-internal* form of the package with `#H⁰w(A^∨)` in place of `#fixedPts C (A^∨)`.  The proof
+runs two nine-term LESs (the word complex of the SES, and of its **dualization** — exact by the
+elementary-dual pack) tied into a duality ladder by six `χ`-maps whose squares all commute
+(`lemma_5_6`, the evaluation squares, and the two δ-square cores), and closes with nine
+four-lemma windows.  Free inputs: `χ⁰`/`χ⁰ᵀ` are *always* injective (separation), `χ²`/`χ²ᵀ`
+*always* surjective (extension/biduality), and the Euler-characteristic swap
+`#H⁰w(A) = #H²w(A^∨)` converts the given card clauses into full bijectivity.
+
+## The `fixedPts` gap and the pending `lemma_5_11` splice
+
+`ker d⁰` is the fixed set of the **four marked elements**, whereas `IsSelfDual` uses
+`fixedPts C` — all of `C`.  These agree exactly for a *generating* marking:
+`H0w_eq_fixedPts (hgen : t.Generates)`, whence `isSelfDual_iff_W`.  `lemma_5_11` **as currently
+stated** (no `Generates`/`Pro2Core` hypothesis) does not follow from the word-complex dévissage
+for possibly-non-generating markings, and we believe the paper's context (markings of Γ_A-images)
+makes generation implicit.  The intended splice is therefore: add `hgen : t.Generates` to
+`lemma_5_11` (its consumer `prop_5_15` sits in the generated setting) and splice
+`selfdualW_two_of_three` through `isSelfDual_iff_W` — a statement-level decision for the P-13
+owner, tracked on the board.
 -/
 
 namespace GQ2.FoxH
@@ -2055,5 +2075,71 @@ theorem selfdualW_two_of_three (hA₂ : ∀ a : A, a + a = 0) (t : Marking C) (h
         hb1T''.surjective hb1TA.injective hb2T''.injective
 
 end LES
+
+/-! ## The `Generates` bridge: `H⁰w = fixedPts` and `IsSelfDual ↔ IsSelfDualW`
+
+For a *generating* marking, `ker d⁰` is exactly the `C`-fixed points, so the word-internal
+package coincides with `IsSelfDual`.  This is the precise gap between `lemma_5_11` as stated
+(no generation hypothesis) and the dévissage `selfdualW_two_of_three`: the two-out-of-three
+for the `fixedPts`-form follows wherever `t.Generates` is available. -/
+
+section GeneratesBridge
+
+variable {M : Type*} [AddCommGroup M] [DistribMulAction C M]
+
+/-- For a generating marking, the word-complex `H⁰w` is the set of `C`-fixed points. -/
+theorem H0w_eq_fixedPts (t : Marking C) (hgen : t.Generates) :
+    (H0w (A := M) t : Set M) = fixedPts C M := by
+  ext v
+  constructor
+  · intro hv
+    have hv' : d0 t v = 0 := AddMonoidHom.mem_ker.mp hv
+    -- The stabilizer of `v` is a subgroup containing the four marked elements.
+    let S : Subgroup C :=
+      { carrier := {c | c • v = v}
+        one_mem' := one_smul C v
+        mul_mem' := fun {a b} ha hb => by
+          simp only [Set.mem_setOf_eq] at ha hb ⊢
+          rw [mul_smul, hb, ha]
+        inv_mem' := fun {a} ha => by
+          simp only [Set.mem_setOf_eq] at ha ⊢
+          rw [← ha, inv_smul_smul, ha] }
+    have hmarked : {t.σ, t.τ, t.x₀, t.x₁} ⊆ (S : Set C) := by
+      have h0 : t.σ • v - v = 0 := congrFun hv' 0
+      have h1 : t.τ • v - v = 0 := congrFun hv' 1
+      have h2 : t.x₀ • v - v = 0 := congrFun hv' 2
+      have h3 : t.x₁ • v - v = 0 := congrFun hv' 3
+      rintro c (rfl | rfl | rfl | rfl)
+      · exact sub_eq_zero.mp h0
+      · exact sub_eq_zero.mp h1
+      · exact sub_eq_zero.mp h2
+      · exact sub_eq_zero.mp h3
+    have hle : Subgroup.closure {t.σ, t.τ, t.x₀, t.x₁} ≤ S :=
+      (Subgroup.closure_le S).mpr hmarked
+    intro c
+    exact hle (by rw [hgen]; trivial)
+  · intro hv
+    apply AddMonoidHom.mem_ker.mpr
+    funext i
+    fin_cases i
+    · show t.σ • v - v = 0
+      rw [hv t.σ, sub_self]
+    · show t.τ • v - v = 0
+      rw [hv t.τ, sub_self]
+    · show t.x₀ • v - v = 0
+      rw [hv t.x₀, sub_self]
+    · show t.x₁ • v - v = 0
+      rw [hv t.x₁, sub_self]
+
+/-- For a generating marking, the two self-duality packages coincide. -/
+theorem isSelfDual_iff_W {A : Type*} [AddCommGroup A] [DistribMulAction C A] [Finite A]
+    [Finite C] (t : Marking C) (hgen : t.Generates) :
+    IsSelfDual t A ↔ IsSelfDualW t A := by
+  have hcard : Nat.card (fixedPts C (ElemDual A)) = Nat.card (H0w (A := ElemDual A) t) :=
+    Nat.card_congr (Equiv.setCongr (H0w_eq_fixedPts t hgen)).symm
+  unfold IsSelfDual IsSelfDualW
+  rw [hcard]
+
+end GeneratesBridge
 
 end GQ2.FoxH
