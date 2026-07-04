@@ -730,6 +730,28 @@ theorem inv_l_of_trivial (p : HeisLift A C) (hp : ∀ a : A, p.g • a = a) : p�
   have hgi : ∀ a : A, p.g⁻¹ • a = a := fun a => by rw [inv_smul_eq_iff]; exact (hp a).symm
   rw [inv_l, smul_elemdual_trivial _ hgi]
 
+/-! Conjugation by a **g-slice** element `g` (`g.a = 0`, `g.l = 0`, `g.z = 0`) with trivially-acting
+base preserves all three Heisenberg coordinates — it only conjugates the base.  This is `φ = conj by
+g₀` in the `h₀`-shadow (`g₀ = σ₂²` lands in the base slice on the x₀-supported rep). -/
+
+theorem conjP_a_of_gslice (p g : HeisLift A C) (hga : g.a = 0) (hgt : ∀ a : A, g.g • a = a) :
+    (conjP p g).a = p.a := by
+  have hgi : ∀ a : A, g.g⁻¹ • a = a := fun a => by rw [inv_smul_eq_iff]; exact (hgt a).symm
+  simp only [conjP, mul_a, mul_g, inv_a, inv_g, hga, smul_zero, neg_zero, add_zero, zero_add, hgi]
+
+theorem conjP_l_of_gslice (p g : HeisLift A C) (hgl : g.l = 0) (hgt : ∀ a : A, g.g • a = a) :
+    (conjP p g).l = p.l := by
+  have hgi : ∀ a : A, g.g⁻¹ • a = a := fun a => by rw [inv_smul_eq_iff]; exact (hgt a).symm
+  simp only [conjP, mul_l, mul_g, inv_l, inv_g, hgl, smul_zero, neg_zero, add_zero, zero_add,
+    smul_elemdual_trivial _ hgi]
+
+theorem conjP_z_of_gslice (p g : HeisLift A C) (hga : g.a = 0) (hgl : g.l = 0) (hgz : g.z = 0)
+    (hgt : ∀ a : A, g.g • a = a) : (conjP p g).z = p.z := by
+  have hgi : ∀ a : A, g.g⁻¹ • a = a := fun a => by rw [inv_smul_eq_iff]; exact (hgt a).symm
+  simp only [conjP, mul_z, mul_a, mul_l, mul_g, inv_z, inv_a, inv_l, inv_g, hga, hgl, hgz,
+    smul_zero, neg_zero, map_zero, add_zero, zero_add, ElemDual.zero_apply, ElemDual.neg_apply,
+    smul_elemdual_trivial _ hgi]
+
 end HeisLift
 
 section Mixed
@@ -1889,6 +1911,34 @@ theorem liftMarking_wildValue_u (t : Marking C) (x : Fin 4 → V) (hV₂ : ∀ v
   abel
 
 end WildRow
+
+/-! ## Lemma 5.14: the mixed Hessian (split case) via `agHom`/`lgHom` naturality
+
+The `.a` and `.l` coordinates of the Heisenberg-evaluated aux words come free from the `WordLift`
+wild-row results: `agHom`/`lgHom` are homs pushing `heisMarking` to `liftMarking` (over `V`, resp.
+`V^∨`), so `(heisMarking t x y).W.a = (liftMarking t x).W.u` and `.l = (liftMarking t y).W.u`.  On
+the x₀-supported rep (`x₁ = x₃ = 0` slots) these vanish for every aux word, leaving a pure central
+computation. -/
+
+section HessianRow
+
+variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
+  [Finite V]
+
+theorem heisMarking_map_agHom (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+    (heisMarking t x y).map agHom = liftMarking t x := rfl
+
+theorem heisMarking_map_lgHom (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+    (heisMarking t x y).map lgHom = liftMarking t y := rfl
+
+/-- Naturality: the `.a` of an aux word at `heisMarking` is the `liftMarking` `.u` (via `agHom`). -/
+theorem heisMarking_h0_a (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+    (heisMarking t x y).h0.a = (liftMarking t x).h0.u := by
+  have h : agHom (heisMarking t x y).h0 = (liftMarking t x).h0 := by
+    rw [← Marking.map_h0, heisMarking_map_agHom]
+  exact congrArg WordLift.u h
+
+end HessianRow
 
 section NormalForms
 
