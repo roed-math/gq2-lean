@@ -2233,6 +2233,54 @@ theorem heisMarking_x1sig_z (t : Marking C) (c : V) (lam : ElemDual V) :
     simp only [conjP, map_mul, map_inv]; rfl]
   rfl
 
+omit [Finite C] [Finite V] in
+theorem powOmega2_secHom_a (w : C) : (powOmega2 (secHom (A := V) w)).a = 0 := by
+  rw [powOmega2, ← map_pow]; rfl
+
+theorem heisMarking_u1_a (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+    (heisMarking t x y).u1.a = (liftMarking t x).u1.u :=
+  congrArg WordLift.u (show agHom (heisMarking t x y).u1 = (liftMarking t x).u1 by
+    rw [← Marking.map_u1, heisMarking_map_agHom])
+
+/-- **The split mixed pairing**, wild summand: `B_{ρ,A}(x₀-supported)` central coordinate is `λ(c)`.
+Outer peel of `wildValue = h₀·u₁⁻¹·x₁^σ·c₀`: all four factors are trivially-based with vanishing
+`.a` (naturality/base-slice), so `.z` is additive, and only `h₀.z = λ(c)` survives (`u₁⁻¹, x₁^σ, c₀`
+have `.z = 0`). -/
+theorem heisMarking_wildValue_z (t : Marking C) (c : V) (lam : ElemDual V) (hV₂ : ∀ v : V, v + v = 0)
+    (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v) (htau : ∀ v : V, t.τ • v = v)
+    (hU : ∀ v : V, t.sigma2 • v = v) :
+    (heisMarking t (x0Supported c) (x0Supported lam)).wildValue.z = lam c := by
+  set M := heisMarking t (x0Supported c) (x0Supported lam) with hM
+  have hh0g := heisMarking_h0_g_smul t (x0Supported c) (x0Supported lam) hx0 htau hU
+  have hu1g := heisMarking_u1_g_smul t (x0Supported c) (x0Supported lam) hx1 htau
+  have hu1invg : ∀ v : V, M.u1⁻¹.g • v = v := fun v => HeisLift.inv_g_trivial M.u1 hu1g v
+  have hx1sigg : ∀ v : V, (conjP M.x₁ M.σ).g • v = v := HeisLift.conjP_g_trivial M.x₁ M.σ hx1
+  have hu1a : M.u1.a = 0 := by
+    rw [show M.u1.a = (liftMarking t (x0Supported c)).u1.u from
+        heisMarking_u1_a t (x0Supported c) (x0Supported lam),
+      liftMarking_u1_u t (x0Supported c) hV₂ hx1 htau]
+    simp [x0Supported]
+  have hu1inva : M.u1⁻¹.a = 0 := by rw [HeisLift.inv_a_of_trivial M.u1 hu1g, hu1a, neg_zero]
+  have hx1siga : (conjP M.x₁ M.σ).a = 0 := by
+    rw [show conjP M.x₁ M.σ = secHom (conjP t.x₁ t.σ) from by
+      simp only [conjP, map_mul, map_inv]; rfl]; rfl
+  have hc0a : M.c0.a = 0 :=
+    (heisMarking_c0_a t (x0Supported c) (x0Supported lam)).trans
+      (liftMarking_c0_u t (x0Supported c) hx0 htau hU)
+  have hh0z := heisMarking_h0_z t c lam hV₂ hx0 htau hU
+  have hu1z := heisMarking_u1_z t c lam
+  have hu1invz : M.u1⁻¹.z = 0 := by rw [HeisLift.inv_z, hu1z, hu1a, map_zero, add_zero]
+  have hx1sigz := heisMarking_x1sig_z t c lam
+  have hc0z := heisMarking_c0_z t c lam hV₂ hx0 htau
+  have hQ2g : ∀ v : V, (M.h0 * M.u1⁻¹).g • v = v := fun v =>
+    HeisLift.mul_g_trivial _ M.u1⁻¹ hh0g hu1invg v
+  have hQ3g : ∀ v : V, (M.h0 * M.u1⁻¹ * conjP M.x₁ M.σ).g • v = v := fun v =>
+    HeisLift.mul_g_trivial _ (conjP M.x₁ M.σ) hQ2g hx1sigg v
+  show (M.h0 * M.u1⁻¹ * conjP M.x₁ M.σ * M.c0).z = lam c
+  rw [HeisLift.mul_z_of_trivial _ _ hQ3g, hc0z, hc0a, map_zero, add_zero, add_zero,
+    HeisLift.mul_z_of_trivial _ _ hQ2g, hx1sigz, hx1siga, map_zero, add_zero, add_zero,
+    HeisLift.mul_z_of_trivial _ _ hh0g, hh0z, hu1invz, hu1inva, map_zero, add_zero, add_zero]
+
 end HessianRow
 
 section NormalForms
@@ -2374,7 +2422,11 @@ theorem lemma_5_13_pairing_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRe
     (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V) [Finite V] (hcore : t.Pro2Core)
     (htau : ∀ v : V, t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v) (c : V) (lam : ElemDual V) :
     mixedB t (x0Supported c) (x0Supported (V := ElemDual V) lam) = lam c := by
-  sorry
+  obtain ⟨hx0, hx1⟩ := wild_acts_trivially t hV₂ hsimple hcore
+  show (heisMarking t (x0Supported c) (x0Supported lam)).tameValue.z
+      + (heisMarking t (x0Supported c) (x0Supported lam)).wildValue.z = lam c
+  rw [heisMarking_tameValue_z_eq_zero t (x0Supported c) (x0Supported lam) rfl rfl rfl rfl,
+    heisMarking_wildValue_z t c lam hV₂ hx0 hx1 htau hU, zero_add]
 
 /-- **Lemma 5.13, pairing display (54), ramified case**: when `V^T = 0` the pairing on
 `x₀`-supported representatives is `(c, λ) ↦ λ((1 + U + U⁻¹)c)` for `U = S₂^ω`
