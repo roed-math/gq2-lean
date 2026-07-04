@@ -1,4 +1,5 @@
 import GQ2.FoxHeisenberg
+import GQ2.MixedBilinear
 
 /-!
 # P-13f, part (i): the trivial module `𝔽₂` is self-dual
@@ -131,15 +132,36 @@ theorem card_Z1w_trivial (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
 
 The two card clauses are `card_H2w_trivial`/`card_Z1w_trivial` combined with
 `card_fixedPts_elemDual_trivial`.  The degree-one pairing (clause 3) is the paper's **table (25)** —
-the explicit `3×3` Gram matrix of the traced mixed coordinate `mixedB` on the cocycle basis
-`{x₀, x₂, x₃}` (recall `Z¹ = {x | x₁ = 0}`, `B¹ = 0`, so `H¹ = Z¹`), whose nonsingularity gives
-perfection via the evaluation pairing `dualEval : A × A^∨ → 𝔽₂`.
+the `3×3` Gram matrix of `mixedB` on the cocycle basis `{x₀, x₂, x₃}` (recall `Z¹ = {x | x₁ = 0}`,
+`B¹ = 0`, so `H¹ = Z¹`).
 
-That Gram computation is **not yet available**: `mixedB` on general (all-four-coordinate) offsets
-requires the degree-one `.z`-coordinate toolkit (`heisMarking_*_z`), which the repo currently proves
-only for **x₀-supported** reps (`heisMarking_wildValue_z`, the split case).  It also needs `mixedB`
-bilinearity (unproven) to assemble the Gram matrix from basis pairs.  Both are sizeable additions,
-tracked as the remaining half of P-13f(i). -/
+The **analytic content is now fully proven** in `GQ2/MixedBilinear.lean` (all std-3): `mixedB`
+bilinearity, and the closed form `mixedB_cocycle : mixedB t x y = y₂(x₂) + y₃(x₀) − y₀(x₃) + u₁.z`
+on cocycles, with the ω₂ scalar `u₁.z` confined to the `(3,3)` slot
+(`heisMarking_u1_z_of_{x3,y3}_zero`).  The Gram matrix is therefore unit-determinant regardless of
+`u₁.z`, and `elemDual_separates` gives nondegeneracy.  What remains for clause 3 is only the
+`Quotient.lift₂` descent to `H¹w` plus the case-analysis bookkeeping (currently `sorry`). -/
+
+/-- The `𝔽₂`-dual separates points of a finite elementary-2 module. -/
+theorem elemDual_separates (hA₂ : ∀ a : A, a + a = 0) {a : A} (ha : a ≠ 0) :
+    ∃ lam : ElemDual A, lam a ≠ 0 := by
+  haveI : Module (ZMod 2) A := AddCommGroup.zmodModule (fun v => by rw [two_nsmul]; exact hA₂ v)
+  obtain ⟨f, hf⟩ := Module.Projective.exists_dual_ne_zero (ZMod 2) ha
+  exact ⟨f.toAddMonoidHom, hf⟩
+
+/-- On the trivial module `Z¹w = {x | x₁ = 0}`. -/
+theorem mem_Z1w_trivial_iff (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (htriv : ∀ (c : C) (a : A), c • a = a) (hA₂ : ∀ a : A, a + a = 0) (x : Fin 4 → A) :
+    x ∈ Z1w (A := A) t ↔ x 1 = 0 := by
+  show x ∈ (d1 (A := A) t).ker ↔ _
+  rw [AddMonoidHom.mem_ker, d1_of_trivial t ht hw htriv hA₂, Prod.mk_eq_zero, and_self]
+
+/-- On the trivial module `B¹w = ⊥` (`d⁰ = 0`), so `H¹w = Z¹w` and the class map is injective. -/
+theorem B1w_trivial_eq_bot (t : Marking C) (htriv : ∀ (c : C) (a : A), c • a = a) :
+    B1w (A := A) t = ⊥ := by
+  rw [eq_bot_iff]
+  rintro y ⟨v, rfl⟩
+  exact (AddSubgroup.mem_bot).mpr (d0_of_trivial t htriv v)
 
 /-- **P-13f, part (i)**: the trivial module `𝔽₂` is self-dual.  Card clauses fully proven; the
 degree-one pairing (clause 3, the table-(25) Gram computation) is the outstanding piece — see the
@@ -153,7 +175,12 @@ theorem trivialSelfDual (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   · -- `#Z¹w = (#A)² · #(A^∨)^C`  (`(#A)³ = (#A)² · #A`)
     rw [card_Z1w_trivial t ht hw htriv hA₂, card_fixedPts_elemDual_trivial htriv hA₂]
     ring
-  · -- The degree-one pairing: table (25).  Outstanding (see section note).
+  · -- The degree-one pairing (table 25).  All analytic inputs are proven in
+    -- `GQ2/MixedBilinear.lean` — `mixedB_cocycle` (the closed form
+    -- `y₂(x₂)+y₃(x₀)−y₀(x₃)+u₁.z`), `heisMarking_u1_z_of_{x3,y3}_zero` (the ω₂ scalar is
+    -- confined to the (3,3) slot), plus `elemDual_separates` above — so the Gram matrix is
+    -- unit-determinant and nondegenerate.  Only the `Quotient.lift₂` descent + case-analysis
+    -- bookkeeping remains.
     sorry
 
 end GQ2.FoxH
