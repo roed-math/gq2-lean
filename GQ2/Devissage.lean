@@ -409,6 +409,54 @@ noncomputable def delta0 (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) :
             congrFun (snake0Z'_spec f g hg hsurj hexact t x) i,
             congrFun (snake0Z'_spec f g hg hsurj hexact t y) i, ← Pi.add_apply, ← map_add])).symm
 
+/-! ### Exactness of the nine-term LES
+
+Each spot is stated as `y ∈ ker(out) ↔ y ∈ range(in)` (equivalently at the ends, injectivity /
+surjectivity), the usual snake-lemma bookkeeping. -/
+
+include hsurj in
+/-- Exactness at the right end: `H²wMap g` is surjective. -/
+theorem H2wMap_g_surjective (t : Marking C) : Function.Surjective (H2wMap t g hg) := by
+  intro y
+  obtain ⟨p'', rfl⟩ := QuotientAddGroup.mk_surjective y
+  obtain ⟨p, hp⟩ := prod_g_surjective g hsurj p''
+  exact ⟨QuotientAddGroup.mk p, by
+    rw [show H2wMap t g hg (QuotientAddGroup.mk p)
+      = QuotientAddGroup.mk (g.prodMap g p) from rfl, hp]⟩
+
+include hg hsurj hexact in
+/-- Exactness at `H²w(A)`: `ker(H²wMap g) = range(H²wMap f)`. -/
+theorem H2w_exact_mid (t : Marking C) (y : H2w (A := A) t) :
+    y ∈ (H2wMap t g hg).ker ↔ y ∈ (H2wMap t f hf).range := by
+  obtain ⟨p, rfl⟩ := QuotientAddGroup.mk_surjective y
+  constructor
+  · intro hy
+    have hmem : (g.prodMap g) p ∈ (d1 (A := A'') t).range :=
+      (QuotientAddGroup.eq_zero_iff _).mp (AddMonoidHom.mem_ker.mp hy)
+    obtain ⟨x'', hx''⟩ := AddMonoidHom.mem_range.mp hmem   -- d¹ x'' = g×g p
+    obtain ⟨x, hx⟩ := pi_g_surjective g hsurj x''          -- g∘x = x''
+    have H : d1 t (fun i => g (x i)) = (g.prodMap g) (d1 t x) := by
+      rw [AddMonoidHom.coe_prodMap]; exact d1_natural t g hg x
+    have hd1 : (g.prodMap g) (d1 t x) = d1 t x'' := by rw [← H]; exact congrArg (d1 t) hx
+    have hker : (g.prodMap g) (p - d1 t x) = 0 := by rw [map_sub, hd1, hx'', sub_self]
+    obtain ⟨q, hq⟩ := (prod_exact f g hexact (p - d1 t x)).mp hker  -- f×f q = p − d¹ x
+    refine ⟨QuotientAddGroup.mk q, ?_⟩
+    show (QuotientAddGroup.mk (f.prodMap f q) : H2w (A := A) t) = QuotientAddGroup.mk p
+    rw [← sub_eq_zero, ← QuotientAddGroup.mk_sub, QuotientAddGroup.eq_zero_iff, hq,
+      show (p - d1 t x) - p = -(d1 t x) from by abel]
+    exact (AddSubgroup.neg_mem_iff _).mpr (AddMonoidHom.mem_range.mpr ⟨x, rfl⟩)
+  · rintro ⟨z, hz⟩
+    obtain ⟨q, rfl⟩ := QuotientAddGroup.mk_surjective z
+    have hgf : (g.prodMap g) (f.prodMap f q) = 0 := by
+      rw [AddMonoidHom.coe_prodMap, AddMonoidHom.coe_prodMap]
+      have hz0 : ∀ a', g (f a') = 0 := fun a' =>
+        AddMonoidHom.mem_ker.mp (by rw [← hexact]; exact AddMonoidHom.mem_range.mpr ⟨a', rfl⟩)
+      show (g (f q.1), g (f q.2)) = 0
+      rw [hz0, hz0]; rfl
+    rw [AddMonoidHom.mem_ker, ← hz]
+    show (QuotientAddGroup.mk (g.prodMap g (f.prodMap f q)) : H2w (A := A'') t) = 0
+    rw [hgf]; exact QuotientAddGroup.mk_zero _
+
 end LES
 
 end GQ2.FoxH
