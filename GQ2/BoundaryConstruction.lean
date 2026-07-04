@@ -137,6 +137,123 @@ theorem piRelatorWord_eq_one :
       evalPi_of2]
   rw [← hword, hrel]
 
+/-! ## The forward descent `Γ_A → Π` -/
+
+/-- The pro-`2` classifier `F₄ ⟶ Π`: `σ ↦ πσ, τ ↦ 1, x₀ ↦ πx₀, x₁ ↦ πx₁`. -/
+noncomputable def piClassifier : FreeProfiniteGroup (Fin 4) ⟶ PiBd :=
+  (FreeProfiniteGroup.homEquiv (Fin 4) PiBd).symm ![piSigma, 1, piX0, piX1]
+
+@[simp] lemma piClassifier_sigma : piClassifier.hom.toMonoidHom univMarking.σ = piSigma :=
+  FreeProfiniteGroup.homEquiv_symm_of _ _ _
+@[simp] lemma piClassifier_tau : piClassifier.hom.toMonoidHom univMarking.τ = 1 :=
+  FreeProfiniteGroup.homEquiv_symm_of _ _ _
+@[simp] lemma piClassifier_x0 : piClassifier.hom.toMonoidHom univMarking.x₀ = piX0 :=
+  FreeProfiniteGroup.homEquiv_symm_of _ _ _
+@[simp] lemma piClassifier_x1 : piClassifier.hom.toMonoidHom univMarking.x₁ = piX1 :=
+  FreeProfiniteGroup.homEquiv_symm_of _ _ _
+
+/-- Through every finite `2`-group level of `Π`, the marking pushed from the pro-`2` classifier is
+admissible: `τ ↦ 1`, and the wild relator collapses to `piRelator`, which vanishes. -/
+theorem isAdmissible_piClassifier_level (V : OpenNormalSubgroup PiBd) :
+    (univMarking.map ((QuotientGroup.mk' V.toSubgroup).comp
+      piClassifier.hom.toMonoidHom)).Admissible := by
+  haveI : Finite (PiBd ⧸ V.toSubgroup) := inferInstance
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have h2grp : IsPGroup 2 (PiBd ⧸ V.toSubgroup) := piBd_isProP V
+  have ho : ∀ x : PiBd ⧸ V.toSubgroup, powOmega2 x = x := fun x => by
+    obtain ⟨k, hk⟩ := (IsPGroup.iff_orderOf.mp h2grp) x
+    exact powOmega2_eq_self_of_orderOf_two_pow hk
+  set q : PiBd →* PiBd ⧸ V.toSubgroup := QuotientGroup.mk' V.toSubgroup with hq
+  set f : FreeProfiniteGroup (Fin 4) →* PiBd ⧸ V.toSubgroup :=
+    q.comp piClassifier.hom.toMonoidHom with hf
+  have hσ : (univMarking.map f).σ = q piSigma := by
+    show f univMarking.σ = q piSigma
+    rw [hf, MonoidHom.comp_apply, piClassifier_sigma]
+  have hτ : (univMarking.map f).τ = 1 := by
+    show f univMarking.τ = 1
+    rw [hf, MonoidHom.comp_apply, piClassifier_tau, map_one]
+  have hx0 : (univMarking.map f).x₀ = q piX0 := by
+    show f univMarking.x₀ = q piX0
+    rw [hf, MonoidHom.comp_apply, piClassifier_x0]
+  have hx1 : (univMarking.map f).x₁ = q piX1 := by
+    show f univMarking.x₁ = q piX1
+    rw [hf, MonoidHom.comp_apply, piClassifier_x1]
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · -- Generates
+    rw [Marking.Generates, hσ, hτ, hx0, hx1]
+    have hgen : Subgroup.closure {q piSigma, q piX0, q piX1} = ⊤ :=
+      gen_piBd_quotient q continuous_quot_mk (QuotientGroup.mk'_surjective _)
+    rw [eq_top_iff, ← hgen]
+    refine Subgroup.closure_mono ?_
+    intro z hz
+    rcases hz with rfl | rfl | rfl
+    · exact Set.mem_insert _ _
+    · exact Set.mem_insert_of_mem _ (Set.mem_insert_of_mem _ (Set.mem_insert _ _))
+    · exact Set.mem_insert_of_mem _ (Set.mem_insert_of_mem _ (Set.mem_insert_of_mem _ rfl))
+  · -- TameRel (τ = 1)
+    rw [Marking.TameRel, hσ, hτ]
+    simp [conjP]
+  · -- WildRel via the collapse
+    have ht : univMarking.map f = Marking.mk (q piSigma) 1 (q piX0) (q piX1) := by
+      rw [show univMarking.map f = Marking.mk (univMarking.map f).σ (univMarking.map f).τ
+        (univMarking.map f).x₀ (univMarking.map f).x₁ from rfl, hσ, hτ, hx0, hx1]
+    rw [ht, wildRel_iff_piRelatorWord (q piSigma) (q piX0) (q piX1) (ho _) (ho _) (ho _)]
+    have hpull : conjP (q piX0) ((q piSigma) ^ 2) * q piX0 * commP (q piX1) (q piSigma)
+        = q (conjP piX0 (piSigma ^ 2) * piX0 * commP piX1 piSigma) := by
+      simp only [map_mul, Marking.map_conjP, Marking.map_commP, map_pow]
+    rw [hpull, piRelatorWord_eq_one, map_one]
+  · -- Pro2Core: subgroups of the finite 2-group are 2-groups
+    rw [Marking.Pro2Core, hx0, hx1]
+    refine IsPGroup.iff_orderOf.mpr fun g => ?_
+    obtain ⟨k, hk⟩ := (IsPGroup.iff_orderOf.mp h2grp) (g : PiBd ⧸ V.toSubgroup)
+    exact ⟨k, (Subgroup.orderOf_coe g).symm.trans hk⟩
+
+/-- `N_A` is contained in the kernel of the pro-`2` classifier (each finite level is admissible). -/
+theorem NA_le_ker_piClassifier : NA ≤ piClassifier.hom.toMonoidHom.ker := by
+  intro x hx
+  rw [MonoidHom.mem_ker]
+  refine eq_one_of_forall_mem_openNormalSubgroup fun V => ?_
+  haveI : Finite (PiBd ⧸ V.toSubgroup) := inferInstance
+  set f : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4)) (PiBd ⧸ V.toSubgroup) :=
+    (quotientMk V.toSubgroup).comp piClassifier.hom with hf
+  have hadm : (univMarking.map f.toMonoidHom).Admissible := isAdmissible_piClassifier_level V
+  have hker := NA_le_ker f hadm hx
+  rw [MonoidHom.mem_ker] at hker
+  exact (QuotientGroup.eq_one_iff _).mp hker
+
+/-- The descent `φ_Π : Γ_A → Π` (`σ ↦ πσ, τ ↦ 1, x₀ ↦ πx₀, x₁ ↦ πx₁`) — Prop 3.14's `pro2A`. -/
+noncomputable def phiP : ContinuousMonoidHom GammaA PiBd :=
+  haveI : IsClosed (NA : Set (FreeProfiniteGroup (Fin 4))) := NA_isClosed
+  quotientLift NA piClassifier.hom NA_le_ker_piClassifier
+
+@[simp] lemma phiP_gammaSigma : phiP gammaSigma = piSigma := by
+  haveI : IsClosed (NA : Set (FreeProfiniteGroup (Fin 4))) := NA_isClosed
+  show phiP (quotientMk NA univMarking.σ) = piSigma
+  rw [show phiP (quotientMk NA univMarking.σ)
+    = piClassifier.hom (univMarking.σ) from quotientLift_quotientMk _ _ _ _]
+  exact piClassifier_sigma
+
+@[simp] lemma phiP_gammaTau : phiP gammaTau = 1 := by
+  haveI : IsClosed (NA : Set (FreeProfiniteGroup (Fin 4))) := NA_isClosed
+  show phiP (quotientMk NA univMarking.τ) = 1
+  rw [show phiP (quotientMk NA univMarking.τ)
+    = piClassifier.hom (univMarking.τ) from quotientLift_quotientMk _ _ _ _]
+  exact piClassifier_tau
+
+@[simp] lemma phiP_gammaX0 : phiP gammaX0 = piX0 := by
+  haveI : IsClosed (NA : Set (FreeProfiniteGroup (Fin 4))) := NA_isClosed
+  show phiP (quotientMk NA univMarking.x₀) = piX0
+  rw [show phiP (quotientMk NA univMarking.x₀)
+    = piClassifier.hom (univMarking.x₀) from quotientLift_quotientMk _ _ _ _]
+  exact piClassifier_x0
+
+@[simp] lemma phiP_gammaX1 : phiP gammaX1 = piX1 := by
+  haveI : IsClosed (NA : Set (FreeProfiniteGroup (Fin 4))) := NA_isClosed
+  show phiP (quotientMk NA univMarking.x₁) = piX1
+  rw [show phiP (quotientMk NA univMarking.x₁)
+    = piClassifier.hom (univMarking.x₁) from quotientLift_quotientMk _ _ _ _]
+  exact piClassifier_x1
+
 end SectionThree
 
 end GQ2
