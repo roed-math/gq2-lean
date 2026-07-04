@@ -280,6 +280,97 @@ noncomputable def delta1 (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) :
     · rw [← d0_natural t g hg a, ha]; exact ha''
     · rw [map_zero]; exact (d1Fun_comp_d0 t ht hw a).symm
 
+/-! ### The connecting map `δ⁰ : H⁰w(A'') → H¹w(A')` (snake)
+
+The mirror of `δ¹` one degree down.  Lift `a'' ∈ H⁰w(A'')` to `a ∈ A`; then `d⁰a ∈ ker(g∘·)`
+(as `g∘d⁰a = d⁰(g a) = d⁰a'' = 0`), so `d⁰a = f∘w` for a unique `w : A'⁴`, which is a cocycle
+(`f∘d¹w = d¹(f∘w) = d¹d⁰a = 0`, `f` injective).  `δ⁰(a'') := [w] ∈ H¹w(A')`; the class is
+independent of the lift `a` (a different lift shifts `w` by a coboundary).  The domain `H⁰w` is an
+honest subgroup (no quotient), so — unlike `δ¹` — no descent is needed, only lift-independence. -/
+
+include hg hsurj in
+/-- For `a'' ∈ H⁰w(A'')`, `d⁰` of the chosen lift lands in `ker(g∘·)` (degree 1). -/
+theorem snake0_d0_mem (t : Marking C) (a'' : H0w (A := A'') t) :
+    (fun i => g (d0 t (hsurj a''.1).choose i)) = 0 := by
+  rw [← d0_natural t g hg, (hsurj a''.1).choose_spec]
+  exact AddMonoidHom.mem_ker.mp a''.2
+
+include hg hsurj hexact in
+/-- The `A'⁴`-cochain the degree-0 snake extracts: `f∘(snake0Z') = d⁰(lift a'')`. -/
+noncomputable def snake0Z' (t : Marking C) (a'' : H0w (A := A'') t) : Fin 4 → A' :=
+  ((pi_exact f g hexact (d0 t (hsurj a''.1).choose)).mp (snake0_d0_mem g hg hsurj t a'')).choose
+
+include hg hsurj hexact in
+theorem snake0Z'_spec (t : Marking C) (a'' : H0w (A := A'') t) :
+    (fun i => f (snake0Z' f g hg hsurj hexact t a'' i)) = d0 t (hsurj a''.1).choose :=
+  ((pi_exact f g hexact (d0 t (hsurj a''.1).choose)).mp (snake0_d0_mem g hg hsurj t a'')).choose_spec
+
+include hf hg hinj hsurj hexact in
+/-- `snake0Z' ∈ Z¹w(A')`: its `d¹` vanishes (pull `d¹∘d⁰ = 0` back through the injection `f`). -/
+theorem snake0Z'_mem (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (a'' : H0w (A := A'') t) : d1 t (snake0Z' f g hg hsurj hexact t a'') = 0 := by
+  have hfinj : Function.Injective (f.prodMap f) := by
+    rw [AddMonoidHom.coe_prodMap]; exact hinj.prodMap hinj
+  apply hfinj
+  rw [map_zero]
+  have hnat : (f.prodMap f) (d1 t (snake0Z' f g hg hsurj hexact t a''))
+      = d1 t (fun i => f (snake0Z' f g hg hsurj hexact t a'' i)) := by
+    rw [AddMonoidHom.coe_prodMap]; exact (d1_natural t f hf _).symm
+  rw [hnat, snake0Z'_spec]
+  exact d1Fun_comp_d0 t ht hw _
+
+include hf hg hinj hsurj hexact in
+/-- Lift-independence of `δ⁰`: *any* lift `a` of `a''` with cocycle `w` (`f∘w = d⁰a`) gives the
+same class `[w] = δ⁰(a'')`.  A second lift differs by `f a'`, shifting `w` by `d⁰a'`. -/
+theorem delta0_welldef (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (a'' : H0w (A := A'') t) (a : A) (w : Fin 4 → A') (hwmem : d1 t w = 0)
+    (ha : g a = a''.1) (hfw : (fun i => f (w i)) = d0 t a) :
+    (QuotientAddGroup.mk ⟨w, AddMonoidHom.mem_ker.mpr hwmem⟩ : H1w (A := A') t)
+      = QuotientAddGroup.mk ⟨snake0Z' f g hg hsurj hexact t a'',
+          AddMonoidHom.mem_ker.mpr (snake0Z'_mem f g hf hg hinj hsurj hexact t ht hw a'')⟩ := by
+  set w₀ := snake0Z' f g hg hsurj hexact t a'' with hw₀
+  -- `a − lift` is in `ker g = range f`.
+  have hga : g (a - (hsurj a''.1).choose) = 0 := by
+    rw [map_sub, ha, (hsurj a''.1).choose_spec, sub_self]
+  obtain ⟨a', ha'⟩ := (AddMonoidHom.mem_range).mp (by rw [hexact]; exact AddMonoidHom.mem_ker.mpr hga)
+  -- `f∘(w − w₀) = d⁰a − d⁰(lift) = d⁰(a − lift) = d⁰(f a') = f∘(d⁰a')`, so `w − w₀ = d⁰a'`.
+  have hww₀ : (w - w₀ : Fin 4 → A') = d0 t a' := by
+    funext i
+    apply hinj
+    have ex := congrFun (snake0Z'_spec f g hg hsurj hexact t a'') i
+    rw [Pi.sub_apply, map_sub, congrFun hfw i, ex, ← congrFun (d0_natural t f hf a') i, ha',
+      map_sub, Pi.sub_apply]
+  -- Hence the difference of the two cocycles is a coboundary, so the classes agree.
+  rw [← sub_eq_zero, ← QuotientAddGroup.mk_sub, QuotientAddGroup.eq_zero_iff,
+    AddSubgroup.mem_addSubgroupOf]
+  refine (AddMonoidHom.mem_range).mpr ⟨a', ?_⟩
+  have hcoe : (↑(⟨w, AddMonoidHom.mem_ker.mpr hwmem⟩ - ⟨w₀,
+      AddMonoidHom.mem_ker.mpr (snake0Z'_mem f g hf hg hinj hsurj hexact t ht hw a'')⟩ :
+      Z1w (A := A') t) : Fin 4 → A') = w - w₀ := rfl
+  rw [hcoe]; exact hww₀.symm
+
+include hf hg hinj hsurj hexact in
+/-- **The degree-0 connecting map** `δ⁰ : H⁰w(A'') →+ H¹w(A')`. -/
+noncomputable def delta0 (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) :
+    H0w (A := A'') t →+ H1w (A := A') t where
+  toFun a'' := QuotientAddGroup.mk ⟨snake0Z' f g hg hsurj hexact t a'',
+    AddMonoidHom.mem_ker.mpr (snake0Z'_mem f g hf hg hinj hsurj hexact t ht hw a'')⟩
+  map_zero' :=
+    ((delta0_welldef f g hf hg hinj hsurj hexact t ht hw 0 0 0 (by simp) (by simp)
+      (by funext i; simp)).symm).trans (QuotientAddGroup.mk_zero _)
+  map_add' x y := by
+    refine Eq.trans ?_ (QuotientAddGroup.mk_add _ _ _)
+    exact (delta0_welldef f g hf hg hinj hsurj hexact t ht hw (x + y)
+      ((hsurj x.1).choose + (hsurj y.1).choose)
+      (snake0Z' f g hg hsurj hexact t x + snake0Z' f g hg hsurj hexact t y)
+      (by rw [map_add, snake0Z'_mem f g hf hg hinj hsurj hexact t ht hw x,
+            snake0Z'_mem f g hf hg hinj hsurj hexact t ht hw y, add_zero])
+      (by rw [map_add, (hsurj x.1).choose_spec, (hsurj y.1).choose_spec]; rfl)
+      (by funext i
+          rw [Pi.add_apply, map_add,
+            congrFun (snake0Z'_spec f g hg hsurj hexact t x) i,
+            congrFun (snake0Z'_spec f g hg hsurj hexact t y) i, ← Pi.add_apply, ← map_add])).symm
+
 end LES
 
 end GQ2.FoxH
