@@ -276,6 +276,53 @@ theorem powOmega2_g_smul_of_trivial (p : WordLift A C) (hg : ∀ a : A, p.g • 
     | succ j ih => rw [pow_succ, mul_smul, hg, ih]
   exact hk _
 
+/-! ### `.u` as an additive homomorphism on the trivially-based subgroup
+
+At a tame lower map every wild aux word evaluates to an element whose base `g` acts trivially on the
+coefficient module.  On that subgroup `(p*q).u = p.u + q.u` and `p⁻¹.u = -p.u`, so `.u` is a group
+hom into `(A, +)`.  Consequently conjugates keep the offset (`conjP p g).u = p.u`) and commutators
+have zero offset (`commP p q).u = 0`) — the mechanised form of the paper's "the wild factors
+`h₀, [d₀,z₀]` have zero first derivative". -/
+
+theorem inv_g_trivial (p : WordLift A C) (hp : ∀ a : A, p.g • a = a) (a : A) : p⁻¹.g • a = a := by
+  rw [inv_g, inv_smul_eq_iff]; exact (hp a).symm
+
+theorem mul_g_trivial (p q : WordLift A C) (hp : ∀ a : A, p.g • a = a) (hq : ∀ a : A, q.g • a = a)
+    (a : A) : (p * q).g • a = a := by rw [mul_g, mul_smul, hq, hp]
+
+theorem mul_u_of_trivial (p q : WordLift A C) (hp : ∀ a : A, p.g • a = a) :
+    (p * q).u = p.u + q.u := by rw [mul_u, hp]
+
+theorem inv_u_of_trivial (p : WordLift A C) (hp : ∀ a : A, p.g • a = a) : p⁻¹.u = -p.u := by
+  rw [inv_u, show p.g⁻¹ • p.u = p.u by rw [inv_smul_eq_iff]; exact (hp p.u).symm]
+
+theorem conjP_u_of_trivial (p g : WordLift A C) (hp : ∀ a : A, p.g • a = a)
+    (hg : ∀ a : A, g.g • a = a) : (conjP p g).u = p.u := by
+  rw [conjP, mul_u_of_trivial _ g (mul_g_trivial _ _ (inv_g_trivial g hg) hp),
+    mul_u_of_trivial _ p (inv_g_trivial g hg), inv_u_of_trivial g hg]
+  abel
+
+theorem commP_u_of_trivial (p q : WordLift A C) (hp : ∀ a : A, p.g • a = a)
+    (hq : ∀ a : A, q.g • a = a) : (commP p q).u = 0 := by
+  have hpi := inv_g_trivial p hp
+  have hqi := inv_g_trivial q hq
+  rw [commP, mul_u_of_trivial _ q (mul_g_trivial _ _ (mul_g_trivial _ _ hpi hqi) hp),
+    mul_u_of_trivial _ p (mul_g_trivial _ _ hpi hqi), mul_u_of_trivial _ q⁻¹ hpi,
+    inv_u_of_trivial p hp, inv_u_of_trivial q hq]
+  abel
+
+/-- A conjugate of a trivially-based element is trivially-based (for any conjugator). -/
+theorem conjP_g_trivial (p g : WordLift A C) (hp : ∀ a : A, p.g • a = a) (a : A) :
+    (conjP p g).g • a = a := by
+  rw [conjP, mul_g, mul_g, inv_g, mul_smul, mul_smul, hp, ← mul_smul, inv_mul_cancel, one_smul]
+
+/-- A commutator of two trivially-based elements is trivially-based. -/
+theorem commP_g_trivial (p q : WordLift A C) (hp : ∀ a : A, p.g • a = a) (hq : ∀ a : A, q.g • a = a)
+    (a : A) : (commP p q).g • a = a := by
+  rw [commP]
+  exact mul_g_trivial _ _ (mul_g_trivial _ _ (mul_g_trivial _ _ (inv_g_trivial p hp)
+    (inv_g_trivial q hq)) hp) hq a
+
 end WordLift
 
 /-! ## The word complex (30)/(31) -/
