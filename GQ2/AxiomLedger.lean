@@ -37,7 +37,11 @@ namespace GQ2.AxiomLedger
 
 /-- The twelve literature axioms → their B-labels (census 12 after the B10 and B9′/B11
 census decisions; see `GQ2/Foundations/Axioms.lean`).  Written with `` `` `` so the file fails to
-compile if any axiom is renamed or removed — a free consistency check on the census. -/
+compile if any axiom is renamed or removed — a free consistency check on the census.
+
+Citation-faithfulness tiers (adversarial review 2026-07-04; docstrings + `docs/review-packet.md`
+§2): **direct** B1/B6/B7/B7′/B10 · **classical + encoding** B4/B5/B9 · **composite interface**
+B3c/B8/B11 · **available/unused** B2 (zero consumers — checked below via the tracked-decl scan). -/
 def bAxioms : List (Name × String) :=
   [ (``GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated, "B1")
   , (``GQ2.Foundations.cyclotomicCharacter_two_surjective,        "B2")

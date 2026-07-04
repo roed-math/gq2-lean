@@ -84,14 +84,17 @@ not yet to hand.
 - **Lean.** `GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated`.
 - **Used at.** `main_presentation` (`hfgG`), feeding Lemma 2.5.
 
-### B2. 2-adic cyclotomic character is surjective  ✅ faithful
+### B2. 2-adic cyclotomic character is surjective  ✅ faithful · available/unused
 - **Statement.** `χ_cyc : Gal(ℚ̄/ℚ) → ℤ₂ˣ` is surjective; equivalently `Gal(ℚ(μ_{2^∞})/ℚ) ≅ ℤ₂ˣ`.
 - **Citation.** **Washington, *Introduction to Cyclotomic Fields*, 2nd ed., GTM 83, Ch. 2,
   Theorem 2.5** `[✓ verified in the provided source]` — verbatim: `deg(ℚ(ζ_n)/ℚ) = φ(n)` and
   `Gal(ℚ(ζ_n)/ℚ) ≅ (ℤ/nℤ)ˣ`, with `a` corresponding to `ζ_n ↦ ζ_n^a` (the cyclotomic character).
   Taking `n = 2^k` and the inverse limit gives `Gal(ℚ(μ_{2^∞})/ℚ) ≅ ℤ₂ˣ`, whence surjectivity.
 - **Lean.** `GQ2.Foundations.cyclotomicCharacter_two_surjective` (via Mathlib `cyclotomicCharacter 2`).
-- **Used at.** Lemma 3.6 (cyclotomic powering of the three peripheral inertia classes).
+- **Used at.** Underlies Lemma 3.6, but **no current Lean declaration consumes it** (adversarial
+  review 2026-07-04, §4): Lemma 3.6 enters through **B8** (`peripheralCyclotomicAction`), which
+  bundles its own cyclotomic-surjectivity need; B2 is retained as B8's citation companion and the
+  global route to eliminate that dependency.
 
 ### B3. Classification of Demushkin groups (Labute)  🟡 schematic
 - **Statement.** A Demushkin pro-`p` group (finitely generated one-relator pro-`p` group with
@@ -177,10 +180,14 @@ not yet to hand.
 - **Lean.** Schematic (Mathlib has no Hilbert symbol).
 - **Used at.** Lemma 3.5 and §6 (base quadratic form, Arf invariant).
 
-### B8. Galois action on `π₁(ℙ¹∖{0,1,∞})` and its peripheral structure  🟡 schematic
+### B8. Galois action on `π₁(ℙ¹∖{0,1,∞})` and its peripheral structure  🟡 schematic · composite
 - **Statement.** The outer Galois action `G_ℚ → Out(Δ)` on the geometric maximal pro-2 fundamental
   group `Δ = π₁^{pro-2}(ℙ¹_{ℚ̄}∖{0,1,∞})` sends the three peripheral inertia generators `P,T,C` to
   cyclotomic conjugates (`φ_u(P) = c_P^{-1} P^u c_P`, etc., for `u ∈ ℤ₂ˣ`).
+- **Composite** (adversarial review 2026-07-04, §1): the Stix citation supports the *action through
+  the cyclotomic character*; producing an automorphism for **every** `u ∈ ℤ₂ˣ` additionally needs
+  cyclotomic surjectivity (B2 globally / B5's `χ_cyc∘rec = (·)⁻¹` locally).  The statement is kept
+  in all-units form (P-22, user decision); weakening to the cyclotomic image was declined.
 - **Citation.** **Stix [8], §3.3 ("Cusps and inertia subgroups") and Definition 37 ("local
   orientation at each cusp")** `[✓ verified in the provided source]` — exactly the paper's citation
   `[8, Section 3.3 and Definition 37]`: the decomposition group of a rational cusp acts on the

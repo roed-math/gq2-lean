@@ -55,6 +55,40 @@ which is *fully proved*, never assumed).
 | **B10** | the tame quotient of `G_{ℚ₂}`: closed normal pro-2 `W` with `G_{ℚ₂}/W ≅ ⟨σ,τ ∣ τ^σ = τ²⟩_prof` | NSW (7.5.3) (Iwasawa), (7.5.2); Serre LF IV | `GQ2.tameQuotient` | `GQ2/TameQuotient.lean` |
 | **B11** | dyadic norm criterion over finite bases: `[a]∪[b] = 0 ⟺ b = x² − ay²` in `k`; units are norms from unramified quadratic extensions | Serre LF XIV §2, V §2 *(display numbers pending PDF verification)* | `GQ2.dyadicNormCriterion` | `GQ2/EvensKahn.lean` |
 
+### Citation-faithfulness classification
+
+Added per the adversarial review (`docs/adversarial-axioms-review.md` §6, 2026-07-04).  This
+groups the twelve leaves by **how directly the Lean statement matches a single published
+theorem**, so a reviewer does not mistake a "nearby true theorem" for "this exact Lean interface
+appears verbatim in the cited literature."  It carries **no soundness claim** — every leaf is
+believed true; it is a guide to *where the translation layers are*.
+
+| Tier | Leaves | What the reviewer checks |
+|---|---|---|
+| **Direct classical theorem** | B1, B6, B7, B7′, B10 | the Lean statement *is* the cited theorem, modulo notation |
+| **Classical theorem + encoding choices** | B4, B5, B9 | the cited theorem plus documented repo encodings (bundle shape, diagonalization, base generalization) |
+| **Composite / project interface** | B3c, B8, B11 | a cited theorem bundled with **additional inputs**, each flagged in the axiom's docstring |
+| **Available / unused** | B2 | in the census but consumed by no current declaration |
+
+The **composite tier** is where human review time is best spent — those three leaves are *not*
+verbatim single-citation theorems:
+
+* **B3c** = Labute's orientation values + the local-Galois fact (Demushkin dualizing character =
+  cyclotomic character, through this quotient map) + a normalized B4 isomorphism.  It **subsumes a
+  marked B4**, so a downstream `#print axioms` showing `dyadicOrientation` need not also list B4
+  unless B4 is consumed independently.
+* **B8** = Stix (peripheral inertia acts through the cyclotomic character) + **cyclotomic
+  surjectivity** (B2 globally / B5's `χ_cyc∘rec = (·)⁻¹` locally), needed for the all-units
+  quantifier.  Statement kept in all-units form (P-22); the cyclotomic-image weakening was declined.
+* **B11** = Serre's Hilbert-symbol norm criterion + unramified-unit-norm surjectivity + the
+  repo-specific "unramified = equal spectral-norm value groups" proxy.  **P-23** will split this
+  into named leaves (`hilbertSymbol_normCriterion_finiteDyadic`,
+  `unramifiedQuadratic_units_are_norms`, and the isolated spectral-norm bridge); until then it is
+  the least single-citation-faithful leaf.
+
+B3c/B8 are documented composites with statements unchanged (**P-22**, user decision 2026-07-04);
+B2's unused status is recorded on its axiom docstring.
+
 ### Census amendment history (step 2)
 
 * **B10** (`tameQuotient`) — added by explicit census decision resolving the **P-06 escalation**:

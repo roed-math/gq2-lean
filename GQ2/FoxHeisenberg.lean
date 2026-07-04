@@ -1602,6 +1602,23 @@ theorem b1w_split_shape (t : Marking C)
         Matrix.head_cons, Matrix.cons_val_two, Matrix.cons_val_three, Matrix.tail_cons,
         htau, hx0, hx1, sub_self]
 
+omit [Finite C] in
+/-- On classes supported away from the `σ, τ` slots (`x 0 = x 1 = 0`, `y 0 = y 1 = 0`), the tame
+relator value lies in the base slice `secHom '' C` (all its `σ, τ` inputs do), so its central
+coordinate vanishes.  Hence the `mixedB` pairing on the `x₀`-supported normal forms is carried
+entirely by the wild relator — the split/ramified Hessian is a pure wild-relator computation. -/
+theorem heisMarking_tameValue_z_eq_zero (t : Marking C) (x : Fin 4 → V)
+    (y : Fin 4 → ElemDual V) (hx0 : x 0 = 0) (hx1 : x 1 = 0) (hy0 : y 0 = 0) (hy1 : y 1 = 0) :
+    (heisMarking t x y).tameValue.z = 0 := by
+  have hσ : (heisMarking t x y).σ = secHom (A := V) t.σ := by
+    simp only [heisMarking, secHom, hx0, hy0, MonoidHom.coe_mk, OneHom.coe_mk]
+  have hτ : (heisMarking t x y).τ = secHom (A := V) t.τ := by
+    simp only [heisMarking, secHom, hx1, hy1, MonoidHom.coe_mk, OneHom.coe_mk]
+  have key : (heisMarking t x y).tameValue = secHom (A := V) t.tameValue := by
+    simp only [Marking.tameValue, hσ, hτ, conjP, map_mul, map_inv, map_pow]
+  rw [key]
+  simp only [secHom, MonoidHom.coe_mk, OneHom.coe_mk]
+
 /-- **Lemma 5.13, split case (i), cocycle shape**: if `T = 1` (trivial `τ`-action on a
 nontrivial simple module), `Z¹ = {(a, 0, c, 0)}` and `B¹ = {((S−1)v, 0, 0, 0)}`.
 
@@ -1609,11 +1626,19 @@ Hypotheses (per `docs/p13-normal-form-hypothesis-gap.md`): `hcore` supplies triv
 (`wild_acts_trivially`); `hσ` (σ acts nontrivially) excludes the trivial module `𝔽₂`, for which
 `1 + S⁻¹ = 0` and the `x 3 = 0` clause fails — that module is handled separately in `prop_5_15`.
 
+`hU` is the σ-tameness (`σ₂ = U` acts trivially).  In the split case it is *derivable* — with
+`τ, x₀, x₁` acting trivially the `C`-action factors through the cyclic `⟨σ̄⟩`, so a simple `V` is a
+simple `𝔽₂[⟨σ⟩]`-module, on which `σ` acts with odd order (roots of unity in char 2) ⇒ `σ₂ = 1` on
+`V`.  That derivation needs `t.Generates` and the simple-cyclic-module rep theory; it is factored
+out as a hypothesis here so the normal-form proof is pure finite-Fox calculus.  See
+`docs/p13-normal-form-hypothesis-gap.md` §7.
+
 *Status*: sorried (P-13; `B¹` half is `b1w_split_shape`, tame row is `d1Fun_tame_split`; the `x 3`
 clause needs the wild row (Lemma 5.5) + invertibility of `1 + S⁻¹` from `hσ` and simplicity). -/
 theorem lemma_5_13_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V) [Finite V]
-    (hcore : t.Pro2Core) (htau : ∀ v : V, t.τ • v = v) (hσ : ∃ v : V, t.σ • v ≠ v) :
+    (hcore : t.Pro2Core) (htau : ∀ v : V, t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v)
+    (hσ : ∃ v : V, t.σ • v ≠ v) :
     (∀ x : Fin 4 → V, x ∈ Z1w (A := V) t ↔ x 1 = 0 ∧ x 3 = 0) ∧
     (∀ y : Fin 4 → V, y ∈ B1w (A := V) t ↔ ∃ v : V, y = ![t.σ • v - v, 0, 0, 0]) := by
   sorry
@@ -1636,11 +1661,12 @@ theorem lemma_5_13_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
 degree-one pairing is `(c, λ) ↦ λ(c)` when `T = 1`.
 
 *Status*: sorried (P-13; via the mixed Hessian ledger, Lemma 5.14 — `h₀ ↦ λ(c)` via
-`classTwoIdentity`, and the `[d₀,z₀]` term vanishes since `P + 1 = 0` in char 2 for `T = 1`).
-`hsimple`/`hcore` give the trivial wild action (`wild_acts_trivially`) the ledger needs. -/
+`classTwoIdentity` [needs `g₀ = σ₂²` trivial, i.e. `hU`], and the `[d₀,z₀]` term vanishes since
+`P + 1 = 0` in char 2 for `T = 1`).  `hsimple`/`hcore` give the trivial wild action
+(`wild_acts_trivially`); `hU` is the σ-tameness (derivable in split; see `lemma_5_13_split`). -/
 theorem lemma_5_13_pairing_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V) [Finite V] (hcore : t.Pro2Core)
-    (htau : ∀ v : V, t.τ • v = v) (c : V) (lam : ElemDual V) :
+    (htau : ∀ v : V, t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v) (c : V) (lam : ElemDual V) :
     mixedB t (x0Supported c) (x0Supported (V := ElemDual V) lam) = lam c := by
   sorry
 

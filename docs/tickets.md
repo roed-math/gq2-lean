@@ -34,7 +34,7 @@ row ◐ before starting.  Paper: `paper/A_Profinite_Presentation_for_G__Q_2.pdf`
 | P-17 | B: §9 — induction on `\|L_Y\|`: regime 9.1 (Lemma 9.2 ✓), 9.2 (counts + strict decrease (145)/Lemma 9.4), 9.3 (Frattini/Fourier, central formula (151)) ⇒ **Thm 4.2 proof** | ⭐⭐⭐ | **F** design, O finish | P-11–P-16 | B6, B7, B7′, B8, B9 | ☐ |
 | P-18 | B: Lemma 10.1 (tame-frame exhaustion) + eq. (154) ⇒ `main_surjection_count` | ⭐⭐ | O | P-09, P-10, P-17 | (all of Track B) | ☐ |
 | P-19 | Assembly: `main_presentation_literal` via `main_presentation` | ⭐ | O | P-02, P-03, P-05, P-18 | B1 + Track B | ☐ |
-| P-20 | Meta: review packet v3 — interior-node statements + App. D certificate diff, at statement freeze | ⭐ | O | P-06, P-11, P-12, P-14 | — | ☐ |
+| P-20 | Meta: review packet v3 — interior-node statements + App. D certificate diff + **the citation-faithfulness classification table (from P-22, now in `docs/review-packet.md` §2)**, at statement freeze | ⭐ | O | P-06, P-11, P-12, P-14, P-22 | — | ☐ |
 | P-21 | Foundations: ℤ₂-powering on pro-2 groups — `maxPro2(ℤ̂) ≅ ℤ₂` (the `ι`-seam), `zpowZtwo` + unit/odd-power bijectivity, `IsProP 2 ℤ₂ˣ` + `η`-injectivity, pro-2 Frattini criterion | ⭐⭐⭐ | **F** | — | ∅ | ☑ 2026-07-03 (`GQ2/ZtwoPowering.lean` (i)–(iii) + `GQ2/FrattiniCriterion.lean` (iv); all std-3, zero sorries). **Unblocks P-07 η-leg, all three P-08 legs' infra, `prop_3_10` `ι`-seam** |
 | P-22 | Meta: axiom documentation pass — adversarial axioms review recs 1/3/4/6 (`docs/adversarial-axioms-review.md`): B8 citation → "Stix **plus** cyclotomic surjectivity" (statement KEPT — user decision 2026-07-04), B2 → "available/unused" label, B3c → composite-interface reclassification, 4-way classification table | ⭐ | O | — | — (doc-only; census 12 unchanged) | ☐ |
 | P-23 | Foundations: B11 split into named leaves — adversarial review rec 2 (**census change APPROVED**, user 2026-07-04): `hilbertSymbol_normCriterion_finiteDyadic` + `unramifiedQuadratic_units_are_norms` + isolated spectral-norm bridge; old `dyadicNormCriterion` re-derived as a SAME-NAME theorem (zero consumer churn) | ⭐⭐ | O | **P-15e capstone landed** | (census 12→13/14) | ☐ **SEQUENCED — do not start while P-15e is ◐** |
@@ -280,7 +280,10 @@ paper eq./§ cross-references; new files, own board row only.
   `GammaA` with P-03 + P-05 + B1 + P-18; **zero sorries repo-wide**, allowlist empty, census 10.
 - **P-20**: `docs/review-packet-v2.md` → v3: every interior-node statement quoted with its paper
   display + the certificate table (per-node `#print axioms` vs App. D row), handed for human
-  review before Wave-3 proofs begin.
+  review before Wave-3 proofs begin.  Also carries **P-22's citation-faithfulness classification
+  table** (`docs/review-packet.md` §2, four tiers: direct / classical+encoding / composite /
+  unused) into the packet, so the human reviewer sees which leaves are composite interfaces
+  (B3c, B8, B11) before checking them.
 - **P-21** (the foundations ticket requested by P-08's escalation — `docs/section3-extraction.md`
   §Escalations 4; opened by user decision 2026-07-03): `GQ2/ZtwoPowering.lean`, **no axioms, no
   sorries, everything std-3** (pure infra; Ax = ∅).  Scoped phases, partial landing legible:
