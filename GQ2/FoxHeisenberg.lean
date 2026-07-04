@@ -1556,6 +1556,18 @@ variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [DistribM
 /-- The degree-one tuple supported on the `x₀`-slot (display (53)'s normal form). -/
 def x0Supported (c : V) : Fin 4 → V := ![0, 0, c, 0]
 
+/-- **The marked wild generators act trivially on a simple module** — the admissibility input the
+normal-form and pairing lemmas below need.  This is the paper's Lemma 5.12 ("simple char-2 modules
+are tame") applied to the normal 2-subgroup `L = ⟨⟨x₀, x₁⟩⟩`: `L` is normal (a normal closure) and
+a 2-group (the `Pro2Core` clause `hcore`), and contains `x₀, x₁`. -/
+theorem wild_acts_trivially (t : Marking C) [Finite V]
+    (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V) (hcore : t.Pro2Core) :
+    (∀ v : V, t.x₀ • v = v) ∧ (∀ v : V, t.x₁ • v = v) := by
+  have htriv := lemma_5_12 hV₂ hsimple (Subgroup.normalClosure {t.x₀, t.x₁})
+    Subgroup.normalClosure_normal hcore
+  exact ⟨htriv t.x₀ (Subgroup.subset_normalClosure (by simp)),
+    htriv t.x₁ (Subgroup.subset_normalClosure (by simp))⟩
+
 omit [Finite C] in
 /-- **The tame row in the split case, closed form** (unconditional — needs only `T = 1` and char
 2, no wild-core input): `L_t(x) = S⁻¹·x₁`.  This is the `x 1 = 0` half of `lemma_5_13_split`'s
@@ -1593,10 +1605,15 @@ theorem b1w_split_shape (t : Marking C)
 /-- **Lemma 5.13, split case (i), cocycle shape**: if `T = 1` (trivial `τ`-action on a
 nontrivial simple module), `Z¹ = {(a, 0, c, 0)}` and `B¹ = {((S−1)v, 0, 0, 0)}`.
 
-*Status*: sorried (P-13; uses invertibility of `1 + S⁻¹` from simplicity). -/
+Hypotheses (per `docs/p13-normal-form-hypothesis-gap.md`): `hcore` supplies trivial wild action
+(`wild_acts_trivially`); `hσ` (σ acts nontrivially) excludes the trivial module `𝔽₂`, for which
+`1 + S⁻¹ = 0` and the `x 3 = 0` clause fails — that module is handled separately in `prop_5_15`.
+
+*Status*: sorried (P-13; `B¹` half is `b1w_split_shape`, tame row is `d1Fun_tame_split`; the `x 3`
+clause needs the wild row (Lemma 5.5) + invertibility of `1 + S⁻¹` from `hσ` and simplicity). -/
 theorem lemma_5_13_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V) [Finite V]
-    (htau : ∀ v : V, t.τ • v = v) :
+    (hcore : t.Pro2Core) (htau : ∀ v : V, t.τ • v = v) (hσ : ∃ v : V, t.σ • v ≠ v) :
     (∀ x : Fin 4 → V, x ∈ Z1w (A := V) t ↔ x 1 = 0 ∧ x 3 = 0) ∧
     (∀ y : Fin 4 → V, y ∈ B1w (A := V) t ↔ ∃ v : V, y = ![t.σ • v - v, 0, 0, 0]) := by
   sorry
@@ -1604,19 +1621,26 @@ theorem lemma_5_13_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
 /-- **Lemma 5.13, ramified case (ii), unique normal form**: if `V^T = 0`, every degree-one
 class has a unique representative supported on `x₀` (display (53)).
 
-*Status*: sorried (P-13). -/
+Hypothesis `hcore` supplies trivial wild action (`wild_acts_trivially`); the ramified condition
+`V^T = 0` (`htau`) gives `1 + T` invertible, so no separate nontriviality clause is needed.
+
+*Status*: sorried (P-13; needs the wild row (Lemma 5.5) forcing `d = 0`, then the coboundary /
+tame-row reduction). -/
 theorem lemma_5_13_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V) [Finite V]
-    (htau : ∀ v : V, t.τ • v = v → v = 0) :
+    (hcore : t.Pro2Core) (htau : ∀ v : V, t.τ • v = v → v = 0) :
     ∀ x ∈ Z1w (A := V) t, ∃! c : V, x - x0Supported c ∈ B1w (A := V) t := by
   sorry
 
 /-- **Lemma 5.13, pairing display (54), split case**: on `x₀`-supported representatives the
 degree-one pairing is `(c, λ) ↦ λ(c)` when `T = 1`.
 
-*Status*: sorried (P-13; via the mixed Hessian ledger, Lemma 5.14). -/
+*Status*: sorried (P-13; via the mixed Hessian ledger, Lemma 5.14 — `h₀ ↦ λ(c)` via
+`classTwoIdentity`, and the `[d₀,z₀]` term vanishes since `P + 1 = 0` in char 2 for `T = 1`).
+`hsimple`/`hcore` give the trivial wild action (`wild_acts_trivially`) the ledger needs. -/
 theorem lemma_5_13_pairing_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
-    (hV₂ : ∀ v : V, v + v = 0) (htau : ∀ v : V, t.τ • v = v) (c : V) (lam : ElemDual V) :
+    (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V) [Finite V] (hcore : t.Pro2Core)
+    (htau : ∀ v : V, t.τ • v = v) (c : V) (lam : ElemDual V) :
     mixedB t (x0Supported c) (x0Supported (V := ElemDual V) lam) = lam c := by
   sorry
 
@@ -1624,9 +1648,12 @@ theorem lemma_5_13_pairing_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRe
 `x₀`-supported representatives is `(c, λ) ↦ λ((1 + U + U⁻¹)c)` for `U = S₂^ω`
 (`Marking.sigma2`).
 
-*Status*: sorried (P-13). -/
+*Status*: sorried (P-13; Hessian ledger Lemma 5.14 — `h₀ ↦ λ(c)` plus the `[d₀,z₀]` symplectic
+term `λ((U + U⁻¹)c)` via `HeisLift.commP_z_fiber`).  `hsimple`/`hcore` give the trivial wild
+action (`wild_acts_trivially`). -/
 theorem lemma_5_13_pairing_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
-    (hV₂ : ∀ v : V, v + v = 0) (htau : ∀ v : V, t.τ • v = v → v = 0) (c : V)
+    (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V) [Finite V] (hcore : t.Pro2Core)
+    (htau : ∀ v : V, t.τ • v = v → v = 0) (c : V)
     (lam : ElemDual V) :
     mixedB t (x0Supported c) (x0Supported (V := ElemDual V) lam)
       = lam (c + t.sigma2 • c + t.sigma2⁻¹ • c) := by
@@ -1642,11 +1669,15 @@ variable {C : Type*} [Group C] [Finite C] {A : Type*} [AddCommGroup A] [DistribM
 quasi-isomorphism for every finite elementary module — packaged: the display-(56) numerics
 hold and the descended `B`-pairing is perfect.
 
+Hypothesis `hcore` (the `Pro2Core` admissibility clause) supplies trivial wild action on every
+simple subquotient via `wild_acts_trivially`; it is a property of the marking `t` alone, so it
+covers the whole composition series.
+
 *Status*: sorried (P-13; route: 5.12 + 5.13 for simples — including the trivial module, where
 the traced form is the scalar cup–Bockstein table (25) — then 5.11 dévissage along a
 composition series). -/
 theorem prop_5_15 (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) [Finite A]
-    (hA₂ : ∀ a : A, a + a = 0) :
+    (hA₂ : ∀ a : A, a + a = 0) (hcore : t.Pro2Core) :
     IsSelfDual t A := by
   sorry
 
@@ -1688,7 +1719,7 @@ unobstructed-lift-multiplicity cardinalities agree for the two sources.  (The
 adjoint-boundary identity (58) is deferred: it needs connecting-map infrastructure in both
 theories — see the module docstring.) -/
 theorem cor_5_17_card [TopologicalSpace C] [DiscreteTopology C] [Finite C]
-    (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hcore : t.Pro2Core)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρ : Function.Surjective ρ)
     {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
     [DistribMulAction C A]
@@ -1705,7 +1736,7 @@ theorem cor_5_17_card [TopologicalSpace C] [DiscreteTopology C] [Finite C]
       dualEval A (γ • a) (γ • lam) = γ • dualEval A a lam) :
     Nat.card (Z1w (A := A) t) = Nat.card (ContCoh.Z1 AbsGalQ2 A) ∧
     Nat.card (H2w (A := A) t) = Nat.card (ContCoh.H2 AbsGalQ2 A) := by
-  obtain ⟨hc2, hc1, -⟩ := prop_5_15 t ht hw (A := A) hA₂
+  obtain ⟨hc2, hc1, -⟩ := prop_5_15 t ht hw (A := A) hA₂ hcore
   obtain ⟨hl2, hl1, -⟩ := prop_5_16 ρ hρ (A := A) hcomp hA₂ hcompD htriv hpair
   exact ⟨hc1.trans hl1.symm, hc2.trans hl2.symm⟩
 
