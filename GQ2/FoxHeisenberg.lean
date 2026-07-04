@@ -2187,6 +2187,52 @@ theorem heisMarking_h0_z (t : Marking C) (c : V) (lam : ElemDual V) (hV₂ : ∀
   show (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0 * M.d0 ^ 2 * M.hc).z = lam c
   rw [HeisLift.mul_z_of_trivial _ _ hQ4g, e4, hhcz, hhca, map_zero, add_zero, add_zero]
 
+omit [Finite C] [Finite V] in
+/-- The 2-primary part of a base-slice element is base-slice: central coordinate vanishes. -/
+theorem powOmega2_secHom_z (w : C) : (powOmega2 (secHom (A := V) w)).z = 0 := by
+  rw [powOmega2, ← map_pow]; rfl
+
+/-- **`[d₀,z₀] ↦ 0`** in the split case: `c₀`'s central coordinate vanishes since `d₀.a = d₀.l = 0`
+(the paper's `P + 1 = 0` collapse for `T = 1`). -/
+theorem heisMarking_c0_z (t : Marking C) (c : V) (lam : ElemDual V) (hV₂ : ∀ v : V, v + v = 0)
+    (hx0 : ∀ v : V, t.x₀ • v = v) (htau : ∀ v : V, t.τ • v = v) :
+    (heisMarking t (x0Supported c) (x0Supported lam)).c0.z = 0 := by
+  set M := heisMarking t (x0Supported c) (x0Supported lam) with hM
+  have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := fun l => HeisLift.smul_elemdual_trivial t.x₀ hx0 l
+  have htaud : ∀ l : ElemDual V, t.τ • l = l := fun l => HeisLift.smul_elemdual_trivial t.τ htau l
+  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => by
+    ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]; exact CharTwo.add_self_eq_zero (l v)
+  have hd0a : M.d0.a = 0 :=
+    (heisMarking_d0_a t (x0Supported c) (x0Supported lam)).trans
+      (liftMarking_d0_u t (x0Supported c) hV₂ hx0 htau)
+  have hd0l : M.d0.l = 0 :=
+    (heisMarking_d0_l t (x0Supported c) (x0Supported lam)).trans
+      (liftMarking_d0_u t (x0Supported lam) hV₂d hx0d htaud)
+  have hd0g := heisMarking_d0_g_smul t (x0Supported c) (x0Supported lam) hx0 htau
+  have hz0g := heisMarking_z0_g_smul t (x0Supported c) (x0Supported lam) hx0
+  have h := HeisLift.commP_z_of_trivial M.d0 M.z0 hd0g hz0g
+  rw [hd0l, ElemDual.zero_apply, hd0a, map_zero, add_zero] at h
+  exact h
+
+/-- `u₁` is a base-slice element on the x₀-rep, so its central coordinate vanishes. -/
+theorem heisMarking_u1_z (t : Marking C) (c : V) (lam : ElemDual V) :
+    (heisMarking t (x0Supported c) (x0Supported lam)).u1.z = 0 := by
+  show (powOmega2 ((heisMarking t (x0Supported c) (x0Supported lam)).x₁ *
+    (heisMarking t (x0Supported c) (x0Supported lam)).τ)).z = 0
+  rw [show (heisMarking t (x0Supported c) (x0Supported lam)).x₁ *
+    (heisMarking t (x0Supported c) (x0Supported lam)).τ = secHom (t.x₁ * t.τ) from by
+      rw [map_mul]; rfl]
+  exact powOmega2_secHom_z _
+
+/-- `x₁^σ` is a base-slice element on the x₀-rep, so its central coordinate vanishes. -/
+theorem heisMarking_x1sig_z (t : Marking C) (c : V) (lam : ElemDual V) :
+    (conjP (heisMarking t (x0Supported c) (x0Supported lam)).x₁
+      (heisMarking t (x0Supported c) (x0Supported lam)).σ).z = 0 := by
+  rw [show conjP (heisMarking t (x0Supported c) (x0Supported lam)).x₁
+      (heisMarking t (x0Supported c) (x0Supported lam)).σ = secHom (conjP t.x₁ t.σ) from by
+    simp only [conjP, map_mul, map_inv]; rfl]
+  rfl
+
 end HessianRow
 
 section NormalForms
