@@ -1,7 +1,8 @@
 # P-13 note: the §5.13 normal-form / §5.15 duality statements need the pro-2 wild-core hypothesis
 
-**Date**: 2026-07-04 · **Found by**: P-13 (building the §5.1 ledger) · **Status**: design decision
-pending — recommended fix below.  *No statement was changed; this only records the gap.*
+**Date**: 2026-07-04 · **Found by**: P-13 (building the §5.1 ledger) · **Status**: Pro2Core fix
+**APPLIED** (commit `431cdff`); a **second, deeper tameness requirement** surfaced while proving —
+see §7.  §§1–6 record the original (now-fixed) gap; §7 is the update.
 
 ## 1. The gap
 
@@ -89,3 +90,44 @@ The §5.1 engine that these lemmas consume is landed and needs **none** of the a
 
 Once the hypothesis question in §4 is settled, the wild-row closed form (Lemma 5.5) and the
 Hessian (Lemma 5.14) can be assembled from these plus the proved `lemma_5_12`.
+
+## 7. Update (commit `431cdff`): fix applied, and a deeper tameness requirement
+
+**Applied.** The §4 fix is in: `wild_acts_trivially` is proved (std-3), and `(hcore : t.Pro2Core)`
+— plus the previously-missing `(hsimple : IsSimpleModTwo C V)` on the two pairing lemmas, and
+`(hσ : ∃ v, t.σ • v ≠ v)` on `lemma_5_13_split` — is threaded through the 5.13 family, `prop_5_15`,
+and the proved `cor_5_17_card`.  `lake build GQ2.FoxHeisenberg` green.
+
+**Deeper finding — σ-tameness (`U = σ₂` trivial) is also required, and is a *further* input.**
+Probing the proofs shows the paper's phrase "simple **tame** module" silently includes a condition
+that neither `htau` nor `Pro2Core` provides: **σ's 2-primary part `U = σ₂` (`Marking.sigma2`) must
+act trivially on `V`.**
+
+* *Needed for truth, not just proof.*  `lemma_5_13_pairing_split` claims `mixedB = λ(c)`.  The `h₀`
+  contribution collapses to `λ(c)` (via `classTwoIdentity`, i.e. `h₀ ↦ x₀²`) exactly when
+  `g₀ = σ₂²` acts trivially on the coefficient group — i.e. `U` trivial.  On a simple module where
+  `U` acts nontrivially, `h₀ ≠ x₀²` and the pairing differs.  The split normal form routes through
+  the same `h₀`-shadow (Lemma 5.3(i): first derivative of `h₀` is zero), so it needs it too.
+* *Not a consequence of simplicity.*  A general element's 2-part **can** act nontrivially on a
+  simple `𝔽₂[C]`-module — e.g. `C = S₃ ≅ GL₂(𝔽₂)`, where an involution acts with order 2 on the
+  2-dimensional simple module.  So "U trivial" is the genuine **tameness of σ** (arithmetically: σ
+  is Frobenius and σ₂ lies in wild inertia), an input, not a theorem.  My earlier §2 analysis caught
+  the *wild-core* half of tameness (x₀, x₁) but not this σ₂ half.
+* *Recommended.*  Model "tame module" as a single clause that the full wild inertia — containing
+  `x₀, x₁` **and** `σ₂` — acts trivially: e.g. add `(hU : ∀ v, t.sigma2 • v = v)` alongside
+  `hcore`, or introduce a unified `IsTameModule t V` predicate bundling `htau`/`hcore`/`hU`.  This
+  ties into how §9 supplies tameness from the arithmetic (P-17), so it is left as a deliberate
+  design choice rather than picked here.
+
+**Remaining proof machinery** (once tameness is fully modelled):
+
+* *Wild row (Lemma 5.5)* — expand `wildValue.u` in `WordLift V C` via the landed `WordLift.pow_u`.
+  With `σ₂, τ, x₀, x₁` all acting trivially, every ω₂-norm collapses to its mod-2 exponent
+  (`WordLift.pow_u` with `g • v = v` ⇒ `∑ = k • v`), and the only surviving action is the `S⁻¹`
+  from `x₁^σ` — giving `L_w = P·b + (P + S⁻¹)·d`.  Then `x 3 = 0` from `1 + S⁻¹` invertible
+  (`hσ` + simplicity, via `V^S = V^C = 0`).
+* *Hessian (Lemma 5.14)* — `wildValue.z` on x₀-supported reps: `h₀ ↦ λ(c)` (`classTwoIdentity`) plus
+  the `[d₀,z₀]` symplectic term (`HeisLift.commP_z_fiber`); the latter vanishes in the split case
+  since `P + 1 = 0` in char 2.
+* *prop_5_16* needs axioms **B6/B7** (local Tate duality).  `Foundations/Axioms.lean` is frozen
+  (no new axioms), so 5.16 stays sorried **by construction** — not a P-13 proof gap.
