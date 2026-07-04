@@ -59,4 +59,44 @@ theorem d1_natural [Finite A] [Finite B] [Finite C] (t : Marking C) (φ : A →+
 
 end Naturality
 
+/-! ## Functoriality of the cohomology
+
+A `C`-equivariant `φ : A →+ B` induces maps `Z¹w`, `H²w`, `H¹w` — the arrows the module SES turns
+into the LES. -/
+
+section Functoriality
+
+variable {A B : Type*} [AddCommGroup A] [DistribMulAction C A]
+  [AddCommGroup B] [DistribMulAction C B] [Finite A] [Finite B] [Finite C]
+
+/-- `d¹`-kernel is preserved: `x ∈ Z¹w(A) ⟹ φ ∘ x ∈ Z¹w(B)`. -/
+theorem d1_ker_map (t : Marking C) (φ : A →+ B)
+    (hφ : ∀ (c : C) (a : A), φ (c • a) = c • φ a) {x : Fin 4 → A} (hx : d1 t x = 0) :
+    d1 t (fun i => φ (x i)) = 0 := by
+  have : d1Fun t (fun i => φ (x i)) = (φ (d1Fun t x).1, φ (d1Fun t x).2) := d1_natural t φ hφ x
+  have hx' : d1Fun t x = 0 := hx
+  show d1Fun t (fun i => φ (x i)) = 0
+  rw [this, hx']
+  simp
+
+/-- The induced map `Z¹w(A) →+ Z¹w(B)`. -/
+noncomputable def Z1wMap (t : Marking C) (φ : A →+ B)
+    (hφ : ∀ (c : C) (a : A), φ (c • a) = c • φ a) : Z1w (A := A) t →+ Z1w (A := B) t where
+  toFun x := ⟨fun i => φ (x.1 i),
+    AddMonoidHom.mem_ker.mpr (d1_ker_map t φ hφ (AddMonoidHom.mem_ker.mp x.2))⟩
+  map_zero' := by ext i; simp
+  map_add' x y := by ext i; simp
+
+/-- The induced map `H²w(A) →+ H²w(B)`, descended from `(φ, φ) : A × A →+ B × B` through the
+`im d¹`-quotient (well-defined by `d1_natural`). -/
+noncomputable def H2wMap (t : Marking C) (φ : A →+ B)
+    (hφ : ∀ (c : C) (a : A), φ (c • a) = c • φ a) : H2w (A := A) t →+ H2w (A := B) t :=
+  QuotientAddGroup.map ((d1 (A := A) t).range) ((d1 (A := B) t).range) (φ.prodMap φ) <| by
+    rintro z hz
+    obtain ⟨x, rfl⟩ := hz
+    rw [AddSubgroup.mem_comap]
+    exact ⟨fun i => φ (x i), d1_natural t φ hφ x⟩
+
+end Functoriality
+
 end GQ2.FoxH
