@@ -351,4 +351,64 @@ theorem mixedB_cocycle {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGrou
   rw [bridge_tame, stokesEval_tame_z_trivial_cocycle htriv (markVec t) x y hx1 hy1,
     heisMarking_wildValue_z_cocycle htriv hV₂ t x y hx1 hy1, zero_add]
 
+/-! ## `u₁.z` is confined to the `(3,3)` slot -/
+
+/-- In the `l = 0` subgroup of `H(A)⋊C` the `.z` is additive, so a power keeps `l = 0, z = 0`. -/
+theorem heisLift_pow_l_z_zero (w : HeisLift A C) (hl : w.l = 0) (hz : w.z = 0) (k : ℕ) :
+    (w ^ k).l = 0 ∧ (w ^ k).z = 0 := by
+  induction k with
+  | zero => rw [pow_zero]; exact ⟨rfl, rfl⟩
+  | succ n ih =>
+    rw [pow_succ]
+    exact ⟨by rw [HeisLift.mul_l, ih.1, hl, smul_zero, add_zero],
+      by rw [HeisLift.mul_z, ih.2, hz, ih.1, ElemDual.zero_apply, add_zero, add_zero]⟩
+
+/-- In the `a = 0` subgroup the `.z` is additive, so a power keeps `a = 0, z = 0`. -/
+theorem heisLift_pow_a_z_zero (w : HeisLift A C) (ha : w.a = 0) (hz : w.z = 0) (k : ℕ) :
+    (w ^ k).a = 0 ∧ (w ^ k).z = 0 := by
+  induction k with
+  | zero => rw [pow_zero]; exact ⟨rfl, rfl⟩
+  | succ n ih =>
+    rw [pow_succ]
+    exact ⟨by rw [HeisLift.mul_a, ih.1, ha, smul_zero, add_zero],
+      by rw [HeisLift.mul_z, ih.2, hz, ha, smul_zero, map_zero, add_zero, add_zero]⟩
+
+variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
+  [Finite V]
+
+/-- `u₁.z = 0` when `y₃ = 0` (on cocycles): `u₁ = powOmega2(x₁τ)` and `x₁τ` has `l = 0, z = 0`, so
+its powers do too. -/
+theorem heisMarking_u1_z_of_y3_zero (htriv : ∀ (g : C) (a : V), g • a = a) (t : Marking C)
+    (x : Fin 4 → V) (y : Fin 4 → ElemDual V) (hx1 : x 1 = 0) (hy1 : y 1 = 0) (hy3 : y 3 = 0) :
+    (heisMarking t x y).u1.z = 0 := by
+  have hdtriv : ∀ (g : C) (lam : ElemDual V), g • lam = lam := fun g lam => by
+    ext a; rw [ElemDual.smul_apply, htriv]
+  set w : HeisLift V C := (⟨x 3, y 3, 0, t.x₁⟩ : HeisLift V C) * ⟨x 1, y 1, 0, t.τ⟩ with hw
+  have hwl : w.l = 0 := by
+    rw [hw, HeisLift.mul_l]; show y 3 + t.x₁ • y 1 = 0
+    rw [hdtriv t.x₁ (y 1), hy1, hy3, add_zero]
+  have hwz : w.z = 0 := by
+    rw [hw, HeisLift.mul_z]; show (0 : ZMod 2) + 0 + (y 3) (t.x₁ • x 1) = 0
+    rw [htriv t.x₁ (x 1), hx1, map_zero, add_zero, add_zero]
+  show (powOmega2 w).z = 0
+  rw [powOmega2]
+  exact (heisLift_pow_l_z_zero w hwl hwz _).2
+
+/-- `u₁.z = 0` when `x₃ = 0` (on cocycles), dually. -/
+theorem heisMarking_u1_z_of_x3_zero (htriv : ∀ (g : C) (a : V), g • a = a) (t : Marking C)
+    (x : Fin 4 → V) (y : Fin 4 → ElemDual V) (hx1 : x 1 = 0) (hy1 : y 1 = 0) (hx3 : x 3 = 0) :
+    (heisMarking t x y).u1.z = 0 := by
+  have hdtriv : ∀ (g : C) (lam : ElemDual V), g • lam = lam := fun g lam => by
+    ext a; rw [ElemDual.smul_apply, htriv]
+  set w : HeisLift V C := (⟨x 3, y 3, 0, t.x₁⟩ : HeisLift V C) * ⟨x 1, y 1, 0, t.τ⟩ with hw
+  have hwa : w.a = 0 := by
+    rw [hw, HeisLift.mul_a]; show x 3 + t.x₁ • x 1 = 0
+    rw [htriv t.x₁ (x 1), hx1, hx3, add_zero]
+  have hwz : w.z = 0 := by
+    rw [hw, HeisLift.mul_z]; show (0 : ZMod 2) + 0 + (y 3) (t.x₁ • x 1) = 0
+    rw [htriv t.x₁ (x 1), hx1, map_zero, add_zero, add_zero]
+  show (powOmega2 w).z = 0
+  rw [powOmega2]
+  exact (heisLift_pow_a_z_zero w hwa hwz _).2
+
 end GQ2.FoxH
