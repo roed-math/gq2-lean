@@ -223,6 +223,39 @@ theorem snakeZ_welldef (t : Marking C) (c'' : Z1w (A := A'') t)
   rw [← sub_eq_zero, ← QuotientAddGroup.mk_sub, QuotientAddGroup.eq_zero_iff]
   exact ⟨w, this.symm⟩
 
+include hf hg hinj hsurj hexact in
+/-- The connecting map on cocycles, `Z¹w(A'') →+ H²w(A')`, `c'' ↦ [snakeZ c'']` (a hom by
+`snakeZ_welldef`, using additive lifts). -/
+noncomputable def delta1raw (t : Marking C) : Z1w (A := A'') t →+ H2w (A := A') t where
+  toFun c'' := QuotientAddGroup.mk (snakeZ f g hg hsurj hexact t c'')
+  map_zero' :=
+    ((snakeZ_welldef f g hf hg hinj hsurj hexact t 0 0 0
+      (by funext i; simp) (by simp only [map_zero])).symm).trans (QuotientAddGroup.mk_zero _)
+  map_add' c''₁ c''₂ := by
+    refine ((snakeZ_welldef f g hf hg hinj hsurj hexact t (c''₁ + c''₂)
+      (snakeLift g hsurj c''₁.1 + snakeLift g hsurj c''₂.1)
+      (snakeZ f g hg hsurj hexact t c''₁ + snakeZ f g hg hsurj hexact t c''₂) ?_ ?_).symm).trans
+      (QuotientAddGroup.mk_add _ _ _)
+    · funext i; simp only [Pi.add_apply, map_add, snakeLift_spec]; rfl
+    · rw [map_add, snakeZ_spec, snakeZ_spec, ← map_add]
+
+include hf hg hinj hsurj hexact in
+/-- **The snake connecting map** `δ¹ : H¹w(A'') → H²w(A')`.  Descends `delta1raw` through the
+`B¹w`-quotient: a coboundary `c'' = d⁰(a'')` lifts to `d⁰(â)`, whose `d¹` is `0`, so its class
+is `0`. -/
+noncomputable def delta1 (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) :
+    H1w (A := A'') t →+ H2w (A := A') t :=
+  QuotientAddGroup.lift _ (delta1raw f g hf hg hinj hsurj hexact t) <| by
+    rintro c'' hc''
+    rw [AddSubgroup.mem_addSubgroupOf] at hc''
+    obtain ⟨a'', ha''⟩ := hc''
+    obtain ⟨a, ha⟩ := hsurj a''
+    show QuotientAddGroup.mk (snakeZ f g hg hsurj hexact t c'') = 0
+    refine ((snakeZ_welldef f g hf hg hinj hsurj hexact t c'' (d0 t a) 0 ?_ ?_).symm).trans
+      (QuotientAddGroup.mk_zero _)
+    · rw [← d0_natural t g hg a, ha]; exact ha''
+    · rw [map_zero]; exact (d1Fun_comp_d0 t ht hw a).symm
+
 end LES
 
 end GQ2.FoxH
