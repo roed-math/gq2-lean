@@ -168,4 +168,29 @@ theorem heisMarking_x1sig_z_trivial {C : Type*} [Group C] {V : Type*} [AddCommGr
   revert a b d e
   decide
 
+/-- **Wild `.z`, piece 2: `c₀ = [d₀,z₀] ↦ 0` on cocycles.**  The symplectic commutator vanishes
+because `d₀.a = d₀.l = 0` there (`liftMarking_d0_u = x₁ = 0`).  Same argument as `heisMarking_c0_z`,
+with `x₁ = y₁ = 0` in place of x₀-support. -/
+theorem heisMarking_c0_z_cocycle {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V]
+    [DistribMulAction C V] [Finite V] (htriv : ∀ (g : C) (a : V), g • a = a)
+    (hV₂ : ∀ v : V, v + v = 0) (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
+    (hx1 : x 1 = 0) (hy1 : y 1 = 0) :
+    (heisMarking t x y).c0.z = 0 := by
+  have hx0 : ∀ v : V, t.x₀ • v = v := fun v => htriv t.x₀ v
+  have htau : ∀ v : V, t.τ • v = v := fun v => htriv t.τ v
+  have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := fun l => HeisLift.smul_elemdual_trivial t.x₀ hx0 l
+  have htaud : ∀ l : ElemDual V, t.τ • l = l := fun l => HeisLift.smul_elemdual_trivial t.τ htau l
+  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => by
+    ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]; exact CharTwo.add_self_eq_zero (l v)
+  set M := heisMarking t x y with hM
+  have hd0a : M.d0.a = 0 := by
+    rw [heisMarking_d0_a t x y, liftMarking_d0_u t x hV₂ hx0 htau]; exact hx1
+  have hd0l : M.d0.l = 0 := by
+    rw [heisMarking_d0_l t x y, liftMarking_d0_u t y hV₂d hx0d htaud]; exact hy1
+  have hd0g := heisMarking_d0_g_smul t x y hx0 htau
+  have hz0g := heisMarking_z0_g_smul t x y hx0
+  have h := HeisLift.commP_z_of_trivial M.d0 M.z0 hd0g hz0g
+  rw [hd0l, ElemDual.zero_apply, hd0a, map_zero, add_zero] at h
+  exact h
+
 end GQ2.FoxH
