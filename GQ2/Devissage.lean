@@ -185,6 +185,18 @@ theorem snake_d1_mem (t : Marking C) (c'' : Z1w (A := A'') t) :
     funext (snakeLift_spec g hsurj c''.1)]
   exact AddMonoidHom.mem_ker.mp c''.2
 
+include hg hsurj hexact in
+/-- The `A'²`-element the snake extracts: `(f × f)(snakeZ) = d¹(lift c'')`. -/
+noncomputable def snakeZ (t : Marking C) (c'' : Z1w (A := A'') t) : A' × A' :=
+  ((prod_exact f g hexact (d1 t (snakeLift g hsurj c''.1))).mp
+    (snake_d1_mem g hg hsurj t c'')).choose
+
+include hg hsurj hexact in
+theorem snakeZ_spec (t : Marking C) (c'' : Z1w (A := A'') t) :
+    (f.prodMap f) (snakeZ f g hg hsurj hexact t c'') = d1 t (snakeLift g hsurj c''.1) :=
+  ((prod_exact f g hexact (d1 t (snakeLift g hsurj c''.1))).mp
+    (snake_d1_mem g hg hsurj t c'')).choose_spec
+
 end LES
 
 end GQ2.FoxH
