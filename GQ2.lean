@@ -37,6 +37,7 @@ import GQ2.SectionThreeMarked
 import GQ2.AdmissibleLimit
 import GQ2.Prop23
 import GQ2.FoxHeisenberg
+import GQ2.Devissage
 import GQ2.QuadraticFp2
 import GQ2.GaussCount
 import GQ2.GaussSigns

@@ -32,17 +32,15 @@ four-lemma windows.  Free inputs: `χ⁰`/`χ⁰ᵀ` are *always* injective (sep
 *always* surjective (extension/biduality), and the Euler-characteristic swap
 `#H⁰w(A) = #H²w(A^∨)` converts the given card clauses into full bijectivity.
 
-## The `fixedPts` gap and the pending `lemma_5_11` splice
+## The `fixedPts` gap and the `lemma_5_11` relocation (EXECUTED)
 
 `ker d⁰` is the fixed set of the **four marked elements**, whereas `IsSelfDual` uses
 `fixedPts C` — all of `C`.  These agree exactly for a *generating* marking:
-`H0w_eq_fixedPts (hgen : t.Generates)`, whence `isSelfDual_iff_W`.  `lemma_5_11` **as currently
-stated** (no `Generates`/`Pro2Core` hypothesis) does not follow from the word-complex dévissage
-for possibly-non-generating markings, and we believe the paper's context (markings of Γ_A-images)
-makes generation implicit.  The intended splice is therefore: add `hgen : t.Generates` to
-`lemma_5_11` (its consumer `prop_5_15` sits in the generated setting) and splice
-`selfdualW_two_of_three` through `isSelfDual_iff_W` — a statement-level decision for the P-13
-owner, tracked on the board.
+`H0w_eq_fixedPts (hgen : t.Generates)`, whence `isSelfDual_iff_W`.  Accordingly `lemma_5_11`
+now carries `hgen : t.Generates` and lives **at the bottom of this file** (the proof needs this
+file's machinery; imports run `FoxHeisenberg → Devissage`), proved by splicing
+`selfdualW_two_of_three` through `isSelfDual_iff_W`.  Its consumer `prop_5_15`
+(`FoxHeisenberg.lean`, P-13f) gained the same hypothesis — admissible markings supply it.
 -/
 
 namespace GQ2.FoxH
@@ -2141,5 +2139,40 @@ theorem isSelfDual_iff_W {A : Type*} [AddCommGroup A] [DistribMulAction C A] [Fi
   rw [hcard]
 
 end GeneratesBridge
+
+/-! ## Lemma 5.11, `fixedPts`-form (the P-12 statement, relocated and proved)
+
+The statement formerly sorried in `GQ2/FoxHeisenberg.lean` — same fully qualified name
+`GQ2.FoxH.lemma_5_11` — with one hypothesis added: `hgen : t.Generates`.  Generation identifies
+`ker d⁰` with the `C`-fixed points (`H0w_eq_fixedPts`), bridging the word-internal dévissage
+`selfdualW_two_of_three` to the `fixedPts`-phrased `IsSelfDual`; the paper's setting
+(admissible markings) always provides it.  It lives here rather than in `FoxHeisenberg.lean`
+because the proof needs this file's machinery and the import runs the other way. -/
+
+/-- **Lemma 5.11 (exact cone dévissage)**, stated as its consequence: along a short exact
+sequence of finite elementary `𝔽₂[C]`-modules over a *generating* marking, self-duality
+satisfies two-out-of-three.  Proved via the word-internal dévissage `selfdualW_two_of_three`
+and the `Generates` bridge `isSelfDual_iff_W`. -/
+theorem lemma_5_11 [Finite C] {A A' A'' : Type*}
+    [AddCommGroup A] [DistribMulAction C A]
+    [AddCommGroup A'] [DistribMulAction C A']
+    [AddCommGroup A''] [DistribMulAction C A''] [Finite A'] [Finite A] [Finite A'']
+    (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hgen : t.Generates)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (f : A' →+ A) (g : A →+ A'')
+    (hf : ∀ (c : C) (a : A'), f (c • a) = c • f a)
+    (hg : ∀ (c : C) (a : A), g (c • a) = c • g a)
+    (hinj : Function.Injective f) (hsurj : Function.Surjective g)
+    (hexact : f.range = g.ker) :
+    (IsSelfDual t A' ∧ IsSelfDual t A'' → IsSelfDual t A) ∧
+    (IsSelfDual t A' ∧ IsSelfDual t A → IsSelfDual t A'') ∧
+    (IsSelfDual t A ∧ IsSelfDual t A'' → IsSelfDual t A') := by
+  have h' := isSelfDual_iff_W (A := A') t hgen
+  have h := isSelfDual_iff_W (A := A) t hgen
+  have h'' := isSelfDual_iff_W (A := A'') t hgen
+  have hW := selfdualW_two_of_three f g hf hg hinj hsurj hexact hA₂ t ht hw
+  exact ⟨fun hp => h.mpr (hW.1 ⟨h'.mp hp.1, h''.mp hp.2⟩),
+    fun hp => h''.mpr (hW.2.1 ⟨h'.mp hp.1, h.mp hp.2⟩),
+    fun hp => h'.mpr (hW.2.2 ⟨h.mp hp.1, h''.mp hp.2⟩)⟩
 
 end GQ2.FoxH

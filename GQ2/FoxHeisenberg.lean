@@ -1581,25 +1581,13 @@ def IsSelfDual (t : Marking C) (A : Type*) [AddCommGroup A] [DistribMulAction C 
     (∀ h, h ≠ 0 → ∃ h', P h h' ≠ 0) ∧
     (∀ h', h' ≠ 0 → ∃ h, P h h' ≠ 0)
 
-/-- **Lemma 5.11 (exact cone dévissage)**, stated as its consequence: along a short exact
-sequence of finite elementary `𝔽₂[C]`-modules, self-duality satisfies two-out-of-three.  The
-mapping cone `K(A)` of display (49) and the degreewise sequence (50) are the *proof* device
-(P-13); acyclicity of `K(·)` is equivalent to the `IsSelfDual` package.
-
-*Status*: sorried (P-13). -/
-theorem lemma_5_11 {A' A'' : Type*} [AddCommGroup A'] [DistribMulAction C A']
-    [AddCommGroup A''] [DistribMulAction C A''] [Finite A'] [Finite A] [Finite A'']
-    (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
-    (hA₂ : ∀ a : A, a + a = 0)
-    (f : A' →+ A) (g : A →+ A'')
-    (hf : ∀ (c : C) (a : A'), f (c • a) = c • f a)
-    (hg : ∀ (c : C) (a : A), g (c • a) = c • g a)
-    (hinj : Function.Injective f) (hsurj : Function.Surjective g)
-    (hexact : f.range = g.ker) :
-    (IsSelfDual t A' ∧ IsSelfDual t A'' → IsSelfDual t A) ∧
-    (IsSelfDual t A' ∧ IsSelfDual t A → IsSelfDual t A'') ∧
-    (IsSelfDual t A ∧ IsSelfDual t A'' → IsSelfDual t A') := by
-  sorry
+/- **Lemma 5.11 (exact cone dévissage) — PROVED, relocated to `GQ2/Devissage.lean` (P-13e).**
+Same fully qualified name `GQ2.FoxH.lemma_5_11`, with one hypothesis added relative to the P-12
+statement: `hgen : t.Generates`.  Generation identifies `ker d⁰` with the `C`-fixed points
+(`H0w_eq_fixedPts`), which the word-complex dévissage needs to reach the `fixedPts`-phrased
+`IsSelfDual`; admissible markings always have it.  It lives there because the proof needs the
+Devissage machinery and imports run `FoxHeisenberg → Devissage`.  The generation-free
+word-internal form is `selfdualW_two_of_three` (two-out-of-three for `IsSelfDualW`). -/
 
 /-- Simplicity of a `𝔽₂[C]`-module, subgroup form: nonzero, and the only `C`-stable additive
 subgroups are `⊥` and `⊤` (no `Module` instances, per the repo convention). -/
@@ -2457,11 +2445,15 @@ Hypothesis `hcore` (the `Pro2Core` admissibility clause) supplies trivial wild a
 simple subquotient via `wild_acts_trivially`; it is a property of the marking `t` alone, so it
 covers the whole composition series.
 
+Hypothesis `hgen` feeds the dévissage step: `lemma_5_11` (PROVED in `GQ2/Devissage.lean`,
+P-13e) requires generation to identify `ker d⁰` with the `C`-invariants; admissible markings
+supply it alongside `hcore`.
+
 *Status*: sorried (P-13; route: 5.12 + 5.13 for simples — including the trivial module, where
 the traced form is the scalar cup–Bockstein table (25) — then 5.11 dévissage along a
-composition series). -/
-theorem prop_5_15 (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) [Finite A]
-    (hA₂ : ∀ a : A, a + a = 0) (hcore : t.Pro2Core) :
+composition series; 5.11 itself is proved). -/
+theorem prop_5_15 (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hgen : t.Generates)
+    [Finite A] (hA₂ : ∀ a : A, a + a = 0) (hcore : t.Pro2Core) :
     IsSelfDual t A := by
   sorry
 
@@ -2503,7 +2495,8 @@ unobstructed-lift-multiplicity cardinalities agree for the two sources.  (The
 adjoint-boundary identity (58) is deferred: it needs connecting-map infrastructure in both
 theories — see the module docstring.) -/
 theorem cor_5_17_card [TopologicalSpace C] [DiscreteTopology C] [Finite C]
-    (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hcore : t.Pro2Core)
+    (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hgen : t.Generates)
+    (hcore : t.Pro2Core)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρ : Function.Surjective ρ)
     {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
     [DistribMulAction C A]
@@ -2520,7 +2513,7 @@ theorem cor_5_17_card [TopologicalSpace C] [DiscreteTopology C] [Finite C]
       dualEval A (γ • a) (γ • lam) = γ • dualEval A a lam) :
     Nat.card (Z1w (A := A) t) = Nat.card (ContCoh.Z1 AbsGalQ2 A) ∧
     Nat.card (H2w (A := A) t) = Nat.card (ContCoh.H2 AbsGalQ2 A) := by
-  obtain ⟨hc2, hc1, -⟩ := prop_5_15 t ht hw (A := A) hA₂ hcore
+  obtain ⟨hc2, hc1, -⟩ := prop_5_15 t ht hw hgen (A := A) hA₂ hcore
   obtain ⟨hl2, hl1, -⟩ := prop_5_16 ρ hρ (A := A) hcomp hA₂ hcompD htriv hpair
   exact ⟨hc1.trans hl1.symm, hc2.trans hl2.symm⟩
 
