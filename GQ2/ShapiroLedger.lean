@@ -1030,6 +1030,111 @@ theorem alpha_lWordU0_flipped (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ N)
     group
   rw [hfac, z1_mul N α, z1_mul N α, z1_inv N α]
 
+/-! ### The compatible transversal `invLift` (Step 2)
+
+`invLift v := ((invIndexEquiv v).out).out` lifts each `U₀`-coset through the orbit-canonical
+`G/N`-base point `z_u` — the same base point `phi_inv_eq` reads.  Along it the `ℓ^T`-words are
+based exactly at `phi`'s indices and the aligned/flipped discriminant is literally `phi`'s
+`ε`-condition. -/
+
+/-- `invIndexEquiv` computes on `mk`-classes (definitional). -/
+theorem invIndexEquiv_mk (ghat : G) (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat)
+    (g : G) :
+    invIndexEquiv N ghat U₀ hU₀ ((g : G ⧸ U₀))
+      = (QuotientGroup.mk (QuotientGroup.mk g : G ⧸ N) :
+          (G ⧸ N) ⧸ Subgroup.zpowers (QuotientGroup.mk' N ghat)) := rfl
+
+/-- The **compatible transversal**: lift each `U₀`-coset through the orbit-canonical
+`G/N`-representative. -/
+noncomputable def invLift (ghat : G) (U₀ : Subgroup G)
+    (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) : G ⧸ U₀ → G :=
+  fun v => (((invIndexEquiv N ghat U₀ hU₀ v).out : G ⧸ N).out : G)
+
+/-- The `G/N`-image of `invLift v` is the orbit-canonical base point `z_u`. -/
+theorem mk_invLift (ghat : G) (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat)
+    (v : G ⧸ U₀) :
+    (QuotientGroup.mk (invLift N ghat U₀ hU₀ v) : G ⧸ N)
+      = (invIndexEquiv N ghat U₀ hU₀ v).out :=
+  QuotientGroup.out_eq' _
+
+/-- `invLift` is a genuine transversal: it lifts `v` to `v`. -/
+theorem invLift_spec (ghat : G) (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat)
+    (v : G ⧸ U₀) :
+    ((invLift N ghat U₀ hU₀ v : G) : G ⧸ U₀) = v := by
+  apply (invIndexEquiv N ghat U₀ hU₀).injective
+  rw [invIndexEquiv_mk, mk_invLift]
+  exact QuotientGroup.out_eq' _
+
+/-- The `γ`-shifted index in orbit form: `invIndexEquiv (γ⁻¹ • v) = mk_O (γ̄⁻¹ · z_u)`. -/
+theorem invIndexEquiv_smul (ghat : G) (U₀ : Subgroup G)
+    (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (v : G ⧸ U₀) (γ : G) :
+    invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)
+      = (QuotientGroup.mk ((QuotientGroup.mk' N γ)⁻¹ * (invIndexEquiv N ghat U₀ hU₀ v).out) :
+          (G ⧸ N) ⧸ Subgroup.zpowers (QuotientGroup.mk' N ghat)) := by
+  have h1 : invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)
+      = QuotientGroup.mk (QuotientGroup.mk' N ((γ⁻¹ • v).out)) := by
+    conv_lhs => rw [← QuotientGroup.out_eq' (γ⁻¹ • v)]
+    rfl
+  rw [h1, orbit_equiv N ghat U₀ hU₀ v γ]
+  -- replace `mk_N (v.out)` by the orbit-canonical `z_u` (same `⟨ḡ⟩`-orbit)
+  rw [QuotientGroup.eq]
+  have horb : (QuotientGroup.mk (QuotientGroup.mk' N (v.out : G)) :
+        (G ⧸ N) ⧸ Subgroup.zpowers (QuotientGroup.mk' N ghat))
+      = QuotientGroup.mk ((invIndexEquiv N ghat U₀ hU₀ v).out) := by
+    have h2 : invIndexEquiv N ghat U₀ hU₀ v
+        = QuotientGroup.mk (QuotientGroup.mk' N (v.out : G)) := by
+      conv_lhs => rw [← QuotientGroup.out_eq' v]
+      rfl
+    rw [← h2, QuotientGroup.out_eq']
+  have hmem : (QuotientGroup.mk' N (v.out : G))⁻¹ * (invIndexEquiv N ghat U₀ hU₀ v).out
+      ∈ Subgroup.zpowers (QuotientGroup.mk' N ghat) := QuotientGroup.eq.mp horb
+  have hrw : ((QuotientGroup.mk' N γ)⁻¹ * QuotientGroup.mk' N (v.out : G))⁻¹
+      * ((QuotientGroup.mk' N γ)⁻¹ * (invIndexEquiv N ghat U₀ hU₀ v).out)
+      = (QuotientGroup.mk' N (v.out : G))⁻¹ * (invIndexEquiv N ghat U₀ hU₀ v).out := by
+    group
+  rw [hrw]
+  exact hmem
+
+/-- The `γ`-shifted base point is the orbit-canonical rep of `γ̄⁻¹ · z_u`. -/
+theorem invIndexEquiv_smul_out (ghat : G) (U₀ : Subgroup G)
+    (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (v : G ⧸ U₀) (γ : G) :
+    (invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out
+      = orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * (invIndexEquiv N ghat U₀ hU₀ v).out) := by
+  rw [orbOut, invIndexEquiv_smul N ghat U₀ hU₀ v γ]
+
+/-- The `G/N`-image of the compatible-transversal word: `z_u⁻¹ · γ̄ · z_{u'}`. -/
+theorem mk_lWordT_invLift (ghat : G) (U₀ : Subgroup G)
+    (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (v : G ⧸ U₀) (γ : G) :
+    (QuotientGroup.mk (lWordT U₀ (invLift N ghat U₀ hU₀) v γ) : G ⧸ N)
+      = ((invIndexEquiv N ghat U₀ hU₀ v).out)⁻¹ * (QuotientGroup.mk' N γ)
+        * ((invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out) := by
+  show QuotientGroup.mk' N (lWordT U₀ (invLift N ghat U₀ hU₀) v γ) = _
+  simp only [lWordT, map_mul, map_inv]
+  rw [show QuotientGroup.mk' N (invLift N ghat U₀ hU₀ v)
+        = (invIndexEquiv N ghat U₀ hU₀ v).out from mk_invLift N ghat U₀ hU₀ v,
+    show QuotientGroup.mk' N (invLift N ghat U₀ hU₀ (γ⁻¹ • v))
+        = (invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out from mk_invLift N ghat U₀ hU₀ (γ⁻¹ • v)]
+
+/-- **Alignment discriminant**: the compatible-transversal word lies in `N` iff `γ̄⁻¹ · z_u` is
+its own orbit-canonical rep — literally `phi_inv_eq`'s `ε`-condition. -/
+theorem lWordT_invLift_mem_N_iff (ghat : G) (U₀ : Subgroup G)
+    (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (v : G ⧸ U₀) (γ : G) :
+    lWordT U₀ (invLift N ghat U₀ hU₀) v γ ∈ N
+      ↔ (QuotientGroup.mk' N γ)⁻¹ * (invIndexEquiv N ghat U₀ hU₀ v).out
+          = orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * (invIndexEquiv N ghat U₀ hU₀ v).out) := by
+  rw [← QuotientGroup.eq_one_iff (lWordT U₀ (invLift N ghat U₀ hU₀) v γ),
+    mk_lWordT_invLift N ghat U₀ hU₀ v γ, invIndexEquiv_smul_out N ghat U₀ hU₀ v γ]
+  constructor
+  · intro h
+    have h3 : ((invIndexEquiv N ghat U₀ hU₀ v).out⁻¹ * QuotientGroup.mk' N γ)⁻¹
+        = orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * (invIndexEquiv N ghat U₀ hU₀ v).out) :=
+      mul_eq_one_iff_inv_eq.mp h
+    rw [← h3]
+    group
+  · intro h
+    rw [← h]
+    group
+
 end Involution
 
 end ShapiroLedger
