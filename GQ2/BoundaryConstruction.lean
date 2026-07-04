@@ -342,6 +342,26 @@ theorem piRelatorWord_maxA_eq_one :
     simp only [conjP, commP, map_mul, map_inv, map_pow]
   rw [hpull]; exact hwild
 
+/-! ## The marked isomorphism `Γ_A(2) ≅ Π` (Prop 3.10, `Γ_A` half) -/
+
+/-- The forward map `Φ : Γ_A(2) → Π`, the descent of `φ_Π` through the maximal pro-`2` quotient
+(`Π` is pro-`2`, so `φ_Π` kills `proPKernel`). -/
+noncomputable def PhiMax : ContinuousMonoidHom (maxProPQuotient 2 GammaA) PiBd :=
+  quotientLift (proPKernel 2 GammaA) phiP (proPKernel_le_ker piBd_isProP phiP)
+
+@[simp] lemma PhiMax_mk_gammaSigma : PhiMax (maxProPMk 2 GammaA gammaSigma) = piSigma := by
+  rw [show PhiMax (maxProPMk 2 GammaA gammaSigma) = phiP gammaSigma from
+    quotientLift_quotientMk _ _ _ _]
+  exact phiP_gammaSigma
+
+@[simp] lemma PhiMax_mk_gammaX0 : PhiMax (maxProPMk 2 GammaA gammaX0) = piX0 := by
+  rw [show PhiMax (maxProPMk 2 GammaA gammaX0) = phiP gammaX0 from quotientLift_quotientMk _ _ _ _]
+  exact phiP_gammaX0
+
+@[simp] lemma PhiMax_mk_gammaX1 : PhiMax (maxProPMk 2 GammaA gammaX1) = piX1 := by
+  rw [show PhiMax (maxProPMk 2 GammaA gammaX1) = phiP gammaX1 from quotientLift_quotientMk _ _ _ _]
+  exact phiP_gammaX1
+
 end SectionThree
 
 end GQ2
