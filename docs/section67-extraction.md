@@ -22,7 +22,7 @@ row for Thm 4.2's §6 inputs; the statement layer itself consumes **no** axioms)
 | `lemma_6_16` | Lemma 6.16, (110) | deep-unit Evens norm vanishing (the Hilbert ledger (111)–(114) is its P-15 proof) |
 | `lemma_6_17_dim` / `_vanish` | Lemma 6.17 | `X₊ = deepPart`; `#X₊² = #H¹`; `Q⁰_loc∣_{X₊} = 0` |
 | `prop_6_18_ramified` / `_unramified` | Prop 6.18, (115) | the dyadic base determinant theorem (headline) |
-| `lemma_6_14` | Lemma 6.14, (102) | regular-module realization, via `FactorSet.comap` + `mapCoeff1` |
+| `lemma_6_14` | Lemma 6.14, (102) | **proved P-15d** (`GQ2.RepIndependence.lemma_6_14`, std-3, no B-axioms) — regular-module realization via `FactorSet.comap` + `mapCoeff1`; the Lemma-6.4 rep-independence is the inner-conjugation coboundary on `V⋊C` (`innerConj`/`repIndep`).  Statement moved out of `SectionSix.lean` (comment-pointer). |
 | `lemma_6_21` | Lemma 6.21 | transgression, consequence form (see deviations) |
 | `lemma_6_22` | Lemma 6.22, (121)–(123) | shear formula, cochain-exact mod an explicit coboundary |
 | `exists_minimalBlock` | §7 opening | block choice under `¬ IsScalarStack` |
@@ -55,8 +55,10 @@ Def-layer (sorry-free): `polar`/`IsQuadraticFp2`/`Nonsingular`/`arf`/`zeroCount`
   is a continuous cocycle, else to `0`.  Statements about classes of cocycles whose cocycle
   property is itself sorried (e.g. `graphPullback_mem_Z2`) stay `def`-clean this way.
 * **D4 — `Q⁰_loc` on classes** uses the canonical representative (`Quotient.out`);
-  representative- and datum-independence is Lemma 6.4's content, a P-15 obligation (6.4 is not
-  separately stated; its uniqueness argument is subsumed in the 6.18 proofs).
+  representative-independence is Lemma 6.4's content — **proved P-15d** (`GQ2.RepIndependence.repIndep`
+  / `graphPullback_sub_mem_B2`, std-3): `graphPullback(b) = φ_b^*κ⁰` on `V⋊C`, and a `Quotient.out`
+  change conjugates `φ_b` by `(−w₀,1)`, so the classes agree since inner automorphisms act trivially
+  on `H²` (`innerConj`).  `lemma_6_14` (the datum-independence half) rides on the same layer.
 * **D5 — deep units via the spectral norm**: Mathlib's `NormedField (AlgebraicClosure ℚ_[p])`
   makes `U_{e+1}(K)` encodable as `A = 1 + 2b`, `‖b‖ < 1`, `A, b` fixed by `G_K` — no
   ramification-index bookkeeping (`v_K(A−1) ≥ e+1 ⟺ ‖A−1‖ < ‖2‖` since `e = v_K(2)`).
@@ -70,6 +72,13 @@ Def-layer (sorry-free): `polar`/`IsQuadraticFp2`/`Nonsingular`/`arf`/`zeroCount`
   becomes "no `Y`-normal index-2 subgroup of `K` above `R`"; `q̄_λ` in 7.4 is `∃`-bundled with
   its defining spec `λ(k²) = q̄(k mod S)` and its invariance/nonsingularity/nonvanishing.
 
+> **P-15 split (2026-07-03)**: the remaining 15 proof obligations are parallelized as board
+> sub-tickets **P-15a–P-15i** (`docs/tickets.md`) — quadratic engine (a) → Gauss signs (b);
+> Shapiro ledger (c); Lemma-6.4 layer → 6.14 (d); Hilbert ledger 6.16 (e); deep part + 6.18
+> headline (f, assembly); §7: 7.2 (g) → `lam_sq_vanish`/7.4 (h); transgression 6.21 (i).
+> Each sub-ticket works in its own new file and one-line-splices the `sorry` in
+> `SectionSix/Seven.lean`; the umbrella P-15 row keeps the proved-log + amendment history.
+
 ## P-15 amendments (first proof pass, 2026-07-03)
 
 * **`IsEquivariantFactorSet` gained the field `f_cocycle`** (the additive 2-cocycle identity of
@@ -82,6 +91,15 @@ Def-layer (sorry-free): `polar`/`IsQuadraticFp2`/`Nonsingular`/`arf`/`zeroCount`
   `lemma_6_13_dihedral` (kernel-`decide` exponent-table iso), `lemma_6_13_evens` — the two-point
   cocycle `κ_J` and the repo's Evens-norm cocycle (98) agree **on the nose** on `E ⋊ J`, so (96)
   is a function identity plus class transport.
+* **`lemma_6_16` gained `[FiniteDimensional ℚ_[2] k]` and the Kummer presentation of `L/k`**
+  (P-15e amendment, 2026-07-03): the generator data `(d : (↥k)ˣ, δ, hδ : δ² = d, hLδ : G_L =
+  Stab(δ)` at `subgroupOf`-level`)` and the coordinates `(u, v, hAuv : A = u + vδ)` of the deep
+  unit — the paper's "write `L = k(√d)` … `a = u + v√d`".  Char-≠2 Kummer theory guarantees
+  the data abstractly, and the 6.17 consumer constructs it concretely; carrying it avoids the
+  infinite-Galois-correspondence plumbing (`fixedField_fixingSubgroup`, `[L:k] = 2` from
+  index) that deriving it in-proof would need.  The finite-dimensionality was in the informal
+  statement ("finite dyadic local fields") and is required by B9/B11.  Proof layer:
+  `GQ2/HilbertLedger.lean` (P-15e F-draft — ledger tiers, B11-consequence lemmas proved).
 * **`prop_7_4` gained the framed-target head hypotheses** (soundness amendment #3, same shape
   as `lemma_7_2`'s: `π : Y →* H` surjective with kernel `L`, `cH : Ttame → H` continuous
   surjective).  The paper proves Prop 7.4 under §7's standing framed-target assumption, and its
@@ -143,3 +161,36 @@ Def-layer (sorry-free): `polar`/`IsQuadraticFp2`/`Nonsingular`/`arf`/`zeroCount`
 * §7 block (`MinimalBlock`, 7.1–7.4) ⟶ §8 fixes `T = T₀`, `M`, `V`, `q̄_λ` (Def 8.1 onward);
   `IsScalarStack` is the §9.1/9.2 scalar-regime hypothesis.
 * `lemma_6_16`/`lemma_6_17_*` are internal to the `prop_6_18_ramified` proof.
+
+## P-15i status — Lemma 6.21 transgression (`GQ2/Transgression.lean`, 2026-07-04)
+
+The (116) **mechanism and all supporting infrastructure are proved `std-3`**; the splitting
+`lemma_6_21` is reduced to **one** isolated `sorry`.  Proven, reusable:
+
+* `bflat_bijective` — `B_q^♭ : V ≅ V^∨` for nonsingular `q` on the finite elementary-abelian `V`
+  (`LinearMap.BilinForm.toDual` on the `ZMod 2`-module `V`; additivity ⟹ `𝔽₂`-linearity via
+  `AddMonoidHom.toZModLinearMap`).
+* `polar_fibre` — `polar q u w = ξ(iu,iw) + ξ(iw,iu)` (the fibre antisymmetrization is the polar).
+* `xi_conj_cobound` — conjugation of a trivial-coefficient 2-cocycle `ξ` by `s` is the coboundary
+  of `β_s(z) = ξ(s,z) + ξ(szs⁻¹,s)`.  General group-cohomology fact, worth lifting elsewhere.
+* `polar_conj` — `polar` is `C`-invariant (`polar_fibre` + `xi_conj_cobound`).
+* `factorSet_spec`/`factorSet_cocycle` — the `H²(C,V)` factor set of the normalized section.
+* **`key_transgression`** — the (116) identity `polar q(f c d) v = A c v + A d(c⁻¹v) + A(c*d)v`
+  with `A = mixedA`, i.e. `δ(mixedA) = B_q^♭ f` at cochain level.  One char-2 `linear_combination`
+  of nine `hcocycle` instances after normalizing group arguments by three `hconj`-moves.
+* `splitting_of_global_cocycle` — **descent** (`f = δg` from a `B_q^♭`-representable primitive `g`,
+  via `bflat_bijective`-injectivity + `polar_conj`) and the **section** `s c = i(ofAdd(g c))⁻¹·σc`
+  (`hconj` + `factorSet_spec` + fibre 2-torsion) are proved.
+
+**The one remaining `sorry` (the transgression vanishing `d₂ q = 0`)**: existence of a
+`B_q^♭`-representable — i.e. additive — primitive `g : C → V` with `δ(B♭ g) = B♭ f`.  Note the
+design subtlety: `mixedA c` from `key_transgression` is **not additive** in `v` (its defect
+`D_c(v,v') = ξ(i(c⁻¹v),i(c⁻¹v')) + ξ(iv,iv')` is a nonzero symmetric zero-diagonal fibre
+2-cocycle), so `δ(mixedA) = B♭ f` does **not** give `[B♭ f] = 0` formally — the cochain identity
+holds but the class need not vanish.  The vanishing is the genuine content, forced by `ξ` being a
+cocycle on the whole of `B` (its base values `ξ(σ·,σ·)`), i.e. `q` being a permanent cycle in the
+LHS spectral sequence.  Concretely: `D_c = δκ_c` for `κ_c = β_{(σc)⁻¹}∘i∘ofAdd`, but that `κ` is
+not a `C`-1-cocycle (`δκ` measures the section's factor set), and choosing the primitives so that
+`δκ = 0` is exactly `[B♭ f] = 0`.  This is beyond the "direct cochain / no spectral sequence"
+route as designed; closing it likely needs the base cochain explicitly (or a `groupCohomology`
+LHS-SS `d₂` argument).

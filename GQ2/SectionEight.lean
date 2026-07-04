@@ -405,10 +405,56 @@ noncomputable def pullTarget (T : MarkedTarget H E Y) : MarkedTarget H E C.cover
 
 end CentralCover
 
+/-! ## Corestriction of continuous homs to a subgroup
+
+Mathlib has no `ContinuousMonoidHom.codRestrict`; we build the corestriction to a subgroup of
+the codomain containing the image, and the bijection between homs onto a subgroup and homs into
+the ambient group landing in it — the bookkeeping the Lemma 8.3 fibrations run on. -/
+
+section CodRestrict
+
+variable {G₁ G₂ : Type*} [Group G₁] [TopologicalSpace G₁] [Group G₂] [TopologicalSpace G₂]
+
+/-- Corestrict a continuous hom to a subgroup of its codomain containing its image. -/
+def cmhCodRestrict (f : ContinuousMonoidHom G₁ G₂) (S : Subgroup G₂) (h : ∀ x, f x ∈ S) :
+    ContinuousMonoidHom G₁ ↥S where
+  toFun x := ⟨f x, h x⟩
+  map_one' := by ext; exact map_one f
+  map_mul' x y := by ext; exact map_mul f x y
+  continuous_toFun := f.continuous_toFun.subtype_mk h
+
+@[simp] lemma cmhCodRestrict_coe (f : ContinuousMonoidHom G₁ G₂) (S : Subgroup G₂)
+    (h : ∀ x, f x ∈ S) (x : G₁) : (cmhCodRestrict f S h x : G₂) = f x := rfl
+
+/-- Include a continuous hom into a subgroup back into the ambient group. -/
+def cmhInclude (S : Subgroup G₂) (g : ContinuousMonoidHom G₁ ↥S) : ContinuousMonoidHom G₁ G₂ :=
+  ⟨(S.subtype).comp g.toMonoidHom, continuous_subtype_val.comp g.continuous_toFun⟩
+
+@[simp] lemma cmhInclude_apply (S : Subgroup G₂) (g : ContinuousMonoidHom G₁ ↥S) (x : G₁) :
+    cmhInclude S g x = (g x : G₂) := rfl
+
+/-- **Homs onto a subgroup ≃ homs into the ambient group landing in it.** -/
+def cmhSubgroupEquiv (S : Subgroup G₂) :
+    ContinuousMonoidHom G₁ ↥S ≃ {f : ContinuousMonoidHom G₁ G₂ // ∀ x, f x ∈ S} where
+  toFun g := ⟨cmhInclude S g, fun x => (g x).2⟩
+  invFun f := cmhCodRestrict f.1 S f.2
+  left_inv g := by ext x; rfl
+  right_inv f := by ext x; rfl
+
+end CodRestrict
+
 /-! ## Liftable counts and the totalized stratum count -/
 
 variable {Γ : Type} [Group Γ] [TopologicalSpace Γ]
 variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+
+/-- The covering map bundled as a continuous hom (continuous since the cover is discrete). -/
+noncomputable def CentralCover.pCont (C : CentralCover Y) : ContinuousMonoidHom C.cover Y :=
+  ⟨C.p, continuous_of_discreteTopology⟩
+
+omit [DiscreteTopology Y] in
+@[simp] lemma CentralCover.pCont_apply (C : CentralCover Y) (x : C.cover) :
+    C.pCont x = C.p x := rfl
 
 open scoped Classical in
 /-- The exact-image count of the `J`-stratum, totalized (`0` when `J` does not project onto
@@ -431,12 +477,8 @@ noncomputable def liftableCount (b : ContinuousMonoidHom Γ ↥boundarySubgroup)
 
 section Twist
 
-variable [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
-
 variable {Y : Type} [Group Y] [Finite Y]
 
-omit [TopologicalSpace (ZMod 2)]
-  [DiscreteTopology (ZMod 2)] in
 /-- `z`-powers indexed by `𝔽₂` are multiplicative (uses only `z² = 1`). -/
 private lemma zpow_val_add (C : CentralCover Y) (x y : ZMod 2) :
     C.z ^ (x + y).val = C.z ^ x.val * C.z ^ y.val := by
@@ -517,6 +559,167 @@ theorem isBoundaryLift_scalarTwist {Y : Type} [Group Y] [TopologicalSpace Y]
   rw [h1, h2]
   exact hf γ
 
+/-! ### The torsor structure on cover lifts
+
+The continuous-hom lifts of a fixed `f : Γ → Y` through `p` form a **torsor** under
+`Hom_cont(Γ, 𝔽₂)`, acting by `scalarTwist`.  This is the combinatorial heart of Lemma 8.3 (and
+the half-torsor of 8.6): `p_comp_scalarTwist` (the action stays in the fibre),
+`scalarTwist_left_injective` (freeness), and `liftDiff`/`scalarTwist_liftDiff`
+(transitivity — every two lifts differ by a unique character). -/
+
+variable (C : CentralCover Y)
+
+/-- `z` has order exactly 2. -/
+lemma orderOf_z : orderOf C.z = 2 :=
+  orderOf_eq_prime (by rw [pow_two]; exact C.z_sq) C.z_ne
+
+/-- `z^a = z^b` in the cover iff `a ≡ b [MOD 2]`. -/
+lemma z_pow_eq_iff {a b : ℕ} : C.z ^ a = C.z ^ b ↔ a ≡ b [MOD 2] := by
+  rw [pow_eq_pow_iff_modEq, orderOf_z]
+
+/-- `p` kills `z`. -/
+lemma p_z : C.p C.z = 1 := by
+  rw [← MonoidHom.mem_ker, C.ker_eq]; exact Subgroup.mem_zpowers _
+
+/-- `p` kills every `z`-power. -/
+lemma p_z_pow (n : ℕ) : C.p (C.z ^ n) = 1 := by
+  rw [map_pow, p_z, one_pow]
+
+/-- `z`-powers are central. -/
+lemma z_pow_central (n : ℕ) (w : C.cover) : C.z ^ n * w = w * C.z ^ n := by
+  induction n with
+  | zero => simp
+  | succ k ih => rw [pow_succ, mul_assoc, C.central, ← mul_assoc, ih, mul_assoc]
+
+/-- Elements of `⟨z⟩` are `1` or `z`. -/
+lemma eq_one_or_z_of_mem_ker {w : C.cover} (hw : w ∈ C.p.ker) : w = 1 ∨ w = C.z := by
+  rw [C.ker_eq, Subgroup.mem_zpowers_iff] at hw
+  obtain ⟨k, rfl⟩ := hw
+  have hz2 : C.z ^ (2 : ℤ) = 1 := by
+    rw [show (2 : ℤ) = ((2 : ℕ) : ℤ) from rfl, zpow_natCast, pow_two]; exact C.z_sq
+  rcases Int.even_or_odd k with ⟨m, rfl⟩ | ⟨m, rfl⟩
+  · left
+    rw [show m + m = 2 * m from by ring, zpow_mul, hz2, one_zpow]
+  · right
+    rw [show 2 * m + 1 = 2 * m + 1 from rfl, zpow_add, zpow_mul, hz2, one_zpow, one_mul, zpow_one]
+
+/-- The twist projects to the same map: `p ∘ (twist g c) = p ∘ g`. -/
+lemma p_comp_scalarTwist (g : ContinuousMonoidHom Γ C.cover)
+    (c : ContinuousMonoidHom Γ (Multiplicative (ZMod 2))) (γ : Γ) :
+    C.p (scalarTwist C g c γ) = C.p (g γ) := by
+  show C.p (g γ * C.z ^ ((c γ).toAdd).val) = C.p (g γ)
+  rw [map_mul, p_z_pow, mul_one]
+
+/-- For `a b : 𝔽₂`, congruence of vals mod 2 pins equality. -/
+private lemma zmod2_eq_of_val_modEq {a b : ZMod 2} (h : a.val ≡ b.val [MOD 2]) : a = b := by
+  have ha := ZMod.val_lt a
+  have hb := ZMod.val_lt b
+  have : a.val = b.val := by rw [Nat.ModEq] at h; omega
+  exact ZMod.val_injective 2 this
+
+/-- **Freeness of the torsor action**: `c ↦ scalarTwist C g c` is injective. -/
+lemma scalarTwist_left_injective (g : ContinuousMonoidHom Γ C.cover) :
+    Function.Injective (scalarTwist C g) := by
+  intro c c' h
+  ext γ
+  have hcancel : C.z ^ ((c γ).toAdd).val = C.z ^ ((c' γ).toAdd).val := by
+    have hg : g γ * C.z ^ ((c γ).toAdd).val = g γ * C.z ^ ((c' γ).toAdd).val :=
+      DFunLike.congr_fun h γ
+    exact mul_left_cancel hg
+  rw [z_pow_eq_iff] at hcancel
+  have : (c γ).toAdd = (c' γ).toAdd := zmod2_eq_of_val_modEq hcancel
+  exact Multiplicative.toAdd.injective this
+
+open scoped Classical in
+/-- The raw `𝔽₂`-valued difference of two lifts: `0` where they agree, `1` where they differ
+by `z`. -/
+private noncomputable def liftChar (g g' : ContinuousMonoidHom Γ C.cover) (γ : Γ) : ZMod 2 :=
+  if g γ = g' γ then 0 else 1
+
+/-- **Representation**: `g' γ = g γ · z^{liftChar γ}` for lifts agreeing under `p`. -/
+private lemma liftChar_rep (g g' : ContinuousMonoidHom Γ C.cover)
+    (h : ∀ γ, C.p (g γ) = C.p (g' γ)) (γ : Γ) :
+    g' γ = g γ * C.z ^ (liftChar C g g' γ).val := by
+  unfold liftChar
+  by_cases hγ : g γ = g' γ
+  · rw [if_pos hγ, show ((0 : ZMod 2)).val = 0 from rfl, pow_zero, mul_one, hγ]
+  · rw [if_neg hγ, show ((1 : ZMod 2)).val = 1 from rfl, pow_one]
+    have hmem : (g γ)⁻¹ * g' γ ∈ C.p.ker := by
+      rw [MonoidHom.mem_ker, map_mul, map_inv, h γ, inv_mul_cancel]
+    rcases eq_one_or_z_of_mem_ker C hmem with he | he
+    · exact absurd (inv_mul_eq_one.mp he) hγ
+    · rw [← he, mul_inv_cancel_left]
+
+/-- **Additivity** of the difference character (the torsor cocycle identity). -/
+private lemma liftChar_add (g g' : ContinuousMonoidHom Γ C.cover)
+    (h : ∀ γ, C.p (g γ) = C.p (g' γ)) (γ δ : Γ) :
+    liftChar C g g' (γ * δ) = liftChar C g g' γ + liftChar C g g' δ := by
+  apply zmod2_eq_of_val_modEq
+  rw [← z_pow_eq_iff C]
+  -- `z^{χ(γδ).val} = z^{(χγ+χδ).val}`, obtained by cancelling `g(γδ) = gγ·gδ`
+  have key : g γ * g δ * C.z ^ (liftChar C g g' (γ * δ)).val
+      = g γ * g δ * C.z ^ (liftChar C g g' γ + liftChar C g g' δ).val := by
+    calc g γ * g δ * C.z ^ (liftChar C g g' (γ * δ)).val
+        = g (γ * δ) * C.z ^ (liftChar C g g' (γ * δ)).val := by rw [map_mul]
+      _ = g' (γ * δ) := (liftChar_rep C g g' h (γ * δ)).symm
+      _ = g' γ * g' δ := by rw [map_mul]
+      _ = (g γ * C.z ^ (liftChar C g g' γ).val) * (g δ * C.z ^ (liftChar C g g' δ).val) := by
+          rw [liftChar_rep C g g' h γ, liftChar_rep C g g' h δ]
+      _ = g γ * g δ * (C.z ^ (liftChar C g g' γ).val * C.z ^ (liftChar C g g' δ).val) := by
+          rw [show g γ * C.z ^ (liftChar C g g' γ).val * (g δ * C.z ^ (liftChar C g g' δ).val)
+                = g γ * (C.z ^ (liftChar C g g' γ).val * g δ) * C.z ^ (liftChar C g g' δ).val
+              from by group, z_pow_central]
+          group
+      _ = g γ * g δ * C.z ^ ((liftChar C g g' γ).val + (liftChar C g g' δ).val) := by
+          rw [pow_add]
+      _ = g γ * g δ * C.z ^ (liftChar C g g' γ + liftChar C g g' δ).val := by
+          congr 1
+          rw [z_pow_eq_iff C, ZMod.val_add]
+          exact (Nat.mod_modEq _ 2).symm
+  exact mul_left_cancel key
+
+/-- **The difference character** of two lifts agreeing under `p`.  Defined so that
+`scalarTwist C g (liftDiff C g g' h) = g'` (`scalarTwist_liftDiff`, transitivity). -/
+noncomputable def liftDiff (g g' : ContinuousMonoidHom Γ C.cover)
+    (h : ∀ γ, C.p (g γ) = C.p (g' γ)) :
+    ContinuousMonoidHom Γ (Multiplicative (ZMod 2)) where
+  toFun γ := Multiplicative.ofAdd (liftChar C g g' γ)
+  map_one' := by
+    show Multiplicative.ofAdd (liftChar C g g' 1) = 1
+    rw [show liftChar C g g' 1 = 0 from by unfold liftChar; rw [if_pos (by rw [map_one, map_one])]]
+    rfl
+  map_mul' γ δ := by
+    show Multiplicative.ofAdd (liftChar C g g' (γ * δ))
+      = Multiplicative.ofAdd (liftChar C g g' γ) * Multiplicative.ofAdd (liftChar C g g' δ)
+    rw [liftChar_add C g g' h, ofAdd_add]
+  continuous_toFun := by
+    classical
+    have h1 : Continuous (fun γ => (g γ, g' γ) : Γ → C.cover × C.cover) :=
+      (map_continuous g).prodMk (map_continuous g')
+    exact (continuous_of_discreteTopology (f := fun p : C.cover × C.cover =>
+      Multiplicative.ofAdd (if p.1 = p.2 then (0 : ZMod 2) else 1))).comp h1
+
+/-- **Transitivity of the torsor action**: `g'` is the `liftDiff`-twist of `g`. -/
+lemma scalarTwist_liftDiff (g g' : ContinuousMonoidHom Γ C.cover)
+    (h : ∀ γ, C.p (g γ) = C.p (g' γ)) :
+    scalarTwist C g (liftDiff C g g' h) = g' := by
+  ext γ
+  show g γ * C.z ^ ((Multiplicative.ofAdd (liftChar C g g' γ)).toAdd).val = g' γ
+  rw [toAdd_ofAdd]
+  exact (liftChar_rep C g g' h γ).symm
+
+/-- **The fibre of lifts over a fixed base is a torsor**: twisting `g₀` by a character bijects
+`Hom_cont(Γ, 𝔽₂)` with the continuous-hom lifts sharing `g₀`'s projection under `p`.  Hence
+every such fibre has exactly `|Hom_cont(Γ, 𝔽₂)|` elements — the "8 lifts" of Lemma 8.3. -/
+noncomputable def fiberLiftEquiv (g₀ : ContinuousMonoidHom Γ C.cover) :
+    ContinuousMonoidHom Γ (Multiplicative (ZMod 2))
+      ≃ {g : ContinuousMonoidHom Γ C.cover // ∀ γ, C.p (g γ) = C.p (g₀ γ)} where
+  toFun c := ⟨scalarTwist C g₀ c, fun γ => p_comp_scalarTwist C g₀ c γ⟩
+  invFun g := liftDiff C g₀ g.1 (fun γ => (g.2 γ).symm)
+  left_inv c :=
+    scalarTwist_left_injective C g₀ (scalarTwist_liftDiff C g₀ (scalarTwist C g₀ c) _)
+  right_inv g := Subtype.ext (scalarTwist_liftDiff C g₀ g.1 (fun γ => (g.2 γ).symm))
+
 end Twist
 
 /-! ## Lemma 8.2: the common scalar character group
@@ -590,50 +793,49 @@ end ExpTwoLedger
 
 section CharGammaA
 
-variable [TopologicalSpace (ZMod 2)]
-  [DiscreteTopology (ZMod 2)]
-
-omit [DiscreteTopology (ZMod 2)] in
-private lemma comp_quotientMk_ker
-    (φ : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4) ⧸ NA) (Multiplicative (ZMod 2))) :
-    NA ≤ ((φ.comp (quotientMk NA)).toMonoidHom).ker := fun x hx => by
+private lemma comp_quotientMk_ker {G : Type} [Group G] [TopologicalSpace G]
+    (N : Subgroup G) [N.Normal]
+    (φ : ContinuousMonoidHom (G ⧸ N) (Multiplicative (ZMod 2))) :
+    N ≤ ((φ.comp (quotientMk N)).toMonoidHom).ker := fun x hx => by
   rw [MonoidHom.mem_ker]
-  show φ (quotientMk NA x) = 1
-  rw [(quotientMk_eq_one_iff NA).mpr hx, map_one]
+  show φ (quotientMk N x) = 1
+  rw [(quotientMk_eq_one_iff N).mpr hx, map_one]
 
-omit [DiscreteTopology (ZMod 2)] in
-private lemma quotientLift_comp_eq
-    (φ : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4) ⧸ NA) (Multiplicative (ZMod 2))) :
-    quotientLift NA (φ.comp (quotientMk NA)) (comp_quotientMk_ker φ) = φ := by
+private lemma quotientLift_comp_eq {G : Type} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] (N : Subgroup G) [N.Normal]
+    (φ : ContinuousMonoidHom (G ⧸ N) (Multiplicative (ZMod 2))) :
+    quotientLift N (φ.comp (quotientMk N)) (comp_quotientMk_ker N φ) = φ := by
   ext y
-  obtain ⟨x, rfl⟩ := quotientMk_surjective NA y
+  obtain ⟨x, rfl⟩ := quotientMk_surjective N y
   rfl
 
-omit [DiscreteTopology (ZMod 2)] in
-private lemma comp_quotientLift_eq
-    (c : {c : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4)) (Multiplicative (ZMod 2)) //
-      NA ≤ c.toMonoidHom.ker}) :
-    (quotientLift NA c.1 c.2).comp (quotientMk NA) = c.1 := by
+private lemma comp_quotientLift_eq {G : Type} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] (N : Subgroup G) [N.Normal]
+    (c : {c : ContinuousMonoidHom G (Multiplicative (ZMod 2)) //
+      N ≤ c.toMonoidHom.ker}) :
+    (quotientLift N c.1 c.2).comp (quotientMk N) = c.1 := by
   ext x
   rfl
 
-/-- Characters of `Γ_A = F₄ ⧸ N_A` are characters of `F₄` killing `N_A`
-(the P-05 `push`/`descend` mechanics, without surjectivity). -/
-noncomputable def charEquiv :
-    ContinuousMonoidHom (FreeProfiniteGroup (Fin 4) ⧸ NA) (Multiplicative (ZMod 2))
-      ≃ {c : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4)) (Multiplicative (ZMod 2)) //
-          NA ≤ c.toMonoidHom.ker} where
-  toFun φ := ⟨φ.comp (quotientMk NA), comp_quotientMk_ker φ⟩
-  invFun c := quotientLift NA c.1 c.2
-  left_inv φ := quotientLift_comp_eq φ
-  right_inv c := Subtype.ext (comp_quotientLift_eq c)
+/-- Characters of a topological quotient group `G ⧸ N` are characters of `G` killing `N`
+(the P-05 `push`/`descend` mechanics, without surjectivity; instantiated at `N_A` for the
+`Γ_A`-count and at the relator subgroup for the `Π`-count). -/
+noncomputable def charEquiv {G : Type} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] (N : Subgroup G) [N.Normal] :
+    ContinuousMonoidHom (G ⧸ N) (Multiplicative (ZMod 2))
+      ≃ {c : ContinuousMonoidHom G (Multiplicative (ZMod 2)) //
+          N ≤ c.toMonoidHom.ker} where
+  toFun φ := ⟨φ.comp (quotientMk N), comp_quotientMk_ker N φ⟩
+  invFun c := quotientLift N c.1 c.2
+  left_inv φ := quotientLift_comp_eq N φ
+  right_inv c := Subtype.ext (comp_quotientLift_eq N c)
 
-private lemma homEquiv_symm_hom_of_values
-    (c : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4)) (Multiplicative (ZMod 2))) :
-    ((FreeProfiniteGroup.homEquiv (Fin 4)
+private lemma homEquiv_symm_hom_of_values {X : Type}
+    (c : ContinuousMonoidHom (FreeProfiniteGroup X) (Multiplicative (ZMod 2))) :
+    ((FreeProfiniteGroup.homEquiv X
       (ProfiniteGrp.of (Multiplicative (ZMod 2)))).symm
         (fun i => c (FreeProfiniteGroup.of i))).hom = c := by
-  have h : (FreeProfiniteGroup.homEquiv (Fin 4)
+  have h : (FreeProfiniteGroup.homEquiv X
       (ProfiniteGrp.of (Multiplicative (ZMod 2)))).symm
         (fun i => c (FreeProfiniteGroup.of i))
       = CategoryTheory.ConcreteCategory.ofHom (C := ProfiniteGrp) c := by
@@ -644,14 +846,14 @@ private lemma homEquiv_symm_hom_of_values
   rw [h]
   rfl
 
-/-- Characters of `F₄` are their generator values (the universal property, in
-`ContinuousMonoidHom` form via the P-05 uniqueness lemma). -/
-noncomputable def cmhEquivFun :
-    ContinuousMonoidHom (FreeProfiniteGroup (Fin 4)) (Multiplicative (ZMod 2))
-      ≃ (Fin 4 → Multiplicative (ZMod 2)) where
+/-- Characters of a free profinite group are their generator values (the universal
+property, in `ContinuousMonoidHom` form via the P-05 uniqueness lemma). -/
+noncomputable def cmhEquivFun {X : Type} :
+    ContinuousMonoidHom (FreeProfiniteGroup X) (Multiplicative (ZMod 2))
+      ≃ (X → Multiplicative (ZMod 2)) where
   toFun c i := c (FreeProfiniteGroup.of i)
   invFun v :=
-    ((FreeProfiniteGroup.homEquiv (Fin 4)
+    ((FreeProfiniteGroup.homEquiv X
       (ProfiniteGrp.of (Multiplicative (ZMod 2)))).symm v).hom
   left_inv c := homEquiv_symm_hom_of_values c
   right_inv v := funext fun i =>
@@ -746,37 +948,200 @@ end CharGammaA
 /-- **Lemma 8.2, candidate source**: `|Hom_cont(Γ_A, 𝔽₂)| = 8`.  **Proved** over the
 P-04/P-05 layer: characters of `Γ_A` are `F₄`-generator values killing `N_A`
 (`charEquiv`/`cmhEquivFun`), and killing `N_A` is exactly killing `τ`
-(`ker_char_NA_le_iff` — the tame relator forces it, and conversely `ker c` is admissible
-because the wild relation is unconditional in exponent-2 abelian quotients,
-`Marking.wildRel_of_comm2`).  That leaves the free `𝔽₂³` of `σ, x₀, x₁`-values. -/
-theorem lemma_8_2_gammaA [TopologicalSpace (ZMod 2)]
-    [DiscreteTopology (ZMod 2)] :
+(`ker_char_NA_le_iff` — the tame relator forces it, and conversely `c(τ) = 1` gives both
+relations in exponent-2 abelian quotients, `Marking.wildRel_of_comm2`).  That leaves the free
+`𝔽₂³` of `σ, x₀, x₁`-values. -/
+theorem lemma_8_2_gammaA :
     Nat.card (ContinuousMonoidHom GammaA (Multiplicative (ZMod 2))) = 8 := by
-  have e := charEquiv.trans
+  have e := (charEquiv NA).trans
     ((Equiv.subtypeEquiv cmhEquivFun (fun c => ker_char_NA_le_iff c)).trans vecEquiv)
   have h2 : Nat.card (Multiplicative (ZMod 2)) = 2 := by
     rw [Nat.card_congr Multiplicative.toAdd, Nat.card_zmod]
   exact (Nat.card_congr e).trans (by rw [Nat.card_prod, Nat.card_prod, h2])
 
-/-- **Lemma 8.2, local source**: `|Hom_cont(G_ℚ₂, 𝔽₂)| = 8` (`= |ℚ₂ˣ/(ℚ₂ˣ)²|`; via the
-common marked maximal pro-2 quotient).  [P-16 statement; proof = O-half.] -/
-theorem lemma_8_2_local [TopologicalSpace (ZMod 2)]
-    [DiscreteTopology (ZMod 2)] :
+/-! ### The `Π`-side count and the local source
+
+`𝔽₂`-characters kill the pro-2 kernel (T-05), so they factor through the maximal pro-2
+quotient; `BoundaryMaps.ker_pro2F` pins that quotient as `Π`, whose characters are the
+free `𝔽₂³` of `σ, x₀, x₁`-values (the `piRelator`-condition is vacuous by the same
+exponent-2 ledger collapse). -/
+
+/-- `𝔽₂` is a 2-group. -/
+private lemma isPGroup_M2 : IsPGroup 2 (Multiplicative (ZMod 2)) := fun g =>
+  ⟨1, by
+    have h : ∀ h : Multiplicative (ZMod 2), h * h = 1 := by decide
+    rw [show (2 : ℕ) ^ 1 = 2 from rfl, pow_two]
+    exact h g⟩
+
+private lemma comm_M2 : ∀ a b : Multiplicative (ZMod 2), a * b = b * a := by decide
+
+private lemma sq_M2 : ∀ a : Multiplicative (ZMod 2), a * a = 1 := by decide
+
+/-- `𝔽₂` is pro-2 (finite discrete 2-group). -/
+private lemma isProP_M2 :
+    IsProP 2 (Multiplicative (ZMod 2)) :=
+  isProP_of_isPGroup isPGroup_M2
+
+/-- Every `𝔽₂`-character of `F₃` kills `piRelator` (the exponent-2 ledger collapse:
+`x₀^{σ²}·x₀·[x₁,σ] ↦ c(x₀)² = 1`). -/
+private lemma char_kills_piRelator
+    (c : ContinuousMonoidHom (FreeProfiniteGroup (Fin 3)) (Multiplicative (ZMod 2))) :
+    c piRelator = 1 := by
+  have hexp : c piRelator
+      = conjP (c (FreeProfiniteGroup.of 1)) (c (FreeProfiniteGroup.of 0) ^ 2)
+          * c (FreeProfiniteGroup.of 1)
+          * commP (c (FreeProfiniteGroup.of 2)) (c (FreeProfiniteGroup.of 0)) := by
+    rw [piRelator, conjP, commP]
+    simp only [map_mul, map_inv, map_pow]
+    rw [conjP, commP]
+  rw [hexp, conjP_of_comm comm_M2, commP_of_comm comm_M2, mul_one, sq_M2]
+
+/-- The relator generates its relator subgroup's kernel condition: a character killing the
+relator kills the whole (closed normal) relator subgroup — the `presentationLift` argument. -/
+private lemma relatorSubgroup_le_ker
+    (c : ContinuousMonoidHom (FreeProfiniteGroup (Fin 3)) (Multiplicative (ZMod 2))) :
+    relatorSubgroup {piRelator} ≤ c.toMonoidHom.ker := by
+  have hker : IsClosed (c.toMonoidHom.ker : Set (FreeProfiniteGroup (Fin 3))) := by
+    have hset : (c.toMonoidHom.ker : Set (FreeProfiniteGroup (Fin 3))) = c ⁻¹' {1} := by
+      ext g
+      simp [MonoidHom.mem_ker]
+    rw [hset]
+    exact IsClosed.preimage c.continuous_toFun isClosed_singleton
+  exact Subgroup.topologicalClosure_minimal _
+    (Subgroup.normalClosure_le_normal fun r hr => by
+      rw [Set.mem_singleton_iff] at hr
+      subst hr
+      exact MonoidHom.mem_ker.mpr (char_kills_piRelator c)) hker
+
+/-- Splitting the three `Π`-generator values. -/
+private def vecEquiv₃ : (Fin 3 → Multiplicative (ZMod 2))
+    ≃ (Multiplicative (ZMod 2) × Multiplicative (ZMod 2) × Multiplicative (ZMod 2)) where
+  toFun v := (v 0, v 1, v 2)
+  invFun p := ![p.1, p.2.1, p.2.2]
+  left_inv v := by
+    funext i
+    fin_cases i <;> rfl
+  right_inv p := rfl
+
+/-- **The `Π`-character count**: `|Hom_cont(Π, 𝔽₂)| = 8` — the presentation has three
+generators and its relator has no mod-2 linear part (paper, proof of Lemma 8.2). -/
+theorem card_char_piBd :
+    Nat.card (ContinuousMonoidHom PiBd (Multiplicative (ZMod 2))) = 8 := by
+  -- peel the maximal-pro-2 layer (T-05 universal property; `𝔽₂` is pro-2)
+  have e1 : ContinuousMonoidHom PiBd (Multiplicative (ZMod 2))
+      ≃ ContinuousMonoidHom (profinitePresentation {piRelator}) (Multiplicative (ZMod 2)) :=
+    maxProPHomEquiv isProP_M2
+  -- peel the presentation layer (characters of the quotient = characters killing relators)
+  have e2 := charEquiv (G := FreeProfiniteGroup (Fin 3)) (relatorSubgroup {piRelator})
+  -- the kernel condition is vacuous
+  have e3 : {c : ContinuousMonoidHom (FreeProfiniteGroup (Fin 3)) (Multiplicative (ZMod 2)) //
+      relatorSubgroup {piRelator} ≤ c.toMonoidHom.ker}
+      ≃ (ContinuousMonoidHom (FreeProfiniteGroup (Fin 3)) (Multiplicative (ZMod 2))) :=
+    Equiv.subtypeUnivEquiv relatorSubgroup_le_ker
+  have h2 : Nat.card (Multiplicative (ZMod 2)) = 2 := by
+    rw [Nat.card_congr Multiplicative.toAdd, Nat.card_zmod]
+  exact (Nat.card_congr (((e1.trans e2).trans e3).trans (cmhEquivFun.trans vecEquiv₃))).trans
+    (by rw [Nat.card_prod, Nat.card_prod, h2])
+
+/-- **Lemma 8.2, local source**: `|Hom_cont(G_ℚ₂, 𝔽₂)| = 8` (`= |ℚ₂ˣ/(ℚ₂ˣ)²|`).  **Proved**
+via the common marked maximal pro-2 quotient: a `BoundaryMaps` witness pins `pro2F` as *the*
+maximal pro-2 quotient map (`ker_pro2F`), every `𝔽₂`-character kills the pro-2 kernel
+(T-05 `proPKernel_le_ker`), so precomposition with `pro2F` bijects characters of `Π` with
+characters of `G_ℚ₂`, and `card_char_piBd` finishes.  [Statement amendment (F-owner): the
+`BoundaryMaps` hypothesis and the `CompactSpace`/`TotallyDisconnectedSpace` instance
+hypotheses on `AbsGalQ2` (the `main_presentation` house pattern) — without the bundle the
+count is B4/B5-content outside the P-16 axiom budget.] -/
+theorem lemma_8_2_local (B : BoundaryMaps)
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
     Nat.card (ContinuousMonoidHom AbsGalQ2 (Multiplicative (ZMod 2))) = 8 := by
-  sorry
+  -- precomposition with `pro2F` is bijective
+  have hbij : Function.Bijective
+      (fun φ : ContinuousMonoidHom PiBd (Multiplicative (ZMod 2)) => φ.comp B.pro2F) := by
+    constructor
+    · intro φ₁ φ₂ h
+      ext y
+      obtain ⟨x, rfl⟩ := B.pro2F_surjective y
+      exact DFunLike.congr_fun h x
+    · intro c
+      -- `c` kills the pro-2 kernel, which is `ker pro2F`
+      have hkerc : B.pro2F.toMonoidHom.ker ≤ c.toMonoidHom.ker := by
+        rw [B.ker_pro2F]
+        exact proPKernel_le_ker isProP_M2 c
+      -- descend `pro2F` to a continuous bijection from the canonical pro-2 quotient …
+      have hKle : proPKernel 2 AbsGalQ2 ≤ B.pro2F.toMonoidHom.ker := le_of_eq B.ker_pro2F.symm
+      set ψ : ContinuousMonoidHom (AbsGalQ2 ⧸ proPKernel 2 AbsGalQ2) PiBd :=
+        quotientLift (proPKernel 2 AbsGalQ2) B.pro2F hKle with hψ
+      have hψbij : Function.Bijective ψ := by
+        constructor
+        · rw [injective_iff_map_eq_one]
+          intro x hx
+          obtain ⟨g, rfl⟩ := quotientMk_surjective (proPKernel 2 AbsGalQ2) x
+          have hx' : B.pro2F g = 1 := hx
+          have hg : g ∈ proPKernel 2 AbsGalQ2 := by
+            rw [← B.ker_pro2F]
+            exact MonoidHom.mem_ker.mpr hx'
+          exact (quotientMk_eq_one_iff _).mpr hg
+        · intro y
+          obtain ⟨x, hx⟩ := B.pro2F_surjective y
+          exact ⟨quotientMk _ x, hx⟩
+      -- … hence a topological isomorphism (compact source, T2 target)
+      set e := continuousMulEquivOfBijective ψ hψbij with he
+      -- factor `c` through the canonical quotient (T-05) and transport along `e`
+      set c' : ContinuousMonoidHom (maxProPQuotient 2 AbsGalQ2) (Multiplicative (ZMod 2)) :=
+        (maxProPHomEquiv isProP_M2).symm c with hc'
+      refine ⟨c'.comp ⟨e.symm.toMulEquiv.toMonoidHom, e.symm.continuous_toFun⟩, ?_⟩
+      ext x
+      show c' (e.symm (B.pro2F x)) = c x
+      have h1 : B.pro2F x = e (quotientMk (proPKernel 2 AbsGalQ2) x) := rfl
+      rw [h1, ContinuousMulEquiv.symm_apply_apply]
+      have h2 : c'.comp (maxProPMk 2 AbsGalQ2) = c :=
+        (maxProPHomEquiv isProP_M2).apply_symm_apply c
+      exact DFunLike.congr_fun h2 x
+  exact (Nat.card_congr (Equiv.ofBijective _ hbij).symm).trans card_char_piBd
 
-/-! ## Lemma 8.3: the eight-lift partition  (display (124)) -/
+/-! ## Lemma 8.3: the eight-lift partition  (display (124))
 
-/-- **Lemma 8.3 (central-cover exact-image transform, eq. (124))**: for a central double
-cover `p : Ỹ ↠ Y` with pulled-back boundary-framed structure, and an exact-image subgroup
-`J ≤ Y` projecting onto `H`,
-`8 · u^β_Γ(p, J) = Σ_{J̃ ≤ p⁻¹(J), p(J̃) = J} e^β_Γ(J̃)`,
-where the right side runs over the exact-image strata of the cover target.  The `8` is the
-scalar character count of Lemma 8.2, carried as the hypothesis `hscalar`; scalar twisting
-(the proved `isBoundaryLift_scalarTwist`) is the torsor action behind the partition.
-[P-16 statement; proof = O-half.] -/
-theorem lemma_8_3 [TopologicalSpace (ZMod 2)]
-    [DiscreteTopology (ZMod 2)]
+The proof assembles two fibrations of the **master set** `R = {g : Γ →ₜ* Ỹ // (p∘g).range = J
+∧ boundary-framed}`: by *image* `g ↦ g.range` (a `Nat.card_sigma` over subgroups `J' ≤ Ỹ` with
+`p(J') = J`, each fibre `≃ BoundaryLifts(stratum J')` by corestriction) — this is the RHS; and
+by *projection* `g ↦ p∘g` (each fibre the torsor `≃ Hom_cont(Γ,𝔽₂) = 8` of `fiberLiftEquiv`) —
+this is `8 · u^β`.  Needs `Γ` topologically finitely generated (`hfg`), the
+`finite_boundaryLifts` shape, to finitize the counted sets. -/
+
+section Lemma83
+
+variable (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+  (T : MarkedTarget H E Y) (C : CentralCover Y) (J : Subgroup Y)
+
+/-- The master set of Lemma 8.3: cover lifts whose projection has image exactly `J` and is
+boundary-framed for `T`.  The two fibrations of this set (by image `g ↦ g.range` and by
+projection `g ↦ p∘g`) give the two sides of (124). -/
+abbrev masterLifts : Type :=
+  {g : ContinuousMonoidHom Γ C.cover //
+    (C.pCont.comp g).toMonoidHom.range = J ∧ IsBoundaryLift b F T (C.pCont.comp g)}
+
+variable {b F T C J}
+
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
+/-- A subgroup of the cover projecting onto `J` also projects onto `H` — so its pullback
+stratum is well-defined. -/
+lemma stratum_surj (hJ : Function.Surjective (T.piY.comp J.subtype))
+    {J' : Subgroup C.cover} (hJ' : J'.map C.p = J) :
+    Function.Surjective ((C.pullTarget T).piY.comp J'.subtype) := by
+  intro h
+  obtain ⟨y, hy⟩ := hJ h
+  have hyJ' : (y : Y) ∈ J'.map C.p := by rw [hJ']; exact y.2
+  obtain ⟨x, hxJ', hxy⟩ := Subgroup.mem_map.mp hyJ'
+  exact ⟨⟨x, hxJ'⟩, by
+    show T.piY (C.p x) = h
+    rw [hxy]; exact hy⟩
+
+end Lemma83
+
+theorem lemma_8_3
+    [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
     (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
     (T : MarkedTarget H E Y) (C : CentralCover Y)
     (hscalar : Nat.card (ContinuousMonoidHom Γ (Multiplicative (ZMod 2))) = 8)
@@ -784,8 +1149,143 @@ theorem lemma_8_3 [TopologicalSpace (ZMod 2)]
     8 * liftableCount b F T C J hJ
       = ∑ᶠ J' ∈ {J' : Subgroup C.cover | J'.map C.p = J},
           exactImageCountOn b F (C.pullTarget T) J' := by
-  sorry
-
+  -- Scaffolding for the O-finish (all landed above): `masterLifts` (the master set `R`),
+  -- `stratum_surj`, the corestriction layer (`cmhCodRestrict`/`cmhInclude`/`cmhSubgroupEquiv`),
+  -- `pCont`, and the torsor core (`fiberLiftEquiv` etc.).  Remaining: the two `Nat.card_sigma`
+  -- fibrations of `R` (by projection → `8·u^β` via `fiberLiftEquiv`; by image → the RHS via
+  -- corestriction).  `hfg` finitizes the counted sets (`finite_continuousMonoidHom`).
+  classical
+  haveI : Finite (ContinuousMonoidHom Γ C.cover) := finite_continuousMonoidHom hfg C.cover
+  haveI : Finite (masterLifts b F T C J) := Subtype.finite
+  -- membership: `p∘g` lands in `J` for any master lift.
+  have hmemJ : ∀ (g : masterLifts b F T C J) (γ : Γ), C.p (g.1 γ) ∈ J := fun g γ => by
+    have hmem : (C.pCont.comp g.1).toMonoidHom γ ∈ (C.pCont.comp g.1).toMonoidHom.range := ⟨γ, rfl⟩
+    rw [g.2.1] at hmem; exact hmem
+  haveI : Finite (BoundaryLifts b F (T.stratum J hJ)) :=
+    finite_boundaryLifts b F (T.stratum J hJ) hfg
+  set L := {f : BoundaryLifts b F (T.stratum J hJ) //
+    ∃ g : ContinuousMonoidHom Γ C.cover, ∀ γ : Γ, C.p (g γ) = (f.1.1 γ : Y)} with hLdef
+  haveI : Finite L := Subtype.finite
+  haveI : Fintype L := Fintype.ofFinite L
+  -- **Projection fibration**: `projB g = ` the corestriction of `p∘g` to `↥J`.
+  set projB : masterLifts b F T C J → L := fun g =>
+    ⟨⟨⟨cmhCodRestrict (C.pCont.comp g.1) J (hmemJ g), fun y => by
+        have hy : (y : Y) ∈ (C.pCont.comp g.1).toMonoidHom.range := by rw [g.2.1]; exact y.2
+        obtain ⟨γ, hγ⟩ := hy
+        exact ⟨γ, Subtype.ext hγ⟩⟩, g.2.2⟩, g.1, fun γ => rfl⟩ with hprojBdef
+  have hfibB : ∀ f : L, Nat.card {g : masterLifts b F T C J // projB g = f}
+      = Nat.card (ContinuousMonoidHom Γ (Multiplicative (ZMod 2))) := by
+    intro f
+    obtain ⟨g₀, hg₀⟩ := f.2
+    refine Nat.card_congr (Equiv.trans ?_ (fiberLiftEquiv C g₀).symm)
+    refine
+      { toFun := fun g => ⟨g.1.1, fun γ => ?_⟩
+        invFun := fun g' => ⟨⟨g'.1, ?_, ?_⟩, ?_⟩
+        left_inv := fun g => ?_
+        right_inv := fun g' => ?_ }
+    · -- `projB g.1 = f` ⇒ `C.p (g.1.1 γ) = ↑(f.1.1.1 γ) = C.p (g₀ γ)`
+      have h1 : C.p (g.1.1 γ) = (f.1.1.1 γ : Y) :=
+        congrArg (fun w : L => (w.1.1.1 γ : Y)) g.2
+      rw [h1, ← hg₀]
+    · -- range = J for the included lift `g'`
+      show (C.pCont.comp g'.1).toMonoidHom.range = J
+      apply le_antisymm
+      · rintro _ ⟨γ, rfl⟩
+        show C.p (g'.1 γ) ∈ J
+        rw [g'.2 γ, hg₀]; exact (f.1.1.1 γ).2
+      · intro y hy
+        obtain ⟨γ, hγ⟩ := f.1.1.2 ⟨y, hy⟩
+        refine ⟨γ, ?_⟩
+        show C.p (g'.1 γ) = y
+        rw [g'.2 γ, hg₀, hγ]
+    · -- boundary-framed for the included lift
+      have heq : C.pCont.comp g'.1 = C.pCont.comp g₀ := by ext γ; exact g'.2 γ
+      rw [heq]
+      intro γ
+      show (T.piY (C.p (g₀ γ)), T.thetaY (C.p (g₀ γ))) = F.frameMap (b γ)
+      rw [hg₀ γ]
+      exact f.1.2 γ
+    · -- `projB (include g'.1) = f`, from `∀γ, C.p(g'.1 γ) = ↑(f.1.1.1 γ)`
+      apply Subtype.ext; apply Subtype.ext; apply Subtype.ext
+      ext γ
+      show C.p (g'.1 γ) = (f.1.1.1 γ : Y)
+      rw [g'.2 γ, hg₀]
+    · rfl
+    · rfl
+  have hB : Nat.card (masterLifts b F T C J) = 8 * liftableCount b F T C J hJ := by
+    calc Nat.card (masterLifts b F T C J)
+        = Nat.card (Σ f : L, {g : masterLifts b F T C J // projB g = f}) :=
+          (Nat.card_congr (Equiv.sigmaFiberEquiv projB)).symm
+      _ = ∑ f : L, Nat.card {g : masterLifts b F T C J // projB g = f} := Nat.card_sigma
+      _ = ∑ _f : L, 8 := Finset.sum_congr rfl (fun f _ => (hfibB f).trans hscalar)
+      _ = 8 * Nat.card L := by
+          rw [Finset.sum_const, Finset.card_univ, Nat.card_eq_fintype_card,
+            smul_eq_mul, mul_comm]
+  -- **Image fibration** (→ RHS).
+  have hrange : ∀ (g : ContinuousMonoidHom Γ C.cover),
+      (C.pCont.comp g).toMonoidHom.range = g.toMonoidHom.range.map C.p := by
+    intro g
+    rw [MonoidHom.range_eq_map, MonoidHom.range_eq_map, Subgroup.map_map]
+    rfl
+  haveI : Finite (Subgroup C.cover) :=
+    Finite.of_injective (fun H : Subgroup C.cover => (H : Set C.cover)) SetLike.coe_injective
+  haveI : Fintype (Subgroup C.cover) := Fintype.ofFinite _
+  set imageMap : masterLifts b F T C J → {J' : Subgroup C.cover // J'.map C.p = J} :=
+    fun g => ⟨g.1.toMonoidHom.range, by rw [← hrange, g.2.1]⟩ with himapdef
+  haveI : Fintype {J' : Subgroup C.cover // J'.map C.p = J} := Fintype.ofFinite _
+  have hfibA : ∀ J' : {J' : Subgroup C.cover // J'.map C.p = J},
+      Nat.card {g : masterLifts b F T C J // imageMap g = J'}
+        = exactImageCountOn b F (C.pullTarget T) J'.1 := by
+    intro J'
+    have hsurj := stratum_surj hJ J'.2
+    rw [exactImageCountOn, dif_pos hsurj, exactImageCount]
+    apply Nat.card_congr
+    refine
+      { toFun := fun g => ?_
+        invFun := fun gt => ?_
+        left_inv := fun g => ?_
+        right_inv := fun gt => ?_ }
+    · -- forward: corestrict `g.1.1` to `↥J'.1`
+      have hrgK : g.1.1.toMonoidHom.range = J'.1 := congrArg Subtype.val g.2
+      have hmemK : ∀ γ, g.1.1 γ ∈ J'.1 := fun γ => hrgK ▸ ⟨γ, rfl⟩
+      refine ⟨⟨cmhCodRestrict g.1.1 J'.1 hmemK, ?_⟩, ?_⟩
+      · -- surjective onto `↥J'.1`
+        rintro ⟨y, hy⟩
+        rw [← hrgK] at hy
+        obtain ⟨γ, hγ⟩ := hy
+        exact ⟨γ, Subtype.ext hγ⟩
+      · -- boundary-framed for the stratum
+        intro γ
+        show ((C.pullTarget T).piY (g.1.1 γ), (C.pullTarget T).thetaY (g.1.1 γ)) = F.frameMap (b γ)
+        exact g.1.2.2 γ
+    · -- backward: include `gt.1.1` back to `C.cover`
+      have hsurj_gt : Function.Surjective ⇑gt.1.1.toMonoidHom := gt.1.2
+      have hincl : (cmhInclude J'.1 gt.1.1).toMonoidHom.range = J'.1 := by
+        show (J'.1.subtype.comp gt.1.1.toMonoidHom).range = J'.1
+        rw [MonoidHom.range_eq_map, ← Subgroup.map_map, ← MonoidHom.range_eq_map,
+          MonoidHom.range_eq_top.mpr hsurj_gt, ← MonoidHom.range_eq_map J'.1.subtype,
+          Subgroup.range_subtype]
+      refine ⟨⟨cmhInclude J'.1 gt.1.1, ?_, ?_⟩, ?_⟩
+      · rw [hrange, hincl]; exact J'.2
+      · intro γ
+        show (T.piY (C.p (gt.1.1 γ : C.cover)), T.thetaY (C.p (gt.1.1 γ : C.cover)))
+          = F.frameMap (b γ)
+        exact gt.2 γ
+      · exact Subtype.ext hincl
+    · apply Subtype.ext; apply Subtype.ext; ext γ; rfl
+    · apply Subtype.ext; apply Subtype.ext; ext γ; rfl
+  -- assemble the image fibration and convert the sum shape.
+  have hsumeq : ∑ᶠ J' ∈ {J' : Subgroup C.cover | J'.map C.p = J},
+      exactImageCountOn b F (C.pullTarget T) J'
+      = ∑ J' : {J' : Subgroup C.cover // J'.map C.p = J},
+          exactImageCountOn b F (C.pullTarget T) J'.1 := by
+    have hset : {J' : Subgroup C.cover | J'.map C.p = J}
+        = ↑(Finset.univ.filter (fun J' : Subgroup C.cover => J'.map C.p = J)) := by
+      ext J'; simp
+    rw [hset, finsum_mem_coe_finset]
+    exact Finset.sum_subtype _ (fun J' => by simp) _
+  rw [hsumeq, ← hB, ← Nat.card_congr (Equiv.sigmaFiberEquiv imageMap), Nat.card_sigma]
+  exact Finset.sum_congr rfl (fun J' _ => hfibA J')
 /-! ## Lemma 8.6: radical edge and the half-torsor count
 
 The §8 datum: a central double cover of `B` whose restriction to the elementary abelian

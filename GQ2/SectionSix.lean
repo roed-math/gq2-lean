@@ -3,6 +3,7 @@ import GQ2.EvensKahn
 import GQ2.TateDuality
 import GQ2.Omega2
 import GQ2.QuadraticFp2
+import GQ2.GaussCount
 import GQ2.Corestriction
 
 /-!
@@ -259,7 +260,17 @@ theorem lemma_6_6 (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (h2 : ∀ v : V, v 
     Nonsingular (qDouble q ⇑U) ∧
       ∃ k : ℕ, Nat.card (onePlusU U).range = 2 ^ k ∧
         arf (qDouble q ⇑U) = arf q + (k : ZMod 2) := by
-  sorry
+  classical
+  letI := Fintype.ofFinite V
+  -- nonsingularity of `q_U` and the `2`-power rank are proved in `GQ2/GaussCount.lean` (P-15a).
+  refine ⟨qDouble_nonsingular q U hq h2 hns hUq hU2, ?_⟩
+  obtain ⟨k, hk⟩ := exists_card_range_eq_two_pow h2 (onePlusU U)
+  refine ⟨k, hk, arf_qDouble_of_gaussSum_sign q U (gaussSum_ne_zero q hq hns) ?_⟩
+  -- **Wall's sign relation** `g(q_U) = (−1)ᵏ g(q)`: proved in `GQ2/GaussCount.lean` (P-15a) —
+  -- grouping the double Gauss sum over the fibers of `1 + U` reduces it to the abstract Wall
+  -- count of the Wall form `ω(Nx, u) = B(x, u)` on `im (1 + U)`, whose monodromy `U⁻¹` has
+  -- 2-power order.
+  exact gaussSum_qDouble q U hq h2 hns hUq hU2 (onePlusU U) (fun _ => rfl) hk
 
 variable {Hf : Type} [Group Hf] [TopologicalSpace Hf] [DiscreteTopology Hf] [Finite Hf]
 variable [DistribMulAction Hf V]
@@ -615,7 +626,25 @@ the Shapiro cochain of `α` is the corestriction of the cup square `α ⌣ α`.
 theorem lemma_6_15_square (hNo : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) :
     H2ofFun G (graphPullback (squareOrbitDatum N) (QuotientGroup.mk' N) (shapiroFun N α.1))
       = H2ofFun G (cor2Fun N (fun p ↦ α.1 p.1 * α.1 p.2)) := by
-  sorry
+  -- The two raw cochains agree on the nose, so `H2ofFun` of them agree (no cocycle needed).
+  congr 1
+  funext p
+  obtain ⟨g, h0⟩ := p
+  -- the regular-action index `(ḡ)⁻¹·k` equals the `G`-action `g⁻¹ • k` on `G/N`
+  have hact : ∀ u : G ⧸ N, (QuotientGroup.mk' N g)⁻¹ * u = g⁻¹ • u := by
+    intro u
+    refine QuotientGroup.induction_on u fun u₀ => ?_
+    rw [QuotientGroup.mk'_apply, ← QuotientGroup.mk_inv, ← QuotientGroup.mk_mul]
+    rfl
+  -- `graphPullback` reduces definitionally (the regular-action smul is `x (c⁻¹·k)`)
+  show (∑ᶠ k : G ⧸ N,
+          α.1 (lTrans N k g) * α.1 (lTrans N ((QuotientGroup.mk' N g)⁻¹ * k) h0)) + 0
+      = ∑ᶠ u : G ⧸ N, α.1 (lTrans N u g) * α.1 (lTrans N (g⁻¹ • u) h0)
+  rw [add_zero]
+  refine finsum_congr fun u => ?_
+  show α.1 (lTrans N u g) * α.1 (lTrans N ((QuotientGroup.mk' N g)⁻¹ * u) h0)
+      = α.1 (lTrans N u g) * α.1 (lTrans N (g⁻¹ • u) h0)
+  rw [hact u]
 
 /-- **Lemma 6.15, eq. (104) (free orbits)**: the graph pullback of the free-orbit datum with
 shift `ḡ` at the Shapiro cochains of `α, β` is the corestriction of `α ⌣ ḡβ` (`ḡβ` = conjugate
@@ -668,13 +697,23 @@ and a deep unit `a ∈ U_{e+1}(L)`, the index-two Evens norm of the Kummer class
 `N^{Ev}_{L/k}([a]) = 0` in `H²(G_k, 𝔽₂)`.
 
 The Evens norm is the repo's `evensNormH2Z` (the two-point graph cocycle (98)); the proof route
-is the Hilbert-symbol ledger (111)–(114) through axiom B9 and `GQ2/HilbertSymbol.lean`
-(P-15, Ax: B7′, B9).  Quantified over the side-condition proofs.  [P-14 statement.] -/
-theorem lemma_6_16 (k L : IntermediateField ℚ_[2] ℚ̄₂)
+is the Hilbert-symbol ledger (111)–(114) through axioms B9/B11 — `GQ2/HilbertLedger.lean`
+(P-15e, Ax: B7′, B9, B11).  Quantified over the side-condition proofs.  [P-14 statement;
+**P-15e amendment**: added `[FiniteDimensional ℚ_[2] k]` (the statement's "finite dyadic
+local fields", needed by B9/B11) and the **Kummer presentation of `L/k`** — the generator data
+`(d, δ, hδ, hLδ)` with `L = k(δ)`, `δ² = d`, and the coordinates `(u, v, hAuv)` of the deep
+unit `A = u + vδ` (the paper's "write `L = k(√d)`, `a = u + v√d`"); consumers (6.17, P-15f)
+construct these concretely, and char-≠2 Kummer theory guarantees them abstractly.  See
+`docs/section67-extraction.md`.] -/
+theorem lemma_6_16 (k L : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
     (hkL : k ≤ L)
     (hindex : ((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)).index = 2)
     (hunram : ∀ x : ℚ̄₂, x ≠ 0 → x ∈ L → ∃ y : ℚ̄₂, y ≠ 0 ∧ y ∈ k ∧ ‖x‖ = ‖y‖)
+    (d : (↥k)ˣ) (δ : ℚ̄₂) (hδ : δ ^ 2 = ((d : ↥k) : ℚ̄₂))
+    (hLδ : (L.fixingSubgroup).subgroupOf (k.fixingSubgroup)
+      = (MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf (k.fixingSubgroup))
     (A β : ℚ̄₂) (hdeep : IsDeepUnit L.fixingSubgroup A) (hβ : β ^ 2 = A) (hβ0 : β ≠ 0)
+    (u : (↥k)ˣ) (v : ↥k) (hAuv : A = ((u : ↥k) : ℚ̄₂) + (v : ℚ̄₂) * δ)
     (s : k.fixingSubgroup) (hs : s ∉ (L.fixingSubgroup).subgroupOf (k.fixingSubgroup))
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
     (hUo : IsOpen (((L.fixingSubgroup).subgroupOf (k.fixingSubgroup) :
@@ -771,18 +810,18 @@ theorem prop_6_18_unramified (D : TateDuality 2) (B : BoundaryMaps)
       = 2 ^ (2 * m - 1) - 2 ^ (m - 1) := by
   sorry
 
-/-- **Lemma 6.14 (regular-module realization), eq. (102)**: the base connecting map computed
+/- **Lemma 6.14 (regular-module realization), eq. (102)**: the base connecting map computed
 through an equivariant split embedding `i : V →+ W` into a regular-type module agrees with the
 `W`-level map at the pushed class: `Q⁰_{loc, i^*dat_W}(x) = Q⁰_{loc, dat_W}(i_* x)`.
-[P-14 statement; proof P-15 — the pullback identity (77) under the graph.] -/
-theorem lemma_6_14 (D : TateDuality 2)
-    {W : Type} [AddCommGroup W] [TopologicalSpace W] [DiscreteTopology W] [Finite W]
-    [DistribMulAction AbsGalQ2 W] [ContinuousSMul AbsGalQ2 W] [DistribMulAction C W]
-    (datW : FactorSet C W) (ρ : ContinuousMonoidHom AbsGalQ2 C)
-    (i : V →+ W) (hic : Continuous i) (hicompat : ∀ (g : AbsGalQ2) (v : V), i (g • v) = g • i v)
-    (x : H1 AbsGalQ2 V) :
-    Q0loc D (datW.comap i) ρ x = Q0loc D datW ρ (mapCoeff1 i hic hicompat x) := by
-  sorry
+**Proved (P-15d, std-3, no B-axioms) as `GQ2.RepIndependence.lemma_6_14`** in
+`GQ2/RepIndependence.lean` (downstream — its proof uses `Q0loc`/`graphPullback`/`kappa0`/`SemiProd`
+from this file, so the statement is moved out to break the import cycle, per the P-08/P-09/P-10
+pattern).  The proved statement is **amended** (documented) with the compatibility hypotheses
+`Q⁰_loc` requires: `hdatW : IsEquivariantFactorSet q datW`, `hiC : ∀ c v, i (c • v) = c • i v`
+(`i` a `C`-module map, eq. (77)'s `i ⋊ 1`), `hρW : ∀ g w, g • w = ρ g • w`.  Proof: `graphPullback`
+is a pullback of the factor-cocycle `κ⁰`; changing the `Quotient.out` representative conjugates the
+classifying map by `(−w₀,1) ∈ V⋊C`, and inner automorphisms act trivially on `H²`
+(`RepIndependence.innerConj` / `repIndep`). -/
 
 end DeepUnits
 

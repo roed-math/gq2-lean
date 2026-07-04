@@ -18,17 +18,18 @@ P-08 (3.7/3.8), P-09 (3.2), P-10 (1.1).
 | eq. (9)/(11) (`B = C₂t ⊕ ℤ₂S̄ ⊕ ℤ₂Ȳ`) | `BDecomposition`, `b_decomposition` | **proved** | P-07 (std-3; coordinate homs `τ,σ,γ` via `d0LiftHom`+`abLift`, `φ` bijective) |
 | Lemma 3.5, `(ν_ur, χ_D)` rows of (13) | `GQ2.Reciprocity` stress tests (step 1) | **proved** | — |
 | Lemma 3.5, `ā²s̄⁴ = 1` | `GQ2.abelianized_relator` (step 1) | **proved** | — |
-| Lemma 3.5, marked abelianization | `lemma_3_5_marked_abelianization` | **proved mod `markedHom_bijective`** | P-07 (B5; plumbing std-3, sole gap = census-gated reciprocity iso, Escalation 5) |
+| Lemma 3.5, marked abelianization | `lemma_3_5_marked_abelianization` | **proved** | P-07 (B5; `markedHom_bijective` proved from B5 as-is, std-3, **no census cost** — Escalation 5 closed) |
 | Lemma 3.5, cup/initial-form clause | `lemma_3_5_hilbert_ledger` | **proved** | P-07 (B7′) |
 | Lemma 3.5, `(ν_ur, χ_D)` injective | `lemma_3_5_injective` | **proved** | P-07 (std-3; via `D0ab_coord`, **not** `b_decomposition`) |
 | Lemma 3.6 | **absorbed** (= axiom B8) | — | P-08 notes below |
-| Lemma 3.7 (eq. (15)) | `lemma_3_7` | sorried | P-08 (B2, B8) |
-| Prop. 3.8, lifting half (eq. (17)/(18)) | `prop_3_8_lift` | sorried | P-08 |
-| Prop. 3.8, classification half (eq. (18)) | `prop_3_8_classification` | sorried | P-08 |
-| Prop. 1.1 (eq. (4)) | `prop_1_1` | sorried | P-10 (B3c, B4, B5, B7′) |
+| Lemma 3.7 (eq. (15)) | `lemma_3_7` | **proved** | P-08 (std-3 + B8; `GQ2/AnabelianBridge.lean`) |
+| Prop. 3.8, lifting half (eq. (17)/(18)) | `prop_3_8_lift` | **proved** | P-08 (std-3 + B8) |
+| Prop. 3.8, classification half (eq. (18)) | `prop_3_8_classification` | **proved** | P-08 (std-3, axiom-free) |
+| Prop. 1.1 (eq. (4)) | `prop_1_1` | **proved** | P-10 (std-3 + B3c + B8, sorryAx-free once P-07's `markedHom_bijective` landed; `GQ2/PropOneOneAssembly.lean`) |
 
-`SORRY_ALLOWLIST` entry: `GQ2/SectionThree.lean` (this ticket; removed as P-07/P-08/P-09/P-10
-close the ten sorries).
+`SORRY_ALLOWLIST` entry: `GQ2/SectionThree.lean` **removed 2026-07-03** — P-07 closed the last
+§3 sorry (`markedHom_bijective`), `SectionThree.lean` is now sorry-free.  (`SectionThreeMarked.lean`
+stays on the list pending P-08/P-10's marked layer.)
 
 ## Absorptions (paper nodes that are already axioms or theorems)
 
@@ -211,7 +212,14 @@ close the ten sorries).
       Hopficity closes.  The Tietze elimination and odd-power bijectivity are thereby not
       needed for 3.7 (the latter remains available for `prop_3_8_lift`'s `Θ_b`-legs).
 
-5. **RAISED by P-07 (Opus, 2026-07-03) — `lemma_3_5_marked_abelianization` needs the pro-2
+5. **RESOLVED — no census decision needed (Fable re-audit, 2026-07-03): B5 already contains the
+   density clause.**  *(Original escalation text kept below for the audit trail; its premise —
+   "B5 gives only coordinate values" — was written from the abbreviated T-17 memory summary of
+   the bundle and is **wrong**: the committed `LocalReciprocity` has carried `continuous_recip`
+   and `denseRange_recip : DenseRange recip` since T-17.  See the **corrected assessment** at
+   the end of this item.)*
+
+   **RAISED by P-07 (Opus, 2026-07-03) — `lemma_3_5_marked_abelianization` needs the pro-2
    reciprocity *iso*, which B5 does not currently pin.**  The other three §3.5 clauses are
    **done** (`lemma_3_5_hilbert_ledger` B7′; `lemma_3_5_injective`, `b_decomposition` std-3).
    The marked-abelianization clause asks for `e : D₀^ab ≅ (G_ℚ₂(2))^ab` sending `Ā,S̄,Ȳ` to the
@@ -233,7 +241,49 @@ close the ten sorries).
    `markedHom` (definable hom, relation `(−4)²·2⁻⁴=1` verified) and the three generator-matching
    clauses are all **std-3**; `lemma_3_5_marked_abelianization` is **proved modulo the single lemma
    `markedHom_bijective`** (`SectionThree.lean`, now the only remaining sorry — precisely this gap).
-   Whoever resolves the census decision just proves `markedHom_bijective : Bijective (markedHom R)`.
+
+   **✅ LANDED (Opus, 2026-07-03): `markedHom_bijective` is PROVED from B5 as it stands**,
+   `#print axioms = {propext, Classical.choice, Quot.sound}` (std-3 only — `R` is a parameter,
+   so not even B5 appears; when supplied via the `localReciprocity` axiom downstream it reads
+   std-3 + B5).  `SectionThree.lean` is now **sorry-free** and off the `SORRY_ALLOWLIST`; P-10's
+   `prop_1_1` is thereby **sorryAx-free** (std-3 + B3c + B8).  Escalation 5 is **closed with no
+   census change**.  The Lean derivation matches the plan below verbatim; new decls in
+   `SectionThree.lean`: `abLiftG` (source-generic `abLift`), `nuT`/`chiT` + `nuT_markedPi`/
+   `chiT_markedPi`, `markedHom_injective`, `sq_generate` (finite-2-Frattini), `hensel_sq`,
+   `toZModPow3_eq_zero_iff`, `neg3Int`, `norm_one_unit`, `mod8_sq`, `units_gen`,
+   `continuous_markedPi`/`markedPi_surjective`, `markedHom_surjective`, `markedHom_bijective`.
+
+   **CORRECTED ASSESSMENT (Fable, 2026-07-03): `markedHom_bijective` is derivable from B5
+   as it stands** — `LocalReciprocity` already carries `denseRange_recip : DenseRange recip`
+   (and `continuous_recip`); the escalation's premise was a misreading.  Derivation plan
+   (all std-3 + the `R : LocalReciprocity` parameter; no axiom touched) — **now executed**:
+   * **Injectivity** (≈150 ln, low risk): descend `ν_ur` and `χ_cyc` to
+     `T = (G_ℚ₂(2))^{ab}` — `ν̃ := abLift (nuUrBar R)` (`nuUrBar` exists, `GQ2/PropOneOne.lean`;
+     `abLift` generalizes from `D0` to any source verbatim) and
+     `χ̃ := abLift ((maxProPHomEquiv isProP_two_unitsPadicInt).symm ⟨chiCyc, continuous_chiCyc⟩)`.
+     The composites `(ν̃, χ̃) ∘ markedHom` take on `Ā,S̄,Ȳ` exactly the six values in
+     `lemma_3_5_injective`'s hypothesis rows (via `nu_ur_recip`, `chiCyc_recip_unit/_uniformizer`
+     and the `Reciprocity` stress tests — that lemma's rows were designed for this), so the
+     **already-proved** `lemma_3_5_injective` separates points ⇒ `markedHom` injective.
+   * **Surjectivity** (≈350–450 ln, low-med risk): `denseRange_recip` + `markedPi` continuous
+     surjective ⇒ `DenseRange (markedPi ∘ recip)` ⇒ for every open normal `U ≤ T` the composite
+     `ℚ₂ˣ → T/U` is surjective (open-coset density argument, no discreteness needed).  New
+     arithmetic lemma **`ℚ₂ˣ = ⟨−4, 2, −3⟩ · (ℚ₂ˣ)²`**: (i) `1 + 8ℤ₂ ⊆ (ℤ₂ˣ)²` by Mathlib
+     `hensels_lemma` (`F = X² − u`, `a = 1`: `‖1−u‖ ≤ 2⁻³ < 2⁻² = ‖2‖²` — hypothesis verified);
+     (ii) mod-8 casework `u ≡ 1,3,5,7 ⇒ u ∈ (±1)^a(−3)^b(1+8ℤ₂)` via `toZModPow 3` (ledger
+     style); (iii) `x = 2^v·unit` split (norm-1 elements of `ℚ₂ˣ` are `ℤ₂ˣ`), `−1 = (−4)·(2⁻¹)²`.
+     Then per-quotient: `Q = S·Q²` with `S` = subgroup generated by the three class images, and
+     finite-abelian-2-Frattini (`Q = S·Q² ⇒ S = Q`, coatom argument from
+     `FrattiniCriterion`'s finite ingredients) ⇒ the three classes generate every `T/U` ⇒
+     `eq_top_of_forall_map_eq_top` (their closed span is `T`) ⇒ `markedHom` (closed range ⊇
+     span) surjective.
+   * **The `norm_reciprocity` route** (deriving per-quotient surjectivity from clause (a)
+     instead of density) is *feasible but dominated*: Krull-basis extraction → finite normal
+     closure `Ê` → `ker (restrictHom Ê) = fixingSubgroup Ê ≤ W` → abelian subextension
+     `L = fixedField Gal(Ê/ℚ₂)′` (finite Galois correspondence) → match `restrictAb`'s `hab`.
+     Mathematically routine, but ≈250–400 ln sitting exactly on the T-13/T-17
+     `absoluteGaloisGroup`-vs-`AlgEquiv.aut` instance seam (med-high risk), and it buys nothing
+     while `denseRange_recip` is in the bundle.  Only relevant if B5 were ever slimmed.
 
 ## Marked half (P-11 handoff): Prop. 3.10 / Prop. 3.14 — `GQ2/SectionThreeMarked.lean`
 

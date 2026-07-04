@@ -10,6 +10,7 @@ import GQ2.Foundations.Axioms
 import GQ2.ZtwoPowering
 import GQ2.FinitelyGenerated
 import GQ2.PropOneOne
+import GQ2.FrattiniCriterion
 
 /-!
 # §3 statements: the tame and maximal pro-2 quotients  (ticket P-06)
@@ -511,6 +512,24 @@ noncomputable def abLift {H : Type} [CommGroup H] [TopologicalSpace H] [IsTopolo
 @[simp] lemma abLift_abMk {H : Type} [CommGroup H] [TopologicalSpace H] [IsTopologicalGroup H]
     [T2Space H] (g : ContinuousMonoidHom D0 H) (d : D0) : abLift g (abMk d) = g d := rfl
 
+/-- Source-generic `abLift`: descend a continuous hom `G → H` (H abelian, T2) through `abMk`. -/
+noncomputable def abLiftG {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    {H : Type} [CommGroup H] [TopologicalSpace H] [IsTopologicalGroup H] [T2Space H]
+    (g : ContinuousMonoidHom G H) : ContinuousMonoidHom (topAbelianization G) H :=
+  quotientLift (commutator G).topologicalClosure g (by
+    refine Subgroup.topologicalClosure_minimal _
+      (Abelianization.commutator_subset_ker g.toMonoidHom) ?_
+    have hset : (g.toMonoidHom.ker : Set G) = g ⁻¹' {1} := by
+      ext x
+      simp only [SetLike.mem_coe, MonoidHom.mem_ker, Set.mem_preimage, Set.mem_singleton_iff]
+      rfl
+    rw [hset]
+    exact isClosed_singleton.preimage g.continuous_toFun)
+
+@[simp] lemma abLiftG_abMk {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    {H : Type} [CommGroup H] [TopologicalSpace H] [IsTopologicalGroup H] [T2Space H]
+    (g : ContinuousMonoidHom G H) (d : G) : abLiftG g (abMk d) = g d := rfl
+
 /-! ### The three coordinate homs `σ` (S-coord), `γ` (Y-coord), `τ` (t-coord) -/
 
 /-- The `S̄`-coordinate hom `σ : D₀^ab → ℤ₂`, with `Ā ↦ −2`, `S̄ ↦ 1`, `Ȳ ↦ 0`. -/
@@ -740,168 +759,191 @@ Escalation 5 in `docs/section3-extraction.md`): the descent `markedPi`, the mark
 are all **std-3**; only `markedHom` being *bijective* — i.e. the three reciprocity classes
 coordinatize `(G_ℚ₂(2))^ab`, the pro-2 local-reciprocity iso, which B5 does not pin — remains open. -/
 
-section MarkedAb
+/-! ### Arithmetic input for `markedHom_bijective`'s surjectivity
 
-variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+Finite-2-group Frattini (`sq_generate`), Hensel square roots (`hensel_sq`), and the square-class
+generation of `ℚ₂ˣ` by `{−4, 2, −3}` (`units_gen`).  None of these use the Galois-theoretic
+section variables. -/
 
-/-- `(G_ℚ₂(2))^ab` is pro-2 (image of the pro-2 `G_ℚ₂(2)` under `abMk`). -/
-theorem isProP_two_topAb_maxProP2 :
-    IsProP 2 (topAbelianization (maxProPQuotient 2 AbsGalQ2)) :=
-  isProP_of_surjective abMk continuous_abMk abMk_surjective isProP_maxProPQuotient
+/-- If every element of a finite 2-group `Q` is `s·t²` with `s ∈ S`, then `S = ⊤`.  (Squares lie in
+every index-2 subgroup, so a coatom `M ≥ S` would swallow all of `Q`.) -/
+theorem sq_generate {Q : Type*} [Group Q] [Finite Q] (hQ : IsPGroup 2 Q) {S : Subgroup Q}
+    (hgen : ∀ q : Q, ∃ s ∈ S, ∃ t : Q, q = s * t ^ 2) : S = ⊤ := by
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  haveI : Finite (Subgroup Q) := Finite.of_injective _ SetLike.coe_injective
+  by_contra hne
+  obtain ⟨M, hM, hSM⟩ := (eq_top_or_exists_le_coatom S).resolve_left hne
+  haveI : M.Normal := coatom_normal_of_pGroup hQ hM
+  have hidx : M.index = 2 := coatom_index_of_pGroup hQ hM
+  haveI : Fintype (Q ⧸ M) := Fintype.ofFinite _
+  have hc2 : Fintype.card (Q ⧸ M) = 2 := by rw [← Nat.card_eq_fintype_card]; exact hidx
+  have hsq : ∀ t : Q, t ^ 2 ∈ M := by
+    intro t
+    have h1 : (QuotientGroup.mk' M t) ^ 2 = 1 := by rw [← hc2]; exact pow_card_eq_one
+    rw [← map_pow, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at h1
+    exact h1
+  refine hM.1 ?_
+  rw [eq_top_iff]
+  intro q _
+  obtain ⟨s, hs, t, rfl⟩ := hgen q
+  exact M.mul_mem (hSM hs) (hsq t)
 
-/-- The descent `π : G_ℚ₂^ab → (G_ℚ₂(2))^ab` of `abMk ∘ maxProPMk` through `toAb`.  Abelian
-target ⇒ all lifts of a class agree (`markedPi_toAb`). -/
-noncomputable def markedPi :
-    AbsGalQ2ab →* topAbelianization (maxProPQuotient 2 AbsGalQ2) :=
-  QuotientGroup.lift commClosure (abMk.comp (maxProPMk 2 AbsGalQ2).toMonoidHom) (by
-    refine Subgroup.topologicalClosure_minimal _
-      (Abelianization.commutator_subset_ker _) ?_
-    have hset : ((abMk.comp (maxProPMk 2 AbsGalQ2).toMonoidHom).ker : Set AbsGalQ2)
-        = (fun g => abMk (maxProPMk 2 AbsGalQ2 g)) ⁻¹' {1} := by
-      ext x
-      simp only [SetLike.mem_coe, MonoidHom.mem_ker, Set.mem_preimage, Set.mem_singleton_iff,
-        MonoidHom.comp_apply]
-      rfl
-    rw [hset]
-    exact isClosed_singleton.preimage
-      (continuous_abMk.comp (maxProPMk 2 AbsGalQ2).continuous_toFun))
+/-- **Hensel square roots**: a 2-adic unit `≡ 1 (mod 8)` is a square. -/
+lemma hensel_sq (u : ℤ_[2]ˣ) (h8 : (8 : ℤ_[2]) ∣ ((u : ℤ_[2]) - 1)) :
+    ∃ w : ℤ_[2]ˣ, u = w ^ 2 := by
+  set F : Polynomial ℤ_[2] := Polynomial.X ^ 2 - Polynomial.C (u : ℤ_[2]) with hF
+  have hevAll : ∀ a : ℤ_[2], Polynomial.aeval a F = a ^ 2 - (u : ℤ_[2]) := by
+    intro a; simp [hF, map_sub, map_pow]
+  have hdev : Polynomial.aeval (1 : ℤ_[2]) F.derivative = 2 := by
+    rw [hF, Polynomial.derivative_sub, Polynomial.derivative_C, sub_zero,
+      Polynomial.derivative_X_pow]
+    simp
+  have h2pos : (0 : ℝ) < ‖(2 : ℤ_[2])‖ := by rw [norm_pos_iff]; norm_num
+  have h2lt1 : ‖(2 : ℤ_[2])‖ < 1 :=
+    lt_of_le_of_ne (PadicInt.norm_le_one 2)
+      (fun h => not_isUnit_two (PadicInt.isUnit_iff.mpr h))
+  have hnorm : ‖Polynomial.aeval (1 : ℤ_[2]) F‖ <
+      ‖Polynomial.aeval (1 : ℤ_[2]) F.derivative‖ ^ 2 := by
+    rw [hevAll, hdev, one_pow]
+    have hle : ‖(1 : ℤ_[2]) - (u : ℤ_[2])‖ ≤ ‖(8 : ℤ_[2])‖ := by
+      obtain ⟨c, hc⟩ := h8
+      rw [norm_sub_rev, hc, norm_mul]
+      calc ‖(8 : ℤ_[2])‖ * ‖c‖ ≤ ‖(8 : ℤ_[2])‖ * 1 :=
+            mul_le_mul_of_nonneg_left (PadicInt.norm_le_one c) (norm_nonneg _)
+        _ = ‖(8 : ℤ_[2])‖ := mul_one _
+    have h82 : ‖(8 : ℤ_[2])‖ < ‖(2 : ℤ_[2])‖ ^ 2 := by
+      have h8eq : (8 : ℤ_[2]) = (2 : ℤ_[2]) ^ 3 := by norm_num
+      rw [h8eq, norm_pow]
+      calc ‖(2 : ℤ_[2])‖ ^ 3 = ‖(2 : ℤ_[2])‖ ^ 2 * ‖(2 : ℤ_[2])‖ := by ring
+        _ < ‖(2 : ℤ_[2])‖ ^ 2 * 1 := mul_lt_mul_of_pos_left h2lt1 (pow_pos h2pos 2)
+        _ = ‖(2 : ℤ_[2])‖ ^ 2 := mul_one _
+    exact lt_of_le_of_lt hle h82
+  obtain ⟨z, hz, _⟩ := hensels_lemma hnorm
+  rw [hevAll] at hz
+  have hz2 : z ^ 2 = (u : ℤ_[2]) := by linear_combination hz
+  have hzu : IsUnit z := by
+    have hu2 : IsUnit (z ^ 2) := by rw [hz2]; exact u.isUnit
+    rw [pow_two] at hu2
+    exact isUnit_of_mul_isUnit_left hu2
+  refine ⟨hzu.unit, ?_⟩
+  apply Units.ext
+  rw [Units.val_pow_eq_pow_val, IsUnit.unit_spec, hz2]
 
-@[simp] lemma markedPi_toAb (g : AbsGalQ2) :
-    markedPi (toAb g) = abMk (maxProPMk 2 AbsGalQ2 g) := rfl
+/-- `toZModPow 3` detects divisibility by `8` in `ℤ₂`. -/
+lemma toZModPow3_eq_zero_iff (y : ℤ_[2]) :
+    PadicInt.toZModPow 3 y = 0 ↔ (8 : ℤ_[2]) ∣ y := by
+  rw [← RingHom.mem_ker, PadicInt.ker_toZModPow, Ideal.mem_span_singleton,
+    show ((2 : ℕ) : ℤ_[2]) ^ 3 = 8 by norm_num]
 
-/-- The marked hom `D₀^ab → (G_ℚ₂(2))^ab`, `Ā,S̄,Ȳ ↦ rec(−4), rec(1/2), rec(−3)`.  Well-defined:
-`rec(−4)²·rec(1/2)⁴ = rec((−4)²·2⁻⁴) = rec(1) = 1`. -/
-noncomputable def markedHom (R : LocalReciprocity) :
-    ContinuousMonoidHom (topAbelianization D0) (topAbelianization (maxProPQuotient 2 AbsGalQ2)) :=
-  abLift (d0LiftHom isProP_two_topAb_maxProP2
-    ![markedPi (R.recip unitNeg4), (markedPi (R.recip uniformizer))⁻¹, markedPi (R.recip unitNeg3)]
-    (by
-      simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
-        Matrix.cons_val_two, Matrix.tail_cons]
-      set f : ℚ_[2]ˣ →* topAbelianization (maxProPQuotient 2 AbsGalQ2) :=
-        markedPi.comp R.recip with hf
-      show f unitNeg4 ^ 2 * ((f uniformizer)⁻¹) ^ 4 * commP ((f uniformizer)⁻¹) (f unitNeg3) = 1
-      have hc : commP ((f uniformizer)⁻¹) (f unitNeg3) = 1 := by
-        rw [commP, mul_comm ((f uniformizer)⁻¹)⁻¹ (f unitNeg3)⁻¹]; group
-      have hu : unitNeg4 ^ 2 * (uniformizer ^ 4)⁻¹ = 1 := by
-        apply Units.ext
-        push_cast [unitNeg4, uniformizer]
-        norm_num
-      rw [hc, mul_one, inv_pow, ← map_pow, ← map_pow, ← map_inv, ← map_mul, hu, map_one]))
+/-- `-3` as a 2-adic unit. -/
+noncomputable def neg3Int : ℤ_[2]ˣ :=
+  (show IsUnit (-3 : ℤ_[2]) by
+    rw [PadicInt.isUnit_iff]
+    refine le_antisymm (PadicInt.norm_le_one _) (not_lt.mp ?_)
+    rw [show (-3 : ℤ_[2]) = ((-3 : ℤ) : ℤ_[2]) by push_cast; ring,
+      PadicInt.norm_int_lt_one_iff_dvd]
+    norm_num).unit
 
-@[simp] lemma markedHom_A (R : LocalReciprocity) :
-    markedHom R (abMk d0A) = markedPi (R.recip unitNeg4) := by
-  rw [markedHom, abLift_abMk, d0LiftHom_A]; rfl
+@[simp] lemma neg3Int_val : (neg3Int : ℤ_[2]) = -3 := IsUnit.unit_spec _
 
-@[simp] lemma markedHom_S (R : LocalReciprocity) :
-    markedHom R (abMk d0S) = (markedPi (R.recip uniformizer))⁻¹ := by
-  rw [markedHom, abLift_abMk, d0LiftHom_S]; rfl
+/-- A norm-`1` element of `ℚ₂ˣ` comes from a `ℤ₂`-unit. -/
+lemma norm_one_unit (u : ℚ_[2]ˣ) (h : ‖(u : ℚ_[2])‖ = 1) :
+    ∃ u₂ : ℤ_[2]ˣ, unitEmbed u₂ = u := by
+  have hmem : ‖(u : ℚ_[2])‖ ≤ 1 := le_of_eq h
+  let y : ℤ_[2] := ⟨(u : ℚ_[2]), hmem⟩
+  have hyu : IsUnit y := PadicInt.isUnit_iff.mpr h
+  refine ⟨hyu.unit, ?_⟩
+  apply Units.ext
+  rw [unitEmbed_val, IsUnit.unit_spec]
+  rfl
 
-@[simp] lemma markedHom_Y (R : LocalReciprocity) :
-    markedHom R (abMk d0Y) = markedPi (R.recip unitNeg3) := by
-  rw [markedHom, abLift_abMk, d0LiftHom_Y]; rfl
-
-/-- **The one open gap of Lemma 3.5 (Escalation 5, census-gated).**  `markedHom` is bijective iff
-`{rec(−4), rec(1/2), rec(−3)}` coordinatize `(G_ℚ₂(2))^ab` — the pro-2 local-reciprocity iso.  B5
-gives the coordinate *values* (`nu_ur_recip_*`/`chiCyc_recip_*`) but not surjectivity/injectivity;
-resolution needs either a B5 strengthening (census decision) or a derivation from `norm_reciprocity`
-(substantial local CFT).  This is the *only* remaining sorry of Lemma 3.5. -/
-theorem markedHom_bijective (R : LocalReciprocity) : Function.Bijective (markedHom R) :=
-  sorry
-
-/-- **Lemma 3.5, marked-abelianization clause**: the pro-2 abelianization of `D = G_{ℚ₂}(2)`
-is identified with `B = D₀^{ab}` by `Ā ↦ ā = rec(−4)`, `S̄ ↦ s̄ = rec(2)⁻¹ = rec(1/2)`,
-`Ȳ ↦ ȳ = rec(−3)`.  The `rec`-classes live in `G^{ab}` (`R.recip`); the matching is quantified
-over lifts `g ∈ G_{ℚ₂}` (all lifts agree via `markedPi`, an abelian descent).  **Proved modulo
-`markedHom_bijective`** (the sole census-gated gap; ticket P-07, `Ax = B5`). -/
-theorem lemma_3_5_marked_abelianization (R : LocalReciprocity) :
-    ∃ e : ContinuousMulEquiv (topAbelianization D0)
-      (topAbelianization (maxProPQuotient 2 AbsGalQ2)),
-      (∀ g : AbsGalQ2, toAb g = R.recip unitNeg4 →
-        e (abMk d0A) = abMk (maxProPMk 2 AbsGalQ2 g)) ∧
-      (∀ g : AbsGalQ2, toAb g = (R.recip uniformizer)⁻¹ →
-        e (abMk d0S) = abMk (maxProPMk 2 AbsGalQ2 g)) ∧
-      (∀ g : AbsGalQ2, toAb g = R.recip unitNeg3 →
-        e (abMk d0Y) = abMk (maxProPMk 2 AbsGalQ2 g)) := by
-  refine ⟨continuousMulEquivOfBijective (markedHom R) (markedHom_bijective R), ?_, ?_, ?_⟩
-  · intro g hg
-    show markedHom R (abMk d0A) = _
-    rw [markedHom_A, ← markedPi_toAb, hg]
-  · intro g hg
-    show markedHom R (abMk d0S) = _
-    rw [markedHom_S, ← markedPi_toAb, hg, map_inv]
-  · intro g hg
-    show markedHom R (abMk d0Y) = _
-    rw [markedHom_Y, ← markedPi_toAb, hg]
-
-end MarkedAb
-
-open HilbertSymbol in
-/-- **Lemma 3.5, Hilbert-symbol ledger** (the "initial form" clause in symbol vocabulary):
-on the square-class basis `(−1, 2, −3)` of Lemma 3.5, the dyadic Hilbert symbol takes the
-values `(−1,−1)₂ = −1`, `(2,−3)₂ = −1`, and `+1` on every other (unordered) pair.  In the
-dual basis `(α, β, γ)` of `H¹(D, 𝔽₂)` this is exactly the quadratic initial form
-`α² + βγ + γβ` — the degree-two initial form of `r₀ = A²S⁴[S,Y]` (design note §3.5 for the
-dictionary; the Kummer-cocycle cup reading enters at §6, tickets P-14/P-15).
-(Proof ticket P-07, `Ax = B7′`: six evaluations of `hilbertSymbol_dyadic`.) -/
-theorem lemma_3_5_hilbert_ledger :
-    hilbertSymbol (unitCoe (-1)) (unitCoe (-1)) = -1 ∧
-    (∀ y : ℤ_[2]ˣ, (y : ℤ_[2]) = -3 → hilbertSymbol unit2 (unitCoe y) = -1) ∧
-    hilbertSymbol (unitCoe (-1)) unit2 = 1 ∧
-    (∀ y : ℤ_[2]ˣ, (y : ℤ_[2]) = -3 → hilbertSymbol (unitCoe (-1)) (unitCoe y) = 1) ∧
-    hilbertSymbol unit2 unit2 = 1 ∧
-    (∀ y : ℤ_[2]ˣ, (y : ℤ_[2]) = -3 → hilbertSymbol (unitCoe y) (unitCoe y) = 1) := by
-  have eps_neg3 : ∀ y : ℤ_[2]ˣ, (y : ℤ_[2]) = -3 → ε y = 0 := by
-    intro y hy
-    rw [ε, hy]
-    have : (-3 : ℤ_[2]) = ((-3 : ℤ) : ℤ_[2]) := by push_cast; ring
-    rw [this, map_intCast]; decide
-  have omega_neg3 : ∀ y : ℤ_[2]ˣ, (y : ℤ_[2]) = -3 → ω y = 1 := by
-    intro y hy
-    rw [ω, hy]
-    have : (-3 : ℤ_[2]) = ((-3 : ℤ) : ℤ_[2]) := by push_cast; ring
-    rw [this, map_intCast]; decide
-  have eps_one : ε (1 : ℤ_[2]ˣ) = 0 := by rw [ε, Units.val_one, map_one]; decide
-  have omega_one : ω (1 : ℤ_[2]ˣ) = 0 := by rw [ω, Units.val_one, map_one]; decide
-  have unitCoe_one : unitCoe 1 = 1 := by rw [unitCoe, map_one]
-  refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩
-  · -- `(−1, −1)₂ = −1`
-    have h := hilbertSymbol_dyadic 0 0 (-1) (-1)
-    rw [zpow_zero, one_mul] at h
-    rw [h, ε_neg_one, ω_neg_one]; decide
-  · -- `(2, −3)₂ = −1`
-    intro y hy
-    have h := hilbertSymbol_dyadic 1 0 1 y
-    rw [zpow_one, unitCoe_one, mul_one, zpow_zero, one_mul] at h
-    rw [h, eps_one, omega_neg3 y hy]
-    simp only [Int.cast_one, Int.cast_zero, zero_mul, one_mul, add_zero, zero_add]
+/-- **Mod-8 square decomposition of `ℤ₂ˣ`**: every 2-adic unit is `s·w²` with `s ∈ {1,−1,−3,3}`. -/
+lemma mod8_sq (u₂ : ℤ_[2]ˣ) :
+    ∃ s₂ : ℤ_[2]ˣ, (s₂ = 1 ∨ s₂ = -1 ∨ s₂ = neg3Int ∨ s₂ = -neg3Int) ∧
+      ∃ w : ℤ_[2]ˣ, u₂ = s₂ * w ^ 2 := by
+  have main : ∀ s₂ : ℤ_[2]ˣ,
+      PadicInt.toZModPow 3 (↑u₂ : ℤ_[2]) = PadicInt.toZModPow 3 (↑s₂ : ℤ_[2]) →
+      ∃ w : ℤ_[2]ˣ, u₂ = s₂ * w ^ 2 := by
+    intro s₂ hres
+    have hdvd : (8 : ℤ_[2]) ∣ ((↑u₂ : ℤ_[2]) - ↑s₂) := by
+      rw [← toZModPow3_eq_zero_iff, map_sub, hres, sub_self]
+    have hs1 : (↑s₂ : ℤ_[2]) * ↑s₂⁻¹ = 1 := by
+      rw [← Units.val_mul, mul_inv_cancel, Units.val_one]
+    have heq : (↑(u₂ * s₂⁻¹) : ℤ_[2]) - 1 = ((↑u₂ : ℤ_[2]) - ↑s₂) * ↑s₂⁻¹ := by
+      rw [Units.val_mul, sub_mul, hs1]
+    have hdvd1 : (8 : ℤ_[2]) ∣ ((↑(u₂ * s₂⁻¹) : ℤ_[2]) - 1) := by
+      rw [heq]; exact hdvd.mul_right _
+    obtain ⟨w, hw⟩ := hensel_sq (u₂ * s₂⁻¹) hdvd1
+    exact ⟨w, by rw [← hw, mul_comm s₂ (u₂ * s₂⁻¹), mul_assoc, inv_mul_cancel, mul_one]⟩
+  have hunit : IsUnit (PadicInt.toZModPow 3 (↑u₂ : ℤ_[2])) := u₂.isUnit.map _
+  have hcls : ∀ r : ZMod 8, IsUnit r → r = 1 ∨ r = 3 ∨ r = 5 ∨ r = 7 := by decide
+  rcases hcls _ hunit with hr | hr | hr | hr
+  · exact ⟨1, Or.inl rfl, main 1 (by rw [hr]; simp)⟩
+  · refine ⟨-neg3Int, Or.inr (Or.inr (Or.inr rfl)), main (-neg3Int) ?_⟩
+    rw [hr, show (↑(-neg3Int) : ℤ_[2]) = ((3 : ℤ) : ℤ_[2]) by
+      rw [Units.val_neg, neg3Int_val]; push_cast; ring, map_intCast]
     decide
-  · -- `(−1, 2)₂ = 1`
-    have h := hilbertSymbol_dyadic 0 1 (-1) 1
-    rw [zpow_zero, one_mul, zpow_one, unitCoe_one, mul_one] at h
-    rw [h, eps_one, ω_neg_one, omega_one]
-    simp only [Int.cast_one, Int.cast_zero, mul_zero, add_zero]
+  · refine ⟨neg3Int, Or.inr (Or.inr (Or.inl rfl)), main neg3Int ?_⟩
+    rw [hr, show (↑neg3Int : ℤ_[2]) = ((-3 : ℤ) : ℤ_[2]) by
+      rw [neg3Int_val]; push_cast; ring, map_intCast]
     decide
-  · -- `(−1, −3)₂ = 1`
-    intro y hy
-    have h := hilbertSymbol_dyadic 0 0 (-1) y
-    simp only [zpow_zero, one_mul] at h
-    rw [h, ε_neg_one, eps_neg3 y hy]
-    simp only [Int.cast_zero, zero_mul, mul_zero, add_zero]
+  · refine ⟨-1, Or.inr (Or.inl rfl), main (-1) ?_⟩
+    rw [hr, show (↑(-1 : ℤ_[2]ˣ) : ℤ_[2]) = ((-1 : ℤ) : ℤ_[2]) by
+      rw [Units.val_neg, Units.val_one]; push_cast; ring, map_intCast]
     decide
-  · -- `(2, 2)₂ = 1`
-    have h := hilbertSymbol_dyadic 1 1 1 1
-    rw [zpow_one, unitCoe_one, mul_one] at h
-    rw [h, eps_one, omega_one]
-    simp only [Int.cast_one, mul_zero, add_zero]
-    decide
-  · -- `(−3, −3)₂ = 1`
-    intro y hy
-    have h := hilbertSymbol_dyadic 0 0 y y
-    rw [zpow_zero, one_mul] at h
-    rw [h, eps_neg3 y hy]
-    simp only [Int.cast_zero, zero_mul, mul_zero, add_zero]
-    decide
+
+/-- **`ℚ₂ˣ = ⟨−4, 2, −3⟩ · (ℚ₂ˣ)²`**: every unit of `ℚ₂` is `s·t²` with `s` in the subgroup
+generated by `{−4, 2, −3}`.  (Valuation split `x = 2ⁿ·u` + mod-8 square classes of `ℤ₂ˣ`.) -/
+theorem units_gen (x : ℚ_[2]ˣ) :
+    ∃ s ∈ Subgroup.closure {unitNeg4, uniformizer, unitNeg3}, ∃ t : ℚ_[2]ˣ, x = s * t ^ 2 := by
+  set C := Subgroup.closure {unitNeg4, uniformizer, unitNeg3} with hCdef
+  have hmem_unif : uniformizer ∈ C := Subgroup.subset_closure (by simp)
+  have hmem_n4 : unitNeg4 ∈ C := Subgroup.subset_closure (by simp)
+  have hmem_n3 : unitNeg3 ∈ C := Subgroup.subset_closure (by simp)
+  have hmem_neg1 : (-1 : ℚ_[2]ˣ) ∈ C := by
+    have hval : (-1 : ℚ_[2]ˣ) = unitNeg4 * uniformizer⁻¹ ^ 2 := by
+      apply Units.ext
+      simp only [Units.val_mul, Units.val_pow_eq_pow_val, Units.val_inv_eq_inv_val,
+        uniformizer_val, unitNeg4, Units.val_mk0, Units.val_neg, Units.val_one]
+      norm_num
+    rw [hval]
+    exact C.mul_mem hmem_n4 (Subgroup.pow_mem _ (Subgroup.inv_mem _ hmem_unif) 2)
+  have hemb_neg1 : unitEmbed (-1 : ℤ_[2]ˣ) = (-1 : ℚ_[2]ˣ) := by
+    apply Units.ext
+    simp only [unitEmbed_val, Units.val_neg, Units.val_one, map_neg, map_one]
+  have hemb_n3 : unitEmbed neg3Int = unitNeg3 := by
+    apply Units.ext
+    rw [unitEmbed_val, neg3Int_val,
+      show (-3 : ℤ_[2]) = ((-3 : ℤ) : ℤ_[2]) by push_cast; ring, map_intCast]
+    simp only [unitNeg3, Units.val_mk0]; push_cast; ring
+  -- valuation split: x = uniformizer^n * u, u a norm-1 unit
+  set n := v2 x with hndef
+  set u : ℚ_[2]ˣ := uniformizer ^ (-n) * x with hudef
+  have hxu : x = uniformizer ^ n * u := by
+    rw [hudef, ← mul_assoc, ← zpow_add, add_neg_cancel, zpow_zero, one_mul]
+  have hu_norm : ‖(u : ℚ_[2])‖ = 1 := by
+    have huval : (u : ℚ_[2]) = (2 : ℚ_[2]) ^ (-n) * (x : ℚ_[2]) := by
+      rw [hudef, Units.val_mul, Units.val_zpow_eq_zpow_val, uniformizer_val]
+    rw [huval, norm_mul, norm_zpow, Padic.norm_eq_zpow_neg_valuation x.ne_zero,
+      show ‖(2 : ℚ_[2])‖ = (2 : ℝ)⁻¹ by
+        rw [show (2 : ℚ_[2]) = ((2 : ℕ) : ℚ_[2]) by norm_num, Padic.norm_p]; norm_num,
+      show (x : ℚ_[2]).valuation = n from rfl]
+    push_cast
+    rw [inv_zpow]
+    exact inv_mul_cancel₀ (zpow_ne_zero _ (by norm_num : (2 : ℝ) ≠ 0))
+  obtain ⟨u₂, hu₂⟩ := norm_one_unit u hu_norm
+  obtain ⟨s₂, hs₂cases, w, hw⟩ := mod8_sq u₂
+  have hs_mem : unitEmbed s₂ ∈ C := by
+    rcases hs₂cases with rfl | rfl | rfl | rfl
+    · rw [map_one]; exact one_mem C
+    · rw [hemb_neg1]; exact hmem_neg1
+    · rw [hemb_n3]; exact hmem_n3
+    · rw [show (-neg3Int : ℤ_[2]ˣ) = (-1) * neg3Int from (neg_one_mul neg3Int).symm,
+        map_mul, hemb_neg1, hemb_n3]
+      exact C.mul_mem hmem_neg1 hmem_n3
+  refine ⟨uniformizer ^ n * unitEmbed s₂,
+    C.mul_mem (Subgroup.zpow_mem _ hmem_unif n) hs_mem, unitEmbed w, ?_⟩
+  rw [hxu, ← hu₂, hw, map_mul, map_pow, mul_assoc]
 
 /-- **Lemma 3.5, injectivity clause**: the pair `(ν_ur, χ_D) : B → ℤ₂ × ℤ₂ˣ` is injective.
 Stated intrinsically on `B = D₀^{ab}`: any continuous pair with the eq. (13) rows on the
@@ -1027,6 +1069,303 @@ theorem lemma_3_5_injective
     rw [hXval, map_neg, map_one] at hbad
     exact absurd hbad (by decide)
 
+
+section MarkedAb
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+
+/-- `(G_ℚ₂(2))^ab` is pro-2 (image of the pro-2 `G_ℚ₂(2)` under `abMk`). -/
+theorem isProP_two_topAb_maxProP2 :
+    IsProP 2 (topAbelianization (maxProPQuotient 2 AbsGalQ2)) :=
+  isProP_of_surjective abMk continuous_abMk abMk_surjective isProP_maxProPQuotient
+
+/-- The descent `π : G_ℚ₂^ab → (G_ℚ₂(2))^ab` of `abMk ∘ maxProPMk` through `toAb`.  Abelian
+target ⇒ all lifts of a class agree (`markedPi_toAb`). -/
+noncomputable def markedPi :
+    AbsGalQ2ab →* topAbelianization (maxProPQuotient 2 AbsGalQ2) :=
+  QuotientGroup.lift commClosure (abMk.comp (maxProPMk 2 AbsGalQ2).toMonoidHom) (by
+    refine Subgroup.topologicalClosure_minimal _
+      (Abelianization.commutator_subset_ker _) ?_
+    have hset : ((abMk.comp (maxProPMk 2 AbsGalQ2).toMonoidHom).ker : Set AbsGalQ2)
+        = (fun g => abMk (maxProPMk 2 AbsGalQ2 g)) ⁻¹' {1} := by
+      ext x
+      simp only [SetLike.mem_coe, MonoidHom.mem_ker, Set.mem_preimage, Set.mem_singleton_iff,
+        MonoidHom.comp_apply]
+      rfl
+    rw [hset]
+    exact isClosed_singleton.preimage
+      (continuous_abMk.comp (maxProPMk 2 AbsGalQ2).continuous_toFun))
+
+@[simp] lemma markedPi_toAb (g : AbsGalQ2) :
+    markedPi (toAb g) = abMk (maxProPMk 2 AbsGalQ2 g) := rfl
+
+/-- The marked hom `D₀^ab → (G_ℚ₂(2))^ab`, `Ā,S̄,Ȳ ↦ rec(−4), rec(1/2), rec(−3)`.  Well-defined:
+`rec(−4)²·rec(1/2)⁴ = rec((−4)²·2⁻⁴) = rec(1) = 1`. -/
+noncomputable def markedHom (R : LocalReciprocity) :
+    ContinuousMonoidHom (topAbelianization D0) (topAbelianization (maxProPQuotient 2 AbsGalQ2)) :=
+  abLift (d0LiftHom isProP_two_topAb_maxProP2
+    ![markedPi (R.recip unitNeg4), (markedPi (R.recip uniformizer))⁻¹, markedPi (R.recip unitNeg3)]
+    (by
+      simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
+        Matrix.cons_val_two, Matrix.tail_cons]
+      set f : ℚ_[2]ˣ →* topAbelianization (maxProPQuotient 2 AbsGalQ2) :=
+        markedPi.comp R.recip with hf
+      show f unitNeg4 ^ 2 * ((f uniformizer)⁻¹) ^ 4 * commP ((f uniformizer)⁻¹) (f unitNeg3) = 1
+      have hc : commP ((f uniformizer)⁻¹) (f unitNeg3) = 1 := by
+        rw [commP, mul_comm ((f uniformizer)⁻¹)⁻¹ (f unitNeg3)⁻¹]; group
+      have hu : unitNeg4 ^ 2 * (uniformizer ^ 4)⁻¹ = 1 := by
+        apply Units.ext
+        push_cast [unitNeg4, uniformizer]
+        norm_num
+      rw [hc, mul_one, inv_pow, ← map_pow, ← map_pow, ← map_inv, ← map_mul, hu, map_one]))
+
+@[simp] lemma markedHom_A (R : LocalReciprocity) :
+    markedHom R (abMk d0A) = markedPi (R.recip unitNeg4) := by
+  rw [markedHom, abLift_abMk, d0LiftHom_A]; rfl
+
+@[simp] lemma markedHom_S (R : LocalReciprocity) :
+    markedHom R (abMk d0S) = (markedPi (R.recip uniformizer))⁻¹ := by
+  rw [markedHom, abLift_abMk, d0LiftHom_S]; rfl
+
+@[simp] lemma markedHom_Y (R : LocalReciprocity) :
+    markedHom R (abMk d0Y) = markedPi (R.recip unitNeg3) := by
+  rw [markedHom, abLift_abMk, d0LiftHom_Y]; rfl
+
+/-! #### `markedHom` is bijective (the two coordinate descents + density) -/
+
+/-- `ν̃ : (G_ℚ₂(2))^ab → ℤ₂`, the descent of the unramified coordinate `ν_ur`. -/
+noncomputable def nuT (R : LocalReciprocity) :
+    ContinuousMonoidHom (topAbelianization (maxProPQuotient 2 AbsGalQ2)) (Multiplicative ℤ_[2]) :=
+  abLiftG (PropOneOne.nuUrBar R)
+
+/-- `χ̃ : (G_ℚ₂(2))^ab → ℤ₂ˣ`, the descent of the cyclotomic character (via the max-pro-2 UP). -/
+noncomputable def chiT (R : LocalReciprocity) :
+    ContinuousMonoidHom (topAbelianization (maxProPQuotient 2 AbsGalQ2)) ℤ_[2]ˣ :=
+  abLiftG ((maxProPHomEquiv isProP_two_unitsPadicInt).symm ⟨chiCyc, continuous_chiCyc⟩)
+
+lemma nuT_markedPi (R : LocalReciprocity) (x : AbsGalQ2ab) :
+    nuT R (markedPi x) = R.nu_ur x := by
+  obtain ⟨g, rfl⟩ := QuotientGroup.mk_surjective x
+  show nuT R (markedPi (toAb g)) = R.nu_ur (toAb g)
+  rw [markedPi_toAb, nuT, abLiftG_abMk, PropOneOne.nuUrBar_maxProPMk]
+
+lemma chiT_markedPi (R : LocalReciprocity) (x : AbsGalQ2ab) :
+    chiT R (markedPi x) = chiCycAb x := by
+  obtain ⟨g, rfl⟩ := QuotientGroup.mk_surjective x
+  show chiT R (markedPi (toAb g)) = chiCycAb (toAb g)
+  rw [markedPi_toAb, chiT, abLiftG_abMk, maxProPHomEquiv_symm_apply_maxProPMk, chiCycAb_toAb]
+  rfl
+
+/-- **`markedHom` is injective** — the two coordinate descents `(ν̃, χ̃)` compose with `markedHom`
+to the six generator values of the already-proved `lemma_3_5_injective`. -/
+theorem markedHom_injective (R : LocalReciprocity) : Function.Injective (markedHom R) := by
+  set ν : topAbelianization D0 →* Multiplicative ℤ_[2] :=
+    (nuT R).toMonoidHom.comp (markedHom R).toMonoidHom with hνdef
+  set χ : topAbelianization D0 →* ℤ_[2]ˣ :=
+    (chiT R).toMonoidHom.comp (markedHom R).toMonoidHom with hχdef
+  have hνcont : Continuous ν := (nuT R).continuous_toFun.comp (markedHom R).continuous_toFun
+  have hχcont : Continuous χ := (chiT R).continuous_toFun.comp (markedHom R).continuous_toFun
+  have hνA : ν (abMk d0A) = Multiplicative.ofAdd ((-2 : ℤ) : ℤ_[2]) := by
+    show nuT R (markedHom R (abMk d0A)) = _
+    rw [markedHom_A, nuT_markedPi]; exact nu_ur_recip_neg4 R
+  have hνS : ν (abMk d0S) = Multiplicative.ofAdd ((1 : ℤ) : ℤ_[2]) := by
+    show nuT R (markedHom R (abMk d0S)) = _
+    rw [markedHom_S, map_inv, nuT_markedPi, nu_ur_recip_uniformizer, ← ofAdd_neg,
+      show -((-1 : ℤ) : ℤ_[2]) = ((1 : ℤ) : ℤ_[2]) from by push_cast; ring]
+  have hνY : ν (abMk d0Y) = Multiplicative.ofAdd ((0 : ℤ) : ℤ_[2]) := by
+    show nuT R (markedHom R (abMk d0Y)) = _
+    rw [markedHom_Y, nuT_markedPi]; exact nu_ur_recip_neg3 R
+  have hχA : χ (abMk d0A) = -1 := by
+    show chiT R (markedHom R (abMk d0A)) = _
+    rw [markedHom_A, chiT_markedPi]; exact chiCyc_recip_neg4 R
+  have hχS : χ (abMk d0S) = 1 := by
+    show chiT R (markedHom R (abMk d0S)) = _
+    rw [markedHom_S, map_inv, chiT_markedPi, R.chiCyc_recip_uniformizer, inv_one]
+  have hχY : ∀ y : ℤ_[2]ˣ, (y : ℤ_[2]) = -3 → χ (abMk d0Y) = y⁻¹ := by
+    intro y hy
+    show chiT R (markedHom R (abMk d0Y)) = _
+    rw [markedHom_Y, chiT_markedPi]; exact chiCyc_recip_neg3 R y hy
+  intro x z hxz
+  refine lemma_3_5_injective ν hνcont χ hχcont hνA hνS hνY hχA hχS hχY x z ?_ ?_
+  · show nuT R (markedHom R x) = nuT R (markedHom R z); rw [hxz]
+  · show chiT R (markedHom R x) = chiT R (markedHom R z); rw [hxz]
+
+lemma continuous_markedPi : Continuous (markedPi : AbsGalQ2ab → _) := by
+  refine (QuotientGroup.isQuotientMap_mk commClosure).continuous_iff.mpr ?_
+  have hfun : (markedPi ∘ (QuotientGroup.mk : AbsGalQ2 → AbsGalQ2ab))
+      = fun g => abMk (maxProPMk 2 AbsGalQ2 g) := by
+    funext g; exact markedPi_toAb g
+  rw [hfun]
+  exact continuous_abMk.comp (maxProPMk 2 AbsGalQ2).continuous_toFun
+
+lemma markedPi_surjective : Function.Surjective (markedPi : AbsGalQ2ab → _) := by
+  intro y
+  obtain ⟨t, rfl⟩ := abMk_surjective y
+  obtain ⟨g, rfl⟩ := quotientMk_surjective (proPKernel 2 AbsGalQ2) t
+  exact ⟨toAb g, markedPi_toAb g⟩
+
+/-- **`markedHom` is surjective** — `markedPi ∘ rec` is dense, `ℚ₂ˣ = ⟨−4,2,−3⟩·(ℚ₂ˣ)²`
+(`units_gen`), and a finite-2-group Frattini argument (`sq_generate`) makes the three `rec`-classes
+generate every finite quotient of `(G_ℚ₂(2))^ab`; so their closed span is everything. -/
+theorem markedHom_surjective (R : LocalReciprocity) : Function.Surjective (markedHom R) := by
+  have hdense : DenseRange (markedPi ∘ R.recip) :=
+    markedPi_surjective.denseRange.comp R.denseRange_recip continuous_markedPi
+  set S : Subgroup (topAbelianization (maxProPQuotient 2 AbsGalQ2)) :=
+    Subgroup.closure {markedPi (R.recip unitNeg4), markedPi (R.recip uniformizer),
+      markedPi (R.recip unitNeg3)} with hSdef
+  have hSrange : S ≤ (markedHom R).toMonoidHom.range := by
+    rw [hSdef, Subgroup.closure_le]
+    rintro z hz
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hz
+    rcases hz with rfl | rfl | rfl
+    · exact ⟨abMk d0A, markedHom_A R⟩
+    · exact ⟨(abMk d0S)⁻¹, by
+        show markedHom R ((abMk d0S)⁻¹) = markedPi (R.recip uniformizer)
+        rw [map_inv, markedHom_S, inv_inv]⟩
+    · exact ⟨abMk d0Y, markedHom_Y R⟩
+  have hUgen : ∀ U : OpenNormalSubgroup (topAbelianization (maxProPQuotient 2 AbsGalQ2)),
+      S.map (QuotientGroup.mk' U.toSubgroup) = ⊤ := by
+    intro U
+    haveI hfin : Finite (topAbelianization (maxProPQuotient 2 AbsGalQ2) ⧸ U.toSubgroup) :=
+      Subgroup.quotient_finite_of_isOpen _ U.isOpen'
+    haveI hdisc : DiscreteTopology
+        (topAbelianization (maxProPQuotient 2 AbsGalQ2) ⧸ U.toSubgroup) := by
+      refine discreteTopology_of_isOpen_singleton_one ?_
+      have hpre : (QuotientGroup.mk :
+          topAbelianization (maxProPQuotient 2 AbsGalQ2) → _ ⧸ U.toSubgroup) ⁻¹' {1}
+          = (U.toSubgroup : Set _) := by
+        ext δ
+        simp only [Set.mem_preimage, Set.mem_singleton_iff, SetLike.mem_coe,
+          QuotientGroup.eq_one_iff]
+      rw [← (QuotientGroup.isQuotientMap_mk U.toSubgroup).isOpen_preimage, hpre]
+      exact U.isOpen'
+    set q : ℚ_[2]ˣ →* _ :=
+      (QuotientGroup.mk' U.toSubgroup).comp (markedPi.comp R.recip) with hqdef
+    have hq_surj : Function.Surjective q := by
+      have hcd : DenseRange ⇑q :=
+        (QuotientGroup.mk'_surjective U.toSubgroup).denseRange.comp hdense continuous_coinduced_rng
+      rw [← Set.range_eq_univ, ← hcd.closure_range, (isClosed_discrete _).closure_eq]
+    rw [hSdef, MonoidHom.map_closure, Set.image_insert_eq, Set.image_insert_eq,
+      Set.image_singleton]
+    apply sq_generate (isProP_two_topAb_maxProP2 U)
+    intro y
+    obtain ⟨x, rfl⟩ := hq_surj y
+    obtain ⟨s, hs, t, hst⟩ := units_gen x
+    refine ⟨q s, ?_, q t, ?_⟩
+    · have hmem : q s ∈ Subgroup.map q (Subgroup.closure {unitNeg4, uniformizer, unitNeg3}) :=
+        Subgroup.mem_map_of_mem q hs
+      rwa [MonoidHom.map_closure, Set.image_insert_eq, Set.image_insert_eq,
+        Set.image_singleton] at hmem
+    · rw [hst, map_mul, map_pow]
+  have htop : S.topologicalClosure = ⊤ :=
+    eq_top_of_forall_map_eq_top (Subgroup.isClosed_topologicalClosure S)
+      (fun U => top_le_iff.mp
+        ((hUgen U).ge.trans (Subgroup.map_mono (Subgroup.le_topologicalClosure S))))
+  refine MonoidHom.range_eq_top.mp (top_le_iff.mp ?_)
+  rw [← htop]
+  exact Subgroup.topologicalClosure_minimal _ hSrange
+    (by rw [MonoidHom.coe_range]; exact (isCompact_range (markedHom R).continuous_toFun).isClosed)
+
+/-- **The marked abelianization is bijective** (Lemma 3.5's last clause).  Injective via the two
+coordinate descents + `lemma_3_5_injective`; surjective via density of `markedPi ∘ rec` and the
+square-class generation `units_gen`.  Std-3 + B5 — *no census cost* (B5 as bundled suffices). -/
+theorem markedHom_bijective (R : LocalReciprocity) : Function.Bijective (markedHom R) :=
+  ⟨markedHom_injective R, markedHom_surjective R⟩
+
+/-- **Lemma 3.5, marked-abelianization clause**: the pro-2 abelianization of `D = G_{ℚ₂}(2)`
+is identified with `B = D₀^{ab}` by `Ā ↦ ā = rec(−4)`, `S̄ ↦ s̄ = rec(2)⁻¹ = rec(1/2)`,
+`Ȳ ↦ ȳ = rec(−3)`.  The `rec`-classes live in `G^{ab}` (`R.recip`); the matching is quantified
+over lifts `g ∈ G_{ℚ₂}` (all lifts agree via `markedPi`, an abelian descent).  **Proved modulo
+`markedHom_bijective`** (the sole census-gated gap; ticket P-07, `Ax = B5`). -/
+theorem lemma_3_5_marked_abelianization (R : LocalReciprocity) :
+    ∃ e : ContinuousMulEquiv (topAbelianization D0)
+      (topAbelianization (maxProPQuotient 2 AbsGalQ2)),
+      (∀ g : AbsGalQ2, toAb g = R.recip unitNeg4 →
+        e (abMk d0A) = abMk (maxProPMk 2 AbsGalQ2 g)) ∧
+      (∀ g : AbsGalQ2, toAb g = (R.recip uniformizer)⁻¹ →
+        e (abMk d0S) = abMk (maxProPMk 2 AbsGalQ2 g)) ∧
+      (∀ g : AbsGalQ2, toAb g = R.recip unitNeg3 →
+        e (abMk d0Y) = abMk (maxProPMk 2 AbsGalQ2 g)) := by
+  refine ⟨continuousMulEquivOfBijective (markedHom R) (markedHom_bijective R), ?_, ?_, ?_⟩
+  · intro g hg
+    show markedHom R (abMk d0A) = _
+    rw [markedHom_A, ← markedPi_toAb, hg]
+  · intro g hg
+    show markedHom R (abMk d0S) = _
+    rw [markedHom_S, ← markedPi_toAb, hg, map_inv]
+  · intro g hg
+    show markedHom R (abMk d0Y) = _
+    rw [markedHom_Y, ← markedPi_toAb, hg]
+
+end MarkedAb
+
+open HilbertSymbol in
+/-- **Lemma 3.5, Hilbert-symbol ledger** (the "initial form" clause in symbol vocabulary):
+on the square-class basis `(−1, 2, −3)` of Lemma 3.5, the dyadic Hilbert symbol takes the
+values `(−1,−1)₂ = −1`, `(2,−3)₂ = −1`, and `+1` on every other (unordered) pair.  In the
+dual basis `(α, β, γ)` of `H¹(D, 𝔽₂)` this is exactly the quadratic initial form
+`α² + βγ + γβ` — the degree-two initial form of `r₀ = A²S⁴[S,Y]` (design note §3.5 for the
+dictionary; the Kummer-cocycle cup reading enters at §6, tickets P-14/P-15).
+(Proof ticket P-07, `Ax = B7′`: six evaluations of `hilbertSymbol_dyadic`.) -/
+theorem lemma_3_5_hilbert_ledger :
+    hilbertSymbol (unitCoe (-1)) (unitCoe (-1)) = -1 ∧
+    (∀ y : ℤ_[2]ˣ, (y : ℤ_[2]) = -3 → hilbertSymbol unit2 (unitCoe y) = -1) ∧
+    hilbertSymbol (unitCoe (-1)) unit2 = 1 ∧
+    (∀ y : ℤ_[2]ˣ, (y : ℤ_[2]) = -3 → hilbertSymbol (unitCoe (-1)) (unitCoe y) = 1) ∧
+    hilbertSymbol unit2 unit2 = 1 ∧
+    (∀ y : ℤ_[2]ˣ, (y : ℤ_[2]) = -3 → hilbertSymbol (unitCoe y) (unitCoe y) = 1) := by
+  have eps_neg3 : ∀ y : ℤ_[2]ˣ, (y : ℤ_[2]) = -3 → ε y = 0 := by
+    intro y hy
+    rw [ε, hy]
+    have : (-3 : ℤ_[2]) = ((-3 : ℤ) : ℤ_[2]) := by push_cast; ring
+    rw [this, map_intCast]; decide
+  have omega_neg3 : ∀ y : ℤ_[2]ˣ, (y : ℤ_[2]) = -3 → ω y = 1 := by
+    intro y hy
+    rw [ω, hy]
+    have : (-3 : ℤ_[2]) = ((-3 : ℤ) : ℤ_[2]) := by push_cast; ring
+    rw [this, map_intCast]; decide
+  have eps_one : ε (1 : ℤ_[2]ˣ) = 0 := by rw [ε, Units.val_one, map_one]; decide
+  have omega_one : ω (1 : ℤ_[2]ˣ) = 0 := by rw [ω, Units.val_one, map_one]; decide
+  have unitCoe_one : unitCoe 1 = 1 := by rw [unitCoe, map_one]
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩
+  · -- `(−1, −1)₂ = −1`
+    have h := hilbertSymbol_dyadic 0 0 (-1) (-1)
+    rw [zpow_zero, one_mul] at h
+    rw [h, ε_neg_one, ω_neg_one]; decide
+  · -- `(2, −3)₂ = −1`
+    intro y hy
+    have h := hilbertSymbol_dyadic 1 0 1 y
+    rw [zpow_one, unitCoe_one, mul_one, zpow_zero, one_mul] at h
+    rw [h, eps_one, omega_neg3 y hy]
+    simp only [Int.cast_one, Int.cast_zero, zero_mul, one_mul, add_zero, zero_add]
+    decide
+  · -- `(−1, 2)₂ = 1`
+    have h := hilbertSymbol_dyadic 0 1 (-1) 1
+    rw [zpow_zero, one_mul, zpow_one, unitCoe_one, mul_one] at h
+    rw [h, eps_one, ω_neg_one, omega_one]
+    simp only [Int.cast_one, Int.cast_zero, mul_zero, add_zero]
+    decide
+  · -- `(−1, −3)₂ = 1`
+    intro y hy
+    have h := hilbertSymbol_dyadic 0 0 (-1) y
+    simp only [zpow_zero, one_mul] at h
+    rw [h, ε_neg_one, eps_neg3 y hy]
+    simp only [Int.cast_zero, zero_mul, mul_zero, add_zero]
+    decide
+  · -- `(2, 2)₂ = 1`
+    have h := hilbertSymbol_dyadic 1 1 1 1
+    rw [zpow_one, unitCoe_one, mul_one] at h
+    rw [h, eps_one, omega_one]
+    simp only [Int.cast_one, mul_zero, add_zero]
+    decide
+  · -- `(−3, −3)₂ = 1`
+    intro y hy
+    have h := hilbertSymbol_dyadic 0 0 y y
+    rw [zpow_zero, one_mul] at h
+    rw [h, eps_neg3 y hy]
+    simp only [Int.cast_zero, zero_mul, mul_zero, add_zero]
+    decide
+
 /-! ## Lemma 3.7 and Proposition 3.8 — lifting automorphisms of `(B, χ₀)`
 
 Phrased against a `BDecomposition` coordinate system.  A continuous group isomorphism of
@@ -1056,21 +1395,13 @@ presentation clause is packaged as a continuous isomorphism `e : G_{ℚ₂}(2) �
 transport of `d0_relation`); the `ν_ur`-row is read through arbitrary lifts to `G_{ℚ₂}`, as
 in the T-11 full-group readings (`chiCyc_eq_neg_one_of_lift_A`). -/
 
-/-- **Proposition 1.1** (proof ticket P-10, `Ax = B3c, B4, B5, B7′`): a marked isomorphism
-`G_{ℚ₂}(2) ≅ D₀` whose generators have unramified coordinates `ν_ur(a, s, y) = (−2, 1, 0)`.
-The paper's proof composes B3c/B4 with Lemma 3.5 and Prop. 3.8; P-10 additionally needs the
-descent lemma "`ν_ur ∘ toAb` is constant on `maxProPMk`-fibres" (i.e. `IsProP 2` of the
-target, via `proPKernel_le_ker` — design note §1.1). -/
-theorem prop_1_1 [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
-    (R : LocalReciprocity) :
-    ∃ e : ContinuousMulEquiv (maxProPQuotient 2 AbsGalQ2) D0,
-      (∀ g : AbsGalQ2, maxProPMk 2 AbsGalQ2 g = e.symm d0A →
-        R.nu_ur (toAb g) = Multiplicative.ofAdd ((-2 : ℤ) : ℤ_[2])) ∧
-      (∀ g : AbsGalQ2, maxProPMk 2 AbsGalQ2 g = e.symm d0S →
-        R.nu_ur (toAb g) = Multiplicative.ofAdd ((1 : ℤ) : ℤ_[2])) ∧
-      (∀ g : AbsGalQ2, maxProPMk 2 AbsGalQ2 g = e.symm d0Y →
-        R.nu_ur (toAb g) = Multiplicative.ofAdd ((0 : ℤ) : ℤ_[2])) := by
-  sorry
+/- **Proposition 1.1** (proof ticket P-10) is stated and **proved** in
+`GQ2/PropOneOneAssembly.lean` (`GQ2.SectionThree.prop_1_1`): a marked isomorphism
+`G_{ℚ₂}(2) ≅ D₀` with unramified coordinates `ν_ur(a, s, y) = (−2, 1, 0)`.  It composes B3c
+(`orientBundle.equiv`) with Lemma 3.5 (`lemma_3_5_marked_abelianization`) and Prop. 3.8
+(`prop_3_8_classification`/`prop_3_8_lift`), and so inherits Lemma 3.5's sole census-gated gap
+`markedHom_bijective`.  Declared in that downstream file (P-09 precedent: it imports the P-08
+`AnabelianBridge` layer, which imports this file). -/
 
 end SectionThree
 

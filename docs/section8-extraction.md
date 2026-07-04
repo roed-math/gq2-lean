@@ -10,7 +10,7 @@ inventory + deviation ledger for P-20 review and for the O-half of P-16.
 | Paper node | Lean name (`GQ2.SectionEight.*`) | Status | Notes |
 |---|---|---|---|
 | Lemma 8.2, candidate | `lemma_8_2_gammaA` | **proved** (std-3) | see O-half log below |
-| Lemma 8.2, local | `lemma_8_2_local` | sorried | needs the `Π`-route |
+| Lemma 8.2, local | `lemma_8_2_local` | **proved** (std-3) | via `card_char_piBd`; `BoundaryMaps` hypothesis |
 | Lemma 8.2, twisting clause | `scalarTwist`, `isBoundaryLift_scalarTwist` | **proved** | std-3 |
 | Lemma 8.3 (eq. (124)) | `lemma_8_3` | sorried | generic source, `hscalar` hypothesis |
 | Lemma 8.4 (eq. (125), Fourier inversion) | `lemma_8_4` | **proved** | axiom-free |
@@ -69,6 +69,51 @@ kernel in `ker(π̃, θ̃)`" holds by construction), `sq_eq_one_of_mem_ker`, `li
 
 ## O-half log
 
+* **Lemma 8.3 torsor core proved 2026-07-03** (std-3): the mathematical heart of the
+  eight-lift partition is done — the continuous-hom lifts of a fixed map through a central
+  double cover `p` form a **torsor** under `Hom_cont(Γ, 𝔽₂)` acting by `scalarTwist`.
+  Landed lemmas (in the `Twist` section, over `variable (C : CentralCover Y)`):
+  `orderOf_z` (= 2), `z_pow_eq_iff` (`z^a = z^b ↔ a ≡ b [2]`), `p_z`/`p_z_pow`,
+  `z_pow_central`, `eq_one_or_z_of_mem_ker` (`⟨z⟩ = {1, z}`), `p_comp_scalarTwist` (action
+  stays in the fibre), `scalarTwist_left_injective` (**freeness**), `liftChar`/`liftChar_rep`/
+  `liftChar_add` + `liftDiff`/`scalarTwist_liftDiff` (**transitivity**: any two lifts differ by
+  a unique 𝔽₂-character), and the packaged **`fiberLiftEquiv`** :
+  `Hom_cont(Γ,𝔽₂) ≃ {g // p∘g = p∘g₀}` (each fibre has exactly `|Hom|` lifts).  The transitivity
+  character is built representation-first: `g' γ = g γ · z^{χ γ}`, `χ` additive by cancelling
+  `g(γδ) = gγ·gδ` and reading off `z^a = z^b ⇒ a ≡ b [2]` — avoids a 4-way `if`-split.  This
+  infrastructure is directly reused by 8.6 (the half-torsor) and 8.9's `(139)` half-count.
+  `lemma_8_3` itself stays sorried: what remains is **scoped finite bookkeeping** — the two
+  fibrations of `R = {g // (p∘g).range = J ∧ boundary-framed}` (by image → RHS via
+  `Nat.card_sigma` + range-corestriction; by projection → `8·u^β` via `fiberLiftEquiv` + a
+  base-lift section), needing a **`hfg` t.f.g. amendment** to finitize the `BoundaryLifts`/`Hom`
+  sets (flagged; all §8 sources are t.f.g.).  Docstring on `lemma_8_3` records the plan.
+* **Lemma 8.3 fully PROVED 2026-07-03** (std-3): `lemma_8_3` is now sorry-free.  The two
+  fibrations of the master set `masterLifts = {g // (p∘g).range = J ∧ boundary-framed}`:
+  **(B, projection → `8·u^β`)** `projB g` corestricts `p∘g` to `↥J`; each `projB`-fibre is the
+  torsor `{g' // p∘g' = p∘g₀} ≃ Hom_cont(Γ,𝔽₂)` (`fiberLiftEquiv`), so
+  `Nat.card masterLifts = ∑_f 8 = 8·|L|` via `Equiv.sigmaFiberEquiv` + `Nat.card_sigma`.
+  **(A, image → RHS)** `imageMap g = g.range`; each fibre `{g // g.range = J'} ≃
+  BoundaryLifts((pullTarget T).stratum J')` by `cmhCodRestrict`/`cmhInclude`, and
+  `stratum_surj` makes `exactImageCountOn = exactImageCount` (`dif_pos`) on the sum set; the
+  finsum-over-set is matched to the `Nat.card_sigma` output by `finsum_mem_coe_finset` +
+  `Finset.sum_subtype`.  `hfg` (applied amendment) finitizes everything via
+  `finite_continuousMonoidHom`/`finite_boundaryLifts`.  Lean gotchas that bit: (i) never `rw`
+  the `range = J` equation into a hypothesis whose type mentions `masterLifts …J` or `↥J`
+  (`J`-dependency motive failure) — rewrite the *goal*'s fresh membership; (ii) `(C.pCont.comp g)
+  γ` needs `show`-normalizing to `C.p (g γ)`; (iii) `Equiv` round-trips are `Subtype.ext ×2 + ext
+  γ + rfl` (the corestriction/inclusion compose to `rfl`); (iv) `g̃` (combining-tilde) is not a
+  valid identifier — use `gt`.  Scaffolding reused (all std-3):
+  the reusable pieces the two fibrations run on are proved and in place:
+  the **corestriction layer** `cmhCodRestrict` / `cmhInclude` / **`cmhSubgroupEquiv`**
+  (`Hom(Γ,↥S) ≃ {f : Hom(Γ,G) // ∀ x, f x ∈ S}` — Mathlib has no `ContinuousMonoidHom.codRestrict`),
+  `CentralCover.pCont` (the cover map bundled continuous), the master set **`masterLifts`**
+  (`R`, as a reducible `abbrev`), and **`stratum_surj`** (`J'.map C.p = J ⇒` the pullback
+  `J'`-stratum surjects onto `H`, so `exactImageCountOn = exactImageCount` on the sum set).
+  The `lemma_8_3` body now discharges the finiteness (`finite_continuousMonoidHom hfg` +
+  `Subtype.finite`) and sorries only the two `Nat.card_sigma` fibrations.  **Lean gotcha
+  recorded**: `masterLifts …J` and `↥J` both depend on `J`, so a naive `rw [range = J]` in a
+  hypothesis fails the motive check — rewrite the *goal*'s fresh membership instead, or use the
+  `cmhSubgroupEquiv` round-trip.  This is why the two fibrations, though mechanical, need care.
 * **`lemma_8_2_gammaA` proved 2026-07-03** (std-3), *without* the `Π`-route sketched below —
   entirely over the P-04/P-05 layer: `charEquiv` (characters of `Γ_A` = characters of `F₄`
   killing `N_A`, the `push`/`descend` mechanics) ∘ `cmhEquivFun` (characters of `F₄` =
@@ -87,15 +132,25 @@ kernel in `ker(π̃, θ̃)`" holds by construction), `sq_eq_one_of_mem_ker`, `li
   `homEquiv_symm_of`'s **explicit `P`-argument** — leaving it `_` makes the unifier solve
   `↥?P =?= 𝔽₂` through the `CompHausLike` coercion (whnf timeout).
 
-## O-half work order (remaining)
+* **`lemma_8_2_local` proved 2026-07-03** (std-3), exactly by the sketched `Π`-route, with
+  the flagged **statement amendment** applied: hypotheses `(B : BoundaryMaps)` +
+  `[CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]` (the `main_presentation`
+  house pattern).  Pieces: `card_char_piBd` (`|Hom(Π,𝔽₂)| = 8` — peel `maxProPHomEquiv`
+  (T-05) then the now-generic `charEquiv` at `relatorSubgroup {piRelator}`; the relator
+  condition is vacuous by the exponent-2 ledger, `char_kills_piRelator`), and the
+  `pro2F`-precomposition bijectivity (injective from `pro2F_surjective`; surjective by
+  descending `pro2F` to `continuousMulEquivOfBijective ψ` on the canonical pro-2 quotient
+  via `ker_pro2F` and factoring the character through `maxProPHomEquiv`).  A second
+  amendment: the `𝔽₂`-topology **binders were removed everywhere** — `ZMod.instTopologicalSpace`
+  / `ZMod.instDiscreteTopology` and their `Multiplicative`-transfers are global Mathlib
+  instances, so the FoxHeisenberg-style binders create a two-instance conflict (this bit as
+  an instance mismatch inside `char_kills_piRelator`).  Lean gotcha recorded: bind
+  constructed `ContinuousMulEquiv`s with `set`, not `have` — `have` is opaque for data and
+  kills the `rfl`-defeqs (`e (mk x) ≡ ψ (mk x) ≡ pro2F x`).  Infra generalized in passing:
+  `charEquiv` now takes any normal subgroup of any topological group; `cmhEquivFun` any
+  generator-index type.
 
-1. `lemma_8_2_local` — factor through the pro-2 quotient: `BoundaryMaps`' `pro2F` has
-   `ker = proPKernel 2` (T-05 universal property gives the factorization of any
-   `𝔽₂`-character), then `Hom(Π, 𝔽₂) = 𝔽₂³` by the Prop 3.10 presentation (3 generators,
-   relator `x₀^{σ²}x₀[x₁,σ]` with no mod-2 linear part — the same exponent-2 ledger
-   collapse).  **Requires a statement amendment**: add a `BoundaryMaps` hypothesis (the
-   bundle is what pins `pro2F`; without it the count is B4/B5-content outside the P-16 Ax
-   budget).
+## O-half work order (remaining)
 2. `lemma_8_3` — the eight-lift partition: `scalarTwist` freeness + `hscalar` + exact-image
    bucketing (`Subgroup.map` fibres).
 3. `lemma_8_6_*` — (128)-cocycle, (127) variation via 5.10 (candidate) / B6 (local),
