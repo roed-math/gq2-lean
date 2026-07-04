@@ -370,6 +370,14 @@ theorem dual_exact_pair {X Y Z : Type*} [AddCommGroup X] [AddCommGroup Y] [AddCo
     rw [show v (u x) = 0 from AddMonoidHom.mem_ker.mp
       (by rw [← hexact]; exact AddMonoidHom.mem_range.mpr ⟨x, rfl⟩), map_zero]
 
+/-- **The dualized SES is exact in the middle**, subgroup form: `range g^∨ = ker f^∨`. -/
+theorem dual_ses_exact {A' A A'' : Type*} [AddCommGroup A'] [AddCommGroup A] [AddCommGroup A'']
+    [Finite A''] (hA''₂ : ∀ a'' : A'', a'' + a'' = 0) (f : A' →+ A) (g : A →+ A'')
+    (hexact : f.range = g.ker) : (dualMap g).range = (dualMap f).ker := by
+  ext lam
+  rw [AddMonoidHom.mem_ker]
+  exact (dual_exact_pair hA''₂ f g hexact lam).symm
+
 end ElemDualPack
 
 /-! ## The duality ladder: the evaluation pairings `χ⁰`, `χ²` (and transposes)
@@ -626,6 +634,61 @@ theorem chi2T_surjective (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   rw [ElemDual.zero_apply, add_zero]
   exact hnu a
 
+/-! ### The evaluation squares: `χ⁰`/`χ²` commute with coefficient maps
+
+Four squares, general in an equivariant `φ : A →+ B`; each unfolds on classes to `map_add`
+or to a literal `rfl`. -/
+
+section EvalSquares
+
+variable {B : Type*} [AddCommGroup B] [DistribMulAction C B] [Finite B]
+
+/-- The `χ²` square: `χ²_B ∘ H²wMap φ = (H⁰wMap φ^∨)^∨ ∘ χ²_A`. -/
+theorem chi2_square (φ : A →+ B) (hφ : ∀ (c : C) (a : A), φ (c • a) = c • φ a)
+    (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (h : H2w (A := A) t) :
+    chi2 (A := B) t ht hw (H2wMap t φ hφ h)
+      = dualMap (H0wMap t (dualMap φ) (dualMap_equivariant φ hφ))
+          (chi2 (A := A) t ht hw h) := by
+  obtain ⟨z, rfl⟩ := QuotientAddGroup.mk_surjective h
+  apply ElemDual.ext
+  intro lam
+  show lam.1 (φ z.1 + φ z.2) = lam.1 (φ (z.1 + z.2))
+  rw [map_add φ z.1 z.2]
+
+/-- The `χ⁰` square: `χ⁰_B ∘ H⁰wMap φ = (H²wMap φ^∨)^∨ ∘ χ⁰_A`. -/
+theorem chi0_square (φ : A →+ B) (hφ : ∀ (c : C) (a : A), φ (c • a) = c • φ a)
+    (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (a : H0w (A := A) t) :
+    chi0 (A := B) t ht hw (H0wMap t φ hφ a)
+      = dualMap (H2wMap t (dualMap φ) (dualMap_equivariant φ hφ))
+          (chi0 (A := A) t ht hw a) := by
+  apply ElemDual.ext
+  intro h
+  obtain ⟨q, rfl⟩ := QuotientAddGroup.mk_surjective h
+  rfl
+
+/-- The transposed `χ²` square: `χ²ᵀ_A ∘ H²wMap φ^∨ = (H⁰wMap φ)^∨ ∘ χ²ᵀ_B`. -/
+theorem chi2T_square (φ : A →+ B) (hφ : ∀ (c : C) (a : A), φ (c • a) = c • φ a)
+    (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (h : H2w (A := ElemDual B) t) :
+    chi2T (A := A) t ht hw (H2wMap t (dualMap φ) (dualMap_equivariant φ hφ) h)
+      = dualMap (H0wMap t φ hφ) (chi2T (A := B) t ht hw h) := by
+  obtain ⟨q, rfl⟩ := QuotientAddGroup.mk_surjective h
+  apply ElemDual.ext
+  intro a'
+  rfl
+
+/-- The transposed `χ⁰` square: `χ⁰ᵀ_A ∘ H⁰wMap φ^∨ = (H²wMap φ)^∨ ∘ χ⁰ᵀ_B`. -/
+theorem chi0T_square (φ : A →+ B) (hφ : ∀ (c : C) (a : A), φ (c • a) = c • φ a)
+    (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (lam : H0w (A := ElemDual B) t) :
+    chi0T (A := A) t ht hw (H0wMap t (dualMap φ) (dualMap_equivariant φ hφ) lam)
+      = dualMap (H2wMap t φ hφ) (chi0T (A := B) t ht hw lam) := by
+  apply ElemDual.ext
+  intro h
+  obtain ⟨z, rfl⟩ := QuotientAddGroup.mk_surjective h
+  show lam.1 (φ (z.1 + z.2)) = lam.1 (φ z.1 + φ z.2)
+  rw [map_add φ z.1 z.2]
+
+end EvalSquares
+
 end EvalPairings
 
 /-! ## The duality ladder, degree 1: the `mixedB` pairings `χ¹`, `χ¹`-transposed
@@ -843,6 +906,40 @@ theorem chi1_bij_of_inj (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     exact ⟨hinj, hcard.trans he.symm⟩
   · rw [Nat.bijective_iff_injective_and_card]
     exact ⟨hinjT, hcard.symm.trans heT.symm⟩
+
+/-! ### The Lemma 5.6 squares: `χ¹` commutes with coefficient maps
+
+For an equivariant `φ : A →+ B`, the degree-1 ladder square commutes — in both orientations it
+unfolds on classes to exactly `lemma_5_6`. -/
+
+variable {B : Type*} [AddCommGroup B] [DistribMulAction C B] [Finite B]
+
+/-- The `χ¹` square over a coefficient map: `χ¹_B ∘ H¹wMap φ = (H¹wMap φ^∨)^∨ ∘ χ¹_A`. -/
+theorem chi1_square (φ : A →+ B) (hφ : ∀ (c : C) (a : A), φ (c • a) = c • φ a)
+    (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (h : H1w (A := A) t) :
+    chi1 (A := B) t ht hw (H1wMap t φ hφ h)
+      = dualMap (H1wMap t (dualMap φ) (dualMap_equivariant φ hφ))
+          (chi1 (A := A) t ht hw h) := by
+  obtain ⟨x, rfl⟩ := QuotientAddGroup.mk_surjective h
+  apply ElemDual.ext
+  intro z
+  obtain ⟨y, rfl⟩ := QuotientAddGroup.mk_surjective z
+  show mixedB t (fun i => φ (x.1 i)) y.1
+    = mixedB t x.1 (fun i => ((y.1 i : B →+ ZMod 2).comp φ : ElemDual A))
+  exact lemma_5_6 φ hφ t x.1 y.1
+
+/-- The transposed `χ¹` square: `χ¹ᵀ_A ∘ H¹wMap φ^∨ = (H¹wMap φ)^∨ ∘ χ¹ᵀ_B`. -/
+theorem chi1T_square (φ : A →+ B) (hφ : ∀ (c : C) (a : A), φ (c • a) = c • φ a)
+    (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (z : H1w (A := ElemDual B) t) :
+    chi1T (A := A) t ht hw (H1wMap t (dualMap φ) (dualMap_equivariant φ hφ) z)
+      = dualMap (H1wMap t φ hφ) (chi1T (A := B) t ht hw z) := by
+  obtain ⟨y, rfl⟩ := QuotientAddGroup.mk_surjective z
+  apply ElemDual.ext
+  intro h
+  obtain ⟨x, rfl⟩ := QuotientAddGroup.mk_surjective h
+  show mixedB t x.1 (fun i => ((y.1 i : B →+ ZMod 2).comp φ : ElemDual A))
+    = mixedB t (fun i => φ (x.1 i)) y.1
+  exact (lemma_5_6 φ hφ t x.1 y.1).symm
 
 end Chi1
 
@@ -1371,6 +1468,177 @@ theorem H2w_exact_left (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (y : H2
       H2w (A := A) t) = 0
     rw [snakeZ_spec f g hg hsurj hexact t c'']
     exact (QuotientAddGroup.eq_zero_iff _).mpr (AddMonoidHom.mem_range.mpr ⟨_, rfl⟩)
+
+/-! ### The dualized SES and the δ-squares
+
+Dualizing the SES gives `0 → A''^∨ --g^∨--> A^∨ --f^∨--> A'^∨ → 0`; the LES machinery
+instantiates on it verbatim.  The δ-squares — the genuinely new commutativity content of the
+ladder — reduce to two `snake`-vs-`snake` core computations, each a chain of Prop 5.8 and
+Lemma 5.6 through the chosen lifts. -/
+
+include hf hg hinj hsurj hexact in
+/-- `δ⁰` of the dualized SES: `H⁰w(A'^∨) →+ H¹w(A''^∨)`. -/
+noncomputable def delta0D (hA₂ : ∀ a : A, a + a = 0) (t : Marking C) (ht : t.TameRel)
+    (hw : t.WildRel) : H0w (A := ElemDual A') t →+ H1w (A := ElemDual A'') t :=
+  delta0 (dualMap g) (dualMap f) (dualMap_equivariant g hg) (dualMap_equivariant f hf)
+    (dualMap_injective g hsurj) (dualMap_surjective hA₂ f hinj)
+    (dual_ses_exact (two_torsion_of_surjective g hsurj hA₂) f g hexact) t ht hw
+
+include hf hg hinj hsurj hexact in
+/-- `δ¹` of the dualized SES: `H¹w(A'^∨) →+ H²w(A''^∨)`. -/
+noncomputable def delta1D (hA₂ : ∀ a : A, a + a = 0) (t : Marking C) (ht : t.TameRel)
+    (hw : t.WildRel) : H1w (A := ElemDual A') t →+ H2w (A := ElemDual A'') t :=
+  delta1 (dualMap g) (dualMap f) (dualMap_equivariant g hg) (dualMap_equivariant f hf)
+    (dualMap_injective g hsurj) (dualMap_surjective hA₂ f hinj)
+    (dual_ses_exact (two_torsion_of_surjective g hsurj hA₂) f g hexact) t ht hw
+
+include hf hg hinj hsurj hexact in
+/-- **δ-square core 1**: evaluating `λ ∈ H⁰w(A'^∨)` on the `δ¹`-snake of `c''` equals pairing
+`c''` against the dual `δ⁰`-snake word of `λ`.  (Lift `λ` to `Λ` along `f^∨`; both sides equal
+`B(lift c'', d⁰Λ)` by Prop 5.8 right resp. Lemma 5.6.) -/
+theorem delta_square_core1 (hA₂ : ∀ a : A, a + a = 0) (t : Marking C) (ht : t.TameRel)
+    (hw : t.WildRel) (c'' : Z1w (A := A'') t) (lam : H0w (A := ElemDual A') t) :
+    lam.1 ((snakeZ f g hg hsurj hexact t c'').1 + (snakeZ f g hg hsurj hexact t c'').2)
+      = mixedB t c''.1
+          (snake0Z' (dualMap g) (dualMap f) (dualMap_equivariant f hf)
+            (dualMap_surjective hA₂ f hinj)
+            (dual_ses_exact (two_torsion_of_surjective g hsurj hA₂) f g hexact) t lam) := by
+  set Λ : ElemDual A := (dualMap_surjective hA₂ f hinj lam.1).choose with hΛdef
+  have hΛ : dualMap f Λ = lam.1 := (dualMap_surjective hA₂ f hinj lam.1).choose_spec
+  set w : Fin 4 → ElemDual A'' := snake0Z' (dualMap g) (dualMap f)
+    (dualMap_equivariant f hf) (dualMap_surjective hA₂ f hinj)
+    (dual_ses_exact (two_torsion_of_surjective g hsurj hA₂) f g hexact) t lam with hwdef
+  have hws : (fun i => dualMap g (w i)) = d0 t Λ :=
+    snake0Z'_spec (dualMap g) (dualMap f) (dualMap_equivariant f hf)
+      (dualMap_surjective hA₂ f hinj)
+      (dual_ses_exact (two_torsion_of_surjective g hsurj hA₂) f g hexact) t lam
+  have hz := snakeZ_spec f g hg hsurj hexact t c''
+  have hz1 : f (snakeZ f g hg hsurj hexact t c'').1
+      = (d1Fun t (snakeLift g hsurj c''.1)).1 := congrArg Prod.fst hz
+  have hz2 : f (snakeZ f g hg hsurj hexact t c'').2
+      = (d1Fun t (snakeLift g hsurj c''.1)).2 := congrArg Prod.snd hz
+  calc lam.1 ((snakeZ f g hg hsurj hexact t c'').1 + (snakeZ f g hg hsurj hexact t c'').2)
+      = Λ (f ((snakeZ f g hg hsurj hexact t c'').1 + (snakeZ f g hg hsurj hexact t c'').2)) := by
+        rw [← hΛ]; rfl
+    _ = Λ ((d1Fun t (snakeLift g hsurj c''.1)).1 + (d1Fun t (snakeLift g hsurj c''.1)).2) := by
+        rw [map_add, hz1, hz2]
+    _ = mixedB t (snakeLift g hsurj c''.1) (d0 t Λ) :=
+        (prop_5_8_right t ht hw (snakeLift g hsurj c''.1) Λ).symm
+    _ = mixedB t (snakeLift g hsurj c''.1) (fun i => dualMap g (w i)) := by rw [hws]
+    _ = mixedB t (fun i => g (snakeLift g hsurj c''.1 i)) w :=
+        (lemma_5_6 g hg t (snakeLift g hsurj c''.1) w).symm
+    _ = mixedB t c''.1 w := by
+        rw [show (fun i => g (snakeLift g hsurj c''.1 i)) = c''.1 from
+          funext (snakeLift_spec g hsurj c''.1)]
+
+include hf hg hinj hsurj hexact in
+/-- **δ-square core 2**: pairing the primal `δ⁰`-snake word of `a''` against a dual cocycle `y'`
+equals evaluating the dual `δ¹`-snake of `y'` on `a''`.  (Mirror of core 1: Prop 5.8 left +
+Lemma 5.6 through the lifts.) -/
+theorem delta_square_core2 (hA₂ : ∀ a : A, a + a = 0) (t : Marking C) (ht : t.TameRel)
+    (hw : t.WildRel) (a'' : H0w (A := A'') t) (y' : Z1w (A := ElemDual A') t) :
+    mixedB t (snake0Z' f g hg hsurj hexact t a'') y'.1
+      = (snakeZ (dualMap g) (dualMap f) (dualMap_equivariant f hf)
+          (dualMap_surjective hA₂ f hinj)
+          (dual_ses_exact (two_torsion_of_surjective g hsurj hA₂) f g hexact) t y').1 a''.1
+        + (snakeZ (dualMap g) (dualMap f) (dualMap_equivariant f hf)
+            (dualMap_surjective hA₂ f hinj)
+            (dual_ses_exact (two_torsion_of_surjective g hsurj hA₂) f g hexact) t y').2
+          a''.1 := by
+  set Y : Fin 4 → ElemDual A :=
+    snakeLift (dualMap f) (dualMap_surjective hA₂ f hinj) y'.1 with hYdef
+  have hY : ∀ i, dualMap f (Y i) = y'.1 i :=
+    snakeLift_spec (dualMap f) (dualMap_surjective hA₂ f hinj) y'.1
+  set q := snakeZ (dualMap g) (dualMap f) (dualMap_equivariant f hf)
+    (dualMap_surjective hA₂ f hinj)
+    (dual_ses_exact (two_torsion_of_surjective g hsurj hA₂) f g hexact) t y' with hqdef
+  have hq := snakeZ_spec (dualMap g) (dualMap f) (dualMap_equivariant f hf)
+    (dualMap_surjective hA₂ f hinj)
+    (dual_ses_exact (two_torsion_of_surjective g hsurj hA₂) f g hexact) t y'
+  have hq1 : dualMap g q.1 = (d1Fun (A := ElemDual A) t Y).1 := congrArg Prod.fst hq
+  have hq2 : dualMap g q.2 = (d1Fun (A := ElemDual A) t Y).2 := congrArg Prod.snd hq
+  have hws : (fun i => f (snake0Z' f g hg hsurj hexact t a'' i))
+      = d0 t (hsurj a''.1).choose := snake0Z'_spec f g hg hsurj hexact t a''
+  calc mixedB t (snake0Z' f g hg hsurj hexact t a'') y'.1
+      = mixedB t (snake0Z' f g hg hsurj hexact t a'') (fun i => dualMap f (Y i)) := by
+        rw [show (fun i => dualMap f (Y i)) = y'.1 from funext hY]
+    _ = mixedB t (fun i => f (snake0Z' f g hg hsurj hexact t a'' i)) Y :=
+        (lemma_5_6 f hf t (snake0Z' f g hg hsurj hexact t a'') Y).symm
+    _ = mixedB t (d0 t (hsurj a''.1).choose) Y := by rw [hws]
+    _ = ((d1Fun (A := ElemDual A) t Y).1 + (d1Fun (A := ElemDual A) t Y).2)
+          ((hsurj a''.1).choose) := prop_5_8_left t ht hw ((hsurj a''.1).choose) Y
+    _ = (d1Fun (A := ElemDual A) t Y).1 ((hsurj a''.1).choose)
+          + (d1Fun (A := ElemDual A) t Y).2 ((hsurj a''.1).choose) := rfl
+    _ = (dualMap g q.1) ((hsurj a''.1).choose) + (dualMap g q.2) ((hsurj a''.1).choose) := by
+        rw [hq1, hq2]
+    _ = q.1 (g ((hsurj a''.1).choose)) + q.2 (g ((hsurj a''.1).choose)) := rfl
+    _ = q.1 a''.1 + q.2 a''.1 := by rw [(hsurj a''.1).choose_spec]
+
+include hf hg hinj hsurj hexact in
+/-- **δ-square (1,2)**: `χ²_{A'} ∘ δ¹ = (δ⁰ of the dual SES)^∨ ∘ χ¹_{A''}`. -/
+theorem square_delta1 (hA₂ : ∀ a : A, a + a = 0) (t : Marking C) (ht : t.TameRel)
+    (hw : t.WildRel) (h'' : H1w (A := A'') t) :
+    chi2 (A := A') t ht hw (delta1 f g hf hg hinj hsurj hexact t ht hw h'')
+      = dualMap (delta0D f g hf hg hinj hsurj hexact hA₂ t ht hw)
+          (chi1 (A := A'') t ht hw h'') := by
+  obtain ⟨c'', rfl⟩ := QuotientAddGroup.mk_surjective h''
+  apply ElemDual.ext
+  intro lam
+  show lam.1 ((snakeZ f g hg hsurj hexact t c'').1 + (snakeZ f g hg hsurj hexact t c'').2)
+    = mixedB t c''.1
+        (snake0Z' (dualMap g) (dualMap f) (dualMap_equivariant f hf)
+          (dualMap_surjective hA₂ f hinj)
+          (dual_ses_exact (two_torsion_of_surjective g hsurj hA₂) f g hexact) t lam)
+  exact delta_square_core1 f g hf hg hinj hsurj hexact hA₂ t ht hw c'' lam
+
+include hf hg hinj hsurj hexact in
+/-- **δ-square (0,1)**: `χ¹_{A'} ∘ δ⁰ = (δ¹ of the dual SES)^∨ ∘ χ⁰_{A''}`. -/
+theorem square_delta0 (hA₂ : ∀ a : A, a + a = 0) (t : Marking C) (ht : t.TameRel)
+    (hw : t.WildRel) (a'' : H0w (A := A'') t) :
+    chi1 (A := A') t ht hw (delta0 f g hf hg hinj hsurj hexact t ht hw a'')
+      = dualMap (delta1D f g hf hg hinj hsurj hexact hA₂ t ht hw)
+          (chi0 (A := A'') t ht hw a'') := by
+  apply ElemDual.ext
+  intro z'
+  obtain ⟨y', rfl⟩ := QuotientAddGroup.mk_surjective z'
+  show mixedB t (snake0Z' f g hg hsurj hexact t a'') y'.1 = _
+  exact delta_square_core2 f g hf hg hinj hsurj hexact hA₂ t ht hw a'' y'
+
+include hf hg hinj hsurj hexact in
+/-- **δ-square (0,1), transposed**: `χ¹ᵀ_{A''} ∘ δ⁰_dual = (δ¹)^∨ ∘ χ⁰ᵀ_{A'}`. -/
+theorem square_delta0D (hA₂ : ∀ a : A, a + a = 0) (t : Marking C) (ht : t.TameRel)
+    (hw : t.WildRel) (lam : H0w (A := ElemDual A') t) :
+    chi1T (A := A'') t ht hw (delta0D f g hf hg hinj hsurj hexact hA₂ t ht hw lam)
+      = dualMap (delta1 f g hf hg hinj hsurj hexact t ht hw)
+          (chi0T (A := A') t ht hw lam) := by
+  apply ElemDual.ext
+  intro h''
+  obtain ⟨c'', rfl⟩ := QuotientAddGroup.mk_surjective h''
+  show mixedB t c''.1
+      (snake0Z' (dualMap g) (dualMap f) (dualMap_equivariant f hf)
+        (dualMap_surjective hA₂ f hinj)
+        (dual_ses_exact (two_torsion_of_surjective g hsurj hA₂) f g hexact) t lam)
+    = lam.1 ((snakeZ f g hg hsurj hexact t c'').1 + (snakeZ f g hg hsurj hexact t c'').2)
+  exact (delta_square_core1 f g hf hg hinj hsurj hexact hA₂ t ht hw c'' lam).symm
+
+include hf hg hinj hsurj hexact in
+/-- **δ-square (1,2), transposed**: `χ²ᵀ_{A''} ∘ δ¹_dual = (δ⁰)^∨ ∘ χ¹ᵀ_{A'}`. -/
+theorem square_delta1D (hA₂ : ∀ a : A, a + a = 0) (t : Marking C) (ht : t.TameRel)
+    (hw : t.WildRel) (z' : H1w (A := ElemDual A') t) :
+    chi2T (A := A'') t ht hw (delta1D f g hf hg hinj hsurj hexact hA₂ t ht hw z')
+      = dualMap (delta0 f g hf hg hinj hsurj hexact t ht hw)
+          (chi1T (A := A') t ht hw z') := by
+  obtain ⟨y', rfl⟩ := QuotientAddGroup.mk_surjective z'
+  apply ElemDual.ext
+  intro a''
+  show (snakeZ (dualMap g) (dualMap f) (dualMap_equivariant f hf)
+        (dualMap_surjective hA₂ f hinj)
+        (dual_ses_exact (two_torsion_of_surjective g hsurj hA₂) f g hexact) t y').1 a''.1
+      + (snakeZ (dualMap g) (dualMap f) (dualMap_equivariant f hf)
+          (dualMap_surjective hA₂ f hinj)
+          (dual_ses_exact (two_torsion_of_surjective g hsurj hA₂) f g hexact) t y').2 a''.1
+    = mixedB t (snake0Z' f g hg hsurj hexact t a'') y'.1
+  exact (delta_square_core2 f g hf hg hinj hsurj hexact hA₂ t ht hw a'' y').symm
 
 end LES
 
