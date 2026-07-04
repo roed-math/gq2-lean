@@ -26,9 +26,10 @@ P-13g  local duality / prop_5_16  ── independent (invokes existing axioms B6
                                                                          already proved; consumes f + g)
 ```
 
-**Runnable in parallel right now:** P-13b, P-13c, P-13e, P-13g.
-**Done:** P-13a, **P-13d** (`GQ2/TameSimple.lean`, all std-3).
-**Blocked until its deps land:** P-13f (needs b, c, e; d is in).
+**Runnable in parallel right now:** P-13e, P-13g.
+**Done:** P-13a, **P-13b** (`lemma_5_13_ramified`), **P-13c** (`lemma_5_13_pairing_ramified`),
+**P-13d** (`GQ2/TameSimple.lean`, all std-3).
+**Blocked until its deps land:** P-13f (needs e; b, c, d are in).
 
 ## What is already proven (P-13a — DONE)
 
@@ -65,6 +66,20 @@ central contributions (Lemma 5.14): `h₀ ↦ λ(c)` via the **same-image** bran
 g-slice (U acts nontrivially), so `φ = conj by g₀` no longer preserves the Heisenberg coordinates —
 the new work is tracking the `U`-action through the peel.  Reuses the whole Hessian toolkit
 (`commP_z_of_trivial`, naturality).  Model O.  Ax: —.
+
+**DONE (Opus, 2026-07-04)** — `lemma_5_13_pairing_ramified` proved, std-3, sorry-free.  The
+computation went exactly as planned: `heisMarking_tameValue_z_eq_zero` kills the tame row, and
+`heisMarking_wildValue_z_ramified` peels `wildValue = h₀·u₁⁻¹·(x₁^σ)·c₀`.  Three new engine pieces
+in `HeisLift`/`HessianRow`: (a) `conjP_{a,l,z}_of_slice` — conjugation by a base-slice element whose
+base acts nontrivially (`(conjP p g).a = g.g⁻¹ • p.a`), the ramified replacement for the
+g-slice lemmas; (b) `heisMarking_h0_z_ramified` — the class-two peel, where all 6 factors are still
+`g`-trivial on `V` (the `U²`-conjugation cancels), so `mul_z_of_trivial` applies throughout and the
+`U²`-twisted cross-terms cancel in char 2 (`generalize` the three atoms `λ(c), λ(U²c), λ(U⁻²c)` +
+`decide`), leaving `λ(c)`; (c) `heisMarking_c0_z_ramified` — `commP_z_of_trivial` on `[d₀,z₀]` with
+`d₀.l = λ` requiring the dual `V^∨^T = 0` (`elemDual_fixedPointFree_of`, via injective⟹surjective).
+The pure-base `u₁⁻¹, x₁^σ` (secHom, `a=l=z=0`) drop out.  Signature gains `hTodd` (τ's 2-primary
+part trivial), mirroring P-13b; supplied per simple factor by P-13d.  **This unblocks P-13f** (now
+needs only P-13e).
 
 ### P-13d — tameness rep-theory (supplies `hU`/`hVS` to the assembly) — ☑ DONE
 **Deps: `lemma_5_12` (done); `t.Generates`.  File: `GQ2/TameSimple.lean` (new leaf, all std-3).**
@@ -134,15 +149,36 @@ row in char 2), giving `Z¹ = {x | x₁=0} ≅ A³`, `H² = (A×A)/Δ ≅ A`; co
   (`stokesEval_tame_z_trivial_cocycle`).  **Finding: the trivial-module pairing is carried entirely
   by the WILD relator.**
 
-* **Wild `.z` — the remaining computation.**  Need `(heisMarking t x y).wildValue.z` for
-  *general* offsets (not just x₀-supported).  The plan is now precise: the naturality lemmas
-  `heisMarking_{h0,c0,u1,…}_{a,l,g}` are **already general** (`.a = (liftMarking t x).W.u` = primal
-  Fox derivative, `.l = (liftMarking t y).W.u` = dual Fox derivative); only the *final* z-lemmas
-  (`heisMarking_wildValue_z` etc.) assume x₀-support to kill aux-word `.a`.  Redo the peel
-  `wildValue = h₀·u₁⁻¹·(x₁^σ)·c₀` with `mul_z_of_trivial`, keeping the cross-terms
-  `P.l(P.g•Q.a) = (dual Fox)(primal Fox)` (all wild/σ-tame generators act trivially on the trivial
-  module, so `P.g` is trivial).  Then `mixedB` bilinearity assembles the `3×3` matrix on `{x₀,x₂,x₃}`
-  and `dualEval` gives nonsingularity ⇒ perfection.  ~100–200 lines; well-scoped.
+* **Wild `.z` — CRUX CRACKED, formalization in progress.**  The peel
+  `wildValue = h₀·u₁⁻¹·(x₁^σ)·c₀` via `mul_z_of_trivial`, keeping cross-terms, gives on cocycles:
+
+  > **`wildValue.z(cocycle) = y₂(x₀·₂) + y₃(x₀) + y₀(x₃) + w·y₃(x₃)`**, where `w ∈ 𝔽₂` is an
+  > ω₂-dependent scalar (from `u₁ = powOmega2(x₁τ)`).
+
+  Term by term: `h₀.z = y₂(x₂)` (the ω₂ terms in `d₀.z` **cancel** via the `dg·d₀` pair in char 2,
+  since `dg.z = d₀.z`; `d₀²`,`hc` vanish as `d₀.a=d₀.l=0`); `x₁^σ.z = y₃(x₀)−y₀(x₃)`
+  (**DONE**, `heisMarking_x1sig_z_trivial`); `c₀.z = 0` (**DONE**, `heisMarking_c0_z_cocycle`);
+  `u₁⁻¹.z = w·y₃(x₃)` (vanishes when `x₃=0` or `y₃=0`, via the `a=0`/`l=0` subgroup + `powOmega2`
+  additivity — the exact `w` needs ω₂-mod-4 but **is not needed**); plus the peel cross-term
+  `−y₃(x₃)`.
+
+  **KEY: the Gram matrix has determinant 1 *regardless of `w`*.**  On `{x₀,x₂,x₃}`×`{y₀,y₂,y₃}`:
+  ```
+        x₀ x₂ x₃
+    y₀ [ 0  0  1 ]
+    y₂ [ 0  1  0 ]   det = 1  (expand along y₂ row; the w at (y₃,x₃) never enters)
+    y₃ [ 1  0  w ]
+  ```
+  So the deep ω₂ arithmetic is **irrelevant to perfection** — this is what unblocks the ticket.
+
+  **Done (`GQ2/MixedBilinear.lean`, std-3):** `stokesEval_tame_z_trivial` (tame=0 on cocycles),
+  `heisMarking_x1sig_z_trivial`, `heisMarking_c0_z_cocycle`, plus the whole bilinearity toolkit.
+  **Remaining (~120 lines, no deep unknowns):** (1) general `g0` zeros via char-2 doubling
+  (`(σ₂²).a = 2σ₂.a = 0`; note `g0.z = y₀(x₀) ≠ 0` but cancels through `conjP` since `g0.a=g0.l=0`,
+  needing a `conjP_z_of_slice` lemma); (2) `heisMarking_h0_z_cocycle = y₂(x₂)` (mirror
+  `heisMarking_h0_z` with `x₁=y₁=0`); (3) `u₁⁻¹.z` vanishing off the `(3,3)` slot; (4) the outer peel
+  assembly `heisMarking_wildValue_z_cocycle`; (5) the `3×3` determinant nondegeneracy (cleanest for
+  `A = 𝔽₂`: everything scalar over `ZMod 2`, `decide`).
 
 ### P-13g — local lifting duality (`prop_5_16`)
 **Deps: none — runnable now.**  Local Tate duality with trivial mod-2 cyclotomic twist + local
@@ -162,7 +198,7 @@ were during P-15) — not currently expected.  Independent of b–f.  Note: the 
 |---|---|---|---|---|---|---|
 | P-13a | B: §5 wild-Fox + mixed-Hessian engines & split §5.13 | ⭐⭐⭐ | O | P-12 | — | ☑ 2026-07-04 |
 | P-13b | B: §5.13 ramified normal form (`lemma_5_13_ramified`) | ⭐⭐⭐ | O | P-13a | — | ☐ |
-| P-13c | B: §5.14 ramified mixed Hessian (`lemma_5_13_pairing_ramified`) | ⭐⭐⭐ | O | P-13a | — | ☐ |
+| P-13c | B: §5.14 ramified mixed Hessian (`lemma_5_13_pairing_ramified`) | ⭐⭐⭐ | O | P-13a | — | ☑ DONE (Opus, 2026-07-04) — std-3, sorry-free |
 | P-13d | B: §5 tameness rep-theory (central σ₂ ⇒ σ₂=1; V^σ simple ⇒ V^S=0) | ⭐⭐⭐ | O | 5.12 (done) | — | ☑ 2026-07-04 (Opus; `GQ2/TameSimple.lean`, all std-3) |
 | P-13e | B: §5.11 dévissage (mapping-cone 2-of-3 for `IsSelfDual`) | ⭐⭐⭐ | F | — | — | ☐ |
 | P-13f | B: §5.15 duality assembly (`prop_5_15`) | ⭐⭐⭐ | O | P-13b, P-13c, P-13d, P-13e | — | ☐ |
