@@ -197,6 +197,32 @@ theorem snakeZ_spec (t : Marking C) (c'' : Z1w (A := A'') t) :
   ((prod_exact f g hexact (d1 t (snakeLift g hsurj c''.1))).mp
     (snake_d1_mem g hg hsurj t c'')).choose_spec
 
+include hf hg hinj hsurj hexact in
+/-- **Well-definedness of the snake**: for *any* lift `c` of `c''` and *any* `z` with
+`(f×f)(z) = d¹(c)`, the class `[z] ∈ H²w(A')` equals `[snakeZ c'']` — so `δ¹` will not depend on
+the chosen lift, hence descends to a hom on `H¹w(A'')`. -/
+theorem snakeZ_welldef (t : Marking C) (c'' : Z1w (A := A'') t)
+    (c : Fin 4 → A) (z : A' × A') (hc : (fun i => g (c i)) = c''.1)
+    (hz : (f.prodMap f) z = d1 t c) :
+    (QuotientAddGroup.mk z : H2w (A := A') t)
+      = QuotientAddGroup.mk (snakeZ f g hg hsurj hexact t c'') := by
+  have hfinj : Function.Injective (f.prodMap f) := by
+    rw [AddMonoidHom.coe_prodMap]; exact hinj.prodMap hinj
+  -- `c − snakeLift` maps to `0` under `g`, so it is `f` of some `w : A'⁴`.
+  have hker : (fun i => g ((c - snakeLift g hsurj c''.1) i)) = 0 := by
+    funext i
+    simp only [Pi.sub_apply, map_sub, snakeLift_spec, congrFun hc i, sub_self, Pi.zero_apply]
+  obtain ⟨w, hw⟩ := (pi_exact f g hexact (c - snakeLift g hsurj c''.1)).mp hker
+  -- `(f×f)(z − snakeZ) = d¹(c) − d¹(snakeLift) = d¹(f∘w) = (f×f)(d¹ w)`, so `z − snakeZ = d¹ w`.
+  have hd1w : (f.prodMap f) (d1 t w) = d1 t (c - snakeLift g hsurj c''.1) := by
+    rw [show (c - snakeLift g hsurj c''.1) = (fun i => f (w i)) from hw.symm]
+    rw [AddMonoidHom.coe_prodMap]; exact (d1_natural t f hf w).symm
+  have hzz : (f.prodMap f) (z - snakeZ f g hg hsurj hexact t c'') = (f.prodMap f) (d1 t w) := by
+    rw [map_sub, hz, snakeZ_spec, hd1w, map_sub]
+  have : z - snakeZ f g hg hsurj hexact t c'' = d1 t w := hfinj hzz
+  rw [← sub_eq_zero, ← QuotientAddGroup.mk_sub, QuotientAddGroup.eq_zero_iff]
+  exact ⟨w, this.symm⟩
+
 end LES
 
 end GQ2.FoxH
