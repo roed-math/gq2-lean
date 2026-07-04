@@ -1,5 +1,6 @@
 import GQ2.Reciprocity
 import GQ2.BoundaryFrame
+import GQ2.BoundaryConstruction
 
 /-!
 # §3 statements, marked-quotient half: Prop. 3.10 and Prop. 3.14  (ticket P-06, P-11 handoff)
@@ -43,8 +44,8 @@ theorem prop_3_10_gammaA :
       e (maxProPMk 2 GammaA (quotientMk NA univMarking.σ)) = piSigma ∧
       e (maxProPMk 2 GammaA (quotientMk NA univMarking.τ)) = 1 ∧
       e (maxProPMk 2 GammaA (quotientMk NA univMarking.x₀)) = piX0 ∧
-      e (maxProPMk 2 GammaA (quotientMk NA univMarking.x₁)) = piX1 := by
-  sorry
+      e (maxProPMk 2 GammaA (quotientMk NA univMarking.x₁)) = piX1 :=
+  prop_3_10_gammaA_proved
 
 /-- **Prop. 3.10, local half = Cor. 3.12 (fully marked form)**: `(Π, ν₂)` is isomorphic to
 the fully unramified marked pair `(G_{ℚ₂}(2), ν_ur)`.  The `ℤ₂`-identification between the
