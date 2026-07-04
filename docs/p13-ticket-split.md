@@ -106,7 +106,7 @@ step (card clauses by Euler characteristic; pairing perfection by the five-lemma
 long-exact-sequence / snake infrastructure for the word-complex functors `Z1w`/`H1w`/`H2w` — not yet
 in the repo, design-sensitive.  Model **F**.  Ax: —.
 
-### P-13f — duality assembly (`prop_5_15`)
+### P-13f — duality assembly (`prop_5_15`) — ◐ part (i) cards done
 **Deps: P-13b, P-13c, P-13d, P-13e** (+ the done split lemmas).  Assembles the chain-map
 quasi-isomorphism for every finite elementary module.  Three parts: (i) the **trivial module**
 `A = 𝔽₂` — all lower actions trivial, `d¹ = (b,b)`, the explicit 3×3 Gram matrix / scalar
@@ -114,6 +114,18 @@ cup–Bockstein table (25) [self-contained, could be a leaf]; (ii) **nontrivial 
 Lemma 5.12 + all four Lemma 5.13 cases, using P-13d to supply the tameness hypotheses; (iii)
 **general elementary modules** via P-13e dévissage along a composition series.  The last ticket to
 close.  Model O.  Ax: —.
+
+**Part (i) progress** (`GQ2/TrivialSelfDual.lean`, all std-3): the **card clauses** of
+`IsSelfDual t A` are proven for any trivial `C`-action on a finite elementary-2 module `A`.  On the
+trivial module `d⁰ = 0` and `d¹ x = (x₁, x₁)` (`d1_of_trivial`, from `d1Fun_tame` + the split wild
+row in char 2), giving `Z¹ = {x | x₁=0} ≅ A³`, `H² = (A×A)/Δ ≅ A`; combined with the dual-cardinality
+`#(A^∨)^C = #A^∨ = #A` (`card_fixedPts_elemDual_trivial`, via `AddCommGroup.zmodModule` +
+`Basis.linearEquiv_dual`), this yields `#H²w = #A` and `#Z¹w = (#A)³` — clauses 1 and 2.  The
+`trivialSelfDual : IsSelfDual t A` theorem discharges those two and `sorry`s **only** clause 3.
+**Remaining (the substance):** the degree-one pairing = table (25).  Needs (a) `mixedB` on
+general-offset cocycles — the repo's `.z`-coordinate toolkit (`heisMarking_*_z`) is currently proven
+only for x₀-supported reps (split case); (b) `mixedB` bilinearity, to assemble the `3×3` Gram matrix
+from basis pairs; (c) nonsingularity ⇒ perfection via `dualEval`.
 
 ### P-13g — local lifting duality (`prop_5_16`)
 **Deps: none — runnable now.**  Local Tate duality with trivial mod-2 cyclotomic twist + local
