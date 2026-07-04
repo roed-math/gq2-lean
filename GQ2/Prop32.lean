@@ -560,9 +560,12 @@ theorem surjective_of_mem_range_topGen {G H : Type*} [Group G] [TopologicalSpace
   have : y ∈ f.toMonoidHom.range := h2 (Subgroup.mem_top y)
   exact this
 
-/-- **`ν_t : T_tame ↠ Z₂` is surjective** (Prop. 3.14's arrow; P-06 statement, P-09 proof). -/
-theorem nuT_surjective : Function.Surjective nuT :=
-  surjective_of_mem_range_topGen nuT topGen_ztwo ⟨tameSigma, nuT_tameSigma⟩
+/-- **`ν_t : T_tame ↠ Z₂` is surjective** (Prop. 3.14's arrow; P-06 statement, P-09 proof).
+`nuT` is qualified `GQ2.nuT` (the `BoundaryFrame` `Ttame → Z₂` map) to disambiguate from the
+later `SectionThree.nuT` (the `ν_ur` descent through `(G_ℚ₂(2))^ab`, a different map) which
+otherwise shadows it in this namespace. -/
+theorem nuT_surjective : Function.Surjective GQ2.nuT :=
+  surjective_of_mem_range_topGen GQ2.nuT topGen_ztwo ⟨tameSigma, nuT_tameSigma⟩
 
 /-- **`ν₂ : Π ↠ Z₂` is surjective** (eq. (21)'s arrow; P-06 statement, P-09 proof). -/
 theorem nuTwo_surjective : Function.Surjective nuTwo :=
