@@ -96,4 +96,37 @@ theorem card_H2w_and_Z1w_of_nontrivial_simple (t : Marking C) (ht : t.TameRel) (
   refine ⟨hH2, ?_⟩
   rw [card_Z1w_eq_sq_mul_card_H2w, hH2, mul_one]
 
+/-- **No dual invariants for a nontrivial simple module**: `#(A^∨)^C = 1`.  A nonzero `C`-invariant
+`λ` has `C`-stable kernel, which is `⊥` by simplicity, so `λ` is injective; but `λ(c·a) = λ(a)`
+(invariance) then forces `c·a = a`, a trivial action — contradicting `hnt`. -/
+theorem card_fixedPts_elemDual_eq_one_of_nontrivial (hsimple : IsSimpleModTwo C A)
+    (hnt : ∃ (c : C) (a : A), c • a ≠ a) :
+    Nat.card (fixedPts C (ElemDual A)) = 1 := by
+  have hzero : ∀ lam : ElemDual A, (∀ g : C, g • lam = lam) → lam = 0 := by
+    intro lam hlam
+    have hinv : ∀ (c : C) (a : A), lam (c • a) = lam a := by
+      intro c a
+      have h2 : (c⁻¹ • lam) a = lam a := by rw [hlam c⁻¹]
+      rwa [ElemDual.smul_apply, inv_inv] at h2
+    have hkerstable : ∀ (c : C) (a : A), a ∈ (lam : A →+ ZMod 2).ker →
+        c • a ∈ (lam : A →+ ZMod 2).ker := by
+      intro c a ha
+      rw [AddMonoidHom.mem_ker] at ha ⊢
+      exact (hinv c a).trans ha
+    rcases hsimple.2 (lam : A →+ ZMod 2).ker hkerstable with hbot | htop
+    · exfalso
+      obtain ⟨c, a, hca⟩ := hnt
+      have hinj : Function.Injective (lam : A →+ ZMod 2) :=
+        (injective_iff_map_eq_zero (lam : A →+ ZMod 2)).mpr (fun u hu => by
+          have hz : u ∈ (lam : A →+ ZMod 2).ker := AddMonoidHom.mem_ker.mpr hu
+          rw [hbot, AddSubgroup.mem_bot] at hz; exact hz)
+      exact hca (hinj (hinv c a))
+    · ext a
+      have hmem : a ∈ (lam : A →+ ZMod 2).ker := htop ▸ AddSubgroup.mem_top a
+      rw [AddMonoidHom.mem_ker] at hmem
+      rw [ElemDual.zero_apply]; exact hmem
+  rw [Nat.card_eq_one_iff_unique]
+  exact ⟨⟨fun x y => Subtype.ext ((hzero x.val x.2).trans (hzero y.val y.2).symm)⟩,
+    ⟨⟨0, fun c => smul_zero c⟩⟩⟩
+
 end GQ2.FoxH
