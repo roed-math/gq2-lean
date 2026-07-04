@@ -702,6 +702,46 @@ theorem zb_flipped (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
   · exact absurd h hne
   · rw [← h]; group
 
+/-- The `.out` shift: `(k·ḡ).out = k.out · ĝ · shiftCorr(k)` (rearranged `shiftCorr`). -/
+theorem out_ghat_shift (ghat : G) (k : G ⧸ N) :
+    (k * (ghat : G ⧸ N)).out = k.out * ghat * shiftCorr N ghat k := by
+  rw [shiftCorr]; group
+
+/-- **Flipped** analog of `nLiftWord_aligned`: the `nLift`-word is the base `N`-word followed by a
+`ĝ`-shift correction (from `zb` being the reversed orbit rep). -/
+theorem nLiftWord_flipped (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
+    (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (v : G ⧸ U₀) (γ : G)
+    (hx : ¬ (lWord U₀ v γ ∈ N)) :
+    (nLift N U₀ v)⁻¹ * γ * nLift N U₀ (γ⁻¹ • v)
+      = lWord N (QuotientGroup.mk' N (v.out : G)) γ * ghat
+        * shiftCorr N ghat (γ⁻¹ • QuotientGroup.mk' N (v.out : G)) := by
+  have hzb : QuotientGroup.mk' N ((γ⁻¹ • v).out)
+      = (γ⁻¹ • QuotientGroup.mk' N (v.out : G)) * (ghat : G ⧸ N) := by
+    rw [zb_flipped N ghat hg hg2 U₀ hU₀ v γ hx, quot_smul_eq_mk_mul, QuotientGroup.mk'_apply,
+      ← QuotientGroup.mk_inv, QuotientGroup.mk'_apply, QuotientGroup.mk'_apply]
+  rw [lWord, nLift, nLift, hzb, out_ghat_shift]; group
+
+/-- **Flipped-case α-decomposition**: when `ℓ^{U₀}_v(γ) ∉ N`, the α-value of `ℓ^{U₀}_v(γ)·ĝ`
+(the `evensAux` reading) is the base `N`-word value plus `uCorr` and a `ĝ`-shift correction `W`. -/
+theorem alpha_lWordU0_flipped (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ N)
+    (hg2 : ghat * ghat ∈ N) (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat)
+    (v : G ⧸ U₀) (γ : G) (hx : ¬ (lWord U₀ v γ ∈ N)) (hmem : lWord U₀ v γ * ghat ∈ N)
+    (hW : ghat * shiftCorr N ghat (γ⁻¹ • QuotientGroup.mk' N (v.out : G))
+        * uCorr N U₀ (γ⁻¹ • v) * ghat ∈ N) :
+    α.1 ⟨lWord U₀ v γ * ghat, hmem⟩
+      = α.1 (uCorrEl N U₀ v) + α.1 (lTrans N (QuotientGroup.mk' N (v.out : G)) γ)
+        + α.1 ⟨ghat * shiftCorr N ghat (γ⁻¹ • QuotientGroup.mk' N (v.out : G))
+            * uCorr N U₀ (γ⁻¹ • v) * ghat, hW⟩ := by
+  have hfac : (⟨lWord U₀ v γ * ghat, hmem⟩ : N)
+      = (uCorrEl N U₀ v)⁻¹ * lTrans N (QuotientGroup.mk' N (v.out : G)) γ
+        * ⟨ghat * shiftCorr N ghat (γ⁻¹ • QuotientGroup.mk' N (v.out : G))
+            * uCorr N U₀ (γ⁻¹ • v) * ghat, hW⟩ := by
+    apply Subtype.ext
+    simp only [uCorrEl, lTrans, Subgroup.coe_mul, InvMemClass.coe_inv]
+    rw [lWordU0_factor N U₀ v γ, nLiftWord_flipped N ghat hg hg2 U₀ hU₀ v γ hx]
+    group
+  rw [hfac, z1_mul N α, z1_mul N α, z1_inv N α]
+
 end Involution
 
 end ShapiroLedger
