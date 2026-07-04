@@ -122,10 +122,27 @@ row in char 2), giving `Z¹ = {x | x₁=0} ≅ A³`, `H² = (A×A)/Δ ≅ A`; co
 `#(A^∨)^C = #A^∨ = #A` (`card_fixedPts_elemDual_trivial`, via `AddCommGroup.zmodModule` +
 `Basis.linearEquiv_dual`), this yields `#H²w = #A` and `#Z¹w = (#A)³` — clauses 1 and 2.  The
 `trivialSelfDual : IsSelfDual t A` theorem discharges those two and `sorry`s **only** clause 3.
-**Remaining (the substance):** the degree-one pairing = table (25).  Needs (a) `mixedB` on
-general-offset cocycles — the repo's `.z`-coordinate toolkit (`heisMarking_*_z`) is currently proven
-only for x₀-supported reps (split case); (b) `mixedB` bilinearity, to assemble the `3×3` Gram matrix
-from basis pairs; (c) nonsingularity ⇒ perfection via `dualEval`.
+**Remaining (the substance):** the degree-one pairing = table (25).  Progress in
+`GQ2/MixedBilinear.lean` (all std-3):
+
+* **`mixedB` bilinearity DONE** — `mixedB_add_left`/`mixedB_add_right`, via bilinearity of
+  `(stokesEval c x y r).z` in `(x,y)` for any word `r` (`stokesEval_z_add_left/_right`), proved by
+  induction on `r` (the `.a` ⟂ y, `.l` ⟂ x, `.g` ⟂ both coordinate lemmas).  This is item (b): it
+  lets the Gram matrix be assembled from basis pairs.
+* **Tame `.z` DONE** — `stokesEval_tame_z_trivial`: the tame relator's central coordinate at trivial
+  action is `y₁(x₀) − y₀(x₁) + y₁(x₁)`, which **vanishes on the split cocycles** `{x₁=0, y₁=0}`
+  (`stokesEval_tame_z_trivial_cocycle`).  **Finding: the trivial-module pairing is carried entirely
+  by the WILD relator.**
+
+* **Wild `.z` — the remaining computation.**  Need `(heisMarking t x y).wildValue.z` for
+  *general* offsets (not just x₀-supported).  The plan is now precise: the naturality lemmas
+  `heisMarking_{h0,c0,u1,…}_{a,l,g}` are **already general** (`.a = (liftMarking t x).W.u` = primal
+  Fox derivative, `.l = (liftMarking t y).W.u` = dual Fox derivative); only the *final* z-lemmas
+  (`heisMarking_wildValue_z` etc.) assume x₀-support to kill aux-word `.a`.  Redo the peel
+  `wildValue = h₀·u₁⁻¹·(x₁^σ)·c₀` with `mul_z_of_trivial`, keeping the cross-terms
+  `P.l(P.g•Q.a) = (dual Fox)(primal Fox)` (all wild/σ-tame generators act trivially on the trivial
+  module, so `P.g` is trivial).  Then `mixedB` bilinearity assembles the `3×3` matrix on `{x₀,x₂,x₃}`
+  and `dualEval` gives nonsingularity ⇒ perfection.  ~100–200 lines; well-scoped.
 
 ### P-13g — local lifting duality (`prop_5_16`)
 **Deps: none — runnable now.**  Local Tate duality with trivial mod-2 cyclotomic twist + local
