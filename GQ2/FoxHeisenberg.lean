@@ -1729,6 +1729,129 @@ theorem liftMarking_conjP_x1_sigma_u (t : Marking C) (x : Fin 4 → V)
   show -(t.σ⁻¹ • x 0) + t.σ⁻¹ • x 3 + (t.σ⁻¹ * t.x₁) • x 0 = t.σ⁻¹ • x 3
   rw [mul_smul, hx1]; abel
 
+/-! ### Base-triviality of the wild aux words (tame case)
+
+Each aux word evaluates to a trivially-based element, so `.u`-additivity (`mul_u_of_trivial` etc.)
+applies.  `g₀ = σ₂²` and `z₀ = x₀^{σ₂}` use σ-tameness `hU`; the rest use the wild-core triviality. -/
+
+theorem liftMarking_g0_g_smul (t : Marking C) (x : Fin 4 → V) (hU : ∀ v : V, t.sigma2 • v = v)
+    (v : V) : (liftMarking t x).g0.g • v = v := by
+  show ((liftMarking t x).sigma2 ^ 2).g • v = v
+  rw [WordLift.pow_g, pow_two, mul_smul, liftMarking_sigma2_g, hU, hU]
+
+theorem liftMarking_u0_g_smul (t : Marking C) (x : Fin 4 → V) (hx0 : ∀ v : V, t.x₀ • v = v)
+    (htau : ∀ v : V, t.τ • v = v) (v : V) : (liftMarking t x).u0.g • v = v := by
+  apply WordLift.powOmega2_g_smul_of_trivial
+  intro a; show (t.x₀ * t.τ) • a = a; rw [mul_smul, htau, hx0]
+
+theorem liftMarking_u1_g_smul (t : Marking C) (x : Fin 4 → V) (hx1 : ∀ v : V, t.x₁ • v = v)
+    (htau : ∀ v : V, t.τ • v = v) (v : V) : (liftMarking t x).u1.g • v = v := by
+  apply WordLift.powOmega2_g_smul_of_trivial
+  intro a; show (t.x₁ * t.τ) • a = a; rw [mul_smul, htau, hx1]
+
+theorem liftMarking_d0_g_smul (t : Marking C) (x : Fin 4 → V) (hx0 : ∀ v : V, t.x₀ • v = v)
+    (htau : ∀ v : V, t.τ • v = v) (v : V) : (liftMarking t x).d0.g • v = v := by
+  show ((liftMarking t x).u0 * (liftMarking t x).x₀⁻¹).g • v = v
+  exact WordLift.mul_g_trivial _ _ (liftMarking_u0_g_smul t x hx0 htau)
+    (WordLift.inv_g_trivial (liftMarking t x).x₀ hx0) v
+
+theorem liftMarking_z0_g_smul (t : Marking C) (x : Fin 4 → V) (hx0 : ∀ v : V, t.x₀ • v = v)
+    (v : V) : (liftMarking t x).z0.g • v = v := by
+  show (conjP (liftMarking t x).x₀ (liftMarking t x).sigma2).g • v = v
+  exact WordLift.conjP_g_trivial _ _ hx0 v
+
+theorem liftMarking_h0_g_smul (t : Marking C) (x : Fin 4 → V) (hx0 : ∀ v : V, t.x₀ • v = v)
+    (htau : ∀ v : V, t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v) (v : V) :
+    (liftMarking t x).h0.g • v = v := by
+  have hd0g := liftMarking_d0_g_smul t x hx0 htau
+  have hP1g : ∀ w : V, (conjP (liftMarking t x).x₀ (liftMarking t x).g0).g • w = w := fun w =>
+    WordLift.conjP_g_trivial _ _ hx0 w
+  have hdgg : ∀ w : V, (liftMarking t x).dg.g • w = w := fun w =>
+    WordLift.conjP_g_trivial (liftMarking t x).d0 (liftMarking t x).g0 hd0g w
+  have hhcg : ∀ w : V, (liftMarking t x).hc.g • w = w := fun w =>
+    WordLift.commP_g_trivial _ _ hdgg hd0g w
+  have hd02g : ∀ w : V, ((liftMarking t x).d0 ^ 2).g • w = w := fun w => by
+    rw [WordLift.pow_g, pow_two, mul_smul, hd0g, hd0g]
+  have hq1 := fun w => WordLift.mul_g_trivial _ (liftMarking t x).x₀ hP1g hx0 w
+  have hq2 := fun w => WordLift.mul_g_trivial _ _ hq1 hdgg w
+  have hq3 := fun w => WordLift.mul_g_trivial _ _ hq2 hd0g w
+  have hq4 := fun w => WordLift.mul_g_trivial _ _ hq3 hd02g w
+  show (conjP (liftMarking t x).x₀ (liftMarking t x).g0 * (liftMarking t x).x₀ *
+    (liftMarking t x).dg * (liftMarking t x).d0 * (liftMarking t x).d0 ^ 2 *
+    (liftMarking t x).hc).g • v = v
+  exact WordLift.mul_g_trivial _ _ hq4 hhcg v
+
+/-- **`D(h₀) = 0`** (tame case): the paper's `h₀`-shadow (Lemma 5.3(i)).  With every base acting
+trivially, `.u` is additive, so `D(h₀) = D(x₀^{g₀}) + D(x₀) + D(d_g) + D(d₀) + D(d₀²) + D([d_g,d₀])
+= x₂ + x₂ + x₁ + x₁ + 0 + 0 = 0` (conjugates keep the offset, `d₀²` and the commutator vanish). -/
+theorem liftMarking_h0_u (t : Marking C) (x : Fin 4 → V) (hV₂ : ∀ v : V, v + v = 0)
+    (hx0 : ∀ v : V, t.x₀ • v = v) (htau : ∀ v : V, t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v) :
+    (liftMarking t x).h0.u = 0 := by
+  have hd0g := liftMarking_d0_g_smul t x hx0 htau
+  have hg0g := liftMarking_g0_g_smul t x hU
+  have hd0u := liftMarking_d0_u t x hV₂ hx0 htau
+  have hP1g : ∀ w : V, (conjP (liftMarking t x).x₀ (liftMarking t x).g0).g • w = w := fun w =>
+    WordLift.conjP_g_trivial _ _ hx0 w
+  have hdgg : ∀ w : V, (liftMarking t x).dg.g • w = w := fun w =>
+    WordLift.conjP_g_trivial (liftMarking t x).d0 (liftMarking t x).g0 hd0g w
+  have hq1 := fun w => WordLift.mul_g_trivial _ (liftMarking t x).x₀ hP1g hx0 w
+  have hq2 := fun w => WordLift.mul_g_trivial _ _ hq1 hdgg w
+  have hq3 := fun w => WordLift.mul_g_trivial _ _ hq2 hd0g w
+  have hd02g : ∀ w : V, ((liftMarking t x).d0 ^ 2).g • w = w := fun w => by
+    rw [WordLift.pow_g, pow_two, mul_smul, hd0g, hd0g]
+  have hq4 := fun w => WordLift.mul_g_trivial _ _ hq3 hd02g w
+  have hP1u : (conjP (liftMarking t x).x₀ (liftMarking t x).g0).u = x 2 :=
+    WordLift.conjP_u_of_trivial _ _ hx0 hg0g
+  have hdgu : (liftMarking t x).dg.u = x 1 := by
+    show (conjP (liftMarking t x).d0 (liftMarking t x).g0).u = x 1
+    rw [WordLift.conjP_u_of_trivial _ _ hd0g hg0g, hd0u]
+  have hhcu : (liftMarking t x).hc.u = 0 := by
+    show (commP (liftMarking t x).dg (liftMarking t x).d0).u = 0
+    exact WordLift.commP_u_of_trivial _ _ hdgg hd0g
+  have hd02u : ((liftMarking t x).d0 ^ 2).u = 0 := by
+    rw [pow_two, WordLift.mul_u_of_trivial _ _ hd0g, hd0u]; exact hV₂ (x 1)
+  show (conjP (liftMarking t x).x₀ (liftMarking t x).g0 * (liftMarking t x).x₀ *
+    (liftMarking t x).dg * (liftMarking t x).d0 * (liftMarking t x).d0 ^ 2 *
+    (liftMarking t x).hc).u = 0
+  rw [WordLift.mul_u_of_trivial _ _ hq4, WordLift.mul_u_of_trivial _ _ hq3,
+    WordLift.mul_u_of_trivial _ _ hq2, WordLift.mul_u_of_trivial _ _ hq1,
+    WordLift.mul_u_of_trivial _ _ hP1g, hP1u, hhcu, hd02u, hdgu, hd0u]
+  show x 2 + x 2 + x 1 + x 1 + 0 + 0 = 0
+  rw [add_zero, add_zero, hV₂ (x 2), zero_add, hV₂ (x 1)]
+
+/-- **`D(c₀) = 0`** (tame case): `c₀ = [d₀,z₀]` is a commutator of trivially-based elements. -/
+theorem liftMarking_c0_u (t : Marking C) (x : Fin 4 → V) (hx0 : ∀ v : V, t.x₀ • v = v)
+    (htau : ∀ v : V, t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v) :
+    (liftMarking t x).c0.u = 0 := by
+  show (commP (liftMarking t x).d0 (liftMarking t x).z0).u = 0
+  exact WordLift.commP_u_of_trivial _ _ (liftMarking_d0_g_smul t x hx0 htau)
+    (liftMarking_z0_g_smul t x hx0)
+
+/-- **The split wild row (Lemma 5.5)**: `L_w = D(h₀) + D(u₁⁻¹) + D(x₁^σ) + D(c₀) =
+0 + (x₃+x₁) + S⁻¹·x₃ + 0 = x₁ + (1 + S⁻¹)·x₃`.  This is `(d1Fun t x).2` at a split (`T = 1`) simple
+tame module — the wild half of `lemma_5_13_split`'s `Z¹` characterisation. -/
+theorem liftMarking_wildValue_u (t : Marking C) (x : Fin 4 → V) (hV₂ : ∀ v : V, v + v = 0)
+    (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v) (htau : ∀ v : V, t.τ • v = v)
+    (hU : ∀ v : V, t.sigma2 • v = v) :
+    (liftMarking t x).wildValue.u = x 1 + x 3 + t.σ⁻¹ • x 3 := by
+  have hh0g := liftMarking_h0_g_smul t x hx0 htau hU
+  have hu1g := liftMarking_u1_g_smul t x hx1 htau
+  have hx1sg : ∀ w : V, (conjP (liftMarking t x).x₁ (liftMarking t x).σ).g • w = w := fun w =>
+    WordLift.conjP_g_trivial _ _ hx1 w
+  have hu1invg : ∀ w : V, (liftMarking t x).u1⁻¹.g • w = w := fun w =>
+    WordLift.inv_g_trivial _ hu1g w
+  have hq2 := fun w => WordLift.mul_g_trivial _ _ hh0g hu1invg w
+  have hq3 := fun w => WordLift.mul_g_trivial _ _ hq2 hx1sg w
+  show ((liftMarking t x).h0 * (liftMarking t x).u1⁻¹ *
+    conjP (liftMarking t x).x₁ (liftMarking t x).σ * (liftMarking t x).c0).u =
+    x 1 + x 3 + t.σ⁻¹ • x 3
+  rw [WordLift.mul_u_of_trivial _ _ hq3, WordLift.mul_u_of_trivial _ _ hq2,
+    WordLift.mul_u_of_trivial _ _ hh0g, liftMarking_h0_u t x hV₂ hx0 htau hU,
+    WordLift.inv_u_of_trivial _ hu1g, liftMarking_u1_u t x hV₂ hx1 htau,
+    liftMarking_conjP_x1_sigma_u t x hx1, liftMarking_c0_u t x hx0 htau hU,
+    show -(x 3 + x 1) = x 3 + x 1 from neg_eq_of_add_eq_zero_left (hV₂ (x 3 + x 1))]
+  abel
+
 end WildRow
 
 section NormalForms
