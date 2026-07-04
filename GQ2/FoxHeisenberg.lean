@@ -276,6 +276,10 @@ theorem powOmega2_g_smul_of_trivial (p : WordLift A C) (hg : ∀ a : A, p.g • 
     | succ j ih => rw [pow_succ, mul_smul, hg, ih]
   exact hk _
 
+/-- An offset-zero element stays offset-zero under the 2-primary part (its powers do). -/
+theorem powOmega2_u_zero (p : WordLift A C) (hpu : p.u = 0) : (powOmega2 p).u = 0 := by
+  rw [powOmega2, pow_u, hpu]; simp
+
 /-! ### `.u` as an additive homomorphism on the trivially-based subgroup
 
 At a tame lower map every wild aux word evaluates to an element whose base `g` acts trivially on the
@@ -714,6 +718,16 @@ theorem mul_g_trivial (p q : HeisLift A C) (hp : ∀ a : A, p.g • a = a) (hq :
 theorem inv_g_trivial (p : HeisLift A C) (hp : ∀ a : A, p.g • a = a) (a : A) : p⁻¹.g • a = a := by
   rw [inv_g, inv_smul_eq_iff]; exact (hp a).symm
 
+theorem conjP_g_trivial (p g : HeisLift A C) (hp : ∀ a : A, p.g • a = a) (a : A) :
+    (conjP p g).g • a = a := by
+  rw [conjP, mul_g, mul_g, inv_g, mul_smul, mul_smul, hp, ← mul_smul, inv_mul_cancel, one_smul]
+
+theorem commP_g_trivial (p q : HeisLift A C) (hp : ∀ a : A, p.g • a = a) (hq : ∀ a : A, q.g • a = a)
+    (a : A) : (commP p q).g • a = a := by
+  rw [commP]
+  exact mul_g_trivial _ _ (mul_g_trivial _ _ (mul_g_trivial _ _ (inv_g_trivial p hp)
+    (inv_g_trivial q hq)) hp) hq a
+
 theorem mul_a_of_trivial (p q : HeisLift A C) (hp : ∀ a : A, p.g • a = a) :
     (p * q).a = p.a + q.a := by rw [mul_a, hp]
 
@@ -751,6 +765,20 @@ theorem conjP_z_of_gslice (p g : HeisLift A C) (hga : g.a = 0) (hgl : g.l = 0) (
   simp only [conjP, mul_z, mul_a, mul_l, mul_g, inv_z, inv_a, inv_l, inv_g, hga, hgl, hgz,
     smul_zero, neg_zero, map_zero, add_zero, zero_add, ElemDual.zero_apply, ElemDual.neg_apply,
     smul_elemdual_trivial _ hgi]
+
+/-- The commutator symplectic `B`-form for **trivially-based** elements (not just the `g = 1`
+fiber): `[p,q].z = p.l(q.a) + q.l(p.a)`.  Gives `c₀ = [d₀,z₀] ↦ 0` once `d₀.a = d₀.l = 0`. -/
+theorem commP_z_of_trivial (p q : HeisLift A C) (hp : ∀ a : A, p.g • a = a)
+    (hq : ∀ a : A, q.g • a = a) : (commP p q).z = p.l (q.a) + q.l (p.a) := by
+  have hpi : ∀ a : A, p.g⁻¹ • a = a := fun a => by rw [inv_smul_eq_iff]; exact (hp a).symm
+  have hqi : ∀ a : A, q.g⁻¹ • a = a := fun a => by rw [inv_smul_eq_iff]; exact (hq a).symm
+  simp only [commP, mul_z, mul_a, mul_l, mul_g, inv_z, inv_a, inv_l, inv_g, mul_smul, hp, hq,
+    hpi, hqi, smul_elemdual_trivial _ hp, smul_elemdual_trivial _ hq, smul_elemdual_trivial _ hpi,
+    smul_elemdual_trivial _ hqi, map_neg, map_add, smul_zero, add_zero, zero_add,
+    ElemDual.add_apply, ElemDual.neg_apply]
+  generalize p.z = a1; generalize q.z = a2; generalize p.l p.a = a3
+  generalize q.l q.a = a4; generalize p.l q.a = a5; generalize q.l p.a = a6
+  revert a1 a2 a3 a4 a5 a6; decide
 
 end HeisLift
 
