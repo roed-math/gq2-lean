@@ -5,6 +5,16 @@
 (step 2: proving the paper's tower from the axioms; plan in [`step2-plan.md`](step2-plan.md)).
 Ticket IDs `T-xx` cited in module docstrings and commit messages refer to **this** file.
 
+**Post-archive addendum (2026-07-04):** an adversarial review of the axiom layer
+([`adversarial-axioms-review.md`](adversarial-axioms-review.md)) found no false statement but
+flagged citation-faithfulness gaps in three step-1 deliverables — B8 is stronger than its Stix
+citation alone (needs a cyclotomic-surjectivity input), B3c is a composite interface (not bare
+Labute), and B11 is a composite of several classical facts plus a repo-specific spectral-norm
+proxy; B2 currently has no consumers.  Amendments are tracked on the **live board** as
+**P-22** (documentation pass: B8/B2/B3c + classification table, statements unchanged),
+**P-23** (B11 split into named leaves, census change user-approved 2026-07-04), and **P-24**
+(guard hardening).  This archive is unchanged; the `T-xx` history stands.
+
 Source of truth for the statement-formalization effort. See `docs/formalization-plan.md` for the
 rationale and designs. Difficulty: ⭐ easy · ⭐⭐ medium · ⭐⭐⭐ hard/design-sensitive.
 Model: **F** = Fable (design-heavy), **O** = Opus (well-specified). Status: ☐ open · ◐ in

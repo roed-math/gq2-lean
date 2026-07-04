@@ -36,6 +36,9 @@ row ◐ before starting.  Paper: `paper/A_Profinite_Presentation_for_G__Q_2.pdf`
 | P-19 | Assembly: `main_presentation_literal` via `main_presentation` | ⭐ | O | P-02, P-03, P-05, P-18 | B1 + Track B | ☐ |
 | P-20 | Meta: review packet v3 — interior-node statements + App. D certificate diff, at statement freeze | ⭐ | O | P-06, P-11, P-12, P-14 | — | ☐ |
 | P-21 | Foundations: ℤ₂-powering on pro-2 groups — `maxPro2(ℤ̂) ≅ ℤ₂` (the `ι`-seam), `zpowZtwo` + unit/odd-power bijectivity, `IsProP 2 ℤ₂ˣ` + `η`-injectivity, pro-2 Frattini criterion | ⭐⭐⭐ | **F** | — | ∅ | ☑ 2026-07-03 (`GQ2/ZtwoPowering.lean` (i)–(iii) + `GQ2/FrattiniCriterion.lean` (iv); all std-3, zero sorries). **Unblocks P-07 η-leg, all three P-08 legs' infra, `prop_3_10` `ι`-seam** |
+| P-22 | Meta: axiom documentation pass — adversarial axioms review recs 1/3/4/6 (`docs/adversarial-axioms-review.md`): B8 citation → "Stix **plus** cyclotomic surjectivity" (statement KEPT — user decision 2026-07-04), B2 → "available/unused" label, B3c → composite-interface reclassification, 4-way classification table | ⭐ | O | — | — (doc-only; census 12 unchanged) | ☐ |
+| P-23 | Foundations: B11 split into named leaves — adversarial review rec 2 (**census change APPROVED**, user 2026-07-04): `hilbertSymbol_normCriterion_finiteDyadic` + `unramifiedQuadratic_units_are_norms` + isolated spectral-norm bridge; old `dyadicNormCriterion` re-derived as a SAME-NAME theorem (zero consumer churn) | ⭐⭐ | O | **P-15e capstone landed** | (census 12→13/14) | ☐ **SEQUENCED — do not start while P-15e is ◐** |
+| P-24 | Meta: guard hardening — untracked-file WARN (tracked FAIL unchanged) + scratch convention in `step2-plan.md` — adversarial review rec 5 (the `WF72.lean` incident, since self-resolved; do NOT touch that file — live P-15g prototype) | ⭐ | O | — | — | ☐ |
 
 ## Per-ticket acceptance criteria
 
@@ -332,3 +335,60 @@ paper eq./§ cross-references; new files, own board row only.
   landing time the *aggregate* `lake build GQ2` was transiently red in `GQ2/SectionSeven.lean`
   (P-15's in-flight edits, unrelated); `GQ2.FrattiniCriterion`/`GQ2.ZtwoPowering` build green
   in isolation.
+- **P-22** (opened from `docs/adversarial-axioms-review.md` recs 1/3/4/6; user decisions
+  2026-07-04 — B8: keep the statement, fix the citation; B2: keep, relabel): **docstring/docs
+  edits only — no axiom statement may change** (gate: `git diff GQ2/Foundations/Axioms.lean`
+  touches comment lines only; census stays 12).  Deliverables: (i) `peripheralCyclotomicAction`
+  (B8) docstring reframed as **composite** — Stix (decomposition group acts on cusp inertia
+  through the cyclotomic character) **plus** a cyclotomic-surjectivity input (the
+  `aut : ℤ_[2]ˣ → …`-for-every-unit form is the strengthening); name the available feeders
+  explicitly (B2 globally; the B5-derived local surjectivity via `χ_cyc(rec u) = u⁻¹`, cf.
+  P-07's `units_gen`/`markedHom_bijective` machinery) and record that the weakened
+  cyclotomic-image form was considered and declined (downstream churn) — review §1 + fixes §1.
+  (ii) `cyclotomicCharacter_two_surjective` (B2) docstring gains the honest label — **available
+  but currently unused** (grep 2026-07-04: zero consumers; retained as B8's citation companion /
+  future B8-elimination route) — review §4.  (iii) `dyadicOrientation` (B3c) reclassified as a
+  **composite interface**: Labute orientation values + (Demushkin dualizing character = local
+  cyclotomic character) + choice of a normalized B4 iso; note it **subsumes a marked B4**
+  (downstream Ax lists citing B3c need not add B4) — review §3.  (iv) The 4-way
+  **classification table** (direct: B1, B6, B7, B7′, B10 · classical + encoding choices: B4,
+  B5, B9 · composite/project interface: B3c, B8, B11 · available-unused: B2) added to
+  `docs/review-packet.md` (new section) and cross-referenced from `Axioms.lean`'s header;
+  amend **P-20**'s row so packet v3 carries the table — review §6.  (v)
+  `GQ2/AxiomLedger.lean` comment tags + `docs/literature-axioms*.md` updated where they echo
+  the old citation stories.  Closed rows' history (e.g. P-08's "B2 turned out unneeded") stays
+  untouched.  Gate: `lake build GQ2` green, guard green (census 12).
+- **P-23** (review rec 2; **census change pre-approved** by user 2026-07-04 — the split route,
+  not the bridge-doc route): **hard-sequenced — start only when P-15e's Tier-4 capstone
+  (`evensNorm_deepUnit_vanish`) is committed and its row shows it landed** (its owner actively
+  consumes B11 in uncommitted `HilbertLedger.lean`).  Deliverables: (i) replace
+  `axiom dyadicNormCriterion` with named leaves `hilbertSymbol_normCriterion_finiteDyadic`
+  (`[a] ∪ [b] = 0 ↔ ∃ x y, b = x² − a·y²` over each finite dyadic base — Serre's norm
+  criterion) and `unramifiedQuadratic_units_are_norms` (unramified quadratic ⟹ every base unit
+  is a norm); the repo's **spectral-norm proxy** ("unramified = equal spectral-norm value
+  groups") is the risky translation layer — first TRY proving the bridge in-repo; if not
+  provable, isolate it as a third leaf explicitly flagged *project convention, not a cited
+  theorem* (review fixes §2).  (ii) Re-derive the **exact current `dyadicNormCriterion`
+  statement as a theorem with the same name**, so `HilbertLedger.lean` and all consumers need
+  **zero edits**; re-verify their `#print axioms` = std-3 + exactly the new leaves.  (iii)
+  Census 12→13 (bridge proved) or 14 (bridge axiomatic): update the rules line above +
+  `EXPECTED_AXIOMS` in `scripts/check_axioms.sh` (precise-staged, hot file) +
+  `AxiomLedger.lean` tags + `docs/review-packet.md` §2 history + P-22's classification table,
+  same commit (B10/B11-precedent wording).  (iv) Resolve the docstring's "citation display
+  numbers pending PDF verification" against the Serre PDF in `references/`.  Gate:
+  whole-library build green; guard green at the new census; P-15e's landed theorems re-verified
+  unchanged.
+- **P-24** (review rec 5): the review-time failure (`GQ2/WF72.lean:239` sorry) **self-resolved**
+  (2026-07-04: the sorry is gone and the guard is green) — `WF72.lean` is P-15g's live
+  prototype and **must not be touched**; this ticket removes the failure *mode*, not the file.
+  Deliverables: (i) `scripts/check_axioms.sh` (precise-staged, hot): the per-file scan
+  distinguishes **tracked** files (current behavior — FAIL) from **untracked** ones (`git
+  ls-files` membership): untracked violations print a clearly-labeled **WARN** block and do not
+  fail the gate (rationale: the gate certifies the committed library; a parallel session's
+  mid-flight scratch must not block everyone's commits — review fixes §5).  (ii) Scratch
+  convention documented in `step2-plan.md`'s conventions: prototypes importing repo modules go
+  in the session scratchpad or a root `scratch/` (gitignored), not `GQ2/`; if under `GQ2/`
+  anyway, expect WARN noise.  (iii) Self-test: a planted untracked sorry file WARNs without
+  failing; a tracked violation still FAILs (test, then delete the plant).  Gate: guard green on
+  the current tree; the script diff reviewed against parallel allowlist edits (reconstruct from
+  HEAD).
