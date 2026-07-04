@@ -403,6 +403,269 @@ theorem lemma_6_15_free_aux (hNo : IsOpen (N : Set G)) (α β : Z1 N (ZMod 2)) (
 
 end Free
 
+/-! ## Abstract cocycle twist (any group, char 2) -/
+
+section Twist
+
+variable {A : Type*} [Group A]
+
+/-- Per-slot transversal correction: `M(a; c, d) = ν(c⁻¹, a·d) + ν(a, d) + ν(d, d⁻¹)`. -/
+noncomputable def twistCorr (ν : A × A → ZMod 2) (a c d : A) : ZMod 2 :=
+  ν (c⁻¹, a * d) + ν (a, d) + ν (d, d⁻¹)
+
+/-- **Cocycle twist**: conjugating a composable pair `(x, y)` by corrections `c₀, c₁, c₂`
+changes a right-normalized char-2 2-cocycle by three `twistCorr` reads. -/
+theorem cocycle_twist (ν : A × A → ZMod 2)
+    (hcoc : ∀ a b c : A, ν (b, c) + ν (a * b, c) + ν (a, b * c) + ν (a, b) = 0)
+    (hr1 : ∀ z : A, ν (z, 1) = 0) (x y c₀ c₁ c₂ : A) :
+    ν (c₀⁻¹ * x * c₁, c₁⁻¹ * y * c₂)
+      = ν (x, y) + twistCorr ν x c₀ c₁ + twistCorr ν y c₁ c₂ + twistCorr ν (x * y) c₀ c₂ := by
+  have h2 : (2 : ZMod 2) = 0 := by decide
+  have hI1 := hcoc (c₀⁻¹ * x * c₁) c₁⁻¹ (y * c₂)
+  have hI2 := hcoc (c₀⁻¹ * x) c₁ c₁⁻¹
+  have hI3 := hcoc c₀⁻¹ x c₁
+  have hI4 := hcoc c₀⁻¹ x (y * c₂)
+  have hI5 := hcoc x y c₂
+  rw [show c₀⁻¹ * x * c₁ * c₁⁻¹ = c₀⁻¹ * x by group,
+    show c₁⁻¹ * (y * c₂) = c₁⁻¹ * y * c₂ by group] at hI1
+  rw [mul_inv_cancel, hr1 (c₀⁻¹ * x)] at hI2
+  rw [show x * (y * c₂) = x * y * c₂ by group] at hI4
+  simp only [twistCorr]
+  linear_combination hI1 + hI2 + hI3 + hI4 + hI5
+    - (ν (x, y) + ν (c₀⁻¹, x * c₁) + ν (x, c₁) + ν (c₁, c₁⁻¹) + ν (c₁⁻¹, y * c₂)
+        + ν (y, c₂) + ν (c₂, c₂⁻¹) + ν (c₀⁻¹, x * y * c₂) + ν (x * y, c₂)
+        + ν (c₀⁻¹ * x, y * c₂) + ν (c₀⁻¹ * x * c₁, c₁⁻¹) + ν (c₀⁻¹ * x, c₁)
+        + ν (c₀⁻¹, x) + ν (x, y * c₂)) * h2
+
+end Twist
+
+/-! ## Corestriction along an arbitrary transversal -/
+
+section TransversalChange
+
+variable {G : Type*} [Group G]
+variable (U : Subgroup G)
+
+/-- `ℓ`-word along an arbitrary transversal lift `T : G ⧸ U → G`. -/
+noncomputable def lWordT (T : G ⧸ U → G) (v : G ⧸ U) (γ : G) : G :=
+  (T v)⁻¹ * γ * T (γ⁻¹ • v)
+
+theorem lWordT_mem (T : G ⧸ U → G) (hT : ∀ v : G ⧸ U, (T v : G ⧸ U) = v)
+    (v : G ⧸ U) (γ : G) : lWordT U T v γ ∈ U := by
+  have h1 : ((T (γ⁻¹ • v) : G) : G ⧸ U) = γ⁻¹ • v := hT _
+  have h2 : ((γ⁻¹ * T v : G) : G ⧸ U) = γ⁻¹ • v := by
+    conv_rhs => rw [← hT v]
+    exact MulAction.Quotient.smul_mk U γ⁻¹ (T v)
+  have h3 : (γ⁻¹ * T v)⁻¹ * T (γ⁻¹ • v) ∈ U :=
+    (QuotientGroup.eq (s := U)).mp (h2.trans h1.symm)
+  have h4 : (γ⁻¹ * T v)⁻¹ * T (γ⁻¹ • v) = lWordT U T v γ := by
+    rw [lWordT]; group
+  rwa [h4] at h3
+
+/-- The transversal 1-cochain along `T`, valued in `↥U`. -/
+noncomputable def lTransT (T : G ⧸ U → G) (hT : ∀ v : G ⧸ U, (T v : G ⧸ U) = v)
+    (v : G ⧸ U) (γ : G) : U := ⟨lWordT U T v γ, lWordT_mem U T hT v γ⟩
+
+/-- The `ℓ^T`-cocycle identity (transversal-independent telescoping). -/
+theorem lWordT_mul (T : G ⧸ U → G) (v : G ⧸ U) (γ η : G) :
+    lWordT U T v (γ * η) = lWordT U T v γ * lWordT U T (γ⁻¹ • v) η := by
+  have h : (γ * η)⁻¹ • v = η⁻¹ • (γ⁻¹ • v) := by rw [← mul_smul, mul_inv_rev]
+  simp only [lWordT, h]
+  group
+
+/-- The canonical transversal is the `T = Quotient.out` special case. -/
+theorem lWordT_out (v : G ⧸ U) (γ : G) :
+    lWordT U (fun w => (w.out : G)) v γ = lWord U v γ := rfl
+
+/-- `ℓ`-cocycle identity for the canonical transversal (normality-free). -/
+theorem lTrans_mul' (v : G ⧸ U) (γ η : G) :
+    lTrans U v (γ * η) = lTrans U v γ * lTrans U (γ⁻¹ • v) η := by
+  apply Subtype.ext
+  rw [Subgroup.coe_mul]
+  show lWord U v (γ * η) = lWord U v γ * lWord U (γ⁻¹ • v) η
+  rw [← lWordT_out, ← lWordT_out, ← lWordT_out]
+  exact lWordT_mul U _ v γ η
+
+/-- The `.out`-vs-`T` transversal correction at `v`: `T v = v.out · tCorr v`. -/
+noncomputable def tCorr (T : G ⧸ U → G) (v : G ⧸ U) : G := (v.out : G)⁻¹ * T v
+
+theorem tCorr_mem (T : G ⧸ U → G) (hT : ∀ v : G ⧸ U, (T v : G ⧸ U) = v) (v : G ⧸ U) :
+    tCorr U T v ∈ U := by
+  have h1 : ((v.out : G) : G ⧸ U) = v := QuotientGroup.out_eq' v
+  exact (QuotientGroup.eq (s := U)).mp (h1.trans (hT v).symm)
+
+/-- `tCorr` as an element of `↥U`. -/
+noncomputable def tCorrEl (T : G ⧸ U → G) (hT : ∀ v : G ⧸ U, (T v : G ⧸ U) = v)
+    (v : G ⧸ U) : U := ⟨tCorr U T v, tCorr_mem U T hT v⟩
+
+/-- **Factorization**: the `T`-word sandwiches the canonical word between corrections. -/
+theorem lTransT_factor (T : G ⧸ U → G) (hT : ∀ v : G ⧸ U, (T v : G ⧸ U) = v)
+    (v : G ⧸ U) (γ : G) :
+    lTransT U T hT v γ
+      = (tCorrEl U T hT v)⁻¹ * lTrans U v γ * tCorrEl U T hT (γ⁻¹ • v) := by
+  apply Subtype.ext
+  rw [Subgroup.coe_mul, Subgroup.coe_mul, InvMemClass.coe_inv]
+  show lWordT U T v γ = (tCorr U T v)⁻¹ * lWord U v γ * tCorr U T (γ⁻¹ • v)
+  simp only [lWordT, tCorr, lWord]
+  group
+
+/-- Corestriction of `ν : U × U → 𝔽₂` along the transversal `T`. -/
+noncomputable def cor2FunT (T : G ⧸ U → G) (hT : ∀ v : G ⧸ U, (T v : G ⧸ U) = v)
+    (ν : U × U → ZMod 2) : G × G → ZMod 2 :=
+  fun p ↦ ∑ᶠ v : G ⧸ U, ν (lTransT U T hT v p.1, lTransT U T hT (p.1⁻¹ • v) p.2)
+
+/-- The transversal-change 1-cochain `Λ`. -/
+noncomputable def twistLambda (T : G ⧸ U → G) (hT : ∀ v : G ⧸ U, (T v : G ⧸ U) = v)
+    (ν : U × U → ZMod 2) : G → ZMod 2 :=
+  fun γ ↦ ∑ᶠ v : G ⧸ U,
+    twistCorr ν (lTrans U v γ) (tCorrEl U T hT v) (tCorrEl U T hT (γ⁻¹ • v))
+
+/-- Reindex a `G ⧸ U`-sum along `v ↦ γ⁻¹ • v` (normality-free). -/
+theorem sum_reindex_smul' [Fintype (G ⧸ U)] (γ : G) (F : G ⧸ U → ZMod 2) :
+    ∑ v : G ⧸ U, F (γ⁻¹ • v) = ∑ v : G ⧸ U, F v :=
+  Fintype.sum_equiv (MulAction.toPerm (γ⁻¹ : G)) (fun v => F (γ⁻¹ • v)) F (fun _ => rfl)
+
+section Topological
+
+variable [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- `γ ↦ γ⁻¹ • v : G → G ⧸ U` is locally constant when `U` is open (fibers are open). -/
+theorem locallyConstant_inv_smul (hUo : IsOpen (U : Set G)) (v : G ⧸ U) :
+    IsLocallyConstant fun γ : G => γ⁻¹ • v := by
+  rw [IsLocallyConstant.iff_isOpen_fiber]
+  intro w
+  have hset : (fun γ : G => γ⁻¹ • v) ⁻¹' {w}
+      = (fun γ : G => (γ⁻¹ * (v.out : G))⁻¹ * (w.out : G)) ⁻¹' (U : Set G) := by
+    ext γ
+    simp only [Set.mem_preimage, Set.mem_singleton_iff, SetLike.mem_coe]
+    constructor
+    · intro h
+      refine (QuotientGroup.eq (s := U)).mp ?_
+      have h2 : ((γ⁻¹ * (v.out : G) : G) : G ⧸ U) = γ⁻¹ • v := by
+        conv_rhs => rw [← QuotientGroup.out_eq' v]
+        exact MulAction.Quotient.smul_mk U γ⁻¹ v.out
+      rw [h2, h, QuotientGroup.out_eq']
+    · intro h
+      have h2 : ((γ⁻¹ * (v.out : G) : G) : G ⧸ U) = ((w.out : G) : G ⧸ U) :=
+        (QuotientGroup.eq (s := U)).mpr h
+      have h3 : ((γ⁻¹ * (v.out : G) : G) : G ⧸ U) = γ⁻¹ • v := by
+        conv_rhs => rw [← QuotientGroup.out_eq' v]
+        exact MulAction.Quotient.smul_mk U γ⁻¹ v.out
+      rw [← h3, h2, QuotientGroup.out_eq']
+  rw [hset]
+  exact ((continuous_mul_right _).comp ((continuous_inv).comp
+    ((continuous_mul_right _).comp continuous_inv))).isOpen_preimage _ hUo
+
+/-- Any function of `γ⁻¹ • v` is continuous (`U` open). -/
+theorem continuous_comp_inv_smul {X : Type*} [TopologicalSpace X]
+    (hUo : IsOpen (U : Set G)) (v : G ⧸ U) (f : G ⧸ U → X) :
+    Continuous fun γ : G => f (γ⁻¹ • v) :=
+  ((locallyConstant_inv_smul U hUo v).comp f).continuous
+
+/-- `γ ↦ ℓ_v(γ) : G → ↥U` is continuous (normality-free). -/
+theorem continuous_lTrans' (hUo : IsOpen (U : Set G)) (v : G ⧸ U) :
+    Continuous fun γ : G => lTrans U v γ := by
+  have hw : Continuous fun γ : G => lWord U v γ := by
+    simp only [lWord]
+    exact ((continuous_mul_left _).mul
+      (continuous_comp_inv_smul U hUo v (fun w => (w.out : G)))).comp
+      (continuous_id)
+  exact hw.subtype_mk _
+
+/-- `twistLambda` is continuous. -/
+theorem twistLambda_continuous [Finite (G ⧸ U)] (hUo : IsOpen (U : Set G))
+    (T : G ⧸ U → G) (hT : ∀ v : G ⧸ U, (T v : G ⧸ U) = v)
+    (ν : U × U → ZMod 2) (hνc : Continuous ν) :
+    Continuous (twistLambda U T hT ν) := by
+  haveI : Fintype (G ⧸ U) := Fintype.ofFinite _
+  have hEq : twistLambda U T hT ν = fun γ => ∑ v : G ⧸ U,
+      twistCorr ν (lTrans U v γ) (tCorrEl U T hT v) (tCorrEl U T hT (γ⁻¹ • v)) := by
+    funext γ
+    exact finsum_eq_sum_of_fintype _
+  rw [hEq]
+  refine continuous_finset_sum Finset.univ (fun v _ => ?_)
+  have ha : Continuous fun γ : G => lTrans U v γ := continuous_lTrans' U hUo v
+  have hd : Continuous fun γ : G => tCorrEl U T hT (γ⁻¹ • v) :=
+    continuous_comp_inv_smul U hUo v _
+  simp only [twistCorr]
+  exact ((hνc.comp (continuous_const.prodMk (ha.mul hd))).add
+    (hνc.comp (ha.prodMk hd))).add
+    (hνc.comp (hd.prodMk hd.inv))
+
+variable [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
+
+/-- **Transversal change for corestriction**: the `T`-corestriction of a right-normalized
+2-cocycle `ν` on the open finite-index `U` differs from the canonical one by a coboundary. -/
+theorem cor2FunT_sub_cor2Fun_mem_B2 [Finite (G ⧸ U)] (hUo : IsOpen (U : Set G))
+    (T : G ⧸ U → G) (hT : ∀ v : G ⧸ U, (T v : G ⧸ U) = v)
+    (ν : U × U → ZMod 2) (hνc : Continuous ν)
+    (hcoc : ∀ a b c : U, ν (b, c) + ν (a * b, c) + ν (a, b * c) + ν (a, b) = 0)
+    (hr1 : ∀ z : U, ν (z, 1) = 0) :
+    cor2FunT U T hT ν - cor2Fun U ν ∈ B2 G (ZMod 2) := by
+  haveI : Fintype (G ⧸ U) := Fintype.ofFinite _
+  simp only [B2, AddSubgroup.mem_map]
+  refine ⟨twistLambda U T hT ν,
+    mem_C1_iff.mpr (twistLambda_continuous U hUo T hT ν hνc), ?_⟩
+  funext p
+  obtain ⟨γ, η⟩ := p
+  have hL : dOne G (ZMod 2) (twistLambda U T hT ν) (γ, η)
+      = twistLambda U T hT ν η + twistLambda U T hT ν (γ * η)
+        + twistLambda U T hT ν γ := by
+    show γ • twistLambda U T hT ν η - twistLambda U T hT ν (γ * η)
+        + twistLambda U T hT ν γ = _
+    rw [smul_zmodTwo, sub_eq_add_neg, CharTwo.neg_eq]
+  rw [hL, Pi.sub_apply]
+  show _ = cor2FunT U T hT ν (γ, η) - cor2Fun U ν (γ, η)
+  simp only [cor2FunT, cor2Fun, twistLambda, finsum_eq_sum_of_fintype]
+  rw [← Finset.sum_sub_distrib]
+  -- per-position twist
+  have hpt : ∀ v : G ⧸ U,
+      ν (lTransT U T hT v γ, lTransT U T hT (γ⁻¹ • v) η)
+          - ν (lTrans U v γ, lTrans U (γ⁻¹ • v) η)
+        = twistCorr ν (lTrans U v γ) (tCorrEl U T hT v) (tCorrEl U T hT (γ⁻¹ • v))
+          + twistCorr ν (lTrans U (γ⁻¹ • v) η) (tCorrEl U T hT (γ⁻¹ • v))
+              (tCorrEl U T hT ((γ * η)⁻¹ • v))
+          + twistCorr ν (lTrans U v (γ * η)) (tCorrEl U T hT v)
+              (tCorrEl U T hT ((γ * η)⁻¹ • v)) := by
+    intro v
+    have hcompose : η⁻¹ • (γ⁻¹ • v) = (γ * η)⁻¹ • v := by
+      rw [← mul_smul, mul_inv_rev]
+    have hfac1 := lTransT_factor U T hT v γ
+    have hfac2 := lTransT_factor U T hT (γ⁻¹ • v) η
+    rw [hcompose] at hfac2
+    rw [hfac1, hfac2,
+      cocycle_twist ν hcoc hr1 (lTrans U v γ) (lTrans U (γ⁻¹ • v) η)
+        (tCorrEl U T hT v) (tCorrEl U T hT (γ⁻¹ • v)) (tCorrEl U T hT ((γ * η)⁻¹ • v)),
+      ← lTrans_mul' U v γ η]
+    abel
+  rw [Finset.sum_congr rfl (fun v _ => hpt v)]
+  rw [Finset.sum_add_distrib, Finset.sum_add_distrib]
+  -- reindex the η-sum
+  have hreindex :
+      ∑ v : G ⧸ U, twistCorr ν (lTrans U (γ⁻¹ • v) η) (tCorrEl U T hT (γ⁻¹ • v))
+          (tCorrEl U T hT ((γ * η)⁻¹ • v))
+        = ∑ v : G ⧸ U, twistCorr ν (lTrans U v η) (tCorrEl U T hT v)
+            (tCorrEl U T hT (η⁻¹ • v)) := by
+    have hcong : ∀ v : G ⧸ U,
+        twistCorr ν (lTrans U (γ⁻¹ • v) η) (tCorrEl U T hT (γ⁻¹ • v))
+            (tCorrEl U T hT ((γ * η)⁻¹ • v))
+          = (fun w => twistCorr ν (lTrans U w η) (tCorrEl U T hT w)
+              (tCorrEl U T hT (η⁻¹ • w))) (γ⁻¹ • v) := by
+      intro v
+      simp only
+      congr 2
+      rw [← mul_smul, mul_inv_rev]
+    rw [Finset.sum_congr rfl (fun v _ => hcong v)]
+    have := sum_reindex_smul' U γ (fun w => twistCorr ν (lTrans U w η) (tCorrEl U T hT w)
+      (tCorrEl U T hT (η⁻¹ • w)))
+    simpa using this
+  rw [hreindex]
+  abel
+
+end Topological
+
+end TransversalChange
+
 /-! ## Lemma 6.15, involution orbits (105) — foundations
 
 The involution case compares `graphPullback(invOrbitDatum_{N,ḡ})` with `cor_{U₀→G}` of the
