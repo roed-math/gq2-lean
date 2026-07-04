@@ -21,7 +21,7 @@ P-13a  engines + split §5.13         ══ DONE ══╗
 P-13d  tameness rep-theory  ─────────────────────────────────────────────────────┤    (duality
 P-13e  dévissage / lemma_5_11 ────────────────────────────────────────────────────┘     assembly)
                                                                                         │
-P-13g  local duality / prop_5_16  ── independent, axiom-gated (B6, B7) ──────────────────┘
+P-13g  local duality / prop_5_16  ── independent (invokes existing axioms B6, B7) ────────┘
                                                                         (cor_5_17_card wiring
                                                                          already proved; consumes f + g)
 ```
@@ -94,11 +94,16 @@ Lemma 5.12 + all four Lemma 5.13 cases, using P-13d to supply the tameness hypot
 close.  Model O.  Ax: —.
 
 ### P-13g — local lifting duality (`prop_5_16`)
-**Deps: axiom decision (B6, B7).**  Local Tate duality with trivial mod-2 cyclotomic twist +
-local Euler–Poincaré for `Q₂`.  This is where axioms **B6, B7** enter (App. D row).  Blocked on the
-frozen axiom layer: B6/B7 must be added by explicit decision (the census is frozen at 12).
-Independent of b–f.  Note: the proved wiring `cor_5_17_card` consumes both `prop_5_15` (P-13f) and
-`prop_5_16` (P-13g).  Model **F** (axiom shape) → O (proof).  Ax: **B6, B7**.
+**Deps: none — runnable now.**  Local Tate duality with trivial mod-2 cyclotomic twist + local
+Euler–Poincaré for `Q₂`.  **No axiom decision is needed**: B6 (`GQ2.tateDuality`,
+`Foundations/Axioms.lean:271`) and B7 (`Foundations.absGalQ2_localEulerCharacteristic`,
+`Foundations/Axioms.lean:171`) are *already* declared axioms in the frozen census of 12; the **Ax**
+column is the budget permitting this leaf to invoke them.  Proof work: the card clauses from B7
+(finite discrete `𝔽₂[C]`-module), and `#H²(𝔽₂)=2` + the three bijective cups from **B6 at `n=2`**
+(`μ₂ ≅ 𝔽₂`), matched to the T-14 `dualEval` cup framework.  Only if the current B6/B7 *shape* turns
+out insufficient mid-proof would that escalate to an explicit axiom-amendment decision (as B9/B11
+were during P-15) — not currently expected.  Independent of b–f.  Note: the proved wiring
+`cor_5_17_card` consumes both `prop_5_15` (P-13f) and `prop_5_16` (P-13g).  Model O.  Ax: **B6, B7**.
 
 ## Board rows (spliced into `docs/tickets.md`)
 
@@ -110,4 +115,4 @@ Independent of b–f.  Note: the proved wiring `cor_5_17_card` consumes both `pr
 | P-13d | B: §5 tameness rep-theory (simple-cyclic ⇒ σ₂=1, V^S=0) | ⭐⭐⭐ | O | 5.12 (done) | — | ☐ |
 | P-13e | B: §5.11 dévissage (mapping-cone 2-of-3 for `IsSelfDual`) | ⭐⭐⭐ | F | — | — | ☐ |
 | P-13f | B: §5.15 duality assembly (`prop_5_15`) | ⭐⭐⭐ | O | P-13b, P-13c, P-13d, P-13e | — | ☐ |
-| P-13g | B: §5.16 local lifting duality (`prop_5_16`) | ⭐⭐⭐ | F→O | axiom B6/B7 decision | B6, B7 | ☐ |
+| P-13g | B: §5.16 local lifting duality (`prop_5_16`; invokes existing B6/B7) | ⭐⭐⭐ | O | — | B6, B7 | ☐ |
