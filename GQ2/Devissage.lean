@@ -97,6 +97,30 @@ noncomputable def H2wMap (t : Marking C) (φ : A →+ B)
     rw [AddSubgroup.mem_comap]
     exact ⟨fun i => φ (x i), d1_natural t φ hφ x⟩
 
+/-- The induced map `H⁰w(A) →+ H⁰w(B)`: `φ` restricted to the `d⁰`-kernels (`d⁰`-naturality sends
+`ker d⁰_A` into `ker d⁰_B`). -/
+def H0wMap (t : Marking C) (φ : A →+ B)
+    (hφ : ∀ (c : C) (a : A), φ (c • a) = c • φ a) : H0w (A := A) t →+ H0w (A := B) t where
+  toFun a := ⟨φ a.1, by
+    rw [H0w, AddMonoidHom.mem_ker, d0_natural t φ hφ a.1,
+      show d0 t a.1 = 0 from AddMonoidHom.mem_ker.mp a.2]
+    funext i; simp⟩
+  map_zero' := by apply Subtype.ext; simp
+  map_add' x y := by apply Subtype.ext; simp
+
+/-- The induced map `H¹w(A) →+ H¹w(B)`, descended from `Z1wMap` through the `B¹w`-quotient
+(coboundaries map to coboundaries by `d⁰`-naturality). -/
+noncomputable def H1wMap (t : Marking C) (φ : A →+ B)
+    (hφ : ∀ (c : C) (a : A), φ (c • a) = c • φ a) : H1w (A := A) t →+ H1w (A := B) t :=
+  QuotientAddGroup.map _ _ (Z1wMap t φ hφ) <| by
+    rintro z hz
+    rw [AddSubgroup.mem_comap, AddSubgroup.mem_addSubgroupOf]
+    rw [AddSubgroup.mem_addSubgroupOf] at hz
+    obtain ⟨a, ha⟩ := (AddMonoidHom.mem_range).mp hz
+    exact (AddMonoidHom.mem_range).mpr ⟨φ a, by
+      show d0 t (φ a) = fun i => φ (z.1 i)
+      simp only [d0_natural t φ hφ a, ha]⟩
+
 end Functoriality
 
 /-! ## The long exact sequence
