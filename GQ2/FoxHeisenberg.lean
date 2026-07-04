@@ -1928,25 +1928,48 @@ theorem heisMarking_tameValue_z_eq_zero (t : Marking C) (x : Fin 4 → V)
 nontrivial simple module), `Z¹ = {(a, 0, c, 0)}` and `B¹ = {((S−1)v, 0, 0, 0)}`.
 
 Hypotheses (per `docs/p13-normal-form-hypothesis-gap.md`): `hcore` supplies trivial wild action
-(`wild_acts_trivially`); `hσ` (σ acts nontrivially) excludes the trivial module `𝔽₂`, for which
-`1 + S⁻¹ = 0` and the `x 3 = 0` clause fails — that module is handled separately in `prop_5_15`.
+(`wild_acts_trivially`); `hVS` is `V^S = 0`, i.e. `1 + S⁻¹` invertible — it excludes the trivial
+module `𝔽₂` (where `1 + S⁻¹ = 0` and the `x 3 = 0` clause would fail; that module is handled
+separately in `prop_5_15`).  `hU` is the σ-tameness (`σ₂ = U` acts trivially).  Both `hVS` and `hU`
+are *derivable* in the split case — with `τ, x₀, x₁` acting trivially the `C`-action factors through
+the cyclic `⟨σ̄⟩`, so a nontrivial simple `V` is a simple `𝔽₂[⟨σ⟩]`-module: `V^S = V^C = 0` and `σ`
+has odd order (⇒ `σ₂ = 1`).  Those derivations need `t.Generates` and simple-cyclic rep theory, so
+they are factored out as hypotheses here, keeping the normal-form proof pure finite-Fox calculus.
+See `docs/p13-normal-form-hypothesis-gap.md` §7.
 
-`hU` is the σ-tameness (`σ₂ = U` acts trivially).  In the split case it is *derivable* — with
-`τ, x₀, x₁` acting trivially the `C`-action factors through the cyclic `⟨σ̄⟩`, so a simple `V` is a
-simple `𝔽₂[⟨σ⟩]`-module, on which `σ` acts with odd order (roots of unity in char 2) ⇒ `σ₂ = 1` on
-`V`.  That derivation needs `t.Generates` and the simple-cyclic-module rep theory; it is factored
-out as a hypothesis here so the normal-form proof is pure finite-Fox calculus.  See
-`docs/p13-normal-form-hypothesis-gap.md` §7.
-
-*Status*: sorried (P-13; `B¹` half is `b1w_split_shape`, tame row is `d1Fun_tame_split`; the `x 3`
-clause needs the wild row (Lemma 5.5) + invertibility of `1 + S⁻¹` from `hσ` and simplicity). -/
+Proved (P-13): `B¹` half from `b1w_split_shape`; `Z¹` half from the tame row `d1Fun_tame_split`
+(`= S⁻¹·x₁`) and the wild row `liftMarking_wildValue_u` (`= x₁ + (1+S⁻¹)·x₃`), with `x 1 = 0` from
+`S⁻¹` injective and `x 3 = 0` from `hVS`. -/
 theorem lemma_5_13_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V) [Finite V]
     (hcore : t.Pro2Core) (htau : ∀ v : V, t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v)
-    (hσ : ∃ v : V, t.σ • v ≠ v) :
+    (hVS : ∀ v : V, t.σ • v = v → v = 0) :
     (∀ x : Fin 4 → V, x ∈ Z1w (A := V) t ↔ x 1 = 0 ∧ x 3 = 0) ∧
     (∀ y : Fin 4 → V, y ∈ B1w (A := V) t ↔ ∃ v : V, y = ![t.σ • v - v, 0, 0, 0]) := by
-  sorry
+  obtain ⟨hx0, hx1⟩ := wild_acts_trivially t hV₂ hsimple hcore
+  refine ⟨fun x => ?_, fun y => b1w_split_shape t htau hx0 hx1 y⟩
+  rw [Z1w, AddMonoidHom.mem_ker, show (d1 t) x = d1Fun t x from rfl, Prod.ext_iff]
+  rw [d1Fun_tame_split t ht htau hV₂ x,
+    show (d1Fun t x).2 = x 1 + x 3 + t.σ⁻¹ • x 3 from
+      liftMarking_wildValue_u t x hV₂ hx0 hx1 htau hU]
+  simp only [Prod.fst_zero, Prod.snd_zero]
+  constructor
+  · rintro ⟨h1, h2⟩
+    have hx1z : x 1 = 0 := by
+      have := congrArg (t.σ • ·) h1
+      rwa [smul_zero, smul_inv_smul] at this
+    refine ⟨hx1z, ?_⟩
+    apply hVS
+    have h3 : t.σ⁻¹ • x 3 = x 3 := by
+      have h2' : x 3 + t.σ⁻¹ • x 3 = 0 := by rw [hx1z] at h2; rwa [zero_add] at h2
+      have : t.σ⁻¹ • x 3 = -x 3 := by rw [eq_neg_iff_add_eq_zero, add_comm]; exact h2'
+      rw [this, neg_eq_of_add_eq_zero_left (hV₂ (x 3))]
+    calc t.σ • x 3 = t.σ • (t.σ⁻¹ • x 3) := by rw [h3]
+      _ = x 3 := smul_inv_smul _ _
+  · rintro ⟨h1, h3⟩
+    rw [h1, h3]
+    refine ⟨smul_zero _, ?_⟩
+    rw [smul_zero]; abel
 
 /-- **Lemma 5.13, ramified case (ii), unique normal form**: if `V^T = 0`, every degree-one
 class has a unique representative supported on `x₀` (display (53)).
