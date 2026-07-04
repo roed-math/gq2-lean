@@ -694,6 +694,42 @@ theorem commP_z_fiber (p q : HeisLift A C) (hp : p.g = 1) (hq : q.g = 1) :
   generalize q.l q.a = a4; generalize p.l q.a = a5; generalize q.l p.a = a6
   revert a1 a2 a3 a4 a5 a6; decide
 
+/-! ### The trivially-based toolkit for the mixed Hessian (Lemma 5.14)
+
+Mirror of the `WordLift` toolkit for the central coordinate.  On elements whose base `g` acts
+trivially on the module, `.a` and `.l` are additive homs and `.z` follows the Heisenberg cocycle
+`(p*q).z = p.z + q.z + p.l(q.a)`.  This drives the `h₀ ↦ λ(c)` / `[d₀,z₀] ↦ 0` central ledger. -/
+
+/-- A `C`-element acting trivially on the module acts trivially on its `𝔽₂`-dual (contragredient). -/
+theorem smul_elemdual_trivial (g : C) (hg : ∀ a : A, g • a = a) (lam : ElemDual A) :
+    g • lam = lam := by
+  have hgi : ∀ a : A, g⁻¹ • a = a := fun a => by rw [inv_smul_eq_iff]; exact (hg a).symm
+  ext a
+  show (g • lam) a = lam a
+  rw [ElemDual.smul_apply, hgi]
+
+theorem mul_g_trivial (p q : HeisLift A C) (hp : ∀ a : A, p.g • a = a) (hq : ∀ a : A, q.g • a = a)
+    (a : A) : (p * q).g • a = a := by rw [mul_g, mul_smul, hq, hp]
+
+theorem inv_g_trivial (p : HeisLift A C) (hp : ∀ a : A, p.g • a = a) (a : A) : p⁻¹.g • a = a := by
+  rw [inv_g, inv_smul_eq_iff]; exact (hp a).symm
+
+theorem mul_a_of_trivial (p q : HeisLift A C) (hp : ∀ a : A, p.g • a = a) :
+    (p * q).a = p.a + q.a := by rw [mul_a, hp]
+
+theorem mul_l_of_trivial (p q : HeisLift A C) (hp : ∀ a : A, p.g • a = a) :
+    (p * q).l = p.l + q.l := by rw [mul_l, smul_elemdual_trivial _ hp]
+
+theorem mul_z_of_trivial (p q : HeisLift A C) (hp : ∀ a : A, p.g • a = a) :
+    (p * q).z = p.z + q.z + p.l q.a := by rw [mul_z, hp]
+
+theorem inv_a_of_trivial (p : HeisLift A C) (hp : ∀ a : A, p.g • a = a) : p⁻¹.a = -p.a := by
+  rw [inv_a, show p.g⁻¹ • p.a = p.a by rw [inv_smul_eq_iff]; exact (hp p.a).symm]
+
+theorem inv_l_of_trivial (p : HeisLift A C) (hp : ∀ a : A, p.g • a = a) : p⁻¹.l = -p.l := by
+  have hgi : ∀ a : A, p.g⁻¹ • a = a := fun a => by rw [inv_smul_eq_iff]; exact (hp a).symm
+  rw [inv_l, smul_elemdual_trivial _ hgi]
+
 end HeisLift
 
 section Mixed
