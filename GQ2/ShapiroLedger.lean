@@ -632,6 +632,33 @@ theorem lWordU0_factor (U₀ : Subgroup G) (v : G ⧸ U₀) (γ : G) :
       * ((nLift N U₀ v)⁻¹ * γ * nLift N U₀ (γ⁻¹ • v)) * uCorr N U₀ (γ⁻¹ • v) := by
   simp only [uCorr, lWord]; group
 
+/-- `uCorr` as an element of `↥N`. -/
+noncomputable def uCorrEl (U₀ : Subgroup G) (v : G ⧸ U₀) : N := ⟨uCorr N U₀ v, uCorr_mem N U₀ v⟩
+
+/-- In the **aligned** case the `nLift`-word is exactly the `N`-transversal word at `mk v.out`. -/
+theorem nLiftWord_aligned (U₀ : Subgroup G) (v : G ⧸ U₀) (γ : G) (hx : lWord U₀ v γ ∈ N) :
+    (nLift N U₀ v)⁻¹ * γ * nLift N U₀ (γ⁻¹ • v)
+      = lWord N (QuotientGroup.mk' N (v.out : G)) γ := by
+  have hzb : QuotientGroup.mk' N ((γ⁻¹ • v).out) = γ⁻¹ • QuotientGroup.mk' N (v.out : G) := by
+    rw [(lWordU0_mem_N_iff N U₀ v γ).mp hx, quot_smul_eq_mk_mul, QuotientGroup.mk'_apply,
+      QuotientGroup.mk'_apply, ← QuotientGroup.mk_inv]
+  rw [lWord, nLift, nLift, hzb]
+
+/-- **Aligned-case α-decomposition** (`beta_lTrans_shift`-analog): when `ℓ^{U₀}_v(γ) ∈ N`, its
+`α`-value is the base `N`-word value plus the two `uCorr` corrections (`α` a hom). -/
+theorem alpha_lWordU0_aligned (α : Z1 N (ZMod 2)) (U₀ : Subgroup G) (v : G ⧸ U₀) (γ : G)
+    (hx : lWord U₀ v γ ∈ N) :
+    α.1 ⟨lWord U₀ v γ, hx⟩
+      = α.1 (uCorrEl N U₀ v) + α.1 (lTrans N (QuotientGroup.mk' N (v.out : G)) γ)
+        + α.1 (uCorrEl N U₀ (γ⁻¹ • v)) := by
+  have hfac : (⟨lWord U₀ v γ, hx⟩ : N)
+      = (uCorrEl N U₀ v)⁻¹ * lTrans N (QuotientGroup.mk' N (v.out : G)) γ
+        * uCorrEl N U₀ (γ⁻¹ • v) := by
+    apply Subtype.ext
+    simp only [uCorrEl, lTrans, Subgroup.coe_mul, InvMemClass.coe_inv]
+    rw [← nLiftWord_aligned N U₀ v γ hx, lWordU0_factor N U₀ v γ]
+  rw [hfac, z1_mul N α, z1_mul N α, z1_inv N α]
+
 end Involution
 
 end ShapiroLedger
