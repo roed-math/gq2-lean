@@ -135,12 +135,12 @@ The two card clauses are `card_H2w_trivial`/`card_Z1w_trivial` combined with
 the `3×3` Gram matrix of `mixedB` on the cocycle basis `{x₀, x₂, x₃}` (recall `Z¹ = {x | x₁ = 0}`,
 `B¹ = 0`, so `H¹ = Z¹`).
 
-The **analytic content is now fully proven** in `GQ2/MixedBilinear.lean` (all std-3): `mixedB`
-bilinearity, and the closed form `mixedB_cocycle : mixedB t x y = y₂(x₂) + y₃(x₀) − y₀(x₃) + u₁.z`
-on cocycles, with the ω₂ scalar `u₁.z` confined to the `(3,3)` slot
-(`heisMarking_u1_z_of_{x3,y3}_zero`).  The Gram matrix is therefore unit-determinant regardless of
-`u₁.z`, and `elemDual_separates` gives nondegeneracy.  What remains for clause 3 is only the
-`Quotient.lift₂` descent to `H¹w` plus the case-analysis bookkeeping (currently `sorry`). -/
+The pairing is built in `GQ2/MixedBilinear.lean` (all std-3): `mixedB` bilinearity, and the closed
+form `mixedB_cocycle : mixedB t x y = y₂(x₂) + y₃(x₀) − y₀(x₃) + u₁.z` on cocycles, with the ω₂
+scalar `u₁.z` confined to the `(3,3)` slot (`heisMarking_u1_z_of_{x3,y3}_zero`).  The Gram matrix is
+therefore unit-determinant regardless of `u₁.z`, and `elemDual_separates` gives nondegeneracy.
+`trivialSelfDual` descends `mixedB` to `H¹w = Z¹w` via `Quotient.lift₂` and closes both
+nondegeneracy conditions by the case analysis below — **fully proven, std-3**. -/
 
 /-- The `𝔽₂`-dual separates points of a finite elementary-2 module. -/
 theorem elemDual_separates (hA₂ : ∀ a : A, a + a = 0) {a : A} (ha : a ≠ 0) :
@@ -163,9 +163,12 @@ theorem B1w_trivial_eq_bot (t : Marking C) (htriv : ∀ (c : C) (a : A), c • a
   rintro y ⟨v, rfl⟩
   exact (AddSubgroup.mem_bot).mpr (d0_of_trivial t htriv v)
 
-/-- **P-13f, part (i)**: the trivial module `𝔽₂` is self-dual.  Card clauses fully proven; the
-degree-one pairing (clause 3, the table-(25) Gram computation) is the outstanding piece — see the
-section note above. -/
+set_option maxHeartbeats 1600000 in
+/-- **P-13f, part (i)**: the trivial module `𝔽₂` is self-dual.  Both card clauses and the degree-one
+pairing (table (25)) are proven: `mixedB` descends to `H¹w = Z¹w` (since `B¹w = ⊥`), its closed form
+`mixedB_cocycle = y₂(x₂)+y₃(x₀)−y₀(x₃)+u₁.z` has unit-determinant Gram matrix (the ω₂ scalar `u₁.z`
+sits only on the `(3,3)` slot, killed by choosing the paired dual coordinate `≠ 3`), and
+`elemDual_separates` supplies the nonzero dual functionals. -/
 theorem trivialSelfDual (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     (htriv : ∀ (c : C) (a : A), c • a = a) (hA₂ : ∀ a : A, a + a = 0) :
     IsSelfDual t A := by
@@ -175,12 +178,84 @@ theorem trivialSelfDual (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   · -- `#Z¹w = (#A)² · #(A^∨)^C`  (`(#A)³ = (#A)² · #A`)
     rw [card_Z1w_trivial t ht hw htriv hA₂, card_fixedPts_elemDual_trivial htriv hA₂]
     ring
-  · -- The degree-one pairing (table 25).  All analytic inputs are proven in
-    -- `GQ2/MixedBilinear.lean` — `mixedB_cocycle` (the closed form
-    -- `y₂(x₂)+y₃(x₀)−y₀(x₃)+u₁.z`), `heisMarking_u1_z_of_{x3,y3}_zero` (the ω₂ scalar is
-    -- confined to the (3,3) slot), plus `elemDual_separates` above — so the Gram matrix is
-    -- unit-determinant and nondegenerate.  Only the `Quotient.lift₂` descent + case-analysis
-    -- bookkeeping remains.
-    sorry
+  · -- The degree-one pairing (table 25): descend `mixedB` and prove perfection.
+    have htrivD : ∀ (c : C) (l : ElemDual A), c • l = l := fun c l => elemDual_smul_trivial htriv c l
+    have hA₂d : ∀ l : ElemDual A, l + l = 0 := fun l => by
+      ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]; exact CharTwo.add_self_eq_zero (l v)
+    have hNA : (B1w (A := A) t).addSubgroupOf (Z1w (A := A) t) = ⊥ := by
+      rw [B1w_trivial_eq_bot t htriv]; exact AddSubgroup.bot_addSubgroupOf (Z1w (A := A) t)
+    have hND : (B1w (A := ElemDual A) t).addSubgroupOf (Z1w (A := ElemDual A) t) = ⊥ := by
+      rw [B1w_trivial_eq_bot t htrivD]
+      exact AddSubgroup.bot_addSubgroupOf (Z1w (A := ElemDual A) t)
+    refine ⟨Quotient.lift₂ (fun (a : Z1w (A := A) t) (b : Z1w (A := ElemDual A) t) =>
+        mixedB t a.val b.val) (fun a₁ b₁ a₂ b₂ h₁ h₂ => ?_), fun x y => rfl, ?_, ?_⟩
+    · -- well-defined: the class group is `⊥`, so the relation is equality
+      have ea : a₁ = a₂ := by
+        have h := QuotientAddGroup.leftRel_apply.mp h₁; rwa [hNA, AddSubgroup.mem_bot,
+          neg_add_eq_zero] at h
+      have eb : b₁ = b₂ := by
+        have h := QuotientAddGroup.leftRel_apply.mp h₂; rwa [hND, AddSubgroup.mem_bot,
+          neg_add_eq_zero] at h
+      rw [ea, eb]
+    · -- left nondegeneracy
+      intro h hh
+      induction h using QuotientAddGroup.induction_on with
+      | H a =>
+        have ha1 : a.val 1 = 0 := (mem_Z1w_trivial_iff t ht hw htriv hA₂ a.val).mp a.2
+        have haval : a.val ≠ 0 := fun h0 => hh (by rw [show a = 0 from Subtype.ext h0]; rfl)
+        by_cases h2 : a.val 2 = 0
+        · by_cases h3 : a.val 3 = 0
+          · have h0 : a.val 0 ≠ 0 := fun h0 => haval (funext fun j => by fin_cases j <;> simp_all)
+            obtain ⟨lam, hlam⟩ := elemDual_separates hA₂ h0
+            refine ⟨QuotientAddGroup.mk ⟨Pi.single 3 lam,
+              (mem_Z1w_trivial_iff (A := ElemDual A) t ht hw htrivD hA₂d _).mpr (by simp)⟩, ?_⟩
+            show mixedB t a.val (Pi.single 3 lam) ≠ 0
+            rw [mixedB_cocycle htriv hA₂ t a.val (Pi.single 3 lam) ha1 (by simp),
+              heisMarking_u1_z_of_x3_zero htriv t a.val (Pi.single 3 lam) ha1 (by simp) h3]
+            simpa using hlam
+          · obtain ⟨lam, hlam⟩ := elemDual_separates hA₂ h3
+            refine ⟨QuotientAddGroup.mk ⟨Pi.single 0 lam,
+              (mem_Z1w_trivial_iff (A := ElemDual A) t ht hw htrivD hA₂d _).mpr (by simp)⟩, ?_⟩
+            show mixedB t a.val (Pi.single 0 lam) ≠ 0
+            rw [mixedB_cocycle htriv hA₂ t a.val (Pi.single 0 lam) ha1 (by simp),
+              heisMarking_u1_z_of_y3_zero htriv t a.val (Pi.single 0 lam) ha1 (by simp) (by simp)]
+            simpa using hlam
+        · obtain ⟨lam, hlam⟩ := elemDual_separates hA₂ h2
+          refine ⟨QuotientAddGroup.mk ⟨Pi.single 2 lam,
+            (mem_Z1w_trivial_iff (A := ElemDual A) t ht hw htrivD hA₂d _).mpr (by simp)⟩, ?_⟩
+          show mixedB t a.val (Pi.single 2 lam) ≠ 0
+          rw [mixedB_cocycle htriv hA₂ t a.val (Pi.single 2 lam) ha1 (by simp),
+            heisMarking_u1_z_of_y3_zero htriv t a.val (Pi.single 2 lam) ha1 (by simp) (by simp)]
+          simpa using hlam
+    · -- right nondegeneracy
+      intro h hh
+      induction h using QuotientAddGroup.induction_on with
+      | H b =>
+        have hb1 : b.val 1 = 0 := (mem_Z1w_trivial_iff t ht hw htrivD hA₂d b.val).mp b.2
+        have hbval : b.val ≠ 0 := fun h0 => hh (by rw [show b = 0 from Subtype.ext h0]; rfl)
+        by_cases h2 : b.val 2 = 0
+        · by_cases h3 : b.val 3 = 0
+          · have h0 : b.val 0 ≠ 0 := fun h0 => hbval (funext fun j => by fin_cases j <;> simp_all)
+            obtain ⟨v, hv⟩ := DFunLike.ne_iff.mp h0
+            refine ⟨QuotientAddGroup.mk ⟨Pi.single 3 v,
+              (mem_Z1w_trivial_iff t ht hw htriv hA₂ _).mpr (by simp)⟩, ?_⟩
+            show mixedB t (Pi.single 3 v) b.val ≠ 0
+            rw [mixedB_cocycle htriv hA₂ t (Pi.single 3 v) b.val (by simp) hb1,
+              heisMarking_u1_z_of_y3_zero htriv t (Pi.single 3 v) b.val (by simp) hb1 h3]
+            simpa using hv
+          · obtain ⟨v, hv⟩ := DFunLike.ne_iff.mp h3
+            refine ⟨QuotientAddGroup.mk ⟨Pi.single 0 v,
+              (mem_Z1w_trivial_iff t ht hw htriv hA₂ _).mpr (by simp)⟩, ?_⟩
+            show mixedB t (Pi.single 0 v) b.val ≠ 0
+            rw [mixedB_cocycle htriv hA₂ t (Pi.single 0 v) b.val (by simp) hb1,
+              heisMarking_u1_z_of_x3_zero htriv t (Pi.single 0 v) b.val (by simp) hb1 (by simp)]
+            simpa using hv
+        · obtain ⟨v, hv⟩ := DFunLike.ne_iff.mp h2
+          refine ⟨QuotientAddGroup.mk ⟨Pi.single 2 v,
+            (mem_Z1w_trivial_iff t ht hw htriv hA₂ _).mpr (by simp)⟩, ?_⟩
+          show mixedB t (Pi.single 2 v) b.val ≠ 0
+          rw [mixedB_cocycle htriv hA₂ t (Pi.single 2 v) b.val (by simp) hb1,
+            heisMarking_u1_z_of_x3_zero htriv t (Pi.single 2 v) b.val (by simp) hb1 (by simp)]
+          simpa using hv
 
 end GQ2.FoxH
