@@ -55,6 +55,7 @@ row ◐ before starting.  Paper: `paper/A_Profinite_Presentation_for_G__Q_2.pdf`
 | P-22 | Meta: axiom documentation pass — adversarial axioms review recs 1/3/4/6 (`docs/adversarial-axioms-review.md`): B8 citation → "Stix **plus** cyclotomic surjectivity" (statement KEPT — user decision 2026-07-04), B2 → "available/unused" label, B3c → composite-interface reclassification, 4-way classification table | ⭐ | O | — | — (doc-only; census 12 unchanged) | ☐ |
 | P-23 | Foundations: B11 split into named leaves — adversarial review rec 2 (**census change APPROVED**, user 2026-07-04): `hilbertSymbol_normCriterion_finiteDyadic` + `unramifiedQuadratic_units_are_norms` + isolated spectral-norm bridge; old `dyadicNormCriterion` re-derived as a SAME-NAME theorem (zero consumer churn) | ⭐⭐ | O | **P-15e capstone landed** | (census 12→13) | ✅ **CLOSED 2026-07-04 (Fable)** — B11 split landed, census **12→13**, affected scope green.  `axiom dyadicNormCriterion` → two classical leaf axioms `hilbertSymbol_normCriterion_finiteDyadic` (B11a) + `unramifiedQuadratic_units_are_norms` (B11b) in `GQ2/Foundations/Axioms.lean`; the spectral-norm "unramified" proxy isolated as **`def IsUnramifiedQuadraticSpectral`** (a named project convention, **not** an axiom — the review's "riskiest piece": bridge route (c), neither provable-in-repo nor axiomatized, just named + flagged, so it adds zero proof-theoretic strength).  `dyadicNormCriterion` re-derived as a **same-name theorem** `⟨B11a k htriv, fun a δa hδa hunram u hu => B11b k a δa hδa hunram u hu⟩`, statement byte-for-byte unchanged ⟹ **zero consumer churn** (`HilbertLedger`'s `.1`/`.2` projections untouched).  Verified: `lake build GQ2.HilbertLedger GQ2.SectionSix` green (8629); `check_axioms.sh` census **13 (= expected)**, placement OK, no `native_decide`; `#print axioms` — `dyadicNormCriterion` = std-3 + {B11a, B11b} (no `sorryAx`), and both consumers `evensNorm_deepUnit_vanish` = `SectionSix.lemma_6_16` = std-3 + {B9, B11a, B11b} (the declared B9+B11 column, with B11 now expanding to its two leaves).  Updated same commit: `EXPECTED_AXIOMS 12→13` (`scripts/check_axioms.sh`) + `AxiomLedger.bAxioms` (B11a/B11b tags, `dyadicNormCriterion` now a tracked consumer) + Axioms.lean docstrings/B-index/tier + rules line + `review-packet.md` §2 (table split, tier, amendment log).  **(iv) DEFERRED → P-20**: exact Serre display numbers (LF XIV §2 / V §2) stay "pending PDF verification" — the split preserves the pre-split axiom's citations verbatim, so this is citation-audit work independent of the split.  **Unrelated pre-existing guard red** (not P-23): `GQ2/TrivialSelfDual.lean:157` sorry — a paused agent's WIP scratch, not imported by `GQ2.lean`, red before this change. |
 | P-24 | Meta: guard hardening — untracked-file WARN (tracked FAIL unchanged) + scratch convention in `step2-plan.md` — adversarial review rec 5 (the `WF72.lean` incident, since self-resolved; that P-15g prototype is now spliced into `SectionSeven` and the scratch DELETED 2026-07-04 — no live scratch remains) | ⭐ | O | — | — | ☐ |
+| P-25 | B: §3 boundary construction — Prop 3.10 (`Γ_A` half + local/Cor 3.12 half) + Prop 3.14 `Nonempty BoundaryMaps` (the orphaned `SectionThreeMarked.lean` sorries; see census) | ⭐⭐⭐ | O | P-09, P-10, P-21 | B5, B8, B3c, B10 (inherited via 1.1 / 3.2) | ◐ (Opus 2026-07-04) STARTED — claimed the 3 unowned §3 sorries (`prop_3_10_gammaA`, `prop_3_10_local_marked`, `prop_3_14`).  Heavy work in own file `GQ2/BoundaryConstruction.lean`; splice/relocate into `SectionThreeMarked.lean` (P-15d pattern). |
 
 ## Proof-state census — the 14 remaining `sorry`s (audit 2026-07-04)
 
@@ -77,15 +78,14 @@ Authoritative snapshot of every bare `sorry` in the compiled tree (`lake build G
   (`SectionSix.lean:862/883/907/929`) → **P-15f** ◐.
 - `lemma_8_6_gammaA` / `lemma_8_6_local` / `prop_8_9` (`SectionEight.lean:1390/1399/1592`) → **P-16a–d** ◐.
 
-**⚠ UNOWNED — fell through P-09/P-10 closure (coordination gap):**
+**§3 boundary construction — now tracked as ⟶ P-25 ◐** (was UNOWNED; fell through P-09/P-10 closure):
 - `prop_3_10_gammaA` (`SectionThreeMarked.lean:47`) — Prop 3.10 `Γ_A` half — design-note-assigned to
   **P-09** (☑ CLOSED, which delivered only Prop 3.2 + the ν-surjectivities).
 - `prop_3_10_local_marked` (`SectionThreeMarked.lean:63`) — Prop 3.10 / Cor 3.12 local half — assigned
   **P-10** (☑ CLOSED, which delivered only Prop 1.1).
 - `prop_3_14 : Nonempty BoundaryMaps` (`SectionThreeMarked.lean:83`) — assigned **P-09/P-10 jointly**;
   **LOAD-BEARING** — it is the only thing that discharges the `(B : BoundaryMaps)` hypothesis threaded
-  through all of §§4–8.  **Needs a new proof ticket** (or an explicit decision to defer its discharge to
-  the P-18/P-19 assembly).  The `SORRY_ALLOWLIST` comment in `scripts/check_axioms.sh`
+  through all of §§4–8.  **Now tracked as P-25** (created 2026-07-04, ◐ Opus).  The `SORRY_ALLOWLIST` comment in `scripts/check_axioms.sh`
   ("SectionThreeMarked … removed by P-08/P-09/P-10") over-claims — only the two ν-surjectivities were
   removed; this stale note should be corrected under P-24 (guard hardening).
 
