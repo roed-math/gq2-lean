@@ -4,9 +4,14 @@ import GQ2.TateDuality
 import GQ2.Omega2
 import GQ2.QuadraticFp2
 import GQ2.GaussCount
+import GQ2.GaussSigns
+import GQ2.GaussSignsRamified
+import GQ2.HilbertLedger
+import GQ2.Prop32
 import GQ2.Corestriction
 import GQ2.OrbitData
 import GQ2.ShapiroLedger
+import GQ2.Transgression
 
 /-!
 # §6: quadratic determinant obstructions — statements  (ticket P-14)
@@ -237,12 +242,19 @@ theorem lemma_6_8 (c : ContinuousMonoidHom Ttame Hf) (hc : Function.Surjective c
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : Hf), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
     (hram : c tameTau ≠ 1)
     (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant Hf q)
-    (s r a : ℕ) (hr : Odd r) (ha : 1 ≤ a)
+    (hV2 : ∀ v : V, v + v = 0)
+    (s r a : ℕ) (hr : Odd r) (ha : 1 ≤ a) (hs1 : 1 ≤ s)
     (Wt : Type) [AddCommGroup Wt] [DistribMulAction (Subgroup.zpowers (c tameTau)) Wt]
+    (hWt2 : ∀ w : Wt, w + w = 0)
+    (hWtsimple : GQ2.FoxH.IsSimpleModTwo (Subgroup.zpowers (c tameTau)) Wt)
     (hWcard : Nat.card Wt = 2 ^ (2 ^ a * r))
     (e : V ≃+ (Fin s → Wt))
     (he : ∀ (t : Subgroup.zpowers (c tameTau)) (v : V) (j : Fin s),
-      e ((t : Hf) • v) j = t • e v j) :
+      e ((t : Hf) • v) j = t • e v j)
+    (hVU : Nat.card {v : V // powOmega2 (c tameSigma) • v = v} = 2 ^ (r * s))
+    (hrank : ∀ k : ℕ,
+      Nat.card (onePlusU (DistribMulAction.toAddEquiv V (powOmega2 (c tameSigma)))).range = 2 ^ k →
+        (k : ZMod 2) = (s : ZMod 2)) :
     arf q = (s : ZMod 2) ∧
       Nat.card {v : V // powOmega2 (c tameSigma) • v = v} = 2 ^ (r * s) ∧
       (∃ k : ℕ,
@@ -250,7 +262,43 @@ theorem lemma_6_8 (c : ContinuousMonoidHom Ttame Hf) (hc : Function.Surjective c
             = 2 ^ k ∧
           (k : ZMod 2) = (s : ZMod 2)) ∧
       arf (qDouble q (powOmega2 (c tameSigma) • ·)) = 0 := by
-  sorry
+  classical
+  letI := Fintype.ofFinite V
+  set U := DistribMulAction.toAddEquiv V (powOmega2 (c tameSigma)) with hU
+  have hUq : ∀ v, q (U v) = q v := fun v => hinv (powOmega2 (c tameSigma)) v
+  have hU2 : ∃ n, (⇑U)^[2 ^ n] = id := by
+    refine ⟨(orderOf (c tameSigma)).factorization 2, ?_⟩
+    have hp1 : powOmega2 (c tameSigma) ^ 2 ^ (orderOf (c tameSigma)).factorization 2 = 1 :=
+      orderOf_dvd_iff_pow_eq_one.mp (GQ2.FoxH.orderOf_powOmega2_dvd_two_pow (c tameSigma))
+    funext v
+    show (powOmega2 (c tameSigma) • ·)^[2 ^ (orderOf (c tameSigma)).factorization 2] v = v
+    rw [smul_iterate_apply, hp1, one_smul]
+  -- (88b): the rank is a 2-power `2^k` with `k ≡ s`
+  obtain ⟨k, hk⟩ := exists_card_range_eq_two_pow hV2 (onePlusU U)
+  have h88b : (k : ZMod 2) = (s : ZMod 2) := hrank k hk
+  -- (87): `arf q = s` via the `⟨T⟩` route (`GaussSignsRamified`), reusing P-13d's simplicity
+  have h87 : arf q = (s : ZMod 2) := by
+    letI : DistribMulAction (Subgroup.zpowers (c tameTau)) V :=
+      DistribMulAction.compHom V (Subgroup.zpowers (c tameTau)).subtype
+    have hTmem : c tameTau ∈ Subgroup.zpowers (c tameTau) := Subgroup.mem_zpowers _
+    have hTgen : ∀ g : Subgroup.zpowers (c tameTau),
+        g ∈ Subgroup.zpowers (⟨c tameTau, hTmem⟩ : Subgroup.zpowers (c tameTau)) := by
+      intro g
+      obtain ⟨n, hn⟩ := Subgroup.mem_zpowers_iff.mp g.2
+      exact Subgroup.mem_zpowers_iff.mpr ⟨n, Subtype.ext (by push_cast; exact hn)⟩
+    have hVfaith : ∀ g : Subgroup.zpowers (c tameTau), (∀ v : V, g • v = v) → g = 1 := by
+      intro g hg
+      exact Subtype.ext (hfaith (g : Hf) (fun v => hg v))
+    refine GaussSigns.arf_eq_s_ramified ⟨c tameTau, hTmem⟩ hTgen hVfaith hWtsimple hV2 hWt2
+      q hq hns (fun g v => hinv (g : Hf) v) (2 ^ (a - 1) * r) s ?_ hs1 ?_ e (fun g v j => he g v j)
+    · exact Nat.one_le_iff_ne_zero.mpr
+        (Nat.mul_ne_zero (by positivity) (by rcases hr with ⟨j, hj⟩; omega))
+    · rw [hWcard]; congr 1
+      have h2a : (2 : ℕ) ^ a = 2 * 2 ^ (a - 1) := by
+        rw [mul_comm, ← pow_succ]; congr 1; omega
+      rw [h2a]; ring
+  refine ⟨h87, hVU, ⟨k, hk, h88b⟩, ?_⟩
+  exact GaussSigns.arf_qDouble_eq_zero q U hq hV2 hns hUq hU2 (onePlusU U) (fun _ => rfl) hk h87 h88b
 
 /-- **Proposition 6.9 (candidate base determinant zero count), eq. (91), unramified case**:
 if inertia acts trivially (`c(τ) = 1`, so `Q⁰_A = q` by (83)) and `#V = 2^{2m}`, then
@@ -262,12 +310,57 @@ theorem prop_6_9_unramified (c : ContinuousMonoidHom Ttame Hf) (hc : Function.Su
     (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant Hf q)
     (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
     zeroCount q = 2 ^ (2 * m - 1) - 2 ^ (m - 1) := by
-  -- Reduced to `GaussSigns.prop_6_9_unramified_of_cyclic` (P-15b): `V` exponent 2 (2-torsion is
-  -- `Hf`-stable + nonzero by Cauchy ⟹ ⊤), `Hf` cyclic (`gen_ttame_quotient` + `c tameTau = 1`).
-  -- SPLICE READY (proof in `docs/p15b-field-core-scoping.md`); BLOCKED only on the current
-  -- `GQ2.Prop32` build failure (`CompactSpace AbsGalQ2` in `nuT_surjective`, unrelated to P-15b),
-  -- which the splice must import for `gen_ttame_quotient`.
-  sorry
+  classical
+  letI : Fintype V := Fintype.ofFinite V
+  -- `V` has exponent `2`: its `2`-torsion is an `Hf`-stable subgroup, nonzero (`2 ∣ #V` by
+  -- Cauchy), hence all of `V` by simplicity.
+  have h2 : ∀ v : V, v + v = 0 := by
+    let W2 : AddSubgroup V :=
+      { carrier := {v | v + v = 0}
+        add_mem' := fun {x y} hx hy => by
+          simp only [Set.mem_setOf_eq] at *
+          rw [show x + y + (x + y) = x + x + (y + y) by abel, hx, hy, add_zero]
+        zero_mem' := by simp
+        neg_mem' := fun {x} hx => by
+          simp only [Set.mem_setOf_eq] at *
+          rw [show -x + -x = -(x + x) by abel, hx, neg_zero] }
+    have hstab : ∀ h : Hf, ∀ w ∈ W2, h • w ∈ W2 := by
+      intro h w hw
+      show h • w + h • w = 0
+      rw [← smul_add, (show w + w = 0 from hw), smul_zero]
+    rcases hsimple W2 hstab with hbot | htop
+    · exfalso
+      haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+      have hdvd : 2 ∣ Fintype.card V := by
+        rw [← Nat.card_eq_fintype_card, hcard]; exact dvd_pow_self 2 (by omega)
+      obtain ⟨v, hv⟩ := exists_prime_addOrderOf_dvd_card 2 hdvd
+      have hvW2 : v ∈ W2 := by
+        show v + v = 0
+        have h20 : (2 : ℕ) • v = 0 := by rw [← hv]; exact addOrderOf_nsmul_eq_zero v
+        rwa [two_nsmul] at h20
+      have hvne : v ≠ 0 := by
+        intro h0; rw [h0, addOrderOf_zero] at hv; exact absurd hv (by decide)
+      rw [hbot] at hvW2
+      exact hvne ((AddSubgroup.mem_bot).mp hvW2)
+    · intro v; exact (htop ▸ AddSubgroup.mem_top v : v ∈ W2)
+  -- `Hf` is cyclic, generated by `c(σ)`: the images of `σ, τ` generate, and `c(τ) = 1`.
+  have hgen : ∀ x : Hf, x ∈ Subgroup.zpowers (c tameSigma) := by
+    have hcl : Subgroup.closure {c tameSigma, c tameTau} = ⊤ :=
+      SectionThree.gen_ttame_quotient c.toMonoidHom c.continuous_toFun hc
+    rw [hunram] at hcl
+    have hz : Subgroup.closure ({c tameSigma, 1} : Set Hf) = Subgroup.zpowers (c tameSigma) := by
+      rw [Subgroup.zpowers_eq_closure]
+      apply le_antisymm
+      · rw [Subgroup.closure_le]
+        intro y hy
+        rcases hy with rfl | rfl
+        · exact Subgroup.subset_closure (Set.mem_singleton _)
+        · exact one_mem _
+      · exact Subgroup.closure_mono (Set.singleton_subset_iff.mpr (Set.mem_insert _ _))
+    rw [hz] at hcl
+    intro x; rw [hcl]; trivial
+  exact GaussSigns.prop_6_9_unramified_of_cyclic q hq hns m hm hcard h2 (c tameSigma) hgen
+    hfaith hsimple (fun h v => hinv h v)
 
 /-- **Proposition 6.9, eq. (91), ramified case**: if inertia acts nontrivially
 (`Q⁰_A = q_U`, `U = S^{ω₂}`, by (83)) and `#V = 2^{2m}`, then
@@ -277,9 +370,36 @@ theorem prop_6_9_ramified (c : ContinuousMonoidHom Ttame Hf) (hc : Function.Surj
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : Hf), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
     (hram : c tameTau ≠ 1)
     (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant Hf q)
+    (hV2 : ∀ v : V, v + v = 0)
+    (s r a : ℕ) (hr : Odd r) (ha : 1 ≤ a) (hs1 : 1 ≤ s)
+    (Wt : Type) [AddCommGroup Wt] [DistribMulAction (Subgroup.zpowers (c tameTau)) Wt]
+    (hWt2 : ∀ w : Wt, w + w = 0)
+    (hWtsimple : GQ2.FoxH.IsSimpleModTwo (Subgroup.zpowers (c tameTau)) Wt)
+    (hWcard : Nat.card Wt = 2 ^ (2 ^ a * r))
+    (e : V ≃+ (Fin s → Wt))
+    (he : ∀ (t : Subgroup.zpowers (c tameTau)) (v : V) (j : Fin s),
+      e ((t : Hf) • v) j = t • e v j)
+    (hVU : Nat.card {v : V // powOmega2 (c tameSigma) • v = v} = 2 ^ (r * s))
+    (hrank : ∀ k : ℕ,
+      Nat.card (onePlusU (DistribMulAction.toAddEquiv V (powOmega2 (c tameSigma)))).range = 2 ^ k →
+        (k : ZMod 2) = (s : ZMod 2))
     (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
     zeroCount (qDouble q (powOmega2 (c tameSigma) • ·)) = 2 ^ (2 * m - 1) + 2 ^ (m - 1) := by
-  sorry
+  classical
+  set U := DistribMulAction.toAddEquiv V (powOmega2 (c tameSigma)) with hU
+  have hUq : ∀ v, q (U v) = q v := fun v => hinv (powOmega2 (c tameSigma)) v
+  have hU2 : ∃ n, (⇑U)^[2 ^ n] = id := by
+    refine ⟨(orderOf (c tameSigma)).factorization 2, ?_⟩
+    have hp1 : powOmega2 (c tameSigma) ^ 2 ^ (orderOf (c tameSigma)).factorization 2 = 1 :=
+      orderOf_dvd_iff_pow_eq_one.mp (GQ2.FoxH.orderOf_powOmega2_dvd_two_pow (c tameSigma))
+    funext v
+    show (powOmega2 (c tameSigma) • ·)^[2 ^ (orderOf (c tameSigma)).factorization 2] v = v
+    rw [smul_iterate_apply, hp1, one_smul]
+  -- `arf(q_U) = 0` is Lemma 6.8's fourth conjunct
+  have h4 : arf (qDouble q (powOmega2 (c tameSigma) • ·)) = 0 :=
+    (lemma_6_8 c hc hfaith hsimple hram q hq hns hinv hV2 s r a hr ha hs1 Wt hWt2 hWtsimple
+      hWcard e he hVU hrank).2.2.2
+  exact GaussSigns.zeroCount_qDouble_of_arf_zero q U hq hV2 hns hUq hU2 h4 m hm hcard
 
 end GaussSign
 
@@ -593,8 +713,12 @@ theorem lemma_6_15_involution (hNo : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) (g
       = H2ofFun G (cor2Fun U₀ (fun p ↦
           evensNormFun (N.subgroupOf U₀)
             ⟨ghat, by rw [hU₀]; exact Subgroup.mem_sup_right (Subgroup.mem_zpowers ghat)⟩
-            (fun u ↦ α.1 ⟨u.1.1, u.2⟩) (p.1, p.2))) := by
-  sorry
+            (fun u ↦ α.1 ⟨u.1.1, u.2⟩) (p.1, p.2))) :=
+  -- Spliced (P-15c): proved in `GQ2/ShapiroLedger.lean` (`Ax = ∅`, std-3) — the compatible
+  -- transversal `invLift` (words based at `phi`'s own orbit-canonical points), the position
+  -- identity, the aligned-locus coboundary `invLambda`, and the generic transversal-change
+  -- brick `cor2FunT_sub_cor2Fun_mem_B2`, chained through `H2ofFun_eq_of_sub_mem_B2`.
+  ShapiroLedger.lemma_6_15_involution_aux N hNo α ghat hg hg2 U₀ hU₀ hs
 
 end Shapiro
 
@@ -629,7 +753,7 @@ theorem lemma_6_16 (k L : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional
     (hkL : k ≤ L)
     (hindex : ((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)).index = 2)
     (hunram : ∀ x : ℚ̄₂, x ≠ 0 → x ∈ L → ∃ y : ℚ̄₂, y ≠ 0 ∧ y ∈ k ∧ ‖x‖ = ‖y‖)
-    (d : (↥k)ˣ) (δ : ℚ̄₂) (hδ : δ ^ 2 = ((d : ↥k) : ℚ̄₂))
+    (d : (↥k)ˣ) (δ : ℚ̄₂) (hδ : δ ^ 2 = ((d : ↥k) : ℚ̄₂)) (hδL : δ ∈ L)
     (hLδ : (L.fixingSubgroup).subgroupOf (k.fixingSubgroup)
       = (MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf (k.fixingSubgroup))
     (A β : ℚ̄₂) (hdeep : IsDeepUnit L.fixingSubgroup A) (hβ : β ^ 2 = A) (hβ0 : β ≠ 0)
@@ -647,7 +771,58 @@ theorem lemma_6_16 (k L : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional
     evensNormH2 htriv hUo hindex hs
       (fun u ↦ Kummer.kummerCocycleFun β ((u : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]))
       hα hαc = 0 := by
-  sorry
+  -- P-15e splice: reduce to `HilbertLedger.evensNorm_deepUnit_vanish` (self-contained over
+  -- `stabilizer δ`).  Extract `b` from the deep unit, build the norm unit `n = u²−d·v²`
+  -- (nonzero: `A = β² ≠ 0` and `δ ∉ k`), convert `hunram` via `δ ∈ L`, transport along `hLδ`.
+  obtain ⟨hA0, _hAfix, b, _hbfix, hAb, hb⟩ := hdeep
+  have hA0' : ((u : ↥k) : ℚ̄₂) + (v : ℚ̄₂) * δ ≠ 0 := hAuv ▸ hA0
+  -- `δ ∉ k`: else `k.fixingSubgroup ≤ stabilizer δ`, forcing `L.fs.subgroupOf = ⊤`, index 1 ≠ 2.
+  have hδnk : δ ∉ k := by
+    intro hδk
+    have hle : k.fixingSubgroup ≤ MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ := fun g hg =>
+      MulAction.mem_stabilizer_iff.mpr (by simpa using fixingSubgroup_smul k hg ⟨δ, hδk⟩)
+    rw [hLδ, Subgroup.subgroupOf_eq_top.mpr hle, Subgroup.index_top] at hindex
+    exact absurd hindex (by norm_num)
+  -- the norm `n = u² − d·v²` is nonzero, hence a unit
+  have hne : (u : ↥k) ^ 2 - (d : ↥k) * v ^ 2 ≠ 0 := by
+    intro h0
+    have hc0 : ((u : ↥k) : ℚ̄₂) ^ 2 - ((d : ↥k) : ℚ̄₂) * (v : ℚ̄₂) ^ 2 = 0 := by
+      have h := congrArg (fun t : ↥k => (t : ℚ̄₂)) h0
+      push_cast at h; simpa using h
+    have hconj0 : ((u : ↥k) : ℚ̄₂) - (v : ℚ̄₂) * δ = 0 := by
+      have hfac : (((u : ↥k) : ℚ̄₂) + (v : ℚ̄₂) * δ) * (((u : ↥k) : ℚ̄₂) - (v : ℚ̄₂) * δ) = 0 := by
+        have hh : ((u : ↥k) : ℚ̄₂) ^ 2 - δ ^ 2 * (v : ℚ̄₂) ^ 2 = 0 := by
+          rw [hδ]; linear_combination hc0
+        linear_combination hh
+      rcases mul_eq_zero.mp hfac with h | h
+      · exact absurd h hA0'
+      · exact h
+    have hvne : v ≠ 0 := by
+      intro hv
+      apply unitCoe_ne_zero k u
+      rw [hv] at hconj0
+      simpa using hconj0
+    apply hδnk
+    have hδeq : δ = (((u : ↥k) / v : ↥k) : ℚ̄₂) := by
+      rw [IntermediateField.coe_div, eq_div_iff (by simpa using hvne)]
+      linear_combination -hconj0
+    rw [hδeq]
+    exact SetLike.coe_mem _
+  set n : (↥k)ˣ := Units.mk0 ((u : ↥k) ^ 2 - (d : ↥k) * v ^ 2) hne with hndef
+  -- convert `hunram` to the `x + yδ` form (uses `δ ∈ L`)
+  have hunram' : ∀ z : ℚ̄₂, z ≠ 0 → (∃ x y : ↥k, z = ↑x + ↑y * δ) →
+      ∃ w : ↥k, w ≠ 0 ∧ ‖z‖ = ‖(w : ℚ̄₂)‖ := by
+    rintro z hz0 ⟨x, y, rfl⟩
+    have hzL : (↑x : ℚ̄₂) + ↑y * δ ∈ L :=
+      add_mem (hkL x.2) (mul_mem (hkL y.2) hδL)
+    obtain ⟨w, hw0, hwk, hnorm⟩ := hunram _ hz0 hzL
+    exact ⟨⟨w, hwk⟩, fun h => hw0 (congrArg Subtype.val h), hnorm⟩
+  -- transport the goal's `evensNormH2` args along `hLδ`, then apply the capstone
+  revert hindex hs hUo hα hαc
+  rw [hLδ]
+  intro hindex hs hUo hα hαc
+  exact evensNorm_deepUnit_vanish k u n d v (by rw [hndef, Units.val_mk0]) δ β hδ
+    (hβ.trans hAuv) hβ0 hindex s hs htriv hUo _ (fun _ => rfl) hα hαc b hb (hAuv ▸ hAb) hunram'
 
 variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
 variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
@@ -752,12 +927,18 @@ section Transgression
 variable {C : Type} [Group C] [Finite C]
 variable {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
 
-/-- **Lemma 6.21 (determinant transgression), consequence form**: if a finite extension
-`1 → V → B → C → 1` (encoded: `p : B ↠ C` with central-kernel data `i`) admits a class
-`ξ ∈ Z²(B, 𝔽₂)` whose fibre restriction has square map a **nonsingular** `q` (i.e.
-`ξ(i v, i v) = q v`), then the extension splits: `B ≅ V ⋊ C` over `C`.  The paper's obstruction
-formula `d₂(q) = B_q^♭∘η` (eq. (116)) is the proof mechanism (P-15); only the splitting
-consequence is consumed (§§8–9).  Deviation note.  [P-14 statement; proof P-15.] -/
+/-- **Lemma 6.21 (determinant transgression), consequence form** — *relative to the fixed
+equivariant class* `κ⁰_q`: if a finite extension `1 → V → B → C → 1` (encoded: `p : B ↠ C` with
+central-kernel data `i`) admits a class `ξ ∈ Z²(B, 𝔽₂)` whose fibre restriction has square map
+a **nonsingular** `q` (i.e. `ξ(i v, i v) = q v`), and an equivariant factor-set datum for `q` is
+supplied (`(dat, hdat)` = Lemma 6.1's `κ⁰_q` — the paper's stated hypothesis *"assume a
+zero-section-normalized equivariant class restricting to `q` on `V` has been fixed"*), then the
+extension splits: `B ≅ V ⋊ C` over `C`.  The paper's obstruction formula `d₂(q) = B_q^♭∘η`
+(eq. (116)) is the proof mechanism (P-15i, `GQ2/Transgression.lean`); only the splitting
+consequence is consumed (§§8–9).  Deviation note, amended 2026-07-04: the `κ⁰_q` hypothesis
+restores the paper's relative clause, dropped by the original consequence-form extraction —
+without it the intrinsic equivariance obstruction blocks the proof; see
+`docs/p15i-transgression-gap.md`.  [P-14 statement; proof P-15i.] -/
 theorem lemma_6_21 {B : Type} [Group B] [Finite B]
     (p : B →* C) (hp : Function.Surjective p)
     (i : Multiplicative V →* B) (hi : Function.Injective i)
@@ -765,11 +946,15 @@ theorem lemma_6_21 {B : Type} [Group B] [Finite B]
     (hconj : ∀ (b : B) (v : V), b * i (Multiplicative.ofAdd v) * b⁻¹
       = i (Multiplicative.ofAdd (p b • v)))
     (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
     (ξ : B × B → ZMod 2)
     (hcocycle : ∀ g h k : B, ξ (h, k) + ξ (g, h * k) = ξ (g * h, k) + ξ (g, h))
     (hξq : ∀ v : V, ξ (i (Multiplicative.ofAdd v), i (Multiplicative.ofAdd v)) = q v) :
     ∃ s : C →* B, ∀ cc : C, p (s cc) = cc := by
-  sorry
+  obtain ⟨t, ht_quad, ht_mul⟩ :=
+    Transgression.equivariant_lift_of_factorSet i q hq hns ξ hcocycle hξq dat hdat
+  exact Transgression.splitting_of_global_cocycle p hp i hrange hconj q hq hns ξ hcocycle hξq
+    t ht_quad ht_mul
 
 /-- The filtration-one difference term `Γ_γ` (eq. (64)) as a raw function on the product
 carrier `V × C`: `Γ_γ((v,c),(w,d)) = γ(c)(c·w)`. -/

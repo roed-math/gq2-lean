@@ -1611,6 +1611,245 @@ theorem invPositionEval (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ N) (hg2 :
             ((γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) * QuotientGroup.mk' N ghat)
           * dRead N α ghat (η⁻¹ • (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)))) * h2
 
+/-! ### The involution coboundary `invLambda` and the δ-assembly (Step 4b) -/
+
+open scoped Classical in
+/-- The involution transversal-change 1-cochain: the aligned-locus sum
+`Λ(σ) = Σ_{v aligned-for-σ} α(ℓ_{z_v}σ)·D(σ⁻¹•z_v)`. -/
+noncomputable def invLambda (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G)
+    (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) : G → ZMod 2 :=
+  fun σ => ∑ᶠ v : G ⧸ U₀,
+    if lWordT U₀ (invLift N ghat U₀ hU₀) v σ ∈ N then
+      α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) σ)
+        * dRead N α ghat (σ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) else 0
+
+open scoped Classical in
+/-- The aligned-indicator summand in indicator-product form (for continuity). -/
+theorem invLambda_summand_eq (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G)
+    (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (v : G ⧸ U₀) (σ : G) :
+    (if lWordT U₀ (invLift N ghat U₀ hU₀) v σ ∈ N then
+        α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) σ)
+          * dRead N α ghat (σ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) else 0)
+      = (if (QuotientGroup.mk (lWordT U₀ (invLift N ghat U₀ hU₀) v σ) : G ⧸ N) = 1
+            then (1 : ZMod 2) else 0)
+        * (α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) σ)
+            * dRead N α ghat (σ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out))) := by
+  by_cases h : lWordT U₀ (invLift N ghat U₀ hU₀) v σ ∈ N
+  · rw [if_pos h, if_pos ((QuotientGroup.eq_one_iff _).mpr h), one_mul]
+  · rw [if_neg h, if_neg (fun h1 => h ((QuotientGroup.eq_one_iff _).mp h1)), zero_mul]
+
+/-- `invLambda` is continuous (`U₀ ⊇ N` is open; the alignment indicator factors through the
+discrete `G/N`). -/
+theorem invLambda_continuous (hNo : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) (ghat : G)
+    (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) :
+    Continuous (invLambda N α ghat U₀ hU₀) := by
+  classical
+  haveI := QuotientGroup.discreteTopology (N := N) hNo
+  haveI : Finite (G ⧸ U₀) := finite_quot_U0 N ghat U₀ hU₀
+  haveI : Fintype (G ⧸ U₀) := Fintype.ofFinite _
+  have hU₀o : IsOpen (U₀ : Set G) :=
+    Subgroup.isOpen_mono (hU₀ ▸ le_sup_left : N ≤ U₀) hNo
+  have hα : Continuous α.1 := (mem_Z1_iff.mp α.2).1
+  have hEq : invLambda N α ghat U₀ hU₀ = fun σ => ∑ v : G ⧸ U₀,
+      (if (QuotientGroup.mk (lWordT U₀ (invLift N ghat U₀ hU₀) v σ) : G ⧸ N) = 1
+          then (1 : ZMod 2) else 0)
+        * (α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) σ)
+            * dRead N α ghat (σ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out))) := by
+    funext σ
+    show (∑ᶠ v : G ⧸ U₀, _) = _
+    rw [finsum_eq_sum_of_fintype]
+    exact Finset.sum_congr rfl
+      (fun v _ => invLambda_summand_eq N α ghat U₀ hU₀ v σ)
+  rw [hEq]
+  refine continuous_finset_sum Finset.univ (fun v _ => ?_)
+  refine Continuous.mul ?_ (Continuous.mul ?_ ?_)
+  · -- the alignment indicator factors through the discrete `G/N`
+    have hword : Continuous fun σ : G => lWordT U₀ (invLift N ghat U₀ hU₀) v σ := by
+      simp only [lWordT]
+      exact (continuous_mul_left _).mul
+        (continuous_comp_inv_smul U₀ hU₀o v (invLift N ghat U₀ hU₀))
+    exact (continuous_of_discreteTopology
+      (f := fun q : G ⧸ N => if q = 1 then (1 : ZMod 2) else 0)).comp
+      (QuotientGroup.continuous_mk.comp hword)
+  · exact hα.comp (continuous_lTrans' N hNo _)
+  · exact (continuous_of_discreteTopology (f := fun m : G ⧸ N => dRead N α ghat m)).comp
+      (continuous_inv_smul N hNo _)
+
+open scoped Classical in
+/-- **The involution coboundary (Step 4b)**: the graph pullback differs from the
+compatible-transversal corestriction by `δ¹(invLambda)`. -/
+theorem graphPullback_sub_cor2FunT_mem_B2 (hNo : IsOpen (N : Set G))
+    (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
+    (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (hgU : ghat ∈ U₀)
+    (hUi : (N.subgroupOf U₀).index = 2) (hs : (⟨ghat, hgU⟩ : U₀) ∉ N.subgroupOf U₀) :
+    graphPullback (invOrbitDatum N (QuotientGroup.mk' N ghat)) (QuotientGroup.mk' N)
+        (shapiroFun N α.1)
+      - cor2FunT U₀ (invLift N ghat U₀ hU₀) (invLift_spec N ghat U₀ hU₀)
+          (fun p => evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (p.1, p.2))
+      ∈ B2 G (ZMod 2) := by
+  classical
+  haveI : Finite (G ⧸ U₀) := finite_quot_U0 N ghat U₀ hU₀
+  haveI : Fintype (G ⧸ U₀) := Fintype.ofFinite _
+  haveI : Fintype ((G ⧸ N) ⧸ Subgroup.zpowers (QuotientGroup.mk' N ghat)) := Fintype.ofFinite _
+  simp only [B2, AddSubgroup.mem_map]
+  refine ⟨invLambda N α ghat U₀ hU₀,
+    mem_C1_iff.mpr (invLambda_continuous N hNo α ghat U₀ hU₀), ?_⟩
+  funext p
+  obtain ⟨γ, η⟩ := p
+  have hL : dOne G (ZMod 2) (invLambda N α ghat U₀ hU₀) (γ, η)
+      = invLambda N α ghat U₀ hU₀ η + invLambda N α ghat U₀ hU₀ (γ * η)
+        + invLambda N α ghat U₀ hU₀ γ := by
+    show γ • invLambda N α ghat U₀ hU₀ η - invLambda N α ghat U₀ hU₀ (γ * η)
+        + invLambda N α ghat U₀ hU₀ γ = _
+    rw [smul_zmodTwo, sub_eq_add_neg, CharTwo.neg_eq]
+  rw [hL, Pi.sub_apply, phi_inv_eq]
+  -- convert the two `O`-sums to `G/U₀`-sums along `invIndexEquiv`
+  rw [show (∑ᶠ u : (G ⧸ N) ⧸ Subgroup.zpowers (QuotientGroup.mk' N ghat),
+        α.1 (lTrans N u.out γ)
+          * α.1 (lTrans N ((QuotientGroup.mk' N γ)⁻¹ * (u.out * QuotientGroup.mk' N ghat)) η))
+      = ∑ᶠ v : G ⧸ U₀,
+          α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) γ)
+            * α.1 (lTrans N ((QuotientGroup.mk' N γ)⁻¹
+                * ((invIndexEquiv N ghat U₀ hU₀ v).out * QuotientGroup.mk' N ghat)) η) from
+    (finsum_comp_equiv (invIndexEquiv N ghat U₀ hU₀)).symm]
+  rw [show (∑ᶠ u : (G ⧸ N) ⧸ Subgroup.zpowers (QuotientGroup.mk' N ghat),
+        (if (QuotientGroup.mk' N γ)⁻¹ * u.out
+            = orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * u.out) then 0 else 1)
+          * (α.1 (lTrans N (orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * u.out)) η)
+            * α.1 (lTrans N (orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * u.out)
+                * QuotientGroup.mk' N ghat) η)))
+      = ∑ᶠ v : G ⧸ U₀,
+          (if (QuotientGroup.mk' N γ)⁻¹ * (invIndexEquiv N ghat U₀ hU₀ v).out
+              = orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹
+                  * (invIndexEquiv N ghat U₀ hU₀ v).out) then 0 else 1)
+            * (α.1 (lTrans N (orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹
+                  * (invIndexEquiv N ghat U₀ hU₀ v).out)) η)
+              * α.1 (lTrans N (orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹
+                  * (invIndexEquiv N ghat U₀ hU₀ v).out) * QuotientGroup.mk' N ghat) η)) from
+    (finsum_comp_equiv (invIndexEquiv N ghat U₀ hU₀)).symm]
+  -- everything as `Fintype` sums
+  show _ = _ - cor2FunT U₀ (invLift N ghat U₀ hU₀) (invLift_spec N ghat U₀ hU₀) _ (γ, η)
+  simp only [cor2FunT, invLambda, finsum_eq_sum_of_fintype]
+  -- rewrite the corestriction summand by the position identity
+  rw [Finset.sum_congr rfl (fun v _ =>
+    invPositionEval N α ghat hg hg2 U₀ hU₀ hgU hUi hs v γ η)]
+  -- reindex the `η`-Λ sum onto the `γ`-shifted positions
+  have hreindex : (∑ v : G ⧸ U₀,
+        if lWordT U₀ (invLift N ghat U₀ hU₀) v η ∈ N then
+          α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) η)
+            * dRead N α ghat (η⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) else 0)
+      = ∑ v : G ⧸ U₀,
+          if lWordT U₀ (invLift N ghat U₀ hU₀) (γ⁻¹ • v) η ∈ N then
+            α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out) η)
+              * dRead N α ghat (η⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out)) else 0 :=
+    (sum_reindex_smul' U₀ γ (fun w =>
+      if lWordT U₀ (invLift N ghat U₀ hU₀) w η ∈ N then
+        α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ w).out) η)
+          * dRead N α ghat (η⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ w).out)) else 0)).symm
+  rw [hreindex]
+  simp only [Finset.sum_add_distrib]
+  abel_nf
+  simp only [neg_one_zsmul, CharTwo.neg_eq]
+
+/-! ### The final chain (Step 5): `lemma_6_15_involution_aux` -/
+
+/-- `alphaOn` kills the identity. -/
+theorem alphaOn_one (α : Z1 N (ZMod 2)) (U₀ : Subgroup G) :
+    alphaOn N α U₀ 1 = 0 := by
+  have h := alphaOn_hom N α U₀ 1 1
+  rw [mul_one] at h
+  have h2 : alphaOn N α U₀ 1 + (0 : ZMod 2)
+      = alphaOn N α U₀ 1 + alphaOn N α U₀ 1 := by rw [add_zero]; exact h
+  exact (add_left_cancel h2).symm
+
+/-- The Evens-norm cochain is right-normalized: `ν(z, 1) = 0`. -/
+theorem evensNormFun_right_one (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G)
+    (hgU : ghat ∈ U₀) (hUi : (N.subgroupOf U₀).index = 2)
+    (hs : (⟨ghat, hgU⟩ : U₀) ∉ N.subgroupOf U₀) (z : U₀) :
+    evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (z, 1) = 0 := by
+  have hb1 : evensAux (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) 1 = 0 := by
+    rw [evensAux_of_mem (alphaOn N α U₀) (one_mem _)]
+    exact alphaOn_one N α U₀
+  have hval : ∀ (u : N.subgroupOf U₀), (u : U₀) = 1 → alphaOn N α U₀ u = 0 := by
+    intro u hu
+    rw [show u = 1 from Subtype.ext hu]
+    exact alphaOn_one N α U₀
+  have hbS1 : bS (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) 1 = 0 := by
+    rw [bS, mul_one, evensAux_of_notMem hUi hs (alphaOn N α U₀) (inv_notMem hs)]
+    exact hval _ (inv_mul_cancel _)
+  rw [evensNormFun]
+  by_cases hz : z ∈ N.subgroupOf U₀
+  · rw [if_pos hz]
+    show _ * bS _ _ _ 1 = 0
+    rw [hbS1, mul_zero]
+  · rw [if_neg hz]
+    show _ * evensAux _ _ _ 1 + evensAux _ _ _ 1 * bS _ _ _ 1 = 0
+    rw [hb1, hbS1, mul_zero, zero_mul, add_zero]
+
+/-- The Evens-norm cochain satisfies the char-2 four-term cocycle identity. -/
+theorem evensNormFun_cocForm (hNo : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) (ghat : G)
+    (U₀ : Subgroup G) (hgU : ghat ∈ U₀) (hUi : (N.subgroupOf U₀).index = 2)
+    (hs : (⟨ghat, hgU⟩ : U₀) ∉ N.subgroupOf U₀) (a b c : U₀) :
+    evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (b, c)
+      + evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a * b, c)
+      + evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a, b * c)
+      + evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a, b) = 0 := by
+  have hZ2 : evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀)
+      ∈ Z2 ↥U₀ (ZMod 2) :=
+    evensNormFun_mem_Z2 (smul_zmodTwo) (subgroupOf_isOpen N hNo U₀) hUi hs
+      (alphaOn N α U₀) (alphaOn_hom N α U₀) (alphaOn_continuous N α U₀)
+  have e := (mem_Z2_iff.mp hZ2).2 a b c
+  rw [smul_zmodTwo] at e
+  calc evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (b, c)
+        + evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a * b, c)
+        + evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a, b * c)
+        + evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a, b)
+      = (evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (b, c)
+          + evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a, b * c))
+        + (evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a * b, c)
+          + evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a, b)) := by ring
+    _ = (evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a * b, c)
+          + evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a, b))
+        + (evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a * b, c)
+          + evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a, b)) := by rw [e]
+    _ = 0 := CharTwo.add_self_eq_zero _
+
+/-- **Lemma 6.15, involution orbits (105)** — the graph pullback of the involution orbit datum
+equals the corestriction of the index-two Evens norm, as `H2ofFun`-classes.  Chains the
+compatible-transversal coboundary (`graphPullback_sub_cor2FunT_mem_B2`) with the
+transversal-change coboundary (`cor2FunT_sub_cor2Fun_mem_B2`). -/
+theorem lemma_6_15_involution_aux (hNo : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) (ghat : G)
+    (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
+    (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat)
+    (hs : (⟨ghat, by rw [hU₀]; exact Subgroup.mem_sup_right (Subgroup.mem_zpowers ghat)⟩ : U₀)
+        ∉ N.subgroupOf U₀) :
+    H2ofFun G (graphPullback (invOrbitDatum N (QuotientGroup.mk' N ghat))
+        (QuotientGroup.mk' N) (shapiroFun N α.1))
+      = H2ofFun G (cor2Fun U₀ (fun p ↦
+          evensNormFun (N.subgroupOf U₀)
+            ⟨ghat, by rw [hU₀]; exact Subgroup.mem_sup_right (Subgroup.mem_zpowers ghat)⟩
+            (fun u ↦ α.1 ⟨u.1.1, u.2⟩) (p.1, p.2))) := by
+  classical
+  have hgU : ghat ∈ U₀ := by
+    rw [hU₀]; exact Subgroup.mem_sup_right (Subgroup.mem_zpowers ghat)
+  have hUi : (N.subgroupOf U₀).index = 2 := subgroupOf_index_two N ghat hg hg2 U₀ hU₀
+  have hU₀o : IsOpen (U₀ : Set G) :=
+    Subgroup.isOpen_mono (hU₀ ▸ le_sup_left : N ≤ U₀) hNo
+  haveI : Finite (G ⧸ U₀) := finite_quot_U0 N ghat U₀ hU₀
+  apply H2ofFun_eq_of_sub_mem_B2
+  have h1 := graphPullback_sub_cor2FunT_mem_B2 N hNo α ghat hg hg2 U₀ hU₀ hgU hUi hs
+  have h2 := cor2FunT_sub_cor2Fun_mem_B2 U₀ hU₀o (invLift N ghat U₀ hU₀)
+    (invLift_spec N ghat U₀ hU₀)
+    (fun p => evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (p.1, p.2))
+    (by
+      have := evensNormFun_continuous (subgroupOf_isOpen N hNo U₀) hUi hs
+        (alphaOn_continuous N α U₀)
+      exact this)
+    (fun a b c => evensNormFun_cocForm N hNo α ghat U₀ hgU hUi hs a b c)
+    (fun z => evensNormFun_right_one N α ghat U₀ hgU hUi hs z)
+  have h3 := add_mem h1 h2
+  rwa [sub_add_sub_cancel] at h3
+
 end Involution
 
 end ShapiroLedger
