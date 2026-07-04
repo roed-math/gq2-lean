@@ -1135,6 +1135,284 @@ theorem lWordT_invLift_mem_N_iff (ghat : G) (U₀ : Subgroup G)
     rw [← h]
     group
 
+/-! ### Word identities and α-reads along `invLift` (Step 3)
+
+On the compatible transversal the aligned reads are **on the nose** and every flipped or
+`bS`-read carries only `shiftCorr`-corrections, collapsed to the single correction read
+`dRead` via the duality `sc(m·ḡ) = (ĝ·sc(m)·ĝ)⁻¹`. -/
+
+/-- **Aligned `z'`-characterization**: if the compatible word lies in `N`, the shifted base
+point is the plain `γ`-shift of the base point. -/
+theorem invIndexEquiv_out_aligned (ghat : G) (U₀ : Subgroup G)
+    (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (v : G ⧸ U₀) (γ : G)
+    (hx : lWordT U₀ (invLift N ghat U₀ hU₀) v γ ∈ N) :
+    (invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out
+      = γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out) := by
+  have h1 : (QuotientGroup.mk (lWordT U₀ (invLift N ghat U₀ hU₀) v γ) : G ⧸ N) = 1 :=
+    (QuotientGroup.eq_one_iff _).mpr hx
+  rw [mk_lWordT_invLift N ghat U₀ hU₀ v γ] at h1
+  have h2 : (invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out
+      = (QuotientGroup.mk' N γ)⁻¹ * ((invIndexEquiv N ghat U₀ hU₀ v).out) := by
+    have h3 := mul_eq_one_iff_inv_eq.mp h1
+    rw [← h3]
+    group
+  rw [h2, quot_smul_eq_mk_mul]
+  rfl
+
+/-- **Flipped `z'`-characterization**: if the compatible word is not in `N`, the shifted base
+point is the `γ`-shift times `ḡ`. -/
+theorem invIndexEquiv_out_flipped (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
+    (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (v : G ⧸ U₀) (γ : G)
+    (hx : lWordT U₀ (invLift N ghat U₀ hU₀) v γ ∉ N) :
+    (invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out
+      = (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) * (QuotientGroup.mk' N ghat) := by
+  -- the word's image lies in `map U₀ = ⟨ḡ⟩` and is `≠ 1`, hence `= ḡ`
+  have hmemU : lWordT U₀ (invLift N ghat U₀ hU₀) v γ ∈ U₀ :=
+    lWordT_mem U₀ (invLift N ghat U₀ hU₀) (invLift_spec N ghat U₀ hU₀) v γ
+  have himg : (QuotientGroup.mk (lWordT U₀ (invLift N ghat U₀ hU₀) v γ) : G ⧸ N)
+      ∈ Subgroup.zpowers (QuotientGroup.mk' N ghat) := by
+    rw [← map_U0_eq_zpowers N ghat U₀ hU₀]
+    exact Subgroup.mem_map.mpr ⟨_, hmemU, rfl⟩
+  have hne1 : (QuotientGroup.mk (lWordT U₀ (invLift N ghat U₀ hU₀) v γ) : G ⧸ N) ≠ 1 := by
+    rw [Ne, QuotientGroup.eq_one_iff]
+    exact hx
+  have heq : (QuotientGroup.mk (lWordT U₀ (invLift N ghat U₀ hU₀) v γ) : G ⧸ N)
+      = QuotientGroup.mk' N ghat := by
+    rcases mem_zpowers_sq_one (ghatQuot_sq N ghat hg2) himg with h | h
+    · exact absurd h hne1
+    · exact h
+  rw [mk_lWordT_invLift N ghat U₀ hU₀ v γ] at heq
+  have h2 : (invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out
+      = (QuotientGroup.mk' N γ)⁻¹ * ((invIndexEquiv N ghat U₀ hU₀ v).out)
+          * QuotientGroup.mk' N ghat := by
+    have h3 : ((invIndexEquiv N ghat U₀ hU₀ v).out)⁻¹ * (QuotientGroup.mk' N γ)
+        * ((invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out) = QuotientGroup.mk' N ghat := heq
+    calc (invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out
+        = ((QuotientGroup.mk' N γ)⁻¹ * (invIndexEquiv N ghat U₀ hU₀ v).out)
+            * (((invIndexEquiv N ghat U₀ hU₀ v).out)⁻¹ * (QuotientGroup.mk' N γ)
+              * ((invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out)) := by group
+      _ = _ := by rw [h3]
+  rw [h2, quot_smul_eq_mk_mul]
+  rfl
+
+/-- **W1 (aligned word identity)**: on the aligned locus the compatible word IS the canonical
+`N`-transversal word at the base point — on the nose. -/
+theorem lWordT_invLift_aligned (ghat : G) (U₀ : Subgroup G)
+    (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (v : G ⧸ U₀) (γ : G)
+    (hx : lWordT U₀ (invLift N ghat U₀ hU₀) v γ ∈ N) :
+    lWordT U₀ (invLift N ghat U₀ hU₀) v γ
+      = lWord N ((invIndexEquiv N ghat U₀ hU₀ v).out) γ := by
+  have hz' := invIndexEquiv_out_aligned N ghat U₀ hU₀ v γ hx
+  show (invLift N ghat U₀ hU₀ v)⁻¹ * γ * invLift N ghat U₀ hU₀ (γ⁻¹ • v) = _
+  rw [lWord]
+  show _ = ((invIndexEquiv N ghat U₀ hU₀ v).out).out⁻¹ * γ
+      * ((γ⁻¹ • (invIndexEquiv N ghat U₀ hU₀ v).out).out)
+  rw [invLift, invLift, hz']
+
+/-- **W2 (flipped word identity)**: on the flipped locus the compatible word is the canonical
+word times `ĝ` times a `shiftCorr` correction. -/
+theorem lWordT_invLift_flipped (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
+    (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (v : G ⧸ U₀) (γ : G)
+    (hx : lWordT U₀ (invLift N ghat U₀ hU₀) v γ ∉ N) :
+    lWordT U₀ (invLift N ghat U₀ hU₀) v γ
+      = lWord N ((invIndexEquiv N ghat U₀ hU₀ v).out) γ * ghat
+        * shiftCorr N ghat (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) := by
+  have hz' := invIndexEquiv_out_flipped N ghat hg hg2 U₀ hU₀ v γ hx
+  have hout : ((invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out).out
+      = (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)).out * ghat
+        * shiftCorr N ghat (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) := by
+    rw [hz']
+    exact out_ghat_shift N ghat _
+  show (invLift N ghat U₀ hU₀ v)⁻¹ * γ * invLift N ghat U₀ hU₀ (γ⁻¹ • v) = _
+  rw [lWord]
+  show ((invIndexEquiv N ghat U₀ hU₀ v).out).out⁻¹ * γ
+      * ((invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out).out = _
+  rw [hout]
+  group
+
+/-- **`shiftCorr` duality**: `sc(m·ḡ) = (ĝ · sc(m) · ĝ)⁻¹` (from shifting twice, `ḡ² = 1`). -/
+theorem shiftCorr_ghat_mul (ghat : G) (hg2 : ghat * ghat ∈ N) (m : G ⧸ N) :
+    shiftCorr N ghat (m * (ghat : G ⧸ N)) = (ghat * shiftCorr N ghat m * ghat)⁻¹ := by
+  have hsq : (m * (ghat : G ⧸ N)) * (ghat : G ⧸ N) = m := by
+    rw [mul_assoc, ← QuotientGroup.mk_mul,
+      (QuotientGroup.eq_one_iff (ghat * ghat)).mpr hg2, mul_one]
+  have h1 : ((m * (ghat : G ⧸ N)) * (ghat : G ⧸ N)).out
+      = (m * (ghat : G ⧸ N)).out * ghat * shiftCorr N ghat (m * (ghat : G ⧸ N)) :=
+    out_ghat_shift N ghat _
+  have h2 : (m * (ghat : G ⧸ N)).out = m.out * ghat * shiftCorr N ghat m :=
+    out_ghat_shift N ghat m
+  rw [hsq, h2] at h1
+  -- h1 : m.out = m.out * ĝ * sc(m) * ĝ * sc(mḡ)
+  have h3 : shiftCorr N ghat (m * (ghat : G ⧸ N))
+      = (m.out * ghat * shiftCorr N ghat m * ghat)⁻¹ * m.out := by
+    rw [eq_inv_mul_iff_mul_eq]
+    exact h1.symm
+  rw [h3]
+  group
+
+
+/-- The `ĝ`-conjugated canonical word (rearranged `lWord_shift`):
+`ĝ⁻¹·ℓ_k(η)·ĝ = sc(k) · ℓ_{kḡ}(η) · sc(η⁻¹•k)⁻¹`. -/
+theorem ghat_conj_lWord (ghat : G) (k : G ⧸ N) (η : G) :
+    ghat⁻¹ * lWord N k η * ghat
+      = shiftCorr N ghat k * lWord N (k * (ghat : G ⧸ N)) η
+        * (shiftCorr N ghat (η⁻¹ • k))⁻¹ := by
+  rw [lWord_shift N ghat k η]
+  group
+
+/-- `x ∈ U₀ \ N` has `G/N`-image exactly `ḡ`. -/
+theorem mk_eq_ghat_of_notMem (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
+    (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat)
+    (x : G) (hxU : x ∈ U₀) (hx : x ∉ N) :
+    (QuotientGroup.mk x : G ⧸ N) = QuotientGroup.mk' N ghat := by
+  have himg : (QuotientGroup.mk x : G ⧸ N) ∈ Subgroup.zpowers (QuotientGroup.mk' N ghat) := by
+    rw [← map_U0_eq_zpowers N ghat U₀ hU₀]
+    exact Subgroup.mem_map.mpr ⟨_, hxU, rfl⟩
+  have hne1 : (QuotientGroup.mk x : G ⧸ N) ≠ 1 := by
+    rw [Ne, QuotientGroup.eq_one_iff]; exact hx
+  rcases mem_zpowers_sq_one (ghatQuot_sq N ghat hg2) himg with h | h
+  · exact absurd h hne1
+  · exact h
+
+/-- `shiftCorr` as an element of `↥N`. -/
+noncomputable def scEl (ghat : G) (m : G ⧸ N) : N :=
+  ⟨shiftCorr N ghat m, shiftCorr_mem N ghat m⟩
+
+/-- The correction read `D(m) = α(sc(m))`. -/
+noncomputable def dRead (α : Z1 N (ZMod 2)) (ghat : G) (m : G ⧸ N) : ZMod 2 :=
+  α.1 (scEl N ghat m)
+
+/-- **R1 (aligned `evensAux`-read)**: on the aligned locus, the `evensAux`-read of the
+compatible word is the canonical `α`-read at the base point — no corrections. -/
+theorem evensAux_lTransT_aligned (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G)
+    (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (hgU : ghat ∈ U₀) (v : G ⧸ U₀) (γ : G)
+    (hx : lWordT U₀ (invLift N ghat U₀ hU₀) v γ ∈ N) :
+    evensAux (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀)
+        (lTransT U₀ (invLift N ghat U₀ hU₀) (invLift_spec N ghat U₀ hU₀) v γ)
+      = α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) γ) := by
+  rw [evensAux_alphaOn_mem N α ghat U₀ hgU _ hx]
+  exact congrArg α.1 (Subtype.ext (lWordT_invLift_aligned N ghat U₀ hU₀ v γ hx))
+
+/-- **R2 (flipped `evensAux`-read)**: on the flipped locus, the read is the canonical `α`-read
+plus the correction `D((γ⁻¹•z)·ḡ)`. -/
+theorem evensAux_lTransT_flipped (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ N)
+    (hg2 : ghat * ghat ∈ N) (U₀ : Subgroup G)
+    (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (hgU : ghat ∈ U₀)
+    (hUi : (N.subgroupOf U₀).index = 2) (hs : (⟨ghat, hgU⟩ : U₀) ∉ N.subgroupOf U₀)
+    (v : G ⧸ U₀) (γ : G)
+    (hx : lWordT U₀ (invLift N ghat U₀ hU₀) v γ ∉ N) :
+    evensAux (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀)
+        (lTransT U₀ (invLift N ghat U₀ hU₀) (invLift_spec N ghat U₀ hU₀) v γ)
+      = α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) γ)
+        + dRead N α ghat ((γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) * (ghat : G ⧸ N)) := by
+  have hword := lWordT_invLift_flipped N ghat hg hg2 U₀ hU₀ v γ hx
+  have hmem : ((lTransT U₀ (invLift N ghat U₀ hU₀) (invLift_spec N ghat U₀ hU₀) v γ : U₀) : G)
+      * ghat ∈ N := by
+    show lWordT U₀ (invLift N ghat U₀ hU₀) v γ * ghat ∈ N
+    rw [← QuotientGroup.eq_one_iff, QuotientGroup.mk_mul,
+      mk_eq_ghat_of_notMem N ghat hg hg2 U₀ hU₀ _
+        (lWordT_mem U₀ _ (invLift_spec N ghat U₀ hU₀) v γ) hx,
+      QuotientGroup.mk'_apply, ← QuotientGroup.mk_mul]
+    exact (QuotientGroup.eq_one_iff _).mpr hg2
+  rw [evensAux_alphaOn_notMem N α ghat U₀ hgU hUi hs _ hx hmem]
+  -- the read word factors as `ℓ_z(γ) · (sc((γ⁻¹•z)ḡ))⁻¹`
+  have hfac : (⟨((lTransT U₀ (invLift N ghat U₀ hU₀) (invLift_spec N ghat U₀ hU₀) v γ : U₀) : G)
+        * ghat, hmem⟩ : N)
+      = lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) γ
+        * (scEl N ghat ((γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) * (ghat : G ⧸ N)))⁻¹ := by
+    apply Subtype.ext
+    rw [Subgroup.coe_mul, InvMemClass.coe_inv]
+    show lWordT U₀ (invLift N ghat U₀ hU₀) v γ * ghat
+        = lWord N ((invIndexEquiv N ghat U₀ hU₀ v).out) γ
+          * (shiftCorr N ghat ((γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) * (ghat : G ⧸ N)))⁻¹
+    rw [hword, shiftCorr_ghat_mul N ghat hg2]
+    group
+  rw [hfac, z1_mul N α, z1_inv N α]
+  rfl
+
+/-- **R5 (aligned `bS`-read)**: for an aligned `η`-slot at base `z'`, the `bS`-read is the
+canonical `α`-read at `z'·ḡ` plus corrections `D(z') + D(η⁻¹•z')`. -/
+theorem bS_lTransT_aligned (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ N)
+    (hg2 : ghat * ghat ∈ N) (U₀ : Subgroup G)
+    (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (hgU : ghat ∈ U₀)
+    (hUi : (N.subgroupOf U₀).index = 2) (hs : (⟨ghat, hgU⟩ : U₀) ∉ N.subgroupOf U₀)
+    (w : G ⧸ U₀) (η : G)
+    (hy : lWordT U₀ (invLift N ghat U₀ hU₀) w η ∈ N) :
+    bS (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀)
+        (lTransT U₀ (invLift N ghat U₀ hU₀) (invLift_spec N ghat U₀ hU₀) w η)
+      = dRead N α ghat ((invIndexEquiv N ghat U₀ hU₀ w).out)
+        + α.1 (lTrans N (((invIndexEquiv N ghat U₀ hU₀ w).out) * (ghat : G ⧸ N)) η)
+        + dRead N α ghat (η⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ w).out)) := by
+  have hword := lWordT_invLift_aligned N ghat U₀ hU₀ w η hy
+  have hmem : ghat⁻¹
+      * ((lTransT U₀ (invLift N ghat U₀ hU₀) (invLift_spec N ghat U₀ hU₀) w η : U₀) : G)
+      * ghat ∈ N := by
+    show ghat⁻¹ * lWordT U₀ (invLift N ghat U₀ hU₀) w η * ghat ∈ N
+    have := Subgroup.Normal.conj_mem ‹N.Normal› _ hy ghat⁻¹
+    simpa using this
+  rw [bS_alphaOn_mem N α ghat U₀ hgU hUi hs _ hy hmem]
+  have hfac : (⟨ghat⁻¹
+        * ((lTransT U₀ (invLift N ghat U₀ hU₀) (invLift_spec N ghat U₀ hU₀) w η : U₀) : G)
+        * ghat, hmem⟩ : N)
+      = scEl N ghat ((invIndexEquiv N ghat U₀ hU₀ w).out)
+        * lTrans N (((invIndexEquiv N ghat U₀ hU₀ w).out) * (ghat : G ⧸ N)) η
+        * (scEl N ghat (η⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ w).out)))⁻¹ := by
+    apply Subtype.ext
+    rw [Subgroup.coe_mul, Subgroup.coe_mul, InvMemClass.coe_inv]
+    show ghat⁻¹ * lWordT U₀ (invLift N ghat U₀ hU₀) w η * ghat
+        = shiftCorr N ghat ((invIndexEquiv N ghat U₀ hU₀ w).out)
+          * lWord N (((invIndexEquiv N ghat U₀ hU₀ w).out) * (ghat : G ⧸ N)) η
+          * (shiftCorr N ghat (η⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ w).out)))⁻¹
+    rw [hword]
+    exact ghat_conj_lWord N ghat _ η
+  rw [hfac, z1_mul N α, z1_mul N α, z1_inv N α]
+  rfl
+
+/-- **R6 (flipped `bS`-read)**: for a flipped `η`-slot at base `z'`, the `bS`-read is
+`D(z')` plus the canonical `α`-read at `z'·ḡ`. -/
+theorem bS_lTransT_flipped (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ N)
+    (hg2 : ghat * ghat ∈ N) (U₀ : Subgroup G)
+    (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (hgU : ghat ∈ U₀)
+    (hUi : (N.subgroupOf U₀).index = 2) (hs : (⟨ghat, hgU⟩ : U₀) ∉ N.subgroupOf U₀)
+    (w : G ⧸ U₀) (η : G)
+    (hy : lWordT U₀ (invLift N ghat U₀ hU₀) w η ∉ N) :
+    bS (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀)
+        (lTransT U₀ (invLift N ghat U₀ hU₀) (invLift_spec N ghat U₀ hU₀) w η)
+      = dRead N α ghat ((invIndexEquiv N ghat U₀ hU₀ w).out)
+        + α.1 (lTrans N (((invIndexEquiv N ghat U₀ hU₀ w).out) * (ghat : G ⧸ N)) η) := by
+  have hword := lWordT_invLift_flipped N ghat hg hg2 U₀ hU₀ w η hy
+  have hmem : ghat⁻¹
+      * ((lTransT U₀ (invLift N ghat U₀ hU₀) (invLift_spec N ghat U₀ hU₀) w η : U₀) : G)
+      ∈ N := by
+    show ghat⁻¹ * lWordT U₀ (invLift N ghat U₀ hU₀) w η ∈ N
+    rw [← QuotientGroup.eq_one_iff, QuotientGroup.mk_mul, QuotientGroup.mk_inv,
+      mk_eq_ghat_of_notMem N ghat hg hg2 U₀ hU₀ _
+        (lWordT_mem U₀ _ (invLift_spec N ghat U₀ hU₀) w η) hy,
+      QuotientGroup.mk'_apply, inv_mul_cancel]
+  rw [bS_alphaOn_notMem N α ghat U₀ hgU hUi hs _ hy hmem]
+  have hfac : (⟨ghat⁻¹
+        * ((lTransT U₀ (invLift N ghat U₀ hU₀) (invLift_spec N ghat U₀ hU₀) w η : U₀) : G),
+        hmem⟩ : N)
+      = scEl N ghat ((invIndexEquiv N ghat U₀ hU₀ w).out)
+        * lTrans N (((invIndexEquiv N ghat U₀ hU₀ w).out) * (ghat : G ⧸ N)) η := by
+    apply Subtype.ext
+    rw [Subgroup.coe_mul]
+    show ghat⁻¹ * lWordT U₀ (invLift N ghat U₀ hU₀) w η
+        = shiftCorr N ghat ((invIndexEquiv N ghat U₀ hU₀ w).out)
+          * lWord N (((invIndexEquiv N ghat U₀ hU₀ w).out) * (ghat : G ⧸ N)) η
+    have hc := ghat_conj_lWord N ghat ((invIndexEquiv N ghat U₀ hU₀ w).out) η
+    calc ghat⁻¹ * lWordT U₀ (invLift N ghat U₀ hU₀) w η
+        = (ghat⁻¹ * lWord N ((invIndexEquiv N ghat U₀ hU₀ w).out) η * ghat)
+          * shiftCorr N ghat (η⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ w).out)) := by
+          rw [hword]; group
+      _ = (shiftCorr N ghat ((invIndexEquiv N ghat U₀ hU₀ w).out)
+            * lWord N (((invIndexEquiv N ghat U₀ hU₀ w).out) * (ghat : G ⧸ N)) η
+            * (shiftCorr N ghat (η⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ w).out)))⁻¹)
+          * shiftCorr N ghat (η⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ w).out)) := by rw [hc]
+      _ = _ := by group
+  rw [hfac, z1_mul N α]
+  rfl
+
 end Involution
 
 end ShapiroLedger
