@@ -780,6 +780,16 @@ theorem commP_z_of_trivial (p q : HeisLift A C) (hp : ∀ a : A, p.g • a = a)
   generalize q.l q.a = a4; generalize p.l q.a = a5; generalize q.l p.a = a6
   revert a1 a2 a3 a4 a5 a6; decide
 
+/-- The `A`-coordinate of a commutator of trivially-based elements vanishes (`.a` is additive). -/
+theorem commP_a_of_trivial (p q : HeisLift A C) (hp : ∀ a : A, p.g • a = a)
+    (hq : ∀ a : A, q.g • a = a) : (commP p q).a = 0 := by
+  have hpi := inv_g_trivial p hp
+  have hqi := inv_g_trivial q hq
+  rw [commP, mul_a_of_trivial _ q (mul_g_trivial _ _ (mul_g_trivial _ _ hpi hqi) hp),
+    mul_a_of_trivial _ p (mul_g_trivial _ _ hpi hqi), mul_a_of_trivial _ q⁻¹ hpi,
+    inv_a_of_trivial p hp, inv_a_of_trivial q hq]
+  abel
+
 end HeisLift
 
 section Mixed
@@ -2106,6 +2116,76 @@ theorem heisMarking_g0_z_zero (t : Marking C) (c : V) (lam : ElemDual V) :
   have h := heisMarking_sigma2_a_zero t c lam
   show ((heisMarking t (x0Supported c) (x0Supported lam)).sigma2 ^ 2).z = 0
   rw [pow_two, HeisLift.mul_z, h, smul_zero, map_zero, add_zero, CharTwo.add_self_eq_zero]
+
+/-- **`h₀ ↦ λ(c)`** (Lemma 5.14, the `h₀`-shadow central contribution): on the x₀-supported rep the
+central coordinate of the wild `h₀` word is `λ(c)`.  With `g₀` in the base slice, `φ = conj by g₀`
+preserves all Heisenberg coordinates, so in the class-two peel `h₀ = φ(x₀)·x₀·φ(d₀)·d₀·d₀²·[φ(d₀),d₀]`
+every factor but the leading `φ(x₀)·x₀` cross-term vanishes (`d₀.a = d₀.l = 0`; the paired `z`'s
+cancel in char 2), leaving `φ(x₀).l(x₀.a) = λ(c)`. -/
+theorem heisMarking_h0_z (t : Marking C) (c : V) (lam : ElemDual V) (hV₂ : ∀ v : V, v + v = 0)
+    (hx0 : ∀ v : V, t.x₀ • v = v) (htau : ∀ v : V, t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v) :
+    (heisMarking t (x0Supported c) (x0Supported lam)).h0.z = lam c := by
+  set M := heisMarking t (x0Supported c) (x0Supported lam) with hM
+  have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := fun l => HeisLift.smul_elemdual_trivial t.x₀ hx0 l
+  have htaud : ∀ l : ElemDual V, t.τ • l = l := fun l => HeisLift.smul_elemdual_trivial t.τ htau l
+  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => by
+    ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]; exact CharTwo.add_self_eq_zero (l v)
+  -- leaf coordinates
+  have hd0a : M.d0.a = 0 :=
+    (heisMarking_d0_a t (x0Supported c) (x0Supported lam)).trans
+      (liftMarking_d0_u t (x0Supported c) hV₂ hx0 htau)
+  have hd0l : M.d0.l = 0 :=
+    (heisMarking_d0_l t (x0Supported c) (x0Supported lam)).trans
+      (liftMarking_d0_u t (x0Supported lam) hV₂d hx0d htaud)
+  have hx0a : M.x₀.a = c := rfl
+  have hx0l : M.x₀.l = lam := rfl
+  have hx0z : M.x₀.z = 0 := rfl
+  have hg0a : M.g0.a = 0 := heisMarking_g0_a_zero t c lam
+  have hg0l : M.g0.l = 0 := heisMarking_g0_l_zero t c lam
+  have hg0z : M.g0.z = 0 := heisMarking_g0_z_zero t c lam
+  have hg0g : ∀ v : V, M.g0.g • v = v := heisMarking_g0_g_smul t (x0Supported c) (x0Supported lam) hU
+  have hd0g : ∀ v : V, M.d0.g • v = v := heisMarking_d0_g_smul t (x0Supported c) (x0Supported lam) hx0 htau
+  have hdgg : ∀ v : V, M.dg.g • v = v := heisMarking_dg_g_smul t (x0Supported c) (x0Supported lam) hx0 htau
+  -- derived φ / d₀² / hc coordinates
+  have hφx0z : (conjP M.x₀ M.g0).z = 0 :=
+    (HeisLift.conjP_z_of_gslice _ _ hg0a hg0l hg0z hg0g).trans hx0z
+  have hφx0l : (conjP M.x₀ M.g0).l = lam :=
+    (HeisLift.conjP_l_of_gslice _ _ hg0l hg0g).trans hx0l
+  have hdgz : M.dg.z = M.d0.z := HeisLift.conjP_z_of_gslice M.d0 M.g0 hg0a hg0l hg0z hg0g
+  have hdga : M.dg.a = 0 := (HeisLift.conjP_a_of_gslice M.d0 M.g0 hg0a hg0g).trans hd0a
+  have hd02a : (M.d0 ^ 2).a = 0 := by
+    rw [pow_two, HeisLift.mul_a_of_trivial _ _ hd0g, hd0a, add_zero]
+  have hd02z : (M.d0 ^ 2).z = 0 := by
+    rw [pow_two, HeisLift.mul_z_of_trivial _ _ hd0g, hd0a, map_zero, add_zero,
+      CharTwo.add_self_eq_zero]
+  have hhca : M.hc.a = 0 := HeisLift.commP_a_of_trivial M.dg M.d0 hdgg hd0g
+  have hhcz : M.hc.z = 0 := by
+    have h := HeisLift.commP_z_of_trivial M.dg M.d0 hdgg hd0g
+    rw [hd0a, hdga, map_zero, map_zero, add_zero] at h; exact h
+  -- base-trivialities of the accumulated products
+  have hP1g : ∀ v : V, (conjP M.x₀ M.g0).g • v = v := HeisLift.conjP_g_trivial M.x₀ M.g0 hx0
+  have hd02g : ∀ v : V, (M.d0 ^ 2).g • v = v := fun v => by
+    rw [pow_two]; exact HeisLift.mul_g_trivial _ _ hd0g hd0g v
+  have hQ1g : ∀ v : V, (conjP M.x₀ M.g0 * M.x₀).g • v = v := fun v =>
+    HeisLift.mul_g_trivial _ M.x₀ hP1g hx0 v
+  have hQ2g : ∀ v : V, (conjP M.x₀ M.g0 * M.x₀ * M.dg).g • v = v := fun v =>
+    HeisLift.mul_g_trivial _ M.dg hQ1g hdgg v
+  have hQ3g : ∀ v : V, (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0).g • v = v := fun v =>
+    HeisLift.mul_g_trivial _ M.d0 hQ2g hd0g v
+  have hQ4g : ∀ v : V, (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0 * M.d0 ^ 2).g • v = v := fun v =>
+    HeisLift.mul_g_trivial _ (M.d0 ^ 2) hQ3g hd02g v
+  -- the class-two peel
+  have e1 : (conjP M.x₀ M.g0 * M.x₀).z = lam c := by
+    rw [HeisLift.mul_z_of_trivial _ _ hP1g, hφx0z, hx0z, hφx0l, hx0a, zero_add, zero_add]
+  have e2 : (conjP M.x₀ M.g0 * M.x₀ * M.dg).z = lam c + M.d0.z := by
+    rw [HeisLift.mul_z_of_trivial _ _ hQ1g, e1, hdgz, hdga, map_zero, add_zero]
+  have e3 : (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0).z = lam c := by
+    rw [HeisLift.mul_z_of_trivial _ _ hQ2g, e2, hd0a, map_zero, add_zero, add_assoc,
+      CharTwo.add_self_eq_zero, add_zero]
+  have e4 : (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0 * M.d0 ^ 2).z = lam c := by
+    rw [HeisLift.mul_z_of_trivial _ _ hQ3g, e3, hd02z, hd02a, map_zero, add_zero, add_zero]
+  show (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0 * M.d0 ^ 2 * M.hc).z = lam c
+  rw [HeisLift.mul_z_of_trivial _ _ hQ4g, e4, hhcz, hhca, map_zero, add_zero, add_zero]
 
 end HessianRow
 
