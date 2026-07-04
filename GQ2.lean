@@ -41,6 +41,7 @@ import GQ2.QuadraticFp2
 import GQ2.GaussCount
 import GQ2.GaussSigns
 import GQ2.Corestriction
+import GQ2.OrbitData
 import GQ2.BlockModule
 import GQ2.SectionSix
 import GQ2.HilbertLedger

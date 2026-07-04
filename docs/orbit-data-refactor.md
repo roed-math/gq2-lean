@@ -1,5 +1,27 @@
 # Orbit-data refactor — ready-to-execute plan (unblocks the P-15 own-file splices)
 
+> **EXECUTED 2026-07-04** (while no parallel agents were running).  `GQ2/OrbitData.lean` created
+> (def-layer in top-level `namespace GQ2`); `SectionSix` now imports `OrbitData` + `ShapiroLedger`,
+> the moved defs are deleted (pointer comments left), and **`lemma_6_15_free` is spliced**
+> (`:= ShapiroLedger.lemma_6_15_free_aux N hNo α β ghat`) — one real `sorry` removed.
+> `ShapiroLedger` switched `import GQ2.SectionSix` → `OrbitData` + `Corestriction` + `EvensKahn`.
+> `GQ2.lean` gains `import GQ2.OrbitData`.  Verified: `lake build GQ2.SectionSix GQ2.RepIndependence
+> GQ2.ShapiroLedger GQ2.OrbitData` green.
+>
+> **Deviations from the plan below:**
+> - **`RepIndependence` NOT switched, `lemma_6_14` splice DEFERRED.**  `RepIndependence` uses
+>   `SemiProd` (a `SectionSix` def *not* in the orbit-data layer and too entangled with the §6.13
+>   machinery to move safely), so it keeps `import GQ2.SectionSix` and still reaches the moved defs
+>   transitively (`SectionSix → OrbitData`) — no edit needed, it builds unchanged.  Splicing
+>   `lemma_6_14` would need `SemiProd` moved too; left for a follow-up.
+> - **Allowlist unchanged.**  `SectionSix` still has ~14 sorries (6.9/6.13/6.16/6.17/6.18/
+>   6.15-involution/…), so it stays on `SORRY_ALLOWLIST`.
+> - Pre-existing unrelated red: `GQ2.Prop32` (`CompactSpace AbsGalQ2`) fails independently of this
+>   refactor (committed in `219d5ae`); not in the refactor's file set.
+>
+> The original plan follows, for reference.
+
+
 ## Why
 
 Every P-15 own-file that *proves* a §6 orbit lemma (P-15c `ShapiroLedger`, P-15d

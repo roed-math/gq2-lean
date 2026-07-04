@@ -5,6 +5,8 @@ import GQ2.Omega2
 import GQ2.QuadraticFp2
 import GQ2.GaussCount
 import GQ2.Corestriction
+import GQ2.OrbitData
+import GQ2.ShapiroLedger
 
 /-!
 # §6: quadratic determinant obstructions — statements  (ticket P-14)
@@ -117,66 +119,11 @@ def iotaF (D : TateDuality 2) : H2 AbsGalQ2 (ZMod 2) →+ ZMod 2 :=
   D.inv.toAddMonoidHom.comp
     (mapCoeff2 muTwoOfF2 continuous_of_discreteTopology muTwoOfF2_equivariant)
 
-/-! ## Factor-set data  (Lemma 6.1, eqs. (59)–(62)) -/
+/-! ## Factor-set data  (Lemma 6.1, eqs. (59)–(62)) — moved to `GQ2/OrbitData.lean`
 
-section FactorSets
-
-variable (C V : Type*) [Group C] [AddCommGroup V] [DistribMulAction C V]
-
-/-- **Factor-set datum** for a `C`-module `V` (Lemma 6.1): a normalized factor set `f` together
-with the central corrections `m_c` of a chosen equivariant lift.  The defining identities
-(59)/(60) and the compatibility with a quadratic form `q` are the Prop bundle
-`IsEquivariantFactorSet` below. -/
-structure FactorSet where
-  /-- The normalized factor set `f : V × V → 𝔽₂`. -/
-  f : V → V → ZMod 2
-  /-- The equivariant-lift corrections `m_c : V → 𝔽₂` (eq. (59)/(60)). -/
-  m : C → V → ZMod 2
-
-variable {C V}
-
-/-- The identities making `(f, m)` an **equivariant factor-set datum for `q`** (Lemma 6.1):
-`f` has square map `q` and polar form `B_q`, is normalized, and `m` satisfies (59)/(60) with
-`m_1 = 0`. -/
-structure IsEquivariantFactorSet (q : V → ZMod 2) (dat : FactorSet C V) : Prop where
-  /-- `f` is a genuine **factor set**: the (trivial-action, additive) 2-cocycle identity on `V`
-  — the associativity of the central extension `E_f` (Lemma 6.1's "normalized factor set").
-  [Field added in the P-15 pass: caught by proving `graphPullback_mem_Z2`, which is false
-  without it; all of the paper's concrete factor sets ((75)/(76)/(73)/(95)) are bilinear in the
-  coordinates, hence satisfy it.  Deviation ledger updated.] -/
-  f_cocycle : ∀ v w x, dat.f (v + w) x + dat.f v w = dat.f v (w + x) + dat.f w x
-  f_diag : ∀ v, dat.f v v = q v
-  f_polar : ∀ v w, dat.f v w + dat.f w v = polar q v w
-  f_zero_left : ∀ v, dat.f 0 v = 0
-  f_zero_right : ∀ v, dat.f v 0 = 0
-  /-- Eq. (59): `m_c(v+w) + m_c(v) + m_c(w) = f(cv, cw) + f(v, w)`. -/
-  m_quad : ∀ (c : C) (v w : V),
-    dat.m c (v + w) + dat.m c v + dat.m c w = dat.f (c • v) (c • w) + dat.f v w
-  /-- Eq. (60): `m_{cd}(v) = m_c(dv) + m_d(v)`. -/
-  m_mul : ∀ (c d : C) (v : V), dat.m (c * d) v = dat.m c (d • v) + dat.m d v
-  /-- Eq. (60): `m_1 = 0`. -/
-  m_one : ∀ v, dat.m 1 v = 0
-
-/-- The **base central cocycle** `κ⁰_q` on `V ⋊ C` (eq. (61)):
-`κ⁰((v,c),(w,d)) = f(v, c·w) + m_c(w)`, as a raw function on pairs. -/
-def kappa0 (dat : FactorSet C V) : (V × C) → (V × C) → ZMod 2 :=
-  fun p q ↦ dat.f p.1 (p.2 • q.1) + dat.m p.2 q.1
-
-/-- The **graph pullback** `(b, ρ)^* κ⁰_q` (eq. (62)) along a lower map `ρ : Γ → C` and a
-1-cochain `b : Γ → V`: `(g, h) ↦ f(b(g), ρ(g)·b(h)) + m_{ρ(g)}(b(h))`.  This is the only form
-in which the base class enters the §6 statements. -/
-def graphPullback {Γ : Type*} (dat : FactorSet C V) (ρ : Γ → C) (b : Γ → V) :
-    Γ × Γ → ZMod 2 :=
-  fun p ↦ dat.f (b p.1) (ρ p.1 • b p.2) + dat.m (ρ p.1) (b p.2)
-
-/-- Pullback of a factor-set datum along an equivariant additive map `i : V →+ W`
-(the `(i ⋊ 1)^*` of eq. (77), datum level). -/
-def FactorSet.comap {W : Type*} [AddCommGroup W] [DistribMulAction C W]
-    (dat : FactorSet C W) (i : V →+ W) : FactorSet C V where
-  f v w := dat.f (i v) (i w)
-  m c v := dat.m c (i v)
-
-end FactorSets
+`FactorSet`, `IsEquivariantFactorSet`, `kappa0`, `graphPullback`, `FactorSet.comap` now live in
+`GQ2/OrbitData.lean` (top-level `namespace GQ2`), reachable here unqualified.  See
+`docs/orbit-data-refactor.md`. -/
 
 /-! ## `Q⁰_loc`: the base quadratic connecting map  (§6.3, eq. (92)) -/
 
@@ -315,6 +262,11 @@ theorem prop_6_9_unramified (c : ContinuousMonoidHom Ttame Hf) (hc : Function.Su
     (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant Hf q)
     (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
     zeroCount q = 2 ^ (2 * m - 1) - 2 ^ (m - 1) := by
+  -- Reduced to `GaussSigns.prop_6_9_unramified_of_cyclic` (P-15b): `V` exponent 2 (2-torsion is
+  -- `Hf`-stable + nonzero by Cauchy ⟹ ⊤), `Hf` cyclic (`gen_ttame_quotient` + `c tameTau = 1`).
+  -- SPLICE READY (proof in `docs/p15b-field-core-scoping.md`); BLOCKED only on the current
+  -- `GQ2.Prop32` build failure (`CompactSpace AbsGalQ2` in `nuT_surjective`, unrelated to P-15b),
+  -- which the splice must import for `gen_ttame_quotient`.
   sorry
 
 /-- **Proposition 6.9, eq. (91), ramified case**: if inertia acts nontrivially
@@ -581,42 +533,8 @@ variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
   [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
 variable (N : Subgroup G) [N.Normal]
 
-/-- The regular permutation module `𝔽₂[G/N]` (coordinates `X_h`, `h ∈ G/N`), as a type synonym
-carrying the left-regular action `(c·x)_h = x_{c⁻¹h}` (Lemma 6.2's convention). -/
-def RegRep : Type _ := (G ⧸ N) → ZMod 2
-
-instance : AddCommGroup (RegRep N) := inferInstanceAs (AddCommGroup ((G ⧸ N) → ZMod 2))
-
-/-- The left-regular action on `𝔽₂[G/N]`. -/
-instance : DistribMulAction (G ⧸ N) (RegRep N) where
-  smul c x := fun h ↦ x (c⁻¹ * h)
-  one_smul x := by funext h; show x _ = x h; rw [inv_one, one_mul]
-  mul_smul c d x := by funext h; show x _ = x _; rw [mul_inv_rev, mul_assoc]
-  smul_zero c := rfl
-  smul_add c x y := rfl
-
-/-- The **square-orbit datum** `S` (eq. (75)): `f(x,y) = Σ_h x_h y_h`, `m = 0`. -/
-def squareOrbitDatum : FactorSet (G ⧸ N) (RegRep N) where
-  f x y := ∑ᶠ h : G ⧸ N, x h * y h
-  m _ _ := 0
-
-/-- The **free-orbit datum** `C_{j,k,ḡ}` (eq. (76)) on two regular summands with shift `ḡ`:
-`f((x,x'),(y,y')) = Σ_h x_h y'_{hḡ}`, `m = 0`. -/
-def freeOrbitDatum (gbar : G ⧸ N) : FactorSet (G ⧸ N) (RegRep N × RegRep N) where
-  f x y := ∑ᶠ h : G ⧸ N, x.1 h * y.2 (h * gbar)
-  m _ _ := 0
-
-/-- The **involution-orbit datum** `E_ḡ` (Lemma 6.2, eqs. (67)–(70)) for an involution
-`ḡ ∈ G/N`: with `R` the canonical transversal of the `⟨ḡ⟩`-cosets,
-`f_g(x,y) = Σ_{u∈R} x_u y_{uḡ}` and `m^g_c(x) = Σ_{u∈R} ε_c(u)·x_{π_c(u)} x_{π_c(u)ḡ}`
-(orientation bookkeeping (67) via the canonical representatives). -/
-def invOrbitDatum (gbar : G ⧸ N) : FactorSet (G ⧸ N) (RegRep N) where
-  f x y := ∑ᶠ u : (G ⧸ N) ⧸ Subgroup.zpowers gbar, x u.out * y (u.out * gbar)
-  m c x := ∑ᶠ u : (G ⧸ N) ⧸ Subgroup.zpowers gbar,
-    (if c⁻¹ * u.out = ((c⁻¹ * u.out : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers gbar).out
-      then 0 else 1) *
-      (x ((c⁻¹ * u.out : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers gbar).out *
-        x ((((c⁻¹ * u.out : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers gbar).out) * gbar))
+-- `RegRep`, `squareOrbitDatum`, `freeOrbitDatum`, `invOrbitDatum` moved to `GQ2/OrbitData.lean`
+-- (top-level `namespace GQ2`), reachable here unqualified.  See `docs/orbit-data-refactor.md`.
 
 variable [Finite (G ⧸ N)]
 
@@ -654,8 +572,10 @@ theorem lemma_6_15_free (hNo : IsOpen (N : Set G)) (α β : Z1 N (ZMod 2)) (ghat
         (QuotientGroup.mk' N) (fun γ ↦ (shapiroFun N α.1 γ, shapiroFun N β.1 γ)))
       = H2ofFun G (cor2Fun N (fun p ↦ α.1 p.1 *
           β.1 ⟨ghat⁻¹ * (p.2 : G) * ghat, by
-            simpa using Subgroup.Normal.conj_mem ‹N.Normal› _ p.2.2 ghat⁻¹⟩)) := by
-  sorry
+            simpa using Subgroup.Normal.conj_mem ‹N.Normal› _ p.2.2 ghat⁻¹⟩)) :=
+  -- Spliced (P-15c): proved in `GQ2/ShapiroLedger.lean` (`Ax = ∅`, std-3) — the ĝ-shift
+  -- coboundary `δ¹Λ` via `H2ofFun_eq_of_sub_mem_B2`.  See `docs/orbit-data-refactor.md`.
+  ShapiroLedger.lemma_6_15_free_aux N hNo α β ghat
 
 /-- **Lemma 6.15, eq. (105) (involution orbits)**: for an involution `ḡ = mk ĝ` of `G/N`, the
 graph pullback of the involution-orbit datum at the Shapiro cochain of `α` is

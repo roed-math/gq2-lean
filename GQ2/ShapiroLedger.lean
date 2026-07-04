@@ -1,4 +1,6 @@
-import GQ2.SectionSix
+import GQ2.OrbitData
+import GQ2.Corestriction
+import GQ2.EvensKahn
 
 /-!
 # Shapiro ledger: Lemma 6.15 free (104) and involution (105)  (ticket P-15c)
@@ -50,25 +52,23 @@ identities).  No axioms (`Ax = ∅`).
   `.out^{G/N}`, an `N`-correction analogous to but larger than the free case's `shiftCorr`) as a
   `δ¹`-coboundary via the same `H2ofFun_eq_of_sub_mem_B2` engine.
 
-## Splice architecture note
+## Splice architecture (resolved 2026-07-04)
 
-The `_aux` lemma here **cannot** yet be spliced into `GQ2/SectionSix.lean`'s
-`lemma_6_15_free` (`:= ShapiroLedger.lemma_6_15_free_aux …`) because that would import
-`ShapiroLedger` into `SectionSix`, and `ShapiroLedger` imports `SectionSix` (for `graphPullback`,
-`RegRep`, the orbit data) — an import cycle.  This blocks **every** P-15 own-file sub-ticket's
-splice, not just this one.  The clean fix is to extract the factor-set / orbit-data layer
-(`FactorSet`, `graphPullback`, `RegRep`, `*OrbitDatum`) from `SectionSix` into a lower shared
-file both `SectionSix` and the P-15 own-files import; that is a coordinated refactor of the hot
-co-owned `SectionSix` and is deliberately **not** done mid-parallel-work here.  Until then the
-`SectionSix` statement keeps its `sorry` (allowlist unchanged) and `lemma_6_15_free_aux` stands
-as the proved, consumable result.
+The factor-set / orbit-data def-layer (`FactorSet`, `graphPullback`, `RegRep`, `*OrbitDatum`, …)
+now lives in `GQ2/OrbitData.lean` (top-level `namespace GQ2`); this file imports that (not
+`SectionSix`), so `SectionSix` can import `ShapiroLedger` and splice
+`lemma_6_15_free := ShapiroLedger.lemma_6_15_free_aux N hNo α β ghat` with **no import cycle**
+(`SectionSix → ShapiroLedger → OrbitData`, and `SectionSix → OrbitData`).  That splice is now
+live — `SectionSix.lemma_6_15_free` is `sorry`-free.  See `docs/orbit-data-refactor.md`.  The
+same OrbitData layer unblocks every other P-15 own-file's splice (each imports `OrbitData`, not
+`SectionSix`).  `lemma_6_15_involution` awaits the Step-3 core above before its own splice.
 -/
 
 open scoped Pointwise
 
 namespace GQ2
 
-open ContCoh Corestriction SectionSix
+open ContCoh Corestriction
 
 namespace ShapiroLedger
 
