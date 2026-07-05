@@ -1,6 +1,7 @@
 import GQ2.Reciprocity
 import GQ2.BoundaryFrame
 import GQ2.BoundaryConstruction
+import GQ2.LocalMarked
 
 /-!
 # §3 statements, marked-quotient half: Prop. 3.10 and Prop. 3.14  (ticket P-06, P-11 handoff)
@@ -60,8 +61,8 @@ theorem prop_3_10_local_marked
       ι ztwoOne = Multiplicative.ofAdd ((1 : ℤ) : ℤ_[2]) ∧
       ∃ e : ContinuousMulEquiv (maxProPQuotient 2 AbsGalQ2) PiBd,
         ∀ g : AbsGalQ2,
-          R.nu_ur (toAb g) = ι (nuTwo (e (maxProPMk 2 AbsGalQ2 g))) := by
-  sorry
+          R.nu_ur (toAb g) = ι (nuTwo (e (maxProPMk 2 AbsGalQ2 g))) :=
+  prop_3_10_local_marked_proved R
 
 /-! ## Proposition 3.14 — fully marked tame and pro-2 quotients
 
