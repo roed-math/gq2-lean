@@ -117,3 +117,64 @@ is exactly `W = concrete wild inertia`, which needs Mathlib's (absent) ramificat
   equality of explicit subgroups of `Π`, abelian/finite-checkable and with a clean NSW citation
   (the wild-inertia filtration).  User decision (the "avoid a new axiom" preference collides with
   the absence of Mathlib local ramification theory).
+
+---
+
+## Axiom proposal with verified citations (2026-07-06, Opus; NSW page/theorem numbers checked in `references/Neukirch, Schmidt, Wingberg -- Cohomology of Number Fields.pdf`)
+
+**Shape: an oriented refinement of the B10 bundle** (existential form — no rigidity needed for
+its classical justification; census stays a user decision, B10 → B10′ rather than a new leaf):
+
+```lean
+/-- B10′ (oriented tame quotient): a B10 tame-quotient datum compatible with B5 reciprocity —
+units land in the ν_t-kernel, the uniformizer in the geometric-Frobenius coordinate. -/
+structure OrientedTameQuotient extends TameQuotientData where
+  nuT_recip_unit : ∀ (u : ℤ_[2]ˣ) (g : AbsGalQ2),
+      toAb g = localReciprocity.recip (unitEmbed u) →
+      nuT (equiv (QuotientGroup.mk g)) = 1
+  nuT_recip_uniformizer : ∀ g : AbsGalQ2,
+      toAb g = localReciprocity.recip uniformizer →
+      nuT (equiv (QuotientGroup.mk g)) = ztwoOne⁻¹
+
+axiom tameQuotientOriented : OrientedTameQuotient   -- replaces the B10 use-site in P-25
+```
+
+Both clauses are ∀-lift-form (well-posed: `ν_t∘equiv∘mk` kills `commClosure`, abelian pro-2
+target).  They are exactly the atoms: `locTame := tameQuotientOriented`-based `tameFHom` makes
+`tame_recip_unitNeg3` immediate (u = −3) and `tame_recip_uniformizer` a one-line sign
+computation (`ι(ztwoOne⁻¹) = ofAdd(−1)`).  Note the clauses are stated against **the B5
+constant `GQ2.localReciprocity`**, not ∀-quantified over bundles `R` — see the caveat below.
+
+**Citations (verified in the local NSW copy):**
+
+* **NSW (7.1.2)(i)**, Ch. VII §1 (pp. 372–373): *for `K|k` unramified, the unit group `U_K` is a
+  cohomologically trivial `G(K|k)`-module* — in particular `Ĥ⁰ = U_k/N_{K|k}U_K = 0`, i.e.
+  **every unit is a norm from every finite unramified extension**.  This is the classical core of
+  the units clause (`rec(U)` fixes every unramified extension).
+* **NSW (7.2.11)** (p. 385): the reciprocity sequence `0 → k^× → G_k^{ab} → Ẑ/ℤ → 0`, with
+  **(7.2.12)**: the characterization `χ((a,k)) = inv(a ∪ δχ)`.
+* **NSW, proof of (8.3.13)** (p. 460), verbatim: *“the norm residue symbol `( , k)` maps the
+  subgroup `k_𝔭^× ⊆ C_k` onto the decomposition group … and the group of units `U_𝔭 ⊆ k_𝔭^×`
+  onto the inertia group”*, citing **Neukirch, Algebraic Number Theory [NSW ref. 160], Chap. V,
+  (6.2)** (and Chap. VI (5.6) for the global part).  [160] confirmed in NSW's bibliography:
+  *Algebraische Zahlentheorie*, Springer 1992 / English *Algebraic Number Theory* (Grundlehren
+  322).  **Neukirch ANT V (6.2)** is the sharpest single reference for “units ↦ inertia, prime
+  elements ↦ Frobenius lifts”.
+* **NSW (7.5.2)** (p. 410): the tame structure `1 → Ẑ^{(p′)}(1) → G_k^{tr} → Γ → 1`, `Γ = ⟨φ_k⟩`
+  the unramified quotient; **(7.5.3) (Iwasawa)** with the relation `στσ⁻¹ = τ^q`, `σ ↦ σ_k` =
+  **arithmetic** Frobenius.  Since the repo's `tame_relation` is `σ⁻¹τσ = τ²`, the repo's
+  `tameSigma` is NSW's `σ⁻¹` = *geometric* Frobenius — whence the `ztwoOne⁻¹` value at the
+  arithmetic `rec(2)` (matching B5's geometric `ν_ur` normalization, `nu_ur_recip`).
+* Serre, *Local Fields* [7], Part Four (local CFT) is the natural secondary citation, but the
+  local PDF copy is an image-only scan (no text layer) — pinpoint numbers not verifiable here.
+
+**Caveat recorded (and an honesty correction).**  The clauses must NOT be ∀-quantified over
+`R : LocalReciprocity`: a “Ẑ-coordinate twist” `ψ_c` (scaling the Frobenius coordinate of a
+valid bundle by `c ∈ Ẑˣ`) preserves clauses (b)/(c) and the *unramified* norm kernels, so a
+∀-R form would be classically false.  However — correcting the earlier “irreducible” claim —
+such a twist does **not** preserve the norm kernels of *mixed ramified* layers (e.g.
+`L = ℚ₂(√2)`: `N(Lˣ) ∋ −2` couples valuation and unit coordinates), so `norm_reciprocity`
+(∀ L) **does** pin the Frobenius coordinate of `recip` in principle.  A no-new-axiom derivation
+is therefore *not* independence-blocked; it remains blocked in practice by the same two builds
+(concrete `IntermediateField` layers with computed norm groups; the `W`↔fields bridge).  The
+oriented-B10′ axiom stays the honest price of skipping those builds.
