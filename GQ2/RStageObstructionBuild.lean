@@ -346,6 +346,46 @@ noncomputable def obs (D : RObstructionData RF)
       · rw [zero_smul, map_zero, map_zero, zero_smul]
       · rw [one_smul, one_smul] }
 
+/-- `obsMapAdd g d` is the scalar obstruction of `g` through the `λ`-cover (`λ = toDR d ≠ 0`). -/
+theorem obsMapAdd_eq_homOb (D : RObstructionData RF)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (g : ContinuousMonoidHom Γ RF.YB) (d : D.DRmod) (h : D.toDR d ≠ RF.zeroDR) :
+    obsMapAdd RF D htriv g d = homOb (RF.scalarCover (D.toDR d) h) g htriv :=
+  (obsMapAdd_apply RF D htriv g d).trans (homOb_eq_H2mk_pair RF D htriv g d h).symm
+
+/-- **`obs g d = 0 ⟺ g lifts through the `λ`-cover** (`λ = toDR d ≠ 0`): the `hmB` pointwise
+identity. -/
+theorem obs_zero_iff_lifts (D : RObstructionData RF)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (g : ContinuousMonoidHom Γ RF.YB) (d : D.DRmod) (h : D.toDR d ≠ RF.zeroDR) :
+    obs RF D htriv hcard g d = 0
+      ↔ ∃ gc : ContinuousMonoidHom Γ (RF.scalarCover (D.toDR d) h).cover,
+          ∀ γ, (RF.scalarCover (D.toDR d) h).p (gc γ) = g γ := by
+  haveI : Finite (H2 Γ (ZMod 2)) := Nat.finite_of_card_ne_zero (by rw [hcard]; norm_num)
+  show cardTwoLinEquiv hcard (obsMapAdd RF D htriv g d) = 0 ↔ _
+  rw [LinearEquiv.map_eq_zero_iff, obsMapAdd_eq_homOb RF D htriv g d h]
+  exact (liftsThroughCover_iff_homOb (RF.scalarCover (D.toDR d) h) g htriv).symm
+
+/-- **`hmB`** (step 2 payoff): `m_{Γ,λ}(B)` counts the `B`-lifts whose obstruction vanishes at the
+scalar character `λ`.  Matches `stageR136_ofObstruction`'s `hmB` hypothesis. -/
+theorem hmB_holds (D : RObstructionData RF)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (l : RF.DR) (h : l ≠ RF.zeroDR) :
+    RF.mB b F l = Nat.card {f : BoundaryLifts b F RF.TB //
+      obs RF D htriv hcard f.1.1 (D.toDR.symm l) = 0} := by
+  have hne : D.toDR (D.toDR.symm l) ≠ RF.zeroDR := by
+    rw [Equiv.apply_symm_apply]; exact h
+  rw [RecursionFrame.mB, dif_neg h]
+  refine Nat.card_congr (Equiv.subtypeEquivRight fun f => ?_).symm
+  rw [obs_zero_iff_lifts RF D htriv hcard f.1.1 (D.toDR.symm l) hne]
+  have hcov : RF.scalarCover (D.toDR (D.toDR.symm l)) hne = RF.scalarCover l h := by
+    congr 1
+    exact Equiv.apply_symm_apply _ _
+  rw [hcov]
+
 end Cohomology
 
 end Obstruction
