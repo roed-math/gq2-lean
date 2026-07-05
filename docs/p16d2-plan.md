@@ -46,27 +46,35 @@ display of Prop 8.9, for the concrete R-stage.  **Deps** P-13f (`prop_5_15`, lan
      obstruction functional `obs : D_Rmod →ₗ 𝔽₂` (`obsMapAdd` additive + `cardTwoLinEquiv`, `map_smul`
      by the two-value case split); and **`hmB_holds`** — `mB l = #{f // obs f.1.1 (toDR.symm l) = 0}`,
      exactly `stageR136_ofObstruction`'s `hmB`.
-  3. ◐ **`hobs`** — the **⟸ direction DONE** (`∃ f, liftB f = g ⟹ obs g = 0`), folded into the
-     assembler (step 5): `LinearMap.ext` + case split on `toDR d = 0` (`map_zero`) vs `≠ 0`
-     (`obs_zero_iff_lifts` + `lifts_scalarCover_of_liftB`).  The ⟹ direction is the **hard
-     separation** ("`g` lifts through every `λ`-cover ⟹ `g` lifts to `Y`"), now the explicit
-     hypothesis `hsep` of `stageR136_ofRObstructionData`: `obs g = 0 ⟹ pair d (Obs^s_g)` a
-     coboundary ∀d; since `pair`'s image is `(R^∨)^C`, this needs `(R^∨)^C` to separate the
-     (framed) obstruction `Obs^s_g ∈ H²(Γ,R)` and the Frattini surjectivity
-     `eq_top_of_map_frattini_quotient_top` — a genuinely hard classical core.
-  4. ☐ **`hfib`** — the fibre of `liftB` over a liftable `g` is a **twisted `Z¹(Γ,R)`-torsor** (uses
-     the honest `π_B`, not the covers; needs a general-`R` torsor layer, only the `𝔽₂` prototype
-     `fiberLiftEquiv` exists); `#Z¹(Γ,R) = z_R` is the source numeric (`prop_5_16` cl.2 / `prop_5_15`
-     cl.2) + `card_DR`.  Now the explicit hypothesis `hfib` of `stageR136_ofRObstructionData`.
+  3. ◐ **`hobs`** — the **⟸ direction DONE** (folded into the assembler, step 5).  The ⟹ direction
+     is the **hard separation**, and its **Frattini/framing wrapper is DONE**
+     (`liftB_fibre_nonempty_of_homLift`, std-3): a bare hom lift `φ : Γ → Y` of `g` (`π_B∘φ = g`)
+     already lands in the `liftB`-fibre (surjective by `surj_of_piB_surj` = Frattini
+     `eq_top_of_map_frattini_quotient_top`; framed because the framing factors through `π_B` via
+     `TB_head`/`TB_theta`).  **Residual = the separation core**: `obs g = 0 ⟹ ∃ hom φ : Γ → Y`
+     with `π_B∘φ = g`.  Route: `obs g = 0 ⟺ ∀d, [pair d ∘ rDefect] = 0 ∈ H²(Γ,𝔽₂)`
+     (`homOb_eq_H2mk_pair`) ⟹ (separation) `[rDefect] = 0 ∈ H²(Γ,R)` ⟹ (coboundary) build `c`, set
+     `φ = c⁻¹·slift∘g`.  The **separation** is the deep piece: needs `H²(Γ,R)` for the `g`-twisted
+     action + the `(R^∨)^C`-character injectivity `H²(Γ,R) ↪ ∏_d H²(Γ,𝔽₂)` (`R` elem-abelian +
+     `C`-invariance of the framed obstruction) + the pushout-kernel structural link.
+  4. ✅ **`hfib` abstract torsor DONE** — `fibreCocycleEquiv` + `hfib_holds` (std-3, sorry-free):
+     - `RCocycle RF f₀` — the R-stage torsor group `Z¹_{Γ,ρ}(R)` (continuous crossed 1-cocycles
+       `Γ → R` for the `f₀`-conjugation action; `u_one`, `twistHom`);
+     - `R_le_ker_piY` / `R_le_ker_thetaY` (needs `hE2`) — the framing preservation of R-twists;
+     - `surj_of_piB_surj` — Frattini surjectivity;
+     - `fibreCocycleEquiv : {f // liftB f = g} ≃ RCocycle RF f₀.1.1` — **the torsor bijection**;
+     - `hfib_holds` — `#fibre = z_R`, reduced to the **source count** `#RCocycle = z_R` (the
+       5.15/5.16 numeric + `card_DR`, discharged by d6 — a short citation).
   5. ✅ **assemble DONE** — `stageR136_ofRObstructionData` (std-3, sorry-free): feeds
      `stageR136_ofObstruction` with `obs`/`hmB`/(the easy `hobs`) discharged, reducing the entire
      (136) display to exactly the two hard-core hypotheses `hsep` (step 3 ⟹) and `hfib` (step 4).
 
-  Steps 1–2 (the obstruction map, the novel bulk) and step 5 (the assembler + easy `hobs`) are
-  **complete and committed**.  The **two remaining hard classical cores** are now cleanly isolated
-  as the two hypotheses of `stageR136_ofRObstructionData`: the separation (`hsep`) and the twisted
-  `Z¹(Γ,R)`-torsor count (`hfib`).  Discharging them — either via a further frame-compat extension
-  (the pushout-kernel link) or in the concrete `𝒴`-frame (P-16d5/d6) — closes P-16d2.
+  **Complete + committed**: steps 1–2 (obstruction map), step 5 (assembler + easy `hobs`), **step 4
+  (the hfib fibre-torsor, its whole abstract content)**, and **step 3's Frattini/framing wrapper**.
+  **The single remaining piece is the `hsep` separation core** — the deepest classical argument in
+  §8's R-stage (the `H²(Γ,R)` twisted-cohomology injectivity via `(R^∨)^C`-characters).  It needs a
+  new `H²(Γ,R)` layer + the pushout-kernel structural field; a focused follow-up.  `hfib` needs only
+  the source `Z¹`-count from d6.
 
 ## The gap: the scalar covers are not linked to the radical extension
 
