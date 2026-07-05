@@ -42,7 +42,7 @@ section StableActions
 variable {A : Type*} [AddCommGroup A] [DistribMulAction C A]
 
 /-- The restricted action on a `C`-stable additive subgroup. -/
-def stableSubAction (W : AddSubgroup A) (hW : ∀ (g : C) (w : A), w ∈ W → g • w ∈ W) :
+@[reducible] def stableSubAction (W : AddSubgroup A) (hW : ∀ (g : C) (w : A), w ∈ W → g • w ∈ W) :
     DistribMulAction C ↥W where
   smul c w := ⟨c • (w : A), hW c w w.2⟩
   one_smul w := Subtype.ext (one_smul C (w : A))
@@ -51,21 +51,21 @@ def stableSubAction (W : AddSubgroup A) (hW : ∀ (g : C) (w : A), w ∈ W → g
   smul_add c w₁ w₂ := Subtype.ext (smul_add c (w₁ : A) (w₂ : A))
 
 /-- The descended action on the quotient by a `C`-stable additive subgroup. -/
-def stableQuotAction (W : AddSubgroup A) (hW : ∀ (g : C) (w : A), w ∈ W → g • w ∈ W) :
+@[reducible] def stableQuotAction (W : AddSubgroup A) (hW : ∀ (g : C) (w : A), w ∈ W → g • w ∈ W) :
     DistribMulAction C (A ⧸ W) where
-  smul c := QuotientAddGroup.map W W (DistribMulAction.toAddMonoidHom A c)
+  smul c := QuotientAddGroup.map W W (DistribSMul.toAddMonoidHom A c)
     (fun w hw => hW c w hw)
   one_smul q := QuotientAddGroup.induction_on q fun a => by
-    show QuotientAddGroup.map W W (DistribMulAction.toAddMonoidHom A 1) _
+    show QuotientAddGroup.map W W (DistribSMul.toAddMonoidHom A 1) _
       (QuotientAddGroup.mk a) = QuotientAddGroup.mk a
     rw [QuotientAddGroup.map_mk]
     show (QuotientAddGroup.mk ((1 : C) • a) : A ⧸ W) = QuotientAddGroup.mk a
     rw [one_smul]
   mul_smul c₁ c₂ q := QuotientAddGroup.induction_on q fun a => by
-    show QuotientAddGroup.map W W (DistribMulAction.toAddMonoidHom A (c₁ * c₂)) _
+    show QuotientAddGroup.map W W (DistribSMul.toAddMonoidHom A (c₁ * c₂)) _
         (QuotientAddGroup.mk a)
-      = QuotientAddGroup.map W W (DistribMulAction.toAddMonoidHom A c₁) _
-          (QuotientAddGroup.map W W (DistribMulAction.toAddMonoidHom A c₂) _
+      = QuotientAddGroup.map W W (DistribSMul.toAddMonoidHom A c₁) _
+          (QuotientAddGroup.map W W (DistribSMul.toAddMonoidHom A c₂) _
             (QuotientAddGroup.mk a))
     rw [QuotientAddGroup.map_mk, QuotientAddGroup.map_mk, QuotientAddGroup.map_mk]
     show (QuotientAddGroup.mk ((c₁ * c₂) • a) : A ⧸ W) = QuotientAddGroup.mk (c₁ • c₂ • a)
@@ -87,7 +87,7 @@ theorem stableQuotAction_mk'_equivariant (W : AddSubgroup A)
     ∀ (c : C) (a : A), QuotientAddGroup.mk' W (c • a) = c • QuotientAddGroup.mk' W a := by
   intro c a
   show (QuotientAddGroup.mk (c • a) : A ⧸ W)
-    = QuotientAddGroup.map W W (DistribMulAction.toAddMonoidHom A c) _ (QuotientAddGroup.mk a)
+    = QuotientAddGroup.map W W (DistribSMul.toAddMonoidHom A c) _ (QuotientAddGroup.mk a)
   rw [QuotientAddGroup.map_mk]
   rfl
 
