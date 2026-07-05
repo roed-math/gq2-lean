@@ -121,7 +121,53 @@ step (card clauses by Euler characteristic; pairing perfection by the five-lemma
 long-exact-sequence / snake infrastructure for the word-complex functors `Z1w`/`H1w`/`H2w` — not yet
 in the repo, design-sensitive.  Model **F**.  Ax: —.
 
-### P-13f — duality assembly (`prop_5_15`) — ◐ part (i) cards done
+### P-13f — duality assembly (`prop_5_15`) — ◐ part (i) DONE + SPLIT simple case DONE
+
+**2026-07-05 update (Opus).**  `GQ2/DualityAssembly.lean` (satellite importing Devissage +
+TrivialSelfDual + TameSimple; all std-3, no sorry).  Beyond the earlier card clauses, this session
+closed the **entire split branch** of the simple case:
+
+* **Dispatch** `tau_split_or_ramified`: `V^T` (τ-fixed space) is `C`-stable — `σ` preserves it via
+  the tame relation `σ⁻¹τσ=τ²` (`τ(σv)=σ(τ²v)=σv`), `x₀,x₁` act trivially, and the stabilizer
+  `{g | g·W⊆W}` is a subgroup (inv via `W` finite) containing the generators, so `= ⊤` (`hgen`).
+  Simplicity ⟹ `V^T=⊥` (ramified) or `⊤` (`τ` trivial → split).
+* **Pairing (clause 3)** `clause3_of_normalForm` (generic): `mixedB` descends to a PERFECT pairing
+  `H¹w(A)×H¹w(A∨)→𝔽₂` via `Quotient.lift₂`.  Descent = `mixedB_left/right_congr` (`mixedB` constant
+  on `B¹w`-cosets, from `prop_5_8` + `MixedBilinear` bilinearity); nondegeneracy transports through
+  the normal-form `H¹w≅A`.
+* **Split shapes/normal form** `split_shapes_of_wild` (the `lemma_5_13_split` body with
+  `wild_acts_trivially` factored to hypotheses — so it applies to `A∨` too, whose wild-triviality
+  is the contragredient of `A`'s, *no "dual of simple is simple" needed*), `normalForm_of_shapes`,
+  `x0mem_of_Z1wShape`.
+* **Split simple case** `selfDual_of_split`: nontrivial simple, `τ` trivial, `σ` nontrivial ⟹
+  `IsSelfDual`.  P-13d gives `hU`/`hVS`; `A∨` inherits split + trivial-wild action via
+  `ElemDual.smul_apply` ((g•l)a=l(g⁻¹•a)); cards close clauses 1–2, `clause3_of_normalForm` with the
+  split pairing `(c,λ)↦λ(c)` (`lemma_5_13_pairing_split`) + `elemDual_separates` closes clause 3.
+* **Trivial-action case** `selfDual_of_trivial_action` (σ also trivial → generators trivial →
+  `hgen` closure → `C` trivial → `trivialSelfDual`), and the capstone `selfDual_of_split_case`
+  closing the whole `V^T=V` branch.
+
+**Remaining for `prop_5_15`** (2 pieces):
+1. **Ramified simple case** `selfDual_of_ramified` — mirror `selfDual_of_split` using
+   `lemma_5_13_ramified` (gives `∃!` directly) + `lemma_5_13_pairing_ramified` (`λ((1+U+U⁻¹)c)`).
+   Needs (a) `hTodd : powOmega2 τ` trivial per factor [P-13d twin — check `TameSimple` / derive],
+   (b) the ramified `A∨` derivations (`τ` f.p.f. transfers like `hVSD` does for `σ`), (c) the
+   `1+U+U⁻¹` pairing nondegeneracy.  **Depends on `lemma_5_13_ramified`/`_pairing_ramified`, which
+   are PROVED but UNCOMMITTED in the working-tree `FoxHeisenberg.lean` (P-13b/c, 597 lines) — commit
+   those first** (`git add GQ2/FoxHeisenberg.lean`; the diff is purely ramified §5.13, no other
+   agent's WIP in that file).
+2. **Dévissage induction** `prop_5_15_of_simple` — strong induction on `#A`; non-simple `A` has a
+   proper `C`-stable `W`, SES `0→↥W→A→A⧸W→0`, then `lemma_5_11.1`.  Needs from-scratch
+   `DistribMulAction C ↥W` and `C (A⧸W)` (repo has none for stable AddSubgroups) + card bounds
+   (`AddSubgroup.card_le_card_addGroup`, `card_eq_iff_eq_top`, `index_mul_card`).  Fiddly but
+   self-contained; needs only committed `lemma_5_11`.
+
+Then `prop_5_15 = prop_5_15_of_simple (fun B ⟨trivial|split|ramified dispatch⟩)`, relocated to the
+satellite (import direction: needs `lemma_5_11` from Devissage).
+
+---
+
+**Original ticket description** — ◐ part (i) cards done
 **Deps: P-13b, P-13c, P-13d, P-13e** (+ the done split lemmas).  Assembles the chain-map
 quasi-isomorphism for every finite elementary module.  Three parts: (i) the **trivial module**
 `A = 𝔽₂` — all lower actions trivial, `d¹ = (b,b)`, the explicit 3×3 Gram matrix / scalar
