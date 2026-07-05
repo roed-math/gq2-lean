@@ -1,5 +1,6 @@
 import GQ2.Devissage
 import GQ2.TrivialSelfDual
+import GQ2.TameSimple
 
 /-!
 # P-13f: assembling `prop_5_15` (deformation duality) from the simple-module case + dévissage
@@ -275,29 +276,58 @@ theorem clause3_of_normalForm (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
       show mixedB t (x0Supported c) b.val ≠ 0
       rwa [mixedB_right_congr t ht hw (x0Supported c) b.val (x0Supported lam) hlam (hx0memA c)]
 
-/-! ## Split simple case: normal form and `x₀`-support from `lemma_5_13_split` -/
+/-! ## Split simple case: `Z¹w`/`B¹w` shapes, normal form, `x₀`-support
 
-/-- In the split case (`T = 1`) the `x₀`-supported cochains are cocycles: `x0Supported c` has
-vanishing coordinates 1 and 3, so it lies in `Z¹w` by `lemma_5_13_split`'s cocycle shape. -/
-theorem x0Supported_mem_Z1w_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
-    (hV₂ : ∀ v : A, v + v = 0) (hsimple : IsSimpleModTwo C A) (hcore : t.Pro2Core)
+These are phrased against the split *shapes* (rather than `lemma_5_13_split` directly) so they
+apply equally to `A` and its contragredient dual `A∨`: the dual is split with trivial wild action
+whenever `A` is, without needing "the dual of a simple module is simple". -/
+
+/-- The split `Z¹w`/`B¹w` shapes from a *trivial wild action* (`hx0`, `hx1`) rather than from
+simplicity — the body of `lemma_5_13_split` with `wild_acts_trivially` factored out as hypotheses,
+so it is usable on `A∨` (where wild-triviality comes from the contragredient of `A`'s). -/
+theorem split_shapes_of_wild (t : Marking C) (ht : t.TameRel)
+    (hV₂ : ∀ v : A, v + v = 0) (hx0 : ∀ v : A, t.x₀ • v = v) (hx1 : ∀ v : A, t.x₁ • v = v)
     (htau : ∀ v : A, t.τ • v = v) (hU : ∀ v : A, t.sigma2 • v = v)
     (hVS : ∀ v : A, t.σ • v = v → v = 0) :
-    ∀ c : A, x0Supported c ∈ Z1w (A := A) t := by
-  obtain ⟨hZ, -⟩ := lemma_5_13_split t ht hw hV₂ hsimple hcore htau hU hVS
-  intro c
-  rw [hZ]
-  exact ⟨by simp [x0Supported], by simp [x0Supported]⟩
+    (∀ x : Fin 4 → A, x ∈ Z1w (A := A) t ↔ x 1 = 0 ∧ x 3 = 0) ∧
+    (∀ y : Fin 4 → A, y ∈ B1w (A := A) t ↔ ∃ v : A, y = ![t.σ • v - v, 0, 0, 0]) := by
+  refine ⟨fun x => ?_, fun y => b1w_split_shape t htau hx0 hx1 y⟩
+  rw [Z1w, AddMonoidHom.mem_ker, show (d1 t) x = d1Fun t x from rfl, Prod.ext_iff]
+  rw [d1Fun_tame_split t ht htau hV₂ x,
+    show (d1Fun t x).2 = x 1 + x 3 + t.σ⁻¹ • x 3 from
+      liftMarking_wildValue_u t x hV₂ hx0 hx1 htau hU]
+  simp only [Prod.fst_zero, Prod.snd_zero]
+  constructor
+  · rintro ⟨h1, h2⟩
+    have hx1z : x 1 = 0 := by
+      have := congrArg (t.σ • ·) h1
+      rwa [smul_zero, smul_inv_smul] at this
+    refine ⟨hx1z, ?_⟩
+    apply hVS
+    have h3 : t.σ⁻¹ • x 3 = x 3 := by
+      have h2' : x 3 + t.σ⁻¹ • x 3 = 0 := by rw [hx1z] at h2; rwa [zero_add] at h2
+      have : t.σ⁻¹ • x 3 = -x 3 := by rw [eq_neg_iff_add_eq_zero, add_comm]; exact h2'
+      rw [this, neg_eq_of_add_eq_zero_left (hV₂ (x 3))]
+    calc t.σ • x 3 = t.σ • (t.σ⁻¹ • x 3) := by rw [h3]
+      _ = x 3 := smul_inv_smul _ _
+  · rintro ⟨h1, h3⟩
+    rw [h1, h3]
+    refine ⟨smul_zero _, ?_⟩
+    rw [smul_zero]; abel
 
-/-- **Split normal form**: from `lemma_5_13_split`'s `Z¹w`/`B¹w` shapes and the surjectivity of
-`σ − 1` (which holds because `V^S = 0`, `hVS`), every degree-one class has a unique `x₀`-supported
-representative — the `∃!` form `clause3_of_normalForm`/`card_H1w_of_normalForm` consume. -/
-theorem normalForm_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
-    (hV₂ : ∀ v : A, v + v = 0) (hsimple : IsSimpleModTwo C A) (hcore : t.Pro2Core)
-    (htau : ∀ v : A, t.τ • v = v) (hU : ∀ v : A, t.sigma2 • v = v)
+/-- The `x₀`-supported cochains are cocycles, straight from the split `Z¹w` shape. -/
+theorem x0mem_of_Z1wShape (t : Marking C)
+    (hZ : ∀ x : Fin 4 → A, x ∈ Z1w (A := A) t ↔ x 1 = 0 ∧ x 3 = 0) :
+    ∀ c : A, x0Supported c ∈ Z1w (A := A) t := fun c => by
+  rw [hZ]; exact ⟨by simp [x0Supported], by simp [x0Supported]⟩
+
+/-- **Split normal form**: from the `Z¹w`/`B¹w` shapes and surjectivity of `σ − 1` (from `V^S = 0`,
+`hVS`), every degree-one class has a unique `x₀`-supported representative. -/
+theorem normalForm_of_shapes (t : Marking C)
+    (hZ : ∀ x : Fin 4 → A, x ∈ Z1w (A := A) t ↔ x 1 = 0 ∧ x 3 = 0)
+    (hB : ∀ y : Fin 4 → A, y ∈ B1w (A := A) t ↔ ∃ v : A, y = ![t.σ • v - v, 0, 0, 0])
     (hVS : ∀ v : A, t.σ • v = v → v = 0) :
     ∀ x ∈ Z1w (A := A) t, ∃! c : A, x - x0Supported c ∈ B1w (A := A) t := by
-  obtain ⟨hZ, hB⟩ := lemma_5_13_split t ht hw hV₂ hsimple hcore htau hU hVS
   have hsurj : Function.Surjective (fun v : A => t.σ • v - v) :=
     (Finite.injective_iff_surjective).mp (fun a b hab => by
       have hab' : t.σ • a - a = t.σ • b - b := hab
@@ -320,5 +350,73 @@ theorem normalForm_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     simp only [x0Supported, Pi.sub_apply, Matrix.cons_val_two, Matrix.tail_cons,
       Matrix.head_cons] at h2
     exact (sub_eq_zero.mp h2).symm
+
+/-! ## Split simple case: `IsSelfDual` -/
+
+/-- **Proposition 5.15, split simple case.**  A nontrivial simple module on which `τ` acts trivially
+(`htau`) and `σ` acts nontrivially (`hσ`) is self-dual.  The `σ`-tameness `hU` and fixed-point
+freeness `hVS` come from P-13d; the contragredient dual `A∨` inherits split + trivial-wild action
+from `A` (via `ElemDual.smul_apply`), giving both normal forms; the cards close clauses 1–2 and
+`clause3_of_normalForm` (with the split pairing `(c,λ) ↦ λ(c)`) closes clause 3. -/
+theorem selfDual_of_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hgen : t.Generates)
+    (hV₂ : ∀ v : A, v + v = 0) (hsimple : IsSimpleModTwo C A) (hcore : t.Pro2Core)
+    (htau : ∀ v : A, t.τ • v = v) (hσ : ∃ v : A, t.σ • v ≠ v) :
+    IsSelfDual t A := by
+  obtain ⟨v₀, hv₀⟩ := hσ
+  have hnt : ∃ (c : C) (a : A), c • a ≠ a := ⟨t.σ, v₀, hv₀⟩
+  -- `A`-side hypotheses (P-13d) and the split shapes / normal form
+  have hU : ∀ v : A, t.sigma2 • v = v := sigma2_smul_trivial t hgen hV₂ hsimple hcore htau
+  have hVS : ∀ v : A, t.σ • v = v → v = 0 :=
+    fixedPoints_sigma_eq_zero t hgen hV₂ hsimple hcore htau ⟨v₀, hv₀⟩
+  obtain ⟨hx0, hx1⟩ := wild_acts_trivially t hV₂ hsimple hcore
+  have hsurjA : Function.Surjective (fun v : A => t.σ • v - v) :=
+    (Finite.injective_iff_surjective).mp (fun a b hab => by
+      have hab' : t.σ • a - a = t.σ • b - b := hab
+      refine sub_eq_zero.mp (hVS (a - b) ?_)
+      rw [smul_sub, show t.σ • a - t.σ • b = (t.σ • a - a) - (t.σ • b - b) + (a - b) from by abel,
+        hab']
+      abel)
+  obtain ⟨hZA, hBA⟩ := split_shapes_of_wild t ht hV₂ hx0 hx1 htau hU hVS
+  have hnfA := normalForm_of_shapes t hZA hBA hVS
+  have hx0A := x0mem_of_Z1wShape t hZA
+  -- The contragredient dual is split with trivial wild action (transfer of `A`'s triviality)
+  have dual_triv : ∀ g : C, (∀ a : A, g • a = a) → ∀ l : ElemDual A, g • l = l := by
+    intro g hg l
+    ext a
+    rw [ElemDual.smul_apply]
+    have hgi : g⁻¹ • a = a := by rw [inv_smul_eq_iff]; exact (hg a).symm
+    rw [hgi]
+  have hV₂D : ∀ l : ElemDual A, l + l = 0 := fun l => by
+    ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]
+    exact CharTwo.add_self_eq_zero (l v)
+  have hVSD : ∀ l : ElemDual A, t.σ • l = l → l = 0 := by
+    intro l hl
+    have hlσ : ∀ x : A, l (t.σ • x) = l x := by
+      intro x
+      have h := ElemDual.smul_apply t.σ l (t.σ • x)
+      rw [inv_smul_smul, hl] at h
+      exact h
+    ext a
+    obtain ⟨b, hb⟩ := hsurjA a
+    have hb' : t.σ • b - b = a := hb
+    rw [ElemDual.zero_apply, ← hb', map_sub, hlσ b, sub_self]
+  obtain ⟨hZD, hBD⟩ := split_shapes_of_wild (A := ElemDual A) t ht hV₂D
+    (dual_triv t.x₀ hx0) (dual_triv t.x₁ hx1) (dual_triv t.τ htau) (dual_triv t.sigma2 hU) hVSD
+  have hnfD := normalForm_of_shapes (A := ElemDual A) t hZD hBD hVSD
+  have hx0D := x0mem_of_Z1wShape (A := ElemDual A) t hZD
+  -- Cards (clauses 1–2) and the perfect pairing (clause 3)
+  obtain ⟨hcard2, hcardZ⟩ :=
+    card_H2w_and_Z1w_of_nontrivial_simple t ht hw hgen hsimple hnt hx0A hnfA
+  have hfix1 := card_fixedPts_elemDual_eq_one_of_nontrivial (A := A) hsimple hnt
+  refine ⟨by rw [hcard2, hfix1], by rw [hcardZ, hfix1, mul_one],
+    clause3_of_normalForm t ht hw hx0A hnfA hx0D hnfD ?_ ?_⟩
+  · intro c hc
+    obtain ⟨lam, hlam⟩ := elemDual_separates hV₂ hc
+    exact ⟨lam, by
+      rw [lemma_5_13_pairing_split t ht hw hV₂ hsimple hcore htau hU c lam]; exact hlam⟩
+  · intro lam hlam
+    obtain ⟨c, hc⟩ := DFunLike.ne_iff.mp hlam
+    exact ⟨c, by
+      rw [lemma_5_13_pairing_split t ht hw hV₂ hsimple hcore htau hU c lam]; simpa using hc⟩
 
 end GQ2.FoxH
