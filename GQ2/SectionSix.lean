@@ -894,27 +894,17 @@ travels with it; `hV2` is derivable there from `hcard` + `hsimple` via additive 
 Axioms: std-3 + B7 (B6 via the `D` parameter) + `sorryAx` through the two Lemma 6.17 sorries
 (the remaining §6.3 Kummer cores). -/
 
-/-- **Proposition 6.18, eq. (115), unramified case**: negative Gauss sign,
-`#(Q⁰_loc)⁻¹(0) = 2^{2m−1} − 2^{m−1}`.  [P-14 statement; proof P-15 (Hermitian-line model,
-Lemmas 6.4/6.7), Ax: B6, B7.]
-
-**Statement amended (P-15f, flag for P-20)**: added `hc : Function.Surjective ⇑c` (as in
-`prop_6_18_ramified`). -/
-theorem prop_6_18_unramified (D : TateDuality 2) (B : BoundaryMaps)
-    (c : ContinuousMonoidHom Ttame C)
-    (hc : Function.Surjective ⇑c)
-    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
-    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
-    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
-    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
-    (hV : ∃ v : V, v ≠ 0)
-    (hunram : ∀ v : V, c tameTau • v = v)
-    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
-    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
-    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
-    Nat.card {x : H1 AbsGalQ2 V // Q0loc D dat ρ x = 0}
-      = 2 ^ (2 * m - 1) - 2 ^ (m - 1) := by
-  sorry
+/- **Proposition 6.18, eq. (115), unramified case**: negative Gauss sign,
+`#(Q⁰_loc)⁻¹(0) = 2^{2m−1} − 2^{m−1}`.
+**PROVED (P-15f3) as `GQ2.UnramifiedModel.prop_6_18_unramified`** in `GQ2/UnramifiedModel.lean`
+(downstream — the proof consumes the `DeepPart` Arf/Gauss-count layer and `RepIndependence`,
+which import this file; statement moved out per the P-15d / 6.18-ramified pattern).  The
+`hc : Surjective ⇑c` amendment travels with it.  Route: `arf(Q⁰_loc) = 1` on `H¹` via the Schur
+transfer (the coefficient action of the cyclic `C` on `H¹` is faithful and simple) + the
+`arf_eq_s_ramified` engine with `s = 1`, with `Q⁰_loc` `C`-invariance from `lemma_6_14`
+naturality + the explicit datum coboundary (the `g₀`-comapped datum differs by `∂(m_{g₀}∘b)`).
+Axioms: std-3 + B7 only — no sorryAx; B6 never materializes (the `TateDuality` bundle stays a
+parameter). -/
 
 /- **Lemma 6.14 (regular-module realization), eq. (102)**: the base connecting map computed
 through an equivariant split embedding `i : V →+ W` into a regular-type module agrees with the
