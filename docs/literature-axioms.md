@@ -283,7 +283,7 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 | B7′ dyadic Hilbert symbol | **Serre *Course in Arithmetic* Ch. III §1.2 Thm 1** (`ε,ω`: Ch. II §3.3) | ✅ **verified** | 🟡 |
 | B8  Galois action on `π₁(ℙ¹∖{0,1,∞})` | **Stix [8] §3.3 + Def 37** (Deligne MSRI 16: classical origin) | ✅ **verified** | ✅ axiom (bundle) |
 | B9  Evens / Stiefel–Whitney | **Evens [9] §§4–5 Thm 1**; **Kahn [10] Thm 1–3**; **Kozlowski [11] Thm 1.1** (Guillot [6]: background only) | ✅ **verified** | 🟡 |
-| B10 tame quotient of `G_ℚ₂` | **NSW (7.5.3) (Iwasawa)** with (7.5.2); Serre *LF* Ch. IV (wild pro-`p`) | ✅ **verified** | ✅ axiom (bundle) |
+| B10 tame quotient of `G_ℚ₂` (**oriented**, B10′ since 2026-07-06) | **NSW (7.5.3) (Iwasawa)** with (7.5.2); Serre *LF* Ch. IV (wild pro-`p`); orientation clauses: **Neukirch ANT V (6.2)** (units ↦ inertia) + **V (1.2)** / NSW (7.1.2)(i) (units are unramified norms) | ✅ **verified** | ✅ axiom (bundle) |
 | — RZ Hopfian | RZ [4], Prop. 2.5.2 | **confirmed** | ✅ **proved** |
 | — Schur–Zassenhaus | Mathlib | — | ✅ **proved** |
 
@@ -325,6 +325,17 @@ Stiefel–Whitney/Evens classes, étale `π₁`) before they can be stated faith
   only relation στσ⁻¹ = τ^q" — verified verbatim, with **(7.5.2)** (the split extension).
   Convention note: NSW's arithmetic `σ` vs the paper's geometric `σ` (`τ^σ = τ²`) — the
   presentations agree under `σ ↦ σ⁻¹` (see `GQ2/TameQuotient.lean`).
+  **Oriented form B10′ (strengthened in place 2026-07-06, P-25 escalation, user-approved;
+  census unchanged):** two reciprocity-orientation clauses added to the bundle
+  (`OrientedTameQuotient`): units land in the `ν_t`-kernel; `rec(2)` (arithmetic Frobenius)
+  has geometric coordinate `ztwoOne⁻¹`.  Citations verified in the provided Neukirch ANT PDF:
+  **Chap. V, Theorem (6.2)** — the norm residue symbol maps `U_K^{(n)}` onto the
+  upper-numbering ramification group `G^n(L|K)` for finite abelian `L|K` (`n = 0`: units ↦
+  inertia, hence prime elements ↦ Frobenius lifts) — and **Chap. V, (1.2)** (`Ĥ^i(G(L|K), U_L)
+  = 1` for `L|K` unramified: units are norms at every finite unramified level; NSW (7.1.2)(i)
+  is the cohomological-triviality form).  The clauses are pinned to the B5 constant (a
+  ∀-bundle form would be false under Frobenius-coordinate twists); discharge `tame_reciprocity`
+  = Prop 3.14's `compatF` (`docs/p25-tame-reciprocity-plan.md`).
 - **B8** — Stix [8], **§3.3 + Definition 37** (the paper's exact citation): cyclotomic action on
   cuspidal inertia — verified. (Deligne, MSRI 16 (1989), is the classical *origin*, not cited by the
   paper.)

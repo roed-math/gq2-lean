@@ -51,10 +51,13 @@ current Mathlib plus this repo's `ContCoh` cohomology:
   base-generalized from `k = ℚ₂` by explicit census decision, resolving the P-15 escalation —
   the literature theorems are base-general and the paper applies (111) over general `k` in
   Lemma 6.16).
-* **B10** `tameQuotient` — the tame quotient of `G_ℚ₂` (Iwasawa, NSW (7.5.3)): a closed
-  normal pro-2 `W` with `G_ℚ₂/W ≅ T_tame` (defs + convention/deviation notes in
-  `GQ2/TameQuotient.lean`; added post-kickoff by explicit census decision, resolving the
-  P-06 escalation — Prop. 3.2's local side).
+* **B10** `tameQuotient` — the tame quotient of `G_ℚ₂` (Iwasawa, NSW (7.5.3)), **oriented
+  form B10′** (strengthened in place 2026-07-06, P-25 escalation, user-approved): a closed
+  normal pro-2 `W` with `G_ℚ₂/W ≅ T_tame`, plus two reciprocity-orientation clauses (units ↦
+  `ker ν_t`; `rec(2)` ↦ `ztwoOne⁻¹`; Neukirch ANT V (6.2), V (1.2)) (defs + convention/deviation
+  notes in `GQ2/TameQuotient.lean`; added post-kickoff by explicit census decision, resolving
+  the P-06 escalation — Prop. 3.2's local side; the orientation discharges Prop. 3.14's
+  `compatF`).
 * **B11a** `hilbertSymbol_normCriterion_finiteDyadic` + **B11b**
   `unramifiedQuadratic_units_are_norms` — the Hilbert-symbol norm criterion over finite dyadic
   bases (`[a]∪[b] = 0 ⟺ b` is a norm from `k(√a)`) and unramified unit-norm surjectivity.  Split
@@ -67,8 +70,8 @@ current Mathlib plus this repo's `ContCoh` cohomology:
 **Citation-faithfulness classification** (adversarial review 2026-07-04,
 `docs/adversarial-axioms-review.md`; full table in `docs/review-packet.md` §2).  The leaves fall
 in four tiers by how directly the Lean statement matches a single published theorem: **direct
-classical theorem** (B1, B6, B7, B7′, B10), **classical theorem + encoding choices** (B4, B5,
-B9), **composite/project interface** (B3c, B8, B11a, B11b — each pairs a cited theorem with
+classical theorem** (B1, B6, B7, B7′), **classical theorem + encoding choices** (B4, B5,
+B9, B10 — since the B10′ orientation), **composite/project interface** (B3c, B8, B11a, B11b — each pairs a cited theorem with
 encoding/convention inputs, flagged in its own docstring), and **available/unused** (B2).  The distinction keeps a
 reviewer from mistaking a "nearby true theorem" for "this exact Lean interface appears verbatim
 in the cited literature".
@@ -396,7 +399,7 @@ Citation, existence: **NSW [1], Ch. VII §7.5, Theorem (7.5.3) (Iwasawa)** — `
 profinite group on `σ, τ` with the single relation `στσ⁻¹ = τ^q` (`q = 2`); with
 **(7.5.2)** (split extension `1 → Ẑ^{(p′)}(1) → G(k_tr|k) → Γ → 1`) and `G(k̄|k_tr)`
 pro-`p` (Serre, *Local Fields* [7], Ch. IV).  Citation, orientation clauses:
-**Neukirch, *Algebraic Number Theory* [8], Chap. V, Theorem (6.2)** (norm residue symbol maps
+**Neukirch, *Algebraic Number Theory* (Grundlehren 322), Chap. V, Theorem (6.2)** (norm residue symbol maps
 `U_K^{(n)}` onto the upper-numbering ramification groups; `n = 0`: units ↦ inertia, so prime
 elements ↦ Frobenius lifts) with **Chap. V, (1.2)** / NSW [1] (7.1.2)(i) (units are norms in
 unramified extensions).  (All verified against the PDFs in `references/`; the

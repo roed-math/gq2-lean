@@ -70,7 +70,7 @@ which is *fully proved*, never assumed).
 | **B7′** | dyadic Hilbert symbol: `(2^α u, 2^β v)₂ = (−1)^{ε(u)ε(v)+αω(v)+βω(u)}` | Serre CiA III §1.2 Thm 1 | `GQ2.HilbertSymbol.hilbertSymbol_dyadic` | `GQ2/HilbertSymbol.lean` |
 | **B8** | cyclotomic action on the peripheral generators of `Δ = maxPro2(F₂)` (Lemma 3.6) | Stix §3.3, Def. 37; Deligne | `GQ2.peripheralCyclotomicAction` | `GQ2/PeripheralAction.lean` |
 | **B9** | Evens/Kahn eq. (111): `w(Tr⟨a⟩) = w(Tr⟨1⟩)(1 + cor[a] + N^{Ev}[a])`, deg ≤ 2, over any **finite dyadic base `k`** | Kahn Th. 2; Kozlowski 1.1; Evens Th. 1 | `GQ2.evensKahn_dyadic` | `GQ2/EvensKahn.lean` |
-| **B10** | the tame quotient of `G_{ℚ₂}`: closed normal pro-2 `W` with `G_{ℚ₂}/W ≅ ⟨σ,τ ∣ τ^σ = τ²⟩_prof` | NSW (7.5.3) (Iwasawa), (7.5.2); Serre LF IV | `GQ2.tameQuotient` | `GQ2/TameQuotient.lean` |
+| **B10** | the tame quotient of `G_{ℚ₂}`, **oriented** (B10′): closed normal pro-2 `W` with `G_{ℚ₂}/W ≅ ⟨σ,τ ∣ τ^σ = τ²⟩_prof`, plus reciprocity-orientation (units ↦ `ker ν_t`; `rec(2)` ↦ geometric coordinate `ztwoOne⁻¹`) | NSW (7.5.3) (Iwasawa), (7.5.2); Serre LF IV; Neukirch ANT V (6.2), V (1.2) | `GQ2.tameQuotient` | `GQ2/TameQuotient.lean` |
 | **B11a** | dyadic norm criterion over finite bases: `[a]∪[b] = 0 ⟺ b = x² − ay²` in `k` | **Serre LF Ch. XIV §2, Prop. 7 (iii)** — `(a,b)ᵥ=1 ⟺ b ∈ N_{K(a^{1/n})/K}`; symbol `(a,b)ᵥ = inv_K(a∪b)` (§2, p. 208); the `n=2` case | `GQ2.hilbertSymbol_normCriterion_finiteDyadic` | `GQ2/Foundations/Axioms.lean` |
 | **B11b** | units are norms from an unramified quadratic extension (`IsUnramifiedQuadraticSpectral` ⟹ every base unit is a norm) | **Serre LF Ch. V §2, Prop. 3 + Cor./Rem. 1** — `N(Uⁿ_L)=Uⁿ_K`, and a finite residue field gives `U_K = N_{L/K}(U_L)` | `GQ2.unramifiedQuadratic_units_are_norms` | `GQ2/Foundations/Axioms.lean` |
 
@@ -103,8 +103,8 @@ believed true; it is a guide to *where the translation layers are*.
 
 | Tier | Leaves | What the reviewer checks |
 |---|---|---|
-| **Direct classical theorem** | B1, B6, B7, B7′, B10 | the Lean statement *is* the cited theorem, modulo notation |
-| **Classical theorem + encoding choices** | B4, B5, B9 | the cited theorem plus documented repo encodings (bundle shape, diagonalization, base generalization) |
+| **Direct classical theorem** | B1, B6, B7, B7′ | the Lean statement *is* the cited theorem, modulo notation |
+| **Classical theorem + encoding choices** | B4, B5, B9, B10 | the cited theorem plus documented repo encodings (bundle shape, diagonalization, base generalization; B10: Iwasawa presentation + the ANT V (6.2) orientation clauses read through `toAb`-lifts, pinned to the B5 constant) |
 | **Composite / project interface** | B3c, B8, B11a, B11b | a cited theorem bundled with **additional inputs**, each flagged in the axiom's docstring |
 | **Available / unused** | B2 | in the census but consumed by no current declaration |
 
@@ -135,7 +135,12 @@ B2's unused status is recorded on its axiom docstring and re-confirmed by the §
 
 * **B10** (`tameQuotient`) — added by explicit census decision resolving the **P-06 escalation**:
   the step-1 census was 2-centric and had no prime-to-2 tame structure (needed by Prop. 3.2's
-  local side).  Census 10 → 11.
+  local side).  Census 10 → 11.  **Strengthened in place to the oriented form B10′**
+  (**P-25 escalation**, user-approved 2026-07-06; census unchanged): two reciprocity-orientation
+  clauses (Neukirch ANT V (6.2) units ↦ inertia; V (1.2) / NSW (7.1.2)(i) units are unramified
+  norms) — discharges `tame_reciprocity` (Prop 3.14's `compatF`), whose derivation from B5's
+  `norm_reciprocity` alone is blocked by absent local ramification theory in Mathlib
+  (`docs/p25-tame-reciprocity-plan.md`).
 * **B9 base-generalization + B11** — by explicit census decision (**P-15 escalation**,
   user-approved 2026-07-03): the paper applies eq. (111) and the §6.3 symbol arithmetic over
   *arbitrary finite dyadic bases* (Lemmas 6.16/6.17), while the step-1 layer had scoped B9 and
@@ -351,7 +356,7 @@ No proved node's footprint exceeds std-3 ∪ {its declared leaves}.
 | Lemma 3.1 / 3.3 | finite group theory | **std-3** | ✔ |
 | Prop 3.2 (local) | B10 (local side) | **B10** | ✔ — the `AxiomLedger` header's "Prop 3.2 → B5" is **pre-B10 stale** (predates the P-06 census decision); §C already says B10 |
 | Prop 3.10 (local marked) | — | **B3c + B8** | anabelian iso through the marked B4 (= B3c) + peripheral action |
-| Prop 3.14 (BoundaryMaps) | assembly | **sorryAx + B3c + B5 + B8 + B10** | one open gap (`tame_reciprocity`, the tame↔reciprocity orientation bridge; flagged for a census decision) |
+| Prop 3.14 (BoundaryMaps) | assembly | **B3c + B5 + B8 + B10′** | ✔ **sorryAx-free** (2026-07-06) — the orientation bridge is B10′'s clauses; `(B : BoundaryMaps)` for §§4–8 fully discharged |
 | Prop 5.15 (duality) | §C annotates "uses B6" | **std-3** | tighter: the elementary-module duality is combinatorial; **B6 lands at `prop_5_16`** (std-3 + B6 + B7), where `H²` is actually computed |
 | Lemma 8.6 (local) | — | **B6 + B7** | Tate duality + Euler characteristic at the half-torsor count |
 | eq. (154) `main_surjection_count` | Thm 4.2 + Lem 10.1 + Prop 2.3 | **sorryAx** | **OPEN** — the §§3–10 tower (§6) |

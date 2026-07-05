@@ -82,7 +82,7 @@ is NSW (7.5.3)'s `σ⁻¹`).
 Both clauses read the value through an arbitrary lift `g` of the abelianized class (well-posed:
 `ν_t ∘ equiv ∘ mk` kills `commClosure` — continuous into an abelian `T2` target).
 
-Citation: **Neukirch, *Algebraic Number Theory* [8], Chap. V, Theorem (6.2)** — the norm
+Citation: **Neukirch, *Algebraic Number Theory* (Grundlehren 322), Chap. V, Theorem (6.2)** — the norm
 residue symbol maps `U_K^{(n)}` onto the upper-numbering ramification group `G^n(L|K)` for
 every finite abelian `L|K`; at `n = 0`: **units ↦ inertia**, whence prime elements ↦ Frobenius
 lifts (with **Chap. V, (1.2)**: `Ĥ^i(G(L|K), U_L) = 1` for `L|K` unramified — units are norms
