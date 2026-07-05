@@ -5,7 +5,29 @@
 display of Prop 8.9, for the concrete R-stage.  **Deps** P-13f (`prop_5_15`, landed) + `prop_5_16`
 (landed); **Ax** B6, B7.  **Owner** Opus, 2026-07-05.
 
-## Status: reduction landed std-3; datum-construction escalated
+## Status: **abstract module FINISHED** (std-3, sorry-free) — (136) reduced to two source residues
+
+**(2026-07-06) `stageR136_ofRSepData` is the finish line.**  Every abstractly-provable ingredient of
+the `(W,o,e,hmB,hobs,hfib)` datum is proven in `GQ2/RStageObstructionBuild.lean`; (136) now rests on
+exactly two irreducible **concrete/source** inputs (which the concrete `𝒴`-frame, P-16d6, supplies
+from the arithmetic) plus `hE2`:
+
+* `hsep_hom` — the **radical-obstruction separation**: `obs g = 0 ⟹ g` has a homomorphism lift to
+  `Y`.  This is the `(R^∨)^C`-detection of `H²(Γ,R)` — a property of the *concrete* `R` + `C`-action,
+  provably **not** derivable in the bare abstract frame (with a pair-injectivity field the assembly
+  still hits an irreducible `H¹`-vanishing / C-invariance condition).  `homLift_of_split` discharges
+  the abstractly-provable half (splitting cochain ⟹ continuous hom lift); d6 supplies the splitting.
+* `hZcount` — the **source `Z¹`-count** `#RCocycle = z_R` (`prop_5_16`/`prop_5_15` cl.2 + `card_DR`).
+
+Proven abstract scaffolding: the obstruction map + `hmB` (steps 1–2), `stageR136_ofRObstructionData`
+(the assembler + easy `hobs`), the **whole `hfib` fibre-torsor** (`fibreCocycleEquiv`), `hsep`'s
+**Frattini/framing wrapper** (`liftB_fibre_nonempty_of_homLift`), and **`homLift_of_split`**.  d6
+consumes `stageR136_ofRSepData` by constructing the concrete `RObstructionData` and discharging
+`hsep_hom` + `hZcount`.
+
+---
+
+### (historical) Status: reduction landed std-3; datum-construction escalated
 
 * ✅ **Reduction landed** — `GQ2/RStageObstruction.lean`, `stageR136_ofObstruction`, **std-3,
   sorry-free**.  It repackages `stageR136_of`'s `W`/`o`/`e` interface into the natural obstruction
