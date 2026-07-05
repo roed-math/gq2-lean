@@ -153,6 +153,64 @@ theorem lifts_scalarCover_of_liftB (D : RCoverData RF)
 
 end RCoverData
 
+/-! ## Step 2 — the obstruction map `obs`, its linearity, and `hmB` -/
+
+section Obstruction
+
+open ContCoh CentralObstruction
+
+variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+  [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+variable {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+
+/-- **The R-stage obstruction datum** (Option A, extended): the compat covers `RCoverData`
+together with the `𝔽₂`-module realization of the scalar-character index `D_R` and the
+`D_R ≃ (R^∨)^C` **pairing** `pair` (a linear map `D_Rmod → (R →+ 𝔽₂)`), pinned to the covers by
+`pair_coverMap` (`pair d = zsign ∘ coverMap_{λ}` on `R`, for `λ = toDR d ≠ 0`).  This is exactly
+what the concrete `𝒴`-frame (P-16d5/d6) supplies; from it the obstruction map, its linearity, and
+`hmB` follow. -/
+structure RObstructionData (RF : RecursionFrame T Blk) extends RCoverData RF where
+  /-- The `𝔽₂`-module realization of the scalar-character index `D_R`. -/
+  DRmod : Type
+  [addCommGroup : AddCommGroup DRmod]
+  [moduleZMod : Module (ZMod 2) DRmod]
+  [finiteDRmod : Finite DRmod]
+  /-- `D_Rmod ≃ D_R`. -/
+  toDR : DRmod ≃ RF.DR
+  /-- … sending `0 ↦ zeroDR`. -/
+  h0 : toDR.symm RF.zeroDR = 0
+  /-- The `D_R ≃ (R^∨)^C` pairing: `pair d` is a `𝔽₂`-functional on the radical `R = Blk.R`,
+  linear in `d`. -/
+  pair : DRmod →ₗ[ZMod 2] (Additive ↥Blk.R →+ ZMod 2)
+  /-- The pairing is `zsign ∘ coverMap_λ` on `R` (`λ = toDR d ≠ 0`): the scalar character `d`
+  reads off the `λ`-cover's kernel sign of a radical element. -/
+  pair_coverMap : ∀ (d : DRmod) (h : toDR d ≠ RF.zeroDR) (r : ↥Blk.R),
+    pair d (Additive.ofMul r)
+      = zsign (trivialRCD (RF.scalarCover (toDR d) h))
+          (coverMap (toDR d) h (r : Y))
+
+attribute [instance] RObstructionData.addCommGroup RObstructionData.moduleZMod
+  RObstructionData.finiteDRmod
+
+variable (RF : RecursionFrame T Blk)
+
+/-- A set-theoretic section of `π_B : Y ↠ B`. -/
+noncomputable def slift (x : RF.YB) : Y := Function.surjInv RF.piB_surj x
+
+@[simp] theorem piB_slift (x : RF.YB) : RF.piB (slift RF x) = x :=
+  Function.surjInv_eq RF.piB_surj x
+
+/-- **The `R`-valued section defect** of a `B`-stage map `g : Γ → B` for the single set-lift
+`slift`: `Obs^s_g(γ,δ) = s(gγ)·s(gδ)·s(g(γδ))⁻¹ ∈ R = ker π_B`. -/
+noncomputable def rDefect (g : ContinuousMonoidHom Γ RF.YB) (γ δ : Γ) : ↥Blk.R :=
+  ⟨slift RF (g γ) * slift RF (g δ) * (slift RF (g (γ * δ)))⁻¹, by
+    rw [← RF.ker_piB, MonoidHom.mem_ker, map_mul, map_mul, map_inv,
+      piB_slift, piB_slift, piB_slift, map_mul]
+    group⟩
+
+end Obstruction
+
 end SectionEight
 
 end GQ2
