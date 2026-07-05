@@ -2846,13 +2846,18 @@ this is factored out as an explicit hypothesis, to be supplied per simple factor
 See `docs/p13-normal-form-hypothesis-gap.md` and P-13b in `docs/p13-ticket-split.md`.
 
 *Status*: hypothesis amended (P-13b); `P = 0` ledger landed; the wild/tame rows + `∃!`-assembly
-remain sorried. -/
+remain sorried.
+
+**Signature note (P-13f, 2026-07-05)**: the trivial wild action is now taken as hypotheses
+`hx0`/`hx1` rather than derived from `(hsimple, hcore)` via `wild_acts_trivially` — so the lemma
+applies to the contragredient dual `A∨` (whose wild-triviality transfers from `A`'s) without a
+"dual of simple is simple" detour, mirroring the split-side `split_shapes_of_wild`. -/
 theorem lemma_5_13_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
-    (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V) [Finite V]
-    (hcore : t.Pro2Core) (htau : ∀ v : V, t.τ • v = v → v = 0)
+    (hV₂ : ∀ v : V, v + v = 0) [Finite V]
+    (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v)
+    (htau : ∀ v : V, t.τ • v = v → v = 0)
     (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v) :
     ∀ x ∈ Z1w (A := V) t, ∃! c : V, x - x0Supported c ∈ B1w (A := V) t := by
-  obtain ⟨hx0, hx1⟩ := wild_acts_trivially t hV₂ hsimple hcore
   -- `T − 1` is injective (`V^T = 0`) hence surjective on the finite space `V`.
   have hTsurj : Function.Surjective (fun w : V => t.τ • w - w) :=
     (Finite.injective_iff_surjective).mp (fun a b hab => by
@@ -2929,16 +2934,16 @@ The tame relator's central coordinate vanishes on the x₀-supported rep
 
 **Hypothesis `hTodd`** (added P-13c, mirroring P-13b's `lemma_5_13_ramified`): `τ`'s 2-primary part
 acts trivially on `V` (tame inertia is prime-to-2), needed for the ramified `Dd₀ = c` via the
-`P = 0` ledger.  Supplied per simple factor by P-13d.  `hsimple`/`hcore` give the trivial wild
-action (`wild_acts_trivially`). -/
+`P = 0` ledger.  Supplied per simple factor by P-13d.  The trivial wild action is taken as
+hypotheses `hx0`/`hx1` (P-13f signature note on `lemma_5_13_ramified`). -/
 theorem lemma_5_13_pairing_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
-    (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V) [Finite V] (hcore : t.Pro2Core)
+    (hV₂ : ∀ v : V, v + v = 0) [Finite V]
+    (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v)
     (htau : ∀ v : V, t.τ • v = v → v = 0)
     (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (c : V)
     (lam : ElemDual V) :
     mixedB t (x0Supported c) (x0Supported (V := ElemDual V) lam)
       = lam (c + t.sigma2 • c + t.sigma2⁻¹ • c) := by
-  obtain ⟨hx0, hx1⟩ := wild_acts_trivially t hV₂ hsimple hcore
   show (heisMarking t (x0Supported c) (x0Supported lam)).tameValue.z
       + (heisMarking t (x0Supported c) (x0Supported lam)).wildValue.z = _
   rw [heisMarking_tameValue_z_eq_zero t (x0Supported c) (x0Supported lam) rfl rfl rfl rfl,
