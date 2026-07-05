@@ -30,6 +30,50 @@ open scoped Classical
 
 namespace UnramifiedModel
 
+/-! ## Coefficient functoriality of `mapCoeff1` (general — belongs in the cohomology library)
+
+`mapCoeff1` is functorial in the coefficient map: it sends `id` to `id` and `f ∘ g` to
+`mapCoeff1 f ∘ mapCoeff1 g`.  These descend the corresponding cochain-level facts about `Z1comap`
+through the `H¹` quotient (`QuotientAddGroup.map_mk'`).  Needed to promote the coefficient action
+of an abelian `C` on `V` to a `C`-action on `H¹`. -/
+
+section Functoriality
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable {M : Type*} [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGroup M]
+  [DistribMulAction G M] [ContinuousSMul G M]
+variable {N : Type*} [AddCommGroup N] [TopologicalSpace N] [IsTopologicalAddGroup N]
+  [DistribMulAction G N] [ContinuousSMul G N]
+variable {P : Type*} [AddCommGroup P] [TopologicalSpace P] [IsTopologicalAddGroup P]
+  [DistribMulAction G P] [ContinuousSMul G P]
+
+/-- `mapCoeff1` on an explicit cocycle class post-composes the cocycle with `f`. -/
+theorem mapCoeff1_H1mk (f : N →+ M) (hf : Continuous f)
+    (hcompat : ∀ (g : G) (n : N), f (g • n) = g • f n) (z : Z1 G N) :
+    mapCoeff1 f hf hcompat (H1mk G N z)
+      = H1mk G M (Z1comap (ContinuousMonoidHom.id G) f hf (fun g n => hcompat g n) z) :=
+  rfl
+
+/-- `mapCoeff1 (id) = id`. -/
+theorem mapCoeff1_id
+    (hcompat : ∀ (g : G) (m : M), (AddMonoidHom.id M) (g • m) = g • (AddMonoidHom.id M) m) :
+    mapCoeff1 (AddMonoidHom.id M) continuous_id hcompat = AddMonoidHom.id (H1 G M) := by
+  ext x
+  induction x using QuotientAddGroup.induction_on with
+  | _ z => rfl
+
+/-- `mapCoeff1 (f ∘ g) = mapCoeff1 f ∘ mapCoeff1 g`. -/
+theorem mapCoeff1_comp (f : N →+ M) (hf : Continuous f)
+    (hfc : ∀ (g : G) (n : N), f (g • n) = g • f n)
+    (e : P →+ N) (he : Continuous e) (hec : ∀ (g : G) (p : P), e (g • p) = g • e p) :
+    mapCoeff1 (f.comp e) (hf.comp he) (fun g p => by rw [AddMonoidHom.comp_apply, hec, hfc]; rfl)
+      = (mapCoeff1 f hf hfc).comp (mapCoeff1 e he hec) := by
+  ext x
+  induction x using QuotientAddGroup.induction_on with
+  | _ z => rfl
+
+end Functoriality
+
 variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
 variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
