@@ -445,4 +445,18 @@ theorem selfDual_of_trivial_action (t : Marking C) (ht : t.TameRel) (hw : t.Wild
     exact fun c v => hle (Subgroup.mem_top c) v
   exact trivialSelfDual t ht hw htriv hV₂
 
+/-- **Split case of a simple module (complete).**  When `τ` acts trivially, the simple module is
+self-dual — whether `σ` acts nontrivially (`selfDual_of_split`) or trivially
+(`selfDual_of_trivial_action`).  This closes the entire `V^T = V` branch of the
+`tau_split_or_ramified` dichotomy. -/
+theorem selfDual_of_split_case (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (hgen : t.Generates) (hV₂ : ∀ v : A, v + v = 0) (hsimple : IsSimpleModTwo C A)
+    (hcore : t.Pro2Core) (htau : ∀ v : A, t.τ • v = v) :
+    IsSelfDual t A := by
+  by_cases hσ : ∃ v : A, t.σ • v ≠ v
+  · exact selfDual_of_split t ht hw hgen hV₂ hsimple hcore htau hσ
+  · push_neg at hσ
+    obtain ⟨hx0, hx1⟩ := wild_acts_trivially t hV₂ hsimple hcore
+    exact selfDual_of_trivial_action t ht hw hgen hV₂ hσ htau hx0 hx1
+
 end GQ2.FoxH
