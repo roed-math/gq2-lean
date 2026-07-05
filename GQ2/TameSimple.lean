@@ -301,6 +301,64 @@ theorem tau_powOmega2_smul_trivial (t : Marking C) (ht : t.TameRel) (hgen : t.Ge
   rw [hgen] at hgenS
   exact fun c => hgenS (Subgroup.mem_top c)
 
+/-- **The ramified pairing operator `1 + U + U⁻¹` is injective** for `U = σ₂` on a char-2 module —
+with *no* hypothesis on how `σ₂` acts.  `U` has 2-power order (`orderOf_powOmega2_dvd_two_pow`),
+so in char 2 the operator is unipotent: writing `E_j(w) = U^{2^j}w + w = (U+1)^{2^j}w`, the
+`U`-scaled kernel equation gives `E_1(v) = Uv`, squaring inductively gives
+`E_{j+1}(v) = U^{2^j}v`, and at `2^j = ` the order both sides collapse to `0 = v`.  This is the
+nondegeneracy engine for the ramified pairing `λ((1+U+U⁻¹)c)` of `lemma_5_13_pairing_ramified`. -/
+theorem sigma2_pairing_operator_injective (t : Marking C) (hV₂ : ∀ v : V, v + v = 0) :
+    Function.Injective (fun v : V => v + t.sigma2 • v + t.sigma2⁻¹ • v) := by
+  have hneg : ∀ w : V, -w = w := fun w => neg_eq_of_add_eq_zero_left (hV₂ w)
+  set U := t.sigma2 with hUdef
+  set k := (orderOf t.σ).factorization 2 with hkdef
+  have h2k : U ^ 2 ^ k = 1 :=
+    orderOf_dvd_iff_pow_eq_one.mp (orderOf_powOmega2_dvd_two_pow t.σ)
+  -- kernel triviality
+  have hker : ∀ v : V, v + U • v + U⁻¹ • v = 0 → v = 0 := by
+    intro v hv
+    -- the `U`-scaled kernel equation: `U²v + v = Uv`
+    have hUv : U ^ 2 • v + v = U • v := by
+      have h := congrArg (fun w : V => U • w) hv
+      simp only [smul_add, smul_zero] at h
+      rw [smul_inv_smul, ← mul_smul, ← pow_two] at h
+      have h2 : U • v + (U ^ 2 • v + v) = 0 := by rw [← h]; abel
+      have h3 := neg_eq_of_add_eq_zero_right h2
+      rw [hneg] at h3
+      exact h3.symm
+    -- squaring: `E_j (E_j w) = E_{j+1} w` for `E_j w = U^{2^j}w + w`
+    have hdouble : ∀ (j : ℕ) (w : V),
+        U ^ 2 ^ j • (U ^ 2 ^ j • w + w) + (U ^ 2 ^ j • w + w) = U ^ 2 ^ (j + 1) • w + w := by
+      intro j w
+      rw [smul_add, ← mul_smul, ← pow_add, show 2 ^ j + 2 ^ j = 2 ^ (j + 1) from by ring]
+      rw [show U ^ 2 ^ (j + 1) • w + U ^ 2 ^ j • w + (U ^ 2 ^ j • w + w)
+          = U ^ 2 ^ (j + 1) • w + w + (U ^ 2 ^ j • w + U ^ 2 ^ j • w) from by abel, hV₂, add_zero]
+    -- inductively: `E_{j+1}(v) = U^{2^j} v`
+    have hQ : ∀ j : ℕ, U ^ 2 ^ (j + 1) • v + v = U ^ 2 ^ j • v := by
+      intro j
+      induction j with
+      | zero => simpa [pow_one] using hUv
+      | succ j ih =>
+        have hd := hdouble (j + 1) v
+        rw [ih] at hd
+        rw [← hd, show U ^ 2 ^ (j + 1) • U ^ 2 ^ j • v + U ^ 2 ^ j • v
+            = U ^ 2 ^ j • (U ^ 2 ^ (j + 1) • v + v) from by
+              rw [smul_add, ← mul_smul, ← mul_smul, ← pow_add, ← pow_add,
+                add_comm (2 ^ (j + 1)) (2 ^ j)],
+          ih, ← mul_smul, ← pow_add, show 2 ^ j + 2 ^ j = 2 ^ (j + 1) from by ring]
+    -- specialize at the order: both sides collapse
+    have hfin := hQ k
+    rw [show 2 ^ (k + 1) = 2 ^ k * 2 from by ring, pow_mul, h2k, one_pow, one_smul,
+      hV₂ v] at hfin
+    exact hfin.symm
+  -- injectivity from kernel triviality (the operator is additive)
+  intro a b hab
+  simp only at hab
+  have hd : (a - b) + U • (a - b) + U⁻¹ • (a - b) = 0 := by
+    rw [smul_sub, smul_sub, show a - b + (U • a - U • b) + (U⁻¹ • a - U⁻¹ • b)
+        = a + U • a + U⁻¹ • a - (b + U • b + U⁻¹ • b) from by abel, hab, sub_self]
+  exact sub_eq_zero.mp (hker _ hd)
+
 /-- **P-13d output `hVS`**: on a nontrivial simple char-2 module at a *generating* split-tame marking
 where `σ` acts nontrivially, `V^S = 0` (the `1 + S⁻¹`-invertibility feeding `lemma_5_13_split`).
 `V^σ` is a `C`-submodule (`σ` central), so `⊥` or `⊤`; the nontriviality `hσ` kills `⊤`. -/

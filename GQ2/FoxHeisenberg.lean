@@ -358,6 +358,14 @@ theorem conjP_u_of_trivial (p g : WordLift A C) (hp : ∀ a : A, p.g • a = a)
     mul_u_of_trivial _ p (inv_g_trivial g hg), inv_u_of_trivial g hg]
   abel
 
+/-- General conjugation offset with only the *conjugated* word's base trivial: the conjugator's
+prefix survives as `g.g⁻¹ • ·`.  (The `x₂`-cancellation in the ramified `h₀`-row then happens in
+`g₀`-conjugate *pairs* — `hU` is not needed.) -/
+theorem conjP_u_of_base_trivial (p g : WordLift A C) (hp : ∀ a : A, p.g • a = a) :
+    (conjP p g).u = g.g⁻¹ • p.u := by
+  rw [conjP, mul_u, mul_u, inv_u, mul_g, inv_g, mul_smul, hp g.u]
+  abel
+
 theorem commP_u_of_trivial (p q : WordLift A C) (hp : ∀ a : A, p.g • a = a)
     (hq : ∀ a : A, q.g • a = a) : (commP p q).u = 0 := by
   have hpi := inv_g_trivial p hp
@@ -2112,14 +2120,16 @@ theorem liftMarking_h0_g_ramified (t : Marking C) (x : Fin 4 → V) (hx0 : ∀ v
     (liftMarking t x).hc).g • v = v
   exact WordLift.mul_g_trivial _ _ hq4 hhcg v
 
-/-- Ramified `D(h₀) = 0`: same cancellation as split, with `d0.u = dg.u = x₂` (instead of `x₁`) —
-`x₂+x₂+x₂+x₂ = 0`.  `hU` enters only through `g0` (`liftMarking_g0_g_smul`). -/
+/-- Ramified `D(h₀) = 0` — **`hU`-free** (de-`hU`'d 2026-07-05): the cancellation happens in
+`g₀`-conjugate *pairs*, `(g₀⁻¹•x₂ + x₂) + (g₀⁻¹•x₂ + x₂) = 0`, via `conjP_u_of_base_trivial` —
+the `x₀^{g₀}`/`dg` terms carry the same `g₀⁻¹` prefix as each other, so no triviality of `g₀`'s
+action is needed.  (`hU` is *not* derivable from admissibility: `S₃` on its 2-dimensional simple
+module, marking `x₀=x₁=1`, is admissible with `σ₂ = σ` acting nontrivially.) -/
 theorem liftMarking_h0_u_ramified (t : Marking C) (x : Fin 4 → V) (hV₂ : ∀ v : V, v + v = 0)
     (hx0 : ∀ v : V, t.x₀ • v = v) (htau : ∀ v : V, t.τ • v = v → v = 0)
-    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v) :
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) :
     (liftMarking t x).h0.u = 0 := by
   have hd0g := liftMarking_d0_g_ramified t x hx0 hTodd
-  have hg0g := liftMarking_g0_g_smul t x hU
   have hd0u := liftMarking_d0_u_ramified t x hV₂ hx0 htau hTodd
   have hP1g : ∀ w : V, (conjP (liftMarking t x).x₀ (liftMarking t x).g0).g • w = w := fun w =>
     WordLift.conjP_g_trivial _ _ hx0 w
@@ -2131,11 +2141,12 @@ theorem liftMarking_h0_u_ramified (t : Marking C) (x : Fin 4 → V) (hV₂ : ∀
   have hd02g : ∀ w : V, ((liftMarking t x).d0 ^ 2).g • w = w := fun w => by
     rw [WordLift.pow_g, pow_two, mul_smul, hd0g, hd0g]
   have hq4 := fun w => WordLift.mul_g_trivial _ _ hq3 hd02g w
-  have hP1u : (conjP (liftMarking t x).x₀ (liftMarking t x).g0).u = x 2 :=
-    WordLift.conjP_u_of_trivial _ _ hx0 hg0g
-  have hdgu : (liftMarking t x).dg.u = x 2 := by
-    show (conjP (liftMarking t x).d0 (liftMarking t x).g0).u = x 2
-    rw [WordLift.conjP_u_of_trivial _ _ hd0g hg0g, hd0u]
+  have hP1u : (conjP (liftMarking t x).x₀ (liftMarking t x).g0).u
+      = (liftMarking t x).g0.g⁻¹ • x 2 :=
+    WordLift.conjP_u_of_base_trivial _ _ hx0
+  have hdgu : (liftMarking t x).dg.u = (liftMarking t x).g0.g⁻¹ • x 2 := by
+    show (conjP (liftMarking t x).d0 (liftMarking t x).g0).u = _
+    rw [WordLift.conjP_u_of_base_trivial _ _ hd0g, hd0u]
   have hhcu : (liftMarking t x).hc.u = 0 := by
     show (commP (liftMarking t x).dg (liftMarking t x).d0).u = 0
     exact WordLift.commP_u_of_trivial _ _ hdgg hd0g
@@ -2147,16 +2158,19 @@ theorem liftMarking_h0_u_ramified (t : Marking C) (x : Fin 4 → V) (hV₂ : ∀
   rw [WordLift.mul_u_of_trivial _ _ hq4, WordLift.mul_u_of_trivial _ _ hq3,
     WordLift.mul_u_of_trivial _ _ hq2, WordLift.mul_u_of_trivial _ _ hq1,
     WordLift.mul_u_of_trivial _ _ hP1g, hP1u, hhcu, hd02u, hdgu, hd0u]
-  show x 2 + x 2 + x 2 + x 2 + 0 + 0 = 0
-  rw [add_zero, add_zero, hV₂ (x 2), zero_add, hV₂ (x 2)]
+  show (liftMarking t x).g0.g⁻¹ • x 2 + x 2 + (liftMarking t x).g0.g⁻¹ • x 2 + x 2 + 0 + 0 = 0
+  rw [add_zero, add_zero,
+    show (liftMarking t x).g0.g⁻¹ • x 2 + x 2 + (liftMarking t x).g0.g⁻¹ • x 2 + x 2
+      = ((liftMarking t x).g0.g⁻¹ • x 2 + (liftMarking t x).g0.g⁻¹ • x 2) + (x 2 + x 2) from by
+        abel,
+    hV₂, hV₂, add_zero]
 
 /-- **The ramified wild row (Lemma 5.5, `V^T = 0`)**: `L_w = D(h₀) + D(u₁⁻¹) + D(x₁^σ) + D(c₀) =
 0 + 0 + S⁻¹·x₃ + 0 = S⁻¹·x₃`.  This is `(d1Fun t x).2` at a ramified simple module — the wild half
 forcing `d = x₃ = 0` in the normal form. -/
 theorem liftMarking_wildValue_u_ramified (t : Marking C) (x : Fin 4 → V) (hV₂ : ∀ v : V, v + v = 0)
     (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v)
-    (htau : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v)
-    (hU : ∀ v : V, t.sigma2 • v = v) :
+    (htau : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v) :
     (liftMarking t x).wildValue.u = t.σ⁻¹ • x 3 := by
   have hh0g := liftMarking_h0_g_ramified t x hx0 hTodd
   have hu1g := liftMarking_u1_g_ramified t x hx1 hTodd
@@ -2169,7 +2183,7 @@ theorem liftMarking_wildValue_u_ramified (t : Marking C) (x : Fin 4 → V) (hV�
   show ((liftMarking t x).h0 * (liftMarking t x).u1⁻¹ *
     conjP (liftMarking t x).x₁ (liftMarking t x).σ * (liftMarking t x).c0).u = t.σ⁻¹ • x 3
   rw [WordLift.mul_u_of_trivial _ _ hq3, WordLift.mul_u_of_trivial _ _ hq2,
-    WordLift.mul_u_of_trivial _ _ hh0g, liftMarking_h0_u_ramified t x hV₂ hx0 htau hTodd hU,
+    WordLift.mul_u_of_trivial _ _ hh0g, liftMarking_h0_u_ramified t x hV₂ hx0 htau hTodd,
     WordLift.inv_u_of_trivial _ hu1g, liftMarking_u1_u_ramified t x hx1 htau hTodd,
     liftMarking_conjP_x1_sigma_u t x hx1, liftMarking_c0_u_ramified t x hx0 hTodd]
   show 0 + -(0 : V) + t.σ⁻¹ • x 3 + 0 = t.σ⁻¹ • x 3
@@ -2851,12 +2865,17 @@ remain sorried.
 **Signature note (P-13f, 2026-07-05)**: the trivial wild action is now taken as hypotheses
 `hx0`/`hx1` rather than derived from `(hsimple, hcore)` via `wild_acts_trivially` — so the lemma
 applies to the contragredient dual `A∨` (whose wild-triviality transfers from `A`'s) without a
-"dual of simple is simple" detour, mirroring the split-side `split_shapes_of_wild`. -/
+"dual of simple is simple" detour, mirroring the split-side `split_shapes_of_wild`.
+
+**`hU` REMOVED (P-13f de-`hU`, 2026-07-05)**: the σ-tameness `∀ v, σ₂ • v = v` is *not derivable
+from admissibility* (`S₃` on its 2-dim simple module and `C₅⋊C₄` on `𝔽₁₆`, markings `x₀=x₁=1`,
+are admissible ramified counterexamples), and it is not needed: the `h₀`-row `x₂`-cancellation
+happens in `g₀`-conjugate pairs (`liftMarking_h0_u_ramified`, via `conjP_u_of_base_trivial`). -/
 theorem lemma_5_13_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     (hV₂ : ∀ v : V, v + v = 0) [Finite V]
     (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v)
     (htau : ∀ v : V, t.τ • v = v → v = 0)
-    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v) :
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) :
     ∀ x ∈ Z1w (A := V) t, ∃! c : V, x - x0Supported c ∈ B1w (A := V) t := by
   -- `T − 1` is injective (`V^T = 0`) hence surjective on the finite space `V`.
   have hTsurj : Function.Surjective (fun w : V => t.τ • w - w) :=
@@ -2869,7 +2888,7 @@ theorem lemma_5_13_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   -- Wild row `S⁻¹·x₃ = 0` forces `x₃ = 0`.
   have hx3 : x 3 = 0 := by
     have hwild : (liftMarking t x).wildValue.u = 0 := congrArg Prod.snd hx
-    rw [liftMarking_wildValue_u_ramified t x hV₂ hx0 hx1 htau hTodd hU] at hwild
+    rw [liftMarking_wildValue_u_ramified t x hV₂ hx0 hx1 htau hTodd] at hwild
     rw [← smul_inv_smul t.σ (x 3), hwild, smul_zero]
   -- `v = (T − 1)⁻¹ x₁`; subtracting `d⁰v` kills the `x₁`-slot.
   obtain ⟨v, hv⟩ := hTsurj (x 1)
