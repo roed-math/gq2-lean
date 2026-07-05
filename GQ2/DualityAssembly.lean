@@ -129,4 +129,61 @@ theorem card_fixedPts_elemDual_eq_one_of_nontrivial (hsimple : IsSimpleModTwo C 
   exact ⟨⟨fun x y => Subtype.ext ((hzero x.val x.2).trans (hzero y.val y.2).symm)⟩,
     ⟨⟨0, fun c => smul_zero c⟩⟩⟩
 
+/-- **Split/ramified dichotomy for a simple module**: either `τ` acts trivially (split, `V^T = V`)
+or `V^T = 0` (ramified).  The `τ`-fixed space `V^T` is `C`-stable — `σ` preserves it via the tame
+relation `σ⁻¹τσ = τ²` (`τ(σv) = σ(τ²v) = σv`), `x₀,x₁` act trivially (`wild_acts_trivially`), and the
+stabilizer is a subgroup containing the generators, hence all of `C` (`hgen`) — so simplicity forces
+`V^T = ⊥` or `⊤`. -/
+theorem tau_split_or_ramified (t : Marking C) (ht : t.TameRel) (hgen : t.Generates)
+    (hsimple : IsSimpleModTwo C A) (hcore : t.Pro2Core) (hV₂ : ∀ a : A, a + a = 0) :
+    (∀ v : A, t.τ • v = v) ∨ (∀ v : A, t.τ • v = v → v = 0) := by
+  obtain ⟨hx0, hx1⟩ := wild_acts_trivially t hV₂ hsimple hcore
+  let W : AddSubgroup A :=
+    { carrier := {v | t.τ • v = v}
+      zero_mem' := smul_zero t.τ
+      add_mem' := fun {a b} ha hb => by show t.τ • (a + b) = a + b; rw [smul_add, ha, hb]
+      neg_mem' := fun {a} ha => by show t.τ • (-a) = -a; rw [smul_neg, ha] }
+  have hmemW : ∀ v : A, v ∈ W ↔ t.τ • v = v := fun _ => Iff.rfl
+  -- generators preserve `W`
+  have hσW : ∀ v, v ∈ W → t.σ • v ∈ W := by
+    intro v hv
+    rw [hmemW] at hv ⊢
+    have htame : t.σ⁻¹ * t.τ * t.σ = t.τ * t.τ := by
+      have h := ht; rw [Marking.TameRel, conjP, pow_two] at h; exact h
+    have hcomm : t.τ * t.σ = t.σ * (t.τ * t.τ) := by rw [← htame]; group
+    have he : (t.τ * t.σ) • v = (t.σ * (t.τ * t.τ)) • v := by rw [hcomm]
+    rw [mul_smul, mul_smul, mul_smul, hv, hv] at he
+    exact he
+  -- the stabilizer subgroup of `W`
+  let S : Subgroup C :=
+    { carrier := {g | ∀ v, v ∈ W → g • v ∈ W}
+      one_mem' := fun v hv => by rw [one_smul]; exact hv
+      mul_mem' := fun {a b} ha hb v hv => by rw [mul_smul]; exact ha _ (hb v hv)
+      inv_mem' := fun {a} ha v hv => by
+        have hφinj : Function.Injective (fun u : W => (⟨a • u.1, ha u.1 u.2⟩ : W)) := by
+          intro x y hxy
+          exact Subtype.ext (MulAction.injective a (congrArg Subtype.val hxy))
+        obtain ⟨⟨u, hu⟩, hux⟩ := (Finite.injective_iff_surjective.mp hφinj) ⟨v, hv⟩
+        have huv : a • u = v := congrArg Subtype.val hux
+        rw [show a⁻¹ • v = u from by rw [← huv, inv_smul_smul]]; exact hu }
+  have hgenS : Subgroup.closure {t.σ, t.τ, t.x₀, t.x₁} ≤ S := by
+    rw [Subgroup.closure_le]
+    intro g hg
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hg
+    rcases hg with rfl | rfl | rfl | rfl
+    · exact hσW
+    · intro v hv; rw [hmemW] at hv ⊢; rw [hv]; exact hv
+    · intro v hv; rw [hmemW] at hv ⊢; rw [hx0]; exact hv
+    · intro v hv; rw [hmemW] at hv ⊢; rw [hx1]; exact hv
+  rw [hgen] at hgenS
+  have hstable : ∀ (g : C) (v : A), v ∈ W → g • v ∈ W := fun g v hv => hgenS (Subgroup.mem_top g) v hv
+  rcases hsimple.2 W hstable with hbot | htop
+  · right
+    intro v hv
+    have : v ∈ W := (hmemW v).mpr hv
+    rw [hbot, AddSubgroup.mem_bot] at this; exact this
+  · left
+    intro v
+    exact (hmemW v).mp (htop ▸ AddSubgroup.mem_top v)
+
 end GQ2.FoxH
