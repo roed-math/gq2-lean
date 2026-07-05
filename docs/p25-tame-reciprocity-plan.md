@@ -68,3 +68,52 @@ P-25b ~150–250 ln; P-25a ~200–300; P-25c ~250–400; P-25d ~600–1200 (Math
 unramified degree theory and norm-unit surjectivity); P-25e unknown (research-grade).  All new
 work in own files (`GQ2/TameCharacter.lean`, `GQ2/UnramifiedTower.lean`, …); splices into
 `BoundaryMapsWitness.lean` are one-liners.
+
+---
+
+## Refined analysis after P-25b (2026-07-05, Opus) — the blocker is precise
+
+**P-25b DONE** (commit `cef787e`): `tame_reciprocity` is proved modulo two atoms
+`tame_recip_uniformizer` (F) and `tame_recip_unitNeg3` (U₋₃).  All reduction machinery
+(`padic_hom_eq_of_gens`, `padicInt_eq_zero_of_forall_two_pow_dvd`, `mult_padic_sq_eq_one`,
+`tameChar`) is **std-3**.
+
+**A cleaner intrinsic reduction (records the crux for P-25e).**  Because `Ztwo` is pro-2,
+`ν_t∘tameF` factors through the maximal pro-2 quotient: `ν_t∘tameF = ψ∘pro2F` for a unique
+`ψ : Π → Ztwo` (`proPKernel_le_ker`).  Since `ν₂∘pro2F = ι⁻¹∘ν_ur∘toAb` (proved,
+`prop_3_10_local_marked`) and `pro2F` is surjective,
+
+>  `tame_reciprocity  ⟺  ψ = ν₂`   (as homs `Π → Ztwo`).
+
+By `topGen_piBd` this is three generator values:
+* `ψ(x₀) = 1`, `ψ(x₁) = 1`: **provable iff `x₀, x₁ ∈ pro2F(W)`** — because `W = ker tameF`
+  gives `pro2F(W) ⊆ ker ψ` for free (`ν_t∘tameF` kills `W`), so once `x_i ∈ pro2F(W)` the wild
+  atoms vanish with *no* arithmetic.
+* `ψ(σ) = ztwoOne`: the Frobenius-orientation value.
+
+So the entire gap is: **`pro2F(W) = ker ν₂`** (equivalently `pro2F(W) = ⟨⟨x₀,x₁⟩⟩`) **and the
+`σ`-normalization** — i.e. that B10's abstract wild subgroup `W` maps, under the
+`prop_3_10_local_marked` iso `e : G_{ℚ₂}(2) ≅ Π`, onto the wild part of `Π`.
+
+**Why this is irreducible from B10 + B5 as stated.**  `W` is fixed by B10 only up to
+*maximality* (`W = O₂(G_{ℚ₂})`, the largest normal closed pro-2 — this much IS forced and
+witness-independent).  The iso `e` is fixed by B5 *reciprocity* (via `prop_1_1`/`markedHom`),
+independently of `W`.  Nothing tells us `e(W-image) = ⟨⟨x₀,x₁⟩⟩`: that is the statement that the
+B10 tame filtration and the B5 reciprocity filtration are the *same* filtration of `G_{ℚ₂}` —
+genuine local-CFT input.  The concrete route (P-25c/d/e) must produce it by realizing `ν_t∘tameF`
+as `restrictHom` of a concrete unramified tower and invoking `norm_reciprocity`; but
+`restrictHom M = ρ_M∘pro2F` (provable, `M/ℚ₂` a 2-extension) only relates `restrictHom` to
+`pro2F`, **not** to `tameF` — so it still cannot see `W`.  The `tameF`↔`restrictHom` identification
+is exactly `W = concrete wild inertia`, which needs Mathlib's (absent) ramification theory for
+`AbsGalQ2 = Field.absoluteGaloisGroup ℚ₂`.
+
+**Status of the sub-tickets after this analysis:**
+* P-25c/d (unramified tower + norm surjectivity): buildable but **do not close the gap** on their
+  own — they give `restrictHom`/`ρ_M`, never `W`.  Deprioritized unless P-25e cracks.
+* P-25e (the bridge `pro2F(W) = ⟨⟨x₀,x₁⟩⟩`): the real obstruction.  Needs either (a) a Mathlib
+  development identifying `O₂(Field.absoluteGaloisGroup ℚ₂)` with the fixed group of the maximal
+  unramified subextension (large, research-grade), or (b) **a minimal bridging axiom** — now
+  dramatically smaller than the original `tame_reciprocity`: e.g. `pro2F(W) = ker ν₂`, a single
+  equality of explicit subgroups of `Π`, abelian/finite-checkable and with a clean NSW citation
+  (the wild-inertia filtration).  User decision (the "avoid a new axiom" preference collides with
+  the absence of Mathlib local ramification theory).
