@@ -26,6 +26,22 @@ namespace SectionEight
 
 open SectionSeven
 
+/-- **A finite `𝔽₂`-module of cardinality 2 is `ZMod 2`** (linearly).  Used to turn the
+scalar obstruction class `homOb ∈ H²(Γ,𝔽₂)` into an `𝔽₂` value once the source numeric
+`#H²(Γ,𝔽₂) = 2` is available (`prop_5_16`/`prop_5_15`), so `obs` lands in `D_Rᵛ`. -/
+noncomputable def cardTwoLinEquiv {M : Type} [AddCommGroup M] [Module (ZMod 2) M] [Finite M]
+    (hM : Nat.card M = 2) : M ≃ₗ[ZMod 2] ZMod 2 := by
+  haveI : Fintype M := Fintype.ofFinite M
+  haveI : FiniteDimensional (ZMod 2) M := Module.Finite.of_finite
+  have hfr : Module.finrank (ZMod 2) M = 1 := by
+    have h : Fintype.card M = Fintype.card (ZMod 2) ^ Module.finrank (ZMod 2) M :=
+      Module.card_eq_pow_finrank
+    rw [ZMod.card, ← Nat.card_eq_fintype_card, hM] at h
+    have h2 : (2 : ℕ) ^ 1 = 2 ^ Module.finrank (ZMod 2) M := by rw [pow_one]; exact h
+    exact (Nat.pow_right_injective (le_refl 2) h2).symm
+  exact (Module.finBasisOfFinrankEq (R := ZMod 2) (M := M) hfr).equivFun.trans
+    (LinearEquiv.funUnique (Fin 1) (ZMod 2) (ZMod 2))
+
 /-- **The trivial (`M = ⊥`) radical-cover datum** wrapping a bare central cover.  All the
 `GQ2.SectionEight.CentralObstruction` engine (the kernel-sign calculus, the obstruction class,
 `central_iff_ob_eq_zero`) is stated over a `RadicalCoverData`, but its lifting content uses only
@@ -56,11 +72,48 @@ def trivialRCD {Bg : Type} [Group Bg] [Finite Bg] (C : CentralCover Bg) :
 @[simp] theorem trivialRCD_M {Bg : Type} [Group Bg] [Finite Bg] (C : CentralCover Bg) :
     (trivialRCD C).M = ⊥ := rfl
 
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ]
+
+/-! ## Step 1 — the `mB ⟺ ob` bridge (via `trivialRCD` + `central_iff_ob_eq_zero`) -/
+
+section Bridge
+
+open ContCoh CentralObstruction
+
+variable [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+variable {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+
+/-- `ρ = mk : Bg → Bg/⊥`, precomposed with `g`; the lower map making `g` an `M`-lift of
+`trivialRCD C` (`M = ⊥`). -/
+noncomputable def trivialRho (g : ContinuousMonoidHom Γ Bg) :
+    ContinuousMonoidHom Γ (Bg ⧸ (⊥ : Subgroup Bg)) :=
+  ⟨(QuotientGroup.mk' ⊥).comp g.toMonoidHom,
+    (continuous_quotient_mk').comp g.continuous_toFun⟩
+
+/-- `g` itself as the `M`-lift of `trivialRCD C` over `trivialRho g`. -/
+def trivialMLift (C : CentralCover Bg) (g : ContinuousMonoidHom Γ Bg) :
+    MLifts (trivialRCD C) (trivialRho g) :=
+  ⟨g, fun _ => rfl⟩
+
+/-- **The scalar obstruction of a hom `g` through a bare central cover `C`** — the
+`CentralObstruction.ob` of `g` viewed as an `M = ⊥` lift. -/
+noncomputable def homOb (C : CentralCover Bg) (g : ContinuousMonoidHom Γ Bg)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m) : H2 Γ (ZMod 2) :=
+  ob (trivialRCD C) (trivialRho g) htriv (trivialMLift C g)
+
+/-- **Step 1**: `g` lifts through the central cover `C` iff its scalar obstruction vanishes. -/
+theorem liftsThroughCover_iff_homOb (C : CentralCover Bg) (g : ContinuousMonoidHom Γ Bg)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m) :
+    (∃ h : ContinuousMonoidHom Γ C.cover, ∀ γ : Γ, C.p (h γ) = g γ)
+      ↔ homOb C g htriv = 0 :=
+  central_iff_ob_eq_zero (trivialRCD C) (trivialRho g) htriv (trivialMLift C g)
+
+end Bridge
+
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
   [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
 variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
-variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
-  [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+variable [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
 
 /-- **Option-A compatibility datum (P-16d2)**: the missing link between the frame's abstract scalar
 covers and the single radical extension `Y ↠ B`.  For each nonzero scalar character `λ`, a
