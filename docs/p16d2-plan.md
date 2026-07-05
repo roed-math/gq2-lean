@@ -25,8 +25,16 @@ display of Prop 8.9, for the concrete R-stage.  **Deps** P-13f (`prop_5_15`, lan
   "obstruction module" object the ticket names, and it is the interface the concrete witness will
   target.
 
-* ⚠️ **Datum construction escalated** — building the `obs`/`hmB`/`hobs`/`hfib` **witness** needs a
-  piece of data the bare `RecursionFrame` and its `Enrichment` (P-16d1) **do not carry**.  See below.
+* 🔨 **Option A underway** (user-approved 2026-07-05) — `GQ2/RStageObstructionBuild.lean`, std-3:
+  the compat structure `RCoverData RF` (the `coverMap_λ : Y →* (scalarCover λ).cover` family with
+  `p_λ ∘ coverMap_λ = π_B`) is defined, and the **easy `hobs` direction**
+  `lifts_scalarCover_of_liftB` (lifts-to-`Y` ⟹ lifts-through-every-`p_λ`) is proved.  Kept
+  self-contained (no edit to the co-owned `Enrichment`; foldable in later).  **Remaining** = the
+  obstruction-theory core (steps 2–5 below): the obstruction map `obs` + its linearity, the hard
+  separation, and the `z_R` torsor count — a multi-session build needing a new twisted
+  `Z¹(Γ,R)` / `H²(Γ,R)` cochain layer for the `R`-extension (and one more `RCoverData` field, the
+  `D_R ≃ (R^∨)^C` functional link, for `obs`/`toDR`).  The reduction
+  `stageR136_ofObstruction` is the sink these feed.
 
 ## The gap: the scalar covers are not linked to the radical extension
 
