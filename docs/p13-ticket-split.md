@@ -121,7 +121,35 @@ step (card clauses by Euler characteristic; pairing perfection by the five-lemma
 long-exact-sequence / snake infrastructure for the word-complex functors `Z1w`/`H1w`/`H2w` — not yet
 in the repo, design-sensitive.  Model **F**.  Ax: —.
 
-### P-13f — duality assembly (`prop_5_15`) — ◐ part (i) DONE + SPLIT simple case DONE
+### P-13f — duality assembly (`prop_5_15`) — ☑ CLOSED (2026-07-05): prop_5_15 PROVED
+
+**`GQ2.FoxH.prop_5_15` is proved, std-3 exactly (no sorryAx, no B-axioms), `#print axioms`
+verified; `cor_5_17_card` is now unconditional (std-3+B6+B7).**  Composition:
+`prop_5_15_of_simple` (dévissage strong induction on `#A` via `lemma_5_11`,
+`GQ2/DevissageInduction.lean`, parallel agent) ∘ `selfDual_of_simple`
+(`GQ2/DualityAssembly.lean`).  The simple case dispatches `tau_split_or_ramified`:
+
+* **split** — `selfDual_of_split_case` (σ nontrivial via shapes/normal form + P-13d providers +
+  pairing `λ(c)`; σ trivial via `trivialSelfDual`);
+* **ramified** — `selfDual_of_ramified`: `hTodd` **derived** (`tau_powOmega2_smul_trivial`,
+  stable-fixed-space mechanism `pow2_smul_trivial_of_stable` + `conj_powOmega2_tau`); pairing
+  `λ((1+U+U⁻¹)c)` perfect since `1+U+U⁻¹` is unipotent (`sigma2_pairing_operator_injective`).
+
+**De-`hU` note (mathematical finding)**: the P-13b σ-tameness amendment
+`hU : ∀ v, σ₂ • v = v` is **not derivable from admissibility** — `S₃` on its 2-dim simple module
+(marking `x₀=x₁=1`, `σ=(12)`, `τ=(123)`) and `C₅⋊C₄` on `𝔽₁₆` are fully admissible ramified
+counterexamples (for the latter even `g₀=σ₂²` acts nontrivially).  It was removed from
+`lemma_5_13_ramified`/`liftMarking_{h0,wildValue}_u_ramified`: the `h₀`-row `x₂`-cancellation
+holds in `g₀`-conjugate *pairs* (`(g₀⁻¹x₂+x₂)+(g₀⁻¹x₂+x₂)=0`), via the new
+`WordLift.conjP_u_of_base_trivial`.  Wild-triviality is hypothesized (`hx0`/`hx1`) rather than
+derived, so both lemmas instantiate at the contragredient dual `A∨`.
+
+Statement relocated `FoxHeisenberg` → `DualityAssembly` (same FQN, pointer comment left);
+`LocalLiftingDuality` imports it.  `check_axioms.sh` all-pass.  **P-16c/P-16d unblocked.**
+
+---
+
+**History** — ◐ part (i) DONE + SPLIT simple case DONE
 
 **2026-07-05 update (Opus).**  `GQ2/DualityAssembly.lean` (satellite importing Devissage +
 TrivialSelfDual + TameSimple; all std-3, no sorry).  Beyond the earlier card clauses, this session
