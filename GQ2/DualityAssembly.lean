@@ -275,4 +275,50 @@ theorem clause3_of_normalForm (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
       show mixedB t (x0Supported c) b.val ≠ 0
       rwa [mixedB_right_congr t ht hw (x0Supported c) b.val (x0Supported lam) hlam (hx0memA c)]
 
+/-! ## Split simple case: normal form and `x₀`-support from `lemma_5_13_split` -/
+
+/-- In the split case (`T = 1`) the `x₀`-supported cochains are cocycles: `x0Supported c` has
+vanishing coordinates 1 and 3, so it lies in `Z¹w` by `lemma_5_13_split`'s cocycle shape. -/
+theorem x0Supported_mem_Z1w_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (hV₂ : ∀ v : A, v + v = 0) (hsimple : IsSimpleModTwo C A) (hcore : t.Pro2Core)
+    (htau : ∀ v : A, t.τ • v = v) (hU : ∀ v : A, t.sigma2 • v = v)
+    (hVS : ∀ v : A, t.σ • v = v → v = 0) :
+    ∀ c : A, x0Supported c ∈ Z1w (A := A) t := by
+  obtain ⟨hZ, -⟩ := lemma_5_13_split t ht hw hV₂ hsimple hcore htau hU hVS
+  intro c
+  rw [hZ]
+  exact ⟨by simp [x0Supported], by simp [x0Supported]⟩
+
+/-- **Split normal form**: from `lemma_5_13_split`'s `Z¹w`/`B¹w` shapes and the surjectivity of
+`σ − 1` (which holds because `V^S = 0`, `hVS`), every degree-one class has a unique `x₀`-supported
+representative — the `∃!` form `clause3_of_normalForm`/`card_H1w_of_normalForm` consume. -/
+theorem normalForm_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (hV₂ : ∀ v : A, v + v = 0) (hsimple : IsSimpleModTwo C A) (hcore : t.Pro2Core)
+    (htau : ∀ v : A, t.τ • v = v) (hU : ∀ v : A, t.sigma2 • v = v)
+    (hVS : ∀ v : A, t.σ • v = v → v = 0) :
+    ∀ x ∈ Z1w (A := A) t, ∃! c : A, x - x0Supported c ∈ B1w (A := A) t := by
+  obtain ⟨hZ, hB⟩ := lemma_5_13_split t ht hw hV₂ hsimple hcore htau hU hVS
+  have hsurj : Function.Surjective (fun v : A => t.σ • v - v) :=
+    (Finite.injective_iff_surjective).mp (fun a b hab => by
+      have hab' : t.σ • a - a = t.σ • b - b := hab
+      refine sub_eq_zero.mp (hVS (a - b) ?_)
+      rw [smul_sub, show t.σ • a - t.σ • b = (t.σ • a - a) - (t.σ • b - b) + (a - b) from by abel,
+        hab']
+      abel)
+  intro x hx
+  rw [hZ] at hx
+  obtain ⟨hx1, hx3⟩ := hx
+  refine ⟨x 2, ?_, ?_⟩
+  · show x - x0Supported (x 2) ∈ B1w (A := A) t
+    rw [hB]
+    obtain ⟨v, hv⟩ := hsurj (x 0)
+    exact ⟨v, by funext i; fin_cases i <;> simp [x0Supported, Pi.sub_apply, hx1, hx3, hv]⟩
+  · intro c hc
+    rw [hB] at hc
+    obtain ⟨w, hw'⟩ := hc
+    have h2 := congrFun hw' 2
+    simp only [x0Supported, Pi.sub_apply, Matrix.cons_val_two, Matrix.tail_cons,
+      Matrix.head_cons] at h2
+    exact (sub_eq_zero.mp h2).symm
+
 end GQ2.FoxH
