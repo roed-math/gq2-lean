@@ -215,6 +215,18 @@ open ContCoh CentralObstruction
 
 variable [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
 
+/-- `H²(Γ,𝔽₂)` is a `ZMod 2`-module (it has exponent 2, being a quotient of `𝔽₂`-cochains). -/
+instance instModuleH2 : Module (ZMod 2) (H2 Γ (ZMod 2)) :=
+  AddCommGroup.zmodModule (fun x => by
+    obtain ⟨c, rfl⟩ := H2mk_surjective x
+    rw [← map_nsmul]
+    have hc : (2 : ℕ) • c = 0 := by
+      apply Subtype.ext
+      funext gd
+      show (2 : ℕ) • (c.1 gd) = 0
+      rw [two_nsmul, CharTwo.add_self_eq_zero]
+    rw [hc, map_zero])
+
 /-- The lift family of `g` into the `λ`-cover built from the single set-section: `x ↦
 coverMap_λ (slift (g x))`. -/
 noncomputable def obsLiftFam (D : RObstructionData RF) (g : ContinuousMonoidHom Γ RF.YB)
@@ -278,6 +290,61 @@ theorem homOb_eq_H2mk_pair (D : RObstructionData RF)
   apply Subtype.ext
   funext gd
   exact obCocOf_obsLiftFam RF D g d h gd.1 gd.2
+
+/-- The obstruction cochain lies in `Z²` for **every** `d` (the `toDR d = 0` case is the zero
+cochain, since `pair 0 = 0`). -/
+theorem pairDefect_mem_Z2_all (D : RObstructionData RF)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (g : ContinuousMonoidHom Γ RF.YB) (d : D.DRmod) :
+    (fun gd : Γ × Γ => D.pair d (Additive.ofMul (rDefect RF g gd.1 gd.2))) ∈ Z2 Γ (ZMod 2) := by
+  by_cases h : D.toDR d = RF.zeroDR
+  · have hd0 : d = 0 := by rw [← D.h0, ← h, Equiv.symm_apply_apply]
+    subst hd0
+    simp only [map_zero, AddMonoidHom.zero_apply]
+    exact (Z2 Γ (ZMod 2)).zero_mem
+  · exact pairDefect_mem_Z2 RF D htriv g d h
+
+/-- **The obstruction map** (additive) `obsMapAdd g : D_Rmod →+ H²(Γ,𝔽₂)`,
+`d ↦ [pair d ∘ rDefect]` — additive in `d` (`pair` is linear), and equal to
+`homOb(scalarCover λ) g` at `λ = toDR d ≠ 0` (`homOb_eq_H2mk_pair`). -/
+noncomputable def obsMapAdd (D : RObstructionData RF)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (g : ContinuousMonoidHom Γ RF.YB) : D.DRmod →+ H2 Γ (ZMod 2) :=
+  AddMonoidHom.mk'
+    (fun d => H2mk Γ (ZMod 2)
+      ⟨fun gd => D.pair d (Additive.ofMul (rDefect RF g gd.1 gd.2)),
+       pairDefect_mem_Z2_all RF D htriv g d⟩)
+    (by
+      intro d d'
+      rw [← map_add]
+      congr 1
+      apply Subtype.ext
+      funext gd
+      show D.pair (d + d') _ = D.pair d _ + D.pair d' _
+      rw [map_add]; rfl)
+
+theorem obsMapAdd_apply (D : RObstructionData RF)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (g : ContinuousMonoidHom Γ RF.YB) (d : D.DRmod) :
+    obsMapAdd RF D htriv g d = H2mk Γ (ZMod 2)
+      ⟨fun gd => D.pair d (Additive.ofMul (rDefect RF g gd.1 gd.2)),
+       pairDefect_mem_Z2_all RF D htriv g d⟩ := rfl
+
+/-- **The obstruction functional** `obs g : D_Rmod →ₗ 𝔽₂ = D_Rᵛ`: compose the additive
+`obsMapAdd` with the linear iso `H²(Γ,𝔽₂) ≃ 𝔽₂` (from the source numeric `#H² = 2`).  Linearity
+in the scalar `c ∈ 𝔽₂` is the two-value case split. -/
+noncomputable def obs (D : RObstructionData RF)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (g : ContinuousMonoidHom Γ RF.YB) : D.DRmod →ₗ[ZMod 2] ZMod 2 :=
+  haveI : Finite (H2 Γ (ZMod 2)) := Nat.finite_of_card_ne_zero (by rw [hcard]; norm_num)
+  { toFun := fun d => cardTwoLinEquiv hcard (obsMapAdd RF D htriv g d)
+    map_add' := fun d d' => by rw [map_add, map_add]
+    map_smul' := fun c d => by
+      rw [RingHom.id_apply]
+      rcases (show ∀ a : ZMod 2, a = 0 ∨ a = 1 from by decide) c with rfl | rfl
+      · rw [zero_smul, map_zero, map_zero, zero_smul]
+      · rw [one_smul, one_smul] }
 
 end Cohomology
 

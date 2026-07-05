@@ -66,39 +66,3 @@ closed P-16b file", the natural home is a shared Γ-generic lemma
 4. `z1Equiv⁻¹` ⟹ `u_w : TCocycle D ρ`; assemble the c3 output theorem (interface consumed by c4).
 Expected `#print axioms` = std-3 (B6/B7 do **not** appear on the Γ_A side — the plan's Ax = ∅
 finding, since the pairing comes from `prop_5_15` not B6).
-
-
----
-
-## Update 2026-07-06 (Opus) — MuDual→ElemDual pivot + foundation ported
-
-**Progress this session:**
-* Committed the abandoned-but-built `WordCohBridge.lean` (P-16c1) — unblocks the lane.
-* Created `GQ2/RadicalEdgeGammaA.lean`; the **entire `ρ`-conjugation module foundation ports
-  verbatim** `AbsGalQ2 → GA` (`act`/`hact_*`/`actT : DistribMulAction GA (Additive ↥D.T)`/
-  `ContinuousSMul GA (Additive ↥D.T)`/`htorT`) and **builds** (8630 jobs).  `tCommGroup`/
-  `conj_eq_of_mk_eq` reused via `open RadicalEdgeLocal`.
-
-**Structural pivot (supersedes the recon's `dualAddEquiv` plan):** `MuDual n M`'s
-`DistribMulAction` is **hardcoded to `AbsGalQ2`** (`GQ2/TateDuality.lean:60` variable block +
-`:101` instance) — there is NO `DistribMulAction GA (MuDual n M)`, so the ported prefix's
-`φf : GA → MuDual 2 (Additive ↥D.T)` does not typecheck.  **Fix:** build the shifted-edge cocycle
-directly in **`ElemDual (Additive ↥D.T)`** — `ElemDual A = A →+ ZMod 2` has a *generic*
-`DistribMulAction C (ElemDual A)` (`FoxHeisenberg.lean:568`, `(g•λ)a = λ(g⁻¹•a)`,
-`ElemDual.smul_apply`).  This also **eliminates `dualAddEquiv`** (the word complex's dual side is
-already `ElemDual`).  A trivial `letI : DistribMulAction GA (MuN 2)` is *not* needed on this route.
-
-**ElemDual rewrite recipe (the sorried tail, ~100 ln):**
-* `φf γ := AddMonoidHom.mk' (fun s => edgeQ D S (ρ γ) (act γ⁻¹ (Additive.toMul s))) (hφadd γ)
-    : ElemDual (Additive ↥D.T)` (drop `muNTwoEquiv.symm`); `hφadd`/`hcrossZ` port unchanged
-  (edgeQ-only, MuDual-free).
-* `hφZ1`: continuity factors through `ρ` (unchanged); cocycle law = `hcrossZ` +
-  `ElemDual.smul_apply` (replaces `smul_muN_two_trivial` + `muNTwoEquiv`).
-* `hφne`: `not_noDescent_of_edge_trivial` with `ℓ t := (lam : ElemDual (Additive ↥D.T))
-    (Additive.ofMul t)` (ZMod 2 directly; no `muNTwoEquiv`).
-* **Bridge:** `[φf]` is already an `ElemDual`-class ⟹ `h1Equiv`/`z1Equiv` (with `A =
-  Additive ↥D.T`, so the *dual*-side class `y_φ` lands in `H1w (ElemDual (Additive T)) (markC ρ)`
-  after transporting `[φf]` — note `h1Equiv` is `H1(GA, ElemDual (Additive T)) ≃ H1w (ElemDual …)`
-  directly) + `prop_5_15 (markC ρ) … (Additive ↥D.T)` right-nondegeneracy ⟹ `x_w` with
-  `mixedB ≠ 0` ⟹ `z1Equiv⁻¹` the crossed cocycle `u` ⟹ (Θ–mixedB, P-16c4) `varCoc u` not a
-  coboundary.  `hcompat` for `h1Equiv` = `rfl` (the `actT` GA-action IS `ρ γ • ·`).
