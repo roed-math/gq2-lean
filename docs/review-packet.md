@@ -7,10 +7,11 @@ axioms `propext`, `Classical.choice`, `Quot.sound` only — "std-3" below).
 
 **Context.**  The repo formalizes the *statement* of the paper's Theorem 1.2 (a profinite
 presentation of `G_{ℚ₂}`) and reduces its proof to (a) the paper's own §§3–9 argument (left as
-explicit `sorry`s, see §4) and (b) **twelve classical literature results B1–B11**, stated as
+explicit `sorry`s, see §4) and (b) **thirteen classical literature results B1–B11**, stated as
 Lean `axiom`s.  (The census was ten at the step-1 freeze; **B10** and the base-generalized
-**B9 + B11** were added by explicit, recorded census decisions during step 2 — see the
-amendment history at the end of §2.)  The review question is:
+**B9 + B11** were added by explicit, recorded census decisions during step 2; **B11 was then split
+into the two classical leaves B11a/B11b by P-23** — user-approved 2026-07-04, census 12→13 — see
+the amendment history at the end of §2.)  The review question is:
 
 > **Does each axiom below correctly state the cited literature result — including all
 > normalizations and conventions?**
@@ -27,7 +28,7 @@ lake exe cache get          # fetch Mathlib build cache (once)
 lake build GQ2              # full build: `sorry`s only in the allowlisted files (§4 + the
                             # step-2 statement files tracked in docs/tickets.md)
 ./scripts/check_axioms.sh   # axiom hygiene: all `axiom`s in GQ2/Foundations/Axioms.lean,
-                            # census = 12, sorries ⊆ allowlist, no native_decide
+                            # census = 13, sorries ⊆ allowlist, no native_decide
 ```
 
 For any individual theorem, `#print axioms <name>` in a scratch file shows its axiom
@@ -53,12 +54,15 @@ which is *fully proved*, never assumed).
 | **B8** | cyclotomic action on the peripheral generators of `Δ = maxPro2(F₂)` (Lemma 3.6) | Stix §3.3, Def. 37; Deligne | `GQ2.peripheralCyclotomicAction` | `GQ2/PeripheralAction.lean` |
 | **B9** | Evens/Kahn eq. (111): `w(Tr⟨a⟩) = w(Tr⟨1⟩)(1 + cor[a] + N^{Ev}[a])`, deg ≤ 2, over any **finite dyadic base `k`** | Kahn Th. 2; Kozlowski 1.1; Evens Th. 1 | `GQ2.evensKahn_dyadic` | `GQ2/EvensKahn.lean` |
 | **B10** | the tame quotient of `G_{ℚ₂}`: closed normal pro-2 `W` with `G_{ℚ₂}/W ≅ ⟨σ,τ ∣ τ^σ = τ²⟩_prof` | NSW (7.5.3) (Iwasawa), (7.5.2); Serre LF IV | `GQ2.tameQuotient` | `GQ2/TameQuotient.lean` |
-| **B11** | dyadic norm criterion over finite bases: `[a]∪[b] = 0 ⟺ b = x² − ay²` in `k`; units are norms from unramified quadratic extensions | Serre LF XIV §2, V §2 *(display numbers pending PDF verification)* | `GQ2.dyadicNormCriterion` | `GQ2/EvensKahn.lean` |
+| **B11a** | dyadic norm criterion over finite bases: `[a]∪[b] = 0 ⟺ b = x² − ay²` in `k` | Serre LF XIV §2 *(display numbers pending PDF verification — P-20)* | `GQ2.hilbertSymbol_normCriterion_finiteDyadic` | `GQ2/Foundations/Axioms.lean` |
+| **B11b** | units are norms from an unramified quadratic extension (`IsUnramifiedQuadraticSpectral` ⟹ every base unit is a norm) | Serre LF V §2 *(display numbers pending PDF verification — P-20)* | `GQ2.unramifiedQuadratic_units_are_norms` | `GQ2/Foundations/Axioms.lean` |
+
+*(P-23, 2026-07-04: the old single `axiom GQ2.dyadicNormCriterion` was split into the two classical leaves B11a/B11b above; it survives as a same-name **theorem** over them, so every consumer's `.1`/`.2` projection is unchanged. The repo-specific "unramified = equal spectral-norm value groups" proxy is isolated as the `def GQ2.IsUnramifiedQuadraticSpectral` — a named convention, not an axiom.)*
 
 ### Citation-faithfulness classification
 
 Added per the adversarial review (`docs/adversarial-axioms-review.md` §6, 2026-07-04).  This
-groups the twelve leaves by **how directly the Lean statement matches a single published
+groups the thirteen leaves by **how directly the Lean statement matches a single published
 theorem**, so a reviewer does not mistake a "nearby true theorem" for "this exact Lean interface
 appears verbatim in the cited literature."  It carries **no soundness claim** — every leaf is
 believed true; it is a guide to *where the translation layers are*.
@@ -67,10 +71,10 @@ believed true; it is a guide to *where the translation layers are*.
 |---|---|---|
 | **Direct classical theorem** | B1, B6, B7, B7′, B10 | the Lean statement *is* the cited theorem, modulo notation |
 | **Classical theorem + encoding choices** | B4, B5, B9 | the cited theorem plus documented repo encodings (bundle shape, diagonalization, base generalization) |
-| **Composite / project interface** | B3c, B8, B11 | a cited theorem bundled with **additional inputs**, each flagged in the axiom's docstring |
+| **Composite / project interface** | B3c, B8, B11a, B11b | a cited theorem bundled with **additional inputs**, each flagged in the axiom's docstring |
 | **Available / unused** | B2 | in the census but consumed by no current declaration |
 
-The **composite tier** is where human review time is best spent — those three leaves are *not*
+The **composite tier** is where human review time is best spent — those four leaves are *not*
 verbatim single-citation theorems:
 
 * **B3c** = Labute's orientation values + the local-Galois fact (Demushkin dualizing character =
@@ -80,11 +84,13 @@ verbatim single-citation theorems:
 * **B8** = Stix (peripheral inertia acts through the cyclotomic character) + **cyclotomic
   surjectivity** (B2 globally / B5's `χ_cyc∘rec = (·)⁻¹` locally), needed for the all-units
   quantifier.  Statement kept in all-units form (P-22); the cyclotomic-image weakening was declined.
-* **B11** = Serre's Hilbert-symbol norm criterion + unramified-unit-norm surjectivity + the
-  repo-specific "unramified = equal spectral-norm value groups" proxy.  **P-23** will split this
-  into named leaves (`hilbertSymbol_normCriterion_finiteDyadic`,
-  `unramifiedQuadratic_units_are_norms`, and the isolated spectral-norm bridge); until then it is
-  the least single-citation-faithful leaf.
+* **B11a/B11b** = Serre's Hilbert-symbol norm criterion (B11a) + unramified-unit-norm
+  surjectivity (B11b).  **P-23 (done 2026-07-04, census 12→13)** split the old single
+  `dyadicNormCriterion` axiom into these two classical leaves; the repo-specific
+  "unramified = equal spectral-norm value groups" proxy — the least citation-faithful piece — is
+  isolated as the **`def IsUnramifiedQuadraticSpectral`** (a named convention, *not* an axiom, so
+  it adds no proof-theoretic strength) and consumed as B11b's hypothesis.  `dyadicNormCriterion`
+  survives as a same-name **theorem** over B11a+B11b, so its consumers took zero edits.
 
 B3c/B8 are documented composites with statements unchanged (**P-22**, user decision 2026-07-04);
 B2's unused status is recorded on its axiom docstring.
@@ -105,6 +111,16 @@ B2's unused status is recorded on its axiom docstring.
   input.  Census 11 → 12.  Review focus: the B9 statement is unchanged except for the base and
   the (equivalent) canonical-root/subgroup-relative phrasing of the Kummer classes
   (`kummerClassK`); B11 is new.
+* **B11 split into B11a + B11b** — by explicit census decision (**P-23**, adversarial review
+  rec 2, user-approved 2026-07-04): the single `dyadicNormCriterion` axiom bundled two classical
+  facts (Serre's symbol/norm criterion and unramified-unit-norm surjectivity) with one repo
+  convention ("unramified = equal spectral-norm value groups").  It is split into the two
+  classical leaves `hilbertSymbol_normCriterion_finiteDyadic` (B11a) +
+  `unramifiedQuadratic_units_are_norms` (B11b); the convention is isolated as the
+  `def IsUnramifiedQuadraticSpectral` (**not** an axiom — it asserts nothing).
+  `dyadicNormCriterion` is re-derived as a **same-name theorem** over the two leaves, so no
+  consumer changed and every downstream `#print axioms` now surfaces B11a/B11b in place of the old
+  single leaf.  Census 12 → 13.
 
 **B3a/B3b are deliberately not axioms.**  B3a (the *definition* of a Demushkin group) is
 formalized and stress-tested (`GQ2.IsDemushkin`, `GQ2.demushkinRank`, `GQ2.demushkinQ` in

@@ -2,6 +2,7 @@ import GQ2.BoundaryFrame
 import GQ2.QuadraticFp2
 import GQ2.EvensKahn
 import GQ2.BlockModule
+import GQ2.Prop32
 
 /-!
 # §7: a minimal nontrivial module layer in the wild kernel — statements  (ticket P-14)
@@ -1123,18 +1124,1431 @@ private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.R.Normal)
     · exact h1
   exact lemma_7_1_dual B ⟨Z, hZn, hRZ, hZK, hidx⟩
 
-/-- **Prop 7.4, step 2** (`q_λ|_{T₀} = 0`): under the framed-target head — the same tame data
-as `lemma_7_2` — a `Y`-invariant additive `λ : R → 𝔽₂` kills the squares of `K ∩ S`.  This is
-the genuinely tame step of Prop 7.4 (the paper's shear/extension-splitting argument needing
-`H¹(H_V, V^∨) = 0`, by odd tame inertia in the ramified case and odd cyclic action image in
-the unramified case).  Mapped route: σ := `λ((·)²)` is (after `lam_comm_vanish`) a
-`Y`-invariant hom on `K ∩ S` killing `R`; if nonzero, a base functional `g₀` with
-`g₀(t̄₀) = 1` has principal cocycle `c(y) := y·g₀ − g₀` valued in `V^∨` and factoring through
-`H* := Y/Y_V` (shear vanishing = quadratic invariance); char-2 odd-averaging over `⟨τ*⟩`
-(ramified; `tame_odd_order` + `zpowers_normal_of_tame` + `(V^∨)^{⟨τ*⟩} = 0` by the chief
-condition) or over the odd cyclic `H*` (unramified) kills `[c]`, yielding a `Y`-invariant
-functional contradicting `lemma_7_1_dual`.  [P-15 helper; sorried pending the averaging
-tier.] -/
+/-- **Endgame for Prop 7.4 step 2** (the `(K/R)^{∨ Y} = 0` clause, `= lemma_7_1_dual`): a
+`Y`-invariant group homomorphism `ψ : K → 𝔽₂` that is nonzero somewhere on `K` is impossible.
+Such a `ψ` automatically kills `R = Φ(K)` (squares and commutators die in `𝔽₂`), so its kernel
+is a `Y`-normal index-2 subgroup of `K` above `R`, contradicting `lemma_7_1_dual`.  This is the
+abstract-block back half of step 2; the tame front half (`key_extension`) supplies the `ψ`. -/
+private theorem invariant_hom_absurd (B : MinimalBlock L)
+    (ψ : Y → ZMod 2)
+    (hψhom : ∀ k, k ∈ B.K → ∀ l, l ∈ B.K → ψ (k * l) = ψ k + ψ l)
+    (hψinv : ∀ (y k : Y), k ∈ B.K → ψ (y * k * y⁻¹) = ψ k)
+    (t₀ : Y) (ht₀K : t₀ ∈ B.K) (ht₀ : ψ t₀ ≠ 0) : False := by
+  classical
+  haveI := B.hK
+  have hψ1 : ψ 1 = 0 := by
+    have h := hψhom 1 (one_mem _) 1 (one_mem _)
+    rw [mul_one] at h
+    have : (0 : ZMod 2) + ψ 1 = ψ 1 + ψ 1 := by rw [zero_add]; exact h
+    exact (add_right_cancel this).symm
+  have hz2 : ∀ x y : ZMod 2, x + y = 0 → y = x := by decide
+  have hψinvK : ∀ k, k ∈ B.K → ψ k⁻¹ = ψ k := by
+    intro k hk
+    have h := hψhom k hk k⁻¹ (inv_mem hk)
+    rw [mul_inv_cancel, hψ1] at h
+    exact hz2 _ _ h.symm
+  -- the candidate index-2 subgroup `X = {k ∈ K | ψ k = 0}`
+  let X : Subgroup Y :=
+    { carrier := {k | k ∈ B.K ∧ ψ k = 0}
+      one_mem' := ⟨one_mem _, hψ1⟩
+      mul_mem' := fun {a b} ⟨haK, ha⟩ ⟨hbK, hb⟩ =>
+        ⟨mul_mem haK hbK, by rw [hψhom a haK b hbK, ha, hb, add_zero]⟩
+      inv_mem' := fun {a} ⟨haK, ha⟩ => ⟨inv_mem haK, by rw [hψinvK a haK, ha]⟩ }
+  have hXmem : ∀ k, k ∈ X ↔ k ∈ B.K ∧ ψ k = 0 := fun k => Iff.rfl
+  have hXn : X.Normal := by
+    refine ⟨fun k hk y => ?_⟩
+    rw [hXmem] at hk ⊢
+    exact ⟨B.hK.conj_mem k hk.1 y, by rw [hψinv y k hk.1, hk.2]⟩
+  have hXK : X ≤ B.K := fun k hk => hk.1
+  have hRX : B.R ≤ X := by
+    intro r hr
+    refine Subgroup.closure_induction (p := fun g _ => g ∈ X) ?_ ⟨one_mem _, hψ1⟩
+      (fun a b _ _ ha hb => mul_mem ha hb) (fun a _ ha => inv_mem ha) hr
+    have hz4 : ∀ a b : ZMod 2, a + b + a + b = 0 := by decide
+    rintro g (⟨k, hk, rfl⟩ | ⟨k, hk, l, hl, rfl⟩)
+    · exact ⟨mul_mem hk hk, by rw [hψhom k hk k hk]; exact CharTwo.add_self_eq_zero (ψ k)⟩
+    · have hmem : k * l * k⁻¹ * l⁻¹ ∈ B.K :=
+        mul_mem (mul_mem (mul_mem hk hl) (inv_mem hk)) (inv_mem hl)
+      refine ⟨hmem, ?_⟩
+      rw [hψhom _ (mul_mem (mul_mem hk hl) (inv_mem hk)) _ (inv_mem hl),
+        hψhom _ (mul_mem hk hl) _ (inv_mem hk),
+        hψhom _ hk _ hl, hψinvK k hk, hψinvK l hl]
+      exact hz4 _ _
+  -- `(X.subgroupOf K).index = 2`, via `χ : ↥K →* Multiplicative (ZMod 2)`
+  let χ : ↥B.K →* Multiplicative (ZMod 2) :=
+    { toFun := fun k => Multiplicative.ofAdd (ψ ↑k)
+      map_one' := by simp [hψ1]
+      map_mul' := fun a b => by
+        show Multiplicative.ofAdd (ψ (↑a * ↑b))
+          = Multiplicative.ofAdd (ψ ↑a) * Multiplicative.ofAdd (ψ ↑b)
+        rw [hψhom ↑a a.2 ↑b b.2]; rfl }
+  have hkerχ : X.subgroupOf B.K = χ.ker := by
+    ext ⟨y, hy⟩
+    rw [Subgroup.mem_subgroupOf, MonoidHom.mem_ker]
+    show (y ∈ B.K ∧ ψ y = 0) ↔ Multiplicative.ofAdd (ψ y) = 1
+    constructor
+    · rintro ⟨_, h0⟩; rw [h0]; exact ofAdd_zero
+    · intro h; exact ⟨hy, by simpa using congrArg Multiplicative.toAdd h⟩
+  have hidx : (X.subgroupOf B.K).index = 2 := by
+    rw [hkerχ, Subgroup.index_ker]
+    have h2 : Nat.card (Multiplicative (ZMod 2)) = 2 := by
+      rw [Nat.card_congr Multiplicative.toAdd, Nat.card_zmod]
+    have hdvd : Nat.card χ.range ∣ 2 := by
+      have h := Subgroup.card_subgroup_dvd_card χ.range
+      rwa [h2] at h
+    rcases (Nat.prime_two.eq_one_or_self_of_dvd _ hdvd) with h1 | h1
+    · exfalso
+      have hbot : χ.range = ⊥ := Subgroup.card_eq_one.mp h1
+      have hmem : χ ⟨t₀, ht₀K⟩ ∈ χ.range := ⟨_, rfl⟩
+      rw [hbot, Subgroup.mem_bot] at hmem
+      have h1' : Multiplicative.ofAdd (ψ t₀) = 1 := hmem
+      exact ht₀ (by simpa using congrArg Multiplicative.toAdd h1')
+    · exact h1
+  exact lemma_7_1_dual B ⟨X, hXn, hRX, hXK, hidx⟩
+
+/-- **Odd averaging** (general, verified std-3): given an odd-order normal `A ◁ Y` with the
+vanishing `(V∨)^A = 0` (any `A`-invariant hom `K → 𝔽₂` vanishing on `K ∩ S` is zero) and a hom
+`σ₀ : K → 𝔽₂` whose restriction to `K ∩ S` is already `Y`-invariant, the average
+`ψ = Σ_{a ∈ A} a·σ₀` is a genuinely `Y`-invariant hom on `K` still extending `σ₀|_{K∩S}`
+(`A`-invariant by reindexing; `Y`-invariant since the defect `ψ∘conj_y + ψ ∈ (V∨)^A = 0`).
+**Caveat for `key_extension`**: this `A ◁ Y` form is not directly applicable — the odd tame
+action lives in `H_V = Y/Y_V` and `Y` itself is 2-heavy, so an odd `A ◁ Y` acting nontrivially on
+`V` need not exist; the tame averaging must run over `H_V` instead (these sum mechanics carry over
+once `σ₀`'s automatic `Y_V`-invariance is set up).  Kept as verified reusable infrastructure. -/
+private theorem odd_average (B : MinimalBlock L) (A : Subgroup Y)
+    (hAodd : Odd (Nat.card A)) (hAn : A.Normal)
+    (σ₀ : Y → ZMod 2)
+    (hσ₀hom : ∀ k, k ∈ B.K → ∀ l, l ∈ B.K → σ₀ (k * l) = σ₀ k + σ₀ l)
+    (hσ₀inv : ∀ k, k ∈ B.K ⊓ B.S → ∀ y : Y, σ₀ (y * k * y⁻¹) = σ₀ k)
+    (hVA : ∀ φ : Y → ZMod 2, (∀ k, k ∈ B.K → ∀ l, l ∈ B.K → φ (k * l) = φ k + φ l) →
+      (∀ k, k ∈ B.K ⊓ B.S → φ k = 0) →
+      (∀ (c : Y), c ∈ A → ∀ k, k ∈ B.K → φ (c⁻¹ * k * c) = φ k) →
+      ∀ k, k ∈ B.K → φ k = 0) :
+    ∃ ψ : Y → ZMod 2,
+      (∀ k, k ∈ B.K → ∀ l, l ∈ B.K → ψ (k * l) = ψ k + ψ l) ∧
+      (∀ (y k : Y), k ∈ B.K → ψ (y * k * y⁻¹) = ψ k) ∧
+      (∀ k, k ∈ B.K ⊓ B.S → ψ k = σ₀ k) := by
+  classical
+  haveI := B.hK
+  haveI := B.hS
+  haveI : Fintype ↥A := Fintype.ofFinite _
+  set ψ : Y → ZMod 2 := fun k => ∑ a : A, σ₀ ((a : Y)⁻¹ * k * (a : Y)) with hψdef
+  have hreindex : ∀ (c : A) (f : A → ZMod 2), (∑ a : A, f (c * a)) = ∑ a : A, f a :=
+    fun c f => Equiv.sum_comp (Equiv.mulLeft c) f
+  have hψhom : ∀ k, k ∈ B.K → ∀ l, l ∈ B.K → ψ (k * l) = ψ k + ψ l := by
+    intro k hk l hl
+    rw [hψdef]
+    simp only
+    rw [← Finset.sum_add_distrib]
+    refine Finset.sum_congr rfl (fun a _ => ?_)
+    have hka : (a : Y)⁻¹ * k * (a : Y) ∈ B.K := by
+      have := B.hK.conj_mem k hk (a : Y)⁻¹; simpa using this
+    have hla : (a : Y)⁻¹ * l * (a : Y) ∈ B.K := by
+      have := B.hK.conj_mem l hl (a : Y)⁻¹; simpa using this
+    have e : (a : Y)⁻¹ * (k * l) * (a : Y)
+        = ((a : Y)⁻¹ * k * (a : Y)) * ((a : Y)⁻¹ * l * (a : Y)) := by group
+    rw [e, hσ₀hom _ hka _ hla]
+  have hψext : ∀ k, k ∈ B.K ⊓ B.S → ψ k = σ₀ k := by
+    intro k hk
+    rw [hψdef]
+    simp only
+    have hconst : ∀ a : A, σ₀ ((a : Y)⁻¹ * k * (a : Y)) = σ₀ k := by
+      intro a
+      have := hσ₀inv k hk (a : Y)⁻¹
+      simpa using this
+    rw [Finset.sum_congr rfl (fun a _ => hconst a), Finset.sum_const, Finset.card_univ,
+      ← Nat.card_eq_fintype_card, nsmul_eq_mul]
+    obtain ⟨m, hm⟩ := hAodd
+    rw [hm]; push_cast; rw [show (2 : ZMod 2) = 0 from by decide]; ring
+  have hψAinv : ∀ (c : Y), c ∈ A → ∀ k, ψ (c⁻¹ * k * c) = ψ k := by
+    intro c hc k
+    rw [hψdef]
+    simp only
+    have key : (∑ a : A, σ₀ ((a : Y)⁻¹ * (c⁻¹ * k * c) * (a : Y)))
+        = ∑ a : A, σ₀ (((⟨c, hc⟩ * a : A) : Y)⁻¹ * k * ((⟨c, hc⟩ * a : A) : Y)) := by
+      refine Finset.sum_congr rfl (fun a _ => ?_)
+      congr 1
+      push_cast
+      group
+    rw [key, hreindex ⟨c, hc⟩ (fun a => σ₀ ((a : Y)⁻¹ * k * (a : Y)))]
+  have hψYinv : ∀ (y k : Y), k ∈ B.K → ψ (y * k * y⁻¹) = ψ k := by
+    intro y k hk
+    set φ : Y → ZMod 2 := fun z => ψ (y * z * y⁻¹) + ψ z with hφdef
+    have hφhom : ∀ a, a ∈ B.K → ∀ b, b ∈ B.K → φ (a * b) = φ a + φ b := by
+      intro a ha b hb
+      rw [hφdef]
+      simp only
+      have e : y * (a * b) * y⁻¹ = (y * a * y⁻¹) * (y * b * y⁻¹) := by group
+      rw [e, hψhom _ (B.hK.conj_mem a ha y) _ (B.hK.conj_mem b hb y), hψhom a ha b hb]
+      ring
+    have hφ0 : ∀ z, z ∈ B.K ⊓ B.S → φ z = 0 := by
+      intro z hz
+      rw [hφdef]
+      simp only
+      have hyz : y * z * y⁻¹ ∈ B.K ⊓ B.S :=
+        Subgroup.mem_inf.mpr ⟨B.hK.conj_mem z (Subgroup.mem_inf.mp hz).1 y,
+          B.hS.conj_mem z (Subgroup.mem_inf.mp hz).2 y⟩
+      rw [hψext _ hyz, hψext _ hz, hσ₀inv z hz y]
+      exact CharTwo.add_self_eq_zero (σ₀ z)
+    have hφAinv : ∀ (c : Y), c ∈ A → ∀ z, z ∈ B.K → φ (c⁻¹ * z * c) = φ z := by
+      intro c hc z _
+      rw [hφdef]
+      simp only
+      have hcy : y * c * y⁻¹ ∈ A := hAn.conj_mem c hc y
+      have e : y * (c⁻¹ * z * c) * y⁻¹
+          = (y * c * y⁻¹)⁻¹ * (y * z * y⁻¹) * (y * c * y⁻¹) := by group
+      rw [e, hψAinv _ hcy, hψAinv c hc]
+    have := hVA φ hφhom hφ0 hφAinv k hk
+    rw [hφdef] at this
+    simp only at this
+    linear_combination this - (CharTwo.add_self_eq_zero (ψ k))
+  exact ⟨ψ, hψhom, hψYinv, hψext⟩
+
+/-- The `σ₀` extension: a hom `σ : K ∩ S → 𝔽₂` killing `R` extends to a hom `σ₀ : K → 𝔽₂`.
+Via `K/R` as an `𝔽₂`-vector space and `LinearMap.exists_extend`. -/
+private theorem sigma0_extends (B : MinimalBlock L) (σ : Y → ZMod 2)
+    (hσhom : ∀ k, k ∈ B.K ⊓ B.S → ∀ l, l ∈ B.K ⊓ B.S → σ (k * l) = σ k + σ l)
+    (hσR : ∀ r, r ∈ B.R → σ r = 0) :
+    ∃ σ₀ : Y → ZMod 2,
+      (∀ k, k ∈ B.K → ∀ l, l ∈ B.K → σ₀ (k * l) = σ₀ k + σ₀ l) ∧
+      (∀ k, k ∈ B.K ⊓ B.S → σ₀ k = σ k) := by
+  classical
+  haveI := B.hK
+  haveI := B.hS
+  -- === W = K/R as an 𝔽₂-vector space ===
+  set Rsub : Subgroup ↥B.K := (frattiniLike B.K).subgroupOf B.K with hRsub
+  haveI hRsubN : Rsub.Normal := (frattiniLike_normal B.K B.hK).subgroupOf B.K
+  letI : CommGroup (↥B.K ⧸ Rsub) :=
+    { (inferInstance : Group (↥B.K ⧸ Rsub)) with
+      mul_comm := by
+        intro x y
+        induction x using QuotientGroup.induction_on with | _ a =>
+        induction y using QuotientGroup.induction_on with | _ b =>
+        rw [← QuotientGroup.mk_mul, ← QuotientGroup.mk_mul, QuotientGroup.eq, hRsub,
+          Subgroup.mem_subgroupOf]
+        have hc : (((a * b)⁻¹ * (b * a) : ↥B.K) : Y)
+            = (b : Y)⁻¹ * (a : Y)⁻¹ * ((b : Y)⁻¹)⁻¹ * ((a : Y)⁻¹)⁻¹ := by push_cast; group
+        rw [hc]
+        exact Subgroup.subset_closure (Or.inr ⟨(b : Y)⁻¹, inv_mem b.2, (a : Y)⁻¹, inv_mem a.2, rfl⟩) }
+  letI : Module (ZMod 2) (Additive (↥B.K ⧸ Rsub)) := AddCommGroup.zmodModule (by
+    intro x
+    apply Additive.toMul.injective
+    rw [toMul_nsmul, toMul_zero]
+    obtain ⟨a, ha⟩ := QuotientGroup.mk_surjective (Additive.toMul x)
+    rw [← ha, ← QuotientGroup.mk_pow]
+    refine (QuotientGroup.eq_one_iff _).mpr ?_
+    rw [hRsub, Subgroup.mem_subgroupOf]
+    have hsq : ((a ^ 2 : ↥B.K) : Y) = (a : Y) * (a : Y) := by push_cast; rw [pow_two]
+    rw [hsq]
+    exact Subgroup.subset_closure (Or.inl ⟨(a : Y), a.2, rfl⟩))
+  set W := Additive (↥B.K ⧸ Rsub) with hW
+  set qW : ↥B.K → W := fun k => Additive.ofMul (QuotientGroup.mk k) with hqW
+  have hqWadd : ∀ (a b : ↥B.K), qW (a * b) = qW a + qW b := by
+    intro a b
+    rw [hqW]; show Additive.ofMul (QuotientGroup.mk (a * b)) = _
+    rw [QuotientGroup.mk_mul, ofMul_mul]
+  -- === U = (K∩S)/R as an 𝔽₂-vector space ===
+  set KS : Subgroup Y := B.K ⊓ B.S with hKS
+  set RsubU : Subgroup ↥KS := (frattiniLike B.K).subgroupOf KS with hRsubU
+  haveI hRsubUN : RsubU.Normal := (frattiniLike_normal B.K B.hK).subgroupOf KS
+  letI : CommGroup (↥KS ⧸ RsubU) :=
+    { (inferInstance : Group (↥KS ⧸ RsubU)) with
+      mul_comm := by
+        intro x y
+        induction x using QuotientGroup.induction_on with | _ a =>
+        induction y using QuotientGroup.induction_on with | _ b =>
+        rw [← QuotientGroup.mk_mul, ← QuotientGroup.mk_mul, QuotientGroup.eq, hRsubU,
+          Subgroup.mem_subgroupOf]
+        have haK : (a : Y) ∈ B.K := (Subgroup.mem_inf.mp a.2).1
+        have hbK : (b : Y) ∈ B.K := (Subgroup.mem_inf.mp b.2).1
+        have hc : (((a * b)⁻¹ * (b * a) : ↥KS) : Y)
+            = (b : Y)⁻¹ * (a : Y)⁻¹ * ((b : Y)⁻¹)⁻¹ * ((a : Y)⁻¹)⁻¹ := by push_cast; group
+        rw [hc]
+        exact Subgroup.subset_closure (Or.inr ⟨(b : Y)⁻¹, inv_mem hbK, (a : Y)⁻¹, inv_mem haK, rfl⟩) }
+  letI : Module (ZMod 2) (Additive (↥KS ⧸ RsubU)) := AddCommGroup.zmodModule (by
+    intro x
+    apply Additive.toMul.injective
+    rw [toMul_nsmul, toMul_zero]
+    obtain ⟨a, ha⟩ := QuotientGroup.mk_surjective (Additive.toMul x)
+    rw [← ha, ← QuotientGroup.mk_pow]
+    refine (QuotientGroup.eq_one_iff _).mpr ?_
+    rw [hRsubU, Subgroup.mem_subgroupOf]
+    have haK : (a : Y) ∈ B.K := (Subgroup.mem_inf.mp a.2).1
+    have hsq : ((a ^ 2 : ↥KS) : Y) = (a : Y) * (a : Y) := by push_cast; rw [pow_two]
+    rw [hsq]
+    exact Subgroup.subset_closure (Or.inl ⟨(a : Y), haK, rfl⟩))
+  set U := Additive (↥KS ⧸ RsubU) with hU
+  -- === ν : U →ₗ 𝔽₂ (from σ) ===
+  set σhom : ↥KS →* Multiplicative (ZMod 2) :=
+    { toFun := fun x => Multiplicative.ofAdd (σ ↑x)
+      map_one' := by
+        show Multiplicative.ofAdd (σ (1 : ↥KS)) = 1
+        have : σ ((1 : ↥KS) : Y) = 0 := by
+          have h := hσhom 1 (one_mem _) 1 (one_mem _)
+          rw [mul_one] at h
+          have h2 : (0 : ZMod 2) + σ 1 = σ 1 + σ 1 := by rw [zero_add]; exact h
+          have := (add_right_cancel h2).symm
+          simpa using this
+        rw [this]; rfl
+      map_mul' := fun a b => by
+        show Multiplicative.ofAdd (σ ↑(a * b)) = Multiplicative.ofAdd (σ ↑a) * Multiplicative.ofAdd (σ ↑b)
+        rw [show ((a * b : ↥KS) : Y) = (↑a * ↑b : Y) from rfl, hσhom ↑a a.2 ↑b b.2]; rfl } with hσhomdef
+  have hkill : RsubU ≤ σhom.ker := by
+    intro x hx
+    rw [MonoidHom.mem_ker]
+    show Multiplicative.ofAdd (σ ↑x) = 1
+    rw [hRsubU, Subgroup.mem_subgroupOf] at hx
+    rw [hσR ↑x hx]; rfl
+  set νmon : (↥KS ⧸ RsubU) →* Multiplicative (ZMod 2) := QuotientGroup.lift RsubU σhom hkill with hνmon
+  set νadd : U →+ ZMod 2 :=
+    { toFun := fun x => Multiplicative.toAdd (νmon (Additive.toMul x))
+      map_zero' := by simp
+      map_add' := fun a b => by
+        show Multiplicative.toAdd (νmon (Additive.toMul (a + b)))
+          = Multiplicative.toAdd (νmon (Additive.toMul a)) + Multiplicative.toAdd (νmon (Additive.toMul b))
+        rw [toMul_add, map_mul, toAdd_mul] } with hνadd
+  set ν : U →ₗ[ZMod 2] ZMod 2 := νadd.toZModLinearMap (n := 2) with hν
+  -- === Λ : U →ₗ W (from inclusion K∩S ↪ K) ===
+  have hmap : RsubU ≤ Rsub.comap (Subgroup.inclusion (inf_le_left : KS ≤ B.K)) := by
+    intro x hx
+    rw [Subgroup.mem_comap, hRsub, Subgroup.mem_subgroupOf]
+    rw [hRsubU, Subgroup.mem_subgroupOf] at hx
+    simpa using hx
+  set Λmon : (↥KS ⧸ RsubU) →* (↥B.K ⧸ Rsub) :=
+    QuotientGroup.map RsubU Rsub (Subgroup.inclusion (inf_le_left : KS ≤ B.K)) hmap with hΛmon
+  set Λadd : U →+ W :=
+    { toFun := fun x => Additive.ofMul (Λmon (Additive.toMul x))
+      map_zero' := by simp
+      map_add' := fun a b => by
+        show Additive.ofMul (Λmon (Additive.toMul (a + b)))
+          = Additive.ofMul (Λmon (Additive.toMul a)) + Additive.ofMul (Λmon (Additive.toMul b))
+        rw [toMul_add, map_mul, ofMul_mul] } with hΛadd
+  set Λ : U →ₗ[ZMod 2] W := Λadd.toZModLinearMap (n := 2) with hΛ
+  have hΛinj : Function.Injective Λ := by
+    rw [injective_iff_map_eq_zero]
+    intro x hx
+    obtain ⟨a, ha⟩ := QuotientGroup.mk_surjective (Additive.toMul x)
+    have hx0 : Λmon (Additive.toMul x) = 1 := by
+      have : Additive.ofMul (Λmon (Additive.toMul x)) = (0 : W) := hx
+      simpa using this
+    rw [← ha] at hx0
+    rw [hΛmon, QuotientGroup.map_mk] at hx0
+    -- `mk (incl a) = 1` in `↥K/Rsub`, i.e. `incl a ∈ Rsub`, i.e. `↑a ∈ frattiniLike`
+    rw [QuotientGroup.eq_one_iff, hRsub, Subgroup.mem_subgroupOf] at hx0
+    apply Additive.toMul.injective
+    rw [← ha, toMul_zero]
+    refine (QuotientGroup.eq_one_iff _).mpr ?_
+    rw [hRsubU, Subgroup.mem_subgroupOf]
+    simpa using hx0
+  -- === extend the functional ===
+  set e : U ≃ₗ[ZMod 2] ↥(LinearMap.range Λ) := LinearEquiv.ofInjective Λ hΛinj with he
+  obtain ⟨φ, hφ⟩ := LinearMap.exists_extend (ν.comp e.symm.toLinearMap)
+  -- === σ₀ ===
+  refine ⟨fun y => if h : y ∈ B.K then φ (qW ⟨y, h⟩) else 0, ?_, ?_⟩
+  · -- hom on K
+    intro k hk l hl
+    simp only [dif_pos (mul_mem hk hl), dif_pos hk, dif_pos hl]
+    rw [show (⟨k * l, mul_mem hk hl⟩ : ↥B.K) = ⟨k, hk⟩ * ⟨l, hl⟩ from rfl, hqWadd, map_add]
+  · -- extends σ on K∩S
+    intro k hk
+    have hkK : k ∈ B.K := (Subgroup.mem_inf.mp hk).1
+    simp only [dif_pos hkK]
+    -- `u := ⟦⟨k,hk⟩⟧ ∈ U`; `Λ u = qW ⟨k, hkK⟩` and `ν u = σ k`
+    set u : U := Additive.ofMul (QuotientGroup.mk (⟨k, hk⟩ : ↥KS)) with hu
+    have hΛu : Λ u = qW ⟨k, hkK⟩ := by
+      rw [hΛ, hqW]
+      show Additive.ofMul (Λmon (Additive.toMul u)) = Additive.ofMul (QuotientGroup.mk ⟨k, hkK⟩)
+      rw [hu, toMul_ofMul, hΛmon, QuotientGroup.map_mk]
+      congr 1
+    have hνu : ν u = σ k := by
+      rw [hν]
+      show Multiplicative.toAdd (νmon (Additive.toMul u)) = σ k
+      rw [hu, toMul_ofMul, hνmon, QuotientGroup.lift_mk]
+      show Multiplicative.toAdd (Multiplicative.ofAdd (σ ↑(⟨k, hk⟩ : ↥KS))) = σ k
+      simp
+    -- `φ (qW ⟨k, hkK⟩) = φ (Λ u) = (ν ∘ e.symm) ⟨Λ u, _⟩ = ν u = σ k`
+    rw [← hΛu]
+    have hmem : Λ u ∈ LinearMap.range Λ := ⟨u, rfl⟩
+    have : φ (Λ u) = (ν.comp e.symm.toLinearMap) ⟨Λ u, hmem⟩ := by
+      have := LinearMap.congr_fun hφ ⟨Λ u, hmem⟩
+      simpa using this
+    rw [this]
+    show ν (e.symm ⟨Λ u, hmem⟩) = σ k
+    have : e.symm ⟨Λ u, hmem⟩ = u := by
+      rw [he]
+      apply (LinearEquiv.ofInjective Λ hΛinj).injective
+      rw [LinearEquiv.apply_symm_apply]
+      exact Subtype.ext rfl
+    rw [this, hνu]
+
+/-- **Quotient averaging** (the `H_V`-analogue of `odd_average`): average a `Y_V`-invariant hom
+`σ₀` over the odd quotient `C̃/Y_V`.  With `(V∨)^C = 0` (any `C̃`-conj-invariant hom `K→𝔽₂`
+vanishing on `K∩S` is 0), the average is a `Y`-invariant hom extending `σ₀|_{K∩S}`. -/
+private theorem quotient_average (B : MinimalBlock L)
+    (YV Ctil : Subgroup Y) (hYVn : YV.Normal) (hCtiln : Ctil.Normal)
+    (hodd : Odd (Nat.card (↥Ctil ⧸ (YV.subgroupOf Ctil))))
+    (σ₀ : Y → ZMod 2)
+    (hσ₀hom : ∀ k, k ∈ B.K → ∀ l, l ∈ B.K → σ₀ (k * l) = σ₀ k + σ₀ l)
+    (hσ₀KSinv : ∀ k, k ∈ B.K ⊓ B.S → ∀ y : Y, σ₀ (y * k * y⁻¹) = σ₀ k)
+    (hσ₀YV : ∀ k, k ∈ B.K → ∀ z, z ∈ YV → σ₀ (z * k * z⁻¹) = σ₀ k)
+    (hVC : ∀ φ : Y → ZMod 2, (∀ k, k ∈ B.K → ∀ l, l ∈ B.K → φ (k * l) = φ k + φ l) →
+      (∀ k, k ∈ B.K ⊓ B.S → φ k = 0) →
+      (∀ (c : Y), c ∈ Ctil → ∀ k, k ∈ B.K → φ (c⁻¹ * k * c) = φ k) →
+      ∀ k, k ∈ B.K → φ k = 0) :
+    ∃ ψ : Y → ZMod 2,
+      (∀ k, k ∈ B.K → ∀ l, l ∈ B.K → ψ (k * l) = ψ k + ψ l) ∧
+      (∀ (y k : Y), k ∈ B.K → ψ (y * k * y⁻¹) = ψ k) ∧
+      (∀ k, k ∈ B.K ⊓ B.S → ψ k = σ₀ k) := by
+  classical
+  haveI := B.hK
+  haveI := B.hS
+  set N : Subgroup ↥Ctil := YV.subgroupOf Ctil with hN
+  haveI hNnormal : N.Normal := hYVn.subgroupOf Ctil
+  set Q := ↥Ctil ⧸ N with hQ
+  haveI : Fintype Q := Fintype.ofFinite _
+  -- well-definedness of the conjugation summand for `k ∈ K`
+  have hwd : ∀ k, k ∈ B.K → ∀ (a b : ↥Ctil), (QuotientGroup.leftRel N).r a b →
+      σ₀ ((a : Y)⁻¹ * k * (a : Y)) = σ₀ ((b : Y)⁻¹ * k * (b : Y)) := by
+    intro k hk a b hab
+    rw [QuotientGroup.leftRel_apply] at hab
+    have hv : ((a⁻¹ * b : ↥Ctil) : Y) ∈ YV := by
+      rw [hN, Subgroup.mem_subgroupOf] at hab; exact hab
+    set v := ((a⁻¹ * b : ↥Ctil) : Y) with hvdef
+    have hbav : (b : Y) = (a : Y) * v := by rw [hvdef]; push_cast; group
+    rw [hbav]
+    have e : ((a : Y) * v)⁻¹ * k * ((a : Y) * v) = v⁻¹ * ((a : Y)⁻¹ * k * (a : Y)) * v := by group
+    rw [e]
+    have hwK : (a : Y)⁻¹ * k * (a : Y) ∈ B.K := by
+      have := B.hK.conj_mem k hk (a : Y)⁻¹; simpa using this
+    have h3 := hσ₀YV _ hwK v⁻¹ (inv_mem hv)
+    rw [inv_inv] at h3
+    exact h3.symm
+  -- the averaged functional
+  set ψ : Y → ZMod 2 := fun k => if hk : k ∈ B.K then
+    ∑ q : Q, Quotient.liftOn q (fun c : ↥Ctil => σ₀ ((c : Y)⁻¹ * k * (c : Y))) (hwd k hk) else 0
+    with hψdef
+  -- per-representative value
+  have hval : ∀ k (hk : k ∈ B.K) (c : ↥Ctil),
+      Quotient.liftOn (QuotientGroup.mk c : Q) (fun c : ↥Ctil => σ₀ ((c : Y)⁻¹ * k * (c : Y)))
+        (hwd k hk) = σ₀ ((c : Y)⁻¹ * k * (c : Y)) := fun k hk c => rfl
+  -- reindex helper
+  have hreindex : ∀ (c₀ : Q) (f : Q → ZMod 2), (∑ q : Q, f (c₀ * q)) = ∑ q : Q, f q :=
+    fun c₀ f => Equiv.sum_comp (Equiv.mulLeft c₀) f
+  -- `ψ` is a hom on `K`
+  have hψhom : ∀ k, k ∈ B.K → ∀ l, l ∈ B.K → ψ (k * l) = ψ k + ψ l := by
+    intro k hk l hl
+    rw [hψdef]
+    simp only [dif_pos (mul_mem hk hl), dif_pos hk, dif_pos hl]
+    rw [← Finset.sum_add_distrib]
+    refine Finset.sum_congr rfl (fun q _ => ?_)
+    induction q using QuotientGroup.induction_on with | _ c =>
+    rw [hval _ (mul_mem hk hl) c, hval _ hk c, hval _ hl c]
+    have hka : (c : Y)⁻¹ * k * (c : Y) ∈ B.K := by
+      have := B.hK.conj_mem k hk (c : Y)⁻¹; simpa using this
+    have hla : (c : Y)⁻¹ * l * (c : Y) ∈ B.K := by
+      have := B.hK.conj_mem l hl (c : Y)⁻¹; simpa using this
+    rw [show (c : Y)⁻¹ * (k * l) * (c : Y)
+        = ((c : Y)⁻¹ * k * (c : Y)) * ((c : Y)⁻¹ * l * (c : Y)) from by group,
+      hσ₀hom _ hka _ hla]
+  -- `ψ` extends `σ₀` on `K ∩ S`
+  have hψext : ∀ k, k ∈ B.K ⊓ B.S → ψ k = σ₀ k := by
+    intro k hk
+    have hkK := (Subgroup.mem_inf.mp hk).1
+    rw [hψdef]
+    simp only [dif_pos hkK]
+    have hconst : ∀ q : Q, Quotient.liftOn q
+        (fun c : ↥Ctil => σ₀ ((c : Y)⁻¹ * k * (c : Y))) (hwd k hkK) = σ₀ k := by
+      intro q
+      induction q using QuotientGroup.induction_on with | _ c =>
+      rw [hval _ hkK c]
+      have := hσ₀KSinv k hk (c : Y)⁻¹
+      simpa using this
+    rw [Finset.sum_congr rfl (fun q _ => hconst q), Finset.sum_const, Finset.card_univ,
+      ← Nat.card_eq_fintype_card, nsmul_eq_mul]
+    obtain ⟨m, hm⟩ := hodd
+    rw [hm]; push_cast; rw [show (2 : ZMod 2) = 0 from by decide]; ring
+  -- `ψ` is `Ctil`-invariant
+  have hψCinv : ∀ (c₀ : Y), c₀ ∈ Ctil → ∀ k, k ∈ B.K → ψ (c₀⁻¹ * k * c₀) = ψ k := by
+    intro c₀ hc₀ k hk
+    have hck : c₀⁻¹ * k * c₀ ∈ B.K := by
+      have := B.hK.conj_mem k hk c₀⁻¹; simpa using this
+    rw [hψdef]
+    simp only [dif_pos hck, dif_pos hk]
+    conv_rhs => rw [← hreindex (QuotientGroup.mk (⟨c₀, hc₀⟩ : ↥Ctil) : Q)]
+    refine Finset.sum_congr rfl (fun q _ => ?_)
+    induction q using QuotientGroup.induction_on with | _ c =>
+    have hmul : (QuotientGroup.mk (⟨c₀, hc₀⟩ : ↥Ctil) : Q) * QuotientGroup.mk c
+        = QuotientGroup.mk (⟨c₀, hc₀⟩ * c) := by rw [← QuotientGroup.mk_mul]
+    rw [hval _ hck c, hmul, hval _ hk (⟨c₀, hc₀⟩ * c)]
+    congr 1
+    push_cast
+    group
+  -- `ψ` is `Y`-invariant via `(V∨)^C = 0`
+  have hψYinv : ∀ (y k : Y), k ∈ B.K → ψ (y * k * y⁻¹) = ψ k := by
+    intro y k hk
+    set φ : Y → ZMod 2 := fun z => ψ (y * z * y⁻¹) + ψ z with hφdef
+    have hφhom : ∀ a, a ∈ B.K → ∀ b, b ∈ B.K → φ (a * b) = φ a + φ b := by
+      intro a ha b hb
+      rw [hφdef]
+      simp only
+      rw [show y * (a * b) * y⁻¹ = (y * a * y⁻¹) * (y * b * y⁻¹) from by group,
+        hψhom _ (B.hK.conj_mem a ha y) _ (B.hK.conj_mem b hb y), hψhom a ha b hb]
+      ring
+    have hφ0 : ∀ z, z ∈ B.K ⊓ B.S → φ z = 0 := by
+      intro z hz
+      rw [hφdef]
+      simp only
+      have hyz : y * z * y⁻¹ ∈ B.K ⊓ B.S :=
+        Subgroup.mem_inf.mpr ⟨B.hK.conj_mem z (Subgroup.mem_inf.mp hz).1 y,
+          B.hS.conj_mem z (Subgroup.mem_inf.mp hz).2 y⟩
+      rw [hψext _ hyz, hψext _ hz, hσ₀KSinv z hz y]
+      exact CharTwo.add_self_eq_zero (σ₀ z)
+    have hφCinv : ∀ (c : Y), c ∈ Ctil → ∀ z, z ∈ B.K → φ (c⁻¹ * z * c) = φ z := by
+      intro c hc z hz
+      rw [hφdef]
+      simp only
+      have hcy : y * c * y⁻¹ ∈ Ctil := hCtiln.conj_mem c hc y
+      have hyz : y * z * y⁻¹ ∈ B.K := B.hK.conj_mem z hz y
+      rw [show y * (c⁻¹ * z * c) * y⁻¹
+          = (y * c * y⁻¹)⁻¹ * (y * z * y⁻¹) * (y * c * y⁻¹) from by group,
+        hψCinv _ hcy _ hyz, hψCinv c hc z hz]
+    have := hVC φ hφhom hφ0 hφCinv k hk
+    rw [hφdef] at this
+    simp only at this
+    linear_combination this - (CharTwo.add_self_eq_zero (ψ k))
+  exact ⟨ψ, hψhom, hψYinv, hψext⟩
+
+/-! ### Module core of the `H_V` averaging (`(V∨)^C = 0`)
+
+Two verified bricks that reduce the block-module vanishing to a pure group-theory statement:
+
+* `avg_dual_zero` **(F1)** — the odd-order averaging: `V^C = 0 ⟹ (V∨)^C = 0`.
+* `fixed_zero_of_moves` **(A)** — simplicity: a `Y`-normal `Ctil` that *moves* `V = P/S` has
+  `V^C = 0`, since the `Ctil`-fixed space `fixSub` is `Y`-normal between `S` and `P`, so `chief`
+  forces it to be `S`.
+
+Together they reduce the block-module vanishing to producing an odd normal `Ctil` that moves `V`
+(the tame construction, discharged by the case split in `hv_average_helper`). -/
+
+/-- **(F1) averaging core** — for a finite odd-order group `C` acting on an `AddCommGroup V` via
+`act : C → V →+ V` (anti-hom convention `act c' (act c v) = act (c*c') v`, matching `c⁻¹·k·c`
+conjugation) with no nonzero fixed vector, every `C`-invariant functional `φ : V → 𝔽₂` vanishes.
+The averaged vector `w = ∑_c act c v₀` is `C`-fixed and `φ w = |C| • φ v₀ = φ v₀` (odd), so a
+nonzero `φ v₀` makes `w` a nonzero fixed vector — impossible.  (No Maschke needed.) -/
+private theorem avg_dual_zero {C : Type*} [Group C] [Fintype C] {V : Type*} [AddCommGroup V]
+    (act : C → V →+ V) (hactmul : ∀ (c c' : C) (v : V), act c' (act c v) = act (c * c') v)
+    (hodd : Odd (Fintype.card C))
+    (hfix : ∀ v : V, (∀ c : C, act c v = v) → v = 0)
+    (φ : V →+ ZMod 2) (hφ : ∀ (c : C) (v : V), φ (act c v) = φ v)
+    (v₀ : V) : φ v₀ = 0 := by
+  classical
+  set w := ∑ c : C, act c v₀ with hwdef
+  have hwfix : ∀ c' : C, act c' w = w := by
+    intro c'
+    rw [hwdef, map_sum]
+    have hstep : ∑ c : C, act c' (act c v₀) = ∑ c : C, act (c * c') v₀ :=
+      Finset.sum_congr rfl (fun c _ => hactmul c c' v₀)
+    rw [hstep]
+    exact Equiv.sum_comp (Equiv.mulRight c') (fun c => act c v₀)
+  have hw0 : w = 0 := hfix w hwfix
+  have hcard : (Fintype.card C : ZMod 2) = 1 := by
+    obtain ⟨m, hm⟩ := hodd
+    rw [hm]; push_cast
+    rw [show (2 : ZMod 2) = 0 from by decide, zero_mul, zero_add]
+  have hφw : φ w = φ v₀ := by
+    rw [hwdef, map_sum]
+    have h1 : ∑ c : C, φ (act c v₀) = ∑ _c : C, φ v₀ :=
+      Finset.sum_congr rfl (fun c _ => hφ c v₀)
+    rw [h1, Finset.sum_const, Finset.card_univ, nsmul_eq_mul, hcard, one_mul]
+  rw [hw0, map_zero] at hφw
+  exact hφw.symm
+
+/-- The `Ctil`-fixed space in `P/S`, pulled back to a subgroup of `Y` between `S` and `P`. -/
+private def fixSub (S P Ctil : Subgroup Y) (hS : S.Normal) : Subgroup Y where
+  carrier := {x | x ∈ P ∧ ∀ c, c ∈ Ctil → c⁻¹ * x * c * x⁻¹ ∈ S}
+  one_mem' := by
+    refine ⟨P.one_mem, fun c hc => ?_⟩
+    simp
+  mul_mem' := by
+    rintro a b ⟨haP, ha⟩ ⟨hbP, hb⟩
+    refine ⟨P.mul_mem haP hbP, fun c hc => ?_⟩
+    have hsa := ha c hc
+    have hsb := hb c hc
+    have hrw : c⁻¹ * (a * b) * c * (a * b)⁻¹
+        = (c⁻¹ * a * c * a⁻¹) * (a * (c⁻¹ * b * c * b⁻¹) * a⁻¹) := by group
+    rw [hrw]
+    exact S.mul_mem hsa (hS.conj_mem _ hsb a)
+  inv_mem' := by
+    rintro a ⟨haP, ha⟩
+    refine ⟨P.inv_mem haP, fun c hc => ?_⟩
+    have hsa := ha c hc
+    have hrw : c⁻¹ * a⁻¹ * c * (a⁻¹)⁻¹ = a⁻¹ * (c⁻¹ * a * c * a⁻¹)⁻¹ * a := by group
+    rw [hrw]
+    have := hS.conj_mem _ (S.inv_mem hsa) a⁻¹
+    rwa [inv_inv] at this
+
+private theorem fixSub_normal (S P Ctil : Subgroup Y) (hS : S.Normal) (hP : P.Normal)
+    (hCtil : Ctil.Normal) : (fixSub S P Ctil hS).Normal := by
+  constructor
+  rintro a ⟨haP, ha⟩ y
+  refine ⟨hP.conj_mem a haP y, fun c hc => ?_⟩
+  have hc' : y⁻¹ * c * y ∈ Ctil := by
+    have := hCtil.conj_mem c hc y⁻¹; rwa [inv_inv] at this
+  have hrw : c⁻¹ * (y * a * y⁻¹) * c * (y * a * y⁻¹)⁻¹
+      = y * ((y⁻¹ * c * y)⁻¹ * a * (y⁻¹ * c * y) * a⁻¹) * y⁻¹ := by group
+  rw [hrw]
+  exact hS.conj_mem _ (ha _ hc') y
+
+private theorem fixSub_S_le (S P Ctil : Subgroup Y) (hS : S.Normal) (hSP : S ≤ P) :
+    S ≤ fixSub S P Ctil hS := by
+  intro s hs
+  refine ⟨hSP hs, fun c hc => ?_⟩
+  have hcs : c⁻¹ * s * c ∈ S := by
+    have := hS.conj_mem s hs c⁻¹; rwa [inv_inv] at this
+  exact S.mul_mem hcs (S.inv_mem hs)
+
+/-- **(A)** simplicity: if `Ctil ◁ Y` moves `V = P/S` (some `c ∈ Ctil` moves some `p ∈ P` off
+`S`), the chief condition forces `V^Ctil = 0` — any `k ∈ K` fixed by `Ctil` mod `S` lies in `S`. -/
+private theorem fixed_zero_of_moves (S P K Ctil : Subgroup Y) (hS : S.Normal) (hP : P.Normal)
+    (hCtil : Ctil.Normal) (hSP : S ≤ P) (hKP : K ≤ P)
+    (chief : ∀ X : Subgroup Y, X.Normal → S ≤ X → X ≤ P → X = S ∨ X = P)
+    (hmoves : ∃ p ∈ P, ∃ c ∈ Ctil, c⁻¹ * p * c * p⁻¹ ∉ S) :
+    ∀ k, k ∈ K → (∀ c, c ∈ Ctil → c⁻¹ * k * c * k⁻¹ ∈ S) → k ∈ S := by
+  set X := fixSub S P Ctil hS with hXdef
+  have hXn : X.Normal := fixSub_normal S P Ctil hS hP hCtil
+  have hSX : S ≤ X := fixSub_S_le S P Ctil hS hSP
+  have hXP : X ≤ P := fun x hx => hx.1
+  rcases chief X hXn hSX hXP with hXS | hXP'
+  · intro k hk hkfix
+    have hkX : k ∈ X := ⟨hKP hk, hkfix⟩
+    rw [hXS] at hkX
+    exact hkX
+  · exfalso
+    obtain ⟨p, hpP, c, hc, hmove⟩ := hmoves
+    have hpX : p ∈ X := by rw [hXP']; exact hpP
+    exact hmove (hpX.2 c hc)
+
+/-- **(P1) count** — a normal 2-subgroup acting on `V = P/S` (nontrivial finite 2-group)
+has a **nontrivial fixed coset**: `∃ p₁ ∈ P, p₁ ∉ S ∧ ∀ l ∈ L, l·p₁⁻¹·l⁻¹·p₁ ∈ S`.  The
+same p-group fixed-point count (`IsPGroup.card_modEq_card_fixedPoints`) as
+`exists_odd_moving_general`, but for the 2-group `L` directly. -/
+private theorem exists_L_fixed_coset (S P L : Subgroup Y) (hS : S.Normal) (hP : P.Normal)
+    (hSP : S < P) (hP2 : IsPGroup 2 P) (hL2 : IsPGroup 2 L) :
+    ∃ p₁ : Y, p₁ ∈ P ∧ p₁ ∉ S ∧ ∀ l, l ∈ L → l * p₁⁻¹ * l⁻¹ * p₁ ∈ S := by
+  classical
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  haveI hSPn : (S.subgroupOf P).Normal := hS.subgroupOf P
+  set Q := ↥P ⧸ S.subgroupOf P with hQdef
+  set φ : Y →* Equiv.Perm Q := blockPerm S P hS hP with hφ
+  have hval : ∀ (y : Y) (p : ↥P),
+      (((conjHom P hP y p)⁻¹ * p : ↥P) : Y) = y * (p : Y)⁻¹ * y⁻¹ * (p : Y) := by
+    intro y p
+    show (y * (p : Y) * y⁻¹)⁻¹ * (p : Y) = y * (p : Y)⁻¹ * y⁻¹ * (p : Y)
+    group
+  have hfix_iff : ∀ (y : Y) (p : ↥P),
+      φ y (QuotientGroup.mk p) = QuotientGroup.mk p ↔ y * (p : Y)⁻¹ * y⁻¹ * (p : Y) ∈ S := by
+    intro y p
+    rw [hφ, blockPerm_apply_mk, QuotientGroup.eq, Subgroup.mem_subgroupOf]
+    exact Iff.of_eq (congrArg (· ∈ S) (hval y p))
+  -- `V = P/S` is a nontrivial finite 2-group, so `2 ∣ card Q`
+  haveI hQ2 : IsPGroup 2 Q := hP2.to_quotient (S.subgroupOf P)
+  obtain ⟨p₀, hp₀P, hp₀S⟩ := SetLike.exists_of_lt hSP
+  haveI hQnt : Nontrivial Q := by
+    refine ⟨QuotientGroup.mk ⟨p₀, hp₀P⟩, 1, ?_⟩
+    rw [ne_eq, QuotientGroup.eq_one_iff]
+    exact fun hmem => hp₀S (Subgroup.mem_subgroupOf.mp hmem)
+  have hcardQ : 2 ∣ Nat.card Q := by
+    obtain ⟨q, hq⟩ := exists_ne (1 : Q)
+    obtain ⟨k, hk⟩ := hQ2 q
+    have hdvd : orderOf q ∣ 2 ^ k := orderOf_dvd_of_pow_eq_one hk
+    have hne1 : orderOf q ≠ 1 := fun h => hq (orderOf_eq_one_iff.mp h)
+    obtain ⟨j, _, hj⟩ := (Nat.dvd_prime_pow Nat.prime_two).mp hdvd
+    have hj0 : j ≠ 0 := fun h0 => hne1 (by rw [hj, h0, pow_zero])
+    exact (hj ▸ dvd_pow_self 2 hj0).trans (orderOf_dvd_natCard q)
+  -- `L` acts on `Q` through `blockPerm`; it is a 2-group, so its fixed set is even
+  letI : MulAction ↥L Q := MulAction.compHom Q (φ.comp L.subtype)
+  have hmod := hL2.card_modEq_card_fixedPoints (α := Q)
+  have hFPeven : 2 ∣ Nat.card (MulAction.fixedPoints ↥L Q) :=
+    (Nat.modEq_zero_iff_dvd).mp (hmod.symm.trans ((Nat.modEq_zero_iff_dvd).mpr hcardQ))
+  -- `mk 1` is fixed
+  have hFP1 : (QuotientGroup.mk 1 : Q) ∈ MulAction.fixedPoints ↥L Q := by
+    intro l
+    show φ (l : Y) (QuotientGroup.mk (1 : ↥P)) = QuotientGroup.mk 1
+    rw [hfix_iff]
+    simpa using hS.conj_mem 1 (one_mem S) (l : Y)
+  have hFP2 : 2 ≤ Nat.card (MulAction.fixedPoints ↥L Q) :=
+    Nat.le_of_dvd (Nat.card_pos_iff.mpr ⟨⟨_, hFP1⟩, inferInstance⟩) hFPeven
+  haveI : Nontrivial (MulAction.fixedPoints ↥L Q) :=
+    Finite.one_lt_card_iff_nontrivial.mp (by omega)
+  obtain ⟨x, hxne⟩ := exists_ne (⟨QuotientGroup.mk 1, hFP1⟩ : MulAction.fixedPoints ↥L Q)
+  obtain ⟨p₁, hp₁⟩ := QuotientGroup.mk_surjective (x : Q)
+  have hxfix : ∀ l, l ∈ L → (l : Y) * (p₁ : Y)⁻¹ * (l : Y)⁻¹ * (p₁ : Y) ∈ S := by
+    intro l hl
+    have := x.2 (⟨l, hl⟩ : ↥L)
+    rw [← hp₁] at this
+    exact (hfix_iff (l : Y) p₁).mp this
+  have hp₁S : (p₁ : Y) ∉ S := by
+    intro hmem
+    apply hxne
+    apply Subtype.ext
+    show (x : Q) = QuotientGroup.mk 1
+    rw [← hp₁]
+    refine QuotientGroup.eq.mpr ?_
+    rw [mul_one, Subgroup.mem_subgroupOf]
+    simpa using inv_mem hmem
+  exact ⟨(p₁ : Y), p₁.2, hp₁S, hxfix⟩
+
+/-- (P1): a normal 2-group `L ⊇ P` acts trivially on `V = P/S` ⟹ `L ≤ ker(blockPerm)`. -/
+private theorem L_le_blockPerm_ker (S P Lm : Subgroup Y) (hS : S.Normal) (hP : P.Normal) (hL : Lm.Normal)
+    (hSP : S < P) (hPL : P ≤ Lm) (h2L : IsPGroup 2 Lm)
+    (chief : ∀ X : Subgroup Y, X.Normal → S ≤ X → X ≤ P → X = S ∨ X = P) :
+    Lm ≤ (blockPerm S P hS hP).ker := by
+  have hP2 : IsPGroup 2 P := fun g => by
+    obtain ⟨n, hn⟩ := h2L ⟨g.1, hPL g.2⟩
+    exact ⟨n, by ext; simpa using congrArg Subtype.val hn⟩
+  obtain ⟨p₁, hp₁P, hp₁S, hp₁fix⟩ := exists_L_fixed_coset S P Lm hS hP hSP hP2 h2L
+  have hp₁inv : p₁⁻¹ ∈ fixSub S P Lm hS := by
+    refine ⟨P.inv_mem hp₁P, fun c hc => ?_⟩
+    have h := hp₁fix c⁻¹ (inv_mem hc)
+    have hgoal : c⁻¹ * p₁⁻¹ * c * (p₁⁻¹)⁻¹ = c⁻¹ * p₁⁻¹ * c⁻¹⁻¹ * p₁ := by group
+    rw [hgoal]; exact h
+  have hSlt : S < fixSub S P Lm hS :=
+    (fixSub_S_le S P Lm hS hSP.le).lt_of_ne fun hEq => hp₁S (by
+      have : p₁⁻¹ ∈ S := hEq ▸ hp₁inv; simpa using inv_mem this)
+  have hfixP : fixSub S P Lm hS = P := by
+    rcases chief _ (fixSub_normal S P Lm hS hP hL) (fixSub_S_le S P Lm hS hSP.le)
+      (fun p hp => hp.1) with h | h
+    · exact absurd h.symm hSlt.ne
+    · exact h
+  intro l hl
+  rw [MonoidHom.mem_ker]
+  refine Equiv.Perm.ext fun q => ?_
+  refine QuotientGroup.induction_on q fun p => ?_
+  show blockPerm S P hS hP l (QuotientGroup.mk p) = QuotientGroup.mk p
+  rw [blockPerm_apply_mk, QuotientGroup.eq, Subgroup.mem_subgroupOf]
+  have hcoe : (((conjHom P hP l p)⁻¹ * p : ↥P) : Y) = l * (p : Y)⁻¹ * l⁻¹ * (p : Y) := by
+    show (l * (p : Y) * l⁻¹)⁻¹ * (p : Y) = l * (p : Y)⁻¹ * l⁻¹ * (p : Y)
+    group
+  rw [hcoe]
+  have hpinvP : (p : Y)⁻¹ ∈ fixSub S P Lm hS := by rw [hfixP]; exact P.inv_mem p.2
+  have h := hpinvP.2 l⁻¹ (inv_mem hl)
+  have hgoal2 : l * (p : Y)⁻¹ * l⁻¹ * (p : Y)
+      = (l⁻¹)⁻¹ * (p : Y)⁻¹ * l⁻¹ * ((p : Y)⁻¹)⁻¹ := by group
+  rw [hgoal2]; exact h
+
+/-- **(F1) bridge** `(V∨)^Ctil = 0 ⟸ V^Ctil = 0`: with `K/(K∩S)` abelian (`hcomm`), `YV`
+acting trivially (`hYVtriv`), `Ctil/YV` odd, and `V^Ctil = 0` (`hfix0`), any `Ctil`-invariant
+hom `φ : K → 𝔽₂` vanishing on `K∩S` vanishes on `K`.  Averages `φ` over `Ctil/YV` via
+`avg_dual_zero`: the fixed vector it produces is nonzero unless `φ = 0`. -/
+private theorem dual_vanish_concrete (S K Ctil YV : Subgroup Y)
+    (hS : S.Normal) (hK : K.Normal) (hCtil : Ctil.Normal) (hYVn : YV.Normal)
+    (hcomm : ∀ a ∈ K, ∀ b ∈ K, a * b * a⁻¹ * b⁻¹ ∈ S)
+    (hYVtriv : ∀ z ∈ YV, ∀ k ∈ K, z * k * z⁻¹ * k⁻¹ ∈ S)
+    (hodd : Odd (Nat.card (↥Ctil ⧸ (YV.subgroupOf Ctil))))
+    (hfix0 : ∀ k, k ∈ K → (∀ c, c ∈ Ctil → c⁻¹ * k * c * k⁻¹ ∈ S) → k ∈ S)
+    (φ : Y → ZMod 2) (hφhom : ∀ k, k ∈ K → ∀ l, l ∈ K → φ (k * l) = φ k + φ l)
+    (hφS : ∀ k, k ∈ K → k ∈ S → φ k = 0)
+    (hφCinv : ∀ c, c ∈ Ctil → ∀ k, k ∈ K → φ (c⁻¹ * k * c) = φ k) :
+    ∀ k, k ∈ K → φ k = 0 := by
+  classical
+  haveI hMn : (S.subgroupOf K).Normal := hS.subgroupOf K
+  letI icg : CommGroup (↥K ⧸ (S.subgroupOf K)) :=
+    { (inferInstance : Group (↥K ⧸ (S.subgroupOf K))) with
+      mul_comm := by
+        intro x y
+        induction x using QuotientGroup.induction_on with | _ a =>
+        induction y using QuotientGroup.induction_on with | _ b =>
+        rw [← QuotientGroup.mk_mul, ← QuotientGroup.mk_mul, QuotientGroup.eq,
+          Subgroup.mem_subgroupOf]
+        have hc : (((a * b)⁻¹ * (b * a) : ↥K) : Y)
+            = (b : Y)⁻¹ * (a : Y)⁻¹ * ((b : Y)⁻¹)⁻¹ * ((a : Y)⁻¹)⁻¹ := by push_cast; group
+        rw [hc]; exact hcomm _ (inv_mem b.2) _ (inv_mem a.2) }
+  set V := Additive (↥K ⧸ (S.subgroupOf K)) with hVdef
+  set N : Subgroup ↥Ctil := YV.subgroupOf Ctil with hNdef
+  haveI hNn : N.Normal := hYVn.subgroupOf Ctil
+  set Q := ↥Ctil ⧸ N with hQdef
+  haveI : Fintype Q := Fintype.ofFinite _
+  set qv : ↥K → V := fun k => Additive.ofMul (QuotientGroup.mk k) with hqv
+  -- conjugation MonoidHom on ↥K by (↑c)⁻¹
+  let kconjHom : ↥Ctil → (↥K →* ↥K) := fun c =>
+    { toFun := fun k => ⟨(c:Y)⁻¹ * (k:Y) * (c:Y),
+        by have := hK.conj_mem (k:Y) k.2 (c:Y)⁻¹; rwa [inv_inv] at this⟩
+      map_one' := by apply Subtype.ext; push_cast; group
+      map_mul' := fun a b => by apply Subtype.ext; push_cast; group }
+  have hcompat : ∀ c : ↥Ctil, (S.subgroupOf K) ≤ (S.subgroupOf K).comap (kconjHom c) := by
+    intro c x hx
+    have hxS : (x:Y) ∈ S := Subgroup.mem_subgroupOf.mp hx
+    rw [Subgroup.mem_comap, Subgroup.mem_subgroupOf]
+    have := hS.conj_mem (x:Y) hxS (c:Y)⁻¹
+    rwa [inv_inv] at this
+  -- E c : V →+ V
+  let E : ↥Ctil → V →+ V := fun c =>
+    AddMonoidHom.mk'
+      (fun v => Additive.ofMul (QuotientGroup.map (S.subgroupOf K) (S.subgroupOf K)
+        (kconjHom c) (hcompat c) (Additive.toMul v)))
+      (fun a b => by
+        show Additive.ofMul (QuotientGroup.map _ _ _ _ (Additive.toMul (a + b)))
+          = Additive.ofMul _ + Additive.ofMul _
+        rw [show Additive.toMul (a + b) = Additive.toMul a * Additive.toMul b from rfl,
+          map_mul, ofMul_mul])
+  have hkcoe : ∀ (c : ↥Ctil) (k : ↥K), ((kconjHom c k : ↥K) : Y)
+      = (c : Y)⁻¹ * (k : Y) * (c : Y) := fun _ _ => rfl
+  -- value of E on a class
+  have hEval : ∀ (c : ↥Ctil) (k : ↥K), E c (qv k) = qv (kconjHom c k) := by
+    intro c k
+    show Additive.ofMul (QuotientGroup.map _ _ _ _ (Additive.toMul (Additive.ofMul
+      (QuotientGroup.mk k)))) = Additive.ofMul (QuotientGroup.mk _)
+    rw [toMul_ofMul, QuotientGroup.map_mk]
+  -- composition law
+  have hEcomp : ∀ (a b : ↥Ctil) (v : V), E b (E a v) = E (a * b) v := by
+    intro a b v
+    induction v using Additive.rec with | _ x =>
+    induction x using QuotientGroup.induction_on with | _ k =>
+    rw [hEval, hEval, hEval]
+    apply congrArg qv
+    apply Subtype.ext
+    rw [hkcoe, hkcoe, hkcoe]
+    push_cast
+    group
+  -- well-definedness on Q
+  have hE_wd : ∀ a b : ↥Ctil, a⁻¹ * b ∈ N → E a = E b := by
+    intro a b hab
+    have hv : ((a⁻¹ * b : ↥Ctil) : Y) ∈ YV := by
+      rw [hNdef, Subgroup.mem_subgroupOf] at hab; exact hab
+    apply AddMonoidHom.ext
+    intro v
+    induction v using Additive.rec with | _ x =>
+    induction x using QuotientGroup.induction_on with | _ k =>
+    rw [hEval, hEval]
+    -- `qv (kconjHom a k) = qv (kconjHom b k)`: equal mod `S` via `YV`-conjugation
+    have hmk : (QuotientGroup.mk (kconjHom a k) : ↥K ⧸ (S.subgroupOf K))
+        = QuotientGroup.mk (kconjHom b k) := by
+      rw [QuotientGroup.eq, Subgroup.mem_subgroupOf]
+      have hcoe : (((kconjHom a k)⁻¹ * kconjHom b k : ↥K) : Y)
+          = ((a : Y)⁻¹ * (k : Y) * (a : Y))⁻¹ * ((b : Y)⁻¹ * (k : Y) * (b : Y)) := by
+        rw [Subgroup.coe_mul, InvMemClass.coe_inv, hkcoe, hkcoe]
+      rw [hcoe]
+      have hk'K : (a : Y)⁻¹ * (k : Y) * (a : Y) ∈ K := by
+        have := hK.conj_mem (k : Y) k.2 (a : Y)⁻¹; rwa [inv_inv] at this
+      have hs : ((a⁻¹ * b : ↥Ctil) : Y)⁻¹ * ((a : Y)⁻¹ * (k : Y) * (a : Y))
+          * ((a⁻¹ * b : ↥Ctil) : Y) * ((a : Y)⁻¹ * (k : Y) * (a : Y))⁻¹ ∈ S := by
+        have := hYVtriv (((a⁻¹ * b : ↥Ctil) : Y))⁻¹ (inv_mem hv) _ hk'K
+        rwa [inv_inv] at this
+      have hgoal : ((a : Y)⁻¹ * (k : Y) * (a : Y))⁻¹ * ((b : Y)⁻¹ * (k : Y) * (b : Y))
+          = ((a : Y)⁻¹ * (k : Y) * (a : Y))⁻¹
+            * (((a⁻¹ * b : ↥Ctil) : Y)⁻¹ * ((a : Y)⁻¹ * (k : Y) * (a : Y))
+               * ((a⁻¹ * b : ↥Ctil) : Y) * ((a : Y)⁻¹ * (k : Y) * (a : Y))⁻¹)
+            * ((a : Y)⁻¹ * (k : Y) * (a : Y)) := by push_cast; group
+      rw [hgoal]
+      have := hS.conj_mem _ hs ((a : Y)⁻¹ * (k : Y) * (a : Y))⁻¹
+      rwa [inv_inv] at this
+    show Additive.ofMul (QuotientGroup.mk (kconjHom a k))
+      = Additive.ofMul (QuotientGroup.mk (kconjHom b k))
+    exact congrArg Additive.ofMul hmk
+  -- === assemble: act on Q, then `avg_dual_zero` ===
+  let act : Q → V →+ V := fun q => Quotient.liftOn q E (fun a b hab =>
+    hE_wd a b (QuotientGroup.leftRel_apply.mp hab))
+  have hact_mk : ∀ (c : ↥Ctil), act (QuotientGroup.mk c) = E c := fun _ => rfl
+  have hactmul : ∀ (q q' : Q) (v : V), act q' (act q v) = act (q * q') v := by
+    intro q q' v
+    induction q using QuotientGroup.induction_on with | _ c =>
+    induction q' using QuotientGroup.induction_on with | _ c' =>
+    rw [hact_mk, hact_mk, ← QuotientGroup.mk_mul, hact_mk]
+    exact hEcomp c c' v
+  have hodd' : Odd (Fintype.card Q) := by rwa [Nat.card_eq_fintype_card] at hodd
+  -- the descended functional `φbar : V →+ ZMod 2`
+  let φMul : ↥K →* Multiplicative (ZMod 2) :=
+    { toFun := fun x => Multiplicative.ofAdd (φ (x : Y))
+      map_one' := by
+        show Multiplicative.ofAdd (φ ((1 : ↥K) : Y)) = 1
+        rw [show ((1 : ↥K) : Y) = 1 from rfl]
+        have hz : φ (1 : Y) = 0 := by
+          have h := hφhom 1 (one_mem _) 1 (one_mem _); rw [mul_one] at h
+          have h2 : φ (1 : Y) + (0 : ZMod 2) = φ (1 : Y) + φ (1 : Y) := by rw [add_zero]; exact h
+          exact (add_left_cancel h2).symm
+        rw [hz]; rfl
+      map_mul' := fun x y => by
+        show Multiplicative.ofAdd (φ ((x * y : ↥K) : Y)) = _
+        rw [Subgroup.coe_mul, hφhom _ x.2 _ y.2]; rfl }
+  have hφMulker : (S.subgroupOf K) ≤ φMul.ker := by
+    intro x hx
+    have hxS : (x : Y) ∈ S := Subgroup.mem_subgroupOf.mp hx
+    rw [MonoidHom.mem_ker]
+    show Multiplicative.ofAdd (φ (x : Y)) = 1
+    rw [hφS (x : Y) x.2 hxS]; rfl
+  let φQ : (↥K ⧸ (S.subgroupOf K)) →* Multiplicative (ZMod 2) :=
+    QuotientGroup.lift _ φMul hφMulker
+  let φbar : V →+ ZMod 2 := AddMonoidHom.mk'
+    (fun v => Multiplicative.toAdd (φQ (Additive.toMul v)))
+    (fun a b => by
+      show Multiplicative.toAdd (φQ (Additive.toMul (a + b))) = _
+      rw [show Additive.toMul (a + b) = Additive.toMul a * Additive.toMul b from rfl, map_mul]
+      rfl)
+  have hφbarval : ∀ (k : ↥K), φbar (qv k) = φ (k : Y) := by
+    intro k
+    show Multiplicative.toAdd (φQ (Additive.toMul (Additive.ofMul (QuotientGroup.mk k)))) = _
+    rw [toMul_ofMul]
+    show Multiplicative.toAdd (φMul k) = φ (k : Y)
+    rfl
+  have hφ : ∀ (q : Q) (v : V), φbar (act q v) = φbar v := by
+    intro q v
+    induction q using QuotientGroup.induction_on with | _ c =>
+    induction v using Additive.rec with | _ x =>
+    induction x using QuotientGroup.induction_on with | _ k =>
+    rw [hact_mk, hEval, hφbarval, hφbarval, hkcoe]
+    exact hφCinv (c : Y) c.2 (k : Y) k.2
+  -- `V^Ctil = 0`  (from `hfix0`)
+  have hfixV : ∀ v : V, (∀ q : Q, act q v = v) → v = 0 := by
+    intro v hvfix
+    induction v using Additive.rec with | _ x =>
+    induction x using QuotientGroup.induction_on with | _ k =>
+    have hk0 : (k : Y) ∈ S := by
+      apply hfix0 (k : Y) k.2
+      intro c hc
+      have hq := hvfix (QuotientGroup.mk (⟨c, hc⟩ : ↥Ctil))
+      rw [hact_mk, hEval] at hq
+      have hmk : (QuotientGroup.mk (kconjHom (⟨c, hc⟩ : ↥Ctil) k) : ↥K ⧸ (S.subgroupOf K))
+          = QuotientGroup.mk k := Additive.ofMul.injective hq
+      rw [QuotientGroup.eq, Subgroup.mem_subgroupOf] at hmk
+      have hcoe : (((kconjHom (⟨c, hc⟩ : ↥Ctil) k)⁻¹ * k : ↥K) : Y)
+          = c⁻¹ * (k : Y)⁻¹ * c * (k : Y) := by
+        rw [Subgroup.coe_mul, InvMemClass.coe_inv, hkcoe]; group
+      rw [hcoe] at hmk
+      -- `c⁻¹ k⁻¹ c k ∈ S ⟹ c⁻¹ k c k⁻¹ ∈ S` (inverse + conjugate by `k`)
+      have hrw : c⁻¹ * (k : Y) * c * (k : Y)⁻¹
+          = (k : Y) * (c⁻¹ * (k : Y)⁻¹ * c * (k : Y))⁻¹ * (k : Y)⁻¹ := by group
+      rw [hrw]
+      have := hS.conj_mem _ (S.inv_mem hmk) (k : Y)
+      exact this
+    show Additive.ofMul (QuotientGroup.mk k) = 0
+    rw [show (0 : V) = Additive.ofMul (1 : ↥K ⧸ (S.subgroupOf K)) from rfl]
+    apply congrArg Additive.ofMul
+    rw [QuotientGroup.eq_one_iff, Subgroup.mem_subgroupOf]
+    exact hk0
+  -- conclude
+  intro k hk
+  have := avg_dual_zero act hactmul hodd' hfixV φbar hφ (qv ⟨k, hk⟩)
+  rwa [hφbarval] at this
+
+private theorem cyclic_quot {H : Type*} [Group H] (s t : H) (hgen : Subgroup.closure {s, t} = ⊤)
+    (M : Subgroup H) [M.Normal] (htM : t ∈ M) : IsCyclic (H ⧸ M) := by
+  classical
+  refine ⟨⟨QuotientGroup.mk s, fun x => ?_⟩⟩
+  induction x using QuotientGroup.induction_on with | _ h =>
+  have hkey : Subgroup.closure {s, t}
+      ≤ Subgroup.comap (QuotientGroup.mk' M) (Subgroup.zpowers (QuotientGroup.mk s)) := by
+    rw [Subgroup.closure_le]
+    intro y hy
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hy
+    rw [SetLike.mem_coe, Subgroup.mem_comap]
+    rcases hy with rfl | rfl
+    · rw [QuotientGroup.mk'_apply]; exact Subgroup.mem_zpowers _
+    · rw [QuotientGroup.mk'_apply, (QuotientGroup.eq_one_iff _).mpr htM]; exact one_mem _
+  have hmem : h ∈ Subgroup.closure {s, t} := by rw [hgen]; exact Subgroup.mem_top h
+  have : QuotientGroup.mk' M h ∈ Subgroup.zpowers (QuotientGroup.mk s) :=
+    Subgroup.mem_comap.mp (hkey hmem)
+  rwa [QuotientGroup.mk'_apply] at this
+
+/-- **(unramified) image count** — if `G ≤ Y` acts on `V = P/S` through a 2-group image
+(`blockPerm(G)` is `IsPGroup 2`), there is a nontrivial `G`-fixed coset. -/
+private theorem exists_normal_fixed_coset (S P G : Subgroup Y) (hS : S.Normal) (hP : P.Normal)
+    (hSP : S < P) (hP2 : IsPGroup 2 P)
+    (hG2 : IsPGroup 2 (((blockPerm S P hS hP).comp G.subtype).range)) :
+    ∃ p₁ : Y, p₁ ∈ P ∧ p₁ ∉ S ∧ ∀ g, g ∈ G → g * p₁⁻¹ * g⁻¹ * p₁ ∈ S := by
+  classical
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  haveI hSPn : (S.subgroupOf P).Normal := hS.subgroupOf P
+  set Q := ↥P ⧸ S.subgroupOf P with hQdef
+  set φ : Y →* Equiv.Perm Q := blockPerm S P hS hP with hφ
+  set R := ((blockPerm S P hS hP).comp G.subtype).range with hR
+  have hval : ∀ (y : Y) (p : ↥P),
+      (((conjHom P hP y p)⁻¹ * p : ↥P) : Y) = y * (p : Y)⁻¹ * y⁻¹ * (p : Y) := by
+    intro y p
+    show (y * (p : Y) * y⁻¹)⁻¹ * (p : Y) = y * (p : Y)⁻¹ * y⁻¹ * (p : Y)
+    group
+  have hfix_iff : ∀ (y : Y) (p : ↥P),
+      φ y (QuotientGroup.mk p) = QuotientGroup.mk p ↔ y * (p : Y)⁻¹ * y⁻¹ * (p : Y) ∈ S := by
+    intro y p
+    rw [hφ, blockPerm_apply_mk, QuotientGroup.eq, Subgroup.mem_subgroupOf]
+    exact Iff.of_eq (congrArg (· ∈ S) (hval y p))
+  haveI hQ2 : IsPGroup 2 Q := hP2.to_quotient (S.subgroupOf P)
+  obtain ⟨p₀, hp₀P, hp₀S⟩ := SetLike.exists_of_lt hSP
+  haveI hQnt : Nontrivial Q := by
+    refine ⟨QuotientGroup.mk ⟨p₀, hp₀P⟩, 1, ?_⟩
+    rw [ne_eq, QuotientGroup.eq_one_iff]
+    exact fun hmem => hp₀S (Subgroup.mem_subgroupOf.mp hmem)
+  have hcardQ : 2 ∣ Nat.card Q := by
+    obtain ⟨q, hq⟩ := exists_ne (1 : Q)
+    obtain ⟨k, hk⟩ := hQ2 q
+    have hdvd : orderOf q ∣ 2 ^ k := orderOf_dvd_of_pow_eq_one hk
+    have hne1 : orderOf q ≠ 1 := fun h => hq (orderOf_eq_one_iff.mp h)
+    obtain ⟨j, _, hj⟩ := (Nat.dvd_prime_pow Nat.prime_two).mp hdvd
+    have hj0 : j ≠ 0 := fun h0 => hne1 (by rw [hj, h0, pow_zero])
+    exact (hj ▸ dvd_pow_self 2 hj0).trans (orderOf_dvd_natCard q)
+  -- the 2-group `R = blockPerm(G) ≤ Perm Q` acts; fixed set is even
+  letI : MulAction ↥R Q := MulAction.compHom Q R.subtype
+  have hmod := hG2.card_modEq_card_fixedPoints (α := Q)
+  have hFPeven : 2 ∣ Nat.card (MulAction.fixedPoints ↥R Q) :=
+    (Nat.modEq_zero_iff_dvd).mp (hmod.symm.trans ((Nat.modEq_zero_iff_dvd).mpr hcardQ))
+  have hFP1 : (QuotientGroup.mk 1 : Q) ∈ MulAction.fixedPoints ↥R Q := by
+    rintro ⟨r, g, rfl⟩
+    show φ (g : Y) (QuotientGroup.mk (1 : ↥P)) = QuotientGroup.mk 1
+    rw [hfix_iff]
+    simpa using hS.conj_mem 1 (one_mem S) (g : Y)
+  have hFP2 : 2 ≤ Nat.card (MulAction.fixedPoints ↥R Q) :=
+    Nat.le_of_dvd (Nat.card_pos_iff.mpr ⟨⟨_, hFP1⟩, inferInstance⟩) hFPeven
+  haveI : Nontrivial (MulAction.fixedPoints ↥R Q) :=
+    Finite.one_lt_card_iff_nontrivial.mp (by omega)
+  obtain ⟨x, hxne⟩ := exists_ne (⟨QuotientGroup.mk 1, hFP1⟩ : MulAction.fixedPoints ↥R Q)
+  obtain ⟨p₁, hp₁⟩ := QuotientGroup.mk_surjective (x : Q)
+  have hxfix : ∀ g, g ∈ G → (g : Y) * (p₁ : Y)⁻¹ * (g : Y)⁻¹ * (p₁ : Y) ∈ S := by
+    intro g hg
+    have hmemR : φ g ∈ R := ⟨⟨g, hg⟩, rfl⟩
+    have := x.2 (⟨φ g, hmemR⟩ : ↥R)
+    rw [← hp₁] at this
+    exact (hfix_iff (g : Y) p₁).mp this
+  have hp₁S : (p₁ : Y) ∉ S := by
+    intro hmem
+    apply hxne
+    apply Subtype.ext
+    show (x : Q) = QuotientGroup.mk 1
+    rw [← hp₁]
+    refine QuotientGroup.eq.mpr ?_
+    rw [mul_one, Subgroup.mem_subgroupOf]
+    simpa using inv_mem hmem
+  exact ⟨(p₁ : Y), p₁.2, hp₁S, hxfix⟩
+
+/-- **(unramified) oddness** — `Y/Y_V` (`Y_V = ker blockPerm`) is odd when it is cyclic and the
+action on the simple `V = P/S` is faithful. -/
+private theorem unram_odd (S P : Subgroup Y) (hS : S.Normal) (hP : P.Normal) (hSP : S < P)
+    (hP2 : IsPGroup 2 P) (chief : ∀ X : Subgroup Y, X.Normal → S ≤ X → X ≤ P → X = S ∨ X = P)
+    (hcyc : IsCyclic (Y ⧸ (blockPerm S P hS hP).ker)) :
+    Odd (Nat.card (Y ⧸ (blockPerm S P hS hP).ker)) := by
+  classical
+  set YV := (blockPerm S P hS hP).ker with hYV
+  rw [Nat.odd_iff]
+  by_contra hne
+  have h2 : 2 ∣ Nat.card (Y ⧸ YV) := by omega
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  haveI : Fintype (Y ⧸ YV) := Fintype.ofFinite _
+  rw [Nat.card_eq_fintype_card] at h2
+  obtain ⟨gbar, hgbar⟩ := exists_prime_orderOf_dvd_card 2 h2
+  -- `Y/Y_V` is commutative (cyclic); keep it as a plain fact to avoid an instance diamond.
+  have hcomm : ∀ a b : Y ⧸ YV, a * b = b * a := by
+    obtain ⟨gen, hgen⟩ := hcyc.exists_generator
+    intro a b
+    obtain ⟨i, hi⟩ := Subgroup.mem_zpowers_iff.mp (hgen a)
+    obtain ⟨j, hj⟩ := Subgroup.mem_zpowers_iff.mp (hgen b)
+    rw [← hi, ← hj, ← zpow_add, ← zpow_add, add_comm]
+  set Ctil : Subgroup Y := (Subgroup.zpowers gbar).comap (QuotientGroup.mk' YV) with hCtil
+  have hCtilN : Ctil.Normal := by
+    have hCN : (Subgroup.zpowers gbar).Normal :=
+      ⟨fun n hn g => by rw [hcomm g n, mul_assoc, mul_inv_cancel, mul_one]; exact hn⟩
+    exact hCN.comap _
+  have hYVle : YV ≤ Ctil := by
+    intro y hy
+    rw [hCtil, Subgroup.mem_comap]
+    have h1 : (QuotientGroup.mk' YV) y = 1 := by
+      rw [QuotientGroup.mk'_apply]; exact (QuotientGroup.eq_one_iff y).mpr hy
+    rw [h1]; exact one_mem _
+  -- `blockPerm(Ctil)` is a 2-group: its range has card `= card(Ctil/Y_V) = orderOf gbar = 2`
+  have hrange2 : IsPGroup 2 ((blockPerm S P hS hP).comp Ctil.subtype).range := by
+    have hkr : ((blockPerm S P hS hP).comp Ctil.subtype).ker = YV.subgroupOf Ctil := by
+      ext x
+      simp only [MonoidHom.mem_ker, MonoidHom.comp_apply, Subgroup.coe_subtype,
+        Subgroup.mem_subgroupOf, hYV]
+    have hcard : Nat.card ((blockPerm S P hS hP).comp Ctil.subtype).range = 2 := by
+      have e1 : (↥Ctil ⧸ ((blockPerm S P hS hP).comp Ctil.subtype).ker)
+          ≃* ((blockPerm S P hS hP).comp Ctil.subtype).range :=
+        QuotientGroup.quotientKerEquivRange _
+      -- and `↥Ctil ⧸ (YV.subgroupOf Ctil) ≅ ⟨gbar⟩`
+      have hker2 : ((QuotientGroup.mk' YV).comp Ctil.subtype).ker = YV.subgroupOf Ctil := by
+        ext x
+        simp only [MonoidHom.mem_ker, MonoidHom.comp_apply, Subgroup.coe_subtype,
+          QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff, Subgroup.mem_subgroupOf, hYV]
+      have hrng2 : ((QuotientGroup.mk' YV).comp Ctil.subtype).range = Subgroup.zpowers gbar := by
+        rw [MonoidHom.range_comp, Subgroup.range_subtype, hCtil,
+          Subgroup.map_comap_eq_self (by
+            rw [MonoidHom.range_eq_top.mpr (QuotientGroup.mk'_surjective YV)]; exact le_top)]
+      have e2 : (↥Ctil ⧸ ((QuotientGroup.mk' YV).comp Ctil.subtype).ker)
+          ≃* ((QuotientGroup.mk' YV).comp Ctil.subtype).range :=
+        QuotientGroup.quotientKerEquivRange _
+      have hc1 : Nat.card (↥Ctil ⧸ (YV.subgroupOf Ctil)) = 2 := by
+        have e3 : (↥Ctil ⧸ (YV.subgroupOf Ctil))
+            ≃* (↥Ctil ⧸ ((QuotientGroup.mk' YV).comp Ctil.subtype).ker) :=
+          QuotientGroup.quotientMulEquivOfEq hker2.symm
+        rw [Nat.card_congr (e3.trans e2).toEquiv, hrng2, Nat.card_zpowers, hgbar]
+      have e4 : (↥Ctil ⧸ ((blockPerm S P hS hP).comp Ctil.subtype).ker)
+          ≃* (↥Ctil ⧸ (YV.subgroupOf Ctil)) :=
+        QuotientGroup.quotientMulEquivOfEq hkr
+      rw [← Nat.card_congr e1.toEquiv, Nat.card_congr e4.toEquiv, hc1]
+    rw [IsPGroup.iff_card]
+    exact ⟨1, by rw [hcard, pow_one]⟩
+  -- count: a nontrivial `Ctil`-fixed coset
+  obtain ⟨p₁, hp₁P, hp₁S, hp₁fix⟩ := exists_normal_fixed_coset S P Ctil hS hP hSP hP2 hrange2
+  -- `p₁⁻¹ ∈ fixSub`, `S < fixSub`, `chief` ⟹ `fixSub = P` ⟹ `Ctil ≤ Y_V`
+  have hp₁inv : p₁⁻¹ ∈ fixSub S P Ctil hS := by
+    refine ⟨P.inv_mem hp₁P, fun c hc => ?_⟩
+    have h := hp₁fix c⁻¹ (inv_mem hc)
+    have hgoal : c⁻¹ * p₁⁻¹ * c * (p₁⁻¹)⁻¹ = c⁻¹ * p₁⁻¹ * c⁻¹⁻¹ * p₁ := by group
+    rw [hgoal]; exact h
+  have hSlt : S < fixSub S P Ctil hS :=
+    (fixSub_S_le S P Ctil hS hSP.le).lt_of_ne fun hEq => hp₁S (by
+      have : p₁⁻¹ ∈ S := hEq ▸ hp₁inv; simpa using inv_mem this)
+  have hfixP : fixSub S P Ctil hS = P := by
+    rcases chief _ (fixSub_normal S P Ctil hS hP hCtilN) (fixSub_S_le S P Ctil hS hSP.le)
+      (fun p hp => hp.1) with h | h
+    · exact absurd h.symm hSlt.ne
+    · exact h
+  have hCtilYV : Ctil ≤ YV := by
+    intro c hc
+    rw [hYV, MonoidHom.mem_ker]
+    refine Equiv.Perm.ext fun q => ?_
+    refine QuotientGroup.induction_on q fun p => ?_
+    show blockPerm S P hS hP c (QuotientGroup.mk p) = QuotientGroup.mk p
+    rw [blockPerm_apply_mk, QuotientGroup.eq, Subgroup.mem_subgroupOf]
+    have hcoe : (((conjHom P hP c p)⁻¹ * p : ↥P) : Y) = c * (p : Y)⁻¹ * c⁻¹ * (p : Y) := by
+      show (c * (p : Y) * c⁻¹)⁻¹ * (p : Y) = c * (p : Y)⁻¹ * c⁻¹ * (p : Y); group
+    rw [hcoe]
+    have hpinvP : (p : Y)⁻¹ ∈ fixSub S P Ctil hS := by rw [hfixP]; exact P.inv_mem p.2
+    have h := hpinvP.2 c⁻¹ (inv_mem hc)
+    have hgoal2 : c * (p : Y)⁻¹ * c⁻¹ * (p : Y)
+        = (c⁻¹)⁻¹ * (p : Y)⁻¹ * c⁻¹ * ((p : Y)⁻¹)⁻¹ := by group
+    rw [hgoal2]; exact h
+  -- contradiction: `gbar = 1` but `orderOf gbar = 2`
+  obtain ⟨g, hg⟩ := QuotientGroup.mk'_surjective YV gbar
+  have hgCtil : g ∈ Ctil := by rw [hCtil, Subgroup.mem_comap, hg]; exact Subgroup.mem_zpowers _
+  have hg1 : gbar = 1 := by
+    rw [← hg, QuotientGroup.mk'_apply]
+    exact (QuotientGroup.eq_one_iff _).mpr (hCtilYV hgCtil)
+  rw [hg1, orderOf_one] at hgbar
+  exact absurd hgbar (by decide)
+
+-- (a) IsCyclic(Y/YV) from tame gens + `t ∈ map π YV`
+private theorem cyc_YV {Y H : Type*} [Group Y] [Finite Y] [Group H] [Finite H]
+    (π : Y →* H) (hπ : Function.Surjective π) (YV : Subgroup Y) [YV.Normal]
+    (hLYV : π.ker ≤ YV) (s t : H) (hgen : Subgroup.closure {s, t} = ⊤)
+    (htYV : t ∈ YV.map π) : IsCyclic (Y ⧸ YV) := by
+  classical
+  set M := YV.map π with hM
+  haveI hMn : M.Normal := (Subgroup.Normal.map (by infer_instance) π hπ)
+  have hq : Function.Surjective ((QuotientGroup.mk' M).comp π) :=
+    (QuotientGroup.mk'_surjective M).comp hπ
+  have hqker : ((QuotientGroup.mk' M).comp π).ker = YV := by
+    ext y
+    simp only [MonoidHom.mem_ker, MonoidHom.comp_apply, QuotientGroup.mk'_apply,
+      QuotientGroup.eq_one_iff, hM]
+    constructor
+    · intro h
+      obtain ⟨w, hw, hwy⟩ := Subgroup.mem_map.mp h
+      have : w⁻¹ * y ∈ π.ker := by
+        rw [MonoidHom.mem_ker, map_mul, map_inv, hwy, inv_mul_cancel]
+      have := hLYV this
+      simpa using mul_mem hw this
+    · intro h; exact Subgroup.mem_map_of_mem π h
+  haveI hcycM : IsCyclic (H ⧸ M) := cyclic_quot s t hgen M htYV
+  let e : (Y ⧸ YV) ≃* (H ⧸ M) :=
+    (QuotientGroup.quotientMulEquivOfEq hqker.symm).trans
+      (QuotientGroup.quotientKerEquivOfSurjective _ hq)
+  exact isCyclic_of_surjective e.symm.toMonoidHom e.symm.surjective
+
+-- (b) ⊤-quotient card conversion
+private theorem top_quot_card {Y : Type*} [Group Y] (YV : Subgroup Y) [YV.Normal] :
+    Nat.card (↥(⊤ : Subgroup Y) ⧸ (YV.subgroupOf ⊤)) = Nat.card (Y ⧸ YV) := by
+  rw [← Subgroup.index_eq_card, ← Subgroup.index_eq_card]
+  exact Subgroup.index_comap_of_surjective YV (fun y => ⟨⟨y, Subgroup.mem_top y⟩, rfl⟩)
+
+/-- **(ramified) oddness** — if `π : Y ↠ H` has `ker π ≤ YV` and `t : H` has odd order,
+the quotient `π⁻¹⟨t⟩ / (YV ∩ π⁻¹⟨t⟩)` is odd (a quotient of `π⁻¹⟨t⟩ / ker π ≅ ⟨t⟩`). -/
+private theorem odd_preimage_quot {Y H : Type*} [Group Y] [Finite Y] [Group H]
+    (π : Y →* H) (hπ : Function.Surjective π) (YV : Subgroup Y) (hLYV : π.ker ≤ YV)
+    (t : H) (ht : Odd (orderOf t)) :
+    Odd (Nat.card (↥((Subgroup.zpowers t).comap π)
+      ⧸ (YV.subgroupOf ((Subgroup.zpowers t).comap π)))) := by
+  classical
+  set C : Subgroup Y := (Subgroup.zpowers t).comap π with hC
+  set N₁ : Subgroup ↥C := (π.ker).subgroupOf C with hN₁
+  set N₂ : Subgroup ↥C := YV.subgroupOf C with hN₂
+  -- `↥C ⧸ N₁ ≅ ⟨t⟩`, so `card (↥C ⧸ N₁) = orderOf t`
+  have hker : (π.comp C.subtype).ker = N₁ := by
+    ext x
+    simp only [MonoidHom.mem_ker, MonoidHom.comp_apply, Subgroup.coe_subtype, hN₁,
+      Subgroup.mem_subgroupOf]
+  have hrange : (π.comp C.subtype).range = Subgroup.zpowers t := by
+    rw [MonoidHom.range_comp, Subgroup.range_subtype, hC,
+      Subgroup.map_comap_eq_self (by rw [MonoidHom.range_eq_top.mpr hπ]; exact le_top)]
+  have hcard1 : Nat.card (↥C ⧸ N₁) = orderOf t := by
+    have e1 : (↥C ⧸ N₁) ≃* (↥C ⧸ (π.comp C.subtype).ker) :=
+      QuotientGroup.quotientMulEquivOfEq hker.symm
+    have e2 := QuotientGroup.quotientKerEquivRange (π.comp C.subtype)
+    rw [Nat.card_congr (e1.trans e2).toEquiv, hrange, Nat.card_zpowers]
+  -- `card (↥C ⧸ N₂) ∣ card (↥C ⧸ N₁)` since `N₁ ≤ N₂`
+  have hN₁N₂ : N₁ ≤ N₂ := by
+    rw [hN₁, hN₂]
+    intro x hx
+    rw [Subgroup.mem_subgroupOf] at hx ⊢
+    exact hLYV hx
+  have hdvd : Nat.card (↥C ⧸ N₂) ∣ Nat.card (↥C ⧸ N₁) := by
+    have := Subgroup.index_dvd_of_le hN₁N₂
+    rwa [Subgroup.index_eq_card, Subgroup.index_eq_card] at this
+  -- odd divides odd
+  rw [Nat.odd_iff] at ht ⊢
+  rw [hcard1] at hdvd
+  by_contra hne
+  have h2m : 2 ∣ Nat.card (↥C ⧸ N₂) := by omega
+  have : 2 ∣ orderOf t := h2m.trans hdvd
+  omega
+
+/-- **H_V averaging (Prop 7.4 step 2)** — PROVED std-3: given a hom `σ₀ : K → 𝔽₂` whose
+restriction to `K ∩ S` is `Y`-invariant and which is `Y_V`-invariant (shear-vanishing), the
+`H_V`-average of `σ₀` over an odd normal `Ctil ◁ Y` moving `V = P/S` is a `Y`-invariant hom
+extending `σ₀|_{K∩S}`.  The module/averaging tier: `Y_V = ker(blockPerm)` acts trivially on `V`
+(`hYVtriv`), `K/(K∩S)` is abelian (`hcomm`), and `(V∨)^Ctil = 0` is `fixed_zero_of_moves`
+(A, simplicity) composed with `dual_vanish_concrete` (F1, odd averaging) — feeding
+`quotient_average`.  The tame construction of `Ctil` is a **case split** (`by_cases` on whether the
+tame inertia `⟨cH τ⟩` moves `V`): ramified `Ctil := π⁻¹⟨cH τ⟩` (odd via `odd_preimage_quot`), or
+unramified `Ctil := ⊤` with `Y/Y_V` odd (`unram_odd`: `H_V` cyclic `cyc_YV` + `O₂(H_V) = 1`).
+[P-15h CLOSED.] -/
+private theorem hv_average_helper {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+    [Finite H]
+    (π : Y →* H) (hπ : Function.Surjective π) (hkerπ : π.ker = L)
+    (cH : ContinuousMonoidHom Ttame H) (hcH : Function.Surjective cH)
+    (B : MinimalBlock L)
+    (σ₀ : Y → ZMod 2)
+    (hσ₀hom : ∀ k, k ∈ B.K → ∀ l, l ∈ B.K → σ₀ (k * l) = σ₀ k + σ₀ l)
+    (hσ₀KSinv : ∀ k, k ∈ B.K ⊓ B.S → ∀ y : Y, σ₀ (y * k * y⁻¹) = σ₀ k)
+    (hσ₀YV : ∀ (z : Y), (∀ k, k ∈ B.K → z * k * z⁻¹ * k⁻¹ ∈ B.K ⊓ B.S) →
+      ∀ k, k ∈ B.K → σ₀ (z * k * z⁻¹) = σ₀ k) :
+    ∃ ψ : Y → ZMod 2,
+      (∀ k, k ∈ B.K → ∀ l, l ∈ B.K → ψ (k * l) = ψ k + ψ l) ∧
+      (∀ (y k : Y), k ∈ B.K → ψ (y * k * y⁻¹) = ψ k) ∧
+      (∀ k, k ∈ B.K ⊓ B.S → ψ k = σ₀ k) := by
+  classical
+  -- `Y_V := ker(blockPerm)` is the kernel of the `Y`-action on `V = P/S`, normal.  With the module
+  -- core (`fixed_zero_of_moves` (A) + `dual_vanish_concrete` (F1)) the whole obligation reduces to
+  -- the tame construction: an odd normal `Ctil` that **moves** `V`.
+  have hYVn : ((blockPerm B.S B.P B.hS B.hP).ker).Normal :=
+    (blockPerm B.S B.P B.hS B.hP).normal_ker
+  -- `Y_V` acts trivially on `V = P/S`: `z` fixing `[k⁻¹]` (`k ∈ K ≤ P`) gives `[z,k] ∈ S`.
+  have hYVtriv : ∀ z, z ∈ (blockPerm B.S B.P B.hS B.hP).ker → ∀ k, k ∈ B.K →
+      z * k * z⁻¹ * k⁻¹ ∈ B.S := by
+    intro z hz k hk
+    have hkiP : k⁻¹ ∈ B.P := B.hKP (B.K.inv_mem hk)
+    have hfix : (QuotientGroup.mk (conjHom B.P B.hP z ⟨k⁻¹, hkiP⟩)
+          : ↥B.P ⧸ B.S.subgroupOf B.P) = QuotientGroup.mk ⟨k⁻¹, hkiP⟩ := by
+      rw [← blockPerm_apply_mk B.S B.P B.hS B.hP z ⟨k⁻¹, hkiP⟩, MonoidHom.mem_ker.mp hz]
+      rfl
+    have h1 : (conjHom B.P B.hP z ⟨k⁻¹, hkiP⟩)⁻¹ * (⟨k⁻¹, hkiP⟩ : ↥B.P)
+        ∈ B.S.subgroupOf B.P := QuotientGroup.eq.mp hfix
+    have h2 := Subgroup.mem_subgroupOf.mp h1
+    have hcoe : (((conjHom B.P B.hP z ⟨k⁻¹, hkiP⟩)⁻¹ * (⟨k⁻¹, hkiP⟩ : ↥B.P) : ↥B.P) : Y)
+        = z * k * z⁻¹ * k⁻¹ := by
+      show (z * k⁻¹ * z⁻¹)⁻¹ * k⁻¹ = z * k * z⁻¹ * k⁻¹
+      group
+    rwa [hcoe] at h2
+  have hσ₀YV' : ∀ k, k ∈ B.K → ∀ z, z ∈ (blockPerm B.S B.P B.hS B.hP).ker →
+      σ₀ (z * k * z⁻¹) = σ₀ k := by
+    intro k hk z hz
+    exact hσ₀YV z (fun k' hk' => Subgroup.mem_inf.mpr
+      ⟨B.K.mul_mem (B.hK.conj_mem k' hk' z) (B.K.inv_mem hk'), hYVtriv z hz k' hk'⟩) k hk
+  -- `K/(K∩S)` is abelian: commutators of `K` lie in `R ≤ K ∩ S ≤ S`.
+  have hcomm : ∀ a, a ∈ B.K → ∀ b, b ∈ B.K → a * b * a⁻¹ * b⁻¹ ∈ B.S := by
+    intro a ha b hb
+    have hR : a * b * a⁻¹ * b⁻¹ ∈ B.R :=
+      Subgroup.subset_closure (Or.inr ⟨a, ha, b, hb, rfl⟩)
+    exact (Subgroup.mem_inf.mp (lemma_7_1_head B hR)).2
+  -- **Remaining tame construction**: an odd normal `Ctil` that moves `V = P/S`.
+  obtain ⟨Ctil, hCtiln, hodd, hmoves⟩ :
+      ∃ Ctil : Subgroup Y, Ctil.Normal ∧
+        Odd (Nat.card (↥Ctil ⧸ (((blockPerm B.S B.P B.hS B.hP).ker).subgroupOf Ctil))) ∧
+        (∃ p, p ∈ B.P ∧ ∃ c, c ∈ Ctil ∧ c⁻¹ * p * c * p⁻¹ ∉ B.S) := by
+    -- `L ≤ Y_V` (P1: `L` acts trivially on `V = P/S`), so `ker π = L ≤ Y_V`.
+    have hLYV : L ≤ (blockPerm B.S B.P B.hS B.hP).ker :=
+      L_le_blockPerm_ker B.S B.P L B.hS B.hP B.hL B.hSP B.hPL B.h2L B.chief
+    have hkerYV : π.ker ≤ (blockPerm B.S B.P B.hS B.hP).ker := hkerπ.le.trans hLYV
+    -- tame structure of `H = Y/L` via `cH`: `I_H = ⟨cH τ⟩` normal + odd.
+    have hgen : Subgroup.closure {cH tameSigma, cH tameTau} = ⊤ :=
+      SectionThree.gen_ttame_quotient cH.toMonoidHom cH.continuous_toFun hcH
+    have hrel : (cH tameSigma)⁻¹ * cH tameTau * cH tameSigma = (cH tameTau) ^ 2 := by
+      have h := congrArg cH tame_relation
+      simp only [conjP, map_mul, map_inv, map_pow] at h
+      exact h
+    have hIH_normal : (Subgroup.zpowers (cH tameTau)).Normal :=
+      Tame.zpowers_normal_of_tame hgen hrel
+    have hIH_odd : Odd (orderOf (cH tameTau)) := Tame.tame_odd_order (orderOf_pos _).ne' hrel
+    by_cases hram : ∃ p, p ∈ B.P ∧ ∃ c, c ∈ (Subgroup.zpowers (cH tameTau)).comap π ∧
+        c⁻¹ * p * c * p⁻¹ ∉ B.S
+    · -- **ramified**: `I_H` moves `V`, so `Ctil := π⁻¹⟨cH τ⟩` (odd over `Y_V`, moves `V`).
+      exact ⟨(Subgroup.zpowers (cH tameTau)).comap π, hIH_normal.comap π,
+        odd_preimage_quot π hπ (blockPerm B.S B.P B.hS B.hP).ker hkerYV (cH tameTau) hIH_odd, hram⟩
+    · -- **unramified**: `I_H` acts trivially, so `Ctil := ⊤` moves `V` (`nontrivial_action`),
+      -- and `Y/Y_V = H_V` is odd (`O₂(H_V) = 1`, `H_V` cyclic).
+      refine ⟨⊤, Subgroup.normal_top, ?_, ?_⟩
+      · haveI hYVnorm : ((blockPerm B.S B.P B.hS B.hP).ker).Normal :=
+          (blockPerm B.S B.P B.hS B.hP).normal_ker
+        have hP2 : IsPGroup 2 B.P := fun g => by
+          obtain ⟨n, hn⟩ := B.h2L ⟨g.1, B.hPL g.2⟩
+          exact ⟨n, by ext; simpa using congrArg Subtype.val hn⟩
+        push_neg at hram
+        -- `I_H`'s preimage acts trivially, so `π⁻¹⟨cH τ⟩ ≤ Y_V`
+        have hIHYV : (Subgroup.zpowers (cH tameTau)).comap π
+            ≤ (blockPerm B.S B.P B.hS B.hP).ker := by
+          intro c hc
+          rw [MonoidHom.mem_ker]
+          refine Equiv.Perm.ext fun q => ?_
+          refine QuotientGroup.induction_on q fun p => ?_
+          show blockPerm B.S B.P B.hS B.hP c (QuotientGroup.mk p) = QuotientGroup.mk p
+          rw [blockPerm_apply_mk, QuotientGroup.eq, Subgroup.mem_subgroupOf]
+          have hcoe : (((conjHom B.P B.hP c p)⁻¹ * p : ↥B.P) : Y)
+              = c * (p : Y)⁻¹ * c⁻¹ * (p : Y) := by
+            show (c * (p : Y) * c⁻¹)⁻¹ * (p : Y) = c * (p : Y)⁻¹ * c⁻¹ * (p : Y); group
+          rw [hcoe]
+          have h := hram (p : Y)⁻¹ (B.P.inv_mem p.2) c⁻¹ (inv_mem hc)
+          have hgoal : c * (p : Y)⁻¹ * c⁻¹ * (p : Y)
+              = (c⁻¹)⁻¹ * (p : Y)⁻¹ * c⁻¹ * ((p : Y)⁻¹)⁻¹ := by group
+          rw [hgoal]; exact h
+        -- so `cH τ ∈ map π Y_V`, hence `Y/Y_V` is cyclic and odd (`unram_odd`)
+        obtain ⟨yτ, hyτ⟩ := hπ (cH tameTau)
+        have hyτIH : yτ ∈ (Subgroup.zpowers (cH tameTau)).comap π := by
+          rw [Subgroup.mem_comap, hyτ]; exact Subgroup.mem_zpowers _
+        have htYV : cH tameTau ∈ ((blockPerm B.S B.P B.hS B.hP).ker).map π :=
+          ⟨yτ, hIHYV hyτIH, hyτ⟩
+        have hcyc : IsCyclic (Y ⧸ (blockPerm B.S B.P B.hS B.hP).ker) :=
+          cyc_YV π hπ _ hkerYV (cH tameSigma) (cH tameTau) hgen htYV
+        rw [top_quot_card]
+        exact unram_odd B.S B.P B.hS B.hP B.hSP hP2 B.chief hcyc
+      · obtain ⟨y, p, hpP, hmove⟩ := B.nontrivial_action
+        exact ⟨p, hpP, y⁻¹, Subgroup.mem_top _, by rw [inv_inv]; exact hmove⟩
+  -- module core: (A) simplicity `V^Ctil = 0`, then (F1) averaging `(V∨)^Ctil = 0`
+  have hfix0 : ∀ k, k ∈ B.K → (∀ c, c ∈ Ctil → c⁻¹ * k * c * k⁻¹ ∈ B.S) → k ∈ B.S :=
+    fixed_zero_of_moves B.S B.P B.K Ctil B.hS B.hP hCtiln B.hSP.le B.hKP B.chief hmoves
+  have hVC : ∀ φ : Y → ZMod 2, (∀ k, k ∈ B.K → ∀ l, l ∈ B.K → φ (k * l) = φ k + φ l) →
+      (∀ k, k ∈ B.K ⊓ B.S → φ k = 0) →
+      (∀ (c : Y), c ∈ Ctil → ∀ k, k ∈ B.K → φ (c⁻¹ * k * c) = φ k) →
+      ∀ k, k ∈ B.K → φ k = 0 := by
+    intro φ hφhom hφ0 hφCinv
+    exact dual_vanish_concrete B.S B.K Ctil ((blockPerm B.S B.P B.hS B.hP).ker)
+      B.hS B.hK hCtiln hYVn hcomm hYVtriv hodd hfix0 φ hφhom
+      (fun k hk hkS => hφ0 k (Subgroup.mem_inf.mpr ⟨hk, hkS⟩)) hφCinv
+  exact quotient_average B ((blockPerm B.S B.P B.hS B.hP).ker) Ctil hYVn hCtiln hodd σ₀
+    hσ₀hom hσ₀KSinv hσ₀YV' hVC
+
+/-- **Tame extension (Prop 7.4 step 2, front half)**: the square functional `k ↦ λ(k²)` on
+`K ∩ S` extends to a `Y`-invariant hom `ψ : K → 𝔽₂`.  Now assembled from the reduction (`σ := λ∘sq`
+is a `Y`-invariant hom on `K∩S` killing `R`, via `lemma_7_2` + `lam_comm_vanish`), the hom
+extension `sigma0_extends` (`σ₀ : K → 𝔽₂`), the automatic `Y_V`-invariance of `σ₀` (shear-vanishing,
+from `q`-invariance), and the `H_V`-averaging `hv_average_helper` (now fully proved std-3). -/
+private theorem key_extension {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+    [Finite H]
+    (π : Y →* H) (hπ : Function.Surjective π) (hkerπ : π.ker = L)
+    (cH : ContinuousMonoidHom Ttame H) (hcH : Function.Surjective cH)
+    (B : MinimalBlock L) (hRN : B.R.Normal)
+    (lam : ↥B.R → ZMod 2)
+    (hlam_hom : ∀ r r' : ↥B.R, lam (r * r') = lam r + lam r')
+    (hlam_conj : ∀ (y r : Y) (hr : r ∈ B.R),
+      lam ⟨y * r * y⁻¹, hRN.conj_mem r hr y⟩ = lam ⟨r, hr⟩) :
+    ∃ ψ : Y → ZMod 2,
+      (∀ k, k ∈ B.K → ∀ l, l ∈ B.K → ψ (k * l) = ψ k + ψ l) ∧
+      (∀ (y k : Y), k ∈ B.K → ψ (y * k * y⁻¹) = ψ k) ∧
+      (∀ k, k ∈ B.K ⊓ B.S → ∀ (hkk : k * k ∈ B.R), ψ k = lam ⟨k * k, hkk⟩) := by
+  classical
+  haveI := B.hK
+  haveI := B.hS
+  obtain ⟨hcentral, hr2, _hK4⟩ := lemma_7_2 π hπ hkerπ cH hcH B
+  have hcomm_kill := lam_comm_vanish B hRN lam hlam_hom hlam_conj
+  have lam_one : lam 1 = 0 := by
+    have h := hlam_hom 1 1
+    rw [one_mul] at h
+    have h2 : (0 : ZMod 2) + lam 1 = lam 1 + lam 1 := by rw [zero_add]; exact h
+    exact (add_right_cancel h2).symm
+  have hsq : ∀ k, k ∈ B.K → k * k ∈ B.R := fun k hk =>
+    Subgroup.subset_closure (Or.inl ⟨k, hk, rfl⟩)
+  set σ : Y → ZMod 2 := fun y => if h : y * y ∈ B.R then lam ⟨y * y, h⟩ else 0 with hσdef
+  -- reduction: `σ` is a hom on `K ∩ S`
+  have hσhom : ∀ k, k ∈ B.K ⊓ B.S → ∀ l, l ∈ B.K ⊓ B.S → σ (k * l) = σ k + σ l := by
+    intro k hk l hl
+    have hkK := (Subgroup.mem_inf.mp hk).1
+    have hlK := (Subgroup.mem_inf.mp hl).1
+    have hklK : k * l ∈ B.K := mul_mem hkK hlK
+    have hcomm : l * k * l⁻¹ * k⁻¹ ∈ B.R := Subgroup.subset_closure (Or.inr ⟨l, hlK, k, hkK, rfl⟩)
+    rw [hσdef]
+    simp only [dif_pos (hsq _ hklK), dif_pos (hsq _ hkK), dif_pos (hsq _ hlK)]
+    have e : (⟨(k * l) * (k * l), hsq _ hklK⟩ : ↥B.R)
+        = (⟨l * k * l⁻¹ * k⁻¹, hcomm⟩ * ⟨k * k, hsq k hkK⟩) * ⟨l * l, hsq l hlK⟩ :=
+      Subtype.ext (by
+        show (k * l) * (k * l) = l * k * l⁻¹ * k⁻¹ * (k * k) * (l * l)
+        have hc' : k * (l * k * l⁻¹ * k⁻¹) = (l * k * l⁻¹ * k⁻¹) * k :=
+          (hcentral (l * k * l⁻¹ * k⁻¹) hcomm k hkK).symm
+        calc (k * l) * (k * l)
+            = k * (l * k * l⁻¹ * k⁻¹) * (k * l * l) := by group
+          _ = (l * k * l⁻¹ * k⁻¹) * k * (k * l * l) := by rw [hc']
+          _ = l * k * l⁻¹ * k⁻¹ * (k * k) * (l * l) := by group)
+    rw [e, hlam_hom, hlam_hom, hcomm_kill l hlK k hk hcomm, zero_add]
+  have hσR : ∀ r, r ∈ B.R → σ r = 0 := by
+    intro r hr
+    rw [hσdef]
+    simp only [dif_pos (by rw [hr2 r hr]; exact one_mem _ : r * r ∈ B.R)]
+    have : (⟨r * r, by rw [hr2 r hr]; exact one_mem _⟩ : ↥B.R) = 1 := Subtype.ext (hr2 r hr)
+    rw [this, lam_one]
+  -- hom extension `σ₀`
+  obtain ⟨σ₀, hσ₀hom, hσ₀ext⟩ := sigma0_extends B σ hσhom hσR
+  -- `σ₀|_{K∩S}` is `Y`-invariant (`q`-invariance)
+  have hσ₀KSinv : ∀ k, k ∈ B.K ⊓ B.S → ∀ y : Y, σ₀ (y * k * y⁻¹) = σ₀ k := by
+    intro k hk y
+    have hkK := (Subgroup.mem_inf.mp hk).1
+    have hyk : y * k * y⁻¹ ∈ B.K ⊓ B.S := Subgroup.mem_inf.mpr
+      ⟨B.hK.conj_mem k hkK y, B.hS.conj_mem k (Subgroup.mem_inf.mp hk).2 y⟩
+    rw [hσ₀ext _ hyk, hσ₀ext _ hk, hσdef]
+    simp only [dif_pos (hsq _ (B.hK.conj_mem k hkK y)), dif_pos (hsq k hkK)]
+    have e : (⟨(y * k * y⁻¹) * (y * k * y⁻¹), hsq _ (B.hK.conj_mem k hkK y)⟩ : ↥B.R)
+        = ⟨y * (k * k) * y⁻¹, hRN.conj_mem _ (hsq k hkK) y⟩ := Subtype.ext (by group)
+    rw [e, hlam_conj y (k * k) (hsq k hkK)]
+  -- shear-vanishing: `σ₀` is `Y_V`-invariant
+  have hσ₀YV : ∀ (z : Y), (∀ k, k ∈ B.K → z * k * z⁻¹ * k⁻¹ ∈ B.K ⊓ B.S) →
+      ∀ k, k ∈ B.K → σ₀ (z * k * z⁻¹) = σ₀ k := by
+    intro z hz k hk
+    have hs : z * k * z⁻¹ * k⁻¹ ∈ B.K ⊓ B.S := hz k hk
+    set s := z * k * z⁻¹ * k⁻¹ with hsdef
+    have hsK : s ∈ B.K := (Subgroup.mem_inf.mp hs).1
+    have hzk : z * k * z⁻¹ = s * k := by rw [hsdef]; group
+    have hσs : σ s = 0 := by
+      have hqinv : σ (z * k * z⁻¹) = σ k := by
+        rw [hσdef]
+        simp only [dif_pos (hsq _ (B.hK.conj_mem k hk z)), dif_pos (hsq k hk)]
+        have e : (⟨(z * k * z⁻¹) * (z * k * z⁻¹), hsq _ (B.hK.conj_mem k hk z)⟩ : ↥B.R)
+            = ⟨z * (k * k) * z⁻¹, hRN.conj_mem _ (hsq k hk) z⟩ := Subtype.ext (by group)
+        rw [e, hlam_conj z (k * k) (hsq k hk)]
+      have hsplit : σ (s * k) = σ s + σ k := by
+        have hskK : s * k ∈ B.K := mul_mem hsK hk
+        have hcomm2 : k * s * k⁻¹ * s⁻¹ ∈ B.R := Subgroup.subset_closure (Or.inr ⟨k, hk, s, hsK, rfl⟩)
+        rw [hσdef]
+        simp only [dif_pos (hsq _ hskK), dif_pos (hsq _ hsK), dif_pos (hsq k hk)]
+        have e : (⟨(s * k) * (s * k), hsq _ hskK⟩ : ↥B.R)
+            = (⟨k * s * k⁻¹ * s⁻¹, hcomm2⟩ * ⟨s * s, hsq s hsK⟩) * ⟨k * k, hsq k hk⟩ :=
+          Subtype.ext (by
+            show (s * k) * (s * k) = k * s * k⁻¹ * s⁻¹ * (s * s) * (k * k)
+            have hc' : s * (k * s * k⁻¹ * s⁻¹) = (k * s * k⁻¹ * s⁻¹) * s :=
+              (hcentral (k * s * k⁻¹ * s⁻¹) hcomm2 s hsK).symm
+            calc (s * k) * (s * k)
+                = s * (k * s * k⁻¹ * s⁻¹) * (s * k * k) := by group
+              _ = (k * s * k⁻¹ * s⁻¹) * s * (s * k * k) := by rw [hc']
+              _ = k * s * k⁻¹ * s⁻¹ * (s * s) * (k * k) := by group)
+        rw [e, hlam_hom, hlam_hom, hcomm_kill k hk s hs hcomm2, zero_add]
+      rw [hzk] at hqinv
+      have h2 : σ s + σ k = 0 + σ k := by rw [zero_add]; exact hsplit.symm.trans hqinv
+      exact add_right_cancel h2
+    rw [hzk, hσ₀hom s hsK k hk, hσ₀ext s hs, hσs, zero_add]
+  -- `H_V` averaging
+  obtain ⟨ψ, hψhom, hψYinv, hψext⟩ :=
+    hv_average_helper π hπ hkerπ cH hcH B σ₀ hσ₀hom hσ₀KSinv hσ₀YV
+  refine ⟨ψ, hψhom, hψYinv, fun k hk hkk => ?_⟩
+  rw [hψext k hk, hσ₀ext k hk]
+  simp only [hσdef, dif_pos hkk]
+
+/-- **Prop 7.4, step 2** (`q_λ|_{T₀} = 0`): a `Y`-invariant additive `λ : R → 𝔽₂` kills the
+squares of `K ∩ S`.  Proved from the tame extension (`key_extension`) and the abstract-block
+endgame (`invariant_hom_absurd`): if some `λ(t²) ≠ 0`, the extended `Y`-invariant hom `ψ` is
+nonzero there, contradicting `lemma_7_1_dual`. -/
 private theorem lam_sq_vanish {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
     [Finite H]
     (π : Y →* H) (hπ : Function.Surjective π) (hkerπ : π.ker = L)
@@ -1145,7 +2559,13 @@ private theorem lam_sq_vanish {H : Type} [Group H] [TopologicalSpace H] [Discret
     (hlam_conj : ∀ (y r : Y) (hr : r ∈ B.R),
       lam ⟨y * r * y⁻¹, hRN.conj_mem r hr y⟩ = lam ⟨r, hr⟩) :
     ∀ t, t ∈ B.K ⊓ B.S → ∀ (h : t * t ∈ B.R), lam ⟨t * t, h⟩ = 0 := by
-  sorry
+  classical
+  obtain ⟨ψ, hψhom, hψinv, hψext⟩ :=
+    key_extension π hπ hkerπ cH hcH B hRN lam hlam_hom hlam_conj
+  intro t₀ ht₀ h
+  by_contra hne
+  exact invariant_hom_absurd B ψ hψhom hψinv t₀ (Subgroup.mem_inf.mp ht₀).1
+    (by rw [hψext t₀ ht₀ h]; exact hne)
 
 /-- **Proposition 7.4**: for every nonzero `Y`-invariant functional `λ ∈ D_R = (R^∨)^C`, the
 pushout square map of the central extension `1 → 𝔽₂ → K_λ → M → 1` kills `T₀` and its polar

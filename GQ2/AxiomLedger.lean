@@ -27,7 +27,7 @@ whole library including `private` lemmas.
     lake build GQ2 && lake env lean GQ2/AxiomLedger.lean
 
 Prints the ledger to stdout.  This file is intentionally **not** imported by `GQ2.lean`, so it never
-runs during `lake build GQ2`.  If the axiom census (frozen at 10) ever changes, update `bAxioms`
+runs during `lake build GQ2`.  If the axiom census (currently 13) ever changes, update `bAxioms`
 below (and `scripts/check_axioms.sh`'s `EXPECTED_AXIOMS`, same commit).
 -/
 
@@ -35,13 +35,16 @@ open Lean
 
 namespace GQ2.AxiomLedger
 
-/-- The twelve literature axioms → their B-labels (census 12 after the B10 and B9′/B11
-census decisions; see `GQ2/Foundations/Axioms.lean`).  Written with `` `` `` so the file fails to
-compile if any axiom is renamed or removed — a free consistency check on the census.
+/-- The thirteen literature axioms → their B-labels (census 13 after the B10, B9′/B11, and the
+P-23 B11-split census decisions; see `GQ2/Foundations/Axioms.lean`).  Written with `` `` `` so the
+file fails to compile if any axiom is renamed or removed — a free consistency check on the census.
+(`dyadicNormCriterion` is now a same-name *theorem* over B11a+B11b, so it is deliberately absent
+here and instead surfaces as a tracked consumer of both leaves.)
 
 Citation-faithfulness tiers (adversarial review 2026-07-04; docstrings + `docs/review-packet.md`
 §2): **direct** B1/B6/B7/B7′/B10 · **classical + encoding** B4/B5/B9 · **composite interface**
-B3c/B8/B11 · **available/unused** B2 (zero consumers — checked below via the tracked-decl scan). -/
+B3c/B8/B11a/B11b · **available/unused** B2 (zero consumers — checked below via the tracked-decl
+scan). -/
 def bAxioms : List (Name × String) :=
   [ (``GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated, "B1")
   , (``GQ2.Foundations.cyclotomicCharacter_two_surjective,        "B2")
@@ -54,7 +57,8 @@ def bAxioms : List (Name × String) :=
   , (``GQ2.peripheralCyclotomicAction,                            "B8")
   , (``GQ2.evensKahn_dyadic,                                      "B9")
   , (``GQ2.tameQuotient,                                          "B10")
-  , (``GQ2.dyadicNormCriterion,                                   "B11") ]
+  , (``GQ2.hilbertSymbol_normCriterion_finiteDyadic,              "B11a")
+  , (``GQ2.unramifiedQuadratic_units_are_norms,                   "B11b") ]
 
 /-- The three axioms every classical theorem is allowed to use. -/
 def stdAxioms : List Name := [``propext, ``Classical.choice, ``Quot.sound]

@@ -150,12 +150,54 @@ kernel in `ker(π̃, θ̃)`" holds by construction), `sq_eq_one_of_mem_ker`, `li
   `charEquiv` now takes any normal subgroup of any topological group; `cmhEquivFun` any
   generator-index type.
 
+## P-16d statement corrections (2026-07-05, caught by attempting the (137) proof)
+
+1. **`RecursionFrame.zBC` re-encoded.**  The original datum was the cover-valued lift `g`
+   itself; the boundary equation of the pulled-back target only constrains `p_λ ∘ g`, so
+   each `λ`-compatible `B`-lift carries exactly `#Hom(Γ,𝔽₂)` cover lifts (the `z`-scalar
+   twists) and the pair count overstates the paper's `Z_{Γ,λ}(B/C)` by the factor 8 —
+   contradicting (139) as displayed.  Corrected datum: the `B`-level lift `m` with
+   **existence** of a cover lift (matching `m_{Γ,λ}`'s `∃`-form and the paper's
+   "compatible lifts … without imposing generation in B").
+2. **`eq137`'s index set restricted to `J ↠ C`.**  The paper's (137) sums over proper
+   strata *surjecting onto `C`*; the unrestricted sum would overcount by the
+   `m_{Γ,λ}(J)` of `C`-missing strata (whose `Z`-slices are empty since the pair's
+   `C`-component is onto).  Both `ClosedRecursion.eq137` and the derivation were updated.
+
 ## O-half work order (remaining)
+
+> **2026-07-04: decomposed into board sub-tickets P-16a–d** — see `docs/p16-ticket-split.md`
+> (P-16a = def-layer relocation + items (a)–(c) below; P-16b/c = the two 8.6 closes; P-16d =
+> `prop_8_9`).  Claim a sub-ticket row before starting; the technical detail below remains the
+> authoritative work order.
 2. `lemma_8_3` — the eight-lift partition: `scalarTwist` freeness + `hscalar` + exact-image
-   bucketing (`Subgroup.map` fibres).
+   bucketing (`Subgroup.map` fibres).  **DONE (std-3).**
 3. `lemma_8_6_*` — (128)-cocycle, (127) variation via 5.10 (candidate) / B6 (local),
    half-orbit count; `NoDescent ↔ [ε̄] ≠ 0` internally.
+   **P-16a+P-16b DONE (2026-07-05)**: the engine (`GQ2/CentralObstruction.lean`, std-3) and
+   the **local close** (`GQ2/RadicalEdgeLocal.lean`; `lemma_8_6_local` proved & spliced,
+   std-3+B6+B7; statement amended with compactness + `hfg` per the 8.2/8.3 precedents).
+   Design note: the count twists by `T`-valued cocycles and closes by a twist-involution
+   flip (`two_mul_card_of_swap`) — items (a)/(d) below are realized in that simplified form;
+   `lemma_8_6_gammaA` (P-16c) still consumes (d′) via 5.15/5.16 when P-13f lands.
+   **PROGRESS (Opus, 2026-07-04): the combinatorial CORE is landed** — `two_mul_card_fiber`
+   (before `section HalfTorsor`, std-3, sorry-free): a nonzero `𝔽₂`-linear functional on a
+   finite `𝔽₂`-space has each fibre exactly half (`ℓ` surjective ⟹ `V` splits into two equal
+   fibres over `ZMod 2` via `Equiv.sigmaFiberEquiv` + `Nat.card_sigma`).  This is the (127)
+   half-count, and is **also** what `prop_8_9`'s `(139)` consumes.  **REMAINING for
+   `lemma_8_6_local`** (the deep cohomological core, all B6-side / no P-13):
+   (a) `MLifts D ρ` is a torsor under `Z¹(Γ, M, a_ρ)` — twisted 1-cocycles for the
+   `ρ`-conjugation action `a_ρ : Γ → Aut M` (well-defined since `M` abelian); pick a basepoint
+   (handle `MLifts = ∅` ⟹ both sides 0) to get `MLifts ≃ Z¹(Γ,M)`, a finite `𝔽₂`-space
+   (`M` elementary-abelian);  (b) the obstruction `o : MLifts → H²(Γ,𝔽₂) ≅ 𝔽₂` (`f` lifts
+   through `p : cover ↠ B` iff the pullback central `𝔽₂`-extension splits) — needs
+   group-extension obstruction theory wired to `ContCoh.H2 AbsGalQ2 (ZMod 2)` (NOT in repo;
+   ~150 ln new);  (c) `o(f₀·φ) = o(f₀) + ℓ(φ)` with `ℓ` the (127) linear functional built
+   from the cover's quadratic form `q` (cup-product variation);  (d) `ℓ ≠ 0 ⟺ NoDescent`,
+   via **B6's perfect (1,1) pairing** `H¹(Γ,M^∨) × H¹(Γ,M) → H²(Γ,𝔽₂)` (`MuDual`, `D.inv`);
+   then `two_mul_card_fiber` closes it.  `lemma_8_6_gammaA` is the same with (d) via
+   5.15/5.16 (P-13-gated).  Est ~500 ln + new obstruction infra; a focused multi-session build.
 4. `prop_8_9` — assemble per the paper's proof: unrestricted `M`-stage (5.15/5.16 + 7.1),
    Frattini argument for the final `R`-stage torsor, `lemma_8_4` for (136), `lemma_8_5` +
    Prop 8.8 for (140); construct the shared witness `(μ, G⁰, D_T, phase)`.
-   Axes: B6, B7, B9 per App. D.
+   Axes: B6, B7, B9 per App. D.  (`eq139` reuses `two_mul_card_fiber`.)

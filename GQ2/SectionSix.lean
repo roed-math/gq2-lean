@@ -843,10 +843,18 @@ def deepPart (ρ : ContinuousMonoidHom AbsGalQ2 C) : Set (H1 AbsGalQ2 V) :=
 
 /-- **Lemma 6.17 (the deep half is totally singular), dimension clause**: for a ramified module
 (inertia acts nontrivially through the tame lower map), `dim X₊ = ½ dim H¹(ℚ₂, V)` — stated
-multiplicatively: `#X₊² = #H¹`.  [P-14 statement; proof P-15, Ax: B6, B7.] -/
+multiplicatively: `#X₊² = #H¹`.  [P-14 statement; proof P-15, Ax: B6, B7.]
+
+**Statement amended (P-15f, flag for P-20)**: added `hc : Function.Surjective ⇑c` (the paper's
+standing §6.3 assumption that `ρ` classifies onto `C`; with `B.tameF_surjective` it makes
+`V^{im ρ} = V^C`, which is the `C`-stable subgroup simplicity kills — same gap as the
+`lemma_6_8` amendment) and `hV2` (`V` is an `𝔽₂[C]`-module in the paper; not derivable here
+since this clause carries no `#V = 2^{2m}` hypothesis). -/
 theorem lemma_6_17_dim (B : BoundaryMaps) (c : ContinuousMonoidHom Ttame C)
+    (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
     (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (hV2 : ∀ v : V, v + v = 0)
     (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
     (hram : ∃ v : V, c tameTau • v ≠ v) :
@@ -855,11 +863,17 @@ theorem lemma_6_17_dim (B : BoundaryMaps) (c : ContinuousMonoidHom Ttame C)
 
 /-- **Lemma 6.17, vanishing clause**: the base connecting map `Q⁰_loc` vanishes on the deep
 half `X₊` (free orbits die by (94), square orbits by `−1 ∈ U_e`, involution orbits by
-Lemma 6.16 through Lemmas 6.14/6.15).  [P-14 statement; proof P-15, Ax: B6, B7′, B9.] -/
+Lemma 6.16 through Lemmas 6.14/6.15).  [P-14 statement; proof P-15, Ax: B6, B7′, B9.]
+
+**Statement amended (P-15f, flag for P-20)**: added `hc` and `hV2` — same §6.3 standing
+assumptions as `lemma_6_17_dim` (the orbit analysis runs over the splitting field
+`K = ℚ̄₂^{ker ρ}` with `Gal(K/ℚ₂) ≅ C`, which needs `ρ` onto `C`). -/
 theorem lemma_6_17_vanish (D : TateDuality 2) (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C)
+    (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
     (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (hV2 : ∀ v : V, v + v = 0)
     (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
     (hram : ∃ v : V, c tameTau • v ≠ v)
@@ -868,30 +882,27 @@ theorem lemma_6_17_vanish (D : TateDuality 2) (B : BoundaryMaps)
     ∀ x ∈ deepPart (V := V) ρ, Q0loc D dat ρ x = 0 := by
   sorry
 
-/-- **Proposition 6.18 (dyadic base determinant theorem), eq. (115), ramified case**: the local
+/- **Proposition 6.18 (dyadic base determinant theorem), eq. (115), ramified case**: the local
 base determinant form has the positive Gauss sign,
 `#(Q⁰_loc)⁻¹(0) = 2^{2m−1} + 2^{m−1}` (`#V = 2^{2m}`).  With Prop 6.9 this is Corollary
-6.19(iv): the two sources have equal base Gauss sums.  [P-14 statement; proof P-15 (hyperbolicity
-via Lemma 6.17), Ax: B6, B7, B7′, B9.] -/
-theorem prop_6_18_ramified (D : TateDuality 2) (B : BoundaryMaps)
-    (c : ContinuousMonoidHom Ttame C)
-    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
-    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
-    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
-    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
-    (hram : ∃ v : V, c tameTau • v ≠ v)
-    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
-    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
-    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
-    Nat.card {x : H1 AbsGalQ2 V // Q0loc D dat ρ x = 0}
-      = 2 ^ (2 * m - 1) + 2 ^ (m - 1) := by
-  sorry
+6.19(iv): the two sources have equal base Gauss sums.
+**Proved (P-15f, modulo Lemma 6.17 above) as `GQ2.DeepPart.prop_6_18_ramified`** in
+`GQ2/DeepPart.lean` (downstream — its proof consumes the `Q⁰_loc` quadratic/nonsingular
+structure layer built there off `RepIndependence`, which imports this file; statement moved
+out to break the import cycle, per the P-15d pattern).  The `hc : Surjective ⇑c` amendment
+travels with it; `hV2` is derivable there from `hcard` + `hsimple` via additive Cauchy.
+Axioms: std-3 + B7 (B6 via the `D` parameter) + `sorryAx` through the two Lemma 6.17 sorries
+(the remaining §6.3 Kummer cores). -/
 
 /-- **Proposition 6.18, eq. (115), unramified case**: negative Gauss sign,
 `#(Q⁰_loc)⁻¹(0) = 2^{2m−1} − 2^{m−1}`.  [P-14 statement; proof P-15 (Hermitian-line model,
-Lemmas 6.4/6.7), Ax: B6, B7.] -/
+Lemmas 6.4/6.7), Ax: B6, B7.]
+
+**Statement amended (P-15f, flag for P-20)**: added `hc : Function.Surjective ⇑c` (as in
+`prop_6_18_ramified`). -/
 theorem prop_6_18_unramified (D : TateDuality 2) (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C)
+    (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
     (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
     (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)

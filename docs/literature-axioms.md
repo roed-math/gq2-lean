@@ -111,6 +111,12 @@ not yet to hand.
   Theorem 8 to Serre [3]. (Canad. J. Math. 19 (1967), 106–132.)
 - **Lean.** Schematic (Mathlib has no `Demushkin` predicate; a faithful statement needs pro-`p`
   cohomology with cup products).
+- **Axiom form (B3c), a composite interface** (adversarial review 2026-07-04, §3): the axiomatized
+  *orientation* half `GQ2.dyadicOrientation` is **not** a bare Labute citation — it bundles Labute's
+  Thm 4(2) values *plus* the local-Galois fact (the Demushkin dualizing character equals the
+  cyclotomic character, through *this* quotient map) *plus* the choice of a normalized B4
+  isomorphism, and therefore **subsumes a marked B4**.  See its docstring and the classification
+  table (`docs/review-packet.md` §2).
 - **Used at.** Lemma 3.4 → Prop 1.1.
 
 ### B4. `G_ℚ₂(2)` is the rank-3 dyadic Demushkin group  🟡 schematic
@@ -317,14 +323,26 @@ Stiefel–Whitney/Evens classes, étale `π₁`) before they can be stated faith
   `x₁²x₂⁴[x₂,x₃]⋯`; at `d=1` = the paper's `D₀`) and **Theorem 4 case (2)** (canonical character
   `−1, (1−2^f)^{-1}, 1`) — both verified verbatim.
 
+**🟡 Pending line-local PDF verification (deferred to P-20):**
+- **B11a / B11b** — Serre, *Local Fields* [7], **Ch. XIV §2** (Hilbert-symbol norm criterion:
+  `[a]∪[b]=0 ⟺ b` is a norm from `k(√a)`) and **Ch. V §2** (units of an unramified extension are
+  norms).  The content is standard local class field theory, but the exact display/theorem numbers
+  are **not yet** line-checked against the `references/` Serre PDF — these leaves were added by
+  P-15/P-23 *after* this section's verification pass, so their citation numbers are resolved by
+  **P-20**.  The repo-specific "unramified = equal spectral-norm value groups" bridge is a `def`
+  (`GQ2.IsUnramifiedQuadraticSpectral`), a named convention rather than a cited theorem, so it adds
+  no proof-theoretic strength (P-23).
+
 **Discharged (proved in-repo):** RZ Hopfian = **Prop. 2.5.2** (also confirmed against source);
 Schur–Zassenhaus (Mathlib).
 
-**Only remaining unchecked:** **Milne *ADT* I.2.1/I.2.8** (free online) — a *tertiary* corroboration
-for B6/B7, superfluous now that both NSW **and** Serre *GC* are verified.
+**Tertiary corroboration still unchecked:** **Milne *ADT* I.2.1/I.2.8** (free online) — for B6/B7,
+superfluous now that both NSW **and** Serre *GC* are verified.
 
-**Net: all eleven classical leaves (B1–B10, B7′) are now source-verified** — each carries an exact
+**Net: eleven of the thirteen leaves (B1–B10, B7′) are source-verified** — each carries an exact
 theorem number and a verbatim statement checked against the provided PDFs (B6/B7 doubly-sourced;
 B3's Theorem 8 at `d=1` reproduces the paper's `D₀` on the nose). The two would-be finite-group
-inputs (RZ Hopfian Prop. 2.5.2, Schur–Zassenhaus) are *proved* in the formalization. Nothing in the
-classical layer remains unchecked.
+inputs (RZ Hopfian Prop. 2.5.2, Schur–Zassenhaus) are *proved* in the formalization. The remaining
+two leaves — **B11a/B11b** (added by P-15/P-23) — carry standard local-CFT content but await a
+line-local Serre *Local Fields* quote (deferred to **P-20**); nothing else in the classical layer
+remains unchecked.

@@ -24,7 +24,8 @@ near `main_surjection_count`.
 **How to read this for review.**  Each `axiom` below is a result that already
 exists in the literature; the docstring gives the precise statement, the citation, and the
 paper cross-reference.  The B-labels follow `docs/literature-axioms.md` (which also records the
-dependency structure, paper App. D).  Current census — twelve axioms, faithfully stated against
+dependency structure, paper App. D).  Current census — thirteen axioms (B11 split into B11a/B11b
+by P-23, 2026-07-04), faithfully stated against
 current Mathlib plus this repo's `ContCoh` cohomology:
 
 * **B1** `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` — `G_ℚ₂` top. f.g.
@@ -54,17 +55,21 @@ current Mathlib plus this repo's `ContCoh` cohomology:
   normal pro-2 `W` with `G_ℚ₂/W ≅ T_tame` (defs + convention/deviation notes in
   `GQ2/TameQuotient.lean`; added post-kickoff by explicit census decision, resolving the
   P-06 escalation — Prop. 3.2's local side).
-* **B11** `dyadicNormCriterion` — the Hilbert-symbol norm criterion over finite dyadic bases
-  (`[a]∪[b] = 0 ⟺ b` is a norm from `k(√a)`) plus unramified unit-norm surjectivity
-  (same amendment decision as B9's base-generalization; consumed by Lemma 6.16's ledger and
-  6.17's (94)-orthogonality).
+* **B11a** `hilbertSymbol_normCriterion_finiteDyadic` + **B11b**
+  `unramifiedQuadratic_units_are_norms` — the Hilbert-symbol norm criterion over finite dyadic
+  bases (`[a]∪[b] = 0 ⟺ b` is a norm from `k(√a)`) and unramified unit-norm surjectivity.  Split
+  from the single pre-P-23 `axiom dyadicNormCriterion` (census 12→13, adversarial review rec 2,
+  user-approved 2026-07-04); `dyadicNormCriterion` survives as a same-name **theorem** over the
+  two leaves (zero consumer churn) and the spectral-norm unramifiedness convention is isolated as
+  the `def IsUnramifiedQuadraticSpectral` (not an axiom).  Same amendment decision as B9's
+  base-generalization; consumed by Lemma 6.16's ledger and 6.17's (94)-orthogonality.
 
 **Citation-faithfulness classification** (adversarial review 2026-07-04,
 `docs/adversarial-axioms-review.md`; full table in `docs/review-packet.md` §2).  The leaves fall
 in four tiers by how directly the Lean statement matches a single published theorem: **direct
 classical theorem** (B1, B6, B7, B7′, B10), **classical theorem + encoding choices** (B4, B5,
-B9), **composite/project interface** (B3c, B8, B11 — each bundles a cited theorem with additional
-inputs, flagged in its own docstring), and **available/unused** (B2).  The distinction keeps a
+B9), **composite/project interface** (B3c, B8, B11a, B11b — each pairs a cited theorem with
+encoding/convention inputs, flagged in its own docstring), and **available/unused** (B2).  The distinction keeps a
 reviewer from mistaking a "nearby true theorem" for "this exact Lean interface appears verbatim
 in the cited literature".
 
@@ -392,35 +397,87 @@ pro-`p` (Serre, *Local Fields* [7], Ch. IV).  (Verified against the NSW PDF in
 Paper: Prop. 3.2, local side.  `docs/literature-axioms.md` B10. -/
 axiom tameQuotient : TameQuotientData
 
-/-! ## B11 — the dyadic norm criterion over finite bases
+/-! ## B11 — the dyadic norm criterion over finite bases (split into named leaves, P-23)
 
 Added by the same explicit census decision as B9's base-generalization (2026-07-03,
 user-approved; resolves the P-15 escalation): §6.3's local ledger — Lemma 6.16's step-2
-arithmetic and Lemma 6.17's (94)-orthogonality — runs over arbitrary finite dyadic bases, and
-the two classical inputs below were previously available only in their `ℚ₂`-forms (inside the
-B5/B7′ layers).  The "`b` is a norm from `k(√a)`" condition is encoded by the **norm form**
-`b = x² − a y²` (elementary, no relative field-extension plumbing); unramifiedness of `k(√a)/k`
-by **equal norm value groups** through the spectral norm on `ℚ̄₂` (the `GQ2/SectionSix.lean`
-`IsDeepUnit`/`lemma_6_16` convention).
+arithmetic and Lemma 6.17's (94)-orthogonality — runs over arbitrary finite dyadic bases.
+
+**P-23 split (2026-07-04, user-approved census change 12→13; adversarial review rec 2).**  The
+old single `axiom dyadicNormCriterion` bundled two classical facts with one project convention.
+It is now factored into the two classical leaves below plus one isolated, plainly-labelled
+convention `def`, and re-derived as a **same-name `theorem`** — so every downstream `.1`/`.2`
+projection is byte-for-byte unchanged (zero consumer churn):
+
+* `hilbertSymbol_normCriterion_finiteDyadic` — the symbol/norm criterion (classical).
+* `unramifiedQuadratic_units_are_norms` — units of an unramified quadratic extension are norms
+  (classical).
+* `IsUnramifiedQuadraticSpectral` — **not an axiom**: the repo's spectral-norm *working
+  definition* of "`k(δa)/k` is unramified" (equal norm value groups on `ℚ̄₂`).  Isolated here as
+  the review's "riskiest piece": it is a project convention, not a Mathlib unramifiedness notion,
+  and is deliberately a `def` (asserting nothing) rather than a bridge axiom.
+
+Encoding conventions carried over from the pre-split axiom: the "`b` is a norm from `k(√a)`"
+condition is the **norm form** `b = x² − a y²` (elementary, no relative field-extension
+plumbing); unramifiedness by **equal norm value groups** through the spectral norm on `ℚ̄₂` (the
+`GQ2/SectionSix.lean` `IsDeepUnit`/`lemma_6_16` convention).
 
 Note for reviewers: the Steinberg relation `[x]∪[1−x] = 0` and `[2]∪[−1] = 0` used in
 Lemma 6.16's proof are *consequences* of the criterion clause (norm representations
-`1 − x = 1² − x·1²` and `−1 = 1² − 2·1²`), so they are deliberately not separate clauses. -/
-
-/-- **[Classical — B11.]**  The dyadic Hilbert-symbol **norm criterion** over a finite base
-`k/ℚ₂`, in Kummer-cup form, plus **unramified unit-norm surjectivity**:
-
-* (criterion) for `a, b ∈ kˣ`: `[a] ∪ [b] = 0` in `H²(G_k, 𝔽₂)` iff `b` is a norm from
-  `k(√a)` — iff `b = x² − a y²` has a solution in `k` (for `a` a square the norm form is
-  universal, so no non-square hypothesis is needed);
-* (unramified units) if `k(√a)/k` is unramified (equal norm value groups, elementwise via a
-  chosen root `δa`), then every unit of `k` (`‖u‖ = 1`) is such a norm.
+`1 − x = 1² − x·1²` and `−1 = 1² − 2·1²`), so they are deliberately not separate clauses.
 
 Citation: Serre, *Local Fields* [7], Ch. XIV §2 (the symbol–norm criterion; over `ℚ_p` also
 CiA [CiA] Ch. III §1.1 Prop. 1) and Ch. V §2 (norms of unramified extensions are the units
 times the norms of uniformizers).  *(Citation display numbers pending PDF verification —
-flagged for P-20.)*  Paper: §6.3, displays (93)/(94) and Lemma 6.16's proof.  -/
-axiom dyadicNormCriterion
+flagged for P-20.)*  Paper: §6.3, displays (93)/(94) and Lemma 6.16's proof. -/
+
+/-- **[Project convention — isolated spectral-norm bridge, P-23.]**  The repo's working
+definition of "`k(δa)/k` is unramified", encoded via the spectral norm on `ℚ̄₂`: every nonzero
+`z = x + y·δa` (`x, y ∈ k`) has the same norm as some nonzero element of the base `k` — i.e.
+`k(δa)` and `k` have equal norm value groups.  This is **not** a Mathlib unramifiedness notion
+and is asserted by nothing (it is a `def`, not an axiom); it is the convention the §6 ledger
+consumes, named and isolated per adversarial review rec 2 so a human reviewer can see exactly
+where the project departs from a directly citable statement. -/
+def IsUnramifiedQuadraticSpectral
+    (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+    (δa : AlgebraicClosure ℚ_[2]) : Prop :=
+  ∀ z : AlgebraicClosure ℚ_[2], z ≠ 0 →
+    (∃ x y : ↥k, z = (x : AlgebraicClosure ℚ_[2]) + (y : AlgebraicClosure ℚ_[2]) * δa) →
+    ∃ w : ↥k, w ≠ 0 ∧ ‖z‖ = ‖(w : AlgebraicClosure ℚ_[2])‖
+
+/-- **[Classical — B11a.]**  The dyadic Hilbert-symbol **norm criterion** over a finite base
+`k/ℚ₂`, in Kummer-cup form: for `a, b ∈ kˣ`, `[a] ∪ [b] = 0` in `H²(G_k, 𝔽₂)` iff `b` is a norm
+from `k(√a)` — iff `b = x² − a y²` has a solution in `k` (for `a` a square the norm form is
+universal, so no non-square hypothesis is needed).
+
+Citation: Serre, *Local Fields* [7], Ch. XIV §2 (over `ℚ_p` also CiA Ch. III §1.1 Prop. 1). -/
+axiom hilbertSymbol_normCriterion_finiteDyadic
+    (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m) :
+    ∀ a b : (↥k)ˣ,
+      trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k b) = 0
+        ↔ ∃ x y : ↥k, (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2
+
+/-- **[Classical — B11b.]**  **Unramified unit-norm surjectivity**: if `k(√a)/k` is unramified
+(the `IsUnramifiedQuadraticSpectral` convention on a chosen root `δa`, `δa² = a`), then every
+unit of `k` (`‖u‖ = 1`) is a norm from `k(√a)` — i.e. `u = x² − a y²` is solvable in `k`.
+
+Citation: Serre, *Local Fields* [7], Ch. V §2 (norms of unramified extensions are the units times
+the norms of uniformizers). -/
+axiom unramifiedQuadratic_units_are_norms
+    (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
+    (a : (↥k)ˣ) (δa : AlgebraicClosure ℚ_[2])
+    (hδa : δa ^ 2 = ((a : ↥k) : AlgebraicClosure ℚ_[2]))
+    (hunram : IsUnramifiedQuadraticSpectral k δa) :
+    ∀ u : (↥k)ˣ, ‖((u : ↥k) : AlgebraicClosure ℚ_[2])‖ = 1 →
+      ∃ x y : ↥k, (u : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2
+
+/-- **B11 (re-derived, P-23).**  The pre-split `dyadicNormCriterion` interface, now a
+**theorem** with a byte-for-byte unchanged statement so every downstream consumer's `.1`/`.2`
+projection is untouched.  It rests on exactly the two classical leaves
+`hilbertSymbol_normCriterion_finiteDyadic` + `unramifiedQuadratic_units_are_norms` (plus the
+isolated `IsUnramifiedQuadraticSpectral` convention, which is a `def`, not an axiom). -/
+theorem dyadicNormCriterion
     (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m) :
     (∀ a b : (↥k)ˣ,
@@ -432,6 +489,9 @@ axiom dyadicNormCriterion
           (∃ x y : ↥k, z = (x : AlgebraicClosure ℚ_[2]) + (y : AlgebraicClosure ℚ_[2]) * δa) →
           ∃ w : ↥k, w ≠ 0 ∧ ‖z‖ = ‖(w : AlgebraicClosure ℚ_[2])‖) →
         ∀ u : (↥k)ˣ, ‖((u : ↥k) : AlgebraicClosure ℚ_[2])‖ = 1 →
-          ∃ x y : ↥k, (u : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2
+          ∃ x y : ↥k, (u : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2 :=
+  ⟨hilbertSymbol_normCriterion_finiteDyadic k htriv,
+   fun a δa hδa hunram u hu =>
+     unramifiedQuadratic_units_are_norms k a δa hδa hunram u hu⟩
 
 end GQ2

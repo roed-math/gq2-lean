@@ -24,9 +24,11 @@ Lemma 2.5's only classical input is *proved* in the formalization (see foot); eq
 **Ribes–Zalesskiĭ Prop. 2.5.2** (a finitely generated profinite group is Hopfian — Lemma 2.5's only
 classical input) and **Schur–Zassenhaus** (§9.1 terminal case).
 
-**Status.** **All ten leaves are source-verified** — each has an exact theorem number and a verbatim
-statement checked against the cited book/paper (`✓`; `✓✓` = two independent sources). Nothing in the
-classical layer is left unchecked.
+**Status.** The **ten leaves above are source-verified** — each has an exact theorem number and a
+verbatim statement checked against the cited book/paper (`✓`; `✓✓` = two independent sources). *Two
+later census additions are off this condensed page:* **B10** (tame quotient, NSW **(7.5.3)** —
+verified) and **B11a/B11b** (dyadic norm criterion, Serre *Local Fields* **XIV/V** — display numbers
+pending P-20); see `literature-axioms.md`.  Full census: **13** axioms.
 
 **Legend / refs.** `✓` checked against source; `✓✓` two sources. — **NSW** =
 Neukirch–Schmidt–Wingberg, *Cohomology of Number Fields*, 2nd ed.; **Serre *GC*** = *Galois

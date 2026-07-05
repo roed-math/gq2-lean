@@ -6,6 +6,7 @@ import GQ2.Zhat
 import GQ2.DiscreteModule
 import GQ2.Cohomology
 import GQ2.CupProduct
+import GQ2.CupSymmetry
 import GQ2.CtsCohBridge
 import GQ2.FreeProfinite
 import GQ2.ProfiniteQuotient
@@ -41,14 +42,18 @@ import GQ2.Devissage
 import GQ2.QuadraticFp2
 import GQ2.GaussCount
 import GQ2.GaussSigns
+import GQ2.TameSimple
+import GQ2.GaussSignsRamified
 import GQ2.Corestriction
 import GQ2.OrbitData
 import GQ2.BlockModule
 import GQ2.SectionSix
 import GQ2.HilbertLedger
 import GQ2.Transgression
+import GQ2.LocalLiftingDuality
 import GQ2.SectionSeven
 import GQ2.SectionEight
+import GQ2.DeepPart
 import GQ2.PropOneOne
 import GQ2.ZtwoPowering
 import GQ2.FrattiniCriterion

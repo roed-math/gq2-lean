@@ -141,6 +141,12 @@ Def-layer (sorry-free): `polar`/`IsQuadraticFp2`/`Nonsingular`/`arf`/`zeroCount`
 3. **Lemma 6.21 in consequence form**: the obstruction identity (116) is the proof mechanism;
    what §§8–9 consume is the splitting criterion, which is what `lemma_6_21` states.  If P-16/P-17
    turn out to need the `d₂`-valued form, that is a reviewed statement addition.
+   **Amended 2026-07-04 (reviewed, user-approved)**: the original consequence-form extraction
+   *dropped the paper's hypothesis* “assume a zero-section-normalized equivariant class `κ⁰_q`
+   restricting to `q` has been fixed”, without which the statement is not provable by the paper's
+   mechanism (the intrinsic equivariance obstruction survives).  `lemma_6_21` now takes
+   `(dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)` — Lemma 6.1's `κ⁰_q`, in the
+   same form `lemma_6_22` already consumes it.  See `docs/p15i-transgression-gap.md`.
 4. **Democratic `arf`** (D1) and **canonical transversals** (D2), as above.
 5. **Lemma 7.1's head clause** is recorded as `R ≤ K ⊓ S` — given the block's `gen : K ⊔ S = P`,
    the exact sequence and `M/T₀ ≅ V` follow by Mathlib's second isomorphism theorem, so the
@@ -164,8 +170,11 @@ Def-layer (sorry-free): `polar`/`IsQuadraticFp2`/`Nonsingular`/`arf`/`zeroCount`
 
 ## P-15i status — Lemma 6.21 transgression (`GQ2/Transgression.lean`, 2026-07-04)
 
-The (116) **mechanism and all supporting infrastructure are proved `std-3`**; the splitting
-`lemma_6_21` is reduced to **one** isolated `sorry`.  Proven, reusable:
+**CLOSED (Fable, 2026-07-04)**: `lemma_6_21` proved & spliced, std-3, no B-axioms;
+`GQ2/Transgression.lean` sorry-free (off the `SORRY_ALLOWLIST`).  The gap resolution — the
+restored `κ⁰_q` hypothesis and the additive-primitive construction — is documented in
+`docs/p15i-transgression-gap.md`; deviation note 3 above records the statement amendment.
+Proven, reusable:
 
 * `bflat_bijective` — `B_q^♭ : V ≅ V^∨` for nonsingular `q` on the finite elementary-abelian `V`
   (`LinearMap.BilinForm.toDual` on the `ZMod 2`-module `V`; additivity ⟹ `𝔽₂`-linearity via
@@ -182,7 +191,7 @@ The (116) **mechanism and all supporting infrastructure are proved `std-3`**; th
   via `bflat_bijective`-injectivity + `polar_conj`) and the **section** `s c = i(ofAdd(g c))⁻¹·σc`
   (`hconj` + `factorSet_spec` + fibre 2-torsion) are proved.
 
-**The one remaining `sorry` (the transgression vanishing `d₂ q = 0`)**: existence of a
+**The former gap (the transgression vanishing `d₂ q = 0`) — RESOLVED 2026-07-04**: existence of a
 `B_q^♭`-representable — i.e. additive — primitive `g : C → V` with `δ(B♭ g) = B♭ f`.  Note the
 design subtlety: `mixedA c` from `key_transgression` is **not additive** in `v` (its defect
 `D_c(v,v') = ξ(i(c⁻¹v),i(c⁻¹v')) + ξ(iv,iv')` is a nonzero symmetric zero-diagonal fibre
@@ -191,6 +200,10 @@ holds but the class need not vanish.  The vanishing is the genuine content, forc
 cocycle on the whole of `B` (its base values `ξ(σ·,σ·)`), i.e. `q` being a permanent cycle in the
 LHS spectral sequence.  Concretely: `D_c = δκ_c` for `κ_c = β_{(σc)⁻¹}∘i∘ofAdd`, but that `κ` is
 not a `C`-1-cocycle (`δκ` measures the section's factor set), and choosing the primitives so that
-`δκ = 0` is exactly `[B♭ f] = 0`.  This is beyond the "direct cochain / no spectral sequence"
-route as designed; closing it likely needs the base cochain explicitly (or a `groupCohomology`
-LHS-SS `d₂` argument).
+`δκ = 0` is exactly `[B♭ f] = 0`.  This was beyond the "direct cochain / no spectral sequence"
+route *as originally designed* — because the design had silently dropped the paper's `κ⁰_q`
+hypothesis.  **Resolution**: restore it (deviation note 3); its cochain avatar `(t, ht_quad,
+ht_mul)` (= Lemma 6.1's `m`-family transported to `ξ`'s fibre model via
+`symm_cocycle_is_coboundary` + `equivariant_lift_of_factorSet`) makes `Ã c := mixedA c + t c⁻¹`
+an *additive* primitive with the same `δ` (`mixedA_defect` cancels `ht_quad`; `ht_mul`
+telescopes), and `bflat_bijective` then yields `g`.  No spectral sequences, no new groups.
