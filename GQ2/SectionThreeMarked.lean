@@ -2,6 +2,7 @@ import GQ2.Reciprocity
 import GQ2.BoundaryFrame
 import GQ2.BoundaryConstruction
 import GQ2.LocalMarked
+import GQ2.BoundaryMapsWitness
 
 /-!
 # §3 statements, marked-quotient half: Prop. 3.10 and Prop. 3.14  (ticket P-06, P-11 handoff)
@@ -81,8 +82,9 @@ exists — tame and maximal pro-2 quotient maps for both sources, `ν`-compatibl
 surjective onto the fibred boundary, with the `Γ_A`-side taking the marked generator values
 and the `G_{ℚ₂}`-side pinned intrinsically (Lemma 3.3 2-core kernel; `proPKernel` kernel).
 (Proof tickets P-09/P-10: instantiate `BoundaryMaps`.) -/
-theorem prop_3_14 : Nonempty BoundaryMaps := by
-  sorry
+theorem prop_3_14 [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
+    Nonempty BoundaryMaps :=
+  prop_3_14_proved
 
 end SectionThree
 
