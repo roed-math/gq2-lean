@@ -209,6 +209,78 @@ noncomputable def rDefect (g : ContinuousMonoidHom Γ RF.YB) (γ δ : Γ) : ↥B
       piB_slift, piB_slift, piB_slift, map_mul]
     group⟩
 
+section Cohomology
+
+open ContCoh CentralObstruction
+
+variable [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+
+/-- The lift family of `g` into the `λ`-cover built from the single set-section: `x ↦
+coverMap_λ (slift (g x))`. -/
+noncomputable def obsLiftFam (D : RObstructionData RF) (g : ContinuousMonoidHom Γ RF.YB)
+    (d : D.DRmod) (h : D.toDR d ≠ RF.zeroDR) : Γ → (RF.scalarCover (D.toDR d) h).cover :=
+  fun x => D.coverMap (D.toDR d) h (slift RF (g x))
+
+theorem obsLiftFam_p (D : RObstructionData RF) (g : ContinuousMonoidHom Γ RF.YB)
+    (d : D.DRmod) (h : D.toDR d ≠ RF.zeroDR) (x : Γ) :
+    (RF.scalarCover (D.toDR d) h).p (obsLiftFam RF D g d h x) = g x := by
+  show (RF.scalarCover (D.toDR d) h).p (D.coverMap (D.toDR d) h (slift RF (g x))) = g x
+  rw [← MonoidHom.comp_apply, D.coverMap_lifts (D.toDR d) h, piB_slift]
+
+theorem obsLiftFam_cont (D : RObstructionData RF) (g : ContinuousMonoidHom Γ RF.YB)
+    (d : D.DRmod) (h : D.toDR d ≠ RF.zeroDR) : Continuous (obsLiftFam RF D g d h) := by
+  have he : obsLiftFam RF D g d h
+      = (fun y => D.coverMap (D.toDR d) h (slift RF y)) ∘ (g : Γ → RF.YB) := rfl
+  rw [he]
+  exact continuous_of_discreteTopology.comp (map_continuous g)
+
+/-- **The pointwise obstruction identity**: the obstruction cochain of the lift family equals
+`pair d` applied to the `R`-valued defect. -/
+theorem obCocOf_obsLiftFam (D : RObstructionData RF) (g : ContinuousMonoidHom Γ RF.YB)
+    (d : D.DRmod) (h : D.toDR d ≠ RF.zeroDR) (γ δ : Γ) :
+    obCocOf (trivialRCD (RF.scalarCover (D.toDR d) h)) (obsLiftFam RF D g d h) (γ, δ)
+      = D.pair d (Additive.ofMul (rDefect RF g γ δ)) := by
+  rw [D.pair_coverMap d h (rDefect RF g γ δ)]
+  show zsign (trivialRCD (RF.scalarCover (D.toDR d) h))
+      (obsLiftFam RF D g d h γ * obsLiftFam RF D g d h δ * (obsLiftFam RF D g d h (γ * δ))⁻¹)
+    = zsign (trivialRCD (RF.scalarCover (D.toDR d) h))
+        (D.coverMap (D.toDR d) h ((rDefect RF g γ δ : ↥Blk.R) : Y))
+  congr 1
+  simp only [obsLiftFam]
+  rw [show ((rDefect RF g γ δ : ↥Blk.R) : Y)
+        = slift RF (g γ) * slift RF (g δ) * (slift RF (g (γ * δ)))⁻¹ from rfl]
+  simp only [map_mul, map_inv]
+
+theorem pairDefect_mem_Z2 (D : RObstructionData RF)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (g : ContinuousMonoidHom Γ RF.YB) (d : D.DRmod) (h : D.toDR d ≠ RF.zeroDR) :
+    (fun gd : Γ × Γ => D.pair d (Additive.ofMul (rDefect RF g gd.1 gd.2))) ∈ Z2 Γ (ZMod 2) := by
+  have hmem := obCocOf_mem_Z2 (trivialRCD (RF.scalarCover (D.toDR d) h)) (trivialRho g) htriv
+    (obsLiftFam_cont RF D g d h) (f := trivialMLift (RF.scalarCover (D.toDR d) h) g)
+    (fun x => obsLiftFam_p RF D g d h x)
+  convert hmem using 1
+  funext gd
+  exact (obCocOf_obsLiftFam RF D g d h gd.1 gd.2).symm
+
+/-- **The connection** (step 2 core): the scalar obstruction `homOb` of `g` through the `λ`-cover
+is the class of `pair d ∘ rDefect` — so it is `H2mk` of a cochain **linear in `d`**. -/
+theorem homOb_eq_H2mk_pair (D : RObstructionData RF)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (g : ContinuousMonoidHom Γ RF.YB) (d : D.DRmod) (h : D.toDR d ≠ RF.zeroDR) :
+    homOb (RF.scalarCover (D.toDR d) h) g htriv
+      = H2mk Γ (ZMod 2)
+          ⟨fun gd => D.pair d (Additive.ofMul (rDefect RF g gd.1 gd.2)),
+           pairDefect_mem_Z2 RF D htriv g d h⟩ := by
+  rw [homOb, ob_eq_of_liftFam (trivialRCD (RF.scalarCover (D.toDR d) h)) (trivialRho g) htriv
+      (trivialMLift (RF.scalarCover (D.toDR d) h) g) (obsLiftFam_cont RF D g d h)
+      (fun x => obsLiftFam_p RF D g d h x)]
+  apply congrArg
+  apply Subtype.ext
+  funext gd
+  exact obCocOf_obsLiftFam RF D g d h gd.1 gd.2
+
+end Cohomology
+
 end Obstruction
 
 end SectionEight
