@@ -445,6 +445,117 @@ theorem selfDual_of_trivial_action (t : Marking C) (ht : t.TameRel) (hw : t.Wild
     exact fun c v => hle (Subgroup.mem_top c) v
   exact trivialSelfDual t ht hw htriv hV₂
 
+/-! ## Ramified simple case -/
+
+/-- Elementwise contragredient triviality: if `g` acts trivially on `A` it acts trivially on
+`A∨` (`(g•λ)a = λ(g⁻¹•a) = λ(a)`). -/
+theorem elemDual_smul_trivial_of (g : C) (hg : ∀ a : A, g • a = a) :
+    ∀ l : ElemDual A, g • l = l := by
+  intro l
+  ext a
+  rw [ElemDual.smul_apply]
+  have hgi : g⁻¹ • a = a := by rw [inv_smul_eq_iff]; exact (hg a).symm
+  rw [hgi]
+
+/-- In the ramified case the `x₀`-supported cochains are cocycles: the tame row (`d1Fun_tame`)
+involves only coordinates 0 and 1, the wild row is `S⁻¹x₃`
+(`liftMarking_wildValue_u_ramified`), and all three coordinates vanish on `x0Supported c`. -/
+theorem x0Supported_mem_Z1w_ramified (t : Marking C) (ht : t.TameRel)
+    (hV₂ : ∀ v : A, v + v = 0)
+    (hx0 : ∀ v : A, t.x₀ • v = v) (hx1 : ∀ v : A, t.x₁ • v = v)
+    (htau : ∀ v : A, t.τ • v = v → v = 0) (hTodd : ∀ v : A, powOmega2 t.τ • v = v)
+    (hU : ∀ v : A, t.sigma2 • v = v) :
+    ∀ c : A, x0Supported c ∈ Z1w (A := A) t := by
+  intro c
+  rw [Z1w, AddMonoidHom.mem_ker, show (d1 t) (x0Supported c) = d1Fun t (x0Supported c) from rfl,
+    Prod.ext_iff]
+  simp only [Prod.fst_zero, Prod.snd_zero]
+  constructor
+  · rw [d1Fun_tame t ht (x0Supported c)]
+    simp [x0Supported]
+  · rw [show (d1Fun t (x0Supported c)).2 = t.σ⁻¹ • (x0Supported c) 3 from
+      liftMarking_wildValue_u_ramified t (x0Supported c) hV₂ hx0 hx1 htau hTodd hU]
+    simp [x0Supported]
+
+/-- **Proposition 5.15, ramified simple case** — *conditional on the σ-tameness `hU`*.  A simple
+module with `V^T = 0` is self-dual.  `hTodd` (τ odd-order) is derived
+(`tau_powOmega2_smul_trivial`); the dual `A∨` inherits wild-triviality, `hTodd`, `hU`
+(contragredient) and τ-fixed-point-freeness (`(τ⁻¹−1)` surjective); the pairing
+`λ((1+U+U⁻¹)c)` collapses to `λ(c)` under `hU`.
+
+`hU` remains a hypothesis because it is **not derivable from admissibility**: `S₃` (on its 2-dim
+simple module, marking `x₀=x₁=1`, `σ=(12)`, `τ=(123)`) and `C₅⋊C₄` (on `𝔽₁₆`) are admissible
+markings whose ramified factors have `σ₂` acting nontrivially.  Removing it requires de-`hU`-ing
+the P-13b aux-word layer (the `x₂`-cancellations hold in `g₀`-conjugate *pairs* rather than
+termwise) — see the P-13f board. -/
+theorem selfDual_of_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (hgen : t.Generates) (hV₂ : ∀ v : A, v + v = 0) (hsimple : IsSimpleModTwo C A)
+    (hcore : t.Pro2Core) (htau : ∀ v : A, t.τ • v = v → v = 0)
+    (hU : ∀ v : A, t.sigma2 • v = v) :
+    IsSelfDual t A := by
+  obtain ⟨hx0, hx1⟩ := wild_acts_trivially t hV₂ hsimple hcore
+  have hTodd : ∀ v : A, powOmega2 t.τ • v = v :=
+    tau_powOmega2_smul_trivial t ht hgen hV₂ hsimple hcore
+  -- the action is nontrivial: `τ` is fixed-point-free on a nontrivial module
+  haveI : Nontrivial A := hsimple.1
+  obtain ⟨a₀, ha₀⟩ := exists_ne (0 : A)
+  have hnt : ∃ (c : C) (a : A), c • a ≠ a := ⟨t.τ, a₀, fun h => ha₀ (htau a₀ h)⟩
+  -- `A`-side normal form
+  have hx0A := x0Supported_mem_Z1w_ramified t ht hV₂ hx0 hx1 htau hTodd hU
+  have hnfA := lemma_5_13_ramified t ht hw hV₂ hx0 hx1 htau hTodd hU
+  -- dual-side hypotheses
+  have hV₂D : ∀ l : ElemDual A, l + l = 0 := fun l => by
+    ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]
+    exact CharTwo.add_self_eq_zero (l v)
+  have hx0D := elemDual_smul_trivial_of (A := A) t.x₀ hx0
+  have hx1D := elemDual_smul_trivial_of (A := A) t.x₁ hx1
+  have hToddD := elemDual_smul_trivial_of (A := A) (powOmega2 t.τ) hTodd
+  have hUD := elemDual_smul_trivial_of (A := A) t.sigma2 hU
+  have hτsurj : Function.Surjective (fun v : A => t.τ⁻¹ • v - v) :=
+    (Finite.injective_iff_surjective).mp (fun a b hab => by
+      have hab' : t.τ⁻¹ • a - a = t.τ⁻¹ • b - b := hab
+      refine sub_eq_zero.mp (htau (a - b) ?_)
+      have hfix : t.τ⁻¹ • (a - b) = a - b := by
+        rw [smul_sub, show t.τ⁻¹ • a - t.τ⁻¹ • b
+            = (t.τ⁻¹ • a - a) - (t.τ⁻¹ • b - b) + (a - b) from by abel, hab']
+        abel
+      have := congrArg (t.τ • ·) hfix
+      simpa [smul_inv_smul] using this.symm)
+  have htauD : ∀ l : ElemDual A, t.τ • l = l → l = 0 := by
+    intro l hl
+    have hlτ : ∀ x : A, l (t.τ⁻¹ • x) = l x := by
+      intro x
+      have h := congrArg (fun m : ElemDual A => m x) hl
+      rwa [ElemDual.smul_apply] at h
+    ext a
+    obtain ⟨b, hb⟩ := hτsurj a
+    have hb' : t.τ⁻¹ • b - b = a := hb
+    rw [ElemDual.zero_apply, ← hb', map_sub, hlτ b, sub_self]
+  have hx0D' := x0Supported_mem_Z1w_ramified (A := ElemDual A) t ht hV₂D hx0D hx1D htauD
+    hToddD hUD
+  have hnfD := lemma_5_13_ramified (V := ElemDual A) t ht hw hV₂D hx0D hx1D htauD hToddD hUD
+  -- the pairing collapses to `λ(c)` under `hU`
+  have hUc : ∀ c : A, c + t.sigma2 • c + t.sigma2⁻¹ • c = c := by
+    intro c
+    have hinv : t.sigma2⁻¹ • c = c := by rw [inv_smul_eq_iff]; exact (hU c).symm
+    rw [hU c, hinv, hV₂ c, zero_add]
+  -- cards (clauses 1–2) and the perfect pairing (clause 3)
+  obtain ⟨hcard2, hcardZ⟩ :=
+    card_H2w_and_Z1w_of_nontrivial_simple t ht hw hgen hsimple hnt hx0A hnfA
+  have hfix1 := card_fixedPts_elemDual_eq_one_of_nontrivial (A := A) hsimple hnt
+  refine ⟨by rw [hcard2, hfix1], by rw [hcardZ, hfix1, mul_one],
+    clause3_of_normalForm t ht hw hx0A hnfA hx0D' hnfD ?_ ?_⟩
+  · intro c hc
+    obtain ⟨lam, hlam⟩ := elemDual_separates hV₂ hc
+    refine ⟨lam, ?_⟩
+    rw [lemma_5_13_pairing_ramified t ht hw hV₂ hx0 hx1 htau hTodd c lam, hUc c]
+    exact hlam
+  · intro lam hlam
+    obtain ⟨c, hc⟩ := DFunLike.ne_iff.mp hlam
+    refine ⟨c, ?_⟩
+    rw [lemma_5_13_pairing_ramified t ht hw hV₂ hx0 hx1 htau hTodd c lam, hUc c]
+    simpa using hc
+
 /-- **Split case of a simple module (complete).**  When `τ` acts trivially, the simple module is
 self-dual — whether `σ` acts nontrivially (`selfDual_of_split`) or trivially
 (`selfDual_of_trivial_action`).  This closes the entire `V^T = V` branch of the
@@ -458,5 +569,17 @@ theorem selfDual_of_split_case (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   · push_neg at hσ
     obtain ⟨hx0, hx1⟩ := wild_acts_trivially t hV₂ hsimple hcore
     exact selfDual_of_trivial_action t ht hw hgen hV₂ hσ htau hx0 hx1
+
+/-- **Simple case of `prop_5_15`** — conditional on the σ-tameness `hU` for ramified factors
+(supplied as an implication so split factors need nothing).  Dispatches on the
+`tau_split_or_ramified` dichotomy. -/
+theorem selfDual_of_simple_of_hU (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (hgen : t.Generates) (hcore : t.Pro2Core) (hV₂ : ∀ v : A, v + v = 0)
+    (hsimple : IsSimpleModTwo C A)
+    (hU : (∀ v : A, t.τ • v = v → v = 0) → ∀ v : A, t.sigma2 • v = v) :
+    IsSelfDual t A := by
+  rcases tau_split_or_ramified t ht hgen hsimple hcore hV₂ with htau | htau
+  · exact selfDual_of_split_case t ht hw hgen hV₂ hsimple hcore htau
+  · exact selfDual_of_ramified t ht hw hgen hV₂ hsimple hcore htau (hU htau)
 
 end GQ2.FoxH
