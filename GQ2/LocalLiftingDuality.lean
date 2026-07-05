@@ -2,6 +2,7 @@ import GQ2.FoxHeisenberg
 import GQ2.TateDuality
 import GQ2.CupSymmetry
 import GQ2.Foundations.Axioms
+import GQ2.DualityAssembly
 
 /-!
 # P-13g: Prop 5.16 (local lifting duality) from B6 + B7

@@ -1,6 +1,7 @@
 import GQ2.Devissage
 import GQ2.TrivialSelfDual
 import GQ2.TameSimple
+import GQ2.DevissageInduction
 
 /-!
 # P-13f: assembling `prop_5_15` (deformation duality) from the simple-module case + dévissage
@@ -578,5 +579,24 @@ theorem selfDual_of_simple (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   rcases tau_split_or_ramified t ht hgen hsimple hcore hV₂ with htau | htau
   · exact selfDual_of_split_case t ht hw hgen hV₂ hsimple hcore htau
   · exact selfDual_of_ramified t ht hw hgen hV₂ hsimple hcore htau
+
+/-- **Prop 5.15 (candidate deformation duality) — PROVED**: the Fox–Heisenberg chain map is a
+quasi-isomorphism for every finite elementary module — packaged: the display-(56) numerics hold
+and the descended `B`-pairing is perfect.
+
+The composition: the dévissage strong induction `prop_5_15_of_simple`
+(`GQ2/DevissageInduction.lean`, via `lemma_5_11` along `0 → W → A → A/W → 0` for a proper
+`C`-stable `W`) reduces to the simple case, which `selfDual_of_simple` closes by the
+`tau_split_or_ramified` dichotomy — split (`lemma_5_13_split` + the P-13d tame providers) or
+ramified (`lemma_5_13_ramified` + `hTodd` derived + the unipotent pairing operator).
+
+Relocated here from `GQ2/FoxHeisenberg.lean` (statement unchanged, same fully qualified name
+`GQ2.FoxH.prop_5_15`): the proof needs the dévissage and the simple-case assembly, which import
+that file. -/
+theorem prop_5_15 (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hgen : t.Generates)
+    (hA₂ : ∀ a : A, a + a = 0) (hcore : t.Pro2Core) :
+    IsSelfDual t A :=
+  prop_5_15_of_simple t ht hw hgen hcore
+    (fun B _ _ _ hB₂ hBsimple => selfDual_of_simple t ht hw hgen hcore hB₂ hBsimple) hA₂
 
 end GQ2.FoxH

@@ -2974,25 +2974,11 @@ section MainDuality
 
 variable {C : Type*} [Group C] [Finite C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
 
-/-- **Prop 5.15 (candidate deformation duality)**: the Fox–Heisenberg chain map is a
-quasi-isomorphism for every finite elementary module — packaged: the display-(56) numerics
-hold and the descended `B`-pairing is perfect.
-
-Hypothesis `hcore` (the `Pro2Core` admissibility clause) supplies trivial wild action on every
-simple subquotient via `wild_acts_trivially`; it is a property of the marking `t` alone, so it
-covers the whole composition series.
-
-Hypothesis `hgen` feeds the dévissage step: `lemma_5_11` (PROVED in `GQ2/Devissage.lean`,
-P-13e) requires generation to identify `ker d⁰` with the `C`-invariants; admissible markings
-supply it alongside `hcore`.
-
-*Status*: sorried (P-13; route: 5.12 + 5.13 for simples — including the trivial module, where
-the traced form is the scalar cup–Bockstein table (25) — then 5.11 dévissage along a
-composition series; 5.11 itself is proved). -/
-theorem prop_5_15 (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hgen : t.Generates)
-    [Finite A] (hA₂ : ∀ a : A, a + a = 0) (hcore : t.Pro2Core) :
-    IsSelfDual t A := by
-  sorry
+/- **Prop 5.15 relocated to `GQ2/DualityAssembly.lean` (P-13f) — PROVED, no sorry.**  The proof
+composes the dévissage strong induction `prop_5_15_of_simple` (`GQ2/DevissageInduction.lean`,
+via `lemma_5_11`) with the simple case `selfDual_of_simple` (split/ramified dichotomy) — all of
+which live in files importing *this* one, so proving it here would be an import cycle.  The
+qualified name `GQ2.FoxH.prop_5_15` and the statement are unchanged. -/
 
 /- **§5.16–§5.17 relocated to `GQ2/LocalLiftingDuality.lean` (P-13g).**  `prop_5_16` (local
 lifting duality) and its corollary `cor_5_17_card` moved there so their proofs can invoke B6
