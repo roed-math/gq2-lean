@@ -78,8 +78,14 @@ the witness.  Cleaner for correctness, but couples P-16d2 to d5/d6 (loses the re
 
 ## Construction route (once the compatibility is available)
 
+*De-risked precondition*: `R = Φ(K)` **is elementary abelian** (and central in `K`, `K⁴ = 1`) by
+`GQ2.SectionSeven.lemma_7_2` (proved, std-3): its middle conjunct is `∀ r ∈ B.R, r*r = 1`.  So
+`R^∨`, `D_R = (R^∨)^C`, and `z_R = 2^{2·dim R + dim D_R} = |R|²·|D_R|` are all well-founded — the
+obstruction/duality picture does not rest on an unverified exponent hypothesis.
+
 1. **`W`, `e`, `he0`** — done, generic: `stageR136_ofObstruction` (this file).  `D_Rmod` = `D_R`
-   given `𝔽₂`-module structure (it is `(R^∨)^C`, naturally a subspace of `R^∨`); `W = D_Rmodᵛ`.
+   given `𝔽₂`-module structure (it is `(R^∨)^C`, naturally a subspace of `R^∨`, elementary abelian
+   by `lemma_7_2`); `W = D_Rmodᵛ`.
 2. **`Obs_R : BoundaryLifts(B) → H²(Γ, R)`** — the radical-extension obstruction, per lift `g`, via
    the pushout family (Option A/B).  Per-`λ`, `λ_*(Obs_R(g)) ∈ H²(Γ,𝔽₂)` is exactly the
    `GQ2.SectionEight.CentralObstruction.ob` of the central cover `p_λ`
@@ -100,8 +106,13 @@ the witness.  Cleaner for correctness, but couples P-16d2 to d5/d6 (loses the re
 
    and `#(ElemDual R)^C = |D_R|` is `card_DR` (the `C`-invariant `λ`-kernels ↔ `(R^∨)^C`).  Hence
    the fibre size is `|R|² · |D_R| = z_R` (`RecursionFrame.zR`) on the nose.  So **`hfib` is
-   design-independent modulo the fibre-is-a-`Z¹`-torsor identification** (which again needs the
-   extension link, but only the kernel `R`, not the per-`λ` covers).
+   design-independent modulo the fibre-is-a-`Z¹`-torsor identification** — and that identification
+   uses only the *honest* extension `Y ↠ B` (`RF.piB`, kernel `R`), **not** the per-`λ` scalar
+   covers, so it is not blocked by the compatibility gap above (only `obs`/`hmB`/`hobs` are).  It
+   does still need a twisted-`Z¹(Γ,R)`-torsor layer for `R`-coefficients (the repo has the rank-1
+   `𝔽₂` prototype `fiberLiftEquiv`; general-`R` is new infra).  Note `R ≤ ker π_Y = L_Y`
+   (`K ≤ P ≤ L_Y`, so `Φ(K) ≤ K ≤ L_Y`), so the `π_Y`-framing is `R`-twist-invariant; the
+   `θ_Y`-framing interaction is the one point to check.
 
 ## Files / handoff
 
