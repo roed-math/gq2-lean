@@ -452,6 +452,80 @@ theorem cCoeff_faithful_and_simple (ρ : ContinuousMonoidHom AbsGalQ2 C)
       _ ≤ Nat.card S := hle
   exact (AddSubgroup.card_eq_iff_eq_top S).mp hcards
 
+/-- **Brick (d1)**: pulling back an equivariant factor-set datum along the action of a *central*
+`g₀ : C` (here: any `g₀`, `C` abelian) that is a `q`-isometry yields again an equivariant
+factor-set datum for the *same* `q`. -/
+theorem isEquivariantFactorSet_comap_smul {q : V → ZMod 2} {dat : FactorSet C V}
+    (hdat : IsEquivariantFactorSet q dat) (hinv : IsInvariant C q)
+    (hCcomm : ∀ a b : C, a * b = b * a) (g₀ : C) :
+    IsEquivariantFactorSet q (dat.comap (DistribMulAction.toAddMonoidHom V g₀)) where
+  f_cocycle v w x := by
+    show dat.f (g₀ • (v + w)) (g₀ • x) + dat.f (g₀ • v) (g₀ • w)
+      = dat.f (g₀ • v) (g₀ • (w + x)) + dat.f (g₀ • w) (g₀ • x)
+    rw [smul_add, smul_add]
+    exact hdat.f_cocycle (g₀ • v) (g₀ • w) (g₀ • x)
+  f_diag v := by
+    show dat.f (g₀ • v) (g₀ • v) = q v
+    rw [hdat.f_diag, hinv g₀ v]
+  f_polar v w := by
+    show dat.f (g₀ • v) (g₀ • w) + dat.f (g₀ • w) (g₀ • v) = polar q v w
+    rw [hdat.f_polar]
+    show q (g₀ • v + g₀ • w) + q (g₀ • v) + q (g₀ • w) = polar q v w
+    rw [← smul_add, hinv g₀ (v + w), hinv g₀ v, hinv g₀ w]
+    rfl
+  f_zero_left v := by
+    show dat.f (g₀ • (0 : V)) (g₀ • v) = 0
+    rw [smul_zero]
+    exact hdat.f_zero_left (g₀ • v)
+  f_zero_right v := by
+    show dat.f (g₀ • v) (g₀ • (0 : V)) = 0
+    rw [smul_zero]
+    exact hdat.f_zero_right (g₀ • v)
+  m_quad c v w := by
+    show dat.m c (g₀ • (v + w)) + dat.m c (g₀ • v) + dat.m c (g₀ • w)
+      = dat.f (g₀ • (c • v)) (g₀ • (c • w)) + dat.f (g₀ • v) (g₀ • w)
+    rw [smul_add, hdat.m_quad c (g₀ • v) (g₀ • w),
+      show g₀ • c • v = c • g₀ • v from by rw [smul_smul, smul_smul, hCcomm],
+      show g₀ • c • w = c • g₀ • w from by rw [smul_smul, smul_smul, hCcomm]]
+  m_mul c d v := by
+    show dat.m (c * d) (g₀ • v) = dat.m c (g₀ • (d • v)) + dat.m d (g₀ • v)
+    rw [hdat.m_mul c d (g₀ • v),
+      show g₀ • d • v = d • g₀ • v from by rw [smul_smul, smul_smul, hCcomm]]
+  m_one v := by
+    show dat.m 1 (g₀ • v) = 0
+    exact hdat.m_one (g₀ • v)
+
+/-- **Brick (d2), the explicit datum coboundary**: for `g₀ : C` (abelian `C`), the graph pullback
+along the `g₀`-comapped datum differs from the original by the 2-coboundary of the continuous
+1-cochain `γ ↦ m_{g₀}(b γ)`.  Pointwise this is `m_quad` (turning `f(g₀v, g₀w) − f(v,w)` into the
+`∂(m_{g₀})`-term) plus the two `m_mul` expansions of `m_{g₀·ργ} = m_{ργ·g₀}` and the 1-cocycle
+identity for `b`.  This is the specific instance of Lemma 6.4 datum-independence that the
+unramified Prop 6.18 needs. -/
+theorem graphPullback_comap_smul_sub_mem_B2 {q : V → ZMod 2} (dat : FactorSet C V)
+    (hdat : IsEquivariantFactorSet q dat) (hCcomm : ∀ a b : C, a * b = b * a)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρ : ∀ (γ : AbsGalQ2) (v : V), γ • v = ρ γ • v)
+    (g₀ : C) (b : Z1 AbsGalQ2 V) :
+    graphPullback (dat.comap (DistribMulAction.toAddMonoidHom V g₀)) ρ b.1
+      - graphPullback dat ρ b.1 ∈ B2 AbsGalQ2 (ZMod 2) := by
+  obtain ⟨hbc, hb⟩ := mem_Z1_iff.mp b.2
+  refine (AddSubgroup.mem_map).mpr ⟨fun γ => dat.m g₀ (b.1 γ), ?_, ?_⟩
+  · refine mem_C1_iff.mpr ?_
+    exact (continuous_of_discreteTopology (f := fun v : V => dat.m g₀ v)).comp hbc
+  · funext p
+    obtain ⟨γ, γ'⟩ := p
+    have hbg : b.1 (γ * γ') = b.1 γ + ρ γ • b.1 γ' := by rw [hb γ γ', hρ]
+    have hgp1 : graphPullback (dat.comap (DistribMulAction.toAddMonoidHom V g₀)) ρ b.1 (γ, γ')
+        = dat.f (g₀ • b.1 γ) (g₀ • (ρ γ • b.1 γ')) + dat.m (ρ γ) (g₀ • b.1 γ') := rfl
+    have hgp2 : graphPullback dat ρ b.1 (γ, γ')
+        = dat.f (b.1 γ) (ρ γ • b.1 γ') + dat.m (ρ γ) (b.1 γ') := rfl
+    have hA := hdat.m_quad g₀ (b.1 γ) (ρ γ • b.1 γ')
+    have hB := hdat.m_mul (ρ γ) g₀ (b.1 γ')
+    have hB' := hdat.m_mul g₀ (ρ γ) (b.1 γ')
+    rw [hCcomm (ρ γ) g₀] at hB
+    simp only [dOne, AddMonoidHom.coe_mk, ZeroHom.coe_mk, absGal_smul_zmodTwo, Pi.sub_apply,
+      hgp1, hgp2, hbg]
+    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hA + hB + hB'
+
 /-- **Proposition 6.18, eq. (115), unramified case**: negative Gauss sign,
 `#(Q⁰_loc)⁻¹(0) = 2^{2m−1} − 2^{m−1}`.
 
@@ -516,8 +590,8 @@ theorem prop_6_18_unramified (D : TateDuality 2) (B : BoundaryMaps)
   -- **The Arf invariant is `1` (minus type)** — via `GaussSigns.arf_eq_s_ramified` on `H¹`:
   -- `C = ⟨c tameSigma⟩` is cyclic (`c_cyclic`), its coefficient action on `H¹` is faithful and
   -- simple (`cCoeff_faithful_and_simple`, the Schur transfer), `H¹ ≃+ (Fin 1 → H¹)` trivially,
-  -- and `s = 1` is odd — so `arf (Q0loc) = 1` once `Q0loc` is `C`-invariant (brick (d), the
-  -- one remaining sorry: Lemma 6.4 datum-independence through `lemma_6_14` naturality).
+  -- `s = 1` is odd, and `Q0loc` is `C`-invariant (`lemma_6_14` naturality + the explicit datum
+  -- coboundary `graphPullback_comap_smul_sub_mem_B2`).
   have harf : arf (Q0loc D dat ρ (V := V)) = 1 := by
     have hcyc := c_cyclic c hc hfaith hunram
     have hCcomm := comm_of_cyclic (c tameSigma) hcyc
@@ -545,11 +619,35 @@ theorem prop_6_18_unramified (D : TateDuality 2) (B : BoundaryMaps)
         left_inv := fun x => rfl
         right_inv := fun f => funext fun j => by rw [Subsingleton.elim (0 : Fin 1) j]
         map_add' := fun x y => rfl }
-    -- **brick (d): `Q0loc` is invariant under the coefficient action** (Lemma 6.4
-    -- datum-independence via `lemma_6_14` naturality) — the sole remaining obligation
+    -- **brick (d): `Q0loc` is invariant under the coefficient action** — `lemma_6_14`
+    -- naturality along `i := (g • ·)` plus the explicit datum coboundary
+    -- (`graphPullback_comap_smul_sub_mem_B2`)
     have hqinv : ∀ (g : C) (x : H1 AbsGalQ2 V),
         Q0loc D dat ρ (g • x) = Q0loc D dat ρ x := by
-      sorry
+      intro g x
+      have hicompat : ∀ (γ : AbsGalQ2) (v : V),
+          (DistribMulAction.toAddMonoidHom V g) (γ • v)
+            = γ • (DistribMulAction.toAddMonoidHom V g) v := by
+        intro γ v
+        show g • (γ • v) = γ • (g • v)
+        rw [hρ γ v, hρ γ (g • v), ← mul_smul, ← mul_smul, hCcomm]
+      have hiC : ∀ (c : C) (v : V),
+          (DistribMulAction.toAddMonoidHom V g) (c • v)
+            = c • (DistribMulAction.toAddMonoidHom V g) v := by
+        intro c v
+        show g • (c • v) = c • (g • v)
+        rw [← mul_smul, ← mul_smul, hCcomm]
+      have h614 := RepIndependence.lemma_6_14 D dat ρ
+        (DistribMulAction.toAddMonoidHom V g) continuous_of_discreteTopology hicompat
+        hdat hiC hρ x
+      have hB2 := graphPullback_comap_smul_sub_mem_B2 dat hdat hCcomm ρ hρ g (Quotient.out x)
+      have hQeq : Q0loc D (dat.comap (DistribMulAction.toAddMonoidHom V g)) ρ x
+          = Q0loc D dat ρ x :=
+        congrArg (iotaF D) (RepIndependence.h2ofFun_eq_of_sub_mem_B2 hB2)
+      have hsm : (g • x : H1 AbsGalQ2 V)
+          = mapCoeff1 (DistribMulAction.toAddMonoidHom V g) continuous_of_discreteTopology
+              hicompat x := rfl
+      rw [hsm, ← h614, hQeq]
     have h := GaussSigns.arf_eq_s_ramified (G := C) (V := H1 AbsGalQ2 V) (W := H1 AbsGalQ2 V)
       (c tameSigma) hcyc hfaithH1 ⟨hntH1, fun S hS => hsimpleH1 S (fun g x hx => hS g x hx)⟩
       hH12 hH12 (Q0loc D dat ρ) hquad hnons hqinv m 1 hm le_rfl
