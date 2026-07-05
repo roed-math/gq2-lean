@@ -602,6 +602,27 @@ theorem hfib_holds (hE2 : ∀ e : E, e ^ 2 = 1)
     Nat.card {f : BoundaryLifts b F T // RF.liftB b F f = g} = RF.zR := by
   rw [← Nat.card_congr (fibreCocycleEquiv RF b F hE2 g f₀ hf₀), hcount]
 
+/-! ### `hsep` wrapper: a bare homomorphism lift upgrades to a fibre element -/
+
+/-- **Frattini/framing wrapper for `hsep`**: a bare homomorphism lift `φ : Γ → Y` of `g`
+(`π_B ∘ φ = g`) already lands in the `liftB`-fibre — it is surjective by `surj_of_piB_surj`
+(Frattini) and boundary-framed because the framing factors through `π_B` (`TB_head`/`TB_theta`).
+So `hsep` reduces to producing *any* homomorphism lift of `g` to `Y`; that existence is the
+separation core (`obs g = 0 ⟹ the radical obstruction dies ⟹ `g` lifts to `Y`). -/
+theorem liftB_fibre_nonempty_of_homLift
+    (g : BoundaryLifts b F RF.TB) (φ : ContinuousMonoidHom Γ Y)
+    (hφ : ∀ γ, RF.piB (φ γ) = g.1.1 γ) :
+    ∃ f : BoundaryLifts b F T, RF.liftB b F f = g := by
+  refine ⟨⟨⟨φ, surj_of_piB_surj RF (by rw [funext hφ]; exact g.1.2)⟩, ?_⟩, ?_⟩
+  · intro γ
+    have h1 : T.piY (φ γ) = RF.TB.piY (g.1.1 γ) := by
+      rw [← RF.TB_head, MonoidHom.comp_apply, hφ γ]
+    have h2 : T.thetaY (φ γ) = RF.TB.thetaY (g.1.1 γ) := by
+      rw [← RF.TB_theta, MonoidHom.comp_apply, hφ γ]
+    rw [h1, h2]; exact g.2 γ
+  · apply Subtype.ext; apply Subtype.ext; apply ContinuousMonoidHom.ext
+    intro γ; exact hφ γ
+
 end RFibre
 
 end SectionEight
