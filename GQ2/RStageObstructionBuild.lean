@@ -386,6 +386,57 @@ theorem hmB_holds (D : RObstructionData RF)
     exact Equiv.apply_symm_apply _ _
   rw [hcov]
 
+/-! ## Step 5 — assemble: (136) modulo the two hard classical cores -/
+
+/-- **(136) from an `RObstructionData`, modulo the two hard classical cores.**  The obstruction map
+`obs`, its `𝔽₂`-linearity, the counting identity `hmB`, and the *easy* direction of `hobs` (a lift
+to `Y` kills the obstruction) are all discharged here; the (136) display of Prop 8.9 then follows
+from `stageR136_ofObstruction` once the two remaining classical facts are supplied as hypotheses:
+
+* `hsep` — the **hard separation** (the ⟹ of `hobs`): a `B`-stage boundary lift whose obstruction
+  functional vanishes lifts all the way to `Y`.  Classically this uses `R`-elementary-abelianness
+  (`lemma_7_2`), the Frattini surjectivity `eq_top_of_map_frattini_quotient_top`, and the pushout
+  link between the scalar covers and the single radical extension `Y ↠ B`.
+* `hfib` — the **`z_R` torsor count**: every liftable fibre of `RF.liftB` has size `z_R`, the
+  twisted-`Z¹(Γ,R)`-torsor count `#Z¹(Γ,R) = z_R` (the 5.15/5.16 numeric; B6/B7 enter here).
+
+So the whole (136) numeric is reduced to exactly `hsep` + `hfib`, with the entire obstruction-theory
+machinery in between discharged. -/
+theorem stageR136_ofRObstructionData (D : RObstructionData RF)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (hsep : ∀ g : BoundaryLifts b F RF.TB,
+      obs RF D htriv hcard g.1.1 = 0 → ∃ f : BoundaryLifts b F T, RF.liftB b F f = g)
+    (hfib : ∀ g : BoundaryLifts b F RF.TB, obs RF D htriv hcard g.1.1 = 0 →
+      Nat.card {f : BoundaryLifts b F T // RF.liftB b F f = g} = RF.zR) :
+    (Nat.card RF.DR : ℤ) * exactImageCount b F T
+      = RF.zR * ∑ᶠ l : RF.DR,
+          (2 * (RF.mB b F l : ℤ) - exactImageCount b F RF.TB) := by
+  refine stageR136_ofObstruction RF hfg b F D.DRmod D.toDR D.h0
+    (fun g => obs RF D htriv hcard g.1.1) ?_ ?_ hfib
+  · -- `hmB` — the obstruction-count identity, proved above
+    intro l hl
+    exact hmB_holds RF D htriv hcard b F l hl
+  · -- `hobs` — the liftability biconditional
+    intro g
+    refine ⟨hsep g, ?_⟩
+    -- ⟸ : a lift to `Y` kills the obstruction (compose the `Y`-lift with every scalar cover)
+    rintro ⟨f, hf⟩
+    show obs RF D htriv hcard g.1.1 = 0
+    refine LinearMap.ext fun d => ?_
+    rw [LinearMap.zero_apply]
+    by_cases h : D.toDR d = RF.zeroDR
+    · -- `d = 0`: the functional is linear, so it vanishes at `0`
+      have hd : d = 0 := by rw [← D.toDR.symm_apply_apply d, h, D.h0]
+      rw [hd]; exact map_zero _
+    · -- `d ≠ 0`: `g` lifts through the `λ`-cover because it lifts to `Y`
+      rw [obs_zero_iff_lifts RF D htriv hcard g.1.1 d h]
+      obtain ⟨gc, hgc⟩ :=
+        RCoverData.lifts_scalarCover_of_liftB D.toRCoverData b F (D.toDR d) h f
+      exact ⟨gc, fun γ => by rw [hgc γ, hf]⟩
+
 end Cohomology
 
 end Obstruction
