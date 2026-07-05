@@ -202,6 +202,90 @@ theorem compatA_proved (g : GammaA) : GQ2.nuT (phiA g) = GQ2.nuTwo (phiP g) := b
       rw [phiA_gammaX1, phiP_gammaX1, map_one, nuTwo_piX1]
   exact key g
 
+/-! ## Reciprocity-side reduction kit (P-25b): `tame_reciprocity ⟸` two atomic values
+
+Both `f₁ = ι∘ν_t∘tameF` and `ν_ur∘toAb` factor through `G_{ℚ₂}^{ab}` (abelian target `ℤ₂`); by
+`denseRange_recip` they agree iff they agree on `recip(ℚ₂ˣ)`.  Two continuous homs `ℚ₂ˣ → ℤ₂`
+agreeing on the square-class generators `{−4, 2, −3}` (`units_gen`) are equal — their quotient's
+range is infinitely 2-divisible in `ℤ₂`, hence `0`.  The `−4`-value is automatic (`−4 = (−1)·2²`,
+`−1` is 2-torsion into torsion-free `ℤ₂`), so only `μ(2)` and `μ(−3)` remain as atoms. -/
+
+/-- `x² = 1` in `Multiplicative ℤ₂` forces `x = 1` (`ℤ₂` torsion-free). -/
+lemma mult_padic_sq_eq_one {x : Multiplicative ℤ_[2]} (hx : x ^ 2 = 1) : x = 1 := by
+  have h : Multiplicative.toAdd x + Multiplicative.toAdd x = 0 := by
+    have h0 := congrArg Multiplicative.toAdd hx
+    rw [pow_two] at h0; exact h0
+  have ha : Multiplicative.toAdd x = 0 := by
+    have h2 : (2 : ℤ_[2]) * Multiplicative.toAdd x = 0 := by rw [two_mul]; exact h
+    rcases mul_eq_zero.mp h2 with hc | ha
+    · exact absurd hc (by norm_num)
+    · exact ha
+  exact Multiplicative.toAdd.injective (by rw [ha]; rfl)
+
+/-- An element of `ℤ_[2]` divisible by `2^n` for every `n` is `0`. -/
+lemma padicInt_eq_zero_of_forall_two_pow_dvd {z : ℤ_[2]}
+    (h : ∀ n : ℕ, (2:ℤ_[2])^n ∣ z) : z = 0 := by
+  rw [← norm_eq_zero]
+  by_contra hne
+  have hpos : 0 < ‖z‖ := (norm_nonneg z).lt_of_ne (Ne.symm hne)
+  obtain ⟨n, hn⟩ := exists_pow_lt_of_lt_one hpos (show (2:ℝ)⁻¹ < 1 by norm_num)
+  obtain ⟨w, hw⟩ := h n
+  have h2 : ‖(2:ℤ_[2])‖ = (2:ℝ)⁻¹ := by
+    have hc : (2:ℤ_[2]) = ((2:ℕ):ℤ_[2]) := by norm_cast
+    rw [hc, PadicInt.norm_p]; norm_num
+  have hle : ‖z‖ ≤ (2:ℝ)⁻¹ ^ n :=
+    calc ‖z‖ = ‖(2:ℤ_[2])^n * w‖ := by rw [hw]
+      _ = ‖(2:ℤ_[2])‖^n * ‖w‖ := by rw [norm_mul, norm_pow]
+      _ ≤ ‖(2:ℤ_[2])‖^n * 1 := by gcongr; exact PadicInt.norm_le_one w
+      _ = (2:ℝ)⁻¹ ^ n := by rw [h2, mul_one]
+  exact absurd (lt_of_le_of_lt hle hn) (lt_irrefl _)
+
+/-- **Square-class rigidity of `ℤ₂`-characters of `ℚ₂ˣ`.**  Two continuous homs `ℚ₂ˣ → ℤ₂`
+agreeing on `{2, −3}` are equal: the `−4`-value is automatic, and `units_gen` + infinite
+2-divisibility force the rest. -/
+lemma padic_hom_eq_of_gens (φ ψ : ℚ_[2]ˣ →* Multiplicative ℤ_[2])
+    (h2 : φ uniformizer = ψ uniformizer) (h3 : φ unitNeg3 = ψ unitNeg3) (x : ℚ_[2]ˣ) :
+    φ x = ψ x := by
+  set δ : ℚ_[2]ˣ →* Multiplicative ℤ_[2] := φ / ψ with hδdef
+  have hδ2 : δ uniformizer = 1 := by rw [hδdef, MonoidHom.div_apply, h2, div_self']
+  have hδ3 : δ unitNeg3 = 1 := by rw [hδdef, MonoidHom.div_apply, h3, div_self']
+  -- `−4 = (−1)·2²`; `−1` is 2-torsion, so `δ(−4) = 1` automatically
+  have hdecomp : unitNeg4 = unitEmbed (-1) * uniformizer ^ 2 := by
+    apply Units.ext
+    push_cast [unitNeg4, uniformizer, unitEmbed_val]
+    norm_num
+  have hδneg1 : δ (unitEmbed (-1)) = 1 := by
+    apply mult_padic_sq_eq_one
+    rw [← map_pow, show (unitEmbed (-1 : ℤ_[2]ˣ)) ^ 2 = 1 by rw [← map_pow]; norm_num, map_one]
+  have hδ4 : δ unitNeg4 = 1 := by
+    rw [hdecomp, map_mul, map_pow, hδneg1, hδ2, one_pow, one_mul]
+  -- `δ` kills the square-class generators, so `δ x` is infinitely 2-divisible
+  have hker : ∀ y ∈ ({unitNeg4, uniformizer, unitNeg3} : Set ℚ_[2]ˣ), δ y = 1 := by
+    rintro y (rfl | rfl | rfl)
+    exacts [hδ4, hδ2, hδ3]
+  have hstep : ∀ z : ℚ_[2]ˣ, ∃ t,
+      Multiplicative.toAdd (δ z) = 2 * Multiplicative.toAdd (δ t) := by
+    intro z
+    obtain ⟨s, hs, t, hz⟩ := units_gen z
+    refine ⟨t, ?_⟩
+    have hds : δ s = 1 :=
+      (Subgroup.closure_le δ.ker).mpr (fun y hy => MonoidHom.mem_ker.mpr (hker y hy)) hs
+    rw [hz, map_mul, hds, one_mul, map_pow, pow_two, two_mul]; rfl
+  have hdvd : ∀ n : ℕ, ∀ z, (2:ℤ_[2])^n ∣ Multiplicative.toAdd (δ z) := by
+    intro n
+    induction n with
+    | zero => intro z; simp
+    | succ k ih =>
+        intro z
+        obtain ⟨t, ht⟩ := hstep z
+        obtain ⟨w, hw⟩ := ih t
+        exact ⟨w, by rw [ht, hw]; ring⟩
+  have hzero : Multiplicative.toAdd (δ x) = 0 :=
+    padicInt_eq_zero_of_forall_two_pow_dvd (fun n => hdvd n x)
+  have hδ1 : δ x = 1 := Multiplicative.toAdd.injective (by rw [hzero]; rfl)
+  rw [hδdef, MonoidHom.div_apply] at hδ1
+  exact div_eq_one.mp hδ1
+
 /-! ## The `G_{ℚ₂}` side -/
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
@@ -268,11 +352,54 @@ theorem ker_pro2FHom : pro2FHom.toMonoidHom.ker = proPKernel 2 AbsGalQ2 := by
     have hmk : maxProPMk 2 AbsGalQ2 x = 1 := (QuotientGroup.eq_one_iff x).mpr h
     rw [hmk, map_one]
 
-/-- **Tame reciprocity — the one arithmetic gap** (see module docstring).  `ι(ν_t(tameF g))`
-equals `ν_ur(toAb g)`; equivalently, the tame quotient's unramified character is `ν_ur`. -/
+/-- The tame unramified character `f₁ = ι∘ν_t∘tameF : G_{ℚ₂} → Multiplicative ℤ₂`. -/
+noncomputable def tameCharRaw : ContinuousMonoidHom AbsGalQ2 (Multiplicative ℤ_[2]) :=
+  (⟨locPro2.choose.toMulEquiv.toMonoidHom, locPro2.choose.continuous_toFun⟩ :
+    ContinuousMonoidHom Ztwo (Multiplicative ℤ_[2])).comp (GQ2.nuT.comp tameFHom)
+
+/-- `f₁` descended through the topological abelianization `G_{ℚ₂}^{ab}`. -/
+noncomputable def tameChar : ContinuousMonoidHom AbsGalQ2ab (Multiplicative ℤ_[2]) :=
+  abLiftG tameCharRaw
+
+@[simp] lemma tameChar_toAb (g : AbsGalQ2) :
+    tameChar (toAb g) = locPro2.choose (GQ2.nuT (tameFHom g)) :=
+  abLiftG_abMk tameCharRaw g
+
+/-- **Atom (F)** — the uniformizer: `f₁(rec 2) = ofAdd(−1)` (arithmetic Frobenius, geometric
+coordinate `−1`).  Ticket **P-25c/d/e**: derive from B5 `norm_reciprocity` on the unramified
+tower.  See `docs/p25-tame-reciprocity-plan.md`. -/
+theorem tame_recip_uniformizer :
+    tameChar ((localReciprocity).recip uniformizer)
+      = Multiplicative.ofAdd ((-1 : ℤ) : ℤ_[2]) := by
+  sorry
+
+/-- **Atom (U₋₃)** — the unit `−3`: `f₁(rec(−3)) = 1` (unramified-trivial).  Ticket **P-25c/d/e**;
+see `docs/p25-tame-reciprocity-plan.md`. -/
+theorem tame_recip_unitNeg3 :
+    tameChar ((localReciprocity).recip unitNeg3) = 1 := by
+  sorry
+
+/-- **Tame reciprocity** (P-25b reduction): `ι(ν_t(tameF g)) = ν_ur(toAb g)`.  Both sides factor
+through `G_{ℚ₂}^{ab}`; agree on the dense image of `recip` by `padic_hom_eq_of_gens`, whose two
+generator inputs are exactly the atoms `tame_recip_uniformizer` (F) and `tame_recip_unitNeg3`
+(U₋₃) matched against `nu_ur_recip_*`. -/
 theorem tame_reciprocity (g : AbsGalQ2) :
     locPro2.choose (GQ2.nuT (tameFHom g)) = (localReciprocity).nu_ur (toAb g) := by
-  sorry
+  have key : ⇑tameChar = ⇑(localReciprocity).nu_ur := by
+    apply Continuous.ext_on (localReciprocity).denseRange_recip tameChar.continuous_toFun
+      (localReciprocity).continuous_nu_ur
+    rintro _ ⟨u, rfl⟩
+    refine padic_hom_eq_of_gens (tameChar.toMonoidHom.comp (localReciprocity).recip)
+      ((localReciprocity).nu_ur.comp (localReciprocity).recip) ?_ ?_ u
+    · show tameChar ((localReciprocity).recip uniformizer)
+        = (localReciprocity).nu_ur ((localReciprocity).recip uniformizer)
+      rw [tame_recip_uniformizer, nu_ur_recip_uniformizer']
+    · show tameChar ((localReciprocity).recip unitNeg3)
+        = (localReciprocity).nu_ur ((localReciprocity).recip unitNeg3)
+      rw [tame_recip_unitNeg3, nu_ur_recip_unitNeg3, Int.cast_zero, ofAdd_zero]
+  have h := congrFun key (toAb g)
+  rw [tameChar_toAb] at h
+  exact h
 
 /-- `ν_t ∘ tameF = ν₂ ∘ pro2F` on `G_{ℚ₂}` — from `tame_reciprocity` and `prop_3_10_local_marked`. -/
 theorem compatF_proved (g : AbsGalQ2) : GQ2.nuT (tameFHom g) = GQ2.nuTwo (pro2FHom g) := by
