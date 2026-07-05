@@ -109,17 +109,26 @@ theorem comm_of_cyclic (t : C) (hcyc : ∀ x : C, x ∈ Subgroup.zpowers t) (a b
   obtain ⟨j, hj⟩ := Subgroup.mem_zpowers_iff.mp (hcyc b)
   rw [← hi, ← hj, ← zpow_add, ← zpow_add, add_comm]
 
-/-- **The coefficient action of a commutative `C` on `H¹(G_ℚ₂, V)`** (brick toward
-`arf(Q0loc)=1`): each `c • ·` is a `G_ℚ₂`-equivariant additive auto of `V` — equivariance is
-commutativity of `C` with the `ρ`-factored `G_ℚ₂`-action (`hρ`) — so `mapCoeff1 (c • ·)` acts on
-`H¹`; functoriality (`mapCoeff1_id`/`mapCoeff1_comp`) gives the `DistribMulAction` axioms. -/
-noncomputable def cActionH1 (ρ : ContinuousMonoidHom AbsGalQ2 C)
+/-- **The coefficient endomorphism of `H¹(G_ℚ₂, V)` attached to `c : C`** (for a `ρ`-factored
+action with `C` commutative): `c • ·` is a `G_ℚ₂`-equivariant additive endo of `V` —
+equivariance is commutativity of `C` with the `ρ`-factored action — so it acts on `H¹` via
+`mapCoeff1`. -/
+noncomputable def cCoeff (ρ : ContinuousMonoidHom AbsGalQ2 C)
     (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
-    (hCcomm : ∀ a b : C, a * b = b * a) : DistribMulAction C (H1 AbsGalQ2 V) where
-  smul c := mapCoeff1 (DistribMulAction.toAddMonoidHom V c) continuous_of_discreteTopology
+    (hCcomm : ∀ a b : C, a * b = b * a) (c : C) :
+    H1 AbsGalQ2 V →+ H1 AbsGalQ2 V :=
+  mapCoeff1 (DistribMulAction.toAddMonoidHom V c) continuous_of_discreteTopology
     (fun g v => by
       show c • (g • v) = g • (c • v)
       rw [hρ g v, hρ g (c • v), ← mul_smul, ← mul_smul, hCcomm])
+
+/-- **The coefficient action of a commutative `C` on `H¹(G_ℚ₂, V)`** (brick toward
+`arf(Q0loc)=1`): the `DistribMulAction` axioms for `cCoeff` descend from `mapCoeff1`
+functoriality (`mapCoeff1_id`/`mapCoeff1_comp`). -/
+noncomputable def cActionH1 (ρ : ContinuousMonoidHom AbsGalQ2 C)
+    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (hCcomm : ∀ a b : C, a * b = b * a) : DistribMulAction C (H1 AbsGalQ2 V) where
+  smul c := cCoeff ρ hρ hCcomm c
   one_smul x := by
     induction x using QuotientAddGroup.induction_on with
     | _ z =>
@@ -139,6 +148,309 @@ noncomputable def cActionH1 (ρ : ContinuousMonoidHom AbsGalQ2 C)
       exact Subtype.ext (funext fun g => mul_smul a b _)
   smul_zero c := map_zero _
   smul_add c x y := map_add _ _ _
+
+/-- **The Schur transfer (brick (c))**: for a cyclic `C = ⟨T⟩` acting faithfully and simply on a
+finite nontrivial `V`, the coefficient action `cCoeff` on `H¹(G_ℚ₂, V)` is again *faithful* and
+*simple*, provided `#H¹ = #V`.
+
+Route: `F := 𝔽₂⟨σ⟩ ⊆ End(V)` (`σ` = the `T`-action) is a finite domain — kernels of its nonzero
+elements are `C`-stable, so trivial by simplicity, and injective ⟹ bijective on finite `V` —
+hence a *field* by little Wedderburn (`Finite.isDomain_to_isField`; no commutativity needed as
+input).  The orbit map `F → V`, `f ↦ f v₀` at any `v₀ ≠ 0` is injective with `C`-stable range,
+so bijective by simplicity: `#F = #V`.  `mapCoeff1` transfers `F` multiplicatively/additively to
+`End(H¹)`, where units of `F` stay pointwise-invertible; the orbit map `F → H¹` at any
+`0 ≠ x₀ ∈ S` for a `C`-stable `S` is injective with range inside `S`, so
+`#S ≥ #F = #V = #H¹` forces `S = ⊤`. -/
+theorem cCoeff_faithful_and_simple (ρ : ContinuousMonoidHom AbsGalQ2 C)
+    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (hCcomm : ∀ a b : C, a * b = b * a)
+    (T : C) (hcyc : ∀ x : C, x ∈ Subgroup.zpowers T)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hVnt : Nontrivial V)
+    (hcardeq : Nat.card (H1 AbsGalQ2 V) = Nat.card V) :
+    (∀ c : C, (∀ x : H1 AbsGalQ2 V, cCoeff ρ hρ hCcomm c x = x) → c = 1) ∧
+    Nontrivial (H1 AbsGalQ2 V) ∧
+    ∀ S : AddSubgroup (H1 AbsGalQ2 V),
+      (∀ (c : C), ∀ x ∈ S, cCoeff ρ hρ hCcomm c x ∈ S) → S = ⊥ ∨ S = ⊤ := by
+  classical
+  haveI : Finite (AddMonoid.End V) :=
+    Finite.of_injective (fun f => (f : V → V)) DFunLike.coe_injective
+  haveI : Finite (H1 AbsGalQ2 V) := Foundations.finite_H1 V
+  haveI hH1nt : Nontrivial (H1 AbsGalQ2 V) := by
+    rw [← Finite.one_lt_card_iff_nontrivial, hcardeq, Finite.one_lt_card_iff_nontrivial]
+    exact hVnt
+  set σ : AddMonoid.End V := DistribMulAction.toAddMonoidEnd C V T with hσdef
+  set F : Subring (AddMonoid.End V) := Subring.closure {σ} with hFdef
+  -- powers of `T` exhaust `C`
+  have hfin : IsOfFinOrder T :=
+    isOfFinOrder_iff_pow_eq_one.mpr ⟨orderOf T, orderOf_pos T, pow_orderOf_eq_one T⟩
+  have hnatpow : ∀ g : C, ∃ k : ℕ, T ^ k = g := fun g =>
+    (Submonoid.mem_powers_iff g T).mp (hfin.mem_powers_iff_mem_zpowers.mpr (hcyc g))
+  -- the action of any `c : C`, as an element of `End V`, is a power of `σ`
+  have hactapp : ∀ (c : C) (v : V), DistribMulAction.toAddMonoidEnd C V c v = c • v :=
+    fun c v => rfl
+  have hactpow : ∀ c : C, ∃ k : ℕ, DistribMulAction.toAddMonoidEnd C V c = σ ^ k := by
+    intro c
+    obtain ⟨k, hk⟩ := hnatpow c
+    exact ⟨k, by rw [← hk, map_pow]⟩
+  have hmemAct : ∀ c : C, DistribMulAction.toAddMonoidEnd C V c ∈ F := by
+    intro c
+    obtain ⟨k, hk⟩ := hactpow c
+    rw [hk]
+    exact pow_mem (Subring.subset_closure (Set.mem_singleton σ)) k
+  -- every element of `F` commutes with `σ`
+  have hcommσ : ∀ f ∈ F, f * σ = σ * f := by
+    intro f hf
+    induction hf using Subring.closure_induction with
+    | mem x hx => rw [Set.mem_singleton_iff.mp hx]
+    | zero => rw [zero_mul, mul_zero]
+    | one => rw [one_mul, mul_one]
+    | add x y hx hy ihx ihy => rw [add_mul, mul_add, ihx, ihy]
+    | neg x hx ih => rw [neg_mul, mul_neg, ih]
+    | mul x y hx hy ihx ihy => rw [mul_assoc, ihy, ← mul_assoc, ihx, mul_assoc]
+  -- `C`-equivariance of every `f ∈ F`
+  have hCequivF : ∀ f ∈ F, ∀ (c : C) (v : V), f (c • v) = c • f v := by
+    intro f hf c v
+    obtain ⟨k, hk⟩ := hactpow c
+    have hcomm : f * σ ^ k = σ ^ k * f := (Commute.pow_right (hcommσ f hf) k)
+    have h1 : ∀ w : V, c • w = (σ ^ k) w := fun w => by rw [← hk]; rfl
+    calc f (c • v) = f ((σ ^ k) v) := by rw [h1]
+      _ = (f * σ ^ k) v := rfl
+      _ = (σ ^ k * f) v := by rw [hcomm]
+      _ = (σ ^ k) (f v) := rfl
+      _ = c • f v := (h1 (f v)).symm
+  -- **Schur**: nonzero elements of `F` are bijective on `V`
+  have hbij : ∀ f ∈ F, f ≠ 0 → Function.Bijective f := by
+    intro f hf hne
+    let K : AddSubgroup V :=
+      { carrier := {v | f v = 0}
+        zero_mem' := map_zero f
+        add_mem' := fun {a b} ha hb => by
+          show f (a + b) = 0
+          rw [map_add, show f a = 0 from ha, show f b = 0 from hb, add_zero]
+        neg_mem' := fun {a} ha => by
+          show f (-a) = 0
+          rw [map_neg, show f a = 0 from ha, neg_zero] }
+    have hKstab : ∀ (c : C), ∀ v ∈ K, c • v ∈ K := by
+      intro c v hv
+      show f (c • v) = 0
+      rw [hCequivF f hf c v, show f v = 0 from hv, smul_zero]
+    rcases hsimple K hKstab with hb | ht
+    · refine Finite.injective_iff_bijective.mp (fun a b hab => ?_)
+      have hmem : a - b ∈ K := by
+        show f (a - b) = 0
+        rw [map_sub, hab, sub_self]
+      rw [hb, AddSubgroup.mem_bot] at hmem
+      exact sub_eq_zero.mp hmem
+    · refine absurd (AddMonoidHom.ext fun v => ?_) hne
+      have hmem : v ∈ K := ht ▸ AddSubgroup.mem_top v
+      exact hmem
+  -- `F` is a finite field (little Wedderburn — no commutativity input needed)
+  haveI : Nontrivial F := by
+    refine ⟨0, 1, fun h => ?_⟩
+    obtain ⟨v, hv⟩ := exists_ne (0 : V)
+    apply hv
+    have h2 : ((0 : F) : AddMonoid.End V) v = ((1 : F) : AddMonoid.End V) v := by rw [h]
+    simpa using h2.symm
+  haveI : NoZeroDivisors F := by
+    refine ⟨fun {a b} hab => ?_⟩
+    by_contra hcon
+    push_neg at hcon
+    obtain ⟨ha, hb⟩ := hcon
+    have hbbij : Function.Bijective (b : AddMonoid.End V) :=
+      hbij b.1 b.2 (fun h0 => hb (Subtype.ext h0))
+    have habij : Function.Bijective (a : AddMonoid.End V) :=
+      hbij a.1 a.2 (fun h0 => ha (Subtype.ext h0))
+    obtain ⟨v, hv⟩ := exists_ne (0 : V)
+    have h0 : (a : AddMonoid.End V) ((b : AddMonoid.End V) v) = 0 := by
+      have := congrArg (fun g : F => (g : AddMonoid.End V) v) hab
+      simpa using this
+    have hbv : (b : AddMonoid.End V) v = 0 :=
+      habij.1 (by rw [h0, map_zero])
+    exact hv (hbbij.1 (by rw [hbv, map_zero]))
+  haveI : IsDomain F := NoZeroDivisors.to_isDomain F
+  have hfield : IsField F := Finite.isDomain_to_isField F
+  -- the orbit bijection `F ≃ V` at any `v₀ ≠ 0`
+  obtain ⟨v₀, hv₀⟩ := exists_ne (0 : V)
+  have hθinj : Function.Injective (fun f : F => (f : AddMonoid.End V) v₀) := by
+    intro f g hfg
+    have hfg' : (f : AddMonoid.End V) v₀ = (g : AddMonoid.End V) v₀ := hfg
+    by_contra hne
+    have hd0 : ((f - g : F) : AddMonoid.End V) ≠ 0 :=
+      fun h0 => hne (sub_eq_zero.mp (Subtype.ext h0))
+    have hdbij := hbij _ (f - g).2 hd0
+    apply hv₀
+    apply hdbij.1
+    rw [map_zero]
+    show (f : AddMonoid.End V) v₀ - (g : AddMonoid.End V) v₀ = 0
+    rw [hfg', sub_self]
+  have hθsurj : Function.Surjective (fun f : F => (f : AddMonoid.End V) v₀) := by
+    let R0 : AddSubgroup V :=
+      { carrier := Set.range (fun f : F => (f : AddMonoid.End V) v₀)
+        zero_mem' := ⟨0, rfl⟩
+        add_mem' := by
+          rintro x y ⟨fx, hfx⟩ ⟨fy, hfy⟩
+          have hfx' : (fx : AddMonoid.End V) v₀ = x := hfx
+          have hfy' : (fy : AddMonoid.End V) v₀ = y := hfy
+          refine ⟨fx + fy, ?_⟩
+          show (fx : AddMonoid.End V) v₀ + (fy : AddMonoid.End V) v₀ = x + y
+          rw [hfx', hfy']
+        neg_mem' := by
+          rintro x ⟨fx, hfx⟩
+          have hfx' : (fx : AddMonoid.End V) v₀ = x := hfx
+          refine ⟨-fx, ?_⟩
+          show -((fx : AddMonoid.End V) v₀) = -x
+          rw [hfx'] }
+    have hRstab : ∀ (c : C), ∀ v ∈ R0, c • v ∈ R0 := by
+      rintro c v ⟨f, hf⟩
+      have hf' : (f : AddMonoid.End V) v₀ = v := hf
+      refine ⟨⟨DistribMulAction.toAddMonoidEnd C V c, hmemAct c⟩ * f, ?_⟩
+      show DistribMulAction.toAddMonoidEnd C V c ((f : AddMonoid.End V) v₀) = c • v
+      rw [hf', hactapp]
+    rcases hsimple R0 hRstab with hb | ht
+    · exfalso
+      have h1 : v₀ ∈ R0 := ⟨1, rfl⟩
+      rw [hb, AddSubgroup.mem_bot] at h1
+      exact hv₀ h1
+    · intro v
+      exact (ht ▸ AddSubgroup.mem_top v : v ∈ R0)
+  have hFcard : Nat.card F = Nat.card V :=
+    Nat.card_eq_of_bijective _ ⟨hθinj, hθsurj⟩
+  -- === the transfer `Φ : F → End(H¹)` via `mapCoeff1` ===
+  have hGequivF : ∀ f (hf : f ∈ F), ∀ (γ : AbsGalQ2) (v : V), f (γ • v) = γ • f v := by
+    intro f hf γ v
+    rw [hρ γ v, hρ γ (f v)]
+    exact hCequivF f hf (ρ γ) v
+  set Φ : F → (H1 AbsGalQ2 V →+ H1 AbsGalQ2 V) := fun f =>
+    mapCoeff1 (f : AddMonoid.End V) continuous_of_discreteTopology (hGequivF f.1 f.2)
+    with hΦdef
+  have hΦmul : ∀ (f g : F) (x : H1 AbsGalQ2 V), Φ (f * g) x = Φ f (Φ g x) := by
+    intro f g x
+    induction x using QuotientAddGroup.induction_on with
+    | _ z => rfl
+  have hΦadd : ∀ (f g : F) (x : H1 AbsGalQ2 V), Φ (f + g) x = Φ f x + Φ g x := by
+    intro f g x
+    induction x using QuotientAddGroup.induction_on with
+    | _ z => rfl
+  have hΦone : ∀ x : H1 AbsGalQ2 V, Φ 1 x = x := by
+    intro x
+    induction x using QuotientAddGroup.induction_on with
+    | _ z => rfl
+  have hΦzero : ∀ x : H1 AbsGalQ2 V, Φ 0 x = 0 := by
+    intro x
+    induction x using QuotientAddGroup.induction_on with
+    | _ z => rfl
+  have hΦsub : ∀ (f g : F) (x : H1 AbsGalQ2 V), Φ (f - g) x = Φ f x - Φ g x := by
+    intro f g x
+    have h1 := hΦadd (f - g) g x
+    rw [sub_add_cancel] at h1
+    rw [eq_sub_iff_add_eq, ← h1]
+  -- `cCoeff` is `Φ` at the action element
+  have hcCoeffΦ : ∀ (c : C) (x : H1 AbsGalQ2 V),
+      cCoeff ρ hρ hCcomm c x = Φ ⟨DistribMulAction.toAddMonoidEnd C V c, hmemAct c⟩ x := by
+    intro c x
+    induction x using QuotientAddGroup.induction_on with
+    | _ z => rfl
+  -- === (c1) faithfulness on `H¹` ===
+  have hfaithH1 : ∀ c : C, (∀ x : H1 AbsGalQ2 V, cCoeff ρ hρ hCcomm c x = x) → c = 1 := by
+    intro c hcx
+    set u : F := ⟨DistribMulAction.toAddMonoidEnd C V c, hmemAct c⟩ - 1 with hudef
+    by_cases hu : u = 0
+    · -- `c` acts trivially on `V`
+      apply hfaith c
+      intro v
+      have h1 : (u : AddMonoid.End V) v = ((0 : F) : AddMonoid.End V) v := by rw [hu]
+      have h2 : c • v - v = 0 := by
+        have h3 : (u : AddMonoid.End V) v = c • v - v := rfl
+        rw [← h3, h1]
+        rfl
+      exact sub_eq_zero.mp h2
+    · exfalso
+      obtain ⟨w, hw⟩ := hfield.mul_inv_cancel hu
+      have hΦu : ∀ x : H1 AbsGalQ2 V, Φ u x = 0 := by
+        intro x
+        rw [hudef, hΦsub, ← hcCoeffΦ, hcx x, hΦone, sub_self]
+      obtain ⟨x, hx⟩ := exists_ne (0 : H1 AbsGalQ2 V)
+      apply hx
+      have hcm : u * w = w * u := (hfield.mul_comm u w)
+      calc x = Φ 1 x := (hΦone x).symm
+        _ = Φ (w * u) x := by rw [← hw, hcm]
+        _ = Φ w (Φ u x) := hΦmul w u x
+        _ = Φ w 0 := by rw [hΦu]
+        _ = 0 := map_zero _
+  refine ⟨hfaithH1, hH1nt, ?_⟩
+  -- === (c2) simplicity of `H¹` ===
+  intro S hS
+  by_cases hSbot : S = ⊥
+  · exact Or.inl hSbot
+  refine Or.inr ?_
+  have hx₀ : ∃ x ∈ S, x ≠ 0 := by
+    by_contra hcon
+    push_neg at hcon
+    exact hSbot ((AddSubgroup.eq_bot_iff_forall S).mpr hcon)
+  obtain ⟨x₀, hx₀S, hx₀ne⟩ := hx₀
+  -- `S` is stable under all of `Φ(F)`
+  have hFS : ∀ (f : AddMonoid.End V) (hf : f ∈ F), ∀ x ∈ S, Φ ⟨f, hf⟩ x ∈ S := by
+    intro f hf
+    induction hf using Subring.closure_induction with
+    | mem y hy =>
+      intro x hx
+      have hyσ := Set.mem_singleton_iff.mp hy
+      subst hyσ
+      have h1 : Φ ⟨σ, Subring.subset_closure (Set.mem_singleton σ)⟩ x
+          = cCoeff ρ hρ hCcomm T x := (hcCoeffΦ T x).symm
+      rw [h1]
+      exact hS T x hx
+    | zero =>
+      intro x hx
+      show Φ (0 : F) x ∈ S
+      rw [hΦzero]
+      exact S.zero_mem
+    | one =>
+      intro x hx
+      show Φ (1 : F) x ∈ S
+      rw [hΦone]
+      exact hx
+    | add y z hy hz ihy ihz =>
+      intro x hx
+      have h1 : Φ (⟨y, hy⟩ + ⟨z, hz⟩ : F) x = Φ ⟨y, hy⟩ x + Φ ⟨z, hz⟩ x := hΦadd _ _ x
+      exact h1 ▸ S.add_mem (ihy x hx) (ihz x hx)
+    | neg y hy ih =>
+      intro x hx
+      have h1 : Φ (-⟨y, hy⟩ : F) x = -Φ ⟨y, hy⟩ x := by
+        have h2 := hΦsub 0 ⟨y, hy⟩ x
+        rw [zero_sub, hΦzero, zero_sub] at h2
+        exact h2
+      exact h1 ▸ S.neg_mem (ih x hx)
+    | mul y z hy hz ihy ihz =>
+      intro x hx
+      have h1 : Φ (⟨y, hy⟩ * ⟨z, hz⟩ : F) x = Φ ⟨y, hy⟩ (Φ ⟨z, hz⟩ x) := hΦmul _ _ x
+      exact h1 ▸ ihy _ (ihz x hx)
+  -- the injection `F ↪ S` at `x₀`
+  have hΨinj : Function.Injective (fun f : F => Φ f x₀) := by
+    intro f g hfg
+    have hfg' : Φ f x₀ = Φ g x₀ := hfg
+    by_contra hne
+    have hd : f - g ≠ 0 := sub_ne_zero.mpr hne
+    obtain ⟨w, hw⟩ := hfield.mul_inv_cancel hd
+    apply hx₀ne
+    have hcm : (f - g) * w = w * (f - g) := hfield.mul_comm _ _
+    calc x₀ = Φ 1 x₀ := (hΦone x₀).symm
+      _ = Φ (w * (f - g)) x₀ := by rw [← hw, hcm]
+      _ = Φ w (Φ (f - g) x₀) := hΦmul _ _ x₀
+      _ = Φ w 0 := by rw [hΦsub, hfg', sub_self]
+      _ = 0 := map_zero _
+  have hle : Nat.card F ≤ Nat.card S := by
+    refine Nat.card_le_card_of_injective
+      (fun f : F => (⟨Φ f x₀, hFS f.1 f.2 x₀ hx₀S⟩ : S)) (fun a b hab => ?_)
+    exact hΨinj (congrArg Subtype.val hab)
+  have hcards : Nat.card S = Nat.card (H1 AbsGalQ2 V) := by
+    refine le_antisymm (AddSubgroup.card_le_card_addGroup S) ?_
+    calc Nat.card (H1 AbsGalQ2 V) = Nat.card V := hcardeq
+      _ = Nat.card F := hFcard.symm
+      _ ≤ Nat.card S := hle
+  exact (AddSubgroup.card_eq_iff_eq_top S).mp hcards
 
 /-- **Proposition 6.18, eq. (115), unramified case**: negative Gauss sign,
 `#(Q⁰_loc)⁻¹(0) = 2^{2m−1} − 2^{m−1}`.
