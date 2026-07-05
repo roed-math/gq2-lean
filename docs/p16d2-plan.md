@@ -25,16 +25,33 @@ display of Prop 8.9, for the concrete R-stage.  **Deps** P-13f (`prop_5_15`, lan
   "obstruction module" object the ticket names, and it is the interface the concrete witness will
   target.
 
-* 🔨 **Option A underway** (user-approved 2026-07-05) — `GQ2/RStageObstructionBuild.lean`, std-3:
-  the compat structure `RCoverData RF` (the `coverMap_λ : Y →* (scalarCover λ).cover` family with
-  `p_λ ∘ coverMap_λ = π_B`) is defined, and the **easy `hobs` direction**
-  `lifts_scalarCover_of_liftB` (lifts-to-`Y` ⟹ lifts-through-every-`p_λ`) is proved.  Kept
-  self-contained (no edit to the co-owned `Enrichment`; foldable in later).  **Remaining** = the
-  obstruction-theory core (steps 2–5 below): the obstruction map `obs` + its linearity, the hard
-  separation, and the `z_R` torsor count — a multi-session build needing a new twisted
-  `Z¹(Γ,R)` / `H²(Γ,R)` cochain layer for the `R`-extension (and one more `RCoverData` field, the
-  `D_R ≃ (R^∨)^C` functional link, for `obs`/`toDR`).  The reduction
-  `stageR136_ofObstruction` is the sink these feed.
+* 🔨 **Option A underway** (user-approved 2026-07-05) — `GQ2/RStageObstructionBuild.lean`, std-3,
+  sorry-free.  Landed so far:
+  - `RCoverData RF` — the compat structure (`coverMap_λ : Y →* (scalarCover λ).cover` with
+    `p_λ ∘ coverMap_λ = π_B`), kept self-contained (no `Enrichment` edit; foldable in later);
+  - `lifts_scalarCover_of_liftB` — the **easy `hobs` direction** (lifts-to-`Y` ⟹
+    lifts-through-every-`p_λ`);
+  - **`trivialRCD`** — the `M = ⊥` `RadicalCoverData` wrapping any bare `CentralCover`, which
+    **unlocks the whole `CentralObstruction` engine** (`ob`, `central_iff_ob_eq_zero`) for plain
+    "a hom lifts through the cover".  This is the reuse hinge: `scalarCover λ` is a central
+    𝔽₂-cover of `B`, and its `MLifts.Central` at `M = ⊥` is exactly the frame's `mB`-liftability.
+
+  **Remaining** = the obstruction-theory core (steps 2–5), a coherent multi-piece unit best done in
+  one focused pass:
+  1. **`mB ⟺ ob` bridge** — instantiate `trivialRCD (scalarCover λ)` at the frame lift; the trivial
+     `Γ`-action on `ZMod 2` + `htriv` is the `letI actZ := … ; htriv := fun _ _ => rfl` pattern from
+     `RadicalEdgeLocal` (lines 438–445); `central_iff_ob_eq_zero` then gives
+     `mB-liftable λ f ⟺ ob_λ(f) = 0`.  `#H²(Γ,𝔽₂)=2` enters here as the **source numeric**
+     (`prop_5_16`/`prop_5_15`), giving `H²(Γ,𝔽₂) ≅ 𝔽₂` so `obs g λ := isoℤ₂(ob_λ(g)) ∈ 𝔽₂`.
+  2. **`obs` linearity** — a single set-lift `s : B → Y` gives `ob_λ(g) = [func_λ ∘ Obs^s_g]` with
+     `func_λ = zsign ∘ coverMap_λ : R → 𝔽₂` (additive on `ker p_λ`), so `obs` is linear once the
+     family `λ ↦ func_λ` is (a new `RCoverData` field: the `D_R ≃ (R^∨)^C` pairing, `pair` linear).
+     `hmB` is then immediate from the bridge.
+  3. **`hobs`** (hard ⟸) — `obs g = 0` ⟹ all `[func_λ ∘ Obs^s_g] = 0`; since `func` spans `(R^∨)^C`
+     and `R` elem-abelian, `Obs^s_g` is a coboundary, so `g` lifts to `Y` (Frattini surjectivity).
+  4. **`hfib`** — the fibre of `liftB` over a liftable `g` is a `Z¹(Γ,R)`-torsor (uses the honest
+     `π_B`, not the covers); `#Z¹(Γ,R) = z_R` is the source numeric + `card_DR`.
+  5. **assemble** — feed `stageR136_ofObstruction` (the sink).
 
 ## The gap: the scalar covers are not linked to the radical extension
 
