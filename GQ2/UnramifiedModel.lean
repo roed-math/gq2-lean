@@ -96,6 +96,22 @@ theorem prop_6_18_unramified (D : TateDuality 2) (B : BoundaryMaps)
       card_H1_eq_card_of_simple V D ρ.toMonoidHom hρsurj hρ hsimple h₀ hmoves q hq hns hinv hV2,
       hcard]
   -- **The Arf invariant is `1` (minus type)** — the crux, via the free norm-one action.
+  -- CONSTRUCTION PLAN (the remaining P-15f3 work):
+  --   `arf (Q0loc) = 1` follows from `GQ2.arf_eq_of_free_norm_one (Q0loc) hquad hnons m 1 hm le_rfl`
+  --   `(by rw [Nat.card_eq_fintype_card, hcardH1]) U hUcard hU0 hUq hfree` (giving `arf = (1:ZMod 2)`),
+  --   where `U` is a free norm-one action of order `2^m+1` on `H¹`.  Build `U` from the Schur field:
+  --   (1) `C` is cyclic hence abelian (`hunram` ⟹ `c tameTau = 1`; `hc`+tame gen ⟹ `C=⟨c tameSigma⟩`);
+  --       so `R := MonoidAlgebra (ZMod 2) C` is commutative and `V` is a simple `R`-module (`hsimple`).
+  --   (2) `D := Module.End R V` is a finite division ring (`Module.End.instDivisionRing`, Schur) hence a
+  --       FIELD (`littleWedderburn`); `V ≅ D` (1-dim), `#D = #V = 2^{2m}`.  `D` acts on `V` commuting
+  --       with `C`, hence with `G` (`hρ`), so `D` acts on `H¹` (coeff functoriality via `mapCoeff1`),
+  --       making `H¹` a `D`-line (`#H¹=#V=#D`).
+  --   (3) `U := {u : Dˣ // u^{2^m+1}=1}` (norm-one, `#U = 2^m+1` since `2^m+1 ∣ 2^{2m}-1 = #Dˣ`,
+  --       cyclic).  `U` acts on `H¹` (D-scalars): fixes `0`, free on `H¹∖0` (`D`-line, field), and
+  --       preserves `Q0loc` (the norm-one units are `q`-isometries of `V` commuting with `C`, so
+  --       `lemma_6_14`/`RepIndependence.repIndep` naturality gives `Q0loc(u•x)=Q0loc(x)` —
+  --       equivalently the `Q0loc` datum-independence for the fixed `q`).  Preservation is the one
+  --       genuinely cohomological brick; (1)(2) are Schur/Wedderburn algebra.
   have harf : arf (Q0loc D dat ρ (V := V)) = 1 := by
     sorry
   simpa only [zeroCount] using
