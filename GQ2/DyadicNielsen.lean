@@ -130,6 +130,132 @@ theorem d0ToPiBase_d0Relator : d0ToPiBase.hom.toMonoidHom d0Relator = 1 := by
   rw [hstep, hconj]
   simp only [commP]; group
 
+/-! ## The two descents and the isomorphism `D₀ ≅ Π` -/
+
+/-- `Π → D₀` (through the presentation + max pro-`2` universal property). -/
+noncomputable def PiToD0 : ContinuousMonoidHom PiBd D0 :=
+  quotientLift (proPKernel 2 (profinitePresentation {piRelator}))
+    (presentationLift {piRelator} piToD0Base.hom
+      (fun r hr => by rcases hr with rfl; exact piToD0Base_piRelator))
+    (proPKernel_le_ker d0_isProP _)
+
+@[simp] lemma PiToD0_piSigma : PiToD0 piSigma = d0S := by
+  show PiToD0 (maxProPMk 2 (profinitePresentation {piRelator})
+    (quotientMk (relatorSubgroup {piRelator}) (FreeProfiniteGroup.of 0))) = _
+  rw [show PiToD0 (maxProPMk 2 (profinitePresentation {piRelator})
+      (quotientMk (relatorSubgroup {piRelator}) (FreeProfiniteGroup.of 0)))
+      = (presentationLift {piRelator} piToD0Base.hom _)
+          (quotientMk (relatorSubgroup {piRelator}) (FreeProfiniteGroup.of 0)) from
+    quotientLift_quotientMk _ _ _ _, presentationLift_mk]
+  exact piToD0Base_of0
+
+@[simp] lemma PiToD0_piX0 : PiToD0 piX0 = (d0S ^ 2)⁻¹ * d0A⁻¹ := by
+  show PiToD0 (maxProPMk 2 (profinitePresentation {piRelator})
+    (quotientMk (relatorSubgroup {piRelator}) (FreeProfiniteGroup.of 1))) = _
+  rw [show PiToD0 (maxProPMk 2 (profinitePresentation {piRelator})
+      (quotientMk (relatorSubgroup {piRelator}) (FreeProfiniteGroup.of 1)))
+      = (presentationLift {piRelator} piToD0Base.hom _)
+          (quotientMk (relatorSubgroup {piRelator}) (FreeProfiniteGroup.of 1)) from
+    quotientLift_quotientMk _ _ _ _, presentationLift_mk]
+  exact piToD0Base_of1
+
+@[simp] lemma PiToD0_piX1 : PiToD0 piX1 = d0Y := by
+  show PiToD0 (maxProPMk 2 (profinitePresentation {piRelator})
+    (quotientMk (relatorSubgroup {piRelator}) (FreeProfiniteGroup.of 2))) = _
+  rw [show PiToD0 (maxProPMk 2 (profinitePresentation {piRelator})
+      (quotientMk (relatorSubgroup {piRelator}) (FreeProfiniteGroup.of 2)))
+      = (presentationLift {piRelator} piToD0Base.hom _)
+          (quotientMk (relatorSubgroup {piRelator}) (FreeProfiniteGroup.of 2)) from
+    quotientLift_quotientMk _ _ _ _, presentationLift_mk]
+  exact piToD0Base_of2
+
+/-- `D₀ → Π` (through the presentation + max pro-`2` universal property). -/
+noncomputable def D0ToPi : ContinuousMonoidHom D0 PiBd :=
+  quotientLift (proPKernel 2 D0Full)
+    (presentationLift {d0Relator} d0ToPiBase.hom
+      (fun r hr => by rcases hr with rfl; exact d0ToPiBase_d0Relator))
+    (proPKernel_le_ker piBd_isProP _)
+
+@[simp] lemma D0ToPi_d0A : D0ToPi d0A = piX0⁻¹ * (piSigma ^ 2)⁻¹ := by
+  show D0ToPi (maxProPMk 2 D0Full
+    (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 0))) = _
+  rw [show D0ToPi (maxProPMk 2 D0Full
+      (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 0)))
+      = (presentationLift {d0Relator} d0ToPiBase.hom _)
+          (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 0)) from
+    quotientLift_quotientMk _ _ _ _, presentationLift_mk]
+  exact d0ToPiBase_of0
+
+@[simp] lemma D0ToPi_d0S : D0ToPi d0S = piSigma := by
+  show D0ToPi (maxProPMk 2 D0Full
+    (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 1))) = _
+  rw [show D0ToPi (maxProPMk 2 D0Full
+      (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 1)))
+      = (presentationLift {d0Relator} d0ToPiBase.hom _)
+          (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 1)) from
+    quotientLift_quotientMk _ _ _ _, presentationLift_mk]
+  exact d0ToPiBase_of1
+
+@[simp] lemma D0ToPi_d0Y : D0ToPi d0Y = piX1 := by
+  show D0ToPi (maxProPMk 2 D0Full
+    (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 2))) = _
+  rw [show D0ToPi (maxProPMk 2 D0Full
+      (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 2)))
+      = (presentationLift {d0Relator} d0ToPiBase.hom _)
+          (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 2)) from
+    quotientLift_quotientMk _ _ _ _, presentationLift_mk]
+  exact d0ToPiBase_of2
+
+/-- `D₀ToPi ∘ PiToD0 = id` on `Π` (density on `πσ, πx₀, πx₁`). -/
+theorem D0ToPi_PiToD0 (x : PiBd) : D0ToPi (PiToD0 x) = x := by
+  have h := monoidHom_eq_of_topGen
+    (f := D0ToPi.toMonoidHom.comp PiToD0.toMonoidHom) (g := MonoidHom.id PiBd)
+    (by rw [MonoidHom.coe_comp]
+        exact D0ToPi.continuous_toFun.comp PiToD0.continuous_toFun) continuous_id
+    topGen_piBd ?_
+  · exact h x
+  · rintro z (rfl | rfl | rfl)
+    · show D0ToPi (PiToD0 piSigma) = piSigma
+      rw [PiToD0_piSigma, D0ToPi_d0S]
+    · show D0ToPi (PiToD0 piX0) = piX0
+      rw [PiToD0_piX0]
+      simp only [map_mul, map_inv, map_pow, D0ToPi_d0S, D0ToPi_d0A]
+      group
+    · show D0ToPi (PiToD0 piX1) = piX1
+      rw [PiToD0_piX1, D0ToPi_d0Y]
+
+/-- `PiToD0 ∘ D0ToPi = id` on `D₀` (density on `A, S, Y`). -/
+theorem PiToD0_D0ToPi (x : D0) : PiToD0 (D0ToPi x) = x := by
+  have h := monoidHom_eq_of_topGen
+    (f := PiToD0.toMonoidHom.comp D0ToPi.toMonoidHom) (g := MonoidHom.id D0)
+    (by rw [MonoidHom.coe_comp]
+        exact PiToD0.continuous_toFun.comp D0ToPi.continuous_toFun) continuous_id
+    topGen_d0 ?_
+  · exact h x
+  · rintro z (rfl | rfl | rfl)
+    · show PiToD0 (D0ToPi d0A) = d0A
+      rw [D0ToPi_d0A]
+      simp only [map_mul, map_inv, map_pow, PiToD0_piX0, PiToD0_piSigma]
+      group
+    · show PiToD0 (D0ToPi d0S) = d0S
+      rw [D0ToPi_d0S, PiToD0_piSigma]
+    · show PiToD0 (D0ToPi d0Y) = d0Y
+      rw [D0ToPi_d0Y, PiToD0_piX1]
+
+/-- **The Nielsen isomorphism `D₀ ≅ Π`** (paper Cor 3.12). -/
+noncomputable def d0PiEquiv : ContinuousMulEquiv D0 PiBd where
+  toFun := D0ToPi
+  invFun := PiToD0
+  left_inv := PiToD0_D0ToPi
+  right_inv := D0ToPi_PiToD0
+  map_mul' := map_mul D0ToPi
+  continuous_toFun := D0ToPi.continuous_toFun
+  continuous_invFun := PiToD0.continuous_toFun
+
+@[simp] lemma d0PiEquiv_d0A : d0PiEquiv d0A = piX0⁻¹ * (piSigma ^ 2)⁻¹ := D0ToPi_d0A
+@[simp] lemma d0PiEquiv_d0S : d0PiEquiv d0S = piSigma := D0ToPi_d0S
+@[simp] lemma d0PiEquiv_d0Y : d0PiEquiv d0Y = piX1 := D0ToPi_d0Y
+
 end SectionThree
 
 end GQ2
