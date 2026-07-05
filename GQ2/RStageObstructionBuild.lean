@@ -26,6 +26,36 @@ namespace SectionEight
 
 open SectionSeven
 
+/-- **The trivial (`M = ⊥`) radical-cover datum** wrapping a bare central cover.  All the
+`GQ2.SectionEight.CentralObstruction` engine (the kernel-sign calculus, the obstruction class,
+`central_iff_ob_eq_zero`) is stated over a `RadicalCoverData`, but its lifting content uses only
+the cover `C`; this reduces "a hom lifts through the central cover `C`" to the engine's
+`MLifts.Central`/`ob` at `M = ⊥` (the square form is vacuous). -/
+def trivialRCD {Bg : Type} [Group Bg] [Finite Bg] (C : CentralCover Bg) :
+    RadicalCoverData Bg where
+  C := C
+  M := ⊥
+  hM := Subgroup.normal_bot
+  T := ⊥
+  hT := Subgroup.normal_bot
+  hTM := le_refl _
+  helem := fun m hm => by rw [Subgroup.mem_bot.mp hm]; group
+  hcomm := fun m hm m' hm' => by
+    rw [Subgroup.mem_bot.mp hm, Subgroup.mem_bot.mp hm']
+  q := fun _ => 0
+  hq := fun x hx => by
+    have hx1 : C.p x = 1 := Subgroup.mem_bot.mp hx
+    rw [show ((0 : ZMod 2)).val = 0 from rfl, pow_zero]
+    exact C.sq_eq_one_of_mem_ker (MonoidHom.mem_ker.mpr hx1)
+  hrad := fun t ht m hm => by simp [polarMul]
+  hTzero := fun t ht => rfl
+
+@[simp] theorem trivialRCD_C {Bg : Type} [Group Bg] [Finite Bg] (C : CentralCover Bg) :
+    (trivialRCD C).C = C := rfl
+
+@[simp] theorem trivialRCD_M {Bg : Type} [Group Bg] [Finite Bg] (C : CentralCover Bg) :
+    (trivialRCD C).M = ⊥ := rfl
+
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
   [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
 variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
