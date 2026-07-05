@@ -441,6 +441,169 @@ end Cohomology
 
 end Obstruction
 
+/-! ## Step 4 — `hfib`: the `R`-stage `liftB`-fibre is a `Z¹(Γ, R)`-torsor
+
+The fibre of `RF.liftB` over a `B`-stage lift `g` is `{f : Γ ↠ Y // π_B ∘ f = g}` (framing is
+automatic, `TB_head`/`TB_theta`).  Two such lifts `f, f₀` differ by `c γ := f γ · (f₀ γ)⁻¹ ∈ R`
+(`ker π_B = R`), a **crossed 1-cocycle** for the `f₀`-conjugation action of `Γ` on `R`; conversely
+each cocycle twists `f₀` to another fibre element (a homomorphism by the cocycle law, surjective by
+the Frattini argument `eq_top_of_map_frattini_quotient_top`, framed because `R ≤ ker(π_Y, θ_Y)`).
+So the fibre is a `Z¹(Γ, R)`-torsor; `#Z¹(Γ, R) = z_R` is the source numeric (5.15/5.16, d6). -/
+
+section RFibre
+
+variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+  [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+variable {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+variable (RF : RecursionFrame T Blk)
+
+/-- `R = Φ(K) ≤ K ≤ P ≤ L_Y = ker π_Y`: `R`-twists preserve the head framing. -/
+theorem R_le_ker_piY : Blk.R ≤ T.piY.ker := by
+  rw [T.ker_piY]
+  exact le_trans (frattiniLike_le Blk.K) (le_trans Blk.hKP Blk.hPL)
+
+/-- `R = Φ(K) ≤ ker θ_Y` when `E` is elementary-2 (`lemma_7_3`): `R`-twists preserve the scalar
+framing.  This is exactly the `thm_4_2` decoration hypothesis (harmless downstream: §10 uses
+`E = 0`), and the one point flagged in `docs/p16d2-plan.md` for the fibre count. -/
+theorem R_le_ker_thetaY (hE2 : ∀ e : E, e ^ 2 = 1) : Blk.R ≤ T.thetaY.ker :=
+  le_trans (frattiniLike_le Blk.K) (lemma_7_3 Blk hE2 T.thetaY)
+
+/-- **The R-stage torsor group** `Z¹_{Γ,ρ}(R)`: continuous crossed 1-cocycles `Γ → R = ker π_B`
+for the `f₀`-conjugation action of `Γ` on `R`, `f₀` a fixed reference `Y`-lift.  (Multiplicative
+crossed-hom convention, as `GQ2.SectionEight.TCocycle`; the fibre of `liftB` over a liftable `g`
+is a torsor under this group with basepoint `f₀`.) -/
+structure RCocycle (RF : RecursionFrame T Blk) (f₀ : ContinuousMonoidHom Γ Y) where
+  /-- The cocycle map. -/
+  u : Γ → Y
+  /-- Values lie in the radical `R = ker π_B`. -/
+  mem : ∀ γ, u γ ∈ Blk.R
+  /-- Continuity. -/
+  cont : Continuous u
+  /-- The twisted (crossed) cocycle law `u(γδ) = u γ · (f₀ γ · u δ · f₀ γ⁻¹)`. -/
+  crossed : ∀ γ δ, u (γ * δ) = u γ * (f₀ γ * u δ * (f₀ γ)⁻¹)
+
+namespace RCocycle
+
+variable {RF} {f₀ : ContinuousMonoidHom Γ Y}
+
+/-- Extensionality: only the underlying map matters. -/
+theorem ext {c c' : RCocycle RF f₀} (h : c.u = c'.u) : c = c' := by
+  cases c; cases c'; simp only [] at h; subst h; rfl
+
+/-- Cocycles are normalized: `u 1 = 1` (from `crossed` at `(1,1)`, `f₀ 1 = 1`). -/
+theorem u_one (c : RCocycle RF f₀) : c.u 1 = 1 := by
+  have h := c.crossed 1 1
+  rw [mul_one, map_one, one_mul, inv_one, mul_one] at h
+  -- `h : c.u 1 = c.u 1 * c.u 1`; cancel on the left
+  have h2 : c.u 1 * 1 = c.u 1 * c.u 1 := by rw [mul_one]; exact h
+  exact (mul_left_cancel h2).symm
+
+/-- The reference lift `f₀` twisted by a cocycle `c`: `(c ⋆ f₀) γ = c.u γ · f₀ γ`, a continuous
+homomorphism `Γ → Y` (homomorphism by `crossed`, continuous since `Y` is discrete). -/
+def twistHom (c : RCocycle RF f₀) : ContinuousMonoidHom Γ Y :=
+  ⟨{ toFun := fun γ => c.u γ * f₀ γ
+     map_one' := by rw [u_one, map_one, one_mul]
+     map_mul' := fun γ δ => by
+       show c.u (γ * δ) * f₀ (γ * δ) = c.u γ * f₀ γ * (c.u δ * f₀ δ)
+       rw [c.crossed γ δ, map_mul]; group },
+   c.cont.mul f₀.continuous_toFun⟩
+
+@[simp] theorem twistHom_apply (c : RCocycle RF f₀) (γ : Γ) : c.twistHom γ = c.u γ * f₀ γ := rfl
+
+end RCocycle
+
+variable (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+
+/-- `π_B` kills the radical: `r ∈ R = ker π_B ⟹ π_B r = 1`. -/
+theorem piB_eq_one_of_mem_R {r : Y} (hr : r ∈ Blk.R) : RF.piB r = 1 := by
+  rw [← MonoidHom.mem_ker, RF.ker_piB]; exact hr
+
+/-- **Frattini surjectivity** (`eq_top_of_map_frattini_quotient_top`, `R = Φ(K)`, `K` a 2-group):
+a continuous hom `φ : Γ → Y` whose `π_B`-composite is onto `B` is itself onto `Y`. -/
+theorem surj_of_piB_surj {φ : ContinuousMonoidHom Γ Y}
+    (hφ : Function.Surjective (fun γ => RF.piB (φ γ))) : Function.Surjective φ := by
+  have h2K : IsPGroup 2 ↥Blk.K := Blk.h2L.to_le (le_trans Blk.hKP Blk.hPL)
+  haveI : (frattiniLike Blk.K).Normal := frattiniLike_normal Blk.K Blk.hK
+  have hJtop : Subgroup.map RF.piB φ.toMonoidHom.range = ⊤ := by
+    rw [Subgroup.eq_top_iff']
+    intro y
+    obtain ⟨γ, hγ⟩ := hφ y
+    exact ⟨φ γ, ⟨γ, rfl⟩, hγ⟩
+  have hrange : φ.toMonoidHom.range = ⊤ :=
+    eq_top_of_map_frattini_quotient_top RF.piB h2K RF.ker_piB (frattiniLike_le Blk.K) hJtop
+      (MonoidHom.range_eq_top.mpr RF.piB_surj)
+  exact MonoidHom.range_eq_top.mp hrange
+
+/-- **The R-stage fibre torsor** (`hfib` core): fixing a lift `f₀` of `g`, the fibre of `RF.liftB`
+over `g` is a torsor under `RCocycle RF f₀.1.1` — every `Y`-lift of `g` is a unique cocycle-twist
+of `f₀`.  The forward map lands in `BoundaryLifts` by Frattini surjectivity (`surj_of_piB_surj`)
+and `R ≤ ker(π_Y, θ_Y)` framing (needs `hE2`); the backward map reads off the `R`-valued
+difference `f · f₀⁻¹`. -/
+noncomputable def fibreCocycleEquiv (hE2 : ∀ e : E, e ^ 2 = 1)
+    (g : BoundaryLifts b F RF.TB) (f₀ : BoundaryLifts b F T) (hf₀ : RF.liftB b F f₀ = g) :
+    RCocycle RF f₀.1.1 ≃ {f : BoundaryLifts b F T // RF.liftB b F f = g} where
+  toFun c :=
+    ⟨⟨⟨c.twistHom, by
+        apply surj_of_piB_surj RF
+        have hfun : (fun γ => RF.piB (c.twistHom γ)) = fun γ => g.1.1 γ := by
+          funext γ
+          rw [RCocycle.twistHom_apply, map_mul, piB_eq_one_of_mem_R RF (c.mem γ), one_mul]
+          exact congrArg (fun z : BoundaryLifts b F RF.TB => z.1.1 γ) hf₀
+        rw [hfun]; exact g.1.2⟩,
+      by
+        intro γ
+        have hpi : T.piY (c.twistHom γ) = T.piY (f₀.1.1 γ) := by
+          rw [RCocycle.twistHom_apply, map_mul, MonoidHom.mem_ker.mp (R_le_ker_piY (c.mem γ)),
+            one_mul]
+        have hth : T.thetaY (c.twistHom γ) = T.thetaY (f₀.1.1 γ) := by
+          rw [RCocycle.twistHom_apply, map_mul,
+            MonoidHom.mem_ker.mp (R_le_ker_thetaY hE2 (c.mem γ)), one_mul]
+        rw [hpi, hth]; exact f₀.2 γ⟩,
+    by
+      apply Subtype.ext; apply Subtype.ext; apply ContinuousMonoidHom.ext
+      intro γ
+      show RF.piB (c.twistHom γ) = g.1.1 γ
+      rw [RCocycle.twistHom_apply, map_mul, piB_eq_one_of_mem_R RF (c.mem γ), one_mul]
+      exact congrArg (fun z : BoundaryLifts b F RF.TB => z.1.1 γ) hf₀⟩
+  invFun f :=
+    { u := fun γ => f.1.1.1 γ * (f₀.1.1 γ)⁻¹
+      mem := by
+        intro γ
+        have hf2 : RF.piB (f.1.1.1 γ) = g.1.1 γ :=
+          congrArg (fun z : BoundaryLifts b F RF.TB => z.1.1 γ) f.2
+        have hf0' : RF.piB (f₀.1.1 γ) = g.1.1 γ :=
+          congrArg (fun z : BoundaryLifts b F RF.TB => z.1.1 γ) hf₀
+        rw [← RF.ker_piB, MonoidHom.mem_ker, map_mul, map_inv, hf2, hf0', mul_inv_cancel]
+      cont := f.1.1.1.continuous_toFun.mul f₀.1.1.continuous_toFun.inv
+      crossed := by
+        intro γ δ
+        show f.1.1.1 (γ * δ) * (f₀.1.1 (γ * δ))⁻¹
+          = f.1.1.1 γ * (f₀.1.1 γ)⁻¹ *
+              (f₀.1.1 γ * (f.1.1.1 δ * (f₀.1.1 δ)⁻¹) * (f₀.1.1 γ)⁻¹)
+        rw [map_mul, map_mul]; group }
+  left_inv c := by
+    apply RCocycle.ext
+    funext γ
+    show c.twistHom γ * (f₀.1.1 γ)⁻¹ = c.u γ
+    rw [RCocycle.twistHom_apply]; group
+  right_inv f := by
+    apply Subtype.ext; apply Subtype.ext; apply Subtype.ext; apply ContinuousMonoidHom.ext
+    intro γ
+    show f.1.1.1 γ * (f₀.1.1 γ)⁻¹ * f₀.1.1 γ = f.1.1.1 γ
+    group
+
+/-- **`hfib`** (step 4 payoff): the `liftB`-fibre over a liftable `g` has size `z_R`, reduced to the
+source `Z¹`-count `#RCocycle = z_R` (the 5.15/5.16 numeric + `card_DR`, supplied by d6).  The
+abstract torsor identification is `fibreCocycleEquiv`. -/
+theorem hfib_holds (hE2 : ∀ e : E, e ^ 2 = 1)
+    (g : BoundaryLifts b F RF.TB) (f₀ : BoundaryLifts b F T) (hf₀ : RF.liftB b F f₀ = g)
+    (hcount : Nat.card (RCocycle RF f₀.1.1) = RF.zR) :
+    Nat.card {f : BoundaryLifts b F T // RF.liftB b F f = g} = RF.zR := by
+  rw [← Nat.card_congr (fibreCocycleEquiv RF b F hE2 g f₀ hf₀), hcount]
+
+end RFibre
+
 end SectionEight
 
 end GQ2
