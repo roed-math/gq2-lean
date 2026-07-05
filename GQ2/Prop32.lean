@@ -1252,15 +1252,15 @@ theorem eq_bot_of_normal_two_images (M : Subgroup Ttame) [hMn : M.Normal]
 
 /-! ## Proposition 3.2, local side -/
 
-/-- **Prop. 3.2, local side** (P-06 statement; P-09 proof, `Ax = B10`): the tame quotient of
-`G_{ℚ₂}` is `T_tame`, by the *maximal* closed normal pro-2 subgroup.  Existence is axiom B10;
-maximality is Lemma 3.3 (`eq_bot_of_normal_two_images`), applied to the image of a competitor
-`N` in `T_tame`. -/
-theorem prop_3_2_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
-    Nonempty LocalTameQuotient := by
-  refine ⟨{ toTameQuotientData := GQ2.tameQuotient, maximal := ?_ }⟩
+/-- **Lemma 3.3's maximality, for any B10 datum** (extracted from `prop_3_2_local`'s proof
+so the P-25 oriented witness can reuse it): every closed normal pro-2 subgroup lies in `T.W`
+(`eq_bot_of_normal_two_images` applied to the image of the competitor `N` in `T_tame`). -/
+theorem tameData_maximal [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    (T' : TameQuotientData) :
+    ∀ N : Subgroup AbsGalQ2, N.Normal → IsClosed (N : Set AbsGalQ2) →
+      IsProP 2 N → N ≤ T'.W := by
   intro N hNn hNc hNp
-  set T := GQ2.tameQuotient with hT
+  set T := T' with hT
   haveI := T.normal
   set q : AbsGalQ2 →* AbsGalQ2 ⧸ T.W := QuotientGroup.mk' T.W with hq
   set e : (AbsGalQ2 ⧸ T.W) →* Ttame := T.equiv.toMonoidHom with he
@@ -1282,6 +1282,15 @@ theorem prop_3_2_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
   have h2q : q x = 1 :=
     T.equiv.injective (by rw [map_one]; exact h1)
   exact (QuotientGroup.eq_one_iff x).mp h2q
+
+/-- **Prop. 3.2, local side** (P-06 statement; P-09 proof, `Ax = B10`): the tame quotient of
+`G_{ℚ₂}` is `T_tame`, by the *maximal* closed normal pro-2 subgroup.  Existence is axiom B10
+(oriented form B10′ since P-25; only the underlying `TameQuotientData` is used here);
+maximality is Lemma 3.3 (`tameData_maximal`). -/
+theorem prop_3_2_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
+    Nonempty LocalTameQuotient :=
+  ⟨{ toTameQuotientData := GQ2.tameQuotient.toTameQuotientData,
+     maximal := tameData_maximal GQ2.tameQuotient.toTameQuotientData }⟩
 
 end SectionThree
 

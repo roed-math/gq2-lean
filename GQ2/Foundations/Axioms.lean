@@ -386,16 +386,31 @@ Lemma 3.3 — is deliberately *not* asserted here, it stays a theorem obligation
 in `GQ2/TameQuotient.lean`.  Added by explicit census decision (P-06 escalation): the step-1
 census was 2-centric and did not cover the prime-to-2 tame structure. -/
 
-/-- **[Classical — B10.]**  The tame quotient of `G_ℚ₂`: there is a closed normal pro-2
-subgroup `W ≤ G_ℚ₂` (wild inertia) with `G_ℚ₂/W ≅ T_tame = ⟨σ, τ ∣ τ^σ = τ²⟩_prof`.
+/-- **[Classical — B10 (oriented form, B10′).]**  The tame quotient of `G_ℚ₂`, *oriented
+against local reciprocity*: a closed normal pro-2 subgroup `W ≤ G_ℚ₂` (wild inertia) with
+`G_ℚ₂/W ≅ T_tame = ⟨σ, τ ∣ τ^σ = τ²⟩_prof`, whose unramified coordinate `ν_t` matches B5's
+reciprocity normalization — `ν_t(tameF(rec u)) = 1` for units `u` and
+`ν_t(tameF(rec 2)) = ztwoOne⁻¹` (arithmetic Frobenius, geometric coordinate).
 
-Citation: **NSW [1], Ch. VII §7.5, Theorem (7.5.3) (Iwasawa)** — `G(k_tr|k)` is the
+Citation, existence: **NSW [1], Ch. VII §7.5, Theorem (7.5.3) (Iwasawa)** — `G(k_tr|k)` is the
 profinite group on `σ, τ` with the single relation `στσ⁻¹ = τ^q` (`q = 2`); with
 **(7.5.2)** (split extension `1 → Ẑ^{(p′)}(1) → G(k_tr|k) → Γ → 1`) and `G(k̄|k_tr)`
-pro-`p` (Serre, *Local Fields* [7], Ch. IV).  (Verified against the NSW PDF in
-`references/`; see `GQ2/TameQuotient.lean` for the Frobenius-direction convention.)
-Paper: Prop. 3.2, local side.  `docs/literature-axioms.md` B10. -/
-axiom tameQuotient : TameQuotientData
+pro-`p` (Serre, *Local Fields* [7], Ch. IV).  Citation, orientation clauses:
+**Neukirch, *Algebraic Number Theory* [8], Chap. V, Theorem (6.2)** (norm residue symbol maps
+`U_K^{(n)}` onto the upper-numbering ramification groups; `n = 0`: units ↦ inertia, so prime
+elements ↦ Frobenius lifts) with **Chap. V, (1.2)** / NSW [1] (7.1.2)(i) (units are norms in
+unramified extensions).  (All verified against the PDFs in `references/`; the
+Frobenius-direction convention `σ = geometric` and the clause encoding are documented at
+`OrientedTameQuotient` in `GQ2/TameQuotient.lean`.)
+
+History: added census 10→11 as the unoriented `TameQuotientData` (P-06 escalation);
+**strengthened in place to the oriented form (census unchanged) 2026-07-06** (P-25 escalation,
+user-approved) — the orientation discharges `tame_reciprocity` (`docs/p25-tame-reciprocity-plan.md`),
+whose derivation from B5's `norm_reciprocity` alone is blocked by the absence of local
+ramification theory for `Field.absoluteGaloisGroup` in Mathlib.  Paper: Prop. 3.2 local side +
+Prop. 3.14 / Cor. 3.12 (the "same natural unramified character").
+`docs/literature-axioms.md` B10. -/
+axiom tameQuotient : OrientedTameQuotient localReciprocity
 
 /-! ## B11 — the dyadic norm criterion over finite bases (split into named leaves, P-23)
 

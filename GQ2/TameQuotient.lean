@@ -1,5 +1,6 @@
 import GQ2.BoundaryFrame
 import GQ2.MaxProP
+import GQ2.Reciprocity
 
 /-!
 # B10: the tame quotient of `G_ℚ₂` — definition layer  (P-06 follow-up)
@@ -70,5 +71,33 @@ structure TameQuotientData where
   isProP : IsProP 2 W
   /-- The tame quotient: `G_{ℚ₂}/W_F ≅ T_tame`. -/
   equiv : ContinuousMulEquiv (AbsGalQ2 ⧸ W) Ttame
+
+/-- **B10′ (oriented tame quotient), the bundle.**  A B10 tame-quotient datum whose unramified
+coordinate `ν_t ∘ equiv ∘ mk` is *compatible with local reciprocity* (a bundle `R`, pinned to
+the B5 axiom at the `axiom` use-site): units land in the `ν_t`-kernel, and the uniformizer —
+`rec(2)` = *arithmetic* Frobenius — lands in the geometric-Frobenius coordinate `ztwoOne⁻¹`
+(the repo's `tameSigma` is *geometric* Frobenius: `tame_relation` reads `σ⁻¹τσ = τ²`, so `σ`
+is NSW (7.5.3)'s `σ⁻¹`).
+
+Both clauses read the value through an arbitrary lift `g` of the abelianized class (well-posed:
+`ν_t ∘ equiv ∘ mk` kills `commClosure` — continuous into an abelian `T2` target).
+
+Citation: **Neukirch, *Algebraic Number Theory* [8], Chap. V, Theorem (6.2)** — the norm
+residue symbol maps `U_K^{(n)}` onto the upper-numbering ramification group `G^n(L|K)` for
+every finite abelian `L|K`; at `n = 0`: **units ↦ inertia**, whence prime elements ↦ Frobenius
+lifts (with **Chap. V, (1.2)**: `Ĥ^i(G(L|K), U_L) = 1` for `L|K` unramified — units are norms
+at every finite unramified level; NSW [1] (7.1.2)(i) is the same statement in
+cohomological-triviality form).  Tame structure and orientation: **NSW [1] (7.5.2)/(7.5.3)**.
+(All verified against the PDFs in `references/`.) -/
+structure OrientedTameQuotient (R : LocalReciprocity) extends TameQuotientData where
+  /-- Units are unramified-trivial: `ν_t(tameF(rec(u))) = 1` for every 2-adic unit `u`. -/
+  nuT_recip_unit : ∀ (u : ℤ_[2]ˣ) (g : AbsGalQ2),
+      toAb g = R.recip (unitEmbed u) →
+      nuT (equiv (QuotientGroup.mk g)) = 1
+  /-- The uniformizer lands in the geometric-Frobenius coordinate:
+  `ν_t(tameF(rec(2))) = ztwoOne⁻¹`. -/
+  nuT_recip_uniformizer : ∀ g : AbsGalQ2,
+      toAb g = R.recip uniformizer →
+      nuT (equiv (QuotientGroup.mk g)) = ztwoOne⁻¹
 
 end GQ2

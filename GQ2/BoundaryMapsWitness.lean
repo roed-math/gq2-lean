@@ -290,8 +290,13 @@ lemma padic_hom_eq_of_gens (φ ψ : ℚ_[2]ˣ →* Multiplicative ℤ_[2])
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
-/-- The chosen local tame quotient (B10 + Lemma 3.3), `prop_3_2_local`. -/
-noncomputable def locTame : LocalTameQuotient := (prop_3_2_local).some
+/-- The chosen local tame quotient: **the B10′ oriented witness** (`GQ2.tameQuotient`), with
+Lemma 3.3's maximality attached (`tameData_maximal`).  Using the axiom's witness directly (not
+`prop_3_2_local.some`) keeps the orientation clauses `nuT_recip_unit`/`nuT_recip_uniformizer`
+available for the two `tame_recip_*` atoms below. -/
+noncomputable def locTame : LocalTameQuotient :=
+  { toTameQuotientData := GQ2.tameQuotient.toTameQuotientData,
+    maximal := tameData_maximal GQ2.tameQuotient.toTameQuotientData }
 
 instance locTame_W_normal : locTame.W.Normal := locTame.normal
 
@@ -366,18 +371,38 @@ noncomputable def tameChar : ContinuousMonoidHom AbsGalQ2ab (Multiplicative ℤ_
   abLiftG_abMk tameCharRaw g
 
 /-- **Atom (F)** — the uniformizer: `f₁(rec 2) = ofAdd(−1)` (arithmetic Frobenius, geometric
-coordinate `−1`).  Ticket **P-25c/d/e**: derive from B5 `norm_reciprocity` on the unramified
-tower.  See `docs/p25-tame-reciprocity-plan.md`. -/
+coordinate `−1`).  Discharged by the B10′ orientation clause `nuT_recip_uniformizer`. -/
 theorem tame_recip_uniformizer :
     tameChar ((localReciprocity).recip uniformizer)
       = Multiplicative.ofAdd ((-1 : ℤ) : ℤ_[2]) := by
-  sorry
+  obtain ⟨g, hg⟩ :=
+    QuotientGroup.mk'_surjective commClosure ((localReciprocity).recip uniformizer)
+  have hg' : toAb g = (localReciprocity).recip uniformizer := hg
+  have hval : GQ2.nuT (tameFHom g) = ztwoOne⁻¹ :=
+    GQ2.tameQuotient.nuT_recip_uniformizer g hg'
+  rw [← hg', tameChar_toAb, hval, map_inv, locPro2.choose_spec.1, ← ofAdd_neg]
+  congr 1
 
-/-- **Atom (U₋₃)** — the unit `−3`: `f₁(rec(−3)) = 1` (unramified-trivial).  Ticket **P-25c/d/e**;
-see `docs/p25-tame-reciprocity-plan.md`. -/
+/-- **Atom (U₋₃)** — the unit `−3`: `f₁(rec(−3)) = 1` (unramified-trivial).  Discharged by the
+B10′ orientation clause `nuT_recip_unit` at the unit `−3` (odd, hence a `ℤ₂`-unit). -/
 theorem tame_recip_unitNeg3 :
     tameChar ((localReciprocity).recip unitNeg3) = 1 := by
-  sorry
+  obtain ⟨u, hu⟩ : ∃ u : ℤ_[2]ˣ, (u : ℤ_[2]) = -3 :=
+    ⟨(isUnit_intCast_of_odd (⟨-2, by ring⟩ : Odd (-3 : ℤ))).unit, by
+      rw [IsUnit.unit_spec]
+      push_cast
+      ring⟩
+  have hemb : unitEmbed u = unitNeg3 := by
+    apply Units.ext
+    rw [unitEmbed_val, hu]
+    show algebraMap ℤ_[2] ℚ_[2] (-3) = ((unitNeg3 : ℚ_[2]ˣ) : ℚ_[2])
+    simp only [unitNeg3, Units.val_mk0, map_neg, map_ofNat]
+  obtain ⟨g, hg⟩ :=
+    QuotientGroup.mk'_surjective commClosure ((localReciprocity).recip unitNeg3)
+  have hg' : toAb g = (localReciprocity).recip unitNeg3 := hg
+  have hval : GQ2.nuT (tameFHom g) = 1 :=
+    GQ2.tameQuotient.nuT_recip_unit u g (by rw [hg', hemb])
+  rw [← hg', tameChar_toAb, hval, map_one]
 
 /-- **Tame reciprocity** (P-25b reduction): `ι(ν_t(tameF g)) = ν_ur(toAb g)`.  Both sides factor
 through `G_{ℚ₂}^{ab}`; agree on the dense image of `recip` by `padic_hom_eq_of_gens`, whose two
