@@ -367,6 +367,23 @@ theorem obs_zero_iff_lifts (D : RObstructionData RF)
   rw [LinearEquiv.map_eq_zero_iff, obsMapAdd_eq_homOb RF D htriv g d h]
   exact (liftsThroughCover_iff_homOb (RF.scalarCover (D.toDR d) h) g htriv).symm
 
+/-- **`obs` at the `𝔽₂`-cochain level** (for the d6 separation discharge): `obs g d = 0` iff the
+`𝔽₂`-valued defect cochain `pair d ∘ rDefect` is a coboundary (`H2mk = 0` in `H²(Γ,𝔽₂)`).  This is
+the cochain-level face of `obs_zero_iff_lifts`; it pairs with `homLift_of_split` — from `obs g = 0`,
+d6 gets every `pair d ∘ rDefect` a coboundary, assembles the concrete `R`-splitting cochain (the
+`(R^∨)^C`-separation of `H²(Γ,R)`), and produces the hom lift. -/
+theorem obs_zero_iff_pairClass_zero (D : RObstructionData RF)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (g : ContinuousMonoidHom Γ RF.YB) (d : D.DRmod) (h : D.toDR d ≠ RF.zeroDR) :
+    obs RF D htriv hcard g d = 0 ↔
+      H2mk Γ (ZMod 2) ⟨fun gd => D.pair d (Additive.ofMul (rDefect RF g gd.1 gd.2)),
+        pairDefect_mem_Z2 RF D htriv g d h⟩ = 0 := by
+  haveI : Finite (H2 Γ (ZMod 2)) := Nat.finite_of_card_ne_zero (by rw [hcard]; norm_num)
+  show cardTwoLinEquiv hcard (obsMapAdd RF D htriv g d) = 0 ↔ _
+  rw [LinearEquiv.map_eq_zero_iff, obsMapAdd_eq_homOb RF D htriv g d h,
+    homOb_eq_H2mk_pair RF D htriv g d h]
+
 /-- **`hmB`** (step 2 payoff): `m_{Γ,λ}(B)` counts the `B`-lifts whose obstruction vanishes at the
 scalar character `λ`.  Matches `stageR136_ofObstruction`'s `hmB` hypothesis. -/
 theorem hmB_holds (D : RObstructionData RF)
