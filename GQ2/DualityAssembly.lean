@@ -186,4 +186,93 @@ theorem tau_split_or_ramified (t : Marking C) (ht : t.TameRel) (hgen : t.Generat
     intro v
     exact (hmemW v).mp (htop ▸ AddSubgroup.mem_top v)
 
+/-! ## `mixedB` descends to `H¹w` (the degree-one pairing) -/
+
+/-- `mixedB` is invariant under changing the primal argument by a coboundary (against a cocycle
+dual): `B(x + d⁰a, y) = B(x, y)` since `B(d⁰a, y) = ⟨a, L(y)⟩ = 0` (`prop_5_8_left`, `y` a cocycle).
+Uses `mixedB` bilinearity. -/
+theorem mixedB_left_congr (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (x x' : Fin 4 → A) (y : Fin 4 → ElemDual A) (hb : x - x' ∈ B1w (A := A) t)
+    (hy : y ∈ Z1w (A := ElemDual A) t) :
+    mixedB t x y = mixedB t x' y := by
+  obtain ⟨a, ha⟩ := hb
+  have hx : x = x' + d0 t a := by rw [ha]; abel
+  rw [hx, mixedB_add_left, prop_5_8_left t ht hw a y]
+  have hd1 : d1Fun (A := ElemDual A) t y = 0 := AddMonoidHom.mem_ker.mp hy
+  simp [hd1]
+
+/-- Dual version: `B(x, y + d⁰λ) = B(x, y)` (`prop_5_8_right`, `x` a cocycle). -/
+theorem mixedB_right_congr (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (x : Fin 4 → A) (y y' : Fin 4 → ElemDual A) (hb : y - y' ∈ B1w (A := ElemDual A) t)
+    (hx : x ∈ Z1w (A := A) t) :
+    mixedB t x y = mixedB t x y' := by
+  obtain ⟨lam, hlam⟩ := hb
+  have hy : y = y' + d0 t lam := by rw [hlam]; abel
+  rw [hy, mixedB_add_right, prop_5_8_right t ht hw x lam]
+  have hd1 : d1Fun (A := A) t x = 0 := AddMonoidHom.mem_ker.mp hx
+  simp [hd1]
+
+/-- **Clause 3 (degree-one perfect pairing) from a normal form.**  Given that `x₀`-supported
+cochains `x0Supported c` are cocycles and hit every `H¹w` class uniquely (the normal form of
+`lemma_5_13`, for both `A` and `A∨`), and that the induced pairing `c, λ ↦ B(x0Supported c,
+x0Supported λ)` is nondegenerate on both sides, `mixedB` descends to a perfect pairing
+`H¹w(A) × H¹w(A∨) → 𝔽₂`.  Descent uses `mixedB_left_congr`/`mixedB_right_congr`; nondegeneracy
+transports through the normal-form identification `H¹w ≅ A`. -/
+theorem clause3_of_normalForm (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (hx0memA : ∀ c : A, x0Supported c ∈ Z1w (A := A) t)
+    (hnfA : ∀ x ∈ Z1w (A := A) t, ∃! c : A, x - x0Supported c ∈ B1w (A := A) t)
+    (hx0memD : ∀ lam : ElemDual A, x0Supported lam ∈ Z1w (A := ElemDual A) t)
+    (hnfD : ∀ y ∈ Z1w (A := ElemDual A) t,
+        ∃! lam : ElemDual A, y - x0Supported lam ∈ B1w (A := ElemDual A) t)
+    (hndL : ∀ c : A, c ≠ 0 → ∃ lam : ElemDual A, mixedB t (x0Supported c) (x0Supported lam) ≠ 0)
+    (hndR : ∀ lam : ElemDual A, lam ≠ 0 → ∃ c : A, mixedB t (x0Supported c) (x0Supported lam) ≠ 0) :
+    ∃ P : H1w (A := A) t → H1w (A := ElemDual A) t → ZMod 2,
+      (∀ (x : Z1w (A := A) t) (y : Z1w (A := ElemDual A) t),
+          P (h1wMk t x) (h1wMk t y) = mixedB t x.val y.val) ∧
+      (∀ h, h ≠ 0 → ∃ h', P h h' ≠ 0) ∧
+      (∀ h', h' ≠ 0 → ∃ h, P h h' ≠ 0) := by
+  have hx0z : x0Supported (0 : A) = 0 := by ext i; fin_cases i <;> simp [x0Supported]
+  have hx0zD : x0Supported (0 : ElemDual A) = 0 := by ext i; fin_cases i <;> simp [x0Supported]
+  refine ⟨Quotient.lift₂ (fun (a : Z1w (A := A) t) (b : Z1w (A := ElemDual A) t) =>
+      mixedB t a.val b.val) (fun a₁ b₁ a₂ b₂ h₁ h₂ => ?_), fun x y => rfl, ?_, ?_⟩
+  · -- well-defined: `mixedB` is constant on cosets (`mixedB_left/right_congr`)
+    have hbA : a₁.val - a₂.val ∈ B1w (A := A) t := by
+      have h := QuotientAddGroup.leftRel_apply.mp h₁
+      rw [AddSubgroup.mem_addSubgroupOf] at h
+      rw [show a₁.val - a₂.val = -(↑(-a₁ + a₂) : Fin 4 → A) from by push_cast; abel]
+      exact (B1w (A := A) t).neg_mem h
+    have hbD : b₁.val - b₂.val ∈ B1w (A := ElemDual A) t := by
+      have h := QuotientAddGroup.leftRel_apply.mp h₂
+      rw [AddSubgroup.mem_addSubgroupOf] at h
+      rw [show b₁.val - b₂.val = -(↑(-b₁ + b₂) : Fin 4 → ElemDual A) from by push_cast; abel]
+      exact (B1w (A := ElemDual A) t).neg_mem h
+    rw [mixedB_left_congr t ht hw a₁.val a₂.val b₁.val hbA b₁.2,
+        mixedB_right_congr t ht hw a₂.val b₁.val b₂.val hbD a₂.2]
+  · -- left nondegeneracy
+    intro h hh
+    induction h using QuotientAddGroup.induction_on with
+    | H a =>
+      obtain ⟨c, hc, _⟩ := hnfA a.val a.2
+      have hc0 : c ≠ 0 := by
+        intro hce
+        rw [hce, hx0z, sub_zero] at hc
+        exact hh ((QuotientAddGroup.eq_zero_iff a).mpr (AddSubgroup.mem_addSubgroupOf.mpr hc))
+      obtain ⟨lam, hlam⟩ := hndL c hc0
+      refine ⟨QuotientAddGroup.mk ⟨x0Supported lam, hx0memD lam⟩, ?_⟩
+      show mixedB t a.val (x0Supported lam) ≠ 0
+      rwa [mixedB_left_congr t ht hw a.val (x0Supported c) (x0Supported lam) hc (hx0memD lam)]
+  · -- right nondegeneracy
+    intro h hh
+    induction h using QuotientAddGroup.induction_on with
+    | H b =>
+      obtain ⟨lam, hlam, _⟩ := hnfD b.val b.2
+      have hlam0 : lam ≠ 0 := by
+        intro hle
+        rw [hle, hx0zD, sub_zero] at hlam
+        exact hh ((QuotientAddGroup.eq_zero_iff b).mpr (AddSubgroup.mem_addSubgroupOf.mpr hlam))
+      obtain ⟨c, hc⟩ := hndR lam hlam0
+      refine ⟨QuotientAddGroup.mk ⟨x0Supported c, hx0memA c⟩, ?_⟩
+      show mixedB t (x0Supported c) b.val ≠ 0
+      rwa [mixedB_right_congr t ht hw (x0Supported c) b.val (x0Supported lam) hlam (hx0memA c)]
+
 end GQ2.FoxH
