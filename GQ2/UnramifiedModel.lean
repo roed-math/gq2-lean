@@ -513,31 +513,48 @@ theorem prop_6_18_unramified (D : TateDuality 2) (B : BoundaryMaps)
     rw [← Nat.card_eq_fintype_card,
       card_H1_eq_card_of_simple V D ρ.toMonoidHom hρsurj hρ hsimple h₀ hmoves q hq hns hinv hV2,
       hcard]
-  -- **The Arf invariant is `1` (minus type)** — the crux.
-  -- The clean route is `GaussSigns.arf_eq_s_ramified` (the SAME engine `prop_6_9_unramified` uses,
-  -- but now applied to `Q0loc` on `H¹` rather than `q` on `V`): a cyclic group `G` acting
-  -- faithfully on `H¹`, an equivariant `H¹ ≃+ (Fin s → W)` decomposition into copies of a simple
-  -- `G`-module `W` (`#W = 2^{2m'}`), and `Q0loc` `G`-invariant, give `arf (Q0loc) = (s : ZMod 2)`;
-  -- the minus sign is `s` odd.
-  -- CONSTRUCTION PLAN (the remaining P-15f3 work), with the correct mechanism:
-  --   (1) [DONE-able now] `C` is cyclic, `C = ⟨c tameSigma⟩`: faithfulness upgrades the trivial
-  --       ACTION `hunram` to the trivial ELEMENT `htautriv : c tameTau = 1 := hfaith _ hunram`, then
-  --       `SectionThree.gen_ttame_quotient` + `hunram`-collapse gives `∀ x : C, x ∈ zpowers (c tameSigma)`
-  --       (verbatim as in `prop_6_9_unramified`, SectionSix.lean:347).
-  --   (2) The `C`-action on `H¹`: `C` is abelian (cyclic), so each `c • ·` is a `G`-equivariant
-  --       (`hρ` factors through the abelian `C`) additive auto of `V`, inducing `mapCoeff1 (c • ·)`
-  --       on `H¹` — a `C`-module structure, faithful and with `#H¹ = #V = 2^{2m}`.
-  --   (3) The decomposition `H¹ ≃+ (Fin s → W)` over `C` with `s` ODD in the unramified case: this
-  --       is the base-cohomology analogue of `prop_6_9`'s source decomposition.  Equivalently, via
-  --       Schur (`Module.End.instDivisionRing` + `littleWedderburn`) `H¹` is a line over the
-  --       endomorphism field `D = 𝔽_{2^{2m}}`, so `s = 1` (odd) with `W = H¹`.
-  --   (4) `Q0loc` `C`-invariance — the one genuinely cohomological brick: for `c ∈ C` an
-  --       equivariant `q`-isometry (`hinv`), `lemma_6_14` (naturality) + `Q0loc` datum-independence
-  --       for the fixed `q` give `Q0loc (mapCoeff1 (c • ·) x) = Q0loc x`.  Datum-independence
-  --       (`Q0loc D dat ρ = Q0loc D dat' ρ` for equivariant `dat, dat'` of the same `q`, Lemma 6.4)
-  --       is a P-15 obligation not yet banked — the real remaining content.
+  -- **The Arf invariant is `1` (minus type)** — via `GaussSigns.arf_eq_s_ramified` on `H¹`:
+  -- `C = ⟨c tameSigma⟩` is cyclic (`c_cyclic`), its coefficient action on `H¹` is faithful and
+  -- simple (`cCoeff_faithful_and_simple`, the Schur transfer), `H¹ ≃+ (Fin 1 → H¹)` trivially,
+  -- and `s = 1` is odd — so `arf (Q0loc) = 1` once `Q0loc` is `C`-invariant (brick (d), the
+  -- one remaining sorry: Lemma 6.4 datum-independence through `lemma_6_14` naturality).
   have harf : arf (Q0loc D dat ρ (V := V)) = 1 := by
-    sorry
+    have hcyc := c_cyclic c hc hfaith hunram
+    have hCcomm := comm_of_cyclic (c tameSigma) hcyc
+    haveI hVnt : Nontrivial V := by
+      obtain ⟨v, hv⟩ := hV
+      exact ⟨v, 0, hv⟩
+    have hcardeq : Nat.card (H1 AbsGalQ2 V) = Nat.card V := by
+      rw [Nat.card_eq_fintype_card, hcardH1, hcard]
+    obtain ⟨hfaithH1, hntH1, hsimpleH1⟩ :=
+      cCoeff_faithful_and_simple ρ hρ hCcomm (c tameSigma) hcyc hfaith hsimple hVnt hcardeq
+    letI actH1 : DistribMulAction C (H1 AbsGalQ2 V) := cActionH1 ρ hρ hCcomm
+    -- exponent 2 on `H¹` (descends pointwise from `V`)
+    have hH12 : ∀ x : H1 AbsGalQ2 V, x + x = 0 := by
+      intro x
+      induction x using QuotientAddGroup.induction_on with
+      | _ z =>
+        have hz : z + z = 0 := Subtype.ext (funext fun γ => hV2 (z.1 γ))
+        show (QuotientAddGroup.mk (z + z) : H1 AbsGalQ2 V) = 0
+        rw [hz]
+        rfl
+    -- the trivial one-block decomposition
+    let e : H1 AbsGalQ2 V ≃+ (Fin 1 → H1 AbsGalQ2 V) :=
+      { toFun := fun x _ => x
+        invFun := fun f => f 0
+        left_inv := fun x => rfl
+        right_inv := fun f => funext fun j => by rw [Subsingleton.elim (0 : Fin 1) j]
+        map_add' := fun x y => rfl }
+    -- **brick (d): `Q0loc` is invariant under the coefficient action** (Lemma 6.4
+    -- datum-independence via `lemma_6_14` naturality) — the sole remaining obligation
+    have hqinv : ∀ (g : C) (x : H1 AbsGalQ2 V),
+        Q0loc D dat ρ (g • x) = Q0loc D dat ρ x := by
+      sorry
+    have h := GaussSigns.arf_eq_s_ramified (G := C) (V := H1 AbsGalQ2 V) (W := H1 AbsGalQ2 V)
+      (c tameSigma) hcyc hfaithH1 ⟨hntH1, fun S hS => hsimpleH1 S (fun g x hx => hS g x hx)⟩
+      hH12 hH12 (Q0loc D dat ρ) hquad hnons hqinv m 1 hm le_rfl
+      (by rw [Nat.card_eq_fintype_card, hcardH1]) e (fun g v j => rfl)
+    simpa using h
   simpa only [zeroCount] using
     zeroCount_of_arf_one (Q0loc D dat ρ (V := V)) hquad hnons hm hcardH1 harf
 
