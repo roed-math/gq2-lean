@@ -88,6 +88,15 @@ is fully parallelizable *now*.
    edit is a red flag); `check_axioms.sh` allowlist edits are one-line and ticket-scoped;
    `docs/tickets.md` edits are own-row only; new work goes in new files (one file per paper
    section: `Prop23.lean`, `SectionThree.lean`, `BoundaryFrame.lean`, `FoxHeisenberg.lean`, …).
+6. **Scratch / prototype convention** (P-24 guard hardening): throwaway prototypes that
+   `import GQ2.*` belong in the **session scratchpad** or a repo-root **`scratch/`** (gitignored),
+   *not* under `GQ2/`.  The guard scans `GQ2/**` + `GQ2.lean` but certifies only the **committed**
+   library, so a `sorry` / `axiom` / `native_decide` in an *untracked* file **WARN**s (does not
+   FAIL) — a mid-flight scratch never blocks another session's commit.  A prototype left under
+   `GQ2/` still runs via `lake env lean`, but expect WARN noise until it is moved out or committed;
+   a genuine new module simply WARNs until its first commit (expected).  Delete throwaway scratches
+   when done — the `WF72.lean` lesson (the guard hardening removes the failure *mode*, not the
+   habit).
 
 ## Tooling (imported from LeanBridge, P-00)
 
