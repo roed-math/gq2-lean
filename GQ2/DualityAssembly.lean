@@ -419,4 +419,30 @@ theorem selfDual_of_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hge
     exact ⟨c, by
       rw [lemma_5_13_pairing_split t ht hw hV₂ hsimple hcore htau hU c lam]; simpa using hc⟩
 
+/-- **Trivial-action case.**  If all four generators act trivially then (by `hgen`) every element of
+`C` does, and the module is self-dual by `trivialSelfDual`.  This is the split sub-case where `σ`
+also acts trivially. -/
+theorem selfDual_of_trivial_action (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (hgen : t.Generates) (hV₂ : ∀ v : A, v + v = 0)
+    (hσ : ∀ v : A, t.σ • v = v) (htau : ∀ v : A, t.τ • v = v)
+    (hx0 : ∀ v : A, t.x₀ • v = v) (hx1 : ∀ v : A, t.x₁ • v = v) :
+    IsSelfDual t A := by
+  have htriv : ∀ (c : C) (v : A), c • v = v := by
+    have hle : Subgroup.closure {t.σ, t.τ, t.x₀, t.x₁} ≤
+        ({ carrier := {g | ∀ v : A, g • v = v}
+           one_mem' := fun v => one_smul C v
+           mul_mem' := fun {a b} ha hb v => by rw [mul_smul, hb v, ha v]
+           inv_mem' := fun {a} ha v => by rw [inv_smul_eq_iff]; exact (ha v).symm } : Subgroup C) := by
+      rw [Subgroup.closure_le]
+      intro g hg
+      simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hg
+      rcases hg with rfl | rfl | rfl | rfl
+      · exact hσ
+      · exact htau
+      · exact hx0
+      · exact hx1
+    rw [hgen] at hle
+    exact fun c v => hle (Subgroup.mem_top c) v
+  exact trivialSelfDual t ht hw htriv hV₂
+
 end GQ2.FoxH
