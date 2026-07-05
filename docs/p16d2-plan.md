@@ -46,20 +46,27 @@ display of Prop 8.9, for the concrete R-stage.  **Deps** P-13f (`prop_5_15`, lan
      obstruction functional `obs : D_Rmod →ₗ 𝔽₂` (`obsMapAdd` additive + `cardTwoLinEquiv`, `map_smul`
      by the two-value case split); and **`hmB_holds`** — `mB l = #{f // obs f.1.1 (toDR.symm l) = 0}`,
      exactly `stageR136_ofObstruction`'s `hmB`.
-  3. ☐ **`hobs`** — the ⟸ direction (`∃ f, liftB f = g ⟹ obs g = 0`) is provable now from
-     `lifts_scalarCover_of_liftB` + `obs_zero_iff_lifts` + (a functional is 0 iff all values are).
-     The ⟹ direction is the **hard separation** ("`g` lifts through every `λ`-cover ⟹ `g` lifts to
-     `Y`"): `obs g = 0 ⟹ pair d (Obs^s_g)` a coboundary ∀d; since `pair`'s image is `(R^∨)^C`, this
-     needs `(R^∨)^C` to separate the (framed) obstruction `Obs^s_g ∈ H²(Γ,R)` and the Frattini
-     surjectivity `eq_top_of_map_frattini_quotient_top` — a genuinely hard classical core.
+  3. ◐ **`hobs`** — the **⟸ direction DONE** (`∃ f, liftB f = g ⟹ obs g = 0`), folded into the
+     assembler (step 5): `LinearMap.ext` + case split on `toDR d = 0` (`map_zero`) vs `≠ 0`
+     (`obs_zero_iff_lifts` + `lifts_scalarCover_of_liftB`).  The ⟹ direction is the **hard
+     separation** ("`g` lifts through every `λ`-cover ⟹ `g` lifts to `Y`"), now the explicit
+     hypothesis `hsep` of `stageR136_ofRObstructionData`: `obs g = 0 ⟹ pair d (Obs^s_g)` a
+     coboundary ∀d; since `pair`'s image is `(R^∨)^C`, this needs `(R^∨)^C` to separate the
+     (framed) obstruction `Obs^s_g ∈ H²(Γ,R)` and the Frattini surjectivity
+     `eq_top_of_map_frattini_quotient_top` — a genuinely hard classical core.
   4. ☐ **`hfib`** — the fibre of `liftB` over a liftable `g` is a **twisted `Z¹(Γ,R)`-torsor** (uses
      the honest `π_B`, not the covers; needs a general-`R` torsor layer, only the `𝔽₂` prototype
      `fiberLiftEquiv` exists); `#Z¹(Γ,R) = z_R` is the source numeric (`prop_5_16` cl.2 / `prop_5_15`
-     cl.2) + `card_DR`.
-  5. ☐ **assemble** — feed `stageR136_ofObstruction` (the sink), once 3+4 land.
+     cl.2) + `card_DR`.  Now the explicit hypothesis `hfib` of `stageR136_ofRObstructionData`.
+  5. ✅ **assemble DONE** — `stageR136_ofRObstructionData` (std-3, sorry-free): feeds
+     `stageR136_ofObstruction` with `obs`/`hmB`/(the easy `hobs`) discharged, reducing the entire
+     (136) display to exactly the two hard-core hypotheses `hsep` (step 3 ⟹) and `hfib` (step 4).
 
-  Steps 3–4 are the two remaining **hard classical cores** (separation + twisted torsor); steps 1–2
-  (the obstruction map itself, the novel bulk) are complete.
+  Steps 1–2 (the obstruction map, the novel bulk) and step 5 (the assembler + easy `hobs`) are
+  **complete and committed**.  The **two remaining hard classical cores** are now cleanly isolated
+  as the two hypotheses of `stageR136_ofRObstructionData`: the separation (`hsep`) and the twisted
+  `Z¹(Γ,R)`-torsor count (`hfib`).  Discharging them — either via a further frame-compat extension
+  (the pushout-kernel link) or in the concrete `𝒴`-frame (P-16d5/d6) — closes P-16d2.
 
 ## The gap: the scalar covers are not linked to the radical extension
 
