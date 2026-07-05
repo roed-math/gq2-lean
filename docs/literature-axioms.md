@@ -252,6 +252,15 @@ can confirm the Lean statements (where present) match the paper, and see the dep
 | **Lemma 10.1** | ordinary surjection set = disjoint union of fixed-frame sets over tame frames | Prop 3.2 | — |
 | **eq. (154)** | `\|Sur(Γ_A,G)\| = \|Sur(G_ℚ₂,G)\|` | Thm 4.2 + Lemma 10.1 + Prop 2.3 | `main_surjection_count` |
 
+**Verified footprints (P-20, 2026-07-05).**  The "reduces to" column above records the *paper's*
+claim; the machine-checked per-node `#print axioms` footprints are tabulated in
+[`review-packet.md`](review-packet.md) §5 (and computed whole-library by `GQ2/AxiomLedger.lean`).
+Two are **tighter** than the claim: **Prop 1.1** is `{B3c, B8}` (not `B3,B4,B5,B7′` — B3c subsumes a
+marked B4, and B5/B7′ enter at the `lemma_3_5_hilbert_ledger` sub-node), and **Prop 5.15** is
+**std-3** (the §C annotation "uses B6" is discharged at `prop_5_16` instead, where `H²` is computed).
+**Prop 3.2** (local) is `{B10}` as §C states — note the `AxiomLedger.lean` header's older
+"Prop 3.2 → B5" predates the B10 census decision.
+
 Internal dependency chain feeding **Thm 4.2** (paper App. D), all *paper* lemmas resting on §B:
 5.7/5.8 (Stokes) → 5.10 (Fox–Heisenberg chain map); 5.11/5.13 → 5.15 (elementary-module duality, uses
 B6); 6.13 → Evens normalization (B9); 6.15 → 6.17 (deep-half vanishing); 6.8 → 6.9 (ramified Gauss
@@ -323,15 +332,20 @@ Stiefel–Whitney/Evens classes, étale `π₁`) before they can be stated faith
   `x₁²x₂⁴[x₂,x₃]⋯`; at `d=1` = the paper's `D₀`) and **Theorem 4 case (2)** (canonical character
   `−1, (1−2^f)^{-1}, 1`) — both verified verbatim.
 
-**🟡 Pending line-local PDF verification (deferred to P-20):**
-- **B11a / B11b** — Serre, *Local Fields* [7], **Ch. XIV §2** (Hilbert-symbol norm criterion:
-  `[a]∪[b]=0 ⟺ b` is a norm from `k(√a)`) and **Ch. V §2** (units of an unramified extension are
-  norms).  The content is standard local class field theory, but the exact display/theorem numbers
-  are **not yet** line-checked against the `references/` Serre PDF — these leaves were added by
-  P-15/P-23 *after* this section's verification pass, so their citation numbers are resolved by
-  **P-20**.  The repo-specific "unramified = equal spectral-norm value groups" bridge is a `def`
-  (`GQ2.IsUnramifiedQuadraticSpectral`), a named convention rather than a cited theorem, so it adds
-  no proof-theoretic strength (P-23).
+**✅ Line-checked by P-20 (2026-07-05), against the `references/` Serre *Local Fields* (GTM 67) scan:**
+- **B11a** — Serre, *Local Fields* [7], **Ch. XIV §2 "The Symbol (a,b)", Proposition 7, clause iii)**
+  (book p. 209): "in order that `(a,b)ᵥ = 1`, it is necessary and sufficient that `b` be a norm in
+  the extension `K(a^{1/n})/K`."  The symbol `(a,b)ᵥ := inv_K(a∪b)` is defined at the start of §2
+  (p. 208), so at `n = 2` this is `[a]∪[b]=0 ⟺ b ∈ N_{K(√a)/K} ⟺ b = x²−ay²`.  (Ch. XIV §2 Exercise 3
+  gives the odd-degree Steinberg relation; Ch. XIV §4, p. 214, computes the symbol for `Q_p, n=2`.)
+- **B11b** — Serre, *Local Fields* [7], **Ch. V §2 "The Unramified Case", Proposition 3** (book p. 82)
+  with its **Corollary + Remark 1**: `N(Uⁿ_L) = Uⁿ_K` for `n ≥ 1`, and the equivalence
+  `[K*:NL*]=f ⟺ U_K=NU_L ⟺ K̄*=NL̄*`, the last holding when the residue field is finite (Remark 1).
+  So for `K` with finite residue field (`ℚ₂`: residue `𝔽₂`) and `L/K` unramified, `U_K = N_{L/K}(U_L)`:
+  every unit is a norm.  Rests on Prop. 1 (`N: Uⁿ_L→Uⁿ_K`) and Prop. 2 (graded pieces = residue
+  norm/trace) of §2.  The repo-specific "unramified = equal spectral-norm value groups" bridge is a
+  `def` (`GQ2.IsUnramifiedQuadraticSpectral`), a named convention rather than a cited theorem, so it
+  adds no proof-theoretic strength (P-23).
 
 **Discharged (proved in-repo):** RZ Hopfian = **Prop. 2.5.2** (also confirmed against source);
 Schur–Zassenhaus (Mathlib).
@@ -339,10 +353,8 @@ Schur–Zassenhaus (Mathlib).
 **Tertiary corroboration still unchecked:** **Milne *ADT* I.2.1/I.2.8** (free online) — for B6/B7,
 superfluous now that both NSW **and** Serre *GC* are verified.
 
-**Net: eleven of the thirteen leaves (B1–B10, B7′) are source-verified** — each carries an exact
+**Net: all thirteen leaves (B1–B10, B7′, B11a, B11b) are source-verified** — each carries an exact
 theorem number and a verbatim statement checked against the provided PDFs (B6/B7 doubly-sourced;
-B3's Theorem 8 at `d=1` reproduces the paper's `D₀` on the nose). The two would-be finite-group
-inputs (RZ Hopfian Prop. 2.5.2, Schur–Zassenhaus) are *proved* in the formalization. The remaining
-two leaves — **B11a/B11b** (added by P-15/P-23) — carry standard local-CFT content but await a
-line-local Serre *Local Fields* quote (deferred to **P-20**); nothing else in the classical layer
-remains unchecked.
+B3's Theorem 8 at `d=1` reproduces the paper's `D₀` on the nose; B11a/B11b line-checked by P-20,
+2026-07-05). The two would-be finite-group inputs (RZ Hopfian Prop. 2.5.2, Schur–Zassenhaus) are
+*proved* in the formalization. Nothing in the classical layer remains unchecked.

@@ -27,8 +27,9 @@ classical input) and **Schur–Zassenhaus** (§9.1 terminal case).
 **Status.** The **ten leaves above are source-verified** — each has an exact theorem number and a
 verbatim statement checked against the cited book/paper (`✓`; `✓✓` = two independent sources). *Two
 later census additions are off this condensed page:* **B10** (tame quotient, NSW **(7.5.3)** —
-verified) and **B11a/B11b** (dyadic norm criterion, Serre *Local Fields* **XIV/V** — display numbers
-pending P-20); see `literature-axioms.md`.  Full census: **13** axioms.
+verified) and **B11a/B11b** (dyadic norm criterion, Serre *Local Fields* **XIV §2 Prop. 7 iii** /
+**V §2 Prop. 3** — line-checked by P-20, 2026-07-05); see `literature-axioms.md`.  Full census:
+**13** axioms, all source-verified.
 
 **Legend / refs.** `✓` checked against source; `✓✓` two sources. — **NSW** =
 Neukirch–Schmidt–Wingberg, *Cohomology of Number Fields*, 2nd ed.; **Serre *GC*** = *Galois

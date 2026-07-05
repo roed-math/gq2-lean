@@ -1,20 +1,34 @@
-# Review packet — the formalized statements of Theorem 1.2's literature inputs
+# Review packet (v3) — the formalized statements behind Theorem 1.2
 
-**Audience**: expert reviewers checking that this repository's *axioms* faithfully state known
-literature results.  You do **not** need to read Lean proofs: every `axiom` is quoted with a
-citation and a docstring, and everything *proved* in the repository is machine-checked (kernel
-axioms `propext`, `Classical.choice`, `Quot.sound` only — "std-3" below).
+**Audience**: expert reviewers checking that this repository faithfully states (a) the known
+**literature results** it assumes as `axiom`s and (b) the paper's own **interior nodes** it proves
+from them.  You do **not** need to read Lean proofs: every `axiom` is quoted with a citation and a
+docstring, everything *proved* is machine-checked (kernel axioms `propext`, `Classical.choice`,
+`Quot.sound` only — "std-3" below), and the per-node axiom footprint is reported in §5.
+
+**What v3 adds over v2.**  §2 (the axioms) is unchanged except that the two P-23 leaves B11a/B11b
+now carry their **line-checked Serre citations** (previously "pending PDF verification — P-20").
+New: **§4** quotes the paper's interior-node statements and — critically — the **statement
+amendments** where the Lean statement carries hypotheses beyond the paper's printed text; **§5** is
+the **App. D certificate diff**, a per-node `#print axioms` footprint checked against the paper's
+proof-dependency certificate (Appendix D) and the §C reduction claims.  The P-22
+citation-faithfulness classification (§2) is carried forward.
 
 **Context.**  The repo formalizes the *statement* of the paper's Theorem 1.2 (a profinite
-presentation of `G_{ℚ₂}`) and reduces its proof to (a) the paper's own §§3–9 argument (left as
-explicit `sorry`s, see §4) and (b) **thirteen classical literature results B1–B11**, stated as
-Lean `axiom`s.  (The census was ten at the step-1 freeze; **B10** and the base-generalized
-**B9 + B11** were added by explicit, recorded census decisions during step 2; **B11 was then split
-into the two classical leaves B11a/B11b by P-23** — user-approved 2026-07-04, census 12→13 — see
-the amendment history at the end of §2.)  The review question is:
+presentation of `G_{ℚ₂}`) and reduces its proof to (a) the paper's own §§3–10 argument (interior
+nodes, §4; the still-open ones are the `sorry`s of §6) and (b) **thirteen classical literature
+results B1–B11**, stated as Lean `axiom`s (§2).  (The census was ten at the step-1 freeze; **B10**
+and the base-generalized **B9 + B11** were added by explicit, recorded census decisions during
+step 2; **B11 was then split into the two classical leaves B11a/B11b by P-23** — user-approved
+2026-07-04, census 12→13 — see the amendment history at the end of §2.)  The two review questions
+are:
 
-> **Does each axiom below correctly state the cited literature result — including all
-> normalizations and conventions?**
+> **(Q1 — axioms, §2/§3)** Does each `axiom` correctly state the cited literature result, including
+> all normalizations and conventions?
+>
+> **(Q2 — interior nodes, §4/§5)** Does each interior-node *Lean statement* match the paper's, and
+> where it carries an **added hypothesis**, is that addition sound (a genuine standing assumption of
+> the paper, not a smuggled weakening)?
 
 Full citations with per-result discussion: [`literature-axioms.md`](literature-axioms.md).
 Design rationale: [`formalization-plan.md`](formalization-plan.md).  Ticket-level acceptance
@@ -25,19 +39,22 @@ records: [`tickets-step1.md`](tickets-step1.md) (the live step-2 board is
 
 ```bash
 lake exe cache get          # fetch Mathlib build cache (once)
-lake build GQ2              # full build: `sorry`s only in the allowlisted files (§4 + the
+lake build GQ2              # full build: `sorry`s only in the allowlisted files (§6 + the
                             # step-2 statement files tracked in docs/tickets.md)
 ./scripts/check_axioms.sh   # axiom hygiene: all `axiom`s in GQ2/Foundations/Axioms.lean,
                             # census = 13, sorries ⊆ allowlist, no native_decide
+lake env lean GQ2/AxiomLedger.lean   # the repo-wide per-declaration certificate (P-01): every
+                            # decl's transitive axiom footprint, B-labelled, with the sorry gap-map
 ```
 
-For any individual theorem, `#print axioms <name>` in a scratch file shows its axiom
-footprint; every *theorem* in the repo is std-3, plus (for declared consumers, e.g. the B7
-consequence suite) exactly the B-axiom it consumes.
+For any individual theorem, `#print axioms <name>` in a scratch file shows its axiom footprint;
+every *theorem* in the repo is std-3, plus (for declared consumers) exactly the B-axioms it
+consumes.  §5 tabulates these footprints for the interior nodes; [`GQ2/AxiomLedger.lean`](../GQ2/AxiomLedger.lean)
+is the mechanical, whole-library version.
 
 ## 2. The axioms: Lean names per B-leaf
 
-All twelve live in [`GQ2/Foundations/Axioms.lean`](../GQ2/Foundations/Axioms.lean) — the single
+All thirteen live in [`GQ2/Foundations/Axioms.lean`](../GQ2/Foundations/Axioms.lean) — the single
 file permitted to declare axioms.  "Defs" = the file with the supporting definitions (each of
 which is *fully proved*, never assumed).
 
@@ -54,10 +71,27 @@ which is *fully proved*, never assumed).
 | **B8** | cyclotomic action on the peripheral generators of `Δ = maxPro2(F₂)` (Lemma 3.6) | Stix §3.3, Def. 37; Deligne | `GQ2.peripheralCyclotomicAction` | `GQ2/PeripheralAction.lean` |
 | **B9** | Evens/Kahn eq. (111): `w(Tr⟨a⟩) = w(Tr⟨1⟩)(1 + cor[a] + N^{Ev}[a])`, deg ≤ 2, over any **finite dyadic base `k`** | Kahn Th. 2; Kozlowski 1.1; Evens Th. 1 | `GQ2.evensKahn_dyadic` | `GQ2/EvensKahn.lean` |
 | **B10** | the tame quotient of `G_{ℚ₂}`: closed normal pro-2 `W` with `G_{ℚ₂}/W ≅ ⟨σ,τ ∣ τ^σ = τ²⟩_prof` | NSW (7.5.3) (Iwasawa), (7.5.2); Serre LF IV | `GQ2.tameQuotient` | `GQ2/TameQuotient.lean` |
-| **B11a** | dyadic norm criterion over finite bases: `[a]∪[b] = 0 ⟺ b = x² − ay²` in `k` | Serre LF XIV §2 *(display numbers pending PDF verification — P-20)* | `GQ2.hilbertSymbol_normCriterion_finiteDyadic` | `GQ2/Foundations/Axioms.lean` |
-| **B11b** | units are norms from an unramified quadratic extension (`IsUnramifiedQuadraticSpectral` ⟹ every base unit is a norm) | Serre LF V §2 *(display numbers pending PDF verification — P-20)* | `GQ2.unramifiedQuadratic_units_are_norms` | `GQ2/Foundations/Axioms.lean` |
+| **B11a** | dyadic norm criterion over finite bases: `[a]∪[b] = 0 ⟺ b = x² − ay²` in `k` | **Serre LF Ch. XIV §2, Prop. 7 (iii)** — `(a,b)ᵥ=1 ⟺ b ∈ N_{K(a^{1/n})/K}`; symbol `(a,b)ᵥ = inv_K(a∪b)` (§2, p. 208); the `n=2` case | `GQ2.hilbertSymbol_normCriterion_finiteDyadic` | `GQ2/Foundations/Axioms.lean` |
+| **B11b** | units are norms from an unramified quadratic extension (`IsUnramifiedQuadraticSpectral` ⟹ every base unit is a norm) | **Serre LF Ch. V §2, Prop. 3 + Cor./Rem. 1** — `N(Uⁿ_L)=Uⁿ_K`, and a finite residue field gives `U_K = N_{L/K}(U_L)` | `GQ2.unramifiedQuadratic_units_are_norms` | `GQ2/Foundations/Axioms.lean` |
 
-*(P-23, 2026-07-04: the old single `axiom GQ2.dyadicNormCriterion` was split into the two classical leaves B11a/B11b above; it survives as a same-name **theorem** over them, so every consumer's `.1`/`.2` projection is unchanged. The repo-specific "unramified = equal spectral-norm value groups" proxy is isolated as the `def GQ2.IsUnramifiedQuadraticSpectral` — a named convention, not an axiom.)*
+*(P-20, 2026-07-05: the B11a/B11b citations above are now line-checked against the `references/`
+Serre *Local Fields* (GTM 67) scan.  **B11a** = **Ch. XIV §2 "The Symbol (a,b)", Proposition 7,
+clause iii)** (p. 209): "in order that `(a,b)ᵥ = 1`, it is necessary and sufficient that `b` be a
+norm in the extension `K(a^{1/n})/K`"; the symbol `(a,b)ᵥ := inv_K(a∪b)` is defined at the start of
+§2 (p. 208), so at `n = 2` this is `[a]∪[b] = 0 ⟺ b ∈ N_{K(√a)/K} ⟺ b = x²−ay²`.  (Ch. XIV §2
+Exercise 3 gives the odd-degree Steinberg relation `(a,b)+(b,c)+(c,a)=0` when `a+b+c=0`; Ch. XIV §4,
+p. 214, computes the symbol for `Q_p, n=2` explicitly.)  **B11b** = **Ch. V §2 "The Unramified Case",
+Proposition 3** (p. 82) with its **Corollary + Remark 1**: `N(Uⁿ_L)=Uⁿ_K` for `n≥1`, and the three
+equivalent conditions `[K*:NL*]=f ⟺ U_K=NU_L ⟺ K̄*=NL̄*`, the last holding when the residue field is
+finite (Remark 1) — so for `K` with finite residue field (`ℚ₂`: residue `𝔽₂`) and `L/K` unramified,
+`U_K = N_{L/K}(U_L)`, every unit is a norm.  This rests on Prop. 1 (`N: Uⁿ_L→Uⁿ_K`) and Prop. 2
+(graded pieces = residue-field norm/trace) of the same §2.)*
+
+*(P-23, 2026-07-04: the old single `axiom GQ2.dyadicNormCriterion` was split into the two classical
+leaves B11a/B11b above; it survives as a same-name **theorem** over them, so every consumer's
+`.1`/`.2` projection is unchanged. The repo-specific "unramified = equal spectral-norm value groups"
+proxy is isolated as the `def GQ2.IsUnramifiedQuadraticSpectral` — a named convention, not an
+axiom.)*
 
 ### Citation-faithfulness classification
 
@@ -80,7 +114,8 @@ verbatim single-citation theorems:
 * **B3c** = Labute's orientation values + the local-Galois fact (Demushkin dualizing character =
   cyclotomic character, through this quotient map) + a normalized B4 isomorphism.  It **subsumes a
   marked B4**, so a downstream `#print axioms` showing `dyadicOrientation` need not also list B4
-  unless B4 is consumed independently.
+  unless B4 is consumed independently.  (Confirmed in §5: `prop_1_1`/`prop_3_10_local_marked` show
+  `dyadicOrientation` **without** `absGalQ2_maxProTwo_presentation`.)
 * **B8** = Stix (peripheral inertia acts through the cyclotomic character) + **cyclotomic
   surjectivity** (B2 globally / B5's `χ_cyc∘rec = (·)⁻¹` locally), needed for the all-units
   quantifier.  Statement kept in all-units form (P-22); the cyclotomic-image weakening was declined.
@@ -90,10 +125,11 @@ verbatim single-citation theorems:
   "unramified = equal spectral-norm value groups" proxy — the least citation-faithful piece — is
   isolated as the **`def IsUnramifiedQuadraticSpectral`** (a named convention, *not* an axiom, so
   it adds no proof-theoretic strength) and consumed as B11b's hypothesis.  `dyadicNormCriterion`
-  survives as a same-name **theorem** over B11a+B11b, so its consumers took zero edits.
+  survives as a same-name **theorem** over B11a+B11b, so its consumers took zero edits.  Both leaves
+  are consumed together at exactly one node — `lemma_6_16`, the deep-unit Hilbert ledger (§5).
 
 B3c/B8 are documented composites with statements unchanged (**P-22**, user decision 2026-07-04);
-B2's unused status is recorded on its axiom docstring.
+B2's unused status is recorded on its axiom docstring and re-confirmed by the §5 footprint scan.
 
 ### Census amendment history (step 2)
 
@@ -153,8 +189,10 @@ These are *constructions with full proofs* (std-3), so the review question is on
   proved) — `GQ2/EvensKahn.lean`.
 * `GQ2.Zhat`, `GQ2.omega2`, ẑ-exponentiation `x ^ᶻ γ` (`GQ2/Zhat.lean`); `GQ2.GammaA` — the
   paper's presented group, eq. (7) verbatim (`GQ2/GammaA.lean`).
+* `GQ2.IsUnramifiedQuadraticSpectral` — B11b's "unramified" proxy (equal spectral-norm value
+  groups); a **named convention**, not an axiom (P-23).
 
-## 3. Deviations table (all flagged in-file at the axiom/definition)
+## 3. Axiom deviations table (all flagged in-file at the axiom/definition)
 
 | Leaf | Deviation from the literal literature statement | Why |
 |---|---|---|
@@ -170,30 +208,185 @@ These are *constructions with full proofs* (std-3), so the review question is on
 | B8 | the cyclotomic exponent `ι : ℤ₂ˣ → ℤ̂` is bundle data, pinned by continuity and `ι(1) = ω₂` | full pinning is the ring structure of `ℤ̂`, out of scope |
 | B9 | truncated to degrees ≤ 2; asserted at the paper's fixed diagonalizations `Tr⟨a⟩ ≃ ⟨2u, 2dn/u⟩`, `Tr⟨1⟩ ≃ ⟨2, 2d⟩` with `w₁⟨x,y⟩ = [x]+[y]`, `w₂⟨x,y⟩ = [x]∪[y]` | no quadratic-form/SW machinery needed; Delzant well-definedness absorbed into the scoping; deg-1 component ⟺ classical `cor[a] = [N_{L/k}a]` |
 | B9 | Kummer classes over a general base `k` use canonical square roots (`sqrtCl`) and live over the subtype group `G_k = k.fixingSubgroup ≤ G_{ℚ₂}` (`kummerClassK`) | class independent of the root (proved, T-13); one fixed algebraic closure throughout — no closure-transport |
-| B11 | "`b` is a norm from `k(√a)`" encoded by the norm form `∃ x y, b = x² − ay²` | elementary and extension-plumbing-free; for `a` a square the norm form is universal, so the criterion needs no non-square hypothesis |
-| B11 | "`k(√a)/k` unramified" encoded as elementwise equality of norm value groups (spectral norm on `ℚ̄₂`) | matches the `IsDeepUnit`/`lemma_6_16` convention; avoids ramification-index bookkeeping (`e = v_k(2)`: depth `≥ e+1 ⟺ ‖·‖ < ‖2‖`) |
-| B11 | Steinberg `[x]∪[1−x] = 0` and `[2]∪[−1] = 0` are not separate clauses | consequences of the criterion via the norm representations `1−x = 1²−x·1²`, `−1 = 1²−2·1²` |
+| B11a | "`b` is a norm from `k(√a)`" encoded by the norm form `∃ x y, b = x² − ay²` | elementary and extension-plumbing-free; for `a` a square the norm form is universal, so the criterion needs no non-square hypothesis |
+| B11b | "`k(√a)/k` unramified" encoded as elementwise equality of norm value groups (spectral norm on `ℚ̄₂`, the `def IsUnramifiedQuadraticSpectral`) | matches the `IsDeepUnit`/`lemma_6_16` convention; avoids ramification-index bookkeeping (`e = v_k(2)`: depth `≥ e+1 ⟺ ‖·‖ < ‖2‖`) |
+| B11a | Steinberg `[x]∪[1−x] = 0` and `[2]∪[−1] = 0` are not separate clauses | consequences of the criterion via the norm representations `1−x = 1²−x·1²`, `−1 = 1²−2·1²` |
 | general | cohomology is this repo's explicit `ContCoh` (degrees ≤ 2), not Mathlib's homogeneous `continuousCohomology` | Mathlib's has no low-degree cochain surface yet; `H⁰` agreement is proved (`GQ2/CtsCohBridge.lean`), `H¹/H²` comparison is Mathlib's own open TODO ([`cts-cohomology-gap.md`](cts-cohomology-gap.md)) |
 
 Bundle-style axioms (B5, B6, B8, B3c) assert *existence of data with properties* (structure
 types `LocalReciprocity`, `TateDuality n`, `PeripheralCyclotomicAction`, `DyadicOrientation`);
 their stress tests are parametrized over an *arbitrary* bundle and are therefore axiom-free —
 they certify the clauses are usable and mutually consistent, e.g. the B3c values reproduce the
-paper's eq. (13) row *independently derived* from B5's normalizations.
+paper's eq. (13) row *independently derived* from B5's normalizations.  This bundle shape also
+explains a pattern in §5: an interior node *parametric over* `(R : LocalReciprocity)` or
+`(D : TateDuality n)` shows **std-3**; the leaf surfaces as an axiom only where the axiom *term*
+(`GQ2.localReciprocity`, `GQ2.tateDuality`) is instantiated.
 
-## 4. What remains assumed beyond the axioms (the three `sorry`s)
+## 4. The paper's interior nodes: statements (check against the *paper*)
+
+These are the paper's **own** §§3–10 lemmas and propositions — its contribution, reducing eq. (154)
+to the leaves of §2.  Unlike §2 (check against the literature), the review question here is **Q2**:
+does the Lean *statement* match the paper's, and are any added hypotheses sound?  Machine status:
+every node below is either **std-3 + its declared leaves** (proved) or an intentional **`sorry`**
+(open; §6).  The paper's internal dependency edges (Appendix D) and the per-node axiom footprints
+are diffed in §5.
+
+**Locator.**  Paper node → Lean declaration (all under `namespace GQ2` and sub-namespaces
+`FoxH`/`SectionThree`/`SectionSix`/`SectionSeven`/`SectionEight`/`RepIndependence`/`DeepPart`):
+
+| Paper node | paper display | Lean declaration | file | status |
+|---|---|---|---|---|
+| Prop 1.1 (marked Demushkin normalization) | §3, `⟨a,s,y \| a²s⁴[s,y]⟩`, `ν_ur=(−2,1,0)` | `SectionThree.prop_1_1` | `PropOneOneAssembly.lean` | proved |
+| Prop 2.3 (surjection count) | `\|Sur(Γ_A,G)\| = admissibleCount G` | `prop_2_3` | `Prop23.lean` | proved |
+| Lemma 3.1 / 3.3 (tame quotient group theory) | `t^s=t²` finite ⇒ `C_e⋊C_n`, `O₂=W` | `Tame.tame_semidirect`, `Tame.tame_normal_two_subgroup_central`, `Tame.tame_zpowers_disjoint` | `Tame.lean` | proved |
+| Prop 3.2 (common tame quotient, local side) | `G_ℚ₂/W_F ≅ T_tame` | `prop_3_2_local` | `Prop32.lean` | proved |
+| Prop 3.10 (local marked anabelian iso) | `(Π,ν₂) ≅ (G_ℚ₂(2), ν_ur)` | `prop_3_10_local_marked` | `SectionThreeMarked.lean` | proved |
+| Prop 3.14 (boundary-maps bundle) | the 21-field `BoundaryMaps` | `prop_3_14` | `SectionThreeMarked.lean` | `sorry` (one gap) |
+| Lemma 5.7 (finite-word Stokes) | eqs. (38)/(39) | `FoxH.lemma_5_7_left`, `FoxH.lemma_5_7_right` | `FoxHeisenberg.lean` | proved |
+| Prop 5.8 / Prop 5.10 (Fox–Heisenberg chain map) | (41) = chain identity (47) | `FoxH.prop_5_8_left`, `FoxH.prop_5_8_right` | `FoxHeisenberg.lean` | proved |
+| Lemma 5.11 (exact-cone dévissage, 2-of-3) | §5 | `lemma_5_11` | `Devissage.lean` | proved |
+| Lemma 5.12 / 5.13 (simple normal forms) | §5 | `FoxH.lemma_5_12`, `FoxH.lemma_5_13_split`, `FoxH.lemma_5_13_ramified` | `FoxHeisenberg.lean` | proved |
+| Prop 5.15 (elementary-module duality) | §5 | `prop_5_15` (+ `FoxH.prop_5_15_of_simple`) | `DualityAssembly.lean` | proved |
+| Lemma 5.16 (local lifting duality) | §5 | `FoxH.prop_5_16` | `LocalLiftingDuality.lean` | proved |
+| Lemma 6.6 (Wall doubling) | (86) | `SectionSix.lemma_6_6` | `SectionSix.lean` | proved |
+| Lemma 6.8 (ramified Hermitian + fixed space) | (87)/(88) | `SectionSix.lemma_6_8` | `SectionSix.lean` | proved |
+| Prop 6.9 (candidate ramified Gauss sign) | (91) | `SectionSix.prop_6_9_unramified`, `SectionSix.prop_6_9_ramified` | `SectionSix.lean` | proved |
+| Lemma 6.13 (universal two-point `D₈` class) | (96) | `SectionSix.lemma_6_13_dihedral`, `SectionSix.lemma_6_13_evens` | `SectionSix.lean` | proved |
+| Lemma 6.14 (regular-module realization) | (102) | `RepIndependence.lemma_6_14` | `RepIndependence.lean` | proved |
+| Lemma 6.15 (normalized Shapiro–cor identity) | (103)–(105) | `SectionSix.lemma_6_15_involution` (+ `_square`, `_free`) | `SectionSix.lean` | proved |
+| Lemma 6.16 (deep-unit Hilbert-symbol ledger) | (105) | `SectionSix.lemma_6_16` | `SectionSix.lean` | proved |
+| Lemma 6.17 (deep half totally singular) | §6.3 | `SectionSix.lemma_6_17_dim`, `SectionSix.lemma_6_17_vanish` | `SectionSix.lean` | `sorry` |
+| Prop 6.18 (local ramified hyperbolicity) | (115) | `DeepPart.prop_6_18_ramified` (+ `SectionSix.prop_6_18_unramified`) | `DeepPart.lean` / `SectionSix.lean` | `sorry` |
+| Lemma 6.21 (qualified determinant transgression) | (116) | `SectionSix.lemma_6_21` | `SectionSix.lean` | proved |
+| Lemma 6.22 (marking-preserving shear) | §6.4 | `SectionSix.lemma_6_22` | `SectionSix.lean` | proved |
+| Lemma 7.2 / Prop 7.4 (minimal-block form) | §7 | `SectionSeven.lemma_7_2`, `SectionSeven.prop_7_4` | `SectionSeven.lean` | proved |
+| Lemma 8.6 (radical-edge variation) | (139) | `SectionEight.lemma_8_6_local` (+ `_gammaA`) | `SectionEight.lean` | local proved; Γ_A side `sorry` |
+| Prop 8.9 (closed recursion) | (136)–(142) | `SectionEight.prop_8_9` | `SectionEight.lean` | `sorry` |
+| Thm 4.2 (boundary-framed exact-image) | §4/§9 | `thm_4_2` | `BoundaryFrame.lean` | `sorry` |
+| Lemma 10.1 (exhaustion by tame frames) | §10 | *(folded into `main_surjection_count`; not yet a standalone decl — P-18)* | `Statement.lean` | `sorry` |
+| eq. (154) (surjection-count identity) | (154) | `main_surjection_count` | `Statement.lean` | `sorry` |
+| Thm 1.2 (literal presentation) | Thm 1.2 | `main_presentation_literal` | `GammaA.lean` | `sorry` |
+
+### 4.1 Statement amendments beyond the paper (review-critical)
+
+Several §6 nodes carry hypotheses **added during formalization** beyond the paper's printed
+statement.  Each is a documented standing assumption of the paper's §6.3 setup (or a genuine
+correction), flagged in-file "flag for P-20" and reproduced here for scrutiny.  **These are the
+Q2 review targets** — a reviewer should confirm each addition is a real hypothesis of the paper's
+argument, not a smuggled weakening of the conclusion.
+
+* **`lemma_6_17_dim` — the load-bearing one (P-15f1, user-approved 2026-07-05).**  The paper's
+  Lemma 6.17 "the deep half is totally singular, `#X₊² = #H¹`" is **false as stated without the
+  invariant quadratic form**.  The Lean statement adds the §6.3 standing package
+  `(q, hq : IsQuadraticFp2 q, hns : Nonsingular q, hinv : IsInvariant C q)` whose polar makes `V`
+  **self-dual**, plus `hc : Surjective ⇑c` and `hV2`.  *Counterexamples without self-duality*:
+  `H_V = C₇⋊C₃` acting on `V = 𝔽₈` satisfies every other hypothesis but has `#H¹ = 8`, not a perfect
+  square; and `#V = 2^{2m}` does not repair it (`C₁₅⋊C₄` on `𝔽₁₆` gives `dim X₊ = 1 ≠ 2`).  The
+  paper's proof silently uses self-duality for the equal `V`-isotypic multiplicities in dual depth
+  pairs.  Full route analysis: [`docs/p15f1-scoping.md`](p15f1-scoping.md).
+* **`lemma_6_8` (P-15f / P-15b).**  Adds `hc : Surjective ⇑c` (§6.3: `ρ` classifies onto `C`), the
+  invariant nonsingular form `(q, hq, hns, hinv)`, `hV2`, the simplicity of the `⟨T⟩`-isotypic
+  piece `hWtsimple`, and — flagged as a **genuine remaining gap** — the isotypic data
+  `hVU` ((88a) `#V^U = 2^{rs}`) and `hrank` ((88b) `rank(1+U) ≡ s`) **as hypotheses**: deriving them
+  needs the `S`-action / `ω₂`-cycle structure absent from the supplied `⟨cτ⟩`-equivariance `he`
+  (see [`docs/p15b-field-core-scoping.md`](p15b-field-core-scoping.md)).
+* **`lemma_6_17_vanish` (P-15f).**  Adds `hc` and `hV2` — same §6.3 standing assumptions (the orbit
+  analysis runs over the splitting field `K = ℚ̄₂^{ker ρ}` with `Gal(K/ℚ₂) ≅ C`, which needs `ρ`
+  onto `C`).
+* **`prop_6_18_unramified` (P-15f).**  Adds `hc : Surjective ⇑c` (as in the ramified case).
+* **`lemma_6_14` (P-15d).**  Adds the compatibility hypotheses `Q⁰_loc` requires: `hdatW`
+  (equivariant factor set), `hiC` (`i` a `C`-module map, eq. (77)'s `i⋊1`), `hρW`.
+* **`lemma_6_21` (P-15i).**  Restores the paper's *relative* clause `κ⁰_q` (a zero-section-normalized
+  equivariant class restricting to `q` on `V`), dropped by an earlier consequence-form extraction;
+  without it the intrinsic equivariance obstruction blocks the proof
+  ([`docs/p15i-transgression-gap.md`](p15i-transgression-gap.md)).
+* **`lemma_6_6` — a paper-silent hypothesis, not a formalization artifact.**  Wall's doubling
+  (86) is proved via an abstract Wall count that **requires** a 2-power-order monodromy hypothesis
+  (`hU2 : ∃ n, U^[2^n] = id`).  The hypothesis is *essential*: the biadditive form `ω = [[1,1],[0,1]]`
+  on `𝔽₂²` gives `∑(−1)^{…} = −8 ≠ 4 = (−2)^k`.  **The paper's induction sketch is silent on it.**
+  In the repo the hypothesis is always discharged (the monodromy is `S^{ω₂}`, of 2-power order), so
+  this is a *gap in the paper's exposition*, not in the formalization — flagged here for the record.
+
+## 5. Appendix D certificate diff (per-node `#print axioms`)
+
+The paper's **Appendix D** is a *proof-dependency certificate*: nine rows, each naming a
+"proved input" and its "first downstream use" — an **internal implication chain** among the paper's
+own lemmas (it names no literature axioms).  The certificate check has two layers: **(a)** does the
+repo realize each App. D edge, and **(b)** does each node's machine-checked `#print axioms` footprint
+match the literature leaves that edge chain reduces to (`literature-axioms.md` §C)?  All footprints
+below are verified against a green build; the whole-library version is
+[`GQ2/AxiomLedger.lean`](../GQ2/AxiomLedger.lean).
+
+**Reading the footprint.**  `std-3` = `[propext, Classical.choice, Quot.sound]` (no mathematical
+content).  A leaf label (B5, B6, …) means the node invokes that **axiom term**; a node *parametric*
+over a bundle (`LocalReciprocity`, `TateDuality n`) shows std-3 and does **not** list the leaf (§3),
+so the footprint is the *minimal* honest dependency.  `sorryAx` = the node is still an intentional
+open leaf (§6).
+
+### 5a. Appendix D's nine edges, as realized
+
+| # | App. D: proved input → first downstream use | Lean input (footprint) | Lean downstream use (footprint) | edge |
+|---|---|---|---|---|
+| 1 | Stokes 5.7 & Prop 5.8 → chain map (Prop 5.10) | `lemma_5_7_left/right`, `prop_5_8_left/right` — **std-3** | chain map = the traced Prop 5.8 identities — **std-3** | ✔ realized, std-3 |
+| 2 | dévissage 5.11 & 5.13 → duality Prop 5.15 | `lemma_5_11`, `lemma_5_13_split/ramified` — **std-3** | `prop_5_15` — **std-3** | ✔ realized, std-3 |
+| 3 | two-point `D₈` class 6.13 → half-orbit Evens normalization | `lemma_6_13_dihedral/evens` — **std-3** | (feeds 6.15/6.16) | ✔ realized, std-3 |
+| 4 | Shapiro–cor 6.15 → deep-half vanishing 6.17 | `lemma_6_15_involution` — **std-3** | `lemma_6_17_dim/vanish` — **sorryAx** | input ✔; **use OPEN** |
+| 5 | ramified Hermitian 6.8 → Gauss sign Prop 6.9 | `lemma_6_8` — **std-3** | `prop_6_9_ramified` — **std-3** | ✔ realized, std-3 |
+| 6 | deep-unit ledger 6.16 → hyperbolicity Prop 6.18 | `lemma_6_16` — **std-3 + B9 + B11a + B11b** | `prop_6_18_ramified` — sorryAx + B7; `prop_6_18_unramified` — sorryAx | input ✔ (**B9/B11 land here**); **use OPEN** |
+| 7 | determinant transgression 6.21 → split `B/T ≅ V⋊C` | `lemma_6_21` — **std-3** | (consumed §§8–9) | ✔ realized, std-3 |
+| 8 | radical-edge 8.6 → half-torsor count | `lemma_8_6_local` — **std-3 + B6 + B7**; `lemma_8_6_gammaA` — **sorryAx** | (half-torsor count, §8) | local ✔; **Γ_A side OPEN** |
+| 9 | closed recursion 8.9 → Thm 4.2 | `prop_8_9` — **sorryAx** | `thm_4_2` — **sorryAx** | both **OPEN** |
+
+Every App. D **input** node is realized; five are fully proved (rows 1, 2, 3, 5, 7 — std-3),
+one carries its expected literature leaves (row 6 — B9/B11a/B11b at the deep-unit ledger), and the
+still-open **use** nodes (rows 4, 6, 8-Γ_A, 9) are the remaining §6.3/§8/§9 tower, tracked in §6.
+No proved node's footprint exceeds std-3 ∪ {its declared leaves}.
+
+### 5b. Top-level and §3 nodes: footprint vs claimed reduction
+
+| Node | claimed reduction (`§C` / App. D) | verified footprint | note |
+|---|---|---|---|
+| Prop 2.3 | elementary | **std-3** | ✔ |
+| Prop 1.1 | B3, B4, B5, B7′ | **B3c + B8** | tighter: B3c **subsumes marked B4** (P-22); B5/B7′ enter at the `lemma_3_5_hilbert_ledger` sub-node, not Prop 1.1 itself (`lemma_3_5_hilbert_ledger` = std-3 + B7′) |
+| Lemma 3.1 / 3.3 | finite group theory | **std-3** | ✔ |
+| Prop 3.2 (local) | B10 (local side) | **B10** | ✔ — the `AxiomLedger` header's "Prop 3.2 → B5" is **pre-B10 stale** (predates the P-06 census decision); §C already says B10 |
+| Prop 3.10 (local marked) | — | **B3c + B8** | anabelian iso through the marked B4 (= B3c) + peripheral action |
+| Prop 3.14 (BoundaryMaps) | assembly | **sorryAx + B3c + B5 + B8 + B10** | one open gap (`tame_reciprocity`, the tame↔reciprocity orientation bridge; flagged for a census decision) |
+| Prop 5.15 (duality) | §C annotates "uses B6" | **std-3** | tighter: the elementary-module duality is combinatorial; **B6 lands at `prop_5_16`** (std-3 + B6 + B7), where `H²` is actually computed |
+| Lemma 8.6 (local) | — | **B6 + B7** | Tate duality + Euler characteristic at the half-torsor count |
+| eq. (154) `main_surjection_count` | Thm 4.2 + Lem 10.1 + Prop 2.3 | **sorryAx** | **OPEN** — the §§3–10 tower (§6) |
+| Thm 1.2 `main_presentation_literal` | + Prop 2.3 + reconstruction | **sorryAx** | **OPEN** — depends on `main_surjection_count` |
+
+**Consumption of every leaf (honesty check, cross-checked with `AxiomLedger`).**  B3c/B8 → Prop 1.1,
+Prop 3.10, Prop 3.14; B5 → Prop 3.14 (as axiom; bundle-parametric elsewhere); B6 → Prop 5.16,
+Lemma 8.6-local; B7 → Prop 5.16, Prop 6.18-ram, Lemma 8.6-local; B7′ → `lemma_3_5_hilbert_ledger`;
+B9/B11a/B11b → Lemma 6.16; B10 → Prop 3.2-local, Prop 3.14.  **B1** discharges the top-level t.f.g.
+hypothesis of `main_presentation_literal`; **B4** is subsumed by the marked B3c and never surfaces
+independently; **B2** has **zero consumers** (the "available/unused" tier, §2).  No leaf is dangling
+except the deliberately-unused B2.
+
+## 6. What remains assumed beyond the axioms (the open `sorry`s)
+
+The step-1 gap map was three top-level `sorry`s; one (`exists_contSurj_of_card_le`, the Lemma 2.5
+König step) is now **proved** (P-02).  The remaining gaps are the paper's own §§3–10 tower, all in
+the `check_axioms.sh` allowlist and enumerated as the OPEN nodes of §4/§5:
 
 | Declaration | Content | Status |
 |---|---|---|
-| `GQ2.main_surjection_count` (`GQ2/Statement.lean`) | the paper's own §§3–9 argument (surjection-count form of Thm 1.2) | **step 2** of the program: to be proved *from* B1–B9 |
-| `GQ2.main_presentation_literal` (`GQ2/GammaA.lean`) | Theorem 1.2 as printed (`Γ_A ≅ G_{ℚ₂}`) | follows from `main_surjection_count` + Prop. 2.3 + the proved `reconstruction` |
-| `GQ2.exists_contSurj_of_card_le` (`GQ2/Reconstruction.lean`) | a compactness assembly step (König-type) | Mathlib-provable, not a literature gap; proof recipe in its docstring |
+| `GQ2.main_surjection_count` (`Statement.lean`) | the §§3–10 argument, surjection-count form of Thm 1.2 (eq. (154)) | **step 2** — the top of the open tower |
+| `GQ2.main_presentation_literal` (`GammaA.lean`) | Theorem 1.2 as printed (`Γ_A ≅ G_{ℚ₂}`) | follows from `main_surjection_count` + Prop 2.3 + the proved `reconstruction` |
+| `GQ2.thm_4_2` (`BoundaryFrame.lean`) | boundary-framed exact-image theorem (§9 induction) | App. D row 9 use; open |
+| `GQ2.prop_8_9` (`SectionEight.lean`) | closed recursion (136)–(142) | App. D row 9 input; open |
+| `GQ2.lemma_6_17_dim` / `_vanish`, `GQ2.…prop_6_18_*` (`SectionSix.lean`, `DeepPart.lean`) | deep-half singularity + local ramified hyperbolicity (§6.3 Kummer cores) | App. D rows 4/6 use; open |
+| `GQ2.…lemma_8_6_gammaA` (`SectionEight.lean`) | radical-edge variation, `Γ_A` side | App. D row 8, Γ_A side; open |
+| `GQ2.prop_3_14` (`BoundaryMapsWitness.lean`) | one field (`tame_reciprocity`) of the `BoundaryMaps` bundle | the tame↔reciprocity orientation bridge; flagged for a census decision |
 
-Everything else — including the reconstruction theorem (Lemma 2.5, for topologically finitely
-generated profinite groups), the profinite presentation machinery, `Γ_A`, `ω₂`, and all
-supporting lemmas — is fully proved.
+Everything else — the reconstruction theorem (Lemma 2.5), the profinite presentation machinery,
+`Γ_A`, `ω₂`, Props 1.1/2.3/3.2/3.10, Lemmas 3.1/3.3, the whole §5 duality tower, and the proved §6
+inputs (6.6/6.8/6.9/6.13/6.14/6.15/6.16/6.21/6.22) and §7 (7.2/7.4) — is fully proved, std-3 plus
+the leaves listed in §5.
 
-## 5. Known consistency cross-checks (already machine-verified)
+## 7. Known consistency cross-checks (already machine-verified)
 
 * B3c values ↔ B5 normalizations: `χ_D`-row of eq. (13) derived from each independently.
 * B3c values respect the `D₀` relation: `(−1)²·1⁴·[χS,χY] = 1`.
@@ -202,3 +395,5 @@ supporting lemmas — is fully proved.
 * `μₙ` is a legal duality argument for B6 (finite, discrete, `n`-torsion), and `#H²(μₙ) = n`.
 * The B4 relator is realizable in a genuine finite 2-group (`DihedralGroup 4` marking).
 * App. B's `S₃`-marking is admissible and `Γ_A ↠ S₃` (the presented group is nonvacuous).
+* Lemma 6.6's Wall count needs a 2-power monodromy (`ω=[[1,1],[0,1]]/𝔽₂²` ⇒ `−8≠4`) — §4.1.
+* Lemma 6.17 needs the invariant self-dual form (`C₇⋊C₃/𝔽₈` ⇒ `#H¹=8`, not a square) — §4.1.
