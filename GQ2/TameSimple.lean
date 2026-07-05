@@ -164,6 +164,143 @@ theorem sigma2_smul_trivial (t : Marking C) (hgen : t.Generates)
   have hcomm : Commute t.sigma2 t.σ := (Commute.refl t.σ).pow_left _
   rw [smul_smul, smul_smul, hcomm.eq]
 
+/-- **The stable fixed-point lemma** (the `central_pow2_smul_trivial` mechanism with `C`-stability
+of the fixed space assumed instead of derived from centrality): a 2-power-order `g` whose fixed
+space is `C`-stable acts trivially on a simple char-2 module.  This is what the *ramified* tame
+providers need — there `powOmega2 τ` is not central (`σ` conjugates it to its square), but its
+fixed space is still `C`-stable via the tame relation. -/
+theorem pow2_smul_trivial_of_stable (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V)
+    (g : C) (hpow : IsPGroup 2 (Subgroup.zpowers g))
+    (hstable : ∀ (c : C) (v : V), g • v = v → g • (c • v) = c • v) :
+    ∀ v : V, g • v = v := by
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  haveI : Nontrivial V := hsimple.1
+  -- the fixed space of `g` (fixed by `g` ⟺ fixed by all of `⟨g⟩`, via the stabilizer subgroup)
+  let W : AddSubgroup V :=
+    { carrier := {v | g • v = v}
+      zero_mem' := smul_zero g
+      add_mem' := fun {a b} ha hb => by show g • (a + b) = a + b; rw [smul_add, ha, hb]
+      neg_mem' := fun {a} ha => by show g • (-a) = -a; rw [smul_neg, ha] }
+  have hmemW : ∀ {v : V}, v ∈ W ↔ g • v = v := Iff.rfl
+  have hWstable : ∀ (c : C) (w : V), w ∈ W → c • w ∈ W := fun c w hw => hstable c w hw
+  -- fixed points of `↥⟨g⟩` coincide with `W`
+  have hset : (MulAction.fixedPoints ↥(Subgroup.zpowers g) V : Set V) = (W : Set V) := by
+    ext v
+    constructor
+    · intro h
+      exact h ⟨g, Subgroup.mem_zpowers g⟩
+    · intro h ⟨x, hx⟩
+      have hle : Subgroup.zpowers g ≤ MulAction.stabilizer C v :=
+        Subgroup.zpowers_le.mpr (by rwa [MulAction.mem_stabilizer_iff])
+      exact hle hx
+  -- `|V|` even
+  have h2 : 2 ∣ Nat.card V := by
+    obtain ⟨v, hv⟩ := exists_ne (0 : V)
+    have hord : addOrderOf v = 2 := addOrderOf_eq_prime (by rw [two_nsmul]; exact hV₂ v) hv
+    exact hord ▸ addOrderOf_dvd_natCard v
+  -- so `W ≠ ⊥`
+  have hWne : W ≠ ⊥ := by
+    intro hbot
+    have hmod := hpow.card_modEq_card_fixedPoints (p := 2) V
+    have hsub : Subsingleton ↥(MulAction.fixedPoints ↥(Subgroup.zpowers g) V) := by
+      constructor
+      rintro ⟨a, ha⟩ ⟨b, hb⟩
+      have haW : a ∈ W := by rw [← SetLike.mem_coe, ← hset]; exact ha
+      have hbW : b ∈ W := by rw [← SetLike.mem_coe, ← hset]; exact hb
+      rw [hbot, AddSubgroup.mem_bot] at haW hbW
+      exact Subtype.ext (haW.trans hbW.symm)
+    have h0fp : (0 : V) ∈ MulAction.fixedPoints ↥(Subgroup.zpowers g) V := by
+      have : (0 : V) ∈ (W : Set V) := W.zero_mem
+      rwa [← hset] at this
+    have hfp1 : Nat.card ↥(MulAction.fixedPoints ↥(Subgroup.zpowers g) V) = 1 :=
+      Nat.card_eq_one_iff_unique.mpr ⟨hsub, ⟨⟨0, h0fp⟩⟩⟩
+    rw [hfp1] at hmod
+    have h0 : Nat.card V ≡ 0 [MOD 2] := (Nat.modEq_zero_iff_dvd).mpr h2
+    exact absurd (h0.symm.trans hmod) (by decide)
+  rcases hsimple.2 W hWstable with h | h
+  · exact absurd h hWne
+  · intro v
+    exact (h ▸ AddSubgroup.mem_top v : v ∈ W)
+
+/-- The tame relation conjugates the 2-primary part of `τ` to its square:
+`σ⁻¹ · τ^{ω₂} · σ = (τ^{ω₂})²` — `powOmega2` naturality under `MulAut.conj σ⁻¹` plus
+`powOmega2 (τ²) = (powOmega2 τ)²` (exponent independence `powOmega2_pow_eq`). -/
+theorem conj_powOmega2_tau (t : Marking C) (ht : t.TameRel) :
+    t.σ⁻¹ * powOmega2 t.τ * t.σ = (powOmega2 t.τ) ^ 2 := by
+  have htame : t.σ⁻¹ * t.τ * t.σ = t.τ ^ 2 := by
+    have h := ht; rw [Marking.TameRel, conjP] at h; exact h
+  have hconj : t.σ⁻¹ * powOmega2 t.τ * t.σ = powOmega2 (t.σ⁻¹ * t.τ * t.σ) := by
+    have h := powOmega2_map (MulAut.conj t.σ⁻¹).toMonoidHom t.τ
+    simpa [MulAut.conj_apply, mul_assoc] using h
+  have hne : orderOf t.τ ≠ 0 := (orderOf_pos t.τ).ne'
+  have hdvd : orderOf (t.τ ^ 2) ∣ orderOf t.τ :=
+    orderOf_dvd_of_pow_eq_one (by rw [← pow_mul, mul_comm, pow_mul, pow_orderOf_eq_one, one_pow])
+  have hpow2 : powOmega2 (t.τ ^ 2) = (powOmega2 t.τ) ^ 2 := by
+    rw [← powOmega2_pow_eq (t.τ ^ 2) hdvd hne, ← pow_mul, mul_comm 2, pow_mul]
+    rfl
+  rw [hconj, htame, hpow2]
+
+/-- **P-13d ramified output `hTodd`**: on a simple char-2 module at a generating admissible-style
+marking, the 2-primary part `τ^{ω₂}` of the tame generator acts trivially — i.e. `τ` acts with odd
+order.  Its fixed space is `C`-stable: `σ` preserves it via `conj_powOmega2_tau` (a `τ^{ω₂}`-fixed
+vector is fixed by `(τ^{ω₂})²`), `τ` commutes with its own power, and `x₀, x₁` act trivially
+(`wild_acts_trivially`); `⟨τ^{ω₂}⟩` is a 2-group, so `pow2_smul_trivial_of_stable` closes.  Unlike
+the split `hU = sigma2_smul_trivial`, no hypothesis on how `τ` acts is needed. -/
+theorem tau_powOmega2_smul_trivial (t : Marking C) (ht : t.TameRel) (hgen : t.Generates)
+    (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V) (hcore : t.Pro2Core) :
+    ∀ v : V, powOmega2 t.τ • v = v := by
+  obtain ⟨hx0, hx1⟩ := wild_acts_trivially t hV₂ hsimple hcore
+  refine pow2_smul_trivial_of_stable hV₂ hsimple (powOmega2 t.τ)
+    (isPGroup_zpowers_powOmega2 t.τ) ?_
+  -- the stabilizer of the fixed set is a subgroup containing the four generators
+  suffices hS : ∀ (c : C), ∀ v : V, powOmega2 t.τ • v = v → powOmega2 t.τ • (c • v) = c • v by
+    exact fun c v hv => hS c v hv
+  have hσ : ∀ v : V, powOmega2 t.τ • v = v → powOmega2 t.τ • (t.σ • v) = t.σ • v := by
+    intro v hv
+    have hkey : powOmega2 t.τ * t.σ = t.σ * ((powOmega2 t.τ) ^ 2) := by
+      rw [← conj_powOmega2_tau t ht]; group
+    calc powOmega2 t.τ • (t.σ • v) = (powOmega2 t.τ * t.σ) • v := (mul_smul _ _ _).symm
+      _ = (t.σ * ((powOmega2 t.τ) ^ 2)) • v := by rw [hkey]
+      _ = t.σ • ((powOmega2 t.τ) ^ 2 • v) := mul_smul _ _ _
+      _ = t.σ • v := by rw [pow_two, mul_smul, hv, hv]
+  have hτ : ∀ v : V, powOmega2 t.τ • v = v → powOmega2 t.τ • (t.τ • v) = t.τ • v := by
+    intro v hv
+    have hcomm : powOmega2 t.τ * t.τ = t.τ * powOmega2 t.τ := by
+      rw [powOmega2]
+      exact ((Commute.refl t.τ).pow_left _).eq
+    rw [← mul_smul, hcomm, mul_smul, hv]
+  let S : Subgroup C :=
+    { carrier := {c | ∀ v : V, powOmega2 t.τ • v = v → powOmega2 t.τ • (c • v) = c • v}
+      one_mem' := fun v hv => by rwa [one_smul]
+      mul_mem' := fun {a b} ha hb v hv => by rw [mul_smul]; exact ha _ (hb v hv)
+      inv_mem' := fun {a} ha v hv => by
+        -- `a` maps the finite fixed set into itself, hence bijectively
+        let W : AddSubgroup V :=
+          { carrier := {w | powOmega2 t.τ • w = w}
+            zero_mem' := smul_zero _
+            add_mem' := fun {x y} hx hy => by
+              show powOmega2 t.τ • (x + y) = x + y; rw [smul_add, hx, hy]
+            neg_mem' := fun {x} hx => by
+              show powOmega2 t.τ • (-x) = -x; rw [smul_neg, hx] }
+        have hφinj : Function.Injective (fun u : W => (⟨a • u.1, ha u.1 u.2⟩ : W)) := by
+          intro x y hxy
+          exact Subtype.ext (MulAction.injective a (congrArg Subtype.val hxy))
+        obtain ⟨⟨u, hu⟩, hux⟩ := (Finite.injective_iff_surjective.mp hφinj) ⟨v, hv⟩
+        have huv : a • u = v := congrArg Subtype.val hux
+        rw [show a⁻¹ • v = u from by rw [← huv, inv_smul_smul]]
+        exact hu }
+  have hgenS : Subgroup.closure {t.σ, t.τ, t.x₀, t.x₁} ≤ S := by
+    rw [Subgroup.closure_le]
+    intro g hg
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hg
+    rcases hg with rfl | rfl | rfl | rfl
+    · exact hσ
+    · exact hτ
+    · intro v hv; rw [hx0 v]; exact hv
+    · intro v hv; rw [hx1 v]; exact hv
+  rw [hgen] at hgenS
+  exact fun c => hgenS (Subgroup.mem_top c)
+
 /-- **P-13d output `hVS`**: on a nontrivial simple char-2 module at a *generating* split-tame marking
 where `σ` acts nontrivially, `V^S = 0` (the `1 + S⁻¹`-invertibility feeding `lemma_5_13_split`).
 `V^σ` is a `C`-submodule (`σ` central), so `⊥` or `⊤`; the nontriviality `hσ` kills `⊤`. -/
