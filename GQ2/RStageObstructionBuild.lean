@@ -623,6 +623,73 @@ theorem liftB_fibre_nonempty_of_homLift
   · apply Subtype.ext; apply Subtype.ext; apply ContinuousMonoidHom.ext
     intro γ; exact hφ γ
 
+/-- **Constructive coboundary → hom lift** (`hsep` interior): a continuous `R`-valued cochain `c`
+splitting the section defect `rDefect` (the twisted-coboundary equation) assembles the set-section
+`slift ∘ g` into a genuine continuous homomorphism `φ γ = c γ · slift(g γ)` lifting `g`.  This is
+the abstractly-provable half of the separation: it turns "`[rDefect] = 0 ∈ H²(Γ,R)`" (a splitting
+cochain) into the hom lift that `liftB_fibre_nonempty_of_homLift` then upgrades to a fibre element.
+(`slift` is continuous because `B = Y/R` is discrete, so `φ` is genuinely continuous.) -/
+theorem homLift_of_split (g : ContinuousMonoidHom Γ RF.YB)
+    (c : Γ → ↥Blk.R) (hc : Continuous fun γ => ((c γ : Y)))
+    (hsplit : ∀ γ δ, (c (γ * δ) : Y)
+        = (c γ : Y) * (slift RF (g γ) * (c δ : Y) * (slift RF (g γ))⁻¹) * (rDefect RF g γ δ : Y)) :
+    ∃ φ : ContinuousMonoidHom Γ Y, ∀ γ, RF.piB (φ γ) = g γ := by
+  have hscont : Continuous fun γ => slift RF (g γ) :=
+    (continuous_of_discreteTopology (f := slift RF)).comp g.continuous_toFun
+  refine ⟨⟨MonoidHom.mk' (fun γ => (c γ : Y) * slift RF (g γ)) (fun γ δ => ?_),
+      hc.mul hscont⟩, fun γ => ?_⟩
+  · -- homomorphism: the split equation collapses the defect
+    have hrd : (rDefect RF g γ δ : Y)
+        = slift RF (g γ) * slift RF (g δ) * (slift RF (g (γ * δ)))⁻¹ := rfl
+    show (c (γ * δ) : Y) * slift RF (g (γ * δ))
+      = (c γ : Y) * slift RF (g γ) * ((c δ : Y) * slift RF (g δ))
+    rw [hsplit, hrd]; group
+  · -- lifts `g`: `π_B` kills `c γ ∈ R` and `π_B (slift (g γ)) = g γ`
+    show RF.piB ((c γ : Y) * slift RF (g γ)) = g γ
+    rw [map_mul, piB_eq_one_of_mem_R RF (c γ).2, one_mul, piB_slift]
+
+section Assemble
+
+open ContCoh CentralObstruction
+
+variable [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+
+/-- **(136), fully discharged modulo the two irreducible concrete inputs** (`hsep_hom` + `hZcount`).
+Every abstractly-provable ingredient is proven here — the obstruction map, `hmB`, the easy `hobs`,
+the `hfib` fibre-torsor, and `hsep`'s Frattini/framing wrapper — so a caller (the concrete `𝒴`-frame,
+P-16d6) supplies only:
+
+* `hsep_hom` — the **radical-obstruction separation**: `obs g = 0 ⟹ g` has a homomorphism lift to
+  `Y`.  (Not provable in the bare abstract frame — it is the `(R^∨)^C`-detection of `H²(Γ,R)`, a
+  property of the concrete `R` + `C`-action.  d6 discharges it, optionally via `homLift_of_split`.)
+* `hZcount` — the **source `Z¹`-count** `#RCocycle = z_R` (5.15/5.16 numeric + `card_DR`).
+
+and `hE2` (`E` elementary-2, the `thm_4_2` decoration hypothesis).  This is the finish line of the
+abstract R-stage obstruction module: (136) reduced to exactly the source-arithmetic residues. -/
+theorem stageR136_ofRSepData (D : RObstructionData RF)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (hsep_hom : ∀ g : BoundaryLifts b F RF.TB, obs RF D htriv hcard g.1.1 = 0 →
+      ∃ φ : ContinuousMonoidHom Γ Y, ∀ γ, RF.piB (φ γ) = g.1.1 γ)
+    (hZcount : ∀ f₀ : BoundaryLifts b F T, Nat.card (RCocycle RF f₀.1.1) = RF.zR) :
+    (Nat.card RF.DR : ℤ) * exactImageCount b F T
+      = RF.zR * ∑ᶠ l : RF.DR,
+          (2 * (RF.mB b F l : ℤ) - exactImageCount b F RF.TB) := by
+  refine stageR136_ofRObstructionData RF D htriv hcard hfg b F ?_ ?_
+  · -- `hsep`: separation hom lift, upgraded to a fibre element by the wrapper
+    intro g hg
+    obtain ⟨φ, hφ⟩ := hsep_hom g hg
+    exact liftB_fibre_nonempty_of_homLift RF b F g φ hφ
+  · -- `hfib`: same lift as basepoint, then the fibre-torsor count
+    intro g hg
+    obtain ⟨φ, hφ⟩ := hsep_hom g hg
+    obtain ⟨f₀, hf₀⟩ := liftB_fibre_nonempty_of_homLift RF b F g φ hφ
+    exact hfib_holds RF b F hE2 g f₀ hf₀ (hZcount f₀)
+
+end Assemble
+
 end RFibre
 
 end SectionEight
