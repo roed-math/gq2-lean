@@ -115,10 +115,100 @@ compactness instance binders + `hfg` (the B1-shaped t.f.g. input), per the
 `@[reducible]`; `Quotient.out (c⁻¹)` needs a `(c⁻¹ : Bg ⧸ M)` ascription.
 
 ### P-16c — `lemma_8_6_gammaA` close
-**Deps: P-16a, P-13f.  Model O.  Ax: B6, B7.**
-Same (a)–(c) core; step (d′), candidate source: the variation runs through 5.15/5.16
+**Deps: P-16a, P-13f.  Model O.  Ax: B6, B7** *(plan finding: likely **∅** — see below)*.
+~~Same (a)–(c) core; step (d′), candidate source: the variation runs through 5.15/5.16
 (`prop_5_15` from P-13f; `prop_5_16_bundle` from `GQ2/LocalLiftingDuality.lean` — import it,
-do not wait for the FoxHeisenberg splice).  Splice into `SectionEight.lemma_8_6_gammaA`.
+do not wait for the FoxHeisenberg splice).  Splice into `SectionEight.lemma_8_6_gammaA`.~~
+
+**PLAN (Fable, 2026-07-05) — supersedes the sketch above.**  Scoping (Opus, on-board) was
+right that this is *not* a mechanical port of P-16b: the engine `half_count` is source-generic
+and needs exactly two `ContCoh`-facts about the source — `#H²(Γ_A,𝔽₂) = 2` and a `NoDescent`
+⟹ nonzero-variation-class step — and neither `prop_5_15` (word complex) nor `prop_5_16`
+(`AbsGalQ2`) supplies them directly.  **Correction to the sketch: `prop_5_16_bundle` is NOT
+what the Γ_A side needs** (it was P-16b's tool, via `card_H2_zmod2_eq_two`); the Γ_A route is
+`prop_5_15` + `trivialSelfDual` + a new *degree-≤2 comparison for the marked presentation* —
+which is much cheaper than a full quasi-iso because the repo already has the whole
+homs-out-of-Γ_A dictionary: `Marking.push`/`push_admissible`/`descend`/`descend_surjective`
+(`Prop23.lean`), relator-death `tameRelator_mem_NA`/`wildRelator_mem_NA`, cofinality
+`exists_isAdmissibleU_le` + directedness `isAdmissibleU_inf`, pro-2 tools
+`isPGroup_normalClosure_image_inf` (`AdmissibleLimit.lean`), and `topGen_gammaA` (P-25).
+Since both new facts are std-3-sourced, **the close is plausibly Ax = ∅** (under the B6,B7
+budget).  Two new own-files; four phases, each independently landable & verifiable:
+
+* **Phase 1 — degree-≤1 bridge** (`GQ2/WordCohBridge.lean`, ~350 ln): for the pushforward
+  marking `t_ρ` of a finite quotient `q : Γ_A ↠ C` (admissible by `Marking.push_admissible`;
+  `Generates` from surjectivity), continuous crossed cocycles ≃ word cocycles:
+  `z1Equiv : {c : Γ_A → A // crossed, cont} ≃ Z1w t_ρ` — forward = evaluate at the 4 marked
+  generators (injective by `topGen_gammaA` density + continuity); backward = a crossed cocycle
+  is a hom to `WordLift A C` over `q`, produced by `Marking.descend` applied to the lifted
+  marking (admissible: `liftMarking` relations ⟺ `d1 x = 0` via the §5.13 ledger; `Pro2Core`
+  by central-2-extension; `Generates` by passing to the generated subgroup + include back).
+  `B¹ ↔ B1w` is direct.  Corollary: `H¹(Γ_A, A) ≃+ H1w t_ρ`.
+* **Phase 2 — Θ and `#H²(Γ_A,𝔽₂) ≤ 2`** (same file, ~350 ln): a continuous 2-cocycle
+  `κ : Γ_A² → 𝔽₂` factors through a finite level (new small compactness lemma; cofinality
+  upgrades the level to admissible).  Define `theta κ ∈ 𝔽₂² ⧸ im d1_triv` = the pair of
+  relator-`z` values of a generator-lift into the finite-level `κ`-twisted central extension
+  `C̃_κ`, well-defined mod `im d1_triv` (central-shift = `d1` at trivial coefficients) and
+  level-independent (cofinality).  **`theta_injective`**: `theta κ = 0` ⟹ the shifted marking
+  of `C̃_κ` is admissible ⟹ `Marking.descend` splits it over `Γ_A` ⟹ the splitting's
+  `𝔽₂`-component is a continuous trivializer, `κ ∈ B²`.  Target size: `#(𝔽₂²/im d1_triv) = 2`
+  from `trivialSelfDual` at the **trivial-group marking** (`#H2w(t, 𝔽₂) = 2`).  Hence
+  `#H²(Γ_A,𝔽₂) ≤ 2`; equality follows from Phase 3's nonzero class — no separate surjectivity.
+  (Reusable: Θ-injectivity is the degree-2 half of the presentation-comparison, Thm-4.2-ward.)
+* **Phase 3 — the twist** (`GQ2/RadicalEdgeGammaA.lean`, ~450 ln): port
+  `RadicalEdgeLocal.exists_good_twist`'s **generic prefix** verbatim for `Γ = GammaA` (the
+  `act`/`φf`/`hφZ1`/`not_noDescent_of_edge_trivial` blocks use nothing about `AbsGalQ2`;
+  default copy-adapt — do NOT churn the closed P-16b file).  Replace the B6 tail: bridge
+  `[φf] ≠ 0` through Phase 1 (+ P-13g's `dualAddEquiv` for `MuDual 2 ↔ ElemDual`) to a nonzero
+  `H1w`-class on the dual side; `prop_5_15` (at `A_T := Additive ↥D.T`, conjugation `C`-action,
+  `hA₂ = D.helem`) gives the perfect pairing `P`, hence `w` with
+  `mixedB t_ρ x_w y_φ ≠ 0`; pull `w` back to the `TCocycle` `u_w`.  **Crux (risk #1), the
+  Θ–mixedB comparison**: `varCoc u_w` is pointwise the cup 2-cochain of `(φ, w)` (P-16b's
+  `hbridge`, generic), and its `theta` is the relator-`z` **pair** of `heisMarking t_ρ x_w y_φ`
+  (twisted extension = pushout of the `HeisLift` extension — a ledger identity).  ⚠ Convention
+  trap, now pinned: `mixedB` is the **traced sum** `tame.z + wild.z`, while the `H2w`-class
+  detector is the pair mod `im d1_triv = span{(1,0)}` (τ-column; forced by `#H2w = 2`), i.e.
+  the **wild** coordinate alone — the sum functional does *not* kill `im d1_triv`.  They agree
+  exactly on σ/τ-slot-free representatives (`heisMarking_tameValue_z_eq_zero` needs
+  `x 0 = x 1 = 0`, `y 0 = y 1 = 0`).  Resolution: run the §5.13 normal-form apparatus
+  (x₀-supported representatives, as `lemma_5_13_pairing_*` already does) so tame-`z` = 0 and
+  `mixedB = wild-z = Θ-detector`; fallback if the normal forms fight: derive the wild-`z`
+  functional's nondegeneracy directly from `IsSelfDual`'s clauses (the tame-`z` term is itself
+  a lower-complexity pairing).  Conclusion: `theta [varCoc u_w] ≠ 0`, so by Θ-linearity
+  `varCoc u_w` is not a continuous coboundary — `hvar` ✓, and `#H² = 2` ✓ (with Phase 2).
+* **Phase 4 — assembly + splice** (~80 ln): `half_torsor_gammaA` — `Finite (MLifts D ρ)` from
+  `topGen_gammaA` + `finite_continuousMonoidHom` (**no `hfg` amendment needed**, unlike the
+  local side; `GammaA` is a `ProfiniteGrp`, compactness instances exist), then `half_count`.
+  One-line splice into `SectionEight.lemma_8_6_gammaA` (claim the co-owned row first).  Gate:
+  `lake build` + `check_axioms` (census 13) + `#print axioms` — expect **std-3 only**.
+
+Risks: (R1, main) Phase 3's Θ–mixedB ledger identity + normal-form grind — bounded, all
+tooling exists (`HeisLift`, `heisMarking_*_z` lemmas, `lemma_5_13` unique representatives);
+(R2, low) the finite-level factorization lemma for continuous 2-cocycles (~60 ln compactness);
+(R3, low) instance juggling for the conjugation module (P-16b's `letI` pattern reusable).
+Estimated 3–4 focused sessions; Phases 1+2 are self-contained wins (the presentation-comparison
+is reusable beyond §8).
+
+**P-16c sub-sub-tickets (2026-07-05 decomposition; board rows P-16c1–c5).**  Phase↔row
+mapping: c1 = Phase 1, c2 = Phase 2, c3+c4 = Phase 3 (the Θ–mixedB crux isolated in c4 so the
+grind rows parallelize around the risk), c5 = Phase 4.  All rows Ax ∅ (expected).
+
+```
+P-16c1 (deg-≤1 bridge z1Equiv/h1Equiv + lifted-marking-admissibility helpers)   [startable now]
+   ├──► P-16c2 (θ: finite-level relator evaluation + θ-injective ⟹ #H²(Γ_A,𝔽₂) ≤ 2)
+   ├──► P-16c3 (twist: generic exists_good_twist prefix + prop_5_15 pairing ⟹ w, mixedB ≠ 0)
+   │              [c2 ∥ c3 once c1 lands; c3 also needs P-16a ✓]
+   c2 + c3 ──► P-16c4 (Θ–mixedB comparison ⟹ [varCoc u_w] ≠ 0)          [⭐⭐⭐ the risk row]
+   │
+   c2 + c4 ──► P-16c5 (half_torsor_gammaA + splice)  ──► unblocks P-16d3's gammaA instance
+```
+
+* **c1** is the shared root (both lanes) and needs nothing unlanded — the natural first session.
+* **c2**'s θ-injectivity and **c1**'s `h1Equiv` are the reusable presentation-comparison halves
+  (degree ≤ 2), wanted again Thm-4.2-ward — they are worth landing even independently of 8.6.
+* **c4** carries the plan's single real risk (the traced-SUM vs WILD-z convention, resolution on
+  §5.13 x₀-supported normal forms; fallback in the plan text above).
+* **c5** is the sink: one-line splice + gate; expected `#print axioms` = std-3 only.
 
 ### P-16d — `prop_8_9` assembly (eqs. (136)–(142))
 **Deps: P-16b, P-16c, P-13f (7.1 ✓ proved).  Model O.  Ax: B6, B7, B9.**
@@ -160,11 +250,24 @@ P-13f ─► P-16d2 (R-stage obstruction module for stageR136_of; local numerics
    d2 + d3 + d4 + d5 ──► P-16d6 (phase140 + final two-source splice)
 ```
 
-* **d1** is the shared root (three consumers) and is target-side — startable now.
-* **d3**'s *local-source* instance unblocks as soon as d1 lands (8.6-local ✓); only its
-  gammaA-instance waits on P-16c ⟸ P-13f.
-* **d4** contains the two review-flagged statement-layer additions (8.7, 8.8).
-* **d5** needs no P-13f: the witness is a construction; the numerics only certify it.
+* **d1** ☑ **DONE (Fable 2026-07-05)**: derived layer facts (`MB_*`/`TBsub_*`/`ker_piBC`/
+  `piBC_surj`), `RecursionFrame.Enrichment` + `radData` (+ `Iff.rfl` NoDescent bridge),
+  `mForm_of_qbar` in new `GQ2/FrameEnrichment.lean` (all std-3).  ⚠️ `prop_8_9` amended
+  with `(En : RF.Enrichment)` — deviation ledger #3 in `docs/section8-extraction.md`.
+* **d3** ☑ **DONE (Opus 2026-07-05)**: `GQ2/RadicalEdgeBridge.lean` (sorry-free, std-3) —
+  `half139_of` (fibre `zBC` over `ρ`, sum) + `liftsOver_equiv`/`centralOver_equiv` (the
+  `MLifts` transport).  Source-generic: `hlem86` (Lemma 8.6) + `hMcount` (5.15/5.16) enter as
+  hypotheses, so **no P-13f needed in d3**; d6 plugs the source's 8.6 + the numerics.
+* **d4** ☑ **DONE (Fable F-plan + Opus O-close, 2026-07-05)**: `GQ2/AffineTLift.lean`
+  (sorry-free, all std-3, Ax ∅) — `descended_splitting` (6.21 via the descended-cover
+  `ξ`-cocycle), `central_twist_iff`+`tcocycle_torsor_equiv`+`lemma_8_7_count` (the `μ`
+  fibration), `prop_8_8_target` (6.22 shear), `exists_polar_inverse`; SectionEight exports
+  `headBC`/`thetaBC`/`isBoundaryLift_of_over`.  Two review-flagged deviations (8.7
+  cocycle-level, 8.8 target-side/6.22-`Δ`) in the ledger.  Plan: `docs/p16d4-plan.md`.
+* **d5** ☑ **DONE (Opus 2026-07-05)**: `centralCoverOfCocycle` (the twisted product
+  `𝔽₂ ×_δ C₀` as a `CentralCover`) + `phaseFamily` in `GQ2/AffineTLift.lean` (std-3).
+  The shared witness `(μ, G⁰, D_T, phase)` is now fully constructible; its assembly +
+  the `eq140` proof (μ source-independence = P-13f) is the d6 splice.
 * **d6** is the sink: everything, plus P-16c/P-13f through the gammaA lane.
 
 **Original work-order notes (superseded by the rows above, kept for the technical detail):**

@@ -58,7 +58,9 @@ def bAxioms : List (Name × String) :=
   , (``GQ2.evensKahn_dyadic,                                      "B9")
   , (``GQ2.tameQuotient,                                          "B10")
   , (``GQ2.hilbertSymbol_normCriterion_finiteDyadic,              "B11a")
-  , (``GQ2.unramifiedQuadratic_units_are_norms,                   "B11b") ]
+  , (``GQ2.unramifiedQuadratic_units_are_norms,                   "B11b")
+  , (``GQ2.kummerClassK_surjective,                               "B12")
+  , (``GQ2.dyadicUnitFiltration,                                  "B13") ]
 
 /-- The three axioms every classical theorem is allowed to use. -/
 def stdAxioms : List Name := [``propext, ``Classical.choice, ``Quot.sound]

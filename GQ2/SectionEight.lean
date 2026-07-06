@@ -1,6 +1,7 @@
 import GQ2.BoundaryFrame
 import GQ2.RadicalEdgeData
 import GQ2.RadicalEdgeLocal
+import GQ2.FrameEnrichment
 import GQ2.SectionSeven
 import GQ2.AppendixB
 import GQ2.AdmissibleLimit
@@ -1464,6 +1465,219 @@ noncomputable def liftB (f : BoundaryLifts b F T) : BoundaryLifts b F RF.TB :=
      rw [h1, h2]
      exact f.2 γ⟩
 
+/-! ### The frame-enrichment layer  (P-16d1)
+
+`RecursionFrame` pins the stages and the scalar covers only as bare group data; the
+(139)/(140) analyses use more.  First the **derived layer facts** — normality and
+elementarity of `M_B`/`T_B`, forced by `ker π_B = R = Φ(K)` — then the `Enrichment`
+structure carrying what the frame does not determine: per nonzero `λ`, the square form of
+`p_λ` on `M_B` (§7.4; block-level constructibility = `mForm_of_qbar` in
+`GQ2/FrameEnrichment.lean`), and the descended module `V ≅ M_B/T_B` over the `C`-stage
+with the form `q̄_λ` and its fixed equivariant factor-set datum (`κ⁰_{q̄_λ}`, Lemma 6.1 —
+the relative hypothesis of `lemma_6_21`, consumed by Lemma 8.7/Prop 8.8, P-16d4).
+`Enrichment.radData` assembles the per-`λ` Lemma 8.6 datum; `radData_noDescent_iff`
+aligns its descent clause with the (139)/(140) case split (P-16d3's hand-off to
+`lemma_8_6_local`/`_gammaA`). -/
+
+/-- `M_B ◁ B`: image of the normal `K` under the surjection `π_B`. -/
+theorem MB_normal : RF.MB.Normal := by
+  rw [RF.MB_eq]
+  exact Subgroup.Normal.map Blk.hK RF.piB RF.piB_surj
+
+/-- `M_B` has exponent 2: squares of `K` lie in `Φ(K) = ker π_B`. -/
+theorem MB_elem : ∀ m ∈ RF.MB, m * m = 1 := by
+  intro m hm
+  rw [RF.MB_eq] at hm
+  obtain ⟨k, hk, rfl⟩ := Subgroup.mem_map.mp hm
+  rw [← map_mul]
+  have hkk : k * k ∈ RF.piB.ker := by
+    rw [RF.ker_piB]
+    exact sq_mem_frattiniLike hk
+  exact MonoidHom.mem_ker.mp hkk
+
+/-- `M_B` is abelian: commutators of `K` lie in `Φ(K) = ker π_B`. -/
+theorem MB_comm : ∀ m ∈ RF.MB, ∀ m' ∈ RF.MB, m * m' = m' * m := by
+  intro m hm m' hm'
+  rw [RF.MB_eq] at hm hm'
+  obtain ⟨k, hk, rfl⟩ := Subgroup.mem_map.mp hm
+  obtain ⟨k', hk', rfl⟩ := Subgroup.mem_map.mp hm'
+  have hc : (k' * k)⁻¹ * (k * k') ∈ RF.piB.ker := by
+    rw [RF.ker_piB]
+    have he : (k' * k)⁻¹ * (k * k') = k⁻¹ * k'⁻¹ * k⁻¹⁻¹ * k'⁻¹⁻¹ := by group
+    rw [he]
+    exact comm_mem_frattiniLike (inv_mem hk) (inv_mem hk')
+  have h1 := MonoidHom.mem_ker.mp hc
+  rw [map_mul, map_inv, inv_mul_eq_one] at h1
+  rw [← map_mul, ← map_mul]
+  exact h1.symm
+
+/-- `T_B` is already the `K ∩ S`-image: the `R`-factor of `T₀ = (K∩S)·R` dies in `B`. -/
+theorem TBsub_eq_mapKS : RF.TBsub = (Blk.K ⊓ Blk.S).map RF.piB := by
+  have h0 : Blk.R.map RF.piB = ⊥ := by
+    rw [eq_bot_iff]
+    intro x hx
+    obtain ⟨r, hr, rfl⟩ := Subgroup.mem_map.mp hx
+    have hr' : r ∈ RF.piB.ker := by rw [RF.ker_piB]; exact hr
+    exact Subgroup.mem_bot.mpr (MonoidHom.mem_ker.mp hr')
+  rw [RF.TBsub_eq, Subgroup.map_sup, h0, sup_bot_eq]
+
+/-- `T_B ◁ B`: image of the normal `K ∩ S` under the surjection `π_B`. -/
+theorem TBsub_normal : RF.TBsub.Normal := by
+  rw [RF.TBsub_eq_mapKS]
+  have h1 : (Blk.K ⊓ Blk.S).Normal :=
+    ⟨fun n hn g => Subgroup.mem_inf.mpr
+      ⟨Blk.hK.conj_mem n (Subgroup.mem_inf.mp hn).1 g,
+       Blk.hS.conj_mem n (Subgroup.mem_inf.mp hn).2 g⟩⟩
+  exact Subgroup.Normal.map h1 RF.piB RF.piB_surj
+
+/-- `T_B ≤ M_B` (`(K ∩ S) ⊔ R ≤ K`, via `lemma_7_1_head`). -/
+theorem TBsub_le_MB : RF.TBsub ≤ RF.MB := by
+  rw [RF.TBsub_eq, RF.MB_eq]
+  exact blockT_map_le_blockM_map Blk RF.piB
+
+/-- `ker π_{BC} = M_B`: the connecting map `B ↠ C` has the `M`-layer as kernel. -/
+theorem ker_piBC : RF.piBC.ker = RF.MB := by
+  rw [RF.MB_eq]
+  ext bb
+  constructor
+  · intro hbb
+    obtain ⟨y, rfl⟩ := RF.piB_surj bb
+    have hy : RF.piC y = 1 := by
+      have h1 : RF.piBC (RF.piB y) = 1 := MonoidHom.mem_ker.mp hbb
+      rwa [show RF.piBC (RF.piB y) = RF.piC y from by rw [← RF.piBC_comp]; rfl] at h1
+    refine ⟨y, ?_, rfl⟩
+    have hy' : y ∈ RF.piC.ker := MonoidHom.mem_ker.mpr hy
+    rwa [RF.ker_piC] at hy'
+  · rintro ⟨k, hk, rfl⟩
+    have h1 : RF.piBC (RF.piB k) = RF.piC k := by rw [← RF.piBC_comp]; rfl
+    have h2 : RF.piC k = 1 := by
+      have hk' : k ∈ RF.piC.ker := by rw [RF.ker_piC]; exact hk
+      exact MonoidHom.mem_ker.mp hk'
+    exact MonoidHom.mem_ker.mpr (h1.trans h2)
+
+/-- `π_{BC}` is surjective (it covers the surjection `π_C`). -/
+theorem piBC_surj : Function.Surjective RF.piBC := by
+  have h : Function.Surjective (RF.piBC.comp RF.piB) := by
+    rw [RF.piBC_comp]
+    exact RF.piC_surj
+  rw [MonoidHom.coe_comp] at h
+  exact h.of_comp
+
+/-- **The head factors through `π_{BC}`**: `π^C_Y ∘ π_{BC} = π^B_Y` (the spec fields + `π_B`
+epi).  Exported for the D5 boundary-framing argument (P-16d4/d6). -/
+theorem headBC : RF.TC.piY.comp RF.piBC = RF.TB.piY := by
+  have h1 : (RF.TC.piY.comp RF.piBC).comp RF.piB = RF.TB.piY.comp RF.piB := by
+    rw [MonoidHom.comp_assoc, RF.piBC_comp, RF.TC_head, RF.TB_head]
+  exact (MonoidHom.cancel_right RF.piB_surj).mp h1
+
+/-- **The decoration factors through `π_{BC}`**: `θ^C_Y ∘ π_{BC} = θ^B_Y`. -/
+theorem thetaBC : RF.TC.thetaY.comp RF.piBC = RF.TB.thetaY := by
+  have h1 : (RF.TC.thetaY.comp RF.piBC).comp RF.piB = RF.TB.thetaY.comp RF.piB := by
+    rw [MonoidHom.comp_assoc, RF.piBC_comp, RF.TC_theta, RF.TB_theta]
+  exact (MonoidHom.cancel_right RF.piB_surj).mp h1
+
+/-- **Boundary-framing rides free over `ρ`** (P-16d4, D5): a continuous hom into `B` lying
+over a boundary-framed `C`-lift `ρ` is itself boundary-framed — both boundary components
+factor through `π_{BC}`.  This is why the `IsBoundaryLift` clause of `zBC`'s pairs is
+redundant, and no `θ|_T` hypotheses are needed in the count. -/
+theorem isBoundaryLift_of_over (f : ContinuousMonoidHom Γ RF.YB)
+    (ρ : BoundaryLifts b F RF.TC) (hover : ∀ γ, RF.piBC (f γ) = ρ.1.1 γ) :
+    IsBoundaryLift b F RF.TB f := by
+  intro γ
+  have h1 : RF.TB.piY (f γ) = RF.TC.piY (ρ.1.1 γ) := by
+    rw [← hover, show RF.TC.piY (RF.piBC (f γ)) = (RF.TC.piY.comp RF.piBC) (f γ) from rfl,
+      RF.headBC]
+  have h2 : RF.TB.thetaY (f γ) = RF.TC.thetaY (ρ.1.1 γ) := by
+    rw [← hover, show RF.TC.thetaY (RF.piBC (f γ)) = (RF.TC.thetaY.comp RF.piBC) (f γ) from rfl,
+      RF.thetaBC]
+  rw [h1, h2]
+  exact ρ.2 γ
+
+/-- **The frame enrichment** (P-16d1): the per-`λ` data of the §8 analyses that the bare
+frame does not determine.  Square-form block: the form `q_λ` of the scalar cover on `M_B`
+(cover square relation, `T_B` in the polar radical, vanishing on `T_B`) — with the derived
+layer facts above, exactly a per-`λ` Lemma 8.6 datum (`radData`); §7.4 supplies it for the
+concrete block (`mForm_of_qbar`).  Descended block: the module `V ≅ M_B/T_B` over the
+`C`-stage with the descended form `q̄_λ` (quadratic, nonsingular, invariant — Prop 7.4's
+output) and a **fixed equivariant factor-set datum** for it (Lemma 6.1's `κ⁰_{q̄_λ}` — the
+relative hypothesis of `lemma_6_21`, consumed by Lemma 8.7/Prop 8.8). -/
+structure Enrichment where
+  /-- The square form of the scalar cover `p_λ` on `M_B`. -/
+  q : (l : RF.DR) → l ≠ RF.zeroDR → ↥RF.MB → ZMod 2
+  /-- The cover square relation: `x̃² = z^{q_λ(x)}` over `M_B`. -/
+  hq : ∀ (l : RF.DR) (h : l ≠ RF.zeroDR) (x : (RF.scalarCover l h).cover)
+    (hx : (RF.scalarCover l h).p x ∈ RF.MB),
+    x * x = (RF.scalarCover l h).z ^ (q l h ⟨(RF.scalarCover l h).p x, hx⟩).val
+  /-- `T_B` lies in the polar radical of `q_λ`. -/
+  hrad : ∀ (l : RF.DR) (h : l ≠ RF.zeroDR) (t : RF.YB) (ht : t ∈ RF.TBsub)
+    (m : RF.YB) (hm : m ∈ RF.MB),
+    polarMul (q l h) (fun a b => ⟨a.1 * b.1, mul_mem a.2 b.2⟩)
+      ⟨t, RF.TBsub_le_MB ht⟩ ⟨m, hm⟩ = 0
+  /-- `q_λ` vanishes on `T_B`. -/
+  hTzero : ∀ (l : RF.DR) (h : l ≠ RF.zeroDR) (t : RF.YB) (ht : t ∈ RF.TBsub),
+    q l h ⟨t, RF.TBsub_le_MB ht⟩ = 0
+  /-- The descended module `V ≅ M_B/T_B` (abstract carrier; the concrete frame will take
+  Prop 7.4's `P/S`-side model, where `q̄_λ` already lives). -/
+  Vmod : Type
+  [addV : AddCommGroup Vmod]
+  [finV : Finite Vmod]
+  /-- The `C`-stage action (conjugation, descended through `ker π_{BC} = M_B`). -/
+  [actV : DistribMulAction RF.YC Vmod]
+  /-- The descent surjection `M_B ↠ V`. -/
+  descend : ↥RF.MB →* Multiplicative Vmod
+  descend_surj : Function.Surjective descend
+  /-- `ker(descend) = T_B`. -/
+  descend_ker : ∀ m : ↥RF.MB, descend m = 1 ↔ (m : RF.YB) ∈ RF.TBsub
+  /-- `descend` intertwines `B`-conjugation with the action through `π_{BC}`. -/
+  descend_conj : ∀ (bb : RF.YB) (m : ↥RF.MB) (hm : bb * ↑m * bb⁻¹ ∈ RF.MB),
+    descend ⟨bb * ↑m * bb⁻¹, hm⟩
+      = Multiplicative.ofAdd (RF.piBC bb • Multiplicative.toAdd (descend m))
+  /-- The descended form `q̄_λ` on `V`. -/
+  qbar : (l : RF.DR) → l ≠ RF.zeroDR → Vmod → ZMod 2
+  /-- `q_λ = q̄_λ ∘ descend`. -/
+  hqbar : ∀ (l : RF.DR) (h : l ≠ RF.zeroDR) (m : ↥RF.MB),
+    q l h m = qbar l h (Multiplicative.toAdd (descend m))
+  /-- `q̄_λ` is quadratic (polar form biadditive). -/
+  hquad : ∀ (l : RF.DR) (h : l ≠ RF.zeroDR), QuadraticFp2.IsQuadraticFp2 (qbar l h)
+  /-- `q̄_λ` is nonsingular on `V` (Prop 7.4's nondegeneracy). -/
+  hns : ∀ (l : RF.DR) (h : l ≠ RF.zeroDR), QuadraticFp2.Nonsingular (qbar l h)
+  /-- `q̄_λ` is `C`-invariant (Prop 7.4's `Y`-invariance, descended). -/
+  hinv : ∀ (l : RF.DR) (h : l ≠ RF.zeroDR), QuadraticFp2.IsInvariant RF.YC (qbar l h)
+  /-- The fixed equivariant factor-set datum for `q̄_λ` (Lemma 6.1's base class). -/
+  dat : (l : RF.DR) → l ≠ RF.zeroDR → FactorSet RF.YC Vmod
+  /-- … satisfying Lemma 6.1's identities for `q̄_λ`. -/
+  hdat : ∀ (l : RF.DR) (h : l ≠ RF.zeroDR), IsEquivariantFactorSet (qbar l h) (dat l h)
+
+attribute [instance] Enrichment.addV Enrichment.finV Enrichment.actV
+
+variable {RF}
+
+/-- The per-`λ` **Lemma 8.6 datum** assembled from the enrichment: cover `p_λ`, layers
+`M_B`/`T_B`, with normality and elementarity derived from the frame and the block. -/
+def Enrichment.radData (E : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR) :
+    RadicalCoverData RF.YB where
+  C := RF.scalarCover l h
+  M := RF.MB
+  hM := RF.MB_normal
+  T := RF.TBsub
+  hT := RF.TBsub_normal
+  hTM := RF.TBsub_le_MB
+  helem := RF.MB_elem
+  hcomm := RF.MB_comm
+  q := E.q l h
+  hq := E.hq l h
+  hrad := E.hrad l h
+  hTzero := E.hTzero l h
+
+/-- The descent clause of the assembled datum **is** the (139)/(140) case-split condition:
+definitional alignment for the P-16d3 hand-off to `lemma_8_6_local`/`lemma_8_6_gammaA`. -/
+theorem Enrichment.radData_noDescent_iff (E : RF.Enrichment) (l : RF.DR)
+    (h : l ≠ RF.zeroDR) :
+    (E.radData l h).NoDescent ↔
+      ¬∃ N : Subgroup (RF.scalarCover l h).cover, N.Normal ∧
+        N.map (RF.scalarCover l h).p = RF.TBsub ∧ (RF.scalarCover l h).z ∉ N :=
+  Iff.rfl
+
 end RecursionFrame
 
 open scoped Classical in
@@ -1549,14 +1763,8 @@ theorem partition137_of {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopol
     obtain ⟨y, hy⟩ := RF.piC_surj c
     exact ⟨RF.piB y, by rw [show RF.piBC (RF.piB y) = (RF.piBC.comp RF.piB) y from rfl,
       RF.piBC_comp, hy]⟩
-  have hheadBC : RF.TC.piY.comp RF.piBC = RF.TB.piY := by
-    have h1 : (RF.TC.piY.comp RF.piBC).comp RF.piB = RF.TB.piY.comp RF.piB := by
-      rw [MonoidHom.comp_assoc, RF.piBC_comp, RF.TC_head, RF.TB_head]
-    exact (MonoidHom.cancel_right RF.piB_surj).mp h1
-  have hthetaBC : RF.TC.thetaY.comp RF.piBC = RF.TB.thetaY := by
-    have h1 : (RF.TC.thetaY.comp RF.piBC).comp RF.piB = RF.TB.thetaY.comp RF.piB := by
-      rw [MonoidHom.comp_assoc, RF.piBC_comp, RF.TC_theta, RF.TB_theta]
-    exact (MonoidHom.cancel_right RF.piB_surj).mp h1
+  have hheadBC : RF.TC.piY.comp RF.piBC = RF.TB.piY := RF.headBC
+  have hthetaBC : RF.TC.thetaY.comp RF.piBC = RF.TB.thetaY := RF.thetaBC
   -- ===== Step 1: eliminate the pair — `Z` is a set of `B`-level lifts =====
   have e1 : RF.zBC b F l h = Nat.card {m : ContinuousMonoidHom Γ RF.YB //
       (IsBoundaryLift b F RF.TB m ∧ Function.Surjective (⇑RF.piBC ∘ ⇑m)) ∧
@@ -1924,11 +2132,18 @@ with a §7 simple-head block and every recursion frame on it, there are **shared
 such that the boxed system (136)–(142) holds for **both sources**.  Every count on the
 right sides concerns a target with strictly smaller marked 2-kernel, so the system is a
 closed deterministic recursion (paper, end of §8).  [P-16 statement; proof = O-half,
-axioms ≤ {B6, B7, B9} per App. D.] -/
+axioms ≤ {B6, B7, B9} per App. D.]
+
+**Amended (P-16d1, 2026-07-05, documented)** with the frame enrichment `En`: the bare
+frame's `scalarCover` is an arbitrary central cover, but the paper's (139)/(140) hold under
+its §7.4/§6.1 standing data — the square form of `p_λ` on `M_B` with radical `T_B`, and the
+fixed equivariant base class `κ⁰_{q̄_λ}` for the descended module (the `lemma_6_21` relative
+hypothesis).  Without `En` the statement quantifies over junk covers for which (139) fails.
+Deviation ledger: `docs/section8-extraction.md` (P-16d statement corrections). -/
 theorem prop_8_9 (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
     [DiscreteTopology Y] [Finite Y] {T : MarkedTarget H E Y}
     {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk)
-    (F : BoundaryFrame H E) :
+    (En : RF.Enrichment) (F : BoundaryFrame H E) :
     ∃ (μ : ℕ) (G0 : ℤ) (DT : Type) (_ : Fintype DT)
       (phase : DT → CentralCover RF.YC),
       ClosedRecursion RF B.bA F μ G0 DT phase ∧

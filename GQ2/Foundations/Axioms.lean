@@ -10,6 +10,7 @@ import GQ2.DyadicPresentation
 import GQ2.PeripheralAction
 import GQ2.Orientation
 import GQ2.TameQuotient
+import GQ2.UnitFiltration
 
 /-!
 # The axioms: classical literature inputs of Theorem 1.2  (ticket T-19)
@@ -511,5 +512,72 @@ theorem dyadicNormCriterion
   ⟨hilbertSymbol_normCriterion_finiteDyadic k htriv,
    fun a δa hδa hunram u hu =>
      unramifiedQuadratic_units_are_norms k a δa hδa hunram u hu⟩
+
+/-! ## B12/B13 — the deep-half Kummer-count leaves  (P-15f1)
+
+Added by explicit census decision (**P-15f1 instantiation**, user-approved 2026-07-06,
+census 13 → 15; proposal and precise-citation record: `docs/p15f1-axiom-proposal.md`).
+Lemma 6.17's dimension clause is reduced (P-15f1 Layers 1–2b, all std-3, in
+`GQ2/LocalKummer.lean`) to constructing one `DeepKummerData` instance; its literature
+content is exactly **local Kummer theory** (B12) and the **unit-filtration graded structure**
+(B13).  Everything else in the instance is *proved*, not assumed: `H^{1,2}(H_V, V) = 0` via
+coprime averaging (Brown [5] III (10.2)), the square-class graded computation, the Hensel top
+(`sq_of_near_one`, P-15e), `−1 ∈ U^{(e)}`, the graded duality, Lemma 6.10, and — separately,
+as paper content — Lemma 6.11 projectivity for the deep-count multiplicativity. -/
+
+/-- **The B12 axiom (local Kummer theory, surjective half).**
+
+For a finite extension `k/ℚ₂`, the Kummer class map descends to an isomorphism
+`k^×/(k^×)² ≅ H¹(G_k, ℤ/2)` (continuous cochain cohomology; `μ₂ ≅ ℤ/2`, canonical in
+char 0).  **Only surjectivity is assumed** — injectivity is proved
+(`Kummer.kummerClass_eq_zero_iff`: `[a] = 0 ↔ IsSquare a`, via Mathlib's infinite Galois
+correspondence), so this leaf is strictly weaker than the literature statement.
+
+Citation: **NSW [1], Ch. VI §2 — Theorem (6.2.1) (Hilbert's Satz 90) and the Kummer-sequence
+isomorphism `H¹(G_K, μ_n) ≅ K^×/K^{×n}` displayed immediately after it (electronic ed.
+p. 344), dual form Theorem (6.2.2)**; at `n = 2`.  Secondary: Serre, *Local Fields* [7],
+Ch. XIV §2 (p. 206) — "the map `a ↦ χ_a` defines an isomorphism of `K*/K*ⁿ` onto the group
+of those characters of `G` having order dividing `n`" (construction from Ch. X §3).  Both
+verified verbatim against the `references/` PDFs.
+
+Deviations (flagged, review-packet §3): surjectivity-only; the `IntermediateField`-subtype
+flavor with canonical roots (`sqrtCl`) is B9's `kummerClassK` input shape (root-independence
+is T-13's `kummerCocycleFun_root_indep`, proved).  Discharge note: provable-with-effort via
+completing the square + the Krull–Galois correspondence; the leaf can later become a theorem
+without consumer churn (B11 precedent).
+
+Paper: §6.3 (Lemma 6.17, "By Hochschild–Serre and Kummer theory").
+`docs/literature-axioms.md` B12. -/
+axiom kummerClassK_surjective (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+    [FiniteDimensional ℚ_[2] k] :
+    Function.Surjective (kummerClassK k)
+
+/-- **The B13 axiom (dyadic unit filtration).**
+
+Every finite extension `k/ℚ₂` carries a `DyadicUnitFiltration` (`GQ2/UnitFiltration.lean`):
+a uniformizer `π` (an element of maximal spectral norm `< 1` — discreteness of the value
+group), the normalization `‖2‖ = ‖π‖^e` (`e = v_k(2) ≥ 1`), a residue degree `f ≥ 1`, and
+the graded counts of the unit filtration `U^{(i)} = 1 + 𝔭_k^i`:
+`#(U^{(0)}/U^{(1)}) = 2^f − 1` and `#(U^{(i)}/U^{(i+1)}) = 2^f` for `i ≥ 1`.
+
+Citation: **Serre, *Local Fields* [7], Ch. IV §2, Proposition 6** (verified verbatim against
+the `references/` scan, pp. 66–67): "(a) `U_L/U_L^{(1)} = L̄^*`; (b) for `i ≥ 1`, the group
+`U^{(i)}/U^{(i+1)}` is canonically isomorphic to `𝔭_L^i/𝔭_L^{i+1}`, which is itself
+isomorphic (non-canonically) to the additive group of the residue field `L̄`" — read through
+`#L̄ = 2^f`, `#L̄^× = 2^f − 1`.  Uniformizer existence: Serre LF Ch. I–II (discrete
+valuations, complete fields; standard).
+
+Deviations (flagged, review-packet §3): stated in spectral-norm vocabulary (no valuation
+ring/residue field is constructed — the graded pieces enter through their cardinalities, the
+form the multiplicity count consumes); the proposal's (F2) inertia-twist clause
+(`θ_g = (g•π)/π` acting on `gr_j` by `θ_g^j`) was found **derivable** during statement design
+(exact `ℚ̄₂`-algebra + the `he` normalization) and is deliberately NOT a field — it will be
+proved in-repo (`docs/p15f1-axiom-proposal.md`, B13 entry note).
+
+Paper: §6.3, eq. (93) (the display's own bracket "[7, Ch. XIV §§2–3]" is coarse — the
+filtration is Ch. IV §2).  `docs/literature-axioms.md` B13. -/
+axiom dyadicUnitFiltration (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+    [FiniteDimensional ℚ_[2] k] :
+    DyadicUnitFiltration k
 
 end GQ2

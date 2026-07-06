@@ -8,8 +8,9 @@ import GQ2.ProfinitePresentation
 The paper's §4 fixes, **once and for all**, a common finite-headed boundary shared by the two
 source groups `Γ_A` and `G_ℚ₂`, and states the *boundary-framed exact-image theorem* (Thm 4.2) —
 the technical heart of the proof of eq. (154), proved in §9 by strong induction on `|L_Y|`.
-This file provides the §4 objects and the **statement** of Theorem 4.2 (`thm_4_2`, sorried:
-the proof is tickets P-12–P-17).
+This file provides the §4 objects; the **statement** of Theorem 4.2 (`thm_4_2`) lives in
+`GQ2/SectionNine.lean` since P-17a (moved-out pattern: its §9 proof machinery imports this
+file), with the reviewed `hE2` amendment.
 
 ## The paper's objects and their encodings
 
@@ -79,9 +80,9 @@ must be extended, which is a reviewed statement change.  Instantiation: P-06 sta
 3.14 against these definitions; P-09/P-10 prove them.
 
 Axioms: **none** — the statement layer is axiom-free (matching App. D, where Thm 4.2's inputs
-B6/B7/B7′/B8/B9 enter only through the §§5–9 *proof*, ticket P-17).  `thm_4_2` is the P-11
-sorry (allowlisted, removed by P-17); `thm_4_2_stratum` — the theorem's second clause — is
-*derived* from it, demonstrating that strata need no separate statement.
+B1/B3c/B6/B7/B7′/B8/B9 enter only through the §§5–9 *proof*, ticket P-17).  Since P-17a this
+file is **sorry-free** (`thm_4_2`/`thm_4_2_stratum` relocated to `GQ2/SectionNine.lean`, which
+takes over the allowlist slot).
 -/
 
 open scoped Pointwise
@@ -445,34 +446,12 @@ theorem bF_surjective : Function.Surjective B.bF := B.surjF
 
 end BoundaryMaps
 
-/-! ## Theorem 4.2 -/
+/-! ## Theorem 4.2
 
-/-- **Theorem 4.2 (boundary-framed exact-image theorem).**  For every boundary frame and every
-boundary-framed marked target `𝒴`, the exact-image lift counts from the two sources agree:
-`e^β_{Γ_A}(𝒴) = e^β_{G_ℚ₂}(𝒴)`.
-
-Stated for any `BoundaryMaps` witness of the Prop 3.14 data (see the module docstring; the
-choice is fixed "once and for all" in §4 and only its bundled properties are used).
-
-*Status*: sorried — this is the technical heart (P-11 statement; proof = §§5–9, tickets
-P-12–P-17, by strong induction on `|L_Y|` with Lemma 9.4's strict decrease; axioms
-B6/B7/B7′/B8/B9 enter there, per App. D). -/
-theorem thm_4_2 (B : BoundaryMaps) {H E : Type} [Group H] [TopologicalSpace H]
-    [DiscreteTopology H] [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E]
-    [Finite E] (F : BoundaryFrame H E) {Y : Type} [Group Y] [TopologicalSpace Y]
-    [DiscreteTopology Y] [Finite Y] (T : MarkedTarget H E Y) :
-    exactImageCount B.bA F T = exactImageCount B.bF F T := by
-  sorry
-
-/-- Theorem 4.2's second clause: "the same equality holds for every exact-image target `𝒥`" —
-an *instance* of the first (strata are ordinary objects of the same category), recorded to fix
-the consumption shape for §8. -/
-theorem thm_4_2_stratum (B : BoundaryMaps) {H E : Type} [Group H] [TopologicalSpace H]
-    [DiscreteTopology H] [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E]
-    [Finite E] (F : BoundaryFrame H E) {Y : Type} [Group Y] [TopologicalSpace Y]
-    [DiscreteTopology Y] [Finite Y] (T : MarkedTarget H E Y) (J : Subgroup Y)
-    (hJ : Function.Surjective (T.piY.comp J.subtype)) :
-    exactImageCount B.bA F (T.stratum J hJ) = exactImageCount B.bF F (T.stratum J hJ) :=
-  thm_4_2 B F (T.stratum J hJ)
+The statement `GQ2.thm_4_2` (and its stratum clause `thm_4_2_stratum`) **moved to
+`GQ2/SectionNine.lean`** (P-17a, 2026-07-06): its proof is the §9 strong induction, whose
+machinery imports this file, so the statement cannot stay here (the P-08/P-10 moved-out
+pattern).  The move also applied the reviewed `hE2` amendment (decoration target of
+exponent 2 — the `lemma_7_3` hypothesis); see `docs/section9-extraction.md` §Deviations. -/
 
 end GQ2

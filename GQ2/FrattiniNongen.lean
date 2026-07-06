@@ -24,6 +24,18 @@ open SectionSeven Pointwise
 
 variable {Y : Type} [Group Y] [Finite Y]
 
+omit [Finite Y] in
+/-- Squares of `K`-elements lie in `Φ(K)` (they are half of its generating set). -/
+theorem sq_mem_frattiniLike {K : Subgroup Y} {k : Y} (hk : k ∈ K) :
+    k * k ∈ frattiniLike K :=
+  Subgroup.subset_closure (Or.inl ⟨k, hk, rfl⟩)
+
+omit [Finite Y] in
+/-- Commutators of `K`-elements lie in `Φ(K)` (the other half of its generating set). -/
+theorem comm_mem_frattiniLike {K : Subgroup Y} {k l : Y} (hk : k ∈ K) (hl : l ∈ K) :
+    k * l * k⁻¹ * l⁻¹ ∈ frattiniLike K :=
+  Subgroup.subset_closure (Or.inr ⟨k, hk, l, hl, rfl⟩)
+
 /-- Squares land in any index-2 subgroup (the quotient has order 2). -/
 private theorem sq_mem_of_index_two {Q : Type*} [Group Q] [Finite Q] {M : Subgroup Q}
     [M.Normal] (hM : M.index = 2) (k : Q) : k * k ∈ M := by

@@ -233,6 +233,42 @@ not yet to hand.
 - **Schur–Zassenhaus** (§9.1 terminal case) — in Mathlib (`Mathlib.GroupTheory.SchurZassenhaus`);
   used via `GQ2.FiniteGroup.oddOrder_twoQuotient_split`, already proved.
 
+
+### B10–B11b (added post-freeze)  ✅ faithful
+Recorded in §E below and in `review-packet.md` §2 (the census-amendment history): **B10**
+(oriented tame quotient, NSW (7.5.3)/(7.5.2) + Neukirch ANT V (6.2)), **B11a** (norm criterion,
+Serre LF XIV §2 Prop. 4 iii)), **B11b** (unramified units are norms, Serre LF V §2 Prop. 3 +
+Cor. + Rem. 1).
+
+### B12. Local Kummer theory (surjective half)  ✅ faithful
+- **Statement.** For `k` finite over `ℚ₂`, the Kummer class map descends to an isomorphism
+  `k^×/(k^×)² ≅ H¹(G_k, ℤ/2)`.  Leafed: **surjectivity only** — injectivity is proved
+  (`Kummer.kummerClass_eq_zero_iff`, via Mathlib's infinite Galois correspondence).
+- **Citation.** **NSW [1], Ch. VI §2: Theorem (6.2.1) (Hilbert's Satz 90) + the Kummer-sequence
+  isomorphism `H¹(G_K, μ_n) ≅ K^×/K^{×n}` displayed immediately after it (electronic ed.
+  p. 344); dual form Theorem (6.2.2)** `[✓ verified in the provided NSW]`.  Secondary:
+  **Serre LF [7], Ch. XIV §2 (p. 206)** — `K*/K*ⁿ ≅ {characters of order ∣ n}` (construction
+  Ch. X §3) `[✓ verified in the provided scan]`.
+- **Lean.** `GQ2.kummerClassK_surjective` — surjectivity of the existing `kummerClassK`
+  (`GQ2/EvensKahn.lean`, the B9 input shape; canonical root `sqrtCl`, subtype-group flavor).
+- **Used at.** Lemma 6.17 (P-15f1: transport of the unit filtration to `H¹(G_K, 𝔽₂)`); §6.3.
+
+### B13. Dyadic unit-filtration graded structure  ✅ faithful
+- **Statement.** `k` finite over `ℚ₂`, `U^{(i)} = 1 + 𝔭_k^i`: a uniformizer exists (value-group
+  discreteness), `‖2‖ = ‖π‖^e` (`e ≥ 1`), and the graded counts `#(U^{(0)}/U^{(1)}) = 2^f − 1`,
+  `#(U^{(i)}/U^{(i+1)}) = 2^f` (`i ≥ 1`), `f ≥ 1` the residue degree.
+- **Citation.** **Serre LF [7], Ch. IV §2, Prop. 6** `[✓ verified verbatim, pp. 66–67]`
+  (graded pieces `≅ k̄^×` at depth 0 and `≅ k̄⁺` at depth `i ≥ 1`); uniformizer existence:
+  Serre LF Ch. I–II (standard).  NB the paper's own bracket for (93)/(94) ("[7, Ch. XIV
+  §§2–3]") is coarse — the filtration is Ch. IV §2.
+- **Lean.** `GQ2.dyadicUnitFiltration : DyadicUnitFiltration k` (bundle,
+  `GQ2/UnitFiltration.lean`; spectral-norm vocabulary, no valuation ring or residue field is
+  constructed).  Excluded because provable: the square-class graded computation (93),
+  `U^{(2e+1)} ⊆ squares` (= `sq_of_near_one`, proved P-15e), `−1 ∈ U^{(e)}`, the graded
+  duality, Lemma 6.10, and the proposal's (F2) inertia-twist clause (found derivable from the
+  `he` normalization during statement design — `docs/p15f1-axiom-proposal.md`).
+- **Used at.** Lemma 6.17 dim clause (P-15f1 `DeepKummerData` instantiation).
+
 ---
 
 ## C. The paper's own intermediate nodes (check against the *paper*, not the literature)
@@ -291,7 +327,7 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 citation; `confirmed` = checked against a reliable secondary source; `~` = my identification, source
 not yet to hand.)
 
-**Bottom line for review.** The whole theorem rests on **ten** classical inputs (B1–B10, B10 added post-kickoff by the P-06 census decision); of the two
+**Bottom line for review.** The whole theorem rests on **fifteen** classical inputs (B1–B10, B7′, B11a/b, B12, B13 — B10 added post-kickoff by the P-06 census decision, B11–B13 by the P-15/P-23/P-15f1 census decisions); of the two
 finite-group inputs that would also have appeared (RZ Hopfian, Schur–Zassenhaus) both are already
 proved. B1–B2 are machine-checked faithful statements; B3–B9 are precise here but await Mathlib
 infrastructure (Demushkin groups, continuous Galois cohomology + Tate duality, Hilbert symbols,
@@ -344,10 +380,13 @@ Stiefel–Whitney/Evens classes, étale `π₁`) before they can be stated faith
   `−1, (1−2^f)^{-1}, 1`) — both verified verbatim.
 
 **✅ Line-checked by P-20 (2026-07-05), against the `references/` Serre *Local Fields* (GTM 67) scan:**
-- **B11a** — Serre, *Local Fields* [7], **Ch. XIV §2 "The Symbol (a,b)", Proposition 7, clause iii)**
-  (book p. 209): "in order that `(a,b)ᵥ = 1`, it is necessary and sufficient that `b` be a norm in
-  the extension `K(a^{1/n})/K`."  The symbol `(a,b)ᵥ := inv_K(a∪b)` is defined at the start of §2
-  (p. 208), so at `n = 2` this is `[a]∪[b]=0 ⟺ b ∈ N_{K(√a)/K} ⟺ b = x²−ay²`.  (Ch. XIV §2 Exercise 3
+- **B11a** — Serre, *Local Fields* [7], **Ch. XIV §2 "The Symbol (a,b)", Proposition 4, clause iii)**
+  (book pp. 206–207): "in order that `(a,b) = 0`, it is necessary and sufficient that `b` be a norm in
+  the extension `K(a^{1/n})/K`."  The symbol-as-cup identification is **§2, Proposition 5**
+  (`(a,b) = i(φ_a ⌣ φ_b)`), so at `n = 2` this is `[a]∪[b]=0 ⟺ b ∈ N_{K(√a)/K} ⟺ b = x²−ay²`.
+  *(Correction 2026-07-06, P-15f1: re-checked against the **updated** scan — Ch. XIV runs
+  Props 1–3 in §1 and Props 4–5 in §2; the previously recorded "Prop. 7 iii, p. 209" came from
+  the pre-update scan.  Remark 3 of §2 gives the `n = 2` conic form.)*  (Ch. XIV §2 Exercise 3
   gives the odd-degree Steinberg relation; Ch. XIV §4, p. 214, computes the symbol for `Q_p, n=2`.)
 - **B11b** — Serre, *Local Fields* [7], **Ch. V §2 "The Unramified Case", Proposition 3** (book p. 82)
   with its **Corollary + Remark 1**: `N(Uⁿ_L) = Uⁿ_K` for `n ≥ 1`, and the equivalence
@@ -364,7 +403,19 @@ Schur–Zassenhaus (Mathlib).
 **Tertiary corroboration still unchecked:** **Milne *ADT* I.2.1/I.2.8** (free online) — for B6/B7,
 superfluous now that both NSW **and** Serre *GC* are verified.
 
-**Net: all thirteen leaves (B1–B10, B7′, B11a, B11b) are source-verified** — each carries an exact
+**✅ Line-checked by P-15f1 (2026-07-06), against the updated `references/` scans:**
+- **B12** — NSW **(6.2.1)** (Satz 90) + the displayed Kummer isomorphism
+  `H¹(G_K, μ_n) ≅ K^×/K^{×n}` of Ch. VI §2 and its dual **(6.2.2)** — verified verbatim;
+  Serre LF **Ch. XIV §2 p. 206** (isomorphism onto characters; construction Ch. X §3) —
+  verified verbatim.
+- **B13** — Serre LF **Ch. IV §2, Prop. 6** (graded pieces of the unit filtration) and, for the
+  in-repo (F2) discharge, **Prop. 7** (+ Prop. 5) (`s(π)/π`, uniformizer-independent) — verified
+  verbatim.  The (93) square-class consequence and the Hensel top are *proved*, not leafed.
+- (Supporting, for the `hinf`/`hext` in-repo proofs:) Brown [5] **Ch. III §10, Corollary (10.2)**
+  (`|G|` annihilates `H^n(G,M)`, `n > 0`; invertible ⟹ vanishing) and **Theorem (10.3)**
+  (Sylow restriction) — verified verbatim in the provided Brown scan.
+
+**Net: all fifteen leaves (B1–B10, B7′, B11a, B11b, B12, B13) are source-verified** — each carries an exact
 theorem number and a verbatim statement checked against the provided PDFs (B6/B7 doubly-sourced;
 B3's Theorem 8 at `d=1` reproduces the paper's `D₀` on the nose; B11a/B11b line-checked by P-20,
 2026-07-05). The two would-be finite-group inputs (RZ Hopfian Prop. 2.5.2, Schur–Zassenhaus) are

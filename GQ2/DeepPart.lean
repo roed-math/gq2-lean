@@ -1444,7 +1444,7 @@ theorem prop_6_18_ramified (D : TateDuality 2) (B : BoundaryMaps)
     obtain ⟨t, ht⟩ := hc y
     obtain ⟨g, hg⟩ := B.tameF_surjective t
     exact ⟨g, by rw [hfac, hg, ht]⟩
-  have hdim := lemma_6_17_dim B c hc ρ hfac hρ hV2 hfaith hsimple hram
+  have hdim := lemma_6_17_dim B c hc ρ hfac hρ hV2 hfaith hsimple hram q hq hns hinv
   have hvanish := lemma_6_17_vanish D B c hc ρ hfac hρ hV2 hfaith hsimple hram
     q hq hns hinv dat hdat
   exact card_Q0loc_zero_eq_of_dim_of_vanish D q hq hns dat hdat ρ hρ hρsurj hsimple

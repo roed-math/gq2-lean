@@ -16,8 +16,8 @@ citation-faithfulness classification (§2) is carried forward.
 
 **Context.**  The repo formalizes the *statement* of the paper's Theorem 1.2 (a profinite
 presentation of `G_{ℚ₂}`) and reduces its proof to (a) the paper's own §§3–10 argument (interior
-nodes, §4; the still-open ones are the `sorry`s of §6) and (b) **thirteen classical literature
-results B1–B11**, stated as Lean `axiom`s (§2).  (The census was ten at the step-1 freeze; **B10**
+nodes, §4; the still-open ones are the `sorry`s of §6) and (b) **fifteen classical literature
+results B1–B13**, stated as Lean `axiom`s (§2).  (The census was ten at the step-1 freeze; **B10**
 and the base-generalized **B9 + B11** were added by explicit, recorded census decisions during
 step 2; **B11 was then split into the two classical leaves B11a/B11b by P-23** — user-approved
 2026-07-04, census 12→13 — see the amendment history at the end of §2.)  The two review questions
@@ -54,7 +54,7 @@ is the mechanical, whole-library version.
 
 ## 2. The axioms: Lean names per B-leaf
 
-All thirteen live in [`GQ2/Foundations/Axioms.lean`](../GQ2/Foundations/Axioms.lean) — the single
+All fifteen live in [`GQ2/Foundations/Axioms.lean`](../GQ2/Foundations/Axioms.lean) — the single
 file permitted to declare axioms.  "Defs" = the file with the supporting definitions (each of
 which is *fully proved*, never assumed).
 
@@ -73,14 +73,17 @@ which is *fully proved*, never assumed).
 | **B10** | the tame quotient of `G_{ℚ₂}`, **oriented** (B10′): closed normal pro-2 `W` with `G_{ℚ₂}/W ≅ ⟨σ,τ ∣ τ^σ = τ²⟩_prof`, plus reciprocity-orientation (units ↦ `ker ν_t`; `rec(2)` ↦ geometric coordinate `ztwoOne⁻¹`) | NSW (7.5.3) (Iwasawa), (7.5.2); Serre LF IV; Neukirch ANT V (6.2), V (1.2) | `GQ2.tameQuotient` | `GQ2/TameQuotient.lean` |
 | **B11a** | dyadic norm criterion over finite bases: `[a]∪[b] = 0 ⟺ b = x² − ay²` in `k` | **Serre LF Ch. XIV §2, Prop. 7 (iii)** — `(a,b)ᵥ=1 ⟺ b ∈ N_{K(a^{1/n})/K}`; symbol `(a,b)ᵥ = inv_K(a∪b)` (§2, p. 208); the `n=2` case | `GQ2.hilbertSymbol_normCriterion_finiteDyadic` | `GQ2/Foundations/Axioms.lean` |
 | **B11b** | units are norms from an unramified quadratic extension (`IsUnramifiedQuadraticSpectral` ⟹ every base unit is a norm) | **Serre LF Ch. V §2, Prop. 3 + Cor./Rem. 1** — `N(Uⁿ_L)=Uⁿ_K`, and a finite residue field gives `U_K = N_{L/K}(U_L)` | `GQ2.unramifiedQuadratic_units_are_norms` | `GQ2/Foundations/Axioms.lean` |
+| **B12** | local Kummer theory: `kummerClassK` surjects onto `H¹(G_k, 𝔽₂)` (injectivity proved, not assumed) | NSW (6.2.1) + Ch. VI §2 display + (6.2.2); Serre LF XIV §2 p. 206 | `GQ2.kummerClassK_surjective` | `GQ2/EvensKahn.lean` (map), `GQ2/Kummer.lean` (injectivity) |
+| **B13** | dyadic unit filtration: uniformizer + `‖2‖ = ‖π‖^e` + graded counts `2^f − 1` / `2^f` | Serre LF IV §2, Prop. 6 | `GQ2.dyadicUnitFiltration` | `GQ2/UnitFiltration.lean` |
 
-*(P-20, 2026-07-05: the B11a/B11b citations above are now line-checked against the `references/`
-Serre *Local Fields* (GTM 67) scan.  **B11a** = **Ch. XIV §2 "The Symbol (a,b)", Proposition 7,
-clause iii)** (p. 209): "in order that `(a,b)ᵥ = 1`, it is necessary and sufficient that `b` be a
-norm in the extension `K(a^{1/n})/K`"; the symbol `(a,b)ᵥ := inv_K(a∪b)` is defined at the start of
-§2 (p. 208), so at `n = 2` this is `[a]∪[b] = 0 ⟺ b ∈ N_{K(√a)/K} ⟺ b = x²−ay²`.  (Ch. XIV §2
-Exercise 3 gives the odd-degree Steinberg relation `(a,b)+(b,c)+(c,a)=0` when `a+b+c=0`; Ch. XIV §4,
-p. 214, computes the symbol for `Q_p, n=2` explicitly.)  **B11b** = **Ch. V §2 "The Unramified Case",
+*(P-20, 2026-07-05, **corrected by P-15f1, 2026-07-06, against the updated scan**: the B11a/B11b
+citations are line-checked against the `references/` Serre *Local Fields* (GTM 67) scan.
+**B11a** = **Ch. XIV §2 "The Symbol (a,b)", Proposition 4, clause iii)** (pp. 206–207): "in order
+that `(a,b) = 0`, it is necessary and sufficient that `b` be a norm in the extension
+`K(a^{1/n})/K`" — Ch. XIV runs Props 1–3 in §1 and Props 4–5 in §2; the previously recorded
+"Prop. 7 iii, p. 209" came from the pre-update scan.  The symbol-as-cup identification is **§2,
+Proposition 5** (`(a,b) = i(φ_a ⌣ φ_b)`), so at `n = 2` this is
+`[a]∪[b] = 0 ⟺ b ∈ N_{K(√a)/K} ⟺ b = x²−ay²`; §2 Remark 3 gives the `n = 2` conic form.  **B11b** = **Ch. V §2 "The Unramified Case",
 Proposition 3** (p. 82) with its **Corollary + Remark 1**: `N(Uⁿ_L)=Uⁿ_K` for `n≥1`, and the three
 equivalent conditions `[K*:NL*]=f ⟺ U_K=NU_L ⟺ K̄*=NL̄*`, the last holding when the residue field is
 finite (Remark 1) — so for `K` with finite residue field (`ℚ₂`: residue `𝔽₂`) and `L/K` unramified,
@@ -96,15 +99,15 @@ axiom.)*
 ### Citation-faithfulness classification
 
 Added per the adversarial review (`docs/adversarial-axioms-review.md` §6, 2026-07-04).  This
-groups the thirteen leaves by **how directly the Lean statement matches a single published
+groups the fifteen leaves by **how directly the Lean statement matches a single published
 theorem**, so a reviewer does not mistake a "nearby true theorem" for "this exact Lean interface
 appears verbatim in the cited literature."  It carries **no soundness claim** — every leaf is
 believed true; it is a guide to *where the translation layers are*.
 
 | Tier | Leaves | What the reviewer checks |
 |---|---|---|
-| **Direct classical theorem** | B1, B6, B7, B7′ | the Lean statement *is* the cited theorem, modulo notation |
-| **Classical theorem + encoding choices** | B4, B5, B9, B10 | the cited theorem plus documented repo encodings (bundle shape, diagonalization, base generalization; B10: Iwasawa presentation + the ANT V (6.2) orientation clauses read through `toAb`-lifts, pinned to the B5 constant) |
+| **Direct classical theorem** | B1, B6, B7, B7′, B12 | the Lean statement *is* the cited theorem, modulo notation (B12: the surjective half only — the injective half is proved) |
+| **Classical theorem + encoding choices** | B4, B5, B9, B10, B13 | the cited theorem plus documented repo encodings (bundle shape, diagonalization, base generalization; B10: Iwasawa presentation + the ANT V (6.2) orientation clauses read through `toAb`-lifts, pinned to the B5 constant) |
 | **Composite / project interface** | B3c, B8, B11a, B11b | a cited theorem bundled with **additional inputs**, each flagged in the axiom's docstring |
 | **Available / unused** | B2 | in the census but consumed by no current declaration |
 
@@ -162,6 +165,18 @@ B2's unused status is recorded on its axiom docstring and re-confirmed by the §
   `dyadicNormCriterion` is re-derived as a **same-name theorem** over the two leaves, so no
   consumer changed and every downstream `#print axioms` now surfaces B11a/B11b in place of the old
   single leaf.  Census 12 → 13.
+* **B12 + B13** (`kummerClassK_surjective`, `dyadicUnitFiltration`) — by explicit census
+  decision (**P-15f1 instantiation**, user-approved 2026-07-06): Lemma 6.17's dimension
+  clause reduces (P-15f1 Layers 1–2b, all std-3, `GQ2/LocalKummer.lean`:
+  `dim_deepPart_of_data`) to one `DeepKummerData` instance, whose literature content is
+  exactly local Kummer theory (B12) and the (93) unit-filtration graded structure (B13).
+  Everything else in the instance is proved, not assumed: `H^{1,2}(H_V, V) = 0` via coprime
+  averaging (Brown III (10.2)), the square-class graded computation, the Hensel top
+  (`sq_of_near_one`), the graded duality, Lemma 6.10, and — separately, as paper content —
+  Lemma 6.11 projectivity for the deep-count multiplicativity.  B12 is surjectivity-only
+  (injectivity proved); B13's proposed (F2) inertia-twist clause was found derivable and
+  deliberately excluded.  Precise-citation record: `docs/p15f1-axiom-proposal.md`.
+  Census 13 → 15.
 
 **B3a/B3b are deliberately not axioms.**  B3a (the *definition* of a Demushkin group) is
 formalized and stress-tested (`GQ2.IsDemushkin`, `GQ2.demushkinRank`, `GQ2.demushkinQ` in
@@ -210,6 +225,8 @@ These are *constructions with full proofs* (std-3), so the review question is on
 | B6 | Pontryagin duals encoded as `⋯ →+ ZMod n`; perfectness in one currying per degree pair; `inv` unnormalized | for `n`-torsion finite groups `Hom(−,ℚ/ℤ) ≅ Hom(−,ℤ/n)`; the opposite currying follows by counting; the paper's explicit `n=2` cup values come from B7′ |
 | B7 | the `H⁰`-finiteness clause is retained although independently provable (`finite_H0`) | verbatim transcription of the literature statement |
 | B8 | the **group-theoretic conclusion** of Lemma 3.6 only — no étale `π₁` | Mathlib has no anabelian `π₁`; reviewers check the implication "Lemma 3.6 ⇒ bundle", not a `π₁` formalization |
+| B12 | surjectivity only; injectivity carried as a proved theorem | leaf-minimality (B5-injectivity precedent); `kummerClass_eq_zero_iff` is proved via Mathlib's infinite Galois correspondence |
+| B13 | spectral-norm vocabulary; graded pieces enter through their **cardinalities**; no valuation ring/residue field constructed; the (F2) inertia-twist clause excluded (derivable) | the form the multiplicity count consumes; each retained clause is Serre LF IV §2 Prop. 6 verbatim-adjacent; minimality (`docs/p15f1-axiom-proposal.md`) |
 | B8 | the cyclotomic exponent `ι : ℤ₂ˣ → ℤ̂` is bundle data, pinned by continuity and `ι(1) = ω₂` | full pinning is the ring structure of `ℤ̂`, out of scope |
 | B9 | truncated to degrees ≤ 2; asserted at the paper's fixed diagonalizations `Tr⟨a⟩ ≃ ⟨2u, 2dn/u⟩`, `Tr⟨1⟩ ≃ ⟨2, 2d⟩` with `w₁⟨x,y⟩ = [x]+[y]`, `w₂⟨x,y⟩ = [x]∪[y]` | no quadratic-form/SW machinery needed; Delzant well-definedness absorbed into the scoping; deg-1 component ⟺ classical `cor[a] = [N_{L/k}a]` |
 | B9 | Kummer classes over a general base `k` use canonical square roots (`sqrtCl`) and live over the subtype group `G_k = k.fixingSubgroup ≤ G_{ℚ₂}` (`kummerClassK`) | class independent of the root (proved, T-13); one fixed algebraic closure throughout — no closure-transport |

@@ -163,6 +163,74 @@ kernel in `ker(π̃, θ̃)`" holds by construction), `sq_eq_one_of_mem_ker`, `li
    strata *surjecting onto `C`*; the unrestricted sum would overcount by the
    `m_{Γ,λ}(J)` of `C`-missing strata (whose `Z`-slices are empty since the pair's
    `C`-component is onto).  Both `ClosedRecursion.eq137` and the derivation were updated.
+3. **`prop_8_9` gains the frame enrichment `(En : RF.Enrichment)`** (P-16d1, 2026-07-05).
+   The bare `RecursionFrame` carries `scalarCover` as an *arbitrary* central cover of `B`,
+   but the paper proves (139)/(140) under its §7.4/§6.1 standing data: the square form of
+   `p_λ` restricted to `M_B` (polar radical ⊇ `T_B`, vanishing on `T_B` — Prop 7.4) and a
+   *fixed* equivariant base class `κ⁰_{q̄_λ}` for the descended module `V ≅ M_B/T_B`
+   (Lemma 6.1 — the `lemma_6_21` relative hypothesis restored by P-15i).  Without these the
+   `∀ RF`-statement quantifies over junk covers for which (139) is false, so the data must
+   enter as a hypothesis.  It is packaged as `RecursionFrame.Enrichment`
+   (`SectionEight.lean`): per-`λ` square-form fields assembling to a `RadicalCoverData`
+   (`Enrichment.radData`, with normality/elementarity *derived* — `M_B = K/Φ(K)`-image —
+   and `NoDescent` definitionally the (139)/(140) case split) plus the descended-module
+   κ⁰-datum fields for Lemma 8.7/Prop 8.8 (P-16d4).  Block-level constructibility of the
+   square-form half from Prop 7.4's output: `GQ2/FrameEnrichment.lean` (`mForm_of_qbar`,
+   std-3); the concrete instance for the `𝒴`-frame is discharged with the witness
+   (P-16d5/d6).
+4. **Lemma 8.7 is stated at cocycle level, not class level** (P-16d4, 2026-07-05,
+   `GQ2/AffineTLift.lean`).  The paper's 8.7 counts cohomology classes with multiplicity
+   `μ = |B¹(V)|·|Z¹(T)|`.  The Lean `lemma_8_7_count` instead counts the central `M`-lifts
+   in a fixed `T`-reduction fibre and finds them `= #Z¹_{Γ,ρ}(T)` (`TCocycle D ρ`), i.e. the
+   `T`-cocycle multiplicity directly — same spirit as deviation #3 of the original list
+   ("liftability encodes obstruction-vanishing").  The `|B¹(V)|` factor is absorbed into the
+   `V`-coordinate base of the fibration (the `red_T`-values), whose enumeration (`W = Z¹(V)`
+   in the 8.5-application) and reconciliation with the 5.15/5.16 numerics are d6's job.  No
+   quotient-set / class-well-definedness objects are introduced.
+5. **Prop 8.8 is stated target-side only, with a 6.22-normalized `Δ`** (P-16d4).  The Lean
+   `prop_8_8_target` is a finite `C`-level cochain identity — the edge-killing shear as an
+   instance of the proved `lemma_6_22` — producing the total scalar phase `Δ = δ + Θ⁰_q̄(a) +
+   (γ ⌣ a)`.  Two deviations: (a) the Γ-level completed square (135), which pulls this back
+   along cor. 5.17, is **out of scope** (d6, behind the P-13f firewall) — the paper itself
+   notes `Δ_{χ,κ}` "is defined on the finite target `C`; no comparison map between the two
+   source `H¹`-spaces is involved"; (b) `Δ` carries the `γ⌣a` cup term of the `lemma_6_22`
+   output, whereas display (134) as printed omits it — harmless because `prop_8_9`
+   **existentially quantifies** the phase family `(μ, G⁰, D_T, phase)`, so d5/d6 build the
+   phase covers from the Lean-`Δ` and the count-level content is unaffected.  Companion
+   deliverables in `GQ2/AffineTLift.lean` (all std-3, Ax ∅): `descended_splitting`
+   (`B/T ≅ V ⋊ C` via `lemma_6_21` at the descent datum — the `ξ`-cocycle is the descended
+   central cover's defect sign), `central_twist_iff` (zero-edge: the `N`-complement has
+   `edge ≡ 0`, so twisting preserves `Central`), `tcocycle_torsor_equiv` (the `red_T`-fibre
+   torsor), `exists_polar_inverse` (the `a_{χ,κ}` supplier).  **Note on 2.3 (V-coordinates):
+   the explicit `graphEquiv` of the work order is folded into the `red_T`-fibration** —
+   `lemma_8_7_count` counts directly over the `T`-reduction, and the `red_T`-value ↔ crossed
+   `V`-cocycle identification (via the `descended_splitting` `σ`) is a thin d6 step, not a
+   separate object here.
+6. **The phase covers are the twisted product `𝔽₂ ×_δ C₀`** (P-16d5, 2026-07-05,
+   `GQ2/AffineTLift.lean`).  `centralCoverOfCocycle δ` builds the (133)/(134) phase cover — a
+   genuine `CentralCover C₀` — from any **normalized** `𝔽₂`-2-cocycle `δ` (multiplication
+   `(s,c)(t,d) = (s+t+δ(c,d), cd)`; kernel `⟨z⟩`, `z=(1,1)`), the multiplicative analog of
+   P-15i's additive `Transgression.Twisted`.  `phaseFamily` lifts it to the
+   `DT → CentralCover C₀` shape of `prop_8_9`'s `phase` field.  d6 supplies
+   `δ ζ := DeltaScalar …` (the 6.22-normalized total phase of deviation #5); the shared
+   `(μ, G⁰, D_T)` are `lemma_8_7_count`'s `#Z¹(T)`, `gaussSum` of the enrichment form
+   `E.qbar`, and the `(T^∨)^C` index — all now constructible, so the witness assembly + the
+   `eq140` proof (needs the `μ` source-independence of props 5.15/5.16, **P-13f**) is the d6
+   splice, not a missing constructor.
+7. **The (139) `zBC ↔ MLifts` bridge** (P-16d3, 2026-07-05, `GQ2/RadicalEdgeBridge.lean`).
+   `half139_of` proves `2·zBC = |M_B|²·e_Γ(C)` by fibring `zBC` over the lower exact-image
+   map `ρ : Γ ↠ C`: the fibre is the `λ`-compatible `B`-lifts over `ρ` (`CentralOver ρ`; the
+   `IsBoundaryLift` clause is redundant — `isBoundaryLift_of_over`, folded from d4), and the
+   two per-source numeric inputs enter as **hypotheses** — `hlem86` (the source's Lemma 8.6
+   half-torsor count) and `hMcount` (the `2^{2·dim M} = |M_B|²` unrestricted-`M`-lift count,
+   props 5.15/5.16).  The genuine bridge is `liftsOver_equiv`/`centralOver_equiv`:
+   `LiftsOver ρ ≃ MLifts (E.radData l h) ρ'` (and central ↔ central) via the iso
+   `piBCiso : B/M ≅ C` and the transport `ρ' := piBCiso⁻¹∘ρ`, so d6 discharges `hlem86` from
+   `lemma_8_6_local`/`gammaA` and `hMcount` from the P-13f numerics.  **Lean note**: the
+   transport iso/quotient are parametrized by the `RadicalCoverData` datum `D` (not `RF.MB`
+   directly) so the quotient uses `D.M`'s normality instance and `QuotientGroup.mk` matches
+   `MLifts` on the nose — the `RF.MB`-vs-`(E.radData l h).M` instance-diamond otherwise breaks
+   the `rw` in the fibre equivalence.  All std-3; B6/B7 enter only through the consumed 8.6.
 
 ## O-half work order (remaining)
 
