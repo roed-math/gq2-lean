@@ -186,3 +186,59 @@ only when a lemma **simultaneously** touches `conjAct ρ g` (needs `g : AbsGalQ2
   equivariantly — the pp. 29–30 weight-orbit freeness).  P-15f4 is a merge-pointer to P-17e4.
 * Axiom census is **15**; f6/f7 may need a user-approved B13-(F2) or FV-Thm-(5.2) leaf (flagged
   in the P-15f6/f7 board rows) — **do not add axioms without approval**.
+
+---
+
+## 7. Session update — the §4 gate is RESOLVED; f6 bricks landed (branch `p15f6-conjact-deepclasses`)
+
+This session **broke the §4 gate** and landed the remaining f6 bricks except the SES count.  All
+new declarations are **`#print axioms` = std-3** (`GQ2.AdmissibleCount` builds green, sorry-free).
+Work is on branch **`p15f6-conjact-deepclasses`** (not merged to master), commits `f1e35d3`,
+`7d256e5`, `6206629`, `33ca7a1`.
+
+### Landed (all std-3, in `GQ2/AdmissibleCount.lean`)
+* **`conjAct_deepClasses`** (§3 step 1 / the §4 gate) — `conjModule`-invariance of `deepClasses`.
+* **`conjActHom`, `conjModuleDeep`** (§3 step 2) — the restricted `conjModule` action on
+  `↥(deepClassesSubgroup (ker ρ))` (f5's `W'`).
+* **`conjActQuotHom`, `conjActQuotHom_mk`, `conjModuleQuot`** (§3 step 2) — the induced action on
+  `H¹(N) ⧸ deepClassesSubgroup` (f5's `W''`), via `QuotientAddGroup.map`.
+* **`deepFamEquiv`, `card_deepFam_eq`** (§3 step 4) — `#{deep families} = #equivHoms C V^∨
+  deepClassesSubgroup`.  Together with the pre-existing `card_admissibleFam_eq` this gives two of
+  the three counts for the balance⟺duality reduction.
+
+### The §4-gate technique (reuse it — the view mismatch recurs on EVERYTHING touching `ρ.ker`)
+`AbsGalQ2` (`= Field.absoluteGaloisGroup ℚ_[2]`, a semireducible `def`) and
+`Kummer.GaloisGroup ℚ_[2]` (`= ℚ̄₂ ≃ₐ[ℚ₂] ℚ̄₂`, a reducible `abbrev`) are the SAME type but their
+`Group` instances (`Field.instGroupAbsoluteGaloisGroup` vs `AlgEquiv.aut`) are defeq only at
+`.default`, **NOT at `instances` transparency**.  Consequences and the fixes that WORK:
+1. **field action `g • x` on `ℚ̄₂` fails `HSMul` synthesis for `g : AbsGalQ2`** (instance search
+   won't unfold the `def`).  → **Take `g : Kummer.GaloisGroup ℚ_[2]`** (the reducible view);
+   `conjAct ρ g` / `conj_mem_ker ρ g` still accept it by defeq.
+2. **`rw` under `∈ deepClasses ρ.ker` fails the motive check** (forces the `AlgEquiv.aut` view). →
+   **Build the deep-class witness with `refine ⟨…⟩` FIRST** (elaborated at `.default`), so the
+   `conjAct_h1ofFun` rewrite lands on a plain `H1`-equation goal, never under `∈ deepClasses`.
+3. **any `rw` touching `conjAct ρ g` needs `g : AbsGalQ2` in the motive but `g • β` needs
+   `GaloisGroup`** — irreconcilable in one `rw`. → **use a `calc` (pure `Eq.trans`, no motive)**;
+   prove `_mk`-style computation rules as **terms** (`QuotientAddGroup.map_mk _ _ … a`), not `rw`.
+4. after a `congr`/`simp` leaves a stray `conjActHom`, **`show … = conjAct …`** to defeq-convert
+   before `rw [← conjAct_comp]`.
+
+### DEFERRED — step 3 (the `U_{e+1}` SES count) — the ONE remaining f6 blocker
+`card_equivHoms_deepSES` (removed; full attempt in the git history of this branch, and its shape is
+in the comment where it used to live) applies `card_equivHoms_of_exact` to
+`0 → deepClassesSubgroup →ⱼ H¹(N) →π H¹(N)/deep → 0`.  **Everything is correct** —
+`j = AddSubgroup.subtype` (`hjeq = fun c w => rfl`, `hjinj = Subtype.val_injective`),
+`π = QuotientAddGroup.mk'` (`hπeq = fun c w => (conjActQuotHom_mk …).symm`,
+`hπsurj = QuotientAddGroup.mk'_surjective`), `hexact` via `QuotientAddGroup.eq_zero_iff` +
+`AddSubgroup.range_subtype`, `h2W = GQ2.h1_add_self`, package `(ι,r,hι,hr,hri)` + `Finite (H¹ N)`
+as hypotheses.  **Blocker**: `(deepClassesSubgroup ρ.ker).Normal` and the quotient's `HAdd`
+resolve at TOP level (`example … := inferInstance` compiles) but **FAIL in the nested position**
+`card_equivHoms_of_exact` needs them (`instances`-transparency + the `ρ.ker` view clash).  `set Deep
+:= …` + `haveI : Deep.Normal` did NOT fix it (a residual defeq mismatch surfaces at the engine call).
+**Recommended fix = the standalone view-normalization brick from §4**: either (a) a transport lemma
+exhibiting `deepClassesSubgroup ρ.ker` uniformly in ONE view, or (b) restate `deepClassesSubgroup`
+(and `deepClasses`) directly over `Subgroup AbsGalQ2` so no coercion ever happens.  Once step 3
+lands, step 5 is pure arithmetic:
+`#H¹(ℚ₂,V) = #AdmissibleFam = #equivHoms(V^∨,H¹N) = #equivHoms(V^∨,deep)·#equivHoms(V^∨,quot)`
+[SES], `#deepPart = #deepFam = #equivHoms(V^∨,deep)`, so `hduality : #equivHoms(V^∨,deep) =
+#equivHoms(V^∨,quot)` ⟹ `#deepPart² = #H¹` (the f6 output; hand `hduality` to f7).
