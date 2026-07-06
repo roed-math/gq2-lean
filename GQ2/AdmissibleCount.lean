@@ -118,6 +118,58 @@ theorem dualModule_smul_apply (c : C) (φ : V →+ ZMod 2) (v : V) :
 
 variable (ρ : ContinuousMonoidHom AbsGalQ2 C)
 
+omit [DiscreteTopology C] [Finite C] in
+/-- **`conjModule`-invariance of `deepClasses`** (P-15f6 brick iii-b — the §4-handoff gate):
+the `G_ℚ₂`-conjugation `conjAct ρ g` carries a deep Kummer class to a deep Kummer class.
+Concretely `conjAct ρ g [κ_β] = [κ_{g•β}]` (via `conjAct_h1ofFun` + `kcf_conj`), and `g • A` is
+again a deep unit: normality of `ker ρ` keeps it `N`-fixed, and `‖g • b‖ = ‖b‖` by
+`GQ2.norm_galois`.  This is the invariance that lets `deepClassesSubgroup` carry the restricted
+`conjModule` action (f5's `W'`). -/
+theorem conjAct_deepClasses (g : Kummer.GaloisGroup ℚ_[2])
+    {ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)}
+    (hξ : ξ ∈ deepClasses (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :
+    conjAct ρ g ξ ∈ deepClasses (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) := by
+  obtain ⟨A, β, hdeep, hsq, hβ0, rfl⟩ := hξ
+  obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hdeep
+  -- `g` is taken in the reducible `GaloisGroup` view so the field action `g • ·` on `ℚ̄₂`
+  -- synthesizes (handoff §4, HSMul half); `conjAct ρ g` / `conj_mem_ker ρ g` still accept it by
+  -- defeq (they expect `AbsGalQ2`).  Build the deep-class witness FIRST (elaborated at `.default`
+  -- transparency, where the two `Group` instances are defeq); the `conjAct_h1ofFun` rewrite is
+  -- then done on the final plain `H1`-equation goal, never under `∈ deepClasses` (which would
+  -- force the `AlgEquiv.aut` view and break the `rw` motive).
+  refine ⟨g • A, g • β, ⟨?_, ?_, g • b, ?_, ?_, ?_⟩, ?_, ?_, ?_⟩
+  · rw [AlgEquiv.smul_def]; simpa using hA0
+  · intro m hm
+    have hconj : (g⁻¹ * m * g) • A = A :=
+      hAfix _ (conj_mem_ker ρ g ⟨m, hm⟩)
+    calc m • (g • A) = g • ((g⁻¹ * m * g) • A) := by
+          rw [← mul_smul, ← mul_smul]; congr 1; group
+      _ = g • A := by rw [hconj]
+  · intro m hm
+    have hconj : (g⁻¹ * m * g) • b = b :=
+      hbfix _ (conj_mem_ker ρ g ⟨m, hm⟩)
+    calc m • (g • b) = g • ((g⁻¹ * m * g) • b) := by
+          rw [← mul_smul, ← mul_smul]; congr 1; group
+      _ = g • b := by rw [hconj]
+  · rw [hAeq, AlgEquiv.smul_def, map_add, map_one, map_mul, map_ofNat, ← AlgEquiv.smul_def]
+  · rw [norm_galois]; exact hb
+  · rw [AlgEquiv.smul_def, AlgEquiv.smul_def, ← map_pow, hsq]
+  · rw [AlgEquiv.smul_def]; simpa using hβ0
+  · -- `H1ofFun (κ_{g•β}) = conjAct ρ g (H1ofFun κ_β)`.  `conjAct ρ g` wants `g : AbsGalQ2` while
+    -- the field action `g • β` wants `g : GaloisGroup`; a single `rw` on `conjAct ρ g` cannot
+    -- satisfy both under the `instances`-transparency motive check.  So we go through a `calc`
+    -- (pure `Eq.trans`, no motive over the goal): the `conjAct_h1ofFun` step is a plain equation
+    -- term, and the final equality is checked by defeq.
+    symm
+    calc conjAct ρ g (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+            (fun n => Kummer.kummerCocycleFun β (n : AbsGalQ2)))
+        = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+            (fun n => Kummer.kummerCocycleFun β ((conjMap ρ g n : AbsGalQ2))) :=
+          conjAct_h1ofFun ρ g (GQ2.DeepPart.kummerRestrict_mem_Z1 hsq hβ0 hAfix)
+      _ = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+            (fun n => Kummer.kummerCocycleFun (g • β) (n : AbsGalQ2)) := by
+          congr 1; funext n; exact kcf_conj β g (n : AbsGalQ2)
+
 omit [DiscreteTopology C] [Finite C] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
   [ContinuousSMul AbsGalQ2 V] in
 /-- **The core equivariance of an admissible family** matching the two `C`-actions: `ξ.fam`
