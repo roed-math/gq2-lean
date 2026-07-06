@@ -170,6 +170,87 @@ theorem conjAct_deepClasses (g : Kummer.GaloisGroup ℚ_[2])
             (fun n => Kummer.kummerCocycleFun (g • β) (n : AbsGalQ2)) := by
           congr 1; funext n; exact kcf_conj β g (n : AbsGalQ2)
 
+/-- `conjAct ρ g` packaged as an additive endomorphism of `H¹(N, 𝔽₂)` (`conjAct_add`), so it can
+feed `QuotientAddGroup.map` for the induced action on `H¹(N) ⧸ deepClassesSubgroup`. -/
+noncomputable def conjActHom (g : AbsGalQ2) :
+    H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) →+
+      H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) :=
+  AddMonoidHom.mk' (conjAct ρ g) (conjAct_add ρ g)
+
+/-- **The restricted `conjModule` action on the deep subgroup** (f5's `W'`): `deepClassesSubgroup`
+is `conjModule`-invariant (`conjAct_deepClasses`), so the conjugation action restricts to a
+`DistribMulAction C` on `↥(deepClassesSubgroup (ker ρ))`.  Provided as a `@[reducible]` `def`
+(like `conjModule`); consumers `letI` it. -/
+@[reducible] noncomputable def conjModuleDeep (hρsurj : Function.Surjective ⇑ρ) :
+    DistribMulAction C ↥(deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) where
+  smul c ξ := ⟨conjAct ρ (Function.surjInv hρsurj c) ξ.1,
+    conjAct_deepClasses ρ (Function.surjInv hρsurj c) ξ.2⟩
+  one_smul ξ := by
+    apply Subtype.ext
+    show conjAct ρ (Function.surjInv hρsurj 1) ξ.1 = ξ.1
+    refine (conjAct_ker ρ _ 1 ?_ ξ.1).trans (conjAct_one ρ ξ.1)
+    rw [Function.surjInv_eq hρsurj, map_one]
+  mul_smul c d ξ := by
+    apply Subtype.ext
+    show conjAct ρ (Function.surjInv hρsurj (c * d)) ξ.1
+      = conjAct ρ (Function.surjInv hρsurj c) (conjAct ρ (Function.surjInv hρsurj d) ξ.1)
+    rw [← conjAct_comp]
+    refine conjAct_ker ρ _ _ ?_ ξ.1
+    rw [map_mul, Function.surjInv_eq hρsurj, Function.surjInv_eq hρsurj,
+      Function.surjInv_eq hρsurj]
+  smul_zero c := by
+    apply Subtype.ext; exact conjAct_zero ρ (Function.surjInv hρsurj c)
+  smul_add c ξ η := by
+    apply Subtype.ext; exact conjAct_add ρ (Function.surjInv hρsurj c) ξ.1 η.1
+
+/-- The descent of `conjAct ρ g` to `H¹(N) ⧸ deepClassesSubgroup`, via `QuotientAddGroup.map`
+(well-defined because `deepClassesSubgroup` is `conjAct`-invariant, `conjAct_deepClasses`). -/
+noncomputable def conjActQuotHom (g : AbsGalQ2) :
+    (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) ⧸
+        deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) →+
+      (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) ⧸
+        deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :=
+  QuotientAddGroup.map (deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
+    (deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) (conjActHom ρ g)
+    (by intro x hx; exact AddSubgroup.mem_comap.mpr (conjAct_deepClasses ρ g hx))
+
+omit [DiscreteTopology C] [Finite C] in
+/-- Computation rule for `conjActQuotHom` on a class. -/
+theorem conjActQuotHom_mk (g : AbsGalQ2)
+    (a : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) :
+    conjActQuotHom ρ g (QuotientAddGroup.mk a) = QuotientAddGroup.mk (conjAct ρ g a) :=
+  QuotientAddGroup.map_mk _ _ (conjActHom ρ g) _ a
+
+/-- **The induced `conjModule` action on the quotient** (f5's `W''`): since `deepClassesSubgroup`
+is `conjModule`-invariant, the conjugation action descends to `H¹(N) ⧸ deepClassesSubgroup` via
+`conjActQuotHom`.  Provided as a `@[reducible]` `def`; consumers `letI` it. -/
+@[reducible] noncomputable def conjModuleQuot (hρsurj : Function.Surjective ⇑ρ) :
+    DistribMulAction C (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) ⧸
+        deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) where
+  smul c x := conjActQuotHom ρ (Function.surjInv hρsurj c) x
+  one_smul x := by
+    refine QuotientAddGroup.induction_on x (fun a => ?_)
+    show conjActQuotHom ρ (Function.surjInv hρsurj 1) (QuotientAddGroup.mk a) = QuotientAddGroup.mk a
+    rw [conjActQuotHom_mk]
+    congr 1
+    refine (conjAct_ker ρ _ 1 ?_ a).trans (conjAct_one ρ a)
+    rw [Function.surjInv_eq hρsurj, map_one]
+  mul_smul c d x := by
+    refine QuotientAddGroup.induction_on x (fun a => ?_)
+    show conjActQuotHom ρ (Function.surjInv hρsurj (c * d)) (QuotientAddGroup.mk a)
+      = conjActQuotHom ρ (Function.surjInv hρsurj c)
+          (conjActQuotHom ρ (Function.surjInv hρsurj d) (QuotientAddGroup.mk a))
+    simp only [conjActQuotHom_mk]
+    congr 1
+    show conjAct ρ (Function.surjInv hρsurj (c * d)) a
+      = conjAct ρ (Function.surjInv hρsurj c) (conjAct ρ (Function.surjInv hρsurj d) a)
+    rw [← conjAct_comp]
+    refine conjAct_ker ρ _ _ ?_ a
+    rw [map_mul, Function.surjInv_eq hρsurj, Function.surjInv_eq hρsurj,
+      Function.surjInv_eq hρsurj]
+  smul_zero c := map_zero _
+  smul_add c x y := map_add _ x y
+
 omit [DiscreteTopology C] [Finite C] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
   [ContinuousSMul AbsGalQ2 V] in
 /-- **The core equivariance of an admissible family** matching the two `C`-actions: `ξ.fam`
