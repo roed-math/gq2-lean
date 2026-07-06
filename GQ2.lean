@@ -59,6 +59,7 @@ import GQ2.SectionNine
 import GQ2.DeepPart
 import GQ2.LocalKummer
 import GQ2.RegularSummand
+import GQ2.KappaNormalForm
 import GQ2.HomCounting
 import GQ2.UnitFiltration
 import GQ2.KummerFiltration

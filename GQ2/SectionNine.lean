@@ -2,6 +2,7 @@ import GQ2.RadicalEdgeBridge
 import GQ2.FiniteGroupLemmas
 import GQ2.BlockFrameImpl
 import GQ2.SectionThreeMarked
+import GQ2.KappaNormalForm
 
 /-!
 # §9: the strong induction proving Theorem 4.2  (ticket P-17; F-skeleton = P-17a)
@@ -1341,14 +1342,35 @@ construction: reduce to the faithful tame image (`comapHom`), split-embed `V` in
 module (Lemma 6.11 / Maschke — projectivity is where simplicity+tameness are consumed), decompose
 the extended form into orbit polynomials, and sum their explicit data ((75)/(76)/Lemma 6.2) —
 the proved lemmas above are exactly these assembly steps.
-[P-17a statement, amended P-17e; proof = sub-obligations P-17e1–e3 in the scoping note.] -/
+[P-17a statement, amended P-17e.  **PROVED (P-17e5)**: unpack `htame`, transport
+invariance/simplicity along the surjection, apply `GQ2.kappa0_exists_tame`
+(`GQ2/KappaNormalForm.lean` — faithful-image reduction, the odd/unramified averaging branch,
+and the ramified branch through `lemma_6_11_of_tame_pair` + the permutation-module normal
+form), and pull back with `comapHom`.] -/
 theorem kappa0_exists {C : Type} [Group C] [Finite C]
     {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
     (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
     (hinv : IsInvariant C q) (hsimple : FoxH.IsSimpleModTwo C V)
     (htame : ActsThroughTame C V) :
     ∃ dat : FactorSet C V, IsEquivariantFactorSet q dat := by
-  sorry
+  obtain ⟨H, hG, hF, hA, π, s, t, hπsurj, hπcompat, hgen, hrel⟩ := htame
+  letI := hG
+  letI := hF
+  letI := hA
+  -- transport invariance and simplicity along the surjection `π`
+  have hinvH : IsInvariant H q := by
+    intro h v
+    obtain ⟨c, rfl⟩ := hπsurj h
+    rw [← hπcompat, hinv]
+  have hsimpleH : ∀ W : AddSubgroup V,
+      (∀ (g : H) (w : V), w ∈ W → g • w ∈ W) → W = ⊥ ∨ W = ⊤ := by
+    intro W hW
+    refine hsimple.2 W fun g w hw => ?_
+    rw [hπcompat]
+    exact hW (π g) w hw
+  obtain ⟨dat, hdat⟩ :=
+    kappa0_exists_tame hgen hrel q hq hns hinvH hsimple.1 hsimpleH
+  exact ⟨_, IsEquivariantFactorSet.comapHom hdat π hπcompat⟩
 
 /-! ## The concrete block frame and enrichment  (P-17c, P-17d)
 

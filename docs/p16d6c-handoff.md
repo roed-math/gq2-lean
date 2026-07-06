@@ -19,7 +19,7 @@ Gauss-correspondence, and `polarInverseL`/`enrichment_card_Vmod` are all done
 | `hphase` — character↔phase reindex | `Σ_χ Σ_ρ sign(χ(κ ρ)+ε ρ+Q(polarInverseL … χ)) = Σ_ζ (2·nPhase(phase ζ) − e_Γ(C))` | **c2** | open |
 | `phase : DT → CentralCover RF.YC` witness | `phaseFamily (DeltaScalar (En.dat l h) γ_ζ δ_ζ a_ζ) …` | **c2** | open |
 | `μ` `l`-independence | `#TCocycle(radData l h)` constant in `l` | **c3** | ✅ DONE |
-| `G0` `l`-independence | `gaussSum(qbar l h)` constant in `l` | **c3** | ⚠ needs amendment (§c3) |
+| `G0` `l`-independence | `gaussSum(qbar l h)` constant in `l` | **c3** | route decided: §6.2 pinning (§c3) |
 | `hμ` (ρ-independence, per `l`) | `∀ ρ, #TCocycle(radData l h)(…) = μ` | P-16d6b | ✅ DONE (torsor reduction) |
 
 `DT := Module.Dual (ZMod 2) En.Vmod` (`= V^∨`), so `hDT`/`hG0` are `rfl`, `0 < #DT` is free.
@@ -82,8 +82,12 @@ rfl-adjacent through finite double-duality.
    application (`L` surjective kills nontrivial characters); comes from an LES fragment of
    `0→T→M→V→0` + 5.16 numerics (c1b).
 3. **Source-Gauss = target-Gauss**: `G(Q⁰_{Γ,ρ}) = gaussSum q̄`, `ρ`-free — the paper writes
-   `G(Q⁰)` once, silently.  Arf-transport content, kin of c3-G0 (consider folding both into one
-   `Enrichment` amendment).  (c1c)
+   `G(Q⁰)` once, silently.  **Γ-side content**: `Q⁰_{Γ,ρ}` lives on `H¹_{Γ,ρ}(V)`, so no
+   frame-level `En` field can carry it (an earlier "fold into one `En` amendment" idea here was
+   wrong on that count).  Routes: pin both sides to the same structural constant (target via the
+   §6.2 pinning as in c3; source via a `prop_6_9`-style dual pinch on `(H¹, Q⁰_{Γ,ρ})` — polar
+   nonsingularity is 5.16 cl.-4 cup-perfectness ✓, the tame/free structure on `H¹` is the open
+   design item), or a direct source↔target Arf transport (cor-5.17 parity).  (c1c, F-design)
 4. **The per-`(χ,ρ)` exponent identity** `ι_Γ(ρ*Δ_{χ,κ}) = χ(κρ) + ερ + q̄(a_χ)` — the Γ-level
    (135) in count-ready form.  This is the **shared keystone of c1c and c2**: c1c consumes it for
    `hM` (via (126) on both sides), c2 for `hphase` (then (141)/(142) are counting).
@@ -201,28 +205,37 @@ same `Δ` whose signed sum `hphase` evaluates.
   layers are `RF.MB`/`RF.TBsub` for every `l` and `rhoPrime` factors through `piBCiso` (which sees
   the datum only via the proof-irrelevant `D.M = RF.MB`).  Combine with P-16d6b's ρ-independence to
   pin `μ` at a reference `l₀` and transport to the current `l` for `hμ (l h)`.
-* **G0: ⚠ NOT derivable from the current `Enrichment`.**  `G0 := gaussSum (En.qbar l h)` must be
-  constant in `l`, but the `qbar l h` are genuinely different forms per `l`, and `Enrichment`
-  carries **no field** relating them across `l` (no shared-Arf / shared-gaussSum datum — checked:
-  fields are `q`/`hq`/`hrad`/`hTzero`/`Vmod`/`descend*`/`qbar`/`hqbar`/`hquad`/`hns`/`hinv`/`dat`/`hdat`,
-  none cross-`l`).  Mathematically the `q̄_λ` are Arf-equivalent (paper §7.4: the same nondegenerate
-  deformation form), but that is exactly what `Enrichment` abstracts away.
-  **Action (owner sign-off — `Enrichment` is co-owned `SectionEight.lean`):** add a field
-  `hGaussConst : ∀ l h l' h', gaussSum (qbar l h) = gaussSum (qbar l' h')` (or the stronger
-  `arf (qbar l h) = arf (qbar l' h')`, from which `gaussSum` equality follows via `gaussSum_eq_pow`).
-  Then G0 `l`-independence is that field.  Do **not** edit `Enrichment` unilaterally; coordinate at
-  the P-16d6e assembly / with the frame owner.
-* **Kinship (Fable 2026-07-06):** c1c's obligation 3 (source-Gauss = target-Gauss,
-  `G(Q⁰_{Γ,ρ}) = gaussSum q̄`) is the same Arf-transport family — when specifying the `Enrichment`
-  amendment, consider one field family covering both (e.g. an Arf pin for `qbar` that both the
-  cross-`l` and the source-side transports read).  **F** specs the amendment, **O** applies it.
+* **G0: ✅ ROUTE DECIDED (2026-07-06) — §6.2 pinning via P-15b; NO `En` amendment.**
+  `G0 := gaussSum (En.qbar l h)` must be constant in `l`; `Enrichment` carries no cross-`l` field,
+  but none is needed: P-15b's Gauss-sign pair pins the Gauss data of **any** nonsingular
+  `C`-invariant quadratic form on `V` to a λ-free structural value (analysis credit: parallel-agent
+  note on the c3 board row; verified against the signatures by the c-agent).
+  - **Unramified**: `prop_6_9_unramified` (`SectionSix.lean:306`) has NO data hypotheses beyond the
+    tame structure (`c`/`hc`/`hfaith`/`hsimple`/`hV`/`hunram`) — apply twice (`qbar l h`,
+    `qbar l' h'`, both qualify via `En.hquad`/`hns`/`hinv`), equal `zeroCount`s, equal Gauss sums
+    via `gaussSum_eq` (`g = 2·zeroCount − #V`, P-15a).
+  - **Ramified**: `lemma_6_8` (`SectionSix.lean:240`) — its **first conjunct pins `arf q = s`
+    directly** (no detour through `qDouble`) — apply twice + the P-15a `arf`↔`gaussSum` bridges
+    (`gaussSum_eq_pow`, `arf_eq_zero_iff_gaussSum_pos`).  Its data hypotheses
+    (`s`/`r`/`a`/`hs1`/`Wt`/`e`/`he` + the P-15b-flagged `hVU`/`hrank` gap) are λ-free — they
+    thread **hypothesis-side to d6e's residue list** (the c3-μ/d6b/d6a idiom).
+  - Deciding arguments (from the board-row analysis, accepted): the §9 recursion needs the Gauss
+    **value** anyway (determinism), so §6.2 must be wired regardless — an `En` field would
+    duplicate it AND have to be constructed at every stage of P-17i's `blockEnrichment` induction.
+  - **Fallback** (only if the hypothesis-threading proves heavier than expected at d6e): the
+    amendment `hGaussConst : ∀ l h l' h', gaussSum (qbar l h) = gaussSum (qbar l' h')` (or an
+    `arf`-pin), owner sign-off required (`Enrichment` is co-owned `SectionEight.lean`).
+  - NB the amendment could never have served c1c's source-side obligation anyway (`Q⁰_{Γ,ρ}` is
+    Γ-side, on `H¹` — see obligation 3 above); the earlier "one amendment for both" kinship note
+    is superseded.
 
 ---
 
 ## Recommended order (within P-16d6c)
 
-1. **c3-μ** ✅ (done).  **c3-G0** — get the `Enrichment.hGaussConst` amendment approved (quick, but
-   gated on owner).
+1. **c3** μ-half ✅ (done).  **c3** G0-half — route decided (§6.2 pinning, no amendment): two
+   `prop_6_9_unramified`/`lemma_6_8` applications + the P-15a bridges; O-ready now, structural
+   hyps thread to d6e.
 2. **c1** (`Lin`/`κ`/`ε` + `hM`) — the largest; unblocks the `hfib` half.
 3. **c2** (`hphase` + `phase`/`Δ`) — one coupled build on top of `prop_8_8_target`.
 4. Feed all into `RecursionInputs.phase140 := fun l h _hN => phase140_of_nonsingular …`

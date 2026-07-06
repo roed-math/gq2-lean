@@ -1518,23 +1518,16 @@ Proof: `t := c τ` has odd order `m` and `⟨t⟩ ⊴ C`; conjugation gives `ω 
 `coprime_sub_one_div_gcd`) satisfies `w + ω•w = v` for every `ω`-fixed `v` (geometric-sum
 vanishing `sum_range_orderOf_smul_eq_zero` + `fixedPoints_zpowers_tame_eq_zero`), so
 `ker(1+ω) ⊆ range(1+ω)` and first-isomorphism counting gives the bound. -/
-theorem involution_fixedPoints_sq_le {C : Type} [Group C] [TopologicalSpace C]
+theorem involution_fixedPoints_sq_le_of_tame_pair {C : Type} [Group C]
     [Finite C] {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
-    (c : ContinuousMonoidHom Ttame C)
-    (hgen : Subgroup.closure {c tameSigma, c tameTau} = ⊤)
+    {sg t : C} (hgen : Subgroup.closure {sg, t} = ⊤) (hrel : sg⁻¹ * t * sg = t ^ 2)
     (hV2 : ∀ v : V, v + v = 0)
     (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
-    (hram : ∃ v : V, c tameTau • v ≠ v) (P : Sylow 2 C)
+    (hram : ∃ v : V, t • v ≠ v) (P : Sylow 2 C)
     (g₀ : ↥(P : Subgroup C)) (hg : ∀ x : ↥(P : Subgroup C), x ∈ Subgroup.zpowers g₀)
     (s : ℕ) (hs1 : 1 ≤ s) (hs : Nat.card ↥(P : Subgroup C) = 2 ^ s) :
     Nat.card {v : V // (g₀ ^ (2 ^ s / 2)) • v = v} ^ 2 ≤ Nat.card V := by
-  -- the tame data
-  have hrel : (c tameSigma)⁻¹ * c tameTau * c tameSigma = c tameTau ^ 2 := by
-    have h := congrArg (⇑c) tame_relation
-    simpa only [conjP, map_mul, map_inv, map_pow] using h
-  set sg : C := c tameSigma with hsg
-  set t : C := c tameTau with ht
   haveI hnorm : (Subgroup.zpowers t).Normal := Tame.zpowers_normal_of_tame hgen hrel
   have hmodd : Odd (orderOf t) := Tame.tame_odd_order (orderOf_pos sg).ne' hrel
   set m : ℕ := orderOf t with hm
@@ -1852,6 +1845,26 @@ theorem involution_fixedPoints_sq_le {C : Type} [Group C] [TopologicalSpace C]
         Nat.mul_le_mul_right _ hcardle
     _ = Nat.card V := hprod.symm
 
+/-- The involution counting bound, `Ttame`-marking form (wrapper of
+`involution_fixedPoints_sq_le_of_tame_pair`; the tame pair is the marked image with the
+relation transported from `tame_relation`). -/
+theorem involution_fixedPoints_sq_le {C : Type} [Group C] [TopologicalSpace C]
+    [Finite C] {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
+    (c : ContinuousMonoidHom Ttame C)
+    (hgen : Subgroup.closure {c tameSigma, c tameTau} = ⊤)
+    (hV2 : ∀ v : V, v + v = 0)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, c tameTau • v ≠ v) (P : Sylow 2 C)
+    (g₀ : ↥(P : Subgroup C)) (hg : ∀ x : ↥(P : Subgroup C), x ∈ Subgroup.zpowers g₀)
+    (s : ℕ) (hs1 : 1 ≤ s) (hs : Nat.card ↥(P : Subgroup C) = 2 ^ s) :
+    Nat.card {v : V // (g₀ ^ (2 ^ s / 2)) • v = v} ^ 2 ≤ Nat.card V := by
+  have hrel : (c tameSigma)⁻¹ * c tameTau * c tameSigma = c tameTau ^ 2 := by
+    have h := congrArg (⇑c) tame_relation
+    simpa only [conjP, map_mul, map_inv, map_pow] using h
+  exact involution_fixedPoints_sq_le_of_tame_pair hgen hrel hV2 hfaith hsimple hram P g₀ hg
+    s hs1 hs
+
 /-- **The Sylow-2 fixed-space bound on a ramified simple faithful module.**  The full bound
 `#V^P ^ |P| ≤ #V` follows (via `card_fixedPoints_pow_le_of_half`, the elementary-abelian
 reduction) from the **involution counting bound** `#V^ω ^ 2 ≤ #V` for the involution
@@ -1860,20 +1873,16 @@ which needs `1 ≤ s`); a trivial Sylow-2 subgroup gives the bound by subtype co
 
 Faithfulness is genuinely needed (Remark 6.12: `C₃ ⋊ C₄` acting through `S₃` on `𝔽₄` is
 ramified simple but its central `C₂` fixes everything, so `#V^ω = #V > #V^{1/2}`). -/
-theorem card_fixedPoints_pow_le_of_ramified {C : Type} [Group C] [TopologicalSpace C]
+theorem card_fixedPoints_pow_le_of_ramified_of_tame_pair {C : Type} [Group C]
     [Finite C] {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
-    (c : ContinuousMonoidHom Ttame C)
-    (hgen : Subgroup.closure {c tameSigma, c tameTau} = ⊤)
+    {sg t : C} (hgen : Subgroup.closure {sg, t} = ⊤) (hrel : sg⁻¹ * t * sg = t ^ 2)
     (hV2 : ∀ v : V, v + v = 0)
     (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
-    (hram : ∃ v : V, c tameTau • v ≠ v) (P : Sylow 2 C) :
+    (hram : ∃ v : V, t • v ≠ v) (P : Sylow 2 C) :
     Nat.card {v : V // ∀ p : ↥(P : Subgroup C), p • v = v} ^ Nat.card ↥(P : Subgroup C)
       ≤ Nat.card V := by
   haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  have hrel : (c tameSigma)⁻¹ * c tameTau * c tameSigma = c tameTau ^ 2 := by
-    have h := congrArg (⇑c) tame_relation
-    simpa only [conjP, map_mul, map_inv, map_pow] using h
   have hcyc : IsCyclic ↥(P : Subgroup C) :=
     isCyclic_of_isPGroup_two_of_tame hgen hrel (P : Subgroup C) P.isPGroup'
   obtain ⟨g₀, hg⟩ := hcyc.exists_generator
@@ -1885,7 +1894,24 @@ theorem card_fixedPoints_pow_le_of_ramified {C : Type} [Group C] [TopologicalSpa
     exact Nat.card_le_card_of_injective Subtype.val Subtype.val_injective
   -- Elementary-abelian reduction: it suffices that the involution `g₀^{2^{s-1}}` acts freely.
   refine card_fixedPoints_pow_le_of_half hV2 g₀ hg s hs ?_
-  exact involution_fixedPoints_sq_le c hgen hV2 hfaith hsimple hram P g₀ hg s hs1 hs
+  exact involution_fixedPoints_sq_le_of_tame_pair hgen hrel hV2 hfaith hsimple hram P g₀ hg
+    s hs1 hs
+
+/-- The Sylow-2 fixed-space bound, `Ttame`-marking form (wrapper). -/
+theorem card_fixedPoints_pow_le_of_ramified {C : Type} [Group C] [TopologicalSpace C]
+    [Finite C] {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
+    (c : ContinuousMonoidHom Ttame C)
+    (hgen : Subgroup.closure {c tameSigma, c tameTau} = ⊤)
+    (hV2 : ∀ v : V, v + v = 0)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, c tameTau • v ≠ v) (P : Sylow 2 C) :
+    Nat.card {v : V // ∀ p : ↥(P : Subgroup C), p • v = v} ^ Nat.card ↥(P : Subgroup C)
+      ≤ Nat.card V := by
+  have hrel : (c tameSigma)⁻¹ * c tameTau * c tameSigma = c tameTau ^ 2 := by
+    have h := congrArg (⇑c) tame_relation
+    simpa only [conjP, map_mul, map_inv, map_pow] using h
+  exact card_fixedPoints_pow_le_of_ramified_of_tame_pair hgen hrel hV2 hfaith hsimple hram P
 
 /-- **`𝔽₂[P]`-freeness of the restriction to the Sylow 2-subgroup** (Lemma 6.11, steps 1–2):
 a ramified simple faithful module is equivariantly additively isomorphic to a regular module
@@ -1893,6 +1919,24 @@ a ramified simple faithful module is equivariantly additively isomorphic to a re
 cyclic Sylow 2-subgroup (`isCyclic_of_isPGroup_two_of_tame`, with the tame relation
 transported from `tame_relation` along `c`) and the counting bound
 `card_fixedPoints_pow_le_of_ramified` above.  Fully sorry-free, std-3. -/
+theorem sylow_free_of_ramified_of_tame_pair {C : Type} [Group C] [Finite C]
+    {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
+    {sg t : C} (hgen : Subgroup.closure {sg, t} = ⊤) (hrel : sg⁻¹ * t * sg = t ^ 2)
+    (hV2 : ∀ v : V, v + v = 0)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, t • v ≠ v) (P : Sylow 2 C) :
+    ∃ (r : ℕ) (φ : V ≃+ (Fin r → ↥(P : Subgroup C) → ZMod 2)),
+      ∀ (p : ↥(P : Subgroup C)) (v : V) (n : Fin r) (x : ↥(P : Subgroup C)),
+        φ ((p : C) • v) n x = φ v n (p⁻¹ * x) := by
+  have hcyc : IsCyclic ↥(P : Subgroup C) :=
+    isCyclic_of_isPGroup_two_of_tame hgen hrel (P : Subgroup C) P.isPGroup'
+  have hcount :=
+    card_fixedPoints_pow_le_of_ramified_of_tame_pair hgen hrel hV2 hfaith hsimple hram P
+  obtain ⟨r, φ, hφ⟩ := free_of_card_fixedPoints_pow_le hV2 hcyc P.isPGroup' hcount
+  exact ⟨r, φ, fun p v n x => hφ p v n x⟩
+
+/-- `𝔽₂[P]`-freeness at the Sylow 2-subgroup, `Ttame`-marking form (wrapper). -/
 theorem sylow_free_of_ramified {C : Type} [Group C] [TopologicalSpace C] [Finite C]
     {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
     (c : ContinuousMonoidHom Ttame C)
@@ -1907,16 +1951,42 @@ theorem sylow_free_of_ramified {C : Type} [Group C] [TopologicalSpace C] [Finite
   have hrel : (c tameSigma)⁻¹ * c tameTau * c tameSigma = c tameTau ^ 2 := by
     have h := congrArg (⇑c) tame_relation
     simpa only [conjP, map_mul, map_inv, map_pow] using h
-  have hcyc : IsCyclic ↥(P : Subgroup C) :=
-    isCyclic_of_isPGroup_two_of_tame hgen hrel (P : Subgroup C) P.isPGroup'
-  have hcount := card_fixedPoints_pow_le_of_ramified c hgen hV2 hfaith hsimple hram P
-  obtain ⟨r, φ, hφ⟩ := free_of_card_fixedPoints_pow_le hV2 hcyc P.isPGroup' hcount
-  exact ⟨r, φ, fun p v n x => hφ p v n x⟩
+  exact sylow_free_of_ramified_of_tame_pair hgen hrel hV2 hfaith hsimple hram P
 
 /-- **The weight-orbit kernel in split-pair form** (what `lemma_6_11` consumes): the equivariant
 `𝔽₂[P]`-freeness `sylow_free_of_ramified` yields an equivariant split pair — take `j := φ`,
 `q := φ⁻¹`.  Retraction equivariance is `φ`'s equivariance transported across the iso
 (`φ⁻¹`-inject, then `φ`'s equivariance at `φ⁻¹ F`), and `q ∘ j = id` is `φ⁻¹ ∘ φ = id`. -/
+theorem sylow_split_pair_of_ramified_of_tame_pair {C : Type} [Group C] [Finite C]
+    {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
+    {sg t : C} (hgen : Subgroup.closure {sg, t} = ⊤) (hrel : sg⁻¹ * t * sg = t ^ 2)
+    (hV2 : ∀ v : V, v + v = 0)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, t • v ≠ v) (P : Sylow 2 C) :
+    ∃ (r : ℕ) (j : V →+ (Fin r → ↥(P : Subgroup C) → ZMod 2))
+      (q : (Fin r → ↥(P : Subgroup C) → ZMod 2) →+ V),
+      (∀ (p : ↥(P : Subgroup C)) (v : V) (n : Fin r) (x : ↥(P : Subgroup C)),
+        j ((p : C) • v) n x = j v n (p⁻¹ * x)) ∧
+      (∀ (p : ↥(P : Subgroup C)) (F : Fin r → ↥(P : Subgroup C) → ZMod 2),
+        q (fun n x => F n (p⁻¹ * x)) = (p : C) • q F) ∧
+      ∀ v : V, q (j v) = v := by
+  obtain ⟨r, φ, hφ⟩ := sylow_free_of_ramified_of_tame_pair hgen hrel hV2 hfaith hsimple hram P
+  refine ⟨r, φ.toAddMonoidHom, φ.symm.toAddMonoidHom, ?_, ?_, ?_⟩
+  · intro p v n x
+    exact hφ p v n x
+  · intro p F
+    show φ.symm (fun n x => F n (p⁻¹ * x)) = (p : C) • φ.symm F
+    refine φ.injective ?_
+    rw [AddEquiv.apply_symm_apply]
+    funext n x
+    have hpx := hφ p (φ.symm F) n x
+    rw [AddEquiv.apply_symm_apply] at hpx
+    exact hpx.symm
+  · intro v
+    exact φ.symm_apply_apply v
+
+/-- The weight-orbit kernel in split-pair form, `Ttame`-marking form (wrapper). -/
 theorem sylow_split_pair_of_ramified {C : Type} [Group C] [TopologicalSpace C] [Finite C]
     {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
     (c : ContinuousMonoidHom Ttame C)
@@ -1932,20 +2002,37 @@ theorem sylow_split_pair_of_ramified {C : Type} [Group C] [TopologicalSpace C] [
       (∀ (p : ↥(P : Subgroup C)) (F : Fin r → ↥(P : Subgroup C) → ZMod 2),
         q (fun n x => F n (p⁻¹ * x)) = (p : C) • q F) ∧
       ∀ v : V, q (j v) = v := by
-  obtain ⟨r, φ, hφ⟩ := sylow_free_of_ramified c hgen hV2 hfaith hsimple hram P
-  refine ⟨r, φ.toAddMonoidHom, φ.symm.toAddMonoidHom, ?_, ?_, ?_⟩
-  · intro p v n x
-    exact hφ p v n x
-  · intro p F
-    show φ.symm (fun n x => F n (p⁻¹ * x)) = (p : C) • φ.symm F
-    refine φ.injective ?_
-    rw [AddEquiv.apply_symm_apply]
-    funext n x
-    have hpx := hφ p (φ.symm F) n x
-    rw [AddEquiv.apply_symm_apply] at hpx
-    exact hpx.symm
-  · intro v
-    exact φ.symm_apply_apply v
+  have hrel : (c tameSigma)⁻¹ * c tameTau * c tameSigma = c tameTau ^ 2 := by
+    have h := congrArg (⇑c) tame_relation
+    simpa only [conjP, map_mul, map_inv, map_pow] using h
+  exact sylow_split_pair_of_ramified_of_tame_pair hgen hrel hV2 hfaith hsimple hram P
+
+/-- **Lemma 6.11, abstract tame-pair form** (P-17e5 statement alignment — resolves the banked
+e5 design flag): the split-summand package from a generating pair `(sg, t)` with the tame
+relation, rather than a `Ttame`-marking.  This is the form the κ⁰ assembly consumes
+(`ActsThroughTame` supplies exactly such a pair); the `Ttame` form below is a wrapper. -/
+theorem lemma_6_11_of_tame_pair {C : Type} [Group C] [Finite C]
+    {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
+    {sg t : C} (hgen : Subgroup.closure {sg, t} = ⊤) (hrel : sg⁻¹ * t * sg = t ^ 2)
+    (hV2 : ∀ v : V, v + v = 0)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, t • v ≠ v) :
+    ∃ (N : ℕ) (ι : V →+ (Fin N → C → ZMod 2)) (r : (Fin N → C → ZMod 2) →+ V),
+      (∀ (h : C) (v : V) (n : Fin N) (x : C), ι (h • v) n x = ι v n (h⁻¹ * x)) ∧
+      (∀ (h : C) (F : Fin N → C → ZMod 2), r (fun n x => F n (h⁻¹ * x)) = h • r F) ∧
+      ∀ v : V, r (ι v) = v := by
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  obtain ⟨P⟩ : Nonempty (Sylow 2 C) := inferInstance
+  haveI : (P : Subgroup C).FiniteIndex := ⟨Subgroup.index_ne_zero_of_finite⟩
+  have hodd : Odd (P : Subgroup C).index := by
+    have h2 : ¬ (2 : ℕ) ∣ (P : Subgroup C).index := Sylow.not_dvd_index P
+    rcases Nat.even_or_odd (P : Subgroup C).index with he | ho
+    · exact absurd he.two_dvd h2
+    · exact ho
+  obtain ⟨r, j, q, hj, hq, hqj⟩ :=
+    sylow_split_pair_of_ramified_of_tame_pair hgen hrel hV2 hfaith hsimple hram P
+  exact regular_summand_of_subgroup_summand hV2 (P : Subgroup C) hodd j q hj hq hqj
 
 /-- **Lemma 6.11 (paper node, §6.3)**: a ramified simple faithful 2-torsion module over the
 tame image is an equivariant split summand of a regular module.  The regular module `𝔽₂[C]^N`
@@ -1972,17 +2059,10 @@ theorem lemma_6_11 {C : Type} [Group C] [TopologicalSpace C] [Finite C]
       (∀ (h : C) (v : V) (n : Fin N) (x : C), ι (h • v) n x = ι v n (h⁻¹ * x)) ∧
       (∀ (h : C) (F : Fin N → C → ZMod 2), r (fun n x => F n (h⁻¹ * x)) = h • r F) ∧
       ∀ v : V, r (ι v) = v := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  obtain ⟨P⟩ : Nonempty (Sylow 2 C) := inferInstance
-  haveI : (P : Subgroup C).FiniteIndex := ⟨Subgroup.index_ne_zero_of_finite⟩
-  have hodd : Odd (P : Subgroup C).index := by
-    have h2 : ¬ (2 : ℕ) ∣ (P : Subgroup C).index := Sylow.not_dvd_index P
-    rcases Nat.even_or_odd (P : Subgroup C).index with he | ho
-    · exact absurd he.two_dvd h2
-    · exact ho
-  obtain ⟨r, j, q, hj, hq, hqj⟩ :=
-    sylow_split_pair_of_ramified c hgen hV2 hfaith hsimple hram P
-  exact regular_summand_of_subgroup_summand hV2 (P : Subgroup C) hodd j q hj hq hqj
+  have hrel : (c tameSigma)⁻¹ * c tameTau * c tameSigma = c tameTau ^ 2 := by
+    have h := congrArg (⇑c) tame_relation
+    simpa only [conjP, map_mul, map_inv, map_pow] using h
+  exact lemma_6_11_of_tame_pair hgen hrel hV2 hfaith hsimple hram
 
 /-! ## The consequence: equivariant lifting (`Hom(V, −)`-exactness)
 
