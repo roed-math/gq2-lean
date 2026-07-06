@@ -365,4 +365,13 @@ theorem card_deepFam_eq (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
   letI : DistribMulAction C (V →+ ZMod 2) := dualModule
   Nat.card_congr (deepFamEquiv ρ hρ hρsurj)
 
+/- **P-15f6 step 3 (the `U_{e+1}` SES count) is DEFERRED** — see `docs/p15f-handoff.md` §7.
+The `card_equivHoms_of_exact` application to `0 → deepClassesSubgroup → H¹(N) → H¹(N)/deep → 0`
+is structurally complete (`j = AddSubgroup.subtype`, `π = QuotientAddGroup.mk'`, `hjeq`/`hπeq`
+hold by construction of `conjModuleDeep`/`conjModuleQuot`, `hexact` by `QuotientAddGroup.eq_zero_iff`
++ `AddSubgroup.range_subtype`), but is blocked by the `AbsGalQ2`/`GaloisGroup` view mismatch on
+`deepClassesSubgroup ρ.ker`: the quotient's `.Normal` instance resolves at top level but NOT in the
+nested position `card_equivHoms_of_exact` needs it (`instances`-transparency, per handoff §4).
+Resolving it needs the standalone view-normalization brick flagged there. -/
+
 end GQ2
