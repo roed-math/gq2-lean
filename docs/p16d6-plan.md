@@ -53,6 +53,12 @@
   `zBC_eq_mu_mul_reductionCount` + `lemma_8_5_aggregated` + `phase140_ofPhaseData`, isolating the
   concrete Prop-8.8 fields `hM`/`hphase`/`hμ` + the matches `hDT`/`hWV`/`hG0`.  **(140) is now a
   complete reducer down to its concrete residues.**
+* ✅ **`polarInverseL` / `polarInverseL_spec` / `phase140_of_nonsingular`** (std-3, sorry-free) —
+  discharge the (140) engine's polar data `a_χ`/`ha` from **nonsingularity** (proved
+  `exists_polar_inverse`).  Since `Enrichment` carries `qbar`/`hquad`/`hns`, the (140) reducer now
+  takes exactly what `En` supplies; `a_χ = polarInverseL (En.qbar) (En.hquad) (En.hns) L` is
+  canonical, so `hphase` is phrased against it.  **Key finding: `Enrichment` already carries
+  `Vmod`/`qbar`/`hns`/`dat` — the (140) engine + witness are constructible from `En`, not blocked.**
 
 ### The phase-module core that remains (the deep O-half)
 
@@ -98,7 +104,7 @@ deferred until the inputs land.
 | **`half139` ×2** | ◑ dischargeable modulo P-16c | `half139_via_radData` + **`lemma_8_6_local`** (✓ `G_ℚ₂`, `SectionEight.lean:1301`) / **`lemma_8_6_gammaA`** (✗ **sorry**, `SectionEight.lean:1288`, = P-16c) for `hlem86M`, + **`prop_5_16`/`prop_5_15`** (✓) for `hMcountM`.  **Only `Γ_A` is blocked, on P-16c.** |
 | **`stageR136` ×2** | ✗ blocked (infra) | needs an **`RObstructionData` built from `En`** — which `Enrichment` does **not** carry (no cover-map family `coverMap_λ`, no `pair : D_Rmod →ₗ (R→+𝔽₂)`; this is the P-16d2 escalation).  Then `stageR136_ofRSepData` (P-16d2, ✓) closes it from `hsep_hom` + `hZcount` + `hE2`.  **Requires extending `Enrichment` (co-owned `SectionEight.lean` structure edit — owner sign-off) with the P-16d2 cover-map/pair fields, then constructing the datum + discharging the source residues `hsep_hom`/`hZcount` concretely.** |
 | **`phase140` ×2** | ☑ **FULL reducer landed** (`phase140_of_gaussCorrespondence`); residual = concrete Prop-8.8 fields | the entire (140) display is now derived by `phase140_of_gaussCorrespondence` from `zBC_eq_mu_mul_reductionCount` (hfib) + `lemma_8_5_aggregated` (hgauss) + `phase140_ofPhaseData`.  Residual = the concrete hypotheses **`hM`** (Prop 8.8 count `M_ρ = N(κ_ρ,ε_ρ)`), **`hphase`** (character↔phase-cover reindex), **`hμ`** (μ-independence, 5.15/5.16), and the matches **`hDT`/`hWV`/`hG0`** off `En` (`qbar`, the descended `V`).  `hM`/`hphase` are the deep Prop 8.8 content (coupled to the witness `Δ`); no clean reducers remain. |
-| **witness `(μ, G0, DT, phase)`** | ✗ blocked (constructor) | no constructor from `En` exists.  `μ = Nat.card (TCocycle …)` (`lemma_8_7_count`); `G0 = gaussSum (E.qbar …)` (`SectionEight.lean:199`); `DT =` the `(T^∨)^C` scalar-dual index; `phase = phaseFamily (DeltaScalar E.dat γ δ a) …` (`AffineTLift.lean:841`/`528`/`769`).  Shared across both sources (source-independent), so built once from `En`. |
+| **witness `(μ, G0, DT, phase)`** | ◑ **En carries the data** (correction) | **`Enrichment` is richer than previously scoped** — it already provides `Vmod` (the descended `V`), `qbar` (the form `Q`), `hquad`, **`hns` (nonsingular)**, `dat`/`hdat` (the Lemma 6.1 factor set).  So: `G0 = gaussSum (En.qbar l h)` (`SectionEight.lean:199`); `phase = phaseFamily (DeltaScalar (En.dat l h) …)` (`AffineTLift.lean:841`); the (140) polar data `a_χ = polarInverseL (En.qbar) (En.hquad) (En.hns) L` (**landed**).  `μ = Nat.card (TCocycle …)`, `DT =` the `(T^∨)^C` index.  Source-independent, built once from `En`.  Remaining subtlety: `G0`/`μ`'s `l`-independence (Arf-invariant / 5.15-5.16), and wiring `DT ≃ V^∨`. |
 
 ## Cross-ticket dependencies still open
 
