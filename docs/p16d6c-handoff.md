@@ -28,21 +28,74 @@ Gauss-correspondence, and `polarInverseL`/`enrichment_card_Vmod` are all done
 
 ## c1 — C-descent data `Lin`/`κ`/`ε` + the Prop 8.8 count `hM`  ⭐⭐⭐ (the largest piece)
 
-**The deep group-theory↔quadratic bridge.**  Own file (e.g. `GQ2/Prop88Count.lean`).
+**The deep group-theory↔quadratic bridge** — paper Lemma 8.7 + Prop 8.8, pulled onto `V` directly.
+Own file (e.g. `GQ2/Prop88Count.lean`).  *This section is now paper-grounded (Opus 2026-07-06, read
+of paper pp. 38–43: Lemmas 8.4/8.5/8.7, Prop 8.8, displays (125)–(135)).*
 
-* `Efp`/`Lin`/`κ`/`ε` are **not free** — they are whatever makes `hM` hold, from the concrete
-  `scalarCover`/`piBC` C-stage structure.  `Efp` is the C-stage image space (the target of the
-  descent-to-`C` obstruction map); `Lin` is that descent map on `V = M_B/T_B`; `κ ρ`/`ε ρ` are the
-  per-`ρ` constraints (`κ` = the C-image linear residue, `ε` = the scalar-square residue).
-* `hM` says: a central `M`-lift's `T`-reduction is achievable ⟺ its coordinate `x ∈ V` solves
-  `Lin x = κ ρ ∧ Q x = ε ρ`.  The `Q x = ε ρ` half is the scalar-cover **square** relation
-  (`En.q`/`En.hq`, `hqbar`); the `Lin x = κ ρ` half is the **C-image / boundary** constraint.
-* Tools (all ✓): `En.q`/`En.hq`/`En.hqbar` (square form), `lemma_6_21`/`lemma_6_22`
-  (`GQ2/SectionSix.lean:964/1011`), `prop_8_8_target` (`GQ2/AffineTLift.lean:534`),
-  `central_card_eq_reductions_mul_tcocycle` (already relates `#{central lifts}` to the `T`-reduction
-  image and `#Z¹(T)`).
-* **Consumes** P-16d6b's `hμ` shape and this ticket's `hM` count together (they multiply in
-  `zBC_eq_mu_mul_reductionCount`).
+### Where `hM` sits in the engine
+
+The (140) engine already reduces to `hM` cleanly:
+`zBC_eq_mu_mul_reductionCount` gives `zBC = μ · Σ_ρ #(red_T image over central lifts of ρ')`;
+`lemma_8_5_aggregated` (✓, `RecursionSplice.lean:280`) evaluates `Σ_ρ #{x∈W : Lx=κρ, Qx=ερ}` via
+the Gauss sum (paper Lemma 8.5 / display (126)); `hphase` (c2) matches the character sum.  **`hM` is
+the one bridge between them:**
+`#(red_T image over {central M-lifts of ρ'}) = #{x : V // Lin x = κ ρ ∧ q̄(x) = ε ρ}` — i.e. the
+group-theoretic count of achievable central `T`-reductions equals the constrained-quadratic count
+`N(κρ, ερ)` of Lemma 8.5.  Note `W := En.Vmod = V` (so `|W| = |V|` via `enrichment_card_Vmod`),
+`Q := En.qbar l h = q̄_λ`.
+
+### What `Efp`/`Lin`/`κ`/`ε` are (paper (130), (133)–(135))
+
+* `Efp = E`, the finite `𝔽₂`-obstruction space with `Lin = L : V ↠ E` the **surjective linear part**
+  of Lemma 8.5's constraint; `a_χ = polarInverseL` (already wired) is its `B_q̄(a_χ, ·) = χ(L·)`
+  supplier.  Concretely `E`/`L` come from the **descended central class** `κ = κ⁰ + Γ_{γκ} + inf δ_κ`
+  (130): `κ⁰` = the fixed base determinant class on `V` (`En.dat`), `Γ_{γκ}` (with `γ_κ ∈ Z¹(C,V^∨)`)
+  is the linear part → `L`, and `δ_κ ∈ Z²(C,𝔽₂)` the scalar part → `ε`.
+* `κ ρ ∈ E`, `ε ρ ∈ 𝔽₂` are the per-`ρ` residues of that class pulled back along `ρ : Γ ↠ C`
+  (`ρ*`), read through the completed square (135):
+  `Q_{κ,Γ,ρ}(b) + ⟨∂b + ρ*e, χ⟩ = Q⁰(b + ρ*a_{χ,κ}) + ι(ρ*Δ_{χ,κ})`.
+
+### The proof chain (Lemma 8.7 + Prop 8.8)
+
+1. **V-coordinate ↔ `red_T` (Lemma 8.7 setup).**  `descended_splitting` (✓,
+   `AffineTLift.lean:503`) gives `σ : C ↪ B/T` with `B/T ≅ V ⋊ C`.  A `red_T`-value of an `M`-lift
+   over `ρ'` decomposes through `σ` into (its `V`-part = a **crossed 1-cochain** `Γ → V`, its
+   `C`-part = `ρ`).  So `red_T`-image over lifts of `ρ'` ≅ the crossed `V`-cochains that are cocycles.
+2. **Actual-lift ⟺ `∂c = ρ*e` (Lemma 8.7 (131)).**  The `V`-coordinate `c ∈ H¹_{Γ,ρ}(V)` comes from
+   a genuine `M`-lift iff `∂_{Γ,ρ}(c) = ρ*e` in `H²_{Γ,ρ}(T)`, where `e ∈ H²(C,T)` is the extension
+   class of `B → V⋊C` pulled back along the zero section.
+3. **Central ⟺ scalar condition; completed square (Prop 8.8 (135)).**  In the edge-zero regime,
+   `central` (scalar pushout vanishes) is the quadratic condition on the `V`-coordinate; the
+   completed-square identity (135) — Γ-level, pulled back from `prop_8_8_target` (✓) along cor. 5.17
+   — collapses the count of central-liftable `V`-classes to `N(κρ,ερ) = #{x∈V : Lx=κρ, q̄x=ερ}`, the
+   `|B¹(V)|` cocycle-spread being absorbed into the direct-`V` parameterization.
+
+### ⚠ The real work: a crossed-cohomology `V`/`T` layer (new machinery)
+
+Steps 1–2 need objects the repo has **deliberately not built** (`section8-extraction.md` dev. #4:
+"no quotient-set / class objects introduced"): `H¹_{Γ,ρ}(V)`, `H²_{Γ,ρ}(T)`, the connecting map
+`∂_{Γ,ρ} : H¹(V) → H²(T)` of the module extension `0→T→M→V→0`, the class `e`, and `ρ*`.  This is a
+**multi-session architectural build** — the honest bulk of c1.  Sub-decomposition:
+
+* **c1a** — the crossed `V`-cochain layer over `ρ` (`Z¹_{Γ,ρ}(V)`, `B¹`, `H¹`) + the `red_T` ≅
+  `V`-cocycle bijection via `descended_splitting` (the "thin step" of dev. #4, but it needs the
+  `V⋊C` crossed structure spelled out).
+* **c1b** — the connecting `∂_{Γ,ρ}` for `0→T→M→V→0` and the class `e`; Lemma 8.7 (131)
+  characterization `actual-lift ⟺ ∂c = ρ*e`, and the raw-lift multiplicity (132) `|B¹(V)|·|Z¹(T)|`
+  (the latter reconciles with the already-proved `central_card_eq_reductions_mul_tcocycle` /
+  `lemma_8_7_count`).
+* **c1c** — the `central` ⟺ scalar-quadratic characterization + the Γ-level completed square (135)
+  from `prop_8_8_target`, giving `hM = N(κρ,ερ)`.  Defines `Efp`/`Lin`/`κ`/`ε` concretely (they are
+  determined by this proof, per (130)).
+
+Tools ready: `lemma_8_5_aggregated` ✓, `descended_splitting` ✓, `lemma_8_7_count` /
+`central_card_eq_reductions_mul_tcocycle` ✓, `central_twist_iff` ✓, `prop_8_8_target` ✓,
+`exists_polar_inverse`/`polarInverseL` ✓, `lemma_6_21`/`6_22` ✓.  Missing = the crossed-cohomology
+`V`/`T` layer (c1a/c1b) — that is the gate, and it is a real new subsystem, not a splice.
+
+> **Recommendation:** do **not** stub `Lin`/`κ`/`ε` speculatively (they are pinned only by the c1c
+> proof).  Build c1a → c1b → c1c in order; each is its own leaf.  c1a (the `red_T` ≅ crossed-`V`
+> bijection) is the concrete entry point.
 
 ## c2 — `hphase` + the `phase`/`DeltaScalar` witness  ⭐⭐⭐ (one coupled build)
 
