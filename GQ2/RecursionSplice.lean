@@ -97,6 +97,29 @@ theorem half139_via_radData {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopo
   · rw [Nat.card_congr (RF.liftsOver_equiv b F (En.radData l h) rfl ρ)]
     exact hMcountM ρ
 
+/-- **The `zBC` fibration** over the lower exact-image map `ρ`: `zBC = Σ_ρ #CentralOver(ρ)`.  Both
+the (139) and (140) counts rest on this (it is the first step inside `half139_of`); extracted here
+so the (140) `hfib` datum `zBC = μ·M` gets it too — `zBC = Σ_ρ #CentralOver = Σ_ρ μ·M_ρ = μ·M`. -/
+theorem zBC_eq_sum_centralOver {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+    [CompactSpace Γ] [TotallyDisconnectedSpace Γ] {Y : Type} [Group Y] [TopologicalSpace Y]
+    [DiscreteTopology Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk)
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (l : RF.DR) (h : l ≠ RF.zeroDR) :
+    RF.zBC b F l h = ∑ᶠ ρ : BoundaryLifts b F RF.TC, Nat.card (RF.CentralOver b F l h ρ) := by
+  classical
+  haveI : Finite (ContinuousMonoidHom Γ RF.YB) := finite_continuousMonoidHom hfg RF.YB
+  haveI : Finite (BoundaryLifts b F RF.TC) := finite_boundaryLifts b F RF.TC hfg
+  haveI : Fintype (BoundaryLifts b F RF.TC) := Fintype.ofFinite _
+  rw [finsum_eq_sum_of_fintype, RecursionFrame.zBC]
+  haveI : Finite {pr : BoundaryLifts b F RF.TC × ContinuousMonoidHom Γ RF.YB //
+      (∀ γ : Γ, RF.piBC (pr.2 γ) = pr.1.1.1 γ) ∧ IsBoundaryLift b F RF.TB pr.2 ∧
+        ∃ g : ContinuousMonoidHom Γ (RF.scalarCover l h).cover,
+          ∀ γ : Γ, (RF.scalarCover l h).p (g γ) = pr.2 γ} := Subtype.finite
+  rw [Nat.card_congr (Equiv.sigmaFiberEquiv (fun x => x.1.1)).symm, Nat.card_sigma]
+  exact Finset.sum_congr rfl (fun ρ _ => Nat.card_congr (RF.zBCfibreEquiv b F l h ρ))
+
 /-! ## `phase140` reduced to a clean "phase datum" (the `lemma_8_5`/8.7 analog of `stageR136_of`) -/
 
 /-- **(140) reduced to the phase datum.**  Given the **μ-fibration** `hfib : zBC = μ · M` (Lemma
