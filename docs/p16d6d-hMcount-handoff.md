@@ -4,25 +4,33 @@
 `GQ2.SectionEight.hMcountM_local` (`GQ2/Half139Local.lean`). Companion to `docs/p16d6d-handoff.md`
 (the P-16d6d scoping doc) and the file docstring of `Half139Local.lean` (the 5-step summary).
 
-## Status this session
+## Status — ✅ P-16d6d CLOSED (2026-07-07)
 
-The **plumbing is committed, and `hMcountM`'s Steps 1, 3, 4 are all proved inline — one sorry left**:
+**`hMcountM_local` is FULLY PROVED; `half139_local` (the P-16d6e deliverable) is sorry-free.**
+Gate CONFIRMED: `lake build GQ2.Half139Local` green (8659 jobs); `#print axioms half139_local` =
+std-3 + B6 (`tateDualityAt`) + B7 (`absGalQ2_localEulerCharacteristic`), **no `sorryAx`**;
+`check_axioms.sh` all-pass (`Half139Local.lean` off the `SORRY_ALLOWLIST`). B9 not needed.
 
 | decl (`GQ2.SectionEight`, `GQ2/Half139Local.lean`) | statement | axioms |
 |---|---|---|
 | `rhoPrime_surjective` | `Surjective (RF.rhoPrime b F D hD ρ)` (any source) | std-3 |
 | `conj_eq_of_mk_eq_M`, `mCommGroup` (private) | the reusable `D.M` conjugation-module atoms | std-3 |
 | `hlem86M_local` | `∀ ρ, 2·#{central M-lifts} = #(M-lifts)` for `G_ℚ₂` | std-3 + B6 + B7 |
-| `half139_local` | the (139) identity in `RecursionInputs.half139` shape | std-3 + B6 + B7 (+ `hMcountM` sorry) |
-| `hMcountM_local` | **`#MLifts = |M_B|²`** — Steps 1+3+4 done inline; **1 sorry** (`htorsor`) | std-3 + B6 + B7 (+ sorryAx) |
+| `hMcountM_local` | **`#MLifts = |M_B|²`** — fully proved | std-3 + B6 + B7 |
+| `half139_local` | the (139) identity in `RecursionInputs.half139` shape | std-3 + B6 + B7 |
 
-Inside `hMcountM_local`, **realized and building**: the additive module + actions (Step 1),
-`key : #Z¹ = |M_B|²·#fixedPts` via `card_Z1_eq` (Step 3), **and `hfix : #fixedPts = 1` (Step 4)** —
-the full `lemma_7_1_dual` bridge (character `φ = lam∘(Blk.K↠M_B) : Blk.K →* μ₂`, `X = φ.ker.map`,
-normality via `conj_eq_of_mk_eq_M` + `C`-invariance, index 2 via `quotientKerEquivOfSurjective`,
-refuted by `lemma_7_1_dual`). The final `|Additive ↥M_B|² = |M_B|²` closes by `rfl`. The **only**
-remaining sorry is **`htorsor`** (Step 2, `#MLifts = #Z¹`). `half139_local` is the P-16d6e
-deliverable, complete modulo it. Gate: `lake build GQ2.Half139Local` green; `check_axioms.sh` passes.
+`hMcountM_local` = **Step 1** (additive `M`-module + ρ'-conjugation actions) · **Step 3**
+(`key : #Z¹ = |M_B|²·#fixedPts` via `card_Z1_eq`) · **Step 4** (`hfix : #fixedPts = 1` — the
+`lemma_7_1_dual` bridge: char `φ = lam∘(Blk.K↠M_B) : Blk.K →* μ₂`, `X = φ.ker.map`, normality via
+`conj_eq_of_mk_eq_M` + `C`-invariance, index 2 via `quotientKerEquivOfSurjective`, refuted by
+`lemma_7_1_dual`) · **Step 2** (`MLifts ≃ Z¹` torsor equiv **and** `Nonempty (MLifts)` via
+extension-splitting: continuous section `s = Quotient.out ∘ ρ'`, factor-set 2-cocycle
+`c(γ,δ) = s γ · s δ · s(γδ)⁻¹ ∈ Z²`, coboundary `c = δ¹ψ` since `#H²=1`, lift `f γ = (toMul ψγ)⁻¹·s γ`)
+— all proved, closed by `#MLifts = #Z¹ = |M_B|²·1 = |M_B|²`.
+
+The nonemptiness sub-argument (Step 2's `Nonempty`) is a **reusable, self-contained
+continuous-cohomology extension-splitting proof** (`#H²(G,A)=1 ⇒ any hom to `G/A` lifts to `G`),
+should the `Γ_A` twin or other §8 lemmas need it.
 
 **`hMcountM` is a shared deep input.** The concurrent P-16d6b (`PhaseMuIndep.lean`, now CLOSED
 sorry-free) does **not** prove `#MLifts`; it takes it as the hypothesis `hML`/`κM` of
