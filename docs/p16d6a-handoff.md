@@ -8,17 +8,31 @@ state.  Written 2026-07-06 (Opus).  All line numbers are approximate — grep th
 
 ## 0. TL;DR
 
-* **DONE & committed** (`GQ2/ScratchP16d6a.lean`, std-3 sorry-free, commit `5d43131`): the whole
-  concrete R-stage obstruction datum **`blockRObstructionData`**, i.e. the `RObstructionData`
-  input that `stageR136_ofRSepData` consumes.  This includes the full `(R^∨)^C` character duality.
+* **DONE & committed** — the whole concrete R-stage obstruction datum **`blockRObstructionData`**
+  (the `RObstructionData` input that `stageR136_ofRSepData` consumes, incl. the full `(R^∨)^C`
+  character duality), std-3 sorry-free.  **File renamed** `GQ2/ScratchP16d6a.lean` → **`GQ2/BlockRStage.lean`**
+  (git mv, 2026-07-06) — no longer a "scratch"; it is the real P-16d6a leaf.
+* **DONE (a-assemble, 2026-07-06)**: **`blockStageR136`** (std-3) — the general-Γ (136) identity for
+  `blockFrameImpl`, produced by `stageR136_ofRSepData (blockRObstructionData …)`.  `hE2` is
+  discharged from the frame's own argument; the source residues `htriv`/`hcard`/`hfg`/`hZcount`/
+  `hsep_hom` are threaded as **hypotheses** (see the correction below).  Also `blockRChar_card`
+  (`#(R^∨)^C = #D_R`, via `blockToDR`).
 * **Scoping correction** (important): P-16d6a was originally scoped as "extend the co-owned
   `Enrichment` with R-stage fields".  **That is wrong / unnecessary.**  P-17c (`blockFrame`,
   `GQ2/BlockFrameImpl.lean`, **done**) realizes each scalar cover concretely as `Y/l ↠ Y/R`, so the
-  datum is built **directly against `blockFrameImpl`** in a leaf scratch file — no `SectionEight`
+  datum is built **directly against `blockFrameImpl`** in a leaf file — no `SectionEight`
   edit.  (`docs/p16d6-concrete-spec.md` §3 is superseded by this file.)
-* **REMAINING** (the "a-residues" sub-task): discharge the source residues **`hsep_hom`** (hard
-  separation) and **`hZcount`** (z_R torsor count) plus the easy `htriv`/`hcard`, then call
-  `stageR136_ofRSepData` to produce the (136) identity.  `hE2` is free.
+* **RESIDUE ARCHITECTURE CORRECTION (2026-07-06)**: `hZcount` and `hsep_hom` are **not**
+  general-Γ dischargeable, so they stay **hypothesis-side** at P-16d6a (exactly like `hcard`/`hfg`)
+  and are supplied **per-Γ at the P-16d6e / P-17i assembly**.  Reason: the absolute crossed-cocycle
+  count `#RCocycle = z_R` is the 5.15/5.16 Euler characteristic, whose theorems (`prop_5_16_bundle`
+  / the `prop_5_15` `Γ_A` analogue) are **Γ-specific** — they cannot be invoked at a generic `Γ`
+  (documented for the sibling (140)/T count in `GQ2/PhaseMuIndep.lean:21`, "`Γ ≠ AbsGalQ2`").  The
+  parallel (139)/M count `hMcountM` is likewise kept a source hypothesis fed at assembly
+  (`GQ2/RecursionSplice.lean`, `half139_via_radData`).  So the P-16d6a deliverable is the general-Γ
+  **reduction** `blockStageR136` (done); the concrete counts belong to the assembly lane.
+  `hsep_hom` additionally needs the concrete `(R^∨)^C`-separation of `H²(Γ,R)` — its own focused
+  pass, **P-16d6a-sep** (route in §3).
 
 ---
 
@@ -42,18 +56,18 @@ concrete work was split into **P-16d6a–e**:
 
 ---
 
-## 2. What is DONE — `GQ2/ScratchP16d6a.lean`
+## 2. What is DONE — `GQ2/BlockRStage.lean` (renamed from `ScratchP16d6a.lean`)
 
 Committed, `#print axioms ⊆ {propext, Classical.choice, Quot.sound}` for every declaration.
 Build/verify:
 
 ```
-lake build GQ2.ScratchP16d6a
-# (optional) lean_verify GQ2.blockRObstructionData
+lake build GQ2.BlockRStage
+# (optional) lean_verify GQ2.blockRObstructionData ; lean_verify GQ2.blockStageR136
 ```
 
-It is a **banked scratch** (not imported by the main build — like `ScratchP17d1/d2.lean`).  See §5
-for splicing.
+It is a **leaf** (not yet imported by the main build — like `ScratchP17d1/d2.lean`; wire into
+`GQ2.lean` at the P-16d6e assembly, §5).  Sorry-free, so it needs no `SORRY_ALLOWLIST` entry.
 
 Declarations, in dependency order (namespace `GQ2`, `open SectionEight SectionSeven`):
 
@@ -79,6 +93,16 @@ Declarations, in dependency order (namespace `GQ2`, `open SectionEight SectionSe
    `d(r) = zsign(mk' (ker d) ↑r)` (character value = cover kernel-sign; via `RChar_eq_ind` +
    the `mk' N r = 1 ↔ r ∈ N` membership + `zsign_one`, phrased through `RCharKer Blk d` to dodge
    the opaque-`.DR` coercion).
+8. **`blockRChar_card`** — `Nat.card ↥(RCharSub Blk) = Nat.card (blockFrameImpl T Blk hE2).DR`
+   (`Nat.card_congr blockToDR`): the `(R^∨)^C = D_R` cardinality bridge, so `z_R`'s `#D_R` factor
+   reads as the intrinsic invariant-character count `#(R^∨)^C`.
+9. **`blockStageR136`** — the general-Γ (136) identity for `blockFrameImpl`, `= stageR136_ofRSepData
+   (RF := blockFrameImpl T Blk hE2) b F (blockRObstructionData T Blk hE2) htriv hcard hfg hE2
+   hsep_hom hZcount`.  Hypotheses `htriv`/`hcard`/`hfg`/`hsep_hom`/`hZcount` are the source residues
+   (§3); `hE2` is the frame argument.  Conclusion = the `stageR136` field of `RecursionInputs`
+   verbatim.  **Section-variable order gotcha**: `stageR136_ofRSepData` takes the section vars
+   `RF b F` (declared in that order, all used) *before* its written binders — so the call is
+   `stageR136_ofRSepData (RF := …) b F D htriv hcard hfg hE2 hsep_hom hZcount`, NOT `D` first.
 
 ### Lean gotchas already solved (reuse these)
 * `(blockFrameImpl …).DR`, `.scalarCover`, `.zeroDR` **do** reduce (blockFrameImpl is term-mode
@@ -92,7 +116,16 @@ Declarations, in dependency order (namespace `GQ2`, `open SectionEight SectionSe
 
 ---
 
-## 3. What REMAINS — the residues (the a-residues sub-task)
+## 3. The residues — where each is discharged
+
+> **Correction (2026-07-06).**  `blockStageR136` now threads all five source residues as
+> hypotheses; `hE2` is discharged.  The earlier plan to *discharge* `hZcount`/`hsep_hom` inside
+> P-16d6a is revised: the absolute count `#RCocycle = z_R` is a **Γ-specific** 5.15/5.16 fact
+> (`prop_5_16_bundle` / `prop_5_15` cannot be invoked at a generic `Γ` — see `PhaseMuIndep.lean:21`),
+> and the parallel (139) count `hMcountM` is kept a source hypothesis fed at assembly
+> (`RecursionSplice.half139_via_radData`).  So `hZcount`/`hsep_hom` stay **hypothesis-side at
+> P-16d6a** and are supplied **per-Γ at P-16d6e / P-17i**, alongside `hcard`/`hfg`.  What follows
+> describes each residue and the concrete route the assembly (or `P-16d6a-sep`) will take.
 
 **Consumer** (proved, `GQ2/RStageObstructionBuild.lean:686`):
 
@@ -120,22 +153,31 @@ Its conclusion **is** the `stageR136` field of `RecursionInputs` verbatim (check
   (props 5.15/5.16 territory).  Not part of the R-stage build.
 * **`hfg` — source.**  t.f.g.: `GammaA` via P-03 (proved), `AbsGalQ2` via **B1** (reserve B1's
   first consumption for P-17i — keep `hfg` a hypothesis, do not discharge inside P-16d6a).
-* **`hZcount : ∀ f₀, Nat.card (RCocycle RF f₀.1.1) = RF.zR` — the z_R torsor count.**
+* **`hZcount : ∀ f₀, Nat.card (RCocycle RF f₀.1.1) = RF.zR` — the z_R torsor count (Γ-specific).**
   `RF.zR = (Nat.card ↥Blk.R)^2 * Nat.card RF.DR` (`SectionEight.lean:1398`).  `RCocycle`
-  (`RStageObstructionBuild.lean:493`) is the crossed `Z¹(Γ, R)`.  This is the 5.15/5.16 count for
-  the R-extension — a source/numeric obligation, analogous to `hMcount` in the (139) lane.
-* **`hsep_hom` — THE HARD PIECE (the (R^∨)^C separation).**  `obs RF D htriv hcard g.1.1 = 0 ⟹ g`
-  lifts to `Y`.  `obs` (`RStageObstructionBuild.lean:336`) is the scalar obstruction class in
-  `H²(Γ,𝔽₂)` detecting whether a `B`-stage boundary lift `g` lifts through the `D_R` covers.
-  P-16d2 proved the **abstract** direction (`obs_zero_iff_lifts`, `obs_zero_iff_pairClass_zero`),
-  but `hsep_hom` itself is **not abstractly derivable** — it is the concrete
-  `R`-elementary-abelian + Frattini + `C`-action property that the `(R^∨)^C`-pairing actually
-  *detects* the lift.  Expect this to be its own focused pass (comparable to P-16d2's `hsep`);
-  likely wants a sub-ticket **P-16d6a-sep**.
+  (`RStageObstructionBuild.lean:493`) is the crossed `Z¹(Γ, R)`.  **Route** (per-Γ, at assembly):
+  (i) `R` is **abelian** — `SectionSeven.lean:623` `hRcentral` gives `R ≤ Z(K)` and `R ≤ K`, so an
+  elem-ab-2 `𝔽₂`-module once one adds exp-2 (the scalar layer; check against `Blk`); (ii) then
+  `RCocycle RF f₀ ≃ Z¹(Γ, R)` (multiplicative crossed ↔ additive, via `Additive`); (iii)
+  `#Z¹(Γ,R) = #R²·#(R^∨)^C` is the 5.15/5.16 Euler characteristic (`prop_5_16_bundle` clause 2 for
+  `AbsGalQ2`; the `prop_5_15`/`HalfTorsorGammaA` analogue for `GammaA`) — **Γ-specific, cannot run
+  at generic `Γ`**; (iv) `#(R^∨)^C = #D_R` is **`blockRChar_card`** (done), giving `= #R²·#D_R = z_R`.
+  So `hZcount` = steps (i)–(iii) at the concrete `Γ`; only (iv) is frame-abstract (done).
+* **`hsep_hom` — THE HARD PIECE (the (R^∨)^C separation).  Sub-ticket P-16d6a-sep.**
+  `obs RF D htriv hcard g.1.1 = 0 ⟹ g` lifts to `Y`.  `obs` (`RStageObstructionBuild.lean:336`) is
+  the scalar obstruction in `H²(Γ,𝔽₂)` detecting whether a `B`-stage boundary lift `g` lifts
+  through the `D_R` covers.  **Abstract scaffolding already in `RStageObstructionBuild`** (P-16d2):
+  `obs_zero_iff_pairClass_zero` (`obs g d = 0 ⟺ [pair d ∘ rDefect] = 0 ∈ H²(Γ,𝔽₂)`) and
+  `homLift_of_split` (a continuous `R`-cochain splitting `rDefect` ⟹ the hom lift).  **The gap** =
+  "`(R^∨)^C` separates `H²(Γ,R)`": from `obs g = 0` (all `d`, i.e. every character `pair d` of the
+  class `[rDefect] ∈ H²(Γ,R)` vanishes) conclude `[rDefect] = 0`, i.e. a split cochain feeds
+  `homLift_of_split`.  Needs `R` elem-ab-2 + `H²(Γ,R) ≅ H²(Γ,𝔽₂)⊗R` character separation (missing
+  cohomology-algebra infra) — a focused pass, and Γ-flavoured.
 
-**Recommended order:** `hE2`/`htriv` (trivial) → `hZcount` (numeric, mirror the (139) `hMcount`
-route) → `hsep_hom` (the hard separation, dedicated pass).  Then one `stageR136_ofRSepData …` call
-gives the `stageR136` field for the concrete frame.
+**Order (at the P-16d6e assembly, per source Γ):** supply `htriv` (`fun _ _ => rfl` when the action
+is trivial), `hcard`/`hfg` (source), `hZcount` (Γ-count via the route above), `hsep_hom`
+(P-16d6a-sep) → then `blockStageR136 … : (136)` for that Γ directly (no further `stageR136_ofRSepData`
+call needed — `blockStageR136` already is that call).
 
 ---
 
@@ -160,24 +202,28 @@ the shared index-2-character↔subgroup duality into one place.
 
 ---
 
-## 5. Splicing plan (when residues land)
+## 5. Splicing plan (state + remaining)
 
-`ScratchP16d6a.lean` is banked WIP, imported by nothing.  To integrate:
+`GQ2/BlockRStage.lean` is a **leaf**, imported by nothing, sorry-free, std-3.  Progress:
 
-1. Rename/move to a real leaf, e.g. `GQ2/BlockRStage.lean` (imports `GQ2.BlockFrameImpl`,
-   `GQ2.RStageObstructionBuild`).  Keep it a **leaf** (do not touch co-owned `SectionEight`).
-2. Add the residue lemmas (`hZcount`, `hsep_hom`, …) and a
-   `blockStageR136 : (the (136) identity for blockFrameImpl)` via `stageR136_ofRSepData`.
-3. §9 (P-17i, the master induction) consumes it as the `stageR136` field when building the two
-   `RecursionInputs` bundles; that is the P-16d6e assembly, not P-16d6a.
-4. Wire the file into the root import (`GQ2.lean`) — a one-line, non-co-owned edit — and confirm
-   `lake build` + the sorry-allowlist gate stay green.
+1. ✅ **DONE** — renamed `ScratchP16d6a.lean` → `GQ2/BlockRStage.lean` (git mv; imports
+   `GQ2.BlockFrameImpl`, `GQ2.RStageObstructionBuild`).  Still a **leaf** (no co-owned
+   `SectionEight` touch).
+2. ✅ **DONE** — `blockStageR136 : (136) for blockFrameImpl` via `stageR136_ofRSepData`, with the
+   residues as hypotheses; plus `blockRChar_card` (`#(R^∨)^C = #D_R`).
+3. **REMAINING** — the residue lemmas `hZcount` (per-Γ count, §3) and `hsep_hom` (P-16d6a-sep) are
+   supplied **at the P-16d6e assembly / P-17i**, per source `Γ` (`GammaA`, `AbsGalQ2`).  §9 (P-17i,
+   the master induction) consumes `blockStageR136` as the `stageR136` field of each of the two
+   `RecursionInputs` bundles.
+4. **REMAINING** — wire `GQ2.BlockRStage` into the root import (`GQ2.lean`), a one-line non-co-owned
+   edit, when P-16d6e lands (keep `lake build` + the sorry-allowlist gate green).  Deferred to
+   P-16d6e so the leaf doesn't enter the full build before its consumers exist.
 
 ---
 
 ## 6. Pointers
 
-* Banked datum: `GQ2/ScratchP16d6a.lean` (commit `5d43131`).
+* P-16d6a leaf (datum + `blockStageR136`): `GQ2/BlockRStage.lean` (renamed from `ScratchP16d6a.lean`).
 * Reducer layer + (140) engine: `GQ2/RecursionSplice.lean`; narrative `docs/p16d6-plan.md`.
 * Concrete-pass spec for the whole capstone: `docs/p16d6-concrete-spec.md` (its **§3 (stageR136)
   is superseded by this file** — the "extend Enrichment" framing is obsolete).

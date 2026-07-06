@@ -119,7 +119,7 @@ suffices or two (per source) are needed.
 * Gate: `scripts/check_axioms.sh` — `PhaseMuIndep.lean` is on the `SORRY_ALLOWLIST` while the core
   is open; **remove it when sorry-free**.
 * **Coordination:** own leaf, off the co-owned `RecursionSplice.lean`/`SectionEight.lean`.  Disjoint
-  from **P-16d6a** (`GQ2/RStageObstructionBuild.lean`, `GQ2/ScratchP16d6a.lean` — another agent).
+  from **P-16d6a** (`GQ2/RStageObstructionBuild.lean`, `GQ2/BlockRStage.lean` — another agent).
   The final splice into `RecursionSplice.lean`'s `phase140`/`prop_8_9_of` is the P-16d6e assembly's
   job, not this ticket.
 

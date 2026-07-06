@@ -2,14 +2,23 @@ import GQ2.BlockFrameImpl
 import GQ2.RStageObstructionBuild
 
 /-!
-# P-16d6a (banked WIP): the concrete R-stage obstruction datum for `blockFrame`
+# P-16d6a: the concrete R-stage obstruction datum + (136) for `blockFrame`
 
 Builds `RObstructionData (blockFrameImpl T Blk hE2)` — the (136) `stageR136` datum — against the
-concrete §7-block frame (P-17c ✓, `blockFrameImpl`).  Not yet spliced.
+concrete §7-block frame (P-17c ✓, `blockFrameImpl`), and wires it into `stageR136_ofRSepData`
+to produce the (136) identity `blockStageR136`.
 
 Concrete covers (`blockFrameImpl`): `YB = Y/R`, `piB = mk' R`, `scalarCover l h` = the cover
 `Y/l ↠ Y/R` (`cover = Y/l.1`, `p = map l.1 R id`, `z = mk' l.1 r₀`).  So `coverMap l h = mk' l.1`
 and `coverMap_lifts` is `map ∘ mk' = mk'`.
+
+**a-DRmod / a-assemble** (std-3): `blockRObstructionData` — the full `(R^∨)^C` character duality.
+
+**a-residues** (`blockStageR136`): `hE2` is discharged from the frame argument; the source residues
+`htriv`/`hcard`/`hfg`/`hZcount`/`hsep_hom` are threaded as hypotheses (supplied by the P-16d6e
+assembly / P-17i, where `Γ = GammaA`/`AbsGalQ2` carry the concrete trivial action and the 5.15/5.16
+numerics).  `hZcount` (the `z_R = #R²·#D_R` torsor count) and `hsep_hom` (the `(R^∨)^C`-separation)
+are the two irreducible source cores — see the notes on `blockStageR136`.
 -/
 
 namespace GQ2
@@ -167,7 +176,6 @@ theorem RCharOf_mem (Blk : SectionSeven.MinimalBlock L) (R' : BlockDR Blk) :
         (SectionSeven.frattiniLike_normal Blk.K Blk.hK).conj_mem (r : Y) r.2 y⟩ : ↥Blk.R) : Y)
       ∈ R'.1 then (0 : ZMod 2) else 1)
     = if ((r : ↥Blk.R) : Y) ∈ R'.1 then 0 else 1
-  simp only [Subgroup.coe_mk]
   by_cases hrl : ((r : ↥Blk.R) : Y) ∈ R'.1
   · rw [if_pos (R'.2.1.conj_mem _ hrl y), if_pos hrl]
   · have hnot : y * (r : Y) * y⁻¹ ∉ R'.1 := fun h => hrl (by
@@ -276,5 +284,62 @@ noncomputable def blockRObstructionData (T : MarkedTarget H E Y)
       symm
       unfold CentralObstruction.zsign
       exact if_neg hne
+
+/-- **The `(R^∨)^C = D_R` cardinality bridge.**  The `Y`-invariant `𝔽₂`-characters of `R`
+(`RCharSub = D_Rmod = (R^∨)^C`) are equinumerous with the R-stage index type `D_R` of the concrete
+frame, since `blockToDR` is a bijection.  So the `z_R = #R²·#D_R` torsor count's `#D_R` factor is
+the intrinsic invariant-character count `#(R^∨)^C` — the shape the 5.15/5.16 Euler characteristic
+`#Z¹(Γ,R) = #R²·#(R^∨)^C` produces, which is what a `hZcount` discharge targets. -/
+theorem blockRChar_card (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
+    (hE2 : ∀ e : E, e ^ 2 = 1) :
+    Nat.card ↥(RCharSub Blk) = Nat.card (blockFrameImpl T Blk hE2).DR :=
+  Nat.card_congr (blockToDR T Blk hE2)
+
+/-! ## a-residues → (136): wiring `blockRObstructionData` into `stageR136_ofRSepData` -/
+
+section StageR136
+
+open ContCoh
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+
+/-- **P-16d6a (136) for the concrete §7-block frame.**  Instantiates the abstract R-stage finish
+line `stageR136_ofRSepData` at the concrete frame `blockFrameImpl` with the concrete obstruction
+datum `blockRObstructionData` (the full `(R^∨)^C` character duality, std-3).  `hE2` is discharged
+from the frame's own argument; the remaining inputs are the source residues threaded by the
+P-16d6e assembly:
+
+* `htriv` — the trivial `Γ`-action on `𝔽₂` (`fun _ _ => rfl` once `Γ = GammaA`/`AbsGalQ2`);
+* `hcard` — `#H²(Γ,𝔽₂) = 2` (props 5.15/5.16);
+* `hfg` — `Γ` topologically finitely generated (`GammaA` via P-03; `AbsGalQ2` via B1, reserved to
+  P-17i — kept hypothesis-side);
+* `hsep_hom` — **the hard `(R^∨)^C`-separation** `obs g = 0 ⟹ g` has a homomorphism lift to `Y`
+  (not abstractly derivable; the concrete `R`-elementary-abelian + Frattini + `C`-action property
+  that the `(R^∨)^C`-pairing detects the lift — its own focused pass, P-16d6a-sep);
+* `hZcount` — **the `z_R` torsor count** `#RCocycle = z_R = #R²·#D_R` (the 5.15/5.16 numeric for the
+  `R`-extension, the (139)-`hMcount` analogue).
+
+The conclusion is the `stageR136` field of `RecursionInputs` verbatim (for the P-16d6e assembly). -/
+theorem blockStageR136 (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (hsep_hom : ∀ g : BoundaryLifts b F (blockFrameImpl T Blk hE2).TB,
+      obs (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2) htriv hcard g.1.1 = 0 →
+        ∃ φ : ContinuousMonoidHom Γ Y, ∀ γ, (blockFrameImpl T Blk hE2).piB (φ γ) = g.1.1 γ)
+    (hZcount : ∀ f₀ : BoundaryLifts b F T,
+      Nat.card (RCocycle (blockFrameImpl T Blk hE2) f₀.1.1) = (blockFrameImpl T Blk hE2).zR) :
+    (Nat.card (blockFrameImpl T Blk hE2).DR : ℤ) * exactImageCount b F T
+      = (blockFrameImpl T Blk hE2).zR * ∑ᶠ l : (blockFrameImpl T Blk hE2).DR,
+          (2 * ((blockFrameImpl T Blk hE2).mB b F l : ℤ)
+            - exactImageCount b F (blockFrameImpl T Blk hE2).TB) :=
+  stageR136_ofRSepData (RF := blockFrameImpl T Blk hE2) b F
+    (blockRObstructionData T Blk hE2) htriv hcard hfg hE2 hsep_hom hZcount
+
+end StageR136
 
 end GQ2

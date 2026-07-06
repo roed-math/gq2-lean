@@ -64,8 +64,9 @@ with `W := En.Vmod`, `Q := En.qbar l h`, `D := En.radData l h` (`hD := rfl`).  E
 > **UPDATE 2026-07-06:** this section's "blocked on the co-owned `Enrichment` R-stage extension"
 > framing is **obsolete**.  The `RObstructionData` (`Dobs`) is built directly against the concrete
 > `blockFrameImpl` (P-17c ✓) with **no `Enrichment` edit** — it is **DONE** as
-> `blockRObstructionData` in `GQ2/ScratchP16d6a.lean` (std-3).  Only the residues
-> `hsep_hom`/`hZcount` (+ trivial `htriv`/`hcard`, `hE2` free) remain.  The authoritative,
+> `blockRObstructionData` in `GQ2/BlockRStage.lean` (std-3), wired to (136) by `blockStageR136`.
+> Only the source residues `hsep_hom`/`hZcount` (+ `htriv`/`hcard`/`hfg`, `hE2` free) remain, and
+> they are supplied per-Γ at the P-16d6e assembly (Γ-specific 5.15/5.16 counts).  The authoritative,
 > current spec for `stageR136` is **`docs/p16d6a-handoff.md`**; the paragraph below is kept for
 > the residue statements only.
 
