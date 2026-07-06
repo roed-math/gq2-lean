@@ -365,13 +365,98 @@ theorem card_deepFam_eq (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
   letI : DistribMulAction C (V →+ ZMod 2) := dualModule
   Nat.card_congr (deepFamEquiv ρ hρ hρsurj)
 
-/- **P-15f6 step 3 (the `U_{e+1}` SES count) is DEFERRED** — see `docs/p15f-handoff.md` §7.
-The `card_equivHoms_of_exact` application to `0 → deepClassesSubgroup → H¹(N) → H¹(N)/deep → 0`
-is structurally complete (`j = AddSubgroup.subtype`, `π = QuotientAddGroup.mk'`, `hjeq`/`hπeq`
-hold by construction of `conjModuleDeep`/`conjModuleQuot`, `hexact` by `QuotientAddGroup.eq_zero_iff`
-+ `AddSubgroup.range_subtype`), but is blocked by the `AbsGalQ2`/`GaloisGroup` view mismatch on
-`deepClassesSubgroup ρ.ker`: the quotient's `.Normal` instance resolves at top level but NOT in the
-nested position `card_equivHoms_of_exact` needs it (`instances`-transparency, per handoff §4).
-Resolving it needs the standalone view-normalization brick flagged there. -/
+section QuotientSES
+
+variable {C : Type} [Group C] [Finite C]
+
+/-- **The inclusion/quotient SES count, over an abstract invariant subgroup** — the
+view-normalization brick.  For any finite 2-torsion `C`-module `A` with a `C`-submodule `Deep`
+(carrying compatible `C`-actions on `↥Deep` and `A ⧸ Deep`), the equivariant-Hom counts multiply
+along `0 → Deep → A → A ⧸ Deep → 0`:
+
+`#Hom_C(U, A) = #Hom_C(U, Deep) · #Hom_C(U, A ⧸ Deep)`.
+
+Stating this over a *plain fvar* `Deep : AddSubgroup A` is exactly what dodges the
+`AbsGalQ2`/`GaloisGroup` view mismatch (handoff §4/§7): `Deep.Normal` and the quotient's
+`AddCommGroup`/`Finite` structure resolve against `Deep`/`A` as fvars (no coercion), so
+`card_equivHoms_of_exact` applies cleanly; instantiating `A := H¹(N)`, `Deep := deepClassesSubgroup`
+later is pure substitution.  `hj`/`hπ` are the equivariance of the inclusion/quotient maps. -/
+theorem card_equivHoms_quotient_ses
+    {U A : Type} [AddCommGroup U] [AddCommGroup A]
+    [DistribMulAction C U] [instA : DistribMulAction C A] [Finite U] [Finite A]
+    (Deep : AddSubgroup A)
+    [instDeep : DistribMulAction C ↥Deep] [instQuot : DistribMulAction C (A ⧸ Deep)]
+    (h2A : ∀ a : A, a + a = 0)
+    {Nreg : ℕ} (ι : U →+ (Fin Nreg → C → ZMod 2)) (r : (Fin Nreg → C → ZMod 2) →+ U)
+    (hι : ∀ (h : C) (u : U) (n : Fin Nreg) (x : C), ι (h • u) n x = ι u n (h⁻¹ * x))
+    (hr : ∀ (h : C) (F : Fin Nreg → C → ZMod 2), r (fun n x => F n (h⁻¹ * x)) = h • r F)
+    (hri : ∀ u : U, r (ι u) = u)
+    (hj : ∀ (c : C) (w : ↥Deep), ((Deep.subtype) (c • w) : A) = c • ((Deep.subtype) w : A))
+    (hπ : ∀ (c : C) (w : A),
+        QuotientAddGroup.mk' Deep (c • w) = c • QuotientAddGroup.mk' Deep w) :
+    Nat.card ↥(equivHoms C U A)
+      = Nat.card ↥(equivHoms C U ↥Deep) * Nat.card ↥(equivHoms C U (A ⧸ Deep)) := by
+  haveI : Finite (A ⧸ Deep) := QuotientAddGroup.finite
+  refine card_equivHoms_of_exact h2A ?_ ι r hι hr hri
+    Deep.subtype hj Subtype.val_injective
+    (QuotientAddGroup.mk' Deep) hπ (QuotientAddGroup.mk'_surjective Deep) ?_
+  · intro w
+    refine QuotientAddGroup.induction_on w (fun a => ?_)
+    calc (QuotientAddGroup.mk a : A ⧸ Deep) + QuotientAddGroup.mk a
+        = QuotientAddGroup.mk (a + a) := rfl
+      _ = QuotientAddGroup.mk (0 : A) := by rw [h2A]
+      _ = 0 := rfl
+  · intro w
+    constructor
+    · intro hw
+      exact ⟨⟨w, (QuotientAddGroup.eq_zero_iff w).mp hw⟩, rfl⟩
+    · rintro ⟨⟨x, hx⟩, rfl⟩
+      exact (QuotientAddGroup.eq_zero_iff x).mpr hx
+
+end QuotientSES
+
+omit [DiscreteTopology C] [TopologicalSpace V] [DiscreteTopology V] [DistribMulAction AbsGalQ2 V] in
+/-- **The `U_{e+1}` short exact sequence count** (P-15f6 step 3): instantiate
+`card_equivHoms_quotient_ses` at `A := H¹(N)`, `Deep := deepClassesSubgroup (ker ρ)` with the
+conjugation actions.  Yields `#Hom_C(V^∨, H¹(N)) = #Hom_C(V^∨, deep) · #Hom_C(V^∨, H¹(N)/deep)`.
+The regular-summand package `(ι, r)` for `V^∨` (Lemma-6.11 output shape) and `Finite (H¹ N)` are
+hypotheses; `sorryAx` enters a consumer's audit only through the eventual `lemma_6_11`
+instantiation of the package (f8).  The abstract helper sidesteps the `AbsGalQ2`/`GaloisGroup`
+view mismatch (handoff §4/§7). -/
+theorem card_equivHoms_deepSES (hρsurj : Function.Surjective ⇑ρ)
+    [Finite (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))]
+    {Nreg : ℕ} (ι : (V →+ ZMod 2) →+ (Fin Nreg → C → ZMod 2))
+    (r : (Fin Nreg → C → ZMod 2) →+ (V →+ ZMod 2))
+    (hι : ∀ (h : C) (φ : V →+ ZMod 2) (n : Fin Nreg) (x : C),
+        ι ((dualModule : DistribMulAction C (V →+ ZMod 2)).toSMul.smul h φ) n x = ι φ n (h⁻¹ * x))
+    (hr : ∀ (h : C) (F : Fin Nreg → C → ZMod 2),
+        r (fun n x => F n (h⁻¹ * x))
+          = (dualModule : DistribMulAction C (V →+ ZMod 2)).toSMul.smul h (r F))
+    (hri : ∀ φ : V →+ ZMod 2, r (ι φ) = φ) :
+    letI := conjModule ρ hρsurj
+    letI := conjModuleDeep ρ hρsurj
+    letI := conjModuleQuot ρ hρsurj
+    letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+    Nat.card ↥(equivHoms C (V →+ ZMod 2)
+        (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)))
+      = Nat.card ↥(equivHoms C (V →+ ZMod 2)
+          ↥(deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)))
+        * Nat.card ↥(equivHoms C (V →+ ZMod 2)
+            (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) ⧸
+              deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))) := by
+  letI := conjModule ρ hρsurj
+  letI := conjModuleDeep ρ hρsurj
+  letI := conjModuleQuot ρ hρsurj
+  letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+  haveI : Finite (V →+ ZMod 2) :=
+    Finite.of_injective (DFunLike.coe : (V →+ ZMod 2) → (V → ZMod 2)) DFunLike.coe_injective
+  exact card_equivHoms_quotient_ses (C := C) (U := V →+ ZMod 2)
+    (A := H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))
+    (instA := conjModule ρ hρsurj)
+    (Deep := deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
+    (instDeep := conjModuleDeep ρ hρsurj) (instQuot := conjModuleQuot ρ hρsurj)
+    GQ2.h1_add_self ι r hι hr hri
+    (fun c w => rfl)
+    (fun c w => (conjActQuotHom_mk ρ (Function.surjInv hρsurj c) w).symm)
 
 end GQ2
