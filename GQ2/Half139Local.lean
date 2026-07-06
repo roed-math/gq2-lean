@@ -90,11 +90,15 @@ theorem hlem86M_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
 
 /-- **`hMcountM` for `G_ℚ₂`** — the unrestricted `M`-lift count `#(M-lifts) = |M_B|²`.
 
-**MOSTLY PROVED — one sorry left.**  Steps 1, 3, 4 below are realized inline:
-`key : #Z¹ = |M_B|²·#fixedPts` (`card_Z1_eq`) and `hfix : #fixedPts = 1` (the `lemma_7_1_dual`
-bridge — a nonzero `YC`-invariant functional's kernel gives a `Y`-normal index-2 `X` with
-`Blk.R ≤ X ≤ Blk.K`, refuted by `lemma_7_1_dual`).  The **only** remaining `sorry` is `htorsor`
-(Step 2, the `Z¹`-torsor bridge `#MLifts = #Z¹` + nonemptiness from `#H² = 1`).  This fact
+**REDUCED TO A SINGLE `Nonempty (MLifts …)` sorry.**  All of Steps 1, 3, 4 and the Step-2 torsor
+equiv are proved inline: `key : #Z¹ = |M_B|²·#fixedPts` (`card_Z1_eq`), `hfix : #fixedPts = 1` (the
+`lemma_7_1_dual` bridge — a nonzero `YC`-invariant functional's kernel gives a `Y`-normal index-2
+`X` with `Blk.R ≤ X ≤ Blk.K`, refuted by `lemma_7_1_dual`), and the explicit bijection
+`MLifts D ρ' ≃ Z¹_cont(G_ℚ₂, M_B)` (`f ↦ (γ ↦ f γ · f₀ γ⁻¹)`, a `Z¹`-torsor under the ρ'-conjugation
+action).  The **only** remaining `sorry` is **`hne : Nonempty (MLifts D ρ')`** — a base lift exists
+because the lift obstruction lives in `#H²(G_ℚ₂,M_B) = 1` (i.e. `= 0`), but formalizing
+"obstruction vanishes ⇒ continuous lift exists" needs an extension↔H² dictionary absent from
+mathlib and the repo (see `docs/p16d6d-hMcount-handoff.md` Step 2 for the two routes).  This fact
 (`κ_M = #MLifts`, ρ-independent) is also the shared deep input consumed by the concurrent P-16d6b
 (`PhaseMuIndep.tcocycle_mu_indep`'s `hML`/`κM`).  Full roadmap in `docs/p16d6d-hMcount-handoff.md`;
 the route (all steps over `G_ℚ₂ = AbsGalQ2`):
@@ -303,7 +307,79 @@ theorem hMcountM_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
   -- Step 2: the `Z¹`-torsor bridge (`MLifts` nonempty from `#H² = 1`, then `≃ Z¹`)
   have htorsor : Nat.card (MLifts (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))
       = Nat.card (Z1 AbsGalQ2 (Additive ↥(En.radData l h).M)) := by
-    sorry
+    set ρ' := RF.rhoPrime b F (En.radData l h) rfl ρ with hρ'def
+    -- **Nonemptiness** (the one remaining gap): `#H²(G_ℚ₂,M_B) = 1` kills the lift obstruction.
+    have hne : Nonempty (MLifts (En.radData l h) ρ') := by
+      sorry
+    obtain ⟨f₀⟩ := hne
+    -- the `G_ℚ₂`-action on `M_B` is conjugation by the lift `f₀ γ` of `ρ' γ`
+    have hsmul : ∀ (γ : AbsGalQ2) (a : Additive ↥(En.radData l h).M),
+        γ • a = Additive.ofMul (⟨f₀.1 γ * (Additive.toMul a).1 * (f₀.1 γ)⁻¹,
+              (En.radData l h).hM.conj_mem _ (Additive.toMul a).2 _⟩ : ↥(En.radData l h).M) := by
+      intro γ a
+      rw [hcomp]
+      apply Additive.toMul.injective; apply Subtype.ext
+      show Quotient.out (ρ' γ) * (Additive.toMul a).1 * (Quotient.out (ρ' γ))⁻¹
+        = f₀.1 γ * (Additive.toMul a).1 * (f₀.1 γ)⁻¹
+      exact conj_eq_of_mk_eq_M (D := En.radData l h)
+        (by rw [QuotientGroup.out_eq', f₀.2 γ]) (Additive.toMul a)
+    have hmemf : ∀ (f : MLifts (En.radData l h) ρ') (γ : AbsGalQ2),
+        f.1 γ * (f₀.1 γ)⁻¹ ∈ (En.radData l h).M := by
+      intro f γ
+      have heq : (QuotientGroup.mk (f.1 γ) : RF.YB ⧸ (En.radData l h).M)
+          = QuotientGroup.mk (f₀.1 γ) := (f.2 γ).trans (f₀.2 γ).symm
+      have := QuotientGroup.eq_iff_div_mem.mp heq
+      rwa [div_eq_mul_inv] at this
+    refine Nat.card_congr
+      { toFun := fun f => ⟨fun γ => Additive.ofMul ⟨f.1 γ * (f₀.1 γ)⁻¹, hmemf f γ⟩, ?_⟩
+        invFun := fun c => ⟨⟨MonoidHom.mk'
+            (fun γ => (Additive.toMul (c.1 γ)).1 * f₀.1 γ) ?_, ?_⟩, ?_⟩
+        left_inv := ?_
+        right_inv := ?_ }
+    · -- forward lands in `Z¹`
+      rw [mem_Z1_iff]
+      refine ⟨?_, ?_⟩
+      · have hg : Continuous (fun γ : AbsGalQ2 => f.1 γ * (f₀.1 γ)⁻¹) :=
+          (continuous_of_discreteTopology (f := fun p : RF.YB × RF.YB => p.1 * p.2⁻¹)).comp
+            (f.1.continuous_toFun.prodMk f₀.1.continuous_toFun)
+        exact hg.subtype_mk (hmemf f)
+      · intro g s
+        rw [hsmul g (Additive.ofMul ⟨f.1 s * (f₀.1 s)⁻¹, hmemf f s⟩)]
+        apply Additive.toMul.injective; apply Subtype.ext
+        show f.1 (g * s) * (f₀.1 (g * s))⁻¹
+          = f.1 g * (f₀.1 g)⁻¹ * (f₀.1 g * (f.1 s * (f₀.1 s)⁻¹) * (f₀.1 g)⁻¹)
+        rw [map_mul, map_mul]; group
+    · -- inverse is a hom
+      intro g h
+      show (Additive.toMul (c.1 (g * h))).1 * f₀.1 (g * h)
+        = (Additive.toMul (c.1 g)).1 * f₀.1 g * ((Additive.toMul (c.1 h)).1 * f₀.1 h)
+      rw [(mem_Z1_iff.mp c.2).2 g h, map_mul, hsmul g (c.1 h)]
+      show (Additive.toMul (c.1 g)).1 * (f₀.1 g * (Additive.toMul (c.1 h)).1 * (f₀.1 g)⁻¹)
+          * (f₀.1 g * f₀.1 h) = _
+      group
+    · -- inverse is continuous
+      exact (continuous_of_discreteTopology
+          (f := fun p : Additive ↥(En.radData l h).M × RF.YB => (Additive.toMul p.1).1 * p.2)).comp
+        ((mem_Z1_iff.mp c.2).1.prodMk f₀.1.continuous_toFun)
+    · -- inverse lands over `ρ'`
+      intro γ
+      show QuotientGroup.mk ((Additive.toMul (c.1 γ)).1 * f₀.1 γ) = ρ' γ
+      rw [QuotientGroup.mk_mul,
+        (QuotientGroup.eq_one_iff ((Additive.toMul (c.1 γ)).1)).mpr (Additive.toMul (c.1 γ)).2,
+        one_mul, f₀.2 γ]
+    · -- left inverse
+      intro f
+      apply Subtype.ext; apply ContinuousMonoidHom.ext; intro γ
+      show f.1 γ * (f₀.1 γ)⁻¹ * f₀.1 γ = f.1 γ
+      group
+    · -- right inverse
+      intro c
+      apply Subtype.ext; funext γ
+      show Additive.ofMul (⟨(Additive.toMul (c.1 γ)).1 * f₀.1 γ * (f₀.1 γ)⁻¹, _⟩
+          : ↥(En.radData l h).M) = c.1 γ
+      rw [show (⟨(Additive.toMul (c.1 γ)).1 * f₀.1 γ * (f₀.1 γ)⁻¹, _⟩ : ↥(En.radData l h).M)
+          = Additive.toMul (c.1 γ) from Subtype.ext (by group)]
+      rfl
   rw [htorsor, key, hfix, mul_one]
   rfl
 
