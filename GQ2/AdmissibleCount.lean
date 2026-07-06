@@ -459,4 +459,63 @@ theorem card_equivHoms_deepSES (hρsurj : Function.Surjective ⇑ρ)
     (fun c w => rfl)
     (fun c w => (conjActQuotHom_mk ρ (Function.surjInv hρsurj c) w).symm)
 
+/-- **The deep-half dimension clause from the duality** (P-15f6 output, step 5): given the
+regular-summand package for `V^∨`, finiteness of `H¹(N)`, the two deferred cohomological inputs
+`hinf`/`hext` (Lemma-6.11 projectivity), and the graded Hilbert **duality**
+`#Hom_C(V^∨, deep) = #Hom_C(V^∨, H¹(N)/deep)` (f7's job — the self-duality `V ≅ V^∨` through the
+invariant form), the deep half squares to `#H¹(ℚ₂,V)`:  `#X₊² = #H¹`.  This is the honest f6
+reduction — everything is wired, and only the duality (f7) and the package (f8, `lemma_6_11`)
+remain to instantiate it.  Chains `card_H1_eq_card_fam · card_admissibleFam_eq ·
+card_equivHoms_deepSES` on one side, `card_deepPart_eq_card_deepFam · card_deepFam_eq` on the
+other; `hduality` collapses the SES product to a square. -/
+theorem card_deepPart_sq_of_duality
+    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v) (hV2 : ∀ v : V, v + v = 0)
+    (hρsurj : Function.Surjective ⇑ρ)
+    (hinf : InflationVanishes (V := V) ρ) (hext : FamiliesExtend (V := V) ρ)
+    [Finite (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))]
+    {Nreg : ℕ} (ι : (V →+ ZMod 2) →+ (Fin Nreg → C → ZMod 2))
+    (r : (Fin Nreg → C → ZMod 2) →+ (V →+ ZMod 2))
+    (hι : ∀ (h : C) (φ : V →+ ZMod 2) (n : Fin Nreg) (x : C),
+        ι ((dualModule : DistribMulAction C (V →+ ZMod 2)).toSMul.smul h φ) n x = ι φ n (h⁻¹ * x))
+    (hr : ∀ (h : C) (F : Fin Nreg → C → ZMod 2),
+        r (fun n x => F n (h⁻¹ * x))
+          = (dualModule : DistribMulAction C (V →+ ZMod 2)).toSMul.smul h (r F))
+    (hri : ∀ φ : V →+ ZMod 2, r (ι φ) = φ)
+    (hduality :
+      letI := conjModuleDeep ρ hρsurj
+      letI := conjModuleQuot ρ hρsurj
+      letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+      Nat.card ↥(equivHoms C (V →+ ZMod 2)
+          ↥(deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)))
+        = Nat.card ↥(equivHoms C (V →+ ZMod 2)
+            (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) ⧸
+              deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)))) :
+    Nat.card (SectionSix.deepPart (V := V) ρ) ^ 2 = Nat.card (H1 AbsGalQ2 V) := by
+  letI := conjModule ρ hρsurj
+  letI := conjModuleDeep ρ hρsurj
+  letI := conjModuleQuot ρ hρsurj
+  letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+  have hH1 := card_H1_eq_card_fam hρ hV2 hinf hext
+  have hAF := card_admissibleFam_eq ρ hρ hρsurj
+  have hSES := card_equivHoms_deepSES ρ hρsurj ι r hι hr hri
+  have hDP := card_deepPart_eq_card_deepFam hρ hV2 hinf hext
+  have hDF := card_deepFam_eq ρ hρ hρsurj
+  calc Nat.card (SectionSix.deepPart (V := V) ρ) ^ 2
+      = Nat.card ↥(equivHoms C (V →+ ZMod 2)
+          ↥(deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))) ^ 2 := by
+        rw [hDP, hDF]
+    _ = Nat.card ↥(equivHoms C (V →+ ZMod 2)
+            ↥(deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)))
+          * Nat.card ↥(equivHoms C (V →+ ZMod 2)
+            ↥(deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))) := sq _
+    _ = Nat.card ↥(equivHoms C (V →+ ZMod 2)
+            ↥(deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)))
+          * Nat.card ↥(equivHoms C (V →+ ZMod 2)
+            (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) ⧸
+              deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))) := by rw [hduality]
+    _ = Nat.card ↥(equivHoms C (V →+ ZMod 2)
+          (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))) := hSES.symm
+    _ = Nat.card (AdmissibleFam (V := V) ρ) := hAF.symm
+    _ = Nat.card (H1 AbsGalQ2 V) := hH1.symm
+
 end GQ2
