@@ -249,3 +249,102 @@ to `card_deepPart_sq_of_duality`: `hduality` (**f7** — graded Hilbert duality 
 `V ≅ V^∨`), the `V^∨` regular-summand package (**f8** — `lemma_6_11`), and `hinf`/`hext` (banked:
 `inflationVanishes_ramifiedTame` + `familiesExtend_of_card_le`).  Feed those and `lemma_6_17_dim`
 closes via the 6.18ram statement-move.
+
+---
+
+## 8. P-15f7 session update — the ABSTRACT LAYER IS COMPLETE (`GQ2/DeepDuality.lean`, all std-3)
+
+**Claimed + built by Fable, 2026-07-06, branch `p15f6-conjact-deepclasses`.**  f7's deliverable
+is the f6 capstone's `hduality`; `GQ2/DeepDuality.lean` (registered in `GQ2.lean`) delivers it
+**abstractly, with every arithmetic input as a hypothesis** — census untouched.
+
+### The minimal route (a strict simplification of the paper's p. 34 computation)
+
+Discovered at design time: the full graded (93) computation and the per-level (94) sharpness
+are NOT needed.  With `P := Deep^⊥` (w.r.t. one invariant nondegenerate pairing `B` on
+`M = H¹(N,𝔽₂)`) the chain
+
+`#Hom(U, M/Deep) =[Hom-symmetry] #Hom(M/Deep, U) =[eU] #Hom(M/Deep, U^∨) =[curry]
+#Hom(U, (M/Deep)^∨) =[ann(Deep) ≅ (M/Deep)^∨] #Hom(U, P) =[f6 SES at Deep ≤ P]
+#Hom(U, Deep)·#Hom(U, P/Deep) =[inertia-kill on P/Deep ⊆ E/Deep] #Hom(U, Deep)`
+
+needs exactly: **(H2)** `B` nondegenerate; **(H3)** `Deep ≤ Deep^⊥` (banked Tier-5!);
+**(H4)** ONE sharp instance `Deep^⊥ ≤ E` (= (94)@(e+1)-⊆, `E` = `U_e`-classes `‖A−1‖ ≤ ‖2‖`,
+π-free); **(H5)** conjugates of `t₀` (the inertia image) act trivially on `E/Deep` (Lemma
+6.10's content; `e` odd + tame inertia order `e` in the paper).
+
+### What is in `DeepDuality.lean` (all `#print axioms` = exactly std-3)
+
+* §A `stabSubAction`/`stabQuotHom`(+`_mk`)/`stabQuotAction` — generic restricted/quotient
+  actions on a `C`-stable `AddSubgroup` (abstract twins of f6's `conjModuleDeep`/`Quot`).
+* §B `card_equivHoms_eq_one_of_conjSmulTrivial` — `t₀` nontrivial on simple `U` + all
+  conjugates `d t₀ d⁻¹` trivial on `T` ⟹ `#Hom_C(U,T) = 1` (the closure
+  `⟨(dt₀d⁻¹)u − u⟩` is `C`-stable ≠ ⊥ ⟹ ⊤; equivariant maps kill it).
+* §C `equivHomsCurry`/`card_equivHoms_curry` — `#Hom(U, W^∨) = #Hom(W, U^∨)` (`dualModule`
+  duals; `AddMonoidHom.flip`).
+* §prod `card_equivHoms_prod_target`/`_source`, `card_equivHoms_congr_source`.
+* §𝔽₂ `exists_functional_ne_zero` (local copy — avoids the heavy `LocalLiftingDuality`
+  import chain), `dualHom_surjective_of_injective` (via
+  `LinearMap.exists_leftInverse_of_injective` over `ZMod 2`).
+* §eval `precompHom`(+equivariance), `evalDualHom`, `evalDualEquiv` (double-dual iso:
+  separation + `card_addHom_zmod2` twice) + equivariance.
+* §split `splitProdEquiv` (split pair ⟹ `W ≃+ U × ker ρ`, equivariant), `ker_stable`,
+  `exists_section_of_epi` (lift `id` via banked `equivariant_lift_of_regular_summand`),
+  `exists_retraction_of_mono` (dualize; `precompHom f` onto; lift `id_{U^∨}` with the
+  `eU`-transported package; pull back through `evalDualEquiv` — `ρ∘f = id` via
+  `evalU`-injectivity).
+* §D **`card_equivHoms_comm`** — THE Hom-symmetry `#Hom_C(U,W) = #Hom_C(W,U)` for `U`
+  simple/nontrivial/self-dual/packaged: strong induction on `#W` (∀-type-quantified aux),
+  nonzero hom either direction ⟹ split `W ≅ U × K` (mono: kernel simple-kill;
+  epi: range simple-kill), both counts factor, recurse (`2#K ≤ #W`).  This is the precise
+  content of the paper's "self-duality ⟹ equal multiplicities".
+* §E `pairPerp`(+`mem`/stability), `perpEquivDualQuot` (`ann(S) ≅ (M/S)^∨`; surjectivity =
+  nondegeneracy count via `card_addHom_zmod2`) + `_mk` + equivariance.
+* §F **`card_equivHoms_deep_eq_quot`** — the abstract `hduality`, hypotheses (H2)–(H5) + the
+  `U`-side package/self-duality + `instDeep`/`instQ` as NAMED instance binders with
+  `hjeq`/`hπeq` compatibility (the f6 idiom, so instantiation at `conjModuleDeep`/`Quot` is
+  substitution).
+
+### Remaining for f7 (the instantiation surface) — ⚠ THE LEAF DECISION LIVES HERE
+
+Instantiate at `M := H¹(N,𝔽₂)` (`conjModule`), `U := V^∨` (`dualModule`),
+`Deep := deepClassesSubgroup`, `E := midClassesSubgroup` (define: `IsMidUnit` = the
+`IsDeepUnit` idiom with `‖b‖ ≤ 1`, i.e. `U_e` in π-free norm vocabulary), `t₀ := (lift of
+c tameTau)`.  Obligations:
+1. `midClassesSubgroup` + `conjAct_midClasses` — mechanical mirrors of the deep versions
+   (AdmissibleCount.lean), ≤ for <.
+2. `ht₀U` — from 6.17's `hram : ∃ v, c tameTau • v ≠ v` transported to `V^∨` along the
+   self-duality (or dualized directly: inertia nontrivial on `V ⟺ V^∨`).
+3. `eU`/`heU` — from the invariant form: `v ↦ polar q v ·` (6.17's `(q,hq,hns,hinv)`
+   package; `polarMuDual` is the `MuDual` flavor — an `(V →+ ZMod 2)`-flavored twin is a
+   short build; bijective by `hns` + `card_addHom_zmod2`).
+4. the package `(ι,r,…)` for `V^∨` — f8's `lemma_6_11` output (same hypothesis as everywhere;
+   `sorryAx` enters only there).
+5. **(H5)/hmid** — `conjAct_mid_sub_mem_deep`: for `g` residue-trivial on `K` (norm form:
+   `∀ x` `N`-fixed with `‖x‖ ≤ 1`, `‖g•x − x‖ < 1`) and `ξ` a mid class,
+   `conjAct ρ g ξ − ξ ∈ deepClassesSubgroup`.  DERIVABLE, no leaf: with `A = 1+2b` mid,
+   `(g•A)/A = 1 + 2(g•b−b)/A` is DEEP by the inertia condition at `x := b`; class algebra
+   via `kcf_mul_of_fixed` + the root-factoring trick of `deepClass_eq_kummerClassK`
+   (`(β−δA)(β+δA) = 0`).  Then the conjugates-form follows since the residue-trivial set is
+   conjugation-stable (`norm_galois`).  What remains ARITHMETIC here: `t₀`'s lifts are
+   residue-trivial on `K` (tame inertia acts trivially on the residue field — needs the
+   `BoundaryMaps`/`hfac` unpacking; possibly `e`-odd/tameness of `K/ℚ₂` enters HERE, as in
+   the paper's 6.10).
+6. **(H2) `hBnd` + (H4) `hsharp` — the ⚠ leaf-decision pair** (user approval required):
+   * `B` itself: the Hilbert/cup pairing on `H¹(G_K,𝔽₂)` valued in `𝔽₂`.  NB B6 Tate duality
+     is `G_ℚ₂`-ONLY, so the `𝔽₂`-valued pairing on `H¹(G_K)` needs the Kummer/Hilbert-symbol
+     route (B11a's `(a,b)_K` through `kummerClassK`) — the VALUE map `H²(G_K,𝔽₂) ⊇ im(cup) →
+     𝔽₂` is part of the leaf surface.
+   * `hBnd` (nondegeneracy): Serre LF **XIV §1 Prop. 3 Corollary** `[✓ verified numbered, in
+     references/]` — a character killed by all `(χ,b)_v` is trivial.  Candidate no-leaf
+     route: B11a + norm-index properness — realistic only for the unramified direction;
+     full nondegeneracy is local-CFT-adjacent ⟹ RECOMMEND the leaf.
+   * `hsharp` (`Deep^⊥ ≤ E` = (94)@(e+1)-⊆): NOT a numbered theorem in the provided PDFs
+     per the P-15f1 audit (FV VII §4 is exercises; FV IV §5 Thm (5.2) is the framework);
+     O'Meara §63 (quadratic defect) is the standard home.  Options: (a) leaf against FV
+     2nd-ed IV §5 (5.2)/§6 + O'Meara §63 with the deviation flagged; (b) prove via the
+     quadratic-defect analysis in norm vocabulary (a Tier-5-style descent — plausible but
+     unscoped); (c) prove by counting from the (93) graded sizes (needs the square-class
+     graded computation this route otherwise avoids — see the analysis in §7/design).
+7. Assemble → `hduality` → feed `card_deepPart_sq_of_duality` (f6) → `lemma_6_17_dim`
+   closes at f8 with the statement-move.
