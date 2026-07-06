@@ -1,24 +1,45 @@
-# P-17e scoping — `kappa0_exists` is Lemma 6.3, not Lemma 6.1 (escalation)
+# P-17e scoping — `kappa0_exists` is Lemma 6.3, not Lemma 6.1 (escalation → RESOLVED)
 
-**Status:** the general statement of `SectionNine.kappa0_exists` currently on the board is **not
-a paper theorem** and is very likely **false** as stated.  This note records the finding, the
-honest interface, the reusable core that *is* proved (std-3, Ax ∅), and the remaining
-obligations.  Flagged per the ticket's standing instruction *"escalate rather than weaken
-`IsEquivariantFactorSet`."*  Author: Opus, 2026-07-06 (autonomous; user asleep — no interface
-change made unilaterally, only additive proved lemmas + this note + a board flag).
+**Status: RESOLVED (F-review, Fable 2026-07-06).**  The escalation was reviewed and the
+statement **amended** (Option A′ below): `kappa0_exists` now carries the paper's own Lemma 6.3
+hypotheses — `hsimple : FoxH.IsSimpleModTwo C V` and `htame : ActsThroughTame C V` — making it a
+true paper theorem, dischargeable at the sole call site (P-17d), with the `sorry` guarding
+honest future work (sub-obligations P-17e1–e3 below).  The original general form is **false**,
+not merely unproved: see the sharpened verdict below (Griess 1973).  History: escalated by Opus
+2026-07-06 (finding + reusable core, no unilateral interface change); resolved same day on
+user instruction after F-escalation.
 
-## The current statement
+## The statements
+
+**Original (P-17a; now amended)** — *"every invariant nonsingular quadratic form on an
+arbitrary finite `𝔽₂[C]`-module admits an equivariant factor-set datum"*:
 
 ```lean
-theorem kappa0_exists {C : Type} [Group C] [Finite C]
-    {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
-    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
-    (hinv : IsInvariant C q) :
+theorem kappa0_exists … (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
+    (hinv : IsInvariant C q) : ∃ dat : FactorSet C V, IsEquivariantFactorSet q dat
+```
+
+**Amended (current, = paper Lemma 6.3)** — adds the two paper hypotheses:
+
+```lean
+def ActsThroughTame (C : Type*) [Group C] (V : Type*) [AddCommGroup V]
+    [DistribMulAction C V] : Prop :=
+  ∃ (H : Type) (_ : Group H) (_ : Finite H) (_ : DistribMulAction H V)
+    (π : C →* H) (s t : H),
+    Function.Surjective π ∧ (∀ (c : C) (v : V), c • v = π c • v) ∧
+    Subgroup.closure {s, t} = ⊤ ∧ s⁻¹ * t * s = t ^ 2
+
+theorem kappa0_exists … (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
+    (hinv : IsInvariant C q) (hsimple : FoxH.IsSimpleModTwo C V)
+    (htame : ActsThroughTame C V) :
     ∃ dat : FactorSet C V, IsEquivariantFactorSet q dat
 ```
 
-i.e. *"every invariant nonsingular quadratic form on an arbitrary finite `𝔽₂[C]`-module admits an
-equivariant factor-set datum."*
+Notes on the amended shape: self-duality needs no separate hypothesis (`hns` + `hinv` make
+`v ↦ polar q v ·` a `C`-iso `V ≅ V^∨`); "nontrivial" is inside `IsSimpleModTwo` (`Nontrivial V`);
+"`q` nonzero" is automatic (`q = 0` kills `Nonsingular` on a nontrivial `V`); `ActsThroughTame`
+mirrors `tame_two_nilpotent`'s `(hgen, hrel)` interface — the finite avatar of a tame quotient —
+and its `π`-surjectivity is what transports `hinv`/`hsimple` to the group the proof works over.
 
 ## Why this is not what the paper proves
 
@@ -48,16 +69,39 @@ Read the paper (pp. 25–26) carefully:
      (76) with `m = 0`, involutions via Lemma 6.2's cocycle (73) with explicit `m`;
   4. sum them → `κ⁰_{q_W}`; pull back `κ⁰_q := (i⋊1)^* κ⁰_{q_W}` (eq. (77)).
 
-## Why the general statement is (essentially certainly) false
+## Why the general statement is false (sharpened at F-review)
 
-The datum `(f, m)` for `q` is exactly a `C`-action on the extraspecial-type 2-group
-`E_f = 𝔽₂ ×_f V` lifting the `C`-action on `V` and fixing the centre `𝔽₂`
-(Lemma 6.1's own equivalence).  Equivalently, a lift of `ρ : C → O(q)` through
-`1 → V^∨ → Aut_ctr(E_f) → O(q) → 1` (with `V^∨ ≅ V` via the nonsingular `B`).  The obstruction
-lives in `H²(C, V^∨)`, which for a general finite 2-group `C` and nontrivial module `V^∨` is
-**nonzero** (there is no averaging/transfer vanishing: `|C|` is a power of 2 and `V^∨` is
-2-torsion).  The `Aut_ctr(E_f) → O(q)` extension is the classical spin/theta extension, famously
-**non-split** for larger extraspecial groups.  So a general lift need not exist.
+The datum is *equivalent data* to a lifted action — Lemma 6.1's own proof.  Precisely, given
+`(f, m)` with `IsEquivariantFactorSet q`, set `α_c (v, z) := (c • v, z + m_c v)` on
+`E_f = V × 𝔽₂` with multiplication `(v,z)(w,t) = (v+w, z+t+f(v,w))`:
+
+* (59) `⟺` each `α_c ∈ Aut(E_f)` (and `m_c 0 = 0` follows from (59) at `v = w = 0`);
+* (60)+`m_1 = 0` `⟺` `c ↦ α_c` is a homomorphism;
+* each `α_c` fixes the centre `{0} × 𝔽₂` pointwise and induces `c` on `V = E_f/Z`.
+
+For `q` nonsingular of rank `2n`, `E_f` is extraspecial of order `2^{1+2n}` (type ± per Arf),
+`Z(E_f) = 𝔽₂` (nonsingularity), squaring map = `q`, commutator = `B`.  Since `Z ≅ ℤ/2` every
+automorphism fixes the centre pointwise and preserves squaring, giving the classical exact
+sequence
+
+```
+1 → V^∨ → Aut(E_f) → O(q) → 1        (kernel: (v,z) ↦ (v, z + λ v), λ ∈ Hom(V, 𝔽₂))
+```
+
+so a datum for `(C, ρ, q)` = a homomorphic lift `C → Aut(E_f)` of `ρ : C → O(q)`.  **Take
+`C := O(q)` with the tautological action** (finite ✓, `q` invariant by definition ✓): a datum is
+then literally a splitting of the sequence — and **Griess** (*Automorphisms of extra special
+groups and nonvanishing degree 2 cohomology*, Pacific J. Math. **48** (1973) 403–422) proved
+this extension is **non-split** (equivalently `H²(O^ε_{2n}(2), V) ≠ 0`, `V ≅ V^∨` the natural
+module) for all sufficiently large `n` — already in single digits; small ranks (`D₈`, `Q₈`,
+`n = 1, 2`) do split, which is why no tiny counterexample exists.  So the unamended
+`kappa0_exists` is refuted by a classical theorem, not merely unproved.  (Consistency check:
+`O^ε_{2n}(2)` is far from metacyclic — no conflict with the tame case.)
+
+The projectivity/tameness hypothesis is exactly what removes the obstruction: `V` projective ⟹
+`V` is an equivariant summand of a free permutation module `W`, `q` extends to `q_W = q ∘ p`,
+and invariant forms on permutation modules have explicit orbit data — no `H²` obstruction
+survives the pullback (77).
 
 The projectivity hypothesis is exactly what removes the obstruction: `V` projective ⟹ `iV` is a
 `C`-summand of a permutation module `W`, `q` extends to the invariant `q_W`, and every invariant
@@ -81,6 +125,7 @@ the reduction that assembles them:
 | `isEquivariantFactorSet_of_biadditive_invariant` | **biadditive + invariant** ⟹ `m = 0` (cocycle + normalization automatic) — the entry point for the concrete orbit data | (75)/(76) |
 | `IsEquivariantFactorSet.add` | datum of `q + q'` = pointwise sum of data | "sum of the orbit cocycles" |
 | `IsEquivariantFactorSet.comap` | **pullback** along an equivariant `i : V →+ W` | eq. (77) |
+| `IsEquivariantFactorSet.comapHom` | **pullback along a group hom** `π : C →* D` with `c • v = π c • v` (`m_c := m_{π c}`) — reduction to the faithful tame image | "let `H = H_V` be the faithful tame image" |
 | `kappa0_exists_of_split` | split embedding + known `datW` for `q_W` with `q_W∘i = q` ⟹ datum for `q` | Lemma 6.3 reduction |
 
 `kappa0_exists_of_split` is the **honest, true, closeable** form of the reduction:
@@ -99,43 +144,52 @@ does **not** fire on a bare `IsEquivariantFactorSet` term — call them explicit
 `GQ2/FactorSetLemmas.lean` (namespace `GQ2`, importing only `OrbitData`) the dot-notation would
 fire; deferred to avoid churn on the shared low-DAG files during the parallel §9 push.)
 
-## Remaining obligations (to close the honest `kappa0_exists`)
+## Resolution (Option A′, executed at F-review)
 
-Everything left is exactly Lemma 6.3's inputs to `kappa0_exists_of_split`:
+Neither pure Option A (make `kappa0_exists_of_split` *the* statement — pushes Lemma 6.11's
+projectivity plus the whole orbit/normal-form machine onto the consumer P-17d) nor Option C
+(leave the false statement sorried) was taken.  The executed **Option A′**: keep `kappa0_exists`
+as the named interface, with **the paper's own Lemma 6.3 hypotheses** added — `hsimple`
+(existing `FoxH.IsSimpleModTwo`) and `htame` (new `ActsThroughTame`, mirroring
+`tame_two_nilpotent`'s `(hgen, hrel)` finite-tame interface).  Rationale:
 
-1. **Split embedding** `i : V →+ 𝔽₂[H]^N`, `hi` equivariant, with `q_W := q∘p` — needs `V`
-   projective (Lemma 6.11, ramified) or `H` odd + Maschke (unramified).  **Sub-ticket
-   material** (call it P-17e1): produce the `H`-split pair for a simple self-dual tame module.
-2. **Orbit-cocycle data on `W`** — that the concrete `squareOrbitDatum`/`freeOrbitDatum`
-   (already defined in `OrbitData.lean`, `m = 0`) are `IsEquivariantFactorSet` for their square
-   maps, and that `invOrbitDatum` is one with its explicit `m` (**Lemma 6.2** — the
-   orientation-bookkeeping cocycle, genuinely involved).  **Entry point landed:**
-   `isEquivariantFactorSet_of_biadditive_invariant` reduces the square/free cases to
-   *biadditivity + permutation-invariance* of `∑ᶠ h, x h * y h` (resp. the shifted free form) —
-   a short `finsum_add_distrib`/`finsum_comp_equiv` (via `Equiv.mulLeft`) computation, deferred
-   as **sub-ticket P-17e2** so this note stays a clean checkpoint (the finsum plumbing for
-   `hpolar`/`HasFiniteSupport` is straightforward but not worth blocking the escalation on).
-   The involution datum (Lemma 6.2, nonzero `m`) is the harder **P-17e2′**.
-3. **Algebraic normal form** — that an `H`-invariant quadratic map on `𝔽₂[H]^N` equals a sum of
-   `S_j`/`C_{j,k,g}`/`E_{j,g}` (paper: "determined by its values on the coordinate vectors and
-   its polar form; invariance makes coefficients constant on orbits of degree-two monomials").
-   The classification that stabilizers of unordered coordinate pairs are trivial or order-two
-   (free action ⟹ the `E_{j,g}` case).  **Sub-ticket P-17e3**, the analytic heart.
+* **True**: it is now literally Lemma 6.3 (+ the trivial reductions recorded in the docstring),
+  so the `sorry` guards honest work rather than a falsehood.
+* **Dischargeable at the sole call site** (P-17d, `Vmod = P/S`, `C = Y/K`):
+  - `hsimple` ⟸ `MinimalBlock.chief` + `nontrivial_action` (Y-normal chiefness → `C`-stable
+    `AddSubgroup` dictionary; `C`-stable = `Y`-invariant since the action is induced
+    conjugation).
+  - `htame` with `H :=` the frame head: `K` acts trivially by `[K,P] ≤ [P,P] ≤ S` (P-17d's
+    existing `Vmod` descent), and the rest of `L_Y` acts trivially by the **already-proved**
+    `FoxH.lemma_5_12` (normal 2-subgroup acts trivially on a simple char-2 module), so the
+    action descends along `Y/K ↠ Y/L_Y ≅ H`; generators = marked images (`gen_ttame_quotient`
+    ✓ + `tame_relation` ✓), surjectivity from the frame.
+* **Provable by the paper's route**, staged as P-17e1–e3 below, with the reduction/assembly
+  layer already proved (previous section).
+* Datum-*choice* independence downstream is already covered by `RepIndependence.repIndep`
+  (Lemma 6.4), so an ∃-statement is the right strength.
 
-## Recommendation for the user (decision needed)
+## Remaining obligations (the staged proof of the amended `kappa0_exists`)
 
-**Option A (preferred): restate `kappa0_exists`** to take the split datum as hypotheses — i.e.
-make `kappa0_exists_of_split` *the* statement, and push obligations (1)–(3) into P-17d's call
-site / new sub-tickets P-17e1–e3.  This is honest, already half-proved (the reduction is done),
-and matches the paper's actual Lemma 6.1-vs-6.3 split.  P-17d supplies `W, datW, i` from the
-block structure (`prop_7_4` already produces the self-dual simple `Vmod`).
-
-**Option B: keep the general statement** and prove obligations (1)–(3) in full generality —
-**do not do this**: it is false without projectivity; it would require assuming an axiom.
-
-**Option C: keep the general `sorry` for now**, land the reusable core + this note (current
-state), and let P-17d/P-17i decide the interface when they wire the block module in.  This is
-what has been done tonight; `kappa0_exists` remains sorried with a docstring pointer here.
-
-No unilateral restatement was made because `kappa0_exists` is a shared interface consumed by the
-in-flight P-17d, and the batch owner should choose A-vs-C.
+0. **Faithful-image reduction** — pass along `htame`'s `π` via `IsEquivariantFactorSet.comapHom`
+   (✓ proved), then quotient `H` by the action kernel (tame-generation and `q`-invariance
+   survive; simplicity transports by surjectivity).  Routine; part of e1.
+1. **P-17e1 — split embedding** `i : V →+ 𝔽₂[H_V]^N` equivariant with retraction: *unramified*
+   branch (`t̄` acts trivially ⟹ `H_V` cyclic ⟹ **odd**, via the central-involution argument
+   already packaged in `TameSimple.central_pow2_smul_trivial`; then Maschke).  *Ramified*
+   branch = **Lemma 6.11** (projectivity of simple ramified tame modules; `H_V` has cyclic
+   Sylow-2) — the long pole.  Note: an alternative closes the *unramified* branch without any
+   embedding: for odd `H_V`, split `1 → V^∨ → E' → H_V → 1` directly by Schur–Zassenhaus
+   (`Subgroup.exists_right_complement'_of_coprime`, already used at P-17b1) and read `m` off the
+   complement; worth doing first as it may cover a large share of the induction's blocks.
+2. **P-17e2 — orbit data**: `squareOrbitDatum`/`freeOrbitDatum` are `IsEquivariantFactorSet`
+   for their square maps — reduce via `isEquivariantFactorSet_of_biadditive_invariant` (✓) to
+   biadditivity + invariance of `∑ᶠ h, x h * y h` (finsum reindex along `Equiv.mulLeft`,
+   `finsum_add_distrib`).  **P-17e2′**: the involution datum `invOrbitDatum` with its explicit
+   nonzero `m` (**Lemma 6.2**, orientation bookkeeping — genuinely involved; note
+   `lemma_6_15`'s (105) already exercises this datum downstream).
+3. **P-17e3 — algebraic normal form**: an `H`-invariant quadratic map on `𝔽₂[H]^N` is a sum of
+   orbit polynomials `S_j`/`C_{j,k,g}`/`E_{j,g}` (coefficients constant on orbits of unordered
+   degree-2 coordinate monomials; free coordinate action ⟹ pair-stabilizers trivial or
+   order-2-swap).  The analytic heart; combine with e2 via `IsEquivariantFactorSet.add` and
+   close through `kappa0_exists_of_split`.
