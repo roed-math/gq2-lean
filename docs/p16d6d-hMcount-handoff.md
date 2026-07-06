@@ -6,7 +6,7 @@
 
 ## Status this session
 
-The **plumbing is committed, and `hMcountM`'s count side (Steps 1 + 3) is now proved inline**:
+The **plumbing is committed, and `hMcountM`'s Steps 1, 3, 4 are all proved inline — one sorry left**:
 
 | decl (`GQ2.SectionEight`, `GQ2/Half139Local.lean`) | statement | axioms |
 |---|---|---|
@@ -14,13 +14,15 @@ The **plumbing is committed, and `hMcountM`'s count side (Steps 1 + 3) is now pr
 | `conj_eq_of_mk_eq_M`, `mCommGroup` (private) | the reusable `D.M` conjugation-module atoms | std-3 |
 | `hlem86M_local` | `∀ ρ, 2·#{central M-lifts} = #(M-lifts)` for `G_ℚ₂` | std-3 + B6 + B7 |
 | `half139_local` | the (139) identity in `RecursionInputs.half139` shape | std-3 + B6 + B7 (+ `hMcountM` sorry) |
-| `hMcountM_local` | **`#MLifts = |M_B|²`** — Steps 1+3 done inline; **2 sorries** left | std-3 + B6 + B7 (+ sorryAx) |
+| `hMcountM_local` | **`#MLifts = |M_B|²`** — Steps 1+3+4 done inline; **1 sorry** (`htorsor`) | std-3 + B6 + B7 (+ sorryAx) |
 
-Inside `hMcountM_local`: the additive module + actions (Step 1) and `key : #Z¹ = |M_B|²·#fixedPts`
-via `card_Z1_eq` (Step 3) are **realized and building**; the final `|Additive ↥M_B|² = |M_B|²`
-reduction closes by `rfl`. Only **`hfix`** (Step 4, `#fixedPts = 1`) and **`htorsor`** (Step 2,
-`#MLifts = #Z¹`) remain as scoped sorries. `half139_local` is the P-16d6e deliverable, complete
-modulo `hMcountM_local`. Gate: `lake build GQ2.Half139Local` green; `check_axioms.sh` passes.
+Inside `hMcountM_local`, **realized and building**: the additive module + actions (Step 1),
+`key : #Z¹ = |M_B|²·#fixedPts` via `card_Z1_eq` (Step 3), **and `hfix : #fixedPts = 1` (Step 4)** —
+the full `lemma_7_1_dual` bridge (character `φ = lam∘(Blk.K↠M_B) : Blk.K →* μ₂`, `X = φ.ker.map`,
+normality via `conj_eq_of_mk_eq_M` + `C`-invariance, index 2 via `quotientKerEquivOfSurjective`,
+refuted by `lemma_7_1_dual`). The final `|Additive ↥M_B|² = |M_B|²` closes by `rfl`. The **only**
+remaining sorry is **`htorsor`** (Step 2, `#MLifts = #Z¹`). `half139_local` is the P-16d6e
+deliverable, complete modulo it. Gate: `lake build GQ2.Half139Local` green; `check_axioms.sh` passes.
 
 **`hMcountM` is a shared deep input.** The concurrent P-16d6b (`PhaseMuIndep.lean`, now CLOSED
 sorry-free) does **not** prove `#MLifts`; it takes it as the hypothesis `hML`/`κM` of
@@ -103,11 +105,13 @@ Define `MBmod := Additive ↥(En.radData l h).M` (`= Additive ↥RF.MB`). Set up
 `card_Z1_eq`). Add the `RF.YC`-action explicitly (it is `c • m = out(c) · m · out(c)⁻¹` via
 `QuotientGroup.out`, or transport the `AbsGalQ2`-action along `ρ'`-surjectivity).
 
-### Step 2 — the torsor bridge `MLifts ≃ Z¹`, incl. **nonemptiness**
+### Step 2 — the torsor bridge `MLifts ≃ Z¹`, incl. **nonemptiness**  ← **the SOLE remaining sorry (`htorsor`)**
 `MLifts D ρ' ≃ Z¹_cont(AbsGalQ2, MBmod)` via `f ↦ (γ ↦ Additive.ofMul (f γ · f₀ γ⁻¹ ∈ M_B))` for a
 base lift `f₀`. The cocycle law and continuity are routine. **Nonemptiness of `MLifts` is a
 theorem, not an assumption:** the lifting obstruction of `ρ'` through `YB ↠ YB/M_B` lives in
-`H²(AbsGalQ2, M_B)`, which is `0` by Step 4. So a base lift exists and the bijection holds.
+`H²(AbsGalQ2, M_B)`, which is `0` by Step 4 (`hfix`, now proved). So a base lift exists and the
+bijection holds. **This is the one piece needing new infrastructure** (no in-repo lift-existence
+lemma; see options below) — everything else in `hMcountM_local` is proved.
 * ⚠ **No `H²`-obstruction-vanishing ⇒ continuous-lift-exists lemma currently in-repo.** Options:
   (a) build the standard obstruction class + "vanishes ⇒ lift" for continuous profinite cohomology
   (general, reusable — a real addition); or (b) a bespoke existence argument using `Y ↠ YC`
@@ -142,7 +146,10 @@ and `YC = Y/Blk.K`-submodules of `Blk.K/Blk.R` ↔ `Y`-normal subgroups between 
 `lemma_7_1_dual` refutes it, so `fixedPts = {0}`, card 1. Bridge ≈ 50–80 ln (the submodule↔normal
 subgroup correspondence for `M_B = K/R` + index/kernel bookkeeping).
 
-**Concrete recipe for `hfix` (write it inline in `hMcountM_local`, where the module is in scope):**
+**✓ `hfix` IS NOW PROVED** (`GQ2/Half139Local.lean`, inside `hMcountM_local`, std-3 — no new
+axioms). The recipe below is exactly what was implemented and is kept for reference.
+
+**Concrete recipe for `hfix` (proved inline in `hMcountM_local`):**
 Follow the template `DualityAssembly.card_fixedPts_elemDual_eq_one_of_nontrivial`
 (`DualityAssembly.lean:104`) — it reduces `Nat.card (fixedPts …) = 1` to
 `hzero : ∀ lam, (∀ g, g•lam=lam) → lam = 0` via `Nat.card_eq_one_iff_unique` (reuse its final
@@ -171,17 +178,19 @@ Follow the template `DualityAssembly.card_fixedPts_elemDual_eq_one_of_nontrivial
 
 ## Effort / risk
 
-* **Step 1** ~70–100 ln, mechanical (copy `RadicalEdgeLocal` D.T block, add the `YC`-action).
-* **Step 3** ~30 ln once Step 1's instances are in scope.
-* **Step 4** ~50–80 ln: **the math is done** (`lemma_7_1_dual`, std-3) — only the
-  submodule↔`Y`-normal-subgroup bridge to `fixedPts` remains.
-* **Step 2** the hardest / least in-repo support (nonemptiness). Scope the Frattini-cover route (b)
-  before building general `H²`-obstruction machinery.
-
-Recommended order: **Steps 1 + 3 + 4 first** (the count `#Z¹ = |M_B|²`, now unblocked — Step 4's
-crux `lemma_7_1_dual` is already proved), reducing `hMcountM` to the single Step-2 nonemptiness
-sorry; then Step 2. (Steps 1+3+4 need no new mathematics — Step 1 copies the `RadicalEdgeLocal`
-D.T module block, Step 3 is `card_Z1_eq`, Step 4 bridges to the proved `lemma_7_1_dual`.)
+* **Steps 1, 3, 4 — ✓ ALL DONE** (proved inline in `hMcountM_local`, committed). The module,
+  `card_Z1_eq`, and the full `hfix` bridge to `lemma_7_1_dual` are built and green.
+* **Step 2 — the ONLY remaining sorry (`htorsor`).** The `MLifts ≃ Z¹` torsor equiv given a base
+  lift is ~40 ln of routine cocycle bookkeeping; the blocker is **nonemptiness** (`Nonempty (MLifts
+  D ρ')`), which has **no in-repo support**. Two routes:
+  - (a) **general** continuous-profinite obstruction theory: pullback extension `1→M_B→E→Γ→1`, its
+    class in `H²(AbsGalQ2, M_B) = 0` (our `hfix`), "class 0 ⇒ splits ⇒ lift". Reusable but a real
+    build (extension↔H² dictionary is absent from mathlib and the repo).
+  - (b) **bespoke/Frattini**: `R = Φ(Blk.K)` — check whether `surj_of_piB_surj` /
+    `eq_top_of_map_frattini_quotient_top` / the `RStageObstructionBuild` family give a lift of `ρ'`
+    to `YB` directly. **Scope (b) first.**
+  A pragmatic interim: state `htorsor` conditionally on `Nonempty (MLifts …)` and expose that as the
+  single hypothesis — isolates the gap to lift-existence alone.
 
 Expected axioms at close: **std-3 + B6 + B7** (B6 `card_H2_eq_fixedPts`, B7 `card_Z1_eq`); the
 P-16d6d ticket column `⊆ {B6,B7,B9}` — **B9 should not be needed**.
