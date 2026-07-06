@@ -45,6 +45,14 @@
   to μ-independence: summing the per-ρ partition over the `C`-image and factoring out `μ` gives
   `zBC = μ · (Σ_ρ M_ρ)` from the single hypothesis `hμ : ∀ ρ, #Z¹(T)_{ρ'} = μ`.  This IS the
   `hfib` argument of `phase140_ofPhaseData`.
+* ✅ **`lemma_8_5_aggregated`** (std-3, sorry-free) — the **hgauss aggregation**: sums the proved
+  Gauss engine `lemma_8_5` over the finite ρ-family and swaps the double sum, giving
+  `2·|E^∨|·Σ_ρ N(κ_ρ,ε_ρ) = |I|·|W| + G(Q)·Σ_χ Σ_ρ (−1)^{χκ_ρ+ε_ρ+Q(a_χ)}`.  Pure 𝔽₂ algebra.
+* ✅ **`phase140_of_gaussCorrespondence`** (std-3, sorry-free) — **the capstone (140) reducer**
+  (the analog of `stageR136_ofRObstructionData`): derives the whole `phase140` field from
+  `zBC_eq_mu_mul_reductionCount` + `lemma_8_5_aggregated` + `phase140_ofPhaseData`, isolating the
+  concrete Prop-8.8 fields `hM`/`hphase`/`hμ` + the matches `hDT`/`hWV`/`hG0`.  **(140) is now a
+  complete reducer down to its concrete residues.**
 
 ### The phase-module core that remains (the deep O-half)
 
@@ -64,7 +72,20 @@ whole reducer layer complete, closing (140) needs (for the concrete frame, desce
 
 `hgauss` + the witness are one build (source/concrete-coupled); μ-independence is a source fact.
 These are the genuinely deep O-half (not clean reducers) — a dedicated `(140) phase-module` pass.
-The (140) chain is now **`phase140` ⟸ `hμ` + `hgauss` + witness**, all three isolated.
+
+**UPDATE — the (140) reducer is now COMPLETE.**  `phase140_of_gaussCorrespondence` (std-3,
+sorry-free) derives the entire `phase140` field from the abstract engine + concrete data, via
+`zBC_eq_mu_mul_reductionCount` (hfib) + `lemma_8_5_aggregated` (hgauss) + `phase140_ofPhaseData`.
+So (140) is reduced to exactly its **concrete Prop-8.8 residues**, all isolated as hypotheses:
+
+* `hM`   — the (135)/Prop 8.8 identity `#achievable-central-T-reductions(ρ) = N(κ_ρ,ε_ρ)`;
+* `hphase`— the phase reindex `Σ_χ Σ_ρ (−1)^{χκ_ρ+ε_ρ+Q(a_χ)} = Σ_ζ (2·nPhase(phase ζ) − e_Γ(C))`;
+* `hμ`    — μ-independence `#Z¹(T)_{ρ'} = μ` (source 5.15/5.16);
+* the cardinality matches `hDT` (`|V^∨| = |D_T|`), `hWV` (`|W| = |V|`), `hG0` (`G(Q) = G0`),
+  all read off the concrete `En` (the descended module `V`, the enrichment form `qbar`).
+
+`hM`/`hphase` are the deep Prop 8.8 content (coupled to the witness `Δ`); `hμ` is a source fact;
+the matches are frame bookkeeping.  This is the concrete O-half — no clean reducers remain in (140).
 
 **`prop_8_9` is NOT closed** — it stays `sorry`; the three per-source inputs + the witness are
 blocked (below).  The final splice `exact prop_8_9_of …` into `SectionEight.lean` is a trivial edit,
@@ -76,7 +97,7 @@ deferred until the inputs land.
 |---|---|---|
 | **`half139` ×2** | ◑ dischargeable modulo P-16c | `half139_via_radData` + **`lemma_8_6_local`** (✓ `G_ℚ₂`, `SectionEight.lean:1301`) / **`lemma_8_6_gammaA`** (✗ **sorry**, `SectionEight.lean:1288`, = P-16c) for `hlem86M`, + **`prop_5_16`/`prop_5_15`** (✓) for `hMcountM`.  **Only `Γ_A` is blocked, on P-16c.** |
 | **`stageR136` ×2** | ✗ blocked (infra) | needs an **`RObstructionData` built from `En`** — which `Enrichment` does **not** carry (no cover-map family `coverMap_λ`, no `pair : D_Rmod →ₗ (R→+𝔽₂)`; this is the P-16d2 escalation).  Then `stageR136_ofRSepData` (P-16d2, ✓) closes it from `hsep_hom` + `hZcount` + `hE2`.  **Requires extending `Enrichment` (co-owned `SectionEight.lean` structure edit — owner sign-off) with the P-16d2 cover-map/pair fields, then constructing the datum + discharging the source residues `hsep_hom`/`hZcount` concretely.** |
-| **`phase140` ×2** | ◑ **reducer landed** (`phase140_ofPhaseData`); residual = the two counts | the top-level (140) algebra is **done** — residual is the phase datum `M`/`hfib`/`hgauss` for the concrete frame: **`hfib`** the μ-fibration `zBC = μ·M` (`zBC`-fibration `RadicalEdgeBridge.lean:117` → `centralOver_equiv` → `lemma_8_7_count` over `redT`), and **`hgauss`** the `lemma_8_5` count on the `V`-descent with `Q = En.qbar`, `a_χ` from `exists_polar_inverse`, `Δ`/phase covers from Prop 8.8 (`prop_8_8_target` ✓) / `phaseFamily`.  All ingredients proved; this is the "(140) phase-module" — the largest remaining piece, coupled to the witness. |
+| **`phase140` ×2** | ☑ **FULL reducer landed** (`phase140_of_gaussCorrespondence`); residual = concrete Prop-8.8 fields | the entire (140) display is now derived by `phase140_of_gaussCorrespondence` from `zBC_eq_mu_mul_reductionCount` (hfib) + `lemma_8_5_aggregated` (hgauss) + `phase140_ofPhaseData`.  Residual = the concrete hypotheses **`hM`** (Prop 8.8 count `M_ρ = N(κ_ρ,ε_ρ)`), **`hphase`** (character↔phase-cover reindex), **`hμ`** (μ-independence, 5.15/5.16), and the matches **`hDT`/`hWV`/`hG0`** off `En` (`qbar`, the descended `V`).  `hM`/`hphase` are the deep Prop 8.8 content (coupled to the witness `Δ`); no clean reducers remain. |
 | **witness `(μ, G0, DT, phase)`** | ✗ blocked (constructor) | no constructor from `En` exists.  `μ = Nat.card (TCocycle …)` (`lemma_8_7_count`); `G0 = gaussSum (E.qbar …)` (`SectionEight.lean:199`); `DT =` the `(T^∨)^C` scalar-dual index; `phase = phaseFamily (DeltaScalar E.dat γ δ a) …` (`AffineTLift.lean:841`/`528`/`769`).  Shared across both sources (source-independent), so built once from `En`. |
 
 ## Cross-ticket dependencies still open
