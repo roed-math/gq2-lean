@@ -221,11 +221,12 @@ counterexample) — Lemma 6.1 only proves the "(59)+(60) ⟺ lifted action" equi
 design + staged proof plan in `docs/p17e-kappa0-scoping.md`.  **Proved already (std-3)**: the
 assembly core `isEquivariantFactorSet_of_invariant` / `_of_biadditive_invariant` /
 `IsEquivariantFactorSet.add` / `.comap` / `.comapHom` / `kappa0_exists_of_split`.
-**Remaining (sub-tickets)**: P-17e1 split embedding (unramified: `H_V` odd via
-`central_pow2_smul_trivial` + Maschke, or direct Schur–Zassenhaus on
-`1 → V^∨ → E' → H_V → 1`; ramified: **Lemma 6.11** projectivity — the long pole);
-P-17e2/e2′ orbit-datum equivariance ((75)/(76) via the biadditive entry point; Lemma 6.2's
-involution datum with nonzero `m`); P-17e3 the invariant normal form on `𝔽₂[H]^N`.
+**Sub-tickets**: **P-17e1 ✅ DONE** (odd/unramified case — `kappa0_exists_of_odd` +
+`exists_biadditive_refinement`, std-3: average a bilinear refinement over the odd `H`, `m = 0`,
+no embedding/Maschke/SZ needed); P-17e2 square/free orbit-datum equivariance ((75)/(76) via the
+biadditive entry point); P-17e3 the involution datum (Lemma 6.2, nonzero `m`); P-17e4 the
+ramified split embedding (**Lemma 6.11** projectivity — the long pole); P-17e5 the invariant
+normal form on `𝔽₂[H]^N` + final assembly closing `kappa0_exists`.
 `symm_cocycle_is_coboundary` remains available but is no longer the route — the paper's
 (60)-coherence comes from the explicit orbit data, not per-`c` correction patching.
 
@@ -310,17 +311,18 @@ impossible for an abstract witness.  FLAGGED on the P-16d6 row.
 P-17a ☑ (this design + skeleton)
   ├─► P-17b2 ☑ (tame 2-nilpotency) ─► P-17b1 ☑ (Lemma 9.2) ─► P-17b3 ☑ (correspondence ⟹ terminal_count_eq)
   ├─► P-17e ◐ (κ⁰ restated = Lemma 6.3 + assembly core proved; decomposed ↓)
-  │     ├─► P-17e1 (split pair; unramified SZ/Maschke ‖ ramified Lemma 6.11)   [startable]
+  │     ├─► P-17e1 ✅ (odd/unramified case — bilinear averaging, DONE)
   │     ├─► P-17e2 (square/free orbit data, m=0)                               [startable]
-  │     ├─► P-17e2′ (involution datum, Lemma 6.2, m≠0)                         [startable]
-  │     └─► P-17e3 (invariant normal form + final assembly) ◄─ e1,e2,e2′ ⟹ closes kappa0_exists
+  │     ├─► P-17e3 (involution datum, Lemma 6.2, m≠0)                          [startable]
+  │     ├─► P-17e4 (ramified split embedding, Lemma 6.11 — long pole)          [startable]
+  │     └─► P-17e5 (invariant normal form + assembly) ◄─ e1,e2,e3,e4 ⟹ closes kappa0_exists
   ├─► P-17f ☑ (M-stage partition)
   ├─► P-17h ☑ (solver)
   ├─► P-17c ☑ (blockFrame) ─► P-17d (enrichment; also needs P-17e) ── discharges hsimple/htame
   │                        └► P-17g ☑ (bounds)
   └─► P-17i (master) ◄─ b,c,d,e,f,g,h + P-16c/P-16d2/P-16d6 (prop_8_9 proof)
 ```
-P-17e1/e2/e2′ are startable **now**, in parallel (e3 after them).  P-17i is the sink and also
+P-17e2/e3/e4 are startable **now**, in parallel (P-17e1 ✅ done; e5 after them).  P-17i is the sink and also
 waits for the §8 closure (P-16c + P-16d2 + P-16d6).
 
 ## Axiom bookkeeping
