@@ -726,4 +726,252 @@ theorem card_equivHoms_comm [Finite U]
 
 end HomSymmetry
 
+section PerpLayer
+
+variable {C : Type} [Group C]
+variable {M : Type} [AddCommGroup M] [DistribMulAction C M]
+
+/-- The **perp of a subgroup** under a biadditive `ZMod 2` pairing. -/
+def pairPerp (B : M →+ M →+ ZMod 2) (S : AddSubgroup M) : AddSubgroup M where
+  carrier := {x | ∀ s ∈ S, B x s = 0}
+  zero_mem' := fun s _ => by rw [map_zero]; rfl
+  add_mem' := fun {x y} hx hy s hs => by
+    rw [map_add, AddMonoidHom.add_apply, hx s hs, hy s hs, add_zero]
+  neg_mem' := fun {x} hx s hs => by
+    rw [map_neg, AddMonoidHom.neg_apply, hx s hs, neg_zero]
+
+theorem mem_pairPerp_iff (B : M →+ M →+ ZMod 2) (S : AddSubgroup M) (x : M) :
+    x ∈ pairPerp B S ↔ ∀ s ∈ S, B x s = 0 := Iff.rfl
+
+/-- The perp of a `C`-stable subgroup is `C`-stable when the pairing is invariant. -/
+theorem pairPerp_stable (B : M →+ M →+ ZMod 2)
+    (hBinv : ∀ (c : C) (x y : M), B (c • x) (c • y) = B x y)
+    (S : AddSubgroup M) (hS : ∀ (c : C), ∀ s ∈ S, c • s ∈ S) :
+    ∀ (c : C), ∀ x ∈ pairPerp B S, c • x ∈ pairPerp B S := by
+  intro c x hx s hs
+  have hs' : c⁻¹ • s ∈ S := hS c⁻¹ s hs
+  calc B (c • x) s = B (c • x) (c • (c⁻¹ • s)) := by rw [smul_inv_smul]
+    _ = B x (c⁻¹ • s) := hBinv c x (c⁻¹ • s)
+    _ = 0 := hx _ hs'
+
+/-- **`ann(S) ≅ (M/S)^∨`**: for a nondegenerate pairing on a finite 2-torsion module, the perp
+of `S` is additively isomorphic to the dual of `M ⧸ S` — `x ↦ B x` descended through `mk`.
+Surjectivity is the nondegeneracy count (`φ_B : M ≃ M^∨` by injectivity + `#M^∨ = #M`). -/
+noncomputable def perpEquivDualQuot (B : M →+ M →+ ZMod 2) [Finite M]
+    (h2M : ∀ m : M, m + m = 0)
+    (hBnd : ∀ x : M, (∀ y : M, B x y = 0) → x = 0) (S : AddSubgroup M) :
+    ↥(pairPerp B S) ≃+ ((M ⧸ S) →+ ZMod 2) := by
+  haveI : Finite (M →+ ZMod 2) :=
+    Finite.of_injective (DFunLike.coe : (M →+ ZMod 2) → (M → ZMod 2)) DFunLike.coe_injective
+  -- the underlying additive map: descend B x through the quotient
+  set Φ : ↥(pairPerp B S) →+ ((M ⧸ S) →+ ZMod 2) :=
+    { toFun := fun x => QuotientAddGroup.lift S (B x.1) (fun s hs => x.2 s hs)
+      map_zero' := by
+        ext q
+        show (B (0 : M)) q = 0
+        rw [map_zero]; rfl
+      map_add' := fun x y => by
+        ext q
+        show (B (x.1 + y.1)) q = (B x.1) q + (B y.1) q
+        rw [map_add, AddMonoidHom.add_apply] } with hΦdef
+  have hΦinj : Function.Injective ⇑Φ := by
+    intro x y hxy
+    have hsub : x.1 - y.1 = 0 := by
+      refine hBnd (x.1 - y.1) (fun m => ?_)
+      have hm : (B x.1) m = (B y.1) m := DFunLike.congr_fun hxy (QuotientAddGroup.mk m)
+      rw [map_sub, AddMonoidHom.sub_apply, hm, sub_self]
+    exact Subtype.ext (sub_eq_zero.mp hsub)
+  have hΦsurj : Function.Surjective ⇑Φ := by
+    intro f
+    -- pull f back to M^∨ and hit it with the bijectivity of φ_B = B
+    have hBinj : Function.Injective ⇑B := by
+      intro x y hxy
+      have : x - y = 0 := by
+        refine hBnd (x - y) (fun m => ?_)
+        rw [map_sub, AddMonoidHom.sub_apply, DFunLike.congr_fun hxy m, sub_self]
+      exact sub_eq_zero.mp this
+    haveI : Fintype M := Fintype.ofFinite M
+    haveI : Fintype (M →+ ZMod 2) := Fintype.ofFinite _
+    have hcards : Fintype.card M = Fintype.card (M →+ ZMod 2) := by
+      have := QuadraticFp2.card_addHom_zmod2 M h2M
+      rw [← Nat.card_eq_fintype_card, ← Nat.card_eq_fintype_card, this]
+    have hBbij : Function.Bijective ⇑B :=
+      (Fintype.bijective_iff_injective_and_card _).mpr ⟨hBinj, hcards⟩
+    obtain ⟨x, hx⟩ := hBbij.2 (f.comp (QuotientAddGroup.mk' S))
+    have hxperp : x ∈ pairPerp B S := by
+      intro s hs
+      have := DFunLike.congr_fun hx s
+      rw [this]
+      show f (QuotientAddGroup.mk' S s) = 0
+      rw [show QuotientAddGroup.mk' S s = 0 from (QuotientAddGroup.eq_zero_iff s).mpr hs,
+        map_zero]
+    refine ⟨⟨x, hxperp⟩, ?_⟩
+    ext q
+    show (B x) q = f (QuotientAddGroup.mk q)
+    exact DFunLike.congr_fun hx q
+  exact AddEquiv.ofBijective Φ ⟨hΦinj, hΦsurj⟩
+
+/-- Evaluation rule for `perpEquivDualQuot` on a class. -/
+theorem perpEquivDualQuot_mk (B : M →+ M →+ ZMod 2) [Finite M]
+    (h2M : ∀ m : M, m + m = 0) (hBnd : ∀ x : M, (∀ y : M, B x y = 0) → x = 0)
+    (S : AddSubgroup M) (x : ↥(pairPerp B S)) (m : M) :
+    perpEquivDualQuot B h2M hBnd S x (QuotientAddGroup.mk m) = B x.1 m := rfl
+
+/-- Equivariance of `perpEquivDualQuot`: the perp carries the restricted action, the dual of
+the quotient the `dualModule` action over a compatible quotient action `instQ`. -/
+theorem perpEquivDualQuot_equivariant (B : M →+ M →+ ZMod 2) [Finite M]
+    (h2M : ∀ m : M, m + m = 0) (hBnd : ∀ x : M, (∀ y : M, B x y = 0) → x = 0)
+    (S : AddSubgroup M)
+    (hBinv : ∀ (c : C) (x y : M), B (c • x) (c • y) = B x y)
+    (hS : ∀ (c : C), ∀ s ∈ S, c • s ∈ S)
+    [instQ : DistribMulAction C (M ⧸ S)]
+    (hπ : ∀ (c : C) (m : M), (QuotientAddGroup.mk (c • m) : M ⧸ S) = c • QuotientAddGroup.mk m)
+    (c : C) (x : ↥(pairPerp B S)) :
+    letI := stabSubAction (pairPerp B S) (pairPerp_stable B hBinv S hS)
+    letI : DistribMulAction C ((M ⧸ S) →+ ZMod 2) := dualModule
+    perpEquivDualQuot B h2M hBnd S (c • x) = c • perpEquivDualQuot B h2M hBnd S x := by
+  letI := stabSubAction (pairPerp B S) (pairPerp_stable B hBinv S hS)
+  letI : DistribMulAction C ((M ⧸ S) →+ ZMod 2) := dualModule
+  ext q
+  show B (c • x.1) q = perpEquivDualQuot B h2M hBnd S x (c⁻¹ • QuotientAddGroup.mk q)
+  rw [← hπ c⁻¹ q, perpEquivDualQuot_mk]
+  calc B (c • x.1) q = B (c • x.1) (c • (c⁻¹ • q)) := by rw [smul_inv_smul]
+    _ = B x.1 (c⁻¹ • q) := hBinv c x.1 (c⁻¹ • q)
+
+end PerpLayer
+
+section Assembly
+
+variable {C : Type} [Group C] [Finite C]
+
+/-- **The abstract `hduality`** (P-15f7 §F): for a finite 2-torsion `C`-module `M` with a
+`C`-invariant nondegenerate pairing `B`, `C`-stable subgroups `Deep ≤ E`, the banked isotropy
+`Deep ≤ Deep^⊥`, the ONE sharp instance `Deep^⊥ ≤ E`, and the middle twist (conjugates of `t₀`
+trivial on `E/Deep`), the equivariant-Hom counts from a simple, nontrivial, self-dual,
+packaged `U` into the deep subgroup and the quotient agree:
+
+`#Hom_C(U, Deep) = #Hom_C(U, M ⧸ Deep)`.
+
+Instantiated at `M := H¹(N,𝔽₂)`, `U := V^∨`, `Deep := deepClassesSubgroup`, `E := U_e`-classes
+with the conjugation actions, this is exactly the `hduality` input of the f6 capstone
+`card_deepPart_sq_of_duality`. -/
+theorem card_equivHoms_deep_eq_quot
+    {M : Type} [AddCommGroup M] [DistribMulAction C M] [Finite M]
+    {U : Type} [AddCommGroup U] [DistribMulAction C U] [Finite U]
+    (h2M : ∀ m : M, m + m = 0) (h2U : ∀ u : U, u + u = 0)
+    (hsimple : ∀ S : AddSubgroup U, (∀ (h : C), ∀ w ∈ S, h • w ∈ S) → S = ⊥ ∨ S = ⊤)
+    (hnt : Nontrivial U)
+    {N : ℕ} (ι : U →+ (Fin N → C → ZMod 2)) (r : (Fin N → C → ZMod 2) →+ U)
+    (hι : ∀ (h : C) (v : U) (n : Fin N) (x : C), ι (h • v) n x = ι v n (h⁻¹ * x))
+    (hr : ∀ (h : C) (F : Fin N → C → ZMod 2), r (fun n x => F n (h⁻¹ * x)) = h • r F)
+    (hri : ∀ v : U, r (ι v) = v)
+    (eU : U ≃+ (U →+ ZMod 2))
+    (heU : ∀ (c : C) (u : U),
+      eU (c • u) = (dualModule : DistribMulAction C (U →+ ZMod 2)).toSMul.smul c (eU u))
+    (t₀ : C) (ht₀U : ∃ u : U, t₀ • u ≠ u)
+    (B : M →+ M →+ ZMod 2)
+    (hBinv : ∀ (c : C) (x y : M), B (c • x) (c • y) = B x y)
+    (hBnd : ∀ x : M, (∀ y : M, B x y = 0) → x = 0)
+    (Deep E : AddSubgroup M)
+    (hDeepStab : ∀ (c : C), ∀ x ∈ Deep, c • x ∈ Deep)
+    (hiso : Deep ≤ pairPerp B Deep)
+    (hsharp : pairPerp B Deep ≤ E)
+    (hmid : ∀ (d : C), ∀ x ∈ E, (d * t₀ * d⁻¹) • x - x ∈ Deep)
+    [instDeep : DistribMulAction C ↥Deep]
+    (hjeq : ∀ (c : C) (x : ↥Deep), ((c • x : ↥Deep) : M) = c • (x : M))
+    [instQ : DistribMulAction C (M ⧸ Deep)]
+    (hπeq : ∀ (c : C) (m : M),
+      (QuotientAddGroup.mk (c • m) : M ⧸ Deep) = c • QuotientAddGroup.mk m) :
+    Nat.card ↥(equivHoms C U ↥Deep) = Nat.card ↥(equivHoms C U (M ⧸ Deep)) := by
+  classical
+  -- the perp with its restricted action
+  set P : AddSubgroup M := pairPerp B Deep with hPdef
+  have hPstab : ∀ (c : C), ∀ x ∈ P, c • x ∈ P := pairPerp_stable B hBinv Deep hDeepStab
+  letI instP : DistribMulAction C ↥P := stabSubAction P hPstab
+  letI instUdual : DistribMulAction C (U →+ ZMod 2) := dualModule
+  letI instQdual : DistribMulAction C ((M ⧸ Deep) →+ ZMod 2) := dualModule
+  haveI : Finite (M ⧸ Deep) := QuotientAddGroup.finite
+  have h2Q : ∀ q : M ⧸ Deep, q + q = 0 := by
+    intro q
+    refine QuotientAddGroup.induction_on q (fun m => ?_)
+    calc (QuotientAddGroup.mk m : M ⧸ Deep) + QuotientAddGroup.mk m
+        = QuotientAddGroup.mk (m + m) := rfl
+      _ = QuotientAddGroup.mk (0 : M) := by rw [h2M]
+      _ = 0 := rfl
+  -- Step 1: Hom-symmetry at W := M ⧸ Deep
+  have h1 : Nat.card ↥(equivHoms C U (M ⧸ Deep))
+      = Nat.card ↥(equivHoms C (M ⧸ Deep) U) :=
+    card_equivHoms_comm h2U h2Q hsimple hnt ι r hι hr hri eU heU
+  -- Step 2: swap the target to U^∨ along eU
+  have h2 : Nat.card ↥(equivHoms C (M ⧸ Deep) U)
+      = Nat.card ↥(equivHoms C (M ⧸ Deep) (U →+ ZMod 2)) :=
+    card_equivHoms_congr eU (fun c u => heU c u)
+  -- Step 3: curry
+  have h3 : Nat.card ↥(equivHoms C (M ⧸ Deep) (U →+ ZMod 2))
+      = Nat.card ↥(equivHoms C U ((M ⧸ Deep) →+ ZMod 2)) :=
+    (card_equivHoms_curry (U := U) (W := M ⧸ Deep)).symm
+  -- Step 4: pull the dual of the quotient back to the perp
+  have h4 : Nat.card ↥(equivHoms C U ((M ⧸ Deep) →+ ZMod 2))
+      = Nat.card ↥(equivHoms C U ↥P) := by
+    have hsymm_eq : ∀ (c : C) (φ : (M ⧸ Deep) →+ ZMod 2),
+        (perpEquivDualQuot B h2M hBnd Deep).symm (c • φ)
+          = c • (perpEquivDualQuot B h2M hBnd Deep).symm φ := by
+      intro c φ
+      apply (perpEquivDualQuot B h2M hBnd Deep).injective
+      rw [AddEquiv.apply_symm_apply,
+        perpEquivDualQuot_equivariant B h2M hBnd Deep hBinv hDeepStab hπeq c _,
+        AddEquiv.apply_symm_apply]
+    exact card_equivHoms_congr (perpEquivDualQuot B h2M hBnd Deep).symm hsymm_eq
+  -- Step 5: the SES count at Deep ≤ P
+  have hDeepP : Deep ≤ P := hiso
+  set D' : AddSubgroup ↥P := Deep.addSubgroupOf P with hD'def
+  have hD'stab : ∀ (c : C), ∀ x ∈ D', c • x ∈ D' := by
+    intro c x hx
+    have : (x : M) ∈ Deep := hx
+    exact AddSubgroup.mem_addSubgroupOf.mpr (hDeepStab c _ this)
+  letI instD' : DistribMulAction C ↥D' := stabSubAction D' hD'stab
+  letI instQ' : DistribMulAction C (↥P ⧸ D') := stabQuotAction D' hD'stab
+  have h2P : ∀ x : ↥P, x + x = 0 := fun x => Subtype.ext (h2M x.1)
+  have h5 : Nat.card ↥(equivHoms C U ↥P)
+      = Nat.card ↥(equivHoms C U ↥D') * Nat.card ↥(equivHoms C U (↥P ⧸ D')) :=
+    card_equivHoms_quotient_ses (C := C) (U := U) (A := ↥P) D' h2P ι r hι hr hri
+      (fun c w => rfl)
+      (fun c w => (stabQuotHom_mk D' hD'stab c w).symm)
+  -- Step 6: transport the first factor to ↥Deep
+  have h6 : Nat.card ↥(equivHoms C U ↥D') = Nat.card ↥(equivHoms C U ↥Deep) := by
+    have heq : ∀ (c : C) (x : ↥D'),
+        AddSubgroup.addSubgroupOfEquivOfLe hDeepP (c • x)
+          = c • AddSubgroup.addSubgroupOfEquivOfLe hDeepP x := by
+      intro c x
+      apply Subtype.ext
+      calc ((AddSubgroup.addSubgroupOfEquivOfLe hDeepP (c • x) : ↥Deep) : M)
+          = (((c • x : ↥D') : ↥P) : M) :=
+            AddSubgroup.addSubgroupOfEquivOfLe_apply_coe hDeepP (c • x)
+        _ = c • ((x : ↥P) : M) := rfl
+        _ = c • ((AddSubgroup.addSubgroupOfEquivOfLe hDeepP x : ↥Deep) : M) := by
+            rw [AddSubgroup.addSubgroupOfEquivOfLe_apply_coe hDeepP x]
+        _ = ((c • AddSubgroup.addSubgroupOfEquivOfLe hDeepP x : ↥Deep) : M) :=
+            (hjeq c _).symm
+    exact card_equivHoms_congr (AddSubgroup.addSubgroupOfEquivOfLe hDeepP) heq
+  -- Step 7: the middle is killed by the inertia conjugates
+  have h7 : Nat.card ↥(equivHoms C U (↥P ⧸ D')) = 1 := by
+    refine card_equivHoms_eq_one_of_conjSmulTrivial hsimple t₀ ht₀U ?_
+    intro d ξ
+    refine QuotientAddGroup.induction_on ξ (fun x => ?_)
+    show stabQuotHom D' hD'stab (d * t₀ * d⁻¹) (QuotientAddGroup.mk x) = QuotientAddGroup.mk x
+    rw [stabQuotHom_mk]
+    rw [QuotientAddGroup.eq]
+    have hxE : (x : M) ∈ E := hsharp x.2
+    have hmem : (d * t₀ * d⁻¹) • (x : M) - (x : M) ∈ Deep := hmid d (x : M) hxE
+    have : -((d * t₀ * d⁻¹) • x) + x ∈ D' := by
+      rw [AddSubgroup.mem_addSubgroupOf]
+      show -((d * t₀ * d⁻¹) • (x : M)) + (x : M) ∈ Deep
+      have := Deep.neg_mem hmem
+      rwa [neg_sub, sub_eq_neg_add] at this
+    exact this
+  -- assemble
+  rw [h1, h2, h3, h4, h5, h6, h7, mul_one]
+
+end Assembly
+
 end GQ2

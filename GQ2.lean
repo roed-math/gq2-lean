@@ -63,6 +63,7 @@ import GQ2.HomCounting
 import GQ2.UnitFiltration
 import GQ2.KummerFiltration
 import GQ2.AdmissibleCount
+import GQ2.DeepDuality
 import GQ2.CorestrictionCohomology
 import GQ2.PropOneOne
 import GQ2.ZtwoPowering
