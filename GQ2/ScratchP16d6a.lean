@@ -213,4 +213,27 @@ theorem RCharKer_inj (Blk : SectionSeven.MinimalBlock L) :
   show χ.1 (Additive.ofMul (Additive.toMul a)) = χ'.1 (Additive.ofMul (Additive.toMul a))
   rw [RChar_eq_ind, RChar_eq_ind, hsub]
 
+/-! ## a-DRmod: assembling the `(R^∨)^C` bijection and `pair` -/
+
+/-- **The `(R^∨)^C` bijection** `D_Rmod ≃ D_R`: `χ ↦ ker χ` (inverse `R' ↦` its indicator). -/
+noncomputable def blockToDR (Blk : SectionSeven.MinimalBlock L) :
+    ↥(RCharSub Blk) ≃ BlockDR Blk :=
+  Equiv.ofBijective
+    (fun χ => ⟨RCharKer Blk χ, RCharKer_normal Blk χ, RCharKer_le Blk χ,
+      RCharKer_relIndex_le Blk χ⟩)
+    ⟨fun _ _ h => RCharKer_inj Blk (Subtype.ext_iff.mp h),
+     fun R' => ⟨RCharOf Blk R', Subtype.ext (RCharKer_RCharOf Blk R')⟩⟩
+
+@[simp] theorem blockToDR_coe (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
+    (blockToDR Blk χ).1 = RCharKer Blk χ := rfl
+
+/-- The zero character's kernel is all of `R` (`= zeroDR`). -/
+theorem RCharKer_zero (Blk : SectionSeven.MinimalBlock L) : RCharKer Blk 0 = Blk.R := by
+  have hsub : RCharKerSub Blk 0 = ⊤ := by
+    ext r
+    simp only [Subgroup.mem_top, iff_true]
+    show (0 : ↥(RCharSub Blk)).1 (Additive.ofMul r) = 0
+    rfl
+  rw [RCharKer, hsub, ← MonoidHom.range_eq_map, Subgroup.range_subtype]
+
 end GQ2
