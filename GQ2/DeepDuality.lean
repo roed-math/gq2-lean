@@ -594,4 +594,136 @@ theorem exists_retraction_of_mono [Finite C] [Finite U] [Finite W]
 
 end SplitOff
 
+section HomSymmetry
+
+variable {C : Type} [Group C] [Finite C]
+variable {U : Type} [AddCommGroup U] [DistribMulAction C U]
+
+/-- The cardinality-bounded induction core of `card_equivHoms_comm`. -/
+theorem card_equivHoms_comm_aux [Finite U]
+    (h2U : ∀ u : U, u + u = 0)
+    (hsimple : ∀ S : AddSubgroup U, (∀ (h : C), ∀ w ∈ S, h • w ∈ S) → S = ⊥ ∨ S = ⊤)
+    (hnt : Nontrivial U)
+    {N : ℕ} (ι : U →+ (Fin N → C → ZMod 2)) (r : (Fin N → C → ZMod 2) →+ U)
+    (hι : ∀ (h : C) (v : U) (n : Fin N) (x : C), ι (h • v) n x = ι v n (h⁻¹ * x))
+    (hr : ∀ (h : C) (F : Fin N → C → ZMod 2), r (fun n x => F n (h⁻¹ * x)) = h • r F)
+    (hri : ∀ v : U, r (ι v) = v)
+    (eU : U ≃+ (U →+ ZMod 2))
+    (heU : ∀ (c : C) (u : U),
+      eU (c • u) = (dualModule : DistribMulAction C (U →+ ZMod 2)).toSMul.smul c (eU u)) :
+    ∀ (n : ℕ) (W : Type) (_ : AddCommGroup W), ∀ (_ : DistribMulAction C W) (_ : Finite W),
+      (∀ w : W, w + w = 0) → Nat.card W ≤ n →
+      Nat.card ↥(equivHoms C U W) = Nat.card ↥(equivHoms C W U) := by
+  intro n
+  induction n with
+  | zero =>
+    intro W instW1 instW2 instW3 h2W hcard
+    haveI : Nonempty W := ⟨0⟩
+    have := Nat.card_pos (α := W)
+    omega
+  | succ n IH =>
+    intro W instW1 instW2 instW3 h2W hcard
+    by_cases hall : (∀ f : ↥(equivHoms C U W), f = 0) ∧ (∀ g : ↥(equivHoms C W U), g = 0)
+    · -- both Hom-sets trivial: both counts are 1
+      haveI hs1 : Subsingleton ↥(equivHoms C U W) :=
+        ⟨fun a b => (hall.1 a).trans (hall.1 b).symm⟩
+      haveI hs2 : Subsingleton ↥(equivHoms C W U) :=
+        ⟨fun a b => (hall.2 a).trans (hall.2 b).symm⟩
+      haveI : Nonempty ↥(equivHoms C U W) := ⟨0⟩
+      haveI : Nonempty ↥(equivHoms C W U) := ⟨0⟩
+      rw [Nat.card_eq_one_iff_unique.mpr ⟨inferInstance, inferInstance⟩,
+        Nat.card_eq_one_iff_unique.mpr ⟨inferInstance, inferInstance⟩]
+    · -- a nonzero equivariant map in one direction yields a split pair (ι₀, ρ₀)
+      have hsplit : ∃ (ι₀ : U →+ W) (ρ₀ : W →+ U),
+          (∀ (c : C) (u : U), ι₀ (c • u) = c • ι₀ u)
+            ∧ (∀ (c : C) (w : W), ρ₀ (c • w) = c • ρ₀ w) ∧ ∀ u, ρ₀ (ι₀ u) = u := by
+        rcases not_and_or.mp hall with h | h
+        · -- mono case: 0 ≠ f : U →+ W equivariant, injective by simplicity of the kernel
+          obtain ⟨f, hf0⟩ := not_forall.mp h
+          have hf1 : f.1 ≠ 0 := fun hz => hf0 (Subtype.ext hz)
+          have hkerstab : ∀ (c : C), ∀ u ∈ f.1.ker, c • u ∈ f.1.ker :=
+            ker_stable f.1 (fun c u => f.2 c u)
+          have hker : f.1.ker = ⊥ := by
+            refine (hsimple f.1.ker hkerstab).resolve_right (fun htop => hf1 ?_)
+            ext u
+            exact AddMonoidHom.mem_ker.mp (htop ▸ AddSubgroup.mem_top u)
+          have hinj : Function.Injective ⇑f.1 := by
+            rw [← AddMonoidHom.ker_eq_bot_iff]
+            exact hker
+          obtain ⟨ρ₀, hρeq, hρf⟩ := exists_retraction_of_mono h2U h2W ι r hι hr hri eU heU
+            f.1 (fun c u => f.2 c u) hinj
+          exact ⟨f.1, ρ₀, fun c u => f.2 c u, hρeq, hρf⟩
+        · -- epi case: 0 ≠ g : W →+ U equivariant, surjective by simplicity of the range
+          obtain ⟨g, hg0⟩ := not_forall.mp h
+          have hg1 : g.1 ≠ 0 := fun hz => hg0 (Subtype.ext hz)
+          have hrangestab : ∀ (c : C), ∀ u ∈ g.1.range, c • u ∈ g.1.range := by
+            rintro c u ⟨w, rfl⟩
+            exact ⟨c • w, g.2 c w⟩
+          have hrange : g.1.range = ⊤ := by
+            refine (hsimple g.1.range hrangestab).resolve_left (fun hbot => hg1 ?_)
+            ext w
+            have : g.1 w ∈ g.1.range := ⟨w, rfl⟩
+            rw [hbot, AddSubgroup.mem_bot] at this
+            exact this
+          have hsurj : Function.Surjective ⇑g.1 := by
+            intro u
+            have : u ∈ g.1.range := hrange ▸ AddSubgroup.mem_top u
+            exact this
+          obtain ⟨ι₀, hιeq, hgι⟩ := exists_section_of_epi h2U h2W ι r hι hr hri
+            g.1 (fun c w => g.2 c w) hsurj
+          exact ⟨ι₀, g.1, hιeq, fun c w => g.2 c w, hgι⟩
+      obtain ⟨ι₀, ρ₀, hιeq, hρeq, hρι⟩ := hsplit
+      -- the complement K := ker ρ₀ with the restricted action
+      letI instK : DistribMulAction C ↥ρ₀.ker := stabSubAction ρ₀.ker (ker_stable ρ₀ hρeq)
+      have h2K : ∀ k : ↥ρ₀.ker, k + k = 0 := fun k => Subtype.ext (h2W k.1)
+      have hsplEq : ∀ (c : C) (w : W),
+          splitProdEquiv ι₀ ρ₀ hρι (c • w) = c • splitProdEquiv ι₀ ρ₀ hρι w :=
+        splitProdEquiv_equivariant ι₀ ρ₀ hρι hιeq hρeq
+      -- cardinality bookkeeping: #W = #U · #K, #U ≥ 2 ⟹ #K ≤ n
+      have hWcard : Nat.card W = Nat.card U * Nat.card ↥ρ₀.ker := by
+        rw [Nat.card_congr (splitProdEquiv ι₀ ρ₀ hρι).toEquiv, Nat.card_prod]
+      have hUtwo : 2 ≤ Nat.card U := Finite.one_lt_card_iff_nontrivial.mpr hnt
+      haveI : Nonempty ↥ρ₀.ker := ⟨0⟩
+      have hKpos : 0 < Nat.card ↥ρ₀.ker := Nat.card_pos
+      have hKcard : Nat.card ↥ρ₀.ker ≤ n := by
+        have h2k : 2 * Nat.card ↥ρ₀.ker ≤ n + 1 := by
+          calc 2 * Nat.card ↥ρ₀.ker
+              ≤ Nat.card U * Nat.card ↥ρ₀.ker := Nat.mul_le_mul_right _ hUtwo
+            _ = Nat.card W := hWcard.symm
+            _ ≤ n + 1 := hcard
+        omega
+      -- factor both counts through W ≅ U × K and recurse on K
+      have hT : Nat.card ↥(equivHoms C U W)
+          = Nat.card ↥(equivHoms C U U) * Nat.card ↥(equivHoms C U ↥ρ₀.ker) := by
+        rw [card_equivHoms_congr (splitProdEquiv ι₀ ρ₀ hρι) hsplEq, card_equivHoms_prod_target]
+      have hS : Nat.card ↥(equivHoms C W U)
+          = Nat.card ↥(equivHoms C U U) * Nat.card ↥(equivHoms C ↥ρ₀.ker U) := by
+        rw [← card_equivHoms_congr_source (splitProdEquiv ι₀ ρ₀ hρι) hsplEq,
+          card_equivHoms_prod_source]
+      rw [hT, hS, IH ↥ρ₀.ker inferInstance instK inferInstance h2K hKcard]
+
+/-- **Hom-symmetry** (§D): for a simple, nontrivial, self-dual module `U` with a
+regular-summand package (Lemma 6.11's output shape), the equivariant-Hom counts are symmetric:
+`#Hom_C(U, W) = #Hom_C(W, U)` for every finite 2-torsion `C`-module `W`.  This is the precise
+module-theoretic content behind the paper's "self-duality gives equal multiplicities" (§6.3
+p. 34): the package makes `U` both projective and injective, so `U`-copies split off `W` on
+either side and the counts match block by block. -/
+theorem card_equivHoms_comm [Finite U]
+    {W : Type} [AddCommGroup W] [DistribMulAction C W] [Finite W]
+    (h2U : ∀ u : U, u + u = 0) (h2W : ∀ w : W, w + w = 0)
+    (hsimple : ∀ S : AddSubgroup U, (∀ (h : C), ∀ w ∈ S, h • w ∈ S) → S = ⊥ ∨ S = ⊤)
+    (hnt : Nontrivial U)
+    {N : ℕ} (ι : U →+ (Fin N → C → ZMod 2)) (r : (Fin N → C → ZMod 2) →+ U)
+    (hι : ∀ (h : C) (v : U) (n : Fin N) (x : C), ι (h • v) n x = ι v n (h⁻¹ * x))
+    (hr : ∀ (h : C) (F : Fin N → C → ZMod 2), r (fun n x => F n (h⁻¹ * x)) = h • r F)
+    (hri : ∀ v : U, r (ι v) = v)
+    (eU : U ≃+ (U →+ ZMod 2))
+    (heU : ∀ (c : C) (u : U),
+      eU (c • u) = (dualModule : DistribMulAction C (U →+ ZMod 2)).toSMul.smul c (eU u)) :
+    Nat.card ↥(equivHoms C U W) = Nat.card ↥(equivHoms C W U) :=
+  card_equivHoms_comm_aux h2U hsimple hnt ι r hι hr hri eU heU (Nat.card W) W
+    inferInstance inferInstance inferInstance h2W le_rfl
+
+end HomSymmetry
+
 end GQ2
