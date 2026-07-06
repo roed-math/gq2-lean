@@ -59,6 +59,12 @@
   takes exactly what `En` supplies; `a_χ = polarInverseL (En.qbar) (En.hquad) (En.hns) L` is
   canonical, so `hphase` is phrased against it.  **Key finding: `Enrichment` already carries
   `Vmod`/`qbar`/`hns`/`dat` — the (140) engine + witness are constructible from `En`, not blocked.**
+* ✅ **`enrichment_card_Vmod`** (std-3, sorry-free) — the `hWV` match `|V| = |M_B|/|T_B|`, from
+  `En.descend` (surjective, `ker = T_B`) by the first isomorphism theorem.  So of the (140) engine
+  data, `En` now supplies **all** of `Q = qbar`, `hquad`, `hns`, `a_χ` (`polarInverseL`),
+  `G0 = gaussSum qbar` (definitional), and `|V| = |M_B|/|T_B|` (this).  With `DT := V^∨` giving
+  `hDT` by `rfl`, the (140) residual is exactly the three deep facts `hM`/`hphase`/`hμ` + the
+  witness `(μ, G0, phase)` `l`-independence.
 
 ### The phase-module core that remains (the deep O-half)
 
