@@ -26,11 +26,77 @@ Gauss-correspondence, and `polarInverseL`/`enrichment_card_Vmod` are all done
 
 ---
 
+## ⚠ VERIFICATION PASS (Fable, 2026-07-06): two engine-spec bugs — read before starting c1
+
+The Opus plan below is architecturally confirmed (the c1a/c1b/c1c layering and the paper mapping
+are right), but checking the **satisfiability** of the engine spec it targets found two bugs.
+
+### Bug 1 — `hM`/`μ` are miscalibrated by `|B¹_{Γ,ρ}(V)| = #V` (blocker for c1c)
+
+For `b̄ ∈ V`, conjugating a central `M`-lift `f` of `ρ'` by any `m ∈ M_B` lifting `b̄` gives
+another central `M`-lift of `ρ'` (mod-`M` unchanged since `m ∈ M_B`; centrality survives by
+conjugating the cover lift), and `redT (m f m⁻¹) = (δb̄) · redT f` — the crossed-coboundary
+translate.  So `Set.range (redT on central lifts)` is stable under the **free** translation action
+of `B¹_{Γ,ρ}(V)` (free because `δb̄ = 0 ⟹ b̄ ∈ V^C = 0`: `V` is the nontrivial simple head and
+boundary lifts are surjective).  Hence **`hM`'s LHS is a positive multiple of `#B¹ = #V` whenever
+nonzero** (`#B¹ = #V/#H⁰ = #V`).  But `hM`'s RHS is `≤ #W = #V` (`hWV`), with equality impossible
+(`hLin` surjective + `q̄` nonsingular ⟹ proper constraint set).  So `hM` as stated forces
+LHS `= 0` for **every** `ρ`, i.e. `phase140_of_gaussCorrespondence`/`_of_nonsingular` are usable
+only when `zBC = 0` — vacuous in the intended regime.
+
+Magnitude cross-check: paper (132) has multiplicity `μ = |B¹(V)|·|Z¹(T)|`; the engine's `μ` is
+pinned by `hμ` to `#Z¹(T)` alone (`central_card_eq_reductions_mul_tcocycle` extracts only the
+`T`-torsor).  The missing `|B¹(V)| = #V` is exactly the discrepancy.  Independent check via the
+P-16d6b all-lifts torsor + 5.16 numerics: `#(redT image over ALL lifts) = #Z¹(Γ,M_B)/#Z¹(T)
+= 2^{2m}/2^{2t+r} = 2^{2d−r}` — the central sub-count is `~2^{2d−r−1}`, vs RHS `~2^{d−r−1}`:
+off by `2^d`.
+
+**The repair (c1s — small, shape-preserving, co-owned `RecursionSplice.lean`):**
+* `hM` becomes `… = Nat.card W * Nat.card {x : W // Lin x = κ ρ ∧ Q x = ε ρ}`;
+* the conclusions of `phase140_of_gaussCorrespondence` and `phase140_of_nonsingular` change their
+  `μ`-slot to `(Nat.card W * μ)` — algebra check: `zBC = μ·Σ LHS = μ·#W·Σ N_V` and
+  `2#DT·Σ N_V = #W·e + G0·Σ_ζ` compose to
+  `2·#DT·zBC = (#W·μ)·((#M_B/#T_B)·e + G0·Σ_ζ …)` — same shape, `μ ↦ #W·μ`;
+* `ClosedRecursion.eq140` / `prop_8_9` need **no change** (`μ` is existential); the final witness
+  becomes `μ := #V · #Z¹(T_B)` — the paper's (132) value.
+* `zBC_eq_mu_mul_reductionCount` and `hμ` (P-16d6b) are **correct as stated** — do not touch.
+
+The mathematically true per-`ρ` statement c1c will prove:
+`#(redT image over central lifts of ρ') = #B¹_{Γ,ρ}(V) · N(κρ, ερ)` with `#B¹ = #V = #W`.
+
+### Bug 2 — spec §1's `DT := (En.Vmod)^∨` is the wrong index (doc-level)
+
+The paper's phase index is `D = (T^∨)^C` (dim `r`) — (140)'s prefactor is `2^{r+1} = 2·#D` — and
+`Δ_{χ,κ}` is indexed by `χ ∈ D`.  So the instantiation must take
+`DT := fixedPts C (ElemDual T_B-model)` (the same object as P-16d6b's `μ`-value and 5.16 clause 1:
+`#H²_{Γ,ρ}(T) = #(T^∨)^C = 2^r`) and `Efp ≅ D^∨` (dim `r`), NOT `V^∨` (dim `d`).  The engine is
+agnostic (`DT` a parameter); only `docs/p16d6-concrete-spec.md` §1 is wrong.  `hDT` stays
+rfl-adjacent through finite double-duality.
+
+### Hidden obligations surfaced by the paper check
+
+1. **cor 5.17's adjoint identity** `⟨∂b, χ⟩_Γ = ⟨b, ρ*γ_χ⟩_Γ` — the first line of the paper's
+   (135) proof — was **explicitly deferred by P-13g** ("needs connecting-map infrastructure in both
+   theories").  It is part of c1b's deliverable (or c1c must route around it cocycle-level).
+2. **`∂`-surjectivity** onto the `H²(T)`-model (dim `r`) — needed for the source-side (126)
+   application (`L` surjective kills nontrivial characters); comes from an LES fragment of
+   `0→T→M→V→0` + 5.16 numerics (c1b).
+3. **Source-Gauss = target-Gauss**: `G(Q⁰_{Γ,ρ}) = gaussSum q̄`, `ρ`-free — the paper writes
+   `G(Q⁰)` once, silently.  Arf-transport content, kin of c3-G0 (consider folding both into one
+   `Enrichment` amendment).  (c1c)
+4. **The per-`(χ,ρ)` exponent identity** `ι_Γ(ρ*Δ_{χ,κ}) = χ(κρ) + ερ + q̄(a_χ)` — the Γ-level
+   (135) in count-ready form.  This is the **shared keystone of c1c and c2**: c1c consumes it for
+   `hM` (via (126) on both sides), c2 for `hphase` (then (141)/(142) are counting).
+   `κρ ∈ E = D^∨` is canonical: `κρ(χ) := ι_Γ(ρ*(χ_* e))` (linear in `χ` since pushforward along
+   characters is additive); `ερ := ι_Γ(ρ*δ_κ)`; `Lin` is pinned by matching the `q̄(a_χ)` term.
+
 ## c1 — C-descent data `Lin`/`κ`/`ε` + the Prop 8.8 count `hM`  ⭐⭐⭐ (the largest piece)
 
 **The deep group-theory↔quadratic bridge** — paper Lemma 8.7 + Prop 8.8, pulled onto `V` directly.
-Own file (e.g. `GQ2/Prop88Count.lean`).  *This section is now paper-grounded (Opus 2026-07-06, read
-of paper pp. 38–43: Lemmas 8.4/8.5/8.7, Prop 8.8, displays (125)–(135)).*
+Own file (e.g. `GQ2/Prop88Count.lean`).  *This section is paper-grounded (Opus 2026-07-06, read
+of paper pp. 38–43: Lemmas 8.4/8.5/8.7, Prop 8.8, displays (125)–(135)); count shapes corrected by
+the Fable verification pass above (2026-07-06) — where the two conflict, the verification pass
+wins.*
 
 ### Where `hM` sits in the engine
 
@@ -77,16 +143,25 @@ Steps 1–2 need objects the repo has **deliberately not built** (`section8-extr
 `∂_{Γ,ρ} : H¹(V) → H²(T)` of the module extension `0→T→M→V→0`, the class `e`, and `ρ*`.  This is a
 **multi-session architectural build** — the honest bulk of c1.  Sub-decomposition:
 
-* **c1a** — the crossed `V`-cochain layer over `ρ` (`Z¹_{Γ,ρ}(V)`, `B¹`, `H¹`) + the `red_T` ≅
-  `V`-cocycle bijection via `descended_splitting` (the "thin step" of dev. #4, but it needs the
-  `V⋊C` crossed structure spelled out).
-* **c1b** — the connecting `∂_{Γ,ρ}` for `0→T→M→V→0` and the class `e`; Lemma 8.7 (131)
-  characterization `actual-lift ⟺ ∂c = ρ*e`, and the raw-lift multiplicity (132) `|B¹(V)|·|Z¹(T)|`
-  (the latter reconciles with the already-proved `central_card_eq_reductions_mul_tcocycle` /
-  `lemma_8_7_count`).
-* **c1c** — the `central` ⟺ scalar-quadratic characterization + the Γ-level completed square (135)
-  from `prop_8_8_target`, giving `hM = N(κρ,ερ)`.  Defines `Efp`/`Lin`/`κ`/`ε` concretely (they are
-  determined by this proof, per (130)).
+* **c1s** [**F**, ⭐, gate for c1c only] — the Bug-1 spec repair in co-owned `RecursionSplice.lean`
+  (`hM` `#W`-factor + `μ ↦ #W·μ` in the two `phase140_of_*` conclusions) and the Bug-2 doc fix.
+  Small, but it changes the reducer contract d6e consumes — re-verify the algebra in situ.
+  Coordinate: nobody else touches those two theorems (d6a = stageR136, d6d = half139), but it IS a
+  co-owned file — flag on the board before/at commit.
+* **c1a** [**O**, ⭐⭐] — the crossed `V`-cochain layer over `ρ` (a `VCocycle` mirroring `TCocycle`)
+  + the bijection {continuous homs `Γ → B/T` over `ρ'`} ≅ `Z¹_{Γ,ρ}(V)` via `descended_splitting`'s
+  `σ`, + the **`B¹`-translation facts** (conjugation by `m ∈ M_B` acts on `red_T` values by
+  crossed coboundaries, freely when `V^C = 0` — the mathematical core of Bug 1, so landing it
+  validates the repair).  Well-specified: mirror the `TCocycle` API; `V⋊C` structure from `σ`.
+* **c1b** [**F**, ⭐⭐⭐] — the connecting `∂_{Γ,ρ}` for `0→T→M→V→0` **at cocycle level**, the class
+  `e` (extension class of `B → V⋊C` along the zero section), Lemma 8.7 (131)
+  `actual-lift ⟺ ∂c = ρ*e`, **the P-13g-deferred cor-5.17 adjoint** `⟨∂b,χ⟩ = ⟨b,ρ*γ_χ⟩`, and
+  `∂`-surjectivity (LES fragment + 5.16 numerics).  New subsystem; statement-design-sensitive
+  (crossed `H²(T)`-encodings, cocycle-vs-class choices).
+* **c1c** [**F**-design → **O**-close, ⭐⭐⭐] — the `central` ⟺ scalar-quadratic characterization,
+  the Γ-level (135) keystone (obligation 4 above), the Gauss transport (obligation 3), and the
+  **repaired** `hM` close: `LHS(ρ) = #B¹ · N(κρ, ερ)`.  Pins `Efp = D^∨`, `Lin`,
+  `κρ(χ) = ι_Γ(ρ*(χ_*e))`, `ερ = ι_Γ(ρ*δ_κ)` concretely.  Couples to c2 through the keystone.
 
 Tools ready: `lemma_8_5_aggregated` ✓, `descended_splitting` ✓, `lemma_8_7_count` /
 `central_card_eq_reductions_mul_tcocycle` ✓, `central_twist_iff` ✓, `prop_8_8_target` ✓,
@@ -94,8 +169,8 @@ Tools ready: `lemma_8_5_aggregated` ✓, `descended_splitting` ✓, `lemma_8_7_c
 `V`/`T` layer (c1a/c1b) — that is the gate, and it is a real new subsystem, not a splice.
 
 > **Recommendation:** do **not** stub `Lin`/`κ`/`ε` speculatively (they are pinned only by the c1c
-> proof).  Build c1a → c1b → c1c in order; each is its own leaf.  c1a (the `red_T` ≅ crossed-`V`
-> bijection) is the concrete entry point.
+> proof).  Order: c1s (unblocks c1c's target statement) and c1a (independent) first — c1a is the
+> concrete entry point and is Opus-ready; then c1b (Fable); then c1c.  Each its own leaf.
 
 ## c2 — `hphase` + the `phase`/`DeltaScalar` witness  ⭐⭐⭐ (one coupled build)
 
@@ -111,6 +186,13 @@ same `Δ` whose signed sum `hphase` evaluates.
 * The residual work is: (i) the **`DeltaScalar` 2-cocycle normalization** proofs (`hcoc`/`hl`/`hr`)
   that `phaseFamily`/`centralCoverOfCocycle` require; (ii) the **sign-sum ↔ `2·nPhase − e`**
   identity that is `hphase`.
+* **Post-verification notes (Fable 2026-07-06):** the index is `ζ ∈ DT = (T^∨)^C` (Bug 2 — NOT
+  `V^∨`), so the `Δ`-family is `χ ∈ D`-indexed exactly as in (133)/(134).  The per-`(χ,ρ)` exponent
+  identity (obligation 4, the c1c keystone) is what converts `hphase`'s LHS signs into
+  `ι_Γ(ρ*Δ_χ)`; after that, (141) `s_Γ(ζ) = 2·n_{Γ,0}(ζ) − e_Γ(C)` is an unobstructed/obstructed
+  count split (mechanical, O).  Model: **F**-design for the reindex + witness coupling, **O** for
+  the normalization proofs and the (141)-count.  Depends on c1c's keystone — do not start the
+  `hphase` half before it; the `hcoc`/`hl`/`hr` normalization half is independent and O-ready.
 
 ## c3 — `G0`/`μ` `l`-independence
 
@@ -130,6 +212,10 @@ same `Δ` whose signed sum `hphase` evaluates.
   `arf (qbar l h) = arf (qbar l' h')`, from which `gaussSum` equality follows via `gaussSum_eq_pow`).
   Then G0 `l`-independence is that field.  Do **not** edit `Enrichment` unilaterally; coordinate at
   the P-16d6e assembly / with the frame owner.
+* **Kinship (Fable 2026-07-06):** c1c's obligation 3 (source-Gauss = target-Gauss,
+  `G(Q⁰_{Γ,ρ}) = gaussSum q̄`) is the same Arf-transport family — when specifying the `Enrichment`
+  amendment, consider one field family covering both (e.g. an Arf pin for `qbar` that both the
+  cross-`l` and the source-side transports read).  **F** specs the amendment, **O** applies it.
 
 ---
 

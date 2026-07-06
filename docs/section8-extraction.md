@@ -184,8 +184,12 @@ kernel in `ker(π̃, θ̃)`" holds by construction), `sq_eq_one_of_mem_ker`, `li
    in a fixed `T`-reduction fibre and finds them `= #Z¹_{Γ,ρ}(T)` (`TCocycle D ρ`), i.e. the
    `T`-cocycle multiplicity directly — same spirit as deviation #3 of the original list
    ("liftability encodes obstruction-vanishing").  The `|B¹(V)|` factor is absorbed into the
-   `V`-coordinate base of the fibration (the `red_T`-values), whose enumeration (`W = Z¹(V)`
-   in the 8.5-application) and reconciliation with the 5.15/5.16 numerics are d6's job.  No
+   `V`-coordinate base of the fibration (the `red_T`-values), whose enumeration and
+   reconciliation with the 5.15/5.16 numerics are d6's job.  *[Correction, Fable 2026-07-06
+   (P-16d6c ⚠): the parenthetical "`W = Z¹(V)` in the 8.5-application" that stood here was wrong
+   on two counts — the engine's `hWV` pins `#W = #V` (the `H¹`-size for the simple head, NOT
+   `#Z¹ = #V²`), and the un-quotiented `red_T`-enumeration carries a residual `|B¹(V)|` factor
+   that the paper's (132) keeps inside `μ` — see `docs/p16d6c-handoff.md` §⚠ (Bug 1).]*  No
    quotient-set / class-well-definedness objects are introduced.
 5. **Prop 8.8 is stated target-side only, with a 6.22-normalized `Δ`** (P-16d4).  The Lean
    `prop_8_8_target` is a finite `C`-level cochain identity — the edge-killing shear as an

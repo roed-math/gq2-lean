@@ -18,7 +18,7 @@ Build once from `En : RF.Enrichment` (frame-level, so shared across `bA`/`bF`):
 
 | component | recipe | obligation |
 |---|---|---|
-| `DT := Module.Dual (ZMod 2) En.Vmod` (`= V^∨`) | so `hDT : Nat.card (V^∨) = Nat.card DT` is **`rfl`** | `Fintype DT` from `Finite En.Vmod` ✓ |
+| ~~`DT := Module.Dual (ZMod 2) En.Vmod` (`= V^∨`)~~ **CORRECTED (Fable 2026-07-06, P-16d6c ⚠ Bug 2): `DT := (T^∨)^C` = `fixedPts C (ElemDual T_B-model)`, dim r — the paper's phase index `D` with (140)-prefactor `2^{r+1} = 2·#D`; `Efp ≅ D^∨`** | `hDT : Nat.card (Efp^∨) = Nat.card DT` via finite double-duality | `Fintype DT` from finiteness of `T_B` ✓ |
 | `G0 := gaussSum (En.qbar l₀ h₀)` | so `hG0 : gaussSum Q = G0` is **`rfl`** (with `Q := En.qbar l h`) | **`l`-independence**: `gaussSum (qbar l h)` constant in `l` (Arf invariant of the nonsingular `qbar`; all `qbar l h` share it — source 5.15/5.16 / §6 Gauss-sum content) |
 | `μ := Nat.card (TCocycle (En.radData l₀ h₀) …)` | the `T`-cocycle count | **`l`-independence** + the `hμ` below |
 | `phase := phaseFamily (fun ζ => DeltaScalar (En.dat l h) γ_ζ δ_ζ a_ζ) hcoc hl hr` | `AffineTLift.phaseFamily` / `centralCoverOfCocycle` | **DeltaScalar is a normalized 2-cocycle** (`hcoc`/`hl`/`hr`) — the deep phase-cover content; `γ_ζ`/`δ_ζ`/`a_ζ` are the per-character edge-killing shear of `prop_8_8_target` |
@@ -41,11 +41,15 @@ with `W := En.Vmod`, `Q := En.qbar l h`, `D := En.radData l h` (`hD := rfl`).  E
 * **`Lin : En.Vmod →ₗ[ZMod 2] Efp`, `hLin` (surjective), `κ`, `ε`** — the C-image linear map and
   the per-`ρ` constraint data `(κ_ρ, ε_ρ)`.  `Efp` = the `C`-stage image space; `Lin` = the
   descent-to-`C` map.  From the concrete `scalarCover`/`piBC` structure.
-* **`hM l h : ∀ ρ, Nat.card ↥(Set.range (fun f : {f : MLifts (En.radData l h) (rhoPrime …ρ) //
-  f.Central} => redT (rhoPrime …ρ) f.1)) = Nat.card {x : En.Vmod // Lin x = κ ρ ∧ En.qbar l h x = ε ρ}`**
-  — **the (135)/Prop 8.8 count**: a central-liftable `T`-reduction ⟺ a solution of the quadratic
-  constraint `Q x = ε ∧ L x = κ`.  Uses the scalar-cover square relation (`En.q`/`En.hq`),
+* **`hM l h`** — **⚠ SHAPE CORRECTED (Fable 2026-07-06, P-16d6c ⚠ Bug 1)**: as originally written
+  (`#(central red_T image) = N(κρ, ερ)`) this is **unsatisfiable** — the LHS is a positive multiple
+  of `#B¹_{Γ,ρ}(V) = #V` (free `B¹`-translation by `M_B`-conjugation), the RHS `≤ #W = #V` strictly.
+  The true statement (and the c1s-repaired engine hypothesis) is
+  `… = Nat.card W * Nat.card {x : En.Vmod // Lin x = κ ρ ∧ En.qbar l h x = ε ρ}`, with the
+  `phase140_of_*` conclusions' `μ`-slot correspondingly `#W·μ` (paper (132): `μ = |B¹(V)|·|Z¹(T)|`).
+  Content unchanged otherwise: the scalar-cover square relation (`En.q`/`En.hq`),
   `lemma_6_21`/`6_22`, `prop_8_8_target` (✓).  **The deep group-theory↔quadratic bridge.**
+  See `docs/p16d6c-handoff.md` §⚠ + §c1 (authoritative).
 * **`hphase l h : (∑ᶠ χ : V^∨, ∑ ρ, sign (χ (κ ρ) + ε ρ + En.qbar l h (polarInverseL … χ)))
   = ∑ᶠ ζ : DT, (2 * nPhase (phase ζ) − exactImageCount b F RF.TC)`** — **the character↔phase-cover
   reindex**: matches `V^∨`-characters to the `D_T`-indexed phase covers, `sign(…) = 2·nPhase − e`.
