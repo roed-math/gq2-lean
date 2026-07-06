@@ -310,6 +310,82 @@ theorem lemma_8_5_aggregated {W E : Type*} [AddCommGroup W] [Module (ZMod 2) W] 
           + gaussSum Q * ∑ᶠ χ : Module.Dual (ZMod 2) E, ∑ i : I, sign (χ (κ i) + ε i + Q (a χ)) := by
         rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul, hswap]
 
+/-! ## The capstone (140) reducer — `phase140` from the concrete correspondences -/
+
+open QuadraticFp2 AffineTLift CentralObstruction in
+/-- **The (140) display, reduced to the concrete correspondences** (P-16d6): the `phase140`
+field of `RecursionInputs`, derived from the abstract engine + the concrete data.  This is the
+(140) analog of `stageR136_ofRObstructionData` — it assembles `zBC_eq_mu_mul_reductionCount`
+(the `hfib` half, needing μ-independence `hμ`) and `lemma_8_5_aggregated` (the Gauss half) into
+the boxed (140) identity, isolating exactly the two hard **Prop 8.8** correspondences as
+hypotheses:
+
+* `hM` — the (135)/Prop 8.8 identity `#achievable-central-T-reductions(ρ) = N(κ_ρ, ε_ρ)`
+  (central-liftable ⟺ `Q x = ε_ρ ∧ L x = κ_ρ`), per lower map `ρ`;
+* `hphase` — the phase reindex `Σ_χ Σ_ρ (−1)^{χκ_ρ+ε_ρ+Q(a_χ)} = Σ_ζ (2·nPhase(phase ζ) − e_Γ(C))`
+  (matching `V^∨`-characters to the `D_T`-indexed phase covers).
+
+The remaining `hμ`/`hM`/`hphase` and the cardinality matches `hDT`/`hWV`/`hG0` are the concrete
+`(140)` O-half; everything else (the fibration, the Gauss aggregation, the algebra) is now proven. -/
+theorem phase140_of_gaussCorrespondence {Γ : Type} [Group Γ] [TopologicalSpace Γ]
+    [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+    [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk)
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (μ : ℕ) (G0 : ℤ) (DT : Type) [Fintype DT] (phase : DT → CentralCover RF.YC)
+    (l : RF.DR) (h : l ≠ RF.zeroDR)
+    (D : RadicalCoverData RF.YB) (hD : D.M = RF.MB) (hC : D.C = RF.scalarCover l h)
+    (Dsc : Descent D) (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    [Fintype (BoundaryLifts b F RF.TC)]
+    {W Efp : Type*} [AddCommGroup W] [Module (ZMod 2) W] [Finite W]
+    [AddCommGroup Efp] [Module (ZMod 2) Efp] [Finite Efp]
+    (Lin : W →ₗ[ZMod 2] Efp) (hLin : Function.Surjective Lin) (Q : W → ZMod 2)
+    (aa : Module.Dual (ZMod 2) Efp → W)
+    (haa : ∀ (χ : Module.Dual (ZMod 2) Efp) (x : W), polar Q (aa χ) x = χ (Lin x))
+    (κ : BoundaryLifts b F RF.TC → Efp) (ε : BoundaryLifts b F RF.TC → ZMod 2)
+    (hμ : ∀ ρ : BoundaryLifts b F RF.TC, Nat.card (TCocycle D (RF.rhoPrime b F D hD ρ)) = μ)
+    (hM : ∀ ρ : BoundaryLifts b F RF.TC,
+      Nat.card ↥(Set.range (fun f : {f : MLifts D (RF.rhoPrime b F D hD ρ) // f.Central} =>
+        redT (RF.rhoPrime b F D hD ρ) f.1)) = Nat.card {x : W // Lin x = κ ρ ∧ Q x = ε ρ})
+    (hDT : Nat.card (Module.Dual (ZMod 2) Efp) = Nat.card DT)
+    (hWV : Nat.card W = Nat.card ↥RF.MB / Nat.card ↥RF.TBsub)
+    (hG0 : gaussSum Q = G0)
+    (hphase : (∑ᶠ χ : Module.Dual (ZMod 2) Efp, ∑ ρ : BoundaryLifts b F RF.TC,
+                sign (χ (κ ρ) + ε ρ + Q (aa χ)))
+              = ∑ᶠ ζ : DT, (2 * (RF.nPhase b F (phase ζ) : ℤ)
+                  - (exactImageCount b F RF.TC : ℤ))) :
+    2 * (Nat.card DT : ℤ) * RF.zBC b F l h
+      = μ * ((Nat.card ↥RF.MB / Nat.card ↥RF.TBsub : ℕ) * exactImageCount b F RF.TC
+          + G0 * ∑ᶠ ζ : DT, (2 * (RF.nPhase b F (phase ζ) : ℤ)
+              - (exactImageCount b F RF.TC : ℤ))) := by
+  classical
+  set Mcount : ℕ := ∑ ρ : BoundaryLifts b F RF.TC,
+    Nat.card {x : W // Lin x = κ ρ ∧ Q x = ε ρ} with hMc
+  have hexact : (exactImageCount b F RF.TC : ℤ)
+      = (Fintype.card (BoundaryLifts b F RF.TC) : ℤ) := by
+    rw [show exactImageCount b F RF.TC = Nat.card (BoundaryLifts b F RF.TC) from rfl,
+      Nat.card_eq_fintype_card]
+  -- `hfib`: the fibration, via μ-independence and the Prop-8.8 count `hM`
+  have hfib : RF.zBC b F l h = μ * Mcount := by
+    rw [zBC_eq_mu_mul_reductionCount RF b F l h D hD hC Dsc htriv hfg μ hμ]
+    congr 1
+    rw [finsum_eq_sum_of_fintype, hMc]
+    exact Finset.sum_congr rfl fun ρ _ => hM ρ
+  -- `hgauss`: the aggregated Gauss identity, with the cardinality matches and the phase reindex
+  have hgauss : 2 * (Nat.card DT : ℤ) * (Mcount : ℤ)
+      = (Nat.card ↥RF.MB / Nat.card ↥RF.TBsub : ℕ) * exactImageCount b F RF.TC
+        + G0 * ∑ᶠ ζ : DT, (2 * (RF.nPhase b F (phase ζ) : ℤ)
+            - (exactImageCount b F RF.TC : ℤ)) := by
+    rw [hMc, Nat.cast_sum, ← hDT, ← hG0, ← hphase,
+      lemma_8_5_aggregated Lin hLin Q aa haa κ ε]
+    congr 1
+    rw [hWV, ← hexact]
+    push_cast
+    ring
+  exact phase140_ofPhaseData RF b F μ G0 DT phase l h Mcount hfib hgauss
+
 end SectionEight
 
 end GQ2
