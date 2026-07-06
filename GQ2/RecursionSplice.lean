@@ -97,6 +97,35 @@ theorem half139_via_radData {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopo
   · rw [Nat.card_congr (RF.liftsOver_equiv b F (En.radData l h) rfl ρ)]
     exact hMcountM ρ
 
+/-! ## `phase140` reduced to a clean "phase datum" (the `lemma_8_5`/8.7 analog of `stageR136_of`) -/
+
+/-- **(140) reduced to the phase datum.**  Given the **μ-fibration** `hfib : zBC = μ · M` (Lemma
+8.7's `T`-cocycle torsor count over the `V`-coordinate) and the **aggregated constrained-Gauss
+identity** `hgauss` (`lemma_8_5` over the descended module `V = M_B/T_B`, `G0 = G(q̄)`), the (140)
+display follows by pure algebra: `2|D_T|·zBC = 2|D_T|·μ·M = μ·(2|D_T|·M) = μ·(…)`.
+
+This is the zero-edge analog of `stageR136_of` — it isolates the two hard counts (`hfib`, `hgauss`)
+as a clean interface, exactly as `stageR136_of` isolated `hmB`/`hobs`/`hfib` for (136).  Constructing
+`M`/`hfib`/`hgauss` for the concrete frame is the "(140) phase-module" O-half (see
+`docs/p16d6-plan.md`): the fibration (`centralOver_equiv` + `lemma_8_7_count`) and `lemma_8_5` on the
+`V`-descent, with the witness `(μ,G0,DT,phase)` defined alongside. -/
+theorem phase140_ofPhaseData {Γ : Type} [Group Γ] [TopologicalSpace Γ] {Y : Type} [Group Y]
+    [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk)
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (μ : ℕ) (G0 : ℤ) (DT : Type) [Fintype DT] (phase : DT → CentralCover RF.YC)
+    (l : RF.DR) (_h : l ≠ RF.zeroDR) (Mcount : ℕ)
+    (hfib : RF.zBC b F l _h = μ * Mcount)
+    (hgauss : 2 * (Nat.card DT : ℤ) * (Mcount : ℤ)
+      = (Nat.card ↥RF.MB / Nat.card ↥RF.TBsub : ℕ) * exactImageCount b F RF.TC
+        + G0 * ∑ᶠ ζ : DT, (2 * (RF.nPhase b F (phase ζ) : ℤ) - exactImageCount b F RF.TC)) :
+    2 * (Nat.card DT : ℤ) * RF.zBC b F l _h
+      = μ * ((Nat.card ↥RF.MB / Nat.card ↥RF.TBsub : ℕ) * exactImageCount b F RF.TC
+          + G0 * ∑ᶠ ζ : DT, (2 * (RF.nPhase b F (phase ζ) : ℤ) - exactImageCount b F RF.TC)) := by
+  have hz : (RF.zBC b F l _h : ℤ) = (μ : ℤ) * (Mcount : ℤ) := by exact_mod_cast hfib
+  rw [hz]
+  linear_combination (μ : ℤ) * hgauss
+
 end SectionEight
 
 end GQ2
