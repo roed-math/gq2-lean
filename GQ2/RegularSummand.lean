@@ -14,29 +14,32 @@ consumer shape *`V` is an equivariant split summand of a regular module `𝔽₂
 regular module is carried as `Fin N → C → ZMod 2` with the **left-translation action spelled
 inline** (`(h • F) n x = F n (h⁻¹x)`), so the statement needs no bespoke action instances.
 
-## Status: sorried paper node (NOT an axiom)
+## Status: PROVED (P-17e4, 2026-07-06) — std-3, no `sorry`, no B-axioms
 
-This is the paper's **own** lemma — no single literature theorem states it (it is assembled
-from Clifford, Ann. of Math. **38** (1937) 533–550, and Higman, Duke Math. J. **21** (1954)
-369–376, plus elementary facts), so per the census hygiene (leaves = literature) it is carried
-as a **sorried lemma in the allowlist**, the established P-14 → P-15 pattern (as `lemma_6_17`
-itself is).  `sorryAx` flows through every consumer's `#print axioms` until discharged.
+`#print axioms GQ2.lemma_6_11 = [propext, Classical.choice, Quot.sound]`.  This is the
+paper's **own** lemma — no single literature theorem states it (the paper assembles it from
+Clifford, Ann. of Math. **38** (1937) 533–550, and Higman, Duke Math. J. **21** (1954)
+369–376, plus elementary facts), so it was carried as a sorried allowlisted paper node
+(P-15f1) until its discharge here.
 
-## Discharge plan (self-contained finite representation theory, no arithmetic)
+## Proof architecture (self-contained finite representation theory, no arithmetic)
 
-1. `P` a Sylow 2-subgroup of `C`: cyclic (embeds in the cyclic `C/⟨c τ⟩-closure` since
-   `|⟨c τ⟩|` is odd — `odd_orderOf_tameInertia`).
-2. `V|_P` is free over `𝔽₂[P]`: Maschke over the odd inertia (Mathlib
-   `MonoidAlgebra.Submodule.exists_isCompl`) + the Clifford weight-orbit argument over a
-   finite splitting field `𝔽_{2^T}` (stabilizer of a weight acts by a 2-power-order scalar
-   = 1, then faithfulness) + descent via the norm criterion
-   (`V` free over `𝔽₂[⟨p⟩] ⟺ N_p(V) = V^p`, `N_p = (1+σ)^{2^a−1}`, Mathlib
-   `Module.equiv_directSum_of_isTorsion`).
-3. Freeness over `P` ⟹ split summand over `C`: the odd-index relative trace `H/P`
-   (the sibling of `LocalKummer.inflationVanishes_of_oddNormal`'s averaging —
-   `odd_nsmul_eq_self`, no division).
+1. `P` a Sylow 2-subgroup of `C`: cyclic (`isCyclic_of_isPGroup_two_of_tame` — it meets the
+   odd inertia `⟨c τ⟩` trivially and embeds in the cyclic quotient).
+2. `V|_P` is free over `𝔽₂[P]` (`sylow_free_of_ramified`): the constructive counting
+   criterion `free_of_card_fixedPoints_pow_le` (geometric-series retraction, no structure
+   theorem) reduces freeness to the bound `#V^P ^ |P| ≤ #V`; Jordan-block concavity
+   (`card_fixedPoints_pow_le_of_half`) reduces the bound to the single involution
+   `ω = g₀^{2^{s−1}}`; and `involution_fixedPoints_sq_le` proves `#V^ω ^ 2 ≤ #V` by an
+   explicit `𝔽₂`-rational **trace element** (see the `InvolutionKernel` section header) —
+   a recorded deviation from the paper's `𝔽̄₂` weight-orbit argument.
+3. Freeness over `P` ⟹ split summand over `C`: the odd-index relative trace
+   `regular_summand_of_subgroup_summand` (the sibling of
+   `LocalKummer.inflationVanishes_of_oddNormal`'s averaging — `odd_nsmul_eq_self`,
+   no division).
 
-Ticket: P-15f1 (`docs/p15f1-dimcount-scoping.md` §2; route decision in the board row).
+Tickets: P-15f1 (statement, `docs/p15f1-dimcount-scoping.md` §2), P-17e4 (proof; the board
+row has the full increment history).
 -/
 
 namespace GQ2
@@ -1254,42 +1257,267 @@ theorem card_fixedPoints_pow_le_of_half {P : Type} [Group P] [Finite P]
 
 end FreenessCriterion
 
-/-! ## The weight-orbit kernel, re-posed as a counting bound  (SORRIED)
+/-! ## The weight-orbit kernel: the involution counting bound  (P-17e4, PROVED)
 
-The remaining `sorryAx` of `lemma_6_11` is now **only the counting inequality**
-`card_fixedPoints_pow_le_of_ramified`: on a ramified simple faithful module the Sylow-2
-fixed space satisfies `#V^P ^ |P| ≤ #V`.  Everything else is proved: the counting criterion
-`free_of_card_fixedPoints_pow_le` turns the bound into the equivariant freeness
-`sylow_free_of_ramified` (the Sylow 2-subgroup is cyclic by
-`isCyclic_of_isPGroup_two_of_tame`), and `sylow_split_pair_of_ramified` / `lemma_6_11` are
-formal from there.
+`involution_fixedPoints_sq_le` was the last `sorry` of the `lemma_6_11` chain (the paper's
+pp. 29–30 weight-orbit content).  It is proved here by an **explicit `𝔽₂`-rational trace
+element** — a recorded deviation from the paper's `𝔽̄₂` weight-orbit argument: no base
+change, no idempotent decomposition, no semilinear algebra.
 
-The inequality is the paper's pp. 29–30 weight-orbit content.  `𝔽₂`-rational discharge plan
-(no `𝔽̄₂` base change): `𝔽₂[⟨τ⟩]` is étale (odd order), so `V|_⟨τ⟩` decomposes along factor
-fields; `V^⟨τ⟩ = 0` (`fixedPoints_tame_inertia_eq_zero`) kills the trivial factor, and
-simplicity + cyclicity of `⟨τ⟩` force a single `C`-orbit of factors, all faithful.  A
-`P`-element stabilizing a factor acts **semilinearly through a nontrivial Frobenius power**
-— were it linear it would centralize `⟨τ⟩`, and its normal closure would be an abelian
-normal subgroup with nontrivial `O₂`, acting trivially on the simple `V` (`FoxH.lemma_5_12`)
-against faithfulness.  Finite-field semilinear fixed points then descend
-(`dim_F V^S = dim_K V`, additive Hilbert 90 / normal basis), giving
-`dim V^P = dim V / |P|` exactly — in particular the bound. -/
+Set `t := c τ`, of odd order `m` with `⟨t⟩ ⊴ C`, and let `ω = g₀^{2^{s-1}}` be the
+involution of the cyclic Sylow-2 subgroup (`s ≥ 1`; the trivial-Sylow case is handled by
+the consumer).  Conjugation gives `ω t ω⁻¹ = t^q` with `q² ≡ 1 (mod m)`.
 
-/-- **The involution counting bound (SORRIED — the sole remaining leaf of Lemma 6.11)**:
-the involution `ω = g₀^{2^{s-1}}` of the cyclic Sylow-2 subgroup acts freely enough on the
-ramified simple faithful module, `#V^ω ^ 2 ≤ #V`.  This is the `p = 2` elementary-abelian
-case of the paper's pp. 29–30 weight-orbit argument, and everything cyclic-`𝔽₂[P]` above it
-is now proved (`card_fixedPoints_pow_le_of_half`, `free_of_card_fixedPoints_pow_le`).
+* **`ω` centralizes `⟨t⟩` (`q ≡ 1`) — impossible** (`two_torsion_of_centralizer_eq_one`,
+  the `O₂`-linchpin of Remark 6.12): the centralizer `D := C_C(⟨t⟩)` is abelian (`⟨t⟩` is
+  central in it and `D/⟨t⟩` embeds in the cyclic `C/⟨t⟩`), hence its 2-torsion `S` is a
+  normal 2-subgroup of `C` containing `ω`; a 2-group acting on the even-cardinality module
+  `V` has a second fixed point beyond `0` (orbit counting), the `S`-fixed subgroup is
+  `C`-stable by normality, so simplicity forces `S` to act trivially — against faithfulness
+  and `ω ≠ 1`.
 
-`𝔽₂`-rational discharge plan (no `𝔽̄₂` base change): `𝔽₂[⟨τ⟩]` is étale (odd order), so
-`V|_⟨τ⟩` decomposes along factor fields; `V^⟨τ⟩ = 0` (`fixedPoints_tame_inertia_eq_zero`)
-kills the trivial factor, and simplicity + cyclicity of `⟨τ⟩` force a single `C`-orbit of
-factors, all faithful.  The involution `ω`, stabilizing a factor, acts **semilinearly through
-a nontrivial Frobenius power** — were it linear it would centralize `⟨τ⟩`, and its normal
-closure would be an abelian normal subgroup with nontrivial `O₂`, acting trivially on the
-simple `V` (`FoxH.lemma_5_12`) against faithfulness.  Semilinear fixed points of an involution
-descend (quadratic additive Hilbert 90 / normal basis), giving `dim V^ω = dim V / 2` exactly
-— in particular `#V^ω ^ 2 = #V`. -/
+* **Otherwise, an explicit trace element.**  `g := gcd(q−1, m)` is a *unitary* divisor:
+  `gcd(q−1, m/g) = 1` (`coprime_sub_one_div_gcd`, from `m ∣ (q−1)(q+1)` and `m` odd).  So on
+  `u := t^g`, of order `r := m/g`, multiplication by `q` is a **fixed-point-free involution
+  of `(ZMod r) ∖ {0}`**.  Every nontrivial power of `t` has zero fixed space
+  (`fixedPoints_zpowers_tame_eq_zero`: its fixed subgroup is `C`-stable since `⟨t⟩ ⊴ C`, and
+  faithfulness kills `⊤`), so the geometric sum `∑_{j<r} u^j • v` vanishes
+  (`sum_range_orderOf_smul_eq_zero`).  For `ω`-fixed `v`, summing over the `val`-smaller
+  half `Λ` of each pair `{k, qk}` gives `w := ∑_{k∈Λ} u^{k.val} • v` with
+  `w + ω•w = ∑_{k≠0} u^{k.val} • v = v` — an explicit additive-Hilbert-90 trace.  Hence
+  `ker(1+ω) ⊆ range(1+ω)`, and `#V^ω ^ 2 ≤ #ker·#range = #V` by first-isomorphism
+  counting. -/
+
+section InvolutionKernel
+
+variable {C : Type} [Group C] [Finite C]
+variable {V : Type} [AddCommGroup V] [DistribMulAction C V]
+
+/-- **Every nontrivial element of the inertia `⟨t⟩` has zero fixed space** on a faithful
+simple module — the "all isotypic factors are faithful" content of the weight-orbit plan, in
+operator form.  The fixed space of `n = t^k` is `C`-stable (a conjugate `h⁻¹ n h = (h⁻¹th)^k`
+is again a power of `n` since `h⁻¹th ∈ ⟨t⟩` by normality); simplicity leaves `⊥` or `⊤`, and
+`⊤` makes `n` act trivially, so `n = 1` by faithfulness. -/
+theorem fixedPoints_zpowers_tame_eq_zero {sg t : C}
+    (hgen : Subgroup.closure {sg, t} = ⊤) (hrel : sg⁻¹ * t * sg = t ^ 2)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    {n : C} (hn : n ∈ Subgroup.zpowers t) (hn1 : n ≠ 1) :
+    ∀ v : V, n • v = v → v = 0 := by
+  haveI hnorm : (Subgroup.zpowers t).Normal := Tame.zpowers_normal_of_tame hgen hrel
+  obtain ⟨k, hk⟩ := Subgroup.mem_zpowers_iff.mp hn
+  set W : AddSubgroup V :=
+    { carrier := {v | n • v = v}
+      zero_mem' := smul_zero n
+      add_mem' := fun ha hb => by
+        show n • (_ + _) = _
+        rw [smul_add, ha, hb]
+      neg_mem' := fun ha => by
+        show n • (-_) = -_
+        rw [smul_neg, ha] } with hWdef
+  have hstable : ∀ (h : C), ∀ w ∈ W, h • w ∈ W := by
+    intro h w hw
+    have hconjt : h⁻¹ * t * h ∈ Subgroup.zpowers t := by
+      have h1 := hnorm.conj_mem t (Subgroup.mem_zpowers t) h⁻¹
+      rwa [inv_inv] at h1
+    obtain ⟨a, ha⟩ := Subgroup.mem_zpowers_iff.mp hconjt
+    have hpow : h⁻¹ * n * h = n ^ a := by
+      have e1 : (h⁻¹ * t * h) ^ k = h⁻¹ * t ^ k * h := by
+        have e0 := conj_zpow (i := k) (a := h⁻¹) (b := t)
+        rwa [inv_inv] at e0
+      rw [← hk, ← e1, ← ha, ← zpow_mul, mul_comm, zpow_mul]
+    have hfix : (h⁻¹ * n * h) • w = w := by
+      rw [hpow]
+      have hnst : n ∈ MulAction.stabilizer C w := hw
+      have hmem : n ^ a ∈ MulAction.stabilizer C w := zpow_mem hnst a
+      exact hmem
+    show n • (h • w) = h • w
+    calc n • (h • w) = (n * h) • w := (mul_smul n h w).symm
+      _ = (h * (h⁻¹ * n * h)) • w := by group
+      _ = h • ((h⁻¹ * n * h) • w) := mul_smul _ _ _
+      _ = h • w := by rw [hfix]
+  rcases hsimple W hstable with hbot | htop
+  · intro v hv
+    have hvW : v ∈ W := hv
+    rwa [hbot, AddSubgroup.mem_bot] at hvW
+  · exact absurd (hfaith n fun v => (htop ▸ AddSubgroup.mem_top v : v ∈ W)) hn1
+
+omit [Finite C] in
+/-- The **geometric sum** of a fixed-point-free finite-order action vanishes: the sum
+`∑_{j < orderOf u} u^j • v` is `u`-invariant, so it lies in the zero fixed space. -/
+theorem sum_range_orderOf_smul_eq_zero {u : C}
+    (hfree : ∀ v : V, u • v = v → v = 0) (v : V) :
+    ∑ j ∈ Finset.range (orderOf u), u ^ j • v = 0 := by
+  refine hfree _ ?_
+  rw [Finset.smul_sum]
+  have hstep : ∀ j : ℕ, u • (u ^ j • v) = u ^ (j + 1) • v := fun j => by
+    rw [← mul_smul, ← pow_succ']
+  rw [Finset.sum_congr rfl fun j _ => hstep j]
+  have h1 := Finset.sum_range_succ' (fun j => u ^ j • v) (orderOf u)
+  have h2 := Finset.sum_range_succ (fun j => u ^ j • v) (orderOf u)
+  have h3 : (∑ j ∈ Finset.range (orderOf u), u ^ (j + 1) • v) + u ^ 0 • v
+      = (∑ j ∈ Finset.range (orderOf u), u ^ j • v) + u ^ orderOf u • v := h1.symm.trans h2
+  rw [pow_zero, one_smul, pow_orderOf_eq_one, one_smul] at h3
+  exact add_right_cancel h3
+
+/-- Arithmetic core of the trace construction: for `m` odd with `m ∣ (q−1)(q+1)`, the gcd
+`g := gcd(q−1, m)` is a *unitary* divisor — `gcd(q−1, m/g) = 1`.  (For any prime `p ∣ q−1`
+dividing `m`, oddness forces `p ∤ q+1`, so the full `p`-part of `m` divides `q−1` and hence
+`g`; nothing survives into `m/g`.) -/
+private theorem coprime_sub_one_div_gcd {q m : ℕ} (hm : 0 < m) (hmodd : Odd m)
+    (hq1 : 1 ≤ q) (hdvd : m ∣ (q - 1) * (q + 1)) :
+    Nat.Coprime (q - 1) (m / Nat.gcd (q - 1) m) := by
+  set g := Nat.gcd (q - 1) m with hg
+  have hgm : g ∣ m := Nat.gcd_dvd_right _ _
+  have hg0 : 0 < g := Nat.gcd_pos_of_pos_right _ hm
+  have hr0 : 0 < m / g := Nat.div_pos (Nat.le_of_dvd hm hgm) hg0
+  by_contra hcop
+  obtain ⟨p, hp, hpq1, hpr⟩ := Nat.Prime.not_coprime_iff_dvd.mp hcop
+  have hpm : p ∣ m := hpr.trans (Nat.div_dvd_of_dvd hgm)
+  have hp2 : p ≠ 2 := by
+    rintro rfl
+    exact (Nat.not_even_iff_odd.mpr hmodd) (even_iff_two_dvd.mpr hpm)
+  have hpq1' : ¬ p ∣ q + 1 := by
+    intro hpq1p
+    have h2 : p ∣ 2 := by
+      have hsub := Nat.dvd_sub hpq1p hpq1
+      have : q + 1 - (q - 1) = 2 := by omega
+      rwa [this] at hsub
+    exact hp2 ((Nat.prime_dvd_prime_iff_eq hp Nat.prime_two).mp h2)
+  have hpe : p ^ m.factorization p ∣ m := Nat.ordProj_dvd m p
+  have hpeq : p ^ m.factorization p ∣ q - 1 := by
+    refine Nat.Coprime.dvd_of_dvd_mul_right ?_ (hpe.trans hdvd)
+    exact Nat.Coprime.pow_left _ ((Nat.Prime.coprime_iff_not_dvd hp).mpr hpq1')
+  have hpeg : p ^ m.factorization p ∣ g := Nat.dvd_gcd hpeq hpe
+  have hge : m.factorization p ≤ g.factorization p :=
+    (Nat.Prime.pow_dvd_iff_le_factorization hp hg0.ne').mp hpeg
+  have hfe : (m / g).factorization p = m.factorization p - g.factorization p := by
+    rw [Nat.factorization_div hgm, Finsupp.tsub_apply]
+  have h1r : 1 ≤ (m / g).factorization p :=
+    (Nat.Prime.dvd_iff_one_le_factorization hp hr0.ne').mp hpr
+  omega
+
+/-- **The `O₂`-linchpin (Remark 6.12)**: on a nonzero faithful simple 2-torsion module, an
+element of order dividing 2 commuting with the inertia generator `t` is trivial.  The
+centralizer `D := C_C(⟨t⟩)` is abelian (`⟨t⟩ ≤ Z(D)` and `D/⟨t⟩` embeds in the cyclic
+`C/⟨t⟩`, so `commutative_of_cyclic_center_quotient` applies); its 2-torsion `S` is therefore
+a subgroup, normal in `C`, and `IsPGroup 2`.  A 2-group acting on a module of even
+cardinality with one fixed point has another
+(`IsPGroup.exists_fixed_point_of_prime_dvd_card_of_fixed_point`), so the `S`-fixed subgroup
+is nonzero and `C`-stable, hence `⊤` by simplicity: `S` acts trivially and faithfulness
+collapses it. -/
+theorem two_torsion_of_centralizer_eq_one [Finite V] {sg t : C}
+    (hgen : Subgroup.closure {sg, t} = ⊤) (hrel : sg⁻¹ * t * sg = t ^ 2)
+    (hV2 : ∀ v : V, v + v = 0)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hV0 : ∃ v₀ : V, v₀ ≠ (0 : V))
+    {x : C} (hx2 : x ^ 2 = 1) (hxt : x * t = t * x) : x = 1 := by
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  haveI hnorm : (Subgroup.zpowers t).Normal := Tame.zpowers_normal_of_tame hgen hrel
+  haveI hqcyc : IsCyclic (C ⧸ Subgroup.zpowers t) := quotient_zpowers_isCyclic_of_tame hgen
+  set D : Subgroup C := Subgroup.centralizer (Subgroup.zpowers t : Set C) with hD
+  have hDn : D.Normal := by rw [hD]; infer_instance
+  have hxD : x ∈ D := by
+    rw [hD]
+    refine Subgroup.mem_centralizer_iff.mpr fun y hy => ?_
+    obtain ⟨k, rfl⟩ := Subgroup.mem_zpowers_iff.mp (SetLike.mem_coe.mp hy)
+    exact ((Commute.zpow_right hxt k).symm).eq
+  -- `D` is abelian: `⟨t⟩ ≤ Z(D)` and `D/⟨t⟩` embeds in the cyclic quotient
+  have hDcomm : IsMulCommutative ↥D := by
+    refine MonoidHom.isMulCommutative_of_isCyclic_of_ker_le_center
+      ((QuotientGroup.mk' (Subgroup.zpowers t)).comp D.subtype) ?_
+    intro d hd
+    rw [MonoidHom.mem_ker, MonoidHom.comp_apply] at hd
+    have hdt : (d : C) ∈ Subgroup.zpowers t := (QuotientGroup.eq_one_iff _).mp hd
+    refine Subgroup.mem_center_iff.mpr fun a => ?_
+    exact Subtype.ext (Subgroup.mem_centralizer_iff.mp a.2 (d : C) hdt).symm
+  have hDab : ∀ a b : ↥D, a * b = b * a := fun a b => hDcomm.is_comm.comm a b
+  -- the 2-torsion of `D`: a normal 2-subgroup of `C` containing `x`
+  set S : Subgroup C :=
+    { carrier := {y : C | y ∈ D ∧ ∃ k : ℕ, y ^ 2 ^ k = 1}
+      one_mem' := ⟨D.one_mem, 0, by norm_num⟩
+      mul_mem' := by
+        rintro a b ⟨haD, ka, hka⟩ ⟨hbD, kb, hkb⟩
+        refine ⟨D.mul_mem haD hbD, ka + kb, ?_⟩
+        have hcomm : Commute a b := congrArg Subtype.val (hDab ⟨a, haD⟩ ⟨b, hbD⟩)
+        have ha' : a ^ 2 ^ (ka + kb) = 1 := by rw [pow_add, pow_mul, hka, one_pow]
+        have hb' : b ^ 2 ^ (ka + kb) = 1 := by
+          rw [pow_add, mul_comm (2 ^ ka), pow_mul, hkb, one_pow]
+        rw [hcomm.mul_pow, ha', hb', one_mul]
+      inv_mem' := by
+        rintro a ⟨haD, ka, hka⟩
+        exact ⟨D.inv_mem haD, ka, by rw [inv_pow, hka, inv_one]⟩ } with hS
+  have hSn : S.Normal := by
+    constructor
+    rintro y ⟨hyD, k, hk⟩ g
+    refine ⟨hDn.conj_mem y hyD g, k, ?_⟩
+    rw [conj_pow, hk, mul_one, mul_inv_cancel]
+  have hSp : IsPGroup 2 ↥S := by
+    intro y
+    obtain ⟨-, k, hk⟩ := y.2
+    exact ⟨k, Subtype.ext (by rw [SubmonoidClass.coe_pow, OneMemClass.coe_one]; exact hk)⟩
+  -- orbit counting: a second `S`-fixed point beyond `0`
+  have h2V : (2 : ℕ) ∣ Nat.card V := by
+    letI : Module (ZMod 2) V := AddCommGroup.zmodModule (fun v => by rw [two_nsmul]; exact hV2 v)
+    haveI : Fintype V := Fintype.ofFinite V
+    haveI : FiniteDimensional (ZMod 2) V := Module.Finite.of_finite
+    obtain ⟨v₀, hv₀⟩ := hV0
+    haveI : Nontrivial V := ⟨v₀, 0, hv₀⟩
+    rw [Nat.card_eq_fintype_card, Module.card_eq_pow_finrank (K := ZMod 2) (V := V), ZMod.card]
+    exact dvd_pow_self 2 Module.finrank_pos.ne'
+  have hfix0 : (0 : V) ∈ MulAction.fixedPoints ↥S V := fun y => smul_zero y
+  obtain ⟨w, hwfix, hw0⟩ :=
+    hSp.exists_fixed_point_of_prime_dvd_card_of_fixed_point V h2V hfix0
+  -- the `S`-fixed subgroup is `C`-stable and nonzero, hence `⊤`
+  set W : AddSubgroup V :=
+    { carrier := {v : V | ∀ y ∈ S, y • v = v}
+      zero_mem' := fun y _ => smul_zero y
+      add_mem' := fun ha hb y hy => by rw [smul_add, ha y hy, hb y hy]
+      neg_mem' := fun ha y hy => by rw [smul_neg, ha y hy] } with hW
+  have hstable : ∀ (h : C), ∀ w' ∈ W, h • w' ∈ W := by
+    intro h w' hw' y hy
+    have hyc : h⁻¹ * y * h ∈ S := by
+      have h1 := hSn.conj_mem y hy h⁻¹
+      rwa [inv_inv] at h1
+    calc y • (h • w') = (y * h) • w' := (mul_smul y h w').symm
+      _ = (h * (h⁻¹ * y * h)) • w' := by group
+      _ = h • ((h⁻¹ * y * h) • w') := mul_smul _ _ _
+      _ = h • w' := by rw [hw' _ hyc]
+  have hwW : w ∈ W := fun y hy => hwfix ⟨y, hy⟩
+  have hWtop : W = ⊤ := by
+    rcases hsimple W hstable with hbot | htop
+    · exfalso
+      rw [hbot, AddSubgroup.mem_bot] at hwW
+      exact hw0 hwW.symm
+    · exact htop
+  have hxS : x ∈ S := ⟨hxD, 1, by rw [pow_one]; exact hx2⟩
+  refine hfaith x fun v => ?_
+  have hvW : v ∈ W := hWtop ▸ AddSubgroup.mem_top v
+  exact hvW x hxS
+
+end InvolutionKernel
+
+/-- **The involution counting bound** (the leaf of Lemma 6.11, P-17e4): the involution
+`ω = g₀^{2^{s-1}}` of the cyclic Sylow-2 subgroup acts freely enough on the ramified simple
+faithful module, `#V^ω ^ 2 ≤ #V`.  This is the `p = 2` elementary-abelian case of the
+paper's pp. 29–30 weight-orbit argument.
+
+**Statement amendment (P-17e4, documented in the board row): `hs1 : 1 ≤ s` added.**  The
+bound is *false* for a trivial Sylow-2 subgroup (`s = 0` gives `ω = 1`, e.g. the Frobenius
+group `C₇ ⋊ C₃` of order 21 acting on `𝔽₈` is ramified simple faithful with `#V^ω = #V`);
+the sole consumer `card_fixedPoints_pow_le_of_ramified` needs no leaf there (`#V^P ^ 1 ≤ #V`
+is subtype counting).
+
+Proof: `t := c τ` has odd order `m` and `⟨t⟩ ⊴ C`; conjugation gives `ω t ω⁻¹ = t^q`,
+`q² ≡ 1 (mod m)`.  If `t^q = t`, then `ω` lies in the 2-torsion of the abelian centralizer
+`C_C(⟨t⟩)` — a normal 2-subgroup acting trivially by simplicity, against faithfulness
+(`two_torsion_of_centralizer_eq_one`), impossible since `ω ≠ 1`.  Otherwise the trace element
+`w := ∑_{k ∈ Λ} (t^g)^{k.val} • v` over a transversal `Λ` of the fixed-point-free involution
+`k ↦ qk` of `(ZMod (m/g)) ∖ {0}` (`g := gcd(q−1, m)`, unitary by
+`coprime_sub_one_div_gcd`) satisfies `w + ω•w = v` for every `ω`-fixed `v` (geometric-sum
+vanishing `sum_range_orderOf_smul_eq_zero` + `fixedPoints_zpowers_tame_eq_zero`), so
+`ker(1+ω) ⊆ range(1+ω)` and first-isomorphism counting gives the bound. -/
 theorem involution_fixedPoints_sq_le {C : Type} [Group C] [TopologicalSpace C]
     [Finite C] {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
     (c : ContinuousMonoidHom Ttame C)
@@ -1299,15 +1527,336 @@ theorem involution_fixedPoints_sq_le {C : Type} [Group C] [TopologicalSpace C]
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
     (hram : ∃ v : V, c tameTau • v ≠ v) (P : Sylow 2 C)
     (g₀ : ↥(P : Subgroup C)) (hg : ∀ x : ↥(P : Subgroup C), x ∈ Subgroup.zpowers g₀)
-    (s : ℕ) (hs : Nat.card ↥(P : Subgroup C) = 2 ^ s) :
+    (s : ℕ) (hs1 : 1 ≤ s) (hs : Nat.card ↥(P : Subgroup C) = 2 ^ s) :
     Nat.card {v : V // (g₀ ^ (2 ^ s / 2)) • v = v} ^ 2 ≤ Nat.card V := by
-  sorry
+  -- the tame data
+  have hrel : (c tameSigma)⁻¹ * c tameTau * c tameSigma = c tameTau ^ 2 := by
+    have h := congrArg (⇑c) tame_relation
+    simpa only [conjP, map_mul, map_inv, map_pow] using h
+  set sg : C := c tameSigma with hsg
+  set t : C := c tameTau with ht
+  haveI hnorm : (Subgroup.zpowers t).Normal := Tame.zpowers_normal_of_tame hgen hrel
+  have hmodd : Odd (orderOf t) := Tame.tame_odd_order (orderOf_pos sg).ne' hrel
+  set m : ℕ := orderOf t with hm
+  have hm0 : 0 < m := orderOf_pos t
+  -- ramification gives `t ≠ 1` and a nonzero vector
+  obtain ⟨vr, hvr⟩ := hram
+  have ht1 : t ≠ 1 := by
+    intro h
+    rw [h, one_smul] at hvr
+    exact hvr rfl
+  have hV0 : ∃ v₀ : V, v₀ ≠ (0 : V) := by
+    refine ⟨vr, fun h => hvr ?_⟩
+    rw [h, smul_zero]
+  -- the involution ω = g₀^{2^{s-1}}
+  set ω : C := ((g₀ ^ (2 ^ s / 2) : ↥(P : Subgroup C)) : C) with hωdef
+  have hsmul_def : ∀ v : V, (g₀ ^ (2 ^ s / 2)) • v = ω • v := fun v => rfl
+  have hg₀ord : orderOf ((g₀ : C)) = 2 ^ s := by
+    have h1 : orderOf g₀ = 2 ^ s := by
+      rw [orderOf_eq_card_of_forall_mem_zpowers hg, hs]
+    rw [← h1]
+    exact orderOf_injective (P : Subgroup C).subtype Subtype.val_injective g₀
+  have hs2 : 2 ^ s / 2 = 2 ^ (s - 1) := by
+    obtain ⟨s', rfl⟩ : ∃ s', s = s' + 1 := ⟨s - 1, by omega⟩
+    rw [Nat.add_sub_cancel, pow_succ, Nat.mul_div_cancel _ (by norm_num : 0 < 2)]
+  have hωcoe : ω = (g₀ : C) ^ (2 ^ s / 2) := by
+    rw [hωdef, SubmonoidClass.coe_pow]
+  have hωord : orderOf ω = 2 := by
+    rw [hωcoe, hs2, orderOf_pow, hg₀ord]
+    have hgcd : Nat.gcd (2 ^ s) (2 ^ (s - 1)) = 2 ^ (s - 1) :=
+      Nat.gcd_eq_right (pow_dvd_pow 2 (by omega))
+    rw [hgcd]
+    obtain ⟨s', rfl⟩ : ∃ s', s = s' + 1 := ⟨s - 1, by omega⟩
+    rw [Nat.add_sub_cancel, pow_succ,
+      Nat.mul_div_cancel_left _ (by positivity : 0 < 2 ^ s')]
+  have hω2 : ω * ω = 1 := by
+    have h := pow_orderOf_eq_one ω
+    rwa [hωord, pow_two] at h
+  have hω1 : ω ≠ 1 := by
+    intro h
+    rw [h, orderOf_one] at hωord
+    omega
+  -- conjugation by ω sends t to t^q, q² ≡ 1 (mod m)
+  have hconjmem : ω * t * ω⁻¹ ∈ Subgroup.zpowers t :=
+    hnorm.conj_mem t (Subgroup.mem_zpowers t) ω
+  obtain ⟨j, hj⟩ := Subgroup.mem_zpowers_iff.mp hconjmem
+  set q : ℕ := (j % (m : ℤ)).toNat with hq
+  have hjm0 : 0 ≤ j % (m : ℤ) := Int.emod_nonneg j (by exact_mod_cast hm0.ne')
+  have hjm1 : j % (m : ℤ) < (m : ℤ) := Int.emod_lt_of_pos j (by exact_mod_cast hm0)
+  have hqcast : (q : ℤ) = j % (m : ℤ) := Int.toNat_of_nonneg hjm0
+  have hqm : q < m := by omega
+  have htq : t ^ q = ω * t * ω⁻¹ := by
+    have hm1 : t ^ (m : ℤ) = 1 := by
+      rw [zpow_natCast, hm, pow_orderOf_eq_one]
+    have h2 : t ^ j = t ^ (j % (m : ℤ)) := by
+      conv_lhs => rw [← Int.emod_add_mul_ediv j (m : ℤ)]
+      rw [zpow_add, zpow_mul, hm1, one_zpow, mul_one]
+    calc t ^ q = t ^ (q : ℤ) := (zpow_natCast t q).symm
+      _ = t ^ (j % (m : ℤ)) := by rw [hqcast]
+      _ = t ^ j := h2.symm
+      _ = ω * t * ω⁻¹ := hj
+  have hq0 : q ≠ 0 := by
+    intro h0
+    rw [h0, pow_zero] at htq
+    refine ht1 ?_
+    calc t = ω⁻¹ * (ω * t * ω⁻¹) * ω := by group
+      _ = ω⁻¹ * 1 * ω := by rw [← htq]
+      _ = 1 := by group
+  have htqq : t ^ (q * q) = t := by
+    calc t ^ (q * q) = (t ^ q) ^ q := by rw [pow_mul]
+      _ = (ω * t * ω⁻¹) ^ q := by rw [htq]
+      _ = ω * t ^ q * ω⁻¹ := conj_pow
+      _ = ω * (ω * t * ω⁻¹) * ω⁻¹ := by rw [htq]
+      _ = (ω * ω) * t * (ω * ω)⁻¹ := by group
+      _ = t := by rw [hω2, one_mul, inv_one, mul_one]
+  have hqq : (q - 1) * (q + 1) = q * q - 1 := by
+    obtain ⟨k, hk⟩ : ∃ k, q = k + 1 := ⟨q - 1, by omega⟩
+    rw [hk]
+    have h2 : (k + 1) * (k + 1) = k * (k + 1 + 1) + 1 := by ring
+    rw [Nat.add_sub_cancel, h2, Nat.add_sub_cancel]
+  have hdvd : m ∣ (q - 1) * (q + 1) := by
+    have hqq0 : 0 < q * q := Nat.mul_pos (by omega) (by omega)
+    have ht1' : t ^ (q * q - 1) = 1 := by
+      have h4 : t ^ (q * q - 1) * t = 1 * t := by
+        rw [one_mul, ← pow_succ, Nat.sub_add_cancel hqq0, htqq]
+      exact mul_right_cancel h4
+    have h5 : t ^ ((q - 1) * (q + 1)) = 1 := by rw [hqq]; exact ht1'
+    have h6 := orderOf_dvd_iff_pow_eq_one.mpr h5
+    rwa [← hm] at h6
+  -- dichotomy: ω centralizes t (impossible), or the trace element exists
+  by_cases hcen : ω * t = t * ω
+  · exact absurd
+      (two_torsion_of_centralizer_eq_one hgen hrel hV2 hfaith hsimple hV0
+        (by rw [pow_two]; exact hω2) hcen) hω1
+  -- the ramified branch: q ≥ 2 and the unitary-gcd setup
+  have hq2 : 2 ≤ q := by
+    rcases Nat.lt_or_ge q 2 with h | h
+    · exfalso
+      have hq1 : q = 1 := by omega
+      rw [hq1, pow_one] at htq
+      refine hcen ?_
+      calc ω * t = (ω * t * ω⁻¹) * ω := by group
+        _ = t * ω := by rw [← htq]
+    · exact h
+  set g : ℕ := Nat.gcd (q - 1) m with hgdef
+  have hgm : g ∣ m := Nat.gcd_dvd_right _ _
+  have hg0 : 0 < g := Nat.gcd_pos_of_pos_right _ hm0
+  have hglt : g < m := by
+    have h1 : g ∣ q - 1 := Nat.gcd_dvd_left _ _
+    have h2 : g ≤ q - 1 := Nat.le_of_dvd (by omega) h1
+    omega
+  set r : ℕ := m / g with hrdef
+  have hgr : g * r = m := by rw [hrdef]; exact Nat.mul_div_cancel' hgm
+  have hr2 : 2 ≤ r := by
+    rcases Nat.lt_or_ge r 2 with h | h
+    · interval_cases r <;> omega
+    · exact h
+  haveI : NeZero r := ⟨by omega⟩
+  have hcop' : Nat.Coprime (q - 1) r := by
+    rw [hrdef, hgdef]
+    exact coprime_sub_one_div_gcd hm0 hmodd (by omega) hdvd
+  set u : C := t ^ g with hudef
+  have humem : u ∈ Subgroup.zpowers t :=
+    Subgroup.mem_zpowers_iff.mpr ⟨(g : ℤ), by rw [zpow_natCast, ← hudef]⟩
+  have huord : orderOf u = r := by
+    rw [hudef, orderOf_pow, ← hm, Nat.gcd_eq_right hgm, hrdef]
+  have hu1 : u ≠ 1 := by
+    intro h
+    rw [h, orderOf_one] at huord
+    omega
+  have hufree : ∀ v : V, u • v = v → v = 0 :=
+    fixedPoints_zpowers_tame_eq_zero hgen hrel hfaith hsimple humem hu1
+  have husum : ∀ v : V, ∑ k ∈ Finset.range r, u ^ k • v = 0 := by
+    intro v
+    have h := sum_range_orderOf_smul_eq_zero hufree v
+    rwa [huord] at h
+  have hconju : ∀ a : ℕ, ω * u ^ a * ω⁻¹ = u ^ (q * a) := by
+    intro a
+    calc ω * u ^ a * ω⁻¹ = ω * t ^ (g * a) * ω⁻¹ := by rw [hudef, ← pow_mul]
+      _ = (ω * t * ω⁻¹) ^ (g * a) := by rw [conj_pow]
+      _ = (t ^ q) ^ (g * a) := by rw [htq]
+      _ = t ^ (q * (g * a)) := by rw [← pow_mul]
+      _ = t ^ (g * (q * a)) := by rw [mul_left_comm]
+      _ = (t ^ g) ^ (q * a) := by rw [pow_mul]
+      _ = u ^ (q * a) := by rw [← hudef]
+  -- mult-by-q is a fixed-point-free involution of (ZMod r) ∖ {0}
+  have hrdvd : r ∣ q * q - 1 := by
+    have hrm : r ∣ m := ⟨g, by rw [← hgr]; ring⟩
+    rw [← hqq]
+    exact hrm.trans hdvd
+  have hcast : ((q : ZMod r) * (q : ZMod r)) = 1 := by
+    have hqq0 : 0 < q * q := Nat.mul_pos (by omega) (by omega)
+    have h0 : ((q * q - 1 : ℕ) : ZMod r) = 0 :=
+      (CharP.cast_eq_zero_iff (ZMod r) r _).mpr hrdvd
+    calc ((q : ZMod r) * (q : ZMod r)) = ((q * q : ℕ) : ZMod r) := by push_cast; ring
+      _ = (((q * q - 1) + 1 : ℕ) : ZMod r) := by rw [Nat.sub_add_cancel hqq0]
+      _ = ((q * q - 1 : ℕ) : ZMod r) + 1 := by push_cast; ring
+      _ = 1 := by rw [h0, zero_add]
+  have hinv2 : ∀ k : ZMod r, (q : ZMod r) * ((q : ZMod r) * k) = k := by
+    intro k
+    rw [← mul_assoc, hcast, one_mul]
+  have hval_inj : ∀ a b : ZMod r, ZMod.val a = ZMod.val b → a = b := by
+    intro a b h
+    have ha := ZMod.natCast_rightInverse (n := r) a
+    have hb := ZMod.natCast_rightInverse (n := r) b
+    rw [← ha, ← hb, h]
+  have hqfix : ∀ k : ZMod r, k ≠ 0 → (q : ZMod r) * k ≠ k := by
+    intro k hk0 hfix
+    have h1 : ((q - 1 : ℕ) : ZMod r) * k = 0 := by
+      rw [Nat.cast_sub (by omega : 1 ≤ q), Nat.cast_one, sub_mul, one_mul, hfix, sub_self]
+    have hunit : IsUnit ((q - 1 : ℕ) : ZMod r) := (ZMod.isUnit_iff_coprime _ _).mpr hcop'
+    exact hk0 ((IsUnit.mul_right_eq_zero hunit).mp h1)
+  -- the two half-transversals of the pairing k ↔ q·k
+  set Λ₁ : Finset (ZMod r) :=
+    Finset.univ.filter (fun k => k ≠ 0 ∧ ZMod.val k < ZMod.val ((q : ZMod r) * k)) with hΛ₁
+  set Λ₂ : Finset (ZMod r) :=
+    Finset.univ.filter (fun k => k ≠ 0 ∧ ZMod.val ((q : ZMod r) * k) < ZMod.val k) with hΛ₂
+  have hdisj : Disjoint Λ₁ Λ₂ := by
+    rw [Finset.disjoint_left]
+    intro k h1 h2
+    rw [hΛ₁, Finset.mem_filter] at h1
+    rw [hΛ₂, Finset.mem_filter] at h2
+    obtain ⟨-, -, hlt1⟩ := h1
+    obtain ⟨-, -, hlt2⟩ := h2
+    omega
+  have hunion : Λ₁ ∪ Λ₂ = Finset.univ.erase (0 : ZMod r) := by
+    ext k
+    simp only [hΛ₁, hΛ₂, Finset.mem_union, Finset.mem_filter, Finset.mem_univ, true_and,
+      Finset.mem_erase, and_true]
+    constructor
+    · rintro (⟨hk0, -⟩ | ⟨hk0, -⟩) <;> exact hk0
+    · intro hk0
+      have hne : ZMod.val ((q : ZMod r) * k) ≠ ZMod.val k := fun h =>
+        hqfix k hk0 (hval_inj _ _ h)
+      rcases Nat.lt_or_ge (ZMod.val k) (ZMod.val ((q : ZMod r) * k)) with h | h
+      · exact Or.inl ⟨hk0, h⟩
+      · exact Or.inr ⟨hk0, by omega⟩
+  have hmapsto : ∀ k ∈ Λ₁, (q : ZMod r) * k ∈ Λ₂ := by
+    intro k hk
+    rw [hΛ₁, Finset.mem_filter] at hk
+    rw [hΛ₂, Finset.mem_filter]
+    obtain ⟨-, hk0, hlt⟩ := hk
+    refine ⟨Finset.mem_univ _, ?_, ?_⟩
+    · intro h0
+      have h1 : (q : ZMod r) * ((q : ZMod r) * k) = (q : ZMod r) * 0 := by rw [h0]
+      rw [hinv2 k, mul_zero] at h1
+      exact hk0 h1
+    · rw [hinv2 k]
+      exact hlt
+  have hmapsto' : ∀ k ∈ Λ₂, (q : ZMod r) * k ∈ Λ₁ := by
+    intro k hk
+    rw [hΛ₂, Finset.mem_filter] at hk
+    rw [hΛ₁, Finset.mem_filter]
+    obtain ⟨-, hk0, hlt⟩ := hk
+    refine ⟨Finset.mem_univ _, ?_, ?_⟩
+    · intro h0
+      have h1 : (q : ZMod r) * ((q : ZMod r) * k) = (q : ZMod r) * 0 := by rw [h0]
+      rw [hinv2 k, mul_zero] at h1
+      exact hk0 h1
+    · rw [hinv2 k]
+      exact hlt
+  -- the trace element: every ω-fixed vector is in the range of 1 + ω
+  have htrace : ∀ v : V, ω • v = v → ∃ w : V, v = w + ω • w := by
+    intro v hv
+    refine ⟨∑ k ∈ Λ₁, u ^ (ZMod.val k) • v, ?_⟩
+    have hstep : ∀ k : ZMod r,
+        ω • (u ^ (ZMod.val k) • v) = u ^ (ZMod.val ((q : ZMod r) * k)) • v := by
+      intro k
+      have h1 : ω * u ^ (ZMod.val k) = u ^ (q * ZMod.val k) * ω := by
+        calc ω * u ^ (ZMod.val k) = (ω * u ^ (ZMod.val k) * ω⁻¹) * ω := by group
+          _ = u ^ (q * ZMod.val k) * ω := by rw [hconju (ZMod.val k)]
+      have h2 : u ^ (q * ZMod.val k) = u ^ (ZMod.val ((q : ZMod r) * k)) := by
+        have hval : ZMod.val ((q : ZMod r) * k) = q * ZMod.val k % r := by
+          rw [ZMod.val_mul, ZMod.val_natCast]
+          exact (Nat.mod_modEq q r).mul_right (ZMod.val k)
+        have hpm : u ^ (q * ZMod.val k % r) = u ^ (q * ZMod.val k) := by
+          have h := pow_mod_orderOf u (q * ZMod.val k)
+          rwa [huord] at h
+        rw [hval]
+        exact hpm.symm
+      calc ω • (u ^ (ZMod.val k) • v) = (ω * u ^ (ZMod.val k)) • v := (mul_smul _ _ _).symm
+        _ = (u ^ (q * ZMod.val k) * ω) • v := by rw [h1]
+        _ = u ^ (q * ZMod.val k) • (ω • v) := mul_smul _ _ _
+        _ = u ^ (q * ZMod.val k) • v := by rw [hv]
+        _ = u ^ (ZMod.val ((q : ZMod r) * k)) • v := by rw [h2]
+    have hωsum : ω • (∑ k ∈ Λ₁, u ^ (ZMod.val k) • v) = ∑ k ∈ Λ₂, u ^ (ZMod.val k) • v := by
+      calc ω • (∑ k ∈ Λ₁, u ^ (ZMod.val k) • v)
+          = ∑ k ∈ Λ₁, ω • (u ^ (ZMod.val k) • v) := Finset.smul_sum
+        _ = ∑ k ∈ Λ₁, u ^ (ZMod.val ((q : ZMod r) * k)) • v :=
+            Finset.sum_congr rfl fun k _ => hstep k
+        _ = ∑ k ∈ Λ₂, u ^ (ZMod.val k) • v :=
+            Finset.sum_nbij' (fun k => (q : ZMod r) * k) (fun k => (q : ZMod r) * k)
+              hmapsto hmapsto' (fun k _ => hinv2 k) (fun k _ => hinv2 k) (fun k _ => rfl)
+    have h2 : ∑ k : ZMod r, u ^ (ZMod.val k) • v = ∑ j ∈ Finset.range r, u ^ j • v :=
+      Finset.sum_nbij' (fun k => ZMod.val k) (fun j => (j : ZMod r))
+        (fun k _ => Finset.mem_range.mpr (ZMod.val_lt k))
+        (fun j _ => Finset.mem_univ _)
+        (fun k _ => ZMod.natCast_rightInverse k)
+        (fun j hj => ZMod.val_cast_of_lt (Finset.mem_range.mp hj))
+        (fun k _ => rfl)
+    have hfull : ∑ k ∈ Finset.univ.erase (0 : ZMod r), u ^ (ZMod.val k) • v = v := by
+      have h1 : (∑ k ∈ Finset.univ.erase (0 : ZMod r), u ^ (ZMod.val k) • v)
+          + u ^ (ZMod.val (0 : ZMod r)) • v = ∑ k : ZMod r, u ^ (ZMod.val k) • v :=
+        Finset.sum_erase_add _ _ (Finset.mem_univ 0)
+      rw [h2, husum v, ZMod.val_zero, pow_zero, one_smul] at h1
+      calc ∑ k ∈ Finset.univ.erase (0 : ZMod r), u ^ (ZMod.val k) • v
+          = ((∑ k ∈ Finset.univ.erase (0 : ZMod r), u ^ (ZMod.val k) • v) + v) + v := by
+            rw [add_assoc, hV2, add_zero]
+        _ = 0 + v := by rw [h1]
+        _ = v := zero_add v
+    have hsplit : (∑ k ∈ Λ₁, u ^ (ZMod.val k) • v) + (∑ k ∈ Λ₂, u ^ (ZMod.val k) • v)
+        = ∑ k ∈ Finset.univ.erase (0 : ZMod r), u ^ (ZMod.val k) • v := by
+      rw [← Finset.sum_union hdisj, hunion]
+    rw [hωsum, hsplit, hfull]
+  -- counting: ker(1 + ω) ⊆ range(1 + ω) forces #ker² ≤ #V
+  set A : V →+ V :=
+    { toFun := fun w => w + ω • w
+      map_zero' := by rw [smul_zero, add_zero]
+      map_add' := fun a b => by rw [smul_add]; abel } with hA
+  have hAfix : ∀ v : V, A v = 0 → ω • v = v := by
+    intro v h
+    have h1 : v + ω • v = 0 := h
+    calc ω • v = ω • v + (v + v) := by rw [hV2, add_zero]
+      _ = (v + ω • v) + v := by abel
+      _ = 0 + v := by rw [h1]
+      _ = v := zero_add v
+  have hfixiff : ∀ v : V, ((g₀ ^ (2 ^ s / 2)) • v = v) ↔ v ∈ A.ker := by
+    intro v
+    rw [AddMonoidHom.mem_ker, hsmul_def v]
+    constructor
+    · intro h
+      show v + ω • v = 0
+      rw [h]
+      exact hV2 v
+    · intro h
+      exact hAfix v h
+  have hkerle : A.ker ≤ A.range := by
+    intro v hv
+    rw [AddMonoidHom.mem_ker] at hv
+    obtain ⟨w, hw⟩ := htrace v (hAfix v hv)
+    exact AddMonoidHom.mem_range.mpr ⟨w, hw.symm⟩
+  have hcard1 : Nat.card {v : V // (g₀ ^ (2 ^ s / 2)) • v = v} = Nat.card ↥A.ker :=
+    Nat.card_congr (Equiv.subtypeEquivRight hfixiff)
+  have hcardle : Nat.card ↥A.ker ≤ Nat.card ↥A.range := by
+    refine Nat.card_le_card_of_injective (fun x => ⟨x.1, hkerle x.2⟩) ?_
+    intro a b hab
+    have h1 := congrArg Subtype.val hab
+    exact Subtype.ext h1
+  have hiso : Nat.card (V ⧸ A.ker) = Nat.card ↥A.range :=
+    Nat.card_congr (QuotientAddGroup.quotientKerEquivRange A).toEquiv
+  have hprod : Nat.card V = Nat.card ↥A.range * Nat.card ↥A.ker := by
+    rw [AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup A.ker, hiso]
+  calc Nat.card {v : V // (g₀ ^ (2 ^ s / 2)) • v = v} ^ 2
+      = Nat.card ↥A.ker * Nat.card ↥A.ker := by rw [hcard1, pow_two]
+    _ ≤ Nat.card ↥A.range * Nat.card ↥A.ker :=
+        Nat.mul_le_mul_right _ hcardle
+    _ = Nat.card V := hprod.symm
 
-/-- **The Sylow-2 fixed-space bound on a ramified simple faithful module** — reduced to the
-involution.  The full bound `#V^P ^ |P| ≤ #V` follows (via `card_fixedPoints_pow_le_of_half`,
-the elementary-abelian reduction) from the **involution counting bound**
-`#V^ω ^ 2 ≤ #V` for the involution `ω = g₀^{2^{s-1}}` in the cyclic Sylow-2 subgroup — the
-sole remaining `sorry` (`involution_fixedPoints_sq_le` above).
+/-- **The Sylow-2 fixed-space bound on a ramified simple faithful module.**  The full bound
+`#V^P ^ |P| ≤ #V` follows (via `card_fixedPoints_pow_le_of_half`, the elementary-abelian
+reduction) from the **involution counting bound** `#V^ω ^ 2 ≤ #V` for the involution
+`ω = g₀^{2^{s-1}}` in the cyclic Sylow-2 subgroup (`involution_fixedPoints_sq_le` above,
+which needs `1 ≤ s`); a trivial Sylow-2 subgroup gives the bound by subtype counting.
 
 Faithfulness is genuinely needed (Remark 6.12: `C₃ ⋊ C₄` acting through `S₃` on `𝔽₄` is
 ramified simple but its central `C₂` fixes everything, so `#V^ω = #V > #V^{1/2}`). -/
@@ -1329,16 +1878,21 @@ theorem card_fixedPoints_pow_le_of_ramified {C : Type} [Group C] [TopologicalSpa
     isCyclic_of_isPGroup_two_of_tame hgen hrel (P : Subgroup C) P.isPGroup'
   obtain ⟨g₀, hg⟩ := hcyc.exists_generator
   obtain ⟨s, hs⟩ := P.isPGroup'.exists_card_eq
+  -- trivial Sylow-2 subgroup: the bound is plain subtype counting
+  rcases Nat.eq_zero_or_pos s with hs0 | hs1
+  · subst hs0
+    rw [hs, pow_zero, pow_one]
+    exact Nat.card_le_card_of_injective Subtype.val Subtype.val_injective
   -- Elementary-abelian reduction: it suffices that the involution `g₀^{2^{s-1}}` acts freely.
   refine card_fixedPoints_pow_le_of_half hV2 g₀ hg s hs ?_
-  exact involution_fixedPoints_sq_le c hgen hV2 hfaith hsimple hram P g₀ hg s hs
+  exact involution_fixedPoints_sq_le c hgen hV2 hfaith hsimple hram P g₀ hg s hs1 hs
 
 /-- **`𝔽₂[P]`-freeness of the restriction to the Sylow 2-subgroup** (Lemma 6.11, steps 1–2):
 a ramified simple faithful module is equivariantly additively isomorphic to a regular module
 `𝔽₂[P]^r`.  **Proved** from the counting criterion `free_of_card_fixedPoints_pow_le` at the
 cyclic Sylow 2-subgroup (`isCyclic_of_isPGroup_two_of_tame`, with the tame relation
-transported from `tame_relation` along `c`); the `sorryAx` enters only through the counting
-bound `card_fixedPoints_pow_le_of_ramified` above. -/
+transported from `tame_relation` along `c`) and the counting bound
+`card_fixedPoints_pow_le_of_ramified` above.  Fully sorry-free, std-3. -/
 theorem sylow_free_of_ramified {C : Type} [Group C] [TopologicalSpace C] [Finite C]
     {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
     (c : ContinuousMonoidHom Ttame C)
@@ -1398,10 +1952,9 @@ tame image is an equivariant split summand of a regular module.  The regular mod
 is `Fin N → C → ZMod 2` with the left-translation action written inline; `ι` is the
 equivariant embedding, `r` the equivariant retraction.
 
-**Assembled (P-17e4)** from the proved odd-index relative trace
+**Proved (P-17e4, std-3, no `sorry`)**: the odd-index relative trace
 `regular_summand_of_subgroup_summand` at a Sylow 2-subgroup (`Sylow.not_dvd_index` gives the
-odd index); the remaining `sorryAx` enters only through the weight-orbit kernel
-`sylow_split_pair_of_ramified` above.
+odd index) composed with the weight-orbit kernel `sylow_split_pair_of_ramified` above.
 
 From this the deep-count multiplicativity (`Hom(V^∨, −)`-exactness) follows —
 `equivariant_lift_of_regular_summand` below — which is the sole remaining input to
@@ -1433,11 +1986,10 @@ theorem lemma_6_11 {C : Type} [Group C] [TopologicalSpace C] [Finite C]
 
 /-! ## The consequence: equivariant lifting (`Hom(V, −)`-exactness)
 
-Proved **without** the sorry from the summand package fields alone; consumers apply it to the
-`lemma_6_11` output (so their `#print axioms` carries `sorryAx` through the paper node until
-it is discharged).  This is the "deep-count multiplicativity" input of
-`docs/p15f1-dimcount-scoping.md` §2: every equivariant map out of `V` lifts along equivariant
-surjections. -/
+Proved from the summand package fields alone; consumers apply it to the `lemma_6_11` output
+(now itself std-3, so the whole chain is `sorryAx`-free).  This is the "deep-count
+multiplicativity" input of `docs/p15f1-dimcount-scoping.md` §2: every equivariant map out of
+`V` lifts along equivariant surjections. -/
 
 section EquivariantLift
 

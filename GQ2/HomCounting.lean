@@ -15,8 +15,8 @@ Lagrange (`AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup`) + the first 
 theorem (`QuotientAddGroup.quotientKerEquivOfSurjective`), with
 
 * **surjectivity of `Φ`** supplied by the banked `equivariant_lift_of_regular_summand`
-  (`GQ2/RegularSummand.lean` — sorry-free; `sorryAx` enters a consumer's audit only when the
-  package is produced by the `lemma_6_11` node), and
+  (`GQ2/RegularSummand.lean`; since P-17e4 the producing `lemma_6_11` node is itself proved
+  std-3, so the whole package is `sorryAx`-free), and
 * **`ker Φ ≃ Hom_C(V, W')`** from the kernel identification along `j` (choice-lift through the
   injection).
 

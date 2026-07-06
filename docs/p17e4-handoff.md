@@ -1,8 +1,30 @@
 # P-17e4 handoff — Lemma 6.11 reduced to a single-involution counting bound
 
-**Owner history:** P-15f1 (file created) → P-17e4 (this work). **Date:** 2026-07-06.
-**File:** `GQ2/RegularSummand.lean` (tracked, in the sorry allowlist).
-**State:** compiles green; **exactly one `sorry`** remains (`involution_fixedPoints_sq_le`).
+> **✅ RESOLVED — session 2026-07-06b (Fable): the leaf `involution_fixedPoints_sq_le` is
+> PROVED and P-17e4 is CLOSED.**  `#print axioms GQ2.lemma_6_11 = [propext, Classical.choice,
+> Quot.sound]` — no `sorryAx`, no B-axioms; `GQ2/RegularSummand.lean` is sorry-free and off
+> the `SORRY_ALLOWLIST`; whole library green (8679 jobs), census 15, guard green.
+>
+> The discharge took a **simpler route than §2 below** (kept as history): an explicit
+> 𝔽₂-rational **trace element** instead of étale factor fields + semilinear descent.  With
+> `ω t ω⁻¹ = t^q`, either `t^q = t` — impossible: `ω` sits in the 2-torsion of the *abelian*
+> centralizer `C_C(⟨t⟩)`, a normal 2-subgroup, trivial on the simple module (the §2 step-2
+> O₂-linchpin, `two_torsion_of_centralizer_eq_one`) — or `g := gcd(q−1, m)` is a unitary
+> divisor and, over `u := t^g` of order `r = m/g`, `w := ∑_{k∈Λ} u^{k.val} • v` (Λ = the
+> `val`-smaller half of each `{k, qk}` pair in `ZMod r ∖ {0}`) satisfies `w + ω•w = v` for
+> every `ω`-fixed `v` — because `∑_{k∈ZMod r} u^{k.val} • v = 0` (fixed-point-free geometric
+> sum) — so `ker(1+ω) ⊆ range(1+ω)` and first-isomorphism counting gives `#V^ω ^ 2 ≤ #V`.
+> **Statement amendment (documented in the board row):** the leaf gained `hs1 : 1 ≤ s`
+> (it is false for a trivial Sylow-2 — `F₂₁` on `𝔽₈`); the consumer
+> `card_fixedPoints_pow_le_of_ramified` (statement unchanged) case-splits `s = 0`.
+> Full details: board row P-17e4 in `docs/tickets.md` and the `InvolutionKernel` section of
+> `GQ2/RegularSummand.lean`.
+
+**Owner history:** P-15f1 (file created) → P-17e4 (this work, now closed).
+**Date:** 2026-07-06.
+**File:** `GQ2/RegularSummand.lean` (tracked; sorry-free as of the closure).
+**State (historical, at handoff time):** compiles green; **exactly one `sorry`** remained
+(`involution_fixedPoints_sq_le`) — since discharged, see the banner above.
 
 This file is self-contained: everything needed to continue P-17e4 is here or in the two
 cross-referenced committed docs. No session scratchpad or chat context is required.
