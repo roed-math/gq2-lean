@@ -315,11 +315,13 @@ P-16d6e assembly:
 * `hcard` — `#H²(Γ,𝔽₂) = 2` (props 5.15/5.16);
 * `hfg` — `Γ` topologically finitely generated (`GammaA` via P-03; `AbsGalQ2` via B1, reserved to
   P-17i — kept hypothesis-side);
-* `hsep_hom` — **the hard `(R^∨)^C`-separation** `obs g = 0 ⟹ g` has a homomorphism lift to `Y`
-  (not abstractly derivable; the concrete `R`-elementary-abelian + Frattini + `C`-action property
-  that the `(R^∨)^C`-pairing detects the lift — its own focused pass, P-16d6a-sep);
-* `hZcount` — **the `z_R` torsor count** `#RCocycle = z_R = #R²·#D_R` (the 5.15/5.16 numeric for the
-  `R`-extension, the (139)-`hMcount` analogue).
+* `hsep_hom` — **the `(R^∨)^C`-separation** `obs g = 0 ⟹ g` has a homomorphism lift to `Y`.  This
+  is the Γ-specific arithmetic duality `D_R = (R^∨)^C ≅ H²_{Γ,ρ}(R)^∨` (paper Prop 8.9, p. 42):
+  `obs g d = ⟨d, ob(g)⟩` pairs `d` with the full `R`-obstruction `ob(g) ∈ H²(Γ,R)`, and the perfect
+  pairing forces `ob(g) = 0` (hence a lift) once every `d` kills it.  Props 5.15/5.16, NOT abstract;
+  discharged per-Γ at assembly alongside `hZcount` from one duality package.
+* `hZcount` — **the `z_R` torsor count** `#RCocycle = z_R = #R²·#D_R = |Z¹_{Γ,ρ}(R)|` (the 5.15/5.16
+  numeric for the `R`-extension, the (139)-`hMcount` analogue).
 
 The conclusion is the `stageR136` field of `RecursionInputs` verbatim (for the P-16d6e assembly). -/
 theorem blockStageR136 (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)

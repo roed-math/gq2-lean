@@ -31,8 +31,11 @@ state.  Written 2026-07-06 (Opus).  All line numbers are approximate — grep th
   parallel (139)/M count `hMcountM` is likewise kept a source hypothesis fed at assembly
   (`GQ2/RecursionSplice.lean`, `half139_via_radData`).  So the P-16d6a deliverable is the general-Γ
   **reduction** `blockStageR136` (done); the concrete counts belong to the assembly lane.
-  `hsep_hom` additionally needs the concrete `(R^∨)^C`-separation of `H²(Γ,R)` — its own focused
-  pass, **P-16d6a-sep** (route in §3).
+  **`hsep_hom` is ALSO Γ-specific 5.15/5.16 content, NOT a separate abstract build** (confirmed by
+  reading the paper's Prop 8.9 proof, pp. 42–43): `obs g = 0 ⟺ ob(g) ∈ (D_R)^⊥` in `H²(Γ,R)`, and
+  the separation is the **perfect pairing** `D_R = (R^∨)^C ≅ H²_{Γ,ρ}(R)^∨` (paper p. 42) — the same
+  duality as `hZcount`.  It is discharged per-Γ at the assembly alongside `hZcount`, from ONE duality
+  package.  (Earlier-in-session "P-16d6a-sep = missing character-separation infra" was wrong; §3.)
 
 ---
 
@@ -163,21 +166,32 @@ Its conclusion **is** the `stageR136` field of `RecursionInputs` verbatim (check
   `AbsGalQ2`; the `prop_5_15`/`HalfTorsorGammaA` analogue for `GammaA`) — **Γ-specific, cannot run
   at generic `Γ`**; (iv) `#(R^∨)^C = #D_R` is **`blockRChar_card`** (done), giving `= #R²·#D_R = z_R`.
   So `hZcount` = steps (i)–(iii) at the concrete `Γ`; only (iv) is frame-abstract (done).
-* **`hsep_hom` — THE HARD PIECE (the (R^∨)^C separation).  Sub-ticket P-16d6a-sep.**
-  `obs RF D htriv hcard g.1.1 = 0 ⟹ g` lifts to `Y`.  `obs` (`RStageObstructionBuild.lean:336`) is
-  the scalar obstruction in `H²(Γ,𝔽₂)` detecting whether a `B`-stage boundary lift `g` lifts
-  through the `D_R` covers.  **Abstract scaffolding already in `RStageObstructionBuild`** (P-16d2):
-  `obs_zero_iff_pairClass_zero` (`obs g d = 0 ⟺ [pair d ∘ rDefect] = 0 ∈ H²(Γ,𝔽₂)`) and
-  `homLift_of_split` (a continuous `R`-cochain splitting `rDefect` ⟹ the hom lift).  **The gap** =
-  "`(R^∨)^C` separates `H²(Γ,R)`": from `obs g = 0` (all `d`, i.e. every character `pair d` of the
-  class `[rDefect] ∈ H²(Γ,R)` vanishes) conclude `[rDefect] = 0`, i.e. a split cochain feeds
-  `homLift_of_split`.  Needs `R` elem-ab-2 + `H²(Γ,R) ≅ H²(Γ,𝔽₂)⊗R` character separation (missing
-  cohomology-algebra infra) — a focused pass, and Γ-flavoured.
+* **`hsep_hom` — the (R^∨)^C separation.  Γ-SPECIFIC (5.15/5.16 duality), NOT abstract infra.**
+  `obs RF D htriv hcard g.1.1 = 0 ⟹ g` lifts to `Y`.  **Resolved by reading the paper's Prop 8.9
+  proof (pp. 42–43).**  `obs g d = ⟨d, ob(g)⟩` is the `𝔽₂`-pairing of the character `d ∈ D_R` with
+  the **full `R`-valued obstruction** `ob(g) ∈ H²(Γ,R)`; standard obstruction theory gives
+  `ob(g) = 0 ⟺ g lifts to Y` (abstract).  So `obs g = 0` (all `d`) `⟺ ob(g) ∈ (D_R)^⊥`, and the
+  separation is exactly `(D_R)^⊥ = 0`, i.e. the **perfect pairing** `D_R × H²(Γ,R) → 𝔽₂`.  The paper
+  (p. 42, top) records this as the arithmetic duality
+    `D = (T^∨)^C ≅ H²_{Γ,ρ}(T)^∨`   (here `T = R`),
+  supplied by **props 5.15/5.16** — the SAME Γ-specific duality behind `hZcount`/`hcard`, NOT a
+  general-Γ fact and NOT an `H²(Γ,R)` dévissage.  (My earlier-in-session "P-16d6a-sep = missing
+  character-separation infra" framing was wrong: the duality detects ALL of `H²(Γ,R)`, so the
+  `[Y,R] ≠ ⊥` worry — R is only hypercentral in `Y`, `lemma_7_2` gives central in `K` only — is
+  moot.)  The paper's own finish is "Fourier inversion (125) on the full `R`-valued obstruction" +
+  the Frattini surjectivity (`surj_of_piB_surj`, done) — no coordinate/separation lemma.
+  **Existing hooks**: `mapCoeff2` (`Cohomology.lean:429`, `H²(Γ,R) → H²(Γ,𝔽₂)` along a character —
+  functoriality DOES exist, contra `section8-extraction.md:262`), `homLift_of_split`,
+  `obs_zero_iff_pairClass_zero`.  **Route** (P-16d6e, per Γ): set up `DistribMulAction Γ (Additive R)`
+  (well-defined since `R` abelian — conj by any `π_B`-lift), build `ob(g) ∈ H²(Γ,R)`, supply the
+  5.15/5.16 perfect pairing `D_R ≅ H²(Γ,R)^∨`; then `hsep_hom` follows.
 
 **Order (at the P-16d6e assembly, per source Γ):** supply `htriv` (`fun _ _ => rfl` when the action
-is trivial), `hcard`/`hfg` (source), `hZcount` (Γ-count via the route above), `hsep_hom`
-(P-16d6a-sep) → then `blockStageR136 … : (136)` for that Γ directly (no further `stageR136_ofRSepData`
-call needed — `blockStageR136` already is that call).
+is trivial), `hcard`/`hfg` (source), then discharge `hZcount` and `hsep_hom` from the ONE Γ-specific
+duality package `D_R ≅ H²(Γ,R)^∨` + `z_R = |Z¹_{Γ,ρ}(R)|` (props 5.15/5.16, paper p. 42; `prop_5_16`
+for `AbsGalQ2`, `prop_5_15`/`HalfTorsorGammaA` for `GammaA`) → then `blockStageR136 … : (136)` for
+that Γ directly (`blockStageR136` already IS the `stageR136_ofRSepData` call).  **There is no
+separate abstract "P-16d6a-sep" build** — `hZcount` + `hsep_hom` are two faces of the same duality.
 
 ---
 
