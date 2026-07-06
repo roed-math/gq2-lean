@@ -314,4 +314,55 @@ theorem card_admissibleFam_eq (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g 
   letI : DistribMulAction C (V →+ ZMod 2) := dualModule
   Nat.card_congr (admissibleFamEquiv ρ hρ hρsurj)
 
+/-- **The deep-families bridge** (P-15f6 step 4): the admissible families valued in the deep
+classes are exactly the `C`-equivariant maps `V^∨ → deepClassesSubgroup` (under `dualModule` on
+`V^∨` and the restricted `conjModuleDeep` on the deep subgroup).  Mirrors `admissibleFamEquiv`,
+restricted through `deepClassesSubgroup`. -/
+noncomputable def deepFamEquiv
+    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v) (hρsurj : Function.Surjective ⇑ρ) :
+    letI := conjModuleDeep ρ hρsurj
+    letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+    {ξ : AdmissibleFam (V := V) ρ // ∀ φ : V →+ ZMod 2,
+        ξ.fam φ ∈ deepClasses (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)}
+      ≃ equivHoms C (V →+ ZMod 2)
+          ↥(deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :=
+  letI := conjModuleDeep ρ hρsurj
+  letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+  { toFun := fun ξ => ⟨AddMonoidHom.mk' (fun φ => ⟨ξ.1.fam φ, ξ.2 φ⟩)
+      (fun φ ψ => by apply Subtype.ext; exact ξ.1.add' φ ψ),
+      fun c φ => by apply Subtype.ext; exact fam_equivariant ρ hρ hρsurj ξ.1 c φ⟩
+    invFun := fun f =>
+      ⟨{ fam := fun φ => (f.1 φ).1
+         add' := fun φ ψ => by rw [map_add]; rfl
+         equiv' := fun g φ => by
+           calc conjAct ρ g ((f.1 φ).1)
+               = conjAct ρ (Function.surjInv hρsurj (ρ g)) (f.1 φ).1 :=
+                 conjAct_ker ρ g (Function.surjInv hρsurj (ρ g))
+                   (Function.surjInv_eq hρsurj (ρ g)).symm (f.1 φ).1
+             _ = ((dualModule.toSMul.smul (ρ g) φ |> f.1) : ↥(deepClassesSubgroup _)).1 :=
+                 (congrArg Subtype.val (f.2 (ρ g) φ)).symm
+             _ = (f.1 (φ.comp (DistribSMul.toAddMonoidHom V g⁻¹))).1 :=
+                 congrArg (fun ψ => (f.1 ψ).1) (AddMonoidHom.ext fun v => by
+                   show φ ((ρ g)⁻¹ • v) = φ (g⁻¹ • v)
+                   rw [hρ g⁻¹ v, map_inv]) },
+       fun φ => (f.1 φ).2⟩
+    left_inv := fun ξ => rfl
+    right_inv := fun f => Subtype.ext (AddMonoidHom.ext fun φ => Subtype.ext rfl) }
+
+omit [DiscreteTopology C] [Finite C] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [ContinuousSMul AbsGalQ2 V] in
+/-- **Count the deep families as equivariant Homs into the deep subgroup**:
+`#{deep families} = #equivHoms C V^∨ deepClassesSubgroup` (P-15f6 step 4). -/
+theorem card_deepFam_eq (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (hρsurj : Function.Surjective ⇑ρ) :
+    letI := conjModuleDeep ρ hρsurj
+    letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+    Nat.card {ξ : AdmissibleFam (V := V) ρ // ∀ φ : V →+ ZMod 2,
+        ξ.fam φ ∈ deepClasses (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)}
+      = Nat.card ↥(equivHoms C (V →+ ZMod 2)
+          ↥(deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))) :=
+  letI := conjModuleDeep ρ hρsurj
+  letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+  Nat.card_congr (deepFamEquiv ρ hρ hρsurj)
+
 end GQ2
