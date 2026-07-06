@@ -195,3 +195,26 @@ as the named interface, with **the paper's own Lemma 6.3 hypotheses** added — 
    degree-2 coordinate monomials; free coordinate action ⟹ pair-stabilizers trivial or
    order-2-swap).  The analytic heart; combine with e2 via `IsEquivariantFactorSet.add` and
    close through `kappa0_exists_of_split`.
+
+## Addendum (2026-07-06, Fable): P-17e4 reduced to a counting inequality
+
+The Lemma 6.11 kernel is now two pieces in `GQ2/RegularSummand.lean`:
+
+1. **`free_of_card_fixedPoints_pow_le` (PROVED, std-3, Ax ∅)** — the counting criterion:
+   over a cyclic 2-group `P`, a finite 2-torsion module with `#V^P ^ |P| ≤ #V` is
+   equivariantly isomorphic to a regular module.  Fully constructive (explicit
+   geometric-series inverse of the convolution `T = 1 + nilpotent`; one free block splits
+   per step; induction on `#V`).  This replaces the paper's two Lean-hostile endgame steps
+   (regular basis over an algebraic closure; faithfully-flat projectivity descent).
+2. **`card_fixedPoints_pow_le_of_ramified` (the SOLE remaining sorry)** — the bound
+   `#V^P ^ |P| ≤ #V` on a ramified simple faithful module.  F2-rational discharge plan
+   (recorded deviation from the paper's F2bar weight-line argument): the group algebra of
+   the odd inertia is etale, so `V` decomposes along factor fields; simplicity forces a
+   single orbit of factors and faithfulness (cyclic inertia: subgroups characteristic)
+   forces them faithful; a Sylow-element stabilizing a factor acts semilinearly through a
+   **nontrivial** Frobenius power — else it centralizes the inertia, its normal closure is
+   abelian with nontrivial O_2, and `FoxH.lemma_5_12` contradicts faithfulness; finite-field
+   semilinear fixed points descend (additive Hilbert 90 / normal basis), giving
+   `dim V^P = dim V / |P|` exactly.  Inputs needed from scratch: primitive idempotents of
+   `F2[C_m]` (m odd) and the semilinear descent dimension count — finite-field linear
+   algebra, no Clifford induction, no base change.
