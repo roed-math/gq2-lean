@@ -24,6 +24,11 @@
   (`centralOver_equiv`/`liftsOver_equiv` over `En.radData l h`) off `half139`, reducing it (BOTH
   sources) to the two pure `MLifts`-level source facts for `ρ' = rhoPrime …`:
   `hlem86M : 2·#{central M-lifts} = #(M-lifts)` and `hMcountM : #(M-lifts) = |M_B|²`.
+* ✅ **`phase140_ofPhaseData`** (std-3, sorry-free) — the **(140) reducer**, the `lemma_8_5`/8.7
+  analog of `stageR136_of`: reduces the (140) display to the two-count phase datum `hfib : zBC = μ·M`
+  (the μ-fibration) + `hgauss : 2|D_T|·M = |V|·e_Γ(C) + G0·Σ_ζ(2·nPhase(phase ζ) − e_Γ(C))`
+  (`lemma_8_5` aggregated), by pure algebra (`linear_combination`).  So **all three displays
+  (136)/(139)/(140) now have clean reducers**; only the concrete data remains.
 
 **`prop_8_9` is NOT closed** — it stays `sorry`; the three per-source inputs + the witness are
 blocked (below).  The final splice `exact prop_8_9_of …` into `SectionEight.lean` is a trivial edit,
@@ -35,7 +40,7 @@ deferred until the inputs land.
 |---|---|---|
 | **`half139` ×2** | ◑ dischargeable modulo P-16c | `half139_via_radData` + **`lemma_8_6_local`** (✓ `G_ℚ₂`, `SectionEight.lean:1301`) / **`lemma_8_6_gammaA`** (✗ **sorry**, `SectionEight.lean:1288`, = P-16c) for `hlem86M`, + **`prop_5_16`/`prop_5_15`** (✓) for `hMcountM`.  **Only `Γ_A` is blocked, on P-16c.** |
 | **`stageR136` ×2** | ✗ blocked (infra) | needs an **`RObstructionData` built from `En`** — which `Enrichment` does **not** carry (no cover-map family `coverMap_λ`, no `pair : D_Rmod →ₗ (R→+𝔽₂)`; this is the P-16d2 escalation).  Then `stageR136_ofRSepData` (P-16d2, ✓) closes it from `hsep_hom` + `hZcount` + `hE2`.  **Requires extending `Enrichment` (co-owned `SectionEight.lean` structure edit — owner sign-off) with the P-16d2 cover-map/pair fields, then constructing the datum + discharging the source residues `hsep_hom`/`hZcount` concretely.** |
-| **`phase140` ×2** | ✗ blocked (assembly) | all ingredients **proved** — `lemma_8_7_count` (`AffineTLift.lean:717`), `lemma_8_5` (`SectionEight.lean:215`), `prop_8_8_target` (`AffineTLift.lean:534`), `exists_polar_inverse` (`AffineTLift.lean:573`), `lemma_6_21`/`lemma_6_22` (`SectionSix.lean:964`/`1011`), `cor_5_17_card` (✓) — but the **gluing into the (140) identity is not written**.  This is the hardest input: fibre `zBC ≃ {central M-lifts}` (`centralOver_equiv`) → `lemma_8_7_count` (μ-fibration over `V`) → `lemma_8_5` on `W = Z¹(V)` with Prop 8.8's `Δ` + `exists_polar_inverse`'s `a_{χ,κ}` + the `phaseFamily` covers, summed over lower exact-image maps, cor 5.17 for the Γ-level (135). |
+| **`phase140` ×2** | ◑ **reducer landed** (`phase140_ofPhaseData`); residual = the two counts | the top-level (140) algebra is **done** — residual is the phase datum `M`/`hfib`/`hgauss` for the concrete frame: **`hfib`** the μ-fibration `zBC = μ·M` (`zBC`-fibration `RadicalEdgeBridge.lean:117` → `centralOver_equiv` → `lemma_8_7_count` over `redT`), and **`hgauss`** the `lemma_8_5` count on the `V`-descent with `Q = En.qbar`, `a_χ` from `exists_polar_inverse`, `Δ`/phase covers from Prop 8.8 (`prop_8_8_target` ✓) / `phaseFamily`.  All ingredients proved; this is the "(140) phase-module" — the largest remaining piece, coupled to the witness. |
 | **witness `(μ, G0, DT, phase)`** | ✗ blocked (constructor) | no constructor from `En` exists.  `μ = Nat.card (TCocycle …)` (`lemma_8_7_count`); `G0 = gaussSum (E.qbar …)` (`SectionEight.lean:199`); `DT =` the `(T^∨)^C` scalar-dual index; `phase = phaseFamily (DeltaScalar E.dat γ δ a) …` (`AffineTLift.lean:841`/`528`/`769`).  Shared across both sources (source-independent), so built once from `En`. |
 
 ## Cross-ticket dependencies still open
@@ -44,6 +49,41 @@ deferred until the inputs land.
 * **P-17d** — `blockEnrichment` is a `sorry` (`SectionNine.lean:572`); blocks the *concrete*
   instantiation of `prop_8_9` (§9 supplies `RF := blockFrame`, `En := blockEnrichment`), but not the
   abstract `prop_8_9` proof itself.
+
+## `phase140` is a P-16d2-scale build: the "(140) phase-module"
+
+Confirmed by tracing `lemma_8_5` (`SectionEight.lean:215`, the (140) Gauss engine, **proved** — the
+analog of `lemma_8_4` for (136)) and `lemma_8_7_count` (`AffineTLift.lean:717`, **proved**): closing
+`phase140` is not a thin reducer but a module comparable to the (136) obstruction module (P-16d2).
+The (140) identity
+`2·|D_T|·zBC = μ·(|V|·e_Γ(C) + G0·Σ_ζ (2·nPhase(phase ζ) − e_Γ(C)))` unfolds as a **4-level count**:
+
+1. `zBC = Σ_ρ #CentralOver(ρ)` — the `zBC`-fibration over the `C`-image `ρ` (reuse the `hfib` step
+   inside `half139_of`, `RadicalEdgeBridge.lean:117`) → `#{central M-lifts}` (`centralOver_equiv`).
+2. `#{central M-lifts} = μ · #{central-liftable T-reductions}` — the `lemma_8_7_count` `μ`-fibration
+   over `redT` (`μ = #(TCocycle D ρ)`, constant on the `V`-coordinate by `central_twist_iff`).
+3. `#{central-liftable T-reductions} = N(κ_ρ, ε_ρ)` — the constrained quadratic count of `lemma_8_5`
+   with `W =` the `V`-lift space, `Q = En.qbar`, `L` the descent, `a_χ` from `exists_polar_inverse`;
+   the "central-liftable" ⟺ `Q(x)=ε ∧ Lx=κ` identity is the (135)/Prop 8.8 content
+   (`prop_8_8_target` ✓, `lemma_6_21`/`6_22` ✓).
+4. `Σ_χ sign(χκ+ε+Q(a_χ)) = Σ_ζ (2·nPhase(phase ζ) − e_Γ(C))` — the sign↔count reindex over the
+   phase covers `phase = phaseFamily (DeltaScalar …)`, matching characters `χ ∈ V^∨` to the `D_T`
+   index (the same `Δ`/`phase`/`μ`/`G0` that the **witness** defines — so `phase140` and the witness
+   are one build).
+
+**Recommended**: promote this to its own P-16d2-style sub-ticket ("(140) phase-module"): design the
+`PhaseData` interface (the (140) analog of `RObstructionData`), prove `phase140_ofPhaseData` via
+`lemma_8_5` + `lemma_8_7_count` + the fibration, and construct the witness `(μ,G0,DT,phase)` inside
+it.  This is the single largest remaining §8 piece.
+
+## Note — `hfg` and the B1 accounting
+
+`hfgA` (`GammaA` t.f.g.) is a **proved** theorem (`FinitelyGenerated.lean:84`); `hfgF` (`AbsGalQ2`
+t.f.g.) is **axiom B1** (`absGalQ2_isTopologicallyFinitelyGenerated`).  The board reserves B1's
+*first consumption* for **P-17i** (the §9 master induction), so `prop_8_9_of` keeps `hfg` as
+hypotheses rather than discharging `hfgF` (which would pull B1 into `prop_8_9`'s footprint) — an
+axiom-accounting decision for the owner at splice time.  (`hhead` is `F`-dependent, so genuinely a
+hypothesis.)
 
 ## To close `prop_8_9`
 
