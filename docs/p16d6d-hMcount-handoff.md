@@ -119,13 +119,25 @@ theorem, not an assumption:** the lifting obstruction of `ρ'` through `YB ↠ Y
 rhoPrime_surjective …`, `hcomp`/`hA₂` from Step 1. Note `|MBmod| = |↥RF.MB| = Nat.card ↥RF.MB`
 (`Additive` preserves cardinality; `Nat.card_congr`/`Nat.card_eq_of_bijective` on `Additive.toMul`).
 
-### Step 4 — `#fixedPts RF.YC (ElemDual MBmod) = 1`
-= `#H²(AbsGalQ2, M_B) = 1` (`card_H2_eq_fixedPts`, B6). Prove via `(M_B)_{YC} = 0` (the argument
-above). Concretely: `fixedPts RF.YC (ElemDual MBmod)` = `YC`-invariant `𝔽₂`-functionals on `M_B` =
-functionals vanishing on the augmentation `[YC-orbit differences]`; `(M_B)_{YC} = 0` ⟹ only the
-zero functional ⟹ card 1. The group theory reduces to `⁅⊤, Blk.K⁆ ⊔ Blk.R = Blk.K` (formalize that
-first — pure `Subgroup`/`commutator`/`chief`/`minimal` reasoning, **no** cohomology), then bridge
-`M_B`-module-coinvariants ↔ the subgroup quotient `K/(⁅Y,K⁆·R)`.
+### Step 4 — `#fixedPts RF.YC (ElemDual MBmod) = 1`  ← **the group theory is ALREADY PROVED**
+`#fixedPts RF.YC (ElemDual MBmod)` = # of `YC`-invariant `𝔽₂`-functionals on `M_B` = `#(M_B^∨)^C`.
+The vanishing `(M_B^∨)^C = 0` (⟹ card 1) is **exactly `GQ2.SectionSeven.lemma_7_1_dual`**
+(`SectionSeven.lean:449`, **PROVED std-3, no axioms, no sorry** — verified):
+```
+lemma_7_1_dual (B : MinimalBlock L) :
+  ¬ ∃ X : Subgroup Y, X.Normal ∧ B.R ≤ X ∧ X ≤ B.K ∧ (X.subgroupOf B.K).index = 2
+```
+Its docstring: *"(M^∨)^C = 0 — K has no Y-normal subgroup of index 2 above R (a nonzero invariant
+functional on M would be its kernel)"* — the full minimality + chief-dichotomy argument I sketched
+above is already carried out there (and in the companion `lemma_7_1_radical`/`lemma_7_1_head`).
+
+**So Step 4 is NOT new math** — only a **bridge** from the subgroup statement to the module
+`fixedPts`: given `0 ≠ λ ∈ fixedPts RF.YC (ElemDual MBmod)`, its kernel `ker λ ≤ M_B = Blk.K/Blk.R`
+pulls back to a `Y`-normal `X` with `Blk.R ≤ X ≤ Blk.K` and `(X.subgroupOf Blk.K).index = 2`
+(index 2 ⟸ `λ` surjective onto `𝔽₂`; `Y`-normal ⟸ `λ` `YC`-invariant so `ker λ` is a `YC`-submodule,
+and `YC = Y/Blk.K`-submodules of `Blk.K/Blk.R` ↔ `Y`-normal subgroups between `Blk.R` and `Blk.K`);
+`lemma_7_1_dual` refutes it, so `fixedPts = {0}`, card 1. Bridge ≈ 50–80 ln (the submodule↔normal
+subgroup correspondence for `M_B = K/R` + index/kernel bookkeeping).
 
 ### Step 5 — assemble
 `#MLifts = #Z¹ = |M_B|² · 1 = |M_B|²`. Chain Steps 2, 3, 4.
@@ -136,13 +148,15 @@ first — pure `Subgroup`/`commutator`/`chief`/`minimal` reasoning, **no** cohom
 
 * **Step 1** ~70–100 ln, mechanical (copy `RadicalEdgeLocal` D.T block, add the `YC`-action).
 * **Step 3** ~30 ln once Step 1's instances are in scope.
-* **Step 4** ~100–150 ln: the subgroup linchpin `⁅⊤,K⁆ ⊔ R = K` (~80 ln) + the coinvariants↔dual
-  fixedPts bridge (~50 ln). The **novel math**; independently checkable.
+* **Step 4** ~50–80 ln: **the math is done** (`lemma_7_1_dual`, std-3) — only the
+  submodule↔`Y`-normal-subgroup bridge to `fixedPts` remains.
 * **Step 2** the hardest / least in-repo support (nonemptiness). Scope the Frattini-cover route (b)
   before building general `H²`-obstruction machinery.
 
-Recommended order: **Step 4's subgroup linchpin first** (self-contained, de-risks the whole ticket
-and is reusable), then Steps 1+3 (the count modulo fixedPts), then the Step 4 bridge, then Step 2.
+Recommended order: **Steps 1 + 3 + 4 first** (the count `#Z¹ = |M_B|²`, now unblocked — Step 4's
+crux `lemma_7_1_dual` is already proved), reducing `hMcountM` to the single Step-2 nonemptiness
+sorry; then Step 2. (Steps 1+3+4 need no new mathematics — Step 1 copies the `RadicalEdgeLocal`
+D.T module block, Step 3 is `card_Z1_eq`, Step 4 bridges to the proved `lemma_7_1_dual`.)
 
 Expected axioms at close: **std-3 + B6 + B7** (B6 `card_H2_eq_fixedPts`, B7 `card_Z1_eq`); the
 P-16d6d ticket column `⊆ {B6,B7,B9}` — **B9 should not be needed**.

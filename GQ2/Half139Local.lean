@@ -86,12 +86,11 @@ theorem hlem86M_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
    `#Z¹(AbsGalQ2, MBmod) = |MBmod|² · #fixedPts RF.YC (ElemDual MBmod)`, feeding `hρ = rhoPrime`
    surjectivity (`rhoPrime_surjective`), `hcomp` from step 1, `hA₂` from `RF.MB_elem`.
 4. **`#fixedPts RF.YC (ElemDual MBmod) = 1`** — i.e. `H²(AbsGalQ2, M_B) = 0`
-   (`card_H2_eq_fixedPts`, B6), i.e. the `YC`-coinvariants `(M_B)_{YC} = 0`.  **This is the key
-   structural fact, from minimality of `K`** (`Blk.minimal`): a nonzero trivial `YC`-quotient
-   `M_B ↠ 𝔽₂` cannot kill `T_B` (as `V = M_B/T_B = P/S` is a nontrivial chief factor with no trivial
-   quotient — `Blk.chief`/`Blk.nontrivial_action`), so its index-`2` kernel `M'` has `M' + T_B =
-   M_B`; the `Y`-normal preimage `K'` (`Blk.R ≤ K' < Blk.K`) then satisfies `K' ⊔ Blk.S = Blk.P`,
-   contradicting `Blk.minimal`.  Hence no trivial quotient, `(M_B)_{YC} = 0`, `#fixedPts = 1`.
+   (`card_H2_eq_fixedPts`, B6), i.e. `(M_B^∨)^{YC} = 0`.  **The group theory is already proved:**
+   this is `GQ2.SectionSeven.lemma_7_1_dual` (`SectionSeven.lean:449`, std-3, no sorry) — "`K` has no
+   `Y`-normal subgroup of index 2 above `R`" = `(M^∨)^C = 0`, via minimality of `K` + the `V = P/S`
+   chief dichotomy.  Only a bridge (a nonzero `YC`-invariant functional's kernel ↦ an index-2
+   `Y`-normal `X` with `Blk.R ≤ X ≤ Blk.K`, refuted by `lemma_7_1_dual`) remains — no new math.
 5. Combine: `#MLifts = #Z¹ = |M_B|² · 1 = |M_B|²`.
 
 Expected axioms at close: `std-3 + B6 + B7` (B6 via `card_H2_eq_fixedPts`, B7 via `card_Z1_eq`). -/
