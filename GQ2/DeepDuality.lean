@@ -974,4 +974,139 @@ theorem card_equivHoms_deep_eq_quot
 
 end Assembly
 
+/-! ## §G — the concrete `E`: mid (depth-`e`) Kummer classes
+
+The `U_e`-classes in π-free norm vocabulary: `IsMidUnit` is the `IsDeepUnit` idiom with
+`‖b‖ ≤ 1` (`‖A−1‖ ≤ ‖2‖ = ‖π‖^e`) in place of `‖b‖ < 1`.  `midClassesSubgroup` and
+`conjAct_midClasses` mirror the deep versions (`GQ2/AdmissibleCount.lean`) with `≤` for `<`;
+`deepClassesSubgroup ≤ midClassesSubgroup` is strict-to-weak.  These are the `E`-side
+instantiation inputs of `card_equivHoms_deep_eq_quot` (handoff §8). -/
+
+section MidClasses
+
+open ContCoh LocalKummer
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+/-- **Mid unit** (`U_e` in norm vocabulary): `A = 1 + 2b` with `b` `N`-fixed and `‖b‖ ≤ 1`,
+i.e. `‖A − 1‖ ≤ ‖2‖`.  The `≤`-relaxation of `SectionSix.IsDeepUnit`. -/
+def IsMidUnit (N : Subgroup (Kummer.GaloisGroup ℚ_[2])) (A : ℚ̄₂) : Prop :=
+  A ≠ 0 ∧ (∀ g ∈ N, g • A = A) ∧
+    ∃ b : ℚ̄₂, (∀ g ∈ N, g • b = b) ∧ A = 1 + 2 * b ∧ ‖b‖ ≤ 1
+
+/-- A deep unit is a mid unit. -/
+theorem IsMidUnit.of_isDeepUnit {N : Subgroup (Kummer.GaloisGroup ℚ_[2])} {A : ℚ̄₂}
+    (h : SectionSix.IsDeepUnit N A) : IsMidUnit N A := by
+  obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := h
+  exact ⟨hA0, hAfix, b, hbfix, hAeq, hb.le⟩
+
+/-- **The mid Kummer classes** in `H¹(N, 𝔽₂)`: classes of restricted Kummer cocycles of mid
+units (the image of `U_e(K)`).  The subgroup structure mirrors
+`GQ2.deepClassesSubgroup`. -/
+noncomputable def midClassesSubgroup (N : Subgroup (Kummer.GaloisGroup ℚ_[2])) :
+    AddSubgroup (H1 ↥N (ZMod 2)) where
+  carrier := {ξ | ∃ A β : ℚ̄₂, IsMidUnit N A ∧ β ^ 2 = A ∧ β ≠ 0 ∧
+    H1ofFun ↥N (fun n : ↥N => Kummer.kummerCocycleFun β (n : Kummer.GaloisGroup ℚ_[2])) = ξ}
+  zero_mem' := by
+    refine ⟨1, 1, ⟨one_ne_zero, fun g _ => by rw [AlgEquiv.smul_def, map_one], 0,
+      fun g _ => smul_zero g, by ring, by rw [norm_zero]; exact zero_le_one⟩,
+      one_pow 2, one_ne_zero, ?_⟩
+    have hk1 : (fun n : ↥N => Kummer.kummerCocycleFun (1 : ℚ̄₂)
+        ((n : Kummer.GaloisGroup ℚ_[2]))) = 0 := by
+      funext n
+      exact Kummer.kummerCocycleFun_eq0 (by rw [AlgEquiv.smul_def, map_one])
+    rw [hk1, H1ofFun_of_mem (zero_mem _)]
+    exact map_zero (H1mk ↥N (ZMod 2))
+  add_mem' := by
+    rintro ξ η ⟨A₁, β₁, hd₁, hsq₁, hne₁, rfl⟩ ⟨A₂, β₂, hd₂, hsq₂, hne₂, rfl⟩
+    obtain ⟨hA₁0, hA₁fix, b₁, hb₁fix, hA₁eq, hb₁⟩ := hd₁
+    obtain ⟨hA₂0, hA₂fix, b₂, hb₂fix, hA₂eq, hb₂⟩ := hd₂
+    have h2le : ‖(2 : ℚ̄₂)‖ ≤ 1 := by
+      rw [show (2 : ℚ̄₂) = 1 + 1 by norm_num]
+      exact (IsUltrametricDist.norm_add_le_max 1 1).trans (by rw [norm_one, max_self])
+    refine ⟨A₁ * A₂, β₁ * β₂,
+      ⟨mul_ne_zero hA₁0 hA₂0, fun g hg => ?_, b₁ + b₂ + 2 * b₁ * b₂, fun g hg => ?_,
+        by rw [hA₁eq, hA₂eq]; ring, ?_⟩,
+      by rw [mul_pow, hsq₁, hsq₂], mul_ne_zero hne₁ hne₂, ?_⟩
+    · rw [AlgEquiv.smul_def, map_mul, ← AlgEquiv.smul_def, ← AlgEquiv.smul_def,
+        hA₁fix g hg, hA₂fix g hg]
+    · rw [AlgEquiv.smul_def, map_add, map_add, map_mul, map_mul, map_ofNat,
+        ← AlgEquiv.smul_def, ← AlgEquiv.smul_def, hb₁fix g hg, hb₂fix g hg]
+    · have hprod : ‖(2 : ℚ̄₂) * b₁ * b₂‖ ≤ 1 := by
+        rw [norm_mul, norm_mul]
+        calc ‖(2 : ℚ̄₂)‖ * ‖b₁‖ * ‖b₂‖
+            ≤ 1 * ‖b₁‖ * ‖b₂‖ := by
+              have := mul_le_mul_of_nonneg_right
+                (mul_le_mul_of_nonneg_right h2le (norm_nonneg b₁)) (norm_nonneg b₂)
+              simpa using this
+          _ = ‖b₁‖ * ‖b₂‖ := by ring
+          _ ≤ ‖b₁‖ * 1 := mul_le_mul_of_nonneg_left hb₂ (norm_nonneg b₁)
+          _ = ‖b₁‖ := mul_one _
+          _ ≤ 1 := hb₁
+      refine le_trans (IsUltrametricDist.norm_add_le_max _ _) ?_
+      rw [max_le_iff]
+      exact ⟨le_trans (IsUltrametricDist.norm_add_le_max _ _)
+        (by rw [max_le_iff]; exact ⟨hb₁, hb₂⟩), hprod⟩
+    · have hLHS : (fun n : ↥N => Kummer.kummerCocycleFun (β₁ * β₂)
+          ((n : Kummer.GaloisGroup ℚ_[2])))
+          = (fun n : ↥N => Kummer.kummerCocycleFun β₁ ((n : Kummer.GaloisGroup ℚ_[2])))
+            + fun n : ↥N => Kummer.kummerCocycleFun β₂ ((n : Kummer.GaloisGroup ℚ_[2])) := by
+        funext n
+        exact kcf_mul_of_fixed (by rw [mul_pow, hsq₁, hsq₂]) hsq₁ hsq₂ hne₁ hne₂
+          (hA₁fix (n : Kummer.GaloisGroup ℚ_[2]) n.2) (hA₂fix (n : Kummer.GaloisGroup ℚ_[2]) n.2)
+      rw [hLHS, GQ2.DeepPart.H1ofFun_add (GQ2.DeepPart.kummerRestrict_mem_Z1 hsq₁ hne₁ hA₁fix)
+        (GQ2.DeepPart.kummerRestrict_mem_Z1 hsq₂ hne₂ hA₂fix)]
+  neg_mem' := by
+    intro ξ hξ
+    rwa [neg_eq_of_add_eq_zero_left (GQ2.h1_add_self ξ)]
+
+/-- The deep classes sit inside the mid classes (`U_{e+1} ≤ U_e`). -/
+theorem deepClassesSubgroup_le_midClassesSubgroup
+    (N : Subgroup (Kummer.GaloisGroup ℚ_[2])) :
+    deepClassesSubgroup N ≤ midClassesSubgroup N := by
+  rintro ξ ⟨A, β, hdeep, hsq, hne, rfl⟩
+  exact ⟨A, β, IsMidUnit.of_isDeepUnit hdeep, hsq, hne, rfl⟩
+
+variable {C : Type} [Group C] [TopologicalSpace C]
+variable (ρ : ContinuousMonoidHom AbsGalQ2 C)
+
+/-- **`conjAct`-invariance of the mid classes** — the `≤`-mirror of `conjAct_deepClasses`
+(same §4-technique: `g` in the reducible `GaloisGroup` view, witness built before touching
+`conjAct`, the `H1`-equation closed by a `calc`). -/
+theorem conjAct_midClasses (g : Kummer.GaloisGroup ℚ_[2])
+    {ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)}
+    (hξ : ξ ∈ midClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :
+    conjAct ρ g ξ ∈ midClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) := by
+  obtain ⟨A, β, hmid', hsq, hβ0, rfl⟩ := hξ
+  obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hmid'
+  refine ⟨g • A, g • β, ⟨?_, ?_, g • b, ?_, ?_, ?_⟩, ?_, ?_, ?_⟩
+  · rw [AlgEquiv.smul_def]; simpa using hA0
+  · intro m hm
+    have hconj : (g⁻¹ * m * g) • A = A :=
+      hAfix _ (conj_mem_ker ρ g ⟨m, hm⟩)
+    calc m • (g • A) = g • ((g⁻¹ * m * g) • A) := by
+          rw [← mul_smul, ← mul_smul]; congr 1; group
+      _ = g • A := by rw [hconj]
+  · intro m hm
+    have hconj : (g⁻¹ * m * g) • b = b :=
+      hbfix _ (conj_mem_ker ρ g ⟨m, hm⟩)
+    calc m • (g • b) = g • ((g⁻¹ * m * g) • b) := by
+          rw [← mul_smul, ← mul_smul]; congr 1; group
+      _ = g • b := by rw [hconj]
+  · rw [hAeq, AlgEquiv.smul_def, map_add, map_one, map_mul, map_ofNat, ← AlgEquiv.smul_def]
+  · rw [norm_galois]; exact hb
+  · rw [AlgEquiv.smul_def, AlgEquiv.smul_def, ← map_pow, hsq]
+  · rw [AlgEquiv.smul_def]; simpa using hβ0
+  · symm
+    calc conjAct ρ g (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+            (fun n => Kummer.kummerCocycleFun β (n : AbsGalQ2)))
+        = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+            (fun n => Kummer.kummerCocycleFun β ((conjMap ρ g n : AbsGalQ2))) :=
+          conjAct_h1ofFun ρ g (GQ2.DeepPart.kummerRestrict_mem_Z1 hsq hβ0 hAfix)
+      _ = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+            (fun n => Kummer.kummerCocycleFun (g • β) (n : AbsGalQ2)) := by
+          congr 1; funext n; exact kcf_conj β g (n : AbsGalQ2)
+
+end MidClasses
+
 end GQ2
