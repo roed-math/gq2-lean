@@ -123,4 +123,94 @@ theorem RCharKer_relIndex_le (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RChar
         Nat.card_le_card_of_injective _ Subtype.val_injective
     _ = 2 := by rw [Nat.card_eq_fintype_card]; rfl
 
+/-- The `D_R` index type of the concrete frame `blockFrameImpl` (defeq to its `.DR`). -/
+abbrev BlockDR (Blk : SectionSeven.MinimalBlock L) : Type :=
+  {R' : Subgroup Y // R'.Normal ∧ R' ≤ Blk.R ∧ R'.relIndex Blk.R ≤ 2}
+
+/-- **The inverse direction**: the index-≤2 indicator character `r ↦ [r ∉ R']` of a `D_R`
+element, as an additive hom (additive by `mul_mem_iff_of_index_two`, with the `index ≤ 2`
+case-split covering `R' = R` — the zero character). -/
+noncomputable def RCharOfHom (Blk : SectionSeven.MinimalBlock L) (R' : BlockDR Blk) :
+    Additive ↥Blk.R →+ ZMod 2 where
+  toFun r := if ((Additive.toMul r : ↥Blk.R) : Y) ∈ R'.1 then 0 else 1
+  map_zero' := by
+    show (if ((Additive.toMul (0 : Additive ↥Blk.R) : ↥Blk.R) : Y) ∈ R'.1
+      then (0 : ZMod 2) else 1) = 0
+    exact if_pos (one_mem R'.1)
+  map_add' a b := by
+    show (if ((Additive.toMul a * Additive.toMul b : ↥Blk.R) : Y) ∈ R'.1 then (0 : ZMod 2) else 1)
+      = (if ((Additive.toMul a : ↥Blk.R) : Y) ∈ R'.1 then 0 else 1)
+        + (if ((Additive.toMul b : ↥Blk.R) : Y) ∈ R'.1 then 0 else 1)
+    have hidx : (R'.1.subgroupOf Blk.R).index ≤ 2 := R'.2.2.2
+    rcases Nat.lt_or_ge (R'.1.subgroupOf Blk.R).index 2 with hlt | hge
+    · have h1 : (R'.1.subgroupOf Blk.R).index = 1 := by
+        have hne0 : (R'.1.subgroupOf Blk.R).index ≠ 0 := Subgroup.index_ne_zero_of_finite
+        omega
+      have htop : R'.1.subgroupOf Blk.R = ⊤ := Subgroup.index_eq_one.mp h1
+      have hmem : ∀ x : ↥Blk.R, (x : Y) ∈ R'.1 := fun x => by
+        have hx : x ∈ R'.1.subgroupOf Blk.R := htop ▸ Subgroup.mem_top x
+        rwa [Subgroup.mem_subgroupOf] at hx
+      rw [if_pos (hmem _), if_pos (hmem _), if_pos (hmem _), add_zero]
+    · have h2 : (R'.1.subgroupOf Blk.R).index = 2 := le_antisymm hidx hge
+      have hkey := mul_mem_iff_of_index_two h2 (Additive.toMul a) (Additive.toMul b)
+      simp only [Subgroup.mem_subgroupOf, Subgroup.coe_mul] at hkey
+      by_cases h1 : ((Additive.toMul a : ↥Blk.R) : Y) ∈ R'.1 <;>
+        by_cases h2' : ((Additive.toMul b : ↥Blk.R) : Y) ∈ R'.1 <;>
+        simp only [Subgroup.coe_mul, hkey, h1, h2', if_true, if_false, iff_true, iff_false,
+          iff_self] <;> decide
+
+/-- `RCharOfHom R'` is Y-invariant, hence a member of `RCharSub` — from `R'.Normal`. -/
+theorem RCharOf_mem (Blk : SectionSeven.MinimalBlock L) (R' : BlockDR Blk) :
+    RCharOfHom Blk R' ∈ RCharSub Blk := by
+  intro y r
+  show (if ((⟨y * (r : Y) * y⁻¹,
+        (SectionSeven.frattiniLike_normal Blk.K Blk.hK).conj_mem (r : Y) r.2 y⟩ : ↥Blk.R) : Y)
+      ∈ R'.1 then (0 : ZMod 2) else 1)
+    = if ((r : ↥Blk.R) : Y) ∈ R'.1 then 0 else 1
+  simp only [Subgroup.coe_mk]
+  by_cases hrl : ((r : ↥Blk.R) : Y) ∈ R'.1
+  · rw [if_pos (R'.2.1.conj_mem _ hrl y), if_pos hrl]
+  · have hnot : y * (r : Y) * y⁻¹ ∉ R'.1 := fun h => hrl (by
+      have hc := R'.2.1.conj_mem _ h y⁻¹
+      rwa [show y⁻¹ * (y * (r : Y) * y⁻¹) * y⁻¹⁻¹ = (r : Y) from by group] at hc)
+    rw [if_neg hnot, if_neg hrl]
+
+/-- The inverse map `D_R → D_Rmod`: `R' ↦` its index-≤2 indicator character. -/
+noncomputable def RCharOf (Blk : SectionSeven.MinimalBlock L) (R' : BlockDR Blk) :
+    ↥(RCharSub Blk) := ⟨RCharOfHom Blk R', RCharOf_mem Blk R'⟩
+
+/-- A character is the indicator of its own kernel (`𝔽₂`-valued). -/
+theorem RChar_eq_ind (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) (r : ↥Blk.R) :
+    χ.1 (Additive.ofMul r) = if r ∈ RCharKerSub Blk χ then 0 else 1 := by
+  by_cases h : r ∈ RCharKerSub Blk χ
+  · rw [if_pos h]; exact h
+  · rw [if_neg h]
+    rcases (show ∀ a : ZMod 2, a = 0 ∨ a = 1 from by decide) (χ.1 (Additive.ofMul r)) with h0 | h1
+    · exact absurd h0 h
+    · exact h1
+
+/-- **Right inverse**: the kernel of the indicator character of `R'` is `R'`. -/
+theorem RCharKer_RCharOf (Blk : SectionSeven.MinimalBlock L) (R' : BlockDR Blk) :
+    RCharKer Blk (RCharOf Blk R') = R'.1 := by
+  have hker : RCharKerSub Blk (RCharOf Blk R') = R'.1.subgroupOf Blk.R := by
+    ext r
+    rw [Subgroup.mem_subgroupOf]
+    show (if ((r : ↥Blk.R) : Y) ∈ R'.1 then (0 : ZMod 2) else 1) = 0 ↔ ((r : ↥Blk.R) : Y) ∈ R'.1
+    by_cases h : ((r : ↥Blk.R) : Y) ∈ R'.1 <;> simp [h]
+  rw [RCharKer, hker, Subgroup.subgroupOf_map_subtype, inf_eq_left.mpr R'.2.2.1]
+
+/-- **Injectivity** of `χ ↦ ker χ`: a character is determined by its kernel. -/
+theorem RCharKer_inj (Blk : SectionSeven.MinimalBlock L) :
+    Function.Injective (fun χ : ↥(RCharSub Blk) => RCharKer Blk χ) := by
+  intro χ χ' hker
+  have hsub : RCharKerSub Blk χ = RCharKerSub Blk χ' := by
+    have h := congrArg (fun S => S.comap Blk.R.subtype) hker
+    simpa only [RCharKer,
+      Subgroup.comap_map_eq_self_of_injective Blk.R.subtype_injective] using h
+  apply Subtype.ext
+  apply AddMonoidHom.ext
+  intro a
+  show χ.1 (Additive.ofMul (Additive.toMul a)) = χ'.1 (Additive.ofMul (Additive.toMul a))
+  rw [RChar_eq_ind, RChar_eq_ind, hsub]
+
 end GQ2
