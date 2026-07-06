@@ -339,7 +339,7 @@ theorem phase140_of_gaussCorrespondence {Γ : Type} [Group Γ] [TopologicalSpace
     (Dsc : Descent D) (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
     (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
     [Fintype (BoundaryLifts b F RF.TC)]
-    {W Efp : Type*} [AddCommGroup W] [Module (ZMod 2) W] [Finite W]
+    {W Efp : Type} [AddCommGroup W] [Module (ZMod 2) W] [Finite W]
     [AddCommGroup Efp] [Module (ZMod 2) Efp] [Finite Efp]
     (Lin : W →ₗ[ZMod 2] Efp) (hLin : Function.Surjective Lin) (Q : W → ZMod 2)
     (aa : Module.Dual (ZMod 2) Efp → W)
@@ -385,6 +385,71 @@ theorem phase140_of_gaussCorrespondence {Γ : Type} [Group Γ] [TopologicalSpace
     push_cast
     ring
   exact phase140_ofPhaseData RF b F μ G0 DT phase l h Mcount hfib hgauss
+
+/-! ## Discharging the polar data `a_χ` from nonsingularity (the `En.hns` supply) -/
+
+open QuadraticFp2 AffineTLift in
+/-- **The canonical polar shift `a_χ`** (P-16d6): for a nonsingular quadratic `Q` on a finite
+`𝔽₂`-space `W` and a linear `L : W → E`, the unique `a` with `B_Q(a, ·) = χ ∘ L`
+(`exists_polar_inverse`).  This is `lemma_8_5`'s `a`-datum, supplied by the enrichment's
+`qbar`/`hns`/`hquad` — so the (140) reducer need not take `a`/`ha` as bare hypotheses. -/
+noncomputable def polarInverseL {W Efp : Type} [AddCommGroup W] [Module (ZMod 2) W] [Finite W]
+    [AddCommGroup Efp] [Module (ZMod 2) Efp]
+    (Q : W → ZMod 2) (hquad : IsQuadraticFp2 Q) (hns : Nonsingular Q)
+    (L : W →ₗ[ZMod 2] Efp) (χ : Module.Dual (ZMod 2) Efp) : W :=
+  Classical.choose (exists_polar_inverse Q hquad hns (χ.comp L))
+
+open QuadraticFp2 AffineTLift in
+/-- The defining spec of `polarInverseL`: `B_Q(a_χ, v) = χ(L v)` (the `ha` clause of `lemma_8_5`
+and `phase140_of_gaussCorrespondence`). -/
+theorem polarInverseL_spec {W Efp : Type} [AddCommGroup W] [Module (ZMod 2) W] [Finite W]
+    [AddCommGroup Efp] [Module (ZMod 2) Efp]
+    (Q : W → ZMod 2) (hquad : IsQuadraticFp2 Q) (hns : Nonsingular Q)
+    (L : W →ₗ[ZMod 2] Efp) (χ : Module.Dual (ZMod 2) Efp) (v : W) :
+    polar Q (polarInverseL Q hquad hns L χ) v = χ (L v) := by
+  exact Classical.choose_spec (exists_polar_inverse Q hquad hns (χ.comp L)) v
+
+open QuadraticFp2 AffineTLift CentralObstruction in
+/-- **The (140) reducer from nonsingularity** (P-16d6): `phase140_of_gaussCorrespondence` with the
+polar data `a`/`ha` discharged from `En.hns`/`En.hquad` via `polarInverseL`.  So the (140) engine
+inputs are exactly what the enrichment supplies (`Q = qbar`, nonsingular + quadratic), and the
+residual concrete facts are just `hM` (Prop 8.8 count), `hphase` (character↔phase reindex, now
+phrased with the canonical `a_χ = polarInverseL …`), `hμ` (μ-independence), and the matches. -/
+theorem phase140_of_nonsingular {Γ : Type} [Group Γ] [TopologicalSpace Γ]
+    [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+    [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk)
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (μ : ℕ) (G0 : ℤ) (DT : Type) [Fintype DT] (phase : DT → CentralCover RF.YC)
+    (l : RF.DR) (h : l ≠ RF.zeroDR)
+    (D : RadicalCoverData RF.YB) (hD : D.M = RF.MB) (hC : D.C = RF.scalarCover l h)
+    (Dsc : Descent D) (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    [Fintype (BoundaryLifts b F RF.TC)]
+    {W Efp : Type} [AddCommGroup W] [Module (ZMod 2) W] [Finite W]
+    [AddCommGroup Efp] [Module (ZMod 2) Efp] [Finite Efp]
+    (Lin : W →ₗ[ZMod 2] Efp) (hLin : Function.Surjective Lin) (Q : W → ZMod 2)
+    (hquad : IsQuadraticFp2 Q) (hns : Nonsingular Q)
+    (κ : BoundaryLifts b F RF.TC → Efp) (ε : BoundaryLifts b F RF.TC → ZMod 2)
+    (hμ : ∀ ρ : BoundaryLifts b F RF.TC, Nat.card (TCocycle D (RF.rhoPrime b F D hD ρ)) = μ)
+    (hM : ∀ ρ : BoundaryLifts b F RF.TC,
+      Nat.card ↥(Set.range (fun f : {f : MLifts D (RF.rhoPrime b F D hD ρ) // f.Central} =>
+        redT (RF.rhoPrime b F D hD ρ) f.1)) = Nat.card {x : W // Lin x = κ ρ ∧ Q x = ε ρ})
+    (hDT : Nat.card (Module.Dual (ZMod 2) Efp) = Nat.card DT)
+    (hWV : Nat.card W = Nat.card ↥RF.MB / Nat.card ↥RF.TBsub)
+    (hG0 : gaussSum Q = G0)
+    (hphase : (∑ᶠ χ : Module.Dual (ZMod 2) Efp, ∑ ρ : BoundaryLifts b F RF.TC,
+                sign (χ (κ ρ) + ε ρ + Q (polarInverseL Q hquad hns Lin χ)))
+              = ∑ᶠ ζ : DT, (2 * (RF.nPhase b F (phase ζ) : ℤ)
+                  - (exactImageCount b F RF.TC : ℤ))) :
+    2 * (Nat.card DT : ℤ) * RF.zBC b F l h
+      = μ * ((Nat.card ↥RF.MB / Nat.card ↥RF.TBsub : ℕ) * exactImageCount b F RF.TC
+          + G0 * ∑ᶠ ζ : DT, (2 * (RF.nPhase b F (phase ζ) : ℤ)
+              - (exactImageCount b F RF.TC : ℤ))) :=
+  phase140_of_gaussCorrespondence RF b F μ G0 DT phase l h D hD hC Dsc htriv hfg
+    Lin hLin Q (polarInverseL Q hquad hns Lin)
+    (fun χ v => polarInverseL_spec Q hquad hns Lin χ v) κ ε hμ hM hDT hWV hG0 hphase
 
 end SectionEight
 
