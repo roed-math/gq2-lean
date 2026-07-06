@@ -189,12 +189,13 @@ only when a lemma **simultaneously** touches `conjAct ρ g` (needs `g : AbsGalQ2
 
 ---
 
-## 7. Session update — the §4 gate is RESOLVED; f6 bricks landed (branch `p15f6-conjact-deepclasses`)
+## 7. Session update — the §4 gate is RESOLVED; the **f6 assembly is COMPLETE** (branch `p15f6-conjact-deepclasses`)
 
-This session **broke the §4 gate** and landed the remaining f6 bricks except the SES count.  All
-new declarations are **`#print axioms` = std-3** (`GQ2.AdmissibleCount` builds green, sorry-free).
-Work is on branch **`p15f6-conjact-deepclasses`** (not merged to master), commits `f1e35d3`,
-`7d256e5`, `6206629`, `33ca7a1`.
+This session **broke the §4 gate AND completed the entire f6 assembly** (steps 1–5).  All new
+declarations are **`#print axioms` = std-3** (`GQ2.AdmissibleCount` builds green, sorry-free).
+Work is on branch **`p15f6-conjact-deepclasses`** (not merged to master).  The f6 output is
+**`card_deepPart_sq_of_duality : #X₊² = #H¹(ℚ₂,V)`** from the duality (f7) + package (f8) +
+`hinf`/`hext` (banked) — see the "Step 3 + step 5 — DONE" subsection below.
 
 ### Landed (all std-3, in `GQ2/AdmissibleCount.lean`)
 * **`conjAct_deepClasses`** (§3 step 1 / the §4 gate) — `conjModule`-invariance of `deepClasses`.
@@ -223,22 +224,28 @@ Work is on branch **`p15f6-conjact-deepclasses`** (not merged to master), commit
 4. after a `congr`/`simp` leaves a stray `conjActHom`, **`show … = conjAct …`** to defeq-convert
    before `rw [← conjAct_comp]`.
 
-### DEFERRED — step 3 (the `U_{e+1}` SES count) — the ONE remaining f6 blocker
-`card_equivHoms_deepSES` (removed; full attempt in the git history of this branch, and its shape is
-in the comment where it used to live) applies `card_equivHoms_of_exact` to
-`0 → deepClassesSubgroup →ⱼ H¹(N) →π H¹(N)/deep → 0`.  **Everything is correct** —
-`j = AddSubgroup.subtype` (`hjeq = fun c w => rfl`, `hjinj = Subtype.val_injective`),
-`π = QuotientAddGroup.mk'` (`hπeq = fun c w => (conjActQuotHom_mk …).symm`,
-`hπsurj = QuotientAddGroup.mk'_surjective`), `hexact` via `QuotientAddGroup.eq_zero_iff` +
-`AddSubgroup.range_subtype`, `h2W = GQ2.h1_add_self`, package `(ι,r,hι,hr,hri)` + `Finite (H¹ N)`
-as hypotheses.  **Blocker**: `(deepClassesSubgroup ρ.ker).Normal` and the quotient's `HAdd`
-resolve at TOP level (`example … := inferInstance` compiles) but **FAIL in the nested position**
-`card_equivHoms_of_exact` needs them (`instances`-transparency + the `ρ.ker` view clash).  `set Deep
-:= …` + `haveI : Deep.Normal` did NOT fix it (a residual defeq mismatch surfaces at the engine call).
-**Recommended fix = the standalone view-normalization brick from §4**: either (a) a transport lemma
-exhibiting `deepClassesSubgroup ρ.ker` uniformly in ONE view, or (b) restate `deepClassesSubgroup`
-(and `deepClasses`) directly over `Subgroup AbsGalQ2` so no coercion ever happens.  Once step 3
-lands, step 5 is pure arithmetic:
-`#H¹(ℚ₂,V) = #AdmissibleFam = #equivHoms(V^∨,H¹N) = #equivHoms(V^∨,deep)·#equivHoms(V^∨,quot)`
-[SES], `#deepPart = #deepFam = #equivHoms(V^∨,deep)`, so `hduality : #equivHoms(V^∨,deep) =
-#equivHoms(V^∨,quot)` ⟹ `#deepPart² = #H¹` (the f6 output; hand `hduality` to f7).
+### Step 3 (the `U_{e+1}` SES count) + step 5 (assembly) — DONE (the f6 assembly is COMPLETE)
+The step-3 blocker (nested `.Normal`/`HAdd` resolution failing under the `ρ.ker` view clash — it
+resolves at top level, `example … := inferInstance` compiles, but NOT in the position
+`card_equivHoms_of_exact` needs it; `set Deep`/`haveI` did not fix it) was **cracked by an abstract
+helper**:
+* **`card_equivHoms_quotient_ses`** — the inclusion/quotient SES count stated over a **plain fvar**
+  `Deep : AddSubgroup A` (A a finite 2-torsion `C`-module).  Over fvars, `Deep.Normal` and the
+  quotient's `AddCommGroup`/`Finite` resolve cleanly (NO coercion, no view clash), so
+  `card_equivHoms_of_exact` applies.  This IS the view-normalization brick §4 asked for.
+* **`card_equivHoms_deepSES`** — instantiates it at `A := H¹(N)`, `Deep := deepClassesSubgroup (ker ρ)`,
+  passing the `conjModule` actions as **NAMED instance args** (`(instA := conjModule …)`,
+  `(instDeep := conjModuleDeep …)`, `(instQuot := conjModuleQuot …)`) so no resolution against the
+  view-clashed types is attempted.  Yields `#Hom_C(V^∨,H¹N) = #Hom_C(V^∨,deep)·#Hom_C(V^∨,quot)`.
+  KEY IDIOM: **name the instance binders in the abstract lemma, pass them explicitly at the
+  concrete call** — this is the general recipe for any `deepClassesSubgroup`-typed instance arg.
+* **`card_deepPart_sq_of_duality`** (step 5, the **f6 output**) — chains everything:
+  `#H¹(ℚ₂,V) = #AdmissibleFam = #equivHoms(V^∨,H¹N) = #equivHoms(V^∨,deep)·#equivHoms(V^∨,quot)`
+  [SES], `#deepPart = #deepFam = #equivHoms(V^∨,deep)`, and `hduality : #equivHoms(V^∨,deep) =
+  #equivHoms(V^∨,quot)` collapses the product to a square ⟹ **`#deepPart² = #H¹(ℚ₂,V)`**.
+
+All std-3, `GQ2.AdmissibleCount` builds green.  **What remains is NOT f6** — it's the three inputs
+to `card_deepPart_sq_of_duality`: `hduality` (**f7** — graded Hilbert duality / self-duality
+`V ≅ V^∨`), the `V^∨` regular-summand package (**f8** — `lemma_6_11`), and `hinf`/`hext` (banked:
+`inflationVanishes_ramifiedTame` + `familiesExtend_of_card_le`).  Feed those and `lemma_6_17_dim`
+closes via the 6.18ram statement-move.
