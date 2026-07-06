@@ -1174,6 +1174,10 @@ def ActsThroughTame (C : Type*) [Group C] (V : Type*) [AddCommGroup V]
     Function.Surjective π ∧ (∀ (c : C) (v : V), c • v = π c • v) ∧
     Subgroup.closure {s, t} = ⊤ ∧ s⁻¹ * t * s = t ^ 2
 
+/-- Every element of `𝔽₂` is `0` or `1` (kernel-`decide`d at top level, where the context is
+free of the `V`/`q` variables that would otherwise trip `decide`'s free-variable guard). -/
+private theorem zmod_two_cases : ∀ b : ZMod 2, b = 0 ∨ b = 1 := by decide
+
 /-- **Bilinear (upper-triangular) refinement of a char-2 quadratic form**: a quadratic form `q`
 on a finite exponent-2 group is the diagonal `f v v = q v` of a *biadditive* `f`.  Existence is
 basis-dependent — the upper-triangular companion `f(v,w) = ∑_{i<j} B(eᵢ,eⱼ) vᵢ wⱼ + ∑ᵢ q(eᵢ) vᵢ`
@@ -1183,10 +1187,20 @@ theorem exists_biadditive_refinement {V : Type*} [AddCommGroup V] [Finite V]
     (h2 : ∀ v : V, v + v = 0) (q : V → ZMod 2) (hq : IsQuadraticFp2 q) :
     ∃ f : V → V → ZMod 2, (∀ v v' w : V, f (v + v') w = f v w + f v' w)
       ∧ (∀ v w w' : V, f v (w + w') = f v w + f v w') ∧ (∀ v, f v v = q v) := by
-  classical
   haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   haveI : Module (ZMod 2) V := AddCommGroup.zmodModule (fun v => by rw [two_nsmul]; exact h2 v)
   haveI : Module.Finite (ZMod 2) V := Module.Finite.of_finite
+  -- The two `QuadraticMap` field proofs, discharged in the clean outer context (a `ZMod 2`
+  -- scalar is `0` or `1`; the companion identity is `polar`'s definition mod 2).
+  have hsmul : ∀ (a : ZMod 2) (x : V), q (a • x) = (a * a) • q x := by
+    intro a x
+    rcases zmod_two_cases a with rfl | rfl
+    · simp [hq.map_zero]
+    · simp
+  have hcomp0 : ∀ x y : V, q (x + y) = q x + q y + polar q x y := by
+    intro x y
+    simp only [polar]
+    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
   -- `polar q` as a genuine `𝔽₂`-bilinear form (biadditivity ⟹ `ZMod 2`-linearity), the
   -- companion for the `QuadraticMap` packaging.  Mirrors `Transgression.bflat_bijective`.
   let Bil : LinearMap.BilinForm (ZMod 2) V :=
@@ -1199,20 +1213,11 @@ theorem exists_biadditive_refinement {V : Type*} [AddCommGroup V] [Finite V]
           simp only [AddMonoidHom.coe_toZModLinearMap, AddMonoidHom.mk'_apply, LinearMap.add_apply]
           exact hq.polar_add_left v v' w))
   have hBilapp : ∀ v w, Bil v w = polar q v w := fun v w => rfl
-  have hkey : ∀ b : ZMod 2, b = 0 ∨ b = 1 := by decide
   -- Bundle `q` as a Mathlib `QuadraticMap`; then `toBilin` is the upper-triangular refinement.
   let Q : QuadraticMap (ZMod 2) V (ZMod 2) :=
     { toFun := q
-      toFun_smul := by
-        intro a x
-        rcases hkey a with rfl | rfl
-        · simp [hq.map_zero]
-        · simp
-      exists_companion' := ⟨Bil, by
-        intro x y
-        rw [hBilapp]
-        simp only [polar]
-        linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))⟩ }
+      toFun_smul := hsmul
+      exists_companion' := ⟨Bil, fun x y => by rw [hBilapp]; exact hcomp0 x y⟩ }
   let bm := Module.finBasis (ZMod 2) V
   refine ⟨fun v w => Q.toBilin bm v w, fun v v' w => ?_, fun v w w' => ?_, fun v => ?_⟩
   · simp only [map_add, LinearMap.add_apply]
