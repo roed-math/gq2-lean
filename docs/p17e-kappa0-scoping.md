@@ -4,7 +4,7 @@
 statement **amended** (Option A′ below): `kappa0_exists` now carries the paper's own Lemma 6.3
 hypotheses — `hsimple : FoxH.IsSimpleModTwo C V` and `htame : ActsThroughTame C V` — making it a
 true paper theorem, dischargeable at the sole call site (P-17d), with the `sorry` guarding
-honest future work (sub-obligations P-17e1–e3 below).  The original general form is **false**,
+honest future work (sub-obligations P-17e1–e5 below).  The original general form is **false**,
 not merely unproved: see the sharpened verdict below (Griess 1973).  History: escalated by Opus
 2026-07-06 (finding + reusable core, no unilateral interface change); resolved same day on
 user instruction after F-escalation.
@@ -99,14 +99,9 @@ module) for all sufficiently large `n` — already in single digits; small ranks
 `O^ε_{2n}(2)` is far from metacyclic — no conflict with the tame case.)
 
 The projectivity/tameness hypothesis is exactly what removes the obstruction: `V` projective ⟹
-`V` is an equivariant summand of a free permutation module `W`, `q` extends to `q_W = q ∘ p`,
-and invariant forms on permutation modules have explicit orbit data — no `H²` obstruction
-survives the pullback (77).
-
-The projectivity hypothesis is exactly what removes the obstruction: `V` projective ⟹ `iV` is a
-`C`-summand of a permutation module `W`, `q` extends to the invariant `q_W`, and every invariant
-form on a permutation module has an `m = 0` (or Lemma-6.2-explicit) factor set — no `H²`
-obstruction because the orbit factor sets are literally invariant.
+`iV` is an equivariant summand of a free permutation module `W`, `q` extends to the invariant
+`q_W = q ∘ p`, and every invariant form on a permutation module has an `m = 0` (or
+Lemma-6.2-explicit) factor set — no `H²` obstruction survives the pullback (77).
 
 **Sanity anchor for the consumer.**  P-17d (`blockEnrichment`) only ever calls `kappa0_exists`
 at `V = Vmod = Additive(P/S)` — the block chief factor, which the `MinimalBlock`/`prop_7_4`
@@ -166,7 +161,7 @@ as the named interface, with **the paper's own Lemma 6.3 hypotheses** added — 
     `FoxH.lemma_5_12` (normal 2-subgroup acts trivially on a simple char-2 module), so the
     action descends along `Y/K ↠ Y/L_Y ≅ H`; generators = marked images (`gen_ttame_quotient`
     ✓ + `tame_relation` ✓), surjectivity from the frame.
-* **Provable by the paper's route**, staged as P-17e1–e3 below, with the reduction/assembly
+* **Provable by the paper's route**, staged as P-17e1–e5 below, with the reduction/assembly
   layer already proved (previous section).
 * Datum-*choice* independence downstream is already covered by `RepIndependence.repIndep`
   (Lemma 6.4), so an ∃-statement is the right strength.
@@ -183,17 +178,19 @@ as the named interface, with **the paper's own Lemma 6.3 hypotheses** added — 
    `f(v,w) := ∑_{h∈H} f₀(h•v, h•w)` is `H`-invariant (reindex `h ↦ h·g`) and biadditive, with
    diagonal `∑_h q(h•v) = |H|·q(v) = q(v)` because `|H|` is odd (`= 1` in `𝔽₂`); `m = 0`.  This is
    the vanishing of `H²(odd, 2-torsion)` in elementary averaged-cochain form, and it is *cleaner*
-   than the originally-planned SZ/Maschke route.  **Remaining = the ramified branch (P-17e1r):**
+   than the originally-planned SZ/Maschke route.  **Remaining = the ramified branch (P-17e4):**
    `H_V` has a nontrivial 2-part, averaging fails, and one needs the split embedding
    `V ↪ 𝔽₂[H_V]^N` via **Lemma 6.11** (projectivity of simple ramified tame modules, cyclic
    Sylow-2) — the long pole, feeding `kappa0_exists_of_split` with the orbit data below.
 2. **P-17e2 — orbit data**: `squareOrbitDatum`/`freeOrbitDatum` are `IsEquivariantFactorSet`
    for their square maps — reduce via `isEquivariantFactorSet_of_biadditive_invariant` (✓) to
    biadditivity + invariance of `∑ᶠ h, x h * y h` (finsum reindex along `Equiv.mulLeft`,
-   `finsum_add_distrib`).  **P-17e2′**: the involution datum `invOrbitDatum` with its explicit
+   `finsum_add_distrib`).  **P-17e3**: the involution datum `invOrbitDatum` with its explicit
    nonzero `m` (**Lemma 6.2**, orientation bookkeeping — genuinely involved; note
    `lemma_6_15`'s (105) already exercises this datum downstream).
-3. **P-17e3 — algebraic normal form**: an `H`-invariant quadratic map on `𝔽₂[H]^N` is a sum of
+3. **P-17e4 (ramified split, Lemma 6.11) + P-17e5 (algebraic normal form + final assembly)**: the
+   split embedding `V ↪ 𝔽₂[H_V]^N` (projectivity, the long pole), then that an `H`-invariant
+   quadratic map on `𝔽₂[H]^N` is a sum of
    orbit polynomials `S_j`/`C_{j,k,g}`/`E_{j,g}` (coefficients constant on orbits of unordered
    degree-2 coordinate monomials; free coordinate action ⟹ pair-stabilizers trivial or
    order-2-swap).  The analytic heart; combine with e2 via `IsEquivariantFactorSet.add` and
