@@ -316,10 +316,13 @@ P-16d6e assembly:
 * `hfg` — `Γ` topologically finitely generated (`GammaA` via P-03; `AbsGalQ2` via B1, reserved to
   P-17i — kept hypothesis-side);
 * `hsep_hom` — **the `(R^∨)^C`-separation** `obs g = 0 ⟹ g` has a homomorphism lift to `Y`.  This
-  is the Γ-specific arithmetic duality `D_R = (R^∨)^C ≅ H²_{Γ,ρ}(R)^∨` (paper Prop 8.9, p. 42):
-  `obs g d = ⟨d, ob(g)⟩` pairs `d` with the full `R`-obstruction `ob(g) ∈ H²(Γ,R)`, and the perfect
-  pairing forces `ob(g) = 0` (hence a lift) once every `d` kills it.  Props 5.15/5.16, NOT abstract;
-  discharged per-Γ at assembly alongside `hZcount` from one duality package.
+  is the Γ-specific arithmetic duality `D_R = (R^∨)^C ≅ H²_{Γ,ρ}(R)^∨` — the `R`-instance of the
+  duality the paper displays for the phase module `T` (p. 42 top), used implicitly by Prop 8.9 (the
+  `z_R` display and the Fourier inversion over `D_R`): `obs g d = ⟨d, ob(g)⟩` pairs `d` with the
+  full `R`-obstruction, and the perfect pairing forces `ob(g) = 0` (hence a lift) once every `d`
+  kills it.  Props 5.15/5.16, NOT abstract; discharged per-Γ at assembly alongside `hZcount`.
+  Prefer consuming via `blockStageR136_ofSplitCriterion` below, which pre-discharges all the frame
+  plumbing and leaves only the cochain-level split criterion.
 * `hZcount` — **the `z_R` torsor count** `#RCocycle = z_R = #R²·#D_R = |Z¹_{Γ,ρ}(R)|` (the 5.15/5.16
   numeric for the `R`-extension, the (139)-`hMcount` analogue).
 
@@ -341,6 +344,88 @@ theorem blockStageR136 (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock
             - exactImageCount b F (blockFrameImpl T Blk hE2).TB) :=
   stageR136_ofRSepData (RF := blockFrameImpl T Blk hE2) b F
     (blockRObstructionData T Blk hE2) htriv hcard hfg hE2 hsep_hom hZcount
+
+/-! ### The per-`Γ` residue interface: the split criterion
+
+`hsep_hom_of_splitCriterion` strips the last frame-generic layer off `hsep_hom`: the obstruction
+functional and its `H²(Γ,𝔽₂)` classes (`obs_zero_iff_pairClass_zero`), the degenerate `d = 0`
+character, and the split-cochain → hom-lift assembly (`homLift_of_split`) are all discharged here,
+so a source supplies only the **split criterion** — the `(R^∨)^C`-separation at the cochain level:
+*if every invariant character `d` sends the `R`-valued section defect of `g` to a coboundary class
+in `H²(Γ,𝔽₂)`, then the defect splits by a continuous `R`-cochain.*  On the local source this is
+`prop_5_16` clause 6 (`cup20` bijectivity, i.e. pushforward-injectivity `H²(Γ,R_ρ) ↪ ((R^∨)^C)^∨`,
+since `cup20 c φ = [φ ∘ c]` for invariant `φ`) plus `B²`-extraction at the `compHom` action (the
+`slift`-conjugation action on `R` factors through `C = Y/K` by `lemma_7_2`'s `K`-centrality); on
+the candidate source it is the §5 word-complex route (`docs/p16d6a-handoff.md` §3). -/
+
+theorem hsep_hom_of_splitCriterion {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk)
+    (D : RObstructionData RF)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (hsplit : ∀ g : ContinuousMonoidHom Γ RF.YB,
+      (∀ d : D.DRmod, H2mk Γ (ZMod 2)
+          ⟨fun gd => D.pair d (Additive.ofMul (rDefect RF g gd.1 gd.2)),
+            pairDefect_mem_Z2_all RF D htriv g d⟩ = 0) →
+        ∃ c : Γ → ↥Blk.R, Continuous (fun γ => ((c γ : Y))) ∧
+          ∀ γ δ, (c (γ * δ) : Y)
+            = (c γ : Y) * (slift RF (g γ) * (c δ : Y) * (slift RF (g γ))⁻¹)
+                * (rDefect RF g γ δ : Y)) :
+    ∀ g : BoundaryLifts b F RF.TB, obs RF D htriv hcard g.1.1 = 0 →
+      ∃ φ : ContinuousMonoidHom Γ Y, ∀ γ, RF.piB (φ γ) = g.1.1 γ := by
+  intro g hg
+  have hall : ∀ d : D.DRmod, H2mk Γ (ZMod 2)
+      ⟨fun gd => D.pair d (Additive.ofMul (rDefect RF g.1.1 gd.1 gd.2)),
+        pairDefect_mem_Z2_all RF D htriv g.1.1 d⟩ = 0 := by
+    intro d
+    by_cases h : D.toDR d = RF.zeroDR
+    · -- `d = 0`: the pushed cochain is the zero cocycle
+      have hd : d = 0 := by rw [← D.h0, ← h, Equiv.symm_apply_apply]
+      subst hd
+      have hz : (⟨fun gd => D.pair 0 (Additive.ofMul (rDefect RF g.1.1 gd.1 gd.2)),
+          pairDefect_mem_Z2_all RF D htriv g.1.1 0⟩ : ↥(Z2 Γ (ZMod 2))) = 0 := by
+        apply Subtype.ext
+        funext gd
+        simp only [map_zero, AddMonoidHom.zero_apply]
+        rfl
+      rw [hz, map_zero]
+    · -- `d ≠ 0`: `obs g d = 0` is exactly the class-vanishing
+      exact (obs_zero_iff_pairClass_zero RF D htriv hcard g.1.1 d h).mp
+        (LinearMap.congr_fun hg d)
+  obtain ⟨c, hc, hs⟩ := hsplit g.1.1 hall
+  exact homLift_of_split RF g.1.1 c hc hs
+
+/-- **(136) for the block frame, from the split criterion** — `blockStageR136` with `hsep_hom`
+pre-discharged by `hsep_hom_of_splitCriterion`.  The per-`Γ` inputs are now exactly the source's
+5.15/5.16 duality package: the numerics `hcard`/`hfg`, the **split criterion** `hsplit` (the
+`(R^∨)^C`-separation at the cochain level), and the torsor count `hZcount`. -/
+theorem blockStageR136_ofSplitCriterion (T : MarkedTarget H E Y)
+    (Blk : SectionSeven.MinimalBlock T.LY) (hE2 : ∀ e : E, e ^ 2 = 1)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (hsplit : ∀ g : ContinuousMonoidHom Γ (blockFrameImpl T Blk hE2).YB,
+      (∀ d : (blockRObstructionData T Blk hE2).DRmod, H2mk Γ (ZMod 2)
+          ⟨fun gd => (blockRObstructionData T Blk hE2).pair d
+              (Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g gd.1 gd.2)),
+            pairDefect_mem_Z2_all (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2)
+              htriv g d⟩ = 0) →
+        ∃ c : Γ → ↥Blk.R, Continuous (fun γ => ((c γ : Y))) ∧
+          ∀ γ δ, (c (γ * δ) : Y)
+            = (c γ : Y) * (slift (blockFrameImpl T Blk hE2) (g γ) * (c δ : Y)
+                  * (slift (blockFrameImpl T Blk hE2) (g γ))⁻¹)
+                * (rDefect (blockFrameImpl T Blk hE2) g γ δ : Y))
+    (hZcount : ∀ f₀ : BoundaryLifts b F T,
+      Nat.card (RCocycle (blockFrameImpl T Blk hE2) f₀.1.1) = (blockFrameImpl T Blk hE2).zR) :
+    (Nat.card (blockFrameImpl T Blk hE2).DR : ℤ) * exactImageCount b F T
+      = (blockFrameImpl T Blk hE2).zR * ∑ᶠ l : (blockFrameImpl T Blk hE2).DR,
+          (2 * ((blockFrameImpl T Blk hE2).mB b F l : ℤ)
+            - exactImageCount b F (blockFrameImpl T Blk hE2).TB) :=
+  blockStageR136 T Blk hE2 htriv hcard hfg b F
+    (hsep_hom_of_splitCriterion (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2)
+      htriv hcard b F hsplit) hZcount
 
 end StageR136
 

@@ -33,9 +33,19 @@ state.  Written 2026-07-06 (Opus).  All line numbers are approximate — grep th
   **reduction** `blockStageR136` (done); the concrete counts belong to the assembly lane.
   **`hsep_hom` is ALSO Γ-specific 5.15/5.16 content, NOT a separate abstract build** (confirmed by
   reading the paper's Prop 8.9 proof, pp. 42–43): `obs g = 0 ⟺ ob(g) ∈ (D_R)^⊥` in `H²(Γ,R)`, and
-  the separation is the **perfect pairing** `D_R = (R^∨)^C ≅ H²_{Γ,ρ}(R)^∨` (paper p. 42) — the same
-  duality as `hZcount`.  It is discharged per-Γ at the assembly alongside `hZcount`, from ONE duality
-  package.  (Earlier-in-session "P-16d6a-sep = missing character-separation infra" was wrong; §3.)
+  the separation is the **perfect pairing** `D_R = (R^∨)^C ≅ H²_{Γ,ρ}(R)^∨` — the `R`-instance of
+  the duality the paper displays for the phase module `T` at p. 42 top, implicit in Prop 8.9's `z_R`
+  display and Fourier-inversion step.  It is discharged per-Γ at the assembly alongside `hZcount`.
+  (Earlier-in-session "P-16d6a-sep = missing character-separation infra" was wrong; §3.)
+* **Fable double-check + interface (2026-07-06)**: the conclusions above were re-verified against
+  the Lean duality statements, with one substantive refinement — **the "one duality package" is
+  fully formalized only on the LOCAL side** (`prop_5_16` clauses 2/3/6 = the `Z¹` count / `hcard` /
+  the separation, one invocation per twisted module); the **candidate `IsSelfDual` has the card
+  clauses + a (1,1) pairing only — no (2,0) clause**, so the `Γ_A` separation needs two named
+  §5-lane extensions (§3).  **NEW (std-3, `GQ2/BlockRStage.lean`)**: `hsep_hom_of_splitCriterion`
+  + `blockStageR136_ofSplitCriterion` — the frame plumbing of `hsep_hom` (obs classes, `d = 0`,
+  `homLift_of_split` assembly) is pre-discharged; a source now owes only the cochain-level
+  **split criterion** plus `hZcount`/`hcard`/`hfg`/`htriv`.
 
 ---
 
@@ -103,9 +113,19 @@ Declarations, in dependency order (namespace `GQ2`, `open SectionEight SectionSe
    (RF := blockFrameImpl T Blk hE2) b F (blockRObstructionData T Blk hE2) htriv hcard hfg hE2
    hsep_hom hZcount`.  Hypotheses `htriv`/`hcard`/`hfg`/`hsep_hom`/`hZcount` are the source residues
    (§3); `hE2` is the frame argument.  Conclusion = the `stageR136` field of `RecursionInputs`
-   verbatim.  **Section-variable order gotcha**: `stageR136_ofRSepData` takes the section vars
-   `RF b F` (declared in that order, all used) *before* its written binders — so the call is
+   verbatim (re-checked against `SectionEight.lean:1980`).  **Section-variable order gotcha**:
+   `stageR136_ofRSepData` takes the section vars `RF b F` (declared in that order, all used)
+   *before* its written binders — so the call is
    `stageR136_ofRSepData (RF := …) b F D htriv hcard hfg hE2 hsep_hom hZcount`, NOT `D` first.
+10. **`hsep_hom_of_splitCriterion`** (Fable, 2026-07-06) — general-`RF` reduction: from the
+    **split criterion** (`∀ g`, "all invariant characters send `rDefect g` to coboundary classes
+    in `H²(Γ,𝔽₂)` ⟹ a continuous `R`-cochain splits the defect"), derive `hsep_hom` verbatim.
+    Discharges internally: the `d = 0` character (via `D.h0`), `obs_zero_iff_pairClass_zero`
+    (all `d ≠ 0`), and `homLift_of_split`.  Proof-irrelevance note: the criterion is stated with
+    the `pairDefect_mem_Z2_all` membership proof; it plugs into `obs_zero_iff_pairClass_zero`'s
+    `pairDefect_mem_Z2` element by definitional proof irrelevance — no `convert` needed.
+11. **`blockStageR136_ofSplitCriterion`** — the composed entry point d6e should consume: (136) for
+    `blockFrameImpl` from `htriv`/`hcard`/`hfg` + the split criterion + `hZcount`.
 
 ### Lean gotchas already solved (reuse these)
 * `(blockFrameImpl …).DR`, `.scalarCover`, `.zeroDR` **do** reduce (blockFrameImpl is term-mode
@@ -167,31 +187,59 @@ Its conclusion **is** the `stageR136` field of `RecursionInputs` verbatim (check
   at generic `Γ`**; (iv) `#(R^∨)^C = #D_R` is **`blockRChar_card`** (done), giving `= #R²·#D_R = z_R`.
   So `hZcount` = steps (i)–(iii) at the concrete `Γ`; only (iv) is frame-abstract (done).
 * **`hsep_hom` — the (R^∨)^C separation.  Γ-SPECIFIC (5.15/5.16 duality), NOT abstract infra.**
-  `obs RF D htriv hcard g.1.1 = 0 ⟹ g` lifts to `Y`.  **Resolved by reading the paper's Prop 8.9
-  proof (pp. 42–43).**  `obs g d = ⟨d, ob(g)⟩` is the `𝔽₂`-pairing of the character `d ∈ D_R` with
-  the **full `R`-valued obstruction** `ob(g) ∈ H²(Γ,R)`; standard obstruction theory gives
-  `ob(g) = 0 ⟺ g lifts to Y` (abstract).  So `obs g = 0` (all `d`) `⟺ ob(g) ∈ (D_R)^⊥`, and the
-  separation is exactly `(D_R)^⊥ = 0`, i.e. the **perfect pairing** `D_R × H²(Γ,R) → 𝔽₂`.  The paper
-  (p. 42, top) records this as the arithmetic duality
-    `D = (T^∨)^C ≅ H²_{Γ,ρ}(T)^∨`   (here `T = R`),
-  supplied by **props 5.15/5.16** — the SAME Γ-specific duality behind `hZcount`/`hcard`, NOT a
-  general-Γ fact and NOT an `H²(Γ,R)` dévissage.  (My earlier-in-session "P-16d6a-sep = missing
-  character-separation infra" framing was wrong: the duality detects ALL of `H²(Γ,R)`, so the
-  `[Y,R] ≠ ⊥` worry — R is only hypercentral in `Y`, `lemma_7_2` gives central in `K` only — is
-  moot.)  The paper's own finish is "Fourier inversion (125) on the full `R`-valued obstruction" +
-  the Frattini surjectivity (`surj_of_piB_surj`, done) — no coordinate/separation lemma.
-  **Existing hooks**: `mapCoeff2` (`Cohomology.lean:429`, `H²(Γ,R) → H²(Γ,𝔽₂)` along a character —
-  functoriality DOES exist, contra `section8-extraction.md:262`), `homLift_of_split`,
-  `obs_zero_iff_pairClass_zero`.  **Route** (P-16d6e, per Γ): set up `DistribMulAction Γ (Additive R)`
-  (well-defined since `R` abelian — conj by any `π_B`-lift), build `ob(g) ∈ H²(Γ,R)`, supply the
-  5.15/5.16 perfect pairing `D_R ≅ H²(Γ,R)^∨`; then `hsep_hom` follows.
+  `obs RF D htriv hcard g.1.1 = 0 ⟹ g` lifts to `Y`.  `obs g d = ⟨d, ob(g)⟩` is the `𝔽₂`-pairing
+  of the character `d ∈ D_R` with the **full `R`-valued obstruction** `ob(g) ∈ H²(Γ,R)`; standard
+  obstruction theory gives `ob(g) = 0 ⟺ g lifts to Y` (abstract).  So `obs g = 0` (all `d`)
+  `⟺ ob(g) ∈ (D_R)^⊥`, and the separation is exactly `(D_R)^⊥ = 0`: the **perfect pairing**
+  `D_R × H²(Γ,R) → 𝔽₂`.  **Citation precision (Fable)**: the paper displays this duality for the
+  phase module `T` (p. 42 top, the Prop-8.8 run-up: `D = (T^∨)^C ≅ H²_{Γ,ρ}(T)^∨`); the
+  `R`-instance is used *implicitly* in Prop 8.9 — the statement bakes the count into the definition
+  (`z_R = |Z¹_{Γ,ρ}(R)| = 2^{2dim R + dim D_R}`) and the proof's "Fourier inversion (125) on the
+  full `R`-valued obstruction" presupposes `D_R ≅ H²_{Γ,ρ}(R)^∨` (inversion over `D_R` needs the
+  characters to exhaust the dual).  Both are 5.15/5.16 applied to the module `R`.  (The
+  `[Y,R] ≠ ⊥` worry is moot — the duality handles twisted modules; `R` is hypercentral in `Y`,
+  central only in `K` (`lemma_7_2`).)  The paper's own finish is that Fourier inversion + Frattini
+  surjectivity (`surj_of_piB_surj`, done) — no coordinate/separation lemma.
+  **Consumption point (NEW, Fable 2026-07-06)**: `hsep_hom_of_splitCriterion` /
+  `blockStageR136_ofSplitCriterion` (`GQ2/BlockRStage.lean`, std-3) pre-discharge all remaining
+  frame plumbing; a source owes only the **split criterion** — *every invariant character sends
+  `rDefect g` to a coboundary class in `H²(Γ,𝔽₂)` ⟹ the defect splits by a continuous
+  `R`-cochain* — plus `hZcount`/`hcard`/`hfg`/`htriv`.
+  **Per-source inventory (Fable-verified against the Lean statements):**
+  - **Local (`Γ = AbsGalQ2`): package COMPLETE in `prop_5_16`** (`LocalLiftingDuality.lean:563`),
+    one invocation per twisted module — clause 3 = `hcard` verbatim; clause 2
+    (`#Z1 = #A² · #fixedPts C (ElemDual A)`) = the `hZcount` count (with `blockRChar_card` for
+    `#(R^∨)^C = #D_R`); clause 6 (`Bijective (cup20 …)`) = the separation, since
+    `cup20 c φ = [φ ∘ c]` for invariant `φ` (`CupProduct.lean:245`, the `(p.1·p.2) • n` factor is
+    constant on `H⁰`).  Remaining local plumbing: the twisted action = `DistribMulAction.compHom`
+    of the canonical `C = Y/K`-conjugation action on `R` (well-defined by `lemma_7_2`'s
+    `K`-centrality) pulled back along `mk' ∘ g` (the `HalfTorsorGammaA` `letI`/`hcompat := rfl`
+    instance pattern); `B²`-extraction from `[rDefect] = 0`; `RCocycle ≃ Z1` (d6b's `TCocycle`
+    bridge pattern).
+  - **Candidate (`Γ = Γ_A`): cards + (1,1) only — two NAMED gaps.**  `IsSelfDual`
+    (`FoxHeisenberg.lean:1653`, supplied by `prop_5_15`) has the `H2w`/`Z1w` card clauses and a
+    perfect **degree-(1,1)** pairing; **no (2,0)/(0,2) clause**.  The `Γ_A` split criterion
+    therefore needs: **(i)** a (2,0)-separation corollary — right-slot nondegeneracy of the
+    word-level `H2w(A) × (A^∨)^C` trace pairing, upgraded to left-slot injectivity by the card
+    clause `#H2w = #(A^∨)^C` (finite `𝔽₂` linear algebra: a right-nondegenerate pairing of
+    equinumerous finite elementary 2-groups is perfect); **(ii)** the twisted degree-2
+    bridge/lifting criterion for `Γ_A` — extend `WordCohBridge`'s degree-≤1 twisted `z1Equiv` and
+    `WordCoh2`'s (P-16c2) central-`𝔽₂` `CentExt`/relator-evaluation foundation to `R`-coefficients
+    (the P-16c lane's technology; `HalfTorsorGammaA.exists_nonzero_varCoc_gammaA` shows the full
+    working pattern: `compHom` instances, `markC ρ` admissibility, `prop_5_15` invocation).
+    `hcard_A` (`#H²(Γ_A,𝔽₂) = 2`, continuous) = `WordCoh2`'s `≤ 2` injection (its θ-construction
+    tail) + one nonzero class.  The `Γ_A` `hZcount` is nearly assembled: `z1Equiv` + `prop_5_15`
+    clause 2 + `RCocycle ≃ Z1` + `blockRChar_card`.  **If (i)+(ii) run heavy, split a
+    `P-16d6e-A` sub-ticket** — they are §5-lane extensions, not new theory.
 
 **Order (at the P-16d6e assembly, per source Γ):** supply `htriv` (`fun _ _ => rfl` when the action
-is trivial), `hcard`/`hfg` (source), then discharge `hZcount` and `hsep_hom` from the ONE Γ-specific
-duality package `D_R ≅ H²(Γ,R)^∨` + `z_R = |Z¹_{Γ,ρ}(R)|` (props 5.15/5.16, paper p. 42; `prop_5_16`
-for `AbsGalQ2`, `prop_5_15`/`HalfTorsorGammaA` for `GammaA`) → then `blockStageR136 … : (136)` for
-that Γ directly (`blockStageR136` already IS the `stageR136_ofRSepData` call).  **There is no
-separate abstract "P-16d6a-sep" build** — `hZcount` + `hsep_hom` are two faces of the same duality.
+is trivial), `hcard`/`hfg` (source), then discharge `hZcount` and the **split criterion** from the
+source's duality (local: ONE `prop_5_16` invocation, clauses 2/3/6, + the `compHom`/`B²` plumbing;
+candidate: `prop_5_15` cards + the two named §5-lane extensions above) → then
+**`blockStageR136_ofSplitCriterion` : (136)** for that Γ directly.  **There is no separate abstract
+"P-16d6a-sep" build** — `hZcount` + the split criterion are two faces of the same duality package;
+note only the per-source asymmetry: the local package is fully formalized, the candidate one has
+the two named gaps.
 
 ---
 
@@ -225,9 +273,10 @@ the shared index-2-character↔subgroup duality into one place.
    `SectionEight` touch).
 2. ✅ **DONE** — `blockStageR136 : (136) for blockFrameImpl` via `stageR136_ofRSepData`, with the
    residues as hypotheses; plus `blockRChar_card` (`#(R^∨)^C = #D_R`).
-3. **REMAINING** — the residue lemmas `hZcount` (per-Γ count, §3) and `hsep_hom` (P-16d6a-sep) are
-   supplied **at the P-16d6e assembly / P-17i**, per source `Γ` (`GammaA`, `AbsGalQ2`).  §9 (P-17i,
-   the master induction) consumes `blockStageR136` as the `stageR136` field of each of the two
+3. **REMAINING** — the residue lemmas `hZcount` (per-Γ count, §3) and the **split criterion**
+   (for `hsep_hom`, §3) are supplied **at the P-16d6e assembly / P-17i**, per source `Γ`
+   (`GammaA`, `AbsGalQ2`), consumed through **`blockStageR136_ofSplitCriterion`**.  §9 (P-17i,
+   the master induction) consumes the resulting (136) as the `stageR136` field of each of the two
    `RecursionInputs` bundles.
 4. **REMAINING** — wire `GQ2.BlockRStage` into the root import (`GQ2.lean`), a one-line non-co-owned
    edit, when P-16d6e lands (keep `lake build` + the sorry-allowlist gate green).  Deferred to
