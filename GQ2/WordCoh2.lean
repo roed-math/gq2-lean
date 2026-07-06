@@ -1156,6 +1156,45 @@ theorem exists_twoCocycle_factor
     induction y using QuotientGroup.induction_on with | H b =>
     rfl
 
+/-- **Factoring a continuous 1-cochain.**  A continuous `ψ : Γ_A → 𝔽₂` descends to a function on a
+finite admissible level `N_A ≤ U` (via the same compactness lemma applied to `ψ ∘ fst`). -/
+theorem exists_oneCochain_factor
+    (ψ : FreeProfiniteGroup (Fin 4) ⧸ NA → ZMod 2) (hψc : Continuous ψ) :
+    ∃ (U : OpenNormalSubgroup (FreeProfiniteGroup (Fin 4))) (hU : NA ≤ U.toSubgroup)
+      (lam : FreeProfiniteGroup (Fin 4) ⧸ U.toSubgroup → ZMod 2),
+      ∀ x : FreeProfiniteGroup (Fin 4) ⧸ NA, ψ x = lam (levelProj U hU x) := by
+  haveI : IsClosed (NA : Set (FreeProfiniteGroup (Fin 4))) := NA_isClosed
+  obtain ⟨V, hV⟩ := exists_openNormalSubgroup_factor_two
+    (fun p => ψ p.1) (hψc.comp continuous_fst)
+  have hUopen : IsOpen ((V.toSubgroup.comap (QuotientGroup.mk' NA) :
+      Subgroup (FreeProfiniteGroup (Fin 4))) : Set (FreeProfiniteGroup (Fin 4))) :=
+    V.toOpenSubgroup.isOpen.preimage (quotientMk NA).continuous_toFun
+  haveI hUnormal : (V.toSubgroup.comap (QuotientGroup.mk' NA)).Normal :=
+    V.isNormal'.comap _
+  let U : OpenNormalSubgroup (FreeProfiniteGroup (Fin 4)) :=
+    { toSubgroup := V.toSubgroup.comap (QuotientGroup.mk' NA)
+      isOpen' := hUopen }
+  have hU : NA ≤ U.toSubgroup := by
+    intro n hn
+    show n ∈ V.toSubgroup.comap (QuotientGroup.mk' NA)
+    rw [Subgroup.mem_comap, show (QuotientGroup.mk' NA) n = 1 from
+      (QuotientGroup.eq_one_iff n).mpr hn]
+    exact one_mem _
+  refine ⟨U, hU, fun p => Quotient.liftOn p (fun x => ψ (QuotientGroup.mk x)) ?_, ?_⟩
+  · intro x₁ x₂ hx
+    have hxU : x₁⁻¹ * x₂ ∈ V.toSubgroup.comap (QuotientGroup.mk' NA) :=
+      QuotientGroup.leftRel_apply.mp hx
+    have hxv : (QuotientGroup.mk x₁ : FreeProfiniteGroup (Fin 4) ⧸ NA)⁻¹
+        * QuotientGroup.mk x₂ ∈ V := by
+      have h := (Subgroup.mem_comap).mp hxU
+      rwa [map_mul, map_inv] at h
+    have key := hV (QuotientGroup.mk x₁) (QuotientGroup.mk x₁) _ hxv 1 (one_mem _)
+    rw [mul_inv_cancel_left] at key
+    exact key.symm
+  · intro x
+    induction x using QuotientGroup.induction_on with | H a =>
+    rfl
+
 end Factoring
 
 /-! ## Injectivity, assembled: a balanced continuous cocycle is a coboundary
@@ -1437,6 +1476,69 @@ theorem obs_ker_le :
     funext p; simp only [normalizeCochain, Pi.sub_apply, Pi.add_apply]; abel
   rw [hconst]
   exact AddSubgroup.add_mem _ hnB2 (const2_mem_B2 htriv (φ.1 (1, 1)))
+
+/-- **`obs` kills `B²`** (the vanishing on coboundaries).  A continuous coboundary `κ = δ¹ψ`
+normalizes to `δ¹ψ'` (`ψ' 1 = 0`), which factors through a finite admissible level as
+`coboundaryCocycle λ`; its obstruction is `λ(tameValue) + λ(wildValue) = λ 1 + λ 1 = 0` since both
+relators die at that level.  Combined with `obs_ker_le`, this makes `obs` descend to an injection
+`H²(Γ_A, 𝔽₂) ↪ 𝔽₂` — the degree-2 presentation-comparison. -/
+theorem obs_B2_eq_zero :
+    (B2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)).addSubgroupOf
+      (Z2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)) ≤ (obs htriv).ker := by
+  intro x hx
+  rw [AddMonoidHom.mem_ker]
+  rw [AddSubgroup.mem_addSubgroupOf, B2, AddSubgroup.mem_map] at hx
+  obtain ⟨ψ, hψc, hψeq⟩ := hx
+  have hψcont : Continuous ψ := mem_C1_iff.mp hψc
+  have hx1 : x.1 = dOne (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2) ψ := hψeq.symm
+  set ψ' : FreeProfiniteGroup (Fin 4) ⧸ NA → ZMod 2 := ψ - fun _ => ψ 1 with hψ'def
+  obtain ⟨U, hU, lam, hlamfact⟩ := exists_oneCochain_factor ψ' (hψcont.sub continuous_const)
+  have hlam1 : lam 1 = 0 := by
+    have h := hlamfact 1
+    rw [show levelProj U hU 1 = 1 from map_one _] at h
+    rw [← h]; simp [hψ'def]
+  have hfact : ∀ p q, normalizeCochain x.1 (p, q)
+      = (coboundaryCocycle lam hlam1).κ (levelProj U hU p) (levelProj U hU q) := by
+    intro p q
+    show normalizeCochain x.1 (p, q)
+      = lam (levelProj U hU p) + lam (levelProj U hU q)
+        + lam (levelProj U hU p * levelProj U hU q)
+    rw [← map_mul (levelProj U hU) p q, ← hlamfact p, ← hlamfact q, ← hlamfact (p * q), hx1]
+    simp only [normalizeCochain, Pi.sub_apply, Pi.add_apply, hψ'def, dOne, AddMonoidHom.coe_mk,
+      ZeroHom.coe_mk, htriv, mul_one, CharTwo.sub_eq_add]
+    abel
+  have hobs : obsFun htriv x = 0 := by
+    rw [obsFun_eq htriv x ⟨U, hU, coboundaryCocycle lam hlam1, hfact⟩]
+    show (relZPair (univMarking.map (QuotientGroup.mk' U.toSubgroup))
+        (coboundaryCocycle lam hlam1)).1
+      + (relZPair (univMarking.map (QuotientGroup.mk' U.toSubgroup))
+        (coboundaryCocycle lam hlam1)).2 = 0
+    rw [obs_coboundary_eq]
+    have hadmU : (univMarking.map (QuotientGroup.mk' U.toSubgroup)).Admissible :=
+      isAdmissibleU_of_NA_le hU
+    rw [(Marking.tameValue_eq_one_iff _).mpr hadmU.2.1,
+      (Marking.wildValue_eq_one_iff _).mpr hadmU.2.2.1, hlam1, add_zero]
+  exact hobs
+
+/-- **`ker obs = B²`** (P-16c4, lemma A).  The obstruction is trivial on coboundaries and nowhere
+else, so it descends to an *injection* `H²(Γ_A, 𝔽₂) ↪ 𝔽₂` — the reusable degree-2
+presentation-comparison.  (`obs_ker_le` ⊆, `obs_B2_eq_zero` ⊇.) -/
+theorem obs_ker_eq_B2 :
+    (obs htriv).ker = (B2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)).addSubgroupOf
+      (Z2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)) :=
+  le_antisymm (obs_ker_le htriv) (obs_B2_eq_zero htriv)
+
+/-- The **descended obstruction** `H²(Γ_A, 𝔽₂) →+ 𝔽₂`, and its injectivity: a continuous 2-cocycle
+whose obstruction is nonzero is *not* a coboundary. -/
+noncomputable def obsH2 : H2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2) →+ ZMod 2 :=
+  QuotientAddGroup.lift _ (obs htriv) (fun _ h => obs_B2_eq_zero htriv h)
+
+theorem obsH2_injective : Function.Injective (obsH2 htriv) := by
+  rw [injective_iff_map_eq_zero]
+  intro a
+  induction a using QuotientAddGroup.induction_on with | H φ =>
+  intro ha
+  exact (QuotientAddGroup.eq_zero_iff φ).mpr (obs_ker_le htriv (AddMonoidHom.mem_ker.mpr ha))
 
 /-- **`#H²(Γ_A, 𝔽₂) ≤ 2`** (P-16c2).  `H² = Z²/B²` is a quotient of `Z²/ker obs`, which injects into
 `𝔽₂` via `obs`; so `#H² ≤ #(Z²/ker obs) ≤ #𝔽₂ = 2`. -/

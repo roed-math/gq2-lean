@@ -186,7 +186,14 @@ invertible on 2-torsion `V`); then for `i ∈ I, h ∈ H_V` the two evaluations 
 only the deep-count multiplicativity `Ext¹(V^∨, U_{e+1}) = 0`, where the §3 coprime trick
 provably does not substitute).  References in §5.
 
-**4.3 eq. (94) (`U_i^⊥ = U_{2e−i+1}`) — deferred to P-15f2's scoping.**  f1 no longer needs
+**4.3 eq. (94) — ✅ RESOLVED 2026-07-06: PROVED, no leaf.**  The consumed instances
+(`U_{e+1} ⟂ U_{e+1}`, `−1 ⟂ U_{e+1}`) are now theorems in `HilbertLedger.lean` Tier 5
+(`cup_deep_deep`/`cup_deep_neg_one`/`cup_deep_self`, std-3 ∪ {B11a}; `normForm_of_deep`
+std-3), via the Brahmagupta/Local-Square descent — precisely the "B11a + conductor" route
+below, realized WITHOUT conductor theory.  The user's no-exercise-axiom directive
+(2026-07-06) ruled out leafing FV VII §4 Ex. 4c/5b.  [Original analysis kept below.]
+
+**4.3-orig eq. (94) (`U_i^⊥ = U_{2e−i+1}`) — deferred to P-15f2's scoping.**  f1 no longer needs
 it (Route B).  f2's minimal need is the single instance `(U_{e+1}, U_{e+1}) = 1`, which has a
 candidate route through the existing **B11a** + a conductor bound, avoiding (94).  If the
 sharp (94) is later wanted as a leaf: its *nondegeneracy* half is coverable by verified

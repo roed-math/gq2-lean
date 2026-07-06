@@ -107,14 +107,17 @@ deferred until the inputs land.
 
 | input | status | path / blocker |
 |---|---|---|
-| **`half139` ×2** | ◑ dischargeable modulo P-16c | `half139_via_radData` + **`lemma_8_6_local`** (✓ `G_ℚ₂`, `SectionEight.lean:1301`) / **`lemma_8_6_gammaA`** (✗ **sorry**, `SectionEight.lean:1288`, = P-16c) for `hlem86M`, + **`prop_5_16`/`prop_5_15`** (✓) for `hMcountM`.  **Only `Γ_A` is blocked, on P-16c.** |
+| **`half139` ×2** | ◑ `hlem86M` ✓ both sources; `hMcountM` = the remaining build | `half139_via_radData` (✓) + **`lemma_8_6_local`** (✓ `G_ℚ₂`, `SectionEight.lean:1302`) / **`lemma_8_6_gammaA`** (✓ **P-16c CLOSED 2026-07-06**, `SectionEight.lean:1288`, `:= half_torsor_gammaA`) discharge `hlem86M`. **`hMcountM` (`#MLifts = |M_B|²`) is NOT yet a lemma** — genuine `Z¹`-torsor + 5.15/5.16-numerics content, needed for BOTH sources (the `G_ℚ₂` build = **P-16d6d**; see `docs/p16d6d-handoff.md`). |
 | **`stageR136` ×2** | ✗ blocked (infra) | needs an **`RObstructionData` built from `En`** — which `Enrichment` does **not** carry (no cover-map family `coverMap_λ`, no `pair : D_Rmod →ₗ (R→+𝔽₂)`; this is the P-16d2 escalation).  Then `stageR136_ofRSepData` (P-16d2, ✓) closes it from `hsep_hom` + `hZcount` + `hE2`.  **Requires extending `Enrichment` (co-owned `SectionEight.lean` structure edit — owner sign-off) with the P-16d2 cover-map/pair fields, then constructing the datum + discharging the source residues `hsep_hom`/`hZcount` concretely.** |
 | **`phase140` ×2** | ☑ **FULL reducer landed** (`phase140_of_gaussCorrespondence`); residual = concrete Prop-8.8 fields | the entire (140) display is now derived by `phase140_of_gaussCorrespondence` from `zBC_eq_mu_mul_reductionCount` (hfib) + `lemma_8_5_aggregated` (hgauss) + `phase140_ofPhaseData`.  Residual = the concrete hypotheses **`hM`** (Prop 8.8 count `M_ρ = N(κ_ρ,ε_ρ)`), **`hphase`** (character↔phase-cover reindex), **`hμ`** (μ-independence, 5.15/5.16), and the matches **`hDT`/`hWV`/`hG0`** off `En` (`qbar`, the descended `V`).  `hM`/`hphase` are the deep Prop 8.8 content (coupled to the witness `Δ`); no clean reducers remain. |
 | **witness `(μ, G0, DT, phase)`** | ◑ **En carries the data** (correction) | **`Enrichment` is richer than previously scoped** — it already provides `Vmod` (the descended `V`), `qbar` (the form `Q`), `hquad`, **`hns` (nonsingular)**, `dat`/`hdat` (the Lemma 6.1 factor set).  So: `G0 = gaussSum (En.qbar l h)` (`SectionEight.lean:199`); `phase = phaseFamily (DeltaScalar (En.dat l h) …)` (`AffineTLift.lean:841`); the (140) polar data `a_χ = polarInverseL (En.qbar) (En.hquad) (En.hns) L` (**landed**).  `μ = Nat.card (TCocycle …)`, `DT =` the `(T^∨)^C` index.  Source-independent, built once from `En`.  Remaining subtlety: `G0`/`μ`'s `l`-independence (Arf-invariant / 5.15-5.16), and wiring `DT ≃ V^∨`. |
 
 ## Cross-ticket dependencies still open
 
-* **P-16c** — `lemma_8_6_gammaA` is a `sorry` (`SectionEight.lean:1288`); blocks `half139` for `Γ_A`.
+* ~~**P-16c**~~ — **CLOSED 2026-07-06** (Opus): `lemma_8_6_gammaA` proved
+  (`:= LedgerGammaA.half_torsor_gammaA`, `GQ2/HalfTorsorGammaA.lean`, std-3); no longer blocks
+  `half139` for `Γ_A`. Remaining `half139` obstacle is `hMcountM` (both sources) — see
+  `docs/p16d6d-handoff.md`.
 * **P-17d** — `blockEnrichment` is a `sorry` (`SectionNine.lean:572`); blocks the *concrete*
   instantiation of `prop_8_9` (§9 supplies `RF := blockFrame`, `En := blockEnrichment`), but not the
   abstract `prop_8_9` proof itself.

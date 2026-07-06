@@ -8,7 +8,9 @@ following the paper's ledger (111)–(114) through axioms **B9** (`evensKahn_dya
 (`dyadicNormCriterion`).  The tier structure, the sub-lemma interface, and the B11-consequence
 tier are fixed here; **all bodies are now proved (file is sorry-free, ticket P-15e closed
 2026-07-04)**.  Every theorem is `#print axioms` ⊆ std-3, except the Tier-4 assembly
-`evensNorm_deepUnit_vanish`, which is std-3 ∪ {B9, B11}.
+`evensNorm_deepUnit_vanish`, which is std-3 ∪ {B9, B11}.  **P-15f1/f2 addendum (2026-07-06):
+Tier 5** — the eq.-(94) deep-unit orthogonality instances (`normForm_*` std-3 sorry-free;
+`cup_deep_*` std-3 ∪ {B11a}); NO new axiom — see the Tier-5 section header for provenance.
 
 ## The ledger (paper, proof of Lemma 6.16)
 
@@ -246,11 +248,13 @@ variable (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
   (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
 
 /-- The norm-form direction of the **B11** criterion, applied: an explicit representation
-`b = x² − a y²` kills the symbol. -/
+`b = x² − a y²` kills the symbol.  [P-15f1 sharpening 2026-07-06: consume **B11a** directly
+rather than the bundled `dyadicNormCriterion`, so the axiom trace is std-3 ∪ {B11a} without
+the unused B11b clause.] -/
 theorem cup_of_normForm (a b : (↥k)ˣ) (x y : ↥k)
     (hb : (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2) :
     trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k b) = 0 :=
-  ((dyadicNormCriterion k htriv).1 a b).mpr ⟨x, y, hb⟩
+  (hilbertSymbol_normCriterion_finiteDyadic k htriv a b).mpr ⟨x, y, hb⟩
 
 /-- `(a, −a) = 0` — the norm form represents `−a` as `0² − a·1²`. -/
 theorem cup_neg_self (a : (↥k)ˣ) :
@@ -617,5 +621,203 @@ theorem evensNorm_deepUnit_vanish
         + (C (kummerClassK k (twoUnit k))) (kummerClassK k d)) + 0 := by
     rw [add_zero]; exact hdeg2.symm
   exact add_left_cancel hfin
+
+/-! ## Tier 5: the eq.-(94) deep-unit orthogonality  (P-15f1/P-15f2 shared leaf — NO new axiom)
+
+Paper eq. (94) (§6.3, p. 29) is the Hilbert-symbol orthogonality `Uᵢ^⊥ = U_{2e−i+1}` of the
+dyadic square-class filtration together with `−1 ∈ U_e`.  Lemma 6.17 consumes only two "⊆"
+instances: **deep ⟂ deep** (`U_{e+1} ⟂ U_{e+1}` — f1's isotropy and f2's free orbits) and
+**deep ⟂ −1** (f2's square orbits).  Neither is a numbered theorem in the provided texts —
+Fesenko–Vostokov, *Local Fields and Their Extensions* (2nd ed.), Ch. VII §4 records the
+general statements only as **Exercises 4c and 5b**, and O'Meara, *Introduction to Quadratic
+Forms*, §63 assembles them from the quadratic-defect propositions — so they are **proved**
+here (2026-07-06 user directive: no exercise-grade axioms), by the classical norm-form
+descent:
+
+1. values of the binary norm form `x² − a·y²` are closed under multiplication
+   (Brahmagupta–Fibonacci composition, `normForm_mul`) and inversion (`normForm_inv`);
+2. for deep `b` (`‖b − 1‖ < ‖2‖`), the exact solution `x₀ = (b+1)/2`, `y₀ = (b−1)/2` of
+   `x² − y² = b` represents `b` up to the multiplicative error `u = (x₀² − a·y₀²)/b` with
+   `‖u − 1‖ = ‖a−1‖·(‖b−1‖/‖2‖)² ≤ ‖b−1‖·(‖a−1‖/‖2‖)` — a strict contraction (`a` deep);
+3. iterating (`normForm_of_deep_aux`) drives the error below `‖4‖`, where the Local Square
+   Theorem (`sq_of_near_one`; O'Meara **63:1**) makes it a square, hence a norm-form value;
+4. `b = x² − a·y²` kills the symbol via `cup_of_normForm` (**B11a** = Serre LF Ch. XIV §2,
+   Prop. 7 iii — the only axiom in the chain).
+
+The `normForm_*` layer is std-3 sorry-free; the `cup_deep_*` corollaries are std-3 ∪ {B11a}.
+-/
+
+section DeepOrthogonality
+
+variable (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
+
+omit [FiniteDimensional ℚ_[2] k] in
+/-- Brahmagupta–Fibonacci composition: values of `x² − a·y²` are closed under products. -/
+theorem normForm_mul (a p q r s : ↥k) :
+    (p ^ 2 - a * q ^ 2) * (r ^ 2 - a * s ^ 2)
+      = (p * r + a * q * s) ^ 2 - a * (p * s + q * r) ^ 2 := by ring
+
+omit [FiniteDimensional ℚ_[2] k] in
+/-- Nonzero values of `x² − a·y²` are closed under inversion. -/
+theorem normForm_inv (a x y u : ↥k) (hu : u = x ^ 2 - a * y ^ 2) (hu0 : u ≠ 0) :
+    u⁻¹ = (x / u) ^ 2 - a * (y / u) ^ 2 := by
+  have h : (x / u) ^ 2 - a * (y / u) ^ 2 = (x ^ 2 - a * y ^ 2) / u ^ 2 := by ring
+  rw [h, ← hu, sq, ← div_div, div_self hu0, one_div]
+
+omit [FiniteDimensional ℚ_[2] k] in
+/-- Ultrametric domination: anything within `< 1` of `1` has norm exactly `1`. -/
+private theorem norm_eq_one_of_close {b : ↥k} (hb : ‖b - 1‖ < 1) : ‖b‖ = 1 := by
+  rw [show b = (b - 1) + 1 by ring,
+    IsUltrametricDist.norm_add_eq_max_of_norm_ne_norm (by rw [norm_one]; exact ne_of_lt hb),
+    norm_one, max_eq_right hb.le]
+
+omit [FiniteDimensional ℚ_[2] k] in
+private theorem norm_two_pos : (0 : ℝ) < ‖(2 : ↥k)‖ := norm_pos_iff.mpr two_ne_zero
+
+omit [FiniteDimensional ℚ_[2] k] in
+private theorem norm_two_lt_one : ‖(2 : ↥k)‖ < 1 := by
+  have he : ‖(2 : ↥k)‖ = ‖(2 : ℚ_[2])‖ := by
+    rw [show (2 : ↥k) = algebraMap ℚ_[2] ↥k 2 from (map_ofNat _ 2).symm]
+    exact norm_algebraMap' (𝕜' := ↥k) (2 : ℚ_[2])
+  rw [he]; exact Padic.norm_p_lt_one
+
+omit [FiniteDimensional ℚ_[2] k] in
+private theorem norm_four_eq_sq : ‖(4 : ↥k)‖ = ‖(2 : ↥k)‖ ^ 2 := by
+  rw [show (4 : ↥k) = 2 * 2 by norm_num, norm_mul, sq]
+
+/-- **The norm-form descent engine** for eq. (94): with `a` deep, any `b` near `1` whose
+distance contracts below `‖4‖` after `j` steps of the factor `‖a−1‖/‖2‖ < 1` is a value of
+`x² − a·y²`.  Induction on `j`; the base case is the Local Square Theorem
+(`sq_of_near_one`). -/
+private theorem normForm_of_deep_aux (a : ↥k) (ha : ‖a - 1‖ < ‖(2 : ↥k)‖) :
+    ∀ j : ℕ, ∀ b : ↥k, ‖b - 1‖ < ‖(2 : ↥k)‖ →
+      ‖b - 1‖ * (‖a - 1‖ / ‖(2 : ↥k)‖) ^ j < ‖(4 : ↥k)‖ →
+      ∃ x y : ↥k, b = x ^ 2 - a * y ^ 2 := by
+  intro j
+  induction j with
+  | zero =>
+    intro b hb hb4
+    rw [pow_zero, mul_one] at hb4
+    obtain ⟨w, hw⟩ := sq_of_near_one k b hb4
+    exact ⟨w, 0, by rw [← hw]; ring⟩
+  | succ j ih =>
+    intro b hb hb4
+    have h2pos := norm_two_pos k
+    have h2lt1 := norm_two_lt_one k
+    have hb1 : ‖b‖ = 1 := norm_eq_one_of_close k (hb.trans h2lt1)
+    have hb0 : b ≠ 0 := by
+      intro h; rw [h, norm_zero] at hb1; exact one_ne_zero hb1.symm
+    -- the exact solve of `x² − y² = b`, and its multiplicative error `u = c/b`
+    set c : ↥k := ((b + 1) / 2) ^ 2 - a * ((b - 1) / 2) ^ 2 with hc_def
+    set u : ↥k := c / b with hu_def
+    have hcb : c - b = -((a - 1) * ((b - 1) / 2) ^ 2) := by
+      rw [hc_def]; field_simp; ring
+    have hu1 : u - 1 = -((a - 1) * ((b - 1) / 2) ^ 2) / b := by
+      rw [hu_def, div_sub_one hb0, hcb]
+    have hunorm : ‖u - 1‖ = ‖a - 1‖ * (‖b - 1‖ / ‖(2 : ↥k)‖) ^ 2 := by
+      rw [hu1, norm_div, norm_neg, norm_mul, norm_pow, norm_div, hb1, div_one]
+    have hcontract : ‖u - 1‖ ≤ ‖b - 1‖ * (‖a - 1‖ / ‖(2 : ↥k)‖) := by
+      rw [hunorm]
+      have hratio : ‖b - 1‖ / ‖(2 : ↥k)‖ ≤ 1 := (div_le_one h2pos).mpr hb.le
+      calc ‖a - 1‖ * (‖b - 1‖ / ‖(2 : ↥k)‖) ^ 2
+          = (‖b - 1‖ * (‖a - 1‖ / ‖(2 : ↥k)‖)) * (‖b - 1‖ / ‖(2 : ↥k)‖) := by ring
+        _ ≤ (‖b - 1‖ * (‖a - 1‖ / ‖(2 : ↥k)‖)) * 1 :=
+            mul_le_mul_of_nonneg_left hratio (by positivity)
+        _ = ‖b - 1‖ * (‖a - 1‖ / ‖(2 : ↥k)‖) := mul_one _
+    have hγ1 : ‖a - 1‖ / ‖(2 : ↥k)‖ < 1 := (div_lt_one h2pos).mpr ha
+    have hu_deep : ‖u - 1‖ < ‖(2 : ↥k)‖ := by
+      refine hcontract.trans_lt (lt_of_le_of_lt ?_ hb)
+      calc ‖b - 1‖ * (‖a - 1‖ / ‖(2 : ↥k)‖) ≤ ‖b - 1‖ * 1 :=
+            mul_le_mul_of_nonneg_left hγ1.le (norm_nonneg _)
+        _ = ‖b - 1‖ := mul_one _
+    have hu4 : ‖u - 1‖ * (‖a - 1‖ / ‖(2 : ↥k)‖) ^ j < ‖(4 : ↥k)‖ := by
+      calc ‖u - 1‖ * (‖a - 1‖ / ‖(2 : ↥k)‖) ^ j
+          ≤ (‖b - 1‖ * (‖a - 1‖ / ‖(2 : ↥k)‖)) * (‖a - 1‖ / ‖(2 : ↥k)‖) ^ j :=
+            mul_le_mul_of_nonneg_right hcontract (by positivity)
+        _ = ‖b - 1‖ * (‖a - 1‖ / ‖(2 : ↥k)‖) ^ (j + 1) := by rw [pow_succ]; ring
+        _ < ‖(4 : ↥k)‖ := hb4
+    obtain ⟨x, y, hxy⟩ := ih u hu_deep hu4
+    have hu0 : u ≠ 0 := by
+      have hu1' : ‖u‖ = 1 := norm_eq_one_of_close k (hu_deep.trans h2lt1)
+      intro h; rw [h, norm_zero] at hu1'; exact one_ne_zero hu1'.symm
+    have hbcu : b = c * u⁻¹ := by
+      rw [hu_def, inv_div]
+      rw [mul_div_assoc', mul_comm c b, mul_div_assoc, div_self (by
+        intro h; rw [hu_def, h, zero_div] at hu0; exact hu0 rfl), mul_one]
+    have hfinal : b = ((b + 1) / 2 * (x / u) + a * ((b - 1) / 2) * (y / u)) ^ 2
+        - a * ((b + 1) / 2 * (y / u) + (b - 1) / 2 * (x / u)) ^ 2 := by
+      conv_lhs => rw [hbcu]
+      rw [normForm_inv k a x y u hxy hu0, hc_def, normForm_mul]
+    exact ⟨_, _, hfinal⟩
+
+/-- **Deep units are norm-form values of each other** — the "⊆" half of paper eq. (94) at
+`(U_{e+1}, U_{e+1})`: for deep `a, b ∈ k^×` (`‖· − 1‖ < ‖2‖`, i.e. `∈ U_{e+1}(k)`), `b` is
+represented by the norm form `x² − a·y²` of `k(√a)/k`.  [Provenance: paper §6.3 eq. (94);
+Fesenko–Vostokov Ch. VII §4 Ex. 4c states the general `i + j > 2e` triviality (exercise —
+hence proved, not leafed); O'Meara §63A is the quadratic-defect calculus behind it.
+No axiom: Brahmagupta descent + Local Square Theorem.] -/
+theorem normForm_of_deep (a b : ↥k)
+    (ha : ‖(a : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖) (hb : ‖(b : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖) :
+    ∃ x y : ↥k, b = x ^ 2 - a * y ^ 2 := by
+  have ha' : ‖a - 1‖ < ‖(2 : ↥k)‖ := ha
+  have hb' : ‖b - 1‖ < ‖(2 : ↥k)‖ := hb
+  have h2pos := norm_two_pos k
+  rcases eq_or_lt_of_le (norm_nonneg (b - 1)) with h0 | hr
+  · have hb1 : b = 1 := by
+      have h0' : ‖b - 1‖ = 0 := h0.symm
+      rwa [norm_eq_zero, sub_eq_zero] at h0'
+    exact ⟨1, 0, by rw [hb1]; ring⟩
+  · have hγ1 : ‖a - 1‖ / ‖(2 : ↥k)‖ < 1 := (div_lt_one h2pos).mpr ha'
+    have h4pos : (0 : ℝ) < ‖(4 : ↥k)‖ := by
+      rw [norm_four_eq_sq]; exact pow_pos h2pos 2
+    obtain ⟨j, hj⟩ := exists_pow_lt_of_lt_one (div_pos h4pos hr) hγ1
+    exact normForm_of_deep_aux k a ha' j b hb'
+      (by rw [mul_comm]; exact (lt_div_iff₀ hr).mp hj)
+
+/-- **`−1` is a norm-form value of every deep unit** — the "⊆" half of eq. (94) at
+`(U_{e+1}, −1)`, i.e. `−1 ∈ U_e ⊆ U_{e+1}^⊥`: `−1 = (−a)·a⁻¹` with `−a = 0² − a·1²` and `a`
+itself a value (`normForm_of_deep` at `b := a`). -/
+theorem normForm_neg_one_of_deep (a : ↥k) (ha : ‖(a : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖) :
+    ∃ x y : ↥k, (-1 : ↥k) = x ^ 2 - a * y ^ 2 := by
+  obtain ⟨x, y, hxy⟩ := normForm_of_deep k a a ha ha
+  have ha' : ‖a - 1‖ < ‖(2 : ↥k)‖ := ha
+  have ha1 : ‖a‖ = 1 := norm_eq_one_of_close k (ha'.trans (norm_two_lt_one k))
+  have ha0 : a ≠ 0 := by
+    intro h; rw [h, norm_zero] at ha1; exact one_ne_zero ha1.symm
+  refine ⟨0 * (x / a) + a * 1 * (y / a), 0 * (y / a) + 1 * (x / a), ?_⟩
+  rw [← normForm_mul, ← normForm_inv k a x y a hxy ha0]
+  field_simp
+  ring
+
+variable (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+
+/-- **Eq. (94), deep ⟂ deep** (P-15f1's isotropy `hiso` and P-15f2's free-orbit leaf): the
+symbol of two deep units vanishes.  std-3 ∪ {B11a}. -/
+theorem cup_deep_deep (a b : (↥k)ˣ)
+    (ha : ‖((a : ↥k) : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖)
+    (hb : ‖((b : ↥k) : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖) :
+    trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k b) = 0 := by
+  obtain ⟨x, y, hxy⟩ := normForm_of_deep k (a : ↥k) (b : ↥k) ha hb
+  exact cup_of_normForm k htriv a b x y hxy
+
+/-- **Eq. (94), deep ⟂ −1** (P-15f2's square-orbit leaf, `−1 ∈ U_e`).  std-3 ∪ {B11a}. -/
+theorem cup_deep_neg_one (a : (↥k)ˣ)
+    (ha : ‖((a : ↥k) : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖) :
+    trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k (-1))
+      = 0 := by
+  obtain ⟨x, y, hxy⟩ := normForm_neg_one_of_deep k (a : ↥k) ha
+  refine cup_of_normForm k htriv a (-1) x y ?_
+  rw [Units.val_neg, Units.val_one]
+  exact hxy
+
+/-- `(a, a) = 0` for deep `a` — the diagonal case, via `(a,a) = (a,−1)`
+(`cup_self_eq_neg_one`) + deep ⟂ −1.  std-3 ∪ {B11a}. -/
+theorem cup_deep_self (a : (↥k)ˣ)
+    (ha : ‖((a : ↥k) : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖) :
+    trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k a) = 0 := by
+  rw [cup_self_eq_neg_one k htriv a]
+  exact cup_deep_neg_one k htriv a ha
+
+end DeepOrthogonality
 
 end GQ2

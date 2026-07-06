@@ -28,7 +28,17 @@ std-3)** gives `#X₊² ≤ #H¹ = 2^{2m}`, i.e. `#X₊ ≤ 2^m`.
 `polar_Q0loc`, `P(x,y) = ι_F(cup₁₁(polarBihom) y x)` — the cup product of the two Kummer
 classes.  For deep classes (all scalar coordinates in `U_{e+1}(K)`), this is the Hilbert symbol
 `(β_x, β_y)`, which vanishes because `U_{e+1} ⊆ U_{e+1}^⊥ = U_{2e−(e+1)+1} = U_e` — the (94)
-orthogonality relation.  **Ingredients:**
+orthogonality relation.
+
+> **✅ Ingredient 2 BANKED 2026-07-06 — as theorems, NO new axiom** (`HilbertLedger.lean`
+> Tier 5): `cup_deep_deep` / `cup_deep_neg_one` / `cup_deep_self` (std-3 ∪ {B11a});
+> `normForm_of_deep` etc. std-3 sorry-free (Brahmagupta descent + `sq_of_near_one`; FV VII §4
+> Ex. 4c/5b are exercises ⟹ proved per user directive).  Bridge:
+> `norm_sub_one_lt_of_isDeepUnit` (LocalKummer).  Ingredient 1 (the cup₁₁-on-`H¹(G,V)` →
+> scalar-symbol-over-`K` reduction) = the monomial-expansion bridge, gated on `lemma_6_11`
+> (P-15f4).
+
+**Ingredients:**
 1. **cup = Hilbert symbol** on Kummer classes — relate `cup₁₁(polarBihom)` on `H¹(N,𝔽₂)`-image
    classes to the local Hilbert symbol.  This is the P-15b/`GaussSigns` and `HilbertLedger`
    territory (the symbol is `B7′`/`B11`); the bridge to the *cup* form is the (93)-cochain
@@ -39,6 +49,16 @@ orthogonality relation.  **Ingredients:**
    conductor/depth bound on the symbol may give directly from `B11a` without the sharp (94)
    (see `docs/p15f1-axiom-proposal.md` §4.3).  **This same isotropy is exactly P-15f2's
    free-orbit vanishing** — shared work; coordinate with f2.
+
+> **⚠ ROUTE CORRECTION 2026-07-06 (from paper §6.3 p. 34).** The paper's *dimension* clause does
+> **not** use isotropy at all — it is the **graded route**: `H¹ ≅ Hom_{H_V}(V^∨, M_K)`,
+> `Hom(V^∨,−)` exact (6.11), Hilbert duality pairs depth `j`↔`2e−j`, self-duality `V≅V^∨` gives
+> equal multiplicities, middle `j=e` empty (6.10) ⟹ `dim X₊ = ½`. So the closure target is the
+> **`DeepKummerData` construction** (`dim_deepPart_of_data`), i.e. the graded-Hom-over-filtration
+> count `card_fam`/`card_deepFam` + `hpair`/`hmid` — §§1–2 below (the isotropy upper bound +
+> Hom-exactness lower bound) are an *alternative* cross-check, not the paper's route. The (94)
+> orthogonality (now banked as `cup_deepClasses`) belongs to the **vanishing** clause (f2), not
+> the dim clause.
 
 ## 2. Lower bound `#X₊ ≥ 2^m` — this is where 6.11 lives
 

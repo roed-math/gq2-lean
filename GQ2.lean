@@ -59,7 +59,11 @@ import GQ2.SectionNine
 import GQ2.DeepPart
 import GQ2.LocalKummer
 import GQ2.RegularSummand
+import GQ2.HomCounting
 import GQ2.UnitFiltration
+import GQ2.KummerFiltration
+import GQ2.AdmissibleCount
+import GQ2.CorestrictionCohomology
 import GQ2.PropOneOne
 import GQ2.ZtwoPowering
 import GQ2.FrattiniCriterion

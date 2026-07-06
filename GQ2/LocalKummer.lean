@@ -3,8 +3,10 @@ Copyright (c) 2026. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
 import GQ2.DeepPart
+import GQ2.HilbertLedger
 import Mathlib.Algebra.Module.ZMod
 import Mathlib.LinearAlgebra.Dual.Lemmas
+import Mathlib.FieldTheory.Galois.Infinite
 
 /-!
 # Local Kummer theory for the deep half  (ticket P-15f1)
@@ -310,6 +312,74 @@ theorem mem_deepPart_iff (x : H1 AbsGalQ2 V) :
   · intro hx φ
     obtain ⟨A, β, hdeep, hsq, hβ0, heq⟩ := hx φ
     exact ⟨A, β, hdeep, hsq, hβ0, heq⟩
+
+/-- **Depth-to-norm bridge**: a deep unit (the `IsDeepUnit` idiom `A = 1 + 2b`, `‖b‖ < 1`)
+satisfies the `‖A − 1‖ < ‖2‖` hypothesis shape of the Tier-5 eq.-(94) orthogonality leaves
+(`GQ2.normForm_of_deep` / `GQ2.cup_deep_*` in `GQ2/HilbertLedger.lean`) — the consumer-side
+glue for discharging f1's isotropy `hiso` and f2's orbit vanishing once the monomial
+expansion lands. -/
+theorem norm_sub_one_lt_of_isDeepUnit {N : Subgroup (Kummer.GaloisGroup ℚ_[2])}
+    {A : AlgebraicClosure ℚ_[2]} (h : IsDeepUnit N A) :
+    ‖A - 1‖ < ‖(2 : AlgebraicClosure ℚ_[2])‖ := by
+  obtain ⟨-, -, b, -, hAb, hb⟩ := h
+  rw [hAb, add_sub_cancel_left, norm_mul]
+  exact mul_lt_of_lt_one_right (norm_pos_iff.mpr two_ne_zero) hb
+
+/-- **Bridge `deepClasses → kummerClassK`**: over a finite intermediate field `k`, a deep
+Kummer class in `H¹(G_k, 𝔽₂)` is the Kummer class of a genuine deep unit `a ∈ kˣ`
+(`‖a − 1‖ < ‖2‖`, i.e. `a ∈ U_{e+1}(k)`).  The `k.fixingSubgroup`-fixed deep unit `A` lands in
+`k` by the Galois correspondence (`InfiniteGalois.fixedField_fixingSubgroup`); its Kummer
+cocycle matches `kummerClassK`'s canonical-root cocycle up to a sign (`kummerCocycleFun_neg`).
+This is the consumer glue turning the Tier-5 (94) orthogonality (`GQ2.cup_deep_deep`, over
+`kummerClassK`) into the `deepClasses`-vocabulary orthogonality the monomial expansion needs. -/
+theorem deepClass_eq_kummerClassK (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+    [FiniteDimensional ℚ_[2] k] {ξ : H1 k.fixingSubgroup (ZMod 2)}
+    (hξ : ξ ∈ deepClasses k.fixingSubgroup) :
+    ∃ a : (↥k)ˣ, ‖((a : ↥k) : AlgebraicClosure ℚ_[2]) - 1‖ < ‖(2 : AlgebraicClosure ℚ_[2])‖
+      ∧ GQ2.kummerClassK k a = ξ := by
+  obtain ⟨A, β, hdeep, hsq, hβ0, heq⟩ := hξ
+  have hAk : A ∈ k := by
+    rw [← InfiniteGalois.fixedField_fixingSubgroup k]
+    exact (IntermediateField.mem_fixedField_iff _ A).mpr hdeep.2.1
+  have hA0 : (⟨A, hAk⟩ : ↥k) ≠ 0 := by
+    rw [Ne, Subtype.ext_iff]; exact hdeep.1
+  have hcoe : ((⟨A, hAk⟩ : ↥k) : AlgebraicClosure ℚ_[2]) = A := rfl
+  refine ⟨Units.mk0 ⟨A, hAk⟩ hA0, ?_, ?_⟩
+  · show ‖((⟨A, hAk⟩ : ↥k) : AlgebraicClosure ℚ_[2]) - 1‖ < ‖(2 : AlgebraicClosure ℚ_[2])‖
+    rw [hcoe]; exact norm_sub_one_lt_of_isDeepUnit hdeep
+  · have hccfun : Kummer.kummerCocycleFun (GQ2.sqrtCl A) = Kummer.kummerCocycleFun β := by
+      have hsq2 : GQ2.sqrtCl A ^ 2 = A := GQ2.sqrtCl_sq A
+      have hfac : (β - GQ2.sqrtCl A) * (β + GQ2.sqrtCl A) = 0 := by
+        have hbb : β ^ 2 = GQ2.sqrtCl A ^ 2 := by rw [hsq, hsq2]
+        linear_combination hbb
+      rcases mul_eq_zero.1 hfac with h | h
+      · rw [sub_eq_zero.1 h]
+      · rw [eq_neg_of_add_eq_zero_left h, Kummer.kummerCocycleFun_neg]
+    have hmemβ : (fun n : ↥(k.fixingSubgroup) =>
+        Kummer.kummerCocycleFun β (n : Kummer.GaloisGroup ℚ_[2])) ∈ Z1 k.fixingSubgroup (ZMod 2) :=
+      (GQ2.kummerZ1On k.fixingSubgroup hsq hβ0 hdeep.2.1).2
+    rw [← heq, H1ofFun_of_mem hmemβ]
+    unfold GQ2.kummerClassK
+    congr 1
+    apply Subtype.ext
+    funext g
+    show Kummer.kummerCocycleFun (GQ2.sqrtCl ((Units.mk0 (⟨A, hAk⟩ : ↥k) hA0 : ↥k)
+        : AlgebraicClosure ℚ_[2])) _ = Kummer.kummerCocycleFun β _
+    rw [show ((Units.mk0 (⟨A, hAk⟩ : ↥k) hA0 : ↥k) : AlgebraicClosure ℚ_[2]) = A from rfl, hccfun]
+
+/-- **Eq.-(94) orthogonality in `deepClasses` vocabulary** (the shared f1-isotropy /
+f2-orbit-vanishing leaf, over a finite intermediate field `k`): two deep Kummer classes in
+`H¹(G_k, 𝔽₂)` cup to zero.  Bridges `deepClasses` to the Tier-5 `GQ2.cup_deep_deep` via
+`deepClass_eq_kummerClassK`.  std-3 ∪ {B11a}. -/
+theorem cup_deepClasses (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+    [FiniteDimensional ℚ_[2] k]
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    {ξ η : H1 k.fixingSubgroup (ZMod 2)}
+    (hξ : ξ ∈ deepClasses k.fixingSubgroup) (hη : η ∈ deepClasses k.fixingSubgroup) :
+    GQ2.trivialCupPairing 2 k.fixingSubgroup htriv ξ η = 0 := by
+  obtain ⟨a, ha, rfl⟩ := deepClass_eq_kummerClassK k hξ
+  obtain ⟨b, hb, rfl⟩ := deepClass_eq_kummerClassK k hη
+  exact GQ2.cup_deep_deep k htriv a b ha hb
 
 end DeepClasses
 
@@ -720,6 +790,138 @@ theorem conjAct_h1ofFun (g : AbsGalQ2)
     exact sub_eq_zero.mp this
   unfold conjAct
   rw [hout]
+
+omit [DiscreteTopology C] [Finite C] in
+/-- Conjugation composes contravariantly: `conjMap (g·h) = conjMap h ∘ conjMap g`. -/
+theorem conjMap_mul (g h : AbsGalQ2)
+    (n : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :
+    conjMap ρ (g * h) n = conjMap ρ h (conjMap ρ g n) := by
+  apply Subtype.ext
+  show (g * h)⁻¹ * (n : AbsGalQ2) * (g * h) = h⁻¹ * (g⁻¹ * n * g) * h
+  group
+
+omit [DiscreteTopology C] [Finite C] in
+/-- **`conjAct` is additive**. -/
+theorem conjAct_add (g : AbsGalQ2)
+    (ξ η : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) :
+    conjAct ρ g (ξ + η) = conjAct ρ g ξ + conjAct ρ g η := by
+  induction ξ using QuotientAddGroup.induction_on with
+  | H a =>
+    induction η using QuotientAddGroup.induction_on with
+    | H b =>
+      show conjAct ρ g (H1mk _ _ a + H1mk _ _ b)
+        = conjAct ρ g (H1mk _ _ a) + conjAct ρ g (H1mk _ _ b)
+      rw [← map_add, ← H1ofFun_of_mem (a + b).2, ← H1ofFun_of_mem a.2, ← H1ofFun_of_mem b.2,
+        conjAct_h1ofFun ρ g (a + b).2, conjAct_h1ofFun ρ g a.2, conjAct_h1ofFun ρ g b.2]
+      exact H1ofFun_add (comp_conjMap_mem_Z1 ρ a.2 g) (comp_conjMap_mem_Z1 ρ b.2 g)
+
+omit [DiscreteTopology C] [Finite C] in
+/-- **`conjAct` preserves `0`** (from additivity). -/
+theorem conjAct_zero (g : AbsGalQ2) :
+    conjAct ρ g (0 : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) = 0 := by
+  have h : conjAct ρ g 0 + conjAct ρ g 0 = conjAct ρ g 0 := by
+    rw [← conjAct_add ρ g 0 0, add_zero]
+  exact add_left_cancel (a := conjAct ρ g 0) (h.trans (add_zero _).symm)
+
+omit [DiscreteTopology C] [Finite C] in
+/-- **`conjAct` is a left action** (contravariant `conjMap` composition): `conjAct (g·h)`
+`= conjAct g ∘ conjAct h`. -/
+theorem conjAct_comp (g h : AbsGalQ2)
+    (ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) :
+    conjAct ρ (g * h) ξ = conjAct ρ g (conjAct ρ h ξ) := by
+  induction ξ using QuotientAddGroup.induction_on with
+  | H b =>
+    rw [show (QuotientAddGroup.mk b : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))
+      = H1ofFun _ b.1 from (H1ofFun_of_mem b.2).symm,
+      conjAct_h1ofFun ρ h b.2, conjAct_h1ofFun ρ (g * h) b.2,
+      conjAct_h1ofFun ρ g (comp_conjMap_mem_Z1 ρ b.2 h)]
+    exact congrArg _ (funext fun n => congrArg b.1 (conjMap_mul ρ g h n))
+
+omit [DiscreteTopology C] [Finite C] in
+/-- **`conjAct` by the identity is the identity** (`conjMap 1 = id`). -/
+theorem conjAct_one (ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) :
+    conjAct ρ 1 ξ = ξ := by
+  induction ξ using QuotientAddGroup.induction_on with
+  | H b =>
+    rw [show (QuotientAddGroup.mk b : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))
+      = H1ofFun _ b.1 from (H1ofFun_of_mem b.2).symm, conjAct_h1ofFun ρ 1 b.2]
+    refine congrArg _ (funext fun n => congrArg b.1 ?_)
+    apply Subtype.ext
+    show (1 : AbsGalQ2)⁻¹ * (n : AbsGalQ2) * 1 = n
+    group
+
+omit [DiscreteTopology C] [Finite C] in
+/-- **Inner conjugation is trivial on `H¹(N)`**: for `m ∈ N`, `conjAct ρ m = id` (the cocycle
+is a hom on `N`, so `f(m⁻¹ n m) = f n` in characteristic 2). -/
+theorem conjAct_inner (m : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
+    (ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) :
+    conjAct ρ (m : AbsGalQ2) ξ = ξ := by
+  induction ξ using QuotientAddGroup.induction_on with
+  | H b =>
+    rw [show (QuotientAddGroup.mk b : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))
+      = H1ofFun _ b.1 from (H1ofFun_of_mem b.2).symm, conjAct_h1ofFun ρ (m : AbsGalQ2) b.2]
+    refine congrArg _ (funext fun n => ?_)
+    obtain ⟨hc, hcoc⟩ := mem_Z1_iff.mp b.2
+    have htriv : ∀ (a : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) (z : ZMod 2), a • z = z :=
+      fun _ _ => rfl
+    have hb1 : b.1 1 = 0 := by
+      have h := hcoc 1 1
+      rw [mul_one, htriv] at h
+      exact add_left_cancel (a := b.1 1) (h.symm.trans (add_zero _).symm)
+    -- `b(m⁻¹ n m) = b(m⁻¹) + b(n) + b(m)`, and `b(m⁻¹) + b(m) = b(1) = 0`
+    have he : conjMap ρ (m : AbsGalQ2) n = m⁻¹ * n * m := by
+      apply Subtype.ext
+      simp only [conjMap, Subgroup.coe_mul, Subgroup.coe_inv]
+    have hmm : b.1 m⁻¹ + b.1 m = 0 := by
+      have h := hcoc m⁻¹ m
+      rw [inv_mul_cancel, htriv, hb1] at h
+      exact h.symm
+    rw [he, hcoc, hcoc, htriv, htriv,
+      show b.1 m⁻¹ + b.1 n + b.1 m = (b.1 m⁻¹ + b.1 m) + b.1 n by ring, hmm, zero_add]
+
+omit [DiscreteTopology C] [Finite C] in
+/-- **`conjAct` depends only on `ρ g`**: two elements with the same image act identically
+(their ratio lies in `N`, and inner conjugation is trivial). -/
+theorem conjAct_ker (g g' : AbsGalQ2) (hgg : ρ g = ρ g')
+    (ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) :
+    conjAct ρ g ξ = conjAct ρ g' ξ := by
+  have hgg' : ρ.toMonoidHom g = ρ.toMonoidHom g' := hgg
+  have hm : g⁻¹ * g' ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) := by
+    rw [MonoidHom.mem_ker, map_mul, map_inv, hgg', inv_mul_cancel]
+  have hsplit : g' = g * (g⁻¹ * g') := by group
+  rw [hsplit, conjAct_comp ρ g (g⁻¹ * g') ξ, conjAct_inner ρ ⟨g⁻¹ * g', hm⟩ ξ]
+
+/-- **The `C`-module (`H_V`-module) structure on `H¹(N, 𝔽₂)`** via conjugation: `c • ξ` is the
+`G_ℚ₂`-conjugation `conjAct ρ g ξ` for any lift `g` of `c` (well-defined by `conjAct_ker`, as
+conjugation descends through `ρ`).  The action axioms are the `conjAct` algebra.  Provided as a
+`def` (not a global instance); consumers `letI` it — `ρ` is surjective in the ramified §6.3
+setup (`hc : Surjective c` + `B.tameF_surjective`).  This is the acting-group structure that
+identifies `AdmissibleFam` with the equivariant Homs `equivHoms C V^∨ (H¹(N, 𝔽₂))`. -/
+@[reducible] noncomputable def conjModule (hρsurj : Function.Surjective ⇑ρ) :
+    DistribMulAction C (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) where
+  smul c ξ := conjAct ρ (Function.surjInv hρsurj c) ξ
+  one_smul ξ := by
+    refine (conjAct_ker ρ _ 1 ?_ ξ).trans (conjAct_one ρ ξ)
+    rw [Function.surjInv_eq hρsurj, map_one]
+  mul_smul c d ξ := by
+    show conjAct ρ (Function.surjInv hρsurj (c * d)) ξ
+      = conjAct ρ (Function.surjInv hρsurj c) (conjAct ρ (Function.surjInv hρsurj d) ξ)
+    rw [← conjAct_comp]
+    refine conjAct_ker ρ _ _ ?_ ξ
+    rw [map_mul, Function.surjInv_eq hρsurj, Function.surjInv_eq hρsurj,
+      Function.surjInv_eq hρsurj]
+  smul_zero c := conjAct_zero ρ _
+  smul_add c ξ η := conjAct_add ρ _ ξ η
+
+omit [DiscreteTopology C] [Finite C] in
+/-- Computation rule for the `conjModule` action: `c • ξ = conjAct ρ g ξ` for **any** lift `g`
+of `c` (not only the chosen `surjInv`). -/
+theorem conjModule_smul_of_lift (hρsurj : Function.Surjective ⇑ρ) (c : C) (g : AbsGalQ2)
+    (hg : ρ g = c) (ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) :
+    (conjModule ρ hρsurj).toSMul.smul c ξ = conjAct ρ g ξ := by
+  show conjAct ρ (Function.surjInv hρsurj c) ξ = conjAct ρ g ξ
+  refine conjAct_ker ρ _ g ?_ ξ
+  rw [Function.surjInv_eq hρsurj, hg]
 
 end ConjAction
 

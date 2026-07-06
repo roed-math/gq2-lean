@@ -248,6 +248,13 @@ P-16d1 (frame enrichment: per-λ RadicalCoverData + κ⁰_q/6.3 datum)
 P-13f ─► P-16d2 (R-stage obstruction module for stageR136_of; local numerics via 5.16 ✓)
                   │
    d2 + d3 + d4 + d5 ──► P-16d6 (phase140 + final two-source splice)
+
+P-16d6 sub-split (2026-07-06; reducer+engine layer DONE in GQ2/RecursionSplice.lean —
+                  spec: docs/p16d6-concrete-spec.md; rows P-16d6a–e in docs/tickets.md):
+   d6a ((136) R-stage: Enrichment extension + hsep_hom/hZcount/hE2) ──────────┐
+   d6b ((140) μ-independence) ──► d6c ((140) Prop-8.8 core: hM/hphase/witness)┼──► d6e (assembly
+   d6d ((139)/G_ℚ₂ via lemma_8_6_local ✓) ────────────────────────────────────┤     + prop_8_9
+   P-16c (lemma_8_6_gammaA → (139)/Γ_A) ──────────────────────────────────────┘     splice)
 ```
 
 * **d1** ☑ **DONE (Fable 2026-07-05)**: derived layer facts (`MB_*`/`TBsub_*`/`ker_piBC`/

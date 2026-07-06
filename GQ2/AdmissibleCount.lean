@@ -1,0 +1,184 @@
+import GQ2.KummerFiltration
+import GQ2.HomCounting
+
+/-!
+# Counting admissible families via the equivariant-Hom engine  (ticket P-15f6, brick iii)
+
+The bridge identifying `LocalKummer.AdmissibleFam ρ` with the equivariant Homs
+`equivHoms C (V →+ 𝔽₂) (H¹(N, 𝔽₂))` (the acting group `C = H_V`; `H¹(N)` carries the
+`conjModule` action from brick ii, `V^∨` the dual action `dualModule`), so that the P-15f5
+counting engine applies to the `U_{e+1}` filtration.
+
+* `dualModule` — the dual `C`-action on `V^∨ = V →+ 𝔽₂`, `(c • φ) v = φ (c⁻¹ • v)`.
+
+WIP (this file is under construction for brick iii).
+-/
+
+namespace GQ2
+
+open ContCoh LocalKummer
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+/-- **`deepClasses` as an additive subgroup** of `H¹(N, 𝔽₂)`: the deep Kummer classes are closed
+under `0`/`+`/`neg` — deep units form a group (`A₁A₂` deep), `[a] + [b] = [ab]` via
+`kcf_mul_of_fixed`, and `H¹` is 2-torsion so `neg = id`.  The subgroup form the `U_{e+1}` short
+exact sequence (P-15f6 brick iii-b) and f2's orbit analysis consume. -/
+noncomputable def deepClassesSubgroup (N : Subgroup (Kummer.GaloisGroup ℚ_[2])) :
+    AddSubgroup (H1 ↥N (ZMod 2)) where
+  carrier := deepClasses N
+  zero_mem' := by
+    refine ⟨1, 1, ⟨one_ne_zero, fun g _ => by rw [AlgEquiv.smul_def, map_one], 0,
+      fun g _ => smul_zero g, by ring, by rw [norm_zero]; exact zero_lt_one⟩,
+      one_pow 2, one_ne_zero, ?_⟩
+    have hk1 : (fun n : ↥N => Kummer.kummerCocycleFun (1 : ℚ̄₂)
+        ((n : Kummer.GaloisGroup ℚ_[2]))) = 0 := by
+      funext n
+      exact Kummer.kummerCocycleFun_eq0 (by rw [AlgEquiv.smul_def, map_one])
+    rw [hk1, H1ofFun_of_mem (zero_mem _)]
+    exact map_zero (H1mk ↥N (ZMod 2))
+  add_mem' := by
+    rintro ξ η ⟨A₁, β₁, hd₁, hsq₁, hne₁, rfl⟩ ⟨A₂, β₂, hd₂, hsq₂, hne₂, rfl⟩
+    obtain ⟨hA₁0, hA₁fix, b₁, hb₁fix, hA₁eq, hb₁⟩ := hd₁
+    obtain ⟨hA₂0, hA₂fix, b₂, hb₂fix, hA₂eq, hb₂⟩ := hd₂
+    have h2le : ‖(2 : ℚ̄₂)‖ ≤ 1 := by
+      rw [show (2 : ℚ̄₂) = 1 + 1 by norm_num]
+      exact (IsUltrametricDist.norm_add_le_max 1 1).trans (by rw [norm_one, max_self])
+    refine ⟨A₁ * A₂, β₁ * β₂,
+      ⟨mul_ne_zero hA₁0 hA₂0, fun g hg => ?_, b₁ + b₂ + 2 * b₁ * b₂, fun g hg => ?_,
+        by rw [hA₁eq, hA₂eq]; ring, ?_⟩,
+      by rw [mul_pow, hsq₁, hsq₂], mul_ne_zero hne₁ hne₂, ?_⟩
+    · rw [AlgEquiv.smul_def, map_mul, ← AlgEquiv.smul_def, ← AlgEquiv.smul_def,
+        hA₁fix g hg, hA₂fix g hg]
+    · rw [AlgEquiv.smul_def, map_add, map_add, map_mul, map_mul, map_ofNat,
+        ← AlgEquiv.smul_def, ← AlgEquiv.smul_def, hb₁fix g hg, hb₂fix g hg]
+    · have hprod : ‖(2 : ℚ̄₂) * b₁ * b₂‖ < 1 := by
+        rw [norm_mul, norm_mul]
+        calc ‖(2 : ℚ̄₂)‖ * ‖b₁‖ * ‖b₂‖
+            ≤ 1 * ‖b₁‖ * ‖b₂‖ := by
+              have := mul_le_mul_of_nonneg_right
+                (mul_le_mul_of_nonneg_right h2le (norm_nonneg b₁)) (norm_nonneg b₂)
+              simpa using this
+          _ = ‖b₁‖ * ‖b₂‖ := by ring
+          _ ≤ ‖b₁‖ * 1 := mul_le_mul_of_nonneg_left hb₂.le (norm_nonneg b₁)
+          _ = ‖b₁‖ := mul_one _
+          _ < 1 := hb₁
+      refine lt_of_le_of_lt (IsUltrametricDist.norm_add_le_max _ _) ?_
+      rw [max_lt_iff]
+      exact ⟨lt_of_le_of_lt (IsUltrametricDist.norm_add_le_max _ _)
+        (by rw [max_lt_iff]; exact ⟨hb₁, hb₂⟩), hprod⟩
+    · have hLHS : (fun n : ↥N => Kummer.kummerCocycleFun (β₁ * β₂)
+          ((n : Kummer.GaloisGroup ℚ_[2])))
+          = (fun n : ↥N => Kummer.kummerCocycleFun β₁ ((n : Kummer.GaloisGroup ℚ_[2])))
+            + fun n : ↥N => Kummer.kummerCocycleFun β₂ ((n : Kummer.GaloisGroup ℚ_[2])) := by
+        funext n
+        exact kcf_mul_of_fixed (by rw [mul_pow, hsq₁, hsq₂]) hsq₁ hsq₂ hne₁ hne₂
+          (hA₁fix (n : Kummer.GaloisGroup ℚ_[2]) n.2) (hA₂fix (n : Kummer.GaloisGroup ℚ_[2]) n.2)
+      rw [hLHS, GQ2.DeepPart.H1ofFun_add (GQ2.DeepPart.kummerRestrict_mem_Z1 hsq₁ hne₁ hA₁fix)
+        (GQ2.DeepPart.kummerRestrict_mem_Z1 hsq₂ hne₂ hA₂fix)]
+  neg_mem' := by
+    intro ξ hξ
+    rwa [neg_eq_of_add_eq_zero_left (GQ2.h1_add_self ξ)]
+
+/-- The Kummer cocycle conjugates as `κ_β(g⁻¹ n g) = κ_{g·β}(n)` (the class of the conjugated
+root).  Underlies the `conjModule`-invariance of `deepClasses`. -/
+theorem kcf_conj (β : ℚ̄₂) (g n : Kummer.GaloisGroup ℚ_[2]) :
+    Kummer.kummerCocycleFun β (g⁻¹ * n * g) = Kummer.kummerCocycleFun (g • β) n := by
+  classical
+  simp only [Kummer.kummerCocycleFun]
+  refine if_congr ?_ rfl rfl
+  rw [show g⁻¹ * n * g = g⁻¹ * (n * g) by group, mul_smul, mul_smul]
+  exact inv_smul_eq_iff
+
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
+
+/-- The **dual `C`-action** on `V^∨ = V →+ 𝔽₂`: `(c • φ) v = φ (c⁻¹ • v)` (precomposition with
+the inverse action on `V`).  Provided as a `def` (not a global instance — it competes with the
+trivial codomain action on `V →+ 𝔽₂`); consumers `letI` it. -/
+@[reducible] noncomputable def dualModule : DistribMulAction C (V →+ ZMod 2) where
+  smul c φ := φ.comp (DistribSMul.toAddMonoidHom V c⁻¹)
+  one_smul φ := by
+    ext v
+    show φ ((1 : C)⁻¹ • v) = φ v
+    rw [inv_one, one_smul]
+  mul_smul c d φ := by
+    ext v
+    show φ ((c * d)⁻¹ • v) = φ (d⁻¹ • c⁻¹ • v)
+    rw [mul_inv_rev, mul_smul]
+  smul_zero c := by ext v; rfl
+  smul_add c φ ψ := by ext v; rfl
+
+omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [TopologicalSpace V]
+  [DiscreteTopology V] [Finite V] [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] in
+/-- Evaluation rule for `dualModule`. -/
+theorem dualModule_smul_apply (c : C) (φ : V →+ ZMod 2) (v : V) :
+    (dualModule.toSMul.smul c φ) v = φ (c⁻¹ • v) := rfl
+
+variable (ρ : ContinuousMonoidHom AbsGalQ2 C)
+
+omit [DiscreteTopology C] [Finite C] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [ContinuousSMul AbsGalQ2 V] in
+/-- **The core equivariance of an admissible family** matching the two `C`-actions: `ξ.fam`
+intertwines the dual action `dualModule` on `V^∨` with the conjugation action `conjModule` on
+`H¹(N)`.  The `AdmissibleFam.equiv'` field is stated in the `G_ℚ₂`-conjugation form; this
+converts it to the `C`-form via a lift `surjInv c` and `hρ` (the `G_ℚ₂`/`C` action
+compatibility on `V`). -/
+theorem fam_equivariant (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (hρsurj : Function.Surjective ⇑ρ) (ξ : AdmissibleFam (V := V) ρ) (c : C)
+    (φ : V →+ ZMod 2) :
+    ξ.fam (φ.comp (DistribSMul.toAddMonoidHom V (c⁻¹ : C)))
+      = conjAct ρ (Function.surjInv hρsurj c) (ξ.fam φ) := by
+  rw [ξ.equiv' (Function.surjInv hρsurj c) φ]
+  refine congrArg ξ.fam (AddMonoidHom.ext fun v => ?_)
+  show φ ((c⁻¹ : C) • v) = φ ((Function.surjInv hρsurj c)⁻¹ • v)
+  rw [hρ (Function.surjInv hρsurj c)⁻¹ v, map_inv, Function.surjInv_eq hρsurj]
+
+/-- **The bridge `AdmissibleFam ≃ equivHoms`** (brick iii): admissible families are exactly the
+`C`-equivariant additive maps `V^∨ → H¹(N)`, under the dual action `dualModule` on `V^∨` and the
+`conjModule` conjugation action on `H¹(N)`.  Forward equivariance is `fam_equivariant`; the
+converse re-derives `equiv'` from `C`-equivariance at `c = ρ g` (via `conjAct_ker` + `hρ`). -/
+noncomputable def admissibleFamEquiv
+    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v) (hρsurj : Function.Surjective ⇑ρ) :
+    letI := conjModule ρ hρsurj
+    letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+    AdmissibleFam (V := V) ρ ≃ equivHoms C (V →+ ZMod 2)
+      (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) :=
+  letI := conjModule ρ hρsurj
+  letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+  { toFun := fun ξ => ⟨AddMonoidHom.mk' ξ.fam ξ.add',
+      fun c φ => fam_equivariant ρ hρ hρsurj ξ c φ⟩
+    invFun := fun f =>
+      { fam := f.1
+        add' := map_add f.1
+        equiv' := fun g φ => by
+          calc conjAct ρ g (f.1 φ)
+              = conjAct ρ (Function.surjInv hρsurj (ρ g)) (f.1 φ) :=
+                conjAct_ker ρ g (Function.surjInv hρsurj (ρ g))
+                  (Function.surjInv_eq hρsurj (ρ g)).symm (f.1 φ)
+            _ = (dualModule.toSMul.smul (ρ g) φ |> f.1) := (f.2 (ρ g) φ).symm
+            _ = f.1 (φ.comp (DistribSMul.toAddMonoidHom V g⁻¹)) :=
+                congrArg f.1 (AddMonoidHom.ext fun v => by
+                  show φ ((ρ g)⁻¹ • v) = φ (g⁻¹ • v)
+                  rw [hρ g⁻¹ v, map_inv]) }
+    left_inv := fun ξ => rfl
+    right_inv := fun f => Subtype.ext (AddMonoidHom.ext fun φ => rfl) }
+
+omit [DiscreteTopology C] [Finite C] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [ContinuousSMul AbsGalQ2 V] in
+/-- **Count admissible families as equivariant Homs**: `#AdmissibleFam = #equivHoms C V^∨ H¹(N)`.
+This lets the P-15f5 engine (`card_equivHoms_of_exact`) count `AdmissibleFam` across the
+`U_{e+1}` filtration of `H¹(N) ≅ M_K`. -/
+theorem card_admissibleFam_eq (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (hρsurj : Function.Surjective ⇑ρ) :
+    letI := conjModule ρ hρsurj
+    letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+    Nat.card (AdmissibleFam (V := V) ρ)
+      = Nat.card ↥(equivHoms C (V →+ ZMod 2)
+          (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))) :=
+  letI := conjModule ρ hρsurj
+  letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+  Nat.card_congr (admissibleFamEquiv ρ hρ hρsurj)
+
+end GQ2

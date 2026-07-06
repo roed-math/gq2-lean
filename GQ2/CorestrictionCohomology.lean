@@ -1,0 +1,57 @@
+import GQ2.Corestriction
+
+/-!
+# Corestriction commutes with the coboundary differential  (P-15f2 support)
+
+The degree-2 corestriction cochain `cor2Fun U` (`GQ2/Corestriction.lean`, eq. (108)) commutes
+with the group-cohomology differential: for a `𝔽₂`-valued `0`-cochain-shifted `1`-cochain
+`c : ↥U → 𝔽₂` (trivial action), the corestriction of the coboundary `δ¹c` is the coboundary
+`δ¹(cor¹ c)`.  Written with the explicit trivial-action coboundary
+`(δ¹c)(a,b) = c b − c (a·b) + c a` to stay clear of `DistribMulAction ↥U (ZMod 2)`
+instance plumbing.
+
+This is the cochain heart of "corestriction descends to `H²`": it makes the per-orbit
+contributions of the Lemma-6.17 vanishing clause (`ShapiroLedger.lemma_6_15_*`, whose outputs
+are `H2ofFun (cor2Fun U (cup of scalar Kummer cocycles))`) vanish once the underlying scalar
+cup does — the deep-class orthogonality `LocalKummer.cup_deepClasses`.  std-3, no axiom.
+-/
+
+namespace GQ2.Corestriction
+
+open scoped Pointwise
+
+variable {G : Type*} [Group G]
+
+/-- The transversal `1`-cocycle identity (general — no normality): the corestriction word
+`ℓ_u` is a `1`-cocycle for the left `G`-action on `G ⧸ U`. -/
+theorem lTrans_mul (U : Subgroup G) (u : G ⧸ U) (γ η : G) :
+    lTrans U u γ * lTrans U (γ⁻¹ • u) η = lTrans U u (γ * η) := by
+  apply Subtype.ext
+  show lWord U u γ * lWord U (γ⁻¹ • u) η = lWord U u (γ * η)
+  rw [lWord, lWord, lWord]
+  rw [show η⁻¹ • γ⁻¹ • u = (γ * η)⁻¹ • u by rw [← mul_smul, mul_inv_rev]]
+  group
+
+/-- **Corestriction commutes with `δ¹`** (`𝔽₂`, trivial action): the degree-2 corestriction of
+the coboundary `(a,b) ↦ c b − c (a·b) + c a` is the coboundary of the degree-1 corestriction
+`cor1Fun U c`. -/
+theorem cor2Fun_dOne (U : Subgroup G) [Finite (G ⧸ U)] (c : ↥U → ZMod 2) :
+    cor2Fun U (fun ab => c ab.2 - c (ab.1 * ab.2) + c ab.1)
+      = fun p => cor1Fun U c p.2 - cor1Fun U c (p.1 * p.2) + cor1Fun U c p.1 := by
+  classical
+  haveI : Fintype (G ⧸ U) := Fintype.ofFinite _
+  funext p
+  obtain ⟨γ, η⟩ := p
+  show (∑ᶠ u : G ⧸ U, (c (lTrans U (γ⁻¹ • u) η)
+        - c (lTrans U u γ * lTrans U (γ⁻¹ • u) η) + c (lTrans U u γ)))
+      = (∑ᶠ u : G ⧸ U, c (lTrans U u η)) - (∑ᶠ u : G ⧸ U, c (lTrans U u (γ * η)))
+        + (∑ᶠ u : G ⧸ U, c (lTrans U u γ))
+  simp only [finsum_eq_sum_of_fintype]
+  rw [Finset.sum_add_distrib, Finset.sum_sub_distrib]
+  congr 1
+  · congr 1
+    -- reindex the first term along `u ↦ γ⁻¹ • u`, and rewrite the middle by the cocycle identity
+    · exact Fintype.sum_bijective (fun x => (γ⁻¹ : G) • x) (MulAction.bijective (γ⁻¹ : G))
+        _ _ (fun x => rfl)
+    · refine Finset.sum_congr rfl (fun u _ => ?_)
+      rw [lTrans_mul]

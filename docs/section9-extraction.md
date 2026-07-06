@@ -312,9 +312,12 @@ P-17a ☑ (this design + skeleton)
   ├─► P-17b2 ☑ (tame 2-nilpotency) ─► P-17b1 ☑ (Lemma 9.2) ─► P-17b3 ☑ (correspondence ⟹ terminal_count_eq)
   ├─► P-17e ◐ (κ⁰ restated = Lemma 6.3 + assembly core proved; decomposed ↓)
   │     ├─► P-17e1 ✅ (odd/unramified case — bilinear averaging, DONE)
-  │     ├─► P-17e2 (square/free orbit data, m=0)                               [startable]
+  │     ├─► P-17e2 ✅ (square/free orbit data, m=0 — DONE)
   │     ├─► P-17e3 (involution datum, Lemma 6.2, m≠0)                          [startable]
-  │     ├─► P-17e4 (ramified split embedding, Lemma 6.11 — long pole)          [startable]
+  │     ├─► P-17e4 (ramified split embedding, Lemma 6.11) ◐ — assembly + trace +
+  │     │     counting criterion all PROVED; residual sorry = the counting bound
+  │     │     card_fixedPoints_pow_le_of_ramified (#V^P ^ |P| ≤ #V, ramified simple
+  │     │     faithful; F2-rational plan in RegularSummand.lean + P-17e4 board row)
   │     └─► P-17e5 (invariant normal form + assembly) ◄─ e1,e2,e3,e4 ⟹ closes kappa0_exists
   ├─► P-17f ☑ (M-stage partition)
   ├─► P-17h ☑ (solver)
@@ -322,7 +325,7 @@ P-17a ☑ (this design + skeleton)
   │                        └► P-17g ☑ (bounds)
   └─► P-17i (master) ◄─ b,c,d,e,f,g,h + P-16c/P-16d2/P-16d6 (prop_8_9 proof)
 ```
-P-17e2/e3/e4 are startable **now**, in parallel (P-17e1 ✅ done; e5 after them).  P-17i is the sink and also
+P-17e3/e4 are startable **now**, in parallel (P-17e1, P-17e2 ✅ done; e5 after them).  P-17i is the sink and also
 waits for the §8 closure (P-16c + P-16d2 + P-16d6).
 
 ## Axiom bookkeeping

@@ -6,6 +6,7 @@ import GQ2.SectionSeven
 import GQ2.AppendixB
 import GQ2.AdmissibleLimit
 import GQ2.Prop23
+import GQ2.HalfTorsorGammaA
 
 /-!
 # §8: central covers, affine fibres, and Fourier inversion — statements  (ticket P-16)
@@ -1289,8 +1290,8 @@ theorem lemma_8_6_gammaA (D : RadicalCoverData Bg)
     (hedge : D.NoDescent)
     (ρ : ContinuousMonoidHom GammaA (Bg ⧸ D.M))
     (hρ : Function.Surjective ρ) :
-    2 * Nat.card {f : MLifts D ρ // f.Central} = Nat.card (MLifts D ρ) := by
-  sorry
+    2 * Nat.card {f : MLifts D ρ // f.Central} = Nat.card (MLifts D ρ) :=
+  LedgerGammaA.half_torsor_gammaA D hedge ρ hρ
 
 /-- **Lemma 8.6 (half-torsor count), local source**: as `lemma_8_6_gammaA`, for `G_ℚ₂`
 (degree-one duality = B6).  **Amended (P-16b, 2026-07-05, documented)** with the standing
@@ -2155,3 +2156,4 @@ end Recursion
 end SectionEight
 
 end GQ2
+

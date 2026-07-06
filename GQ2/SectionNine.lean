@@ -1037,22 +1037,31 @@ theorem isEquivariantFactorSet_of_invariant {C V : Type*} [Group C] [AddCommGrou
 
 /-- A **biadditive invariant** factor set is an equivariant factor-set datum with `m = 0`.
 Specialises `isEquivariantFactorSet_of_invariant`: for a factor set additive in each argument
-(as every orbit factor set (75)/(76) is), the 2-cocycle identity and both normalizations are
-*automatic* from biadditivity, so a concrete orbit datum needs only biadditivity, the
-square-map/polar relations, and permutation invariance.  This is the intended entry point for
-the `squareOrbitDatum`/`freeOrbitDatum` equivariance lemmas (obligation (2) of
-`docs/p17e-kappa0-scoping.md`). -/
+(as every orbit factor set (75)/(76) is), the 2-cocycle identity, both normalizations, **and the
+polar relation** are *automatic* — the last because
+`polar q v w = f (v+w) (v+w) + f v v + f w w = f v w + f w v` (char 2) — so a concrete orbit
+datum needs only biadditivity, the diagonal `f v v = q v`, and permutation invariance.  This is
+the intended entry point for the `squareOrbitDatum`/`freeOrbitDatum` equivariance lemmas
+(obligation (2) of `docs/p17e-kappa0-scoping.md`). -/
 theorem isEquivariantFactorSet_of_biadditive_invariant {C V : Type*} [Group C] [AddCommGroup V]
     [DistribMulAction C V] {q : V → ZMod 2} {f : V → V → ZMod 2}
     (hl : ∀ v v' w, f (v + v') w = f v w + f v' w)
     (hr : ∀ v w w', f v (w + w') = f v w + f v w')
-    (hdiag : ∀ v, f v v = q v) (hpolar : ∀ v w, f v w + f w v = polar q v w)
+    (hdiag : ∀ v, f v v = q v)
     (hinv : ∀ (c : C) (v w : V), f (c • v) (c • w) = f v w) :
     IsEquivariantFactorSet q (⟨f, fun _ _ => 0⟩ : FactorSet C V) := by
   have h0l : ∀ v, f 0 v = 0 := by
     intro v; have h := hl 0 0 v; rw [add_zero] at h; exact h.trans (CharTwo.add_self_eq_zero _)
   have h0r : ∀ v, f v 0 = 0 := by
     intro v; have h := hr v 0 0; rw [add_zero] at h; exact h.trans (CharTwo.add_self_eq_zero _)
+  -- The polar identity is *automatic* from biadditivity + diagonal (char 2):
+  -- `polar q v w = f (v+w) (v+w) + f v v + f w w = f v w + f w v` after expanding both diagonals.
+  have hpolar : ∀ v w, f v w + f w v = polar q v w := by
+    intro v w
+    have h1 := hdiag (v + w)
+    rw [hl, hr, hr, hdiag v, hdiag w] at h1
+    simp only [polar]
+    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) h1
   refine isEquivariantFactorSet_of_invariant (q := q) (f := f) ?_ hdiag hpolar h0l h0r hinv
   intro v w x; rw [hl v w x, hr v w x]; ring
 
@@ -1248,14 +1257,8 @@ theorem kappa0_exists_of_odd {H : Type*} [Group H] [Finite H] (hodd : Odd (Nat.c
       obtain ⟨k, hk⟩ := hodd'
       rw [hk]; push_cast; rw [show (2 : ZMod 2) = 0 by decide]; ring
     rw [nsmul_eq_mul, hc1, one_mul]
-  have f0polar : ∀ a b : V, f₀ a b + f₀ b a = polar q a b := by
-    intro a b
-    have h1 := hdiag₀ (a + b)
-    rw [hl₀, hr₀, hr₀, hdiag₀ a, hdiag₀ b] at h1
-    simp only [polar]
-    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) h1
   refine ⟨⟨fun v w => ∑ h : H, f₀ (h • v) (h • w), fun _ _ => 0⟩,
-    isEquivariantFactorSet_of_biadditive_invariant ?_ ?_ ?_ ?_ ?_⟩
+    isEquivariantFactorSet_of_biadditive_invariant ?_ ?_ ?_ ?_⟩
   · intro v v' w
     simp only [smul_add, hl₀]
     exact Finset.sum_add_distrib
@@ -1266,17 +1269,60 @@ theorem kappa0_exists_of_odd {H : Type*} [Group H] [Finite H] (hodd : Odd (Nat.c
     have step : ∀ h : H, f₀ (h • v) (h • v) = q v := fun h => (hdiag₀ (h • v)).trans (hinv' h v)
     simp only [step, Finset.sum_const, Finset.card_univ]
     exact oddsmul (q v)
-  · intro v w
-    have step : ∀ h : H, f₀ (h • v) (h • w) + f₀ (h • w) (h • v) = polar q v w := by
-      intro h
-      rw [f0polar]
-      simp only [polar, ← smul_add, hinv']
-    rw [← Finset.sum_add_distrib]
-    simp only [step, Finset.sum_const, Finset.card_univ]
-    exact oddsmul (polar q v w)
   · intro g v w
     simp only [← mul_smul]
     exact Fintype.sum_equiv (Equiv.mulRight g) _ _ (fun x => rfl)
+
+/-! ### The orbit factor sets are equivariant (P-17e2; Lemma 6.3's (75)/(76))
+
+The concrete `m = 0` orbit data from `GQ2/OrbitData.lean` are `IsEquivariantFactorSet` for their
+square maps: biadditive in the coordinates, and `G/N`-invariant because the left-regular action
+merely permutes coordinates (`finsum_comp_equiv` along `Equiv.mulLeft`).  Entry point:
+`isEquivariantFactorSet_of_biadditive_invariant` (now polar-free). -/
+
+/-- **The square-orbit factor set (75) is an equivariant factor-set datum** (`m = 0`) for its
+square map `q_S x = ∑ₕ x_h²`. -/
+theorem isEquivariantFactorSet_squareOrbitDatum {G : Type*} [Group G] (N : Subgroup G)
+    [N.Normal] [Finite (G ⧸ N)] :
+    IsEquivariantFactorSet (fun x : RegRep N => ∑ᶠ h : G ⧸ N, x h * x h) (squareOrbitDatum N) := by
+  refine isEquivariantFactorSet_of_biadditive_invariant ?_ ?_ ?_ ?_
+  · intro v v' w
+    show ∑ᶠ h : G ⧸ N, (v h + v' h) * w h = (∑ᶠ h : G ⧸ N, v h * w h) + ∑ᶠ h : G ⧸ N, v' h * w h
+    simp only [add_mul]
+    exact finsum_add_distrib (Set.toFinite _) (Set.toFinite _)
+  · intro v w w'
+    show ∑ᶠ h : G ⧸ N, v h * (w h + w' h) = (∑ᶠ h : G ⧸ N, v h * w h) + ∑ᶠ h : G ⧸ N, v h * w' h
+    simp only [mul_add]
+    exact finsum_add_distrib (Set.toFinite _) (Set.toFinite _)
+  · intro v; rfl
+  · intro c x y
+    exact finsum_comp_equiv (Equiv.mulLeft c⁻¹) (f := fun h => x h * y h)
+
+/-- **The free-orbit factor set (76) is an equivariant factor-set datum** (`m = 0`) for its
+square map `q_C x = ∑ₕ x₁_h · x₂_{hḡ}` (the shift-`ḡ` pairing of the two regular summands).  The
+invariance step reassociates `c⁻¹·(h·ḡ) = (c⁻¹·h)·ḡ` before reindexing by `Equiv.mulLeft c⁻¹`. -/
+theorem isEquivariantFactorSet_freeOrbitDatum {G : Type*} [Group G] (N : Subgroup G)
+    [N.Normal] [Finite (G ⧸ N)] (gbar : G ⧸ N) :
+    IsEquivariantFactorSet
+      (fun x : RegRep N × RegRep N => ∑ᶠ h : G ⧸ N, x.1 h * x.2 (h * gbar))
+      (freeOrbitDatum N gbar) := by
+  refine isEquivariantFactorSet_of_biadditive_invariant ?_ ?_ ?_ ?_
+  · intro v v' w
+    show ∑ᶠ h : G ⧸ N, (v.1 h + v'.1 h) * w.2 (h * gbar)
+       = (∑ᶠ h : G ⧸ N, v.1 h * w.2 (h * gbar)) + ∑ᶠ h : G ⧸ N, v'.1 h * w.2 (h * gbar)
+    simp only [add_mul]
+    exact finsum_add_distrib (Set.toFinite _) (Set.toFinite _)
+  · intro v w w'
+    show ∑ᶠ h : G ⧸ N, v.1 h * (w.2 (h * gbar) + w'.2 (h * gbar))
+       = (∑ᶠ h : G ⧸ N, v.1 h * w.2 (h * gbar)) + ∑ᶠ h : G ⧸ N, v.1 h * w'.2 (h * gbar)
+    simp only [mul_add]
+    exact finsum_add_distrib (Set.toFinite _) (Set.toFinite _)
+  · intro v; rfl
+  · intro c v w
+    show ∑ᶠ h : G ⧸ N, v.1 (c⁻¹ * h) * w.2 (c⁻¹ * (h * gbar))
+       = ∑ᶠ h : G ⧸ N, v.1 h * w.2 (h * gbar)
+    simp only [← mul_assoc]
+    exact finsum_comp_equiv (Equiv.mulLeft c⁻¹) (f := fun h => v.1 h * w.2 (h * gbar))
 
 /-- **Existence of the equivariant factor-set datum** (the base determinant class `κ⁰_q`) —
 **the paper's Lemma 6.3**, p. 26: a `C`-invariant nonsingular quadratic form on a **simple tame**
