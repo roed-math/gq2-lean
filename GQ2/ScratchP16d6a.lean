@@ -32,4 +32,32 @@ noncomputable def blockRCoverData (T : MarkedTarget H E Y) (Blk : MinimalBlock T
     ext y
     rfl
 
+/-! ## a-DRmod: `D_Rmod` as the Y-invariant `𝔽₂`-characters of `R` -/
+
+open scoped Classical
+
+variable {L : Subgroup Y}
+
+/-- **Y-invariant `𝔽₂`-characters of `R = Blk.R = Φ(K)`** (`(R^∨)^C`): additive homs
+`R → 𝔽₂` fixed by `Y`-conjugation.  Their kernels are exactly the index-≤2 `Y`-normal
+subgroups of `R`, i.e. `D_R`; this submodule is the `𝔽₂`-realization `D_Rmod`. -/
+def RCharSub (Blk : SectionSeven.MinimalBlock L) :
+    Submodule (ZMod 2) (Additive ↥Blk.R →+ ZMod 2) where
+  carrier := {χ | ∀ (y : Y) (r : ↥Blk.R),
+    χ (Additive.ofMul ⟨y * (r : Y) * y⁻¹,
+        (SectionSeven.frattiniLike_normal Blk.K Blk.hK).conj_mem (r : Y) r.2 y⟩)
+      = χ (Additive.ofMul r)}
+  zero_mem' := fun _ _ => rfl
+  add_mem' := fun {χ ψ} hχ hψ y r => by
+    simp only [AddMonoidHom.add_apply, hχ y r, hψ y r]
+  smul_mem' := fun c {χ} hχ y r => by
+    simp only [AddMonoidHom.smul_apply, hχ y r]
+
+/-- `D_Rmod` is finite. -/
+instance (Blk : SectionSeven.MinimalBlock L) : Finite ↥(RCharSub Blk) := by
+  haveI : Finite (Additive ↥Blk.R → ZMod 2) := inferInstance
+  haveI : Finite (Additive ↥Blk.R →+ ZMod 2) :=
+    Finite.of_injective _ (DFunLike.coe_injective (F := Additive ↥Blk.R →+ ZMod 2))
+  infer_instance
+
 end GQ2
