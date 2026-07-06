@@ -2,7 +2,46 @@
 
 *Self-contained handoff (Fable, 2026-07-06).  Everything a fresh session needs to finish
 P-16d6b is here — no chat/session-memory dependency.  Companion to
-[`GQ2/PhaseMuIndep.lean`](../GQ2/PhaseMuIndep.lean) (committed, allowlisted: 1 sorry).*
+[`GQ2/PhaseMuIndep.lean`](../GQ2/PhaseMuIndep.lean).*
+
+---
+
+## ✅ STATUS: CLOSED 2026-07-06 (Opus) — read this first
+
+`GQ2/PhaseMuIndep.lean` is **sorry-free, std-3 (Ax ∅), and off the `SORRY_ALLOWLIST`**.
+`tcocycle_mu_indep`, `tcocycle_card_indep`, and the new `mlifts_card_eq_image_mul_tcocycle` all
+`#print axioms` = `{propext, Classical.choice, Quot.sound}`.  Build green (8656), gate passes
+(census 15).
+
+**How it was actually closed — NOT the Route B below.**  The §6 risk was real and structural:
+`prop_5_16_bundle` / `card_Z1_eq` / `card_H2_eq_fixedPts` are stated over **`AbsGalQ2`** only (they
+carry B6/B7), but `tcocycle_mu_indep` and its consumer `zBC_eq_mu_mul_reductionCount` are **generic
+over `Γ`**.  The count *value* `#Z¹_{Γ,ρ}(T)` is genuinely source-specific (Euler char / Tate
+duality are false for an arbitrary profinite `Γ`), so **there is no single generic Route-B proof**,
+and `prop_5_16_bundle` cannot even be invoked here (`Γ ≠ AbsGalQ2`).
+
+Resolution (handoff §6 **option 3**, user-approved): a **torsor reduction to per-source counts**,
+in the idiom `half139_via_radData` already uses for the sibling (139) count `hMcountM`.
+
+* **New `Γ`-generic lemma** `mlifts_card_eq_image_mul_tcocycle`:
+  `#MLifts = #(red_T image) · #Z¹_{Γ,ρ}(T)`.  Every `red_T`-fibre over `MLifts` is a
+  `Z¹_{Γ,ρ}(T)`-torsor (`tcocycle_torsor_equiv`), summed over the finite reduction image.  This is
+  the *all-lifts* analog of `central_card_eq_reductions_mul_tcocycle` and is in fact **simpler** — no
+  `Descent`, no `lemma_8_7_count`; `tcocycle_torsor_equiv` computes every fibre directly.  Pure std-3.
+* **`tcocycle_card_indep`** (pairwise) and **`tcocycle_mu_indep`** (`∃μ` packaging) now take the two
+  per-source counts as hypotheses — `#MLifts(ρ)` (= `hMcountM`, the `|M_B|²` count) and
+  `#(red_T image)(ρ)` (the `B/T`-lift count), both `ρ`-independent constants — and cancel through the
+  torsor identity (`κ_I ≠ 0`) to force `#Z¹(T) = κ_M / κ_I`, manifestly `ρ`-independent.
+
+**What P-16d6e (the final splice) must do:** discharge `κ_M` and `κ_I` **per source** —
+`prop_5_16_bundle` for the `G_ℚ₂` source, the `Γ_A`/`prop_5_15` analog
+(`HalfTorsorGammaA`/`RadicalEdgeGammaA`) for the `Γ_A` source — and pass them into `tcocycle_mu_indep`
+(or `tcocycle_card_indep`).  The B6/B7/B9 duality axioms enter there, exactly as they do for the
+sibling `hMcountM` in `half139_via_radData`.  `tcocycle_mu_indep`'s current signature:
+`(hfg) (κM κI : ℕ) (hIne : κI ≠ 0) (hML : ∀ρ, #MLifts = κM) (hIMG : ∀ρ, #(red_T image) = κI)`.
+
+*The rest of this document (Routes A/B, the §6 investigation) is retained for provenance; §4's
+"start the Z1 bridge" plan was **not** taken — the torsor identity replaced it.*
 
 ## 1. The deliverable
 
