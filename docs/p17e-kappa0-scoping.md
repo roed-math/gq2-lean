@@ -218,3 +218,29 @@ The Lemma 6.11 kernel is now two pieces in `GQ2/RegularSummand.lean`:
    `dim V^P = dim V / |P|` exactly.  Inputs needed from scratch: primitive idempotents of
    `F2[C_m]` (m odd) and the semilinear descent dimension count — finite-field linear
    algebra, no Clifford induction, no base change.
+
+## Addendum 2 (2026-07-06, Opus): counting bound reduced to the involution
+
+`GQ2/RegularSummand.lean` now proves `card_fixedPoints_pow_le_of_ramified` from a **strictly
+smaller** leaf.  Landed std-3 (Ax empty), all constructive:
+
+1. **`finrank_ker_pow_succ` / `finrank_ker_pow_concave`** — the Jordan-increment sequence
+   `b k = dim ker ν^k` is concave (`b(k+2)+b(k) ≤ 2 b(k+1)`).  Proof: the increment equals
+   `dim(im ν^k ⊓ ker ν)` (rank-nullity for `ν^k : ker ν^{k+1} → im ν^k ⊓ ker ν`), which is
+   antitone by `finrank_mono` on `im ν^{k+1} ≤ im ν^k`.
+2. **`seq_double_le` / `seq_first_increment_le`** — two `ℕ`-sequence lemmas: concavity gives
+   the automatic `b(2m) ≤ 2 b m`; and IF `2 b m = b(2m)` then all increments are equal, so
+   `2m·b 1 = b(2m)` (equal antitone `m`-sums are termwise equal, then a squeeze flattens the
+   first block).
+3. **`card_fixedPoints_pow_le_of_half`** — the elementary-abelian reduction (the `p=2`
+   Chouinard reduction to the order-2 subgroup): given `#V^ω ^ 2 ≤ #V` for the involution
+   `ω = g₀^{2^{s-1}}`, the full `#V^P ^ |P| ≤ #V` follows.  Wires the numerics to
+   `b k = dim ker(nuOp g₀)^k` via card↔finrank (`Module.card_eq_pow_finrank`, `ZMod.card`),
+   `b(2^s) = dim V`, and the freshman `nuOp(g₀^{2^t}) = (nuOp g₀)^{2^t}`.
+
+**Remaining leaf: `involution_fixedPoints_sq_le`** — `#V^ω ^ 2 ≤ #V` for a single involution
+on the ramified simple faithful module.  This is the involution (order-2) case only, so the
+descent is quadratic: additive Hilbert 90 for the degree-2 semilinear action, rather than the
+full weight-orbit analysis over a cyclic 2-group.  The rep-theoretic core (why `ω` acts
+freely: étale odd inertia + single faithful orbit + the O2-linchpin via `FoxH.lemma_5_12`)
+is unchanged, but the linear-algebra endgame is now the simplest possible case.
