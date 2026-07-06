@@ -88,20 +88,19 @@ theorem hlem86M_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
   lemma_8_6_local (En.radData l h) hfg hedge (RF.rhoPrime b F (En.radData l h) rfl ρ)
     (rhoPrime_surjective RF b F (En.radData l h) rfl ρ)
 
-/-- **`hMcountM` for `G_ℚ₂`** — the unrestricted `M`-lift count `#(M-lifts) = |M_B|²`.
+/-- **`hMcountM` for `G_ℚ₂`** — the unrestricted `M`-lift count `#(M-lifts) = |M_B|²`.  **PROVED.**
 
-**REDUCED TO A SINGLE `Nonempty (MLifts …)` sorry.**  All of Steps 1, 3, 4 and the Step-2 torsor
-equiv are proved inline: `key : #Z¹ = |M_B|²·#fixedPts` (`card_Z1_eq`), `hfix : #fixedPts = 1` (the
-`lemma_7_1_dual` bridge — a nonzero `YC`-invariant functional's kernel gives a `Y`-normal index-2
-`X` with `Blk.R ≤ X ≤ Blk.K`, refuted by `lemma_7_1_dual`), and the explicit bijection
+Fully proved inline (no sorry): `key : #Z¹ = |M_B|²·#fixedPts` (`card_Z1_eq`), `hfix : #fixedPts = 1`
+(the `lemma_7_1_dual` bridge — a nonzero `YC`-invariant functional's kernel gives a `Y`-normal
+index-2 `X` with `Blk.R ≤ X ≤ Blk.K`, refuted by `lemma_7_1_dual`), the explicit bijection
 `MLifts D ρ' ≃ Z¹_cont(G_ℚ₂, M_B)` (`f ↦ (γ ↦ f γ · f₀ γ⁻¹)`, a `Z¹`-torsor under the ρ'-conjugation
-action).  The **only** remaining `sorry` is **`hne : Nonempty (MLifts D ρ')`** — a base lift exists
-because the lift obstruction lives in `#H²(G_ℚ₂,M_B) = 1` (i.e. `= 0`), but formalizing
-"obstruction vanishes ⇒ continuous lift exists" needs an extension↔H² dictionary absent from
-mathlib and the repo (see `docs/p16d6d-hMcount-handoff.md` Step 2 for the two routes).  This fact
-(`κ_M = #MLifts`, ρ-independent) is also the shared deep input consumed by the concurrent P-16d6b
-(`PhaseMuIndep.tcocycle_mu_indep`'s `hML`/`κM`).  Full roadmap in `docs/p16d6d-hMcount-handoff.md`;
-the route (all steps over `G_ℚ₂ = AbsGalQ2`):
+action), and — the previously-open piece — **nonemptiness `Nonempty (MLifts D ρ')`** via the
+extension-splitting argument: a continuous set-section `s = Quotient.out ∘ ρ'` gives a factor-set
+2-cocycle `c(γ,δ) = s γ · s δ · s(γδ)⁻¹ ∈ Z²(G_ℚ₂, M_B)`, which is a coboundary `c = δ¹ψ` because
+`#H²(G_ℚ₂,M_B) = 1` (`card_H2_eq_fixedPts` + `hfix`), and then `f γ = (toMul (ψ γ))⁻¹ · s γ` is a
+continuous homomorphic lift of `ρ'`.  This `#MLifts` count is also the shared deep input consumed
+by the concurrent P-16d6b (`PhaseMuIndep.tcocycle_mu_indep`'s `hML`/`κM`).  The route
+(all steps over `G_ℚ₂ = AbsGalQ2`):
 
 1. **Additive `M`-module** `MBmod := Additive ↥(En.radData l h).M` (`= Additive ↥RF.MB`), with the
    `ρ'`-conjugation `DistribMulAction AbsGalQ2 MBmod` and the descended `DistribMulAction RF.YC
@@ -308,9 +307,108 @@ theorem hMcountM_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
   have htorsor : Nat.card (MLifts (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))
       = Nat.card (Z1 AbsGalQ2 (Additive ↥(En.radData l h).M)) := by
     set ρ' := RF.rhoPrime b F (En.radData l h) rfl ρ with hρ'def
-    -- **Nonemptiness** (the one remaining gap): `#H²(G_ℚ₂,M_B) = 1` kills the lift obstruction.
+    -- **Nonemptiness**: `#H²(G_ℚ₂,M_B) = 1` kills the lift obstruction (extension splitting).
     have hne : Nonempty (MLifts (En.radData l h) ρ') := by
-      sorry
+      haveI : IsTopologicalAddGroup (Additive ↥(En.radData l h).M) :=
+        { continuous_add := continuous_of_discreteTopology
+          continuous_neg := continuous_of_discreteTopology }
+      haveI : DiscreteTopology RF.YB := RF.discB
+      haveI : Finite RF.YB := RF.finiteB
+      haveI : DiscreteTopology (RF.YB ⧸ (En.radData l h).M) := inferInstance
+      -- a continuous set-section of `YB ↠ YB/M_B`
+      set s : AbsGalQ2 → RF.YB := fun γ => Quotient.out (ρ' γ) with hsdef
+      have hs_cont : Continuous s :=
+        (continuous_of_discreteTopology (f := (Quotient.out :
+          RF.YB ⧸ (En.radData l h).M → RF.YB))).comp ρ'.continuous_toFun
+      have hs_mk : ∀ γ, (QuotientGroup.mk (s γ) : RF.YB ⧸ (En.radData l h).M) = ρ' γ :=
+        fun γ => QuotientGroup.out_eq' _
+      -- the action = conjugation by the section value
+      have hsmul_s : ∀ (γ : AbsGalQ2) (a : Additive ↥(En.radData l h).M),
+          γ • a = Additive.ofMul (⟨s γ * (Additive.toMul a).1 * (s γ)⁻¹,
+              (En.radData l h).hM.conj_mem _ (Additive.toMul a).2 _⟩ : ↥(En.radData l h).M) := by
+        intro γ a
+        rw [hcomp]; apply Additive.toMul.injective; apply Subtype.ext
+        show Quotient.out (ρ' γ) * (Additive.toMul a).1 * (Quotient.out (ρ' γ))⁻¹
+          = s γ * (Additive.toMul a).1 * (s γ)⁻¹
+        rfl
+      -- the factor set `c(γ,δ) = s γ · s δ · s(γδ)⁻¹ ∈ M_B`
+      have hc_mem : ∀ p : AbsGalQ2 × AbsGalQ2,
+          s p.1 * s p.2 * (s (p.1 * p.2))⁻¹ ∈ (En.radData l h).M := by
+        intro p
+        rw [← QuotientGroup.eq_one_iff, QuotientGroup.mk_mul, QuotientGroup.mk_mul,
+          QuotientGroup.mk_inv, hs_mk, hs_mk, hs_mk, ← map_mul, mul_inv_cancel]
+      set c : AbsGalQ2 × AbsGalQ2 → Additive ↥(En.radData l h).M :=
+        fun p => Additive.ofMul ⟨s p.1 * s p.2 * (s (p.1 * p.2))⁻¹, hc_mem p⟩ with hcdef
+      have hc_Z2 : c ∈ Z2 AbsGalQ2 (Additive ↥(En.radData l h).M) := by
+        rw [mem_Z2_iff]
+        refine ⟨?_, ?_⟩
+        · have hg : Continuous (fun p : AbsGalQ2 × AbsGalQ2 => s p.1 * s p.2 * (s (p.1 * p.2))⁻¹) :=
+            (continuous_of_discreteTopology (f := fun t : RF.YB × RF.YB × RF.YB =>
+                t.1 * t.2.1 * t.2.2⁻¹)).comp
+              ((hs_cont.comp continuous_fst).prodMk ((hs_cont.comp continuous_snd).prodMk
+                (hs_cont.comp (continuous_fst.mul continuous_snd))))
+          exact hg.subtype_mk _
+        · intro x y z
+          rw [hsmul_s x (c (y, z))]
+          apply Additive.toMul.injective
+          -- both sides are products in the CommGroup `↥M_B`; reorder then compare `.1` in `YB`
+          show (⟨s x * (s y * s z * (s (y * z))⁻¹) * (s x)⁻¹, _⟩ : ↥(En.radData l h).M)
+              * ⟨s x * s (y * z) * (s (x * (y * z)))⁻¹, _⟩
+            = ⟨s (x * y) * s z * (s ((x * y) * z))⁻¹, _⟩
+              * ⟨s x * s y * (s (x * y))⁻¹, _⟩
+          rw [mul_comm (⟨s (x * y) * s z * (s ((x * y) * z))⁻¹, _⟩ : ↥(En.radData l h).M) _]
+          apply Subtype.ext
+          show s x * (s y * s z * (s (y * z))⁻¹) * (s x)⁻¹ * (s x * s (y * z) * (s (x * (y * z)))⁻¹)
+            = s x * s y * (s (x * y))⁻¹ * (s (x * y) * s z * (s ((x * y) * z))⁻¹)
+          rw [mul_assoc x y z]; group
+      -- `#H² = 1` ⟹ `c` is a coboundary
+      have hH2 : Nat.card (H2 AbsGalQ2 (Additive ↥(En.radData l h).M)) = 1 :=
+        (card_H2_eq_fixedPts hρ's hcomp hA₂).trans hfix
+      haveI : Subsingleton (H2 AbsGalQ2 (Additive ↥(En.radData l h).M)) :=
+        (Nat.card_eq_one_iff_unique.mp hH2).1
+      have hcB2 : c ∈ B2 AbsGalQ2 (Additive ↥(En.radData l h).M) := by
+        have h0 : H2mk AbsGalQ2 (Additive ↥(En.radData l h).M) ⟨c, hc_Z2⟩ = 0 :=
+          Subsingleton.elim _ _
+        exact AddSubgroup.mem_addSubgroupOf.mp ((QuotientAddGroup.eq_zero_iff _).mp h0)
+      obtain ⟨ψ, hψc, hψ⟩ := hcB2
+      -- the lift `f γ = (toMul (ψ γ))⁻¹ · s γ`
+      set ψ' : AbsGalQ2 → RF.YB := fun γ => (Additive.toMul (ψ γ)).1 with hψ'def
+      have hψ'mem : ∀ γ, ψ' γ ∈ (En.radData l h).M := fun γ => (Additive.toMul (ψ γ)).2
+      -- read off the coboundary identity in `YB` (all `toMul`/`.1` reductions are defeq)
+      have hrel : ∀ x y : AbsGalQ2,
+          s x * ψ' y * (s x)⁻¹ * (ψ' (x * y))⁻¹ * ψ' x = s x * s y * (s (x * y))⁻¹ := by
+        intro x y
+        have hxy_eq : x • ψ y - ψ (x * y) + ψ x = c (x, y) := congrFun hψ (x, y)
+        rw [hsmul_s x (ψ y)] at hxy_eq
+        have hxy := congrArg (fun a : Additive ↥(En.radData l h).M => (Additive.toMul a).1) hxy_eq
+        simpa [hcdef, hψ'def, div_eq_mul_inv, mul_assoc] using hxy
+      refine ⟨⟨⟨MonoidHom.mk' (fun γ => (ψ' γ)⁻¹ * s γ) (fun x y => ?_), ?_⟩, ?_⟩⟩
+      · -- homomorphism: `f(xy) = f x · f y`, from `hrel` + `ψ'x,ψ'(xy) ∈ M` commuting
+        have hcomm : Commute (ψ' (x * y)) (ψ' x) :=
+          (En.radData l h).hcomm _ (hψ'mem (x * y)) _ (hψ'mem x)
+        show (ψ' (x * y))⁻¹ * s (x * y) = (ψ' x)⁻¹ * s x * ((ψ' y)⁻¹ * s y)
+        have hs_xy : s (x * y) = (ψ' x)⁻¹ * ψ' (x * y) * s x * (ψ' y)⁻¹ * s y := by
+          have e : s (x * y)
+              = (s x * ψ' y * (s x)⁻¹ * (ψ' (x * y))⁻¹ * ψ' x)⁻¹ * (s x * s y) := by
+            rw [hrel x y]; group
+          rw [e]; group
+        rw [hs_xy]
+        rw [show (ψ' (x * y))⁻¹ * ((ψ' x)⁻¹ * ψ' (x * y) * s x * (ψ' y)⁻¹ * s y)
+            = ((ψ' (x * y))⁻¹ * (ψ' x)⁻¹ * ψ' (x * y)) * (s x * (ψ' y)⁻¹ * s y) from by group,
+          show (ψ' (x * y))⁻¹ * (ψ' x)⁻¹ * ψ' (x * y) = (ψ' x)⁻¹ from by
+            rw [mul_assoc, (hcomm.symm.inv_left).eq, ← mul_assoc, inv_mul_cancel, one_mul]]
+        group
+      · -- continuity
+        have hψ'cont : Continuous ψ' :=
+          (continuous_of_discreteTopology (f := fun a : Additive ↥(En.radData l h).M =>
+            (Additive.toMul a).1)).comp hψc
+        exact (continuous_of_discreteTopology (f := fun p : RF.YB × RF.YB => p.1⁻¹ * p.2)).comp
+          (hψ'cont.prodMk hs_cont)
+      · -- over `ρ'`
+        intro γ
+        show QuotientGroup.mk ((ψ' γ)⁻¹ * s γ) = ρ' γ
+        rw [QuotientGroup.mk_mul, (QuotientGroup.eq_one_iff _).mpr (inv_mem (hψ'mem γ)),
+          one_mul, hs_mk]
     obtain ⟨f₀⟩ := hne
     -- the `G_ℚ₂`-action on `M_B` is conjugation by the lift `f₀ γ` of `ρ' γ`
     have hsmul : ∀ (γ : AbsGalQ2) (a : Additive ↥(En.radData l h).M),
