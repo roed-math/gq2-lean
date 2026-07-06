@@ -29,6 +29,25 @@
   (the μ-fibration) + `hgauss : 2|D_T|·M = |V|·e_Γ(C) + G0·Σ_ζ(2·nPhase(phase ζ) − e_Γ(C))`
   (`lemma_8_5` aggregated), by pure algebra (`linear_combination`).  So **all three displays
   (136)/(139)/(140) now have clean reducers**; only the concrete data remains.
+* ✅ **`zBC_eq_sum_centralOver`** (std-3, sorry-free) — the **`zBC` fibration** `zBC = Σᶠ_ρ
+  #CentralOver(ρ)` (extracted from `half139_of`), the shared first step of both (139) and (140).
+  Discharges **level 1** of the phase-module's `hfib`: `zBC = Σ_ρ #CentralOver = Σ_ρ μ·M_ρ = μ·M`.
+
+### The phase-module core that remains (the deep O-half)
+
+With the reducer layer complete, `hfib`/`hgauss` reduce to (for the concrete frame, in the descent
+case where `Descent (En.radData l h)` holds):
+
+* **`hfib` level 2** — the per-ρ **μ-partition** `#CentralOver(ρ) = #(TCocycle D ρ') · M_ρ`
+  (`centralOver_equiv` + `lemma_8_7_count`, which each `redT`-fibre = `#TCocycle`, over the finite
+  image); then **μ-independence** `#(TCocycle D ρ') = μ` (a source/5.15-5.16 fact) to factor `μ` out
+  of `Σ_ρ μ_ρ·M_ρ`.  Intricate: a fibre-bundle count with a per-fibre central basepoint (choice).
+* **`hgauss`** — `lemma_8_5` on `W =` the `V`-lift space, `Q = En.qbar`, `a_χ` from
+  `exists_polar_inverse`, plus the phase-cover↔character reindex `Σ_χ sign(…) = Σ_ζ(2·nPhase − e)`
+  — the same `Δ`/`phase` that **defines the witness** `(μ,G0,DT,phase)`.
+
+These are the genuinely deep, source-coupled core (not clean reducers) and are best done as a
+dedicated `(140) phase-module` pass with full context.
 
 **`prop_8_9` is NOT closed** — it stays `sorry`; the three per-source inputs + the witness are
 blocked (below).  The final splice `exact prop_8_9_of …` into `SectionEight.lean` is a trivial edit,
