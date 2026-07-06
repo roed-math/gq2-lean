@@ -59,7 +59,15 @@ with `W := En.Vmod`, `Q := En.qbar l h`, `D := En.radData l h` (`hD := rfl`).  E
 
 ---
 
-## 3. `stageR136` — via `stageR136_ofRSepData` (blocked on the `Enrichment` R-stage extension)
+## 3. `stageR136` — via `stageR136_ofRSepData`  (SUPERSEDED — see `docs/p16d6a-handoff.md`)
+
+> **UPDATE 2026-07-06:** this section's "blocked on the co-owned `Enrichment` R-stage extension"
+> framing is **obsolete**.  The `RObstructionData` (`Dobs`) is built directly against the concrete
+> `blockFrameImpl` (P-17c ✓) with **no `Enrichment` edit** — it is **DONE** as
+> `blockRObstructionData` in `GQ2/ScratchP16d6a.lean` (std-3).  Only the residues
+> `hsep_hom`/`hZcount` (+ trivial `htriv`/`hcard`, `hE2` free) remain.  The authoritative,
+> current spec for `stageR136` is **`docs/p16d6a-handoff.md`**; the paragraph below is kept for
+> the residue statements only.
 
 `RecursionInputs.stageR136 := stageR136_ofRSepData RF Dobs htriv hcard hfg hE2 hsep_hom hZcount`
 
