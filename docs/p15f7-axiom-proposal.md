@@ -1,6 +1,13 @@
 # P-15f7 axiom proposal — the K-level pairing inputs of the deep/quotient duality
 
-**Date**: 2026-07-06 (Fable).  **Status**: AWAITING USER APPROVAL (census rules, board header).
+**Date**: 2026-07-06 (Fable).  **Status**: ✅ **APPROVED (user, 2026-07-07) — both parts**: §1
+(B6 base-generalization) **EXECUTED** (`GQ2/TateDuality.lean`: `TateDualityG G n` +
+`IsLocalDualizingGroup` gate + `TateDuality n` abbrev; `GQ2/Foundations/Axioms.lean`:
+`axiom tateDualityAt` replacing `axiom tateDuality`, base member re-derived as
+`def tateDuality`; `GQ2/AxiomLedger.lean` B6 entry → `tateDualityAt`; docs `review-packet.md` /
+`literature-axioms.md` / `literature-axioms-onepage.md` updated; census 15 unchanged, guard
+green); §2 ((H4) in-repo proof route) approved as the plan of record — the counting route is
+a P-15f7 work item, fallback leaf only on a second explicit approval.
 **Consumer**: the three pairing hypotheses of `GQ2.card_equivHoms_deep_eq_quot`
 (`GQ2/DeepDuality.lean` §F — the abstract `hduality` of the f6 capstone
 `card_deepPart_sq_of_duality`): a `C`-invariant biadditive `B` on `M = H¹(G_K, 𝔽₂)`,

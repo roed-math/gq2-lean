@@ -51,7 +51,7 @@ def bAxioms : List (Name × String) :=
   , (``GQ2.dyadicOrientation,                                     "B3c")
   , (``GQ2.Foundations.absGalQ2_maxProTwo_presentation,           "B4")
   , (``GQ2.localReciprocity,                                      "B5")
-  , (``GQ2.tateDuality,                                           "B6")
+  , (``GQ2.tateDualityAt,                                         "B6")
   , (``GQ2.Foundations.absGalQ2_localEulerCharacteristic,         "B7")
   , (``GQ2.HilbertSymbol.hilbertSymbol_dyadic,                    "B7′")
   , (``GQ2.peripheralCyclotomicAction,                            "B8")

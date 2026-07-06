@@ -330,21 +330,26 @@ c tameTau)`.  Obligations:
    residue-trivial on `K` (tame inertia acts trivially on the residue field — needs the
    `BoundaryMaps`/`hfac` unpacking; possibly `e`-odd/tameness of `K/ℚ₂` enters HERE, as in
    the paper's 6.10).
-6. **(H2) `hBnd` + (H4) `hsharp` — the ⚠ leaf-decision pair** (user approval required):
-   * `B` itself: the Hilbert/cup pairing on `H¹(G_K,𝔽₂)` valued in `𝔽₂`.  NB B6 Tate duality
-     is `G_ℚ₂`-ONLY, so the `𝔽₂`-valued pairing on `H¹(G_K)` needs the Kummer/Hilbert-symbol
-     route (B11a's `(a,b)_K` through `kummerClassK`) — the VALUE map `H²(G_K,𝔽₂) ⊇ im(cup) →
-     𝔽₂` is part of the leaf surface.
-   * `hBnd` (nondegeneracy): Serre LF **XIV §1 Prop. 3 Corollary** `[✓ verified numbered, in
-     references/]` — a character killed by all `(χ,b)_v` is trivial.  Candidate no-leaf
-     route: B11a + norm-index properness — realistic only for the unramified direction;
-     full nondegeneracy is local-CFT-adjacent ⟹ RECOMMEND the leaf.
-   * `hsharp` (`Deep^⊥ ≤ E` = (94)@(e+1)-⊆): NOT a numbered theorem in the provided PDFs
-     per the P-15f1 audit (FV VII §4 is exercises; FV IV §5 Thm (5.2) is the framework);
-     O'Meara §63 (quadratic defect) is the standard home.  Options: (a) leaf against FV
-     2nd-ed IV §5 (5.2)/§6 + O'Meara §63 with the deviation flagged; (b) prove via the
-     quadratic-defect analysis in norm vocabulary (a Tier-5-style descent — plausible but
-     unscoped); (c) prove by counting from the (93) graded sizes (needs the square-class
-     graded computation this route otherwise avoids — see the analysis in §7/design).
+6. **(H2) `hBnd` + (H4) `hsharp` — ✅ leaf decision RESOLVED (user-approved 2026-07-07,
+   `docs/p15f7-axiom-proposal.md`; executed same day):**
+   * `B` + `hBnd`: **B6 was base-generalized in place** (census-neutral, B9/B11 pattern) —
+     `axiom tateDualityAt (G) … (hloc : IsLocalDualizingGroup G n) : TateDualityG G n` for
+     `G` a finite-index local Galois group (`GQ2/TateDuality.lean` now has the
+     group-parametric `MuDual`-action/`TateDualityG`/`IsLocalDualizingGroup`; the old
+     `tateDuality` is re-derived as the `G_ℚ₂`-member `def`, so consumers are unchanged and
+     axiom traces show `tateDualityAt`; `AxiomLedger` B6 entry swapped; NSW (7.2.6) covers
+     arbitrary `p`-adic `k` verbatim).  At `K`: `B := inv_K ∘ cup` with `(1,1)`-perfectness =
+     (H2); invariance is FREE (`Aut(ℤ/2) = 1` + cochain-level cup conj-equivariance, provable
+     in-repo).  Instantiation needs the `G_K`-side `IsLocalDualizingGroup` witness (subgroup
+     inclusion of `ker ρ`, finite index from `[K:ℚ₂] < ∞`) — plumbing, no leaf.  Symbol-side
+     classical cross-refs (recorded in `literature-axioms.md`): FV IV §5 Prop (5.1)(1)(5)(6)(9),
+     Corollary p. 145, Thm (5.2); O'Meara ITQF 63:13.
+   * `hsharp` (`Deep^⊥ ≤ E` = (94)@(e+1)-⊆): **prove in-repo (approved plan of record)** —
+     the counting route: `#Deep^⊥ = #M/#Deep` (perp machinery banked in `DeepDuality.lean`) +
+     the isotropy instance `(U_e, U_{e+1}) = 1` (extend the Tier-5 Brahmagupta/contraction
+     descent from deep×deep to base `a ∈ U_e`; budget `j + e ≥ 2e+1`, still at the
+     `sq_of_near_one` threshold) + `#E/#Deep = 2^f` (B13 `card_gr` at `i = e` + the
+     odd-depth-no-squares parity argument; classical parallels O'Meara 63:2/63:5/63:8/63:9).
+     Fallback single-clause leaf ONLY on a second explicit user approval.
 7. Assemble → `hduality` → feed `card_deepPart_sq_of_duality` (f6) → `lemma_6_17_dim`
    closes at f8 with the statement-move.

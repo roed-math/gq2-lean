@@ -39,7 +39,9 @@ current Mathlib plus this repo's `ContCoh` cohomology:
 * **B4** `Foundations.absGalQ2_maxProTwo_presentation` — `G_ℚ₂(2) ≅ D₀`, the rank-3 dyadic
   Demushkin presentation (defs in `GQ2/DyadicPresentation.lean`).
 * **B5** `localReciprocity` — the local-reciprocity bundle (defs in `GQ2/Reciprocity.lean`).
-* **B6** `tateDuality` — local Tate duality, per-`n` bundle (defs in `GQ2/TateDuality.lean`).
+* **B6** `tateDualityAt` — local Tate duality, per-`n` bundle, at every finite `k/ℚ₂`
+  (base-generalized 2026-07-06; the `ℚ₂` member is the `def tateDuality`; defs in
+  `GQ2/TateDuality.lean`).
 * **B7** `Foundations.absGalQ2_localEulerCharacteristic` — local Euler characteristic
   (cohomology from `GQ2/Cohomology.lean`).
 * **B7′** `HilbertSymbol.hilbertSymbol_dyadic` — the dyadic Hilbert-symbol formula
@@ -261,23 +263,41 @@ Citation: NSW [1] (7.1.1)/(7.1.5); Serre *Local Fields* [7] Ch. XI–XIII.  Pape
 eq. (13); Prop. 1.1. -/
 axiom localReciprocity : LocalReciprocity
 
-/-! ## B6 — local Tate duality (per-`n` bundle)
+/-! ## B6 — local Tate duality (per-`n` bundle, at every finite `k/ℚ₂`)
 
 The dual module `MuDual n M = Hom(M, μₙ)` (conjugation action), the evaluation cup pairing,
-and the bundle `TateDuality n` — with the encoding decisions and flagged deviations (per-`n`
+the group-parametric bundle `TateDualityG G n` (with `TateDuality n` = the `G_ℚ₂` member), and
+the gate `IsLocalDualizingGroup` — with the encoding decisions and flagged deviations (per-`n`
 form, `ℤ/n`-valued Pontryagin duals, single currying, unnormalized `inv`) — are defined in
 `GQ2/TateDuality.lean`; its stress tests are parametrized over an arbitrary bundle and are
-therefore axiom-free. -/
+therefore axiom-free.  **Base-generalized 2026-07-06** (census-neutral, B9/B11 pattern;
+P-15f7 consumer at `G_K`; `docs/p15f7-axiom-proposal.md`). -/
 
-/-- **The B6 axiom.** Local Tate duality for `ℚ₂`, per-`n` bundle: an invariant map
-`inv : H²(G_ℚ₂, μₙ) ≃+ ℤ/n` making the evaluation cup pairings
-`Hⁱ(G_ℚ₂, Hom(M, μₙ)) × H^{2−i}(G_ℚ₂, M) → H²(G_ℚ₂, μₙ) ≅ ℤ/n` perfect for every finite
-discrete `n`-torsion module `M`, in the three degree pairs `(0,2)`, `(1,1)`, `(2,0)`.
+/-- **The B6 axiom (base-generalized to all finite `k/ℚ₂`).** Local Tate duality at any local
+Galois group `G` over `ℚ₂` (`G_ℚ₂` or a finite-index subgroup `G_K`, `K/ℚ₂` finite — the
+`IsLocalDualizingGroup` hypothesis): an invariant map `inv : H²(G, μₙ) ≃+ ℤ/n` making the
+evaluation cup pairings `Hⁱ(G, Hom(M, μₙ)) × H^{2−i}(G, M) → H²(G, μₙ) ≅ ℤ/n` perfect for every
+finite discrete `n`-torsion `G`-module `M`, in the three degree pairs `(0,2)`, `(1,1)`, `(2,0)`.
 
-Citation: **NSW [1], Ch. VII §7.2, Theorem (7.2.6)** (local Tate duality); Serre, *Galois
-Cohomology* II §5.2, Theorem 2; Milne, *ADT* I.2.3.  Paper: §§5–8 (the `𝔽₂` dimension
-counts); `docs/literature-axioms.md` B6. -/
-axiom tateDuality (n : ℕ) [NeZero n] : TateDuality n
+Base-generalized 2026-07-06 (census-neutral, the B9/B11 pattern): NSW (7.2.6) already states Tate
+duality for arbitrary `p`-adic `k`, so the old `ℚ₂`-only form under-used its citation.  The base
+member `k = ℚ₂` is the in-repo `def GQ2.tateDuality` below (identity embedding), so every existing
+`G_ℚ₂` consumer is unchanged and `#print axioms` traces show `tateDualityAt`.
+
+Citation: **NSW [1], Ch. VII §7.2, Theorem (7.2.6)** (local Tate duality, for any `p`-adic `k`);
+Serre, *Galois Cohomology* II §5.2, Theorem 2; Milne, *ADT* I.2.3.  Induced mod-2 Hilbert-pairing
+nondegeneracy (the P-15f7 consumer at `G_K`): FV Ch. IV §5 Prop (5.1)(6)/Cor./Thm (5.2), O'Meara
+ITQF 63:13.  Paper: §§5–8 (the `𝔽₂` dimension counts), §6.3 (P-15f7);
+`docs/literature-axioms.md` B6, `docs/p15f7-axiom-proposal.md`. -/
+axiom tateDualityAt (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    (n : ℕ) [NeZero n] [DistribMulAction G (MuN n)] [ContinuousSMul G (MuN n)]
+    (hloc : IsLocalDualizingGroup G n) : TateDualityG G n
+
+/-- **B6 at the base field `ℚ₂`** — the `G = G_ℚ₂` member of `tateDualityAt` (identity embedding,
+`isLocalDualizingGroup_absGalQ2`).  An in-repo `def`, not an axiom (census unchanged): every
+existing consumer of `GQ2.tateDuality`/`GQ2.TateDuality` is byte-for-byte unaffected. -/
+noncomputable def tateDuality (n : ℕ) [NeZero n] : TateDuality n :=
+  tateDualityAt AbsGalQ2 n (isLocalDualizingGroup_absGalQ2 n)
 
 /-! ## B8 — the cyclotomic action on peripheral generators (Lemma 3.6)
 
