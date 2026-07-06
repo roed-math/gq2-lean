@@ -27,7 +27,7 @@ namespace GQ2
 
 namespace SectionEight
 
-open CentralObstruction AffineTLift
+open CentralObstruction AffineTLift ContCoh LocalLiftingDuality FoxH
 
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
   [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
@@ -45,6 +45,30 @@ theorem rhoPrime_surjective {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopo
     Function.Surjective (RF.rhoPrime b F D hD ρ) := fun y => by
   obtain ⟨γ, hγ⟩ := ρ.1.2 (RF.piBCiso D hD y)
   exact ⟨γ, by rw [RF.rhoPrime_apply, hγ, MulEquiv.symm_apply_apply]⟩
+
+/-! ## The `M`-layer additive module (for the `Z¹` count)
+
+`↥D.M` is elementary abelian (`D.helem`), so `Additive ↥D.M` is a finite `𝔽₂`-space; conjugation
+by any coset rep of `Bg/D.M` is well-defined (`D` abelian ⟹ rep-independent) and gives the
+`Bg/D.M`-action, pulled back through a lower map `ρ` to a `G_ℚ₂`-action.  These two helpers are the
+`D.M`-analogues of `RadicalEdgeLocal`'s `D.T` versions. -/
+
+/-- Conjugation of `M`-elements only depends on the `M`-coset of the conjugator (`M` abelian). -/
+private theorem conj_eq_of_mk_eq_M {Bg : Type} [Group Bg] [Finite Bg] {D : RadicalCoverData Bg}
+    {b b' : Bg} (h : (QuotientGroup.mk b : Bg ⧸ D.M) = QuotientGroup.mk b') (m : ↥D.M) :
+    b * m.1 * b⁻¹ = b' * m.1 * b'⁻¹ := by
+  have hm : b⁻¹ * b' ∈ D.M := (QuotientGroup.eq (s := D.M)).mp h
+  have hcomm := D.hcomm _ hm _ m.2
+  calc b * m.1 * b⁻¹
+      = b * (m.1 * (b⁻¹ * b') * (b⁻¹ * b')⁻¹) * b⁻¹ := by group
+    _ = b * ((b⁻¹ * b') * m.1 * (b⁻¹ * b')⁻¹) * b⁻¹ := by rw [← hcomm]
+    _ = b' * m.1 * b'⁻¹ := by group
+
+/-- The commutative group structure on `↥M` (`M` abelian, `D.hcomm`). -/
+@[reducible] private def mCommGroup {Bg : Type} [Group Bg] [Finite Bg]
+    (D : RadicalCoverData Bg) : CommGroup ↥D.M :=
+  { (inferInstance : Group ↥D.M) with
+    mul_comm := fun a b => Subtype.ext (D.hcomm _ a.2 _ b.2) }
 
 /-! ## The two hypotheses for `G_ℚ₂` -/
 
@@ -66,10 +90,13 @@ theorem hlem86M_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
 
 /-- **`hMcountM` for `G_ℚ₂`** — the unrestricted `M`-lift count `#(M-lifts) = |M_B|²`.
 
-**⚠ Not yet proved — the genuine `Z¹`-torsor + duality content of P-16d6d.**  This same fact
-(`κ_M = #MLifts`, ρ-independent) is the shared deep input consumed by the concurrent P-16d6b
-(`PhaseMuIndep.tcocycle_mu_indep`'s `hML`/`κM`).  Full roadmap in
-`docs/p16d6d-hMcount-handoff.md`; the route (all steps over `G_ℚ₂ = AbsGalQ2`):
+**PARTIALLY PROVED.**  Steps 1 + 3 below (the additive `M`-module with the `ρ'`-conjugation
+action + `card_Z1_eq`) are now realized inline: `key : #Z¹ = |M_B|²·#fixedPts` holds.  Two scoped
+`sorry`s remain — `hfix` (Step 4, `#fixedPts = 1`, ⟵ the proved `lemma_7_1_dual`, just a bridge)
+and `htorsor` (Step 2, the `Z¹`-torsor bridge + nonemptiness).  This fact (`κ_M = #MLifts`,
+ρ-independent) is also the shared deep input consumed by the concurrent P-16d6b
+(`PhaseMuIndep.tcocycle_mu_indep`'s `hML`/`κM`).  Full roadmap in `docs/p16d6d-hMcount-handoff.md`;
+the route (all steps over `G_ℚ₂ = AbsGalQ2`):
 
 1. **Additive `M`-module** `MBmod := Additive ↥(En.radData l h).M` (`= Additive ↥RF.MB`), with the
    `ρ'`-conjugation `DistribMulAction AbsGalQ2 MBmod` and the descended `DistribMulAction RF.YC
@@ -102,7 +129,84 @@ theorem hMcountM_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
     (l : RF.DR) (h : l ≠ RF.zeroDR) (ρ : BoundaryLifts b F RF.TC) :
     Nat.card (MLifts (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))
       = (Nat.card ↥RF.MB) ^ 2 := by
-  sorry
+  classical
+  have hρ's : Function.Surjective (RF.rhoPrime b F (En.radData l h) rfl ρ) :=
+    rhoPrime_surjective RF b F (En.radData l h) rfl ρ
+  -- `M_B = (En.radData l h).M = RF.MB` as an additive 𝔽₂-space with the `ρ'`-conjugation action
+  letI : CommGroup ↥(En.radData l h).M := mCommGroup (En.radData l h)
+  letI : TopologicalSpace (Additive ↥(En.radData l h).M) :=
+    (inferInstance : TopologicalSpace ↥(En.radData l h).M)
+  haveI : DiscreteTopology (Additive ↥(En.radData l h).M) :=
+    ⟨(inferInstance : DiscreteTopology ↥(En.radData l h).M).eq_bot⟩
+  haveI : Finite (Additive ↥(En.radData l h).M) := (inferInstance : Finite ↥(En.radData l h).M)
+  letI actC : DistribMulAction (RF.YB ⧸ (En.radData l h).M) (Additive ↥(En.radData l h).M) :=
+    { smul := fun c m => Additive.ofMul
+        ⟨Quotient.out c * (Additive.toMul m).1 * (Quotient.out c)⁻¹,
+          (En.radData l h).hM.conj_mem _ (Additive.toMul m).2 _⟩
+      one_smul := fun m => by
+        apply Additive.toMul.injective; apply Subtype.ext
+        show Quotient.out (1 : RF.YB ⧸ (En.radData l h).M) * (Additive.toMul m).1
+            * (Quotient.out (1 : RF.YB ⧸ (En.radData l h).M))⁻¹ = (Additive.toMul m).1
+        have h1 : (Quotient.out (1 : RF.YB ⧸ (En.radData l h).M)) ∈ (En.radData l h).M := by
+          have := QuotientGroup.out_eq' (1 : RF.YB ⧸ (En.radData l h).M)
+          rwa [QuotientGroup.eq_one_iff] at this
+        rw [(En.radData l h).hcomm _ h1 _ (Additive.toMul m).2]; group
+      mul_smul := fun c c' m => by
+        apply Additive.toMul.injective; apply Subtype.ext
+        show Quotient.out (c * c') * (Additive.toMul m).1 * (Quotient.out (c * c'))⁻¹
+          = Quotient.out c * (Quotient.out c' * (Additive.toMul m).1 * (Quotient.out c')⁻¹)
+              * (Quotient.out c)⁻¹
+        rw [show Quotient.out c * (Quotient.out c' * (Additive.toMul m).1 * (Quotient.out c')⁻¹)
+              * (Quotient.out c)⁻¹
+            = (Quotient.out c * Quotient.out c') * (Additive.toMul m).1
+              * (Quotient.out c * Quotient.out c')⁻¹ from by group]
+        exact conj_eq_of_mk_eq_M (by rw [QuotientGroup.out_eq', QuotientGroup.mk_mul,
+          QuotientGroup.out_eq', QuotientGroup.out_eq']) (Additive.toMul m)
+      smul_zero := fun c => by
+        apply Additive.toMul.injective; apply Subtype.ext
+        show Quotient.out c * (1 : RF.YB) * (Quotient.out c)⁻¹ = 1
+        group
+      smul_add := fun c m m' => by
+        apply Additive.toMul.injective; apply Subtype.ext
+        show Quotient.out c * ((Additive.toMul m).1 * (Additive.toMul m').1) * (Quotient.out c)⁻¹
+          = (Quotient.out c * (Additive.toMul m).1 * (Quotient.out c)⁻¹)
+              * (Quotient.out c * (Additive.toMul m').1 * (Quotient.out c)⁻¹)
+        group }
+  letI actG : DistribMulAction AbsGalQ2 (Additive ↥(En.radData l h).M) :=
+    DistribMulAction.compHom (Additive ↥(En.radData l h).M)
+      (RF.rhoPrime b F (En.radData l h) rfl ρ).toMonoidHom
+  have hcomp : ∀ (γ : AbsGalQ2) (a : Additive ↥(En.radData l h).M),
+      γ • a = (RF.rhoPrime b F (En.radData l h) rfl ρ) γ • a := fun _ _ => rfl
+  haveI : ContinuousSMul AbsGalQ2 (Additive ↥(En.radData l h).M) := by
+    constructor
+    have hfac : (fun p : AbsGalQ2 × Additive ↥(En.radData l h).M => p.1 • p.2)
+        = (fun cq : (RF.YB ⧸ (En.radData l h).M) × ↥(En.radData l h).M =>
+            Additive.ofMul (⟨Quotient.out cq.1 * cq.2.1 * (Quotient.out cq.1)⁻¹,
+              (En.radData l h).hM.conj_mem _ cq.2.2 _⟩ : ↥(En.radData l h).M))
+          ∘ (fun p : AbsGalQ2 × Additive ↥(En.radData l h).M =>
+              ((RF.rhoPrime b F (En.radData l h) rfl ρ p.1 : RF.YB ⧸ (En.radData l h).M),
+                Additive.toMul p.2)) := by
+      funext p; rfl
+    rw [hfac]
+    exact continuous_of_discreteTopology.comp
+      (((RF.rhoPrime b F (En.radData l h) rfl ρ).continuous_toFun.comp continuous_fst).prodMk
+        continuous_snd)
+  have hA₂ : ∀ a : Additive ↥(En.radData l h).M, a + a = 0 := fun a => by
+    apply Additive.toMul.injective
+    show (Additive.toMul a) * (Additive.toMul a) = 1
+    exact Subtype.ext ((En.radData l h).helem _ (Additive.toMul a).2)
+  -- Step 3: `#Z¹ = |M_B|² · #fixedPts` (`card_Z1_eq`, B7 Euler char)
+  have key := card_Z1_eq hρ's hcomp hA₂
+  -- Step 4: `#fixedPts = 1`  ⟵  `lemma_7_1_dual` (the `(M^∨)^C = 0` group theory, std-3)
+  have hfix : Nat.card (fixedPts (RF.YB ⧸ (En.radData l h).M)
+      (ElemDual (Additive ↥(En.radData l h).M))) = 1 := by
+    sorry
+  -- Step 2: the `Z¹`-torsor bridge (`MLifts` nonempty from `#H² = 1`, then `≃ Z¹`)
+  have htorsor : Nat.card (MLifts (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))
+      = Nat.card (Z1 AbsGalQ2 (Additive ↥(En.radData l h).M)) := by
+    sorry
+  rw [htorsor, key, hfix, mul_one]
+  rfl
 
 /-- **P-16d6d deliverable**: the (139) half count for `G_ℚ₂`, in the exact shape of the
 `RecursionInputs.half139` field (consumed at P-16d6e). -/
