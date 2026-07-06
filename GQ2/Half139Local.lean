@@ -90,11 +90,12 @@ theorem hlem86M_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
 
 /-- **`hMcountM` for `G_ℚ₂`** — the unrestricted `M`-lift count `#(M-lifts) = |M_B|²`.
 
-**PARTIALLY PROVED.**  Steps 1 + 3 below (the additive `M`-module with the `ρ'`-conjugation
-action + `card_Z1_eq`) are now realized inline: `key : #Z¹ = |M_B|²·#fixedPts` holds.  Two scoped
-`sorry`s remain — `hfix` (Step 4, `#fixedPts = 1`, ⟵ the proved `lemma_7_1_dual`, just a bridge)
-and `htorsor` (Step 2, the `Z¹`-torsor bridge + nonemptiness).  This fact (`κ_M = #MLifts`,
-ρ-independent) is also the shared deep input consumed by the concurrent P-16d6b
+**MOSTLY PROVED — one sorry left.**  Steps 1, 3, 4 below are realized inline:
+`key : #Z¹ = |M_B|²·#fixedPts` (`card_Z1_eq`) and `hfix : #fixedPts = 1` (the `lemma_7_1_dual`
+bridge — a nonzero `YC`-invariant functional's kernel gives a `Y`-normal index-2 `X` with
+`Blk.R ≤ X ≤ Blk.K`, refuted by `lemma_7_1_dual`).  The **only** remaining `sorry` is `htorsor`
+(Step 2, the `Z¹`-torsor bridge `#MLifts = #Z¹` + nonemptiness from `#H² = 1`).  This fact
+(`κ_M = #MLifts`, ρ-independent) is also the shared deep input consumed by the concurrent P-16d6b
 (`PhaseMuIndep.tcocycle_mu_indep`'s `hML`/`κM`).  Full roadmap in `docs/p16d6d-hMcount-handoff.md`;
 the route (all steps over `G_ℚ₂ = AbsGalQ2`):
 
@@ -200,7 +201,105 @@ theorem hMcountM_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
   -- Step 4: `#fixedPts = 1`  ⟵  `lemma_7_1_dual` (the `(M^∨)^C = 0` group theory, std-3)
   have hfix : Nat.card (fixedPts (RF.YB ⧸ (En.radData l h).M)
       (ElemDual (Additive ↥(En.radData l h).M))) = 1 := by
-    sorry
+    have hzero : ∀ lam : ElemDual (Additive ↥(En.radData l h).M),
+        (∀ g : RF.YB ⧸ (En.radData l h).M, g • lam = lam) → lam = 0 := by
+      intro lam hlam
+      by_contra hlamne
+      have hinv : ∀ (c : RF.YB ⧸ (En.radData l h).M) (a : Additive ↥(En.radData l h).M),
+          lam (c • a) = lam a := by
+        intro c a
+        have h2 : (c⁻¹ • lam) a = lam a := by rw [hlam c⁻¹]
+        rwa [ElemDual.smul_apply, inv_inv] at h2
+      have hmem : ∀ k : ↥Blk.K, RF.piB k.1 ∈ (En.radData l h).M := by
+        intro k
+        show RF.piB k.1 ∈ RF.MB
+        rw [RF.MB_eq]; exact Subgroup.mem_map.mpr ⟨k.1, k.2, rfl⟩
+      -- `s : Blk.K ↠ M_B` and the character `φ = lam ∘ s : Blk.K →* μ₂`
+      let s : ↥Blk.K →* ↥(En.radData l h).M :=
+        (RF.piB.comp Blk.K.subtype).codRestrict (En.radData l h).M (fun k => hmem k)
+      have hs : ∀ k : ↥Blk.K, (s k).1 = RF.piB k.1 := fun _ => rfl
+      have hs_surj : Function.Surjective s := by
+        intro m
+        obtain ⟨k, hk, hkeq⟩ := (RF.MB_eq ▸ m.2 : m.1 ∈ Blk.K.map RF.piB)
+        exact ⟨⟨k, hk⟩, Subtype.ext hkeq⟩
+      let φ : ↥Blk.K →* Multiplicative (ZMod 2) :=
+        { toFun := fun k => Multiplicative.ofAdd (lam (Additive.ofMul (s k)))
+          map_one' := by simp
+          map_mul' := fun a b => by simp [map_mul] }
+      have hφ_apply : ∀ k, φ k = Multiplicative.ofAdd (lam (Additive.ofMul (s k))) := fun _ => rfl
+      have hφne : φ ≠ 1 := by
+        intro hφ1
+        apply hlamne
+        ext a
+        show lam a = 0
+        obtain ⟨k, hk⟩ := hs_surj (Additive.toMul a)
+        have h0 : lam (Additive.ofMul (s k)) = 0 := by
+          have hk1 : φ k = 1 := by rw [hφ1]; rfl
+          have := congrArg Multiplicative.toAdd hk1
+          simpa [hφ_apply] using this
+        rw [hk] at h0
+        exact h0
+      have hφsurj : Function.Surjective φ := by
+        intro y
+        rcases eq_or_ne y 1 with rfl | hy
+        · exact ⟨1, map_one φ⟩
+        · obtain ⟨k, hk⟩ := not_forall.mp (fun hh => hφne (MonoidHom.ext hh))
+          refine ⟨k, ?_⟩
+          have hpin : ∀ z : Multiplicative (ZMod 2), z ≠ 1 → z = Multiplicative.ofAdd 1 := by decide
+          rw [hpin _ hk, hpin _ hy]
+      set X : Subgroup Y := φ.ker.map Blk.K.subtype with hXdef
+      have hXK : X ≤ Blk.K := by rw [hXdef]; exact Subgroup.map_subtype_le _
+      have hRX : Blk.R ≤ X := by
+        intro r hr
+        have hrK : r ∈ Blk.K := SectionSeven.frattiniLike_le Blk.K hr
+        refine Subgroup.mem_map.mpr ⟨⟨r, hrK⟩, ?_, rfl⟩
+        rw [MonoidHom.mem_ker, hφ_apply]
+        have hs1 : s ⟨r, hrK⟩ = 1 := Subtype.ext (by
+          rw [hs]
+          show RF.piB r = 1
+          exact (RF.ker_piB.symm ▸ hr : r ∈ RF.piB.ker))
+        rw [hs1]; simp
+      have hXnormal : X.Normal := by
+        rw [hXdef]
+        refine ⟨fun x hx y => ?_⟩
+        obtain ⟨k, hkker, hkeq⟩ := Subgroup.mem_map.mp hx
+        have hxK : x ∈ Blk.K := hkeq ▸ k.2
+        have hyk : y * x * y⁻¹ ∈ Blk.K := Blk.hK.conj_mem x hxK y
+        refine Subgroup.mem_map.mpr ⟨⟨y * x * y⁻¹, hyk⟩, ?_, rfl⟩
+        rw [MonoidHom.mem_ker] at hkker ⊢
+        rw [hφ_apply] at hkker ⊢
+        have hconj : Additive.ofMul (s ⟨y * x * y⁻¹, hyk⟩)
+            = (QuotientGroup.mk (RF.piB y) : RF.YB ⧸ (En.radData l h).M)
+                • Additive.ofMul (s ⟨x, hxK⟩) := by
+          have hact : (QuotientGroup.mk (RF.piB y) : RF.YB ⧸ (En.radData l h).M)
+                • Additive.ofMul (s ⟨x, hxK⟩)
+              = Additive.ofMul (⟨Quotient.out (QuotientGroup.mk (RF.piB y)) * (s ⟨x, hxK⟩).1
+                  * (Quotient.out (QuotientGroup.mk (RF.piB y)))⁻¹,
+                  (En.radData l h).hM.conj_mem _ (s ⟨x, hxK⟩).2 _⟩ : ↥(En.radData l h).M) := rfl
+          rw [hact]
+          congr 1
+          apply Subtype.ext
+          rw [hs]
+          show RF.piB (y * x * y⁻¹)
+            = Quotient.out (QuotientGroup.mk (RF.piB y)) * (s ⟨x, hxK⟩).1
+              * (Quotient.out (QuotientGroup.mk (RF.piB y)))⁻¹
+          rw [hs, map_mul, map_mul, map_inv]
+          exact (conj_eq_of_mk_eq_M (D := En.radData l h)
+            (by rw [QuotientGroup.out_eq']) ⟨RF.piB x, hmem ⟨x, hxK⟩⟩).symm
+        rw [hconj, hinv]
+        have hkx : s ⟨x, hxK⟩ = s k := congrArg s (Subtype.ext hkeq.symm)
+        rw [hkx]; exact hkker
+      have hidx : (X.subgroupOf Blk.K).index = 2 := by
+        have hcm : X.subgroupOf Blk.K = φ.ker := by
+          rw [hXdef, Subgroup.subgroupOf,
+            Subgroup.comap_map_eq_self_of_injective Blk.K.subtype_injective]
+        show Nat.card (↥Blk.K ⧸ (X.subgroupOf Blk.K)) = 2
+        rw [hcm, Nat.card_congr (QuotientGroup.quotientKerEquivOfSurjective φ hφsurj).toEquiv]
+        simp
+      exact absurd ⟨X, hXnormal, hRX, hXK, hidx⟩ (SectionSeven.lemma_7_1_dual Blk)
+    rw [Nat.card_eq_one_iff_unique]
+    exact ⟨⟨fun x y => Subtype.ext ((hzero x.val x.2).trans (hzero y.val y.2).symm)⟩,
+      ⟨⟨0, fun c => smul_zero c⟩⟩⟩
   -- Step 2: the `Z¹`-torsor bridge (`MLifts` nonempty from `#H² = 1`, then `≃ Z¹`)
   have htorsor : Nat.card (MLifts (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))
       = Nat.card (Z1 AbsGalQ2 (Additive ↥(En.radData l h).M)) := by
