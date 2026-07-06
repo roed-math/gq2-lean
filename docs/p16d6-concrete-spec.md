@@ -20,7 +20,7 @@ Build once from `En : RF.Enrichment` (frame-level, so shared across `bA`/`bF`):
 |---|---|---|
 | ~~`DT := Module.Dual (ZMod 2) En.Vmod` (`= V^∨`)~~ **CORRECTED (Fable 2026-07-06, P-16d6c ⚠ Bug 2): `DT := (T^∨)^C` = `fixedPts C (ElemDual T_B-model)`, dim r — the paper's phase index `D` with (140)-prefactor `2^{r+1} = 2·#D`; `Efp ≅ D^∨`** | `hDT : Nat.card (Efp^∨) = Nat.card DT` via finite double-duality | `Fintype DT` from finiteness of `T_B` ✓ |
 | `G0 := gaussSum (En.qbar l₀ h₀)` | so `hG0 : gaussSum Q = G0` is **`rfl`** (with `Q := En.qbar l h`) | **`l`-independence**: `gaussSum (qbar l h)` constant in `l` (Arf invariant of the nonsingular `qbar`; all `qbar l h` share it — source 5.15/5.16 / §6 Gauss-sum content) |
-| `μ := Nat.card (TCocycle (En.radData l₀ h₀) …)` | the `T`-cocycle count | **`l`-independence** + the `hμ` below |
+| `μ := Nat.card En.Vmod * Nat.card (TCocycle (En.radData l₀ h₀) …)` — the paper's (132) value `#B¹(V)·#Z¹(T)` **(c1s repair, LANDED 2026-07-07: the engine is fed the bare `Z¹(T)`-count `μ₀` and concludes with the slot `(Nat.card W * μ₀ : ℕ)`)** | the `T`-cocycle count times `#V` | **`l`-independence** + the `hμ` below (both for the `μ₀` factor; the `#V` factor is `l`-free) |
 | `phase := phaseFamily (fun ζ => DeltaScalar (En.dat l h) γ_ζ δ_ζ a_ζ) hcoc hl hr` | `AffineTLift.phaseFamily` / `centralCoverOfCocycle` | **DeltaScalar is a normalized 2-cocycle** (`hcoc`/`hl`/`hr`) — the deep phase-cover content; `γ_ζ`/`δ_ζ`/`a_ζ` are the per-character edge-killing shear of `prop_8_8_target` |
 
 The `phase` construction is coupled to `hphase` (§2): the `Δ = DeltaScalar …` used here must be the
@@ -30,9 +30,13 @@ one in `hphase`'s sign-sum.  So the witness `phase` and `phase140`'s `hphase` ar
 
 ## 2. `phase140` — via `phase140_of_nonsingular` (engine done; 3 deep facts remain)
 
-`RecursionInputs.phase140 := fun l h _hN => phase140_of_nonsingular RF b F μ G0 DT phase l h
+`RecursionInputs.phase140 := fun l h _hN => phase140_of_nonsingular RF b F μ₀ G0 DT phase l h
   (En.radData l h) rfl hC_l Dsc_l htriv hfg Lin hLin (En.qbar l h) (En.hquad l h) (En.hns l h)
   κ ε (hμ l h) (hM l h) hDT (enrichment_card_Vmod RF En) rfl (hphase l h)`
+
+(post-c1s: `μ₀` = the bare `Z¹(T)`-count; the bundle's `μ`-parameter is `Nat.card En.Vmod * μ₀`
+— the engine's conclusion slot `(Nat.card W * μ₀ : ℕ)` is a cast ℕ-atom, so with that witness the
+field still closes by `exact`.)
 
 with `W := En.Vmod`, `Q := En.qbar l h`, `D := En.radData l h` (`hD := rfl`).  Engine data
 **already discharged**: `hquad`/`hns` (En fields), `a_χ = polarInverseL …` (internal), `hWV`
@@ -44,7 +48,7 @@ with `W := En.Vmod`, `Q := En.qbar l h`, `D := En.radData l h` (`hD := rfl`).  E
 * **`hM l h`** — **⚠ SHAPE CORRECTED (Fable 2026-07-06, P-16d6c ⚠ Bug 1)**: as originally written
   (`#(central red_T image) = N(κρ, ερ)`) this is **unsatisfiable** — the LHS is a positive multiple
   of `#B¹_{Γ,ρ}(V) = #V` (free `B¹`-translation by `M_B`-conjugation), the RHS `≤ #W = #V` strictly.
-  The true statement (and the c1s-repaired engine hypothesis) is
+  The true statement (and the c1s-repaired engine hypothesis — **repair LANDED 2026-07-07**) is
   `… = Nat.card W * Nat.card {x : En.Vmod // Lin x = κ ρ ∧ En.qbar l h x = ε ρ}`, with the
   `phase140_of_*` conclusions' `μ`-slot correspondingly `#W·μ` (paper (132): `μ = |B¹(V)|·|Z¹(T)|`).
   Content unchanged otherwise: the scalar-cover square relation (`En.q`/`En.hq`),

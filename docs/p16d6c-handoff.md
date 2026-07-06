@@ -51,7 +51,9 @@ P-16d6b all-lifts torsor + 5.16 numerics: `#(redT image over ALL lifts) = #Z¹(�
 = 2^{2m}/2^{2t+r} = 2^{2d−r}` — the central sub-count is `~2^{2d−r−1}`, vs RHS `~2^{d−r−1}`:
 off by `2^d`.
 
-**The repair (c1s — small, shape-preserving, co-owned `RecursionSplice.lean`):**
+**The repair (c1s — small, shape-preserving, co-owned `RecursionSplice.lean`) — ✅ LANDED
+(Fable, 2026-07-07): both `phase140_of_*` repaired, std-3, build green, algebra re-verified in
+situ (`phase140_ofPhaseData` untouched — μ-generic, applied at `#W·μ`):**
 * `hM` becomes `… = Nat.card W * Nat.card {x : W // Lin x = κ ρ ∧ Q x = ε ρ}`;
 * the conclusions of `phase140_of_gaussCorrespondence` and `phase140_of_nonsingular` change their
   `μ`-slot to `(Nat.card W * μ)` — algebra check: `zBC = μ·Σ LHS = μ·#W·Σ N_V` and
@@ -147,7 +149,8 @@ Steps 1–2 need objects the repo has **deliberately not built** (`section8-extr
 `∂_{Γ,ρ} : H¹(V) → H²(T)` of the module extension `0→T→M→V→0`, the class `e`, and `ρ*`.  This is a
 **multi-session architectural build** — the honest bulk of c1.  Sub-decomposition:
 
-* **c1s** [**F**, ⭐, gate for c1c only] — the Bug-1 spec repair in co-owned `RecursionSplice.lean`
+* **c1s** [**F**, ⭐, gate for c1c only] — **✅ DONE (Fable, 2026-07-07; board row P-16d6c1s)** —
+  the Bug-1 spec repair in co-owned `RecursionSplice.lean`
   (`hM` `#W`-factor + `μ ↦ #W·μ` in the two `phase140_of_*` conclusions) and the Bug-2 doc fix.
   Small, but it changes the reducer contract d6e consumes — re-verify the algebra in situ.
   Coordinate: nobody else touches those two theorems (d6a = stageR136, d6d = half139), but it IS a

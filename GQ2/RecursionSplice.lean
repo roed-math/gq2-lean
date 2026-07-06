@@ -320,13 +320,17 @@ field of `RecursionInputs`, derived from the abstract engine + the concrete data
 the boxed (140) identity, isolating exactly the two hard **Prop 8.8** correspondences as
 hypotheses:
 
-* `hM` — the (135)/Prop 8.8 identity `#achievable-central-T-reductions(ρ) = N(κ_ρ, ε_ρ)`
-  (central-liftable ⟺ `Q x = ε_ρ ∧ L x = κ_ρ`), per lower map `ρ`;
+* `hM` — the (135)/Prop 8.8 count `#achievable-central-T-reductions(ρ) = #W · N(κ_ρ, ε_ρ)`
+  (central-liftable ⟺ `Q x = ε_ρ ∧ L x = κ_ρ`, spread by the **free `B¹_{Γ,ρ}(V)`-translation**
+  of `M_B`-conjugation on `red_T`-values, `#B¹ = #V = #W`), per lower map `ρ`;
 * `hphase` — the phase reindex `Σ_χ Σ_ρ (−1)^{χκ_ρ+ε_ρ+Q(a_χ)} = Σ_ζ (2·nPhase(phase ζ) − e_Γ(C))`
   (matching `V^∨`-characters to the `D_T`-indexed phase covers).
 
-The remaining `hμ`/`hM`/`hphase` and the cardinality matches `hDT`/`hWV`/`hG0` are the concrete
-`(140)` O-half; everything else (the fibration, the Gauss aggregation, the algebra) is now proven. -/
+The conclusion's multiplicity slot is accordingly `#W·μ` — the paper's (132) value
+`μ_total = |B¹(V)|·|Z¹(T)|`, with `hμ` pinning the `|Z¹(T)|` factor alone (P-16d6c1s spec repair;
+`docs/p16d6c-handoff.md` §⚠ Bug 1).  The remaining `hμ`/`hM`/`hphase` and the cardinality matches
+`hDT`/`hWV`/`hG0` are the concrete `(140)` O-half; everything else (the fibration, the Gauss
+aggregation, the algebra) is now proven. -/
 theorem phase140_of_gaussCorrespondence {Γ : Type} [Group Γ] [TopologicalSpace Γ]
     [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
     [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
@@ -348,7 +352,8 @@ theorem phase140_of_gaussCorrespondence {Γ : Type} [Group Γ] [TopologicalSpace
     (hμ : ∀ ρ : BoundaryLifts b F RF.TC, Nat.card (TCocycle D (RF.rhoPrime b F D hD ρ)) = μ)
     (hM : ∀ ρ : BoundaryLifts b F RF.TC,
       Nat.card ↥(Set.range (fun f : {f : MLifts D (RF.rhoPrime b F D hD ρ) // f.Central} =>
-        redT (RF.rhoPrime b F D hD ρ) f.1)) = Nat.card {x : W // Lin x = κ ρ ∧ Q x = ε ρ})
+        redT (RF.rhoPrime b F D hD ρ) f.1))
+        = Nat.card W * Nat.card {x : W // Lin x = κ ρ ∧ Q x = ε ρ})
     (hDT : Nat.card (Module.Dual (ZMod 2) Efp) = Nat.card DT)
     (hWV : Nat.card W = Nat.card ↥RF.MB / Nat.card ↥RF.TBsub)
     (hG0 : gaussSum Q = G0)
@@ -357,9 +362,10 @@ theorem phase140_of_gaussCorrespondence {Γ : Type} [Group Γ] [TopologicalSpace
               = ∑ᶠ ζ : DT, (2 * (RF.nPhase b F (phase ζ) : ℤ)
                   - (exactImageCount b F RF.TC : ℤ))) :
     2 * (Nat.card DT : ℤ) * RF.zBC b F l h
-      = μ * ((Nat.card ↥RF.MB / Nat.card ↥RF.TBsub : ℕ) * exactImageCount b F RF.TC
-          + G0 * ∑ᶠ ζ : DT, (2 * (RF.nPhase b F (phase ζ) : ℤ)
-              - (exactImageCount b F RF.TC : ℤ))) := by
+      = (Nat.card W * μ : ℕ)
+          * ((Nat.card ↥RF.MB / Nat.card ↥RF.TBsub : ℕ) * exactImageCount b F RF.TC
+            + G0 * ∑ᶠ ζ : DT, (2 * (RF.nPhase b F (phase ζ) : ℤ)
+                - (exactImageCount b F RF.TC : ℤ))) := by
   classical
   set Mcount : ℕ := ∑ ρ : BoundaryLifts b F RF.TC,
     Nat.card {x : W // Lin x = κ ρ ∧ Q x = ε ρ} with hMc
@@ -367,12 +373,12 @@ theorem phase140_of_gaussCorrespondence {Γ : Type} [Group Γ] [TopologicalSpace
       = (Fintype.card (BoundaryLifts b F RF.TC) : ℤ) := by
     rw [show exactImageCount b F RF.TC = Nat.card (BoundaryLifts b F RF.TC) from rfl,
       Nat.card_eq_fintype_card]
-  -- `hfib`: the fibration, via μ-independence and the Prop-8.8 count `hM`
-  have hfib : RF.zBC b F l h = μ * Mcount := by
-    rw [zBC_eq_mu_mul_reductionCount RF b F l h D hD hC Dsc htriv hfg μ hμ]
-    congr 1
-    rw [finsum_eq_sum_of_fintype, hMc]
-    exact Finset.sum_congr rfl fun ρ _ => hM ρ
+  -- `hfib`: the fibration, via μ-independence and the (repaired) Prop-8.8 count `hM` — the
+  -- `#W`-spread of the free `B¹`-translation moves into the multiplicity: `zBC = (#W·μ)·Mcount`
+  have hfib : RF.zBC b F l h = Nat.card W * μ * Mcount := by
+    rw [zBC_eq_mu_mul_reductionCount RF b F l h D hD hC Dsc htriv hfg μ hμ,
+      finsum_eq_sum_of_fintype, Finset.sum_congr rfl fun ρ _ => hM ρ, ← Finset.mul_sum, ← hMc]
+    ring
   -- `hgauss`: the aggregated Gauss identity, with the cardinality matches and the phase reindex
   have hgauss : 2 * (Nat.card DT : ℤ) * (Mcount : ℤ)
       = (Nat.card ↥RF.MB / Nat.card ↥RF.TBsub : ℕ) * exactImageCount b F RF.TC
@@ -384,7 +390,7 @@ theorem phase140_of_gaussCorrespondence {Γ : Type} [Group Γ] [TopologicalSpace
     rw [hWV, ← hexact]
     push_cast
     ring
-  exact phase140_ofPhaseData RF b F μ G0 DT phase l h Mcount hfib hgauss
+  exact phase140_ofPhaseData RF b F (Nat.card W * μ) G0 DT phase l h Mcount hfib hgauss
 
 /-! ## Discharging the polar data `a_χ` from nonsingularity (the `En.hns` supply) -/
 
@@ -413,7 +419,8 @@ open QuadraticFp2 AffineTLift CentralObstruction in
 /-- **The (140) reducer from nonsingularity** (P-16d6): `phase140_of_gaussCorrespondence` with the
 polar data `a`/`ha` discharged from `En.hns`/`En.hquad` via `polarInverseL`.  So the (140) engine
 inputs are exactly what the enrichment supplies (`Q = qbar`, nonsingular + quadratic), and the
-residual concrete facts are just `hM` (Prop 8.8 count), `hphase` (character↔phase reindex, now
+residual concrete facts are just `hM` (Prop 8.8 count, with the `#W`-spread of the free
+`B¹`-translation — multiplicity slot `#W·μ`, paper (132)), `hphase` (character↔phase reindex, now
 phrased with the canonical `a_χ = polarInverseL …`), `hμ` (μ-independence), and the matches. -/
 theorem phase140_of_nonsingular {Γ : Type} [Group Γ] [TopologicalSpace Γ]
     [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
@@ -435,7 +442,8 @@ theorem phase140_of_nonsingular {Γ : Type} [Group Γ] [TopologicalSpace Γ]
     (hμ : ∀ ρ : BoundaryLifts b F RF.TC, Nat.card (TCocycle D (RF.rhoPrime b F D hD ρ)) = μ)
     (hM : ∀ ρ : BoundaryLifts b F RF.TC,
       Nat.card ↥(Set.range (fun f : {f : MLifts D (RF.rhoPrime b F D hD ρ) // f.Central} =>
-        redT (RF.rhoPrime b F D hD ρ) f.1)) = Nat.card {x : W // Lin x = κ ρ ∧ Q x = ε ρ})
+        redT (RF.rhoPrime b F D hD ρ) f.1))
+        = Nat.card W * Nat.card {x : W // Lin x = κ ρ ∧ Q x = ε ρ})
     (hDT : Nat.card (Module.Dual (ZMod 2) Efp) = Nat.card DT)
     (hWV : Nat.card W = Nat.card ↥RF.MB / Nat.card ↥RF.TBsub)
     (hG0 : gaussSum Q = G0)
@@ -444,9 +452,10 @@ theorem phase140_of_nonsingular {Γ : Type} [Group Γ] [TopologicalSpace Γ]
               = ∑ᶠ ζ : DT, (2 * (RF.nPhase b F (phase ζ) : ℤ)
                   - (exactImageCount b F RF.TC : ℤ))) :
     2 * (Nat.card DT : ℤ) * RF.zBC b F l h
-      = μ * ((Nat.card ↥RF.MB / Nat.card ↥RF.TBsub : ℕ) * exactImageCount b F RF.TC
-          + G0 * ∑ᶠ ζ : DT, (2 * (RF.nPhase b F (phase ζ) : ℤ)
-              - (exactImageCount b F RF.TC : ℤ))) :=
+      = (Nat.card W * μ : ℕ)
+          * ((Nat.card ↥RF.MB / Nat.card ↥RF.TBsub : ℕ) * exactImageCount b F RF.TC
+            + G0 * ∑ᶠ ζ : DT, (2 * (RF.nPhase b F (phase ζ) : ℤ)
+                - (exactImageCount b F RF.TC : ℤ))) :=
   phase140_of_gaussCorrespondence RF b F μ G0 DT phase l h D hD hC Dsc htriv hfg
     Lin hLin Q (polarInverseL Q hquad hns Lin)
     (fun χ v => polarInverseL_spec Q hquad hns Lin χ v) κ ε hμ hM hDT hWV hG0 hphase
