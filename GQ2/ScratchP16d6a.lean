@@ -215,17 +215,20 @@ theorem RCharKer_inj (Blk : SectionSeven.MinimalBlock L) :
 
 /-! ## a-DRmod: assembling the `(R^∨)^C` bijection and `pair` -/
 
-/-- **The `(R^∨)^C` bijection** `D_Rmod ≃ D_R`: `χ ↦ ker χ` (inverse `R' ↦` its indicator). -/
-noncomputable def blockToDR (Blk : SectionSeven.MinimalBlock L) :
-    ↥(RCharSub Blk) ≃ BlockDR Blk :=
+/-- **The `(R^∨)^C` bijection** `D_Rmod ≃ D_R`: `χ ↦ ker χ` (inverse `R' ↦` its indicator).
+Codomain is the concrete frame's `.DR` (so the assembly's `pair_coverMap` types align). -/
+noncomputable def blockToDR (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
+    (hE2 : ∀ e : E, e ^ 2 = 1) :
+    ↥(RCharSub Blk) ≃ (blockFrameImpl T Blk hE2).DR :=
   Equiv.ofBijective
     (fun χ => ⟨RCharKer Blk χ, RCharKer_normal Blk χ, RCharKer_le Blk χ,
       RCharKer_relIndex_le Blk χ⟩)
     ⟨fun _ _ h => RCharKer_inj Blk (Subtype.ext_iff.mp h),
      fun R' => ⟨RCharOf Blk R', Subtype.ext (RCharKer_RCharOf Blk R')⟩⟩
 
-@[simp] theorem blockToDR_coe (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
-    (blockToDR Blk χ).1 = RCharKer Blk χ := rfl
+@[simp] theorem blockToDR_coe (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
+    (hE2 : ∀ e : E, e ^ 2 = 1) (χ : ↥(RCharSub Blk)) :
+    (blockToDR T Blk hE2 χ).1 = RCharKer Blk χ := rfl
 
 /-- The zero character's kernel is all of `R` (`= zeroDR`). -/
 theorem RCharKer_zero (Blk : SectionSeven.MinimalBlock L) : RCharKer Blk 0 = Blk.R := by
@@ -235,5 +238,43 @@ theorem RCharKer_zero (Blk : SectionSeven.MinimalBlock L) : RCharKer Blk 0 = Blk
     show (0 : ↥(RCharSub Blk)).1 (Additive.ofMul r) = 0
     rfl
   rw [RCharKer, hsub, ← MonoidHom.range_eq_map, Subgroup.range_subtype]
+
+/-! ## a-assemble: the concrete R-stage obstruction datum `blockRObstructionData` -/
+
+/-- **The concrete R-stage obstruction datum** for the §7-block frame (P-16d6a): assembles
+`blockRCoverData` with the `(R^∨)^C` module `D_Rmod = RCharSub`, the bijection `blockToDR`, and
+`pair =` the submodule inclusion, whose `pair_coverMap` matches the cover kernel-sign `zsign`
+(`= [r ∉ ker d]`).  This is the `RObstructionData` input to `stageR136_ofRSepData`. -/
+noncomputable def blockRObstructionData (T : MarkedTarget H E Y)
+    (Blk : SectionSeven.MinimalBlock T.LY) (hE2 : ∀ e : E, e ^ 2 = 1) :
+    RObstructionData (blockFrameImpl T Blk hE2) where
+  toRCoverData := blockRCoverData T Blk hE2
+  DRmod := ↥(RCharSub Blk)
+  toDR := blockToDR T Blk hE2
+  h0 := by
+    refine (blockToDR T Blk hE2).symm_apply_eq.mpr (Subtype.ext ?_)
+    show Blk.R = (blockToDR T Blk hE2 0).1
+    rw [blockToDR_coe, RCharKer_zero]
+  pair := (RCharSub Blk).subtype
+  pair_coverMap := fun d h r => by
+    haveI hN : (RCharKer Blk d).Normal := RCharKer_normal Blk d
+    have hmem : (QuotientGroup.mk' (RCharKer Blk d) (r : Y) = 1) ↔ (r ∈ RCharKerSub Blk d) := by
+      rw [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff, RCharKer, Subgroup.mem_map]
+      constructor
+      · rintro ⟨s, hs, hsr⟩
+        rwa [Subtype.coe_injective hsr] at hs
+      · intro hr
+        exact ⟨r, hr, rfl⟩
+    have hcov : (blockRCoverData T Blk hE2).coverMap (blockToDR T Blk hE2 d) h (r : Y)
+        = QuotientGroup.mk' (RCharKer Blk d) (r : Y) := rfl
+    rw [Submodule.subtype_apply, RChar_eq_ind, hcov]
+    by_cases hr : r ∈ RCharKerSub Blk d
+    · rw [if_pos hr, hmem.mpr hr]
+      exact (CentralObstruction.zsign_one _).symm
+    · rw [if_neg hr]
+      have hne : QuotientGroup.mk' (RCharKer Blk d) (r : Y) ≠ 1 := fun hc => hr (hmem.mp hc)
+      symm
+      unfold CentralObstruction.zsign
+      exact if_neg hne
 
 end GQ2
