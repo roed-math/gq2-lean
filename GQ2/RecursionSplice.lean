@@ -263,6 +263,53 @@ theorem zBC_eq_mu_mul_reductionCount {Γ : Type} [Group Γ] [TopologicalSpace Γ
     rw [centralOver_card_eq_reductions_mul_tcocycle RF b F l h D hD hC ρ Dsc htriv hfg, hμ ρ]
     exact mul_comm _ _
 
+/-! ## `hgauss` level 1 — aggregating the Gauss engine `lemma_8_5` over the ρ-family -/
+
+open QuadraticFp2 in
+/-- **The aggregated constrained-Gauss identity** (P-16d6, `hgauss` level 1): summing the proved
+Gauss engine `lemma_8_5` over a finite index family `I` (the `C`-image `ρ`, each with its own
+constraint `(κ_i, ε_i)`) and swapping the resulting double sum gives
+
+  `2·|E^∨|·Σ_i N(κ_i,ε_i) = |I|·|W| + G(Q)·Σ_χ Σ_i (−1)^{χκ_i+ε_i+Q(a_χ)}`.
+
+Pure `𝔽₂`-linear algebra — no frame data.  This is the aggregation step of `hgauss`: with the
+concrete correspondences `Σ_i N(κ_i,ε_i) = M`, `|I| = e_Γ(C)`, `|W| = |V|`, `|E^∨| = |D_T|`,
+`G(Q) = G0`, and the phase reindex `Σ_i sign(χκ_i+ε_i+Q(a_χ)) = 2·nPhase(phase χ) − e_Γ(C)`
+(the Prop 8.8 / (135) content coupled to the witness), it becomes the `hgauss` hypothesis of
+`phase140_ofPhaseData`. -/
+theorem lemma_8_5_aggregated {W E : Type*} [AddCommGroup W] [Module (ZMod 2) W] [Finite W]
+    [AddCommGroup E] [Module (ZMod 2) E] [Finite E]
+    (L : W →ₗ[ZMod 2] E) (hL : Function.Surjective L) (Q : W → ZMod 2)
+    (a : Module.Dual (ZMod 2) E → W)
+    (ha : ∀ (χ : Module.Dual (ZMod 2) E) (x : W), polar Q (a χ) x = χ (L x))
+    {I : Type*} [Fintype I] (κ : I → E) (ε : I → ZMod 2) :
+    2 * (Nat.card (Module.Dual (ZMod 2) E) : ℤ)
+        * ∑ i : I, (Nat.card {x : W // L x = κ i ∧ Q x = ε i} : ℤ)
+      = (Fintype.card I : ℤ) * (Nat.card W : ℤ)
+        + gaussSum Q * ∑ᶠ χ : Module.Dual (ZMod 2) E,
+            ∑ i : I, sign (χ (κ i) + ε i + Q (a χ)) := by
+  classical
+  haveI : Fintype (Module.Dual (ZMod 2) E) := Fintype.ofFinite _
+  have hswap : (∑ i : I, ∑ᶠ χ : Module.Dual (ZMod 2) E, sign (χ (κ i) + ε i + Q (a χ)))
+      = ∑ᶠ χ : Module.Dual (ZMod 2) E, ∑ i : I, sign (χ (κ i) + ε i + Q (a χ)) := by
+    rw [finsum_eq_sum_of_fintype,
+      Finset.sum_congr rfl fun i (_ : i ∈ Finset.univ) =>
+        finsum_eq_sum_of_fintype (fun χ : Module.Dual (ZMod 2) E => sign (χ (κ i) + ε i + Q (a χ)))]
+    exact Finset.sum_comm
+  calc 2 * (Nat.card (Module.Dual (ZMod 2) E) : ℤ)
+          * ∑ i : I, (Nat.card {x : W // L x = κ i ∧ Q x = ε i} : ℤ)
+      = ∑ i : I, 2 * (Nat.card (Module.Dual (ZMod 2) E) : ℤ)
+          * (Nat.card {x : W // L x = κ i ∧ Q x = ε i} : ℤ) := by rw [Finset.mul_sum]
+    _ = ∑ i : I, ((Nat.card W : ℤ)
+          + gaussSum Q * ∑ᶠ χ : Module.Dual (ZMod 2) E, sign (χ (κ i) + ε i + Q (a χ))) :=
+        Finset.sum_congr rfl fun i _ => lemma_8_5 L hL Q a ha (κ i) (ε i)
+    _ = (∑ _i : I, (Nat.card W : ℤ))
+          + gaussSum Q * ∑ i : I, ∑ᶠ χ : Module.Dual (ZMod 2) E, sign (χ (κ i) + ε i + Q (a χ)) := by
+        rw [Finset.sum_add_distrib, Finset.mul_sum]
+    _ = (Fintype.card I : ℤ) * (Nat.card W : ℤ)
+          + gaussSum Q * ∑ᶠ χ : Module.Dual (ZMod 2) E, ∑ i : I, sign (χ (κ i) + ε i + Q (a χ)) := by
+        rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul, hswap]
+
 end SectionEight
 
 end GQ2
