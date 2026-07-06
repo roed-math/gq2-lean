@@ -63,6 +63,40 @@ theorem prop_8_9_of (B : BoundaryMaps)
     prop_8_9_aux RF hfgA B.bA F lemma_8_2_gammaA hheadA μ G0 DT phase inpA,
     prop_8_9_aux RF hfgF B.bF F (lemma_8_2_local B) hheadF μ G0 DT phase inpF⟩
 
+/-! ## `half139` reduced to the source's `MLifts`-level count (d3 bridge discharged)
+
+`half139_via_radData` strips the P-16d3 bridge plumbing (`centralOver_equiv`/`liftsOver_equiv`
+over `En.radData`) off the `half139` obligation, reducing it to the two **pure `MLifts` source
+facts** for the transported lower map `ρ' = rhoPrime …`:
+
+* `hlem86M` — the source's Lemma 8.6 half-torsor identity `2·#{central M-lifts} = #(M-lifts)`
+  (`lemma_8_6_local` ✓ for `G_ℚ₂`; `lemma_8_6_gammaA` = P-16c for `Γ_A`), and
+* `hMcountM` — the `M`-lift count `#(M-lifts) = |M_B|²` (props 5.15/5.16).
+
+So a caller feeds `half139_of` (hence `RecursionInputs.half139`) directly from the source arithmetic,
+with no `CentralOver`/`LiftsOver` bookkeeping. -/
+theorem half139_via_radData {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+    [CompactSpace Γ] [TotallyDisconnectedSpace Γ] {Y : Type} [Group Y] [TopologicalSpace Y]
+    [DiscreteTopology Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk)
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR)
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (hlem86M : ∀ ρ : BoundaryLifts b F RF.TC,
+      2 * Nat.card {f : MLifts (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ) //
+          f.Central}
+        = Nat.card (MLifts (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)))
+    (hMcountM : ∀ ρ : BoundaryLifts b F RF.TC,
+      Nat.card (MLifts (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))
+        = (Nat.card ↥RF.MB) ^ 2) :
+    2 * RF.zBC b F l h = (Nat.card ↥RF.MB) ^ 2 * exactImageCount b F RF.TC := by
+  refine RF.half139_of b F hfg l h (fun ρ => ?_) (fun ρ => ?_)
+  · rw [Nat.card_congr (RF.centralOver_equiv b F l h (En.radData l h) rfl rfl ρ),
+      Nat.card_congr (RF.liftsOver_equiv b F (En.radData l h) rfl ρ)]
+    exact hlem86M ρ
+  · rw [Nat.card_congr (RF.liftsOver_equiv b F (En.radData l h) rfl ρ)]
+    exact hMcountM ρ
+
 end SectionEight
 
 end GQ2
