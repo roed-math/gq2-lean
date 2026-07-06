@@ -6,18 +6,21 @@
 
 ## Status this session
 
-The **plumbing half of P-16d6d is done and committed** (commit `P-16d6d: local (139) plumbing …`):
+The **plumbing is committed, and `hMcountM`'s count side (Steps 1 + 3) is now proved inline**:
 
 | decl (`GQ2.SectionEight`, `GQ2/Half139Local.lean`) | statement | axioms |
 |---|---|---|
 | `rhoPrime_surjective` | `Surjective (RF.rhoPrime b F D hD ρ)` (any source) | std-3 |
+| `conj_eq_of_mk_eq_M`, `mCommGroup` (private) | the reusable `D.M` conjugation-module atoms | std-3 |
 | `hlem86M_local` | `∀ ρ, 2·#{central M-lifts} = #(M-lifts)` for `G_ℚ₂` | std-3 + B6 + B7 |
-| `half139_local` | the (139) identity in `RecursionInputs.half139` shape | std-3 + B6 + B7 (+ the `hMcountM` sorry) |
-| `hMcountM_local` | **`#MLifts = |M_B|²`** — the sole sorry | (target: std-3 + B6 + B7) |
+| `half139_local` | the (139) identity in `RecursionInputs.half139` shape | std-3 + B6 + B7 (+ `hMcountM` sorry) |
+| `hMcountM_local` | **`#MLifts = |M_B|²`** — Steps 1+3 done inline; **2 sorries** left | std-3 + B6 + B7 (+ sorryAx) |
 
-`half139_local` is the P-16d6d deliverable consumed at P-16d6e; it is complete **modulo
-`hMcountM_local`**. Gate: `lake build GQ2.Half139Local` green; `scripts/check_axioms.sh` passes
-(`Half139Local.lean` on the allowlist).
+Inside `hMcountM_local`: the additive module + actions (Step 1) and `key : #Z¹ = |M_B|²·#fixedPts`
+via `card_Z1_eq` (Step 3) are **realized and building**; the final `|Additive ↥M_B|² = |M_B|²`
+reduction closes by `rfl`. Only **`hfix`** (Step 4, `#fixedPts = 1`) and **`htorsor`** (Step 2,
+`#MLifts = #Z¹`) remain as scoped sorries. `half139_local` is the P-16d6e deliverable, complete
+modulo `hMcountM_local`. Gate: `lake build GQ2.Half139Local` green; `check_axioms.sh` passes.
 
 **`hMcountM` is a shared deep input.** The concurrent P-16d6b (`PhaseMuIndep.lean`, now CLOSED
 sorry-free) does **not** prove `#MLifts`; it takes it as the hypothesis `hML`/`κM` of
@@ -138,6 +141,28 @@ pulls back to a `Y`-normal `X` with `Blk.R ≤ X ≤ Blk.K` and `(X.subgroupOf B
 and `YC = Y/Blk.K`-submodules of `Blk.K/Blk.R` ↔ `Y`-normal subgroups between `Blk.R` and `Blk.K`);
 `lemma_7_1_dual` refutes it, so `fixedPts = {0}`, card 1. Bridge ≈ 50–80 ln (the submodule↔normal
 subgroup correspondence for `M_B = K/R` + index/kernel bookkeeping).
+
+**Concrete recipe for `hfix` (write it inline in `hMcountM_local`, where the module is in scope):**
+Follow the template `DualityAssembly.card_fixedPts_elemDual_eq_one_of_nontrivial`
+(`DualityAssembly.lean:104`) — it reduces `Nat.card (fixedPts …) = 1` to
+`hzero : ∀ lam, (∀ g, g•lam=lam) → lam = 0` via `Nat.card_eq_one_iff_unique` (reuse its final
+`⟨⟨…Subtype.ext…⟩, ⟨⟨0, fun c => smul_zero c⟩⟩⟩` verbatim), and derives the pointwise invariance
+`hinv : lam (c • a) = lam a` the same way. Only the *simplicity* step is replaced by `lemma_7_1_dual`:
+1. `by_contra hlamne` (so `lam ≠ 0`).
+2. Membership `hmem : ∀ k : ↥Blk.K, RF.piB k.1 ∈ RF.MB` from `RF.MB_eq ▸ Subgroup.mem_map.mpr ⟨k.1, k.2, rfl⟩`
+   (recall `(En.radData l h).M = RF.MB` defeq).
+3. The hom `φ : ↥Blk.K →* Multiplicative (ZMod 2)`, `φ k = ofAdd (lam (ofMul ⟨RF.piB k.1, hmem k⟩))`
+   (`map_one'`/`map_mul'` from `lam.map_add` + `RF.piB.map_mul`). `X := φ.ker.map Blk.K.subtype : Subgroup Y`.
+4. `Blk.R ≤ X`: for `r ∈ Blk.R ⊆ Blk.K` (`frattiniLike_le`), `RF.piB r = 1` (`RF.ker_piB`), so
+   `φ ⟨r,_⟩ = ofAdd (lam 0) = 1` ⟹ `r ∈ X`.  `X ≤ Blk.K`: by construction.
+5. `(X.subgroupOf Blk.K).index = 2`: `X.subgroupOf Blk.K = φ.ker`; `φ` is onto (`lam ≠ 0` and
+   `↥Blk.K ↠ M_B` onto, so `φ ≠ 1`, a hom onto order-2 `Multiplicative (ZMod 2)`), so
+   `[Blk.K : φ.ker] = 2` (`Subgroup.index_ker` + `Nat.card (Multiplicative (ZMod 2)) = 2`).
+6. `X.Normal`: for `y : Y`, `x ∈ X` (so `RF.piB x`-value killed by `lam`), `y*x*y⁻¹ ∈ Blk.K` (K normal);
+   `φ ⟨y x y⁻¹,_⟩ = lam (ofMul ⟨RF.piB(y)·RF.piB(x)·RF.piB(y)⁻¹, _⟩) = lam (c_y • ⟨RF.piB x,_⟩)`
+   (via `conj_eq_of_mk_eq_M`, `c_y := mk (RF.piB y)`) `= lam ⟨RF.piB x,_⟩ = 0` (`hinv` with `c_y`).
+   So `y*x*y⁻¹ ∈ X`.
+7. `exact lemma_7_1_dual Blk ⟨X, ‹X.Normal›, ‹Blk.R ≤ X›, ‹X ≤ Blk.K›, ‹index = 2›⟩`.
 
 ### Step 5 — assemble
 `#MLifts = #Z¹ = |M_B|² · 1 = |M_B|²`. Chain Steps 2, 3, 4.
