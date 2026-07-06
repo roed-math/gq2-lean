@@ -127,6 +127,8 @@ the reduction that assembles them:
 | `IsEquivariantFactorSet.comap` | **pullback** along an equivariant `i : V →+ W` | eq. (77) |
 | `IsEquivariantFactorSet.comapHom` | **pullback along a group hom** `π : C →* D` with `c • v = π c • v` (`m_c := m_{π c}`) — reduction to the faithful tame image | "let `H = H_V` be the faithful tame image" |
 | `kappa0_exists_of_split` | split embedding + known `datW` for `q_W` with `q_W∘i = q` ⟹ datum for `q` | Lemma 6.3 reduction |
+| `exists_biadditive_refinement` | a char-2 `IsQuadraticFp2` form is the diagonal of a biadditive `f` (via Mathlib `QuadraticMap.toBilin`) | upper-triangular companion |
+| **`kappa0_exists_of_odd`** | **`Odd \|H\|` ⟹ datum exists** (`m=0`), by averaging `f₀` over `H` — the entire unramified case | Lemma 6.3, odd/unramified branch |
 
 `kappa0_exists_of_split` is the **honest, true, closeable** form of the reduction:
 
@@ -174,14 +176,17 @@ as the named interface, with **the paper's own Lemma 6.3 hypotheses** added — 
 0. **Faithful-image reduction** — pass along `htame`'s `π` via `IsEquivariantFactorSet.comapHom`
    (✓ proved), then quotient `H` by the action kernel (tame-generation and `q`-invariance
    survive; simplicity transports by surjectivity).  Routine; part of e1.
-1. **P-17e1 — split embedding** `i : V →+ 𝔽₂[H_V]^N` equivariant with retraction: *unramified*
-   branch (`t̄` acts trivially ⟹ `H_V` cyclic ⟹ **odd**, via the central-involution argument
-   already packaged in `TameSimple.central_pow2_smul_trivial`; then Maschke).  *Ramified*
-   branch = **Lemma 6.11** (projectivity of simple ramified tame modules; `H_V` has cyclic
-   Sylow-2) — the long pole.  Note: an alternative closes the *unramified* branch without any
-   embedding: for odd `H_V`, split `1 → V^∨ → E' → H_V → 1` directly by Schur–Zassenhaus
-   (`Subgroup.exists_right_complement'_of_coprime`, already used at P-17b1) and read `m` off the
-   complement; worth doing first as it may cover a large share of the induction's blocks.
+1. **P-17e1 — split embedding.**  ✅ **UNRAMIFIED BRANCH DONE** (`kappa0_exists_of_odd`, std-3):
+   the odd case needs *no embedding, Maschke, orbit data, or Schur–Zassenhaus on an extension
+   group* — just **average the bilinear form**.  Given any refinement `f₀` of `q`
+   (`exists_biadditive_refinement`, itself a short wrap of Mathlib's `QuadraticMap.toBilin`),
+   `f(v,w) := ∑_{h∈H} f₀(h•v, h•w)` is `H`-invariant (reindex `h ↦ h·g`) and biadditive, with
+   diagonal `∑_h q(h•v) = |H|·q(v) = q(v)` because `|H|` is odd (`= 1` in `𝔽₂`); `m = 0`.  This is
+   the vanishing of `H²(odd, 2-torsion)` in elementary averaged-cochain form, and it is *cleaner*
+   than the originally-planned SZ/Maschke route.  **Remaining = the ramified branch (P-17e1r):**
+   `H_V` has a nontrivial 2-part, averaging fails, and one needs the split embedding
+   `V ↪ 𝔽₂[H_V]^N` via **Lemma 6.11** (projectivity of simple ramified tame modules, cyclic
+   Sylow-2) — the long pole, feeding `kappa0_exists_of_split` with the orbit data below.
 2. **P-17e2 — orbit data**: `squareOrbitDatum`/`freeOrbitDatum` are `IsEquivariantFactorSet`
    for their square maps — reduce via `isEquivariantFactorSet_of_biadditive_invariant` (✓) to
    biadditivity + invariance of `∑ᶠ h, x h * y h` (finsum reindex along `Equiv.mulLeft`,
