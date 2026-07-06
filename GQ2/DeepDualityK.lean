@@ -75,4 +75,88 @@ theorem smul_muN_two_trivial_ker (g : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2
 
 end KernelBundle
 
+section CoefficientBridge
+
+-- probe: the kernel's action on `ZMod 2` is definitionally trivial
+example (g : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) (a : ZMod 2) : g • a = a := rfl
+
+/-- **The coefficient bridge** `𝔽₂ ≃+ Hom(𝔽₂, μ₂)`: `a ↦ (m ↦ μ₂-lift of a·m)`.  Feeds
+`H1congr` to move `H¹(G_K, 𝔽₂)`-classes into the duality bundle's `MuDual`-slot. -/
+noncomputable def zmodMuDualEquiv : ZMod 2 ≃+ MuDual 2 (ZMod 2) where
+  toFun a :=
+    (LocalLiftingDuality.muNTwoEquiv.symm.toAddMonoidHom.comp
+      (AddMonoidHom.mk' (fun m => a * m) (fun x y => mul_add a x y)) : ZMod 2 →+ MuN 2)
+  invFun φ := LocalLiftingDuality.muNTwoEquiv (φ 1)
+  left_inv a := by
+    show LocalLiftingDuality.muNTwoEquiv (LocalLiftingDuality.muNTwoEquiv.symm (a * 1)) = a
+    rw [AddEquiv.apply_symm_apply, mul_one]
+  right_inv φ := by
+    refine MuDual.ext 2 (ZMod 2) (fun m => ?_)
+    show LocalLiftingDuality.muNTwoEquiv.symm (LocalLiftingDuality.muNTwoEquiv (φ 1) * m) = φ m
+    have hz : ∀ b : ZMod 2, b = 0 ∨ b = 1 := by decide
+    rcases hz m with rfl | rfl
+    · rw [mul_zero, map_zero, map_zero]
+    · rw [mul_one, AddEquiv.symm_apply_apply]
+  map_add' a b := by
+    refine MuDual.ext 2 (ZMod 2) (fun m => ?_)
+    show LocalLiftingDuality.muNTwoEquiv.symm ((a + b) * m)
+      = (LocalLiftingDuality.muNTwoEquiv.symm (a * m) + LocalLiftingDuality.muNTwoEquiv.symm (b * m))
+    rw [add_mul, map_add]
+
+/-- Equivariance of the coefficient bridge (both sides carry trivial `↥(ker ρ)`-actions:
+`𝔽₂` definitionally, the `μ₂`-dual by `smul_muN_two_trivial_ker`). -/
+theorem zmodMuDualEquiv_equivariant (g : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
+    (a : ZMod 2) : zmodMuDualEquiv (g • a) = g • zmodMuDualEquiv a := by
+  have htriv : g • zmodMuDualEquiv a = zmodMuDualEquiv a := by
+    refine MuDual.ext 2 (ZMod 2) (fun m => ?_)
+    rw [muDual_smul_apply]
+    rw [smul_muN_two_trivial_ker]
+    rfl
+  rw [htriv]
+  rfl
+
+end CoefficientBridge
+
+section Pairing
+
+variable [Finite C]
+
+/-- **The K-level Tate pairing** on `M = H¹(G_K, 𝔽₂)`: transport the left argument through the
+coefficient bridge, cup with the evaluation pairing, and read off through the invariant map of
+`tateDualityK` — `B(x, y) := inv_K (x′ ∪ y)`. -/
+noncomputable def pairingK :
+    H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)
+      →+ H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) →+ ZMod 2 where
+  toFun x :=
+    (tateDualityK ρ).inv.toAddMonoidHom.comp
+      ((cup11 (muDualPairing 2 (ZMod 2)) (muDualPairing_equivariant 2 (ZMod 2)))
+        (H1congr zmodMuDualEquiv (zmodMuDualEquiv_equivariant ρ) x))
+  map_zero' := by
+    rw [map_zero, map_zero, AddMonoidHom.comp_zero]
+  map_add' x y := by
+    rw [map_add, map_add, AddMonoidHom.comp_add]
+
+/-- **(H2) Nondegeneracy of the K-level pairing** — the `(1,1)`-perfectness clause of the
+base-generalized B6 at `G_K`: a class pairing trivially with everything is zero. -/
+theorem pairingK_nondeg (x : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))
+    (hx : ∀ y, pairingK ρ x y = 0) : x = 0 := by
+  have hperf := (tateDualityK ρ).perfect11 (ZMod 2) (by decide)
+  have h0 : (tateDualityK ρ).inv.toAddMonoidHom.comp
+      ((cup11 (muDualPairing 2 (ZMod 2)) (muDualPairing_equivariant 2 (ZMod 2)))
+        (H1congr zmodMuDualEquiv (zmodMuDualEquiv_equivariant ρ) x))
+      = (tateDualityK ρ).inv.toAddMonoidHom.comp
+        ((cup11 (muDualPairing 2 (ZMod 2)) (muDualPairing_equivariant 2 (ZMod 2)))
+          (0 : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuDual 2 (ZMod 2)))) := by
+    ext y
+    have := hx y
+    rw [map_zero, AddMonoidHom.comp_zero]
+    exact this
+  have hinj := hperf.1 h0
+  have : x = (H1congr zmodMuDualEquiv (zmodMuDualEquiv_equivariant ρ)).symm
+      ((H1congr zmodMuDualEquiv (zmodMuDualEquiv_equivariant ρ)) x) :=
+    (AddEquiv.symm_apply_apply _ x).symm
+  rw [this, hinj, map_zero]
+
+end Pairing
+
 end GQ2
