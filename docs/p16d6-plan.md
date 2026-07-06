@@ -32,22 +32,39 @@
 * ✅ **`zBC_eq_sum_centralOver`** (std-3, sorry-free) — the **`zBC` fibration** `zBC = Σᶠ_ρ
   #CentralOver(ρ)` (extracted from `half139_of`), the shared first step of both (139) and (140).
   Discharges **level 1** of the phase-module's `hfib`: `zBC = Σ_ρ #CentralOver = Σ_ρ μ·M_ρ = μ·M`.
+* ✅ **`central_card_eq_reductions_mul_tcocycle`** (std-3, sorry-free) — **`hfib` level 2**, the
+  per-ρ **μ-partition** at the `MLifts` level: `#{central M-lifts of ρ} = M_ρ · #Z¹(T)`, where
+  `M_ρ = #(achievable central `T`-reductions)`.  Proof: corestrict `redT` to its finite range,
+  `Equiv.sigmaFiberEquiv` + `Nat.card_sigma`, each fibre `= #Z¹(T)` by `lemma_8_7_count` (via
+  `subtypeSubtypeEquivSubtypeInter`), sum the constant.  The fibre-bundle-with-central-basepoint
+  count — done.
+* ✅ **`centralOver_card_eq_reductions_mul_tcocycle`** (std-3, sorry-free) — the same in bridge
+  vocabulary, transported through `centralOver_equiv`: `#CentralOver(ρ) = M_ρ · #Z¹(T)` for
+  `ρ' = rhoPrime …`.
+* ✅ **`zBC_eq_mu_mul_reductionCount`** (std-3, sorry-free) — **the (140) `hfib` datum**, reduced
+  to μ-independence: summing the per-ρ partition over the `C`-image and factoring out `μ` gives
+  `zBC = μ · (Σ_ρ M_ρ)` from the single hypothesis `hμ : ∀ ρ, #Z¹(T)_{ρ'} = μ`.  This IS the
+  `hfib` argument of `phase140_ofPhaseData`.
 
 ### The phase-module core that remains (the deep O-half)
 
-With the reducer layer complete, `hfib`/`hgauss` reduce to (for the concrete frame, in the descent
-case where `Descent (En.radData l h)` holds):
+**`hfib` is now fully reduced** to μ-independence (`zBC_eq_mu_mul_reductionCount`).  With the
+whole reducer layer complete, closing (140) needs (for the concrete frame, descent case
+`Descent (En.radData l h)`):
 
-* **`hfib` level 2** — the per-ρ **μ-partition** `#CentralOver(ρ) = #(TCocycle D ρ') · M_ρ`
-  (`centralOver_equiv` + `lemma_8_7_count`, which each `redT`-fibre = `#TCocycle`, over the finite
-  image); then **μ-independence** `#(TCocycle D ρ') = μ` (a source/5.15-5.16 fact) to factor `μ` out
-  of `Σ_ρ μ_ρ·M_ρ`.  Intricate: a fibre-bundle count with a per-fibre central basepoint (choice).
+* **μ-independence** `hμ : ∀ ρ, #(TCocycle D ρ') = μ` — the source **5.15/5.16** fact that the
+  crossed `Z¹_{Γ,ρ}(T)` count is the same for every lower map `ρ` (the ρ-twisted conjugation
+  actions on `T` all give the same cohomology count).  Genuinely a source input — the
+  `redT`-fibre count `#Z¹(T)` is `ρ`-dependent a priori.
 * **`hgauss`** — `lemma_8_5` on `W =` the `V`-lift space, `Q = En.qbar`, `a_χ` from
   `exists_polar_inverse`, plus the phase-cover↔character reindex `Σ_χ sign(…) = Σ_ζ(2·nPhase − e)`
-  — the same `Δ`/`phase` that **defines the witness** `(μ,G0,DT,phase)`.
+  — the same `Δ`/`phase` that **defines the witness** `(μ,G0,DT,phase)`.  Here `M = Σ_ρ M_ρ` (the
+  reduction count of `zBC_eq_mu_mul_reductionCount`) is the constrained quadratic count and
+  `#{central-liftable T-reductions} = N(κ_ρ,ε_ρ)` is the (135)/Prop 8.8 identity.
 
-These are the genuinely deep, source-coupled core (not clean reducers) and are best done as a
-dedicated `(140) phase-module` pass with full context.
+`hgauss` + the witness are one build (source/concrete-coupled); μ-independence is a source fact.
+These are the genuinely deep O-half (not clean reducers) — a dedicated `(140) phase-module` pass.
+The (140) chain is now **`phase140` ⟸ `hμ` + `hgauss` + witness**, all three isolated.
 
 **`prop_8_9` is NOT closed** — it stays `sorry`; the three per-source inputs + the witness are
 blocked (below).  The final splice `exact prop_8_9_of …` into `SectionEight.lean` is a trivial edit,
