@@ -149,6 +149,89 @@ theorem phase140_ofPhaseData {Γ : Type} [Group Γ] [TopologicalSpace Γ] {Y : T
   rw [hz]
   linear_combination (μ : ℤ) * hgauss
 
+/-! ## `hfib` level 2 — the per-`ρ` μ-partition of the central `M`-lifts -/
+
+open AffineTLift CentralObstruction in
+/-- **The per-`ρ` μ-partition** (P-16d6, `hfib` level 2): in the zero-edge regime the central
+`M`-lifts of a lower map `ρ` split into the fibres of the `T`-reduction map `red_T`, and each
+(nonempty) fibre is a free `Z¹_{Γ,ρ}(T)`-torsor of size `μ = #Z¹(T)` (`lemma_8_7_count`,
+`Central` constant by `central_twist_iff`).  Hence the central-lift count factors as
+`(#achievable central `T`-reductions) · μ`.  Summed over the `C`-image `ρ` (via
+`zBC_eq_sum_centralOver`, after transport through `centralOver_equiv`) and combined with the
+μ-independence `#Z¹(T) = μ`, this is the (140) `hfib` datum `zBC = μ·M` fed to
+`phase140_ofPhaseData`; here `M = Σ_ρ #achievable central `T`-reductions` is the constrained
+count of `lemma_8_5`. -/
+theorem central_card_eq_reductions_mul_tcocycle
+    {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
+    {D : RadicalCoverData Bg}
+    {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+    [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+    [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+    (ρ : ContinuousMonoidHom Γ (Bg ⧸ D.M)) (Dsc : Descent D)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤) :
+    Nat.card {f : MLifts D ρ // f.Central}
+      = Nat.card ↥(Set.range (fun f : {f : MLifts D ρ // f.Central} => redT ρ f.1))
+        * Nat.card (TCocycle D ρ) := by
+  classical
+  haveI : Finite (ContinuousMonoidHom Γ Bg) := finite_continuousMonoidHom hfg Bg
+  haveI : Finite (MLifts D ρ) := Subtype.finite
+  haveI : Finite {f : MLifts D ρ // f.Central} := Subtype.finite
+  -- the `T`-reduction map on central lifts, corestricted to its (finite) range
+  set red : {f : MLifts D ρ // f.Central} → (Γ → Bg ⧸ D.T) := fun s => redT ρ s.1 with hred
+  haveI : Fintype ↥(Set.range red) := Fintype.ofFinite _
+  -- fibre `red` over its range and apply `lemma_8_7_count` to each fibre
+  have hfibre : ∀ r : ↥(Set.range red),
+      Nat.card {s : {f : MLifts D ρ // f.Central} //
+        (⟨red s, s, rfl⟩ : ↥(Set.range red)) = r} = Nat.card (TCocycle D ρ) := by
+    intro r
+    obtain ⟨s₀, hs₀⟩ := r.2
+    calc Nat.card {s : {f : MLifts D ρ // f.Central} //
+              (⟨red s, s, rfl⟩ : ↥(Set.range red)) = r}
+        = Nat.card {s : {f : MLifts D ρ // f.Central} // red s = r.1} :=
+          Nat.card_congr (Equiv.subtypeEquivRight fun _ => Subtype.ext_iff)
+      _ = Nat.card {s : {f : MLifts D ρ // f.Central} // red s = red s₀} := by rw [← hs₀]
+      _ = Nat.card {f : MLifts D ρ // f.Central ∧ redT ρ f = redT ρ s₀.1} := by
+          rw [hred]
+          exact Nat.card_congr (Equiv.subtypeSubtypeEquivSubtypeInter (MLifts.Central D)
+            (fun f => redT ρ f = redT ρ s₀.1))
+      _ = Nat.card (TCocycle D ρ) := lemma_8_7_count ρ Dsc htriv s₀.1 s₀.2
+  calc Nat.card {f : MLifts D ρ // f.Central}
+      = Nat.card (Σ r : ↥(Set.range red),
+          {s : {f : MLifts D ρ // f.Central} // (⟨red s, s, rfl⟩ : ↥(Set.range red)) = r}) :=
+        (Nat.card_congr (Equiv.sigmaFiberEquiv
+          (fun s : {f : MLifts D ρ // f.Central} => (⟨red s, s, rfl⟩ : ↥(Set.range red))))).symm
+    _ = ∑ r : ↥(Set.range red), Nat.card {s : {f : MLifts D ρ // f.Central} //
+          (⟨red s, s, rfl⟩ : ↥(Set.range red)) = r} := Nat.card_sigma
+    _ = ∑ _r : ↥(Set.range red), Nat.card (TCocycle D ρ) :=
+        Finset.sum_congr rfl (fun r _ => hfibre r)
+    _ = Nat.card ↥(Set.range red) * Nat.card (TCocycle D ρ) := by
+        rw [Finset.sum_const, Finset.card_univ, smul_eq_mul, ← Nat.card_eq_fintype_card]
+
+open AffineTLift CentralObstruction in
+/-- **The per-`ρ` μ-partition, in bridge vocabulary** (P-16d6): transporting
+`central_card_eq_reductions_mul_tcocycle` through `centralOver_equiv`, the `zBC`-fibre
+`#CentralOver(ρ)` (the summand of `zBC_eq_sum_centralOver`) factors as
+`(#achievable central `T`-reductions of `ρ' = rhoPrime …`) · #Z¹(T)`.  This is the per-fibre form
+of the (140) `hfib` datum: once `#Z¹(T) = μ` is shown `ρ`-independent, summing over `ρ` gives
+`zBC = μ · M` with `M = Σ_ρ #achievable central `T`-reductions` (the `lemma_8_5` count). -/
+theorem centralOver_card_eq_reductions_mul_tcocycle {Γ : Type} [Group Γ] [TopologicalSpace Γ]
+    [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+    [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk)
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (l : RF.DR) (h : l ≠ RF.zeroDR) (D : RadicalCoverData RF.YB) (hD : D.M = RF.MB)
+    (hC : D.C = RF.scalarCover l h) (ρ : BoundaryLifts b F RF.TC) (Dsc : Descent D)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤) :
+    Nat.card (RF.CentralOver b F l h ρ)
+      = Nat.card ↥(Set.range (fun f : {f : MLifts D (RF.rhoPrime b F D hD ρ) // f.Central} =>
+          redT (RF.rhoPrime b F D hD ρ) f.1))
+        * Nat.card (TCocycle D (RF.rhoPrime b F D hD ρ)) := by
+  rw [Nat.card_congr (RF.centralOver_equiv b F l h D hD hC ρ)]
+  exact central_card_eq_reductions_mul_tcocycle (RF.rhoPrime b F D hD ρ) Dsc htriv hfg
+
 end SectionEight
 
 end GQ2
