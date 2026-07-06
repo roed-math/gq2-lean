@@ -232,6 +232,37 @@ theorem centralOver_card_eq_reductions_mul_tcocycle {Γ : Type} [Group Γ] [Topo
   rw [Nat.card_congr (RF.centralOver_equiv b F l h D hD hC ρ)]
   exact central_card_eq_reductions_mul_tcocycle (RF.rhoPrime b F D hD ρ) Dsc htriv hfg
 
+open AffineTLift CentralObstruction in
+/-- **The (140) `hfib` datum, reduced to μ-independence** (P-16d6).  Summing the per-`ρ`
+μ-partition (`centralOver_card_eq_reductions_mul_tcocycle`) over the `C`-image via
+`zBC_eq_sum_centralOver` and factoring out the common `μ` (hypothesis `hμ`: the `T`-cocycle
+count `#Z¹(T)` is `ρ`-independent — the source 5.15/5.16 fact) gives the (140) fibration
+`zBC = μ · M`, with `M = Σ_ρ #achievable central `T`-reductions`.  This is exactly the `hfib`
+argument of `phase140_ofPhaseData`: the (140) fibration is now reduced to the single source
+input `hμ` (and `M` is the `lemma_8_5` constrained count fed to `hgauss`). -/
+theorem zBC_eq_mu_mul_reductionCount {Γ : Type} [Group Γ] [TopologicalSpace Γ]
+    [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+    [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk)
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (l : RF.DR) (h : l ≠ RF.zeroDR) (D : RadicalCoverData RF.YB) (hD : D.M = RF.MB)
+    (hC : D.C = RF.scalarCover l h) (Dsc : Descent D)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤) (μ : ℕ)
+    (hμ : ∀ ρ : BoundaryLifts b F RF.TC, Nat.card (TCocycle D (RF.rhoPrime b F D hD ρ)) = μ) :
+    RF.zBC b F l h = μ * ∑ᶠ ρ : BoundaryLifts b F RF.TC,
+      Nat.card ↥(Set.range (fun f : {f : MLifts D (RF.rhoPrime b F D hD ρ) // f.Central} =>
+        redT (RF.rhoPrime b F D hD ρ) f.1)) := by
+  classical
+  haveI : Finite (BoundaryLifts b F RF.TC) := finite_boundaryLifts b F RF.TC hfg
+  haveI : Fintype (BoundaryLifts b F RF.TC) := Fintype.ofFinite _
+  rw [zBC_eq_sum_centralOver RF b F hfg l h, finsum_eq_sum_of_fintype, finsum_eq_sum_of_fintype,
+    Finset.mul_sum]
+  exact Finset.sum_congr rfl fun ρ _ => by
+    rw [centralOver_card_eq_reductions_mul_tcocycle RF b F l h D hD hC ρ Dsc htriv hfg, hμ ρ]
+    exact mul_comm _ _
+
 end SectionEight
 
 end GQ2
