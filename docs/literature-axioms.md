@@ -147,7 +147,7 @@ not yet to hand.
   but not the specific local Artin map `ℚ₂ˣ → G^{ab}`; `LocalCFT/` is early).
 - **Used at.** Lemma 3.5 (marked abelianization, orientation, initial form).
 
-### B6. Local Tate duality  🟡 schematic
+### B6. Local Tate duality  🟡 schematic  *(base-generalized to all finite `k/ℚ₂`, 2026-07-06)*
 - **Statement.** For a `p`-adic local field `K` and a finite `G_K`-module `M` (with `M' = Hom(M,μ)`
   the Tate dual), the cup product `H^i(G_K,M) × H^{2-i}(G_K,M') → H²(G_K,μ) ≅ ℚ/ℤ` is a perfect
   pairing of finite groups, for `i = 0,1,2`.
@@ -156,10 +156,25 @@ not yet to hand.
   the cup product `H^i(k,A₀) × H^{2-i}(k,A) → H^2(k,μ) ≅ ℚ/ℤ` induces isomorphisms of finite abelian
   groups `H^i(k,A₀) ≅ H^{2-i}(k,A)*` for `0 ≤ i ≤ 2`. Also **Serre, *Galois Cohomology*, Ch. II §5.2,
   Theorem 2** `[✓ verified in the provided source]` (same cup-product duality; "due to Tate"); Milne,
-  *ADT*, Ch. I, Thm I.2.1. Original: Tate.
-- **Lean.** Schematic (needs continuous Galois cohomology of the profinite `G_K` and the cup-product
-  pairing; Mathlib/CFT have finite-group `H^i` via `Rep R G` but not the continuous duality package).
-- **Used at.** §5 (the three-term duality complex, Lemmas 5.11/5.13) and §9.2.
+  *ADT*, Ch. I, Thm I.2.1. Original: Tate.  **The citation is already stated for arbitrary `p`-adic
+  `k`** — the Lean encoding was `ℚ₂`-only and is now base-generalized to match (below).
+- **Lean.** The bundle `TateDualityAt G n` over a group `G` realized as a finite-index (open) local
+  Galois subgroup of `G_ℚ₂` (`inv : H²(G,μₙ) ≅ ℤ/n`, the three degree-pair perfectness clauses);
+  axiom `GQ2.tateDualityAt` quantifies over such `G`, gated by a witness `G ↪ G_ℚ₂` of finite index
+  (identity for `G = G_ℚ₂`, subgroup inclusion for `G = G_K`).  The old `ℚ₂`-only
+  `GQ2.tateDuality : TateDuality n` is now an in-repo `def` = the `G = G_ℚ₂` member (no consumer
+  churn: `TateDuality n := TateDualityAt G_ℚ₂ n`).  **Census unchanged** — one axiom, base-generalized
+  in place (the B9/B11 2026-07-03 pattern).  (Same continuous-cohomology encoding decisions as before;
+  Mathlib/CFT lack the continuous duality package, so the perfectness is still asserted, not derived.)
+- **Induced Hilbert pairing** (the symbol-side content used by the K-level consumer): at `n=2`,
+  `B := inv_K ∘ cup` is the mod-2 Hilbert pairing on `K^×/2 ≅ H¹(G_K,𝔽₂)`; its **nondegeneracy** is
+  **FV [11] Ch. IV §5 Prop (5.1)(6) + Corollary p.145** and **Theorem (5.2)** (perp-biduality
+  `A = A^⊥⊥ = N_{L/K}L^×`) `[✓ verified 2026-07-06]`, independently **O'Meara [O] ITQF 63:13**
+  `[✓]`, and Serre LF **XIV §1 Prop 3 Corollary** `[✓]`; bilinearity/Galois-equivariance are
+  (5.1)(1)/(9).
+- **Used at.** §5 (the three-term duality complex, Lemmas 5.11/5.13), §9.2, and **§6.3 P-15f7**
+  (the `(1,1)` pairing at `G_K = ker ρ` is the invariant nondegenerate `B` of
+  `GQ2.card_equivHoms_deep_eq_quot`, `GQ2/DeepDuality.lean`; proposal `docs/p15f7-axiom-proposal.md`).
 
 ### B7. Local Euler–Poincaré characteristic  🟡 schematic
 - **Statement.** For `K` `p`-adic and finite `G_K`-module `M`,
@@ -314,7 +329,7 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 | B3  Demushkin classification | **Labute [2] Thm 8** (`D₀` at `d=1`) & **Thm 4 case (2)** | ✅ **verified** | 🟡 |
 | B4  `G_ℚ₂(2)` is rank-3 Demushkin | **NSW (7.5.11)(ii)** (rank `N+2=3`); Serre [3]; Labute [2] | ✅ **verified** | ✅ axiom |
 | B5  local reciprocity for `ℚ₂` | **NSW (7.1.1)/(7.1.5)** (class formation); Serre *LF* XI–XII | ✅ **verified** | 🟡 |
-| B6  local Tate duality | **NSW (7.2.6) "Tate Duality"**; Serre *GC* II §5.2; Milne I.2.1 | ✅ **verified** | 🟡 |
+| B6  local Tate duality (all finite `k/ℚ₂`) | **NSW (7.2.6) "Tate Duality"**; Serre *GC* II §5.2; Milne I.2.1; induced Hilbert nondeg.: **FV IV §5 (5.1)(6)/(5.2)**, O'Meara **63:13** | ✅ **verified** | 🟡 |
 | B7  local Euler characteristic | **NSW (7.3.1) (Tate)** `χ=‖a‖`; Serre *GC* II §5.7; Milne I.2.8 | ✅ **verified** | 🟡 |
 | B7′ dyadic Hilbert symbol | **Serre *Course in Arithmetic* Ch. III §1.2 Thm 1** (`ε,ω`: Ch. II §3.3) | ✅ **verified** | 🟡 |
 | B8  Galois action on `π₁(ℙ¹∖{0,1,∞})` | **Stix [8] §3.3 + Def 37** (Deligne MSRI 16: classical origin) | ✅ **verified** | ✅ axiom (bundle) |
@@ -342,7 +357,11 @@ Stiefel–Whitney/Evens classes, étale `π₁`) before they can be stated faith
   top. f.g.) and **(7.5.11)**.
 - **B4** — NSW **(7.5.11)(ii)** (`μ_p⊆k ⇒ G_k(p)` Demushkin of rank `N+2`); for `ℚ₂`, rank `3`.
 - **B5** — NSW **(7.1.1)** Class Field Axiom, **(7.1.5)** `(G_k,k̄ˣ)` is a class formation.
-- **B6** — NSW **(7.2.6)** "Tate Duality" (exact cup-product pairing verified verbatim).
+- **B6** — NSW **(7.2.6)** "Tate Duality" (exact cup-product pairing verified verbatim; the
+  theorem is stated there for arbitrary `p`-adic `k`, so the 2026-07-06 base-generalization of the
+  Lean encoding to all finite `k/ℚ₂` is census-neutral).  Induced mod-2 Hilbert-pairing
+  nondegeneracy (the K-level P-15f7 consumer): **FV Ch. IV §5 Prop (5.1)(6) + Cor. p.145 + Thm
+  (5.2)** and **O'Meara ITQF 63:13** `[both ✓ verified 2026-07-06]`.
 - **B7** — NSW **(7.3.1)** (Tate): `χ(k,A)=‖a‖_k` (verified verbatim).
 - **B7′** — Serre, *Course in Arithmetic*, **Ch. III §1.2 Thm 1** — the `p=2` formula
   `(a,b)=(-1)^{ε(u)ε(v)+αω(v)+βω(u)}` and `ε,ω` (Ch. II §3.3) verified verbatim (= paper Lemma 3.5).

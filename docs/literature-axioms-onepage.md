@@ -14,7 +14,7 @@ Lemma 2.5's only classical input is *proved* in the formalization (see foot); eq
 | B3 | Demushkin classification; `G_ℚ₂(2) ≅ ⟨A,S,Y \| A²S⁴[S,Y]=1⟩` | Labute **Thm 8** (`d=1`), **Thm 4 case (2)** | ✓ |
 | B4 | `G_ℚ₂(2)` is a Demushkin group of rank `3` (`q=2`) | NSW **(7.5.11)(ii)** | ✓ |
 | B5 | local reciprocity: `(G_k, k̄ˣ)` is a class formation | NSW **(7.1.1)**, **(7.1.5)** | ✓ |
-| B6 | local Tate duality: `H^i(k,A)×H^{2-i}(k,A′) → ℚ/ℤ` perfect (`0≤i≤2`) | NSW **(7.2.6)**; Serre *GC* **II §5.2 Thm 2** | ✓✓ |
+| B6 | local Tate duality (**every finite `k/ℚ₂`**): `H^i(k,A)×H^{2-i}(k,A′) → ℚ/ℤ` perfect (`0≤i≤2`) | NSW **(7.2.6)**; Serre *GC* **II §5.2 Thm 2**; Hilbert nondeg. FV **IV §5 (5.1)(6)/(5.2)**, O'Meara **63:13** | ✓✓ |
 | B7 | local Euler characteristic: `χ(A) = ‖#A‖_k` | NSW **(7.3.1)**; Serre *GC* **II §5.7 Thm 5** | ✓✓ |
 | B7′ | dyadic Hilbert symbol `(2^α u, 2^β v)₂ = (-1)^{ε(u)ε(v)+αω(v)+βω(u)}` | Serre, *Course in Arithmetic*, **III §1.2 Thm 1** | ✓ |
 | B8 | Galois action on `π₁^{(2)}(ℙ¹∖{0,1,∞})`: cyclotomic on peripheral inertia | Stix **[8] §3.3 + Def 37** | ✓ |
