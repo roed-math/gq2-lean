@@ -451,6 +451,29 @@ theorem phase140_of_nonsingular {Γ : Type} [Group Γ] [TopologicalSpace Γ]
     Lin hLin Q (polarInverseL Q hquad hns Lin)
     (fun χ v => polarInverseL_spec Q hquad hns Lin χ v) κ ε hμ hM hDT hWV hG0 hphase
 
+/-- **The `|V| = |M_B|/|T_B|` match** (P-16d6): the enrichment's descent `M_B ↠ V` with
+`ker = T_B` gives `|V| = |M_B|/|T_B|` by the first isomorphism theorem — discharging the `hWV`
+cardinality match of `phase140_of_nonsingular` directly from `En` (with `W := En.Vmod`). -/
+theorem enrichment_card_Vmod {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y]
+    [Finite Y] {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+    (RF : RecursionFrame T Blk) (En : RF.Enrichment) [Finite ↥RF.MB] :
+    Nat.card En.Vmod = Nat.card ↥RF.MB / Nat.card ↥RF.TBsub := by
+  classical
+  have hker_eq : MonoidHom.ker En.descend = RF.TBsub.subgroupOf RF.MB := by
+    ext m
+    rw [MonoidHom.mem_ker, Subgroup.mem_subgroupOf]
+    exact En.descend_ker m
+  have hkercard : Nat.card ↥(MonoidHom.ker En.descend) = Nat.card ↥RF.TBsub := by
+    rw [hker_eq]
+    exact Nat.card_congr (Subgroup.subgroupOfEquivOfLe RF.TBsub_le_MB).toEquiv
+  have hquotcard : Nat.card (↥RF.MB ⧸ MonoidHom.ker En.descend) = Nat.card En.Vmod :=
+    Nat.card_congr
+      (QuotientGroup.quotientKerEquivOfSurjective En.descend En.descend_surj).toEquiv
+  have hMBcard : Nat.card ↥RF.MB
+      = Nat.card (↥RF.MB ⧸ MonoidHom.ker En.descend) * Nat.card ↥(MonoidHom.ker En.descend) :=
+    Subgroup.card_eq_card_quotient_mul_card_subgroup _
+  rw [hMBcard, hquotcard, hkercard, Nat.mul_div_cancel _ Nat.card_pos]
+
 end SectionEight
 
 end GQ2
