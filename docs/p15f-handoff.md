@@ -89,8 +89,18 @@ The connecting count identities (all banked):
 #AdmissibleFam = #H¹(ℚ₂,V)                     -- card_H1_eq_card_fam    (needs hinf/hext)
 #deepPart      = #{deep families}              -- card_deepPart_eq_card_deepFam
 ```
-`hinf`/`hext` are dischargeable: `inflationVanishes_ramifiedTame` + `familiesExtend_of_card_le`
-(both banked; need `hsurj`/`hgen` profinite plumbing).
+`hinf`/`hext` are dischargeable: `inflationVanishes_ramifiedTame` + ~~`familiesExtend_of_card_le`~~
+(need `hsurj`/`hgen` profinite plumbing).  **Update (Opus 2026-07-07, f8 increment 2): `hext` is
+DISCHARGED** — `familiesExtend_of_card_le`'s card bound has no filtration-free producer, so
+`GQ2/ShapiroExtend.lean` proves `FamiliesExtend` **directly** from the `V`-side 6.11 package
+(`familiesExtend_of_package`, std-3): inverse Shapiro at the regular module (the explicit
+coinduced-coefficient extension cocycle out of the family's `ev_{n,1}` seeds, recovered on all
+of `R^∨` by the `conjAct`-bootstrap + `ev`-span) + the retract transfer along the
+`phiRes`/`mapCoeff1` naturality.  Consumer: `DimAssembly.lemma_6_17_dim_of_hduality` (std-3,
+no `sorryAx`) — only f7's `hduality` remains before the statement-move.  NB the carrier is the
+instance-opaque synonym `RegMod C Nr`: the global trivial `G_ℚ₂`-action on `ZMod 2`
+(`SectionSix.lean:70`) lifts pointwise over raw function types and beats proof-local `letI`s —
+a new §5-class gotcha.
 
 ---
 

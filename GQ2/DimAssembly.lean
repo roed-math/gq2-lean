@@ -2,6 +2,7 @@ import GQ2.AdmissibleCount
 import GQ2.DeepDuality
 import GQ2.RegularSummand
 import GQ2.Prop32
+import GQ2.ShapiroExtend
 
 /-!
 # P-15f8 (increment 1): the parametric `lemma_6_17_dim` assembly
@@ -244,6 +245,39 @@ theorem lemma_6_17_dim_of_hext_hduality (B : BoundaryMaps)
       hV2D hfaithD hsimpleD hramD
   exact card_deepPart_sq_of_duality ρ hρ hV2 hρsurj hinf hext ι r
     (fun h φ n x => hι h φ n x) (fun h F => hr h F) hri hduality
+
+/-- **`lemma_6_17_dim`, parametric over `hduality` alone** (P-15f8, increment 2): the `hext`
+parameter of `lemma_6_17_dim_of_hext_hduality` is now **discharged** — the `V`-side
+regular-summand package (`lemma_6_11_of_tame_pair` at `V` itself, whose hypotheses are the
+theorem's own) feeds `ShapiroExtend.familiesExtend_of_package` (inverse Shapiro at the regular
+module + the retract transfer).  The single remaining parameter is P-15f7's `hduality`. -/
+theorem lemma_6_17_dim_of_hduality (B : BoundaryMaps)
+    (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
+    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (hV2 : ∀ v : V, v + v = 0)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, c tameTau • v ≠ v)
+    [Finite (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))]
+    (hduality :
+      letI := conjModuleDeep ρ (rho_surjective B c hc ρ hfac)
+      letI := conjModuleQuot ρ (rho_surjective B c hc ρ hfac)
+      letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+      Nat.card ↥(equivHoms C (V →+ ZMod 2)
+          ↥(deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)))
+        = Nat.card ↥(equivHoms C (V →+ ZMod 2)
+            (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) ⧸
+              deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)))) :
+    Nat.card (SectionSix.deepPart (V := V) ρ) ^ 2 = Nat.card (H1 AbsGalQ2 V) := by
+  have hρsurj : Function.Surjective ⇑ρ := rho_surjective B c hc ρ hfac
+  have hgen : Subgroup.closure {c tameSigma, c tameTau} = ⊤ := gen_of_surjective c hc
+  -- the `V`-side regular-summand package discharges `hext`
+  obtain ⟨NregV, ιV, rV, hιV, hrV, hriV⟩ :=
+    lemma_6_11_of_tame_pair (V := V) hgen (tame_rel_image c) hV2 hfaith hsimple hram
+  have hext : FamiliesExtend (V := V) ρ :=
+    ShapiroExtend.familiesExtend_of_package hρ hρsurj ιV rV hιV hrV hriV
+  exact lemma_6_17_dim_of_hext_hduality B c hc ρ hfac hρ hV2 hfaith hsimple hram hext hduality
 
 end DimAssembly
 
