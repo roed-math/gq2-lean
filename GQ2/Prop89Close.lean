@@ -30,8 +30,10 @@ original draft (`docs/p16d6e-assembly-plan.md` §1, the authoritative record):
   branch at `blockFrame`/`blockEnrichment`, P-17c/P-17h; general-`RF` (136) is not provable
   — no axioms tie a bare frame's `DR`/`zR`/`mB` to obstruction theory).  Hypothesis-side
   (dischargers recorded in the plan doc §1): `hE2` (P-17a standing), `hfgF` (**B1**, first
-  consumption reserved to P-17i), `hheadA`/`hheadF` (§9 boundary data), `hsimple`/`hfaith`/
-  `hVne` (the block's chief-factor structure, P-17h), `hG0indep` (c3-G0's
+  consumption reserved to P-17i), `hheadA`/`hheadF` (§9 boundary data), `hsimple`/`hVne`/
+  `hnt` (the block's chief-factor structure, P-17h — `hnt` = `SectionNine.blockHnt`; the
+  former `hfaith` was weakened to it at the P-17i coordination flag, 2026-07-08:
+  faithfulness is NOT block-derivable, and only `hnt` was consumed), `hG0indep` (c3-G0's
   `gaussSum_qbar_l_indep_*` at the block's tame package, P-17h).
 * Conclusion strengthened with `0 < Nat.card DT` (P-17i; free — `0 ∈ (T^∨)^C`).
 
@@ -42,9 +44,9 @@ The witness assembly below is **plumbing-complete**: the `hex`-split, the shared
 are the literal frame fields), the `dite`-phase family with its `dif_pos`-reduction
 (`phaseFamily_pos`), the shared `μ = #V·μ₀` value (`muZero`, read at `λ₀` and transported by
 `tcocycle_card_l_indep`), and the two `prop_8_9_aux` splices.  `hRK`/`hR2` are discharged
-internally (`lemma_7_2` at `π := T.piY`, `cH := F.alpha` — the plan-doc ledger), `hfgA`
-internally (`gammaA_topologicallyFinitelyGenerated`), and `hnt` from `hfaith` +
-`[Nontrivial YC]`.
+internally (`lemma_7_2` at `π := T.piY`, `cH := F.alpha` — the plan-doc ledger) and `hfgA`
+internally (`gammaA_topologicallyFinitelyGenerated`); `hnt` is a hypothesis (the block's
+`nontrivial_action`, via `SectionNine.blockHnt`).
 
 **Live**: the `¬hex` branch entirely; both `stageR136` fields; the full local (`G_ℚ₂`)
 input bundle (`half139_local`, `phase140_local` — P-16d6e3 closed); the `Γ_A` `half139`
@@ -195,11 +197,10 @@ theorem prop_8_9 (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
     (hfgF : ∃ s : Finset AbsGalQ2, (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤)
     (hheadA : Function.Surjective (fun γ : GammaA => (F.frameMap (B.bA γ)).1))
     (hheadF : Function.Surjective (fun γ : AbsGalQ2 => (F.frameMap (B.bF γ)).1))
-    [Nontrivial (blockFrameImpl T Blk hE2).YC]
     (hsimple : ∀ W : AddSubgroup En.Vmod,
       (∀ g : (blockFrameImpl T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
-    (hfaith : ∀ g : (blockFrameImpl T Blk hE2).YC, (∀ v : En.Vmod, g • v = v) → g = 1)
     (hVne : ∃ v : En.Vmod, v ≠ 0)
+    (hnt : ∃ (g : (blockFrameImpl T Blk hE2).YC) (v : En.Vmod), g • v ≠ v)
     (G0 : ℤ)
     (hGaussZA : ∀ (l : (blockFrameImpl T Blk hE2).DR)
       (h : l ≠ (blockFrameImpl T Blk hE2).zeroDR), GaussZResidue B.bA F En l h G0)
@@ -225,12 +226,6 @@ theorem prop_8_9 (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
   · -- some `λ ≠ 0` exists: share `DT := (T^∨)^C`, read at a reference `λ₀`
     obtain ⟨l₀, h₀⟩ := hex
     haveI : Fintype ↥(TCharC (En.radData l₀ h₀)) := Fintype.ofFinite _
-    -- `hnt` (the nontrivial-action input of `hZcard_local`): faithfulness + `Nontrivial YC`
-    have hnt : ∃ (g : (blockFrameImpl T Blk hE2).YC) (v : En.Vmod), g • v ≠ v := by
-      obtain ⟨g, hg⟩ := exists_ne (1 : (blockFrameImpl T Blk hE2).YC)
-      refine ⟨g, ?_⟩
-      by_contra hcon
-      exact hg (hfaith g fun v => not_ne_iff.mp (not_exists.mp hcon v))
     refine ⟨Nat.card En.Vmod * muZero En l₀ h₀, G0, ↥(TCharC (En.radData l₀ h₀)),
       inferInstance, phaseFamily En l₀ h₀, card_TCharC_pos En l₀ h₀, ?_, ?_⟩
     · -- the `Γ_A` recursion
@@ -248,7 +243,7 @@ theorem prop_8_9 (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
       · exact half139_local _ B.bF F En hfgF l h hedge
       · -- the landed local (140) at the unpacked descent + the `dif_pos`-reduction
         have h140 := phase140_local B.bF F En l h (descentOf En l h hN) hfgF
-          (muZero En l₀ h₀) G0 hsimple hfaith hVne hnt
+          (muZero En l₀ h₀) G0 hsimple hVne hnt
           (fun ρ => (tcocycle_card_l_indep _ B.bF F En l h l₀ h₀ ρ).trans
             (tcocycle_card_local B.bF F En l₀ h₀ ρ))
           (hGaussZF l h)

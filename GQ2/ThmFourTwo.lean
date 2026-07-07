@@ -266,13 +266,14 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
           have hVne : ∃ v : (SectionNine.blockEnrichment T Blk hE2 F).Vmod, v ≠ 0 := by
             haveI : Nontrivial (SectionNine.blockEnrichment T Blk hE2 F).Vmod := hSimp.1
             exact exists_ne 0
-          -- ⚠ `hfaith` is NOT derivable from the block (a central 2-part of `Y` outside `K`
-          -- centralizes `V` — e.g. `C₂ × (C₃ ⋉ C₂²)`-type blocks); flagged to P-16d6e6/e7:
-          -- weaken `prop_8_9`'s hypothesis to the nontrivial-action form if the internal
-          -- uses permit (the skeleton head only derives `hnt` from it).  Scoped sorry.
-          have hfaith : ∀ g : (blockFrameImpl T Blk hE2).YC,
-              (∀ v : (SectionNine.blockEnrichment T Blk hE2 F).Vmod, g • v = v) → g = 1 := by
-            sorry
+          -- `hnt` (the nontrivial `Y/K`-action on `V`): the block's `nontrivial_action`
+          -- field in the enrichment-module form (`blockHnt`).  The former `hfaith`
+          -- hypothesis was weakened to this at the e6/e7 amendment (2026-07-08) —
+          -- faithfulness is NOT block-derivable (a central 2-part of `Y` outside `K`
+          -- centralizes `V` — e.g. `C₂ × (C₃ ⋉ C₂²)`-type blocks).
+          have hnt : ∃ (g : (blockFrameImpl T Blk hE2).YC)
+              (v : (SectionNine.blockEnrichment T Blk hE2 F).Vmod), g • v ≠ v :=
+            SectionNine.blockHnt T Blk
           -- the Gauss-`Z` residues (P-16d6e4a, in flight; the local value is the (83)
           -- evaluation `∓2^m`, the candidate side may stay on the ledger per the e4a design
           -- fallback).  Scoped sorry.
@@ -290,7 +291,7 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
           -- the closed system (P-16d6)
           obtain ⟨μ, G0', DT, instDT, phase, hDTpos, hA, hF⟩ :=
             SectionEight.prop_8_9 B T Blk hE2 (SectionNine.blockEnrichment T Blk hE2 F) F
-              hfgF hheadA hheadF hsimple hfaith hVne G0 hGaussZA hGaussZF
+              hfgF hheadA hheadF hsimple hVne hnt G0 hGaussZA hGaussZF
           letI := instDT
           -- IH at the `B`-stage ((145b), needs `R ≠ ⊥`)
           have hTB : exactImageCount B.bA F (blockFrameImpl T Blk hE2).TB

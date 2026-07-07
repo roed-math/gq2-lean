@@ -1253,8 +1253,9 @@ end LocalResidues
 /-- **The `RecursionInputs.phase140` field for `G_ℚ₂`** (P-16d6e3 assembly): the source-generic
 `phase140_from_residues` (P-16d6e2) with `htriv`/`hH2` discharged locally and the four per-source
 residues supplied by the lemmas above.  `hGaussZ` is threaded from the P-16d6e4 lane; `μ₀`/`G0` and
-the module-ledger hypotheses (`hsimple`/`hfaith`/`hVne`) are the `prop_8_9` ledger, fed at the
-capstone (`Prop89Close`). -/
+the module-ledger hypotheses (`hsimple`/`hVne`/`hnt`) are the `prop_8_9` ledger, fed at the
+capstone (`Prop89Close`).  (The former dead `_hfaith` parameter was removed at the P-17i
+`hfaith`-weakening amendment, 2026-07-08.) -/
 theorem phase140_local
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
     [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)]
@@ -1264,7 +1265,6 @@ theorem phase140_local
     (μ₀ : ℕ) (G0 : ℤ)
     (hsimple : ∀ W : AddSubgroup En.Vmod,
       (∀ g : RF.YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
-    (_hfaith : ∀ g : RF.YC, (∀ v : En.Vmod, g • v = v) → g = 1)
     (hVne : ∃ v : En.Vmod, v ≠ 0)
     (hnt : ∃ (g : RF.YC) (v : En.Vmod), g • v ≠ v)
     (hμ : ∀ ρ : BoundaryLifts b F RF.TC,

@@ -2,6 +2,7 @@ import GQ2.GaussZReduction
 import GQ2.IotaBridge
 import GQ2.ShapiroLedger
 import GQ2.UnramifiedModel
+import GQ2.DetRamified
 
 /-!
 # P-16d6e4a: the local (83)-evaluation — the `VCocycle ↔ H¹` transport and the pinned Gauss value
@@ -333,9 +334,10 @@ theorem sum_sign_Q0loc_unramified (D : TateDuality 2) (B : BoundaryMaps)
 
 /-- **The pinned local Gauss value, ramified** (P-16d6e4a (D)/(E)):
 `∑ᶠ sign(Q⁰_loc) = +2^m` — `prop_6_18_ramified`'s zero count through `gaussSum_eq`. -/
-theorem sum_sign_Q0loc_ramified (D : TateDuality 2) (B : BoundaryMaps)
+theorem sum_sign_Q0loc_ramified (D : TateDuality 2) (R : LocalReciprocity) (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
+    (horient : TameUnitOrientation R B.tameF)
     (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
     (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
@@ -354,7 +356,7 @@ theorem sum_sign_Q0loc_ramified (D : TateDuality 2) (B : BoundaryMaps)
     rw [DeepPart.card_H1_eq_card_of_simple V D ρ.toMonoidHom hρsurj hρ hsimple (c tameTau)
       ⟨v₀, hv₀⟩ q hq hns hinv hV2, hcard]
   have hzc : zeroCount (Q0loc D dat ρ (V := V)) = 2 ^ (2 * m - 1) + 2 ^ (m - 1) :=
-    DeepPart.prop_6_18_ramified D B c hc ρ hfac hρ hfaith hsimple ⟨v₀, hv₀⟩
+    DetRamified.prop_6_18_ramified D R B c hc ρ hfac horient hρ hfaith hsimple ⟨v₀, hv₀⟩
       q hq hns hinv dat hdat m hm hcard
   rw [finsum_sign_eq D dat ρ _ hzc hH1]
   have e1 : (2 : ℤ) ^ (2 * m) = 2 * 2 ^ (2 * m - 1) := by

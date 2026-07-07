@@ -136,6 +136,37 @@ theorem blockHsimple :
           _ = Additive.ofMul (QuotientGroup.mk p) := by rw [hp]
       rw [hweq]; exact hpWP
 
+/-- **`hnt`: the `Y/K`-action on `V = P/S` is nontrivial** — the enrichment-module form of
+the block's `nontrivial_action` field.  (P-17i coordination, 2026-07-08: `prop_8_9`'s former
+`hfaith` hypothesis is weakened to this — faithfulness is NOT block-derivable (a central
+2-part of `Y` outside `K` centralizes `V`), but the capstone only consumed `hfaith` through
+`hnt`.)  The moving pair is `(⟦y⟧_K, ⟦p⟧_S)`: `⟦y⟧•⟦p⟧ = ⟦p⟧` would put `y p y⁻¹ p⁻¹ ∈ S`
+(conjugating the coset relation by `p`), against `nontrivial_action`. -/
+theorem blockHnt :
+    letI := blockPS_commGroup Blk
+    letI := blockActV Blk
+    ∃ (g : Y ⧸ Blk.K) (v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)), g • v ≠ v := by
+  letI := blockPS_commGroup Blk
+  letI := blockActVY Blk
+  letI := blockActV Blk
+  obtain ⟨y, p, hpP, hys⟩ := Blk.nontrivial_action
+  refine ⟨QuotientGroup.mk' Blk.K y,
+    Additive.ofMul (QuotientGroup.mk (⟨p, hpP⟩ : ↥Blk.P)), fun hcon => hys ?_⟩
+  rw [blockActV_mk' Blk y, blockActVY_mk Blk y ⟨p, hpP⟩] at hcon
+  have h2 : (QuotientGroup.mk (conjHom Blk.P Blk.hP y ⟨p, hpP⟩)
+      : ↥Blk.P ⧸ Blk.S.subgroupOf Blk.P) = QuotientGroup.mk ⟨p, hpP⟩ :=
+    Additive.ofMul.injective hcon
+  have h3 : (conjHom Blk.P Blk.hP y ⟨p, hpP⟩)⁻¹ * ⟨p, hpP⟩ ∈ Blk.S.subgroupOf Blk.P :=
+    (QuotientGroup.eq (s := Blk.S.subgroupOf Blk.P)).mp h2
+  have h4 : (y * p * y⁻¹)⁻¹ * p ∈ Blk.S := Subgroup.mem_subgroupOf.mp h3
+  have h5 : p⁻¹ * (y * p * y⁻¹) ∈ Blk.S := by
+    have h5' := Blk.S.inv_mem h4
+    have heq : ((y * p * y⁻¹)⁻¹ * p)⁻¹ = p⁻¹ * (y * p * y⁻¹) := by group
+    rwa [heq] at h5'
+  have h6 := Blk.hS.conj_mem _ h5 p
+  have heq : p * (p⁻¹ * (y * p * y⁻¹)) * p⁻¹ = y * p * y⁻¹ * p⁻¹ := by group
+  rwa [heq] at h6
+
 /-! ## `htame` : the `Y/K`-action factors through the tame head `H` -/
 
 /-- **`L_Y` acts trivially on `V`**: `L_Y/K` is a normal 2-subgroup of `Y/K` acting on the simple

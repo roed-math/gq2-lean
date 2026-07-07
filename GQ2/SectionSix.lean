@@ -841,57 +841,22 @@ def deepPart (ρ : ContinuousMonoidHom AbsGalQ2 C) : Set (H1 AbsGalQ2 V) :=
           (fun n ↦ Kummer.kummerCocycleFun β (n : AbsGalQ2))
         = H1ofFun ρ.toMonoidHom.ker (fun n ↦ φ ((Quotient.out x).1 (n : AbsGalQ2)))}
 
-/-- **Lemma 6.17 (the deep half is totally singular), dimension clause**: for a ramified module
-(inertia acts nontrivially through the tame lower map), `dim X₊ = ½ dim H¹(ℚ₂, V)` — stated
-multiplicatively: `#X₊² = #H¹`.  [P-14 statement; proof P-15, Ax: B6, B7.]
+/- **Lemma 6.17 (the deep half is totally singular)** — both clauses PROVED downstream, statement
+moved out (P-15f8/f2d, the P-15d/`lemma_6_14` statement-move pattern; sorried stubs removed
+2026-07-08).  The frozen statements are re-homed with their proofs:
 
-**Statement amended (P-15f, flag for P-20)**: added `hc : Function.Surjective ⇑c` (the paper's
-standing §6.3 assumption that `ρ` classifies onto `C`; with `B.tameF_surjective` it makes
-`V^{im ρ} = V^C`, which is the `C`-stable subgroup simplicity kills — same gap as the
-`lemma_6_8` amendment) and `hV2` (`V` is an `𝔽₂[C]`-module in the paper; not derivable here
-since this clause carries no `#V = 2^{2m}` hypothesis).
+* dimension clause `#X₊² = #H¹` — **`GQ2.ResidueLift.lemma_6_17_dim_final`** (P-15f8, std-3 +
+  {B6, B7, B11a, B12, B13}); the graded self-duality count assembled off f5/f6/f7 with the
+  residue-trivial tame lift proved in-repo (no residue-field axiom).
+* vanishing clause `Q⁰_loc|X₊ = 0` — **`GQ2.VanishClose.lemma_6_17_vanish_final`** (P-15f2d,
+  std-3 + {B9, B11a, B11b, B13}); the §6.2 orbit decomposition + §6.3 deepness through the
+  regular embedding, amended (P-20 flag) with the reciprocity datum `(R, horient)` its
+  involution `hunram` requires.
 
-**Statement amended again (P-15f1, flag for P-20, user-approved 2026-07-05)**: added the
-invariant-form package `(q, hq, hns, hinv)` — the §6.3 standing assumption *"let q be the
-invariant nonsingular quadratic form under consideration"*, whose polar makes `V`
-**self-dual**.  Without it the statement is FALSE: `H_V = C₇⋊C₃` acting on `V = 𝔽₈`
-satisfies every other hypothesis but has `#H¹ = 8`, not a perfect square (and
-`#V = 2^{2m}` would not repair it: `C₁₅⋊C₄` on `𝔽₁₆` has `dim X₊ = 1 ≠ 2`).  The paper's
-proof uses self-duality for the equal `V`-isotypic multiplicities in dual depth pairs.
-Counterexamples and route analysis: `docs/p15f1-scoping.md`. -/
-theorem lemma_6_17_dim (B : BoundaryMaps) (c : ContinuousMonoidHom Ttame C)
-    (hc : Function.Surjective ⇑c)
-    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
-    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
-    (hV2 : ∀ v : V, v + v = 0)
-    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
-    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
-    (hram : ∃ v : V, c tameTau • v ≠ v)
-    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
-    (hinv : IsInvariant C q) :
-    Nat.card (deepPart (V := V) ρ) ^ 2 = Nat.card (H1 AbsGalQ2 V) := by
-  sorry
-
-/-- **Lemma 6.17, vanishing clause**: the base connecting map `Q⁰_loc` vanishes on the deep
-half `X₊` (free orbits die by (94), square orbits by `−1 ∈ U_e`, involution orbits by
-Lemma 6.16 through Lemmas 6.14/6.15).  [P-14 statement; proof P-15, Ax: B6, B7′, B9.]
-
-**Statement amended (P-15f, flag for P-20)**: added `hc` and `hV2` — same §6.3 standing
-assumptions as `lemma_6_17_dim` (the orbit analysis runs over the splitting field
-`K = ℚ̄₂^{ker ρ}` with `Gal(K/ℚ₂) ≅ C`, which needs `ρ` onto `C`). -/
-theorem lemma_6_17_vanish (D : TateDuality 2) (B : BoundaryMaps)
-    (c : ContinuousMonoidHom Ttame C)
-    (hc : Function.Surjective ⇑c)
-    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
-    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
-    (hV2 : ∀ v : V, v + v = 0)
-    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
-    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
-    (hram : ∃ v : V, c tameTau • v ≠ v)
-    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
-    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat) :
-    ∀ x ∈ deepPart (V := V) ρ, Q0loc D dat ρ x = 0 := by
-  sorry
+Their sole consumer `prop_6_18_ramified` is re-homed to **`GQ2.DetRamified`** (downstream of both
+proofs) and cited from there.  The amendments (`hc`, `hV2`, the invariant-form package
+`(q, hq, hns, hinv)`, and `(R, horient)` on the vanish side) travel with the moved statements;
+route analysis / counterexamples: `docs/p15f1-scoping.md`, `docs/p15f2-handoff.md`. -/
 
 /- **Proposition 6.18 (dyadic base determinant theorem), eq. (115), ramified case**: the local
 base determinant form has the positive Gauss sign,

@@ -1,0 +1,81 @@
+import GQ2.VanishClose
+
+/-!
+# P-15f2d/f8 statement-move: the ramified base determinant theorem, wired
+
+The two §6.3 Kummer cores `lemma_6_17_dim` / `lemma_6_17_vanish` are stated (frozen) upstream in
+`GQ2/SectionSix.lean` but proved **downstream** — the dimension clause by
+`ResidueLift.lemma_6_17_dim_final` (P-15f8) and the vanishing clause by
+`VanishClose.lemma_6_17_vanish_final` (P-15f2d).  Their sole consumer `prop_6_18_ramified`
+(Proposition 6.18, the ramified dyadic base determinant count) lived in `GQ2/DeepPart.lean`,
+**upstream** of both proofs, so it inherited their `sorryAx`.
+
+This leaf performs the **6.18ram statement-move** (the P-15d/`lemma_6_14` pattern): it re-homes
+`prop_6_18_ramified` here — downstream of both `_final` proofs — citing them directly through the
+banked reduction `DeepPart.card_Q0loc_zero_eq_of_dim_of_vanish`.  The sorried
+`lemma_6_17_dim`/`lemma_6_17_vanish` stubs in `SectionSix` are removed (comment-pointers there),
+and `DeepPart.prop_6_18_ramified` is removed (comment-pointer there); the sole consumer
+`GaussZLocal.sum_sign_Q0loc_ramified` is rerouted here.
+
+**Amendment (P-20 flag)**: `lemma_6_17_vanish_final` carries the reciprocity datum
+`(R : LocalReciprocity, horient : TameUnitOrientation R B.tameF)` — the c2c4 route to the
+involution `hunram` (odd tame inertia ⟹ the involution extension is unramified, in CFT
+vocabulary).  So `prop_6_18_ramified` gains `(R, horient)` as hypotheses (the `hc`/`hV2`
+precedent); consumers discharge them at `B := boundaryMapsWitness` via
+`TameOrientationWitness.tameFHom_tameUnitOrientation` (B10′) with `R := localReciprocity` (B5).
+
+Axioms: std-3 + {B6, B7, B9, B11a, B11b, B12, B13} (`lemma_6_17_dim_final`'s B6/B7/B11a/B12/B13 +
+`lemma_6_17_vanish_final`'s B9/B11a/B11b/B13, joined through `card_Q0loc_zero_eq_of_dim_of_vanish`,
+which adds only B6/B7 via `D`) — the full §6.3 deep-part budget, **no new axiom, no `sorryAx`**.
+-/
+
+namespace GQ2
+
+namespace DetRamified
+
+open ContCoh QuadraticFp2 SectionSix
+
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
+
+/-- **Proposition 6.18 (dyadic base determinant theorem), eq. (115), ramified case** — wired
+downstream (the P-15f8/f2d statement-move): the local base determinant form has the positive
+Gauss sign, `#(Q⁰_loc)⁻¹(0) = 2^{2m−1} + 2^{m−1}` (`#V = 2^{2m}`).  With Prop 6.9 this is
+Corollary 6.19(iv): the two sources have equal base Gauss sums.
+
+Proved from the two §6.3 Kummer cores now that both are landed downstream:
+`ResidueLift.lemma_6_17_dim_final` (`#X₊² = #H¹`) and `VanishClose.lemma_6_17_vanish_final`
+(`Q⁰_loc|X₊ = 0`), fed to the banked Lagrangian-Arf count `card_Q0loc_zero_eq_of_dim_of_vanish`.
+Amended (P-20 flag) with `(R, horient)` — the reciprocity datum `lemma_6_17_vanish_final`
+requires; consumers discharge it at the boundary-maps witness. -/
+theorem prop_6_18_ramified (D : TateDuality 2) (R : LocalReciprocity) (B : BoundaryMaps)
+    (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
+    (horient : TameUnitOrientation R B.tameF)
+    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, c tameTau • v ≠ v)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
+    Nat.card {x : H1 AbsGalQ2 V // Q0loc D dat ρ x = 0}
+      = 2 ^ (2 * m - 1) + 2 ^ (m - 1) := by
+  have hV2 : ∀ v : V, v + v = 0 := DeepPart.exp_two_of_simple_of_card hsimple m hm hcard
+  have hρsurj : Function.Surjective ⇑ρ := by
+    intro y
+    obtain ⟨t, ht⟩ := hc y
+    obtain ⟨g, hg⟩ := B.tameF_surjective t
+    exact ⟨g, by rw [hfac, hg, ht]⟩
+  have hdim := ResidueLift.lemma_6_17_dim_final B c hc ρ hfac hρ hV2 hfaith hsimple hram
+    q hq hns hinv
+  have hvanish : ∀ x ∈ deepPart (V := V) ρ, Q0loc D dat ρ x = 0 := fun x hx =>
+    VanishClose.lemma_6_17_vanish_final D R B c hc ρ hfac horient hρ hV2 hfaith hsimple hram
+      q hq hinv dat hdat x hx
+  exact DeepPart.card_Q0loc_zero_eq_of_dim_of_vanish D q hq hns dat hdat ρ hρ hρsurj hsimple
+    (c tameTau) hram (fun cc v => hinv cc v) hV2 hdim hvanish m hm hcard
+
+end DetRamified
+
+end GQ2

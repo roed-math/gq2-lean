@@ -97,6 +97,7 @@ import GQ2.RegularIsometry
 import GQ2.OrbitDecomp
 import GQ2.ShapiroRead
 import GQ2.VanishClose
+import GQ2.DetRamified
 import GQ2.PropOneOne
 import GQ2.ZtwoPowering
 import GQ2.FrattiniCriterion

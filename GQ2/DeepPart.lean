@@ -1416,39 +1416,13 @@ theorem exp_two_of_simple_of_card {C : Type*} [Group C] [DistribMulAction C V]
     have : v ∈ T := htop ▸ AddSubgroup.mem_top v
     exact this
 
-/-- **Proposition 6.18 (dyadic base determinant theorem), eq. (115), ramified case**: the local
-base determinant form has the positive Gauss sign, `#(Q⁰_loc)⁻¹(0) = 2^{2m−1} + 2^{m−1}`
-(`#V = 2^{2m}`).  With Prop 6.9 this is Corollary 6.19(iv).
-
-Statement moved here from `GQ2/SectionSix.lean` (P-15d pattern — the proof consumes this file's
-`Q⁰_loc`-structure layer, which imports `SectionSix`).  Proof: `hV2` by additive Cauchy +
-simplicity, `ρ` surjective from `hc` + `B.tameF_surjective`, then Lemma 6.17 (both clauses,
-still sorried in `SectionSix`) feeds the Lagrangian Arf package.
-Ax: B6 (via `D`), B7 (+ `sorryAx` through Lemma 6.17, the remaining §6.3 Kummer cores). -/
-theorem prop_6_18_ramified (D : TateDuality 2) (B : BoundaryMaps)
-    (c : ContinuousMonoidHom Ttame C)
-    (hc : Function.Surjective ⇑c)
-    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
-    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
-    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
-    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
-    (hram : ∃ v : V, c tameTau • v ≠ v)
-    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
-    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
-    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
-    Nat.card {x : H1 AbsGalQ2 V // Q0loc D dat ρ x = 0}
-      = 2 ^ (2 * m - 1) + 2 ^ (m - 1) := by
-  have hV2 : ∀ v : V, v + v = 0 := exp_two_of_simple_of_card hsimple m hm hcard
-  have hρsurj : Function.Surjective ⇑ρ := by
-    intro y
-    obtain ⟨t, ht⟩ := hc y
-    obtain ⟨g, hg⟩ := B.tameF_surjective t
-    exact ⟨g, by rw [hfac, hg, ht]⟩
-  have hdim := lemma_6_17_dim B c hc ρ hfac hρ hV2 hfaith hsimple hram q hq hns hinv
-  have hvanish := lemma_6_17_vanish D B c hc ρ hfac hρ hV2 hfaith hsimple hram
-    q hq hns hinv dat hdat
-  exact card_Q0loc_zero_eq_of_dim_of_vanish D q hq hns dat hdat ρ hρ hρsurj hsimple
-    (c tameTau) hram (fun cc v => hinv cc v) hV2 hdim hvanish m hm hcard
+/- **Proposition 6.18 (dyadic base determinant theorem), ramified case** — re-homed to
+`GQ2.DetRamified.prop_6_18_ramified` (P-15f8/f2d statement-move, 2026-07-08): now that both
+Lemma-6.17 clauses are proved DOWNSTREAM (`ResidueLift.lemma_6_17_dim_final`,
+`VanishClose.lemma_6_17_vanish_final`), `prop_6_18_ramified` — their sole consumer — moves below
+them so it cites the real proofs (`card_Q0loc_zero_eq_of_dim_of_vanish` above is the banked
+reduction it feeds).  This file (`DeepPart`) is upstream of the two proofs, hence the move; the
+`(R, horient)` amendment travels with it. -/
 
 end Q0locLayer
 
