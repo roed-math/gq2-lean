@@ -126,6 +126,97 @@ theorem hZcard_gammaA
     ⟨nontrivial_of_ne (0 : En.Vmod) v (Ne.symm hv), fun W hW => hsimple W (fun g w hw => hW g w hw)⟩
   rw [card_fixedPts_elemDual_eq_one_of_nontrivial hsimpleMod hnt, mul_one, pow_two]
 
+/-- **`hμ` for `Γ_A`** — the `T`-cocycle count `#Z¹_{Γ_A,ρ'}(T) = #T²·#(T^∨)^{Y_B/M}` in the
+`muZero` closed form (`Phase140Local.tcocycle_card_local`'s twin).  Same module setup (the
+global `RadicalEdgeGammaA.cActT` conjugation action replaces the proof-local one) and the
+same `TCocycle ≃ Z¹_cont(GA, Additive T)` bridge; the count is `z1Equiv` + `prop_5_15`
+clause 2 instead of `card_Z1_eq` — no B-axioms.  The `#fixedPts` factor is NOT reduced: it
+is part of the shared `μ₀` value (the twin dualities produce the same closed form, which is
+the source-independence `prop_8_9` needs). -/
+theorem tcocycle_card_gammaA (ρ : BoundaryLifts b F RF.TC) :
+    Nat.card (TCocycle (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))
+      = Nat.card (Additive ↥(En.radData l h).T) ^ 2
+        * Nat.card (fixedPts (RF.YB ⧸ (En.radData l h).M)
+            (ElemDual (Additive ↥(En.radData l h).T))) := by
+  classical
+  haveI : (En.radData l h).M.Normal := (En.radData l h).hM
+  haveI : DiscreteTopology (RF.YB ⧸ (En.radData l h).M) :=
+    discreteTopology_quotient (En.radData l h)
+  -- the lower map, retyped against the raw quotient `GA`
+  let θ : ContinuousMonoidHom GA (RF.YB ⧸ (En.radData l h).M) :=
+    RF.rhoPrime b F (En.radData l h) rfl ρ
+  have hθs : Function.Surjective ⇑θ := fun y =>
+    rhoPrime_surjective RF b F (En.radData l h) rfl ρ y
+  -- `Additive ↥T` as a finite discrete `GA`-module through `θ` (the `C`-action is the
+  -- global `cActT`)
+  letI : TopologicalSpace (Additive ↥(En.radData l h).T) :=
+    (inferInstance : TopologicalSpace ↥(En.radData l h).T)
+  haveI : DiscreteTopology (Additive ↥(En.radData l h).T) :=
+    ⟨(inferInstance : DiscreteTopology ↥(En.radData l h).T).eq_bot⟩
+  haveI : Finite (Additive ↥(En.radData l h).T) :=
+    (inferInstance : Finite ↥(En.radData l h).T)
+  letI actG : DistribMulAction GA (Additive ↥(En.radData l h).T) :=
+    DistribMulAction.compHom _ θ.toMonoidHom
+  have hcomp : ∀ (γ : GA) (a : Additive ↥(En.radData l h).T), γ • a = θ γ • a :=
+    fun _ _ => rfl
+  -- the action at a representative `bb` of `θ γ`
+  have hsmul : ∀ (γ : GA) (bb : RF.YB) (a : Additive ↥(En.radData l h).T),
+      QuotientGroup.mk bb = θ γ →
+      γ • a = Additive.ofMul (⟨bb * (Additive.toMul a).1 * bb⁻¹,
+        (En.radData l h).hT.conj_mem _ (Additive.toMul a).2 _⟩ : ↥(En.radData l h).T) := by
+    intro γ bb a hbb
+    apply Additive.toMul.injective; apply Subtype.ext
+    show (cactFun (En.radData l h) (θ γ) (Additive.toMul a)).1
+      = bb * (Additive.toMul a).1 * bb⁻¹
+    exact cactFun_eq (En.radData l h) (θ γ) hbb (Additive.toMul a)
+  haveI : ContinuousSMul GA (Additive ↥(En.radData l h).T) := by
+    constructor
+    have hfac : (fun p : GA × Additive ↥(En.radData l h).T => p.1 • p.2)
+        = (fun q : (RF.YB ⧸ (En.radData l h).M) × Additive ↥(En.radData l h).T => q.1 • q.2)
+          ∘ (fun p : GA × Additive ↥(En.radData l h).T => (θ p.1, p.2)) := by
+      funext p; rfl
+    rw [hfac]
+    exact continuous_of_discreteTopology.comp
+      ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  have hA₂ : ∀ a : Additive ↥(En.radData l h).T, a + a = 0 := fun a => by
+    apply Additive.toMul.injective
+    show (Additive.toMul a) * (Additive.toMul a) = 1
+    exact Subtype.ext ((En.radData l h).helem _ ((En.radData l h).hTM (Additive.toMul a).2))
+  -- the direct `TCocycle ≃ Z¹_cont(GA, Additive T)` bridge (the local `hequiv`, verbatim)
+  have hequiv : TCocycle (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
+      ≃ ↥(Z1 GA (Additive ↥(En.radData l h).T)) :=
+    { toFun := fun u =>
+        ⟨fun γ => Additive.ofMul ⟨u.u γ, u.mem γ⟩, by
+          refine mem_Z1_iff.mpr ⟨?_, ?_⟩
+          · show Continuous fun γ => (⟨u.u γ, u.mem γ⟩ : ↥(En.radData l h).T)
+            exact Continuous.subtype_mk u.cont _
+          · intro γ δ
+            rw [hsmul γ (Quotient.out (θ γ)) (Additive.ofMul ⟨u.u δ, u.mem δ⟩)
+              (QuotientGroup.out_eq' _)]
+            apply Additive.toMul.injective
+            apply Subtype.ext
+            show u.u (γ * δ)
+              = u.u γ * (Quotient.out (θ γ) * u.u δ * (Quotient.out (θ γ))⁻¹)
+            exact u.crossed γ δ (Quotient.out (θ γ)) (QuotientGroup.out_eq' _)⟩
+      invFun := fun z =>
+        { u := fun γ => ((Additive.toMul (z.1 γ) : ↥(En.radData l h).T)).1
+          mem := fun γ => (Additive.toMul (z.1 γ)).2
+          cont := by
+            have hz := (mem_Z1_iff.mp z.2).1
+            exact continuous_subtype_val.comp hz
+          crossed := by
+            intro γ δ bb hbb
+            have hz := (mem_Z1_iff.mp z.2).2 γ δ
+            rw [hsmul γ bb (z.1 δ) hbb] at hz
+            have := congrArg (fun a => ((Additive.toMul a : ↥(En.radData l h).T)).1) hz
+            exact this }
+      left_inv := fun u => by cases u; rfl
+      right_inv := fun z => Subtype.ext (funext fun γ => rfl) }
+  -- the count: `#Z¹(GA, T) = #Z1w(markC θ) = #T² · #fixedPts C (T^∨)` (candidate duality)
+  have adm := markC_admissible θ hθs
+  rw [Nat.card_congr hequiv, Nat.card_congr (z1Equiv θ hcomp hθs hA₂).toEquiv,
+    (GQ2.FoxH.prop_5_15 (markC θ) adm.2.1 adm.2.2.1 adm.1 hA₂ adm.2.2.2).2.1]
+
 /-! ## The per-character `𝔽₂`-covers of `Q = B/T`  (Γ-generic; the `hsep_A` L4 covers) -/
 
 section CharCover
