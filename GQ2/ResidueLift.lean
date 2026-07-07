@@ -1,4 +1,5 @@
 import GQ2.DimClose
+import GQ2.ShapiroFiniteness
 
 /-!
 # The residue-trivial tame lift — proved, no new axiom  (P-15f8)
@@ -343,9 +344,20 @@ theorem lemma_6_17_dim_final (B : BoundaryMaps)
     (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
     (hram : ∃ v : V, c tameTau • v ≠ v)
-    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
-    [Finite (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))] :
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q) :
     Nat.card (SectionSix.deepPart (V := V) ρ) ^ 2 = Nat.card (H1 AbsGalQ2 V) := by
+  -- discharge the local finiteness `[Finite (H¹(ker ρ, 𝔽₂))]` via Shapiro's lemma (no new axiom)
+  haveI : Finite (AbsGalQ2 ⧸ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :=
+    Finite.of_injective _ (QuotientGroup.quotientKerEquivRange ρ.toMonoidHom).injective
+  have hkeropen : IsOpen ((ρ.toMonoidHom.ker : Subgroup AbsGalQ2) : Set AbsGalQ2) := by
+    have hset : ((ρ.toMonoidHom.ker : Subgroup AbsGalQ2) : Set AbsGalQ2) = ρ ⁻¹' {1} := by
+      ext g
+      simp only [SetLike.mem_coe, MonoidHom.mem_ker, Set.mem_preimage, Set.mem_singleton_iff]
+      rfl
+    rw [hset]
+    exact (isOpen_discrete {1}).preimage ρ.continuous_toFun
+  haveI : Finite (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) :=
+    finite_H1_open (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) hkeropen
   haveI : FiniteDimensional ℚ_[2] (splitField ρ) := splitField_finiteDimensional ρ
   obtain ⟨g₀, hg₀, hg₀rt⟩ := exists_residueTrivial_tameLift B c ρ hfac
   exact DimClose.lemma_6_17_dim_of_residueLift B c hc ρ hfac hρ hV2 hfaith hsimple hram
