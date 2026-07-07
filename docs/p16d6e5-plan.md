@@ -238,14 +238,23 @@ extension needed.
     of the contragredient, and every downstream `rw`/`exact` then mismatches instances.  With the
     typed `let`, `c • idE` is defeq `idE.comp (toAddMonoidHom c⁻¹)`; `toAddMonoidHom c⁻¹ = id` +
     `comp_id` close `hact`.
-  * ☐ **L1** — the general-extension relator correction (**the long pole**; L1-wild ≈ `mixedB_wildRow`
-    length).  **Sharpened for the L4 instance:** at `Y' := Y/l` the kernel `R/l ≅ 𝔽₂` is *central*
-    (the invariant character `d` gives a trivial `C`-action — `Aut 𝔽₂ = 1`), so L1 is consumed at
-    **trivial-action 𝔽₂**, not the general conjugation action.  Two viable phrasings: (a) prove L1
-    generally (conj-by-`ŷᵢ` action) then specialize; (b) prove L1 directly at central `𝔽₂` (shorter
-    algebra — corrections commute).  The tame row (`τ^σ(τ²)⁻¹`, only `σ,τ`) is tractable; the wild
-    row (`h₀u₁⁻¹x₁^σc₀`, all of `Words.lean`'s auxiliary words) is the length risk — mirror
-    `mixedB_wildRow` line-by-line.  Reuse the T-14 `let idE` trick and the term-mode GA-bridge.
+  * ◐ **L1** — the group-level relator correction at a **central 2-torsion** kernel (the phrasing
+    (b) route won: at `Y/l` the kernel `R/l ≅ 𝔽₂` is central, `Aut 𝔽₂ = 1`, so corrections commute).
+    Target values pinned by the additive closed forms: **both** Fox derivatives are the τ-correction,
+    `(d¹r) = (r 1, r 1)` (`d1Fun_tame_trivial`/`d1Fun_wild_trivial`), so
+    `tameValue(r⃗·ŷ) = r₁·tameValue(ŷ)` **and** `wildValue(r⃗·ŷ) = r₁·wildValue(ŷ)` (same `r₁`).
+    * ✅ **L1 tame** `tameValue_correction` (**propext-only**) — the σ-correction `r₀` cancels
+      (`σ⁻¹r₀⁻¹(r₁τ)r₀σ`), the τ-square kills `r₁²` (`Commute.mul_pow`).  Central manipulation:
+      move `r0⁻¹` adjacent to `r0` (`group` cancels), one `r₁/σ⁻¹` `Commute` swap.
+    * ☐ **L1 wild** `wildValue_correction` — the long pole.  **Genuine crux (new finding):**
+      `wildValue = h₀u₁⁻¹x₁^σc₀` is built from `powOmega2 x = x^(omega2Exp (orderOf x))`, and
+      `orderOf(r·a)` **changes** when multiplying by a central involution `r`, so the `ω₂`-powers do
+      NOT transform by a simple `r^k` — `powOmega2(r·a) = r^(omega2Exp(ord(r·a)))·a^(omega2Exp(ord(r·a)))`
+      with a *shifted* exponent vs `powOmega2 a`.  Needs `omega2Exp`/`orderOf`-under-central-2-torsion
+      lemmas (parity of `omega2Exp` at even orders is `≡1 mod 2` via `omega2Exp_modEq_one`, a lever).
+      The `liftMarking_*` helpers (`_h0_u`, `_u1_u`, `_c0_u`, `_*_g_smul`) that closed
+      `liftMarking_wildValue_u` are WordLift-specific; the group-level versions must be redone.
+      Mirror `liftMarking_wildValue_u`'s skeleton but at the group level with the orderOf care.
   * ◐ **L4/L5** — per-cover extraction (`obs_zero_iff_lifts`) + descent
     (`markC_admissible`/`NA_le_ker`/`quotientLift`).  Landed helper: ✅ `d1Fun_tame_trivial` (std-3)
     — `(d¹x).1 = x 1` at trivial `𝔽₂`, the tame-row recognizer (the wild recognizer needs L1-wild).
