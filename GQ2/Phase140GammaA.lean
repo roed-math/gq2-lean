@@ -37,6 +37,7 @@ namespace GQ2
 namespace Phase140GammaA
 
 open SectionEight AffineTLift CentralObstruction ContCoh WordCohBridge GQ2.FoxH RStageGammaA
+  RadicalEdgeGammaA
 
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
   [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
@@ -677,6 +678,278 @@ theorem mlift_of_relatorFree_marking
   exact DFunLike.congr_fun hc w
 
 end DescendT
+
+/-! ## `hsep` for `Γ_A`: the `(T^∨)^C`-separation via the marking route -/
+
+section HsepGammaA
+
+variable (Dsc : Descent (En.radData l h))
+
+/-- **`hsep` for `Γ_A`** — the `(T^∨)^C`-separation at the candidate source: a `V`-coordinate
+whose `χ`-obstructions all vanish is `T`-liftable.  The `Γ_A` twin of
+`Phase140Local.hsep_local`, by the **marking route** (the local `prop_5_16` `cup20` route has
+no `Γ_A` analog): each nonzero invariant character's vanishing obstruction produces a lift
+through its `𝔽₂`-cover (`exists_lift_charCover`), which forces `χ`-agreement of the relator
+values of a set-lift marking (`redValues_eq_of_coverLift`); `sep_word` (the `prop_5_15`
+trace-span) converts total agreement into word-level corrections; the corrected marking kills
+both relators (`corrected_tameValue`/`corrected_wildValue` + `T`-elementarity) and descends
+(`mlift_of_relatorFree_marking`) to the direct `M`-lift. -/
+theorem hsep_gammaA
+    (ρ : BoundaryLifts b F RF.TC)
+    (c : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))
+    (hc : ∀ χ : ↥(TCharC (En.radData l h)),
+      betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c = 0) :
+    TLiftable (descSigma_spec En l h Dsc) c := by
+  classical
+  haveI : (En.radData l h).M.Normal := (En.radData l h).hM
+  haveI : DiscreteTopology (RF.YB ⧸ (En.radData l h).M) :=
+    discreteTopology_quotient (En.radData l h)
+  have hσ := descSigma_spec En l h Dsc
+  have hρ's : Function.Surjective ⇑(RF.rhoPrime b F (En.radData l h) rfl ρ) :=
+    rhoPrime_surjective RF b F (En.radData l h) rfl ρ
+  have htelem : ∀ t ∈ (En.radData l h).T, t * t = 1 :=
+    fun t ht => (En.radData l h).helem t ((En.radData l h).hTM ht)
+  have hA₂ : ∀ a : Additive ↥(En.radData l h).T, a + a = 0 := fun a =>
+    Additive.toMul.injective (Subtype.ext (htelem _ (Additive.toMul a).2))
+  have hgQ_over : ∀ γ : GA, piQbar (En.descData l h)
+      ((qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
+        (descSigma En l h Dsc) hσ c).1 γ)
+      = rho0 (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ) γ :=
+    fun γ => (qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
+      (descSigma En l h Dsc) hσ c).2 γ
+  -- §1: a set-lift marking of `g_Q` through `π_T`
+  obtain ⟨yσ, hyσ⟩ := QuotientGroup.mk'_surjective (En.radData l h).T
+    ((Marking.push (qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
+      (descSigma En l h Dsc) hσ c).1).σ)
+  obtain ⟨yτ, hyτ⟩ := QuotientGroup.mk'_surjective (En.radData l h).T
+    ((Marking.push (qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
+      (descSigma En l h Dsc) hσ c).1).τ)
+  obtain ⟨yx₀, hyx₀⟩ := QuotientGroup.mk'_surjective (En.radData l h).T
+    ((Marking.push (qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
+      (descSigma En l h Dsc) hσ c).1).x₀)
+  obtain ⟨yx₁, hyx₁⟩ := QuotientGroup.mk'_surjective (En.radData l h).T
+    ((Marking.push (qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
+      (descSigma En l h Dsc) hσ c).1).x₁)
+  set tB : Marking RF.YB := ⟨yσ, yτ, yx₀, yx₁⟩ with htB
+  have hproj : tB.map (QuotientGroup.mk' (En.radData l h).T)
+      = Marking.push (qOfCocycle (En.descData l h)
+        (RF.rhoPrime b F (En.radData l h) rfl ρ) (descSigma En l h Dsc) hσ c).1 :=
+    marking_ext hyσ hyτ hyx₀ hyx₁
+  -- §2: the relator values live in `T` (the relators die in `B/T` — `g_Q` is a hom)
+  have hv₁mem : tB.tameValue ∈ (En.radData l h).T := by
+    have hmt := Marking.map_tameValue (QuotientGroup.mk' (En.radData l h).T) tB
+    rw [hproj, (Marking.tameValue_eq_one_iff _).mpr (push_tameRel _)] at hmt
+    rw [← QuotientGroup.ker_mk' (En.radData l h).T, MonoidHom.mem_ker]
+    exact hmt.symm
+  have hv₂mem : tB.wildValue ∈ (En.radData l h).T := by
+    have hmw := Marking.map_wildValue (QuotientGroup.mk' (En.radData l h).T) tB
+    rw [hproj, (Marking.wildValue_eq_one_iff _).mpr (push_wildRel _)] at hmw
+    rw [← QuotientGroup.ker_mk' (En.radData l h).T, MonoidHom.mem_ker]
+    exact hmw.symm
+  set v₁ : ↥(En.radData l h).T := ⟨tB.tameValue, hv₁mem⟩ with hv₁def
+  set v₂ : ↥(En.radData l h).T := ⟨tB.wildValue, hv₂mem⟩ with hv₂def
+  -- §3: the `C = B/M`-side word-complex package at `markC ρ'`
+  have adm := markC_admissible (RF.rhoPrime b F (En.radData l h) rfl ρ) hρ's
+  have hsd := GQ2.FoxH.prop_5_15 (markC (RF.rhoPrime b F (En.radData l h) rfl ρ))
+    adm.2.1 adm.2.2.1 adm.1 hA₂ adm.2.2.2
+  -- the `liftC0`-injectivity chase: a `π_T`-lift datum determines the `B/M`-value
+  have hliftC0_inj : Function.Injective (liftC0 (En.descData l h)) := by
+    intro a a' haa'
+    obtain ⟨x, rfl⟩ := QuotientGroup.mk_surjective a
+    obtain ⟨y, rfl⟩ := QuotientGroup.mk_surjective a'
+    rw [liftC0_mk, liftC0_mk] at haa'
+    rw [QuotientGroup.eq]
+    have hker : x⁻¹ * y ∈ (En.descData l h).piC0.ker := by
+      rw [MonoidHom.mem_ker, map_mul, map_inv, haa', inv_mul_cancel]
+    rwa [(En.descData l h).hkerC0] at hker
+  have hfield : ∀ (y : RF.YB) (γ : GA),
+      QuotientGroup.mk' (En.radData l h).T y
+        = (qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
+          (descSigma En l h Dsc) hσ c).1 γ →
+      QuotientGroup.mk (y : RF.YB) = RF.rhoPrime b F (En.radData l h) rfl ρ γ := by
+    intro y γ hy
+    refine hliftC0_inj ?_
+    have h1 : liftC0 (En.descData l h) (QuotientGroup.mk (y : RF.YB))
+        = (En.descData l h).piC0 y := liftC0_mk (En.descData l h) y
+    have h2 : (En.descData l h).piC0 y
+        = piQbar (En.descData l h) (QuotientGroup.mk' (En.radData l h).T y) :=
+      (piQbar_mk (En.descData l h) y).symm
+    rw [h1, h2, hy]
+    exact hgQ_over γ
+  -- §4 (L4): every invariant character kills the relator-value sum
+  have hv : ∀ lam : ElemDual (Additive ↥(En.radData l h).T),
+      (d0 (A := ElemDual (Additive ↥(En.radData l h).T))
+        (markC (RF.rhoPrime b F (En.radData l h) rfl ρ))) lam = 0 →
+      lam (Additive.ofMul v₁ + Additive.ofMul v₂) = 0 := by
+    intro lam hlam
+    have hfixmem : lam ∈ fixedPts (RF.YB ⧸ (En.radData l h).M)
+        (ElemDual (Additive ↥(En.radData l h).T)) := by
+      have hmem : lam ∈ H0w (A := ElemDual (Additive ↥(En.radData l h).T))
+          (markC (RF.rhoPrime b F (En.radData l h) rfl ρ)) :=
+        AddMonoidHom.mem_ker.mpr hlam
+      rw [← H0w_eq_fixedPts (markC (RF.rhoPrime b F (En.radData l h) rfl ρ)) adm.1]
+      exact hmem
+    -- the invariant character `χ_lam ∈ (T^∨)^C`
+    have hYconj : ∀ (bb : RF.YB) (t : ↥(En.radData l h).T),
+        lam (Additive.ofMul ⟨bb * (t : RF.YB) * bb⁻¹,
+          (En.radData l h).hT.conj_mem (t : RF.YB) t.2 bb⟩)
+        = lam (Additive.ofMul t) := by
+      intro bb t
+      have hfix := hfixmem (QuotientGroup.mk bb : RF.YB ⧸ (En.radData l h).M)
+      have h1 := congrArg (fun mu : ElemDual (Additive ↥(En.radData l h).T) =>
+        mu (Additive.ofMul ⟨bb * (t : RF.YB) * bb⁻¹,
+          (En.radData l h).hT.conj_mem (t : RF.YB) t.2 bb⟩)) hfix
+      have h3 : (QuotientGroup.mk bb : RF.YB ⧸ (En.radData l h).M)⁻¹
+          • Additive.ofMul (⟨bb * (t : RF.YB) * bb⁻¹,
+            (En.radData l h).hT.conj_mem (t : RF.YB) t.2 bb⟩ : ↥(En.radData l h).T)
+          = Additive.ofMul t := by
+        apply Additive.toMul.injective
+        rw [cActT_toMul]
+        apply Subtype.ext
+        rw [cactFun_eq (En.radData l h) ((QuotientGroup.mk bb : RF.YB ⧸ (En.radData l h).M)⁻¹)
+          (b := bb⁻¹) rfl]
+        show bb⁻¹ * (bb * (t : RF.YB) * bb⁻¹) * bb⁻¹⁻¹ = (t : RF.YB)
+        group
+      have h2 : ((QuotientGroup.mk bb : RF.YB ⧸ (En.radData l h).M) • lam)
+          (Additive.ofMul ⟨bb * (t : RF.YB) * bb⁻¹,
+            (En.radData l h).hT.conj_mem (t : RF.YB) t.2 bb⟩)
+          = lam (Additive.ofMul t) := by
+        rw [ElemDual.smul_apply, h3]
+      rw [h2] at h1
+      exact h1.symm
+    set chiLam : ↥(TCharC (En.radData l h)) := ⟨fun t => lam (Additive.ofMul t),
+      ⟨fun t t' => by
+        show lam (Additive.ofMul (t * t')) = lam (Additive.ofMul t) + lam (Additive.ofMul t')
+        rw [show Additive.ofMul (t * t') = Additive.ofMul t + Additive.ofMul t' from rfl,
+          map_add],
+       fun bb t => hYconj bb t⟩⟩ with hchiLam
+    rw [map_add]
+    by_cases hz : chiLam = 0
+    · have hlam0 : ∀ t : ↥(En.radData l h).T, lam (Additive.ofMul t) = 0 := by
+        intro t
+        have h0 := congrArg (fun ξ : ↥(TCharC (En.radData l h)) => ξ.1 t) hz
+        simpa using h0
+      rw [hlam0 v₁, hlam0 v₂, add_zero]
+    · -- nonzero: the cover lift forces `χ`-agreement of the two relator values
+      have hB2 : chiDef (descSections En l h Dsc) hσ chiLam c
+          ∈ B2 GammaA (ZMod 2) :=
+        iotaB_eq_zero_iff.mp (hc chiLam)
+      obtain ⟨gc, hgc⟩ := exists_lift_charCover htriv_gammaA (descSections En l h Dsc) hσ
+        chiLam hz c hB2
+      have hkey := redValues_eq_of_coverLift (charCover chiLam hz)
+        (QuotientGroup.mk' (En.radData l h).T) (charCoverMap chiLam hz)
+        (charCover_p_comp chiLam hz)
+        (qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
+          (descSigma En l h Dsc) hσ c).1 gc hgc tB hproj
+      -- `v₁ v₂⁻¹ ∈ ker χ`
+      have hmemK : ((v₁ * v₂⁻¹ : ↥(En.radData l h).T) : RF.YB) ∈ charKer chiLam := by
+        have h1 : charCoverMap chiLam hz (((v₁ * v₂⁻¹ : ↥(En.radData l h).T) : RF.YB)) = 1 := by
+          show charCoverMap chiLam hz (tB.tameValue * tB.wildValue⁻¹) = 1
+          rw [map_mul, map_inv, hkey, mul_inv_cancel]
+        have h2 : (((v₁ * v₂⁻¹ : ↥(En.radData l h).T) : RF.YB))
+            ∈ (charCoverMap chiLam hz).ker := MonoidHom.mem_ker.mpr h1
+        haveI : (charKer chiLam).Normal := charKer_normal chiLam
+        rwa [show (charCoverMap chiLam hz).ker = charKer chiLam from
+          QuotientGroup.ker_mk' (charKer chiLam)] at h2
+      have hchival := (mem_charKer_iff chiLam (v₁ * v₂⁻¹)).mp hmemK
+      rw [TCharC.map_mul chiLam, TCharC.map_inv chiLam] at hchival
+      exact hchival
+  -- §5: the separation delivers word-level corrections
+  have hsep := sep_word (markC (RF.rhoPrime b F (En.radData l h) rfl ρ))
+    adm.2.1 adm.2.2.1 adm.1 hsd hA₂ (Additive.ofMul v₁, Additive.ofMul v₂) hv
+  obtain ⟨x, hx⟩ := AddMonoidHom.mem_range.mp hsep
+  -- §6 (L5): the corrected marking kills both relators and still covers `g_Q`
+  letI actYB : DistribMulAction RF.YB (Additive ↥(En.radData l h).T) :=
+    DistribMulAction.compHom (Additive ↥(En.radData l h).T)
+      (QuotientGroup.mk' (En.radData l h).M)
+  have hjmul : ∀ a b' : Additive ↥(En.radData l h).T,
+      ((Additive.toMul (a + b') : ↥(En.radData l h).T) : RF.YB)
+        = ((Additive.toMul a : ↥(En.radData l h).T) : RF.YB)
+          * ((Additive.toMul b' : ↥(En.radData l h).T) : RF.YB) :=
+    fun _ _ => rfl
+  have hjconj : ∀ (y : RF.YB) (a : Additive ↥(En.radData l h).T),
+      ((Additive.toMul (y • a) : ↥(En.radData l h).T) : RF.YB)
+        = y * ((Additive.toMul a : ↥(En.radData l h).T) : RF.YB) * y⁻¹ := by
+    intro y a
+    have h1 : (y • a : Additive ↥(En.radData l h).T)
+        = (QuotientGroup.mk' (En.radData l h).M y) • a := rfl
+    rw [h1]
+    have h2 := congrArg Subtype.val
+      (cActT_toMul (En.radData l h) (QuotientGroup.mk' (En.radData l h).M y) a)
+    rw [h2]
+    exact cactFun_eq (En.radData l h) (QuotientGroup.mk' (En.radData l h).M y) rfl
+      (Additive.toMul a)
+  have hmarkC : markC (RF.rhoPrime b F (En.radData l h) rfl ρ)
+      = tB.map (QuotientGroup.mk' (En.radData l h).M) := by
+    refine marking_ext ?_ ?_ ?_ ?_
+    · exact (hfield tB.σ gammaGen.σ (congrArg Marking.σ hproj)).symm
+    · exact (hfield tB.τ gammaGen.τ (congrArg Marking.τ hproj)).symm
+    · exact (hfield tB.x₀ gammaGen.x₀ (congrArg Marking.x₀ hproj)).symm
+    · exact (hfield tB.x₁ gammaGen.x₁ (congrArg Marking.x₁ hproj)).symm
+  have hbase : d1Fun (markC (RF.rhoPrime b F (En.radData l h) rfl ρ)) x = d1Fun tB x := by
+    rw [hmarkC]
+    exact d1Fun_base_change (QuotientGroup.mk' (En.radData l h).M) (fun _ _ => rfl) tB x
+  have hd1 : d1Fun tB x = (Additive.ofMul v₁, Additive.ofMul v₂) := by
+    rw [← hbase]
+    exact hx
+  set tHat : Marking RF.YB :=
+    ⟨((Additive.toMul (x 0) : ↥(En.radData l h).T) : RF.YB) * tB.σ,
+      ((Additive.toMul (x 1) : ↥(En.radData l h).T) : RF.YB) * tB.τ,
+      ((Additive.toMul (x 2) : ↥(En.radData l h).T) : RF.YB) * tB.x₀,
+      ((Additive.toMul (x 3) : ↥(En.radData l h).T) : RF.YB) * tB.x₁⟩ with htHat
+  have htameHat : tHat.TameRel := by
+    rw [← Marking.tameValue_eq_one_iff]
+    rw [show tHat.tameValue
+        = ((Additive.toMul ((d1Fun tB x).1) : ↥(En.radData l h).T) : RF.YB) * tB.tameValue from
+      corrected_tameValue (fun a => ((Additive.toMul a : ↥(En.radData l h).T) : RF.YB))
+        hjmul hjconj tB x, hd1]
+    show ((v₁ : RF.YB)) * tB.tameValue = 1
+    exact htelem _ hv₁mem
+  have hwildHat : tHat.WildRel := by
+    rw [← Marking.wildValue_eq_one_iff]
+    rw [show tHat.wildValue
+        = ((Additive.toMul ((d1Fun tB x).2) : ↥(En.radData l h).T) : RF.YB) * tB.wildValue from
+      corrected_wildValue (fun a => ((Additive.toMul a : ↥(En.radData l h).T) : RF.YB))
+        hjmul hjconj tB x, hd1]
+    show ((v₂ : RF.YB)) * tB.wildValue = 1
+    exact htelem _ hv₂mem
+  have hprojHat : tHat.map (QuotientGroup.mk' (En.radData l h).T)
+      = Marking.push (qOfCocycle (En.descData l h)
+        (RF.rhoPrime b F (En.radData l h) rfl ρ) (descSigma En l h Dsc) hσ c).1 := by
+    have hker : ∀ a : Additive ↥(En.radData l h).T,
+        QuotientGroup.mk' (En.radData l h).T
+          ((Additive.toMul a : ↥(En.radData l h).T) : RF.YB) = 1 := by
+      intro a
+      rw [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]
+      exact (Additive.toMul a).2
+    refine marking_ext ?_ ?_ ?_ ?_
+    · show QuotientGroup.mk' (En.radData l h).T
+        (((Additive.toMul (x 0) : ↥(En.radData l h).T) : RF.YB) * tB.σ) = _
+      rw [map_mul, hker, one_mul]
+      exact hyσ
+    · show QuotientGroup.mk' (En.radData l h).T
+        (((Additive.toMul (x 1) : ↥(En.radData l h).T) : RF.YB) * tB.τ) = _
+      rw [map_mul, hker, one_mul]
+      exact hyτ
+    · show QuotientGroup.mk' (En.radData l h).T
+        (((Additive.toMul (x 2) : ↥(En.radData l h).T) : RF.YB) * tB.x₀) = _
+      rw [map_mul, hker, one_mul]
+      exact hyx₀
+    · show QuotientGroup.mk' (En.radData l h).T
+        (((Additive.toMul (x 3) : ↥(En.radData l h).T) : RF.YB) * tB.x₁) = _
+      rw [map_mul, hker, one_mul]
+      exact hyx₁
+  -- §7: descend and package as the `M`-lift
+  obtain ⟨f₀, hf₀⟩ := mlift_of_relatorFree_marking
+    (qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
+      (descSigma En l h Dsc) hσ c).1 tHat hprojHat htameHat hwildHat
+  refine ⟨⟨f₀, fun γ => ?_⟩, ?_⟩
+  · exact hfield (f₀ γ) γ (hf₀ γ)
+  · refine Subtype.ext (DFunLike.ext _ _ fun γ => ?_)
+    rw [redTLift_apply]
+    exact hf₀ γ
+
+end HsepGammaA
 
 end Phase140GammaA
 
