@@ -1,4 +1,5 @@
 import GQ2.SectionTen
+import GQ2.ThmFourTwo
 import GQ2.BoundaryMapsWitness
 
 /-!
