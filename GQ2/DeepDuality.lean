@@ -1109,4 +1109,122 @@ theorem conjAct_midClasses (g : Kummer.GaloisGroup ℚ_[2])
 
 end MidClasses
 
+/-! ## §H — the `U`-side inputs: self-duality from the invariant form, inertia dualization
+
+The remaining module-theoretic inputs of `card_equivHoms_deep_eq_quot` at `U := V^∨`:
+`eU` (built from 6.17's invariant-form package `(q, hq, hns, hinv)` through the polar
+self-duality `V ≃+ V^∨` and the banked double-dual `evalDualEquiv`) and `ht₀U` (the
+`hram`-inertia nontriviality transported to the dual by functional separation). -/
+
+section SelfDual
+
+open QuadraticFp2
+
+variable {C : Type} [Group C]
+variable {V : Type} [AddCommGroup V] [DistribMulAction C V] [Finite V]
+
+/-- The polar form of a nonsingular quadratic map as a self-duality `V ≃+ V^∨`:
+`v ↦ polar q v ·` — additive by `IsQuadraticFp2`, injective by nonsingularity, bijective by the
+`𝔽₂`-dual count. -/
+noncomputable def polarSelfDual (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
+    (hns : Nonsingular q) (h2V : ∀ v : V, v + v = 0) : V ≃+ (V →+ ZMod 2) := by
+  haveI : Finite (V →+ ZMod 2) :=
+    Finite.of_injective (DFunLike.coe : (V →+ ZMod 2) → (V → ZMod 2)) DFunLike.coe_injective
+  haveI : Fintype V := Fintype.ofFinite V
+  haveI : Fintype (V →+ ZMod 2) := Fintype.ofFinite _
+  refine AddEquiv.ofBijective
+    (AddMonoidHom.mk'
+      (fun v => AddMonoidHom.mk' (fun w => polar q v w) (fun w w' => hq.polar_add_right v w w'))
+      (fun v v' => by ext w; exact hq.polar_add_left v v' w))
+    ((Fintype.bijective_iff_injective_and_card _).mpr ⟨?_, ?_⟩)
+  · intro v v' hvv
+    by_contra hne
+    obtain ⟨w, hw⟩ := hns (v - v') (sub_ne_zero.mpr hne)
+    apply hw
+    have h1 : polar q v w = polar q v' w := DFunLike.congr_fun hvv w
+    have h2 : polar q (v - v' + v') w = polar q (v - v') w + polar q v' w :=
+      hq.polar_add_left _ _ _
+    rw [sub_add_cancel, h1] at h2
+    -- h2 : polar q v' w = polar q (v - v') w + polar q v' w
+    have h3 : (0 : ZMod 2) + polar q v' w = polar q (v - v') w + polar q v' w := by
+      rw [zero_add]
+      exact h2
+    exact (add_right_cancel h3).symm
+  · rw [← Nat.card_eq_fintype_card, ← Nat.card_eq_fintype_card, card_addHom_zmod2 V h2V]
+
+@[simp] theorem polarSelfDual_apply (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
+    (hns : Nonsingular q) (h2V : ∀ v : V, v + v = 0) (v w : V) :
+    polarSelfDual q hq hns h2V v w = polar q v w := rfl
+
+/-- Equivariance of the polar self-duality (target under `dualModule`). -/
+theorem polarSelfDual_equivariant (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
+    (hns : Nonsingular q) (h2V : ∀ v : V, v + v = 0) (hinv : IsInvariant C q)
+    (c : C) (v : V) :
+    polarSelfDual q hq hns h2V (c • v)
+      = (dualModule : DistribMulAction C (V →+ ZMod 2)).toSMul.smul c
+          (polarSelfDual q hq hns h2V v) := by
+  ext w
+  show polar q (c • v) w = polar q v (c⁻¹ • w)
+  conv_lhs => rw [show w = c • (c⁻¹ • w) from (smul_inv_smul c w).symm]
+  show q (c • v + c • (c⁻¹ • w)) + q (c • v) + q (c • (c⁻¹ • w)) = polar q v (c⁻¹ • w)
+  rw [← smul_add, hinv, hinv, hinv]
+  rfl
+
+/-- **The `eU` input**: the induced self-duality of the dual module `U := V^∨` — the polar
+self-duality inverted, then evaluated into the double dual. -/
+noncomputable def dualSelfDual (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
+    (hns : Nonsingular q) (h2V : ∀ v : V, v + v = 0) :
+    (V →+ ZMod 2) ≃+ ((V →+ ZMod 2) →+ ZMod 2) :=
+  (polarSelfDual q hq hns h2V).symm.trans (evalDualEquiv h2V)
+
+/-- **The `heU` input**: equivariance of `dualSelfDual` (source under `dualModule`, target under
+`dualModule` over it). -/
+theorem dualSelfDual_equivariant (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
+    (hns : Nonsingular q) (h2V : ∀ v : V, v + v = 0) (hinv : IsInvariant C q)
+    (c : C) (φ : V →+ ZMod 2) :
+    letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+    dualSelfDual q hq hns h2V
+        ((dualModule : DistribMulAction C (V →+ ZMod 2)).toSMul.smul c φ)
+      = (dualModule : DistribMulAction C ((V →+ ZMod 2) →+ ZMod 2)).toSMul.smul c
+          (dualSelfDual q hq hns h2V φ) := by
+  letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+  have hsymm : (polarSelfDual q hq hns h2V).symm
+      ((dualModule : DistribMulAction C (V →+ ZMod 2)).toSMul.smul c φ)
+      = c • (polarSelfDual q hq hns h2V).symm φ := by
+    apply (polarSelfDual q hq hns h2V).injective
+    rw [AddEquiv.apply_symm_apply,
+      polarSelfDual_equivariant q hq hns h2V hinv c ((polarSelfDual q hq hns h2V).symm φ),
+      AddEquiv.apply_symm_apply]
+  show evalDualEquiv h2V ((polarSelfDual q hq hns h2V).symm _) = _
+  rw [hsymm, evalDualEquiv_equivariant h2V c]
+  rfl
+
+/-- **The `ht₀U` input**: inertia nontriviality dualizes — if `t₀` moves some vector of `V`, it
+moves some functional of `V^∨` (under `dualModule`; by `𝔽₂`-functional separation). -/
+theorem exists_dualModule_smul_ne (h2V : ∀ v : V, v + v = 0) (t₀ : C)
+    (h : ∃ v : V, t₀ • v ≠ v) :
+    ∃ φ : V →+ ZMod 2,
+      (dualModule : DistribMulAction C (V →+ ZMod 2)).toSMul.smul t₀ φ ≠ φ := by
+  obtain ⟨v, hv⟩ := h
+  by_contra hall
+  have hall' : ∀ φ : V →+ ZMod 2,
+      (dualModule : DistribMulAction C (V →+ ZMod 2)).toSMul.smul t₀ φ = φ := by
+    intro φ
+    by_contra hne
+    exact hall ⟨φ, hne⟩
+  have hfix : ∀ w : V, t₀⁻¹ • w = w := by
+    intro w
+    by_contra hne
+    obtain ⟨ψ, hψ⟩ := exists_functional_ne_zero h2V (sub_ne_zero.mpr hne)
+    apply hψ
+    have := DFunLike.congr_fun (hall' ψ) w
+    -- (t₀ • ψ) w = ψ (t₀⁻¹ • w)
+    rw [map_sub, show ψ (t₀⁻¹ • w) = ψ w from this, sub_self]
+  apply hv
+  have := hfix (t₀ • v)
+  rw [inv_smul_smul] at this
+  exact this.symm
+
+end SelfDual
+
 end GQ2

@@ -159,4 +159,141 @@ theorem pairingK_nondeg (x : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMo
 
 end Pairing
 
+section Invariance
+
+/-- `conjMap` is multiplicative in the kernel argument. -/
+theorem conjMap_mul_apply (g : AbsGalQ2)
+    (n m : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :
+    conjMap ρ g (n * m) = conjMap ρ g n * conjMap ρ g m := by
+  apply Subtype.ext
+  show g⁻¹ * ((n : AbsGalQ2) * (m : AbsGalQ2)) * g
+    = (g⁻¹ * (n : AbsGalQ2) * g) * (g⁻¹ * (m : AbsGalQ2) * g)
+  group
+
+/-- `conjMap ρ g⁻¹` inverts `conjMap ρ g`. -/
+theorem conjMap_inv_conjMap (g : AbsGalQ2)
+    (n : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :
+    conjMap ρ g⁻¹ (conjMap ρ g n) = n := by
+  apply Subtype.ext
+  show (g⁻¹)⁻¹ * (g⁻¹ * (n : AbsGalQ2) * g) * g⁻¹ = (n : AbsGalQ2)
+  group
+
+/-- `conjMap ρ g` inverts `conjMap ρ g⁻¹`. -/
+theorem conjMap_conjMap_inv (g : AbsGalQ2)
+    (n : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :
+    conjMap ρ g (conjMap ρ g⁻¹ n) = n := by
+  apply Subtype.ext
+  show g⁻¹ * ((g⁻¹)⁻¹ * (n : AbsGalQ2) * g⁻¹) * g = (n : AbsGalQ2)
+  group
+
+/-- **Coboundary transport along conjugation**: precomposition with `conjMap × conjMap` carries
+`B²(ker ρ, μ₂)` into itself (`δ¹ψ ↦ δ¹(ψ ∘ conjMap)`; the coefficient action is trivial). -/
+theorem comp_conjMap_mem_B2 (g : AbsGalQ2)
+    {f : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) × ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+      → MuN 2}
+    (hf : f ∈ B2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2)) :
+    (fun p => f (conjMap ρ g p.1, conjMap ρ g p.2))
+      ∈ B2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2) := by
+  obtain ⟨ψ, hψ, rfl⟩ := hf
+  refine ⟨ψ ∘ conjMap ρ g, ?_, ?_⟩
+  · exact (mem_C1_iff.mp hψ).comp (continuous_conjMap ρ g)
+  · funext p
+    show p.1 • ψ (conjMap ρ g p.2) - ψ (conjMap ρ g (p.1 * p.2)) + ψ (conjMap ρ g p.1)
+      = conjMap ρ g p.1 • ψ (conjMap ρ g p.2)
+        - ψ (conjMap ρ g p.1 * conjMap ρ g p.2) + ψ (conjMap ρ g p.1)
+    rw [smul_muN_two_trivial_ker, smul_muN_two_trivial_ker, conjMap_mul_apply]
+
+/-- The two-sided form: precomposition with `conjMap × conjMap` preserves `B²` in both
+directions. -/
+theorem comp_conjMap_mem_B2_iff (g : AbsGalQ2)
+    {f : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) × ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+      → MuN 2} :
+    ((fun p => f (conjMap ρ g p.1, conjMap ρ g p.2))
+        ∈ B2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2))
+      ↔ f ∈ B2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2) := by
+  constructor
+  · intro h
+    have h' := comp_conjMap_mem_B2 ρ g⁻¹ h
+    have hfun : (fun p : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+          × ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) =>
+        f (conjMap ρ g (conjMap ρ g⁻¹ p.1), conjMap ρ g (conjMap ρ g⁻¹ p.2))) = f := by
+      funext p
+      rw [conjMap_conjMap_inv, conjMap_conjMap_inv]
+    rwa [hfun] at h'
+  · exact comp_conjMap_mem_B2 ρ g
+
+/-- `conjAct` on an `H1mk`-class: the mk-level form of `conjAct_h1ofFun`. -/
+theorem conjAct_H1mk (g : AbsGalQ2)
+    (a : ↥(Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))) :
+    conjAct ρ g (H1mk ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) a)
+      = H1mk ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)
+          ⟨fun n => a.1 (conjMap ρ g n), comp_conjMap_mem_Z1 ρ a.2 g⟩ := by
+  rw [show H1mk ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) a
+      = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) a.1 from (H1ofFun_of_mem a.2).symm,
+    conjAct_h1ofFun ρ g a.2, H1ofFun_of_mem (comp_conjMap_mem_Z1 ρ a.2 g)]
+
+section ConjInvariance
+
+variable [Finite C]
+
+/-- The invariant map kills conjugation: if the cocycle `Fc` is (pointwise) `F` precomposed
+with `conjMap × conjMap`, the two `inv`-values agree.  `ZMod 2`-valued, so it suffices that the
+two classes vanish together — and vanishing is `B²`-membership, transported by
+`comp_conjMap_mem_B2_iff`.  (Stated with the composition as an *equation hypothesis* so the
+call site avoids higher-order unification.) -/
+theorem inv_H2mk_eq_of_comp_conjMap (g : AbsGalQ2)
+    (Fc F : ↥(Z2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2)))
+    (hco : Fc.1 = fun p => F.1 (conjMap ρ g p.1, conjMap ρ g p.2)) :
+    (tateDualityK ρ).inv (H2mk ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2) Fc)
+      = (tateDualityK ρ).inv (H2mk ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2) F) := by
+  have h2 : ∀ u v : ZMod 2, (u = 0 ↔ v = 0) → u = v := by decide
+  have hiv : ∀ W : H2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2),
+      (tateDualityK ρ).inv W = 0 ↔ W = 0 := fun W =>
+    ⟨fun h => (tateDualityK ρ).inv.injective (h.trans (map_zero _).symm),
+      fun h => by rw [h, map_zero]⟩
+  have hz : ∀ W : ↥(Z2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2)),
+      (H2mk ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2) W = 0)
+        ↔ W.1 ∈ B2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2) := fun W =>
+    (QuotientAddGroup.eq_zero_iff W).trans AddSubgroup.mem_addSubgroupOf
+  refine h2 _ _ ?_
+  rw [hiv, hiv, hz, hz, hco]
+  exact comp_conjMap_mem_B2_iff ρ g
+
+/-- **(H1) Conjugation invariance of the K-level pairing**: `B(g·x, g·y) = B(x, y)` for the
+`conjAct`-action of any `g : G_ℚ₂`.  The transported cup cocycle is on the nose the original
+precomposed with `conjMap × conjMap` (the coefficient actions are trivial), and the invariant
+map kills that precomposition (`inv_H2mk_comp_conjMap`). -/
+theorem pairingK_conjAct (g : AbsGalQ2)
+    (x y : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) :
+    pairingK ρ (conjAct ρ g x) (conjAct ρ g y) = pairingK ρ x y := by
+  obtain ⟨a, rfl⟩ := H1mk_surjective x
+  obtain ⟨b, rfl⟩ := H1mk_surjective y
+  rw [conjAct_H1mk, conjAct_H1mk]
+  show (tateDualityK ρ).inv
+      ((cup11 (muDualPairing 2 (ZMod 2)) (muDualPairing_equivariant 2 (ZMod 2)))
+        (H1congr zmodMuDualEquiv (zmodMuDualEquiv_equivariant ρ)
+          (H1mk _ _ ⟨fun n => a.1 (conjMap ρ g n), comp_conjMap_mem_Z1 ρ a.2 g⟩))
+        (H1mk _ _ ⟨fun n => b.1 (conjMap ρ g n), comp_conjMap_mem_Z1 ρ b.2 g⟩))
+    = (tateDualityK ρ).inv
+      ((cup11 (muDualPairing 2 (ZMod 2)) (muDualPairing_equivariant 2 (ZMod 2)))
+        (H1congr zmodMuDualEquiv (zmodMuDualEquiv_equivariant ρ)
+          (H1mk _ _ a)) (H1mk _ _ b))
+  rw [H1congr_mk, H1congr_mk, cup11_mk_mk, cup11_mk_mk]
+  exact inv_H2mk_eq_of_comp_conjMap ρ g _ _ (funext fun p => rfl)
+
+/-- **(H1) in `conjModule` form** — the literal `hBinv` hypothesis of the abstract `hduality`
+(`card_equivHoms_deep_eq_quot` with `instA := conjModule ρ hρsurj`). -/
+theorem pairingK_conjModule (hρsurj : Function.Surjective ⇑ρ) (c : C)
+    (x y : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) :
+    letI := conjModule ρ hρsurj
+    pairingK ρ (c • x) (c • y) = pairingK ρ x y := by
+  letI := conjModule ρ hρsurj
+  show pairingK ρ (conjAct ρ (Function.surjInv hρsurj c) x)
+      (conjAct ρ (Function.surjInv hρsurj c) y) = pairingK ρ x y
+  exact pairingK_conjAct ρ _ x y
+
+end ConjInvariance
+
+end Invariance
+
 end GQ2

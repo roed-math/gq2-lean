@@ -353,3 +353,24 @@ c tameTau)`.  Obligations:
      Fallback single-clause leaf ONLY on a second explicit user approval.
 7. Assemble → `hduality` → feed `card_deepPart_sq_of_duality` (f6) → `lemma_6_17_dim`
    closes at f8 with the statement-move.
+
+### §8 status update (2026-07-07, session 3): the K-level pairing is LANDED
+
+`GQ2/DeepDualityK.lean` (NEW, registered): `ker_isLocalDualizingGroup` (std-3) →
+**`tateDualityK`** (first consumer of the base-generalized `tateDualityAt`);
+`zmodMuDualEquiv`; **`pairingK`** = `inv_K ∘ cup11(evaluation) ∘ H1congr` on
+`H¹(ker ρ, 𝔽₂)`; **(H2) `pairingK_nondeg`** (`#print axioms` = std-3 + `tateDualityAt`
+exactly); **(H1) `pairingK_conjAct` + `pairingK_conjModule`** (the literal `hBinv` shape) —
+via `conjMap_mul_apply`/`conjMap_(inv_)conjMap`, `comp_conjMap_mem_B2(_iff)` (coboundary
+transport), `conjAct_H1mk`, and `inv_H2mk_eq_of_comp_conjMap` (equation-hypothesis form —
+NB the naive `F∘(c×c)`-pattern lemma hits a higher-order-unification `isDefEq` timeout at the
+call site; the `hco : Fc.1 = fun p => F.1 (conjMap …)`-hypothesis form with
+`(funext fun p => rfl)` at the call is the fix).  `GQ2/DeepDuality.lean` §H (U-side inputs):
+`polarSelfDual`(+`_equivariant` from `hinv`), **`dualSelfDual`(+`_equivariant`) = `eU`/`heU`**,
+**`exists_dualModule_smul_ne` = `ht₀U`**.  Item 1 (mirrors) was §G; items 2, 3 are now DONE;
+item 6 executed (B6′).  **Remaining for f7**: (H4) sharp (approved counting route: perp-count
+banked + `(U_e,U_{e+1})=1` Tier-5 descent extension + B13/(93)-at-`e` sizes), item 5 (the hmid
+twist `conjAct_mid_sub_mem_deep` + `t₀`-lifts residue-trivial), the isotropy `k`-splice
+(item: `cup_deepClasses`-compatibility of `pairingK` — needs `trivialCupPairing` vs
+`cup11(evaluation)` coefficient-transport + the `k.fixingSubgroup = ker ρ` view plumbing),
+and the final `card_equivHoms_deep_eq_quot` instantiation.
