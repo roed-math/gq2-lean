@@ -1034,4 +1034,222 @@ theorem card_quot_kummerDepth_one_le_two [FiniteDimensional ℚ_[2] k]
 
 end Head
 
+/-! ## The assembly: `#(M ⧸ Dc_{e+1}) ≤ #Dc_e`
+
+The paired descent: `R(s) : #(M⧸Dc_{e+1})·#Dc_{e+1+s} ≤ #Dc_e·#(M⧸Dc_{e−s})` holds at
+`s = 0` with equality (double Lagrange), and each step trades the level `e−s−1` on the right
+for the level `e+1+s` on the left — same-parity levels summing to `2e`, where the class-gr
+counts compare (`= 2^f` odd / `= 1 ≤` even).  At `s = e−1` the head (`≤ 2`) and the tail
+survivor (`≥ 2`) close the inequality. -/
+
+section Assembly
+
+variable (k : IntermediateField ℚ_[2] ℚ̄₂) (π : ℚ̄₂)
+variable [Finite (H1 k.fixingSubgroup (ZMod 2))]
+
+/-- Lagrange step-down for the class filtration:
+`#Dc_j = #(Dc_j/Dc_{j+1}) · #Dc_{j+1}`. -/
+theorem card_kummerDepth_step (hπ1 : ‖π‖ ≤ 1) (j : ℕ) :
+    Nat.card ↥(kummerDepth k π j)
+      = Nat.card (↥(kummerDepth k π j) ⧸
+          (kummerDepth k π (j + 1)).addSubgroupOf (kummerDepth k π j))
+        * Nat.card ↥(kummerDepth k π (j + 1)) := by
+  rw [AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup
+    ((kummerDepth k π (j + 1)).addSubgroupOf (kummerDepth k π j))]
+  congr 1
+  exact Nat.card_congr (AddSubgroup.addSubgroupOfEquivOfLe
+    (kummerDepth_antitone k π hπ1 (Nat.le_succ j))).toEquiv
+
+/-- Lagrange step-up for the ambient quotients:
+`#(M⧸Dc_{j+1}) = #(M⧸Dc_j) · #(Dc_j/Dc_{j+1})`. -/
+theorem card_quot_kummerDepth_step (hπ1 : ‖π‖ ≤ 1) (j : ℕ) :
+    Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (j + 1))
+      = Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π j)
+        * Nat.card (↥(kummerDepth k π j) ⧸
+          (kummerDepth k π (j + 1)).addSubgroupOf (kummerDepth k π j)) := by
+  haveI : Nonempty ↥(kummerDepth k π (j + 1)) := ⟨⟨0, zero_mem _⟩⟩
+  have h1 : Nat.card (H1 k.fixingSubgroup (ZMod 2))
+      = Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (j + 1))
+        * Nat.card ↥(kummerDepth k π (j + 1)) :=
+    AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup _
+  have h2 : Nat.card (H1 k.fixingSubgroup (ZMod 2))
+      = Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π j)
+        * Nat.card ↥(kummerDepth k π j) :=
+    AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup _
+  have h3 := card_kummerDepth_step k π hπ1 j
+  have h4 : Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (j + 1))
+        * Nat.card ↥(kummerDepth k π (j + 1))
+      = (Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π j)
+        * Nat.card (↥(kummerDepth k π j) ⧸
+          (kummerDepth k π (j + 1)).addSubgroupOf (kummerDepth k π j)))
+        * Nat.card ↥(kummerDepth k π (j + 1)) := by
+    rw [← h1, h2, h3]
+    ring
+  exact Nat.eq_of_mul_eq_mul_right Nat.card_pos h4
+
+/-- **The paired level comparison**: for `1 ≤ j ≤ e − 1`, the class-gr at `j` is at most the
+class-gr at `2e − j` (same parity: odd levels are both `2^f`, even levels collapse to `1`). -/
+theorem card_classGr_pair_le [FiniteDimensional ℚ_[2] k]
+    (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) (he_pos : 1 ≤ e) {f : ℕ} (hf_pos : 1 ≤ f)
+    (hcard_gr : ∀ i : ℕ, 1 ≤ i → Nat.card (↥(depthUnits k π i) ⧸
+      (depthUnits k π (i + 1)).subgroupOf (depthUnits k π i)) = 2 ^ f)
+    {j : ℕ} (hj1 : 1 ≤ j) (hje : j ≤ e - 1) :
+    Nat.card (↥(kummerDepth k π j) ⧸
+        (kummerDepth k π (j + 1)).addSubgroupOf (kummerDepth k π j))
+      ≤ Nat.card (↥(kummerDepth k π (2 * e - j)) ⧸
+        (kummerDepth k π (2 * e - j + 1)).addSubgroupOf (kummerDepth k π (2 * e - j))) := by
+  haveI : Nonempty (↥(kummerDepth k π (2 * e - j)) ⧸
+      (kummerDepth k π (2 * e - j + 1)).addSubgroupOf (kummerDepth k π (2 * e - j))) :=
+    ⟨0⟩
+  rcases Nat.even_or_odd j with ⟨i, hi⟩ | ⟨t, ht⟩
+  · -- even level: the left side collapses to `1`
+    have hji : j = 2 * i := by omega
+    have hi1 : 1 ≤ i := by omega
+    have hie : i + 1 ≤ e := by omega
+    have hLHS : Nat.card (↥(kummerDepth k π j) ⧸
+        (kummerDepth k π (j + 1)).addSubgroupOf (kummerDepth k π j)) = 1 := by
+      rw [hji]
+      exact card_classGr_even k π hπk hπ0 hπ1 hπmax he hf_pos hie
+        (hcard_gr i hi1) (hcard_gr (2 * i) (by omega))
+    rw [hLHS]
+    exact Nat.card_pos
+  · -- odd level: both sides are `2^f`
+    subst ht
+    rw [show 2 * e - (2 * t + 1) = 2 * (e - t - 1) + 1 from by omega]
+    rw [card_classGr_odd k π hπk hπ0 hπ1 hπmax he he_pos (by omega)
+        (hcard_gr (2 * t + 1) (by omega)),
+      card_classGr_odd k π hπk hπ0 hπ1 hπmax he he_pos (by omega)
+        (hcard_gr (2 * (e - t - 1) + 1) (by omega))]
+
+/-- **THE STRUCTURAL COUNT** — the single remaining input of (H4)'s sharpness:
+`#(M ⧸ Dc_{e+1}) ≤ #Dc_e`, by the paired descent between the double-Lagrange identity at
+`s = 0` and the head/tail comparison at `s = e − 1`. -/
+theorem card_quot_deep_le_card_mid [FiniteDimensional ℚ_[2] k]
+    (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) (he_pos : 1 ≤ e) {f : ℕ} (hf_pos : 1 ≤ f)
+    (hcard_zero : Nat.card (↥(normUnits k) ⧸
+      (depthUnits k π 1).subgroupOf (normUnits k)) = 2 ^ f - 1)
+    (hcard_gr : ∀ i : ℕ, 1 ≤ i → Nat.card (↥(depthUnits k π i) ⧸
+      (depthUnits k π (i + 1)).subgroupOf (depthUnits k π i)) = 2 ^ f) :
+    Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e + 1))
+      ≤ Nat.card ↥(kummerDepth k π e) := by
+  have hcard_0 : Nat.card (↥(depthUnits k π 0) ⧸
+      (depthUnits k π 1).subgroupOf (depthUnits k π 0)) = 2 ^ f - 1 := by
+    rw [depthUnits_zero]
+    exact hcard_zero
+  -- the paired descent
+  have hR : ∀ s : ℕ, s ≤ e - 1 →
+      Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e + 1))
+          * Nat.card ↥(kummerDepth k π (e + 1 + s))
+        ≤ Nat.card ↥(kummerDepth k π e)
+          * Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e - s)) := by
+    intro s
+    induction s with
+    | zero =>
+      intro _
+      show Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e + 1))
+          * Nat.card ↥(kummerDepth k π (e + 1))
+        ≤ Nat.card ↥(kummerDepth k π e)
+          * Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π e)
+      have h1 : Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e + 1))
+          * Nat.card ↥(kummerDepth k π (e + 1))
+          = Nat.card (H1 k.fixingSubgroup (ZMod 2)) :=
+        (AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup _).symm
+      have h2 : Nat.card (H1 k.fixingSubgroup (ZMod 2))
+          = Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π e)
+            * Nat.card ↥(kummerDepth k π e) :=
+        AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup _
+      refine le_of_eq ?_
+      rw [h1, h2, mul_comm]
+    | succ s ih =>
+      intro hs
+      have hR_s := ih (by omega)
+      -- step the two sides
+      have hAstep := card_kummerDepth_step k π hπ1.le (e + 1 + s)
+      have hidx : e - s - 1 + 1 = e - s := by omega
+      have hBstep : Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e - s))
+          = Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e - s - 1))
+            * Nat.card (↥(kummerDepth k π (e - s - 1)) ⧸
+              (kummerDepth k π (e - s - 1 + 1)).addSubgroupOf (kummerDepth k π (e - s - 1))) := by
+        rw [← hidx]
+        exact card_quot_kummerDepth_step k π hπ1.le (e - s - 1)
+      -- the paired comparison at `j := e − s − 1`
+      have hidx2 : 2 * e - (e - s - 1) = e + 1 + s := by omega
+      have hpair : Nat.card (↥(kummerDepth k π (e - s - 1)) ⧸
+            (kummerDepth k π (e - s - 1 + 1)).addSubgroupOf (kummerDepth k π (e - s - 1)))
+          ≤ Nat.card (↥(kummerDepth k π (e + 1 + s)) ⧸
+            (kummerDepth k π (e + 1 + s + 1)).addSubgroupOf (kummerDepth k π (e + 1 + s))) := by
+        have := card_classGr_pair_le k π hπk hπ0 hπ1 hπmax he he_pos hf_pos hcard_gr
+          (j := e - s - 1) (by omega) (by omega)
+        rw [hidx2] at this
+        exact this
+      have hg'pos : 0 < Nat.card (↥(kummerDepth k π (e - s - 1)) ⧸
+          (kummerDepth k π (e - s - 1 + 1)).addSubgroupOf (kummerDepth k π (e - s - 1))) := by
+        haveI : Nonempty (↥(kummerDepth k π (e - s - 1)) ⧸
+            (kummerDepth k π (e - s - 1 + 1)).addSubgroupOf (kummerDepth k π (e - s - 1))) := ⟨0⟩
+        exact Nat.card_pos
+      -- the multiplicative bookkeeping, then cancel the small gr
+      have hchain : (Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e + 1))
+            * Nat.card ↥(kummerDepth k π (e + 1 + (s + 1))))
+            * Nat.card (↥(kummerDepth k π (e - s - 1)) ⧸
+              (kummerDepth k π (e - s - 1 + 1)).addSubgroupOf (kummerDepth k π (e - s - 1)))
+          ≤ (Nat.card ↥(kummerDepth k π e)
+            * Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e - (s + 1))))
+            * Nat.card (↥(kummerDepth k π (e - s - 1)) ⧸
+              (kummerDepth k π (e - s - 1 + 1)).addSubgroupOf (kummerDepth k π (e - s - 1))) := by
+        have hidx3 : e + 1 + (s + 1) = e + 1 + s + 1 := by omega
+        have hidx4 : e - (s + 1) = e - s - 1 := by omega
+        rw [hidx3, hidx4]
+        calc (Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e + 1))
+              * Nat.card ↥(kummerDepth k π (e + 1 + s + 1)))
+              * Nat.card (↥(kummerDepth k π (e - s - 1)) ⧸
+                (kummerDepth k π (e - s - 1 + 1)).addSubgroupOf (kummerDepth k π (e - s - 1)))
+            ≤ (Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e + 1))
+              * Nat.card ↥(kummerDepth k π (e + 1 + s + 1)))
+              * Nat.card (↥(kummerDepth k π (e + 1 + s)) ⧸
+                (kummerDepth k π (e + 1 + s + 1)).addSubgroupOf (kummerDepth k π (e + 1 + s))) := by
+              exact Nat.mul_le_mul_left _ hpair
+          _ = Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e + 1))
+              * Nat.card ↥(kummerDepth k π (e + 1 + s)) := by
+              rw [hAstep]
+              ring
+          _ ≤ Nat.card ↥(kummerDepth k π e)
+              * Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e - s)) := hR_s
+          _ = (Nat.card ↥(kummerDepth k π e)
+              * Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e - s - 1)))
+              * Nat.card (↥(kummerDepth k π (e - s - 1)) ⧸
+                (kummerDepth k π (e - s - 1 + 1)).addSubgroupOf (kummerDepth k π (e - s - 1))) := by
+              rw [hBstep]
+              ring
+      exact Nat.le_of_mul_le_mul_right hchain hg'pos
+  -- endpoint at `s = e − 1`
+  have hend := hR (e - 1) (le_refl _)
+  have hidx1 : e + 1 + (e - 1) = 2 * e := by omega
+  have hidx2 : e - (e - 1) = 1 := by omega
+  rw [hidx1, hidx2] at hend
+  -- head and tail
+  have hhead := card_quot_kummerDepth_one_le_two k π hπk hπ0 hπ1 hπmax he hf_pos hcard_0
+  have htail : 2 ≤ Nat.card ↥(kummerDepth k π (2 * e)) := by
+    obtain ⟨ξ, hξ, hne⟩ := exists_kummerDepth_ne_zero k π hπk hπ0 hπ1 hπmax he
+      (hcard_gr e he_pos) (hcard_gr (2 * e) (by omega))
+    haveI : Nontrivial ↥(kummerDepth k π (2 * e)) :=
+      ⟨⟨⟨ξ, hξ⟩, 0, fun h => hne (by simpa using congrArg Subtype.val h)⟩⟩
+    exact Finite.one_lt_card
+  have hchain : Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e + 1))
+        * Nat.card ↥(kummerDepth k π (2 * e))
+      ≤ Nat.card ↥(kummerDepth k π e) * Nat.card ↥(kummerDepth k π (2 * e)) := by
+    calc Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e + 1))
+          * Nat.card ↥(kummerDepth k π (2 * e))
+        ≤ Nat.card ↥(kummerDepth k π e)
+          * Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π 1) := hend
+      _ ≤ Nat.card ↥(kummerDepth k π e) * 2 := Nat.mul_le_mul_left _ hhead
+      _ ≤ Nat.card ↥(kummerDepth k π e) * Nat.card ↥(kummerDepth k π (2 * e)) :=
+          Nat.mul_le_mul_left _ htail
+  exact Nat.le_of_mul_le_mul_right hchain (by omega)
+
+end Assembly
+
 end GQ2
