@@ -9,6 +9,8 @@ import GQ2.PhaseGaussLIndep
 import GQ2.GaussZReduction
 import GQ2.Phase140Assembly
 import GQ2.RStageGammaA
+import GQ2.Phase140Local
+import GQ2.CardH2GammaA
 
 /-!
 # The P-16 capstone: `prop_8_9` at the concrete block frame  (P-16d6e)
@@ -31,16 +33,94 @@ original draft (`docs/p16d6e-assembly-plan.md` §1, the authoritative record):
   `hVne` (the block's chief-factor structure, P-17h), `hG0indep` (c3-G0's
   `gaussSum_qbar_l_indep_*` at the block's tame package, P-17h).
 * Conclusion strengthened with `0 < Nat.card DT` (P-17i; free — `0 ∈ (T^∨)^C`).
+
+## Skeleton status (P-16d6e7, skeleton-first per the row plan)
+
+The witness assembly below is **plumbing-complete**: the `hex`-split, the shared
+`DT := (T^∨)^C` at a reference `λ₀` (definitionally `λ`-independent — `radData`'s `T`/`hT`
+are the literal frame fields), the `dite`-phase family with its `dif_pos`-reduction
+(`phaseFamily_pos`), the shared `μ = #V·μ₀` value (`muZero`, read at `λ₀` and transported by
+`tcocycle_card_l_indep`), and the two `prop_8_9_aux` splices.  `hRK`/`hR2` are discharged
+internally (`lemma_7_2` at `π := T.piY`, `cH := F.alpha` — the plan-doc ledger), `hfgA`
+internally (`gammaA_topologicallyFinitelyGenerated`), and `hnt` from `hfaith` +
+`[Nontrivial YC]`.
+
+**Live**: the `¬hex` branch entirely; both `stageR136` fields; the full local (`G_ℚ₂`)
+input bundle (`half139_local`, `phase140_local` — P-16d6e3 closed).  **Sorried (2)**: the
+`Γ_A` `half139` field (needs P-16d6e6's `hMcountM_A`; `lemma_8_6_gammaA` ✓ supplies
+`hlem86M`) and the `Γ_A` `phase140` field (needs P-16d6e6's `phase140_gammaA` mirror —
+`hZcard_gammaA` ✓ landed, `hsep_A`/`hpartial_A`/`tcocycle_card_gammaA` open; consume with
+`phaseFamily_pos` + `hGaussZA l h` exactly as the local branch).
 -/
 
 namespace GQ2
 
 namespace SectionEight
 
-open SectionSeven
+open SectionSeven AffineTLift CentralObstruction ContCoh LocalLiftingDuality FoxH
+open scoped Classical
 
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
   [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+
+/-! ## The shared witness data: descent unpacking, phase family, `μ₀` -/
+
+section PhaseWitness
+
+variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+  {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY} {RF : RecursionFrame T Blk}
+
+/-- **The (140) zero-edge unpacking**: the `RecursionInputs.phase140` hypothesis *is* the
+descent condition of the assembled per-`λ` datum (`Enrichment.radData_noDescent_iff` is
+`Iff.rfl`), so it unpacks verbatim to an `AffineTLift.Descent`. -/
+noncomputable def descentOf (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR)
+    (hN : ∃ N : Subgroup (RF.scalarCover l h).cover, N.Normal ∧
+      N.map (RF.scalarCover l h).p = RF.TBsub ∧ (RF.scalarCover l h).z ∉ N) :
+    Descent (En.radData l h) :=
+  ⟨hN.choose, hN.choose_spec.1, hN.choose_spec.2.1, hN.choose_spec.2.2⟩
+
+/-- The zero-cocycle (split) double cover `𝔽₂ × C₀`: the junk value of the phase family off
+the zero-edge locus.  (140)'s hypothesis restricts attention to the locus, so this value is
+never inspected. -/
+noncomputable def trivialPhaseCover (C0 : Type) [Group C0] [Finite C0] : CentralCover C0 :=
+  centralCoverOfCocycle (fun _ => (0 : ZMod 2)) (fun _ _ _ => rfl) (fun _ => rfl)
+    (fun _ => rfl)
+
+/-- **The shared per-`λ` phase family** (the paper's `Δ_{ζ,κ_λ}`-covers, (134)): on the
+zero-edge locus, the `phaseChi`-cover through the unpacked descent; off it, the trivial
+cover.  The phase index `ζ` is typed at a reference `(l₀, h₀)`: `TCharC (En.radData l h)`
+is **definitionally** `(l,h)`-independent (`radData`'s `T`/`hT` are the literal frame
+fields `RF.TBsub`/`RF.TBsub_normal` — plan §1A), so the same `ζ` is accepted at every `λ`. -/
+noncomputable def phaseFamily (En : RF.Enrichment) (l₀ : RF.DR) (h₀ : l₀ ≠ RF.zeroDR)
+    (l : RF.DR) (h : l ≠ RF.zeroDR) (ζ : ↥(TCharC (En.radData l₀ h₀))) :
+    CentralCover RF.YC :=
+  if hN : ∃ N : Subgroup (RF.scalarCover l h).cover, N.Normal ∧
+      N.map (RF.scalarCover l h).p = RF.TBsub ∧ (RF.scalarCover l h).z ∉ N then
+    phaseChi En l h (descentOf En l h hN) ζ
+  else
+    trivialPhaseCover RF.YC
+
+/-- The `dif_pos`-reduction of the phase family on the zero-edge locus (the pre-analyzed
+elaboration risk (b) of the row: the rewrite is proof-irrelevant in the stored descent
+witness, since `descentOf` consumes whichever proof the caller holds). -/
+theorem phaseFamily_pos (En : RF.Enrichment) (l₀ : RF.DR) (h₀ : l₀ ≠ RF.zeroDR)
+    (l : RF.DR) (h : l ≠ RF.zeroDR)
+    (hN : ∃ N : Subgroup (RF.scalarCover l h).cover, N.Normal ∧
+      N.map (RF.scalarCover l h).p = RF.TBsub ∧ (RF.scalarCover l h).z ∉ N)
+    (ζ : ↥(TCharC (En.radData l₀ h₀))) :
+    phaseFamily En l₀ h₀ l h ζ = phaseChi En l h (descentOf En l h hN) ζ :=
+  dif_pos hN
+
+/-- **The shared `T`-cocycle count `μ₀`** (the paper's `#Z¹(T_B)`, (132)), read at the
+reference `(l₀, h₀)`.  Frame-level (`radData`'s `T`/`M` are the literal `RF.TBsub`/`RF.MB`),
+hence `(l,h)`-independent by `tcocycle_card_l_indep`; its per-`ρ` constancy and value are
+the sources' `tcocycle_card_*` theorems (local ✓ e3; `Γ_A` = e6). -/
+noncomputable def muZero (En : RF.Enrichment) (l₀ : RF.DR) (h₀ : l₀ ≠ RF.zeroDR) : ℕ :=
+  Nat.card (Additive ↥(En.radData l₀ h₀).T) ^ 2
+    * Nat.card (fixedPts (RF.YB ⧸ (En.radData l₀ h₀).M)
+        (ElemDual (Additive ↥(En.radData l₀ h₀).T)))
+
+end PhaseWitness
 
 /-- **Proposition 8.9 (closed exact-image recursion)**: for the concrete block frame of a
 boundary-framed target with a §7 simple-head block, there are **shared** data
@@ -75,7 +155,58 @@ theorem prop_8_9 (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
       0 < Nat.card DT ∧
         ClosedRecursion (blockFrameImpl T Blk hE2) B.bA F μ G0' DT phase ∧
           ClosedRecursion (blockFrameImpl T Blk hE2) B.bF F μ G0' DT phase := by
-  sorry
+  classical
+  -- the block's R-layer facts, discharged internally (plan-doc ledger: `lemma_7_2` at
+  -- `π := T.piY`, `cH := F.alpha`)
+  obtain ⟨hRK, hR2, -⟩ :=
+    lemma_7_2 T.piY T.piY_surjective T.ker_piY F.alpha F.alpha_surjective Blk
+  -- `Γ_A` is t.f.g. (internal)
+  have hfgA : ∃ s : Finset GammaA,
+      (Subgroup.closure (s : Set GammaA)).topologicalClosure = ⊤ :=
+    gammaA_topologicallyFinitelyGenerated
+  by_cases hex : ∃ l : (blockFrameImpl T Blk hE2).DR, l ≠ (blockFrameImpl T Blk hE2).zeroDR
+  · -- some `λ ≠ 0` exists: share `DT := (T^∨)^C`, read at a reference `λ₀`
+    obtain ⟨l₀, h₀⟩ := hex
+    haveI : Fintype ↥(TCharC (En.radData l₀ h₀)) := Fintype.ofFinite _
+    -- `hnt` (the nontrivial-action input of `hZcard_local`): faithfulness + `Nontrivial YC`
+    have hnt : ∃ (g : (blockFrameImpl T Blk hE2).YC) (v : En.Vmod), g • v ≠ v := by
+      obtain ⟨g, hg⟩ := exists_ne (1 : (blockFrameImpl T Blk hE2).YC)
+      refine ⟨g, ?_⟩
+      by_contra hcon
+      exact hg (hfaith g fun v => not_ne_iff.mp (not_exists.mp hcon v))
+    refine ⟨Nat.card En.Vmod * muZero En l₀ h₀, G0, ↥(TCharC (En.radData l₀ h₀)),
+      inferInstance, phaseFamily En l₀ h₀, card_TCharC_pos En l₀ h₀, ?_, ?_⟩
+    · -- the `Γ_A` recursion
+      refine prop_8_9_aux _ hfgA B.bA F lemma_8_2_gammaA hheadA _ _ _ _ ?_
+      refine ⟨CardH2GammaA.stageR136_gammaA hE2 hRK hR2 B.bA F, fun l h hedge => ?_, fun l h hN => ?_⟩
+      · -- (139) for `Γ_A` — GATED on P-16d6e6's `hMcountM_A` (`lemma_8_6_gammaA` ✓ supplies
+        -- `hlem86M`); wire through `half139_via_radData` when it lands
+        sorry
+      · -- (140) for `Γ_A` — GATED on P-16d6e6's `phase140_gammaA` (the `phase140_local`
+        -- mirror: `hZcard_gammaA` ✓; `hsep_A`/`hpartial_A`/`tcocycle_card_gammaA` open);
+        -- consume with `phaseFamily_pos` + the shared `hμ`-transport + `hGaussZA l h`,
+        -- exactly as the local branch below
+        sorry
+    · -- the `G_ℚ₂` recursion — fully live (P-16d6e3 closed)
+      refine prop_8_9_aux _ hfgF B.bF F (lemma_8_2_local B) hheadF _ _ _ _ ?_
+      refine ⟨RStageLocal.stageR136_local hE2 hRK hR2 hfgF B.bF F, fun l h hedge => ?_, fun l h hN => ?_⟩
+      · exact half139_local _ B.bF F En hfgF l h hedge
+      · -- the landed local (140) at the unpacked descent + the `dif_pos`-reduction
+        have h140 := phase140_local B.bF F En l h (descentOf En l h hN) hfgF
+          (muZero En l₀ h₀) G0 hsimple hfaith hVne hnt
+          (fun ρ => (tcocycle_card_l_indep _ B.bF F En l h l₀ h₀ ρ).trans
+            (tcocycle_card_local B.bF F En l₀ h₀ ρ))
+          (hGaussZF l h)
+        simp only [phaseFamily_pos En l₀ h₀ l h hN]
+        exact h140
+  · -- no nonzero `λ`: (137)–(140) are vacuous, and only the two (136) stages are live
+    refine ⟨1, G0, PUnit, inferInstance, fun l h _ => absurd ⟨l, h⟩ hex, by simp, ?_, ?_⟩
+    · exact prop_8_9_aux _ hfgA B.bA F lemma_8_2_gammaA hheadA _ _ _ _
+        ⟨CardH2GammaA.stageR136_gammaA hE2 hRK hR2 B.bA F,
+          fun l h => absurd ⟨l, h⟩ hex, fun l h => absurd ⟨l, h⟩ hex⟩
+    · exact prop_8_9_aux _ hfgF B.bF F (lemma_8_2_local B) hheadF _ _ _ _
+        ⟨RStageLocal.stageR136_local hE2 hRK hR2 hfgF B.bF F,
+          fun l h => absurd ⟨l, h⟩ hex, fun l h => absurd ⟨l, h⟩ hex⟩
 
 end SectionEight
 
