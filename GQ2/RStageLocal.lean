@@ -273,6 +273,52 @@ theorem hZcount_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
 
 end ZCount
 
+/-! ## The assembly, parametric over `hsep_hom` -/
+
+section Assembly
+
+/-- The `G_ℚ₂`-action on `𝔽₂` is trivial (any group action on `ZMod 2` fixes both elements). -/
+theorem htriv_local (γ : AbsGalQ2) (m : ZMod 2) : γ • m = m := by
+  have hz : ∀ z : ZMod 2, z = 0 ∨ z = 1 := by decide
+  rcases hz m with rfl | rfl
+  · exact smul_zero γ
+  · by_contra hne
+    have h1 : γ • (1 : ZMod 2) = 0 := by
+      rcases hz (γ • (1 : ZMod 2)) with h | h
+      · exact h
+      · exact absurd h hne
+    have h2 : (1 : ZMod 2) = γ⁻¹ • (0 : ZMod 2) := by
+      rw [← h1, inv_smul_smul]
+    rw [smul_zero] at h2
+    exact one_ne_zero h2
+
+/-- **(136) for the block frame at the local source, parametric over `hsep_hom`**
+(P-16d6e residue assembly): `htriv`/`hcard`/`hZcount` are discharged
+(`htriv_local`/`card_H2_zmod2_eq_two`/`hZcount_local`); the remaining inputs are the
+`lemma_7_2` structural facts (`hRK`/`hR2`), `hfg` (**B1**, reserved for P-17i), and
+**`hsep_hom`** — the `(R^∨)^C`-separation (next increment: `prop_5_16` clause (vi) +
+`B²`-extraction + `homLift_of_split`; see the module docstring for the surjectivity
+scoping note). -/
+theorem stageR136_local_of_hsep [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ r ∈ Blk.R, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.R, r * r = 1)
+    (hfg : ∃ s : Finset AbsGalQ2, (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤)
+    (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (hsep_hom : ∀ g : BoundaryLifts b F (blockFrameImpl T Blk hE2).TB,
+      obs (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2) htriv_local
+          (card_H2_zmod2_eq_two htriv_local) g.1.1 = 0 →
+        ∃ φ : ContinuousMonoidHom AbsGalQ2 Y,
+          ∀ γ, (blockFrameImpl T Blk hE2).piB (φ γ) = g.1.1 γ) :
+    (Nat.card (blockFrameImpl T Blk hE2).DR : ℤ) * exactImageCount b F T
+      = (blockFrameImpl T Blk hE2).zR * ∑ᶠ l : (blockFrameImpl T Blk hE2).DR,
+          (2 * ((blockFrameImpl T Blk hE2).mB b F l : ℤ)
+            - exactImageCount b F (blockFrameImpl T Blk hE2).TB) :=
+  blockStageR136 T Blk hE2 htriv_local (card_H2_zmod2_eq_two htriv_local) hfg b F hsep_hom
+    (fun f₀ => hZcount_local hE2 hRK hR2 b F f₀)
+
+end Assembly
+
 end RStageLocal
 
 end GQ2
