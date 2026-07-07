@@ -219,11 +219,17 @@ extension needed.
   * ✅ **L3a** `wTrace` (std-3) — the (2,0)-trace `Φ_λ : H2w →+ 𝔽₂`, well-defined via
     `prop_5_8_right` + `mixedB_zero_right` (this IS gap (i), the pairing `IsSelfDual` omits).
   * ✅ **L3b** `wTrace_injective` (std-3) — `λ ↦ Φ_λ` injective (eval at `[⟨a,0⟩]`).
-  * ☐ **L3c/d** — the counting `#{invariant λ} = #H2w` (`IsSelfDual` cl.1 + `H0w_eq_fixedPts` +
-    `card_addHom_zmod2`) ⟹ `λ ↦ Φ_λ` **bijective** ⟹ **`sep_word`** (`v` killed by every
-    invariant char ⟹ `v ∈ im d¹`, via `exists_addHom_ne_zero`).  Pieces all pinned; the
-    injective+equal-card⟹surjective step is the one lemma-hunt (`Fintype.bijective_iff_
-    injective_and_card` with `Nat.card_eq_fintype_card` bridges).
+  * ✅ **L3c** `wTrace_surjective` (std-3) — `λ ↦ Φ_λ` **onto** `H2w →+ 𝔽₂`.  The chain
+    `#{invariant λ} = #fixedPts C (A^∨) = #H2w = #(H2w →+ 𝔽₂)` lands via `H0w_eq_fixedPts`
+    (`Nat.card_congr (Equiv.setCongr …)`), `IsSelfDual` clause 1 (`obtain ⟨hsd_card,-,-⟩`), and
+    `LocalLiftingDuality.card_addHom_zmod2`; injective (`wTrace_injective`) + equal `Fintype.card`
+    ⟹ `Fintype.bijective_iff_injective_and_card`.  (Needed `Finite (H2w t)` via
+    `inferInstanceAs (Finite (_ ⧸ _))` — the `H2w` def doesn't auto-synth it; and
+    `import GQ2.LocalLiftingDuality` — its `card_addHom_zmod2`/`exists_addHom_ne_zero` are in
+    `GQ2.LocalLiftingDuality`, NOT `GQ2`, so **qualify** them.)
+  * ✅ **L3d** `sep_word` (std-3) — `v.1+v.2` killed by every invariant char ⟹ `v ∈ im d¹`:
+    `rw [← QuotientAddGroup.eq_zero_iff]`; `by_contra`; `exists_addHom_ne_zero` on `[v]`;
+    `wTrace_surjective` gives `Ψ = Φ_λ`; `wTrace_mk` + hypothesis close it.
   * ☐ **L1** — the general-extension relator correction (the long pole; L1-wild ≈ `mixedB_wildRow`
     length).  ☐ **L4/L5** — per-cover extraction (`obs_zero_iff_lifts`) + descent
     (`markC_admissible`/`NA_le_ker`/`quotientLift`); L2/`sep_word` feed these.
