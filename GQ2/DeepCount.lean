@@ -463,4 +463,167 @@ theorem kummerDepth_even_collapse (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : �
 
 end GrSquaring
 
+/-! ## The class-graded comparison map and the odd-level count
+
+`classGrMap : U_j/U_{j+1} → Dc_j/Dc_{j+1}`, `[u] ↦ [[u]]` — always surjective (depth-`j`
+classes are classes of depth-`j` units by definition), and INJECTIVE at odd `j < 2e`:
+a unit whose class drops a level is `b·w²` with `b` one deeper and `w²` a square in `U_j`
+(the Kummer kernel), and squares skip odd levels (`norm_sq_sub_one_le_succ_of_odd`), so the
+unit itself is one deeper.  Consequences: `#(Dc_j/Dc_{j+1}) ≤ 2^f` always, `= 2^f` at odd
+`j < 2e`, and `= 1` at even `0 < j < 2e` (increment 2's collapse). -/
+
+section ClassGr
+
+variable (k : IntermediateField ℚ_[2] ℚ̄₂) (π : ℚ̄₂)
+
+/-- The comparison map from the unit-graded piece to the class-graded piece. -/
+noncomputable def classGrMap (j : ℕ) :
+    (↥(depthUnits k π j) ⧸ (depthUnits k π (j + 1)).subgroupOf (depthUnits k π j)) →
+      (↥(kummerDepth k π j) ⧸
+        (kummerDepth k π (j + 1)).addSubgroupOf (kummerDepth k π j)) :=
+  fun q => Quotient.liftOn' q
+    (fun u => QuotientAddGroup.mk
+      ⟨kummerClassK k (u : (↥k)ˣ),
+        (mem_kummerDepth_iff k π).mpr ⟨(u : (↥k)ˣ), u.2, rfl⟩⟩)
+    (by
+      intro u v huv
+      rw [QuotientGroup.leftRel_apply] at huv
+      rw [Subgroup.mem_subgroupOf] at huv
+      refine QuotientAddGroup.eq.mpr ?_
+      rw [AddSubgroup.mem_addSubgroupOf]
+      have hgoal : -(kummerClassK k (u : (↥k)ˣ)) + kummerClassK k (v : (↥k)ˣ)
+          ∈ kummerDepth k π (j + 1) := by
+        refine (mem_kummerDepth_iff k π).mpr ⟨((u : (↥k)ˣ))⁻¹ * v, huv, ?_⟩
+        rw [kummerClassK_mul, kummerClassK_inv,
+          neg_eq_of_add_eq_zero_left (h1_add_self (kummerClassK k (u : (↥k)ˣ)))]
+      exact hgoal)
+
+/-- Computation rule (definitional). -/
+theorem classGrMap_mk (j : ℕ) (u : ↥(depthUnits k π j)) :
+    classGrMap k π j (QuotientGroup.mk u)
+      = QuotientAddGroup.mk ⟨kummerClassK k (u : (↥k)ˣ),
+          (mem_kummerDepth_iff k π).mpr ⟨(u : (↥k)ˣ), u.2, rfl⟩⟩ := rfl
+
+/-- `classGrMap` is surjective (depth-`j` classes are classes of depth-`j` units). -/
+theorem classGrMap_surjective (j : ℕ) : Function.Surjective (classGrMap k π j) := by
+  intro q
+  induction q using QuotientAddGroup.induction_on with
+  | H x =>
+    obtain ⟨a, ha, hax⟩ := x.2
+    exact ⟨QuotientGroup.mk ⟨a, ha⟩, congrArg QuotientAddGroup.mk (Subtype.ext hax)⟩
+
+/-- **`classGrMap` is injective at odd `j ≤ 2e − 1`** — the odd-level fullness core. -/
+theorem classGrMap_injective [FiniteDimensional ℚ_[2] k]
+    (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) (he_pos : 1 ≤ e)
+    {t : ℕ} (hj2e : 2 * t + 1 ≤ 2 * e - 1) :
+    Function.Injective (classGrMap k π (2 * t + 1)) := by
+  intro q q'
+  induction q using QuotientGroup.induction_on with
+  | H u =>
+    induction q' using QuotientGroup.induction_on with
+    | H v =>
+      intro hqq
+      rw [classGrMap_mk, classGrMap_mk] at hqq
+      have hqq' := QuotientAddGroup.eq.mp hqq
+      rw [AddSubgroup.mem_addSubgroupOf] at hqq'
+      -- re-view the membership with the subtype-coe reduced
+      have hqq2 : -(kummerClassK k (u : (↥k)ˣ)) + kummerClassK k (v : (↥k)ˣ)
+          ∈ kummerDepth k π (2 * t + 1 + 1) := hqq'
+      obtain ⟨b, hb, hbeq⟩ := hqq2
+      -- flip the sign (2-torsion): `[b] = [u] + [v]`
+      have hbeq' : kummerClassK k b
+          = kummerClassK k (u : (↥k)ˣ) + kummerClassK k (v : (↥k)ˣ) := by
+        rw [hbeq, neg_eq_of_add_eq_zero_left (h1_add_self (kummerClassK k (u : (↥k)ˣ)))]
+      -- `[u⁻¹·v·b⁻¹] = 0`, so it is a square
+      have h0 : kummerClassK k ((u : (↥k)ˣ)⁻¹ * (v : (↥k)ˣ) * b⁻¹) = 0 := by
+        rw [kummerClassK_mul, kummerClassK_mul, kummerClassK_inv, kummerClassK_inv, hbeq']
+        exact h1_add_self _
+      obtain ⟨w, hw⟩ := exists_sq_of_kummerClassK_eq_zero k _ h0
+      -- the square `w² = u⁻¹·v·b⁻¹` is a depth-`j` unit, hence depth-`j+1` (odd parity)
+      have hc : (u : (↥k)ˣ)⁻¹ * (v : (↥k)ˣ) * b⁻¹ ∈ depthUnits k π (2 * t + 1) :=
+        mul_mem (mul_mem (inv_mem u.2) v.2)
+          (inv_mem (depthUnits_antitone k π hπ1.le (Nat.le_succ _) hb))
+      have hcoe : ((w : ℚ̄₂)) ^ 2
+          = ((((u : (↥k)ˣ)⁻¹ * (v : (↥k)ˣ) * b⁻¹ : (↥k)ˣ) : ↥k) : ℚ̄₂) := by
+        rw [← SubmonoidClass.coe_pow, hw]
+      have hwnorm : ‖((w : ℚ̄₂)) ^ 2 - 1‖ ≤ ‖π‖ ^ (2 * t + 1) := by
+        rw [hcoe]
+        exact hc.2
+      have hpar := norm_sq_sub_one_le_succ_of_odd k π hπk hπ0 hπ1 hπmax he hj2e he_pos hwnorm
+      have hcmem : (u : (↥k)ˣ)⁻¹ * (v : (↥k)ˣ) * b⁻¹ ∈ depthUnits k π (2 * t + 2) := by
+        refine ⟨hc.1, ?_⟩
+        rw [← hcoe]
+        exact hpar
+      -- `u⁻¹·v = (u⁻¹·v·b⁻¹)·b ∈ U_{j+1}`
+      have huv : (u : (↥k)ˣ)⁻¹ * (v : (↥k)ˣ) ∈ depthUnits k π (2 * t + 1 + 1) := by
+        rw [show (u : (↥k)ˣ)⁻¹ * (v : (↥k)ˣ)
+            = ((u : (↥k)ˣ)⁻¹ * (v : (↥k)ˣ) * b⁻¹) * b by group]
+        exact mul_mem hcmem hb
+      rw [QuotientGroup.eq]
+      rw [Subgroup.mem_subgroupOf]
+      exact huv
+
+/-- The class-graded piece has at most `2^f` elements (surjectivity + the unit-gr count,
+the latter a B13 hypothesis). -/
+theorem card_classGr_le (j : ℕ) {f : ℕ}
+    (hcard_j : Nat.card (↥(depthUnits k π j) ⧸
+      (depthUnits k π (j + 1)).subgroupOf (depthUnits k π j)) = 2 ^ f) :
+    Nat.card (↥(kummerDepth k π j) ⧸
+      (kummerDepth k π (j + 1)).addSubgroupOf (kummerDepth k π j)) ≤ 2 ^ f := by
+  haveI : Finite (↥(depthUnits k π j) ⧸
+      (depthUnits k π (j + 1)).subgroupOf (depthUnits k π j)) :=
+    (Nat.card_pos_iff.mp (by rw [hcard_j]; positivity)).2
+  rw [← hcard_j]
+  exact Nat.card_le_card_of_surjective _ (classGrMap_surjective k π j)
+
+/-- **The odd-level class-gr count**: `#(Dc_j/Dc_{j+1}) = 2^f` at odd `j ≤ 2e − 1`
+(the comparison map is bijective). -/
+theorem card_classGr_odd [FiniteDimensional ℚ_[2] k]
+    (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) (he_pos : 1 ≤ e)
+    {t : ℕ} (hj2e : 2 * t + 1 ≤ 2 * e - 1) {f : ℕ}
+    (hcard_j : Nat.card (↥(depthUnits k π (2 * t + 1)) ⧸
+      (depthUnits k π (2 * t + 1 + 1)).subgroupOf (depthUnits k π (2 * t + 1))) = 2 ^ f) :
+    Nat.card (↥(kummerDepth k π (2 * t + 1)) ⧸
+      (kummerDepth k π (2 * t + 1 + 1)).addSubgroupOf (kummerDepth k π (2 * t + 1)))
+      = 2 ^ f := by
+  haveI : Finite (↥(depthUnits k π (2 * t + 1)) ⧸
+      (depthUnits k π (2 * t + 1 + 1)).subgroupOf (depthUnits k π (2 * t + 1))) :=
+    (Nat.card_pos_iff.mp (by rw [hcard_j]; positivity)).2
+  rw [← hcard_j]
+  exact Nat.card_eq_of_bijective _
+    ⟨classGrMap_injective k π hπk hπ0 hπ1 hπmax he he_pos hj2e,
+      classGrMap_surjective k π (2 * t + 1)⟩ |>.symm
+
+/-- **The even-level class-gr count**: `#(Dc_{2i}/Dc_{2i+1}) = 1` for `0 < 2i < 2e`
+(increment 2's collapse makes the quotient a subsingleton). -/
+theorem card_classGr_even (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) {f : ℕ} (hf_pos : 1 ≤ f)
+    {i : ℕ} (hie : i + 1 ≤ e)
+    (hcard_i : Nat.card (↥(depthUnits k π i) ⧸
+      (depthUnits k π (i + 1)).subgroupOf (depthUnits k π i)) = 2 ^ f)
+    (hcard_2i : Nat.card (↥(depthUnits k π (2 * i)) ⧸
+      (depthUnits k π (2 * i + 1)).subgroupOf (depthUnits k π (2 * i))) = 2 ^ f) :
+    Nat.card (↥(kummerDepth k π (2 * i)) ⧸
+      (kummerDepth k π (2 * i + 1)).addSubgroupOf (kummerDepth k π (2 * i))) = 1 := by
+  have hcollapse := kummerDepth_even_collapse k π hπk hπ0 hπ1 hπmax he hf_pos hie
+    hcard_i hcard_2i
+  have hsub : Subsingleton (↥(kummerDepth k π (2 * i)) ⧸
+      (kummerDepth k π (2 * i + 1)).addSubgroupOf (kummerDepth k π (2 * i))) := by
+    refine ⟨fun x y => ?_⟩
+    induction x using QuotientAddGroup.induction_on with
+    | H a =>
+      induction y using QuotientAddGroup.induction_on with
+      | H b =>
+        refine QuotientAddGroup.eq.mpr ?_
+        rw [AddSubgroup.mem_addSubgroupOf]
+        exact hcollapse (AddSubgroup.add_mem _ (AddSubgroup.neg_mem _ a.2) b.2)
+  exact Nat.card_eq_one_iff_unique.mpr ⟨⟨fun x y => Subsingleton.elim x y⟩, ⟨0⟩⟩
+
+end ClassGr
+
 end GQ2
