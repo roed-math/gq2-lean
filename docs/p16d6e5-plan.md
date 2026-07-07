@@ -230,9 +230,29 @@ extension needed.
   * ✅ **L3d** `sep_word` (std-3) — `v.1+v.2` killed by every invariant char ⟹ `v ∈ im d¹`:
     `rw [← QuotientAddGroup.eq_zero_iff]`; `by_contra`; `exists_addHom_ne_zero` on `[v]`;
     `wTrace_surjective` gives `Ψ = Φ_λ`; `wTrace_mk` + hypothesis close it.
-  * ☐ **L1** — the general-extension relator correction (the long pole; L1-wild ≈ `mixedB_wildRow`
-    length).  ☐ **L4/L5** — per-cover extraction (`obs_zero_iff_lifts`) + descent
-    (`markC_admissible`/`NA_le_ker`/`quotientLift`); L2/`sep_word` feed these.
+  * ✅ **L3e** `trace_kills_im_trivial` (std-3) — for `C` acting trivially on `𝔽₂`,
+    `(d¹x).1 + (d¹x).2 = 0`.  `prop_5_8_right` at `A := ZMod 2`, `lam := id` (invariant, `d⁰ id = 0`).
+    **T-14 diamond gotcha (reuse in L4):** force `let idE : ElemDual (ZMod 2) := AddMonoidHom.id _`
+    — a bare `ZMod 2 →+ ZMod 2`, or any `ext`/`DFunLike.ext` that decays `idE` to one, resolves
+    `c • idE` to the codomain-action diamond (`AddMonoidHom.instSMulZeroClassOfDistribSMul`) instead
+    of the contragredient, and every downstream `rw`/`exact` then mismatches instances.  With the
+    typed `let`, `c • idE` is defeq `idE.comp (toAddMonoidHom c⁻¹)`; `toAddMonoidHom c⁻¹ = id` +
+    `comp_id` close `hact`.
+  * ☐ **L1** — the general-extension relator correction (**the long pole**; L1-wild ≈ `mixedB_wildRow`
+    length).  **Sharpened for the L4 instance:** at `Y' := Y/l` the kernel `R/l ≅ 𝔽₂` is *central*
+    (the invariant character `d` gives a trivial `C`-action — `Aut 𝔽₂ = 1`), so L1 is consumed at
+    **trivial-action 𝔽₂**, not the general conjugation action.  Two viable phrasings: (a) prove L1
+    generally (conj-by-`ŷᵢ` action) then specialize; (b) prove L1 directly at central `𝔽₂` (shorter
+    algebra — corrections commute).  The tame row (`τ^σ(τ²)⁻¹`, only `σ,τ`) is tractable; the wild
+    row (`h₀u₁⁻¹x₁^σc₀`, all of `Words.lean`'s auxiliary words) is the length risk — mirror
+    `mixedB_wildRow` line-by-line.  Reuse the T-14 `let idE` trick and the term-mode GA-bridge.
+  * ☐ **L4/L5** — per-cover extraction (`obs_zero_iff_lifts`) + descent
+    (`markC_admissible`/`NA_le_ker`/`quotientLift`).  **Exact L4→sep_word flow now pinned:** for each
+    invariant char `d` (`= l = RCharKer d` via `blockToDR`), L1 at `Y/l` + `d1Fun_naturality` (L2)
+    give `(d(v.1), d(v.2)) ∈ im d¹(𝔽₂-triv)`; `trace_kills_im_trivial` (L3e) turns that into
+    `d(v.1) + d(v.2) = 0` = `lam (v.1+v.2) = 0`; feed all invariant `lam` to `sep_word` ⟹
+    `v ∈ im d¹(Additive R)` ⟹ corrections `r⃗`, then L5 builds `J`/the corrected marking and
+    descends.  (`d = 0` is trivial: `sep_word`'s hypothesis at `lam = 0` is `0 = 0`.)
 
 **The GA/GammaA bridge — RESOLVED PATTERN (reuse in L1–L5).**  `GammaA ≡ GA` defeq, but their
 instances don't cross-resolve.  Theorems are stated over `Γ := GammaA` (so `blockStageR136`/
