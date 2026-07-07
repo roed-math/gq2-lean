@@ -133,13 +133,13 @@ theorem RCharKer_relIndex_le (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RChar
     _ = 2 := by rw [Nat.card_eq_fintype_card]; rfl
 
 /-- The `D_R` index type of the concrete frame `blockFrameImpl` (defeq to its `.DR`). -/
-abbrev BlockDR (Blk : SectionSeven.MinimalBlock L) : Type :=
+abbrev BlockDRsub (Blk : SectionSeven.MinimalBlock L) : Type :=
   {R' : Subgroup Y // R'.Normal ∧ R' ≤ Blk.R ∧ R'.relIndex Blk.R ≤ 2}
 
 /-- **The inverse direction**: the index-≤2 indicator character `r ↦ [r ∉ R']` of a `D_R`
 element, as an additive hom (additive by `mul_mem_iff_of_index_two`, with the `index ≤ 2`
 case-split covering `R' = R` — the zero character). -/
-noncomputable def RCharOfHom (Blk : SectionSeven.MinimalBlock L) (R' : BlockDR Blk) :
+noncomputable def RCharOfHom (Blk : SectionSeven.MinimalBlock L) (R' : BlockDRsub Blk) :
     Additive ↥Blk.R →+ ZMod 2 where
   toFun r := if ((Additive.toMul r : ↥Blk.R) : Y) ∈ R'.1 then 0 else 1
   map_zero' := by
@@ -169,7 +169,7 @@ noncomputable def RCharOfHom (Blk : SectionSeven.MinimalBlock L) (R' : BlockDR B
           iff_self] <;> decide
 
 /-- `RCharOfHom R'` is Y-invariant, hence a member of `RCharSub` — from `R'.Normal`. -/
-theorem RCharOf_mem (Blk : SectionSeven.MinimalBlock L) (R' : BlockDR Blk) :
+theorem RCharOf_mem (Blk : SectionSeven.MinimalBlock L) (R' : BlockDRsub Blk) :
     RCharOfHom Blk R' ∈ RCharSub Blk := by
   intro y r
   show (if ((⟨y * (r : Y) * y⁻¹,
@@ -184,7 +184,7 @@ theorem RCharOf_mem (Blk : SectionSeven.MinimalBlock L) (R' : BlockDR Blk) :
     rw [if_neg hnot, if_neg hrl]
 
 /-- The inverse map `D_R → D_Rmod`: `R' ↦` its index-≤2 indicator character. -/
-noncomputable def RCharOf (Blk : SectionSeven.MinimalBlock L) (R' : BlockDR Blk) :
+noncomputable def RCharOf (Blk : SectionSeven.MinimalBlock L) (R' : BlockDRsub Blk) :
     ↥(RCharSub Blk) := ⟨RCharOfHom Blk R', RCharOf_mem Blk R'⟩
 
 /-- A character is the indicator of its own kernel (`𝔽₂`-valued). -/
@@ -198,7 +198,7 @@ theorem RChar_eq_ind (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)
     · exact h1
 
 /-- **Right inverse**: the kernel of the indicator character of `R'` is `R'`. -/
-theorem RCharKer_RCharOf (Blk : SectionSeven.MinimalBlock L) (R' : BlockDR Blk) :
+theorem RCharKer_RCharOf (Blk : SectionSeven.MinimalBlock L) (R' : BlockDRsub Blk) :
     RCharKer Blk (RCharOf Blk R') = R'.1 := by
   have hker : RCharKerSub Blk (RCharOf Blk R') = R'.1.subgroupOf Blk.R := by
     ext r

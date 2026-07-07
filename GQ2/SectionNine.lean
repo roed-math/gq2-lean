@@ -1600,7 +1600,7 @@ theorem count_eq_of_closedRecursion {Y : Type} [Group Y] [TopologicalSpace Y]
     (b₁ : ContinuousMonoidHom Γ₁ ↥boundarySubgroup)
     (b₂ : ContinuousMonoidHom Γ₂ ↥boundarySubgroup)
     (F : BoundaryFrame H E) (μ : ℕ) (G0 : ℤ) (DT : Type) [Fintype DT]
-    (phase : DT → CentralCover RF.YC)
+    (phase : (l : RF.DR) → l ≠ RF.zeroDR → DT → CentralCover RF.YC)
     (h₁ : ClosedRecursion RF b₁ F μ G0 DT phase)
     (h₂ : ClosedRecursion RF b₂ F μ G0 DT phase)
     (hDT : Nat.card DT ≠ 0)
@@ -1609,7 +1609,8 @@ theorem count_eq_of_closedRecursion {Y : Type} [Group Y] [TopologicalSpace Y]
     (hpull : ∀ (l : RF.DR) (h : l ≠ RF.zeroDR) (J' : Subgroup (RF.scalarCover l h).cover),
       exactImageCountOn b₁ F ((RF.scalarCover l h).pullTarget RF.TB) J'
         = exactImageCountOn b₂ F ((RF.scalarCover l h).pullTarget RF.TB) J')
-    (hphase : ∀ ζ : DT, RF.nPhase b₁ F (phase ζ) = RF.nPhase b₂ F (phase ζ)) :
+    (hphase : ∀ (l : RF.DR) (h : l ≠ RF.zeroDR) (ζ : DT),
+      RF.nPhase b₁ F (phase l h ζ) = RF.nPhase b₂ F (phase l h ζ)) :
     exactImageCount b₁ F T = exactImageCount b₂ F T := by
   classical
   -- (138) + `hpull`: the proper-stratum counts `m_J` agree (cancel the `8`), hence so do `mJOn`
@@ -1632,10 +1633,10 @@ theorem count_eq_of_closedRecursion {Y : Type} [Group Y] [TopologicalSpace Y]
         N.map (RF.scalarCover l hl).p = RF.TBsub ∧ (RF.scalarCover l hl).z ∉ N
     · -- descent: (140), cancel `2·#DT ≠ 0`
       have hns : (∑ᶠ ζ : DT,
-            (2 * (RF.nPhase b₁ F (phase ζ) : ℤ) - (exactImageCount b₁ F RF.TC : ℤ)))
+            (2 * (RF.nPhase b₁ F (phase l hl ζ) : ℤ) - (exactImageCount b₁ F RF.TC : ℤ)))
           = ∑ᶠ ζ : DT,
-            (2 * (RF.nPhase b₂ F (phase ζ) : ℤ) - (exactImageCount b₂ F RF.TC : ℤ)) :=
-        finsum_congr (fun ζ => by rw [hphase ζ, hTC])
+            (2 * (RF.nPhase b₂ F (phase l hl ζ) : ℤ) - (exactImageCount b₂ F RF.TC : ℤ)) :=
+        finsum_congr (fun ζ => by rw [hphase l hl ζ, hTC])
       have hcancel : 2 * (Nat.card DT : ℤ) * (RF.zBC b₁ F l hl : ℤ)
           = 2 * (Nat.card DT : ℤ) * (RF.zBC b₂ F l hl : ℤ) := by
         rw [h₁.eq140 l hl hdesc, h₂.eq140 l hl hdesc, hns, hTC]

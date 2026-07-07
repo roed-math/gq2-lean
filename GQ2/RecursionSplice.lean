@@ -47,7 +47,8 @@ theorem prop_8_9_of (B : BoundaryMaps)
     [DiscreteTopology Y] [Finite Y] {T : MarkedTarget H E Y}
     {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk)
     (F : BoundaryFrame H E)
-    (μ : ℕ) (G0 : ℤ) (DT : Type) [Fintype DT] (phase : DT → CentralCover RF.YC)
+    (μ : ℕ) (G0 : ℤ) (DT : Type) [Fintype DT]
+    (phase : (l : RF.DR) → l ≠ RF.zeroDR → DT → CentralCover RF.YC)
     (hfgA : ∃ s : Finset GammaA, (Subgroup.closure (s : Set GammaA)).topologicalClosure = ⊤)
     (hheadA : Function.Surjective (fun γ : GammaA => (F.frameMap (B.bA γ)).1))
     (hfgF : ∃ s : Finset AbsGalQ2, (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤)
@@ -55,7 +56,7 @@ theorem prop_8_9_of (B : BoundaryMaps)
     (inpA : RecursionInputs RF B.bA F μ G0 DT phase)
     (inpF : RecursionInputs RF B.bF F μ G0 DT phase) :
     ∃ (μ' : ℕ) (G0' : ℤ) (DT' : Type) (_ : Fintype DT')
-      (phase' : DT' → CentralCover RF.YC),
+      (phase' : (l : RF.DR) → l ≠ RF.zeroDR → DT' → CentralCover RF.YC),
       ClosedRecursion RF B.bA F μ' G0' DT' phase' ∧
         ClosedRecursion RF B.bF F μ' G0' DT' phase' :=
   -- `hscalar` (#Hom(Γ,𝔽₂) = 8) is discharged internally from the proved `lemma_8_2_*`.

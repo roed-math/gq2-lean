@@ -278,6 +278,21 @@ end ZCount
 
 /-! ## `hsep_hom`: the `(R^∨)^C` separation at the local source -/
 
+/-- The `G_ℚ₂`-action on `𝔽₂` is trivial (any group action on `ZMod 2` fixes both elements). -/
+theorem htriv_local (γ : AbsGalQ2) (m : ZMod 2) : γ • m = m := by
+  have hz : ∀ z : ZMod 2, z = 0 ∨ z = 1 := by decide
+  rcases hz m with rfl | rfl
+  · exact smul_zero γ
+  · by_contra hne
+    have h1 : γ • (1 : ZMod 2) = 0 := by
+      rcases hz (γ • (1 : ZMod 2)) with h | h
+      · exact h
+      · exact absurd h hne
+    have h2 : (1 : ZMod 2) = γ⁻¹ • (0 : ZMod 2) := by
+      rw [← h1, inv_smul_smul]
+    rw [smul_zero] at h2
+    exact one_ne_zero h2
+
 section SepHom
 
 set_option maxHeartbeats 1600000 in
@@ -555,20 +570,6 @@ end SepHom
 
 section Assembly
 
-/-- The `G_ℚ₂`-action on `𝔽₂` is trivial (any group action on `ZMod 2` fixes both elements). -/
-theorem htriv_local (γ : AbsGalQ2) (m : ZMod 2) : γ • m = m := by
-  have hz : ∀ z : ZMod 2, z = 0 ∨ z = 1 := by decide
-  rcases hz m with rfl | rfl
-  · exact smul_zero γ
-  · by_contra hne
-    have h1 : γ • (1 : ZMod 2) = 0 := by
-      rcases hz (γ • (1 : ZMod 2)) with h | h
-      · exact h
-      · exact absurd h hne
-    have h2 : (1 : ZMod 2) = γ⁻¹ • (0 : ZMod 2) := by
-      rw [← h1, inv_smul_smul]
-    rw [smul_zero] at h2
-    exact one_ne_zero h2
 
 /-- **(136) for the block frame at the local source, parametric over `hsep_hom`**
 (P-16d6e residue assembly): `htriv`/`hcard`/`hZcount` are discharged

@@ -1,5 +1,16 @@
 # P-16d6c handoff — the (140) Prop-8.8 core
 
+> **⚠ ARCHITECTURE UPDATE (Fable 5, 2026-07-07).**  The c1/c2 shapes below are partially
+> **superseded**: the `Lin`/`κ_ρ`/`ε_ρ`/`hM`/`hphase` interpolation through `lemma_8_5` is
+> replaced by a **paper-faithful (140) reducer** (`phase140_of_phaseObstruction`,
+> `GQ2/PhaseObstruction.lean`) consuming the per-`ρ` phase-obstruction identity, delivered by
+> the landed (131)-layer + master count (`GQ2/VLiftCount.lean`).  The authoritative design for
+> the remaining keystone work (c1c stages B–D, incl. the folded c2 content) is
+> **`docs/p16d6c-keystone-design.md`**; where this file conflicts with it, the design record
+> wins.  Landed and gated (all std-3, sorry-free): `VCocycle.lean` (c1a), `PhaseObstruction.lean`
+> + `VLiftCount.lean` (c1b ☑), `KeystoneDelta.lean` stage A, `PhaseGaussLIndep.lean` (c3-G0 ☑,
+> Opus) — plus c1s ☑ in the engine.
+
 *Self-contained scoping/handoff (Opus, 2026-07-06).  P-16d6c is decomposed into **c1/c2/c3**; this
 doc pins each sub-ticket's exact interface obligation against the already-proved engine
 `phase140_of_nonsingular`.  Companion files: `GQ2/PhaseLIndep.lean` (c3-μ, DONE).*
@@ -155,11 +166,21 @@ Steps 1–2 need objects the repo has **deliberately not built** (`section8-extr
   Small, but it changes the reducer contract d6e consumes — re-verify the algebra in situ.
   Coordinate: nobody else touches those two theorems (d6a = stageR136, d6d = half139), but it IS a
   co-owned file — flag on the board before/at commit.
-* **c1a** [**O**, ⭐⭐] — the crossed `V`-cochain layer over `ρ` (a `VCocycle` mirroring `TCocycle`)
+* **c1a** [**O**, ⭐⭐] — ✅ **DONE (Opus 2026-07-07, `GQ2/VCocycle.lean`, std-3, sorry-free)** — the
+  crossed `V`-cochain layer over `ρ` (a `VCocycle` mirroring `TCocycle`)
   + the bijection {continuous homs `Γ → B/T` over `ρ'`} ≅ `Z¹_{Γ,ρ}(V)` via `descended_splitting`'s
   `σ`, + the **`B¹`-translation facts** (conjugation by `m ∈ M_B` acts on `red_T` values by
   crossed coboundaries, freely when `V^C = 0` — the mathematical core of Bug 1, so landing it
   validates the repair).  Well-specified: mirror the `TCocycle` API; `V⋊C` structure from `σ`.
+  **API for c1b/c1c** (namespace `GQ2.SectionEight.AffineTLift`): `VCocycle DD ρ` (crossed
+  `Z¹_{Γ,ρ}(V)`; `.c : Γ→V`, `.crossed : c(γδ)=cγ+ρ'γ·cδ`), `rho0 DD ρ : Γ→*C₀` (the `C₀`-valued
+  `ρ'`); `vcocycleEquivLifts DD ρ σ hσ : VCocycle DD ρ ≃ {g : Γ→ₜQ // piQbar∘g = ρ'}` with
+  `qOfCocycle`/`cocycleOfQ`(+`cocycleOfQ_spec`); `vCob DD ρ : V → VCocycle` (coboundary,
+  `vCob_add`, `vCob_c_eq_zero_iff`, `vCob_injective` given `V^{im ρ'}=0`); `mConj m hm f`,
+  `mConj_central`, `redTLift DD f`, `qOfCocycle_conj` (conj by `iV v` = `+vCob v`), and the payload
+  `cocycleOf_mConj : cocycleOfQ(redTLift(mConj m hm f)) = cocycleOfQ(redTLift f) + vCob(descend⟨m,hm⟩)`.
+  **NB** `vCob` uses the standard sign `ρ'γ·v−v`; the raw conjugation cocycle is `v−ρ'γ·v` (equal in
+  char 2 via `Vmod_exp2`).
 * **c1b** [**F**, ⭐⭐⭐] — the connecting `∂_{Γ,ρ}` for `0→T→M→V→0` **at cocycle level**, the class
   `e` (extension class of `B → V⋊C` along the zero section), Lemma 8.7 (131)
   `actual-lift ⟺ ∂c = ρ*e`, **the P-13g-deferred cor-5.17 adjoint** `⟨∂b,χ⟩ = ⟨b,ρ*γ_χ⟩`, and

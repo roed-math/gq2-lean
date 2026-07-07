@@ -845,6 +845,33 @@ noncomputable def phaseFamily {C0 : Type} [Group C0] [Finite C0] {DT : Type}
     DT → CentralCover C0 :=
   fun ζ => centralCoverOfCocycle (Δ ζ) (hcoc ζ) (hl ζ) (hr ζ)
 
+/-- **The canonical section of the twisted-product cover** (P-16d6c2 export): the phase cover
+`𝔽₂ ×_δ C₀` admits a normalized set-section `s` with multiplication defect exactly `δ`
+(`s c · s d = z^{δ(c,d)} · s(cd)`).  This is the (only) internals fact the phase-obstruction
+layer needs: a lift of `ρ` through the cover exists iff `ρ^*δ` is a continuous coboundary
+(`GQ2/PhaseObstruction.lean`). -/
+theorem centralCoverOfCocycle_exists_section {C0 : Type} [Group C0] [Finite C0]
+    (δ : C0 × C0 → ZMod 2)
+    (hcoc : ∀ g h k : C0, δ (h, k) + δ (g, h * k) = δ (g * h, k) + δ (g, h))
+    (hone_l : ∀ c : C0, δ (1, c) = 0) (hone_r : ∀ c : C0, δ (c, 1) = 0) :
+    ∃ s : C0 → (centralCoverOfCocycle δ hcoc hone_l hone_r).cover,
+      (∀ c, (centralCoverOfCocycle δ hcoc hone_l hone_r).p (s c) = c) ∧ s 1 = 1 ∧
+        ∀ c d, s c * s d
+          = (centralCoverOfCocycle δ hcoc hone_l hone_r).z ^ (δ (c, d)).val * s (c * d) := by
+  refine ⟨fun c => ⟨0, c⟩, fun c => rfl, rfl, fun c d => ?_⟩
+  rcases (show ∀ b : ZMod 2, b = 0 ∨ b = 1 from by decide) (δ (c, d)) with hδ | hδ
+  · -- `z^0 = 1`: both sides are explicit `TwistCov.mk` terms
+    rw [hδ]
+    show TwistCov.mk (0 + 0 + δ (c, d)) (c * d)
+      = TwistCov.mk (0 + 0 + δ (1, c * d)) (1 * (c * d))
+    rw [hδ, hone_l, one_mul]
+  · -- `z^1 = 1 * z` (`npowRec`); unfold both multiplications
+    rw [hδ]
+    show TwistCov.mk (0 + 0 + δ (c, d)) (c * d)
+      = TwistCov.mk ((0 + 1 + δ (1, 1)) + 0 + δ (1 * 1, c * d)) ((1 * 1) * (c * d))
+    rw [hδ, one_mul, one_mul, hone_l, hone_l]
+    norm_num
+
 end AffineTLift
 
 end SectionEight

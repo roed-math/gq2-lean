@@ -1691,7 +1691,7 @@ structure ClosedRecursion {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTop
     (RF : RecursionFrame T Blk) {Γ : Type} [Group Γ] [TopologicalSpace Γ]
     (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
     (μ : ℕ) (G0 : ℤ) (DT : Type) [Fintype DT]
-    (phase : DT → CentralCover RF.YC) : Prop where
+    (phase : (l : RF.DR) → l ≠ RF.zeroDR → DT → CentralCover RF.YC) : Prop where
   /-- **(136)**, multiplied out: `|D_R| · e_Γ(Y) = z_R · Σ_{λ ∈ D_R} (2 m_{Γ,λ}(B) − e_Γ(B))`. -/
   eq136 : (Nat.card RF.DR : ℤ) * exactImageCount b F T
     = RF.zR * ∑ᶠ l : RF.DR,
@@ -1722,8 +1722,11 @@ structure ClosedRecursion {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTop
         N.map (RF.scalarCover l h).p = RF.TBsub ∧ (RF.scalarCover l h).z ∉ N) →
       2 * RF.zBC b F l h = (Nat.card ↥RF.MB) ^ 2 * exactImageCount b F RF.TC
   /-- **(140)–(142)**, folded: when the `λ`-cover descends (radical edge zero), the
-  compatible-lift count is the constrained Gauss value over the shared phase family:
-  `2^{r+1} Z_{Γ,λ}(B/C) = μ (2^d e_Γ(C) + G⁰ Σ_{ζ ∈ D_T} (2 n_{Γ,0}(ζ) − e_Γ(C)))`, with
+  compatible-lift count is the constrained Gauss value over the **per-`λ`** phase family
+  (paper (134): the classes `Δ_{χ,κ}` carry the scalar-pushout class `κ = κ_λ` of the
+  `λ`-cover — amended from a shared family in the P-16d6e paper-faithfulness pass,
+  `docs/p16d6e-assembly-plan.md` §1A):
+  `2^{r+1} Z_{Γ,λ}(B/C) = μ (2^d e_Γ(C) + G⁰ Σ_{ζ ∈ D_T} (2 n_{Γ,0}(ζ_λ) − e_Γ(C)))`, with
   `2^{r+1} = 2|D_T|` and `2^d = |M|/|T| = |V|`. -/
   eq140 : ∀ (l : RF.DR) (h : l ≠ RF.zeroDR),
     (∃ N : Subgroup (RF.scalarCover l h).cover, N.Normal ∧
@@ -1731,7 +1734,7 @@ structure ClosedRecursion {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTop
       2 * (Nat.card DT : ℤ) * RF.zBC b F l h
         = μ * ((Nat.card ↥RF.MB / Nat.card ↥RF.TBsub : ℕ) * exactImageCount b F RF.TC
             + G0 * ∑ᶠ ζ : DT,
-                (2 * (RF.nPhase b F (phase ζ) : ℤ) - exactImageCount b F RF.TC))
+                (2 * (RF.nPhase b F (phase l h ζ) : ℤ) - exactImageCount b F RF.TC))
 
 open scoped Classical in
 /-- **The (137) partition** (P-16d item 2): the `partition137` input of `RecursionInputs`,
@@ -1974,7 +1977,7 @@ structure RecursionInputs {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTop
     (RF : RecursionFrame T Blk) {Γ : Type} [Group Γ] [TopologicalSpace Γ]
     (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
     (μ : ℕ) (G0 : ℤ) (DT : Type) [Fintype DT]
-    (phase : DT → CentralCover RF.YC) : Prop where
+    (phase : (l : RF.DR) → l ≠ RF.zeroDR → DT → CentralCover RF.YC) : Prop where
   /-- The (136)-stage identity (gated: `lemma_8_4` + `z_R` numerics + Frattini lift
   surjectivity). -/
   stageR136 : (Nat.card RF.DR : ℤ) * exactImageCount b F T
@@ -1985,14 +1988,15 @@ structure RecursionInputs {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTop
     (¬∃ N : Subgroup (RF.scalarCover l h).cover, N.Normal ∧
         N.map (RF.scalarCover l h).p = RF.TBsub ∧ (RF.scalarCover l h).z ∉ N) →
       2 * RF.zBC b F l h = (Nat.card ↥RF.MB) ^ 2 * exactImageCount b F RF.TC
-  /-- The (140) constrained-Gauss value (gated: 8.5 + 8.7 + (135)/8.8 + 6.21/6.22 chain). -/
+  /-- The (140) constrained-Gauss value (gated: 8.5 + 8.7 + (135)/8.8 + 6.21/6.22 chain);
+  per-`λ` phase family per the paper's `Δ_{χ,κ_λ}` (P-16d6e amendment). -/
   phase140 : ∀ (l : RF.DR) (h : l ≠ RF.zeroDR),
     (∃ N : Subgroup (RF.scalarCover l h).cover, N.Normal ∧
         N.map (RF.scalarCover l h).p = RF.TBsub ∧ (RF.scalarCover l h).z ∉ N) →
       2 * (Nat.card DT : ℤ) * RF.zBC b F l h
         = μ * ((Nat.card ↥RF.MB / Nat.card ↥RF.TBsub : ℕ) * exactImageCount b F RF.TC
             + G0 * ∑ᶠ ζ : DT,
-                (2 * (RF.nPhase b F (phase ζ) : ℤ) - exactImageCount b F RF.TC))
+                (2 * (RF.nPhase b F (phase l h ζ) : ℤ) - exactImageCount b F RF.TC))
 
 open scoped Classical in
 /-- **The Prop 8.9 assembly step** (P-16d): given the source-side input bundle, the boxed
@@ -2008,7 +2012,8 @@ theorem prop_8_9_aux {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology
     (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
     (hscalar : Nat.card (ContinuousMonoidHom Γ (Multiplicative (ZMod 2))) = 8)
     (hhead : Function.Surjective (fun γ : Γ => (F.frameMap (b γ)).1))
-    (μ : ℕ) (G0 : ℤ) (DT : Type) [Fintype DT] (phase : DT → CentralCover RF.YC)
+    (μ : ℕ) (G0 : ℤ) (DT : Type) [Fintype DT]
+    (phase : (l : RF.DR) → l ≠ RF.zeroDR → DT → CentralCover RF.YC)
     (inp : RecursionInputs RF b F μ G0 DT phase) :
     ClosedRecursion RF b F μ G0 DT phase where
   eq136 := inp.stageR136
@@ -2127,29 +2132,23 @@ theorem stageR136_of {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology
     _ = RF.zR * ∑ᶠ l : RF.DR, (2 * (RF.mB b F l : ℤ) - exactImageCount b F RF.TB) := by
         rw [h3]
 
-/-- **Proposition 8.9 (closed exact-image recursion)**: for every boundary-framed target
-with a §7 simple-head block and every recursion frame on it, there are **shared** data
-`(μ, G⁰, D_T, phase)` — the paper pins them via 5.15/5.16, Prop 7.4, and (133)/(134) —
-such that the boxed system (136)–(142) holds for **both sources**.  Every count on the
-right sides concerns a target with strictly smaller marked 2-kernel, so the system is a
-closed deterministic recursion (paper, end of §8).  [P-16 statement; proof = O-half,
-axioms ≤ {B6, B7, B9} per App. D.]
+/-! **Proposition 8.9 (closed exact-image recursion)** — statement **relocated** to
+`GQ2/Prop89Close.lean` (`GQ2.SectionEight.prop_8_9`), the P-16d6e capstone leaf (the
+`thm_4_2`-relocation pattern: the statement is specialized to the concrete block frame
+`blockFrameImpl T Blk hE2`, which this file cannot name — it sits above `BlockFrameImpl.lean`
+in the import order).  Two reviewed statement actions at the relocation
+(`docs/p16d6e-assembly-plan.md` §1):
 
-**Amended (P-16d1, 2026-07-05, documented)** with the frame enrichment `En`: the bare
-frame's `scalarCover` is an arbitrary central cover, but the paper's (139)/(140) hold under
-its §7.4/§6.1 standing data — the square form of `p_λ` on `M_B` with radical `T_B`, and the
-fixed equivariant base class `κ⁰_{q̄_λ}` for the descended module (the `lemma_6_21` relative
-hypothesis).  Without `En` the statement quantifies over junk covers for which (139) fails.
-Deviation ledger: `docs/section8-extraction.md` (P-16d statement corrections). -/
-theorem prop_8_9 (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
-    [DiscreteTopology Y] [Finite Y] {T : MarkedTarget H E Y}
-    {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk)
-    (En : RF.Enrichment) (F : BoundaryFrame H E) :
-    ∃ (μ : ℕ) (G0 : ℤ) (DT : Type) (_ : Fintype DT)
-      (phase : DT → CentralCover RF.YC),
-      ClosedRecursion RF B.bA F μ G0 DT phase ∧
-        ClosedRecursion RF B.bF F μ G0 DT phase := by
-  sorry
+* the phase family is **per-`λ`** (`phase : (l : DR) → l ≠ zeroDR → DT → CentralCover YC`) —
+  the paper's (134) classes `Δ_{χ,κ}` carry the scalar-pushout class `κ = κ_λ` of the
+  `λ`-cover, so the shared-family draft form was a transcription deviation (Bug-3 of the
+  c-lane family; a shared family would force an unproven `zBC`-l-independence);
+* the frame is the **concrete block frame** with hypothesis ledger
+  `{hE2, hfgF (B1 → P-17i), hheadA, hheadF, hsimple, hfaith, hVne, hG0indep}` and the P-17i
+  strengthening `0 < Nat.card DT` in the conclusion — general-`RF` (136) is not provable
+  (no axioms tie the bare frame's `DR`/`zR`/`mB` to obstruction theory; P-16d6a built the
+  R-stage against `blockFrameImpl` by decision), and SectionNine's inductive branch consumes
+  the proposition exactly at `blockFrame = blockFrameImpl` (P-17c/P-17h). -/
 
 end Recursion
 
