@@ -97,3 +97,4 @@ import GQ2.SectionTen
 import GQ2.SectionTenSources
 import GQ2.PresentationLiteral
 import GQ2.RStageGammaA
+import GQ2.CardH2GammaA
