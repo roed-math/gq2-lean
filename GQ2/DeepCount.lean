@@ -626,4 +626,151 @@ theorem card_classGr_even (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ <
 
 end ClassGr
 
+/-! ## The tail survivor: `#Dc_{2e} ≥ 2`
+
+The graded squaring at `i = e` kills `[−1] ≠ [1]` (`‖−1 − 1‖ = ‖2‖ = ‖π‖^e` exactly), so it
+is NOT injective; on equal-card grs it is then not surjective, and any unit class outside
+its range is a NONZERO element of `Dc_{2e}`: were it zero, the Kummer kernel would make the
+unit a square `w²` with `w ∈ U_e` (the dichotomy), putting it back in the range. -/
+
+section TailSurvivor
+
+variable (k : IntermediateField ℚ_[2] ℚ̄₂) (π : ℚ̄₂)
+
+/-- `−1` is a depth-`e` unit: `‖−1 − 1‖ = ‖2‖ = ‖π‖^e`. -/
+theorem neg_one_mem_depthUnits {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) :
+    (-1 : (↥k)ˣ) ∈ depthUnits k π e := by
+  have hcast : (((-1 : (↥k)ˣ) : ↥k) : ℚ̄₂) = -1 := by
+    rw [Units.val_neg, Units.val_one]
+    push_cast
+    ring
+  constructor
+  · show ‖(((-1 : (↥k)ˣ) : ↥k) : ℚ̄₂)‖ = 1
+    rw [hcast, norm_neg, norm_one]
+  · show ‖(((-1 : (↥k)ˣ) : ↥k) : ℚ̄₂) - 1‖ ≤ ‖π‖ ^ e
+    rw [hcast, show (-1 : ℚ̄₂) - 1 = -2 by ring, norm_neg, he]
+
+/-- `−1` is NOT a depth-`(e+1)` unit (`‖π‖^e > ‖π‖^{e+1}`). -/
+theorem neg_one_not_mem_depthUnits_succ (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) :
+    (-1 : (↥k)ˣ) ∉ depthUnits k π (e + 1) := by
+  intro h
+  have hd := h.2
+  have hcast : (((-1 : (↥k)ˣ) : ↥k) : ℚ̄₂) = -1 := by
+    rw [Units.val_neg, Units.val_one]
+    push_cast
+    ring
+  rw [hcast, show (-1 : ℚ̄₂) - 1 = -2 by ring, norm_neg, he] at hd
+  have hπpos : (0 : ℝ) < ‖π‖ := norm_pos_iff.mpr hπ0
+  have : ‖π‖ ^ (e + 1) < ‖π‖ ^ e := by
+    rw [pow_succ]
+    calc ‖π‖ ^ e * ‖π‖ < ‖π‖ ^ e * 1 := mul_lt_mul_of_pos_left hπ1 (pow_pos hπpos e)
+      _ = ‖π‖ ^ e := mul_one _
+  exact absurd hd (not_le.mpr this)
+
+/-- **The tail survivor**: some depth-`2e` Kummer class is nonzero.  The graded squaring at
+`i = e` has `[−1]` in its kernel but `[−1] ≠ [1]`, so it is not injective, hence (equal-card
+grs) not surjective; a unit class `[a]` outside the range gives `kummerClassK a ≠ 0` — were
+it zero, the Kummer kernel would write `a = w²` with `w ∈ U_e` (norm-one by taking norms;
+depth-`e` by the dichotomy), and `[a] = grSq [w]`. -/
+theorem exists_kummerDepth_ne_zero [FiniteDimensional ℚ_[2] k]
+    (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) {f : ℕ}
+    (hcard_e : Nat.card (↥(depthUnits k π e) ⧸
+      (depthUnits k π (e + 1)).subgroupOf (depthUnits k π e)) = 2 ^ f)
+    (hcard_2e : Nat.card (↥(depthUnits k π (2 * e)) ⧸
+      (depthUnits k π (2 * e + 1)).subgroupOf (depthUnits k π (2 * e))) = 2 ^ f) :
+    ∃ ξ ∈ kummerDepth k π (2 * e), ξ ≠ 0 := by
+  haveI hfin1 : Finite (↥(depthUnits k π e) ⧸
+      (depthUnits k π (e + 1)).subgroupOf (depthUnits k π e)) :=
+    (Nat.card_pos_iff.mp (by rw [hcard_e]; positivity)).2
+  haveI hfin2 : Finite (↥(depthUnits k π (2 * e)) ⧸
+      (depthUnits k π (2 * e + 1)).subgroupOf (depthUnits k π (2 * e))) :=
+    (Nat.card_pos_iff.mp (by rw [hcard_2e]; positivity)).2
+  -- `grSq` at `i = e` is not injective: `[−1] ≠ [1]` squares to `1`
+  have hker : grSq k π hπ1.le he (le_refl e)
+      (QuotientGroup.mk ⟨(-1 : (↥k)ˣ), neg_one_mem_depthUnits k π he⟩) = 1 := by
+    have h1 : (QuotientGroup.mk (sqHom k π hπ1.le he (le_refl e)
+        ⟨(-1 : (↥k)ˣ), neg_one_mem_depthUnits k π he⟩)
+        : ↥(depthUnits k π (2 * e)) ⧸
+          (depthUnits k π (2 * e + 1)).subgroupOf (depthUnits k π (2 * e))) = 1 := by
+      rw [QuotientGroup.eq_one_iff, Subgroup.mem_subgroupOf]
+      have hval : ((sqHom k π hπ1.le he (le_refl e)
+          ⟨(-1 : (↥k)ˣ), neg_one_mem_depthUnits k π he⟩
+          : ↥(depthUnits k π (2 * e))) : (↥k)ˣ) = 1 := by
+        show ((-1 : (↥k)ˣ)) ^ 2 = 1
+        rw [neg_one_sq]
+      rw [hval]
+      exact one_mem _
+    exact h1
+  have hne : (QuotientGroup.mk (⟨(-1 : (↥k)ˣ), neg_one_mem_depthUnits k π he⟩
+      : ↥(depthUnits k π e)) : ↥(depthUnits k π e) ⧸
+        (depthUnits k π (e + 1)).subgroupOf (depthUnits k π e)) ≠ 1 := by
+    rw [Ne, QuotientGroup.eq_one_iff, Subgroup.mem_subgroupOf]
+    exact neg_one_not_mem_depthUnits_succ k π hπ0 hπ1 he
+  have hnotinj : ¬ Function.Injective (grSq k π hπ1.le he (le_refl e)) := by
+    intro hinj
+    exact hne ((injective_iff_map_eq_one _).mp hinj _ hker)
+  -- not injective + equal finite cards ⟹ not surjective
+  have hnotsurj : ¬ Function.Surjective (grSq k π hπ1.le he (le_refl e)) := by
+    intro hsurj
+    haveI := Fintype.ofFinite (↥(depthUnits k π e) ⧸
+      (depthUnits k π (e + 1)).subgroupOf (depthUnits k π e))
+    haveI := Fintype.ofFinite (↥(depthUnits k π (2 * e)) ⧸
+      (depthUnits k π (2 * e + 1)).subgroupOf (depthUnits k π (2 * e)))
+    have hcards : Fintype.card (↥(depthUnits k π (2 * e)) ⧸
+          (depthUnits k π (2 * e + 1)).subgroupOf (depthUnits k π (2 * e)))
+        = Fintype.card (↥(depthUnits k π e) ⧸
+          (depthUnits k π (e + 1)).subgroupOf (depthUnits k π e)) := by
+      rw [← Nat.card_eq_fintype_card, ← Nat.card_eq_fintype_card, hcard_e, hcard_2e]
+    exact hnotinj ((Fintype.bijective_iff_surjective_and_card _).mpr ⟨hsurj, hcards.symm⟩).1
+  obtain ⟨yq, hyq⟩ := not_forall.mp hnotsurj
+  obtain ⟨a, rfl⟩ := QuotientGroup.mk_surjective yq
+  -- the survivor
+  refine ⟨kummerClassK k (a : (↥k)ˣ),
+    (mem_kummerDepth_iff k π).mpr ⟨(a : (↥k)ˣ), a.2, rfl⟩, ?_⟩
+  intro h0
+  obtain ⟨w, hw⟩ := exists_sq_of_kummerClassK_eq_zero k _ h0
+  -- `w` is a norm-one unit
+  have hw0 : w ≠ 0 := by
+    intro hz
+    have := unitCoe_ne_zero k (a : (↥k)ˣ)
+    rw [← hw, hz] at this
+    exact this (by push_cast; ring)
+  have hwn1 : ‖(w : ℚ̄₂)‖ = 1 := by
+    have hsq : ‖(w : ℚ̄₂)‖ ^ 2 = 1 := by
+      rw [← norm_pow, ← SubmonoidClass.coe_pow, hw]
+      exact a.2.1
+    nlinarith [norm_nonneg (w : ℚ̄₂), sq_nonneg (‖(w : ℚ̄₂)‖ - 1)]
+  -- `w` has depth `e` (the dichotomy)
+  have hwd : ‖(w : ℚ̄₂) - 1‖ ≤ ‖π‖ ^ e := by
+    rcases norm_sq_sub_one' ((w : ℚ̄₂)) with hcase | hcase
+    · rw [he] at hcase
+      exact hcase
+    · have h2e : ‖(w : ℚ̄₂) - 1‖ ^ 2 ≤ (‖π‖ ^ e) ^ 2 := by
+        calc ‖(w : ℚ̄₂) - 1‖ ^ 2 = ‖((w : ℚ̄₂)) ^ 2 - 1‖ := hcase.symm
+          _ ≤ ‖π‖ ^ (2 * e) := by
+              rw [← SubmonoidClass.coe_pow, hw]
+              exact a.2.2
+          _ = (‖π‖ ^ e) ^ 2 := by rw [← pow_mul, mul_comm]
+      exact le_of_pow_le_pow_left₀ (by omega) (le_of_lt (pow_pos (norm_pos_iff.mpr hπ0) e)) h2e
+  have hwmem : Units.mk0 w hw0 ∈ depthUnits k π e := ⟨hwn1, hwd⟩
+  -- `grSq [w] = [a]` since `w² = a` on the nose — contradicting the escape
+  refine hyq ⟨QuotientGroup.mk ⟨Units.mk0 w hw0, hwmem⟩, ?_⟩
+  have hunit : (Units.mk0 w hw0) ^ 2 = (a : (↥k)ˣ) := by
+    apply Units.ext
+    rw [Units.val_pow_eq_pow_val, Units.val_mk0]
+    exact hw
+  have hval : (QuotientGroup.mk (sqHom k π hπ1.le he (le_refl e) ⟨Units.mk0 w hw0, hwmem⟩)
+      : ↥(depthUnits k π (2 * e)) ⧸
+        (depthUnits k π (2 * e + 1)).subgroupOf (depthUnits k π (2 * e)))
+      = QuotientGroup.mk a := by
+    refine congrArg QuotientGroup.mk (Subtype.ext ?_)
+    show (Units.mk0 w hw0) ^ 2 = (a : (↥k)ˣ)
+    exact hunit
+  exact hval
+
+end TailSurvivor
+
 end GQ2

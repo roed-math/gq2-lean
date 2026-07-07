@@ -444,6 +444,26 @@ and the final `card_equivHoms_deep_eq_quot` instantiation.
   `midClassesSubgroup`/`midClass_eq_kummerClassK`, so it must sit ABOVE `DeepDuality`;
   `kummerClassK_mem_midClasses` + `coe_kummerDepth_mid` mirrors go there too, the mid
   case needing NO discreteness upgrade since mid = `≤ ‖2‖ = ‖π‖^e` = depth-`e` exactly).
+  **PROGRESS (session 5, `GQ2/DeepCount.lean` LANDED increments 1–3, all pure std-3,
+  axiom-free — B13 data as hypotheses; registered in the working-tree `GQ2.lean`):**
+  increment 1 = (K) `exists_sq_of_kummerClassK_eq_zero` + `kummerClassK_mem_midClasses` +
+  `coe_kummerDepth_mid` + `norm_step_down` + `norm_sq_sub_one(_le_succ_of_odd)`;
+  increment 2 = `norm_sq_sub_one'` (strengthened dichotomy) + `sq_mem_depthUnits(_succ)` +
+  `mem_depthUnits_succ_of_sq` (kernel-triviality core) + `sqHom`/`grSq`
+  (`QuotientGroup.map`) + `grSq_injective`/`grSq_surjective` (equal-card Fintype dance) +
+  **`kummerDepth_even_collapse`**; increment 3 = `classGrMap` (unit-gr → class-gr via
+  `Quotient.liftOn'`; `mem_kummerDepth_iff`-mpr for the membership tuples — anonymous
+  constructors do NOT see through the SetLike membership here) + `_surjective` +
+  **`classGrMap_injective`** (odd `j`: Kummer kernel + odd parity) + the three counts
+  `card_classGr_le` (≤ 2^f), **`card_classGr_odd`** (= 2^f), **`card_classGr_even`**
+  (= 1).  REMAINING increment 4: head (`#(M⧸Dc₁-classes) ≤ 2` — π-parity via the
+  `‖a‖ = ‖π‖^v`-decomposition from `hπ_max` + odd-residue-squares from `card_gr_zero`
+  oddness), tail survivor (`#Dc_{2e} ≥ 2` — `grSq` at `i = e` has `[−1] ≠ [1]` in its
+  kernel (`‖−1−1‖ = ‖2‖ = ‖π‖^e` exactly), so not injective ⟹ not surjective on
+  equal-card grs ⟹ some depth-`2e` unit escapes all squares by (K) + the dichotomy),
+  the Lagrange tower products, and the final `#(M⧸Deep) ≤ #E` assembly.  Lean gotchas
+  banked: `QuotientAddGroup.eq` has implicit endpoints; the coe of a subtype-sum
+  `↑(−a+b)` stays UNREDUCED syntactically — re-view via a defeq `have` before any `rw`.
   Then the final `card_equivHoms_deep_eq_quot` instantiation (M := `H¹(ker ρ)` @
   `conjModule`, U := `V^∨` @ `dualModule`, Deep/E := deep/mid-`ClassesSubgroup`,
   B := `pairingK`, `hsharp` := `pairPerp_le_of_card_le` off `midClassesSubgroup_le_pairPerp_pairingK`
