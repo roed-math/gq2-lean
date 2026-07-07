@@ -11,6 +11,7 @@ import GQ2.Phase140Assembly
 import GQ2.RStageGammaA
 import GQ2.Phase140Local
 import GQ2.CardH2GammaA
+import GQ2.MStageCountGammaA
 
 /-!
 # The P-16 capstone: `prop_8_9` at the concrete block frame  (P-16d6e)
@@ -46,11 +47,12 @@ internally (`gammaA_topologicallyFinitelyGenerated`), and `hnt` from `hfaith` +
 `[Nontrivial YC]`.
 
 **Live**: the `¬hex` branch entirely; both `stageR136` fields; the full local (`G_ℚ₂`)
-input bundle (`half139_local`, `phase140_local` — P-16d6e3 closed).  **Sorried (2)**: the
-`Γ_A` `half139` field (needs P-16d6e6's `hMcountM_A`; `lemma_8_6_gammaA` ✓ supplies
-`hlem86M`) and the `Γ_A` `phase140` field (needs P-16d6e6's `phase140_gammaA` mirror —
-`hZcard_gammaA` ✓ landed, `hsep_A`/`hpartial_A`/`tcocycle_card_gammaA` open; consume with
-`phaseFamily_pos` + `hGaussZA l h` exactly as the local branch).
+input bundle (`half139_local`, `phase140_local` — P-16d6e3 closed); the `Γ_A` `half139`
+field (`half139_gammaA` below — P-16d6e6, `lemma_8_6_gammaA` + the P-17i
+`liftsOver_card_gammaA` through `half139_via_radData`).  **Sorried (1)**: the `Γ_A`
+`phase140` field (needs P-16d6e6's `phase140_gammaA` mirror — `hZcard_gammaA`/`hsep_A` ✓
+landed, `hpartial_A`/`tcocycle_card_gammaA` open; consume with `phaseFamily_pos` +
+`hGaussZA l h` exactly as the local branch).
 -/
 
 namespace GQ2
@@ -122,6 +124,61 @@ noncomputable def muZero (En : RF.Enrichment) (l₀ : RF.DR) (h₀ : l₀ ≠ RF
 
 end PhaseWitness
 
+/-! ## The `Γ_A` (139) half count (P-16d6e6)
+
+The `half139_local` twin: both deep inputs are already banked — `lemma_8_6_gammaA`
+(P-16c, the word-side half-torsor count) and the P-17i `M`-lift count
+`liftsOver_card_gammaA` (`MStageCountGammaA`), the latter transported through the
+`LiftsOver ↔ MLifts` bridge (`RadicalEdgeBridge.liftsOver_equiv`).  Wired through the
+source-generic `half139_via_radData`. -/
+
+section Half139GammaA
+
+variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+  {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+
+/-- **`hlem86M` for `Γ_A`** — the source's Lemma 8.6 half-torsor count over every boundary
+lift, for the radical datum `En.radData l h`, threading the `NoDescent` field hypothesis
+(the `hlem86M_local` mirror; no `hfg` needed — `lemma_8_6_gammaA` is word-side). -/
+theorem hlem86M_gammaA
+    (RF : RecursionFrame T Blk) (b : ContinuousMonoidHom GammaA ↥boundarySubgroup)
+    (F : BoundaryFrame H E) (En : RF.Enrichment)
+    (l : RF.DR) (h : l ≠ RF.zeroDR)
+    (hedge : ¬∃ N : Subgroup (RF.scalarCover l h).cover, N.Normal ∧
+      N.map (RF.scalarCover l h).p = RF.TBsub ∧ (RF.scalarCover l h).z ∉ N)
+    (ρ : BoundaryLifts b F RF.TC) :
+    2 * Nat.card {f : MLifts (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ) //
+        f.Central}
+      = Nat.card (MLifts (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)) :=
+  lemma_8_6_gammaA (En.radData l h) hedge (RF.rhoPrime b F (En.radData l h) rfl ρ)
+    (rhoPrime_surjective RF b F (En.radData l h) rfl ρ)
+
+/-- **`hMcountM` for `Γ_A`** — the unrestricted `M`-lift count `#(M-lifts) = |M_B|²`: the
+P-17i `LiftsOver` count transported through the `LiftsOver ↔ MLifts` bridge. -/
+theorem hMcountM_gammaA
+    (RF : RecursionFrame T Blk) (b : ContinuousMonoidHom GammaA ↥boundarySubgroup)
+    (F : BoundaryFrame H E) (En : RF.Enrichment)
+    (l : RF.DR) (h : l ≠ RF.zeroDR) (ρ : BoundaryLifts b F RF.TC) :
+    Nat.card (MLifts (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))
+      = (Nat.card ↥RF.MB) ^ 2 :=
+  (Nat.card_congr (RF.liftsOver_equiv b F (En.radData l h) rfl ρ)).symm.trans
+    (RF.liftsOver_card_gammaA b F ρ)
+
+/-- **P-16d6e6 deliverable**: the (139) half count for `Γ_A`, in the exact shape of the
+`RecursionInputs.half139` field (the `half139_local` twin). -/
+theorem half139_gammaA
+    (RF : RecursionFrame T Blk) (b : ContinuousMonoidHom GammaA ↥boundarySubgroup)
+    (F : BoundaryFrame H E) (En : RF.Enrichment)
+    (hfg : ∃ s : Finset GammaA, (Subgroup.closure (s : Set GammaA)).topologicalClosure = ⊤)
+    (l : RF.DR) (h : l ≠ RF.zeroDR)
+    (hedge : ¬∃ N : Subgroup (RF.scalarCover l h).cover, N.Normal ∧
+      N.map (RF.scalarCover l h).p = RF.TBsub ∧ (RF.scalarCover l h).z ∉ N) :
+    2 * RF.zBC b F l h = (Nat.card ↥RF.MB) ^ 2 * exactImageCount b F RF.TC :=
+  half139_via_radData RF b F En l h hfg
+    (hlem86M_gammaA RF b F En l h hedge) (hMcountM_gammaA RF b F En l h)
+
+end Half139GammaA
+
 /-- **Proposition 8.9 (closed exact-image recursion)**: for the concrete block frame of a
 boundary-framed target with a §7 simple-head block, there are **shared** data
 `(μ, G⁰, D_T)` and a **per-`λ`** phase family such that the boxed system (136)–(142) holds
@@ -179,9 +236,7 @@ theorem prop_8_9 (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
     · -- the `Γ_A` recursion
       refine prop_8_9_aux _ hfgA B.bA F lemma_8_2_gammaA hheadA _ _ _ _ ?_
       refine ⟨CardH2GammaA.stageR136_gammaA hE2 hRK hR2 B.bA F, fun l h hedge => ?_, fun l h hN => ?_⟩
-      · -- (139) for `Γ_A` — GATED on P-16d6e6's `hMcountM_A` (`lemma_8_6_gammaA` ✓ supplies
-        -- `hlem86M`); wire through `half139_via_radData` when it lands
-        sorry
+      · exact half139_gammaA _ B.bA F En hfgA l h hedge
       · -- (140) for `Γ_A` — GATED on P-16d6e6's `phase140_gammaA` (the `phase140_local`
         -- mirror: `hZcard_gammaA` ✓; `hsep_A`/`hpartial_A`/`tcocycle_card_gammaA` open);
         -- consume with `phaseFamily_pos` + the shared `hμ`-transport + `hGaussZA l h`,
