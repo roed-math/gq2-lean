@@ -88,6 +88,46 @@ theorem H2ofFun_cor2Fun_eq_zero_of_H2_eq_zero (U : Subgroup AbsGalQ2) [Finite (A
   rw [hform]
   exact H2ofFun_cor2Fun_coboundary_eq_zero U hUo c hc
 
+/-! ## The Lemma-6.17 vanishing assembly (the verified reduction, parametric over gap 2) -/
+
+section Assembly
+
+open SectionSix
+
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
+
+omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
+/-- **The Lemma-6.17 vanishing assembly** (P-15f2, the verified reduction): if `Q⁰_loc` at a class
+`x` decomposes as a finite sum of per-orbit corestriction contributions — the monomial expansion
+`hexp`, i.e. Lemma 6.14 through the regular embedding + Lemma 6.15's orbit classes (the combinatorial
+"gap 2" of `docs/p15f2-scoping.md`) — and each orbit's inner `2`-cocycle vanishes in the subgroup's
+`H²` (`hvanish`: free/square by the (94) orthogonality `cup_deepClasses`, involution by Lemma 6.16,
+for a deep class), then `Q⁰_loc x = 0`.
+
+Isolates the remaining combinatorial input `hexp` from the arithmetic vanishing, which discharges
+through the corestriction bridge `H2ofFun_cor2Fun_eq_zero_of_H2_eq_zero`.  Mirrors the f8 pattern:
+verified reduction separated from the hard analytic input. -/
+theorem Q0loc_vanish_of_orbit_sum (D : TateDuality 2) (dat : FactorSet C V)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) (x : H1 AbsGalQ2 V)
+    {ι : Type*} (s : Finset ι) (U : ι → Subgroup AbsGalQ2)
+    (hfin : ∀ o ∈ s, Finite (AbsGalQ2 ⧸ U o))
+    (hopen : ∀ o ∈ s, IsOpen (U o : Set AbsGalQ2))
+    (inner : (o : ι) → ↥(U o) × ↥(U o) → ZMod 2)
+    (hZ2 : ∀ o ∈ s, inner o ∈ Z2 ↥(U o) (ZMod 2))
+    (hexp : Q0loc D dat ρ x
+      = ∑ o ∈ s, iotaF D (H2ofFun AbsGalQ2 (cor2Fun (U o) (inner o))))
+    (hvanish : ∀ o ∈ s, H2ofFun ↥(U o) (inner o) = 0) :
+    Q0loc D dat ρ x = 0 := by
+  rw [hexp]
+  refine Finset.sum_eq_zero fun o ho => ?_
+  haveI := hfin o ho
+  rw [H2ofFun_cor2Fun_eq_zero_of_H2_eq_zero (U o) (hopen o ho) (inner o) (hZ2 o ho)
+    (hvanish o ho), map_zero]
+
+end Assembly
+
 end OrbitVanish
 
 end GQ2
