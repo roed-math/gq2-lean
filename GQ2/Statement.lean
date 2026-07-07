@@ -32,21 +32,19 @@ noncomputable abbrev AbsGalQ2 : Type := Field.absoluteGaloisGroup ℚ_[2]
 noncomputable def contSurjCount (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] : ℕ :=
   Nat.card (ContSurj AbsGalQ2 G)
 
-/-- **Theorem 1.2 (surjection-count form).** For every finite group `G`, the number of continuous
-surjections `G_{ℚ₂} ↠ G` equals `admissibleCount G`, the number of admissible marked generating
-quadruples `(σ,τ,x₀,x₁) ∈ G⁴` (paper eq. (154) + Prop. 2.3).
-
-*Status:* the honest computational content of the paper; proof deferred (needs the §§3–9 tower).
-The paper proves this via eq. (154) `|Sur(Γ_A,G)| = |Sur(G_ℚ₂,G)|` (Lemma 10.1 + Theorem 4.2 +
-Prop 2.3). That tower reduces to a **minimal list of nine classical literature results** (Demushkin
-classification, `G_ℚ₂(2)` Demushkin, local reciprocity, local Tate duality, local Euler
-characteristic, dyadic Hilbert symbol, 2-adic cyclotomic surjectivity, `G_ℚ₂` top. f.g., Evens/
-Stiefel–Whitney) — enumerated with precise statements and citations in `docs/literature-axioms.md`,
-and (where Mathlib has the types) stated in `GQ2/Foundations.lean`. -/
-theorem main_surjection_count
-    (G : Type) [Group G] [Finite G] [TopologicalSpace G] [DiscreteTopology G] :
-    contSurjCount G = admissibleCount G := by
-  sorry
+/-! **Theorem 1.2 (surjection-count form)** — for every finite group `G`, the number of continuous
+surjections `G_{ℚ₂} ↠ G` equals `admissibleCount G` (the admissible marked generating quadruples;
+paper eq. (154) + Prop. 2.3) — is **`GQ2.SectionTen.main_surjection_count'`** (proved in
+`GQ2/SectionTenSources.lean`, P-18e).  It cannot live here: `Statement.lean` sits **upstream** of the
+§§4–9 tower (it is imported by `GammaA.lean`/`FoxHeisenberg.lean`), so an in-place proof — which
+needs the whole tower and the concrete `boundaryMapsWitness` — would cycle.  Per the statement-move
+pattern (P-08/P-15d), `main_presentation` below takes the count as the hypothesis `hcount`, supplied
+at P-19 (`main_presentation_literal`) from `main_surjection_count'`.  The proof reduces to a minimal
+list of nine classical literature results (Demushkin classification, `G_ℚ₂(2)` Demushkin, local
+reciprocity, local Tate duality, local Euler characteristic, dyadic Hilbert symbol, 2-adic
+cyclotomic surjectivity, `G_ℚ₂` top. f.g., Evens/Stiefel–Whitney), enumerated in
+`docs/literature-axioms.md`; it carries `sorryAx` through the allowlisted `thm_4_2` (§9) until
+P-17i. -/
 
 /-!
 ## The literal presentation form (Theorem 1.2 as printed)
@@ -69,9 +67,12 @@ with the surjection-count property of Prop. 2.3 (the honest one is `GQ2.GammaA`)
 is continuously isomorphic to `G_{ℚ₂}`.
 
 `ΓA` stands in for the presented profinite group; `hΓA` is Prop. 2.3 (its finite quotients are the
-admissible markings); `hfgΓ`/`hfgG` are topological finite generation of `Γ_A` and of `G_{ℚ₂}`
-(both true — `G_{ℚ₂}` is topologically finitely generated, being the absolute Galois group of a
-local field; assumed here as it is not yet formalized). The conclusion is Theorem 1.2. -/
+admissible markings); `hcount` is Theorem 1.2's surjection-count form for `G_{ℚ₂}`
+(`contSurjCount G = admissibleCount G`, = `SectionTen.main_surjection_count'`, supplied at P-19 —
+a hypothesis here because its proof is downstream of this upstream file, the statement-move pattern);
+`hfgΓ`/`hfgG` are topological finite generation of `Γ_A` and of `G_{ℚ₂}` (both true — `G_{ℚ₂}` is
+topologically finitely generated, being the absolute Galois group of a local field). The conclusion
+is Theorem 1.2. -/
 theorem main_presentation
     (ΓA : Type)
     [Group ΓA] [TopologicalSpace ΓA] [IsTopologicalGroup ΓA]
@@ -80,12 +81,15 @@ theorem main_presentation
     (hfgΓ : ∃ s : Finset ΓA, (Subgroup.closure (s : Set ΓA)).topologicalClosure = ⊤)
     (hfgG : ∃ s : Finset AbsGalQ2, (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤)
     (hΓA : ∀ (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [Finite G],
-        Nat.card (ContSurj ΓA G) = admissibleCount G) :
+        Nat.card (ContSurj ΓA G) = admissibleCount G)
+    (hcount : ∀ (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [Finite G],
+        contSurjCount G = admissibleCount G) :
     Nonempty (ContinuousMulEquiv ΓA AbsGalQ2) := by
   apply reconstruction hfgΓ hfgG
   intro G _ _ _ _
   rw [hΓA G]
-  -- `admissibleCount G = |Sur(G_{ℚ₂}, G)|` is `main_surjection_count` (reversed).
-  exact (main_surjection_count G).symm
+  -- `admissibleCount G = |Sur(G_{ℚ₂}, G)|` is `hcount` (Theorem 1.2 count form,
+  -- `SectionTen.main_surjection_count'`, reversed); supplied at P-19.
+  exact (hcount G).symm
 
 end GQ2

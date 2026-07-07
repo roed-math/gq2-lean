@@ -83,6 +83,36 @@ theorem tameCoord_bA_ker_isProP :
   show IsProP 2 phiA.toMonoidHom.ker
   rw [ker_phiA]; exact isProP_wildPart
 
+/-! ## Eq. (154) and the surjection-count theorem  (P-18e)
+
+Both live here (not in `SectionTen`) because `eq_154`'s A-side needs the concrete
+`boundaryMapsWitness` (`Γ_A`'s tame surjectivity `phiA_surjective` is witness-specific), and
+`BoundaryMapsWitness` is downstream of `SectionTen`.  They carry `sorryAx` through the allowlisted
+`SectionNine.thm_4_2` sorry until P-17i closes it. -/
+
+/-- **Eq. (154)**: the two sources have identical continuous-surjection counts onto every finite
+group.  `card_contSurj_eq` at `boundaryMapsWitness.bA`/`.bF` (per-source hypotheses above) rewrites
+each count as the sum of the fixed-frame exact-image counts; `thm_4_2` equates them frame-by-frame
+(`hE2` trivial on `E₀ = PUnit`). -/
+theorem eq_154 (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [Finite G] :
+    Nat.card (ContSurj GammaA G) = Nat.card (ContSurj AbsGalQ2 G) := by
+  have hE2 : ∀ e : E₀, e ^ 2 = 1 := fun _ => Subsingleton.elim _ _
+  rw [card_contSurj_eq boundaryMapsWitness.bA G tameCoord_bA_surjective
+        tameCoord_bA_ker_isProP gammaA_topologicallyFinitelyGenerated,
+      card_contSurj_eq boundaryMapsWitness.bF G (tameCoord_bF_surjective boundaryMapsWitness)
+        (tameCoord_bF_ker_isProP boundaryMapsWitness)
+        Foundations.absGalQ2_isTopologicallyFinitelyGenerated]
+  exact finsum_congr fun α =>
+    thm_4_2 boundaryMapsWitness (tameFrame α.1 α.2) (tameTarget G) hE2
+
+/-- **Theorem 1.2, surjection-count form** (`GQ2.main_surjection_count`), proved from eq. (154) +
+Prop 2.3.  The `Statement.lean` sorry is resolved by the statement-move pattern (Statement is
+upstream of the tower); the moved statement carries the tower-standing `AbsGalQ2` instance binders. -/
+theorem main_surjection_count'
+    (G : Type) [Group G] [Finite G] [TopologicalSpace G] [DiscreteTopology G] :
+    contSurjCount G = admissibleCount G :=
+  (eq_154 G).symm.trans (prop_2_3 (G := G))
+
 end Witness
 
 end SectionTen

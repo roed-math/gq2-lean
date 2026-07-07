@@ -282,32 +282,15 @@ theorem card_contSurj_eq [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
 
 end Exhaustion
 
-/-! ## Eq. (154) and the surjection-count theorem  (P-18d/P-18e prove) -/
+/-! ## Eq. (154) and the surjection-count theorem  (P-18e — proved downstream)
 
-section EQ154
-
-variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
-
-/-- **Eq. (154)**: the two sources have identical continuous-surjection counts onto every
-finite group.  [P-18e: `card_contSurj_eq` for `B₀.bA` and `B₀.bF` (`B₀ := boundaryMapsWitness`;
-per-source hypotheses P-18d) + `thm_4_2 B₀ (tameFrame α) (tameTarget G)` per frame, `hE2`
-trivial.  Carries `sorryAx` through the allowlisted `thm_4_2` sorry until P-17i closes.] -/
-theorem eq_154 (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [Finite G] :
-    Nat.card (ContSurj GammaA G) = Nat.card (ContSurj AbsGalQ2 G) := by
-  sorry
-
-/-- **Theorem 1.2, surjection-count form** — the statement of
-`GQ2.main_surjection_count` (`GQ2/Statement.lean:46`), proved from eq. (154) + Prop 2.3.
-At P-18e this replaces the `Statement.lean` sorry by the statement-move pattern (that file is
-upstream of the tower and cannot import this one); the move also adds the two `AbsGalQ2`
-instance binders (file-level `variable`s tower-wide, not global instances) — documented
-amendment, invisible to `main_presentation`, which binds them itself. -/
-theorem main_surjection_count'
-    (G : Type) [Group G] [Finite G] [TopologicalSpace G] [DiscreteTopology G] :
-    contSurjCount G = admissibleCount G :=
-  (eq_154 G).symm.trans (prop_2_3 (G := G))
-
-end EQ154
+`eq_154` (`Nat.card (ContSurj GammaA G) = Nat.card (ContSurj AbsGalQ2 G)`) and
+`main_surjection_count'` (`contSurjCount G = admissibleCount G`) are proved in
+`GQ2/SectionTenSources.lean` (P-18e), **not here**: `eq_154`'s A-side needs the concrete
+`boundaryMapsWitness` (the `Γ_A` tame surjectivity `phiA_surjective` is witness-specific), and
+`GQ2/BoundaryMapsWitness.lean` is downstream of this file.  Both carry `sorryAx` through the
+allowlisted `SectionNine.thm_4_2` sorry until P-17i closes it.  With their move this file is
+sorry-free and leaves the `SORRY_ALLOWLIST`. -/
 
 end SectionTen
 
