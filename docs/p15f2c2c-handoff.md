@@ -147,7 +147,20 @@ satisfies it (unpack the witness's `tameF` against `tameQuotient.nuT_recip_unit`
 so the clause should transfer nearly verbatim).
 ⚠ (ii) is the one genuinely new profinite plumbing in the whole plan — budget accordingly.
 
-### c2c4 — `GQ2/UnramifiedBridge.lean` [F+O, capstone, gated on c2c1–c2c3]
+### c2c4 — `GQ2/UnramifiedBridge.lean` [F+O] — ☑ **CLOSED 2026-07-08 (⟹ ALL of c2c is COMPLETE)**
+
+**The deliverable is `UnramifiedBridge.hunram_involution`** (`#print axioms` = **std-3 + B13
+exactly** — leaner than §0's predicted trace: `R : LocalReciprocity` and
+`horient : TameUnitOrientation R B.tameF` are *parameters*, so B5/B10′ enter only at the
+consumer's instantiation).  Signature: c2b's `(k, L, hkL, hindex)` + frozen `(B, c, hc, ρ, hfac)`
++ `horient` + `hLfix : L.fixingSubgroup = ResidueLift.kerGal ρ` ⟹ the verbatim `hunram`.
+Increment 1 = the `e`-chain (`relE_dvd_two`, `preimGal`/`inertiaField`/`card_quot_preimGal`,
+`hunram_of_odd_eF0`); increment 2 = `hodd` (`descendHom`, `oddTorsion` machinery,
+`unit_dies_in_two_group`, `odd_e_inertiaField` std-3) + the finale.  The `IsGalois ℚ_[2] F₀`
+plumbing risk dissolved: mathlib has `InfiniteGalois.normal_iff_isGalois`, and `⟨t⟩ ◁ C` was
+already proved (`Tame.zpowers_normal_of_tame`).  Gotchas on the board row (P-15f2c2c4): the
+`set`-shadowing trap, the `κ t = 1` motive trap, `Nat.not_dvd_ordCompl`'s namespace-`Prime`.
+Original spec follows for reference.
 Tower setup: `⟨t⟩ ◁ C` (conj-by-`s₀` maps `⟨t⟩` into itself via the relation; finite ⟹ onto),
 `C/⟨t⟩` cyclic (`hc : Surjective c` ⟹ `C = ⟨s₀, t⟩`: images of a topological generating set
 of `Ttame` generate the finite discrete `C`); `F₀ := fixedField (kerGal-style preimage of
