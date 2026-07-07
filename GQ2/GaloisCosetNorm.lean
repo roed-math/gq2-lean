@@ -165,6 +165,20 @@ theorem relE_dvd (FF : DyadicUnitFiltration F) (FL : DyadicUnitFiltration L) (hF
     rw [zpow_natCast, hxy, ha, relE_spec FF FL hFL, ← zpow_mul]
   exact zpow_right_injective₀ hb0 hb1 hEq
 
+/-- **The c2c4 capstone** (Part 1 + Part 2): for `H ≤ K` (finite index), the relative ramification
+index of the tower `fixedField K ≤ fixedField H` divides the coset count `[K : H]`.  Combines the
+coset-norm realization `‖x‖ ^ [K:H] ∈ ‖(fixedField K)^×‖` (`exists_mem_fixedField_norm_pow`, (iii))
+with `relE_dvd`.  This is the shape c2c4 instantiates twice (the index-2 pair `relE ∣ 2` and the
+`⟨t⟩`-preimage pair `relE ∣ r`). -/
+theorem relE_dvd_index {H K : Subgroup (Kummer.GaloisGroup ℚ_[2])}
+    [Fintype (↥K ⧸ H.subgroupOf K)]
+    (FK : DyadicUnitFiltration (fixedField K)) (FH : DyadicUnitFiltration (fixedField H))
+    (hFL : fixedField K ≤ fixedField H) :
+    relE FK FH hFL ∣ (Nat.card (↥K ⧸ H.subgroupOf K) : ℤ) :=
+  relE_dvd FK FH hFL fun x hx0 hxL =>
+    let ⟨y, hymem, hy0, hnorm⟩ := exists_mem_fixedField_norm_pow (H := H) (K := K) hxL hx0
+    ⟨y, hy0, hymem, hnorm⟩
+
 end RelE
 
 end GaloisCosetNorm
