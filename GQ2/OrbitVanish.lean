@@ -128,6 +128,95 @@ theorem Q0loc_vanish_of_orbit_sum (D : TateDuality 2) (dat : FactorSet C V)
 
 end Assembly
 
+/-! ## Additivity backbone: reducing `hexp` to the raw cochain-level orbit decomposition
+
+`hexp` (the monomial expansion) is `Q⁰_loc x = Σ_orbit iotaF(H2ofFun(cor2Fun …))`.  Since
+`Q⁰_loc x = iotaF(H2ofFun(graphPullback dat ρ (out x)))` by definition and `iotaF` is additive,
+`hexp` follows once (a) `graphPullback dat ρ (out x)` decomposes as a **sum of per-orbit
+2-cocycles** `Σ_o φ_o` (the genuine combinatorial core — "gap 2", the paper's `q∘p` monomial
+expansion via Lemma 6.14 + the datum decomposition `datW = Σ orbitDatum`) and (b) each `φ_o` is
+cohomologous to the corresponding `cor2Fun (U_o) (inner_o)` (Lemma 6.15, banked).  The additivity
+of `iotaF ∘ H2ofFun` on cocycles is the reusable plumbing, isolated here. -/
+
+section Additivity
+
+open SectionSix
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
+
+/-- `H²ofFun` is additive on a finite sum of continuous 2-cocycles. -/
+theorem H2ofFun_sum_of_mem_Z2 {ι : Type*} (s : Finset ι) (φ : ι → G × G → ZMod 2) :
+    (∀ i ∈ s, φ i ∈ Z2 G (ZMod 2)) →
+      H2ofFun G (∑ i ∈ s, φ i) = ∑ i ∈ s, H2ofFun G (φ i) := by
+  classical
+  induction s using Finset.induction_on with
+  | empty =>
+    intro _
+    rw [Finset.sum_empty, Finset.sum_empty, H2ofFun_of_mem (zero_mem _)]
+    exact map_zero _
+  | @insert a s ha ih =>
+    intro h
+    have hmem_a : φ a ∈ Z2 G (ZMod 2) := h a (Finset.mem_insert_self a s)
+    have hmem_s : ∀ i ∈ s, φ i ∈ Z2 G (ZMod 2) := fun i hi => h i (Finset.mem_insert_of_mem hi)
+    have hsum_s : (∑ i ∈ s, φ i) ∈ Z2 G (ZMod 2) := sum_mem hmem_s
+    rw [Finset.sum_insert ha, Finset.sum_insert ha, H2ofFun_of_mem (add_mem hmem_a hsum_s),
+      H2ofFun_of_mem hmem_a, ← ih hmem_s, H2ofFun_of_mem hsum_s, ← map_add]
+    rfl
+
+end Additivity
+
+/-! ## The `hexp` reducer and the full f2 reducer -/
+
+section Reducer
+
+open SectionSix
+
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
+
+omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
+/-- **The `hexp` producer** (P-15f2): the monomial expansion in cochain-level form.  If the
+graph pullback of the base class decomposes as a finite sum of per-orbit `2`-cocycles `φ_o`
+(`hdecomp` — the combinatorial "gap 2") and each `φ_o` is cohomologous to `cor2Fun (U_o) (inner_o)`
+(`hcoh` — Lemma 6.15, banked), then `Q⁰_loc x` is the orbit sum `hexp` consumed by
+`Q0loc_vanish_of_orbit_sum`.  Pure additivity plumbing (`H2ofFun_sum_of_mem_Z2` + `iotaF`'s
+`map_sum`); isolates the raw decomposition `hdecomp` as the sole remaining combinatorial input. -/
+theorem Q0loc_eq_orbit_sum_of_decomp (D : TateDuality 2) (dat : FactorSet C V)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) (x : H1 AbsGalQ2 V)
+    {ι : Type*} (s : Finset ι) (φ : ι → AbsGalQ2 × AbsGalQ2 → ZMod 2)
+    (hφZ2 : ∀ o ∈ s, φ o ∈ Z2 AbsGalQ2 (ZMod 2))
+    (hdecomp : graphPullback dat ρ (Quotient.out x).1 = ∑ o ∈ s, φ o)
+    (U : ι → Subgroup AbsGalQ2) (inner : (o : ι) → ↥(U o) × ↥(U o) → ZMod 2)
+    (hcoh : ∀ o ∈ s, H2ofFun AbsGalQ2 (φ o) = H2ofFun AbsGalQ2 (cor2Fun (U o) (inner o))) :
+    Q0loc D dat ρ x = ∑ o ∈ s, iotaF D (H2ofFun AbsGalQ2 (cor2Fun (U o) (inner o))) := by
+  show iotaF D (H2ofFun AbsGalQ2 (graphPullback dat ρ (Quotient.out x).1)) = _
+  rw [hdecomp, H2ofFun_sum_of_mem_Z2 s φ hφZ2, map_sum]
+  exact Finset.sum_congr rfl fun o ho => by rw [hcoh o ho]
+
+/-- **The full P-15f2 reducer** (`lemma_6_17_vanish` modulo the monomial expansion): given the raw
+per-orbit cochain decomposition `hdecomp`, the Lemma-6.15 cohomologies `hcoh`, and the deep-class
+per-orbit vanishing `hvanish` (free/square = `cup_deepClasses`, involution = `lemma_6_16`),
+`Q⁰_loc x = 0`.  Composes `Q0loc_eq_orbit_sum_of_decomp` (→ `hexp`) with
+`Q0loc_vanish_of_orbit_sum`.  The **sole remaining input** for `lemma_6_17_vanish` is `hdecomp` —
+the `q∘p` monomial expansion over the regular module (Lemma 6.14 + the datum decomposition). -/
+theorem Q0loc_vanish_of_decomp (D : TateDuality 2) (dat : FactorSet C V)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) (x : H1 AbsGalQ2 V)
+    {ι : Type*} (s : Finset ι) (φ : ι → AbsGalQ2 × AbsGalQ2 → ZMod 2)
+    (hφZ2 : ∀ o ∈ s, φ o ∈ Z2 AbsGalQ2 (ZMod 2))
+    (hdecomp : graphPullback dat ρ (Quotient.out x).1 = ∑ o ∈ s, φ o)
+    (U : ι → Subgroup AbsGalQ2) (hfin : ∀ o ∈ s, Finite (AbsGalQ2 ⧸ U o))
+    (hopen : ∀ o ∈ s, IsOpen (U o : Set AbsGalQ2))
+    (inner : (o : ι) → ↥(U o) × ↥(U o) → ZMod 2) (hZ2 : ∀ o ∈ s, inner o ∈ Z2 ↥(U o) (ZMod 2))
+    (hcoh : ∀ o ∈ s, H2ofFun AbsGalQ2 (φ o) = H2ofFun AbsGalQ2 (cor2Fun (U o) (inner o)))
+    (hvanish : ∀ o ∈ s, H2ofFun ↥(U o) (inner o) = 0) :
+    Q0loc D dat ρ x = 0 :=
+  Q0loc_vanish_of_orbit_sum D dat ρ x s U hfin hopen inner hZ2
+    (Q0loc_eq_orbit_sum_of_decomp D dat ρ x s φ hφZ2 hdecomp U inner hcoh) hvanish
+
+end Reducer
+
 end OrbitVanish
 
 end GQ2
