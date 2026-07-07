@@ -159,14 +159,32 @@ ultrametric (`IsUltrametricDist`); `‖2‖ = ‖(2:ℚ_[2])‖ < 1` (`Padic.nor
 
 ---
 
-## 4. Work order
+## 4. Work order — SPLIT 2026-07-08 into subtickets (board rows P-15f2c2c1–c2c4)
 
 1. ✅ board row (`docs/tickets.md`) + this scoping doc.
-2. **(A)** `GQ2/UnramifiedNorm.lean` — the value-group lemma (this session's target). Register in
-   `GQ2.lean`; gate `#print axioms = std-3 + {B13}`.
-3. **(B)** flag the axiom-vs-derive decision to the f2-lead; on sign-off, land the chosen bridge.
-4. f2d consumes: `hunram := unramifiedNorm … (bridge-supplied ‖π_L‖=‖π_k‖)` into
-   `hvanish_involution_of_deepClass`.
+2. ✅ **(A)** `GQ2/UnramifiedNorm.lean` landed (commit `6e0ea24`): `norm_eq_zpow`,
+   `hunram_of_uniformizer_norm_eq`, `uniformizer_norm_eq_of_e_eq`, `hunram_of_e_eq` — std-3,
+   sorry-free, registered in `GQ2.lean`.
+3. **(B)** split for orchestration — **c2c1 ∥ c2c2 ∥ c2c3 are mutually independent and startable
+   now**; c2c4 is the gated capstone:
+   * **P-15f2c2c1 (N1, O)** — `GQ2/GaloisCosetNorm.lean`: the coset-norm kit
+     (`cosetNorm H K x := ∏_{c : K ⧸ H.subgroupOf K} out(c) • x`; membership in `fixedField K`;
+     `‖·‖ = ‖x‖^{Nat.card}`) + the relative-`e` bookkeeping (`relE` extraction, tower
+     multiplicativity, `relE ∣ n` from `‖x‖^n ∈ ‖F^×‖`).  Axiom-free.
+   * **P-15f2c2c2 (N2, F+O)** — `GQ2/UnitNormIndex.lean`: for finite abelian Galois `F/ℚ₂` with
+     B13 data `FF`, `#(unit-image in Gal(F/ℚ₂)) = FF.e`, via B5(a) + `Algebra.norm_eq_prod_automorphisms`
+     + the `v₂`-SES index factorization.  `ρ`-free.  std-3 + B5.
+   * **P-15f2c2c3 (N3, F)** — `GQ2/TameTwoQuotient.lean`: (i) τ-death in finite 2-groups;
+     (ii) continuous `Ttame → Q` (finite 2-group) factors through `nuT` (via
+     `maxProPQuotient 2 Ttame ≅ Ztwo`; fallback: the `ℤ₂ × Q` procyclic-closure argument);
+     (iii) `TameUnitOrientation` def + the `boundaryMapsWitness` discharge from B10′.
+   * **P-15f2c2c4 (N4, F+O)** — `GQ2/UnramifiedBridge.lean`: tower setup (`F₀`, `IsGalois`,
+     abelian `Gal(F₀/ℚ₂)`, `r` odd), the unit-image-odd composite, the `e`-chain, and the
+     `hunram`-producer in `hvanish_involution`'s verbatim shape.  Skeleton buildable early
+     against c2c1–c2c3's pinned signatures.
+4. f2d consumes: `hunram := (c2c4-producer …)` into `hvanish_involution_of_deepClass`, threading
+   `TameUnitOrientation localReciprocity B.tameF` (discharged at the witness) — the one
+   hypothesis amendment of the moved 6.17-vanish (P-20 flag).
 
 ## 5. Coordination
 
