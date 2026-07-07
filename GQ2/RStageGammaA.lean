@@ -434,6 +434,32 @@ theorem tameValue_correction (σ τ x0 x1 r0 r1 : Y')
   group
   rw [(hr1 (σ ^ (-1 : ℤ))).symm.eq]
 
+/-- **Conjugation under central corrections** (`docs/p16d6e5-plan.md` §2, L1-wild building block):
+`conjP (rₐ·x) (r_g·g) = rₐ · conjP x g` for central `rₐ, r_g` — the conjugating correction `r_g`
+cancels (`g⁻¹r_g⁻¹…r_g g`), the conjugated correction `rₐ` survives.  Used for `z0 = conjP x₀ σ₂`,
+`x₁^σ`, `dg = conjP d₀ g₀`, and the `x₀^g₀` factor of `h₀`. -/
+theorem conjP_central_correction (x g ra rg : Y')
+    (hra : ∀ z : Y', Commute ra z) (hrg : ∀ z : Y', Commute rg z) :
+    conjP (ra * x) (rg * g) = ra * conjP x g := by
+  simp only [conjP, mul_inv_rev]
+  rw [mul_assoc g⁻¹ rg⁻¹ (ra * x), (hrg (ra * x)).inv_left.eq]
+  group
+  rw [(hra (g ^ (-1 : ℤ))).symm.eq]
+
+/-- **Commutators are insensitive to central corrections** (`docs/p16d6e5-plan.md` §2, L1-wild
+building block): `commP (rₐ·a) (r_b·b) = commP a b` for central `rₐ, r_b` — both corrections cancel
+in the commutator (`a⁻¹rₐ⁻¹ b⁻¹r_b⁻¹ rₐa r_bb`, all central factors pair off).  Used for
+`c0 = commP d₀ z₀` and `h_c = commP dg d₀` — these two auxiliary words are correction-free. -/
+theorem commP_central_correction (a b ra rb : Y')
+    (hra : ∀ z : Y', Commute ra z) (hrb : ∀ z : Y', Commute rb z) :
+    commP (ra * a) (rb * b) = commP a b := by
+  simp only [commP, mul_inv_rev]
+  -- Cancel `ra⁻¹…ra` (move `ra⁻¹` right, `group`), then swap `rb⁻¹` past `a` and cancel `rb⁻¹…rb`.
+  rw [mul_assoc a⁻¹ ra⁻¹ (b⁻¹ * rb⁻¹), (hra (b⁻¹ * rb⁻¹)).inv_left.eq]
+  group
+  rw [mul_assoc (a ^ (-1 : ℤ) * b ^ (-1 : ℤ)) (rb ^ (-1 : ℤ)) a, ((hrb a).zpow_left (-1 : ℤ)).eq]
+  group
+
 end RelatorCorrection
 
 /-! ## `hsep_hom`: the `(R^∨)^C` separation at the candidate source (L1–L5, the main work) -/
