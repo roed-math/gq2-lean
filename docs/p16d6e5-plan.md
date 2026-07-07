@@ -238,8 +238,8 @@ extension needed.
     of the contragredient, and every downstream `rw`/`exact` then mismatches instances.  With the
     typed `let`, `c • idE` is defeq `idE.comp (toAddMonoidHom c⁻¹)`; `toAddMonoidHom c⁻¹ = id` +
     `comp_id` close `hact`.
-  * ◐ **L1** — the group-level relator correction at a **central 2-torsion** kernel (the phrasing
-    (b) route won: at `Y/l` the kernel `R/l ≅ 𝔽₂` is central, `Aut 𝔽₂ = 1`, so corrections commute).
+  * ✅ **L1 — COMPLETE** (both rows).  The group-level relator correction at a **central 2-torsion**
+    kernel (the phrasing (b) route: at `Y/l` the kernel `R/l ≅ 𝔽₂` is central, `Aut 𝔽₂ = 1`).
     Target values pinned by the additive closed forms: **both** Fox derivatives are the τ-correction,
     `(d¹r) = (r 1, r 1)` (`d1Fun_tame_trivial`/`d1Fun_wild_trivial`), so
     `tameValue(r⃗·ŷ) = r₁·tameValue(ŷ)` **and** `wildValue(r⃗·ŷ) = r₁·wildValue(ŷ)` (same `r₁`).
@@ -254,16 +254,13 @@ extension needed.
         (à la `powOmega2_prod`), `powOmega2 s = s` since `|s|∣2`.
       * ✅ `conjP_central_correction` (**propext**) — `conjP (rₐx)(r_g g) = rₐ·conjP x g`.
       * ✅ `commP_central_correction` (**propext**) — `commP (rₐa)(r_b b) = commP a b`.
-      * ☐ **Remaining = mechanical assembly** (the auxiliary-word chain; needs `[Finite Y']`).  Each
-        word's correction from the blocks (traced, net `r₁`):
-        `sigma2→r₀` (`powOmega2_ci`), `u0→r₂r₁`, `u1→r₃r₁` (`powOmega2_ci`, `s := r₂r₁`/`r₃r₁`),
-        `d0 = u0·x₀⁻¹ → r₁` (`r₂` from `u0` meets `r₂⁻¹` from `x₀⁻¹`), `z0 = conjP x₀ σ₂ → r₂`
-        (`conjP_cc`), `g0 = σ₂² → 1` (`r₀²=1`), `c0 = commP d0 z0 → 1` (`commP_cc`),
-        `dg = conjP d0 g0 → r₁` (`conjP_cc`, `g0` corr 1), `hc = commP dg d0 → 1` (`commP_cc`),
-        `h0 = x₀^g0·x₀·dg·d0·d0²·hc → 1` (`r₂·r₂·r₁·r₁·1·1` cancel).  Then
-        `wildValue = h0·u1⁻¹·x₁^σ·c0 → 1·(r₃r₁)·r₃·1 = r₁`.  Each is a few lines; the products
-        need the same `group`+`Commute`-swap idiom as the blocks.  (Marking field access
-        `(mk …).sigma2 = powOmega2 (r₀σ)` is `rfl`.)
+      * ✅ **`wildValue_correction`** (**std-3**) — the full auxiliary-word chain landed
+        (`corrMark` record + `corrMark_{sigma2,u0,u1,g0,z0,d0,c0,dg,hc,h0}`), net `r₁`:
+        `sigma2→r₀`, `u0→r₂r₁`, `u1→r₃r₁`, `d0→r₁`, `z0→r₂`, `g0→1`, `c0→1`, `dg→r₁`, `hc→1`,
+        `h0→1` (six factors → three `central_pair`s), then `wildValue → r₁`.  Idioms that recurred:
+        `central r₂·X·r₂⁻¹ = X` (for `d0`), `central_pair (c·a)(c·b) = a·b` (for `h0`),
+        `mul_mul_mul_comm` for combining two corrections (`u0`/`u1`), and `r₁⁻¹ = r₁`
+        (`inv_eq_of_mul_eq_one_right`).  Marking field access `(corrMark …).sigma2` unfolds by `rfl`.
   * ◐ **L4/L5** — per-cover extraction (`obs_zero_iff_lifts`) + descent
     (`markC_admissible`/`NA_le_ker`/`quotientLift`).  Landed helper: ✅ `d1Fun_tame_trivial` (std-3)
     — `(d¹x).1 = x 1` at trivial `𝔽₂`, the tame-row recognizer (the wild recognizer needs L1-wild).
