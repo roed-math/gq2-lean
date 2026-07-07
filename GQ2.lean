@@ -64,6 +64,7 @@ import GQ2.VLiftCount
 import GQ2.KeystoneDelta
 import GQ2.GaussZReduction
 import GQ2.IotaBridge
+import GQ2.GaussZLocal
 import GQ2.ShapiroDeepness
 import GQ2.Phase140Assembly
 import GQ2.Prop89Close
