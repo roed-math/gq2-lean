@@ -250,6 +250,17 @@ noncomputable def wTrace (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     (lam : ElemDual A) (hlam : (d0 (A := ElemDual A) t) lam = 0) (v : A × A) :
     wTrace t ht hw lam hlam (QuotientAddGroup.mk v) = lam (v.1 + v.2) := rfl
 
+/-- **L3b: `λ ↦ Φ_λ` is injective** — `Φ_λ` at `[⟨a,0⟩]` is `λ a`, so the functional determines
+`λ`.  (With the counting `#{invariant λ} = #H2w`, this makes `λ ↦ Φ_λ` a bijection onto
+`H2w →+ 𝔽₂` — the perfect (2,0)-pairing.) -/
+theorem wTrace_injective (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (lam lam' : ElemDual A) (hlam : (d0 (A := ElemDual A) t) lam = 0)
+    (hlam' : (d0 (A := ElemDual A) t) lam' = 0)
+    (h : wTrace t ht hw lam hlam = wTrace t ht hw lam' hlam') : lam = lam' := by
+  ext a
+  have hev := congrArg (fun Ψ => Ψ (QuotientAddGroup.mk (a, 0))) h
+  simpa only [wTrace_mk, add_zero] using hev
+
 end TraceSpan
 
 /-! ## `hsep_hom`: the `(R^∨)^C` separation at the candidate source (L1–L5, the main work) -/
