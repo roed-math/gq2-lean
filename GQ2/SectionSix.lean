@@ -905,27 +905,16 @@ travels with it; `hV2` is derivable there from `hcard` + `hsimple` via additive 
 Axioms: std-3 + B7 (B6 via the `D` parameter) + `sorryAx` through the two Lemma 6.17 sorries
 (the remaining §6.3 Kummer cores). -/
 
-/-- **Proposition 6.18, eq. (115), unramified case**: negative Gauss sign,
-`#(Q⁰_loc)⁻¹(0) = 2^{2m−1} − 2^{m−1}`.  [P-14 statement; proof P-15 (Hermitian-line model,
-Lemmas 6.4/6.7), Ax: B6, B7.]
-
-**Statement amended (P-15f, flag for P-20)**: added `hc : Function.Surjective ⇑c` (as in
-`prop_6_18_ramified`). -/
-theorem prop_6_18_unramified (D : TateDuality 2) (B : BoundaryMaps)
-    (c : ContinuousMonoidHom Ttame C)
-    (hc : Function.Surjective ⇑c)
-    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
-    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
-    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
-    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
-    (hV : ∃ v : V, v ≠ 0)
-    (hunram : ∀ v : V, c tameTau • v = v)
-    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
-    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
-    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
-    Nat.card {x : H1 AbsGalQ2 V // Q0loc D dat ρ x = 0}
-      = 2 ^ (2 * m - 1) - 2 ^ (m - 1) := by
-  sorry
+/- **Proposition 6.18, eq. (115), unramified case**: negative Gauss sign,
+`#(Q⁰_loc)⁻¹(0) = 2^{2m−1} − 2^{m−1}`.
+**Proved (P-15f3, 2026-07-05) as `GQ2.UnramifiedModel.prop_6_18_unramified`** in
+`GQ2/UnramifiedModel.lean` (downstream — its proof consumes the `Q0loc` structure layer of
+`DeepPart`/`RepIndependence`, which import this file; statement moved out to break the import
+cycle, per the `prop_6_18_ramified`/P-15d pattern; sorried copy removed 2026-07-07).
+The `hc : Function.Surjective ⇑c` amendment travels with it (flag for P-20), as does the
+route: C cyclic → Schur field `F` → `H¹` an `F`-line → C-invariant Hermitian trace model →
+`card_normOne_invariant_form_zero`.  Axioms: std-3 + B7 (B6 via the `D : TateDuality 2`
+parameter), no `sorryAx`. -/
 
 /- **Lemma 6.14 (regular-module realization), eq. (102)**: the base connecting map computed
 through an equivariant split embedding `i : V →+ W` into a regular-type module agrees with the
