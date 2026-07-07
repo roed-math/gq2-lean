@@ -246,15 +246,24 @@ extension needed.
     * ✅ **L1 tame** `tameValue_correction` (**propext-only**) — the σ-correction `r₀` cancels
       (`σ⁻¹r₀⁻¹(r₁τ)r₀σ`), the τ-square kills `r₁²` (`Commute.mul_pow`).  Central manipulation:
       move `r0⁻¹` adjacent to `r0` (`group` cancels), one `r₁/σ⁻¹` `Commute` swap.
-    * ☐ **L1 wild** `wildValue_correction` — the long pole.  **Genuine crux (new finding):**
-      `wildValue = h₀u₁⁻¹x₁^σc₀` is built from `powOmega2 x = x^(omega2Exp (orderOf x))`, and
-      `orderOf(r·a)` **changes** when multiplying by a central involution `r`, so the `ω₂`-powers do
-      NOT transform by a simple `r^k` — `powOmega2(r·a) = r^(omega2Exp(ord(r·a)))·a^(omega2Exp(ord(r·a)))`
-      with a *shifted* exponent vs `powOmega2 a`.  Needs `omega2Exp`/`orderOf`-under-central-2-torsion
-      lemmas (parity of `omega2Exp` at even orders is `≡1 mod 2` via `omega2Exp_modEq_one`, a lever).
-      The `liftMarking_*` helpers (`_h0_u`, `_u1_u`, `_c0_u`, `_*_g_smul`) that closed
-      `liftMarking_wildValue_u` are WordLift-specific; the group-level versions must be redone.
-      Mirror `liftMarking_wildValue_u`'s skeleton but at the group level with the orderOf care.
+    * ◐ **L1 wild** `wildValue_correction` — target `wildValue(r⃗·ŷ) = r₁·wildValue(ŷ)`.  **The
+      `orderOf`-shift worry was a red herring** — dissolved.  All three building blocks landed:
+      * ✅ `powOmega2_central_involution` (**std-3**) — `powOmega2 (s·a) = s·powOmega2 a` for central
+        involution `s`.  `powOmega2` = 2-primary projection, `s` = own 2-part; the `orderOf(s·a)`-shift
+        is killed by evaluating all three `ω₂`-powers at a **common modulus** `M = 2·|a|·|s·a|`
+        (à la `powOmega2_prod`), `powOmega2 s = s` since `|s|∣2`.
+      * ✅ `conjP_central_correction` (**propext**) — `conjP (rₐx)(r_g g) = rₐ·conjP x g`.
+      * ✅ `commP_central_correction` (**propext**) — `commP (rₐa)(r_b b) = commP a b`.
+      * ☐ **Remaining = mechanical assembly** (the auxiliary-word chain; needs `[Finite Y']`).  Each
+        word's correction from the blocks (traced, net `r₁`):
+        `sigma2→r₀` (`powOmega2_ci`), `u0→r₂r₁`, `u1→r₃r₁` (`powOmega2_ci`, `s := r₂r₁`/`r₃r₁`),
+        `d0 = u0·x₀⁻¹ → r₁` (`r₂` from `u0` meets `r₂⁻¹` from `x₀⁻¹`), `z0 = conjP x₀ σ₂ → r₂`
+        (`conjP_cc`), `g0 = σ₂² → 1` (`r₀²=1`), `c0 = commP d0 z0 → 1` (`commP_cc`),
+        `dg = conjP d0 g0 → r₁` (`conjP_cc`, `g0` corr 1), `hc = commP dg d0 → 1` (`commP_cc`),
+        `h0 = x₀^g0·x₀·dg·d0·d0²·hc → 1` (`r₂·r₂·r₁·r₁·1·1` cancel).  Then
+        `wildValue = h0·u1⁻¹·x₁^σ·c0 → 1·(r₃r₁)·r₃·1 = r₁`.  Each is a few lines; the products
+        need the same `group`+`Commute`-swap idiom as the blocks.  (Marking field access
+        `(mk …).sigma2 = powOmega2 (r₀σ)` is `rfl`.)
   * ◐ **L4/L5** — per-cover extraction (`obs_zero_iff_lifts`) + descent
     (`markC_admissible`/`NA_le_ker`/`quotientLift`).  Landed helper: ✅ `d1Fun_tame_trivial` (std-3)
     — `(d¹x).1 = x 1` at trivial `𝔽₂`, the tame-row recognizer (the wild recognizer needs L1-wild).
