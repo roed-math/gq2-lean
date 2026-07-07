@@ -38,6 +38,124 @@ variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finit
 variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
 variable {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
 
+/-- **L5 descent through `π_{BC}`** (the `π_B`-to-`π_{BC}` port of `RStageGammaA`'s private
+`lift_of_relatorFree_marking`): a marking of `B` covering `ρ`'s marking through `π_{BC}` and
+killing both relators descends to a continuous `φ : Γ_A → B` with `π_{BC} ∘ φ = ρc`.  Same proof
+as the `π_B` version — the generated subgroup `J ≤ B` is admissible (`Generates` by construction,
+`TameRel`/`WildRel` by subtype injectivity, `Pro2Core` by pushing to `ρc`'s admissible marking
+with the kernel `M_B` 2-torsion via `MB_elem`) — with `(Y, π_B, R)` replaced by `(B, π_{BC},
+M_B)`. -/
+private theorem RecursionFrame.descend_piBC (RF : RecursionFrame T Blk)
+    (ρc : ContinuousMonoidHom GA RF.YC) (hsurj : Function.Surjective ρc)
+    (tHat : Marking RF.YB) (hproj : tHat.map RF.piBC = Marking.push ρc)
+    (htame : tHat.TameRel) (hwild : tHat.WildRel) :
+    ∃ φ : ContinuousMonoidHom GammaA RF.YB, ∀ γ, RF.piBC (φ γ) = ρc γ := by
+  classical
+  set J : Subgroup RF.YB := Subgroup.closure {tHat.σ, tHat.τ, tHat.x₀, tHat.x₁} with hJ
+  have hmemσ : tHat.σ ∈ J := Subgroup.subset_closure (by simp)
+  have hmemτ : tHat.τ ∈ J := Subgroup.subset_closure (by simp)
+  have hmemx₀ : tHat.x₀ ∈ J := Subgroup.subset_closure (by simp)
+  have hmemx₁ : tHat.x₁ ∈ J := Subgroup.subset_closure (by simp)
+  set tJ : Marking ↥J :=
+    ⟨⟨tHat.σ, hmemσ⟩, ⟨tHat.τ, hmemτ⟩, ⟨tHat.x₀, hmemx₀⟩, ⟨tHat.x₁, hmemx₁⟩⟩ with htJ
+  have hmapJ : tJ.map J.subtype = tHat := by refine marking_ext ?_ ?_ ?_ ?_ <;> rfl
+  have htameJ : tJ.TameRel := by
+    rw [← Marking.tameValue_eq_one_iff]
+    have h := Marking.map_tameValue J.subtype tJ
+    rw [hmapJ, (Marking.tameValue_eq_one_iff tHat).mpr htame] at h
+    exact Subtype.val_injective h.symm
+  have hwildJ : tJ.WildRel := by
+    rw [← Marking.wildValue_eq_one_iff]
+    have h := Marking.map_wildValue J.subtype tJ
+    rw [hmapJ, (Marking.wildValue_eq_one_iff tHat).mpr hwild] at h
+    exact Subtype.val_injective h.symm
+  have hgenJ : tJ.Generates := by
+    show Subgroup.closure {tJ.σ, tJ.τ, tJ.x₀, tJ.x₁} = ⊤
+    have hpre : ({tJ.σ, tJ.τ, tJ.x₀, tJ.x₁} : Set ↥J)
+        = ((↑) : ↥J → RF.YB) ⁻¹' {tHat.σ, tHat.τ, tHat.x₀, tHat.x₁} := by
+      ext j
+      simp only [Set.mem_insert_iff, Set.mem_singleton_iff, Set.mem_preimage]
+      constructor
+      · rintro (rfl | rfl | rfl | rfl) <;> simp [htJ]
+      · rintro (h | h | h | h)
+        · exact Or.inl (Subtype.ext h)
+        · exact Or.inr (Or.inl (Subtype.ext h))
+        · exact Or.inr (Or.inr (Or.inl (Subtype.ext h)))
+        · exact Or.inr (Or.inr (Or.inr (Subtype.ext h)))
+    rw [hpre]
+    exact Subgroup.closure_closure_coe_preimage
+  have hcoreJ : tJ.Pro2Core := by
+    show IsPGroup 2 (Subgroup.normalClosure {tJ.x₀, tJ.x₁})
+    have hadmB : (Marking.push ρc).Admissible := Marking.push_admissible ρc hsurj
+    set qJ : ↥J →* RF.YC := RF.piBC.comp J.subtype with hqJ
+    haveI hNB : (Subgroup.normalClosure
+        {(Marking.push ρc).x₀, (Marking.push ρc).x₁}).Normal := Subgroup.normalClosure_normal
+    haveI hNBc : ((Subgroup.normalClosure
+        {(Marking.push ρc).x₀, (Marking.push ρc).x₁}).comap qJ).Normal := hNB.comap qJ
+    have hcomap : ({tJ.x₀, tJ.x₁} : Set ↥J) ⊆
+        ((Subgroup.normalClosure
+          {(Marking.push ρc).x₀, (Marking.push ρc).x₁}).comap qJ : Set ↥J) := by
+      rintro z hz
+      rcases hz with rfl | hz
+      · rw [SetLike.mem_coe, Subgroup.mem_comap]
+        have h1 : qJ tJ.x₀ = (Marking.push ρc).x₀ := congrArg Marking.x₀ hproj
+        rw [h1]
+        exact Subgroup.subset_normalClosure (by simp)
+      · rcases hz with rfl
+        rw [SetLike.mem_coe, Subgroup.mem_comap]
+        have h1 : qJ tJ.x₁ = (Marking.push ρc).x₁ := congrArg Marking.x₁ hproj
+        rw [h1]
+        exact Subgroup.subset_normalClosure (by simp)
+    have hle := Subgroup.normalClosure_le_normal hcomap
+    intro n
+    have hmemNB : qJ n.1 ∈ Subgroup.normalClosure
+        {(Marking.push ρc).x₀, (Marking.push ρc).x₁} :=
+      Subgroup.mem_comap.mp (hle n.2)
+    obtain ⟨k, hk⟩ := hadmB.2.2.2 ⟨qJ n.1, hmemNB⟩
+    refine ⟨k + 1, ?_⟩
+    have hk' : (qJ n.1) ^ 2 ^ k = 1 := by simpa using congrArg Subtype.val hk
+    have hYval : ((n.1 : RF.YB)) ^ 2 ^ (k + 1) = 1 := by
+      have hmemM : ((n.1 : RF.YB)) ^ 2 ^ k ∈ RF.MB := by
+        rw [← RF.ker_piBC, MonoidHom.mem_ker, map_pow]
+        exact hk'
+      rw [pow_succ, pow_mul, pow_two]
+      exact RF.MB_elem _ hmemM
+    exact Subtype.val_injective (by
+      simpa using Subtype.val_injective (by simpa using hYval :
+        ((n.1 ^ 2 ^ (k + 1) : ↥J) : RF.YB) = ((1 : ↥J) : RF.YB)))
+  have hadmJ : tJ.Admissible := ⟨hgenJ, htameJ, hwildJ, hcoreJ⟩
+  set φY : ContinuousMonoidHom ↥J RF.YB := ⟨J.subtype, continuous_subtype_val⟩ with hφY
+  refine ⟨φY.comp (Marking.descend tJ hadmJ), ?_⟩
+  intro γ
+  obtain ⟨w, rfl⟩ := quotientMk_surjective NA γ
+  set c₁ : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4)) RF.YC :=
+    (⟨RF.piBC, continuous_of_discreteTopology⟩ :
+        ContinuousMonoidHom RF.YB RF.YC).comp
+      (φY.comp (Marking.classify tJ)) with hc₁
+  set c₂ : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4)) RF.YC :=
+    ρc.comp (quotientMk NA) with hc₂
+  have hclassify : univMarking.map (Marking.classify tJ).toMonoidHom = tJ :=
+    univMarking_map_toHom (P := ProfiniteGrp.of ↥J) tJ
+  have hpush : univMarking.map c₁.toMonoidHom = univMarking.map c₂.toMonoidHom := by
+    refine marking_ext ?_ ?_ ?_ ?_
+    · have h1 : (Marking.classify tJ) univMarking.σ = tJ.σ := congrArg Marking.σ hclassify
+      show RF.piBC (φY ((Marking.classify tJ) univMarking.σ)) = ρc (quotientMk NA univMarking.σ)
+      rw [h1]; exact congrArg Marking.σ hproj
+    · have h1 : (Marking.classify tJ) univMarking.τ = tJ.τ := congrArg Marking.τ hclassify
+      show RF.piBC (φY ((Marking.classify tJ) univMarking.τ)) = ρc (quotientMk NA univMarking.τ)
+      rw [h1]; exact congrArg Marking.τ hproj
+    · have h1 : (Marking.classify tJ) univMarking.x₀ = tJ.x₀ := congrArg Marking.x₀ hclassify
+      show RF.piBC (φY ((Marking.classify tJ) univMarking.x₀)) = ρc (quotientMk NA univMarking.x₀)
+      rw [h1]; exact congrArg Marking.x₀ hproj
+    · have h1 : (Marking.classify tJ) univMarking.x₁ = tJ.x₁ := congrArg Marking.x₁ hclassify
+      show RF.piBC (φY ((Marking.classify tJ) univMarking.x₁)) = ρc (quotientMk NA univMarking.x₁)
+      rw [h1]; exact congrArg Marking.x₁ hproj
+  have hc : c₁ = c₂ := by
+    have h1 := Marking.toHom_hom_univMarking_map c₁
+    have h2 := Marking.toHom_hom_univMarking_map c₂
+    rw [← h1, ← h2, hpush]
+  exact DFunLike.congr_fun hc w
+
 /-- **Nonemptiness of the `Γ_A` `B`-lift fibre** (P-17i, the M-stage residue): every lower
 boundary lift `ρ : Γ_A ↠ C` lifts to a continuous homomorphism `Γ_A → B` through `π_{BC}`.
 
@@ -49,7 +167,258 @@ theorem RecursionFrame.liftsOver_nonempty_gammaA
     (RF : RecursionFrame T Blk) (b : ContinuousMonoidHom GammaA ↥boundarySubgroup)
     (F : BoundaryFrame H E) (ρ : BoundaryLifts b F RF.TC) :
     Nonempty (RF.LiftsOver b F ρ) := by
-  sorry
+  classical
+  -- `M_B` module setup (shared with `liftsOver_card_gammaA_of_nonempty`; see there)
+  haveI hMBn : RF.MB.Normal := RF.ker_piBC ▸ RF.piBC.normal_ker
+  have hcomm : ∀ x ∈ RF.MB, ∀ y ∈ RF.MB, x * y = y * x := by
+    intro x hx y hy
+    have hxy := RF.MB_elem _ (mul_mem hx hy)
+    calc x * y = (x * y)⁻¹ := (inv_eq_of_mul_eq_one_right hxy).symm
+      _ = y⁻¹ * x⁻¹ := mul_inv_rev x y
+      _ = y * x := by
+          rw [inv_eq_of_mul_eq_one_right (RF.MB_elem _ hy),
+            inv_eq_of_mul_eq_one_right (RF.MB_elem _ hx)]
+  have hconj_eq : ∀ {u v : RF.YB}, RF.piBC u = RF.piBC v → ∀ m : ↥RF.MB,
+      u * m.1 * u⁻¹ = v * m.1 * v⁻¹ := by
+    intro u v huv m
+    have hm : u⁻¹ * v ∈ RF.MB := by
+      rw [← RF.ker_piBC]
+      exact MonoidHom.mem_ker.mpr (by rw [map_mul, map_inv, huv, inv_mul_cancel])
+    have hcm := hcomm _ hm _ m.2
+    calc u * m.1 * u⁻¹
+        = u * (m.1 * (u⁻¹ * v) * (u⁻¹ * v)⁻¹) * u⁻¹ := by group
+      _ = u * ((u⁻¹ * v) * m.1 * (u⁻¹ * v)⁻¹) * u⁻¹ := by rw [← hcm]
+      _ = v * m.1 * v⁻¹ := by group
+  set sec : RF.YC → RF.YB := Function.surjInv RF.piBC_surj with hsecdef
+  have hsec : ∀ c, RF.piBC (sec c) = c := fun c => Function.surjInv_eq RF.piBC_surj c
+  set θ : ContinuousMonoidHom GA RF.YC :=
+    ⟨ρ.1.1.toMonoidHom, ρ.1.1.continuous_toFun⟩ with hθdef
+  have hθs : Function.Surjective ⇑θ := ρ.1.2
+  letI : CommGroup ↥RF.MB :=
+    { (inferInstance : Group ↥RF.MB) with
+      mul_comm := fun a b => Subtype.ext (hcomm _ a.2 _ b.2) }
+  letI : TopologicalSpace (Additive ↥RF.MB) := (inferInstance : TopologicalSpace ↥RF.MB)
+  haveI : DiscreteTopology (Additive ↥RF.MB) :=
+    ⟨(inferInstance : DiscreteTopology ↥RF.MB).eq_bot⟩
+  haveI : Finite (Additive ↥RF.MB) := (inferInstance : Finite ↥RF.MB)
+  letI actC : DistribMulAction RF.YC (Additive ↥RF.MB) :=
+    { smul := fun c m => Additive.ofMul
+        ⟨sec c * (Additive.toMul m).1 * (sec c)⁻¹,
+          hMBn.conj_mem _ (Additive.toMul m).2 _⟩
+      one_smul := fun m => by
+        apply Additive.toMul.injective; apply Subtype.ext
+        show sec 1 * (Additive.toMul m).1 * (sec 1)⁻¹ = (Additive.toMul m).1
+        have h1 : sec 1 ∈ RF.MB := by
+          rw [← RF.ker_piBC]
+          exact MonoidHom.mem_ker.mpr (hsec 1)
+        rw [hcomm _ h1 _ (Additive.toMul m).2]; group
+      mul_smul := fun c c' m => by
+        apply Additive.toMul.injective; apply Subtype.ext
+        show sec (c * c') * (Additive.toMul m).1 * (sec (c * c'))⁻¹
+          = sec c * (sec c' * (Additive.toMul m).1 * (sec c')⁻¹) * (sec c)⁻¹
+        rw [show sec c * (sec c' * (Additive.toMul m).1 * (sec c')⁻¹) * (sec c)⁻¹
+            = (sec c * sec c') * (Additive.toMul m).1 * (sec c * sec c')⁻¹ from by group]
+        exact hconj_eq (by rw [hsec, map_mul, hsec, hsec]) (Additive.toMul m)
+      smul_zero := fun c => by
+        apply Additive.toMul.injective; apply Subtype.ext
+        show sec c * (1 : RF.YB) * (sec c)⁻¹ = 1
+        group
+      smul_add := fun c m m' => by
+        apply Additive.toMul.injective; apply Subtype.ext
+        show sec c * ((Additive.toMul m).1 * (Additive.toMul m').1) * (sec c)⁻¹
+          = (sec c * (Additive.toMul m).1 * (sec c)⁻¹)
+              * (sec c * (Additive.toMul m').1 * (sec c)⁻¹)
+        group }
+  have hA₂ : ∀ a : Additive ↥RF.MB, a + a = 0 := fun a => by
+    apply Additive.toMul.injective
+    show (Additive.toMul a) * (Additive.toMul a) = 1
+    exact Subtype.ext (RF.MB_elem _ (Additive.toMul a).2)
+  -- `#fixedPts = 1` (the `(M_B^∨)^{Y_C} = 0` group theory via `lemma_7_1_dual`)
+  have hfix : Nat.card (fixedPts RF.YC (ElemDual (Additive ↥RF.MB))) = 1 := by
+    have hzero : ∀ lam : ElemDual (Additive ↥RF.MB),
+        (∀ g : RF.YC, g • lam = lam) → lam = 0 := by
+      intro lam hlam
+      by_contra hlamne
+      have hinv : ∀ (c : RF.YC) (a : Additive ↥RF.MB), lam (c • a) = lam a := by
+        intro c a
+        have h2 : (c⁻¹ • lam) a = lam a := by rw [hlam c⁻¹]
+        rwa [ElemDual.smul_apply, inv_inv] at h2
+      have hmem : ∀ k : ↥Blk.K, RF.piB k.1 ∈ RF.MB := by
+        intro k
+        rw [RF.MB_eq]; exact Subgroup.mem_map.mpr ⟨k.1, k.2, rfl⟩
+      let s : ↥Blk.K →* ↥RF.MB :=
+        (RF.piB.comp Blk.K.subtype).codRestrict RF.MB (fun k => hmem k)
+      have hs : ∀ k : ↥Blk.K, (s k).1 = RF.piB k.1 := fun _ => rfl
+      have hs_surj : Function.Surjective s := by
+        intro m
+        obtain ⟨k, hk, hkeq⟩ := (RF.MB_eq ▸ m.2 : m.1 ∈ Blk.K.map RF.piB)
+        exact ⟨⟨k, hk⟩, Subtype.ext hkeq⟩
+      let φ : ↥Blk.K →* Multiplicative (ZMod 2) :=
+        { toFun := fun k => Multiplicative.ofAdd (lam (Additive.ofMul (s k)))
+          map_one' := by simp
+          map_mul' := fun a b => by simp [map_mul] }
+      have hφ_apply : ∀ k, φ k = Multiplicative.ofAdd (lam (Additive.ofMul (s k))) := fun _ => rfl
+      have hφne : φ ≠ 1 := by
+        intro hφ1
+        apply hlamne
+        ext a
+        show lam a = 0
+        obtain ⟨k, hk⟩ := hs_surj (Additive.toMul a)
+        have h0 : lam (Additive.ofMul (s k)) = 0 := by
+          have hk1 : φ k = 1 := by rw [hφ1]; rfl
+          have := congrArg Multiplicative.toAdd hk1
+          simpa [hφ_apply] using this
+        rw [hk] at h0
+        exact h0
+      have hφsurj : Function.Surjective φ := by
+        intro y
+        rcases eq_or_ne y 1 with rfl | hy
+        · exact ⟨1, map_one φ⟩
+        · obtain ⟨k, hk⟩ := not_forall.mp (fun hh => hφne (MonoidHom.ext hh))
+          refine ⟨k, ?_⟩
+          have hpin : ∀ z : Multiplicative (ZMod 2), z ≠ 1 → z = Multiplicative.ofAdd 1 := by
+            decide
+          rw [hpin _ hk, hpin _ hy]
+      set X : Subgroup Y := φ.ker.map Blk.K.subtype with hXdef
+      have hXK : X ≤ Blk.K := by rw [hXdef]; exact Subgroup.map_subtype_le _
+      have hRX : Blk.R ≤ X := by
+        intro r hr
+        have hrK : r ∈ Blk.K := frattiniLike_le Blk.K hr
+        refine Subgroup.mem_map.mpr ⟨⟨r, hrK⟩, ?_, rfl⟩
+        rw [MonoidHom.mem_ker, hφ_apply]
+        have hs1 : s ⟨r, hrK⟩ = 1 := Subtype.ext (by
+          rw [hs]
+          show RF.piB r = 1
+          exact (RF.ker_piB.symm ▸ hr : r ∈ RF.piB.ker))
+        rw [hs1]; simp
+      have hXnormal : X.Normal := by
+        rw [hXdef]
+        refine ⟨fun x hx y => ?_⟩
+        obtain ⟨k, hkker, hkeq⟩ := Subgroup.mem_map.mp hx
+        have hxK : x ∈ Blk.K := hkeq ▸ k.2
+        have hyk : y * x * y⁻¹ ∈ Blk.K := Blk.hK.conj_mem x hxK y
+        refine Subgroup.mem_map.mpr ⟨⟨y * x * y⁻¹, hyk⟩, ?_, rfl⟩
+        rw [MonoidHom.mem_ker] at hkker ⊢
+        rw [hφ_apply] at hkker ⊢
+        have hconj : Additive.ofMul (s ⟨y * x * y⁻¹, hyk⟩)
+            = (RF.piBC (RF.piB y)) • Additive.ofMul (s ⟨x, hxK⟩) := by
+          have hact : (RF.piBC (RF.piB y)) • Additive.ofMul (s ⟨x, hxK⟩)
+              = Additive.ofMul (⟨sec (RF.piBC (RF.piB y)) * (s ⟨x, hxK⟩).1
+                  * (sec (RF.piBC (RF.piB y)))⁻¹,
+                  hMBn.conj_mem _ (s ⟨x, hxK⟩).2 _⟩ : ↥RF.MB) := rfl
+          rw [hact]
+          congr 1
+          apply Subtype.ext
+          rw [hs]
+          show RF.piB (y * x * y⁻¹)
+            = sec (RF.piBC (RF.piB y)) * (s ⟨x, hxK⟩).1 * (sec (RF.piBC (RF.piB y)))⁻¹
+          rw [hs, map_mul, map_mul, map_inv]
+          exact (hconj_eq (hsec (RF.piBC (RF.piB y))) ⟨RF.piB x, hmem ⟨x, hxK⟩⟩).symm
+        rw [hconj, hinv]
+        have hkx : s ⟨x, hxK⟩ = s k := congrArg s (Subtype.ext hkeq.symm)
+        rw [hkx]; exact hkker
+      have hidx : (X.subgroupOf Blk.K).index = 2 := by
+        have hcm : X.subgroupOf Blk.K = φ.ker := by
+          rw [hXdef, Subgroup.subgroupOf,
+            Subgroup.comap_map_eq_self_of_injective Blk.K.subtype_injective]
+        show Nat.card (↥Blk.K ⧸ (X.subgroupOf Blk.K)) = 2
+        rw [hcm, Nat.card_congr (QuotientGroup.quotientKerEquivOfSurjective φ hφsurj).toEquiv]
+        simp
+      exact absurd ⟨X, hXnormal, hRX, hXK, hidx⟩ (lemma_7_1_dual Blk)
+    rw [Nat.card_eq_one_iff_unique]
+    exact ⟨⟨fun x y => Subtype.ext ((hzero x.val x.2).trans (hzero y.val y.2).symm)⟩,
+      ⟨⟨0, fun c => smul_zero c⟩⟩⟩
+  -- the candidate duality at `markC θ`, and the direct `Y_B`-conjugation action for `d1Fun`
+  have adm := markC_admissible θ hθs
+  have hsd := GQ2.FoxH.prop_5_15 (markC θ) adm.2.1 adm.2.2.1 adm.1 hA₂ adm.2.2.2
+  letI actYB : DistribMulAction RF.YB (Additive ↥RF.MB) :=
+    { smul := fun g m => Additive.ofMul
+        ⟨g * (Additive.toMul m).1 * g⁻¹, hMBn.conj_mem _ (Additive.toMul m).2 _⟩
+      one_smul := fun m => by
+        apply Additive.toMul.injective; apply Subtype.ext
+        show (1 : RF.YB) * (Additive.toMul m).1 * (1 : RF.YB)⁻¹ = (Additive.toMul m).1
+        group
+      mul_smul := fun g g' m => by
+        apply Additive.toMul.injective; apply Subtype.ext
+        show (g * g') * (Additive.toMul m).1 * (g * g')⁻¹
+          = g * (g' * (Additive.toMul m).1 * g'⁻¹) * g⁻¹
+        group
+      smul_zero := fun g => by
+        apply Additive.toMul.injective; apply Subtype.ext
+        show g * (1 : RF.YB) * g⁻¹ = 1
+        group
+      smul_add := fun g m m' => by
+        apply Additive.toMul.injective; apply Subtype.ext
+        show g * ((Additive.toMul m).1 * (Additive.toMul m').1) * g⁻¹
+          = (g * (Additive.toMul m).1 * g⁻¹) * (g * (Additive.toMul m').1 * g⁻¹)
+        group }
+  have hcompat : ∀ (g : RF.YB) (a : Additive ↥RF.MB), g • a = RF.piBC g • a := by
+    intro g a
+    apply Additive.toMul.injective; apply Subtype.ext
+    show g * (Additive.toMul a).1 * g⁻¹
+      = sec (RF.piBC g) * (Additive.toMul a).1 * (sec (RF.piBC g))⁻¹
+    exact hconj_eq (by rw [hsec]) (Additive.toMul a)
+  -- §1: a set-lift marking of `ρ`'s marking through `π_{BC}`; relators land in `M_B`
+  obtain ⟨yσ, hyσ⟩ := RF.piBC_surj ((Marking.push θ).σ)
+  obtain ⟨yτ, hyτ⟩ := RF.piBC_surj ((Marking.push θ).τ)
+  obtain ⟨yx₀, hyx₀⟩ := RF.piBC_surj ((Marking.push θ).x₀)
+  obtain ⟨yx₁, hyx₁⟩ := RF.piBC_surj ((Marking.push θ).x₁)
+  set tB : Marking RF.YB := ⟨yσ, yτ, yx₀, yx₁⟩ with htB
+  have hproj : tB.map RF.piBC = Marking.push θ := marking_ext hyσ hyτ hyx₀ hyx₁
+  have hv₁mem : tB.tameValue ∈ RF.MB := by
+    have h := Marking.map_tameValue RF.piBC tB
+    rw [hproj, (Marking.tameValue_eq_one_iff _).mpr (push_tameRel θ)] at h
+    rw [← RF.ker_piBC, MonoidHom.mem_ker]; exact h.symm
+  have hv₂mem : tB.wildValue ∈ RF.MB := by
+    have h := Marking.map_wildValue RF.piBC tB
+    rw [hproj, (Marking.wildValue_eq_one_iff _).mpr (push_wildRel θ)] at h
+    rw [← RF.ker_piBC, MonoidHom.mem_ker]; exact h.symm
+  set v₁ : ↥RF.MB := ⟨tB.tameValue, hv₁mem⟩ with hv₁def
+  set v₂ : ↥RF.MB := ⟨tB.wildValue, hv₂mem⟩ with hv₂def
+  -- §5': `H2w = 0` (card `#fixedPts = 1`) ⟹ every relator pair is a `d¹`-coboundary
+  have hH2w1 : Nat.card (H2w (A := Additive ↥RF.MB) (markC θ)) = 1 := by rw [hsd.1, hfix]
+  haveI : Subsingleton ((Additive ↥RF.MB × Additive ↥RF.MB)
+      ⧸ (d1 (A := Additive ↥RF.MB) (markC θ)).range) :=
+    (Nat.card_eq_one_iff_unique.mp hH2w1).1
+  have hmem : ((Additive.ofMul v₁, Additive.ofMul v₂) :
+      Additive ↥RF.MB × Additive ↥RF.MB) ∈ (d1 (A := Additive ↥RF.MB) (markC θ)).range := by
+    rw [← QuotientAddGroup.eq_zero_iff]; exact Subsingleton.elim _ _
+  obtain ⟨x, hx⟩ := AddMonoidHom.mem_range.mp hmem
+  -- §6: the corrected marking kills both relators and still covers `ρ`
+  set j : Additive ↥RF.MB → RF.YB := fun a => (Additive.toMul a).1 with hj
+  have hjmul : ∀ a b : Additive ↥RF.MB, j (a + b) = j a * j b := fun _ _ => rfl
+  have hjconj : ∀ (g : RF.YB) (a : Additive ↥RF.MB), j (g • a) = g * j a * g⁻¹ := fun _ _ => rfl
+  have hbase : d1Fun (markC θ) x = d1Fun tB x := by
+    rw [show markC θ = tB.map RF.piBC from hproj.symm]
+    exact d1Fun_base_change RF.piBC hcompat tB x
+  have hd1 : d1Fun tB x = (Additive.ofMul v₁, Additive.ofMul v₂) := by rw [← hbase]; exact hx
+  set tHat : Marking RF.YB :=
+    ⟨j (x 0) * tB.σ, j (x 1) * tB.τ, j (x 2) * tB.x₀, j (x 3) * tB.x₁⟩ with htHat
+  have htameHat : tHat.TameRel := by
+    rw [← Marking.tameValue_eq_one_iff,
+      show tHat.tameValue = j ((d1Fun tB x).1) * tB.tameValue from
+        corrected_tameValue j hjmul hjconj tB x, hd1]
+    exact RF.MB_elem _ hv₁mem
+  have hwildHat : tHat.WildRel := by
+    rw [← Marking.wildValue_eq_one_iff,
+      show tHat.wildValue = j ((d1Fun tB x).2) * tB.wildValue from
+        corrected_wildValue j hjmul hjconj tB x, hd1]
+    exact RF.MB_elem _ hv₂mem
+  have hprojHat : tHat.map RF.piBC = Marking.push θ := by
+    have hker : ∀ a : Additive ↥RF.MB, RF.piBC (j a) = 1 := fun a => by
+      rw [← MonoidHom.mem_ker, RF.ker_piBC]; exact (Additive.toMul a).2
+    refine marking_ext ?_ ?_ ?_ ?_
+    · show RF.piBC (j (x 0) * tB.σ) = (Marking.push θ).σ
+      rw [map_mul, hker, one_mul]; exact hyσ
+    · show RF.piBC (j (x 1) * tB.τ) = (Marking.push θ).τ
+      rw [map_mul, hker, one_mul]; exact hyτ
+    · show RF.piBC (j (x 2) * tB.x₀) = (Marking.push θ).x₀
+      rw [map_mul, hker, one_mul]; exact hyx₀
+    · show RF.piBC (j (x 3) * tB.x₁) = (Marking.push θ).x₁
+      rw [map_mul, hker, one_mul]; exact hyx₁
+  -- §7: descend to a `Γ_A`-lift of `ρ` through `π_{BC}`
+  obtain ⟨φ, hφ⟩ := RF.descend_piBC θ hθs tHat hprojHat htameHat hwildHat
+  exact ⟨⟨φ, fun γ => hφ γ⟩⟩
 
 /-- **`hmultA` for `Γ_A`**, assuming the fibre is nonempty: `#LiftsOver(ρ) = |M_B|²`.  The
 `Z¹`-torsor bridge (`liftsOver_card_local`'s Step 2) is source-generic once a base lift exists;
