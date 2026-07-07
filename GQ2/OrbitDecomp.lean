@@ -49,6 +49,7 @@ No axioms; `Ax = ∅` (std-3 throughout).
 namespace GQ2
 
 open QuadraticFp2
+open OrbitVanish (sumDatum)
 open scoped Classical
 
 private theorem zmod2_cases : ∀ b : ZMod 2, b = 0 ∨ b = 1 := by decide
@@ -678,5 +679,371 @@ theorem polar_invBlockMap_blockBas (j : Fin K) {u : G ⧸ N}
       if_neg (fun hc => hxy hc.2.2), add_zero]
 
 end Summands
+
+/-! ## Sum-of-datums equivariance and the basis extensionality principle -/
+
+section Assembly
+
+/-- **A pointwise sum of equivariant factor sets is an equivariant factor set** for the summed
+square map (generic; the datum-level shape of the §6.2 orbit assembly). -/
+theorem isEquivariantFactorSet_sumDatum {C V : Type*} [Group C] [AddCommGroup V]
+    [DistribMulAction C V] {ι : Type*} (s : Finset ι) (datf : ι → FactorSet C V)
+    (qf : ι → V → ZMod 2) (hdatf : ∀ o ∈ s, IsEquivariantFactorSet (qf o) (datf o)) :
+    IsEquivariantFactorSet (fun v => ∑ o ∈ s, qf o v) (sumDatum s datf) where
+  f_cocycle v w x := by
+    show (∑ o ∈ s, (datf o).f (v + w) x) + (∑ o ∈ s, (datf o).f v w)
+        = (∑ o ∈ s, (datf o).f v (w + x)) + (∑ o ∈ s, (datf o).f w x)
+    simp only [← Finset.sum_add_distrib]
+    exact Finset.sum_congr rfl fun o ho => (hdatf o ho).f_cocycle v w x
+  f_diag v := Finset.sum_congr rfl fun o ho => (hdatf o ho).f_diag v
+  f_polar v w := by
+    show (∑ o ∈ s, (datf o).f v w) + (∑ o ∈ s, (datf o).f w v)
+        = polar (fun v => ∑ o ∈ s, qf o v) v w
+    rw [polar_finset_sum, ← Finset.sum_add_distrib]
+    exact Finset.sum_congr rfl fun o ho => (hdatf o ho).f_polar v w
+  f_zero_left v := Finset.sum_eq_zero fun o ho => (hdatf o ho).f_zero_left v
+  f_zero_right v := Finset.sum_eq_zero fun o ho => (hdatf o ho).f_zero_right v
+  m_quad c v w := by
+    show (∑ o ∈ s, (datf o).m c (v + w)) + (∑ o ∈ s, (datf o).m c v)
+          + (∑ o ∈ s, (datf o).m c w)
+        = (∑ o ∈ s, (datf o).f (c • v) (c • w)) + (∑ o ∈ s, (datf o).f v w)
+    simp only [← Finset.sum_add_distrib]
+    exact Finset.sum_congr rfl fun o ho => (hdatf o ho).m_quad c v w
+  m_mul c d v := by
+    show (∑ o ∈ s, (datf o).m (c * d) v)
+        = (∑ o ∈ s, (datf o).m c (d • v)) + (∑ o ∈ s, (datf o).m d v)
+    rw [← Finset.sum_add_distrib]
+    exact Finset.sum_congr rfl fun o ho => (hdatf o ho).m_mul c d v
+  m_one v := Finset.sum_eq_zero fun o ho => (hdatf o ho).m_one v
+
+variable {G : Type*} [Group G] (N : Subgroup G) [N.Normal] {K : ℕ} [Fintype (G ⧸ N)]
+
+/-- A noncomputable linear order on the coordinate positions, used only to split polar values
+into an ordered kernel (never appears in a statement). -/
+@[reducible] noncomputable def coordOrder : LinearOrder (Fin K × (G ⧸ N)) :=
+  LinearOrder.lift' (Fintype.equivFin (Fin K × (G ⧸ N))) (Equiv.injective _)
+
+/-- **Basis extensionality for quadratic maps**: two `𝔽₂`-quadratic maps on the block module that
+agree on the basis diagonal and the basis polar are equal.  (Both expand against a common ordered
+kernel through `quadratic_expansion`.) -/
+theorem quadratic_ext {Q₁ Q₂ : (Fin K → RegRep N) → ZMod 2}
+    (hQ₁ : IsQuadraticFp2 Q₁) (hQ₂ : IsQuadraticFp2 Q₂)
+    (hd : ∀ p : Fin K × (G ⧸ N), Q₁ (blockBas N p.1 p.2) = Q₂ (blockBas N p.1 p.2))
+    (hp : ∀ p p' : Fin K × (G ⧸ N),
+      polar Q₁ (blockBas N p.1 p.2) (blockBas N p'.1 p'.2)
+        = polar Q₂ (blockBas N p.1 p.2) (blockBas N p'.1 p'.2)) :
+    Q₁ = Q₂ := by
+  letI := coordOrder N (K := K)
+  set v : (Fin K × (G ⧸ N)) → (Fin K → RegRep N) := fun p => blockBas N p.1 p.2 with hv
+  let f₀ : (Fin K × (G ⧸ N)) → (Fin K × (G ⧸ N)) → ZMod 2 :=
+    fun p p' => if p = p' then Q₁ (v p) else if p < p' then polar Q₁ (v p) (v p') else 0
+  have hdiag₁ : ∀ p, f₀ p p = Q₁ (v p) := fun p => if_pos rfl
+  have hpolar₁ : ∀ p p', p ≠ p' → f₀ p p' + f₀ p' p = polar Q₁ (v p) (v p') := by
+    intro p p' hpp'
+    show (if p = p' then _ else if p < p' then _ else _)
+        + (if p' = p then _ else if p' < p then _ else _) = _
+    rw [if_neg hpp', if_neg (Ne.symm hpp')]
+    rcases lt_or_gt_of_ne hpp' with hlt | hgt
+    · rw [if_pos hlt, if_neg (asymm hlt), add_zero]
+    · rw [if_neg (asymm hgt), if_pos hgt, zero_add, polar_comm]
+  have hdiag₂ : ∀ p, f₀ p p = Q₂ (v p) := fun p => (hdiag₁ p).trans (hd p)
+  have hpolar₂ : ∀ p p', p ≠ p' → f₀ p p' + f₀ p' p = polar Q₂ (v p) (v p') := fun p p' h =>
+    (hpolar₁ p p' h).trans (hp p p')
+  funext F
+  have hF : F = ∑ p ∈ Finset.univ.filter (fun p : Fin K × (G ⧸ N) => F p.1 p.2 = 1), v p :=
+    blockBas_support_decomp N F
+  calc Q₁ F
+      = Q₁ (∑ p ∈ Finset.univ.filter (fun p : Fin K × (G ⧸ N) => F p.1 p.2 = 1), v p) := by
+        rw [← hF]
+    _ = ∑ p ∈ Finset.univ.filter (fun p : Fin K × (G ⧸ N) => F p.1 p.2 = 1),
+          ∑ p' ∈ Finset.univ.filter (fun p : Fin K × (G ⧸ N) => F p.1 p.2 = 1), f₀ p p' :=
+        quadratic_expansion hQ₁ v f₀ hdiag₁ hpolar₁ _
+    _ = Q₂ (∑ p ∈ Finset.univ.filter (fun p : Fin K × (G ⧸ N) => F p.1 p.2 = 1), v p) :=
+        (quadratic_expansion hQ₂ v f₀ hdiag₂ hpolar₂ _).symm
+    _ = Q₂ F := by rw [← hF]
+
+end Assembly
+
+/-! ## The orbit index, datum, and the decomposition capstone -/
+
+section Decomposition
+
+variable {G : Type*} [Group G] (N : Subgroup G) [N.Normal] {K : ℕ} [Finite (G ⧸ N)]
+
+/-- The §6.2 orbit index: a square block `j`, an involution block-position `(j, u)`, or a free
+block-pair-position `(j, k, u)`. -/
+abbrev OrbitIx (K : ℕ) (Γ : Type*) := Fin K ⊕ (Fin K × Γ) ⊕ (Fin K × Fin K × Γ)
+
+/-- The datum attached to each orbit index (a definitional block-comap of a literal `OrbitData`
+datum). -/
+noncomputable def orbitDatum : OrbitIx K (G ⧸ N) → FactorSet (G ⧸ N) (Fin K → RegRep N)
+  | Sum.inl j => squareBlockDatum N j
+  | Sum.inr (Sum.inl (j, u)) => invBlockDatum N j u
+  | Sum.inr (Sum.inr (j, k, u)) => freeBlockDatum N j k u
+
+/-- The square map of each orbit index. -/
+noncomputable def orbitSquareMap : OrbitIx K (G ⧸ N) → (Fin K → RegRep N) → ZMod 2
+  | Sum.inl j => squareBlockMap N j
+  | Sum.inr (Sum.inl (j, u)) => invBlockMap N j u
+  | Sum.inr (Sum.inr (j, k, u)) => freeBlockMap N j k u
+
+variable [Fintype (G ⧸ N)]
+
+/-- The square blocks present in `Q`: those with nonzero diagonal. -/
+noncomputable def sqIdx (Q : (Fin K → RegRep N) → ZMod 2) : Finset (Fin K) :=
+  Finset.univ.filter fun j => blockDiag N Q j = 1
+
+/-- The involution block-positions present in `Q`. -/
+noncomputable def invIdx (Q : (Fin K → RegRep N) → ZMod 2) : Finset (Fin K × (G ⧸ N)) :=
+  Finset.univ.filter fun p => p.2 * p.2 = 1 ∧ p.2 ≠ 1 ∧ blockPolar N Q p.1 p.1 p.2 = 1
+
+/-- **The orbit index set** of `Q`: the disjoint union of the present square/involution/free
+positions. -/
+noncomputable def orbitIndexSet (Q : (Fin K → RegRep N) → ZMod 2) :
+    Finset (OrbitIx K (G ⧸ N)) :=
+  (sqIdx N Q).disjSum ((invIdx N Q).disjSum (freeReps N Q))
+
+/-- The three-way split of a sum over the orbit index set. -/
+theorem sum_orbitIndexSet {M : Type*} [AddCommMonoid M] (Q : (Fin K → RegRep N) → ZMod 2)
+    (g : OrbitIx K (G ⧸ N) → M) :
+    ∑ o ∈ orbitIndexSet N Q, g o
+      = (∑ j ∈ sqIdx N Q, g (Sum.inl j))
+        + ((∑ p ∈ invIdx N Q, g (Sum.inr (Sum.inl p)))
+          + ∑ r ∈ freeReps N Q, g (Sum.inr (Sum.inr r))) := by
+  rw [orbitIndexSet, Finset.sum_disjSum, Finset.sum_disjSum]
+
+/-- Involution-index membership. -/
+theorem mem_orbitIndexSet_inv {Q : (Fin K → RegRep N) → ZMod 2} {ju : Fin K × (G ⧸ N)} :
+    Sum.inr (Sum.inl ju) ∈ orbitIndexSet N Q ↔ ju ∈ invIdx N Q := by
+  rw [orbitIndexSet, Finset.mem_disjSum]
+  constructor
+  · rintro (⟨a, _, ha⟩ | ⟨b, hb, hb2⟩)
+    · exact absurd ha (by simp)
+    · obtain rfl : b = Sum.inl ju := Sum.inr_injective hb2
+      rcases Finset.mem_disjSum.mp hb with ⟨c, hc, hc2⟩ | ⟨d, _, hd2⟩
+      · obtain rfl : c = ju := Sum.inl_injective hc2
+        exact hc
+      · exact absurd hd2 (by simp)
+  · intro h
+    exact Or.inr ⟨Sum.inl ju, Finset.mem_disjSum.mpr (Or.inl ⟨ju, h, rfl⟩), rfl⟩
+
+/-- Each summand is an equivariant factor set for its square map (on the index set: involution
+positions are involutions). -/
+theorem isEqFS_orbitDatum (Q : (Fin K → RegRep N) → ZMod 2) :
+    ∀ o ∈ orbitIndexSet N Q, IsEquivariantFactorSet (orbitSquareMap N o) (orbitDatum N o) := by
+  intro o ho
+  match o with
+  | Sum.inl j => exact isEquivariantFactorSet_squareBlockDatum N j
+  | Sum.inr (Sum.inl (j, u)) =>
+    have hmem : (j, u) ∈ invIdx N Q := (mem_orbitIndexSet_inv N).mp ho
+    exact isEquivariantFactorSet_invBlockDatum N j (Finset.mem_filter.mp hmem).2.1
+  | Sum.inr (Sum.inr (j, k, u)) => exact isEquivariantFactorSet_freeBlockDatum N j k u
+
+/-- Each summand's square map is quadratic. -/
+theorem isQuad_orbitSquareMap (Q : (Fin K → RegRep N) → ZMod 2) :
+    ∀ o ∈ orbitIndexSet N Q, IsQuadraticFp2 (orbitSquareMap N o) := by
+  intro o ho
+  match o with
+  | Sum.inl j => exact isQuadraticFp2_squareBlockMap N j
+  | Sum.inr (Sum.inl (j, u)) =>
+    have hmem : (j, u) ∈ invIdx N Q := (mem_orbitIndexSet_inv N).mp ho
+    exact isQuadraticFp2_invBlockMap N j (Finset.mem_filter.mp hmem).2.1
+  | Sum.inr (Sum.inr (j, k, u)) => exact isQuadraticFp2_freeBlockMap N j k u
+
+/-- The summed square map of the orbit index set. -/
+noncomputable def orbitSum (Q : (Fin K → RegRep N) → ZMod 2) : (Fin K → RegRep N) → ZMod 2 :=
+  fun F => ∑ o ∈ orbitIndexSet N Q, orbitSquareMap N o F
+
+/-- **Diagonal matching**: the orbit sum agrees with `Q` on basis vectors — only the square
+summand of the coordinate's own block contributes. -/
+theorem orbitSum_blockBas {Q : (Fin K → RegRep N) → ZMod 2} (hinv : IsInvariant (G ⧸ N) Q)
+    (p : Fin K × (G ⧸ N)) : orbitSum N Q (blockBas N p.1 p.2) = Q (blockBas N p.1 p.2) := by
+  rw [orbitSum, sum_orbitIndexSet]
+  -- square part: picks out block p.1 if present
+  have hsq : (∑ j ∈ sqIdx N Q, orbitSquareMap N (Sum.inl j) (blockBas N p.1 p.2))
+      = if p.1 ∈ sqIdx N Q then 1 else 0 := by
+    have hterm : ∀ j ∈ sqIdx N Q, orbitSquareMap N (Sum.inl j) (blockBas N p.1 p.2)
+        = if j = p.1 then (1 : ZMod 2) else 0 := fun j _ => squareBlockMap_blockBas N j p.1 p.2
+    rw [Finset.sum_congr rfl hterm, Finset.sum_ite_eq' (sqIdx N Q) p.1 (fun _ => (1 : ZMod 2))]
+  -- involution part: vanishes (u ≠ 1)
+  have hinvp : (∑ q ∈ invIdx N Q, orbitSquareMap N (Sum.inr (Sum.inl q)) (blockBas N p.1 p.2))
+      = 0 := by
+    refine Finset.sum_eq_zero fun q hq => ?_
+    show invBlockMap N q.1 q.2 (blockBas N p.1 p.2) = 0
+    exact invBlockMap_blockBas N q.1 (Finset.mem_filter.mp hq).2.2.1 p.1 p.2
+  -- free part: vanishes (free positions are off the diagonal)
+  have hfree : (∑ r ∈ freeReps N Q, orbitSquareMap N (Sum.inr (Sum.inr r)) (blockBas N p.1 p.2))
+      = 0 := by
+    refine Finset.sum_eq_zero fun r hr => ?_
+    show freeBlockMap N r.1 r.2.1 r.2.2 (blockBas N p.1 p.2) = 0
+    rw [freeBlockMap_blockBas]
+    refine if_neg ?_
+    rintro ⟨hj, hk, hu⟩
+    rcases (mem_freeReps_isFree N hr).1 with h | h
+    · exact h (hj.trans hk.symm)
+    · exact h (by rw [hu, mul_one])
+  rw [hsq, hinvp, hfree, add_zero, add_zero]
+  rw [q_blockBas_eq N hinv]
+  by_cases h : p.1 ∈ sqIdx N Q
+  · rw [if_pos h]
+    exact ((Finset.mem_filter.mp h).2).symm
+  · rw [if_neg h]
+    rcases zmod2_cases (blockDiag N Q p.1) with h0 | h1
+    · exact h0.symm
+    · have hp1 : p.1 ∈ sqIdx N Q := Finset.mem_filter.mpr ⟨Finset.mem_univ p.1, h1⟩
+      exact absurd hp1 h
+
+/-- The relative-position equation `x·w = y ⟺ w = x⁻¹y`. -/
+private theorem mul_eq_iff_rel {x y w : G ⧸ N} : x * w = y ↔ w = x⁻¹ * y :=
+  ⟨fun h => by rw [← h, inv_mul_cancel_left], fun h => by rw [h, mul_inv_cancel_left]⟩
+
+/-- **Polar matching**: the orbit sum's polar agrees with `Q`'s polar on basis vectors.  The
+square summands contribute `0`; the surviving contribution is the involution indicator (same-block
+involution positions) or the free indicator (an oriented representative of the swap-orbit), which
+in every case reconstructs `blockPolar Q`. -/
+theorem orbitSum_polar_blockBas {Q : (Fin K → RegRep N) → ZMod 2}
+    (hinv : IsInvariant (G ⧸ N) Q) (hQ : IsQuadraticFp2 Q) (p p' : Fin K × (G ⧸ N)) :
+    polar (orbitSum N Q) (blockBas N p.1 p.2) (blockBas N p'.1 p'.2)
+      = polar Q (blockBas N p.1 p.2) (blockBas N p'.1 p'.2) := by
+  obtain ⟨a, x⟩ := p
+  obtain ⟨b, y⟩ := p'
+  set u₀ := x⁻¹ * y with hu₀
+  have h2mod : ∀ v : Fin K → RegRep N, v + v = 0 := fun v => by
+    funext i h; exact CharTwo.add_self_eq_zero _
+  have hRHS : polar Q (blockBas N a x) (blockBas N b y) = blockPolar N Q a b u₀ :=
+    polar_blockBas_eq N hinv a b x y
+  have hLHS : polar (orbitSum N Q) (blockBas N a x) (blockBas N b y)
+      = ∑ o ∈ orbitIndexSet N Q, polar (orbitSquareMap N o) (blockBas N a x) (blockBas N b y) :=
+    polar_finset_sum (orbitIndexSet N Q) (orbitSquareMap N) _ _
+  rw [hLHS, hRHS, sum_orbitIndexSet]
+  -- square part vanishes
+  have hsq : (∑ j ∈ sqIdx N Q,
+      polar (orbitSquareMap N (Sum.inl j)) (blockBas N a x) (blockBas N b y)) = 0 :=
+    Finset.sum_eq_zero fun j _ => polar_squareBlockMap N j _ _
+  -- involution part = the same-block involution indicator
+  have hinvsum : (∑ q ∈ invIdx N Q,
+      polar (orbitSquareMap N (Sum.inr (Sum.inl q))) (blockBas N a x) (blockBas N b y))
+      = if a = b then (if (a, u₀) ∈ invIdx N Q then (1 : ZMod 2) else 0) else 0 := by
+    have hstep : (∑ q ∈ invIdx N Q,
+        polar (orbitSquareMap N (Sum.inr (Sum.inl q))) (blockBas N a x) (blockBas N b y))
+        = ∑ q ∈ invIdx N Q, if q = (a, u₀) ∧ a = b then (1 : ZMod 2) else 0 := by
+      refine Finset.sum_congr rfl fun q hq => ?_
+      have hf := Finset.mem_filter.mp hq
+      show polar (invBlockMap N q.1 q.2) (blockBas N a x) (blockBas N b y) = _
+      rw [polar_invBlockMap_blockBas N q.1 hf.2.1 hf.2.2.1]
+      refine if_congr ⟨?_, ?_⟩ rfl rfl
+      · rintro ⟨h1, h2, h3⟩
+        exact ⟨Prod.ext h1.symm ((mul_eq_iff_rel N).mp h3), h1.trans h2.symm⟩
+      · rintro ⟨rfl, hab⟩
+        exact ⟨rfl, hab.symm, (mul_eq_iff_rel N).mpr hu₀⟩
+    rw [hstep]
+    by_cases hab : a = b
+    · rw [if_pos hab,
+        Finset.sum_congr rfl (fun q _ => if_congr (and_iff_left hab) rfl rfl),
+        Finset.sum_ite_eq' (invIdx N Q) (a, u₀) (fun _ => (1 : ZMod 2))]
+    · rw [if_neg hab]
+      exact Finset.sum_eq_zero fun q _ => if_neg (fun hc => hab hc.2)
+  -- free part = the two oriented representatives
+  have hfreesum : (∑ r ∈ freeReps N Q,
+      polar (orbitSquareMap N (Sum.inr (Sum.inr r))) (blockBas N a x) (blockBas N b y))
+      = (if (a, b, u₀) ∈ freeReps N Q then (1 : ZMod 2) else 0)
+        + if (b, a, u₀⁻¹) ∈ freeReps N Q then (1 : ZMod 2) else 0 := by
+    have hstep : (∑ r ∈ freeReps N Q,
+        polar (orbitSquareMap N (Sum.inr (Sum.inr r))) (blockBas N a x) (blockBas N b y))
+        = ∑ r ∈ freeReps N Q,
+            ((if r = (a, b, u₀) then (1 : ZMod 2) else 0)
+              + if r = (b, a, u₀⁻¹) then (1 : ZMod 2) else 0) := by
+      refine Finset.sum_congr rfl fun r _ => ?_
+      show polar (freeBlockMap N r.1 r.2.1 r.2.2) (blockBas N a x) (blockBas N b y) = _
+      rw [polar_freeBlockMap_blockBas]
+      refine congrArg₂ (· + ·) (if_congr ⟨?_, ?_⟩ rfl rfl) (if_congr ⟨?_, ?_⟩ rfl rfl)
+      · rintro ⟨h1, h2, h3⟩
+        exact Prod.ext h1 (Prod.ext h2 ((mul_eq_iff_rel N).mp h3))
+      · rintro rfl
+        exact ⟨rfl, rfl, (mul_eq_iff_rel N).mpr hu₀⟩
+      · rintro ⟨h1, h2, h3⟩
+        refine Prod.ext h1 (Prod.ext h2 ?_)
+        rw [(mul_eq_iff_rel N).mp h3, hu₀, mul_inv_rev, inv_inv]
+      · rintro rfl
+        exact ⟨rfl, rfl, (mul_eq_iff_rel N).mpr (by rw [hu₀, mul_inv_rev, inv_inv])⟩
+    rw [hstep, Finset.sum_add_distrib,
+      Finset.sum_ite_eq' (freeReps N Q) (a, b, u₀) (fun _ => (1 : ZMod 2)),
+      Finset.sum_ite_eq' (freeReps N Q) (b, a, u₀⁻¹) (fun _ => (1 : ZMod 2))]
+  rw [hsq, hinvsum, hfreesum, zero_add]
+  -- final case analysis: free position vs involution vs diagonal
+  by_cases hfree : IsFreePos ((a, b, u₀) : Fin K × Fin K × (G ⧸ N))
+  · -- free: involution part vanishes, free part reconstructs the polar
+    have hinv0 : (if a = b then (if (a, u₀) ∈ invIdx N Q then (1 : ZMod 2) else 0) else 0)
+        = 0 := by
+      by_cases hab : a = b
+      · rw [if_pos hab]
+        refine if_neg (fun hmem => ?_)
+        have hu2 := (Finset.mem_filter.mp hmem).2.1
+        rcases hfree with h | h
+        · exact h hab
+        · exact h hu2
+      · rw [if_neg hab]
+    rw [hinv0, zero_add]
+    rcases zmod2_cases (blockPolar N Q a b u₀) with h0 | h1
+    · have hn1 : (a, b, u₀) ∉ freeReps N Q := fun hmem =>
+        absurd (((mem_freeReps_isFree N hmem).2 : blockPolar N Q a b u₀ = 1).symm.trans h0)
+          (by decide)
+      have hn2 : (b, a, u₀⁻¹) ∉ freeReps N Q := fun hmem =>
+        absurd (((blockPolar_symm N hinv a b u₀).trans
+          ((mem_freeReps_isFree N hmem).2 : blockPolar N Q b a u₀⁻¹ = 1)).symm.trans h0) (by decide)
+      rw [if_neg hn1, if_neg hn2, add_zero, h0]
+    · rw [h1]
+      rcases mem_freeReps_or_swap N hinv hfree h1 with hmem | hmem
+      · have hswap : (b, a, u₀⁻¹) ∈ freeReps N Q ↔ posSwap ((a, b, u₀)) ∈ freeReps N Q := Iff.rfl
+        rw [if_pos hmem,
+          if_neg (fun hs => not_mem_freeReps_both N ⟨hmem, hswap.mp hs⟩), add_zero]
+      · have hmem' : (b, a, u₀⁻¹) ∈ freeReps N Q := hmem
+        rw [if_neg (fun hs => not_mem_freeReps_both N ⟨hs, hmem⟩), if_pos hmem', zero_add]
+  · -- not free: a = b and u₀² = 1; free part vanishes
+    have hab : a = b := by by_contra hne; exact hfree (Or.inl hne)
+    have hu2 : u₀ * u₀ = 1 := by by_contra hne; exact hfree (Or.inr hne)
+    have hfree0 : (if (a, b, u₀) ∈ freeReps N Q then (1 : ZMod 2) else 0)
+        + (if (b, a, u₀⁻¹) ∈ freeReps N Q then (1 : ZMod 2) else 0) = 0 := by
+      have hn1 : (a, b, u₀) ∉ freeReps N Q := by
+        intro hmem; rcases (mem_freeReps_isFree N hmem).1 with h | h
+        · exact h hab
+        · exact h hu2
+      have hn2 : (b, a, u₀⁻¹) ∉ freeReps N Q := by
+        intro hmem; rcases (mem_freeReps_isFree N hmem).1 with h | h
+        · exact h hab.symm
+        · exact h (by rw [← mul_inv_rev, hu2, inv_one])
+      rw [if_neg hn1, if_neg hn2, add_zero]
+    rw [hfree0, add_zero]
+    subst hab
+    rw [if_pos rfl]
+    by_cases hu1 : u₀ = 1
+    · -- diagonal: both sides 0
+      rw [if_neg (fun hmem => (Finset.mem_filter.mp hmem).2.2.1 hu1)]
+      have hbp : blockPolar N Q a a u₀ = 0 := by
+        show polar Q (blockBas N a 1) (blockBas N a u₀) = 0
+        rw [hu1]; exact polar_self Q hQ h2mod _
+      rw [hbp]
+    · -- involution: the indicator recovers blockPolar
+      rcases zmod2_cases (blockPolar N Q a a u₀) with h0 | h1
+      · rw [if_neg (fun hmem => absurd (Finset.mem_filter.mp hmem).2.2.2 (by rw [h0]; decide)), h0]
+      · have hmem : (a, u₀) ∈ invIdx N Q :=
+          Finset.mem_filter.mpr ⟨Finset.mem_univ _, hu2, hu1, h1⟩
+        rw [if_pos hmem, h1]
+
+/-- **The §6.2 orbit decomposition** (P-15f2b, the remaining clause): a `(G/N)`-invariant
+`𝔽₂`-quadratic map `Q` on the block module is the square map of the `sumDatum` of its orbit
+datums.  Feeds `OrbitVanish.Q0loc_vanish_of_datum_decomp` with `dat = sumDatum … orbitDatum`. -/
+theorem isEquivariantFactorSet_orbitSumDatum {Q : (Fin K → RegRep N) → ZMod 2}
+    (hQ : IsQuadraticFp2 Q) (hinv : IsInvariant (G ⧸ N) Q) :
+    IsEquivariantFactorSet Q (sumDatum (orbitIndexSet N Q) (orbitDatum N)) := by
+  have hsumeq : (fun v => ∑ o ∈ orbitIndexSet N Q, orbitSquareMap N o v) = Q := by
+    refine quadratic_ext N (isQuadraticFp2_finset_sum _ _ (isQuad_orbitSquareMap N Q)) hQ ?_ ?_
+    · intro p; exact orbitSum_blockBas N hinv p
+    · intro p p'; exact orbitSum_polar_blockBas N hinv hQ p p'
+  have := isEquivariantFactorSet_sumDatum (orbitIndexSet N Q) (orbitDatum N) (orbitSquareMap N)
+    (isEqFS_orbitDatum N Q)
+  rwa [hsumeq] at this
+
+end Decomposition
 
 end GQ2
