@@ -1109,6 +1109,202 @@ theorem conjAct_midClasses (g : Kummer.GaloisGroup ℚ_[2])
 
 end MidClasses
 
+/-! ## §G′ — the middle twist (H5): residue-trivial conjugation moves mid by deep
+
+Paper Lemma 6.10 in the π-free norm vocabulary.  `IsResidueTrivial N g` says `g` acts
+trivially on the residue field of `K = ℚ̄₂^N`: every `N`-fixed integral `x` moves by norm
+`< 1`.  The twist lemma: for such `g` and a mid class `ξ = [κ_β]` (`β² = A = 1 + 2b`,
+`‖b‖ ≤ 1`), the difference `conjAct ρ g ξ − ξ` is a DEEP class.  Since `H¹` is 2-torsion the
+difference is the sum `[κ_{g•β}] + [κ_β] = [κ_{(g•β)β}]`, and the PRODUCT
+`(g•A)·A = 1 + 2·(g•b + b + 2(g•b)b)` is a deep unit: `g•b + b = (g•b − b) + 2b` has norm
+`< 1` by residue-triviality at `x := b` (`p = 2` turns the paper's division `(g•A)/A` into a
+product — no root-factoring needed).  Residue-triviality is conjugation-stable
+(`norm_galois` + normality of `ker ρ`) and depends only on the image under `ρ` at the
+`conjAct` level (`conjAct_ker`), so a single residue-trivial lift `g₀` of `t₀` yields the
+literal `hmid` input of `card_equivHoms_deep_eq_quot` for ALL `C`-conjugates `d·t₀·d⁻¹`
+(`conjAct_surjInv_conj_mid_sub_mem_deep`).  The arithmetic fact that tame-inertia lifts ARE
+residue-trivial is delivered at instantiation (f8). -/
+
+section MidTwist
+
+open ContCoh LocalKummer
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+/-- **Residue-trivial element** (norm form): `g` moves every `N`-fixed integral `x` by norm
+`< 1` — i.e. `g` acts trivially on the residue field of `K = ℚ̄₂^N`.  Tame inertia lifts are
+residue-trivial (arithmetic input, f8); this predicate is all the twist lemma consumes. -/
+def IsResidueTrivial (N : Subgroup (Kummer.GaloisGroup ℚ_[2]))
+    (g : Kummer.GaloisGroup ℚ_[2]) : Prop :=
+  ∀ x : ℚ̄₂, (∀ m ∈ N, m • x = x) → ‖x‖ ≤ 1 → ‖g • x - x‖ < 1
+
+variable {C : Type} [Group C] [TopologicalSpace C]
+variable (ρ : ContinuousMonoidHom AbsGalQ2 C)
+
+/-- **Residue-triviality is conjugation-stable** (for `N = ker ρ`, normal): conjugating the
+test vector back by `h` preserves `N`-fixedness (normality) and the norm (`norm_galois`). -/
+theorem IsResidueTrivial.conj {g : Kummer.GaloisGroup ℚ_[2]}
+    (hg : IsResidueTrivial (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) g)
+    (h : Kummer.GaloisGroup ℚ_[2]) :
+    IsResidueTrivial (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (h * g * h⁻¹) := by
+  intro x hxfix hx1
+  have hyfix : ∀ m : Kummer.GaloisGroup ℚ_[2],
+      m ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) → m • (h⁻¹ • x) = h⁻¹ • x := by
+    intro m hm
+    have hconj : (h⁻¹⁻¹ * m * h⁻¹) • x = x := hxfix _ (conj_mem_ker ρ h⁻¹ ⟨m, hm⟩)
+    calc m • (h⁻¹ • x) = h⁻¹ • ((h⁻¹⁻¹ * m * h⁻¹) • x) := by
+          rw [← mul_smul, ← mul_smul]; congr 1; group
+      _ = h⁻¹ • x := by rw [hconj]
+  have hy1 : ‖h⁻¹ • x‖ ≤ 1 := by rw [norm_galois]; exact hx1
+  have hkey : (h * g * h⁻¹) • x - x = h • (g • (h⁻¹ • x) - h⁻¹ • x) := by
+    rw [AlgEquiv.smul_def h, map_sub, ← AlgEquiv.smul_def, ← AlgEquiv.smul_def,
+      smul_inv_smul, ← mul_smul, ← mul_smul]
+  rw [hkey, norm_galois]
+  exact hg (h⁻¹ • x) hyfix hy1
+
+/-- **The middle twist, class level** (paper Lemma 6.10 / the (H5) core): a residue-trivial
+`g` moves a mid class by a deep class.  With `ξ = [κ_β]`, `β² = A = 1 + 2b` mid, 2-torsion
+turns the difference into `[κ_{g•β}] + [κ_β] = [κ_{(g•β)β}]` (`kcf_mul_of_fixed`), and
+`(g•A)·A = 1 + 2(g•b + b + 2(g•b)b)` is a deep unit by residue-triviality at `x := b`. -/
+theorem conjAct_mid_sub_mem_deep (g : Kummer.GaloisGroup ℚ_[2])
+    (hg : IsResidueTrivial (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) g)
+    {ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)}
+    (hξ : ξ ∈ midClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :
+    conjAct ρ g ξ - ξ ∈ deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) := by
+  obtain ⟨A, β, hmid', hsq, hβ0, rfl⟩ := hξ
+  obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hmid'
+  have h2lt1 : ‖(2 : ℚ̄₂)‖ < 1 := by
+    rw [show (2 : ℚ̄₂) = algebraMap ℚ_[2] ℚ̄₂ 2 from (map_ofNat _ 2).symm,
+      norm_algebraMap' (𝕜' := ℚ̄₂) (2 : ℚ_[2])]
+    exact Padic.norm_p_lt_one
+  -- conjugated data (the §4 idiom: `g` in the `GaloisGroup` view, witnesses before `conjAct`)
+  have hgA0 : g • A ≠ 0 := by rw [AlgEquiv.smul_def]; simpa using hA0
+  have hgβ0 : g • β ≠ 0 := by rw [AlgEquiv.smul_def]; simpa using hβ0
+  have hgsq : (g • β) ^ 2 = g • A := by
+    rw [AlgEquiv.smul_def, AlgEquiv.smul_def, ← map_pow, hsq]
+  have hgAeq : g • A = 1 + 2 * (g • b) := by
+    rw [hAeq, AlgEquiv.smul_def, map_add, map_one, map_mul, map_ofNat, ← AlgEquiv.smul_def]
+  have hsqprod : ((g • β) * β) ^ 2 = (g • A) * A := by
+    rw [mul_pow, hgsq, hsq]
+  have hgAfix : ∀ m : Kummer.GaloisGroup ℚ_[2],
+      m ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) → m • (g • A) = g • A := by
+    intro m hm
+    have hconj : (g⁻¹ * m * g) • A = A := hAfix _ (conj_mem_ker ρ g ⟨m, hm⟩)
+    calc m • (g • A) = g • ((g⁻¹ * m * g) • A) := by
+          rw [← mul_smul, ← mul_smul]; congr 1; group
+      _ = g • A := by rw [hconj]
+  have hgbfix : ∀ m : Kummer.GaloisGroup ℚ_[2],
+      m ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) → m • (g • b) = g • b := by
+    intro m hm
+    have hconj : (g⁻¹ * m * g) • b = b := hbfix _ (conj_mem_ker ρ g ⟨m, hm⟩)
+    calc m • (g • b) = g • ((g⁻¹ * m * g) • b) := by
+          rw [← mul_smul, ← mul_smul]; congr 1; group
+      _ = g • b := by rw [hconj]
+  refine ⟨(g • A) * A, (g • β) * β, ⟨mul_ne_zero hgA0 hA0, fun m hm => ?_,
+      g • b + b + 2 * (g • b) * b, fun m hm => ?_, by rw [hgAeq, hAeq]; ring, ?_⟩,
+    hsqprod, mul_ne_zero hgβ0 hβ0, ?_⟩
+  · -- `N`-fixedness of the product `(g•A)·A`
+    rw [AlgEquiv.smul_def, map_mul, ← AlgEquiv.smul_def, ← AlgEquiv.smul_def,
+      hgAfix m hm, hAfix m hm]
+  · -- `N`-fixedness of `b' = g•b + b + 2(g•b)b`
+    rw [AlgEquiv.smul_def, map_add, map_add, map_mul, map_mul, map_ofNat,
+      ← AlgEquiv.smul_def, ← AlgEquiv.smul_def, hgbfix m hm, hbfix m hm]
+  · -- `‖b'‖ < 1`: the inertia estimate.  `g•b + b = (g•b − b) + 2b`, all three pieces small.
+    have hgb1 : ‖g • b‖ ≤ 1 := by rw [norm_galois]; exact hb
+    have hsum : ‖g • b + b‖ < 1 := by
+      have hsplit : g • b + b = g • b - b + 2 * b := by ring
+      rw [hsplit]
+      refine lt_of_le_of_lt (IsUltrametricDist.norm_add_le_max _ _) ?_
+      rw [max_lt_iff]
+      refine ⟨hg b hbfix hb, ?_⟩
+      calc ‖2 * b‖ = ‖(2 : ℚ̄₂)‖ * ‖b‖ := norm_mul _ _
+        _ ≤ ‖(2 : ℚ̄₂)‖ * 1 := mul_le_mul_of_nonneg_left hb (norm_nonneg _)
+        _ = ‖(2 : ℚ̄₂)‖ := mul_one _
+        _ < 1 := h2lt1
+    have hprod : ‖2 * (g • b) * b‖ < 1 := by
+      rw [norm_mul, norm_mul]
+      calc ‖(2 : ℚ̄₂)‖ * ‖g • b‖ * ‖b‖
+          ≤ ‖(2 : ℚ̄₂)‖ * 1 * 1 :=
+            mul_le_mul (mul_le_mul_of_nonneg_left hgb1 (norm_nonneg _)) hb (norm_nonneg _)
+              (by positivity)
+        _ = ‖(2 : ℚ̄₂)‖ := by ring
+        _ < 1 := h2lt1
+    refine lt_of_le_of_lt (IsUltrametricDist.norm_add_le_max _ _) ?_
+    rw [max_lt_iff]
+    exact ⟨hsum, hprod⟩
+  · -- the class identity `[κ_{(g•β)β}] = conjAct ρ g [κ_β] − [κ_β]`
+    have hZ1g : (fun n : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) =>
+          Kummer.kummerCocycleFun (g • β) (n : AbsGalQ2))
+        ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) :=
+      GQ2.DeepPart.kummerRestrict_mem_Z1 hgsq hgβ0 hgAfix
+    have hZ1 : (fun n : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) =>
+          Kummer.kummerCocycleFun β (n : AbsGalQ2))
+        ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) :=
+      GQ2.DeepPart.kummerRestrict_mem_Z1 hsq hβ0 hAfix
+    have heq : conjAct ρ g (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+          (fun n => Kummer.kummerCocycleFun β (n : AbsGalQ2)))
+        = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+          (fun n => Kummer.kummerCocycleFun (g • β) (n : AbsGalQ2)) :=
+      calc conjAct ρ g (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+              (fun n => Kummer.kummerCocycleFun β (n : AbsGalQ2)))
+          = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+              (fun n => Kummer.kummerCocycleFun β ((conjMap ρ g n : AbsGalQ2))) :=
+            conjAct_h1ofFun ρ g (GQ2.DeepPart.kummerRestrict_mem_Z1 hsq hβ0 hAfix)
+        _ = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+              (fun n => Kummer.kummerCocycleFun (g • β) (n : AbsGalQ2)) := by
+            congr 1; funext n; exact kcf_conj β g (n : AbsGalQ2)
+    exact calc
+      H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+          (fun n => Kummer.kummerCocycleFun ((g • β) * β) (n : AbsGalQ2))
+          = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+              ((fun n : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) =>
+                  Kummer.kummerCocycleFun (g • β) (n : AbsGalQ2))
+                + fun n : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) =>
+                  Kummer.kummerCocycleFun β (n : AbsGalQ2)) := by
+            congr 1
+            funext n
+            exact kcf_mul_of_fixed hsqprod hgsq hsq hgβ0 hβ0
+              (hgAfix n.1 n.2) (hAfix n.1 n.2)
+        _ = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+              (fun n => Kummer.kummerCocycleFun (g • β) (n : AbsGalQ2))
+            + H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+              (fun n => Kummer.kummerCocycleFun β (n : AbsGalQ2)) :=
+            GQ2.DeepPart.H1ofFun_add hZ1g hZ1
+        _ = conjAct ρ g (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+              (fun n => Kummer.kummerCocycleFun β (n : AbsGalQ2)))
+            + H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+              (fun n => Kummer.kummerCocycleFun β (n : AbsGalQ2)) := by
+            rw [heq]
+        _ = conjAct ρ g (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+              (fun n => Kummer.kummerCocycleFun β (n : AbsGalQ2)))
+            - H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+              (fun n => Kummer.kummerCocycleFun β (n : AbsGalQ2)) := by
+            rw [sub_eq_add_neg, neg_eq_of_add_eq_zero_left
+              (h1_add_self (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+                (fun n => Kummer.kummerCocycleFun β (n : AbsGalQ2))))]
+
+/-- **The middle twist, `C`-conjugate form** — the literal `hmid` input of
+`card_equivHoms_deep_eq_quot` at the `conjModule` instantiation: if SOME lift `g₀` of `t₀` is
+residue-trivial, then for EVERY `d : C` the `surjInv`-lift of `d·t₀·d⁻¹` twists mid classes by
+deep classes (`conjAct` only sees the `ρ`-image by `conjAct_ker`, and residue-triviality is
+conjugation-stable). -/
+theorem conjAct_surjInv_conj_mid_sub_mem_deep (hρsurj : Function.Surjective ⇑ρ)
+    {g₀ : AbsGalQ2} {t₀ : C} (hg₀ : ρ g₀ = t₀)
+    (hg₀rt : IsResidueTrivial (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) g₀) (d : C)
+    {ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)}
+    (hξ : ξ ∈ midClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :
+    conjAct ρ (Function.surjInv hρsurj (d * t₀ * d⁻¹)) ξ - ξ
+      ∈ deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) := by
+  have hkey : conjAct ρ (Function.surjInv hρsurj (d * t₀ * d⁻¹)) ξ
+      = conjAct ρ (Function.surjInv hρsurj d * g₀ * (Function.surjInv hρsurj d)⁻¹) ξ :=
+    conjAct_ker ρ _ _ (by
+      rw [Function.surjInv_eq hρsurj, map_mul, map_mul, map_inv,
+        Function.surjInv_eq hρsurj, hg₀]) ξ
+  rw [hkey]
+  exact conjAct_mid_sub_mem_deep ρ _ (hg₀rt.conj ρ (Function.surjInv hρsurj d)) hξ
+
+end MidTwist
+
 /-! ## §H — the `U`-side inputs: self-duality from the invariant form, inertia dualization
 
 The remaining module-theoretic inputs of `card_equivHoms_deep_eq_quot` at `U := V^∨`:
