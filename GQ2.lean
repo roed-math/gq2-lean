@@ -65,6 +65,7 @@ import GQ2.IotaBridge
 import GQ2.ShapiroDeepness
 import GQ2.Phase140Assembly
 import GQ2.Prop89Close
+import GQ2.MStageCount
 import GQ2.SectionNine
 import GQ2.BlockEnrichment
 import GQ2.DeepPart
