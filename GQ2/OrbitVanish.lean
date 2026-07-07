@@ -301,6 +301,118 @@ theorem Q0loc_vanish_of_datum_decomp (D : TateDuality 2) (dat : FactorSet C V)
 
 end DatumReducer
 
+/-! ## `Q⁰_loc` datum-independence, reduced to its Lemma-6.1/6.4 core
+
+The orbit route needs the base connecting map computed with the *orbit-sum* datum on the regular
+module, but `lemma_6_17_vanish` is stated for an **arbitrary** equivariant factor set `dat` for `q`.
+Bridging the two requires **`Q⁰_loc` datum-independence**: any two equivariant factor sets for the
+same form give the same `Q⁰_loc` (Lemma 6.1 — "different equivariant lifts give cohomologous
+cocycles" — feeding Lemma 6.4).  Only a *special isometry case* is banked
+(`UnramifiedModel.graphPullback_comap_smul_sub_mem_B2`, comap along a `q`-isometry `g₀ ∈ C`).
+
+This section reduces the general statement to a single crisp cohomological input, exactly as the
+rest of f2 was reduced: the **difference datum** `diffDatum dat1 dat2` (pointwise 𝔽₂-sum, = the
+char-2 difference) is an equivariant factor set for the **zero form**
+(`isEquivariantFactorSet_diffDatum`), and `graphPullback` is additive along it
+(`graphPullback_diffDatum`), so datum-independence follows once the graph pullback of a **zero-form**
+factor set is a coboundary (`hcore` — *DI-core*, the isolated Lemma-6.1/6.4 heart: the class
+`[κ⁰]` of a zero-form factor set on `V ⋊ C` is trivial, so its graph pullback lands in `B²`).  DI-core
+is **not** discharged here (the naive coboundary `Λ(g) = Δφ(b g)` can be obstructed by a nontrivial
+bilinear part of the difference — it needs the paper's Lemma 6.1/6.4 argument); it is stated as the
+parametric hypothesis so consumers and the eventual proof share the exact interface. -/
+
+section DatumIndependence
+
+open SectionSix QuadraticFp2
+
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
+
+/-- The **difference datum** of two factor sets: the pointwise 𝔽₂-sum of their factor sets and
+central corrections.  Over 𝔽₂ this is simultaneously the sum and the difference (`sub = add`), and
+is the object measuring how `Q⁰_loc` can change with the datum choice. -/
+def diffDatum (dat1 dat2 : FactorSet C V) : FactorSet C V where
+  f v w := dat1.f v w + dat2.f v w
+  m c v := dat1.m c v + dat2.m c v
+
+omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [TopologicalSpace V]
+  [DiscreteTopology V] [Finite V] [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] in
+/-- **Additivity of `graphPullback` along the difference datum**: `graphPullback` is 𝔽₂-linear in the
+datum, so the pullback of `diffDatum dat1 dat2` is the sum of the two pullbacks. -/
+theorem graphPullback_diffDatum (dat1 dat2 : FactorSet C V) {Γ : Type*} (ρ : Γ → C) (b : Γ → V) :
+    graphPullback (diffDatum dat1 dat2) ρ b = graphPullback dat1 ρ b + graphPullback dat2 ρ b := by
+  funext p
+  show (dat1.f (b p.1) (ρ p.1 • b p.2) + dat2.f (b p.1) (ρ p.1 • b p.2))
+      + (dat1.m (ρ p.1) (b p.2) + dat2.m (ρ p.1) (b p.2))
+    = (dat1.f (b p.1) (ρ p.1 • b p.2) + dat1.m (ρ p.1) (b p.2))
+      + (dat2.f (b p.1) (ρ p.1 • b p.2) + dat2.m (ρ p.1) (b p.2))
+  ring
+
+omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [TopologicalSpace V]
+  [DiscreteTopology V] [Finite V] [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] in
+/-- **The difference of two equivariant factor sets for the same form is one for the zero form**
+(Lemma 6.1, gauge level): both share the form `q`, so their pointwise 𝔽₂-difference kills the
+diagonal and the polar, leaving an equivariant factor set for `0`.  This is the datum whose graph
+pullback measures the `Q⁰_loc` datum-defect. -/
+theorem isEquivariantFactorSet_diffDatum {q : V → ZMod 2} {dat1 dat2 : FactorSet C V}
+    (hdat1 : IsEquivariantFactorSet q dat1) (hdat2 : IsEquivariantFactorSet q dat2) :
+    IsEquivariantFactorSet (fun _ => (0 : ZMod 2)) (diffDatum dat1 dat2) where
+  f_cocycle v w x := by
+    show (dat1.f (v + w) x + dat2.f (v + w) x) + (dat1.f v w + dat2.f v w)
+        = (dat1.f v (w + x) + dat2.f v (w + x)) + (dat1.f w x + dat2.f w x)
+    linear_combination (norm := ring_nf) hdat1.f_cocycle v w x + hdat2.f_cocycle v w x
+  f_diag v := by
+    show dat1.f v v + dat2.f v v = 0
+    rw [hdat1.f_diag, hdat2.f_diag]; exact CharTwo.add_self_eq_zero _
+  f_polar v w := by
+    show (dat1.f v w + dat2.f v w) + (dat1.f w v + dat2.f w v) = polar (fun _ => (0 : ZMod 2)) v w
+    have hp : polar (fun _ => (0 : ZMod 2)) v w = 0 := by simp [polar]
+    rw [hp]
+    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
+      hdat1.f_polar v w + hdat2.f_polar v w
+  f_zero_left v := by
+    show dat1.f 0 v + dat2.f 0 v = 0
+    rw [hdat1.f_zero_left, hdat2.f_zero_left, add_zero]
+  f_zero_right v := by
+    show dat1.f v 0 + dat2.f v 0 = 0
+    rw [hdat1.f_zero_right, hdat2.f_zero_right, add_zero]
+  m_quad c v w := by
+    show (dat1.m c (v + w) + dat2.m c (v + w)) + (dat1.m c v + dat2.m c v)
+        + (dat1.m c w + dat2.m c w)
+      = (dat1.f (c • v) (c • w) + dat2.f (c • v) (c • w)) + (dat1.f v w + dat2.f v w)
+    linear_combination (norm := ring_nf) hdat1.m_quad c v w + hdat2.m_quad c v w
+  m_mul c d v := by
+    show dat1.m (c * d) v + dat2.m (c * d) v
+        = (dat1.m c (d • v) + dat2.m c (d • v)) + (dat1.m d v + dat2.m d v)
+    linear_combination (norm := ring_nf) hdat1.m_mul c d v + hdat2.m_mul c d v
+  m_one v := by
+    show dat1.m 1 v + dat2.m 1 v = 0
+    rw [hdat1.m_one, hdat2.m_one, add_zero]
+
+omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
+/-- **`Q⁰_loc` datum-independence, parametric on DI-core** (Lemma 6.1/6.4): if the graph pullback of
+the zero-form difference datum lands in `B²` (`hcore` — the isolated cohomological heart), then
+`Q⁰_loc` agrees for the two equivariant factor sets `dat1`, `dat2` of the same form `q`.  Composes
+`graphPullback_diffDatum` (𝔽₂-linearity, with `sub = add` in char 2) and `H2ofFun_eq_of_sub_mem_B2`.
+This is the bridge that lets `lemma_6_17_vanish` (stated for arbitrary `dat`) be reduced to the
+orbit-sum datum on the regular module. -/
+theorem Q0loc_datum_indep_of_core (D : TateDuality 2) (dat1 dat2 : FactorSet C V)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) (x : H1 AbsGalQ2 V)
+    (hcore : graphPullback (diffDatum dat1 dat2) ρ (Quotient.out x).1 ∈ B2 AbsGalQ2 (ZMod 2)) :
+    Q0loc D dat1 ρ x = Q0loc D dat2 ρ x := by
+  show iotaF D (H2ofFun AbsGalQ2 (graphPullback dat1 ρ (Quotient.out x).1))
+      = iotaF D (H2ofFun AbsGalQ2 (graphPullback dat2 ρ (Quotient.out x).1))
+  refine congrArg _ (H2ofFun_eq_of_sub_mem_B2 ?_)
+  have hlin : graphPullback dat1 ρ (Quotient.out x).1 - graphPullback dat2 ρ (Quotient.out x).1
+      = graphPullback (diffDatum dat1 dat2) ρ (Quotient.out x).1 := by
+    rw [graphPullback_diffDatum]
+    funext p
+    simp only [Pi.sub_apply, Pi.add_apply, CharTwo.sub_eq_add]
+  rw [hlin]; exact hcore
+
+end DatumIndependence
+
 end OrbitVanish
 
 end GQ2
