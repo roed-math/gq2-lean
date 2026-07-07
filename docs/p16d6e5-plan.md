@@ -246,8 +246,10 @@ extension needed.
     algebra — corrections commute).  The tame row (`τ^σ(τ²)⁻¹`, only `σ,τ`) is tractable; the wild
     row (`h₀u₁⁻¹x₁^σc₀`, all of `Words.lean`'s auxiliary words) is the length risk — mirror
     `mixedB_wildRow` line-by-line.  Reuse the T-14 `let idE` trick and the term-mode GA-bridge.
-  * ☐ **L4/L5** — per-cover extraction (`obs_zero_iff_lifts`) + descent
-    (`markC_admissible`/`NA_le_ker`/`quotientLift`).  **Exact L4→sep_word flow now pinned:** for each
+  * ◐ **L4/L5** — per-cover extraction (`obs_zero_iff_lifts`) + descent
+    (`markC_admissible`/`NA_le_ker`/`quotientLift`).  Landed helper: ✅ `d1Fun_tame_trivial` (std-3)
+    — `(d¹x).1 = x 1` at trivial `𝔽₂`, the tame-row recognizer (the wild recognizer needs L1-wild).
+    **Exact L4→sep_word flow now pinned:** for each
     invariant char `d` (`= l = RCharKer d` via `blockToDR`), L1 at `Y/l` + `d1Fun_naturality` (L2)
     give `(d(v.1), d(v.2)) ∈ im d¹(𝔽₂-triv)`; `trace_kills_im_trivial` (L3e) turns that into
     `d(v.1) + d(v.2) = 0` = `lam (v.1+v.2) = 0`; feed all invariant `lam` to `sep_word` ⟹
