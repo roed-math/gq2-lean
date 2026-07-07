@@ -91,9 +91,23 @@ symmetric zero-diagonal cocycle — a `Module`-level lemma; `exists_biadditive_r
 biadditive analog and is a template), **(ii)** correct it by an additive `L` killing the
 C-equivariance defect (`H¹(C, V*)` vanishing — leverage the odd-inertia / involution structure of
 `C`), **(iii)** set `Λ(g) = Δφ(b g)` and verify `δ¹Λ = graphPullback Δdat` by the char-2 identity
-above.  Self-contained (`~200–400` ln), reusable (f3's `UnramifiedModel` built only the special
-isometry instance).  **This is the recommended next brick** — it unblocks the entire route and does
-not touch the orbit combinatorics.  Interface fixed by `Q0loc_datum_indep_of_core`.
+above.
+
+**(iii) LANDED 2026-07-07 (Opus): `OrbitVanish.graphPullback_mem_B2_of_refinement`** (std-3) — given
+any `Δφ` with the polar identity `hQ` (Q) and the equivariance-defect identity `hE` (E), the graph
+pullback IS the coboundary `δ¹(Δφ∘b)`, so `∈ B²`; capstone `Q0loc_datum_indep_of_refinement` chains
+it through `Q0loc_datum_indep_of_core` to full `Q⁰_loc` datum-independence.  **The sole remaining f2a
+input is the EXISTENCE of `Δφ` satisfying both (Q) and (E)** — equivalently, a `V`-only section
+`σ(v,c) = Δφ(v)` splitting the zero-form central `2`-cocycle `κ⁰` on `V ⋊ C`.
+
+**⚠ Refined finding**: (i) is C-independent (the `H²(V;𝔽₂)` splitting, `[Δf]=0` since `Δf` has zero
+diagonal — a `~150–250` ln basis/cocycle-integration construction).  But **(ii) genuinely needs f2's
+C-structure**: the combined `Δφ` exists iff the class `[c ↦ Δφ₀(c·) + Δφ₀ + Δm c]` vanishes in
+`H¹(C, V*)`, which is FALSE for a general `C` — so f2a is **not** "pure cohomology / ∅-axiom" as first
+scoped; (a2) must consume f2's `hsimple`/`hfaith`/`hram`/tame hypotheses (odd inertia + involution).
+This makes datum-independence a genuinely f2-specific lemma (consistent with the paper fixing the
+canonical datum).  **Recommended next brick**: (a1) the C-independent splitting (i), then (a2) the
+H¹(C,V*) correction under f2's hypotheses.  Interface fixed by `graphPullback_mem_B2_of_refinement`.
 
 ## Recommended order
 

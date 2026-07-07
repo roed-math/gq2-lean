@@ -413,6 +413,52 @@ theorem Q0loc_datum_indep_of_core (D : TateDuality 2) (dat1 dat2 : FactorSet C V
     simp only [Pi.sub_apply, Pi.add_apply, CharTwo.sub_eq_add]
   rw [hlin]; exact hcore
 
+/-! ### f2a (P-15f2a): the DI-core cochain assembly — reduced to the existence of a refinement
+
+DI-core (`graphPullback (zero-form factor set) ∈ B²`) has an explicit coboundary witness
+`Λ(g) = Δφ(b g)` for a **quadratic refinement** `Δφ : V → 𝔽₂` of the datum, i.e. a `Δφ` with polar
+`Δdat.f` (`hQ`: `Δφ(u+w) = Δφ u + Δφ w + Δf u w`) and equivariance defect `Δdat.m`
+(`hE`: `Δφ(c•v) = Δφ v + Δm c v`).  The verification `δ¹Λ = graphPullback Δdat` is the char-2 identity
+below.  This lemma discharges the *cochain heart*; the **sole remaining input** for full DI-core /
+`Q0loc_datum_indep` is the **existence** of such a `Δφ` for the difference datum — the
+`H²(V;𝔽₂)`-splitting `[Δf]=0` (free: `Δf` has zero diagonal) plus the `H¹(C,V*)` equivariance
+correction (`docs/p15f2-option1-scoping.md` §P0, sub-bricks a1/a2). -/
+omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
+theorem graphPullback_mem_B2_of_refinement (Δdat : FactorSet C V)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (Δφ : V → ZMod 2)
+    (hQ : ∀ u w : V, Δφ (u + w) = Δφ u + Δφ w + Δdat.f u w)
+    (hE : ∀ (c : C) (v : V), Δφ (c • v) = Δφ v + Δdat.m c v)
+    (b : Z1 AbsGalQ2 V) :
+    graphPullback Δdat ρ b.1 ∈ B2 AbsGalQ2 (ZMod 2) := by
+  obtain ⟨hbc, hb⟩ := mem_Z1_iff.mp b.2
+  refine AddSubgroup.mem_map.mpr ⟨fun g => Δφ (b.1 g), ?_, ?_⟩
+  · refine mem_C1_iff.mpr ?_
+    exact (continuous_of_discreteTopology (f := Δφ)).comp hbc
+  · funext p
+    obtain ⟨g, h⟩ := p
+    have hbgh : b.1 (g * h) = b.1 g + ρ g • b.1 h := by rw [hb g h, hρ]
+    have hk1 := hQ (b.1 g) (ρ g • b.1 h)
+    have hk2 := hE (ρ g) (b.1 h)
+    simp only [dOne, AddMonoidHom.coe_mk, ZeroHom.coe_mk, absGal_smul_zmodTwo, graphPullback]
+    rw [hbgh]
+    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hk1 + hk2
+
+omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
+/-- **`Q⁰_loc` datum-independence from a refinement** (P-15f2a capstone): a quadratic refinement `Δφ`
+of the difference datum `diffDatum dat1 dat2` (with polar `hQ` and equivariance-defect `hE`) makes
+`Q⁰_loc` agree for `dat1` and `dat2`.  Composes `graphPullback_mem_B2_of_refinement` (the coboundary)
+with `Q0loc_datum_indep_of_core`.  The remaining f2a input is the *construction* of `Δφ` (the
+`H²(V;𝔽₂)`-splitting + `H¹(C,V*)` correction). -/
+theorem Q0loc_datum_indep_of_refinement (D : TateDuality 2) (dat1 dat2 : FactorSet C V)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (x : H1 AbsGalQ2 V) (Δφ : V → ZMod 2)
+    (hQ : ∀ u w : V, Δφ (u + w) = Δφ u + Δφ w + (diffDatum dat1 dat2).f u w)
+    (hE : ∀ (c : C) (v : V), Δφ (c • v) = Δφ v + (diffDatum dat1 dat2).m c v) :
+    Q0loc D dat1 ρ x = Q0loc D dat2 ρ x :=
+  Q0loc_datum_indep_of_core D dat1 dat2 ρ x
+    (graphPullback_mem_B2_of_refinement (diffDatum dat1 dat2) ρ hρ Δφ hQ hE (Quotient.out x))
+
 end DatumIndependence
 
 end OrbitVanish
