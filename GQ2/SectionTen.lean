@@ -56,14 +56,14 @@ variable (G : Type*) [Group G]
 def twoCore : Subgroup G :=
   sSup {N : Subgroup G | N.Normal ∧ IsPGroup 2 N}
 
-/-- `O₂(G) ◁ G`  (P-18b: an sSup of normal subgroups is normal). -/
-instance twoCore_normal : (twoCore G).Normal := by
-  sorry
+/-- `O₂(G) ◁ G`  (an sSup of normal subgroups is normal). -/
+instance twoCore_normal : (twoCore G).Normal :=
+  Subgroup.sSup_normal _ fun _ hH => hH.1
 
-/-- `O₂(G)` is a 2-group  (P-18b: the family is directed — pairwise joins via the second
-isomorphism theorem + `p`-groups closed under extensions — and a directed sSup is the union). -/
-theorem twoCore_isPGroup : IsPGroup 2 (twoCore G) := by
-  sorry
+/-- `O₂(G)` is a 2-group  (`Sylow.sSup_of_normal`: the sSup of a family of normal 2-subgroups is
+a 2-group — the extension/Sylow content lives in mathlib; `[Finite G]`, which §10 always has). -/
+theorem twoCore_isPGroup [Finite G] : IsPGroup 2 (twoCore G) :=
+  Sylow.sSup_of_normal _ (fun _ hH => hH.2) fun _ hH => hH.1
 
 /-- Every normal 2-subgroup lies in the 2-core. -/
 theorem le_twoCore {G : Type*} [Group G] {N : Subgroup G} (hN : N.Normal)
@@ -79,7 +79,22 @@ theorem isPGroup_map_of_isProP {Γ G' : Type*} [Group Γ] [TopologicalSpace Γ] 
     [TopologicalSpace G'] [DiscreteTopology G'] [Finite G'] (K : Subgroup Γ)
     (hK : IsProP 2 K) (f : ContinuousMonoidHom Γ G') :
     IsPGroup 2 (K.map f.toMonoidHom) := by
-  sorry
+  -- `g : ↥K →* G'`, the restriction of `f` to `K`
+  set g : K →* G' := f.toMonoidHom.comp K.subtype with hg
+  -- `g` is continuous, so (codomain discrete) its kernel is open in `K`
+  have hgcont : Continuous g := f.continuous_toFun.comp continuous_subtype_val
+  have hopen : IsOpen (g.ker : Set K) := by
+    have hpre : (g.ker : Set K) = g ⁻¹' {1} := by
+      ext x; simp [MonoidHom.mem_ker]
+    rw [hpre]; exact (isOpen_discrete {(1 : G')}).preimage hgcont
+  -- package `ker g` as an open normal subgroup of `K` and apply `IsProP`
+  let U : OpenNormalSubgroup K := ⟨⟨g.ker, hopen⟩, MonoidHom.normal_ker g⟩
+  have hquot : IsPGroup 2 (K ⧸ U.toSubgroup) := hK U
+  -- transfer along `K ⧸ ker g ≃ range g = K.map f`
+  have hrange : (g.range : Subgroup G') = K.map f.toMonoidHom := by
+    rw [hg, MonoidHom.range_comp, Subgroup.range_subtype]
+  rw [← hrange]
+  exact hquot.of_equiv (QuotientGroup.quotientKerEquivRange g)
 
 /-! ## The §10 target and frames  (`E = 0`) -/
 
