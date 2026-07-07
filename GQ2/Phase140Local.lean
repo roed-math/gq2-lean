@@ -10,14 +10,19 @@ source-generic `phase140_from_residues` (P-16d6e2, `GQ2/Phase140Assembly.lean`):
 (kept as a hypothesis here); `htriv`/`hH2` are discharged locally (`htriv_local'` /
 `card_H2_zmod2_eq_two`).
 
-**Status (Opus, 2026-07-07)**: the assembly `phase140_local` is VALIDATED end-to-end against
-`phase140_from_residues` (`lake build` green).  **PROVED** (all std-3 + B6 + B7 where cohomological,
-no sorryAx): `htriv_local'`, `vFixedPts_eq_one`, the two **counting** residues
-**`tcocycle_card_local`** (the `hμ` supplier) and **`hZcard_local`**, AND — the deep separation
-residue — **`hsep_local`** (all 7 stages: `Additive T` module → `tDef ∈ Z²` → dual/`hpair` →
-`cup20`-bridge with the `χ↔n∈TCharC` invariance transport → `bijective_cup20` injectivity → B²-
-extraction → the direct `M`-lift `f γ = ψγ·fLift γ`).  Remaining `sorry`: `hpartial_local` only
-(the nondegeneracy residue; recipe in-file — couples to `hsep`'s stages 1–4 infrastructure).
+**Status (Fable, 2026-07-08): COMPLETE — `phase140_local` is sorry-free**, `#print axioms` =
+std-3 + B6 (`tateDualityAt`) + B7 (`absGalQ2_localEulerCharacteristic`), exactly `⊆ {B6, B7}`.
+**All four residues PROVED**: `htriv_local'`, `vFixedPts_eq_one`, the two **counting** residues
+**`tcocycle_card_local`** (the `hμ` supplier) and **`hZcard_local`**; the deep separation residue
+**`hsep_local`** (7 stages: `Additive T` module → `tDef ∈ Z²` → dual/`hpair` → `cup20`-bridge with
+the `χ↔n∈TCharC` invariance transport → `bijective_cup20` injectivity → B²-extraction → the direct
+`M`-lift `f γ = ψγ·fLift γ`); and — the last one — the nondegeneracy residue **`hpartial_local`**
+(contrapositive: `∀c, betaChi χ c = betaChi χ 0` ⟹ split `χ∘mDef` by `gχ` → the cup part `iotaB`-
+vanishes → the dual-connecting cochain `ξ` is a `Z¹(Γ, ElemDual V)` whose every cup value vanishes
+→ `[ξ]=0` by `cup11` right-slot separation → `ξ = ∂n` → build the invariant `M`-character
+`ψ(m) = χ(t-part m) + (gχ+n)(V-part m)` (additive; `Y`-conjugation-invariant via `bb=uσ(cc)·k`,
+`k∈M`, `M` abelian, collapsing to `hkey`) → `ψ = 0` by `Half139Local.mchar_conj_invariant_eq_zero`
+(`(M∨)^C = 0`, Lemma 7.1) → `χ = 0`, contradiction).
 **⚠ statement finding**: `hZcard_local` gained `hnt : ∃ g v, g•v≠v` (the ledger
 `hsimple`/`hfaith`/`hVne` is insufficient — see `hZcard_local`), which the capstone ledger must add.
 
@@ -1133,7 +1138,7 @@ theorem hpartial_local
       have h3 : (γ • n) (cc • v) = ξfun γ (cc • v) + n (cc • v) := by
         rw [h2]; rfl
       rw [← h5, ← h4, h3]
-      have hchar : ∀ A B : ZMod 2, A + B = (A + B) + B + B := by decide
+      have hchar : ∀ X Y : ZMod 2, X = X + Y + Y := by decide
       exact hchar _ _
     -- the `T`-part of the `(t, v)`-coordinatization of `M`
     have htmem : ∀ m : ↥(En.radData l h).M,
@@ -1143,107 +1148,194 @@ theorem hpartial_local
       intro m
       refine ((En.descData l h).hdesc_ker _).mp ?_
       rw [map_mul, map_inv, (descSections En l h Dsc).descend_mV,
-        Multiplicative.ofAdd_toAdd, mul_inv_cancel]
+        ofAdd_toAdd, mul_inv_cancel]
+    -- the V-coordinate `vco m := toAdd (descend m)` and its additivity/conjugation laws
+    have hvco_mul : ∀ m m' : ↥(En.radData l h).M,
+        Multiplicative.toAdd ((En.descData l h).descend (m * m'))
+          = Multiplicative.toAdd ((En.descData l h).descend m)
+            + Multiplicative.toAdd ((En.descData l h).descend m') := fun m m' => by
+      rw [map_mul]; rfl
     set ψ : ↥(En.radData l h).M → ZMod 2 := fun m =>
       χ.1 ⟨_, htmem m⟩
         + gχ (Multiplicative.toAdd ((En.descData l h).descend m))
         + n (Multiplicative.toAdd ((En.descData l h).descend m)) with hψdef
-    -- ψ is additive (T-parts multiply up to `mDef`, killed by `hg` + `n`-additivity)
+    -- **T-part product law**: `tpart(mm') = tpart m · tpart m' · mDef(v_m, v_{m'})` (M abelian)
+    have ht : ∀ m m' : ↥(En.radData l h).M, (⟨_, htmem (m * m')⟩ : ↥(En.radData l h).T)
+        = ⟨_, htmem m⟩ * ⟨_, htmem m'⟩
+          * mDef (En.descData l h) (descSections En l h Dsc)
+              (Multiplicative.toAdd ((En.descData l h).descend m))
+              (Multiplicative.toAdd ((En.descData l h).descend m')) := by
+      intro m m'
+      apply Subtype.ext
+      show (↑m * ↑m' : RF.YB)
+          * (↑((descSections En l h Dsc).mV
+              (Multiplicative.toAdd ((En.descData l h).descend (m * m')))))⁻¹
+        = ↑m * (↑((descSections En l h Dsc).mV
+              (Multiplicative.toAdd ((En.descData l h).descend m))))⁻¹
+          * (↑m' * (↑((descSections En l h Dsc).mV
+              (Multiplicative.toAdd ((En.descData l h).descend m'))))⁻¹)
+          * (↑((descSections En l h Dsc).mV
+              (Multiplicative.toAdd ((En.descData l h).descend m)))
+            * ↑((descSections En l h Dsc).mV
+              (Multiplicative.toAdd ((En.descData l h).descend m')))
+            * (↑((descSections En l h Dsc).mV
+              (Multiplicative.toAdd ((En.descData l h).descend m)
+                + Multiplicative.toAdd ((En.descData l h).descend m'))))⁻¹)
+      rw [hvco_mul]
+      set a : RF.YB := (↑m : RF.YB) with ha
+      set b : RF.YB := (↑m' : RF.YB) with hb
+      set p : RF.YB := (↑((descSections En l h Dsc).mV
+          (Multiplicative.toAdd ((En.descData l h).descend m))) : RF.YB) with hp
+      set q : RF.YB := (↑((descSections En l h Dsc).mV
+          (Multiplicative.toAdd ((En.descData l h).descend m'))) : RF.YB) with hq
+      set r : RF.YB := (↑((descSections En l h Dsc).mV
+          (Multiplicative.toAdd ((En.descData l h).descend m)
+            + Multiplicative.toAdd ((En.descData l h).descend m'))) : RF.YB) with hr
+      have hpM : p ∈ (En.radData l h).M := ((descSections En l h Dsc).mV _).2
+      have hqM : q ∈ (En.radData l h).M := ((descSections En l h Dsc).mV _).2
+      have hbM : b ∈ (En.radData l h).M := m'.2
+      have c1 : p⁻¹ * b = b * p⁻¹ := (En.radData l h).hcomm _ (inv_mem hpM) _ hbM
+      have c2 : q⁻¹ * p = p * q⁻¹ := (En.radData l h).hcomm _ (inv_mem hqM) _ hpM
+      symm
+      calc a * p⁻¹ * (b * q⁻¹) * (p * q * r⁻¹)
+          = a * (p⁻¹ * b) * q⁻¹ * p * q * r⁻¹ := by group
+        _ = a * (b * p⁻¹) * q⁻¹ * p * q * r⁻¹ := by rw [c1]
+        _ = a * b * (p⁻¹ * (q⁻¹ * p)) * q * r⁻¹ := by group
+        _ = a * b * (p⁻¹ * (p * q⁻¹)) * q * r⁻¹ := by rw [c2]
+        _ = a * b * r⁻¹ := by group
+    -- ψ is additive (`ht` + `hg` for the `mDef` term + `n`-additivity, all in char 2)
     have hadd : ∀ m m' : ↥(En.radData l h).M, ψ (m * m') = ψ m + ψ m' := by
       intro m m'
-      have hv : Multiplicative.toAdd ((En.descData l h).descend (m * m'))
-          = Multiplicative.toAdd ((En.descData l h).descend m)
-            + Multiplicative.toAdd ((En.descData l h).descend m') := by
-        rw [map_mul]; rfl
-      have ht : (⟨_, htmem (m * m')⟩ : ↥(En.radData l h).T)
-          = ⟨_, htmem m⟩ * ⟨_, htmem m'⟩
-            * mDef (En.descData l h) (descSections En l h Dsc)
-                (Multiplicative.toAdd ((En.descData l h).descend m))
-                (Multiplicative.toAdd ((En.descData l h).descend m')) := by
-        apply Subtype.ext
-        show ((m * m' : ↥(En.radData l h).M) : RF.YB)
-            * (((descSections En l h Dsc).mV (Multiplicative.toAdd
-                ((En.descData l h).descend (m * m')))) : RF.YB)⁻¹
-          = _
-        rw [hv]
-        have hc1 : ((((descSections En l h Dsc).mV (Multiplicative.toAdd
-              ((En.descData l h).descend m))) : RF.YB))⁻¹ * (m' : RF.YB)
-            = (m' : RF.YB) * ((((descSections En l h Dsc).mV (Multiplicative.toAdd
-              ((En.descData l h).descend m))) : RF.YB))⁻¹ :=
-          (En.radData l h).hcomm _ (inv_mem ((descSections En l h Dsc).mV _).2) _ m'.2
-        have hc2 : ((((descSections En l h Dsc).mV (Multiplicative.toAdd
-              ((En.descData l h).descend m'))) : RF.YB))⁻¹
-              * (((descSections En l h Dsc).mV (Multiplicative.toAdd
-                ((En.descData l h).descend m))) : RF.YB)
-            = (((descSections En l h Dsc).mV (Multiplicative.toAdd
-                ((En.descData l h).descend m))) : RF.YB)
-              * ((((descSections En l h Dsc).mV (Multiplicative.toAdd
-                ((En.descData l h).descend m'))) : RF.YB))⁻¹ :=
-          (En.radData l h).hcomm _ (inv_mem ((descSections En l h Dsc).mV _).2) _
-            ((descSections En l h Dsc).mV _).2
-        calc ((m : RF.YB) * (m' : RF.YB))
-              * ((((descSections En l h Dsc).mV (Multiplicative.toAdd
-                  ((En.descData l h).descend m)
-                + Multiplicative.toAdd ((En.descData l h).descend m'))) : RF.YB))⁻¹
-            = (m : RF.YB) * (((((descSections En l h Dsc).mV (Multiplicative.toAdd
-                  ((En.descData l h).descend m))) : RF.YB))⁻¹ * (m' : RF.YB))
-                * (((((descSections En l h Dsc).mV (Multiplicative.toAdd
-                  ((En.descData l h).descend m'))) : RF.YB))⁻¹
-                  * (((descSections En l h Dsc).mV (Multiplicative.toAdd
-                    ((En.descData l h).descend m))) : RF.YB))
-                * (((descSections En l h Dsc).mV (Multiplicative.toAdd
-                    ((En.descData l h).descend m'))) : RF.YB)
-                * ((((descSections En l h Dsc).mV (Multiplicative.toAdd
-                    ((En.descData l h).descend m)
-                  + Multiplicative.toAdd ((En.descData l h).descend m'))) : RF.YB))⁻¹ := by
-              group
-          _ = (m : RF.YB) * ((m' : RF.YB) * ((((descSections En l h Dsc).mV
-                  (Multiplicative.toAdd ((En.descData l h).descend m))) : RF.YB))⁻¹)
-                * ((((descSections En l h Dsc).mV (Multiplicative.toAdd
-                  ((En.descData l h).descend m))) : RF.YB)
-                  * ((((descSections En l h Dsc).mV (Multiplicative.toAdd
-                    ((En.descData l h).descend m'))) : RF.YB))⁻¹)
-                * (((descSections En l h Dsc).mV (Multiplicative.toAdd
-                    ((En.descData l h).descend m'))) : RF.YB)
-                * ((((descSections En l h Dsc).mV (Multiplicative.toAdd
-                    ((En.descData l h).descend m)
-                  + Multiplicative.toAdd ((En.descData l h).descend m'))) : RF.YB))⁻¹ := by
-              rw [hc1, hc2]
-          _ = _ := by group
-      rw [hψdef]
+      have hmD : χ.1 (mDef (En.descData l h) (descSections En l h Dsc)
+            (Multiplicative.toAdd ((En.descData l h).descend m))
+            (Multiplicative.toAdd ((En.descData l h).descend m')))
+          = gχ (Multiplicative.toAdd ((En.descData l h).descend m)
+              + Multiplicative.toAdd ((En.descData l h).descend m'))
+            + gχ (Multiplicative.toAdd ((En.descData l h).descend m))
+            + gχ (Multiplicative.toAdd ((En.descData l h).descend m')) := hg _ _
+      have hnv : n (Multiplicative.toAdd ((En.descData l h).descend (m * m')))
+          = n (Multiplicative.toAdd ((En.descData l h).descend m))
+            + n (Multiplicative.toAdd ((En.descData l h).descend m')) :=
+        (congrArg n (hvco_mul m m')).trans (n.map_add _ _)
+      have hgv : gχ (Multiplicative.toAdd ((En.descData l h).descend (m * m')))
+          = gχ (Multiplicative.toAdd ((En.descData l h).descend m)
+              + Multiplicative.toAdd ((En.descData l h).descend m')) :=
+        congrArg gχ (hvco_mul m m')
       show χ.1 ⟨_, htmem (m * m')⟩
           + gχ (Multiplicative.toAdd ((En.descData l h).descend (m * m')))
           + n (Multiplicative.toAdd ((En.descData l h).descend (m * m'))) = _
-      rw [ht, TCharC.map_mul, TCharC.map_mul, hv, hg, map_add]
+      rw [ht, TCharC.map_mul, TCharC.map_mul, hmD, hnv, hgv]
       have hchar : ∀ A B P Q R S FF : ZMod 2,
-          A + B + (FF + P + Q) + (FF + (R + S)) = (A + P + R) + (B + Q + S) := by decide
+          A + B + (FF + P + Q) + FF + (R + S) = (A + P + R) + (B + Q + S) := by decide
       exact hchar _ _ _ _ _ _ _
-    -- ψ is conjugation-invariant (`hdesc_conj` + the `uσ`-decomposition + `hkey`)
-    have hconj : ∀ (bb : RF.YB) (m : ↥(En.radData l h).M),
-        ψ ⟨bb * m.1 * bb⁻¹, (En.radData l h).hM.conj_mem m.1 m.2 bb⟩ = ψ m := by
-      sorry
-    -- conclude: ψ vanishes, so χ does
+    -- **ψ is `Y`-conjugation-invariant** (the `bb = uσ(cc)·k` collapse + `hkey`)
+    have hconj : ∀ (bb : RF.YB) (m : ↥(En.radData l h).M)
+        (hm : bb * (m : RF.YB) * bb⁻¹ ∈ (En.radData l h).M),
+        ψ ⟨bb * (m : RF.YB) * bb⁻¹, hm⟩ = ψ m := by
+      intro bb m hm
+      set cc : RF.YC := (En.descData l h).piC0 bb with hcc
+      set v : En.Vmod := Multiplicative.toAdd ((En.descData l h).descend m) with hvdef
+      -- V-coordinate of the conjugate is `cc • v`
+      have hvc : Multiplicative.toAdd ((En.descData l h).descend ⟨bb * (m : RF.YB) * bb⁻¹, hm⟩)
+          = cc • v := by
+        rw [(En.descData l h).hdesc_conj bb m hm]; rfl
+      -- `bb · mV(v) · bb⁻¹ = uσ(cc) · mV(v) · uσ(cc)⁻¹`  (bb = uσ(cc)·k, k ∈ M abelian)
+      have hpiC0uσ : (En.descData l h).piC0 ((descSections En l h Dsc).uσ cc) = cc := by
+        have h1 := piQbar_mk (En.descData l h) ((descSections En l h Dsc).uσ cc)
+        rw [(descSections En l h Dsc).piT_uσ] at h1
+        rw [← h1, descSigma_spec En l h Dsc]
+      have hkM : ((descSections En l h Dsc).uσ cc)⁻¹ * bb ∈ (En.radData l h).M := by
+        rw [← (En.descData l h).hkerC0, MonoidHom.mem_ker, map_mul, map_inv, hpiC0uσ, hcc,
+          inv_mul_cancel]
+      have hbbdecomp : bb = (descSections En l h Dsc).uσ cc
+          * (((descSections En l h Dsc).uσ cc)⁻¹ * bb) := by group
+      have hsecconj : bb * (↑((descSections En l h Dsc).mV v) : RF.YB) * bb⁻¹
+          = (descSections En l h Dsc).uσ cc * (↑((descSections En l h Dsc).mV v) : RF.YB)
+            * ((descSections En l h Dsc).uσ cc)⁻¹ := by
+        conv_lhs => rw [hbbdecomp]
+        set k : RF.YB := ((descSections En l h Dsc).uσ cc)⁻¹ * bb with hkdef
+        have hcomm_k : k * (↑((descSections En l h Dsc).mV v) : RF.YB)
+            = (↑((descSections En l h Dsc).mV v) : RF.YB) * k :=
+          (En.radData l h).hcomm _ hkM _ ((descSections En l h Dsc).mV v).2
+        calc (descSections En l h Dsc).uσ cc * k * (↑((descSections En l h Dsc).mV v) : RF.YB)
+              * ((descSections En l h Dsc).uσ cc * k)⁻¹
+            = (descSections En l h Dsc).uσ cc * (k * (↑((descSections En l h Dsc).mV v) : RF.YB))
+                * k⁻¹ * ((descSections En l h Dsc).uσ cc)⁻¹ := by group
+          _ = (descSections En l h Dsc).uσ cc
+                * ((↑((descSections En l h Dsc).mV v) : RF.YB) * k) * k⁻¹
+                * ((descSections En l h Dsc).uσ cc)⁻¹ := by rw [hcomm_k]
+          _ = _ := by group
+      -- the `T`-part of the conjugate splits as `(bb·tpart(m)·bb⁻¹)·conjDef(cc,v)`
+      have htsplit : (⟨_, htmem ⟨bb * (m : RF.YB) * bb⁻¹, hm⟩⟩ : ↥(En.radData l h).T)
+          = ⟨bb * (⟨_, htmem m⟩ : ↥(En.radData l h).T).1 * bb⁻¹,
+              (En.radData l h).hT.conj_mem _ (⟨_, htmem m⟩ : ↥(En.radData l h).T).2 _⟩
+            * conjDef (En.descData l h) (descSections En l h Dsc)
+                (descSigma_spec En l h Dsc) cc v := by
+        apply Subtype.ext
+        show (bb * (m : RF.YB) * bb⁻¹)
+            * (↑((descSections En l h Dsc).mV
+                (Multiplicative.toAdd ((En.descData l h).descend
+                  ⟨bb * (m : RF.YB) * bb⁻¹, hm⟩))))⁻¹
+          = bb * ((m : RF.YB) * (↑((descSections En l h Dsc).mV v))⁻¹) * bb⁻¹
+            * ((descSections En l h Dsc).uσ cc * (↑((descSections En l h Dsc).mV v) : RF.YB)
+                * ((descSections En l h Dsc).uσ cc)⁻¹
+                * (↑((descSections En l h Dsc).mV (cc • v)))⁻¹)
+        rw [hvc]
+        rw [← hsecconj]
+        group
+      have hlhs : ψ ⟨bb * (m : RF.YB) * bb⁻¹, hm⟩
+          = χ.1 (⟨_, htmem m⟩ : ↥(En.radData l h).T)
+            + χ.1 (conjDef (En.descData l h) (descSections En l h Dsc)
+                (descSigma_spec En l h Dsc) cc v)
+            + gχ (cc • v) + n (cc • v) := by
+        rw [hψdef]
+        show χ.1 ⟨_, htmem ⟨bb * (m : RF.YB) * bb⁻¹, hm⟩⟩
+            + gχ (Multiplicative.toAdd ((En.descData l h).descend
+                ⟨bb * (m : RF.YB) * bb⁻¹, hm⟩))
+            + n (Multiplicative.toAdd ((En.descData l h).descend
+                ⟨bb * (m : RF.YB) * bb⁻¹, hm⟩))
+          = χ.1 (⟨_, htmem m⟩ : ↥(En.radData l h).T)
+            + χ.1 (conjDef (En.descData l h) (descSections En l h Dsc)
+                (descSigma_spec En l h Dsc) cc v)
+            + gχ (cc • v) + n (cc • v)
+        rw [htsplit, TCharC.map_mul,
+          TCharC.conj_invariant χ bb (⟨_, htmem m⟩ : ↥(En.radData l h).T), congrArg gχ hvc]
+        congr 1
+        exact congrArg n hvc
+      have hrhs : ψ m = χ.1 (⟨_, htmem m⟩ : ↥(En.radData l h).T) + gχ v + n v := rfl
+      rw [hlhs, hrhs]
+      have hk := hkey cc v
+      have hfin : ∀ (TP CJ GCV NCV GV NV : ZMod 2),
+          CJ + GCV + GV = NV + NCV → TP + CJ + GCV + NCV = TP + GV + NV := by decide
+      exact hfin _ _ _ _ _ _ hk
+    -- conclude: ψ vanishes on `M`, so `χ` vanishes on `T`
     intro t₀
-    have h0 := mchar_invariant_eq_zero ψ hadd hconj ⟨t₀.1, (En.radData l h).hTM t₀.2⟩
+    have h0 := mchar_conj_invariant_eq_zero RF En l h ψ hadd hconj
+      ⟨t₀.1, (En.radData l h).hTM t₀.2⟩
     have hdesc1 : (En.descData l h).descend ⟨t₀.1, (En.radData l h).hTM t₀.2⟩ = 1 :=
       ((En.descData l h).hdesc_ker _).mpr t₀.2
     have harg : (⟨_, htmem ⟨t₀.1, (En.radData l h).hTM t₀.2⟩⟩ : ↥(En.radData l h).T) = t₀ := by
       apply Subtype.ext
-      show (t₀ : RF.YB) * (((descSections En l h Dsc).mV (Multiplicative.toAdd
-          ((En.descData l h).descend ⟨t₀.1, (En.radData l h).hTM t₀.2⟩))) : RF.YB)⁻¹
+      show ((t₀ : RF.YB)) * (↑((descSections En l h Dsc).mV (Multiplicative.toAdd
+          ((En.descData l h).descend ⟨t₀.1, (En.radData l h).hTM t₀.2⟩))))⁻¹
         = (t₀ : RF.YB)
-      rw [hdesc1, show Multiplicative.toAdd (1 : Multiplicative En.Vmod) = (0 : En.Vmod)
-          from rfl, (descSections En l h Dsc).mV_zero]
+      rw [hdesc1,
+        show Multiplicative.toAdd (1 : Multiplicative (En.descData l h).Vmod)
+          = (0 : (En.descData l h).Vmod) from toAdd_one, (descSections En l h Dsc).mV_zero]
       simp
     have hval : ψ ⟨t₀.1, (En.radData l h).hTM t₀.2⟩ = χ.1 t₀ := by
-      rw [hψdef]
       show χ.1 ⟨_, htmem ⟨t₀.1, (En.radData l h).hTM t₀.2⟩⟩
           + gχ (Multiplicative.toAdd ((En.descData l h).descend
               ⟨t₀.1, (En.radData l h).hTM t₀.2⟩))
           + n (Multiplicative.toAdd ((En.descData l h).descend
               ⟨t₀.1, (En.radData l h).hTM t₀.2⟩)) = χ.1 t₀
-      rw [harg, hdesc1, show Multiplicative.toAdd (1 : Multiplicative En.Vmod) = (0 : En.Vmod)
-          from rfl, hg0, map_zero, add_zero, add_zero]
+      have hg0' : gχ (Multiplicative.toAdd ((En.descData l h).descend
+          ⟨t₀.1, (En.radData l h).hTM t₀.2⟩)) = 0 := by rw [hdesc1, toAdd_one]; exact hg0
+      have hn0' : n (Multiplicative.toAdd ((En.descData l h).descend
+          ⟨t₀.1, (En.radData l h).hTM t₀.2⟩)) = 0 := by
+        conv_lhs => rw [hdesc1]
+        exact map_zero n
+      rw [harg, hg0', hn0', add_zero, add_zero]
     exact hval.symm.trans h0
   -- ### Stage 9: contradiction with `hχ`
   apply hχ

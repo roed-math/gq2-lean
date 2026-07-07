@@ -70,6 +70,107 @@ private theorem conj_eq_of_mk_eq_M {Bg : Type} [Group Bg] [Finite Bg] {D : Radic
   { (inferInstance : Group ↥D.M) with
     mul_comm := fun a b => Subtype.ext (D.hcomm _ a.2 _ b.2) }
 
+/-! ## The `(M∨)^C = 0` refutation (Lemma 7.1 / simple-head duality) -/
+
+/-- **No nonzero conjugation-invariant `M`-character** (`(M_B^∨)^{Y} = 0`, the operational form of
+Lemma 7.1 / `Hom_C(M, 𝔽₂) = 0`): any additive `ψ : ↥M_B → 𝔽₂` invariant under `Y`-conjugation is
+identically zero.  A nonzero such `ψ` would pull back (through `s : Blk.K ↠ M_B`, `s = piB|_K`) to a
+surjective character `φ : Blk.K ↠ 𝔽₂` whose kernel maps to a `Y`-normal index-2 subgroup `X` with
+`Blk.R ≤ X ≤ Blk.K`, contradicting `SectionSeven.lemma_7_1_dual`.  This is the shared kernel of both
+`hMcountM_local` (there via the `fixedPts (ElemDual …)` packaging) and P-16d6e3's `hpartial_local`
+(the nondegeneracy residue). -/
+theorem mchar_conj_invariant_eq_zero (RF : RecursionFrame T Blk)
+    (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR)
+    (ψ : ↥(En.radData l h).M → ZMod 2)
+    (hadd : ∀ m m' : ↥(En.radData l h).M, ψ (m * m') = ψ m + ψ m')
+    (hconj : ∀ (bb : RF.YB) (m : ↥(En.radData l h).M)
+        (hm : bb * (m : RF.YB) * bb⁻¹ ∈ (En.radData l h).M),
+      ψ ⟨bb * (m : RF.YB) * bb⁻¹, hm⟩ = ψ m) :
+    ∀ m : ↥(En.radData l h).M, ψ m = 0 := by
+  by_contra hcon
+  rw [not_forall] at hcon
+  obtain ⟨m₀, hm₀⟩ := hcon
+  have hψ1 : ψ 1 = 0 := by
+    have h := hadd 1 1; rw [mul_one] at h
+    nth_rewrite 1 [← add_zero (ψ 1)] at h
+    exact (add_left_cancel h).symm
+  have hmem : ∀ k : ↥Blk.K, RF.piB k.1 ∈ (En.radData l h).M := by
+    intro k
+    show RF.piB k.1 ∈ RF.MB
+    rw [RF.MB_eq]; exact Subgroup.mem_map.mpr ⟨k.1, k.2, rfl⟩
+  -- `s : Blk.K ↠ M_B` and the character `φ = ψ ∘ s : Blk.K →* μ₂`
+  let s : ↥Blk.K →* ↥(En.radData l h).M :=
+    (RF.piB.comp Blk.K.subtype).codRestrict (En.radData l h).M (fun k => hmem k)
+  have hs : ∀ k : ↥Blk.K, (s k).1 = RF.piB k.1 := fun _ => rfl
+  have hs_surj : Function.Surjective s := by
+    intro m
+    obtain ⟨k, hk, hkeq⟩ := (RF.MB_eq ▸ m.2 : m.1 ∈ Blk.K.map RF.piB)
+    exact ⟨⟨k, hk⟩, Subtype.ext hkeq⟩
+  let φ : ↥Blk.K →* Multiplicative (ZMod 2) :=
+    { toFun := fun k => Multiplicative.ofAdd (ψ (s k))
+      map_one' := by rw [s.map_one, hψ1]; rfl
+      map_mul' := fun a b => by simp only [map_mul, hadd]; rfl }
+  have hφ_apply : ∀ k, φ k = Multiplicative.ofAdd (ψ (s k)) := fun _ => rfl
+  have hφne : φ ≠ 1 := by
+    intro hφ1
+    obtain ⟨k, hk⟩ := hs_surj m₀
+    apply hm₀
+    have hk1 : φ k = 1 := by rw [hφ1]; rfl
+    have h2 : ψ (s k) = 0 := by
+      have := congrArg Multiplicative.toAdd hk1
+      simpa [hφ_apply] using this
+    rw [hk] at h2
+    exact h2
+  have hφsurj : Function.Surjective φ := by
+    intro y
+    rcases eq_or_ne y 1 with rfl | hy
+    · exact ⟨1, map_one φ⟩
+    · obtain ⟨k, hk⟩ := not_forall.mp (fun hh => hφne (MonoidHom.ext hh))
+      refine ⟨k, ?_⟩
+      have hpin : ∀ z : Multiplicative (ZMod 2), z ≠ 1 → z = Multiplicative.ofAdd 1 := by decide
+      rw [hpin _ hk, hpin _ hy]
+  set X : Subgroup Y := φ.ker.map Blk.K.subtype with hXdef
+  have hXK : X ≤ Blk.K := by rw [hXdef]; exact Subgroup.map_subtype_le _
+  have hRX : Blk.R ≤ X := by
+    intro r hr
+    have hrK : r ∈ Blk.K := SectionSeven.frattiniLike_le Blk.K hr
+    refine Subgroup.mem_map.mpr ⟨⟨r, hrK⟩, ?_, rfl⟩
+    rw [MonoidHom.mem_ker, hφ_apply]
+    have hs1 : s ⟨r, hrK⟩ = 1 := Subtype.ext (by
+      rw [hs]
+      show RF.piB r = 1
+      exact (RF.ker_piB.symm ▸ hr : r ∈ RF.piB.ker))
+    rw [hs1, hψ1]; rfl
+  have hXnormal : X.Normal := by
+    rw [hXdef]
+    refine ⟨fun x hx y => ?_⟩
+    obtain ⟨k, hkker, hkeq⟩ := Subgroup.mem_map.mp hx
+    have hxK : x ∈ Blk.K := hkeq ▸ k.2
+    have hyk : y * x * y⁻¹ ∈ Blk.K := Blk.hK.conj_mem x hxK y
+    refine Subgroup.mem_map.mpr ⟨⟨y * x * y⁻¹, hyk⟩, ?_, rfl⟩
+    rw [MonoidHom.mem_ker] at hkker ⊢
+    rw [hφ_apply] at hkker ⊢
+    -- `ψ (s⟨y·x·y⁻¹⟩) = ψ (s⟨x⟩)` via raw conjugation by `piB y`
+    have hsconj : s ⟨y * x * y⁻¹, hyk⟩
+        = ⟨RF.piB y * (s ⟨x, hxK⟩ : RF.YB) * (RF.piB y)⁻¹,
+            (En.radData l h).hM.conj_mem _ (s ⟨x, hxK⟩).2 _⟩ := by
+      apply Subtype.ext
+      show RF.piB (y * x * y⁻¹) = RF.piB y * (s ⟨x, hxK⟩ : RF.YB) * (RF.piB y)⁻¹
+      rw [map_mul, map_mul, map_inv, hs]
+    have hcv : ψ (s ⟨y * x * y⁻¹, hyk⟩) = ψ (s ⟨x, hxK⟩) := by
+      rw [hsconj]
+      exact hconj (RF.piB y) (s ⟨x, hxK⟩) _
+    have hkx : s ⟨x, hxK⟩ = s k := congrArg s (Subtype.ext hkeq.symm)
+    rw [hcv, hkx]; exact hkker
+  have hidx : (X.subgroupOf Blk.K).index = 2 := by
+    have hcm : X.subgroupOf Blk.K = φ.ker := by
+      rw [hXdef, Subgroup.subgroupOf,
+        Subgroup.comap_map_eq_self_of_injective Blk.K.subtype_injective]
+    show Nat.card (↥Blk.K ⧸ (X.subgroupOf Blk.K)) = 2
+    rw [hcm, Nat.card_congr (QuotientGroup.quotientKerEquivOfSurjective φ hφsurj).toEquiv]
+    simp
+  exact absurd ⟨X, hXnormal, hRX, hXK, hidx⟩ (SectionSeven.lemma_7_1_dual Blk)
+
 /-! ## The two hypotheses for `G_ℚ₂` -/
 
 /-- **`hlem86M` for `G_ℚ₂`** — the source's Lemma 8.6 half-torsor count over every boundary lift,
