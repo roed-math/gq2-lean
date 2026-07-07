@@ -80,6 +80,8 @@ import GQ2.DeepDuality
 import GQ2.DeepDualityK
 import GQ2.DeepCount
 import GQ2.DimAssembly
+import GQ2.DimClose
+import GQ2.ResidueLift
 import GQ2.CorestrictionCohomology
 import GQ2.OrbitVanish
 import GQ2.RegularIsometry
