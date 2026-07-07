@@ -26,6 +26,18 @@ namespace OrbitVanish
 
 open Corestriction ShapiroLedger ContCoh
 
+/-- Carrier of the twisted extension `V ×_{Δf} 𝔽₂` used to split a zero-form factor set
+(P-15f2a, increment A): a pair `(base, fib)` carrying the twisted addition
+`(v,a) + (w,b) = (v+w, a+b+Δf v w)`.  For a **symmetric, zero-diagonal** cocycle `Δf` on a
+`2`-torsion `V` this is an elementary abelian `2`-group, hence an `𝔽₂`-vector space; the `𝔽₂`-linear
+section of the `base` projection provides the quadratic refinement `Δφ`. -/
+@[ext]
+private structure ZFExt (V : Type*) where
+  /-- The `V`-coordinate. -/
+  base : V
+  /-- The central `𝔽₂`-coordinate. -/
+  fib : ZMod 2
+
 /-- **Corestriction of a coboundary vanishes in `H²`** (P-15f2, the per-orbit cochain heart):
 if `inner = δ¹c` is the trivial-action coboundary of a continuous 1-cochain `c : ↥U → 𝔽₂`, then
 the degree-2 corestriction `cor2Fun U inner` is `0` in `H²(G_ℚ₂, 𝔽₂)`.
@@ -412,6 +424,75 @@ theorem Q0loc_datum_indep_of_core (D : TateDuality 2) (dat1 dat2 : FactorSet C V
     funext p
     simp only [Pi.sub_apply, Pi.add_apply, CharTwo.sub_eq_add]
   rw [hlin]; exact hcore
+
+omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [TopologicalSpace V] [DiscreteTopology V]
+  [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] in
+/-- **(a1) the C-independent quadratic refinement** (P-15f2a increment A): a zero-form equivariant
+factor set `Δdat` admits a **quadratic refinement** `Δφ` with polar `Δdat.f`, i.e.
+`Δφ(u+w) = Δφ u + Δφ w + Δdat.f u w` (the identity `(Q)`).  The zero form makes `Δdat.f` symmetric
+(`f_polar`) with zero diagonal (`f_diag`), so the twisted extension `ZFExt` — addition
+`(v,a)+(w,b) = (v+w, a+b+Δdat.f v w)` — is an elementary abelian `2`-group (`hV2`), hence an
+`𝔽₂`-vector space; its `base`-projection is a surjective `𝔽₂`-linear map, and any linear right
+inverse `s` gives `Δφ v := (s v).fib` with `(Q)` (from `s` additive).  C-independent (no `Δm`); the
+equivariance defect is corrected in increment B. -/
+theorem exists_refinement_of_zero_form (Δdat : FactorSet C V)
+    (hΔ : IsEquivariantFactorSet (fun _ => (0 : ZMod 2)) Δdat) (hV2 : ∀ v : V, v + v = 0) :
+    ∃ Δφ : V → ZMod 2, ∀ u w : V, Δφ (u + w) = Δφ u + Δφ w + Δdat.f u w := by
+  classical
+  have hdiag : ∀ v : V, Δdat.f v v = 0 := hΔ.f_diag
+  have h0l : ∀ v : V, Δdat.f 0 v = 0 := hΔ.f_zero_left
+  have hsymm : ∀ v w : V, Δdat.f v w = Δdat.f w v := by
+    intro v w
+    have h := hΔ.f_polar v w
+    have hp0 : polar (fun _ => (0 : ZMod 2)) v w = 0 := by simp [polar]
+    rw [hp0] at h
+    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) h
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  haveI : Module (ZMod 2) V := AddCommGroup.zmodModule (fun v => by rw [two_nsmul]; exact hV2 v)
+  haveI : Module.Finite (ZMod 2) V := Module.Finite.of_finite
+  letI addInst : Add (ZFExt V) :=
+    ⟨fun p q => ⟨p.base + q.base, p.fib + q.fib + Δdat.f p.base q.base⟩⟩
+  letI zeroInst : Zero (ZFExt V) := ⟨⟨0, 0⟩⟩
+  letI negInst : Neg (ZFExt V) := ⟨id⟩
+  have hassoc : ∀ p q r : ZFExt V, p + q + r = p + (q + r) := by
+    rintro ⟨a, x⟩ ⟨b, y⟩ ⟨c, z⟩
+    refine ZFExt.ext (add_assoc a b c) ?_
+    show x + y + Δdat.f a b + z + Δdat.f (a + b) c
+        = x + (y + z + Δdat.f b c) + Δdat.f a (b + c)
+    linear_combination (norm := ring_nf) hΔ.f_cocycle a b c
+  have hzero_add : ∀ p : ZFExt V, 0 + p = p := by
+    rintro ⟨a, x⟩
+    refine ZFExt.ext (zero_add a) ?_
+    show (0 : ZMod 2) + x + Δdat.f 0 a = x
+    rw [h0l]; ring
+  have hneg_add : ∀ p : ZFExt V, -p + p = 0 := by
+    rintro ⟨a, x⟩
+    refine ZFExt.ext (hV2 a) ?_
+    show x + x + Δdat.f a a = (0 : ZMod 2)
+    rw [hdiag, add_zero]; exact CharTwo.add_self_eq_zero x
+  letI grp : AddCommGroup (ZFExt V) :=
+    { AddGroup.ofLeftAxioms hassoc hzero_add hneg_add with
+      add_comm := by
+        rintro ⟨a, x⟩ ⟨b, y⟩
+        refine ZFExt.ext (add_comm a b) ?_
+        show x + y + Δdat.f a b = y + x + Δdat.f b a
+        rw [hsymm a b]; ring }
+  have htor : ∀ p : ZFExt V, p + p = 0 := fun p => neg_add_cancel p
+  letI mod : Module (ZMod 2) (ZFExt V) :=
+    AddCommGroup.zmodModule (fun p => by rw [two_nsmul]; exact htor p)
+  let π : ZFExt V →ₗ[ZMod 2] V :=
+    AddMonoidHom.toZModLinearMap 2 (AddMonoidHom.mk' ZFExt.base (fun _ _ => rfl))
+  have hπsurj : Function.Surjective π := fun v => ⟨⟨v, 0⟩, rfl⟩
+  obtain ⟨s, hs⟩ := π.exists_rightInverse_of_surjective (LinearMap.range_eq_top.mpr hπsurj)
+  have hsbase : ∀ v, (s v).base = v := fun v => by
+    have := LinearMap.congr_fun hs v; simpa [π] using this
+  refine ⟨fun v => (s v).fib, fun u w => ?_⟩
+  have hfib := congrArg ZFExt.fib (map_add s u w)
+  show (s (u + w)).fib = (s u).fib + (s w).fib + Δdat.f u w
+  rw [hfib]
+  show (s u).fib + (s w).fib + Δdat.f (s u).base (s w).base
+      = (s u).fib + (s w).fib + Δdat.f u w
+  rw [hsbase u, hsbase w]
 
 /-! ### f2a (P-15f2a): the DI-core cochain assembly — reduced to the existence of a refinement
 
