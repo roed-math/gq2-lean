@@ -390,6 +390,30 @@ section RelatorCorrection
 
 variable {Y' : Type*} [Group Y']
 
+/-- **`powOmega2` under a central-involution correction** — the crux of the wild relator
+correction (`docs/p16d6e5-plan.md` §2, L1-wild).  For a central involution `s`, the 2-primary
+projection satisfies `powOmega2 (s * a) = s * powOmega2 a`: `s` is its own 2-part, and `powOmega2`
+is multiplicative on the abelian subgroup `⟨s, a⟩`.  The `orderOf (s*a)`-shift (which breaks the
+naive `powOmega2_pow_eq` at `a`'s own order) is dissolved by evaluating all three `ω₂`-powers at a
+**common modulus** `M = 2·|a|·|s*a|` (divisible by `|s|`, `|a|`, `|s*a|`), à la `powOmega2_prod`;
+`powOmega2 s = s` because `|s| ∣ 2` is a 2-power. -/
+theorem powOmega2_central_involution {G : Type*} [Group G] [Finite G] (s a : G)
+    (hs : ∀ z : G, Commute s z) (hs2 : s ^ 2 = 1) :
+    powOmega2 (s * a) = s * powOmega2 a := by
+  set M := 2 * orderOf a * orderOf (s * a) with hM_def
+  have hMne : M ≠ 0 :=
+    Nat.mul_ne_zero (Nat.mul_ne_zero two_ne_zero (orderOf_pos a).ne') (orderOf_pos (s * a)).ne'
+  have hsa_dvd : orderOf (s * a) ∣ M := dvd_mul_left _ _
+  have ha_dvd : orderOf a ∣ M := (dvd_mul_left (orderOf a) 2).mul_right (orderOf (s * a))
+  have hs_dvd : orderOf s ∣ M :=
+    (orderOf_dvd_of_pow_eq_one hs2).trans ((dvd_mul_right 2 (orderOf a)).mul_right (orderOf (s * a)))
+  have hps : powOmega2 s = s := by
+    have hsord : orderOf s ∣ 2 ^ 1 := by rw [pow_one]; exact orderOf_dvd_of_pow_eq_one hs2
+    obtain ⟨k, _, hk⟩ := (Nat.dvd_prime_pow Nat.prime_two).mp hsord
+    exact powOmega2_eq_self_of_orderOf_two_pow hk
+  rw [← powOmega2_pow_eq (s * a) hsa_dvd hMne, (hs a).mul_pow,
+    powOmega2_pow_eq s hs_dvd hMne, powOmega2_pow_eq a ha_dvd hMne, hps]
+
 /-- **L1 tame row, central 2-torsion** (`docs/p16d6e5-plan.md` §2, L1): correcting a marking's
 generators by central involutions shifts the tame relator value by exactly the τ-correction —
 `tameValue⟨r₀σ, r₁τ, x₀, x₁⟩ = r₁ · tameValue⟨σ, τ, x₀, x₁⟩`.  The σ-correction `r₀` cancels
