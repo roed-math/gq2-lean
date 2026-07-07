@@ -78,3 +78,4 @@ import GQ2.PropOneOneAssembly
 import GQ2.ShapiroLedger
 import GQ2.WordCohBridge
 import GQ2.RadicalEdgeGammaA
+import GQ2.SectionTen
