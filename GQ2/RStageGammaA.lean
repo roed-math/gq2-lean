@@ -364,6 +364,24 @@ theorem d1Fun_tame_trivial [DistribMulAction C (ZMod 2)]
   rw [d1Fun_tame t ht]
   simp only [htriv2, sub_self, zero_add, CharTwo.add_self_eq_zero, sub_zero]
 
+/-- **The wild `d¹`-row at trivial `𝔽₂` coefficients**: `(d¹x).2 = x 1` (`docs/p16d6e5-plan.md`
+§2, L4).  `liftMarking_wildValue_u`'s split closed form `x₁ + x₃ + σ⁻¹·x₃` (all the trivial-action
+side conditions `hx₀/hx₁/hτ/hσ₂` hold from `htriv2`) collapses under the trivial action and
+characteristic two to `x₁ + x₃ + x₃ = x₁`.  Together with `d1Fun_tame_trivial` this is the wild
+recognizer for L4; the pair `(d¹x) = (x 1, x 1)` also re-derives `trace_kills_im_trivial`
+(`x 1 + x 1 = 0`). -/
+theorem d1Fun_wild_trivial [DistribMulAction C (ZMod 2)]
+    (htriv2 : ∀ (c : C) (m : ZMod 2), c • m = m)
+    (t : Marking C) (x : Fin 4 → ZMod 2) :
+    (d1Fun t x).2 = x 1 := by
+  have h := liftMarking_wildValue_u t x (fun v => CharTwo.add_self_eq_zero v)
+    (fun v => htriv2 t.x₀ v) (fun v => htriv2 t.x₁ v) (fun v => htriv2 t.τ v)
+    (fun v => htriv2 t.sigma2 v)
+  show (liftMarking t x).wildValue.u = x 1
+  rw [h]
+  simp only [htriv2]
+  rw [add_assoc, CharTwo.add_self_eq_zero, add_zero]
+
 end TraceKills
 
 /-! ## `hsep_hom`: the `(R^∨)^C` separation at the candidate source (L1–L5, the main work) -/
