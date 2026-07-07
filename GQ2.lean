@@ -102,4 +102,5 @@ import GQ2.SectionTenSources
 import GQ2.PresentationLiteral
 import GQ2.RStageGammaA
 import GQ2.CardH2GammaA
+import GQ2.Phase140GammaA
 import GQ2.QuadraticAdjoin
