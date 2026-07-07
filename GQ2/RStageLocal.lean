@@ -48,6 +48,9 @@ variable {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
 /-- `K ◁ Y` as an instance (the `MinimalBlock` field, made searchable). -/
 instance : Blk.K.Normal := Blk.hK
 
+/-- `R ◁ Y` as an instance (`frattiniLike_normal`). -/
+instance : Blk.R.Normal := SectionSeven.frattiniLike_normal Blk.K Blk.hK
+
 /-! ## The `C = Y/K` conjugation action on `R` (well-defined by `K`-centrality) -/
 
 section ConjAction
@@ -273,6 +276,281 @@ theorem hZcount_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
 
 end ZCount
 
+/-! ## `hsep_hom`: the `(R^∨)^C` separation at the local source -/
+
+section SepHom
+
+set_option maxHeartbeats 1600000 in
+/-- **The `(R^∨)^C`-separation, local source** (P-16d6e residue): if the obstruction functional
+of a boundary lift `g` vanishes, `g` lifts to a continuous homomorphism into `Y`.  Route:
+`obs g = 0` kills every paired defect class (`obs_zero_iff_pairClass_zero`); the paired classes
+are the `cup20`-values of the `R`-valued defect class against the invariant characters, and
+`H⁰(G_ℚ₂, R^∨) = (R^∨)^C = D_Rmod` by surjectivity of the lower map; `bijective_cup20_dualEval`
+(5.16 clause (vi), B6) then forces `[rDefect] = 0` in `H²(G_ℚ₂, R_ρ)`; `B²`-extraction yields a
+continuous splitting cochain (exponent 2 kills the signs), and `homLift_of_split` assembles the
+lift. -/
+theorem hsep_hom_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ r ∈ Blk.R, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.R, r * r = 1)
+    (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup) (F : BoundaryFrame H E) :
+    ∀ g : BoundaryLifts b F (blockFrameImpl T Blk hE2).TB,
+      obs (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2) htriv_local
+          (card_H2_zmod2_eq_two htriv_local) g.1.1 = 0 →
+        ∃ φ : ContinuousMonoidHom AbsGalQ2 Y,
+          ∀ γ, (blockFrameImpl T Blk hE2).piB (φ γ) = g.1.1 γ := by
+  classical
+  intro g hg
+  -- every paired defect class vanishes (mirror of `hsep_hom_of_splitCriterion`'s first stage)
+  have hall : ∀ d : (blockRObstructionData T Blk hE2).DRmod, H2mk AbsGalQ2 (ZMod 2)
+      ⟨fun gd => (blockRObstructionData T Blk hE2).pair d
+          (Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 gd.1 gd.2)),
+        pairDefect_mem_Z2_all (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2)
+          htriv_local g.1.1 d⟩ = 0 := by
+    intro d
+    by_cases h : (blockRObstructionData T Blk hE2).toDR d = (blockFrameImpl T Blk hE2).zeroDR
+    · have hd : d = 0 := by
+        rw [← (blockRObstructionData T Blk hE2).h0, ← h, Equiv.symm_apply_apply]
+      subst hd
+      have hz : (⟨fun gd => (blockRObstructionData T Blk hE2).pair 0
+          (Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 gd.1 gd.2)),
+          pairDefect_mem_Z2_all (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2)
+            htriv_local g.1.1 0⟩ : ↥(Z2 AbsGalQ2 (ZMod 2))) = 0 := by
+        apply Subtype.ext
+        funext gd
+        simp only [map_zero, AddMonoidHom.zero_apply]
+        rfl
+      rw [hz, map_zero]
+    · exact (obs_zero_iff_pairClass_zero (blockFrameImpl T Blk hE2)
+        (blockRObstructionData T Blk hE2) htriv_local (card_H2_zmod2_eq_two htriv_local)
+        g.1.1 d h).mp (LinearMap.congr_fun hg d)
+  -- the instance stack for the twisted module `A = Additive R` along `ϑ = piBC ∘ g`
+  letI : CommGroup ↥Blk.R := rCommGroup Blk hRK
+  letI actC : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.R) := conjC Blk hRK
+  have hRleK : Blk.R ≤ Blk.K := SectionSeven.frattiniLike_le Blk.K
+  set θ : ContinuousMonoidHom AbsGalQ2 (Y ⧸ Blk.K) :=
+    ⟨MonoidHom.mk' (fun γ => QuotientGroup.mk' Blk.K
+        (slift (blockFrameImpl T Blk hE2) (g.1.1 γ))) (fun γ δ => by
+      rw [← map_mul]
+      apply (QuotientGroup.mk'_eq_mk' Blk.K).mpr
+      refine ⟨(slift (blockFrameImpl T Blk hE2) (g.1.1 (γ * δ)))⁻¹
+          * (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ : Y)
+          * slift (blockFrameImpl T Blk hE2) (g.1.1 (γ * δ)),
+        hRleK (by
+          have := (SectionSeven.frattiniLike_normal Blk.K Blk.hK).conj_mem _
+            (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ).2
+            (slift (blockFrameImpl T Blk hE2) (g.1.1 (γ * δ)))⁻¹
+          rwa [inv_inv] at this), ?_⟩
+      show slift (blockFrameImpl T Blk hE2) (g.1.1 (γ * δ))
+          * ((slift (blockFrameImpl T Blk hE2) (g.1.1 (γ * δ)))⁻¹
+            * (slift (blockFrameImpl T Blk hE2) (g.1.1 γ)
+              * slift (blockFrameImpl T Blk hE2) (g.1.1 δ)
+              * (slift (blockFrameImpl T Blk hE2) (g.1.1 (γ * δ)))⁻¹)
+            * slift (blockFrameImpl T Blk hE2) (g.1.1 (γ * δ)))
+        = slift (blockFrameImpl T Blk hE2) (g.1.1 γ)
+            * slift (blockFrameImpl T Blk hE2) (g.1.1 δ)
+      group), by
+      show Continuous fun γ => QuotientGroup.mk' Blk.K
+        (slift (blockFrameImpl T Blk hE2) (g.1.1 γ))
+      exact Continuous.comp continuous_of_discreteTopology
+        (Continuous.comp continuous_of_discreteTopology g.1.1.continuous_toFun)⟩ with hθdef
+  have hθs : Function.Surjective ⇑θ := by
+    intro c
+    obtain ⟨y, hy⟩ := QuotientGroup.mk'_surjective Blk.K c
+    obtain ⟨γ, hγ⟩ := g.1.2 ((blockFrameImpl T Blk hE2).piB y)
+    refine ⟨γ, ?_⟩
+    show QuotientGroup.mk' Blk.K (slift (blockFrameImpl T Blk hE2) (g.1.1 γ)) = c
+    rw [hγ, ← hy]
+    apply (QuotientGroup.mk'_eq_mk' Blk.K).mpr
+    have hker : (slift (blockFrameImpl T Blk hE2) ((blockFrameImpl T Blk hE2).piB y))⁻¹ * y
+        ∈ Blk.R := by
+      rw [← (blockFrameImpl T Blk hE2).ker_piB, MonoidHom.mem_ker, map_mul, map_inv,
+        piB_slift]
+      group
+    exact ⟨(slift (blockFrameImpl T Blk hE2) ((blockFrameImpl T Blk hE2).piB y))⁻¹ * y,
+      hRleK hker, by group⟩
+  letI actG : DistribMulAction AbsGalQ2 (Additive ↥Blk.R) :=
+    DistribMulAction.compHom _ θ.toMonoidHom
+  letI : TopologicalSpace (Additive ↥Blk.R) := (inferInstance : TopologicalSpace ↥Blk.R)
+  haveI : DiscreteTopology (Additive ↥Blk.R) :=
+    ⟨(inferInstance : DiscreteTopology ↥Blk.R).eq_bot⟩
+  haveI : Finite (Additive ↥Blk.R) := (inferInstance : Finite ↥Blk.R)
+  haveI : ContinuousSMul AbsGalQ2 (Additive ↥Blk.R) := by
+    refine ⟨?_⟩
+    have hfac : (fun p : AbsGalQ2 × Additive ↥Blk.R => p.1 • p.2)
+        = (fun q : (Y ⧸ Blk.K) × Additive ↥Blk.R => q.1 • q.2)
+          ∘ (fun p : AbsGalQ2 × Additive ↥Blk.R => (θ p.1, p.2)) := by
+      funext p
+      rfl
+    rw [hfac]
+    exact continuous_of_discreteTopology.comp
+      ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  have hA₂ : ∀ a : Additive ↥Blk.R, a + a = 0 := by
+    intro a
+    apply Additive.toMul.injective
+    apply Subtype.ext
+    exact hR2 _ (Additive.toMul a).2
+  -- the action at the `slift ∘ g` representative
+  have hsmul : ∀ (γ : AbsGalQ2) (a : Additive ↥Blk.R),
+      γ • a = Additive.ofMul
+        (⟨slift (blockFrameImpl T Blk hE2) (g.1.1 γ)
+            * ((Additive.toMul a : ↥Blk.R) : Y)
+            * (slift (blockFrameImpl T Blk hE2) (g.1.1 γ))⁻¹,
+          conj_mem_R _ (Additive.toMul a)⟩ : ↥Blk.R) := by
+    intro γ a
+    have h1 : γ • a = QuotientGroup.mk' Blk.K
+        (slift (blockFrameImpl T Blk hE2) (g.1.1 γ)) • Additive.ofMul (Additive.toMul a) := rfl
+    rw [h1]
+    exact conjC_smul_of_mk hRK _ (Additive.toMul a)
+  -- the `R`-valued defect as an additive 2-cocycle
+  have hdefZ2 : (fun p : AbsGalQ2 × AbsGalQ2 =>
+      Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 p.1 p.2))
+      ∈ Z2 AbsGalQ2 (Additive ↥Blk.R) := by
+    refine mem_Z2_iff.mpr ⟨?_, ?_⟩
+    · show Continuous fun p : AbsGalQ2 × AbsGalQ2 =>
+        (rDefect (blockFrameImpl T Blk hE2) g.1.1 p.1 p.2 : ↥Blk.R)
+      apply Continuous.subtype_mk
+      have hs : Continuous fun x : (blockFrameImpl T Blk hE2).YB =>
+          slift (blockFrameImpl T Blk hE2) x := continuous_of_discreteTopology
+      have h1 : Continuous fun p : AbsGalQ2 × AbsGalQ2 =>
+          slift (blockFrameImpl T Blk hE2) (g.1.1 p.1) :=
+        hs.comp (g.1.1.continuous_toFun.comp continuous_fst)
+      have h2 : Continuous fun p : AbsGalQ2 × AbsGalQ2 =>
+          slift (blockFrameImpl T Blk hE2) (g.1.1 p.2) :=
+        hs.comp (g.1.1.continuous_toFun.comp continuous_snd)
+      have h3 : Continuous fun p : AbsGalQ2 × AbsGalQ2 =>
+          slift (blockFrameImpl T Blk hE2) (g.1.1 (p.1 * p.2)) :=
+        hs.comp (g.1.1.continuous_toFun.comp continuous_mul)
+      exact (h1.mul h2).mul h3.inv
+    · intro γ δ ε
+      rw [hsmul γ]
+      apply Additive.toMul.injective
+      show (⟨slift (blockFrameImpl T Blk hE2) (g.1.1 γ)
+            * (rDefect (blockFrameImpl T Blk hE2) g.1.1 δ ε : Y)
+            * (slift (blockFrameImpl T Blk hE2) (g.1.1 γ))⁻¹, _⟩ : ↥Blk.R)
+          * rDefect (blockFrameImpl T Blk hE2) g.1.1 γ (δ * ε)
+        = rDefect (blockFrameImpl T Blk hE2) g.1.1 (γ * δ) ε
+          * rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ
+      rw [mul_comm (rDefect (blockFrameImpl T Blk hE2) g.1.1 (γ * δ) ε)
+        (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ)]
+      apply Subtype.ext
+      show slift (blockFrameImpl T Blk hE2) (g.1.1 γ)
+            * (rDefect (blockFrameImpl T Blk hE2) g.1.1 δ ε : Y)
+            * (slift (blockFrameImpl T Blk hE2) (g.1.1 γ))⁻¹
+          * (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ (δ * ε) : Y)
+        = (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ : Y)
+          * (rDefect (blockFrameImpl T Blk hE2) g.1.1 (γ * δ) ε : Y)
+      have hrd : ∀ α β : AbsGalQ2, (rDefect (blockFrameImpl T Blk hE2) g.1.1 α β : Y)
+          = slift (blockFrameImpl T Blk hE2) (g.1.1 α)
+            * slift (blockFrameImpl T Blk hE2) (g.1.1 β)
+            * (slift (blockFrameImpl T Blk hE2) (g.1.1 (α * β)))⁻¹ := fun _ _ => rfl
+      rw [hrd, hrd, hrd, hrd,
+        show γ * (δ * ε) = γ * δ * ε from (mul_assoc γ δ ε).symm]
+      group
+  -- the dual-side instances and the evaluation-pairing equivariance
+  letI actGD : DistribMulAction AbsGalQ2 (GQ2.FoxH.ElemDual (Additive ↥Blk.R)) :=
+    DistribMulAction.compHom _ θ.toMonoidHom
+  letI : TopologicalSpace (GQ2.FoxH.ElemDual (Additive ↥Blk.R)) := ⊥
+  haveI : DiscreteTopology (GQ2.FoxH.ElemDual (Additive ↥Blk.R)) := ⟨rfl⟩
+  haveI : ContinuousSMul AbsGalQ2 (GQ2.FoxH.ElemDual (Additive ↥Blk.R)) := by
+    refine ⟨?_⟩
+    have hfac : (fun p : AbsGalQ2 × GQ2.FoxH.ElemDual (Additive ↥Blk.R) => p.1 • p.2)
+        = (fun q : (Y ⧸ Blk.K) × GQ2.FoxH.ElemDual (Additive ↥Blk.R) => q.1 • q.2)
+          ∘ (fun p => (θ p.1, p.2)) := by
+      funext p
+      rfl
+    rw [hfac]
+    exact continuous_of_discreteTopology.comp
+      ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  have hpair : ∀ (γ : AbsGalQ2) (a : Additive ↥Blk.R)
+      (lam : GQ2.FoxH.ElemDual (Additive ↥Blk.R)),
+      GQ2.FoxH.dualEval _ (γ • a) (γ • lam) = γ • GQ2.FoxH.dualEval _ a lam := by
+    intro γ a lam
+    rw [htriv_local γ (GQ2.FoxH.dualEval _ a lam)]
+    show (θ γ • lam) (θ γ • a) = lam a
+    rw [GQ2.FoxH.ElemDual.smul_apply, inv_smul_smul]
+  -- every `cup20`-value of the defect class vanishes
+  have hcup : ∀ n : ↥(H0 AbsGalQ2 (GQ2.FoxH.ElemDual (Additive ↥Blk.R))),
+      cup20 (GQ2.FoxH.dualEval _) hpair
+        (H2mk AbsGalQ2 (Additive ↥Blk.R) ⟨_, hdefZ2⟩) n = 0 := by
+    intro n
+    -- `Γ`-invariance transports to `Y`-invariance through the surjective `θ`
+    have hYinv : ∀ (y : Y) (r : ↥Blk.R),
+        n.1 (Additive.ofMul (⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩ : ↥Blk.R))
+          = n.1 (Additive.ofMul r) := by
+      intro y r
+      obtain ⟨γ, hγ⟩ := hθs (QuotientGroup.mk' Blk.K y)
+      have hfix := n.2 γ
+      have h1 := congrArg (fun mu : GQ2.FoxH.ElemDual (Additive ↥Blk.R) =>
+        mu (Additive.ofMul (⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩ : ↥Blk.R))) hfix
+      have h2 : (γ • n.1) (Additive.ofMul (⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩ : ↥Blk.R))
+          = n.1 (Additive.ofMul r) := by
+        show (θ γ • n.1) _ = _
+        rw [GQ2.FoxH.ElemDual.smul_apply, hγ, ← map_inv,
+          conjC_smul_of_mk hRK y⁻¹ ⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩]
+        apply congrArg
+        apply congrArg
+        apply Subtype.ext
+        show y⁻¹ * (y * (r : Y) * y⁻¹) * y⁻¹⁻¹ = (r : Y)
+        group
+      rw [h2] at h1
+      exact h1.symm
+    -- the value is the paired defect class, which `hall` kills
+    have hred : cup20 (GQ2.FoxH.dualEval _) hpair
+        (H2mk AbsGalQ2 (Additive ↥Blk.R) ⟨_, hdefZ2⟩) n
+        = H2mk AbsGalQ2 (ZMod 2)
+          ⟨fun gd => (blockRObstructionData T Blk hE2).pair
+              ⟨(n.1 : Additive ↥Blk.R →+ ZMod 2), fun y r => hYinv y r⟩
+              (Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 gd.1 gd.2)),
+            pairDefect_mem_Z2_all (blockFrameImpl T Blk hE2)
+              (blockRObstructionData T Blk hE2) htriv_local g.1.1 _⟩ := by
+      have hfun : (fun gd : AbsGalQ2 × AbsGalQ2 => GQ2.FoxH.dualEval _
+          (Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 gd.1 gd.2))
+          ((gd.1 * gd.2) • n.1))
+          = fun gd => (blockRObstructionData T Blk hE2).pair
+              ⟨(n.1 : Additive ↥Blk.R →+ ZMod 2), fun y r => hYinv y r⟩
+              (Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 gd.1 gd.2)) := by
+        funext gd
+        rw [n.2 (gd.1 * gd.2)]
+        rfl
+      exact congrArg (H2mk AbsGalQ2 (ZMod 2)) (Subtype.ext hfun)
+    rw [hred]
+    exact hall ⟨(n.1 : Additive ↥Blk.R →+ ZMod 2), fun y r => hYinv y r⟩
+  -- injectivity of the `(2,0)` cup forces the defect class to vanish
+  have hzero : H2mk AbsGalQ2 (Additive ↥Blk.R) ⟨_, hdefZ2⟩ = 0 := by
+    apply (bijective_cup20_dualEval hA₂ htriv_local hpair).1
+    show cup20 (GQ2.FoxH.dualEval _) hpair _ = cup20 (GQ2.FoxH.dualEval _) hpair 0
+    rw [map_zero]
+    exact AddMonoidHom.ext fun n => hcup n
+  -- `B²`-extraction: a continuous splitting cochain
+  have hmem := (QuotientAddGroup.eq_zero_iff _).mp hzero
+  rw [AddSubgroup.mem_addSubgroupOf] at hmem
+  obtain ⟨ψ, hψC1, hψeq⟩ := hmem
+  have hψc : Continuous ψ := hψC1
+  refine homLift_of_split (blockFrameImpl T Blk hE2) g.1.1
+    (fun γ => Additive.toMul (ψ γ)) ?_ ?_
+  · show Continuous fun γ => ((Additive.toMul (ψ γ) : ↥Blk.R) : Y)
+    exact continuous_subtype_val.comp hψc
+  · intro γ δ
+    have h : γ • ψ δ - ψ (γ * δ) + ψ γ
+        = Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ) :=
+      congrFun hψeq (γ, δ)
+    -- `dOne ψ (γ,δ) = γ•ψδ − ψ(γδ) + ψγ = defect`; exponent 2 kills the sign
+    have hD : -(Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ))
+        = Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ) :=
+      neg_eq_of_add_eq_zero_left (hA₂ _)
+    have h2 : ψ (γ * δ) = ψ γ + γ • ψ δ
+        + Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ) := by
+      have h3 : ψ (γ * δ) = γ • ψ δ + ψ γ
+          - Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ) := by
+        rw [← h]
+        abel
+      rw [h3, sub_eq_add_neg, hD, add_comm (γ • ψ δ) (ψ γ)]
+    rw [hsmul γ (ψ δ)] at h2
+    exact congrArg (fun a : Additive ↥Blk.R => ((Additive.toMul a : ↥Blk.R) : Y)) h2
+
+end SepHom
+
 /-! ## The assembly, parametric over `hsep_hom` -/
 
 section Assembly
@@ -316,6 +594,22 @@ theorem stageR136_local_of_hsep [CompactSpace AbsGalQ2] [TotallyDisconnectedSpac
             - exactImageCount b F (blockFrameImpl T Blk hE2).TB) :=
   blockStageR136 T Blk hE2 htriv_local (card_H2_zmod2_eq_two htriv_local) hfg b F hsep_hom
     (fun f₀ => hZcount_local hE2 hRK hR2 b F f₀)
+
+/-- **(136) for the block frame at the local source — all residues discharged**
+(P-16d6e): `htriv`/`hcard`/`hZcount`/`hsep_hom` are all proved; the remaining hypotheses are
+the `lemma_7_2` structural facts (`hRK`/`hR2`) and `hfg` (**B1**, reserved for P-17i).  The
+conclusion is the `stageR136` field of the local `RecursionInputs` bundle, verbatim. -/
+theorem stageR136_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ r ∈ Blk.R, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.R, r * r = 1)
+    (hfg : ∃ s : Finset AbsGalQ2, (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤)
+    (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup) (F : BoundaryFrame H E) :
+    (Nat.card (blockFrameImpl T Blk hE2).DR : ℤ) * exactImageCount b F T
+      = (blockFrameImpl T Blk hE2).zR * ∑ᶠ l : (blockFrameImpl T Blk hE2).DR,
+          (2 * ((blockFrameImpl T Blk hE2).mB b F l : ℤ)
+            - exactImageCount b F (blockFrameImpl T Blk hE2).TB) :=
+  stageR136_local_of_hsep hE2 hRK hR2 hfg b F (hsep_hom_local hE2 hRK hR2 b F)
 
 end Assembly
 
