@@ -11,9 +11,12 @@ import Mathlib.LinearAlgebra.QuadraticForm.Basic
 
 The analytic heart of the paper's **Lemma 6.3** (κ⁰ base-class existence), own file for the
 `kappa0_exists` splice in `GQ2/SectionNine.lean` (which imports this file — hence this file
-carries *private copies* of the small factor-set assembly lemmas that live in the
+carries *copies* of the small factor-set assembly lemmas that live in the
 `GQ2.SectionNine` namespace; the scoping note `docs/p17e-kappa0-scoping.md` already anticipated
-promoting them to a low shared file and deferred it to avoid churn on the co-owned §9 file).
+promoting them to a low shared file and deferred it to avoid churn on the co-owned §9 file.
+**P-15f2b pass (2026-07-07)**: the generic-in-`V` copies (`datum_*`, `polar_*`,
+`isQuadraticFp2_*`, `quadratic_expansion`, `polar_sum_right`) are now **public** — the §6.2
+orbit decomposition `GQ2/OrbitDecomp.lean` consumes them; names checked clash-free repo-wide).
 
 ## Contents
 
@@ -133,7 +136,7 @@ theorem permBas_support_decomp [Fintype H] (F : PermW H K) :
 
 /-- The polar form is additive in the second argument over finite sums (with
 `polar Q x 0 = 0` from char 2). -/
-private theorem polar_sum_right {V : Type*} [AddCommGroup V] {Q : V → ZMod 2}
+theorem polar_sum_right {V : Type*} [AddCommGroup V] {Q : V → ZMod 2}
     (hQ : IsQuadraticFp2 Q) {ι : Type*} (v : ι → V) (x : V) (s : Finset ι) :
     polar Q x (∑ i ∈ s, v i) = ∑ i ∈ s, polar Q x (v i) := by
   induction s using Finset.induction_on with
@@ -149,7 +152,7 @@ private theorem polar_sum_right {V : Type*} [AddCommGroup V] {Q : V → ZMod 2}
 the diagonal and symmetrizes to the polar form off it, then
 `Q (∑_{i∈s} v i) = ∑_{i,j∈s} f₀ i j`.  (No `Sym2`: the two off-diagonal orders share the
 polar value between them.) -/
-private theorem quadratic_expansion {V : Type*} [AddCommGroup V] {Q : V → ZMod 2}
+theorem quadratic_expansion {V : Type*} [AddCommGroup V] {Q : V → ZMod 2}
     (hQ : IsQuadraticFp2 Q) {ι : Type*} (v : ι → V) (f₀ : ι → ι → ZMod 2)
     (hdiag : ∀ i, f₀ i i = Q (v i))
     (hpolar : ∀ i j, i ≠ j → f₀ i j + f₀ j i = polar Q (v i) (v j)) (s : Finset ι) :
@@ -219,7 +222,7 @@ section DatumLemmas
 variable {C V : Type*} [Group C] [AddCommGroup V] [DistribMulAction C V]
 
 /-- Private copy of `SectionNine.isEquivariantFactorSet_of_invariant`. -/
-private theorem datum_of_invariant {q : V → ZMod 2} {f : V → V → ZMod 2}
+theorem datum_of_invariant {q : V → ZMod 2} {f : V → V → ZMod 2}
     (hcoc : ∀ v w x, f (v + w) x + f v w = f v (w + x) + f w x)
     (hdiag : ∀ v, f v v = q v) (hpolar : ∀ v w, f v w + f w v = polar q v w)
     (h0l : ∀ v, f 0 v = 0) (h0r : ∀ v, f v 0 = 0)
@@ -238,7 +241,7 @@ private theorem datum_of_invariant {q : V → ZMod 2} {f : V → V → ZMod 2}
   m_one _ := rfl
 
 /-- Private copy of `SectionNine.isEquivariantFactorSet_of_biadditive_invariant`. -/
-private theorem datum_of_biadditive_invariant {q : V → ZMod 2} {f : V → V → ZMod 2}
+theorem datum_of_biadditive_invariant {q : V → ZMod 2} {f : V → V → ZMod 2}
     (hl : ∀ v v' w, f (v + v') w = f v w + f v' w)
     (hr : ∀ v w w', f v (w + w') = f v w + f v w')
     (hdiag : ∀ v, f v v = q v)
@@ -258,7 +261,7 @@ private theorem datum_of_biadditive_invariant {q : V → ZMod 2} {f : V → V �
   intro v w x; rw [hl v w x, hr v w x]; ring
 
 /-- Private copy of `SectionNine.IsEquivariantFactorSet.add`. -/
-private theorem datum_add {q q' : V → ZMod 2} {dat dat' : FactorSet C V}
+theorem datum_add {q q' : V → ZMod 2} {dat dat' : FactorSet C V}
     (h : IsEquivariantFactorSet q dat) (h' : IsEquivariantFactorSet q' dat') :
     IsEquivariantFactorSet (fun v => q v + q' v)
       (⟨fun v w => dat.f v w + dat'.f v w,
@@ -287,7 +290,7 @@ private theorem datum_add {q q' : V → ZMod 2} {dat dat' : FactorSet C V}
     rw [h.m_one, h'.m_one, add_zero]
 
 /-- Private copy of `SectionNine.IsEquivariantFactorSet.comap`. -/
-private theorem datum_comap {W : Type*} [AddCommGroup W] [DistribMulAction C W]
+theorem datum_comap {W : Type*} [AddCommGroup W] [DistribMulAction C W]
     {q : W → ZMod 2} {dat : FactorSet C W}
     (hdat : IsEquivariantFactorSet q dat) (i : V →+ W)
     (hi : ∀ (c : C) (v : V), i (c • v) = c • i v) :
@@ -349,7 +352,7 @@ private theorem datum_of_split {W : Type*} [AddCommGroup W] [DistribMulAction C 
 
 /-- A datum forces **invariance of its square map** (on a 2-torsion module):
 `m_quad` at `(v, v)` collapses to `f(cv, cv) = f(v, v)`. -/
-private theorem datum_isInvariant {q : V → ZMod 2} {dat : FactorSet C V}
+theorem datum_isInvariant {q : V → ZMod 2} {dat : FactorSet C V}
     (hdat : IsEquivariantFactorSet q dat) (h2 : ∀ v : V, v + v = 0) : IsInvariant C q := by
   intro c v
   have hm0 : dat.m c 0 = 0 := by
@@ -443,7 +446,7 @@ private theorem datum_of_odd {H : Type*} [Group H] [Finite H] (hodd : Odd (Nat.c
     exact Fintype.sum_equiv (Equiv.mulRight g) _ _ (fun x => rfl)
 
 /-- A datum with a **biadditive** factor set forces its square map to be quadratic. -/
-private theorem datum_isQuadratic {q : V → ZMod 2} {dat : FactorSet C V}
+theorem datum_isQuadratic {q : V → ZMod 2} {dat : FactorSet C V}
     (hdat : IsEquivariantFactorSet q dat)
     (hfl : ∀ v v' w, dat.f (v + v') w = dat.f v w + dat.f v' w)
     (hfr : ∀ v w w', dat.f v (w + w') = dat.f v w + dat.f v w') : IsQuadraticFp2 q where
@@ -717,13 +720,13 @@ section NormalFormMain
 
 variable {H : Type} [Group H] {K : ℕ}
 
-private theorem polar_finset_sum {V : Type*} [AddCommGroup V] {ι : Type*} (s : Finset ι)
+theorem polar_finset_sum {V : Type*} [AddCommGroup V] {ι : Type*} (s : Finset ι)
     (qs : ι → V → ZMod 2) (v w : V) :
     polar (fun x => ∑ i ∈ s, qs i x) v w = ∑ i ∈ s, polar (qs i) v w := by
   simp only [polar]
   rw [← Finset.sum_add_distrib, ← Finset.sum_add_distrib]
 
-private theorem isQuadraticFp2_finset_sum {V : Type*} [AddCommGroup V] {ι : Type*}
+theorem isQuadraticFp2_finset_sum {V : Type*} [AddCommGroup V] {ι : Type*}
     (s : Finset ι) (qs : ι → V → ZMod 2) (h : ∀ i ∈ s, IsQuadraticFp2 (qs i)) :
     IsQuadraticFp2 (fun v => ∑ i ∈ s, qs i v) where
   map_zero := Finset.sum_eq_zero fun i hi => (h i hi).map_zero
@@ -734,7 +737,7 @@ private theorem isQuadraticFp2_finset_sum {V : Type*} [AddCommGroup V] {ι : Typ
     rw [polar_finset_sum, polar_finset_sum, polar_finset_sum, ← Finset.sum_add_distrib]
     exact Finset.sum_congr rfl fun i hi => (h i hi).polar_add_right u v w
 
-private theorem isQuadraticFp2_add {V : Type*} [AddCommGroup V] {q q' : V → ZMod 2}
+theorem isQuadraticFp2_add {V : Type*} [AddCommGroup V] {q q' : V → ZMod 2}
     (hq : IsQuadraticFp2 q) (hq' : IsQuadraticFp2 q') :
     IsQuadraticFp2 (fun v => q v + q' v) where
   map_zero := by rw [hq.map_zero, hq'.map_zero, add_zero]
@@ -753,7 +756,7 @@ private theorem isQuadraticFp2_add {V : Type*} [AddCommGroup V] {q q' : V → ZM
     rw [h1, h1, h1, hq.polar_add_right, hq'.polar_add_right]
     ring
 
-private theorem polar_add_map {V : Type*} [AddCommGroup V] (q q' : V → ZMod 2) (v w : V) :
+theorem polar_add_map {V : Type*} [AddCommGroup V] (q q' : V → ZMod 2) (v w : V) :
     polar (fun x => q x + q' x) v w = polar q v w + polar q' v w := by
   simp only [polar]
   ring
