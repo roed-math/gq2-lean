@@ -838,6 +838,34 @@ theorem perpEquivDualQuot_equivariant (B : M →+ M →+ ZMod 2) [Finite M]
   calc B (c • x.1) q = B (c • x.1) (c • (c⁻¹ • q)) := by rw [smul_inv_smul]
     _ = B x.1 (c⁻¹ • q) := hBinv c x.1 (c⁻¹ • q)
 
+/-- **The perp count** `#S^⊥ = #(M ⧸ S)`: the nondegenerate-duality cardinality through
+`perpEquivDualQuot` and `#(A^∨) = #A` for elementary-2 `A`. -/
+theorem card_pairPerp (B : M →+ M →+ ZMod 2) [Finite M]
+    (h2M : ∀ m : M, m + m = 0) (hBnd : ∀ x : M, (∀ y : M, B x y = 0) → x = 0)
+    (S : AddSubgroup M) :
+    Nat.card ↥(pairPerp B S) = Nat.card (M ⧸ S) := by
+  rw [Nat.card_congr (perpEquivDualQuot B h2M hBnd S).toEquiv]
+  exact QuadraticFp2.card_addHom_zmod2 (M ⧸ S) (fun q =>
+    QuotientAddGroup.induction_on q (fun m => by
+      rw [← QuotientAddGroup.mk_add, h2M, QuotientAddGroup.mk_zero]))
+
+/-- **Sharpness from the easy inclusion + the cardinality balance**: if `E ≤ S^⊥` and
+`#(M ⧸ S) ≤ #E`, then `S^⊥ ≤ E` (the two are equal).  This reduces (H4)'s `hsharp` to the
+structural count `#(M ⧸ Deep) ≤ #E`. -/
+theorem pairPerp_le_of_card_le (B : M →+ M →+ ZMod 2) [Finite M]
+    (h2M : ∀ m : M, m + m = 0) (hBnd : ∀ x : M, (∀ y : M, B x y = 0) → x = 0)
+    {S E : AddSubgroup M} (hE : E ≤ pairPerp B S)
+    (hcard : Nat.card (M ⧸ S) ≤ Nat.card ↥E) :
+    pairPerp B S ≤ E := by
+  have hcard' : (pairPerp B S : Set M).ncard ≤ (E : Set M).ncard := by
+    show Nat.card ↥(pairPerp B S : Set M) ≤ Nat.card ↥(E : Set M)
+    calc Nat.card ↥(pairPerp B S : Set M)
+        = Nat.card (M ⧸ S) := card_pairPerp B h2M hBnd S
+      _ ≤ Nat.card ↥E := hcard
+  have heq : (E : Set M) = (pairPerp B S : Set M) :=
+    Set.eq_of_subset_of_ncard_le hE hcard' (Set.toFinite _)
+  exact le_of_eq (SetLike.coe_injective heq).symm
+
 end PerpLayer
 
 section Assembly

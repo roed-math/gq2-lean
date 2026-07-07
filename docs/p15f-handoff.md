@@ -414,14 +414,43 @@ and the final `card_equivHoms_deep_eq_quot` instantiation.
   (`≤`-mirror of the deep bridge), `cup_midClasses_deepClasses`, **`pairingK_mid_deep`**
   (same splice as (H3)), wrapper **`midClassesSubgroup_le_pairPerp_pairingK`** =
   `E ≤ Deep^⊥`.
-* **Remaining for f7**: the (H4) COUNTING half — `#Deep^⊥ ≤ #E`, whence `Deep^⊥ = E`
-  (`AddSubgroup.eq_of_le_of_card_le` off the easy half) and `hsharp`.  Chain:
-  `#Deep^⊥ = #((M⧸Deep)^∨) = #(M⧸Deep) = #M/#Deep` (Nat.card_congr `perpEquivDualQuot` +
-  `card_addHom_zmod2` + Lagrange) vs `#E·#Deep ≥ #M` — the B12/B13 structural count
-  (`kummerClassK_surjective` + `DyadicUnitFiltration.card_gr` + O'Meara 63:9-style
-  square-depth bookkeeping).  Then the final `card_equivHoms_deep_eq_quot` instantiation
-  (M := `H¹(ker ρ)` @ `conjModule`, U := `V^∨` @ `dualModule`, Deep/E :=
-  deep/mid-`ClassesSubgroup`, B := `pairingK`, all inputs now named).
+* **Remaining for f7**: the (H4) COUNTING half — `#(M⧸Deep) ≤ #E`, whence `Deep^⊥ ≤ E`
+  by the NEW banked **`card_pairPerp`** (`#S^⊥ = #(M⧸S)`, via `perpEquivDualQuot` +
+  `card_addHom_zmod2`) + **`pairPerp_le_of_card_le`** (easy-inclusion + card ⟹ sharp;
+  both pure std-3, `DeepDuality.lean` §E).  **Derivability audit (2026-07-07): the whole
+  count derives from the EXISTING B13 bundle — no clause extension, no census question.**
+  Plan (classes `Dc_j := kummerDepth k π j`, `Dc_e = E` after the mid-mirror of
+  `coe_kummerDepth_deep`, `Dc_{e+1} = Deep` banked, `Dc_{2e+1} = ⊥` banked):
+  `#(M⧸Deep) ≤ #E` ⟺ `#(M⧸Dc_1)·∏_{1}^{e−1} grc_j ≤ ∏_{e+1}^{2e} grc_j` (tower Lagrange;
+  `grc_e` cancels), matched by the SAME-PARITY pairing `j ↔ 2e−j`:
+  (a) EVEN levels collapse (`grc_{2i} = 1`, `0 < 2i < 2e`): unit-gr squaring
+  `U_i/U_{i+1} → U_{2i}/U_{2i+1}` is an injective map of equal-card `2^f` sets
+  (`card_gr` twice; injectivity = valuation arithmetic + discreteness), hence surjective —
+  every even-depth unit is a square × deeper;
+  (b) ODD levels are full (`grc_j = 2^f`): NO square has odd depth `< 2e`
+  (`v(u²−1) ∈ {2i : i < e} ∪ [2e, ∞)`), so unit-gr ↪ class-gr;
+  (c) HEAD `#(M⧸Dc_1) ≤ 2`: value-parity (π) × residue part, the latter dying since
+  `#(U⁰/U¹) = 2^f − 1` is ODD (`card_gr_zero`) ⟹ squaring bijective there;
+  (d) TAIL `#Dc_{2e} ≥ 2` (the survivor): the gr-level squaring `gr_e → gr_{2e}`
+  (`x ↦ 2x + x²`, additive mod deeper) has the EXPLICIT kernel element `x := −2`
+  (`2·(−2) + (−2)² = 0` on the nose, and `v(−2) = e` exactly), so it is NOT injective
+  on equal-card `2^f` grs ⟹ not surjective ⟹ some depth-`2e` unit is a non-square —
+  nonvanishing via the Kummer-kernel characterization (see next);
+  (K) `exists_sq_of_kummerClassK_eq_zero` (class `= 0` ⟹ square): `B¹(G_k, 𝔽₂) = 0`
+  (trivial action ⟹ `dZero m = 0`), so class-0 means the COCYCLE vanishes, i.e.
+  `sqrtCl a` is `G_k`-fixed ⟹ `∈ fixedField = k` (`InfiniteGalois.fixedField_fixingSubgroup`)
+  ⟹ `a` a square in `k`.  Converse banked (`kummerClassK_eq_zero_of_sq`).
+  Suggested home: new `GQ2/DeepCount.lean` (imports `DeepDualityK` — needs
+  `midClassesSubgroup`/`midClass_eq_kummerClassK`, so it must sit ABOVE `DeepDuality`;
+  `kummerClassK_mem_midClasses` + `coe_kummerDepth_mid` mirrors go there too, the mid
+  case needing NO discreteness upgrade since mid = `≤ ‖2‖ = ‖π‖^e` = depth-`e` exactly).
+  Then the final `card_equivHoms_deep_eq_quot` instantiation (M := `H¹(ker ρ)` @
+  `conjModule`, U := `V^∨` @ `dualModule`, Deep/E := deep/mid-`ClassesSubgroup`,
+  B := `pairingK`, `hsharp` := `pairPerp_le_of_card_le` off `midClassesSubgroup_le_pairPerp_pairingK`
+  + the count, `hmid` := `conjAct_surjInv_conj_mid_sub_mem_deep`, `hiso` :=
+  `deepClassesSubgroup_le_pairPerp_pairingK`, (H1)/(H2) := `pairingK_conjModule`/`_nondeg`,
+  `eU`/`heU`/`ht₀U` := §H) → `hduality` — **f8's `lemma_6_17_dim_of_hduality` consumes
+  exactly this** (their `hext` is discharged per §2 update).
 * Lean lessons this session: (i) inline `by rw [...]`-proofs of an argument whose expected
   type still contains METAVARS can capture them (`rw [hgsq]` matched `?y^2` and assigned
   `?y := g•β`) — hoist to a standalone `have` with concrete type; (ii) `(n : Kummer.GaloisGroup ℚ_[2])`
