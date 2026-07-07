@@ -109,6 +109,32 @@ supplied at f2d as `hker`), the deepness feeds:
 * **`hvanish_evensNorm`** (involution cochain bridge): `evensNormH2 … = 0 ⟹
   H2ofFun G (evensNormFun U s α) = 0` (since `evensNormH2 = H2mk⟨evensNormFun⟩`).  f2d composes
   `SectionSix.lemma_6_16` (whose conclusion IS `evensNormH2 … = 0`) with this bridge.
+* **`hvanish_involution`** (P-15f2c2b, LANDED 2026-07-08 — the assembly core; `#print axioms` =
+  std-3 + {B9, B11a, B11b}, sorry-free): the involution-orbit `hvanish` assembled as
+  `hvanish_evensNorm ∘ SectionSix.lemma_6_16`.  Takes the concrete Kummer field data — the tower
+  `k ≤ L` (`hindex`, `hunram`), the √-generator `(d, δ, hδ, hδL, hLδ)`, coordinates `(u, v, hAuv)`,
+  the deep witness `(A, β, hdeep, hβ, hβ0)`, side-conditions `(s, hs, htriv, hUo, hα, hαc)` — as
+  hypotheses (the c2a ∃-package + the `mem_deepPart_iff` deep witness, discharged by the plumbing
+  step / f2d), and concludes `H2ofFun ↥(k.fixingSubgroup) (evensNormFun ((L.fs).subgroupOf (k.fs))
+  s (kummerCocycleFun β ∘ ·)) = 0` — the reducer's involution `hvanish` in `k.fixingSubgroup`
+  vocabulary (f2d bridges `k.fixingSubgroup = U₀` via the InfiniteGalois transport
+  `fixingSubgroup (fixedField U₀) = U₀`).  Proof is the one-liner
+  `hvanish_evensNorm htriv hUo hindex hs _ hα hαc (lemma_6_16 …)`: `lemma_6_16`'s conclusion is
+  literally the `evensNormH2 … = 0` that `hvanish_evensNorm` consumes, over the SAME ambient
+  `↥(k.fixingSubgroup)` — no dependent rewrite, no `sorry`.
+* **`hvanish_involution_of_deepClass`** (P-15f2c2b, LANDED 2026-07-08 — the witness-plumbing step
+  in `L`-vocabulary; `#print axioms` = std-3 + {B9, B11a, B11b}, sorry-free): from a deep class
+  `ξ ∈ deepClasses (L.fixingSubgroup)` + the c2a package (threaded as the hypothesis
+  `hc2a : ∀ A, IsDeepUnit L.fixingSubgroup A → ∃ d δ u v, …`), produces the involution `hvanish` for
+  the class's own square root `β`.  Does steps (2)–(5): unpacks `deepClasses` → `(A, β, hdeep, hβ,
+  hβ0)` (the cochain `IS` `kummerCocycleFun β` by definition — step 4 free); derives the
+  side-conditions `hα` (additivity via `kummerCocycleFun_hom_on` on `L.fixingSubgroup`, which fixes
+  `A`; the `subgroupOf` coercion closes by `push_cast; rfl`) and `hαc` (continuity via
+  `kummerCocycleFun_continuous β ∘ Subtype.val ∘ Subtype.val`); applies `hc2a` + `hvanish_involution`.
+  **Remaining c2b** = only the `ker ρ = L.fixingSubgroup` transport (`L := fixedField (ker ρ)`,
+  `InfiniteGalois.fixingSubgroup_fixedField` — the `ResidueLift.splitField`/`kerGal` pattern) to feed
+  `mem_deepPart_iff`'s deep class into this lemma; cleanest at **f2d** (ResidueLift is importable
+  there — avoids duplicating `kerGal`).  The c2a package proof is **P-15f2c2a**; `hunram` is **c2c**.
 
 ### Remaining — the involution field-data construction (SPLIT 2026-07-07 → c2a ∥ c2b; c2c deferred)
 
@@ -135,20 +161,28 @@ misassigned): matching the reducer's involution `hvanish` (`H2ofFun ↥U₀ (eve
 **Split** (principle: `lemma_6_16`'s signature is landed and frozen, so bricks statable purely
 against it parallelize with zero f2b coupling; `hunram` is not yet statable — see c2c):
 
-* **P-15f2c2a — abstract Kummer presentation package** (NEW file `GQ2/QuadraticAdjoin.lean`;
-  no f2b, no `ρ`; write-disjoint from c1/c2b).  One exported existence lemma: `k ≤ L`
-  intermediate fields of `ℚ̄₂/ℚ_[2]`, `[FiniteDimensional ℚ_[2] k]`, degree 2 (interface takes
-  degree-2 data; the fixing-index-2 → degree-2 bridge is c2b's), `A ∈ L`,
-  `IsDeepUnit L.fixingSubgroup A` ⟹ `∃ d δ u v, δ² = d ∧ δ ∈ L ∧ hLδ ∧ A = u + vδ`
-  (`d u : (↥k)ˣ`).  Content: **(i)** `hLδ` — fixingSubgroup(`L`) = stabilizer(`δ`) rel `k`,
-  the √-adjoin-generator mathlib gap (`⟸`: `g` fixes `k` + `δ` ⟹ fixes `k⟮δ⟯ = L`, `δ`
-  integral, `PowerBasis.algHom_ext`-style adjoin ext; `⟹`: `δ ∈ L`); **(ii)**
-  complete-the-square — primitive `θ ∈ L∖k` (`k⟮θ⟯ = L`, degree 2 prime), minpoly
-  `X² + aX + b`, `δ := θ + a/2`, `d := a²/4 − b` (`≠ 0` else `δ = 0 ⟹ θ ∈ k`); **(iii)**
-  coordinates via the `{1, δ}` power basis; `u` a **unit** by deepness: `u = 0 ⟹ σA = −A`
-  (`σ` the nontrivial `L ≃ₐ[k] L`, `σδ = −δ`; lift by `AlgEquiv.liftNormal`) ⟹
-  `‖2‖ = ‖(A−1) + (σA−1)‖ ≤ max(…) < ‖2‖` by spectral-norm Galois-invariance (idiom banked
-  in `AdmissibleCount.conjAct_deepClasses`) — contradiction.
+* **P-15f2c2a — abstract Kummer presentation package**: ✅ **LANDED 2026-07-07 (Fable),
+  `GQ2/QuadraticAdjoin.lean` (340 ln), all declarations proved, std-3 exactly, registered,
+  tree green (8719).**  Exports **`exists_kummer_presentation`**:
+  `(hkL : k ≤ L) (hdeg : finrank ↥k ↥(extendScalars hkL) = 2) (hAL : A ∈ L)`
+  `(hA1 : ‖A − 1‖ < ‖2‖) ⟹ ∃ d δ u v, δ² = ↑d ∧ δ ∈ L ∧ hLδ ∧ A = ↑u + ↑v·δ` — hypothesis
+  shapes match `lemma_6_16` on the nose.  **Interface refinements vs the spec above**: the
+  deepness input is the *norm inequality*, not `IsDeepUnit` (c2b converts via banked
+  `norm_sub_one_lt_of_isDeepUnit`; `A ∈ L` comes from `N`-fixedness + `fixedField`) — so the
+  `hc2a` threading needs this 2-line conversion; the index-2 → degree-2 bridge stays c2b's.
+  **Routes (simpler than planned — no `powerBasis`, no `liftNormal`, no minpoly
+  identification)**: (i) `fixingSubgroup_adjoin_simple` (the mathlib gap, proved *generally*
+  over any `F`, `E`): `fixingSubgroup F⟮δ⟯ = stabilizer δ` via the Galois connection
+  `le_iff_le` at `zpowers σ`; `subgroupOf` packaging transports along `fixingSubgroupEquiv`
+  (underlying-function `rfl`) + `mem_extendScalars` (`Iff.rfl`); (ii) conjugation from
+  `InfiniteGalois.fixedField_fixingSubgroup` at `⊥` + `fixingSubgroup_bot` (`fixedField ⊤ =
+  ⊥`; `IsGalois ↥k ℚ̄₂` auto by `tower_top_intermediateField`) — some σ moves δ, and
+  `(σδ)² = σ(δ²) = d = δ²` forces `σδ = −δ`; (iii) complete-the-square in **discriminant
+  form** `δ := 2θ + a`, `d := a² − 4b` (no division); (iv) coordinates by
+  `Algebra.adjoin_singleton_eq_range_aeval` + `modByMonic` reduction
+  (`natDegree_modByMonic_lt`) — needs no `δ ∉ k`; (v) unit coordinate by `norm_galois` at
+  `AlgEquiv.restrictScalars` + `IsUltrametricDist.norm_add_le_max`, uniform in `v` (the
+  `v = 0` sub-case needs no split).  Gotchas banked in the board row.
 * **P-15f2c2b — spine: dictionary + assembly** (`ShapiroDeepness.lean`).  Step-0 f2b
   involution-coordinate read (`ĝ`, `hs`); pin the tower above + **decide the `hunram` route →
   scope c2c**; witness plumbing (`mem_deepPart_iff`, `A ∈ L`, the two equality transports,
@@ -158,10 +192,20 @@ against it parallelize with zero f2b coupling; `hunram` is not yet statable — 
   class-level — confirm the `H2mk`/`H2ofFun` layer absorbs a `B¹` discrepancy, else the
   `graphPullback_…_mem_B2` machinery); assemble `lemma_6_16` ∘ `hvanish_evensNorm` with c2a's
   package + `hunram` sorried for an early end-to-end typecheck, discharge as they land.
-* **c2c — `hunram` (DEFERRED — do not spawn yet)**: the reducer quantifies over *all*
-  involution orbits, so either structure forces `L/k` unramified (deepness? the `C`-action?)
-  or ramified involution orbits need a different vanishing route / an upstream hypothesis
-  (possible statement amendment).  c2b's Step 0 pins this first.
+* **c2c — `hunram` (Step-0 RESOLVED 2026-07-08 by c2b — SPAWNABLE; `L/k` is ALWAYS unramified,
+  NO statement amendment).**  The involution block coordinate gives `ρ(ĝ)` **order 2** in `C`
+  (`hg : ĝ ∉ N ⟹ ρ(ĝ) ≠ 1`; `hg2 : ĝ² ∈ N ⟹ ρ(ĝ)² = 1`).  `C = c(Ttame)` is a *tame* quotient,
+  so its inertia is the image `⟨c tameTau⟩` of tame inertia, which has **odd** order —
+  `Tame.tame_odd_order` (`GQ2/Tame.lean:42`) applied to `tame_relation`'s `σ⁻¹τσ = τ²`
+  (`orderOf (c tameSigma) ≠ 0` since `C` is finite).  An order-2 element cannot lie in an
+  odd-order subgroup, so `ρ(ĝ) ∉ inertia`, whence `L/k = K / K^{⟨ĝ⟩}` (`L = fixedField (ker ρ)`,
+  `k = fixedField U₀`) is **unramified** and `hunram : ∀ x ∈ L, x ≠ 0, ∃ y ∈ k, ‖x‖ = ‖y‖`
+  (equal value groups `‖L^×‖ = ‖k^×‖`) HOLDS.  So **c2c is a genuine proof obligation (TRUE),
+  not an amendment**: derive `hunram` from `ρ(ĝ) ∉ inertia` in the repo's spectral-norm
+  vocabulary (the residue-field-free bridge — the c2c content; likely via B13 unit-filtration /
+  the norm-value-group argument).  c2b threads `hunram` as an input (sorried until c2c) and
+  assembles; the involution vanish route is SOUND for **every** involution orbit — no ramified
+  exception, no upstream-hypothesis leak into the frozen `lemma_6_17_vanish` signature.
 
 ## Free-orbit deepness caveat
 

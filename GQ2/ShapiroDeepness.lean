@@ -159,6 +159,116 @@ theorem Q0loc_reindexHom (D : TateDuality 2) (dat : FactorSet C V)
 
 end ReindexQ0loc
 
+/-! ## The involution-orbit `hvanish`, assembled (P-15f2c2b) -/
+
+section InvolutionAssembly
+
+/-- **The involution-orbit `hvanish`, assembled from `lemma_6_16`** (P-15f2c2b, the spine's
+assembly core): given the concrete Kummer field data of the deep unit `A` at an involution block
+coordinate — the tower `k ≤ L` (index 2, unramified `hunram`), the √-generator `(d, δ, hδ, hδL,
+hLδ)`, the coordinates `A = u + vδ`, and the deep-unit/side-condition witnesses — the involution
+inner cochain `evensNormFun (…)` has trivial `H²ofFun` over `↥(k.fixingSubgroup)`.  This is the
+reducer's involution `hvanish`, stated in `k.fixingSubgroup` vocabulary (f2d bridges
+`k.fixingSubgroup = U₀` — the InfiniteGalois transport `fixingSubgroup (fixedField U₀) = U₀` — to
+the reducer's `↥U₀` form).
+
+Proof: `SectionSix.lemma_6_16` gives `evensNormH2 … = 0`; the banked `hvanish_evensNorm` descends
+it to `H²ofFun`.
+
+The field data is threaded as hypotheses — the c2a "abstract Kummer presentation package"
+∃-interface `(d, δ, hδ, hδL, hLδ, u, v, hAuv)` plus the deep witness `(A, β, hdeep, …)` from
+`mem_deepPart_iff`/`deepClass_eq_kummerClassK` (the f2d/plumbing step).  **`hunram` HOLDS for every
+involution orbit** (Step-0 decision, `docs/p15f2c-design.md`): `ρ(ĝ)` is order 2 in `C`, but `C`'s
+tame inertia `⟨c tameTau⟩` has odd order (`Tame.tame_odd_order`), so `ρ(ĝ) ∉ inertia` ⟹ `L/k`
+unramified; c2c discharges `hunram` in spectral-norm vocabulary.  **Ax: B9, B11a (via `lemma_6_16`).** -/
+theorem hvanish_involution (k L : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+    [FiniteDimensional ℚ_[2] k] (hkL : k ≤ L)
+    (hindex : ((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)).index = 2)
+    (hunram : ∀ x : AlgebraicClosure ℚ_[2], x ≠ 0 → x ∈ L →
+      ∃ y : AlgebraicClosure ℚ_[2], y ≠ 0 ∧ y ∈ k ∧ ‖x‖ = ‖y‖)
+    (d : (↥k)ˣ) (δ : AlgebraicClosure ℚ_[2]) (hδ : δ ^ 2 = ((d : ↥k) : AlgebraicClosure ℚ_[2]))
+    (hδL : δ ∈ L)
+    (hLδ : (L.fixingSubgroup).subgroupOf (k.fixingSubgroup)
+      = (MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf (k.fixingSubgroup))
+    (A β : AlgebraicClosure ℚ_[2]) (hdeep : IsDeepUnit L.fixingSubgroup A) (hβ : β ^ 2 = A)
+    (hβ0 : β ≠ 0) (u : (↥k)ˣ) (v : ↥k)
+    (hAuv : A = ((u : ↥k) : AlgebraicClosure ℚ_[2]) + (v : AlgebraicClosure ℚ_[2]) * δ)
+    (s : k.fixingSubgroup) (hs : s ∉ (L.fixingSubgroup).subgroupOf (k.fixingSubgroup))
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (hUo : IsOpen (((L.fixingSubgroup).subgroupOf (k.fixingSubgroup) :
+        Subgroup k.fixingSubgroup) : Set k.fixingSubgroup))
+    (hα : ∀ w z : (L.fixingSubgroup).subgroupOf (k.fixingSubgroup),
+      Kummer.kummerCocycleFun β ((w * z : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2])
+        = Kummer.kummerCocycleFun β ((w : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2])
+          + Kummer.kummerCocycleFun β ((z : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]))
+    (hαc : Continuous fun w : (L.fixingSubgroup).subgroupOf (k.fixingSubgroup) ↦
+      Kummer.kummerCocycleFun β ((w : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2])) :
+    H2ofFun k.fixingSubgroup
+      (evensNormFun ((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)) s
+        (fun w ↦ Kummer.kummerCocycleFun β
+          ((w : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]))) = 0 :=
+  hvanish_evensNorm htriv hUo hindex hs _ hα hαc
+    (lemma_6_16 k L hkL hindex hunram d δ hδ hδL hLδ A β hdeep hβ hβ0 u v hAuv s hs htriv hUo hα hαc)
+
+/-- **Deep class → involution `hvanish`** (P-15f2c2b, the witness-plumbing step): given a deep
+Kummer class `ξ ∈ deepClasses (L.fixingSubgroup)` at the involution block coordinate and the c2a
+"abstract Kummer presentation package" `hc2a` (`IsDeepUnit L.fixingSubgroup A ⟹ ∃ d δ u v, …`),
+the involution inner cochain vanishes for the class's own square root `β`.
+
+Extracts the deep unit `(A, β)` from `ξ` (unpacking the `deepClasses` definition), derives the
+mechanical side-conditions `hα` (additivity via `kummerCocycleFun_hom_on` on `L.fixingSubgroup`,
+which fixes `A`) and `hαc` (continuity via `kummerCocycleFun_continuous`), and applies `hc2a` +
+`hvanish_involution`.  This is steps (2)–(5) of P-15f2c2b in `L`-vocabulary; the remaining
+`ker ρ = L.fixingSubgroup` transport (to feed `mem_deepPart_iff`) and the c2a-package proof
+(P-15f2c2a) are the last pieces.  **Ax: B9, B11a, B11b (via `hvanish_involution`/`lemma_6_16`).** -/
+theorem hvanish_involution_of_deepClass
+    (k L : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
+    (hkL : k ≤ L)
+    (hindex : ((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)).index = 2)
+    (hunram : ∀ x : AlgebraicClosure ℚ_[2], x ≠ 0 → x ∈ L →
+      ∃ y : AlgebraicClosure ℚ_[2], y ≠ 0 ∧ y ∈ k ∧ ‖x‖ = ‖y‖)
+    (hc2a : ∀ A : AlgebraicClosure ℚ_[2], IsDeepUnit L.fixingSubgroup A →
+      ∃ (d : (↥k)ˣ) (δ : AlgebraicClosure ℚ_[2]) (u : (↥k)ˣ) (v : ↥k),
+        δ ^ 2 = ((d : ↥k) : AlgebraicClosure ℚ_[2]) ∧ δ ∈ L ∧
+        (L.fixingSubgroup).subgroupOf (k.fixingSubgroup)
+          = (MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf (k.fixingSubgroup) ∧
+        A = ((u : ↥k) : AlgebraicClosure ℚ_[2]) + (v : AlgebraicClosure ℚ_[2]) * δ)
+    (s : k.fixingSubgroup) (hs : s ∉ (L.fixingSubgroup).subgroupOf (k.fixingSubgroup))
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (hUo : IsOpen (((L.fixingSubgroup).subgroupOf (k.fixingSubgroup) :
+        Subgroup k.fixingSubgroup) : Set k.fixingSubgroup))
+    (ξ : H1 L.fixingSubgroup (ZMod 2)) (hξ : ξ ∈ deepClasses L.fixingSubgroup) :
+    ∃ β : AlgebraicClosure ℚ_[2],
+      H2ofFun k.fixingSubgroup
+        (evensNormFun ((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)) s
+          (fun w ↦ Kummer.kummerCocycleFun β
+            ((w : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]))) = 0 := by
+  obtain ⟨A, β, hdeep, hβ, hβ0, hclass⟩ := hξ
+  obtain ⟨d, δ, u, v, hδ, hδL, hLδ, hAuv⟩ := hc2a A hdeep
+  have hAfix : ∀ g ∈ L.fixingSubgroup, g • A = A := hdeep.2.1
+  have hα : ∀ w z : ↥((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)),
+      Kummer.kummerCocycleFun β ((w * z : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2])
+        = Kummer.kummerCocycleFun β ((w : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2])
+          + Kummer.kummerCocycleFun β ((z : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]) := by
+    intro w z
+    have hwL : ((w : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]) ∈ L.fixingSubgroup :=
+      Subgroup.mem_subgroupOf.mp w.2
+    have hzL : ((z : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]) ∈ L.fixingSubgroup :=
+      Subgroup.mem_subgroupOf.mp z.2
+    have hmul : ((w * z : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2])
+        = ((w : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2])
+          * ((z : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]) := by
+      push_cast; rfl
+    rw [hmul]
+    exact kummerCocycleFun_hom_on hβ hβ0 hAfix ⟨_, hwL⟩ ⟨_, hzL⟩
+  have hαc : Continuous fun w : ↥((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)) ↦
+      Kummer.kummerCocycleFun β ((w : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]) :=
+    (Kummer.kummerCocycleFun_continuous β).comp (continuous_subtype_val.comp continuous_subtype_val)
+  exact ⟨β, hvanish_involution k L hkL hindex hunram d δ hδ hδL hLδ A β hdeep hβ hβ0 u v hAuv
+    s hs htriv hUo hα hαc⟩
+
+end InvolutionAssembly
+
 end ShapiroDeepness
 
 end GQ2

@@ -844,6 +844,8 @@ theorem cup11_dualEval_right_separating
       AddMonoidHom.zero_apply]
   rw [hd0, map_zero]
 
+set_option synthInstance.maxHeartbeats 4000000 in
+set_option maxHeartbeats 1600000 in
 /-- **`hpartial` for `G_ℚ₂`** — nondegeneracy of the obstruction pairing in the character:
 every nonzero `χ ∈ (T^∨)^C` is detected by some `V`-coordinate.  Cup-duality clauses (iv)/(v) of
 `prop_5_16`.
@@ -866,7 +868,388 @@ theorem hpartial_local
       betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c
         ≠ betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ
             (0 : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)) := by
-  sorry
+  classical
+  by_contra hno
+  rw [not_exists] at hno
+  have hall : ∀ c : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ),
+      betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c
+        = betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ 0 :=
+    fun c => not_not.mp (hno c)
+  -- ### Stage 0: module instances (the `hZcard_local` block, verbatim)
+  have hroundtrip : ∀ γ : AbsGalQ2,
+      rho0 (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ) γ = ρ.1.1 γ :=
+    rho0_descData_rhoPrime b F En l h ρ
+  letI : TopologicalSpace En.Vmod := ⊥
+  haveI : DiscreteTopology En.Vmod := ⟨rfl⟩
+  letI actG : DistribMulAction AbsGalQ2 En.Vmod :=
+    DistribMulAction.compHom En.Vmod (ρ.1.1).toMonoidHom
+  have hcomp : ∀ (γ : AbsGalQ2) (v : En.Vmod), γ • v = ρ.1.1 γ • v := fun _ _ => rfl
+  haveI : ContinuousSMul AbsGalQ2 En.Vmod := by
+    constructor
+    have hfac : (fun p : AbsGalQ2 × En.Vmod => p.1 • p.2)
+        = (fun q : RF.YC × En.Vmod => q.1 • q.2)
+          ∘ (fun p : AbsGalQ2 × En.Vmod => (ρ.1.1 p.1, p.2)) := by
+      funext p; rfl
+    rw [hfac]
+    exact continuous_of_discreteTopology.comp
+      ((ρ.1.1.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  have hA₂ : ∀ v : En.Vmod, v + v = 0 := fun v => Vmod_exp2 (En.descData l h) v
+  letI : TopologicalSpace (ElemDual En.Vmod) := ⊥
+  haveI : DiscreteTopology (ElemDual En.Vmod) := ⟨rfl⟩
+  haveI : ContinuousSMul AbsGalQ2 (ElemDual En.Vmod) := by
+    constructor
+    have hfac : (fun p : AbsGalQ2 × ElemDual En.Vmod => p.1 • p.2)
+        = (fun q : RF.YC × ElemDual En.Vmod => q.1 • q.2)
+          ∘ (fun p : AbsGalQ2 × ElemDual En.Vmod => (ρ.1.1 p.1, p.2)) := by
+      funext p
+      show p.1 • p.2 = ρ.1.1 p.1 • p.2
+      ext a
+      rw [ElemDual.smul_apply, ElemDual.smul_apply]
+      congr 1
+      rw [hcomp, map_inv]
+    rw [hfac]
+    exact continuous_of_discreteTopology.comp
+      ((ρ.1.1.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  have htriv := htriv_local'
+  have hH2 : Nat.card (H2 AbsGalQ2 (ZMod 2)) = 2 := card_H2_zmod2_eq_two htriv_local'
+  have hpair : ∀ (γ : AbsGalQ2) (a : En.Vmod) (lam : ElemDual En.Vmod),
+      dualEval En.Vmod (γ • a) (γ • lam) = γ • dualEval En.Vmod a lam := by
+    intro γ a lam
+    rw [htriv]
+    show (γ • lam) (γ • a) = lam a
+    rw [ElemDual.smul_apply, inv_smul_smul]
+  -- ### Stage 1: split `χ∘mDef` (the `betaChi_affine` splitting)
+  obtain ⟨gχ, hg0, hg⟩ := exists_splitting_of_symm_zero_diag (Vmod_exp2 (En.descData l h))
+    (fun v w => χ.1 (mDef (En.descData l h) (descSections En l h Dsc) v w))
+    (fun v w x => (isEquivariantFactorSet_datChi (descSections En l h Dsc)
+      (descSigma_spec En l h Dsc) χ).f_cocycle v w x)
+    (fun v w => by rw [mDef_symm])
+    (fun v => by rw [mDef_self, TCharC.map_one])
+    (fun v => by rw [mDef_zero_left, TCharC.map_one])
+  -- ### Stage 2: the cup part of every difference vanishes
+  have hiotaB_shift : ∀ (φ β : AbsGalQ2 × AbsGalQ2 → ZMod 2),
+      β ∈ B2 AbsGalQ2 (ZMod 2) → iotaB (φ + β) = iotaB φ := by
+    intro φ β hβ
+    unfold iotaB
+    split_ifs with h1 h2 h2
+    · rfl
+    · exact absurd ((AddSubgroup.add_mem_cancel_right _ hβ).mp h1) h2
+    · exact absurd ((AddSubgroup.add_mem_cancel_right _ hβ).mpr h2) h1
+    · rfl
+  have hcup : ∀ c : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ),
+      iotaB (cupChi (En.descData l h) (descSections En l h Dsc)
+        (RF.rhoPrime b F (En.radData l h) rfl ρ) (descSigma_spec En l h Dsc) gχ χ c) = 0 := by
+    intro c
+    have hB : ((fun p : AbsGalQ2 × AbsGalQ2 =>
+          gχ (c.c (p.1 * p.2)) + gχ (c.c p.1) + gχ (c.c p.2))
+        + (fun p : AbsGalQ2 × AbsGalQ2 =>
+          gχ ((0 : VCocycle (En.descData l h)
+              (RF.rhoPrime b F (En.radData l h) rfl ρ)).c (p.1 * p.2))
+            + gχ ((0 : VCocycle (En.descData l h)
+              (RF.rhoPrime b F (En.radData l h) rfl ρ)).c p.1)
+            + gχ ((0 : VCocycle (En.descData l h)
+              (RF.rhoPrime b F (En.radData l h) rfl ρ)).c p.2)))
+        ∈ B2 AbsGalQ2 (ZMod 2) :=
+      AddSubgroup.add_mem _
+        (gPart_mem_B2 (descSigma_spec En l h Dsc) htriv gχ c)
+        (gPart_mem_B2 (descSigma_spec En l h Dsc) htriv gχ 0)
+    have hdecomp : chiDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c
+        + chiDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ
+            (0 : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))
+        = cupChi (En.descData l h) (descSections En l h Dsc)
+            (RF.rhoPrime b F (En.radData l h) rfl ρ) (descSigma_spec En l h Dsc) gχ χ c
+          + ((fun p : AbsGalQ2 × AbsGalQ2 =>
+              gχ (c.c (p.1 * p.2)) + gχ (c.c p.1) + gχ (c.c p.2))
+            + (fun p : AbsGalQ2 × AbsGalQ2 =>
+              gχ ((0 : VCocycle (En.descData l h)
+                  (RF.rhoPrime b F (En.radData l h) rfl ρ)).c (p.1 * p.2))
+                + gχ ((0 : VCocycle (En.descData l h)
+                  (RF.rhoPrime b F (En.radData l h) rfl ρ)).c p.1)
+                + gχ ((0 : VCocycle (En.descData l h)
+                  (RF.rhoPrime b F (En.radData l h) rfl ρ)).c p.2))) := by
+      funext p
+      have h1 := chiDef_decomp (descSections En l h Dsc) (descSigma_spec En l h Dsc)
+        χ gχ hg c p
+      have h2 := chiDef_decomp (descSections En l h Dsc) (descSigma_spec En l h Dsc)
+        χ gχ hg (0 : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)) p
+      have h3 := cupChi_zero (ρ := RF.rhoPrime b F (En.radData l h) rfl ρ)
+        (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ gχ hg0 p
+      linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]; try ring_nf))
+        h1 + h2 + h3
+    have hiota : iotaB (chiDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c
+        + chiDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ
+            (0 : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))) = 0 := by
+      rw [iotaB_add hH2
+        (chiDef_mem_Z2 (descSections En l h Dsc) (descSigma_spec En l h Dsc) htriv χ c)
+        (chiDef_mem_Z2 (descSections En l h Dsc) (descSigma_spec En l h Dsc) htriv χ
+          (0 : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)))]
+      have hbc : iotaB (chiDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c)
+          = iotaB (chiDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ
+              (0 : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))) :=
+        hall c
+      rw [hbc, CharTwo.add_self_eq_zero]
+    rw [hdecomp, hiotaB_shift _ _ hB] at hiota
+    exact hiota
+  -- ### Stage 3: the dual-connecting cochain ξ (factored through `RF.YC`)
+  have hξadd : ∀ (y : RF.YC) (w w' : En.Vmod),
+      (χ.1 (conjDef (En.descData l h) (descSections En l h Dsc) (descSigma_spec En l h Dsc)
+          y (y⁻¹ • (w + w')))
+        + gχ (w + w') + gχ (y⁻¹ • (w + w')))
+      = (χ.1 (conjDef (En.descData l h) (descSections En l h Dsc) (descSigma_spec En l h Dsc)
+          y (y⁻¹ • w)) + gχ w + gχ (y⁻¹ • w))
+        + (χ.1 (conjDef (En.descData l h) (descSections En l h Dsc)
+            (descSigma_spec En l h Dsc) y (y⁻¹ • w'))
+          + gχ w' + gχ (y⁻¹ • w')) := by
+    intro y w w'
+    have hq : χ.1 (conjDef (En.descData l h) (descSections En l h Dsc)
+          (descSigma_spec En l h Dsc) y (y⁻¹ • w + y⁻¹ • w'))
+        + χ.1 (conjDef (En.descData l h) (descSections En l h Dsc)
+          (descSigma_spec En l h Dsc) y (y⁻¹ • w))
+        + χ.1 (conjDef (En.descData l h) (descSections En l h Dsc)
+          (descSigma_spec En l h Dsc) y (y⁻¹ • w'))
+        = χ.1 (mDef (En.descData l h) (descSections En l h Dsc)
+            (y • (y⁻¹ • w)) (y • (y⁻¹ • w')))
+          + χ.1 (mDef (En.descData l h) (descSections En l h Dsc)
+            (y⁻¹ • w) (y⁻¹ • w')) :=
+      (isEquivariantFactorSet_datChi (descSections En l h Dsc)
+        (descSigma_spec En l h Dsc) χ).m_quad y (y⁻¹ • w) (y⁻¹ • w')
+    rw [smul_inv_smul, smul_inv_smul] at hq
+    rw [show y⁻¹ • (w + w') = y⁻¹ • w + y⁻¹ • w' from smul_add _ _ _]
+    have hchar : ∀ A B C F G P Q R S U V : ZMod 2,
+        A + B + C = F + G → F = P + Q + R → G = S + U + V →
+        A + P + S = (B + Q + U) + (C + R + V) := by decide
+    exact hchar _ _ _ _ _ _ _ _ _ _ _ hq (hg w w') (hg (y⁻¹ • w) (y⁻¹ • w'))
+  set Fξ : RF.YC → ElemDual En.Vmod := fun y =>
+    AddMonoidHom.mk' (fun w =>
+      χ.1 (conjDef (En.descData l h) (descSections En l h Dsc) (descSigma_spec En l h Dsc)
+          y (y⁻¹ • w))
+        + gχ w + gχ (y⁻¹ • w))
+      (fun w w' => hξadd y w w') with hFdef
+  have hFval : ∀ (y : RF.YC) (w : En.Vmod),
+      Fξ y w = χ.1 (conjDef (En.descData l h) (descSections En l h Dsc)
+          (descSigma_spec En l h Dsc) y (y⁻¹ • w))
+        + gχ w + gχ (y⁻¹ • w) := fun _ _ => rfl
+  set ξfun : AbsGalQ2 → ElemDual En.Vmod := fun γ => Fξ (ρ.1.1 γ) with hξdef
+  -- ### Stage 4: ξ is a continuous 1-cocycle for the contragredient action
+  have hξZ1 : ξfun ∈ Z1 AbsGalQ2 (ElemDual En.Vmod) := by
+    refine mem_Z1_iff.mpr ⟨?_, ?_⟩
+    · exact (continuous_of_discreteTopology (f := Fξ)).comp ρ.1.1.continuous_toFun
+    · intro γ δ
+      refine DFunLike.ext _ _ fun w => ?_
+      rw [show ξfun (γ * δ) = Fξ (ρ.1.1 (γ * δ)) from rfl,
+        show (ξfun γ + γ • ξfun δ) w = ξfun γ w + (γ • ξfun δ) w from rfl,
+        ElemDual.smul_apply]
+      have hγinv : γ⁻¹ • w = (ρ.1.1 γ)⁻¹ • w := by rw [hcomp, map_inv]
+      rw [hγinv, show ξfun γ = Fξ (ρ.1.1 γ) from rfl, show ξfun δ = Fξ (ρ.1.1 δ) from rfl,
+        hFval, hFval, hFval, map_mul, mul_inv_rev, mul_smul]
+      have hmul : χ.1 (conjDef (En.descData l h) (descSections En l h Dsc)
+            (descSigma_spec En l h Dsc) (ρ.1.1 γ * ρ.1.1 δ)
+            ((ρ.1.1 δ)⁻¹ • ((ρ.1.1 γ)⁻¹ • w)))
+          = χ.1 (conjDef (En.descData l h) (descSections En l h Dsc)
+              (descSigma_spec En l h Dsc) (ρ.1.1 γ)
+              (ρ.1.1 δ • ((ρ.1.1 δ)⁻¹ • ((ρ.1.1 γ)⁻¹ • w))))
+            + χ.1 (conjDef (En.descData l h) (descSections En l h Dsc)
+              (descSigma_spec En l h Dsc) (ρ.1.1 δ)
+              ((ρ.1.1 δ)⁻¹ • ((ρ.1.1 γ)⁻¹ • w))) :=
+        (isEquivariantFactorSet_datChi (descSections En l h Dsc)
+          (descSigma_spec En l h Dsc) χ).m_mul (ρ.1.1 γ) (ρ.1.1 δ)
+          ((ρ.1.1 δ)⁻¹ • ((ρ.1.1 γ)⁻¹ • w))
+      rw [smul_inv_smul] at hmul
+      rw [hmul]
+      have hchar : ∀ X Y P Q R : ZMod 2,
+          (X + Y) + P + R = (X + P + Q) + (Y + Q + R) := by decide
+      exact hchar _ _ _ _ _
+  -- ### Stage 5: all cup values against ξ vanish
+  have hvan : ∀ z : H1 AbsGalQ2 En.Vmod,
+      cup11 (dualEval En.Vmod) hpair z (H1mk AbsGalQ2 (ElemDual En.Vmod) ⟨ξfun, hξZ1⟩) = 0 := by
+    intro z
+    obtain ⟨zc, rfl⟩ := H1mk_surjective (G := AbsGalQ2) (M := En.Vmod) z
+    rw [cup11_comm (dualEval En.Vmod) hpair (fun p => CharTwo.add_self_eq_zero p)
+      (H1mk AbsGalQ2 En.Vmod zc) (H1mk AbsGalQ2 (ElemDual En.Vmod) ⟨ξfun, hξZ1⟩),
+      cup11_mk_mk, H2mk_eq_zero_iff]
+    -- the flipped cup cochain is exactly the `cupChi` of the bridged `VCocycle`
+    set c : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ) :=
+      { c := fun γ => (zc.1 γ : (En.descData l h).Vmod)
+        cont := by
+          have hc : Continuous (fun v : En.Vmod =>
+              iV (En.descData l h) (Multiplicative.ofAdd v)) :=
+            continuous_of_discreteTopology
+          exact hc.comp (mem_Z1_iff.mp zc.2).1
+        crossed := fun γ δ => by
+          have hz := (mem_Z1_iff.mp zc.2).2 γ δ
+          rw [hroundtrip γ]
+          exact hz } with hcdef
+    show cup11Fun ((dualEval En.Vmod).flip) ξfun zc.1 ∈ B2 AbsGalQ2 (ZMod 2)
+    have hident : cup11Fun ((dualEval En.Vmod).flip) ξfun zc.1
+        = cupChi (En.descData l h) (descSections En l h Dsc)
+            (RF.rhoPrime b F (En.radData l h) rfl ρ) (descSigma_spec En l h Dsc) gχ χ c := by
+      funext p
+      show ((dualEval En.Vmod).flip (ξfun p.1)) (p.1 • zc.1 p.2) = _
+      rw [AddMonoidHom.flip_apply, dualEval_apply]
+      rw [show ξfun p.1 = Fξ (ρ.1.1 p.1) from rfl, hFval]
+      show χ.1 (conjDef (En.descData l h) (descSections En l h Dsc)
+            (descSigma_spec En l h Dsc) (ρ.1.1 p.1) ((ρ.1.1 p.1)⁻¹ • (p.1 • zc.1 p.2)))
+          + gχ (p.1 • zc.1 p.2) + gχ ((ρ.1.1 p.1)⁻¹ • (p.1 • zc.1 p.2))
+        = χ.1 (conjDef (En.descData l h) (descSections En l h Dsc)
+            (descSigma_spec En l h Dsc)
+            (rho0 (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ) p.1) (c.c p.2))
+          + gχ (rho0 (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ) p.1 • c.c p.2)
+          + gχ (c.c p.2)
+      rw [hroundtrip p.1, hcomp p.1, inv_smul_smul]
+      rfl
+    rw [hident]
+    exact iotaB_eq_zero_iff.mp (hcup c)
+  -- ### Stage 6: the ξ-class vanishes (right-slot separation, clause (iv))
+  have hξ0 : H1mk AbsGalQ2 (ElemDual En.Vmod) ⟨ξfun, hξZ1⟩ = 0 :=
+    cup11_dualEval_right_separating hA₂ htriv hpair _ hvan
+  -- ### Stage 7: B¹-extraction
+  have hξB1 : ξfun ∈ B1 AbsGalQ2 (ElemDual En.Vmod) := by
+    have hmem := (QuotientAddGroup.eq_zero_iff
+      (⟨ξfun, hξZ1⟩ : ↥(Z1 AbsGalQ2 (ElemDual En.Vmod)))).mp hξ0
+    exact AddSubgroup.mem_addSubgroupOf.mp hmem
+  obtain ⟨n, hn⟩ := hξB1
+  -- ### Stage 8: the invariant M-character ψ and its vanishing
+  have hψ : ∀ t : ↥(En.radData l h).T, χ.1 t = 0 := by
+    -- the ∂n-relation in `(cc, v)`-coordinates (via `ρ.1.1`-surjectivity)
+    have hkey : ∀ (cc : RF.YC) (v : En.Vmod),
+        χ.1 (conjDef (En.descData l h) (descSections En l h Dsc)
+            (descSigma_spec En l h Dsc) cc v) + gχ (cc • v) + gχ v
+          = n v + n (cc • v) := by
+      intro cc v
+      obtain ⟨γ, hγ⟩ := ρ.1.2 cc
+      have h2 : γ • n = ξfun γ + n := by
+        rw [← congrFun hn γ]
+        show γ • n = γ • n - n + n
+        abel
+      have h4 : (γ • n) (cc • v) = n v := by
+        rw [ElemDual.smul_apply]
+        congr 1
+        rw [hcomp, map_inv, hγ, inv_smul_smul]
+      have h5 : ξfun γ (cc • v)
+          = χ.1 (conjDef (En.descData l h) (descSections En l h Dsc)
+              (descSigma_spec En l h Dsc) cc v) + gχ (cc • v) + gχ v := by
+        rw [show ξfun γ = Fξ (ρ.1.1 γ) from rfl, hFval]
+        rw [hγ, inv_smul_smul]
+      have h3 : (γ • n) (cc • v) = ξfun γ (cc • v) + n (cc • v) := by
+        rw [h2]; rfl
+      rw [← h5, ← h4, h3]
+      have hchar : ∀ A B : ZMod 2, A + B = (A + B) + B + B := by decide
+      exact hchar _ _
+    -- the `T`-part of the `(t, v)`-coordinatization of `M`
+    have htmem : ∀ m : ↥(En.radData l h).M,
+        ((m * ((descSections En l h Dsc).mV (Multiplicative.toAdd
+          ((En.descData l h).descend m)))⁻¹ : ↥(En.radData l h).M) : RF.YB)
+          ∈ (En.radData l h).T := by
+      intro m
+      refine ((En.descData l h).hdesc_ker _).mp ?_
+      rw [map_mul, map_inv, (descSections En l h Dsc).descend_mV,
+        Multiplicative.ofAdd_toAdd, mul_inv_cancel]
+    set ψ : ↥(En.radData l h).M → ZMod 2 := fun m =>
+      χ.1 ⟨_, htmem m⟩
+        + gχ (Multiplicative.toAdd ((En.descData l h).descend m))
+        + n (Multiplicative.toAdd ((En.descData l h).descend m)) with hψdef
+    -- ψ is additive (T-parts multiply up to `mDef`, killed by `hg` + `n`-additivity)
+    have hadd : ∀ m m' : ↥(En.radData l h).M, ψ (m * m') = ψ m + ψ m' := by
+      intro m m'
+      have hv : Multiplicative.toAdd ((En.descData l h).descend (m * m'))
+          = Multiplicative.toAdd ((En.descData l h).descend m)
+            + Multiplicative.toAdd ((En.descData l h).descend m') := by
+        rw [map_mul]; rfl
+      have ht : (⟨_, htmem (m * m')⟩ : ↥(En.radData l h).T)
+          = ⟨_, htmem m⟩ * ⟨_, htmem m'⟩
+            * mDef (En.descData l h) (descSections En l h Dsc)
+                (Multiplicative.toAdd ((En.descData l h).descend m))
+                (Multiplicative.toAdd ((En.descData l h).descend m')) := by
+        apply Subtype.ext
+        show ((m * m' : ↥(En.radData l h).M) : RF.YB)
+            * (((descSections En l h Dsc).mV (Multiplicative.toAdd
+                ((En.descData l h).descend (m * m')))) : RF.YB)⁻¹
+          = _
+        rw [hv]
+        have hc1 : ((((descSections En l h Dsc).mV (Multiplicative.toAdd
+              ((En.descData l h).descend m))) : RF.YB))⁻¹ * (m' : RF.YB)
+            = (m' : RF.YB) * ((((descSections En l h Dsc).mV (Multiplicative.toAdd
+              ((En.descData l h).descend m))) : RF.YB))⁻¹ :=
+          (En.radData l h).hcomm _ (inv_mem ((descSections En l h Dsc).mV _).2) _ m'.2
+        have hc2 : ((((descSections En l h Dsc).mV (Multiplicative.toAdd
+              ((En.descData l h).descend m'))) : RF.YB))⁻¹
+              * (((descSections En l h Dsc).mV (Multiplicative.toAdd
+                ((En.descData l h).descend m))) : RF.YB)
+            = (((descSections En l h Dsc).mV (Multiplicative.toAdd
+                ((En.descData l h).descend m))) : RF.YB)
+              * ((((descSections En l h Dsc).mV (Multiplicative.toAdd
+                ((En.descData l h).descend m'))) : RF.YB))⁻¹ :=
+          (En.radData l h).hcomm _ (inv_mem ((descSections En l h Dsc).mV _).2) _
+            ((descSections En l h Dsc).mV _).2
+        calc ((m : RF.YB) * (m' : RF.YB))
+              * ((((descSections En l h Dsc).mV (Multiplicative.toAdd
+                  ((En.descData l h).descend m)
+                + Multiplicative.toAdd ((En.descData l h).descend m'))) : RF.YB))⁻¹
+            = (m : RF.YB) * (((((descSections En l h Dsc).mV (Multiplicative.toAdd
+                  ((En.descData l h).descend m))) : RF.YB))⁻¹ * (m' : RF.YB))
+                * (((((descSections En l h Dsc).mV (Multiplicative.toAdd
+                  ((En.descData l h).descend m'))) : RF.YB))⁻¹
+                  * (((descSections En l h Dsc).mV (Multiplicative.toAdd
+                    ((En.descData l h).descend m))) : RF.YB))
+                * (((descSections En l h Dsc).mV (Multiplicative.toAdd
+                    ((En.descData l h).descend m'))) : RF.YB)
+                * ((((descSections En l h Dsc).mV (Multiplicative.toAdd
+                    ((En.descData l h).descend m)
+                  + Multiplicative.toAdd ((En.descData l h).descend m'))) : RF.YB))⁻¹ := by
+              group
+          _ = (m : RF.YB) * ((m' : RF.YB) * ((((descSections En l h Dsc).mV
+                  (Multiplicative.toAdd ((En.descData l h).descend m))) : RF.YB))⁻¹)
+                * ((((descSections En l h Dsc).mV (Multiplicative.toAdd
+                  ((En.descData l h).descend m))) : RF.YB)
+                  * ((((descSections En l h Dsc).mV (Multiplicative.toAdd
+                    ((En.descData l h).descend m'))) : RF.YB))⁻¹)
+                * (((descSections En l h Dsc).mV (Multiplicative.toAdd
+                    ((En.descData l h).descend m'))) : RF.YB)
+                * ((((descSections En l h Dsc).mV (Multiplicative.toAdd
+                    ((En.descData l h).descend m)
+                  + Multiplicative.toAdd ((En.descData l h).descend m'))) : RF.YB))⁻¹ := by
+              rw [hc1, hc2]
+          _ = _ := by group
+      rw [hψdef]
+      show χ.1 ⟨_, htmem (m * m')⟩
+          + gχ (Multiplicative.toAdd ((En.descData l h).descend (m * m')))
+          + n (Multiplicative.toAdd ((En.descData l h).descend (m * m'))) = _
+      rw [ht, TCharC.map_mul, TCharC.map_mul, hv, hg, map_add]
+      have hchar : ∀ A B P Q R S FF : ZMod 2,
+          A + B + (FF + P + Q) + (FF + (R + S)) = (A + P + R) + (B + Q + S) := by decide
+      exact hchar _ _ _ _ _ _ _
+    -- ψ is conjugation-invariant (`hdesc_conj` + the `uσ`-decomposition + `hkey`)
+    have hconj : ∀ (bb : RF.YB) (m : ↥(En.radData l h).M),
+        ψ ⟨bb * m.1 * bb⁻¹, (En.radData l h).hM.conj_mem m.1 m.2 bb⟩ = ψ m := by
+      sorry
+    -- conclude: ψ vanishes, so χ does
+    intro t₀
+    have h0 := mchar_invariant_eq_zero ψ hadd hconj ⟨t₀.1, (En.radData l h).hTM t₀.2⟩
+    have hdesc1 : (En.descData l h).descend ⟨t₀.1, (En.radData l h).hTM t₀.2⟩ = 1 :=
+      ((En.descData l h).hdesc_ker _).mpr t₀.2
+    have harg : (⟨_, htmem ⟨t₀.1, (En.radData l h).hTM t₀.2⟩⟩ : ↥(En.radData l h).T) = t₀ := by
+      apply Subtype.ext
+      show (t₀ : RF.YB) * (((descSections En l h Dsc).mV (Multiplicative.toAdd
+          ((En.descData l h).descend ⟨t₀.1, (En.radData l h).hTM t₀.2⟩))) : RF.YB)⁻¹
+        = (t₀ : RF.YB)
+      rw [hdesc1, show Multiplicative.toAdd (1 : Multiplicative En.Vmod) = (0 : En.Vmod)
+          from rfl, (descSections En l h Dsc).mV_zero]
+      simp
+    have hval : ψ ⟨t₀.1, (En.radData l h).hTM t₀.2⟩ = χ.1 t₀ := by
+      rw [hψdef]
+      show χ.1 ⟨_, htmem ⟨t₀.1, (En.radData l h).hTM t₀.2⟩⟩
+          + gχ (Multiplicative.toAdd ((En.descData l h).descend
+              ⟨t₀.1, (En.radData l h).hTM t₀.2⟩))
+          + n (Multiplicative.toAdd ((En.descData l h).descend
+              ⟨t₀.1, (En.radData l h).hTM t₀.2⟩)) = χ.1 t₀
+      rw [harg, hdesc1, show Multiplicative.toAdd (1 : Multiplicative En.Vmod) = (0 : En.Vmod)
+          from rfl, hg0, map_zero, add_zero, add_zero]
+    exact hval.symm.trans h0
+  -- ### Stage 9: contradiction with `hχ`
+  apply hχ
+  apply Subtype.ext
+  funext t
+  exact hψ t
 
 end LocalResidues
 
