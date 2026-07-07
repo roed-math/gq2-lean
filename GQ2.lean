@@ -80,4 +80,5 @@ import GQ2.WordCohBridge
 import GQ2.RadicalEdgeGammaA
 import GQ2.SectionTen
 import GQ2.SectionTenSources
+import GQ2.PresentationLiteral
 import GQ2.RStageGammaA
