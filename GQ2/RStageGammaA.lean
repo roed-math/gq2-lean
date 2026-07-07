@@ -76,7 +76,124 @@ theorem hZcount_gammaA
     (f₀ : BoundaryLifts b F T) :
     Nat.card (RCocycle (blockFrameImpl T Blk hE2) f₀.1.1)
       = (blockFrameImpl T Blk hE2).zR := by
-  sorry
+  classical
+  letI : CommGroup ↥Blk.R := RStageLocal.rCommGroup Blk hRK
+  letI actC : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.R) := RStageLocal.conjC Blk hRK
+  -- the lower map through `C = Y/K`, surjective (over `GA`, against which `z1Equiv` is stated)
+  set θ : ContinuousMonoidHom GA (Y ⧸ Blk.K) :=
+    ⟨(QuotientGroup.mk' Blk.K).comp f₀.1.1.toMonoidHom, by
+      show Continuous fun γ => QuotientGroup.mk' Blk.K (f₀.1.1 γ)
+      exact Continuous.comp continuous_of_discreteTopology f₀.1.1.continuous_toFun⟩ with hθdef
+  have hθs : Function.Surjective ⇑θ := by
+    intro c
+    obtain ⟨y, hy⟩ := QuotientGroup.mk'_surjective Blk.K c
+    obtain ⟨γ, hγ⟩ := f₀.1.2 y
+    exact ⟨γ, by show QuotientGroup.mk' Blk.K (f₀.1.1 γ) = c; rw [hγ, hy]⟩
+  letI actG : DistribMulAction GA (Additive ↥Blk.R) :=
+    DistribMulAction.compHom _ θ.toMonoidHom
+  letI : TopologicalSpace (Additive ↥Blk.R) := (inferInstance : TopologicalSpace ↥Blk.R)
+  haveI : DiscreteTopology (Additive ↥Blk.R) :=
+    ⟨(inferInstance : DiscreteTopology ↥Blk.R).eq_bot⟩
+  haveI : Finite (Additive ↥Blk.R) := (inferInstance : Finite ↥Blk.R)
+  haveI : ContinuousSMul GA (Additive ↥Blk.R) := by
+    refine ⟨?_⟩
+    have hfac : (fun p : GA × Additive ↥Blk.R => p.1 • p.2)
+        = (fun q : (Y ⧸ Blk.K) × Additive ↥Blk.R => q.1 • q.2)
+          ∘ (fun p : GA × Additive ↥Blk.R => (θ p.1, p.2)) := by
+      funext p; rfl
+    rw [hfac]
+    exact continuous_of_discreteTopology.comp
+      ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  have hcomp : ∀ (γ : GA) (a : Additive ↥Blk.R), γ • a = θ γ • a := fun _ _ => rfl
+  have hA₂ : ∀ a : Additive ↥Blk.R, a + a = 0 := by
+    intro a
+    apply Additive.toMul.injective
+    apply Subtype.ext
+    exact hR2 _ (Additive.toMul a).2
+  -- the action at the `f₀`-representative (`f₀.1.1 γ` for `γ : GA` reads through `GammaA ≡ GA`)
+  have hsmul : ∀ (γ : GA) (a : Additive ↥Blk.R),
+      γ • a
+        = Additive.ofMul (⟨f₀.1.1 γ * ((Additive.toMul a : ↥Blk.R) : Y) * (f₀.1.1 γ)⁻¹,
+            RStageLocal.conj_mem_R (f₀.1.1 γ) (Additive.toMul a)⟩ : ↥Blk.R) := by
+    intro γ a
+    have h1 : γ • a
+        = (QuotientGroup.mk' Blk.K (f₀.1.1 γ) : Y ⧸ Blk.K) • Additive.ofMul (Additive.toMul a) :=
+      rfl
+    rw [h1]
+    exact RStageLocal.conjC_smul_of_mk hRK (f₀.1.1 γ) (Additive.toMul a)
+  -- the multiplicative↔additive crossed-cocycle bridge `RCocycle ≃ Z¹(Γ_A, R)`
+  have hequiv : RCocycle (blockFrameImpl T Blk hE2) f₀.1.1
+      ≃ ↥(Z1 GA (Additive ↥Blk.R)) :=
+    { toFun := fun c =>
+        ⟨fun γ => Additive.ofMul ⟨c.u γ, c.mem γ⟩, by
+          refine mem_Z1_iff.mpr ⟨?_, ?_⟩
+          · show Continuous fun γ => (⟨c.u γ, c.mem γ⟩ : ↥Blk.R)
+            exact Continuous.subtype_mk c.cont _
+          · intro γ δ
+            rw [hsmul γ (Additive.ofMul ⟨c.u δ, c.mem δ⟩)]
+            apply Additive.toMul.injective
+            apply Subtype.ext
+            show c.u (γ * δ) = c.u γ * (f₀.1.1 γ * c.u δ * (f₀.1.1 γ)⁻¹)
+            exact c.crossed γ δ⟩
+      invFun := fun z =>
+        { u := fun γ => ((Additive.toMul (z.1 γ) : ↥Blk.R) : Y)
+          mem := fun γ => (Additive.toMul (z.1 γ)).2
+          cont := by
+            have hz := (mem_Z1_iff.mp z.2).1
+            exact continuous_subtype_val.comp hz
+          crossed := by
+            intro γ δ
+            have hz := (mem_Z1_iff.mp z.2).2 γ δ
+            rw [hsmul γ (z.1 δ)] at hz
+            exact congrArg (fun a => ((Additive.toMul a : ↥Blk.R) : Y)) hz }
+      left_inv := fun c => RCocycle.ext rfl
+      right_inv := fun z => Subtype.ext (funext fun γ => rfl) }
+  rw [Nat.card_congr hequiv]
+  -- the count: `#Z¹(Γ_A, R) = #Z1w(markC θ) = #R² · #fixedPts C (R^∨)` (candidate duality)
+  have adm := markC_admissible θ hθs
+  rw [Nat.card_congr (z1Equiv θ hcomp hθs hA₂).toEquiv,
+    (GQ2.FoxH.prop_5_15 (markC θ) adm.2.1 adm.2.2.1 adm.1 hA₂ adm.2.2.2).2.1]
+  -- the invariant-character bridge `fixedPts C (R^∨) ≃ D_Rmod`
+  have hbridge : Nat.card
+      (GQ2.FoxH.fixedPts (Y ⧸ Blk.K) (GQ2.FoxH.ElemDual (Additive ↥Blk.R)))
+      = Nat.card ↥(RCharSub Blk) := by
+    refine Nat.card_congr
+      { toFun := fun lam => ⟨lam.1, fun y r => ?_⟩
+        invFun := fun chi => ⟨chi.1, fun c => ?_⟩
+        left_inv := fun lam => rfl
+        right_inv := fun chi => rfl }
+    · have hfix := lam.2 (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)
+      have h1 := congrArg (fun mu : GQ2.FoxH.ElemDual (Additive ↥Blk.R) =>
+        mu (Additive.ofMul ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩)) hfix
+      have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹
+          • Additive.ofMul (⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩ : ↥Blk.R)
+          = Additive.ofMul r := by
+        rw [← map_inv]
+        rw [RStageLocal.conjC_smul_of_mk hRK y⁻¹ ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩]
+        apply congrArg
+        apply Subtype.ext
+        show y⁻¹ * (y * (r : Y) * y⁻¹) * y⁻¹⁻¹ = (r : Y)
+        group
+      have h2 : ((QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K) • lam.1)
+          (Additive.ofMul ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩)
+          = lam.1 (Additive.ofMul r) := by
+        rw [GQ2.FoxH.ElemDual.smul_apply, h3]
+      rw [h2] at h1
+      exact h1.symm
+    · obtain ⟨y, rfl⟩ := QuotientGroup.mk'_surjective Blk.K c
+      apply GQ2.FoxH.ElemDual.ext
+      intro a
+      rw [GQ2.FoxH.ElemDual.smul_apply]
+      have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹ • a
+          = Additive.ofMul (⟨y⁻¹ * ((Additive.toMul a : ↥Blk.R) : Y) * y⁻¹⁻¹,
+              RStageLocal.conj_mem_R y⁻¹ (Additive.toMul a)⟩ : ↥Blk.R) := by
+        rw [← map_inv]
+        exact RStageLocal.conjC_smul_of_mk hRK y⁻¹ (Additive.toMul a)
+      rw [h3]
+      exact chi.2 y⁻¹ (Additive.toMul a)
+  rw [hbridge, blockRChar_card T Blk hE2,
+    Nat.card_congr (Additive.toMul (α := ↥Blk.R))]
+  rfl
 
 /-! ## `hsep_hom`: the `(R^∨)^C` separation at the candidate source (L1–L5, the main work) -/
 
