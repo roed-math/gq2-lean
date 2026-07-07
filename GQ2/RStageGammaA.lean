@@ -311,6 +311,47 @@ theorem sep_word (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hgen : t.Gen
 
 end TraceSpan
 
+/-! ## L3e — the trivial-coefficient trace: `im d¹` lands in the sum-zero locus (feeds L4) -/
+
+section TraceKills
+
+open GQ2.FoxH
+
+variable {C : Type} [Group C] [Finite C]
+
+/-- **L3e: the trace kills `im d¹` at trivial `𝔽₂` coefficients** (`docs/p16d6e5-plan.md` §2, L3).
+For `C` acting trivially on `𝔽₂ = ZMod 2`, every `d¹`-row has coordinate sum zero:
+`(d¹x).1 + (d¹x).2 = 0`.  This is `prop_5_8_right` at `A := ZMod 2`, `lam := id` — the identity
+functional is `C`-invariant (`d⁰ id = 0`, since the contragredient action is trivial), so
+`mixedB t x (d⁰ id) = mixedB t x 0 = 0 = id ((d¹x).1 + (d¹x).2) = (d¹x).1 + (d¹x).2`.
+
+At the `Y/l`-cover instance of L4 the kernel `R/l ≅ 𝔽₂` is central (the invariant character `d`
+gives a trivial `C`-action), so this is exactly the coordinate-sum vanishing needed to feed
+`sep_word`'s hypothesis. -/
+theorem trace_kills_im_trivial [DistribMulAction C (ZMod 2)]
+    (htriv2 : ∀ (c : C) (m : ZMod 2), c • m = m)
+    (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (x : Fin 4 → ZMod 2) :
+    (d1Fun t x).1 + (d1Fun t x).2 = 0 := by
+  -- The identity functional, forced to the `ElemDual` type via a typed `let` so its `C`-action is
+  -- the contragredient — NOT the T-14 codomain-action diamond that a bare `ZMod 2 →+ ZMod 2`
+  -- (or an `ext`/`DFunLike.ext` that decays to one) would pick up.
+  let idE : ElemDual (ZMod 2) := AddMonoidHom.id (ZMod 2)
+  have hact : ∀ (c : C), c • idE = idE := by
+    intro c
+    have htoAM : (DistribSMul.toAddMonoidHom (ZMod 2) (c⁻¹ : C)) = AddMonoidHom.id (ZMod 2) := by
+      ext a; exact htriv2 c⁻¹ a
+    -- `c • idE` is defeq `idE.comp (toAddMonoidHom c⁻¹)` (the contragredient smul); `toAddMonoidHom
+    -- c⁻¹ = id` by triviality, and `idE.comp id = idE`.
+    show idE.comp (DistribSMul.toAddMonoidHom (ZMod 2) (c⁻¹ : C)) = idE
+    rw [htoAM, AddMonoidHom.comp_id]
+  have hlam : (d0 (A := ElemDual (ZMod 2)) t) idE = 0 := by
+    funext i; fin_cases i <;> exact sub_eq_zero.mpr (hact _)
+  have h58 := prop_5_8_right t ht hw x idE
+  rw [hlam, mixedB_zero_right] at h58
+  exact h58.symm
+
+end TraceKills
+
 /-! ## `hsep_hom`: the `(R^∨)^C` separation at the candidate source (L1–L5, the main work) -/
 
 /-- **The `(R^∨)^C`-separation at `Γ_A`** (P-16d6e5 residue): if the obstruction functional of a
