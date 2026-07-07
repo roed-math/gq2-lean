@@ -87,6 +87,7 @@ import GQ2.GaloisCosetNorm
 import GQ2.DimAssembly
 import GQ2.DimClose
 import GQ2.ResidueLift
+import GQ2.UnramifiedBridge
 import GQ2.CorestrictionCohomology
 import GQ2.OrbitVanish
 import GQ2.RegularIsometry
