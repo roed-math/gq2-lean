@@ -137,6 +137,25 @@ instance is P-18c's. -/
 def TameFrames : Type :=
   {α : ContinuousMonoidHom Ttame (G ⧸ twoCore G) // Function.Surjective α}
 
+/-- `Ttame` is topologically finitely generated (by `σ, τ`): `topGen_ttame` in the `Finset`
+form consumed by the t.f.g.-hom-finiteness machinery.  [P-18c] -/
+theorem ttame_tfg :
+    ∃ s : Finset Ttame, (Subgroup.closure (s : Set Ttame)).topologicalClosure = ⊤ := by
+  classical
+  refine ⟨{tameSigma, tameTau}, ?_⟩
+  have hcoe : (({tameSigma, tameTau} : Finset Ttame) : Set Ttame) = {tameSigma, tameTau} := by
+    simp
+  rw [hcoe]
+  exact SectionThree.topGen_ttame
+
+/-- **The tame-frame index is finite** (so Lemma 10.1's sum is a finite sum): continuous
+homomorphisms from the topologically `2`-generated `Ttame` into the finite discrete `G/O₂(G)`
+form a finite type.  [P-18c] -/
+instance : Finite (TameFrames G) := by
+  haveI : Finite (ContinuousMonoidHom Ttame (G ⧸ twoCore G)) :=
+    finite_continuousMonoidHom ttame_tfg _
+  exact Subtype.finite
+
 end Builders
 
 /-! ## The tame coordinate of a boundary map -/
@@ -167,29 +186,99 @@ variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
 variable (b : ContinuousMonoidHom Γ ↥boundarySubgroup)
 variable (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [Finite G]
 
+omit [IsTopologicalGroup Γ] in
+/-- The image of the wild kernel under a continuous epimorphism `f : Γ ↠ G` lands in the
+2-core: it is normal (image of a kernel under a surjection) and a 2-group (the pro-2 image
+bridge `isPGroup_map_of_isProP`).  [P-18c] -/
+theorem map_wildKer_le_twoCore (hwild : IsProP 2 (tameCoord b).toMonoidHom.ker)
+    (f : ContSurj Γ G) :
+    ((tameCoord b).toMonoidHom.ker.map f.1.toMonoidHom) ≤ twoCore G :=
+  le_twoCore ((MonoidHom.normal_ker _).map f.1.toMonoidHom f.2)
+    (isPGroup_map_of_isProP _ hwild f.1)
+
+/-- **The descended homomorphism** of Lemma 10.1's forward map: `π ∘ f` kills the wild kernel
+(`map_wildKer_le_twoCore`), so it factors through the surjective tame coordinate as
+`α_f : Ttame →* G/O₂(G)`.  [P-18c] -/
+noncomputable def inducedHom (htame : Function.Surjective (tameCoord b))
+    (hwild : IsProP 2 (tameCoord b).toMonoidHom.ker) (f : ContSurj Γ G) :
+    Ttame →* G ⧸ twoCore G :=
+  (tameCoord b).toMonoidHom.liftOfSurjective htame
+    ⟨(QuotientGroup.mk' (twoCore G)).comp f.1.toMonoidHom, fun x hx => by
+      rw [MonoidHom.mem_ker, MonoidHom.comp_apply, ← MonoidHom.mem_ker, QuotientGroup.ker_mk']
+      exact map_wildKer_le_twoCore b G hwild f (Subgroup.mem_map_of_mem _ hx)⟩
+
+omit [IsTopologicalGroup Γ] in
+/-- The defining property of the descent: `α_f ∘ (pr₁ ∘ b) = π ∘ f` pointwise.  [P-18c] -/
+theorem inducedHom_tameCoord (htame : Function.Surjective (tameCoord b))
+    (hwild : IsProP 2 (tameCoord b).toMonoidHom.ker) (f : ContSurj Γ G) (γ : Γ) :
+    inducedHom b G htame hwild f (tameCoord b γ) = QuotientGroup.mk' (twoCore G) (f.1 γ) :=
+  MonoidHom.liftOfRightInverse_comp_apply _ _ _ _ γ
+
+/-- **The induced tame frame** of a continuous epimorphism `f : Γ ↠ G` (Lemma 10.1, forward
+map): the descent `α_f`, continuous because the tame coordinate of a *compact* source is a
+topological quotient map (a continuous surjection onto the Hausdorff `Ttame` is closed, hence
+quotient), and surjective because `π ∘ f` is.  [P-18c; the `[CompactSpace Γ]` binder is a
+statement amendment over the P-18a skeleton — see `docs/section10-extraction.md`] -/
+noncomputable def inducedFrame [CompactSpace Γ] (htame : Function.Surjective (tameCoord b))
+    (hwild : IsProP 2 (tameCoord b).toMonoidHom.ker) (f : ContSurj Γ G) : TameFrames G :=
+  have hquot : Topology.IsQuotientMap (tameCoord b) :=
+    (tameCoord b).continuous_toFun.isClosedMap.isQuotientMap (tameCoord b).continuous_toFun
+      htame
+  ⟨{ toMonoidHom := inducedHom b G htame hwild f
+     continuous_toFun := hquot.continuous_iff.mpr <|
+       (QuotientGroup.continuous_mk.comp f.1.continuous_toFun).congr fun γ =>
+         (inducedHom_tameCoord b G htame hwild f γ).symm },
+   fun y => by
+     obtain ⟨g, rfl⟩ := QuotientGroup.mk'_surjective (twoCore G) y
+     obtain ⟨γ, rfl⟩ := f.2 g
+     exact ⟨tameCoord b γ, inducedHom_tameCoord b G htame hwild f γ⟩⟩
+
+omit [IsTopologicalGroup Γ] in
 /-- **Lemma 10.1 (Exhaustion by tame boundary frames)**, partition form: for a source `(Γ, b)`
 whose tame coordinate is onto with pro-2 kernel, the ordinary continuous epimorphisms `Γ ↠ G`
 are exactly the boundary-framed epimorphisms onto the single target `tameTarget G`, fibered
 over the (finitely many) tame frames — `f` lands in the fiber of its induced frame `α_f`
 (well-defined because `f(ker (pr₁ ∘ b))` is a normal 2-subgroup of `G`, hence `≤ O₂(G)`);
-distinct frames give disjoint fibers (`α` is determined by `α ∘ (pr₁ ∘ b)`).  [P-18c] -/
-theorem lemma_10_1
+distinct frames give disjoint fibers (`α` is determined by `α ∘ (pr₁ ∘ b)`).  [P-18c;
+`[CompactSpace Γ]` added over the P-18a skeleton — the descent's continuity needs the tame
+coordinate to be a quotient map.  Both sources are profinite, so this is free at P-18e.] -/
+theorem lemma_10_1 [CompactSpace Γ]
     (htame : Function.Surjective (tameCoord b))
     (hwild : IsProP 2 (tameCoord b).toMonoidHom.ker) :
     Nonempty (ContSurj Γ G ≃
       (α : TameFrames G) × BoundaryLifts b (tameFrame α.1 α.2) (tameTarget G)) := by
-  sorry
+  refine ⟨(Equiv.sigmaFiberEquiv (inducedFrame b G htame hwild)).symm.trans
+    (Equiv.sigmaCongrRight fun α => Equiv.subtypeEquivRight fun f => ?_)⟩
+  constructor
+  · -- membership in the fiber of `α_f` IS the boundary-framing condition for `α_f`
+    rintro rfl γ
+    refine Prod.ext ?_ (Subsingleton.elim _ _)
+    exact (inducedHom_tameCoord b G htame hwild f γ).symm
+  · -- disjointness: the framing condition for `α` forces `α_f = α`, since both agree with
+    -- `π ∘ f` after composition with the surjective tame coordinate
+    intro hf
+    refine Subtype.ext (ContinuousMonoidHom.ext fun t => ?_)
+    obtain ⟨γ, rfl⟩ := htame t
+    exact (inducedHom_tameCoord b G htame hwild f γ).trans (congrArg Prod.fst (hf γ))
 
 /-- **Lemma 10.1, counting form** (the (154)-assembly workhorse): the ordinary surjection count
 is the sum of the fixed-frame exact-image counts over all tame frames.  [P-18c; finiteness of
-the fibers from `hfg` via `finite_boundaryLifts`, of the index from `Ttame` t.f.g.] -/
-theorem card_contSurj_eq
+the fibers from `hfg` via `finite_boundaryLifts` (whence the `[TotallyDisconnectedSpace Γ]`
+binder, an amendment over the P-18a skeleton like `lemma_10_1`'s `[CompactSpace Γ]`), of the
+index from `Ttame` t.f.g.] -/
+theorem card_contSurj_eq [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
     (htame : Function.Surjective (tameCoord b))
     (hwild : IsProP 2 (tameCoord b).toMonoidHom.ker)
     (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤) :
     Nat.card (ContSurj Γ G)
       = ∑ᶠ α : TameFrames G, exactImageCount b (tameFrame α.1 α.2) (tameTarget G) := by
-  sorry
+  classical
+  obtain ⟨e⟩ := lemma_10_1 b G htame hwild
+  haveI : ∀ α : TameFrames G, Finite (BoundaryLifts b (tameFrame α.1 α.2) (tameTarget G)) :=
+    fun α => finite_boundaryLifts b (tameFrame α.1 α.2) (tameTarget G) hfg
+  haveI : Fintype (TameFrames G) := Fintype.ofFinite _
+  rw [Nat.card_congr e, Nat.card_sigma, finsum_eq_sum_of_fintype]
+  rfl
 
 end Exhaustion
 

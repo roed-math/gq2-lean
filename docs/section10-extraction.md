@@ -62,15 +62,27 @@ Skeleton builds green; the six sorries and their owners are listed at the end.
 9. **Quotient-head discreteness** `DiscreteTopology (G ⧸ twoCore G)` is proved via
    `discreteTopology_iff_forall_isOpen` + `isOpen_coinduced` (the `⟨rfl⟩` trick of
    `BlockFrameImpl.lean:39` does not transfer to an abstract `[DiscreteTopology G]`).
+10. **P-18c statement amendments (landed 2026-07-07).**  Over the P-18a skeleton:
+    `lemma_10_1` gains `[CompactSpace Γ]` — the induced frame `α_f` is continuous only because
+    the tame coordinate is a topological *quotient map* (a continuous surjection from a compact
+    source onto the Hausdorff `Ttame` is closed, hence quotient); without compactness the
+    descended hom need not be continuous (no strong-completeness machinery is formalized).
+    `card_contSurj_eq` gains `[CompactSpace Γ] [TotallyDisconnectedSpace Γ]` (the latter for
+    `finite_boundaryLifts`/`finite_continuousMonoidHom`).  Both are free at the P-18e call
+    sites, but note the `GammaA` instances are bound per-theorem in the tower — `eq_154` will
+    bind `[CompactSpace GammaA] [TotallyDisconnectedSpace GammaA]` alongside deviation 7's
+    `AbsGalQ2` binders.  Conversely `[IsTopologicalGroup Γ]` is `omit`ted on `lemma_10_1` and
+    the P-18c helpers (unused there; deviation 8's rationale is the `exactImageCount` side,
+    i.e. `card_contSurj_eq` keeps it).
 
 ## Sorry ledger (all allowlisted via `GQ2/SectionTen.lean`)
 
 | decl | owner |
 |---|---|
-| `twoCore_normal`, `twoCore_isPGroup` | P-18b |
-| `isPGroup_map_of_isProP` | P-18b |
-| `lemma_10_1`, `card_contSurj_eq` | P-18c |
-| `eq_154` | P-18e (consumes `thm_4_2` per frame — carries `sorryAx` through the allowlisted `SectionNine` sorry until P-17i) |
+| `twoCore_normal`, `twoCore_isPGroup` | P-18b — ✅ PROVED (2026-07-07, std-3) |
+| `isPGroup_map_of_isProP` | P-18b — ✅ PROVED (2026-07-07, std-3) |
+| `lemma_10_1`, `card_contSurj_eq` | P-18c — ✅ PROVED (2026-07-07, std-3; statement amendments in deviation 10) |
+| `eq_154` | P-18e (consumes `thm_4_2` per frame — carries `sorryAx` through the allowlisted `SectionNine` sorry until P-17i).  **The file's last sorry.** |
 
 `main_surjection_count'` is proved (std-3 + sorryAx via `eq_154`, verified); at P-18e it
 replaces the `Statement.lean:49` sorry by the statement move of deviation 7, taking
