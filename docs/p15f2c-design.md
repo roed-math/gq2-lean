@@ -54,7 +54,10 @@ deepness (`mem_deepPart_iff` on `ι∗x`) + `conjAct_deepClasses` (free) / `lemm
 2. **DI-core** (datum-independence heart, `Q0loc_datum_indep_of_core`'s `hcore`) — a genuine
    cohomological gap (`H¹(C, V∨)` obstruction, increment B); **f2a territory**, not f2c.
 3. **The involution `lemma_6_16` field-data** construction (`k`, `L`, `δ`, `u`, `v` from `deepPart`'s
-   deep-unit witness) — the deep §6.3 Kummer residue (unchanged from the original design).
+   deep-unit witness) — the deep §6.3 Kummer residue.  ⟨2026-07-07⟩ **SPLIT → P-15f2c2a
+   (abstract Kummer package) ∥ P-15f2c2b (spine)**; tower dictionary **CORRECTED** (see
+   §"Remaining — the involution field-data construction" below — the previous
+   "`k` = fixed field of `ker ρ`" line was misassigned).
 
 The original design (`hcoh`/`hvanish` reduction, deepness extraction) is below, still accurate.
 
@@ -107,16 +110,58 @@ supplied at f2d as `hker`), the deepness feeds:
   H2ofFun G (evensNormFun U s α) = 0` (since `evensNormH2 = H2mk⟨evensNormFun⟩`).  f2d composes
   `SectionSix.lemma_6_16` (whose conclusion IS `evensNormH2 … = 0`) with this bridge.
 
-### Remaining (the involution field-data construction — the deep §6.3 residue)
+### Remaining — the involution field-data construction (SPLIT 2026-07-07 → c2a ∥ c2b; c2c deferred)
 
 `lemma_6_16` needs the block's concrete Kummer presentation: the fields `k ≤ L`, the generator
 `(d, δ, hδ, hδL)` with `L = k(δ)`, `δ² = d`, and the deep unit's coordinates `(A, β, u, v,
-hAuv)` with `A = u + vδ`.  For the involution orbit, `L = K(√A_j)` where `A_j` is the deep unit
-of the block scalar coordinate `α_j` (from `deepPart`'s witness), `k = K = fixed field of ker ρ`,
-and `U₀/N` is the index-2 `⟨ĝ⟩`-extension.  Constructing this data from `deepPart`'s existential
-+ f2b's coordinate is "concrete construction by the consumer" (the lemma_6_16 amendment note) —
-the genuine deep remaining piece.  ⚠ needs the `AbsGalQ2 = Kummer.GaloisGroup ℚ_[2]` and
-`ker ρ = k.fixingSubgroup` bridges (the DeepDualityK `kerToFixing`/`hker` pattern).
+hAuv)` with `A = u + vδ`.  Constructing this data from `deepPart`'s existential + f2b's
+coordinate is "concrete construction by the consumer" (the lemma_6_16 amendment note).
+
+⚠ **Tower dictionary (CORRECTED 2026-07-07** — the previous revision of this paragraph had it
+misassigned): matching the reducer's involution `hvanish` (`H2ofFun ↥U₀ (evensNormFun
+(N.subgroupOf U₀) ĝ α) = 0`) against `lemma_6_16`'s conclusion (`evensNormH2` over
+`↥(k.fixingSubgroup)` with index-2 `(L.fixingSubgroup).subgroupOf (k.fixingSubgroup)`) forces
+`k.fixingSubgroup = U₀` and `L.fixingSubgroup = N = ker ρ`, i.e.:
+
+* **`k = fixedField U₀`** (the *lower* field) and **`L = fixedField (ker ρ)`** (the *upper*);
+  `Gal(L/k) = U₀/N = ⟨ĝ⟩`, quadratic from `[U₀ : N] = 2`;
+* the deep unit `A_j` lives in `L` (`IsDeepUnit`'s `N`-fixedness conjunct + `fixedField`);
+  `β = √A_j` generates a *further*, unnamed extension — `L ≠ k(√A_j)`;
+* the witness transport `IsDeepUnit (ker ρ) A → IsDeepUnit L.fixingSubgroup A` is an
+  **equality** rewrite: `ker ρ` open ⟹ closed ⟹ `fixingSubgroup (fixedField (ker ρ)) = ker ρ`
+  (InfiniteGalois closed-subgroup correspondence; the DeepDualityK `kerToFixing`/`hker`
+  pattern) — no monotonicity helper.  Likewise `U₀ ⊇ ker ρ` open ⟹ `k.fixingSubgroup = U₀`.
+
+**Split** (principle: `lemma_6_16`'s signature is landed and frozen, so bricks statable purely
+against it parallelize with zero f2b coupling; `hunram` is not yet statable — see c2c):
+
+* **P-15f2c2a — abstract Kummer presentation package** (NEW file `GQ2/QuadraticAdjoin.lean`;
+  no f2b, no `ρ`; write-disjoint from c1/c2b).  One exported existence lemma: `k ≤ L`
+  intermediate fields of `ℚ̄₂/ℚ_[2]`, `[FiniteDimensional ℚ_[2] k]`, degree 2 (interface takes
+  degree-2 data; the fixing-index-2 → degree-2 bridge is c2b's), `A ∈ L`,
+  `IsDeepUnit L.fixingSubgroup A` ⟹ `∃ d δ u v, δ² = d ∧ δ ∈ L ∧ hLδ ∧ A = u + vδ`
+  (`d u : (↥k)ˣ`).  Content: **(i)** `hLδ` — fixingSubgroup(`L`) = stabilizer(`δ`) rel `k`,
+  the √-adjoin-generator mathlib gap (`⟸`: `g` fixes `k` + `δ` ⟹ fixes `k⟮δ⟯ = L`, `δ`
+  integral, `PowerBasis.algHom_ext`-style adjoin ext; `⟹`: `δ ∈ L`); **(ii)**
+  complete-the-square — primitive `θ ∈ L∖k` (`k⟮θ⟯ = L`, degree 2 prime), minpoly
+  `X² + aX + b`, `δ := θ + a/2`, `d := a²/4 − b` (`≠ 0` else `δ = 0 ⟹ θ ∈ k`); **(iii)**
+  coordinates via the `{1, δ}` power basis; `u` a **unit** by deepness: `u = 0 ⟹ σA = −A`
+  (`σ` the nontrivial `L ≃ₐ[k] L`, `σδ = −δ`; lift by `AlgEquiv.liftNormal`) ⟹
+  `‖2‖ = ‖(A−1) + (σA−1)‖ ≤ max(…) < ‖2‖` by spectral-norm Galois-invariance (idiom banked
+  in `AdmissibleCount.conjAct_deepClasses`) — contradiction.
+* **P-15f2c2b — spine: dictionary + assembly** (`ShapiroDeepness.lean`).  Step-0 f2b
+  involution-coordinate read (`ĝ`, `hs`); pin the tower above + **decide the `hunram` route →
+  scope c2c**; witness plumbing (`mem_deepPart_iff`, `A ∈ L`, the two equality transports,
+  `hkL`, the fixing-index-2 → degree-2 bridge for c2a's interface); mechanical side-conditions
+  (`hα`/`hαc` banked: `kummerCocycleFun_mul` `GQ2/Kummer.lean:179`, continuity `:148`; `hUo`
+  from open `ker ρ`); the `α_j = kummerCocycleFun β` **cochain-level** match (`heq` is
+  class-level — confirm the `H2mk`/`H2ofFun` layer absorbs a `B¹` discrepancy, else the
+  `graphPullback_…_mem_B2` machinery); assemble `lemma_6_16` ∘ `hvanish_evensNorm` with c2a's
+  package + `hunram` sorried for an early end-to-end typecheck, discharge as they land.
+* **c2c — `hunram` (DEFERRED — do not spawn yet)**: the reducer quantifies over *all*
+  involution orbits, so either structure forces `L/k` unramified (deepness? the `C`-action?)
+  or ramified involution orbits need a different vanishing route / an upstream hypothesis
+  (possible statement amendment).  c2b's Step 0 pins this first.
 
 ## Free-orbit deepness caveat
 
@@ -131,5 +176,6 @@ to add at f2d/here if not banked.
    cores, `GQ2/ShapiroDeepness.lean`).
 2. (f2d, coordinate plumbing) `hcoh` via `lemma_6_15_*` at f2b's block reads; the deepness
    `H1mk α_j ∈ deepClasses` via `mem_deepPart_iff`; the `ker ρ = k.fixingSubgroup` bridge.
-3. (deep residue) the involution `lemma_6_16` field-data construction (`k`, `L`, `δ`, `u`, `v`)
-   from `deepPart`'s deep-unit witness — the last §6.3 Kummer piece.
+3. (deep residue — SPLIT 2026-07-07) **P-15f2c2a** (abstract Kummer presentation package) ∥
+   **P-15f2c2b** (spine + assembly); **c2c** (`hunram`) deferred pending c2b's Step-0 route
+   decision.  See §"Remaining — the involution field-data construction".
