@@ -1018,7 +1018,218 @@ theorem hsep_hom_gammaA
     (hg : obs (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2) htriv_gammaA
         hcard_A g.1.1 = 0) :
     ∃ φ : ContinuousMonoidHom GammaA Y, ∀ γ, (blockFrameImpl T Blk hE2).piB (φ γ) = g.1.1 γ := by
-  sorry
+  classical
+  -- §0: the `C = Y/K`-module structure on `R` (mirrors `hZcount_gammaA`)
+  letI : CommGroup ↥Blk.R := RStageLocal.rCommGroup Blk hRK
+  letI actC : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.R) := RStageLocal.conjC Blk hRK
+  haveI : Finite (Additive ↥Blk.R) := (inferInstance : Finite ↥Blk.R)
+  haveI hKn : Blk.K.Normal := Blk.hK
+  haveI hRn : Blk.R.Normal := SectionSeven.frattiniLike_normal Blk.K Blk.hK
+  -- §1: a set-lift marking `tY` of `g`'s marking through `π_B`
+  obtain ⟨yσ, hyσ⟩ := (blockFrameImpl T Blk hE2).piB_surj ((Marking.push g.1.1).σ)
+  obtain ⟨yτ, hyτ⟩ := (blockFrameImpl T Blk hE2).piB_surj ((Marking.push g.1.1).τ)
+  obtain ⟨yx₀, hyx₀⟩ := (blockFrameImpl T Blk hE2).piB_surj ((Marking.push g.1.1).x₀)
+  obtain ⟨yx₁, hyx₁⟩ := (blockFrameImpl T Blk hE2).piB_surj ((Marking.push g.1.1).x₁)
+  set tY : Marking Y := ⟨yσ, yτ, yx₀, yx₁⟩ with htY
+  have hproj : tY.map (blockFrameImpl T Blk hE2).piB = Marking.push g.1.1 :=
+    marking_ext hyσ hyτ hyx₀ hyx₁
+  -- its relator values live in `R = ker π_B` (the relators die in `B` — `g` is a hom)
+  have hv₁mem : tY.tameValue ∈ Blk.R := by
+    have h := Marking.map_tameValue (blockFrameImpl T Blk hE2).piB tY
+    rw [hproj, (Marking.tameValue_eq_one_iff _).mpr (push_tameRel g.1.1)] at h
+    rw [← (blockFrameImpl T Blk hE2).ker_piB, MonoidHom.mem_ker]
+    exact h.symm
+  have hv₂mem : tY.wildValue ∈ Blk.R := by
+    have h := Marking.map_wildValue (blockFrameImpl T Blk hE2).piB tY
+    rw [hproj, (Marking.wildValue_eq_one_iff _).mpr (push_wildRel g.1.1)] at h
+    rw [← (blockFrameImpl T Blk hE2).ker_piB, MonoidHom.mem_ker]
+    exact h.symm
+  set v₁ : ↥Blk.R := ⟨tY.tameValue, hv₁mem⟩ with hv₁def
+  set v₂ : ↥Blk.R := ⟨tY.wildValue, hv₂mem⟩ with hv₂def
+  -- §2: the `C`-stage composite `θ = (Y/R → Y/K) ∘ g`, surjective; its marking is `tY mod K`
+  have hRK' : Blk.R ≤ Subgroup.comap (MonoidHom.id Y) Blk.K := by
+    rw [Subgroup.comap_id]; exact SectionSeven.frattiniLike_le Blk.K
+  set qKR : (Y ⧸ Blk.R) →* (Y ⧸ Blk.K) :=
+    QuotientGroup.map Blk.R Blk.K (MonoidHom.id Y) hRK' with hqKR
+  set θ : ContinuousMonoidHom GA (Y ⧸ Blk.K) :=
+    ⟨qKR.comp g.1.1.toMonoidHom, by
+      show Continuous fun γ => qKR (g.1.1 γ)
+      exact Continuous.comp continuous_of_discreteTopology g.1.1.continuous_toFun⟩ with hθdef
+  have hθσ : θ gammaGen.σ = QuotientGroup.mk' Blk.K tY.σ := by
+    have h1 : (blockFrameImpl T Blk hE2).piB tY.σ = (Marking.push g.1.1).σ := hyσ
+    show qKR ((Marking.push g.1.1).σ) = QuotientGroup.mk' Blk.K tY.σ
+    rw [← h1]; rfl
+  have hθτ : θ gammaGen.τ = QuotientGroup.mk' Blk.K tY.τ := by
+    have h1 : (blockFrameImpl T Blk hE2).piB tY.τ = (Marking.push g.1.1).τ := hyτ
+    show qKR ((Marking.push g.1.1).τ) = QuotientGroup.mk' Blk.K tY.τ
+    rw [← h1]; rfl
+  have hθx₀ : θ gammaGen.x₀ = QuotientGroup.mk' Blk.K tY.x₀ := by
+    have h1 : (blockFrameImpl T Blk hE2).piB tY.x₀ = (Marking.push g.1.1).x₀ := hyx₀
+    show qKR ((Marking.push g.1.1).x₀) = QuotientGroup.mk' Blk.K tY.x₀
+    rw [← h1]; rfl
+  have hθx₁ : θ gammaGen.x₁ = QuotientGroup.mk' Blk.K tY.x₁ := by
+    have h1 : (blockFrameImpl T Blk hE2).piB tY.x₁ = (Marking.push g.1.1).x₁ := hyx₁
+    show qKR ((Marking.push g.1.1).x₁) = QuotientGroup.mk' Blk.K tY.x₁
+    rw [← h1]; rfl
+  have hθs : Function.Surjective ⇑θ := by
+    intro c
+    obtain ⟨y, hy⟩ := QuotientGroup.mk'_surjective Blk.K c
+    obtain ⟨γ, hγ⟩ := g.1.2 ((blockFrameImpl T Blk hE2).piB y)
+    refine ⟨γ, ?_⟩
+    show qKR (g.1.1 γ) = c
+    rw [hγ, ← hy]; rfl
+  -- §3: the word-complex duality package at `markC θ`
+  have hA₂ : ∀ a : Additive ↥Blk.R, a + a = 0 := by
+    intro a
+    apply Additive.toMul.injective
+    apply Subtype.ext
+    exact hR2 _ (Additive.toMul a).2
+  have adm := markC_admissible θ hθs
+  have hsd := GQ2.FoxH.prop_5_15 (markC θ) adm.2.1 adm.2.2.1 adm.1 hA₂ adm.2.2.2
+  -- §4 (L4): every invariant character kills the relator-value sum
+  have hv : ∀ lam : ElemDual (Additive ↥Blk.R),
+      (d0 (A := ElemDual (Additive ↥Blk.R)) (markC θ)) lam = 0 →
+      lam (Additive.ofMul v₁ + Additive.ofMul v₂) = 0 := by
+    intro lam hlam
+    -- `d⁰`-invariance ⟹ full `C`-invariance (generation) ⟹ `Y`-conjugation invariance
+    have hfixmem : lam ∈ fixedPts (Y ⧸ Blk.K) (ElemDual (Additive ↥Blk.R)) := by
+      have hmem : lam ∈ H0w (A := ElemDual (Additive ↥Blk.R)) (markC θ) :=
+        AddMonoidHom.mem_ker.mpr hlam
+      rw [← H0w_eq_fixedPts (markC θ) adm.1]
+      exact hmem
+    have hY : ∀ (y : Y) (r : ↥Blk.R),
+        lam (Additive.ofMul ⟨y * (r : Y) * y⁻¹,
+          (SectionSeven.frattiniLike_normal Blk.K Blk.hK).conj_mem (r : Y) r.2 y⟩)
+        = lam (Additive.ofMul r) := by
+      intro y r
+      have hfix := hfixmem (QuotientGroup.mk' Blk.K y)
+      have h1 := congrArg (fun mu : ElemDual (Additive ↥Blk.R) =>
+        mu (Additive.ofMul ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩)) hfix
+      have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹
+          • Additive.ofMul (⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩ : ↥Blk.R)
+          = Additive.ofMul r := by
+        rw [← map_inv]
+        rw [RStageLocal.conjC_smul_of_mk hRK y⁻¹ ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩]
+        apply congrArg
+        apply Subtype.ext
+        show y⁻¹ * (y * (r : Y) * y⁻¹) * y⁻¹⁻¹ = (r : Y)
+        group
+      have h2 : ((QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K) • lam)
+          (Additive.ofMul ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩)
+          = lam (Additive.ofMul r) := by
+        rw [ElemDual.smul_apply, h3]
+      rw [h2] at h1
+      exact h1.symm
+    set dc : ↥(RCharSub Blk) := ⟨lam, hY⟩ with hdcdef
+    by_cases hdc0 : dc = 0
+    · have hlam0 : lam = 0 := congrArg Subtype.val hdc0
+      rw [hlam0]
+      rfl
+    · -- the nonzero case: extract the cover lift and run the L4 core
+      have hne : (blockRObstructionData T Blk hE2).toDR dc
+          ≠ (blockFrameImpl T Blk hE2).zeroDR := by
+        intro hEq
+        refine hdc0 ?_
+        rw [← Equiv.symm_apply_apply (blockRObstructionData T Blk hE2).toDR dc, hEq]
+        exact (blockRObstructionData T Blk hE2).h0
+      obtain ⟨gc, hgc⟩ := (obs_zero_iff_lifts (blockFrameImpl T Blk hE2)
+        (blockRObstructionData T Blk hE2) htriv_gammaA hcard_A g.1.1 dc hne).mp
+        (LinearMap.congr_fun hg dc)
+      have hkey := redValues_eq_of_coverLift
+        ((blockFrameImpl T Blk hE2).scalarCover ((blockRObstructionData T Blk hE2).toDR dc) hne)
+        (blockFrameImpl T Blk hE2).piB
+        ((blockRObstructionData T Blk hE2).coverMap
+          ((blockRObstructionData T Blk hE2).toDR dc) hne)
+        ((blockRObstructionData T Blk hE2).coverMap_lifts
+          ((blockRObstructionData T Blk hE2).toDR dc) hne)
+        g.1.1 gc hgc tY hproj
+      have e1 : lam (Additive.ofMul v₁) = CentralObstruction.zsign
+          (trivialRCD ((blockFrameImpl T Blk hE2).scalarCover
+            ((blockRObstructionData T Blk hE2).toDR dc) hne))
+          (((blockRObstructionData T Blk hE2).coverMap
+            ((blockRObstructionData T Blk hE2).toDR dc) hne) (v₁ : Y)) :=
+        (blockRObstructionData T Blk hE2).pair_coverMap dc hne v₁
+      have e2 : lam (Additive.ofMul v₂) = CentralObstruction.zsign
+          (trivialRCD ((blockFrameImpl T Blk hE2).scalarCover
+            ((blockRObstructionData T Blk hE2).toDR dc) hne))
+          (((blockRObstructionData T Blk hE2).coverMap
+            ((blockRObstructionData T Blk hE2).toDR dc) hne) (v₂ : Y)) :=
+        (blockRObstructionData T Blk hE2).pair_coverMap dc hne v₂
+      rw [map_add, e1, e2,
+        show (((blockRObstructionData T Blk hE2).coverMap
+            ((blockRObstructionData T Blk hE2).toDR dc) hne) (v₁ : Y))
+          = (((blockRObstructionData T Blk hE2).coverMap
+            ((blockRObstructionData T Blk hE2).toDR dc) hne) (v₂ : Y)) from hkey]
+      exact CharTwo.add_self_eq_zero _
+  -- §5: the separation delivers word-level corrections
+  have hsep := sep_word (markC θ) adm.2.1 adm.2.2.1 adm.1 hsd hA₂
+    (Additive.ofMul v₁, Additive.ofMul v₂) hv
+  obtain ⟨x, hx⟩ := AddMonoidHom.mem_range.mp hsep
+  -- §6 (L5): the corrected marking kills both relators and still covers `g`
+  letI actY : DistribMulAction Y (Additive ↥Blk.R) :=
+    DistribMulAction.compHom _ (QuotientGroup.mk' Blk.K)
+  have hjmul : ∀ a b : Additive ↥Blk.R,
+      ((Additive.toMul (a + b) : ↥Blk.R) : Y)
+        = ((Additive.toMul a : ↥Blk.R) : Y) * ((Additive.toMul b : ↥Blk.R) : Y) :=
+    fun _ _ => rfl
+  have hjconj : ∀ (y : Y) (a : Additive ↥Blk.R),
+      ((Additive.toMul (y • a) : ↥Blk.R) : Y)
+        = y * ((Additive.toMul a : ↥Blk.R) : Y) * y⁻¹ := by
+    intro y a
+    have h := RStageLocal.conjC_smul_of_mk hRK y (Additive.toMul a)
+    rw [show (y • a : Additive ↥Blk.R)
+        = (QuotientGroup.mk' Blk.K y) • Additive.ofMul (Additive.toMul a) from rfl, h]
+    rfl
+  have hbase : d1Fun (markC θ) x = d1Fun tY x := by
+    rw [show markC θ = tY.map (QuotientGroup.mk' Blk.K) from
+      marking_ext hθσ hθτ hθx₀ hθx₁]
+    exact d1Fun_base_change (QuotientGroup.mk' Blk.K) (fun _ _ => rfl) tY x
+  have hd1 : d1Fun tY x = (Additive.ofMul v₁, Additive.ofMul v₂) := by
+    rw [← hbase]
+    exact hx
+  set tHat : Marking Y := ⟨((Additive.toMul (x 0) : ↥Blk.R) : Y) * tY.σ,
+    ((Additive.toMul (x 1) : ↥Blk.R) : Y) * tY.τ,
+    ((Additive.toMul (x 2) : ↥Blk.R) : Y) * tY.x₀,
+    ((Additive.toMul (x 3) : ↥Blk.R) : Y) * tY.x₁⟩ with htHat
+  have htameHat : tHat.TameRel := by
+    rw [← Marking.tameValue_eq_one_iff]
+    rw [show tHat.tameValue
+        = ((Additive.toMul ((d1Fun tY x).1) : ↥Blk.R) : Y) * tY.tameValue from
+      corrected_tameValue (fun a => ((Additive.toMul a : ↥Blk.R) : Y)) hjmul hjconj tY x, hd1]
+    show ((v₁ : Y)) * tY.tameValue = 1
+    exact hR2 _ hv₁mem
+  have hwildHat : tHat.WildRel := by
+    rw [← Marking.wildValue_eq_one_iff]
+    rw [show tHat.wildValue
+        = ((Additive.toMul ((d1Fun tY x).2) : ↥Blk.R) : Y) * tY.wildValue from
+      corrected_wildValue (fun a => ((Additive.toMul a : ↥Blk.R) : Y)) hjmul hjconj tY x, hd1]
+    show ((v₂ : Y)) * tY.wildValue = 1
+    exact hR2 _ hv₂mem
+  have hprojHat : tHat.map (blockFrameImpl T Blk hE2).piB = Marking.push g.1.1 := by
+    have hker : ∀ a : Additive ↥Blk.R,
+        (blockFrameImpl T Blk hE2).piB ((Additive.toMul a : ↥Blk.R) : Y) = 1 := by
+      intro a
+      rw [← MonoidHom.mem_ker, (blockFrameImpl T Blk hE2).ker_piB]
+      exact (Additive.toMul a).2
+    refine marking_ext ?_ ?_ ?_ ?_
+    · show (blockFrameImpl T Blk hE2).piB (((Additive.toMul (x 0) : ↥Blk.R) : Y) * tY.σ)
+        = (Marking.push g.1.1).σ
+      rw [map_mul, hker, one_mul]
+      exact hyσ
+    · show (blockFrameImpl T Blk hE2).piB (((Additive.toMul (x 1) : ↥Blk.R) : Y) * tY.τ)
+        = (Marking.push g.1.1).τ
+      rw [map_mul, hker, one_mul]
+      exact hyτ
+    · show (blockFrameImpl T Blk hE2).piB (((Additive.toMul (x 2) : ↥Blk.R) : Y) * tY.x₀)
+        = (Marking.push g.1.1).x₀
+      rw [map_mul, hker, one_mul]
+      exact hyx₀
+    · show (blockFrameImpl T Blk hE2).piB (((Additive.toMul (x 3) : ↥Blk.R) : Y) * tY.x₁)
+        = (Marking.push g.1.1).x₁
+      rw [map_mul, hker, one_mul]
+      exact hyx₁
+  -- §7: descend
+  exact lift_of_relatorFree_marking hE2 hR2 g.1.1 g.1.2 tHat hprojHat htameHat hwildHat
 
 /-! ## `stageR136`: the (136) identity, assembled -/
 

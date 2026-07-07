@@ -261,15 +261,40 @@ extension needed.
         `central r₂·X·r₂⁻¹ = X` (for `d0`), `central_pair (c·a)(c·b) = a·b` (for `h0`),
         `mul_mul_mul_comm` for combining two corrections (`u0`/`u1`), and `r₁⁻¹ = r₁`
         (`inv_eq_of_mul_eq_one_right`).  Marking field access `(corrMark …).sigma2` unfolds by `rfl`.
-  * ◐ **L4/L5** — per-cover extraction (`obs_zero_iff_lifts`) + descent
-    (`markC_admissible`/`NA_le_ker`/`quotientLift`).  Landed helper: ✅ `d1Fun_tame_trivial` (std-3)
-    — `(d¹x).1 = x 1` at trivial `𝔽₂`, the tame-row recognizer (the wild recognizer needs L1-wild).
-    **Exact L4→sep_word flow now pinned:** for each
-    invariant char `d` (`= l = RCharKer d` via `blockToDR`), L1 at `Y/l` + `d1Fun_naturality` (L2)
-    give `(d(v.1), d(v.2)) ∈ im d¹(𝔽₂-triv)`; `trace_kills_im_trivial` (L3e) turns that into
-    `d(v.1) + d(v.2) = 0` = `lam (v.1+v.2) = 0`; feed all invariant `lam` to `sep_word` ⟹
-    `v ∈ im d¹(Additive R)` ⟹ corrections `r⃗`, then L5 builds `J`/the corrected marking and
-    descends.  (`d = 0` is trivial: `sep_word`'s hypothesis at `lam = 0` is `0 = 0`.)
+  * ✅ **L4/L5 — DONE; `hsep_hom_gammaA` PROVED (Fable 5, 2026-07-07).  P-16d6e5 is CLOSED**
+    (modulo e6's `hcard_A`, threaded as designed).  `GQ2/RStageGammaA.lean` is **sorry-free**;
+    `#print axioms` for `hsep_hom_gammaA` AND `stageR136_gammaA_of_hcard` =
+    `{propext, Classical.choice, Quot.sound}` — **std-3, NO B-axioms** (the candidate route is
+    axiom-free as predicted).  `lake build GQ2.RStageGammaA` green (8662); file removed from
+    `SORRY_ALLOWLIST`.  The executed route differs from the ◐-sketch above in two ways worth
+    recording:
+    1. **The L4 extraction runs frame-abstractly** — no `Y/l` unfolding at all.  New helpers
+       (all std-3): `push_tameRel`/`push_wildRel` (relators die along ANY continuous
+       `f : Γ_A →ₜ* G'` finite — no surjectivity, the `liftMarking_eval_*` pattern via
+       `tameRelator_mem_NA`), and **`redValues_eq_of_coverLift`** — over a bare `CentralCover`:
+       the cover lift `gc` (from `obs_zero_iff_lifts`) and the reduced set-lift marking differ
+       by `corrMark`-corrections in `ker p ⊆ ⟨z⟩` (central 2-torsion by the STRUCTURE fields
+       `central`/`z_sq`/`ker_eq` — the earlier per-cover `d`-invariance analysis is subsumed),
+       so L1 gives both reduced relator values `= r̄₁`.  `pair_coverMap` + `zsign` convert the
+       resulting equality straight into `d(v₁) = d(v₂)` — `d1Fun_naturality`/
+       `trace_kills_im_trivial`/`d1Fun_*_trivial` turned out NOT to be needed on this path
+       (they remain banked as cross-checks).
+    2. **L5's general (non-central) correction is the `WordLift` multiplication hom**, not a
+       new word expansion: `mulW j : WordLift A Y →* Y`, `(u, g) ↦ j u · g` (a hom exactly
+       because the `Y`-action on `R` is conjugation, `conjC_smul_of_mk` through
+       `compHom (mk' K)`), plus the projection `projW` give
+       **`corrected_tameValue`/`corrected_wildValue`**:
+       `value(j(x)·t) = j((d1Fun t x).ᵢ) · value(t)`; **`d1Fun_base_change`** (via `baseW`)
+       transports `sep_word`'s output `d1Fun (markC θ) x = (ofMul v₁, ofMul v₂)` to the
+       `Y`-marking, whence the corrected tuple's values are `v·v = 1` by `hR2` — no
+       orientation bookkeeping (elements of `R` are involutions).  Descent is
+       **`lift_of_relatorFree_marking`**: `J := closure` of the corrected tuple, admissibility
+       (`Generates` via `closure_closure_coe_preimage`; relations by subtype injectivity;
+       `Pro2Core` pointwise through `Marking.push_admissible g` with `hR2` on the kernel),
+       then `Marking.descend` + the `F₄`-classified-hom comparison
+       (`toHom_hom_univMarking_map`) closes `π_B ∘ φ = g`.
+    Session commits: word-lift calculus + board fix `38d321e`; descent `959c7f2`; the main
+    proof + allowlist removal (this commit).
 
 **The GA/GammaA bridge — RESOLVED PATTERN (reuse in L1–L5).**  `GammaA ≡ GA` defeq, but their
 instances don't cross-resolve.  Theorems are stated over `Γ := GammaA` (so `blockStageR136`/
