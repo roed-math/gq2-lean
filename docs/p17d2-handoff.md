@@ -16,8 +16,8 @@ Author: Opus, 2026-07-06.
 | **P-17d1** | descent structure: `Vmod`/`addV`/`finV`/`actV` + `descend`(+`_surj`/`_ker`/`_conj`) | ☑ DONE, std-3 |
 | **P-17d2a** | `blockLam` — the index-2 character `λ_l : R → 𝔽₂` (input to `prop_7_4`/`mForm_of_qbar`) | ☑ DONE, std-3 |
 | **P-17d2c** | `hquad` (`IsQuadraticFp2 qbar`) + `hns` (`Nonsingular qbar`) — the "new math" | ☑ DONE, std-3 |
-| **P-17d2b** | assembly: `qbar`/`q`/`hrad`/`hTzero`/`hqbar`/`hinv` (from `prop_7_4`+`mForm_of_qbar`) + `hq` (cover square) | ☐ TODO |
-| **P-17d3** | `dat`/`hdat` (κ⁰ datum from `kappa0_exists`, rides P-17e) + final `blockEnrichment` assembly | ☐ TODO |
+| **P-17d2b** | assembly: `qbar`/`q`/`hrad`/`hTzero`/`hqbar`/`hinv` (from `prop_7_4`+`mForm_of_qbar`) + `hq` (cover square) | ☑ **DONE, std-3** — `GQ2/ScratchP17d2b.lean` (Opus 2026-07-06) |
+| **P-17d3** | `dat`/`hdat` (κ⁰ datum from `kappa0_exists`, rides P-17e) + final `blockEnrichment` assembly | ☑ **LANDED** — `SectionNine.blockEnrichment` real (build-tree `GQ2/Block{Descent,Char,FormFields,Enrichment}.lean`; scratch deleted; stub removed from `SectionNine.lean`; `GQ2.lean` wired). Library green (8684), census 15. `blockHsimple`/`blockHtame` std-3; `blockEnrichment` = std-3+`sorryAx` (only via `kappa0_exists`/P-17e). Sig = `F : BoundaryFrame H E`. |
 
 The **hard mathematical content is DONE** (d1, d2a, d2c). What remains (d2b, d3) is
 **assembly** — wiring the proven pieces into the `Enrichment` record — plus two genuinely

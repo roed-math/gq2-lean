@@ -56,6 +56,7 @@ import GQ2.SectionEight
 import GQ2.AffineTLift
 import GQ2.RadicalEdgeBridge
 import GQ2.SectionNine
+import GQ2.BlockEnrichment
 import GQ2.DeepPart
 import GQ2.LocalKummer
 import GQ2.RegularSummand

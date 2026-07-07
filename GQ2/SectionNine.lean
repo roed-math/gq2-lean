@@ -1392,13 +1392,12 @@ noncomputable def blockFrame {Y : Type} [Group Y] [TopologicalSpace Y] [Discrete
     (hE2 : ∀ e : E, e ^ 2 = 1) : RecursionFrame T Blk :=
   blockFrameImpl T Blk hE2
 
-/-- **The concrete enrichment of the block frame** (P-17d): the per-`λ` §7.4 square-form
-data and the descended κ⁰ datum, discharging `prop_8_9`'s `En` hypothesis. -/
-noncomputable def blockEnrichment {Y : Type} [Group Y] [TopologicalSpace Y]
-    [DiscreteTopology Y] [Finite Y] (T : MarkedTarget H E Y)
-    (Blk : SectionSeven.MinimalBlock T.LY) (hE2 : ∀ e : E, e ^ 2 = 1) :
-    (blockFrame T Blk hE2).Enrichment := by
-  sorry
+/- **The concrete enrichment of the block frame** (P-17d): the per-`λ` §7.4 square-form data
+and the descended κ⁰ datum, discharging `prop_8_9`'s `En` hypothesis.  **Defined in
+`GQ2/BlockEnrichment.lean`** (`SectionNine.blockEnrichment`, P-17d3) — it must sit downstream of
+this file because it consumes `kappa0_exists`/`ActsThroughTame`; its signature gains
+`F : BoundaryFrame H E` (supplying `cH := F.alpha` for `prop_7_4` and the tame generators for
+`htame`).  Axiom-clean modulo `kappa0_exists` (P-17e). -/
 
 /-! ## The elementary `M`-stage partition  (P-17f; §9.2, the `R = ⊥` lane) -/
 
