@@ -19,13 +19,15 @@ where `ι : V →+ W` is f2b's isometric embedding into the regular module `W = 
 (`N = ker ρ`), `datW_C` its orbit-sum datum reindexed to `C`, and the final `0` is
 `Q0loc_vanish_of_datum_decomp` fed per-orbit `hcoh` (f2c1) and `hvanish` (landed cores + f2c2).
 
-**State**: f2b is **fully landed**; the f2d transport/reindex/deepness **infrastructure is landed**;
-the two `hvanish` cores are landed. The genuinely open mathematics is **three tickets**:
-- **P-15f2a** — DI-core (datum-independence heart), ⭐⭐⭐, cross-lane.
-- **P-15f2c1** — the Shapiro H¹ coordinate read (`hcoh`), ⭐⭐⭐, the keystone.
-- **P-15f2c2** — the involution deep-unit Kummer presentation (`hvanish` field-data), ⭐⭐.
+**State (2026-07-07)**: f2a is **DONE** (`Q0loc_datum_indep`, std-3, board row); f2b is **fully
+landed**; the f2d transport/reindex/deepness **infrastructure is landed**; the two `hvanish`
+cores are landed; **f2c1 is DONE** (`GQ2/ShapiroRead.lean`, std-3 — see §5 and the session
+update at the end). The genuinely open mathematics is **one ticket**:
+- **P-15f2c2** — the involution deep-unit Kummer presentation (`hvanish` field-data), ⭐⭐ —
+  **split 2026-07-07 (commit `2d011e1`) into P-15f2c2a (abstract Kummer package) ∥ P-15f2c2b
+  (spine)**; see the board rows.
 
-then **P-15f2d** = thin composition. f2c1 and f2c2 are parallelizable (no shared dependency).
+then **P-15f2d** = composition (thin — every ingredient now has a landed producer except c2).
 
 **Do not** edit `GQ2/Foundations/Axioms.lean` (frozen). Keep every landed file sorry-free and
 std-3 (`{propext, Classical.choice, Quot.sound}`) unless a B-axiom is explicitly in the ticket's
@@ -70,11 +72,11 @@ through this lemma; closing it clears the ramified determinant theorem.
 | Ticket | Piece | Status |
 |---|---|---|
 | P-15f2 | umbrella (`lemma_6_17_vanish`) | ◐ |
-| **P-15f2a** | DI-core (datum-independence, Lemma 6.1/6.4) | ☐ OPEN ⭐⭐⭐ |
+| **P-15f2a** | DI-core (datum-independence, Lemma 6.1/6.4) | ✅ **DONE** (`Q0loc_datum_indep`, std-3) |
 | **P-15f2b** | isometric regular embedding + §6.2 orbit decomposition | ☑ **LANDED** |
 | P-15f2c | Shapiro coordinates + scalar deepness (COORDINATOR) | ◐ cores+infra landed |
-| **P-15f2c1** | Shapiro H¹ coordinate read (`hcoh`) | ☐ OPEN ⭐⭐⭐ (keystone) |
-| **P-15f2c2** | involution deep-unit Kummer presentation (`hvanish`) | ☐ OPEN ⭐⭐ |
+| **P-15f2c1** | Shapiro H¹ coordinate read (`hcoh`) | ✅ **DONE** (`GQ2/ShapiroRead.lean`, std-3) |
+| **P-15f2c2** | involution deep-unit Kummer presentation (`hvanish`) | ◐ split → c2a ∥ c2b (`2d011e1`) |
 | **P-15f2d** | final assembly + SectionSix splice | ☐ OPEN (thin — infra landed) |
 
 ---
@@ -181,35 +183,40 @@ datum-independence). `diffDatum` is an equivariant factor set for the **zero for
 against the `C`-equivariance defect `Δm` — the genuine `H¹(C, V∨)` obstruction — to build the
 coboundary `Λ(g) = Δφ(b g)`. See `docs/p15f2-option1-scoping.md`. **Cross-lane** (not f2c).
 
-### P-15f2c1 — the Shapiro H¹ coordinate read (`hcoh`), the keystone
+### P-15f2c1 — the Shapiro H¹ coordinate read (`hcoh`) — ✅ DONE (Fable 2026-07-07)
 
-**Deliverable**: for each orbit `o`, produce
-`hcoh o : H2ofFun AbsGalQ2 (graphPullback (orbitDatum o … reindexed) ρ (out (ι∗x)))
-= H2ofFun (cor2Fun (U o) (inner o))`, matching `lemma_6_15_{square,free,involution}`.
+**Landed in `GQ2/ShapiroRead.lean`** (NEW, registered; `#print axioms` = std-3 exactly on all
+12 declarations; `lake build` green).  The feared "Shapiro H¹ iso from scratch" dissolved —
+the read is **witness-level**, one identity:
 
-**The chain per orbit** (square shown):
-1. `orbitDatum (Sum.inl j) = squareBlockDatum N j = (squareOrbitDatum N).comap (blockProj N j)`
-   (definitional). So `graphPullback (squareBlockDatum N j) (mk'N) b
-   = graphPullback (squareOrbitDatum N) (mk'N) (blockProj N j ∘ b)` — need `graphPullback_comap`
-   functoriality (check `KappaNormalForm.datum_comap` / add a `graphPullback_comap` if absent).
-2. **THE CORE (not banked)**: `blockProj N j ∘ (out (ι∗x))` is cohomologous to `shapiroFun N α_j`
-   for a **scalar** `α_j : Z1 N (ZMod 2)`. This is Shapiro's H¹ iso `H¹(G, Coind_N 𝔽₂) ≅ H¹(N, 𝔽₂)`:
-   define `α_j := (n ↦ (block-j of out(ι∗x))(n)(base coset))` restricted to `N`, then exhibit the
-   explicit coboundary `b − shapiroFun N α_j = δ¹Λ` (transversal-based Λ, mirroring the `invLift`/
-   `invLambda` constructions already in `ShapiroLedger.lean`). `graphPullback` respects the
-   coboundary via `DeepPart.graphPullback_add_sub_mem_B2` (`:823`) + `H2ofFun_eq_of_sub_mem_B2`.
-3. Then `lemma_6_15_square N hNo α_j` fires. The `mk'N` acting map in `lemma_6_15` is bridged to the
-   reducer's `ρ` by `graphPullback_reindexHom` (with `φ = e`, `e∘ρ = mk'N`; landed).
-4. **`α_j` IS the deep coordinate**: `H1mk N α_j = phiRes ρ (ι∗x) φ_j` for the block-`j` coordinate
-   functional `φ_j : W →+ 𝔽₂` — this identification is what makes f2c1 also feed `hvanish` (see f2c2
-   / cores). So f2c1 should return `(α_j, hcoh o, H1mk α_j = phiRes ρ (ι∗x) φ_j)`.
+* `shapiroCoord N β := n ↦ β(n)(1̄)` (scalar coordinate), `shapiroPrim N β := u ↦ β(ũ)(u)`
+  (explicit primitive, canonical transversal).
+* **`shapiroFun_shapiroCoord_eq`**: for any `mk'`-cocycle `β : G → RegRep N` (raw hypothesis
+  `hβ : β(gh) = β(g) + mk'(g)•β(h)`, general `G`, no topology),
+  `Sh(shapiroCoord β)(g) = β(g) + (mk'(g) • shapiroPrim β − shapiroPrim β)`.
+  Proof: the cocycle rule on the two factorizations of `g·(g⁻¹•u)~ = ũ·ℓ_u(g)`, evaluated at
+  `u`; `mk'_inv_mul` is the extracted `hact` bridge.  `shapiroCoord_mem_Z1` is the
+  `Z¹`-package (continuity from `W` discrete; multiplicativity `shapiroCoord_mul`).
+* **Per-orbit `hcoh`** (at `G_ℚ₂`): `hcoh_square j`, `hcoh_free j k ĝ`, `hcoh_involution j ĝ …`
+  — statements `H2ofFun (graphPullback (squareBlockDatum N j / freeBlockDatum N j k (mk' ĝ) /
+  invBlockDatum N j (mk' ĝ)) ⇑(mk' N) b.1) = H2ofFun (cor2Fun …)` with RHS matching
+  `lemma_6_15_{square,free,involution}` **verbatim** at `α_j := shapiroCoord N (fun g => b.1 g j)`.
+  Chain: banked `RepIndependence.graphPullback_sub_mem_B2` at the block-supported primitive
+  (`Pi.single j w_j`; the free pair uses `Function.update (Pi.single j w_j) k w_k`, uniform in
+  the same-block `j = k` case) → new `graphPullback_comap` functoriality → `lemma_6_15_*`.
+  New `discreteTopology_quotient_of_isOpen` (AnabelianBridge argument at this layer).
+* **The deep feed**: `phiRes_evalW` — `phiRes ρ x (evalW j) = H1ofFun (shapiroCoord … (out x))`
+  is a **`rfl`** — and `shapiroCoord_mem_deepClasses` (via `mem_deepPart_iff`): each block's
+  scalar coordinate of a deep class is a deep Kummer class.
 
-**Why it's the keystone**: all three orbits' `hcoh` route through the same Shapiro read (step 2).
-**Gotcha**: `lemma_6_11`'s `ι` (`RegularSummand.lean:2050`) gives only the coinduced *module*
-structure (`ι(h•v) n x = ι v n (h⁻¹x)`), NOT `shapiroFun`-shaped *cocycles* — step 2 genuinely needs
-the cohomology-level iso, built from scratch. Repo has `shapiroFun` (`Corestriction.lean:71`) +
-forward props only; no H¹-level Shapiro machinery. May split (general iso vs. per-orbit
-instantiation) if large. **Ax: ∅ (std-3).** Touches shared `Corestriction`/`ShapiroLedger` — coordinate.
+**f2d consumption recipe**: the §PerOrbit lemmas take instance-args on `RegRep N`
+(`TopologicalSpace`/`DiscreteTopology`/`Finite`/`DistribMulAction AbsGalQ2`/`ContinuousSMul`)
+plus `hmk : ∀ g y, g • y = mk' N g • y` — supply the `letI := DistribMulAction.compHom _
+(mk' N)` family (then `hmk := fun _ _ => rfl`), take `b := Quotient.out (ι∗x)`, and note
+`orbitDatum o` matches the `*BlockDatum`s **definitionally**; the acting-map bridge
+`⇑e ∘ ⇑ρ = ⇑(mk' N)` is `graphPullback_reindexHom` (banked).  `U₀`-side inputs for the
+involution reducer slot (`IsOpen U₀`, `Finite (G⧸U₀)`) come from `N ≤ U₀` (open mono +
+quotient surjection) — small f2d bricks.
 
 ### P-15f2c2 — the involution deep-unit Kummer presentation (`hvanish`)
 
@@ -320,3 +327,33 @@ obtain ⟨K, ι, r, hEqfs, hIso, hιe, hri⟩ := regular_isometric_embedding_orb
 
 The critical path is `max(f2a, f2c1, f2c2)` then f2d. The f2d infra being pre-landed means the
 capstone is genuinely thin.
+
+---
+
+## 9. Session update (Fable, 2026-07-07) — **f2c1 LANDED** (`GQ2/ShapiroRead.lean`)
+
+The keystone is closed; see §5-f2c1 (rewritten in place) for the landed record and the f2d
+consumption recipe.  Design deltas vs. the original plan, for the next agent:
+
+* **No H¹-level Shapiro machinery was needed** — the read is a single explicit-witness
+  identity (`shapiroFun_shapiroCoord_eq`), not an isomorphism package.  The `invLift`/
+  `invLambda`-style transversal Λ never appears: the primitive is `w(u) = β(ũ)(u)`.
+* **The B²-move is at the `W`-level block datum**, not the `RegRep`-level orbit datum — so the
+  banked `graphPullback_sub_mem_B2` applies with its `Z¹(G_ℚ₂, W)` element (`b = out (ι∗x)`
+  directly), and `graphPullback_comap` (new, general) converts to the literal Lemma-6.15 input
+  *after* the shift.  The public OrbitDecomp equivariance lemmas
+  (`isEquivariantFactorSet_*BlockDatum`) feed it; the `RegRep`-level `isEqFS_*OrbitDatum` are
+  `private` — do not reach for them.
+* **Lean gotchas banked**: (i) under an unreduced pair-projection goal
+  `… = (Sh_j g, Sh_k g).2`, `rw [shapiroFun_shapiroCoord_eq hβk]`'s postponed higher-order
+  unification lets `kabstract` bind the lemma's implicit `?β` from the FIRST pair component
+  (the `j` side) and then reports a type mismatch on `hβk` — `show`-reduce the projection AND
+  pass `(β := …)` explicitly; (ii) `RegRep N` is a `def` synonym — NO instances beyond
+  `AddCommGroup`/`DistribMulAction (G⧸N)` flow through it; the topological/`G_ℚ₂`-action
+  instances must be arguments (statement level) or `letI`s (proof level), with `Pi`-instances
+  deriving the `Fin K → RegRep N` versions; (iii) the first post-snapshot `lake build` can
+  fail transiently inside the mass rebuild (stale swarm artifacts) — rerun before diagnosing.
+
+**Remaining for `lemma_6_17_vanish`**: P-15f2c2a ∥ c2b (involution Kummer field-data — the one
+open mathematical input), then P-15f2d (composition + the SectionSix statement-move, coordinate
+with P-15f1/f8).

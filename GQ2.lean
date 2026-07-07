@@ -83,6 +83,7 @@ import GQ2.CorestrictionCohomology
 import GQ2.OrbitVanish
 import GQ2.RegularIsometry
 import GQ2.OrbitDecomp
+import GQ2.ShapiroRead
 import GQ2.PropOneOne
 import GQ2.ZtwoPowering
 import GQ2.FrattiniCriterion
