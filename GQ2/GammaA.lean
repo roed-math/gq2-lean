@@ -268,22 +268,15 @@ theorem NA_le_ker {P : Type} [Group P] [TopologicalSpace P] [DiscreteTopology P]
 
 /-! ## Theorem 1.2, literal form -/
 
-/-- **Theorem 1.2 (literal presentation form).**  `Γ_A ≅ G_{ℚ₂}` as topological groups, with
-`Γ_A` the honest marked-quotient profinite group of paper eq. (7) defined above.
-
-*Status*: `sorry`-backed target.  The proof route is fixed and partially formalized:
-`main_presentation` (proved) applied to `Γ_A` needs (i) Prop. 2.3,
-`Nat.card (ContSurj Γ_A G) = admissibleCount G` for finite `G` (paper §2 — step 2 of the
-program, uses `NA_le_ker` + Lemmas 2.1/2.2 already in `GQ2/Subdirect.lean`), (ii) topological
-finite generation of `Γ_A` (quotient of the f.g. `F₄`), and (iii) `main_surjection_count`
-(the §§3–9 tower behind the B1–B9 literature axioms, `docs/literature-axioms.md`).
-
-The `CompactSpace`/`TotallyDisconnectedSpace` instance hypotheses on `AbsGalQ2` mirror
-`main_presentation` (Mathlib's `Field.absoluteGaloisGroup` does not yet carry them; open PR). -/
-theorem main_presentation_literal
-    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
-    Nonempty (ContinuousMulEquiv GammaA AbsGalQ2) := by
-  sorry
+/-! **Theorem 1.2 (literal presentation form)** — `Γ_A ≅ G_{ℚ₂}` as topological groups, with `Γ_A`
+the honest marked-quotient profinite group of paper eq. (7) defined above — is
+`GQ2.main_presentation_literal`, proved in **`GQ2/PresentationLiteral.lean`** (P-19), **not here**:
+its proof instantiates `Statement.main_presentation` at `Γ_A` with `hΓA := prop_2_3` (Prop. 2.3, the
+`Γ_A` admissible-marking count) and `hcount := SectionTen.main_surjection_count'` (Theorem 1.2 count
+form for `G_{ℚ₂}`, eq. (154) + Prop 2.3) plus the two topological finite-generation witnesses — and
+`prop_2_3`/`main_surjection_count'` are **downstream** of this upstream file, so an in-place proof
+would cycle (the statement-move pattern P-08/P-15d/P-18e).  It carries `sorryAx` through the
+allowlisted §9 `thm_4_2` until P-17i. -/
 
 /-! ## Sanity: a concrete admissible quotient, and `Γ_A ↠ S₃` -/
 
