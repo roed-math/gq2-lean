@@ -65,26 +65,35 @@ independent of the datum for a fixed form.  Only a *special isometry case* is ba
 set is a `2`-coboundary* (`∈ B²`).  Equivalently: the class `[κ⁰]` of a zero-form factor set on
 `V ⋊ C` is trivial, so its `(b,ρ)`-pullback splits over `G_ℚ₂`.
 
-### DI-core analysis (why it needs the paper, not a one-liner)
+### DI-core analysis (where the obstruction actually sits)
 
 Candidate coboundary `Λ(g) := Δφ(b g)` for a quadratic refinement `Δφ : V → 𝔽₂` of the difference
 datum.  With `polar Δφ = Δf` and the cocycle identity for `b`, a direct computation gives
 `δ¹Λ(g,h) = Δf(b g, ρg·b h) + [Δφ(b h) + Δφ(ρg·b h)]`, which matches
 `graphPullback (Δdat) ρ b (g,h) = Δf(b g, ρg·b h) + Δm(ρg)(b h)` **iff**
 `Δφ(v) + Δφ(c·v) = Δm c v`.  That compatibility is **consistent** with the factor-set identities
-(checked: `m_quad`, `m_mul`, `m_one` all follow from `polar Δφ = Δf`), so the obstruction is purely
-the **existence of `Δφ`** with `polar Δφ = Δf`.
+(checked: `m_quad`, `m_mul`, `m_one` all follow from `polar Δφ = Δf`).
 
-But a zero-form factor set's `Δf` is a symmetric normalized `2`-cocycle with zero diagonal, whose
-**bilinear part** need not be a coboundary of a function `Δφ` (e.g. a nonzero alternating form / cup
-product `x_i ∪ x_j` is a nontrivial class in `H²(V; 𝔽₂)`).  So the naive `Λ = Δφ(b·)` can fail.
+**The V-part is free.** `dat1.f` and `dat2.f` are factor sets with the **same diagonal** `q` and the
+**same polar** `polar q`.  Over 𝔽₂, `H²(V; 𝔽₂)` (for a vector space `V`) is classified by the
+diagonal quadratic form (`[f] ↦ (v ↦ f(v,v))` is a bijection onto quadratic forms), so `dat1.f` and
+`dat2.f` are **cohomologous**: `Δf = dat1.f + dat2.f = δ_sym ψ₀` is a symmetric coboundary, and a
+polar-refinement `Δφ` (with `polar Δφ = Δf`) **exists**.  (Earlier draft wrongly feared a cup-product
+obstruction here — it cancels because the two data share the polar.)
 
-The genuine proof is the paper's **Lemma 6.1/6.4**: any two equivariant lifts of the same `q` give
-**cohomologous** central cocycles on `V ⋊ C` (the extension of `V ⋊ C` classified by a zero-form
-factor set is split), and pullback preserves coboundaries.  Formalizing this is the P0 build — a
-self-contained cohomological lemma (`~150–300` ln), reusable (f3's `UnramifiedModel` built only the
-special isometry instance).  **This is the recommended next brick** — it unblocks the entire route
-and does not touch the orbit combinatorics.
+**The residual obstruction is the C-equivariance.** The refinements form a torsor under additive
+`L : V → 𝔽₂` (`Hom(V, 𝔽₂)`); matching the defect `Δφ(v) + Δφ(c·v) = Δm c v` requires an `L` with
+`L(v) + L(c·v) = Δm c v − [ψ₀(v) + ψ₀(c·v)]`, solvable iff a class in `H¹(C, Hom(V, 𝔽₂))` vanishes.
+That is the genuine Lemma-6.1/6.4 content (the `V ⋊ C` extension of a zero-form factor set splits).
+
+So DI-core reduces to: **(i)** construct a quadratic refinement `Δφ` of `Δf` (𝔽₂-splitting of a
+symmetric zero-diagonal cocycle — a `Module`-level lemma; `exists_biadditive_refinement'` gives the
+biadditive analog and is a template), **(ii)** correct it by an additive `L` killing the
+C-equivariance defect (`H¹(C, V*)` vanishing — leverage the odd-inertia / involution structure of
+`C`), **(iii)** set `Λ(g) = Δφ(b g)` and verify `δ¹Λ = graphPullback Δdat` by the char-2 identity
+above.  Self-contained (`~200–400` ln), reusable (f3's `UnramifiedModel` built only the special
+isometry instance).  **This is the recommended next brick** — it unblocks the entire route and does
+not touch the orbit combinatorics.  Interface fixed by `Q0loc_datum_indep_of_core`.
 
 ## Recommended order
 

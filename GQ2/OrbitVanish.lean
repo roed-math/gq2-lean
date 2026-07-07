@@ -317,9 +317,11 @@ char-2 difference) is an equivariant factor set for the **zero form**
 (`graphPullback_diffDatum`), so datum-independence follows once the graph pullback of a **zero-form**
 factor set is a coboundary (`hcore` — *DI-core*, the isolated Lemma-6.1/6.4 heart: the class
 `[κ⁰]` of a zero-form factor set on `V ⋊ C` is trivial, so its graph pullback lands in `B²`).  DI-core
-is **not** discharged here (the naive coboundary `Λ(g) = Δφ(b g)` can be obstructed by a nontrivial
-bilinear part of the difference — it needs the paper's Lemma 6.1/6.4 argument); it is stated as the
-parametric hypothesis so consumers and the eventual proof share the exact interface. -/
+is **not** discharged here: the coboundary `Λ(g) = Δφ(b g)` needs a quadratic refinement `Δφ` of the
+difference (which *exists* — the two data share the polar, so `Δf` is a symmetric coboundary over 𝔽₂)
+corrected against the C-equivariance defect `Δm` (an `H¹(C, V*)` obstruction — the genuine Lemma
+6.1/6.4 content).  It is stated as the parametric hypothesis so consumers and the eventual proof
+share the exact interface; see `docs/p15f2-option1-scoping.md`. -/
 
 section DatumIndependence
 
