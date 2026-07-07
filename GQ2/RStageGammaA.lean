@@ -195,6 +195,35 @@ theorem hZcount_gammaA
     Nat.card_congr (Additive.toMul (α := ↥Blk.R))]
   rfl
 
+/-! ## L2 — `d1Fun` naturality (word-complex helper for the separation's L4/L5) -/
+
+section WordNaturality
+
+variable {C : Type} [Group C] [Finite C]
+variable {A A' : Type} [AddCommGroup A] [Finite A] [DistribMulAction C A]
+  [AddCommGroup A'] [Finite A'] [DistribMulAction C A']
+
+omit [Finite A'] in
+/-- **`d¹` naturality** (`docs/p16d6e5-plan.md` §2, L2): a `C`-equivariant coefficient map
+`f : A →+ A'` intertwines the degree-1 differentials — `d1Fun t (f ∘ x) = (f × f)(d1Fun t x)`.
+Same functoriality proof as `FoxH.d1Fun_add` (push the lifted marking through `WordLift.map f`,
+then read the tame/wild `u`-coordinates), with a single coefficient map instead of `fst/snd`. -/
+theorem d1Fun_naturality (f : A →+ A') (hf : ∀ (g : C) (a : A), f (g • a) = g • f a)
+    (t : Marking C) (x : Fin 4 → A) :
+    GQ2.FoxH.d1Fun t (fun i => f (x i))
+      = (f (GQ2.FoxH.d1Fun t x).1, f (GQ2.FoxH.d1Fun t x).2) := by
+  have hL : (GQ2.FoxH.liftMarking t x).map (GQ2.FoxH.WordLift.map f hf)
+      = GQ2.FoxH.liftMarking t (fun i => f (x i)) := rfl
+  refine Prod.ext ?_ ?_
+  · show (GQ2.FoxH.liftMarking t (fun i => f (x i))).tameValue.u
+        = f ((GQ2.FoxH.liftMarking t x).tameValue.u)
+    rw [← hL, Marking.map_tameValue, GQ2.FoxH.WordLift.map_u]
+  · show (GQ2.FoxH.liftMarking t (fun i => f (x i))).wildValue.u
+        = f ((GQ2.FoxH.liftMarking t x).wildValue.u)
+    rw [← hL, Marking.map_wildValue, GQ2.FoxH.WordLift.map_u]
+
+end WordNaturality
+
 /-! ## `hsep_hom`: the `(R^∨)^C` separation at the candidate source (L1–L5, the main work) -/
 
 /-- **The `(R^∨)^C`-separation at `Γ_A`** (P-16d6e5 residue): if the obstruction functional of a
