@@ -4,6 +4,7 @@ import GQ2.BlockFrameImpl
 import GQ2.SectionThreeMarked
 import GQ2.KappaNormalForm
 import GQ2.MStageCount
+import GQ2.MStageCountGammaA
 
 /-!
 # §9: the strong induction proving Theorem 4.2  (ticket P-17; F-skeleton = P-17a)
@@ -1768,8 +1769,8 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
             (blockFrameImpl T Blk hE2).liftsOver_card_local B.bF F
           have hmultA : ∀ ρ : BoundaryLifts B.bA F (blockFrameImpl T Blk hE2).TC,
               Nat.card ((blockFrameImpl T Blk hE2).LiftsOver B.bA F ρ)
-                = (Nat.card ↥(blockFrameImpl T Blk hE2).MB) ^ 2 := by
-            sorry
+                = (Nat.card ↥(blockFrameImpl T Blk hE2).MB) ^ 2 :=
+            (blockFrameImpl T Blk hE2).liftsOver_card_gammaA B.bA F
           -- the two partition identities (P-17f)
           have hpartA := SectionNine.mStage_partition (blockFrameImpl T Blk hE2)
             hfgA B.bA F hheadA ((Nat.card ↥(blockFrameImpl T Blk hE2).MB) ^ 2)

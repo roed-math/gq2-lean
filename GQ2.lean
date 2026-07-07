@@ -66,6 +66,7 @@ import GQ2.ShapiroDeepness
 import GQ2.Phase140Assembly
 import GQ2.Prop89Close
 import GQ2.MStageCount
+import GQ2.MStageCountGammaA
 import GQ2.SectionNine
 import GQ2.BlockEnrichment
 import GQ2.DeepPart
@@ -79,6 +80,7 @@ import GQ2.AdmissibleCount
 import GQ2.DeepDuality
 import GQ2.DeepDualityK
 import GQ2.DeepCount
+import GQ2.UnramifiedNorm
 import GQ2.DimAssembly
 import GQ2.DimClose
 import GQ2.ResidueLift
@@ -100,3 +102,4 @@ import GQ2.SectionTenSources
 import GQ2.PresentationLiteral
 import GQ2.RStageGammaA
 import GQ2.CardH2GammaA
+import GQ2.QuadraticAdjoin
