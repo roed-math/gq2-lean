@@ -494,6 +494,132 @@ theorem exists_refinement_of_zero_form (Δdat : FactorSet C V)
       = (s u).fib + (s w).fib + Δdat.f u w
   rw [hsbase u, hsbase w]
 
+omit [TopologicalSpace C] [DiscreteTopology C] [TopologicalSpace V] [DiscreteTopology V]
+  [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] in
+/-- **(a2) the equivariance correction** (P-15f2a increment B): given the C-structure of an odd
+normal subgroup `I ◁ C` acting fixed-point-freely (`hVI : V^I = 0`), the quadratic refinement of
+increment A can be corrected to also satisfy the **equivariance-defect identity** `(E)`
+`Δφ(c•v) = Δφ v + Δdat.m c v`, giving the full refinement `(Q) ∧ (E)` that
+`graphPullback_mem_B2_of_refinement` consumes.
+
+Proof (the banked f1 averaging pattern, cf. `inflationVanishes_of_oddNormal`): the defect
+`D c v = Δφ₀(c•v) + Δφ₀ v + Δm c v` is additive in `v` (`(Q)` + `m_quad`) and a right `1`-cocycle in
+`c` (`m_mul`).  **Step A**: `L₀ = Σ_{i∈I} D i` kills the defect on `I` (cocycle expansion +
+`mulRight` reindex + `|I|` odd in `𝔽₂`), and `Δφ = Δφ₀ + L₀` keeps `(Q)` (`L₀` additive).  **Step B**:
+normality makes the corrected defect `D'` `I`-invariant (`D' c (i•v) = D' c v` via
+`c i = i' c`, `i' = c i c⁻¹ ∈ I`), whence `D' c v = Σ_{i∈I} D' c (i•v) = D' c (Σ_{i∈I} i•v) = D' c 0 = 0`
+since `Σ_{i∈I} i•v ∈ V^I = 0`.  No general `H¹(C,V*)` theory. -/
+theorem exists_equivariant_refinement (Δdat : FactorSet C V)
+    (hΔ : IsEquivariantFactorSet (fun _ => (0 : ZMod 2)) Δdat) (hV2 : ∀ v : V, v + v = 0)
+    (I : Subgroup C) (hIn : I.Normal) (hodd : Odd (Nat.card I))
+    (hVI : ∀ v : V, (∀ i ∈ I, i • v = v) → v = 0) :
+    ∃ Δφ : V → ZMod 2, (∀ u w : V, Δφ (u + w) = Δφ u + Δφ w + Δdat.f u w) ∧
+      (∀ (c : C) (v : V), Δφ (c • v) = Δφ v + Δdat.m c v) := by
+  obtain ⟨φ0, hQ0⟩ := exists_refinement_of_zero_form Δdat hΔ hV2
+  have hmquad := hΔ.m_quad
+  have hmmul := hΔ.m_mul
+  haveI : Fintype ↥I := Fintype.ofFinite _
+  have hoddsmul : ∀ x : ZMod 2, (Fintype.card ↥I) • x = x := by
+    intro x
+    have h1 : (Fintype.card ↥I : ZMod 2) = 1 := by
+      have : Odd (Fintype.card ↥I) := by rwa [Nat.card_eq_fintype_card] at hodd
+      obtain ⟨k, hk⟩ := this; rw [hk]; push_cast; rw [show (2 : ZMod 2) = 0 by decide]; ring
+    rw [nsmul_eq_mul, h1, one_mul]
+  set D : C → V → ZMod 2 := fun c v => φ0 (c • v) + φ0 v + Δdat.m c v with hD
+  have hDadd : ∀ (c : C) (v w : V), D c (v + w) = D c v + D c w := by
+    intro c v w
+    have h1 := hQ0 (c • v) (c • w); have h2 := hQ0 v w; have h3 := hmquad c v w
+    show φ0 (c • (v + w)) + φ0 (v + w) + Δdat.m c (v + w)
+        = (φ0 (c • v) + φ0 v + Δdat.m c v) + (φ0 (c • w) + φ0 w + Δdat.m c w)
+    rw [smul_add]
+    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) h1 + h2 + h3
+  have hDcoc : ∀ (c d : C) (v : V), D (c * d) v = D c (d • v) + D d v := by
+    intro c d v
+    have h := hmmul c d v
+    show φ0 ((c * d) • v) + φ0 v + Δdat.m (c * d) v
+      = (φ0 (c • d • v) + φ0 (d • v) + Δdat.m c (d • v)) + (φ0 (d • v) + φ0 v + Δdat.m d v)
+    rw [mul_smul, h]
+    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
+  set L : V → ZMod 2 := fun v => ∑ i : ↥I, D (i : C) v with hL
+  have hLadd : ∀ v w, L (v + w) = L v + L w := by
+    intro v w
+    show (∑ i : ↥I, D (i : C) (v + w)) = (∑ i : ↥I, D (i : C) v) + ∑ i : ↥I, D (i : C) w
+    rw [← Finset.sum_add_distrib]; exact Finset.sum_congr rfl fun i _ => hDadd (i : C) v w
+  set Δφ : V → ZMod 2 := fun v => φ0 v + L v with hΔφ
+  have hQ : ∀ u w, Δφ (u + w) = Δφ u + Δφ w + Δdat.f u w := by
+    intro u w
+    show φ0 (u + w) + L (u + w) = (φ0 u + L u) + (φ0 w + L w) + Δdat.f u w
+    rw [hQ0 u w, hLadd u w]; ring
+  set D' : C → V → ZMod 2 := fun c v => Δφ (c • v) + Δφ v + Δdat.m c v with hD'
+  have hD'eq : ∀ c v, D' c v = D c v + (L (c • v) + L v) := by
+    intro c v
+    show φ0 (c • v) + L (c • v) + (φ0 v + L v) + Δdat.m c v
+      = (φ0 (c • v) + φ0 v + Δdat.m c v) + (L (c • v) + L v)
+    ring
+  have hD'add : ∀ (c : C) (v w : V), D' c (v + w) = D' c v + D' c w := by
+    intro c v w; rw [hD'eq, hD'eq, hD'eq, hDadd, hLadd, smul_add, hLadd]; ring
+  have hstepA : ∀ (j : ↥I) (v : V), L ((j : C) • v) + L v = D (j : C) v := by
+    intro j v
+    have e1 : L ((j : C) • v) = (∑ i : ↥I, D ((i : C) * (j : C)) v) + ∑ _i : ↥I, D (j : C) v := by
+      show (∑ i : ↥I, D (i : C) ((j : C) • v)) = _
+      rw [← Finset.sum_add_distrib]
+      refine Finset.sum_congr rfl fun i _ => ?_
+      linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hDcoc (i : C) (j : C) v
+    have e2 : (∑ i : ↥I, D ((i : C) * (j : C)) v) = L v := by
+      show _ = ∑ i : ↥I, D (i : C) v
+      refine Fintype.sum_equiv (Equiv.mulRight j) _ _ fun i => ?_
+      simp only [Equiv.coe_mulRight, Subgroup.coe_mul]
+    have e3 : (∑ _i : ↥I, D (j : C) v) = D (j : C) v := by
+      rw [Finset.sum_const, Finset.card_univ, hoddsmul]
+    rw [e1, e2, e3]
+    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
+  have hD'I : ∀ (j : ↥I) (v : V), D' (j : C) v = 0 := by
+    intro j v; rw [hD'eq]
+    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hstepA j v
+  have hD'coc : ∀ (c d : C) (v : V), D' (c * d) v = D' c (d • v) + D' d v := by
+    intro c d v
+    have h := hmmul c d v
+    show Δφ ((c * d) • v) + Δφ v + Δdat.m (c * d) v
+      = (Δφ (c • d • v) + Δφ (d • v) + Δdat.m c (d • v)) + (Δφ (d • v) + Δφ v + Δdat.m d v)
+    rw [mul_smul, h]
+    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
+  have hinv : ∀ (c : C) (i : ↥I) (v : V), D' c ((i : C) • v) = D' c v := by
+    intro c i v
+    have hmem : c * (i : C) * c⁻¹ ∈ I := hIn.conj_mem _ i.2 c
+    set i' : ↥I := ⟨c * (i : C) * c⁻¹, hmem⟩ with hi'
+    have hci : c * (i : C) = (i' : C) * c := by
+      have : (i' : C) = c * (i : C) * c⁻¹ := rfl
+      rw [this]; group
+    have h1 := hD'coc c (i : C) v
+    have h2 := hD'coc (i' : C) c v
+    rw [hci] at h1
+    rw [hD'I i v, add_zero] at h1
+    rw [hD'I i' (c • v), zero_add] at h2
+    rw [h1] at h2; exact h2
+  refine ⟨Δφ, hQ, fun c v => ?_⟩
+  have hDcv0 : D' c v = 0 := by
+    set S : V := ∑ i : ↥I, (i : C) • v with hS
+    have hSfix : ∀ j ∈ I, j • S = S := by
+      intro j hj
+      have step : j • S = ∑ i : ↥I, ((⟨j, hj⟩ * i : ↥I) : C) • v := by
+        rw [hS, Finset.smul_sum]
+        exact Finset.sum_congr rfl fun i _ => by rw [← mul_smul, Subgroup.coe_mul]
+      rw [step, hS]
+      exact Fintype.sum_equiv (Equiv.mulLeft (⟨j, hj⟩ : ↥I)) _ _ fun i => rfl
+    have hS0 : S = 0 := hVI S hSfix
+    let hom : V →+ ZMod 2 := AddMonoidHom.mk' (D' c) (fun a b => hD'add c a b)
+    have hmapsum : D' c S = ∑ i : ↥I, D' c ((i : C) • v) := by
+      show hom S = ∑ i : ↥I, hom ((i : C) • v)
+      rw [hS, map_sum]
+    calc D' c v = ∑ _i : ↥I, D' c v := by rw [Finset.sum_const, Finset.card_univ, hoddsmul]
+      _ = ∑ i : ↥I, D' c ((i : C) • v) := (Finset.sum_congr rfl fun i _ => hinv c i v).symm
+      _ = D' c S := hmapsum.symm
+      _ = D' c 0 := by rw [hS0]
+      _ = 0 := hom.map_zero
+  show Δφ (c • v) = Δφ v + Δdat.m c v
+  have h0 : Δφ (c • v) + Δφ v + Δdat.m c v = 0 := hDcv0
+  linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) h0
+
 /-! ### f2a (P-15f2a): the DI-core cochain assembly — reduced to the existence of a refinement
 
 DI-core (`graphPullback (zero-form factor set) ∈ B²`) has an explicit coboundary witness
@@ -539,6 +665,27 @@ theorem Q0loc_datum_indep_of_refinement (D : TateDuality 2) (dat1 dat2 : FactorS
     Q0loc D dat1 ρ x = Q0loc D dat2 ρ x :=
   Q0loc_datum_indep_of_core D dat1 dat2 ρ x
     (graphPullback_mem_B2_of_refinement (diffDatum dat1 dat2) ρ hρ Δφ hQ hE (Quotient.out x))
+
+omit [DiscreteTopology C] [ContinuousSMul AbsGalQ2 V] in
+/-- **(a3) `Q⁰_loc` datum-independence** (P-15f2a capstone): for two equivariant factor sets
+`dat1`, `dat2` of the **same** form `q`, an odd normal subgroup `I ◁ C` acting fixed-point-freely
+(`hVI : V^I = 0`) forces `Q⁰_loc dat1 = Q⁰_loc dat2`.  Composes `isEquivariantFactorSet_diffDatum`
+(the difference is a zero-form datum) → `exists_equivariant_refinement` (the full `(Q)∧(E)` refinement,
+increments A+B) → `Q0loc_datum_indep_of_refinement`.  This is the f2a deliverable; the tame
+instantiation of `(I, hIn, hodd, hVI)` (e.g. `I = zpowers (c tameTau)`, via the banked producers
+`tameInertia_normal` / `odd_orderOf_tameInertia` / `fixedByNormal_eq_bot`) stays with f2d. -/
+theorem Q0loc_datum_indep (D : TateDuality 2) {q : V → ZMod 2}
+    (dat1 dat2 : FactorSet C V)
+    (hdat1 : IsEquivariantFactorSet q dat1) (hdat2 : IsEquivariantFactorSet q dat2)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (hV2 : ∀ v : V, v + v = 0)
+    (I : Subgroup C) (hIn : I.Normal) (hodd : Odd (Nat.card I))
+    (hVI : ∀ v : V, (∀ i ∈ I, i • v = v) → v = 0)
+    (x : H1 AbsGalQ2 V) :
+    Q0loc D dat1 ρ x = Q0loc D dat2 ρ x := by
+  obtain ⟨Δφ, hQ, hE⟩ := exists_equivariant_refinement (diffDatum dat1 dat2)
+    (isEquivariantFactorSet_diffDatum hdat1 hdat2) hV2 I hIn hodd hVI
+  exact Q0loc_datum_indep_of_refinement D dat1 dat2 ρ hρ x Δφ hQ hE
 
 end DatumIndependence
 
