@@ -36,7 +36,7 @@ namespace GQ2
 
 namespace Phase140GammaA
 
-open SectionEight AffineTLift CentralObstruction ContCoh WordCohBridge GQ2.FoxH
+open SectionEight AffineTLift CentralObstruction ContCoh WordCohBridge GQ2.FoxH RStageGammaA
 
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
   [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
@@ -418,6 +418,265 @@ theorem exists_lift_charCover [DistribMulAction Γ (ZMod 2)]
     exact fLift_mk S hσ c γ
 
 end CharCover
+
+/-! ## L5 descent at the `T`-stage: a relator-free covering marking of `B` descends from `Γ_A`
+
+The `T`-stage mirror of `RStageGammaA.lift_of_relatorFree_marking`, with one new twist: the
+covered map `g_Q : Γ_A → B/T` is **not surjective** (its image is the graph-like subgroup of a
+`V`-cocycle), so `Marking.push_admissible` does not apply directly.  The fix is a
+**corestriction through the classified hom**: the four `B/T`-generator images generate a
+subgroup `J̄`, the `F₄`-hom classified by the `J̄`-marking kills `N_A` (compare with
+`g_Q ∘ quotientMk` through `toHom_hom_univMarking_map` and transfer the kernel through the
+injective subtype), so it descends to a **surjective** `ḡ : Γ_A ↠ J̄` — whose pushed marking
+is admissible, feeding the `Pro2Core` chase. -/
+
+section DescendT
+
+variable {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {D : RadicalCoverData Bg}
+
+/-- **The `T`-stage descent** (`hsep_A` L5): a marking of `B` that covers `g_Q`'s marking
+through `π_T` and kills both relators descends to a continuous `f : Γ_A → B` with
+`π_T ∘ f = g_Q`. -/
+theorem mlift_of_relatorFree_marking
+    (gQ : ContinuousMonoidHom GA (Bg ⧸ D.T))
+    (tHat : Marking Bg)
+    (hproj : tHat.map (QuotientGroup.mk' D.T) = Marking.push gQ)
+    (htame : tHat.TameRel) (hwild : tHat.WildRel) :
+    ∃ f : ContinuousMonoidHom GammaA Bg,
+      ∀ γ, QuotientGroup.mk' D.T (f γ) = gQ γ := by
+  classical
+  have htelem : ∀ t ∈ D.T, t * t = 1 := fun t ht => D.helem t (D.hTM ht)
+  -- §1: the generated subgroup of `B` and its marking
+  set J : Subgroup Bg := Subgroup.closure {tHat.σ, tHat.τ, tHat.x₀, tHat.x₁} with hJ
+  have hmemσ : tHat.σ ∈ J := Subgroup.subset_closure (by simp)
+  have hmemτ : tHat.τ ∈ J := Subgroup.subset_closure (by simp)
+  have hmemx₀ : tHat.x₀ ∈ J := Subgroup.subset_closure (by simp)
+  have hmemx₁ : tHat.x₁ ∈ J := Subgroup.subset_closure (by simp)
+  set tJ : Marking ↥J :=
+    ⟨⟨tHat.σ, hmemσ⟩, ⟨tHat.τ, hmemτ⟩, ⟨tHat.x₀, hmemx₀⟩, ⟨tHat.x₁, hmemx₁⟩⟩ with htJ
+  have hmapJ : tJ.map J.subtype = tHat := by
+    refine marking_ext ?_ ?_ ?_ ?_ <;> rfl
+  have htameJ : tJ.TameRel := by
+    rw [← Marking.tameValue_eq_one_iff]
+    have h := Marking.map_tameValue J.subtype tJ
+    rw [hmapJ, (Marking.tameValue_eq_one_iff tHat).mpr htame] at h
+    exact Subtype.val_injective h.symm
+  have hwildJ : tJ.WildRel := by
+    rw [← Marking.wildValue_eq_one_iff]
+    have h := Marking.map_wildValue J.subtype tJ
+    rw [hmapJ, (Marking.wildValue_eq_one_iff tHat).mpr hwild] at h
+    exact Subtype.val_injective h.symm
+  have hgenJ : tJ.Generates := by
+    show Subgroup.closure {tJ.σ, tJ.τ, tJ.x₀, tJ.x₁} = ⊤
+    have hpre : ({tJ.σ, tJ.τ, tJ.x₀, tJ.x₁} : Set ↥J)
+        = ((↑) : ↥J → Bg) ⁻¹' {tHat.σ, tHat.τ, tHat.x₀, tHat.x₁} := by
+      ext j
+      simp only [Set.mem_insert_iff, Set.mem_singleton_iff, Set.mem_preimage]
+      constructor
+      · rintro (rfl | rfl | rfl | rfl) <;> simp [htJ]
+      · rintro (h | h | h | h)
+        · exact Or.inl (Subtype.ext h)
+        · exact Or.inr (Or.inl (Subtype.ext h))
+        · exact Or.inr (Or.inr (Or.inl (Subtype.ext h)))
+        · exact Or.inr (Or.inr (Or.inr (Subtype.ext h)))
+    rw [hpre]
+    exact Subgroup.closure_closure_coe_preimage
+  -- §2: the corestriction `ḡ : Γ_A ↠ J̄ = ⟨g_Q-generator images⟩ ≤ B/T`
+  set Jbar : Subgroup (Bg ⧸ D.T) := Subgroup.closure
+    {(Marking.push gQ).σ, (Marking.push gQ).τ, (Marking.push gQ).x₀, (Marking.push gQ).x₁}
+    with hJbar
+  have hmemσ' : (Marking.push gQ).σ ∈ Jbar := Subgroup.subset_closure (by simp)
+  have hmemτ' : (Marking.push gQ).τ ∈ Jbar := Subgroup.subset_closure (by simp)
+  have hmemx₀' : (Marking.push gQ).x₀ ∈ Jbar := Subgroup.subset_closure (by simp)
+  have hmemx₁' : (Marking.push gQ).x₁ ∈ Jbar := Subgroup.subset_closure (by simp)
+  set tbar : Marking ↥Jbar :=
+    ⟨⟨(Marking.push gQ).σ, hmemσ'⟩, ⟨(Marking.push gQ).τ, hmemτ'⟩,
+      ⟨(Marking.push gQ).x₀, hmemx₀'⟩, ⟨(Marking.push gQ).x₁, hmemx₁'⟩⟩ with htbar
+  have hclassbar : univMarking.map (Marking.classify tbar).toMonoidHom = tbar :=
+    univMarking_map_toHom (P := ProfiniteGrp.of ↥Jbar) tbar
+  -- the classified hom, compared with `g_Q ∘ quotientMk` through the subtype
+  set cbar : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4)) (Bg ⧸ D.T) :=
+    (⟨Jbar.subtype, continuous_subtype_val⟩ :
+        ContinuousMonoidHom ↥Jbar (Bg ⧸ D.T)).comp (Marking.classify tbar) with hcbar
+  have hcomp : cbar = gQ.comp (quotientMk NA) := by
+    have h1 := Marking.toHom_hom_univMarking_map cbar
+    have h2 := Marking.toHom_hom_univMarking_map (gQ.comp (quotientMk NA))
+    have hpushc : univMarking.map cbar.toMonoidHom
+        = univMarking.map (gQ.comp (quotientMk NA)).toMonoidHom := by
+      refine marking_ext ?_ ?_ ?_ ?_
+      · exact congrArg (fun t : Marking ↥Jbar => (t.σ : Bg ⧸ D.T)) hclassbar
+      · exact congrArg (fun t : Marking ↥Jbar => (t.τ : Bg ⧸ D.T)) hclassbar
+      · exact congrArg (fun t : Marking ↥Jbar => (t.x₀ : Bg ⧸ D.T)) hclassbar
+      · exact congrArg (fun t : Marking ↥Jbar => (t.x₁ : Bg ⧸ D.T)) hclassbar
+    rw [← h1, ← h2, hpushc]
+  have hker : NA ≤ (Marking.classify tbar).toMonoidHom.ker := by
+    intro x hx
+    rw [MonoidHom.mem_ker]
+    refine Subtype.val_injective ?_
+    have h1 : (((Marking.classify tbar).toMonoidHom x : ↥Jbar) : Bg ⧸ D.T) = cbar x := rfl
+    rw [h1, hcomp]
+    show gQ (quotientMk NA x) = ((1 : ↥Jbar) : Bg ⧸ D.T)
+    rw [(quotientMk_eq_one_iff NA).mpr hx, map_one]
+    rfl
+  set gbar : ContinuousMonoidHom GA ↥Jbar :=
+    quotientLift NA (Marking.classify tbar) hker with hgbar
+  have hgbar_val : ∀ γ : GA, (gbar γ : Bg ⧸ D.T) = gQ γ := by
+    intro γ
+    obtain ⟨w, rfl⟩ := quotientMk_surjective NA γ
+    show (Marking.classify tbar w : Bg ⧸ D.T) = gQ (quotientMk NA w)
+    rw [show (Marking.classify tbar w : Bg ⧸ D.T) = cbar w from rfl, hcomp]
+    rfl
+  -- `ḡ` hits the four generators, hence is surjective
+  have hgbar_gen : ∀ i : Fin 4, gbar (quotientMk NA (FreeProfiniteGroup.of i)) =
+      ![tbar.σ, tbar.τ, tbar.x₀, tbar.x₁] i := by
+    intro i
+    show Marking.classify tbar (FreeProfiniteGroup.of i) = _
+    fin_cases i
+    · exact congrArg Marking.σ hclassbar
+    · exact congrArg Marking.τ hclassbar
+    · exact congrArg Marking.x₀ hclassbar
+    · exact congrArg Marking.x₁ hclassbar
+  have hgenbar : Subgroup.closure ({tbar.σ, tbar.τ, tbar.x₀, tbar.x₁} : Set ↥Jbar) = ⊤ := by
+    have hpre : ({tbar.σ, tbar.τ, tbar.x₀, tbar.x₁} : Set ↥Jbar)
+        = ((↑) : ↥Jbar → Bg ⧸ D.T) ⁻¹'
+          {(Marking.push gQ).σ, (Marking.push gQ).τ, (Marking.push gQ).x₀,
+            (Marking.push gQ).x₁} := by
+      ext j
+      simp only [Set.mem_insert_iff, Set.mem_singleton_iff, Set.mem_preimage]
+      constructor
+      · rintro (rfl | rfl | rfl | rfl) <;> simp [htbar]
+      · rintro (h | h | h | h)
+        · exact Or.inl (Subtype.ext h)
+        · exact Or.inr (Or.inl (Subtype.ext h))
+        · exact Or.inr (Or.inr (Or.inl (Subtype.ext h)))
+        · exact Or.inr (Or.inr (Or.inr (Subtype.ext h)))
+    rw [hpre]
+    exact Subgroup.closure_closure_coe_preimage
+  have hgbar_surj : Function.Surjective ⇑gbar := by
+    intro y
+    have hy : y ∈ Subgroup.closure ({tbar.σ, tbar.τ, tbar.x₀, tbar.x₁} : Set ↥Jbar) := by
+      rw [hgenbar]
+      exact Subgroup.mem_top y
+    refine Subgroup.closure_induction ?_ ?_ ?_ ?_ hy
+    · rintro z (rfl | rfl | rfl | rfl)
+      · exact ⟨quotientMk NA (FreeProfiniteGroup.of 0), hgbar_gen 0⟩
+      · exact ⟨quotientMk NA (FreeProfiniteGroup.of 1), hgbar_gen 1⟩
+      · exact ⟨quotientMk NA (FreeProfiniteGroup.of 2), hgbar_gen 2⟩
+      · exact ⟨quotientMk NA (FreeProfiniteGroup.of 3), hgbar_gen 3⟩
+    · exact ⟨1, map_one gbar⟩
+    · rintro a b - - ⟨γ, rfl⟩ ⟨δ, rfl⟩
+      exact ⟨γ * δ, map_mul gbar γ δ⟩
+    · rintro a - ⟨γ, rfl⟩
+      exact ⟨γ⁻¹, map_inv gbar γ⟩
+  -- the pushed marking of `ḡ` is `tbar`, hence admissible
+  have hpushbar : Marking.push gbar = tbar := by
+    refine marking_ext ?_ ?_ ?_ ?_
+    · exact hgbar_gen 0
+    · exact hgbar_gen 1
+    · exact hgbar_gen 2
+    · exact hgbar_gen 3
+  have hadmbar : tbar.Admissible := hpushbar ▸ Marking.push_admissible gbar hgbar_surj
+  -- §3: the 2-core of `tJ`, through the corestricted comparison `qJ' : J → J̄`
+  have hmapJc : J.map (QuotientGroup.mk' D.T)
+      = Subgroup.closure
+        ((QuotientGroup.mk' D.T) '' {tHat.σ, tHat.τ, tHat.x₀, tHat.x₁}) := by
+    rw [hJ, MonoidHom.map_closure]
+  have hmemJbar : ∀ j : ↥J, QuotientGroup.mk' D.T (j : Bg) ∈ Jbar := by
+    intro j
+    have himg : QuotientGroup.mk' D.T (j : Bg)
+        ∈ J.map (QuotientGroup.mk' D.T) := Subgroup.mem_map_of_mem _ j.2
+    rw [hmapJc] at himg
+    refine Subgroup.closure_mono ?_ himg
+    rintro x ⟨y, (rfl | rfl | rfl | rfl), rfl⟩
+    · exact Or.inl (congrArg Marking.σ hproj)
+    · exact Or.inr (Or.inl (congrArg Marking.τ hproj))
+    · exact Or.inr (Or.inr (Or.inl (congrArg Marking.x₀ hproj)))
+    · exact Or.inr (Or.inr (Or.inr (congrArg Marking.x₁ hproj)))
+  set qJ' : ↥J →* ↥Jbar :=
+    ((QuotientGroup.mk' D.T).comp J.subtype).codRestrict Jbar (fun j => hmemJbar j) with hqJ'
+  have hcoreJ : tJ.Pro2Core := by
+    show IsPGroup 2 (Subgroup.normalClosure {tJ.x₀, tJ.x₁})
+    haveI hNB : (Subgroup.normalClosure {tbar.x₀, tbar.x₁}).Normal :=
+      Subgroup.normalClosure_normal
+    haveI hNBc : ((Subgroup.normalClosure {tbar.x₀, tbar.x₁}).comap qJ').Normal :=
+      hNB.comap qJ'
+    have hcomap : ({tJ.x₀, tJ.x₁} : Set ↥J) ⊆
+        ((Subgroup.normalClosure {tbar.x₀, tbar.x₁}).comap qJ' : Set ↥J) := by
+      rintro z hz
+      rcases hz with rfl | hz
+      · rw [SetLike.mem_coe, Subgroup.mem_comap]
+        have h1 : qJ' tJ.x₀ = tbar.x₀ := Subtype.ext (congrArg Marking.x₀ hproj)
+        rw [h1]
+        exact Subgroup.subset_normalClosure (by simp)
+      · rcases hz with rfl
+        rw [SetLike.mem_coe, Subgroup.mem_comap]
+        have h1 : qJ' tJ.x₁ = tbar.x₁ := Subtype.ext (congrArg Marking.x₁ hproj)
+        rw [h1]
+        exact Subgroup.subset_normalClosure (by simp)
+    have hle := Subgroup.normalClosure_le_normal hcomap
+    intro n
+    have hmemNB : qJ' n.1 ∈ Subgroup.normalClosure {tbar.x₀, tbar.x₁} :=
+      Subgroup.mem_comap.mp (hle n.2)
+    obtain ⟨k, hk⟩ := hadmbar.2.2.2 ⟨qJ' n.1, hmemNB⟩
+    refine ⟨k + 1, ?_⟩
+    have hk' : (qJ' n.1) ^ 2 ^ k = 1 := by
+      simpa using congrArg Subtype.val hk
+    have hkQ : QuotientGroup.mk' D.T (((n.1 : ↥J) : Bg)) ^ 2 ^ k = 1 := by
+      have h2 : ((qJ' n.1 : ↥Jbar) : Bg ⧸ D.T) ^ 2 ^ k = 1 := by
+        simpa using congrArg Subtype.val hk'
+      exact h2
+    have hmemT : ((n.1 : ↥J) : Bg) ^ 2 ^ k ∈ D.T := by
+      rw [← QuotientGroup.eq_one_iff, ← QuotientGroup.mk'_apply, map_pow]
+      exact hkQ
+    have hBgval : ((n.1 : ↥J) : Bg) ^ 2 ^ (k + 1) = 1 := by
+      rw [pow_succ, pow_mul, pow_two]
+      exact htelem _ hmemT
+    exact Subtype.val_injective (by
+      simpa using Subtype.val_injective (by simpa using hBgval :
+        ((n.1 ^ 2 ^ (k + 1) : ↥J) : Bg) = ((1 : ↥J) : Bg)))
+  have hadmJ : tJ.Admissible := ⟨hgenJ, htameJ, hwildJ, hcoreJ⟩
+  -- §4: descend and compare
+  set fJ : ContinuousMonoidHom ↥J Bg := ⟨J.subtype, continuous_subtype_val⟩ with hfJ
+  refine ⟨fJ.comp (Marking.descend tJ hadmJ), ?_⟩
+  intro γ
+  obtain ⟨w, rfl⟩ := quotientMk_surjective NA γ
+  set c₁ : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4)) (Bg ⧸ D.T) :=
+    (⟨QuotientGroup.mk' D.T, continuous_of_discreteTopology⟩ :
+        ContinuousMonoidHom Bg (Bg ⧸ D.T)).comp (fJ.comp (Marking.classify tJ)) with hc₁
+  set c₂ : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4)) (Bg ⧸ D.T) :=
+    gQ.comp (quotientMk NA) with hc₂
+  have hclassify : univMarking.map (Marking.classify tJ).toMonoidHom = tJ :=
+    univMarking_map_toHom (P := ProfiniteGrp.of ↥J) tJ
+  have hpush : univMarking.map c₁.toMonoidHom = univMarking.map c₂.toMonoidHom := by
+    refine marking_ext ?_ ?_ ?_ ?_
+    · have h1 : (Marking.classify tJ) univMarking.σ = tJ.σ := congrArg Marking.σ hclassify
+      show QuotientGroup.mk' D.T (fJ ((Marking.classify tJ) univMarking.σ))
+        = gQ (quotientMk NA univMarking.σ)
+      rw [h1]
+      exact congrArg Marking.σ hproj
+    · have h1 : (Marking.classify tJ) univMarking.τ = tJ.τ := congrArg Marking.τ hclassify
+      show QuotientGroup.mk' D.T (fJ ((Marking.classify tJ) univMarking.τ))
+        = gQ (quotientMk NA univMarking.τ)
+      rw [h1]
+      exact congrArg Marking.τ hproj
+    · have h1 : (Marking.classify tJ) univMarking.x₀ = tJ.x₀ := congrArg Marking.x₀ hclassify
+      show QuotientGroup.mk' D.T (fJ ((Marking.classify tJ) univMarking.x₀))
+        = gQ (quotientMk NA univMarking.x₀)
+      rw [h1]
+      exact congrArg Marking.x₀ hproj
+    · have h1 : (Marking.classify tJ) univMarking.x₁ = tJ.x₁ := congrArg Marking.x₁ hclassify
+      show QuotientGroup.mk' D.T (fJ ((Marking.classify tJ) univMarking.x₁))
+        = gQ (quotientMk NA univMarking.x₁)
+      rw [h1]
+      exact congrArg Marking.x₁ hproj
+  have hc : c₁ = c₂ := by
+    have h1 := Marking.toHom_hom_univMarking_map c₁
+    have h2 := Marking.toHom_hom_univMarking_map c₂
+    rw [← h1, ← h2, hpush]
+  exact DFunLike.congr_fun hc w
+
+end DescendT
 
 end Phase140GammaA
 
