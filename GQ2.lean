@@ -84,6 +84,7 @@ import GQ2.DeepDualityK
 import GQ2.DeepCount
 import GQ2.UnramifiedNorm
 import GQ2.GaloisCosetNorm
+import GQ2.UnitNormIndex
 import GQ2.DimAssembly
 import GQ2.DimClose
 import GQ2.ResidueLift
