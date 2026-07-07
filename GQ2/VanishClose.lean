@@ -1,6 +1,10 @@
 import GQ2.ShapiroDeepness
 import GQ2.RegularIsometry
 import GQ2.OrbitDecomp
+import GQ2.DimAssembly
+import GQ2.ShapiroRead
+import GQ2.InvolutionSplice
+import GQ2.AdmissibleCount
 
 /-!
 # P-15f2d: final assembly of `lemma_6_17_vanish` — wiring bricks
@@ -87,6 +91,307 @@ theorem eOfSurj_rho (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρsurj : Function.Su
   exact (QuotientGroup.quotientKerEquivOfSurjective ρ.toMonoidHom hρsurj).symm_apply_eq.mpr he.symm
 
 end ETower
+
+/-! ## The final assembly of `lemma_6_17_vanish`
+
+Compose f2a (datum-independence) + Lemma 6.14 + f2b (regular embedding) + f2c1 (`hcoh_*`) +
+the deep-class vanishing (`hvanish_cup` square/free, `InvolutionSplice.hvanish_involution_ker`
+involution) through `OrbitVanish.Q0loc_vanish_of_datum_decomp`.  The `W = Fin K → RegRep (ker ρ)`
+instances are `letI`-supplied on the **base** `RegRep (ker ρ)` (so f2c1's `RegRep`-instance
+arguments resolve and the block module's action is the `Pi`-lift); `RegRep`'s opacity blocks the
+global trivial `AbsGalQ2`-action, so this is clean. -/
+
+section Assembly
+
+open ContCoh QuadraticFp2 SectionSix DimAssembly ShapiroRead LocalKummer
+
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
+
+/-- **`lemma_6_17_vanish`, closed downstream** (P-15f2d): the base connecting map `Q⁰loc`
+vanishes on the deep half, from `lemma_6_17_vanish`'s own hypotheses plus the reciprocity datum
+`(R, horient)` threaded per the c2c4 consumer note (P-20 flag). -/
+theorem lemma_6_17_vanish_final (D : TateDuality 2) (R : LocalReciprocity) (B : BoundaryMaps)
+    (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
+    (horient : TameUnitOrientation R B.tameF)
+    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (hV2 : ∀ v : V, v + v = 0)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, c tameTau • v ≠ v)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hinv : IsInvariant C q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (x : H1 AbsGalQ2 V) (hx : x ∈ deepPart (V := V) ρ) :
+    Q0loc D dat ρ x = 0 := by
+  classical
+  have hρsurj : Function.Surjective ⇑ρ := rho_surjective B c hc ρ hfac
+  have hgen : Subgroup.closure {c tameSigma, c tameTau} = ⊤ := gen_of_surjective c hc
+  set N : Subgroup AbsGalQ2 := ρ.toMonoidHom.ker with hN
+  have hNopen : IsOpen (N : Set AbsGalQ2) := by
+    have hset : (N : Set AbsGalQ2) = ρ ⁻¹' {1} := by
+      ext g; simp only [hN, SetLike.mem_coe, MonoidHom.mem_ker, Set.mem_preimage,
+        Set.mem_singleton_iff]; rfl
+    rw [hset]; exact (isOpen_discrete {1}).preimage ρ.continuous_toFun
+  haveI hNn : N.Normal := inferInstance
+  haveI : Finite (AbsGalQ2 ⧸ N) :=
+    Finite.of_injective _ (QuotientGroup.quotientKerEquivRange ρ.toMonoidHom).injective
+  haveI : Fintype (AbsGalQ2 ⧸ N) := Fintype.ofFinite _
+  set e : C ≃* AbsGalQ2 ⧸ N := eOfSurj ρ hρsurj with he_def
+  obtain ⟨K, ι, r, hEqfs, hIso, hιe, hri⟩ :=
+    regular_isometric_embedding_orbit (G := AbsGalQ2) N e c hgen q hq hinv hV2
+      hfaith hsimple hram
+  -- base `RegRep N` instances (the block module is the `Pi`-lift)
+  haveI : Finite (RegRep N) := inferInstanceAs (Finite ((AbsGalQ2 ⧸ N) → ZMod 2))
+  letI : TopologicalSpace (RegRep N) := ⊥
+  haveI : DiscreteTopology (RegRep N) := ⟨rfl⟩
+  haveI : IsTopologicalAddGroup (RegRep N) :=
+    { continuous_add := continuous_of_discreteTopology
+      continuous_neg := continuous_of_discreteTopology }
+  haveI hdq : DiscreteTopology (AbsGalQ2 ⧸ N) := discreteTopology_quotient_of_isOpen N hNopen
+  letI actAbs : DistribMulAction AbsGalQ2 (RegRep N) :=
+    DistribMulAction.compHom _ (QuotientGroup.mk' N)
+  letI actC : DistribMulAction C (RegRep N) := DistribMulAction.compHom _ e.toMonoidHom
+  haveI : ContinuousSMul AbsGalQ2 (RegRep N) := by
+    refine ⟨?_⟩
+    have h1 : Continuous fun p : AbsGalQ2 × RegRep N =>
+        ((QuotientGroup.mk' N p.1, p.2) : (AbsGalQ2 ⧸ N) × RegRep N) :=
+      (continuous_quotient_mk'.comp continuous_fst).prodMk continuous_snd
+    exact (continuous_of_discreteTopology
+      (f := fun p : (AbsGalQ2 ⧸ N) × RegRep N => p.1 • p.2)).comp h1
+  haveI : Finite (Fin K → RegRep N) := inferInstance
+  haveI : DiscreteTopology (Fin K → RegRep N) := Pi.discreteTopology
+  haveI : ContinuousSMul AbsGalQ2 (Fin K → RegRep N) := by
+    refine ⟨?_⟩
+    have h1 : Continuous fun p : AbsGalQ2 × (Fin K → RegRep N) =>
+        ((QuotientGroup.mk' N p.1, p.2) : (AbsGalQ2 ⧸ N) × (Fin K → RegRep N)) :=
+      (continuous_quotient_mk'.comp continuous_fst).prodMk continuous_snd
+    exact (continuous_of_discreteTopology
+      (f := fun p : (AbsGalQ2 ⧸ N) × (Fin K → RegRep N) => p.1 • p.2)).comp h1
+  -- the base compatibility identities (Pi-lifts inherit them)
+  have hmk : ∀ (g : AbsGalQ2) (y : RegRep N), g • y = QuotientGroup.mk' N g • y :=
+    fun _ _ => rfl
+  have hρW : ∀ (g : AbsGalQ2) (w : Fin K → RegRep N), g • w = ρ g • w := by
+    intro g w
+    funext k
+    show QuotientGroup.mk' N g • w k = e (ρ g) • w k
+    rw [QuotientGroup.mk'_apply, ← eOfSurj_rho ρ hρsurj g, he_def]
+  set qW : (Fin K → RegRep N) → ZMod 2 := fun F => q (r F) with hqW_def
+  set datW : FactorSet (AbsGalQ2 ⧸ N) (Fin K → RegRep N) :=
+    sumDatum (orbitIndexSet N qW) (orbitDatum N) with hdatW_def
+  set datWC : FactorSet C (Fin K → RegRep N) := datW.reindexHom e.toMonoidHom with hdatWC_def
+  have hEqfsC : IsEquivariantFactorSet qW datWC :=
+    isEquivariantFactorSet_reindexHom hEqfs e.toMonoidHom (fun _ _ => rfl)
+  have hqeq : (fun v => qW (ι v)) = q := funext hIso
+  have hcomap : IsEquivariantFactorSet q (datWC.comap ι) := by
+    have := datum_comap hEqfsC ι (fun cc v => hιe cc v)
+    rwa [hqeq] at this
+  have hodd : Odd (Nat.card (Subgroup.zpowers (c tameTau))) := by
+    rw [Nat.card_zpowers]; exact odd_orderOf_tameInertia c
+  have hVI : ∀ v : V, (∀ i ∈ Subgroup.zpowers (c tameTau), i • v = v) → v = 0 :=
+    fixedByNormal_eq_bot (Subgroup.zpowers (c tameTau)) (tameInertia_normal c hgen) hsimple
+      (by obtain ⟨v, hv⟩ := hram; exact ⟨c tameTau, Subgroup.mem_zpowers _, v, hv⟩)
+  have hstep1 : Q0loc D dat ρ x = Q0loc D (datWC.comap ι) ρ x :=
+    OrbitVanish.Q0loc_datum_indep D dat (datWC.comap ι) hdat hcomap ρ hρ hV2
+      (Subgroup.zpowers (c tameTau)) (tameInertia_normal c hgen) hodd hVI x
+  have hic : Continuous (ι : V → Fin K → RegRep N) := continuous_of_discreteTopology
+  have heρ : ∀ g : AbsGalQ2, e (ρ g) = QuotientGroup.mk' N g := by
+    intro g
+    rw [he_def, eOfSurj_rho ρ hρsurj g, QuotientGroup.mk'_apply]
+  have hicompat : ∀ (g : AbsGalQ2) (v : V), ι (g • v) = g • ι v := by
+    intro g v
+    rw [hρ g v, hιe (ρ g) v, heρ g]
+    rfl
+  have hstep2 : Q0loc D (datWC.comap ι) ρ x
+      = Q0loc D datWC ρ (mapCoeff1 ι hic hicompat x) :=
+    RepIndependence.lemma_6_14 D datWC ρ ι hic hicompat hEqfsC (fun cc v => hιe cc v) hρW x
+  rw [hstep1, hstep2]
+  set xW : H1 AbsGalQ2 (Fin K → RegRep N) := mapCoeff1 ι hic hicompat x with hxW_def
+  have hxW : xW ∈ deepPart (V := Fin K → RegRep N) ρ :=
+    ShapiroDeepness.deepPart_mapCoeff1 hρ hρW ι hic hicompat hx
+  set b : ↥(Z1 AbsGalQ2 (Fin K → RegRep N)) := Quotient.out xW with hb_def
+  -- the per-orbit subgroup and inner cochain (matching `hcoh_*`)
+  set Uf : OrbitIx K (AbsGalQ2 ⧸ N) → Subgroup AbsGalQ2 := fun o =>
+    match o with
+    | Sum.inl _ => N
+    | Sum.inr (Sum.inl (_, u)) => N ⊔ Subgroup.zpowers (Quotient.out u)
+    | Sum.inr (Sum.inr _) => N with hUf_def
+  set innerf : (o : OrbitIx K (AbsGalQ2 ⧸ N)) → ↥(Uf o) × ↥(Uf o) → ZMod 2 := fun o =>
+    match o with
+    | Sum.inl j => fun p =>
+        shapiroCoord N (fun g => b.1 g j) p.1 * shapiroCoord N (fun g => b.1 g j) p.2
+    | Sum.inr (Sum.inl (j, u)) => fun p =>
+        evensNormFun (N.subgroupOf (N ⊔ Subgroup.zpowers (Quotient.out u)))
+          ⟨Quotient.out u, Subgroup.mem_sup_right (Subgroup.mem_zpowers _)⟩
+          (fun w => shapiroCoord N (fun g => b.1 g j) ⟨w.1.1, w.2⟩) (p.1, p.2)
+    | Sum.inr (Sum.inr (j, k, u)) => fun p =>
+        shapiroCoord N (fun g => b.1 g j) p.1 *
+          shapiroCoord N (fun g => b.1 g k) ⟨(Quotient.out u)⁻¹ * (p.2 : AbsGalQ2) * Quotient.out u,
+            by simpa using Subgroup.Normal.conj_mem hNn _ p.2.2 (Quotient.out u)⁻¹⟩
+      with hinnerf_def
+  -- shared facts: `N ≤ Uf o`, openness, finiteness
+  have hNleU : ∀ o : OrbitIx K (AbsGalQ2 ⧸ N), N ≤ Uf o := by
+    intro o
+    match o with
+    | Sum.inl _ => exact le_refl N
+    | Sum.inr (Sum.inl (_, u)) => exact le_sup_left
+    | Sum.inr (Sum.inr _) => exact le_refl N
+  have hUopen : ∀ o, IsOpen ((Uf o : Subgroup AbsGalQ2) : Set AbsGalQ2) := fun o =>
+    Subgroup.isOpen_mono (hNleU o) hNopen
+  have hUfin : ∀ o, Finite (AbsGalQ2 ⧸ Uf o) := by
+    intro o
+    haveI hfi : N.FiniteIndex := Subgroup.finiteIndex_of_finite_quotient
+    have hdvd : (Uf o).index ∣ N.index := Subgroup.index_dvd_of_le (hNleU o)
+    haveI : (Uf o).FiniteIndex :=
+      ⟨fun h0 => hfi.index_ne_zero (Nat.eq_zero_of_zero_dvd (h0 ▸ hdvd))⟩
+    exact Subgroup.finite_quotient_of_finiteIndex
+  -- `hmk` for the base `RegRep N` action, in the shape `hcoh_*` consume
+  have hmkR : ∀ (g : AbsGalQ2) (y : RegRep N), g • y = QuotientGroup.mk' N g • y := hmk
+  -- the block coordinates are deep `Z¹`-cocycles
+  have hZ1blk : ∀ j : Fin K,
+      shapiroCoord N (fun g => (Quotient.out xW).1 g j) ∈ Z1 ↥N (ZMod 2) :=
+    fun j => shapiroCoord_mem_Z1 (ShapiroRead.block_cocycle N hmkR (Quotient.out xW) j)
+      (ShapiroRead.block_continuous N (Quotient.out xW) j) (fun _ _ => rfl)
+  have hdeepblk : ∀ j : Fin K,
+      H1ofFun ↥N (shapiroCoord N (fun g => (Quotient.out xW).1 g j)) ∈ deepClasses N :=
+    fun j => shapiroCoord_mem_deepClasses ρ j hxW
+  refine OrbitVanish.Q0loc_vanish_of_datum_decomp D datWC ρ hρW xW
+    (orbitIndexSet N qW) (fun o => (orbitDatum N o).reindexHom e.toMonoidHom)
+    (orbitSquareMap N) ?_ ?_ Uf ?_ ?_ innerf ?_ ?_ ?_
+  · exact fun o ho =>
+      isEquivariantFactorSet_reindexHom (isEqFS_orbitDatum N qW o ho) e.toMonoidHom
+        (fun _ _ => rfl)
+  · rw [hdatWC_def, hdatW_def]
+    exact reindexHom_sumDatum (orbitIndexSet N qW) (orbitDatum N) (⇑e.toMonoidHom)
+  · exact fun o _ => hUfin o
+  · exact fun o _ => hUopen o
+  · -- hZ2
+    intro o ho
+    rcases o with j | ⟨j, u⟩ | ⟨j, k, u⟩
+    · exact cup11_mem_Z2 AddMonoidHom.mul (fun _ _ _ => rfl)
+        ⟨_, hZ1blk j⟩ ⟨_, hZ1blk j⟩
+    · simp only [mem_orbitIndexSet_inv, invIdx, Finset.mem_filter, Finset.mem_univ,
+        true_and] at ho
+      obtain ⟨hu2, hune, -⟩ := ho
+      have hu : QuotientGroup.mk' N (Quotient.out u) = u := by
+        rw [QuotientGroup.mk'_apply]; exact QuotientGroup.out_eq' u
+      have hgN : Quotient.out u ∉ N := by
+        intro h
+        have h1 : QuotientGroup.mk' N (Quotient.out u) = 1 := by
+          rw [QuotientGroup.mk'_apply]; exact (QuotientGroup.eq_one_iff _).mpr h
+        rw [hu] at h1; exact hune h1
+      have hg2 : Quotient.out u * Quotient.out u ∈ N := by
+        have h1 : QuotientGroup.mk' N (Quotient.out u * Quotient.out u) = 1 := by
+          rw [map_mul, hu]; exact hu2
+        rwa [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at h1
+      have hmemU : Quotient.out u ∈ N ⊔ Subgroup.zpowers (Quotient.out u) :=
+        Subgroup.mem_sup_right (Subgroup.mem_zpowers _)
+      have hsU : (⟨Quotient.out u, hmemU⟩ : ↥(N ⊔ Subgroup.zpowers (Quotient.out u)))
+          ∉ N.subgroupOf (N ⊔ Subgroup.zpowers (Quotient.out u)) :=
+        fun h => hgN (Subgroup.mem_subgroupOf.mp h)
+      have hUi : (N.subgroupOf (N ⊔ Subgroup.zpowers (Quotient.out u))).index = 2 :=
+        InvolutionSplice.index_eq_two_of_decomp hsU (fun bb hbb => by
+          rcases InvolutionSplice.mem_or_mul_mem_of_mem_sup hg2 bb.2 with hbN | hbg
+          · exact absurd (Subgroup.mem_subgroupOf.mpr hbN) hbb
+          · exact Subgroup.mem_subgroupOf.mpr hbg)
+      have hUo : IsOpen (((N.subgroupOf (N ⊔ Subgroup.zpowers (Quotient.out u)))
+          : Subgroup ↥(N ⊔ Subgroup.zpowers (Quotient.out u)))
+          : Set ↥(N ⊔ Subgroup.zpowers (Quotient.out u))) :=
+        hNopen.preimage continuous_subtype_val
+      obtain ⟨hjc, hjhom⟩ := (mem_Z1_iff_of_trivial (fun _ _ => rfl)).mp (hZ1blk j)
+      have hα : ∀ w z : ↥(N.subgroupOf (N ⊔ Subgroup.zpowers (Quotient.out u))),
+          shapiroCoord N (fun g => (Quotient.out xW).1 g j) ⟨(w * z).1.1, (w * z).2⟩
+            = shapiroCoord N (fun g => (Quotient.out xW).1 g j) ⟨w.1.1, w.2⟩
+              + shapiroCoord N (fun g => (Quotient.out xW).1 g j) ⟨z.1.1, z.2⟩ := by
+        intro w z
+        have := hjhom ⟨w.1.1, w.2⟩ ⟨z.1.1, z.2⟩
+        rwa [show (⟨(w * z).1.1, (w * z).2⟩ :
+            ↥N) = ⟨w.1.1, w.2⟩ * ⟨z.1.1, z.2⟩ from Subtype.ext rfl]
+      have hαc : Continuous fun w : ↥(N.subgroupOf (N ⊔ Subgroup.zpowers (Quotient.out u))) =>
+          shapiroCoord N (fun g => (Quotient.out xW).1 g j) ⟨w.1.1, w.2⟩ :=
+        hjc.comp (Continuous.subtype_mk (continuous_subtype_val.comp continuous_subtype_val) _)
+      exact evensNormFun_mem_Z2 (fun _ _ => rfl) hUo hUi hsU _ hα hαc
+    · exact cup11_mem_Z2 AddMonoidHom.mul (fun _ _ _ => rfl)
+        ⟨_, hZ1blk j⟩ ⟨_, comp_conjMap_mem_Z1 ρ (hZ1blk k) (Quotient.out u)⟩
+  · -- hcoh
+    intro o ho
+    have hcomp : (⇑e.toMonoidHom ∘ ⇑ρ : AbsGalQ2 → AbsGalQ2 ⧸ N) = ⇑(QuotientGroup.mk' N) :=
+      funext heρ
+    rw [ShapiroDeepness.graphPullback_reindexHom (orbitDatum N o) (⇑e.toMonoidHom)
+      (fun _ _ => rfl) (⇑ρ) (Quotient.out xW).1, hcomp]
+    rcases o with j | ⟨j, u⟩ | ⟨j, k, u⟩
+    · exact hcoh_square N hmkR j hNopen (Quotient.out xW)
+    · simp only [mem_orbitIndexSet_inv, invIdx, Finset.mem_filter, Finset.mem_univ,
+        true_and] at ho
+      obtain ⟨hu2, hune, -⟩ := ho
+      have hu : QuotientGroup.mk' N (Quotient.out u) = u := by
+        rw [QuotientGroup.mk'_apply]; exact QuotientGroup.out_eq' u
+      have hgN : Quotient.out u ∉ N := by
+        intro h
+        have h1 : QuotientGroup.mk' N (Quotient.out u) = 1 := by
+          rw [QuotientGroup.mk'_apply]; exact (QuotientGroup.eq_one_iff _).mpr h
+        rw [hu] at h1
+        exact hune h1
+      have hg2 : Quotient.out u * Quotient.out u ∈ N := by
+        have h1 : QuotientGroup.mk' N (Quotient.out u * Quotient.out u) = 1 := by
+          rw [map_mul, hu]; exact hu2
+        rwa [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at h1
+      have hs : (⟨Quotient.out u, Subgroup.mem_sup_right (Subgroup.mem_zpowers _)⟩ :
+          ↥(N ⊔ Subgroup.zpowers (Quotient.out u)))
+          ∉ N.subgroupOf (N ⊔ Subgroup.zpowers (Quotient.out u)) :=
+        fun h => hgN (Subgroup.mem_subgroupOf.mp h)
+      have hg := hcoh_involution N hmkR j (Quotient.out u) hNopen hgN hg2
+        (N ⊔ Subgroup.zpowers (Quotient.out u)) rfl hs (Quotient.out xW)
+      rw [hu] at hg
+      exact hg
+    · have hu : QuotientGroup.mk' N (Quotient.out u) = u := by
+        rw [QuotientGroup.mk'_apply]; exact QuotientGroup.out_eq' u
+      have hg := hcoh_free N hmkR j k (Quotient.out u) hNopen (Quotient.out xW)
+      rw [hu] at hg
+      exact hg
+  · -- hvanish
+    intro o ho
+    rcases o with j | ⟨j, u⟩ | ⟨j, k, u⟩
+    · exact InvolutionSplice.hvanish_cup_ker ρ (shapiroCoord N (fun g => (Quotient.out xW).1 g j))
+        (shapiroCoord N (fun g => (Quotient.out xW).1 g j)) (hZ1blk j) (hZ1blk j)
+        (hdeepblk j) (hdeepblk j)
+    · simp only [mem_orbitIndexSet_inv, invIdx, Finset.mem_filter, Finset.mem_univ,
+        true_and] at ho
+      obtain ⟨hu2, hune, -⟩ := ho
+      have hu : QuotientGroup.mk' N (Quotient.out u) = u := by
+        rw [QuotientGroup.mk'_apply]; exact QuotientGroup.out_eq' u
+      have hgN : Quotient.out u ∉ N := by
+        intro h
+        have h1 : QuotientGroup.mk' N (Quotient.out u) = 1 := by
+          rw [QuotientGroup.mk'_apply]; exact (QuotientGroup.eq_one_iff _).mpr h
+        rw [hu] at h1; exact hune h1
+      have hg2 : Quotient.out u * Quotient.out u ∈ N := by
+        have h1 : QuotientGroup.mk' N (Quotient.out u * Quotient.out u) = 1 := by
+          rw [map_mul, hu]; exact hu2
+        rwa [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at h1
+      exact InvolutionSplice.hvanish_involution_ker R B c hc ρ hfac horient
+        (shapiroCoord N (fun g => (Quotient.out xW).1 g j)) (hZ1blk j) (hdeepblk j)
+        (Quotient.out u) hgN hg2 (N ⊔ Subgroup.zpowers (Quotient.out u)) rfl
+        (Subgroup.mem_sup_right (Subgroup.mem_zpowers _))
+    · have hZ1conj : (fun n : ↥N => shapiroCoord N (fun g => (Quotient.out xW).1 g k)
+          (conjMap ρ (Quotient.out u) n)) ∈ Z1 ↥N (ZMod 2) :=
+        comp_conjMap_mem_Z1 ρ (hZ1blk k) (Quotient.out u)
+      have hdeepconj : H1ofFun ↥N (fun n : ↥N =>
+          shapiroCoord N (fun g => (Quotient.out xW).1 g k) (conjMap ρ (Quotient.out u) n))
+          ∈ deepClasses N := by
+        have heq : H1ofFun ↥N (fun n : ↥N =>
+            shapiroCoord N (fun g => (Quotient.out xW).1 g k) (conjMap ρ (Quotient.out u) n))
+            = conjAct ρ (Quotient.out u)
+              (H1ofFun ↥N (shapiroCoord N (fun g => (Quotient.out xW).1 g k))) :=
+          (conjAct_h1ofFun ρ (Quotient.out u) (hZ1blk k)).symm
+        rw [heq]
+        exact conjAct_deepClasses (ρ := ρ) (Quotient.out u) (hdeepblk k)
+      exact InvolutionSplice.hvanish_cup_ker ρ (shapiroCoord N (fun g => (Quotient.out xW).1 g j))
+        (fun n => shapiroCoord N (fun g => (Quotient.out xW).1 g k) (conjMap ρ (Quotient.out u) n))
+        (hZ1blk j) hZ1conj (hdeepblk j) hdeepconj
+
+end Assembly
 
 end VanishClose
 

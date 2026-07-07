@@ -498,6 +498,116 @@ theorem hvanish_involution_ker (R : LocalReciprocity) (B : BoundaryMaps)
 
 end Capstone
 
+/-! ## The square/free `hvanish` in `ker ρ`-vocabulary (the deep-cup vanishing) -/
+
+section CupKer
+
+open SectionSix LocalKummer ShapiroDeepness ContCoh
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+
+/-- **`cup11Fun` functoriality** along a multiplicative map (trivial coefficients): matched scalar
+values give equal cup cochains under `(e × e)`. -/
+theorem cup11Fun_comp {G₁ G₂ : Type*} [Group G₁] [Group G₂]
+    [DistribMulAction G₁ (ZMod 2)] [DistribMulAction G₂ (ZMod 2)]
+    (htriv₁ : ∀ (g : G₁) (m : ZMod 2), g • m = m)
+    (htriv₂ : ∀ (g : G₂) (m : ZMod 2), g • m = m)
+    (e : G₁ →* G₂) (α₁ β₁ : G₁ → ZMod 2) (α₂ β₂ : G₂ → ZMod 2)
+    (hα : ∀ x, α₁ x = α₂ (e x)) (hβ : ∀ x, β₁ x = β₂ (e x)) (p : G₁ × G₁) :
+    cup11Fun AddMonoidHom.mul α₁ β₁ p = cup11Fun AddMonoidHom.mul α₂ β₂ (e p.1, e p.2) := by
+  show AddMonoidHom.mul (α₁ p.1) (p.1 • β₁ p.2)
+      = AddMonoidHom.mul (α₂ (e p.1)) (e p.1 • β₂ (e p.2))
+  rw [htriv₁, htriv₂, hα, hβ]
+
+/-- **The square/free `hvanish` over `ker ρ`** (P-15f2d): the cup of two deep block coordinates
+over `N = ker ρ` has trivial `H²ofFun` class.  Same tower/carrier splice as
+`hvanish_involution_ker`, but with `U = N` (no lift, no index-2) and the cup in place of the
+Evens norm; the field-side vanishing is `hvanish_cup` (eq.-(94) orthogonality). -/
+theorem hvanish_cup_ker (ρ : ContinuousMonoidHom AbsGalQ2 C)
+    (α β : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) → ZMod 2)
+    (hαZ1 : α ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))
+    (hβZ1 : β ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))
+    (hαdeep : H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) α
+      ∈ deepClasses (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
+    (hβdeep : H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) β
+      ∈ deepClasses (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :
+    H2ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+      (cup11Fun AddMonoidHom.mul α β) = 0 := by
+  classical
+  haveI : FiniteDimensional ℚ_[2] (ResidueLift.splitField ρ) :=
+    ResidueLift.splitField_finiteDimensional ρ
+  have hkfix : (ResidueLift.splitField ρ).fixingSubgroup = ResidueLift.kerGal ρ :=
+    ResidueLift.fixingSubgroup_splitField ρ
+  have hkerm : ∀ y : Kummer.GaloisGroup ℚ_[2],
+      y ∈ (ResidueLift.splitField ρ).fixingSubgroup
+        ↔ y ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) := by
+    intro y; rw [hkfix]; exact (ResidueLift.mem_kerGal ρ y).symm
+  have hkm : ∀ x : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2),
+      (x : AbsGalQ2) ∈ (ResidueLift.splitField ρ).fixingSubgroup := fun x => (hkerm x.1).mpr x.2
+  let e₀ : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) →*
+      ↥(ResidueLift.splitField ρ).fixingSubgroup :=
+    { toFun := fun x => ⟨x.1, hkm x⟩
+      map_one' := Subtype.ext rfl
+      map_mul' := fun _ _ => Subtype.ext rfl }
+  have he₀c : Continuous e₀ := Continuous.subtype_mk continuous_subtype_val _
+  have htrivK : ∀ (g : ↥(ResidueLift.splitField ρ).fixingSubgroup) (m : ZMod 2), g • m = m :=
+    fun _ _ => rfl
+  have htrivN : ∀ (g : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) (m : ZMod 2), g • m = m :=
+    fun _ _ => rfl
+  -- the field-side deep cocycle of a `ker ρ` deep class
+  have hfield : ∀ (γ : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) → ZMod 2),
+      γ ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) →
+      H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) γ
+        ∈ deepClasses (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) →
+      ∃ (γ' : ↥(ResidueLift.splitField ρ).fixingSubgroup → ZMod 2)
+        (hγ'Z1 : γ' ∈ Z1 ↥(ResidueLift.splitField ρ).fixingSubgroup (ZMod 2)),
+        H1mk (ResidueLift.splitField ρ).fixingSubgroup (ZMod 2) ⟨γ', hγ'Z1⟩
+          ∈ deepClasses (ResidueLift.splitField ρ).fixingSubgroup ∧
+        ∀ x, γ x = γ' (e₀ x) := by
+    intro γ hγZ1 hγdeep
+    obtain ⟨A, βk, hdeepA, hβk, hβk0, hclass⟩ := hγdeep
+    have hAfix : ∀ g ∈ (ResidueLift.splitField ρ).fixingSubgroup, g • A = A :=
+      fun g hg => hdeepA.2.1 g ((hkerm g).mp hg)
+    have hγeq : (fun n : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) =>
+        Kummer.kummerCocycleFun βk (n : AbsGalQ2)) = γ := by
+      refine eq_of_H1ofFun_eq htrivN ?_ hγZ1 hclass
+      rw [mem_Z1_iff_of_trivial htrivN]
+      exact ⟨(Kummer.kummerCocycleFun_continuous βk).comp continuous_subtype_val,
+        fun g h => kummerCocycleFun_hom_on hβk hβk0 hdeepA.2.1 g h⟩
+    have hZ1' : (fun w : ↥(ResidueLift.splitField ρ).fixingSubgroup =>
+        Kummer.kummerCocycleFun βk (w : Kummer.GaloisGroup ℚ_[2]))
+        ∈ Z1 ↥(ResidueLift.splitField ρ).fixingSubgroup (ZMod 2) := by
+      rw [mem_Z1_iff_of_trivial htrivK]
+      exact ⟨(Kummer.kummerCocycleFun_continuous βk).comp continuous_subtype_val,
+        fun g h => kummerCocycleFun_hom_on hβk hβk0 hAfix g h⟩
+    refine ⟨fun w => Kummer.kummerCocycleFun βk (w : Kummer.GaloisGroup ℚ_[2]), hZ1', ?_, ?_⟩
+    · refine ⟨A, βk, ⟨hdeepA.1, hAfix, ?_⟩, hβk, hβk0, H1ofFun_of_mem hZ1'⟩
+      obtain ⟨b, hbf, hbe, hbn⟩ := hdeepA.2.2
+      exact ⟨b, fun g hg => hbf g ((hkerm g).mp hg), hbe, hbn⟩
+    · intro x
+      exact (congrFun hγeq x).symm
+  obtain ⟨α', hα'Z1, hα'deep, hα'eq⟩ := hfield α hαZ1 hαdeep
+  obtain ⟨β', hβ'Z1, hβ'deep, hβ'eq⟩ := hfield β hβZ1 hβdeep
+  -- field-side vanishing (eq.-(94))
+  have hvan := hvanish_cup (ResidueLift.splitField ρ) htrivK ⟨α', hα'Z1⟩ ⟨β', hβ'Z1⟩
+    hα'deep hβ'deep
+  -- transport along `e₀`
+  have hZ2N : cup11Fun AddMonoidHom.mul α β
+      ∈ Z2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) :=
+    cup11_mem_Z2 AddMonoidHom.mul (fun g m n => by rw [htrivN, htrivN, htrivN])
+      ⟨α, hαZ1⟩ ⟨β, hβZ1⟩
+  have hZ2K : cup11Fun AddMonoidHom.mul α' β'
+      ∈ Z2 ↥(ResidueLift.splitField ρ).fixingSubgroup (ZMod 2) :=
+    cup11_mem_Z2 AddMonoidHom.mul (fun g m n => by rw [htrivK, htrivK, htrivK])
+      ⟨α', hα'Z1⟩ ⟨β', hβ'Z1⟩
+  exact H2ofFun_eq_zero_comp e₀ he₀c htrivN htrivK
+    (fun p => cup11Fun_comp htrivN htrivK e₀ α β α' β' hα'eq hβ'eq p)
+    hZ2N hZ2K hvan
+
+end CupKer
+
 end InvolutionSplice
 
 end GQ2

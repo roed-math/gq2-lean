@@ -210,7 +210,7 @@ private noncomputable def mkQ : ContinuousMonoidHom AbsGalQ2 (AbsGalQ2 ⧸ N) :=
 omit [Finite (AbsGalQ2 ⧸ N)] [Finite (RegRep N)] [ContinuousSMul AbsGalQ2 (RegRep N)] in
 include hmk in
 /-- The block coordinate of a `Z¹`-representative is an `mk'`-cocycle (raw form). -/
-private theorem block_cocycle {K : ℕ} (b : ↥(Z1 AbsGalQ2 (Fin K → RegRep N))) (j : Fin K) :
+theorem block_cocycle {K : ℕ} (b : ↥(Z1 AbsGalQ2 (Fin K → RegRep N))) (j : Fin K) :
     ∀ g h : AbsGalQ2, b.1 (g * h) j = b.1 g j + QuotientGroup.mk' N g • b.1 h j := by
   intro g h
   rw [(mem_Z1_iff.mp b.2).2 g h]
@@ -219,7 +219,7 @@ private theorem block_cocycle {K : ℕ} (b : ↥(Z1 AbsGalQ2 (Fin K → RegRep N
 
 omit [Finite (AbsGalQ2 ⧸ N)] [Finite (RegRep N)] [ContinuousSMul AbsGalQ2 (RegRep N)] in
 /-- The base-coset evaluation of a block coordinate is continuous (`W` is discrete). -/
-private theorem block_continuous {K : ℕ} (b : ↥(Z1 AbsGalQ2 (Fin K → RegRep N))) (j : Fin K) :
+theorem block_continuous {K : ℕ} (b : ↥(Z1 AbsGalQ2 (Fin K → RegRep N))) (j : Fin K) :
     Continuous fun g => b.1 g j (1 : AbsGalQ2 ⧸ N) :=
   (continuous_of_discreteTopology
     (f := fun F : Fin K → RegRep N => F j (1 : AbsGalQ2 ⧸ N))).comp (mem_Z1_iff.mp b.2).1
