@@ -482,6 +482,12 @@ def corrMark (t : Marking Y') (r0 r1 r2 r3 : Y') : Marking Y' :=
 private lemma central_mul_comm {a b : Y'} (ha : ∀ z : Y', Commute a z)
     (hb : ∀ z : Y', Commute b z) : ∀ z : Y', Commute (a * b) z := fun z => (ha z).mul_left (hb z)
 
+/-- Two factors sharing the same central-involution correction are jointly correction-free:
+`(c·a)(c·b) = a·b`.  Pairs up `h₀`'s six factors. -/
+private lemma central_pair {c a b : Y'} (hc : ∀ z : Y', Commute c z) (hcsq : c ^ 2 = 1) :
+    (c * a) * (c * b) = a * b := by
+  rw [(hc a).symm.mul_mul_mul_comm c b, ← pow_two, hcsq, one_mul]
+
 /-- The square of a product of two central involutions is `1`. -/
 private lemma central_mul_sq {a b : Y'} (ha : ∀ z : Y', Commute a z) (ha2 : a ^ 2 = 1)
     (hb2 : b ^ 2 = 1) : (a * b) ^ 2 = 1 := by rw [(ha b).mul_pow, ha2, hb2, mul_one]
@@ -533,6 +539,76 @@ theorem corrMark_d0 [Finite Y'] (hr1 : ∀ z : Y', Commute r1 z) (hr2 : ∀ z : 
   rw [corrMark_u0 hr1 hr2 hr1sq hr2sq, corrMark_x₀, mul_inv_rev,
     show r2 * r1 * t.u0 * (t.x₀⁻¹ * r2⁻¹) = r2 * (r1 * t.u0 * t.x₀⁻¹) * r2⁻¹ from by group,
     (hr2 (r1 * t.u0 * t.x₀⁻¹)).eq]
+  group
+
+/-- Conjugation by a correction-free element (the `rg = 1` case of `conjP_central_correction`):
+`conjP (rₐ·x) g = rₐ · conjP x g`.  Used for `dg = conjP d₀ g₀` and `h₀`'s `x₀^g₀` factor. -/
+theorem conjP_central_left (x g ra : Y') (hra : ∀ z : Y', Commute ra z) :
+    conjP (ra * x) g = ra * conjP x g := by
+  have h := conjP_central_correction x g ra 1 hra (fun z => Commute.one_left z)
+  rwa [one_mul] at h
+
+/-- `c₀ = commP d₀ z₀` is correction-free (`commP` kills the `r₁`, `r₂` corrections). -/
+theorem corrMark_c0 [Finite Y'] (hr0 : ∀ z : Y', Commute r0 z) (hr1 : ∀ z : Y', Commute r1 z)
+    (hr2 : ∀ z : Y', Commute r2 z) (hr0sq : r0 ^ 2 = 1) (hr1sq : r1 ^ 2 = 1) (hr2sq : r2 ^ 2 = 1) :
+    (corrMark t r0 r1 r2 r3).c0 = t.c0 := by
+  show commP (corrMark t r0 r1 r2 r3).d0 (corrMark t r0 r1 r2 r3).z0 = commP t.d0 t.z0
+  rw [corrMark_d0 hr1 hr2 hr1sq hr2sq, corrMark_z0 hr0 hr2 hr0sq]
+  exact commP_central_correction t.d0 t.z0 r1 r2 hr1 hr2
+
+/-- `dg = d₀^g₀ = conjP d₀ g₀` picks up `r₁` (from `d₀`; `g₀` is correction-free). -/
+theorem corrMark_dg [Finite Y'] (hr0 : ∀ z : Y', Commute r0 z) (hr1 : ∀ z : Y', Commute r1 z)
+    (hr2 : ∀ z : Y', Commute r2 z) (hr0sq : r0 ^ 2 = 1) (hr1sq : r1 ^ 2 = 1) (hr2sq : r2 ^ 2 = 1) :
+    (corrMark t r0 r1 r2 r3).dg = r1 * t.dg := by
+  show conjP (corrMark t r0 r1 r2 r3).d0 (corrMark t r0 r1 r2 r3).g0 = r1 * conjP t.d0 t.g0
+  rw [corrMark_d0 hr1 hr2 hr1sq hr2sq, corrMark_g0 hr0 hr0sq]
+  exact conjP_central_left t.d0 t.g0 r1 hr1
+
+/-- `h_c = commP dg d₀` is correction-free (`commP` kills the two `r₁` corrections). -/
+theorem corrMark_hc [Finite Y'] (hr0 : ∀ z : Y', Commute r0 z) (hr1 : ∀ z : Y', Commute r1 z)
+    (hr2 : ∀ z : Y', Commute r2 z) (hr0sq : r0 ^ 2 = 1) (hr1sq : r1 ^ 2 = 1) (hr2sq : r2 ^ 2 = 1) :
+    (corrMark t r0 r1 r2 r3).hc = t.hc := by
+  show commP (corrMark t r0 r1 r2 r3).dg (corrMark t r0 r1 r2 r3).d0 = commP t.dg t.d0
+  rw [corrMark_dg hr0 hr1 hr2 hr0sq hr1sq hr2sq, corrMark_d0 hr1 hr2 hr1sq hr2sq]
+  exact commP_central_correction t.dg t.d0 r1 r1 hr1 hr1
+
+/-- `h₀ = x₀^g₀·x₀·dg·d₀·d₀²·h_c` is correction-free — the six factors pair into three
+correction-free `central_pair`s: `(r₂·,r₂·)`, `(r₁·,r₁·)`, and `(d₀², h_c)` (already free). -/
+theorem corrMark_h0 [Finite Y'] (hr0 : ∀ z : Y', Commute r0 z) (hr1 : ∀ z : Y', Commute r1 z)
+    (hr2 : ∀ z : Y', Commute r2 z) (hr0sq : r0 ^ 2 = 1) (hr1sq : r1 ^ 2 = 1) (hr2sq : r2 ^ 2 = 1) :
+    (corrMark t r0 r1 r2 r3).h0 = t.h0 := by
+  show conjP (corrMark t r0 r1 r2 r3).x₀ (corrMark t r0 r1 r2 r3).g0 * (corrMark t r0 r1 r2 r3).x₀
+      * (corrMark t r0 r1 r2 r3).dg * (corrMark t r0 r1 r2 r3).d0 * (corrMark t r0 r1 r2 r3).d0 ^ 2
+      * (corrMark t r0 r1 r2 r3).hc
+    = conjP t.x₀ t.g0 * t.x₀ * t.dg * t.d0 * t.d0 ^ 2 * t.hc
+  rw [corrMark_g0 hr0 hr0sq, corrMark_x₀, corrMark_dg hr0 hr1 hr2 hr0sq hr1sq hr2sq,
+    corrMark_d0 hr1 hr2 hr1sq hr2sq, corrMark_hc hr0 hr1 hr2 hr0sq hr1sq hr2sq,
+    conjP_central_left t.x₀ t.g0 r2 hr2, (hr1 t.d0).mul_pow, hr1sq, one_mul,
+    show r2 * conjP t.x₀ t.g0 * (r2 * t.x₀) * (r1 * t.dg) * (r1 * t.d0) * t.d0 ^ 2 * t.hc
+      = (r2 * conjP t.x₀ t.g0) * (r2 * t.x₀) * ((r1 * t.dg) * (r1 * t.d0)) * (t.d0 ^ 2 * t.hc)
+      from by group,
+    central_pair hr2 hr2sq, central_pair hr1 hr1sq]
+  group
+
+/-- **L1 wild row, central 2-torsion** (`docs/p16d6e5-plan.md` §2, L1-wild): the wild relator value
+shifts by exactly the τ-correction `r₁` — `wildValue(r⃗·ŷ) = r₁ · wildValue ŷ`.  `h₀` and `c₀` are
+correction-free; `u₁⁻¹` contributes `(r₃r₁)⁻¹` and `x₁^σ` contributes `r₃`, whose `r₃`'s cancel,
+leaving `r₁⁻¹ = r₁`.  Matches `d1Fun_wild_trivial`'s `x 1`. -/
+theorem wildValue_correction [Finite Y'] (hr0 : ∀ z : Y', Commute r0 z)
+    (hr1 : ∀ z : Y', Commute r1 z) (hr2 : ∀ z : Y', Commute r2 z) (hr3 : ∀ z : Y', Commute r3 z)
+    (hr0sq : r0 ^ 2 = 1) (hr1sq : r1 ^ 2 = 1) (hr2sq : r2 ^ 2 = 1) (hr3sq : r3 ^ 2 = 1) :
+    (corrMark t r0 r1 r2 r3).wildValue = r1 * t.wildValue := by
+  have hr1inv : r1⁻¹ = r1 := inv_eq_of_mul_eq_one_right (by rw [← pow_two, hr1sq])
+  show (corrMark t r0 r1 r2 r3).h0 * (corrMark t r0 r1 r2 r3).u1⁻¹
+      * conjP (corrMark t r0 r1 r2 r3).x₁ (corrMark t r0 r1 r2 r3).σ * (corrMark t r0 r1 r2 r3).c0
+    = r1 * (t.h0 * t.u1⁻¹ * conjP t.x₁ t.σ * t.c0)
+  rw [corrMark_h0 hr0 hr1 hr2 hr0sq hr1sq hr2sq, corrMark_u1 hr1 hr3 hr1sq hr3sq, corrMark_x₁,
+    corrMark_σ, corrMark_c0 hr0 hr1 hr2 hr0sq hr1sq hr2sq,
+    conjP_central_correction t.x₁ t.σ r3 r0 hr3 hr0, mul_inv_rev, mul_inv_rev, hr1inv]
+  -- centrals `r1, r3⁻¹, r3`: cancel `r3⁻¹·r3`, pull `r1` to the front.
+  rw [show t.h0 * (t.u1⁻¹ * (r1 * r3⁻¹)) * (r3 * t.x₁ ^c t.σ) * t.c0
+      = t.h0 * t.u1⁻¹ * r1 * (r3⁻¹ * r3) * (t.x₁ ^c t.σ) * t.c0 from by group,
+    inv_mul_cancel, mul_one, (hr1 (t.h0 * t.u1⁻¹)).symm.eq]
   group
 
 end WildCorrection
