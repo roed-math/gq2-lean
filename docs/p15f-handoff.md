@@ -456,14 +456,40 @@ and the final `card_equivHoms_deep_eq_quot` instantiation.
   constructors do NOT see through the SetLike membership here) + `_surjective` +
   **`classGrMap_injective`** (odd `j`: Kummer kernel + odd parity) + the three counts
   `card_classGr_le` (≤ 2^f), **`card_classGr_odd`** (= 2^f), **`card_classGr_even`**
-  (= 1).  REMAINING increment 4: head (`#(M⧸Dc₁-classes) ≤ 2` — π-parity via the
-  `‖a‖ = ‖π‖^v`-decomposition from `hπ_max` + odd-residue-squares from `card_gr_zero`
-  oddness), tail survivor (`#Dc_{2e} ≥ 2` — `grSq` at `i = e` has `[−1] ≠ [1]` in its
-  kernel (`‖−1−1‖ = ‖2‖ = ‖π‖^e` exactly), so not injective ⟹ not surjective on
-  equal-card grs ⟹ some depth-`2e` unit escapes all squares by (K) + the dichotomy),
-  the Lagrange tower products, and the final `#(M⧸Deep) ≤ #E` assembly.  Lean gotchas
+  (= 1).  Increment 4a = **tail survivor** `exists_kummerDepth_ne_zero` (`grSq` at `i = e` kills
+  `[−1] ≠ [1]` — `‖−1−1‖ = ‖2‖ = ‖π‖^e` exactly — so not injective ⟹ not surjective on
+  equal-card grs; an escaping unit class is nonzero by (K) + the dichotomy); 4b =
+  `exists_nat_val` (ℕ-valuation via `Nat.find` on the least `m` with `‖π‖^{m+1} < ‖x‖`) +
+  **`kummerDepth_zero_collapse`** (`U⁰/U¹` odd order `2^f−1` ⟹ squaring bijective — the
+  `orderOf`-gcd argument — `grSq` at `i = 0` IS the gr's own squaring); 4c =
+  `kummerClassK_pow`, `nsmul_mod_two`, `piUnit`, **`card_quot_kummerDepth_one_le_two`**
+  (head ≤ 2: `[a] = [u] + m•[π]` with `u` norm-one ∈ `Dc_1` by the 0-collapse, `m` mod 2;
+  `[a⁻¹] = [a]` handles non-integral `a`; `Fin 2`-surjection; **first B12 use** —
+  `kummerClassK_surjective`); increment 5 = **`card_quot_deep_le_card_mid`** — THE COUNT
+  `#(M⧸Dc_{e+1}) ≤ #Dc_e`, via `card_kummerDepth_step`/`card_quot_kummerDepth_step`
+  (Lagrange both ways, `addSubgroupOfEquivOfLe` + right-cancellation),
+  `card_classGr_pair_le` (levels `j`/`2e−j` compare by parity), and the **paired descent**
+  `R(s): #(M⧸Dc_{e+1})·#Dc_{e+1+s} ≤ #Dc_e·#(M⧸Dc_{e−s})` (equality at `s = 0` by double
+  Lagrange; each step trades level `e−s−1` for `e+1+s` and cancels the smaller gr; at
+  `s = e−1` head ≤ 2 ≤ tail closes).  **Trace: std-3 + B12 exactly.**  Lean gotchas
   banked: `QuotientAddGroup.eq` has implicit endpoints; the coe of a subtype-sum
-  `↑(−a+b)` stays UNREDUCED syntactically — re-view via a defeq `have` before any `rw`.
+  `↑(−a+b)` stays UNREDUCED syntactically — re-view via a defeq `have` before any `rw`;
+  an `if` under a beta-redex is invisible to `rw` — `set` the function and compute its
+  values first; after `rw [hj]` an omega-equation mentioning the OLD variable no longer
+  matches — `subst` instead.
+  **REMAINING for f7 (pure plumbing, no open mathematics):** (α) the **group-transport**
+  of the count from `k.fixingSubgroup`-vocabulary to `ker ρ`-vocabulary — the types
+  `H1 ↥(ker ρ)` vs `H1 k.fixingSubgroup` differ as TERMS (hker is a pointwise iff, not an
+  Eq, and Eq-rewriting dies on dependent motives), so build the canonical
+  `H1 ↥(ker ρ) ≃+ H1 k.fixingSubgroup`: with TRIVIAL coefficients `B¹ = 0` (`δ⁰m = 0`),
+  so `H1 ≃ Z1` on both sides and the transport is just Z1-PRECOMPOSITION along
+  `kerToFixing`/its `hker.mpr`-inverse (~100 lines); check it carries
+  `deepClassesSubgroup ↔ kummerDepth (e+1)`-images and `midClassesSubgroup ↔
+  kummerDepth e` (pointwise, via the `(A, β)`-data as in the splices), descend to the
+  quotient-card; (β) `hsharp` := `pairPerp_le_of_card_le` off
+  `midClassesSubgroup_le_pairPerp_pairingK` + the transported count; (γ) the final
+  `card_equivHoms_deep_eq_quot` instantiation (all other inputs named in the session-4
+  list) → `hduality` → f8's `lemma_6_17_dim_of_hduality` fires.
   Then the final `card_equivHoms_deep_eq_quot` instantiation (M := `H¹(ker ρ)` @
   `conjModule`, U := `V^∨` @ `dualModule`, Deep/E := deep/mid-`ClassesSubgroup`,
   B := `pairingK`, `hsharp` := `pairPerp_le_of_card_le` off `midClassesSubgroup_le_pairPerp_pairingK`
