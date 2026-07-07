@@ -2,6 +2,7 @@ import GQ2.RStageLocal
 import GQ2.WordCohBridge
 import GQ2.HalfTorsorGammaA
 import GQ2.FinitelyGenerated
+import GQ2.LocalLiftingDuality
 
 /-!
 # P-16d6e5 (residue package, candidate source): the (136) R-stage for `Γ = Γ_A`
@@ -260,6 +261,53 @@ theorem wTrace_injective (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   ext a
   have hev := congrArg (fun Ψ => Ψ (QuotientAddGroup.mk (a, 0))) h
   simpa only [wTrace_mk, add_zero] using hev
+
+/-- **L3c: `λ ↦ Φ_λ` is surjective** onto `H2w →+ 𝔽₂` — the counting half of the perfect
+(2,0)-pairing (`docs/p16d6e5-plan.md` §2, L3).  The invariant characters, `#H2w`, and
+`#(H2w →+ 𝔽₂)` are all equinumerous:
+`#{λ : d⁰λ = 0} = #fixedPts C (A^∨) = #H2w = #(H2w →+ 𝔽₂)` — by `H0w_eq_fixedPts` (needs
+`Generates`), `IsSelfDual` clause 1, and `card_addHom_zmod2`.  A finite injection
+(`wTrace_injective`) between equinumerous finite sets is bijective
+(`Fintype.bijective_iff_injective_and_card`), hence surjective. -/
+theorem wTrace_surjective (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hgen : t.Generates)
+    (hsd : IsSelfDual t A) (hA₂ : ∀ a : A, a + a = 0) (Ψ : H2w (A := A) t →+ ZMod 2) :
+    ∃ (lam : ElemDual A) (hlam : (d0 (A := ElemDual A) t) lam = 0),
+      wTrace t ht hw lam hlam = Ψ := by
+  obtain ⟨hsd_card, -, -⟩ := hsd
+  haveI : Finite (H2w (A := A) t) := inferInstanceAs (Finite ((A × A) ⧸ _))
+  haveI : Finite (H2w (A := A) t →+ ZMod 2) :=
+    Finite.of_injective _ (DFunLike.coe_injective (F := H2w (A := A) t →+ ZMod 2))
+  haveI : Fintype ↥(H0w (A := ElemDual A) t) := Fintype.ofFinite _
+  haveI : Fintype (H2w (A := A) t →+ ZMod 2) := Fintype.ofFinite _
+  -- `Θ : {invariant λ} → (H2w →+ 𝔽₂)`, `λ ↦ Φ_λ`.
+  let Θ : ↥(H0w (A := ElemDual A) t) → (H2w (A := A) t →+ ZMod 2) :=
+    fun x => wTrace t ht hw x.1 (AddMonoidHom.mem_ker.mp x.2)
+  have hinj : Function.Injective Θ := fun x y hxy =>
+    Subtype.ext (wTrace_injective t ht hw x.1 y.1
+      (AddMonoidHom.mem_ker.mp x.2) (AddMonoidHom.mem_ker.mp y.2) hxy)
+  have hcard : Fintype.card ↥(H0w (A := ElemDual A) t)
+      = Fintype.card (H2w (A := A) t →+ ZMod 2) := by
+    rw [← Nat.card_eq_fintype_card, ← Nat.card_eq_fintype_card,
+      LocalLiftingDuality.card_addHom_zmod2 (H2w_two_torsion t hA₂), hsd_card]
+    exact Nat.card_congr (Equiv.setCongr (H0w_eq_fixedPts t hgen))
+  obtain ⟨x, hx⟩ := ((Fintype.bijective_iff_injective_and_card Θ).mpr ⟨hinj, hcard⟩).2 Ψ
+  exact ⟨x.1, AddMonoidHom.mem_ker.mp x.2, hx⟩
+
+/-- **L3d: `sep_word` — the separation** (`docs/p16d6e5-plan.md` §2, L3).  If `v.1 + v.2` is
+killed by every invariant character `λ` (`d⁰λ = 0`), then `v ∈ im d¹`.  Proof: if `[v] ≠ 0` in
+`H2w`, then `exists_addHom_ne_zero` (finite `𝔽₂`-space) produces a functional `Ψ` with
+`Ψ [v] ≠ 0`; by `wTrace_surjective`, `Ψ = Φ_λ` for some invariant `λ`, and
+`Φ_λ [v] = λ(v.1 + v.2) = 0` by hypothesis — contradiction.  So `[v] = 0`, i.e. `v ∈ im d¹`. -/
+theorem sep_word (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hgen : t.Generates)
+    (hsd : IsSelfDual t A) (hA₂ : ∀ a : A, a + a = 0) (v : A × A)
+    (hv : ∀ lam : ElemDual A, (d0 (A := ElemDual A) t) lam = 0 → lam (v.1 + v.2) = 0) :
+    v ∈ (d1 (A := A) t).range := by
+  haveI : Finite (H2w (A := A) t) := inferInstanceAs (Finite ((A × A) ⧸ _))
+  rw [← QuotientAddGroup.eq_zero_iff]
+  by_contra hne
+  obtain ⟨Ψ, hΨ⟩ := LocalLiftingDuality.exists_addHom_ne_zero (H2w_two_torsion t hA₂) hne
+  obtain ⟨lam, hlam, hΨeq⟩ := wTrace_surjective t ht hw hgen hsd hA₂ Ψ
+  exact hΨ (by rw [← hΨeq, wTrace_mk]; exact hv lam hlam)
 
 end TraceSpan
 
