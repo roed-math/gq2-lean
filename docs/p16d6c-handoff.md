@@ -19,7 +19,7 @@ Gauss-correspondence, and `polarInverseL`/`enrichment_card_Vmod` are all done
 | `hphase` — character↔phase reindex | `Σ_χ Σ_ρ sign(χ(κ ρ)+ε ρ+Q(polarInverseL … χ)) = Σ_ζ (2·nPhase(phase ζ) − e_Γ(C))` | **c2** | open |
 | `phase : DT → CentralCover RF.YC` witness | `phaseFamily (DeltaScalar (En.dat l h) γ_ζ δ_ζ a_ζ) …` | **c2** | open |
 | `μ` `l`-independence | `#TCocycle(radData l h)` constant in `l` | **c3** | ✅ DONE |
-| `G0` `l`-independence | `gaussSum(qbar l h)` constant in `l` | **c3** | route decided: §6.2 pinning (§c3) |
+| `G0` `l`-independence | `gaussSum(qbar l h)` constant in `l` | **c3** | ✅ DONE (`PhaseGaussLIndep`, §c3) |
 | `hμ` (ρ-independence, per `l`) | `∀ ρ, #TCocycle(radData l h)(…) = μ` | P-16d6b | ✅ DONE (torsor reduction) |
 
 `DT := Module.Dual (ZMod 2) En.Vmod` (`= V^∨`), so `hDT`/`hG0` are `rfl`, `0 < #DT` is free.
@@ -208,11 +208,23 @@ same `Δ` whose signed sum `hphase` evaluates.
   layers are `RF.MB`/`RF.TBsub` for every `l` and `rhoPrime` factors through `piBCiso` (which sees
   the datum only via the proof-irrelevant `D.M = RF.MB`).  Combine with P-16d6b's ρ-independence to
   pin `μ` at a reference `l₀` and transport to the current `l` for `hμ (l h)`.
-* **G0: ✅ ROUTE DECIDED (2026-07-06) — §6.2 pinning via P-15b; NO `En` amendment.**
-  `G0 := gaussSum (En.qbar l h)` must be constant in `l`; `Enrichment` carries no cross-`l` field,
-  but none is needed: P-15b's Gauss-sign pair pins the Gauss data of **any** nonsingular
-  `C`-invariant quadratic form on `V` to a λ-free structural value (analysis credit: parallel-agent
-  note on the c3 board row; verified against the signatures by the c-agent).
+* **G0: ✅ DONE (Opus 2026-07-07) — `GQ2/PhaseGaussLIndep.lean`, std-3, sorry-free, `lake build`
+  green (8657), `check_axioms` pass.**  The §6.2 pinning via P-15b, NO `En` amendment.  Deliverables
+  (all `#print axioms` = std-3, no B6/B7/sorryAx): `gaussSum_qbar_l_indep_unramified`/`_ramified`
+  (`gaussSum (En.qbar l h) = gaussSum (En.qbar l' h')`, the (140) `hG0` transport) built from the
+  per-`l` Arf pins `arf_qbar_eq_one_of_unramified` (Prop 6.9 ⟹ Arf = 1) / `arf_qbar_eq_s_of_ramified`
+  (Lemma 6.8 first conjunct ⟹ Arf = s), the reduction `gaussSum_eq_of_arf_eq` (equal Arf ⟹ equal
+  Gauss sum — both `±2^m`, sign = Arf, via `zeroCount_of_arf_{zero,one}` + `gaussSum_eq`), and the
+  encoding bridge `gaussSum_eq_quadraticFp2` (`SectionEight.gaussSum` = `QuadraticFp2.gaussSum` on a
+  `Fintype`; the two `sign` defs `(-1)^a.val` vs `if a=0 then 1 else -1` agree by `decide`).
+  **Wiring:** `Hf := RF.YC` via `En.actV` (its `Group`/`Finite`/`Topological`/`Discrete` instances
+  are `attribute [instance]`, `SectionEight.lean:1387`); `hinv := En.hinv`; the tame cover
+  `c : Ttame ↠ RF.YC` + `hfaith`/`hsimple` + dichotomy + (ramified) the isotypic data + `#V = 2^{2m}`
+  all thread hypothesis-side to d6e.  **NB confirmed:** `prop_6_9_unramified`/`lemma_6_8` are
+  themselves **std-3** (`#print axioms`), so the "∅ expected" gate holds — the §6 header's
+  "Ax: B5/B6/B7′/B9" is for 6.13/6.16/6.18, not the Gauss-sign pair.  Full route (unchanged):
+  `Enrichment` carries no cross-`l` field, but none is needed — P-15b's Gauss-sign pair pins the
+  Gauss data of **any** nonsingular `C`-invariant quadratic form on `V` to a λ-free structural value.
   - **Unramified**: `prop_6_9_unramified` (`SectionSix.lean:306`) has NO data hypotheses beyond the
     tame structure (`c`/`hc`/`hfaith`/`hsimple`/`hV`/`hunram`) — apply twice (`qbar l h`,
     `qbar l' h'`, both qualify via `En.hquad`/`hns`/`hinv`), equal `zeroCount`s, equal Gauss sums
