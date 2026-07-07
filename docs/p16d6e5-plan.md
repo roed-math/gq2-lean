@@ -214,7 +214,19 @@ extension needed.
 * ✅ **`htriv_gammaA`** — proved (`rfl`; registers the trivial `DistribMulAction GammaA (ZMod 2)`).
 * ✅ **`hZcount_gammaA`** — **PROVED, std-3** (commit `51b83e5`).  The §1 route landed intact:
   `z1Equiv` + `prop_5_15` clause 2 + `blockRChar_card`, no B-axioms.
-* ☐ **`hsep_hom_gammaA`** — remaining (L1–L5, §2; L1-wild the long pole).  Only sorry in the file.
+* ◐ **`hsep_hom_gammaA`** — in progress (L1–L5, §2; the file's only sorry).  Landed helpers:
+  * ✅ **L2** `d1Fun_naturality` (std-3) — `C`-equivariant `f` intertwines `d¹`.
+  * ✅ **L3a** `wTrace` (std-3) — the (2,0)-trace `Φ_λ : H2w →+ 𝔽₂`, well-defined via
+    `prop_5_8_right` + `mixedB_zero_right` (this IS gap (i), the pairing `IsSelfDual` omits).
+  * ✅ **L3b** `wTrace_injective` (std-3) — `λ ↦ Φ_λ` injective (eval at `[⟨a,0⟩]`).
+  * ☐ **L3c/d** — the counting `#{invariant λ} = #H2w` (`IsSelfDual` cl.1 + `H0w_eq_fixedPts` +
+    `card_addHom_zmod2`) ⟹ `λ ↦ Φ_λ` **bijective** ⟹ **`sep_word`** (`v` killed by every
+    invariant char ⟹ `v ∈ im d¹`, via `exists_addHom_ne_zero`).  Pieces all pinned; the
+    injective+equal-card⟹surjective step is the one lemma-hunt (`Fintype.bijective_iff_
+    injective_and_card` with `Nat.card_eq_fintype_card` bridges).
+  * ☐ **L1** — the general-extension relator correction (the long pole; L1-wild ≈ `mixedB_wildRow`
+    length).  ☐ **L4/L5** — per-cover extraction (`obs_zero_iff_lifts`) + descent
+    (`markC_admissible`/`NA_le_ker`/`quotientLift`); L2/`sep_word` feed these.
 
 **The GA/GammaA bridge — RESOLVED PATTERN (reuse in L1–L5).**  `GammaA ≡ GA` defeq, but their
 instances don't cross-resolve.  Theorems are stated over `Γ := GammaA` (so `blockStageR136`/
