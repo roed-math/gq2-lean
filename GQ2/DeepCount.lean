@@ -1448,6 +1448,155 @@ noncomputable def h1KerFixEquiv (hker : ∀ x : Kummer.GaloisGroup ℚ_[2],
   right_inv := h1KerToFix_h1FixToKer ρ k hker
   map_add' := h1KerToFix_add ρ k hker
 
+/-- `h1KerToFix` carries deep classes to deep classes, and conversely (the `(A, β)`-data
+transports verbatim; memberships move along `hker`). -/
+theorem h1KerToFix_mem_deep_iff (hker : ∀ x : Kummer.GaloisGroup ℚ_[2],
+      x ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) ↔ x ∈ k.fixingSubgroup)
+    (ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) :
+    h1KerToFix ρ k hker ξ ∈ LocalKummer.deepClasses k.fixingSubgroup
+      ↔ ξ ∈ deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) := by
+  constructor
+  · rintro ⟨A, β, hd, hsq, hβ0, heq⟩
+    obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hd
+    refine ⟨A, β, ⟨hA0, fun g hg => hAfix g ((hker g).mp hg), b,
+      fun g hg => hbfix g ((hker g).mp hg), hAeq, hb⟩, hsq, hβ0, ?_⟩
+    have hZ1 : (fun n : ↥(k.fixingSubgroup) =>
+        Kummer.kummerCocycleFun β (n : Kummer.GaloisGroup ℚ_[2]))
+        ∈ Z1 k.fixingSubgroup (ZMod 2) :=
+      GQ2.DeepPart.kummerRestrict_mem_Z1 hsq hβ0 hAfix
+    calc H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+          (fun n => Kummer.kummerCocycleFun β (n : AbsGalQ2))
+        = h1FixToKer ρ k hker (H1ofFun k.fixingSubgroup
+            (fun n => Kummer.kummerCocycleFun β (n : Kummer.GaloisGroup ℚ_[2]))) := by
+          rw [h1FixToKer_h1ofFun ρ k hker hZ1]
+          exact congrArg _ (funext fun n => rfl)
+      _ = h1FixToKer ρ k hker (h1KerToFix ρ k hker ξ) := by rw [heq]
+      _ = ξ := h1FixToKer_h1KerToFix ρ k hker ξ
+  · rintro ⟨A, β, hd, hsq, hβ0, rfl⟩
+    obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hd
+    have hZ1 : (fun n : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) =>
+        Kummer.kummerCocycleFun β (n : AbsGalQ2))
+        ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) :=
+      GQ2.DeepPart.kummerRestrict_mem_Z1 hsq hβ0 hAfix
+    refine ⟨A, β, ⟨hA0, fun g hg => hAfix g ((hker g).mpr hg), b,
+      fun g hg => hbfix g ((hker g).mpr hg), hAeq, hb⟩, hsq, hβ0, ?_⟩
+    show H1ofFun k.fixingSubgroup
+        (fun n => Kummer.kummerCocycleFun β (n : Kummer.GaloisGroup ℚ_[2]))
+      = h1KerToFix ρ k hker (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+          (fun n => Kummer.kummerCocycleFun β (n : AbsGalQ2)))
+    rw [h1KerToFix_h1ofFun ρ k hker hZ1]
+    exact congrArg _ (funext fun n => rfl)
+
+/-- The mid-classes version of the transport. -/
+theorem h1KerToFix_mem_mid_iff (hker : ∀ x : Kummer.GaloisGroup ℚ_[2],
+      x ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) ↔ x ∈ k.fixingSubgroup)
+    (ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) :
+    h1KerToFix ρ k hker ξ ∈ midClassesSubgroup k.fixingSubgroup
+      ↔ ξ ∈ midClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) := by
+  constructor
+  · rintro ⟨A, β, hd, hsq, hβ0, heq⟩
+    obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hd
+    refine ⟨A, β, ⟨hA0, fun g hg => hAfix g ((hker g).mp hg), b,
+      fun g hg => hbfix g ((hker g).mp hg), hAeq, hb⟩, hsq, hβ0, ?_⟩
+    have hZ1 : (fun n : ↥(k.fixingSubgroup) =>
+        Kummer.kummerCocycleFun β (n : Kummer.GaloisGroup ℚ_[2]))
+        ∈ Z1 k.fixingSubgroup (ZMod 2) :=
+      GQ2.DeepPart.kummerRestrict_mem_Z1 hsq hβ0 hAfix
+    calc H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+          (fun n => Kummer.kummerCocycleFun β (n : AbsGalQ2))
+        = h1FixToKer ρ k hker (H1ofFun k.fixingSubgroup
+            (fun n => Kummer.kummerCocycleFun β (n : Kummer.GaloisGroup ℚ_[2]))) := by
+          rw [h1FixToKer_h1ofFun ρ k hker hZ1]
+          exact congrArg _ (funext fun n => rfl)
+      _ = h1FixToKer ρ k hker (h1KerToFix ρ k hker ξ) := by rw [heq]
+      _ = ξ := h1FixToKer_h1KerToFix ρ k hker ξ
+  · rintro ⟨A, β, hd, hsq, hβ0, rfl⟩
+    obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hd
+    have hZ1 : (fun n : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) =>
+        Kummer.kummerCocycleFun β (n : AbsGalQ2))
+        ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) :=
+      GQ2.DeepPart.kummerRestrict_mem_Z1 hsq hβ0 hAfix
+    refine ⟨A, β, ⟨hA0, fun g hg => hAfix g ((hker g).mpr hg), b,
+      fun g hg => hbfix g ((hker g).mpr hg), hAeq, hb⟩, hsq, hβ0, ?_⟩
+    show H1ofFun k.fixingSubgroup
+        (fun n => Kummer.kummerCocycleFun β (n : Kummer.GaloisGroup ℚ_[2]))
+      = h1KerToFix ρ k hker (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+          (fun n => Kummer.kummerCocycleFun β (n : AbsGalQ2)))
+    rw [h1KerToFix_h1ofFun ρ k hker hZ1]
+    exact congrArg _ (funext fun n => rfl)
+
+/-- **The transported structural count**, in `ker ρ`-vocabulary:
+`#(H¹(ker ρ) ⧸ Deep) ≤ #E`. -/
+theorem card_quot_deep_le_card_mid_ker [FiniteDimensional ℚ_[2] k]
+    [Finite (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))]
+    (hker : ∀ x : Kummer.GaloisGroup ℚ_[2],
+      x ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) ↔ x ∈ k.fixingSubgroup)
+    (π : ℚ̄₂) (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) (he_pos : 1 ≤ e) {f : ℕ} (hf_pos : 1 ≤ f)
+    (hcard_zero : Nat.card (↥(normUnits k) ⧸
+      (depthUnits k π 1).subgroupOf (normUnits k)) = 2 ^ f - 1)
+    (hcard_gr : ∀ i : ℕ, 1 ≤ i → Nat.card (↥(depthUnits k π i) ⧸
+      (depthUnits k π (i + 1)).subgroupOf (depthUnits k π i)) = 2 ^ f) :
+    Nat.card (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) ⧸
+        deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
+      ≤ Nat.card ↥(midClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) := by
+  haveI hfinFix : Finite (H1 k.fixingSubgroup (ZMod 2)) :=
+    Finite.of_equiv _ (h1KerFixEquiv ρ k hker).toEquiv
+  have hcount := card_quot_deep_le_card_mid k π hπk hπ0 hπ1 hπmax he he_pos hf_pos
+    hcard_zero hcard_gr
+  -- (a) the ambient cards agree
+  have ha : Nat.card (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))
+      = Nat.card (H1 k.fixingSubgroup (ZMod 2)) :=
+    Nat.card_congr (h1KerFixEquiv ρ k hker).toEquiv
+  -- (b) the deep subgroups agree (through `coe_kummerDepth_deep`)
+  have hb : Nat.card ↥(deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
+      = Nat.card ↥(kummerDepth k π (e + 1)) := by
+    refine Nat.card_congr ((h1KerFixEquiv ρ k hker).toEquiv.subtypeEquiv (fun ξ => ?_))
+    constructor
+    · intro hξ
+      have hset := Set.ext_iff.mp (coe_kummerDepth_deep k π hπk hπ0 hπ1 hπmax he_pos he)
+        (h1KerToFix ρ k hker ξ)
+      exact hset.mpr ((h1KerToFix_mem_deep_iff ρ k hker ξ).mpr hξ)
+    · intro hη
+      have hset := Set.ext_iff.mp (coe_kummerDepth_deep k π hπk hπ0 hπ1 hπmax he_pos he)
+        (h1KerToFix ρ k hker ξ)
+      exact (h1KerToFix_mem_deep_iff ρ k hker ξ).mp (hset.mp hη)
+  -- (c) the mid subgroups agree (through `coe_kummerDepth_mid`)
+  have hc : Nat.card ↥(midClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
+      = Nat.card ↥(kummerDepth k π e) := by
+    refine Nat.card_congr ((h1KerFixEquiv ρ k hker).toEquiv.subtypeEquiv (fun ξ => ?_))
+    constructor
+    · intro hξ
+      have hset := Set.ext_iff.mp (coe_kummerDepth_mid k π he) (h1KerToFix ρ k hker ξ)
+      exact hset.mpr ((h1KerToFix_mem_mid_iff ρ k hker ξ).mpr hξ)
+    · intro hη
+      have hset := Set.ext_iff.mp (coe_kummerDepth_mid k π he) (h1KerToFix ρ k hker ξ)
+      exact (h1KerToFix_mem_mid_iff ρ k hker ξ).mp (hset.mp hη)
+  -- the quotient cards agree by Lagrange + cancellation
+  haveI : Nonempty ↥(kummerDepth k π (e + 1)) := ⟨⟨0, zero_mem _⟩⟩
+  have hL1 : Nat.card (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) ⧸
+        deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
+        * Nat.card ↥(deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
+      = Nat.card (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) :=
+    (AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup _).symm
+  have hL2 : Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e + 1))
+        * Nat.card ↥(kummerDepth k π (e + 1))
+      = Nat.card (H1 k.fixingSubgroup (ZMod 2)) :=
+    (AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup _).symm
+  have hq : Nat.card (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) ⧸
+        deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
+      = Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e + 1)) := by
+    have hmm : Nat.card (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) ⧸
+          deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
+          * Nat.card ↥(kummerDepth k π (e + 1))
+        = Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e + 1))
+          * Nat.card ↥(kummerDepth k π (e + 1)) := by
+      rw [← hb, hL1, ha, ← hL2, hb]
+    exact Nat.eq_of_mul_eq_mul_right Nat.card_pos hmm
+  rw [hq, hc]
+  exact hcount
+
 end KerTransport
 
 end GQ2
