@@ -774,6 +774,96 @@ theorem normForm_of_deep (a b : ↥k)
     exact normForm_of_deep_aux k a ha' j b hb'
       (by rw [mul_comm]; exact (lt_div_iff₀ hr).mp hj)
 
+/-- **The norm-form descent engine at a MID base** — eq. (94) at `(U_e, U_{e+1})` (P-15f7's
+`hsharp` arithmetic): with `a` only MID (`‖a − 1‖ ≤ ‖2‖`, i.e. `a ∈ U_e`), the error of the
+exact solve contracts by the CURRENT depth `‖b−1‖/‖2‖ < 1` instead of the fixed ratio
+`‖a−1‖/‖2‖` (which is only `≤ 1` here) — the budget hypothesis is self-referential in `b`,
+and shrinks monotonically along the iteration, so the same induction closes.  This is the
+paper's `i + j ≥ 2e + 1` at `(i, j) = (e, e+1)`, still at the `sq_of_near_one` threshold. -/
+private theorem normForm_of_mid_aux (a : ↥k) (ha : ‖a - 1‖ ≤ ‖(2 : ↥k)‖) :
+    ∀ j : ℕ, ∀ b : ↥k, ‖b - 1‖ < ‖(2 : ↥k)‖ →
+      ‖b - 1‖ * (‖b - 1‖ / ‖(2 : ↥k)‖) ^ j < ‖(4 : ↥k)‖ →
+      ∃ x y : ↥k, b = x ^ 2 - a * y ^ 2 := by
+  intro j
+  induction j with
+  | zero =>
+    intro b hb hb4
+    rw [pow_zero, mul_one] at hb4
+    obtain ⟨w, hw⟩ := sq_of_near_one k b hb4
+    exact ⟨w, 0, by rw [← hw]; ring⟩
+  | succ j ih =>
+    intro b hb hb4
+    have h2pos := norm_two_pos k
+    have h2lt1 := norm_two_lt_one k
+    have hb1 : ‖b‖ = 1 := norm_eq_one_of_close k (hb.trans h2lt1)
+    have hb0 : b ≠ 0 := by
+      intro h; rw [h, norm_zero] at hb1; exact one_ne_zero hb1.symm
+    -- the exact solve of `x² − y² = b`, and its multiplicative error `u = c/b`
+    set c : ↥k := ((b + 1) / 2) ^ 2 - a * ((b - 1) / 2) ^ 2 with hc_def
+    set u : ↥k := c / b with hu_def
+    have hcb : c - b = -((a - 1) * ((b - 1) / 2) ^ 2) := by
+      rw [hc_def]; field_simp; ring
+    have hu1 : u - 1 = -((a - 1) * ((b - 1) / 2) ^ 2) / b := by
+      rw [hu_def, div_sub_one hb0, hcb]
+    have hunorm : ‖u - 1‖ = ‖a - 1‖ * (‖b - 1‖ / ‖(2 : ↥k)‖) ^ 2 := by
+      rw [hu1, norm_div, norm_neg, norm_mul, norm_pow, norm_div, hb1, div_one]
+    -- the mid contraction: `‖u−1‖ ≤ ‖2‖·(‖b−1‖/‖2‖)² = ‖b−1‖·(‖b−1‖/‖2‖)`
+    have hcontract : ‖u - 1‖ ≤ ‖b - 1‖ * (‖b - 1‖ / ‖(2 : ↥k)‖) := by
+      rw [hunorm]
+      calc ‖a - 1‖ * (‖b - 1‖ / ‖(2 : ↥k)‖) ^ 2
+          ≤ ‖(2 : ↥k)‖ * (‖b - 1‖ / ‖(2 : ↥k)‖) ^ 2 :=
+            mul_le_mul_of_nonneg_right ha (by positivity)
+        _ = ‖b - 1‖ * (‖b - 1‖ / ‖(2 : ↥k)‖) := by field_simp
+    have hratio : ‖b - 1‖ / ‖(2 : ↥k)‖ < 1 := (div_lt_one h2pos).mpr hb
+    have humono : ‖u - 1‖ ≤ ‖b - 1‖ := by
+      refine hcontract.trans ?_
+      calc ‖b - 1‖ * (‖b - 1‖ / ‖(2 : ↥k)‖) ≤ ‖b - 1‖ * 1 :=
+            mul_le_mul_of_nonneg_left hratio.le (norm_nonneg _)
+        _ = ‖b - 1‖ := mul_one _
+    have hu_deep : ‖u - 1‖ < ‖(2 : ↥k)‖ := lt_of_le_of_lt humono hb
+    have hu4 : ‖u - 1‖ * (‖u - 1‖ / ‖(2 : ↥k)‖) ^ j < ‖(4 : ↥k)‖ := by
+      calc ‖u - 1‖ * (‖u - 1‖ / ‖(2 : ↥k)‖) ^ j
+          ≤ (‖b - 1‖ * (‖b - 1‖ / ‖(2 : ↥k)‖)) * (‖b - 1‖ / ‖(2 : ↥k)‖) ^ j :=
+            mul_le_mul hcontract (by gcongr) (by positivity) (by positivity)
+        _ = ‖b - 1‖ * (‖b - 1‖ / ‖(2 : ↥k)‖) ^ (j + 1) := by rw [pow_succ]; ring
+        _ < ‖(4 : ↥k)‖ := hb4
+    obtain ⟨x, y, hxy⟩ := ih u hu_deep hu4
+    have hu0 : u ≠ 0 := by
+      have hu1' : ‖u‖ = 1 := norm_eq_one_of_close k (hu_deep.trans h2lt1)
+      intro h; rw [h, norm_zero] at hu1'; exact one_ne_zero hu1'.symm
+    have hbcu : b = c * u⁻¹ := by
+      rw [hu_def, inv_div]
+      rw [mul_div_assoc', mul_comm c b, mul_div_assoc, div_self (by
+        intro h; rw [hu_def, h, zero_div] at hu0; exact hu0 rfl), mul_one]
+    have hfinal : b = ((b + 1) / 2 * (x / u) + a * ((b - 1) / 2) * (y / u)) ^ 2
+        - a * ((b + 1) / 2 * (y / u) + (b - 1) / 2 * (x / u)) ^ 2 := by
+      conv_lhs => rw [hbcu]
+      rw [normForm_inv k a x y u hxy hu0, hc_def, normForm_mul]
+    exact ⟨_, _, hfinal⟩
+
+/-- **Deep units are norm-form values of every MID unit** — the "⊆" half of eq. (94) at
+`(U_e, U_{e+1})`: for `a ∈ U_e(k)` (`‖a − 1‖ ≤ ‖2‖`) and deep `b ∈ U_{e+1}(k)`, `b` is
+represented by `x² − a·y²`.  [Provenance: paper §6.3 eq. (94); Fesenko–Vostokov Ch. VII §4
+Ex. 4c's `i + j > 2e` triviality at `(e, e+1)` (exercise — hence proved, not leafed);
+O'Meara §63A.  No axiom: Brahmagupta descent + Local Square Theorem.] -/
+theorem normForm_of_mid (a b : ↥k)
+    (ha : ‖(a : ℚ̄₂) - 1‖ ≤ ‖(2 : ℚ̄₂)‖) (hb : ‖(b : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖) :
+    ∃ x y : ↥k, b = x ^ 2 - a * y ^ 2 := by
+  have ha' : ‖a - 1‖ ≤ ‖(2 : ↥k)‖ := ha
+  have hb' : ‖b - 1‖ < ‖(2 : ↥k)‖ := hb
+  have h2pos := norm_two_pos k
+  rcases eq_or_lt_of_le (norm_nonneg (b - 1)) with h0 | hr
+  · have hb1 : b = 1 := by
+      have h0' : ‖b - 1‖ = 0 := h0.symm
+      rwa [norm_eq_zero, sub_eq_zero] at h0'
+    exact ⟨1, 0, by rw [hb1]; ring⟩
+  · have hγ1 : ‖b - 1‖ / ‖(2 : ↥k)‖ < 1 := (div_lt_one h2pos).mpr hb'
+    have h4pos : (0 : ℝ) < ‖(4 : ↥k)‖ := by
+      rw [norm_four_eq_sq]; exact pow_pos h2pos 2
+    obtain ⟨j, hj⟩ := exists_pow_lt_of_lt_one (div_pos h4pos hr) hγ1
+    exact normForm_of_mid_aux k a ha' j b hb'
+      (by rw [mul_comm]; exact (lt_div_iff₀ hr).mp hj)
+
 /-- **`−1` is a norm-form value of every deep unit** — the "⊆" half of eq. (94) at
 `(U_{e+1}, −1)`, i.e. `−1 ∈ U_e ⊆ U_{e+1}^⊥`: `−1 = (−a)·a⁻¹` with `−a = 0² − a·1²` and `a`
 itself a value (`normForm_of_deep` at `b := a`). -/
@@ -798,6 +888,15 @@ theorem cup_deep_deep (a b : (↥k)ˣ)
     (hb : ‖((b : ↥k) : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖) :
     trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k b) = 0 := by
   obtain ⟨x, y, hxy⟩ := normForm_of_deep k (a : ↥k) (b : ↥k) ha hb
+  exact cup_of_normForm k htriv a b x y hxy
+
+/-- **Eq. (94), mid ⟂ deep** — `(U_e, U_{e+1}) = 1` (P-15f7's `hsharp` inclusion input): the
+symbol of a MID unit against a deep unit vanishes.  std-3 ∪ {B11a}. -/
+theorem cup_mid_deep (a b : (↥k)ˣ)
+    (ha : ‖((a : ↥k) : ℚ̄₂) - 1‖ ≤ ‖(2 : ℚ̄₂)‖)
+    (hb : ‖((b : ↥k) : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖) :
+    trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k b) = 0 := by
+  obtain ⟨x, y, hxy⟩ := normForm_of_mid k (a : ↥k) (b : ↥k) ha hb
   exact cup_of_normForm k htriv a b x y hxy
 
 /-- **Eq. (94), deep ⟂ −1** (P-15f2's square-orbit leaf, `−1 ∈ U_e`).  std-3 ∪ {B11a}. -/

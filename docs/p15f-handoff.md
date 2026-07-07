@@ -374,3 +374,49 @@ twist `conjAct_mid_sub_mem_deep` + `t₀`-lifts residue-trivial), the isotropy `
 (item: `cup_deepClasses`-compatibility of `pairingK` — needs `trivialCupPairing` vs
 `cup11(evaluation)` coefficient-transport + the `k.fixingSubgroup = ker ρ` view plumbing),
 and the final `card_equivHoms_deep_eq_quot` instantiation.
+
+### §8 status update (2026-07-07, session 4): (H5) twist, (H3) splice, (H4) easy half LANDED
+
+* **(H5)/hmid DONE, pure std-3** — `GQ2/DeepDuality.lean` §G′ (`MidTwist`):
+  `IsResidueTrivial N g` (norm form: every `N`-fixed integral `x` moves `< 1`),
+  `IsResidueTrivial.conj` (conj-stability via `norm_galois` + `conj_mem_ker`),
+  **`conjAct_mid_sub_mem_deep`** (Lemma 6.10: `conjAct ρ g ξ − ξ` deep for `ξ` mid, `g`
+  residue-trivial — 2-torsion + `kcf_mul_of_fixed` turn the difference into
+  `[κ_{(g•β)β}]`, and the PRODUCT `(g•A)·A = 1 + 2(g•b + b + 2(g•b)b)` is a deep unit via
+  the inertia estimate at `x := b`; `p = 2` turns the paper's division into a product — no
+  root-factoring, no leaf), **`conjAct_surjInv_conj_mid_sub_mem_deep`** (the literal `hmid`
+  at `conjModule`: ONE residue-trivial lift `g₀ : AbsGalQ2` of `t₀` covers all
+  `d·t₀·d⁻¹`-conjugates via `conjAct_ker` + conj-stability).  Still hypothesis-side for f8:
+  *tame-inertia lifts are residue-trivial* (`BoundaryMaps`/`hfac` unpacking).
+* **(H3)/hiso DONE** — `GQ2/DeepDualityK.lean` §IsotropySplice: `kerToFixing`
+  (+`_mul`, `continuous_`) under the POINTWISE `hker : x ∈ ker ρ ↔ x ∈ k.fixingSubgroup`
+  (no subgroup-equality cast is ever formed); **`pairingK_deep_deep`** (destructure the deep tuples,
+  re-form them over `k.fixingSubgroup`, apply Tier-5 `cup_deepClasses`, pull the `B²`-witness
+  back along `kerToFixing` and through `muNTwoEquiv.symm` — the two cup cocycles are
+  literally the same functions), wrapper **`deepClassesSubgroup_le_pairPerp_pairingK`** =
+  `hiso`.  Ax: std-3 + B11a + tateDualityAt.
+* **(H4) easy half DONE** — `(U_e, U_{e+1}) = 1` PROVED (no leaf):
+  `GQ2/HilbertLedger.lean` `normForm_of_mid_aux`/`normForm_of_mid` (mid-base Brahmagupta
+  descent: with `‖a−1‖ ≤ ‖2‖` the error contracts by the CURRENT depth `‖b−1‖/‖2‖` —
+  self-referential budget `‖b−1‖·(‖b−1‖/‖2‖)^j < ‖4‖`, monotone along the iteration; FV
+  Ch. VII §4 Ex. 4c at `(e, e+1)`) + `cup_mid_deep` (std-3 ∪ {B11a});
+  `GQ2/DeepDualityK.lean` `norm_sub_one_le_of_isMidUnit`, `midClass_eq_kummerClassK`
+  (`≤`-mirror of the deep bridge), `cup_midClasses_deepClasses`, **`pairingK_mid_deep`**
+  (same splice as (H3)), wrapper **`midClassesSubgroup_le_pairPerp_pairingK`** =
+  `E ≤ Deep^⊥`.
+* **Remaining for f7**: the (H4) COUNTING half — `#Deep^⊥ ≤ #E`, whence `Deep^⊥ = E`
+  (`AddSubgroup.eq_of_le_of_card_le` off the easy half) and `hsharp`.  Chain:
+  `#Deep^⊥ = #((M⧸Deep)^∨) = #(M⧸Deep) = #M/#Deep` (Nat.card_congr `perpEquivDualQuot` +
+  `card_addHom_zmod2` + Lagrange) vs `#E·#Deep ≥ #M` — the B12/B13 structural count
+  (`kummerClassK_surjective` + `DyadicUnitFiltration.card_gr` + O'Meara 63:9-style
+  square-depth bookkeeping).  Then the final `card_equivHoms_deep_eq_quot` instantiation
+  (M := `H¹(ker ρ)` @ `conjModule`, U := `V^∨` @ `dualModule`, Deep/E :=
+  deep/mid-`ClassesSubgroup`, B := `pairingK`, all inputs now named).
+* Lean lessons this session: (i) inline `by rw [...]`-proofs of an argument whose expected
+  type still contains METAVARS can capture them (`rw [hgsq]` matched `?y^2` and assigned
+  `?y := g•β`) — hoist to a standalone `have` with concrete type; (ii) `(n : Kummer.GaloisGroup ℚ_[2])`
+  ASCRIPTION on `n : ↥(ker-as-Subgroup-AbsGalQ2)` fails (coercion-insertion unifies at
+  reducible) — use `n.1`/plain application (default-transparency defeq); (iii) lambdas
+  inside a `+`-binop don't get the expected domain propagated — annotate binders; (iv) a
+  goal produced by `rfl`-destructuring a definition carries the DEFINITION's instance-view —
+  re-`show` it in your own view before `rw`-ing with your own lemmas.
