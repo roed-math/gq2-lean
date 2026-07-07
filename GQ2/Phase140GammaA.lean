@@ -37,7 +37,7 @@ namespace GQ2
 namespace Phase140GammaA
 
 open SectionEight AffineTLift CentralObstruction ContCoh WordCohBridge GQ2.FoxH RStageGammaA
-  RadicalEdgeGammaA
+  RadicalEdgeGammaA WordCoh2 MixedBObs
 
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
   [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
@@ -216,6 +216,116 @@ theorem tcocycle_card_gammaA (ρ : BoundaryLifts b F RF.TC) :
   have adm := markC_admissible θ hθs
   rw [Nat.card_congr hequiv, Nat.card_congr (z1Equiv θ hcomp hθs hA₂).toEquiv,
     (GQ2.FoxH.prop_5_15 (markC θ) adm.2.1 adm.2.2.1 adm.1 hA₂ adm.2.2.2).2.1]
+
+/-! ## The word-side right-slot separator  (the `hpartial_A` stage-6 engine)
+
+The `Γ_A` replacement for the local `cup11_dualEval_right_separating` (which runs on B6
+Tate duality): a continuous dual 1-cocycle `ξ` whose pair cochain `(a,b) ↦ ξ(a)(a • z(b))`
+is a continuous coboundary against EVERY `A`-cocycle `z` is itself a coboundary.  Route:
+the pair cochain is the `kappaHeis`-inflation of the paired `wordHom`
+(`MixedBObs.obs_inflation`), so its `WordCoh2.obs` equals the traced mixed pairing
+`mixedB (markC θ) (eval z) (eval ξ)` (`mixedB_eq_relZPair`); `obs` kills `B²`
+(`obs_B2_eq_zero`), so all word pairings vanish, and `prop_5_15`'s clause-3 RIGHT-slot
+nondegeneracy forces `[eval ξ]_w = 0`; `eval_dZero` + `z1Equiv`-injectivity pull the word
+coboundary back to a continuous one.  No B-axioms. -/
+
+section WordSeparator
+
+variable {Cf : Type} [Group Cf] [TopologicalSpace Cf] [DiscreteTopology Cf] [Finite Cf]
+variable {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
+  [DistribMulAction Cf A]
+  [DistribMulAction GA A] [ContinuousSMul GA A]
+  [TopologicalSpace (ElemDual A)] [DiscreteTopology (ElemDual A)]
+  [DistribMulAction GA (ElemDual A)] [ContinuousSMul GA (ElemDual A)]
+  [DistribMulAction GA (ZMod 2)] [ContinuousSMul GA (ZMod 2)]
+variable (θ : ContinuousMonoidHom GA Cf)
+
+theorem b1_of_pair_cochain_B2
+    (hcompat : ∀ (γ : GA) (a : A), γ • a = θ γ • a)
+    (hcompatD : ∀ (γ : GA) (lam : ElemDual A), γ • lam = θ γ • lam)
+    (htriv : ∀ (x : GA) (m : ZMod 2), x • m = m)
+    (hθs : Function.Surjective ⇑θ)
+    (hA₂ : ∀ a : A, a + a = 0)
+    (ξ : ↥(Z1 GA (ElemDual A)))
+    (hvan : ∀ zc : ↥(Z1 GA A),
+      (fun p : GA × GA => (ξ.1 p.1) (p.1 • zc.1 p.2)) ∈ B2 GA (ZMod 2)) :
+    ∃ n : ElemDual A, dZero GA (ElemDual A) n = ξ.1 := by
+  classical
+  have hA₂D : ∀ lam : ElemDual A, lam + lam = 0 := fun lam => by
+    ext a
+    simp only [ElemDual.add_apply, ElemDual.zero_apply]
+    exact CharTwo.add_self_eq_zero (lam a)
+  have adm := markC_admissible θ hθs
+  obtain ⟨P, hPmix, _hPleft, hPright⟩ :=
+    (GQ2.FoxH.prop_5_15 (markC θ) adm.2.1 adm.2.2.1 adm.1 hA₂ adm.2.2.2).2.2
+  -- every word pairing of `eval ξ` against a primal word class vanishes
+  have hmix0 : ∀ xw : ↥(Z1w (A := A) (markC θ)),
+      mixedB (markC θ) xw.1 (toZ1wHom θ hcompatD ξ).1 = 0 := by
+    intro xw
+    obtain ⟨zc, rfl⟩ := (z1Equiv θ hcompat hθs hA₂).surjective xw
+    -- the paired `WordLift`-hom of `(zc, ξ)`
+    have hcompatP : ∀ (γ : GA) (p : A × ElemDual A), γ • p = θ γ • p := by
+      intro γ p
+      refine Prod.ext ?_ ?_
+      · rw [Prod.smul_fst, Prod.smul_fst]; exact hcompat γ p.1
+      · rw [Prod.smul_snd, Prod.smul_snd]; exact hcompatD γ p.2
+    set H : ContinuousMonoidHom GA (WordLift (A × ElemDual A) Cf) :=
+      wordHom θ hcompatP
+        ⟨fun γ => (zc.1 γ, ξ.1 γ),
+          mem_Z1_iff.mpr ⟨((mem_Z1_iff.mp zc.2).1).prodMk ((mem_Z1_iff.mp ξ.2).1),
+            fun γ δ => by
+              rw [Prod.ext_iff]
+              exact ⟨(mem_Z1_iff.mp zc.2).2 γ δ, (mem_Z1_iff.mp ξ.2).2 γ δ⟩⟩⟩ with hH
+    -- the pair cochain is a `Z²` element (it is even a coboundary, `hvan`)
+    have hmem : (fun p : GA × GA => (ξ.1 p.1) (p.1 • zc.1 p.2)) ∈ Z2 GA (ZMod 2) :=
+      B2_le_Z2 (hvan zc)
+    -- it is the `kappaHeis`-inflation along `H`
+    have hunfold : ∀ a b : GA,
+        (fun p : GA × GA => (ξ.1 p.1) (p.1 • zc.1 p.2)) (a, b)
+          = kappaHeis.κ (H a) (H b) := by
+      intro a b
+      show (ξ.1 a) (a • zc.1 b) = (H a).u.2 ((H a).g • (H b).u.1)
+      show (ξ.1 a) (a • zc.1 b) = (ξ.1 a) (θ a • zc.1 b)
+      exact congrArg (ξ.1 a) (hcompat a (zc.1 b))
+    -- its obstruction vanishes (`obs` kills `B²`)
+    have hobs0 : obs htriv ⟨_, hmem⟩ = 0 := by
+      have hker : (⟨_, hmem⟩ : ↥(Z2 GA (ZMod 2))) ∈ (obs htriv).ker :=
+        obs_B2_eq_zero htriv (AddSubgroup.mem_addSubgroupOf.mpr (hvan zc))
+      exact AddMonoidHom.mem_ker.mp hker
+    -- ... and equals the traced mixed pairing
+    have hinfl := obs_inflation htriv H kappaHeis ⟨_, hmem⟩ hunfold
+    have hmark : gammaGen.map H.toMonoidHom
+        = mBaseMarking (markC θ) (eval zc) (eval ξ) := by
+      rw [markC_map]; rfl
+    rw [hmark] at hinfl
+    have hval : mixedB (markC θ) (eval zc) (eval ξ) = 0 := by
+      rw [mixedB_eq_relZPair, ← hinfl]
+      exact hobs0
+    exact hval
+  -- right-slot nondegeneracy kills the `ξ`-class
+  have hcls0 : h1wMk (markC θ) (toZ1wHom θ hcompatD ξ) = 0 := by
+    by_contra hne
+    obtain ⟨hcl, hPne⟩ := hPright _ hne
+    obtain ⟨xw, hxw⟩ := QuotientAddGroup.mk_surjective hcl
+    refine hPne ?_
+    rw [← hxw]
+    exact (hPmix xw (toZ1wHom θ hcompatD ξ)).trans (hmix0 xw)
+  -- `B¹w`-extraction and pullback through the bridge
+  have hmemB1w : ((toZ1wHom θ hcompatD ξ : ↥(Z1w (A := ElemDual A) (markC θ))) : Fin 4 → ElemDual A)
+      ∈ B1w (A := ElemDual A) (markC θ) :=
+    AddSubgroup.mem_addSubgroupOf.mp
+      ((QuotientAddGroup.eq_zero_iff (toZ1wHom θ hcompatD ξ)).mp hcls0)
+  obtain ⟨m, hm⟩ := AddMonoidHom.mem_range.mp hmemB1w
+  refine ⟨m, ?_⟩
+  have hbundle : (⟨dZero GA (ElemDual A) m, B1_le_Z1 ⟨m, rfl⟩⟩ : ↥(Z1 GA (ElemDual A))) = ξ := by
+    apply (z1Equiv θ hcompatD hθs hA₂D).injective
+    apply Subtype.ext
+    show eval (⟨dZero GA (ElemDual A) m, B1_le_Z1 ⟨m, rfl⟩⟩ : ↥(Z1 GA (ElemDual A))) = eval ξ
+    rw [eval_dZero θ hcompatD m]
+    exact hm
+  exact congrArg Subtype.val hbundle
+
+end WordSeparator
 
 /-! ## The per-character `𝔽₂`-covers of `Q = B/T`  (Γ-generic; the `hsep_A` L4 covers) -/
 
