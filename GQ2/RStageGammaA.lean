@@ -762,8 +762,9 @@ cover: if `g_B` lifts through `Q` (via `gc`), then any set-lift marking `tY` of 
 tame and wild relator values after reduction along `red`.  Both `tY.map red` and the lift's
 pushed marking cover `g_B`'s marking, so they differ by corrections in the **central 2-torsion**
 kernel (`CentralCover.central`/`z_sq`); the landed L1 (`tameValue_correction`/
-`wildValue_correction`) evaluates both reduced relator values to the same `r̄₁`. -/
-private theorem redValues_eq_of_coverLift (Q : CentralCover B0) (piB : Y →* B0)
+`wildValue_correction`) evaluates both reduced relator values to the same `r̄₁`.  (Un-privated
+for P-16d6e6's `hsep_gammaA`, which runs the same extraction at the `T`-stage covers.) -/
+theorem redValues_eq_of_coverLift (Q : CentralCover B0) (piB : Y →* B0)
     (red : Y →* Q.cover) (hred_p : Q.p.comp red = piB)
     (gB : ContinuousMonoidHom GA B0)
     (gc : ContinuousMonoidHom GA Q.cover) (hgc : ∀ γ, Q.p (gc γ) = gB γ)
