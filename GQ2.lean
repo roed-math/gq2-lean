@@ -35,6 +35,7 @@ import GQ2.TameQuotient
 import GQ2.SectionThree
 import GQ2.Prop32
 import GQ2.TameTwoQuotient
+import GQ2.TameOrientationWitness
 import GQ2.SectionThreeMarked
 import GQ2.AdmissibleLimit
 import GQ2.Prop23

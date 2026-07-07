@@ -114,7 +114,17 @@ index multiplicativity — hand-roll ~30 ln if `Subgroup.relindex` calculus resi
 `[U : U∩N] = #(unit-image)` (B5(a) kernel + 1st iso on `U`).
 ⚠ risk = mathlib `Units.map`/index API wrangling; the mathematics is pinned.
 
-### c2c3 — `GQ2/TameTwoQuotient.lean` [F, (i)+(ii) axiom-free, startable now]
+### c2c3 — `GQ2/TameTwoQuotient.lean` [F] — ☑ **CLOSED 2026-07-08**
+
+**(i)+(ii)+(iii-def)** landed `b43be7a` (std-3 exactly; (ii) via the kernel-inclusion route
+`ker_nuT_le_proPKernel` — `maxProPMk = ρ'∘nuT` by the `Zhat`-power hom + `monoidHom_eq_of_topGen`,
+no `T₂ ≅ Ztwo` iso; consumer shape `map_eq_one_of_nuT_eq_one_finite`).  **(iii) witness
+discharge** landed in the NEW leaf `GQ2/TameOrientationWitness.lean` (registered):
+`tameUnitOrientation_tameFHom` (std-3 + {B5, B10′} exactly — the §7 predicted trace) and
+`tameUnitOrientation_witness` (`B := boundaryMapsWitness` shape; + the witness's B3c/B8).
+Leaf placement: keeps `TameTwoQuotient` light for c2c4 and dodges the
+`maxProPMk_tameTau`/`ker_nuT_le_proPKernel` name collision between the `GQ2` and
+`GQ2.SectionThree` scopes.  Original spec follows for reference.
 (i) *τ-death*: any `φ : Ttame →* Q`, `Q` finite 2-group ⟹ `φ tameTau = 1`
 (`tame_odd_order` on the pushed `tame_relation`: `orderOf (φ tameSigma) ≠ 0` in finite `Q`;
 odd ∧ 2-power order ⟹ trivial).  **Pure finite group theory, no topology.**
