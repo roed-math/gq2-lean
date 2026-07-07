@@ -224,6 +224,34 @@ theorem d1Fun_naturality (f : A →+ A') (hf : ∀ (g : C) (a : A), f (g • a) 
 
 end WordNaturality
 
+/-! ## L3 — the trace-span package: `(R^∨)^C` perfectly pairs `H2w` (plan §2, gap (i)) -/
+
+section TraceSpan
+
+open GQ2.FoxH
+
+variable {C : Type} [Group C] [Finite C]
+variable {A : Type} [AddCommGroup A] [Finite A] [DistribMulAction C A]
+
+/-- **The trace functional** `Φ_λ : H2w(A) →+ 𝔽₂`, `[v] ↦ λ(v.1 + v.2)` (`docs/p16d6e5-plan.md`
+§2, L3).  Well-defined on the quotient `H2w = (A×A) ⧸ im d¹` because for an invariant `λ`
+(`d⁰λ = 0`), `prop_5_8_right` gives `λ((d¹x).1 + (d¹x).2) = mixedB t x (d⁰λ) = mixedB t x 0 = 0`.
+This is the (2,0)-pairing the candidate `IsSelfDual` omits — supplied by `prop_5_8` directly. -/
+noncomputable def wTrace (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (lam : ElemDual A) (hlam : (d0 (A := ElemDual A) t) lam = 0) :
+    H2w (A := A) t →+ ZMod 2 :=
+  QuotientAddGroup.lift _ (lam.comp (AddMonoidHom.fst A A + AddMonoidHom.snd A A)) (by
+    rintro w ⟨x, rfl⟩
+    have h58 := prop_5_8_right t ht hw x lam
+    rw [hlam, mixedB_zero_right] at h58
+    exact h58.symm)
+
+@[simp] theorem wTrace_mk (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (lam : ElemDual A) (hlam : (d0 (A := ElemDual A) t) lam = 0) (v : A × A) :
+    wTrace t ht hw lam hlam (QuotientAddGroup.mk v) = lam (v.1 + v.2) := rfl
+
+end TraceSpan
+
 /-! ## `hsep_hom`: the `(R^∨)^C` separation at the candidate source (L1–L5, the main work) -/
 
 /-- **The `(R^∨)^C`-separation at `Γ_A`** (P-16d6e5 residue): if the obstruction functional of a
