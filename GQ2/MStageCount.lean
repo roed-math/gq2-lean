@@ -38,6 +38,38 @@ variable {Γ : Type} [Group Γ] [TopologicalSpace Γ]
 
 /-! ## Count transport along an iso of marked targets -/
 
+/-- **The boundary-lift bijection along an isomorphism of marked targets** (the equiv
+underlying `exactImageCount_congr`, exposed so decorated counts can subtype over it — the
+P-17i `nPhase`/`liftableCount` bridge below). -/
+noncomputable def boundaryLiftsCongr {Y₁ Y₂ : Type}
+    [Group Y₁] [TopologicalSpace Y₁] [DiscreteTopology Y₁] [Finite Y₁]
+    [Group Y₂] [TopologicalSpace Y₂] [DiscreteTopology Y₂] [Finite Y₂]
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (T₁ : MarkedTarget H E Y₁) (T₂ : MarkedTarget H E Y₂) (e : Y₁ ≃* Y₂)
+    (hhead : ∀ y : Y₁, T₂.piY (e y) = T₁.piY y)
+    (htheta : ∀ y : Y₁, T₂.thetaY (e y) = T₁.thetaY y) :
+    BoundaryLifts b F T₁ ≃ BoundaryLifts b F T₂ where
+  toFun f :=
+    ⟨⟨⟨e.toMonoidHom.comp f.1.1.toMonoidHom,
+        (continuous_of_discreteTopology (f := ⇑e)).comp f.1.1.continuous_toFun⟩,
+      e.surjective.comp f.1.2⟩,
+    fun γ => by
+      show (T₂.piY (e (f.1.1 γ)), T₂.thetaY (e (f.1.1 γ))) = F.frameMap (b γ)
+      rw [hhead, htheta]
+      exact f.2 γ⟩
+  invFun g :=
+    ⟨⟨⟨e.symm.toMonoidHom.comp g.1.1.toMonoidHom,
+        (continuous_of_discreteTopology (f := ⇑e.symm)).comp g.1.1.continuous_toFun⟩,
+      e.symm.surjective.comp g.1.2⟩,
+    fun γ => by
+      show (T₁.piY (e.symm (g.1.1 γ)), T₁.thetaY (e.symm (g.1.1 γ))) = F.frameMap (b γ)
+      rw [← hhead (e.symm (g.1.1 γ)), ← htheta (e.symm (g.1.1 γ)), e.apply_symm_apply]
+      exact g.2 γ⟩
+  left_inv f := Subtype.ext (Subtype.ext (ContinuousMonoidHom.ext fun γ =>
+    e.symm_apply_apply _))
+  right_inv g := Subtype.ext (Subtype.ext (ContinuousMonoidHom.ext fun γ =>
+    e.apply_symm_apply _))
+
 /-- **Exact-image counts transport along an isomorphism of marked targets**: a `MulEquiv`
 `e : Y₁ ≃* Y₂` intertwining heads and decorations induces a bijection of the boundary-lift
 sets (continuity is free — the targets are discrete). -/
@@ -48,28 +80,8 @@ theorem exactImageCount_congr {Y₁ Y₂ : Type}
     (T₁ : MarkedTarget H E Y₁) (T₂ : MarkedTarget H E Y₂) (e : Y₁ ≃* Y₂)
     (hhead : ∀ y : Y₁, T₂.piY (e y) = T₁.piY y)
     (htheta : ∀ y : Y₁, T₂.thetaY (e y) = T₁.thetaY y) :
-    exactImageCount b F T₁ = exactImageCount b F T₂ := by
-  refine Nat.card_congr
-    { toFun := fun f =>
-        ⟨⟨⟨e.toMonoidHom.comp f.1.1.toMonoidHom,
-            (continuous_of_discreteTopology (f := ⇑e)).comp f.1.1.continuous_toFun⟩,
-          e.surjective.comp f.1.2⟩,
-        fun γ => ?_⟩
-      invFun := fun g =>
-        ⟨⟨⟨e.symm.toMonoidHom.comp g.1.1.toMonoidHom,
-            (continuous_of_discreteTopology (f := ⇑e.symm)).comp g.1.1.continuous_toFun⟩,
-          e.symm.surjective.comp g.1.2⟩,
-        fun γ => ?_⟩
-      left_inv := fun f => Subtype.ext (Subtype.ext (ContinuousMonoidHom.ext fun γ =>
-        e.symm_apply_apply _))
-      right_inv := fun g => Subtype.ext (Subtype.ext (ContinuousMonoidHom.ext fun γ =>
-        e.apply_symm_apply _)) }
-  · show (T₂.piY (e (f.1.1 γ)), T₂.thetaY (e (f.1.1 γ))) = F.frameMap (b γ)
-    rw [hhead, htheta]
-    exact f.2 γ
-  · show (T₁.piY (e.symm (g.1.1 γ)), T₁.thetaY (e.symm (g.1.1 γ))) = F.frameMap (b γ)
-    rw [← hhead (e.symm (g.1.1 γ)), ← htheta (e.symm (g.1.1 γ)), e.apply_symm_apply]
-    exact g.2 γ
+    exactImageCount b F T₁ = exactImageCount b F T₂ :=
+  Nat.card_congr (boundaryLiftsCongr b F T₁ T₂ e hhead htheta)
 
 omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
   [DiscreteTopology E] [Finite E] in
@@ -104,6 +116,22 @@ theorem SectionEight.RecursionFrame.exactImageCount_TB_of_R_bot {Y : Type} [Grou
     exact hR
   exact (exactImageCount_congr b F T RF.TB (MulEquiv.ofBijective RF.piB ⟨hinj, RF.piB_surj⟩)
     (fun y => DFunLike.congr_fun RF.TB_head y) (fun y => DFunLike.congr_fun RF.TB_theta y)).symm
+
+/-- **The phase count is the `⊤`-stratum liftable count** (the P-17i `hphase` feed):
+`n_{Γ,0}(ζ) = u^β_Γ(p_ζ, ⊤)`, so `lemma_8_3` at the `⊤` stratum expands `8·nPhase` into the
+pulled-stratum counts of the phase cover.  The `⊤`-stratum transport is `boundaryLiftsCongr`
+at `↥⊤ ≃* Y_C`, and the cover-lift decorations agree definitionally (the coercion `↥⊤ → Y_C`
+*is* the equiv). -/
+theorem SectionEight.RecursionFrame.nPhase_eq_liftableCount_top {Y : Type} [Group Y]
+    [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : MinimalBlock T.LY} (RF : RecursionFrame T Blk)
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (Cζ : CentralCover RF.YC) :
+    RF.nPhase b F Cζ = liftableCount b F RF.TC Cζ ⊤ RF.TC.top_head_surjective :=
+  (Nat.card_congr (Equiv.subtypeEquiv
+    (boundaryLiftsCongr b F (RF.TC.stratum ⊤ RF.TC.top_head_surjective) RF.TC
+      Subgroup.topEquiv (fun _ => rfl) (fun _ => rfl))
+    (fun _ => Iff.rfl))).symm
 
 /-! ## The degenerate-head case -/
 
