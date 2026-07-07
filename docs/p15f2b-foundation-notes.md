@@ -1,8 +1,45 @@
-# P-15f2b foundation delivered — scoping finding + route fork
+# P-15f2b — COMPLETE (orbit route, I0–I4 landed, std-3)
 
-**Date**: 2026-07-07 (Opus).  Status: `regular_isometric_embedding` landed sorry-free (std-3);
-the ticket **paused at the foundation** by user decision, with the orbit-decomposition remainder
-left as a documented route fork.
+**Date**: 2026-07-07 (Opus).  Status: after the foundation pause, the user chose the **orbit
+route**; increments **I0–I4 are landed sorry-free (std-3)**.  **P-15f2b's full interface is now
+delivered**: `regular_isometric_embedding_orbit` — the `C`-equivariant (through `e : C ≃* G⧸N`)
+isometric split embedding into `Fin K → RegRep N` carrying the **§6.2 orbit-sum datum** `sumDatum
+(orbitIndexSet Q_W) orbitDatum` for `Q_W := q∘r`, *definitionally* the orbit sum.  The remaining
+inputs to closing `lemma_6_17_vanish` are f2a (datum-independence, its full proof paper-verified in
+`p15f2-option1-scoping.md`), f2c (Shapiro coords), and f2d (assembly + the `C ≅ AbsGalQ2⧸ker ρ`
+instantiation of `e`).
+
+## Orbit route — landed increments (all std-3)
+
+| Inc | Commit | Content |
+|---|---|---|
+| **I0** | `4a3ca0c` | de-privatize `KappaNormalForm`'s generic quadratic/datum layer (`quadratic_expansion`, `datum_*`, `polar_*`, `isQuadraticFp2_*`) — visibility-only, clash-free |
+| **I1** | `6d3c3cc` | `GQ2/OrbitDecomp.lean` carrier: `blockBas` basis + support decomp, `blockDiag`/`blockPolar` coordinates + invariance reductions, `posSwap`/`IsFreePos` + the `freeReps` orientation transversal |
+| **I2** | `cbf4700` | the three block summands (`{square,free,inv}BlockDatum` = `FactorSet.comap` of the literal `OrbitData` datums) + equivariance + quadraticity + basis diagonal/polar evaluations (incl. the involution `Quotient.out` bookkeeping) |
+| **I3** | `677ae4a` | **`isEquivariantFactorSet_orbitSumDatum`** — a `(G/N)`-invariant `𝔽₂`-quadratic `Q` on `Fin K → RegRep N` **is** the square map of `sumDatum (orbitIndexSet N Q) (orbitDatum N)`.  Via `isEquivariantFactorSet_sumDatum` (generic) + `quadratic_ext` (basis extensionality through `quadratic_expansion`) + the diagonal/polar matching (`orbitSum_blockBas` / `orbitSum_polar_blockBas`, the combinatorial heart). |
+
+`isEquivariantFactorSet_orbitSumDatum` is Galois-free over abstract `(G, N)` with `[Finite (G⧸N)]`
+— exactly the `dat = sumDatum s datf` shape `OrbitVanish.Q0loc_vanish_of_datum_decomp` consumes.
+
+| **I4** | `GQ2/RegularIsometry.lean` | **`regular_isometric_embedding_orbit`** — composes the foundation `regular_isometric_embedding` with a block-reindexing intertwiner `reBlock` along `e : C ≃* G⧸N`, transports `ι`/`r`/`Q_W := q∘r` onto `Fin K → RegRep N`, and applies `isEquivariantFactorSet_orbitSumDatum` to conclude the full f2b interface with `datW` **definitionally** the orbit sum. |
+
+## I4 — the reindex capstone (landed)
+
+`regular_isometric_embedding_orbit` (`GQ2/RegularIsometry.lean`): the transport bricks are
+* `reSummand e : (C → ZMod 2) ≃+ RegRep N`, `f ↦ (fun h => f (e.symm h))`; blockwise
+  `reBlock := AddEquiv.piCongrRight`;
+* action compat `reBlock (c • F) = e c • reBlock F` / `reBlock.symm (d • Y) = e.symm d • reBlock.symm Y`
+  (both left-regular; `e.symm` a hom);
+* `ι := reBlock ∘ ι₀`, `r := r₀ ∘ reBlock.symm`, `Q_W := q ∘ r`; invariance (through `reBlock.symm`
+  + `hinv`) / quadraticity of `Q_W`, isometry `Q_W (ι v) = q v` through `r∘ι = id`, and
+  equivariance `ι (a • v) = e a • ι v`.
+
+The conclusion's datum is *literally* `sumDatum (orbitIndexSet N Q_W) (orbitDatum N)` — no bridging
+for f2c's per-orbit `hcoh`.  `e` is kept abstract; f2d instantiates it at `C ≅ AbsGalQ2⧸ker ρ`.
+
+---
+
+## Foundation (I earlier) — `regular_isometric_embedding` (commit `cfbbe96`, std-3)
 
 ## What landed (`GQ2/RegularIsometry.lean`, commit `cfbbe96`)
 
