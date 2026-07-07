@@ -195,6 +195,7 @@ theorem Q0loc_eq_orbit_sum_of_decomp (D : TateDuality 2) (dat : FactorSet C V)
   rw [hdecomp, H2ofFun_sum_of_mem_Z2 s φ hφZ2, map_sum]
   exact Finset.sum_congr rfl fun o ho => by rw [hcoh o ho]
 
+omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
 /-- **The full P-15f2 reducer** (`lemma_6_17_vanish` modulo the monomial expansion): given the raw
 per-orbit cochain decomposition `hdecomp`, the Lemma-6.15 cohomologies `hcoh`, and the deep-class
 per-orbit vanishing `hvanish` (free/square = `cup_deepClasses`, involution = `lemma_6_16`),
@@ -216,6 +217,89 @@ theorem Q0loc_vanish_of_decomp (D : TateDuality 2) (dat : FactorSet C V)
     (Q0loc_eq_orbit_sum_of_decomp D dat ρ x s φ hφZ2 hdecomp U inner hcoh) hvanish
 
 end Reducer
+
+/-! ## §6.2 datum-additivity assembly: from the datum-level orbit decomposition to `hdecomp`
+
+The paper assembles the multi-orbit contribution as **additivity of `graphPullback` in the datum**
+(the Lemma-6.15 deviation note, `SectionSix.lean:646`): once the invariant datum on the regular
+module decomposes as a pointwise (block) sum of the per-orbit datums `datW = Σ_o datum_o` (each an
+orbit datum of §6.2 extended by zero to the regular module), its graph pullback is the sum of the
+per-orbit pullbacks — each of which is a banked Lemma-6.15 corestriction.  This section supplies
+that additivity brick and the resulting **datum-level** reducer, landing the sole remaining input
+of `lemma_6_17_vanish` (through the Lemma-6.14 transport) on the *datum identity*
+`datW = Σ_o datf_o` and the banked 6.15 cohomologies. -/
+
+section DatumSum
+
+variable {C : Type*} [Group C]
+variable {V : Type*} [AddCommGroup V] [DistribMulAction C V]
+
+/-- **Pointwise (block) sum of factor-set datums** (§6.2 assembly): the datum whose factor set and
+central corrections are the coordinatewise finite sums.  This is the datum-level form of the
+paper's multi-orbit decomposition `datW = Σ_o datum_o` (each `datum_o` an orbit datum extended by
+zero to the regular module `𝔽₂[H_V]^N`). -/
+def sumDatum {ι : Type*} (s : Finset ι) (datf : ι → FactorSet C V) : FactorSet C V where
+  f v w := ∑ o ∈ s, (datf o).f v w
+  m c v := ∑ o ∈ s, (datf o).m c v
+
+/-- **Additivity of `graphPullback` in the datum**: the graph pullback of a pointwise datum sum is
+the sum of the graph pullbacks.  This is the paper's "multi-orbit assembly = additivity of
+`graphPullback` in the datum" (Lemma-6.15 deviation note), which turns a datum-level orbit
+decomposition `datW = Σ_o datf_o` into the cochain-level `hdecomp` consumed by
+`Q0loc_vanish_of_decomp`. -/
+theorem graphPullback_sumDatum {ι : Type*} (s : Finset ι) (datf : ι → FactorSet C V)
+    {Γ : Type*} (ρ : Γ → C) (b : Γ → V) :
+    graphPullback (sumDatum s datf) ρ b = ∑ o ∈ s, graphPullback (datf o) ρ b := by
+  funext p
+  rw [Finset.sum_apply]
+  show (∑ o ∈ s, (datf o).f (b p.1) (ρ p.1 • b p.2)) + (∑ o ∈ s, (datf o).m (ρ p.1) (b p.2))
+      = ∑ o ∈ s, ((datf o).f (b p.1) (ρ p.1 • b p.2) + (datf o).m (ρ p.1) (b p.2))
+  rw [Finset.sum_add_distrib]
+
+end DatumSum
+
+section DatumReducer
+
+open SectionSix
+
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
+
+/-- **The datum-level P-15f2 reducer** (`lemma_6_17_vanish` modulo the §6.2 datum decomposition):
+if the (regular-module) datum decomposes as a pointwise sum of per-orbit equivariant factor sets
+`dat = Σ_o datf_o` (`hdat_eq` — the datum-level "gap 2", `sumDatum`), each per-orbit pullback is
+cohomologous to its Lemma-6.15 corestriction (`hcoh` — free/square = eq. (103)/(104), involution =
+eq. (105), all banked in `ShapiroLedger`), and each corestriction's inner cocycle vanishes in the
+subgroup's `H²` (`hvanish` — deep-class (94)/6.16), then `Q⁰_loc x = 0`.
+
+Composes the datum-additivity brick `graphPullback_sumDatum` (turning `hdat_eq` into the cochain
+decomposition `hdecomp`) with the full reducer `Q0loc_vanish_of_decomp`; per-orbit `Z²`-membership
+is discharged from the equivariant-factor-set hypotheses via `graphPullback_mem_Z2`.  Applied at the
+regular module `V := 𝔽₂[H_V]^N` after the Lemma-6.14 transport `Q⁰_loc dat ρ x = Q⁰_loc datW ρ ι_*x`,
+the **sole remaining input** for `lemma_6_17_vanish` is `hdat_eq` — the datum-level orbit
+decomposition of §6.2. -/
+theorem Q0loc_vanish_of_datum_decomp (D : TateDuality 2) (dat : FactorSet C V)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (x : H1 AbsGalQ2 V)
+    {ι : Type*} (s : Finset ι) (datf : ι → FactorSet C V)
+    (qf : ι → V → ZMod 2) (hdatf : ∀ o ∈ s, IsEquivariantFactorSet (qf o) (datf o))
+    (hdat_eq : dat = sumDatum s datf)
+    (U : ι → Subgroup AbsGalQ2) (hfin : ∀ o ∈ s, Finite (AbsGalQ2 ⧸ U o))
+    (hopen : ∀ o ∈ s, IsOpen (U o : Set AbsGalQ2))
+    (inner : (o : ι) → ↥(U o) × ↥(U o) → ZMod 2) (hZ2 : ∀ o ∈ s, inner o ∈ Z2 ↥(U o) (ZMod 2))
+    (hcoh : ∀ o ∈ s, H2ofFun AbsGalQ2 (graphPullback (datf o) ρ (Quotient.out x).1)
+      = H2ofFun AbsGalQ2 (cor2Fun (U o) (inner o)))
+    (hvanish : ∀ o ∈ s, H2ofFun ↥(U o) (inner o) = 0) :
+    Q0loc D dat ρ x = 0 := by
+  refine Q0loc_vanish_of_decomp D dat ρ x s
+    (fun o => graphPullback (datf o) ρ (Quotient.out x).1)
+    (fun o ho => graphPullback_mem_Z2 (datf o) (hdatf o ho) ρ hρ (Quotient.out x))
+    ?_ U hfin hopen inner hZ2 hcoh hvanish
+  rw [hdat_eq]
+  exact graphPullback_sumDatum s datf (⇑ρ) (Quotient.out x).1
+
+end DatumReducer
 
 end OrbitVanish
 
