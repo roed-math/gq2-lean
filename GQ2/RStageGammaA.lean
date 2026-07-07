@@ -613,6 +613,244 @@ theorem wildValue_correction [Finite Y'] (hr0 : ∀ z : Y', Commute r0 z)
 
 end WildCorrection
 
+/-! ## Relator death along any continuous hom from `Γ_A`; marking extensionality (L4/L5) -/
+
+section PushDescent
+
+/-- Four-field extensionality for markings. -/
+theorem marking_ext {G : Type*} {s t : Marking G} (h0 : s.σ = t.σ) (h1 : s.τ = t.τ)
+    (h2 : s.x₀ = t.x₀) (h3 : s.x₁ = t.x₁) : s = t := by
+  cases s; cases t
+  cases h0; cases h1; cases h2; cases h3
+  rfl
+
+variable {G' : Type} [Group G'] [TopologicalSpace G'] [DiscreteTopology G'] [Finite G']
+
+omit [DiscreteTopology G'] [Finite G'] in
+/-- **Relators die along any continuous hom from `Γ_A`, tame** (`docs/p16d6e5-plan.md` §2, L4 —
+NO surjectivity, unlike `markC_admissible`): the pushed marking of any `f : Γ_A →ₜ* G'` satisfies
+the tame relation, because the tame relator word lies in `N_A` (`tameRelator_mem_NA`). -/
+theorem push_tameRel (f : ContinuousMonoidHom GA G') : (Marking.push f).TameRel :=
+  (Marking.map_tameRelator_eq_one_iff (f.comp (quotientMk NA)) univMarking).mp <| by
+    show f (quotientMk NA univMarking.tameRelator) = 1
+    rw [(quotientMk_eq_one_iff NA).mpr tameRelator_mem_NA, map_one]
+
+/-- **Relators die along any continuous hom from `Γ_A`, wild** (`wildRelator_mem_NA`). -/
+theorem push_wildRel (f : ContinuousMonoidHom GA G') : (Marking.push f).WildRel :=
+  (Marking.map_wildRelator_eq_one_iff (f.comp (quotientMk NA)) univMarking).mp <| by
+    show f (quotientMk NA univMarking.wildRelator) = 1
+    rw [(quotientMk_eq_one_iff NA).mpr wildRelator_mem_NA, map_one]
+
+end PushDescent
+
+/-! ## The `WordLift` multiplication/base-change calculus — the general relator correction
+
+The landed L1 (`tameValue_correction`/`wildValue_correction`) handles corrections by **central**
+involutions — the per-cover algebra of L4.  L5 additionally needs the **general** correction at
+`Y` itself (corrections in the non-central `R`), which factors through the lift group
+`A ⋊ Y = WordLift`: evaluating the relators at `liftMarking t x` and pushing through the
+*multiplication homomorphism* `(u, g) ↦ j u · g` (a hom exactly because the action is realized
+by conjugation) yields `value(j(x)·t) = j(d¹-row) · value(t)` — the group-level Fox rows, with
+no new word expansion.  `d1Fun_base_change` transports the `d¹`-row between the `Y`-conjugation
+action and the `C = Y/K`-action of the word complex (`sep_word` lives at `markC θ : Marking C`). -/
+
+section WordLiftMul
+
+variable {G : Type*} [Group G] {A : Type*} [AddCommGroup A] [DistribMulAction G A]
+
+/-- The base projection `A ⋊ G →* G` of the lift group. -/
+def projW : WordLift A G →* G where
+  toFun p := p.g
+  map_one' := rfl
+  map_mul' _ _ := rfl
+
+/-- `liftMarking` projects back onto the base marking (structure eta). -/
+theorem liftMarking_map_projW (t : Marking G) (x : Fin 4 → A) :
+    (liftMarking t x).map projW = t := rfl
+
+/-- The base coordinate of the evaluated tame relator is the base tame relator value. -/
+theorem liftMarking_tameValue_g (t : Marking G) (x : Fin 4 → A) :
+    ((liftMarking t x).tameValue).g = t.tameValue := by
+  have h := Marking.map_tameValue (projW (A := A) (G := G)) (liftMarking t x)
+  rw [liftMarking_map_projW] at h
+  exact h.symm
+
+/-- The base coordinate of the evaluated wild relator (finite: the `ω₂`-push). -/
+theorem liftMarking_wildValue_g [Finite G] [Finite A] (t : Marking G) (x : Fin 4 → A) :
+    ((liftMarking t x).wildValue).g = t.wildValue := by
+  have h := Marking.map_wildValue (projW (A := A) (G := G)) (liftMarking t x)
+  rw [liftMarking_map_projW] at h
+  exact h.symm
+
+/-- **The multiplication homomorphism** `A ⋊ G →* G` of a conjugation-realized coefficient
+module: `(u, g) ↦ j u · g`, for `j : A → G` multiplicative with `j (g • a) = g · (j a) · g⁻¹`. -/
+def mulW (j : A → G) (hjmul : ∀ a b : A, j (a + b) = j a * j b)
+    (hjconj : ∀ (g : G) (a : A), j (g • a) = g * j a * g⁻¹) : WordLift A G →* G where
+  toFun p := j p.u * p.g
+  map_one' := by
+    have hj0 : j 0 = 1 := by
+      have h := hjmul 0 0
+      rw [add_zero] at h
+      exact left_eq_mul.mp h
+    show j (0 : A) * (1 : G) = 1
+    rw [hj0, one_mul]
+  map_mul' p q := by
+    show j (p.u + p.g • q.u) * (p.g * q.g) = j p.u * p.g * (j q.u * q.g)
+    rw [hjmul, hjconj]
+    group
+
+/-- **The general relator correction, tame**: left-multiplying a marking's generators by the
+`j`-realizations of coefficients `x` multiplies the tame relator value by `j` of the tame
+`d¹`-row.  (Evaluate the relator in `A ⋊ G` and push through `mulW`.) -/
+theorem corrected_tameValue (j : A → G) (hjmul : ∀ a b : A, j (a + b) = j a * j b)
+    (hjconj : ∀ (g : G) (a : A), j (g • a) = g * j a * g⁻¹) (t : Marking G) (x : Fin 4 → A) :
+    (Marking.mk (j (x 0) * t.σ) (j (x 1) * t.τ) (j (x 2) * t.x₀) (j (x 3) * t.x₁)).tameValue
+      = j ((d1Fun t x).1) * t.tameValue := by
+  have hmark : (liftMarking t x).map (mulW j hjmul hjconj)
+      = Marking.mk (j (x 0) * t.σ) (j (x 1) * t.τ) (j (x 2) * t.x₀) (j (x 3) * t.x₁) := rfl
+  rw [← hmark, Marking.map_tameValue]
+  show j ((liftMarking t x).tameValue).u * ((liftMarking t x).tameValue).g = _
+  rw [liftMarking_tameValue_g]
+  rfl
+
+/-- **The general relator correction, wild.** -/
+theorem corrected_wildValue [Finite G] [Finite A] (j : A → G)
+    (hjmul : ∀ a b : A, j (a + b) = j a * j b)
+    (hjconj : ∀ (g : G) (a : A), j (g • a) = g * j a * g⁻¹) (t : Marking G) (x : Fin 4 → A) :
+    (Marking.mk (j (x 0) * t.σ) (j (x 1) * t.τ) (j (x 2) * t.x₀) (j (x 3) * t.x₁)).wildValue
+      = j ((d1Fun t x).2) * t.wildValue := by
+  have hmark : (liftMarking t x).map (mulW j hjmul hjconj)
+      = Marking.mk (j (x 0) * t.σ) (j (x 1) * t.τ) (j (x 2) * t.x₀) (j (x 3) * t.x₁) := rfl
+  rw [← hmark, Marking.map_wildValue]
+  show j ((liftMarking t x).wildValue).u * ((liftMarking t x).wildValue).g = _
+  rw [liftMarking_wildValue_g]
+  rfl
+
+/-- Base change of the lift group along `f : G →* C` when the `G`-action is the `f`-pullback. -/
+def baseW {C : Type*} [Group C] [DistribMulAction C A] (f : G →* C)
+    (hcompat : ∀ (g : G) (a : A), g • a = f g • a) : WordLift A G →* WordLift A C where
+  toFun p := ⟨p.u, f p.g⟩
+  map_one' := WordLift.ext rfl (map_one f)
+  map_mul' p q := WordLift.ext
+    (by show p.u + p.g • q.u = p.u + f p.g • q.u; rw [hcompat]) (map_mul f _ _)
+
+/-- **`d¹` base change**: the word differential only sees the action, so it is computed by the
+pushed marking — `d1Fun (t.map f) x = d1Fun t x` when the `G`-action is pulled back along `f`. -/
+theorem d1Fun_base_change [Finite G] [Finite A] {C : Type*} [Group C] [DistribMulAction C A]
+    (f : G →* C) (hcompat : ∀ (g : G) (a : A), g • a = f g • a) (t : Marking G) (x : Fin 4 → A) :
+    d1Fun (t.map f) x = d1Fun t x := by
+  have hmark : (liftMarking t x).map (baseW f hcompat) = liftMarking (t.map f) x := rfl
+  refine Prod.ext ?_ ?_
+  · show ((liftMarking (t.map f) x).tameValue).u = ((liftMarking t x).tameValue).u
+    rw [← hmark, Marking.map_tameValue]
+    rfl
+  · show ((liftMarking (t.map f) x).wildValue).u = ((liftMarking t x).wildValue).u
+    rw [← hmark, Marking.map_wildValue]
+    rfl
+
+end WordLiftMul
+
+/-! ## L4 core: a cover lift forces equal reduced relator values -/
+
+section CoverLift
+
+variable {B0 : Type} [Group B0] [Finite B0] [TopologicalSpace B0] [DiscreteTopology B0]
+
+omit [TopologicalSpace Y] [DiscreteTopology Y] [DiscreteTopology B0] in
+/-- **The per-cover L4 core** (`docs/p16d6e5-plan.md` §2, L4), abstractly over a bare central
+cover: if `g_B` lifts through `Q` (via `gc`), then any set-lift marking `tY` of `g_B` has equal
+tame and wild relator values after reduction along `red`.  Both `tY.map red` and the lift's
+pushed marking cover `g_B`'s marking, so they differ by corrections in the **central 2-torsion**
+kernel (`CentralCover.central`/`z_sq`); the landed L1 (`tameValue_correction`/
+`wildValue_correction`) evaluates both reduced relator values to the same `r̄₁`. -/
+private theorem redValues_eq_of_coverLift (Q : CentralCover B0) (piB : Y →* B0)
+    (red : Y →* Q.cover) (hred_p : Q.p.comp red = piB)
+    (gB : ContinuousMonoidHom GA B0)
+    (gc : ContinuousMonoidHom GA Q.cover) (hgc : ∀ γ, Q.p (gc γ) = gB γ)
+    (tY : Marking Y) (hproj : tY.map piB = Marking.push gB) :
+    red tY.tameValue = red tY.wildValue := by
+  have hred_p' : ∀ y : Y, Q.p (red y) = piB y := fun y => DFunLike.congr_fun hred_p y
+  -- the lift's marking; its relators die (the relator words lie in `N_A`)
+  have htame1 : (Marking.push gc).tameValue = 1 :=
+    (Marking.tameValue_eq_one_iff _).mpr (push_tameRel gc)
+  have hwild1 : (Marking.push gc).wildValue = 1 :=
+    (Marking.wildValue_eq_one_iff _).mpr (push_wildRel gc)
+  -- both markings cover `g_B`'s marking: the field discrepancies live in `ker Q.p`
+  have hpr : ∀ (a : Y) (w : Q.cover), Q.p (red a) = Q.p w → red a * w⁻¹ ∈ Q.p.ker := by
+    intro a w h
+    rw [MonoidHom.mem_ker, map_mul, map_inv, h, mul_inv_cancel]
+  have hσ' : Q.p (red tY.σ) = Q.p (Marking.push gc).σ := by
+    rw [hred_p']
+    have h1 : piB tY.σ = (Marking.push gB).σ := congrArg Marking.σ hproj
+    rw [h1]
+    exact (hgc gammaGen.σ).symm
+  have hτ' : Q.p (red tY.τ) = Q.p (Marking.push gc).τ := by
+    rw [hred_p']
+    have h1 : piB tY.τ = (Marking.push gB).τ := congrArg Marking.τ hproj
+    rw [h1]
+    exact (hgc gammaGen.τ).symm
+  have hx₀' : Q.p (red tY.x₀) = Q.p (Marking.push gc).x₀ := by
+    rw [hred_p']
+    have h1 : piB tY.x₀ = (Marking.push gB).x₀ := congrArg Marking.x₀ hproj
+    rw [h1]
+    exact (hgc gammaGen.x₀).symm
+  have hx₁' : Q.p (red tY.x₁) = Q.p (Marking.push gc).x₁ := by
+    rw [hred_p']
+    have h1 : piB tY.x₁ = (Marking.push gB).x₁ := congrArg Marking.x₁ hproj
+    rw [h1]
+    exact (hgc gammaGen.x₁).symm
+  have hmem0 : red tY.σ * ((Marking.push gc).σ)⁻¹ ∈ Q.p.ker := hpr tY.σ _ hσ'
+  have hmem1 : red tY.τ * ((Marking.push gc).τ)⁻¹ ∈ Q.p.ker := hpr tY.τ _ hτ'
+  have hmem2 : red tY.x₀ * ((Marking.push gc).x₀)⁻¹ ∈ Q.p.ker := hpr tY.x₀ _ hx₀'
+  have hmem3 : red tY.x₁ * ((Marking.push gc).x₁)⁻¹ ∈ Q.p.ker := hpr tY.x₁ _ hx₁'
+  -- kernel elements are central involutions (`⟨z⟩`, `z` central of square one)
+  have hcen : ∀ w : Q.cover, w ∈ Q.p.ker → ∀ z : Q.cover, Commute w z := by
+    intro w hw z
+    rw [Q.ker_eq] at hw
+    obtain ⟨n, rfl⟩ := Subgroup.mem_zpowers_iff.mp hw
+    exact Commute.zpow_left (Q.central z) n
+  have hsq : ∀ w : Q.cover, w ∈ Q.p.ker → w ^ 2 = 1 := by
+    intro w hw
+    rw [pow_two]
+    exact Q.sq_eq_one_of_mem_ker hw
+  -- the reduced set-lift marking is the corrected lift marking
+  have hcorr : tY.map red = corrMark (Marking.push gc)
+      (red tY.σ * ((Marking.push gc).σ)⁻¹) (red tY.τ * ((Marking.push gc).τ)⁻¹)
+      (red tY.x₀ * ((Marking.push gc).x₀)⁻¹) (red tY.x₁ * ((Marking.push gc).x₁)⁻¹) := by
+    refine marking_ext ?_ ?_ ?_ ?_
+    · exact (inv_mul_cancel_right _ _).symm
+    · exact (inv_mul_cancel_right _ _).symm
+    · exact (inv_mul_cancel_right _ _).symm
+    · exact (inv_mul_cancel_right _ _).symm
+  -- both reduced relator values are the τ-correction `r̄₁` (L1 at the central 2-torsion kernel)
+  have hredT : red tY.tameValue = red tY.τ * ((Marking.push gc).τ)⁻¹ := by
+    have h := Marking.map_tameValue red tY
+    rw [hcorr] at h
+    rw [← h,
+      show corrMark (Marking.push gc) (red tY.σ * ((Marking.push gc).σ)⁻¹)
+          (red tY.τ * ((Marking.push gc).τ)⁻¹) (red tY.x₀ * ((Marking.push gc).x₀)⁻¹)
+          (red tY.x₁ * ((Marking.push gc).x₁)⁻¹)
+        = Marking.mk (red tY.σ * ((Marking.push gc).σ)⁻¹ * (Marking.push gc).σ)
+            (red tY.τ * ((Marking.push gc).τ)⁻¹ * (Marking.push gc).τ)
+            (red tY.x₀ * ((Marking.push gc).x₀)⁻¹ * (Marking.push gc).x₀)
+            (red tY.x₁ * ((Marking.push gc).x₁)⁻¹ * (Marking.push gc).x₁) from rfl,
+      tameValue_correction _ _ _ _ _ _ (hcen _ hmem0) (hcen _ hmem1) (hsq _ hmem1),
+      show (Marking.mk (Marking.push gc).σ (Marking.push gc).τ
+            (red tY.x₀ * ((Marking.push gc).x₀)⁻¹ * (Marking.push gc).x₀)
+            (red tY.x₁ * ((Marking.push gc).x₁)⁻¹ * (Marking.push gc).x₁)).tameValue
+          = (Marking.push gc).tameValue from rfl,
+      htame1, mul_one]
+  have hredW : red tY.wildValue = red tY.τ * ((Marking.push gc).τ)⁻¹ := by
+    have h := Marking.map_wildValue red tY
+    rw [hcorr] at h
+    rw [← h,
+      wildValue_correction (hcen _ hmem0) (hcen _ hmem1) (hcen _ hmem2) (hcen _ hmem3)
+        (hsq _ hmem0) (hsq _ hmem1) (hsq _ hmem2) (hsq _ hmem3),
+      hwild1, mul_one]
+  rw [hredT, hredW]
+
+end CoverLift
+
 /-! ## `hsep_hom`: the `(R^∨)^C` separation at the candidate source (L1–L5, the main work) -/
 
 /-- **The `(R^∨)^C`-separation at `Γ_A`** (P-16d6e5 residue): if the obstruction functional of a
