@@ -384,6 +384,34 @@ theorem d1Fun_wild_trivial [DistribMulAction C (ZMod 2)]
 
 end TraceKills
 
+/-! ## L1 — the relator correction at a central 2-torsion kernel (the per-cover algebra of L4) -/
+
+section RelatorCorrection
+
+variable {Y' : Type*} [Group Y']
+
+/-- **L1 tame row, central 2-torsion** (`docs/p16d6e5-plan.md` §2, L1): correcting a marking's
+generators by central involutions shifts the tame relator value by exactly the τ-correction —
+`tameValue⟨r₀σ, r₁τ, x₀, x₁⟩ = r₁ · tameValue⟨σ, τ, x₀, x₁⟩`.  The σ-correction `r₀` cancels
+(`σ⁻¹r₀⁻¹(r₁τ)r₀σ`, `r₀` central), and the τ-square kills `r₁²`.  This is the group-level Fox tame
+derivative — matching `d1Fun_tame_trivial`'s `x 1`.  At L4's cover `Y/l` the kernel `R/l ≅ 𝔽₂` is
+central 2-torsion, so this applies with `r⃗ :=` the set-lift-vs-hom corrections. -/
+theorem tameValue_correction (σ τ x0 x1 r0 r1 : Y')
+    (hr0 : ∀ z : Y', Commute r0 z) (hr1 : ∀ z : Y', Commute r1 z) (h1 : r1 ^ 2 = 1) :
+    (Marking.mk (r0 * σ) (r1 * τ) x0 x1).tameValue
+      = r1 * (Marking.mk σ τ x0 x1).tameValue := by
+  show conjP (r1 * τ) (r0 * σ) * ((r1 * τ) ^ 2)⁻¹ = r1 * (conjP τ σ * (τ ^ 2)⁻¹)
+  have hsq : ((r1 * τ) ^ 2)⁻¹ = (τ ^ 2)⁻¹ := by rw [(hr1 τ).mul_pow, h1, one_mul]
+  rw [hsq, ← mul_assoc]
+  congr 1
+  simp only [conjP, mul_inv_rev]
+  -- `σ⁻¹ r0⁻¹ (r1 τ) r0 σ = r1 (σ⁻¹ τ σ)`: move `r0⁻¹` right to cancel `r0` (group), swap `r1`, `σ⁻¹`.
+  rw [mul_assoc σ⁻¹ r0⁻¹ (r1 * τ), (hr0 (r1 * τ)).inv_left.eq]
+  group
+  rw [(hr1 (σ ^ (-1 : ℤ))).symm.eq]
+
+end RelatorCorrection
+
 /-! ## `hsep_hom`: the `(R^∨)^C` separation at the candidate source (L1–L5, the main work) -/
 
 /-- **The `(R^∨)^C`-separation at `Γ_A`** (P-16d6e5 residue): if the obstruction functional of a
