@@ -1625,6 +1625,38 @@ theorem hpartial_gammaA
   funext t
   exact hψ t
 
+/-- **The `RecursionInputs.phase140` field for `Γ_A`** (P-16d6e6 assembly): the source-generic
+`phase140_from_residues` (P-16d6e2) with `htriv`/`hH2` discharged by `htriv_gammaA`/
+`card_H2_gammaA` and the four per-source residues supplied by the theorems above — the
+`phase140_local` twin.  `hGaussZ` is threaded from the P-16d6e4 lane; `μ₀`/`G0` and the
+module-ledger hypotheses (`hsimple`/`hVne`/`hnt`) are the `prop_8_9` ledger, fed at the
+capstone (`Prop89Close`). -/
+theorem phase140_gammaA
+    (hfg : ∃ s : Finset GammaA, (Subgroup.closure (s : Set GammaA)).topologicalClosure = ⊤)
+    (μ₀ : ℕ) (G0 : ℤ)
+    (hsimple : ∀ W : AddSubgroup En.Vmod,
+      (∀ g : RF.YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hVne : ∃ v : En.Vmod, v ≠ 0)
+    (hnt : ∃ (g : RF.YC) (v : En.Vmod), g • v ≠ v)
+    (hμ : ∀ ρ : BoundaryLifts b F RF.TC,
+      Nat.card (TCocycle (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)) = μ₀)
+    (hGaussZ : ∀ ρ : BoundaryLifts b F RF.TC,
+      ∑ᶠ c : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ),
+        sign (QZero (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ) c)
+          = (Nat.card En.Vmod : ℤ) * G0) :
+    2 * (Nat.card ↥(TCharC (En.radData l h)) : ℤ) * RF.zBC b F l h
+      = (Nat.card En.Vmod * μ₀ : ℕ)
+          * ((Nat.card ↥RF.MB / Nat.card ↥RF.TBsub : ℕ) * exactImageCount b F RF.TC
+            + G0 * ∑ᶠ ζ : ↥(TCharC (En.radData l h)),
+                (2 * (RF.nPhase b F (phaseChi En l h Dsc ζ) : ℤ)
+                  - (exactImageCount b F RF.TC : ℤ))) :=
+  phase140_from_residues b F En l h Dsc htriv_gammaA hfg
+    CardH2GammaA.card_H2_gammaA μ₀ G0 hμ
+    (fun ρ => hsep_gammaA b F En l h Dsc ρ)
+    (fun ρ => hpartial_gammaA b F En l h Dsc ρ)
+    (fun ρ => hZcard_gammaA b F En l h hsimple hVne hnt ρ)
+    hGaussZ
+
 end HsepGammaA
 
 end Phase140GammaA
