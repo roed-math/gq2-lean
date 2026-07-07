@@ -497,6 +497,33 @@ and the final `card_equivHoms_deep_eq_quot` instantiation.
   `deepClassesSubgroup_le_pairPerp_pairingK`, (H1)/(H2) := `pairingK_conjModule`/`_nondeg`,
   `eU`/`heU`/`ht₀U` := §H) → `hduality` — **f8's `lemma_6_17_dim_of_hduality` consumes
   exactly this** (their `hext` is discharged per §2 update).
+
+### §8 FINAL (2026-07-07, session 6): `hduality_of_data` is BUILT — f7 scope COMPLETE
+
+`GQ2/DeepCount.lean` §KerTransport + §Finale: **`h1KerFixEquiv : H¹(ker ρ, 𝔽₂) ≃+
+H¹(G_k, 𝔽₂)`** (Quotient.out-based cocycle precomposition along
+`fixingToKer`/`kerToFixing`; `B¹ = 0` for trivial coefficients makes the canonical
+representative exact, so the `conjAct_h1ofFun`-pattern closes everything; std-3),
+`h1KerToFix_mem_{deep,mid}_iff`, **`card_quot_deep_le_card_mid_ker`** (the structural
+count in `ker ρ`-vocabulary: ambient/deep/mid cards transported by `subtypeEquiv` through
+`coe_kummerDepth_{deep,mid}`, the quotient card by Lagrange + right-cancellation), and
+**`hduality_of_data`** — the full instantiation, whose conclusion is VERBATIM the
+`hduality`-hypothesis of `card_deepPart_sq_of_duality`.  **Trace: std-3 + {B11a, B12,
+tateDualityAt} exactly** — the plan-of-record budget, nothing else.
+
+**What f8 supplies to `hduality_of_data`** (all with existing producers): the `V^∨`
+Lemma-6.11 package (`hsimple`/`hnt`/`ι`/`r`/`hι`/`hr`/`hri` — DimAssembly's
+`dual_simple`/`dual_faithful` bricks + `lemma_6_11_of_tame_pair`@`dualModule`),
+`eU := dualSelfDual q hq hns h2V` / `heU := dualSelfDual_equivariant …` /
+`ht₀U := exists_dualModule_smul_ne …` (§H, given the 6.17 form-package and `hram`), the
+residue-trivial tame lift `(g₀, hg₀ : ρ g₀ = t₀, hg₀rt : IsResidueTrivial (ker ρ) g₀)`
+(the BoundaryMaps/`hfac` unpacking — the ONE remaining arithmetic input), the base field
+`k` with `htriv`/`hker`, and the B13 bundle data (`GQ2.dyadicUnitFiltration k` supplies
+`π`/`hπ_*`/`e`/`he`/`f`/`card_gr_zero`/`card_gr` — note `hcard_zero` is taken in the
+bundle's `normUnits`-form and converted internally via `depthUnits_zero`).  Statement
+gotcha for consumers: `heU`'s double-dual `dualModule` needs the STATEMENT-LEVEL
+`letI : DistribMulAction C (V →+ ZMod 2) := dualModule` (the §H shape — pass
+`dualSelfDual_equivariant`'s conclusion directly).
 * Lean lessons this session: (i) inline `by rw [...]`-proofs of an argument whose expected
   type still contains METAVARS can capture them (`rw [hgsq]` matched `?y^2` and assigned
   `?y := g•β`) — hoist to a standalone `have` with concrete type; (ii) `(n : Kummer.GaloisGroup ℚ_[2])`
