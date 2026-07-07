@@ -1585,8 +1585,11 @@ phase)` have equal exact-image counts at the top, provided the strictly-smaller 
 counts agree — the atoms the induction hypothesis supplies:
 
 * `hTB`/`hTC` — the quotient-stage counts (`|L_B|, |L_C| < |L_Y|`);
-* `hpull` — the (138) pullback-stratum counts at every scalar cover ((148): kernels
-  `≤ 2|J ∩ L_B| ≤ |L_B| < |L_Y|`);
+* `hpull` — the (138) pullback-stratum counts at every scalar cover, restricted to the
+  strata over **proper `C`-onto** images (the only ones (137) consumes; exactly the (148)
+  regime, kernels `≤ 2|J ∩ L_B| ≤ |L_B| < |L_Y|` — for an improper image the pulled kernel
+  can equal `|L_Y|` at `|R| = 2`, so an unrestricted atom would be un-suppliable by the
+  induction) [restriction added P-17i, documented];
 * `hphase` — the phase-cover liftable counts (derived at P-17i from `lemma_8_3` at the
   phase covers + the (153) bound `2|L_C| < |L_Y|`; here taken as an atom).
 
@@ -1609,22 +1612,27 @@ theorem count_eq_of_closedRecursion {Y : Type} [Group Y] [TopologicalSpace Y]
     (hTB : exactImageCount b₁ F RF.TB = exactImageCount b₂ F RF.TB)
     (hTC : exactImageCount b₁ F RF.TC = exactImageCount b₂ F RF.TC)
     (hpull : ∀ (l : RF.DR) (h : l ≠ RF.zeroDR) (J' : Subgroup (RF.scalarCover l h).cover),
+      J'.map (RF.scalarCover l h).p ≠ ⊤ → (J'.map (RF.scalarCover l h).p).map RF.piBC = ⊤ →
       exactImageCountOn b₁ F ((RF.scalarCover l h).pullTarget RF.TB) J'
         = exactImageCountOn b₂ F ((RF.scalarCover l h).pullTarget RF.TB) J')
     (hphase : ∀ (l : RF.DR) (h : l ≠ RF.zeroDR) (ζ : DT),
       RF.nPhase b₁ F (phase l h ζ) = RF.nPhase b₂ F (phase l h ζ)) :
     exactImageCount b₁ F T = exactImageCount b₂ F T := by
   classical
-  -- (138) + `hpull`: the proper-stratum counts `m_J` agree (cancel the `8`), hence so do `mJOn`
+  -- (138) + `hpull`: the proper `C`-onto stratum counts `m_J` agree (cancel the `8`), hence
+  -- so do `mJOn` (only these instances are consumed by (137) below)
   have hmJOn : ∀ (l : RF.DR) (hl : l ≠ RF.zeroDR) (J : Subgroup RF.YB),
+      J ≠ ⊤ → J.map RF.piBC = ⊤ →
       RF.mJOn b₁ F l hl J = RF.mJOn b₂ F l hl J := by
-    intro l hl J
+    intro l hl J hJne hJC
     simp only [RecursionFrame.mJOn]
     by_cases hJ : Function.Surjective (RF.TB.piY.comp J.subtype)
     · rw [dif_pos hJ, dif_pos hJ]
       have h8 : 8 * RF.mJ b₁ F l hl J hJ = 8 * RF.mJ b₂ F l hl J hJ := by
         rw [h₁.eq138 l hl J hJ, h₂.eq138 l hl J hJ]
-        exact finsum_mem_congr rfl (fun J' _ => hpull l hl J')
+        refine finsum_mem_congr rfl (fun J' hJ' => ?_)
+        have hJ'' : J'.map (RF.scalarCover l hl).p = J := hJ'
+        exact hpull l hl J' (by rw [hJ'']; exact hJne) (by rw [hJ'']; exact hJC)
       omega
     · rw [dif_neg hJ, dif_neg hJ]
   -- (139)/(140): the compatible-lift counts `zBC` agree (case split on the descent-∃)
@@ -1660,7 +1668,9 @@ theorem count_eq_of_closedRecursion {Y : Type} [Group Y] [TopologicalSpace Y]
             (RF.mJOn b₁ F l hl J : ℤ))
           = ∑ᶠ J ∈ {J : Subgroup RF.YB | J ≠ ⊤ ∧ J.map RF.piBC = ⊤},
             (RF.mJOn b₂ F l hl J : ℤ) :=
-        finsum_mem_congr rfl (fun J _ => by rw [hmJOn l hl J])
+        finsum_mem_congr rfl (fun J hJmem => by
+          obtain ⟨hJne, hJC⟩ := hJmem
+          rw [hmJOn l hl J hJne hJC])
       have hz : (RF.zBC b₁ F l hl : ℤ) = (RF.zBC b₂ F l hl : ℤ) := by rw [hzBC l hl]
       have hcast : (RF.mB b₁ F l : ℤ) = (RF.mB b₂ F l : ℤ) := by
         have h137 : (RF.mB b₁ F l : ℤ)
