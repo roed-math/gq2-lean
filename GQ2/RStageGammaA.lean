@@ -350,6 +350,20 @@ theorem trace_kills_im_trivial [DistribMulAction C (ZMod 2)]
   rw [hlam, mixedB_zero_right] at h58
   exact h58.symm
 
+omit [Finite C] in
+/-- **The tame `d¹`-row at trivial `𝔽₂` coefficients**: `(d¹x).1 = x 1` (`docs/p16d6e5-plan.md`
+§2, L4).  Specialize `d1Fun_tame`'s closed form to the trivial action — every `•` drops and, in
+characteristic two, `x₀ − x₀ + x₁ − (x₁ + x₁) = x₁`.  This is the tame half of recognizing the
+per-cover relator corrections as a `d¹`-image: at the central `R/l ≅ 𝔽₂` cover the τ-correction
+`x 1` *is* the tame relator's shift (the central-2-torsion computation
+`tameValue(r⃗·ŷ) = r₁ · tameValue(ŷ)`). -/
+theorem d1Fun_tame_trivial [DistribMulAction C (ZMod 2)]
+    (htriv2 : ∀ (c : C) (m : ZMod 2), c • m = m)
+    (t : Marking C) (ht : t.TameRel) (x : Fin 4 → ZMod 2) :
+    (d1Fun t x).1 = x 1 := by
+  rw [d1Fun_tame t ht]
+  simp only [htriv2, sub_self, zero_add, CharTwo.add_self_eq_zero, sub_zero]
+
 end TraceKills
 
 /-! ## `hsep_hom`: the `(R^∨)^C` separation at the candidate source (L1–L5, the main work) -/
