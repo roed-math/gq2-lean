@@ -851,6 +851,154 @@ private theorem redValues_eq_of_coverLift (Q : CentralCover B0) (piB : Y →* B0
 
 end CoverLift
 
+/-! ## L5 descent: a relator-free covering marking of `Y` descends from `Γ_A` -/
+
+section Descend
+
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+  [TopologicalSpace E] [DiscreteTopology E] [Finite E] in
+/-- **L5, the descent** (`docs/p16d6e5-plan.md` §2, L5): a marking of `Y` that covers `g_B`'s
+marking through `π_B` and kills both relators descends to a continuous `φ : Γ_A → Y` with
+`π_B ∘ φ = g_B`.  The marking generates a subgroup `J ≤ Y` on which it is **admissible**
+(`Generates` by construction; `TameRel`/`WildRel` by subtype injectivity; `Pro2Core` pointwise —
+`qJ = π_B ∘ ι` maps the normal closure into `g_B`'s admissible one and the kernel is `R`,
+2-torsion by `hR2`), hence `Marking.descend` applies; the projection identity holds because two
+`F₄`-classified homs with equal pushed markings agree (`toHom_hom_univMarking_map`). -/
+private theorem lift_of_relatorFree_marking (hE2 : ∀ e : E, e ^ 2 = 1)
+    (hR2 : ∀ r ∈ Blk.R, r * r = 1)
+    (gB : ContinuousMonoidHom GA (blockFrameImpl T Blk hE2).YB)
+    (hsurj : Function.Surjective gB)
+    (tHat : Marking Y)
+    (hproj : tHat.map (blockFrameImpl T Blk hE2).piB = Marking.push gB)
+    (htame : tHat.TameRel) (hwild : tHat.WildRel) :
+    ∃ φ : ContinuousMonoidHom GammaA Y,
+      ∀ γ, (blockFrameImpl T Blk hE2).piB (φ γ) = gB γ := by
+  classical
+  -- the generated subgroup and its marking
+  set J : Subgroup Y := Subgroup.closure {tHat.σ, tHat.τ, tHat.x₀, tHat.x₁} with hJ
+  have hmemσ : tHat.σ ∈ J := Subgroup.subset_closure (by simp)
+  have hmemτ : tHat.τ ∈ J := Subgroup.subset_closure (by simp)
+  have hmemx₀ : tHat.x₀ ∈ J := Subgroup.subset_closure (by simp)
+  have hmemx₁ : tHat.x₁ ∈ J := Subgroup.subset_closure (by simp)
+  set tJ : Marking ↥J :=
+    ⟨⟨tHat.σ, hmemσ⟩, ⟨tHat.τ, hmemτ⟩, ⟨tHat.x₀, hmemx₀⟩, ⟨tHat.x₁, hmemx₁⟩⟩ with htJ
+  have hmapJ : tJ.map J.subtype = tHat := by
+    refine marking_ext ?_ ?_ ?_ ?_ <;> rfl
+  -- the relations, by subtype injectivity
+  have htameJ : tJ.TameRel := by
+    rw [← Marking.tameValue_eq_one_iff]
+    have h := Marking.map_tameValue J.subtype tJ
+    rw [hmapJ, (Marking.tameValue_eq_one_iff tHat).mpr htame] at h
+    exact Subtype.val_injective h.symm
+  have hwildJ : tJ.WildRel := by
+    rw [← Marking.wildValue_eq_one_iff]
+    have h := Marking.map_wildValue J.subtype tJ
+    rw [hmapJ, (Marking.wildValue_eq_one_iff tHat).mpr hwild] at h
+    exact Subtype.val_injective h.symm
+  -- generation: the closure of the generators inside their own closure is everything
+  have hgenJ : tJ.Generates := by
+    show Subgroup.closure {tJ.σ, tJ.τ, tJ.x₀, tJ.x₁} = ⊤
+    have hpre : ({tJ.σ, tJ.τ, tJ.x₀, tJ.x₁} : Set ↥J)
+        = ((↑) : ↥J → Y) ⁻¹' {tHat.σ, tHat.τ, tHat.x₀, tHat.x₁} := by
+      ext j
+      simp only [Set.mem_insert_iff, Set.mem_singleton_iff, Set.mem_preimage]
+      constructor
+      · rintro (rfl | rfl | rfl | rfl) <;> simp [htJ]
+      · rintro (h | h | h | h)
+        · exact Or.inl (Subtype.ext h)
+        · exact Or.inr (Or.inl (Subtype.ext h))
+        · exact Or.inr (Or.inr (Or.inl (Subtype.ext h)))
+        · exact Or.inr (Or.inr (Or.inr (Subtype.ext h)))
+    rw [hpre]
+    exact Subgroup.closure_closure_coe_preimage
+  -- the 2-core, pointwise: push into `g_B`'s admissible marking, kernel-side `R` is 2-torsion
+  have hcoreJ : tJ.Pro2Core := by
+    show IsPGroup 2 (Subgroup.normalClosure {tJ.x₀, tJ.x₁})
+    have hadmB : (Marking.push gB).Admissible := Marking.push_admissible gB hsurj
+    set qJ : ↥J →* (blockFrameImpl T Blk hE2).YB :=
+      ((blockFrameImpl T Blk hE2).piB).comp J.subtype with hqJ
+    haveI hNB : (Subgroup.normalClosure
+        {(Marking.push gB).x₀, (Marking.push gB).x₁}).Normal := Subgroup.normalClosure_normal
+    haveI hNBc : ((Subgroup.normalClosure
+        {(Marking.push gB).x₀, (Marking.push gB).x₁}).comap qJ).Normal := hNB.comap qJ
+    have hcomap : ({tJ.x₀, tJ.x₁} : Set ↥J) ⊆
+        ((Subgroup.normalClosure
+          {(Marking.push gB).x₀, (Marking.push gB).x₁}).comap qJ : Set ↥J) := by
+      rintro z hz
+      rcases hz with rfl | hz
+      · rw [SetLike.mem_coe, Subgroup.mem_comap]
+        have h1 : qJ tJ.x₀ = (Marking.push gB).x₀ := congrArg Marking.x₀ hproj
+        rw [h1]
+        exact Subgroup.subset_normalClosure (by simp)
+      · rcases hz with rfl
+        rw [SetLike.mem_coe, Subgroup.mem_comap]
+        have h1 : qJ tJ.x₁ = (Marking.push gB).x₁ := congrArg Marking.x₁ hproj
+        rw [h1]
+        exact Subgroup.subset_normalClosure (by simp)
+    have hle := Subgroup.normalClosure_le_normal hcomap
+    intro n
+    have hmemNB : qJ n.1 ∈ Subgroup.normalClosure
+        {(Marking.push gB).x₀, (Marking.push gB).x₁} :=
+      Subgroup.mem_comap.mp (hle n.2)
+    obtain ⟨k, hk⟩ := hadmB.2.2.2 ⟨qJ n.1, hmemNB⟩
+    refine ⟨k + 1, ?_⟩
+    have hk' : (qJ n.1) ^ 2 ^ k = 1 := by
+      simpa using congrArg Subtype.val hk
+    -- the `Y`-value: the `2^k`-th power lands in `R = ker π_B`, whose elements square to `1`
+    have hYval : ((n.1 : Y)) ^ 2 ^ (k + 1) = 1 := by
+      have hmemR : ((n.1 : Y)) ^ 2 ^ k ∈ Blk.R := by
+        rw [← (blockFrameImpl T Blk hE2).ker_piB, MonoidHom.mem_ker, map_pow]
+        exact hk'
+      rw [pow_succ, pow_mul, pow_two]
+      exact hR2 _ hmemR
+    exact Subtype.val_injective (by
+      simpa using Subtype.val_injective (by simpa using hYval :
+        ((n.1 ^ 2 ^ (k + 1) : ↥J) : Y) = ((1 : ↥J) : Y)))
+  have hadmJ : tJ.Admissible := ⟨hgenJ, htameJ, hwildJ, hcoreJ⟩
+  -- descend and project
+  set φY : ContinuousMonoidHom ↥J Y := ⟨J.subtype, continuous_subtype_val⟩ with hφY
+  refine ⟨φY.comp (Marking.descend tJ hadmJ), ?_⟩
+  intro γ
+  obtain ⟨w, rfl⟩ := quotientMk_surjective NA γ
+  -- both sides are `F₄`-classified with the same pushed marking
+  set c₁ : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4)) (blockFrameImpl T Blk hE2).YB :=
+    (⟨(blockFrameImpl T Blk hE2).piB, continuous_of_discreteTopology⟩ :
+        ContinuousMonoidHom Y (blockFrameImpl T Blk hE2).YB).comp
+      (φY.comp (Marking.classify tJ)) with hc₁
+  set c₂ : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4)) (blockFrameImpl T Blk hE2).YB :=
+    gB.comp (quotientMk NA) with hc₂
+  have hclassify : univMarking.map (Marking.classify tJ).toMonoidHom = tJ :=
+    univMarking_map_toHom (P := ProfiniteGrp.of ↥J) tJ
+  have hpush : univMarking.map c₁.toMonoidHom = univMarking.map c₂.toMonoidHom := by
+    refine marking_ext ?_ ?_ ?_ ?_
+    · have h1 : (Marking.classify tJ) univMarking.σ = tJ.σ := congrArg Marking.σ hclassify
+      show (blockFrameImpl T Blk hE2).piB (φY ((Marking.classify tJ) univMarking.σ))
+        = gB (quotientMk NA univMarking.σ)
+      rw [h1]
+      exact congrArg Marking.σ hproj
+    · have h1 : (Marking.classify tJ) univMarking.τ = tJ.τ := congrArg Marking.τ hclassify
+      show (blockFrameImpl T Blk hE2).piB (φY ((Marking.classify tJ) univMarking.τ))
+        = gB (quotientMk NA univMarking.τ)
+      rw [h1]
+      exact congrArg Marking.τ hproj
+    · have h1 : (Marking.classify tJ) univMarking.x₀ = tJ.x₀ := congrArg Marking.x₀ hclassify
+      show (blockFrameImpl T Blk hE2).piB (φY ((Marking.classify tJ) univMarking.x₀))
+        = gB (quotientMk NA univMarking.x₀)
+      rw [h1]
+      exact congrArg Marking.x₀ hproj
+    · have h1 : (Marking.classify tJ) univMarking.x₁ = tJ.x₁ := congrArg Marking.x₁ hclassify
+      show (blockFrameImpl T Blk hE2).piB (φY ((Marking.classify tJ) univMarking.x₁))
+        = gB (quotientMk NA univMarking.x₁)
+      rw [h1]
+      exact congrArg Marking.x₁ hproj
+  have hc : c₁ = c₂ := by
+    have h1 := Marking.toHom_hom_univMarking_map c₁
+    have h2 := Marking.toHom_hom_univMarking_map c₂
+    rw [← h1, ← h2, hpush]
+  exact DFunLike.congr_fun hc w
+
+end Descend
+
 /-! ## `hsep_hom`: the `(R^∨)^C` separation at the candidate source (L1–L5, the main work) -/
 
 /-- **The `(R^∨)^C`-separation at `Γ_A`** (P-16d6e5 residue): if the obstruction functional of a
