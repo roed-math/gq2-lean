@@ -462,6 +462,81 @@ theorem commP_central_correction (a b ra rb : Y')
 
 end RelatorCorrection
 
+/-! ## L1-wild — the auxiliary-word correction chain (mechanical, from the building blocks) -/
+
+section WildCorrection
+
+variable {Y' : Type*} [Group Y'] {t : Marking Y'} {r0 r1 r2 r3 : Y'}
+
+/-- The marking with each generator corrected by a central involution (`docs/p16d6e5-plan.md`
+§2, L1).  The wild relator value shifts by exactly `r₁` — proved word-by-word below. -/
+def corrMark (t : Marking Y') (r0 r1 r2 r3 : Y') : Marking Y' :=
+  ⟨r0 * t.σ, r1 * t.τ, r2 * t.x₀, r3 * t.x₁⟩
+
+@[simp] lemma corrMark_σ : (corrMark t r0 r1 r2 r3).σ = r0 * t.σ := rfl
+@[simp] lemma corrMark_τ : (corrMark t r0 r1 r2 r3).τ = r1 * t.τ := rfl
+@[simp] lemma corrMark_x₀ : (corrMark t r0 r1 r2 r3).x₀ = r2 * t.x₀ := rfl
+@[simp] lemma corrMark_x₁ : (corrMark t r0 r1 r2 r3).x₁ = r3 * t.x₁ := rfl
+
+/-- A product of central involutions is a central involution. -/
+private lemma central_mul_comm {a b : Y'} (ha : ∀ z : Y', Commute a z)
+    (hb : ∀ z : Y', Commute b z) : ∀ z : Y', Commute (a * b) z := fun z => (ha z).mul_left (hb z)
+
+/-- The square of a product of two central involutions is `1`. -/
+private lemma central_mul_sq {a b : Y'} (ha : ∀ z : Y', Commute a z) (ha2 : a ^ 2 = 1)
+    (hb2 : b ^ 2 = 1) : (a * b) ^ 2 = 1 := by rw [(ha b).mul_pow, ha2, hb2, mul_one]
+
+/-- `σ₂ = powOmega2 σ` picks up the σ-correction `r₀`. -/
+theorem corrMark_sigma2 [Finite Y'] (hr0 : ∀ z : Y', Commute r0 z) (hr0sq : r0 ^ 2 = 1) :
+    (corrMark t r0 r1 r2 r3).sigma2 = r0 * t.sigma2 := by
+  show powOmega2 ((corrMark t r0 r1 r2 r3).σ) = r0 * powOmega2 t.σ
+  rw [corrMark_σ]; exact powOmega2_central_involution r0 t.σ hr0 hr0sq
+
+/-- `u₀ = powOmega2 (x₀τ)` picks up `r₂r₁` (the `x₀`- and `τ`-corrections combine centrally). -/
+theorem corrMark_u0 [Finite Y'] (hr1 : ∀ z : Y', Commute r1 z) (hr2 : ∀ z : Y', Commute r2 z)
+    (hr1sq : r1 ^ 2 = 1) (hr2sq : r2 ^ 2 = 1) :
+    (corrMark t r0 r1 r2 r3).u0 = (r2 * r1) * t.u0 := by
+  show powOmega2 ((corrMark t r0 r1 r2 r3).x₀ * (corrMark t r0 r1 r2 r3).τ)
+    = (r2 * r1) * powOmega2 (t.x₀ * t.τ)
+  rw [corrMark_x₀, corrMark_τ, (hr1 t.x₀).symm.mul_mul_mul_comm r2 t.τ]
+  exact powOmega2_central_involution (r2 * r1) (t.x₀ * t.τ)
+    (central_mul_comm hr2 hr1) (central_mul_sq hr2 hr2sq hr1sq)
+
+/-- `u₁ = powOmega2 (x₁τ)` picks up `r₃r₁`. -/
+theorem corrMark_u1 [Finite Y'] (hr1 : ∀ z : Y', Commute r1 z) (hr3 : ∀ z : Y', Commute r3 z)
+    (hr1sq : r1 ^ 2 = 1) (hr3sq : r3 ^ 2 = 1) :
+    (corrMark t r0 r1 r2 r3).u1 = (r3 * r1) * t.u1 := by
+  show powOmega2 ((corrMark t r0 r1 r2 r3).x₁ * (corrMark t r0 r1 r2 r3).τ)
+    = (r3 * r1) * powOmega2 (t.x₁ * t.τ)
+  rw [corrMark_x₁, corrMark_τ, (hr1 t.x₁).symm.mul_mul_mul_comm r3 t.τ]
+  exact powOmega2_central_involution (r3 * r1) (t.x₁ * t.τ)
+    (central_mul_comm hr3 hr1) (central_mul_sq hr3 hr3sq hr1sq)
+
+/-- `g₀ = σ₂²` is correction-free (`r₀²` kills the σ₂-correction). -/
+theorem corrMark_g0 [Finite Y'] (hr0 : ∀ z : Y', Commute r0 z) (hr0sq : r0 ^ 2 = 1) :
+    (corrMark t r0 r1 r2 r3).g0 = t.g0 := by
+  show (corrMark t r0 r1 r2 r3).sigma2 ^ 2 = t.sigma2 ^ 2
+  rw [corrMark_sigma2 hr0 hr0sq, (hr0 t.sigma2).mul_pow, hr0sq, one_mul]
+
+/-- `z₀ = x₀^σ₂ = conjP x₀ σ₂` picks up `r₂` (the conjugating σ₂-correction `r₀` cancels). -/
+theorem corrMark_z0 [Finite Y'] (hr0 : ∀ z : Y', Commute r0 z) (hr2 : ∀ z : Y', Commute r2 z)
+    (hr0sq : r0 ^ 2 = 1) : (corrMark t r0 r1 r2 r3).z0 = r2 * t.z0 := by
+  show conjP (corrMark t r0 r1 r2 r3).x₀ (corrMark t r0 r1 r2 r3).sigma2 = r2 * conjP t.x₀ t.sigma2
+  rw [corrMark_x₀, corrMark_sigma2 hr0 hr0sq]
+  exact conjP_central_correction t.x₀ t.sigma2 r2 r0 hr2 hr0
+
+/-- `d₀ = u₀ x₀⁻¹` picks up `r₁` (the `r₂` from `u₀` meets `r₂⁻¹` from `x₀⁻¹`). -/
+theorem corrMark_d0 [Finite Y'] (hr1 : ∀ z : Y', Commute r1 z) (hr2 : ∀ z : Y', Commute r2 z)
+    (hr1sq : r1 ^ 2 = 1) (hr2sq : r2 ^ 2 = 1) :
+    (corrMark t r0 r1 r2 r3).d0 = r1 * t.d0 := by
+  show (corrMark t r0 r1 r2 r3).u0 * (corrMark t r0 r1 r2 r3).x₀⁻¹ = r1 * (t.u0 * t.x₀⁻¹)
+  rw [corrMark_u0 hr1 hr2 hr1sq hr2sq, corrMark_x₀, mul_inv_rev,
+    show r2 * r1 * t.u0 * (t.x₀⁻¹ * r2⁻¹) = r2 * (r1 * t.u0 * t.x₀⁻¹) * r2⁻¹ from by group,
+    (hr2 (r1 * t.u0 * t.x₀⁻¹)).eq]
+  group
+
+end WildCorrection
+
 /-! ## `hsep_hom`: the `(R^∨)^C` separation at the candidate source (L1–L5, the main work) -/
 
 /-- **The `(R^∨)^C`-separation at `Γ_A`** (P-16d6e5 residue): if the obstruction functional of a
