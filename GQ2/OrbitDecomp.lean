@@ -305,4 +305,378 @@ theorem not_mem_freeReps_both {Q : (Fin K → RegRep N) → ZMod 2}
 
 end Orientation
 
+/-! ## The three §6.2 orbit summands on the block module
+
+Each summand is a **definitional `FactorSet.comap` of a literal `OrbitData` datum** along a block
+projection, so downstream graph pullbacks are syntactically the Lemma-6.15 inputs at the block
+coordinates of the cocycle. -/
+
+section Summands
+
+variable {G : Type*} [Group G] (N : Subgroup G) [N.Normal] {K : ℕ} [Finite (G ⧸ N)]
+
+omit [N.Normal] [Finite (G ⧸ N)] in
+private theorem zmod2_sq_add (a b : ZMod 2) : (a + b) * (a + b) = a * a + b * b := by
+  revert a b; decide
+
+/-- The block projection as an additive map. -/
+def blockProj (j : Fin K) : (Fin K → RegRep N) →+ RegRep N where
+  toFun F := F j
+  map_zero' := rfl
+  map_add' _ _ := rfl
+
+/-- The ordered-pair block projection (`j = k` allowed). -/
+def blockProj₂ (j k : Fin K) : (Fin K → RegRep N) →+ RegRep N × RegRep N where
+  toFun F := (F j, F k)
+  map_zero' := rfl
+  map_add' _ _ := rfl
+
+theorem blockProj_smul (j : Fin K) (c : G ⧸ N) (F : Fin K → RegRep N) :
+    blockProj N j (c • F) = c • blockProj N j F := rfl
+
+theorem blockProj₂_smul (j k : Fin K) (c : G ⧸ N) (F : Fin K → RegRep N) :
+    blockProj₂ N j k (c • F) = c • blockProj₂ N j k F := rfl
+
+/-- **Square summand** (eq. (75)): the square-orbit datum on block `j`, extended by zero. -/
+noncomputable def squareBlockDatum (j : Fin K) : FactorSet (G ⧸ N) (Fin K → RegRep N) :=
+  (squareOrbitDatum N).comap (blockProj N j)
+
+/-- **Free summand** (eq. (76)): the free-orbit datum with shift `u` between blocks `j, k`
+(possibly equal — the same-block case comaps along the diagonal pair projection). -/
+noncomputable def freeBlockDatum (j k : Fin K) (u : G ⧸ N) :
+    FactorSet (G ⧸ N) (Fin K → RegRep N) :=
+  (freeOrbitDatum N u).comap (blockProj₂ N j k)
+
+/-- **Involution summand** (Lemma 6.2): the involution-orbit datum at `u` on block `j`,
+extended by zero. -/
+noncomputable def invBlockDatum (j : Fin K) (u : G ⧸ N) :
+    FactorSet (G ⧸ N) (Fin K → RegRep N) :=
+  (invOrbitDatum N u).comap (blockProj N j)
+
+/-- The square map of the square summand. -/
+noncomputable def squareBlockMap (j : Fin K) : (Fin K → RegRep N) → ZMod 2 :=
+  fun F => ∑ᶠ h : G ⧸ N, F j h * F j h
+
+/-- The square map of the free summand. -/
+noncomputable def freeBlockMap (j k : Fin K) (u : G ⧸ N) : (Fin K → RegRep N) → ZMod 2 :=
+  fun F => ∑ᶠ h : G ⧸ N, F j h * F k (h * u)
+
+/-- The square map of the involution summand. -/
+noncomputable def invBlockMap (j : Fin K) (u : G ⧸ N) : (Fin K → RegRep N) → ZMod 2 :=
+  fun F => ∑ᶠ w : (G ⧸ N) ⧸ Subgroup.zpowers u, F j w.out * F j (w.out * u)
+
+/-! ### Equivariance of the three summands -/
+
+private theorem sq_f_add_left (x x' y : RegRep N) :
+    (squareOrbitDatum N).f (x + x') y
+      = (squareOrbitDatum N).f x y + (squareOrbitDatum N).f x' y := by
+  show ∑ᶠ h : G ⧸ N, (x h + x' h) * y h
+      = (∑ᶠ h : G ⧸ N, x h * y h) + ∑ᶠ h : G ⧸ N, x' h * y h
+  simp only [add_mul]
+  exact finsum_add_distrib (Set.toFinite _) (Set.toFinite _)
+
+private theorem sq_f_add_right (x y y' : RegRep N) :
+    (squareOrbitDatum N).f x (y + y')
+      = (squareOrbitDatum N).f x y + (squareOrbitDatum N).f x y' := by
+  show ∑ᶠ h : G ⧸ N, x h * (y h + y' h)
+      = (∑ᶠ h : G ⧸ N, x h * y h) + ∑ᶠ h : G ⧸ N, x h * y' h
+  simp only [mul_add]
+  exact finsum_add_distrib (Set.toFinite _) (Set.toFinite _)
+
+private theorem isEqFS_squareOrbitDatum :
+    IsEquivariantFactorSet (fun x : RegRep N => ∑ᶠ h : G ⧸ N, x h * x h)
+      (squareOrbitDatum N) := by
+  refine datum_of_biadditive_invariant (sq_f_add_left N) (sq_f_add_right N) (fun v => rfl) ?_
+  intro c x y
+  show ∑ᶠ h : G ⧸ N, x (c⁻¹ * h) * y (c⁻¹ * h) = ∑ᶠ h : G ⧸ N, x h * y h
+  exact finsum_comp_equiv (Equiv.mulLeft c⁻¹) (f := fun h => x h * y h)
+
+private theorem free_f_add_left (u : G ⧸ N) (x x' y : RegRep N × RegRep N) :
+    (freeOrbitDatum N u).f (x + x') y
+      = (freeOrbitDatum N u).f x y + (freeOrbitDatum N u).f x' y := by
+  show ∑ᶠ h : G ⧸ N, (x.1 h + x'.1 h) * y.2 (h * u)
+      = (∑ᶠ h : G ⧸ N, x.1 h * y.2 (h * u)) + ∑ᶠ h : G ⧸ N, x'.1 h * y.2 (h * u)
+  simp only [add_mul]
+  exact finsum_add_distrib (Set.toFinite _) (Set.toFinite _)
+
+private theorem free_f_add_right (u : G ⧸ N) (x y y' : RegRep N × RegRep N) :
+    (freeOrbitDatum N u).f x (y + y')
+      = (freeOrbitDatum N u).f x y + (freeOrbitDatum N u).f x y' := by
+  show ∑ᶠ h : G ⧸ N, x.1 h * (y.2 (h * u) + y'.2 (h * u))
+      = (∑ᶠ h : G ⧸ N, x.1 h * y.2 (h * u)) + ∑ᶠ h : G ⧸ N, x.1 h * y'.2 (h * u)
+  simp only [mul_add]
+  exact finsum_add_distrib (Set.toFinite _) (Set.toFinite _)
+
+private theorem isEqFS_freeOrbitDatum (u : G ⧸ N) :
+    IsEquivariantFactorSet
+      (fun x : RegRep N × RegRep N => ∑ᶠ h : G ⧸ N, x.1 h * x.2 (h * u))
+      (freeOrbitDatum N u) := by
+  refine datum_of_biadditive_invariant (free_f_add_left N u) (free_f_add_right N u)
+    (fun v => rfl) ?_
+  intro c v w
+  show ∑ᶠ h : G ⧸ N, v.1 (c⁻¹ * h) * w.2 (c⁻¹ * (h * u))
+      = ∑ᶠ h : G ⧸ N, v.1 h * w.2 (h * u)
+  simp only [← mul_assoc]
+  exact finsum_comp_equiv (Equiv.mulLeft c⁻¹) (f := fun h => v.1 h * w.2 (h * u))
+
+/-- The square summand is an equivariant factor set for its square map. -/
+theorem isEquivariantFactorSet_squareBlockDatum (j : Fin K) :
+    IsEquivariantFactorSet (squareBlockMap N j) (squareBlockDatum N j) :=
+  datum_comap (isEqFS_squareOrbitDatum N) (blockProj N j) (fun c v => blockProj_smul N j c v)
+
+/-- The free summand is an equivariant factor set for its square map. -/
+theorem isEquivariantFactorSet_freeBlockDatum (j k : Fin K) (u : G ⧸ N) :
+    IsEquivariantFactorSet (freeBlockMap N j k u) (freeBlockDatum N j k u) :=
+  datum_comap (isEqFS_freeOrbitDatum N u) (blockProj₂ N j k)
+    (fun c v => blockProj₂_smul N j k c v)
+
+/-- The involution summand is an equivariant factor set for its square map (banked
+`isEquivariantFactorSet_invOrbitDatum` + comap). -/
+theorem isEquivariantFactorSet_invBlockDatum (j : Fin K) {u : G ⧸ N} (hu2 : u * u = 1) :
+    IsEquivariantFactorSet (invBlockMap N j u) (invBlockDatum N j u) :=
+  datum_comap (isEquivariantFactorSet_invOrbitDatum N u hu2) (blockProj N j)
+    (fun c v => blockProj_smul N j c v)
+
+/-! ### Quadraticity of the three square maps -/
+
+theorem isQuadraticFp2_squareBlockMap (j : Fin K) : IsQuadraticFp2 (squareBlockMap N j) := by
+  refine datum_isQuadratic (isEquivariantFactorSet_squareBlockDatum N j) ?_ ?_
+  · intro v v' w
+    show (squareOrbitDatum N).f (blockProj N j (v + v')) (blockProj N j w) = _
+    rw [map_add]
+    exact sq_f_add_left N _ _ _
+  · intro v w w'
+    show (squareOrbitDatum N).f (blockProj N j v) (blockProj N j (w + w')) = _
+    rw [map_add]
+    exact sq_f_add_right N _ _ _
+
+theorem isQuadraticFp2_freeBlockMap (j k : Fin K) (u : G ⧸ N) :
+    IsQuadraticFp2 (freeBlockMap N j k u) := by
+  refine datum_isQuadratic (isEquivariantFactorSet_freeBlockDatum N j k u) ?_ ?_
+  · intro v v' w
+    show (freeOrbitDatum N u).f (blockProj₂ N j k (v + v')) (blockProj₂ N j k w) = _
+    rw [map_add]
+    exact free_f_add_left N u _ _ _
+  · intro v w w'
+    show (freeOrbitDatum N u).f (blockProj₂ N j k v) (blockProj₂ N j k (w + w')) = _
+    rw [map_add]
+    exact free_f_add_right N u _ _ _
+
+theorem isQuadraticFp2_invBlockMap (j : Fin K) {u : G ⧸ N} (hu2 : u * u = 1) :
+    IsQuadraticFp2 (invBlockMap N j u) := by
+  refine datum_isQuadratic (isEquivariantFactorSet_invBlockDatum N j hu2) ?_ ?_
+  · intro v v' w
+    show (invOrbitDatum N u).f (blockProj N j (v + v')) (blockProj N j w) = _
+    rw [map_add]
+    exact invOrbitDatum_f_add_left N u _ _ _
+  · intro v w w'
+    show (invOrbitDatum N u).f (blockProj N j v) (blockProj N j (w + w')) = _
+    rw [map_add]
+    exact invOrbitDatum_f_add_right N u _ _ _
+
+/-! ### Basis evaluations: factor sets, diagonals, polars -/
+
+/-- The free summand's factor set at basis vectors: the single-position indicator. -/
+theorem freeBlockDatum_f_blockBas (j k : Fin K) (u : G ⧸ N)
+    (m m' : Fin K) (x y : G ⧸ N) :
+    (freeBlockDatum N j k u).f (blockBas N m x) (blockBas N m' y)
+      = if j = m ∧ k = m' ∧ x * u = y then 1 else 0 := by
+  show (∑ᶠ h : G ⧸ N, blockBas N m x j h * blockBas N m' y k (h * u)) = _
+  have hterm : ∀ h : G ⧸ N, blockBas N m x j h * blockBas N m' y k (h * u)
+      = if (j = m ∧ h = x) ∧ (k = m' ∧ h * u = y) then 1 else 0 := by
+    intro h
+    rw [blockBas_apply, blockBas_apply]
+    by_cases h1 : j = m ∧ h = x
+    · by_cases h2 : k = m' ∧ h * u = y
+      · rw [if_pos h1, if_pos h2, if_pos ⟨h1, h2⟩, one_mul]
+      · rw [if_pos h1, if_neg h2, if_neg fun hc => h2 hc.2, one_mul]
+    · rw [if_neg h1, zero_mul, if_neg fun hc => h1 hc.1]
+  rw [finsum_congr hterm, finsum_eq_single _ x (fun b hb => if_neg fun hc => hb hc.1.2)]
+  refine if_congr ?_ rfl rfl
+  constructor
+  · rintro ⟨⟨hj, -⟩, hk, hxy⟩
+    exact ⟨hj, hk, hxy⟩
+  · rintro ⟨hj, hk, hxy⟩
+    exact ⟨⟨hj, rfl⟩, hk, hxy⟩
+
+/-- The square summand's diagonal at basis vectors: `1` exactly on its own block. -/
+theorem squareBlockMap_blockBas (j m : Fin K) (y : G ⧸ N) :
+    squareBlockMap N j (blockBas N m y) = if j = m then 1 else 0 := by
+  show (∑ᶠ h : G ⧸ N, blockBas N m y j h * blockBas N m y j h) = _
+  have hterm : ∀ h : G ⧸ N, blockBas N m y j h * blockBas N m y j h
+      = if j = m ∧ h = y then 1 else 0 := by
+    intro h
+    rw [blockBas_apply]
+    by_cases hc : j = m ∧ h = y
+    · rw [if_pos hc, mul_one]
+    · rw [if_neg hc, mul_zero]
+  rw [finsum_congr hterm]
+  by_cases hjm : j = m
+  · rw [finsum_eq_single _ y (fun b hb => if_neg fun hc => hb hc.2), if_pos ⟨hjm, rfl⟩,
+      if_pos hjm]
+  · rw [if_neg hjm]
+    exact finsum_eq_zero_of_forall_eq_zero fun h => if_neg fun hc => hjm hc.1
+
+/-- The free summand's diagonal at basis vectors vanishes off `u = 1` (in particular on every
+free position). -/
+theorem freeBlockMap_blockBas (j k : Fin K) (u : G ⧸ N) (m : Fin K) (y : G ⧸ N) :
+    freeBlockMap N j k u (blockBas N m y) = if j = m ∧ k = m ∧ u = 1 then 1 else 0 := by
+  have h := (isEquivariantFactorSet_freeBlockDatum N j k u).f_diag (blockBas N m y)
+  rw [freeBlockDatum_f_blockBas] at h
+  rw [← h]
+  refine if_congr (and_congr_right fun _ => and_congr_right fun _ => ?_) rfl rfl
+  exact mul_eq_left
+
+/-- The involution summand's diagonal at basis vectors vanishes (`u ≠ 1`). -/
+theorem invBlockMap_blockBas (j : Fin K) {u : G ⧸ N} (hu1 : u ≠ 1)
+    (m : Fin K) (y : G ⧸ N) : invBlockMap N j u (blockBas N m y) = 0 := by
+  show (∑ᶠ w : (G ⧸ N) ⧸ Subgroup.zpowers u,
+      blockBas N m y j w.out * blockBas N m y j (w.out * u)) = 0
+  refine finsum_eq_zero_of_forall_eq_zero fun w => ?_
+  rw [blockBas_apply, blockBas_apply]
+  by_cases h1 : j = m ∧ w.out = y
+  · have h2 : ¬(j = m ∧ w.out * u = y) := by
+      rintro ⟨-, hc⟩
+      rw [h1.2] at hc
+      exact hu1 (mul_eq_left.mp hc)
+    rw [if_pos h1, if_neg h2, mul_zero]
+  · rw [if_neg h1, zero_mul]
+
+/-- The square summand's polar form vanishes identically (`x ↦ Σ x_h²` is additive over `𝔽₂`). -/
+theorem polar_squareBlockMap (j : Fin K) (v w : Fin K → RegRep N) :
+    polar (squareBlockMap N j) v w = 0 := by
+  have hadd : squareBlockMap N j (v + w) = squareBlockMap N j v + squareBlockMap N j w := by
+    show ∑ᶠ h : G ⧸ N, (v + w) j h * (v + w) j h = _
+    have hterm : ∀ h : G ⧸ N, (v + w) j h * (v + w) j h
+        = v j h * v j h + w j h * w j h := by
+      intro h
+      show (v j h + w j h) * (v j h + w j h) = _
+      exact zmod2_sq_add _ _
+    rw [finsum_congr hterm]
+    exact finsum_add_distrib (Set.toFinite _) (Set.toFinite _)
+  show squareBlockMap N j (v + w) + squareBlockMap N j v + squareBlockMap N j w = 0
+  rw [hadd]
+  exact (by decide : ∀ a b : ZMod 2, a + b + a + b = 0) _ _
+
+/-- The free summand's polar at basis vectors: the two-order position indicator. -/
+theorem polar_freeBlockMap_blockBas (j k : Fin K) (u : G ⧸ N)
+    (m m' : Fin K) (x y : G ⧸ N) :
+    polar (freeBlockMap N j k u) (blockBas N m x) (blockBas N m' y)
+      = (if j = m ∧ k = m' ∧ x * u = y then 1 else 0)
+        + (if j = m' ∧ k = m ∧ y * u = x then 1 else 0) := by
+  rw [← (isEquivariantFactorSet_freeBlockDatum N j k u).f_polar,
+    freeBlockDatum_f_blockBas, freeBlockDatum_f_blockBas]
+
+/-! ### The involution summand's basis evaluation (the `Quotient.out` bookkeeping) -/
+
+/-- With `u² = 1`, the canonical `⟨u⟩`-coset representative of `x` is `x` or `x·u`. -/
+theorem out_dichotomy {u : G ⧸ N} (hu2 : u * u = 1) (x : G ⧸ N) :
+    ((x : (G ⧸ N) ⧸ Subgroup.zpowers u) : (G ⧸ N) ⧸ Subgroup.zpowers u).out = x
+      ∨ ((x : (G ⧸ N) ⧸ Subgroup.zpowers u) : (G ⧸ N) ⧸ Subgroup.zpowers u).out = x * u := by
+  set t := ((x : (G ⧸ N) ⧸ Subgroup.zpowers u) : (G ⧸ N) ⧸ Subgroup.zpowers u).out with ht
+  have hmem : t⁻¹ * x ∈ Subgroup.zpowers u := by
+    rw [← QuotientGroup.eq, ht]
+    exact Quotient.out_eq _
+  rcases zpowers_sq_dichotomy N u hu2 hmem with h | h
+  · left
+    exact inv_mul_eq_one.mp h
+  · right
+    have hx : x = t * u := inv_mul_eq_iff_eq_mul.mp h
+    rw [hx, mul_assoc, hu2, mul_one]
+
+/-- With `u² = 1`, `x` and `x·u` lie in the same `⟨u⟩`-coset. -/
+theorem mk_mul_self_eq {u : G ⧸ N} (hu2 : u * u = 1) (x : G ⧸ N) :
+    ((x * u : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers u)
+      = ((x : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers u) := by
+  rw [QuotientGroup.eq]
+  refine Subgroup.mem_zpowers_iff.mpr ⟨-1, ?_⟩
+  show u ^ (-1 : ℤ) = (x * u)⁻¹ * x
+  rw [zpow_neg_one, mul_inv_rev, mul_assoc, inv_mul_cancel, mul_one]
+
+/-- The involution summand's factor set at basis vectors: the `out`-guarded position indicator. -/
+theorem invBlockDatum_f_blockBas (j : Fin K) (u : G ⧸ N)
+    (m m' : Fin K) (x y : G ⧸ N) :
+    (invBlockDatum N j u).f (blockBas N m x) (blockBas N m' y)
+      = if m = j ∧ m' = j
+          ∧ ((x : (G ⧸ N) ⧸ Subgroup.zpowers u) : (G ⧸ N) ⧸ Subgroup.zpowers u).out = x
+          ∧ x * u = y
+        then 1 else 0 := by
+  show (∑ᶠ w : (G ⧸ N) ⧸ Subgroup.zpowers u,
+      blockBas N m x j w.out * blockBas N m' y j (w.out * u)) = _
+  have hterm : ∀ w : (G ⧸ N) ⧸ Subgroup.zpowers u,
+      blockBas N m x j w.out * blockBas N m' y j (w.out * u)
+        = if (j = m ∧ w.out = x) ∧ (j = m' ∧ w.out * u = y) then 1 else 0 := by
+    intro w
+    rw [blockBas_apply, blockBas_apply]
+    by_cases h1 : j = m ∧ w.out = x
+    · by_cases h2 : j = m' ∧ w.out * u = y
+      · rw [if_pos h1, if_pos h2, if_pos ⟨h1, h2⟩, one_mul]
+      · rw [if_pos h1, if_neg h2, if_neg fun hc => h2 hc.2, one_mul]
+    · rw [if_neg h1, zero_mul, if_neg fun hc => h1 hc.1]
+  rw [finsum_congr hterm,
+    finsum_eq_single _ ((x : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers u)
+      (fun w hw => if_neg fun hc => hw (by rw [← Quotient.out_eq w, hc.1.2]))]
+  refine if_congr ?_ rfl rfl
+  constructor
+  · rintro ⟨⟨hj, hout⟩, hj', houty⟩
+    refine ⟨hj.symm, hj'.symm, hout, ?_⟩
+    rw [← hout]
+    exact houty
+  · rintro ⟨hm, hm', hout, hxy⟩
+    refine ⟨⟨hm.symm, hout⟩, hm'.symm, ?_⟩
+    rw [hout]
+    exact hxy
+
+/-- The involution summand's polar at basis vectors: the `u`-pairing indicator on block `j`
+(the two `out`-guards sum to exactly one across the coset `{x, xu}`). -/
+theorem polar_invBlockMap_blockBas (j : Fin K) {u : G ⧸ N}
+    (hu2 : u * u = 1) (hu1 : u ≠ 1) (m m' : Fin K) (x y : G ⧸ N) :
+    polar (invBlockMap N j u) (blockBas N m x) (blockBas N m' y)
+      = if m = j ∧ m' = j ∧ x * u = y then 1 else 0 := by
+  rw [← (isEquivariantFactorSet_invBlockDatum N j hu2).f_polar,
+    invBlockDatum_f_blockBas, invBlockDatum_f_blockBas]
+  by_cases hxy : x * u = y
+  · -- same coset `{x, y}`: exactly one of the two `out`-guards fires
+    have hyx : y * u = x := by rw [← hxy, mul_assoc, hu2, mul_one]
+    have hxney : x ≠ y := by
+      intro hc
+      apply hu1
+      rw [hc] at hxy
+      exact mul_eq_left.mp hxy
+    have hcoset : ((y : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers u)
+        = ((x : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers u) := by
+      rw [← hxy]
+      exact mk_mul_self_eq N hu2 x
+    have houty : ((y : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers u).out
+        = ((x : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers u).out := by
+      rw [hcoset]
+    by_cases hblocks : m = j ∧ m' = j
+    · rcases out_dichotomy N hu2 x with hox | hoxu
+      · -- `out = x`: the first guard fires, the second cannot
+        have hnoty : ((y : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers u).out ≠ y := by
+          rw [houty, hox]
+          exact hxney
+        rw [if_pos ⟨hblocks.1, hblocks.2, hox, hxy⟩, if_neg (fun hc => hnoty hc.2.2.1),
+          if_pos ⟨hblocks.1, hblocks.2, hxy⟩, add_zero]
+      · -- `out = x·u = y`: the second guard fires, the first cannot
+        have hoy : ((y : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers u).out = y := by
+          rw [houty, hoxu]
+          exact hxy
+        have hnotx : ((x : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers u).out ≠ x := by
+          rw [hoxu]
+          exact fun hc => hu1 (mul_eq_left.mp hc)
+        rw [if_neg (fun hc => hnotx hc.2.2.1), if_pos ⟨hblocks.2, hblocks.1, hoy, hyx⟩,
+          if_pos ⟨hblocks.1, hblocks.2, hxy⟩, zero_add]
+    · rw [if_neg (fun hc => hblocks ⟨hc.1, hc.2.1⟩), if_neg (fun hc => hblocks ⟨hc.2.1, hc.1⟩),
+        if_neg (fun hc => hblocks ⟨hc.1, hc.2.1⟩), add_zero]
+  · -- off-position: everything vanishes
+    have hyx : ¬(y * u = x) := by
+      intro hc
+      apply hxy
+      rw [← hc, mul_assoc, hu2, mul_one]
+    rw [if_neg (fun hc => hxy hc.2.2.2), if_neg (fun hc => hyx hc.2.2.2),
+      if_neg (fun hc => hxy hc.2.2), add_zero]
+
+end Summands
+
 end GQ2
