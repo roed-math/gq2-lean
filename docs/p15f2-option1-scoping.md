@@ -100,14 +100,54 @@ it through `Q0loc_datum_indep_of_core` to full `Q⁰_loc` datum-independence.  *
 input is the EXISTENCE of `Δφ` satisfying both (Q) and (E)** — equivalently, a `V`-only section
 `σ(v,c) = Δφ(v)` splitting the zero-form central `2`-cocycle `κ⁰` on `V ⋊ C`.
 
-**⚠ Refined finding**: (i) is C-independent (the `H²(V;𝔽₂)` splitting, `[Δf]=0` since `Δf` has zero
-diagonal — a `~150–250` ln basis/cocycle-integration construction).  But **(ii) genuinely needs f2's
-C-structure**: the combined `Δφ` exists iff the class `[c ↦ Δφ₀(c·) + Δφ₀ + Δm c]` vanishes in
-`H¹(C, V*)`, which is FALSE for a general `C` — so f2a is **not** "pure cohomology / ∅-axiom" as first
-scoped; (a2) must consume f2's `hsimple`/`hfaith`/`hram`/tame hypotheses (odd inertia + involution).
-This makes datum-independence a genuinely f2-specific lemma (consistent with the paper fixing the
-canonical datum).  **Recommended next brick**: (a1) the C-independent splitting (i), then (a2) the
-H¹(C,V*) correction under f2's hypotheses.  Interface fixed by `graphPullback_mem_B2_of_refinement`.
+**⚠ Refined finding (superseded below)**: (ii) does need C-structure — the combined `Δφ` exists iff a
+class in `H¹(C, V*)` vanishes, false for general `C`.  But the alarm "(a2) hard / not ∅-axiom" was
+**overcautious**; see the resolution.
+
+### ★ RESOLVED PLAN (Fable 2026-07-07): full (a1)+(a2) proof verified on paper — ∅ axioms, banked patterns
+
+**(a1), C-independent** (`exists_refinement_of_zero_form`, needs `hV2`): `Δf` is **symmetric**
+(`f_polar` with `polar 0 = 0`) with **zero diagonal** (`f_diag`), so the central extension
+`E = V ×_Δf 𝔽₂` — twisted addition `(v,a)+(w,b) = (v+w, a+b+Δf v w)`; associativity = `f_cocycle`
+(orientation checked), commutativity = symmetry, `(e)+(e) = (2v, Δf v v) = 0` = `hV2` + zero
+diagonal — is an **elementary abelian 2-group**, i.e. a `ZMod 2`-vector space (`zmodModule` +
+`Fact (Nat.Prime 2)`, the in-repo `exists_biadditive_refinement'` pattern).  The linear projection
+`E ↠ V` has a **linear section** (`LinearMap.exists_rightInverse_of_surjective` over the field
+`ZMod 2`); its second coordinate is `Δφ₀` with (Q) on the nose.  [`Transgression.splitting_of_global_cocycle`
+probed 2026-07-07: it is the §6.4 multiplicative group-section splitting (needs `hns`), NOT reusable
+here.]  ~150–200 ln incl. the instance boilerplate.
+
+**(a2), by the banked f1 averaging pattern** (`inflationVanishes_of_oddNormal`'s idiom; producers
+`tameInertia_normal`/`odd_orderOf_tameInertia`/`fixedByNormal_eq_bot` banked): define the defect
+`D c v := Δφ₀(c•v) + Δφ₀ v + Δm c v`.  Then (checked):
+- `D c` is **additive in `v`** — (Q) twice + `m_quad` (the `Δf(cv,cw)+Δf(v,w)` terms cancel in pairs);
+- `c ↦ D c` is a **right 1-cocycle**: `D (c*d) v = D c (d•v) + D d v` — `m_mul` + `mul_smul`;
+- **Step A** (kill on `I`, only `|I|` odd needed): `L₀ v := Σ_{i∈I} D i v` satisfies
+  `L₀(j•v) + L₀ v = D j v` for `j ∈ I` — expand `D i (j•v) = D (i*j) v + D j v`, reindex `i ↦ i*j`
+  (`Equiv.mulRight` on `↥I`), `|I|·x = x` in `𝔽₂`.  Set `Δφ₁ = Δφ₀ + L₀` ((Q) preserved: `L₀` additive);
+  its defect `D'` vanishes on `I`.
+- **Step B** (kill everywhere, needs `I ◁ C` + `V^I = 0`): for `c ∈ C`, `i ∈ I`:
+  `D' (c*i) = D' c (i•·)` (defect cocycle + `D' i = 0`) and `c*i = i'*c` with `i' = c i c⁻¹ ∈ I`
+  gives `D' (i'*c) = D' c` — so `D' c (i•v) = D' c v` (`D' c` is `I`-invariant).  Then
+  `D' c v = |I|·D' c v = Σ_{i∈I} D' c (i•v) = D' c (Σ_{i∈I} i•v) = D' c 0 = 0`, since
+  `S v := Σ_{i∈I} i•v` is `I`-fixed (`mulLeft` reindex) hence `0` by `V^I = 0`.
+  **No `H¹(C,V*)` general theory; no 2-torsion of `V` used in (a2)** (values in `𝔽₂`).
+
+**(a3) capstone** `Q0loc_datum_indep`: (a1)+(a2) at `diffDatum dat1 dat2` (zero-form by the landed
+`isEquivariantFactorSet_diffDatum`) feed the landed `Q0loc_datum_indep_of_refinement`.  **Parametric
+signature** `(I : Subgroup C) (hIn : I.Normal) (hodd : Odd (Nat.card ↥I)) (hVI : ∀ v, (∀ i ∈ I, i•v = v) → v = 0)`
++ `hV2` — the f1 pattern; tame instantiation (`I = zpowers (c tameTau)`) stays with f2d.
+
+So **f2a remains ∅-axiom as originally scoped** (the increment-1 alarm is retracted); est. total
+~350–450 ln over increments A=(a1), B=(a2), C=(a3).
+
+**Option-2 amendment (fix the canonical datum in 6.17) EVALUATED AND REJECTED (Fable 2026-07-07)**:
+downstream consumers receive datums **existentially** (`kappa0_exists` / Lemma 6.3 produce
+"`∃ dat, IsEquivariantFactorSet q dat`"), so fixing the datum inside 6.17/6.18 would only **relocate**
+the independence requirement to the 6.18/6.19 → §8 consumer boundary (the Gauss-count statements
+depend on the datum), not remove it — with frozen-signature churn across co-owned statements on top.
+The paper proves 6.4 (independence) anyway, and (a2)'s collapse to the banked averaging pattern
+removes the cost rationale.  Proceed with option 1 / f2a as scoped.
 
 ## Recommended order
 
