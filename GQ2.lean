@@ -111,3 +111,4 @@ import GQ2.CardH2GammaA
 import GQ2.Phase140GammaA
 import GQ2.QuadraticAdjoin
 import GQ2.InvolutionVanish
+import GQ2.InvolutionSplice

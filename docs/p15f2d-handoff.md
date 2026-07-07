@@ -153,29 +153,38 @@ Apply `OrbitVanish.Q0loc_vanish_of_datum_decomp D datWC ρ hρW xW` (`xW := mapC
     `AdmissibleCount.conjAct_deepClasses` (banked); check its cocycle shape matches f2c1's free RHS.
   - **involution**: THE OPEN PIECE — see §3a.
 
-### 3a. The involution `hvanish` — the one genuine gap (Evens-norm cohomology-invariance)
+### 3a. The involution `hvanish` — ✅ DISCHARGED (`GQ2/InvolutionSplice.lean`, Fable 2026-07-07)
 
-f2c1's `hcoh_involution` gives `inner = evensNormFun … (shapiroCoord N (b·j))`.
-c2's `hvanish_involution_of_deepClass` (`ShapiroDeepness.lean:224`) gives, for the deep class
-`ξ = [shapiroCoord N (b·j)]`, `∃ β, H2ofFun U₀ (evensNormFun … (kummerCocycleFun β)) = 0`.
-`[shapiroCoord N (b·j)] = [kummerCocycleFun β] = ξ` (cohomologous, both deep) but the two cochains
-are NOT equal, and `evensNormFun` is degree-2 (a norm), so its output is not obviously invariant.
+**The feared Evens-norm cohomology-invariance bridge is UNNECESSARY** — with trivial
+coefficients `B¹ = 0` (`B1_eq_bot_of_trivial`), so cohomologous scalar cocycles are **equal as
+functions**: `InvolutionSplice.eq_of_H1ofFun_eq` extracts, from the deep-class witness of
+`[α_j]`, a square root `β` with `kummerCocycleFun β = α_j` *on the nose* on `ker ρ`.  The two
+candidate inner cochains coincide; no degree-2 coboundary analysis exists or is needed.
 
-**The missing bridge**: `evensNormFun U s α - evensNormFun U s α' ∈ B²(U₀)` whenever `α - α' ∈ B¹(N)`
-(cohomologous scalar inputs) — i.e. the Evens/transfer norm descends to `H¹(N) → H²(U₀)`.  With it,
-`H2ofFun U₀ (evensNormFun (shapiroCoord)) = H2ofFun U₀ (evensNormFun (kummerCocycleFun β)) = 0`.
-This is the last piece of §6.3 mathematics; ~50–100 lines of explicit degree-2 coboundary analysis
-(`EvensKahn.lean`).  RECOMMENDED to prove it as a standalone lemma
-`evensNormFun_sub_mem_B2_of_cohomologous`, then the involution `hvanish` is one line.
+**The deliverable — `InvolutionSplice.hvanish_involution_ker`** (std-3 + {B9, B11a, B11b, B13}
+exactly; census 15; `lake build` green 8665):
+```
+(R : LocalReciprocity) (B) (c) (hc) (ρ) (hfac) (horient : TameUnitOrientation R B.tameF)
+(α : ↥(ker ρ) → 𝔽₂) (hαZ1 : α ∈ Z1) (hdeep : H1ofFun _ α ∈ deepClasses (ker ρ))
+(ĝ) (hĝN : ĝ ∉ ker ρ) (hĝ2 : ĝ*ĝ ∈ ker ρ) (U₀) (hU₀ : U₀ = ker ρ ⊔ zpowers ĝ) (hmem) :
+H2ofFun ↥U₀ (evensNormFun ((ker ρ).subgroupOf U₀) ⟨ĝ, hmem⟩ (fun w => α ⟨w.1.1, w.2⟩)) = 0
+```
+— the reducer's involution `hvanish` verbatim at `α := shapiroCoord N (fun g => b g j)`
+(f2c1's `hαZ1` = `shapiroCoord_mem_Z1`, `hdeep` = `shapiroCoord_mem_deepClasses`).
+`(R, horient)` are threaded per the c2c4 consumer note — the assembly (and eventually the
+moved statement, P-20 flag) carries them; `horient` discharges at `boundaryMapsWitness`
+(B10′), `R := localReciprocity` (B5) — neither enters this trace (parameters).
 
-**Isolation option**: state the involution `hvanish` as an extra theorem hypothesis over a RAW
-cochain `b : AbsGalQ2 → Fin K → RegRep (ker ρ)` (NOT `Z1 AbsGalQ2 W`, whose action instance is
-proof-internal):
-`∀ {K} (b) (j) (ĝ) (hĝ : ĝ ∉ ker ρ) (hĝ2 : ĝ*ĝ ∈ ker ρ) (U₀) (hU₀) (hmem),
-  H1ofFun (ker ρ) (shapiroCoord (ker ρ) (b·j)) ∈ deepClasses (ker ρ) →
-  H2ofFun ↥U₀ (evensNormFun ((ker ρ).subgroupOf U₀) ⟨ĝ,hmem⟩ (fun u => shapiroCoord (ker ρ) (b·j) ⟨u.1.1,u.2⟩)) = 0`.
-Then `lemma_6_17_vanish_of_deepData` is sorry-free with `hcup`+`hinv_van` isolated (the f2a/b/c/f8
-pattern), and the bridge above discharges `hinv_van` later.
+Internals (all std-3, reusable): `eq_of_H1ofFun_eq` (trivial-coefficient rigidity),
+`mem_or_mul_mem_of_mem_sup` + `index_eq_two_of_decomp` (the index-2 bricks),
+`toGalElem`/`toGal`/`toGal_isOpen_of_ker_le` (the `kerGal` idiom for overgroups),
+`H2ofFun_eq_zero_comp` (`B²`-witness pullback along a continuous hom),
+`evensNormFun_comp` (Evens functoriality — `evensAux`/`bS` are `Quotient.out`-free, so the
+`↥U₀ ↔ ↥k.fixingSubgroup` carrier splice is pointwise).  The tower is
+`k := fixedField (toGal U₀) ≤ L := ResidueLift.splitField ρ` with
+`fixingSubgroup_fixedField` recovering both ends; `hunram` from c2c4's `hunram_involution`,
+the Kummer package from c2a's `kummer_presentation_of_index_two`, the vanishing from c2b's
+`hvanish_involution` (= Lemma 6.16).
 
 ## 4. The SectionSix statement-move (shared with P-15f8 — coordinate)
 
