@@ -203,8 +203,26 @@ define the corrected marking record directly); (c) orientation/sign conventions 
 vs `ŷᵢrᵢ`; pick the one matching `d1Fun`'s rows — check against `d1_tame`'s closed form,
 `FoxHeisenberg.lean:513`).
 
-## 5. Status
+## 5. Status  (updated 2026-07-07, Opus execution)
 
-F-design COMPLETE (this doc).  No `Enrichment`/`BoundaryMaps` amendments, no new axioms, no
-`WordCoh2` extension needed.  e5 is **O-ready**; only e6's `hcard_A` is consumed, and only at
-the final one-liner (decoupled via `stageR136_gammaA_of_hcard`).
+F-design COMPLETE.  No `Enrichment`/`BoundaryMaps` amendments, no new axioms, no `WordCoh2`
+extension needed.
+
+**Execution progress** — `GQ2/RStageGammaA.lean` (root-imported, allowlisted):
+* ✅ **Skeleton + API VERIFIED** — `stageR136_gammaA_of_hcard` (the assembly) type-checks and is
+  proved modulo the two cores, confirming the whole candidate (136) wires together at `Γ := GammaA`.
+* ✅ **`htriv_gammaA`** — proved (`rfl`; registers the trivial `DistribMulAction GammaA (ZMod 2)`).
+* ✅ **`hZcount_gammaA`** — **PROVED, std-3** (commit `51b83e5`).  The §1 route landed intact:
+  `z1Equiv` + `prop_5_15` clause 2 + `blockRChar_card`, no B-axioms.
+* ☐ **`hsep_hom_gammaA`** — remaining (L1–L5, §2; L1-wild the long pole).  Only sorry in the file.
+
+**The GA/GammaA bridge — RESOLVED PATTERN (reuse in L1–L5).**  `GammaA ≡ GA` defeq, but their
+instances don't cross-resolve.  Theorems are stated over `Γ := GammaA` (so `blockStageR136`/
+`RecursionInputs` instances resolve).  Word-machinery calls are over `GA`.  The friction surfaces
+only in tactic blocks that **re-elaborate under strict (`instances`) transparency** — e.g. `simpa`
+rejects `z.1 (γ*δ)` when `γ*δ : GammaA` and `z : Z1 GA`.  **Fix**: close such goals with a
+**term-mode** step (`exact congrArg …`, `exact h`, `exact h.trans rfl`) — term elaboration accepts
+the defeq that `simpa`/`simp` reject.  (This is the single trick that made `hZcount_gammaA`'s
+crossed-cocycle `invFun` go through; expect the same at each `GA`-crossing in L1/L4/L5.)  The
+conj-action helpers `RStageLocal.{rCommGroup,conjC,conj_mem_R,conjC_smul_of_mk}` are Γ-generic and
+reused directly.
