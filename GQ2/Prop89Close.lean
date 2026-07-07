@@ -11,6 +11,7 @@ import GQ2.Phase140Assembly
 import GQ2.RStageGammaA
 import GQ2.Phase140Local
 import GQ2.CardH2GammaA
+import GQ2.Phase140GammaA
 import GQ2.MStageCountGammaA
 
 /-!
@@ -37,24 +38,29 @@ original draft (`docs/p16d6e-assembly-plan.md` §1, the authoritative record):
   `gaussSum_qbar_l_indep_*` at the block's tame package, P-17h).
 * Conclusion strengthened with `0 < Nat.card DT` (P-17i; free — `0 ∈ (T^∨)^C`).
 
-## Skeleton status (P-16d6e7, skeleton-first per the row plan)
+## Assembly record (P-16d6e7 — CLOSED 2026-07-08)
 
-The witness assembly below is **plumbing-complete**: the `hex`-split, the shared
-`DT := (T^∨)^C` at a reference `λ₀` (definitionally `λ`-independent — `radData`'s `T`/`hT`
-are the literal frame fields), the `dite`-phase family with its `dif_pos`-reduction
-(`phaseFamily_pos`), the shared `μ = #V·μ₀` value (`muZero`, read at `λ₀` and transported by
-`tcocycle_card_l_indep`), and the two `prop_8_9_aux` splices.  `hRK`/`hR2` are discharged
-internally (`lemma_7_2` at `π := T.piY`, `cH := F.alpha` — the plan-doc ledger) and `hfgA`
-internally (`gammaA_topologicallyFinitelyGenerated`); `hnt` is a hypothesis (the block's
-`nontrivial_action`, via `SectionNine.blockHnt`).
+The witness assembly: the `hex`-split (`¬hex`: `DT := PUnit`, vacuous (137)–(140), only the
+two (136) stages live), the shared `DT := (T^∨)^C` at a reference `λ₀` (definitionally
+`λ`-independent — `radData`'s `T`/`hT` are the literal frame fields), the `dite`-phase
+family with its `dif_pos`-reduction (`phaseFamily_pos`), the shared `μ = #V·μ₀` value
+(`muZero`, read at `λ₀` and transported per-`λ` by `tcocycle_card_l_indep`), and the two
+`prop_8_9_aux` splices.  `hRK`/`hR2` are discharged internally (`lemma_7_2` at
+`π := T.piY`, `cH := F.alpha` — the plan-doc ledger), `hfgA`/`hscalar` internally
+(`gammaA_topologicallyFinitelyGenerated`, `lemma_8_2_*`); `hnt` is a hypothesis (the
+block's `nontrivial_action`, via `SectionNine.blockHnt`).
 
-**Live**: the `¬hex` branch entirely; both `stageR136` fields; the full local (`G_ℚ₂`)
-input bundle (`half139_local`, `phase140_local` — P-16d6e3 closed); the `Γ_A` `half139`
-field (`half139_gammaA` below — P-16d6e6, `lemma_8_6_gammaA` + the P-17i
-`liftsOver_card_gammaA` through `half139_via_radData`).  **Sorried (1)**: the `Γ_A`
-`phase140` field (needs P-16d6e6's `phase140_gammaA` mirror — `hZcard_gammaA`/`hsep_A` ✓
-landed, `hpartial_A`/`tcocycle_card_gammaA` open; consume with `phaseFamily_pos` +
-`hGaussZA l h` exactly as the local branch).
+Input bundles: **local** = `RStageLocal.stageR136_local` + `half139_local` +
+`phase140_local` (P-16d6e3); **`Γ_A`** = `CardH2GammaA.stageR136_gammaA` +
+`half139_gammaA` (below — P-16d6e6: `lemma_8_6_gammaA` + the P-17i `liftsOver_card_gammaA`
+through `half139_via_radData`) + the four P-16d6e6 residues (`hsep_gammaA` /
+`hpartial_gammaA` / `hZcard_gammaA` / `tcocycle_card_gammaA`) through the source-generic
+`phase140_from_residues` (P-16d6e2).
+
+**Gate (2026-07-08): sorry-free; `#print axioms prop_8_9` = std-3 + {B6 `tateDualityAt`,
+B7 `absGalQ2_localEulerCharacteristic`} — leaner than the App. D budget (B9 never enters
+this proof).  Elaboration gotcha recorded: `simpa … using` fails the cross-`λ`
+`TCharC`-defeq close (transparency wall); `simp only […]` + bare `exact` works.**
 -/
 
 namespace GQ2
@@ -187,7 +193,8 @@ boundary-framed target with a §7 simple-head block, there are **shared** data
 for **both sources**.  Every count on the right sides concerns a target with strictly
 smaller marked 2-kernel, so the system is a closed deterministic recursion (paper, end of
 §8).  [P-16 statement — relocated & amended at P-16d6e, see the module docstring; proof =
-the P-16d6e assembly, axioms ≤ {B6, B7, B9} per App. D.] -/
+the P-16d6e assembly.  Verified axioms: std-3 + {B6, B7} (within the App. D ≤ {B6, B7, B9}
+budget; B9 never enters).] -/
 theorem prop_8_9 (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
     [DiscreteTopology Y] [Finite Y] (T : MarkedTarget H E Y)
     (Blk : SectionSeven.MinimalBlock T.LY) (hE2 : ∀ e : E, e ^ 2 = 1)
@@ -232,11 +239,20 @@ theorem prop_8_9 (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
       refine prop_8_9_aux _ hfgA B.bA F lemma_8_2_gammaA hheadA _ _ _ _ ?_
       refine ⟨CardH2GammaA.stageR136_gammaA hE2 hRK hR2 B.bA F, fun l h hedge => ?_, fun l h hN => ?_⟩
       · exact half139_gammaA _ B.bA F En hfgA l h hedge
-      · -- (140) for `Γ_A` — GATED on P-16d6e6's `phase140_gammaA` (the `phase140_local`
-        -- mirror: `hZcard_gammaA` ✓; `hsep_A`/`hpartial_A`/`tcocycle_card_gammaA` open);
-        -- consume with `phaseFamily_pos` + the shared `hμ`-transport + `hGaussZA l h`,
-        -- exactly as the local branch below
-        sorry
+      · -- (140) for `Γ_A`: the four P-16d6e6 residues through the source-generic assembly
+        -- (P-16d6e2), at the unpacked descent + the `dif_pos`-reduction — the exact mirror
+        -- of the local branch below
+        have h140 := phase140_from_residues B.bA F En l h (descentOf En l h hN)
+          RStageGammaA.htriv_gammaA hfgA CardH2GammaA.card_H2_gammaA
+          (muZero En l₀ h₀) G0
+          (fun ρ => (tcocycle_card_l_indep _ B.bA F En l h l₀ h₀ ρ).trans
+            (Phase140GammaA.tcocycle_card_gammaA B.bA F En l₀ h₀ ρ))
+          (fun ρ => Phase140GammaA.hsep_gammaA B.bA F En l h (descentOf En l h hN) ρ)
+          (fun ρ => Phase140GammaA.hpartial_gammaA B.bA F En l h (descentOf En l h hN) ρ)
+          (fun ρ => Phase140GammaA.hZcard_gammaA B.bA F En l h hsimple hVne hnt ρ)
+          (hGaussZA l h)
+        simp only [phaseFamily_pos En l₀ h₀ l h hN]
+        exact h140
     · -- the `G_ℚ₂` recursion — fully live (P-16d6e3 closed)
       refine prop_8_9_aux _ hfgF B.bF F (lemma_8_2_local B) hheadF _ _ _ _ ?_
       refine ⟨RStageLocal.stageR136_local hE2 hRK hR2 hfgF B.bF F, fun l h hedge => ?_, fun l h hN => ?_⟩
