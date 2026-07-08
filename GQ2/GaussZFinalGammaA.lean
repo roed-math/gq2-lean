@@ -353,6 +353,89 @@ theorem liftMark_x0_sq_fib (tS : Marking (Sd C V))
   show (0 : ZMod 2) + 0 + (kappa0Cocycle dat hdat).κ tS.x₀ tS.x₀ = _
   rw [kappa0Cocycle_κ, hx0 tS.x₀.v, hdat.f_diag, zero_add, zero_add]
 
+/-! ### A-4.3b: conjugation and base-slice fibre cells + the `m`-calculus
+
+The κ⁰-peel's step lemmas: on `V`-part-zero prefixes the fibre accumulates only
+`m`-corrections (`f` dies on a zero slot); conjugation by an `sdSec`-image shifts the
+fibre by one `m`-value; `m` at squares/inverses of `V`-fixing elements vanishes/reflects
+(`m_mul` + char 2).  These are the `CentExt κ⁰`-analogs of the `HeisLift.mul_z_of_trivial`
+family. -/
+
+theorem sdSec_inv (w : C) : (sdSec dat hdat w)⁻¹ = sdSec dat hdat w⁻¹ :=
+  (map_inv (sdSec dat hdat) w).symm
+
+/-- `powOmega2` of an `sdSec`-image has zero fibre. -/
+theorem powOmega2_sdSec_fib (w : C) : (powOmega2 (sdSec dat hdat w)).fib = 0 := by
+  rw [powOmega2, ← map_pow]
+  rfl
+
+/-- `powOmega2` of an `sdSec`-image has zero `V`-part. -/
+theorem powOmega2_sdSec_base_v (w : C) : (powOmega2 (sdSec dat hdat w)).base.v = 0 := by
+  rw [powOmega2, ← map_pow]
+  rfl
+
+/-- **The fibre step on a `V`-part-zero left factor**: only the `m`-correction survives. -/
+theorem mul_fib_of_v_zero (p r : CentExt (kappa0Cocycle dat hdat))
+    (hp : p.base.v = 0) :
+    (p * r).fib = p.fib + r.fib + dat.m p.base.cc r.base.v := by
+  rw [CentExt.mul_fib, kappa0Cocycle_κ, hp, hdat.f_zero_left, zero_add]
+
+/-- **The fibre step when both `V`-parts vanish**: plain additivity. -/
+theorem mul_fib_of_v_zero' (p r : CentExt (kappa0Cocycle dat hdat))
+    (hp : p.base.v = 0) (hr : r.base.v = 0) :
+    (p * r).fib = p.fib + r.fib := by
+  rw [mul_fib_of_v_zero dat hdat p r hp, hr, hdat.m_zero, add_zero]
+
+/-- **The fibre step on a `V`-part-zero RIGHT factor**: `κ⁰(·, v-part 0)` dies entirely. -/
+theorem mul_fib_of_v_zero_right (p r : CentExt (kappa0Cocycle dat hdat))
+    (hr : r.base.v = 0) :
+    (p * r).fib = p.fib + r.fib := by
+  rw [CentExt.mul_fib, kappa0Cocycle_κ, hr, smul_zero, hdat.f_zero_right, hdat.m_zero,
+    add_zero, add_zero]
+
+/-- The base of a conjugate by an `sdSec`-image (through `CentExt.proj`). -/
+theorem conjP_sdSec_base (x : CentExt (kappa0Cocycle dat hdat)) (w : C) :
+    (conjP x (sdSec dat hdat w)).base = conjP x.base (Sd.mk (0 : V) w) :=
+  Marking.map_conjP (CentExt.proj (kappa0Cocycle dat hdat)) x (sdSec dat hdat w)
+
+/-- The `V`-part of an `Sd`-conjugate by a `V`-part-zero element: the `w⁻¹`-twist. -/
+theorem sd_conjP_v (p : Sd C V) (w : C) :
+    (conjP p (Sd.mk (0 : V) w)).v = w⁻¹ • p.v := by
+  show ((Sd.mk (0 : V) w)⁻¹ * p * Sd.mk (0 : V) w).v = w⁻¹ • p.v
+  show ((Sd.mk (0 : V) w)⁻¹ * p).v + ((Sd.mk (0 : V) w)⁻¹ * p).cc • (0 : V) = w⁻¹ • p.v
+  rw [smul_zero, add_zero]
+  show (Sd.mk (0 : V) w)⁻¹.v + (Sd.mk (0 : V) w)⁻¹.cc • p.v = w⁻¹ • p.v
+  show -(w⁻¹ • (0 : V)) + w⁻¹ • p.v = w⁻¹ • p.v
+  rw [smul_zero, neg_zero, zero_add]
+
+/-- **The conjugation fibre cell**: conjugating by an `sdSec`-image shifts the fibre by
+the single `m`-correction `m_{w⁻¹}` at the `V`-part. -/
+theorem conjP_sdSec_fib (x : CentExt (kappa0Cocycle dat hdat)) (w : C) :
+    (conjP x (sdSec dat hdat w)).fib = x.fib + dat.m w⁻¹ x.base.v := by
+  show ((sdSec dat hdat w)⁻¹ * x * sdSec dat hdat w).fib = _
+  rw [mul_fib_of_v_zero_right dat hdat _ _ (show (sdSec dat hdat w).base.v = 0 from rfl),
+    sdSec_inv,
+    mul_fib_of_v_zero dat hdat _ _ (show (sdSec dat hdat w⁻¹).base.v = 0 from rfl),
+    sdSec_fib, sdSec_fib, zero_add, add_zero]
+  rfl
+
+include hdat in
+/-- `m` at an inverse of a `V`-fixing element reflects (from `m_mul` + `m_one` + char 2). -/
+theorem m_inv_of_fixed (w : C) (v : V) (hfix : w • v = v) :
+    dat.m w⁻¹ v = dat.m w v := by
+  have h := hdat.m_mul w⁻¹ w v
+  rw [inv_mul_cancel, hdat.m_one, hfix] at h
+  -- `0 = m_{w⁻¹}(v) + m_w(v)` in `ZMod 2`
+  have hchar : ∀ a b : ZMod 2, 0 = a + b → a = b := by decide
+  exact hchar _ _ h
+
+include hdat in
+/-- `m` at a square of a `V`-fixing element vanishes. -/
+theorem m_sq_of_fixed (w : C) (v : V) (hfix : w • v = v) :
+    dat.m (w * w) v = 0 := by
+  rw [hdat.m_mul, hfix]
+  exact CharTwo.add_self_eq_zero _
+
 end Kappa0Ledger
 
 section Assembly
