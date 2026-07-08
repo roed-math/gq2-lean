@@ -229,21 +229,20 @@ omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
 @[simp] theorem QZeroBar_mk (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m) (c : VCocycle DD ρ) :
     QZeroBar DD ρ htriv (QuotientAddGroup.mk c) = QZero DD ρ c := rfl
 
-omit [ContinuousSMul Γ (ZMod 2)] in
+omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
 /-- **The generic `Z¹ → H¹` reduction** (design §2 item 5): the source-Gauss sum over all of
 `Z¹_{Γ,ρ}(V)` is `#V` times the Gauss sum of the descended form `Q̄⁰` on `Z¹ ⧸ B¹`.  The free
 `B¹`-translation (`vCob` injective) makes every fibre of `Z¹ ↠ Z¹⧸B¹` a `#V`-sized coset on
-which `Q⁰` is constant. -/
-theorem gaussZ_reduction (σ : DD.C0 →* Bg ⧸ D.T) (hσ : ∀ cc : DD.C0, piQbar DD (σ cc) = cc)
-    [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
-    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+which `Q⁰` is constant.  Finiteness of `Z¹` is a hypothesis — supply `finite_vcocycle` (a
+splitting + t.f.g.) or, σ-free, a nonzero `Nat.card`-count such as `hZcard_local`
+(P-16d6e4a composition). -/
+theorem gaussZ_reduction [Finite (VCocycle DD ρ)]
     (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
     (hfix : ∀ v : DD.Vmod, (∀ γ : Γ, rho0 DD ρ γ • v = v) → v = 0) :
     ∑ᶠ c : VCocycle DD ρ, sign (QZero DD ρ c)
       = (Nat.card DD.Vmod : ℤ)
           * ∑ᶠ x : (VCocycle DD ρ ⧸ vCobRange DD ρ), sign (QZeroBar DD ρ htriv x) := by
   classical
-  haveI : Finite (VCocycle DD ρ) := finite_vcocycle σ hσ hfg
   haveI : Fintype (VCocycle DD ρ) := Fintype.ofFinite _
   haveI : Fintype (VCocycle DD ρ ⧸ vCobRange DD ρ) := Fintype.ofFinite _
   haveI : Fintype DD.Vmod := Fintype.ofFinite _
