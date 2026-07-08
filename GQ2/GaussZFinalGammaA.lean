@@ -436,6 +436,147 @@ theorem m_sq_of_fixed (w : C) (v : V) (hfix : w • v = v) :
   rw [hdat.m_mul, hfix]
   exact CharTwo.add_self_eq_zero _
 
+/-! ### A-4.3c: the split wild value = the `x₀`-square
+
+With the structural pack (`x₀.cc = x₁.cc = 1` from the tame factorization, `τ.cc` of odd
+order — prep doc §6), `d₀` has base `1`, hence is CENTRAL in `CentExt κ⁰`: the whole wild
+word collapses (`d₀² = 1`, `d_g = d₀`, `h_c = c₀ = 1`, `u₁ = 1`, `x₁^σ = 1`, and
+`h₀ = x₀²` on the nose — the paper's p. 15 "replacing `h₀` by `x₀²`").  The split wild
+fibre is therefore the `x₀`-square `q(v)`, with every starred `m`-entry dying on
+`m_one`. -/
+
+/-- The `C`-component projection `Sd C V →* C`. -/
+noncomputable def sdCcHom : Sd C V →* C where
+  toFun := Sd.cc
+  map_one' := rfl
+  map_mul' _ _ := rfl
+
+/-- Base-`1` elements of `CentExt κ⁰` are central (`κ⁰` dies against `1` on both sides). -/
+theorem central_of_base_one (p : CentExt (kappa0Cocycle dat hdat)) (hp : p.base = 1)
+    (x : CentExt (kappa0Cocycle dat hdat)) : p * x = x * p := by
+  refine CentExt.ext ?_ ?_
+  · show p.base * x.base = x.base * p.base
+    rw [hp, one_mul, mul_one]
+  · show p.fib + x.fib + (kappa0Cocycle dat hdat).κ p.base x.base
+      = x.fib + p.fib + (kappa0Cocycle dat hdat).κ x.base p.base
+    rw [hp, kappa0Cocycle_κ, kappa0Cocycle_κ]
+    show p.fib + x.fib + (dat.f (0 : V) ((1 : C) • x.base.v) + dat.m (1 : C) x.base.v)
+      = x.fib + p.fib + (dat.f x.base.v (x.base.cc • (0 : V)) + dat.m x.base.cc (0 : V))
+    rw [hdat.f_zero_left, hdat.m_one, smul_zero, hdat.f_zero_right, hdat.m_zero]
+    ring
+
+set_option maxHeartbeats 800000 in
+/-- **The split wild κ⁰-value is the `x₀`-square** (paper (83), `T = 1` case): with the
+structural pack, the lifted wild relator value has fibre `q(x₀.v)` — every starred
+`m`-entry dies on `m_one`, and the base-central `d₀` collapses the word to `x₀²`. -/
+theorem liftMark_kappa0_wildValue_fib_split [Finite C] [Finite V]
+    (tS : Marking (Sd C V))
+    (hσv : tS.σ.v = 0) (hτv : tS.τ.v = 0) (hx1v : tS.x₁.v = 0)
+    (hx0cc : tS.x₀.cc = 1) (hx1cc : tS.x₁.cc = 1)
+    (hV₂ : ∀ w : V, w + w = 0)
+    (htau : ∀ w : V, tS.τ.cc • w = w)
+    (hU : ∀ w : V, Marking.sigma2 (sdBaseMarking tS) • w = w)
+    (hτodd : Odd (orderOf tS.τ.cc)) :
+    (liftMark tS (kappa0Cocycle dat hdat)).wildValue.fib = q tS.x₀.v := by
+  classical
+  set M := liftMark tS (kappa0Cocycle dat hdat) with hM
+  -- slot forms
+  have hMx1 : M.x₁ = 1 := CentExt.ext (Sd.ext hx1v hx1cc) rfl
+  have hMτ : M.τ = sdSec dat hdat tS.τ.cc := CentExt.ext (Sd.ext hτv rfl) rfl
+  have hMσ : M.σ = sdSec dat hdat tS.σ.cc := CentExt.ext (Sd.ext hσv rfl) rfl
+  -- `u₁ = 1` and `x₁^σ = 1`
+  have hu1 : M.u1 = 1 := by
+    show powOmega2 (M.x₁ * M.τ) = 1
+    rw [hMx1, one_mul, hMτ, ← powOmega2_map, powOmega2_eq_one_of_odd hτodd, map_one]
+  have hx1s : conjP M.x₁ M.σ = 1 := by
+    rw [conjP, hMx1, mul_one, inv_mul_cancel]
+  -- `d₀.base = 1`: the `cc`-part by the `C`-level collapse, the `v`-part by the banked row
+  have hd0cc : tS.d0.cc = 1 := by
+    have h := (Marking.map_d0 (sdCcHom (C := C) (V := V)) tS).symm
+    rw [show tS.map (sdCcHom (C := C) (V := V)) = sdBaseMarking tS from rfl] at h
+    show sdCcHom (C := C) (V := V) tS.d0 = 1
+    rw [h]
+    show powOmega2 (tS.x₀.cc * tS.τ.cc) * (tS.x₀.cc)⁻¹ = 1
+    rw [hx0cc, one_mul, inv_one, mul_one, powOmega2_eq_one_of_odd hτodd]
+  have hd0v : tS.d0.v = 0 := by
+    rw [sd_d0_v, liftMarking_d0_u (sdBaseMarking tS) (sdOffsets tS) hV₂
+      (fun w => by show tS.x₀.cc • w = w; rw [hx0cc, one_smul]) htau]
+    exact hτv
+  have hd0base : M.d0.base = 1 := by
+    show ((liftMark tS (kappa0Cocycle dat hdat)).d0).base = 1
+    rw [liftMark_d0_base dat hdat tS]
+    exact Sd.ext hd0v hd0cc
+  -- `d₀` is central; the word collapses
+  have hcen := central_of_base_one dat hdat M.d0 hd0base
+  have hdg : M.dg = M.d0 := by
+    show conjP M.d0 M.g0 = M.d0
+    rw [conjP, mul_assoc, hcen M.g0, ← mul_assoc, inv_mul_cancel, one_mul]
+  have hd0sq : M.d0 ^ 2 = 1 := by
+    rw [pow_two]
+    refine CentExt.ext ?_ ?_
+    · show M.d0.base * M.d0.base = 1
+      rw [hd0base, one_mul]
+    · show M.d0.fib + M.d0.fib + (kappa0Cocycle dat hdat).κ M.d0.base M.d0.base = 0
+      rw [hd0base, kappa0Cocycle_κ]
+      show M.d0.fib + M.d0.fib + (dat.f (0 : V) ((1 : C) • (0 : V)) + dat.m (1 : C) (0 : V)) = 0
+      rw [smul_zero, hdat.f_zero_left, hdat.m_zero, add_zero, add_zero]
+      exact CharTwo.add_self_eq_zero _
+  have hhc : M.hc = 1 := by
+    show commP M.dg M.d0 = 1
+    rw [hdg, commP]
+    group
+  have hc0 : M.c0 = 1 := by
+    show commP M.d0 M.z0 = 1
+    rw [commP]
+    calc M.d0⁻¹ * M.z0⁻¹ * M.d0 * M.z0
+        = M.d0⁻¹ * (M.z0⁻¹ * (M.d0 * M.z0)) := by group
+      _ = M.d0⁻¹ * (M.z0⁻¹ * (M.z0 * M.d0)) := by rw [hcen M.z0]
+      _ = 1 := by group
+  -- `x₀^{g₀} = x₀` (the `hU`-collapse; every `m` dies on `m_sq`/`m_inv`)
+  have hs2 : M.sigma2 = sdSec dat hdat (Marking.sigma2 (sdBaseMarking tS)) := by
+    show powOmega2 M.σ = _
+    rw [hMσ, ← powOmega2_map]
+    rfl
+  have hMg0 : M.g0 = sdSec dat hdat (Marking.g0 (sdBaseMarking tS)) := by
+    show M.sigma2 ^ 2 = _
+    rw [hs2, ← map_pow]
+    rfl
+  have hg0fix : ∀ w : V, Marking.g0 (sdBaseMarking tS) • w = w := by
+    intro w
+    show (Marking.sigma2 (sdBaseMarking tS) ^ 2) • w = w
+    rw [pow_two, mul_smul, hU, hU]
+  have hA : conjP M.x₀ M.g0 = M.x₀ := by
+    rw [hMg0]
+    refine CentExt.ext ?_ ?_
+    · rw [conjP_sdSec_base]
+      refine Sd.ext ?_ ?_
+      · rw [sd_conjP_v, inv_smul_eq_iff]
+        exact (hg0fix _).symm
+      · show (Marking.g0 (sdBaseMarking tS))⁻¹ * tS.x₀.cc * Marking.g0 (sdBaseMarking tS)
+          = tS.x₀.cc
+        rw [hx0cc, mul_one, inv_mul_cancel]
+    · rw [conjP_sdSec_fib,
+        m_inv_of_fixed dat hdat _ _ (hg0fix _)]
+      show M.x₀.fib + dat.m (Marking.sigma2 (sdBaseMarking tS) ^ 2) M.x₀.base.v = M.x₀.fib
+      rw [pow_two, m_sq_of_fixed dat hdat _ _ (hU _), add_zero]
+  -- `h₀ = x₀²`
+  have hh0 : M.h0 = M.x₀ ^ 2 := by
+    show (conjP M.x₀ M.g0) * M.x₀ * M.dg * M.d0 * M.d0 ^ 2 * M.hc = M.x₀ ^ 2
+    rw [hA, hdg, hd0sq, hhc, mul_one, mul_one]
+    calc M.x₀ * M.x₀ * M.d0 * M.d0
+        = (M.x₀ * M.x₀) * (M.d0 * M.d0) := by group
+      _ = M.x₀ ^ 2 * M.d0 ^ 2 := by rw [pow_two, pow_two]
+      _ = M.x₀ ^ 2 := by rw [hd0sq, mul_one]
+  -- assemble
+  show (M.h0 * M.u1⁻¹ * conjP M.x₁ M.σ * M.c0).fib = q tS.x₀.v
+  rw [hu1, hx1s, hc0, inv_one, mul_one, mul_one, mul_one, hh0, pow_two, CentExt.mul_fib]
+  show (0 : ZMod 2) + 0 + (kappa0Cocycle dat hdat).κ tS.x₀ tS.x₀ = q tS.x₀.v
+  rw [kappa0Cocycle_κ]
+  show (0 : ZMod 2) + 0 + (dat.f tS.x₀.v (tS.x₀.cc • tS.x₀.v) + dat.m tS.x₀.cc tS.x₀.v)
+    = q tS.x₀.v
+  rw [hx0cc, one_smul, hdat.f_diag, hdat.m_one]
+  ring
+
 end Kappa0Ledger
 
 section Assembly
