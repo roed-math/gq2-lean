@@ -147,3 +147,35 @@ group), but each is a mechanical mirror of its `heisMarking_*` counterpart with
 `f`/`m`-values in place of `λ`-pairings; `powOmega2_secHom_z`-style base-slice facts
 hold verbatim (`Sd`-elements with zero `V`-part form a subgroup containing the
 σ/τ/x₁-images).
+
+
+## 5. ⚠ A-4.3c DESIGN FINDING (Fable session 4b): the `m`-residual in the split wild peel
+
+Hand-executing the split `h₀`/wild peel with the A-4.3a/b cells (triple-checked) gives
+
+    wild.fib(section v) = q(v) + m_{(p₀t₂)^N}(v),   N = omega2Exp(orderOf(x₀τ-lift)),
+
+i.e. `h₀ ↦ q(v) + m_{p₀}(v)` (the `x₀`-square's starred entry does NOT fully cancel inside
+`h₀`: the `A·x₀`-step contributes `m_{w₀⁻¹p₀w₀}(v) = m_{p₀}(v)`) and `c₀ ↦ m_{d₀.cc}(v) =
+m_{u₀.cc}(v) + m_{p₀}(v)`, total `q(v) + m_{u₀.cc}(v)` with `u₀.cc = (p₀t₂)^N`.  For `v ≠ 0`
+the base `(v, p₀t₂)` has even order so `N` is odd and the residual is `ℓ(v) := m_{p₀t₂}(v)`
+— **additive in `v`** (from `m_quad` + trivial action, char 2), so the section-form is
+`q + ℓ`, a `B`-shift of `q`: `q(v) + ℓ(v) = q(v + a) + q(a)` for the unique `a` with
+`B(a,·) = ℓ`.  Hence `∑ sign = (−1)^{q(a)}·G(q)` — **a sign risk unless `q(a) = 0` or
+`ℓ = 0`.**
+
+The paper's Prop 6.5 table shows NO residual ("all m_c-terms are included"), so one of:
+(i) a cancellation my ledger misses (the class-two identity route may distribute the
+`m`-terms differently — recheck the paper's Lemma 5.2/5.3 proofs for where the starred
+entries die); (ii) the block's concrete datum (`kappa0_exists`/Lemma 6.3) has `m = 0` on
+the relevant elements (e.g. a normalization making `m` vanish on the wild image or on the
+2-part); (iii) `q(a) = 0` provable structurally (both models compute the SAME class-sum,
+and the paper's model gives `G(q)` — so `(−1)^{q(a)} = +1` is forced numerically, but a
+direct proof needs the comparison).  **Resolve (i)/(ii) against the paper before writing
+the A-4.3c assembly** — if (ii), add the `m`-vanishing to the seam's hypothesis pack and
+discharge it at the consumer from the datum's construction; if (i), fix the ledger.
+
+Peel bookkeeping to reuse (all cells verified in Lean, `d54f6a5`): `δ := d₀.fib` cancels
+opaquely (`dg` vs `d₀`, and inside `hc`/`d₀²`); `u₀.fib` never surfaces; the only live
+cells are the two `f(v,v) = q(v)`-squares (in `A·x₀` and in `c₀`'s `z₀⁻¹`/final step — they
+appear TWICE and cancel once, net one `q(v)`) and the `m`-chain.
