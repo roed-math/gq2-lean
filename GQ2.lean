@@ -119,3 +119,4 @@ import GQ2.GaussZFinal
 import GQ2.GaussZCoordGammaA
 import GQ2.IotaGammaA
 import GQ2.GaussZRelatorGammaA
+import GQ2.GaussZFinalGammaA
