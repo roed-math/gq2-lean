@@ -1,6 +1,7 @@
 import GQ2.SectionTen
 import GQ2.ThmFourTwo
 import GQ2.BoundaryMapsWitness
+import GQ2.TameOrientationWitness
 
 /-!
 # §10 — the per-source discharge of Lemma 10.1's hypotheses  (P-18d)
@@ -104,7 +105,8 @@ theorem eq_154 (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [F
         (tameCoord_bF_ker_isProP boundaryMapsWitness)
         Foundations.absGalQ2_isTopologicallyFinitelyGenerated]
   exact finsum_congr fun α =>
-    thm_4_2 boundaryMapsWitness (tameFrame α.1 α.2) (tameTarget G) hE2
+    thm_4_2 boundaryMapsWitness (tameFrame α.1 α.2) localReciprocity
+      tameUnitOrientation_witness (tameTarget G) hE2
 
 /-- **Theorem 1.2, surjection-count form** (`GQ2.main_surjection_count`), proved from eq. (154) +
 Prop 2.3.  The `Statement.lean` sorry is resolved by the statement-move pattern (Statement is

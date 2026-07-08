@@ -1,6 +1,7 @@
 import GQ2.SectionNine
 import GQ2.BlockEnrichment
 import GQ2.Prop89Close
+import GQ2.GaussZGammaAD
 
 /-!
 # Theorem 4.2 — the §9 sink  (P-17i)
@@ -117,6 +118,7 @@ the `R`-stage lane is the remaining sorry (assembled against `prop_8_9`, which i
 mid-close at P-16d6e; axioms B1/B3c/B6/B7/B7′/B8/B9 enter through the ingredients, per
 App. D). -/
 theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
+    (R : LocalReciprocity) (horient : TameUnitOrientation R B.tameF)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     {Y : Type} [Group Y]
     [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] (T : MarkedTarget H E Y)
@@ -254,17 +256,19 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
             hhead.comp B.bA_surjective
           have hheadF : Function.Surjective (fun γ : AbsGalQ2 => (F.frameMap (B.bF γ)).1) :=
             hhead.comp B.bF_surjective
-          -- block normality instances (the `blockEnrichment` section hypotheses)
+          -- block normality instances (the `blockEnrichmentD` section hypotheses)
           haveI : (Blk.S.subgroupOf Blk.P).Normal := Blk.hS.subgroupOf Blk.P
+          haveI : Blk.K.Normal := Blk.hK
+          haveI : Blk.R.Normal := SectionSeven.frattiniLike_normal Blk.K Blk.hK
           haveI : Nontrivial (blockFrameImpl T Blk hE2).YC :=
             nontrivial_YC_of_not_scalarStack T Blk hE2 hstack
           -- the chief-factor structure of the enrichment module (P-17d's `blockHsimple`)
           have hSimp := SectionNine.blockHsimple T Blk
-          have hsimple : ∀ W : AddSubgroup (SectionNine.blockEnrichment T Blk hE2 F).Vmod,
+          have hsimple : ∀ W : AddSubgroup (SectionNine.blockEnrichmentD T Blk hE2 F).Vmod,
               (∀ g : (blockFrameImpl T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤ :=
             hSimp.2
-          have hVne : ∃ v : (SectionNine.blockEnrichment T Blk hE2 F).Vmod, v ≠ 0 := by
-            haveI : Nontrivial (SectionNine.blockEnrichment T Blk hE2 F).Vmod := hSimp.1
+          have hVne : ∃ v : (SectionNine.blockEnrichmentD T Blk hE2 F).Vmod, v ≠ 0 := by
+            haveI : Nontrivial (SectionNine.blockEnrichmentD T Blk hE2 F).Vmod := hSimp.1
             exact exists_ne 0
           -- `hnt` (the nontrivial `Y/K`-action on `V`): the block's `nontrivial_action`
           -- field in the enrichment-module form (`blockHnt`).  The former `hfaith`
@@ -272,25 +276,25 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
           -- faithfulness is NOT block-derivable (a central 2-part of `Y` outside `K`
           -- centralizes `V` — e.g. `C₂ × (C₃ ⋉ C₂²)`-type blocks).
           have hnt : ∃ (g : (blockFrameImpl T Blk hE2).YC)
-              (v : (SectionNine.blockEnrichment T Blk hE2 F).Vmod), g • v ≠ v :=
+              (v : (SectionNine.blockEnrichmentD T Blk hE2 F).Vmod), g • v ≠ v :=
             SectionNine.blockHnt T Blk
-          -- the Gauss-`Z` residues (P-16d6e4a, in flight; the local value is the (83)
-          -- evaluation `∓2^m`, the candidate side may stay on the ledger per the e4a design
-          -- fallback).  Scoped sorry.
+          -- the Gauss-`Z` residues (P-16d6e4aA-P4e): the hypothesis-free obtain at the
+          -- head-inflated enrichment — `G0 = ∓2^m` by the head dichotomy, orientation from
+          -- the theorem's `(R, horient)` binders (the `lemma_6_17_vanish` threading pattern)
           obtain ⟨G0, hGaussZA, hGaussZF⟩ :
               ∃ G0 : ℤ,
                 (∀ (l : (blockFrameImpl T Blk hE2).DR)
                   (h : l ≠ (blockFrameImpl T Blk hE2).zeroDR),
                   SectionEight.GaussZResidue B.bA F
-                    (SectionNine.blockEnrichment T Blk hE2 F) l h G0) ∧
+                    (SectionNine.blockEnrichmentD T Blk hE2 F) l h G0) ∧
                 (∀ (l : (blockFrameImpl T Blk hE2).DR)
                   (h : l ≠ (blockFrameImpl T Blk hE2).zeroDR),
                   SectionEight.GaussZResidue B.bF F
-                    (SectionNine.blockEnrichment T Blk hE2 F) l h G0) := by
-            sorry
+                    (SectionNine.blockEnrichmentD T Blk hE2 F) l h G0) :=
+            SectionNine.gaussZ_obtain_blockD T Blk hE2 B F R horient hsimple hVne hnt
           -- the closed system (P-16d6)
           obtain ⟨μ, G0', DT, instDT, phase, hDTpos, hA, hF⟩ :=
-            SectionEight.prop_8_9 B T Blk hE2 (SectionNine.blockEnrichment T Blk hE2 F) F
+            SectionEight.prop_8_9 B T Blk hE2 (SectionNine.blockEnrichmentD T Blk hE2 F) F
               hfgF hheadA hheadF hsimple hVne hnt G0 hGaussZA hGaussZF
           letI := instDT
           -- IH at the `B`-stage ((145b), needs `R ≠ ⊥`)
@@ -382,11 +386,12 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
 — an *instance* of the first (strata are ordinary objects of the same category), recorded to
 fix the consumption shape for §8.  [Relocated with `thm_4_2`; carries the same `hE2`.] -/
 theorem thm_4_2_stratum (B : BoundaryMaps) (F : BoundaryFrame H E)
+    (R : LocalReciprocity) (horient : TameUnitOrientation R B.tameF)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {Y : Type} [Group Y]
     [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] (T : MarkedTarget H E Y)
     (hE2 : ∀ e : E, e ^ 2 = 1) (J : Subgroup Y)
     (hJ : Function.Surjective (T.piY.comp J.subtype)) :
     exactImageCount B.bA F (T.stratum J hJ) = exactImageCount B.bF F (T.stratum J hJ) :=
-  thm_4_2 B F (T.stratum J hJ) hE2
+  thm_4_2 B F R horient (T.stratum J hJ) hE2
 
 end GQ2
