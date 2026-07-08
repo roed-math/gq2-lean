@@ -1,15 +1,26 @@
 # gq2-lean — Formalizing the presentation of $G_{\mathbf{Q}_2}$
 
-A Lean 4 + [Mathlib](https://github.com/leanprover-community/mathlib4) formalization
-effort targeting the **main theorem** of
+A Lean 4 + [Mathlib](https://github.com/leanprover-community/mathlib4) formalization of
+the **main theorem** of
 
 > D. C. Turturean, *A profinite presentation of the absolute Galois group of $\mathbf{Q}_2$*
 > (June 2026). [[local copy]](paper/A_Profinite_Presentation_for_G__Q_2.pdf)
 
-The paper is machine-generated (GPT). This repository formalizes its **statement**,
-builds a rigorous scaffold of its **proof architecture**, audits what Mathlib
-currently provides as a foundation, and proves the sub-lemmas that are actually
-reachable today. See [`docs/STATUS.md`](docs/STATUS.md) for the live proved/`sorry` ledger.
+The paper is machine-generated (GPT).  **The formalization is complete** (2026-07-08):
+Theorem 1.2 is proved end-to-end, fully `sorry`-free, from a frozen census of **15
+literature axioms** (deep local-arithmetic inputs Mathlib does not yet contain, each with
+a precise citation — see below).  The final statements:
+
+- `GQ2.main_presentation_literal : Nonempty (ContinuousMulEquiv GammaA AbsGalQ2)`
+  ([`GQ2/PresentationLiteral.lean`](GQ2/PresentationLiteral.lean)) — the literal Theorem 1.2;
+- `GQ2.SectionTen.main_surjection_count'`
+  ([`GQ2/SectionTenSources.lean`](GQ2/SectionTenSources.lean)) — the surjection-count form:
+  for every finite $G$, $\#\{G_{\mathbf Q_2}\twoheadrightarrow G\} = \#\{\text{admissible marked
+  quadruples in } G^4\}$.
+
+See [`docs/tickets.md`](docs/tickets.md) for the human-readable record of how the proof
+was built (and [`docs/orchestration/`](docs/orchestration/README.md) for the raw
+agent-orchestration archive).
 
 ## The main theorem (Theorem 1.2)
 
@@ -41,68 +52,59 @@ computational content and the centerpiece of this formalization:
 
 The right-hand side is finite, explicit, and **decidable** for each fixed $G$.
 
-## Honest status & feasibility
+## Trust base
 
-A *complete* machine-checked proof is **not** attainable with today's Mathlib. The proof
-depends on a large tower of local arithmetic that Mathlib does not yet contain
-(local class field theory / reciprocity, Demushkin groups and Labute's classification,
-local Tate duality, cup products in continuous Galois cohomology, Stiefel–Whitney/Evens
-classes, the étale/tame fundamental group of $\mathbf P^1\setminus\{0,1,\infty\}$).
-Even the *statement* needs objects Mathlib lacks: free profinite groups, profinite
-presentations, and $\widehat{\mathbf Z}$. **None of these appear in the open Mathlib PR queue
-either** (see the audit). Moreover the source is GPT-generated, so individual steps must be
-treated as unverified until checked.
+Everything reduces to the standard three Lean axioms (`propext`, `Classical.choice`,
+`Quot.sound`) plus the **frozen 15-axiom census** in
+[`GQ2/Foundations/Axioms.lean`](GQ2/Foundations/Axioms.lean) — the only file allowed to
+contain `axiom` declarations, enforced by [`scripts/check_axioms.sh`](scripts/check_axioms.sh)
+(which also enforces **zero `sorry`s** repo-wide and no `native_decide`).  Each axiom is a
+named theorem of the literature (local Tate duality, the local Euler characteristic, the
+dyadic Hilbert-symbol ledger, Kummer surjectivity, the unit filtration, …):
 
-So this repo's realistic near-term deliverables are:
+- [`docs/literature-axioms.md`](docs/literature-axioms.md) — citations + exact-statement
+  discussion (one-page summary: [`docs/literature-axioms-onepage.md`](docs/literature-axioms-onepage.md));
+- [`docs/adversarial-axioms-review.md`](docs/adversarial-axioms-review.md) — an adversarial
+  review of the census;
+- [`atlas-audit.md`](atlas-audit.md) — machine-generated audit of the capstone: the 12 axioms
+  actually in its `#print axioms` trust base, and its 30-node semantic review cone
+  (regeneration: [`docs/atlas.md`](docs/atlas.md)).
 
-1. A **faithful formal statement** of Theorem 1.2 and of its surjection-count form. ✅ scaffolded
-2. A precise **Mathlib foundation audit** + open-PR survey. ✅ [`docs/foundations-audit.md`](docs/foundations-audit.md)
-3. A **proof-architecture map** with the paper's dependency DAG and a per-node
-   formalizability grade. ✅ [`docs/proof-architecture.md`](docs/proof-architecture.md)
-4. **Reachable sub-lemmas proved for real** against Mathlib. ✅ done so far: Lemma 3.1
-   (tame quotient: odd order, `⟨t⟩` normal, `C_e⋊C_n` structure), Lemma 9.1 (coprime fibre
-   product, via Goursat), Lemma 9.2 core (Schur–Zassenhaus splitting), the `ω₂` spec +
-   Appendix-B cross-check, and — closing the top audit gap — a **free profinite group**
-   with its universal property. See [`docs/SESSION-LOG.md`](docs/SESSION-LOG.md).
-5. Everything else stated with `sorry` and cross-referenced to the paper, so the gap map
-   is encoded directly in the Lean source.
+Because the source paper is GPT-generated, the per-section extraction notes
+([`docs/section3-extraction.md`](docs/section3-extraction.md) … `section10-…`) record where
+statements needed amendment; one genuine transcription erratum is documented in
+[`docs/erratum-h0-transcription.md`](docs/erratum-h0-transcription.md), and paper statements
+proved but not needed by the final route are catalogued in
+[`docs/off-path-statements.md`](docs/off-path-statements.md).
 
 ## Layout
 
 | path | contents |
 |---|---|
 | `paper/` | the source PDF |
-| `docs/foundations-audit.md` | what Mathlib has / lacks, and which open PRs help |
+| `GQ2/Foundations/Axioms.lean` | the frozen 15-axiom census (B1–B13) |
+| `GQ2/Statement.lean`, `GQ2/PresentationLiteral.lean` | Theorem 1.2, literal + count forms |
+| `GQ2/SectionTenSources.lean` | `eq_154` + the capstone `main_surjection_count'` |
+| `GQ2/ThmFourTwo.lean` | Theorem 4.2 (the §9 induction output) |
+| `GQ2/Prop89Close.lean` | Prop 8.9 (the closed recursion) |
+| `GQ2/AxiomLedger.lean` | repo-wide batch `#print axioms` certificate (build standalone) |
+| `docs/tickets.md` | human-readable ticket summary (what was proved, where, when) |
+| `docs/orchestration/` | raw swarm archive: board, plans, handoffs, session logs |
+| `docs/foundations-audit.md` | the original Mathlib foundation audit (2026-07-02) |
 | `docs/proof-architecture.md` | the paper's proof DAG + formalization grades |
-| `docs/STATUS.md` | live ledger of statements: proved / `sorry` / axiomatized |
-| `docs/SESSION-LOG.md` | log of the 2026-07-01 autonomous proving session |
-| `GQ2/Omega2.lean` | `ω₂` specification + Appendix-B cross-check |
-| `GQ2/FreeProfinite.lean` | free profinite group + universal property |
-| `GQ2/CFTTest.lean` | smoke test of the `ClassFieldTheory` dependency (see below) |
+| `scripts/check_axioms.sh` | the axiom/sorry/native_decide guard |
+| `scripts/atlas_audit.py` | renders `atlas-audit.md` from a Lean Atlas graph export |
 
-## Local class field theory dependency
-
-This repo now depends on [`kbuzzard/ClassFieldTheory`](https://github.com/kbuzzard/ClassFieldTheory)
-(the 2025 Oxford CMI class-field-theory project), pinned in `lakefile.toml`. It supplies the
-non-archimedean-local-field + Tate-cohomology substrate for the paper's §3 and §§5–8
-(`IsNonarchimedeanLocalField` with a `ℚ_[p]` instance, ramification/inertia, unramified cohomology,
-Teichmüller lifts, Herbrand quotient, corestriction). This required realigning the toolchain to
-`v4.31.0-rc2` and Mathlib to CFT's commit; **all of this repo's own proofs still build.** See
-[`docs/foundations-audit.md`](docs/foundations-audit.md) §E for details and caveats (notably: some
-CFT declarations, including the `ℚ_[p]` instance, are `sorry`'d *upstream*, and the core `GQ2` lib
-does not import CFT — only `CFTTest.lean` does).
-| `GQ2/Sanity.lean` | confirms `G_{ℚ₂}` is expressible with current Mathlib |
-| `GQ2/Words.lean` | the auxiliary words (1)–(3) + admissibility predicate (concrete, decidable) |
-| `GQ2/Reconstruction.lean` | Lemma 2.5 (one-sided profinite reconstruction) |
-| `GQ2/Tame.lean` | Lemma 3.1 (structure of finite tame quotients) |
-| `GQ2/FiniteGroupLemmas.lean` | Lemmas 9.1–9.2 (fibre products, Schur–Zassenhaus split) |
-| `GQ2/Statement.lean` | the main theorem + surjection-count form |
+(Historical note: an experimental dependency on `kbuzzard/ClassFieldTheory` was removed
+2026-07-08 — the library never imported it; its only consumer was a smoke-test file.)
 
 ## Building
 
-Pinned to Mathlib `v4.31.0` (matching a local cache for fast setup).
+Toolchain `leanprover/lean4:v4.31.0-rc2`; Mathlib pinned in `lakefile.toml`.
 
 ```sh
 lake exe cache get   # fetch prebuilt Mathlib oleans
-lake build
+lake build           # the GQ2 library
+bash scripts/check_axioms.sh          # axiom/sorry hygiene guard
+lake build GQ2.AxiomLedger            # optional: repo-wide #print axioms certificate
 ```

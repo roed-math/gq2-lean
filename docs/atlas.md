@@ -60,7 +60,7 @@ rm GQ2/AtlasMarks.lean
 
 `lake exe atlas serve` starts a viewer at `http://localhost:5326` (needs Node ≥ 18 + pnpm; the
 first `serve` runs `pnpm install` in `.lake/packages/lean-atlas/web`). **Caveat:** the full GQ2
-graph (~4.7k nodes / 41k edges) overwhelms the browser renderer and hangs — the headless
+graph (~4.4k nodes / 39k edges) overwhelms the browser renderer and hangs — the headless
 `graph-data` / `compass` + `scripts/atlas_audit.py` path above is the practical interface for a
 project this size.
 
