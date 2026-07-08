@@ -24,7 +24,7 @@ P3's design `docs/p16d6e4aA-pack-design.md` (P2's deliverable) and the A-4 prep
 |---|---|---|
 | P1 | Maschke/odd-order complements | ⚠ **DOWNGRADED — do not start** unless P3's étale route stalls (pack-design §2/§8: isotypic components are vector spaces over étale field factors of `𝔽₂[X]/(X^d−1)`; freeness is automatic) |
 | P2 | pack design doc | ✅ **CLOSED** (`docs/p16d6e4aA-pack-design.md`; verdicts: pack FEASIBLE 600–1000 ln, pack-free arf-route REFUTED, P1 unnecessary) |
-| P3 | the isotypic pack → count discharge | ◐ **IN FLIGHT (owned by a parallel agent — do not touch `GaussZFinalGammaA.lean`)**.  Landed: inc-1/2 (conjugation calculus; operator Frobenius + kernel stability), inc-3a (`exists_single_isotype`), inc-3b-i (`exists_isotypic_equiv : V ≃+ (Fin s → AdjoinRoot P)` with root-equivariance).  Next: 3b-ii (pack-interface layer: `zpowers t`-action on `Wt`, `he`, `hWt2`, `hWtsimple`), §4 (`f` even via self-reciprocity), §5 (`U^{2^a}=1` centrality + descent count), then the splice into `zeroCount_qDouble_ramified_of_faithful` |
+| P3 | the isotypic pack → count discharge | ◐ **IN FLIGHT (owned by a parallel agent — do not touch `GaussZFinalGammaA.lean` or the P3 leaf `GQ2/RamifiedPack.lean`)**.  All pack machinery lives in `GQ2/RamifiedPack.lean` (namespace `GQ2.RamifiedPack`, registered in `GQ2.lean`, sorry-free std-3 at every landed increment; increment ledger + banked gotchas on the board row).  Landed: inc-1/2 (conjugation calculus; operator Frobenius + kernel stability), inc-3a (`exists_single_isotype`), inc-3b-i (`exists_isotypic_equiv : V ≃+ (Fin s → AdjoinRoot P)` with root-equivariance).  Next: 3b-ii (pack-interface layer: `zpowers t`-action on `Wt`, `he`, `hWt2`, `hWtsimple`), §4 (`f` even via self-reciprocity), §5 (`U^{2^a}=1` centrality + descent count), then the splice into `zeroCount_qDouble_ramified_of_faithful` |
 | P4 | the c3-G0 package | ✅ **CLOSED — RESHAPE VERDICT** (`docs/p16d6e4aA-p4-tame-package.md`): the frozen `TamePackage{Unram,Ram}`/hpack shape is **refuted** (not block-derivable); replaced by the head-inflation architecture (§2) |
 | P4b | reshape substrate | ✅ **LANDED** — `GQ2/BlockHeadDat.lean` (`blockEnrichmentD` + the faithful head quotient; all key decls std-3 exactly) |
 | P4c | local twins | ✅ **LANDED** — `GQ2/GaussZFinalD.lean` (`gaussZResidueD_local_{unramified,ramified}`, hpack-free/hfaith-free; axiom footprints = the baseline twins', no sorryAx) |
@@ -97,7 +97,12 @@ From `GQ2/GaussZFinalD.lean` (P4c):
    all banked and generic in `C`.  **Correction to the P4d handoff**: the ramified twin should
    *cite* `zeroCount_qDouble_ramified_of_faithful` (the sorried theorem) — that adds NO sorry
    token to the new leaf, so **no `SORRY_ALLOWLIST` entry is needed**; the `sorryAx` flows
-   transitively and disappears when P3 lands.
+   transitively and disappears when P3 lands.  **Refinement (from P3's agent)**: the better
+   citation target is its wrapper **`zeroCount_qDouble_ramified_of_action`**
+   (GaussZFinalGammaA:1258, same file, same transitive-`sorryAx` logic) — it takes the
+   *action-level* `hram : ∃ v : V, c tameTau • v ≠ v` (exactly what P4e's
+   `by_cases` + `push_neg` dichotomy produces) and **no `hfaith`** (it builds the faithful
+   quotient itself), saving the element-ization plumbing at `HVq`.
 2. **P4e**: `gaussZ_obtain_blockD` — `obtain ⟨m, hm, hcard⟩ :=
    exists_one_le_card_eq_two_pow_of_nonsingular …` (A-4.6b, from `En.hns` + `hVne`), then
    `by_cases` on the head dichotomy; unram branch → the two `−2^m` twins, ram branch
@@ -119,13 +124,26 @@ From `GQ2/GaussZFinalD.lean` (P4c):
 
 ## 5. Coordination & interfaces
 
-* **File ownership**: `GaussZFinalGammaA.lean` is P3's (one surgical edit pending — do not
-  touch); `ThmFourTwo.lean` is P5's moment (announce on the board row before editing);
-  everything else in this family lands in NEW leaves + `GQ2.lean` registration.
+* **File ownership**: `GaussZFinalGammaA.lean` AND `GQ2/RamifiedPack.lean` are P3's (the
+  RamifiedPack leaf is P3's active workspace; GaussZFinalGammaA has one surgical edit pending
+  — do not touch either); `ThmFourTwo.lean` is P5's moment (announce on the board row before
+  editing); everything else in this family lands in NEW leaves + `GQ2.lean` registration
+  (avoid the `GQ2.RamifiedPack` namespace).
 * **The single P3↔P4d touch point**: the ramified count interface.  P3 discharges
   `zeroCount_qDouble_ramified_of_faithful` in place (GaussZFinalGammaA:1241 — stated at
-  abstract faithful `(C, V)`, so it serves the `HVq`-route identically).  P4d cites that same
-  theorem — do NOT fork or restate it.
+  abstract faithful `(C, V)`, so it serves the `HVq`-route identically).  P4d cites that
+  theorem or (better, §4.1) its `_of_action` wrapper — do NOT fork or restate either.  The
+  frozen interface, exactly (both share the tail): `{C : Type} [Group C] [TopologicalSpace C]
+  [DiscreteTopology C] [Finite C] {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
+  (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)` — at `HVq`, `hc` comes from
+  `hv_gen` (a finite discrete group generated by the image's elements: closure ≤ range) —
+  `(hsimple : ∀ W : AddSubgroup V, (∀ g : C, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)`, the
+  dichotomy (`_of_faithful`: `hfaith` + element-level `hram : c tameTau ≠ 1`; `_of_action`:
+  just `hram : ∃ v, c tameTau • v ≠ v`), `(q hq hns hinv) (m) (hm : 1 ≤ m)
+  (hcard : Nat.card V = 2^(2*m))`; conclusion
+  `zeroCount (qDouble q (powOmega2 (c tameSigma) • ·)) = 2^(2*m−1) + 2^(m−1)`.  P3 will not
+  change this signature (it is the derivation target; P2's design doc verified the pack is
+  derivable from exactly these hypotheses).
 * **P1 stays dormant** unless P3 reports the étale route stalled (then revive per its row).
 
 ## 6. Discipline (unchanged, family-wide)
