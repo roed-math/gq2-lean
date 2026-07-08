@@ -677,6 +677,213 @@ theorem commP_fib_cc_one (p r : CentExt (kappa0Cocycle dat hdat))
   linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]; try ring_nf))
     hc1 + hc1' + hpol
 
+set_option maxHeartbeats 1600000 in
+/-- **The ramified wild κ⁰-value is the Wall double** (paper (83), `V^T = 0` case): with
+the structural pack, the lifted wild relator value has fibre
+`q(x₀.v) + polar q x₀.v (σ₂⁻¹ • x₀.v)`.  Unlike the split case `d₀` is no longer central —
+it carries the `V`-coordinate `x₀.v` (the banked ramified row `liftMarking_d0_u_ramified`) —
+but every `h₀`-factor stays in the abelian `V`-slice (`cc = 1`), so the peel proceeds by
+`kappa0_cc_one` steps: the `[d₀,z₀]`-commutator `c₀` contributes the polar term
+(`commP_fib_cc_one`), and the `h₀`-telescope closes on `q(g₀⁻¹ • x₀.v) = q(x₀.v)` by the
+`q`-invariance hypothesis `hqg0`. -/
+theorem liftMark_kappa0_wildValue_fib_ramified [Finite C] [Finite V]
+    (tS : Marking (Sd C V))
+    (hσv : tS.σ.v = 0) (hτv : tS.τ.v = 0) (hx1v : tS.x₁.v = 0)
+    (hx0cc : tS.x₀.cc = 1) (hx1cc : tS.x₁.cc = 1)
+    (hV₂ : ∀ w : V, w + w = 0)
+    (htauf : ∀ w : V, tS.τ.cc • w = w → w = 0)
+    (hτodd : Odd (orderOf tS.τ.cc))
+    (hqg0 : q ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) = q tS.x₀.v) :
+    (liftMark tS (kappa0Cocycle dat hdat)).wildValue.fib
+      = q tS.x₀.v + polar q tS.x₀.v ((Marking.sigma2 (sdBaseMarking tS))⁻¹ • tS.x₀.v) := by
+  classical
+  set M := liftMark tS (kappa0Cocycle dat hdat) with hM
+  -- generator slot forms
+  have hMx1 : M.x₁ = 1 := CentExt.ext (Sd.ext hx1v hx1cc) rfl
+  have hMτ : M.τ = sdSec dat hdat tS.τ.cc := CentExt.ext (Sd.ext hτv rfl) rfl
+  have hMσ : M.σ = sdSec dat hdat tS.σ.cc := CentExt.ext (Sd.ext hσv rfl) rfl
+  have hMx0bv : M.x₀.base.v = tS.x₀.v := rfl
+  have hMx0bcc : M.x₀.base.cc = tS.x₀.cc := rfl
+  have hMx0f : M.x₀.fib = 0 := rfl
+  -- `u₁ = 1` and `x₁^σ = 1` (as in the split case)
+  have hu1 : M.u1 = 1 := by
+    show powOmega2 (M.x₁ * M.τ) = 1
+    rw [hMx1, one_mul, hMτ, ← powOmega2_map, powOmega2_eq_one_of_odd hτodd, map_one]
+  have hx1s : conjP M.x₁ M.σ = 1 := by
+    rw [conjP, hMx1, mul_one, inv_mul_cancel]
+  -- `d₀.base = (x₀.v, 1)`: the `cc`-part as in the split case; the `v`-part is the banked
+  -- RAMIFIED row (`= x 2`, the `x₀`-slot)
+  have hd0cc : tS.d0.cc = 1 := by
+    have h := (Marking.map_d0 (sdCcHom (C := C) (V := V)) tS).symm
+    rw [show tS.map (sdCcHom (C := C) (V := V)) = sdBaseMarking tS from rfl] at h
+    show sdCcHom (C := C) (V := V) tS.d0 = 1
+    rw [h]
+    show powOmega2 (tS.x₀.cc * tS.τ.cc) * (tS.x₀.cc)⁻¹ = 1
+    rw [hx0cc, one_mul, inv_one, mul_one, powOmega2_eq_one_of_odd hτodd]
+  have hd0v : tS.d0.v = tS.x₀.v := by
+    rw [sd_d0_v, liftMarking_d0_u_ramified (sdBaseMarking tS) (sdOffsets tS) hV₂
+      (fun w => by show tS.x₀.cc • w = w; rw [hx0cc, one_smul]) htauf
+      (fun w => by
+        show powOmega2 tS.τ.cc • w = w
+        rw [powOmega2_eq_one_of_odd hτodd, one_smul])]
+    rfl
+  have hd0bv : M.d0.base.v = tS.x₀.v := by
+    show ((liftMark tS (kappa0Cocycle dat hdat)).d0).base.v = tS.x₀.v
+    rw [liftMark_d0_base dat hdat tS]
+    exact hd0v
+  have hd0bcc : M.d0.base.cc = 1 := by
+    show ((liftMark tS (kappa0Cocycle dat hdat)).d0).base.cc = 1
+    rw [liftMark_d0_base dat hdat tS]
+    exact hd0cc
+  -- `σ₂` and `g₀` are base-slice section values
+  have hs2 : M.sigma2 = sdSec dat hdat (Marking.sigma2 (sdBaseMarking tS)) := by
+    show powOmega2 M.σ = _
+    rw [hMσ, ← powOmega2_map]
+    rfl
+  have hMg0 : M.g0 = sdSec dat hdat (Marking.g0 (sdBaseMarking tS)) := by
+    show M.sigma2 ^ 2 = _
+    rw [hs2, ← map_pow]
+    rfl
+  -- `z₀`: base `(σ₂⁻¹ • x₀.v, 1)`
+  have hz0v : M.z0.base.v = (Marking.sigma2 (sdBaseMarking tS))⁻¹ • tS.x₀.v := by
+    show (conjP M.x₀ M.sigma2).base.v = _
+    rw [hs2, conjP_sdSec_base, sd_conjP_v, hMx0bv]
+  have hz0cc : M.z0.base.cc = 1 := by
+    show (conjP M.x₀ M.sigma2).base.cc = 1
+    rw [hs2, conjP_sdSec_base]
+    show (Marking.sigma2 (sdBaseMarking tS))⁻¹ * tS.x₀.cc * Marking.sigma2 (sdBaseMarking tS)
+      = 1
+    rw [hx0cc, mul_one, inv_mul_cancel]
+  -- `c₀ = [d₀,z₀]`: the polar-form cell
+  have hc0f : M.c0.fib
+      = polar q tS.x₀.v ((Marking.sigma2 (sdBaseMarking tS))⁻¹ • tS.x₀.v) := by
+    show (commP M.d0 M.z0).fib = _
+    rw [commP_fib_cc_one dat hdat M.d0 M.z0 hd0bcc hz0cc hV₂, hd0bv, hz0v]
+  -- the `x₀^{g₀}`-cell
+  have hAv : (conjP M.x₀ M.g0).base.v = (Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v := by
+    rw [hMg0, conjP_sdSec_base, sd_conjP_v, hMx0bv]
+  have hAcc : (conjP M.x₀ M.g0).base.cc = 1 := by
+    rw [hMg0, conjP_sdSec_base]
+    show (Marking.g0 (sdBaseMarking tS))⁻¹ * tS.x₀.cc * Marking.g0 (sdBaseMarking tS) = 1
+    rw [hx0cc, mul_one, inv_mul_cancel]
+  have hAf : (conjP M.x₀ M.g0).fib
+      = dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v := by
+    rw [hMg0, conjP_sdSec_fib, hMx0f, hMx0bv, zero_add]
+  -- the `d_g`-cell
+  have hdgv : M.dg.base.v = (Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v := by
+    show (conjP M.d0 M.g0).base.v = _
+    rw [hMg0, conjP_sdSec_base, sd_conjP_v, hd0bv]
+  have hdgcc : M.dg.base.cc = 1 := by
+    show (conjP M.d0 M.g0).base.cc = 1
+    rw [hMg0, conjP_sdSec_base]
+    show (Marking.g0 (sdBaseMarking tS))⁻¹ * M.d0.base.cc * Marking.g0 (sdBaseMarking tS) = 1
+    rw [hd0bcc, mul_one, inv_mul_cancel]
+  have hdgf : M.dg.fib
+      = M.d0.fib + dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v := by
+    show (conjP M.d0 M.g0).fib = _
+    rw [hMg0, conjP_sdSec_fib, hd0bv]
+  -- the `h_c`-cell (slice commutator)
+  have hhcbase : M.hc.base = 1 := by
+    show (commP M.dg M.d0).base = 1
+    rw [show (commP M.dg M.d0).base = commP M.dg.base M.d0.base from rfl]
+    exact sd_commP_cc_one M.dg.base M.d0.base hdgcc hd0bcc
+  have hhcf : M.hc.fib
+      = polar q ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v := by
+    show (commP M.dg M.d0).fib = _
+    rw [commP_fib_cc_one dat hdat M.dg M.d0 hdgcc hd0bcc hV₂, hdgv, hd0bv]
+  -- the `h₀`-peel, prefix by prefix (all factors in the `V`-slice)
+  have hP1v : (conjP M.x₀ M.g0 * M.x₀).base.v
+      = (Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v + tS.x₀.v := by
+    rw [CentExt.mul_base, Sd.mul_v, hAv, hAcc, one_smul, hMx0bv]
+  have hP1cc : (conjP M.x₀ M.g0 * M.x₀).base.cc = 1 := by
+    rw [CentExt.mul_base, Sd.mul_cc, hAcc, one_mul, hMx0bcc, hx0cc]
+  have hP1f : (conjP M.x₀ M.g0 * M.x₀).fib
+      = dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v
+        + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v := by
+    rw [CentExt.mul_fib, hAf, hMx0f, add_zero, kappa0_cc_one dat hdat _ _ hAcc, hAv, hMx0bv]
+  have hP2v : (conjP M.x₀ M.g0 * M.x₀ * M.dg).base.v = tS.x₀.v := by
+    rw [CentExt.mul_base, Sd.mul_v, hP1v, hP1cc, one_smul, hdgv,
+      show (Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v + tS.x₀.v
+          + (Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v
+        = tS.x₀.v + ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v
+          + (Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) from by abel,
+      hV₂ ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v), add_zero]
+  have hP2cc : (conjP M.x₀ M.g0 * M.x₀ * M.dg).base.cc = 1 := by
+    rw [CentExt.mul_base, Sd.mul_cc, hP1cc, hdgcc, one_mul]
+  have hP2f : (conjP M.x₀ M.g0 * M.x₀ * M.dg).fib
+      = dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v
+        + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v
+        + (M.d0.fib + dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v)
+        + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v + tS.x₀.v)
+            ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) := by
+    rw [CentExt.mul_fib, hP1f, hdgf, kappa0_cc_one dat hdat _ _ hP1cc, hP1v, hdgv]
+  have hP3v : (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0).base.v = 0 := by
+    rw [CentExt.mul_base, Sd.mul_v, hP2v, hP2cc, one_smul, hd0bv]
+    exact hV₂ tS.x₀.v
+  have hP3cc : (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0).base.cc = 1 := by
+    rw [CentExt.mul_base, Sd.mul_cc, hP2cc, hd0bcc, one_mul]
+  have hP3f : (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0).fib
+      = dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v
+        + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v
+        + (M.d0.fib + dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v)
+        + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v + tS.x₀.v)
+            ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v)
+        + M.d0.fib + q tS.x₀.v := by
+    rw [CentExt.mul_fib, hP2f, kappa0_cc_one dat hdat _ _ hP2cc, hP2v, hd0bv, hdat.f_diag]
+  have hd0sqv : (M.d0 ^ 2).base.v = 0 := by
+    rw [pow_two, CentExt.mul_base, Sd.mul_v, hd0bv, hd0bcc, one_smul]
+    exact hV₂ tS.x₀.v
+  have hd0sqcc : (M.d0 ^ 2).base.cc = 1 := by
+    rw [pow_two, CentExt.mul_base, Sd.mul_cc, hd0bcc, one_mul]
+  have hd0sqf : (M.d0 ^ 2).fib = q tS.x₀.v := by
+    rw [pow_two, CentExt.mul_fib, kappa0_cc_one dat hdat _ _ hd0bcc, hd0bv, hdat.f_diag,
+      CharTwo.add_self_eq_zero, zero_add]
+  have hP4v : (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0 * M.d0 ^ 2).base.v = 0 := by
+    rw [CentExt.mul_base, Sd.mul_v, hP3v, hP3cc, one_smul, hd0sqv, add_zero]
+  have hP4cc : (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0 * M.d0 ^ 2).base.cc = 1 := by
+    rw [CentExt.mul_base, Sd.mul_cc, hP3cc, hd0sqcc, one_mul]
+  have hP4f : (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0 * M.d0 ^ 2).fib
+      = dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v
+        + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v
+        + (M.d0.fib + dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v)
+        + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v + tS.x₀.v)
+            ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v)
+        + M.d0.fib + q tS.x₀.v + q tS.x₀.v := by
+    rw [CentExt.mul_fib, hP3f, hd0sqf, kappa0_cc_one dat hdat _ _ hP3cc, hP3v,
+      hdat.f_zero_left, add_zero]
+  have hh0bv : M.h0.base.v = 0 := by
+    show (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0 * M.d0 ^ 2 * M.hc).base.v = 0
+    rw [CentExt.mul_base, Sd.mul_v, hP4v, hP4cc, one_smul, hhcbase, Sd.one_v, add_zero]
+  have hh0bcc : M.h0.base.cc = 1 := by
+    show (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0 * M.d0 ^ 2 * M.hc).base.cc = 1
+    rw [CentExt.mul_base, Sd.mul_cc, hP4cc, hhcbase, Sd.one_cc, one_mul]
+  have hh0f : M.h0.fib
+      = dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v
+        + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v
+        + (M.d0.fib + dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v)
+        + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v + tS.x₀.v)
+            ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v)
+        + M.d0.fib + q tS.x₀.v + q tS.x₀.v
+        + polar q ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v := by
+    show (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0 * M.d0 ^ 2 * M.hc).fib = _
+    rw [CentExt.mul_fib, hP4f, hhcf, kappa0_cc_one dat hdat _ _ hP4cc, hP4v,
+      hdat.f_zero_left, add_zero]
+  -- assemble the wild word
+  show (M.h0 * M.u1⁻¹ * conjP M.x₁ M.σ * M.c0).fib
+      = q tS.x₀.v + polar q tS.x₀.v ((Marking.sigma2 (sdBaseMarking tS))⁻¹ • tS.x₀.v)
+  rw [hu1, hx1s, inv_one, mul_one, mul_one, CentExt.mul_fib, hh0f, hc0f,
+    kappa0_cc_one dat hdat _ _ hh0bcc, hh0bv, hdat.f_zero_left, add_zero]
+  -- the `ZMod 2` finale: two cocycle instances + the polar identity + `q`-invariance
+  have hcoc1 := hdat.f_cocycle ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v
+    ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v)
+  have hcoc2 := hdat.f_cocycle ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v)
+    ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v
+  rw [hV₂ ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v), hdat.f_zero_left, hdat.f_diag,
+    add_comm ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v] at hcoc2
+  have hpol := hdat.f_polar ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v
+  linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]; try ring_nf))
+    hcoc1 + hcoc2 + hpol + hqg0
+
 end Kappa0Ledger
 
 section Assembly
