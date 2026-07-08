@@ -31,7 +31,7 @@ namespace SectionEight
 
 namespace AffineTLift
 
-open CentralObstruction ContCoh WordCohBridge FoxH RStageGammaA
+open CentralObstruction ContCoh WordCohBridge FoxH RStageGammaA WordCoh2
 
 /-! ## A-4.1: the `x₀`-supported section of `H¹_w`  (generic marking level)
 
@@ -202,6 +202,63 @@ theorem x0Section_bijective_ramified (t : Marking C) (ht : t.TameRel) (hw : t.Wi
       exact neg_mem hc
 
 end X0Section
+
+/-! ## A-4.2: the κ⁰-ledger, tame value — the base-slice section
+
+The tame relator only walks the `σ`/`τ`-slots; on the `x₀`-supported gauge those have
+zero `V`-part, and `κ⁰` vanishes when both arguments do (`f_zero_left` + `m_zero`), so
+the whole walk stays in the image of the base-slice section hom `sdSec : C →* CentExt κ⁰`
+— the κ⁰-analog of the mixed ledger's `secHom`.  Hence the tame fibre is `0`. -/
+
+section Kappa0Ledger
+
+variable {C V : Type*} [Group C] [AddCommGroup V] [DistribMulAction C V]
+variable {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+
+/-- The base-slice section `cc ↦ ((0, cc), 0)` is a homomorphism into `CentExt κ⁰`. -/
+noncomputable def sdSec : C →* CentExt (kappa0Cocycle dat hdat) where
+  toFun cc := (Sd.mk (0 : V) cc, 0)
+  map_one' := rfl
+  map_mul' cc dd := by
+    refine (CentExt.ext ?_ ?_).symm
+    · refine Sd.ext ?_ rfl
+      show (0 : V) + cc • (0 : V) = 0
+      rw [smul_zero, add_zero]
+    · show (0 : ZMod 2) + 0 + (kappa0Cocycle dat hdat).κ (Sd.mk (0 : V) cc) (Sd.mk (0 : V) dd)
+        = 0
+      rw [kappa0Cocycle_κ]
+      show (0 : ZMod 2) + 0 + (dat.f (0 : V) (cc • (0 : V)) + dat.m cc (0 : V)) = 0
+      rw [smul_zero, hdat.f_zero_left, hdat.m_zero]
+      decide
+
+@[simp] theorem sdSec_base (cc : C) : (sdSec dat hdat cc).base = Sd.mk (0 : V) cc := rfl
+
+@[simp] theorem sdSec_fib (cc : C) : (sdSec dat hdat cc).fib = 0 := rfl
+
+/-- **The tame κ⁰-value is base-slice**: at any lifted marking whose `σ`/`τ`-slots have
+zero `V`-part, the tame relator value is the `sdSec`-image of the `C`-level tame value —
+its fibre vanishes (no `TameRel` needed). -/
+theorem liftMark_kappa0_tameValue_fib (t : Marking (Sd C V))
+    (hσ : t.σ.v = 0) (hτ : t.τ.v = 0) :
+    (liftMark t (kappa0Cocycle dat hdat)).tameValue.fib = 0 := by
+  have hσ' : (liftMark t (kappa0Cocycle dat hdat)).σ = sdSec dat hdat t.σ.cc := by
+    refine CentExt.ext (Sd.ext hσ rfl) rfl
+  have hτ' : (liftMark t (kappa0Cocycle dat hdat)).τ = sdSec dat hdat t.τ.cc := by
+    refine CentExt.ext (Sd.ext hτ rfl) rfl
+  show (conjP (liftMark t (kappa0Cocycle dat hdat)).τ
+      (liftMark t (kappa0Cocycle dat hdat)).σ
+    * ((liftMark t (kappa0Cocycle dat hdat)).τ ^ 2)⁻¹).fib = 0
+  rw [hσ', hτ', ← Marking.map_conjP, ← map_pow, ← map_inv, ← map_mul]
+  rfl
+
+/-- The A-3 interface form: the FIRST relator-`z` component vanishes on base-slice
+`σ`/`τ`-slots. -/
+theorem relZPair_kappa0_fst_eq_zero [Finite C] [Finite V] (t : Marking (Sd C V))
+    (hσ : t.σ.v = 0) (hτ : t.τ.v = 0) :
+    (relZPair t (kappa0Cocycle dat hdat)).1 = 0 :=
+  liftMark_kappa0_tameValue_fib dat hdat t hσ hτ
+
+end Kappa0Ledger
 
 section Assembly
 
