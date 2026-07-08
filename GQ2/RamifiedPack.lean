@@ -1690,7 +1690,173 @@ theorem card_fixed_eq (hmon : P.Monic) {aa : ℕ} (hord : orderOf σ = 2 ^ aa)
   rw [show Nat.card {w : Fin n → AdjoinRoot P // β w = w} = Nat.card ↥Vfix from
     Nat.card_congr (Equiv.subtypeEquivRight (fun w => Iff.rfl)), hcount, huv]
 
+/-- Semilinearity follows from the root case (additive + polynomial bootstrap). -/
+theorem semilinear_of_root_case
+    (hx : ∀ w, β (AdjoinRoot.root P • w) = σ (AdjoinRoot.root P) • β w) :
+    ∀ (y : AdjoinRoot P) (w : Fin n → AdjoinRoot P), β (y • w) = σ y • β w := by
+  have hxn : ∀ (m : ℕ) (w : Fin n → AdjoinRoot P),
+      β (AdjoinRoot.root P ^ m • w) = σ (AdjoinRoot.root P ^ m) • β w := by
+    intro m
+    induction m with
+    | zero =>
+      intro w
+      rw [pow_zero, one_smul, map_one, one_smul]
+    | succ mm ih =>
+      intro w
+      rw [pow_succ', mul_smul, hx, ih, smul_smul, ← map_mul]
+  intro y w
+  obtain ⟨g, rfl⟩ := AdjoinRoot.mk_surjective y
+  induction g using Polynomial.induction_on' with
+  | add p q hp hq =>
+    rw [map_add, add_smul, map_add β (AdjoinRoot.mk P p • w) (AdjoinRoot.mk P q • w), hp, hq,
+      map_add σ (AdjoinRoot.mk P p) (AdjoinRoot.mk P q), add_smul]
+  | monomial mm a' =>
+    rcases (show ∀ x : ZMod 2, x = 0 ∨ x = 1 from by decide) a' with rfl | rfl
+    · rw [Polynomial.monomial_zero_right, map_zero]
+      simp
+    · rw [← Polynomial.X_pow_eq_monomial, map_pow, AdjoinRoot.mk_X]
+      exact hxn mm w
+
 end DescentCount
+
+/-! ## §VUCount: the pack `hVU` — `#V^U = 2^{r·sV}` (design doc §5, assembled) -/
+
+section VUCount
+
+open Polynomial
+
+variable {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
+variable (t : C) (P : Polynomial (ZMod 2)) [Fact (Irreducible P)]
+
+/-- **The pack `hVU`**: at a faithful simple isotypic ramified tame action, the fixed
+vectors of `U := powOmega2 s` number exactly `2^{r·sV}` — the σ-semilinear descent count
+transported through the isotypic equivalence. -/
+theorem card_fixed_powOmega2 [Finite C] [Finite V] (s : C)
+    (hgen : Subgroup.closure ({s, t} : Set C) = ⊤)
+    (hrel : s⁻¹ * t * s = t ^ 2)
+    (hfaith : ∀ g : C, (∀ v : V, g • v = v) → g = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ g : C, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hmon : P.Monic) (hdvd : P ∣ (X ^ orderOf t - 1 : Polynomial (ZMod 2)))
+    {a r : ℕ} (hr : Odd r) (ha : 1 ≤ a) (hfar : P.natDegree = 2 ^ a * r)
+    {sV : ℕ} (hsV : 1 ≤ sV) (e : V ≃+ (Fin sV → AdjoinRoot P))
+    (he : ∀ (v : V) (j : Fin sV), e (t • v) j = AdjoinRoot.root P * e v j) :
+    Nat.card {v : V // powOmega2 s • v = v} = 2 ^ (r * sV) := by
+  classical
+  have hpos : 0 < orderOf t := orderOf_pos t
+  have hdeg : 0 < P.natDegree := by
+    rw [hfar]
+    rcases hr with ⟨j, hj⟩
+    exact Nat.mul_pos (Nat.two_pow_pos a) (by omega)
+  set k := orderOf s with hk
+  have hkpos : 0 < k := orderOf_pos s
+  set ω := omega2Exp k with hω
+  set U := powOmega2 s with hUdef
+  have hU : U = s ^ ω := rfl
+  -- the divisibility replay (as in `powOmega2_pow_two_pow_eq_one`)
+  have htk : t ^ 2 ^ k = t ^ 1 := by
+    have h1 := inv_pow_conj s t hrel k
+    rw [show s ^ k = 1 from pow_orderOf_eq_one s, inv_one, one_mul, mul_one] at h1
+    rw [pow_one]
+    exact h1.symm
+  have hxk : AdjoinRoot.root P ^ 2 ^ k = AdjoinRoot.root P := by
+    have h := root_pow_eq_of_t_pow_eq t P htk hsV e he
+    rwa [pow_one] at h
+  have hfk : P.natDegree ∣ k := natDegree_dvd_of_root_pow P hmon hdeg hxk
+  have hrk : r ∣ k := dvd_trans ⟨2 ^ a, by rw [hfar]; ring⟩ hfk
+  have hrodd : ¬(2 : ℕ) ∣ r := by
+    rcases hr with ⟨j, hj⟩
+    omega
+  have hrω : r ∣ ω :=
+    dvd_trans (Nat.dvd_ordCompl_of_dvd_not_dvd hrk hrodd) (oddPart_dvd_omega2Exp k)
+  -- `ω` is odd
+  have h2k : (2 : ℕ) ∣ k :=
+    dvd_trans (dvd_trans (dvd_pow_self 2 (by omega : a ≠ 0)) ⟨r, hfar⟩) hfk
+  have hv2k : k.factorization 2 ≠ 0 :=
+    (Nat.Prime.factorization_pos_of_dvd Nat.prime_two hkpos.ne' h2k).ne'
+  have hωodd : Odd ω := by
+    have h1 := omega2Exp_modEq_one hkpos.ne' hv2k
+    have h2 : ω ≡ 1 [MOD 2] := h1.of_dvd (dvd_pow_self 2 hv2k)
+    rw [Nat.odd_iff]
+    unfold Nat.ModEq at h2
+    omega
+  -- `U^{2^a} = 1` (increment 5a)
+  have hW1 : U ^ 2 ^ a = 1 :=
+    powOmega2_pow_two_pow_eq_one t P s hgen hrel hfaith hsimple hmon hdvd hr hfar hsV e he
+  -- the twist and its order
+  set σ := frobEquiv P hmon ^ ω with hσ
+  have hord : orderOf σ = 2 ^ a := orderOf_frobEquiv_pow P hmon hdeg hωodd hrω hfar
+  -- the transported `U⁻¹`-action
+  set β : (Fin sV → AdjoinRoot P) ≃+ (Fin sV → AdjoinRoot P) :=
+    (e.symm.trans (DistribMulAction.toAddEquiv V U⁻¹)).trans e with hβ
+  have hβapp : ∀ w, β w = e (U⁻¹ • e.symm w) := fun w => rfl
+  -- semilinearity at the root
+  have hconj : ∀ v : V, U⁻¹ • (t • v) = (t ^ 2 ^ ω) • (U⁻¹ • v) := by
+    intro v
+    have h1 : U⁻¹ * t * U = t ^ 2 ^ ω := by
+      rw [hU]
+      exact inv_pow_conj s t hrel ω
+    calc U⁻¹ • (t • v) = (U⁻¹ * t) • v := (mul_smul _ _ _).symm
+      _ = (U⁻¹ * t * U * U⁻¹) • v := by
+          rw [show U⁻¹ * t * U * U⁻¹ = U⁻¹ * t from by group]
+      _ = (t ^ 2 ^ ω * U⁻¹) • v := by rw [h1]
+      _ = (t ^ 2 ^ ω) • (U⁻¹ • v) := mul_smul _ _ _
+  have hesymm_x : ∀ w : Fin sV → AdjoinRoot P,
+      e.symm (AdjoinRoot.root P • w) = t • e.symm w := by
+    intro w
+    have h1 : e (t • e.symm w) = AdjoinRoot.root P • w := by
+      funext j
+      show e (t • e.symm w) j = (AdjoinRoot.root P • w) j
+      rw [he (e.symm w) j, AddEquiv.apply_symm_apply]
+      rfl
+    rw [← h1, AddEquiv.symm_apply_apply]
+  have hxcase : ∀ w, β (AdjoinRoot.root P • w) = σ (AdjoinRoot.root P) • β w := by
+    intro w
+    rw [hβapp, hβapp, hesymm_x, hconj]
+    have h2 : ∀ v : V, e ((t ^ 2 ^ ω) • v) = (AdjoinRoot.root P ^ 2 ^ ω) • e v := by
+      intro v
+      funext j
+      show e ((t ^ 2 ^ ω) • v) j = (AdjoinRoot.root P ^ 2 ^ ω • e v) j
+      rw [equiv_pow_smul t P e he (2 ^ ω) v j]
+      rfl
+    rw [h2, hσ, frobEquiv_pow_apply]
+  have hsemi := semilinear_of_root_case P σ β hxcase
+  -- the iterate order
+  have hβord : (⇑β)^[2 ^ a] = id := by
+    have hiter : ∀ (i : ℕ) (w : Fin sV → AdjoinRoot P),
+        (⇑β)^[i] w = e ((U⁻¹) ^ i • e.symm w) := by
+      intro i
+      induction i with
+      | zero =>
+        intro w
+        rw [Function.iterate_zero_apply, pow_zero, one_smul, AddEquiv.apply_symm_apply]
+      | succ kk ihk =>
+        intro w
+        rw [Function.iterate_succ_apply', ihk, hβapp, AddEquiv.symm_apply_apply, ← mul_smul,
+          ← pow_succ']
+    funext w
+    rw [hiter (2 ^ a) w, inv_pow, hW1, inv_one, one_smul, AddEquiv.apply_symm_apply]
+    rfl
+  -- fixed-set transport
+  have hfixiff : ∀ v : V, (U • v = v) ↔ β (e v) = e v := by
+    intro v
+    rw [hβapp, AddEquiv.symm_apply_apply]
+    constructor
+    · intro h
+      have h2 : U⁻¹ • v = v := by
+        conv_lhs => rw [← h]
+        rw [inv_smul_smul]
+      rw [h2]
+    · intro h
+      have h2 : U⁻¹ • v = v := e.injective h
+      calc U • v = U • (U⁻¹ • v) := by rw [h2]
+        _ = v := smul_inv_smul U v
+  have hcongr : Nat.card {v : V // U • v = v}
+      = Nat.card {w : Fin sV → AdjoinRoot P // β w = w} :=
+    Nat.card_congr (Equiv.subtypeEquiv e.toEquiv (fun v => hfixiff v))
+  rw [hcongr, card_fixed_eq P σ β hmon hord hsemi hβord,
+    card_fixedField_zpowers P hmon σ hord hfar, ← pow_mul]
+
+end VUCount
 
 end RamifiedPack
 
