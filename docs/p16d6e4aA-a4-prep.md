@@ -91,3 +91,59 @@ as the local discharge.
 * The (140)-side consumption ((126)–(132), pp. 39–41) is fully banked plumbing
   (`lemma_8_5`-shape Gauss transform; `phase140_from_residues`); nothing further from
   the paper is needed there.
+
+
+## 4. A-4 increment map (post-skeleton, Fable session 4b — the seams)
+
+Skeleton LANDED (`139f6de`): `GQ2/GaussZFinalGammaA.lean` — the shells
+`gaussZResidue_gammaA_{unramified,ramified}` are PROVED; the two seams
+`sum_sign_QZeroBar_gammaA_{unramified,ramified}` (`∑ sign(Q̄⁰) = ∓2^m` over `Z¹⧸B¹`)
+are the remaining sorries.  **Survey correction: `FoxHeisenberg.lean` is SORRY-FREE**
+(its allowlist entry + the `lemma_5_13_ramified` docstring status note are stale) — the
+ENTIRE mixed-ledger toolkit is proved and consumable.
+
+Increment plan, with the banked template for each piece:
+
+* **A-4.1 (the section reindex)**: `Z¹⧸B¹ ≃ x₀-supported tuples`.
+  Banked: `lemma_5_13_ramified` (∃!-x₀-supported representative, ramified `V^T = 0`) and
+  its split sibling (`lemma_5_13_split`) — consume at `t := markC θ` through A-1's
+  `h1CoordGammaA` (+ `card_H1w_gammaA` if the count route is cheaper than ∃!).
+  Hypothesis supply: `ht`/`hw` from `markC_admissible`; `hx0`/`hx1` via
+  `wild_acts_trivially` (needs `Pro2Core (markC θ)` — from the frame's 2-kernel) or the
+  block structure; `htau`-forms from `hunram`/`hram` through the `hfacρ`-factorization;
+  `hTodd` (ram) from the tame package's odd order (`powOmega2`-triviality of `τ`).
+  Output: the finsum over the quotient = finsum over `V` of the section values.
+* **A-4.2 (tame seam value)**: `(liftMark (graph-marking) κ⁰).tameValue.fib = 0` on the
+  section.  Template: `heisMarking_tameValue_z_eq_zero` (FoxHeisenberg:2786) — the tame
+  word `στσ⁻¹τ⁻²` walks only σ/τ-slots, whose `Sd`-elements have zero `V`-coordinate, and
+  `κ⁰((0,cc),(w,dd)) = m_cc(w)`-terms telescope; expect the same "all-slots-base" argument
+  with `f_zero_left` + `m_zero`/`m_one`.
+* **A-4.3 (wild seam value, split)**: `.wildValue.fib = q(v)` under `hunram` (⟹ `U = 1`
+  via `powOmega2`-oddness, `P + 1 = 0`).  Template: `heisMarking_h0_z` + the peel of
+  `heisMarking_wildValue_z` (FoxHeisenberg:2400–2530) with the central accumulation by
+  `κ⁰`-values instead of `λ`-pairings; the `h₀ ↦ q(v)` line is `classTwoIdentity`
+  (:1786) — the paper's "extraspecial case of lemma 5.3"; `[d₀,z₀] ↦ 0` mirrors
+  `heisMarking_c0_z`.
+* **A-4.4 (wild seam value, ramified)**: `.wildValue.fib = q(v) + B(v, Uv)`
+  (`= qDouble q̄ (sigma2 •) v`).  Template: `heisMarking_wildValue_z_ramified` +
+  `heisMarking_h0_z_ramified`-analog (the `conjP_*_of_slice` U-tracking peel);
+  `hTodd` threads as in `lemma_5_13_pairing_ramified`.
+* **A-4.5 (the counts)**: split — `zeroCount q̄ = 2^{2m−1} − 2^{m−1}` is LITERALLY
+  `prop_6_9_unramified` (no transport; the seam's form IS `q̄`); ram —
+  `lemma_6_8` cl. 4 (`arf (qDouble q̄ U) = 0`) + `gaussSum_eq_of_arf_eq` + the standard
+  even-dim zero-count (`gaussSum_eq`-style, as `sum_sign_Q0loc_ramified` did).
+  Then `∑ sign = −(#nonzeros − #zeros)`-bookkeeping exactly as `GaussZLocal`'s (D)/(E).
+* **A-4.6 (consumer)**: swap ThmFourTwo's `G0`/`hGaussZ*` obtain-sorry for
+  `⟨∓2^m, gaussZResidue_gammaA_*, gaussZResidue_local_*⟩` with the un/ram dichotomy
+  decided per-block by the tame package (the `hpack` existence at both sources + the
+  block's `hunram/hram` dichotomy — the last plumbing).  Then: allowlist-remove
+  `GaussZFinalGammaA` + `ThmFourTwo`; `thm_4_2` axioms re-audit; e4a → e4 → close;
+  **Theorem 1.2's literal chain complete** modulo the §2/§10 statement stubs.
+
+⚠ open design point for A-4.2–.4: the `κ⁰`-ledger works in `CentExt (kappa0Cocycle dat
+hdat)` over `Sd C V` — the per-factor lemmas (`.fib`/`.v`-coordinates of `d₀, z₀, u₁, h₀,
+c₀` at the graph marking) must be built fresh (the `HeisLift` ones are for the mixed
+group), but each is a mechanical mirror of its `heisMarking_*` counterpart with
+`f`/`m`-values in place of `λ`-pairings; `powOmega2_secHom_z`-style base-slice facts
+hold verbatim (`Sd`-elements with zero `V`-part form a subgroup containing the
+σ/τ/x₁-images).
