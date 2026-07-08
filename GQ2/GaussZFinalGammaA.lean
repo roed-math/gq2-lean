@@ -119,6 +119,88 @@ theorem x0Section_bijective_split (t : Marking C) (ht : t.TameRel) (hw : t.WildR
       · show (0 : V) - z.1 3 = 0
         rw [h3, sub_zero]
 
+/-- **The `x₀`-supported tuples are word cocycles** (ramified regime): both `d¹`-rows
+vanish on the section by the closed forms (`d1Fun_tame` involves only the `σ`/`τ`-slots;
+the ramified wild row `liftMarking_wildValue_u_ramified` is `σ⁻¹ • x₃`). -/
+theorem x0Supported_mem_Z1w_ramified (t : Marking C) (ht : t.TameRel)
+    (hV₂ : ∀ v : V, v + v = 0) [Finite V]
+    (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v)
+    (htau : ∀ v : V, t.τ • v = v → v = 0)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (v : V) :
+    x0Supported v ∈ Z1w (A := V) t := by
+  rw [Z1w, AddMonoidHom.mem_ker,
+    show d1 t (x0Supported v) = d1Fun t (x0Supported v) from rfl]
+  refine Prod.ext ?_ ?_
+  · rw [d1Fun_tame t ht (x0Supported v)]
+    show t.σ⁻¹ • (t.τ • (0 : V)) - t.σ⁻¹ • (0 : V) + t.σ⁻¹ • (0 : V)
+      - ((0 : V) + t.τ • (0 : V)) = (0 : V × V).1
+    simp
+  · rw [show (d1Fun t (x0Supported v)).2 = (liftMarking t (x0Supported v)).wildValue.u
+        from rfl,
+      liftMarking_wildValue_u_ramified t (x0Supported v) hV₂ hx0 hx1 htau hTodd]
+    show t.σ⁻¹ • (0 : V) = (0 : V × V).2
+    simp
+
+/-- **The `x₀`-supported section of `H¹_w` is bijective** (ramified regime): both halves
+from `lemma_5_13_ramified`'s unique normal form. -/
+theorem x0Section_bijective_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (hV₂ : ∀ v : V, v + v = 0) [Finite V]
+    (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v)
+    (htau : ∀ v : V, t.τ • v = v → v = 0)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) :
+    Function.Bijective (fun v : V => h1wMk t
+      ⟨x0Supported v, x0Supported_mem_Z1w_ramified t ht hV₂ hx0 hx1 htau hTodd v⟩) := by
+  have hnf := lemma_5_13_ramified t ht hw hV₂ hx0 hx1 htau hTodd
+  constructor
+  · -- injective: apply the unique-witness clause at `x := x0Supported (v − v')`
+    intro v v' hvv'
+    have hmem := (h1wMk_eq_iff _ _).mp hvv'
+    have hdiff : ((⟨x0Supported v,
+          x0Supported_mem_Z1w_ramified t ht hV₂ hx0 hx1 htau hTodd v⟩
+        - ⟨x0Supported v',
+          x0Supported_mem_Z1w_ramified t ht hV₂ hx0 hx1 htau hTodd v'⟩
+        : ↥(Z1w (A := V) t)) : Fin 4 → V) = x0Supported (v - v') := by
+      funext i
+      show x0Supported v i - x0Supported v' i = x0Supported (v - v') i
+      fin_cases i <;> simp [x0Supported]
+    rw [hdiff] at hmem
+    -- `x0Supported (v − v') ∈ Z1w` with two normal-form witnesses `v − v'` and `0`
+    obtain ⟨cne, -, huniq⟩ :=
+      hnf (x0Supported (v - v'))
+        (x0Supported_mem_Z1w_ramified t ht hV₂ hx0 hx1 htau hTodd (v - v'))
+    have h1 : (v - v') = cne := huniq (v - v') (by
+      show x0Supported (v - v') - x0Supported (v - v') ∈ B1w (A := V) t
+      rw [sub_self]
+      exact zero_mem _)
+    have h2 : (0 : V) = cne := huniq 0 (by
+      show x0Supported (v - v') - x0Supported (0 : V) ∈ B1w (A := V) t
+      rw [show x0Supported (0 : V) = (0 : Fin 4 → V) from by
+          funext i; fin_cases i <;> simp [x0Supported],
+        sub_zero]
+      exact hmem)
+    exact sub_eq_zero.mp (h1.trans h2.symm)
+  · -- surjective: the normal-form witness of any representative
+    intro y
+    induction y using QuotientAddGroup.induction_on with
+    | H z =>
+      obtain ⟨c, hc, -⟩ := hnf z.1 z.2
+      refine ⟨c, ?_⟩
+      show h1wMk t ⟨x0Supported c, _⟩ = QuotientAddGroup.mk z
+      rw [show (QuotientAddGroup.mk z
+          : ↥(Z1w (A := V) t) ⧸ (B1w (A := V) t).addSubgroupOf (Z1w (A := V) t))
+        = h1wMk t z from rfl,
+        h1wMk_eq_iff]
+      show ((⟨x0Supported c, _⟩ - z : ↥(Z1w (A := V) t)) : Fin 4 → V) ∈ B1w (A := V) t
+      have hneg : ((⟨x0Supported c,
+            x0Supported_mem_Z1w_ramified t ht hV₂ hx0 hx1 htau hTodd c⟩
+          - z : ↥(Z1w (A := V) t)) : Fin 4 → V)
+          = -(z.1 - x0Supported c) := by
+        funext i
+        show x0Supported c i - z.1 i = -(z.1 i - x0Supported c i)
+        abel
+      rw [hneg]
+      exact neg_mem hc
+
 end X0Section
 
 section Assembly
