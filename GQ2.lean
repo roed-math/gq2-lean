@@ -122,4 +122,5 @@ import GQ2.GaussZCoordGammaA
 import GQ2.IotaGammaA
 import GQ2.GaussZRelatorGammaA
 import GQ2.GaussZFinalGammaA
+import GQ2.GaussZGammaAD
 import GQ2.RamifiedPack
