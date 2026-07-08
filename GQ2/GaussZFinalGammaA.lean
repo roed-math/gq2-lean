@@ -33,6 +33,94 @@ namespace AffineTLift
 
 open CentralObstruction ContCoh WordCohBridge FoxH RStageGammaA
 
+/-! ## A-4.1: the `x₀`-supported section of `H¹_w`  (generic marking level)
+
+The paper's "only `x₀` varies" gauge (Prop 6.5's normalization), as a bijective
+parametrization `V ≃ H¹_w`: membership and bijectivity fall out of the banked
+`lemma_5_13_split` shape characterizations (`Z¹_w = {x₁-row = x₃-row = 0}`,
+`B¹_w = σ-row of coboundaries`).  Ramified twin in the next increment via
+`lemma_5_13_ramified`. -/
+
+section X0Section
+
+variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
+
+/-- **The `x₀`-supported tuples are word cocycles** (split regime): immediate from the
+`lemma_5_13_split` `Z¹`-shape (`x 1 = x 3 = 0`). -/
+theorem x0Supported_mem_Z1w_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V) [Finite V]
+    (hcore : t.Pro2Core) (htau : ∀ v : V, t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v)
+    (hVS : ∀ v : V, t.σ • v = v → v = 0) (v : V) :
+    x0Supported v ∈ Z1w (A := V) t := by
+  rw [((lemma_5_13_split t ht hw hV₂ hsimple hcore htau hU hVS).1 (x0Supported v))]
+  exact ⟨rfl, rfl⟩
+
+/-- The `H¹_w`-class equality criterion in `h1wMk` vocabulary (`H1w` is a semireducible
+`def`, so the quotient lemmas do not elaborate against it directly — the
+`GaussZLocal.H1mk_eq_iff` idiom). -/
+theorem h1wMk_eq_iff {t : Marking C} [Finite V] (x y : ↥(Z1w (A := V) t)) :
+    h1wMk t x = h1wMk t y
+      ↔ (x - y : ↥(Z1w (A := V) t)).1 ∈ B1w (A := V) t := by
+  show (QuotientAddGroup.mk x
+      : ↥(Z1w (A := V) t) ⧸ (B1w (A := V) t).addSubgroupOf (Z1w (A := V) t))
+    = QuotientAddGroup.mk y ↔ _
+  rw [QuotientAddGroup.eq_iff_sub_mem]
+  exact Iff.rfl
+
+/-- **The `x₀`-supported section of `H¹_w` is bijective** (split regime): injectivity from
+the `B¹`-shape (coboundaries live in the `σ`-row, so an `x₀`-row difference must vanish);
+surjectivity by normalizing the `σ`-row away (`(σ − 1)` is onto by `hVS` + finiteness). -/
+theorem x0Section_bijective_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+    (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V) [Finite V]
+    (hcore : t.Pro2Core) (htau : ∀ v : V, t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v)
+    (hVS : ∀ v : V, t.σ • v = v → v = 0) :
+    Function.Bijective (fun v : V => h1wMk t
+      ⟨x0Supported v, x0Supported_mem_Z1w_split t ht hw hV₂ hsimple hcore htau hU hVS v⟩) := by
+  have hshape := lemma_5_13_split t ht hw hV₂ hsimple hcore htau hU hVS
+  constructor
+  · -- injective: an `x₀`-row coboundary difference is `σ`-row–shaped, hence zero
+    intro v v' hvv'
+    have hmem := (h1wMk_eq_iff _ _).mp hvv'
+    obtain ⟨w, hw'⟩ := (hshape.2 _).mp hmem
+    have h2 := congrFun hw' 2
+    have h0 : v - v' = (0 : V) := by
+      simpa [x0Supported] using h2
+    exact sub_eq_zero.mp h0
+  · -- surjective: normalize the `σ`-row away
+    intro y
+    induction y using QuotientAddGroup.induction_on with
+    | H z =>
+      obtain ⟨h1, h3⟩ := (hshape.1 z.1).mp z.2
+      have hsurj : Function.Surjective (fun w : V => t.σ • w - w) :=
+        Finite.injective_iff_surjective.mp (fun a b hab => by
+          have hfix : t.σ • (a - b) = a - b := by
+            rw [smul_sub, sub_eq_sub_iff_sub_eq_sub]
+            exact hab
+          exact sub_eq_zero.mp (hVS (a - b) hfix))
+      obtain ⟨w, hw'⟩ := hsurj (z.1 0)
+      refine ⟨z.1 2, ?_⟩
+      show h1wMk t ⟨x0Supported (z.1 2), _⟩ = QuotientAddGroup.mk z
+      rw [show (QuotientAddGroup.mk z
+          : ↥(Z1w (A := V) t) ⧸ (B1w (A := V) t).addSubgroupOf (Z1w (A := V) t))
+        = h1wMk t z from rfl]
+      rw [h1wMk_eq_iff]
+      refine (hshape.2 _).mpr ⟨-w, ?_⟩
+      have hw'' : t.σ • w - w = z.1 0 := hw'
+      funext i
+      show x0Supported (z.1 2) i - z.1 i = _
+      fin_cases i
+      · show (0 : V) - z.1 0 = t.σ • (-w) - (-w)
+        rw [smul_neg, ← hw'']
+        abel
+      · show (0 : V) - z.1 1 = 0
+        rw [h1, sub_zero]
+      · show z.1 2 - z.1 2 = 0
+        exact sub_self _
+      · show (0 : V) - z.1 3 = 0
+        rw [h3, sub_zero]
+
+end X0Section
+
 section Assembly
 
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
