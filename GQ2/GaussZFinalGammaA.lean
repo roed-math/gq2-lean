@@ -886,6 +886,85 @@ theorem liftMark_kappa0_wildValue_fib_ramified [Finite C] [Finite V]
 
 end Kappa0Ledger
 
+/-! ## A-4.5 bricks: the `V`-indexed signed count and the `qDouble` orientation bridge
+
+En-free pieces of the seam assembly: the `finsum_sign_eq` extraction re-indexed by a plain
+finite type (the `x₀`-supported section makes the Gauss domain literally `V`), its two
+pinned-count finales (`∓2^m`), and the `U⁻¹`/`U` orientation identification that matches
+A-4.4b's Wall double to `qDouble`. -/
+
+section CountBricks
+
+/-- The signed-sum extraction over a plain finite type: with `zeroCount q` and `#V` known,
+`∑ᶠ sign(q v) = 2·zeroCount − #V` (the `GaussZLocal.finsum_sign_eq` shape, En-free). -/
+theorem finsum_sign_eq_count {V : Type*} [AddCommGroup V] [Finite V] (q : V → ZMod 2)
+    (zc : ℕ) (hzc : zeroCount q = zc) {n : ℕ} (hn : Nat.card V = n) :
+    ∑ᶠ v : V, sign (q v) = 2 * (zc : ℤ) - n := by
+  classical
+  haveI : Fintype V := Fintype.ofFinite _
+  rw [finsum_eq_sum_of_fintype]
+  have hsign : ∀ s : ZMod 2, sign s = QuadraticFp2.sign s := by decide
+  calc (∑ v : V, sign (q v))
+      = ∑ v : V, QuadraticFp2.sign (q v) := Finset.sum_congr rfl fun v _ => hsign _
+    _ = 2 * (zc : ℤ) - n := by
+        have hge := gaussSum_eq (V := V) q
+        unfold QuadraticFp2.gaussSum at hge
+        rw [hge, hzc, ← Nat.card_eq_fintype_card, hn]
+
+/-- **The minus finale**: `∑ᶠ sign = −2^m` from the unramified zero count
+`2^{2m−1} − 2^{m−1}` (`prop_6_9_unramified` / `zeroCount_of_arf_one`'s value). -/
+theorem finsum_sign_eq_neg_of_zeroCount {V : Type*} [AddCommGroup V] [Finite V] (q : V → ZMod 2)
+    (m : ℕ) (hm : 1 ≤ m) (hzc : zeroCount q = 2 ^ (2 * m - 1) - 2 ^ (m - 1))
+    (hcard : Nat.card V = 2 ^ (2 * m)) :
+    ∑ᶠ v : V, sign (q v) = -(2 ^ m : ℤ) := by
+  rw [finsum_sign_eq_count q _ hzc hcard]
+  have hle : (2 : ℕ) ^ (m - 1) ≤ 2 ^ (2 * m - 1) :=
+    Nat.pow_le_pow_right (by norm_num) (by omega)
+  have e1 : (2 : ℤ) ^ (2 * m) = 2 * 2 ^ (2 * m - 1) := by
+    rw [← pow_succ']
+    congr 1
+    omega
+  have e2 : (2 : ℤ) ^ m = 2 * 2 ^ (m - 1) := by
+    rw [← pow_succ']
+    congr 1
+    omega
+  push_cast [Nat.cast_sub hle]
+  linarith [e1, e2]
+
+/-- **The plus finale**: `∑ᶠ sign = +2^m` from the ramified zero count
+`2^{2m−1} + 2^{m−1}` (`prop_6_9_ramified` / `zeroCount_of_arf_zero`'s value). -/
+theorem finsum_sign_eq_pos_of_zeroCount {V : Type*} [AddCommGroup V] [Finite V] (q : V → ZMod 2)
+    (m : ℕ) (hm : 1 ≤ m) (hzc : zeroCount q = 2 ^ (2 * m - 1) + 2 ^ (m - 1))
+    (hcard : Nat.card V = 2 ^ (2 * m)) :
+    ∑ᶠ v : V, sign (q v) = (2 ^ m : ℤ) := by
+  rw [finsum_sign_eq_count q _ hzc hcard]
+  have e1 : (2 : ℤ) ^ (2 * m) = 2 * 2 ^ (2 * m - 1) := by
+    rw [← pow_succ']
+    congr 1
+    omega
+  have e2 : (2 : ℤ) ^ m = 2 * 2 ^ (m - 1) := by
+    rw [← pow_succ']
+    congr 1
+    omega
+  push_cast
+  linarith [e1, e2]
+
+/-- **The `qDouble` orientation bridge**: for `q` invariant under `U`, the Wall-double twist
+reads the same with `U⁻¹` as with `U` — `B(x, U⁻¹•x) = B(x, U•x)` — so A-4.4b's value
+`q(v) + B(v, σ₂⁻¹•v)` IS `qDouble q (σ₂ • ·)` at `v`. -/
+theorem polar_smul_inv_eq {C : Type*} [Group C] {V : Type*} [AddCommGroup V]
+    [DistribMulAction C V] (q : V → ZMod 2) (U : C) (hUq : ∀ v : V, q (U • v) = q v)
+    (x : V) : polar q x (U⁻¹ • x) = polar q x (U • x) := by
+  have h1 : q (U⁻¹ • x) = q x := by rw [← hUq (U⁻¹ • x), smul_inv_smul]
+  have h2 : q (x + U⁻¹ • x) = q (x + U • x) := by
+    calc q (x + U⁻¹ • x) = q (U • (x + U⁻¹ • x)) := (hUq _).symm
+      _ = q (U • x + x) := by rw [smul_add, smul_inv_smul]
+      _ = q (x + U • x) := by rw [add_comm]
+  show q (x + U⁻¹ • x) + q x + q (U⁻¹ • x) = q (x + U • x) + q x + q (U • x)
+  rw [h2, h1, hUq x]
+
+end CountBricks
+
 section Assembly
 
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
