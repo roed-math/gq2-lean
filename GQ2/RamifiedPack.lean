@@ -144,6 +144,119 @@ theorem conj_eq_two_pow (s t : C)
 
 end TwoPowerConj
 
+/-! ## §PolyFrobenius: the operator-level char-2 Frobenius and kernel stability
+
+Design doc §3: for `P` over `𝔽₂`, `P(φ^{2^j}) = P(φ)^{2^j}` in the endomorphism
+algebra (via `expand` + the trivial Frobenius of `ZMod 2`), so the kernel of `P(t̂)`
+is stable under any `g` with `g⁻¹tg = t^{2^j}` — combined with §TwoPowerConj this
+makes every isotypic component `C`-stable. -/
+
+section PolyFrobenius
+
+open Polynomial
+
+variable {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [Module (ZMod 2) V]
+  [DistribMulAction C V]
+
+/-- The action of `t : C` as a `ZMod 2`-linear endomorphism (any additive map is). -/
+noncomputable def actEnd (t : C) : Module.End (ZMod 2) V :=
+  AddMonoidHom.toZModLinearMap 2 (DistribMulAction.toAddMonoidHom V t)
+
+@[simp] theorem actEnd_apply (t : C) (v : V) : actEnd (V := V) t v = t • v := rfl
+
+/-- `actEnd` turns group powers into endomorphism powers. -/
+theorem actEnd_pow (t : C) (n : ℕ) :
+    actEnd (V := V) (t ^ n) = (actEnd (V := V) t) ^ n := by
+  induction n with
+  | zero =>
+    rw [pow_zero, pow_zero]
+    ext v
+    rw [Module.End.one_apply]
+    show (1 : C) • v = v
+    exact one_smul _ v
+  | succ k ih =>
+    ext v
+    rw [pow_succ, pow_succ, Module.End.mul_apply, ← ih]
+    show (t ^ k * t) • v = actEnd (V := V) (t ^ k) (actEnd (V := V) t v)
+    rw [mul_smul]
+    rfl
+
+/-- The `𝔽₂`-Frobenius is trivial, so `expand` by `2^j` is literally the `2^j`-th
+power of the polynomial. -/
+theorem expand_two_pow_eq_pow (P : Polynomial (ZMod 2)) (j : ℕ) :
+    Polynomial.expand (ZMod 2) (2 ^ j) P = P ^ 2 ^ j := by
+  have h := Polynomial.map_iterateFrobenius_expand (p := 2) P j
+  have hid : iterateFrobenius (ZMod 2) 2 j = RingHom.id (ZMod 2) := by
+    ext x
+    rw [iterateFrobenius_def, RingHom.id_apply]
+    have : ∀ (k : ℕ) (y : ZMod 2), y ^ 2 ^ k = y := by
+      intro k
+      induction k with
+      | zero => intro y; rw [pow_zero, pow_one]
+      | succ i ih =>
+        intro y
+        rw [pow_succ, pow_mul, ih, pow_two]
+        revert y
+        decide
+    exact this j x
+  rwa [hid, Polynomial.map_id] at h
+
+/-- **The operator-level char-2 Frobenius**: evaluating `P` at the `2^j`-th power of an
+endomorphism is the `2^j`-th power of the evaluation. -/
+theorem aeval_pow_two_pow (φ : Module.End (ZMod 2) V) (P : Polynomial (ZMod 2)) (j : ℕ) :
+    Polynomial.aeval (φ ^ 2 ^ j) P = (Polynomial.aeval φ P) ^ 2 ^ j := by
+  calc Polynomial.aeval (φ ^ 2 ^ j) P
+      = Polynomial.aeval φ (Polynomial.expand (ZMod 2) (2 ^ j) P) :=
+        (Polynomial.expand_aeval _ _ _).symm
+    _ = Polynomial.aeval φ (P ^ 2 ^ j) := by rw [expand_two_pow_eq_pow]
+    _ = (Polynomial.aeval φ P) ^ 2 ^ j := map_pow _ _ _
+
+/-- Polynomial evaluation transports across the group action by conjugating the
+operator. -/
+theorem aeval_actEnd_smul (t g : C) (P : Polynomial (ZMod 2)) (v : V) :
+    Polynomial.aeval (actEnd (V := V) t) P (g • v)
+      = g • (Polynomial.aeval (actEnd (V := V) (g⁻¹ * t * g)) P v) := by
+  induction P using Polynomial.induction_on' with
+  | add p q hp hq =>
+    rw [map_add, map_add, LinearMap.add_apply, LinearMap.add_apply, hp, hq, smul_add]
+  | monomial n a =>
+    rw [Polynomial.aeval_monomial, Polynomial.aeval_monomial]
+    show (algebraMap (ZMod 2) (Module.End (ZMod 2) V) a * actEnd (V := V) t ^ n) (g • v)
+      = g • ((algebraMap (ZMod 2) (Module.End (ZMod 2) V) a
+          * actEnd (V := V) (g⁻¹ * t * g) ^ n) v)
+    rw [Module.End.mul_apply, Module.End.mul_apply, ← actEnd_pow, ← actEnd_pow]
+    show (algebraMap (ZMod 2) (Module.End (ZMod 2) V) a) ((t ^ n) • (g • v))
+      = g • ((algebraMap (ZMod 2) (Module.End (ZMod 2) V) a) (((g⁻¹ * t * g) ^ n) • v))
+    have hconj : (t ^ n) • (g • v) = g • (((g⁻¹ * t * g) ^ n) • v) := by
+      rw [show (g⁻¹ * t * g) ^ n = g⁻¹ * t ^ n * g from by
+          have h := conj_pow_eq g⁻¹ t n
+          rw [inv_inv] at h
+          exact h.symm,
+        ← mul_smul, ← mul_smul]
+      congr 1
+      group
+    rw [hconj]
+    show a • (g • (((g⁻¹ * t * g) ^ n) • v)) = g • (a • (((g⁻¹ * t * g) ^ n) • v))
+    rcases (show ∀ x : ZMod 2, x = 0 ∨ x = 1 from by decide) a with rfl | rfl
+    · rw [zero_smul, zero_smul, smul_zero]
+    · rw [one_smul, one_smul]
+
+/-- **Kernel stability** (design doc §3): if `g⁻¹tg = t^{2^j}` then the kernel of any
+`P(t̂)` is `g`-stable — `P(t^{2^j}) = P(t)^{2^j}` and powers of a vanishing operator
+vanish. -/
+theorem smul_mem_ker_aeval {t g : C} {j : ℕ} (hconj : g⁻¹ * t * g = t ^ 2 ^ j)
+    (P : Polynomial (ZMod 2)) (v : V)
+    (hv : Polynomial.aeval (actEnd (V := V) t) P v = 0) :
+    Polynomial.aeval (actEnd (V := V) t) P (g • v) = 0 := by
+  rw [aeval_actEnd_smul, hconj, actEnd_pow, aeval_pow_two_pow]
+  have hzero : ((Polynomial.aeval (actEnd (V := V) t) P) ^ 2 ^ j) v = 0 := by
+    have hpos : 0 < 2 ^ j := Nat.two_pow_pos j
+    obtain ⟨k, hk⟩ : ∃ k, 2 ^ j = k + 1 := ⟨2 ^ j - 1, by omega⟩
+    rw [hk, pow_succ, Module.End.mul_apply, hv, map_zero]
+  rw [hzero, smul_zero]
+
+end PolyFrobenius
+
 end RamifiedPack
 
 end GQ2
