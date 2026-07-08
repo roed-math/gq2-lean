@@ -116,4 +116,5 @@ import GQ2.QuadraticAdjoin
 import GQ2.InvolutionVanish
 import GQ2.InvolutionSplice
 import GQ2.GaussZFinal
+import GQ2.GaussZCoordGammaA
 import GQ2.IotaGammaA
