@@ -396,6 +396,73 @@ theorem exists_single_isotype [Finite V] (s t : C)
 
 end SingleIsotype
 
+/-! ## §AdjoinRootStructure: `V` is a vector space over `D := AdjoinRoot P`
+
+Design doc §2's payoff: with `P(t̂) = 0` on `V` (§SingleIsotype), `V` is a module over
+`𝔽₂[X]/(P) = AdjoinRoot P` — a FIELD — so it is automatically free: `V ≃ D^s`, with
+`t` acting as the scalar `root P`.  No Maschke, no complements. -/
+
+section AdjoinRootStructure
+
+open Polynomial
+
+variable {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [Module (ZMod 2) V]
+  [DistribMulAction C V]
+
+/-- `#(AdjoinRoot P) = 2^{deg P}` for monic `P` over `𝔽₂` (the power basis). -/
+theorem card_adjoinRoot (P : Polynomial (ZMod 2)) (hmon : P.Monic) :
+    Nat.card (AdjoinRoot P) = 2 ^ P.natDegree := by
+  classical
+  have hbasis := AdjoinRoot.powerBasisAux' hmon
+  rw [Nat.card_congr (hbasis.equivFun).toEquiv, Nat.card_eq_fintype_card,
+    Fintype.card_fun]
+  simp
+
+/-- **The free `D`-structure** (design doc §2): with `P` monic irreducible killing `t̂`
+on `V`, there is an additive equivalence `e : V ≃+ (Fin s → AdjoinRoot P)`, `s ≥ 1`,
+under which `t` acts as multiplication by `root P` in every coordinate. -/
+theorem exists_isotypic_equiv [Finite V] (t : C) (P : Polynomial (ZMod 2))
+    (hirr : Irreducible P)
+    (hkill : ∀ v : V, Polynomial.aeval (actEnd (V := V) t) P v = 0)
+    (hVne : ∃ v : V, v ≠ 0) :
+    ∃ (s : ℕ) (e : V ≃+ (Fin s → AdjoinRoot P)),
+      1 ≤ s ∧ ∀ (v : V) (j : Fin s),
+        e (t • v) j = AdjoinRoot.root P * e v j := by
+  classical
+  letI instP : Module (Polynomial (ZMod 2)) V :=
+    Module.compHom V (Polynomial.aeval (actEnd (V := V) t)).toRingHom
+  haveI hfact := Fact.mk hirr
+  have htors : Module.IsTorsionBySet (Polynomial (ZMod 2)) V
+      ((Ideal.span {P} : Ideal (Polynomial (ZMod 2))) : Set (Polynomial (ZMod 2))) := by
+    rw [Module.isTorsionBySet_span_singleton_iff]
+    intro v
+    show (Polynomial.aeval (actEnd (V := V) t)) P v = 0
+    exact hkill v
+  letI instD : Module (AdjoinRoot P) V := htors.module
+  haveI : Module.Finite (AdjoinRoot P) V := Module.Finite.of_finite
+  refine ⟨Module.finrank (AdjoinRoot P) V,
+    (Module.finBasis (AdjoinRoot P) V).equivFun.toAddEquiv, ?_, ?_⟩
+  · -- `s ≥ 1`: a zero-dimensional space is a subsingleton, contradicting `hVne`
+    by_contra hs
+    push_neg at hs
+    have hzero : Module.finrank (AdjoinRoot P) V = 0 := by omega
+    haveI := Module.finrank_zero_iff.mp hzero
+    obtain ⟨v, hv⟩ := hVne
+    exact hv (Subsingleton.elim v 0)
+  · -- `t` acts as the scalar `root P`
+    intro v j
+    have hroot_smul : (AdjoinRoot.root P) • v = t • v := by
+      show (Polynomial.aeval (actEnd (V := V) t)) X v = t • v
+      rw [Polynomial.aeval_X]
+      rfl
+    have hmap := (Module.finBasis (AdjoinRoot P) V).equivFun.map_smul
+      (AdjoinRoot.root P) v
+    show (Module.finBasis (AdjoinRoot P) V).equivFun (t • v) j
+      = AdjoinRoot.root P * (Module.finBasis (AdjoinRoot P) V).equivFun v j
+    rw [← hroot_smul, hmap, Pi.smul_apply, smul_eq_mul]
+
+end AdjoinRootStructure
+
 end RamifiedPack
 
 end GQ2
