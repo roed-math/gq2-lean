@@ -802,6 +802,61 @@ theorem gaussZResidueD_gammaA_ramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Boundar
         gaussZ_reduction htriv_gammaA hfix
     _ = (Nat.card EnD.Vmod : ℤ) * (2 ^ m : ℤ) := by rw [hQbar]
 
+/-! ## P4e: the hypothesis-free G0-obtain at the head-inflated enrichment
+
+The `⟨G0, hGaussZA, hGaussZF⟩`-obtain of the ThmFourTwo R-stage lane, at
+`En := blockEnrichmentD`: `m` comes free from the nonsingular form (A-4.6b), and the
+un/ramified dichotomy is a single `by_cases` on the head-level `F.alpha tameTau`-action —
+ρ- and source-uniform, so ONE case split serves all four twin applications.  `D6` is the
+global `tateDuality 2`; the tame-unit orientation (needed by the local ramified twin) is
+carried as a hypothesis — it is provable at the concrete `boundaryMapsWitness`
+(`tameUnitOrientation_witness`), the P5 consumer's discharge point. -/
+
+/-- **The G0-obtain at `blockEnrichmentD`** (P4e): shared `G0 = ∓2^m` with the four
+`gaussZResidueD_*` twins dispatched by the head dichotomy. -/
+theorem gaussZ_obtain_blockD [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    [IsTopologicalGroup AbsGalQ2]
+    (hE2 : ∀ e : E, e ^ 2 = 1) (B : BoundaryMaps) (F : BoundaryFrame H E)
+    (R : LocalReciprocity) (horient : TameUnitOrientation R B.tameF)
+    (hsimple : ∀ W : AddSubgroup (blockEnrichmentD T Blk hE2 F).Vmod,
+      (∀ g : (blockFrame T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hVne : ∃ v : (blockEnrichmentD T Blk hE2 F).Vmod, v ≠ 0)
+    (hnt : ∃ (g : (blockFrame T Blk hE2).YC) (v : (blockEnrichmentD T Blk hE2 F).Vmod),
+      g • v ≠ v) :
+    ∃ G0 : ℤ,
+      (∀ (l : (blockFrame T Blk hE2).DR) (h : l ≠ (blockFrame T Blk hE2).zeroDR),
+        GaussZResidue B.bA F (blockEnrichmentD T Blk hE2 F) l h G0) ∧
+      (∀ (l : (blockFrame T Blk hE2).DR) (h : l ≠ (blockFrame T Blk hE2).zeroDR),
+        GaussZResidue B.bF F (blockEnrichmentD T Blk hE2 F) l h G0) := by
+  classical
+  letI := blockPS_commGroup Blk
+  letI := headAct T Blk
+  by_cases hex : ∃ l : (blockFrame T Blk hE2).DR, l ≠ (blockFrame T Blk hE2).zeroDR
+  · obtain ⟨l₀, hl₀⟩ := hex
+    have hl₀' : l₀.1 ≠ Blk.R := fun heq => hl₀ (Subtype.ext heq)
+    -- `m` from the nonsingular form on `V` (A-4.6b), `l`-free through `#V`
+    obtain ⟨m, hm, hcard⟩ := exists_one_le_card_eq_two_pow_of_nonsingular
+      (blockQbar T Blk F.alpha F.alpha_surjective l₀ hl₀')
+      (blockHquad T Blk F.alpha F.alpha_surjective l₀ hl₀')
+      (blockHns T Blk F.alpha F.alpha_surjective l₀ hl₀')
+      (blockPS_exp2 T Blk) hVne
+    -- the ρ/source-uniform head dichotomy
+    by_cases hd : ∀ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P),
+        F.alpha tameTau • v = v
+    · exact ⟨-(2 ^ m : ℤ),
+        fun l h => gaussZResidueD_gammaA_unramified T Blk hE2 B F hsimple hVne hnt
+          m hm hcard l h hd,
+        fun l h => gaussZResidueD_local_unramified T Blk hE2 B F (tateDuality 2)
+          hsimple hVne hnt m hm hcard l h hd⟩
+    · push_neg at hd
+      exact ⟨(2 ^ m : ℤ),
+        fun l h => gaussZResidueD_gammaA_ramified T Blk hE2 B F hsimple hVne hnt
+          m hm hcard l h hd,
+        fun l h => gaussZResidueD_local_ramified T Blk hE2 B F (tateDuality 2) R horient
+          hsimple hVne hnt m hm hcard l h hd⟩
+  · push_neg at hex
+    exact ⟨0, fun l h => absurd (hex l) h, fun l h => absurd (hex l) h⟩
+
 end SectionNine
 
 end GQ2
