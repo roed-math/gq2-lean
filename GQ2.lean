@@ -73,6 +73,7 @@ import GQ2.MStageCountGammaA
 import GQ2.SectionNine
 import GQ2.BlockEnrichment
 import GQ2.BlockHeadDat
+import GQ2.GaussZFinalD
 import GQ2.ThmFourTwo
 import GQ2.DeepPart
 import GQ2.LocalKummer
