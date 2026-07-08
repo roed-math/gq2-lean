@@ -1426,6 +1426,272 @@ theorem card_fixedField_zpowers (hmon : P.Monic) {aa r : ℕ}
 
 end DescentKit
 
+/-! ## §DescentCount: `#(fixed points of a σ-semilinear automorphism of D^n) = #F^n`
+
+The abstract Route-A descent (design doc §5): for `β : AddAut (D^n)` that is `σ`-semilinear
+(`β(y•w) = σ(y)•β(w)`) with `β^{2^a} = 1` and `σ` of order `2^a`, the fixed set of `β` is an
+`F`-form of `D^n` — `F`-independent fixed vectors are `D`-independent (Dedekind shortening) and
+the fixed set `D`-spans (the trace projector through the `artin_vector` engine on the quotient) —
+so `#Fix(β) = #F^n`. -/
+
+section DescentCount
+
+open Polynomial
+
+variable (P : Polynomial (ZMod 2)) [Fact (Irreducible P)]
+variable {n : ℕ} (σ : AdjoinRoot P ≃ₐ[ZMod 2] AdjoinRoot P)
+  (β : (Fin n → AdjoinRoot P) ≃+ (Fin n → AdjoinRoot P))
+
+/-- Iterated semilinearity: `β^[i](y•w) = σⁱ(y)•β^[i](w)`. -/
+theorem iterate_semilinear
+    (hsemi : ∀ (y : AdjoinRoot P) (w : Fin n → AdjoinRoot P), β (y • w) = σ y • β w)
+    (i : ℕ) (y : AdjoinRoot P) (w : Fin n → AdjoinRoot P) :
+    (⇑β)^[i] (y • w) = (σ ^ i) y • (⇑β)^[i] w := by
+  induction i generalizing y w with
+  | zero => rw [Function.iterate_zero_apply, pow_zero]; rfl
+  | succ i ih =>
+    rw [Function.iterate_succ_apply, hsemi, ih, Function.iterate_succ_apply, pow_succ,
+      AlgEquiv.mul_apply]
+
+/-- Distinct powers of `σ` below its order. -/
+theorem pow_ne_pow_of_orderOf {aa : ℕ} (hord : orderOf σ = 2 ^ aa) :
+    ∀ i < 2 ^ aa, ∀ j < 2 ^ aa, σ ^ i = σ ^ j → i = j := by
+  intro i hi j hj hij
+  have hmod := pow_eq_pow_iff_modEq.mp hij
+  rw [hord] at hmod
+  have := Nat.ModEq.eq_of_lt_of_lt hmod hi hj
+  exact this
+
+/-- The `↥F`-scalar bridge on `D^n`: the subfield scalar acts as its coercion. -/
+theorem coe_smul_fixedField (F : IntermediateField (ZMod 2) (AdjoinRoot P))
+    (c : ↥F) (w : Fin n → AdjoinRoot P) : (↑c : AdjoinRoot P) • w = c • w := by
+  have h := algebraMap_smul (AdjoinRoot P) c w
+  rwa [show algebraMap ↥F (AdjoinRoot P) c = (↑c : AdjoinRoot P) from rfl] at h
+
+/-- **The fixed set of `β` as an `↥F`-submodule** of `D^n` (`F := fixedField ⟨σ⟩`):
+`σ`-fixed scalars pass through `β`. -/
+def fixedSubmodule (hσpos : 0 < orderOf σ)
+    (hsemi : ∀ (y : AdjoinRoot P) (w : Fin n → AdjoinRoot P), β (y • w) = σ y • β w) :
+    Submodule ↥(IntermediateField.fixedField (Subgroup.zpowers σ)) (Fin n → AdjoinRoot P) where
+  carrier := {w | β w = w}
+  zero_mem' := map_zero β
+  add_mem' := fun {w₁ w₂} h1 h2 => by
+    show β (w₁ + w₂) = w₁ + w₂
+    rw [map_add, show β w₁ = w₁ from h1, show β w₂ = w₂ from h2]
+  smul_mem' := fun c w hw => by
+    show β (c • w) = c • w
+    rw [← coe_smul_fixedField P _ c w, hsemi, show β w = w from hw,
+      (mem_fixedField_zpowers_iff P σ hσpos _).mp c.2]
+
+/-- **The Dedekind shortening**: `F`-independent `β`-fixed vectors are `D`-independent. -/
+theorem linearIndependent_of_fixed (hσpos : 0 < orderOf σ)
+    (hsemi : ∀ (y : AdjoinRoot P) (w : Fin n → AdjoinRoot P), β (y • w) = σ y • β w)
+    {ι : Type*} [Fintype ι] (v : ι → (Fin n → AdjoinRoot P))
+    (hfix : ∀ i, β (v i) = v i)
+    (hindF : LinearIndependent ↥(IntermediateField.fixedField (Subgroup.zpowers σ)) v) :
+    LinearIndependent (AdjoinRoot P) v := by
+  classical
+  rw [Fintype.linearIndependent_iff]
+  suffices H : ∀ N : ℕ, ∀ g : ι → AdjoinRoot P,
+      (Finset.univ.filter (fun j => g j ≠ 0)).card ≤ N →
+      ∑ j, g j • v j = 0 → ∀ j, g j = 0 from fun g hg => H _ g le_rfl hg
+  intro N
+  induction N with
+  | zero =>
+    intro g hcard hsum j
+    by_contra hne
+    have hmem : j ∈ Finset.univ.filter (fun l => g l ≠ 0) :=
+      Finset.mem_filter.mpr ⟨Finset.mem_univ j, hne⟩
+    have := Finset.card_pos.mpr ⟨j, hmem⟩
+    omega
+  | succ N ih =>
+    intro g hcard hsum i
+    by_contra hne
+    -- normalize the `i`-coefficient to `1`
+    set h : ι → AdjoinRoot P := fun j => (g i)⁻¹ * g j with hh
+    have hsum2 : ∑ j, h j • v j = 0 := by
+      have : ∑ j, h j • v j = (g i)⁻¹ • ∑ j, g j • v j := by
+        rw [Finset.smul_sum]
+        refine Finset.sum_congr rfl fun j _ => ?_
+        rw [hh, smul_smul]
+      rw [this, hsum, smul_zero]
+    have hhi : h i = 1 := by
+      rw [hh]
+      exact inv_mul_cancel₀ hne
+    -- apply `β`
+    have happ : ∑ j, σ (h j) • v j = 0 := by
+      have h0 := congrArg β hsum2
+      rw [map_sum β (fun j => h j • v j) Finset.univ, map_zero β,
+        Finset.sum_congr rfl (fun j _ => by
+          show β (h j • v j) = σ (h j) • v j
+          rw [hsemi, hfix j])] at h0
+      exact h0
+    -- subtract
+    have hsub : ∑ j, (h j - σ (h j)) • v j = 0 := by
+      have : ∀ j ∈ Finset.univ, (h j - σ (h j)) • v j = h j • v j - σ (h j) • v j :=
+        fun j _ => sub_smul _ _ _
+      rw [Finset.sum_congr rfl this, Finset.sum_sub_distrib, hsum2, happ, sub_zero]
+    -- the shrunk support
+    have hsupp : (Finset.univ.filter (fun j => (h j - σ (h j)) ≠ 0)).card ≤ N := by
+      have hsub' : Finset.univ.filter (fun j => (h j - σ (h j)) ≠ 0)
+          ⊆ (Finset.univ.filter (fun j => g j ≠ 0)).erase i := by
+        intro j hj
+        rw [Finset.mem_filter] at hj
+        refine Finset.mem_erase.mpr ⟨?_, Finset.mem_filter.mpr ⟨Finset.mem_univ j, ?_⟩⟩
+        · rintro rfl
+          refine hj.2 ?_
+          rw [hhi, map_one, sub_self]
+        · intro h0
+          refine hj.2 ?_
+          rw [hh]
+          show (g i)⁻¹ * g j - σ ((g i)⁻¹ * g j) = 0
+          rw [h0, mul_zero, map_zero, sub_zero]
+      have hicard : i ∈ Finset.univ.filter (fun j => g j ≠ 0) :=
+        Finset.mem_filter.mpr ⟨Finset.mem_univ i, hne⟩
+      calc (Finset.univ.filter (fun j => (h j - σ (h j)) ≠ 0)).card
+          ≤ ((Finset.univ.filter (fun j => g j ≠ 0)).erase i).card :=
+            Finset.card_le_card hsub'
+        _ = (Finset.univ.filter (fun j => g j ≠ 0)).card - 1 :=
+            Finset.card_erase_of_mem hicard
+        _ ≤ N := by omega
+    have hall := ih (fun j => h j - σ (h j)) hsupp hsub
+    -- every coefficient is `σ`-fixed, giving an `F`-dependency
+    set F := IntermediateField.fixedField (Subgroup.zpowers σ) with hF
+    have hmemF : ∀ j, h j ∈ F := by
+      intro j
+      rw [hF, mem_fixedField_zpowers_iff P σ hσpos]
+      exact (sub_eq_zero.mp (hall j)).symm
+    set c : ι → ↥F := fun j => ⟨h j, hmemF j⟩ with hc
+    have hterm : ∀ j, c j • v j = h j • v j := by
+      intro j
+      have h1 := coe_smul_fixedField P F (c j) (v j)
+      have h2 : ((c j : ↥F) : AdjoinRoot P) = h j := rfl
+      rw [h2] at h1
+      exact h1.symm
+    have hFdep : ∑ j, c j • v j = 0 := by
+      rw [Finset.sum_congr rfl (fun j _ => hterm j)]
+      exact hsum2
+    have hczero := Fintype.linearIndependent_iff.mp hindF c hFdep i
+    have : h i = 0 := by
+      have := congrArg Subtype.val hczero
+      exact this
+    rw [hhi] at this
+    exact one_ne_zero this
+
+/-- **The fixed set `D`-spans** (the trace projector through the `artin_vector` engine on the
+quotient): every vector lies in the `D`-span of the `β`-fixed set. -/
+theorem span_fixed_eq_top {aa : ℕ} (hord : orderOf σ = 2 ^ aa)
+    (hsemi : ∀ (y : AdjoinRoot P) (w : Fin n → AdjoinRoot P), β (y • w) = σ y • β w)
+    (hβord : (⇑β)^[2 ^ aa] = id) :
+    Submodule.span (AdjoinRoot P) {w : Fin n → AdjoinRoot P | β w = w} = ⊤ := by
+  classical
+  rw [Submodule.eq_top_iff']
+  intro u
+  set M := Submodule.span (AdjoinRoot P) {w : Fin n → AdjoinRoot P | β w = w} with hM
+  -- the trace vectors are `β`-fixed
+  have htrace : ∀ y : AdjoinRoot P,
+      β (∑ i ∈ Finset.range (2 ^ aa), (σ ^ i) y • (⇑β)^[i] u)
+        = ∑ i ∈ Finset.range (2 ^ aa), (σ ^ i) y • (⇑β)^[i] u := by
+    intro y
+    rw [map_sum β _ (Finset.range (2 ^ aa))]
+    have hterm : ∀ i ∈ Finset.range (2 ^ aa),
+        β ((σ ^ i) y • (⇑β)^[i] u) = (σ ^ (i + 1)) y • (⇑β)^[i + 1] u := by
+      intro i _
+      rw [hsemi, pow_succ', AlgEquiv.mul_apply, Function.iterate_succ_apply']
+    rw [Finset.sum_congr rfl hterm]
+    have hwrap : (σ ^ 2 ^ aa) y • (⇑β)^[2 ^ aa] u = (σ ^ 0) y • (⇑β)^[0] u := by
+      rw [hβord, ← hord, pow_orderOf_eq_one, pow_zero, Function.iterate_zero]
+    calc ∑ i ∈ Finset.range (2 ^ aa), (σ ^ (i + 1)) y • (⇑β)^[i + 1] u
+        = (∑ i ∈ Finset.range (2 ^ aa + 1), (σ ^ i) y • (⇑β)^[i] u)
+            - (σ ^ 0) y • (⇑β)^[0] u := by
+          rw [Finset.sum_range_succ']
+          abel
+      _ = (∑ i ∈ Finset.range (2 ^ aa), (σ ^ i) y • (⇑β)^[i] u)
+            + (σ ^ 2 ^ aa) y • (⇑β)^[2 ^ aa] u - (σ ^ 0) y • (⇑β)^[0] u := by
+          rw [Finset.sum_range_succ]
+      _ = ∑ i ∈ Finset.range (2 ^ aa), (σ ^ i) y • (⇑β)^[i] u := by
+          rw [hwrap]
+          abel
+  -- kill all quotient classes via the engine
+  have hker := artin_vector P σ (pow_ne_pow_of_orderOf P σ hord)
+      (fun i => M.mkQ ((⇑β)^[i] u)) (fun y => by
+    have hmem : (∑ i ∈ Finset.range (2 ^ aa), (σ ^ i) y • (⇑β)^[i] u) ∈ M := by
+      rw [hM]
+      exact Submodule.subset_span (htrace y)
+    have h1 : M.mkQ (∑ i ∈ Finset.range (2 ^ aa), (σ ^ i) y • (⇑β)^[i] u) = 0 := by
+      rw [Submodule.mkQ_apply]
+      exact (Submodule.Quotient.mk_eq_zero M).mpr hmem
+    rw [map_sum M.mkQ _ (Finset.range (2 ^ aa)),
+      Finset.sum_congr rfl (fun i _ => M.mkQ.map_smul ((σ ^ i) y) ((⇑β)^[i] u))] at h1
+    exact h1)
+  have h0 := hker 0 (Finset.mem_range.mpr (Nat.two_pow_pos aa))
+  rw [Function.iterate_zero_apply, Submodule.mkQ_apply] at h0
+  exact (Submodule.Quotient.mk_eq_zero M).mp h0
+
+/-- **The descent count**: the fixed points of a `σ`-semilinear automorphism of `D^n` of
+order dividing `2^a = orderOf σ` number exactly `#F^n`. -/
+theorem card_fixed_eq (hmon : P.Monic) {aa : ℕ} (hord : orderOf σ = 2 ^ aa)
+    (hsemi : ∀ (y : AdjoinRoot P) (w : Fin n → AdjoinRoot P), β (y • w) = σ y • β w)
+    (hβord : (⇑β)^[2 ^ aa] = id) :
+    Nat.card {w : Fin n → AdjoinRoot P // β w = w}
+      = Nat.card ↥(IntermediateField.fixedField (Subgroup.zpowers σ)) ^ n := by
+  classical
+  haveI := finite_adjoinRoot P hmon
+  set F := IntermediateField.fixedField (Subgroup.zpowers σ) with hF
+  have hσpos : 0 < orderOf σ := by
+    rw [hord]
+    exact Nat.two_pow_pos aa
+  set Vfix := fixedSubmodule P σ β hσpos hsemi with hVfix
+  haveI : Module.Finite ↥F ↥Vfix := Module.Finite.of_finite
+  haveI : Module.Finite (AdjoinRoot P) (Fin n → AdjoinRoot P) := Module.Finite.of_finite
+  set b := Module.finBasis ↥F ↥Vfix with hb
+  set u := Module.finrank ↥F ↥Vfix with hu
+  -- (≤) the coerced basis is `D`-independent
+  have hind : LinearIndependent (AdjoinRoot P)
+      (fun i : Fin u => ((b i : ↥Vfix) : Fin n → AdjoinRoot P)) := by
+    refine linearIndependent_of_fixed P σ β hσpos hsemi _ (fun i => (b i).2) ?_
+    exact b.linearIndependent.map' Vfix.subtype (Submodule.ker_subtype Vfix)
+  have hle : u ≤ n := by
+    have h1 := hind.fintype_card_le_finrank
+    rwa [Fintype.card_fin, Module.finrank_fin_fun] at h1
+  -- (≥) the coerced basis `D`-spans
+  have hge : n ≤ u := by
+    have hsub : {w : Fin n → AdjoinRoot P | β w = w} ⊆
+        ↑(Submodule.span (AdjoinRoot P)
+          (Set.range (fun i : Fin u => ((b i : ↥Vfix) : Fin n → AdjoinRoot P)))) := by
+      intro w hw
+      have hwmem : w ∈ Vfix := hw
+      have hrepr := b.sum_repr ⟨w, hwmem⟩
+      have hcoe := congrArg (Vfix.subtype) hrepr
+      rw [map_sum Vfix.subtype _ Finset.univ] at hcoe
+      have hterm : ∀ i ∈ Finset.univ, Vfix.subtype (b.repr ⟨w, hwmem⟩ i • b i)
+          = ((b.repr ⟨w, hwmem⟩ i : AdjoinRoot P)) • ((b i : ↥Vfix) : Fin n → AdjoinRoot P) := by
+        intro i _
+        rw [map_smul]
+        exact (coe_smul_fixedField P F (b.repr ⟨w, hwmem⟩ i) _).symm
+      rw [Finset.sum_congr rfl hterm] at hcoe
+      rw [show w = Vfix.subtype ⟨w, hwmem⟩ from rfl, ← hcoe]
+      exact Submodule.sum_smul_mem _ _ (fun i _ => Submodule.subset_span (Set.mem_range_self i))
+    have h2 : Submodule.span (AdjoinRoot P) {w : Fin n → AdjoinRoot P | β w = w}
+        ≤ Submodule.span (AdjoinRoot P)
+          (Set.range (fun i : Fin u => ((b i : ↥Vfix) : Fin n → AdjoinRoot P))) := by
+      rw [Submodule.span_le]
+      exact hsub
+    rw [span_fixed_eq_top P σ β hord hsemi hβord] at h2
+    have h3 : Submodule.span (AdjoinRoot P)
+        (Set.range (fun i : Fin u => ((b i : ↥Vfix) : Fin n → AdjoinRoot P))) = ⊤ :=
+      top_le_iff.mp h2
+    have h4 := finrank_le_of_span_eq_top h3
+    rwa [Module.finrank_fin_fun, Fintype.card_fin] at h4
+  have huv : u = n := le_antisymm hle hge
+  have hcount : Nat.card ↥Vfix = Nat.card ↥F ^ u := by
+    rw [hu]
+    exact Module.natCard_eq_pow_finrank
+  rw [show Nat.card {w : Fin n → AdjoinRoot P // β w = w} = Nat.card ↥Vfix from
+    Nat.card_congr (Equiv.subtypeEquivRight (fun w => Iff.rfl)), hcount, huv]
+
+end DescentCount
+
 end RamifiedPack
 
 end GQ2
