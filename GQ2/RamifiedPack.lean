@@ -1261,6 +1261,171 @@ theorem powOmega2_pow_two_pow_eq_one [Finite C] [Finite V] (s : C)
 
 end UKill
 
+/-! ## §DescentKit: the `D`-side inputs of the descent count (design doc §5, Route A)
+
+For the twist `σ := frobEquiv^ω` (order `2^a`, since `gcd(ω, f) = r` for odd `ω` with
+`r ∣ ω`): the fixed field `F := fixedField ⟨σ⟩` has exactly `2^r` elements (Artin's lemma
+`finrank_fixedField_eq_card` + the card tower), and the **vector-valued Dedekind/Artin
+independence** engine — a family annihilated by all twisted evaluations `Σᵢ σⁱ(y)•wᵢ = 0`
+vanishes — which powers both halves of the `dim_F V^U = s` argument in §5b-ii. -/
+
+section DescentKit
+
+open Polynomial
+
+variable (P : Polynomial (ZMod 2)) [Fact (Irreducible P)]
+
+/-- **Vector-valued Artin independence**: if the powers `σ⁰, …, σ^{m−1}` are pairwise
+distinct and `∑ i, σⁱ(y) • wᵢ = 0` for every scalar `y`, then every `wᵢ = 0`.
+(Minimal-support descent: a second nonzero index is killed by the `μ`-twist difference
+system; a single nonzero index dies at `y = 1`.) -/
+theorem artin_vector {M : Type*} [AddCommGroup M] [Module (AdjoinRoot P) M]
+    (σ : AdjoinRoot P ≃ₐ[ZMod 2] AdjoinRoot P) {m : ℕ}
+    (hdist : ∀ i < m, ∀ j < m, σ ^ i = σ ^ j → i = j)
+    (w : ℕ → M)
+    (h : ∀ y : AdjoinRoot P, ∑ i ∈ Finset.range m, (σ ^ i) y • w i = 0) :
+    ∀ i ∈ Finset.range m, w i = 0 := by
+  classical
+  suffices H : ∀ N : ℕ, ∀ w : ℕ → M,
+      ((Finset.range m).filter (fun i => w i ≠ 0)).card ≤ N →
+      (∀ y : AdjoinRoot P, ∑ i ∈ Finset.range m, (σ ^ i) y • w i = 0) →
+      ∀ i ∈ Finset.range m, w i = 0 from H _ w le_rfl h
+  intro N
+  induction N with
+  | zero =>
+    intro w hcard hsum i hi
+    by_contra hne
+    have hmem : i ∈ (Finset.range m).filter (fun l => w l ≠ 0) :=
+      Finset.mem_filter.mpr ⟨hi, hne⟩
+    have := Finset.card_pos.mpr ⟨i, hmem⟩
+    omega
+  | succ N ih =>
+    intro w hcard hsum i hi
+    by_contra hne
+    by_cases hone : ∀ j ∈ Finset.range m, j ≠ i → w j = 0
+    · -- singleton support: evaluate at `y = 1`
+      have h1 := hsum 1
+      rw [Finset.sum_eq_single i (fun j hj hji => by rw [hone j hj hji, smul_zero])
+        (fun hnotmem => absurd hi hnotmem)] at h1
+      rw [map_one, one_smul] at h1
+      exact hne h1
+    · -- a second nonzero index `j`
+      obtain ⟨j, hj, hji, hjne⟩ : ∃ j ∈ Finset.range m, j ≠ i ∧ w j ≠ 0 := by
+        by_contra hcon
+        refine hone fun j hjm hji => ?_
+        by_cases h0 : w j = 0
+        · exact h0
+        · exact absurd ⟨j, hjm, hji, h0⟩ hcon
+      have hσne : σ ^ j ≠ σ ^ i := fun heq =>
+        hji (hdist j (Finset.mem_range.mp hj) i (Finset.mem_range.mp hi) heq)
+      obtain ⟨μ, hμ⟩ := DFunLike.ne_iff.mp hσne
+      set w' : ℕ → M := fun l => ((σ ^ l) μ - (σ ^ i) μ) • w l with hw'
+      have hsum' : ∀ y : AdjoinRoot P, ∑ l ∈ Finset.range m, (σ ^ l) y • w' l = 0 := by
+        intro y
+        have expand : ∀ l ∈ Finset.range m, (σ ^ l) y • w' l
+            = (σ ^ l) (y * μ) • w l - (σ ^ i) μ • ((σ ^ l) y • w l) := by
+          intro l _
+          rw [hw']
+          show (σ ^ l) y • (((σ ^ l) μ - (σ ^ i) μ) • w l) = _
+          rw [smul_smul, mul_sub, sub_smul, map_mul,
+            mul_comm ((σ ^ l) y) ((σ ^ i) μ), ← smul_smul, ← smul_smul]
+        rw [Finset.sum_congr rfl expand, Finset.sum_sub_distrib, ← Finset.smul_sum,
+          hsum (y * μ), hsum y, smul_zero, sub_zero]
+      have hw'i : w' i = 0 := by
+        rw [hw']
+        show ((σ ^ i) μ - (σ ^ i) μ) • w i = 0
+        rw [sub_self, zero_smul]
+      have hsupp : ((Finset.range m).filter (fun l => w' l ≠ 0)).card ≤ N := by
+        have hsub : (Finset.range m).filter (fun l => w' l ≠ 0)
+            ⊆ ((Finset.range m).filter (fun l => w l ≠ 0)).erase i := by
+          intro l hl
+          rw [Finset.mem_filter] at hl
+          refine Finset.mem_erase.mpr ⟨?_, Finset.mem_filter.mpr ⟨hl.1, ?_⟩⟩
+          · rintro rfl
+            exact hl.2 hw'i
+          · intro h0
+            refine hl.2 ?_
+            rw [hw']
+            show ((σ ^ l) μ - (σ ^ i) μ) • w l = 0
+            rw [h0, smul_zero]
+        have hicard : i ∈ (Finset.range m).filter (fun l => w l ≠ 0) :=
+          Finset.mem_filter.mpr ⟨hi, hne⟩
+        calc ((Finset.range m).filter (fun l => w' l ≠ 0)).card
+            ≤ (((Finset.range m).filter (fun l => w l ≠ 0)).erase i).card :=
+              Finset.card_le_card hsub
+          _ = ((Finset.range m).filter (fun l => w l ≠ 0)).card - 1 :=
+              Finset.card_erase_of_mem hicard
+          _ ≤ N := by omega
+      have hall := ih w' hsupp hsum' j hj
+      rw [hw'] at hall
+      have hscal : (σ ^ j) μ - (σ ^ i) μ ≠ 0 := sub_ne_zero.mpr hμ
+      refine hjne ?_
+      have h5 : ((σ ^ j) μ - (σ ^ i) μ)⁻¹ • (((σ ^ j) μ - (σ ^ i) μ) • w j) = 0 := by
+        rw [show ((σ ^ j) μ - (σ ^ i) μ) • w j = 0 from hall, smul_zero]
+      rwa [inv_smul_smul₀ hscal] at h5
+
+/-- The twist `frobEquiv^ω` has order exactly `2^a` when `ω` is odd with `r ∣ ω`
+(`gcd(f, ω) = r` at `f = 2^a·r`). -/
+theorem orderOf_frobEquiv_pow (hmon : P.Monic) (hdeg : 0 < P.natDegree) {ω r aa : ℕ}
+    (hωodd : Odd ω) (hrω : r ∣ ω) (hfar : P.natDegree = 2 ^ aa * r) :
+    orderOf (frobEquiv P hmon ^ ω) = 2 ^ aa := by
+  have hω0 : ω ≠ 0 := by
+    rcases hωodd with ⟨c, hc⟩
+    omega
+  have hr0 : 0 < r := by
+    rcases Nat.eq_zero_or_pos r with h0 | h
+    · rw [h0, Nat.mul_zero] at hfar
+      omega
+    · exact h
+  rw [orderOf_pow' _ hω0, orderOf_frobEquiv P hmon hdeg, hfar]
+  have hcop : Nat.Coprime (2 ^ aa) ω := by
+    refine Nat.Coprime.pow_left aa ?_
+    refine Nat.prime_two.coprime_iff_not_dvd.mpr ?_
+    rcases hωodd with ⟨c, hc⟩
+    omega
+  rw [Nat.Coprime.gcd_mul_left_cancel r hcop, Nat.gcd_eq_left hrω,
+    Nat.mul_div_assoc _ (dvd_refl r), Nat.div_self hr0, mul_one]
+
+/-- Membership in the fixed field of `⟨σ⟩` is fixedness under `σ` itself. -/
+theorem mem_fixedField_zpowers_iff (σ : AdjoinRoot P ≃ₐ[ZMod 2] AdjoinRoot P)
+    (hσpos : 0 < orderOf σ) (y : AdjoinRoot P) :
+    y ∈ IntermediateField.fixedField (Subgroup.zpowers σ) ↔ σ y = y := by
+  rw [IntermediateField.mem_fixedField_iff]
+  constructor
+  · intro h
+    exact h σ (Subgroup.mem_zpowers σ)
+  · intro hσy g hg
+    obtain ⟨n, hn⟩ := exists_pow_eq σ hσpos (⟨g, hg⟩ : ↥(Subgroup.zpowers σ))
+    have hgn : g = σ ^ n := hn
+    rw [hgn]
+    clear hgn hn hg
+    induction n with
+    | zero => rw [pow_zero]; rfl
+    | succ i ihn => rw [pow_succ', AlgEquiv.mul_apply, ihn, hσy]
+
+/-- **The fixed field of the twist has `2^r` elements**: `[D : F] = #⟨σ⟩ = 2^a` (Artin) and
+`#D = #F^{[D:F]}` pin `#F = 2^r` at `f = 2^a·r`. -/
+theorem card_fixedField_zpowers (hmon : P.Monic) {aa r : ℕ}
+    (σ : AdjoinRoot P ≃ₐ[ZMod 2] AdjoinRoot P)
+    (hord : orderOf σ = 2 ^ aa) (hfar : P.natDegree = 2 ^ aa * r) :
+    Nat.card ↥(IntermediateField.fixedField (Subgroup.zpowers σ)) = 2 ^ r := by
+  haveI := finite_adjoinRoot P hmon
+  haveI : Module.Finite (ZMod 2) (AdjoinRoot P) :=
+    Module.Finite.of_basis (AdjoinRoot.powerBasisAux' hmon)
+  set F := IntermediateField.fixedField (Subgroup.zpowers σ) with hF
+  haveI : Module.Finite ↥F (AdjoinRoot P) := Module.Finite.of_finite
+  have h1 : Module.finrank ↥F (AdjoinRoot P) = 2 ^ aa := by
+    rw [hF, IntermediateField.finrank_fixedField_eq_card, Nat.card_zpowers, hord]
+  have h2 : Nat.card (AdjoinRoot P) = Nat.card ↥F ^ 2 ^ aa := by
+    rw [← h1]
+    exact Module.natCard_eq_pow_finrank
+  rw [card_adjoinRoot P hmon, hfar] at h2
+  have h4 : ((2 : ℕ) ^ r) ^ 2 ^ aa = Nat.card ↥F ^ 2 ^ aa := by
+    rw [← pow_mul, mul_comm r (2 ^ aa), ← h2]
+  exact (Nat.pow_left_injective (Nat.two_pow_pos aa).ne' h4).symm
+
+end DescentKit
+
 end RamifiedPack
 
 end GQ2
