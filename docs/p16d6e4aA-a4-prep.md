@@ -179,3 +179,39 @@ Peel bookkeeping to reuse (all cells verified in Lean, `d54f6a5`): `δ := d₀.f
 opaquely (`dg` vs `d₀`, and inside `hc`/`d₀²`); `u₀.fib` never surfaces; the only live
 cells are the two `f(v,v) = q(v)`-squares (in `A·x₀` and in `c₀`'s `z₀⁻¹`/final step — they
 appear TWICE and cancel once, net one `q(v)`) and the `m`-chain.
+
+
+## 6. ✅ FINDING RESOLVED (same session, paper pp. 15–16 reread): the residual dies structurally
+
+The p. 15 mixed/extraspecial ledger's `h₀ ↦ q(c)` (clean, for `κ⁰_q`) holds because in the
+paper's evaluation **the wild generators map to `1` in the acting group `C`** — and in our
+setting this is exactly the tame factorization:
+
+    p₀ = tS.x₀.cc = θ(x̄₀) = c (B.tameA x̄₀) = c 1 = 1        (hfacρ + tameA kills the 2-core)
+
+and likewise `p₁ = 1`.  With `p₀ = 1`: `m_{p₀} = m_1 = 0` (`m_one`) and the `x₀`-slot is
+`((v, 1), 0)` — the `A·x₀`-step's κ⁰-term is `f(v, 1•v) + m_1(v) = q(v)` EXACTLY, and
+`d₀.cc = u₀.cc = t₂^N`.  The remaining residual factor `m_{t₂^N}(v)` dies because
+`N = omega2Exp(orderOf(x₀τ-lift)) ≡ 0` mod the odd part of that order, and
+`r := orderOf t₂` is ODD (tame inertia is prime-to-2, through the tame package), so
+`r ∣ odd-part ⟹ t₂^N = 1 ⟹ m_{t₂^N} = m_1 = 0`.  Total split wild value: `q(v)` on the
+nose — the paper's (83) confirmed with no statement amendment.
+
+**Seam hypothesis-pack additions** (all consumer-dischargeable):
+* `hx0cc : tS.x₀.cc = 1`, `hx1cc : tS.x₁.cc = 1` — from `hfacρ` + the `tameA`-kills-wild
+  lemma (check name in `BoundaryConstruction`/P-09; the tame quotient kills `x̄₀`, `x̄₁` by
+  construction);
+* `hτodd : Odd (orderOf tS.τ.cc)` — from the tame package (`c tameTau`'s image order is
+  odd; `Ttame`'s inertia part is pro-prime-to-2 — check the banked oddness lemma in
+  `Tame.lean`/`Omega2.lean`, plus the `omega2Exp`-congruence spec (`≡ 0` mod odd part) for
+  the `t₂^N = 1` step).
+
+**Simplified A-4.3c plan (with `p₀ = p₁ = 1` in the pack)**: the gauge marking's slots are
+`σ = sdSec s`, `τ = sdSec t₂`, `x₀ = ((v,1),0)`, `x₁ = sdSec 1` — the whole ledger runs on
+the A-4.3b cells with `m_1 = 0` killing every starred entry; `h₀ ↦ q(v)` via the peel
+(cells: `A·x₀`-step `= q(v)`, `dg`/`d₀`-δ-cancellation, `d₀²`/`hc ↦ 0`); `c₀ ↦ m_{u₀.cc}(v)
+= 0` (the `t₂^N = 1` step); `u₁⁻¹`, `x₁^σ` base-slice `↦ 0`; cross-terms die on `h₀.v = 0`
+(banked).  The ramified variant keeps `x₀.cc = 1` (same structural facts) — the twist
+enters through `z₀`'s `U⁻¹c`-`V`-part and the `[d₀,z₀]`-commutator `B`-term instead
+(`c₀ ↦ B(v, U⁻¹v)` by the same peel with `d₀.v = (P+1)v ≠ 0`-ram bookkeeping — mirror
+p. 15's table line by line).
