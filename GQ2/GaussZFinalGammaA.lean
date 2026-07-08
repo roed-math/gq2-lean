@@ -1064,6 +1064,41 @@ theorem finsum_sign_unramified_of_action {C : Type} [Group C] [TopologicalSpace 
   finsum_sign_eq_neg_of_zeroCount q m hm
     (zeroCount_unramified_of_action c hc hsimple hV hunram q hq hns hinv m hm hcard) hcard
 
+/-- **THE RAMIFIED PACK GAP** (board §(4)) — SORRIED: the ramified `qDouble` zero count
+`2^{2m−1} + 2^{m−1}`.  The mathematical content is `prop_6_9_ramified` at the faithful
+quotient (the A-4.5b actionization element-izes `hram`), whose isotypic pack
+`(s r a Wt e he hVU hrank)` — the Clifford decomposition `V|_⟨cτ⟩ ≅ W^{⊕s}` of the
+faithful simple ramified tame module with `#W = 2^{2^a·r}`, the `#V^U = 2^{rs}` count and
+the rank parity — is underived in-repo (the local source dodged it via the Tate route
+`prop_6_18_ramified`, unavailable over `Γ_A`).  Discharge = derive the pack, or find a
+pack-free `arf(qDouble) = 0` route. -/
+theorem zeroCount_qDouble_ramified_of_action {C : Type} [Group C] [TopologicalSpace C]
+    [DiscreteTopology C] [Finite C] {V : Type} [AddCommGroup V] [Finite V]
+    [DistribMulAction C V]
+    (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (g : C), ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, c tameTau • v ≠ v)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
+    (hinv : IsInvariant C q)
+    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
+    zeroCount (qDouble q (powOmega2 (c tameSigma) • ·)) = 2 ^ (2 * m - 1) + 2 ^ (m - 1) := by
+  sorry
+
+/-- **The ramified `V`-sum**: `∑ᶠ sign(qDouble) = +2^m` — the plus finale on the (sorried)
+ramified count. -/
+theorem finsum_sign_ramified_of_action {C : Type} [Group C] [TopologicalSpace C]
+    [DiscreteTopology C] [Finite C] {V : Type} [AddCommGroup V] [Finite V]
+    [DistribMulAction C V]
+    (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (g : C), ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, c tameTau • v ≠ v)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
+    (hinv : IsInvariant C q)
+    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
+    ∑ᶠ v : V, sign (qDouble q (powOmega2 (c tameSigma) • ·) v) = (2 ^ m : ℤ) :=
+  finsum_sign_eq_pos_of_zeroCount _ m hm
+    (zeroCount_qDouble_ramified_of_action c hc hsimple hram q hq hns hinv m hm hcard) hcard
+
 end Actionization
 
 /-! ## A-4.5c: the split hypothesis pack — `V^σ = 0` and the trivial `σ₂`-action
@@ -1220,6 +1255,117 @@ theorem powOmega2_smul_eq_of_gen [Finite C] [Finite V] (s t : C)
   · exact absurd (show (x : V) ∈ W from hwfix)
       (by rw [hbot]; exact fun hmem => hwne (AddSubgroup.mem_bot.mp hmem))
   · intro v
+    have hmem : v ∈ W := by rw [htop]; exact AddSubgroup.mem_top v
+    exact hmem
+
+/-- **The ramified inertia-freeness (`htauf`)**: with `C = ⟨s, t⟩`, the tame relation
+`s⁻¹ts = t²`, and `t` of odd order, every conjugate of `t` is a power of `t`
+(`⟨t⟩` is normal: `s`-conjugation squares, and the reverse conjugate is the square ROOT
+`t^{(d+1)/2}` — odd order makes squaring invertible on `⟨t⟩`), so the `t`-fixed space is
+an invariant submodule; if `t` moves anything, simplicity forces it to `⊥` — `V^t = 0`. -/
+theorem tau_fixed_eq_zero_of_gen (s t : C)
+    (hgen : Subgroup.closure ({s, t} : Set C) = ⊤)
+    (hrel : s⁻¹ * t * s = t ^ 2)
+    (hodd : Odd (orderOf t))
+    (hsimple : ∀ W : AddSubgroup V, (∀ g : C, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hmoved : ∃ v : V, t • v ≠ v) :
+    ∀ v : V, t • v = v → v = 0 := by
+  classical
+  -- every element conjugates `t` into `⟨t⟩` (both directions), by closure induction
+  have hconj : ∀ g : C, g⁻¹ * t * g ∈ Subgroup.zpowers t
+      ∧ g * t * g⁻¹ ∈ Subgroup.zpowers t := by
+    intro g
+    have hg : g ∈ Subgroup.closure ({s, t} : Set C) := by rw [hgen]; trivial
+    induction hg using Subgroup.closure_induction with
+    | mem x hx =>
+      rcases Set.mem_insert_iff.mp hx with rfl | hx'
+      · refine ⟨?_, ?_⟩
+        · rw [hrel]
+          exact pow_mem (Subgroup.mem_zpowers t) 2
+        · -- `x t x⁻¹` is the square root `t^{(d+1)/2}` of `t` (odd order `d`)
+          have hsc : SemiconjBy x t (x * t * x⁻¹) := by
+            show x * t = x * t * x⁻¹ * x
+            group
+          have hx2 : (x * t * x⁻¹) ^ 2 = t := by
+            have h2 : (x * t * x⁻¹) ^ 2 = x * t ^ 2 * x⁻¹ := by
+              rw [pow_two, pow_two]
+              group
+            rw [h2, ← hrel]
+            group
+          have horder : orderOf (x * t * x⁻¹) = orderOf t := hsc.orderOf_eq.symm
+          obtain ⟨j, hj⟩ := hodd
+          have hpow : x * t * x⁻¹ = t ^ (j + 1) := by
+            have h1 : (x * t * x⁻¹) ^ (orderOf t + 1) = x * t * x⁻¹ := by
+              rw [pow_succ, ← horder, pow_orderOf_eq_one, one_mul]
+            calc x * t * x⁻¹ = (x * t * x⁻¹) ^ (orderOf t + 1) := h1.symm
+              _ = ((x * t * x⁻¹) ^ 2) ^ (j + 1) := by
+                  rw [← pow_mul]
+                  congr 1
+                  omega
+              _ = t ^ (j + 1) := by rw [hx2]
+          rw [hpow]
+          exact pow_mem (Subgroup.mem_zpowers t) (j + 1)
+      · rw [Set.mem_singleton_iff] at hx'
+        subst hx'
+        refine ⟨?_, ?_⟩
+        · rw [show x⁻¹ * x * x = x from by group]
+          exact Subgroup.mem_zpowers x
+        · rw [show x * x * x⁻¹ = x from by group]
+          exact Subgroup.mem_zpowers x
+    | one =>
+      refine ⟨?_, ?_⟩
+      · rw [show (1 : C)⁻¹ * t * 1 = t from by group]
+        exact Subgroup.mem_zpowers t
+      · rw [show (1 : C) * t * 1⁻¹ = t from by group]
+        exact Subgroup.mem_zpowers t
+    | mul x y hx hy ihx ihy =>
+      refine ⟨?_, ?_⟩
+      · obtain ⟨k, hk⟩ := Subgroup.mem_zpowers_iff.mp ihx.1
+        rw [show (x * y)⁻¹ * t * (x * y) = y⁻¹ * (x⁻¹ * t * x) * y from by group, ← hk,
+          show y⁻¹ * t ^ k * y = (y⁻¹ * t * y) ^ k from by
+            have h := map_zpow (MulAut.conj y⁻¹) t k
+            simpa [MulAut.conj_apply, mul_assoc] using h]
+        exact Subgroup.zpowers_le.mpr ihy.1 (zpow_mem (Subgroup.mem_zpowers _) k)
+      · obtain ⟨k, hk⟩ := Subgroup.mem_zpowers_iff.mp ihy.2
+        rw [show (x * y) * t * (x * y)⁻¹ = x * (y * t * y⁻¹) * x⁻¹ from by group, ← hk,
+          show x * t ^ k * x⁻¹ = (x * t * x⁻¹) ^ k from by
+            have h := map_zpow (MulAut.conj x) t k
+            simpa [MulAut.conj_apply, mul_assoc] using h]
+        exact Subgroup.zpowers_le.mpr ihx.2 (zpow_mem (Subgroup.mem_zpowers _) k)
+    | inv x hx ih =>
+      exact ⟨by rw [inv_inv]; exact ih.2, by rw [inv_inv]; exact ih.1⟩
+  -- the `t`-fixed space is an invariant submodule; the dichotomy
+  set W : AddSubgroup V :=
+    { carrier := {v : V | t • v = v}
+      zero_mem' := smul_zero t
+      add_mem' := fun {a b} ha hb => by
+        show t • (a + b) = a + b
+        rw [smul_add]
+        exact congrArg₂ (· + ·) ha hb
+      neg_mem' := fun {a} ha => by
+        show t • (-a) = -a
+        rw [smul_neg]
+        exact congrArg Neg.neg ha } with hW
+  have hstab : ∀ g : C, ∀ w ∈ W, g • w ∈ W := fun g w hw => by
+    show t • (g • w) = g • w
+    obtain ⟨k, hk⟩ := Subgroup.mem_zpowers_iff.mp (hconj g).1
+    have hfix : (g⁻¹ * t * g) • w = w := by
+      rw [← hk]
+      have htw : t ∈ MulAction.stabilizer C w := hw
+      exact Subgroup.zpow_mem _ htw k
+    calc t • (g • w) = (t * g) • w := (mul_smul t g w).symm
+      _ = (g * (g⁻¹ * t * g)) • w := by
+          rw [show t * g = g * (g⁻¹ * t * g) from by group]
+      _ = g • ((g⁻¹ * t * g) • w) := mul_smul _ _ _
+      _ = g • w := by rw [hfix]
+  rcases hsimple W hstab with hbot | htop
+  · intro v hv
+    have hmem : v ∈ W := hv
+    rw [hbot] at hmem
+    exact AddSubgroup.mem_bot.mp hmem
+  · exfalso
+    obtain ⟨v, hv⟩ := hmoved
+    refine hv ?_
     have hmem : v ∈ W := by rw [htop]; exact AddSubgroup.mem_top v
     exact hmem
 
@@ -1483,7 +1629,222 @@ theorem sum_sign_QZeroBar_gammaA_ramified
       sign (QZeroBar (En.descData l h) (RF.rhoPrime B.bA F (En.radData l h) rfl ρ)
         htriv_gammaA x)
       = (2 ^ m : ℤ) := by
-  sorry
+  classical
+  -- ===== stage 0: GA-instances and the letI pack (mirrors the unramified seam) =====
+  letI : DistribMulAction GA (ZMod 2) :=
+    inferInstanceAs (DistribMulAction GammaA (ZMod 2))
+  haveI : ContinuousSMul GA (ZMod 2) := inferInstanceAs (ContinuousSMul GammaA (ZMod 2))
+  haveI : IsTopologicalGroup GA := inferInstanceAs (IsTopologicalGroup (GammaA : Type))
+  letI instT : TopologicalSpace En.Vmod := ⊥
+  haveI instD : DiscreteTopology En.Vmod := ⟨rfl⟩
+  letI instA : DistribMulAction GA En.Vmod :=
+    DistribMulAction.compHom _ (thetaGA B.bA F ρ).toMonoidHom
+  haveI instC : ContinuousSMul GA En.Vmod := ⟨by
+    show Continuous fun p : GA × En.Vmod => (thetaGA B.bA F ρ) p.1 • p.2
+    exact (continuous_of_discreteTopology
+      (f := fun q : RF.YC × En.Vmod => q.1 • q.2)).comp
+      (((thetaGA B.bA F ρ).continuous.comp continuous_fst).prodMk continuous_snd)⟩
+  letI : TopologicalSpace (En.descData l h).Vmod := instT
+  haveI : DiscreteTopology (En.descData l h).Vmod := instD
+  letI : DistribMulAction GA (En.descData l h).Vmod := instA
+  haveI : ContinuousSMul GA (En.descData l h).Vmod := instC
+  letI : DistribMulAction RF.YC (En.descData l h).Vmod :=
+    (inferInstance : DistribMulAction RF.YC En.Vmod)
+  haveI : Finite (En.descData l h).Vmod := (inferInstance : Finite En.Vmod)
+  letI : TopologicalSpace (En.descData l h).C0 := (inferInstance : TopologicalSpace RF.YC)
+  haveI : DiscreteTopology (En.descData l h).C0 := (inferInstance : DiscreteTopology RF.YC)
+  haveI : Finite (En.descData l h).C0 := (inferInstance : Finite RF.YC)
+  show ∑ᶠ x : VCocycle (En.descData l h) (rhoPrimeGA B.bA F En l h ρ)
+      ⧸ vCobRange (En.descData l h) (rhoPrimeGA B.bA F En l h ρ),
+    sign (QZeroBar (En.descData l h) (rhoPrimeGA B.bA F En l h ρ) htriv_gammaA x)
+    = (2 ^ m : ℤ)
+  -- ===== stage 1: θ-facts and the bridge hypotheses =====
+  have hθsurj : Function.Surjective ⇑(thetaGA B.bA F ρ) := thetaGA_surjective B.bA F ρ
+  have hcompat : ∀ (γ : GA) (v : (En.descData l h).Vmod),
+      γ • v = thetaGA B.bA F ρ γ • v := fun _ _ => rfl
+  have hround : ∀ γ : GA,
+      rho0 (En.descData l h) (rhoPrimeGA B.bA F En l h ρ) γ = thetaGA B.bA F ρ γ :=
+    roundtripGA B.bA F En l h ρ
+  have hcomp : ∀ (γ : GA) (v : (En.descData l h).Vmod),
+      γ • v = rho0 (En.descData l h) (rhoPrimeGA B.bA F En l h ρ) γ • v := fun γ v =>
+    (congrArg (fun cc : (En.descData l h).C0 => cc • v) (hround γ)).symm
+  letI : DistribMulAction AbsGalQ2 En.Vmod :=
+    DistribMulAction.compHom _ (1 : AbsGalQ2 →* RF.YC)
+  letI : DistribMulAction AbsGalQ2 (En.descData l h).Vmod :=
+    (inferInstance : DistribMulAction AbsGalQ2 En.Vmod)
+  haveI : ContinuousSMul AbsGalQ2 En.Vmod := ⟨by
+    show Continuous fun p : AbsGalQ2 × En.Vmod => ((1 : AbsGalQ2 →* RF.YC) p.1) • p.2
+    simp only [MonoidHom.one_apply, one_smul]
+    exact continuous_snd⟩
+  haveI : ContinuousSMul AbsGalQ2 (En.descData l h).Vmod :=
+    (inferInstance : ContinuousSMul AbsGalQ2 En.Vmod)
+  have hA₂ : ∀ v : (En.descData l h).Vmod, v + v = 0 :=
+    DeepPart.exp_two_of_simple_of_card hsimple m hm hcard
+  -- ===== stage 2: generator slot values of `markC θ` =====
+  have hτslot : (markC (thetaGA B.bA F ρ)).τ = c tameTau := by
+    rw [congrArg Marking.τ (markC_map (thetaGA B.bA F ρ))]
+    calc thetaGA B.bA F ρ gammaGen.τ
+        = c (B.tameA (quotientMk NA univMarking.τ)) := hfacρ _
+      _ = c tameTau := by rw [B.tameA_tau]
+  have hx0slot : (markC (thetaGA B.bA F ρ)).x₀ = 1 := by
+    rw [congrArg Marking.x₀ (markC_map (thetaGA B.bA F ρ))]
+    calc thetaGA B.bA F ρ gammaGen.x₀
+        = c (B.tameA (quotientMk NA univMarking.x₀)) := hfacρ _
+      _ = 1 := by rw [B.tameA_x0, map_one]
+  have hx1slot : (markC (thetaGA B.bA F ρ)).x₁ = 1 := by
+    rw [congrArg Marking.x₁ (markC_map (thetaGA B.bA F ρ))]
+    calc thetaGA B.bA F ρ gammaGen.x₁
+        = c (B.tameA (quotientMk NA univMarking.x₁)) := hfacρ _
+      _ = 1 := by rw [B.tameA_x1, map_one]
+  have hadm := markC_admissible (thetaGA B.bA F ρ) hθsurj
+  -- ===== stage 3: the ramified hypothesis pack at `markC θ` =====
+  haveI : ContinuousMul RF.YC := ⟨continuous_of_discreteTopology⟩
+  haveI : ContinuousInv RF.YC := ⟨continuous_of_discreteTopology⟩
+  haveI : IsTopologicalGroup RF.YC := { }
+  have hgen : Subgroup.closure ({c tameSigma, c tameTau} : Set RF.YC) = ⊤ :=
+    SectionThree.gen_ttame_quotient c.toMonoidHom c.continuous_toFun hc
+  have hrelC : (c tameSigma)⁻¹ * c tameTau * c tameSigma = c tameTau ^ 2 := by
+    have hrel := congrArg (⇑c) tame_relation
+    simpa only [conjP, map_mul, map_inv, map_pow] using hrel
+  have hoddC : Odd (orderOf (c tameTau)) := LocalKummer.odd_orderOf_tameInertia c
+  have hx0M : ∀ v : (En.descData l h).Vmod,
+      (markC (thetaGA B.bA F ρ)).x₀ • v = v := fun v => by
+    rw [hx0slot, one_smul]
+  have hx1M : ∀ v : (En.descData l h).Vmod,
+      (markC (thetaGA B.bA F ρ)).x₁ • v = v := fun v => by
+    rw [hx1slot, one_smul]
+  have htauM : ∀ v : (En.descData l h).Vmod,
+      (markC (thetaGA B.bA F ρ)).τ • v = v → v = 0 := fun v hv =>
+    tau_fixed_eq_zero_of_gen (c tameSigma) (c tameTau) hgen hrelC hoddC hsimple hram v
+      (by rwa [hτslot] at hv)
+  have hToddM : ∀ v : (En.descData l h).Vmod,
+      powOmega2 (markC (thetaGA B.bA F ρ)).τ • v = v := fun v => by
+    rw [hτslot, powOmega2_eq_one_of_odd hoddC, one_smul]
+  have hmem : ∀ v : (En.descData l h).Vmod,
+      x0Supported v ∈ Z1w (A := (En.descData l h).Vmod) (markC (thetaGA B.bA F ρ)) :=
+    fun v => x0Supported_mem_Z1w_ramified (markC (thetaGA B.bA F ρ)) hadm.2.1 hA₂
+      hx0M hx1M htauM hToddM v
+  have hsec := x0Section_bijective_ramified (markC (thetaGA B.bA F ρ)) hadm.2.1 hadm.2.2.1
+    hA₂ hx0M hx1M htauM hToddM
+  -- ===== stage 4: the section cocycles and the reindex map ψ =====
+  set secC : (En.descData l h).Vmod →
+      VCocycle (En.descData l h) (rhoPrimeGA B.bA F En l h ρ) := fun v =>
+    ofZ1 hcomp (ofZ1w (thetaGA B.bA F ρ) hcompat hθsurj hA₂ ⟨x0Supported v, hmem v⟩)
+    with hsecCdef
+  set ψ : (En.descData l h).Vmod →
+      (VCocycle (En.descData l h) (rhoPrimeGA B.bA F En l h ρ)
+        ⧸ vCobRange (En.descData l h) (rhoPrimeGA B.bA F En l h ρ)) := fun v =>
+    QuotientAddGroup.mk (secC v) with hψdef
+  -- ===== stage 5: ψ hits the x₀-supported section classes; bijectivity =====
+  have hcoordψ : ∀ v, h1CoordGammaA B.bA F En l h ρ hcomp hcompat hA₂ (ψ v)
+      = h1wMk (markC (thetaGA B.bA F ρ)) ⟨x0Supported v, hmem v⟩ := fun v => by
+    show h1wMk (markC (thetaGA B.bA F ρ))
+        (toZ1wHom (thetaGA B.bA F ρ) hcompat (toZ1 hcomp (secC v))) = _
+    rw [show toZ1 hcomp (secC v)
+        = ofZ1w (thetaGA B.bA F ρ) hcompat hθsurj hA₂ ⟨x0Supported v, hmem v⟩ from
+        toZ1_ofZ1 hcomp _]
+    rw [toZ1wHom_ofZ1w]
+  have hψbij : Function.Bijective ψ := by
+    constructor
+    · intro v v' hvv'
+      have h1 := congrArg (h1CoordGammaA B.bA F En l h ρ hcomp hcompat hA₂) hvv'
+      rw [hcoordψ v, hcoordψ v'] at h1
+      exact hsec.1 h1
+    · intro x
+      obtain ⟨v, hv⟩ := hsec.2 (h1CoordGammaA B.bA F En l h ρ hcomp hcompat hA₂ x)
+      exact ⟨v, (h1CoordGammaA_bijective B.bA F En l h ρ hcomp hcompat hA₂).1
+        ((hcoordψ v).trans hv)⟩
+  -- ===== stage 6: the value on section classes is the Wall double =====
+  have hdat : IsEquivariantFactorSet ((En.descData l h).qbar) (En.descData l h).dat :=
+    En.hdat l h
+  have hevalx : ∀ v : (En.descData l h).Vmod,
+      eval (ofZ1w (thetaGA B.bA F ρ) hcompat hθsurj hA₂ ⟨x0Supported v, hmem v⟩)
+        = x0Supported v := fun v => by
+    have h2 := congrArg Subtype.val
+      (toZ1wHom_ofZ1w (thetaGA B.bA F ρ) hcompat hθsurj hA₂ ⟨x0Supported v, hmem v⟩)
+    rwa [toZ1wHom_coe] at h2
+  have hσv : ∀ v, (gammaGen.map (graphSdHom (secC v))).σ.v = 0 := fun v => by
+    show (secC v).c gammaGen.σ = 0
+    exact congrFun (hevalx v) 0
+  have hτv : ∀ v, (gammaGen.map (graphSdHom (secC v))).τ.v = 0 := fun v => by
+    show (secC v).c gammaGen.τ = 0
+    exact congrFun (hevalx v) 1
+  have hx1v : ∀ v, (gammaGen.map (graphSdHom (secC v))).x₁.v = 0 := fun v => by
+    show (secC v).c gammaGen.x₁ = 0
+    exact congrFun (hevalx v) 3
+  have hx0v : ∀ v, (gammaGen.map (graphSdHom (secC v))).x₀.v = v := fun v => by
+    show (secC v).c gammaGen.x₀ = v
+    exact congrFun (hevalx v) 2
+  have hccσ : ∀ v, (gammaGen.map (graphSdHom (secC v))).σ.cc = c tameSigma := fun v => by
+    show rho0 (En.descData l h) (rhoPrimeGA B.bA F En l h ρ) gammaGen.σ = c tameSigma
+    rw [hround gammaGen.σ]
+    calc thetaGA B.bA F ρ gammaGen.σ
+        = c (B.tameA (quotientMk NA univMarking.σ)) := hfacρ _
+      _ = c tameSigma := by rw [B.tameA_sigma]
+  have hccτ : ∀ v, (gammaGen.map (graphSdHom (secC v))).τ.cc = c tameTau := fun v => by
+    show rho0 (En.descData l h) (rhoPrimeGA B.bA F En l h ρ) gammaGen.τ = c tameTau
+    rw [hround gammaGen.τ]
+    calc thetaGA B.bA F ρ gammaGen.τ
+        = c (B.tameA (quotientMk NA univMarking.τ)) := hfacρ _
+      _ = c tameTau := by rw [B.tameA_tau]
+  have hccx0 : ∀ v, (gammaGen.map (graphSdHom (secC v))).x₀.cc = 1 := fun v => by
+    show rho0 (En.descData l h) (rhoPrimeGA B.bA F En l h ρ) gammaGen.x₀ = 1
+    rw [hround gammaGen.x₀]
+    calc thetaGA B.bA F ρ gammaGen.x₀
+        = c (B.tameA (quotientMk NA univMarking.x₀)) := hfacρ _
+      _ = 1 := by rw [B.tameA_x0, map_one]
+  have hccx1 : ∀ v, (gammaGen.map (graphSdHom (secC v))).x₁.cc = 1 := fun v => by
+    show rho0 (En.descData l h) (rhoPrimeGA B.bA F En l h ρ) gammaGen.x₁ = 1
+    rw [hround gammaGen.x₁]
+    calc thetaGA B.bA F ρ gammaGen.x₁
+        = c (B.tameA (quotientMk NA univMarking.x₁)) := hfacρ _
+      _ = 1 := by rw [B.tameA_x1, map_one]
+  have hwild : ∀ v, (liftMark (gammaGen.map (graphSdHom (secC v)))
+      (kappa0Cocycle (En.descData l h).dat hdat)).wildValue.fib
+      = (En.descData l h).qbar v
+        + polar (En.descData l h).qbar v (powOmega2 (c tameSigma) • v) := fun v => by
+    have htaufS : ∀ w : (En.descData l h).Vmod,
+        (gammaGen.map (graphSdHom (secC v))).τ.cc • w = w → w = 0 := fun w hw =>
+      tau_fixed_eq_zero_of_gen (c tameSigma) (c tameTau) hgen hrelC hoddC hsimple hram w
+        (by rwa [hccτ v] at hw)
+    have hτoddS : Odd (orderOf (gammaGen.map (graphSdHom (secC v))).τ.cc) := by
+      rw [hccτ v]
+      exact hoddC
+    have hqg0S : (En.descData l h).qbar
+        ((Marking.g0 (sdBaseMarking (gammaGen.map (graphSdHom (secC v)))))⁻¹
+          • (gammaGen.map (graphSdHom (secC v))).x₀.v)
+        = (En.descData l h).qbar (gammaGen.map (graphSdHom (secC v))).x₀.v :=
+      En.hinv l h _ _
+    rw [liftMark_kappa0_wildValue_fib_ramified (En.descData l h).dat hdat
+      (gammaGen.map (graphSdHom (secC v))) (hσv v) (hτv v) (hx1v v) (hccx0 v) (hccx1 v)
+      hA₂ htaufS hτoddS hqg0S, hx0v v,
+      show Marking.sigma2 (sdBaseMarking (gammaGen.map (graphSdHom (secC v))))
+          = powOmega2 (c tameSigma) from congrArg powOmega2 (hccσ v)]
+    exact congrArg (fun z => (En.descData l h).qbar v + z)
+      (polar_smul_inv_eq (C := (En.descData l h).C0) (En.descData l h).qbar
+        (powOmega2 (c tameSigma)) (fun w => En.hinv l h _ w) v)
+  have hval : ∀ v, QZeroBar (En.descData l h) (rhoPrimeGA B.bA F En l h ρ) htriv_gammaA (ψ v)
+      = qDouble (En.qbar l h) (powOmega2 (c tameSigma) • ·) v := fun v => by
+    show QZero (En.descData l h) (rhoPrimeGA B.bA F En l h ρ) (secC v)
+      = qDouble (En.qbar l h) (powOmega2 (c tameSigma) • ·) v
+    haveI : ContinuousSMul GA (ZMod 2) :=
+      inferInstanceAs (ContinuousSMul GammaA (ZMod 2))
+    rw [QZero_eq_relZPair_kappa0 (fun x m => rfl) hdat (secC v),
+      relZPair_kappa0_fst_eq_zero (En.descData l h).dat hdat _ (hσv v) (hτv v), zero_add]
+    exact hwild v
+  -- ===== stage 7: reindex and count =====
+  calc ∑ᶠ x : VCocycle (En.descData l h) (rhoPrimeGA B.bA F En l h ρ)
+        ⧸ vCobRange (En.descData l h) (rhoPrimeGA B.bA F En l h ρ),
+      sign (QZeroBar (En.descData l h) (rhoPrimeGA B.bA F En l h ρ) htriv_gammaA x)
+      = ∑ᶠ v : (En.descData l h).Vmod,
+          sign (qDouble (En.qbar l h) (powOmega2 (c tameSigma) • ·) v) := by
+        refine (finsum_eq_of_bijective ψ hψbij fun v => ?_).symm
+        show sign (qDouble (En.qbar l h) (powOmega2 (c tameSigma) • ·) v)
+          = sign (QZeroBar (En.descData l h) (rhoPrimeGA B.bA F En l h ρ) htriv_gammaA (ψ v))
+        rw [hval v]
+    _ = (2 ^ m : ℤ) :=
+      finsum_sign_ramified_of_action c hc hsimple hram (En.qbar l h)
+        (En.hquad l h) (En.hns l h) (En.hinv l h) m hm hcard
 
 /-- **`hGaussZA`, unramified case** (P-16d6e4aA A-4): with a per-lift tame package whose
 inertia acts trivially on `V`, `GaussZResidue B.bA F En l h (−2^m)` — the `prop_8_9` ledger
