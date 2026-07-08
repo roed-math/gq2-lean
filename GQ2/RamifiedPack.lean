@@ -1,4 +1,5 @@
 import GQ2.FoxHeisenberg
+import GQ2.QuadraticFp2
 import Mathlib.Algebra.Module.ZMod
 import Mathlib.Algebra.Module.Torsion.Basic
 import Mathlib.Algebra.Polynomial.Expand
@@ -680,6 +681,220 @@ theorem equiv_zpowers_smul (hpos : 0 < orderOf t)
   rw [hn, equiv_pow_smul t P e he n v j, rootAction_smul_of_pow t P hpos hdvd hn]
 
 end PackInterface
+
+/-! ## §SelfReciprocity: `f = deg P` is EVEN (design doc §4)
+
+The nonsingular `t`-invariant polar pairing makes the `t̂`-adjoint `t̂⁻¹`, so `P(t̂) = 0`
+forces `P(t̂⁻¹) = 0` (A); transported through the isotypic equivalence this says `x⁻¹` is a
+root of `P` in `D = 𝔽₂[x]`, `x := root P` (B); the induced `𝔽₂`-algebra involution
+`x ↦ x⁻¹` of `D` is a genuine order-2 element of `Aut(D/𝔽₂)` (nontrivial since `x ≠ 1` —
+the ramified exclusion of `P = X + 1`), and `#Aut(D/𝔽₂) = f` (finite fields are Galois:
+`GaloisField.instIsGaloisOfFinite`), so Lagrange gives `2 ∣ f` (C).  The numerology
+`f = 2^a·r`, `a ≥ 1`, `r` odd then feeds the pack's `hWcard` shape. -/
+
+section SelfReciprocity
+
+open Polynomial QuadraticFp2
+
+variable {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [Module (ZMod 2) V]
+  [DistribMulAction C V]
+
+omit [Module (ZMod 2) V] in
+/-- Invariance of `q` under `t` extends to all powers. -/
+theorem q_pow_smul {t : C} {q : V → ZMod 2} (hqt : ∀ v, q (t • v) = q v) (n : ℕ) (v : V) :
+    q ((t ^ n) • v) = q v := by
+  induction n generalizing v with
+  | zero => rw [pow_zero, one_smul]
+  | succ k ih => rw [pow_succ, mul_smul, ih (t • v), hqt v]
+
+omit [Module (ZMod 2) V] in
+/-- **The adjoint shift**: for `g` preserving `q`, the polar pairing trades `g` on the left
+for `g⁻¹` on the right. -/
+theorem polar_smul_left_inv {g : C} {q : V → ZMod 2} (hqg : ∀ v, q (g • v) = q v)
+    (w v : V) : polar q (g • w) v = polar q w (g⁻¹ • v) := by
+  have hinv : ∀ a b : V, polar q (g • a) (g • b) = polar q a b := by
+    intro a b
+    unfold polar
+    rw [← smul_add, hqg, hqg, hqg]
+  calc polar q (g • w) v = polar q (g • w) (g • (g⁻¹ • v)) := by rw [smul_inv_smul]
+    _ = polar q w (g⁻¹ • v) := hinv w (g⁻¹ • v)
+
+/-- **(A) the operator-adjoint identity**: `B(P(t̂)w, v) = B(w, P(t̂⁻¹)v)` for the polar
+pairing of a `t`-invariant quadratic map. -/
+theorem polar_aeval_actEnd (t : C) (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
+    (hqt : ∀ v, q (t • v) = q v) (Q : Polynomial (ZMod 2)) (w v : V) :
+    polar q (Polynomial.aeval (actEnd (V := V) t) Q w) v
+      = polar q w (Polynomial.aeval (actEnd (V := V) t⁻¹) Q v) := by
+  induction Q using Polynomial.induction_on' with
+  | add p q' hp hq' =>
+    rw [map_add, map_add, LinearMap.add_apply, LinearMap.add_apply, hq.polar_add_left, hp, hq',
+      ← hq.polar_add_right]
+  | monomial n a =>
+    rcases (show ∀ x : ZMod 2, x = 0 ∨ x = 1 from by decide) a with rfl | rfl
+    · rw [Polynomial.monomial_zero_right, map_zero, map_zero]
+      have h0l : polar q ((0 : Module.End (ZMod 2) V) w) v = 0 := by
+        show polar q 0 v = 0
+        unfold polar
+        rw [zero_add, hq.map_zero, add_zero]
+        exact CharTwo.add_self_eq_zero _
+      have h0r : polar q w ((0 : Module.End (ZMod 2) V) v) = 0 := by
+        show polar q w 0 = 0
+        unfold polar
+        rw [add_zero, hq.map_zero, add_zero]
+        exact CharTwo.add_self_eq_zero _
+      rw [h0l, h0r]
+    · rw [← Polynomial.X_pow_eq_monomial, map_pow, map_pow, Polynomial.aeval_X,
+        Polynomial.aeval_X, ← actEnd_pow, ← actEnd_pow]
+      show polar q ((t ^ n) • w) v = polar q w ((t⁻¹ ^ n) • v)
+      rw [inv_pow, polar_smul_left_inv (q_pow_smul hqt n) w v]
+
+/-- **(A) closed**: `P(t̂) = 0` forces `P(t̂⁻¹) = 0` (nonsingularity kills the orthogonal
+complement of everything). -/
+theorem aeval_actEnd_inv_eq_zero (t : C) (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
+    (hns : Nonsingular q) (hqt : ∀ v, q (t • v) = q v)
+    {P : Polynomial (ZMod 2)} (hkill : ∀ v : V, Polynomial.aeval (actEnd (V := V) t) P v = 0)
+    (v : V) : Polynomial.aeval (actEnd (V := V) t⁻¹) P v = 0 := by
+  by_contra h0
+  obtain ⟨w, hw⟩ := hns _ h0
+  refine hw ?_
+  rw [polar_comm]
+  have h := polar_aeval_actEnd t q hq hqt P w v
+  rw [hkill w] at h
+  rw [← h]
+  unfold polar
+  rw [zero_add, hq.map_zero, add_zero]
+  exact CharTwo.add_self_eq_zero _
+
+variable (t : C) (P : Polynomial (ZMod 2))
+
+omit [Module (ZMod 2) V] in
+/-- Generalized ℕ-power transport (any group element acting per-coordinate as a fixed
+scalar). -/
+theorem equiv_pow_smul_gen (g : C) (x : AdjoinRoot P) {s : ℕ}
+    (e : V ≃+ (Fin s → AdjoinRoot P))
+    (hge : ∀ (v : V) (j : Fin s), e (g • v) j = x * e v j) (n : ℕ) (v : V) (j : Fin s) :
+    e ((g ^ n) • v) j = x ^ n * e v j := by
+  induction n generalizing v with
+  | zero => rw [pow_zero, one_smul, pow_zero, one_mul]
+  | succ k ih => rw [pow_succ, mul_smul, ih, hge v j, pow_succ, mul_assoc]
+
+variable [Fact (Irreducible P)]
+
+/-- **(B) transport to `D`**: `P(t̂⁻¹) = 0` on `V ≅ D^s` (`s ≥ 1`) evaluates, on the
+first basis vector, to `P(x⁻¹) = 0` in `D`. -/
+theorem aeval_root_inv_eq_zero (hroot0 : AdjoinRoot.root P ≠ 0)
+    {s : ℕ} (hs : 1 ≤ s) (e : V ≃+ (Fin s → AdjoinRoot P))
+    (he : ∀ (v : V) (j : Fin s), e (t • v) j = AdjoinRoot.root P * e v j)
+    (hkill' : ∀ v : V, Polynomial.aeval (actEnd (V := V) t⁻¹) P v = 0) :
+    Polynomial.aeval (AdjoinRoot.root P)⁻¹ P = 0 := by
+  classical
+  -- the inverse acts per-coordinate as `x⁻¹`
+  have he_inv : ∀ (v : V) (j : Fin s), e (t⁻¹ • v) j = (AdjoinRoot.root P)⁻¹ * e v j := by
+    intro v j
+    have h := he (t⁻¹ • v) j
+    rw [smul_inv_smul] at h
+    rw [h, ← mul_assoc, inv_mul_cancel₀ hroot0, one_mul]
+  -- polynomial transport through `e`
+  have hpoly : ∀ (Q : Polynomial (ZMod 2)) (v : V) (j : Fin s),
+      e (Polynomial.aeval (actEnd (V := V) t⁻¹) Q v) j
+        = Polynomial.aeval (AdjoinRoot.root P)⁻¹ Q * e v j := by
+    intro Q
+    induction Q using Polynomial.induction_on' with
+    | add p q hp hq =>
+      intro v j
+      rw [map_add, LinearMap.add_apply, map_add, Pi.add_apply, hp, hq, map_add, add_mul]
+    | monomial n a =>
+      intro v j
+      rcases (show ∀ x : ZMod 2, x = 0 ∨ x = 1 from by decide) a with rfl | rfl
+      · rw [Polynomial.monomial_zero_right, map_zero, map_zero]
+        show e ((0 : Module.End (ZMod 2) V) v) j = 0 * e v j
+        rw [LinearMap.zero_apply, map_zero, Pi.zero_apply, zero_mul]
+      · rw [← Polynomial.X_pow_eq_monomial, map_pow, map_pow, Polynomial.aeval_X,
+          Polynomial.aeval_X, ← actEnd_pow]
+        show e ((t⁻¹ ^ n) • v) j = (AdjoinRoot.root P)⁻¹ ^ n * e v j
+        exact equiv_pow_smul_gen P t⁻¹ (AdjoinRoot.root P)⁻¹ e he_inv n v j
+  -- evaluate at the first basis vector
+  set j₀ : Fin s := ⟨0, hs⟩
+  set v₀ : V := e.symm (Pi.single j₀ 1)
+  have h := hpoly P v₀ j₀
+  rw [hkill' v₀, map_zero, Pi.zero_apply] at h
+  have hv₀ : e v₀ j₀ = 1 := by
+    show e (e.symm (Pi.single j₀ 1)) j₀ = 1
+    rw [AddEquiv.apply_symm_apply]
+    exact Pi.single_eq_same j₀ 1
+  rw [hv₀, mul_one] at h
+  exact h.symm
+
+/-- **(C) `f` is even**: the involution `x ↦ x⁻¹` of `D = AdjoinRoot P` (an `𝔽₂`-algebra
+automorphism since `x⁻¹` is again a root of `P`) has order 2 in `Aut(D/𝔽₂)` when `x ≠ 1`,
+and finite fields are Galois, so `2 ∣ #Aut = finrank = natDegree P`. -/
+theorem even_natDegree_of_aeval_inv_eq_zero (hmon : P.Monic)
+    (hroot0 : AdjoinRoot.root P ≠ 0) (hroot1 : AdjoinRoot.root P ≠ 1)
+    (h0 : Polynomial.aeval (AdjoinRoot.root P)⁻¹ P = 0) :
+    Even P.natDegree := by
+  classical
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  set hbasis := AdjoinRoot.powerBasisAux' hmon
+  haveI hfinD : Finite (AdjoinRoot P) := Finite.of_equiv _ hbasis.equivFun.toEquiv.symm
+  haveI : Module.Finite (ZMod 2) (AdjoinRoot P) := Module.Finite.of_basis hbasis
+  -- the involution as an algebra automorphism
+  have h0' : Polynomial.eval₂
+      (↑(Algebra.ofId (ZMod 2) (AdjoinRoot P)) : ZMod 2 →+* AdjoinRoot P)
+      (AdjoinRoot.root P)⁻¹ P = 0 := by
+    rwa [show (↑(Algebra.ofId (ZMod 2) (AdjoinRoot P)) : ZMod 2 →+* AdjoinRoot P)
+        = algebraMap (ZMod 2) (AdjoinRoot P) from rfl, ← Polynomial.aeval_def]
+  set φA : AdjoinRoot P →ₐ[ZMod 2] AdjoinRoot P :=
+    AdjoinRoot.liftAlgHom P (Algebra.ofId (ZMod 2) (AdjoinRoot P)) (AdjoinRoot.root P)⁻¹ h0'
+    with hφA
+  have hφAroot : φA (AdjoinRoot.root P) = (AdjoinRoot.root P)⁻¹ :=
+    AdjoinRoot.liftAlgHom_root P (Algebra.ofId (ZMod 2) (AdjoinRoot P)) _ h0'
+  have hbij : Function.Bijective φA :=
+    Finite.injective_iff_bijective.mp (RingHom.injective (φA : AdjoinRoot P →+* AdjoinRoot P))
+  set φ : AdjoinRoot P ≃ₐ[ZMod 2] AdjoinRoot P := AlgEquiv.ofBijective φA hbij with hφ
+  have hφroot : φ (AdjoinRoot.root P) = (AdjoinRoot.root P)⁻¹ := hφAroot
+  -- order exactly 2
+  have hφne : φ ≠ 1 := by
+    intro h
+    have hr : (AdjoinRoot.root P)⁻¹ = AdjoinRoot.root P := by
+      rw [← hφroot, h]; rfl
+    have hsq : AdjoinRoot.root P * AdjoinRoot.root P = 1 := by
+      nth_rewrite 2 [← hr]
+      exact mul_inv_cancel₀ hroot0
+    have h2 : (1 : AdjoinRoot P) + 1 = 0 := adjoinRoot_add_self P 1
+    have hfac : (AdjoinRoot.root P - 1) * (AdjoinRoot.root P + 1) = 0 := by
+      linear_combination hsq
+    rcases mul_eq_zero.mp hfac with hc | hc
+    · exact hroot1 (sub_eq_zero.mp hc)
+    · refine hroot1 ?_
+      have := eq_neg_of_add_eq_zero_left hc
+      rw [this, neg_eq_of_add_eq_zero_left h2]
+  have hφsq : φ * φ = 1 := by
+    have hroot2 : ((φ * φ).toAlgHom : AdjoinRoot P →ₐ[ZMod 2] AdjoinRoot P)
+        (AdjoinRoot.root P)
+        = ((1 : AdjoinRoot P ≃ₐ[ZMod 2] AdjoinRoot P).toAlgHom :
+            AdjoinRoot P →ₐ[ZMod 2] AdjoinRoot P) (AdjoinRoot.root P) := by
+      show φ (φ (AdjoinRoot.root P)) = AdjoinRoot.root P
+      rw [hφroot, map_inv₀, hφroot, inv_inv]
+    have hAlg := AdjoinRoot.algHom_ext hroot2
+    exact AlgEquiv.ext fun x => DFunLike.congr_fun hAlg x
+  have hord : orderOf φ = 2 := orderOf_eq_prime (by rw [pow_two]; exact hφsq) hφne
+  -- Lagrange in the Galois group (`card_aut_eq_finrank` is `Nat.card`-valued)
+  have hdvd : orderOf φ ∣ Nat.card (AdjoinRoot P ≃ₐ[ZMod 2] AdjoinRoot P) :=
+    orderOf_dvd_natCard φ
+  rw [hord, IsGalois.card_aut_eq_finrank,
+    Module.finrank_eq_card_basis hbasis, Fintype.card_fin] at hdvd
+  exact even_iff_two_dvd.mpr hdvd
+
+/-- The pack numerology: an even nonzero `f` is `2^a · r` with `a ≥ 1` and `r` odd. -/
+theorem exists_two_pow_mul_odd {f : ℕ} (hf0 : f ≠ 0) (hfe : Even f) :
+    ∃ a r : ℕ, 1 ≤ a ∧ Odd r ∧ f = 2 ^ a * r := by
+  refine ⟨f.factorization 2, ordCompl[2] f, ?_, ?_, ?_⟩
+  · exact Nat.Prime.factorization_pos_of_dvd Nat.prime_two hf0 (even_iff_two_dvd.mp hfe)
+  · have hnd := Nat.not_dvd_ordCompl Nat.prime_two hf0
+    exact Nat.odd_iff.mpr (by omega)
+  · exact (Nat.mul_div_cancel' (Nat.ordProj_dvd f 2)).symm
+
+end SelfReciprocity
 
 end RamifiedPack
 
