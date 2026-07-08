@@ -1,5 +1,6 @@
 import GQ2.GaussZCoordGammaA
 import GQ2.GaussZRelatorGammaA
+import GQ2.GaussZFinal
 
 /-!
 # P-16d6e4aA (A-4): the `Γ_A` Gauss residue — assembly shell + the pinned-value seams
@@ -2001,6 +2002,99 @@ theorem gaussZResidue_gammaA_ramified
     _ = (Nat.card En.Vmod : ℤ) * (2 ^ m : ℤ) := by
         rw [sum_sign_QZeroBar_gammaA_ramified B F En hsimple hVne hnt m hm hcard l h
           ρ c hc hfacρ hram]
+
+/-! ## A-4.6: the G0-obtain discharge against the c3-G0 tame package
+
+The ThmFourTwo `⟨G0, hGaussZA, hGaussZF⟩`-obtain, decomposed: everything except the
+per-block tame-structure package is proved.  The package fields mirror the residue
+theorems' `hpack` shapes VERBATIM (per-lift factorizations with the dichotomy clause);
+`hfaith` is carried for the LOCAL twins only (the `Γ_A` twins run hfaith-free), and the
+ramified flavor carries the orientation (provable only at the concrete
+`boundaryMapsWitness` — `tameUnitOrientation_witness`). -/
+
+/-- **The c3-G0 tame package, unramified flavor**: per-lift tame factorizations for both
+sources with trivially-acting inertia, plus the form-level constants and the local-side
+faithfulness. -/
+structure TamePackageUnram (B : BoundaryMaps) (F : BoundaryFrame H E)
+    (En : RF.Enrichment) where
+  m : ℕ
+  hm : 1 ≤ m
+  hcard : Nat.card En.Vmod = 2 ^ (2 * m)
+  hfaith : ∀ g : RF.YC, (∀ v : En.Vmod, g • v = v) → g = 1
+  packA : ∀ ρ : BoundaryLifts B.bA F RF.TC, ∃ c : ContinuousMonoidHom Ttame RF.YC,
+    Function.Surjective ⇑c ∧ (∀ g : GammaA, ρ.1.1 g = c (B.tameA g)) ∧
+      ∀ v : En.Vmod, c tameTau • v = v
+  packF : ∀ ρ : BoundaryLifts B.bF F RF.TC, ∃ c : ContinuousMonoidHom Ttame RF.YC,
+    Function.Surjective ⇑c ∧ (∀ g : AbsGalQ2, ρ.1.1 g = c (B.tameF g)) ∧
+      ∀ v : En.Vmod, c tameTau • v = v
+
+/-- **The c3-G0 tame package, ramified flavor**: inertia moves the module; the local
+side additionally needs the tame-unit orientation (at `R := localReciprocity`). -/
+structure TamePackageRam (B : BoundaryMaps) (F : BoundaryFrame H E)
+    (En : RF.Enrichment) where
+  m : ℕ
+  hm : 1 ≤ m
+  hcard : Nat.card En.Vmod = 2 ^ (2 * m)
+  hfaith : ∀ g : RF.YC, (∀ v : En.Vmod, g • v = v) → g = 1
+  horient : TameUnitOrientation localReciprocity B.tameF
+  packA : ∀ ρ : BoundaryLifts B.bA F RF.TC, ∃ c : ContinuousMonoidHom Ttame RF.YC,
+    Function.Surjective ⇑c ∧ (∀ g : GammaA, ρ.1.1 g = c (B.tameA g)) ∧
+      ∃ v : En.Vmod, c tameTau • v ≠ v
+  packF : ∀ ρ : BoundaryLifts B.bF F RF.TC, ∃ c : ContinuousMonoidHom Ttame RF.YC,
+    Function.Surjective ⇑c ∧ (∀ g : AbsGalQ2, ρ.1.1 g = c (B.tameF g)) ∧
+      ∃ v : En.Vmod, c tameTau • v ≠ v
+
+/-- **The unramified-block G0-obtain**: `G0 = −2^m` with both residues. -/
+theorem gaussZ_obtain_of_tamePackageUnram [CompactSpace AbsGalQ2]
+    [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
+    (hsimple : ∀ W : AddSubgroup En.Vmod,
+      (∀ g : RF.YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hVne : ∃ v : En.Vmod, v ≠ 0)
+    (hnt : ∃ (g : RF.YC) (v : En.Vmod), g • v ≠ v)
+    (P : TamePackageUnram B F En) :
+    ∃ G0 : ℤ,
+      (∀ (l : RF.DR) (h : l ≠ RF.zeroDR), GaussZResidue B.bA F En l h G0)
+        ∧ (∀ (l : RF.DR) (h : l ≠ RF.zeroDR), GaussZResidue B.bF F En l h G0) :=
+  ⟨-(2 ^ P.m : ℤ),
+    fun l h => gaussZResidue_gammaA_unramified B F En hsimple hVne hnt P.m P.hm P.hcard
+      l h P.packA,
+    fun l h => gaussZResidue_local_unramified B F En (tateDuality 2) hsimple hVne hnt
+      P.hfaith P.m P.hm P.hcard l h P.packF⟩
+
+/-- **The ramified-block G0-obtain**: `G0 = +2^m` with both residues (the `Γ_A` side
+modulo the isotypic-pack count). -/
+theorem gaussZ_obtain_of_tamePackageRam [CompactSpace AbsGalQ2]
+    [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
+    (hsimple : ∀ W : AddSubgroup En.Vmod,
+      (∀ g : RF.YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hVne : ∃ v : En.Vmod, v ≠ 0)
+    (hnt : ∃ (g : RF.YC) (v : En.Vmod), g • v ≠ v)
+    (P : TamePackageRam B F En) :
+    ∃ G0 : ℤ,
+      (∀ (l : RF.DR) (h : l ≠ RF.zeroDR), GaussZResidue B.bA F En l h G0)
+        ∧ (∀ (l : RF.DR) (h : l ≠ RF.zeroDR), GaussZResidue B.bF F En l h G0) :=
+  ⟨(2 ^ P.m : ℤ),
+    fun l h => gaussZResidue_gammaA_ramified B F En hsimple hVne hnt P.m P.hm P.hcard
+      l h P.packA,
+    fun l h => gaussZResidue_local_ramified B F En (tateDuality 2) localReciprocity
+      P.horient hsimple hVne hnt P.hfaith P.m P.hm P.hcard l h P.packF⟩
+
+/-- **The G0-obtain in the ThmFourTwo shape**: either package flavor produces the
+`⟨G0, hGaussZA, hGaussZF⟩`-triple — the consumer's remaining input is exactly ONE
+package value per block. -/
+theorem gaussZ_obtain_of_tamePackage [CompactSpace AbsGalQ2]
+    [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
+    (hsimple : ∀ W : AddSubgroup En.Vmod,
+      (∀ g : RF.YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hVne : ∃ v : En.Vmod, v ≠ 0)
+    (hnt : ∃ (g : RF.YC) (v : En.Vmod), g • v ≠ v)
+    (P : TamePackageUnram B F En ⊕ TamePackageRam B F En) :
+    ∃ G0 : ℤ,
+      (∀ (l : RF.DR) (h : l ≠ RF.zeroDR), GaussZResidue B.bA F En l h G0)
+        ∧ (∀ (l : RF.DR) (h : l ≠ RF.zeroDR), GaussZResidue B.bF F En l h G0) :=
+  match P with
+  | .inl P => gaussZ_obtain_of_tamePackageUnram B F En hsimple hVne hnt P
+  | .inr P => gaussZ_obtain_of_tamePackageRam B F En hsimple hVne hnt P
 
 end Assembly
 
