@@ -463,6 +463,224 @@ theorem exists_isotypic_equiv [Finite V] (t : C) (P : Polynomial (ZMod 2))
 
 end AdjoinRootStructure
 
+/-! ## §PackInterface: the `⟨t⟩`-module structure on `Wt := AdjoinRoot P`
+
+The pack-facing layer (design doc §0's field shapes): the `Subgroup.zpowers t`-action on
+`D := AdjoinRoot P` by root-multiplication (`rootAction`, through the choice-exponent hom
+`zpowHom : ⟨t⟩ →* Dˣ` — well-defined because `root P ^ orderOf t = 1`), the char-2 field
+`hWt2` (`adjoinRoot_add_self`), simplicity `hWtsimple` (`isSimpleModTwo_rootAction`: a
+`t`-stable additive subgroup of `D = 𝔽₂[root P]` is a `D`-subspace of the line), and the
+pack-shaped equivariance `he` (`equiv_zpowers_smul`, upgrading `exists_isotypic_equiv`'s
+per-coordinate root-equivariance). -/
+
+section PackInterface
+
+open Polynomial
+
+variable {C : Type*} [Group C] (t : C) (P : Polynomial (ZMod 2))
+
+/-- Char 2 on `AdjoinRoot P`: every element is 2-torsion (the `hWt2` pack field). -/
+theorem adjoinRoot_add_self (w : AdjoinRoot P) : w + w = 0 := by
+  obtain ⟨g, rfl⟩ := AdjoinRoot.mk_surjective w
+  rw [← map_add, show g + g = 0 from by
+    ext i
+    simp [CharTwo.add_self_eq_zero], map_zero]
+
+/-- Every element of `⟨t⟩` is a ℕ-power of `t` (finite order: reduce the ℤ-exponent
+mod `orderOf t`). -/
+theorem exists_pow_eq (hpos : 0 < orderOf t) (σ : ↥(Subgroup.zpowers t)) :
+    ∃ n : ℕ, (σ : C) = t ^ n := by
+  obtain ⟨k, hk⟩ := Subgroup.mem_zpowers_iff.mp σ.2
+  have hd0 : ((orderOf t : ℤ)) ≠ 0 := by exact_mod_cast hpos.ne'
+  have htd : t ^ ((orderOf t : ℤ)) = 1 := by rw [zpow_natCast, pow_orderOf_eq_one]
+  have hnn : 0 ≤ k % (orderOf t : ℤ) := Int.emod_nonneg k hd0
+  refine ⟨(k % (orderOf t : ℤ)).toNat, ?_⟩
+  have hsplit : t ^ k = t ^ (k % (orderOf t : ℤ)) := by
+    conv_lhs => rw [← Int.mul_ediv_add_emod k (orderOf t : ℤ)]
+    rw [zpow_add, zpow_mul, htd, one_zpow, one_mul]
+  rw [← hk, hsplit, ← zpow_natCast, Int.toNat_of_nonneg hnn]
+
+/-- The choice exponent of an element of `⟨t⟩`: `(σ : C) = t ^ powExp t hpos σ`. -/
+noncomputable def powExp (hpos : 0 < orderOf t) (σ : ↥(Subgroup.zpowers t)) : ℕ :=
+  (exists_pow_eq t hpos σ).choose
+
+theorem powExp_spec (hpos : 0 < orderOf t) (σ : ↥(Subgroup.zpowers t)) :
+    (σ : C) = t ^ powExp t hpos σ :=
+  (exists_pow_eq t hpos σ).choose_spec
+
+/-- `root P ^ orderOf t = 1` from `P ∣ X^{orderOf t} − 1` (via `AdjoinRoot.mk_eq_zero`). -/
+theorem root_pow_orderOf (hdvd : P ∣ (X ^ orderOf t - 1 : Polynomial (ZMod 2))) :
+    AdjoinRoot.root P ^ orderOf t = 1 := by
+  have h0 : AdjoinRoot.mk P (X ^ orderOf t - 1 : Polynomial (ZMod 2)) = 0 :=
+    AdjoinRoot.mk_eq_zero.mpr hdvd
+  rw [map_sub, map_one, map_pow, AdjoinRoot.mk_X, sub_eq_zero] at h0
+  exact h0
+
+variable {V : Type*} [AddCommGroup V] [DistribMulAction C V]
+
+/-- ℕ-power upgrade of `exists_isotypic_equiv`'s per-coordinate root-equivariance. -/
+theorem equiv_pow_smul {s : ℕ} (e : V ≃+ (Fin s → AdjoinRoot P))
+    (he : ∀ (v : V) (j : Fin s), e (t • v) j = AdjoinRoot.root P * e v j)
+    (n : ℕ) (v : V) (j : Fin s) :
+    e ((t ^ n) • v) j = AdjoinRoot.root P ^ n * e v j := by
+  induction n generalizing v with
+  | zero => rw [pow_zero, one_smul, pow_zero, one_mul]
+  | succ k ih => rw [pow_succ, mul_smul, ih, he v j, pow_succ, mul_assoc]
+
+variable [Fact (Irreducible P)]
+
+/-- The root is nonzero (else `0 = root^{orderOf t} = 1`). -/
+theorem root_ne_zero (hpos : 0 < orderOf t) (hdvd : P ∣ (X ^ orderOf t - 1 : Polynomial (ZMod 2))) :
+    AdjoinRoot.root P ≠ 0 := by
+  intro h
+  have h1 := root_pow_orderOf t P hdvd
+  rw [h, zero_pow hpos.ne'] at h1
+  exact zero_ne_one h1
+
+/-- The root as a unit of the field `AdjoinRoot P`. -/
+noncomputable def rootUnit (hpos : 0 < orderOf t)
+    (hdvd : P ∣ (X ^ orderOf t - 1 : Polynomial (ZMod 2))) : (AdjoinRoot P)ˣ :=
+  Units.mk0 (AdjoinRoot.root P) (root_ne_zero t P hpos hdvd)
+
+@[simp] theorem rootUnit_val (hpos : 0 < orderOf t)
+    (hdvd : P ∣ (X ^ orderOf t - 1 : Polynomial (ZMod 2))) :
+    ((rootUnit t P hpos hdvd : (AdjoinRoot P)ˣ) : AdjoinRoot P) = AdjoinRoot.root P := rfl
+
+theorem rootUnit_pow_orderOf (hpos : 0 < orderOf t)
+    (hdvd : P ∣ (X ^ orderOf t - 1 : Polynomial (ZMod 2))) :
+    rootUnit t P hpos hdvd ^ orderOf t = 1 := by
+  refine Units.ext ?_
+  rw [Units.val_pow_eq_pow_val, rootUnit_val, root_pow_orderOf t P hdvd, Units.val_one]
+
+/-- Well-definedness core: equal `t`-powers give equal `rootUnit`-powers
+(`orderOf rootUnit ∣ orderOf t`, then `pow_eq_pow_iff_modEq` both ways). -/
+theorem rootUnit_pow_congr (hpos : 0 < orderOf t)
+    (hdvd : P ∣ (X ^ orderOf t - 1 : Polynomial (ZMod 2)))
+    {m n : ℕ} (h : t ^ m = t ^ n) :
+    rootUnit t P hpos hdvd ^ m = rootUnit t P hpos hdvd ^ n := by
+  have hord : orderOf (rootUnit t P hpos hdvd) ∣ orderOf t :=
+    orderOf_dvd_iff_pow_eq_one.mpr (rootUnit_pow_orderOf t P hpos hdvd)
+  exact pow_eq_pow_iff_modEq.mpr ((pow_eq_pow_iff_modEq.mp h).of_dvd hord)
+
+/-- The `⟨t⟩ →* Dˣ` hom `t^k ↦ root^k` (choice-exponent; well-defined by
+`rootUnit_pow_congr`). -/
+noncomputable def zpowHom (hpos : 0 < orderOf t)
+    (hdvd : P ∣ (X ^ orderOf t - 1 : Polynomial (ZMod 2))) :
+    ↥(Subgroup.zpowers t) →* (AdjoinRoot P)ˣ where
+  toFun σ := rootUnit t P hpos hdvd ^ powExp t hpos σ
+  map_one' := by
+    show rootUnit t P hpos hdvd ^ powExp t hpos 1 = 1
+    have h : t ^ powExp t hpos (1 : ↥(Subgroup.zpowers t)) = t ^ 0 := by
+      rw [← powExp_spec t hpos 1, OneMemClass.coe_one, pow_zero]
+    rw [rootUnit_pow_congr t P hpos hdvd h, pow_zero]
+  map_mul' σ τ := by
+    show rootUnit t P hpos hdvd ^ powExp t hpos (σ * τ)
+      = rootUnit t P hpos hdvd ^ powExp t hpos σ * rootUnit t P hpos hdvd ^ powExp t hpos τ
+    have h : t ^ powExp t hpos (σ * τ) = t ^ (powExp t hpos σ + powExp t hpos τ) := by
+      rw [← powExp_spec t hpos (σ * τ), pow_add, ← powExp_spec t hpos σ,
+        ← powExp_spec t hpos τ]
+      rfl
+    rw [rootUnit_pow_congr t P hpos hdvd h, pow_add]
+
+theorem zpowHom_of_pow (hpos : 0 < orderOf t)
+    (hdvd : P ∣ (X ^ orderOf t - 1 : Polynomial (ZMod 2)))
+    {σ : ↥(Subgroup.zpowers t)} {n : ℕ} (hσ : (σ : C) = t ^ n) :
+    zpowHom t P hpos hdvd σ = rootUnit t P hpos hdvd ^ n := by
+  show rootUnit t P hpos hdvd ^ powExp t hpos σ = rootUnit t P hpos hdvd ^ n
+  refine rootUnit_pow_congr t P hpos hdvd ?_
+  rw [← powExp_spec t hpos σ, hσ]
+
+/-- **The `⟨t⟩`-module structure on `Wt := AdjoinRoot P`** (the pack instance argument):
+`t^k` acts as multiplication by `root P ^ k`.  Consumers `letI` it. -/
+@[reducible] noncomputable def rootAction (hpos : 0 < orderOf t)
+    (hdvd : P ∣ (X ^ orderOf t - 1 : Polynomial (ZMod 2))) :
+    DistribMulAction ↥(Subgroup.zpowers t) (AdjoinRoot P) :=
+  DistribMulAction.compHom (AdjoinRoot P) (zpowHom t P hpos hdvd)
+
+/-- Computation rule for `rootAction` at a ℕ-power presentation of `σ`. -/
+theorem rootAction_smul_of_pow (hpos : 0 < orderOf t)
+    (hdvd : P ∣ (X ^ orderOf t - 1 : Polynomial (ZMod 2)))
+    {σ : ↥(Subgroup.zpowers t)} {n : ℕ} (hσ : (σ : C) = t ^ n) (w : AdjoinRoot P) :
+    letI := rootAction t P hpos hdvd
+    σ • w = AdjoinRoot.root P ^ n * w := by
+  letI := rootAction t P hpos hdvd
+  show ((zpowHom t P hpos hdvd σ : (AdjoinRoot P)ˣ) : AdjoinRoot P) * w = _
+  rw [zpowHom_of_pow t P hpos hdvd hσ, Units.val_pow_eq_pow_val, rootUnit_val]
+
+/-- The generator acts as root-multiplication. -/
+theorem rootAction_gen_smul (hpos : 0 < orderOf t)
+    (hdvd : P ∣ (X ^ orderOf t - 1 : Polynomial (ZMod 2))) (w : AdjoinRoot P) :
+    letI := rootAction t P hpos hdvd
+    (⟨t, Subgroup.mem_zpowers t⟩ : ↥(Subgroup.zpowers t)) • w = AdjoinRoot.root P * w := by
+  letI := rootAction t P hpos hdvd
+  have h := rootAction_smul_of_pow t P hpos hdvd
+    (σ := ⟨t, Subgroup.mem_zpowers t⟩) (n := 1) (by rw [pow_one]) w
+  rwa [pow_one] at h
+
+/-- **`Wt` is a simple `⟨t⟩`-module** (the `hWtsimple` pack field): a `t`-stable additive
+subgroup of `D = 𝔽₂[root P]` is stable under multiplication by every `mk P g`, hence a
+`D`-subspace of the line `D` — so `⊥` or `⊤`. -/
+theorem isSimpleModTwo_rootAction (hpos : 0 < orderOf t)
+    (hdvd : P ∣ (X ^ orderOf t - 1 : Polynomial (ZMod 2))) :
+    letI := rootAction t P hpos hdvd
+    FoxH.IsSimpleModTwo ↥(Subgroup.zpowers t) (AdjoinRoot P) := by
+  letI := rootAction t P hpos hdvd
+  refine ⟨inferInstance, fun W hW => ?_⟩
+  -- root-stability from the generator
+  have hroot : ∀ w ∈ W, AdjoinRoot.root P * w ∈ W := fun w hw => by
+    have h := hW ⟨t, Subgroup.mem_zpowers t⟩ w hw
+    rwa [rootAction_gen_smul t P hpos hdvd w] at h
+  -- polynomial upgrade: `mk P g * w ∈ W`
+  have hpoly : ∀ (g : Polynomial (ZMod 2)), ∀ w ∈ W, AdjoinRoot.mk P g * w ∈ W := by
+    intro g
+    induction g using Polynomial.induction_on' with
+    | add p q hp hq =>
+      intro w hw
+      rw [map_add, add_mul]
+      exact W.add_mem (hp w hw) (hq w hw)
+    | monomial n a =>
+      intro w hw
+      rcases (show ∀ x : ZMod 2, x = 0 ∨ x = 1 from by decide) a with rfl | rfl
+      · rw [Polynomial.monomial_zero_right, map_zero, zero_mul]
+        exact W.zero_mem
+      · rw [← Polynomial.X_pow_eq_monomial, map_pow, AdjoinRoot.mk_X]
+        induction n with
+        | zero =>
+          rw [pow_zero, one_mul]
+          exact hw
+        | succ k ih =>
+          rw [pow_succ', mul_assoc]
+          exact hroot _ ih
+  rcases eq_or_ne W ⊥ with h | h
+  · exact Or.inl h
+  · refine Or.inr ((AddSubgroup.eq_top_iff' W).mpr fun x => ?_)
+    obtain ⟨w₀, hw₀W, hw₀ne⟩ : ∃ w₀ ∈ W, w₀ ≠ (0 : AdjoinRoot P) := by
+      by_contra hcon
+      refine h ((AddSubgroup.eq_bot_iff_forall W).mpr fun y hy => ?_)
+      by_cases hy0 : y = 0
+      · exact hy0
+      · exact absurd ⟨y, hy, hy0⟩ hcon
+    obtain ⟨g, hg⟩ := AdjoinRoot.mk_surjective (x * w₀⁻¹)
+    have hx := hpoly g w₀ hw₀W
+    rw [hg, mul_assoc, inv_mul_cancel₀ hw₀ne, mul_one] at hx
+    exact hx
+
+/-- **The pack-shaped equivariance `he`**: the per-coordinate root-equivariance of
+`exists_isotypic_equiv` upgrades to full `⟨t⟩`-equivariance for the `rootAction`
+module structure on `Wt` — `prop_6_9_ramified`'s `he` field verbatim. -/
+theorem equiv_zpowers_smul (hpos : 0 < orderOf t)
+    (hdvd : P ∣ (X ^ orderOf t - 1 : Polynomial (ZMod 2)))
+    {s : ℕ} (e : V ≃+ (Fin s → AdjoinRoot P))
+    (he : ∀ (v : V) (j : Fin s), e (t • v) j = AdjoinRoot.root P * e v j) :
+    letI := rootAction t P hpos hdvd
+    ∀ (σ : ↥(Subgroup.zpowers t)) (v : V) (j : Fin s), e ((σ : C) • v) j = σ • e v j := by
+  letI := rootAction t P hpos hdvd
+  intro σ v j
+  obtain ⟨n, hn⟩ := exists_pow_eq t hpos σ
+  rw [hn, equiv_pow_smul t P e he n v j, rootAction_smul_of_pow t P hpos hdvd hn]
+
+end PackInterface
+
 end RamifiedPack
 
 end GQ2
