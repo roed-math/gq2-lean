@@ -606,7 +606,7 @@ theorem gaussZResidueD_gammaA_ramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Boundar
       powOmega2_eq_one_of_odd hoddHV, one_smul]
   have hmem : ∀ v : (EnD.descData l h).Vmod,
       x0Supported v ∈ Z1w (A := (EnD.descData l h).Vmod) (markC (thetaGA B.bA F ρ)) :=
-    fun v => AffineTLift.x0Supported_mem_Z1w_ramified (markC (thetaGA B.bA F ρ)) hadm.2.1 hA₂
+    fun v => FoxH.x0Supported_mem_Z1w_ramified (markC (thetaGA B.bA F ρ)) hadm.2.1 hA₂
       hx0M hx1M htauM hToddM v
   have hsec := x0Section_bijective_ramified (markC (thetaGA B.bA F ρ)) hadm.2.1 hadm.2.2.1
     hA₂ hx0M hx1M htauM hToddM

@@ -527,13 +527,6 @@ theorem charCoverMap_coe_eq_zpow (χ : ↥(TCharC D)) (hχ : χ ≠ 0) (t : ↥D
       decide
     exact hmem
 
-/-- `z`-powers add `ZMod 2`-exponents (any central double cover: `z² = 1`). -/
-theorem cover_z_pow_val_add {B0 : Type} [Group B0] [Finite B0] (Q : CentralCover B0)
-    (a b : ZMod 2) : Q.z ^ ((a + b).val) = Q.z ^ a.val * Q.z ^ b.val := by
-  have hz2 : Q.z * Q.z = 1 := Q.z_sq
-  rcases zmod2_cases a with rfl | rfl <;> rcases zmod2_cases b with rfl | rfl <;>
-    simp [show ((1 : ZMod 2) + 1).val = 0 from rfl, ZMod.val_zero, ZMod.val_one, hz2]
-
 variable {Γ : Type} [Group Γ] [TopologicalSpace Γ]
 variable {DD : DescData D} {σ : DD.C0 →* Bg ⧸ D.T} {ρ : ContinuousMonoidHom Γ (Bg ⧸ D.M)}
 
@@ -577,11 +570,11 @@ theorem exists_lift_charCover [DistribMulAction Γ (ZMod 2)]
       _ = charCoverMap χ hχ (fLift S c (γ * δ))
             * ((charCover χ hχ).z ^ (chiDef S hσ χ c (γ, δ)).val
               * (charCover χ hχ).z ^ ((ψ γ + ψ δ)).val) := by
-          rw [cover_z_pow_val_add]
+          rw [CentralCover.z_pow_val_add]
       _ = (charCover χ hχ).z ^ (chiDef S hσ χ c (γ, δ)).val
             * charCoverMap χ hχ (fLift S c (γ * δ))
             * ((charCover χ hχ).z ^ (ψ γ).val * (charCover χ hχ).z ^ (ψ δ).val) := by
-          rw [cover_z_pow_val_add, ← mul_assoc,
+          rw [CentralCover.z_pow_val_add, ← mul_assoc,
             ← ((hzc (charCoverMap χ hχ (fLift S c (γ * δ)))).pow_left
               (chiDef S hσ χ c (γ, δ)).val).eq]
       _ = charCoverMap χ hχ ((tDef S hσ c (γ, δ) : Bg)) * charCoverMap χ hχ (fLift S c (γ * δ))

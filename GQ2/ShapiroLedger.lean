@@ -1284,6 +1284,8 @@ theorem smul_mul_ghat (ghat : G) (σ : G) (m : G ⧸ N) :
     σ⁻¹ • (m * (ghat : G ⧸ N)) = (σ⁻¹ • m) * (ghat : G ⧸ N) := by
   rw [quot_smul_eq_mk_mul, quot_smul_eq_mk_mul, mul_assoc]
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- The `mk'`-form of the plain shift. -/
 theorem mk'_inv_mul (σ : G) (m : G ⧸ N) :
     (QuotientGroup.mk' N σ)⁻¹ * m = σ⁻¹ • m := by

@@ -155,34 +155,6 @@ lemma powOmega2_eq_one_of_odd {G : Type*} [Group G] {x : G} (hx : Odd (orderOf x
   rw [powOmega2, omega2Exp, h2]
   simp
 
-/-- **The ledger collapse**: a marking of the form `(σ, τ, 1, 1)` with `τ` of odd order
-satisfies the wild relation (6). -/
-theorem wildRel_of_trivial_wild {G : Type*} [Group G] (σ τ : G) (hτ : Odd (orderOf τ)) :
-    (Marking.mk σ τ 1 1).WildRel := by
-  have hu : powOmega2 ((1 : G) * τ) = 1 := by
-    rw [one_mul]; exact powOmega2_eq_one_of_odd hτ
-  have hu0 : (Marking.mk σ τ 1 1).u0 = 1 := hu
-  have hu1 : (Marking.mk σ τ 1 1).u1 = 1 := hu
-  have hd0 : (Marking.mk σ τ 1 1).d0 = 1 := by
-    simp only [Marking.d0, hu0]
-    simp
-  have hz0 : (Marking.mk σ τ 1 1).z0 = 1 := by
-    simp [Marking.z0, conjP]
-  have hc0 : (Marking.mk σ τ 1 1).c0 = 1 := by
-    simp only [Marking.c0, hd0, hz0]
-    simp [commP]
-  have hdg : (Marking.mk σ τ 1 1).dg = 1 := by
-    simp only [Marking.dg, hd0]
-    simp [conjP]
-  have hhc : (Marking.mk σ τ 1 1).hc = 1 := by
-    simp only [Marking.hc, hdg, hd0]
-    simp [commP]
-  have hh0 : (Marking.mk σ τ 1 1).h0 = 1 := by
-    simp only [Marking.h0, hdg, hd0, hhc]
-    simp [conjP]
-  simp only [Marking.WildRel, hh0, hu1, hc0]
-  simp [conjP]
-
 /-! ## The `Γ_A` side: the classifier and its levels -/
 
 /-- The classifier `F₄ ⟶ T_tame`: `σ ↦ σ, τ ↦ τ, x₀ ↦ 1, x₁ ↦ 1`. -/
@@ -250,7 +222,7 @@ theorem isAdmissible_tameClassifier_level (V : OpenNormalSubgroup Ttame) :
     rw [Marking.TameRel, hσ, hτ]
     simpa [conjP] using hrel
   · -- wild relation, via the ledger collapse
-    have h := wildRel_of_trivial_wild (q tameSigma) (q tameTau) hodd
+    have h := Marking.wildRel_of_trivial_wild (Marking.mk (q tameSigma) (q tameTau) 1 1) rfl rfl (powOmega2_eq_one_of_odd hodd)
     have ht : univMarking.map f = Marking.mk (q tameSigma) (q tameTau) 1 1 := by
       rw [show univMarking.map f = Marking.mk (univMarking.map f).σ (univMarking.map f).τ
         (univMarking.map f).x₀ (univMarking.map f).x₁ from rfl, hσ, hτ, hx₀, hx₁]

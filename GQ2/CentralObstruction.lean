@@ -306,19 +306,6 @@ theorem tComplement_nonempty : Nonempty (TComplement D) := by
   rw [hmul]
   rfl
 
-/-- `z`-power addition law on `ZMod 2` exponents. -/
-theorem z_pow_val_add (a b : ZMod 2) :
-    D.C.z ^ a.val * D.C.z ^ b.val = D.C.z ^ ((a + b)).val := by
-  rcases zmod2_cases a with rfl | rfl <;> rcases zmod2_cases b with rfl | rfl
-  · rw [show ((0 : ZMod 2) + 0) = 0 by decide, show ((0 : ZMod 2)).val = 0 by decide,
-      pow_zero, one_mul]
-  · rw [show ((0 : ZMod 2) + 1) = 1 by decide, show ((0 : ZMod 2)).val = 0 by decide,
-      pow_zero, one_mul]
-  · rw [show ((1 : ZMod 2) + 0) = 1 by decide, show ((0 : ZMod 2)).val = 0 by decide,
-      pow_zero, mul_one]
-  · rw [show ((1 : ZMod 2) + 1) = 0 by decide, show ((1 : ZMod 2)).val = 1 by decide,
-      show ((0 : ZMod 2)).val = 0 by decide, pow_one, pow_zero, D.C.z_sq]
-
 /-! ## The edge cocycle of (128) -/
 
 section Edge
@@ -424,7 +411,7 @@ theorem edge_mul (b₁ b₂ : Bg) (t : ↥D.T) :
         * D.C.z ^ (edge D S b₂ t).val := by rw [e₁]
     _ = S.s ⟨(b₁ * b₂) * t.1 * (b₁ * b₂)⁻¹, conj_mem_T D (b₁ * b₂) t⟩
         * D.C.z ^ ((edge D S b₁ ⟨b₂ * t.1 * b₂⁻¹, conj_mem_T D b₂ t⟩ + edge D S b₂ t)).val := by
-        rw [hsub, mul_assoc, z_pow_val_add]
+        rw [hsub, mul_assoc, ← CentralCover.z_pow_val_add]
 
 /-- **Edge additivity in `t`** (the complement is linear). -/
 theorem edge_add (b : Bg) (t t' : ↥D.T) :
@@ -460,7 +447,7 @@ theorem edge_add (b : Bg) (t t' : ↥D.T) :
         group
     _ = S.s ⟨b * (t.1 * t'.1) * b⁻¹, conj_mem_T D b (t * t')⟩
         * D.C.z ^ ((edge D S b t + edge D S b t')).val := by
-        rw [hsub, map_mul, z_pow_val_add]
+        rw [hsub, map_mul, ← CentralCover.z_pow_val_add]
 
 /-- The value of `s` on a conjugate-by-`M` argument is unchanged (`M` centralizes `T`). -/
 theorem conj_M_fix (m : Bg) (hm : m ∈ D.M) (t : ↥D.T) :
@@ -509,7 +496,7 @@ theorem not_noDescent_of_edge_trivial (ℓ : ↥D.T → ZMod 2)
       S.s (t * t') * D.C.z ^ (ℓ (t * t')).val
         = (S.s t * D.C.z ^ (ℓ t).val) * (S.s t' * D.C.z ^ (ℓ t').val) := by
     intro t t'
-    rw [map_mul S.s, hadd, ← z_pow_val_add]
+    rw [map_mul S.s, hadd, CentralCover.z_pow_val_add]
     calc S.s t * S.s t' * (D.C.z ^ (ℓ t).val * D.C.z ^ (ℓ t').val)
         = S.s t * (S.s t' * D.C.z ^ (ℓ t).val) * D.C.z ^ (ℓ t').val := by group
       _ = S.s t * (D.C.z ^ (ℓ t).val * S.s t') * D.C.z ^ (ℓ t').val := by
@@ -552,7 +539,7 @@ theorem not_noDescent_of_edge_trivial (ℓ : ↥D.T → ZMod 2)
           * D.C.z ^ ((edge D S (D.C.p g) t + ℓ t)).val := by rw [hexp2]
       _ = S.s ⟨D.C.p g * t.1 * (D.C.p g)⁻¹, conj_mem_T D (D.C.p g) t⟩
           * (D.C.z ^ (edge D S (D.C.p g) t).val * D.C.z ^ (ℓ t).val) := by
-          rw [z_pow_val_add]
+          rw [← CentralCover.z_pow_val_add]
       _ = S.s ⟨D.C.p g * t.1 * (D.C.p g)⁻¹, conj_mem_T D (D.C.p g) t⟩
           * D.C.z ^ (edge D S (D.C.p g) t).val * D.C.z ^ (ℓ t).val := by group
       _ = (g * S.s t * g⁻¹) * D.C.z ^ (ℓ t).val := by rw [← hspec]
@@ -870,7 +857,8 @@ theorem central_iff_ob_eq_zero (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m
               * D.C.z ^ (obCocOf D (liftFam D ρ f) (γ, δ)).val)
             * liftFam D ρ f (γ * δ) := by group
         _ = D.C.z ^ ((c γ + c δ + obCocOf D (liftFam D ρ f) (γ, δ))).val
-            * liftFam D ρ f (γ * δ) := by rw [z_pow_val_add, z_pow_val_add]
+            * liftFam D ρ f (γ * δ) := by
+              rw [← CentralCover.z_pow_val_add, ← CentralCover.z_pow_val_add]
         _ = D.C.z ^ (c (γ * δ)).val * liftFam D ρ f (γ * δ) := by
             have harith : ∀ a b e : ZMod 2, a + b + (b - e + a) = e := by decide
             rw [hpt γ δ, harith]

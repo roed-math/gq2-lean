@@ -228,17 +228,6 @@ variable {W₁ W₂ : Type}
 
 variable {ρ}
 
-omit [DiscreteTopology W₁] [Finite W₁] [ContinuousSMul AbsGalQ2 W₁] [DiscreteTopology W₂]
-  [Finite W₂] [ContinuousSMul AbsGalQ2 W₂] in
-/-- `mapCoeff1` computes on classes: pushing forward the class of a cocycle is the class of
-the pushed-forward cocycle (definitional, via `QuotientAddGroup.map`). -/
-theorem mapCoeff1_H1mk (f : W₁ →+ W₂) (hf : Continuous f)
-    (hcompat : ∀ (g : AbsGalQ2) (w : W₁), f (g • w) = g • f w) (b : ↥(Z1 AbsGalQ2 W₁)) :
-    mapCoeff1 f hf hcompat (H1mk AbsGalQ2 W₁ b)
-      = H1mk AbsGalQ2 W₂
-          (Z1comap (ContinuousMonoidHom.id AbsGalQ2) f hf (fun g n => hcompat g n) b) :=
-  rfl
-
 /-- **`phiRes` is natural in the coefficient module**: restricting a pushed-forward class is
 pre-composing the functional.  The workhorse of the retract transfer. -/
 theorem phiRes_mapCoeff1 (hρ₁ : ∀ (g : AbsGalQ2) (w : W₁), g • w = ρ g • w)

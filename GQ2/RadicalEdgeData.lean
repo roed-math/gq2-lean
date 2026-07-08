@@ -55,6 +55,21 @@ lemma sq_eq_one_of_mem_ker {x : C.cover} (hx : x ∈ C.p.ker) : x * x = 1 := by
   obtain ⟨n, rfl⟩ := hx
   rw [← Commute.mul_zpow (Commute.refl C.z), C.z_sq, one_zpow]
 
+/-- `z`-powers by `𝔽₂`-exponents add (any central double cover: `z² = 1`). -/
+theorem z_pow_val_add (a b : ZMod 2) :
+    C.z ^ (a + b).val = C.z ^ a.val * C.z ^ b.val := by
+  rcases (show ∀ x : ZMod 2, x = 0 ∨ x = 1 from by decide) a with rfl | rfl <;>
+    rcases (show ∀ x : ZMod 2, x = 0 ∨ x = 1 from by decide) b with rfl | rfl
+  · show C.z ^ 0 = C.z ^ 0 * C.z ^ 0
+    rw [pow_zero, one_mul]
+  · show C.z ^ 1 = C.z ^ 0 * C.z ^ 1
+    rw [pow_zero, one_mul]
+  · show C.z ^ 1 = C.z ^ 1 * C.z ^ 0
+    rw [pow_zero, mul_one]
+  · show C.z ^ 0 = C.z ^ 1 * C.z ^ 1
+    rw [pow_zero, pow_one]
+    exact C.z_sq.symm
+
 end CentralCover
 
 /-! ## The Lemma 8.6 datum  (radical cover) -/

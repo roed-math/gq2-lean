@@ -1,6 +1,7 @@
 import GQ2.BoundaryConstruction
 import GQ2.LocalMarked
 import GQ2.Prop32
+import GQ2.TameTwoQuotient
 
 /-!
 # `prop_3_14 : Nonempty BoundaryMaps` — the eq. (27) boundary data  (ticket P-25)
@@ -111,62 +112,6 @@ theorem proPKernel_image_ge {p : ℕ} {G H : Type*}
   intro h hh
   have hmem : quotientMk Nim h = 1 := hpk hh
   exact (QuotientGroup.eq_one_iff h).mp hmem
-
-/-- **`τ` dies in the maximal pro-2 quotient of `T_tame`** (Lemma 3.1): in every finite 2-group
-level the image of `τ` has both odd order (tame relation `τ^σ = τ²`) and 2-power order. -/
-theorem maxProPMk_tameTau : maxProPMk 2 Ttame tameTau = 1 := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  have hmem : tameTau ∈ proPKernel 2 Ttame := by
-    rw [proPKernel, Subgroup.mem_iInf]
-    rintro ⟨U, hU⟩
-    set q : Ttame →* Ttame ⧸ U.toSubgroup := QuotientGroup.mk' U.toSubgroup with hq
-    have hrel : (q tameSigma)⁻¹ * (q tameTau) * (q tameSigma) = (q tameTau) ^ 2 := by
-      have h := congrArg (⇑q) GQ2.tame_relation
-      simpa only [conjP, map_mul, map_inv, map_pow] using h
-    have hodd : Odd (orderOf (q tameTau)) :=
-      Tame.tame_odd_order (orderOf_pos (q tameSigma)).ne' hrel
-    obtain ⟨k, hk⟩ := (IsPGroup.iff_orderOf.mp hU) (q tameTau)
-    have h1 : orderOf (q tameTau) = 1 := by
-      rcases Nat.eq_zero_or_pos k with rfl | hpos
-      · simpa using hk
-      · exfalso
-        have h2dvd : 2 ∣ orderOf (q tameTau) := hk ▸ dvd_pow_self 2 hpos.ne'
-        rw [Nat.odd_iff] at hodd; omega
-    exact (QuotientGroup.eq_one_iff _).mp (orderOf_eq_one_iff.mp h1)
-  exact (quotientMk_eq_one_iff (proPKernel 2 Ttame)).mpr hmem
-
-/-- **`ker ν_t ⊆ proPKernel 2 T_tame`.**  `maxProPMk : T_tame ↠ T_tame(2)` factors through
-`ν_t : T_tame ↠ ℤ₂` — build `ρ' : ℤ₂ → T_tame(2)` from the `ẑ`-power hom `ẑ ↦ (maxProPMk σ)^ẑ`
-(pushed through `ℤ₂ = ẑ(2)` since `T_tame(2)` is pro-2), matching `maxProPMk` on `σ` (both `↦
-maxProPMk σ`) and on `τ` (both `↦ 1`, via `maxProPMk_tameTau`).  Hence `ν_t x = 1 ⇒ maxProPMk x =
-ρ'(ν_t x) = 1 ⇒ x ∈ proPKernel`. -/
-theorem ker_nuT_le_proPKernel :
-    GQ2.nuT.toMonoidHom.ker ≤ proPKernel 2 Ttame := by
-  set s : maxProPQuotient 2 Ttame := maxProPMk 2 Ttame tameSigma with hs
-  -- the `ẑ`-power hom `Zhat → T_tame(2)`, generator ↦ `s`
-  let zhatHom : ContinuousMonoidHom Zhat (maxProPQuotient 2 Ttame) :=
-    ⟨{ toFun := fun γ => s ^ᶻ γ, map_one' := zpowHat_one s, map_mul' := fun a b => zpowHat_mul s a b },
-      continuous_zpowHat s⟩
-  -- descend through `ℤ₂ = Zhat(2)` (the target is pro-2)
-  let ρ' : ContinuousMonoidHom Ztwo (maxProPQuotient 2 Ttame) :=
-    (maxProPHomEquiv (G := Zhat) isProP_maxProPQuotient).symm zhatHom
-  have hρ : ∀ z : Zhat, ρ' (maxProPMk 2 Zhat z) = s ^ᶻ z := fun z => rfl
-  -- `maxProPMk = ρ' ∘ ν_t` by density on `σ, τ`
-  have key : ∀ y, (maxProPMk 2 Ttame) y = (ρ'.comp GQ2.nuT) y := by
-    refine monoidHom_eq_of_topGen (f := (maxProPMk 2 Ttame).toMonoidHom)
-      (g := (ρ'.comp GQ2.nuT).toMonoidHom)
-      (maxProPMk 2 Ttame).continuous_toFun (ρ'.comp GQ2.nuT).continuous_toFun topGen_ttame ?_
-    rintro z (rfl | rfl)
-    · show maxProPMk 2 Ttame tameSigma = ρ' (GQ2.nuT tameSigma)
-      rw [nuT_tameSigma, show ztwoOne = maxProPMk 2 Zhat (Zhat.ofInt 1) from rfl, hρ,
-        zpowHat_ofInt, zpow_one]
-    · show maxProPMk 2 Ttame tameTau = ρ' (GQ2.nuT tameTau)
-      rw [nuT_tameTau, map_one, maxProPMk_tameTau]
-  intro x hx
-  have hnuT : GQ2.nuT x = 1 := hx
-  have hmk : maxProPMk 2 Ttame x = 1 := by
-    rw [key x]; show ρ' (GQ2.nuT x) = 1; rw [hnuT, map_one]
-  exact (QuotientGroup.eq_one_iff x).mp hmk
 
 /-! ## The `Γ_A` side -/
 

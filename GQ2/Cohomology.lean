@@ -425,6 +425,13 @@ def mapCoeff0 : H0 G N →+ H0 G M :=
 def mapCoeff1 : H1 G N →+ H1 G M :=
   H1comap (ContinuousMonoidHom.id G) f hf fun g n => hcompat g n
 
+/-- `mapCoeff1` computes on classes: the image of `H1mk z` is `H1mk` of the pushed-forward
+cocycle (definitional). -/
+theorem mapCoeff1_H1mk (z : Z1 G N) :
+    mapCoeff1 f hf hcompat (H1mk G N z)
+      = H1mk G M (Z1comap (ContinuousMonoidHom.id G) f hf (fun g n => hcompat g n) z) :=
+  rfl
+
 /-- Coefficient functoriality in degree 2. -/
 def mapCoeff2 : H2 G N →+ H2 G M :=
   H2comap (ContinuousMonoidHom.id G) f hf fun g n => hcompat g n

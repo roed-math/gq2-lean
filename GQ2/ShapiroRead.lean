@@ -85,13 +85,6 @@ section Read
 
 variable {G : Type*} [Group G] {N : Subgroup G} [N.Normal]
 
-/-- The coset action bridge: the group-multiplication translate in `G ⧸ N` is the `G`-action
-translate (the `hact` of `lemma_6_15_square`, extracted). -/
-theorem mk'_inv_mul (g : G) (u : G ⧸ N) : (QuotientGroup.mk' N g)⁻¹ * u = g⁻¹ • u := by
-  refine QuotientGroup.induction_on u fun u₀ => ?_
-  rw [QuotientGroup.mk'_apply, ← QuotientGroup.mk_inv, ← QuotientGroup.mk_mul]
-  rfl
-
 variable (N) in
 /-- The **scalar Shapiro coordinate** of a `𝔽₂[G/N]`-valued 1-cochain: evaluate at the base
 coset and restrict to `N` (the forward half of Shapiro's `H¹(G, 𝔽₂[G/N]) ≅ H¹(N, 𝔽₂)`). -/
@@ -138,7 +131,7 @@ theorem shapiroFun_shapiroCoord_apply (g : G) (u : G ⧸ N) :
   have e1 : (β g + QuotientGroup.mk' N g • β (g⁻¹ • u : G ⧸ N).out) u
       = β g u + β (g⁻¹ • u : G ⧸ N).out (g⁻¹ • u) := by
     show β g u + β (g⁻¹ • u : G ⧸ N).out ((QuotientGroup.mk' N g)⁻¹ * u) = _
-    rw [mk'_inv_mul]
+    rw [ShapiroLedger.mk'_inv_mul]
   have e2 : (β u.out + QuotientGroup.mk' N u.out • β (lWord N u g)) u
       = β u.out u + β (lWord N u g) 1 := by
     show β u.out u + β (lWord N u g) ((QuotientGroup.mk' N u.out)⁻¹ * u) = _
@@ -156,7 +149,7 @@ theorem shapiroFun_shapiroCoord_eq (g : G) :
   funext u
   show shapiroFun N (shapiroCoord N β) g u
       = β g u + (shapiroPrim N β ((QuotientGroup.mk' N g)⁻¹ * u) - shapiroPrim N β u)
-  rw [mk'_inv_mul, CharTwo.sub_eq_add]
+  rw [ShapiroLedger.mk'_inv_mul, CharTwo.sub_eq_add]
   exact shapiroFun_shapiroCoord_apply hβ g u
 
 end Read

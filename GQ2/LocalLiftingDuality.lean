@@ -348,12 +348,6 @@ theorem edEquivariant
   rw [hEDsmul]
   simp only [dualAddEquiv_apply, muDual_smul_apply, smul_muN_two_trivial]
 
-/-- `ElemDual A` is `2`-torsion (its values lie in `𝔽₂`). -/
-theorem elemDual_two_torsion (lam : ElemDual A) : lam + lam = 0 :=
-  DFunLike.ext _ _ fun a => by
-    rw [ElemDual.add_apply, ElemDual.zero_apply]
-    exact CharTwo.add_self_eq_zero (lam a)
-
 /-- **Clause (iv)**: the `(1,1)` evaluation cup `c ↦ (d ↦ c ∪ d) : H¹(A) → Hom(H¹(A′), H²(𝔽₂))` is
 bijective — the transpose of B6's `perfect11`, discharged by graded-commutativity + counting. -/
 theorem bijective_cup11_dualEval

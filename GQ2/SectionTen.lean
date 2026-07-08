@@ -72,30 +72,6 @@ theorem le_twoCore {G : Type*} [Group G] {N : Subgroup G} (hN : N.Normal)
 
 end TwoCore
 
-/-- **The pro-2 image bridge** (P-18b): the image of a pro-2 subgroup under a continuous
-homomorphism into a finite discrete group is a 2-group.  (`f(K) ≅ K ⧸ ker(f|_K)`, and the
-kernel is open since the codomain is discrete, so this is an `IsProP` quotient.) -/
-theorem isPGroup_map_of_isProP {Γ G' : Type*} [Group Γ] [TopologicalSpace Γ] [Group G']
-    [TopologicalSpace G'] [DiscreteTopology G'] [Finite G'] (K : Subgroup Γ)
-    (hK : IsProP 2 K) (f : ContinuousMonoidHom Γ G') :
-    IsPGroup 2 (K.map f.toMonoidHom) := by
-  -- `g : ↥K →* G'`, the restriction of `f` to `K`
-  set g : K →* G' := f.toMonoidHom.comp K.subtype with hg
-  -- `g` is continuous, so (codomain discrete) its kernel is open in `K`
-  have hgcont : Continuous g := f.continuous_toFun.comp continuous_subtype_val
-  have hopen : IsOpen (g.ker : Set K) := by
-    have hpre : (g.ker : Set K) = g ⁻¹' {1} := by
-      ext x; simp [MonoidHom.mem_ker]
-    rw [hpre]; exact (isOpen_discrete {(1 : G')}).preimage hgcont
-  -- package `ker g` as an open normal subgroup of `K` and apply `IsProP`
-  let U : OpenNormalSubgroup K := ⟨⟨g.ker, hopen⟩, MonoidHom.normal_ker g⟩
-  have hquot : IsPGroup 2 (K ⧸ U.toSubgroup) := hK U
-  -- transfer along `K ⧸ ker g ≃ range g = K.map f`
-  have hrange : (g.range : Subgroup G') = K.map f.toMonoidHom := by
-    rw [hg, MonoidHom.range_comp, Subgroup.range_subtype]
-  rw [← hrange]
-  exact hquot.of_equiv (QuotientGroup.quotientKerEquivRange g)
-
 /-! ## The §10 target and frames  (`E = 0`) -/
 
 section Builders
@@ -194,7 +170,7 @@ theorem map_wildKer_le_twoCore (hwild : IsProP 2 (tameCoord b).toMonoidHom.ker)
     (f : ContSurj Γ G) :
     ((tameCoord b).toMonoidHom.ker.map f.1.toMonoidHom) ≤ twoCore G :=
   le_twoCore ((MonoidHom.normal_ker _).map f.1.toMonoidHom f.2)
-    (isPGroup_map_of_isProP _ hwild f.1)
+    (SectionThree.isPGroup_map_of_isProP hwild f.1.toMonoidHom f.1.continuous_toFun)
 
 /-- **The descended homomorphism** of Lemma 10.1's forward map: `π ∘ f` kills the wild kernel
 (`map_wildKer_le_twoCore`), so it factors through the surjective tame coordinate as

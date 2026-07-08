@@ -182,21 +182,6 @@ theorem CentralCover.ker_dichotomy (CC : CentralCover Y0) {x : CC.cover}
   · left; rw [hk, ← two_mul, zpow_mul, hz2, one_zpow]
   · right; rw [hk, zpow_add, zpow_mul, hz2, one_zpow, one_mul, zpow_one]
 
-/-- `z`-powers by `𝔽₂`-exponents add. -/
-theorem CentralCover.z_pow_val_add (CC : CentralCover Y0) (a b : ZMod 2) :
-    CC.z ^ (a + b).val = CC.z ^ a.val * CC.z ^ b.val := by
-  rcases (show ∀ x : ZMod 2, x = 0 ∨ x = 1 from by decide) a with rfl | rfl <;>
-    rcases (show ∀ x : ZMod 2, x = 0 ∨ x = 1 from by decide) b with rfl | rfl
-  · show CC.z ^ 0 = CC.z ^ 0 * CC.z ^ 0
-    rw [pow_zero, one_mul]
-  · show CC.z ^ 1 = CC.z ^ 0 * CC.z ^ 1
-    rw [pow_zero, one_mul]
-  · show CC.z ^ 1 = CC.z ^ 1 * CC.z ^ 0
-    rw [pow_zero, mul_one]
-  · show CC.z ^ 0 = CC.z ^ 1 * CC.z ^ 1
-    rw [pow_zero, pow_one]
-    exact CC.z_sq.symm
-
 /-- `z`-powers are central. -/
 theorem CentralCover.z_pow_comm (CC : CentralCover Y0) (n : ℕ) (x : CC.cover) :
     CC.z ^ n * x = x * CC.z ^ n := by

@@ -127,13 +127,6 @@ include he in
 lemma addEquiv_symm_equivariant : ∀ (g : G) (n : N), e.symm (g • n) = g • e.symm n :=
   fun g n => by apply e.injective; rw [e.apply_symm_apply, he, e.apply_symm_apply]
 
-include he in
-/-- `mapCoeff1` on a class: post-composition of a cocycle representative. -/
-lemma mapCoeff1_H1mk (a : Z1 G M) :
-    mapCoeff1 e.toAddMonoidHom continuous_of_discreteTopology he (H1mk G M a)
-      = H1mk G N (Z1comap (ContinuousMonoidHom.id G) e.toAddMonoidHom
-          continuous_of_discreteTopology he a) := rfl
-
 /-- **`H¹` transport**: a `G`-equivariant `AddEquiv` of coefficients induces one on `H¹`. -/
 noncomputable def H1congr : H1 G M ≃+ H1 G N where
   toFun := mapCoeff1 e.toAddMonoidHom continuous_of_discreteTopology he

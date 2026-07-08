@@ -311,20 +311,6 @@ section Fp2Substrate
 
 variable {V : Type} [AddCommGroup V]
 
-/-- **Separation of points by `𝔽₂`-functionals** (local copy — the banked
-`GQ2.exists_addHom_ne_zero` lives in the heavy `LocalLiftingDuality` import chain): a nonzero
-vector of a finite 2-torsion group is detected by an additive functional to `ZMod 2`. -/
-theorem exists_functional_ne_zero [Finite V] (h2 : ∀ v : V, v + v = 0)
-    {v : V} (hv : v ≠ 0) : ∃ f : V →+ ZMod 2, f v ≠ 0 := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  letI : Module (ZMod 2) V := AddCommGroup.zmodModule (fun v => by rw [two_nsmul]; exact h2 v)
-  haveI : Module.Finite (ZMod 2) V := Module.Finite.of_finite
-  let b := Module.Free.chooseBasis (ZMod 2) V
-  by_contra h
-  refine hv (b.forall_coord_eq_zero_iff.mp fun i => ?_)
-  by_contra hne
-  exact h ⟨(b.coord i).toAddMonoidHom, by simpa using hne⟩
-
 /-- **Dual surjectivity of an injection** over `𝔽₂`: for finite 2-torsion groups, restriction
 of functionals along an injective additive map is surjective (every functional on the source
 extends).  Via a linear left inverse over the field `ZMod 2`. -/
@@ -404,7 +390,7 @@ noncomputable def evalDualEquiv {W : Type} [AddCommGroup W] [Finite W]
   have hinj : Function.Injective (evalDualHom (W := W)) := by
     intro x y hxy
     by_contra hne
-    obtain ⟨φ, hφ⟩ := exists_functional_ne_zero h2 (sub_ne_zero.mpr hne)
+    obtain ⟨φ, hφ⟩ := LocalKummer.exists_functional_ne_zero h2 (sub_ne_zero.mpr hne)
     apply hφ
     rw [map_sub]
     have := DFunLike.congr_fun hxy φ
@@ -1384,7 +1370,7 @@ theorem exists_dualModule_smul_ne (h2V : ∀ v : V, v + v = 0) (t₀ : C)
   have hfix : ∀ w : V, t₀⁻¹ • w = w := by
     intro w
     by_contra hne
-    obtain ⟨ψ, hψ⟩ := exists_functional_ne_zero h2V (sub_ne_zero.mpr hne)
+    obtain ⟨ψ, hψ⟩ := LocalKummer.exists_functional_ne_zero h2V (sub_ne_zero.mpr hne)
     apply hψ
     have := DFunLike.congr_fun (hall' ψ) w
     -- (t₀ • ψ) w = ψ (t₀⁻¹ • w)

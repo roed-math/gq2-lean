@@ -121,28 +121,6 @@ theorem x0Section_bijective_split (t : Marking C) (ht : t.TameRel) (hw : t.WildR
       · show (0 : V) - z.1 3 = 0
         rw [h3, sub_zero]
 
-/-- **The `x₀`-supported tuples are word cocycles** (ramified regime): both `d¹`-rows
-vanish on the section by the closed forms (`d1Fun_tame` involves only the `σ`/`τ`-slots;
-the ramified wild row `liftMarking_wildValue_u_ramified` is `σ⁻¹ • x₃`). -/
-theorem x0Supported_mem_Z1w_ramified (t : Marking C) (ht : t.TameRel)
-    (hV₂ : ∀ v : V, v + v = 0) [Finite V]
-    (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v)
-    (htau : ∀ v : V, t.τ • v = v → v = 0)
-    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (v : V) :
-    x0Supported v ∈ Z1w (A := V) t := by
-  rw [Z1w, AddMonoidHom.mem_ker,
-    show d1 t (x0Supported v) = d1Fun t (x0Supported v) from rfl]
-  refine Prod.ext ?_ ?_
-  · rw [d1Fun_tame t ht (x0Supported v)]
-    show t.σ⁻¹ • (t.τ • (0 : V)) - t.σ⁻¹ • (0 : V) + t.σ⁻¹ • (0 : V)
-      - ((0 : V) + t.τ • (0 : V)) = (0 : V × V).1
-    simp
-  · rw [show (d1Fun t (x0Supported v)).2 = (liftMarking t (x0Supported v)).wildValue.u
-        from rfl,
-      liftMarking_wildValue_u_ramified t (x0Supported v) hV₂ hx0 hx1 htau hTodd]
-    show t.σ⁻¹ • (0 : V) = (0 : V × V).2
-    simp
-
 /-- **The `x₀`-supported section of `H¹_w` is bijective** (ramified regime): both halves
 from `lemma_5_13_ramified`'s unique normal form. -/
 theorem x0Section_bijective_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)

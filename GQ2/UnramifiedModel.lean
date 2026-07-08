@@ -47,13 +47,6 @@ variable {N : Type*} [AddCommGroup N] [TopologicalSpace N] [IsTopologicalAddGrou
 variable {P : Type*} [AddCommGroup P] [TopologicalSpace P] [IsTopologicalAddGroup P]
   [DistribMulAction G P] [ContinuousSMul G P]
 
-/-- `mapCoeff1` on an explicit cocycle class post-composes the cocycle with `f`. -/
-theorem mapCoeff1_H1mk (f : N →+ M) (hf : Continuous f)
-    (hcompat : ∀ (g : G) (n : N), f (g • n) = g • f n) (z : Z1 G N) :
-    mapCoeff1 f hf hcompat (H1mk G N z)
-      = H1mk G M (Z1comap (ContinuousMonoidHom.id G) f hf (fun g n => hcompat g n) z) :=
-  rfl
-
 
 end Functoriality
 
