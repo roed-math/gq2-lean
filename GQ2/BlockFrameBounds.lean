@@ -124,8 +124,6 @@ lemma blockFrameImpl_K_ne_bot : Blk.K ≠ ⊥ := by
 @[simp] lemma blockFrameImpl_TC_LY :
     (blockFrameImpl T Blk hE2).TC.LY = T.LY.map (QuotientGroup.mk' Blk.K) := rfl
 
-@[simp] lemma blockFrameImpl_MB :
-    (blockFrameImpl T Blk hE2).MB = Blk.K.map (QuotientGroup.mk' Blk.R) := rfl
 
 /-- `M ≤ L_B` in `B` (both images of `K ≤ L_Y`), stated in projection form so it composes with
 `Cov`'s `(blockFrameImpl …).YB`-typed subgroups. -/

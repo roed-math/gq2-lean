@@ -368,8 +368,6 @@ def precompHom {A B : Type} [AddCommGroup A] [AddCommGroup B] (f : A →+ B) :
   map_zero' := rfl
   map_add' := fun _ _ => rfl
 
-@[simp] theorem precompHom_apply {A B : Type} [AddCommGroup A] [AddCommGroup B]
-    (f : A →+ B) (ψ : B →+ ZMod 2) (a : A) : precompHom f ψ a = ψ (f a) := rfl
 
 /-- Equivariance of `precompHom` (both duals under `dualModule`). -/
 theorem precompHom_equivariant {A B : Type} [AddCommGroup A] [AddCommGroup B]
@@ -421,9 +419,6 @@ noncomputable def evalDualEquiv {W : Type} [AddCommGroup W] [Finite W]
   exact AddEquiv.ofBijective evalDualHom
     ((Fintype.bijective_iff_injective_and_card _).mpr ⟨hinj, hcard⟩)
 
-@[simp] theorem evalDualEquiv_apply {W : Type} [AddCommGroup W] [Finite W]
-    (h2 : ∀ w : W, w + w = 0) (w : W) (φ : W →+ ZMod 2) :
-    evalDualEquiv h2 w φ = φ w := rfl
 
 /-- Equivariance of the double-dual evaluation (`dualModule` twice on the target). -/
 theorem evalDualEquiv_equivariant {W : Type} [AddCommGroup W] [Finite W]
@@ -1022,11 +1017,6 @@ def IsMidUnit (N : Subgroup (Kummer.GaloisGroup ℚ_[2])) (A : ℚ̄₂) : Prop 
   A ≠ 0 ∧ (∀ g ∈ N, g • A = A) ∧
     ∃ b : ℚ̄₂, (∀ g ∈ N, g • b = b) ∧ A = 1 + 2 * b ∧ ‖b‖ ≤ 1
 
-/-- A deep unit is a mid unit. -/
-theorem IsMidUnit.of_isDeepUnit {N : Subgroup (Kummer.GaloisGroup ℚ_[2])} {A : ℚ̄₂}
-    (h : SectionSix.IsDeepUnit N A) : IsMidUnit N A := by
-  obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := h
-  exact ⟨hA0, hAfix, b, hbfix, hAeq, hb.le⟩
 
 /-- **The mid Kummer classes** in `H¹(N, 𝔽₂)`: classes of restricted Kummer cocycles of mid
 units (the image of `U_e(K)`).  The subgroup structure mirrors
@@ -1088,52 +1078,10 @@ noncomputable def midClassesSubgroup (N : Subgroup (Kummer.GaloisGroup ℚ_[2]))
     intro ξ hξ
     rwa [neg_eq_of_add_eq_zero_left (GQ2.h1_add_self ξ)]
 
-/-- The deep classes sit inside the mid classes (`U_{e+1} ≤ U_e`). -/
-theorem deepClassesSubgroup_le_midClassesSubgroup
-    (N : Subgroup (Kummer.GaloisGroup ℚ_[2])) :
-    deepClassesSubgroup N ≤ midClassesSubgroup N := by
-  rintro ξ ⟨A, β, hdeep, hsq, hne, rfl⟩
-  exact ⟨A, β, IsMidUnit.of_isDeepUnit hdeep, hsq, hne, rfl⟩
 
 variable {C : Type} [Group C] [TopologicalSpace C]
 variable (ρ : ContinuousMonoidHom AbsGalQ2 C)
 
-/-- **`conjAct`-invariance of the mid classes** — the `≤`-mirror of `conjAct_deepClasses`
-(same §4-technique: `g` in the reducible `GaloisGroup` view, witness built before touching
-`conjAct`, the `H1`-equation closed by a `calc`). -/
-theorem conjAct_midClasses (g : Kummer.GaloisGroup ℚ_[2])
-    {ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)}
-    (hξ : ξ ∈ midClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :
-    conjAct ρ g ξ ∈ midClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) := by
-  obtain ⟨A, β, hmid', hsq, hβ0, rfl⟩ := hξ
-  obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hmid'
-  refine ⟨g • A, g • β, ⟨?_, ?_, g • b, ?_, ?_, ?_⟩, ?_, ?_, ?_⟩
-  · rw [AlgEquiv.smul_def]; simpa using hA0
-  · intro m hm
-    have hconj : (g⁻¹ * m * g) • A = A :=
-      hAfix _ (conj_mem_ker ρ g ⟨m, hm⟩)
-    calc m • (g • A) = g • ((g⁻¹ * m * g) • A) := by
-          rw [← mul_smul, ← mul_smul]; congr 1; group
-      _ = g • A := by rw [hconj]
-  · intro m hm
-    have hconj : (g⁻¹ * m * g) • b = b :=
-      hbfix _ (conj_mem_ker ρ g ⟨m, hm⟩)
-    calc m • (g • b) = g • ((g⁻¹ * m * g) • b) := by
-          rw [← mul_smul, ← mul_smul]; congr 1; group
-      _ = g • b := by rw [hconj]
-  · rw [hAeq, AlgEquiv.smul_def, map_add, map_one, map_mul, map_ofNat, ← AlgEquiv.smul_def]
-  · rw [norm_galois]; exact hb
-  · rw [AlgEquiv.smul_def, AlgEquiv.smul_def, ← map_pow, hsq]
-  · rw [AlgEquiv.smul_def]; simpa using hβ0
-  · symm
-    calc conjAct ρ g (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
-            (fun n => Kummer.kummerCocycleFun β (n : AbsGalQ2)))
-        = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
-            (fun n => Kummer.kummerCocycleFun β ((conjMap ρ g n : AbsGalQ2))) :=
-          conjAct_h1ofFun ρ g (GQ2.DeepPart.kummerRestrict_mem_Z1 hsq hβ0 hAfix)
-      _ = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
-            (fun n => Kummer.kummerCocycleFun (g • β) (n : AbsGalQ2)) := by
-          congr 1; funext n; exact kcf_conj β g (n : AbsGalQ2)
 
 end MidClasses
 
@@ -1376,9 +1324,6 @@ noncomputable def polarSelfDual (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
     exact (add_right_cancel h3).symm
   · rw [← Nat.card_eq_fintype_card, ← Nat.card_eq_fintype_card, card_addHom_zmod2 V h2V]
 
-@[simp] theorem polarSelfDual_apply (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
-    (hns : Nonsingular q) (h2V : ∀ v : V, v + v = 0) (v w : V) :
-    polarSelfDual q hq hns h2V v w = polar q v w := rfl
 
 /-- Equivariance of the polar self-duality (target under `dualModule`). -/
 theorem polarSelfDual_equivariant (q : V → ZMod 2) (hq : IsQuadraticFp2 q)

@@ -140,16 +140,6 @@ lemma funext_ofInt {X : Type*} [TopologicalSpace X] [T2Space X] {f g : Zhat → 
     (h : ∀ n : ℤ, f (ofInt n) = g (ofInt n)) : f = g :=
   Continuous.ext_on denseRange_ofInt hf hg (by rintro _ ⟨n, rfl⟩; exact h n)
 
-/-- `ℤ̂` is commutative.  (Recorded as a lemma, not a `CommGroup` instance, to avoid an instance
-diamond with the categorical `Group` instance; also a stress test of the density API.) -/
-lemma commute (γ δ : Zhat) : Commute γ δ := by
-  have key : (fun p : Zhat × Zhat => p.1 * p.2) = (fun p : Zhat × Zhat => p.2 * p.1) := by
-    refine Continuous.ext_on (denseRange_ofInt.prodMap denseRange_ofInt)
-      (continuous_fst.mul continuous_snd) (continuous_snd.mul continuous_fst) ?_
-    rintro _ ⟨⟨a, b⟩, rfl⟩
-    show ofInt a * ofInt b = ofInt b * ofInt a
-    rw [← ofInt_add, ← ofInt_add, add_comm]
-  exact congrFun key (γ, δ)
 
 end Zhat
 
@@ -229,8 +219,6 @@ lemma map_zpowHat (f : ContinuousMonoidHom G H) (x : G) (γ : Zhat) :
   have h2 := ConcreteCategory.congr_hom key γ
   simpa [ProfiniteGrp.comp_apply, zpowHat, zpowHatHom] using! h2
 
-@[simp] lemma one_zpowHat (γ : Zhat) : (1 : G) ^ᶻ γ = 1 := by
-  simpa using (map_zpowHat (1 : ContinuousMonoidHom G G) 1 γ).symm
 
 /-! ## Evaluation of `ω₂` through finite quotients -/
 
@@ -279,20 +267,6 @@ The tame frame `S₃ = DihedralGroup 3` of `GQ2/AppendixB.lean`, now computed vi
 
 section SanityS3
 
-local instance : TopologicalSpace (DihedralGroup 3) := ⊥
-local instance : DiscreteTopology (DihedralGroup 3) := ⟨rfl⟩
-
-/-- `ω₂ ≡ 0` on the odd part, profinitely: the 3-cycle in `S₃` is killed by `^ᶻ ω₂`. -/
-theorem zpowHat_omega2_s3_rotation : (DihedralGroup.r 1 : DihedralGroup 3) ^ᶻ omega2 = 1 := by
-  rw [zpowHat_omega2]
-  exact powOmega2_eq_one_of_odd (by rw [DihedralGroup.orderOf_r_one]; decide)
-
-/-- `ω₂ ≡ 1` on the 2-part, profinitely: the reflection in `S₃` is fixed by `^ᶻ ω₂`. -/
-theorem zpowHat_omega2_s3_reflection :
-    (DihedralGroup.sr 0 : DihedralGroup 3) ^ᶻ omega2 = DihedralGroup.sr 0 := by
-  rw [zpowHat_omega2]
-  exact powOmega2_eq_self_of_orderOf_two_pow (k := 1)
-    (by rw [DihedralGroup.orderOf_sr, pow_one])
 
 end SanityS3
 

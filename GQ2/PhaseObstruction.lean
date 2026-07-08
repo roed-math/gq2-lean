@@ -158,18 +158,6 @@ theorem pullCoc_mem_Z2 (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
   rw [map_mul, map_mul]
   exact hcoc (f g) (f h) (f k)
 
-omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
-/-- The pullback of a raw coboundary `∂w` along a continuous hom is a continuous coboundary. -/
-theorem pullCoc_coboundary_mem_B2 (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
-    (f : ContinuousMonoidHom Γ C0) (w : C0 → ZMod 2) :
-    pullCoc (⇑f) (fun q => w q.1 + w q.2 + w (q.1 * q.2)) ∈ B2 Γ (ZMod 2) := by
-  refine ⟨fun γ => w (f γ),
-    (continuous_of_discreteTopology (f := fun c : C0 => w c)).comp f.continuous_toFun, ?_⟩
-  funext p
-  show p.1 • w (f p.2) - w (f (p.1 * p.2)) + w (f p.1) = w (f p.1) + w (f p.2) + w (f p.1 * f p.2)
-  rw [htriv, map_mul]
-  have hchar : ∀ a b c : ZMod 2, a - b + c = c + a + b := by decide
-  exact hchar _ _ _
 
 end Pull
 

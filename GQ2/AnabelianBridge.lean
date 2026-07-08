@@ -121,12 +121,6 @@ theorem zpowHat_omega2_eq_self (hP : IsProP 2 P) (x : P) : x ^ᶻ omega2 = x := 
   have hprod := eq_one_of_forall_mem_openNormalSubgroup hmem
   rwa [mul_inv_eq_one] at hprod
 
-/-- **The `hι_proj`/`hι_one` compatibility** (consistency of the B8 amendment):
-`zhatProjTwo ω₂ = ofAdd 1`.  The idempotent projects to `1 ∈ ℤ₂`, so any `ι` with
-`ι 1 = ω₂` automatically satisfies `hι_proj` at `u = 1`. -/
-theorem zhatProjTwo_omega2 : zhatProjTwo omega2 = ofAdd (1 : ℤ_[2]) := by
-  show (ofAdd (1 : ℤ_[2])) ^ᶻ omega2 = ofAdd (1 : ℤ_[2])
-  exact zpowHat_omega2_eq_self PropOneOne.isProP_two_multPadicInt _
 
 /-- On a pro-2 group, B8's `ι`-powers are the 2-adic powers: `x ^ᶻ ι u = zpowZtwo x u`
 (via the `hι_proj` pinning and P-21's `zpowHat_eq_zpowZtwo`). -/
@@ -330,8 +324,6 @@ end Lifts
 
 section PinnedInstances
 
-/-- `Δ` is pro-2. -/
-theorem isProP_delta : IsProP 2 (Delta : Type) := isProP_maxProPQuotient
 
 /-- `D₀` is pro-2. -/
 theorem isProP_d0 : IsProP 2 (D0 : Type) := isProP_maxProPQuotient

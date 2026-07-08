@@ -50,56 +50,6 @@ noncomputable def hilbertSymbol (a b : ℚ_[2]ˣ) : ℤˣ :=
 
 /-! ## Elementary identities (theorems, from the definition) -/
 
-/-- The defining locus is symmetric: swap the roles of `X` and `Y`. -/
-theorem isHilbertSolvable_comm (a b : ℚ_[2]) :
-    IsHilbertSolvable a b ↔ IsHilbertSolvable b a := by
-  constructor <;>
-  · rintro ⟨x, y, z, hne, heq⟩
-    exact ⟨y, x, z, by tauto, by rw [← heq]; ring⟩
-
-/-- `a X² + (-a) Y² = Z²` has the nontrivial solution `(1, 1, 0)`. -/
-theorem isHilbertSolvable_self_neg (a : ℚ_[2]) : IsHilbertSolvable a (-a) :=
-  ⟨1, 1, 0, Or.inl one_ne_zero, by ring⟩
-
-/-- Rescaling the first slot by a nonzero square does not change the locus (`X ↦ c X`). -/
-theorem isHilbertSolvable_mul_sq_left (a b : ℚ_[2]) {c : ℚ_[2]} (hc : c ≠ 0) :
-    IsHilbertSolvable (a * c ^ 2) b ↔ IsHilbertSolvable a b := by
-  constructor
-  · rintro ⟨x, y, z, hne, heq⟩
-    refine ⟨c * x, y, z, ?_, by rw [← heq]; ring⟩
-    rcases hne with h | h | h
-    · exact Or.inl (mul_ne_zero hc h)
-    · exact Or.inr (Or.inl h)
-    · exact Or.inr (Or.inr h)
-  · rintro ⟨x, y, z, hne, heq⟩
-    refine ⟨x / c, y, z, ?_, by rw [← heq]; field_simp⟩
-    rcases hne with h | h | h
-    · exact Or.inl (div_ne_zero h hc)
-    · exact Or.inr (Or.inl h)
-    · exact Or.inr (Or.inr h)
-
-/-- **Symmetry** of the Hilbert symbol: `(a, b)₂ = (b, a)₂`. -/
-theorem hilbertSymbol_comm (a b : ℚ_[2]ˣ) : hilbertSymbol a b = hilbertSymbol b a := by
-  rw [hilbertSymbol, hilbertSymbol]
-  by_cases h : IsHilbertSolvable (a : ℚ_[2]) (b : ℚ_[2])
-  · rw [if_pos h, if_pos ((isHilbertSolvable_comm _ _).mp h)]
-  · rw [if_neg h, if_neg (fun hc => h ((isHilbertSolvable_comm _ _).mpr hc))]
-
-/-- `(a, -a)₂ = 1`. -/
-theorem hilbertSymbol_self_neg (a : ℚ_[2]ˣ) : hilbertSymbol a (-a) = 1 := by
-  have h : IsHilbertSolvable (a : ℚ_[2]) ((-a : ℚ_[2]ˣ) : ℚ_[2]) := by
-    rw [Units.val_neg]; exact isHilbertSolvable_self_neg _
-  rw [hilbertSymbol, if_pos h]
-
-/-- **Square-class invariance** in the first slot: `(a c², b)₂ = (a, b)₂`. -/
-theorem hilbertSymbol_mul_sq_left (a b c : ℚ_[2]ˣ) :
-    hilbertSymbol (a * c ^ 2) b = hilbertSymbol a b := by
-  have hcoe : ((a * c ^ 2 : ℚ_[2]ˣ) : ℚ_[2]) = (a : ℚ_[2]) * (c : ℚ_[2]) ^ 2 := by
-    push_cast; ring
-  rw [hilbertSymbol, hilbertSymbol, hcoe]
-  by_cases h : IsHilbertSolvable ((a : ℚ_[2]) * (c : ℚ_[2]) ^ 2) (b : ℚ_[2])
-  · rw [if_pos h, if_pos ((isHilbertSolvable_mul_sq_left _ _ c.ne_zero).mp h)]
-  · rw [if_neg h, if_neg (fun hc => h ((isHilbertSolvable_mul_sq_left _ _ c.ne_zero).mpr hc))]
 
 /-! ## Serre's residue characters `ε` and `ω`  (CiA Ch. II §3.3)
 
@@ -119,31 +69,6 @@ noncomputable def ε (u : ℤ_[2]ˣ) : ZMod 2 := epsResidue (PadicInt.toZModPow 
 /-- `ω(u) ≡ (u² - 1)/8 (mod 2)` — Serre, *A Course in Arithmetic*, Ch. II §3.3. -/
 noncomputable def ω (u : ℤ_[2]ˣ) : ZMod 2 := omegaResidue (PadicInt.toZModPow 3 (u : ℤ_[2]))
 
-/-- On the unit residues `{1,3,5,7} ⊂ ℤ/8`, `ε` is additive. -/
-theorem epsResidue_mul_of_isUnit {r s : ZMod 8} (hr : IsUnit r) (hs : IsUnit s) :
-    epsResidue (r * s) = epsResidue r + epsResidue s := by
-  obtain ⟨r, rfl⟩ := hr
-  obtain ⟨s, rfl⟩ := hs
-  revert r s
-  decide
-
-/-- On the unit residues `{1,3,5,7} ⊂ ℤ/8`, `ω` is additive. -/
-theorem omegaResidue_mul_of_isUnit {r s : ZMod 8} (hr : IsUnit r) (hs : IsUnit s) :
-    omegaResidue (r * s) = omegaResidue r + omegaResidue s := by
-  obtain ⟨r, rfl⟩ := hr
-  obtain ⟨s, rfl⟩ := hs
-  revert r s
-  decide
-
-/-- `ε` is a homomorphism `ℤ₂ˣ → 𝔽₂`: `ε(uv) = ε(u) + ε(v)`. -/
-theorem ε_mul (u v : ℤ_[2]ˣ) : ε (u * v) = ε u + ε v := by
-  simp only [ε, Units.val_mul, map_mul]
-  exact epsResidue_mul_of_isUnit (u.isUnit.map _) (v.isUnit.map _)
-
-/-- `ω` is a homomorphism `ℤ₂ˣ → 𝔽₂`: `ω(uv) = ω(u) + ω(v)`. -/
-theorem ω_mul (u v : ℤ_[2]ˣ) : ω (u * v) = ω u + ω v := by
-  simp only [ω, Units.val_mul, map_mul]
-  exact omegaResidue_mul_of_isUnit (u.isUnit.map _) (v.isUnit.map _)
 
 /-- The reduction of the unit `-1 ∈ ℤ₂ˣ` is `-1 ∈ ℤ/8`. -/
 theorem toZModPow_neg_one : PadicInt.toZModPow 3 ((-1 : ℤ_[2]ˣ) : ℤ_[2]) = -1 := by
@@ -157,15 +82,6 @@ theorem ε_neg_one : ε (-1) = 1 := by
 theorem ω_neg_one : ω (-1) = 0 := by
   rw [ω, toZModPow_neg_one]; decide
 
-/-- Residue table for `ε`: `ε ≡ 0` on `{1, 5}` (`≡ 1 mod 4`), `ε ≡ 1` on `{3, 7}` (`≡ 3 mod 4`). -/
-theorem epsResidue_table :
-    epsResidue 1 = 0 ∧ epsResidue 3 = 1 ∧ epsResidue 5 = 0 ∧ epsResidue 7 = 1 := by
-  decide
-
-/-- Residue table for `ω`: `ω ≡ 0` on `{1, 7}` (`≡ ±1 mod 8`), `ω ≡ 1` on `{3, 5}` (`≡ ±3 mod 8`). -/
-theorem omegaResidue_table :
-    omegaResidue 1 = 0 ∧ omegaResidue 3 = 1 ∧ omegaResidue 5 = 1 ∧ omegaResidue 7 = 0 := by
-  decide
 
 /-! ## Inputs of the dyadic Hilbert-symbol formula (axiom B7′)
 

@@ -341,28 +341,6 @@ theorem factorSet_spec (c d : C) :
   simp only [map_mul, map_inv, sigma_spec]
   group
 
-include hp hi hrange hconj in
-/-- The nonabelian 2-cocycle identity of the factor set:
-`f c d + f (c*d) e = c • f d e + f c (d*e)`.  [associativity of `B` + `hconj` + `hi`.] -/
-theorem factorSet_cocycle (c d e : C) :
-    factorSet p hp i c d + factorSet p hp i (c * d) e
-      = c • factorSet p hp i d e + factorSet p hp i c (d * e) := by
-  -- conjugation form of the `C`-action after transporting through `i ∘ ofAdd`
-  have hsmul : ∀ (cc : C) (X : V), i (Multiplicative.ofAdd (cc • X))
-      = sigma p hp cc * i (Multiplicative.ofAdd X) * (sigma p hp cc)⁻¹ := fun cc X => by
-    have h := hconj (sigma p hp cc) X
-    rw [sigma_spec] at h
-    exact h.symm
-  have e1 := factorSet_spec p hp i hrange c d
-  have e2 := factorSet_spec p hp i hrange (c * d) e
-  have e3 := factorSet_spec p hp i hrange d e
-  have e4 := factorSet_spec p hp i hrange c (d * e)
-  -- prove the identity after applying the injection `i ∘ ofAdd`
-  have key : i (Multiplicative.ofAdd (factorSet p hp i c d + factorSet p hp i (c * d) e))
-      = i (Multiplicative.ofAdd (c • factorSet p hp i d e + factorSet p hp i c (d * e))) := by
-    rw [ofAdd_add, map_mul, ofAdd_add, map_mul, e1, e2, hsmul, e3, e4, mul_assoc c d e]
-    group
-  simpa using congrArg Multiplicative.toAdd (hi key)
 
 /-- The mixed transgression cochain `A c v = ξ(σc, i(c⁻¹•v)) + ξ(iv, σc)`. -/
 noncomputable def mixedA (c : C) (v : V) : ZMod 2 :=

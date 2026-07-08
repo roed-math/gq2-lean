@@ -104,10 +104,6 @@ theorem piT_Jmap (p : DD.Vmod × DD.C0) : piT (D := D) (Jmap S p) = jmap DD σ p
   unfold Jmap jmap
   rw [map_mul, piT_mV, S.piT_uσ]
 
-theorem Jmap_pone : Jmap S pone = 1 := by
-  unfold Jmap pone
-  show (S.mV 0 : Bg) * S.uσ 1 = 1
-  rw [S.mV_zero, S.uσ_one, OneMemClass.coe_one, one_mul]
 
 variable (hσ : ∀ cc : DD.C0, piQbar DD (σ cc) = cc)
 
@@ -259,9 +255,6 @@ theorem mDef_cocycle (v w x : DD.Vmod) :
 
 /-! ### The `conjDef`-atom identities -/
 
-/-- `T` is abelian (it sits in the abelian `M`). -/
-theorem T_comm {t t' : Bg} (ht : t ∈ D.T) (ht' : t' ∈ D.T) : t * t' = t' * t :=
-  D.hcomm _ (D.hTM ht) _ (D.hTM ht')
 
 /-- `mV(w+w')` split through the defect: `mV(w+w') = mDef(w,w')⁻¹ · mV w · mV w'`. -/
 theorem mV_add_split (w w' : DD.Vmod) :
@@ -1253,8 +1246,6 @@ theorem gchi_exists (χ : ↥(TCharC D)) : ∃ g : DD.Vmod → ZMod 2, g 0 = 0 �
 noncomputable def gchi (χ : ↥(TCharC D)) : DD.Vmod → ZMod 2 :=
   Classical.choose (gchi_exists S hσ χ)
 
-theorem gchi_zero (χ : ↥(TCharC D)) : gchi S hσ χ 0 = 0 :=
-  (Classical.choose_spec (gchi_exists S hσ χ)).1
 
 theorem gchi_split (χ : ↥(TCharC D)) (v w : DD.Vmod) :
     χ.1 (mDef DD S v w) = gchi S hσ χ (v + w) + gchi S hσ χ v + gchi S hσ χ w :=

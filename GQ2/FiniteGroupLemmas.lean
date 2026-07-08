@@ -103,25 +103,5 @@ theorem coprime_fiber_product {A B C : Type*} [Group A] [Group B] [Group C]
   rw [this]
   exact J.mul_mem hjmem hmem2
 
-/-- **Lemma 9.2 (core splitting).** If `N ◁ Y` is a normal subgroup of *odd* order whose quotient
-`Y/N` is a `2`-group, then `N` has a complement in `Y` (so `Y = N ⋊ K` with `K ≅ Y/N` a 2-group).
-This is the Schur–Zassenhaus input to the terminal case of the induction (paper Lemma 9.2). -/
-theorem oddOrder_twoQuotient_split {Y : Type*} [Group Y] [Finite Y]
-    (N : Subgroup Y) [N.Normal] (hN : Odd (Nat.card N)) (hQ : IsPGroup 2 (Y ⧸ N)) :
-    ∃ K : Subgroup Y, N.IsComplement' K := by
-  -- The index `[Y : N] = |Y/N|` is a power of 2.
-  obtain ⟨n, hn⟩ := hQ.exists_card_eq
-  have hidx : N.index = 2 ^ n := by
-    rw [Subgroup.index_eq_card]; exact hn
-  -- `|N|` is odd, hence coprime to 2, hence to `2 ^ n = [Y : N]`.
-  have hnd : ¬ (2 : ℕ) ∣ Nat.card N := by
-    have hm := Nat.odd_iff.mp hN
-    omega
-  have hcop2 : Nat.Coprime (Nat.card N) 2 :=
-    (Nat.prime_two.coprime_iff_not_dvd.mpr hnd).symm
-  have hcop : Nat.Coprime (Nat.card N) N.index := by
-    rw [hidx]; exact hcop2.pow_right n
-  -- Schur–Zassenhaus.
-  exact Subgroup.exists_right_complement'_of_coprime hcop
 
 end GQ2.FiniteGroup

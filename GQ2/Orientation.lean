@@ -96,22 +96,6 @@ section StressTests
 
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] (O : DyadicOrientation)
 
-/-- **Consistency of the orientation values with the Demushkin relation**: pushing
-`A²S⁴[S,Y] = 1` through `χ` gives `(−1)² · 1⁴ · 1 = 1` — the value assignment of Theorem 4(2)
-respects the relator.  (Derived from the bundle, not assumed.) -/
-theorem orientation_values_consistent :
-    O.chiTwo (O.equiv.symm d0A) ^ 2 * O.chiTwo (O.equiv.symm d0S) ^ 4
-      * commP (O.chiTwo (O.equiv.symm d0S)) (O.chiTwo (O.equiv.symm d0Y)) = 1 := by
-  rw [O.chi_A, O.chi_S]
-  have hcomm : commP (1 : ℤ_[2]ˣ) (O.chiTwo (O.equiv.symm d0Y)) = 1 := by
-    simp [commP]
-  rw [hcomm, neg_one_sq, one_pow, one_mul, mul_one]
-
-/-- The relation-consistency check, direct route: `χ ∘ ψ⁻¹` is a homomorphism out of `D₀`, so
-the relator `d0_relation` maps to `1` outright — matching `orientation_values_consistent`. -/
-theorem orientation_relator_maps_to_one :
-    O.chiTwo (O.equiv.symm (d0A ^ 2 * d0S ^ 4 * commP d0S d0Y)) = 1 := by
-  rw [d0_relation, map_one, map_one]
 
 /-- **Full-group reading of the `ā`-row of (13)**: any lift `g ∈ G_{ℚ₂}` of `ψ⁻¹(A)` has
 `χ_cyc(g) = −1`. -/
@@ -126,10 +110,6 @@ theorem chiCyc_eq_inv_neg_three_of_lift_Y {g : AbsGalQ2}
     (y : ℤ_[2]ˣ) (hy : (y : ℤ_[2]) = -3) : chiCyc g = y⁻¹ := by
   rw [← O.chiTwo_factors, hg, O.chi_Y y hy]
 
-/-- Lifts of the generators exist (the projection is onto), so the two readings above are
-non-vacuous. -/
-theorem exists_lift_A : ∃ g : AbsGalQ2, maxProPMk 2 AbsGalQ2 g = O.equiv.symm d0A :=
-  quotientMk_surjective _ _
 
 end StressTests
 

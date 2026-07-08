@@ -46,9 +46,6 @@ def equivHoms (C : Type) [Group C] (V W : Type) [AddCommGroup V] [AddCommGroup W
   neg_mem' := fun {f} hf c v => by
     rw [AddMonoidHom.neg_apply, AddMonoidHom.neg_apply, hf c v, smul_neg]
 
-/-- Membership unfolding for `equivHoms`. -/
-theorem mem_equivHoms_iff {f : V →+ W} :
-    f ∈ equivHoms C V W ↔ ∀ (c : C) (v : V), f (c • v) = c • f v := Iff.rfl
 
 /-- Post-composition with an equivariant `π : W →+ W''`, as an additive map between the
 equivariant-Hom groups. -/
@@ -64,10 +61,6 @@ def postCompHom (π : W →+ W'') (hπeq : ∀ (c : C) (w : W), π (c • w) = c
       ext v
       simp)
 
-/-- Evaluation rule for `postCompHom`. -/
-theorem postCompHom_apply (π : W →+ W'') (hπeq : ∀ (c : C) (w : W), π (c • w) = c • π w)
-    (f : ↥(equivHoms C V W)) (v : V) :
-    ((postCompHom (V := V) π hπeq f : ↥(equivHoms C V W'')) : V →+ W'') v = π (f.1 v) := rfl
 
 /-- **The kernel identification**: composing with an equivariant injection `j : W' →+ W` whose
 range is `ker π` identifies `Hom_C(V, W')` with the kernel of post-composition by `π`. -/
@@ -170,13 +163,6 @@ theorem card_equivHoms_of_exact [Finite C] [Finite V] [Finite W] [Finite W'']
     card_ker_postCompHom j hjeq hjinj π hπeq hexact
   rw [hlag, hquot, hker, Nat.mul_comm]
 
-/-- **Endpoint count**: Homs into a trivial module — the filtration bottom `F_n = 0`. -/
-theorem card_equivHoms_of_subsingleton [Subsingleton W] :
-    Nat.card ↥(equivHoms C V W) = 1 := by
-  haveI : Subsingleton ↥(equivHoms C V W) :=
-    ⟨fun f g => Subtype.ext (AddMonoidHom.ext fun v => Subsingleton.elim _ _)⟩
-  haveI : Nonempty ↥(equivHoms C V W) := ⟨0⟩
-  exact Nat.card_eq_one_iff_unique.mpr ⟨inferInstance, inferInstance⟩
 
 /-- **Transport**: the equivariant-Hom count only depends on the target up to equivariant
 additive isomorphism — the consumer's tool for swapping in a concrete model of a graded

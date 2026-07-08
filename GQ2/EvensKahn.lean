@@ -184,11 +184,6 @@ lemma bS_mul (hUi : U.index = 2) (hs : s ∉ U) (α : U → ZMod 2)
   · rw [if_neg (fun h => (hsx.mp h) hx), if_pos hx]; rfl
   · rw [if_pos (hsx.mpr hx), if_neg hx]; rfl
 
-lemma evensAux_zero_fun (U : Subgroup G) (s : G) :
-    evensAux U s (0 : U → ZMod 2) = 0 := by
-  funext x
-  rw [evensAux]
-  split_ifs <;> rfl
 
 /-! ### Continuity -/
 
@@ -285,13 +280,6 @@ noncomputable def evensNormFun (U : Subgroup G) (s : G) (α : U → ZMod 2) :
 
 variable {U : Subgroup G} {s : G}
 
-/-- Stress test: the Evens norm cocycle of `α = 0` is `0` (`N` is normalized). -/
-lemma evensNormFun_zero (U : Subgroup G) (s : G) :
-    evensNormFun U s (0 : U → ZMod 2) = 0 := by
-  funext q
-  have h0 := evensAux_zero_fun U s
-  rw [evensNormFun]
-  split_ifs <;> simp [h0, bS]
 
 variable [TopologicalSpace G] [IsTopologicalGroup G]
 
@@ -414,21 +402,7 @@ noncomputable def kummerZ1On (N : Subgroup (GaloisGroup K)) (hβ : β ^ 2 = A) (
       ⟨(kummerCocycleFun_continuous β).comp continuous_subtype_val,
         fun g h => kummerCocycleFun_hom_on hβ hβ0 hN g h⟩⟩
 
-@[simp] lemma kummerZ1On_apply (hβ : β ^ 2 = A) (hβ0 : β ≠ 0)
-    (hN : ∀ g ∈ N, g • A = A) (g : N) :
-    (kummerZ1On N hβ hβ0 hN).1 g = kummerCocycleFun β g := rfl
 
-omit [CharZero K] in
-/-- The stabilizer of `δ` fixes every `k`-linear combination `u + vδ` — the fixedness input
-for the Kummer cocycle of `a = u + v√d` over `N = G_L`, `L = k(√d)`. -/
-lemma stabilizer_fixes_linear (u v : K) (δ : AlgebraicClosure K) :
-    ∀ g ∈ MulAction.stabilizer (GaloisGroup K) δ,
-      g • (algebraMap K (AlgebraicClosure K) u + algebraMap K (AlgebraicClosure K) v * δ)
-        = algebraMap K (AlgebraicClosure K) u + algebraMap K (AlgebraicClosure K) v * δ := by
-  intro g hg
-  have hgδ : g • δ = δ := hg
-  rw [AlgEquiv.smul_def, map_add, map_mul, AlgEquiv.commutes, AlgEquiv.commutes,
-    ← AlgEquiv.smul_def, hgδ]
 
 end SubgroupKummer
 
@@ -494,19 +468,6 @@ section Z1Wrappers
 variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
   [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)] {U : Subgroup G} {s : G}
 
-/-- The **corestriction class** `cor([α]) ∈ H¹(G, 𝔽₂)` of a 1-cocycle `α ∈ Z¹(U, 𝔽₂)`. -/
-noncomputable def corH1Z (htriv : ∀ (g : G) (m : ZMod 2), g • m = m)
-    (hUo : IsOpen (U : Set G)) (hUi : U.index = 2) (hs : s ∉ U)
-    (α : Z1 U (ZMod 2)) : H1 G (ZMod 2) :=
-  have h := (mem_Z1_iff_of_trivial (fun u m => htriv u.1 m)).mp α.2
-  corH1 htriv hUo hUi hs α.1 h.2 h.1
-
-/-- The **index-two Evens norm** `N^{Ev}([α]) ∈ H²(G, 𝔽₂)` of a 1-cocycle `α ∈ Z¹(U, 𝔽₂)`. -/
-noncomputable def evensNormH2Z (htriv : ∀ (g : G) (m : ZMod 2), g • m = m)
-    (hUo : IsOpen (U : Set G)) (hUi : U.index = 2) (hs : s ∉ U)
-    (α : Z1 U (ZMod 2)) : H2 G (ZMod 2) :=
-  have h := (mem_Z1_iff_of_trivial (fun u m => htriv u.1 m)).mp α.2
-  evensNormH2 htriv hUo hUi hs α.1 h.2 h.1
 
 end Z1Wrappers
 

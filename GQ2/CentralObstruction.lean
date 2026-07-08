@@ -107,10 +107,6 @@ theorem zsign_z_pow (a : ZMod 2) : zsign D (D.C.z ^ a.val) = a := by
   · simp
   · rw [show ((1 : ZMod 2)).val = 1 by decide, pow_one, zsign_z]
 
-/-- Two kernel elements with the same sign are equal. -/
-theorem eq_of_zsign_eq {x y : D.C.cover} (hx : x ∈ D.C.p.ker) (hy : y ∈ D.C.p.ker)
-    (h : zsign D x = zsign D y) : x = y := by
-  rw [← z_pow_zsign D hx, ← z_pow_zsign D hy, h]
 
 /-! ## The cover ledger over `M`: squares and commutators -/
 
@@ -641,8 +637,6 @@ noncomputable def twist (u : TCocycle D ρ) (f : MLifts D ρ) : MLifts D ρ :=
      rw [QuotientGroup.mk_mul, (QuotientGroup.eq_one_iff (u.u γ)).mpr (D.hTM (u.mem γ)),
        one_mul, f.2 γ]⟩
 
-@[simp] theorem twist_apply (u : TCocycle D ρ) (f : MLifts D ρ) (γ : Γ) :
-    (twist D ρ u f).1 γ = u.u γ * f.1 γ := rfl
 
 /-- **Twisting is an involution** (`T` has exponent 2). -/
 theorem twist_twist (u : TCocycle D ρ) (f : MLifts D ρ) :

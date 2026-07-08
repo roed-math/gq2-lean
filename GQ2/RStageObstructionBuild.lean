@@ -66,11 +66,6 @@ def trivialRCD {Bg : Type} [Group Bg] [Finite Bg] (C : CentralCover Bg) :
   hrad := fun t ht m hm => by simp [polarMul]
   hTzero := fun t ht => rfl
 
-@[simp] theorem trivialRCD_C {Bg : Type} [Group Bg] [Finite Bg] (C : CentralCover Bg) :
-    (trivialRCD C).C = C := rfl
-
-@[simp] theorem trivialRCD_M {Bg : Type} [Group Bg] [Finite Bg] (C : CentralCover Bg) :
-    (trivialRCD C).M = ⊥ := rfl
 
 variable {Γ : Type} [Group Γ] [TopologicalSpace Γ]
 

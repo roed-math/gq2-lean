@@ -170,13 +170,6 @@ theorem conjMap_mul_apply (g : AbsGalQ2)
     = (g⁻¹ * (n : AbsGalQ2) * g) * (g⁻¹ * (m : AbsGalQ2) * g)
   group
 
-/-- `conjMap ρ g⁻¹` inverts `conjMap ρ g`. -/
-theorem conjMap_inv_conjMap (g : AbsGalQ2)
-    (n : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :
-    conjMap ρ g⁻¹ (conjMap ρ g n) = n := by
-  apply Subtype.ext
-  show (g⁻¹)⁻¹ * (g⁻¹ * (n : AbsGalQ2) * g) * g⁻¹ = (n : AbsGalQ2)
-  group
 
 /-- `conjMap ρ g` inverts `conjMap ρ g⁻¹`. -/
 theorem conjMap_conjMap_inv (g : AbsGalQ2)

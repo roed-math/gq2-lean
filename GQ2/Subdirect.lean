@@ -118,31 +118,6 @@ theorem map_admissible {G H : Type*} [Group G] [Group H] [Finite G] [Finite H]
 def prod (t₁ : Marking G) (t₂ : Marking H) : Marking (G × H) :=
   ⟨(t₁.σ, t₂.σ), (t₁.τ, t₂.τ), (t₁.x₀, t₂.x₀), (t₁.x₁, t₂.x₁)⟩
 
-@[simp] lemma prod_map_fst (t₁ : Marking G) (t₂ : Marking H) :
-    (t₁.prod t₂).map (MonoidHom.fst G H) = t₁ := rfl
-
-@[simp] lemma prod_map_snd (t₁ : Marking G) (t₂ : Marking H) :
-    (t₁.prod t₂).map (MonoidHom.snd G H) = t₂ := rfl
-
-/-- **Lemma 2.1 (tame part).** The tame relation holds for a product marking iff it holds in each
-factor; in particular it is preserved under subdirect products. -/
-theorem prod_tameRel (t₁ : Marking G) (t₂ : Marking H)
-    (h₁ : t₁.TameRel) (h₂ : t₂.TameRel) : (t₁.prod t₂).TameRel := by
-  show conjP (t₁.prod t₂).τ (t₁.prod t₂).σ = (t₁.prod t₂).τ ^ 2
-  refine Prod.ext ?_ ?_ <;>
-    simp only [prod, conjP, Prod.fst_mul, Prod.snd_mul, Prod.fst_inv, Prod.snd_inv, Prod.pow_mk]
-  · exact h₁
-  · exact h₂
-
-/-- **Lemma 2.1 (wild part).** The wild relation holds for a product marking if it holds in each
-factor. -/
-theorem prod_wildRel [Finite G] [Finite H] (t₁ : Marking G) (t₂ : Marking H)
-    (h₁ : t₁.WildRel) (h₂ : t₂.WildRel) : (t₁.prod t₂).WildRel := by
-  show (t₁.prod t₂).h0 * (t₁.prod t₂).u1⁻¹ * conjP (t₁.prod t₂).x₁ (t₁.prod t₂).σ
-      * (t₁.prod t₂).c0 = 1
-  refine Prod.ext ?_ ?_
-  · exact (map_wildLHS (MonoidHom.fst G H) (t₁.prod t₂)).symm.trans h₁
-  · exact (map_wildLHS (MonoidHom.snd G H) (t₁.prod t₂)).symm.trans h₂
 
 end Marking
 

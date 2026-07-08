@@ -48,8 +48,6 @@ variable {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
 /-- `K ◁ Y` as an instance (the `MinimalBlock` field, made searchable). -/
 instance : Blk.K.Normal := Blk.hK
 
-/-- `R ◁ Y` as an instance (`frattiniLike_normal`). -/
-instance : Blk.R.Normal := SectionSeven.frattiniLike_normal Blk.K Blk.hK
 
 /-! ## The `C = Y/K` conjugation action on `R` (well-defined by `K`-centrality) -/
 

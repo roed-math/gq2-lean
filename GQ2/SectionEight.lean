@@ -402,23 +402,11 @@ def cmhCodRestrict (f : ContinuousMonoidHom G₁ G₂) (S : Subgroup G₂) (h : 
   map_mul' x y := by ext; exact map_mul f x y
   continuous_toFun := f.continuous_toFun.subtype_mk h
 
-@[simp] lemma cmhCodRestrict_coe (f : ContinuousMonoidHom G₁ G₂) (S : Subgroup G₂)
-    (h : ∀ x, f x ∈ S) (x : G₁) : (cmhCodRestrict f S h x : G₂) = f x := rfl
 
 /-- Include a continuous hom into a subgroup back into the ambient group. -/
 def cmhInclude (S : Subgroup G₂) (g : ContinuousMonoidHom G₁ ↥S) : ContinuousMonoidHom G₁ G₂ :=
   ⟨(S.subtype).comp g.toMonoidHom, continuous_subtype_val.comp g.continuous_toFun⟩
 
-@[simp] lemma cmhInclude_apply (S : Subgroup G₂) (g : ContinuousMonoidHom G₁ ↥S) (x : G₁) :
-    cmhInclude S g x = (g x : G₂) := rfl
-
-/-- **Homs onto a subgroup ≃ homs into the ambient group landing in it.** -/
-def cmhSubgroupEquiv (S : Subgroup G₂) :
-    ContinuousMonoidHom G₁ ↥S ≃ {f : ContinuousMonoidHom G₁ G₂ // ∀ x, f x ∈ S} where
-  toFun g := ⟨cmhInclude S g, fun x => (g x).2⟩
-  invFun f := cmhCodRestrict f.1 S f.2
-  left_inv g := by ext x; rfl
-  right_inv f := by ext x; rfl
 
 end CodRestrict
 
@@ -431,9 +419,6 @@ variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite 
 noncomputable def CentralCover.pCont (C : CentralCover Y) : ContinuousMonoidHom C.cover Y :=
   ⟨C.p, continuous_of_discreteTopology⟩
 
-omit [DiscreteTopology Y] in
-@[simp] lemma CentralCover.pCont_apply (C : CentralCover Y) (x : C.cover) :
-    C.pCont x = C.p x := rfl
 
 open scoped Classical in
 /-- The exact-image count of the `J`-stratum, totalized (`0` when `J` does not project onto
@@ -503,40 +488,6 @@ noncomputable def scalarTwist (C : CentralCover Y)
     exact (continuous_of_discreteTopology
       (f := fun m : Multiplicative (ZMod 2) => C.z ^ (m.toAdd).val)).comp (map_continuous c)
 
-/-- **Scalar twisting preserves the boundary-framed condition** on a pulled-back cover
-target (Lemma 8.2, second clause): the twist changes only the central coordinate, which
-`π̃` and `θ̃` kill.  **Proved.** -/
-theorem isBoundaryLift_scalarTwist {Y : Type} [Group Y] [TopologicalSpace Y]
-    [DiscreteTopology Y] [Finite Y]
-    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
-    (T : MarkedTarget H E Y) (C : CentralCover Y)
-    (f : ContinuousMonoidHom Γ C.cover)
-    (c : ContinuousMonoidHom Γ (Multiplicative (ZMod 2)))
-    (hf : IsBoundaryLift b F (C.pullTarget T) f) :
-    IsBoundaryLift b F (C.pullTarget T) (scalarTwist C f c) := by
-  intro γ
-  have hz : ∀ n : ℕ, C.p (C.z ^ n) = 1 := by
-    intro n
-    rw [map_pow]
-    have : C.p C.z = 1 := by
-      have : C.z ∈ C.p.ker := by
-        rw [C.ker_eq]
-        exact Subgroup.mem_zpowers _
-      rwa [MonoidHom.mem_ker] at this
-    rw [this, one_pow]
-  have hval : ∀ (g : Γ → C.cover) (γ), (C.pullTarget T).piY (g γ) = T.piY (C.p (g γ)) := by
-    intro g γ
-    rfl
-  show ((C.pullTarget T).piY _, (C.pullTarget T).thetaY _) = F.frameMap (b γ)
-  have h1 : (C.pullTarget T).piY (scalarTwist C f c γ) = (C.pullTarget T).piY (f γ) := by
-    show T.piY (C.p (f γ * C.z ^ ((c γ).toAdd).val)) = T.piY (C.p (f γ))
-    rw [map_mul, hz, mul_one]
-  have h2 : (C.pullTarget T).thetaY (scalarTwist C f c γ)
-      = (C.pullTarget T).thetaY (f γ) := by
-    show T.thetaY (C.p (f γ * C.z ^ ((c γ).toAdd).val)) = T.thetaY (C.p (f γ))
-    rw [map_mul, hz, mul_one]
-  rw [h1, h2]
-  exact hf γ
 
 /-! ### The torsor structure on cover lifts
 
@@ -1670,14 +1621,6 @@ def Enrichment.radData (E : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR) :
   hrad := E.hrad l h
   hTzero := E.hTzero l h
 
-/-- The descent clause of the assembled datum **is** the (139)/(140) case-split condition:
-definitional alignment for the P-16d3 hand-off to `lemma_8_6_local`/`lemma_8_6_gammaA`. -/
-theorem Enrichment.radData_noDescent_iff (E : RF.Enrichment) (l : RF.DR)
-    (h : l ≠ RF.zeroDR) :
-    (E.radData l h).NoDescent ↔
-      ¬∃ N : Subgroup (RF.scalarCover l h).cover, N.Normal ∧
-        N.map (RF.scalarCover l h).p = RF.TBsub ∧ (RF.scalarCover l h).z ∉ N :=
-  Iff.rfl
 
 end RecursionFrame
 
@@ -2155,4 +2098,3 @@ end Recursion
 end SectionEight
 
 end GQ2
-

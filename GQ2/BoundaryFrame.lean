@@ -261,17 +261,6 @@ noncomputable def boundarySubgroup : Subgroup (Ttame × PiBd) where
     simp only [Set.mem_setOf_eq, Prod.fst_inv, Prod.snd_inv, map_inv] at *
     rw [ha]
 
-theorem isClosed_boundarySubgroup :
-    IsClosed (boundarySubgroup : Set (Ttame × PiBd)) :=
-  isClosed_eq (nuT.continuous_toFun.comp continuous_fst)
-    (nuTwo.continuous_toFun.comp continuous_snd)
-
-instance instCompactSpaceBoundarySubgroup : CompactSpace ↥boundarySubgroup :=
-  isCompact_iff_compactSpace.mp isClosed_boundarySubgroup.isCompact
-
-/-- **`∂bd`** (eq. (26)), packaged as a profinite group.  The working definitions below use the
-underlying type `↥boundarySubgroup` directly. -/
-noncomputable def Boundary : ProfiniteGrp := ProfiniteGrp.of ↥boundarySubgroup
 
 /-! ## The frame  (eq. (28)) -/
 

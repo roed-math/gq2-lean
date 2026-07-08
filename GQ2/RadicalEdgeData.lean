@@ -100,31 +100,6 @@ def RadicalCoverData.NoDescent {Bg : Type} [Group Bg] [Finite Bg]
     (D : RadicalCoverData Bg) : Prop :=
   ¬∃ N : Subgroup D.C.cover, N.Normal ∧ N.map D.C.p = D.T ∧ D.C.z ∉ N
 
-/-- **Half-count engine** (the combinatorial heart of Lemma 8.6's (127) count): a nonzero
-`𝔽₂`-linear functional `ℓ` on a finite `𝔽₂`-vector space `V` has each fibre of exactly half
-the size — `2·#{v ∣ ℓ v = c} = #V`.  (`ℓ` is surjective, so `V` partitions into two equal
-fibres over `ZMod 2`.)  Consumed by both `lemma_8_6_*` and `prop_8_9`'s `(139)` half-value. -/
-theorem two_mul_card_fiber {V : Type*} [AddCommGroup V] [Module (ZMod 2) V] [Finite V]
-    (ℓ : V →ₗ[ZMod 2] ZMod 2) (hℓ : ℓ ≠ 0) (c : ZMod 2) :
-    2 * Nat.card {v : V // ℓ v = c} = Nat.card V := by
-  classical
-  haveI : Fintype V := Fintype.ofFinite V
-  have h01 : ∀ x : ZMod 2, x ≠ 1 → x = 0 := by decide
-  have hsurj : Function.Surjective ℓ := by
-    obtain ⟨v, hv⟩ : ∃ v, ℓ v = 1 := by
-      by_contra h
-      exact hℓ (by ext v; exact h01 _ (fun hv1 => h ⟨v, hv1⟩))
-    intro c; exact ⟨c • v, by rw [map_smul, hv, smul_eq_mul, mul_one]⟩
-  have hfibeq : ∀ c' : ZMod 2, Nat.card {v : V // ℓ v = c'} = Nat.card {v : V // ℓ v = c} := by
-    intro c'
-    obtain ⟨v0, hv0⟩ := hsurj (c' - c)
-    refine Nat.card_congr ⟨fun w => ⟨w.1 - v0, by rw [map_sub, w.2, hv0]; ring⟩,
-      fun w => ⟨v0 + w.1, by rw [map_add, hv0, w.2]; ring⟩,
-      fun w => Subtype.ext (by simp), fun w => Subtype.ext (by simp)⟩
-  have hsig : Nat.card V = ∑ c' : ZMod 2, Nat.card {v : V // ℓ v = c'} :=
-    (Nat.card_congr (Equiv.sigmaFiberEquiv ℓ).symm).trans Nat.card_sigma
-  rw [hsig, Finset.sum_congr rfl (fun c' _ => hfibeq c'), Finset.sum_const, Finset.card_univ,
-    Nat.card_eq_fintype_card, ZMod.card, smul_eq_mul]
 
 /-! ## Unrestricted `M`-lifts and the central relation  (Lemma 8.6 count objects) -/
 

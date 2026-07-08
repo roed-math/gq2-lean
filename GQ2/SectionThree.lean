@@ -365,15 +365,6 @@ theorem wildPart_isClosed : IsClosed (wildPart : Set GammaA) := wildCore_isClose
 input Prop. 3.2's `Γ_A` side needs for "`W_A` is the wild part". -/
 theorem isProP_wildPart : IsProP 2 wildPart := isProP_wildCore
 
-/-- The `Γ_A`-marking components in the raw `quotientMk` spelling used by the P-11 layer
-(`BoundaryMaps`'s pinning fields, `GQ2/BoundaryFrame.lean`) — all definitional. -/
-theorem gammaSigma_def : gammaSigma = quotientMk NA univMarking.σ := rfl
-
-theorem gammaTau_def : gammaTau = quotientMk NA univMarking.τ := rfl
-
-theorem gammaX0_def : gammaX0 = quotientMk NA univMarking.x₀ := rfl
-
-theorem gammaX1_def : gammaX1 = quotientMk NA univMarking.x₁ := rfl
 
 /-! ## Proposition 3.2 — the common tame quotient
 

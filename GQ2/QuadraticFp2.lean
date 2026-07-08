@@ -80,15 +80,6 @@ noncomputable def arf (q : V → ZMod 2) : ZMod 2 :=
 `q_U(x) = q(x) + B(x, Ux)`.  (Char 2, `B` `U`-invariant: same as the paper's `B(x, U⁻¹x)`.) -/
 def qDouble (q : V → ZMod 2) (U : V → V) (x : V) : ZMod 2 := q x + polar q x (U x)
 
-@[simp] theorem qDouble_id_of_alternating (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
-    (h2 : ∀ v : V, v + v = 0) (x : V) : qDouble q id x = q x := by
-  rw [qDouble, id, polar_self q hq h2, add_zero]
-
-/-- Doubling by the identity operator written as `U = 1` on `AddAut`-style operators: with
-`U x = x` the doubling term is `B(x,x) = 0`. -/
-theorem qDouble_of_fixed (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (h2 : ∀ v : V, v + v = 0)
-    {U : V → V} (hU : ∀ x, U x = x) (x : V) : qDouble q U x = q x := by
-  rw [qDouble, hU, polar_self q hq h2, add_zero]
 
 end QuadraticFp2
 

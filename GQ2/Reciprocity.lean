@@ -294,17 +294,6 @@ theorem chiCyc_recip_neg3 (u : ℤ_[2]ˣ) (hu : (u : ℤ_[2]) = -3) :
     simp only [uNeg3, Units.val_mk0, unitEmbed_val, hu, map_neg, map_ofNat]
   rw [hval, R.chiCyc_recip_unit]
 
-/-- **Structural stress test — the abelianized relator.** In `G_{ℚ₂}^{ab}`, `ā²·s̄⁴ = 1`, where
-`ā = rec(−4)`, `s̄ = rec(2)⁻¹`: indeed `(−4)²·(2⁻¹)⁴ = 1`, so `ā²s̄⁴ = rec(1) = 1` (paper Lemma 3.5,
-`ā²s̄⁴ = rec((−4)²(1/2)⁴) = rec(1) = 1`; additively `2Ā + 4S̄ = 0`). -/
-theorem abelianized_relator :
-    R.recip uNeg4 ^ 2 * (R.recip uniformizer)⁻¹ ^ 4 = 1 := by
-  have hrel : uNeg4 ^ 2 * uniformizer⁻¹ ^ 4 = 1 := by
-    ext
-    simp only [uNeg4, uniformizer, Units.val_mul, Units.val_pow_eq_pow_val,
-      Units.val_inv_eq_inv_val, Units.val_mk0, Units.val_one]
-    norm_num
-  rw [← map_pow, ← map_inv, ← map_pow, ← map_mul, hrel, map_one]
 
 end StressTests
 

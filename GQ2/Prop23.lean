@@ -42,14 +42,6 @@ namespace GQ2
 
 /-! ## The universal property, uniqueness half -/
 
-/-- **Uniqueness half of the universal property of `F₄`**: every morphism `f : F₄ ⟶ P` is the
-hom classified by its own pushed marking.  (`univMarking_map_toHom` is the other round-trip.) -/
-lemma Marking.toHom_univMarking_map {P : ProfiniteGrp.{0}} (f : FreeProfiniteGroup (Fin 4) ⟶ P) :
-    Marking.toHom (univMarking.map f.hom.toMonoidHom) = f := by
-  rw [Marking.toHom, Equiv.symm_apply_eq]
-  funext i
-  rw [FreeProfiniteGroup.homEquiv_apply]
-  fin_cases i <;> rfl
 
 section FiniteTarget
 

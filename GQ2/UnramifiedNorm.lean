@@ -82,11 +82,6 @@ theorem uniformizer_norm_eq_of_e_eq {k L : IntermediateField ℚ_[2] ℚ̄₂}
   exact (pow_left_inj₀ (norm_nonneg _) (norm_nonneg _)
     (Nat.one_le_iff_ne_zero.mp Fk.he_pos)).mp h2
 
-/-- **c2c-A in the `e`-form.**  The analytic `hunram` from equal absolute ramification index. -/
-theorem hunram_of_e_eq {k L : IntermediateField ℚ_[2] ℚ̄₂}
-    (Fk : DyadicUnitFiltration k) (FL : DyadicUnitFiltration L) (he : FL.e = Fk.e) :
-    ∀ x : ℚ̄₂, x ≠ 0 → x ∈ L → ∃ y : ℚ̄₂, y ≠ 0 ∧ y ∈ k ∧ ‖x‖ = ‖y‖ :=
-  hunram_of_uniformizer_norm_eq Fk FL (uniformizer_norm_eq_of_e_eq Fk FL he)
 
 end UnramifiedNorm
 

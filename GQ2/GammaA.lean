@@ -282,31 +282,6 @@ allowlisted §9 `thm_4_2` until P-17i. -/
 
 section SanityS3
 
-local instance : TopologicalSpace (DihedralGroup 3) := ⊥
-local instance : DiscreteTopology (DihedralGroup 3) := ⟨rfl⟩
-
-/-- The machine-checked admissible `S₃`-marking of `GQ2/AppendixB.lean` classifies an
-**admissible** finite quotient of `F₄` — a concrete member of the paper's class `Q_A`. -/
-theorem isAdmissible_markS3_toHom :
-    (univMarking.map
-      (Marking.toHom (P := ProfiniteGrp.of (DihedralGroup 3)) Marking.markS3).hom.toMonoidHom).Admissible := by
-  rw [univMarking_map_toHom]
-  exact Marking.markS3_admissible
-
-/-- **`Γ_A` surjects onto `S₃`**: the marked quotient construction is nonvacuous (in particular
-`N_A ≠ ⊤` and `Γ_A ≠ 1`), via the Appendix-B admissible marking. -/
-theorem gammaA_surjective_s3 :
-    ∃ φ : ContinuousMonoidHom GammaA (DihedralGroup 3), Function.Surjective φ := by
-  haveI : IsClosed (NA : Set (FreeProfiniteGroup (Fin 4))) := NA_isClosed
-  set f : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4)) (DihedralGroup 3) :=
-    (Marking.toHom (P := ProfiniteGrp.of (DihedralGroup 3)) Marking.markS3).hom with hf
-  have hker : NA ≤ f.toMonoidHom.ker := NA_le_ker f isAdmissible_markS3_toHom
-  refine ⟨quotientLift NA f hker, ?_⟩
-  have hsurj : Function.Surjective f :=
-    surjective_of_map_generates f.toMonoidHom isAdmissible_markS3_toHom.1
-  intro y
-  obtain ⟨x, hx⟩ := hsurj y
-  exact ⟨quotientMk NA x, (quotientLift_quotientMk NA f hker x).trans hx⟩
 
 end SanityS3
 

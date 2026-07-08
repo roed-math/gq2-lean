@@ -101,31 +101,6 @@ theorem powOmega2_map {G H : Type*} [Group G] [Group H] [Finite G] (f : G →* H
     orderOf_dvd_of_pow_eq_one (by rw [← map_pow, pow_orderOf_eq_one, map_one])
   exact powOmega2_pow_eq (f x) hdvd (orderOf_pos x).ne'
 
-/-- `powOmega2` is computed coordinatewise on a product of finite groups. -/
-theorem powOmega2_prod {G H : Type*} [Group G] [Group H] [Finite G] [Finite H] (a : G) (b : H) :
-    powOmega2 ((a, b) : G × H) = (powOmega2 a, powOmega2 b) := by
-  have hne : orderOf ((a, b) : G × H) ≠ 0 := (orderOf_pos _).ne'
-  have hpow := pow_orderOf_eq_one ((a, b) : G × H)
-  rw [Prod.pow_mk, Prod.ext_iff] at hpow
-  have hda : orderOf a ∣ orderOf ((a, b) : G × H) := orderOf_dvd_of_pow_eq_one hpow.1
-  have hdb : orderOf b ∣ orderOf ((a, b) : G × H) := orderOf_dvd_of_pow_eq_one hpow.2
-  have hLHS : powOmega2 ((a, b) : G × H)
-      = (a ^ omega2Exp (orderOf ((a, b) : G × H)), b ^ omega2Exp (orderOf ((a, b) : G × H))) := by
-    rw [powOmega2, Prod.pow_mk]
-  rw [hLHS, powOmega2_pow_eq a hda hne, powOmega2_pow_eq b hdb hne]
-
-/-- **Appendix B cross-check.** For the paper's finite modulus `M = 85667662080 =
-2⁸·3²·5·7·11·13·17·19·23`, the idempotent `ω₂` is serialized as `40491355905`.  We confirm this
-residue satisfies the two defining congruences of `ω₂` — `≡ 1` on the 2-part `2⁸ = 256`, `≡ 0` on
-the odd part `M/256 = 334639305` — and is a reduced residue.  These two congruences pin down `ω₂`
-modulo `M` uniquely, so this certifies the paper's serialized value. -/
-theorem omega2_appendixB :
-    (85667662080 : ℕ) = 2 ^ 8 * 334639305 ∧
-    ¬ (2 : ℕ) ∣ 334639305 ∧
-    (40491355905 : ℕ) % 256 = 1 ∧
-    (334639305 : ℕ) ∣ 40491355905 ∧
-    (40491355905 : ℕ) < 85667662080 := by
-  refine ⟨by norm_num, by norm_num, by norm_num, by norm_num, by norm_num⟩
 
 /-- **Appendix B, exact match.**  Our *computable* representative `omega2Exp`, evaluated at the
 paper's modulus `M = 85667662080 = 2⁸·3²·5·7·11·13·17·19·23`, reproduces the Appendix-B

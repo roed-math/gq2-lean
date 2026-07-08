@@ -204,24 +204,6 @@ variable {C : Type} [Group C] [Finite C]
 variable {A A' : Type} [AddCommGroup A] [Finite A] [DistribMulAction C A]
   [AddCommGroup A'] [Finite A'] [DistribMulAction C A']
 
-omit [Finite A'] in
-/-- **`d¹` naturality** (`docs/p16d6e5-plan.md` §2, L2): a `C`-equivariant coefficient map
-`f : A →+ A'` intertwines the degree-1 differentials — `d1Fun t (f ∘ x) = (f × f)(d1Fun t x)`.
-Same functoriality proof as `FoxH.d1Fun_add` (push the lifted marking through `WordLift.map f`,
-then read the tame/wild `u`-coordinates), with a single coefficient map instead of `fst/snd`. -/
-theorem d1Fun_naturality (f : A →+ A') (hf : ∀ (g : C) (a : A), f (g • a) = g • f a)
-    (t : Marking C) (x : Fin 4 → A) :
-    GQ2.FoxH.d1Fun t (fun i => f (x i))
-      = (f (GQ2.FoxH.d1Fun t x).1, f (GQ2.FoxH.d1Fun t x).2) := by
-  have hL : (GQ2.FoxH.liftMarking t x).map (GQ2.FoxH.WordLift.map f hf)
-      = GQ2.FoxH.liftMarking t (fun i => f (x i)) := rfl
-  refine Prod.ext ?_ ?_
-  · show (GQ2.FoxH.liftMarking t (fun i => f (x i))).tameValue.u
-        = f ((GQ2.FoxH.liftMarking t x).tameValue.u)
-    rw [← hL, Marking.map_tameValue, GQ2.FoxH.WordLift.map_u]
-  · show (GQ2.FoxH.liftMarking t (fun i => f (x i))).wildValue.u
-        = f ((GQ2.FoxH.liftMarking t x).wildValue.u)
-    rw [← hL, Marking.map_wildValue, GQ2.FoxH.WordLift.map_u]
 
 end WordNaturality
 
@@ -319,68 +301,8 @@ open GQ2.FoxH
 
 variable {C : Type} [Group C] [Finite C]
 
-/-- **L3e: the trace kills `im d¹` at trivial `𝔽₂` coefficients** (`docs/p16d6e5-plan.md` §2, L3).
-For `C` acting trivially on `𝔽₂ = ZMod 2`, every `d¹`-row has coordinate sum zero:
-`(d¹x).1 + (d¹x).2 = 0`.  This is `prop_5_8_right` at `A := ZMod 2`, `lam := id` — the identity
-functional is `C`-invariant (`d⁰ id = 0`, since the contragredient action is trivial), so
-`mixedB t x (d⁰ id) = mixedB t x 0 = 0 = id ((d¹x).1 + (d¹x).2) = (d¹x).1 + (d¹x).2`.
 
-At the `Y/l`-cover instance of L4 the kernel `R/l ≅ 𝔽₂` is central (the invariant character `d`
-gives a trivial `C`-action), so this is exactly the coordinate-sum vanishing needed to feed
-`sep_word`'s hypothesis. -/
-theorem trace_kills_im_trivial [DistribMulAction C (ZMod 2)]
-    (htriv2 : ∀ (c : C) (m : ZMod 2), c • m = m)
-    (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (x : Fin 4 → ZMod 2) :
-    (d1Fun t x).1 + (d1Fun t x).2 = 0 := by
-  -- The identity functional, forced to the `ElemDual` type via a typed `let` so its `C`-action is
-  -- the contragredient — NOT the T-14 codomain-action diamond that a bare `ZMod 2 →+ ZMod 2`
-  -- (or an `ext`/`DFunLike.ext` that decays to one) would pick up.
-  let idE : ElemDual (ZMod 2) := AddMonoidHom.id (ZMod 2)
-  have hact : ∀ (c : C), c • idE = idE := by
-    intro c
-    have htoAM : (DistribSMul.toAddMonoidHom (ZMod 2) (c⁻¹ : C)) = AddMonoidHom.id (ZMod 2) := by
-      ext a; exact htriv2 c⁻¹ a
-    -- `c • idE` is defeq `idE.comp (toAddMonoidHom c⁻¹)` (the contragredient smul); `toAddMonoidHom
-    -- c⁻¹ = id` by triviality, and `idE.comp id = idE`.
-    show idE.comp (DistribSMul.toAddMonoidHom (ZMod 2) (c⁻¹ : C)) = idE
-    rw [htoAM, AddMonoidHom.comp_id]
-  have hlam : (d0 (A := ElemDual (ZMod 2)) t) idE = 0 := by
-    funext i; fin_cases i <;> exact sub_eq_zero.mpr (hact _)
-  have h58 := prop_5_8_right t ht hw x idE
-  rw [hlam, mixedB_zero_right] at h58
-  exact h58.symm
 
-omit [Finite C] in
-/-- **The tame `d¹`-row at trivial `𝔽₂` coefficients**: `(d¹x).1 = x 1` (`docs/p16d6e5-plan.md`
-§2, L4).  Specialize `d1Fun_tame`'s closed form to the trivial action — every `•` drops and, in
-characteristic two, `x₀ − x₀ + x₁ − (x₁ + x₁) = x₁`.  This is the tame half of recognizing the
-per-cover relator corrections as a `d¹`-image: at the central `R/l ≅ 𝔽₂` cover the τ-correction
-`x 1` *is* the tame relator's shift (the central-2-torsion computation
-`tameValue(r⃗·ŷ) = r₁ · tameValue(ŷ)`). -/
-theorem d1Fun_tame_trivial [DistribMulAction C (ZMod 2)]
-    (htriv2 : ∀ (c : C) (m : ZMod 2), c • m = m)
-    (t : Marking C) (ht : t.TameRel) (x : Fin 4 → ZMod 2) :
-    (d1Fun t x).1 = x 1 := by
-  rw [d1Fun_tame t ht]
-  simp only [htriv2, sub_self, zero_add, CharTwo.add_self_eq_zero, sub_zero]
-
-/-- **The wild `d¹`-row at trivial `𝔽₂` coefficients**: `(d¹x).2 = x 1` (`docs/p16d6e5-plan.md`
-§2, L4).  `liftMarking_wildValue_u`'s split closed form `x₁ + x₃ + σ⁻¹·x₃` (all the trivial-action
-side conditions `hx₀/hx₁/hτ/hσ₂` hold from `htriv2`) collapses under the trivial action and
-characteristic two to `x₁ + x₃ + x₃ = x₁`.  Together with `d1Fun_tame_trivial` this is the wild
-recognizer for L4; the pair `(d¹x) = (x 1, x 1)` also re-derives `trace_kills_im_trivial`
-(`x 1 + x 1 = 0`). -/
-theorem d1Fun_wild_trivial [DistribMulAction C (ZMod 2)]
-    (htriv2 : ∀ (c : C) (m : ZMod 2), c • m = m)
-    (t : Marking C) (x : Fin 4 → ZMod 2) :
-    (d1Fun t x).2 = x 1 := by
-  have h := liftMarking_wildValue_u t x (fun v => CharTwo.add_self_eq_zero v)
-    (fun v => htriv2 t.x₀ v) (fun v => htriv2 t.x₁ v) (fun v => htriv2 t.τ v)
-    (fun v => htriv2 t.sigma2 v)
-  show (liftMarking t x).wildValue.u = x 1
-  rw [h]
-  simp only [htriv2]
-  rw [add_assoc, CharTwo.add_self_eq_zero, add_zero]
 
 end TraceKills
 

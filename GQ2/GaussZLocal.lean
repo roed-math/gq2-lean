@@ -70,8 +70,6 @@ noncomputable def toZ1 (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho0 DD 
     · intro γ δ
       rw [c.crossed γ δ, ← hcomp γ (c.c δ)]⟩
 
-@[simp] theorem toZ1_c (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho0 DD ρ γ • v)
-    (c : VCocycle DD ρ) : ((toZ1 hcomp c : ↥(Z1 Γ DD.Vmod)) : Γ → DD.Vmod) = c.c := rfl
 
 /-- The inverse direction: a continuous 1-cocycle is a crossed `V`-cocycle. -/
 noncomputable def ofZ1 (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho0 DD ρ γ • v)
@@ -88,8 +86,6 @@ noncomputable def ofZ1 (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho0 DD 
 theorem toZ1_ofZ1 (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho0 DD ρ γ • v)
     (z : ↥(Z1 Γ DD.Vmod)) : toZ1 hcomp (ofZ1 hcomp z) = z := Subtype.ext rfl
 
-theorem toZ1_surjective (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho0 DD ρ γ • v) :
-    Function.Surjective (toZ1 hcomp) := fun z => ⟨ofZ1 hcomp z, toZ1_ofZ1 hcomp z⟩
 
 /-! ### (B) the quotient bijection `(Z¹ ⧸ B¹) → H¹` -/
 
@@ -101,12 +97,6 @@ theorem H1mk_eq_iff {M : Type*} [AddCommGroup M] [TopologicalSpace M]
   show (↑x : Z1 Γ M ⧸ (B1 Γ M).addSubgroupOf (Z1 Γ M)) = ↑y ↔ _
   exact QuotientAddGroup.eq_iff_sub_mem
 
-/-- The `vCob ↦ dZero` correspondence on carriers. -/
-theorem toZ1_vCob_c (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho0 DD ρ γ • v)
-    (w : DD.Vmod) : (vCob DD ρ w).c = dZero Γ DD.Vmod w := by
-  funext γ
-  show rho0 DD ρ γ • w - w = γ • w - w
-  rw [hcomp γ w]
 
 /-- **The quotient map** `Φ : Z¹_{Γ,ρ}(V) ⧸ B¹ → H¹(Γ, V)` (P-16d6e4a (B)). -/
 noncomputable def h1OfVQuot (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho0 DD ρ γ • v)

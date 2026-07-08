@@ -54,23 +54,6 @@ theorem mapCoeff1_H1mk (f : N →+ M) (hf : Continuous f)
       = H1mk G M (Z1comap (ContinuousMonoidHom.id G) f hf (fun g n => hcompat g n) z) :=
   rfl
 
-/-- `mapCoeff1 (id) = id`. -/
-theorem mapCoeff1_id
-    (hcompat : ∀ (g : G) (m : M), (AddMonoidHom.id M) (g • m) = g • (AddMonoidHom.id M) m) :
-    mapCoeff1 (AddMonoidHom.id M) continuous_id hcompat = AddMonoidHom.id (H1 G M) := by
-  ext x
-  induction x using QuotientAddGroup.induction_on with
-  | _ z => rfl
-
-/-- `mapCoeff1 (f ∘ g) = mapCoeff1 f ∘ mapCoeff1 g`. -/
-theorem mapCoeff1_comp (f : N →+ M) (hf : Continuous f)
-    (hfc : ∀ (g : G) (n : N), f (g • n) = g • f n)
-    (e : P →+ N) (he : Continuous e) (hec : ∀ (g : G) (p : P), e (g • p) = g • e p) :
-    mapCoeff1 (f.comp e) (hf.comp he) (fun g p => by rw [AddMonoidHom.comp_apply, hec, hfc]; rfl)
-      = (mapCoeff1 f hf hfc).comp (mapCoeff1 e he hec) := by
-  ext x
-  induction x using QuotientAddGroup.induction_on with
-  | _ z => rfl
 
 end Functoriality
 
@@ -452,48 +435,6 @@ theorem cCoeff_faithful_and_simple (ρ : ContinuousMonoidHom AbsGalQ2 C)
       _ ≤ Nat.card S := hle
   exact (AddSubgroup.card_eq_iff_eq_top S).mp hcards
 
-/-- **Brick (d1)**: pulling back an equivariant factor-set datum along the action of a *central*
-`g₀ : C` (here: any `g₀`, `C` abelian) that is a `q`-isometry yields again an equivariant
-factor-set datum for the *same* `q`. -/
-theorem isEquivariantFactorSet_comap_smul {q : V → ZMod 2} {dat : FactorSet C V}
-    (hdat : IsEquivariantFactorSet q dat) (hinv : IsInvariant C q)
-    (hCcomm : ∀ a b : C, a * b = b * a) (g₀ : C) :
-    IsEquivariantFactorSet q (dat.comap (DistribMulAction.toAddMonoidHom V g₀)) where
-  f_cocycle v w x := by
-    show dat.f (g₀ • (v + w)) (g₀ • x) + dat.f (g₀ • v) (g₀ • w)
-      = dat.f (g₀ • v) (g₀ • (w + x)) + dat.f (g₀ • w) (g₀ • x)
-    rw [smul_add, smul_add]
-    exact hdat.f_cocycle (g₀ • v) (g₀ • w) (g₀ • x)
-  f_diag v := by
-    show dat.f (g₀ • v) (g₀ • v) = q v
-    rw [hdat.f_diag, hinv g₀ v]
-  f_polar v w := by
-    show dat.f (g₀ • v) (g₀ • w) + dat.f (g₀ • w) (g₀ • v) = polar q v w
-    rw [hdat.f_polar]
-    show q (g₀ • v + g₀ • w) + q (g₀ • v) + q (g₀ • w) = polar q v w
-    rw [← smul_add, hinv g₀ (v + w), hinv g₀ v, hinv g₀ w]
-    rfl
-  f_zero_left v := by
-    show dat.f (g₀ • (0 : V)) (g₀ • v) = 0
-    rw [smul_zero]
-    exact hdat.f_zero_left (g₀ • v)
-  f_zero_right v := by
-    show dat.f (g₀ • v) (g₀ • (0 : V)) = 0
-    rw [smul_zero]
-    exact hdat.f_zero_right (g₀ • v)
-  m_quad c v w := by
-    show dat.m c (g₀ • (v + w)) + dat.m c (g₀ • v) + dat.m c (g₀ • w)
-      = dat.f (g₀ • (c • v)) (g₀ • (c • w)) + dat.f (g₀ • v) (g₀ • w)
-    rw [smul_add, hdat.m_quad c (g₀ • v) (g₀ • w),
-      show g₀ • c • v = c • g₀ • v from by rw [smul_smul, smul_smul, hCcomm],
-      show g₀ • c • w = c • g₀ • w from by rw [smul_smul, smul_smul, hCcomm]]
-  m_mul c d v := by
-    show dat.m (c * d) (g₀ • v) = dat.m c (g₀ • (d • v)) + dat.m d (g₀ • v)
-    rw [hdat.m_mul c d (g₀ • v),
-      show g₀ • d • v = d • g₀ • v from by rw [smul_smul, smul_smul, hCcomm]]
-  m_one v := by
-    show dat.m 1 (g₀ • v) = 0
-    exact hdat.m_one (g₀ • v)
 
 /-- **Brick (d2), the explicit datum coboundary**: for `g₀ : C` (abelian `C`), the graph pullback
 along the `g₀`-comapped datum differs from the original by the 2-coboundary of the continuous

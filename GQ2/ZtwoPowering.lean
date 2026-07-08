@@ -435,16 +435,6 @@ lemma isUnit_intCast_of_odd {m : ℤ} (hm : Odd m) : IsUnit ((m : ℤ_[2])) := b
   rw [PadicInt.isUnit_iff, PadicInt.norm_intCast_eq_one_iff, Int.isCoprime_iff_gcd_eq_one]
   exact Nat.coprime_two_right.mpr (Int.natAbs_odd.mpr hm)
 
-/-- **Odd-power bijectivity** (P-08's "cube roots"): for odd `m ∈ ℤ`, `x ↦ x ^ m` is a
-bijection of any pro-2 group, with inverse `x ↦ x ^ (m⁻¹ ∈ ℤ₂)`. -/
-lemma pow_bijective_of_odd (hP : IsProP 2 P) {m : ℤ} (hm : Odd m) :
-    Function.Bijective (fun x : P => x ^ m) := by
-  obtain ⟨w, hw⟩ := isUnit_intCast_of_odd hm
-  have heq : (fun x : P => x ^ m) = fun x : P => zpowZtwo hP x ((w : ℤ_[2])) := by
-    funext x
-    rw [hw, zpowZtwo_intCast]
-  rw [heq]
-  exact zpowZtwo_bijective hP w
 
 /-- **Naturality**: continuous homs of pro-2 groups commute with `ℤ₂`-powers. -/
 lemma map_zpowZtwo {Q : Type} [Group Q] [TopologicalSpace Q] [IsTopologicalGroup Q]

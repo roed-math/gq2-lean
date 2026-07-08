@@ -137,12 +137,6 @@ theorem roundtripGA : ∀ γ : GA,
     rho0 (En.descData l h) (rhoPrimeGA b F En l h ρ) γ = thetaGA b F ρ γ :=
   fun γ => rho0_descData_rhoPrime b F En l h ρ γ
 
-/-- `rho0 ∘ rhoPrime` is surjective over `GA` (from `θ`-surjectivity + the roundtrip). -/
-theorem rho0_rhoPrimeGA_surjective :
-    Function.Surjective (fun γ : GA => rho0 (En.descData l h) (rhoPrimeGA b F En l h ρ) γ) :=
-  fun y => by
-    obtain ⟨γ, hγ⟩ := thetaGA_surjective b F ρ y
-    exact ⟨γ, (roundtripGA b F En l h ρ γ).trans hγ⟩
 
 /-- **The A-1 deliverable**: the generator-coordinate model of the `Γ_A` Gauss domain —
 the quotient bijection `h1OfVQuot` into `H¹(Γ_A, V)` composed with the banked degree-1
@@ -173,35 +167,6 @@ theorem h1CoordGammaA_bijective
     (h1Equiv (thetaGA b F ρ) hcompat (thetaGA_surjective b F ρ) hA₂).surjective.comp
       (h1OfVQuot_surjective hcomp)⟩
 
-/-- **`#H¹_w = #V`** — the domain of the descended (83)-form is a `#V`-sized space
-(`card_quotient_vCobRange` through the coordinate bijection; `hfix` from the ledger
-hypotheses via `hfix_of_simple_nt`). -/
-theorem card_H1w_gammaA
-    (hcomp : ∀ (γ : GA) (v : (En.descData l h).Vmod),
-      γ • v = rho0 (En.descData l h) (rhoPrimeGA b F En l h ρ) γ • v)
-    (hcompat : ∀ (γ : GA) (v : (En.descData l h).Vmod), γ • v = thetaGA b F ρ γ • v)
-    (hA₂ : ∀ v : (En.descData l h).Vmod, v + v = 0)
-    (hsimple : ∀ W : AddSubgroup En.Vmod,
-      (∀ g : RF.YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
-    (hVne : ∃ v : En.Vmod, v ≠ 0)
-    (hnt : ∃ (g : RF.YC) (v : En.Vmod), g • v ≠ v) :
-    Nat.card (H1w (A := (En.descData l h).Vmod) (markC (thetaGA b F ρ)))
-      = Nat.card (En.descData l h).Vmod := by
-  haveI := finite_vcocycle_gammaA b F En l h ρ hsimple hVne hnt
-  have hfix : ∀ v : (En.descData l h).Vmod,
-      (∀ γ : GA, rho0 (En.descData l h) (rhoPrimeGA b F En l h ρ) γ • v = v) → v = 0 :=
-    fun v hv => hfix_of_simple_nt (rho0_rhoPrimeGA_surjective b F En l h ρ) hsimple hnt v hv
-  calc Nat.card (H1w (A := (En.descData l h).Vmod) (markC (thetaGA b F ρ)))
-      = Nat.card (VCocycle (En.descData l h) (rhoPrimeGA b F En l h ρ)
-          ⧸ vCobRange (En.descData l h) (rhoPrimeGA b F En l h ρ)) :=
-        (Nat.card_congr (Equiv.ofBijective _
-          (h1CoordGammaA_bijective b F En l h ρ hcomp hcompat hA₂))).symm
-    _ = Nat.card (En.descData l h).Vmod := by
-        refine card_quotient_vCobRange hfix ?_
-        show Nat.card (VCocycle (En.descData l h)
-            (RF.rhoPrime b F (En.radData l h) rfl ρ))
-          = Nat.card (En.descData l h).Vmod * Nat.card (En.descData l h).Vmod
-        exact Phase140GammaA.hZcard_gammaA b F En l h hsimple hVne hnt ρ
 
 end CoordGammaA
 

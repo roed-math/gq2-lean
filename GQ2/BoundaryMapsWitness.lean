@@ -298,7 +298,6 @@ noncomputable def locTame : LocalTameQuotient :=
   { toTameQuotientData := GQ2.tameQuotient.toTameQuotientData,
     maximal := tameData_maximal GQ2.tameQuotient.toTameQuotientData }
 
-instance locTame_W_normal : locTame.W.Normal := locTame.normal
 
 /-- The chosen local pro-2 marked iso (P-25 `prop_3_10_local_marked`) at `R = localReciprocity`. -/
 noncomputable def locPro2 := prop_3_10_local_marked_proved (localReciprocity)
@@ -309,8 +308,6 @@ noncomputable def tameFHom : ContinuousMonoidHom AbsGalQ2 Ttame :=
   (⟨locTame.equiv.toMulEquiv.toMonoidHom, locTame.equiv.continuous_toFun⟩ :
     ContinuousMonoidHom (AbsGalQ2 ⧸ locTame.W) Ttame).comp (quotientMk locTame.W)
 
-@[simp] lemma tameFHom_apply (x : AbsGalQ2) :
-    tameFHom x = locTame.equiv (quotientMk locTame.W x) := rfl
 
 /-- `pro2F : G_{ℚ₂} ↠ Π`, the maximal pro-2 quotient map (composite `G ↠ G(2) ≅ Π`). -/
 noncomputable def pro2FHom : ContinuousMonoidHom AbsGalQ2 PiBd :=
@@ -318,8 +315,6 @@ noncomputable def pro2FHom : ContinuousMonoidHom AbsGalQ2 PiBd :=
       locPro2.choose_spec.2.choose.continuous_toFun⟩ :
     ContinuousMonoidHom (maxProPQuotient 2 AbsGalQ2) PiBd).comp (maxProPMk 2 AbsGalQ2)
 
-@[simp] lemma pro2FHom_apply (x : AbsGalQ2) :
-    pro2FHom x = locPro2.choose_spec.2.choose (maxProPMk 2 AbsGalQ2 x) := rfl
 
 theorem tameFHom_surjective : Function.Surjective tameFHom := by
   haveI := locTame.normal

@@ -96,30 +96,7 @@ section StressTest
 -- Explicit names: Lean's auto-namer does not encode the numeral, so an anonymous
 -- `DihedralGroup 4` instance would clash with `DihedralGroup 3` instances elsewhere (e.g. `Zhat`)
 -- once both are imported into `Foundations/Axioms.lean`.
-local instance instTopologicalSpaceDihedral4 : TopologicalSpace (DihedralGroup 4) := ⊥
-local instance instDiscreteTopologyDihedral4 : DiscreteTopology (DihedralGroup 4) := ⟨rfl⟩
 
-/-- A concrete marking `Fin 3 → DihedralGroup 4`: `A ↦ sr 0`, `S ↦ r 1`, `Y ↦ r 2`. -/
-def markD4 : Fin 3 → DihedralGroup 4 :=
-  ![DihedralGroup.sr 0, DihedralGroup.r 1, DihedralGroup.r 2]
-
-/-- The continuous hom `F₃ ⟶ DihedralGroup 4` classified by `markD4` (universal property of the
-free profinite group, inverted). -/
-noncomputable def homD4 : FreeProfiniteGroup (Fin 3) ⟶ ProfiniteGrp.of (DihedralGroup 4) :=
-  (FreeProfiniteGroup.homEquiv (Fin 3) (ProfiniteGrp.of (DihedralGroup 4))).symm markD4
-
-/-- `homD4` sends each generator `of i` to `markD4 i` (the universal property is "restrict to the
-generators"). -/
-@[simp] theorem homD4_toMonoidHom_of (i : Fin 3) :
-    homD4.hom.toMonoidHom (FreeProfiniteGroup.of i) = markD4 i :=
-  FreeProfiniteGroup.homEquiv_symm_of _ _ _
-
-/-- The relator `A²S⁴[S,Y]` maps to `1` under `homD4`: the marking satisfies the Demushkin relation
-in `DihedralGroup 4` (checked by `decide`). -/
-theorem homD4_d0Relator : homD4.hom.toMonoidHom d0Relator = 1 := by
-  simp only [d0Relator, map_mul, map_pow, Marking.map_commP]
-  rw [homD4_toMonoidHom_of, homD4_toMonoidHom_of, homD4_toMonoidHom_of]
-  decide
 
 end StressTest
 

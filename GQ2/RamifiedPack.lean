@@ -164,7 +164,6 @@ variable {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [Module (ZMod 2) V]
 noncomputable def actEnd (t : C) : Module.End (ZMod 2) V :=
   AddMonoidHom.toZModLinearMap 2 (DistribMulAction.toAddMonoidHom V t)
 
-@[simp] theorem actEnd_apply (t : C) (v : V) : actEnd (V := V) t v = t • v := rfl
 
 /-- `actEnd` turns group powers into endomorphism powers. -/
 theorem actEnd_pow (t : C) (n : ℕ) :
@@ -1442,16 +1441,6 @@ variable (P : Polynomial (ZMod 2)) [Fact (Irreducible P)]
 variable {n : ℕ} (σ : AdjoinRoot P ≃ₐ[ZMod 2] AdjoinRoot P)
   (β : (Fin n → AdjoinRoot P) ≃+ (Fin n → AdjoinRoot P))
 
-/-- Iterated semilinearity: `β^[i](y•w) = σⁱ(y)•β^[i](w)`. -/
-theorem iterate_semilinear
-    (hsemi : ∀ (y : AdjoinRoot P) (w : Fin n → AdjoinRoot P), β (y • w) = σ y • β w)
-    (i : ℕ) (y : AdjoinRoot P) (w : Fin n → AdjoinRoot P) :
-    (⇑β)^[i] (y • w) = (σ ^ i) y • (⇑β)^[i] w := by
-  induction i generalizing y w with
-  | zero => rw [Function.iterate_zero_apply, pow_zero]; rfl
-  | succ i ih =>
-    rw [Function.iterate_succ_apply, hsemi, ih, Function.iterate_succ_apply, pow_succ,
-      AlgEquiv.mul_apply]
 
 /-- Distinct powers of `σ` below its order. -/
 theorem pow_ne_pow_of_orderOf {aa : ℕ} (hord : orderOf σ = 2 ^ aa) :

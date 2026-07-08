@@ -484,9 +484,6 @@ noncomputable def chi0 (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) :
       add_add_add_comm]
     rfl
 
-@[simp] theorem chi0_apply_mk (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
-    (a : H0w (A := A) t) (q : ElemDual A × ElemDual A) :
-    chi0 t ht hw a (QuotientAddGroup.mk q) = q.1 a.1 + q.2 a.1 := rfl
 
 /-- **`χ²` (degree-(2,0) evaluation)**: `H²w(A) →+ (H⁰w(A^∨))^∨`, `[(u,v)] ↦ (λ ↦ λ(u+v))`.
 Well-defined on `H²w(A)`-classes by Prop 5.8 (right). -/
@@ -517,9 +514,6 @@ noncomputable def chi2 (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) :
     rw [AddMonoidHom.mem_ker.mp lam.2, mixedB_zero_right] at h1
     exact h1.symm
 
-@[simp] theorem chi2_apply_mk (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
-    (p : A × A) (lam : H0w (A := ElemDual A) t) :
-    chi2 t ht hw (QuotientAddGroup.mk p) lam = lam.1 (p.1 + p.2) := rfl
 
 /-- **`χ⁰` transposed**: `H⁰w(A^∨) →+ (H²w(A))^∨`, `λ ↦ ([(u,v)] ↦ λ(u+v))`.  Well-defined by
 Prop 5.8 (right), like `chi2` with the roles of the arguments exchanged. -/
@@ -551,9 +545,6 @@ noncomputable def chi0T (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) :
       ElemDual.add_apply]
     rfl
 
-@[simp] theorem chi0T_apply_mk (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
-    (lam : H0w (A := ElemDual A) t) (p : A × A) :
-    chi0T t ht hw lam (QuotientAddGroup.mk p) = lam.1 (p.1 + p.2) := rfl
 
 /-- **`χ²` transposed**: `H²w(A^∨) →+ (H⁰w(A))^∨`, `[(λ,μ)] ↦ (a ↦ λ(a) + μ(a))`.  Well-defined
 by Prop 5.8 (left), like `chi0` with the roles exchanged. -/
@@ -591,9 +582,6 @@ noncomputable def chi2T (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) :
     rw [← ElemDual.add_apply]
     exact h1.symm
 
-@[simp] theorem chi2T_apply_mk (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
-    (q : ElemDual A × ElemDual A) (a : H0w (A := A) t) :
-    chi2T t ht hw (QuotientAddGroup.mk q) a = q.1 a.1 + q.2 a.1 := rfl
 
 /-- `χ⁰` is **always** injective (the dual separates points; no self-duality input). -/
 theorem chi0_injective (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
@@ -684,15 +672,6 @@ theorem chi0_square (φ : A →+ B) (hφ : ∀ (c : C) (a : A), φ (c • a) = c
   obtain ⟨q, rfl⟩ := QuotientAddGroup.mk_surjective h
   rfl
 
-/-- The transposed `χ²` square: `χ²ᵀ_A ∘ H²wMap φ^∨ = (H⁰wMap φ)^∨ ∘ χ²ᵀ_B`. -/
-theorem chi2T_square (φ : A →+ B) (hφ : ∀ (c : C) (a : A), φ (c • a) = c • φ a)
-    (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (h : H2w (A := ElemDual B) t) :
-    chi2T (A := A) t ht hw (H2wMap t (dualMap φ) (dualMap_equivariant φ hφ) h)
-      = dualMap (H0wMap t φ hφ) (chi2T (A := B) t ht hw h) := by
-  obtain ⟨q, rfl⟩ := QuotientAddGroup.mk_surjective h
-  apply ElemDual.ext
-  intro a'
-  rfl
 
 /-- The transposed `χ⁰` square: `χ⁰ᵀ_A ∘ H⁰wMap φ^∨ = (H²wMap φ)^∨ ∘ χ⁰ᵀ_B`. -/
 theorem chi0T_square (φ : A →+ B) (hφ : ∀ (c : C) (a : A), φ (c • a) = c • φ a)
@@ -773,9 +752,6 @@ noncomputable def chi1 (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) :
     show ((0 : ElemDual A × ElemDual A).1 + (0 : ElemDual A × ElemDual A).2) a = 0
     simp
 
-@[simp] theorem chi1_apply_mk_mk (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
-    (x : Z1w (A := A) t) (y : Z1w (A := ElemDual A) t) :
-    chi1 t ht hw (QuotientAddGroup.mk x) (QuotientAddGroup.mk y) = mixedB t x.1 y.1 := rfl
 
 /-- The transposed inner functional: a fixed dual cocycle `y` pairs against `H¹w(A)`-classes
 (primal coboundary offsets die by Prop 5.8 left, since `d¹y = 0`). -/
@@ -831,9 +807,6 @@ noncomputable def chi1T (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) :
     show lam ((0 : A × A).1 + (0 : A × A).2) = 0
     simp
 
-@[simp] theorem chi1T_apply_mk_mk (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
-    (y : Z1w (A := ElemDual A) t) (x : Z1w (A := A) t) :
-    chi1T t ht hw (QuotientAddGroup.mk y) (QuotientAddGroup.mk x) = mixedB t x.1 y.1 := rfl
 
 /-- The two orientations pair the same classes: `χ¹ᵀ(h', h) = χ¹(h, h')`. -/
 theorem chi1T_flip (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
@@ -1404,11 +1377,6 @@ theorem H2w_exact_mid (t : Marking C) (y : H2w (A := A) t) :
     show (QuotientAddGroup.mk (g.prodMap g (f.prodMap f q)) : H2w (A := A'') t) = 0
     rw [hgf]; exact QuotientAddGroup.mk_zero _
 
-include hinj in
-/-- Exactness at the left end: `H⁰wMap f` is injective. -/
-theorem H0wMap_f_injective (t : Marking C) : Function.Injective (H0wMap t f hf) := by
-  intro a b hab
-  exact Subtype.ext (hinj (congrArg Subtype.val hab))
 
 include hf hinj hexact in
 /-- Exactness at `H⁰w(A)`: `ker(H⁰wMap g) = range(H⁰wMap f)`. -/

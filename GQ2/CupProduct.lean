@@ -163,19 +163,10 @@ include hμ in
     cup11 μ hμ (H1mk G M a) (H1mk G N b) = H2mk G P ⟨cup11Fun μ a.1 b.1, cup11_mem_Z2 μ hμ a b⟩ :=
   rfl
 
-/-- Bilinearity is definitional from the `→+ →+` bundling; recorded for convenience. -/
-lemma cup11_add_left (x x' : H1 G M) (y : H1 G N) :
-    cup11 μ hμ (x + x') y = cup11 μ hμ x y + cup11 μ hμ x' y := by
-  rw [map_add]; rfl
-
-lemma cup11_add_right (x : H1 G M) (y y' : H1 G N) :
-    cup11 μ hμ x (y + y') = cup11 μ hμ x y + cup11 μ hμ x y' :=
-  map_add _ _ _
 
 @[simp] lemma cup11_zero_left (y : H1 G N) : cup11 μ hμ 0 y = 0 := by
   rw [map_zero]; rfl
 
-@[simp] lemma cup11_zero_right (x : H1 G M) : cup11 μ hμ x 0 = 0 := map_zero _
 
 /-! ## The `(0,2)` cup product -/
 
@@ -326,26 +317,7 @@ variable (fP : P →+ P') (hfPc : Continuous fP) (hfP : ∀ (g : G) (p : P), fP 
 /-- The pairing `μ` post-composed with a target map `fP`, as a biadditive pairing into `P'`. -/
 def postPairing : M →+ N →+ P' := (AddMonoidHom.compHom fP).comp μ
 
-include hμ hfP in
-lemma postPairing_equivariant (g : G) (m : M) (n : N) :
-    postPairing μ fP (g • m) (g • n) = g • postPairing μ fP m n := by
-  show fP (μ (g • m) (g • n)) = g • fP (μ m n)
-  rw [hμ, hfP]
 
-include hμ hfPc hfP in
-/-- **Coefficient naturality of the `(1,1)` cup.** -/
-lemma cup11_mapCoeff_target (x : H1 G M) (y : H1 G N) :
-    cup11 (postPairing μ fP) (postPairing_equivariant μ hμ fP hfP) x y
-      = mapCoeff2 fP hfPc hfP (cup11 μ hμ x y) := by
-  induction x using QuotientAddGroup.induction_on with
-  | H a =>
-    induction y using QuotientAddGroup.induction_on with
-    | H b =>
-      show cup11 (postPairing μ fP) _ (H1mk G M a) (H1mk G N b) = _
-      rw [cup11_mk_mk]
-      show _ = mapCoeff2 fP hfPc hfP (cup11 μ hμ (H1mk G M a) (H1mk G N b))
-      rw [cup11_mk_mk]
-      rfl
 
 end CoeffNat
 

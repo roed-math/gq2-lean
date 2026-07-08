@@ -75,9 +75,6 @@ noncomputable def wordHom (z : Z1 GA A) : ContinuousMonoidHom GA (WordLift A C) 
     exact (continuous_of_discreteTopology
       (f := (WordLift.equivProd (A := A) (C := C)).symm)).comp hg
 
-@[simp] theorem wordHom_apply_u (z : Z1 GA A) (γ : GA) : (wordHom q hcompat z γ).u = z.1 γ := rfl
-
-@[simp] theorem wordHom_apply_g (z : Z1 GA A) (γ : GA) : (wordHom q hcompat z γ).g = q γ := rfl
 
 /-- The canonical marking of `Γ_A` by the images of the four free generators. -/
 noncomputable def gammaGen : Marking GA := univMarking.map (quotientMk NA).toMonoidHom
@@ -169,12 +166,10 @@ def gHom : WordLift A C →* C where
   map_one' := WordLift.one_g
   map_mul' := WordLift.mul_g
 
-@[simp] theorem gHom_apply (p : WordLift A C) : gHom p = p.g := rfl
 
 /-- The base projection as a *continuous* hom (`WordLift` is discrete). -/
 def gHomC : ContinuousMonoidHom (WordLift A C) C := ⟨gHom, continuous_of_discreteTopology⟩
 
-@[simp] theorem gHomC_apply (p : WordLift A C) : gHomC p = p.g := rfl
 
 /-- The kernel of the base projection is elementary-2 (it is `A` with `g = 1`). -/
 theorem isPGroup_gHom_ker (hA₂ : ∀ a : A, a + a = 0) :
@@ -366,9 +361,6 @@ noncomputable def ofZ1w (hq : Function.Surjective q) (hA₂ : ∀ a : A, a + a =
          = (liftHom q hq hA₂ x γ).u + γ • (liftHom q hq hA₂ x δ).u
        rw [liftHom_g, hcompat]⟩⟩
 
-@[simp] theorem ofZ1w_apply (hq : Function.Surjective q) (hA₂ : ∀ a : A, a + a = 0)
-    (x : Z1w (A := A) (markC q)) (γ : GA) :
-    (ofZ1w q hcompat hq hA₂ x).1 γ = (liftHom q hq hA₂ x γ).u := rfl
 
 /-! ## The equivalence (P-16c1, remaining)
 

@@ -93,8 +93,6 @@ def topOpenNormalSubgroup (G : Type*) [Group G] [TopologicalSpace G] : OpenNorma
   toSubgroup := ⊤
   isOpen' := isOpen_univ
 
-@[simp] theorem topOpenNormalSubgroup_toSubgroup (G : Type*) [Group G] [TopologicalSpace G] :
-    (topOpenNormalSubgroup G).toSubgroup = ⊤ := rfl
 
 /-- The trivial quotient `G ⧸ ⊤` is a `p`-group. -/
 theorem isPGroup_quotient_top {p : ℕ} {G : Type*} [Group G] :
@@ -283,38 +281,12 @@ theorem proPKernel_eq_bot_of_isProP {p : ℕ} {G : Type*} [Group G] [Topological
   rw [proPKernel, Subgroup.mem_iInf] at hg
   exact hg ⟨V, hG V⟩
 
-/-- If `G` is pro-`p`, the projection `G → G(p)` is bijective: `G(p) = G`. -/
-theorem maxProPMk_bijective_of_isProP {p : ℕ} {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
-    (hG : IsProP p G) : Function.Bijective (maxProPMk p G) := by
-  refine ⟨?_, quotientMk_surjective _⟩
-  rw [injective_iff_map_eq_one]
-  intro g hg
-  have hgK : g ∈ proPKernel p G := (quotientMk_eq_one_iff (proPKernel p G)).mp hg
-  rw [proPKernel_eq_bot_of_isProP hG, Subgroup.mem_bot] at hgK
-  exact hgK
-
-/-- **Idempotence.**  A pro-`p` group is (canonically) its own maximal pro-`p` quotient: the
-projection `G → G(p)` is an isomorphism of topological groups.  (`G` compact and `G(p)` Hausdorff
-promote the continuous bijection to a homeomorphism.) -/
-noncomputable def maxProPEquivSelf {p : ℕ} {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
-    (hG : IsProP p G) : ContinuousMulEquiv G (maxProPQuotient p G) :=
-  let e : G ≃* maxProPQuotient p G :=
-    MulEquiv.ofBijective (maxProPMk p G).toMonoidHom (maxProPMk_bijective_of_isProP hG)
-  { toMulEquiv := e
-    continuous_toFun := (maxProPMk p G).continuous_toFun
-    continuous_invFun :=
-      (Continuous.homeoOfEquivCompactToT2 (f := e.toEquiv)
-        (maxProPMk p G).continuous_toFun).symm.continuous }
 
 /-! ## Finite stress test: the finite `2`-group `Multiplicative (ZMod 4)` is its own maximal
 pro-`2` quotient. -/
 
 section FiniteExample
 
-local instance : TopologicalSpace (Multiplicative (ZMod 4)) := ⊥
-local instance : DiscreteTopology (Multiplicative (ZMod 4)) := ⟨rfl⟩
 
 /-- `Multiplicative (ZMod 4)` is a finite `2`-group, hence pro-`2`; its pro-`2` kernel is
 trivial, i.e. it is its own maximal pro-`2` quotient. -/

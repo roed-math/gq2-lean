@@ -160,11 +160,6 @@ abbrev HVq := H ⧸ headActKer T Blk
       induction a using QuotientGroup.induction_on with | _ h =>
       exact smul_add h x y }
 
-theorem hvAct_mk (h : H) (v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)) :
-    letI := blockPS_commGroup Blk
-    letI := headAct T Blk
-    letI := hvAct T Blk
-    (QuotientGroup.mk' (headActKer T Blk) h) • v = h • v := rfl
 
 /-- **Faithfulness by construction**: the `H_V`-action on `V` is faithful — the `hfaith`
 input of the local residue chain, free at the faithful head quotient. -/
@@ -319,14 +314,6 @@ noncomputable def blockEnrichmentD (hE2 : ∀ e : E, e ^ 2 = 1) (F : BoundaryFra
         (blockDatHV_spec T Blk F l (fun heq => h (Subtype.ext heq)))
         (blockProjF T Blk) (blockProjF_compat T Blk) }
 
-/-- The datum of `blockEnrichmentD` is the inflation, definitionally — the entry point for
-the `graphPullback_reindexHom`/`Q0loc_reindexHom` transports. -/
-theorem blockEnrichmentD_dat_eq (hE2 : ∀ e : E, e ^ 2 = 1) (F : BoundaryFrame H E)
-    (l : (blockFrame T Blk hE2).DR) (h : l ≠ (blockFrame T Blk hE2).zeroDR) :
-    (blockEnrichmentD T Blk hE2 F).dat l h
-      = (blockDatHV T Blk F l (fun heq => h (Subtype.ext heq))).reindexHom
-          ⇑(blockProjF T Blk) :=
-  rfl
 
 /-! ## The boundary equation's head component
 

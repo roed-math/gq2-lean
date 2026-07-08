@@ -202,9 +202,6 @@ def H0congr : ↥(H0 G M) ≃+ ↥(H0 G N) where
   right_inv x := Subtype.ext (e.apply_symm_apply x.1)
   map_add' := map_add _
 
-include he in
-/-- The underlying invariant of `H0congr` is `e` applied (definitional). -/
-@[simp] lemma H0congr_coe (x : ↥(H0 G M)) : (H0congr e he x).1 = e x.1 := rfl
 
 end Transport
 

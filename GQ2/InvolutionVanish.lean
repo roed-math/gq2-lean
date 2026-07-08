@@ -116,26 +116,6 @@ theorem kummer_presentation_of_index_two (k L : IntermediateField ℚ_[2] ℚ̄�
 
 /-! ## The c2b vanish lemma (hc2a discharged) -/
 
-/-- **Involution `hvanish`, self-contained** (P-15f2c2b): the involution inner cochain vanishes
-for the square root of a deep block coordinate, with the c2a package **discharged** — only the
-tower `(hkL, hindex)` and the unramifiedness `hunram` remain (the latter from P-15f2c2c4). -/
-theorem hvanish_involution_of_deepClass' (k L : IntermediateField ℚ_[2] ℚ̄₂)
-    [FiniteDimensional ℚ_[2] L] [FiniteDimensional ℚ_[2] k] (hkL : k ≤ L)
-    (hindex : ((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)).index = 2)
-    (hunram : ∀ x : ℚ̄₂, x ≠ 0 → x ∈ L →
-      ∃ y : ℚ̄₂, y ≠ 0 ∧ y ∈ k ∧ ‖x‖ = ‖y‖)
-    (s : k.fixingSubgroup) (hs : s ∉ (L.fixingSubgroup).subgroupOf (k.fixingSubgroup))
-    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
-    (hUo : IsOpen (((L.fixingSubgroup).subgroupOf (k.fixingSubgroup) :
-        Subgroup k.fixingSubgroup) : Set k.fixingSubgroup))
-    (ξ : H1 L.fixingSubgroup (ZMod 2)) (hξ : ξ ∈ deepClasses L.fixingSubgroup) :
-    ∃ β : ℚ̄₂,
-      H2ofFun k.fixingSubgroup
-        (evensNormFun ((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)) s
-          (fun w ↦ Kummer.kummerCocycleFun β
-            ((w : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]))) = 0 :=
-  hvanish_involution_of_deepClass k L hkL hindex hunram
-    (kummer_presentation_of_index_two k L hkL hindex) s hs htriv hUo ξ hξ
 
 end ShapiroDeepness
 

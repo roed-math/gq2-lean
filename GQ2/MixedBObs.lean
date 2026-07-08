@@ -50,7 +50,6 @@ noncomputable def PhiHeis : CentExt (kappaHeis (A := A) (C := C)) →* HeisLift 
   map_one' := rfl
   map_mul' _ _ := rfl
 
-@[simp] theorem PhiHeis_z (p : CentExt (kappaHeis (A := A) (C := C))) : (PhiHeis p).z = p.fib := rfl
 
 /-- The base marking of `(A × A^∨) ⋊ C` whose generators carry the offsets `(x i, y i)` over
 `t`'s generators — the base of the `heisMarking`. -/

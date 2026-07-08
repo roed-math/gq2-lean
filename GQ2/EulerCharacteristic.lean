@@ -61,11 +61,6 @@ section Consequences
 variable (M : Type*) [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
   [DistribMulAction AbsGalQ2 M] [ContinuousSMul AbsGalQ2 M] [Finite M]
 
-omit [TopologicalSpace M] [DiscreteTopology M] [ContinuousSMul AbsGalQ2 M] in
-/-- Consistency check: the `H⁰`-finiteness clause of `B7` is independently derivable, since
-`H⁰(G_ℚ₂, M) ≤ M` and `M` is finite.  (This does **not** use the axiom — `#print axioms` is the
-standard three.) -/
-theorem finite_H0 : Finite (H0 AbsGalQ2 M) := inferInstance
 
 /-- `B7`: finiteness of `H¹(G_ℚ₂, M)`. -/
 theorem finite_H1 : Finite (H1 AbsGalQ2 M) :=
@@ -80,10 +75,6 @@ theorem card_H1 : Nat.card (H1 AbsGalQ2 M)
     = Nat.card (H0 AbsGalQ2 M) * Nat.card (H2 AbsGalQ2 M) * 2 ^ padicValNat 2 (Nat.card M) :=
   (absGalQ2_localEulerCharacteristic M).2.2.2
 
-/-- The `2`-power `2 ^ v₂(#M)` divides `#H¹` (a direct reading of `B7`). -/
-theorem pow_padicValNat_dvd_card_H1 :
-    2 ^ padicValNat 2 (Nat.card M) ∣ Nat.card (H1 AbsGalQ2 M) :=
-  ⟨Nat.card (H0 AbsGalQ2 M) * Nat.card (H2 AbsGalQ2 M), by rw [card_H1]; ring⟩
 
 /-- For a module whose order is a power of `2` (e.g. the elementary `𝔽₂`-modules of §9.2, where
 `#M = 2 ^ dim M`), `B7` reads `#H¹ = #H⁰ · #H² · #M`. -/
@@ -92,10 +83,6 @@ theorem card_H1_of_card_eq_two_pow {k : ℕ} (hk : Nat.card M = 2 ^ k) :
       = Nat.card (H0 AbsGalQ2 M) * Nat.card (H2 AbsGalQ2 M) * Nat.card M := by
   rw [card_H1, hk, padicValNat.prime_pow]
 
-/-- For a module of **odd** order the `2`-part is trivial, so `B7` reads `#H¹ = #H⁰ · #H²`. -/
-theorem card_H1_of_not_two_dvd (h : ¬ 2 ∣ Nat.card M) :
-    Nat.card (H1 AbsGalQ2 M) = Nat.card (H0 AbsGalQ2 M) * Nat.card (H2 AbsGalQ2 M) := by
-  rw [card_H1, padicValNat.eq_zero_of_not_dvd h, pow_zero, mul_one]
 
 end Consequences
 

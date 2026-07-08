@@ -31,9 +31,6 @@ noncomputable def zetaNuTwo : ContinuousMonoidHom PiBd (Multiplicative ℤ_[2]) 
 @[simp] lemma zetaNuTwo_piX0 : zetaNuTwo piX0 = 1 := by
   show ztwoEquivPadic (nuTwo piX0) = 1
   rw [nuTwo_piX0]; exact map_one _
-@[simp] lemma zetaNuTwo_piX1 : zetaNuTwo piX1 = 1 := by
-  show ztwoEquivPadic (nuTwo piX1) = 1
-  rw [nuTwo_piX1]; exact map_one _
 @[simp] lemma zetaNuTwo_piSigma : zetaNuTwo piSigma = Multiplicative.ofAdd (1 : ℤ_[2]) := by
   show ztwoEquivPadic (nuTwo piSigma) = _
   rw [nuTwo_piSigma, ztwoEquivPadic_ztwoOne]

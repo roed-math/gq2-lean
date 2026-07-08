@@ -864,20 +864,6 @@ theorem normForm_of_mid (a b : ↥k)
     exact normForm_of_mid_aux k a ha' j b hb'
       (by rw [mul_comm]; exact (lt_div_iff₀ hr).mp hj)
 
-/-- **`−1` is a norm-form value of every deep unit** — the "⊆" half of eq. (94) at
-`(U_{e+1}, −1)`, i.e. `−1 ∈ U_e ⊆ U_{e+1}^⊥`: `−1 = (−a)·a⁻¹` with `−a = 0² − a·1²` and `a`
-itself a value (`normForm_of_deep` at `b := a`). -/
-theorem normForm_neg_one_of_deep (a : ↥k) (ha : ‖(a : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖) :
-    ∃ x y : ↥k, (-1 : ↥k) = x ^ 2 - a * y ^ 2 := by
-  obtain ⟨x, y, hxy⟩ := normForm_of_deep k a a ha ha
-  have ha' : ‖a - 1‖ < ‖(2 : ↥k)‖ := ha
-  have ha1 : ‖a‖ = 1 := norm_eq_one_of_close k (ha'.trans (norm_two_lt_one k))
-  have ha0 : a ≠ 0 := by
-    intro h; rw [h, norm_zero] at ha1; exact one_ne_zero ha1.symm
-  refine ⟨0 * (x / a) + a * 1 * (y / a), 0 * (y / a) + 1 * (x / a), ?_⟩
-  rw [← normForm_mul, ← normForm_inv k a x y a hxy ha0]
-  field_simp
-  ring
 
 variable (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
 
@@ -899,23 +885,6 @@ theorem cup_mid_deep (a b : (↥k)ˣ)
   obtain ⟨x, y, hxy⟩ := normForm_of_mid k (a : ↥k) (b : ↥k) ha hb
   exact cup_of_normForm k htriv a b x y hxy
 
-/-- **Eq. (94), deep ⟂ −1** (P-15f2's square-orbit leaf, `−1 ∈ U_e`).  std-3 ∪ {B11a}. -/
-theorem cup_deep_neg_one (a : (↥k)ˣ)
-    (ha : ‖((a : ↥k) : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖) :
-    trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k (-1))
-      = 0 := by
-  obtain ⟨x, y, hxy⟩ := normForm_neg_one_of_deep k (a : ↥k) ha
-  refine cup_of_normForm k htriv a (-1) x y ?_
-  rw [Units.val_neg, Units.val_one]
-  exact hxy
-
-/-- `(a, a) = 0` for deep `a` — the diagonal case, via `(a,a) = (a,−1)`
-(`cup_self_eq_neg_one`) + deep ⟂ −1.  std-3 ∪ {B11a}. -/
-theorem cup_deep_self (a : (↥k)ˣ)
-    (ha : ‖((a : ↥k) : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖) :
-    trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k a) = 0 := by
-  rw [cup_self_eq_neg_one k htriv a]
-  exact cup_deep_neg_one k htriv a ha
 
 end DeepOrthogonality
 

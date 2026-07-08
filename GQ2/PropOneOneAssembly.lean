@@ -157,9 +157,6 @@ noncomputable def abDescend {G : Type*} [Group G] [TopologicalSpace G] [IsTopolo
       exact isClosed_singleton.preimage f.continuous_toFun),
     (QuotientGroup.isQuotientMap_mk _).continuous_iff.mpr f.continuous_toFun⟩
 
-@[simp] lemma abDescend_abMk {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
-    {A : Type*} [CommGroup A] [TopologicalSpace A] [IsTopologicalGroup A] [T2Space A]
-    (f : ContinuousMonoidHom G A) (g : G) : abDescend f (abMk g) = f g := rfl
 
 /-- **Extensionality for `D₀^{ab}` homs into a pro-2 group**: two continuous homs agreeing on
 `Ā, S̄, Ȳ` agree everywhere (every element is `Ā^a S̄^s Ȳ^y` by `D0ab_coord`, and continuous homs

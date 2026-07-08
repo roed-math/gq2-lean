@@ -38,9 +38,6 @@ theorem sign_add (a b : ZMod 2) : sign (a + b) = sign a * sign b := by revert a 
 
 theorem sign_one_add (a : ZMod 2) : sign (1 + a) = - sign a := by revert a; decide
 
-theorem sign_ne_zero (a : ZMod 2) : sign a ≠ 0 := by revert a; decide
-
-theorem sign_sq (a : ZMod 2) : sign a * sign a = 1 := by revert a; decide
 
 variable {V : Type*} [AddCommGroup V]
 

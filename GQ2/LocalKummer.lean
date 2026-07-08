@@ -77,59 +77,6 @@ theorem sum_eq_two_mul_tail (e : ℕ) (d : ℕ → ℕ)
   rw [Finset.range_eq_Ico]
   omega
 
-/-- **Isotropic subgroups are at most half-dimensional** (the `≤` half of `card_sq_of_selfperp`):
-for a biadditive nondegenerate `𝔽₂`-pairing on a finite 2-torsion group `A`, a totally isotropic
-subgroup `X` (`P` vanishes on `X × X`) has `#X² ≤ #A`.  The descended pairing embeds
-`X ↪ Hom(A/X, 𝔽₂)` (injective by nondegeneracy), so `#X ≤ #(A/X) = #A / #X`.  Supplies the
-upper bound `#X₊ ≤ 2^m` for the deep half once its isotropy under the Tate pairing (the (94)
-Hilbert orthogonality of deep Kummer classes) is established. -/
-theorem card_sq_le_of_isotropic {A : Type*} [AddCommGroup A] [Finite A]
-    (h2 : ∀ a : A, a + a = 0) (P : A → A → ZMod 2)
-    (hPl : ∀ a b c : A, P (a + b) c = P a c + P b c)
-    (hPr : ∀ a b c : A, P a (b + c) = P a b + P a c)
-    (hnd : ∀ a : A, a ≠ 0 → ∃ b : A, P a b ≠ 0)
-    (X : AddSubgroup A) (hXX : ∀ x ∈ X, ∀ y ∈ X, P x y = 0) :
-    Nat.card ↥X ^ 2 ≤ Nat.card A := by
-  classical
-  haveI : Fintype A := Fintype.ofFinite A
-  haveI : Fintype ↥X := Fintype.ofFinite _
-  have h2X : ∀ x : ↥X, x + x = 0 := fun x => Subtype.ext (h2 _)
-  have h2Q : ∀ y : A ⧸ X, y + y = 0 := by
-    intro y
-    obtain ⟨a, rfl⟩ := QuotientAddGroup.mk_surjective y
-    rw [← QuotientAddGroup.mk_add, h2]; rfl
-  haveI : Finite (A ⧸ X →+ ZMod 2) :=
-    Finite.of_injective (fun f => (f : A ⧸ X → ZMod 2)) DFunLike.coe_injective
-  have hX_le : Nat.card ↥X ≤ Nat.card (A ⧸ X) := by
-    have hinj : Function.Injective (fun x : ↥X =>
-        QuotientAddGroup.lift X
-          (AddMonoidHom.mk' (fun a => P ↑x a) (fun a b => hPr ↑x a b))
-          (fun y hy => by
-            rw [AddMonoidHom.mem_ker]
-            exact hXX ↑x x.2 y hy)) := by
-      intro x x' heq
-      have hpe : ∀ a : A, P ↑x a = P ↑x' a := by
-        intro a
-        have h := DFunLike.congr_fun heq (QuotientAddGroup.mk a)
-        simpa [QuotientAddGroup.lift_mk] using h
-      have hsum0 : ((x + x' : ↥X) : A) = 0 := by
-        by_contra hne
-        obtain ⟨b, hb⟩ := hnd _ hne
-        apply hb
-        rw [AddSubgroup.coe_add, hPl, hpe b]
-        exact CharTwo.add_self_eq_zero _
-      have hxx' : x + x' = 0 := Subtype.ext hsum0
-      have := congrArg (· + x') hxx'
-      rwa [add_assoc, h2X, add_zero, zero_add] at this
-    calc Nat.card ↥X ≤ Nat.card (A ⧸ X →+ ZMod 2) :=
-          Nat.card_le_card_of_injective _ hinj
-      _ = Nat.card (A ⧸ X) := GQ2.QuadraticFp2.card_addHom_zmod2 (A ⧸ X) h2Q
-  have hquot : Nat.card (A ⧸ X) * Nat.card ↥X = Nat.card A :=
-    (AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup X).symm
-  rw [sq]
-  calc Nat.card ↥X * Nat.card ↥X ≤ Nat.card (A ⧸ X) * Nat.card ↥X :=
-        Nat.mul_le_mul_right _ hX_le
-    _ = Nat.card A := hquot
 
 variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
 variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
@@ -137,23 +84,6 @@ variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [
 
 omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V]
   [DistribMulAction C V] in
-/-- **Layer-1 counting core for `lemma_6_17_dim`** — the dimension clause from the four
-count facts.  Once Layer 2 produces, for the tame splitting-field filtration depth data
-`(e, d)`,
-* `htotal` — `#H¹ = 2^{Σ_{j≤2e} d j}` (Kummer identification + `Hom`-exactness),
-* `hdeep`  — `#X₊ = 2^{Σ_{j>e} d j}` (the `deepPart` bridge),
-* `hpair`  — `d j = d (2e−j)` (graded duality + self-duality of `V` via `q`), and
-* `hmid`   — `d e = 0` (Lemma 6.10 + ramifiedness),
-
-the `#X₊² = #H¹` goal is this pure arithmetic. -/
-theorem card_deepPart_sq_of_counts (ρ : ContinuousMonoidHom AbsGalQ2 C)
-    (e : ℕ) (d : ℕ → ℕ)
-    (htotal : Nat.card (H1 AbsGalQ2 V) = 2 ^ (Finset.range (2 * e + 1)).sum d)
-    (hdeep : Nat.card (deepPart (V := V) ρ)
-      = 2 ^ (Finset.Ico (e + 1) (2 * e + 1)).sum d)
-    (hpair : ∀ j ≤ 2 * e, d j = d (2 * e - j)) (hmid : d e = 0) :
-    Nat.card (deepPart (V := V) ρ) ^ 2 = Nat.card (H1 AbsGalQ2 V) := by
-  rw [hdeep, htotal, sum_eq_two_mul_tail e d hpair hmid, ← pow_mul, two_mul, Nat.mul_comm]
 
 /-! ## Layer 2a: the scalar restriction map and the deep classes
 
@@ -913,15 +843,6 @@ identifies `AdmissibleFam` with the equivariant Homs `equivHoms C V^∨ (H¹(N, 
   smul_zero c := conjAct_zero ρ _
   smul_add c ξ η := conjAct_add ρ _ ξ η
 
-omit [DiscreteTopology C] [Finite C] in
-/-- Computation rule for the `conjModule` action: `c • ξ = conjAct ρ g ξ` for **any** lift `g`
-of `c` (not only the chosen `surjInv`). -/
-theorem conjModule_smul_of_lift (hρsurj : Function.Surjective ⇑ρ) (c : C) (g : AbsGalQ2)
-    (hg : ρ g = c) (ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) :
-    (conjModule ρ hρsurj).toSMul.smul c ξ = conjAct ρ g ξ := by
-  show conjAct ρ (Function.surjInv hρsurj c) ξ = conjAct ρ g ξ
-  refine conjAct_ker ρ _ g ?_ ξ
-  rw [Function.surjInv_eq hρsurj, hg]
 
 end ConjAction
 
@@ -1004,34 +925,6 @@ def FamiliesExtend : Prop :=
   ∀ ξ : AdmissibleFam (V := V) ρ, ∃ x : H1 AbsGalQ2 V, ∀ φ : V →+ ZMod 2,
     phiRes ρ x φ = ξ.fam φ
 
-/-- **`FamiliesExtend` from a cardinality bound** — the cheap discharge of the
-`H²(H_V, V) = 0` input.  `toFam` is already injective (from `hinf`, `phiRes_injective`); so
-once the admissible families form a finite type no larger than `H¹(ℚ₂, V)`, `toFam` is
-surjective and every family arises.  At the `DeepKummerData` instantiation this converts
-`hext` into the very count `#AdmissibleFam` the filtration already supplies, so the degree-2
-cochain-extension construction is never needed.  (`#H¹ = #V` is banked via B7;
-`#AdmissibleFam` is the filtration/`Hom`-count.) -/
-theorem familiesExtend_of_card_le (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
-    (hV2 : ∀ v : V, v + v = 0) (hinf : InflationVanishes (V := V) ρ)
-    [Finite (AdmissibleFam (V := V) ρ)]
-    (hcard : Nat.card (AdmissibleFam (V := V) ρ) ≤ Nat.card (H1 AbsGalQ2 V)) :
-    FamiliesExtend (V := V) ρ := by
-  haveI : Finite (H1 AbsGalQ2 V) := GQ2.Foundations.finite_H1 V
-  haveI : Fintype (H1 AbsGalQ2 V) := Fintype.ofFinite _
-  haveI : Fintype (AdmissibleFam (V := V) ρ) := Fintype.ofFinite _
-  have hinj : Function.Injective (toFam ρ hρ) := fun x y hxy =>
-    phiRes_injective hρ hV2 hinf (fun φ => congrFun (congrArg AdmissibleFam.fam hxy) φ)
-  have hcard' : Fintype.card (H1 AbsGalQ2 V) = Fintype.card (AdmissibleFam (V := V) ρ) := by
-    have h1 : Fintype.card (H1 AbsGalQ2 V) ≤ Fintype.card (AdmissibleFam (V := V) ρ) :=
-      Fintype.card_le_of_injective _ hinj
-    have h2 : Fintype.card (AdmissibleFam (V := V) ρ) ≤ Fintype.card (H1 AbsGalQ2 V) := by
-      rw [← Nat.card_eq_fintype_card, ← Nat.card_eq_fintype_card]; exact hcard
-    omega
-  have hbij : Function.Bijective (toFam ρ hρ) :=
-    (Fintype.bijective_iff_injective_and_card _).mpr ⟨hinj, hcard'⟩
-  intro ξ
-  obtain ⟨x, hx⟩ := hbij.2 ξ
-  exact ⟨x, fun φ => congrFun (congrArg AdmissibleFam.fam hx) φ⟩
 
 variable {ρ}
 
@@ -1120,58 +1013,6 @@ structure DeepKummerData (ρ : ContinuousMonoidHom AbsGalQ2 C) : Type where
         ξ.fam φ ∈ deepClasses (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)}
       = 2 ^ (Finset.Ico (e + 1) (2 * e + 1)).sum d
 
-/-- **The deep-half dimension clause, parametric over `DeepKummerData`** (std-3): the count data
-plus the two module-setup hypotheses give `#X₊² = #H¹` — the mathematical content of
-`SectionSix.lemma_6_17_dim`, minus the (still-open) construction of a `DeepKummerData`
-instance for the ramified simple setup. -/
-theorem dim_deepPart_of_data (ρ : ContinuousMonoidHom AbsGalQ2 C)
-    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v) (hV2 : ∀ v : V, v + v = 0)
-    (DK : DeepKummerData (V := V) ρ) :
-    Nat.card (deepPart (V := V) ρ) ^ 2 = Nat.card (H1 AbsGalQ2 V) := by
-  refine card_deepPart_sq_of_counts ρ DK.e DK.d ?_ ?_ DK.hpair DK.hmid
-  · rw [card_H1_eq_card_fam hρ hV2 DK.hinf DK.hext, DK.card_fam]
-  · rw [card_deepPart_eq_card_deepFam hρ hV2 DK.hinf DK.hext, DK.card_deepFam]
-
-/-- **The deep-half dimension clause from the balance condition** (std-3 + B7): the whole graded
-`DeepKummerData` scaffold is not needed — `#X₊² = #H¹` is equivalent (by Lagrange on the finite
-`H¹`) to the single **balance** `#X₊ = #(H¹ / X₊)`, i.e. "the deep half is exactly half".  This
-is the honest remaining content of `lemma_6_17_dim`: the balance packages the (94)/cup self-duality
-(deep ⟂ its complement) and the `Hom`-exactness lower bound (Lemma 6.11) into one group-theoretic
-equality.  `#H¹ = #V` is banked (B7) at the consumer. -/
-theorem dim_deepPart_of_balance (ρ : ContinuousMonoidHom AbsGalQ2 C)
-    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v) (hV2 : ∀ v : V, v + v = 0)
-    (hbal : Nat.card ↥(deepPartSubgroup ρ hρ hV2)
-      = Nat.card (H1 AbsGalQ2 V ⧸ deepPartSubgroup ρ hρ hV2)) :
-    Nat.card (deepPart (V := V) ρ) ^ 2 = Nat.card (H1 AbsGalQ2 V) := by
-  haveI : Finite (H1 AbsGalQ2 V) := GQ2.Foundations.finite_H1 V
-  have hcard_eq : Nat.card (deepPart (V := V) ρ) = Nat.card ↥(deepPartSubgroup ρ hρ hV2) := rfl
-  have hlag : Nat.card (H1 AbsGalQ2 V)
-      = Nat.card (H1 AbsGalQ2 V ⧸ deepPartSubgroup ρ hρ hV2)
-        * Nat.card ↥(deepPartSubgroup ρ hρ hV2) :=
-    AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup _
-  rw [hcard_eq, sq, hlag, ← hbal]
-
-/-- **The deep-half upper bound from isotropy** (std-3 + B6 + B7): if the deep half `X₊` is
-totally isotropic under the polar of `Q⁰_loc` (the (94)/cup-orthogonality of deep Kummer
-classes — a hypothesis here, the genuine shared gap with P-15f2), then `#X₊² ≤ #H¹`, i.e.
-`#X₊ ≤ 2^m`.  The isotropy-only half of `card_deepPart_sq_of_selfperp`; combined with the
-lower bound (Lemma 6.11 / exactness) it pins `#X₊ = 2^m`. -/
-theorem card_deepPart_sq_le_of_isotropic (D : TateDuality 2)
-    (q : V → ZMod 2) (hq : GQ2.QuadraticFp2.IsQuadraticFp2 q)
-    (hns : GQ2.QuadraticFp2.Nonsingular q)
-    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
-    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
-    (hqG : ∀ (g : AbsGalQ2) (v : V), q (g • v) = q v)
-    (hV2 : ∀ v : V, v + v = 0)
-    (hiso : ∀ x ∈ deepPartSubgroup ρ hρ hV2, ∀ y ∈ deepPartSubgroup ρ hρ hV2,
-      GQ2.QuadraticFp2.polar (Q0loc D dat ρ) x y = 0) :
-    Nat.card (deepPart (V := V) ρ) ^ 2 ≤ Nat.card (H1 AbsGalQ2 V) := by
-  haveI : Finite (H1 AbsGalQ2 V) := GQ2.Foundations.finite_H1 V
-  have hq' := isQuadraticFp2_Q0loc D q hq dat hdat ρ hρ hqG
-  have hns' := nonsingular_Q0loc D q hq hns hV2 dat hdat ρ hρ hqG
-  exact card_sq_le_of_isotropic (GQ2.DeepPart.h1_add_self hV2)
-    (fun a b => GQ2.QuadraticFp2.polar (Q0loc D dat ρ) a b)
-    hq'.polar_add_left hq'.polar_add_right hns' (deepPartSubgroup ρ hρ hV2) hiso
 
 end DeepKummerData
 

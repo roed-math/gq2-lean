@@ -61,8 +61,6 @@ instance : DistribMulAction (GaloisGroup K) (ZMod 2) where
   smul_zero _ := rfl
   smul_add _ _ _ := rfl
 
-omit [CharZero K] in
-@[simp] lemma triv_smul (g : GaloisGroup K) (m : ZMod 2) : g • m = m := rfl
 
 omit [CharZero K] in
 /-- The action on `𝔽₂` is trivial. -/
@@ -120,16 +118,6 @@ lemma kummerCocycleFun_neg (α : AlgebraicClosure K) :
   funext g
   simp only [kummerCocycleFun, smul_neg, neg_inj]
 
-omit [CharZero K] in
-/-- Any two square roots of the same `a` give the same cocycle. -/
-lemma kummerCocycleFun_root_indep {a : Kˣ}
-    (hα : α ^ 2 = algebraMap K (AlgebraicClosure K) (a : K))
-    (hβ : β ^ 2 = algebraMap K (AlgebraicClosure K) (a : K)) :
-    kummerCocycleFun β = kummerCocycleFun α := by
-  have h2 : (β - α) * (β + α) = 0 := by linear_combination hβ.trans hα.symm
-  rcases mul_eq_zero.1 h2 with h | h
-  · rw [sub_eq_zero.1 h]
-  · rw [add_eq_zero_iff_eq_neg.1 h, kummerCocycleFun_neg]
 
 /-! ## Continuity via the Krull topology -/
 
@@ -174,25 +162,6 @@ lemma kummerCocycleFun_hom {a : Kˣ} (hα : α ^ 2 = algebraMap K (AlgebraicClos
   · rw [kummerCocycleFun_eq1 hα hg, kummerCocycleFun_eq1 hα hh,
         kummerCocycleFun_eq0 (by rw [mul_smul, hh, smul_neg, hg, neg_neg])]; decide
 
-/-- Multiplicativity of the cocycle in the argument `a`: with roots `α, β` of `a, b`, the product
-`αβ` is a root of `ab` and `κ_{ab} = κ_a + κ_b` pointwise. -/
-lemma kummerCocycleFun_mul {a b : Kˣ}
-    (hα : α ^ 2 = algebraMap K (AlgebraicClosure K) (a : K))
-    (hβ : β ^ 2 = algebraMap K (AlgebraicClosure K) (b : K)) (g : GaloisGroup K) :
-    kummerCocycleFun (α * β) g = kummerCocycleFun α g + kummerCocycleFun β g := by
-  have hαβ : (α * β) ^ 2 = algebraMap K (AlgebraicClosure K) ((a * b : Kˣ) : K) := by
-    rw [mul_pow, hα, hβ, ← map_mul, Units.val_mul]
-  have hmul : g • (α * β) = (g • α) * (g • β) := by
-    rw [AlgEquiv.smul_def, AlgEquiv.smul_def, AlgEquiv.smul_def, map_mul]
-  rcases two_values hα g with hga | hga <;> rcases two_values hβ g with hgb | hgb
-  · rw [kummerCocycleFun_eq0 hga, kummerCocycleFun_eq0 hgb,
-        kummerCocycleFun_eq0 (by rw [hmul, hga, hgb])]; decide
-  · rw [kummerCocycleFun_eq0 hga, kummerCocycleFun_eq1 hβ hgb,
-        kummerCocycleFun_eq1 hαβ (by rw [hmul, hga, hgb]; ring)]; decide
-  · rw [kummerCocycleFun_eq1 hα hga, kummerCocycleFun_eq0 hgb,
-        kummerCocycleFun_eq1 hαβ (by rw [hmul, hga, hgb]; ring)]; decide
-  · rw [kummerCocycleFun_eq1 hα hga, kummerCocycleFun_eq1 hβ hgb,
-        kummerCocycleFun_eq0 (by rw [hmul, hga, hgb]; ring)]; decide
 
 /-! ## Packaging into `Z¹` and `H¹` -/
 
@@ -218,24 +187,9 @@ lemma sqrtOf_sq (a : Kˣ) : (sqrtOf a) ^ 2 = algebraMap K (AlgebraicClosure K) (
 noncomputable def kummerClass (a : Kˣ) : ContCoh.H1 (GaloisGroup K) (ZMod 2) :=
   ContCoh.H1mk _ _ (kummerCocycle (sqrtOf_sq a))
 
-/-- The class is independent of the chosen root: for any square root `α` of `a`, `[a]` is the class
-of `kummerCocycle hα`. -/
-lemma kummerClass_eq {a : Kˣ} (hα : α ^ 2 = algebraMap K (AlgebraicClosure K) (a : K)) :
-    kummerClass a = ContCoh.H1mk _ _ (kummerCocycle hα) := by
-  unfold kummerClass
-  congr 1
-  exact Subtype.ext (kummerCocycleFun_root_indep hα (sqrtOf_sq a))
 
 /-! ## Stress tests -/
 
-/-- **Stress test (well-formedness).** The Kummer cocycle is a *continuous homomorphism*
-`G_k → 𝔽₂` — this is exactly membership in `Z¹` with the trivial action. -/
-theorem kummerCocycle_isHom {a : Kˣ}
-    (hα : α ^ 2 = algebraMap K (AlgebraicClosure K) (a : K)) :
-    Continuous (kummerCocycleFun α) ∧
-      ∀ g h : GaloisGroup K, kummerCocycleFun α (g * h)
-        = kummerCocycleFun α g + kummerCocycleFun α h :=
-  (ContCoh.mem_Z1_iff_of_trivial kummerTriv).1 (kummerCocycle hα).2
 
 omit [CharZero K] in
 /-- Auxiliary: under the trivial action, `[z] = 0` in `H¹` iff the cocycle `z` is the zero
@@ -247,25 +201,6 @@ lemma H1mk_eq_zero_iff {z : ContCoh.Z1 (GaloisGroup K) (ZMod 2)} :
   rw [QuotientAddGroup.ker_mk', AddSubgroup.mem_addSubgroupOf,
       ContCoh.B1_eq_bot_of_trivial kummerTriv, AddSubgroup.mem_bot]
 
-/-- **Stress test (multiplicativity / Kummer map is a homomorphism).** `[ab] = [a] + [b]`. -/
-theorem kummerClass_mul (a b : Kˣ) :
-    kummerClass (a * b) = kummerClass a + kummerClass b := by
-  have hα := sqrtOf_sq a
-  have hβ := sqrtOf_sq b
-  have hαβ : (sqrtOf a * sqrtOf b) ^ 2 = algebraMap K (AlgebraicClosure K) ((a * b : Kˣ) : K) := by
-    rw [mul_pow, hα, hβ, ← map_mul, Units.val_mul]
-  rw [kummerClass_eq hαβ, kummerClass_eq hα, kummerClass_eq hβ, ← map_add]
-  congr 1
-  apply Subtype.ext
-  funext g
-  exact kummerCocycleFun_mul hα hβ g
-
-/-- **Stress test.** `[1] = 0`. -/
-@[simp] theorem kummerClass_one : kummerClass (1 : Kˣ) = 0 := by
-  have h := kummerClass_mul (1 : Kˣ) 1
-  rw [mul_one] at h
-  have h2 : kummerClass (1 : Kˣ) + kummerClass 1 = kummerClass 1 + 0 := by rw [add_zero]; exact h.symm
-  exact add_left_cancel h2
 
 /-- **Stress test (injectivity of `kˣ/(kˣ)² ↪ H¹`).** `[a] = 0` iff `a` is a square in `kˣ`.
 The nontrivial direction uses that the fixed field of `G_k` is `k`

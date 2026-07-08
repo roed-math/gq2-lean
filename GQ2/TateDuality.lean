@@ -254,11 +254,6 @@ section StressTests
 
 variable {n : ℕ} [NeZero n]
 
-/-- **`#H²(G_ℚ₂, μₙ) = n`** — the invariant map pins down the size of the dualizing `H²`
-(the local analogue of `inv : Br(k) ≅ ℚ/ℤ` restricted to `n`-torsion). -/
-theorem TateDuality.card_H2_muN (D : TateDuality n) :
-    Nat.card (H2 AbsGalQ2 (MuN n)) = n := by
-  rw [Nat.card_congr D.inv.toEquiv, Nat.card_zmod]
 
 section Consequences
 

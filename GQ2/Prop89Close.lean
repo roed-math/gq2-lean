@@ -4,8 +4,6 @@ import GQ2.Half139Local
 import GQ2.HalfTorsorGammaA
 import GQ2.FinitelyGenerated
 import GQ2.PhaseLIndep
-import GQ2.PhaseMuIndep
-import GQ2.PhaseGaussLIndep
 import GQ2.GaussZReduction
 import GQ2.Phase140Assembly
 import GQ2.RStageGammaA

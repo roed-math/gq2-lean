@@ -77,11 +77,6 @@ noncomputable def sdProjHom (π : C' →* C)
       rw [hπ]
     · exact map_mul π _ _
 
-@[simp] theorem sdProjHom_v (π : C' →* C) (hπ : ∀ (c' : C') (v : V), c' • v = π c' • v)
-    (p : Sd C' V) : (sdProjHom π hπ p).v = p.v := rfl
-
-@[simp] theorem sdProjHom_cc (π : C' →* C) (hπ : ∀ (c' : C') (v : V), c' • v = π c' • v)
-    (p : Sd C' V) : (sdProjHom π hπ p).cc = π p.cc := rfl
 
 /-- **`κ⁰` of the reindexed datum is the `sdProjHom`-pullback of `κ⁰` of the datum**: `f`
 sees only `V`-arguments and `m` pre-composes with `π` — the `graphPullback_reindexHom`

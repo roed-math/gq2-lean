@@ -122,7 +122,6 @@ def proj (c : TwoCocycle L) : CentExt c →* L where
   map_one' := rfl
   map_mul' := mul_base
 
-@[simp] theorem proj_apply (p : CentExt c) : proj c p = p.base := rfl
 
 /-- The central inclusion `ZMod 2 → L ×_κ ZMod 2`, `z ↦ (1, z)`. -/
 def incl (c : TwoCocycle L) : ZMod 2 → CentExt c := fun z => (1, z)
@@ -137,31 +136,12 @@ theorem base_eq_one_iff (p : CentExt c) : p.base = 1 ↔ p = incl c p.fib :=
 /-- `incl 0` is the identity of the extension. -/
 @[simp] theorem incl_zero : incl c (0 : ZMod 2) = 1 := rfl
 
-/-- `incl` sends addition to multiplication (the central `ZMod 2` sits inside the extension). -/
-theorem incl_add (z z' : ZMod 2) : incl c (z + z') = incl c z * incl c z' := by
-  apply CentExt.ext
-  · show (1 : L) = 1 * 1
-    rw [mul_one]
-  · show z + z' = z + z' + c.κ 1 1
-    rw [c.norm, add_zero]
-
-/-- The base of `incl z · p` is that of `p`. -/
-@[simp] theorem incl_mul_base (z : ZMod 2) (p : CentExt c) : (incl c z * p).base = p.base := by
-  show (1 : L) * p.base = p.base
-  rw [one_mul]
 
 /-- The fibre of `incl z · p` is `z + p.fib` (the base being `p.base`). -/
 @[simp] theorem incl_mul_fib (z : ZMod 2) (p : CentExt c) : (incl c z * p).fib = z + p.fib := by
   show z + p.fib + c.κ 1 p.base = z + p.fib
   rw [c.κ_one_left, add_zero]
 
-/-- The image of `incl` is central. -/
-theorem incl_mul_comm (z : ZMod 2) (p : CentExt c) : incl c z * p = p * incl c z := by
-  apply CentExt.ext
-  · show (1 : L) * p.base = p.base * 1
-    rw [one_mul, mul_one]
-  · show z + p.fib + c.κ 1 p.base = p.fib + z + c.κ p.base 1
-    rw [c.κ_one_left, c.κ_one_right, add_zero, add_zero, add_comm]
 
 instance : TopologicalSpace (CentExt c) := ⊥
 instance : DiscreteTopology (CentExt c) := ⟨rfl⟩
@@ -742,10 +722,6 @@ instance : Group (FiberProd c₁ c₂) where
       rw [h, CharTwo.add_self_eq_zero]
 
 @[simp] theorem mul_base (p q : FiberProd c₁ c₂) : (p * q).base = p.base * q.base := rfl
-@[simp] theorem mul_fibA (p q : FiberProd c₁ c₂) :
-    (p * q).fibA = p.fibA + q.fibA + c₁.κ p.base q.base := rfl
-@[simp] theorem mul_fibB (p q : FiberProd c₁ c₂) :
-    (p * q).fibB = p.fibB + q.fibB + c₂.κ p.base q.base := rfl
 
 /-- Projection to the first central extension. -/
 def pr1 : FiberProd c₁ c₂ →* CentExt c₁ where
@@ -777,8 +753,6 @@ def prSum : FiberProd c₁ c₂ →* CentExt (c₁ + c₂) where
 @[simp] theorem pr2_fib (p : FiberProd c₁ c₂) : (pr2 p).fib = p.fibB := rfl
 @[simp] theorem prSum_fib (p : FiberProd c₁ c₂) : (prSum p).fib = p.fibA + p.fibB := rfl
 
-instance : TopologicalSpace (FiberProd c₁ c₂) := ⊥
-instance : DiscreteTopology (FiberProd c₁ c₂) := ⟨rfl⟩
 instance [Finite L] : Finite (FiberProd c₁ c₂) := inferInstanceAs (Finite (L × ZMod 2 × ZMod 2))
 
 end FiberProd
@@ -1540,30 +1514,6 @@ theorem obsH2_injective : Function.Injective (obsH2 htriv) := by
   intro ha
   exact (QuotientAddGroup.eq_zero_iff φ).mpr (obs_ker_le htriv (AddMonoidHom.mem_ker.mpr ha))
 
-/-- **`#H²(Γ_A, 𝔽₂) ≤ 2`** (P-16c2).  `H² = Z²/B²` is a quotient of `Z²/ker obs`, which injects into
-`𝔽₂` via `obs`; so `#H² ≤ #(Z²/ker obs) ≤ #𝔽₂ = 2`. -/
-theorem card_H2_gammaA_le_two :
-    Nat.card (H2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)) ≤ 2 := by
-  haveI : Finite (Z2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2) ⧸ (obs htriv).ker) :=
-    Finite.of_injective _ (QuotientAddGroup.kerLift_injective (obs htriv))
-  have hcard1 : Nat.card (Z2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2) ⧸ (obs htriv).ker)
-      ≤ Nat.card (ZMod 2) :=
-    Nat.card_le_card_of_injective _ (QuotientAddGroup.kerLift_injective (obs htriv))
-  have hsurj : Function.Surjective
-      (QuotientAddGroup.map (obs htriv).ker
-        ((B2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)).addSubgroupOf
-          (Z2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)))
-        (AddMonoidHom.id _) (by rw [AddSubgroup.comap_id]; exact obs_ker_le htriv)) := by
-    intro y
-    obtain ⟨z, rfl⟩ := QuotientAddGroup.mk'_surjective _ y
-    exact ⟨QuotientAddGroup.mk' _ z, by rw [QuotientAddGroup.map_mk']; rfl⟩
-  have hcard2 : Nat.card (H2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2))
-      ≤ Nat.card (Z2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2) ⧸ (obs htriv).ker) :=
-    Nat.card_le_card_of_surjective _ hsurj
-  calc Nat.card (H2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2))
-      ≤ Nat.card (Z2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2) ⧸ (obs htriv).ker) := hcard2
-    _ ≤ Nat.card (ZMod 2) := hcard1
-    _ = 2 := by rw [Nat.card_eq_fintype_card, ZMod.card]
 
 end CardBound
 

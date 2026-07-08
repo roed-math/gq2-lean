@@ -361,12 +361,6 @@ theorem ccZsign_one : ccZsign Dsc (1 : covQ Dsc) = 0 := by simp [ccZsign]
 theorem ccZsign_zbar : ccZsign Dsc (zbar Dsc) = 1 := by
   simp [ccZsign, zbar_ne_one Dsc]
 
-/-- Reconstruction: a kernel element is `z̄` to its sign. -/
-theorem zbar_pow_ccZsign {x : covQ Dsc} (hx : x ∈ (descP Dsc).ker) :
-    zbar Dsc ^ (ccZsign Dsc x).val = x := by
-  rcases descKerCases Dsc hx with rfl | rfl
-  · rw [ccZsign_one, show ((0 : ZMod 2)).val = 0 from by decide, pow_zero]
-  · rw [ccZsign_zbar, show ((1 : ZMod 2)).val = 1 from by decide, pow_one]
 
 /-- `ccZsign` is additive on the kernel. -/
 theorem ccZsign_mul {x y : covQ Dsc} (hx : x ∈ (descP Dsc).ker) (hy : y ∈ (descP Dsc).ker) :

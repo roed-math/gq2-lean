@@ -34,9 +34,6 @@ theorem d0_isProP : IsProP 2 D0 :=
 noncomputable def evalD0 : ContinuousMonoidHom (FreeProfiniteGroup (Fin 3)) D0 :=
   (maxProPMk 2 D0Full).comp (quotientMk (relatorSubgroup {d0Relator}))
 
-@[simp] lemma evalD0_of0 : evalD0 (FreeProfiniteGroup.of 0) = d0A := rfl
-@[simp] lemma evalD0_of1 : evalD0 (FreeProfiniteGroup.of 1) = d0S := rfl
-@[simp] lemma evalD0_of2 : evalD0 (FreeProfiniteGroup.of 2) = d0Y := rfl
 
 theorem evalD0_surjective : Function.Surjective evalD0 :=
   (quotientMk_surjective _).comp (quotientMk_surjective _)
@@ -60,13 +57,6 @@ theorem topGen_d0 :
       · exact ⟨2, rfl⟩
   rwa [h1] at h
 
-/-- In every discrete continuous quotient of `D₀`, the images of `A, S, Y` generate. -/
-theorem gen_d0_quotient {H : Type*} [Group H] [TopologicalSpace H] [IsTopologicalGroup H]
-    [DiscreteTopology H] (f : D0 →* H) (hcont : Continuous f) (hsurj : Function.Surjective f) :
-    Subgroup.closure {f d0A, f d0S, f d0Y} = ⊤ := by
-  have h := topGen_map f hcont hsurj topGen_d0
-  rw [Set.image_insert_eq, Set.image_insert_eq, Set.image_singleton] at h
-  exact gen_of_topGen_discrete h
 
 /-! ## `[Y,S] = A²S⁴` in `D₀` (rearranged `d0_relation`) -/
 

@@ -89,70 +89,8 @@ theorem wildRel_of_trivial_wild (hx0 : t.x₀ = 1) (hx1 : t.x₁ = 1) (hτ : pow
   simp only [WildRel, hh0, hu1, hx1, hc0, inv_one, mul_one]
   simp [conjP]
 
-/-- **A concrete admissible marking** realizing the tame frame `S₃`: the quadruple
-`(σ, τ, x₀, x₁) = (sr 0, r 1, 1, 1)` in the dihedral group `S₃ = DihedralGroup 3`.  Here `S₃` is a
-genuine tame quotient of `G_{ℚ₂}` (the wild part `O₂(S₃)` is trivial), and this is exactly the
-kind of finite check the paper's Appendix B performs. -/
-def markS3 : Marking (DihedralGroup 3) := ⟨DihedralGroup.sr 0, DihedralGroup.r 1, 1, 1⟩
-
-/-- The tame relation `τ^σ = τ²` holds in `S₃`, by direct finite computation. -/
-theorem markS3_tameRel : markS3.TameRel := by unfold Marking.TameRel conjP; decide
-
-/-- The wild relation `h₀ u₁⁻¹ x₁^σ c₀ = 1` holds in `S₃`: the wild generators are trivial and
-`τ = r 1` has odd order `3`, so every auxiliary word collapses to `1`. -/
-theorem markS3_wildRel : markS3.WildRel := by
-  refine markS3.wildRel_of_trivial_wild rfl rfl (powOmega2_eq_one_of_odd ?_)
-  show Odd (orderOf (DihedralGroup.r 1 : DihedralGroup 3))
-  rw [DihedralGroup.orderOf_r_one]; decide
-
-/-- The wild generators of `markS3` are trivial, so their normal closure is `⊥` — vacuously a
-`2`-group (`Pro2Core`). -/
-theorem markS3_pro2Core : markS3.Pro2Core := by
-  have hbot : Subgroup.normalClosure ({markS3.x₀, markS3.x₁} : Set (DihedralGroup 3)) = ⊥ := by
-    refine le_antisymm (Subgroup.normalClosure_le_normal ?_) bot_le
-    rintro x (rfl | rfl) <;> simp [markS3]
-  rw [Marking.Pro2Core, hbot]
-  intro g
-  exact ⟨0, by simp [show g = 1 from Subtype.ext (Subgroup.mem_bot.mp g.2)]⟩
-
-/-- `σ = sr 0` and `τ = r 1` generate `S₃`, so the marking generates. -/
-theorem markS3_generates : markS3.Generates := by
-  rw [Marking.Generates, eq_top_iff]
-  set H := Subgroup.closure ({markS3.σ, markS3.τ, markS3.x₀, markS3.x₁} : Set (DihedralGroup 3))
-  have hr1 : DihedralGroup.r 1 ∈ H := Subgroup.subset_closure (by simp [markS3])
-  have hsr0 : DihedralGroup.sr 0 ∈ H := Subgroup.subset_closure (by simp [markS3])
-  have hrk : ∀ k : ZMod 3, DihedralGroup.r k ∈ H := fun k => by
-    rw [show DihedralGroup.r k = DihedralGroup.r 1 ^ k.val by
-      rw [DihedralGroup.r_one_pow, ZMod.natCast_zmod_val]]
-    exact pow_mem hr1 k.val
-  rintro x -
-  rcases x with i | i
-  · exact hrk i
-  · rw [show DihedralGroup.sr i = DihedralGroup.sr 0 * DihedralGroup.r i by
-      rw [DihedralGroup.sr_mul_r, zero_add]]
-    exact mul_mem hsr0 (hrk i)
-
-/-- **`markS3` is admissible**: it generates `S₃`, satisfies both relations, and its (trivial) wild
-generators have `2`-group normal closure.  A fully machine-checked instance of the paper's admissible
-marked quadruple. -/
-theorem markS3_admissible : markS3.Admissible :=
-  ⟨markS3_generates, markS3_tameRel, markS3_wildRel, markS3_pro2Core⟩
 
 end Marking
 
-/-- `markOmega2` on `S₃` reproduces the `ω₂`-action elementwise: the odd-order rotation `r 1` is
-killed (`ω₂ ≡ 0` on the odd part).  (The `40491355905`-th power is far too large to evaluate
-directly; it is discharged through `powOmega2` via `markOmega2_eq_powOmega2`.) -/
-theorem markOmega2_r1 : markOmega2 (DihedralGroup.r 1 : DihedralGroup 3) = 1 := by
-  rw [markOmega2_eq_powOmega2 (by rw [DihedralGroup.orderOf_r_one]; decide)]
-  exact powOmega2_eq_one_of_odd (by rw [DihedralGroup.orderOf_r_one]; decide)
-
-/-- The order-2 reflection `sr 0` is fixed by `ω₂` (`ω₂ ≡ 1` on the `2`-part). -/
-theorem markOmega2_sr0 :
-    markOmega2 (DihedralGroup.sr 0 : DihedralGroup 3) = DihedralGroup.sr 0 := by
-  rw [markOmega2_eq_powOmega2 (by rw [DihedralGroup.orderOf_sr]; decide)]
-  exact powOmega2_eq_self_of_orderOf_two_pow (k := 1) (by rw [DihedralGroup.orderOf_sr, pow_one])
 
 end GQ2
-
-

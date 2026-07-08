@@ -79,8 +79,6 @@ omit [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
 theorem quotientMk_surjective : Function.Surjective (quotientMk N) :=
   QuotientGroup.mk_surjective
 
-omit [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
-@[simp] theorem quotientMk_apply (g : G) : quotientMk N g = QuotientGroup.mk g := rfl
 
 omit [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
 /-- An element lies in the kernel of the quotient projection iff it lies in `N`. -/

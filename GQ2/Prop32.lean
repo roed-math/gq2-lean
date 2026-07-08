@@ -656,7 +656,6 @@ def emN : ℕ := 2 ^ (2 ^ m) - 1
 instance : NeZero (emN m) :=
   ⟨Nat.sub_ne_zero_of_lt (Nat.one_lt_two_pow_iff.mpr (pow_ne_zero m two_ne_zero))⟩
 
-lemma two_pow_two_pow (hm : m ≠ 0) : 1 < 2 ^ m := Nat.one_lt_two_pow_iff.mpr hm
 
 lemma coprime_two_emN : Nat.Coprime 2 (emN m) := by
   rw [Nat.Prime.coprime_iff_not_dvd Nat.prime_two]

@@ -7,7 +7,6 @@ import GQ2.DiscreteModule
 import GQ2.Cohomology
 import GQ2.CupProduct
 import GQ2.CupSymmetry
-import GQ2.CtsCohBridge
 import GQ2.FreeProfinite
 import GQ2.ProfiniteQuotient
 import GQ2.ProfinitePresentation
@@ -44,8 +43,8 @@ import GQ2.Devissage
 import GQ2.QuadraticFp2
 import GQ2.GaussCount
 import GQ2.GaussSigns
-import GQ2.TameSimple
 import GQ2.GaussSignsRamified
+import GQ2.TameSimple
 import GQ2.Corestriction
 import GQ2.OrbitData
 import GQ2.BlockModule
@@ -58,12 +57,10 @@ import GQ2.SectionEight
 import GQ2.AffineTLift
 import GQ2.VCocycle
 import GQ2.RadicalEdgeBridge
-import GQ2.PhaseGaussLIndep
 import GQ2.PhaseObstruction
 import GQ2.VLiftCount
 import GQ2.KeystoneDelta
 import GQ2.GaussZReduction
-import GQ2.IotaBridge
 import GQ2.GaussZLocal
 import GQ2.ShapiroDeepness
 import GQ2.Phase140Assembly
@@ -119,6 +116,7 @@ import GQ2.InvolutionVanish
 import GQ2.InvolutionSplice
 import GQ2.GaussZFinal
 import GQ2.GaussZCoordGammaA
+import GQ2.IotaBridge
 import GQ2.IotaGammaA
 import GQ2.GaussZRelatorGammaA
 import GQ2.GaussZFinalGammaA

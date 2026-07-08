@@ -242,7 +242,6 @@ noncomputable def freeCorr (β : Z1 N (ZMod 2)) (ghat : G) (k : G ⧸ N) : ZMod 
 noncomputable def freeLambda (α β : Z1 N (ZMod 2)) (ghat : G) : G → ZMod 2 :=
   fun γ => ∑ᶠ h : G ⧸ N, α.1 (lTrans N h γ) * freeCorr N β ghat (γ⁻¹ • h)
 
-@[simp] theorem coe_lTrans (u : G ⧸ N) (γ : G) : (lTrans N u γ : G) = lWord N u γ := rfl
 
 /-- `γ ↦ γ⁻¹ • h : G → G ⧸ N` is continuous (into the discrete quotient). -/
 theorem continuous_inv_smul (hNo : IsOpen (N : Set G)) (h : G ⧸ N) :
@@ -680,17 +679,6 @@ variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
   [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
 variable (N : Subgroup G) [N.Normal]
 
-/-- `ḡ = mk ĝ ≠ 1` in `G/N` when `ĝ ∉ N`. -/
-theorem ghatQuot_ne_one (ghat : G) (hg : ghat ∉ N) : QuotientGroup.mk' N ghat ≠ 1 := by
-  rw [Ne, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]; exact hg
-
-/-- **The involution acts freely on `G/N`**: `z·ḡ ≠ z` for every `z` (no fixed points), because
-`z·ḡ = z ⟹ ḡ = 1 ⟹ ĝ ∈ N`, contradicting `ĝ ∉ N`.  Hence every `⟨ḡ⟩`-orbit in `G/N` has
-exactly two elements `{z, z·ḡ}` — the structural fact behind the involution comparison (there is
-no diagonal/fixed-point term in the orbit sum). -/
-theorem orbit_free (ghat : G) (hg : ghat ∉ N) (z : G ⧸ N) :
-    z * (QuotientGroup.mk' N ghat) ≠ z := fun h =>
-  ghatQuot_ne_one N ghat hg (mul_left_cancel (h.trans (mul_one z).symm))
 
 /-- `ḡ = mk ĝ` is an involution of `G/N` when `ĝ² ∈ N`. -/
 theorem ghatQuot_sq (ghat : G) (hg2 : ghat * ghat ∈ N) :
@@ -772,17 +760,6 @@ theorem phi_inv_eq (α : Z1 N (ZMod 2)) (ghat : G) (γ η : G) :
                 * α.1 (lTrans N (orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * u.out)
                     * QuotientGroup.mk' N ghat) η)) := rfl
 
-/-- The involution corestriction side, unfolded to an explicit sum over `G ⧸ U₀` (the
-`evensNormFun` two-point cocycle at the `U₀`-transversal words).  The remaining assembly
-reindexes this over `(G/N)/⟨ḡ⟩` via `invIndexEquiv`, expands `evensNormFun`'s `if _ ∈ N`
-case-split (`evensAux`/`bS`, `GQ2/EvensKahn.lean`) into `α`-values, matches the two `phi_inv_eq`
-sums + orientation, and discharges the two-transversal `.out` discrepancy as a `δ¹`-coboundary. -/
-theorem psi_inv_eq (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G) (hgU : ghat ∈ U₀)
-    (γ η : G) :
-    cor2Fun U₀ (fun p ↦ evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩
-        (fun u ↦ α.1 ⟨u.1.1, u.2⟩) (p.1, p.2)) (γ, η)
-      = ∑ᶠ v : G ⧸ U₀, evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (fun u ↦ α.1 ⟨u.1.1, u.2⟩)
-          (lTrans U₀ v γ, lTrans U₀ (γ⁻¹ • v) η) := rfl
 
 /-- `ḡ = mk ĝ` has order exactly 2 in `G/N` (`ĝ ∉ N`, `ĝ² ∈ N`). -/
 theorem orderOf_ghatQuot (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N) :
@@ -838,19 +815,6 @@ theorem alphaOn_continuous (α : Z1 N (ZMod 2)) (U₀ : Subgroup G) :
   have hα : Continuous α.1 := (mem_Z1_iff.mp α.2).1
   exact hα.comp ((continuous_subtype_val.comp continuous_subtype_val).subtype_mk _)
 
-/-- **Step 1 (reindex).** The involution corestriction side, reindexed from a sum over `G/U₀` to
-a sum over the orbit set `O = (G/N)/⟨ḡ⟩` via the bijection `invIndexEquiv`. -/
-theorem psi_inv_reindex (α : Z1 N (ZMod 2)) (ghat : G)
-    (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (hgU : ghat ∈ U₀) (γ η : G) :
-    cor2Fun U₀ (fun p ↦ evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩
-        (alphaOn N α U₀) (p.1, p.2)) (γ, η)
-      = ∑ᶠ u : (G ⧸ N) ⧸ Subgroup.zpowers (QuotientGroup.mk' N ghat),
-          evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀)
-            (lTrans U₀ ((invIndexEquiv N ghat U₀ hU₀).symm u) γ,
-             lTrans U₀ (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀).symm u)) η) := by
-  show (∑ᶠ v : G ⧸ U₀, evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀)
-      (lTrans U₀ v γ, lTrans U₀ (γ⁻¹ • v) η)) = _
-  exact (finsum_comp_equiv (invIndexEquiv N ghat U₀ hU₀).symm).symm
 
 /-! ### Step 2 — the Evens-norm building blocks as explicit `α`-values
 
@@ -886,66 +850,6 @@ Both sides are now sums over `O = (G/N)/⟨ḡ⟩` (`phi_inv_eq`, `psi_inv_reind
 bridge the `U₀`-transversal words (`ℓ^{U₀}`, used by `psi`) and the `N`-transversal words (`ℓ^N`,
 used by `phi`), and the orientation. -/
 
-/-- **Membership correspondence**: `ℓ^{U₀}_v(γ) ∈ N` iff the `N`-images of the chosen `U₀`-reps of
-`v` and `γ⁻¹•v` are `γ̄`-aligned.  (The `∉ N`/flipped case is the orientation reversal.) -/
-theorem lWordU0_mem_N_iff (U₀ : Subgroup G) (v : G ⧸ U₀) (γ : G) :
-    lWord U₀ v γ ∈ N ↔
-      QuotientGroup.mk' N ((γ⁻¹ • v).out)
-        = (QuotientGroup.mk' N γ)⁻¹ * QuotientGroup.mk' N v.out := by
-  rw [← QuotientGroup.eq_one_iff, lWord, ← QuotientGroup.mk'_apply, map_mul, map_mul, map_inv,
-    QuotientGroup.mk'_apply, QuotientGroup.mk'_apply, QuotientGroup.mk'_apply, mul_assoc,
-    inv_mul_eq_one]
-  constructor
-  · intro h; rw [h]; group
-  · intro h; rw [h]; group
-
-/-- The `G/N`-canonical lift of the `N`-image of the `U₀`-rep `v.out`. -/
-noncomputable def nLift (U₀ : Subgroup G) (v : G ⧸ U₀) : G :=
-  (QuotientGroup.mk' N (v.out : G)).out
-
-/-- The `U₀`- vs `N`-transversal correction: `v.out = nLift v · uCorr v` with `uCorr v ∈ N`. -/
-noncomputable def uCorr (U₀ : Subgroup G) (v : G ⧸ U₀) : G :=
-  (nLift N U₀ v)⁻¹ * (v.out : G)
-
-theorem uCorr_mem (U₀ : Subgroup G) (v : G ⧸ U₀) : uCorr N U₀ v ∈ N := by
-  have h : (QuotientGroup.mk (nLift N U₀ v) : G ⧸ N) = QuotientGroup.mk (v.out : G) := by
-    rw [nLift]; exact QuotientGroup.out_eq' _
-  rw [uCorr, ← QuotientGroup.eq_one_iff, QuotientGroup.mk_mul, QuotientGroup.mk_inv, h,
-    inv_mul_cancel]
-
-/-- **Word factorization** (`U₀` → `N`-canonical lifts): `ℓ^{U₀}_v(γ)` sandwiches the
-`nLift`-word between two `N`-corrections `uCorr`.  This is the `U₀`-analog of `lWord_shift`. -/
-theorem lWordU0_factor (U₀ : Subgroup G) (v : G ⧸ U₀) (γ : G) :
-    lWord U₀ v γ = (uCorr N U₀ v)⁻¹
-      * ((nLift N U₀ v)⁻¹ * γ * nLift N U₀ (γ⁻¹ • v)) * uCorr N U₀ (γ⁻¹ • v) := by
-  simp only [uCorr, lWord]; group
-
-/-- `uCorr` as an element of `↥N`. -/
-noncomputable def uCorrEl (U₀ : Subgroup G) (v : G ⧸ U₀) : N := ⟨uCorr N U₀ v, uCorr_mem N U₀ v⟩
-
-/-- In the **aligned** case the `nLift`-word is exactly the `N`-transversal word at `mk v.out`. -/
-theorem nLiftWord_aligned (U₀ : Subgroup G) (v : G ⧸ U₀) (γ : G) (hx : lWord U₀ v γ ∈ N) :
-    (nLift N U₀ v)⁻¹ * γ * nLift N U₀ (γ⁻¹ • v)
-      = lWord N (QuotientGroup.mk' N (v.out : G)) γ := by
-  have hzb : QuotientGroup.mk' N ((γ⁻¹ • v).out) = γ⁻¹ • QuotientGroup.mk' N (v.out : G) := by
-    rw [(lWordU0_mem_N_iff N U₀ v γ).mp hx, quot_smul_eq_mk_mul, QuotientGroup.mk'_apply,
-      QuotientGroup.mk'_apply, ← QuotientGroup.mk_inv]
-  rw [lWord, nLift, nLift, hzb]
-
-/-- **Aligned-case α-decomposition** (`beta_lTrans_shift`-analog): when `ℓ^{U₀}_v(γ) ∈ N`, its
-`α`-value is the base `N`-word value plus the two `uCorr` corrections (`α` a hom). -/
-theorem alpha_lWordU0_aligned (α : Z1 N (ZMod 2)) (U₀ : Subgroup G) (v : G ⧸ U₀) (γ : G)
-    (hx : lWord U₀ v γ ∈ N) :
-    α.1 ⟨lWord U₀ v γ, hx⟩
-      = α.1 (uCorrEl N U₀ v) + α.1 (lTrans N (QuotientGroup.mk' N (v.out : G)) γ)
-        + α.1 (uCorrEl N U₀ (γ⁻¹ • v)) := by
-  have hfac : (⟨lWord U₀ v γ, hx⟩ : N)
-      = (uCorrEl N U₀ v)⁻¹ * lTrans N (QuotientGroup.mk' N (v.out : G)) γ
-        * uCorrEl N U₀ (γ⁻¹ • v) := by
-    apply Subtype.ext
-    simp only [uCorrEl, lTrans, Subgroup.coe_mul, InvMemClass.coe_inv]
-    rw [← nLiftWord_aligned N U₀ v γ hx, lWordU0_factor N U₀ v γ]
-  rw [hfac, z1_mul N α, z1_mul N α, z1_inv N α]
 
 /-- **Orbit equivariance**: the `⟨ḡ⟩`-orbit of `mk((γ⁻¹•v).out)` equals that of `γ̄⁻¹·mk(v.out)`
 (both are `N`-images of `U₀`-lifts of `γ⁻¹•v`). -/
@@ -972,63 +876,12 @@ theorem mem_zpowers_sq_one {H : Type*} [Group H] {g t : H} (hg2 : g * g = 1)
   · left; rw [show m + m = 2 * m by ring, zpow_mul, hsq, one_zpow]
   · right; rw [zpow_add, zpow_mul, hsq, one_zpow, one_mul, zpow_one]
 
-/-- **Flipped case**: when `ℓ^{U₀}_v(γ) ∉ N`, the `N`-image of `(γ⁻¹•v).out` is the *other* orbit
-element `(γ̄⁻¹·mk v.out)·ḡ`. -/
-theorem zb_flipped (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
-    (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (v : G ⧸ U₀) (γ : G)
-    (hx : ¬ (lWord U₀ v γ ∈ N)) :
-    QuotientGroup.mk' N ((γ⁻¹ • v).out)
-      = (QuotientGroup.mk' N γ)⁻¹ * QuotientGroup.mk' N (v.out : G) * QuotientGroup.mk' N ghat := by
-  set za := (QuotientGroup.mk' N γ)⁻¹ * QuotientGroup.mk' N (v.out : G) with hza
-  set zb := QuotientGroup.mk' N ((γ⁻¹ • v).out) with hzb
-  have hmem : za⁻¹ * zb ∈ Subgroup.zpowers (QuotientGroup.mk' N ghat) := by
-    rw [← QuotientGroup.eq]; exact (orbit_equiv N ghat U₀ hU₀ v γ).symm
-  have hne : za⁻¹ * zb ≠ 1 := by
-    intro h
-    exact hx ((lWordU0_mem_N_iff N U₀ v γ).mpr (inv_mul_eq_one.mp h).symm)
-  rcases mem_zpowers_sq_one (ghatQuot_sq N ghat hg2) hmem with h | h
-  · exact absurd h hne
-  · rw [← h]; group
 
 /-- The `.out` shift: `(k·ḡ).out = k.out · ĝ · shiftCorr(k)` (rearranged `shiftCorr`). -/
 theorem out_ghat_shift (ghat : G) (k : G ⧸ N) :
     (k * (ghat : G ⧸ N)).out = k.out * ghat * shiftCorr N ghat k := by
   rw [shiftCorr]; group
 
-/-- **Flipped** analog of `nLiftWord_aligned`: the `nLift`-word is the base `N`-word followed by a
-`ĝ`-shift correction (from `zb` being the reversed orbit rep). -/
-theorem nLiftWord_flipped (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
-    (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (v : G ⧸ U₀) (γ : G)
-    (hx : ¬ (lWord U₀ v γ ∈ N)) :
-    (nLift N U₀ v)⁻¹ * γ * nLift N U₀ (γ⁻¹ • v)
-      = lWord N (QuotientGroup.mk' N (v.out : G)) γ * ghat
-        * shiftCorr N ghat (γ⁻¹ • QuotientGroup.mk' N (v.out : G)) := by
-  have hzb : QuotientGroup.mk' N ((γ⁻¹ • v).out)
-      = (γ⁻¹ • QuotientGroup.mk' N (v.out : G)) * (ghat : G ⧸ N) := by
-    rw [zb_flipped N ghat hg hg2 U₀ hU₀ v γ hx, quot_smul_eq_mk_mul, QuotientGroup.mk'_apply,
-      ← QuotientGroup.mk_inv, QuotientGroup.mk'_apply, QuotientGroup.mk'_apply]
-  rw [lWord, nLift, nLift, hzb, out_ghat_shift]; group
-
-/-- **Flipped-case α-decomposition**: when `ℓ^{U₀}_v(γ) ∉ N`, the α-value of `ℓ^{U₀}_v(γ)·ĝ`
-(the `evensAux` reading) is the base `N`-word value plus `uCorr` and a `ĝ`-shift correction `W`. -/
-theorem alpha_lWordU0_flipped (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ N)
-    (hg2 : ghat * ghat ∈ N) (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat)
-    (v : G ⧸ U₀) (γ : G) (hx : ¬ (lWord U₀ v γ ∈ N)) (hmem : lWord U₀ v γ * ghat ∈ N)
-    (hW : ghat * shiftCorr N ghat (γ⁻¹ • QuotientGroup.mk' N (v.out : G))
-        * uCorr N U₀ (γ⁻¹ • v) * ghat ∈ N) :
-    α.1 ⟨lWord U₀ v γ * ghat, hmem⟩
-      = α.1 (uCorrEl N U₀ v) + α.1 (lTrans N (QuotientGroup.mk' N (v.out : G)) γ)
-        + α.1 ⟨ghat * shiftCorr N ghat (γ⁻¹ • QuotientGroup.mk' N (v.out : G))
-            * uCorr N U₀ (γ⁻¹ • v) * ghat, hW⟩ := by
-  have hfac : (⟨lWord U₀ v γ * ghat, hmem⟩ : N)
-      = (uCorrEl N U₀ v)⁻¹ * lTrans N (QuotientGroup.mk' N (v.out : G)) γ
-        * ⟨ghat * shiftCorr N ghat (γ⁻¹ • QuotientGroup.mk' N (v.out : G))
-            * uCorr N U₀ (γ⁻¹ • v) * ghat, hW⟩ := by
-    apply Subtype.ext
-    simp only [uCorrEl, lTrans, Subgroup.coe_mul, InvMemClass.coe_inv]
-    rw [lWordU0_factor N U₀ v γ, nLiftWord_flipped N ghat hg hg2 U₀ hU₀ v γ hx]
-    group
-  rw [hfac, z1_mul N α, z1_mul N α, z1_inv N α]
 
 /-! ### The compatible transversal `invLift` (Step 2)
 
