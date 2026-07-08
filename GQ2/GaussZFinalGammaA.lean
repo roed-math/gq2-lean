@@ -31,7 +31,7 @@ namespace SectionEight
 
 namespace AffineTLift
 
-open CentralObstruction ContCoh WordCohBridge FoxH RStageGammaA WordCoh2
+open CentralObstruction ContCoh WordCohBridge FoxH RStageGammaA WordCoh2 QuadraticFp2
 
 /-! ## A-4.1: the `x₀`-supported section of `H¹_w`  (generic marking level)
 
@@ -576,6 +576,106 @@ theorem liftMark_kappa0_wildValue_fib_split [Finite C] [Finite V]
     = q tS.x₀.v
   rw [hx0cc, one_smul, hdat.f_diag, hdat.m_one]
   ring
+
+/-! ### A-4.4: the ramified wild value = the Wall double
+
+Ramified regime (`V^T = 0`): the structural pack persists, so `d₀` still has `cc = 1`,
+but its `V`-part is now `a := x₀.v` (`liftMarking_d0_u_ramified`).  The `cc = 1` elements
+form the abelian `V`-slice, whose `CentExt` is the `E_f`-Heisenberg: commutators produce
+the polar form (`commP_fib_cc_one`), so `c₀ = [d₀,z₀] ↦ B(a, U⁻¹a)` — the p. 15 table's
+ramified entry.  The `h₀`-peel telescopes to `q(g₀⁻¹a)` on one `f_cocycle` + `f_diag` +
+`f_polar`, and `q`-invariance gives `q(a)`.  Total: `q(a) + B(a, U⁻¹a)`. -/
+
+/-- `Sd`-elements with `cc = 1` commute (the abelian `V`-slice). -/
+theorem sd_mul_comm_cc_one (p r : Sd C V) (hp : p.cc = 1) (hr : r.cc = 1) :
+    p * r = r * p := by
+  refine Sd.ext ?_ ?_
+  · show p.v + p.cc • r.v = r.v + r.cc • p.v
+    rw [hp, hr, one_smul, one_smul, add_comm]
+  · show p.cc * r.cc = r.cc * p.cc
+    rw [hp, hr]
+
+/-- `commP` of two `V`-slice elements of `Sd` is `1`. -/
+theorem sd_commP_cc_one (p r : Sd C V) (hp : p.cc = 1) (hr : r.cc = 1) :
+    commP p r = 1 := by
+  rw [commP]
+  calc p⁻¹ * r⁻¹ * p * r = p⁻¹ * (r⁻¹ * (p * r)) := by group
+    _ = p⁻¹ * (r⁻¹ * (r * p)) := by rw [sd_mul_comm_cc_one p r hp hr]
+    _ = 1 := by group
+
+/-- The κ⁰-value on two `V`-slice bases is the bare `f`-value. -/
+theorem kappa0_cc_one (p r : Sd C V) (hp : p.cc = 1) :
+    (kappa0Cocycle dat hdat).κ p r = dat.f p.v r.v := by
+  rw [kappa0Cocycle_κ, hp, one_smul, hdat.m_one, add_zero]
+
+/-- The inverse of a `V`-slice `CentExt`-element: same base (char 2), fibre shifted by
+`q` of the `V`-part. -/
+theorem inv_cc_one (p : CentExt (kappa0Cocycle dat hdat)) (hp : p.base.cc = 1)
+    (hV₂ : ∀ w : V, w + w = 0) :
+    p⁻¹.base = p.base ∧ p⁻¹.fib = p.fib + q p.base.v := by
+  constructor
+  · show p.base⁻¹ = p.base
+    refine Sd.ext ?_ ?_
+    · show -(p.base.cc⁻¹ • p.base.v) = p.base.v
+      rw [hp, inv_one, one_smul]
+      exact neg_eq_of_add_eq_zero_left (hV₂ _)
+    · show p.base.cc⁻¹ = p.base.cc
+      rw [hp, inv_one]
+  · show p.fib + (kappa0Cocycle dat hdat).κ p.base p.base⁻¹ = p.fib + q p.base.v
+    rw [kappa0_cc_one dat hdat _ _ hp]
+    congr 1
+    have hbv : p.base⁻¹.v = p.base.v := by
+      show -(p.base.cc⁻¹ • p.base.v) = p.base.v
+      rw [hp, inv_one, one_smul]
+      exact neg_eq_of_add_eq_zero_left (hV₂ _)
+    rw [hbv, hdat.f_diag]
+
+set_option maxHeartbeats 1600000 in
+/-- **The `V`-slice commutator fibre is the polar form** (the `[d₀,z₀]`-cell): for
+`CentExt κ⁰`-elements over `cc = 1` bases, `commP` has base `1` and fibre
+`polar q` of the `V`-parts. -/
+theorem commP_fib_cc_one (p r : CentExt (kappa0Cocycle dat hdat))
+    (hp : p.base.cc = 1) (hr : r.base.cc = 1) (hV₂ : ∀ w : V, w + w = 0) :
+    (commP p r).fib = polar q p.base.v r.base.v := by
+  obtain ⟨hpib, hpif⟩ := inv_cc_one dat hdat p hp hV₂
+  obtain ⟨hrib, hrif⟩ := inv_cc_one dat hdat r hr hV₂
+  set a := p.base.v with ha
+  set b := r.base.v with hb
+  -- the four-step peel
+  have h1 : (p⁻¹ * r⁻¹).fib = (p.fib + q a) + (r.fib + q b) + dat.f a b := by
+    rw [CentExt.mul_fib, hpif, hrif, hpib, hrib, kappa0_cc_one dat hdat _ _ hp]
+  have h1b : (p⁻¹ * r⁻¹).base.v = a + b := by
+    show (p⁻¹.base * r⁻¹.base).v = a + b
+    rw [hpib, hrib]
+    show a + p.base.cc • b = a + b
+    rw [hp, one_smul]
+  have h1c : (p⁻¹ * r⁻¹).base.cc = 1 := by
+    show (p⁻¹.base * r⁻¹.base).cc = 1
+    rw [hpib, hrib]
+    show p.base.cc * r.base.cc = 1
+    rw [hp, hr, one_mul]
+  have h2 : (p⁻¹ * r⁻¹ * p).fib
+      = ((p.fib + q a) + (r.fib + q b) + dat.f a b) + p.fib + dat.f (a + b) a := by
+    rw [CentExt.mul_fib, h1, kappa0_cc_one dat hdat _ _ h1c, h1b]
+  have h2b : (p⁻¹ * r⁻¹ * p).base.v = b := by
+    show ((p⁻¹ * r⁻¹).base * p.base).v = b
+    show (p⁻¹ * r⁻¹).base.v + (p⁻¹ * r⁻¹).base.cc • a = b
+    rw [h1b, h1c, one_smul]
+    rw [show a + b + a = b + (a + a) from by abel, hV₂ a, add_zero]
+  have h2c : (p⁻¹ * r⁻¹ * p).base.cc = 1 := by
+    show ((p⁻¹ * r⁻¹).base * p.base).cc = 1
+    show (p⁻¹ * r⁻¹).base.cc * p.base.cc = 1
+    rw [h1c, hp, one_mul]
+  show (p⁻¹ * r⁻¹ * p * r).fib = polar q a b
+  rw [CentExt.mul_fib, h2, kappa0_cc_one dat hdat _ _ h2c, h2b, ← hb, hdat.f_diag b]
+  -- the target is now linear over `ZMod 2` in the `f`-atoms; two cocycle instances + polar
+  have hc1 : dat.f (a + b) a + dat.f a b = dat.f a (b + a) + dat.f b a := hdat.f_cocycle a b a
+  rw [add_comm b a] at hc1
+  have hc1' : dat.f (a + a) b + dat.f a a = dat.f a (a + b) + dat.f a b := hdat.f_cocycle a a b
+  rw [hV₂ a, hdat.f_zero_left, hdat.f_diag] at hc1'
+  have hpol : dat.f a b + dat.f b a = polar q a b := hdat.f_polar a b
+  linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]; try ring_nf))
+    hc1 + hc1' + hpol
 
 end Kappa0Ledger
 
