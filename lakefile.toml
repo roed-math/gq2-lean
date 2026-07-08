@@ -11,6 +11,15 @@ name = "ClassFieldTheory"
 git = "https://github.com/kbuzzard/ClassFieldTheory.git"
 rev = "3565c752f7e1ef45afbb969f9c6d6279bb46962e"
 
+# Dev tooling (NOT imported by GQ2): the Lean Atlas dependency-graph viewer.
+# Pinned at the commit verified to build under this project's v4.31.0-rc2 toolchain.
+# Has no shared transitive deps, so it does not affect Mathlib's pin precedence.
+[[require]]
+name = "lean-atlas"
+scope = "NyxFoundation"
+git = "https://github.com/NyxFoundation/lean-atlas"
+rev = "3a81e194db0e6c41a2a8c5286f9e1b4962c3866a"
+
 # `require mathlib` last so Mathlib's pinned versions of shared transitive
 # dependencies (proofwidgets, batteries, …) take precedence over those of the
 # other requires.  Pinned at ec410d2 (2026-06-12): this is the Mathlib that has
