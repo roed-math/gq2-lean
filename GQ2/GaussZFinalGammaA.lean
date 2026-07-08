@@ -258,6 +258,101 @@ theorem relZPair_kappa0_fst_eq_zero [Finite C] [Finite V] (t : Marking (Sd C V))
     (relZPair t (kappa0Cocycle dat hdat)).1 = 0 :=
   liftMark_kappa0_tameValue_fib dat hdat t hσ hτ
 
+/-! ### A-4.3a: the coordinate transport toolkit
+
+The `Sd`-parts of the wild-word factors transport to the BANKED `liftMarking_*_u`
+V-part ledger through the carrier identification `Sd C V ≅ WordLift V C` (same
+semidirect law), and the `CentExt κ⁰`-factors project to the `Sd`-factors through
+`CentExt.proj` — so every base coordinate in the κ⁰-peel is already computed.  The
+fibre cells are then `CentExt.mul_fib` + the evaluated `κ⁰`-values; the first
+(and quadratically decisive) cell is the `x₀`-square `q(v) + m_{P}(v)`. -/
+
+/-- The carrier identification `Sd C V →* WordLift V C` (the two semidirect laws agree). -/
+noncomputable def sdToWL : Sd C V →* WordLift V C where
+  toFun p := ⟨p.v, p.cc⟩
+  map_one' := rfl
+  map_mul' _ _ := rfl
+
+@[simp] theorem sdToWL_u (p : Sd C V) : (sdToWL p).u = p.v := rfl
+
+@[simp] theorem sdToWL_g (p : Sd C V) : (sdToWL p).g = p.cc := rfl
+
+/-- The `C`-level base marking of an `Sd`-marking. -/
+noncomputable def sdBaseMarking (tS : Marking (Sd C V)) : Marking C :=
+  ⟨tS.σ.cc, tS.τ.cc, tS.x₀.cc, tS.x₁.cc⟩
+
+/-- The `V`-offset tuple of an `Sd`-marking. -/
+noncomputable def sdOffsets (tS : Marking (Sd C V)) : Fin 4 → V :=
+  ![tS.σ.v, tS.τ.v, tS.x₀.v, tS.x₁.v]
+
+/-- Under the carrier identification, an `Sd`-marking IS the `liftMarking` of its base
+marking at its offset tuple. -/
+theorem sdToWL_marking (tS : Marking (Sd C V)) :
+    tS.map sdToWL = liftMarking (sdBaseMarking tS) (sdOffsets tS) :=
+  rfl
+
+section FactorTransport
+
+variable [Finite C] [Finite V]
+
+/-- `d₀`'s `V`-part transports to the banked `WordLift` ledger. -/
+theorem sd_d0_v (tS : Marking (Sd C V)) :
+    tS.d0.v = (liftMarking (sdBaseMarking tS) (sdOffsets tS)).d0.u := by
+  have h := Marking.map_d0 (f := sdToWL) (t := tS)
+  rw [sdToWL_marking] at h
+  exact (congrArg WordLift.u h).symm
+
+/-- `z₀`'s `V`-part transports to the banked `WordLift` ledger. -/
+theorem sd_z0_v (tS : Marking (Sd C V)) :
+    tS.z0.v = (liftMarking (sdBaseMarking tS) (sdOffsets tS)).z0.u := by
+  have h := Marking.map_z0 (f := sdToWL) (t := tS)
+  rw [sdToWL_marking] at h
+  exact (congrArg WordLift.u h).symm
+
+/-- `u₁`'s `V`-part transports to the banked `WordLift` ledger. -/
+theorem sd_u1_v (tS : Marking (Sd C V)) :
+    tS.u1.v = (liftMarking (sdBaseMarking tS) (sdOffsets tS)).u1.u := by
+  have h := Marking.map_u1 (f := sdToWL) (t := tS)
+  rw [sdToWL_marking] at h
+  exact (congrArg WordLift.u h).symm
+
+/-- `c₀`'s `V`-part transports to the banked `WordLift` ledger. -/
+theorem sd_c0_v (tS : Marking (Sd C V)) :
+    tS.c0.v = (liftMarking (sdBaseMarking tS) (sdOffsets tS)).c0.u := by
+  have h := Marking.map_c0 (f := sdToWL) (t := tS)
+  rw [sdToWL_marking] at h
+  exact (congrArg WordLift.u h).symm
+
+/-- `h₀`'s `V`-part transports to the banked `WordLift` ledger. -/
+theorem sd_h0_v (tS : Marking (Sd C V)) :
+    tS.h0.v = (liftMarking (sdBaseMarking tS) (sdOffsets tS)).h0.u := by
+  have h := Marking.map_h0 (f := sdToWL) (t := tS)
+  rw [sdToWL_marking] at h
+  exact (congrArg WordLift.u h).symm
+
+/-- The `CentExt κ⁰`-level factors project to the `Sd`-level factors (`d₀` case; the
+projection is `liftMark_map_proj` + word functoriality). -/
+theorem liftMark_d0_base (tS : Marking (Sd C V)) :
+    ((liftMark tS (kappa0Cocycle dat hdat)).d0).base = tS.d0 := by
+  have h := Marking.map_d0 (f := CentExt.proj (kappa0Cocycle dat hdat))
+    (t := liftMark tS (kappa0Cocycle dat hdat))
+  rw [liftMark_map_proj] at h
+  exact (congrArg (fun p => p) h).symm ▸ rfl
+
+end FactorTransport
+
+/-- **The `x₀`-square cell** — the quadratically decisive fibre value: when the `x₀`-base
+acts trivially on `V` (`hx0`, the split wild-triviality), the square of the lifted
+`x₀`-slot has fibre `q(v) + m_{P}(v)` (`f_diag` turns the `f`-term into the quadratic
+form; the `m`-term is the paper's "starred entry", cancelled later in the `h₀`-ledger). -/
+theorem liftMark_x0_sq_fib (tS : Marking (Sd C V))
+    (hx0 : ∀ w : V, tS.x₀.cc • w = w) :
+    ((liftMark tS (kappa0Cocycle dat hdat)).x₀ ^ 2).fib
+      = q tS.x₀.v + dat.m tS.x₀.cc tS.x₀.v := by
+  rw [pow_two, CentExt.mul_fib]
+  show (0 : ZMod 2) + 0 + (kappa0Cocycle dat hdat).κ tS.x₀ tS.x₀ = _
+  rw [kappa0Cocycle_κ, hx0 tS.x₀.v, hdat.f_diag, zero_add, zero_add]
+
 end Kappa0Ledger
 
 section Assembly
