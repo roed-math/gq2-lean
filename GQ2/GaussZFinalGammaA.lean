@@ -1064,14 +1064,30 @@ theorem finsum_sign_unramified_of_action {C : Type} [Group C] [TopologicalSpace 
   finsum_sign_eq_neg_of_zeroCount q m hm
     (zeroCount_unramified_of_action c hc hsimple hV hunram q hq hns hinv m hm hcard) hcard
 
-/-- **THE RAMIFIED PACK GAP** (board §(4)) — SORRIED: the ramified `qDouble` zero count
-`2^{2m−1} + 2^{m−1}`.  The mathematical content is `prop_6_9_ramified` at the faithful
-quotient (the A-4.5b actionization element-izes `hram`), whose isotypic pack
-`(s r a Wt e he hVU hrank)` — the Clifford decomposition `V|_⟨cτ⟩ ≅ W^{⊕s}` of the
-faithful simple ramified tame module with `#W = 2^{2^a·r}`, the `#V^U = 2^{rs}` count and
-the rank parity — is underived in-repo (the local source dodged it via the Tate route
-`prop_6_18_ramified`, unavailable over `Γ_A`).  Discharge = derive the pack, or find a
-pack-free `arf(qDouble) = 0` route. -/
+/-- **THE RAMIFIED PACK GAP** (board §(4)) — SORRIED, at the FAITHFUL level: this is
+`prop_6_9_ramified` MINUS its isotypic pack `(s r a Wt e he hVU hrank)` — the Clifford
+decomposition `V|_⟨cτ⟩ ≅ W^{⊕s}` of the faithful simple ramified tame module with
+`#W = 2^{2^a·r}`, the `#V^U = 2^{rs}` count and the rank parity — underived in-repo
+(the local source dodged it via the Tate route `prop_6_18_ramified`, unavailable over
+`Γ_A`).  Discharge = derive the pack (`⟨cτ⟩ ⊴ C` is banked as the conjugation calculus
+of `tau_fixed_eq_zero_of_gen`), or find a pack-free `arf(qDouble) = 0` route. -/
+theorem zeroCount_qDouble_ramified_of_faithful {C : Type} [Group C] [TopologicalSpace C]
+    [DiscreteTopology C] [Finite C] {V : Type} [AddCommGroup V] [Finite V]
+    [DistribMulAction C V]
+    (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
+    (hfaith : ∀ g : C, (∀ v : V, g • v = v) → g = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (g : C), ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : c tameTau ≠ 1)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
+    (hinv : IsInvariant C q)
+    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
+    zeroCount (qDouble q (powOmega2 (c tameSigma) • ·)) = 2 ^ (2 * m - 1) + 2 ^ (m - 1) := by
+  sorry
+
+/-- **The ramified zero count from action-level hypotheses**: the A-4.5b actionization
+pushed through `qDouble` — the faithful quotient has the same `σ₂`-action values
+(`powOmega2_map` along `mk'`), the action-level `hram` element-izes, and the (sorried)
+faithful-level count applies verbatim. -/
 theorem zeroCount_qDouble_ramified_of_action {C : Type} [Group C] [TopologicalSpace C]
     [DiscreteTopology C] [Finite C] {V : Type} [AddCommGroup V] [Finite V]
     [DistribMulAction C V]
@@ -1082,7 +1098,76 @@ theorem zeroCount_qDouble_ramified_of_action {C : Type} [Group C] [TopologicalSp
     (hinv : IsInvariant C q)
     (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
     zeroCount (qDouble q (powOmega2 (c tameSigma) • ·)) = 2 ^ (2 * m - 1) + 2 ^ (m - 1) := by
-  sorry
+  classical
+  -- the faithful quotient (the A-4.5b actionization, verbatim)
+  set K : Subgroup C :=
+    { carrier := {g : C | ∀ v : V, g • v = v}
+      one_mem' := fun v => one_smul C v
+      mul_mem' := fun {a b} ha hb v => by rw [mul_smul, hb v, ha v]
+      inv_mem' := fun {a} ha v => inv_smul_eq_iff.mpr (ha v).symm } with hK
+  haveI hKn : K.Normal :=
+    ⟨fun a ha g v => by rw [mul_smul, mul_smul, ha (g⁻¹ • v), smul_inv_smul]⟩
+  letI instTQ : TopologicalSpace (C ⧸ K) := ⊥
+  haveI instDQ : DiscreteTopology (C ⧸ K) := ⟨rfl⟩
+  letI instAQ : DistribMulAction (C ⧸ K) V :=
+    { smul := fun x v => Quotient.liftOn' x (fun g => g • v) (fun a b hab => by
+        rw [QuotientGroup.leftRel_apply] at hab
+        show a • v = b • v
+        have hb : b = a * (a⁻¹ * b) := by group
+        rw [hb, mul_smul, hab v])
+      one_smul := fun v => one_smul C v
+      mul_smul := fun x y v => Quotient.inductionOn₂' x y fun a b => mul_smul a b v
+      smul_zero := fun x => Quotient.inductionOn' x fun a => smul_zero a
+      smul_add := fun x v w => Quotient.inductionOn' x fun a => smul_add a v w }
+  have hval : ∀ (g : C) (v : V), (QuotientGroup.mk g : C ⧸ K) • v = g • v :=
+    fun g v => rfl
+  set c' : ContinuousMonoidHom Ttame (C ⧸ K) :=
+    ⟨(QuotientGroup.mk' K).comp c.toMonoidHom,
+      (continuous_of_discreteTopology (f := ⇑(QuotientGroup.mk' K))).comp
+        c.continuous_toFun⟩ with hc'
+  have hc'surj : Function.Surjective ⇑c' := fun y => by
+    obtain ⟨x, rfl⟩ := QuotientGroup.mk'_surjective K y
+    obtain ⟨t, ht⟩ := hc x
+    exact ⟨t, by show QuotientGroup.mk' K (c t) = _; rw [ht]⟩
+  have hfaith' : ∀ g : C ⧸ K, (∀ v : V, g • v = v) → g = 1 := by
+    intro g hg
+    obtain ⟨x, rfl⟩ := QuotientGroup.mk_surjective g
+    rw [QuotientGroup.eq_one_iff]
+    exact fun v => (hval x v).symm.trans (hg v)
+  have hsimple' : ∀ W : AddSubgroup V,
+      (∀ (g : C ⧸ K), ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤ :=
+    fun W hW => hsimple W (fun g w hw => by
+      have h := hW (QuotientGroup.mk g) w hw
+      rwa [hval] at h)
+  have hinv' : IsInvariant (C ⧸ K) q := by
+    intro g v
+    obtain ⟨x, rfl⟩ := QuotientGroup.mk_surjective g
+    rw [hval]
+    exact hinv x v
+  -- the action-level ramification element-izes at the faithful quotient
+  have hram' : c' tameTau ≠ 1 := by
+    intro h1
+    obtain ⟨v, hv⟩ := hram
+    refine hv ?_
+    have hmem : c tameTau ∈ K := by
+      rw [show c' tameTau = QuotientGroup.mk' K (c tameTau) from rfl,
+        QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at h1
+      exact h1
+    exact hmem v
+  -- the `σ₂`-action is unchanged (`powOmega2` commutes with `mk'`)
+  have hfun : qDouble q (powOmega2 (c' tameSigma) • ·)
+      = qDouble q (powOmega2 (c tameSigma) • ·) := by
+    funext x
+    show q x + polar q x (powOmega2 (c' tameSigma) • x)
+      = q x + polar q x (powOmega2 (c tameSigma) • x)
+    have hσ₂ : powOmega2 (c' tameSigma) • x = powOmega2 (c tameSigma) • x := by
+      have h := powOmega2_map (QuotientGroup.mk' K) (c tameSigma)
+      rw [show c' tameSigma = QuotientGroup.mk' K (c tameSigma) from rfl, ← h]
+      exact hval (powOmega2 (c tameSigma)) x
+    rw [hσ₂]
+  rw [← hfun]
+  exact zeroCount_qDouble_ramified_of_faithful c' hc'surj hfaith' hsimple' hram'
+    q hq hns hinv' m hm hcard
 
 /-- **The ramified `V`-sum**: `∑ᶠ sign(qDouble) = +2^m` — the plus finale on the (sorried)
 ramified count. -/
