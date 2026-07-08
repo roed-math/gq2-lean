@@ -257,6 +257,145 @@ theorem smul_mem_ker_aeval {t g : C} {j : ℕ} (hconj : g⁻¹ * t * g = t ^ 2 ^
 
 end PolyFrobenius
 
+/-! ## §SingleIsotype: `V` is killed by ONE irreducible factor of `X^d − 1`
+
+Design doc §2–3, with a lighter route than torsion-internal-decomposition: if every
+irreducible-factor kernel were `⊥`, every `Q(t̂)` would be injective, so their product
+`(X^d − 1)(t̂) = 0` would be injective on `V ≠ 0` — contradiction.  The nonzero kernel
+is `C`-stable (§PolyFrobenius + §TwoPowerConj), so `hsimple` promotes it to `⊤`. -/
+
+section SingleIsotype
+
+open Polynomial
+
+variable {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [Module (ZMod 2) V]
+  [DistribMulAction C V]
+
+/-- A product of injective endomorphisms is injective (`List`-form — `Module.End` is
+noncommutative, so no `Multiset.prod`). -/
+theorem list_prod_injective (L : List (Module.End (ZMod 2) V))
+    (h : ∀ f ∈ L, Function.Injective f) :
+    Function.Injective (L.prod : Module.End (ZMod 2) V) := by
+  induction L with
+  | nil =>
+    rw [List.prod_nil]
+    intro a b hab
+    rwa [Module.End.one_apply, Module.End.one_apply] at hab
+  | cons f L ih =>
+    rw [List.prod_cons]
+    have hcomp : ⇑(f * L.prod) = ⇑f ∘ ⇑(L.prod) := rfl
+    rw [show Function.Injective ⇑(f * L.prod)
+        ↔ Function.Injective (⇑f ∘ ⇑(L.prod)) from by rw [hcomp]]
+    exact (h f (List.mem_cons_self ..)).comp
+      (ih fun g hg => h g (List.mem_cons_of_mem f hg))
+
+/-- `(X^d − 1)(t̂) = 0` for `d := orderOf t`. -/
+theorem aeval_X_pow_orderOf_sub_one (t : C) :
+    Polynomial.aeval (actEnd (V := V) t) (X ^ orderOf t - 1 : Polynomial (ZMod 2)) = 0 := by
+  rw [map_sub, map_one, map_pow, Polynomial.aeval_X, ← actEnd_pow, pow_orderOf_eq_one]
+  ext v
+  show (actEnd (V := V) 1 - (1 : Module.End (ZMod 2) V)) v = (0 : Module.End (ZMod 2) V) v
+  rw [LinearMap.sub_apply, LinearMap.zero_apply, Module.End.one_apply]
+  show (1 : C) • v - v = 0
+  rw [one_smul, sub_self]
+
+/-- **The single isotype** (design doc §2–3): with `C = ⟨s,t⟩`, `t` of odd order, and
+`V` a nonzero simple `C`-module, there is ONE monic irreducible `P ∣ X^d − 1` with
+`P(t̂) = 0` on all of `V`. -/
+theorem exists_single_isotype [Finite V] (s t : C)
+    (hgen : Subgroup.closure ({s, t} : Set C) = ⊤)
+    (hrel : s⁻¹ * t * s = t ^ 2)
+    (hodd : Odd (orderOf t)) (hpos : 0 < orderOf t)
+    (hsimple : ∀ W : AddSubgroup V, (∀ g : C, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hVne : ∃ v : V, v ≠ 0) :
+    ∃ P : Polynomial (ZMod 2), P.Monic ∧ Irreducible P
+      ∧ P ∣ (X ^ orderOf t - 1 : Polynomial (ZMod 2))
+      ∧ ∀ v : V, Polynomial.aeval (actEnd (V := V) t) P v = 0 := by
+  classical
+  set d := orderOf t with hd
+  have hXd : (X ^ d - 1 : Polynomial (ZMod 2)) ≠ 0 := by
+    have h := Polynomial.X_pow_sub_C_ne_zero (R := ZMod 2) hpos (1 : ZMod 2)
+    rwa [Polynomial.C_1] at h
+  -- some normalized factor has a nonzero kernel
+  have hfac : ∃ Q ∈ UniqueFactorizationMonoid.normalizedFactors
+      (X ^ d - 1 : Polynomial (ZMod 2)),
+      ∃ v : V, v ≠ 0 ∧ Polynomial.aeval (actEnd (V := V) t) Q v = 0 := by
+    by_contra hcon
+    push_neg at hcon
+    have hinj : ∀ f ∈ (UniqueFactorizationMonoid.normalizedFactors
+        (X ^ d - 1 : Polynomial (ZMod 2))).toList.map
+          (fun Q => Polynomial.aeval (actEnd (V := V) t) Q),
+        Function.Injective f := by
+      intro f hf
+      obtain ⟨Q, hQ, rfl⟩ := List.mem_map.mp hf
+      have hQmem := Multiset.mem_toList.mp hQ
+      intro a b hab
+      have hker : Polynomial.aeval (actEnd (V := V) t) Q (a - b) = 0 := by
+        rw [map_sub, hab, sub_self]
+      by_contra hne
+      exact (hcon Q hQmem (a - b) (sub_ne_zero.mpr hne)) hker
+    have hprodinj := list_prod_injective _ hinj
+    have hprodeq : ((UniqueFactorizationMonoid.normalizedFactors
+          (X ^ d - 1 : Polynomial (ZMod 2))).toList.map
+            (fun Q => Polynomial.aeval (actEnd (V := V) t) Q)).prod
+        = Polynomial.aeval (actEnd (V := V) t) (X ^ d - 1 : Polynomial (ZMod 2)) := by
+      rw [← map_list_prod]
+      congr 1
+      rw [Multiset.prod_toList]
+      have hassoc := UniqueFactorizationMonoid.prod_normalizedFactors hXd
+      have hmonprod : ((UniqueFactorizationMonoid.normalizedFactors
+          (X ^ d - 1 : Polynomial (ZMod 2))).prod).Monic := by
+        refine Multiset.prod_induction _ _ (fun a b ha hb => ha.mul hb)
+          Polynomial.monic_one (fun Q hQ => ?_)
+        have hnorm := UniqueFactorizationMonoid.normalize_normalized_factor Q hQ
+        have hmon := Polynomial.monic_normalize (R := ZMod 2)
+          (UniqueFactorizationMonoid.irreducible_of_normalized_factor Q hQ).ne_zero
+        rwa [hnorm] at hmon
+      have hXdmon : (X ^ d - 1 : Polynomial (ZMod 2)).Monic := by
+        have h := Polynomial.monic_X_pow_sub_C (R := ZMod 2) (1 : ZMod 2) (by omega : d ≠ 0)
+        rwa [Polynomial.C_1] at h
+      exact Polynomial.eq_of_monic_of_associated hmonprod hXdmon hassoc
+    rw [hprodeq, aeval_X_pow_orderOf_sub_one] at hprodinj
+    obtain ⟨v, hv⟩ := hVne
+    refine hv (hprodinj ?_)
+    show (0 : Module.End (ZMod 2) V) v = (0 : Module.End (ZMod 2) V) 0
+    rw [LinearMap.zero_apply, LinearMap.zero_apply]
+  obtain ⟨Q, hQmem, v₀, hv₀ne, hv₀ker⟩ := hfac
+  have hQne : Q ≠ 0 :=
+    (UniqueFactorizationMonoid.irreducible_of_normalized_factor Q hQmem).ne_zero
+  refine ⟨Q, ?_, UniqueFactorizationMonoid.irreducible_of_normalized_factor Q hQmem,
+    UniqueFactorizationMonoid.dvd_of_mem_normalizedFactors hQmem, ?_⟩
+  · -- monic: normalized factors over a field are monic
+    have hnorm := UniqueFactorizationMonoid.normalize_normalized_factor Q hQmem
+    have hmon := Polynomial.monic_normalize (R := ZMod 2) hQne
+    rwa [hnorm] at hmon
+  · -- the kernel is a `C`-stable subgroup, nonzero at `v₀`, hence everything
+    set K : AddSubgroup V :=
+      { carrier := {v : V | Polynomial.aeval (actEnd (V := V) t) Q v = 0}
+        zero_mem' := map_zero _
+        add_mem' := fun {a b} ha hb => by
+          show Polynomial.aeval (actEnd (V := V) t) Q (a + b) = 0
+          rw [map_add]
+          rw [show Polynomial.aeval (actEnd (V := V) t) Q a = 0 from ha,
+            show Polynomial.aeval (actEnd (V := V) t) Q b = 0 from hb, add_zero]
+        neg_mem' := fun {a} ha => by
+          show Polynomial.aeval (actEnd (V := V) t) Q (-a) = 0
+          rw [map_neg, show Polynomial.aeval (actEnd (V := V) t) Q a = 0 from ha,
+            neg_zero] } with hK
+    have hstab : ∀ g : C, ∀ w ∈ K, g • w ∈ K := fun g w hw => by
+      obtain ⟨j, hj⟩ := (conj_eq_two_pow s t hgen hrel hodd hpos g).1
+      exact smul_mem_ker_aeval hj Q w hw
+    rcases hsimple K hstab with hbot | htop
+    · exfalso
+      have hmem : v₀ ∈ K := hv₀ker
+      rw [hbot] at hmem
+      exact hv₀ne (AddSubgroup.mem_bot.mp hmem)
+    · intro v
+      have hmem : v ∈ K := by rw [htop]; exact AddSubgroup.mem_top v
+      exact hmem
+
+end SingleIsotype
+
 end RamifiedPack
 
 end GQ2
