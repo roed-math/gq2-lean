@@ -60,6 +60,18 @@ def link(nid, label=None):
     return f"[`{label or nid}`]({n['filePath']}{anchor})"
 
 
+def lines(nid):
+    """Visible line marker (en-dash range), e.g. `L58` or `L58–60`."""
+    n = nodes[nid]
+    a, b = n.get("lineStart"), n.get("lineEnd")
+    return f"L{a}" if a == b else f"L{a}–{b}"
+
+
+def by_line(nid):
+    n = nodes[nid]
+    return (n.get("lineStart") or 0, n.get("lineEnd") or 0, nid)
+
+
 fc = reachable(TARGET, full)
 cc = reachable(TARGET, comp)
 axioms = sorted(fc & {i for i, n in nodes.items() if n["kind"] == "axiom"})
@@ -83,17 +95,17 @@ for i in cc:
     byfile[nodes[i]["filePath"]].append(i)
 for fp in sorted(byfile):
     w(f"### [`{fp}`]({fp})")
-    for i in sorted(byfile[fp]):
+    for i in sorted(byfile[fp], key=by_line):  # source order → consecutive runs read as a block
         tag = "thm" if nodes[i]["kind"] == "theorem" else "def"
-        w(f"- **[{tag}]** {link(i)}")
+        w(f"- `{lines(i)}` **[{tag}]** {link(i)}")
     w("")
 
 w(f"## 2. Axioms the proof rests on ({len(axioms)})\n")
 w("The custom axioms in the full closure of the target — its trust base (`#print axioms`, "
   "minus the `propext`/`Classical.choice`/`Quot.sound` core). Every one genuinely feeds the "
   "proof.\n")
-for a in axioms:
-    w(f"- {link(a)}")
+for a in sorted(axioms, key=by_line):
+    w(f"- `{lines(a)}` {link(a)}")
 w("")
 
 open(OUTPUT, "w").write("\n".join(out))
