@@ -25,7 +25,7 @@ file (merge-safety, `docs/orchestration/b7prime-b34-coordination.md` precedent);
 | B13-0 | ☑ 07-09 | O | Recon: instance incantations at `↥k`, card-lemma forms, ball-compactness path | ¼ | — |
 | B13-1 | ☑ 07-09 | O | Topology layer: `unitBall`/`dyadicBall`, `O/2O` finite, pigeonhole (`UnitFiltrationTop.lean`) | ½–1 | B13-0 |
 | B13-2 | ⬜ | O | Uniformizer: gap pigeonhole + attainment + `hπ_max`, `he`, `𝔪 = πO` | ½–1 | B13-1 |
-| B13-3 | ⬜ | O | Residue field `O/𝔪`: finite, field, char 2, `2^f` (hypothesis-π form ok) | ½ | B13-1 (∥ B13-2 vs interface) |
+| B13-3 | ☑ 07-09 | O | Residue field `O/𝔪`: finite, field, char 2, `2^f` (hypothesis-π form ok) | ½ | B13-1 (∥ B13-2 vs interface) |
 | B13-4 | ⬜ | O | Graded isomorphisms + the two `Nat.card` counts | 1 | B13-2 ∧ B13-3 |
 | B13-5 | ⬜ | O | Capstone `dyadicUnitFiltration'` + census flip (**user gate**) | ½ | B13-4 |
 
@@ -108,12 +108,29 @@ conclusion in the power form `‖x‖ ^ M ≤ ‖2‖` (no `rpow`).  Attainment 
 `‖π‖^e ≥ ‖2‖` (`Nat.find` on the complement; `e ≥ 1` from `‖π‖ ≥ ‖2‖` at `x = 2`); the
 `2/π^e`-unit argument ⟹ `he`.  The **exchange** `‖x‖ < 1 ⟺ ‖x‖ ≤ ‖π‖` and `𝔪 = πO`.
 
-## B13-3 — residue field  (O, ½ session; lane B, `GQ2/UnitFiltrationCounts.lean`)
+## B13-3 — residue field  ☑ done 2026-07-09 (commit pending; `GQ2/UnitFiltrationCounts.lean`)
 
-Plan §1(R), stated over hypothesis-`π` (`hπ_max` assumption) if lane A is in flight:
-`O/𝔪` finite (`𝔪` open in compact `O`), domain (norm multiplicativity), field
-(`Finite.isField_of_domain`), char 2 (`2 ∈ 𝔪`), `#(O/𝔪) = 2^f` with `f ≥ 1`
-(`FiniteField.card`; `1 ∉ 𝔪`), `#(O/𝔪)ˣ = 2^f − 1` (`Fintype.card_units`).
+Delivered (all std-3; `lake build` green 8593 jobs; guard census 12).  **Decoupled from B13-2
+entirely** — `𝔪` is defined **intrinsically** as `{‖x‖ < 1}` (the non-units), *not* via a
+uniformizer, so no `hπ_max` hypothesis was needed and the file is independent of lane A.  Public
+API (namespace `GQ2.UnitFiltrationCounts`, for B13-4/B13-5):
+- `Osub k : Subring ↥k` (`{‖x‖ ≤ 1}`; `mul_mem'` via `mul_le_one₀`, `add_mem'` via
+  `norm_add_le_max`) + its `CompactSpace` (carrier = `closedBall 0 1`, `refine
+  isCompact_iff_compactSpace.mp` — B13-1's pattern).
+- `maxIdeal k : Ideal ↥(Osub k)` (`{‖·‖ < 1}`) + `@[simp] mem_maxIdeal`; `IsPrime` instance.
+- `Finite (↥(Osub k) ⧸ maxIdeal k)` (`AddSubgroup.quotient_finite_of_isOpen`; `𝔪` open via
+  `continuous_subtype_val.isOpen_preimage {‖·‖<1}`).
+- `ResidueField k` (abbrev) + `noncomputable instance : Field` via `(Finite.isField_of_domain
+  _).toField` (reuses the `Ideal.Quotient` `CommRing`, diamond-free).
+- `norm_two_lt_one` (`‖(2:ℚ̄₂)‖ < 1` via `norm_algebraMap'` + `Padic.norm_p`), `two_eq_zero`,
+  and `CharP (ResidueField k) 2` (from `(2:F)=0` via `CharP.exists` + `CharP.char_is_prime` +
+  `cast_eq_zero_iff` + `Nat.prime_dvd_prime_iff_eq`).
+- **`residue_card`** — `∃ f, 1 ≤ f ∧ Nat.card (O/𝔪) = 2^f ∧ Nat.card (O/𝔪)ˣ = 2^f − 1`
+  (`FiniteField.card` + `Nat.card_eq_fintype_card` + `Fintype.card_units`).
+
+Note for B13-4: the reduction map is `Ideal.Quotient.mk (maxIdeal k)`; the residue field is a
+finite field, so `frobeniusEquiv`/`FiniteField` API applies.  (`Field` instance is `.toField`,
+not `Ideal.Quotient.field` — the `IsMaximal`→auto-`Field` path did *not* fire on the abbrev.)
 
 ## B13-4 — graded isomorphisms + counts  (O, 1 session; lane B)
 
