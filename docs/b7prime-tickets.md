@@ -23,7 +23,7 @@ of `Foundations/Axioms.lean`; **do not edit `GQ2/HilbertSymbol.lean`** (shared).
 | B7′-1 | ☑ 07-09 | O | `DyadicSquares.lean`: the mod-8 square criterion (Hensel) | ½–1 | B7′-0 |
 | B7′-2 | ☑ 07-09 | O | Identities restore (git) + norm-form/Brahmagupta + parity reduction (in `HilbertSymbolDyadic.lean`) | ¾–1 | B7′-0 (final dispatch also B7′-1) |
 | B7′-3 | ⬜ | O | Necessity engine: integralize + descent + mod transfer + 11 `decide` leaves | 1–1½ | B7′-1 ∧ B7′-2 |
-| B7′-4 | ⬜ | O | Sufficiency engine: value glue + 7 witness leaves + square-left freebies | ½ | B7′-1 ∧ B7′-2 |
+| B7′-4 | ☑ 07-09 | O | Sufficiency engine: value glue + 7 witness leaves + square-left freebies | ½ | B7′-1 ∧ B7′-2 |
 | B7′-5 | ⬜ | O | Assembly pyramid + capstone + census flip (**user gate**) | ¾ | B7′-3 ∧ B7′-4 |
 
 Est. in lane-sessions (~½–1 day each).  **B7′-3 ∥ B7′-4**; B7′-1 ∥ B7′-2 (except the dispatch
@@ -127,20 +127,27 @@ where it would surface); (b) a leaf's mod-8 `decide` is *true-but-insufficient* 
 obstruction needs mod 16): switch that leaf to `k = 4`; if a leaf resists mod 16, stop and
 escalate — that would contradict the classical table and means a statement-shape error.
 
-## B7′-4 — sufficiency engine  (O, ½ session; ∥ B7′-3)
+## B7′-4 — sufficiency engine  ☑ done 2026-07-09 (commit pending)
 
-**⚠ Coordination (B7′-3 ∥ B7′-4): [`b7prime-b34-coordination.md`](b7prime-b34-coordination.md).**
-Separate files (merge-safety) — B7′-4 → new `GQ2/HilbertSymbolSufficiency.lean`; **do not edit
-`HilbertSymbolDyadic.lean`** (import it — shared coercion helpers `unit2_coe`/`unitCoe_coe` are
-already there).
+Delivered in `GQ2/HilbertSymbolSufficiency.lean` (imports `GQ2.HilbertSymbolDyadic` +
+`GQ2.DyadicSquares`, namespace `GQ2.HilbertSymbol`; **did not touch `HilbertSymbolDyadic.lean`**,
+used the shared `unit2_coe`/`unitCoe_coe`).  All decls std-3; `lake build` green (8586 jobs);
+guard all-pass census 13.  **Public API for B7′-5 dispatch:**
+- `hilbertSymbol_eq_one_of_value (x y w : ℤ_[2]) (hw : toZModPow 3 w = 1) (heq : …·↑x²+…·↑y² = ↑w)`
+  — the Hensel value glue (`DyadicSquares.isSquare_of_toZModPow_eq_one` → root `t`, `t ≠ 0` via
+  `PadicInt.coe_eq_zero`, witness `(↑x,↑y,↑t)`).
+- 7 witness leaves: `hilbertSymbol_uu_{35,55,57}` (unit·unit) + `hilbertSymbol_u2v_{33,37,71,75}`
+  ((u,2v)); each `refine`s the glue at the plan-§1 witness (values `17/25/33` resp. `9/17`, all
+  `≡ 1 mod 8` — residue goals by `simp only [map_add, map_mul, map_ofNat, hu, hv]; decide`).
+- `hilbertSymbol_left_one (hu : toZModPow 3 ↑u = 1) (b)` — the `u ≡ 1` freebie (any `b`), via
+  `hilbertSymbol_isSquare_left`.  **B7′-5**: `v ≡ 1` cases go through `hilbertSymbol_comm` + this.
+- The residue→leaf map for B7′-5 is documented in the file's module docstring.
 
-Plan §4-B7′-4: `hilbertSymbol_eq_one_of_value` (value `≡ 1 (mod 8)` ⟹ Hensel root `t` ⟹
-`(x, y, t)` solves; `z ≠ 0` gives nontriviality), the **7 explicit-witness leaves**
-(witnesses `(1,1)/(1,2)/(2,1)`, values `9/17/25/33` — table in plan §1), and the `u₀ = 1`
-freebie family.  Needs the one sub-lemma `2u mod 16` from `u mod 8` for the `(u, 2v)` values.
+Gotcha (recorded for B7′-3, which hits the same coercions): `push_cast` has **no `coe_ofNat`**
+for `PadicInt` (only `coe_natCast`/`coe_intCast`), so `((4:ℤ₂):ℚ₂)` doesn't normalise — feed it
+two `private` helpers `padic_coe_two`/`padic_coe_four` (`by norm_cast`) into `push_cast [...]`.
 
-*Model note*: O — witnesses are pre-computed in the plan; each leaf is `norm_num`/`decide`
-arithmetic feeding one glue lemma.
+*Model note*: O — witnesses pre-computed in the plan; one `push_cast`-numeral snag (above).
 
 ## B7′-5 — assembly + capstone + census flip  (O, ¾ session; **user-approval gate**)
 
