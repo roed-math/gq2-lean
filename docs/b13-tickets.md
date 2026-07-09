@@ -23,7 +23,7 @@ file (merge-safety, `docs/orchestration/b7prime-b34-coordination.md` precedent);
 | # | St | Model | Ticket | Est. | Deps |
 |---|----|-------|--------|------|------|
 | B13-0 | ☑ 07-09 | O | Recon: instance incantations at `↥k`, card-lemma forms, ball-compactness path | ¼ | — |
-| B13-1 | ⬜ | O | Topology layer: instances, ball subring `O`, open balls, `O/2O` finite | ½–1 | B13-0 |
+| B13-1 | ☑ 07-09 | O | Topology layer: `unitBall`/`dyadicBall`, `O/2O` finite, pigeonhole (`UnitFiltrationTop.lean`) | ½–1 | B13-0 |
 | B13-2 | ⬜ | O | Uniformizer: gap pigeonhole + attainment + `hπ_max`, `he`, `𝔪 = πO` | ½–1 | B13-1 |
 | B13-3 | ⬜ | O | Residue field `O/𝔪`: finite, field, char 2, `2^f` (hypothesis-π form ok) | ½ | B13-1 (∥ B13-2 vs interface) |
 | B13-4 | ⬜ | O | Graded isomorphisms + the two `Nat.card` counts | 1 | B13-2 ∧ B13-3 |
@@ -79,13 +79,25 @@ gives the closed ball *directly* as a bundled `OpenAddSubgroup ↥k` — the pla
 `Oball`/`twoOball` (above) + `M := Nat.card (↥O ⧸ (2O).addSubgroupOf O)`; the `Subring Osub`
 and `𝔪`-ideal move to B13-3 (they carry the multiplicative structure the counts need).
 
-## B13-1 — topology layer  (O, ½ session; lane A, `GQ2/UnitFiltrationTop.lean`)
+## B13-1 — topology layer  ☑ DONE 2026-07-09 (commit below; `GQ2/UnitFiltrationTop.lean`, registered)
 
-**Shortened by B13-0.3**: the balls are `OpenAddSubgroup`s off the shelf
-(`IsUltrametricDist.closedBall_openAddSubgroup`), so this ticket is just: define `Oball`/`twoOball`
-(B13-0.3 code), the `CompactSpace ↥(Oball k).toAddSubgroup` instance, `Finite (↥O ⧸ (2O).addSubgroupOf O)`,
-and `M := Nat.card (↥O ⧸ (2O).addSubgroupOf O)`, plus the membership/`≤`-monotonicity helpers the
-gap lemma consumes.  (The `Subring Osub` moves to B13-3.)
+**Landed** (all std-3, `lean_verify` on `exists_pow_sub_dyadic` = std-3, full `lake build GQ2` green):
+`unitBall`/`dyadicBall : OpenAddSubgroup ↥k` (off `closedBall_openAddSubgroup`), `@[simp]`
+`mem_unitBall`/`mem_dyadicBall`, `unitBall_pow_mem`, the `CompactSpace ↥(unitBall k).toAddSubgroup`
+and `Finite (↥O ⧸ (dyadicBall).addSubgroupOf (unitBall))` instances, and the deliverable pigeonhole
+
+```lean
+theorem exists_pow_sub_dyadic {x : ↥k} (hx : ‖x‖ ≤ 1) :
+    ∃ i j : ℕ, i < j ∧ ‖x ^ i - x ^ j‖ ≤ ‖(2 : ℚ̄₂)‖
+```
+
+(`Fintype.exists_ne_map_eq_of_card_lt` on `i ↦ ⟦xⁱ⟧ ∈ O/2O`; `QuotientAddGroup.eq_iff_sub_mem` +
+`AddSubgroup.mem_addSubgroupOf` extract the ball membership; `norm_sub_rev` handles the WLOG).
+
+**For B13-2**: call `exists_pow_sub_dyadic` (with `‖x‖ ≤ 1` from `‖x‖ < 1`), then factor
+`xⁱ − xʲ = xⁱ(1 − xʲ⁻ⁱ)`: for `‖x‖ < 1`, `‖1 − xʲ⁻ⁱ‖ = 1` (ultrametric), so `‖x‖ⁱ ≤ ‖2‖`, and
+`i = 0` is impossible (`‖1 − x^{j}‖ = 1 > ‖2‖`) ⟹ `i ≥ 1`.  `M` was folded into the pigeonhole
+(internal `Fintype.card`), not exported.  The unit-ball `Subring Osub` + residue field are B13-3.
 
 ## B13-2 — uniformizer + normalization  (O, ½–1 session; lane A)
 

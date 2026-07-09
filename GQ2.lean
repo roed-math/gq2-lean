@@ -84,6 +84,7 @@ import GQ2.RegularSummand
 import GQ2.KappaNormalForm
 import GQ2.HomCounting
 import GQ2.UnitFiltration
+import GQ2.UnitFiltrationTop
 import GQ2.KummerFiltration
 import GQ2.AdmissibleCount
 import GQ2.DeepDuality
