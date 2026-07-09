@@ -26,7 +26,7 @@ file (merge-safety, `docs/orchestration/b7prime-b34-coordination.md` precedent);
 | B13-1 | ☑ 07-09 | O | Topology layer: `unitBall`/`dyadicBall`, `O/2O` finite, pigeonhole (`UnitFiltrationTop.lean`) | ½–1 | B13-0 |
 | B13-2 | ☑ 07-09 | O | Uniformizer: gap + attainment + `hπ_max` + `he` (`UnitFiltrationTop.lean`) | ½–1 | B13-1 |
 | B13-3 | ☑ 07-09 | O | Residue field `O/𝔪`: finite, field, char 2, `2^f` (hypothesis-π form ok) | ½ | B13-1 (∥ B13-2 vs interface) |
-| B13-4 | ⬜ | O | Graded isomorphisms + the two `Nat.card` counts | 1 | B13-2 ∧ B13-3 |
+| B13-4 | ☑ 07-09 | O | Graded isomorphisms + the two `Nat.card` counts (`UnitFiltrationCounts.lean`) | 1 | B13-2 ∧ B13-3 |
 | B13-5 | ⬜ | O | Capstone `dyadicUnitFiltration'` + census flip (**user gate**) | ½ | B13-4 |
 
 Est. in lane-sessions.  Limited parallelism: **B13-3 ∥ B13-2** if lane B states its layer over
@@ -148,12 +148,28 @@ Note for B13-4: the reduction map is `Ideal.Quotient.mk (maxIdeal k)`; the resid
 finite field, so `frobeniusEquiv`/`FiniteField` API applies.  (`Field` instance is `.toField`,
 not `Ideal.Quotient.field` — the `IsMaximal`→auto-`Field` path did *not* fire on the abbrev.)
 
-## B13-4 — graded isomorphisms + counts  (O, 1 session; lane B)
+## B13-4 — graded isomorphisms + counts  ☑ DONE 2026-07-09 (commit `9fbb14d`; `UnitFiltrationCounts.lean`)
 
-Plan §1(G).  Two homs with kernel + surjectivity, then `Nat.card` transport
-(`QuotientGroup.quotientKerEquivOfSurjective` + `Nat.card_congr`, the B12-1 idiom) to the
-**exact** `DyadicUnitFiltration`-field shapes
-(`Nat.card (↥(normUnits k) ⧸ (depthUnits k π 1).subgroupOf (normUnits k))` etc.):
+**Landed** (all std-3, `check_axioms` green, own-file build green).  Appended to lane B's
+`UnitFiltrationCounts.lean` (namespace `GQ2.UnitFiltrationCounts`), parameterized by a uniformizer
+`π : ↥k` (B13-2's `exists_uniformizer`):
+
+* `gradeZeroHom : U⁰ →* (O/𝔪)ˣ` (`normUnitToOsubUnit` then `Units.map (Ideal.Quotient.mk 𝔪)`);
+  `gradeZeroHom_ker = U¹` (the `‖x‖ < 1 ↔ ‖x‖ ≤ ‖π‖` exchange), `gradeZeroHom_surjective`,
+  hence `card_gradeZero : #(U⁰/U¹) = #(O/𝔪)ˣ`.
+* `gradeIHom : U^{(i)} →* Multiplicative (O/𝔪)` (`u ↦ (u−1)/πⁱ mod 𝔪`, `i ≥ 1`) — the hom law is
+  **`depthRes_add`**, the cross-term `(u−1)(v−1)/πⁱ` having residue 0 (norm `≤ ‖π‖ⁱ < 1`);
+  `gradeIHom_ker = U^{(i+1)}` (the **scaled exchange** `‖x‖ < ‖π‖ⁱ ↔ ‖x‖ ≤ ‖π‖^{i+1}`),
+  `gradeIHom_surjective` (witness `1 + a·πⁱ`), hence `card_gradeI : #(U^i/U^{i+1}) = #(O/𝔪)`.
+* **`exists_gradeCounts`** (the B13-5 input): `∃ f ≥ 1, #(U⁰/U¹) = 2^f − 1 ∧ ∀ i ≥ 1,
+  #(U^i/U^{i+1}) = 2^f` — the isos composed with B13-3's `residue_card`.
+
+`Nat.card` transport is `Nat.card_congr (QuotientGroup.quotientKerEquivOfSurjective … ).toEquiv`
+(the B12-1 idiom); `Nat.card (Multiplicative X) = Nat.card X` by `rfl` (type synonym).  **B13-5** now
+has all four structure inputs: π + e (B13-2) and f + the graded counts (here).
+
+*(Original ticket text.)*  Plan §1(G).  Two homs with kernel + surjectivity, then `Nat.card`
+transport to the **exact** `DyadicUnitFiltration`-field shapes:
 
 - `U⁰ →* (O/𝔪)ˣ`, `u ↦ ū`; kernel `U¹`; surjective via the exchange (`a ∈ O ∖ 𝔪 ⟹ ‖a‖ = 1`).
 - `U^{(i)} →* Multiplicative (O/𝔪)` (`i ≥ 1`), `u ↦ ((u−1)/π^i)‾`; hom law via the cross-term
