@@ -1,9 +1,9 @@
-import GQ2.Phase140Assembly
+import GQ2.Phase140.Assembly
 import GQ2.WordCohBridge
 import GQ2.DualityAssembly
 import GQ2.FinitelyGenerated
 import GQ2.HalfTorsorGammaA
-import GQ2.RStageGammaA
+import GQ2.RStage.GammaA
 import GQ2.Half139Local
 import GQ2.CardH2GammaA
 

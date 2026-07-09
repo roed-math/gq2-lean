@@ -1,5 +1,5 @@
-import GQ2.RadicalEdgeBridge
-import GQ2.BlockFrameBounds
+import GQ2.RadicalEdge.Bridge
+import GQ2.Block.FrameBounds
 import GQ2.FinitelyGenerated
 
 /-!

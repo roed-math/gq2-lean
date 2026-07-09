@@ -1,4 +1,4 @@
-import GQ2.RadicalEdgeBridge
+import GQ2.RadicalEdge.Bridge
 import GQ2.AffineTLift
 
 /-!

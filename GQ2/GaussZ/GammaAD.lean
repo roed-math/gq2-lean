@@ -1,5 +1,5 @@
-import GQ2.GaussZFinalGammaA
-import GQ2.GaussZFinalD
+import GQ2.GaussZ.FinalGammaA
+import GQ2.GaussZ.FinalD
 
 /-!
 # P-16d6e4aA-P4d — the `Γ_A` `GaussZResidue` twins at the head-inflated enrichment

@@ -2,7 +2,7 @@ import GQ2.AdmissibleCount
 import GQ2.DeepDuality
 import GQ2.RegularSummand
 import GQ2.Prop32
-import GQ2.ShapiroExtend
+import GQ2.Shapiro.Extend
 
 /-!
 # P-15f8 (increment 1): the parametric `lemma_6_17_dim` assembly

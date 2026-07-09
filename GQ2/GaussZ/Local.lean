@@ -1,6 +1,6 @@
-import GQ2.GaussZReduction
+import GQ2.GaussZ.Reduction
 import GQ2.IotaBridge
-import GQ2.ShapiroLedger
+import GQ2.Shapiro.Ledger
 import GQ2.UnramifiedModel
 import GQ2.DetRamified
 

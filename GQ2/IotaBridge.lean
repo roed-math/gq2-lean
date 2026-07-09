@@ -1,4 +1,4 @@
-import GQ2.PhaseObstruction
+import GQ2.Phase140.Obstruction
 import GQ2.SectionSix
 import GQ2.DeepPart
 

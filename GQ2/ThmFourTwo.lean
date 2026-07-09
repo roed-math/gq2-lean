@@ -1,7 +1,7 @@
 import GQ2.SectionNine
-import GQ2.BlockEnrichment
+import GQ2.Block.Enrichment
 import GQ2.Prop89Close
-import GQ2.GaussZGammaAD
+import GQ2.GaussZ.GammaAD
 
 /-!
 # Theorem 4.2 — the §9 sink  (P-17i)

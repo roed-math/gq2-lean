@@ -1,6 +1,6 @@
-import GQ2.RadicalEdgeBridge
+import GQ2.RadicalEdge.Bridge
 import GQ2.FiniteGroupLemmas
-import GQ2.BlockFrameImpl
+import GQ2.Block.FrameImpl
 import GQ2.SectionThreeMarked
 import GQ2.KappaNormalForm
 import GQ2.MStageCount

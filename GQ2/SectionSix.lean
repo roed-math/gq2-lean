@@ -10,7 +10,7 @@ import GQ2.HilbertLedger
 import GQ2.Prop32
 import GQ2.Corestriction
 import GQ2.OrbitData
-import GQ2.ShapiroLedger
+import GQ2.Shapiro.Ledger
 import GQ2.Transgression
 
 /-!

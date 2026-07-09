@@ -1,4 +1,4 @@
-import GQ2.BlockFormFields
+import GQ2.Block.FormFields
 
 /-!
 # §9 concrete block enrichment — `SectionNine.blockEnrichment`  (P-17d3)

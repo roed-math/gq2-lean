@@ -2,7 +2,7 @@ import GQ2.CentralObstruction
 import GQ2.LocalLiftingDuality
 import GQ2.WordCohBridge
 import GQ2.DualityAssembly
-import GQ2.RadicalEdgeLocal
+import GQ2.RadicalEdge.Local
 
 /-!
 # Lemma 8.6, `Γ_A` source: the duality half via `prop_5_15`  (ticket P-16c3)

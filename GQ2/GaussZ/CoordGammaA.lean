@@ -1,5 +1,5 @@
-import GQ2.GaussZLocal
-import GQ2.Phase140GammaA
+import GQ2.GaussZ.Local
+import GQ2.Phase140.GammaA
 
 /-!
 # P-16d6e4aA-1: the `Γ_A` (83)-coordinates — `Z¹⧸B¹` in word generator coordinates

@@ -1,8 +1,8 @@
-import GQ2.ShapiroDeepness
+import GQ2.Shapiro.Deepness
 import GQ2.RegularIsometry
 import GQ2.OrbitDecomp
 import GQ2.DimAssembly
-import GQ2.ShapiroRead
+import GQ2.Shapiro.Read
 import GQ2.InvolutionSplice
 import GQ2.AdmissibleCount
 

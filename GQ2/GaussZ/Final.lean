@@ -1,5 +1,5 @@
-import GQ2.GaussZLocal
-import GQ2.Phase140Local
+import GQ2.GaussZ.Local
+import GQ2.Phase140.Local
 
 /-!
 # P-16d6e4a — the local `GaussZResidue` discharge (the e7 composition)

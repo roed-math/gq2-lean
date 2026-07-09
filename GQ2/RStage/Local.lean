@@ -1,4 +1,4 @@
-import GQ2.BlockRStage
+import GQ2.Block.RStage
 import GQ2.LocalLiftingDuality
 
 /-!

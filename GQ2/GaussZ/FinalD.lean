@@ -1,6 +1,6 @@
-import GQ2.GaussZFinal
-import GQ2.GaussZCoordGammaA
-import GQ2.BlockHeadDat
+import GQ2.GaussZ.Final
+import GQ2.GaussZ.CoordGammaA
+import GQ2.Block.HeadDat
 
 /-!
 # P-16d6e4aA-P4c — the local `GaussZResidue` twins at the head-inflated enrichment

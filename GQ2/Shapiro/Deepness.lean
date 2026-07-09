@@ -1,6 +1,6 @@
 import GQ2.LocalKummer
 import GQ2.OrbitVanish
-import GQ2.ShapiroExtend
+import GQ2.Shapiro.Extend
 
 /-!
 # P-15f2c: Shapiro coordinates + scalar deepness (the `hvanish` producers)

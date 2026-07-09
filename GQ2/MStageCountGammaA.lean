@@ -1,5 +1,5 @@
 import GQ2.MStageCount
-import GQ2.RStageGammaA
+import GQ2.RStage.GammaA
 
 /-!
 # P-17i: the `Γ_A`-side `M`-stage multiplicity count (`hmultA`)

@@ -1,5 +1,5 @@
 import GQ2.DimClose
-import GQ2.ShapiroFiniteness
+import GQ2.Shapiro.Finiteness
 
 /-!
 # The residue-trivial tame lift — proved, no new axiom  (P-15f8)

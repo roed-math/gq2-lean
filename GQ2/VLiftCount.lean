@@ -1,5 +1,5 @@
 import GQ2.VCocycle
-import GQ2.PhaseObstruction
+import GQ2.Phase140.Obstruction
 
 /-!
 # P-16d6c1b: the affine `T`-lifting obstruction over the `V`-cocycle layer (Lemma 8.7, (131))

@@ -1,7 +1,7 @@
 import GQ2.SectionNine
 import GQ2.FrameEnrichment
-import GQ2.BlockDescent
-import GQ2.BlockChar
+import GQ2.Block.Descent
+import GQ2.Block.Char
 
 /-!
 # P-17d2b — the concrete block-form enrichment fields (scratch)

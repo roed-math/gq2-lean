@@ -1,5 +1,5 @@
-import GQ2.BlockFrameImpl
-import GQ2.RStageObstructionBuild
+import GQ2.Block.FrameImpl
+import GQ2.RStage.ObstructionBuild
 
 /-!
 # P-16d6a: the concrete R-stage obstruction datum + (136) for `blockFrame`

@@ -1,15 +1,15 @@
 import GQ2.KeystoneDelta
-import GQ2.RStageLocal
+import GQ2.RStage.Local
 import GQ2.Half139Local
 import GQ2.HalfTorsorGammaA
 import GQ2.FinitelyGenerated
-import GQ2.PhaseLIndep
-import GQ2.GaussZReduction
-import GQ2.Phase140Assembly
-import GQ2.RStageGammaA
-import GQ2.Phase140Local
+import GQ2.Phase140.LIndep
+import GQ2.GaussZ.Reduction
+import GQ2.Phase140.Assembly
+import GQ2.RStage.GammaA
+import GQ2.Phase140.Local
 import GQ2.CardH2GammaA
-import GQ2.Phase140GammaA
+import GQ2.Phase140.GammaA
 import GQ2.MStageCountGammaA
 
 /-!

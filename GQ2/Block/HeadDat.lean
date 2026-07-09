@@ -1,5 +1,5 @@
-import GQ2.BlockEnrichment
-import GQ2.ShapiroDeepness
+import GQ2.Block.Enrichment
+import GQ2.Shapiro.Deepness
 
 /-!
 # P-16d6e4aA-P4b — the head-inflated block enrichment (`blockEnrichmentD`)

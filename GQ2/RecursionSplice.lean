@@ -1,5 +1,5 @@
-import GQ2.RStageObstructionBuild
-import GQ2.RadicalEdgeBridge
+import GQ2.RStage.ObstructionBuild
+import GQ2.RadicalEdge.Bridge
 import GQ2.AffineTLift
 
 /-!

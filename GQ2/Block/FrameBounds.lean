@@ -1,4 +1,4 @@
-import GQ2.BlockFrameImpl
+import GQ2.Block.FrameImpl
 
 /-!
 # P-17g: the Lemma 9.4 descent bounds for `blockFrame`

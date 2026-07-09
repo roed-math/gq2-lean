@@ -1,6 +1,6 @@
-import GQ2.GaussZCoordGammaA
-import GQ2.GaussZRelatorGammaA
-import GQ2.GaussZFinal
+import GQ2.GaussZ.CoordGammaA
+import GQ2.GaussZ.RelatorGammaA
+import GQ2.GaussZ.Final
 import GQ2.RamifiedPack
 
 /-!

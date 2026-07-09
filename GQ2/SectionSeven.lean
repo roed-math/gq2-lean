@@ -1,7 +1,7 @@
 import GQ2.BoundaryFrame
 import GQ2.QuadraticFp2
 import GQ2.EvensKahn
-import GQ2.BlockModule
+import GQ2.Block.Module
 import GQ2.Prop32
 
 /-!

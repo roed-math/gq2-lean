@@ -1,6 +1,6 @@
 import GQ2.BoundaryFrame
-import GQ2.RadicalEdgeData
-import GQ2.RadicalEdgeLocal
+import GQ2.RadicalEdge.Data
+import GQ2.RadicalEdge.Local
 import GQ2.FrameEnrichment
 import GQ2.SectionSeven
 import GQ2.AppendixB

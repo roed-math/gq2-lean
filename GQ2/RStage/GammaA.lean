@@ -1,4 +1,4 @@
-import GQ2.RStageLocal
+import GQ2.RStage.Local
 import GQ2.WordCohBridge
 import GQ2.HalfTorsorGammaA
 import GQ2.FinitelyGenerated

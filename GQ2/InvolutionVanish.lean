@@ -1,4 +1,4 @@
-import GQ2.ShapiroDeepness
+import GQ2.Shapiro.Deepness
 import GQ2.QuadraticAdjoin
 
 /-!

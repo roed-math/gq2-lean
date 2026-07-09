@@ -1,4 +1,4 @@
-import GQ2.RStageGammaA
+import GQ2.RStage.GammaA
 
 /-!
 # P-16d6e6: `#H²(Γ_A, 𝔽₂) = 2`, unconditionally  (the `hcard_A` residue of P-16d6e5)

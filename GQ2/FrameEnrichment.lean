@@ -1,5 +1,5 @@
 import GQ2.FrattiniNongen
-import GQ2.RadicalEdgeData
+import GQ2.RadicalEdge.Data
 import GQ2.OrbitData
 
 /-!

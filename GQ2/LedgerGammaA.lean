@@ -1,5 +1,5 @@
 import GQ2.MixedBObs
-import GQ2.RadicalEdgeGammaA
+import GQ2.RadicalEdge.GammaA
 
 /-!
 # The `Γ_A` ledger identity: `obs(varCoc u) = mixedB`

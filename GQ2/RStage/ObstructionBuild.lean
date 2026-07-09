@@ -1,4 +1,4 @@
-import GQ2.RStageObstruction
+import GQ2.RStage.Obstruction
 import GQ2.CentralObstruction
 
 /-!
