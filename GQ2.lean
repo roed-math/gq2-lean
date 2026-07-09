@@ -26,6 +26,7 @@ import GQ2.DyadicSquares
 import GQ2.HilbertSymbolDyadic
 import GQ2.HilbertSymbolNecessity
 import GQ2.HilbertSymbolSufficiency
+import GQ2.HilbertSymbolDyadicClose
 import GQ2.Kummer
 import GQ2.Reciprocity
 import GQ2.MuN
