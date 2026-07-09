@@ -21,7 +21,7 @@ imports only `Mathlib + CupProduct + Kummer + Demushkin`).
 | # | St | Model | Ticket | Est. | Deps |
 |---|----|-------|--------|------|------|
 | B12-0 | ☑ 07-09 | O | Post-dedup recon: ingredients, Mathlib names, import DAG | ½ | — |
-| B12-1 | ⬜ | O | Hom/kernel layer + `kummerClassK_one` port | 1 | B12-0 ☑ |
+| B12-1 | ☑ 07-09 | O | Hom/kernel layer + `kummerClassK_one` port | 1 | B12-0 ☑ |
 | B12-2 | ⬜ | O *(was F→O)* | Krull bridge: open index-2 kernel ⇒ quadratic subextension | 1 | B12-0 ☑ |
 | B12-3 | ⬜ | O | Downstream ports + capstone `kummerClassK_surjective'` | 1–1½ | B12-1 ∧ B12-2 |
 | B12-4 | ⬜ | O | Census-flip commit (user approval + quiet tree) | ½ | B12-3 |
@@ -74,19 +74,26 @@ Total remaining ≈ **3–5 lane-sessions** (the ×2 Mathlib-gap buffer is retir
    `lake exe atlas graph-data -o atlas-graph.json && python3 scripts/atlas_audit.py
    atlas-graph.json` (`docs/atlas.md`; never commit the json — it is gitignored).
 
-## B12-1 — hom/kernel layer  (O, 1 session)
+## B12-1 — hom/kernel layer  ☑ done 2026-07-09 (commit `c8fb255`)
 
-In `GQ2/KummerSurjectivity.lean`, over `G := ↥(k.fixingSubgroup)` with trivial `ZMod 2`
-coefficients (§4-I1):
+Delivered in `GQ2/KummerSurjectivity.lean` (imports `GQ2.EvensKahn` only), all std-3,
+`lake build GQ2.KummerSurjectivity` green (8591 jobs), guard all-pass (census 15):
 
-- `H1mk_surjective` (quotient-map surjectivity).
-- `zHom : G →* Multiplicative (ZMod 2)` packaging of a `Z1` element via `mem_Z1_iff_of_trivial`.
-- `ker_open` (continuity + `DiscreteTopology (ZMod 2)`), `index_ker_eq_two` for `z ≠ 0`
-  (`Subgroup.index_ker` + range = ⊤), `hom_eq_of_ker_eq` (pointwise, `ZMod 2` case split).
-- Private port of `kummerClassK_one` (`HilbertLedger.lean:176`; the `z = 0` case).
+- **`H1mk_surjective` already existed** (`Cohomology.lean:223`, `QuotientAddGroup.mk'_surjective`)
+  — referenced, not re-proved.
+- `zHom (z) : ↥k.fixingSubgroup →* Multiplicative (ZMod 2)`, `g ↦ ofAdd (z.1 g)` (`map_one'` via
+  `Z1_apply_one`, `map_mul'` via `mem_Z1_iff_of_trivial` + `ofAdd_add`); `zHom_apply` simp lemma.
+- `mem_zHom_ker : g ∈ (zHom k z).ker ↔ z.1 g = 0` (`ofAdd_eq_one`).
+- `zHom_ker_isOpen` (preimage of `{0}` under the continuous cocycle; `isOpen_discrete`).
+- `zHom_surjective (hz : z.1 ≠ 0)` → `zHom_index_ker : (zHom k z).ker.index = 2`
+  (`Subgroup.index_ker` + `MonoidHom.range_eq_top_of_surjective` + `topEquiv`; `decide` on
+  `Nat.card (Multiplicative (ZMod 2)) = 2`).
+- `eq_of_zero_set : (∀ g, f g = 0 ↔ f' g = 0) → f = f'` — the `𝔽₂` reconnect for B12-3.
+- `kummerClassK_one` — direct port (not via the heavy `kummerClassK_mul`): `sqrtCl 1 = ±1`,
+  Galois-fixed, so the cocycle is `0` and `H1mk 0 = 0`.
 
-*Model note*: O — every statement shape is written in the plan; the proofs are `ZMod 2`
-case-splits and quotient plumbing.  No design decisions.
+*Interface for B12-3*: feed `zHom_ker_isOpen`/`zHom_index_ker` into B12-2's `H`; reconnect via
+`mem_zHom_ker` + `eq_of_zero_set`; `z = 0` branch uses `kummerClassK_one`.
 
 ## B12-2 — the Krull bridge  (O, 1 session)
 
