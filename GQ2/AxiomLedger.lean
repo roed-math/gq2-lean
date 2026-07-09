@@ -6,7 +6,7 @@ import GQ2
 A batch `#print axioms` over **every** declaration under the `GQ2` namespace — the App. D
 *certificate check*, done repo-wide rather than per-session.  For each theorem/def it collects the
 axioms it transitively depends on, drops the standard three (`propext`, `Classical.choice`,
-`Quot.sound`), maps the thirteen literature axioms (`GQ2/Foundations/Axioms.lean`) to their
+`Quot.sound`), maps the twelve literature axioms (`GQ2/Foundations/Axioms.lean`) to their
 B-labels, and reports:
 
 * **certificate** — which declarations consume each B-axiom.  Diff this against the per-ticket `Ax`
@@ -27,7 +27,7 @@ whole library including `private` lemmas.
     lake build GQ2 && lake env lean GQ2/AxiomLedger.lean
 
 Prints the ledger to stdout.  This file is intentionally **not** imported by `GQ2.lean`, so it never
-runs during `lake build GQ2`.  If the axiom census (currently 13) ever changes, update `bAxioms`
+runs during `lake build GQ2`.  If the axiom census (currently 12) ever changes, update `bAxioms`
 below (and `scripts/check_axioms.sh`'s `EXPECTED_AXIOMS`, same commit).
 -/
 
@@ -35,19 +35,22 @@ open Lean
 
 namespace GQ2.AxiomLedger
 
-/-- The thirteen literature axioms → their B-labels (census 13 after the B10, B9′/B11, P-23
-B11-split, P-15f1 B12/B13-addition, and 2026-07-09 B12-discharge/B2-deletion census decisions;
+/-- The twelve literature axioms → their B-labels (census 12 after the B10, B9′/B11, P-23
+B11-split, P-15f1 B12/B13-addition, and 2026-07-09 B12/B7′-discharge/B2-deletion census decisions;
 see `GQ2/Foundations/Axioms.lean`).  Written with `` `` `` so the
 file fails to compile if any axiom is renamed or removed — a free consistency check on the census.
 (`dyadicNormCriterion` is a same-name *theorem* over B11a+B11b, so it is deliberately absent
 here and instead surfaces as a tracked consumer of both leaves.  `kummerClassK_surjective` — the
 former **B12** — is since 2026-07-09 a same-name *theorem* over the std-3 proof in
 `GQ2/KummerSurjectivity.lean`, so it is absent too and surfaces as a std-3 tracked declaration.
+`hilbertSymbol_dyadic` — the former **B7′** — is likewise since 2026-07-09 a same-name *theorem*
+over the std-3 proof in `GQ2/HilbertSymbolDyadicClose.lean`.
 The former **B2** `cyclotomicCharacter_two_surjective` was deleted the same day, unused.)
 
 Citation-faithfulness tiers (adversarial review 2026-07-04; docstrings + `docs/review-packet.md`
-§2): **direct** B1/B6/B7/B7′/B10 · **classical + encoding** B4/B5/B9 · **composite interface**
-B3c/B8/B11a/B11b · B13 postdates the review (`docs/p15f1-axiom-proposal.md`). -/
+§2): **direct** B1/B6/B7/B10 (B7′ until its discharge) · **classical + encoding** B4/B5/B9 ·
+**composite interface** B3c/B8/B11a/B11b · B13 postdates the review
+(`docs/p15f1-axiom-proposal.md`). -/
 def bAxioms : List (Name × String) :=
   [ (``GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated, "B1")
   , (``GQ2.dyadicOrientation,                                     "B3c")
@@ -55,7 +58,6 @@ def bAxioms : List (Name × String) :=
   , (``GQ2.localReciprocity,                                      "B5")
   , (``GQ2.tateDualityAt,                                         "B6")
   , (``GQ2.Foundations.absGalQ2_localEulerCharacteristic,         "B7")
-  , (``GQ2.HilbertSymbol.hilbertSymbol_dyadic,                    "B7′")
   , (``GQ2.peripheralCyclotomicAction,                            "B8")
   , (``GQ2.evensKahn_dyadic,                                      "B9")
   , (``GQ2.tameQuotient,                                          "B10")

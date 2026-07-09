@@ -191,7 +191,7 @@ not yet to hand.
 - **Lean.** Schematic (same continuous-cohomology gap as B6).
 - **Used at.** §9.2 (lifting through the elementary quotient `M`; strict decrease (145)).
 
-### B7′. Dyadic Hilbert symbol formula  🟡 schematic
+### B7′. Dyadic Hilbert symbol formula  ✅ faithful · **DISCHARGED — proved in-repo 2026-07-09**
 - **Statement.** For `ℚ₂` the Hilbert symbol `(·,·)₂ : ℚ₂ˣ/ℚ₂ˣ² × ℚ₂ˣ/ℚ₂ˣ² → {±1}` is given by
   `(2^α u, 2^β v)₂ = (-1)^{ε(u)ε(v) + α ω(v) + β ω(u)}`, where `ε(u) = (u-1)/2 mod 2`,
   `ω(u) = (u²-1)/8 mod 2`. In the square-class basis `(-1,2,-3)` this yields `(-1,-1)₂ = -1`,
@@ -200,7 +200,13 @@ not yet to hand.
   `[✓ verified in the provided source]` — verbatim, for `k=ℚ_p`, `a=p^α u`, `b=p^β v` (`u,v ∈ U`):
   `(a,b) = (-1)^{ε(u)ε(v) + αω(v) + βω(u)}` when `p=2`, where **`ε(u) ≡ (u-1)/2`, `ω(u) ≡ (u²-1)/8`
   (mod 2)** are defined in Ch. II §3.3 (p. 18) — exactly the paper's Lemma 3.5 formula.
-- **Lean.** Schematic (Mathlib has no Hilbert symbol).
+- **Lean.** `GQ2.HilbertSymbol.hilbertSymbol_dyadic` — since 2026-07-09 a same-name **theorem**
+  (zero consumer churn, the B11/B12 precedent), proved **std-3** (no B-axioms) in the
+  `DyadicSquares` → `HilbertSymbolDyadic` → `Necessity`/`Sufficiency` →
+  `HilbertSymbolDyadicClose` lane: the 2-adic Hensel square criterion, the norm-form identity
+  `(a,b) = (a,−ab)` (killing the `(2u,2v)` family), a primitivity-descent mod-transfer engine,
+  and finite mod-8 `decide`s (B7′ board, `docs/orchestration/b7prime-tickets.md` /
+  `b7prime-proof-plan.md`; census 13 → 12, user-approved 2026-07-09).
 - **Used at.** Lemma 3.5 and §6 (base quadratic form, Arf invariant).
 
 ### B8. Galois action on `π₁(ℙ¹∖{0,1,∞})` and its peripheral structure  🟡 schematic · composite
@@ -337,7 +343,7 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 | B5  local reciprocity for `ℚ₂` | **NSW (7.1.1)/(7.1.5)** (class formation); Serre *LF* XI–XII | ✅ **verified** | 🟡 |
 | B6  local Tate duality (all finite `k/ℚ₂`) | **NSW (7.2.6) "Tate Duality"**; Serre *GC* II §5.2; Milne I.2.1; induced Hilbert nondeg.: **FV IV §5 (5.1)(6)/(5.2)**, O'Meara **63:13** | ✅ **verified** | 🟡 |
 | B7  local Euler characteristic | **NSW (7.3.1) (Tate)** `χ=‖a‖`; Serre *GC* II §5.7; Milne I.2.8 | ✅ **verified** | 🟡 |
-| B7′ dyadic Hilbert symbol | **Serre *Course in Arithmetic* Ch. III §1.2 Thm 1** (`ε,ω`: Ch. II §3.3) | ✅ **verified** | 🟡 |
+| B7′ dyadic Hilbert symbol | **Serre *Course in Arithmetic* Ch. III §1.2 Thm 1** (`ε,ω`: Ch. II §3.3) | ✅ **verified** | ✅ **proved** (2026-07-09) |
 | B8  Galois action on `π₁(ℙ¹∖{0,1,∞})` | **Stix [8] §3.3 + Def 37** (Deligne MSRI 16: classical origin) | ✅ **verified** | ✅ axiom (bundle) |
 | B9  Evens / Stiefel–Whitney | **Evens [9] §§4–5 Thm 1**; **Kahn [10] Thm 1–3**; **Kozlowski [11] Thm 1.1** (Guillot [6]: background only) | ✅ **verified** | 🟡 |
 | B10 tame quotient of `G_ℚ₂` (**oriented**, B10′ since 2026-07-06) | **NSW (7.5.3) (Iwasawa)** with (7.5.2); Serre *LF* Ch. IV (wild pro-`p`); orientation clauses: **Neukirch ANT V (6.2)** (units ↦ inertia) + **V (1.2)** / NSW (7.1.2)(i) (units are unramified norms) | ✅ **verified** | ✅ axiom (bundle) |
@@ -348,10 +354,11 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 citation; `confirmed` = checked against a reliable secondary source; `~` = my identification, source
 not yet to hand.)
 
-**Bottom line for review.** The whole theorem rests on **thirteen** classical inputs (B1, B3–B10,
-B7′, B11a/b, B13 — B10 added post-kickoff by the P-06 census decision, B11–B13 by the
+**Bottom line for review.** The whole theorem rests on **twelve** classical inputs (B1, B3–B10,
+B11a/b, B13 — B10 added post-kickoff by the P-06 census decision, B11–B13 by the
 P-15/P-23/P-15f1 census decisions; **B12 discharged in-repo as a same-name std-3 theorem and the
-unused B2 deleted**, B12-board census flip, user-approved 2026-07-09); of the two
+unused B2 deleted**, B12-board census flip, user-approved 2026-07-09; **B7′ likewise discharged
+in-repo**, B7′-board census flip, user-approved 2026-07-09); of the two
 finite-group inputs that would also have appeared (RZ Hopfian, Schur–Zassenhaus) both are already
 proved. B1 is a machine-checked faithful statement; B3–B9 are precise here but await Mathlib
 infrastructure (Demushkin groups, continuous Galois cohomology + Tate duality, Hilbert symbols,
@@ -374,6 +381,7 @@ Stiefel–Whitney/Evens classes, étale `π₁`) before they can be stated faith
 - **B7** — NSW **(7.3.1)** (Tate): `χ(k,A)=‖a‖_k` (verified verbatim).
 - **B7′** — Serre, *Course in Arithmetic*, **Ch. III §1.2 Thm 1** — the `p=2` formula
   `(a,b)=(-1)^{ε(u)ε(v)+αω(v)+βω(u)}` and `ε,ω` (Ch. II §3.3) verified verbatim (= paper Lemma 3.5).
+  *(Discharged in-repo 2026-07-09 — citation record kept.)*
 - **B6 / B7 secondary** — Serre, *Galois Cohomology*, **Ch. II §5.2 Theorem 2** (Tate duality) and
   **§5.7 Theorem 5** (`χ(A)=‖a‖_k`) verified verbatim (corroborate the NSW primaries).
 - **B9** — **Evens [9] §§4–5 Thm 1** (norm map; `N(1+x)=1+tr(x)+N(x)`, index 2), **Kahn [10]
@@ -449,5 +457,6 @@ theorem number and a verbatim statement checked against the provided PDFs (B6/B7
 B3's Theorem 8 at `d=1` reproduces the paper's `D₀` on the nose; B11a/B11b line-checked by P-20,
 2026-07-05). The two would-be finite-group inputs (RZ Hopfian Prop. 2.5.2, Schur–Zassenhaus) are
 *proved* in the formalization. Nothing in the classical layer remains unchecked.  Of the fifteen
-historical leaves, **thirteen remain axioms** after the 2026-07-09 B12-board census flip: **B12**
-is discharged (same-name std-3 theorem, proved in-repo) and the never-consumed **B2** is deleted.
+historical leaves, **twelve remain axioms** after the 2026-07-09 B12- and B7′-board census flips:
+**B12** and **B7′** are discharged (same-name std-3 theorems, proved in-repo) and the
+never-consumed **B2** is deleted.

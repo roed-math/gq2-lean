@@ -1,11 +1,11 @@
 # B7′ discharge — ticket board  (prove `hilbertSymbol_dyadic`, census −1)
 
-**Status (2026-07-09): planned, not started — B7′-0 is ready to run.**  Design was fixed during
-the planning session (Fable pass, this board + plan): route selection (norm-form identity
-`(a,b) = (a,−ab)` to kill the `(2u,2v)` family instead of a mod-16 leaf blowup), leaf shape
-(abstract mod-8 residue hypotheses, no unit literals), and the primitivity-descent design.  The
-census is in flux (B2 + B12 removal landed 2026-07-09 → 13); **B7′-5 decrements whatever the
-census is at flip time, gated on explicit user approval.**
+**Status (2026-07-09): COMPLETE — B7′ DISCHARGED, census 13 → 12.**  All six tickets ☑ in one
+day (B7′-0 recon → B7′-1 ∥ B7′-2 → B7′-3 ∥ B7′-4 → B7′-5 assembly + user-approved census flip).
+`hilbertSymbol_dyadic` survives as a same-name std-3 theorem in `Foundations/Axioms.lean` over
+`GQ2.HilbertSymbol.hilbertSymbol_dyadic'` (`GQ2/HilbertSymbolDyadicClose.lean`); zero consumer
+churn; P-07's `lemma_3_5_hilbert_ledger` now std-3.  Design as planned: norm-form identity
+`(a,b) = (a,−ab)` killed the `(2u,2v)` family, all leaves stayed at mod 8, plain `decide` only.
 
 Route, inventory, and leaf tables: [`b7prime-proof-plan.md`](b7prime-proof-plan.md) (§ refs
 below).  Conventions as on [`tickets.md`](tickets.md) — **Model**: **F** = Fable (design-heavy),
@@ -24,7 +24,7 @@ of `Foundations/Axioms.lean`; **do not edit `GQ2/HilbertSymbol.lean`** (shared).
 | B7′-2 | ☑ 07-09 | O | Identities restore (git) + norm-form/Brahmagupta + parity reduction (in `HilbertSymbolDyadic.lean`) | ¾–1 | B7′-0 (final dispatch also B7′-1) |
 | B7′-3 | ☑ 07-09 | O | Necessity engine: integralize + descent + mod transfer + 11 `decide` leaves (in `HilbertSymbolNecessity.lean`) | 1–1½ | B7′-1 ∧ B7′-2 |
 | B7′-4 | ☑ 07-09 | O | Sufficiency engine: value glue + 7 witness leaves + square-left freebies | ½ | B7′-1 ∧ B7′-2 |
-| B7′-5 | ⬜ | O | Assembly pyramid + capstone + census flip (**user gate**) | ¾ | B7′-3 ∧ B7′-4 |
+| B7′-5 | ☑ 07-09 | O *(ran F)* | Assembly pyramid + capstone + census flip (**user gate** — approved) | ¾ | B7′-3 ∧ B7′-4 |
 
 Est. in lane-sessions (~½–1 day each).  **B7′-3 ∥ B7′-4**; B7′-1 ∥ B7′-2 (except the dispatch
 helper).  Total ≈ **4–5½ lane-sessions** (~2 lane-days at swarm cadence).
@@ -161,7 +161,18 @@ two `private` helpers `padic_coe_two`/`padic_coe_four` (`by norm_cast`) into `pu
 
 *Model note*: O — witnesses pre-computed in the plan; one `push_cast`-numeral snag (above).
 
-## B7′-5 — assembly + capstone + census flip  (O, ¾ session; **user-approval gate**)
+## B7′-5 — assembly + capstone + census flip  ☑ DONE 2026-07-09 (assembly `3bb9c28` + flip commit)
+
+**Landed.**  `GQ2/HilbertSymbolDyadicClose.lean`: `dyadic_uu` / `dyadic_u2v` (16-case residue
+dispatch each over the B7′-3 `−1`-leaves, B7′-4 `+1`-witnesses, and `u ≡ 1` freebies) + capstone
+`hilbertSymbol_dyadic'` (byte-exact vs. the axiom; parity via `symbol_zpow_reduce` + square-class
+invariance, `(1,0)` by `comm`, `(1,1)` via `hilbertSymbol_neg_mul_right` landing in `dyadic_u2v`
+at `(−uv, u)` with the `ε/ω` bookkeeping a 16-case `decide`).  `lean_verify` = std-3.  Flip:
+axiom → same-name theorem; `EXPECTED_AXIOMS=12`; `AxiomLedger` 12 rows (0 alarms, 0 sorryAx,
+B7′ absent from all 4484 traces); docs + atlas regenerated; this board + plan + the b34
+coordination note archived to `docs/orchestration/`.
+
+*(Original ticket text below.)*  (O, ¾ session; **user-approval gate**)
 
 Plan §4-B7′-5: the dispatch pyramid (parity → `comm` → `neg_mul_right` for (1,1) with
 `ε_mul/ω_mul/ε_neg_one/ω_neg_one` + `ε² = ε` — paper-checked; → residue `rcases` → leaves),

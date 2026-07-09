@@ -16,7 +16,7 @@ Lemma 2.5's only classical input is *proved* in the formalization (see foot); eq
 | B5 | local reciprocity: `(G_k, k̄ˣ)` is a class formation | NSW **(7.1.1)**, **(7.1.5)** | ✓ |
 | B6 | local Tate duality (**every finite `k/ℚ₂`**): `H^i(k,A)×H^{2-i}(k,A′) → ℚ/ℤ` perfect (`0≤i≤2`) | NSW **(7.2.6)**; Serre *GC* **II §5.2 Thm 2**; Hilbert nondeg. FV **IV §5 (5.1)(6)/(5.2)**, O'Meara **63:13** | ✓✓ |
 | B7 | local Euler characteristic: `χ(A) = ‖#A‖_k` | NSW **(7.3.1)**; Serre *GC* **II §5.7 Thm 5** | ✓✓ |
-| B7′ | dyadic Hilbert symbol `(2^α u, 2^β v)₂ = (-1)^{ε(u)ε(v)+αω(v)+βω(u)}` | Serre, *Course in Arithmetic*, **III §1.2 Thm 1** | ✓ |
+| ~~B7′~~ | dyadic Hilbert symbol `(2^α u, 2^β v)₂ = (-1)^{ε(u)ε(v)+αω(v)+βω(u)}` — **discharged 2026-07-09, proved in-repo** | Serre, *Course in Arithmetic*, **III §1.2 Thm 1** | ✓ |
 | B8 | Galois action on `π₁^{(2)}(ℙ¹∖{0,1,∞})`: cyclotomic on peripheral inertia | Stix **[8] §3.3 + Def 37** | ✓ |
 | B9 | Evens norm + Evens–Kahn formula for the total Stiefel–Whitney class | Evens **§§4–5 Thm 1**; Kahn **Thm 1–3**; Kozlowski **Thm 1.1** | ✓ |
 
@@ -32,10 +32,11 @@ verified; **oriented form B10′ since 2026-07-06**: reciprocity-orientation cla
 **B11a/B11b** (dyadic norm criterion, Serre *Local Fields* **XIV §2 Prop. 7 iii** /
 **V §2 Prop. 3** — line-checked by P-20, 2026-07-05), and **B13** (dyadic unit filtration,
 Serre *Local Fields* **IV §2 Prop. 6** — line-checked by P-15f1, 2026-07-06); see
-`literature-axioms.md`.  **2026-07-09 census flip (B12 board, user-approved):** **B12** (local
-Kummer surjectivity, NSW **(6.2.1)** — added 2026-07-06) is **discharged, proved in-repo** as a
-same-name std-3 theorem, and the never-consumed **B2** is **deleted** (struck above).  Full
-census: **13** axioms, all source-verified.
+`literature-axioms.md`.  **2026-07-09 census flips (B12 + B7′ boards, user-approved):** **B12**
+(local Kummer surjectivity, NSW **(6.2.1)** — added 2026-07-06) and **B7′** (dyadic Hilbert
+symbol, struck above) are **discharged, proved in-repo** as same-name std-3 theorems, and the
+never-consumed **B2** is **deleted** (struck above).  Full
+census: **12** axioms, all source-verified.
 
 **Legend / refs.** `✓` checked against source; `✓✓` two sources. — **NSW** =
 Neukirch–Schmidt–Wingberg, *Cohomology of Number Fields*, 2nd ed.; **Serre *GC*** = *Galois

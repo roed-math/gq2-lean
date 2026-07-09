@@ -30,12 +30,12 @@ still cite the old `docs/<name>.md` paths).
 | **Theorem 1.2 (literal)** | `main_presentation_literal` | `GQ2/PresentationLiteral.lean` | B1 + Track B (11 leaves total since the 2026-07-09 B12 discharge) |
 | Theorem 1.2 (count form) | `main_surjection_count'` | `GQ2/SectionTenSources.lean` | 11 leaves (see `atlas-audit.md` §2) |
 | eq. (154) | `eq_154` | `GQ2/SectionTenSources.lean` | via `thm_4_2` |
-| Theorem 4.2 (per frame) | `thm_4_2`, `thm_4_2_stratum` | `GQ2/ThmFourTwo.lean` | B1, B3c, B6, B7, B7′, B8, B9, … |
+| Theorem 4.2 (per frame) | `thm_4_2`, `thm_4_2_stratum` | `GQ2/ThmFourTwo.lean` | B1, B3c, B6, B7, B8, B9, … |
 | Prop 8.9 (closed recursion) | `prop_8_9` | `GQ2/Prop89Close.lean` | B6, B7 |
 | Lemma 6.17 (vanish) | `lemma_6_17_vanish_final` | `GQ2/VanishClose.lean` | (see file) |
 
 Notes:
-- **Axiom census 13** (B1, B3c, B4, B5, B6, B7, B7′, B8, B9, B10′, B11a, B11b, B13);
+- **Axiom census 12** (B1, B3c, B4, B5, B6, B7, B8, B9, B10′, B11a, B11b, B13);
   literature justification in [`literature-axioms.md`](literature-axioms.md) (+ one-page form),
   adversarial review in [`adversarial-axioms-review.md`](adversarial-axioms-review.md).
   **2026-07-09 census flip (B12 board, user-approved, census 15 → 13):** **B12**
@@ -44,7 +44,14 @@ Notes:
   (zero consumer churn, B11 precedent; board archived at
   [`orchestration/b12-tickets.md`](orchestration/b12-tickets.md)); the never-consumed **B2**
   `cyclotomicCharacter_two_surjective` **deleted** (citation record kept in
-  `literature-axioms.md`).  One axiom (`absGalQ2_maxProTwo_presentation`, B4) remains consumed
+  `literature-axioms.md`).  **Same-day B7′ flip (B7′ board, user-approved, census 13 → 12):**
+  **B7′** `hilbertSymbol_dyadic` **discharged** — proved std-3 in the
+  `DyadicSquares`/`HilbertSymbolDyadic`/`Necessity`/`Sufficiency`/`DyadicClose` lane (2-adic
+  Hensel + the norm-form `(a,b) = (a,−ab)` identity + finite mod-8 `decide`s), surviving as a
+  same-name theorem (board archived at
+  [`orchestration/b7prime-tickets.md`](orchestration/b7prime-tickets.md)).  P-07's
+  `lemma_3_5_hilbert_ledger` is now **std-3** (its whole `Ax = B7′` budget evaporated); the
+  count-capstone trust base was already B7′-free, so its 11 leaves are unchanged.  One axiom (`absGalQ2_maxProTwo_presentation`, B4) remains consumed
   by **no** deliverable — kept because the census is frozen.
 - **Zero `sorry`s anywhere**; no `native_decide`; `axiom` only in `Foundations/Axioms.lean`.
 - Paper statements proved but **off** the main path are catalogued in

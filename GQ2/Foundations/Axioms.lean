@@ -2,6 +2,7 @@ import GQ2.Statement
 import GQ2.ProfinitePresentation
 import GQ2.Cohomology
 import GQ2.HilbertSymbol
+import GQ2.HilbertSymbolDyadicClose
 import GQ2.Reciprocity
 import GQ2.TateDuality
 import GQ2.EvensKahn
@@ -26,10 +27,11 @@ near `main_surjection_count`.
 **How to read this for review.**  Each `axiom` below is a result that already
 exists in the literature; the docstring gives the precise statement, the citation, and the
 paper cross-reference.  The B-labels follow `docs/literature-axioms.md` (which also records the
-dependency structure, paper App. D).  Current census — **thirteen** axioms (B11 split into
+dependency structure, paper App. D).  Current census — **twelve** axioms (B11 split into
 B11a/B11b by P-23, 2026-07-04; B12/B13 added by P-15f1, 2026-07-06, census 13 → 15; **B12
 discharged in-repo as a same-name theorem and the unused B2 deleted, census 15 → 13** — B12
-board, user-approved 2026-07-09), faithfully stated against
+board, user-approved 2026-07-09; **B7′ discharged in-repo as a same-name theorem, census
+13 → 12** — B7′ board, user-approved 2026-07-09), faithfully stated against
 current Mathlib plus this repo's `ContCoh` cohomology:
 
 * **B1** `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` — `G_ℚ₂` top. f.g.
@@ -48,8 +50,11 @@ current Mathlib plus this repo's `ContCoh` cohomology:
   `GQ2/TateDuality.lean`).
 * **B7** `Foundations.absGalQ2_localEulerCharacteristic` — local Euler characteristic
   (cohomology from `GQ2/Cohomology.lean`).
-* **B7′** `HilbertSymbol.hilbertSymbol_dyadic` — the dyadic Hilbert-symbol formula
-  (defs in `GQ2/HilbertSymbol.lean`).
+* ~~**B7′** `HilbertSymbol.hilbertSymbol_dyadic`~~ — the dyadic Hilbert-symbol formula
+  (defs in `GQ2/HilbertSymbol.lean`).  **Discharged 2026-07-09** (B7′ board): now a same-name
+  **theorem** below, proved std-3 in `GQ2/HilbertSymbolDyadicClose.lean` (+ the
+  `DyadicSquares`/`HilbertSymbolDyadic`/`Necessity`/`Sufficiency` lane: 2-adic Hensel +
+  norm-form identities + finite `decide`s) — zero consumer churn (B11/B12 precedent).
 * **B8** `peripheralCyclotomicAction` — the cyclotomic action on the peripheral generators of
   `Δ = maxPro2(F₂)` (Lemma 3.6; defs + deviation note in `GQ2/PeripheralAction.lean`).
   **Composite** — Stix + cyclotomic surjectivity (see its docstring).
@@ -83,7 +88,7 @@ current Mathlib plus this repo's `ContCoh` cohomology:
 **Citation-faithfulness classification** (adversarial review 2026-07-04,
 `docs/adversarial-axioms-review.md`; full table in `docs/review-packet.md` §2).  The leaves fall
 in four tiers by how directly the Lean statement matches a single published theorem: **direct
-classical theorem** (B1, B6, B7, B7′), **classical theorem + encoding choices** (B4, B5,
+classical theorem** (B1, B6, B7; B7′ until its 2026-07-09 in-repo discharge), **classical theorem + encoding choices** (B4, B5,
 B9, B10 — since the B10′ orientation), **composite/project interface** (B3c, B8, B11a, B11b — each pairs a cited theorem with
 encoding/convention inputs, flagged in its own docstring), and **available/unused** (B2 — deleted
 2026-07-09 as unused, so this tier is now empty; B12/B13 postdate the review, see
@@ -100,7 +105,7 @@ character (route (i) of T-11, deliberately deferred; see `docs/tickets.md` T-10/
 Consumers derive consequences by importing this file; the derived stress tests live next to
 their definitions (`GQ2/EulerCharacteristic.lean` for B7) or are parametrized over the bundle
 and axiom-free (`GQ2/Reciprocity.lean` for B5).  B7′'s faithfulness check (the canonical value
-`(-1,-1)₂ = -1`) is an anonymous `example`, kept below next to its axiom.
+`(-1,-1)₂ = -1`) is an anonymous `example`, kept below next to its (since 2026-07-09) theorem.
 
 References (paper's bibliography):
 [1] Neukirch–Schmidt–Wingberg, *Cohomology of Number Fields*, 2nd ed., Springer 2015.  (NSW)
@@ -195,18 +200,24 @@ namespace GQ2.HilbertSymbol
 `hilbertSymbol`, `ε`, `ω`, `unit2`, `unitCoe`, `signOf` and their unconditional theory live in
 `GQ2/HilbertSymbol.lean`. -/
 
-/-- **B7′ (dyadic Hilbert symbol), `[Classical.]`.**  Writing `a = 2^α u`, `b = 2^β v` with
-`u, v ∈ ℤ₂ˣ`, the Hilbert symbol over `ℚ₂` is
+/-- **B7′ (dyadic Hilbert symbol), `[Classical.]` — discharged 2026-07-09 (B7′ board).**
+Writing `a = 2^α u`, `b = 2^β v` with `u, v ∈ ℤ₂ˣ`, the Hilbert symbol over `ℚ₂` is
 `(a, b)₂ = (-1)^{ε(u) ε(v) + α ω(v) + β ω(u)}`.
 
 Citation: **Serre, *A Course in Arithmetic* [CiA], Ch. III §1.2, Theorem 1** (the `p = 2`
 case), with `ε, ω` the residue characters of Ch. II §3.3.  This is exactly the paper's
 Lemma 3.5 formula for the cup product on `H¹(ℚ₂, μ₂)`.  Convention: `signOf` sends the
 `𝔽₂`-valued exponent to `{±1} = ℤˣ`; every element of `ℚ₂ˣ` has the form `2^α u` (`α ∈ ℤ`,
-`u ∈ ℤ₂ˣ`), so this determines the symbol on all of `ℚ₂ˣ × ℚ₂ˣ`. -/
-axiom hilbertSymbol_dyadic (α β : ℤ) (u v : ℤ_[2]ˣ) :
+`u ∈ ℤ₂ˣ`), so this determines the symbol on all of `ℚ₂ˣ × ℚ₂ˣ`.
+
+Formerly the axiom **B7′**; since 2026-07-09 a same-name theorem over the std-3 proof
+`hilbertSymbol_dyadic'` (`GQ2/HilbertSymbolDyadicClose.lean` — 2-adic Hensel, the norm-form
+`(a,b) = (a,−ab)` identity, and finite mod-8 `decide`s; zero consumer churn, the B11/B12
+pattern). -/
+theorem hilbertSymbol_dyadic (α β : ℤ) (u v : ℤ_[2]ˣ) :
     hilbertSymbol (unit2 ^ α * unitCoe u) (unit2 ^ β * unitCoe v)
-      = signOf (ε u * ε v + (α : ZMod 2) * ω v + (β : ZMod 2) * ω u)
+      = signOf (ε u * ε v + (α : ZMod 2) * ω v + (β : ZMod 2) * ω u) :=
+  hilbertSymbol_dyadic' α β u v
 
 /-- Faithfulness check on B7′: the axiom reproduces the canonical value `(-1, -1)₂ = -1` — the
 one nontrivial diagonal entry, which anchors the paper's initial cup form `α² + βγ + γβ`.
