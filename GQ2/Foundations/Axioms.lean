@@ -143,7 +143,8 @@ generated; also (7.5.11). Original: Jannsen–Wingberg, Invent. Math. 70 (1982/8
 (Verified against the NSW PDF in `references/`.)
 
 This is a genuine, faithful Lean statement: it is exactly the topological-finite-generation
-predicate used throughout `Reconstruction.lean`. -/
+predicate used throughout `Reconstruction.lean`.  Paper: Lemma 2.5 (the `hfgG` input to the
+reconstruction argument). -/
 axiom absGalQ2_isTopologicallyFinitelyGenerated :
     ∃ s : Finset AbsGalQ2, (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤
 
@@ -259,7 +260,11 @@ classification table, `docs/review-packet.md` §2, records this).
 
 Deviation (route (ii), flagged in `GQ2/Orientation.lean`): the *abstract* dualizing
 characterization of the canonical character (Labute Prop. 6) is not formalized; the bundle
-asserts exactly the interface the paper consumes. -/
+asserts exactly the interface the paper consumes.
+
+Citation: Labute [2], Théorème 4 case (2) and Théorème 8 (Canad. J. Math. 19 (1967), 106–132);
+dualizing character = cyclotomic through this quotient: NSW [1], Ch. VII §7.5, (7.5.11)–(7.5.12);
+Serre [3].  Paper: Lemma 3.4 → Prop. 1.1.  `docs/literature-axioms.md` B3/B3c. -/
 axiom dyadicOrientation [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
     DyadicOrientation
 
@@ -503,7 +508,8 @@ def IsUnramifiedQuadraticSpectral
 from `k(√a)` — iff `b = x² − a y²` has a solution in `k` (for `a` a square the norm form is
 universal, so no non-square hypothesis is needed).
 
-Citation: Serre, *Local Fields* [7], Ch. XIV §2 (over `ℚ_p` also CiA Ch. III §1.1 Prop. 1). -/
+Citation: Serre, *Local Fields* [7], Ch. XIV §2 (over `ℚ_p` also CiA Ch. III §1.1 Prop. 1).
+Paper: §6.3 (norm-criterion input to the local square-class calculation). -/
 axiom hilbertSymbol_normCriterion_finiteDyadic
     (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m) :
@@ -516,7 +522,7 @@ axiom hilbertSymbol_normCriterion_finiteDyadic
 unit of `k` (`‖u‖ = 1`) is a norm from `k(√a)` — i.e. `u = x² − a y²` is solvable in `k`.
 
 Citation: Serre, *Local Fields* [7], Ch. V §2 (norms of unramified extensions are the units times
-the norms of uniformizers). -/
+the norms of uniformizers).  Paper: §6.3 (unramified-norm input to the local calculation). -/
 axiom unramifiedQuadratic_units_are_norms
     (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
     (a : (↥k)ˣ) (δa : AlgebraicClosure ℚ_[2])
