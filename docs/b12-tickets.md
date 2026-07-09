@@ -22,7 +22,7 @@ imports only `Mathlib + CupProduct + Kummer + Demushkin`).
 |---|----|-------|--------|------|------|
 | B12-0 | ☑ 07-09 | O | Post-dedup recon: ingredients, Mathlib names, import DAG | ½ | — |
 | B12-1 | ☑ 07-09 | O | Hom/kernel layer + `kummerClassK_one` port | 1 | B12-0 ☑ |
-| B12-2 | ⬜ | O *(was F→O)* | Krull bridge: open index-2 kernel ⇒ quadratic subextension | 1 | B12-0 ☑ |
+| B12-2 | ☑ 07-09 | O | Krull bridge: open index-2 kernel ⇒ quadratic subextension (in `KummerKrullBridge.lean`) | 1 | B12-0 ☑ |
 | B12-3 | ⬜ | O | Downstream ports + capstone `kummerClassK_surjective'` | 1–1½ | B12-1 ∧ B12-2 |
 | B12-4 | ⬜ | O | Census-flip commit (user approval + quiet tree) | ½ | B12-3 |
 
@@ -95,7 +95,22 @@ Delivered in `GQ2/KummerSurjectivity.lean` (imports `GQ2.EvensKahn` only), all s
 *Interface for B12-3*: feed `zHom_ker_isOpen`/`zHom_index_ker` into B12-2's `H`; reconnect via
 `mem_zHom_ker` + `eq_of_zero_set`; `z = 0` branch uses `kummerClassK_one`.
 
-## B12-2 — the Krull bridge  (O, 1 session)
+## B12-2 — the Krull bridge  (O, 1 session)  ☑ DONE 2026-07-09 (commit `d802ae7`)
+
+**Landed** as `GQ2.KummerSurjectivity.exists_quadratic_of_open_index_two` in its own upstream leaf
+**`GQ2/KummerKrullBridge.lean`** (imports `GQ2.EvensKahn` + Mathlib; std-3; sorry-free;
+`check_axioms` green, census 15).  Developed as a separate leaf rather than in the shared
+`KummerSurjectivity.lean` so the B12-1 ∥ B12-2 lanes merge cleanly (two agents creating one new
+file = whole-file conflict); fold back in the §3 consolidation pass if desired.
+
+**Ports absorbed here (private):** the extendScalars trio — `finiteDimensional_extendScalars`,
+`index_extendScalars_fixingSubgroup`, `finrank_extendScalars_eq_two` (B12-2's finrank output needs
+them).  **⇒ B12-3's remaining ports are only** `exists_sqrt_generator` (+ `mem_bot_iff_mem`),
+`fixingSubgroup_subgroupOf_eq_stabilizer`, `kcf_root_indep'`.
+
+**B12-3 wiring:** `import GQ2.KummerKrullBridge` into `KummerSurjectivity.lean` (this also pulls
+the leaf into the build cone — GQ2.lean registration was intentionally deferred to avoid a second
+concurrent GQ2.lean touch) and call `exists_quadratic_of_open_index_two` at `H := zHom.ker`.
 
 Input `H ≤ k.fixingSubgroup` open of index 2; output (§4-I2)
 
