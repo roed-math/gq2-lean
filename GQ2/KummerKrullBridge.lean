@@ -4,7 +4,8 @@ import GQ2.EvensKahn
 # B12-2 — the Krull bridge: open index-2 subgroup ⇒ quadratic subextension
 
 This file supplies the **B12-2 deliverable** of the `kummerClassK_surjective` axiom-discharge
-initiative (board `docs/b12-tickets.md`, plan `docs/b12-proof-plan.md`, §4-I2): given an **open
+initiative (archived board `docs/orchestration/b12-tickets.md`, plan `b12-proof-plan.md`,
+§4-I2): given an **open
 subgroup of index 2** `H ≤ G_k := ↥(k.fixingSubgroup)`, it produces the quadratic subextension
 `k ≤ L` whose fixing group cuts out exactly `H`, with `[L : k] = 2`
 (`exists_quadratic_of_open_index_two`).

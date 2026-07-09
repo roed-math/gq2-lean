@@ -1,4 +1,9 @@
-# B12 discharge plan: prove `kummerClassK_surjective` (census 15 → 14)
+# B12 discharge plan: prove `kummerClassK_surjective` (landed as census 15 → 13)
+
+> **2026-07-09 — COMPLETE, plan archived.**  All increments landed (board:
+> [`b12-tickets.md`](b12-tickets.md)); the I4 flip shipped with explicit user approval, together
+> with the deletion of the never-consumed **B2** (user directive at flip time), so the census
+> moved 15 → **13** rather than this plan's 15 → 14.  Everything below is the historical record.
 
 > **2026-07-09 (post-refactor):** ticket board at [`b12-tickets.md`](b12-tickets.md) —
 > **B12-0 recon is ☑ done** (findings recorded there): the dedup (`2ce8bc8`) and subdirectory

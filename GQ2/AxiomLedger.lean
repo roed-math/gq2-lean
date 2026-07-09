@@ -6,8 +6,8 @@ import GQ2
 A batch `#print axioms` over **every** declaration under the `GQ2` namespace — the App. D
 *certificate check*, done repo-wide rather than per-session.  For each theorem/def it collects the
 axioms it transitively depends on, drops the standard three (`propext`, `Classical.choice`,
-`Quot.sound`), maps the ten literature axioms (`GQ2/Foundations/Axioms.lean`) to their B-labels, and
-reports:
+`Quot.sound`), maps the thirteen literature axioms (`GQ2/Foundations/Axioms.lean`) to their
+B-labels, and reports:
 
 * **certificate** — which declarations consume each B-axiom.  Diff this against the per-ticket `Ax`
   column in `docs/tickets.md` and the App. D rows in `docs/literature-axioms.md` §C (Prop 1.1 →
@@ -35,19 +35,21 @@ open Lean
 
 namespace GQ2.AxiomLedger
 
-/-- The thirteen literature axioms → their B-labels (census 13 after the B10, B9′/B11, and the
-P-23 B11-split census decisions; see `GQ2/Foundations/Axioms.lean`).  Written with `` `` `` so the
+/-- The thirteen literature axioms → their B-labels (census 13 after the B10, B9′/B11, P-23
+B11-split, P-15f1 B12/B13-addition, and 2026-07-09 B12-discharge/B2-deletion census decisions;
+see `GQ2/Foundations/Axioms.lean`).  Written with `` `` `` so the
 file fails to compile if any axiom is renamed or removed — a free consistency check on the census.
-(`dyadicNormCriterion` is now a same-name *theorem* over B11a+B11b, so it is deliberately absent
-here and instead surfaces as a tracked consumer of both leaves.)
+(`dyadicNormCriterion` is a same-name *theorem* over B11a+B11b, so it is deliberately absent
+here and instead surfaces as a tracked consumer of both leaves.  `kummerClassK_surjective` — the
+former **B12** — is since 2026-07-09 a same-name *theorem* over the std-3 proof in
+`GQ2/KummerSurjectivity.lean`, so it is absent too and surfaces as a std-3 tracked declaration.
+The former **B2** `cyclotomicCharacter_two_surjective` was deleted the same day, unused.)
 
 Citation-faithfulness tiers (adversarial review 2026-07-04; docstrings + `docs/review-packet.md`
 §2): **direct** B1/B6/B7/B7′/B10 · **classical + encoding** B4/B5/B9 · **composite interface**
-B3c/B8/B11a/B11b · **available/unused** B2 (zero consumers — checked below via the tracked-decl
-scan). -/
+B3c/B8/B11a/B11b · B13 postdates the review (`docs/p15f1-axiom-proposal.md`). -/
 def bAxioms : List (Name × String) :=
   [ (``GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated, "B1")
-  , (``GQ2.Foundations.cyclotomicCharacter_two_surjective,        "B2")
   , (``GQ2.dyadicOrientation,                                     "B3c")
   , (``GQ2.Foundations.absGalQ2_maxProTwo_presentation,           "B4")
   , (``GQ2.localReciprocity,                                      "B5")
@@ -59,7 +61,6 @@ def bAxioms : List (Name × String) :=
   , (``GQ2.tameQuotient,                                          "B10")
   , (``GQ2.hilbertSymbol_normCriterion_finiteDyadic,              "B11a")
   , (``GQ2.unramifiedQuadratic_units_are_norms,                   "B11b")
-  , (``GQ2.kummerClassK_surjective,                               "B12")
   , (``GQ2.dyadicUnitFiltration,                                  "B13") ]
 
 /-- The three axioms every classical theorem is allowed to use. -/

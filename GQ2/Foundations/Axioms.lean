@@ -11,6 +11,7 @@ import GQ2.PeripheralAction
 import GQ2.Orientation
 import GQ2.TameQuotient
 import GQ2.UnitFiltration
+import GQ2.KummerSurjectivity
 
 /-!
 # The axioms: classical literature inputs of Theorem 1.2  (ticket T-19)
@@ -25,13 +26,16 @@ near `main_surjection_count`.
 **How to read this for review.**  Each `axiom` below is a result that already
 exists in the literature; the docstring gives the precise statement, the citation, and the
 paper cross-reference.  The B-labels follow `docs/literature-axioms.md` (which also records the
-dependency structure, paper App. D).  Current census — thirteen axioms (B11 split into B11a/B11b
-by P-23, 2026-07-04), faithfully stated against
+dependency structure, paper App. D).  Current census — **thirteen** axioms (B11 split into
+B11a/B11b by P-23, 2026-07-04; B12/B13 added by P-15f1, 2026-07-06, census 13 → 15; **B12
+discharged in-repo as a same-name theorem and the unused B2 deleted, census 15 → 13** — B12
+board, user-approved 2026-07-09), faithfully stated against
 current Mathlib plus this repo's `ContCoh` cohomology:
 
 * **B1** `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` — `G_ℚ₂` top. f.g.
-* **B2** `Foundations.cyclotomicCharacter_two_surjective` — 2-adic cyclotomic surjectivity
-  **(available; no current consumer — see its docstring)**.
+* ~~**B2** `Foundations.cyclotomicCharacter_two_surjective`~~ — 2-adic cyclotomic surjectivity;
+  never acquired a consumer (B8 bundles its own surjectivity need) and **deleted 2026-07-09**
+  (census decision, B12 board; citation record kept in `docs/literature-axioms.md`).
 * **B3c** `dyadicOrientation` — the canonical orientation character in cyclotomic-interface
   form: a B4 isomorphism normalized so the descended cyclotomic character takes Labute's
   Thm 4(2) values `(−1, 1, (−3)⁻¹)` on `A, S, Y` (defs + route decision in
@@ -69,13 +73,21 @@ current Mathlib plus this repo's `ContCoh` cohomology:
   two leaves (zero consumer churn) and the spectral-norm unramifiedness convention is isolated as
   the `def IsUnramifiedQuadraticSpectral` (not an axiom).  Same amendment decision as B9's
   base-generalization; consumed by Lemma 6.16's ledger and 6.17's (94)-orthogonality.
+* ~~**B12** `kummerClassK_surjective`~~ — local Kummer theory, surjective half (added by P-15f1,
+  2026-07-06).  **Discharged 2026-07-09** (B12 board): now a same-name **theorem** below, proved
+  std-3 in `GQ2/KummerSurjectivity.lean` + `GQ2/KummerKrullBridge.lean` (completing the square +
+  the Krull–Galois correspondence) — zero consumer churn (B11 precedent).
+* **B13** `dyadicUnitFiltration` — the dyadic unit-filtration graded structure (added by P-15f1,
+  2026-07-06; `docs/p15f1-axiom-proposal.md`).
 
 **Citation-faithfulness classification** (adversarial review 2026-07-04,
 `docs/adversarial-axioms-review.md`; full table in `docs/review-packet.md` §2).  The leaves fall
 in four tiers by how directly the Lean statement matches a single published theorem: **direct
 classical theorem** (B1, B6, B7, B7′), **classical theorem + encoding choices** (B4, B5,
 B9, B10 — since the B10′ orientation), **composite/project interface** (B3c, B8, B11a, B11b — each pairs a cited theorem with
-encoding/convention inputs, flagged in its own docstring), and **available/unused** (B2).  The distinction keeps a
+encoding/convention inputs, flagged in its own docstring), and **available/unused** (B2 — deleted
+2026-07-09 as unused, so this tier is now empty; B12/B13 postdate the review, see
+`docs/p15f1-axiom-proposal.md` for their citation records).  The distinction keeps a
 reviewer from mistaking a "nearby true theorem" for "this exact Lean interface appears verbatim
 in the cited literature".
 
@@ -105,7 +117,16 @@ namespace GQ2.Foundations
 
 open scoped Classical
 
-/-! ## B1, B2 — leaves stateable against bare Mathlib -/
+/-! ## B1 — a leaf stateable against bare Mathlib
+
+**B2** (`cyclotomicCharacter_two_surjective` — the 2-adic cyclotomic character
+`Gal(ℚ̄/ℚ) → ℤ₂ˣ` is surjective, stated against Mathlib's `cyclotomicCharacter 2`) lived here
+until 2026-07-09.  It never acquired a Lean consumer — Lemma 3.6 enters through **B8**, which
+bundles its own cyclotomic-surjectivity need (see B8's docstring), and the adversarial review
+(2026-07-04, `docs/adversarial-axioms-review.md` §4) had already tiered it **available/unused**.
+**Deleted** by census decision (B12 board, user-approved 2026-07-09; census 15 → 13 together
+with the B12 discharge below).  The citation record (Washington GTM 83, Thm 2.5) survives in
+`docs/literature-axioms.md`. -/
 
 /-- **[Classical — B1.]** The absolute Galois group of a `p`-adic local field is *topologically
 finitely generated* (by `[K : ℚ_p] + 3` elements when `μ_p ⊆ K`).  For `K = ℚ₂` this is the
@@ -120,26 +141,6 @@ This is a genuine, faithful Lean statement: it is exactly the topological-finite
 predicate used throughout `Reconstruction.lean`. -/
 axiom absGalQ2_isTopologicallyFinitelyGenerated :
     ∃ s : Finset AbsGalQ2, (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤
-
-/-- **[Classical — B2; available, currently unused.]** The `2`-adic cyclotomic character
-`Gal(ℚ̄/ℚ) → ℤ₂ˣ` is surjective, equivalently `Gal(ℚ(μ_{2^∞})/ℚ) ≅ ℤ₂ˣ`.  This is the
-surjectivity behind the paper's Lemma 3.6 (cyclotomic powering of the three peripheral inertia
-classes of `π₁(ℙ¹∖{0,1,∞})`).  Stated here against Mathlib's `cyclotomicCharacter 2` on an
-algebraic closure of `ℚ`.
-
-**Ledger status** (adversarial review 2026-07-04, `docs/adversarial-axioms-review.md` §4): **no
-Lean declaration currently consumes this axiom.**  Lemma 3.6 enters the formalization through
-**B8** (`peripheralCyclotomicAction`), which bundles its own cyclotomic-surjectivity need (see
-B8's note), and P-08 closed with B2 unused.  B2 is retained as B8's citation companion and the
-global route to eliminate B8's surjectivity dependency — it is **not** on the critical path of
-any current proof.  Verified by `grep` and `GQ2/AxiomLedger.lean` (zero consumers, 2026-07-04).
-
-Citation: `Gal(ℚ(ζ_n)/ℚ) ≅ (ℤ/nℤ)ˣ` via `a ↦ (ζ ↦ ζ^a)` (Washington, *Introduction to
-Cyclotomic Fields*, 2nd ed., GTM 83, Ch. 2, Theorem 2.5, verified), whence the inverse limit
-`Gal(ℚ(μ_{2^∞})/ℚ) ≅ ℤ₂ˣ`. -/
-axiom cyclotomicCharacter_two_surjective :
-    Function.Surjective
-      (cyclotomicCharacter (L := AlgebraicClosure ℚ) 2)
 
 /-! ## B4 — the rank-3 dyadic Demushkin presentation
 
@@ -317,16 +318,18 @@ conclusion; see `GQ2/PeripheralAction.lean` for the deviation from the literal `
 cuspidal inertia *through the cyclotomic character*; producing an automorphism for **every**
 `u ∈ ℤ₂ˣ` — the `aut : ℤ_[2]ˣ → ContinuousMulEquiv Δ Δ` field, quantified over all units —
 additionally needs a **cyclotomic-surjectivity** input (a decomposition-group element realizing
-each `u`).  That input is available in the census two ways: globally from **B2**
-(`cyclotomicCharacter_two_surjective`), and locally from **B5**'s `χ_cyc(rec u) = u⁻¹` with
-dense reciprocity image (the machinery P-07 already exercises — `units_gen`/`markedHom_bijective`).
+each `u`).  That input is carried in the census by **B5**'s `χ_cyc(rec u) = u⁻¹` with
+dense reciprocity image (the machinery P-07 already exercises — `units_gen`/`markedHom_bijective`);
+a standalone global form (**B2** `cyclotomicCharacter_two_surjective`) was retained as citation
+companion until 2026-07-09, then deleted as unused (census decision, B12 board).
 The alternative of *weakening* B8 to quantify only over `u` in the cyclotomic image — deferring
 the surjectivity choice to each call site — was considered and **declined** (the downstream
 rewrite churn outweighs the ledger gain); B8 keeps the all-units form and this note carries the
 dependency.
 
 Citation: **Stix [8], §3.3 + Definition 37** (cuspidal inertia acts through the cyclotomic
-character — the paper's exact citation) **+ cyclotomic surjectivity (B2 globally / B5 locally)**;
+character — the paper's exact citation) **+ cyclotomic surjectivity (B5 locally; the global
+companion B2 was deleted 2026-07-09)**;
 classical origin Deligne, MSRI 16 (1989).  Paper: Lemma 3.6.  `docs/literature-axioms.md` B8. -/
 axiom peripheralCyclotomicAction : PeripheralCyclotomicAction
 
@@ -537,6 +540,9 @@ theorem dyadicNormCriterion
 
 Added by explicit census decision (**P-15f1 instantiation**, user-approved 2026-07-06,
 census 13 → 15; proposal and precise-citation record: `docs/p15f1-axiom-proposal.md`).
+**B12 discharged 2026-07-09** (B12 board, user-approved; census 15 → 13 together with the B2
+deletion): `kummerClassK_surjective` survives below as a same-name **theorem** over the std-3
+proof in `GQ2/KummerSurjectivity.lean`, so consumers are untouched (B11 precedent).
 Lemma 6.17's dimension clause is reduced (P-15f1 Layers 1–2b, all std-3, in
 `GQ2/LocalKummer.lean`) to constructing one `DeepKummerData` instance; its literature
 content is exactly **local Kummer theory** (B12) and the **unit-filtration graded structure**
@@ -545,32 +551,33 @@ coprime averaging (Brown [5] III (10.2)), the square-class graded computation, t
 (`sq_of_near_one`, P-15e), `−1 ∈ U^{(e)}`, the graded duality, Lemma 6.10, and — separately,
 as paper content — Lemma 6.11 projectivity for the deep-count multiplicativity. -/
 
-/-- **The B12 axiom (local Kummer theory, surjective half).**
+/-- **B12 (local Kummer theory, surjective half) — DISCHARGED 2026-07-09: now a theorem.**
 
 For a finite extension `k/ℚ₂`, the Kummer class map descends to an isomorphism
 `k^×/(k^×)² ≅ H¹(G_k, ℤ/2)` (continuous cochain cohomology; `μ₂ ≅ ℤ/2`, canonical in
-char 0).  **Only surjectivity is assumed** — injectivity is proved
+char 0).  **Only surjectivity was assumed** — injectivity was already proved
 (`Kummer.kummerClass_eq_zero_iff`: `[a] = 0 ↔ IsSquare a`, via Mathlib's infinite Galois
-correspondence), so this leaf is strictly weaker than the literature statement.
+correspondence), so this leaf was strictly weaker than the literature statement.
 
-Citation: **NSW [1], Ch. VI §2 — Theorem (6.2.1) (Hilbert's Satz 90) and the Kummer-sequence
-isomorphism `H¹(G_K, μ_n) ≅ K^×/K^{×n}` displayed immediately after it (electronic ed.
-p. 344), dual form Theorem (6.2.2)**; at `n = 2`.  Secondary: Serre, *Local Fields* [7],
-Ch. XIV §2 (p. 206) — "the map `a ↦ χ_a` defines an isomorphism of `K*/K*ⁿ` onto the group
-of those characters of `G` having order dividing `n`" (construction from Ch. X §3).  Both
-verified verbatim against the `references/` PDFs.
+Citation (as the former axiom B12): **NSW [1], Ch. VI §2 — Theorem (6.2.1) (Hilbert's Satz 90)
+and the Kummer-sequence isomorphism `H¹(G_K, μ_n) ≅ K^×/K^{×n}` displayed immediately after it
+(electronic ed. p. 344), dual form Theorem (6.2.2)**; at `n = 2`.  Secondary: Serre, *Local
+Fields* [7], Ch. XIV §2 (p. 206).  Both verified verbatim against the `references/` PDFs.
 
-Deviations (flagged, review-packet §3): surjectivity-only; the `IntermediateField`-subtype
-flavor with canonical roots (`sqrtCl`) is B9's `kummerClassK` input shape (root-independence
-is T-13's `kummerCocycleFun_root_indep`, proved).  Discharge note: provable-with-effort via
-completing the square + the Krull–Galois correspondence; the leaf can later become a theorem
-without consumer churn (B11 precedent).
+**Discharged exactly as its own discharge note predicted** (B12 board,
+`docs/orchestration/b12-tickets.md` / `b12-proof-plan.md`, user-approved census flip
+2026-07-09): completing the square + the Krull–Galois correspondence, proved **std-3** (no
+B-axioms) in `GQ2/KummerSurjectivity.lean` (hom/kernel layer + field-theory ports + capstone)
+and `GQ2/KummerKrullBridge.lean` (open index-2 subgroup ⇒ quadratic subextension).  The
+same-name theorem keeps every consumer (`DeepCount.lean`, `DimClose.lean`) byte-for-byte
+unchanged — the B11/`dyadicNormCriterion` precedent.
 
 Paper: §6.3 (Lemma 6.17, "By Hochschild–Serre and Kummer theory").
 `docs/literature-axioms.md` B12. -/
-axiom kummerClassK_surjective (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+theorem kummerClassK_surjective (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
     [FiniteDimensional ℚ_[2] k] :
-    Function.Surjective (kummerClassK k)
+    Function.Surjective (kummerClassK k) :=
+  KummerSurjectivity.kummerClassK_surjective' k
 
 /-- **The B13 axiom (dyadic unit filtration).**
 

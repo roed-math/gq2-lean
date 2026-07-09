@@ -84,17 +84,19 @@ not yet to hand.
 - **Lean.** `GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated`.
 - **Used at.** `main_presentation` (`hfgG`), feeding Lemma 2.5.
 
-### B2. 2-adic cyclotomic character is surjective  ✅ faithful · available/unused
+### B2. 2-adic cyclotomic character is surjective  ✅ faithful · **DELETED 2026-07-09 (unused)**
 - **Statement.** `χ_cyc : Gal(ℚ̄/ℚ) → ℤ₂ˣ` is surjective; equivalently `Gal(ℚ(μ_{2^∞})/ℚ) ≅ ℤ₂ˣ`.
 - **Citation.** **Washington, *Introduction to Cyclotomic Fields*, 2nd ed., GTM 83, Ch. 2,
   Theorem 2.5** `[✓ verified in the provided source]` — verbatim: `deg(ℚ(ζ_n)/ℚ) = φ(n)` and
   `Gal(ℚ(ζ_n)/ℚ) ≅ (ℤ/nℤ)ˣ`, with `a` corresponding to `ζ_n ↦ ζ_n^a` (the cyclotomic character).
   Taking `n = 2^k` and the inverse limit gives `Gal(ℚ(μ_{2^∞})/ℚ) ≅ ℤ₂ˣ`, whence surjectivity.
-- **Lean.** `GQ2.Foundations.cyclotomicCharacter_two_surjective` (via Mathlib `cyclotomicCharacter 2`).
-- **Used at.** Underlies Lemma 3.6, but **no current Lean declaration consumes it** (adversarial
-  review 2026-07-04, §4): Lemma 3.6 enters through **B8** (`peripheralCyclotomicAction`), which
-  bundles its own cyclotomic-surjectivity need; B2 is retained as B8's citation companion and the
-  global route to eliminate that dependency.
+- **Lean.** ~~`GQ2.Foundations.cyclotomicCharacter_two_surjective`~~ — **deleted 2026-07-09**
+  (census decision, B12 board; census 15 → 13 together with the B12 discharge).
+- **Used at.** Nothing — it never acquired a Lean consumer (adversarial review 2026-07-04, §4):
+  Lemma 3.6 enters through **B8** (`peripheralCyclotomicAction`), which bundles its own
+  cyclotomic-surjectivity need (carried in the census by B5's `χ_cyc∘rec = (·)⁻¹`).  Retained
+  2026-07-04 → 2026-07-09 as B8's citation companion, then deleted as unused; this entry stays as
+  the citation record.
 
 ### B3. Classification of Demushkin groups (Labute)  🟡 schematic
 - **Statement.** A Demushkin pro-`p` group (finitely generated one-relator pro-`p` group with
@@ -207,7 +209,8 @@ not yet to hand.
   cyclotomic conjugates (`φ_u(P) = c_P^{-1} P^u c_P`, etc., for `u ∈ ℤ₂ˣ`).
 - **Composite** (adversarial review 2026-07-04, §1): the Stix citation supports the *action through
   the cyclotomic character*; producing an automorphism for **every** `u ∈ ℤ₂ˣ` additionally needs
-  cyclotomic surjectivity (B2 globally / B5's `χ_cyc∘rec = (·)⁻¹` locally).  The statement is kept
+  cyclotomic surjectivity (B5's `χ_cyc∘rec = (·)⁻¹` locally; the global companion B2 was deleted
+  2026-07-09 as unused).  The statement is kept
   in all-units form (P-22, user decision); weakening to the cyclotomic image was declined.
 - **Citation.** **Stix [8], §3.3 ("Cusps and inertia subgroups") and Definition 37 ("local
   orientation at each cusp")** `[✓ verified in the provided source]` — exactly the paper's citation
@@ -255,17 +258,20 @@ Recorded in §E below and in `review-packet.md` §2 (the census-amendment histor
 Serre LF XIV §2 Prop. 4 iii)), **B11b** (unramified units are norms, Serre LF V §2 Prop. 3 +
 Cor. + Rem. 1).
 
-### B12. Local Kummer theory (surjective half)  ✅ faithful
+### B12. Local Kummer theory (surjective half)  ✅ faithful · **DISCHARGED — proved in-repo 2026-07-09**
 - **Statement.** For `k` finite over `ℚ₂`, the Kummer class map descends to an isomorphism
-  `k^×/(k^×)² ≅ H¹(G_k, ℤ/2)`.  Leafed: **surjectivity only** — injectivity is proved
+  `k^×/(k^×)² ≅ H¹(G_k, ℤ/2)`.  Was leafed: **surjectivity only** — injectivity is proved
   (`Kummer.kummerClass_eq_zero_iff`, via Mathlib's infinite Galois correspondence).
-- **Citation.** **NSW [1], Ch. VI §2: Theorem (6.2.1) (Hilbert's Satz 90) + the Kummer-sequence
-  isomorphism `H¹(G_K, μ_n) ≅ K^×/K^{×n}` displayed immediately after it (electronic ed.
-  p. 344); dual form Theorem (6.2.2)** `[✓ verified in the provided NSW]`.  Secondary:
-  **Serre LF [7], Ch. XIV §2 (p. 206)** — `K*/K*ⁿ ≅ {characters of order ∣ n}` (construction
-  Ch. X §3) `[✓ verified in the provided scan]`.
-- **Lean.** `GQ2.kummerClassK_surjective` — surjectivity of the existing `kummerClassK`
-  (`GQ2/EvensKahn.lean`, the B9 input shape; canonical root `sqrtCl`, subtype-group flavor).
+- **Citation** (kept for the record). **NSW [1], Ch. VI §2: Theorem (6.2.1) (Hilbert's Satz 90) +
+  the Kummer-sequence isomorphism `H¹(G_K, μ_n) ≅ K^×/K^{×n}` displayed immediately after it
+  (electronic ed. p. 344); dual form Theorem (6.2.2)** `[✓ verified in the provided NSW]`.
+  Secondary: **Serre LF [7], Ch. XIV §2 (p. 206)** — `K*/K*ⁿ ≅ {characters of order ∣ n}`
+  (construction Ch. X §3) `[✓ verified in the provided scan]`.
+- **Lean.** `GQ2.kummerClassK_surjective` — since 2026-07-09 a same-name **theorem** (zero
+  consumer churn, the B11 precedent), proved **std-3** (no B-axioms) in
+  `GQ2/KummerSurjectivity.lean` + `GQ2/KummerKrullBridge.lean`: completing the square + the
+  Krull–Galois correspondence (B12 board, `docs/orchestration/b12-tickets.md` /
+  `b12-proof-plan.md`; census 15 → 13 together with the B2 deletion).
 - **Used at.** Lemma 6.17 (P-15f1: transport of the unit filtration to `H¹(G_K, 𝔽₂)`); §6.3.
 
 ### B13. Dyadic unit-filtration graded structure  ✅ faithful
@@ -325,7 +331,7 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 | leaf | precise citation | conf. | Lean |
 |---|---|---|---|
 | B1  `G_ℚ₂` top. f.g. | **NSW (7.5.14) Jannsen–Wingberg** (`N+3` gens); (7.5.11) | ✅ **verified** | ✅ axiom |
-| B2  2-adic cyclotomic surjective | Washington, *Cyclotomic Fields*, **Ch. 2 Thm 2.5** | ✅ **verified** | ✅ axiom |
+| B2  2-adic cyclotomic surjective | Washington, *Cyclotomic Fields*, **Ch. 2 Thm 2.5** | ✅ **verified** | ❌ **deleted 2026-07-09** (unused) |
 | B3  Demushkin classification | **Labute [2] Thm 8** (`D₀` at `d=1`) & **Thm 4 case (2)** | ✅ **verified** | 🟡 |
 | B4  `G_ℚ₂(2)` is rank-3 Demushkin | **NSW (7.5.11)(ii)** (rank `N+2=3`); Serre [3]; Labute [2] | ✅ **verified** | ✅ axiom |
 | B5  local reciprocity for `ℚ₂` | **NSW (7.1.1)/(7.1.5)** (class formation); Serre *LF* XI–XII | ✅ **verified** | 🟡 |
@@ -342,9 +348,12 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 citation; `confirmed` = checked against a reliable secondary source; `~` = my identification, source
 not yet to hand.)
 
-**Bottom line for review.** The whole theorem rests on **fifteen** classical inputs (B1–B10, B7′, B11a/b, B12, B13 — B10 added post-kickoff by the P-06 census decision, B11–B13 by the P-15/P-23/P-15f1 census decisions); of the two
+**Bottom line for review.** The whole theorem rests on **thirteen** classical inputs (B1, B3–B10,
+B7′, B11a/b, B13 — B10 added post-kickoff by the P-06 census decision, B11–B13 by the
+P-15/P-23/P-15f1 census decisions; **B12 discharged in-repo as a same-name std-3 theorem and the
+unused B2 deleted**, B12-board census flip, user-approved 2026-07-09); of the two
 finite-group inputs that would also have appeared (RZ Hopfian, Schur–Zassenhaus) both are already
-proved. B1–B2 are machine-checked faithful statements; B3–B9 are precise here but await Mathlib
+proved. B1 is a machine-checked faithful statement; B3–B9 are precise here but await Mathlib
 infrastructure (Demushkin groups, continuous Galois cohomology + Tate duality, Hilbert symbols,
 Stiefel–Whitney/Evens classes, étale `π₁`) before they can be stated faithfully in Lean.
 
@@ -374,7 +383,8 @@ Stiefel–Whitney/Evens classes, étale `π₁`) before they can be stated faith
 
 **Also verified (later-added sources):**
 - **B2** — Washington, *Introduction to Cyclotomic Fields*, **Ch. 2 Theorem 2.5**
-  (`Gal(ℚ(ζ_n)/ℚ) ≅ (ℤ/n)ˣ` via the cyclotomic character) — verified verbatim.
+  (`Gal(ℚ(ζ_n)/ℚ) ≅ (ℤ/n)ˣ` via the cyclotomic character) — verified verbatim.  (Axiom deleted
+  2026-07-09 as unused; the verification record stays.)
 - **B10** — NSW **(7.5.3) (Iwasawa)** — "the Galois group of the maximal tamely ramified
   extension of a local field is the profinite group generated by two elements σ, τ with the
   only relation στσ⁻¹ = τ^q" — verified verbatim, with **(7.5.2)** (the split extension).
@@ -426,7 +436,7 @@ superfluous now that both NSW **and** Serre *GC* are verified.
 - **B12** — NSW **(6.2.1)** (Satz 90) + the displayed Kummer isomorphism
   `H¹(G_K, μ_n) ≅ K^×/K^{×n}` of Ch. VI §2 and its dual **(6.2.2)** — verified verbatim;
   Serre LF **Ch. XIV §2 p. 206** (isomorphism onto characters; construction Ch. X §3) —
-  verified verbatim.
+  verified verbatim.  (**Discharged 2026-07-09**: no longer an axiom — proved in-repo, std-3.)
 - **B13** — Serre LF **Ch. IV §2, Prop. 6** (graded pieces of the unit filtration) and, for the
   in-repo (F2) discharge, **Prop. 7** (+ Prop. 5) (`s(π)/π`, uniformizer-independent) — verified
   verbatim.  The (93) square-class consequence and the Hensel top are *proved*, not leafed.
@@ -434,8 +444,10 @@ superfluous now that both NSW **and** Serre *GC* are verified.
   (`|G|` annihilates `H^n(G,M)`, `n > 0`; invertible ⟹ vanishing) and **Theorem (10.3)**
   (Sylow restriction) — verified verbatim in the provided Brown scan.
 
-**Net: all fifteen leaves (B1–B10, B7′, B11a, B11b, B12, B13) are source-verified** — each carries an exact
+**Net: every leaf that has ever been in the census is source-verified** — each carries an exact
 theorem number and a verbatim statement checked against the provided PDFs (B6/B7 doubly-sourced;
 B3's Theorem 8 at `d=1` reproduces the paper's `D₀` on the nose; B11a/B11b line-checked by P-20,
 2026-07-05). The two would-be finite-group inputs (RZ Hopfian Prop. 2.5.2, Schur–Zassenhaus) are
-*proved* in the formalization. Nothing in the classical layer remains unchecked.
+*proved* in the formalization. Nothing in the classical layer remains unchecked.  Of the fifteen
+historical leaves, **thirteen remain axioms** after the 2026-07-09 B12-board census flip: **B12**
+is discharged (same-name std-3 theorem, proved in-repo) and the never-consumed **B2** is deleted.

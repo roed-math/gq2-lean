@@ -1,14 +1,19 @@
-# B12 discharge — ticket board  (prove `kummerClassK_surjective`, census 15 → 14)
+# B12 discharge — ticket board  (prove `kummerClassK_surjective`; landed as census 15 → 13)
 
-**Status (2026-07-09): B12-0 ☑ done — B12-1 ∥ B12-2 are ready to start** (independent lanes;
-B12-3 after both; B12-4 gated on explicit user census approval + quiet tree).  The 2026-07-09
+**Status (2026-07-09): COMPLETE — B12-0/1/2/3/4 all ☑; board archived.**  The capstone
+`KummerSurjectivity.kummerClassK_surjective'` is proved **std-3 exactly** (no B-axioms, no
+`sorryAx`; commit `bc7ac3c`), and the **B12-4 census flip landed with explicit user approval on
+a quiet tree**: `kummerClassK_surjective` is now a same-name **theorem** in
+`Foundations/Axioms.lean`, and — same user directive — the never-consumed **B2**
+`cyclotomicCharacter_two_surjective` was **deleted**, so the census moved 15 → **13** (not the
+15 → 14 this board was cut for).  `EXPECTED_AXIOMS=13`; ledger, literature docs, and atlas
+updated.  Historical note: the 2026-07-09
 refactor is landed and accounted for in the B12-0 findings: dedup `2ce8bc8` (touched none of
 the six port targets) and subdirectory regrouping `c6a2293` (only adjacent rename:
-`ShapiroDeepness.lean` → `Shapiro/Deepness.lean`).  The census stays frozen at 15 until
-**B12-4 un-freezes it by explicit user approval** (this axiom-removal initiative).
+`ShapiroDeepness.lean` → `Shapiro/Deepness.lean`).
 
 Route, ingredient inventory, and risk analysis: [`b12-proof-plan.md`](b12-proof-plan.md)
-(§ numbers below refer to it).  Conventions as on the parent board [`tickets.md`](tickets.md) —
+(§ numbers below refer to it).  Conventions as on the parent board [`tickets.md`](../tickets.md) —
 **Model**: **F** = Fable (design-heavy), **O** = Opus (well-specified), **F→O** = Fable design
 then Opus close.  **Gates for every ticket**: own-file `lake build`; `lean_verify` = exactly
 `{propext, Classical.choice, Quot.sound}` on every new declaration (the whole proof is
@@ -23,11 +28,10 @@ imports only `Mathlib + CupProduct + Kummer + Demushkin`).
 | B12-0 | ☑ 07-09 | O | Post-dedup recon: ingredients, Mathlib names, import DAG | ½ | — |
 | B12-1 | ☑ 07-09 | O | Hom/kernel layer + `kummerClassK_one` port | 1 | B12-0 ☑ |
 | B12-2 | ☑ 07-09 | O | Krull bridge: open index-2 kernel ⇒ quadratic subextension (in `KummerKrullBridge.lean`) | 1 | B12-0 ☑ |
-| B12-3 | ⬜ | O | Downstream ports + capstone `kummerClassK_surjective'` | 1–1½ | B12-1 ∧ B12-2 |
-| B12-4 | ⬜ | O | Census-flip commit (user approval + quiet tree) | ½ | B12-3 |
+| B12-3 | ☑ 07-09 | O | Downstream ports + capstone `kummerClassK_surjective'` (`bc7ac3c`, std-3) | 1–1½ | B12-1 ∧ B12-2 |
+| B12-4 | ☑ 07-09 | O *(ran F)* | Census-flip commit (user-approved; + B2 deletion, census 15 → 13) | ½ | B12-3 |
 
-Est. in lane-sessions (~½–1 day each).  **B12-1 ∥ B12-2** are independent lanes.
-Total remaining ≈ **3–5 lane-sessions** (the ×2 Mathlib-gap buffer is retired — see B12-0.3).
+Est. in lane-sessions (~½–1 day each).  **B12-1 ∥ B12-2** were independent lanes.
 
 ---
 
@@ -137,7 +141,29 @@ route above is fully specified.  Escalate to F only if the reducible-abbrev/`IsG
 instance glue misbehaves at `Gal(ℚ̄₂/ℚ₂)` or the `ClosedSubgroup`/`subgroupOf` round-trips
 fight back for more than ~half a session.
 
-## B12-3 — ports + capstone  (O, 1–1½ sessions)
+## B12-3 — ports + capstone  (O, 1–1½ sessions)  ☑ done 2026-07-09 (`bc7ac3c`)
+
+**Outcome.**  `KummerSurjectivity.kummerClassK_surjective'` proved, **std-3 exactly** (no
+B-axioms, no `sorryAx`); `lake build GQ2.KummerSurjectivity` green, `check_axioms` passes (census
+still 15).  Appended to B12-1's `GQ2/KummerSurjectivity.lean`, which now imports
+`GQ2.KummerKrullBridge` for the B12-2 bridge.  Findings:
+
+1. **Only *five* ports were needed, not six.**  `finrank_extendScalars_eq_two` /
+   `index_extendScalars_fixingSubgroup` are consumed *inside* B12-2's
+   `exists_quadratic_of_open_index_two` (which re-proved them as its own `private` copies), so
+   B12-3 imports the bridge and never ports them — the capstone consumes the bridge's `finrank = 2`
+   output directly.  The five B12-3 ports (`fixingSubgroup_adjoin_simple`, `mem_bot_iff_mem`,
+   `exists_sqrt_generator`, `fixingSubgroup_subgroupOf_eq_stabilizer`, `kcf_root_indep'`) are all
+   `private` (file-scoped ⇒ no clash with B12-2's `private` degree lemmas in the same namespace).
+2. **All five transplanted verbatim-modulo-namespace** (no `HilbertLedger`-only helper surfaced);
+   each std-3 on its own.  One small extra helper `kcf_eq_zero_iff` (`κ_x(γ)=0 ↔ γ•x=x`) added for
+   the final cocycle match.
+3. **B12-2's bridge signature = the plan's §4-I2 shape on the nose**, so the assembly wired with
+   zero friction.  Note B12-1's *actual* names are `zHom` / `mem_zHom_ker` / `eq_of_zero_set` (the
+   plan's `zHom.ker` / `hom_eq_of_ker_eq` were placeholders); the capstone uses the real names.
+4. **`GQ2.lean` needs no edit**: `KummerSurjectivity` is already registered (line 30), and
+   `KummerKrullBridge` enters the build transitively through the new import.  So B12-4's flip only
+   has to `import GQ2.KummerSurjectivity` in `Axioms.lean`, exactly as planned.
 
 - Private ports (**confirmed alive by B12-0.2, all six**): `exists_sqrt_generator`,
   `mem_bot_iff_mem`, `fixingSubgroup_subgroupOf_eq_stabilizer`,
@@ -171,9 +197,9 @@ through their existing `Foundations.Axioms` import).  One commit, landed on a **
 3. `GQ2/AxiomLedger.lean`: drop B12 from `bAxioms` (the file is *designed* to fail to compile
    on census drift — that failure is the check working; fix it here, same commit).
 4. Live docs only (**do not touch the archived `docs/orchestration/`**):
-   [`literature-axioms.md`](literature-axioms.md) B12 row → *discharged, proved in-repo* (keep
-   the NSW/Serre citations), [`literature-axioms-onepage.md`](literature-axioms-onepage.md)
-   foot, the census notes in [`tickets.md`](tickets.md), and regenerate `atlas-audit.md` with
+   [`literature-axioms.md`](../literature-axioms.md) B12 row → *discharged, proved in-repo* (keep
+   the NSW/Serre citations), [`literature-axioms-onepage.md`](../literature-axioms-onepage.md)
+   foot, the census notes in [`tickets.md`](../tickets.md), and regenerate `atlas-audit.md` with
    the B12-0.4 invocation.
 5. Full `lake build` + `check_axioms.sh` + spot `lean_verify` on a B12 consumer
    (`DeepCount`/`DimClose` capstones): `kummerClassK_surjective` must vanish from their axiom

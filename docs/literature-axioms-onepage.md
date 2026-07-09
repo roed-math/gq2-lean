@@ -10,7 +10,7 @@ Lemma 2.5's only classical input is *proved* in the formalization (see foot); eq
 | # | classical statement | citation | ✓ |
 |---|---|---|:--:|
 | B1 | `G_ℚ₂` is topologically finitely generated (`N+3` generators) | NSW **(7.5.14)** (Jannsen–Wingberg) | ✓ |
-| B2 | 2-adic cyclotomic character `Gal(ℚ̄/ℚ) → ℤ₂ˣ` is surjective | Washington, *Cyclotomic Fields*, **Ch. 2 Thm 2.5** | ✓ |
+| ~~B2~~ | ~~2-adic cyclotomic character `Gal(ℚ̄/ℚ) → ℤ₂ˣ` is surjective~~ *(deleted 2026-07-09: never consumed)* | Washington, *Cyclotomic Fields*, **Ch. 2 Thm 2.5** | ✓ |
 | B3 | Demushkin classification; `G_ℚ₂(2) ≅ ⟨A,S,Y \| A²S⁴[S,Y]=1⟩` | Labute **Thm 8** (`d=1`), **Thm 4 case (2)** | ✓ |
 | B4 | `G_ℚ₂(2)` is a Demushkin group of rank `3` (`q=2`) | NSW **(7.5.11)(ii)** | ✓ |
 | B5 | local reciprocity: `(G_k, k̄ˣ)` is a class formation | NSW **(7.1.1)**, **(7.1.5)** | ✓ |
@@ -25,13 +25,17 @@ Lemma 2.5's only classical input is *proved* in the formalization (see foot); eq
 classical input) and **Schur–Zassenhaus** (§9.1 terminal case).
 
 **Status.** The **ten leaves above are source-verified** — each has an exact theorem number and a
-verbatim statement checked against the cited book/paper (`✓`; `✓✓` = two independent sources). *Two
-later census additions are off this condensed page:* **B10** (tame quotient, NSW **(7.5.3)** —
+verbatim statement checked against the cited book/paper (`✓`; `✓✓` = two independent sources).
+*Later census additions are off this condensed page:* **B10** (tame quotient, NSW **(7.5.3)** —
 verified; **oriented form B10′ since 2026-07-06**: reciprocity-orientation clauses, Neukirch ANT
-**V (6.2)** units ↦ inertia + **V (1.2)** units-are-unramified-norms, both verified) and
+**V (6.2)** units ↦ inertia + **V (1.2)** units-are-unramified-norms, both verified),
 **B11a/B11b** (dyadic norm criterion, Serre *Local Fields* **XIV §2 Prop. 7 iii** /
-**V §2 Prop. 3** — line-checked by P-20, 2026-07-05); see `literature-axioms.md`.  Full census:
-**13** axioms, all source-verified.
+**V §2 Prop. 3** — line-checked by P-20, 2026-07-05), and **B13** (dyadic unit filtration,
+Serre *Local Fields* **IV §2 Prop. 6** — line-checked by P-15f1, 2026-07-06); see
+`literature-axioms.md`.  **2026-07-09 census flip (B12 board, user-approved):** **B12** (local
+Kummer surjectivity, NSW **(6.2.1)** — added 2026-07-06) is **discharged, proved in-repo** as a
+same-name std-3 theorem, and the never-consumed **B2** is **deleted** (struck above).  Full
+census: **13** axioms, all source-verified.
 
 **Legend / refs.** `✓` checked against source; `✓✓` two sources. — **NSW** =
 Neukirch–Schmidt–Wingberg, *Cohomology of Number Fields*, 2nd ed.; **Serre *GC*** = *Galois

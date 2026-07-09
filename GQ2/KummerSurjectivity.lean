@@ -5,7 +5,8 @@ import GQ2.KummerKrullBridge
 # B12 discharge — surjectivity of `kummerClassK` (hom/kernel layer B12-1 + capstone B12-3)
 
 Groundwork for proving `GQ2.kummerClassK_surjective` (`Foundations/Axioms.lean`) in-repo,
-retiring axiom **B12** (census 15 → 14).  See `docs/b12-tickets.md` / `docs/b12-proof-plan.md`.
+retiring axiom **B12** (landed 2026-07-09, census 15 → 13 together with the B2 deletion).
+See `docs/orchestration/b12-tickets.md` / `b12-proof-plan.md` (archived board + plan).
 
 This file is the **hom/kernel layer** (B12-1): it turns a degree-1 class
 `c ∈ H¹(G_k, 𝔽₂)` — via `H1mk_surjective`, some cocycle `z ∈ Z¹` — into an open, index-2

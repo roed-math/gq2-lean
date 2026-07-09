@@ -27,19 +27,25 @@ still cite the old `docs/<name>.md` paths).
 
 | Deliverable | Lean name | File | Axioms beyond std-3 |
 |---|---|---|---|
-| **Theorem 1.2 (literal)** | `main_presentation_literal` | `GQ2/PresentationLiteral.lean` | B1 + Track B (12 leaves total) |
-| Theorem 1.2 (count form) | `main_surjection_count'` | `GQ2/SectionTenSources.lean` | 12 leaves (see `atlas-audit.md` §2) |
+| **Theorem 1.2 (literal)** | `main_presentation_literal` | `GQ2/PresentationLiteral.lean` | B1 + Track B (11 leaves total since the 2026-07-09 B12 discharge) |
+| Theorem 1.2 (count form) | `main_surjection_count'` | `GQ2/SectionTenSources.lean` | 11 leaves (see `atlas-audit.md` §2) |
 | eq. (154) | `eq_154` | `GQ2/SectionTenSources.lean` | via `thm_4_2` |
 | Theorem 4.2 (per frame) | `thm_4_2`, `thm_4_2_stratum` | `GQ2/ThmFourTwo.lean` | B1, B3c, B6, B7, B7′, B8, B9, … |
 | Prop 8.9 (closed recursion) | `prop_8_9` | `GQ2/Prop89Close.lean` | B6, B7 |
 | Lemma 6.17 (vanish) | `lemma_6_17_vanish_final` | `GQ2/VanishClose.lean` | (see file) |
 
 Notes:
-- **Axiom census 15** (B1, B2, B3c, B4, B5, B6, B7, B7′, B8, B9, B10′, B11a, B11b, B12, B13);
+- **Axiom census 13** (B1, B3c, B4, B5, B6, B7, B7′, B8, B9, B10′, B11a, B11b, B13);
   literature justification in [`literature-axioms.md`](literature-axioms.md) (+ one-page form),
   adversarial review in [`adversarial-axioms-review.md`](adversarial-axioms-review.md).
-  Two axioms (`absGalQ2_maxProTwo_presentation`, `cyclotomicCharacter_two_surjective`) are
-  consumed by **no** deliverable — kept because the census is frozen.
+  **2026-07-09 census flip (B12 board, user-approved, census 15 → 13):** **B12**
+  `kummerClassK_surjective` **discharged** — proved std-3 in `GQ2/KummerSurjectivity.lean` +
+  `GQ2/KummerKrullBridge.lean`, surviving as a same-name theorem in `Foundations/Axioms.lean`
+  (zero consumer churn, B11 precedent; board archived at
+  [`orchestration/b12-tickets.md`](orchestration/b12-tickets.md)); the never-consumed **B2**
+  `cyclotomicCharacter_two_surjective` **deleted** (citation record kept in
+  `literature-axioms.md`).  One axiom (`absGalQ2_maxProTwo_presentation`, B4) remains consumed
+  by **no** deliverable — kept because the census is frozen.
 - **Zero `sorry`s anywhere**; no `native_decide`; `axiom` only in `Foundations/Axioms.lean`.
 - Paper statements proved but **off** the main path are catalogued in
   [`off-path-statements.md`](off-path-statements.md) (kept for the paper rewrite).
