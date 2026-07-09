@@ -9,10 +9,11 @@ is proved in [`GQ2/PresentationLiteral.lean`](../GQ2/PresentationLiteral.lean), 
 the counting capstone `main_surjection_count'` (`#(continuous surjections G_{ℚ₂} ↠ G) =
 admissibleCount G`, [`GQ2/SectionTenSources.lean`](../GQ2/SectionTenSources.lean)).  The
 library is **fully `sorry`-free** (guard: [`scripts/check_axioms.sh`](../../scripts/check_axioms.sh),
-allowlist emptied 2026-07-08) and rests on the **frozen 15-axiom census** of
+allowlist emptied 2026-07-08) and rests on the **9-axiom census** of
 [`GQ2/Foundations/Axioms.lean`](../GQ2/Foundations/Axioms.lean) — every theorem is
-`#print axioms` ⊆ std-3 ∪ its declared B-leaves.  The capstone's trust base (12 of the 15
-axioms) and its 30-node semantic review cone are machine-generated in
+`#print axioms` ⊆ std-3 ∪ its declared B-leaves.  (15 at proof completion; see the census-flip
+notes below.)  The capstone's trust base (all 9 — census = trust base since the 2026-07-10 B4
+deletion) and its 30-node semantic review cone are machine-generated in
 [`atlas-audit.md`](../atlas-audit.md).
 
 This file is the **human-readable summary** of the ticket system that produced the proof
@@ -27,15 +28,15 @@ still cite the old `docs/<name>.md` paths).
 
 | Deliverable | Lean name | File | Axioms beyond std-3 |
 |---|---|---|---|
-| **Theorem 1.2 (literal)** | `main_presentation_literal` | `GQ2/PresentationLiteral.lean` | B1 + Track B (11 leaves total since the 2026-07-09 B12 discharge) |
-| Theorem 1.2 (count form) | `main_surjection_count'` | `GQ2/SectionTenSources.lean` | 11 leaves (see `atlas-audit.md` §2) |
+| **Theorem 1.2 (literal)** | `main_presentation_literal` | `GQ2/PresentationLiteral.lean` | B1 + Track B (9 leaves since the 2026-07-09/10 census flips) |
+| Theorem 1.2 (count form) | `main_surjection_count'` | `GQ2/SectionTenSources.lean` | 9 leaves (see `atlas-audit.md` §2) |
 | eq. (154) | `eq_154` | `GQ2/SectionTenSources.lean` | via `thm_4_2` |
 | Theorem 4.2 (per frame) | `thm_4_2`, `thm_4_2_stratum` | `GQ2/ThmFourTwo.lean` | B1, B3c, B6, B7, B8, B9, … |
 | Prop 8.9 (closed recursion) | `prop_8_9` | `GQ2/Prop89Close.lean` | B6, B7 |
 | Lemma 6.17 (vanish) | `lemma_6_17_vanish_final` | `GQ2/VanishClose.lean` | (see file) |
 
 Notes:
-- **Axiom census 10** (B1, B3c, B4, B5, B6, B7, B8, B9, B10′, B11a);
+- **Axiom census 9** (B1, B3c, B5, B6, B7, B8, B9, B10′, B11a);
   literature justification in [`literature-axioms.md`](literature-axioms.md) (+ one-page form),
   adversarial review in [`adversarial-axioms-review.md`](adversarial-axioms-review.md).
   **2026-07-09 census flip (B12 board, user-approved, census 15 → 13):** **B12**
@@ -64,9 +65,10 @@ Notes:
   depth-by-depth norm-form successive approximation against the B13 unit filtration), surviving as
   a same-name theorem in `Foundations/Axioms.lean` (zero consumer churn); **`dyadicNormCriterion`
   now rests on B11a alone** (board archived at
-  [`orchestration/b11b-tickets.md`](orchestration/b11b-tickets.md)).  One axiom
-  (`absGalQ2_maxProTwo_presentation`, B4) remains consumed
-  by **no** deliverable — kept because the census is frozen.
+  [`orchestration/b11b-tickets.md`](orchestration/b11b-tickets.md)).  **2026-07-10 (user-approved): B4** `absGalQ2_maxProTwo_presentation` **deleted**
+  (census 10 → 9) — the last no-consumer axiom (B3c's composite interface subsumes a marked
+  B4; citation record kept in `Foundations/Axioms.lean` and `docs/literature-axioms.md`).
+  Every remaining census axiom is consumed by the capstone: census = trust base.
 - **Zero `sorry`s anywhere**; no `native_decide`; `axiom` only in `Foundations/Axioms.lean`.
 - Paper statements proved but **off** the main path are catalogued in
   [`off-path-statements.md`](off-path-statements.md) (kept for the paper rewrite).

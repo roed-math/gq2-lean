@@ -47,8 +47,10 @@ current Mathlib plus this repo's `ContCoh` cohomology:
   form: a B4 isomorphism normalized so the descended cyclotomic character takes Labute's
   Thm 4(2) values `(−1, 1, (−3)⁻¹)` on `A, S, Y` (defs + route decision in
   `GQ2/Orientation.lean`).  **Composite interface** — subsumes a marked B4 (see its docstring).
-* **B4** `Foundations.absGalQ2_maxProTwo_presentation` — `G_ℚ₂(2) ≅ D₀`, the rank-3 dyadic
-  Demushkin presentation (defs in `GQ2/DyadicPresentation.lean`).
+* ~~**B4** `Foundations.absGalQ2_maxProTwo_presentation`~~ — `G_ℚ₂(2) ≅ D₀`, the rank-3 dyadic
+  Demushkin presentation; never acquired a consumer (Prop 1.1's landed route enters through
+  **B3c**, whose composite interface subsumes a *marked* B4) and **deleted 2026-07-10** (census
+  decision, user-approved; citation record kept below and in `docs/literature-axioms.md` B4).
 * **B5** `localReciprocity` — the local-reciprocity bundle (defs in `GQ2/Reciprocity.lean`).
 * **B6** `tateDualityAt` — local Tate duality, per-`n` bundle, at every finite `k/ℚ₂`
   (base-generalized 2026-07-06; the `ℚ₂` member is the `def tateDuality`; defs in
@@ -162,26 +164,25 @@ reconstruction argument). -/
 axiom absGalQ2_isTopologicallyFinitelyGenerated :
     ∃ s : Finset AbsGalQ2, (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤
 
-/-! ## B4 — the rank-3 dyadic Demushkin presentation
+/-! ## B4 — the rank-3 dyadic Demushkin presentation  (deleted 2026-07-10)
 
-The presented group `D₀ = ⟨A, S, Y | A²S⁴[S,Y]⟩` (the relator `d0Relator`) and its finite-marking
-stress test live in `GQ2/DyadicPresentation.lean`; the maximal pro-2 quotient `maxProPQuotient 2`
-and its universal property live in `GQ2/MaxProP.lean`. -/
+**B4** (`absGalQ2_maxProTwo_presentation` — the maximal pro-2 quotient
+`G_ℚ₂(2) = maxProPQuotient 2 G_ℚ₂` of the absolute Galois group is the rank-3 dyadic Demushkin
+group `D₀ = ⟨A, S, Y | A²S⁴[S,Y] = 1⟩`, as `Nonempty (ContinuousMulEquiv (maxProPQuotient 2
+AbsGalQ2) D0)`) lived here until 2026-07-10.  It never acquired a Lean consumer — Prop 1.1's
+landed route enters through **B3c**, whose composite interface bundles a *marked,
+orientation-normalized* B4 isomorphism (see B3c's docstring) — and the atlas audit had it
+feeding no deliverable.  **Deleted** by census decision (user-approved 2026-07-10;
+census 10 → 9, the B2 pattern).  With this deletion every census axiom is consumed by the
+capstone: census = `#print axioms` trust base.
 
-/-- **[Classical — B4.]** The maximal pro-2 quotient `G_ℚ₂(2) = maxProPQuotient 2 G_ℚ₂` of the
-absolute Galois group is the rank-3 dyadic Demushkin group `D₀ = ⟨A, S, Y | A²S⁴[S,Y] = 1⟩`:
-there is a continuous isomorphism `G_ℚ₂(2) ≅ D₀`.
-
-Citation: **NSW [1], Ch. VII §7.5, Theorem (7.5.11)(ii)** — if `μ_p ⊆ k` then `G_k(p)` is a
-Demushkin group of rank `[k:ℚ_p]+2`; for `k = ℚ₂` (`p=2`, `N=1`, `μ_2 = {±1} ⊆ ℚ₂`) this is
+Citation record: **NSW [1], Ch. VII §7.5, Theorem (7.5.11)(ii)** — if `μ_p ⊆ k` then `G_k(p)` is
+a Demushkin group of rank `[k:ℚ_p]+2`; for `k = ℚ₂` (`p=2`, `N=1`, `μ_2 = {±1} ⊆ ℚ₂`) this is
 rank `1+2 = 3`.  The explicit relation `A²S⁴[S,Y]` is **Labute [2], Theorem 8** at `d = 1` (the
 paper's `D₀`); also Serre [3].  Paper: Lemma 3.4 → Prop. 1.1.  `docs/literature-axioms.md` B4.
-
-The `CompactSpace`/`TotallyDisconnectedSpace` instance hypotheses on `AbsGalQ2` mirror
-`main_presentation` (Mathlib's `Field.absoluteGaloisGroup` does not yet carry them; open PR). -/
-axiom absGalQ2_maxProTwo_presentation
-    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
-    Nonempty (ContinuousMulEquiv (maxProPQuotient 2 AbsGalQ2) D0)
+The presented group `D₀` (relator `d0Relator`) and its finite-marking stress test remain in
+`GQ2/DyadicPresentation.lean`; `maxProPQuotient 2` and its universal property in
+`GQ2/MaxProP.lean`. -/
 
 /-! ## B7 — the local Euler–Poincaré characteristic
 

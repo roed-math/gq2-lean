@@ -7,10 +7,10 @@ the **main theorem** of
 > (June 2026). [[local copy]](paper/A_Profinite_Presentation_for_G__Q_2.pdf)
 
 The paper is machine-generated (GPT).  **The formalization is complete** (2026-07-08):
-Theorem 1.2 is proved end-to-end, fully `sorry`-free, from a frozen census of **10
+Theorem 1.2 is proved end-to-end, fully `sorry`-free, from a frozen census of **9
 literature axioms** (deep local-arithmetic inputs Mathlib does not yet contain, each with
-a precise citation — see below; 15 at completion, reduced to 10 on 2026-07-09 by proving
-**B7′, B11b, B12, B13** in-repo and deleting the never-consumed **B2**).  The final statements:
+a precise citation — see below; 15 at completion, reduced on 2026-07-09/10 by proving
+**B7′, B11b, B12, B13** in-repo and deleting the never-consumed **B2** and **B4**).  The final statements:
 
 - `GQ2.main_presentation_literal : Nonempty (ContinuousMulEquiv GammaA AbsGalQ2)`
   ([`GQ2/PresentationLiteral.lean`](GQ2/PresentationLiteral.lean)) — the literal Theorem 1.2;
@@ -56,7 +56,7 @@ The right-hand side is finite, explicit, and **decidable** for each fixed $G$.
 ## Trust base
 
 Everything reduces to the standard three Lean axioms (`propext`, `Classical.choice`,
-`Quot.sound`) plus the **frozen 10-axiom census** in
+`Quot.sound`) plus the **frozen 9-axiom census** in
 [`GQ2/Foundations/Axioms.lean`](GQ2/Foundations/Axioms.lean) — the only file allowed to
 contain `axiom` declarations, enforced by [`scripts/check_axioms.sh`](scripts/check_axioms.sh)
 (which also enforces **zero `sorry`s** repo-wide and no `native_decide`).  Each axiom is a
@@ -65,7 +65,9 @@ dyadic Hilbert symbol B7′, the unit filtration B13, …).  On 2026-07-09 five 
 **proved in-repo** as same-name declarations (zero consumer churn), shrinking the census
 15 → 10: the dyadic Hilbert symbol (B7′), Kummer surjectivity (B12), the unit filtration (B13),
 and unramified unit-norm surjectivity (B11b, so `dyadicNormCriterion` now rests on B11a alone),
-plus deletion of the unused B2:
+plus deletion of the unused B2; on 2026-07-10 the similarly never-consumed **B4** (the standalone
+Demushkin-presentation axiom — B3c's composite interface subsumes a marked B4) was deleted,
+census 9.  **Every census axiom is now consumed by the capstone: census = trust base.**
 
 - [`docs/literature-axioms.md`](docs/literature-axioms.md) — citations + exact-statement
   discussion (one-page summary: [`docs/literature-axioms-onepage.md`](docs/literature-axioms-onepage.md));
@@ -87,7 +89,7 @@ proved but not needed by the final route are catalogued in
 | path | contents |
 |---|---|
 | `paper/` | the source PDF |
-| `GQ2/Foundations/Axioms.lean` | the frozen 10-axiom census (B1–B13, less the discharged B7′/B11b/B12/B13 and deleted B2) |
+| `GQ2/Foundations/Axioms.lean` | the frozen 9-axiom census (B1–B13, less the discharged B7′/B11b/B12/B13 and deleted B2/B4) |
 | `GQ2/Statement.lean`, `GQ2/PresentationLiteral.lean` | Theorem 1.2, literal + count forms |
 | `GQ2/SectionTenSources.lean` | `eq_154` + the capstone `main_surjection_count'` |
 | `GQ2/ThmFourTwo.lean` | Theorem 4.2 (the §9 induction output) |

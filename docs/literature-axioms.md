@@ -121,7 +121,7 @@ not yet to hand.
   table (`docs/review-packet.md` §2).
 - **Used at.** Lemma 3.4 → Prop 1.1.
 
-### B4. `G_ℚ₂(2)` is the rank-3 dyadic Demushkin group  🟡 schematic
+### B4. `G_ℚ₂(2)` is the rank-3 dyadic Demushkin group  🟡 schematic · **DELETED 2026-07-10 (unused — B3c subsumes a marked B4)**
 - **Statement.** The maximal pro-2 quotient `G_ℚ₂(2)` of the absolute Galois group is a Demushkin
   group of rank `[ℚ₂:ℚ₂]+2 = 3` with `q = 2`; concretely `G_ℚ₂(2) ≅ ⟨A,S,Y | A²S⁴[S,Y]=1⟩_{pro-2}`.
 - **Citation.** **NSW [1], Ch. VII §7.5, Theorem (7.5.11)(ii)** `[✓ verified in the provided NSW]` —
@@ -349,7 +349,7 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 | B1  `G_ℚ₂` top. f.g. | **NSW (7.5.14) Jannsen–Wingberg** (`N+3` gens); (7.5.11) | ✅ **verified** | ✅ axiom |
 | B2  2-adic cyclotomic surjective | Washington, *Cyclotomic Fields*, **Ch. 2 Thm 2.5** | ✅ **verified** | ❌ **deleted 2026-07-09** (unused) |
 | B3  Demushkin classification | **Labute [2] Thm 8** (`D₀` at `d=1`) & **Thm 4 case (2)** | ✅ **verified** | 🟡 |
-| B4  `G_ℚ₂(2)` is rank-3 Demushkin | **NSW (7.5.11)(ii)** (rank `N+2=3`); Serre [3]; Labute [2] | ✅ **verified** | ✅ axiom |
+| B4  `G_ℚ₂(2)` is rank-3 Demushkin | **NSW (7.5.11)(ii)** (rank `N+2=3`); Serre [3]; Labute [2] | ✅ **verified** | ❌ **deleted 2026-07-10** (unused; B3c subsumes a marked B4) |
 | B5  local reciprocity for `ℚ₂` | **NSW (7.1.1)/(7.1.5)** (class formation); Serre *LF* XI–XII | ✅ **verified** | 🟡 |
 | B6  local Tate duality (all finite `k/ℚ₂`) | **NSW (7.2.6) "Tate Duality"**; Serre *GC* II §5.2; Milne I.2.1; induced Hilbert nondeg.: **FV IV §5 (5.1)(6)/(5.2)**, O'Meara **63:13** | ✅ **verified** | 🟡 |
 | B7  local Euler characteristic | **NSW (7.3.1) (Tate)** `χ=‖a‖`; Serre *GC* II §5.7; Milne I.2.8 | ✅ **verified** | 🟡 |
@@ -369,7 +369,8 @@ B11a — B10 added post-kickoff by the P-06 census decision, B11–B13 by the
 P-15/P-23/P-15f1 census decisions; **B12 discharged in-repo as a same-name std-3 theorem and the
 unused B2 deleted**, B12-board census flip, user-approved 2026-07-09; **B7′, B13, and B11b likewise
 discharged in-repo** (B13 a same-name `noncomputable def` over the `UnitFiltrationTop`/`Counts`
-lane; B11b a same-name theorem over the norm-form engine `UnramifiedQuadraticNorms`/`TeichmullerLift`,
+lane; B11b a same-name theorem over the norm-form engine `UnramifiedQuadraticNorms`/`TeichmullerLift`;
+the never-consumed **B4 deleted 2026-07-10** (user-approved; census 10 → 9, citation record in its §B4 above),
 so `dyadicNormCriterion` rests on B11a alone), B7′-, B13-, and B11b-board census flips,
 user-approved 2026-07-09); of the two
 finite-group inputs that would also have appeared (RZ Hopfian, Schur–Zassenhaus) both are already

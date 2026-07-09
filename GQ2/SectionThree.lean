@@ -21,8 +21,9 @@ Proof tickets: P-07 (3.5 ledger), P-08 (3.7/3.8), P-09 (3.2), P-10 (1.1).  The c
 design note `docs/section3-extraction.md` maps every statement to its paper display and
 records the absorption/deviation/escalation decisions summarized here:
 
-* **Lemma 3.4 is absorbed** by the axiom layer: its abstract-isomorphism clause *is* axiom B4
-  (`absGalQ2_maxProTwo_presentation`), its orientation-value clause *is* the B3c interface
+* **Lemma 3.4 is absorbed** by the axiom layer: its abstract-isomorphism clause *was* axiom B4
+  (`absGalQ2_maxProTwo_presentation`, deleted 2026-07-10 as unused — B3c subsumes a marked
+  B4), its orientation-value clause *is* the B3c interface
   (`DyadicOrientation`, route (ii)), and its classification-membership clause ("`D₀` is the
   standard rank-3, `q = 2` Demushkin group") is deliberately-unformalized Labute content per
   the standing B3b decision (T-10/T-11).  No sorried statement is introduced for it.
