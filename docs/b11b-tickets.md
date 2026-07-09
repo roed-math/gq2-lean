@@ -1,8 +1,10 @@
 # B11b discharge — ticket board  (prove `unramifiedQuadratic_units_are_norms`, census −1)
 
-**Status (2026-07-09): B11b-0/1/2 ☑ done — the residue layer (the risk pocket) is landed and
-std-3; only the engine chain remains, and B11b-3 is gated on the B13 capstone**
-([`b13-tickets.md`](b13-tickets.md) — the capstone theorem, not its census flip).  Design fixed during the planning session (Fable pass,
+**Status (2026-07-09): B11b-0/1/2/3/4 ☑ done — the theorem is fully proved (std-3); only the
+user-gated census flip B11b-5 remains.**  The capstone
+`unramifiedQuadratic_units_are_norms'` (byte-exact vs the axiom, `IsUnramifiedQuadraticSpectral`
+written unfolded) is `lean_verify` = std-3 exactly; B13 landed (census 11) so the whole engine
+is B-axiom-free.  Design fixed during the planning session (Fable pass,
 this board + [`b11b-proof-plan.md`](b11b-proof-plan.md)): the norm-form engine runs a
 **depth-by-depth approximation** against the B13 filtration, whose only genuinely novel brick
 is the **residue layer** — Teichmüller units + odd-root separation ⟹ `σ̄ ≠ id` ⟹ the trace
@@ -21,8 +23,8 @@ exists and is unrelated — do not touch it.
 | B11b-0 | ☑ 07-09 | O | Recon: σ-construction prototype (**go/no-go**), coordinate-API decision, name pins | ½ | — |
 | B11b-1 | ☑ 07-09 | O | Quadratic layer: `L`, coordinates, σ, `norm_galois` port, `N`/`s`, degenerate case | 1 | B11b-0 |
 | B11b-2 | ☑ 07-09 | F→O *(ran F)* | Residue layer: Teichmüller + root separation + `σ̄ ≠ id` + `s̄` surjectivity | 1–1½ | A-half: B11b-0 · B-half: B11b-1 |
-| B11b-3 | ⬜ | O | Approximation engine: π-transfer, depth-1 start, increments, limit | 1 | B11b-1 ∧ B11b-2 ∧ **B13 capstone** |
-| B11b-4 | ⬜ | O | Capstone `unramifiedQuadratic_units_are_norms'` (byte-exact) | ½–¾ | B11b-3 |
+| B11b-3 | ☑ 07-09 | O | Approximation engine: π-transfer, depth-1 start, increments, limit | 1 | B11b-1 ∧ B11b-2 ∧ **B13 capstone** |
+| B11b-4 | ☑ 07-09 | O | Capstone `unramifiedQuadratic_units_are_norms'` (byte-exact) | ½–¾ | B11b-3 |
 | B11b-5 | ⬜ | O | Census flip (**user gate**) | ½ | B11b-4 |
 
 Est. in lane-sessions.  **B11b-2(lane A) ∥ B11b-1**; B11b-1→4 in lane B.  Total ≈
@@ -143,21 +145,45 @@ kernel = fixed field), `l^{σ̄}`-linear into `l^{σ̄}`, surjective onto `l^{σ
 *F-escalation triggers*: Teichmüller Cauchy bookkeeping > ½ session; or the residue-level
 fixed-point identification resists the coordinate argument.
 
-## B11b-3 — approximation engine  (O, 1 session; lane B; **gated on B13 capstone**)
+## B11b-3 — approximation engine  ☑ done 2026-07-09  (`units_are_norms_nondegen`, std-3 exactly)
 
-Plan §1(F)+(A): π-transfer (`hunram` + `hπ_max` at `k` ⟹ `hπ_max` at `L`, `σπ = π`);
-filtration data at `k`, `L` via `dyadicUnitFiltration'`; depth-1 start (`u ≡ x₀² (mod 𝔪)` —
-Frobenius bijective on finite char-2 `k̄`); the increment
-`wₙ₊₁ = wₙ(1 + πⁿz₀)` with `s̄(z̄₀) = c̄` (state with explicit `‖·‖ ≤ ‖π‖^{n+1}` conclusions —
-cross term at depth `2n ≥ n+1`); Cauchy ⟹ limit `w`; `N` continuous (σ a `k`-linear isometry,
-fin-dim) ⟹ `N(w) = u`.  **Never take coordinates of `O_L`-elements** (non-integral
-coordinates exist, e.g. `(−1+√−3)/2`) — coordinates only of the final `w`.
+**Landed** in `GQ2/UnramifiedQuadraticNorms.lean` (now imports `GQ2.UnitFiltrationCounts` for the
+B13 capstone).  Own-file build green (8595 jobs); guard all-pass census 11.  **Design deltas over
+the plan — all simplifications:**
 
-## B11b-4 — capstone  (O, ½–¾ session; lane B)
+1. **No residue field, no Frobenius, no `s̄`-linear-algebra** — *every* residue input collapses
+   to **one** group-theoretic fact, `pow_card_sub_one_mem`: Lagrange in the finite quotient
+   `U⁰/U¹` (order `2^f − 1`, from `card_gr_zero`), `uᵃ ∈ U¹` for `a = 2^f − 1`.  From it:
+   * `exists_sq_approx` (depth-1 start): `x := u^{2^{f−1}}`, so `x² = u^{2^f}` and
+     `u^{2^f} − u = u(u^{2^f−1} − 1) ∈ 𝔪` — the "residues are squares" step **without the
+     residue field** (odd-order squaring is a red herring; it's the same Lagrange).
+   * `lagrange_pow_sub` (the `hlag` feeding `trace_covers`): unit case is `z^{q−1} ∈ U¹`
+     (Lagrange), non-unit case is ultrametric.
+2. **The increment uses the exact `trace_covers` (B11b-2), so it is division-clean**: with
+   `c := (U − N wₙ)/(N wₙ · πⁿ⁺¹)` and `z₀ = trace_covers c`, the crux identity
+   `U − N wₙ₊₁ = −(N wₙ)(πⁿ⁺¹)²(z₀ σz₀)` is a **`linear_combination` one-liner** once `cval` is
+   eliminated via `hrel2 : (z₀ + σz₀)(N wₙ)(πⁿ⁺¹) = U − N wₙ` (substituting `σz₀ = c − z₀`) —
+   no inverses reach `ring`.  Additive invariant `‖U − N wₙ‖ ≤ ‖π‖ⁿ⁺¹`.
+3. **`N z := z·σz` is `k`-valued via `norm_coord`** (`(x+yδa)(x−yδa) = ↑(x²−ay²)`), so `N wₙ ∈ k`
+   is immediate — no `σ² = id`-on-`L` lemma needed.  `N` continuous because **σ is an isometry**
+   (`norm_conj_eq` ⟹ `Isometry.of_dist_eq`), not via finite-dimensionality.
+4. **Junk-value recursion** (`classical`): `zc n w := if (cval n w ∈ k ∧ ‖cval n w‖ ≤ 1) then
+   (trace_covers …).choose else 0`, total for `Nat.rec`; the good branch is re-derived from the
+   invariant (`hcval_ok` + `hzc_spec`) at each use.  Cauchy in the complete `↥L` via
+   `cauchySeq_of_le_geometric`; limit's coordinates give `u = x² − a y²`.
 
-`unramifiedQuadratic_units_are_norms'` with the **byte-exact** axiom statement (unfold
-`IsUnramifiedQuadraticSpectral` into the §1(F) transfer; dispatch degenerate ∨ main);
-coordinate extraction to `x y : ↥k` (coercion injectivity); `lean_verify` = std-3.
+Decls: `norm_one_add`, `coe_units_pow`, `pow_card_sub_one_mem`, `exists_sq_approx`,
+`lagrange_pow_sub`, and the engine **`units_are_norms_nondegen`**.
+
+## B11b-4 — capstone  ☑ done 2026-07-09  (`unramifiedQuadratic_units_are_norms'`, std-3 exactly)
+
+Delivered in the same file: `by_cases δa ∈ k` dispatches the degenerate case to
+`norm_form_of_mem` (B11b-1) and the main case to `units_are_norms_nondegen`.  **Statement note:**
+`IsUnramifiedQuadraticSpectral k δa` is a `def` in the *downstream* axiom file, so it cannot be
+named here — the `hunram` hypothesis is written **unfolded** (the exact ∀-body), and B11b-5's
+flip supplies `hunram : IsUnramifiedQuadraticSpectral k δa` **definitionally**
+(`:= unramifiedQuadratic_units_are_norms' k a δa hδa hunram`, zero consumer churn — the B11a
+precedent).  `lean_verify` = std-3 exactly.
 
 ## B11b-5 — census flip  (O, ½ session + coordination; **user-approval gate**)
 

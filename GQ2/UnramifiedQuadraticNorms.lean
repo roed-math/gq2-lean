@@ -1,5 +1,6 @@
 import Mathlib
 import GQ2.TeichmullerLift
+import GQ2.UnitFiltrationCounts
 
 /-!
 # B11b-1 — the quadratic layer · B11b-2 — the residue layer
@@ -385,5 +386,318 @@ theorem trace_covers [FiniteDimensional ℚ_[2] k] [FiniteDimensional ℚ_[2] L]
     exact div_mul_cancel₀ c ht0
 
 end ResidueLayer
+
+/-! ## The approximation engine (B11b-3) — filtration helpers -/
+
+section Engine
+
+/-- `‖1 + x‖ = 1` when `‖x‖ < 1` (ultrametric: the unit dominates). -/
+lemma norm_one_add {x : ℚ̄₂} (hx : ‖x‖ < 1) : ‖(1 : ℚ̄₂) + x‖ = 1 := by
+  have hne : ‖(1 : ℚ̄₂)‖ ≠ ‖x‖ := by rw [norm_one]; exact (ne_of_lt hx).symm
+  rw [IsUltrametricDist.norm_add_eq_max_of_norm_ne_norm hne, norm_one, max_eq_left hx.le]
+
+/-- The `(↥K)ˣ → ↥K → ℚ̄₂` coercion commutes with powers. -/
+lemma coe_units_pow {K : IntermediateField ℚ_[2] ℚ̄₂} (v : (↥K)ˣ) (n : ℕ) :
+    (((v ^ n : (↥K)ˣ) : ↥K) : ℚ̄₂) = ((v : ↥K) : ℚ̄₂) ^ n := by
+  rw [Units.val_pow_eq_pow_val, SubmonoidClass.coe_pow]
+
+/-- **Lagrange in `U⁰/U¹`** — the single group-theoretic input behind both residue facts.  The
+graded piece `U⁰_K/U¹_K` is a finite group of order `2^f − 1` (`card_gr_zero`), so every
+norm-one unit `u` satisfies `u^{2^f − 1} ∈ U¹_K`. -/
+lemma pow_card_sub_one_mem (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    (fil : DyadicUnitFiltration K) {u : (↥K)ˣ} (hu : u ∈ normUnits K) :
+    u ^ (2 ^ fil.f - 1) ∈ depthUnits K fil.π 1 := by
+  set H := (depthUnits K fil.π 1).subgroupOf (normUnits K) with hH
+  haveI : H.Normal := inferInstance
+  have hcard : Nat.card (↥(normUnits K) ⧸ H) = 2 ^ fil.f - 1 := fil.card_gr_zero
+  have hgpow : (QuotientGroup.mk' H ⟨u, hu⟩) ^ Nat.card (↥(normUnits K) ⧸ H) = 1 :=
+    pow_card_eq_one'
+  rw [hcard, ← map_pow, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff, hH,
+    Subgroup.mem_subgroupOf, SubmonoidClass.coe_pow] at hgpow
+  exact hgpow
+
+/-- **Depth-1 start** (the square residue layer, via Lagrange with `x := u^{2^{f−1}}`): a norm-one
+unit is a square modulo `U¹`.  Since `2·2^{f−1} = 2^f`, `x² = u^{2^f}` and
+`u^{2^f} − u = u(u^{2^f−1} − 1)` with `u^{2^f−1} ∈ U¹`. -/
+lemma exists_sq_approx (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    (fil : DyadicUnitFiltration K) {u : (↥K)ˣ} (hu : u ∈ normUnits K) :
+    ∃ x : (↥K)ˣ, x ∈ normUnits K ∧
+      ‖((u : ↥K) : ℚ̄₂) - ((x : ↥K) : ℚ̄₂) ^ 2‖ ≤ ‖fil.π‖ := by
+  have hu1 : ‖((u : ↥K) : ℚ̄₂)‖ = 1 := hu
+  have hf1 : 1 ≤ fil.f := fil.hf_pos
+  have h2f1 : 1 ≤ 2 ^ fil.f := Nat.one_le_two_pow
+  refine ⟨u ^ (2 ^ (fil.f - 1)), (normUnits K).pow_mem hu _, ?_⟩
+  set U : ℚ̄₂ := ((u : ↥K) : ℚ̄₂) with hUdef
+  have hmem := pow_card_sub_one_mem K fil hu
+  rw [mem_depthUnits, pow_one, coe_units_pow u] at hmem
+  have hexp : 2 ^ (fil.f - 1) * 2 = 2 ^ fil.f := by
+    have hff : fil.f - 1 + 1 = fil.f := by omega
+    calc 2 ^ (fil.f - 1) * 2 = 2 ^ (fil.f - 1) * 2 ^ 1 := by rw [pow_one]
+      _ = 2 ^ (fil.f - 1 + 1) := (pow_add 2 _ 1).symm
+      _ = 2 ^ fil.f := by rw [hff]
+  rw [coe_units_pow u, ← pow_mul, hexp]
+  have hfac : U - U ^ (2 ^ fil.f) = U * (1 - U ^ (2 ^ fil.f - 1)) := by
+    have hff : 2 ^ fil.f - 1 + 1 = 2 ^ fil.f := by omega
+    have h2f : U ^ (2 ^ fil.f) = U ^ (2 ^ fil.f - 1) * U := by rw [← pow_succ, hff]
+    rw [h2f]; ring
+  rw [hfac, norm_mul, hu1, one_mul, norm_sub_rev]
+  exact hmem.2
+
+/-- **The Lagrange input `hlag`** for `trace_covers` at `L`: with `q := 2^F` (`F` the residue
+degree of `L`), `‖z^q − z‖ < 1` for every integral `z ∈ L`.  Unit case: Lagrange
+(`z^{q−1} ∈ U¹_L`); non-unit case: ultrametric on `‖z‖ < 1`. -/
+lemma lagrange_pow_sub (L : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] L]
+    (fil : DyadicUnitFiltration L) {z : ℚ̄₂} (hzL : z ∈ L) (hz1 : ‖z‖ ≤ 1) :
+    ‖z ^ (2 ^ fil.f) - z‖ < 1 := by
+  have h2f1 : 1 ≤ 2 ^ fil.f := Nat.one_le_two_pow
+  rcases lt_or_eq_of_le hz1 with hzlt | hzeq
+  · -- non-unit: both terms have norm < 1
+    have hzq : ‖z ^ (2 ^ fil.f)‖ < 1 := by
+      rw [norm_pow]; exact pow_lt_one₀ (norm_nonneg _) hzlt (pow_ne_zero fil.f two_ne_zero)
+    calc ‖z ^ (2 ^ fil.f) - z‖ ≤ max ‖z ^ (2 ^ fil.f)‖ ‖z‖ := by
+          rw [sub_eq_add_neg]
+          refine le_trans (IsUltrametricDist.norm_add_le_max _ _) ?_
+          rw [norm_neg]
+      _ < 1 := max_lt hzq hzlt
+  · -- unit: z is a unit of ↥L, Lagrange in U⁰/U¹
+    have hz0 : z ≠ 0 := by intro h; rw [h] at hzeq; simp at hzeq
+    have hzL0 : (⟨z, hzL⟩ : ↥L) ≠ 0 := by
+      intro h; exact hz0 (by simpa using congrArg Subtype.val h)
+    let u : (↥L)ˣ := Units.mk0 ⟨z, hzL⟩ hzL0
+    have huz : ((u : ↥L) : ℚ̄₂) = z := rfl
+    have hunorm : u ∈ normUnits L := by rw [mem_normUnits, huz]; exact hzeq
+    have hmem := pow_card_sub_one_mem L fil hunorm
+    rw [mem_depthUnits, pow_one, coe_units_pow u, huz] at hmem
+    have hfac : z ^ (2 ^ fil.f) - z = z * (z ^ (2 ^ fil.f - 1) - 1) := by
+      have hff : 2 ^ fil.f - 1 + 1 = 2 ^ fil.f := by omega
+      have h2f : z ^ (2 ^ fil.f) = z ^ (2 ^ fil.f - 1) * z := by rw [← pow_succ, hff]
+      rw [h2f]; ring
+    rw [hfac, norm_mul, hzeq, one_mul]
+    exact lt_of_le_of_lt hmem.2 fil.hπ_lt
+
+/-- **The engine (non-degenerate case).**  For `δa ∉ k`, every norm-one unit of `k` is a value
+of the norm form `x² − a y²`.  Sets up `L = k(δa)`, the conjugation `σ`, the shared uniformizer
+`π` (via `hunram`), and the residue data at `L`, then runs the successive-approximation engine
+against `trace_covers`.
+
+`hunram` is `IsUnramifiedQuadraticSpectral k δa` written **unfolded** — that predicate is a plain
+`def` in the (downstream) axiom file, so it cannot be named here; the B11b flip supplies it
+definitionally. -/
+theorem units_are_norms_nondegen (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
+    {a : (↥k)ˣ} {δa : ℚ̄₂} (hδ2 : δa ^ 2 = ((a : ↥k) : ℚ̄₂)) (hδk : δa ∉ k)
+    (hunram : ∀ z : ℚ̄₂, z ≠ 0 →
+      (∃ x y : ↥k, z = (x : ℚ̄₂) + (y : ℚ̄₂) * δa) →
+      ∃ w : ↥k, w ≠ 0 ∧ ‖z‖ = ‖(w : ℚ̄₂)‖) :
+    ∀ u : (↥k)ˣ, ‖((u : ↥k) : ℚ̄₂)‖ = 1 → ∃ x y : ↥k, (u : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2 := by
+  -- The quadratic extension `L = k(δa)`
+  have hδaint : IsIntegral ↥k δa := (Algebra.IsAlgebraic.isAlgebraic δa).isIntegral
+  haveI hSfin : FiniteDimensional ↥k ↥(IntermediateField.adjoin ↥k {δa}) :=
+    IntermediateField.adjoin.finiteDimensional hδaint
+  set L : IntermediateField ℚ_[2] ℚ̄₂ :=
+    (IntermediateField.adjoin ↥k {δa}).restrictScalars ℚ_[2] with hLdef
+  have hLmem : ∀ z, z ∈ L ↔ z ∈ IntermediateField.adjoin ↥k {δa} := fun _ => Iff.rfl
+  have hkL : k ≤ L := by
+    intro x hx
+    rw [hLmem]
+    simpa using (IntermediateField.adjoin ↥k {δa}).algebraMap_mem ⟨x, hx⟩
+  have hδaL : δa ∈ L := (hLmem δa).mpr (IntermediateField.mem_adjoin_simple_self ↥k δa)
+  have hLadj : ∀ z ∈ L, z ∈ IntermediateField.adjoin ↥k {δa} := fun z hz => (hLmem z).mp hz
+  haveI hLfin : FiniteDimensional ℚ_[2] ↥L := by
+    rw [hLdef]
+    exact FiniteDimensional.trans ℚ_[2] ↥k ↥(IntermediateField.adjoin ↥k {δa})
+  -- the conjugation `σ δa = −δa`
+  obtain ⟨σ, hσ⟩ := exists_conj (d := (a : ↥k)) hδ2 hδk
+  -- filtrations at `k` and `L`; the shared uniformizer `π ∈ k`
+  set filk := dyadicUnitFiltration' k with hfilk
+  set filL := dyadicUnitFiltration' L with hfilL
+  set π : ℚ̄₂ := filk.π with hπ
+  have hπk : π ∈ k := filk.hπ_mem
+  have hπ0 : π ≠ 0 := filk.hπ_ne
+  have hπ1 : ‖π‖ < 1 := filk.hπ_lt
+  -- π-transfer: `π` is `L`-maximal too (via `hunram` + `k`-maximality)
+  have hπmax : ∀ z ∈ L, ‖z‖ < 1 → ‖z‖ ≤ ‖π‖ := by
+    intro z hzL hzlt
+    rcases eq_or_ne z 0 with rfl | hz0
+    · rw [norm_zero]; positivity
+    · obtain ⟨x, y, hxy⟩ := exists_coords hδ2 hδk (hLadj z hzL)
+      obtain ⟨w, _hw0, hwnorm⟩ := hunram z hz0 ⟨x, y, hxy⟩
+      rw [hwnorm]
+      refine filk.hπ_max (w : ℚ̄₂) w.2 ?_
+      rw [← hwnorm]; exact hzlt
+  -- the residue exponent `q = 2^F` and the trace-covering hypotheses
+  set q : ℕ := 2 ^ filL.f with hq
+  have hqn : ‖((q : ℕ) : ℚ̄₂)‖ < 1 := by
+    rw [hq, Nat.cast_pow, Nat.cast_ofNat, norm_pow]
+    exact pow_lt_one₀ (norm_nonneg _) norm_two_lt_one (Nat.one_le_iff_ne_zero.mp filL.hf_pos)
+  have hqodd : Odd (q - 1) := by
+    rw [hq]
+    exact Nat.Even.sub_odd Nat.one_le_two_pow
+      (Nat.even_pow.mpr ⟨even_two, Nat.one_le_iff_ne_zero.mp filL.hf_pos⟩) odd_one
+  have hlag : ∀ z ∈ L, ‖z‖ ≤ 1 → ‖z ^ q - z‖ < 1 := fun z hzL hz1 =>
+    lagrange_pow_sub L filL hzL hz1
+  -- exact trace coverage: `s(z) = z + σz` hits every integral `c ∈ k`
+  have hcov := trace_covers hkL hδ2 hδk hδaL hσ hLadj hπk hπ0 hπ1 hπmax hqn hqodd hlag
+  -- ambient facts for the engine
+  haveI : CompleteSpace ↥L := FiniteDimensional.complete ℚ_[2] ↥L
+  have hσπ : σ π = π := conj_base σ ⟨π, hπk⟩
+  have hπpos : (0 : ℝ) < ‖π‖ := norm_pos_iff.mpr hπ0
+  have hσcont : Continuous (σ : ℚ̄₂ → ℚ̄₂) :=
+    (Isometry.of_dist_eq (fun x y => by rw [dist_eq_norm, dist_eq_norm, ← map_sub,
+      norm_conj_eq])).continuous
+  -- `N z := z·σz` is `k`-valued on `L` (norm form) and norm-preserving
+  have hNk : ∀ z ∈ L, z * σ z ∈ k := by
+    intro z hz
+    obtain ⟨x, y, rfl⟩ := exists_coords hδ2 hδk (hLadj z hz)
+    rw [conj_apply hσ, norm_coord hδ2]
+    exact SetLike.coe_mem _
+  have hNnorm : ∀ z : ℚ̄₂, ‖z‖ = 1 → ‖z * σ z‖ = 1 := by
+    intro z hz; rw [norm_mul, norm_conj_eq, hz, mul_one]
+  -- now fix a norm-one unit `u`
+  intro u hunorm
+  set U : ℚ̄₂ := ((u : ↥k) : ℚ̄₂) with hUdef
+  have hUk : U ∈ k := SetLike.coe_mem _
+  -- depth-1 start `w₀`
+  obtain ⟨x₀, hx₀norm, hx₀approx⟩ := exists_sq_approx k filk hunorm
+  set w₀ : ℚ̄₂ := ((x₀ : ↥k) : ℚ̄₂) with hw₀def
+  have hw₀L : w₀ ∈ L := hkL (SetLike.coe_mem _)
+  have hw₀norm : ‖w₀‖ = 1 := hx₀norm
+  have hσw₀ : σ w₀ = w₀ := conj_base σ x₀
+  have hInv0 : w₀ ∈ L ∧ ‖w₀‖ = 1 ∧ ‖U - w₀ * σ w₀‖ ≤ ‖π‖ ^ (0 + 1) := by
+    refine ⟨hw₀L, hw₀norm, ?_⟩
+    rw [hσw₀, pow_one, ← sq]
+    exact hx₀approx
+  classical
+  -- the per-step target quotient `c` and the chosen increment `zc` (junk `0` off-domain)
+  set cval : ℕ → ℚ̄₂ → ℚ̄₂ := fun n w => (U - w * σ w) / (w * σ w * π ^ (n + 1)) with hcval
+  set zc : ℕ → ℚ̄₂ → ℚ̄₂ := fun n w =>
+    if h : cval n w ∈ k ∧ ‖cval n w‖ ≤ 1 then (hcov (cval n w) h.1 h.2).choose else 0 with hzc
+  set wseq : ℕ → ℚ̄₂ := fun n => Nat.rec w₀ (fun m wm => wm * (1 + π ^ (m + 1) * zc m wm)) n
+    with hwseq
+  have hwseqS : ∀ n, wseq (n + 1) = wseq n * (1 + π ^ (n + 1) * zc n (wseq n)) := fun _ => rfl
+  -- integrality of `cval` from the invariant (used in the induction and the jump bound)
+  have hcval_ok : ∀ n w, w ∈ L → ‖w‖ = 1 → ‖U - w * σ w‖ ≤ ‖π‖ ^ (n + 1) →
+      cval n w ∈ k ∧ ‖cval n w‖ ≤ 1 := by
+    intro n w hwL hwnorm hwapprox
+    have hNwk : w * σ w ∈ k := hNk w hwL
+    have hNwnorm : ‖w * σ w‖ = 1 := hNnorm w hwnorm
+    refine ⟨?_, ?_⟩
+    · simp only [hcval]
+      exact k.div_mem (k.sub_mem hUk hNwk) (k.mul_mem hNwk (pow_mem hπk _))
+    · simp only [hcval, norm_div, norm_mul, hNwnorm, one_mul, norm_pow]
+      rw [div_le_one (by positivity)]
+      exact hwapprox
+  -- `zc` computes to the chosen witness on the invariant's domain
+  have hzc_spec : ∀ n w, (h : cval n w ∈ k ∧ ‖cval n w‖ ≤ 1) →
+      zc n w ∈ L ∧ ‖zc n w‖ ≤ 1 ∧ zc n w + σ (zc n w) = cval n w := by
+    intro n w h
+    have hval : zc n w = (hcov (cval n w) h.1 h.2).choose := by rw [hzc]; exact dif_pos h
+    rw [hval]; exact (hcov (cval n w) h.1 h.2).choose_spec
+  -- the invariant, by induction
+  have hInv : ∀ n, wseq n ∈ L ∧ ‖wseq n‖ = 1 ∧ ‖U - wseq n * σ (wseq n)‖ ≤ ‖π‖ ^ (n + 1) := by
+    intro n
+    induction n with
+    | zero => exact hInv0
+    | succ n ih =>
+      obtain ⟨hwL, hwnorm, hwapprox⟩ := ih
+      have hNwk : wseq n * σ (wseq n) ∈ k := hNk _ hwL
+      have hNwnorm : ‖wseq n * σ (wseq n)‖ = 1 := hNnorm _ hwnorm
+      have hNw0 : wseq n * σ (wseq n) ≠ 0 := fun h => by
+        rw [h, norm_zero] at hNwnorm; exact one_ne_zero hNwnorm.symm
+      set P : ℚ̄₂ := π ^ (n + 1) with hPdef
+      have hPk : P ∈ k := pow_mem hπk _
+      have hP0 : P ≠ 0 := pow_ne_zero _ hπ0
+      have hPnorm : ‖P‖ = ‖π‖ ^ (n + 1) := norm_pow _ _
+      obtain ⟨hz₀L, hz₀norm, hz₀s⟩ := hzc_spec n (wseq n) (hcval_ok n _ hwL hwnorm hwapprox)
+      have hPz0 : ‖P * zc n (wseq n)‖ < 1 := by
+        rw [norm_mul, hPnorm]
+        calc ‖π‖ ^ (n + 1) * ‖zc n (wseq n)‖ ≤ ‖π‖ ^ (n + 1) * 1 :=
+              mul_le_mul_of_nonneg_left hz₀norm (by positivity)
+          _ = ‖π‖ ^ (n + 1) := mul_one _
+          _ < 1 := pow_lt_one₀ hπpos.le hπ1 (by omega)
+      rw [hwseqS n, ← hPdef]
+      refine ⟨L.mul_mem hwL (L.add_mem L.one_mem (L.mul_mem (hkL hPk) hz₀L)), ?_, ?_⟩
+      · rw [norm_mul, norm_one_add hPz0, hwnorm, one_mul]
+      · -- ‖U - N w'‖ ≤ ‖π‖^{n+2}
+        set z₀ := zc n (wseq n) with hz₀def
+        have hσw' : σ (wseq n * (1 + P * z₀)) = σ (wseq n) * (1 + P * σ z₀) := by
+          rw [map_mul, map_add, map_one, map_mul, hPdef, map_pow, hσπ, ← hPdef]
+        have hrel2 : (z₀ + σ z₀) * (wseq n * σ (wseq n) * P) = U - wseq n * σ (wseq n) := by
+          rw [hz₀s]; simp only [hcval, ← hPdef]
+          exact div_mul_cancel₀ _ (mul_ne_zero hNw0 hP0)
+        have hz₀σz₀ : ‖z₀ * σ z₀‖ ≤ 1 := by
+          rw [norm_mul, norm_conj_eq]; exact mul_le_one₀ hz₀norm (norm_nonneg _) hz₀norm
+        have hkey : U - wseq n * (1 + P * z₀) * σ (wseq n * (1 + P * z₀))
+            = -(wseq n * σ (wseq n) * P ^ 2 * (z₀ * σ z₀)) := by
+          rw [hσw']; linear_combination -hrel2
+        rw [hkey, norm_neg]
+        have hb : ‖wseq n * σ (wseq n) * P ^ 2 * (z₀ * σ z₀)‖ ≤ ‖π‖ ^ ((n + 1) * 2) := by
+          rw [norm_mul, norm_mul, hNwnorm, one_mul, norm_pow, hPnorm, ← pow_mul]
+          calc ‖π‖ ^ ((n + 1) * 2) * ‖z₀ * σ z₀‖ ≤ ‖π‖ ^ ((n + 1) * 2) * 1 :=
+                mul_le_mul_of_nonneg_left hz₀σz₀ (by positivity)
+            _ = ‖π‖ ^ ((n + 1) * 2) := mul_one _
+        exact le_trans hb (pow_le_pow_of_le_one hπpos.le hπ1.le (by omega))
+  -- the sequence lives in the complete `↥L`; extract the limit
+  set wseqL : ℕ → ↥L := fun n => ⟨wseq n, (hInv n).1⟩ with hwseqL
+  have hjump : ∀ n, dist (wseqL n) (wseqL (n + 1)) ≤ ‖π‖ * ‖π‖ ^ n := by
+    intro n
+    have hz1 : ‖zc n (wseq n)‖ ≤ 1 :=
+      (hzc_spec n (wseq n) (hcval_ok n _ (hInv n).1 (hInv n).2.1 (hInv n).2.2)).2.1
+    rw [dist_eq_norm]
+    show ‖(wseq n : ℚ̄₂) - (wseq (n + 1) : ℚ̄₂)‖ ≤ ‖π‖ * ‖π‖ ^ n
+    rw [hwseqS n, show wseq n - wseq n * (1 + π ^ (n + 1) * zc n (wseq n))
+        = -(wseq n * (π ^ (n + 1) * zc n (wseq n))) by ring, norm_neg, norm_mul, norm_mul,
+      (hInv n).2.1, one_mul, norm_pow]
+    calc ‖π‖ ^ (n + 1) * ‖zc n (wseq n)‖ ≤ ‖π‖ ^ (n + 1) * 1 :=
+          mul_le_mul_of_nonneg_left hz1 (by positivity)
+      _ = ‖π‖ * ‖π‖ ^ n := by rw [mul_one, pow_succ']
+  have hcauchy : CauchySeq wseqL := cauchySeq_of_le_geometric ‖π‖ ‖π‖ hπ1 hjump
+  obtain ⟨wLimL, hwLimL⟩ := cauchySeq_tendsto_of_complete hcauchy
+  set wLim : ℚ̄₂ := (wLimL : ℚ̄₂) with hwLimdef
+  have hwLimL' : wLim ∈ L := wLimL.2
+  have hwtend : Filter.Tendsto wseq Filter.atTop (nhds wLim) :=
+    (continuous_subtype_val.tendsto wLimL).comp hwLimL
+  -- `N wseq → N wLim` and `N wseq → U`, hence `N wLim = U`
+  have hNtend1 : Filter.Tendsto (fun n => wseq n * σ (wseq n)) Filter.atTop (nhds (wLim * σ wLim)) :=
+    ((continuous_id.mul hσcont).tendsto wLim).comp hwtend
+  have hNtend2 : Filter.Tendsto (fun n => wseq n * σ (wseq n)) Filter.atTop (nhds U) := by
+    rw [tendsto_iff_norm_sub_tendsto_zero]
+    have hg : Filter.Tendsto (fun n : ℕ => ‖π‖ ^ (n + 1)) Filter.atTop (nhds 0) := by
+      have h := (tendsto_pow_atTop_nhds_zero_of_lt_one hπpos.le hπ1).const_mul ‖π‖
+      rw [mul_zero] at h
+      simpa only [pow_succ'] using h
+    exact squeeze_zero (fun n => norm_nonneg _)
+      (fun n => by rw [norm_sub_rev]; exact (hInv n).2.2) hg
+  have hNeq : wLim * σ wLim = U := tendsto_nhds_unique hNtend1 hNtend2
+  -- extract coordinates of the limit
+  obtain ⟨x, y, hxy⟩ := exists_coords hδ2 hδk (hLadj wLim hwLimL')
+  have hfinal : U = ((x ^ 2 - (a : ↥k) * y ^ 2 : ↥k) : ℚ̄₂) := by
+    rw [← hNeq, hxy, conj_apply hσ, norm_coord hδ2]
+  refine ⟨x, y, ?_⟩
+  have hf2 : ((u : ↥k) : ℚ̄₂) = ((x ^ 2 - (a : ↥k) * y ^ 2 : ↥k) : ℚ̄₂) := hfinal
+  exact_mod_cast hf2
+
+/-- **The B11b capstone** (B11b-4): units of an unramified quadratic extension `k(√a)/k` are
+norms — every norm-one `u ∈ k` is `x² − a y²`.  Dispatches the degenerate case `δa ∈ k`
+(`norm_form_of_mem`, the norm form is then universal) against the engine
+`units_are_norms_nondegen`.
+
+The statement is the axiom `GQ2.unramifiedQuadratic_units_are_norms`
+(`GQ2/Foundations/Axioms.lean`) **with `IsUnramifiedQuadraticSpectral k δa` written unfolded** —
+that predicate is a plain `def` downstream of this file, so it cannot be named here; the B11b-5
+census flip supplies it definitionally (`:= unramifiedQuadratic_units_are_norms' k a δa hδa
+hunram`, zero consumer churn — the B11a/`dyadicNormCriterion` precedent). -/
+theorem unramifiedQuadratic_units_are_norms' (k : IntermediateField ℚ_[2] ℚ̄₂)
+    [FiniteDimensional ℚ_[2] k] (a : (↥k)ˣ) (δa : ℚ̄₂)
+    (hδa : δa ^ 2 = ((a : ↥k) : ℚ̄₂))
+    (hunram : ∀ z : ℚ̄₂, z ≠ 0 →
+      (∃ x y : ↥k, z = (x : ℚ̄₂) + (y : ℚ̄₂) * δa) →
+      ∃ w : ↥k, w ≠ 0 ∧ ‖z‖ = ‖(w : ℚ̄₂)‖) :
+    ∀ u : (↥k)ˣ, ‖((u : ↥k) : ℚ̄₂)‖ = 1 →
+      ∃ x y : ↥k, (u : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2 := by
+  by_cases hδk : δa ∈ k
+  · exact fun u _ => norm_form_of_mem hδa hδk (u : ↥k)
+  · exact units_are_norms_nondegen k hδa hδk hunram
+
+end Engine
 
 end GQ2.UnramifiedQuadraticNorms
