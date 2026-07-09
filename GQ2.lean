@@ -22,6 +22,7 @@ import GQ2.EulerCharacteristic
 import GQ2.MaxProP
 import GQ2.Demushkin
 import GQ2.HilbertSymbol
+import GQ2.DyadicSquares
 import GQ2.Kummer
 import GQ2.Reciprocity
 import GQ2.MuN

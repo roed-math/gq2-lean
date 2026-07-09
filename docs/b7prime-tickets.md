@@ -20,7 +20,7 @@ of `Foundations/Axioms.lean`; **do not edit `GQ2/HilbertSymbol.lean`** (shared).
 | # | St | Model | Ticket | Est. | Deps |
 |---|----|-------|--------|------|------|
 | B7′-0 | ☑ 07-09 | O | Residual recon: 4 pins (cast lemma, dvd name, `decide` timing, `Polynomial` plumbing) | ¼ | — |
-| B7′-1 | ⬜ | O | `DyadicSquares.lean`: the mod-8 square criterion (Hensel) | ½–1 | B7′-0 |
+| B7′-1 | ☑ 07-09 | O | `DyadicSquares.lean`: the mod-8 square criterion (Hensel) | ½–1 | B7′-0 |
 | B7′-2 | ⬜ | O | Identities restore (git) + norm-form/Brahmagupta + parity reduction | ¾–1 | B7′-0 (final dispatch also B7′-1) |
 | B7′-3 | ⬜ | O | Necessity engine: integralize + descent + mod transfer + 11 `decide` leaves | 1–1½ | B7′-1 ∧ B7′-2 |
 | B7′-4 | ⬜ | O | Sufficiency engine: value glue + 7 witness leaves + square-left freebies | ½ | B7′-1 ∧ B7′-2 |
@@ -63,15 +63,25 @@ helper).  Total ≈ **4–5½ lane-sessions** (~2 lane-days at swarm cadence).
 (`hensels_lemma` `Hensel.lean:458`, `ker_toZModPow`/`isUnit_iff`/`cast_toZModPow`,
 pruned-lemma recovery at `git show 2a238af^:GQ2/HilbertSymbol.lean`).
 
-## B7′-1 — `GQ2/DyadicSquares.lean`  (O, ½–1 session)
+## B7′-1 — `GQ2/DyadicSquares.lean`  ☑ done 2026-07-09 (commit pending)
 
-Plan §4-B7′-1: `isSquare_of_toZModPow_eq_one` (Hensel at `F = X² − C w`, `a = 1`;
-`‖1−w‖ ≤ 2⁻³ < 2⁻² = ‖F′(1)‖²`; root is a unit), converse `toZModPow_sq_eq_one`
-(odd² ≡ 1 mod 8, `decide` on residues), `exists_unit_sq_eq` (`u ≡ v (mod 8)` units ⟹
-`u = v·w²`).  Imports Mathlib only; independently reusable (the `ℚ₂`-germ of B13/B11b).
+Delivered (all std-3, `lake build GQ2.DyadicSquares` green 8583 jobs, guard all-pass at
+census 13):
+- `isSquare_of_toZModPow_eq_one {w} (hw : toZModPow 3 w = 1) : IsSquare w` — Hensel at
+  `F = X² − C w`, `a = 1`.  Norm bound `‖w−1‖ ≤ 2⁻³` via
+  `(norm_le_pow_iff_mem_span_pow (w−1) 3).mpr (… ← ker_toZModPow)`; `hnorm` closed by
+  `lt_of_le_of_lt hbound (by norm_num)` against `‖2‖² = 2⁻²` (`norm_p`); root extracted with
+  `hz' : z²−w = 0` ⟹ `linear_combination -hz'`.
+- `toZModPow_sq_eq_one {t} (ht : IsUnit t) : toZModPow 3 (t²) = 1` — `map_pow` +
+  `(by decide : ∀ x : ZMod (2^3), IsUnit x → x² = 1) _ (ht.map _)`.
+- `exists_unit_sq_of_toZModPow_eq_one {m : ℤ₂ˣ} : toZModPow 3 ↑m = 1 → ∃ w, m = w²`
+  (helper: `isUnit_of_mul_isUnit_left` upgrades the `IsSquare` root to a unit).
+- `exists_unit_sq_eq {u v : ℤ₂ˣ} : toZModPow 3 ↑u = toZModPow 3 ↑v → ∃ w, u = v·w²` — the
+  square-class reduction B7′-2 consumes (units-algebra closer
+  `mul_comm/mul_assoc/inv_mul_cancel/mul_one`, **not** `group`: `ℤ₂ˣ` is commutative and
+  `group` doesn't use it).
 
-*Model note*: O — the Hensel application is fully specified; the only friction is `Polynomial`
-bookkeeping (B7′-0.4 pre-pins it).
+Imports Mathlib only; upstream of Axioms ✓; independently reusable (ℚ₂-germ of B13/B11b).
 
 ## B7′-2 — identities + norm-form layer  (O, ¾–1 session)
 
