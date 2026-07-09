@@ -35,7 +35,7 @@ still cite the old `docs/<name>.md` paths).
 | Lemma 6.17 (vanish) | `lemma_6_17_vanish_final` | `GQ2/VanishClose.lean` | (see file) |
 
 Notes:
-- **Axiom census 12** (B1, B3c, B4, B5, B6, B7, B8, B9, B10′, B11a, B11b, B13);
+- **Axiom census 11** (B1, B3c, B4, B5, B6, B7, B8, B9, B10′, B11a, B11b);
   literature justification in [`literature-axioms.md`](literature-axioms.md) (+ one-page form),
   adversarial review in [`adversarial-axioms-review.md`](adversarial-axioms-review.md).
   **2026-07-09 census flip (B12 board, user-approved, census 15 → 13):** **B12**
@@ -51,7 +51,14 @@ Notes:
   same-name theorem (board archived at
   [`orchestration/b7prime-tickets.md`](orchestration/b7prime-tickets.md)).  P-07's
   `lemma_3_5_hilbert_ledger` is now **std-3** (its whole `Ax = B7′` budget evaporated); the
-  count-capstone trust base was already B7′-free, so its 11 leaves are unchanged.  One axiom (`absGalQ2_maxProTwo_presentation`, B4) remains consumed
+  count-capstone trust base was already B7′-free, so its 11 leaves are unchanged.
+  **Same-day B13 flip (B13 board, user-approved, census 12 → 11):** **B13** `dyadicUnitFiltration`
+  **discharged** — proved std-3 (`Classical.choice` only) in the
+  `UnitFiltrationTop`/`UnitFiltrationCounts` lane (compactness + `O/2O`-pigeonhole uniformizer, the
+  residue field `O/𝔪`, and the two graded-piece isomorphisms), surviving as a same-name
+  `noncomputable def` in `Foundations/Axioms.lean` (zero consumer churn; board archived at
+  [`orchestration/b13-tickets.md`](orchestration/b13-tickets.md)).  One axiom
+  (`absGalQ2_maxProTwo_presentation`, B4) remains consumed
   by **no** deliverable — kept because the census is frozen.
 - **Zero `sorry`s anywhere**; no `native_decide`; `axiom` only in `Foundations/Axioms.lean`.
 - Paper statements proved but **off** the main path are catalogued in

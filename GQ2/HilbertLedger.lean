@@ -675,7 +675,7 @@ omit [FiniteDimensional ℚ_[2] k] in
 private theorem norm_two_pos : (0 : ℝ) < ‖(2 : ↥k)‖ := norm_pos_iff.mpr two_ne_zero
 
 omit [FiniteDimensional ℚ_[2] k] in
-private theorem norm_two_lt_one : ‖(2 : ↥k)‖ < 1 := by
+private theorem norm_two_lt_one_k : ‖(2 : ↥k)‖ < 1 := by
   have he : ‖(2 : ↥k)‖ = ‖(2 : ℚ_[2])‖ := by
     rw [show (2 : ↥k) = algebraMap ℚ_[2] ↥k 2 from (map_ofNat _ 2).symm]
     exact norm_algebraMap' (𝕜' := ↥k) (2 : ℚ_[2])
@@ -703,7 +703,7 @@ private theorem normForm_of_deep_aux (a : ↥k) (ha : ‖a - 1‖ < ‖(2 : ↥k
   | succ j ih =>
     intro b hb hb4
     have h2pos := norm_two_pos k
-    have h2lt1 := norm_two_lt_one k
+    have h2lt1 := norm_two_lt_one_k k
     have hb1 : ‖b‖ = 1 := norm_eq_one_of_close k (hb.trans h2lt1)
     have hb0 : b ≠ 0 := by
       intro h; rw [h, norm_zero] at hb1; exact one_ne_zero hb1.symm
@@ -794,7 +794,7 @@ private theorem normForm_of_mid_aux (a : ↥k) (ha : ‖a - 1‖ ≤ ‖(2 : ↥
   | succ j ih =>
     intro b hb hb4
     have h2pos := norm_two_pos k
-    have h2lt1 := norm_two_lt_one k
+    have h2lt1 := norm_two_lt_one_k k
     have hb1 : ‖b‖ = 1 := norm_eq_one_of_close k (hb.trans h2lt1)
     have hb0 : b ≠ 0 := by
       intro h; rw [h, norm_zero] at hb1; exact one_ne_zero hb1.symm

@@ -1,6 +1,8 @@
 # B13 discharge — ticket board  (prove `dyadicUnitFiltration`, census −1)
 
-**Status (2026-07-09): B13-0 ☑ done — B13-1 ready to start.**  Design fixed during the
+**Status (2026-07-09): COMPLETE — B13-0 … B13-5 all ☑; axiom `dyadicUnitFiltration` discharged
+as a same-name `noncomputable def`, census 12 → 11 (user-approved).  Board archived to
+`docs/orchestration/`.**  Design fixed during the
 planning session (Fable pass, this board + [`b13-proof-plan.md`](b13-proof-plan.md)): the
 compactness + `O/2O`-pigeonhole route to the uniformizer (**no spectral-norm value formula
 anywhere**), explicit graded isomorphisms for the counts, and the four Mathlib pillars
@@ -27,7 +29,7 @@ file (merge-safety, `docs/orchestration/b7prime-b34-coordination.md` precedent);
 | B13-2 | ☑ 07-09 | O | Uniformizer: gap + attainment + `hπ_max` + `he` (`UnitFiltrationTop.lean`) | ½–1 | B13-1 |
 | B13-3 | ☑ 07-09 | O | Residue field `O/𝔪`: finite, field, char 2, `2^f` (hypothesis-π form ok) | ½ | B13-1 (∥ B13-2 vs interface) |
 | B13-4 | ☑ 07-09 | O | Graded isomorphisms + the two `Nat.card` counts (`UnitFiltrationCounts.lean`) | 1 | B13-2 ∧ B13-3 |
-| B13-5 | ⬜ | O | Capstone `dyadicUnitFiltration'` + census flip (**user gate**) | ½ | B13-4 |
+| B13-5 | ☑ 07-09 | O | Capstone `dyadicUnitFiltration'` + census flip (**user gate**) | ½ | B13-4 |
 
 Est. in lane-sessions.  Limited parallelism: **B13-3 ∥ B13-2** if lane B states its layer over
 a hypothesis-`π` (`hπ_max` as an assumption) and instantiates later.  Total ≈

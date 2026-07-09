@@ -393,3 +393,42 @@ theorem exists_gradeCounts {π : ↥k} (hπne : π ≠ 0) (hπlt : ‖π‖ < 1)
   · rw [card_gradeI k hπne hπlt hπmax hi]; exact hfc
 
 end GQ2.UnitFiltrationCounts
+
+namespace GQ2
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+/-- **The B13 capstone** (P-15f1 discharge, B13-5): every finite extension `k/ℚ₂` inside `ℚ̄₂`
+carries a `DyadicUnitFiltration`.  Assembled from the uniformizer + ramification data
+(`exists_uniformizer`, `exists_ramificationIndex` — `GQ2/UnitFiltrationTop.lean`, B13-1/2) and
+the residue-graded counts (`UnitFiltrationCounts.exists_gradeCounts` — B13-3/4).  A **single**
+uniformizer `π : ↥k` feeds every field, so the `he` normalization `‖2‖ = ‖π‖^e` and the graded
+counts share the same `π` (the `↥k → ℚ̄₂` coercion is norm-preserving by `rfl`, so the `↥k`-form
+hypotheses discharge the `ℚ̄₂`-form structure fields defeq).  `noncomputable` — the witnesses are
+pulled from the existence lemmas by `Classical.choice`.  Discharges the axiom
+`GQ2.dyadicUnitFiltration` (`GQ2/Foundations/Axioms.lean`). -/
+noncomputable def dyadicUnitFiltration' (k : IntermediateField ℚ_[2] ℚ̄₂)
+    [FiniteDimensional ℚ_[2] k] : DyadicUnitFiltration k :=
+  let hu := exists_uniformizer k
+  let π := hu.choose
+  let hπne := hu.choose_spec.1
+  let hπlt := hu.choose_spec.2.1
+  let hmax := hu.choose_spec.2.2
+  let hge : ‖(2 : ℚ̄₂)‖ ≤ ‖(π : ↥k)‖ := by
+    have h := hmax 2 (by rw [norm_two_k]; exact norm_two_lt_one); rwa [norm_two_k] at h
+  let hr := exists_ramificationIndex k hπlt hge hmax
+  let hgc := UnitFiltrationCounts.exists_gradeCounts k hπne hπlt hmax
+  { π := (π : ℚ̄₂)
+    hπ_mem := π.2
+    hπ_ne := fun h => hπne (by exact_mod_cast h)
+    hπ_lt := hπlt
+    hπ_max := fun x hxk hxlt => hmax ⟨x, hxk⟩ hxlt
+    e := hr.choose
+    he_pos := hr.choose_spec.1
+    he := hr.choose_spec.2
+    f := hgc.choose
+    hf_pos := hgc.choose_spec.1
+    card_gr_zero := hgc.choose_spec.2.1
+    card_gr := hgc.choose_spec.2.2 }
+
+end GQ2

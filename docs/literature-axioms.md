@@ -280,7 +280,7 @@ Cor. + Rem. 1).
   `b12-proof-plan.md`; census 15 → 13 together with the B2 deletion).
 - **Used at.** Lemma 6.17 (P-15f1: transport of the unit filtration to `H¹(G_K, 𝔽₂)`); §6.3.
 
-### B13. Dyadic unit-filtration graded structure  ✅ faithful
+### B13. Dyadic unit-filtration graded structure  ✅ faithful · **DISCHARGED — proved in-repo 2026-07-09**
 - **Statement.** `k` finite over `ℚ₂`, `U^{(i)} = 1 + 𝔭_k^i`: a uniformizer exists (value-group
   discreteness), `‖2‖ = ‖π‖^e` (`e ≥ 1`), and the graded counts `#(U^{(0)}/U^{(1)}) = 2^f − 1`,
   `#(U^{(i)}/U^{(i+1)}) = 2^f` (`i ≥ 1`), `f ≥ 1` the residue degree.
@@ -288,9 +288,16 @@ Cor. + Rem. 1).
   (graded pieces `≅ k̄^×` at depth 0 and `≅ k̄⁺` at depth `i ≥ 1`); uniformizer existence:
   Serre LF Ch. I–II (standard).  NB the paper's own bracket for (93)/(94) ("[7, Ch. XIV
   §§2–3]") is coarse — the filtration is Ch. IV §2.
-- **Lean.** `GQ2.dyadicUnitFiltration : DyadicUnitFiltration k` (bundle,
-  `GQ2/UnitFiltration.lean`; spectral-norm vocabulary, no valuation ring or residue field is
-  constructed).  Excluded because provable: the square-class graded computation (93),
+- **Lean.** `GQ2.dyadicUnitFiltration : DyadicUnitFiltration k` — since 2026-07-09 a same-name
+  **`noncomputable def`** (zero consumer churn, the B7′/B11/B12 precedent), proved **std-3**
+  (`Classical.choice` only — it pulls witnesses from the existence lemmas) in the
+  `UnitFiltrationTop` → `UnitFiltrationCounts` lane: the uniformizer from compactness of the unit
+  ball + an `O/2O` pigeonhole (no spectral-norm value formula), the finite residue field `O/𝔪`,
+  and the two graded counts as explicit isomorphisms `U^{(0)}/U^{(1)} ≅ (O/𝔪)ˣ` and
+  `U^{(i)}/U^{(i+1)} ≅ (O/𝔪)⁺` (B13 board, `docs/orchestration/b13-tickets.md` /
+  `b13-proof-plan.md`; census 12 → 11, user-approved 2026-07-09).  The structure bundle lives in
+  `GQ2/UnitFiltration.lean` (spectral-norm vocabulary, no valuation ring is constructed).
+  Excluded because provable: the square-class graded computation (93),
   `U^{(2e+1)} ⊆ squares` (= `sq_of_near_one`, proved P-15e), `−1 ∈ U^{(e)}`, the graded
   duality, Lemma 6.10, and the proposal's (F2) inertia-twist clause (found derivable from the
   `he` normalization during statement design — `docs/p15f1-axiom-proposal.md`).
@@ -354,11 +361,12 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 citation; `confirmed` = checked against a reliable secondary source; `~` = my identification, source
 not yet to hand.)
 
-**Bottom line for review.** The whole theorem rests on **twelve** classical inputs (B1, B3–B10,
-B11a/b, B13 — B10 added post-kickoff by the P-06 census decision, B11–B13 by the
+**Bottom line for review.** The whole theorem rests on **eleven** classical inputs (B1, B3–B10,
+B11a/b — B10 added post-kickoff by the P-06 census decision, B11–B13 by the
 P-15/P-23/P-15f1 census decisions; **B12 discharged in-repo as a same-name std-3 theorem and the
-unused B2 deleted**, B12-board census flip, user-approved 2026-07-09; **B7′ likewise discharged
-in-repo**, B7′-board census flip, user-approved 2026-07-09); of the two
+unused B2 deleted**, B12-board census flip, user-approved 2026-07-09; **B7′ and B13 likewise
+discharged in-repo** (B13 a same-name `noncomputable def` over the `UnitFiltrationTop`/`Counts`
+lane), B7′- and B13-board census flips, user-approved 2026-07-09); of the two
 finite-group inputs that would also have appeared (RZ Hopfian, Schur–Zassenhaus) both are already
 proved. B1 is a machine-checked faithful statement; B3–B9 are precise here but await Mathlib
 infrastructure (Demushkin groups, continuous Galois cohomology + Tate duality, Hilbert symbols,
@@ -448,6 +456,7 @@ superfluous now that both NSW **and** Serre *GC* are verified.
 - **B13** — Serre LF **Ch. IV §2, Prop. 6** (graded pieces of the unit filtration) and, for the
   in-repo (F2) discharge, **Prop. 7** (+ Prop. 5) (`s(π)/π`, uniformizer-independent) — verified
   verbatim.  The (93) square-class consequence and the Hensel top are *proved*, not leafed.
+  (**Discharged 2026-07-09**: no longer an axiom — proved in-repo, std-3.)
 - (Supporting, for the `hinf`/`hext` in-repo proofs:) Brown [5] **Ch. III §10, Corollary (10.2)**
   (`|G|` annihilates `H^n(G,M)`, `n > 0`; invertible ⟹ vanishing) and **Theorem (10.3)**
   (Sylow restriction) — verified verbatim in the provided Brown scan.
@@ -457,6 +466,6 @@ theorem number and a verbatim statement checked against the provided PDFs (B6/B7
 B3's Theorem 8 at `d=1` reproduces the paper's `D₀` on the nose; B11a/B11b line-checked by P-20,
 2026-07-05). The two would-be finite-group inputs (RZ Hopfian Prop. 2.5.2, Schur–Zassenhaus) are
 *proved* in the formalization. Nothing in the classical layer remains unchecked.  Of the fifteen
-historical leaves, **twelve remain axioms** after the 2026-07-09 B12- and B7′-board census flips:
-**B12** and **B7′** are discharged (same-name std-3 theorems, proved in-repo) and the
-never-consumed **B2** is deleted.
+historical leaves, **eleven remain axioms** after the 2026-07-09 B12-, B7′-, and B13-board census
+flips: **B12**, **B7′**, and **B13** are discharged (same-name std-3 declarations, proved in-repo)
+and the never-consumed **B2** is deleted.

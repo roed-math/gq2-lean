@@ -12,6 +12,7 @@ import GQ2.PeripheralAction
 import GQ2.Orientation
 import GQ2.TameQuotient
 import GQ2.UnitFiltration
+import GQ2.UnitFiltrationCounts
 import GQ2.KummerSurjectivity
 
 /-!
@@ -27,11 +28,12 @@ near `main_surjection_count`.
 **How to read this for review.**  Each `axiom` below is a result that already
 exists in the literature; the docstring gives the precise statement, the citation, and the
 paper cross-reference.  The B-labels follow `docs/literature-axioms.md` (which also records the
-dependency structure, paper App. D).  Current census — **twelve** axioms (B11 split into
+dependency structure, paper App. D).  Current census — **eleven** axioms (B11 split into
 B11a/B11b by P-23, 2026-07-04; B12/B13 added by P-15f1, 2026-07-06, census 13 → 15; **B12
 discharged in-repo as a same-name theorem and the unused B2 deleted, census 15 → 13** — B12
 board, user-approved 2026-07-09; **B7′ discharged in-repo as a same-name theorem, census
-13 → 12** — B7′ board, user-approved 2026-07-09), faithfully stated against
+13 → 12** — B7′ board, user-approved 2026-07-09; **B13 discharged in-repo as a same-name
+`noncomputable def`, census 12 → 11** — B13 board, user-approved 2026-07-09), faithfully stated against
 current Mathlib plus this repo's `ContCoh` cohomology:
 
 * **B1** `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` — `G_ℚ₂` top. f.g.
@@ -82,8 +84,13 @@ current Mathlib plus this repo's `ContCoh` cohomology:
   2026-07-06).  **Discharged 2026-07-09** (B12 board): now a same-name **theorem** below, proved
   std-3 in `GQ2/KummerSurjectivity.lean` + `GQ2/KummerKrullBridge.lean` (completing the square +
   the Krull–Galois correspondence) — zero consumer churn (B11 precedent).
-* **B13** `dyadicUnitFiltration` — the dyadic unit-filtration graded structure (added by P-15f1,
-  2026-07-06; `docs/p15f1-axiom-proposal.md`).
+* ~~**B13** `dyadicUnitFiltration`~~ — the dyadic unit-filtration graded structure (added by
+  P-15f1, 2026-07-06; `docs/p15f1-axiom-proposal.md`).  **Discharged 2026-07-09** (B13 board
+  `docs/orchestration/b13-tickets.md`): now a same-name **`noncomputable def`** below, built std-3 from the
+  in-repo proof `dyadicUnitFiltration'` (`GQ2/UnitFiltrationCounts.lean` +
+  `GQ2/UnitFiltrationTop.lean`) — the uniformizer via compactness + `O/2O` pigeonhole, the
+  residue field `O/𝔪`, and the two graded-piece counts as explicit isomorphisms; zero consumer
+  churn (B7′/B11/B12 precedent).
 
 **Citation-faithfulness classification** (adversarial review 2026-07-04,
 `docs/adversarial-axioms-review.md`; full table in `docs/review-packet.md` §2).  The leaves fall
@@ -619,10 +626,21 @@ form the multiplicity count consumes); the proposal's (F2) inertia-twist clause
 proved in-repo (`docs/p15f1-axiom-proposal.md`, B13 entry note).
 
 Paper: §6.3, eq. (93) (the display's own bracket "[7, Ch. XIV §§2–3]" is coarse — the
-filtration is Ch. IV §2).  `docs/literature-axioms.md` B13. -/
-axiom dyadicUnitFiltration (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+filtration is Ch. IV §2).  `docs/literature-axioms.md` B13.
+
+**Discharged 2026-07-09** (B13 board `docs/orchestration/b13-tickets.md`, plan
+`docs/orchestration/b13-proof-plan.md`):
+since this date a same-name **`noncomputable def`** over the in-repo proof `dyadicUnitFiltration'`
+(`GQ2/UnitFiltrationCounts.lean`, built on `GQ2/UnitFiltrationTop.lean`), std-3 (`Classical.choice`
+pulls the witnesses from the existence lemmas).  The uniformizer comes from compactness of the
+unit ball + an `O/2O` pigeonhole (no spectral-norm value formula); the residue field `O/𝔪` is the
+finite quotient of the valuation subring; and the graded counts are the explicit isomorphisms
+`U^{(0)}/U^{(1)} ≅ (O/𝔪)ˣ` and `U^{(i)}/U^{(i+1)} ≅ (O/𝔪)⁺`.  Zero consumer churn
+(B7′/B11/B12 precedent). -/
+noncomputable def dyadicUnitFiltration (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
     [FiniteDimensional ℚ_[2] k] :
-    DyadicUnitFiltration k
+    DyadicUnitFiltration k :=
+  dyadicUnitFiltration' k
 
 end GQ2
 

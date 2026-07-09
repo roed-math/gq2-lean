@@ -31,12 +31,13 @@ verified; **oriented form B10′ since 2026-07-06**: reciprocity-orientation cla
 **V (6.2)** units ↦ inertia + **V (1.2)** units-are-unramified-norms, both verified),
 **B11a/B11b** (dyadic norm criterion, Serre *Local Fields* **XIV §2 Prop. 7 iii** /
 **V §2 Prop. 3** — line-checked by P-20, 2026-07-05), and **B13** (dyadic unit filtration,
-Serre *Local Fields* **IV §2 Prop. 6** — line-checked by P-15f1, 2026-07-06); see
-`literature-axioms.md`.  **2026-07-09 census flips (B12 + B7′ boards, user-approved):** **B12**
-(local Kummer surjectivity, NSW **(6.2.1)** — added 2026-07-06) and **B7′** (dyadic Hilbert
-symbol, struck above) are **discharged, proved in-repo** as same-name std-3 theorems, and the
-never-consumed **B2** is **deleted** (struck above).  Full
-census: **12** axioms, all source-verified.
+Serre *Local Fields* **IV §2 Prop. 6** — line-checked by P-15f1, 2026-07-06, **discharged
+2026-07-09**); see
+`literature-axioms.md`.  **2026-07-09 census flips (B12, B7′ + B13 boards, user-approved):** **B12**
+(local Kummer surjectivity, NSW **(6.2.1)** — added 2026-07-06), **B7′** (dyadic Hilbert
+symbol, struck above), and **B13** (dyadic unit filtration) are **discharged, proved in-repo** as
+same-name std-3 declarations, and the never-consumed **B2** is **deleted** (struck above).  Full
+census: **11** axioms, all source-verified.
 
 **Legend / refs.** `✓` checked against source; `✓✓` two sources. — **NSW** =
 Neukirch–Schmidt–Wingberg, *Cohomology of Number Fields*, 2nd ed.; **Serre *GC*** = *Galois
