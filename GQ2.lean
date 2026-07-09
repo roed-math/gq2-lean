@@ -129,3 +129,4 @@ import GQ2.GaussZ.RelatorGammaA
 import GQ2.GaussZ.FinalGammaA
 import GQ2.GaussZ.GammaAD
 import GQ2.RamifiedPack
+import GQ2.UnramifiedQuadraticNorms

@@ -19,7 +19,7 @@ exists and is unrelated — do not touch it.
 | # | St | Model | Ticket | Est. | Deps |
 |---|----|-------|--------|------|------|
 | B11b-0 | ☑ 07-09 | O | Recon: σ-construction prototype (**go/no-go**), coordinate-API decision, name pins | ½ | — |
-| B11b-1 | ⬜ | O | Quadratic layer: `L`, coordinates, σ, `norm_galois` port, `N`/`s`, degenerate case | 1 | B11b-0 |
+| B11b-1 | ☑ 07-09 | O | Quadratic layer: `L`, coordinates, σ, `norm_galois` port, `N`/`s`, degenerate case | 1 | B11b-0 |
 | B11b-2 | ⬜ | F→O | Residue layer: Teichmüller + root separation + `σ̄ ≠ id` + `s̄` surjectivity | 1–1½ | A-half: B11b-0 · B-half: B11b-1 |
 | B11b-3 | ⬜ | O | Approximation engine: π-transfer, depth-1 start, increments, limit | 1 | B11b-1 ∧ B11b-2 ∧ **B13 capstone** |
 | B11b-4 | ⬜ | O | Capstone `unramifiedQuadratic_units_are_norms'` (byte-exact) | ½–¾ | B11b-3 |
@@ -67,15 +67,26 @@ de-risks B11b-1 and shrinks §1(Q)/§2).
      `Nat.card` glue at `l`, and `#l = 2^F` ⟹ `m := 2^F − 1` odd.  Pin against B13's actual `l` at
      B11b-3 start — not a blocker (B11b-1/2-laneA don't need `l`).
 
-## B11b-1 — quadratic layer  (O, 1 session; lane B)
+## B11b-1 — quadratic layer  ☑ done 2026-07-09 (commit pending)
 
-Plan §1(Q)+(D): `L := k⟮δa⟯` with `k ≤ L`, `FiniteDimensional ℚ_[2] L`; unique coordinates
-`z = x + yδa`; σ (global lift; `σ|_k = id`, `σδa = −δa`, `σ² = id` on `L`, fixed points
-exactly `k` — coordinates); **`norm_galois` port** (3 lines,
-`NormedAlgebra.norm_eq_spectralNorm ℚ_[2]` + `spectralNorm_eq_of_equiv` — original at
-`HilbertLedger.lean:313`, downstream, so re-derive); σ preserves `O_L`/depth balls;
-`N(z) := z·σz = x² − ay² ∈ k`, `s(z) := z + σz = 2x ∈ k`; the degenerate `δa ∈ k` case
-(`x = (1+u)/2`, `y = (u−1)/(2δa)`).
+Delivered in `GQ2/UnramifiedQuadraticNorms.lean` (**imports Mathlib only** — the
+`GQ2.TeichmullerLift` import is deferred to B11b-3, which is the first to need the σ-free bricks;
+so this file is independent of the B11b-2 lane-A agent and B13).  All std-3; `lake build` green
+(8583 jobs); guard all-pass census 12.  Public API (parametric over `σ` — B11b-4 obtains it):
+- `norm_galois (g : ℚ̄₂ ≃ₐ[ℚ_[2]] ℚ̄₂) : ‖g x‖ = ‖x‖` + `norm_conj_eq (σ : ℚ̄₂ ≃ₐ[↥k] ℚ̄₂)` (via
+  `.restrictScalars ℚ_[2]`) — `spectralNorm` re-derivation, 3 lines.
+- `mem_bot_iff_mem`, **`exists_conj`** (σ with `σδa = −δa`, the B11b-0 `exists_conj` re-port).
+- `conj_base` (σ fixes `k`), `conj_apply` (`σ(x+yδa) = x−yδa`), `norm_coord`
+  (`(x+yδa)(x−yδa) = ↑(x²−ay²)`), `trace_coord` (`= ↑(x+x)`).
+- `minpoly_natDegree_eq_two`, **`exists_coords`** (`z ∈ ↥k⟮δa⟯ ⟹ z = x+yδa`, `modByMonic`
+  remainder), **`conj_fixed_iff`** (`σz = z ↔ z ∈ k` on the adjoin — the fixed-field fact the
+  residue layer needs).
+- **`norm_form_of_mem`** — the degenerate `δa ∈ k` case (`x = (1+u)/2`, `y = (u−1)/(2δ')`,
+  `field_simp` + `linear_combination`).
+
+Notes for B11b-2/3 (same coercions): (a) the `↥k → ℚ̄₂` numeral coe needs care — `trace_coord`
+states `x+x` not `2x` to sidestep `((2:↥k):ℚ̄₂)`; (b) `modByMonic_add_div (p q)` takes the
+polynomial (no monic hyp); `natDegree_modByMonic_lt` needs `q ≠ 1`.
 
 ## B11b-2 — residue layer  (F→O, 1–1½ sessions; **the risk pocket**)
 
