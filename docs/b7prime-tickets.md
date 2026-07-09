@@ -22,7 +22,7 @@ of `Foundations/Axioms.lean`; **do not edit `GQ2/HilbertSymbol.lean`** (shared).
 | B7′-0 | ☑ 07-09 | O | Residual recon: 4 pins (cast lemma, dvd name, `decide` timing, `Polynomial` plumbing) | ¼ | — |
 | B7′-1 | ☑ 07-09 | O | `DyadicSquares.lean`: the mod-8 square criterion (Hensel) | ½–1 | B7′-0 |
 | B7′-2 | ☑ 07-09 | O | Identities restore (git) + norm-form/Brahmagupta + parity reduction (in `HilbertSymbolDyadic.lean`) | ¾–1 | B7′-0 (final dispatch also B7′-1) |
-| B7′-3 | ⬜ | O | Necessity engine: integralize + descent + mod transfer + 11 `decide` leaves | 1–1½ | B7′-1 ∧ B7′-2 |
+| B7′-3 | ☑ 07-09 | O | Necessity engine: integralize + descent + mod transfer + 11 `decide` leaves (in `HilbertSymbolNecessity.lean`) | 1–1½ | B7′-1 ∧ B7′-2 |
 | B7′-4 | ☑ 07-09 | O | Sufficiency engine: value glue + 7 witness leaves + square-left freebies | ½ | B7′-1 ∧ B7′-2 |
 | B7′-5 | ⬜ | O | Assembly pyramid + capstone + census flip (**user gate**) | ¾ | B7′-3 ∧ B7′-4 |
 
@@ -109,7 +109,19 @@ Plan §4-B7′-2, in `GQ2/HilbertSymbolDyadic.lean` (namespace `GQ2.HilbertSymbo
 Brahmagupta) is `rcases` + `ring` at the definition.  The ε/ω-bookkeeping identity for the
 (1,1) reduction is paper-verified in plan §1 (exponent algebra in `𝔽₂`).
 
-## B7′-3 — necessity engine  (O, 1–1½ sessions)
+## B7′-3 — necessity engine  (O, 1–1½ sessions)  ☑ DONE 2026-07-09 (commit `ad10554`)
+
+**Landed** in `GQ2/HilbertSymbolNecessity.lean` (namespace `GQ2.HilbertSymbol`; imports
+`GQ2.HilbertSymbolDyadic` only — necessity never touches the Hensel criterion; registered in
+`GQ2.lean`).  All decls std-3 (plain `decide`, no `native_decide`); `check_axioms` green, census 13;
+full `lake build GQ2` green.  Engine: `exists_int_triple` (denominator-clearing via
+`IsFractionRing`), `exists_primitive_triple` (2-adic descent, `Nat.strong_induction_on` on
+`Σ valuation`), `not_isHilbertSolvable_of_mod` (ring-hom transfer through `toZModPow`).  Leaves: two
+families `hilbertSymbol_uu_eq_neg_one` / `hilbertSymbol_u2v_eq_neg_one` + the **11 named `−1`-leaves**
+(`leaf_uu_*` / `leaf_u2v_*`), each `by decide` at `ZMod 8` — the plan §1 inventory is fully certified
+(no leaf needed mod 16).  **For B7′-5**: the −1 leaves are named hooks; the +1 side is B7′-4's
+(`696b2a5`).  Per `b7prime-b34-coordination.md`, B7′-5 = new `GQ2/HilbertSymbolDyadicClose.lean`
+importing both engines.
 
 **⚠ Coordination (B7′-3 ∥ B7′-4): [`b7prime-b34-coordination.md`](b7prime-b34-coordination.md).**
 Separate files (merge-safety) — B7′-3 → new `GQ2/HilbertSymbolNecessity.lean`.  Shared coercion
