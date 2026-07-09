@@ -21,7 +21,7 @@ of `Foundations/Axioms.lean`; **do not edit `GQ2/HilbertSymbol.lean`** (shared).
 |---|----|-------|--------|------|------|
 | B7′-0 | ☑ 07-09 | O | Residual recon: 4 pins (cast lemma, dvd name, `decide` timing, `Polynomial` plumbing) | ¼ | — |
 | B7′-1 | ☑ 07-09 | O | `DyadicSquares.lean`: the mod-8 square criterion (Hensel) | ½–1 | B7′-0 |
-| B7′-2 | ⬜ | O | Identities restore (git) + norm-form/Brahmagupta + parity reduction | ¾–1 | B7′-0 (final dispatch also B7′-1) |
+| B7′-2 | ☑ 07-09 | O | Identities restore (git) + norm-form/Brahmagupta + parity reduction (in `HilbertSymbolDyadic.lean`) | ¾–1 | B7′-0 (final dispatch also B7′-1) |
 | B7′-3 | ⬜ | O | Necessity engine: integralize + descent + mod transfer + 11 `decide` leaves | 1–1½ | B7′-1 ∧ B7′-2 |
 | B7′-4 | ⬜ | O | Sufficiency engine: value glue + 7 witness leaves + square-left freebies | ½ | B7′-1 ∧ B7′-2 |
 | B7′-5 | ⬜ | O | Assembly pyramid + capstone + census flip (**user gate**) | ¾ | B7′-3 ∧ B7′-4 |
@@ -83,7 +83,16 @@ census 13):
 
 Imports Mathlib only; upstream of Axioms ✓; independently reusable (ℚ₂-germ of B13/B11b).
 
-## B7′-2 — identities + norm-form layer  (O, ¾–1 session)
+## B7′-2 — identities + norm-form layer  (O, ¾–1 session)  ☑ DONE 2026-07-09 (commit `33683e1`)
+
+**Landed** in `GQ2/HilbertSymbolDyadic.lean` (namespace `GQ2.HilbertSymbol`; imports
+`GQ2.HilbertSymbol` only; **registered in `GQ2.lean`** as the engine anchor).  All 19 decls
+`#print axioms` = std-3 (plain `decide`, no `native_decide`); `check_axioms` green, census 13;
+full `lake build GQ2` green.  **For B7′-3/4**: the `(1,1)` killer is `hilbertSymbol_neg_mul_right`,
+parity split is `symbol_zpow_reduce`, residue dispatch is `toZModPow_unit_mem`, square-left freebie
+glue is `hilbertSymbol_isSquare_left`, norm-form is `isHilbertSolvable_iff` + `brahmagupta`.  The
+plan's `import GQ2.DyadicSquares` is **omitted** (B7′-2 doesn't use the Hensel criterion) — B7′-3/4
+add it to this file's header when wiring the engines.
 
 Plan §4-B7′-2, in `GQ2/HilbertSymbolDyadic.lean` (namespace `GQ2.HilbertSymbol`):
 1. **Restore verbatim from git** (`2a238af^`): `isHilbertSolvable_comm`/`_self_neg`/
