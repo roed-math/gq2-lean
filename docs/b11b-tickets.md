@@ -1,8 +1,8 @@
 # B11b discharge — ticket board  (prove `unramifiedQuadratic_units_are_norms`, census −1)
 
-**Status (2026-07-09): planned, not started — B11b-0 and the lane-A half of B11b-2 are ready;
-the engine (B11b-3→) is gated on the B13 capstone** ([`b13-tickets.md`](b13-tickets.md) — the
-capstone theorem, not its census flip).  Design fixed during the planning session (Fable pass,
+**Status (2026-07-09): B11b-0/1/2 ☑ done — the residue layer (the risk pocket) is landed and
+std-3; only the engine chain remains, and B11b-3 is gated on the B13 capstone**
+([`b13-tickets.md`](b13-tickets.md) — the capstone theorem, not its census flip).  Design fixed during the planning session (Fable pass,
 this board + [`b11b-proof-plan.md`](b11b-proof-plan.md)): the norm-form engine runs a
 **depth-by-depth approximation** against the B13 filtration, whose only genuinely novel brick
 is the **residue layer** — Teichmüller units + odd-root separation ⟹ `σ̄ ≠ id` ⟹ the trace
@@ -20,7 +20,7 @@ exists and is unrelated — do not touch it.
 |---|----|-------|--------|------|------|
 | B11b-0 | ☑ 07-09 | O | Recon: σ-construction prototype (**go/no-go**), coordinate-API decision, name pins | ½ | — |
 | B11b-1 | ☑ 07-09 | O | Quadratic layer: `L`, coordinates, σ, `norm_galois` port, `N`/`s`, degenerate case | 1 | B11b-0 |
-| B11b-2 | ⬜ | F→O | Residue layer: Teichmüller + root separation + `σ̄ ≠ id` + `s̄` surjectivity | 1–1½ | A-half: B11b-0 · B-half: B11b-1 |
+| B11b-2 | ☑ 07-09 | F→O *(ran F)* | Residue layer: Teichmüller + root separation + `σ̄ ≠ id` + `s̄` surjectivity | 1–1½ | A-half: B11b-0 · B-half: B11b-1 |
 | B11b-3 | ⬜ | O | Approximation engine: π-transfer, depth-1 start, increments, limit | 1 | B11b-1 ∧ B11b-2 ∧ **B13 capstone** |
 | B11b-4 | ⬜ | O | Capstone `unramifiedQuadratic_units_are_norms'` (byte-exact) | ½–¾ | B11b-3 |
 | B11b-5 | ⬜ | O | Census flip (**user gate**) | ½ | B11b-4 |
@@ -88,7 +88,40 @@ Notes for B11b-2/3 (same coercions): (a) the `↥k → ℚ̄₂` numeral coe nee
 states `x+x` not `2x` to sidestep `((2:↥k):ℚ̄₂)`; (b) `modByMonic_add_div (p q)` takes the
 polynomial (no monic hyp); `natDegree_modByMonic_lt` needs `q ≠ 1`.
 
-## B11b-2 — residue layer  (F→O, 1–1½ sessions; **the risk pocket**)
+## B11b-2 — residue layer  ☑ done 2026-07-09  (every decl `lean_verify` = std-3 exactly)
+
+**Landed**: lane A in `GQ2/TeichmullerLift.lean` (commit `5784a9e`); lane-B closure appended to
+`GQ2/UnramifiedQuadraticNorms.lean` (which now imports `GQ2.TeichmullerLift`).  Own-file builds
+green (8583/8584 jobs); guard all-pass, census 12.  Neither F-escalation trigger fired (the
+`↥L`-Cauchy ran on the `sq_of_near_one` template unchanged; the fixed-point step is exactly
+`conj_fixed_iff`).  **Design deltas over the plan — all simplifications, no weakening:**
+
+1. **No residue-field interface anywhere** (recon note 3 realized): lane A abstracts every B13
+   input into a norm hypothesis, so `TeichmullerLift.lean` imports **Mathlib only** (not
+   `UnitFiltrationCounts` — plan §3 deviation, noted in its header); the lane-B closure states
+   `σ̄ = id` as `∀ z ∈ O_L, ‖σz − z‖ < 1` and takes `(q, hqn : ‖q‖ < 1, hqodd : Odd (q−1),
+   hlag : Lagrange at L)` as hypotheses — **B11b-3 discharges them from B13-at-`L`**
+   (`q := 2^F`).
+2. **Contraction in one step, no iterated squaring** (`norm_pow_sub_pow_le`):
+   `‖a^q − b^q‖ ≤ max(‖q‖, ‖a−b‖)·‖a−b‖` on the unit ball for ANY `q` with `‖q‖ < 1` — the
+   geometric sum `∑ aⁱb^{q−1−i}` is `q·a^{q−1}` up to a multiple of `a − b`.
+3. **Root separation without the derivative product** (`norm_sub_eq_one_of_pow_eq_one`):
+   `m = ∑_{i<m}(1 − ηⁱ)` once `∑ηⁱ = 0`, each term `≤ ‖1 − η‖`, `‖m‖ = 1` for odd `m`
+   (`norm_natCast_eq_one_of_odd`, via `Padic.norm_natCast_eq_one_iff`) — no root-set
+   enumeration, no polynomial derivatives.
+4. **`s̄`-surjectivity strengthened to exact coverage** (`trace_covers`): the `σ̄ ≠ id` witness
+   `z₁ = x + yδa` has **unit** trace value `t := s(z₁) = 2x ∈ k` (char-2 shift: `s(z₁)` and
+   `σz₁ − z₁` differ by `2z₁`, norm `< 1`), and `s` is `k`-linear, so `z := (c/t)z₁` gives
+   `z + σz = c` **on the nose** for every integral `c ∈ k` — the engine gets exact increments;
+   no `mod 𝔪` bookkeeping, no `l^{σ̄}`-linear algebra.
+
+Decls (lane A): `norm_finset_sum_le` (private), `norm_pow_sub_pow_le_norm_sub`,
+`norm_pow_sub_pow_le`, `norm_natCast_eq_one_of_odd`, `norm_one_sub_eq_one_of_pow_eq_one`,
+`norm_sub_eq_one_of_pow_eq_one`, `exists_teichmuller`, `le_of_shared_uniformizer`.
+(lane B): `norm_two_lt_one`, `le_of_conj_residue_trivial` (**the crux**), `exists_conj_unit`,
+`trace_covers` (**the engine deliverable**).
+
+### (original ticket text)
 
 **Lane A (σ-free, `GQ2/TeichmullerLift.lean`, can start after B11b-0, ∥ B11b-1):**
 - *Teichmüller units* (plan §1(R)1): in a complete finite subextension with the B13 filtration,
