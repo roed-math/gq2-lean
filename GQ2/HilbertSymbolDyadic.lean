@@ -213,4 +213,17 @@ theorem toZModPow_unit_mem (u : ℤ_[2]ˣ) :
   revert r
   decide
 
+/-! ## Coercion helpers for the leaf engines (shared by B7′-3 / B7′-4)
+
+The axiom's arguments are the `unit2`/`unitCoe` wrappers; the leaf proofs (necessity via
+`not_isHilbertSolvable_of_mod`, sufficiency via explicit witnesses) work with raw `ℤ_[2] → ℚ_[2]`
+coercions.  These two `rfl`-lemmas bridge them.  Owned by B7′-3 per
+`docs/b7prime-b34-coordination.md`; B7′-4 imports (does not edit) this file. -/
+
+/-- The `ℚ₂`-value of the unit `2` is `2`. -/
+theorem unit2_coe : ((unit2 : ℚ_[2]ˣ) : ℚ_[2]) = 2 := rfl
+
+/-- `unitCoe u`, valued in `ℚ₂`, is the double coercion `ℤ₂ˣ → ℤ₂ → ℚ₂` of `u`. -/
+theorem unitCoe_coe (u : ℤ_[2]ˣ) : ((unitCoe u : ℚ_[2]ˣ) : ℚ_[2]) = ((u : ℤ_[2]) : ℚ_[2]) := rfl
+
 end GQ2.HilbertSymbol

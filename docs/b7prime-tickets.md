@@ -111,6 +111,10 @@ Brahmagupta) is `rcases` + `ring` at the definition.  The ε/ω-bookkeeping iden
 
 ## B7′-3 — necessity engine  (O, 1–1½ sessions)
 
+**⚠ Coordination (B7′-3 ∥ B7′-4): [`b7prime-b34-coordination.md`](b7prime-b34-coordination.md).**
+Separate files (merge-safety) — B7′-3 → new `GQ2/HilbertSymbolNecessity.lean`.  Shared coercion
+helpers `unit2_coe` / `unitCoe_coe` now live in `HilbertSymbolDyadic.lean` (B7′-3 owns edits there).
+
 Plan §4-B7′-3: `exists_int_triple` (clear denominators by `2^N`, homogeneity),
 `exists_primitive_triple` (**the fiddliest brick** — all-non-unit ⟹ all `2∣·` ⟹ halve;
 `ℕ`-measure `Σ (if c = 0 then 0 else c.valuation.toNat)`, `Nat.strong_induction_on`; design
@@ -124,6 +128,11 @@ obstruction needs mod 16): switch that leaf to `k = 4`; if a leaf resists mod 16
 escalate — that would contradict the classical table and means a statement-shape error.
 
 ## B7′-4 — sufficiency engine  (O, ½ session; ∥ B7′-3)
+
+**⚠ Coordination (B7′-3 ∥ B7′-4): [`b7prime-b34-coordination.md`](b7prime-b34-coordination.md).**
+Separate files (merge-safety) — B7′-4 → new `GQ2/HilbertSymbolSufficiency.lean`; **do not edit
+`HilbertSymbolDyadic.lean`** (import it — shared coercion helpers `unit2_coe`/`unitCoe_coe` are
+already there).
 
 Plan §4-B7′-4: `hilbertSymbol_eq_one_of_value` (value `≡ 1 (mod 8)` ⟹ Hensel root `t` ⟹
 `(x, y, t)` solves; `z ≠ 0` gives nontriviality), the **7 explicit-witness leaves**
