@@ -14,6 +14,7 @@ import GQ2.TameQuotient
 import GQ2.UnitFiltration
 import GQ2.UnitFiltrationCounts
 import GQ2.KummerSurjectivity
+import GQ2.UnramifiedQuadraticNorms
 
 /-!
 # The axioms: classical literature inputs of Theorem 1.2  (ticket T-19)
@@ -28,12 +29,14 @@ near `main_surjection_count`.
 **How to read this for review.**  Each `axiom` below is a result that already
 exists in the literature; the docstring gives the precise statement, the citation, and the
 paper cross-reference.  The B-labels follow `docs/literature-axioms.md` (which also records the
-dependency structure, paper App. D).  Current census — **eleven** axioms (B11 split into
+dependency structure, paper App. D).  Current census — **ten** axioms (B11 split into
 B11a/B11b by P-23, 2026-07-04; B12/B13 added by P-15f1, 2026-07-06, census 13 → 15; **B12
 discharged in-repo as a same-name theorem and the unused B2 deleted, census 15 → 13** — B12
 board, user-approved 2026-07-09; **B7′ discharged in-repo as a same-name theorem, census
 13 → 12** — B7′ board, user-approved 2026-07-09; **B13 discharged in-repo as a same-name
-`noncomputable def`, census 12 → 11** — B13 board, user-approved 2026-07-09), faithfully stated against
+`noncomputable def`, census 12 → 11** — B13 board, user-approved 2026-07-09; **B11b discharged
+in-repo as a same-name theorem, census 11 → 10** — B11b board, user-approved 2026-07-09),
+faithfully stated against
 current Mathlib plus this repo's `ContCoh` cohomology:
 
 * **B1** `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` — `G_ℚ₂` top. f.g.
@@ -72,14 +75,18 @@ current Mathlib plus this repo's `ContCoh` cohomology:
   notes in `GQ2/TameQuotient.lean`; added post-kickoff by explicit census decision, resolving
   the P-06 escalation — Prop. 3.2's local side; the orientation discharges Prop. 3.14's
   `compatF`).
-* **B11a** `hilbertSymbol_normCriterion_finiteDyadic` + **B11b**
-  `unramifiedQuadratic_units_are_norms` — the Hilbert-symbol norm criterion over finite dyadic
+* **B11a** `hilbertSymbol_normCriterion_finiteDyadic` + ~~**B11b**
+  `unramifiedQuadratic_units_are_norms`~~ — the Hilbert-symbol norm criterion over finite dyadic
   bases (`[a]∪[b] = 0 ⟺ b` is a norm from `k(√a)`) and unramified unit-norm surjectivity.  Split
   from the single pre-P-23 `axiom dyadicNormCriterion` (census 12→13, adversarial review rec 2,
   user-approved 2026-07-04); `dyadicNormCriterion` survives as a same-name **theorem** over the
   two leaves (zero consumer churn) and the spectral-norm unramifiedness convention is isolated as
   the `def IsUnramifiedQuadraticSpectral` (not an axiom).  Same amendment decision as B9's
   base-generalization; consumed by Lemma 6.16's ledger and 6.17's (94)-orthogonality.
+  **B11b discharged 2026-07-09** (B11b board): now a same-name **theorem** below, proved std-3 in
+  `GQ2/UnramifiedQuadraticNorms.lean` (+ the σ-free `GQ2/TeichmullerLift.lean` bricks) — completing
+  the square + a depth-by-depth norm-form approximation against the B13 filtration; so
+  `dyadicNormCriterion` now rests on **B11a alone**.
 * ~~**B12** `kummerClassK_surjective`~~ — local Kummer theory, surjective half (added by P-15f1,
   2026-07-06).  **Discharged 2026-07-09** (B12 board): now a same-name **theorem** below, proved
   std-3 in `GQ2/KummerSurjectivity.lean` + `GQ2/KummerKrullBridge.lean` (completing the square +
@@ -524,25 +531,38 @@ axiom hilbertSymbol_normCriterion_finiteDyadic
       trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k b) = 0
         ↔ ∃ x y : ↥k, (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2
 
-/-- **[Classical — B11b.]**  **Unramified unit-norm surjectivity**: if `k(√a)/k` is unramified
-(the `IsUnramifiedQuadraticSpectral` convention on a chosen root `δa`, `δa² = a`), then every
-unit of `k` (`‖u‖ = 1`) is a norm from `k(√a)` — i.e. `u = x² − a y²` is solvable in `k`.
+/-- **B11b (unramified unit-norm surjectivity) — DISCHARGED 2026-07-09: now a theorem.**  If
+`k(√a)/k` is unramified (the `IsUnramifiedQuadraticSpectral` convention on a chosen root `δa`,
+`δa² = a`), then every unit of `k` (`‖u‖ = 1`) is a norm from `k(√a)` — i.e. `u = x² − a y²` is
+solvable in `k`.
 
-Citation: Serre, *Local Fields* [7], Ch. V §2 (norms of unramified extensions are the units times
-the norms of uniformizers).  Paper: §6.3 (unramified-norm input to the local calculation). -/
-axiom unramifiedQuadratic_units_are_norms
+Citation (as the former axiom B11b): Serre, *Local Fields* [7], Ch. V §2 (norms of unramified
+extensions are the units times the norms of uniformizers).  Paper: §6.3 (unramified-norm input to
+the local calculation).
+
+**Discharged** (B11b board, `docs/orchestration/b11b-tickets.md` / `b11b-proof-plan.md`,
+user-approved census flip 2026-07-09): proved **std-3** (no B-axioms) in
+`GQ2/UnramifiedQuadraticNorms.lean` (+ the σ-free `GQ2/TeichmullerLift.lean` bricks) — completing
+the square (the involution `σδ = −δ` via the infinite Galois correspondence) and a depth-by-depth
+norm-form approximation `wₙ₊₁ = wₙ(1 + πⁿ⁺¹z₀)` against the B13 unit filtration, with the increment
+supplied by the exact trace coverage `z ↦ z + σz`.  The same-name theorem keeps every consumer
+(`dyadicNormCriterion`, hence Lemma 6.16 / 6.17) byte-for-byte unchanged — the B11a/B12/B13
+precedent; `dyadicNormCriterion` now rests on **B11a alone**. -/
+theorem unramifiedQuadratic_units_are_norms
     (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
     (a : (↥k)ˣ) (δa : AlgebraicClosure ℚ_[2])
     (hδa : δa ^ 2 = ((a : ↥k) : AlgebraicClosure ℚ_[2]))
     (hunram : IsUnramifiedQuadraticSpectral k δa) :
     ∀ u : (↥k)ˣ, ‖((u : ↥k) : AlgebraicClosure ℚ_[2])‖ = 1 →
-      ∃ x y : ↥k, (u : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2
+      ∃ x y : ↥k, (u : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2 :=
+  UnramifiedQuadraticNorms.unramifiedQuadratic_units_are_norms' k a δa hδa hunram
 
-/-- **B11 (re-derived, P-23).**  The pre-split `dyadicNormCriterion` interface, now a
+/-- **B11 (re-derived, P-23).**  The pre-split `dyadicNormCriterion` interface, a
 **theorem** with a byte-for-byte unchanged statement so every downstream consumer's `.1`/`.2`
-projection is untouched.  It rests on exactly the two classical leaves
-`hilbertSymbol_normCriterion_finiteDyadic` + `unramifiedQuadratic_units_are_norms` (plus the
-isolated `IsUnramifiedQuadraticSpectral` convention, which is a `def`, not an axiom). -/
+projection is untouched.  Since 2026-07-09 it rests on the single classical leaf
+`hilbertSymbol_normCriterion_finiteDyadic` (**B11a**) — its second component
+`unramifiedQuadratic_units_are_norms` (the former **B11b**) is now a proved theorem, not an axiom
+(plus the isolated `IsUnramifiedQuadraticSpectral` convention, which is a `def`, not an axiom). -/
 theorem dyadicNormCriterion
     (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m) :

@@ -1,17 +1,20 @@
-# B11b discharge — ticket board  (prove `unramifiedQuadratic_units_are_norms`, census −1)
+# B11b discharge — ticket board  (prove `unramifiedQuadratic_units_are_norms`; landed as census 11 → 10)
 
-**Status (2026-07-09): B11b-0/1/2/3/4 ☑ done — the theorem is fully proved (std-3); only the
-user-gated census flip B11b-5 remains.**  The capstone
-`unramifiedQuadratic_units_are_norms'` (byte-exact vs the axiom, `IsUnramifiedQuadraticSpectral`
-written unfolded) is `lean_verify` = std-3 exactly; B13 landed (census 11) so the whole engine
-is B-axiom-free.  Design fixed during the planning session (Fable pass,
+**Status (2026-07-09): COMPLETE — B11b-0/1/2/3/4/5 all ☑; board archived.**  The theorem is
+proved std-3 in `GQ2/UnramifiedQuadraticNorms.lean` (+ `GQ2/TeichmullerLift.lean`), and the
+**B11b-5 census flip landed with explicit user approval on a quiet tree**:
+`unramifiedQuadratic_units_are_norms` is now a same-name **theorem** in `Foundations/Axioms.lean`
+(`:= UnramifiedQuadraticNorms.unramifiedQuadratic_units_are_norms' k a δa hδa hunram`, the
+`IsUnramifiedQuadraticSpectral` hypothesis accepted definitionally), census **11 → 10**.
+`EXPECTED_AXIOMS=10`; ledger, literature docs, and atlas updated; **`dyadicNormCriterion` now
+rests on B11a alone**.  Historical note — design fixed during the planning session (Fable pass,
 this board + [`b11b-proof-plan.md`](b11b-proof-plan.md)): the norm-form engine runs a
 **depth-by-depth approximation** against the B13 filtration, whose only genuinely novel brick
 is the **residue layer** — Teichmüller units + odd-root separation ⟹ `σ̄ ≠ id` ⟹ the trace
 residue `s̄` covers `k̄`.  Census decrements at B11b-5, **gated on explicit user approval**;
 after this flip `dyadicNormCriterion` rests on **B11a alone**.
 
-Conventions as on [`tickets.md`](tickets.md) (Model **F**/**O**/**F→O**; gates: own-file
+Conventions as on [`tickets.md`](../tickets.md) (Model **F**/**O**/**F→O**; gates: own-file
 `lake build`, `lean_verify` = std-3 exactly, `scripts/check_axioms.sh`, own-files staging with
 printed staged set).  Development in **two new files** — `GQ2/TeichmullerLift.lean` (lane A,
 σ-free bricks), `GQ2/UnramifiedQuadraticNorms.lean` (lane B, σ + engine + capstone) — one lane
@@ -25,7 +28,7 @@ exists and is unrelated — do not touch it.
 | B11b-2 | ☑ 07-09 | F→O *(ran F)* | Residue layer: Teichmüller + root separation + `σ̄ ≠ id` + `s̄` surjectivity | 1–1½ | A-half: B11b-0 · B-half: B11b-1 |
 | B11b-3 | ☑ 07-09 | O | Approximation engine: π-transfer, depth-1 start, increments, limit | 1 | B11b-1 ∧ B11b-2 ∧ **B13 capstone** |
 | B11b-4 | ☑ 07-09 | O | Capstone `unramifiedQuadratic_units_are_norms'` (byte-exact) | ½–¾ | B11b-3 |
-| B11b-5 | ⬜ | O | Census flip (**user gate**) | ½ | B11b-4 |
+| B11b-5 | ☑ 07-09 | O | Census flip (user-approved; census 11 → 10, `dyadicNormCriterion` on B11a alone) | ½ | B11b-4 |
 
 Est. in lane-sessions.  **B11b-2(lane A) ∥ B11b-1**; B11b-1→4 in lane B.  Total ≈
 **4½–6 lane-sessions**.

@@ -5,8 +5,9 @@ import GQ2.UnitFiltrationCounts
 /-!
 # B11b-1 — the quadratic layer · B11b-2 — the residue layer
 
-Groundwork toward discharging axiom **B11b** (`unramifiedQuadratic_units_are_norms`) in-repo —
-see `docs/b11b-tickets.md` / `docs/b11b-proof-plan.md`.  This file is the **quadratic layer**
+Discharges axiom **B11b** (`unramifiedQuadratic_units_are_norms`) in-repo (landed 2026-07-09,
+census 11 → 10; archived board + plan at `docs/orchestration/b11b-tickets.md` /
+`b11b-proof-plan.md`).  This file is the **quadratic layer**
 (lane B, §1(Q)+(D)): the conjugation `σ`, `k`-coordinates on `k⟮δa⟯`, the norm/trace forms, and
 the degenerate `δa ∈ k` case.  Imports Mathlib only (the B13 filtration and the σ-free
 Teichmüller bricks of `GQ2.TeichmullerLift` enter later, at the engine B11b-3).

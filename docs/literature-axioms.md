@@ -261,8 +261,11 @@ not yet to hand.
 ### B10–B11b (added post-freeze)  ✅ faithful
 Recorded in §E below and in `review-packet.md` §2 (the census-amendment history): **B10**
 (oriented tame quotient, NSW (7.5.3)/(7.5.2) + Neukirch ANT V (6.2)), **B11a** (norm criterion,
-Serre LF XIV §2 Prop. 4 iii)), **B11b** (unramified units are norms, Serre LF V §2 Prop. 3 +
-Cor. + Rem. 1).
+Serre LF XIV §2 Prop. 4 iii)), ~~**B11b**~~ (unramified units are norms, Serre LF V §2 Prop. 3 +
+Cor. + Rem. 1) — **B11b discharged 2026-07-09** (B11b board): now a same-name std-3 **theorem**,
+proved in-repo (`GQ2/UnramifiedQuadraticNorms.lean` + `GQ2/TeichmullerLift.lean`) by completing
+the square + a depth-by-depth norm-form approximation against the B13 filtration, so
+`dyadicNormCriterion` now rests on **B11a alone**.
 
 ### B12. Local Kummer theory (surjective half)  ✅ faithful · **DISCHARGED — proved in-repo 2026-07-09**
 - **Statement.** For `k` finite over `ℚ₂`, the Kummer class map descends to an isomorphism
@@ -361,12 +364,14 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 citation; `confirmed` = checked against a reliable secondary source; `~` = my identification, source
 not yet to hand.)
 
-**Bottom line for review.** The whole theorem rests on **eleven** classical inputs (B1, B3–B10,
-B11a/b — B10 added post-kickoff by the P-06 census decision, B11–B13 by the
+**Bottom line for review.** The whole theorem rests on **ten** classical inputs (B1, B3–B10,
+B11a — B10 added post-kickoff by the P-06 census decision, B11–B13 by the
 P-15/P-23/P-15f1 census decisions; **B12 discharged in-repo as a same-name std-3 theorem and the
-unused B2 deleted**, B12-board census flip, user-approved 2026-07-09; **B7′ and B13 likewise
+unused B2 deleted**, B12-board census flip, user-approved 2026-07-09; **B7′, B13, and B11b likewise
 discharged in-repo** (B13 a same-name `noncomputable def` over the `UnitFiltrationTop`/`Counts`
-lane), B7′- and B13-board census flips, user-approved 2026-07-09); of the two
+lane; B11b a same-name theorem over the norm-form engine `UnramifiedQuadraticNorms`/`TeichmullerLift`,
+so `dyadicNormCriterion` rests on B11a alone), B7′-, B13-, and B11b-board census flips,
+user-approved 2026-07-09); of the two
 finite-group inputs that would also have appeared (RZ Hopfian, Schur–Zassenhaus) both are already
 proved. B1 is a machine-checked faithful statement; B3–B9 are precise here but await Mathlib
 infrastructure (Demushkin groups, continuous Galois cohomology + Tate duality, Hilbert symbols,
@@ -440,7 +445,10 @@ Stiefel–Whitney/Evens classes, étale `π₁`) before they can be stated faith
   every unit is a norm.  Rests on Prop. 1 (`N: Uⁿ_L→Uⁿ_K`) and Prop. 2 (graded pieces = residue
   norm/trace) of §2.  The repo-specific "unramified = equal spectral-norm value groups" bridge is a
   `def` (`GQ2.IsUnramifiedQuadraticSpectral`), a named convention rather than a cited theorem, so it
-  adds no proof-theoretic strength (P-23).
+  adds no proof-theoretic strength (P-23).  (**Discharged 2026-07-09** (B11b board): no longer an
+  axiom — proved in-repo, std-3, in `GQ2/UnramifiedQuadraticNorms.lean` + `GQ2/TeichmullerLift.lean`
+  via the norm-form successive-approximation engine against the B13 filtration; `dyadicNormCriterion`
+  now rests on B11a alone.)
 
 **Discharged (proved in-repo):** RZ Hopfian = **Prop. 2.5.2** (also confirmed against source);
 Schur–Zassenhaus (Mathlib).
@@ -466,6 +474,6 @@ theorem number and a verbatim statement checked against the provided PDFs (B6/B7
 B3's Theorem 8 at `d=1` reproduces the paper's `D₀` on the nose; B11a/B11b line-checked by P-20,
 2026-07-05). The two would-be finite-group inputs (RZ Hopfian Prop. 2.5.2, Schur–Zassenhaus) are
 *proved* in the formalization. Nothing in the classical layer remains unchecked.  Of the fifteen
-historical leaves, **eleven remain axioms** after the 2026-07-09 B12-, B7′-, and B13-board census
-flips: **B12**, **B7′**, and **B13** are discharged (same-name std-3 declarations, proved in-repo)
-and the never-consumed **B2** is deleted.
+historical leaves, **ten remain axioms** after the 2026-07-09 B12-, B7′-, B13-, and B11b-board
+census flips: **B12**, **B7′**, **B13**, and **B11b** are discharged (same-name std-3
+declarations, proved in-repo) and the never-consumed **B2** is deleted.

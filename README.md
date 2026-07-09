@@ -7,10 +7,10 @@ the **main theorem** of
 > (June 2026). [[local copy]](paper/A_Profinite_Presentation_for_G__Q_2.pdf)
 
 The paper is machine-generated (GPT).  **The formalization is complete** (2026-07-08):
-Theorem 1.2 is proved end-to-end, fully `sorry`-free, from a frozen census of **13
+Theorem 1.2 is proved end-to-end, fully `sorry`-free, from a frozen census of **10
 literature axioms** (deep local-arithmetic inputs Mathlib does not yet contain, each with
-a precise citation — see below; 15 at completion, reduced to 13 on 2026-07-09 by proving
-B12 in-repo and deleting the never-consumed B2).  The final statements:
+a precise citation — see below; 15 at completion, reduced to 10 on 2026-07-09 by proving
+**B7′, B11b, B12, B13** in-repo and deleting the never-consumed **B2**).  The final statements:
 
 - `GQ2.main_presentation_literal : Nonempty (ContinuousMulEquiv GammaA AbsGalQ2)`
   ([`GQ2/PresentationLiteral.lean`](GQ2/PresentationLiteral.lean)) — the literal Theorem 1.2;
@@ -56,20 +56,22 @@ The right-hand side is finite, explicit, and **decidable** for each fixed $G$.
 ## Trust base
 
 Everything reduces to the standard three Lean axioms (`propext`, `Classical.choice`,
-`Quot.sound`) plus the **frozen 13-axiom census** in
+`Quot.sound`) plus the **frozen 10-axiom census** in
 [`GQ2/Foundations/Axioms.lean`](GQ2/Foundations/Axioms.lean) — the only file allowed to
 contain `axiom` declarations, enforced by [`scripts/check_axioms.sh`](scripts/check_axioms.sh)
 (which also enforces **zero `sorry`s** repo-wide and no `native_decide`).  Each axiom is a
 named theorem of the literature (local Tate duality, the local Euler characteristic, the
-dyadic Hilbert-symbol ledger, the unit filtration, …); Kummer surjectivity (the former B12)
-was **proved in-repo** on 2026-07-09 (`GQ2/KummerSurjectivity.lean`), shrinking the census
-15 → 13 together with the deletion of the unused B2:
+dyadic Hilbert symbol B7′, the unit filtration B13, …).  On 2026-07-09 five leaves were
+**proved in-repo** as same-name declarations (zero consumer churn), shrinking the census
+15 → 10: the dyadic Hilbert symbol (B7′), Kummer surjectivity (B12), the unit filtration (B13),
+and unramified unit-norm surjectivity (B11b, so `dyadicNormCriterion` now rests on B11a alone),
+plus deletion of the unused B2:
 
 - [`docs/literature-axioms.md`](docs/literature-axioms.md) — citations + exact-statement
   discussion (one-page summary: [`docs/literature-axioms-onepage.md`](docs/literature-axioms-onepage.md));
 - [`docs/adversarial-axioms-review.md`](docs/adversarial-axioms-review.md) — an adversarial
   review of the census;
-- [`atlas-audit.md`](atlas-audit.md) — machine-generated audit of the capstone: the 11 axioms
+- [`atlas-audit.md`](atlas-audit.md) — machine-generated audit of the capstone: the 9 axioms
   actually in its `#print axioms` trust base, and its 30-node semantic review cone
   (regeneration: [`docs/atlas.md`](docs/atlas.md)).
 
@@ -85,7 +87,7 @@ proved but not needed by the final route are catalogued in
 | path | contents |
 |---|---|
 | `paper/` | the source PDF |
-| `GQ2/Foundations/Axioms.lean` | the frozen 13-axiom census (B1–B13, less the discharged B12 and deleted B2) |
+| `GQ2/Foundations/Axioms.lean` | the frozen 10-axiom census (B1–B13, less the discharged B7′/B11b/B12/B13 and deleted B2) |
 | `GQ2/Statement.lean`, `GQ2/PresentationLiteral.lean` | Theorem 1.2, literal + count forms |
 | `GQ2/SectionTenSources.lean` | `eq_154` + the capstone `main_surjection_count'` |
 | `GQ2/ThmFourTwo.lean` | Theorem 4.2 (the §9 induction output) |

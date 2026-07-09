@@ -35,7 +35,7 @@ still cite the old `docs/<name>.md` paths).
 | Lemma 6.17 (vanish) | `lemma_6_17_vanish_final` | `GQ2/VanishClose.lean` | (see file) |
 
 Notes:
-- **Axiom census 11** (B1, B3c, B4, B5, B6, B7, B8, B9, B10′, B11a, B11b);
+- **Axiom census 10** (B1, B3c, B4, B5, B6, B7, B8, B9, B10′, B11a);
   literature justification in [`literature-axioms.md`](literature-axioms.md) (+ one-page form),
   adversarial review in [`adversarial-axioms-review.md`](adversarial-axioms-review.md).
   **2026-07-09 census flip (B12 board, user-approved, census 15 → 13):** **B12**
@@ -57,7 +57,14 @@ Notes:
   `UnitFiltrationTop`/`UnitFiltrationCounts` lane (compactness + `O/2O`-pigeonhole uniformizer, the
   residue field `O/𝔪`, and the two graded-piece isomorphisms), surviving as a same-name
   `noncomputable def` in `Foundations/Axioms.lean` (zero consumer churn; board archived at
-  [`orchestration/b13-tickets.md`](orchestration/b13-tickets.md)).  One axiom
+  [`orchestration/b13-tickets.md`](orchestration/b13-tickets.md)).
+  **Same-day B11b flip (B11b board, user-approved, census 11 → 10):** **B11b**
+  `unramifiedQuadratic_units_are_norms` **discharged** — proved std-3 in
+  `GQ2/UnramifiedQuadraticNorms.lean` + `GQ2/TeichmullerLift.lean` (completing the square + a
+  depth-by-depth norm-form successive approximation against the B13 unit filtration), surviving as
+  a same-name theorem in `Foundations/Axioms.lean` (zero consumer churn); **`dyadicNormCriterion`
+  now rests on B11a alone** (board archived at
+  [`orchestration/b11b-tickets.md`](orchestration/b11b-tickets.md)).  One axiom
   (`absGalQ2_maxProTwo_presentation`, B4) remains consumed
   by **no** deliverable — kept because the census is frozen.
 - **Zero `sorry`s anywhere**; no `native_decide`; `axiom` only in `Foundations/Axioms.lean`.

@@ -1,4 +1,9 @@
-# B11b discharge plan: prove `unramifiedQuadratic_units_are_norms` (census −1)
+# B11b discharge plan: prove `unramifiedQuadratic_units_are_norms` (landed as census 11 → 10)
+
+> **2026-07-09 — COMPLETE, plan archived.**  All increments landed (board:
+> [`b11b-tickets.md`](b11b-tickets.md)); the flip shipped with explicit user approval, census
+> 11 → 10, and `dyadicNormCriterion` now rests on **B11a alone**.  Everything below is the
+> historical record.
 
 **Goal.**  Replace the axiom (`Foundations/Axioms.lean`, namespace `GQ2`)
 

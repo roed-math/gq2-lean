@@ -35,12 +35,14 @@ open Lean
 
 namespace GQ2.AxiomLedger
 
-/-- The eleven literature axioms → their B-labels (census 11 after the B10, B9′/B11, P-23
-B11-split, P-15f1 B12/B13-addition, and 2026-07-09 B12/B7′/B13-discharge/B2-deletion census
+/-- The ten literature axioms → their B-labels (census 10 after the B10, B9′/B11, P-23
+B11-split, P-15f1 B12/B13-addition, and 2026-07-09 B12/B7′/B13/B11b-discharge/B2-deletion census
 decisions; see `GQ2/Foundations/Axioms.lean`).  Written with `` `` `` so the
 file fails to compile if any axiom is renamed or removed — a free consistency check on the census.
-(`dyadicNormCriterion` is a same-name *theorem* over B11a+B11b, so it is deliberately absent
-here and instead surfaces as a tracked consumer of both leaves.  `kummerClassK_surjective` — the
+(`dyadicNormCriterion` is a same-name *theorem*, since 2026-07-09 over **B11a alone** (its
+`unramifiedQuadratic_units_are_norms` component — the former **B11b** — is now a same-name
+*theorem* over the std-3 proof in `GQ2/UnramifiedQuadraticNorms.lean`, so it is absent here and
+surfaces as a std-3 tracked declaration).  `kummerClassK_surjective` — the
 former **B12** — is since 2026-07-09 a same-name *theorem* over the std-3 proof in
 `GQ2/KummerSurjectivity.lean`, so it is absent too and surfaces as a std-3 tracked declaration.
 `hilbertSymbol_dyadic` — the former **B7′** — is likewise since 2026-07-09 a same-name *theorem*
@@ -64,8 +66,7 @@ def bAxioms : List (Name × String) :=
   , (``GQ2.peripheralCyclotomicAction,                            "B8")
   , (``GQ2.evensKahn_dyadic,                                      "B9")
   , (``GQ2.tameQuotient,                                          "B10")
-  , (``GQ2.hilbertSymbol_normCriterion_finiteDyadic,              "B11a")
-  , (``GQ2.unramifiedQuadratic_units_are_norms,                   "B11b") ]
+  , (``GQ2.hilbertSymbol_normCriterion_finiteDyadic,              "B11a") ]
 
 /-- The three axioms every classical theorem is allowed to use. -/
 def stdAxioms : List Name := [``propext, ``Classical.choice, ``Quot.sound]

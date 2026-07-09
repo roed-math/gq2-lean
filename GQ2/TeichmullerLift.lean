@@ -4,7 +4,8 @@ import Mathlib
 # B11b-2 (lane A) — Teichmüller units, odd-root separation, successive approximation
 
 The three **σ-free bricks** of the B11b residue layer (`unramifiedQuadratic_units_are_norms`
-discharge; board `docs/b11b-tickets.md` §B11b-2, plan `docs/b11b-proof-plan.md` §1(R)):
+discharge; archived board `docs/orchestration/b11b-tickets.md` §B11b-2, plan
+`b11b-proof-plan.md` §1(R)):
 
 * `exists_teichmuller` — §1(R)1: in a finite (hence complete) subextension `L/ℚ₂`, a norm-one
   `w` with `‖w^q − w‖ < 1` (`q` of norm `< 1`, e.g. any even `q`) has a **Teichmüller
