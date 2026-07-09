@@ -18,7 +18,7 @@ exists and is unrelated — do not touch it.
 
 | # | St | Model | Ticket | Est. | Deps |
 |---|----|-------|--------|------|------|
-| B11b-0 | ⬜ | O | Recon: σ-construction prototype (**go/no-go**), coordinate-API decision, name pins | ½ | — |
+| B11b-0 | ☑ 07-09 | O | Recon: σ-construction prototype (**go/no-go**), coordinate-API decision, name pins | ½ | — |
 | B11b-1 | ⬜ | O | Quadratic layer: `L`, coordinates, σ, `norm_galois` port, `N`/`s`, degenerate case | 1 | B11b-0 |
 | B11b-2 | ⬜ | F→O | Residue layer: Teichmüller + root separation + `σ̄ ≠ id` + `s̄` surjectivity | 1–1½ | A-half: B11b-0 · B-half: B11b-1 |
 | B11b-3 | ⬜ | O | Approximation engine: π-transfer, depth-1 start, increments, limit | 1 | B11b-1 ∧ B11b-2 ∧ **B13 capstone** |
@@ -30,19 +30,42 @@ Est. in lane-sessions.  **B11b-2(lane A) ∥ B11b-1**; B11b-1→4 in lane B.  To
 
 ---
 
-## B11b-0 — recon  (O, ½ session)
+## B11b-0 — recon  ☑ done 2026-07-09  (all `lean_run_code`-verified)
 
-1. **σ prototype (go/no-go)**: in `lean_run_code`, construct for concrete-shape `k`, `δa ∉ k`
-   with `δa² ∈ k` a global `g : ℚ̄₂ ≃ₐ[ℚ₂] ℚ̄₂` fixing `k` with `g δa = −δa` — expected route:
-   `k`-embedding of `k⟮δa⟯` by minpoly-root transport (`IntermediateField.adjoin` power basis /
-   `minpoly` lift), extended by `IsAlgClosed.lift`, upgraded by
-   `Algebra.IsAlgebraic.algHom_bijective`.  If the instance stack fights, F-escalate **here**,
-   before lane work starts.
-2. Coordinate API decision (plan §2 row 6): fresh `adjoin.powerBasis`-based `{1, δa}`
-   coordinates (~40 lines, expected) vs re-port of `QuadraticAdjoin` pieces vs un-`private`-ing
-   `KummerSurjectivity` helpers.
-3. Name pins: Frobenius-bijective on finite char-2 fields (`frobeniusEquiv`/perfect-field
-   route); `Fintype/Nat.card` glue at `l`; `cauchySeq_of_le_geometric` shape at `↥L`.
+**Go/no-go: GO — and the σ construction is *simpler* than planned** (a route change that
+de-risks B11b-1 and shrinks §1(Q)/§2).
+
+1. **σ prototype — GO, via `exists_conj`, not `IsAlgClosed.lift`.**  `QuadraticAdjoin.exists_conj`
+   (downstream) already builds exactly this σ *without* PowerBasis / minpoly-lift / `IsAlgClosed.lift`
+   / `algHom_bijective` — it uses the **infinite Galois correspondence**
+   (`InfiniteGalois.fixedField_fixingSubgroup ⊥` ⟹ `fixedField ⊤ = ⊥`; `δa ∉ ⊥` ⟹ some
+   `σ : ℚ̄₂ ≃ₐ[↥k] ℚ̄₂` moves `δa`; `(σδa)² = δa²` ⟹ `σδa = −δa`).  Re-derives **standalone
+   (Mathlib only)** — verified.  **σ is a `↥k`-algebra equiv** (fixes `k` pointwise for free; use
+   `.restrictScalars ℚ_[2]` only if a `G_{ℚ₂}`-element is ever needed — the residue/engine work
+   wants the `↥k`-form).  `σ²|_L = id` (`σδa = −δa`, `σ|k = id`).  Prototype (re-port target for
+   B11b-1), needs porting `mem_bot_iff_mem` too (`QuadraticAdjoin.lean:80`):
+   ```lean
+   -- hbot : δa ∉ (⊥ : IntermediateField ↥k ℚ̄₂) via `IntermediateField.mem_bot` + `rintro ⟨y,hy⟩; exact hδk (hy ▸ y.2)`
+   -- htop : fixedField ⊤ = ⊥ via `← fixingSubgroup_bot` + `InfiniteGalois.fixedField_fixingSubgroup ⊥`
+   -- hmove : ∃ σ, σ δa ≠ δa (by_contra ⟹ δa ∈ fixedField ⊤ = ⊥); then (σδa+δa)(σδa−δa)=0, σ.commutes.
+   ```
+2. **Coordinate API — decision: re-port `QuadraticAdjoin.exists_coords`' `modByMonic`-remainder
+   technique** (`p %ₘ minpoly ↥k δa`, remainder linear ⟹ `z = x + yδa`; proven, ~40 lines; needs
+   `(minpoly ↥k δa).natDegree = 2` from `δa ∉ k`, `δa² = d`).  `Submodule.mem_span_pair`
+   (`z ∈ span R {x,y} ↔ ∃ a b, a•x+b•y = z`) confirmed as the lighter alternative if the minpoly
+   bookkeeping bloats.  (Fresh `adjoin.powerBasis` rejected — `exists_coords` is more directly
+   re-portable.)
+3. **Name pins** (`lean_run_code`-verified):
+   * `cauchySeq_of_le_geometric` / `cauchySeq_of_le_geometric_two` — `Analysis/SpecificLimits/Basic.lean` ✓
+   * **Frobenius bijective on a finite char-2 field** (`x ↦ x²`) — turnkey:
+     ```lean
+     have h := (frobeniusEquiv l 2).bijective   -- PerfectRing l 2 := inferInstance (finite ⟹ perfect)
+     have he : ⇑(frobeniusEquiv l 2) = (fun x : l => x ^ 2) := by ext x; rw [frobeniusEquiv_apply, frobenius_def]
+     rwa [he] at h
+     ```
+   * **Deferred to the B13 capstone** (residue-field `l` interface not built until B13-5): `Fintype`/
+     `Nat.card` glue at `l`, and `#l = 2^F` ⟹ `m := 2^F − 1` odd.  Pin against B13's actual `l` at
+     B11b-3 start — not a blocker (B11b-1/2-laneA don't need `l`).
 
 ## B11b-1 — quadratic layer  (O, 1 session; lane B)
 

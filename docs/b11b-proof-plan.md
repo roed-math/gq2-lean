@@ -43,10 +43,14 @@ in `k`).  So assume `δa ∉ k`.
 
 **(Q) The quadratic layer.**  `L := k⟮δa⟯` (an `IntermediateField ℚ_[2] ℚ̄₂` containing `k`),
 with basis `{1, δa}` over `k` (`δa ∉ k`, `δa² ∈ k`): every `z ∈ L` is uniquely `x + y·δa`
-(`x, y ∈ k`).  The **involution**: a global `g ∈ ℚ̄₂ ≃ₐ[ℚ₂] ℚ̄₂` fixing `k` pointwise with
-`g δa = −δa` (the two roots of the `k`-minpoly `X² − a` are conjugate: lift the `k`-embedding
-`k⟮δa⟯ → ℚ̄₂`, `δa ↦ −δa`, to an endomorphism of `ℚ̄₂` by `IsAlgClosed.lift`, bijective by
-`Algebra.IsAlgebraic.algHom_bijective`).  Then on `L`: `σ(x + yδa) = x − yδa`;
+(`x, y ∈ k`).  The **involution** `σ : ℚ̄₂ ≃ₐ[↥k] ℚ̄₂` with `σ δa = −δa` (a `↥k`-algebra equiv,
+so it fixes `k` pointwise for free).  **[B11b-0 recon, route change]**: this is
+`QuadraticAdjoin.exists_conj` verbatim — built from the **infinite Galois correspondence**
+(`InfiniteGalois.fixedField_fixingSubgroup ⊥` ⟹ `fixedField ⊤ = ⊥`; `δa ∉ ⊥` gives some `σ`
+moving `δa`; `(σδa)² = δa²` forces `σδa = −δa`), **not** the `IsAlgClosed.lift` +
+`algHom_bijective` + PowerBasis path first sketched here.  Re-derives standalone (Mathlib only,
+verified); re-port target for B11b-1 (+ the tiny `mem_bot_iff_mem`).  Then on `L`:
+`σ(x + yδa) = x − yδa`;
 `N(z) := z·σz = x² − a y² ∈ k` and `s(z) := z + σz = 2x ∈ k`; `σ` **preserves norms**
 (`norm_galois`, the 3-line `NormedAlgebra.norm_eq_spectralNorm` + `spectralNorm_eq_of_equiv`
 argument at `HilbertLedger.lean:313` — re-derived upstream), hence preserves `O_L`, `𝔪_L`, and
@@ -104,7 +108,7 @@ target).  *No finite-field Galois theory needed.*
 | `norm_galois` (σ-invariance of the spectral norm) | ✓ proved downstream | `HilbertLedger.lean:310–315` — **re-derive upstream** (3 lines: `NormedAlgebra.norm_eq_spectralNorm`, `spectralNorm_eq_of_equiv`) |
 | `sq_of_near_one` Cauchy template (`cauchySeq_of_le_geometric`, limits in `↥·`) | ✓ pattern | `HilbertLedger.lean:46–50` — technique reuse, not import |
 | `exists_nthRoot_near` product-of-root-distances technique | ✓ pattern | `ResidueLift.lean` (downstream; consumed B13 — mine the *technique*) |
-| `IsAlgClosed.lift` + `Algebra.IsAlgebraic.algHom_bijective` (build σ) | ✓ probed | + minpoly-root embedding for `δa ↦ −δa` (recon pins the adjoin-lift name) |
+| σ construction (`ℚ̄₂ ≃ₐ[↥k] ℚ̄₂`, `σδa = −δa`) | ✓ **GO, standalone** (B11b-0) | **route change**: re-port `QuadraticAdjoin.exists_conj` (infinite Galois corr.), *not* `IsAlgClosed.lift`/`algHom_bijective`/PowerBasis — verified Mathlib-only |
 | quadratic-adjoin coordinate API (`k⟮δa⟯`, basis `{1, δa}`) | ◐ | originals in `QuadraticAdjoin.lean` (downstream); `KummerSurjectivity.lean` re-proved pieces as `private` — **recon decides: re-port vs un-private vs fresh `adjoin.powerBasis`** |
 | Frobenius bijective on finite char-2 fields | ◐ name | `frobeniusEquiv`/perfect-field route — recon pins |
 | completeness/closedness of `L`, continuity of fin-dim linear maps | ✓ | `FiniteDimensional.complete`, `Submodule.closed…`, `LinearMap.continuous_of_finiteDimensional` |
