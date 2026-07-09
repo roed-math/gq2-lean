@@ -24,7 +24,7 @@ file (merge-safety, `docs/orchestration/b7prime-b34-coordination.md` precedent);
 |---|----|-------|--------|------|------|
 | B13-0 | ☑ 07-09 | O | Recon: instance incantations at `↥k`, card-lemma forms, ball-compactness path | ¼ | — |
 | B13-1 | ☑ 07-09 | O | Topology layer: `unitBall`/`dyadicBall`, `O/2O` finite, pigeonhole (`UnitFiltrationTop.lean`) | ½–1 | B13-0 |
-| B13-2 | ⬜ | O | Uniformizer: gap pigeonhole + attainment + `hπ_max`, `he`, `𝔪 = πO` | ½–1 | B13-1 |
+| B13-2 | ☑ 07-09 | O | Uniformizer: gap + attainment + `hπ_max` + `he` (`UnitFiltrationTop.lean`) | ½–1 | B13-1 |
 | B13-3 | ☑ 07-09 | O | Residue field `O/𝔪`: finite, field, char 2, `2^f` (hypothesis-π form ok) | ½ | B13-1 (∥ B13-2 vs interface) |
 | B13-4 | ⬜ | O | Graded isomorphisms + the two `Nat.card` counts | 1 | B13-2 ∧ B13-3 |
 | B13-5 | ⬜ | O | Capstone `dyadicUnitFiltration'` + census flip (**user gate**) | ½ | B13-4 |
@@ -99,14 +99,30 @@ theorem exists_pow_sub_dyadic {x : ↥k} (hx : ‖x‖ ≤ 1) :
 `i = 0` is impossible (`‖1 − x^{j}‖ = 1 > ‖2‖`) ⟹ `i ≥ 1`.  `M` was folded into the pigeonhole
 (internal `Fintype.card`), not exported.  The unit-ball `Subring Osub` + residue field are B13-3.
 
-## B13-2 — uniformizer + normalization  (O, ½–1 session; lane A)
+## B13-2 — uniformizer + normalization  ☑ DONE 2026-07-09 (commit `c354b1f`; `UnitFiltrationTop.lean`)
 
-Plan §1(U)/(E): the **gap lemma** — among `1, x, …, x^M` two agree mod `2O` ⟹
-`‖x‖^i ≤ ‖2‖` with `1 ≤ i ≤ M` (the `i = 0` case contradicts `‖1 − x^j‖ = 1`); keep the
-conclusion in the power form `‖x‖ ^ M ≤ ‖2‖` (no `rpow`).  Attainment on
-`K = {‖2‖ ≤ ‖x‖ ≤ …}` via `IsCompact.exists_isMaxOn` ⟹ `π`, `hπ_ne/lt/max`.  `e` maximal with
-`‖π‖^e ≥ ‖2‖` (`Nat.find` on the complement; `e ≥ 1` from `‖π‖ ≥ ‖2‖` at `x = 2`); the
-`2/π^e`-unit argument ⟹ `he`.  The **exchange** `‖x‖ < 1 ⟺ ‖x‖ ≤ ‖π‖` and `𝔪 = πO`.
+**Landed** (all std-3, `check_axioms` green, own-file + B13-3-rebuild green).  Appended to lane A's
+`UnitFiltrationTop.lean`:
+
+* **`norm_two_lt_one`** `‖(2:ℚ̄₂)‖ < 1` — `spectralNorm_extends` (spectral norm extends the base
+  norm) + `Padic.norm_p` (`‖2‖_{ℚ₂} = 2⁻¹`).  The load-bearing fact.
+* **`dyadicIndex k := #(O/2O)`**, `one_le_dyadicIndex`, and `exists_pow_sub_dyadic` refined to
+  expose `j ≤ dyadicIndex k` (the raw B13-1 pigeonhole folded into the bounded form).
+* **`uniform_gap`** `‖x‖ < 1 → ‖x‖ ^ dyadicIndex k ≤ ‖2‖` (power form, **no `rpow`**): factor
+  `xⁱ(1 − xʲ⁻ⁱ)`, `‖1 − xʲ⁻ⁱ‖ = 1` via `norm_add_eq_max_of_norm_ne_norm`, then `‖x‖^M ≤ ‖x‖ⁱ`.
+* **`exists_uniformizer`** — `π` norm-maximal below 1, attained by `IsCompact.exists_isMaxOn` on the
+  compact **`{‖y‖^M ≤ ‖2‖}`** (`Metric.isCompact_of_isClosed_isBounded` in the proper `↥k`;
+  `uniform_gap` puts every norm-`< 1` element there).  *(This replaces the plan's `K = {‖2‖ ≤ ‖x‖ ≤
+  …}` set — the `‖y‖^M ≤ ‖2‖` ball is cleaner and rpow-free.)*
+* **`exists_ramificationIndex`** — exact `‖2‖ = ‖π‖^e`, `e ≥ 1`: `e := Nat.find` least with
+  `‖π‖^{e+1} < ‖2‖`; exactness from `hmax` applied to `2/π^e`.  *(Norm algebra only — no
+  finite-dimensionality; usable at hypothesis-π.)*
+* **`exists_uniformizer_data`** — the `ℚ̄₂`-form package `∃ π ∈ k, π ≠ 0 ∧ ‖π‖ < 1 ∧ hπ_max ∧
+  1 ≤ e ∧ ‖2‖ = ‖π‖^e`, exactly B13-5's π+e input.
+
+The **exchange** `‖x‖ < 1 ↔ ‖x‖ ≤ ‖π‖` is just `hπ_max` + `‖π‖ < 1` (packaged in
+`exists_uniformizer`); `𝔪 = πO` belongs to B13-3's residue field (☑, `UnitFiltrationCounts.lean`),
+which is already stated over hypothesis-π and instantiates at this `π` in B13-5.
 
 ## B13-3 — residue field  ☑ done 2026-07-09 (commit pending; `GQ2/UnitFiltrationCounts.lean`)
 
