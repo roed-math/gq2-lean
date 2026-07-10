@@ -71,7 +71,7 @@ Fox rule pushed through the coefficient map (`WordLift.map φ` + `Marking.map_{t
 theorem d1_natural [Finite A] [Finite B] [Finite C] (t : Marking C) (φ : A →+ B)
     (hφ : ∀ (c : C) (a : A), φ (c • a) = c • φ a) (x : Fin 4 → A) :
     d1Fun t (fun i => φ (x i)) = (φ (d1Fun t x).1, φ (d1Fun t x).2) := by
-  set Φ := WordLift.map (C := C) φ hφ with hΦ
+  set Φ := WordLift.map (C := C) φ hφ
   have hL : (liftMarking t x).map Φ = liftMarking t (fun i => φ (x i)) := rfl
   refine Prod.ext ?_ ?_
   · show (liftMarking t (fun i => φ (x i))).tameValue.u = φ ((liftMarking t x).tameValue.u)
@@ -95,11 +95,8 @@ variable {A B : Type*} [AddCommGroup A] [DistribMulAction C A]
 theorem d1_ker_map (t : Marking C) (φ : A →+ B)
     (hφ : ∀ (c : C) (a : A), φ (c • a) = c • φ a) {x : Fin 4 → A} (hx : d1 t x = 0) :
     d1 t (fun i => φ (x i)) = 0 := by
-  have : d1Fun t (fun i => φ (x i)) = (φ (d1Fun t x).1, φ (d1Fun t x).2) := d1_natural t φ hφ x
-  have hx' : d1Fun t x = 0 := hx
   show d1Fun t (fun i => φ (x i)) = 0
-  rw [this, hx']
-  simp
+  simp [d1_natural t φ hφ x, show d1Fun t x = 0 from hx]
 
 /-- The induced map `Z¹w(A) →+ Z¹w(B)`. -/
 noncomputable def Z1wMap (t : Marking C) (φ : A →+ B)
@@ -138,8 +135,8 @@ noncomputable def H1wMap (t : Marking C) (φ : A →+ B)
     rintro z hz
     rw [AddSubgroup.mem_comap, AddSubgroup.mem_addSubgroupOf]
     rw [AddSubgroup.mem_addSubgroupOf] at hz
-    obtain ⟨a, ha⟩ := (AddMonoidHom.mem_range).mp hz
-    exact (AddMonoidHom.mem_range).mpr ⟨φ a, by
+    obtain ⟨a, ha⟩ := AddMonoidHom.mem_range.mp hz
+    exact AddMonoidHom.mem_range.mpr ⟨φ a, by
       show d0 t (φ a) = fun i => φ (z.1 i)
       simp only [d0_natural t φ hφ a, ha]⟩
 
@@ -250,9 +247,7 @@ theorem dualMap_equivariant {A B : Type*} [AddCommGroup A] [AddCommGroup B]
 
 /-- `ElemDual A` is elementary (2-torsion). -/
 theorem elemDual_two_torsion {A : Type*} [AddCommGroup A] (lam : ElemDual A) : lam + lam = 0 :=
-  ElemDual.ext fun a => by
-    show lam a + lam a = 0
-    exact CharTwo.add_self_eq_zero _
+  ElemDual.ext fun _ => CharTwo.add_self_eq_zero _
 
 /-- **Extension lemma**: every `𝔽₂`-functional extends along an injection into a finite
 elementary 2-group (`ZMod 2` is self-injective on this category; proof by complementing the
@@ -260,9 +255,9 @@ image subspace). -/
 theorem elemDual_extend {A' A : Type*} [AddCommGroup A'] [AddCommGroup A] [Finite A]
     (hA₂ : ∀ a : A, a + a = 0) (f : A' →+ A) (hinj : Function.Injective f)
     (lam' : ElemDual A') : ∃ lam : ElemDual A, ∀ a', lam (f a') = lam' a' := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  haveI : Module (ZMod 2) A := AddCommGroup.zmodModule (fun v => by rw [two_nsmul]; exact hA₂ v)
-  haveI : Module (ZMod 2) A' := AddCommGroup.zmodModule (fun v => by
+  have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have : Module (ZMod 2) A := AddCommGroup.zmodModule (fun v => by rw [two_nsmul]; exact hA₂ v)
+  have : Module (ZMod 2) A' := AddCommGroup.zmodModule (fun v => by
     rw [two_nsmul]
     apply hinj
     rw [map_add, map_zero]
@@ -270,38 +265,30 @@ theorem elemDual_extend {A' A : Type*} [AddCommGroup A'] [AddCommGroup A] [Finit
   set F := AddMonoidHom.toZModLinearMap 2 f with hFdef
   have hFapp : ∀ a', F a' = f a' := fun a' =>
     congrFun (AddMonoidHom.coe_toZModLinearMap 2 f) a'
-  have hFinj : Function.Injective F := by
-    rw [show ⇑F = ⇑f from AddMonoidHom.coe_toZModLinearMap 2 f]
-    exact hinj
+  have hFinj : Function.Injective F := (AddMonoidHom.coe_toZModLinearMap 2 f).symm ▸ hinj
   set L := AddMonoidHom.toZModLinearMap 2 (lam' : A' →+ ZMod 2) with hLdef
   -- A linear left inverse `G` of `F` (basis complement); then `L ∘ G` extends.
   obtain ⟨G, hG⟩ := LinearMap.exists_leftInverse_of_injective F (LinearMap.ker_eq_bot.mpr hFinj)
   refine ⟨((L.comp G).toAddMonoidHom : ElemDual A), fun a' => ?_⟩
   show L (G (f a')) = lam' a'
-  have h1 : G (f a') = a' := by
-    rw [← hFapp a']
-    exact LinearMap.congr_fun hG a'
+  have h1 : G (f a') = a' := by rw [← hFapp a']; exact LinearMap.congr_fun hG a'
   rw [h1]
   exact congrFun (AddMonoidHom.coe_toZModLinearMap 2 _) a'
 
 /-- The `𝔽₂`-dual separates points on a finite elementary 2-group. -/
 theorem elemDual_separates {A : Type*} [AddCommGroup A] [Finite A]
     (hA₂ : ∀ a : A, a + a = 0) {a : A} (ha : a ≠ 0) : ∃ lam : ElemDual A, lam a ≠ 0 := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  haveI : Module (ZMod 2) A := AddCommGroup.zmodModule (fun v => by rw [two_nsmul]; exact hA₂ v)
-  by_contra h
-  push_neg at h
-  refine ha ?_
-  rw [← Module.forall_dual_apply_eq_zero_iff (ZMod 2) a]
-  intro φ
-  exact h (φ.toAddMonoidHom : ElemDual A)
+  have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have : Module (ZMod 2) A := AddCommGroup.zmodModule (fun v => by rw [two_nsmul]; exact hA₂ v)
+  by_contra! h
+  exact ha ((Module.forall_dual_apply_eq_zero_iff (ZMod 2) a).mp fun φ => h φ.toAddMonoidHom)
 
 /-- The dimension count `#(ElemDual A) = #A` for finite elementary `A`. -/
 theorem card_elemDual {A : Type*} [AddCommGroup A] [Finite A] (hA₂ : ∀ a : A, a + a = 0) :
     Nat.card (ElemDual A) = Nat.card A := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  haveI : Module (ZMod 2) A := AddCommGroup.zmodModule (fun v => by rw [two_nsmul]; exact hA₂ v)
-  haveI : FiniteDimensional (ZMod 2) A := Module.Finite.of_finite
+  have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have : Module (ZMod 2) A := AddCommGroup.zmodModule (fun v => by rw [two_nsmul]; exact hA₂ v)
+  have : FiniteDimensional (ZMod 2) A := Module.Finite.of_finite
   have e1 : ElemDual A ≃ Module.Dual (ZMod 2) A :=
     { toFun := AddMonoidHom.toZModLinearMap 2
       invFun := LinearMap.toAddMonoidHom
@@ -316,18 +303,17 @@ theorem card_elemDual {A : Type*} [AddCommGroup A] [Finite A] (hA₂ : ∀ a : A
 `A`. -/
 theorem dualEval_bijective {A : Type*} [AddCommGroup A] [Finite A]
     (hA₂ : ∀ a : A, a + a = 0) : Function.Bijective (dualEval A) := by
-  haveI : Finite (ElemDual A →+ ZMod 2) := inferInstanceAs (Finite (ElemDual (ElemDual A)))
+  have : Finite (ElemDual A →+ ZMod 2) := inferInstanceAs (Finite (ElemDual (ElemDual A)))
   rw [Nat.bijective_iff_injective_and_card]
   constructor
   · intro x y hxy
     have h1 : ∀ lam : ElemDual A, lam x = lam y := fun lam => by
-      have h2 := DFunLike.congr_fun hxy lam
-      rwa [dualEval_apply, dualEval_apply] at h2
+      simpa using DFunLike.congr_fun hxy lam
     by_contra hne
     obtain ⟨lam, hlam⟩ := elemDual_separates hA₂ (sub_ne_zero_of_ne hne)
     exact hlam (by rw [map_sub, h1 lam, sub_self])
   · show Nat.card A = Nat.card (ElemDual (ElemDual A))
-    rw [card_elemDual (fun lam => elemDual_two_torsion lam), card_elemDual hA₂]
+    rw [card_elemDual elemDual_two_torsion, card_elemDual hA₂]
 
 /-- Dualizing a surjection gives an injection. -/
 theorem dualMap_injective {Y Z : Type*} [AddCommGroup Y] [AddCommGroup Z] (v : Y →+ Z)
@@ -349,10 +335,8 @@ theorem dualMap_surjective {A' A : Type*} [AddCommGroup A'] [AddCommGroup A] [Fi
 /-- 2-torsion passes to subobjects along an injection. -/
 theorem two_torsion_of_injective {A' A : Type*} [AddCommGroup A'] [AddCommGroup A]
     (f : A' →+ A) (hinj : Function.Injective f) (hA₂ : ∀ a : A, a + a = 0) (a' : A') :
-    a' + a' = 0 := by
-  apply hinj
-  rw [map_add, map_zero]
-  exact hA₂ (f a')
+    a' + a' = 0 :=
+  hinj (by rw [map_add, map_zero]; exact hA₂ (f a'))
 
 /-- 2-torsion passes to quotients along a surjection. -/
 theorem two_torsion_of_surjective {A A'' : Type*} [AddCommGroup A] [AddCommGroup A'']
@@ -380,8 +364,7 @@ theorem dual_exact_pair {X Y Z : Type*} [AddCommGroup X] [AddCommGroup Y] [AddCo
     refine AddMonoidHom.mem_range.mpr ⟨mu, ?_⟩
     ext y
     have h1 := hmu (QuotientAddGroup.mk y)
-    rw [QuotientAddGroup.kerLift_mk] at h1
-    exact h1
+    rwa [QuotientAddGroup.kerLift_mk] at h1
   · rintro ⟨mu, rfl⟩
     ext x
     show mu (v (u x)) = 0
@@ -420,37 +403,25 @@ theorem H0w_two_torsion (t : Marking C) (hA₂ : ∀ a : A, a + a = 0) (a : H0w 
 theorem H1w_two_torsion (t : Marking C) (hA₂ : ∀ a : A, a + a = 0) (h : H1w (A := A) t) :
     h + h = 0 := by
   obtain ⟨x, rfl⟩ := QuotientAddGroup.mk_surjective h
-  have hxx : (x + x : Z1w (A := A) t) = 0 := by
-    apply Subtype.ext
-    funext i
-    show x.1 i + x.1 i = 0
-    exact hA₂ _
   show (QuotientAddGroup.mk (x + x) : H1w (A := A) t) = 0
-  rw [hxx]
+  rw [show x + x = 0 from Subtype.ext (funext fun i => hA₂ _)]
   exact QuotientAddGroup.mk_zero _
 
 /-- 2-torsion of the word-complex `H²w` (a quotient of `A²`). -/
 theorem H2w_two_torsion (t : Marking C) (hA₂ : ∀ a : A, a + a = 0) (h : H2w (A := A) t) :
     h + h = 0 := by
   obtain ⟨p, rfl⟩ := QuotientAddGroup.mk_surjective h
-  have hpp : (p + p : A × A) = 0 := Prod.ext (hA₂ p.1) (hA₂ p.2)
   show (QuotientAddGroup.mk (p + p) : H2w (A := A) t) = 0
-  rw [hpp]
+  rw [show p + p = 0 from Prod.ext (hA₂ p.1) (hA₂ p.2)]
   exact QuotientAddGroup.mk_zero _
 
 /-- `mixedB t x 0 = 0` (from right-additivity, in the 2-torsion target). -/
 theorem mixedB_zero_right (t : Marking C) (x : Fin 4 → A) : mixedB t x 0 = 0 := by
-  have h := mixedB_add_right t x 0 0
-  rw [add_zero] at h
-  have h2 : mixedB t x 0 + 0 = mixedB t x 0 + mixedB t x 0 := by rw [add_zero]; exact h
-  exact (add_left_cancel h2).symm
+  simpa using mixedB_add_right t x 0 0
 
 /-- `mixedB t 0 y = 0` (from left-additivity, in the 2-torsion target). -/
 theorem mixedB_zero_left (t : Marking C) (y : Fin 4 → ElemDual A) : mixedB t 0 y = 0 := by
-  have h := mixedB_add_left t 0 0 y
-  rw [add_zero] at h
-  have h2 : mixedB t 0 y + 0 = mixedB t 0 y + mixedB t 0 y := by rw [add_zero]; exact h
-  exact (add_left_cancel h2).symm
+  simpa using mixedB_add_left t 0 0 y
 
 /-- **`χ⁰` (degree-(0,2) evaluation)**: `H⁰w(A) →+ (H²w(A^∨))^∨`, `a ↦ ([λ,μ] ↦ λ(a) + μ(a))`.
 Well-defined on `H²w(A^∨)`-classes by Prop 5.8 (left): on `(λ,μ) = d¹y` the value is
@@ -603,8 +574,8 @@ theorem chi0T_injective (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) :
   apply Subtype.ext
   apply ElemDual.ext
   intro u
-  have h1 := DFunLike.congr_fun h (QuotientAddGroup.mk ((u, 0) : A × A))
-  have h2 : lam.1 (u + 0) = mu.1 (u + 0) := h1
+  have h2 : lam.1 (u + 0) = mu.1 (u + 0) :=
+    DFunLike.congr_fun h (QuotientAddGroup.mk ((u, 0) : A × A))
   simpa using h2
 
 /-- `χ²` is **always** surjective (extension along `H⁰w(A^∨) ≤ A^∨` + biduality). -/
@@ -612,7 +583,7 @@ theorem chi2_surjective (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     (hA₂ : ∀ a : A, a + a = 0) : Function.Surjective (chi2 (A := A) t ht hw) := by
   intro psi
   -- Extend `psi` along the subgroup inclusion to a functional on all of `A^∨`…
-  obtain ⟨Psi, hPsi⟩ := elemDual_extend (fun lam => elemDual_two_torsion lam)
+  obtain ⟨Psi, hPsi⟩ := elemDual_extend elemDual_two_torsion
     (H0w (A := ElemDual A) t).subtype (AddSubgroup.subtype_injective _)
     (psi : ElemDual ((H0w (A := ElemDual A) t : AddSubgroup (ElemDual A))))
   -- …and realize it as evaluation at some `w : A` (biduality).
@@ -621,10 +592,8 @@ theorem chi2_surjective (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   apply ElemDual.ext
   intro lam
   show lam.1 (w + 0) = psi lam
-  rw [add_zero]
-  have h1 : Psi lam.1 = psi lam := hPsi lam
-  have h2 : Psi lam.1 = lam.1 w := by rw [← hw']; exact dualEval_apply _ _
-  rw [← h2, h1]
+  rw [add_zero, ← hPsi lam, ← hw']
+  exact (dualEval_apply _ _).symm
 
 /-- `χ²` transposed is **always** surjective (extension along `H⁰w(A) ≤ A`). -/
 theorem chi2T_surjective (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
@@ -637,8 +606,7 @@ theorem chi2T_surjective (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   apply ElemDual.ext
   intro a
   show nu a.1 + (0 : ElemDual A) a.1 = psi a
-  rw [ElemDual.zero_apply, add_zero]
-  exact hnu a
+  simpa using hnu a
 
 /-! ### The evaluation squares: `χ⁰`/`χ²` commute with coefficient maps
 
@@ -852,15 +820,13 @@ theorem pairing_clause_iff (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) :
   · rintro ⟨hinj, hinjT⟩
     refine ⟨fun h h' => chi1 t ht hw h h', fun x y => rfl, ?_, ?_⟩
     · intro h hne
-      by_contra hno
-      push_neg at hno
+      by_contra! hno
       apply hne
       apply hinj
       rw [map_zero]
       exact ElemDual.ext hno
     · intro h' hne
-      by_contra hno
-      push_neg at hno
+      by_contra! hno
       apply hne
       apply hinjT
       rw [map_zero]
@@ -878,12 +844,12 @@ theorem chi1_bij_of_inj (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     Function.Bijective (chi1 (A := A) t ht hw) ∧
       Function.Bijective (chi1T (A := A) t ht hw) ∧
       Nat.card (H1w (A := A) t) = Nat.card (H1w (A := ElemDual A) t) := by
-  haveI : Finite (H1w (A := A) t) := inferInstanceAs (Finite (_ ⧸ _))
-  haveI : Finite (H1w (A := ElemDual A) t) := inferInstanceAs (Finite (_ ⧸ _))
+  have : Finite (H1w (A := A) t) := inferInstanceAs (Finite (_ ⧸ _))
+  have : Finite (H1w (A := ElemDual A) t) := inferInstanceAs (Finite (_ ⧸ _))
   have he : Nat.card (ElemDual (H1w (A := ElemDual A) t))
       = Nat.card (H1w (A := ElemDual A) t) :=
     card_elemDual (A := H1w (A := ElemDual A) t)
-      (H1w_two_torsion t (fun lam : ElemDual A => elemDual_two_torsion lam))
+      (H1w_two_torsion t elemDual_two_torsion)
   have heT : Nat.card (ElemDual (H1w (A := A) t)) = Nat.card (H1w (A := A) t) :=
     card_elemDual (A := H1w (A := A) t) (H1w_two_torsion t hA₂)
   have hc1 : Nat.card (H1w (A := A) t) ≤ Nat.card (ElemDual (H1w (A := ElemDual A) t)) :=
@@ -965,11 +931,11 @@ theorem isSelfDualW_iff (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
       (Function.Bijective (chi2 (A := A) t ht hw) ∧
         Function.Injective (chi1 (A := A) t ht hw) ∧
         Function.Injective (chi1T (A := A) t ht hw)) := by
-  haveI : Finite (H2w (A := A) t) := inferInstanceAs (Finite (_ ⧸ _))
+  have : Finite (H2w (A := A) t) := inferInstanceAs (Finite (_ ⧸ _))
   have hED : Nat.card (ElemDual (H0w (A := ElemDual A) t))
       = Nat.card (H0w (A := ElemDual A) t) :=
     card_elemDual (A := H0w (A := ElemDual A) t)
-      (H0w_two_torsion t (fun lam : ElemDual A => elemDual_two_torsion lam))
+      (H0w_two_torsion t elemDual_two_torsion)
   constructor
   · rintro ⟨hc1, -, hpair⟩
     refine ⟨?_, (pairing_clause_iff t ht hw).mp hpair⟩
@@ -991,11 +957,11 @@ theorem chi_bij_of_selfdualW (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
       Function.Bijective (chi0T (A := A) t ht hw) ∧
       Function.Bijective (chi1 (A := A) t ht hw) ∧
       Function.Bijective (chi1T (A := A) t ht hw) := by
-  haveI : Finite (H1w (A := A) t) := inferInstanceAs (Finite (_ ⧸ _))
-  haveI : Finite (H1w (A := ElemDual A) t) := inferInstanceAs (Finite (_ ⧸ _))
-  haveI : Finite (H2w (A := A) t) := inferInstanceAs (Finite (_ ⧸ _))
-  haveI : Finite (H2w (A := ElemDual A) t) := inferInstanceAs (Finite (_ ⧸ _))
-  have hD₂ : ∀ lam : ElemDual A, lam + lam = 0 := fun lam => elemDual_two_torsion lam
+  have : Finite (H1w (A := A) t) := inferInstanceAs (Finite (_ ⧸ _))
+  have : Finite (H1w (A := ElemDual A) t) := inferInstanceAs (Finite (_ ⧸ _))
+  have : Finite (H2w (A := A) t) := inferInstanceAs (Finite (_ ⧸ _))
+  have : Finite (H2w (A := ElemDual A) t) := inferInstanceAs (Finite (_ ⧸ _))
+  have hD₂ : ∀ lam : ElemDual A, lam + lam = 0 := elemDual_two_torsion
   obtain ⟨hbij2, hinj1, hinj1T⟩ := (isSelfDualW_iff t ht hw hA₂).mp hsd
   obtain ⟨hbij1, hbij1T, h11⟩ := chi1_bij_of_inj t ht hw hA₂ hinj1 hinj1T
   -- The card package.
@@ -1112,21 +1078,17 @@ theorem pi_exact (y : Fin 4 → A) :
       intro i
       rw [hexact, AddMonoidHom.mem_ker]
       exact congrFun hy i
-    choose x hx using fun i => (AddMonoidHom.mem_range).mp (hmem i)
+    choose x hx using fun i => AddMonoidHom.mem_range.mp (hmem i)
     exact ⟨x, funext hx⟩
   · rintro ⟨x, rfl⟩
     funext i
     show g (f (x i)) = 0
-    have : f (x i) ∈ g.ker := by rw [← hexact]; exact AddMonoidHom.mem_range.mpr ⟨x i, rfl⟩
-    exact AddMonoidHom.mem_ker.mp this
+    exact AddMonoidHom.mem_ker.mp (hexact ▸ AddMonoidHom.mem_range.mpr ⟨x i, rfl⟩)
 
 include hsurj in
 /-- Degree-2 (`(·)²`) surjectivity: `g × g` is surjective. -/
 theorem prod_g_surjective : Function.Surjective (g.prodMap g) := by
-  rintro ⟨u, v⟩
-  obtain ⟨a, ha⟩ := hsurj u
-  obtain ⟨b, hb⟩ := hsurj v
-  exact ⟨(a, b), by simp [AddMonoidHom.coe_prodMap, ha, hb]⟩
+  rw [AddMonoidHom.coe_prodMap]; exact hsurj.prodMap hsurj
 
 include hexact in
 /-- Degree-2 exactness: `ker(g × g) = range(f × f)` on `A × A`. -/
@@ -1153,7 +1115,8 @@ include hsurj in
 noncomputable def snakeLift (c'' : Fin 4 → A'') : Fin 4 → A := fun i => (hsurj (c'' i)).choose
 
 include hsurj in
-@[simp] theorem snakeLift_spec (c'' : Fin 4 → A'') (i : Fin 4) : g (snakeLift g hsurj c'' i) = c'' i :=
+@[simp] theorem snakeLift_spec (c'' : Fin 4 → A'') (i : Fin 4) :
+    g (snakeLift g hsurj c'' i) = c'' i :=
   (hsurj (c'' i)).choose_spec
 
 include hg hsurj in
@@ -1261,7 +1224,8 @@ noncomputable def snake0Z' (t : Marking C) (a'' : H0w (A := A'') t) : Fin 4 → 
 include hg hsurj hexact in
 theorem snake0Z'_spec (t : Marking C) (a'' : H0w (A := A'') t) :
     (fun i => f (snake0Z' f g hg hsurj hexact t a'' i)) = d0 t (hsurj a''.1).choose :=
-  ((pi_exact f g hexact (d0 t (hsurj a''.1).choose)).mp (snake0_d0_mem g hg hsurj t a'')).choose_spec
+  ((pi_exact f g hexact (d0 t (hsurj a''.1).choose)).mp
+    (snake0_d0_mem g hg hsurj t a'')).choose_spec
 
 include hf hg hinj hsurj hexact in
 /-- `snake0Z' ∈ Z¹w(A')`: its `d¹` vanishes (pull `d¹∘d⁰ = 0` back through the injection `f`). -/
@@ -1290,7 +1254,8 @@ theorem delta0_welldef (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   -- `a − lift` is in `ker g = range f`.
   have hga : g (a - (hsurj a''.1).choose) = 0 := by
     rw [map_sub, ha, (hsurj a''.1).choose_spec, sub_self]
-  obtain ⟨a', ha'⟩ := (AddMonoidHom.mem_range).mp (by rw [hexact]; exact AddMonoidHom.mem_ker.mpr hga)
+  obtain ⟨a', ha'⟩ :=
+    AddMonoidHom.mem_range.mp (by rw [hexact]; exact AddMonoidHom.mem_ker.mpr hga)
   -- `f∘(w − w₀) = d⁰a − d⁰(lift) = d⁰(a − lift) = d⁰(f a') = f∘(d⁰a')`, so `w − w₀ = d⁰a'`.
   have hww₀ : (w - w₀ : Fin 4 → A') = d0 t a' := by
     funext i
@@ -1301,7 +1266,7 @@ theorem delta0_welldef (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   -- Hence the difference of the two cocycles is a coboundary, so the classes agree.
   rw [← sub_eq_zero, ← QuotientAddGroup.mk_sub, QuotientAddGroup.eq_zero_iff,
     AddSubgroup.mem_addSubgroupOf]
-  refine (AddMonoidHom.mem_range).mpr ⟨a', ?_⟩
+  refine AddMonoidHom.mem_range.mpr ⟨a', ?_⟩
   have hcoe : (↑(⟨w, AddMonoidHom.mem_ker.mpr hwmem⟩ - ⟨w₀,
       AddMonoidHom.mem_ker.mpr (snake0Z'_mem f g hf hg hinj hsurj hexact t ht hw a'')⟩ :
       Z1w (A := A') t) : Fin 4 → A') = w - w₀ := rfl
@@ -1385,8 +1350,7 @@ theorem H0w_exact_mid (t : Marking C) (a : H0w (A := A) t) :
   constructor
   · intro ha
     have h1 : g a.1 = 0 := congrArg Subtype.val (AddMonoidHom.mem_ker.mp ha)
-    obtain ⟨a', ha'⟩ := AddMonoidHom.mem_range.mp
-      (by rw [hexact]; exact AddMonoidHom.mem_ker.mpr h1)
+    obtain ⟨a', ha'⟩ := AddMonoidHom.mem_range.mp (hexact ▸ AddMonoidHom.mem_ker.mpr h1)
     have hd0 : d0 t a' = 0 := by
       funext i
       show d0 t a' i = 0
@@ -1400,8 +1364,7 @@ theorem H0w_exact_mid (t : Marking C) (a : H0w (A := A) t) :
     apply AddMonoidHom.mem_ker.mpr
     apply Subtype.ext
     show g (f a'.1) = 0
-    exact AddMonoidHom.mem_ker.mp
-      (by rw [← hexact]; exact AddMonoidHom.mem_range.mpr ⟨a'.1, rfl⟩)
+    exact AddMonoidHom.mem_ker.mp (hexact ▸ AddMonoidHom.mem_range.mpr ⟨a'.1, rfl⟩)
 
 include hf hg hinj hsurj hexact in
 /-- Exactness at `H⁰w(A'')`: `ker δ⁰ = range(H⁰wMap g)`. -/
@@ -1460,8 +1423,7 @@ theorem H1w_exact_left (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (h : H1
       have h2 : d0 t (g a) i = g (d0 t a i) := congrFun (d0_natural t g hg a) i
       have h3 : d0 t a i = f (w'.1 i) := congrFun ha' i
       rw [h2, h3]
-      exact AddMonoidHom.mem_ker.mp
-        (by rw [← hexact]; exact AddMonoidHom.mem_range.mpr ⟨w'.1 i, rfl⟩)
+      exact AddMonoidHom.mem_ker.mp (hexact ▸ AddMonoidHom.mem_range.mpr ⟨w'.1 i, rfl⟩)
     exact ⟨⟨g a, AddMonoidHom.mem_ker.mpr hga⟩,
       (delta0_welldef f g hf hg hinj hsurj hexact t ht hw ⟨g a, AddMonoidHom.mem_ker.mpr hga⟩
         a w'.1 (AddMonoidHom.mem_ker.mp w'.2) rfl ha'.symm).symm⟩
@@ -1524,8 +1486,7 @@ theorem H1w_exact_mid (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (h : H1w
       apply Subtype.ext
       funext i
       show g (f (w'.1 i)) = 0
-      exact AddMonoidHom.mem_ker.mp
-        (by rw [← hexact]; exact AddMonoidHom.mem_range.mpr ⟨w'.1 i, rfl⟩)
+      exact AddMonoidHom.mem_ker.mp (hexact ▸ AddMonoidHom.mem_range.mpr ⟨w'.1 i, rfl⟩)
     rw [hzero]
     exact QuotientAddGroup.mk_zero _
 
@@ -1563,7 +1524,7 @@ theorem H1w_exact_right (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     apply AddMonoidHom.mem_ker.mpr
     show (QuotientAddGroup.mk (snakeZ f g hg hsurj hexact t (Z1wMap t g hg x)) :
       H2w (A := A') t) = 0
-    refine ((snakeZ_welldef f g hf hg hinj hsurj hexact t (Z1wMap t g hg x) x.1 0 rfl ?_).symm).trans
+    refine (snakeZ_welldef f g hf hg hinj hsurj hexact t (Z1wMap t g hg x) x.1 0 rfl ?_).symm.trans
       (QuotientAddGroup.mk_zero _)
     rw [map_zero]
     exact (AddMonoidHom.mem_ker.mp x.2).symm
@@ -1787,22 +1748,22 @@ theorem selfdualW_two_of_three (hA₂ : ∀ a : A, a + a = 0) (t : Marking C) (h
   -- Torsion on the outer modules and the duals.
   have hA'₂ : ∀ a' : A', a' + a' = 0 := two_torsion_of_injective f hinj hA₂
   have hA''₂ : ∀ a'' : A'', a'' + a'' = 0 := two_torsion_of_surjective g hsurj hA₂
-  have hD₂ : ∀ lam : ElemDual A, lam + lam = 0 := fun lam => elemDual_two_torsion lam
-  have hD'₂ : ∀ lam : ElemDual A', lam + lam = 0 := fun lam => elemDual_two_torsion lam
-  have hD''₂ : ∀ lam : ElemDual A'', lam + lam = 0 := fun lam => elemDual_two_torsion lam
+  have hD₂ : ∀ lam : ElemDual A, lam + lam = 0 := elemDual_two_torsion
+  have hD'₂ : ∀ lam : ElemDual A', lam + lam = 0 := elemDual_two_torsion
+  have hD''₂ : ∀ lam : ElemDual A'', lam + lam = 0 := elemDual_two_torsion
   -- Finiteness of the subquotients.
-  haveI : Finite (H1w (A := A') t) := inferInstanceAs (Finite (_ ⧸ _))
-  haveI : Finite (H1w (A := A) t) := inferInstanceAs (Finite (_ ⧸ _))
-  haveI : Finite (H1w (A := A'') t) := inferInstanceAs (Finite (_ ⧸ _))
-  haveI : Finite (H1w (A := ElemDual A') t) := inferInstanceAs (Finite (_ ⧸ _))
-  haveI : Finite (H1w (A := ElemDual A) t) := inferInstanceAs (Finite (_ ⧸ _))
-  haveI : Finite (H1w (A := ElemDual A'') t) := inferInstanceAs (Finite (_ ⧸ _))
-  haveI : Finite (H2w (A := A') t) := inferInstanceAs (Finite (_ ⧸ _))
-  haveI : Finite (H2w (A := A) t) := inferInstanceAs (Finite (_ ⧸ _))
-  haveI : Finite (H2w (A := A'') t) := inferInstanceAs (Finite (_ ⧸ _))
-  haveI : Finite (H2w (A := ElemDual A') t) := inferInstanceAs (Finite (_ ⧸ _))
-  haveI : Finite (H2w (A := ElemDual A) t) := inferInstanceAs (Finite (_ ⧸ _))
-  haveI : Finite (H2w (A := ElemDual A'') t) := inferInstanceAs (Finite (_ ⧸ _))
+  have : Finite (H1w (A := A') t) := inferInstanceAs (Finite (_ ⧸ _))
+  have : Finite (H1w (A := A) t) := inferInstanceAs (Finite (_ ⧸ _))
+  have : Finite (H1w (A := A'') t) := inferInstanceAs (Finite (_ ⧸ _))
+  have : Finite (H1w (A := ElemDual A') t) := inferInstanceAs (Finite (_ ⧸ _))
+  have : Finite (H1w (A := ElemDual A) t) := inferInstanceAs (Finite (_ ⧸ _))
+  have : Finite (H1w (A := ElemDual A'') t) := inferInstanceAs (Finite (_ ⧸ _))
+  have : Finite (H2w (A := A') t) := inferInstanceAs (Finite (_ ⧸ _))
+  have : Finite (H2w (A := A) t) := inferInstanceAs (Finite (_ ⧸ _))
+  have : Finite (H2w (A := A'') t) := inferInstanceAs (Finite (_ ⧸ _))
+  have : Finite (H2w (A := ElemDual A') t) := inferInstanceAs (Finite (_ ⧸ _))
+  have : Finite (H2w (A := ElemDual A) t) := inferInstanceAs (Finite (_ ⧸ _))
+  have : Finite (H2w (A := ElemDual A'') t) := inferInstanceAs (Finite (_ ⧸ _))
   -- The dualized SES and its equivariances (proof-irrelevant aliases).
   have hgse : ∀ (c : C) (lam : ElemDual A''), dualMap g (c • lam) = c • dualMap g lam :=
     dualMap_equivariant g hg
@@ -2071,15 +2032,11 @@ theorem H0w_eq_fixedPts (t : Marking C) (hgen : t.Generates) :
           simp only [Set.mem_setOf_eq] at ha ⊢
           rw [← ha, inv_smul_smul, ha] }
     have hmarked : {t.σ, t.τ, t.x₀, t.x₁} ⊆ (S : Set C) := by
-      have h0 : t.σ • v - v = 0 := congrFun hv' 0
-      have h1 : t.τ • v - v = 0 := congrFun hv' 1
-      have h2 : t.x₀ • v - v = 0 := congrFun hv' 2
-      have h3 : t.x₁ • v - v = 0 := congrFun hv' 3
       rintro c (rfl | rfl | rfl | rfl)
-      · exact sub_eq_zero.mp h0
-      · exact sub_eq_zero.mp h1
-      · exact sub_eq_zero.mp h2
-      · exact sub_eq_zero.mp h3
+      · exact sub_eq_zero.mp (congrFun hv' 0)
+      · exact sub_eq_zero.mp (congrFun hv' 1)
+      · exact sub_eq_zero.mp (congrFun hv' 2)
+      · exact sub_eq_zero.mp (congrFun hv' 3)
     have hle : Subgroup.closure {t.σ, t.τ, t.x₀, t.x₁} ≤ S :=
       (Subgroup.closure_le S).mpr hmarked
     intro c
@@ -2087,15 +2044,7 @@ theorem H0w_eq_fixedPts (t : Marking C) (hgen : t.Generates) :
   · intro hv
     apply AddMonoidHom.mem_ker.mpr
     funext i
-    fin_cases i
-    · show t.σ • v - v = 0
-      rw [hv t.σ, sub_self]
-    · show t.τ • v - v = 0
-      rw [hv t.τ, sub_self]
-    · show t.x₀ • v - v = 0
-      rw [hv t.x₀, sub_self]
-    · show t.x₁ • v - v = 0
-      rw [hv t.x₁, sub_self]
+    fin_cases i <;> simp [d0, hv _]
 
 /-- For a generating marking, the two self-duality packages coincide. -/
 theorem isSelfDual_iff_W {A : Type*} [AddCommGroup A] [DistribMulAction C A] [Finite A]

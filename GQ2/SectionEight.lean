@@ -1,12 +1,12 @@
+import GQ2.AdmissibleLimit
+import GQ2.AppendixB
 import GQ2.BoundaryFrame
+import GQ2.FrameEnrichment
+import GQ2.HalfTorsorGammaA
+import GQ2.Prop23
 import GQ2.RadicalEdge.Data
 import GQ2.RadicalEdge.Local
-import GQ2.FrameEnrichment
 import GQ2.SectionSeven
-import GQ2.AppendixB
-import GQ2.AdmissibleLimit
-import GQ2.Prop23
-import GQ2.HalfTorsorGammaA
 
 /-!
 # §8: central covers, affine fibres, and Fourier inversion — statements  (ticket P-16)
@@ -106,11 +106,8 @@ lemma sum_sign_eq_zero {A : Type*} [AddCommGroup A] [Finite A] (ψ : A → ZMod 
   haveI : Fintype A := Fintype.ofFinite A
   simp only [not_forall] at hne
   obtain ⟨a₀, ha₀⟩ := hne
-  have ha₀' : ψ a₀ = 1 := by
-    have h2 : ∀ x : ZMod 2, x = 0 ∨ x = 1 := by decide
-    rcases h2 (ψ a₀) with h | h
-    · exact absurd h ha₀
-    · exact h
+  have ha₀' : ψ a₀ = 1 :=
+    ((show ∀ x : ZMod 2, x = 0 ∨ x = 1 by decide) (ψ a₀)).resolve_left ha₀
   rw [finsum_eq_sum_of_fintype]
   -- pair `a ↦ a + a₀`: signs cancel
   have hpair : ∀ a : A, sign (ψ (a + a₀)) = -sign (ψ a) := fun a => by
@@ -122,7 +119,7 @@ lemma sum_sign_eq_zero {A : Type*} [AddCommGroup A] [Finite A] (ψ : A → ZMod 
             (fun a => sign (ψ (a + a₀))) (fun a => sign (ψ a)) (fun a => by simp)).symm
       _ = ∑ a : A, -sign (ψ a) := Finset.sum_congr rfl fun a _ => hpair a
       _ = -∑ a : A, sign (ψ a) := by rw [Finset.sum_neg_distrib]
-  linarith
+  omega
 
 /-- The sign is the `±1`-indicator: `sign u = 2·[u = 0] − 1`. -/
 lemma sign_eq_indicator (u : ZMod 2) : sign u = (if u = 0 then 2 else 0) - 1 := by
@@ -146,9 +143,8 @@ lemma sum_dual_sign {W : Type*} [AddCommGroup W] [Module (ZMod 2) W] [Finite W] 
     rw [finsum_eq_sum_of_fintype, Finset.sum_const, Nat.card_eq_fintype_card]
     simp
   · rw [if_neg hw]
-    refine sum_sign_eq_zero (fun φ : Module.Dual (ZMod 2) W => φ w) (fun φ φ' => rfl) ?_
-    intro hall
-    exact hw ((Module.forall_dual_apply_eq_zero_iff (ZMod 2) w).mp (fun φ => hall φ))
+    exact sum_sign_eq_zero (fun φ : Module.Dual (ZMod 2) W => φ w) (fun φ φ' => rfl)
+      (mt (Module.forall_dual_apply_eq_zero_iff (ZMod 2) w).mp hw)
 
 /-! ## Lemma 8.4: Fourier inversion  (display (125)) -/
 
@@ -202,8 +198,7 @@ noncomputable def gaussSum {W : Type*} [Finite W] (Q : W → ZMod 2) : ℤ :=
 
 /-- In an `𝔽₂`-module, every element is self-inverse. -/
 lemma add_self_fp2 {M : Type*} [AddCommGroup M] [Module (ZMod 2) M] (m : M) : m + m = 0 := by
-  have h : ((1 : ZMod 2) + 1) • m = m + m := by rw [add_smul, one_smul]
-  rw [← h, show ((1 : ZMod 2) + 1) = 0 from by decide, zero_smul]
+  rw [← two_smul (ZMod 2) m, show (2 : ZMod 2) = 0 by decide, zero_smul]
 
 /-- **Lemma 8.5 (constrained quadratic Gauss transform, eq. (126))**, multiplied-out form:
 for finite `𝔽₂`-spaces `W, E`, a surjective linear `L : W ↠ E`, a form `Q : W → 𝔽₂` with
@@ -238,28 +233,14 @@ theorem lemma_8_5 {W E : Type*} [AddCommGroup W] [Module (ZMod 2) W] [Finite W]
             then 2 * (Nat.card (Module.Dual (ZMod 2) E) : ℤ) else 0 := by
       intro x
       rw [← Finset.sum_mul, ← finsum_eq_sum_of_fintype, sum_dual_sign (L x + κ)]
-      have hLiff : L x + κ = 0 ↔ L x = κ := by
-        constructor
-        · intro h
-          have h' := congrArg (· + κ) h
-          simpa [add_assoc, add_self_fp2] using h'
-        · rintro rfl
-          exact add_self_fp2 _
+      have hLiff : L x + κ = 0 ↔ L x = κ :=
+        ⟨fun h => by simpa [add_assoc, add_self_fp2] using congrArg (· + κ) h,
+         fun h => by rw [h]; exact add_self_fp2 _⟩
       have hQiff : Q x + ε = 0 ↔ Q x = ε :=
         (show ∀ u v : ZMod 2, (u + v = 0 ↔ u = v) from by decide) (Q x) ε
       rw [one_add_sign]
-      by_cases h1 : L x = κ <;> by_cases h2 : Q x = ε
-      · rw [if_pos (hLiff.mpr h1), if_pos (hQiff.mpr h2), if_pos ⟨h1, h2⟩]
-        ring
-      · rw [if_pos (hLiff.mpr h1), if_neg (fun h : Q x + ε = 0 => h2 (hQiff.mp h)),
-          if_neg (fun h : L x = κ ∧ Q x = ε => h2 h.2)]
-        ring
-      · rw [if_neg (fun h : L x + κ = 0 => h1 (hLiff.mp h)),
-          if_neg (fun h : L x = κ ∧ Q x = ε => h1 h.1)]
-        ring
-      · rw [if_neg (fun h : L x + κ = 0 => h1 (hLiff.mp h)),
-          if_neg (fun h : L x = κ ∧ Q x = ε => h1 h.1)]
-        ring
+      simp only [hLiff, hQiff]
+      by_cases h1 : L x = κ <;> by_cases h2 : Q x = ε <;> simp [h1, h2, mul_comm]
     rw [hT, Finset.sum_congr rfl fun x _ => hx x, ← Finset.sum_filter, Finset.sum_const,
       Nat.card_eq_fintype_card (α := {x : W // L x = κ ∧ Q x = ε}), Fintype.card_subtype]
     ring
@@ -268,12 +249,10 @@ theorem lemma_8_5 {W E : Type*} [AddCommGroup W] [Module (ZMod 2) W] [Finite W]
       ∑ᶠ χ : Module.Dual (ZMod 2) E, sign (χ κ + ε + Q (a χ)) := by
     have hsplit : T = (∑ χ : Module.Dual (ZMod 2) E, ∑ x : W, sign (χ (L x + κ)))
         + ∑ χ : Module.Dual (ZMod 2) E, ∑ x : W, sign (χ (L x + κ)) * sign (Q x + ε) := by
-      rw [hT, Finset.sum_comm]
-      rw [← Finset.sum_add_distrib]
+      rw [hT, Finset.sum_comm, ← Finset.sum_add_distrib]
       refine Finset.sum_congr rfl fun χ _ => ?_
       rw [← Finset.sum_add_distrib]
-      refine Finset.sum_congr rfl fun x _ => ?_
-      ring
+      exact Finset.sum_congr rfl fun x _ => by ring
     -- first double sum: only `χ = 0` survives, contributing `|W|`
     have hfirst : (∑ χ : Module.Dual (ZMod 2) E, ∑ x : W, sign (χ (L x + κ)))
         = (Nat.card W : ℤ) := by
@@ -289,13 +268,11 @@ theorem lemma_8_5 {W E : Type*} [AddCommGroup W] [Module (ZMod 2) W] [Finite W]
         have hzero : ∑ᶠ x : W, sign (χ (L x)) = 0 :=
           sum_sign_eq_zero (fun x => χ (L x)) (fun x y => by rw [map_add, map_add]) hcomp
         calc ∑ x : W, sign (χ (L x + κ))
-            = ∑ x : W, sign (χ κ) * sign (χ (L x)) := by
-              refine Finset.sum_congr rfl fun x _ => ?_
-              rw [map_add, sign_add, mul_comm]
+            = ∑ x : W, sign (χ κ) * sign (χ (L x)) :=
+              Finset.sum_congr rfl fun x _ => by rw [map_add, sign_add, mul_comm]
           _ = sign (χ κ) * ∑ x : W, sign (χ (L x)) := by rw [Finset.mul_sum]
           _ = 0 := by rw [← finsum_eq_sum_of_fintype, hzero, mul_zero]
-      · intro h
-        exact absurd (Finset.mem_univ _) h
+      · exact fun h => absurd (Finset.mem_univ _) h
     -- second double sum: complete the square, translate, factor the Gauss sum
     have hsecond : (∑ χ : Module.Dual (ZMod 2) E, ∑ x : W,
           sign (χ (L x + κ)) * sign (Q x + ε))
@@ -366,12 +343,9 @@ noncomputable def pullTarget (T : MarkedTarget H E Y) : MarkedTarget H E C.cover
     intro x
     obtain ⟨k, hk⟩ := T.isPGroup_two ⟨C.p x.1, x.2⟩
     refine ⟨k + 1, ?_⟩
-    have hval : (C.p x.1) ^ 2 ^ k = 1 := by
-      have h := congrArg Subtype.val hk
-      rwa [SubgroupClass.coe_pow, OneMemClass.coe_one] at h
     have hker : x.1 ^ 2 ^ k ∈ C.p.ker := by
       rw [MonoidHom.mem_ker, map_pow]
-      exact hval
+      simpa using congrArg Subtype.val hk
     ext
     rw [SubgroupClass.coe_pow, OneMemClass.coe_one, pow_succ, pow_mul, pow_two]
     exact C.sq_eq_one_of_mem_ker hker
@@ -398,15 +372,13 @@ variable {G₁ G₂ : Type*} [Group G₁] [TopologicalSpace G₁] [Group G₂] [
 def cmhCodRestrict (f : ContinuousMonoidHom G₁ G₂) (S : Subgroup G₂) (h : ∀ x, f x ∈ S) :
     ContinuousMonoidHom G₁ ↥S where
   toFun x := ⟨f x, h x⟩
-  map_one' := by ext; exact map_one f
-  map_mul' x y := by ext; exact map_mul f x y
+  map_one' := Subtype.ext (map_one f)
+  map_mul' x y := Subtype.ext (map_mul f x y)
   continuous_toFun := f.continuous_toFun.subtype_mk h
-
 
 /-- Include a continuous hom into a subgroup back into the ambient group. -/
 def cmhInclude (S : Subgroup G₂) (g : ContinuousMonoidHom G₁ ↥S) : ContinuousMonoidHom G₁ G₂ :=
   ⟨(S.subtype).comp g.toMonoidHom, continuous_subtype_val.comp g.continuous_toFun⟩
-
 
 end CodRestrict
 
@@ -418,7 +390,6 @@ variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite 
 /-- The covering map bundled as a continuous hom (continuous since the cover is discrete). -/
 noncomputable def CentralCover.pCont (C : CentralCover Y) : ContinuousMonoidHom C.cover Y :=
   ⟨C.p, continuous_of_discreteTopology⟩
-
 
 open scoped Classical in
 /-- The exact-image count of the `J`-stratum, totalized (`0` when `J` does not project onto
@@ -454,6 +425,13 @@ private lemma zpow_val_add (C : CentralCover Y) (x y : ZMod 2) :
   rw [ZMod.val_add]
   omega
 
+/-- `z`-powers are central. -/
+lemma z_pow_central (C : CentralCover Y) (n : ℕ) (w : C.cover) :
+    C.z ^ n * w = w * C.z ^ n := by
+  induction n with
+  | zero => simp
+  | succ k ih => rw [pow_succ, mul_assoc, C.central, ← mul_assoc, ih, mul_assoc]
+
 /-- **Scalar twist** of a map into a central double cover by a `𝔽₂`-character
 (Lemma 8.2/8.3: "multiplying a lift by a scalar character").  A homomorphism because `z` is
 central of square one. -/
@@ -467,27 +445,18 @@ noncomputable def scalarTwist (C : CentralCover Y)
     have hc : ((c (γ * δ)).toAdd).val = ((c γ).toAdd + (c δ).toAdd).val := by
       rw [map_mul]
       rfl
-    rw [hc, zpow_val_add]
-    -- move the central factor across `f δ`
-    have hcentral : ∀ (n : ℕ) (w : C.cover), C.z ^ n * w = w * C.z ^ n := by
-      intro n w
-      induction n with
-      | zero => simp
-      | succ k ih =>
-        rw [pow_succ, mul_assoc, C.central, ← mul_assoc, ih, mul_assoc]
-    rw [map_mul]
+    rw [hc, zpow_val_add, map_mul]
     calc f γ * f δ * (C.z ^ ((c γ).toAdd).val * C.z ^ ((c δ).toAdd).val)
         = f γ * (f δ * C.z ^ ((c γ).toAdd).val) * C.z ^ ((c δ).toAdd).val := by
           group
       _ = f γ * (C.z ^ ((c γ).toAdd).val * f δ) * C.z ^ ((c δ).toAdd).val := by
-          rw [hcentral]
+          rw [z_pow_central]
       _ = f γ * C.z ^ ((c γ).toAdd).val * (f δ * C.z ^ ((c δ).toAdd).val) := by
           group
   continuous_toFun := by
     refine Continuous.mul (map_continuous f) ?_
     exact (continuous_of_discreteTopology
       (f := fun m : Multiplicative (ZMod 2) => C.z ^ (m.toAdd).val)).comp (map_continuous c)
-
 
 /-! ### The torsor structure on cover lifts
 
@@ -515,23 +484,14 @@ lemma p_z : C.p C.z = 1 := by
 lemma p_z_pow (n : ℕ) : C.p (C.z ^ n) = 1 := by
   rw [map_pow, p_z, one_pow]
 
-/-- `z`-powers are central. -/
-lemma z_pow_central (n : ℕ) (w : C.cover) : C.z ^ n * w = w * C.z ^ n := by
-  induction n with
-  | zero => simp
-  | succ k ih => rw [pow_succ, mul_assoc, C.central, ← mul_assoc, ih, mul_assoc]
-
 /-- Elements of `⟨z⟩` are `1` or `z`. -/
 lemma eq_one_or_z_of_mem_ker {w : C.cover} (hw : w ∈ C.p.ker) : w = 1 ∨ w = C.z := by
   rw [C.ker_eq, Subgroup.mem_zpowers_iff] at hw
   obtain ⟨k, rfl⟩ := hw
-  have hz2 : C.z ^ (2 : ℤ) = 1 := by
-    rw [show (2 : ℤ) = ((2 : ℕ) : ℤ) from rfl, zpow_natCast, pow_two]; exact C.z_sq
+  have hz2 : C.z ^ (2 : ℤ) = 1 := by rw [zpow_two]; exact C.z_sq
   rcases Int.even_or_odd k with ⟨m, rfl⟩ | ⟨m, rfl⟩
-  · left
-    rw [show m + m = 2 * m from by ring, zpow_mul, hz2, one_zpow]
-  · right
-    rw [show 2 * m + 1 = 2 * m + 1 from rfl, zpow_add, zpow_mul, hz2, one_zpow, one_mul, zpow_one]
+  · exact Or.inl (by rw [← two_mul, zpow_mul, hz2, one_zpow])
+  · exact Or.inr (by rw [zpow_add, zpow_mul, hz2, one_zpow, one_mul, zpow_one])
 
 /-- The twist projects to the same map: `p ∘ (twist g c) = p ∘ g`. -/
 lemma p_comp_scalarTwist (g : ContinuousMonoidHom Γ C.cover)
@@ -552,13 +512,10 @@ lemma scalarTwist_left_injective (g : ContinuousMonoidHom Γ C.cover) :
     Function.Injective (scalarTwist C g) := by
   intro c c' h
   ext γ
-  have hcancel : C.z ^ ((c γ).toAdd).val = C.z ^ ((c' γ).toAdd).val := by
-    have hg : g γ * C.z ^ ((c γ).toAdd).val = g γ * C.z ^ ((c' γ).toAdd).val :=
-      DFunLike.congr_fun h γ
-    exact mul_left_cancel hg
-  rw [z_pow_eq_iff] at hcancel
-  have : (c γ).toAdd = (c' γ).toAdd := zmod2_eq_of_val_modEq hcancel
-  exact Multiplicative.toAdd.injective this
+  have hg : g γ * C.z ^ ((c γ).toAdd).val = g γ * C.z ^ ((c' γ).toAdd).val :=
+    DFunLike.congr_fun h γ
+  exact Multiplicative.toAdd.injective
+    (zmod2_eq_of_val_modEq ((z_pow_eq_iff C).mp (mul_left_cancel hg)))
 
 open scoped Classical in
 /-- The raw `𝔽₂`-valued difference of two lifts: `0` where they agree, `1` where they differ
@@ -614,20 +571,16 @@ noncomputable def liftDiff (g g' : ContinuousMonoidHom Γ C.cover)
     (h : ∀ γ, C.p (g γ) = C.p (g' γ)) :
     ContinuousMonoidHom Γ (Multiplicative (ZMod 2)) where
   toFun γ := Multiplicative.ofAdd (liftChar C g g' γ)
-  map_one' := by
-    show Multiplicative.ofAdd (liftChar C g g' 1) = 1
-    rw [show liftChar C g g' 1 = 0 from by unfold liftChar; rw [if_pos (by rw [map_one, map_one])]]
-    rfl
+  map_one' := by simp [liftChar]
   map_mul' γ δ := by
     show Multiplicative.ofAdd (liftChar C g g' (γ * δ))
       = Multiplicative.ofAdd (liftChar C g g' γ) * Multiplicative.ofAdd (liftChar C g g' δ)
     rw [liftChar_add C g g' h, ofAdd_add]
   continuous_toFun := by
     classical
-    have h1 : Continuous (fun γ => (g γ, g' γ) : Γ → C.cover × C.cover) :=
-      (map_continuous g).prodMk (map_continuous g')
     exact (continuous_of_discreteTopology (f := fun p : C.cover × C.cover =>
-      Multiplicative.ofAdd (if p.1 = p.2 then (0 : ZMod 2) else 1))).comp h1
+      Multiplicative.ofAdd (if p.1 = p.2 then (0 : ZMod 2) else 1))).comp
+      ((map_continuous g).prodMk (map_continuous g'))
 
 /-- **Transitivity of the torsor action**: `g'` is the `liftDiff`-twist of `g`. -/
 lemma scalarTwist_liftDiff (g g' : ContinuousMonoidHom Γ C.cover)
@@ -789,6 +742,9 @@ noncomputable def cmhEquivFun {X : Type} :
   right_inv v := funext fun i =>
     FreeProfiniteGroup.homEquiv_symm_of (ProfiniteGrp.of (Multiplicative (ZMod 2))) v i
 
+private lemma card_M2 : Nat.card (Multiplicative (ZMod 2)) = 2 := by
+  rw [Nat.card_congr Multiplicative.toAdd, Nat.card_zmod]
+
 /-- **The kills-`N_A` criterion**: a character of `F₄` kills `N_A` iff it kills `τ`.
 Forward: `N_A` contains the tame relator (P-04), whose `𝔽₂`-image is `c(τ)`.  Backward:
 `ker c` is then an *admissible* open normal subgroup (generation is automatic, the tame
@@ -815,9 +771,7 @@ theorem ker_char_NA_le_iff
     have hker_open :
         IsOpen ((c.toMonoidHom.ker : Subgroup _) : Set (FreeProfiniteGroup (Fin 4))) := by
       have hset : ((c.toMonoidHom.ker : Subgroup _) : Set (FreeProfiniteGroup (Fin 4)))
-          = c ⁻¹' {1} := by
-        ext g
-        simp [MonoidHom.mem_ker]
+          = c ⁻¹' {1} := Set.ext fun g => by simp [MonoidHom.mem_ker]
       rw [hset]
       exact (isOpen_discrete ({1} : Set (Multiplicative (ZMod 2)))).preimage
         c.continuous_toFun
@@ -828,13 +782,11 @@ theorem ker_char_NA_le_iff
       exact Finite.of_equiv _
         (QuotientGroup.quotientKerEquivRange c.toMonoidHom).symm.toEquiv
     have hcard : Nat.card (FreeProfiniteGroup (Fin 4) ⧸ U.toSubgroup) ∣ 2 := by
-      have h3 : Nat.card (Multiplicative (ZMod 2)) = 2 := by
-        rw [Nat.card_congr Multiplicative.toAdd, Nat.card_zmod]
       calc Nat.card (FreeProfiniteGroup (Fin 4) ⧸ U.toSubgroup)
           = Nat.card c.toMonoidHom.range :=
             Nat.card_congr (QuotientGroup.quotientKerEquivRange c.toMonoidHom).toEquiv
         _ ∣ Nat.card (Multiplicative (ZMod 2)) := Subgroup.card_subgroup_dvd_card _
-        _ = 2 := h3
+        _ = 2 := card_M2
     have h2q : ∀ y : FreeProfiniteGroup (Fin 4) ⧸ U.toSubgroup, y * y = 1 := by
       intro y
       have horder : orderOf y ∣ 2 := (orderOf_dvd_natCard y).trans hcard
@@ -863,14 +815,7 @@ def vecEquiv : {v : Fin 4 → Multiplicative (ZMod 2) // v 1 = 1}
     ≃ (Multiplicative (ZMod 2) × Multiplicative (ZMod 2) × Multiplicative (ZMod 2)) where
   toFun v := (v.1 0, v.1 2, v.1 3)
   invFun p := ⟨![p.1, 1, p.2.1, p.2.2], rfl⟩
-  left_inv v := by
-    apply Subtype.ext
-    funext i
-    fin_cases i
-    · rfl
-    · exact v.2.symm
-    · rfl
-    · rfl
+  left_inv v := Subtype.ext (funext fun i => by fin_cases i <;> simp [v.2])
   right_inv p := rfl
 
 end CharGammaA
@@ -885,9 +830,7 @@ theorem lemma_8_2_gammaA :
     Nat.card (ContinuousMonoidHom GammaA (Multiplicative (ZMod 2))) = 8 := by
   have e := (charEquiv NA).trans
     ((Equiv.subtypeEquiv cmhEquivFun (fun c => ker_char_NA_le_iff c)).trans vecEquiv)
-  have h2 : Nat.card (Multiplicative (ZMod 2)) = 2 := by
-    rw [Nat.card_congr Multiplicative.toAdd, Nat.card_zmod]
-  exact (Nat.card_congr e).trans (by rw [Nat.card_prod, Nat.card_prod, h2])
+  exact (Nat.card_congr e).trans (by rw [Nat.card_prod, Nat.card_prod, card_M2])
 
 /-! ### The `Π`-side count and the local source
 
@@ -898,10 +841,7 @@ exponent-2 ledger collapse). -/
 
 /-- `𝔽₂` is a 2-group. -/
 private lemma isPGroup_M2 : IsPGroup 2 (Multiplicative (ZMod 2)) := fun g =>
-  ⟨1, by
-    have h : ∀ h : Multiplicative (ZMod 2), h * h = 1 := by decide
-    rw [show (2 : ℕ) ^ 1 = 2 from rfl, pow_two]
-    exact h g⟩
+  ⟨1, by revert g; decide⟩
 
 private lemma comm_M2 : ∀ a b : Multiplicative (ZMod 2), a * b = b * a := by decide
 
@@ -932,9 +872,8 @@ private lemma relatorSubgroup_le_ker
     (c : ContinuousMonoidHom (FreeProfiniteGroup (Fin 3)) (Multiplicative (ZMod 2))) :
     relatorSubgroup {piRelator} ≤ c.toMonoidHom.ker := by
   have hker : IsClosed (c.toMonoidHom.ker : Set (FreeProfiniteGroup (Fin 3))) := by
-    have hset : (c.toMonoidHom.ker : Set (FreeProfiniteGroup (Fin 3))) = c ⁻¹' {1} := by
-      ext g
-      simp [MonoidHom.mem_ker]
+    have hset : (c.toMonoidHom.ker : Set (FreeProfiniteGroup (Fin 3))) = c ⁻¹' {1} :=
+      Set.ext fun g => by simp [MonoidHom.mem_ker]
     rw [hset]
     exact IsClosed.preimage c.continuous_toFun isClosed_singleton
   exact Subgroup.topologicalClosure_minimal _
@@ -968,10 +907,8 @@ theorem card_char_piBd :
       relatorSubgroup {piRelator} ≤ c.toMonoidHom.ker}
       ≃ (ContinuousMonoidHom (FreeProfiniteGroup (Fin 3)) (Multiplicative (ZMod 2))) :=
     Equiv.subtypeUnivEquiv relatorSubgroup_le_ker
-  have h2 : Nat.card (Multiplicative (ZMod 2)) = 2 := by
-    rw [Nat.card_congr Multiplicative.toAdd, Nat.card_zmod]
   exact (Nat.card_congr (((e1.trans e2).trans e3).trans (cmhEquivFun.trans vecEquiv₃))).trans
-    (by rw [Nat.card_prod, Nat.card_prod, h2])
+    (by rw [Nat.card_prod, Nat.card_prod, card_M2])
 
 /-- **Lemma 8.2, local source**: `|Hom_cont(G_ℚ₂, 𝔽₂)| = 8` (`= |ℚ₂ˣ/(ℚ₂ˣ)²|`).  **Proved**
 via the common marked maximal pro-2 quotient: a `BoundaryMaps` witness pins `pro2F` as *the*
@@ -1153,10 +1090,8 @@ theorem lemma_8_3
             smul_eq_mul, mul_comm]
   -- **Image fibration** (→ RHS).
   have hrange : ∀ (g : ContinuousMonoidHom Γ C.cover),
-      (C.pCont.comp g).toMonoidHom.range = g.toMonoidHom.range.map C.p := by
-    intro g
-    rw [MonoidHom.range_eq_map, MonoidHom.range_eq_map, Subgroup.map_map]
-    rfl
+      (C.pCont.comp g).toMonoidHom.range = g.toMonoidHom.range.map C.p := fun g =>
+    MonoidHom.range_comp _ _
   haveI : Finite (Subgroup C.cover) :=
     Finite.of_injective (fun H : Subgroup C.cover => (H : Set C.cover)) SetLike.coe_injective
   haveI : Fintype (Subgroup C.cover) := Fintype.ofFinite _
@@ -1216,6 +1151,7 @@ theorem lemma_8_3
     exact Finset.sum_subtype _ (fun J' => by simp) _
   rw [hsumeq, ← hB, ← Nat.card_congr (Equiv.sigmaFiberEquiv imageMap), Nat.card_sigma]
   exact Finset.sum_congr rfl (fun J' _ => hfibA J')
+
 /-! ## Lemma 8.6: radical edge and the half-torsor count
 
 The §8 datum: a central double cover of `B` whose restriction to the elementary abelian
@@ -1401,19 +1337,15 @@ composing an exact-image boundary lift onto `Y` with `π_B : Y ↠ B`.  Surjecti
 inherited (`π_B` epi), continuity is free (`Y` discrete), and the boundary equation
 transports along the spec fields `TB_head`/`TB_theta`. -/
 noncomputable def liftB (f : BoundaryLifts b F T) : BoundaryLifts b F RF.TB :=
-  ⟨⟨⟨RF.piB.comp f.1.1.toMonoidHom, by
-      have hc : Continuous (⇑RF.piB ∘ ⇑f.1.1) :=
-        (continuous_of_discreteTopology (f := ⇑RF.piB)).comp f.1.1.continuous_toFun
-      exact hc⟩,
+  ⟨⟨⟨RF.piB.comp f.1.1.toMonoidHom,
+      (continuous_of_discreteTopology (f := ⇑RF.piB)).comp f.1.1.continuous_toFun⟩,
     RF.piB_surj.comp f.1.2⟩,
    fun γ => by
      show (RF.TB.piY (RF.piB (f.1.1 γ)), RF.TB.thetaY (RF.piB (f.1.1 γ))) = F.frameMap (b γ)
-     have h1 : RF.TB.piY (RF.piB (f.1.1 γ)) = T.piY (f.1.1 γ) := by
-       rw [show RF.TB.piY (RF.piB (f.1.1 γ)) = (RF.TB.piY.comp RF.piB) (f.1.1 γ) from rfl,
-         RF.TB_head]
-     have h2 : RF.TB.thetaY (RF.piB (f.1.1 γ)) = T.thetaY (f.1.1 γ) := by
-       rw [show RF.TB.thetaY (RF.piB (f.1.1 γ))
-           = (RF.TB.thetaY.comp RF.piB) (f.1.1 γ) from rfl, RF.TB_theta]
+     have h1 : RF.TB.piY (RF.piB (f.1.1 γ)) = T.piY (f.1.1 γ) :=
+       DFunLike.congr_fun RF.TB_head (f.1.1 γ)
+     have h2 : RF.TB.thetaY (RF.piB (f.1.1 γ)) = T.thetaY (f.1.1 γ) :=
+       DFunLike.congr_fun RF.TB_theta (f.1.1 γ)
      rw [h1, h2]
      exact f.2 γ⟩
 
@@ -1431,6 +1363,11 @@ the relative hypothesis of `lemma_6_21`, consumed by Lemma 8.7/Prop 8.8, P-16d4)
 aligns its descent clause with the (139)/(140) case split (P-16d3's hand-off to
 `lemma_8_6_local`/`_gammaA`). -/
 
+section DerivedLayer
+
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y]
+
 /-- `M_B ◁ B`: image of the normal `K` under the surjection `π_B`. -/
 theorem MB_normal : RF.MB.Normal := by
   rw [RF.MB_eq]
@@ -1442,10 +1379,7 @@ theorem MB_elem : ∀ m ∈ RF.MB, m * m = 1 := by
   rw [RF.MB_eq] at hm
   obtain ⟨k, hk, rfl⟩ := Subgroup.mem_map.mp hm
   rw [← map_mul]
-  have hkk : k * k ∈ RF.piB.ker := by
-    rw [RF.ker_piB]
-    exact sq_mem_frattiniLike hk
-  exact MonoidHom.mem_ker.mp hkk
+  exact MonoidHom.mem_ker.mp (by rw [RF.ker_piB]; exact sq_mem_frattiniLike hk)
 
 /-- `M_B` is abelian: commutators of `K` lie in `Φ(K) = ker π_B`. -/
 theorem MB_comm : ∀ m ∈ RF.MB, ∀ m' ∈ RF.MB, m * m' = m' * m := by
@@ -1465,22 +1399,14 @@ theorem MB_comm : ∀ m ∈ RF.MB, ∀ m' ∈ RF.MB, m * m' = m' * m := by
 
 /-- `T_B` is already the `K ∩ S`-image: the `R`-factor of `T₀ = (K∩S)·R` dies in `B`. -/
 theorem TBsub_eq_mapKS : RF.TBsub = (Blk.K ⊓ Blk.S).map RF.piB := by
-  have h0 : Blk.R.map RF.piB = ⊥ := by
-    rw [eq_bot_iff]
-    intro x hx
-    obtain ⟨r, hr, rfl⟩ := Subgroup.mem_map.mp hx
-    have hr' : r ∈ RF.piB.ker := by rw [RF.ker_piB]; exact hr
-    exact Subgroup.mem_bot.mpr (MonoidHom.mem_ker.mp hr')
+  have h0 : Blk.R.map RF.piB = ⊥ := (Subgroup.map_eq_bot_iff _).mpr RF.ker_piB.ge
   rw [RF.TBsub_eq, Subgroup.map_sup, h0, sup_bot_eq]
 
 /-- `T_B ◁ B`: image of the normal `K ∩ S` under the surjection `π_B`. -/
 theorem TBsub_normal : RF.TBsub.Normal := by
   rw [RF.TBsub_eq_mapKS]
-  have h1 : (Blk.K ⊓ Blk.S).Normal :=
-    ⟨fun n hn g => Subgroup.mem_inf.mpr
-      ⟨Blk.hK.conj_mem n (Subgroup.mem_inf.mp hn).1 g,
-       Blk.hS.conj_mem n (Subgroup.mem_inf.mp hn).2 g⟩⟩
-  exact Subgroup.Normal.map h1 RF.piB RF.piB_surj
+  exact Subgroup.Normal.map (@Subgroup.normal_inf_normal _ _ Blk.K Blk.S Blk.hK Blk.hS)
+    RF.piB RF.piB_surj
 
 /-- `T_B ≤ M_B` (`(K ∩ S) ⊔ R ≤ K`, via `lemma_7_1_head`). -/
 theorem TBsub_le_MB : RF.TBsub ≤ RF.MB := by
@@ -1494,18 +1420,14 @@ theorem ker_piBC : RF.piBC.ker = RF.MB := by
   constructor
   · intro hbb
     obtain ⟨y, rfl⟩ := RF.piB_surj bb
-    have hy : RF.piC y = 1 := by
-      have h1 : RF.piBC (RF.piB y) = 1 := MonoidHom.mem_ker.mp hbb
-      rwa [show RF.piBC (RF.piB y) = RF.piC y from by rw [← RF.piBC_comp]; rfl] at h1
+    have hy : RF.piC y = 1 :=
+      (DFunLike.congr_fun RF.piBC_comp y).symm.trans (MonoidHom.mem_ker.mp hbb)
     refine ⟨y, ?_, rfl⟩
     have hy' : y ∈ RF.piC.ker := MonoidHom.mem_ker.mpr hy
     rwa [RF.ker_piC] at hy'
   · rintro ⟨k, hk, rfl⟩
-    have h1 : RF.piBC (RF.piB k) = RF.piC k := by rw [← RF.piBC_comp]; rfl
-    have h2 : RF.piC k = 1 := by
-      have hk' : k ∈ RF.piC.ker := by rw [RF.ker_piC]; exact hk
-      exact MonoidHom.mem_ker.mp hk'
-    exact MonoidHom.mem_ker.mpr (h1.trans h2)
+    have h2 : RF.piC k = 1 := MonoidHom.mem_ker.mp (by rw [RF.ker_piC]; exact hk)
+    exact MonoidHom.mem_ker.mpr ((DFunLike.congr_fun RF.piBC_comp k).trans h2)
 
 /-- `π_{BC}` is surjective (it covers the surjection `π_C`). -/
 theorem piBC_surj : Function.Surjective RF.piBC := by
@@ -1528,6 +1450,9 @@ theorem thetaBC : RF.TC.thetaY.comp RF.piBC = RF.TB.thetaY := by
     rw [MonoidHom.comp_assoc, RF.piBC_comp, RF.TC_theta, RF.TB_theta]
   exact (MonoidHom.cancel_right RF.piB_surj).mp h1
 
+end DerivedLayer
+
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **Boundary-framing rides free over `ρ`** (P-16d4, D5): a continuous hom into `B` lying
 over a boundary-framed `C`-lift `ρ` is itself boundary-framed — both boundary components
 factor through `π_{BC}`.  This is why the `IsBoundaryLift` clause of `zBC`'s pairs is
@@ -1537,11 +1462,9 @@ theorem isBoundaryLift_of_over (f : ContinuousMonoidHom Γ RF.YB)
     IsBoundaryLift b F RF.TB f := by
   intro γ
   have h1 : RF.TB.piY (f γ) = RF.TC.piY (ρ.1.1 γ) := by
-    rw [← hover, show RF.TC.piY (RF.piBC (f γ)) = (RF.TC.piY.comp RF.piBC) (f γ) from rfl,
-      RF.headBC]
+    rw [← hover γ]; exact (DFunLike.congr_fun RF.headBC (f γ)).symm
   have h2 : RF.TB.thetaY (f γ) = RF.TC.thetaY (ρ.1.1 γ) := by
-    rw [← hover, show RF.TC.thetaY (RF.piBC (f γ)) = (RF.TC.thetaY.comp RF.piBC) (f γ) from rfl,
-      RF.thetaBC]
+    rw [← hover γ]; exact (DFunLike.congr_fun RF.thetaBC (f γ)).symm
   rw [h1, h2]
   exact ρ.2 γ
 
@@ -1620,7 +1543,6 @@ def Enrichment.radData (E : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR) :
   hq := E.hq l h
   hrad := E.hrad l h
   hTzero := E.hTzero l h
-
 
 end RecursionFrame
 
@@ -1704,33 +1626,22 @@ theorem partition137_of {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopol
   haveI : Finite (Subgroup RF.YB) :=
     Finite.of_injective (fun J : Subgroup RF.YB => (J : Set RF.YB)) SetLike.coe_injective
   haveI : Fintype (Subgroup RF.YB) := Fintype.ofFinite _
-  -- head/theta transport `TC ∘ π_BC = TB` (frame specs + `π_B` epi)
-  have hpiBC_surj : Function.Surjective RF.piBC := by
-    intro c
-    obtain ⟨y, hy⟩ := RF.piC_surj c
-    exact ⟨RF.piB y, by rw [show RF.piBC (RF.piB y) = (RF.piBC.comp RF.piB) y from rfl,
-      RF.piBC_comp, hy]⟩
-  have hheadBC : RF.TC.piY.comp RF.piBC = RF.TB.piY := RF.headBC
-  have hthetaBC : RF.TC.thetaY.comp RF.piBC = RF.TB.thetaY := RF.thetaBC
   -- ===== Step 1: eliminate the pair — `Z` is a set of `B`-level lifts =====
   have e1 : RF.zBC b F l h = Nat.card {m : ContinuousMonoidHom Γ RF.YB //
       (IsBoundaryLift b F RF.TB m ∧ Function.Surjective (⇑RF.piBC ∘ ⇑m)) ∧
         ∃ g : ContinuousMonoidHom Γ (RF.scalarCover l h).cover,
           ∀ γ : Γ, (RF.scalarCover l h).p (g γ) = m γ} := by
     refine Nat.card_congr ⟨fun pr => ⟨pr.1.2, ⟨pr.2.2.1, ?_⟩, pr.2.2.2⟩,
-      fun m => ⟨(⟨⟨⟨RF.piBC.comp m.1.toMonoidHom, by
-          have hc : Continuous (⇑RF.piBC ∘ ⇑m.1) :=
-            (continuous_of_discreteTopology (f := ⇑RF.piBC)).comp m.1.continuous_toFun
-          exact hc⟩, m.2.1.2⟩,
+      fun m => ⟨(⟨⟨⟨RF.piBC.comp m.1.toMonoidHom,
+          (continuous_of_discreteTopology (f := ⇑RF.piBC)).comp m.1.continuous_toFun⟩,
+        m.2.1.2⟩,
         fun γ => by
           show (RF.TC.piY (RF.piBC (m.1 γ)), RF.TC.thetaY (RF.piBC (m.1 γ)))
             = F.frameMap (b γ)
-          have h1 : RF.TC.piY (RF.piBC (m.1 γ)) = RF.TB.piY (m.1 γ) := by
-            rw [show RF.TC.piY (RF.piBC (m.1 γ))
-                = (RF.TC.piY.comp RF.piBC) (m.1 γ) from rfl, hheadBC]
-          have h2 : RF.TC.thetaY (RF.piBC (m.1 γ)) = RF.TB.thetaY (m.1 γ) := by
-            rw [show RF.TC.thetaY (RF.piBC (m.1 γ))
-                = (RF.TC.thetaY.comp RF.piBC) (m.1 γ) from rfl, hthetaBC]
+          have h1 : RF.TC.piY (RF.piBC (m.1 γ)) = RF.TB.piY (m.1 γ) :=
+            DFunLike.congr_fun RF.headBC (m.1 γ)
+          have h2 : RF.TC.thetaY (RF.piBC (m.1 γ)) = RF.TB.thetaY (m.1 γ) :=
+            DFunLike.congr_fun RF.thetaBC (m.1 γ)
           rw [h1, h2]
           exact m.2.1.1 γ⟩, m.1), fun γ => rfl, m.2.1.1, m.2.2⟩,
       fun pr => ?_, fun m => ?_⟩
@@ -1762,7 +1673,7 @@ theorem partition137_of {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopol
   have htop : Nat.card {m : Mset // m.1.toMonoidHom.range = ⊤} = RF.mB b F l := by
     rw [RecursionFrame.mB, dif_neg h]
     refine Nat.card_congr ⟨fun m => ⟨⟨⟨m.1.1, fun y => ?_⟩, m.1.2.1.1⟩, m.1.2.2⟩,
-      fun f => ⟨⟨f.1.1.1, ⟨f.1.2, hpiBC_surj.comp f.1.1.2⟩, f.2⟩, ?_⟩,
+      fun f => ⟨⟨f.1.1.1, ⟨f.1.2, RF.piBC_surj.comp f.1.1.2⟩, f.2⟩, ?_⟩,
       fun m => Subtype.ext (Subtype.ext rfl),
       fun f => Subtype.ext (Subtype.ext (Subtype.ext rfl))⟩
     · have hy : y ∈ m.1.1.toMonoidHom.range := by rw [m.2]; trivial
@@ -1960,9 +1871,8 @@ theorem prop_8_9_aux {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology
     (inp : RecursionInputs RF b F μ G0 DT phase) :
     ClosedRecursion RF b F μ G0 DT phase where
   eq136 := inp.stageR136
-  eq137 := fun l h => partition137_of RF hfg b F hhead l h
-  eq138 := fun l h J hJ =>
-    lemma_8_3 hfg b F RF.TB (RF.scalarCover l h) hscalar J hJ
+  eq137 := partition137_of RF hfg b F hhead
+  eq138 := fun l h => lemma_8_3 hfg b F RF.TB (RF.scalarCover l h) hscalar
   eq139 := inp.half139
   eq140 := inp.phase140
 
@@ -2060,7 +1970,7 @@ theorem stageR136_of {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology
       rfl
   -- Assemble in `ℤ`.
   have hcardDR : (Nat.card RF.DR : ℤ) = Nat.card (Module.Dual (ZMod 2) W) := by
-    exact_mod_cast congrArg (Nat.cast (R := ℤ)) (Nat.card_congr e)
+    exact_mod_cast Nat.card_congr e
   calc (Nat.card RF.DR : ℤ) * exactImageCount b F T
       = (Nat.card RF.DR : ℤ)
         * (RF.zR * Nat.card {g : BoundaryLifts b F RF.TB // o g = 0}) := by

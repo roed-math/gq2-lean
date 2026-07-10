@@ -216,8 +216,7 @@ lemma zpowZtwo_ofAdd (c u : ℤ_[2]) :
 lemma zpowZtwo_zero {P : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P]
     [CompactSpace P] [T2Space P] [TotallyDisconnectedSpace P]
     (hP : IsProP 2 P) (x : P) : zpowZtwo hP x 0 = 1 := by
-  have : zpowZtwo hP x ((0 : ℤ) : ℤ_[2]) = x ^ (0 : ℤ) := zpowZtwo_intCast hP x 0
-  simpa using this
+  simpa using zpowZtwo_intCast hP x 0
 
 /-! ### `Φ : ℤ₂³ → D0^ab` and its surjectivity -/
 
@@ -247,8 +246,10 @@ lemma continuous_Phi : Continuous Phi := by
       * zpowZtwo isProP_two_topAb_D0 (abMk d0Y) p.toAdd.2.2
   refine ((?_ : Continuous _).mul (?_ : Continuous _)).mul (?_ : Continuous _)
   · exact (continuous_zpowZtwo _ _).comp (continuous_fst.comp continuous_toAdd)
-  · exact (continuous_zpowZtwo _ _).comp ((continuous_fst.comp continuous_snd).comp continuous_toAdd)
-  · exact (continuous_zpowZtwo _ _).comp ((continuous_snd.comp continuous_snd).comp continuous_toAdd)
+  · exact (continuous_zpowZtwo _ _).comp
+      ((continuous_fst.comp continuous_snd).comp continuous_toAdd)
+  · exact (continuous_zpowZtwo _ _).comp
+      ((continuous_snd.comp continuous_snd).comp continuous_toAdd)
 
 /-- **Coordinate surjectivity of `D0^{ab}`**: every element is `Ā^a S̄^s Ȳ^y`. -/
 lemma D0ab_coord (z : topAbelianization D0) :
@@ -266,8 +267,8 @@ lemma D0ab_coord (z : topAbelianization D0) :
     abMk_surjective.comp ((quotientMk_surjective (proPKernel 2 D0Full)).comp
       (quotientMk_surjective (relatorSubgroup {d0Relator})))
   -- Free generators topologically generate `F₃`.
-  have hfree : (Subgroup.closure (Set.range (FreeProfiniteGroup.of (X := Fin 3)))).topologicalClosure
-      = ⊤ := by
+  have hfree : (Subgroup.closure
+      (Set.range (FreeProfiniteGroup.of (X := Fin 3)))).topologicalClosure = ⊤ := by
     set g : FreeGroup (Fin 3) →* FreeProfiniteGroup (Fin 3) :=
       (ProfiniteGrp.ProfiniteCompletion.eta (GrpCat.of (FreeGroup (Fin 3)))).hom with hg
     have hrange : Subgroup.closure (Set.range (FreeProfiniteGroup.of (X := Fin 3))) = g.range := by
@@ -281,15 +282,16 @@ lemma D0ab_coord (z : topAbelianization D0) :
     simpa only [Subgroup.topologicalClosure_coe, Subgroup.coe_top, MonoidHom.coe_range]
       using hdense.closure_range
   -- Push through `q`.
-  have hgen : (Subgroup.closure (q '' Set.range (FreeProfiniteGroup.of (X := Fin 3)))).topologicalClosure
-      = ⊤ := by
+  have hgen : (Subgroup.closure
+      (q '' Set.range (FreeProfiniteGroup.of (X := Fin 3)))).topologicalClosure = ⊤ := by
     have := hqsurj.denseRange.topologicalClosure_map_subgroup hqcont hfree
     rwa [MonoidHom.map_closure] at this
   -- `Φ.range` is a closed subgroup containing the generators.
   have hΦclosed : IsClosed (Phi.range : Set (topAbelianization D0)) := by
     rw [MonoidHom.coe_range]
     exact (isCompact_range continuous_Phi).isClosed
-  have hsub : Subgroup.closure (q '' Set.range (FreeProfiniteGroup.of (X := Fin 3))) ≤ Phi.range := by
+  have hsub :
+      Subgroup.closure (q '' Set.range (FreeProfiniteGroup.of (X := Fin 3))) ≤ Phi.range := by
     rw [Subgroup.closure_le]
     rintro _ ⟨_, ⟨i, rfl⟩, rfl⟩
     rw [SetLike.mem_coe, MonoidHom.mem_range]
@@ -493,7 +495,8 @@ theorem isProP_two_multZMod2 : IsProP 2 (Multiplicative (ZMod 2)) :=
 noncomputable def abLift {H : Type} [CommGroup H] [TopologicalSpace H] [IsTopologicalGroup H]
     [T2Space H] (g : ContinuousMonoidHom D0 H) : ContinuousMonoidHom (topAbelianization D0) H :=
   quotientLift (commutator D0).topologicalClosure g (by
-    refine Subgroup.topologicalClosure_minimal _ (Abelianization.commutator_subset_ker g.toMonoidHom) ?_
+    refine Subgroup.topologicalClosure_minimal _
+      (Abelianization.commutator_subset_ker g.toMonoidHom) ?_
     have hset : (g.toMonoidHom.ker : Set D0) = g ⁻¹' {1} := by
       ext x
       simp only [SetLike.mem_coe, MonoidHom.mem_ker, Set.mem_preimage, Set.mem_singleton_iff]
@@ -657,7 +660,7 @@ lemma phiHom_injective : Function.Injective phiHom := by
   rw [sHom_word] at hsval
   have hs : s = 2 * a := by
     have := Multiplicative.ofAdd.injective (hsval.trans ofAdd_zero.symm)
-    push_cast at this; linear_combination this
+    linear_combination this
   -- `yHom`: `y = 0`
   have hyval : yHom (word a s y) = 1 := by rw [← ofAdd_toAdd (yHom (word a s y)), hvy, ofAdd_zero]
   rw [yHom_word] at hyval
@@ -669,7 +672,7 @@ lemma phiHom_injective : Function.Injective phiHom := by
   have hval0 : (PadicInt.toZModPow 1 a).val = 0 := by
     have hlt : (PadicInt.toZModPow (p := 2) 1 a).val < 2 := by
       have := ZMod.val_lt (PadicInt.toZModPow (p := 2) 1 a); simpa using this
-    rcases (by omega : (PadicInt.toZModPow 1 a).val = 0 ∨ (PadicInt.toZModPow 1 a).val = 1)
+    rcases (by lia : (PadicInt.toZModPow 1 a).val = 0 ∨ (PadicInt.toZModPow 1 a).val = 1)
       with h0 | h1
     · exact h0
     · rw [h1, pow_one] at htval
@@ -761,13 +764,13 @@ section variables. -/
 every index-2 subgroup, so a coatom `M ≥ S` would swallow all of `Q`.) -/
 theorem sq_generate {Q : Type*} [Group Q] [Finite Q] (hQ : IsPGroup 2 Q) {S : Subgroup Q}
     (hgen : ∀ q : Q, ∃ s ∈ S, ∃ t : Q, q = s * t ^ 2) : S = ⊤ := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  haveI : Finite (Subgroup Q) := Finite.of_injective _ SetLike.coe_injective
+  have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have : Finite (Subgroup Q) := Finite.of_injective _ SetLike.coe_injective
   by_contra hne
   obtain ⟨M, hM, hSM⟩ := (eq_top_or_exists_le_coatom S).resolve_left hne
-  haveI : M.Normal := coatom_normal_of_pGroup hQ hM
+  have : M.Normal := coatom_normal_of_pGroup hQ hM
   have hidx : M.index = 2 := coatom_index_of_pGroup hQ hM
-  haveI : Fintype (Q ⧸ M) := Fintype.ofFinite _
+  have : Fintype (Q ⧸ M) := Fintype.ofFinite _
   have hc2 : Fintype.card (Q ⧸ M) = 2 := by rw [← Nat.card_eq_fintype_card]; exact hidx
   have hsq : ∀ t : Q, t ^ 2 ∈ M := by
     intro t
@@ -1025,24 +1028,14 @@ theorem lemma_3_5_injective
     have h := ZMod.val_lt (PadicInt.toZModPow (p := 2) 1 a)
     simpa using h
   -- `t = Ā · S̄²` is 2-torsion; rewrite `z`
-  have hcommP : abMk (commP d0S d0Y) = 1 := by
-    rw [commP, map_mul, map_mul, map_mul, map_inv, map_inv, mul_comm (abMk d0S)⁻¹ (abMk d0Y)⁻¹]
-    group
-  have hrel : (abMk d0A) ^ 2 * (abMk d0S) ^ 4 = 1 := by
-    have h2 : abMk (d0A ^ 2 * d0S ^ 4 * commP d0S d0Y) = 1 := by rw [d0_relation]; exact map_one abMk
-    rw [map_mul, map_mul, map_pow, map_pow, hcommP, mul_one] at h2
-    exact h2
-  set t : topAbelianization D0 := abMk d0A * zpowZtwo isProP_two_topAb_D0 (abMk d0S) 2 with htdef
-  have ht2 : t ^ 2 = 1 := by
-    rw [htdef, mul_pow, pow_two (zpowZtwo isProP_two_topAb_D0 (abMk d0S) 2), ← zpowZtwo_add,
-      show (2 : ℤ_[2]) + 2 = ((4 : ℕ) : ℤ_[2]) by push_cast; ring, zpowZtwo_natCast]
-    exact hrel
+  set t : topAbelianization D0 := abMk d0A * zpowZtwo isProP_two_topAb_D0 (abMk d0S) 2
+  have ht2 : t ^ 2 = 1 := tbar_sq
   have hz_eq : zpowZtwo isProP_two_topAb_D0 (abMk d0A) a
       * zpowZtwo isProP_two_topAb_D0 (abMk d0S) (2 * a)
       = zpowZtwo isProP_two_topAb_D0 t a := by
     rw [← zpowZtwo_zpowZtwo isProP_two_topAb_D0 (abMk d0S) 2 a, ← zpowZtwo_mul_base]
   -- case split on `r`
-  rcases (by omega : (PadicInt.toZModPow (p := 2) 1 a).val = 0
+  rcases (by lia : (PadicInt.toZModPow (p := 2) 1 a).val = 0
       ∨ (PadicInt.toZModPow (p := 2) 1 a).val = 1) with hr0 | hr1
   · -- `r = 0`: `η^y = 1 ⟹ y = 0`, and `t^a = t^0 = 1`
     rw [hr0, pow_zero, one_mul] at hχz
@@ -1218,9 +1211,9 @@ theorem markedHom_surjective (R : LocalReciprocity) : Function.Surjective (marke
   have hUgen : ∀ U : OpenNormalSubgroup (topAbelianization (maxProPQuotient 2 AbsGalQ2)),
       S.map (QuotientGroup.mk' U.toSubgroup) = ⊤ := by
     intro U
-    haveI hfin : Finite (topAbelianization (maxProPQuotient 2 AbsGalQ2) ⧸ U.toSubgroup) :=
+    have : Finite (topAbelianization (maxProPQuotient 2 AbsGalQ2) ⧸ U.toSubgroup) :=
       Subgroup.quotient_finite_of_isOpen _ U.isOpen'
-    haveI hdisc : DiscreteTopology
+    have : DiscreteTopology
         (topAbelianization (maxProPQuotient 2 AbsGalQ2) ⧸ U.toSubgroup) := by
       refine discreteTopology_of_isOpen_singleton_one ?_
       have hpre : (QuotientGroup.mk :
