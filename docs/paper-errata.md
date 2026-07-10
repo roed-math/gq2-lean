@@ -1,10 +1,10 @@
 # Manuscript errata and formalization findings
 
 **Date**: 2026-07-09 · **Amended**: 2026-07-09 — second-formalization completion findings (new
-entries 2.11/3.5, strengthened 1.3/2.2/2.3) and the census update 15 → 10 · **Status of the
+entries 2.11/3.5, strengthened 1.3/2.2/2.3) and the census update 15 → 9 · **Status of the
 formalization**: complete — the library is sorry-free;
 `main_presentation_literal : Nonempty (ContinuousMulEquiv GammaA AbsGalQ2)` is proved modulo the
-10-axiom census of source-verified literature inputs (`docs/literature-axioms.md`,
+9-axiom census of source-verified literature inputs (`docs/literature-axioms.md`,
 `atlas-audit.md`).
 
 ## 0. Purpose and method
@@ -423,8 +423,11 @@ full verification:
 - **The final trust base is small, shrinking, and fully source-verified**: at completion the
   theorem rested on the 15-axiom census, each a named classical result checked verbatim against
   its cited source (`docs/literature-axioms.md`, `atlas-audit.md`); post-completion work has
-  since discharged five of them as theorems (B7′, B11b, B12, B13 proved in-tree; the unused B2
-  deleted), bringing the census to **10**.
+  since removed six of them (B7′, B11b, B12, B13 **proved** in-tree; the unused B2 and B4
+  **deleted**), bringing the census to **9** — with every remaining census axiom in the
+  capstone's closure (census = trust base).  Notably, no Demushkin-classification axiom
+  survives: the marked-Labute presentation input the parallel formalization assumes is, in this
+  tree, off the proof path entirely.
 
 ---
 
