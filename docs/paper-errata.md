@@ -1,8 +1,10 @@
 # Manuscript errata and formalization findings
 
-**Date**: 2026-07-09 · **Status of the formalization**: complete — the library is sorry-free;
+**Date**: 2026-07-09 · **Amended**: 2026-07-09 — second-formalization completion findings (new
+entries 2.11/3.5, strengthened 1.3/2.2/2.3) and the census update 15 → 10 · **Status of the
+formalization**: complete — the library is sorry-free;
 `main_presentation_literal : Nonempty (ContinuousMulEquiv GammaA AbsGalQ2)` is proved modulo the
-15-axiom census of source-verified literature inputs (`docs/literature-axioms.md`,
+10-axiom census of source-verified literature inputs (`docs/literature-axioms.md`,
 `atlas-audit.md`).
 
 ## 0. Purpose and method
@@ -27,17 +29,20 @@ mechanical readings of it.  It has two audiences:
 - **Sharpness witness**: a hypothesis was tested for removability and a literature or small-group
   counterexample shows it cannot be dropped.
 - **Independent cross-validation**: a second, independent formalization of the same manuscript (a
-  GPT-5.5-Pro-driven pipeline, snapshot in `GPT_formalization/q2_v428_active/`; partial — its
-  §7/§8 interior is axiomatized) hit the same corners.  Where both projects independently
-  converged on the same reading or the same fix, that is strong evidence about the text.
+  GPT-5.5-Pro-driven pipeline; snapshots in `GPT_formalization/q2_v428_active/` — the
+  39-axiom intermediate state — and `GPT_Fable_formalization/` — its completion, sorry-free
+  with 7 axioms) hit the same corners.  Where both projects independently converged on the same
+  reading or the same fix, that is strong evidence about the text.  Entries 2.11 and 3.5, and
+  the strengthenings of 1.3/2.2/2.3, come from the completion's adversarial soundness sweep
+  (2026-07-05 → 09).
 
 **Anchors.**  Paper references use the manuscript's labels and display numbers; line numbers
 (`l.NNNN`) refer to the formalized revision, the snapshot at
 `GPT_formalization/q2_v428_active/reference/q2_manuscript.tex` (5543 lines).  Lean witnesses are
 declarations in `GQ2/` unless said otherwise.
 
-**Summary counts**: 3 corrections to the text (§1) · 10 load-bearing implicit hypotheses (§2) ·
-4 fragility remarks (§3) · 4 transcription-control notes (§4).
+**Summary counts**: 3 corrections to the text (§1) · 11 load-bearing implicit hypotheses (§2) ·
+5 fragility remarks (§3) · 4 transcription-control notes (§4).
 
 ---
 
@@ -98,6 +103,8 @@ declarations in `GQ2/` unless said otherwise.
   guard throughout (`hVne : V ≠ 0`; the dimension in the form `card V = 2^{2m}, 1 ≤ m`).
 - **Fix for the rewrite**: attach "for `V ≠ 0`" (equivalently `d ≥ 1`; in the nonsingular case
   `d = 2m ≥ 2`) to the displays, so they are correct as free-standing statements.
+- **Update (2026-07-09)**: the second formalization's completion applied exactly this fix — the
+  refutable axiom pair was deleted and re-homed as `[Nontrivial V]`-guarded theorems.
 
 ---
 
@@ -143,6 +150,11 @@ locally visible at the point of use.
   (amended with `hsimple`/`htame`, proved).
 - **For the rewrite**: at Lemma 6.3, add a remark with the Griess citation: the simplicity/tameness
   hypotheses are not conveniences — the lifting problem is genuinely obstructed in general.
+- **Convergence (2026-07-09)**: the second formalization's citability audit independently hit the
+  same obstruction one layer down (`lem:extraspecialconnecting` l.2102–2131, `lem:basedetclass`
+  l.2286–2360): its lane graded the high-even-dimensional *split base-model* claim "suspect …
+  treat as false" against Griess (non-split for `n ≥ 3`) before resolving it by proof — exactly
+  the confusion a Griess citation at the base-model/`κ⁰` layer would preempt.
 
 ### 2.3 Prop 7.4 consumes §7's standing framed-target hypothesis, and it is sharp at `H¹`
 
@@ -155,6 +167,13 @@ locally visible at the point of use.
   `GQ2/SectionSeven.lean` `prop_7_4` (amended, proved).
 - **For the rewrite**: restate the standing assumption (tame head `π : Y ↠ H`, `H` a quotient of
   `T_tame`) in Prop 7.4's own hypothesis list.
+- **Second witness (2026-07-09)**: the second formalization independently tripped on the same
+  proposition (`prop:simpleheaddet`) at the level of `C` itself: its residual demanded a
+  nontrivial odd *normal* subgroup of `C`, which can fail to exist (an `SL₂(3)`-shaped `C` —
+  wild `Q₈` inside the action kernel, tame `C₃` on top; the 3-Sylows are not normal), whereas
+  the manuscript's argument (l.3749–3760) works at the acting quotient `H_V = C̄`, which is
+  metacyclic with normal odd inertia.  Recommendation sharpened: phrase step 2 as explicitly
+  *passing to the acting image `H_V`* before invoking odd-inertia normality.
 
 ### 2.4 "Tame module" in §5 must be *defined* to include σ₂-triviality — it is an input, not a consequence
 
@@ -262,17 +281,36 @@ locally visible at the point of use.
 - **For the rewrite**: cite Evens–Kahn (Evens; Kahn; Kozlowski) in their general-base forms at
   6.16, and name the two auxiliary norm facts where they are used.
 
+### 2.11 `prop:defduality` is scoped to the ρ-structured setting — make the marking-compatibility explicit
+
+- **Where**: `prop:defduality` (l.1917–1972), with its inputs `lem:simpletame` (l.1799) and
+  `lem:simplenormalforms` (l.1812).
+- **Finding**: the duality/normal-form package is asserted for markings *compatible with the
+  fixed boundary frame* (the ρ-structured setting §5 operates in).  Quantifying its
+  row-surjectivity clauses over arbitrary markings `q` produces a false statement: the second
+  formalization had to weaken exactly this way, conditioning the clauses on frame-compatible
+  markings, recording "manuscript defduality is for the ρ-structured setting;
+  unconditional-∀q was a false-axiom hazard".  Our formalization carries the same scoping
+  through its standing boundary-compatibility hypotheses (cf. entry 2.4's tameness clauses — an
+  adjacent but distinct scoping point).
+- **How caught**: independent cross-validation (the completion's soundness sweep, 2026-07-09).
+- **For the rewrite**: state the frame-compatibility scope in `prop:defduality`'s own hypothesis
+  line rather than inheriting it silently from the section's running setup.
+
 ---
 
 ## 3. Fragile passages — correct as written, demonstrably misread (add remarks)
 
-All four items concern §7–§9's induction interfaces.  Evidence that they are fragile is
+The first four items concern §7–§9's induction interfaces.  Evidence that they are fragile is
 empirical: the independent GPT formalization's 2026-07-01 manuscript-verification pass found its
 own machine-generated §7 interface had mis-transcribed **all four**, in each case *strengthening*
 the text into a false statement (its PROGRESS.md "SOUNDNESS FINDINGS"); our formalization,
 proving rather than axiomatizing, was forced onto the correct readings from the start.  The
 convergence of both projects on the same four corners is a strong signal these deserve explicit
-remarks in the rewrite.
+remarks in the rewrite.  That project's completion (2026-07-05 → 09) then found and repaired
+**fourteen further falsifiable residual statements** — two outright inconsistent — with every
+repair again converging on a manuscript-true form; its findings that bear on the manuscript
+itself are entries 2.11 and 3.5 and the strengthenings of 2.2/2.3.
 
 ### 3.1 `R = Φ(K) = 1` is a legal, terminating branch (l.4429/4437, l.4542)
 
@@ -305,6 +343,20 @@ recursion degenerates to `e_Γ(Y) = z_R · e_Γ(B)` and no minimal-block invaria
 Our closed-system step case-splits on `∃ λ ≠ 0` explicitly and returns the degenerate count
 otherwise.  *Recommendation*: one sentence at `prop:finalfourier` noting the `𝒳_R = 0` case and
 what the recursion becomes there.
+
+### 3.5 `prop:localzero` / `prop:candidatezero` (l.3349–3403, l.2731–2775): the Gauss sign belongs to the *fixed* class `κ⁰_q`, not to an arbitrary bundle
+
+Both zero-count propositions compute at the canonical zero-section-normalized equivariant class
+`κ⁰_q` (the Lemma 6.1/6.3 datum; cf. entry 2.1), and the normalization is load-bearing for the
+**sign**: pinned bundles form a torsor under an `H¹(C,V)`-gauge, and a gauge shift by a class
+`[A] ≠ 0` flips the descended Gauss line by a computable per-lift phase.  Reading the
+propositions as asserting one bundle-independent sign is therefore an over-reading.  Both
+formalizations converged on the same discipline — evaluate at one definite pinned bundle: ours
+fixes the 6.22-normalized `κ⁰_{q̄_λ}` throughout §§8–9; the second formalization first asserted
+a bundle-uniform sign, found it "exceeds `prop:localzero` (manuscript computes only at canonical
+`κ_q⁰`)" under the gauge action, and repaired to a chosen-witness form.  *Recommendation*: one
+sentence at `prop:localzero`/`prop:candidatezero` noting that the sign is attached to the fixed
+`κ⁰_q` — which is exactly why §6 fixes the normalization once and §§8–9 reuse it.
 
 ---
 
@@ -368,9 +420,11 @@ full verification:
   formalized with no axioms.
 - **The four §7 corners of §3 were navigated identically by two independent formalizations** —
   the strongest available evidence that the corrected readings are the intended mathematics.
-- **The final trust base is small and fully source-verified**: the complete theorem rests on the
-  15-axiom census (12 in the capstone's closure), each a named classical result checked verbatim
-  against its cited source (`docs/literature-axioms.md`, `atlas-audit.md`).
+- **The final trust base is small, shrinking, and fully source-verified**: at completion the
+  theorem rested on the 15-axiom census, each a named classical result checked verbatim against
+  its cited source (`docs/literature-axioms.md`, `atlas-audit.md`); post-completion work has
+  since discharged five of them as theorems (B7′, B11b, B12, B13 proved in-tree; the unused B2
+  deleted), bringing the census to **10**.
 
 ---
 
@@ -381,16 +435,18 @@ full verification:
 | Lemma 2.5 `lem:reconstruction` (l.371) | 1.2 | erratum (precision) |
 | eq. (3) `h₀` / Appendix B block | 4.1 | transcription warning |
 | Lemma 5.13 / Prop 5.15 ("tame module") | 2.4 | implicit hypothesis |
+| `prop:defduality` (l.1917–1972) | 2.11 | implicit hypothesis (ρ-structured scope) |
 | Prop 5.8 | 4.1, §5 | confirmed |
 | Lemma 6.1 (factor sets) | 4.4 | transcription warning |
 | Lemma 6.3 (κ⁰ existence) | 2.2 | sharpness (add Griess citation) |
 | Lemma 6.16–6.18 (deep units) | 2.10 | citation scope |
 | Prop 6.9 / Arf displays (l.2736, l.2772, l.3354) | 1.3 | erratum (edge case) |
+| `prop:localzero` / `prop:candidatezero` | 3.5 | fragility remark (κ⁰-pinned sign) |
 | Lemma 6.21 (transgression) | 2.1 | implicit hypothesis |
 | §4 setup + Def 4.1 `def:framed` (l.1164/1174) | 2.5 | implicit hypothesis |
 | Thm 4.2 `thm:fixedframe` (l.1205) | 2.5, 2.7 | implicit hypotheses |
 | Lemma 7.1 | 2.9 | implicit hypothesis (S₃) |
-| Prop 7.4 | 2.3 | implicit hypothesis (sharp at H¹) |
+| Prop 7.4 `prop:simpleheaddet` | 2.3 | implicit hypothesis (sharp at H¹; acting-quotient scope) |
 | Prop 8.9 / (139)–(140) | 2.6 | implicit standing data |
 | display (132) | 4.2 | transcription warning |
 | display (134) | 1.1 | erratum (missing term) |
