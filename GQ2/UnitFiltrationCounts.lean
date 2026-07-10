@@ -26,11 +26,8 @@ local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
 /-- `‖(2 : ℚ̄₂)‖ < 1` — the dyadic uniformizer of the base has norm `2⁻¹`. -/
 theorem norm_two_lt_one : ‖(2 : ℚ̄₂)‖ < 1 := by
-  have h : (2 : ℚ̄₂) = algebraMap ℚ_[2] ℚ̄₂ 2 := by rw [map_ofNat]
-  rw [h, norm_algebraMap' (𝕜' := ℚ̄₂)]
-  have h2 : ‖(2 : ℚ_[2])‖ = (2 : ℝ)⁻¹ := by
-    rw [show (2 : ℚ_[2]) = ((2 : ℕ) : ℚ_[2]) by norm_cast, Padic.norm_p]; norm_num
-  rw [h2]; norm_num
+  rw [← map_ofNat (algebraMap ℚ_[2] ℚ̄₂) 2, norm_algebraMap' (𝕜' := ℚ̄₂)]
+  exact_mod_cast Padic.norm_p_lt_one (p := 2)
 
 variable (k : IntermediateField ℚ_[2] ℚ̄₂)
 
@@ -42,52 +39,44 @@ noncomputable def Osub : Subring ↥k where
   carrier := {x | ‖x‖ ≤ 1}
   zero_mem' := by simp
   one_mem' := by simp
-  add_mem' hx hy := le_trans (norm_add_le_max _ _) (max_le hx hy)
-  mul_mem' hx hy := by rw [Set.mem_setOf_eq, norm_mul]; exact mul_le_one₀ hx (norm_nonneg _) hy
-  neg_mem' hx := by rwa [Set.mem_setOf_eq, norm_neg]
+  add_mem' hx hy := (norm_add_le_max _ _).trans (max_le hx hy)
+  mul_mem' hx hy := (norm_mul _ _).trans_le (mul_le_one₀ hx (norm_nonneg _) hy)
+  neg_mem' hx := (norm_neg _).trans_le hx
 
 /-- The **maximal ideal** `𝔪 = {x ∈ O : ‖x‖ < 1}` (the non-units of `O`).  Intrinsic — no
 uniformizer is used, so this file does not depend on the B13-2 lane. -/
 noncomputable def maxIdeal : Ideal ↥(Osub k) where
   carrier := {x | ‖(x : ↥k)‖ < 1}
   zero_mem' := by simp
-  add_mem' hx hy := lt_of_le_of_lt (norm_add_le_max _ _) (max_lt hx hy)
-  smul_mem' c {x} hx := by
-    rw [Set.mem_setOf_eq, smul_eq_mul, Subring.coe_mul, norm_mul]
-    calc ‖(c : ↥k)‖ * ‖(x : ↥k)‖ ≤ 1 * ‖(x : ↥k)‖ := by gcongr; exact c.2
-      _ = ‖(x : ↥k)‖ := one_mul _
-      _ < 1 := hx
+  add_mem' hx hy := (norm_add_le_max _ _).trans_lt (max_lt hx hy)
+  smul_mem' c {x} hx :=
+    (norm_mul _ _).trans_lt ((mul_le_of_le_one_left (norm_nonneg _) c.2).trans_lt hx)
 
 @[simp] theorem mem_maxIdeal {x : ↥(Osub k)} : x ∈ maxIdeal k ↔ ‖(x : ↥k)‖ < 1 := Iff.rfl
 
 /-- `𝔪` is prime: `‖xy‖ = ‖x‖‖y‖ < 1` forces a factor `< 1`; `1 ∉ 𝔪`. -/
 instance : (maxIdeal k).IsPrime where
-  ne_top' h := by
-    have h1 : (1 : ↥(Osub k)) ∈ maxIdeal k := h ▸ Submodule.mem_top
-    rw [mem_maxIdeal] at h1; simp at h1
+  ne_top' h := by simpa using (h ▸ Submodule.mem_top : (1 : ↥(Osub k)) ∈ maxIdeal k)
   mem_or_mem' {x y} hxy := by
     rw [mem_maxIdeal, Subring.coe_mul, norm_mul] at hxy
     rw [mem_maxIdeal, mem_maxIdeal]
-    by_contra h
-    rw [not_or, not_lt, not_lt] at h
+    by_contra! h
     exact absurd hxy (not_lt.mpr (one_le_mul_of_one_le_of_one_le h.1 h.2))
 
 variable [FiniteDimensional ℚ_[2] k]
 
 /-- `O` is compact: the closed unit ball of the proper space `↥k`. -/
 instance : CompactSpace ↥(Osub k) := by
+  have := FiniteDimensional.proper ℚ_[2] ↥k
   refine isCompact_iff_compactSpace.mp ?_
-  have hp := FiniteDimensional.proper ℚ_[2] ↥k
-  have hc : ((Osub k : Subring ↥k) : Set ↥k) = closedBall 0 1 := by
-    ext x; simp [Osub]
-  rw [hc]; exact isCompact_closedBall 0 1
+  rw [show ((Osub k : Subring ↥k) : Set ↥k) = closedBall 0 1 from Set.ext fun x ↦ by simp [Osub]]
+  exact isCompact_closedBall 0 1
 
 /-- `O/𝔪` is finite: `𝔪` is an open subgroup of the compact `O`. -/
-instance : Finite (↥(Osub k) ⧸ maxIdeal k) := by
-  have hopen : IsOpen ((maxIdeal k).toAddSubgroup : Set ↥(Osub k)) :=
-    continuous_subtype_val.isOpen_preimage {y : ↥k | ‖y‖ < 1}
-      (isOpen_lt continuous_norm continuous_const)
-  exact AddSubgroup.quotient_finite_of_isOpen (maxIdeal k).toAddSubgroup hopen
+instance : Finite (↥(Osub k) ⧸ maxIdeal k) :=
+  AddSubgroup.quotient_finite_of_isOpen (maxIdeal k).toAddSubgroup
+    (continuous_subtype_val.isOpen_preimage {y : ↥k | ‖y‖ < 1}
+      (isOpen_lt continuous_norm continuous_const))
 
 /-- **The residue field** `O/𝔪`. -/
 abbrev ResidueField := ↥(Osub k) ⧸ maxIdeal k
@@ -99,38 +88,31 @@ omit [FiniteDimensional ℚ_[2] k] in
 /-- `2 = 0` in the residue field (`‖2‖ < 1`, so `2 ∈ 𝔪`). -/
 theorem two_eq_zero : (2 : ResidueField k) = 0 := by
   have h2mem : (2 : ↥(Osub k)) ∈ maxIdeal k := by
-    rw [mem_maxIdeal]
-    have e1 : ((2 : ↥(Osub k)) : ↥k) = (2 : ↥k) := by norm_cast
-    rw [e1]; exact norm_two_lt_one
-  have h := Ideal.Quotient.eq_zero_iff_mem.mpr h2mem
-  simpa only [map_ofNat] using h
+    rw [mem_maxIdeal, show ((2 : ↥(Osub k)) : ↥k) = (2 : ↥k) by norm_cast]
+    exact norm_two_lt_one
+  simpa only [map_ofNat] using Ideal.Quotient.eq_zero_iff_mem.mpr h2mem
 
 /-- The residue field has characteristic `2`. -/
-instance : CharP (ResidueField k) 2 := by
-  obtain ⟨p, hp⟩ := CharP.exists (ResidueField k)
-  haveI := hp
-  haveI : Fintype (ResidueField k) := Fintype.ofFinite _
-  have hpp : p.Prime := CharP.char_is_prime (ResidueField k) p
-  have hdvd : p ∣ 2 := (CharP.cast_eq_zero_iff (ResidueField k) p 2).mp (by
-    exact_mod_cast two_eq_zero k)
-  rwa [(Nat.prime_dvd_prime_iff_eq hpp Nat.prime_two).mp hdvd] at hp
+instance : CharP (ResidueField k) 2 :=
+  (CharP.charP_iff_prime_eq_zero Nat.prime_two).mpr (mod_cast two_eq_zero k)
 
 /-- **The residue-field cardinalities**: `#(O/𝔪) = 2^f` and `#(O/𝔪)ˣ = 2^f − 1` with `f ≥ 1`.
 The `f` here is the residue degree; B13-4 feeds these into the graded counts. -/
 theorem residue_card :
-    ∃ f : ℕ, 1 ≤ f ∧ Nat.card (ResidueField k) = 2 ^ f ∧ Nat.card (ResidueField k)ˣ = 2 ^ f - 1 := by
-  haveI : Fintype (ResidueField k) := Fintype.ofFinite _
-  haveI : DecidableEq (ResidueField k) := Classical.decEq _
+    ∃ f : ℕ,
+      1 ≤ f ∧ Nat.card (ResidueField k) = 2 ^ f ∧ Nat.card (ResidueField k)ˣ = 2 ^ f - 1 := by
+  have : Fintype (ResidueField k) := Fintype.ofFinite _
   obtain ⟨n, _, hcard⟩ := FiniteField.card (ResidueField k) 2
   exact ⟨n, n.2, by rw [Nat.card_eq_fintype_card, hcard],
-    by rw [Nat.card_eq_fintype_card, Fintype.card_units, hcard]⟩
+    by rw [Nat.card_units, Nat.card_eq_fintype_card, hcard]⟩
 
 /-! ## B13-4 — the graded isomorphisms and the two `Nat.card` counts
 
 Two group homomorphisms cutting the unit filtration into residue-field data:
 `U⁰ = normUnits → (O/𝔪)ˣ` (`u ↦ ū`) with kernel `U¹` and surjective, and for `i ≥ 1`
 `U^{(i)} → Multiplicative (O/𝔪)` (`u ↦ (u−1)/πⁱ mod 𝔪`) with kernel `U^{(i+1)}` and surjective.
-The isomorphism theorem then gives `#(U⁰/U¹) = #(O/𝔪)ˣ = 2^f − 1` and `#(U^i/U^{i+1}) = #(O/𝔪) = 2^f`.
+The isomorphism theorem then gives `#(U⁰/U¹) = #(O/𝔪)ˣ = 2^f − 1` and
+`#(U^i/U^{i+1}) = #(O/𝔪) = 2^f`.
 Everything is parameterized by a uniformizer `π : ↥k` (B13-2's `exists_uniformizer`). -/
 
 omit [FiniteDimensional ℚ_[2] ↥k] in
@@ -147,42 +129,37 @@ theorem scaled_exchange {π : ↥k} (hπne : π ≠ 0) (hπlt : ‖π‖ < 1)
     (hπmax : ∀ y : ↥k, ‖y‖ < 1 → ‖y‖ ≤ ‖π‖) (x : ↥k) (i : ℕ) :
     ‖x‖ < ‖π‖ ^ i ↔ ‖x‖ ≤ ‖π‖ ^ (i + 1) := by
   have hpi : 0 < ‖π‖ ^ i := pow_pos (norm_pos_iff.mpr hπne) i
-  refine ⟨fun h => ?_, fun h => ?_⟩
-  · have hd : ‖x / π ^ i‖ < 1 := by rw [norm_div, norm_pow, div_lt_one hpi]; exact h
-    have hle := hπmax (x / π ^ i) hd; rw [norm_div, norm_pow, div_le_iff₀ hpi] at hle
-    rw [pow_succ]; linarith
-  · have : ‖π‖ ^ (i + 1) < ‖π‖ ^ i := by rw [pow_succ]; nlinarith [hpi]
-    linarith
+  refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩
+  · have hle := hπmax (x / π ^ i) (by rwa [norm_div, norm_pow, div_lt_one hpi])
+    rwa [norm_div, norm_pow, div_le_iff₀ hpi, ← pow_succ'] at hle
+  · exact h.trans_lt (pow_lt_pow_right_of_lt_one₀ (norm_pos_iff.mpr hπne) hπlt i.lt_succ_self)
 
 /-! ### Grade 0: `U⁰/U¹ ≃ (O/𝔪)ˣ` -/
 
 omit [FiniteDimensional ℚ_[2] ↥k] in
 /-- A norm-one unit of `k` as an element of the valuation ring `O`. -/
 noncomputable def normUnitToOsub (u : ↥(normUnits k)) : ↥(Osub k) :=
-  ⟨(u.1 : ↥k), by rw [mem_Osub]; exact le_of_eq ((mem_normUnits k u.1).mp u.2)⟩
+  ⟨(u.1 : ↥k), ((mem_normUnits k u.1).mp u.2).le⟩
 
 omit [FiniteDimensional ℚ_[2] ↥k] in
 @[simp] theorem normUnitToOsub_coe (u : ↥(normUnits k)) : (normUnitToOsub k u : ↥k) = (u.1 : ↥k) :=
   rfl
 
 omit [FiniteDimensional ℚ_[2] ↥k] in
-theorem normUnitToOsub_one : normUnitToOsub k 1 = 1 := by
-  apply Subtype.ext; simp only [normUnitToOsub_coe, OneMemClass.coe_one, Units.val_one]
+theorem normUnitToOsub_one : normUnitToOsub k 1 = 1 := rfl
 
 omit [FiniteDimensional ℚ_[2] ↥k] in
 theorem normUnitToOsub_mul (a b : ↥(normUnits k)) :
-    normUnitToOsub k (a * b) = normUnitToOsub k a * normUnitToOsub k b := by
-  apply Subtype.ext; simp only [normUnitToOsub_coe, MulMemClass.coe_mul, Units.val_mul]
+    normUnitToOsub k (a * b) = normUnitToOsub k a * normUnitToOsub k b := rfl
 
 omit [FiniteDimensional ℚ_[2] ↥k] in
 /-- A norm-one unit of `k` as a unit of the valuation ring `O`. -/
 noncomputable def normUnitToOsubUnit : ↥(normUnits k) →* (↥(Osub k))ˣ where
   toFun u :=
     { val := normUnitToOsub k u
-      inv := ⟨((u.1⁻¹ : (↥k)ˣ) : ↥k), by
-        rw [mem_Osub]; exact le_of_eq ((mem_normUnits k _).mp ((normUnits k).inv_mem u.2))⟩
-      val_inv := by apply Subtype.ext; push_cast; exact_mod_cast u.1.mul_inv
-      inv_val := by apply Subtype.ext; push_cast; exact_mod_cast u.1.inv_mul }
+      inv := ⟨((u.1⁻¹ : (↥k)ˣ) : ↥k), ((mem_normUnits k _).mp ((normUnits k).inv_mem u.2)).le⟩
+      val_inv := Subtype.ext u.1.mul_inv
+      inv_val := Subtype.ext u.1.inv_mul }
   map_one' := Units.ext (normUnitToOsub_one k)
   map_mul' a b := Units.ext (normUnitToOsub_mul k a b)
 
@@ -197,26 +174,25 @@ theorem gradeZeroHom_val (u : ↥(normUnits k)) :
 
 omit [FiniteDimensional ℚ_[2] ↥k] in
 theorem hcoe_sub (u : ↥(normUnits k)) :
-    ((normUnitToOsub k u - 1 : ↥(Osub k)) : ↥k) = (u.1 : ↥k) - 1 := by
-  rw [AddSubgroupClass.coe_sub, normUnitToOsub_coe, OneMemClass.coe_one]
+    ((normUnitToOsub k u - 1 : ↥(Osub k)) : ↥k) = (u.1 : ↥k) - 1 := rfl
 
 omit [FiniteDimensional ℚ_[2] ↥k] in
 theorem gradeZeroHom_eq_one_iff (u : ↥(normUnits k)) :
     gradeZeroHom k u = 1 ↔ ‖(u.1 : ↥k) - 1‖ < 1 := by
-  rw [← Units.val_eq_one, gradeZeroHom_val, ← (Ideal.Quotient.mk (maxIdeal k)).map_one,
-    Ideal.Quotient.eq, mem_maxIdeal, hcoe_sub]
+  rw [← Units.val_eq_one, gradeZeroHom_val, Ideal.Quotient.mk_eq_one_iff_sub_mem, mem_maxIdeal,
+    hcoe_sub]
 
 omit [FiniteDimensional ℚ_[2] ↥k] in
 theorem gradeZeroHom_ker {π : ↥k} (hπlt : ‖π‖ < 1) (hπmax : ∀ y : ↥k, ‖y‖ < 1 → ‖y‖ ≤ ‖π‖) :
     (gradeZeroHom k).ker = (depthUnits k (π : ℚ̄₂) 1).subgroupOf (normUnits k) := by
   have hexch : ∀ x : ↥k, ‖x‖ < 1 ↔ ‖x‖ ≤ ‖(π : ℚ̄₂)‖ :=
-    fun x => ⟨hπmax x, fun h => lt_of_le_of_lt h hπlt⟩
+    fun x ↦ ⟨hπmax x, fun h ↦ lt_of_le_of_lt h hπlt⟩
   ext u
   have hu1 : ‖((u.1 : ↥k) : ℚ̄₂)‖ = 1 := (mem_normUnits k u.1).mp u.2
   have hbridge : ‖((u.1 : ↥k) : ℚ̄₂) - 1‖ = ‖(u.1 : ↥k) - 1‖ := norm_sub_one_bridge k _
   rw [MonoidHom.mem_ker, Subgroup.mem_subgroupOf, mem_depthUnits, pow_one, hbridge]
-  exact ⟨fun h => ⟨hu1, (hexch _).mp ((gradeZeroHom_eq_one_iff k u).mp h)⟩,
-    fun h => (gradeZeroHom_eq_one_iff k u).mpr ((hexch _).mpr h.2)⟩
+  exact ⟨fun h ↦ ⟨hu1, (hexch _).mp ((gradeZeroHom_eq_one_iff k u).mp h)⟩,
+    fun h ↦ (gradeZeroHom_eq_one_iff k u).mpr ((hexch _).mpr h.2)⟩
 
 omit [FiniteDimensional ℚ_[2] ↥k] in
 theorem gradeZeroHom_surjective : Function.Surjective (gradeZeroHom k) := by
@@ -226,7 +202,7 @@ theorem gradeZeroHom_surjective : Function.Surjective (gradeZeroHom k) := by
     rw [← mem_maxIdeal]; intro hmem
     exact y.ne_zero (by rw [← ha, Ideal.Quotient.eq_zero_iff_mem]; exact hmem)
   have hnorm : ‖(a : ↥k)‖ = 1 := le_antisymm ((mem_Osub k).mp a.2) (not_lt.mp hane)
-  have haval : (a : ↥k) ≠ 0 := fun h => one_ne_zero (by rw [← hnorm, h, norm_zero])
+  have haval : (a : ↥k) ≠ 0 := fun h ↦ one_ne_zero (by rw [← hnorm, h, norm_zero])
   refine ⟨⟨Units.mk0 (a : ↥k) haval, by rw [mem_normUnits]; exact hnorm⟩, Units.ext ?_⟩
   rw [gradeZeroHom_val, ← ha]; congr 1
 
@@ -235,8 +211,8 @@ theorem card_gradeZero {π : ↥k} (hπlt : ‖π‖ < 1) (hπmax : ∀ y : ↥k
     Nat.card (↥(normUnits k) ⧸ (depthUnits k (π : ℚ̄₂) 1).subgroupOf (normUnits k))
       = Nat.card (ResidueField k)ˣ := by
   rw [← gradeZeroHom_ker k hπlt hπmax]
-  exact Nat.card_congr
-    (QuotientGroup.quotientKerEquivOfSurjective (gradeZeroHom k) (gradeZeroHom_surjective k)).toEquiv
+  exact Nat.card_congr (QuotientGroup.quotientKerEquivOfSurjective (gradeZeroHom k)
+    (gradeZeroHom_surjective k)).toEquiv
 
 /-! ### Grade `i ≥ 1`: `U^{(i)}/U^{(i+1)} ≃ (O/𝔪, +)` -/
 
@@ -268,7 +244,8 @@ theorem gradeIres_zero_iff {π : ↥k} (hπne : π ≠ 0) (i : ℕ) (u : ↥(dep
 
 omit [FiniteDimensional ℚ_[2] ↥k] in
 theorem depthRes_one {π : ↥k} (hπne : π ≠ 0) (i : ℕ) :
-    Ideal.Quotient.mk (maxIdeal k) (depthToOsub k hπne i (1 : ↥(depthUnits k (π : ℚ̄₂) i))) = 0 := by
+    Ideal.Quotient.mk (maxIdeal k)
+      (depthToOsub k hπne i (1 : ↥(depthUnits k (π : ℚ̄₂) i))) = 0 := by
   rw [gradeIres_zero_iff]
   simp only [OneMemClass.coe_one, Units.val_one, sub_self, norm_zero]
   exact pow_pos (norm_pos_iff.mpr hπne) i
@@ -319,7 +296,7 @@ theorem gradeI_surj_witness {π : ↥k} (hπne : π ≠ 0) (hπlt : ‖π‖ < 1
   have hval : ‖w‖ = 1 := by
     rw [hw, IsUltrametricDist.norm_add_eq_max_of_norm_ne_norm
         (by rw [norm_one]; exact (ne_of_lt hsmall1).symm), norm_one, max_eq_left (le_of_lt hsmall1)]
-  have hne0 : w ≠ 0 := fun h => one_ne_zero (by rw [← hval, h, norm_zero])
+  have hne0 : w ≠ 0 := fun h ↦ one_ne_zero (by rw [← hval, h, norm_zero])
   have hw1 : w - 1 = (a : ↥k) * π ^ i := by rw [hw]; ring
   have hmem : Units.mk0 w hne0 ∈ depthUnits k (π : ℚ̄₂) i := by
     rw [mem_depthUnits]
@@ -356,8 +333,8 @@ theorem gradeIHom_ker {π : ↥k} (hπne : π ≠ 0) (hπlt : ‖π‖ < 1)
     rw [gradeIHom_apply, ← ofAdd_zero (α := ResidueField k),
       Multiplicative.ofAdd.apply_eq_iff_eq, gradeIres_zero_iff]
   rw [MonoidHom.mem_ker, Subgroup.mem_subgroupOf, mem_depthUnits, norm_sub_one_bridge, hkey]
-  exact ⟨fun h => ⟨hu1, (scaled_exchange k hπne hπlt hπmax _ i).mp h⟩,
-    fun h => (scaled_exchange k hπne hπlt hπmax _ i).mpr h.2⟩
+  exact ⟨fun h ↦ ⟨hu1, (scaled_exchange k hπne hπlt hπmax _ i).mp h⟩,
+    fun h ↦ (scaled_exchange k hπne hπlt hπmax _ i).mpr h.2⟩
 
 omit [FiniteDimensional ℚ_[2] ↥k] in
 theorem gradeIHom_surjective {π : ↥k} (hπne : π ≠ 0) (hπlt : ‖π‖ < 1) {i : ℕ} (hi : 1 ≤ i) :
@@ -388,7 +365,7 @@ theorem exists_gradeCounts {π : ↥k} (hπne : π ≠ 0) (hπlt : ‖π‖ < 1)
       ∀ i : ℕ, 1 ≤ i → Nat.card (↥(depthUnits k (π : ℚ̄₂) i) ⧸
         (depthUnits k (π : ℚ̄₂) (i + 1)).subgroupOf (depthUnits k (π : ℚ̄₂) i)) = 2 ^ f := by
   obtain ⟨f, hf1, hfc, hfu⟩ := residue_card k
-  refine ⟨f, hf1, ?_, fun i hi => ?_⟩
+  refine ⟨f, hf1, ?_, fun i hi ↦ ?_⟩
   · rw [card_gradeZero k hπlt hπmax]; exact hfu
   · rw [card_gradeI k hπne hπlt hπmax hi]; exact hfc
 
@@ -420,9 +397,9 @@ noncomputable def dyadicUnitFiltration' (k : IntermediateField ℚ_[2] ℚ̄₂)
   let hgc := UnitFiltrationCounts.exists_gradeCounts k hπne hπlt hmax
   { π := (π : ℚ̄₂)
     hπ_mem := π.2
-    hπ_ne := fun h => hπne (by exact_mod_cast h)
+    hπ_ne := fun h ↦ hπne (by exact_mod_cast h)
     hπ_lt := hπlt
-    hπ_max := fun x hxk hxlt => hmax ⟨x, hxk⟩ hxlt
+    hπ_max := fun x hxk hxlt ↦ hmax ⟨x, hxk⟩ hxlt
     e := hr.choose
     he_pos := hr.choose_spec.1
     he := hr.choose_spec.2

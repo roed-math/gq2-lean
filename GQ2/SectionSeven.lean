@@ -1,8 +1,8 @@
-import GQ2.BoundaryFrame
-import GQ2.QuadraticFp2
-import GQ2.EvensKahn
 import GQ2.Block.Module
+import GQ2.BoundaryFrame
+import GQ2.EvensKahn
 import GQ2.Prop32
+import GQ2.QuadraticFp2
 
 /-!
 # §7: a minimal nontrivial module layer in the wild kernel — statements  (ticket P-14)
@@ -66,7 +66,8 @@ def IsScalarStack (L : Subgroup Y) : Prop :=
 elements of `K`.  For `K ◁ Y` a finite 2-group this is the Frattini subgroup `Φ(K) = K²[K,K]`
 of `K`, as a subgroup of `Y` (normal in `Y`, being characteristic in `K`). -/
 def frattiniLike (K : Subgroup Y) : Subgroup Y :=
-  Subgroup.closure ({x | ∃ k ∈ K, x = k * k} ∪ {x | ∃ k ∈ K, ∃ l ∈ K, x = k * l * k⁻¹ * l⁻¹})
+  Subgroup.closure
+    ({x | ∃ k ∈ K, x = k * k} ∪ {x | ∃ k ∈ K, ∃ l ∈ K, x = k * l * k⁻¹ * l⁻¹})
 
 omit [Finite Y] in
 /-- `Φ(K) ≤ K` (the generators are squares and commutators of elements of `K`). -/
@@ -99,8 +100,7 @@ theorem frattiniLike_eq_map (P : Subgroup Y) :
 omit [Finite Y] in
 /-- For `K ◁ Y`, `Φ(K)` is normal in `Y` (conjugation permutes the generating set). -/
 theorem frattiniLike_normal (K : Subgroup Y) (hK : K.Normal) : (frattiniLike K).Normal := by
-  constructor
-  intro n hn g
+  refine ⟨fun n hn g => ?_⟩
   have himg : (frattiniLike K).map (MulAut.conj g).toMonoidHom ≤ frattiniLike K := by
     rw [frattiniLike, MonoidHom.map_closure]
     refine (Subgroup.closure_le _).mpr ?_
@@ -161,16 +161,15 @@ finite 2-group, `GQ2.MarkedTarget`'s `L_Y`) is not a scalar stack, a minimal blo
 [P-14 statement; proof P-15.] -/
 theorem exists_minimalBlock (hL : L.Normal) (h2 : IsPGroup 2 L)
     (h : ¬ IsScalarStack L) : Nonempty (MinimalBlock L) := by
-  classical
-  haveI : Finite (Subgroup Y) :=
+  have : Finite (Subgroup Y) :=
     Finite.of_injective (fun H : Subgroup Y => (H : Set Y)) SetLike.coe_injective
   -- `S`: an inclusion-maximal `Y`-normal scalar stack inside `L` (`⊥` is one)
-  have hbot : (⊥ : Subgroup Y) ∈ {T : Subgroup Y | T.Normal ∧ T ≤ L ∧ IsScalarStack T} := by
+  have hbot :
+      (⊥ : Subgroup Y) ∈ {T : Subgroup Y | T.Normal ∧ T ≤ L ∧ IsScalarStack T} := by
     refine ⟨Subgroup.normal_bot, bot_le, 0, fun _ => ⊥, rfl, rfl, fun _ => le_rfl,
       fun _ => Subgroup.normal_bot, ?_⟩
     intro i y x hx
-    have hx1 : x = 1 := by simpa using hx
-    subst hx1
+    obtain rfl : x = 1 := by simpa using hx
     simp
   obtain ⟨S, hSmax⟩ := Set.Finite.exists_maximal (Set.toFinite _) ⟨⊥, hbot⟩
   obtain ⟨hSn, hSL, hSstack⟩ := hSmax.prop
@@ -251,8 +250,8 @@ is the §7-specific content.  [P-14 statement; proof P-15.] -/
 theorem lemma_7_1_head (B : MinimalBlock L) : B.R ≤ B.K ⊓ B.S := by
   refine le_inf (frattiniLike_le B.K) ?_
   -- the `Y`-normal candidate `(Φ(P) ⊔ S) ⊓ P` between `S` and `P`
-  haveI := frattiniLike_normal B.P B.hP
-  haveI := B.hS
+  have := frattiniLike_normal B.P B.hP
+  have := B.hS
   have hXn : ((frattiniLike B.P ⊔ B.S) ⊓ B.P).Normal := by
     have hsup : (frattiniLike B.P ⊔ B.S).Normal := Subgroup.sup_normal _ _
     exact ⟨fun n hn y => Subgroup.mem_inf.mpr
@@ -265,15 +264,13 @@ theorem lemma_7_1_head (B : MinimalBlock L) : B.R ≤ B.K ⊓ B.S := by
     · have hmem : k * k ∈ (frattiniLike B.P ⊔ B.S) ⊓ B.P := Subgroup.mem_inf.mpr
         ⟨Subgroup.mem_sup_left (Subgroup.subset_closure (Or.inl ⟨k, B.hKP hk, rfl⟩)),
           B.P.mul_mem (B.hKP hk) (B.hKP hk)⟩
-      rw [hX] at hmem
-      exact hmem
+      rwa [hX] at hmem
     · have hmem : k * l * k⁻¹ * l⁻¹ ∈ (frattiniLike B.P ⊔ B.S) ⊓ B.P := Subgroup.mem_inf.mpr
         ⟨Subgroup.mem_sup_left
             (Subgroup.subset_closure (Or.inr ⟨k, B.hKP hk, l, B.hKP hl, rfl⟩)),
           B.P.mul_mem (B.P.mul_mem (B.P.mul_mem (B.hKP hk) (B.hKP hl))
             (B.P.inv_mem (B.hKP hk))) (B.P.inv_mem (B.hKP hl))⟩
-      rw [hX] at hmem
-      exact hmem
+      rwa [hX] at hmem
   · -- `X = P`: the finite-2-group Frattini contradiction
     exfalso
     have hPsub : ∀ p ∈ B.P, p ∈ frattiniLike B.P ⊔ B.S := by
@@ -281,17 +278,17 @@ theorem lemma_7_1_head (B : MinimalBlock L) : B.R ≤ B.K ⊓ B.S := by
       have hmem : p ∈ (frattiniLike B.P ⊔ B.S) ⊓ B.P := by rw [hX]; exact hp
       exact (Subgroup.mem_inf.mp hmem).1
     -- the quotient `Q = ↥P ⧸ S` is a nontrivial finite 2-group…
-    haveI hSPn : (B.S.subgroupOf B.P).Normal := B.hS.subgroupOf B.P
+    have : (B.S.subgroupOf B.P).Normal := B.hS.subgroupOf B.P
     have hP2 : IsPGroup 2 B.P := by
       intro g
       obtain ⟨n, hn⟩ := B.h2L ⟨g.1, B.hPL g.2⟩
       refine ⟨n, ?_⟩
       ext
       simpa using congrArg Subtype.val hn
-    haveI : Fact (Nat.Prime 2) := Nat.fact_prime_two
+    have : Fact (Nat.Prime 2) := Nat.fact_prime_two
     have hQ2 : IsPGroup 2 (↥B.P ⧸ B.S.subgroupOf B.P) := hP2.to_quotient _
     obtain ⟨p₀, hp₀P, hp₀S⟩ := SetLike.exists_of_lt B.hSP
-    haveI hQnt : Nontrivial (↥B.P ⧸ B.S.subgroupOf B.P) := by
+    have : Nontrivial (↥B.P ⧸ B.S.subgroupOf B.P) := by
       refine ⟨⟨QuotientGroup.mk ⟨p₀, hp₀P⟩, 1, ?_⟩⟩
       rw [ne_eq, QuotientGroup.eq_one_iff]
       exact fun hmem => hp₀S (Subgroup.mem_subgroupOf.mp hmem)
@@ -420,8 +417,6 @@ theorem lemma_7_1_radical (B : MinimalBlock L)
       exact le_antisymm (sup_le hKS le_rfl) le_sup_right
     exact B.hSP.ne hPS.symm
   -- chief dichotomy on the `Y`-normal subgroup `X ⊔ S` between `S` and `P`
-  haveI := hX
-  haveI := B.hS
   have hXSn : (X ⊔ B.S).Normal := Subgroup.sup_normal X B.S
   have hle : X ⊔ B.S ≤ B.P := sup_le (hXK.le.trans B.hKP) B.hSP.le
   rcases B.chief _ hXSn le_sup_right hle with hXS | hXS
@@ -455,8 +450,6 @@ theorem lemma_7_1_dual (B : MinimalBlock L) :
     rw [Subgroup.subgroupOf_self, Subgroup.index_top] at hidx
     exact absurd hidx (by omega)
   -- dichotomy on the `Y`-normal subgroup `X ⊔ S` between `S` and `P`
-  haveI := hXn
-  haveI := B.hS
   have hXSn : (X ⊔ B.S).Normal := Subgroup.sup_normal X B.S
   have hle : X ⊔ B.S ≤ B.P := sup_le (hXK.trans B.hKP) B.hSP.le
   rcases B.chief _ hXSn le_sup_right hle with hXS | hXS
@@ -494,8 +487,8 @@ theorem lemma_7_1_dual (B : MinimalBlock L) :
             intro hmem
             rw [inv_mem_iff] at hmem
             exact hkS (Subgroup.mem_subgroupOf.mp hmem).2
-          have h3 := notMem_mul_mem (U := (B.K ⊓ B.S).subgroupOf B.K) h2 hu1 hu2
-          exact (Subgroup.mem_subgroupOf.mp h3).2
+          exact (Subgroup.mem_subgroupOf.mp
+            (notMem_mul_mem (U := (B.K ⊓ B.S).subgroupOf B.K) h2 hu1 hu2)).2
       -- …and extends to `P = K·S`
       have hcommP : ∀ (y p : Y), p ∈ B.P → y * p * y⁻¹ * p⁻¹ ∈ B.S := by
         intro y p hp
@@ -687,7 +680,7 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
   -- `f k = k^4 ∈ R`
   have hf_mem : ∀ k, k ∈ B.K → k ^ 4 ∈ B.R := by
     intro k hk
-    rw [show k ^ 4 = (k * k) * (k * k) from by rw [hp4 k]; group]
+    rw [show k ^ 4 = (k * k) * (k * k) by rw [hp4 k]; group]
     exact mul_mem (hksq k hk) (hksq k hk)
   -- the `Y`-normal subgroup `Kf = {k ∈ K | k^4 = 1}` contains `⁅K,Ñ⁆`, hence all of `K`
   have hf_ker : ∀ k, k ∈ B.K → k ^ 4 = 1 := by
@@ -699,10 +692,10 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
           exact ⟨mul_mem haK hbK, by rw [hf_hom a haK b hbK, ha, hb, one_mul]⟩
         inv_mem' := by
           rintro a ⟨haK, ha⟩
-          exact ⟨inv_mem haK, by rw [show a⁻¹ ^ 4 = (a ^ 4)⁻¹ from by group, ha, inv_one]⟩ }
+          exact ⟨inv_mem haK, by rw [show a⁻¹ ^ 4 = (a ^ 4)⁻¹ by group, ha, inv_one]⟩ }
     haveI hKfN : Kf.Normal := by
       refine ⟨fun a ha g => ⟨B.hK.conj_mem a ha.1 g, ?_⟩⟩
-      rw [show (g * a * g⁻¹) ^ 4 = g * a ^ 4 * g⁻¹ from by rw [hp4 (g * a * g⁻¹), hp4 a]; group,
+      rw [show (g * a * g⁻¹) ^ 4 = g * a ^ 4 * g⁻¹ by rw [hp4 (g * a * g⁻¹), hp4 a]; group,
         ha.2]; group
     have hKÑKf : ⁅B.K, Ñ⁆ ≤ Kf := by
       rw [Subgroup.commutator_le]
@@ -715,7 +708,7 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
         have hkn : k * n * k⁻¹ * n⁻¹ = k * (n * k⁻¹ * n⁻¹) := by group
         have hnkK : n * k⁻¹ * n⁻¹ ∈ B.K := B.hK.conj_mem k⁻¹ (inv_mem hk) n
         rw [hkn, hf_hom k hk _ hnkK,
-          show (n * k⁻¹ * n⁻¹) ^ 4 = n * (k ^ 4)⁻¹ * n⁻¹ from by
+          show (n * k⁻¹ * n⁻¹) ^ 4 = n * (k ^ 4)⁻¹ * n⁻¹ by
             rw [hp4 (n * k⁻¹ * n⁻¹), hp4 k]; group]
         have hn' : n ∈ Subgroup.centralizer (B.R : Set Y) := hÑcentR hn
         have hcomm := Subgroup.mem_centralizer_iff.mp hn' (k ^ 4) (hf_mem k hk)
@@ -735,7 +728,7 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
     intro x hx
     refine Subgroup.closure_induction (p := fun g _ => g * g = 1) ?_ ?_ ?_ ?_ hx
     · rintro g (⟨k, hk, rfl⟩ | ⟨k, hk, l, hl, rfl⟩)
-      · rw [show (k * k) * (k * k) = k ^ 4 from by rw [hp4 k]; group]; exact hf_ker k hk
+      · rw [show (k * k) * (k * k) = k ^ 4 by rw [hp4 k]; group]; exact hf_ker k hk
       · exact hcomm2 k hk l hl
     · exact one_mul 1
     · intro a b ha_mem hb_mem ha hb
@@ -746,7 +739,7 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
         _ = (a * a) * (b * b) := by group
         _ = 1 := by rw [ha, hb, mul_one]
     · intro a _ ha
-      rw [show a⁻¹ * a⁻¹ = (a * a)⁻¹ from by group, ha, inv_one]
+      rw [show a⁻¹ * a⁻¹ = (a * a)⁻¹ by group, ha, inv_one]
   exact key r hr
 
 omit [Finite Y] in
@@ -1124,6 +1117,7 @@ private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.R.Normal)
     · exact h1
   exact lemma_7_1_dual B ⟨Z, hZn, hRZ, hZK, hidx⟩
 
+omit [Finite Y] in
 /-- **Endgame for Prop 7.4 step 2** (the `(K/R)^{∨ Y} = 0` clause, `= lemma_7_1_dual`): a
 `Y`-invariant group homomorphism `ψ : K → 𝔽₂` that is nonzero somewhere on `K` is impossible.
 Such a `ψ` automatically kills `R = Φ(K)` (squares and commutators die in `𝔽₂`), so its kernel
@@ -1259,7 +1253,7 @@ private theorem odd_average (B : MinimalBlock L) (A : Subgroup Y)
     rw [Finset.sum_congr rfl (fun a _ => hconst a), Finset.sum_const, Finset.card_univ,
       ← Nat.card_eq_fintype_card, nsmul_eq_mul]
     obtain ⟨m, hm⟩ := hAodd
-    rw [hm]; push_cast; rw [show (2 : ZMod 2) = 0 from by decide]; ring
+    rw [hm]; push_cast; rw [show (2 : ZMod 2) = 0 by decide]; ring
   have hψAinv : ∀ (c : Y), c ∈ A → ∀ k, ψ (c⁻¹ * k * c) = ψ k := by
     intro c hc k
     rw [hψdef]
@@ -1304,6 +1298,7 @@ private theorem odd_average (B : MinimalBlock L) (A : Subgroup Y)
     linear_combination this - (CharTwo.add_self_eq_zero (ψ k))
   exact ⟨ψ, hψhom, hψYinv, hψext⟩
 
+omit [Finite Y] in
 /-- The `σ₀` extension: a hom `σ : K ∩ S → 𝔽₂` killing `R` extends to a hom `σ₀ : K → 𝔽₂`.
 Via `K/R` as an `𝔽₂`-vector space and `LinearMap.exists_extend`. -/
 private theorem sigma0_extends (B : MinimalBlock L) (σ : Y → ZMod 2)
@@ -1548,7 +1543,7 @@ private theorem quotient_average (B : MinimalBlock L)
     have hla : (c : Y)⁻¹ * l * (c : Y) ∈ B.K := by
       have := B.hK.conj_mem l hl (c : Y)⁻¹; simpa using this
     rw [show (c : Y)⁻¹ * (k * l) * (c : Y)
-        = ((c : Y)⁻¹ * k * (c : Y)) * ((c : Y)⁻¹ * l * (c : Y)) from by group,
+        = ((c : Y)⁻¹ * k * (c : Y)) * ((c : Y)⁻¹ * l * (c : Y)) by group,
       hσ₀hom _ hka _ hla]
   -- `ψ` extends `σ₀` on `K ∩ S`
   have hψext : ∀ k, k ∈ B.K ⊓ B.S → ψ k = σ₀ k := by
@@ -1566,7 +1561,7 @@ private theorem quotient_average (B : MinimalBlock L)
     rw [Finset.sum_congr rfl (fun q _ => hconst q), Finset.sum_const, Finset.card_univ,
       ← Nat.card_eq_fintype_card, nsmul_eq_mul]
     obtain ⟨m, hm⟩ := hodd
-    rw [hm]; push_cast; rw [show (2 : ZMod 2) = 0 from by decide]; ring
+    rw [hm]; push_cast; rw [show (2 : ZMod 2) = 0 by decide]; ring
   -- `ψ` is `Ctil`-invariant
   have hψCinv : ∀ (c₀ : Y), c₀ ∈ Ctil → ∀ k, k ∈ B.K → ψ (c₀⁻¹ * k * c₀) = ψ k := by
     intro c₀ hc₀ k hk
@@ -1591,7 +1586,7 @@ private theorem quotient_average (B : MinimalBlock L)
       intro a ha b hb
       rw [hφdef]
       simp only
-      rw [show y * (a * b) * y⁻¹ = (y * a * y⁻¹) * (y * b * y⁻¹) from by group,
+      rw [show y * (a * b) * y⁻¹ = (y * a * y⁻¹) * (y * b * y⁻¹) by group,
         hψhom _ (B.hK.conj_mem a ha y) _ (B.hK.conj_mem b hb y), hψhom a ha b hb]
       ring
     have hφ0 : ∀ z, z ∈ B.K ⊓ B.S → φ z = 0 := by
@@ -1610,7 +1605,7 @@ private theorem quotient_average (B : MinimalBlock L)
       have hcy : y * c * y⁻¹ ∈ Ctil := hCtiln.conj_mem c hc y
       have hyz : y * z * y⁻¹ ∈ B.K := B.hK.conj_mem z hz y
       rw [show y * (c⁻¹ * z * c) * y⁻¹
-          = (y * c * y⁻¹)⁻¹ * (y * z * y⁻¹) * (y * c * y⁻¹) from by group,
+          = (y * c * y⁻¹)⁻¹ * (y * z * y⁻¹) * (y * c * y⁻¹) by group,
         hψCinv _ hcy _ hyz, hψCinv c hc z hz]
     have := hVC φ hφhom hφ0 hφCinv k hk
     rw [hφdef] at this
@@ -1654,7 +1649,7 @@ private theorem avg_dual_zero {C : Type*} [Group C] [Fintype C] {V : Type*} [Add
   have hcard : (Fintype.card C : ZMod 2) = 1 := by
     obtain ⟨m, hm⟩ := hodd
     rw [hm]; push_cast
-    rw [show (2 : ZMod 2) = 0 from by decide, zero_mul, zero_add]
+    rw [show (2 : ZMod 2) = 0 by decide, zero_mul, zero_add]
   have hφw : φ w = φ v₀ := by
     rw [hwdef, map_sum]
     have h1 : ∑ c : C, φ (act c v₀) = ∑ _c : C, φ v₀ :=
@@ -1687,6 +1682,7 @@ private def fixSub (S P Ctil : Subgroup Y) (hS : S.Normal) : Subgroup Y where
     have := hS.conj_mem _ (S.inv_mem hsa) a⁻¹
     rwa [inv_inv] at this
 
+omit [Finite Y] in
 private theorem fixSub_normal (S P Ctil : Subgroup Y) (hS : S.Normal) (hP : P.Normal)
     (hCtil : Ctil.Normal) : (fixSub S P Ctil hS).Normal := by
   constructor
@@ -1699,6 +1695,7 @@ private theorem fixSub_normal (S P Ctil : Subgroup Y) (hS : S.Normal) (hP : P.No
   rw [hrw]
   exact hS.conj_mem _ (ha _ hc') y
 
+omit [Finite Y] in
 private theorem fixSub_S_le (S P Ctil : Subgroup Y) (hS : S.Normal) (hSP : S ≤ P) :
     S ≤ fixSub S P Ctil hS := by
   intro s hs
@@ -1707,6 +1704,7 @@ private theorem fixSub_S_le (S P Ctil : Subgroup Y) (hS : S.Normal) (hSP : S ≤
     have := hS.conj_mem s hs c⁻¹; rwa [inv_inv] at this
   exact S.mul_mem hcs (S.inv_mem hs)
 
+omit [Finite Y] in
 /-- **(A)** simplicity: if `Ctil ◁ Y` moves `V = P/S` (some `c ∈ Ctil` moves some `p ∈ P` off
 `S`), the chief condition forces `V^Ctil = 0` — any `k ∈ K` fixed by `Ctil` mod `S` lies in `S`. -/
 private theorem fixed_zero_of_moves (S P K Ctil : Subgroup Y) (hS : S.Normal) (hP : P.Normal)
@@ -1775,7 +1773,7 @@ private theorem exists_L_fixed_coset (S P L : Subgroup Y) (hS : S.Normal) (hP : 
     intro l
     show φ (l : Y) (QuotientGroup.mk (1 : ↥P)) = QuotientGroup.mk 1
     rw [hfix_iff]
-    simpa using hS.conj_mem 1 (one_mem S) (l : Y)
+    simp
   have hFP2 : 2 ≤ Nat.card (MulAction.fixedPoints ↥L Q) :=
     Nat.le_of_dvd (Nat.card_pos_iff.mpr ⟨⟨_, hFP1⟩, inferInstance⟩) hFPeven
   haveI : Nontrivial (MulAction.fixedPoints ↥L Q) :=
@@ -1841,7 +1839,7 @@ acting trivially (`hYVtriv`), `Ctil/YV` odd, and `V^Ctil = 0` (`hfix0`), any `Ct
 hom `φ : K → 𝔽₂` vanishing on `K∩S` vanishes on `K`.  Averages `φ` over `Ctil/YV` via
 `avg_dual_zero`: the fixed vector it produces is nonzero unless `φ = 0`. -/
 private theorem dual_vanish_concrete (S K Ctil YV : Subgroup Y)
-    (hS : S.Normal) (hK : K.Normal) (hCtil : Ctil.Normal) (hYVn : YV.Normal)
+    (hS : S.Normal) (hK : K.Normal) (_hCtil : Ctil.Normal) (hYVn : YV.Normal)
     (hcomm : ∀ a ∈ K, ∀ b ∈ K, a * b * a⁻¹ * b⁻¹ ∈ S)
     (hYVtriv : ∀ z ∈ YV, ∀ k ∈ K, z * k * z⁻¹ * k⁻¹ ∈ S)
     (hodd : Odd (Nat.card (↥Ctil ⧸ (YV.subgroupOf Ctil))))
@@ -2094,7 +2092,7 @@ private theorem exists_normal_fixed_coset (S P G : Subgroup Y) (hS : S.Normal) (
     rintro ⟨r, g, rfl⟩
     show φ (g : Y) (QuotientGroup.mk (1 : ↥P)) = QuotientGroup.mk 1
     rw [hfix_iff]
-    simpa using hS.conj_mem 1 (one_mem S) (g : Y)
+    simp
   have hFP2 : 2 ≤ Nat.card (MulAction.fixedPoints ↥R Q) :=
     Nat.le_of_dvd (Nat.card_pos_iff.mpr ⟨⟨_, hFP1⟩, inferInstance⟩) hFPeven
   haveI : Nontrivial (MulAction.fixedPoints ↥R Q) :=
@@ -2389,7 +2387,7 @@ private theorem hv_average_helper {H : Type} [Group H] [TopologicalSpace H] [Dis
         have hP2 : IsPGroup 2 B.P := fun g => by
           obtain ⟨n, hn⟩ := B.h2L ⟨g.1, B.hPL g.2⟩
           exact ⟨n, by ext; simpa using congrArg Subtype.val hn⟩
-        push_neg at hram
+        push Not at hram
         -- `I_H`'s preimage acts trivially, so `π⁻¹⟨cH τ⟩ ≤ Y_V`
         have hIHYV : (Subgroup.zpowers (cH tameTau)).comap π
             ≤ (blockPerm B.S B.P B.hS B.hP).ker := by

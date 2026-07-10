@@ -31,11 +31,9 @@ local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 /-- `‖2‖ < 1` in `ℚ̄₂`: the spectral norm extends the 2-adic norm on the base, and `‖2‖ = 2⁻¹`
 there — `2` is a non-unit.  The whole uniformizer theory rests on this. -/
 theorem norm_two_lt_one : ‖(2 : ℚ̄₂)‖ < 1 := by
-  have h2 : (2 : ℚ̄₂) = algebraMap ℚ_[2] ℚ̄₂ 2 := (map_ofNat (algebraMap ℚ_[2] ℚ̄₂) 2).symm
-  rw [h2, NormedAlgebra.norm_eq_spectralNorm ℚ_[2], spectralNorm_extends]
-  have h : ‖(2 : ℚ_[2])‖ = (2 : ℝ)⁻¹ := by
-    have := Padic.norm_p (p := 2); rwa [Nat.cast_ofNat] at this
-  rw [h]; norm_num
+  rw [← map_ofNat (algebraMap ℚ_[2] ℚ̄₂) 2, NormedAlgebra.norm_eq_spectralNorm ℚ_[2],
+    spectralNorm_extends]
+  simpa using Padic.norm_p_lt_one (p := 2)
 
 variable (k : IntermediateField ℚ_[2] ℚ̄₂)
 
@@ -58,7 +56,7 @@ theorem norm_two_k : ‖(2 : ↥k)‖ = ‖(2 : ℚ̄₂)‖ := rfl
 
 /-- Powers of a norm-`≤ 1` element stay in the unit ball. -/
 theorem unitBall_pow_mem {x : ↥k} (hx : ‖x‖ ≤ 1) (i : ℕ) : x ^ i ∈ (unitBall k).toAddSubgroup := by
-  rw [mem_unitBall, norm_pow]; exact pow_le_one₀ (norm_nonneg x) hx
+  exact (mem_unitBall k).mpr <| (norm_pow x i).le.trans <| pow_le_one₀ (norm_nonneg x) hx
 
 /-- **The ramification index `e` with `‖2‖ = ‖π‖^e`** for any uniformizer-like `π` (norm `< 1`,
 norm-maximal below `1`, with `‖2‖ ≤ ‖π‖`).  `e` is least with `‖π‖^{e+1} < ‖2‖`; the exactness
@@ -68,42 +66,29 @@ theorem exists_ramificationIndex {π : ↥k} (hlt : ‖π‖ < 1) (hge : ‖(2 :
     (hmax : ∀ y : ↥k, ‖y‖ < 1 → ‖y‖ ≤ ‖π‖) :
     ∃ e : ℕ, 1 ≤ e ∧ ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e := by
   have h2pos : 0 < ‖(2 : ℚ̄₂)‖ := norm_pos_iff.mpr two_ne_zero
-  have hπpos : 0 < ‖π‖ := lt_of_lt_of_le h2pos hge
+  have hπpos : 0 < ‖π‖ := h2pos.trans_le hge
   have hex : ∃ n : ℕ, ‖π‖ ^ (n + 1) < ‖(2 : ℚ̄₂)‖ := by
     obtain ⟨m, hm⟩ := exists_pow_lt_of_lt_one h2pos hlt
-    have hm1 : 1 ≤ m := by
-      rcases Nat.eq_zero_or_pos m with h0 | h
-      · rw [h0, pow_zero] at hm; exact absurd hm (not_lt.mpr (le_of_lt norm_two_lt_one))
-      · exact h
-    exact ⟨m - 1, by rwa [Nat.sub_add_cancel hm1]⟩
-  refine ⟨Nat.find hex, ?_, ?_⟩
-  · rw [Nat.one_le_iff_ne_zero]; intro he0
-    have := Nat.find_spec hex; rw [he0, zero_add, pow_one] at this
-    exact absurd this (not_lt.mpr hge)
-  · set e := Nat.find hex with he
-    have he_spec : ‖π‖ ^ (e + 1) < ‖(2 : ℚ̄₂)‖ := Nat.find_spec hex
-    have he_lo : ‖(2 : ℚ̄₂)‖ ≤ ‖π‖ ^ e := by
-      rcases Nat.eq_zero_or_pos e with h0 | hpos
-      · rw [h0, pow_zero]; exact le_of_lt norm_two_lt_one
-      · have := Nat.find_min hex (m := e - 1) (by omega); rw [Nat.sub_add_cancel hpos] at this
-        exact not_lt.mp this
-    by_contra hne
-    have hlt2 : ‖(2 : ℚ̄₂)‖ < ‖π‖ ^ e := lt_of_le_of_ne he_lo hne
-    have hxmem := hmax ((2 : ↥k) / π ^ e) (by
-      rw [norm_div, norm_pow, norm_two_k, div_lt_one (pow_pos hπpos e)]; exact hlt2)
-    rw [norm_div, norm_pow, norm_two_k, div_le_iff₀ (pow_pos hπpos e)] at hxmem
-    have hfin : ‖(2 : ℚ̄₂)‖ ≤ ‖π‖ ^ (e + 1) := by rw [pow_succ, mul_comm]; exact hxmem
-    linarith [he_spec]
+    exact ⟨m, (pow_le_pow_of_le_one (norm_nonneg _) hlt.le m.le_succ).trans_lt hm⟩
+  refine ⟨Nat.find hex, (Nat.find_pos hex).mpr (by simpa using hge), ?_⟩
+  set e := Nat.find hex with he
+  have he_lo : ‖(2 : ℚ̄₂)‖ ≤ ‖π‖ ^ e := by
+    rcases Nat.eq_zero_or_pos e with h0 | hpos
+    · simpa [h0] using norm_two_lt_one.le
+    · simpa [Nat.sub_add_cancel hpos] using not_lt.mp (Nat.find_min hex (m := e - 1) (by lia))
+  by_contra hne
+  have hxmem := hmax ((2 : ↥k) / π ^ e) (by
+    rw [norm_div, norm_pow, norm_two_k, div_lt_one (pow_pos hπpos e)]; exact he_lo.lt_of_ne hne)
+  rw [norm_div, norm_pow, norm_two_k, div_le_iff₀ (pow_pos hπpos e)] at hxmem
+  exact absurd (Nat.find_spec hex) (not_lt.mpr (by rwa [pow_succ']))
 
 variable [FiniteDimensional ℚ_[2] k]
 
 /-- The unit ball is compact: a closed ball in the proper space `↥k` (finite-dimensional over the
 locally compact `ℚ₂`). -/
 instance : CompactSpace ↥(unitBall k).toAddSubgroup := by
-  refine isCompact_iff_compactSpace.mp ?_
-  have hp := FiniteDimensional.proper ℚ_[2] ↥k
-  have hc : ((unitBall k).toAddSubgroup : Set ↥k) = closedBall 0 1 := rfl
-  rw [hc]; exact isCompact_closedBall 0 1
+  have : ProperSpace ↥k := FiniteDimensional.proper ℚ_[2] ↥k
+  exact isCompact_iff_compactSpace.mp (isCompact_closedBall 0 1)
 
 /-- The quotient `O/2O` is finite: `2O` is an open subgroup of the compact group `O`. -/
 instance : Finite (↥(unitBall k).toAddSubgroup ⧸
@@ -124,10 +109,10 @@ theorem exists_pow_sub_dyadic {x : ↥k} (hx : ‖x‖ ≤ 1) :
   classical
   haveI : Fintype (↥(unitBall k).toAddSubgroup ⧸
     (dyadicBall k).toAddSubgroup.addSubgroupOf (unitBall k).toAddSubgroup) := Fintype.ofFinite _
-  let g : ℕ → ↥(unitBall k).toAddSubgroup := fun i => ⟨x ^ i, unitBall_pow_mem k hx i⟩
+  let g : ℕ → ↥(unitBall k).toAddSubgroup := fun i ↦ ⟨x ^ i, unitBall_pow_mem k hx i⟩
   let f : Fin (dyadicIndex k + 1) → (↥(unitBall k).toAddSubgroup ⧸
     (dyadicBall k).toAddSubgroup.addSubgroupOf (unitBall k).toAddSubgroup) :=
-    fun i => QuotientAddGroup.mk (g i.val)
+    fun i ↦ QuotientAddGroup.mk (g i.val)
   have hcardQ : Fintype.card (↥(unitBall k).toAddSubgroup ⧸
       (dyadicBall k).toAddSubgroup.addSubgroupOf (unitBall k).toAddSubgroup) = dyadicIndex k :=
     (Nat.card_eq_fintype_card).symm
@@ -215,7 +200,7 @@ theorem exists_uniformizer_data :
     have h := hmax 2 (by rw [norm_two_k]; exact norm_two_lt_one); rwa [norm_two_k] at h
   obtain ⟨e, he1, he⟩ := exists_ramificationIndex k hlt hge hmax
   refine ⟨(π : ℚ̄₂), e, π.2, ?_, hlt, ?_, he1, he⟩
-  · exact fun h => hne (by exact_mod_cast h)
+  · exact fun h ↦ hne (by exact_mod_cast h)
   · intro x hxk hxlt; exact hmax ⟨x, hxk⟩ hxlt
 
 end GQ2

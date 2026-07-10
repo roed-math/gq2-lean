@@ -40,13 +40,9 @@ subextension. -/
 noncomputable def zHom (z : Z1 (↥k.fixingSubgroup) (ZMod 2)) :
     ↥k.fixingSubgroup →* Multiplicative (ZMod 2) where
   toFun g := Multiplicative.ofAdd (z.1 g)
-  map_one' := by
-    show Multiplicative.ofAdd (z.1 1) = 1
-    rw [Z1_apply_one z]; rfl
-  map_mul' a b := by
-    show Multiplicative.ofAdd (z.1 (a * b))
-      = Multiplicative.ofAdd (z.1 a) * Multiplicative.ofAdd (z.1 b)
-    rw [((mem_Z1_iff_of_trivial (htriv_fs k)).mp z.2).2 a b, ofAdd_add]
+  map_one' := congrArg Multiplicative.ofAdd (Z1_apply_one z)
+  map_mul' a b :=
+    congrArg Multiplicative.ofAdd (((mem_Z1_iff_of_trivial (htriv_fs k)).mp z.2).2 a b)
 
 variable {k}
 
@@ -55,17 +51,13 @@ variable {k}
 
 /-- The kernel of `zHom` is exactly the zero-set of the cocycle. -/
 lemma mem_zHom_ker {z : Z1 (↥k.fixingSubgroup) (ZMod 2)} {g : ↥k.fixingSubgroup} :
-    g ∈ (zHom k z).ker ↔ z.1 g = 0 := by
-  rw [MonoidHom.mem_ker, zHom_apply, ofAdd_eq_one]
+    g ∈ (zHom k z).ker ↔ z.1 g = 0 := Iff.rfl
 
 /-- The kernel of `zHom` is open: it is the preimage of the (open, discrete) point `{0}` under
 the continuous cocycle `z`. -/
 lemma zHom_ker_isOpen (z : Z1 (↥k.fixingSubgroup) (ZMod 2)) :
-    IsOpen ((zHom k z).ker : Set ↥k.fixingSubgroup) := by
-  have hset : ((zHom k z).ker : Set ↥k.fixingSubgroup) = z.1 ⁻¹' {0} := by
-    ext g; rw [SetLike.mem_coe, mem_zHom_ker]; rfl
-  rw [hset]
-  exact ((mem_Z1_iff.mp z.2).1).isOpen_preimage _ (isOpen_discrete _)
+    IsOpen ((zHom k z).ker : Set ↥k.fixingSubgroup) :=
+  (mem_Z1_iff.mp z.2).1.isOpen_preimage {0} (isOpen_discrete _)
 
 /-- When the cocycle is nonzero, `zHom` is surjective (its 2-element codomain leaves no room
 for a proper nontrivial image). -/
@@ -82,9 +74,7 @@ lemma zHom_surjective {z : Z1 (↥k.fixingSubgroup) (ZMod 2)} (hz : z.1 ≠ 0) :
 /-- When the cocycle is nonzero, the kernel has index 2. -/
 lemma zHom_index_ker {z : Z1 (↥k.fixingSubgroup) (ZMod 2)} (hz : z.1 ≠ 0) :
     (zHom k z).ker.index = 2 := by
-  rw [Subgroup.index_ker, MonoidHom.range_eq_top_of_surjective _ (zHom_surjective hz),
-    Nat.card_congr Subgroup.topEquiv.toEquiv, Nat.card_eq_fintype_card]
-  decide
+  simp [Subgroup.index_ker, MonoidHom.range_eq_top_of_surjective _ (zHom_surjective hz)]
 
 /-- Two `𝔽₂`-valued functions with the same zero-set are equal (the only nonzero value is `1`).
 This reconnects a Kummer cocycle to `z` in the capstone (B12-3): equal kernels ⇒ equal cocycles
@@ -92,34 +82,25 @@ This reconnects a Kummer cocycle to `z` in the capstone (B12-3): equal kernels �
 lemma eq_of_zero_set {f f' : ↥k.fixingSubgroup → ZMod 2}
     (h : ∀ g, f g = 0 ↔ f' g = 0) : f = f' := by
   funext g
-  by_cases hf : f g = 0
-  · rw [hf, (h g).mp hf]
-  · rw [(by decide : ∀ x : ZMod 2, x ≠ 0 → x = 1) (f g) hf,
-      (by decide : ∀ x : ZMod 2, x ≠ 0 → x = 1) (f' g) (fun c => hf ((h g).mpr c))]
+  exact (by decide : ∀ x y : ZMod 2, (x = 0 ↔ y = 0) → x = y) _ _ (h g)
 
 /-- **The `z = 0` base case.**  `[1] = 0`: the Kummer class of the unit `1` vanishes.  Ported
 (direct proof) from `HilbertLedger.kummerClassK_one`, which is downstream of the axiom file.
 `sqrtCl 1` is a square root of `1` in `ℚ̄₂`, hence `±1 ∈ ℚ₂`, hence Galois-fixed, so the cocycle
 is identically `0`. -/
 theorem kummerClassK_one : kummerClassK k (1 : (↥k)ˣ) = 0 := by
-  have hfix : ∀ g : GaloisGroup ℚ_[2], g • sqrtCl ((((1 : (↥k)ˣ) : ↥k) : ℚ̄₂)) = sqrtCl 1 := by
+  have hfix : ∀ g : GaloisGroup ℚ_[2],
+      g • sqrtCl ((((1 : (↥k)ˣ) : ↥k) : ℚ̄₂)) = sqrtCl 1 := by
     intro g
-    have hsq : sqrtCl ((((1 : (↥k)ˣ) : ↥k) : ℚ̄₂)) = sqrtCl (1 : ℚ̄₂) := by norm_num
-    rw [hsq]
+    norm_num
     have h2 : (sqrtCl (1 : ℚ̄₂) - 1) * (sqrtCl (1 : ℚ̄₂) + 1) = 0 := by
-      have := sqrtCl_sq (1 : ℚ̄₂); linear_combination this
+      linear_combination sqrtCl_sq (1 : ℚ̄₂)
     rcases mul_eq_zero.1 h2 with h' | h'
-    · have : sqrtCl (1 : ℚ̄₂) = 1 := by linear_combination h'
-      rw [this, AlgEquiv.smul_def, map_one]
-    · have : sqrtCl (1 : ℚ̄₂) = -1 := by linear_combination h'
-      rw [this, AlgEquiv.smul_def, map_neg, map_one]
+    · rw [sub_eq_zero.1 h', map_one]
+    · rw [add_eq_zero_iff_eq_neg.1 h', map_neg, map_one]
   have hzero : (kummerClassK k (1 : (↥k)ˣ)) = H1mk _ _ 0 := by
     rw [kummerClassK]
-    congr 1
-    apply Subtype.ext
-    funext g
-    show kummerCocycleFun (sqrtCl ((((1 : (↥k)ˣ) : ↥k) : ℚ̄₂))) _ = 0
-    exact kummerCocycleFun_eq0 (hfix _)
+    exact congrArg _ (Subtype.ext (funext fun g ↦ kummerCocycleFun_eq0 (hfix _)))
   rw [hzero, map_zero]
 
 /-! ## B12-3: private field-theory ports + the capstone
@@ -160,11 +141,7 @@ membership in `k`. -/
 private theorem mem_bot_iff_mem (k : IntermediateField ℚ_[2] ℚ̄₂) (x : ℚ̄₂) :
     x ∈ (⊥ : IntermediateField ↥k ℚ̄₂) ↔ x ∈ k := by
   rw [IntermediateField.mem_bot]
-  constructor
-  · rintro ⟨y, rfl⟩
-    exact y.2
-  · intro hx
-    exact ⟨⟨x, hx⟩, rfl⟩
+  exact ⟨fun ⟨y, hy⟩ => hy ▸ y.2, fun hx => ⟨⟨x, hx⟩, rfl⟩⟩
 
 /-- Port of `QuadraticAdjoin.exists_sqrt_generator` (**complete the square**): a degree-2 extension
 of intermediate fields of `ℚ̄₂/ℚ_[2]` has a square-root generator `δ ∈ L ∖ k` with `δ² = d ∈ kˣ`,
@@ -276,20 +253,14 @@ private theorem fixingSubgroup_subgroupOf_eq_stabilizer {k L : IntermediateField
 same Kummer cocycle (`α² = β²` forces `α = ±β`, and `κ` is sign-insensitive). -/
 private lemma kcf_root_indep' {α β : ℚ̄₂} (h : α ^ 2 = β ^ 2) :
     kummerCocycleFun α = kummerCocycleFun β := by
-  have h2 : (α - β) * (α + β) = 0 := by linear_combination h
-  rcases mul_eq_zero.1 h2 with h' | h'
-  · rw [sub_eq_zero.1 h']
-  · rw [add_eq_zero_iff_eq_neg.1 h', kummerCocycleFun_neg]
+  obtain rfl | rfl := sq_eq_sq_iff_eq_or_eq_neg.mp h
+  · rfl
+  · exact kummerCocycleFun_neg β
 
 /-- Zero-characterization of the Kummer cocycle: `κ_x(γ) = 0 ↔ γ` fixes `x`. -/
 private lemma kcf_eq_zero_iff (x : ℚ̄₂) (γ : Kummer.GaloisGroup ℚ_[2]) :
     kummerCocycleFun x γ = 0 ↔ γ • x = x := by
-  constructor
-  · intro h
-    by_contra hne
-    rw [kummerCocycleFun, if_neg hne] at h
-    exact (by decide : (1 : ZMod 2) ≠ 0) h
-  · exact kummerCocycleFun_eq0
+  simp [kummerCocycleFun]
 
 /-- **The capstone** (B12-3): every degree-1 class `c ∈ H¹(G_k, 𝔽₂)` is a Kummer class
 `kummerClassK k a`.  If the representing cocycle `z` is `0`, `c = kummerClassK k 1`; otherwise its
@@ -314,9 +285,7 @@ theorem kummerClassK_surjective' (k : IntermediateField ℚ_[2] ℚ̄₂) [Finit
       kcf_root_indep' (by rw [sqrtCl_sq]; exact hδ2.symm)
     refine ⟨d, ?_⟩
     rw [kummerClassK]
-    congr 1
-    apply Subtype.ext
-    refine eq_of_zero_set (fun g => ?_)
+    refine congrArg _ (Subtype.ext (eq_of_zero_set fun g => ?_))
     have hL : kummerCocycleFun (sqrtCl ((↑d : ↥k) : ℚ̄₂))
           ((g : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]) = 0
         ↔ ((g : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]) • δ = δ := by

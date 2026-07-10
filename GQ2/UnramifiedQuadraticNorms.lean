@@ -96,9 +96,8 @@ theorem exists_conj {δa : ℚ̄₂} {d : ↥k} (hδ2 : δa ^ 2 = (d : ℚ̄₂)
   obtain ⟨σ, hσδ⟩ := hmove
   refine ⟨σ, ?_⟩
   have hsq : (σ δa + δa) * (σ δa - δa) = 0 := by
-    have hcomm : σ (δa ^ 2) = δa ^ 2 := by rw [hδ2]; exact σ.commutes d
-    calc (σ δa + δa) * (σ δa - δa) = σ δa ^ 2 - δa ^ 2 := by ring
-      _ = 0 := by rw [← map_pow, hcomm, sub_self]
+    have hc : σ δa ^ 2 = δa ^ 2 := by rw [← map_pow, hδ2]; exact σ.commutes d
+    linear_combination hc
   rcases mul_eq_zero.mp hsq with h | h
   · exact eq_neg_of_add_eq_zero_left h
   · exact absurd (sub_eq_zero.mp h) hσδ
@@ -409,7 +408,7 @@ lemma pow_card_sub_one_mem (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimen
     (fil : DyadicUnitFiltration K) {u : (↥K)ˣ} (hu : u ∈ normUnits K) :
     u ^ (2 ^ fil.f - 1) ∈ depthUnits K fil.π 1 := by
   set H := (depthUnits K fil.π 1).subgroupOf (normUnits K) with hH
-  haveI : H.Normal := inferInstance
+  have : H.Normal := inferInstance
   have hcard : Nat.card (↥(normUnits K) ⧸ H) = 2 ^ fil.f - 1 := fil.card_gr_zero
   have hgpow : (QuotientGroup.mk' H ⟨u, hu⟩) ^ Nat.card (↥(normUnits K) ⧸ H) = 1 :=
     pow_card_eq_one'
@@ -492,7 +491,7 @@ theorem units_are_norms_nondegen (k : IntermediateField ℚ_[2] ℚ̄₂) [Finit
     ∀ u : (↥k)ˣ, ‖((u : ↥k) : ℚ̄₂)‖ = 1 → ∃ x y : ↥k, (u : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2 := by
   -- The quadratic extension `L = k(δa)`
   have hδaint : IsIntegral ↥k δa := (Algebra.IsAlgebraic.isAlgebraic δa).isIntegral
-  haveI hSfin : FiniteDimensional ↥k ↥(IntermediateField.adjoin ↥k {δa}) :=
+  have hSfin : FiniteDimensional ↥k ↥(IntermediateField.adjoin ↥k {δa}) :=
     IntermediateField.adjoin.finiteDimensional hδaint
   set L : IntermediateField ℚ_[2] ℚ̄₂ :=
     (IntermediateField.adjoin ↥k {δa}).restrictScalars ℚ_[2] with hLdef
@@ -503,7 +502,7 @@ theorem units_are_norms_nondegen (k : IntermediateField ℚ_[2] ℚ̄₂) [Finit
     simpa using (IntermediateField.adjoin ↥k {δa}).algebraMap_mem ⟨x, hx⟩
   have hδaL : δa ∈ L := (hLmem δa).mpr (IntermediateField.mem_adjoin_simple_self ↥k δa)
   have hLadj : ∀ z ∈ L, z ∈ IntermediateField.adjoin ↥k {δa} := fun z hz => (hLmem z).mp hz
-  haveI hLfin : FiniteDimensional ℚ_[2] ↥L := by
+  have hLfin : FiniteDimensional ℚ_[2] ↥L := by
     rw [hLdef]
     exact FiniteDimensional.trans ℚ_[2] ↥k ↥(IntermediateField.adjoin ↥k {δa})
   -- the conjugation `σ δa = −δa`
@@ -539,7 +538,7 @@ theorem units_are_norms_nondegen (k : IntermediateField ℚ_[2] ℚ̄₂) [Finit
   -- exact trace coverage: `s(z) = z + σz` hits every integral `c ∈ k`
   have hcov := trace_covers hkL hδ2 hδk hδaL hσ hLadj hπk hπ0 hπ1 hπmax hqn hqodd hlag
   -- ambient facts for the engine
-  haveI : CompleteSpace ↥L := FiniteDimensional.complete ℚ_[2] ↥L
+  have : CompleteSpace ↥L := FiniteDimensional.complete ℚ_[2] ↥L
   have hσπ : σ π = π := conj_base σ ⟨π, hπk⟩
   have hπpos : (0 : ℝ) < ‖π‖ := norm_pos_iff.mpr hπ0
   have hσcont : Continuous (σ : ℚ̄₂ → ℚ̄₂) :=
@@ -644,7 +643,7 @@ theorem units_are_norms_nondegen (k : IntermediateField ℚ_[2] ℚ̄₂) [Finit
     have hz1 : ‖zc n (wseq n)‖ ≤ 1 :=
       (hzc_spec n (wseq n) (hcval_ok n _ (hInv n).1 (hInv n).2.1 (hInv n).2.2)).2.1
     rw [dist_eq_norm]
-    show ‖(wseq n : ℚ̄₂) - (wseq (n + 1) : ℚ̄₂)‖ ≤ ‖π‖ * ‖π‖ ^ n
+    change ‖(wseq n : ℚ̄₂) - (wseq (n + 1) : ℚ̄₂)‖ ≤ ‖π‖ * ‖π‖ ^ n
     rw [hwseqS n, show wseq n - wseq n * (1 + π ^ (n + 1) * zc n (wseq n))
         = -(wseq n * (π ^ (n + 1) * zc n (wseq n))) by ring, norm_neg, norm_mul, norm_mul,
       (hInv n).2.1, one_mul, norm_pow]
@@ -658,7 +657,8 @@ theorem units_are_norms_nondegen (k : IntermediateField ℚ_[2] ℚ̄₂) [Finit
   have hwtend : Filter.Tendsto wseq Filter.atTop (nhds wLim) :=
     (continuous_subtype_val.tendsto wLimL).comp hwLimL
   -- `N wseq → N wLim` and `N wseq → U`, hence `N wLim = U`
-  have hNtend1 : Filter.Tendsto (fun n => wseq n * σ (wseq n)) Filter.atTop (nhds (wLim * σ wLim)) :=
+  have hNtend1 : Filter.Tendsto (fun n => wseq n * σ (wseq n)) Filter.atTop
+      (nhds (wLim * σ wLim)) :=
     ((continuous_id.mul hσcont).tendsto wLim).comp hwtend
   have hNtend2 : Filter.Tendsto (fun n => wseq n * σ (wseq n)) Filter.atTop (nhds U) := by
     rw [tendsto_iff_norm_sub_tendsto_zero]
