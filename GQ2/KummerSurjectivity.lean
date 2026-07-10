@@ -123,8 +123,7 @@ private theorem fixingSubgroup_adjoin_simple {F E : Type*} [Field F] [Field E] [
   ext σ
   rw [IntermediateField.mem_fixingSubgroup_iff, MulAction.mem_stabilizer_iff, AlgEquiv.smul_def]
   constructor
-  · intro h
-    exact h δ (IntermediateField.mem_adjoin_simple_self F δ)
+  · exact fun h ↦ h δ (IntermediateField.mem_adjoin_simple_self F δ)
   · intro hσ x hx
     have hst : Subgroup.zpowers σ ≤ MulAction.stabilizer (E ≃ₐ[F] E) δ :=
       Subgroup.zpowers_le.mpr
@@ -198,10 +197,7 @@ private theorem exists_sqrt_generator {k L : IntermediateField ℚ_[2] ℚ̄₂}
     rw [hδdef, hcast]
     linear_combination (4 : ℚ̄₂) * hrel
   have h2k : (2 : ℚ̄₂) ∈ k := by simp
-  have hθrec : θ = (δ - (a : ℚ̄₂)) * (2 : ℚ̄₂)⁻¹ := by
-    rw [hδdef]
-    field_simp
-    ring
+  have hθrec : θ = (δ - (a : ℚ̄₂)) * (2 : ℚ̄₂)⁻¹ := by rw [hδdef]; field_simp; ring
   have hδk : δ ∉ k := by
     intro hδmem
     refine hθk ?_

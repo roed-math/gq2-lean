@@ -174,9 +174,7 @@ theorem norm_sub_eq_one_of_pow_eq_one {m : ℕ} (hm : Odd m) {ζ ζ' : ℚ̄₂}
   have hζn : ‖ζ‖ = 1 := norm_eq_one_of_pow_eq_one hm0 hζ
   have hηm : (ζ⁻¹ * ζ') ^ m = 1 := by
     rw [mul_pow, inv_pow, hζ, hζ', inv_one, one_mul]
-  have hηne : ζ⁻¹ * ζ' ≠ 1 := by
-    intro h
-    exact hne (by field_simp at h; exact h.symm)
+  have hηne : ζ⁻¹ * ζ' ≠ 1 := fun h ↦ hne (by field_simp at h; exact h.symm)
   have hkey : ζ - ζ' = ζ * (1 - ζ⁻¹ * ζ') := by
     field_simp
   rw [hkey, norm_mul, hζn, one_mul]
@@ -234,9 +232,7 @@ theorem exists_teichmuller (L : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimen
             refine mul_le_mul ?_ ih (norm_nonneg _) hρ0
             refine max_le ?_ ?_
             · rw [hqL]; exact le_max_left _ _
-            · refine le_trans ih ?_
-              calc ρ ^ (n + 1) ≤ ρ ^ 1 := pow_le_pow_of_le_one hρ0 hρ1.le (by omega)
-                _ = ρ := pow_one ρ
+            · exact le_trans ih (pow_le_of_le_one hρ0 hρ1.le (Nat.succ_ne_zero n))
         _ = ρ ^ (n + 1 + 1) := (pow_succ' ρ (n + 1)).symm
   -- Cauchy, hence convergent in the complete `↥L`
   have hcauchy : CauchySeq v := by
@@ -262,9 +258,7 @@ theorem exists_teichmuller (L : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimen
       have h : v (n + 1) - w' = (v (n + 1) - v n) + (v n - w') := by ring
       rw [h]
       refine le_trans (IsUltrametricDist.norm_add_le_max _ _) (max_le ?_ ih)
-      refine le_trans (hjump n) ?_
-      calc ρ ^ (n + 1) ≤ ρ ^ 1 := pow_le_pow_of_le_one hρ0 hρ1.le (by omega)
-        _ = ρ := pow_one ρ
+      exact le_trans (hjump n) (pow_le_of_le_one hρ0 hρ1.le (Nat.succ_ne_zero n))
   have hlim_dist : ‖ω' - w'‖ ≤ ρ :=
     le_of_tendsto ((hω'.sub tendsto_const_nhds).norm) (Eventually.of_forall hdist)
   -- and is therefore itself norm-one
@@ -298,9 +292,8 @@ theorem le_of_shared_uniformizer (k L : IntermediateField ℚ_[2] ℚ̄₂)
     L ≤ k := by
   have hπpos : (0 : ℝ) < ‖π‖ := norm_pos_iff.mpr hπ0
   haveI : CompleteSpace ↥k := FiniteDimensional.complete ℚ_[2] ↥k
-  have hclosed : IsClosed (k : Set ℚ̄₂) := by
-    have h : IsComplete (k : Set ℚ̄₂) := completeSpace_coe_iff_isComplete.mp ‹CompleteSpace ↥k›
-    exact h.isClosed
+  have hclosed : IsClosed (k : Set ℚ̄₂) :=
+    (completeSpace_coe_iff_isComplete.mp ‹CompleteSpace ↥k›).isClosed
   -- integral elements of `L` lie in `k`
   have hO : ∀ z, z ∈ L → ‖z‖ ≤ 1 → z ∈ k := by
     intro z hzL hz1
@@ -321,8 +314,7 @@ theorem le_of_shared_uniformizer (k L : IntermediateField ℚ_[2] ℚ̄₂)
           hπmax _ (L.sub_mem hyL (hkL hxk)) hx
         refine ⟨s + π ^ n * x, k.add_mem hsk (k.mul_mem (pow_mem hπk n) hxk), ?_⟩
         have hrw : z - (s + π ^ n * x) = π ^ n * ((z - s) / π ^ n - x) := by
-          field_simp
-          ring
+          field_simp; ring
         rw [hrw, norm_mul, norm_pow, pow_succ]
         exact mul_le_mul_of_nonneg_left hyxπ (by positivity)
     choose s hsk hsb using happrox

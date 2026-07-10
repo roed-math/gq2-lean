@@ -55,8 +55,8 @@ noncomputable def dyadicBall : OpenAddSubgroup ↥k :=
 theorem norm_two_k : ‖(2 : ↥k)‖ = ‖(2 : ℚ̄₂)‖ := rfl
 
 /-- Powers of a norm-`≤ 1` element stay in the unit ball. -/
-theorem unitBall_pow_mem {x : ↥k} (hx : ‖x‖ ≤ 1) (i : ℕ) : x ^ i ∈ (unitBall k).toAddSubgroup := by
-  exact (mem_unitBall k).mpr <| (norm_pow x i).le.trans <| pow_le_one₀ (norm_nonneg x) hx
+theorem unitBall_pow_mem {x : ↥k} (hx : ‖x‖ ≤ 1) (i : ℕ) : x ^ i ∈ (unitBall k).toAddSubgroup :=
+  (mem_unitBall k).mpr <| (norm_pow x i).le.trans <| pow_le_one₀ (norm_nonneg x) hx
 
 /-- **The ramification index `e` with `‖2‖ = ‖π‖^e`** for any uniformizer-like `π` (norm `< 1`,
 norm-maximal below `1`, with `‖2‖ ≤ ‖π‖`).  `e` is least with `‖π‖^{e+1} < ‖2‖`; the exactness
@@ -145,7 +145,7 @@ theorem uniform_gap {x : ↥k} (hx : ‖x‖ < 1) : ‖x‖ ^ dyadicIndex k ≤ 
   have hfact : x ^ i - x ^ j = x ^ i * (1 - x ^ (j - i)) := by
     rw [mul_sub, mul_one, ← pow_add]; congr 2; omega
   have hi : ‖x‖ ^ i ≤ ‖(2 : ℚ̄₂)‖ := by
-    rw [hfact, norm_mul, norm_pow, hone, mul_one] at hb; exact hb
+    rwa [hfact, norm_mul, norm_pow, hone, mul_one] at hb
   calc ‖x‖ ^ dyadicIndex k ≤ ‖x‖ ^ i :=
         pow_le_pow_of_le_one (norm_nonneg x) (le_of_lt hx) (by omega)
     _ ≤ ‖(2 : ℚ̄₂)‖ := hi
@@ -164,8 +164,8 @@ theorem exists_uniformizer :
   have hBsub : B ⊆ closedBall 0 1 := by
     intro y hy
     rw [mem_closedBall, dist_zero_right]
-    by_contra hc; rw [not_le] at hc
-    have h1 : (1 : ℝ) ≤ ‖y‖ ^ M := one_le_pow₀ (le_of_lt hc)
+    by_contra! hc
+    have h1 : (1 : ℝ) ≤ ‖y‖ ^ M := one_le_pow₀ hc.le
     have hy2 : ‖y‖ ^ M ≤ ‖(2 : ℚ̄₂)‖ := hy
     linarith
   have hBcompact : IsCompact B := Metric.isCompact_of_isClosed_isBounded
@@ -174,15 +174,14 @@ theorem exists_uniformizer :
   have h2B : (2 : ↥k) ∈ B := by
     show ‖(2 : ↥k)‖ ^ M ≤ ‖(2 : ℚ̄₂)‖
     rw [norm_two_k]
-    calc ‖(2 : ℚ̄₂)‖ ^ M ≤ ‖(2 : ℚ̄₂)‖ ^ 1 := pow_le_pow_of_le_one (norm_nonneg _) (le_of_lt h2lt) hM1
-      _ = ‖(2 : ℚ̄₂)‖ := pow_one _
+    exact pow_le_of_le_one (norm_nonneg _) h2lt.le (Nat.one_le_iff_ne_zero.mp hM1)
   obtain ⟨π, hπB, hπmax⟩ := hBcompact.exists_isMaxOn ⟨2, h2B⟩ continuous_norm.continuousOn
   have hmax' := isMaxOn_iff.mp hπmax
   have hπge : ‖(2 : ℚ̄₂)‖ ≤ ‖π‖ := by have := hmax' _ h2B; rwa [norm_two_k] at this
   refine ⟨π, ?_, ?_, ?_⟩
   · intro h0; rw [h0, norm_zero] at hπge; linarith
   · have hπB' : ‖π‖ ^ M ≤ ‖(2 : ℚ̄₂)‖ := hπB
-    by_contra hc; rw [not_lt] at hc
+    by_contra! hc
     have : (1 : ℝ) ≤ ‖π‖ ^ M := one_le_pow₀ hc
     linarith
   · intro y hy

@@ -272,11 +272,10 @@ theorem depthRes_add {π : ↥k} (hπne : π ≠ 0) (hπlt : ‖π‖ < 1) {i : 
   have hbv : ‖(v.1 : ↥k) - 1‖ ≤ ‖π‖ ^ i := by
     rw [← norm_sub_one_bridge]; exact ((mem_depthUnits k (π : ℚ̄₂) i v.1).mp v.2).2
   have hpile : ‖π‖ ^ i ≤ ‖π‖ := by
-    calc ‖π‖ ^ i ≤ ‖π‖ ^ 1 := pow_le_pow_of_le_one (norm_nonneg _) (le_of_lt hπlt) hi
-      _ = ‖π‖ := pow_one _
+    simpa using pow_le_pow_of_le_one (norm_nonneg _) hπlt.le hi
   calc ‖(u.1 : ↥k) - 1‖ * ‖(v.1 : ↥k) - 1‖
       ≤ ‖π‖ ^ i * ‖π‖ ^ i := mul_le_mul hbu hbv (norm_nonneg _) (le_of_lt hpi)
-    _ ≤ ‖π‖ ^ i * ‖π‖ := by apply mul_le_mul_of_nonneg_left hpile (le_of_lt hpi)
+    _ ≤ ‖π‖ ^ i * ‖π‖ := mul_le_mul_of_nonneg_left hpile hpi.le
     _ < ‖π‖ ^ i * 1 := mul_lt_mul_of_pos_left hπlt hpi
     _ = ‖π‖ ^ i := mul_one _
 
@@ -285,12 +284,10 @@ omit [FiniteDimensional ℚ_[2] ↥k] in
 theorem gradeI_surj_witness {π : ↥k} (hπne : π ≠ 0) (hπlt : ‖π‖ < 1) {i : ℕ} (hi : 1 ≤ i)
     (a : ↥(Osub k)) : ∃ u : ↥(depthUnits k (π : ℚ̄₂) i), depthToOsub k hπne i u = a := by
   have hpile : ‖π‖ ^ i ≤ ‖π‖ := by
-    calc ‖π‖ ^ i ≤ ‖π‖ ^ 1 := pow_le_pow_of_le_one (norm_nonneg _) (le_of_lt hπlt) hi
-      _ = ‖π‖ := pow_one _
+    simpa using pow_le_pow_of_le_one (norm_nonneg _) hπlt.le hi
   have hsmall : ‖(a : ↥k) * π ^ i‖ ≤ ‖π‖ ^ i := by
     rw [norm_mul, norm_pow]
-    calc ‖(a : ↥k)‖ * ‖π‖ ^ i ≤ 1 * ‖π‖ ^ i := by gcongr; exact (mem_Osub k).mp a.2
-      _ = ‖π‖ ^ i := one_mul _
+    exact mul_le_of_le_one_left (by positivity) ((mem_Osub k).mp a.2)
   have hsmall1 : ‖(a : ↥k) * π ^ i‖ < 1 := lt_of_le_of_lt hsmall (lt_of_le_of_lt hpile hπlt)
   set w : ↥k := (1 : ↥k) + (a : ↥k) * π ^ i with hw
   have hval : ‖w‖ = 1 := by

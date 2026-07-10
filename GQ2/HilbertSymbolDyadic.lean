@@ -49,17 +49,9 @@ theorem isHilbertSolvable_mul_sq_left (a b : ℚ_[2]) {c : ℚ_[2]} (hc : c ≠ 
     IsHilbertSolvable (a * c ^ 2) b ↔ IsHilbertSolvable a b := by
   constructor
   · rintro ⟨x, y, z, hne, heq⟩
-    refine ⟨c * x, y, z, ?_, by rw [← heq]; ring⟩
-    rcases hne with h | h | h
-    · exact Or.inl (mul_ne_zero hc h)
-    · exact Or.inr (Or.inl h)
-    · exact Or.inr (Or.inr h)
+    exact ⟨c * x, y, z, hne.imp (mul_ne_zero hc) id, by rw [← heq]; ring⟩
   · rintro ⟨x, y, z, hne, heq⟩
-    refine ⟨x / c, y, z, ?_, by rw [← heq]; field_simp⟩
-    rcases hne with h | h | h
-    · exact Or.inl (div_ne_zero h hc)
-    · exact Or.inr (Or.inl h)
-    · exact Or.inr (Or.inr h)
+    exact ⟨x / c, y, z, hne.imp (fun h ↦ div_ne_zero h hc) id, by rw [← heq]; field_simp⟩
 
 /-- **Symmetry** of the Hilbert symbol: `(a, b)₂ = (b, a)₂`. -/
 theorem hilbertSymbol_comm (a b : ℚ_[2]ˣ) : hilbertSymbol a b = hilbertSymbol b a := by
@@ -155,9 +147,7 @@ theorem isHilbertSolvable_iff (a b : ℚ_[2]) :
         have hz : z ^ 2 = 0 := by rw [← heq]; ring
         have hz0 : z = 0 := pow_eq_zero_iff (n := 2) (by norm_num) |>.mp hz
         rcases hne with h | h | h
-        · exact h rfl
-        · exact h rfl
-        · exact h hz0
+        exacts [h rfl, h rfl, h hz0]
       exact ⟨z / x, by rw [div_mul_div_comm, eq_div_iff (mul_ne_zero hx hx)]; linear_combination heq⟩
     · exact Or.inr ⟨z / y, x / y, by field_simp; linear_combination heq⟩
   · rintro (⟨c, hc⟩ | ⟨s, t, hst⟩)

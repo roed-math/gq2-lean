@@ -76,11 +76,8 @@ private theorem index_extendScalars_fixingSubgroup (k L : IntermediateField ℚ_
     ext φ
     rw [Subgroup.mem_map_equiv, Subgroup.mem_subgroupOf,
       IntermediateField.mem_fixingSubgroup_iff, IntermediateField.mem_fixingSubgroup_iff]
-    constructor
-    · intro h y hy
-      exact h y ((IntermediateField.mem_extendScalars hkL).mp hy)
-    · intro h y hy
-      exact h y ((IntermediateField.mem_extendScalars hkL).mpr hy)
+    exact ⟨fun h y hy ↦ h y ((IntermediateField.mem_extendScalars hkL).mp hy),
+      fun h y hy ↦ h y ((IntermediateField.mem_extendScalars hkL).mpr hy)⟩
   rw [← hmap, Subgroup.index_map_of_bijective (fixingSubgroupEquiv k).bijective]
 
 /-- **The fixing-index-2 → degree-2 bridge**: a fixing-index-2 subextension has relative degree 2. -/
@@ -89,7 +86,7 @@ private theorem finrank_extendScalars_eq_two (k L : IntermediateField ℚ_[2] �
     (hindex : (L.fixingSubgroup.subgroupOf k.fixingSubgroup).index = 2) :
     Module.finrank ↥k ↥(extendScalars hkL) = 2 := by
   have hHindex : ((extendScalars hkL).fixingSubgroup).index = 2 := by
-    rw [index_extendScalars_fixingSubgroup k L hkL]; exact hindex
+    rwa [index_extendScalars_fixingSubgroup k L hkL]
   haveI hHnorm : ((extendScalars hkL).fixingSubgroup).Normal :=
     Subgroup.normal_of_index_eq_two hHindex
   haveI : IsGalois ↥k ↥(extendScalars hkL) :=
@@ -159,7 +156,7 @@ theorem exists_quadratic_of_open_index_two
   haveI := hLfin
   refine ⟨L, hkL, hLfin, hsub, ?_⟩
   apply finrank_extendScalars_eq_two k L hkL
-  rw [hsub]; exact hHindex
+  rwa [hsub]
 
 end KummerSurjectivity
 

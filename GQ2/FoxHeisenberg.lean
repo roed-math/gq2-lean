@@ -183,11 +183,7 @@ def map (f : A →+ A') (hf : ∀ (g : C) (a : A), f (g • a) = g • f a) :
     WordLift A C →* WordLift A' C where
   toFun p := ⟨f p.u, p.g⟩
   map_one' := by ext <;> simp
-  map_mul' p q := by
-    ext
-    · show f (p.u + p.g • q.u) = f p.u + p.g • f q.u
-      rw [map_add, hf]
-    · rfl
+  map_mul' p q := by ext <;> simp [hf]
 
 @[simp] theorem map_u (f : A →+ A') (hf : ∀ (g : C) (a : A), f (g • a) = g • f a)
     (p : WordLift A C) : (map f hf p).u = f p.u := rfl
@@ -664,18 +660,18 @@ omit [DistribMulAction C A] in
 @[simp] theorem zc_zero : zc (A := A) (C := C) (0 : ZMod 2) = 1 := rfl
 
 theorem mul_zc (p : HeisLift A C) (w : ZMod 2) : p * zc w = ⟨p.a, p.l, p.z + w, p.g⟩ := by
-  ext <;> simp [zc, mul_a, mul_l, mul_z, mul_g]
+  ext <;> simp [zc]
 
 @[simp] theorem mul_zc_z (p : HeisLift A C) (w : ZMod 2) : (p * zc w).z = p.z + w := by
   rw [mul_zc]
 
 /-- `zc` is additive in its argument: `z(u+v) = z(u)·z(v)`. -/
 theorem zc_add (u v : ZMod 2) : zc (A := A) (C := C) (u + v) = zc u * zc v := by
-  ext <;> simp [zc, mul_a, mul_l, mul_z, mul_g, ElemDual.zero_apply]
+  ext <;> simp [zc]
 
 /-- `zc w` is central in `H(A) ⋊ C`. -/
 theorem zc_comm (w : ZMod 2) (q : HeisLift A C) : zc w * q = q * zc w := by
-  ext <;> simp [zc, mul_a, mul_l, mul_z, mul_g, ElemDual.zero_apply, one_smul, smul_zero, add_comm]
+  ext <;> simp [zc, add_comm]
 
 /-- The central factor `z(·)` as a homomorphism `Multiplicative (ZMod 2) →* H(A) ⋊ C`. -/
 noncomputable def zcHom : Multiplicative (ZMod 2) →* HeisLift A C where
@@ -697,15 +693,13 @@ theorem zcHom_comm (v : Multiplicative (ZMod 2)) (q : HeisLift A C) :
 theorem conj_gen (a : A) (lam : ElemDual A) (g : C) :
     (⟨a, 0, 0, 1⟩ : HeisLift A C)⁻¹ * ⟨0, lam, 0, g⟩ * ⟨a, 0, 0, 1⟩
       = ⟨g • a - a, lam, lam (g • a), g⟩ := by
-  have hinv : (⟨a, 0, 0, 1⟩ : HeisLift A C)⁻¹ = ⟨-a, 0, 0, 1⟩ := by
-    ext <;> simp [inv_a, inv_l, inv_z, inv_g, ElemDual.zero_apply]
+  have hinv : (⟨a, 0, 0, 1⟩ : HeisLift A C)⁻¹ = ⟨-a, 0, 0, 1⟩ := by ext <;> simp
   rw [hinv]
   ext
   · simp only [mul_a, mul_g, smul_zero, one_mul, add_zero]; abel
-  · simp [mul_l, mul_g, one_smul, smul_zero, one_mul, add_zero]
-  · simp [mul_z, mul_l, mul_g, one_smul, smul_zero, one_mul, add_zero, zero_add,
-      ElemDual.zero_apply]
-  · simp [mul_g, one_mul, mul_one]
+  · simp
+  · simp
+  · simp
 
 /-- **The dual conjugation computation** `q_λ⁻¹ · ⟨a,0,0,g⟩ · q_λ = ⟨a, g·λ − λ, −λ(a), g⟩`, where
 `q_λ = ⟨0,λ,0,1⟩`.  This is the algebraic heart of Lemma 5.7's right form: conjugating a
@@ -714,15 +708,13 @@ theorem conj_gen (a : A) (lam : ElemDual A) (g : C) :
 theorem conj_gen_r (a : A) (lam : ElemDual A) (g : C) :
     (⟨0, lam, 0, 1⟩ : HeisLift A C)⁻¹ * ⟨a, 0, 0, g⟩ * ⟨0, lam, 0, 1⟩
       = ⟨a, g • lam - lam, -(lam a), g⟩ := by
-  have hinv : (⟨0, lam, 0, 1⟩ : HeisLift A C)⁻¹ = ⟨0, -lam, 0, 1⟩ := by
-    ext <;> simp [inv_a, inv_l, inv_z, inv_g, map_zero]
+  have hinv : (⟨0, lam, 0, 1⟩ : HeisLift A C)⁻¹ = ⟨0, -lam, 0, 1⟩ := by ext <;> simp
   rw [hinv]
   ext
-  · simp [mul_a, mul_g, one_smul, smul_zero, one_mul, add_zero, zero_add]
+  · simp
   · simp only [mul_l, mul_g, smul_zero, one_mul, add_zero]; abel_nf
-  · simp [mul_z, mul_l, mul_g, one_smul, smul_zero, one_mul, add_zero, zero_add,
-      map_zero, ElemDual.neg_apply]
-  · simp [mul_g, one_mul, mul_one]
+  · simp
+  · simp
 
 /-- **The Heisenberg commutator central coordinate (symplectic `B`-form)**, in the `g = 1` fiber
 `H(A) = A × A^∨ × 𝔽₂`.  For `p, q` with trivial base value, the central coordinate of the
@@ -748,16 +740,14 @@ trivially on the module, `.a` and `.l` are additive homs and `.z` follows the He
 /-- A `C`-element acting trivially on the module acts trivially on its `𝔽₂`-dual (contragredient). -/
 theorem smul_elemdual_trivial (g : C) (hg : ∀ a : A, g • a = a) (lam : ElemDual A) :
     g • lam = lam := by
-  have hgi : ∀ a : A, g⁻¹ • a = a := fun a => by rw [inv_smul_eq_iff]; exact (hg a).symm
   ext a
-  show (g • lam) a = lam a
-  rw [ElemDual.smul_apply, hgi]
+  rw [ElemDual.smul_apply, inv_smul_eq_iff.mpr (hg a).symm]
 
 theorem mul_g_trivial (p q : HeisLift A C) (hp : ∀ a : A, p.g • a = a) (hq : ∀ a : A, q.g • a = a)
     (a : A) : (p * q).g • a = a := by rw [mul_g, mul_smul, hq, hp]
 
-theorem inv_g_trivial (p : HeisLift A C) (hp : ∀ a : A, p.g • a = a) (a : A) : p⁻¹.g • a = a := by
-  rw [inv_g, inv_smul_eq_iff]; exact (hp a).symm
+theorem inv_g_trivial (p : HeisLift A C) (hp : ∀ a : A, p.g • a = a) (a : A) : p⁻¹.g • a = a :=
+  inv_smul_eq_iff.mpr (hp a).symm
 
 theorem conjP_g_trivial (p g : HeisLift A C) (hp : ∀ a : A, p.g • a = a) (a : A) :
     (conjP p g).g • a = a := by
@@ -779,11 +769,10 @@ theorem mul_z_of_trivial (p q : HeisLift A C) (hp : ∀ a : A, p.g • a = a) :
     (p * q).z = p.z + q.z + p.l q.a := by rw [mul_z, hp]
 
 theorem inv_a_of_trivial (p : HeisLift A C) (hp : ∀ a : A, p.g • a = a) : p⁻¹.a = -p.a := by
-  rw [inv_a, show p.g⁻¹ • p.a = p.a by rw [inv_smul_eq_iff]; exact (hp p.a).symm]
+  rw [inv_a, inv_smul_eq_iff.mpr (hp p.a).symm]
 
 theorem inv_l_of_trivial (p : HeisLift A C) (hp : ∀ a : A, p.g • a = a) : p⁻¹.l = -p.l := by
-  have hgi : ∀ a : A, p.g⁻¹ • a = a := fun a => by rw [inv_smul_eq_iff]; exact (hp a).symm
-  rw [inv_l, smul_elemdual_trivial _ hgi]
+  rw [inv_l, smul_elemdual_trivial _ fun a => inv_smul_eq_iff.mpr (hp a).symm]
 
 /-! Conjugation by a **g-slice** element `g` (`g.a = 0`, `g.l = 0`, `g.z = 0`) with trivially-acting
 base preserves all three Heisenberg coordinates — it only conjugates the base.  This is `φ = conj by
@@ -791,18 +780,18 @@ g₀` in the `h₀`-shadow (`g₀ = σ₂²` lands in the base slice on the x₀
 
 theorem conjP_a_of_gslice (p g : HeisLift A C) (hga : g.a = 0) (hgt : ∀ a : A, g.g • a = a) :
     (conjP p g).a = p.a := by
-  have hgi : ∀ a : A, g.g⁻¹ • a = a := fun a => by rw [inv_smul_eq_iff]; exact (hgt a).symm
+  have hgi : ∀ a : A, g.g⁻¹ • a = a := fun a => inv_smul_eq_iff.mpr (hgt a).symm
   simp only [conjP, mul_a, mul_g, inv_a, inv_g, hga, smul_zero, neg_zero, add_zero, zero_add, hgi]
 
 theorem conjP_l_of_gslice (p g : HeisLift A C) (hgl : g.l = 0) (hgt : ∀ a : A, g.g • a = a) :
     (conjP p g).l = p.l := by
-  have hgi : ∀ a : A, g.g⁻¹ • a = a := fun a => by rw [inv_smul_eq_iff]; exact (hgt a).symm
+  have hgi : ∀ a : A, g.g⁻¹ • a = a := fun a => inv_smul_eq_iff.mpr (hgt a).symm
   simp only [conjP, mul_l, mul_g, inv_l, inv_g, hgl, smul_zero, neg_zero, add_zero, zero_add,
     smul_elemdual_trivial _ hgi]
 
 theorem conjP_z_of_gslice (p g : HeisLift A C) (hga : g.a = 0) (hgl : g.l = 0) (hgz : g.z = 0)
     (hgt : ∀ a : A, g.g • a = a) : (conjP p g).z = p.z := by
-  have hgi : ∀ a : A, g.g⁻¹ • a = a := fun a => by rw [inv_smul_eq_iff]; exact (hgt a).symm
+  have hgi : ∀ a : A, g.g⁻¹ • a = a := fun a => inv_smul_eq_iff.mpr (hgt a).symm
   simp only [conjP, mul_z, mul_l, mul_g, inv_z, inv_l, inv_g, hga, hgl, hgz,
     smul_zero, neg_zero, map_zero, add_zero, zero_add, ElemDual.zero_apply,
     smul_elemdual_trivial _ hgi]
@@ -830,8 +819,8 @@ theorem conjP_z_of_slice (p g : HeisLift A C) (hga : g.a = 0) (hgl : g.l = 0) (h
 fiber): `[p,q].z = p.l(q.a) + q.l(p.a)`.  Gives `c₀ = [d₀,z₀] ↦ 0` once `d₀.a = d₀.l = 0`. -/
 theorem commP_z_of_trivial (p q : HeisLift A C) (hp : ∀ a : A, p.g • a = a)
     (hq : ∀ a : A, q.g • a = a) : (commP p q).z = p.l (q.a) + q.l (p.a) := by
-  have hpi : ∀ a : A, p.g⁻¹ • a = a := fun a => by rw [inv_smul_eq_iff]; exact (hp a).symm
-  have hqi : ∀ a : A, q.g⁻¹ • a = a := fun a => by rw [inv_smul_eq_iff]; exact (hq a).symm
+  have hpi : ∀ a : A, p.g⁻¹ • a = a := fun a => inv_smul_eq_iff.mpr (hp a).symm
+  have hqi : ∀ a : A, q.g⁻¹ • a = a := fun a => inv_smul_eq_iff.mpr (hq a).symm
   simp only [commP, mul_z, mul_l, mul_g, inv_z, inv_a, inv_l, inv_g, mul_smul, hp,
     hpi, hqi, smul_elemdual_trivial _ hpi, smul_elemdual_trivial _ hqi, map_neg,
     ElemDual.add_apply, ElemDual.neg_apply]
@@ -971,27 +960,24 @@ noncomputable def stokesRhs (c : Fin n → C) (a : A) (y : Fin n → ElemDual A)
   map_one' := by simp
   map_mul' w w' := by
     simp only [map_mul]
-    set A1 := conjPa a (stokesEval c 0 y w) with hA1
-    set A2 := conjPa a (stokesEval c 0 y w') with hA2
-    set B1 : HeisLift A C := HeisLift.zcHom (epsWord c a y w) with hB1
-    set B2 : HeisLift A C := HeisLift.zcHom (epsWord c a y w') with hB2
-    have hc : B1 * A2 = A2 * B1 := HeisLift.zcHom_comm (epsWord c a y w) A2
-    rw [mul_assoc A1 A2 (B1 * B2), ← mul_assoc A2 B1 B2, ← hc, mul_assoc B1 A2 B2,
-      ← mul_assoc A1 B1 (A2 * B2)]
+    exact Commute.mul_mul_mul_comm
+      (HeisLift.zcHom_comm (epsWord c a y w) (conjPa a (stokesEval c 0 y w'))).symm _ _
 
 /-- **The Lemma 5.7 factorization** (identity of homomorphisms): `stokesEval` at the coboundary
 `d⁰a` equals `conjPa a` of the `y`-only evaluation, corrected by the central ε-word. -/
 theorem stokesEval_eq_rhs (c : Fin n → C) (a : A) (y : Fin n → ElemDual A) :
     stokesEval c (fun i => c i • a - a) y = stokesRhs c a y := by
   refine FreeGroup.ext_hom _ _ (fun i => ?_)
-  have hE : stokesEval c (fun i => c i • a - a) y (FreeGroup.of i) = ⟨c i • a - a, y i, 0, c i⟩ := by
+  have hE : stokesEval c (fun i => c i • a - a) y (FreeGroup.of i)
+      = ⟨c i • a - a, y i, 0, c i⟩ := by
     simp [stokesEval, FreeGroup.lift_apply_of]
   have hE0 : stokesEval c 0 y (FreeGroup.of i) = ⟨0, y i, 0, c i⟩ := by
     simp [stokesEval, FreeGroup.lift_apply_of]
   have heps : epsWord c a y (FreeGroup.of i) = Multiplicative.ofAdd (y i (c i • a)) := by
     simp [epsWord, freeExp, FreeGroup.lift_apply_of]
   show stokesEval c (fun i => c i • a - a) y (FreeGroup.of i)
-      = conjPa a (stokesEval c 0 y (FreeGroup.of i)) * HeisLift.zcHom (epsWord c a y (FreeGroup.of i))
+      = conjPa a (stokesEval c 0 y (FreeGroup.of i))
+        * HeisLift.zcHom (epsWord c a y (FreeGroup.of i))
   rw [hE, hE0, heps, conjPa_apply, HeisLift.conj_gen, HeisLift.zcHom_apply, toAdd_ofAdd,
     HeisLift.mul_zc, CharTwo.add_self_eq_zero]
 
@@ -1052,13 +1038,8 @@ noncomputable def stokesRhsR (c : Fin n → C) (lam : ElemDual A) (x : Fin n →
   map_one' := by simp
   map_mul' w w' := by
     simp only [map_mul]
-    set A1 := conjQlam lam (stokesEval c x 0 w) with hA1
-    set A2 := conjQlam lam (stokesEval c x 0 w') with hA2
-    set B1 : HeisLift A C := HeisLift.zcHom (freeExp (fun i => lam (x i)) w) with hB1
-    set B2 : HeisLift A C := HeisLift.zcHom (freeExp (fun i => lam (x i)) w') with hB2
-    have hc : B1 * A2 = A2 * B1 := HeisLift.zcHom_comm (freeExp (fun i => lam (x i)) w) A2
-    rw [mul_assoc A1 A2 (B1 * B2), ← mul_assoc A2 B1 B2, ← hc, mul_assoc B1 A2 B2,
-      ← mul_assoc A1 B1 (A2 * B2)]
+    exact Commute.mul_mul_mul_comm (HeisLift.zcHom_comm (freeExp (fun i => lam (x i)) w)
+      (conjQlam lam (stokesEval c x 0 w'))).symm _ _
 
 /-- **The Lemma 5.7 factorization** (dual form): `stokesEval` at the dual coboundary `d⁰λ` equals
 `conjQlam lam` of the `x`-only evaluation, corrected by the central ε-word. -/
@@ -1199,16 +1180,10 @@ only `sigma2, u0, u1` carry `ω₂`, and each such element's order divides the e
 `powOmega2_pow_eq` rewrites the three `ω₂`-powers to the explicit `omega2Exp`-power. -/
 theorem wildValueExp_eq_wildValue {G : Type*} [Group G] [Finite G] (t : Marking G) :
     t.wildValue = wildValueExp t (omega2Exp (Monoid.exponent G)) := by
-  have hN : Monoid.exponent G ≠ 0 := Monoid.exponent_ne_zero_of_finite
-  have hsig : powOmega2 t.σ = t.σ ^ omega2Exp (Monoid.exponent G) :=
-    (powOmega2_pow_eq t.σ (Monoid.order_dvd_exponent t.σ) hN).symm
-  have hu0 : powOmega2 (t.x₀ * t.τ) = (t.x₀ * t.τ) ^ omega2Exp (Monoid.exponent G) :=
-    (powOmega2_pow_eq _ (Monoid.order_dvd_exponent _) hN).symm
-  have hu1 : powOmega2 (t.x₁ * t.τ) = (t.x₁ * t.τ) ^ omega2Exp (Monoid.exponent G) :=
-    (powOmega2_pow_eq _ (Monoid.order_dvd_exponent _) hN).symm
+  have h : ∀ g : G, powOmega2 g = g ^ omega2Exp (Monoid.exponent G) := fun g =>
+    (powOmega2_pow_eq g (Monoid.order_dvd_exponent g) Monoid.exponent_ne_zero_of_finite).symm
   simp only [Marking.wildValue, Marking.h0, Marking.c0, Marking.dg, Marking.hc, Marking.z0,
-    Marking.g0, Marking.d0, Marking.u1, Marking.u0, Marking.u, Marking.sigma2, wildValueExp,
-    hsig, hu0, hu1]
+    Marking.g0, Marking.d0, Marking.u1, Marking.u0, Marking.u, Marking.sigma2, wildValueExp, h]
 
 /-- Divisibility form of `wildValueExp_eq_wildValue`: `wildValueExp t (omega2Exp N) = t.wildValue`
 for **any** `N ≠ 0` that is a multiple of the three `ω₂`-subword orders (`σ`, `x₀τ`, `x₁τ`).  Used
@@ -1316,9 +1291,7 @@ on the *lower* groups `C` (for `hr`) and `A^∨⋊C` (for the `.l`-bridge).  Bot
 noncomputable def secHom : C →* HeisLift A C where
   toFun g := ⟨0, 0, 0, g⟩
   map_one' := rfl
-  map_mul' g g' := by
-    ext <;> simp [HeisLift.mul_a, HeisLift.mul_l, HeisLift.mul_z, HeisLift.mul_g,
-      ElemDual.zero_apply]
+  map_mul' g g' := by ext <;> simp
 
 theorem secHom_injective : Function.Injective (secHom (A := A) (C := C)) :=
   fun _ _ h => congrArg HeisLift.g h
@@ -1327,9 +1300,7 @@ theorem secHom_injective : Function.Injective (secHom (A := A) (C := C)) :=
 noncomputable def secWL : WordLift (ElemDual A) C →* HeisLift A C where
   toFun p := ⟨0, p.u, 0, p.g⟩
   map_one' := rfl
-  map_mul' p q := by
-    ext <;> simp [HeisLift.mul_a, HeisLift.mul_l, HeisLift.mul_z, HeisLift.mul_g,
-      WordLift.mul_u, WordLift.mul_g]
+  map_mul' p q := by ext <;> simp
 
 theorem secWL_injective : Function.Injective (secWL (A := A) (C := C)) := by
   intro p q h
@@ -1457,9 +1428,7 @@ def agHom : HeisLift A C →* WordLift A C where
 noncomputable def secWA : WordLift A C →* HeisLift A C where
   toFun p := ⟨p.u, 0, 0, p.g⟩
   map_one' := rfl
-  map_mul' p q := by
-    ext <;> simp [HeisLift.mul_a, HeisLift.mul_l, HeisLift.mul_z, HeisLift.mul_g,
-      WordLift.mul_u, WordLift.mul_g, ElemDual.zero_apply]
+  map_mul' p q := by ext <;> simp
 
 theorem secWA_injective : Function.Injective (secWA (A := A) (C := C)) := by
   intro p q h
@@ -1579,7 +1548,8 @@ theorem lemma_5_6 {A' : Type*} [AddCommGroup A'] [DistribMulAction C A'] [Finite
         pq.1.g = pq.2.g}
       one_mem' := ⟨by simp, by simp, rfl, rfl⟩
       mul_mem' := fun {P Q} hP hQ =>
-        ⟨by simp only [Prod.fst_mul, Prod.snd_mul, HeisLift.mul_a, map_add, hf, hP.1, hQ.1, hP.2.2.2],
+        ⟨by simp only [Prod.fst_mul, Prod.snd_mul, HeisLift.mul_a, map_add, hf, hP.1, hQ.1,
+            hP.2.2.2],
           by simp only [Prod.fst_mul, Prod.snd_mul, HeisLift.mul_l, map_add, hcomp,
             hP.2.1, hQ.2.1, hP.2.2.2],
           by simp only [Prod.fst_mul, Prod.snd_mul, HeisLift.mul_z, hP.2.2.1,
@@ -1886,7 +1856,7 @@ theorem liftMarking_d0_u (t : Marking C) (x : Fin 4 → V) (hV₂ : ∀ v : V, v
     intro v
     show (t.x₀ * t.τ) • v = v
     rw [mul_smul, htau, hx0]
-  have hx0inv : ∀ v : V, t.x₀⁻¹ • v = v := fun v => by rw [inv_smul_eq_iff]; exact (hx0 v).symm
+  have hx0inv : ∀ v : V, t.x₀⁻¹ • v = v := fun v => inv_smul_eq_iff.mpr (hx0 v).symm
   have hu0g : ∀ v : V, (liftMarking t x).u0.g • v = v := fun v =>
     WordLift.powOmega2_g_smul_of_trivial _ hbase v
   have hd0 : (liftMarking t x).d0 = (liftMarking t x).u0 * (liftMarking t x).x₀⁻¹ := rfl
@@ -2069,7 +2039,7 @@ theorem liftMarking_d0_g_ramified (t : Marking C) (x : Fin 4 → V) (hx0 : ∀ v
 theorem liftMarking_d0_u_ramified (t : Marking C) (x : Fin 4 → V) (hV₂ : ∀ v : V, v + v = 0)
     (hx0 : ∀ v : V, t.x₀ • v = v) (htau : ∀ v : V, t.τ • v = v → v = 0)
     (hTodd : ∀ v : V, powOmega2 t.τ • v = v) : (liftMarking t x).d0.u = x 2 := by
-  have hx0inv : ∀ v : V, t.x₀⁻¹ • v = v := fun v => by rw [inv_smul_eq_iff]; exact (hx0 v).symm
+  have hx0inv : ∀ v : V, t.x₀⁻¹ • v = v := fun v => inv_smul_eq_iff.mpr (hx0 v).symm
   show ((liftMarking t x).u0 * (liftMarking t x).x₀⁻¹).u = x 2
   rw [WordLift.mul_u, liftMarking_u0_u_ramified t x hx0 htau hTodd, WordLift.inv_u]
   show 0 + (liftMarking t x).u0.g • -(t.x₀⁻¹ • x 2) = x 2
@@ -2329,21 +2299,19 @@ theorem heisMarking_sigma2_l_zero (t : Marking C) (c : V) (lam : ElemDual V) :
 
 theorem heisMarking_g0_a_zero (t : Marking C) (c : V) (lam : ElemDual V) :
     (heisMarking t (x0Supported c) (x0Supported lam)).g0.a = 0 := by
-  have h := heisMarking_sigma2_a_zero t c lam
   show ((heisMarking t (x0Supported c) (x0Supported lam)).sigma2 ^ 2).a = 0
-  rw [pow_two, HeisLift.mul_a, h, smul_zero, add_zero]
+  rw [pow_two, HeisLift.mul_a, heisMarking_sigma2_a_zero t c lam, smul_zero, add_zero]
 
 theorem heisMarking_g0_l_zero (t : Marking C) (c : V) (lam : ElemDual V) :
     (heisMarking t (x0Supported c) (x0Supported lam)).g0.l = 0 := by
-  have h := heisMarking_sigma2_l_zero t c lam
   show ((heisMarking t (x0Supported c) (x0Supported lam)).sigma2 ^ 2).l = 0
-  rw [pow_two, HeisLift.mul_l, h, smul_zero, add_zero]
+  rw [pow_two, HeisLift.mul_l, heisMarking_sigma2_l_zero t c lam, smul_zero, add_zero]
 
 theorem heisMarking_g0_z_zero (t : Marking C) (c : V) (lam : ElemDual V) :
     (heisMarking t (x0Supported c) (x0Supported lam)).g0.z = 0 := by
-  have h := heisMarking_sigma2_a_zero t c lam
   show ((heisMarking t (x0Supported c) (x0Supported lam)).sigma2 ^ 2).z = 0
-  rw [pow_two, HeisLift.mul_z, h, smul_zero, map_zero, add_zero, CharTwo.add_self_eq_zero]
+  rw [pow_two, HeisLift.mul_z, heisMarking_sigma2_a_zero t c lam, smul_zero, map_zero, add_zero,
+    CharTwo.add_self_eq_zero]
 
 /-- **`h₀ ↦ λ(c)`** (Lemma 5.14, the `h₀`-shadow central contribution): on the x₀-supported rep the
 central coordinate of the wild `h₀` word is `λ(c)`.  With `g₀` in the base slice, `φ = conj by g₀`
@@ -2354,10 +2322,10 @@ theorem heisMarking_h0_z (t : Marking C) (c : V) (lam : ElemDual V) (hV₂ : ∀
     (hx0 : ∀ v : V, t.x₀ • v = v) (htau : ∀ v : V, t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v) :
     (heisMarking t (x0Supported c) (x0Supported lam)).h0.z = lam c := by
   set M := heisMarking t (x0Supported c) (x0Supported lam) with hM
-  have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := fun l => HeisLift.smul_elemdual_trivial t.x₀ hx0 l
-  have htaud : ∀ l : ElemDual V, t.τ • l = l := fun l => HeisLift.smul_elemdual_trivial t.τ htau l
-  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => by
-    ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]; exact CharTwo.add_self_eq_zero (l v)
+  have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := HeisLift.smul_elemdual_trivial t.x₀ hx0
+  have htaud : ∀ l : ElemDual V, t.τ • l = l := HeisLift.smul_elemdual_trivial t.τ htau
+  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l =>
+    ElemDual.ext fun v => CharTwo.add_self_eq_zero (l v)
   -- leaf coordinates
   have hd0a : M.d0.a = 0 :=
     (heisMarking_d0_a t (x0Supported c) (x0Supported lam)).trans
@@ -2371,9 +2339,12 @@ theorem heisMarking_h0_z (t : Marking C) (c : V) (lam : ElemDual V) (hV₂ : ∀
   have hg0a : M.g0.a = 0 := heisMarking_g0_a_zero t c lam
   have hg0l : M.g0.l = 0 := heisMarking_g0_l_zero t c lam
   have hg0z : M.g0.z = 0 := heisMarking_g0_z_zero t c lam
-  have hg0g : ∀ v : V, M.g0.g • v = v := heisMarking_g0_g_smul t (x0Supported c) (x0Supported lam) hU
-  have hd0g : ∀ v : V, M.d0.g • v = v := heisMarking_d0_g_smul t (x0Supported c) (x0Supported lam) hx0 htau
-  have hdgg : ∀ v : V, M.dg.g • v = v := heisMarking_dg_g_smul t (x0Supported c) (x0Supported lam) hx0 htau
+  have hg0g : ∀ v : V, M.g0.g • v = v :=
+    heisMarking_g0_g_smul t (x0Supported c) (x0Supported lam) hU
+  have hd0g : ∀ v : V, M.d0.g • v = v :=
+    heisMarking_d0_g_smul t (x0Supported c) (x0Supported lam) hx0 htau
+  have hdgg : ∀ v : V, M.dg.g • v = v :=
+    heisMarking_dg_g_smul t (x0Supported c) (x0Supported lam) hx0 htau
   -- derived φ / d₀² / hc coordinates
   have hφx0z : (conjP M.x₀ M.g0).z = 0 :=
     (HeisLift.conjP_z_of_gslice _ _ hg0a hg0l hg0z hg0g).trans hx0z
@@ -2389,7 +2360,7 @@ theorem heisMarking_h0_z (t : Marking C) (c : V) (lam : ElemDual V) (hV₂ : ∀
   have hhca : M.hc.a = 0 := HeisLift.commP_a_of_trivial M.dg M.d0 hdgg hd0g
   have hhcz : M.hc.z = 0 := by
     have h := HeisLift.commP_z_of_trivial M.dg M.d0 hdgg hd0g
-    rw [hd0a, hdga, map_zero, map_zero, add_zero] at h; exact h
+    rwa [hd0a, hdga, map_zero, map_zero, add_zero] at h
   -- base-trivialities of the accumulated products
   have hP1g : ∀ v : V, (conjP M.x₀ M.g0).g • v = v := HeisLift.conjP_g_trivial M.x₀ M.g0 hx0
   have hd02g : ∀ v : V, (M.d0 ^ 2).g • v = v := fun v => by
@@ -2426,10 +2397,10 @@ theorem heisMarking_c0_z (t : Marking C) (c : V) (lam : ElemDual V) (hV₂ : ∀
     (hx0 : ∀ v : V, t.x₀ • v = v) (htau : ∀ v : V, t.τ • v = v) :
     (heisMarking t (x0Supported c) (x0Supported lam)).c0.z = 0 := by
   set M := heisMarking t (x0Supported c) (x0Supported lam) with hM
-  have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := fun l => HeisLift.smul_elemdual_trivial t.x₀ hx0 l
-  have htaud : ∀ l : ElemDual V, t.τ • l = l := fun l => HeisLift.smul_elemdual_trivial t.τ htau l
-  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => by
-    ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]; exact CharTwo.add_self_eq_zero (l v)
+  have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := HeisLift.smul_elemdual_trivial t.x₀ hx0
+  have htaud : ∀ l : ElemDual V, t.τ • l = l := HeisLift.smul_elemdual_trivial t.τ htau
+  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l =>
+    ElemDual.ext fun v => CharTwo.add_self_eq_zero (l v)
   have hd0a : M.d0.a = 0 :=
     (heisMarking_d0_a t (x0Supported c) (x0Supported lam)).trans
       (liftMarking_d0_u t (x0Supported c) hV₂ hx0 htau)
@@ -2439,8 +2410,7 @@ theorem heisMarking_c0_z (t : Marking C) (c : V) (lam : ElemDual V) (hV₂ : ∀
   have hd0g := heisMarking_d0_g_smul t (x0Supported c) (x0Supported lam) hx0 htau
   have hz0g := heisMarking_z0_g_smul t (x0Supported c) (x0Supported lam) hx0
   have h := HeisLift.commP_z_of_trivial M.d0 M.z0 hd0g hz0g
-  rw [hd0l, ElemDual.zero_apply, hd0a, map_zero, add_zero] at h
-  exact h
+  rwa [hd0l, ElemDual.zero_apply, hd0a, map_zero, add_zero] at h
 
 omit [Finite C] [Finite V] in
 /-- `u₁` is a base-slice element on the x₀-rep, so its central coordinate vanishes. -/
@@ -2527,20 +2497,14 @@ theorem elemDual_fixedPointFree_of (t : Marking C)
     (htau : ∀ v : V, t.τ • v = v → v = 0) :
     ∀ lam : ElemDual V, t.τ • lam = lam → lam = 0 := by
   have hsurj : Function.Surjective (fun w : V => t.τ⁻¹ • w - w) :=
-    (Finite.injective_iff_surjective).mp (fun a b hab => by
-      have hab' : t.τ⁻¹ • a - a = t.τ⁻¹ • b - b := hab
-      have hfix : t.τ • (a - b) = (a - b) := by
-        have h2 : t.τ⁻¹ • (a - b) = a - b := by
-          rw [smul_sub, sub_eq_sub_iff_sub_eq_sub]; exact hab'
-        calc t.τ • (a - b) = t.τ • (t.τ⁻¹ • (a - b)) := by rw [h2]
-          _ = a - b := smul_inv_smul t.τ (a - b)
-      exact sub_eq_zero.mp (htau (a - b) hfix))
+    Finite.injective_iff_surjective.mp fun a b hab => by
+      have h2 : t.τ⁻¹ • (a - b) = a - b := by
+        rw [smul_sub, sub_eq_sub_iff_sub_eq_sub]; exact hab
+      exact sub_eq_zero.mp (htau (a - b) (inv_smul_eq_iff.mp h2).symm)
   intro lam hlam
   ext v
   obtain ⟨w, hw⟩ := hsurj v
-  have hlw : lam (t.τ⁻¹ • w) = lam w := by
-    have h := congrFun (congrArg (DFunLike.coe) hlam) w
-    rwa [ElemDual.smul_apply] at h
+  have hlw : lam (t.τ⁻¹ • w) = lam w := DFunLike.congr_fun hlam w
   show lam v = 0
   rw [← hw, map_sub, hlw, sub_self]
 
@@ -2554,12 +2518,12 @@ theorem heisMarking_h0_z_ramified (t : Marking C) (c : V) (lam : ElemDual V)
     (heisMarking t (x0Supported c) (x0Supported lam)).h0.z = lam c := by
   set M := heisMarking t (x0Supported c) (x0Supported lam) with hM
   -- dual-side hypotheses
-  have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := fun l => HeisLift.smul_elemdual_trivial t.x₀ hx0 l
-  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => by
-    ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]; exact CharTwo.add_self_eq_zero (l v)
+  have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := HeisLift.smul_elemdual_trivial t.x₀ hx0
+  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l =>
+    ElemDual.ext fun v => CharTwo.add_self_eq_zero (l v)
   have htaud : ∀ l : ElemDual V, t.τ • l = l → l = 0 := elemDual_fixedPointFree_of t htau
   have hToddd : ∀ l : ElemDual V, powOmega2 t.τ • l = l :=
-    fun l => HeisLift.smul_elemdual_trivial (powOmega2 t.τ) hTodd l
+    HeisLift.smul_elemdual_trivial (powOmega2 t.τ) hTodd
   -- `d₀` coordinates (ramified: `a = c`, `l = lam`, base trivial)
   have hD_a : M.d0.a = c :=
     (heisMarking_d0_a t (x0Supported c) (x0Supported lam)).trans
@@ -2644,12 +2608,12 @@ theorem heisMarking_c0_z_ramified (t : Marking C) (c : V) (lam : ElemDual V)
     (heisMarking t (x0Supported c) (x0Supported lam)).c0.z
       = lam (t.sigma2⁻¹ • c) + lam (t.sigma2 • c) := by
   set M := heisMarking t (x0Supported c) (x0Supported lam) with hM
-  have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := fun l => HeisLift.smul_elemdual_trivial t.x₀ hx0 l
-  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => by
-    ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]; exact CharTwo.add_self_eq_zero (l v)
+  have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := HeisLift.smul_elemdual_trivial t.x₀ hx0
+  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l =>
+    ElemDual.ext fun v => CharTwo.add_self_eq_zero (l v)
   have htaud : ∀ l : ElemDual V, t.τ • l = l → l = 0 := elemDual_fixedPointFree_of t htau
   have hToddd : ∀ l : ElemDual V, powOmega2 t.τ • l = l :=
-    fun l => HeisLift.smul_elemdual_trivial (powOmega2 t.τ) hTodd l
+    HeisLift.smul_elemdual_trivial (powOmega2 t.τ) hTodd
   have hD_a : M.d0.a = c :=
     (heisMarking_d0_a t (x0Supported c) (x0Supported lam)).trans
       (liftMarking_d0_u_ramified t (x0Supported c) hV₂ hx0 htau hTodd)
@@ -2754,13 +2718,9 @@ theorem b1w_split_shape (t : Marking C)
     (y : Fin 4 → V) :
     y ∈ B1w (A := V) t ↔ ∃ v : V, y = ![t.σ • v - v, 0, 0, 0] := by
   simp only [B1w, AddMonoidHom.mem_range]
-  constructor
-  · rintro ⟨v, rfl⟩
-    refine ⟨v, funext fun i => ?_⟩
-    fin_cases i <;> simp only [d0, AddMonoidHom.mk'_apply, htau, hx0, hx1, sub_self]
-  · rintro ⟨v, rfl⟩
-    refine ⟨v, funext fun i => ?_⟩
-    fin_cases i <;> simp only [d0, AddMonoidHom.mk'_apply, htau, hx0, hx1, sub_self]
+  constructor <;> rintro ⟨v, rfl⟩ <;>
+    exact ⟨v, funext fun i => by
+      fin_cases i <;> simp only [d0, AddMonoidHom.mk'_apply, htau, hx0, hx1, sub_self]⟩
 
 omit [Finite C] in
 /-- On classes supported away from the `σ, τ` slots (`x 0 = x 1 = 0`, `y 0 = y 1 = 0`), the tame
@@ -2810,21 +2770,13 @@ theorem lemma_5_13_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   simp only [Prod.fst_zero, Prod.snd_zero]
   constructor
   · rintro ⟨h1, h2⟩
-    have hx1z : x 1 = 0 := by
-      have := congrArg (t.σ • ·) h1
-      rwa [smul_zero, smul_inv_smul] at this
-    refine ⟨hx1z, ?_⟩
-    apply hVS
-    have h3 : t.σ⁻¹ • x 3 = x 3 := by
-      have h2' : x 3 + t.σ⁻¹ • x 3 = 0 := by rw [hx1z] at h2; rwa [zero_add] at h2
-      have : t.σ⁻¹ • x 3 = -x 3 := by rw [eq_neg_iff_add_eq_zero, add_comm]; exact h2'
-      rw [this, neg_eq_of_add_eq_zero_left (hV₂ (x 3))]
-    calc t.σ • x 3 = t.σ • (t.σ⁻¹ • x 3) := by rw [h3]
-      _ = x 3 := smul_inv_smul _ _
+    have hx1z : x 1 = 0 := by rwa [inv_smul_eq_iff, smul_zero] at h1
+    rw [hx1z, zero_add] at h2
+    have h3 : t.σ⁻¹ • x 3 = x 3 :=
+      (add_eq_zero_iff_neg_eq.mp h2).symm.trans (neg_eq_of_add_eq_zero_left (hV₂ (x 3)))
+    exact ⟨hx1z, hVS _ (inv_smul_eq_iff.mp h3).symm⟩
   · rintro ⟨h1, h3⟩
-    rw [h1, h3]
-    refine ⟨smul_zero _, ?_⟩
-    rw [smul_zero]; abel
+    simp [h1, h3]
 
 /-- **Lemma 5.13, ramified case (ii), unique normal form**: if `V^T = 0`, every degree-one
 class has a unique representative supported on `x₀` (display (53)).
@@ -2863,10 +2815,8 @@ theorem lemma_5_13_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     ∀ x ∈ Z1w (A := V) t, ∃! c : V, x - x0Supported c ∈ B1w (A := V) t := by
   -- `T − 1` is injective (`V^T = 0`) hence surjective on the finite space `V`.
   have hTsurj : Function.Surjective (fun w : V => t.τ • w - w) :=
-    (Finite.injective_iff_surjective).mp (fun a b hab => by
-      have hab' : t.τ • a - a = t.τ • b - b := hab
-      exact sub_eq_zero.mp (htau (a - b)
-        (by rw [smul_sub, sub_eq_sub_iff_sub_eq_sub]; exact hab')))
+    Finite.injective_iff_surjective.mp fun a b hab => sub_eq_zero.mp
+      (htau (a - b) (by rw [smul_sub, sub_eq_sub_iff_sub_eq_sub]; exact hab))
   intro x hx
   rw [Z1w, AddMonoidHom.mem_ker] at hx
   -- Wild row `S⁻¹·x₃ = 0` forces `x₃ = 0`.
@@ -2893,9 +2843,7 @@ theorem lemma_5_13_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     rw [d1Fun_tame t ht (x - d0 t v), hc0, hc1] at ht'
     simp only [smul_zero, add_zero, sub_zero] at ht'
     rw [sub_eq_zero] at ht'
-    refine htau (x 0 - (t.σ • v - v)) ?_
-    have h3 := congrArg (fun w => t.σ • w) ht'
-    simpa only [smul_inv_smul] using h3
+    exact htau _ (by simpa only [smul_inv_smul] using congrArg (t.σ • ·) ht')
   have hx0v : x 0 = t.σ • v - v := sub_eq_zero.mp hx'0
   -- Hence `x − x0Supported(x₂) = d⁰v`, and `c = x₂` is the unique witness.
   have hcob : x - x0Supported (x 2) = d0 t v := by

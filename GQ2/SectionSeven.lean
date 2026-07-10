@@ -193,8 +193,7 @@ theorem exists_minimalBlock (hL : L.Normal) (h2 : IsPGroup 2 L)
     have hPstack : IsScalarStack P := by
       refine ⟨n + 1, fun i => if i ≤ n then c i else P, ?_, ?_, ?_, ?_, ?_⟩
       · dsimp only
-        rw [if_pos (Nat.zero_le n)]
-        exact hc0
+        rwa [if_pos (Nat.zero_le n)]
       · dsimp only
         rw [if_neg (by omega : ¬ n + 1 ≤ n)]
       · intro i
@@ -312,8 +311,7 @@ theorem lemma_7_1_head (B : MinimalBlock L) : B.R ≤ B.K ⊓ B.S := by
         ext
         show (f' : Y) * s = (y : Y)
         have hf'' : (f' : Y) = f := hf'val
-        rw [hf'']
-        exact hfs
+        rwa [hf'']
       rw [hmk]
       have hmem := Subgroup.mem_map_of_mem (QuotientGroup.mk' (B.S.subgroupOf B.P)) hf'
       rw [MonoidHom.map_closure] at hmem
@@ -369,8 +367,7 @@ theorem lemma_7_1_head (B : MinimalBlock L) : B.R ≤ B.K ⊓ B.S := by
         induction m with
         | zero => rfl
         | succ m ih =>
-          rw [Subgroup.lowerCentralSeries_succ, ih, ← _root_.commutator_def]
-          exact hcommQ
+          rwa [Subgroup.lowerCentralSeries_succ, ih, ← _root_.commutator_def]
       rw [hall n] at hn
       obtain ⟨q, hq⟩ := exists_ne (1 : ↥B.P ⧸ B.S.subgroupOf B.P)
       exact hq (Subgroup.mem_bot.mp (hn ▸ Subgroup.mem_top q))
@@ -417,6 +414,7 @@ theorem lemma_7_1_radical (B : MinimalBlock L)
       exact le_antisymm (sup_le hKS le_rfl) le_sup_right
     exact B.hSP.ne hPS.symm
   -- chief dichotomy on the `Y`-normal subgroup `X ⊔ S` between `S` and `P`
+  have := B.hS
   have hXSn : (X ⊔ B.S).Normal := Subgroup.sup_normal X B.S
   have hle : X ⊔ B.S ≤ B.P := sup_le (hXK.le.trans B.hKP) B.hSP.le
   rcases B.chief _ hXSn le_sup_right hle with hXS | hXS
@@ -450,6 +448,7 @@ theorem lemma_7_1_dual (B : MinimalBlock L) :
     rw [Subgroup.subgroupOf_self, Subgroup.index_top] at hidx
     exact absurd hidx (by omega)
   -- dichotomy on the `Y`-normal subgroup `X ⊔ S` between `S` and `P`
+  have := B.hS
   have hXSn : (X ⊔ B.S).Normal := Subgroup.sup_normal X B.S
   have hle : X ⊔ B.S ≤ B.P := sup_le (hXK.trans B.hKP) B.hSP.le
   rcases B.chief _ hXSn le_sup_right hle with hXS | hXS
@@ -494,8 +493,7 @@ theorem lemma_7_1_dual (B : MinimalBlock L) :
         intro y p hp
         rw [← B.gen] at hp
         have hp' : p ∈ (B.K : Set Y) * (B.S : Set Y) := by
-          rw [← Subgroup.mul_normal B.K B.S]
-          exact hp
+          rwa [← Subgroup.mul_normal B.K B.S]
         obtain ⟨k, hk, s, hs, rfl⟩ := hp'
         have heq : y * (k * s) * y⁻¹ * (k * s)⁻¹
             = (y * k * y⁻¹ * k⁻¹) * (k * ((y * s * y⁻¹) * s⁻¹) * k⁻¹) := by group
@@ -509,7 +507,6 @@ theorem lemma_7_1_dual (B : MinimalBlock L) :
 
 /-! ## Lemma 7.2 (Frattini–centralizer collapse) and Lemma 7.3 (decorations vanish) -/
 
-set_option maxHeartbeats 1000000 in
 /-- **Lemma 7.2**: for a tame head (the target's head map factors through `GQ2.Ttame`),
 `R = Φ(K)` is central elementary abelian in `K`, and `K⁴ = 1`.  [P-14 statement; proof P-15
 (odd Hall lift + three-subgroup lemma + the `G`-equivariant fourth-power map).] -/
@@ -520,11 +517,11 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
     (∀ r ∈ B.R, ∀ k ∈ B.K, r * k = k * r) ∧ (∀ r ∈ B.R, r * r = 1) ∧
       ∀ k ∈ B.K, k ^ 4 = 1 := by
   classical
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  haveI := B.hK
-  haveI := B.hS
-  haveI := B.hP
-  haveI hRN : (B.R).Normal := frattiniLike_normal B.K B.hK
+  have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have := B.hK
+  have := B.hS
+  have := B.hP
+  have hRN : (B.R).Normal := frattiniLike_normal B.K B.hK
   -- `IsPGroup 2 P` and `IsPGroup 2 S`
   have hP2 : IsPGroup 2 B.P := B.h2L.to_le B.hPL
   have hS2 : IsPGroup 2 B.S := B.h2L.to_le (B.hSP.le.trans B.hPL)
@@ -550,14 +547,13 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
     Subgroup.commutator_eq_bot_iff_le_centralizer.mp hÑR
   -- `D = K ⊓ C_Y(R)` is `Y`-normal
   set D := B.K ⊓ Subgroup.centralizer (B.R : Set Y) with hD
-  haveI hDnormal : D.Normal := by
+  have : D.Normal := by
     refine ⟨fun d hd g => Subgroup.mem_inf.mpr
       ⟨B.hK.conj_mem d (Subgroup.mem_inf.mp hd).1 g, ?_⟩⟩
     rw [Subgroup.mem_centralizer_iff]
     intro r hr
     have hdc := Subgroup.mem_centralizer_iff.mp (Subgroup.mem_inf.mp hd).2
-    have hgr : g⁻¹ * r * g ∈ B.R := by
-      have := hRN.conj_mem r hr g⁻¹; simpa using this
+    have hgr : g⁻¹ * r * g ∈ B.R := by simpa using hRN.conj_mem r hr g⁻¹
     have hcomm := hdc (g⁻¹ * r * g) hgr
     calc r * (g * d * g⁻¹) = g * ((g⁻¹ * r * g) * d) * g⁻¹ := by group
       _ = g * (d * (g⁻¹ * r * g)) * g⁻¹ := by rw [hcomm]
@@ -566,7 +562,7 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
   have hRK : ⁅B.R, B.K⁆ ≤ B.R := Subgroup.commutator_le_left B.R B.K
   have h3 : ⁅⁅B.K, Ñ⁆, B.R⁆ = ⊥ := by
     refine Subgroup.commutator_commutator_eq_bot_of_rotate ?_ ?_
-    · rw [show ⁅Ñ, B.R⁆ = ⊥ from hÑR, Subgroup.commutator_bot_left]
+    · rw [hÑR, Subgroup.commutator_bot_left]
     · exact le_bot_iff.mp (hÑR ▸
         (Subgroup.commutator_mono hRK le_rfl).trans (le_of_eq (Subgroup.commutator_comm B.R Ñ)))
   -- `⁅K, Ñ⁆ ≤ D`
@@ -577,9 +573,9 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
   set K₁ := Subgroup.normalClosure ((⁅B.K, Ñ⁆ : Subgroup Y) : Set Y) with hK₁
   have hCK₁ : ⁅B.K, Ñ⁆ ≤ K₁ := Subgroup.le_normalClosure
   have hK₁D : K₁ ≤ D := Subgroup.normalClosure_le_normal (SetLike.coe_subset_coe.mpr hKÑD)
-  have hK₁K : K₁ ≤ B.K :=
-    Subgroup.normalClosure_le_normal (SetLike.coe_subset_coe.mpr (Subgroup.commutator_le_left B.K Ñ))
-  haveI hK₁N : K₁.Normal := Subgroup.normalClosure_normal
+  have hK₁K : K₁ ≤ B.K := Subgroup.normalClosure_le_normal
+    (SetLike.coe_subset_coe.mpr (Subgroup.commutator_le_left B.K Ñ))
+  have hK₁N : K₁.Normal := Subgroup.normalClosure_normal
   -- `K₁ ⊔ S = P` (the chief dichotomy: `= S` contradicts nontriviality)
   have hK₁gen : K₁ ⊔ B.S = B.P := by
     have hle : K₁ ⊔ B.S ≤ B.P := sup_le (hK₁K.trans B.hKP) B.hSP.le
@@ -603,7 +599,7 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
       have hys : y * s * y⁻¹ * s⁻¹ = 1 := by
         have : y * s * y⁻¹ * s⁻¹ ∈ ⁅Ñ, B.S⁆ :=
           Subgroup.commutator_mem_commutator (Subgroup.mem_zpowers y) hs
-        rw [hÑS, Subgroup.mem_bot] at this; exact this
+        rwa [hÑS, Subgroup.mem_bot] at this
       have hexp : y * (k * s) * y⁻¹ * (k * s)⁻¹
           = (y * k * y⁻¹ * k⁻¹) * (k * (y * s * y⁻¹ * s⁻¹) * k⁻¹) := by group
       rw [hexp, hys]
@@ -673,7 +669,8 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
           group
       _ = (l * k * l⁻¹ * k⁻¹) * (l * k * l⁻¹ * k⁻¹) * (k * k) * ((k * k) * (l * l)) * (l * l) := by
           rw [s3]
-      _ = ((l * k * l⁻¹ * k⁻¹) * (l * k * l⁻¹ * k⁻¹)) * ((k * k) * (k * k)) * ((l * l) * (l * l)) := by
+      _ = ((l * k * l⁻¹ * k⁻¹) * (l * k * l⁻¹ * k⁻¹)) * ((k * k) * (k * k)) *
+            ((l * l) * (l * l)) := by
           group
       _ = 1 * ((k * k) * (k * k)) * ((l * l) * (l * l)) := by rw [hlk2]
       _ = k ^ 4 * l ^ 4 := by rw [one_mul, hp4 k, hp4 l]; group
@@ -693,7 +690,7 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
         inv_mem' := by
           rintro a ⟨haK, ha⟩
           exact ⟨inv_mem haK, by rw [show a⁻¹ ^ 4 = (a ^ 4)⁻¹ by group, ha, inv_one]⟩ }
-    haveI hKfN : Kf.Normal := by
+    have : Kf.Normal := by
       refine ⟨fun a ha g => ⟨B.hK.conj_mem a ha.1 g, ?_⟩⟩
       rw [show (g * a * g⁻¹) ^ 4 = g * a ^ 4 * g⁻¹ by rw [hp4 (g * a * g⁻¹), hp4 a]; group,
         ha.2]; group
@@ -702,8 +699,7 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
       intro k hk n hn
       refine ⟨?_, ?_⟩
       · rw [commutatorElement_def]
-        have : k * (n * k⁻¹ * n⁻¹) ∈ B.K := mul_mem hk (B.hK.conj_mem k⁻¹ (inv_mem hk) n)
-        simpa [mul_assoc] using this
+        simpa [mul_assoc] using mul_mem hk (B.hK.conj_mem k⁻¹ (inv_mem hk) n)
       · rw [commutatorElement_def]
         have hkn : k * n * k⁻¹ * n⁻¹ = k * (n * k⁻¹ * n⁻¹) := by group
         have hnkK : n * k⁻¹ * n⁻¹ ∈ B.K := B.hK.conj_mem k⁻¹ (inv_mem hk) n
@@ -854,17 +850,11 @@ private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.R.Normal)
   -- λ-kit: value at 1, inverses, subtype products
   have hz2 : ∀ x y : ZMod 2, x + y = 0 → y = x := by decide
   have hxx : ∀ x : ZMod 2, x + x = 0 := by decide
-  have lam_one : lam 1 = 0 := by
-    have h := hlam_hom 1 1
-    rw [one_mul] at h
-    have h2 : (0 : ZMod 2) + lam 1 = lam 1 + lam 1 := by rw [zero_add]; exact h
-    exact (add_right_cancel h2).symm
+  have lam_one : lam 1 = 0 := by simpa using hlam_hom 1 1
   have lam_inv : ∀ (a : Y) (ha : a ∈ B.R), lam ⟨a⁻¹, inv_mem ha⟩ = lam ⟨a, ha⟩ := by
     intro a ha
     have h := hlam_hom ⟨a, ha⟩ ⟨a⁻¹, inv_mem ha⟩
-    have e : (⟨a, ha⟩ * ⟨a⁻¹, inv_mem ha⟩ : ↥B.R) = 1 := Subtype.ext (by
-      show a * a⁻¹ = 1
-      group)
+    have e : (⟨a, ha⟩ * ⟨a⁻¹, inv_mem ha⟩ : ↥B.R) = 1 := Subtype.ext (mul_inv_cancel a)
     rw [e, lam_one] at h
     exact hz2 _ _ h.symm
   -- β-additivity in the `K`-slot: `[kk', t] = (k[k', t]k⁻¹)·[k, t]`
@@ -981,9 +971,7 @@ private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.R.Normal)
         = lam ⟨k * ts * k⁻¹ * ts⁻¹, h2⟩ := by
     intro y k hk h1 h2
     -- `[yky⁻¹, ts] = y·[k, y⁻¹ts y]·y⁻¹`
-    have hin : y⁻¹ * ts * y ∈ B.K := by
-      have := B.hK.conj_mem ts htsK y⁻¹
-      simpa using this
+    have hin : y⁻¹ * ts * y ∈ B.K := by simpa using B.hK.conj_mem ts htsK y⁻¹
     have hmemc : k * (y⁻¹ * ts * y) * k⁻¹ * (y⁻¹ * ts * y)⁻¹ ∈ B.R := comm_mem_R B hk hin
     have e1 : (⟨y * k * y⁻¹ * ts * (y * k * y⁻¹)⁻¹ * ts⁻¹, h1⟩ : ↥B.R)
         = ⟨y * (k * (y⁻¹ * ts * y) * k⁻¹ * (y⁻¹ * ts * y)⁻¹) * y⁻¹,
@@ -1129,12 +1117,8 @@ private theorem invariant_hom_absurd (B : MinimalBlock L)
     (hψinv : ∀ (y k : Y), k ∈ B.K → ψ (y * k * y⁻¹) = ψ k)
     (t₀ : Y) (ht₀K : t₀ ∈ B.K) (ht₀ : ψ t₀ ≠ 0) : False := by
   classical
-  haveI := B.hK
-  have hψ1 : ψ 1 = 0 := by
-    have h := hψhom 1 (one_mem _) 1 (one_mem _)
-    rw [mul_one] at h
-    have : (0 : ZMod 2) + ψ 1 = ψ 1 + ψ 1 := by rw [zero_add]; exact h
-    exact (add_right_cancel this).symm
+  have := B.hK
+  have hψ1 : ψ 1 = 0 := by simpa using hψhom 1 (one_mem _) 1 (one_mem _)
   have hz2 : ∀ x y : ZMod 2, x + y = 0 → y = x := by decide
   have hψinvK : ∀ k, k ∈ B.K → ψ k⁻¹ = ψ k := by
     intro k hk
@@ -1223,8 +1207,8 @@ private theorem odd_average (B : MinimalBlock L) (A : Subgroup Y)
       (∀ (y k : Y), k ∈ B.K → ψ (y * k * y⁻¹) = ψ k) ∧
       (∀ k, k ∈ B.K ⊓ B.S → ψ k = σ₀ k) := by
   classical
-  haveI := B.hK
-  haveI := B.hS
+  have := B.hK
+  have := B.hS
   haveI : Fintype ↥A := Fintype.ofFinite _
   set ψ : Y → ZMod 2 := fun k => ∑ a : A, σ₀ ((a : Y)⁻¹ * k * (a : Y)) with hψdef
   have hreindex : ∀ (c : A) (f : A → ZMod 2), (∑ a : A, f (c * a)) = ∑ a : A, f a :=
@@ -1235,10 +1219,8 @@ private theorem odd_average (B : MinimalBlock L) (A : Subgroup Y)
     simp only
     rw [← Finset.sum_add_distrib]
     refine Finset.sum_congr rfl (fun a _ => ?_)
-    have hka : (a : Y)⁻¹ * k * (a : Y) ∈ B.K := by
-      have := B.hK.conj_mem k hk (a : Y)⁻¹; simpa using this
-    have hla : (a : Y)⁻¹ * l * (a : Y) ∈ B.K := by
-      have := B.hK.conj_mem l hl (a : Y)⁻¹; simpa using this
+    have hka : (a : Y)⁻¹ * k * (a : Y) ∈ B.K := by simpa using B.hK.conj_mem k hk (a : Y)⁻¹
+    have hla : (a : Y)⁻¹ * l * (a : Y) ∈ B.K := by simpa using B.hK.conj_mem l hl (a : Y)⁻¹
     have e : (a : Y)⁻¹ * (k * l) * (a : Y)
         = ((a : Y)⁻¹ * k * (a : Y)) * ((a : Y)⁻¹ * l * (a : Y)) := by group
     rw [e, hσ₀hom _ hka _ hla]
@@ -1246,10 +1228,8 @@ private theorem odd_average (B : MinimalBlock L) (A : Subgroup Y)
     intro k hk
     rw [hψdef]
     simp only
-    have hconst : ∀ a : A, σ₀ ((a : Y)⁻¹ * k * (a : Y)) = σ₀ k := by
-      intro a
-      have := hσ₀inv k hk (a : Y)⁻¹
-      simpa using this
+    have hconst : ∀ a : A, σ₀ ((a : Y)⁻¹ * k * (a : Y)) = σ₀ k := fun a => by
+      simpa using hσ₀inv k hk (a : Y)⁻¹
     rw [Finset.sum_congr rfl (fun a _ => hconst a), Finset.sum_const, Finset.card_univ,
       ← Nat.card_eq_fintype_card, nsmul_eq_mul]
     obtain ⟨m, hm⟩ := hAodd
@@ -1378,12 +1358,7 @@ private theorem sigma0_extends (B : MinimalBlock L) (σ : Y → ZMod 2)
     { toFun := fun x => Multiplicative.ofAdd (σ ↑x)
       map_one' := by
         show Multiplicative.ofAdd (σ (1 : ↥KS)) = 1
-        have : σ ((1 : ↥KS) : Y) = 0 := by
-          have h := hσhom 1 (one_mem _) 1 (one_mem _)
-          rw [mul_one] at h
-          have h2 : (0 : ZMod 2) + σ 1 = σ 1 + σ 1 := by rw [zero_add]; exact h
-          have := (add_right_cancel h2).symm
-          simpa using this
+        have : σ ((1 : ↥KS) : Y) = 0 := by simpa using hσhom 1 (one_mem _) 1 (one_mem _)
         rw [this]; rfl
       map_mul' := fun a b => by
         show Multiplicative.ofAdd (σ ↑(a * b)) = Multiplicative.ofAdd (σ ↑a) * Multiplicative.ofAdd (σ ↑b)
@@ -1960,10 +1935,7 @@ private theorem dual_vanish_concrete (S K Ctil YV : Subgroup Y)
       map_one' := by
         show Multiplicative.ofAdd (φ ((1 : ↥K) : Y)) = 1
         rw [show ((1 : ↥K) : Y) = 1 from rfl]
-        have hz : φ (1 : Y) = 0 := by
-          have h := hφhom 1 (one_mem _) 1 (one_mem _); rw [mul_one] at h
-          have h2 : φ (1 : Y) + (0 : ZMod 2) = φ (1 : Y) + φ (1 : Y) := by rw [add_zero]; exact h
-          exact (add_left_cancel h2).symm
+        have hz : φ (1 : Y) = 0 := by simpa using hφhom 1 (one_mem _) 1 (one_mem _)
         rw [hz]; rfl
       map_mul' := fun x y => by
         show Multiplicative.ofAdd (φ ((x * y : ↥K) : Y)) = _
@@ -2021,8 +1993,7 @@ private theorem dual_vanish_concrete (S K Ctil YV : Subgroup Y)
     show Additive.ofMul (QuotientGroup.mk k) = 0
     rw [show (0 : V) = Additive.ofMul (1 : ↥K ⧸ (S.subgroupOf K)) from rfl]
     apply congrArg Additive.ofMul
-    rw [QuotientGroup.eq_one_iff, Subgroup.mem_subgroupOf]
-    exact hk0
+    rwa [QuotientGroup.eq_one_iff, Subgroup.mem_subgroupOf]
   -- conclude
   intro k hk
   have := avg_dual_zero act hactmul hodd' hfixV φbar hφ (qv ⟨k, hk⟩)
@@ -2369,8 +2340,7 @@ private theorem hv_average_helper {H : Type} [Group H] [TopologicalSpace H] [Dis
       SectionThree.gen_ttame_quotient cH.toMonoidHom cH.continuous_toFun hcH
     have hrel : (cH tameSigma)⁻¹ * cH tameTau * cH tameSigma = (cH tameTau) ^ 2 := by
       have h := congrArg cH tame_relation
-      simp only [conjP, map_mul, map_inv, map_pow] at h
-      exact h
+      simpa only [conjP, map_mul, map_inv, map_pow] using h
     have hIH_normal : (Subgroup.zpowers (cH tameTau)).Normal :=
       Tame.zpowers_normal_of_tame hgen hrel
     have hIH_odd : Odd (orderOf (cH tameTau)) := Tame.tame_odd_order (orderOf_pos _).ne' hrel
@@ -2454,11 +2424,7 @@ private theorem key_extension {H : Type} [Group H] [TopologicalSpace H] [Discret
   haveI := B.hS
   obtain ⟨hcentral, hr2, _hK4⟩ := lemma_7_2 π hπ hkerπ cH hcH B
   have hcomm_kill := lam_comm_vanish B hRN lam hlam_hom hlam_conj
-  have lam_one : lam 1 = 0 := by
-    have h := hlam_hom 1 1
-    rw [one_mul] at h
-    have h2 : (0 : ZMod 2) + lam 1 = lam 1 + lam 1 := by rw [zero_add]; exact h
-    exact (add_right_cancel h2).symm
+  have lam_one : lam 1 = 0 := by simpa using hlam_hom 1 1
   have hsq : ∀ k, k ∈ B.K → k * k ∈ B.R := fun k hk =>
     Subgroup.subset_closure (Or.inl ⟨k, hk, rfl⟩)
   set σ : Y → ZMod 2 := fun y => if h : y * y ∈ B.R then lam ⟨y * y, h⟩ else 0 with hσdef
@@ -2641,11 +2607,7 @@ theorem prop_7_4 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] 
   · -- nonzero
     intro h0
     have h0v : ∀ v, lam ⟨w v * w v, hsq (w v) (hwK v)⟩ = 0 := fun v => congrFun h0 v
-    have lam_one : lam 1 = 0 := by
-      have h := hlam_hom 1 1
-      rw [one_mul] at h
-      have h2 : (0 : ZMod 2) + lam 1 = lam 1 + lam 1 := by rw [zero_add]; exact h
-      exact (add_right_cancel h2).symm
+    have lam_one : lam 1 = 0 := by simpa using hlam_hom 1 1
     -- squares vanish under λ
     have hsqv : ∀ (k : Y) (hk : k ∈ B.K), lam ⟨k * k, hsq k hk⟩ = 0 := by
       intro k hk

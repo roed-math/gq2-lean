@@ -40,25 +40,9 @@ variable (k : IntermediateField ℚ_[2] ℚ̄₂)
 out of `(↥k)ˣ` (which is all of `k ∖ {0}`) by the spectral norm. -/
 def normUnits : Subgroup (↥k)ˣ where
   carrier := {u | ‖((u : ↥k) : ℚ̄₂)‖ = 1}
-  one_mem' := by
-    show ‖(((1 : (↥k)ˣ) : ↥k) : ℚ̄₂)‖ = 1
-    rw [Units.val_one]
-    push_cast
-    exact norm_one
-  mul_mem' := by
-    intro u v hu hv
-    show ‖(((u * v : (↥k)ˣ) : ↥k) : ℚ̄₂)‖ = 1
-    rw [Units.val_mul]
-    push_cast
-    rw [norm_mul, hu, hv, mul_one]
-  inv_mem' := by
-    intro u hu
-    have hu' : ‖((u : ↥k) : ℚ̄₂)‖ = 1 := hu
-    have h1 : ((u⁻¹ : (↥k)ˣ) : ↥k) = ((u : ↥k))⁻¹ := Units.val_inv_eq_inv_val u
-    show ‖(((u⁻¹ : (↥k)ˣ) : ↥k) : ℚ̄₂)‖ = 1
-    rw [h1]
-    push_cast
-    rw [norm_inv, hu', inv_one]
+  one_mem' := by simp
+  mul_mem' := by intro u v hu hv; simp_all [norm_mul]
+  inv_mem' := by intro u hu; simp_all [norm_inv]
 
 /-- Membership in `normUnits` unfolded. -/
 theorem mem_normUnits (u : (↥k)ˣ) :
@@ -71,17 +55,7 @@ norm-one units with `‖u − 1‖ ≤ ‖π‖^i`.  (At `i = 0` this is all of 
 `depthUnits_zero`; no hypothesis on `π` is needed for the subgroup property.) -/
 def depthUnits (i : ℕ) : Subgroup (↥k)ˣ where
   carrier := {u | ‖((u : ↥k) : ℚ̄₂)‖ = 1 ∧ ‖((u : ↥k) : ℚ̄₂) - 1‖ ≤ ‖π‖ ^ i}
-  one_mem' := by
-    constructor
-    · show ‖(((1 : (↥k)ˣ) : ↥k) : ℚ̄₂)‖ = 1
-      rw [Units.val_one]
-      push_cast
-      exact norm_one
-    · show ‖(((1 : (↥k)ˣ) : ↥k) : ℚ̄₂) - 1‖ ≤ ‖π‖ ^ i
-      rw [Units.val_one]
-      push_cast
-      rw [sub_self, norm_zero]
-      positivity
+  one_mem' := by simp
   mul_mem' := by
     intro u v hu hv
     have hcast : (((u * v : (↥k)ˣ) : ↥k) : ℚ̄₂)
