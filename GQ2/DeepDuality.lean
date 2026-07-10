@@ -102,8 +102,7 @@ theorem stabQuotHom_mk (S : AddSubgroup M) (hS : ∀ (c : C), ∀ x ∈ S, c •
     refine QuotientAddGroup.induction_on x (fun a => ?_)
     show stabQuotHom S hS (c * d) (QuotientAddGroup.mk a)
       = stabQuotHom S hS c (stabQuotHom S hS d (QuotientAddGroup.mk a))
-    simp only [stabQuotHom_mk]
-    rw [mul_smul]
+    simp only [stabQuotHom_mk, mul_smul]
   smul_zero c := map_zero _
   smul_add c x y := map_add _ x y
 
@@ -291,8 +290,7 @@ theorem card_equivHoms_congr_source (e : A ≃+ B) (he : ∀ (c : C) (a : A), e 
   · intro f g h
     apply Subtype.ext
     ext b
-    have := DFunLike.congr_fun (Subtype.ext_iff.mp h) (e.symm b)
-    simpa [e.apply_symm_apply] using this
+    simpa [e.apply_symm_apply] using DFunLike.congr_fun (Subtype.ext_iff.mp h) (e.symm b)
   · intro g
     refine ⟨⟨g.1.comp e.symm.toAddMonoidHom, fun c b => by
       show g.1 (e.symm (c • b)) = c • g.1 (e.symm b)
@@ -570,8 +568,7 @@ theorem exists_retraction_of_mono [Finite C] [Finite U] [Finite W]
     ext φ
     show (evalDualEquiv h2W (f u)) (σ φ) = (evalDualEquiv h2U u) φ
     show (σ φ) (f u) = φ u
-    have := DFunLike.congr_fun (hσ φ) u
-    exact this
+    exact DFunLike.congr_fun (hσ φ) u
 
 end SplitOff
 
@@ -644,8 +641,7 @@ theorem card_equivHoms_comm_aux [Finite U]
             refine (hsimple g.1.range hrangestab).resolve_left (fun hbot => hg1 ?_)
             ext w
             have : g.1 w ∈ g.1.range := ⟨w, rfl⟩
-            rw [hbot, AddSubgroup.mem_bot] at this
-            exact this
+            rwa [hbot, AddSubgroup.mem_bot] at this
           have hsurj : Function.Surjective ⇑g.1 := by
             intro u
             have : u ∈ g.1.range := hrange ▸ AddSubgroup.mem_top u
@@ -781,8 +777,7 @@ noncomputable def perpEquivDualQuot (B : M →+ M →+ ZMod 2) [Finite M]
     obtain ⟨x, hx⟩ := hBbij.2 (f.comp (QuotientAddGroup.mk' S))
     have hxperp : x ∈ pairPerp B S := by
       intro s hs
-      have := DFunLike.congr_fun hx s
-      rw [this]
+      rw [DFunLike.congr_fun hx s]
       show f (QuotientAddGroup.mk' S s) = 0
       rw [show QuotientAddGroup.mk' S s = 0 from (QuotientAddGroup.eq_zero_iff s).mpr hs,
         map_zero]
@@ -968,16 +963,12 @@ theorem card_equivHoms_deep_eq_quot
     intro d ξ
     refine QuotientAddGroup.induction_on ξ (fun x => ?_)
     show stabQuotHom D' hD'stab (d * t₀ * d⁻¹) (QuotientAddGroup.mk x) = QuotientAddGroup.mk x
-    rw [stabQuotHom_mk]
-    rw [QuotientAddGroup.eq]
-    have hxE : (x : M) ∈ E := hsharp x.2
-    have hmem : (d * t₀ * d⁻¹) • (x : M) - (x : M) ∈ Deep := hmid d (x : M) hxE
-    have : -((d * t₀ * d⁻¹) • x) + x ∈ D' := by
-      rw [AddSubgroup.mem_addSubgroupOf]
-      show -((d * t₀ * d⁻¹) • (x : M)) + (x : M) ∈ Deep
-      have := Deep.neg_mem hmem
-      rwa [neg_sub, sub_eq_neg_add] at this
-    exact this
+    rw [stabQuotHom_mk, QuotientAddGroup.eq]
+    have hmem : (d * t₀ * d⁻¹) • (x : M) - (x : M) ∈ Deep := hmid d (x : M) (hsharp x.2)
+    rw [AddSubgroup.mem_addSubgroupOf]
+    show -((d * t₀ * d⁻¹) • (x : M)) + (x : M) ∈ Deep
+    have := Deep.neg_mem hmem
+    rwa [neg_sub, sub_eq_neg_add] at this
   -- assemble
   rw [h1, h2, h3, h4, h5, h6, h7, mul_one]
 
@@ -1376,9 +1367,7 @@ theorem exists_dualModule_smul_ne (h2V : ∀ v : V, v + v = 0) (t₀ : C)
     -- (t₀ • ψ) w = ψ (t₀⁻¹ • w)
     rw [map_sub, show ψ (t₀⁻¹ • w) = ψ w from this, sub_self]
   apply hv
-  have := hfix (t₀ • v)
-  rw [inv_smul_smul] at this
-  exact this.symm
+  exact (inv_smul_smul t₀ v ▸ hfix (t₀ • v)).symm
 
 end SelfDual
 

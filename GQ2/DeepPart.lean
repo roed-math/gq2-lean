@@ -1,7 +1,7 @@
 import GQ2.EulerCharacteristic
 import GQ2.GaussCount
-import GQ2.TateDuality
 import GQ2.RepIndependence
+import GQ2.TateDuality
 
 /-!
 # Deep part and the §6 headline (Prop 6.18) — ticket P-15f
@@ -76,7 +76,7 @@ theorem gaussSum_eq_card_of_lagrangian [Fintype V] (q : V → ZMod 2) (hq : IsQu
     split_ifs with hv
     · rw [Finset.sum_congr rfl (fun x _ => by rw [hv x, sign_zero]), Finset.sum_const,
         Finset.card_univ, nsmul_eq_mul, mul_one]
-    · push_neg at hv
+    · push Not at hv
       obtain ⟨x₀, hx₀⟩ := hv
       exact charSum_eq_zero
         (AddMonoidHom.mk' (fun x : ↥X => polar q v ↑x)
@@ -115,10 +115,9 @@ theorem gaussSum_eq_card_of_lagrangian [Fintype V] (q : V → ZMod 2) (hq : IsQu
     rw [hstep]; exact hsum
   -- cancel #X > 0
   have hcpos : 0 < Fintype.card ↥X := Fintype.card_pos_iff.mpr ⟨⟨0, X.zero_mem⟩⟩
-  have hcne : (Fintype.card ↥X : ℤ) ≠ 0 := by exact_mod_cast hcpos.ne'
-  have hg : gaussSum q = (Fintype.card ↥X : ℤ) :=
-    mul_left_cancel₀ hcne (hA.symm.trans hB)
-  rw [Nat.card_eq_fintype_card]; exact hg
+  have hcne : (Fintype.card ↥X : ℤ) ≠ 0 := mod_cast hcpos.ne'
+  rw [Nat.card_eq_fintype_card]
+  exact mul_left_cancel₀ hcne (hA.symm.trans hB)
 
 /-- **A Lagrangian forces Arf 0** (positive Gauss sign).  Given a totally singular,
 self-perpendicular `X ≤ V` (a "Lagrangian" for the nonsingular `q`), `arf q = 0`.  This is the
@@ -205,7 +204,7 @@ theorem selfperp_of_card_sq [Finite V] (q : V → ZMod 2) (hq : IsQuadraticFp2 q
   intro v hv
   obtain ⟨x, hx⟩ := hbij.surjective ⟨v, hv⟩
   have hxv : (↑x : V) = v := congrArg Subtype.val hx
-  rw [← hxv]; exact x.2
+  exact hxv ▸ x.2
 
 /-- **A half-dimensional totally singular subspace forces Arf 0** (the ramified Prop 6.18 input).
 Combines `selfperp_of_card_sq` (self-⊥ from `#X² = #V`) with `arf_zero_of_lagrangian`. -/
@@ -246,8 +245,7 @@ theorem addHom_restrict_surjective {A : Type*} [AddCommGroup A] [Finite A]
     refine ⟨fun f => QuotientAddGroup.lift X f.1 (fun x hx => ?_),
       fun g => ⟨g.comp (QuotientAddGroup.mk' X), ?_⟩, fun f => ?_, fun g => ?_⟩
     · rw [AddMonoidHom.mem_ker]
-      have := DFunLike.congr_fun f.2 (⟨x, hx⟩ : ↥X)
-      exact this
+      exact DFunLike.congr_fun f.2 (⟨x, hx⟩ : ↥X)
     · have hg : ∀ x ∈ X, g.comp (QuotientAddGroup.mk' X) x = 0 := by
         intro x hx
         show g (QuotientAddGroup.mk' X x) = 0
@@ -279,9 +277,7 @@ theorem addHom_restrict_surjective {A : Type*} [AddCommGroup A] [Finite A]
     have e1 : Nat.card ↥res.range * Nat.card (A ⧸ X) = Nat.card A := by
       rw [← hkercard, hrn]
       exact card_addHom_zmod2 A h2
-    have e2 : Nat.card ↥X * Nat.card (A ⧸ X) = Nat.card A := by
-      rw [mul_comm]
-      exact hlag
+    have e2 : Nat.card ↥X * Nat.card (A ⧸ X) = Nat.card A := (mul_comm _ _).trans hlag
     have hQpos : 0 < Nat.card (A ⧸ X) := Nat.card_pos
     rw [card_addHom_zmod2 ↥X h2X]
     exact Nat.eq_of_mul_eq_mul_right hQpos (e1.trans e2.symm)
@@ -290,9 +286,7 @@ theorem addHom_restrict_surjective {A : Type*} [AddCommGroup A] [Finite A]
     apply AddSubgroup.eq_top_of_card_eq
     rw [hrange]
   intro g
-  have : g ∈ res.range := htop ▸ AddSubgroup.mem_top g
-  obtain ⟨f, hf⟩ := this
-  exact ⟨f, hf⟩
+  exact (htop ▸ AddSubgroup.mem_top g : g ∈ res.range)
 
 /-- **Perp membership from a Lagrangian count**: for a biadditive nondegenerate `𝔽₂`-pairing
 and a subgroup `X` with `#X² = #A` on which the pairing vanishes, anything pairing trivially
@@ -361,8 +355,7 @@ theorem mem_of_pairing_eq_zero {A : Type*} [AddCommGroup A] [Finite A]
     rw [AddMonoidHom.mem_ker]
     ext y
     exact hall ↑y y.2
-  have : c ∈ (X : Set A) := hkereq ▸ hcmem
-  exact this
+  exact (hkereq ▸ hcmem : c ∈ (X : Set A))
 
 /-- The equivariant-lift correction kills `0`: `m_c(0) = 0` (from (59) at `v = w = 0`). -/
 theorem _root_.GQ2.IsEquivariantFactorSet.m_zero {C : Type*} [Group C] [DistribMulAction C V]
@@ -370,11 +363,7 @@ theorem _root_.GQ2.IsEquivariantFactorSet.m_zero {C : Type*} [Group C] [DistribM
     (c : C) : dat.m c 0 = 0 := by
   have h := hdat.m_quad c 0 0
   rw [add_zero, smul_zero, hdat.f_zero_left, add_zero] at h
-  -- h : m c 0 + m c 0 + m c 0 = 0
-  have h2 : dat.m c 0 + dat.m c 0 = 0 := CharTwo.add_self_eq_zero _
-  calc dat.m c 0 = dat.m c 0 + (dat.m c 0 + dat.m c 0) := by rw [h2, add_zero]
-    _ = dat.m c 0 + dat.m c 0 + dat.m c 0 := by ring
-    _ = 0 := h
+  linear_combination h - CharTwo.add_self_eq_zero (dat.m c 0)
 
 end GQ2.QuadraticFp2
 
@@ -399,11 +388,10 @@ theorem card_H0_eq_one_iff :
   rw [Nat.card_eq_one_iff_unique]
   constructor
   · rintro ⟨hsub, _⟩ m hm
-    have : (⟨m, hm⟩ : H0 AbsGalQ2 M) = ⟨0, fun g => smul_zero g⟩ := Subsingleton.elim _ _
-    exact Subtype.ext_iff.mp this
+    exact Subtype.ext_iff.mp (Subsingleton.elim (⟨m, hm⟩ : H0 AbsGalQ2 M) ⟨0, smul_zero⟩)
   · intro h
-    refine ⟨⟨fun a b => Subtype.ext ?_⟩, ⟨0, fun g => smul_zero g⟩⟩
-    rw [h a.1 (fun g => a.2 g), h b.1 (fun g => b.2 g)]
+    refine ⟨⟨fun a b => Subtype.ext ?_⟩, ⟨0, smul_zero⟩⟩
+    rw [h a.1 a.2, h b.1 b.2]
 
 omit [TopologicalSpace M] [DiscreteTopology M] [ContinuousSMul AbsGalQ2 M] [Finite M] in
 /-- **`H⁰`-vanishing** (§6.3 step 2, `V^{G_ℚ₂} = 0`): if the `G_ℚ₂`-action on `M` factors
@@ -492,24 +480,14 @@ theorem muTwo_eq_zero_or_gen (x : MuN 2) : x = 0 ∨ x = muTwoGen := by
     rwa [Units.val_pow_eq_pow_val, Units.val_one, pow_two] at hval'
   rcases mul_self_eq_one_iff.mp hval with h1 | hneg
   · left
-    have hu1 : u = 1 := by
-      apply Subtype.ext
-      apply Units.ext
-      simp only [OneMemClass.coe_one, Units.val_one]
-      exact h1
-    calc x = Additive.ofMul (Additive.toMul x) := rfl
-      _ = Additive.ofMul u := by rw [← hu]
-      _ = Additive.ofMul 1 := by rw [hu1]
-      _ = 0 := rfl
+    have hu1 : u = 1 := Subtype.ext (Units.ext h1)
+    rw [← ofMul_toMul x, ← hu, hu1]
+    rfl
   · right
-    have hu1 : u = ⟨(-1 : (AlgebraicClosure ℚ_[2])ˣ), (mem_rootsOfUnity 2 _).mpr neg_one_sq⟩ := by
-      apply Subtype.ext
-      apply Units.ext
-      rw [Units.val_neg, Units.val_one]
-      exact hneg
-    calc x = Additive.ofMul (Additive.toMul x) := rfl
-      _ = Additive.ofMul u := by rw [← hu]
-      _ = muTwoGen := by rw [hu1]; rfl
+    have hu1 : u = ⟨(-1 : (AlgebraicClosure ℚ_[2])ˣ), (mem_rootsOfUnity 2 _).mpr neg_one_sq⟩ :=
+      Subtype.ext (Units.ext (by rw [Units.val_neg, Units.val_one]; exact hneg))
+    rw [← ofMul_toMul x, ← hu, hu1]
+    rfl
 
 /-- The hom `ℤ/2 →+ μ₂`, `1 ↦ −1`. -/
 noncomputable def zmodTwoToMuTwo : ZMod 2 →+ MuN 2 :=
@@ -519,8 +497,6 @@ noncomputable def zmodTwoToMuTwo : ZMod 2 →+ MuN 2 :=
     exact nsmul_muN_eq_zero 2 muTwoGen⟩
 
 theorem zmodTwoToMuTwo_one : zmodTwoToMuTwo 1 = muTwoGen := by
-  have h : ((1 : ℤ) : ZMod 2) = 1 := by norm_num
-  rw [← h]
   show ZMod.lift 2 _ ((1 : ℤ) : ZMod 2) = muTwoGen
   rw [ZMod.lift_coe]
   exact one_zsmul muTwoGen
@@ -546,10 +522,7 @@ theorem muTwo_smul_trivial (g : AbsGalQ2) (x : MuN 2) : g • x = x := by
   rcases muTwo_eq_zero_or_gen x with rfl | rfl
   · exact smul_zero g
   · rcases muTwo_eq_zero_or_gen (g • muTwoGen) with h | h
-    · exfalso
-      have h0 : g⁻¹ • (g • muTwoGen) = g⁻¹ • (0 : MuN 2) := by rw [h]
-      rw [inv_smul_smul, smul_zero] at h0
-      exact muTwoGen_ne_zero h0
+    · exact absurd ((smul_eq_zero_iff_eq g).mp h) muTwoGen_ne_zero
     · exact h
 
 end MuTwo
@@ -608,11 +581,8 @@ theorem exists_polarSelfDual (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
     have h0 : ε (polar q w v) = 0 := by
       have := DFunLike.congr_fun hv w
       rwa [MuDual.zero_apply] at this
-    have hp0 : polar q w v = 0 := by
-      apply ε.injective
-      rw [h0, map_zero]
-    rw [polar_comm] at hp0
-    exact hw hp0
+    have hp0 : polar q w v = 0 := ε.injective (by rw [h0, map_zero])
+    exact hw (polar_comm q w v ▸ hp0)
   -- cardinality: `#Hom(V, μ₂) = #Hom(V, ℤ/2) = #V`
   have hcards : Nat.card (MuDual 2 V) = Nat.card V := by
     have h1 : Nat.card (MuDual 2 V) = Nat.card (V →+ ZMod 2) := by
@@ -661,7 +631,7 @@ theorem card_H2_eq_one_of_card_H0_eq_one (D : TateDuality 2)
     (hfin : Finite (H2 AbsGalQ2 V))
     (hH0 : Nat.card (H0 AbsGalQ2 V) = 1) :
     Nat.card (H2 AbsGalQ2 V) = 1 := by
-  have htor : ∀ x : V, (2 : ℕ) • x = 0 := fun x => by rw [two_nsmul]; exact h2 x
+  have htor : ∀ x : V, (2 : ℕ) • x = 0 := fun x => (two_nsmul x).trans (h2 x)
   obtain ⟨e, he⟩ := exists_polarSelfDual V q hq hns h2 hqG
   have hd : Nat.card (H0 AbsGalQ2 (MuDual 2 V)) = Nat.card (H0 AbsGalQ2 V) :=
     card_H0_congr e he
@@ -678,8 +648,8 @@ theorem card_H2_eq_one_of_card_H0_eq_one (D : TateDuality 2)
 theorem card_eq_two_pow_of_exp_two {A : Type*} [AddCommGroup A] [Finite A]
     (h2 : ∀ a : A, a + a = 0) : ∃ k : ℕ, Nat.card A = 2 ^ k := by
   haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  letI : Module (ZMod 2) A := AddCommGroup.zmodModule (n := 2)
-    (by intro x; rw [two_nsmul, h2 x])
+  letI : Module (ZMod 2) A :=
+    AddCommGroup.zmodModule (n := 2) fun x => (two_nsmul x).trans (h2 x)
   letI : Fintype A := Fintype.ofFinite A
   refine ⟨Module.finrank (ZMod 2) A, ?_⟩
   rw [Nat.card_eq_fintype_card, Module.card_eq_pow_finrank (K := ZMod 2) (V := A), ZMod.card]
@@ -869,18 +839,11 @@ theorem isQuadraticFp2_Q0loc (D : TateDuality 2) (q : V → ZMod 2) (hq : IsQuad
 /-- SectionSix's `𝔽₂ → μ₂` bridge is (definitionally) the `DeepPart` one. -/
 theorem muTwoOfF2_eq : SectionSix.muTwoOfF2 = zmodTwoToMuTwo := rfl
 
-theorem zmodTwoToMuTwo_injective : Function.Injective zmodTwoToMuTwo := by
-  rw [injective_iff_map_eq_zero]
-  intro a ha
-  have hcases : ∀ z : ZMod 2, z = 0 ∨ z = 1 := by decide
-  rcases hcases a with rfl | rfl
-  · rfl
-  · rw [zmodTwoToMuTwo_one] at ha
-    exact absurd ha muTwoGen_ne_zero
+theorem zmodTwoToMuTwo_injective : Function.Injective zmodTwoToMuTwo :=
+  zmodTwoEquivMuTwo.injective
 
-theorem muTwoOfF2_injective : Function.Injective SectionSix.muTwoOfF2 := by
-  rw [muTwoOfF2_eq]
-  exact zmodTwoToMuTwo_injective
+theorem muTwoOfF2_injective : Function.Injective SectionSix.muTwoOfF2 :=
+  zmodTwoToMuTwo_injective
 
 /-- The `μ₂`-valued polar self-duality `v ↦ (w ↦ bridge(B(v,w)))` — definitionally
 `postPairing` of the polar pairing with the bridge, viewed into the `μ₂`-dual. -/
@@ -991,7 +954,7 @@ theorem nonsingular_Q0loc (D : TateDuality 2) (q : V → ZMod 2) (hq : IsQuadrat
     (hqG : ∀ (g : AbsGalQ2) (v : V), q (g • v) = q v) :
     Nonsingular (Q0loc D dat ρ (V := V)) := by
   intro x hx
-  have htor : ∀ v : V, (2 : ℕ) • v = 0 := fun v => by rw [two_nsmul]; exact h2 v
+  have htor : ∀ v : V, (2 : ℕ) • v = 0 := fun v => (two_nsmul v).trans (h2 v)
   have hbij := polarMuDual_bijective q hq hns h2
   have hxne : mapCoeff1 (polarMuDual q hq) continuous_of_discreteTopology
       (polarMuDual_equivariant q hq hqG) x ≠ 0 := by
@@ -1009,8 +972,7 @@ theorem nonsingular_Q0loc (D : TateDuality 2) (q : V → ZMod 2) (hq : IsQuadrat
     apply D.inv.injective
     rw [map_zero]
     exact h0
-  rw [hnat] at hz
-  exact hz
+  rwa [hnat] at hz
 
 /-! ### The deep half `X₊` is a subgroup
 
@@ -1128,9 +1090,7 @@ noncomputable def deepPartSubgroup (ρ : ContinuousMonoidHom AbsGalQ2 C)
     obtain ⟨hA₁0, hA₁fix, b₁, hb₁fix, hA₁eq, hb₁⟩ := hd₁
     obtain ⟨hA₂0, hA₂fix, b₂, hb₂fix, hA₂eq, hb₂⟩ := hd₂
     have h2le : ‖(2 : AlgebraicClosure ℚ_[2])‖ ≤ 1 := by
-      rw [show (2 : AlgebraicClosure ℚ_[2]) = 1 + 1 by norm_num]
-      refine (IsUltrametricDist.norm_add_le_max 1 1).trans ?_
-      rw [norm_one, max_self]
+      simpa using IsUltrametricDist.norm_natCast_le_one (AlgebraicClosure ℚ_[2]) 2
     refine ⟨A₁ * A₂, β₁ * β₂, ?_, by rw [mul_pow, hsq₁, hsq₂],
       mul_ne_zero hne₁ hne₂, ?_⟩
     · -- deep units are closed under products
@@ -1250,11 +1210,9 @@ theorem card_Q0loc_zero_eq_of_dim_of_vanish (D : TateDuality 2)
     rw [card_H1_eq_card_of_simple V D ρ.toMonoidHom hρsurj hρ hsimple h₀ hmoves
       q hq hns hinv hV2, hcard]
   have harf : arf (Q0loc D dat ρ (V := V)) = 0 :=
-    arf_zero_of_card_sq _ hq' h2H1 hns' (deepPartSubgroup ρ hρ hV2)
-      (fun x hx => hvanish x hx) hdim
-  have hzc := zeroCount_of_arf_zero (Q0loc D dat ρ) hq' hns' hm
+    arf_zero_of_card_sq _ hq' h2H1 hns' (deepPartSubgroup ρ hρ hV2) hvanish hdim
+  exact zeroCount_of_arf_zero (Q0loc D dat ρ) hq' hns' hm
     (by rw [← Nat.card_eq_fintype_card]; exact hH1card) harf
-  exact hzc
 
 /-- The two-torsion subgroup of a `2^{2m}`-order simple module is everything: `V` has
 exponent 2 (additive Cauchy + simplicity). -/
@@ -1292,11 +1250,8 @@ theorem exp_two_of_simple_of_card {C : Type*} [Group C] [DistribMulAction C V]
     rw [hbot, AddSubgroup.mem_bot] at hvT
     rw [hvT] at hv
     simp at hv
-  rcases hsimple T hstable with hbot | htop
-  · exact absurd hbot hTne
-  · intro v
-    have : v ∈ T := htop ▸ AddSubgroup.mem_top v
-    exact this
+  have htop := (hsimple T hstable).resolve_left hTne
+  exact fun v => (htop ▸ AddSubgroup.mem_top v : v ∈ T)
 
 /- **Proposition 6.18 (dyadic base determinant theorem), ramified case** — re-homed to
 `GQ2.DetRamified.prop_6_18_ramified` (P-15f8/f2d statement-move, 2026-07-08): now that both
@@ -1327,9 +1282,7 @@ variable {D : Type*} [Field D] [Fintype D]
 theorem ringChar_eq_two_of_card {m : ℕ} (hm : 1 ≤ m)
     (hcard : Fintype.card D = 2 ^ (2 * m)) : ringChar D = 2 := by
   obtain ⟨n, hp, hn⟩ := FiniteField.card D (ringChar D)
-  have h1 : ringChar D ∣ Fintype.card D := by
-    rw [hn]
-    exact dvd_pow_self _ n.2.ne'
+  have h1 : ringChar D ∣ Fintype.card D := hn.symm ▸ dvd_pow_self _ n.2.ne'
   rw [hcard] at h1
   exact (Nat.prime_dvd_prime_iff_eq hp Nat.prime_two).mp (hp.dvd_of_dvd_pow h1)
 
@@ -1358,15 +1311,8 @@ theorem trace_eq_zero_iff {m : ℕ} (hm : 1 ≤ m) (hcard : Fintype.card D = 2 ^
       ↔ ∑ i ∈ Finset.range (2 * m), z ^ 2 ^ i = 0 := by
   have hchar : ringChar D = 2 := ringChar_eq_two_of_card hm hcard
   haveI : Fact (Nat.Prime (ringChar D)) := ⟨by rw [hchar]; exact Nat.prime_two⟩
-  have hinj := (algebraMap (ZMod (ringChar D)) D).injective
-  constructor
-  · intro h
-    have := algebraMap_trace_eq hm hcard z
-    rw [h, map_zero] at this
-    exact this.symm
-  · intro h
-    apply hinj
-    rw [algebraMap_trace_eq hm hcard z, h, map_zero]
+  rw [← (algebraMap (ZMod (ringChar D)) D).injective.eq_iff' (map_zero _),
+    algebraMap_trace_eq hm hcard]
 
 /-- **Frobenius-invariance of the trace**: `Tr(z²) = Tr(z)` (shift the Frobenius sum). -/
 theorem trace_pow_two {m : ℕ} (hm : 1 ≤ m) (hcard : Fintype.card D = 2 ^ (2 * m))
@@ -1376,9 +1322,7 @@ theorem trace_pow_two {m : ℕ} (hm : 1 ≤ m) (hcard : Fintype.card D = 2 ^ (2 
   haveI : Fact (Nat.Prime (ringChar D)) := ⟨by rw [hchar]; exact Nat.prime_two⟩
   apply (algebraMap (ZMod (ringChar D)) D).injective
   rw [algebraMap_trace_eq hm hcard, algebraMap_trace_eq hm hcard]
-  have hpt : ∀ i, (z ^ 2) ^ 2 ^ i = z ^ 2 ^ (i + 1) := by
-    intro i
-    rw [← pow_mul, ← pow_succ']
+  have hpt : ∀ i, (z ^ 2) ^ 2 ^ i = z ^ 2 ^ (i + 1) := fun i => by rw [← pow_mul, ← pow_succ']
   rw [Finset.sum_congr rfl (fun i _ => hpt i)]
   have h1 := Finset.sum_range_succ' (fun i => z ^ 2 ^ i) (2 * m)
   have h2 := Finset.sum_range_succ (fun i => z ^ 2 ^ i) (2 * m)
@@ -1485,9 +1429,7 @@ theorem card_frobFixed {m : ℕ} (hm : 1 ≤ m) (hcard : Fintype.card D = 2 ^ (2
   classical
   have hq1 : 1 ≤ 2 ^ m := Nat.one_le_two_pow
   have h1 : Nat.card ↥(frobFixed D m) = Nat.card {y : D // y ^ 2 ^ m = y} := rfl
-  rw [h1, card_pow_fixed (2 ^ m) (by
-    calc 2 = 2 ^ 1 := (pow_one 2).symm
-    _ ≤ 2 ^ m := Nat.pow_le_pow_right (by norm_num) hm)]
+  rw [h1, card_pow_fixed (2 ^ m) (by simpa using Nat.pow_le_pow_right two_pos hm)]
   -- units with `u^{2^m − 1} = 1` = kernel of the power map, size `gcd`
   have hker : Nat.card {u : Dˣ // u ^ (2 ^ m - 1) = 1}
       = Nat.card ↥((powMonoidHom (2 ^ m - 1) : Dˣ →* Dˣ).ker) := by
@@ -1497,12 +1439,7 @@ theorem card_frobFixed {m : ℕ} (hm : 1 ≤ m) (hcard : Fintype.card D = 2 ^ (2
   have hcardU : Nat.card Dˣ = 2 ^ (2 * m) - 1 := by
     rw [Nat.card_eq_fintype_card, Fintype.card_units, hcard]
   have hdvd : (2 ^ m - 1) ∣ (2 ^ (2 * m) - 1) := by
-    refine ⟨2 ^ m + 1, ?_⟩
-    have h2m : 2 ^ (2 * m) = (2 ^ m) ^ 2 := by
-      rw [← pow_mul, mul_comm]
-    have hsq := Nat.sq_sub_sq (2 ^ m) 1
-    rw [h2m]
-    simpa [mul_comm] using hsq
+    simpa [← pow_mul, mul_comm] using Nat.sub_dvd_pow_sub_pow (2 ^ m) 1 2
   rw [hker, IsCyclic.card_powMonoidHom_ker, hcardU, Nat.gcd_eq_right hdvd]
   omega
 
@@ -1539,9 +1476,7 @@ theorem exists_trace_rep {m : ℕ} (hm : 1 ≤ m) (hcard : Fintype.card D = 2 ^ 
     refine ⟨hinj, ?_⟩
     rw [← Nat.card_eq_fintype_card, ← Nat.card_eq_fintype_card, card_addHom_zmod2 D h2D]
   obtain ⟨w, hw⟩ := hbij.2 f
-  refine ⟨w, fun x => ?_⟩
-  rw [← hw]
-  rfl
+  exact ⟨w, fun x => by rw [← hw]; rfl⟩
 
 /-- **Artin–Schreier surjectivity onto the fixed field**: every `y` with `y^{2^m} = y` is
 `c + c^{2^m}` for some `c` (the map `c ↦ c + c^{2^m}` has kernel and image the fixed field). -/
@@ -1558,13 +1493,8 @@ theorem exists_add_pow_eq {m : ℕ} (hm : 1 ≤ m) (hcard : Fintype.card D = 2 ^
     ext c
     rw [AddMonoidHom.mem_ker, mem_frobFixed]
     show c + c ^ 2 ^ m = 0 ↔ c ^ 2 ^ m = c
-    constructor
-    · intro h
-      have h1 : -(c ^ 2 ^ m) = c := neg_eq_of_add_eq_zero_left h
-      rwa [CharTwo.neg_eq] at h1
-    · intro h
-      rw [h]
-      exact CharTwo.add_self_eq_zero c
+    rw [CharTwo.add_eq_zero]
+    exact eq_comm
   -- range ⊆ fixed field
   have hrangele : φ.range ≤ frobFixed D m := by
     rintro _ ⟨c, rfl⟩
@@ -1591,9 +1521,7 @@ theorem exists_add_pow_eq {m : ℕ} (hm : 1 ≤ m) (hcard : Fintype.card D = 2 ^
     rw [← Nat.card_coe_set_eq, ← Nat.card_coe_set_eq]
     show Nat.card ↥(frobFixed D m) ≤ Nat.card ↥φ.range
     rw [card_frobFixed hm hcard, hrangecard]
-  have : y ∈ (φ.range : Set D) := heq ▸ hy
-  obtain ⟨c, hc⟩ := this
-  exact ⟨c, hc⟩
+  exact (heq ▸ hy : y ∈ (φ.range : Set D))
 
 /-- `2^s − 1 ∣ 2^t − 1` forces `s ∣ t` (Euclidean division on the exponents). -/
 theorem dvd_of_two_pow_sub_one_dvd {s t : ℕ} (hs : 1 ≤ s)
@@ -1658,9 +1586,8 @@ theorem subring_eq_top_of_normOne_le {m : ℕ} (hm : 1 ≤ m)
         rw [MonoidHom.mem_ker, powMonoidHom_apply])
     have hdvd : (2 ^ m + 1) ∣ (2 ^ (2 * m) - 1) := by
       refine ⟨2 ^ m - 1, ?_⟩
-      have hsub := Nat.sq_sub_sq (2 ^ m) 1
       rw [show (2 : ℕ) ^ (2 * m) = (2 ^ m) ^ 2 from by rw [← pow_mul, mul_comm]]
-      simpa using hsub
+      simpa using Nat.sq_sub_sq (2 ^ m) 1
     rw [he, IsCyclic.card_powMonoidHom_ker, Nat.card_eq_fintype_card, Fintype.card_units,
       hcard, Nat.gcd_eq_right hdvd]
   have hinj : Function.Injective
@@ -1839,8 +1766,7 @@ theorem hermitian_form_eq_trace_form {m : ℕ} (hm : 1 ≤ m)
         exact ha x y } with hS
   have hStop : S = ⊤ := by
     apply subring_eq_top_of_normOne_le hm hcard
-    intro u hu
-    intro x y
+    intro u hu x y
     have hval : (↑u : D) * ((↑u : D) ^ 2 ^ m * y) = y := by
       rw [← mul_assoc, ← pow_succ', ← Units.val_pow_eq_pow_val, hu, Units.val_one, one_mul]
     calc polar Q (↑u * x) y
@@ -1881,11 +1807,7 @@ theorem hermitian_form_eq_trace_form {m : ℕ} (hm : 1 ≤ m)
         e2.injective (h2.symm.trans (h1.trans h3))
       rw [h6, h4]
     by_contra hne
-    have hsumne : c₀ + c₀ ^ 2 ^ m ≠ 0 := by
-      intro h0
-      apply hne
-      have h1 : -(c₀ ^ 2 ^ m) = c₀ := neg_eq_of_add_eq_zero_left h0
-      rwa [CharTwo.neg_eq] at h1
+    have hsumne : c₀ + c₀ ^ 2 ^ m ≠ 0 := fun h0 => hne (CharTwo.add_eq_zero.mp h0).symm
     obtain ⟨b, hb⟩ := FiniteField.trace_to_zmod_nondegenerate D hsumne
     apply hb
     rw [add_mul, map_add, hsymTr b]
@@ -1931,9 +1853,8 @@ theorem hermitian_form_eq_trace_form {m : ℕ} (hm : 1 ≤ m)
   have hkercard : Nat.card ↥((powMonoidHom (2 ^ m + 1) : Dˣ →* Dˣ).ker) = 2 ^ m + 1 := by
     have hdvd : (2 ^ m + 1) ∣ (2 ^ (2 * m) - 1) := by
       refine ⟨2 ^ m - 1, ?_⟩
-      have hsub := Nat.sq_sub_sq (2 ^ m) 1
       rw [show (2 : ℕ) ^ (2 * m) = (2 ^ m) ^ 2 from by rw [← pow_mul, mul_comm]]
-      simpa using hsub
+      simpa using Nat.sq_sub_sq (2 ^ m) 1
     rw [IsCyclic.card_powMonoidHom_ker, Nat.card_eq_fintype_card, Fintype.card_units,
       hcard, Nat.gcd_eq_right hdvd]
   have hkerne : Nontrivial ↥((powMonoidHom (2 ^ m + 1) : Dˣ →* Dˣ).ker) := by
@@ -1949,12 +1870,8 @@ theorem hermitian_form_eq_trace_form {m : ℕ} (hm : 1 ≤ m)
     exact hu₀ne (Subtype.ext h)
   have hw0 : w = 0 := by
     by_contra hwne
-    have huvne : ((u₀ : Dˣ) : D) + 1 ≠ 0 := by
-      intro h0
-      apply hu₀ne1
-      apply Units.ext
-      have h1 : -(1 : D) = ((u₀ : Dˣ) : D) := neg_eq_of_add_eq_zero_left h0
-      rw [Units.val_one, ← h1, CharTwo.neg_eq]
+    have huvne : ((u₀ : Dˣ) : D) + 1 ≠ 0 := fun h0 =>
+      hu₀ne1 (Units.ext (by rw [CharTwo.add_eq_zero.mp h0, Units.val_one]))
     obtain ⟨b, hb⟩ := FiniteField.trace_to_zmod_nondegenerate D
       (mul_ne_zero hwne huvne)
     apply hb
@@ -1969,13 +1886,10 @@ theorem hermitian_form_eq_trace_form {m : ℕ} (hm : 1 ≤ m)
     exact CharTwo.add_self_eq_zero _
   have hQeq : ∀ x : D, Q x = Qc x := by
     intro x
-    have h0 : R x = 0 := by
+    have h1 : Q x + Qc x = 0 := by
       have := hw x
       rwa [hw0, zero_mul, map_zero, map_zero] at this
-    have h1 : Q x + Qc x = 0 := h0
-    have h2 : -(Qc x) = Q x := neg_eq_of_add_eq_zero_left h1
-    rw [CharTwo.neg_eq] at h2
-    exact h2.symm
+    exact CharTwo.add_eq_zero.mp h1
   have hcne : c ^ 2 ^ m ≠ c := by
     intro hfix
     have hc₀0 : c₀ = 0 := by

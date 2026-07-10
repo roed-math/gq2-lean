@@ -45,22 +45,13 @@ def pone : DD.Vmod × DD.C0 := (0, 1)
 
 theorem pmul_assoc (p q r : DD.Vmod × DD.C0) :
     pmul (pmul p q) r = pmul p (pmul q r) := by
-  unfold pmul
-  refine Prod.ext ?_ (mul_assoc _ _ _)
-  show p.1 + p.2 • q.1 + (p.2 * q.2) • r.1 = p.1 + p.2 • (q.1 + q.2 • r.1)
-  rw [smul_add, mul_smul, add_assoc]
+  simp [pmul, smul_add, mul_smul, add_assoc, mul_assoc]
 
 theorem pone_pmul (p : DD.Vmod × DD.C0) : pmul pone p = p := by
-  unfold pmul pone
-  refine Prod.ext ?_ (one_mul _)
-  show (0 : DD.Vmod) + (1 : DD.C0) • p.1 = p.1
-  rw [one_smul, zero_add]
+  simp [pmul, pone]
 
 theorem pmul_pone (p : DD.Vmod × DD.C0) : pmul p pone = p := by
-  unfold pmul pone
-  refine Prod.ext ?_ (mul_one _)
-  show p.1 + p.2 • (0 : DD.Vmod) = p.1
-  rw [smul_zero, add_zero]
+  simp [pmul, pone]
 
 variable (DD) in
 /-- The transported product map into `Q = Bg/T`: `jmap (v, cc) = iV(v)·σ(cc)`. -/
@@ -104,7 +95,6 @@ theorem piT_Jmap (p : DD.Vmod × DD.C0) : piT (D := D) (Jmap S p) = jmap DD σ p
   unfold Jmap jmap
   rw [map_mul, piT_mV, S.piT_uσ]
 
-
 variable (hσ : ∀ cc : DD.C0, piQbar DD (σ cc) = cc)
 
 include hσ in
@@ -127,8 +117,7 @@ theorem mDef_mem (v w : DD.Vmod) :
   have h : DD.descend (S.mV v * S.mV w * (S.mV (v + w))⁻¹) = 1 := by
     rw [map_mul, map_mul, map_inv, S.descend_mV, S.descend_mV, S.descend_mV, ← ofAdd_add,
       mul_inv_cancel]
-  have hmem := (DD.hdesc_ker _).mp h
-  exact hmem
+  exact (DD.hdesc_ker _).mp h
 
 variable (DD) in
 /-- `mDef v w := mV(v)·mV(w)·mV(v+w)⁻¹`, the `mV`-additivity defect. -/
@@ -141,10 +130,10 @@ theorem conjDef_mem (cc : DD.C0) (w : DD.Vmod) :
     S.uσ cc * (S.mV w : Bg) * (S.uσ cc)⁻¹ * ((S.mV (cc • w) : Bg))⁻¹ ∈ D.T := by
   have h : piT (D := D) (S.uσ cc * (S.mV w : Bg) * (S.uσ cc)⁻¹ * ((S.mV (cc • w) : Bg))⁻¹)
       = 1 := by
-    rw [map_mul, map_mul, map_mul, map_inv, map_inv, piT_mV, piT_mV, S.piT_uσ]
-    rw [show σ cc * iV DD (Multiplicative.ofAdd w) * (σ cc)⁻¹
-        = iV DD (Multiplicative.ofAdd (cc • w)) from sigma_conj_iV DD σ hσ cc w]
-    rw [mul_inv_cancel]
+    rw [map_mul, map_mul, map_mul, map_inv, map_inv, piT_mV, piT_mV, S.piT_uσ,
+      show σ cc * iV DD (Multiplicative.ofAdd w) * (σ cc)⁻¹
+        = iV DD (Multiplicative.ofAdd (cc • w)) from sigma_conj_iV DD σ hσ cc w,
+      mul_inv_cancel]
   rwa [piT, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at h
 
 variable (DD) in
@@ -254,7 +243,6 @@ theorem mDef_cocycle (v w x : DD.Vmod) :
   exact_mod_cast congrArg Subtype.val hM
 
 /-! ### The `conjDef`-atom identities -/
-
 
 /-- `mV(w+w')` split through the defect: `mV(w+w') = mDef(w,w')⁻¹ · mV w · mV w'`. -/
 theorem mV_add_split (w w' : DD.Vmod) :
@@ -370,9 +358,8 @@ include hσ in
 theorem isEquivariantFactorSet_datChi (χ : ↥(TCharC D)) :
     IsEquivariantFactorSet (fun _ : DD.Vmod => (0 : ZMod 2)) (datChi DD S hσ χ) where
   f_cocycle v w x := by
-    have h := congrArg (fun t : ↥D.T => χ.1 t) (mDef_cocycle S v w x)
-    simp only [TCharC.map_mul] at h
-    exact h
+    simpa only [datChi, TCharC.map_mul] using
+      congrArg (fun t : ↥D.T => χ.1 t) (mDef_cocycle S v w x)
   f_diag v := by
     show χ.1 (mDef DD S v v) = 0
     rw [mDef_self, TCharC.map_one]
@@ -468,11 +455,10 @@ theorem exists_splitting_of_symm_zero_diag {V : Type} [AddCommGroup V] [Finite V
     ∃ g : V → ZMod 2, g 0 = 0 ∧ ∀ v w : V, φ v w = g (v + w) + g v + g w := by
   classical
   have hzr : ∀ v : V, φ v 0 = 0 := fun v => (hsymm v 0).trans (hzl v)
-  have hz2 : ∀ b : ZMod 2, b + b = 0 := by decide
   have hE2 : ∀ p : TwExt φ, p + p = (0 : TwExt φ) := by
     intro p
     show TwExt.mk (p.z + p.z + φ p.v p.v) (p.v + p.v) = TwExt.mk 0 0
-    rw [hdiag, hV2, add_zero, hz2]
+    rw [hdiag, hV2, add_zero, CharTwo.add_self_eq_zero]
   letI : AddCommGroup (TwExt φ) :=
     { add_assoc := fun p q r => by
         show TwExt.mk (p.z + q.z + φ p.v q.v + r.z + φ (p.v + q.v) r.v) (p.v + q.v + r.v)
@@ -514,15 +500,11 @@ theorem exists_splitting_of_symm_zero_diag {V : Type} [AddCommGroup V] [Finite V
   obtain ⟨sec, hsec⟩ := π.exists_rightInverse_of_surjective hsurj
   have hsecv : ∀ v : V, (sec v).v = v := fun v => LinearMap.congr_fun hsec v
   refine ⟨fun v => (sec v).z, ?_, ?_⟩
-  · show (sec 0).z = 0
-    have h0 : sec 0 = 0 := map_zero sec
-    rw [h0]
-    rfl
+  · exact congrArg TwExt.z (map_zero sec)
   · intro v w
     show φ v w = (sec (v + w)).z + (sec v).z + (sec w).z
-    have hadd : sec (v + w) = sec v + sec w := map_add sec v w
     have hz : (sec (v + w)).z = (sec v).z + (sec w).z + φ (sec v).v (sec w).v :=
-      congrArg TwExt.z hadd
+      congrArg TwExt.z (map_add sec v w)
     rw [hsecv, hsecv] at hz
     linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hz
 
@@ -733,8 +715,7 @@ theorem theta_facts :
       show DD.dat.f v ((1 : DD.C0) • v) + DD.dat.m 1 v = DD.qbar v
       rw [one_smul, DD.hdat.f_diag, DD.hdat.m_one, add_zero]
     rw [h1, h2]
-    have hchar : ∀ a : ZMod 2, a + a = 0 := by decide
-    exact hchar _
+    exact CharTwo.add_self_eq_zero _
   · intro v w
     have hk : kfull σ Dsc ((v, 1) : DD.Vmod × DD.C0) (w, 1)
         + kfull σ Dsc ((w, 1) : DD.Vmod × DD.C0) (v, 1) = polar DD.qbar v w := by
@@ -803,15 +784,11 @@ theorem gkappa_exists : ∃ g : DD.Vmod → ZMod 2, g 0 = 0 ∧
     rw [pm1, pm2] at hs
     linear_combination (norm := (ring_nf; try simp [CharTwo.two_eq_zero])) hs
   · -- symmetric
-    intro v w
-    have h := (theta_facts σ Dsc hσ).2 v w
-    exact h
+    exact (theta_facts σ Dsc hσ).2
   · -- zero diagonal
-    intro v
-    exact (theta_facts σ Dsc hσ).1 v
+    exact (theta_facts σ Dsc hσ).1
   · -- left-normalized
-    intro v
-    exact theta_pone_left σ Dsc ((v, 1) : DD.Vmod × DD.C0)
+    exact fun v => theta_pone_left σ Dsc ((v, 1) : DD.Vmod × DD.C0)
 
 /-- The `V×V`-splitting cochain `gκ`. -/
 noncomputable def gkappa : DD.Vmod → ZMod 2 :=
@@ -846,8 +823,7 @@ theorem theta'_VV (v w : DD.Vmod) :
     unfold pmul
     rw [one_smul, one_mul]
   rw [pm, gkappa_split σ Dsc hσ v w]
-  have hchar : ∀ a b c : ZMod 2, a + b + c + (a + b + c) = 0 := by decide
-  exact hchar _ _ _
+  exact CharTwo.add_self_eq_zero _
 
 /-! ### The extraction data -/
 
@@ -1246,7 +1222,6 @@ theorem gchi_exists (χ : ↥(TCharC D)) : ∃ g : DD.Vmod → ZMod 2, g 0 = 0 �
 noncomputable def gchi (χ : ↥(TCharC D)) : DD.Vmod → ZMod 2 :=
   Classical.choose (gchi_exists S hσ χ)
 
-
 theorem gchi_split (χ : ↥(TCharC D)) (v w : DD.Vmod) :
     χ.1 (mDef DD S v w) = gchi S hσ χ (v + w) + gchi S hσ χ v + gchi S hσ χ w :=
   (Classical.choose_spec (gchi_exists S hσ χ)).2 v w
@@ -1320,10 +1295,9 @@ theorem exists_polar_inverse' {q : DD.Vmod → ZMod 2} (hq : IsQuadraticFp2 q)
         · rw [zero_smul]
           show φ 0 = (RingHom.id (ZMod 2)) 0 • φ v
           have h0 : φ 0 = 0 := by
-            have := hφ 0 0
-            rw [add_zero] at this
-            have hchar : ∀ a : ZMod 2, a = a + a → a = 0 := by decide
-            exact hchar _ this
+            have h := hφ 0 0
+            rw [add_zero] at h
+            exact left_eq_add.mp h
           rw [h0, RingHom.id_apply, zero_smul]
         · rw [one_smul]
           show φ v = (RingHom.id (ZMod 2)) 1 • φ v
@@ -1335,22 +1309,12 @@ theorem exists_polar_inverse' {q : DD.Vmod → ZMod 2} (hq : IsQuadraticFp2 q)
 theorem polar_inj {q : DD.Vmod → ZMod 2} (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
     {a b : DD.Vmod} (h : ∀ v : DD.Vmod, polar q a v = polar q b v) : a = b := by
   by_contra hne
-  have hab : a + b ≠ 0 := by
-    intro h0
-    apply hne
-    have h1 := congrArg (· + b) h0
-    have h2 : a + (b + b) = b := by
-      calc a + (b + b) = a + b + b := (add_assoc a b b).symm
-        _ = 0 + b := h1
-        _ = b := zero_add b
-    rw [Vmod_exp2 DD b, add_zero] at h2
-    exact h2
+  have hab : a + b ≠ 0 := fun h0 =>
+    hne ((add_eq_zero_iff_eq_neg.mp h0).trans (neg_eq_of_add_eq_zero_left (Vmod_exp2 DD b)))
   obtain ⟨w, hw⟩ := hns (a + b) hab
   apply hw
-  have hpol : polar q (a + b) w = polar q a w + polar q b w := hq.polar_add_left a b w
-  rw [hpol, h w]
-  have hchar : ∀ x : ZMod 2, x + x = 0 := by decide
-  exact hchar _
+  rw [hq.polar_add_left a b w, h w]
+  exact CharTwo.add_self_eq_zero _
 
 /-! ### The shear family `a_χ` and the total scalar phase -/
 
@@ -1393,8 +1357,7 @@ theorem achi_kill (χ : ↥(TCharC D)) (cc : DD.C0) (v : DD.Vmod) :
       + (AddMonoidHom.mk' (gammatot S Dsc hσ χ cc) (gammatot_add S Dsc hσ χ cc)) v = 0 := by
   show polar DD.qbar (achi S Dsc hσ χ cc) v + gammatot S Dsc hσ χ cc v = 0
   rw [achi_spec]
-  have hchar : ∀ a : ZMod 2, a + a = 0 := by decide
-  exact hchar _
+  exact CharTwo.add_self_eq_zero _
 
 /-! ### The `Ψ_χ`-normal form -/
 
@@ -1410,8 +1373,7 @@ theorem kappa0_datChi_decomp (χ : ↥(TCharC D)) (p q : DD.Vmod × DD.C0) :
   have hg := gchi_split S hσ χ p.1 (p.2 • q.1)
   have hpm : (pmul p q).1 = p.1 + p.2 • q.1 := rfl
   rw [hpm]
-  linear_combination (norm := (ring_nf; (try simp [CharTwo.two_eq_zero,
-    show (4 : ZMod 2) = 0 from by decide]); (try ring_nf))) hg
+  linear_combination (norm := (ring_nf; (try simp [CharTwo.two_eq_zero]); (try ring_nf))) hg
 
 /-- The total scalar phase input `δtot_χ := e_χ + δκ`. -/
 noncomputable def deltatot (χ : ↥(TCharC D)) (cc dd : DD.C0) : ZMod 2 :=
@@ -1450,8 +1412,8 @@ theorem psi_decomp (χ : ↥(TCharC D)) (p q : DD.Vmod × DD.C0) :
   unfold gammatot deltatot wtot
   rw [hpm] at h2 h4 ⊢
   simp only at h1 h2 h3 h4 ⊢
-  linear_combination (norm := (ring_nf; (try simp [CharTwo.two_eq_zero,
-    show (4 : ZMod 2) = 0 from by decide]); (try ring_nf))) h1 + h2 + h3 + h4 + h5
+  linear_combination (norm := (ring_nf; (try simp [CharTwo.two_eq_zero]); (try ring_nf)))
+    h1 + h2 + h3 + h4 + h5
 
 end Assembly
 
@@ -1729,18 +1691,16 @@ theorem theta'_pone_left (q : DD.Vmod × DD.C0) : theta' σ Dsc hσ pone q = 0 :
   unfold theta'
   rw [theta_pone_left, pone_pmul]
   show 0 + (gkappa σ Dsc hσ q.1 + gkappa σ Dsc hσ 0 + gkappa σ Dsc hσ q.1) = 0
-  rw [gkappa_zero]
-  have hchar : ∀ a : ZMod 2, 0 + (a + 0 + a) = 0 := by decide
-  exact hchar _
+  rw [gkappa_zero, zero_add, add_zero]
+  exact CharTwo.add_self_eq_zero _
 
 /-- `Θ'` vanishes on `pone`-columns. -/
 theorem theta'_pone_right (p : DD.Vmod × DD.C0) : theta' σ Dsc hσ p pone = 0 := by
   unfold theta'
   rw [theta_pone_right, pmul_pone]
   show 0 + (gkappa σ Dsc hσ p.1 + gkappa σ Dsc hσ p.1 + gkappa σ Dsc hσ 0) = 0
-  rw [gkappa_zero]
-  have hchar : ∀ a : ZMod 2, 0 + (a + a + 0) = 0 := by decide
-  exact hchar _
+  rw [gkappa_zero, zero_add, add_zero]
+  exact CharTwo.add_self_eq_zero _
 
 /-- `uσ`-defect normalization, left. -/
 theorem uDef_one_left (cc : DD.C0) : uDef DD S 1 cc = 1 := by
@@ -1759,8 +1719,7 @@ include hσ in
 theorem gammatot_zero (χ : ↥(TCharC D)) (cc : DD.C0) : gammatot S Dsc hσ χ cc 0 = 0 := by
   have h := gammatot_add S Dsc hσ χ cc 0 0
   rw [add_zero] at h
-  have hchar : ∀ a : ZMod 2, a = a + a → a = 0 := by decide
-  exact hchar _ h
+  exact left_eq_add.mp h
 
 include hσ in
 /-- `γtot_χ(1) = 0` (the edge is normalized at the identity). -/
@@ -1768,9 +1727,8 @@ theorem gammatot_one (χ : ↥(TCharC D)) (x : DD.Vmod) : gammatot S Dsc hσ χ 
   unfold gammatot
   have h2 : gamma2 S hσ χ 1 x = 0 := by
     unfold gamma2
-    rw [inv_one, one_smul, conjDef_one_left, TCharC.map_one]
-    have hchar : ∀ a : ZMod 2, 0 + a + a = 0 := by decide
-    exact hchar _
+    rw [inv_one, one_smul, conjDef_one_left, TCharC.map_one, zero_add]
+    exact CharTwo.add_self_eq_zero _
   have hk : gammakap σ Dsc hσ 1 x = 0 := by
     unfold gammakap gkraw ukap
     rw [inv_one, one_smul, theta'_VV σ Dsc hσ 0 x, theta'_VV σ Dsc hσ x 0, add_zero]
@@ -1781,10 +1739,7 @@ include hinvQ in
 theorem achi_one (χ : ↥(TCharC D)) : achi S Dsc hσ χ 1 = 0 := by
   have h := achi_crossed S Dsc hσ hinvQ χ 1 1
   rw [mul_one, one_smul] at h
-  have h2 : achi S Dsc hσ χ 1 + achi S Dsc hσ χ 1 = achi S Dsc hσ χ 1 + 0 := by
-    rw [add_zero]
-    exact h.symm
-  exact add_left_cancel h2
+  exact left_eq_add.mp h
 
 include hσ in
 /-- `δtot_χ` is normalized on the left. -/
