@@ -137,10 +137,7 @@ theorem exists_normal_odd_twoQuotient_of_cyclic_quotient {H : Type*} [Group H] [
     have hcardN : Nat.card (Q0.comap f) * (Q0.comap f).index = Nat.card H :=
       Subgroup.card_mul_index _
     have hcardQ0 : Nat.card Q0 * Q0.index = Nat.card (H ⧸ C) := Subgroup.card_mul_index Q0
-    have hNidx_pos : 0 < (Q0.comap f).index := by
-      rcases Nat.eq_zero_or_pos (Q0.comap f).index with h | h
-      · rw [h, mul_zero] at hcardN; exact absurd hcardN.symm Nat.card_pos.ne'
-      · exact h
+    have hNidx_pos : 0 < (Q0.comap f).index := Nat.pos_of_ne_zero Subgroup.index_ne_zero_of_finite
     have key : Nat.card (Q0.comap f) = Nat.card C * Nat.card Q0 := by
       apply Nat.eq_of_mul_eq_mul_right hNidx_pos
       rw [hcardN, hidx, mul_assoc, hcardQ0, ← hCQ, hcardC]
@@ -223,10 +220,7 @@ theorem sz_odd_complement {H Y : Type} [Group H] [Group Y] [Finite Y]
   have hcardH_M : Nat.card M * M.index = Nat.card H := Subgroup.card_mul_index M
   have hcardP : Nat.card P * M.index = Nat.card Y := by
     rw [← hPindex]; exact Subgroup.card_mul_index P
-  have hMindex_pos : 0 < M.index := by
-    rcases Nat.eq_zero_or_pos M.index with h | h
-    · rw [h, mul_zero] at hcardH_M; exact absurd hcardH_M.symm Nat.card_pos.ne'
-    · exact h
+  have hMindex_pos : 0 < M.index := Nat.pos_of_ne_zero Subgroup.index_ne_zero_of_finite
   have hcardP_eq : Nat.card P = Nat.card L * Nat.card M := by
     apply Nat.eq_of_mul_eq_mul_right hMindex_pos
     rw [hcardP, mul_assoc, hcardH_M, hcardY_L]
@@ -490,7 +484,7 @@ theorem toFibre_injective : Function.Injective D.toFibre := by
   rw [Prod.ext_iff] at h1
   obtain ⟨hyH, hyQ⟩ := h1
   have hyL : y ∈ D.L := D.hkerL ▸ MonoidHom.mem_ker.mpr hyH
-  have hyN : y ∈ D.Ntil := by rw [← QuotientGroup.eq_one_iff]; exact hyQ
+  have hyN : y ∈ D.Ntil := by rwa [← QuotientGroup.eq_one_iff]
   have : y ∈ D.Ntil ⊓ D.L := ⟨hyN, hyL⟩
   rw [D.hNL, Subgroup.mem_bot] at this
   exact this

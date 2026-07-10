@@ -146,15 +146,7 @@ theorem gaussSum_eq [Fintype V] (q : V → ZMod 2) :
 theorem arf_eq_zero_iff_gaussSum_pos [Fintype V] (q : V → ZMod 2) :
     arf q = 0 ↔ 0 < gaussSum q := by
   rw [arf, gaussSum_eq, Nat.card_eq_fintype_card]
-  by_cases hc : 2 * zeroCount q > Fintype.card V
-  · rw [if_pos hc]
-    constructor
-    · intro _; omega
-    · intro _; rfl
-  · rw [if_neg hc]
-    constructor
-    · intro h; exact absurd h one_ne_zero
-    · intro h; exfalso; omega
+  split_ifs with hc <;> simp <;> omega
 
 /-- For a nonsingular form with `#V = 2^{2m}`, the Gauss sum is `±2^m`. -/
 theorem gaussSum_eq_pow [Fintype V] (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
@@ -181,12 +173,8 @@ theorem zeroCount_of_arf_zero [Fintype V] (q : V → ZMod 2) (hq : IsQuadraticFp
   have hbridge := gaussSum_eq q
   rw [hg, hcard] at hbridge
   push_cast at hbridge
-  have h2m : (2 : ℤ) ^ (2 * m) = 2 * 2 ^ (2 * m - 1) := by
-    conv_lhs => rw [show 2 * m = (2 * m - 1) + 1 from by omega]
-    rw [pow_succ']
-  have hm1 : (2 : ℤ) ^ m = 2 * 2 ^ (m - 1) := by
-    conv_lhs => rw [show m = (m - 1) + 1 from by omega]
-    rw [pow_succ']
+  have h2m : (2 : ℤ) ^ (2 * m) = 2 * 2 ^ (2 * m - 1) := by rw [← pow_succ']; congr 1; omega
+  have hm1 : (2 : ℤ) ^ m = 2 * 2 ^ (m - 1) := by rw [← pow_succ']; congr 1; omega
   have hzc : (zeroCount q : ℤ) = 2 ^ (2 * m - 1) + 2 ^ (m - 1) := by
     rw [h2m, hm1] at hbridge; linarith
   exact_mod_cast hzc
@@ -206,12 +194,8 @@ theorem zeroCount_of_arf_one [Fintype V] (q : V → ZMod 2) (hq : IsQuadraticFp2
   have hbridge := gaussSum_eq q
   rw [hg, hcard] at hbridge
   push_cast at hbridge
-  have h2m : (2 : ℤ) ^ (2 * m) = 2 * 2 ^ (2 * m - 1) := by
-    conv_lhs => rw [show 2 * m = (2 * m - 1) + 1 from by omega]
-    rw [pow_succ']
-  have hm1 : (2 : ℤ) ^ m = 2 * 2 ^ (m - 1) := by
-    conv_lhs => rw [show m = (m - 1) + 1 from by omega]
-    rw [pow_succ']
+  have h2m : (2 : ℤ) ^ (2 * m) = 2 * 2 ^ (2 * m - 1) := by rw [← pow_succ']; congr 1; omega
+  have hm1 : (2 : ℤ) ^ m = 2 * 2 ^ (m - 1) := by rw [← pow_succ']; congr 1; omega
   have hle : 2 ^ (m - 1) ≤ 2 ^ (2 * m - 1) := Nat.pow_le_pow_right (by norm_num) (by omega)
   have hzc : (zeroCount q : ℤ) = 2 ^ (2 * m - 1) - 2 ^ (m - 1) := by
     rw [h2m, hm1] at hbridge; linarith
@@ -247,8 +231,7 @@ theorem exists_card_eq_two_pow {W : Type*} [AddCommGroup W] [Finite W]
   have hpg : IsPGroup 2 (Multiplicative W) := fun g => ⟨1, by
     show g ^ 2 = 1
     rw [pow_two, ← ofAdd_toAdd g, ← ofAdd_add, h2, ofAdd_zero]⟩
-  obtain ⟨n, hn⟩ := (IsPGroup.iff_card (p := 2) (G := Multiplicative W)).mp hpg
-  exact ⟨n, hn⟩
+  exact (IsPGroup.iff_card (p := 2) (G := Multiplicative W)).mp hpg
 
 /-- The range of `1 + U` has `2`-power cardinality (it is a subgroup of the elem. ab. 2-group `V`). -/
 theorem exists_card_range_eq_two_pow {V : Type*} [AddCommGroup V] [Finite V]
@@ -508,7 +491,7 @@ private theorem omega_expand {W : Type*} [AddCommGroup W] (ω : W →+ W →+ ZM
 
 universe u
 
-set_option maxHeartbeats 1600000 in
+set_option maxHeartbeats 800000 in
 /-- **The abstract Wall count**, by strong induction on the cardinality: for a biadditive
 `ω` on a finite exponent-2 group `W`, right-nondegenerate and with a `2`-power-order monodromy
 `M` (`ω t u = ω u (M t)`), the count `∑_{t,u} (−1)^{ω(t,t)+ω(u,u)+ω(t,u)}` equals `(−2)^k`,
@@ -1123,7 +1106,6 @@ section WallSign
 
 variable {V : Type*} [AddCommGroup V] [Finite V] (q : V → ZMod 2) (U : V ≃+ V)
 
-set_option maxHeartbeats 1600000 in
 /-- **Wall's sign relation** (the last piece of Lemma 6.6, eq. (86)): for a nonsingular `q`
 and a `2`-power-order isometry `U`, with `N = 1 + U` and `#im N = 2^k`,
 

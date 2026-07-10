@@ -2,8 +2,8 @@
 Copyright (c) 2026. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
-import GQ2.TameQuotient
 import GQ2.Tame
+import GQ2.TameQuotient
 
 /-!
 # Lemma 6.11: ramified simple modules are split summands of regular modules  (P-15f1)
@@ -212,13 +212,10 @@ theorem quotient_zpowers_isCyclic_of_tame {s t : C} [(Subgroup.zpowers t).Normal
     rw [← himg]
     refine (Subgroup.closure_le _).mpr ?_
     rintro y ⟨z, hz, rfl⟩
-    have hzz : z = s ∨ z = t := hz
-    rcases hzz with rfl | h2
+    rcases (hz : z = s ∨ z = t) with rfl | h2
     · exact Subgroup.mem_zpowers _
-    · rw [h2]
-      have ht1 : (QuotientGroup.mk' (Subgroup.zpowers t)) t = 1 :=
-        (QuotientGroup.eq_one_iff t).mpr (Subgroup.mem_zpowers t)
-      rw [ht1]
+    · rw [h2, show (QuotientGroup.mk' (Subgroup.zpowers t)) t = 1 from
+        (QuotientGroup.eq_one_iff t).mpr (Subgroup.mem_zpowers t)]
       exact Subgroup.one_mem _
   have hx : x ∈ (⊤ : Subgroup (C ⧸ Subgroup.zpowers t)) := Subgroup.mem_top x
   rwa [← htop] at hx
@@ -245,9 +242,7 @@ theorem isCyclic_of_isPGroup_two_of_tame {s t : C}
     ((QuotientGroup.mk' (Subgroup.zpowers t)).comp Q.subtype) ?_
   rw [← MonoidHom.ker_eq_bot_iff]
   refine (Subgroup.eq_bot_iff_forall _).mpr fun x hx => ?_
-  have hxt : (x : C) ∈ Subgroup.zpowers t := by
-    have := (QuotientGroup.eq_one_iff (x : C)).mp hx
-    exact this
+  have hxt : (x : C) ∈ Subgroup.zpowers t := (QuotientGroup.eq_one_iff (x : C)).mp hx
   have hxQ : (x : C) ∈ Q ⊓ Subgroup.zpowers t := ⟨x.2, hxt⟩
   rw [hbot, Subgroup.mem_bot] at hxQ
   exact Subtype.ext hxQ
@@ -280,9 +275,7 @@ theorem fixedPoints_tame_inertia_eq_zero
     obtain ⟨n, hn⟩ := Subgroup.mem_zpowers_iff.mp hconj
     have hfix : (h⁻¹ * t * h) • w = w := by
       rw [← hn]
-      have htmem : t ∈ MulAction.stabilizer C w := hw
-      have : t ^ n ∈ MulAction.stabilizer C w := zpow_mem htmem n
-      exact this
+      exact zpow_mem (show t ∈ MulAction.stabilizer C w from hw) n
     show t • (h • w) = h • w
     calc t • (h • w) = (t * h) • w := (mul_smul t h w).symm
       _ = (h * (h⁻¹ * t * h)) • w := by group
@@ -514,7 +507,6 @@ private theorem split_off_block (g₀ : P) (hg : ∀ x : P, x ∈ Subgroup.zpowe
       (∀ (p : P) (v : V), v ∈ W → p • v ∈ W) ∧
       (∀ (p : P) (v : V) (x : P), (ψ (p • v)).1 x = (ψ v).1 (p⁻¹ * x)) ∧
       (∀ (p : P) (v : V), ((ψ (p • v)).2 : V) = p • ((ψ v).2 : V)) := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   have hV2 : ∀ v : V, v + v = 0 := fun v => by
     rw [← two_smul (ZMod 2) v, two_zmod_two_eq_zero, zero_smul]
   have hR2 : ∀ F : P → ZMod 2, F + F = 0 := fun F => by
@@ -522,20 +514,8 @@ private theorem split_off_block (g₀ : P) (hg : ∀ x : P, x ∈ Subgroup.zpowe
     exact CharTwo.add_self_eq_zero (F x)
   -- the functional detecting the deepest layer of the block
   set x₀ : V := ((nuOp g₀ : Module.End (ZMod 2) V) ^ (2 ^ s - 1)) v₀ with hx₀def
-  obtain ⟨pc, hpc⟩ := Submodule.exists_isCompl (Submodule.span (ZMod 2) {x₀})
-  obtain ⟨lam, hlam⟩ : ∃ lam : V →ₗ[ZMod 2] ZMod 2, lam x₀ = 1 := by
-    refine ⟨(LinearEquiv.toSpanNonzeroSingleton (ZMod 2) V x₀ hv₀).symm.toLinearMap.comp
-      ((Submodule.span (ZMod 2) {x₀}).projectionOnto pc hpc), ?_⟩
-    have h1 : ((Submodule.span (ZMod 2) {x₀}).projectionOnto pc hpc) x₀
-        = ⟨x₀, Submodule.mem_span_singleton_self x₀⟩ :=
-      Submodule.projectionOnto_apply_left hpc ⟨x₀, Submodule.mem_span_singleton_self x₀⟩
-    show (LinearEquiv.toSpanNonzeroSingleton (ZMod 2) V x₀ hv₀).symm
-        (((Submodule.span (ZMod 2) {x₀}).projectionOnto pc hpc) x₀) = 1
-    rw [h1]
-    refine (LinearEquiv.symm_apply_eq _).mpr ?_
-    apply Subtype.ext
-    rw [LinearEquiv.toSpanNonzeroSingleton_apply]
-    exact (one_smul _ _).symm
+  obtain ⟨lam, hlam⟩ : ∃ lam : V →ₗ[ZMod 2] ZMod 2, lam x₀ = 1 :=
+    Module.Projective.exists_dual_eq_one (ZMod 2) hv₀
   -- the orbit map and the coefficient map
   set jmap : (P → ZMod 2) →ₗ[ZMod 2] V :=
     { toFun := fun F => ∑ x : P, F x • (x • v₀)
@@ -693,21 +673,10 @@ private theorem split_off_block (g₀ : P) (hg : ∀ x : P, x ∈ Subgroup.zpowe
     exact (geom_inverse_of_nilpotent end_two_eq_zero hnilB).2
   -- the retraction and its equivariance
   set rho : V →ₗ[ZMod 2] (P → ZMod 2) := Tinv ∘ₗ phim with hrhodef
-  have hrhoj : ∀ F : P → ZMod 2, rho (jmap F) = F := by
-    intro F
-    have h2 : (Tinv * T) F = (1 : Module.End (ZMod 2) (P → ZMod 2)) F := by rw [hTT2]
-    exact h2
-  have hTrho : ∀ u : V, T (rho u) = phim u := by
-    intro u
-    have h2 : (T * Tinv) (phim u) = (1 : Module.End (ZMod 2) (P → ZMod 2)) (phim u) := by
-      rw [hTT1]
-    exact h2
-  have hTinj : Function.Injective T := by
-    intro a b hab
-    have ha : (Tinv * T) a = (Tinv * T) b := by
-      show Tinv (T a) = Tinv (T b)
-      rw [hab]
-    rwa [hTT2] at ha
+  have hTinv_left : Function.LeftInverse ⇑Tinv ⇑T := fun F => LinearMap.congr_fun hTT2 F
+  have hrhoj : ∀ F : P → ZMod 2, rho (jmap F) = F := fun F => hTinv_left F
+  have hTrho : ∀ u : V, T (rho u) = phim u := fun u => LinearMap.congr_fun hTT1 (phim u)
+  have hTinj : Function.Injective T := hTinv_left.injective
   have hrhoeq : ∀ (p : P) (w : V), rho (p • w) = fun x => rho w (p⁻¹ * x) := by
     intro p w
     apply hTinj
@@ -882,11 +851,7 @@ private theorem card_fixedPoints_eq_card_ker_nuOp (g₀ : P)
     exact hV2 v
   · intro h
     have h' : g₀ • v + v = 0 := h
-    have hfix : g₀ • v = v := by
-      calc g₀ • v = g₀ • v + (v + v) := by rw [hV2, add_zero]
-        _ = (g₀ • v + v) + v := (add_assoc _ _ _).symm
-        _ = 0 + v := by rw [h']
-        _ = v := zero_add v
+    have hfix : g₀ • v = v := add_right_cancel (h'.trans (hV2 v).symm)
     intro p
     have hg₀mem : g₀ ∈ MulAction.stabilizer P v := MulAction.mem_stabilizer_iff.mpr hfix
     obtain ⟨n, hn⟩ := Subgroup.mem_zpowers_iff.mp (hg p)
@@ -961,7 +926,7 @@ private theorem seq_first_increment_le (b : ℕ → ℕ) (hb0 : b 0 = 0)
     exact hc
   have hle : ∀ j ∈ Finset.range m, e (m + j) ≤ e j := fun j _ => he_anti (by omega)
   have hterm := (Finset.sum_eq_sum_iff_of_le hle).mp heq_sums.symm
-  have he0m : e m = e 0 := by have := hterm 0 (Finset.mem_range.mpr hm); simpa using this
+  have he0m : e m = e 0 := by simpa using hterm 0 (Finset.mem_range.mpr hm)
   have hconst : ∀ j, j < m → e j = e 0 := by
     intro j hj
     have h1 : e j ≤ e 0 := he_anti (Nat.zero_le j)
@@ -993,17 +958,11 @@ private theorem free_of_card_aux (P : Type) [Group P] [Finite P]
     omega
   | succ n IH =>
     intro V _ _ _ hle hV2 hcount
-    letI : Module (ZMod 2) V := AddCommGroup.zmodModule (fun v => by
-      rw [two_nsmul]
-      exact hV2 v)
-    letI : SMulCommClass P (ZMod 2) V := ⟨fun p c v => by
-      rcases zmod2_cases c with hc | hc <;> rw [hc]
-      · rw [zero_smul, zero_smul, smul_zero]
-      · rw [one_smul, one_smul]⟩
+    letI : Module (ZMod 2) V := AddCommGroup.zmodModule fun v => (two_nsmul v).trans (hV2 v)
+    letI : SMulCommClass P (ZMod 2) V :=
+      ⟨fun p c v => by rcases zmod2_cases c with rfl | rfl <;> simp⟩
     haveI : Fintype P := Fintype.ofFinite P
-    have hsF : Fintype.card P = 2 ^ s := by
-      rw [← Nat.card_eq_fintype_card]
-      exact hs
+    have hsF : Fintype.card P = 2 ^ s := by rw [← Nat.card_eq_fintype_card]; exact hs
     have hfixker := card_fixedPoints_eq_card_ker_nuOp (V := V) g₀ hg
     by_cases hex : ∃ v₀ : V, ((nuOp g₀ : Module.End (ZMod 2) V) ^ (2 ^ s - 1)) v₀ ≠ 0
     · -- a full-depth vector exists: split off one free block and recurse
@@ -1021,10 +980,7 @@ private theorem free_of_card_aux (P : Type) [Group P] [Finite P]
         rw [Nat.card_congr ψ.toEquiv, Nat.card_prod, hcardR]
       haveI : Nonempty ↥W := ⟨0⟩
       have hWpos : 0 < Nat.card ↥W := Nat.card_pos
-      have h2pow : (2 : ℕ) ≤ 2 ^ 2 ^ s := by
-        have h1 : (1 : ℕ) ≤ 2 ^ s := Nat.one_le_two_pow
-        calc (2 : ℕ) = 2 ^ 1 := (pow_one 2).symm
-          _ ≤ 2 ^ 2 ^ s := Nat.pow_le_pow_right (by omega) h1
+      have h2pow : (2 : ℕ) ≤ 2 ^ 2 ^ s := Nat.le_self_pow (Nat.two_pow_pos s).ne' 2
       have hWle : Nat.card ↥W ≤ n := by
         have h3 : 2 * Nat.card ↥W ≤ 2 ^ 2 ^ s * Nat.card ↥W :=
           Nat.mul_le_mul_right _ h2pow
@@ -1135,7 +1091,6 @@ theorem free_of_card_fixedPoints_pow_le {P : Type} [Group P] [Finite P]
     (hcount : Nat.card {v : V // ∀ p : P, p • v = v} ^ Nat.card P ≤ Nat.card V) :
     ∃ (r : ℕ) (φ : V ≃+ (Fin r → P → ZMod 2)),
       ∀ (p : P) (v : V) (m : Fin r) (x : P), φ (p • v) m x = φ v m (p⁻¹ * x) := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   obtain ⟨g₀, hg⟩ := hcyc.exists_generator
   obtain ⟨s, hs⟩ := h2.exists_card_eq
   rw [hs] at hcount
@@ -1156,11 +1111,9 @@ theorem card_fixedPoints_pow_le_of_half {P : Type} [Group P] [Finite P]
     (s : ℕ) (hs : Nat.card P = 2 ^ s)
     (hleaf : Nat.card {v : V // (g₀ ^ (2 ^ s / 2)) • v = v} ^ 2 ≤ Nat.card V) :
     Nat.card {v : V // ∀ p : P, p • v = v} ^ Nat.card P ≤ Nat.card V := by
-  letI : Module (ZMod 2) V := AddCommGroup.zmodModule (fun v => by rw [two_nsmul]; exact hV2 v)
-  letI : SMulCommClass P (ZMod 2) V := ⟨fun p c v => by
-    rcases zmod2_cases c with hc | hc <;> rw [hc]
-    · rw [zero_smul, zero_smul, smul_zero]
-    · rw [one_smul, one_smul]⟩
+  letI : Module (ZMod 2) V := AddCommGroup.zmodModule fun v => (two_nsmul v).trans (hV2 v)
+  letI : SMulCommClass P (ZMod 2) V :=
+    ⟨fun p c v => by rcases zmod2_cases c with rfl | rfl <;> simp⟩
   haveI : Fintype P := Fintype.ofFinite P
   haveI : FiniteDimensional (ZMod 2) V := Module.Finite.of_finite
   have hsF : Fintype.card P = 2 ^ s := by rw [← Nat.card_eq_fintype_card]; exact hs
@@ -1228,15 +1181,11 @@ theorem card_fixedPoints_pow_le_of_half {P : Type} [Group P] [Finite P]
       rw [LinearMap.mem_ker]
       constructor
       · intro hv
-        show (genOp (g₀ ^ m) + 1) v = 0
         show (g₀ ^ m) • v + v = 0
         rw [hv]; exact hV2 v
       · intro h
         have h' : (g₀ ^ m) • v + v = 0 := h
-        calc (g₀ ^ m) • v = (g₀ ^ m) • v + (v + v) := by rw [hV2, add_zero]
-          _ = ((g₀ ^ m) • v + v) + v := (add_assoc _ _ _).symm
-          _ = 0 + v := by rw [h']
-          _ = v := zero_add v
+        exact add_right_cancel (h'.trans (hV2 v).symm)
     rw [hbridge, hnu_m, hcardpow]
   -- leaf ⟹ 2·b m ≤ dim V
   have hleafle : 2 * b m ≤ Module.finrank (ZMod 2) V := by
@@ -1328,9 +1277,7 @@ theorem fixedPoints_zpowers_tame_eq_zero {sg t : C}
       rw [← hk, ← e1, ← ha, ← zpow_mul, mul_comm, zpow_mul]
     have hfix : (h⁻¹ * n * h) • w = w := by
       rw [hpow]
-      have hnst : n ∈ MulAction.stabilizer C w := hw
-      have hmem : n ^ a ∈ MulAction.stabilizer C w := zpow_mem hnst a
-      exact hmem
+      exact zpow_mem (show n ∈ MulAction.stabilizer C w from hw) a
     show n • (h • w) = h • w
     calc n • (h • w) = (n * h) • w := (mul_smul n h w).symm
       _ = (h * (h⁻¹ * n * h)) • w := by group
@@ -1413,7 +1360,6 @@ theorem two_torsion_of_centralizer_eq_one [Finite V] {sg t : C}
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
     (hV0 : ∃ v₀ : V, v₀ ≠ (0 : V))
     {x : C} (hx2 : x ^ 2 = 1) (hxt : x * t = t * x) : x = 1 := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   haveI hnorm : (Subgroup.zpowers t).Normal := Tame.zpowers_normal_of_tame hgen hrel
   haveI hqcyc : IsCyclic (C ⧸ Subgroup.zpowers t) := quotient_zpowers_isCyclic_of_tame hgen
   set D : Subgroup C := Subgroup.centralizer (Subgroup.zpowers t : Set C) with hD
@@ -1436,7 +1382,7 @@ theorem two_torsion_of_centralizer_eq_one [Finite V] {sg t : C}
   -- the 2-torsion of `D`: a normal 2-subgroup of `C` containing `x`
   set S : Subgroup C :=
     { carrier := {y : C | y ∈ D ∧ ∃ k : ℕ, y ^ 2 ^ k = 1}
-      one_mem' := ⟨D.one_mem, 0, by norm_num⟩
+      one_mem' := ⟨D.one_mem, 0, one_pow _⟩
       mul_mem' := by
         rintro a b ⟨haD, ka, hka⟩ ⟨hbD, kb, hkb⟩
         refine ⟨D.mul_mem haD hbD, ka + kb, ?_⟩
@@ -1459,7 +1405,7 @@ theorem two_torsion_of_centralizer_eq_one [Finite V] {sg t : C}
     exact ⟨k, Subtype.ext (by rw [SubmonoidClass.coe_pow, OneMemClass.coe_one]; exact hk)⟩
   -- orbit counting: a second `S`-fixed point beyond `0`
   have h2V : (2 : ℕ) ∣ Nat.card V := by
-    letI : Module (ZMod 2) V := AddCommGroup.zmodModule (fun v => by rw [two_nsmul]; exact hV2 v)
+    letI : Module (ZMod 2) V := AddCommGroup.zmodModule fun v => (two_nsmul v).trans (hV2 v)
     haveI : Fintype V := Fintype.ofFinite V
     haveI : FiniteDimensional (ZMod 2) V := Module.Finite.of_finite
     obtain ⟨v₀, hv₀⟩ := hV0
@@ -1623,14 +1569,12 @@ theorem involution_fixedPoints_sq_le_of_tame_pair {C : Type} [Group C]
         (by rw [pow_two]; exact hω2) hcen) hω1
   -- the ramified branch: q ≥ 2 and the unitary-gcd setup
   have hq2 : 2 ≤ q := by
-    rcases Nat.lt_or_ge q 2 with h | h
-    · exfalso
-      have hq1 : q = 1 := by omega
-      rw [hq1, pow_one] at htq
-      refine hcen ?_
-      calc ω * t = (ω * t * ω⁻¹) * ω := by group
-        _ = t * ω := by rw [← htq]
-    · exact h
+    by_contra h
+    have hq1 : q = 1 := by omega
+    rw [hq1, pow_one] at htq
+    refine hcen ?_
+    calc ω * t = (ω * t * ω⁻¹) * ω := by group
+      _ = t * ω := by rw [← htq]
   set g : ℕ := Nat.gcd (q - 1) m with hgdef
   have hgm : g ∣ m := Nat.gcd_dvd_right _ _
   have hg0 : 0 < g := Nat.gcd_pos_of_pos_right _ hm0
@@ -1707,10 +1651,7 @@ theorem involution_fixedPoints_sq_le_of_tame_pair {C : Type} [Group C]
   have hdisj : Disjoint Λ₁ Λ₂ := by
     rw [Finset.disjoint_left]
     intro k h1 h2
-    rw [hΛ₁, Finset.mem_filter] at h1
-    rw [hΛ₂, Finset.mem_filter] at h2
-    obtain ⟨-, -, hlt1⟩ := h1
-    obtain ⟨-, -, hlt2⟩ := h2
+    simp only [hΛ₁, hΛ₂, Finset.mem_filter] at h1 h2
     omega
   have hunion : Λ₁ ∪ Λ₂ = Finset.univ.erase (0 : ZMod r) := by
     ext k
@@ -1724,30 +1665,22 @@ theorem involution_fixedPoints_sq_le_of_tame_pair {C : Type} [Group C]
       rcases Nat.lt_or_ge (ZMod.val k) (ZMod.val ((q : ZMod r) * k)) with h | h
       · exact Or.inl ⟨hk0, h⟩
       · exact Or.inr ⟨hk0, by omega⟩
+  have hq0' : ∀ k : ZMod r, k ≠ 0 → (q : ZMod r) * k ≠ 0 := fun k hk0 h0 =>
+    hk0 (by rw [← hinv2 k, h0, mul_zero])
   have hmapsto : ∀ k ∈ Λ₁, (q : ZMod r) * k ∈ Λ₂ := by
     intro k hk
     rw [hΛ₁, Finset.mem_filter] at hk
     rw [hΛ₂, Finset.mem_filter]
-    obtain ⟨-, hk0, hlt⟩ := hk
-    refine ⟨Finset.mem_univ _, ?_, ?_⟩
-    · intro h0
-      have h1 : (q : ZMod r) * ((q : ZMod r) * k) = (q : ZMod r) * 0 := by rw [h0]
-      rw [hinv2 k, mul_zero] at h1
-      exact hk0 h1
-    · rw [hinv2 k]
-      exact hlt
+    refine ⟨Finset.mem_univ _, hq0' k hk.2.1, ?_⟩
+    rw [hinv2 k]
+    exact hk.2.2
   have hmapsto' : ∀ k ∈ Λ₂, (q : ZMod r) * k ∈ Λ₁ := by
     intro k hk
     rw [hΛ₂, Finset.mem_filter] at hk
     rw [hΛ₁, Finset.mem_filter]
-    obtain ⟨-, hk0, hlt⟩ := hk
-    refine ⟨Finset.mem_univ _, ?_, ?_⟩
-    · intro h0
-      have h1 : (q : ZMod r) * ((q : ZMod r) * k) = (q : ZMod r) * 0 := by rw [h0]
-      rw [hinv2 k, mul_zero] at h1
-      exact hk0 h1
-    · rw [hinv2 k]
-      exact hlt
+    refine ⟨Finset.mem_univ _, hq0' k hk.2.1, ?_⟩
+    rw [hinv2 k]
+    exact hk.2.2
   -- the trace element: every ω-fixed vector is in the range of 1 + ω
   have htrace : ∀ v : V, ω • v = v → ∃ w : V, v = w + ω • w := by
     intro v hv
@@ -1809,10 +1742,7 @@ theorem involution_fixedPoints_sq_le_of_tame_pair {C : Type} [Group C]
   have hAfix : ∀ v : V, A v = 0 → ω • v = v := by
     intro v h
     have h1 : v + ω • v = 0 := h
-    calc ω • v = ω • v + (v + v) := by rw [hV2, add_zero]
-      _ = (v + ω • v) + v := by abel
-      _ = 0 + v := by rw [h1]
-      _ = v := zero_add v
+    exact add_left_cancel (h1.trans (hV2 v).symm)
   have hfixiff : ∀ v : V, ((g₀ ^ (2 ^ s / 2)) • v = v) ↔ v ∈ A.ker := by
     intro v
     rw [AddMonoidHom.mem_ker, hsmul_def v]
@@ -1830,11 +1760,7 @@ theorem involution_fixedPoints_sq_le_of_tame_pair {C : Type} [Group C]
     exact AddMonoidHom.mem_range.mpr ⟨w, hw.symm⟩
   have hcard1 : Nat.card {v : V // (g₀ ^ (2 ^ s / 2)) • v = v} = Nat.card ↥A.ker :=
     Nat.card_congr (Equiv.subtypeEquivRight hfixiff)
-  have hcardle : Nat.card ↥A.ker ≤ Nat.card ↥A.range := by
-    refine Nat.card_le_card_of_injective (fun x => ⟨x.1, hkerle x.2⟩) ?_
-    intro a b hab
-    have h1 := congrArg Subtype.val hab
-    exact Subtype.ext h1
+  have hcardle : Nat.card ↥A.ker ≤ Nat.card ↥A.range := AddSubgroup.card_le_of_le hkerle
   have hiso : Nat.card (V ⧸ A.ker) = Nat.card ↥A.range :=
     Nat.card_congr (QuotientAddGroup.quotientKerEquivRange A).toEquiv
   have hprod : Nat.card V = Nat.card ↥A.range * Nat.card ↥A.ker := by
@@ -1844,7 +1770,6 @@ theorem involution_fixedPoints_sq_le_of_tame_pair {C : Type} [Group C]
     _ ≤ Nat.card ↥A.range * Nat.card ↥A.ker :=
         Nat.mul_le_mul_right _ hcardle
     _ = Nat.card V := hprod.symm
-
 
 /-- **The Sylow-2 fixed-space bound on a ramified simple faithful module.**  The full bound
 `#V^P ^ |P| ≤ #V` follows (via `card_fixedPoints_pow_le_of_half`, the elementary-abelian
@@ -1863,7 +1788,6 @@ theorem card_fixedPoints_pow_le_of_ramified_of_tame_pair {C : Type} [Group C]
     (hram : ∃ v : V, t • v ≠ v) (P : Sylow 2 C) :
     Nat.card {v : V // ∀ p : ↥(P : Subgroup C), p • v = v} ^ Nat.card ↥(P : Subgroup C)
       ≤ Nat.card V := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   have hcyc : IsCyclic ↥(P : Subgroup C) :=
     isCyclic_of_isPGroup_two_of_tame hgen hrel (P : Subgroup C) P.isPGroup'
   obtain ⟨g₀, hg⟩ := hcyc.exists_generator
@@ -1877,7 +1801,6 @@ theorem card_fixedPoints_pow_le_of_ramified_of_tame_pair {C : Type} [Group C]
   refine card_fixedPoints_pow_le_of_half hV2 g₀ hg s hs ?_
   exact involution_fixedPoints_sq_le_of_tame_pair hgen hrel hV2 hfaith hsimple hram P g₀ hg
     s hs1 hs
-
 
 /-- **`𝔽₂[P]`-freeness of the restriction to the Sylow 2-subgroup** (Lemma 6.11, steps 1–2):
 a ramified simple faithful module is equivariantly additively isomorphic to a regular module
@@ -1900,8 +1823,7 @@ theorem sylow_free_of_ramified_of_tame_pair {C : Type} [Group C] [Finite C]
   have hcount :=
     card_fixedPoints_pow_le_of_ramified_of_tame_pair hgen hrel hV2 hfaith hsimple hram P
   obtain ⟨r, φ, hφ⟩ := free_of_card_fixedPoints_pow_le hV2 hcyc P.isPGroup' hcount
-  exact ⟨r, φ, fun p v n x => hφ p v n x⟩
-
+  exact ⟨r, φ, hφ⟩
 
 /-- **The weight-orbit kernel in split-pair form** (what `lemma_6_11` consumes): the equivariant
 `𝔽₂[P]`-freeness `sylow_free_of_ramified` yields an equivariant split pair — take `j := φ`,
@@ -1923,8 +1845,7 @@ theorem sylow_split_pair_of_ramified_of_tame_pair {C : Type} [Group C] [Finite C
       ∀ v : V, q (j v) = v := by
   obtain ⟨r, φ, hφ⟩ := sylow_free_of_ramified_of_tame_pair hgen hrel hV2 hfaith hsimple hram P
   refine ⟨r, φ.toAddMonoidHom, φ.symm.toAddMonoidHom, ?_, ?_, ?_⟩
-  · intro p v n x
-    exact hφ p v n x
+  · exact hφ
   · intro p F
     show φ.symm (fun n x => F n (p⁻¹ * x)) = (p : C) • φ.symm F
     refine φ.injective ?_
@@ -1935,7 +1856,6 @@ theorem sylow_split_pair_of_ramified_of_tame_pair {C : Type} [Group C] [Finite C
     exact hpx.symm
   · intro v
     exact φ.symm_apply_apply v
-
 
 /-- **Lemma 6.11, abstract tame-pair form** (P-17e5 statement alignment — resolves the banked
 e5 design flag): the split-summand package from a generating pair `(sg, t)` with the tame
@@ -1952,14 +1872,10 @@ theorem lemma_6_11_of_tame_pair {C : Type} [Group C] [Finite C]
       (∀ (h : C) (v : V) (n : Fin N) (x : C), ι (h • v) n x = ι v n (h⁻¹ * x)) ∧
       (∀ (h : C) (F : Fin N → C → ZMod 2), r (fun n x => F n (h⁻¹ * x)) = h • r F) ∧
       ∀ v : V, r (ι v) = v := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   obtain ⟨P⟩ : Nonempty (Sylow 2 C) := inferInstance
   haveI : (P : Subgroup C).FiniteIndex := ⟨Subgroup.index_ne_zero_of_finite⟩
-  have hodd : Odd (P : Subgroup C).index := by
-    have h2 : ¬ (2 : ℕ) ∣ (P : Subgroup C).index := Sylow.not_dvd_index P
-    rcases Nat.even_or_odd (P : Subgroup C).index with he | ho
-    · exact absurd he.two_dvd h2
-    · exact ho
+  have hodd : Odd (P : Subgroup C).index :=
+    Nat.not_even_iff_odd.mp fun he => Sylow.not_dvd_index P he.two_dvd
   obtain ⟨r, j, q, hj, hq, hqj⟩ :=
     sylow_split_pair_of_ramified_of_tame_pair hgen hrel hV2 hfaith hsimple hram P
   exact regular_summand_of_subgroup_summand hV2 (P : Subgroup C) hodd j q hj hq hqj
@@ -1990,8 +1906,7 @@ theorem lemma_6_11 {C : Type} [Group C] [TopologicalSpace C] [Finite C]
       (∀ (h : C) (F : Fin N → C → ZMod 2), r (fun n x => F n (h⁻¹ * x)) = h • r F) ∧
       ∀ v : V, r (ι v) = v := by
   have hrel : (c tameSigma)⁻¹ * c tameTau * c tameSigma = c tameTau ^ 2 := by
-    have h := congrArg (⇑c) tame_relation
-    simpa only [conjP, map_mul, map_inv, map_pow] using h
+    simpa only [conjP, map_mul, map_inv, map_pow] using congrArg (⇑c) tame_relation
   exact lemma_6_11_of_tame_pair hgen hrel hV2 hfaith hsimple hram
 
 /-! ## The consequence: equivariant lifting (`Hom(V, −)`-exactness)
@@ -2063,22 +1978,15 @@ theorem equivariant_lift_of_regular_summand [Finite C]
     (hπ : Function.Surjective ⇑π)
     (f : V →+ W') (hfeq : ∀ (h : C) (v : V), f (h • v) = h • f v) :
     ∃ g : V →+ W, (∀ (h : C) (v : V), g (h • v) = h • g v) ∧ ∀ v : V, π (g v) = f v := by
-  have hz2 : ∀ z : ZMod 2, z = 0 ∨ z = 1 := by decide
   haveI : Fintype C := Fintype.ofFinite C
-  haveI : Module (ZMod 2) W := AddCommGroup.zmodModule (fun w => by
-    rw [two_nsmul]; exact h2W w)
-  haveI : Module (ZMod 2) W' := AddCommGroup.zmodModule (fun w => by
-    rw [two_nsmul]; exact h2W' w)
+  haveI : Module (ZMod 2) W := AddCommGroup.zmodModule fun w => (two_nsmul w).trans (h2W w)
+  haveI : Module (ZMod 2) W' := AddCommGroup.zmodModule fun w => (two_nsmul w).trans (h2W' w)
   have hsmul_comm : ∀ (h : C) (z : ZMod 2) (u : W), h • (z • u) = z • (h • u) := by
     intro h z u
-    rcases hz2 z with hz | hz <;> rw [hz]
-    · rw [zero_smul, zero_smul, smul_zero]
-    · rw [one_smul, one_smul]
+    rcases zmod2_cases z with rfl | rfl <;> simp
   have hπz : ∀ (z : ZMod 2) (u : W), π (z • u) = z • π u := by
     intro z u
-    rcases hz2 z with hz | hz <;> rw [hz]
-    · rw [zero_smul, zero_smul, map_zero]
-    · rw [one_smul, one_smul]
+    rcases zmod2_cases z with rfl | rfl <;> simp
   -- `f` transported to the regular module.
   set f' : (Fin N → C → ZMod 2) →+ W' := f.comp r with hf'def
   have hf'eq : ∀ (h : C) (B : Fin N → C → ZMod 2),
@@ -2139,9 +2047,7 @@ theorem equivariant_lift_of_regular_summand [Finite C]
     refine (Finset.sum_congr rfl fun n _ => ?_)
     rw [map_sum]
     refine Finset.sum_congr rfl fun x _ => ?_
-    rcases hz2 (F n x) with hz | hz <;> rw [hz]
-    · rw [zero_smul, zero_smul, map_zero]
-    · rw [one_smul, one_smul]
+    rcases zmod2_cases (F n x) with hz | hz <;> rw [hz] <;> simp
   -- assemble `g = G ∘ ι`.
   refine ⟨G.comp ι, fun h v => ?_, fun v => ?_⟩
   · show G (ι (h • v)) = h • G (ι v)
