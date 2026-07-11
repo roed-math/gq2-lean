@@ -44,24 +44,16 @@ variable (c : TwoCocycle L)
 
 /-- `κ` vanishes on the left axis (`κ(1,l) = 0`). -/
 theorem κ_one_left (l : L) : c.κ 1 l = 0 := by
-  have h := c.cocyc 1 1 l
-  simp only [one_mul] at h
-  rw [c.norm, zero_add] at h
-  rwa [CharTwo.add_self_eq_zero] at h
+  simpa [c.norm] using c.cocyc 1 1 l
 
 /-- `κ` vanishes on the right axis (`κ(l,1) = 0`). -/
 theorem κ_one_right (l : L) : c.κ l 1 = 0 := by
-  have h := c.cocyc l 1 1
-  simp only [mul_one] at h
-  rw [c.norm, add_zero, CharTwo.add_self_eq_zero] at h
-  exact h.symm
+  simpa [c.norm] using c.cocyc l 1 1
 
 /-- Symmetry of `κ` on inverse pairs (`κ(l,l⁻¹) = κ(l⁻¹,l)`) — the fact underlying the inverse law
 of the central extension. -/
 theorem κ_inv (l : L) : c.κ l l⁻¹ = c.κ l⁻¹ l := by
-  have h := c.cocyc l l⁻¹ l
-  rw [mul_inv_cancel, inv_mul_cancel, c.κ_one_left, c.κ_one_right, zero_add, add_zero] at h
-  exact h
+  simpa [c.κ_one_left, c.κ_one_right] using c.cocyc l l⁻¹ l
 
 end TwoCocycle
 
@@ -107,9 +99,7 @@ instance : Group (CentExt c) where
     · exact inv_mul_cancel p.1
     · show p.2 + c.κ p.1 p.1⁻¹ + p.2 + c.κ p.1⁻¹ p.1 = 0
       rw [c.κ_inv]
-      have h : p.2 + c.κ p.1⁻¹ p.1 + p.2 + c.κ p.1⁻¹ p.1
-          = (p.2 + c.κ p.1⁻¹ p.1) + (p.2 + c.κ p.1⁻¹ p.1) := by ring
-      rw [h, CharTwo.add_self_eq_zero]
+      exact (by decide : ∀ x y : ZMod 2, x + y + x + y = 0) _ _
 
 @[simp] theorem mul_base (p q : CentExt c) : (p * q).base = p.base * q.base := rfl
 @[simp] theorem mul_fib (p q : CentExt c) : (p * q).fib = p.fib + q.fib + c.κ p.base q.base := rfl
@@ -161,18 +151,14 @@ def liftMark (t : Marking L) (c : TwoCocycle L) : Marking (CentExt c) :=
 
 /-- The tame relator value of the lifted marking projects to that of the base marking. -/
 theorem liftMark_tameValue_base (t : Marking L) (c : TwoCocycle L) :
-    (liftMark t c).tameValue.base = t.tameValue := by
-  have h := Marking.map_tameValue (CentExt.proj c) (liftMark t c)
-  rw [liftMark_map_proj] at h
-  exact h.symm
+    (liftMark t c).tameValue.base = t.tameValue :=
+  liftMark_map_proj t c ▸ (Marking.map_tameValue (CentExt.proj c) (liftMark t c)).symm
 
 /-- The wild relator value of the lifted marking projects to that of the base marking (needs `L`
 finite: `Marking.map_wildValue`'s `ω₂`-naturality is finite-only, and `CentExt c` is finite). -/
 theorem liftMark_wildValue_base [Finite L] (t : Marking L) (c : TwoCocycle L) :
-    (liftMark t c).wildValue.base = t.wildValue := by
-  have h := Marking.map_wildValue (CentExt.proj c) (liftMark t c)
-  rw [liftMark_map_proj] at h
-  exact h.symm
+    (liftMark t c).wildValue.base = t.wildValue :=
+  liftMark_map_proj t c ▸ (Marking.map_wildValue (CentExt.proj c) (liftMark t c)).symm
 
 /-- The **relator-`z` pair** of `c` relative to a base marking `t`: the fibre coordinates of the
 tame and wild relator values of the lifted marking — the degree-2 obstruction of `c`, pre-quotient
@@ -213,15 +199,10 @@ def shiftLiftMark (t : Marking L) (a : Fin 4 → ZMod 2) (c : TwoCocycle L) : Ma
 /-- The base projection's kernel `{(1, z)} ≅ 𝔽₂` is elementary-2. -/
 theorem isPGroup_proj_ker (c : TwoCocycle L) : IsPGroup 2 (CentExt.proj c).ker := by
   intro g
-  refine ⟨1, ?_⟩
   have hb : g.1.base = 1 := MonoidHom.mem_ker.mp g.2
-  apply Subtype.ext
+  refine ⟨1, Subtype.ext ?_⟩
   rw [SubmonoidClass.coe_pow, pow_one, pow_two]
-  apply CentExt.ext
-  · show g.1.base * g.1.base = (1 : CentExt c).base
-    rw [hb, mul_one, CentExt.one_base]
-  · show g.1.fib + g.1.fib + c.κ g.1.base g.1.base = (1 : CentExt c).fib
-    rw [hb, c.norm, add_zero, CharTwo.add_self_eq_zero, CentExt.one_fib]
+  exact CentExt.ext (by simp [hb]) (by simp [hb, c.norm, CharTwo.add_self_eq_zero])
 
 /-- **The `Pro2Core` crux for the extension.**  If the base marking's wild core is a `2`-group, so
 is the shifted lift's — an extension of it by the central `𝔽₂` (`IsPGroup.comap_of_injective` route,
@@ -230,37 +211,23 @@ theorem isPGroup_shiftLift_wildCore (t : Marking L) (a : Fin 4 → ZMod 2) (c : 
     (ht2 : IsPGroup 2 (Subgroup.normalClosure {t.x₀, t.x₁})) :
     IsPGroup 2 (Subgroup.normalClosure
       {(shiftLiftMark t a c).x₀, (shiftLiftMark t a c).x₁}) := by
-  have hcomap : IsPGroup 2 (Subgroup.comap (CentExt.proj c)
-      (Subgroup.normalClosure {t.x₀, t.x₁})) :=
-    ht2.comap_of_ker_isPGroup (CentExt.proj c) (isPGroup_proj_ker c)
-  have hle : Subgroup.normalClosure {(shiftLiftMark t a c).x₀, (shiftLiftMark t a c).x₁}
-      ≤ Subgroup.comap (CentExt.proj c) (Subgroup.normalClosure {t.x₀, t.x₁}) := by
-    apply Subgroup.normalClosure_le_normal
-    intro w hw
-    rw [SetLike.mem_coe, Subgroup.mem_comap]
-    simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hw
-    rcases hw with h | h <;> rw [h]
-    · show t.x₀ ∈ Subgroup.normalClosure {t.x₀, t.x₁}
-      exact Subgroup.subset_normalClosure (Set.mem_insert _ _)
-    · show t.x₁ ∈ Subgroup.normalClosure {t.x₀, t.x₁}
-      exact Subgroup.subset_normalClosure (Set.mem_insert_of_mem _ rfl)
-  intro g
-  obtain ⟨k, hk⟩ := hcomap ⟨g.1, hle g.2⟩
-  exact ⟨k, Subtype.ext (by rw [SubmonoidClass.coe_pow]; exact congrArg Subtype.val hk)⟩
+  refine (ht2.comap_of_ker_isPGroup (CentExt.proj c) (isPGroup_proj_ker c)).to_le
+    (Subgroup.normalClosure_le_normal ?_)
+  rintro w (rfl | rfl)
+  · exact Subgroup.subset_normalClosure (Set.mem_insert _ _)
+  · exact Subgroup.subset_normalClosure (Set.mem_insert_of_mem _ rfl)
 
 /-- The shifted lift's tame relator value projects to the base's. -/
 theorem shiftLiftMark_tameValue_base (t : Marking L) (a : Fin 4 → ZMod 2) (c : TwoCocycle L) :
-    (shiftLiftMark t a c).tameValue.base = t.tameValue := by
-  have h := Marking.map_tameValue (CentExt.proj c) (shiftLiftMark t a c)
-  rw [shiftLiftMark_map_proj] at h
-  exact h.symm
+    (shiftLiftMark t a c).tameValue.base = t.tameValue :=
+  shiftLiftMark_map_proj t a c ▸
+    (Marking.map_tameValue (CentExt.proj c) (shiftLiftMark t a c)).symm
 
 /-- The shifted lift's wild relator value projects to the base's (needs `L` finite). -/
 theorem shiftLiftMark_wildValue_base [Finite L] (t : Marking L) (a : Fin 4 → ZMod 2)
-    (c : TwoCocycle L) : (shiftLiftMark t a c).wildValue.base = t.wildValue := by
-  have h := Marking.map_wildValue (CentExt.proj c) (shiftLiftMark t a c)
-  rw [shiftLiftMark_map_proj] at h
-  exact h.symm
+    (c : TwoCocycle L) : (shiftLiftMark t a c).wildValue.base = t.wildValue :=
+  shiftLiftMark_map_proj t a c ▸
+    (Marking.map_wildValue (CentExt.proj c) (shiftLiftMark t a c)).symm
 
 /-- **Tame relator dies exactly.**  When the base marking satisfies the tame relation and the shifted
 tame `z`-value is `0`, the shifted lift's tame relator value is the identity of the extension. -/
@@ -316,12 +283,8 @@ theorem NA_le_ker_shiftLift (U : OpenNormalSubgroup (FreeProfiniteGroup (Fin 4))
       exact (Marking.wildValue_eq_one_iff _).mp
         (shiftLiftMark_wildValue_eq_one t_L hadmL.2.2.1 a c hwild0))
   have hker_open :
-      IsOpen ((m.toMonoidHom.ker : Subgroup _) : Set (FreeProfiniteGroup (Fin 4))) := by
-    have hset : ((m.toMonoidHom.ker : Subgroup _) : Set (FreeProfiniteGroup (Fin 4)))
-        = m ⁻¹' {1} := by
-      ext g; simp [MonoidHom.mem_ker]
-    rw [hset]
-    exact (isOpen_discrete ({1} : Set (CentExt c))).preimage m.continuous_toFun
+      IsOpen ((m.toMonoidHom.ker : Subgroup _) : Set (FreeProfiniteGroup (Fin 4))) :=
+    (isOpen_discrete ({1} : Set (CentExt c))).preimage m.continuous_toFun
   let V : OpenNormalSubgroup (FreeProfiniteGroup (Fin 4)) :=
     { toSubgroup := m.toMonoidHom.ker, isOpen' := hker_open }
   have hx0 : m.toMonoidHom univMarking.x₀ = (shiftLiftMark t_L a c).x₀ := congrArg Marking.x₀ hut
@@ -346,12 +309,8 @@ theorem NA_le_ker_shiftLift (U : OpenNormalSubgroup (FreeProfiniteGroup (Fin 4))
         IsPGroup.comap_of_injective
           (isPGroup_shiftLift_wildCore t_L a c hadmL.2.2.2)
           (QuotientGroup.kerLift m.toMonoidHom) (QuotientGroup.kerLift_injective m.toMonoidHom)
-      refine IsPGroup.to_le hcomap ?_
-      apply Subgroup.normalClosure_le_normal
-      intro w hw
-      rw [SetLike.mem_coe, Subgroup.mem_comap]
-      simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hw
-      rcases hw with h | h <;> subst h
+      refine IsPGroup.to_le hcomap (Subgroup.normalClosure_le_normal ?_)
+      rintro w (rfl | rfl)
       · show QuotientGroup.kerLift m.toMonoidHom (QuotientGroup.mk' V.toSubgroup univMarking.x₀)
             ∈ Subgroup.normalClosure {(shiftLiftMark t_L a c).x₀, (shiftLiftMark t_L a c).x₁}
         rw [hval, hx0]
@@ -481,9 +440,7 @@ local instance trivAction : DistribMulAction (CentExt c) (ZMod 2) where
 /-- The comparison hom `⟨z, g⟩ ↦ incl z · g`, `WordLift (ZMod 2) (CentExt c) →* CentExt c`. -/
 def shiftCompare : WordLift (ZMod 2) (CentExt c) →* CentExt c where
   toFun p := CentExt.incl c p.u * p.g
-  map_one' := by
-    show CentExt.incl c (0 : ZMod 2) * (1 : CentExt c) = 1
-    rw [CentExt.incl_zero, mul_one]
+  map_one' := mul_one 1
   map_mul' p q := by
     apply CentExt.ext
     · simp only [CentExt.mul_base, WordLift.mul_g, CentExt.incl_base, one_mul]
@@ -496,8 +453,8 @@ def shiftCompare : WordLift (ZMod 2) (CentExt c) →* CentExt c where
     shiftCompare p = CentExt.incl c p.u * p.g := rfl
 
 theorem shiftCompare_fib (p : WordLift (ZMod 2) (CentExt c)) :
-    (shiftCompare p).fib = p.u + p.g.fib := by
-  rw [shiftCompare_apply, CentExt.incl_mul_fib]
+    (shiftCompare p).fib = p.u + p.g.fib :=
+  CentExt.incl_mul_fib p.u p.g
 
 /-- The base projection `⟨z, g⟩ ↦ g`, `WordLift (ZMod 2) (CentExt c) →* CentExt c`. -/
 def wlBase : WordLift (ZMod 2) (CentExt c) →* CentExt c where
@@ -507,11 +464,9 @@ def wlBase : WordLift (ZMod 2) (CentExt c) →* CentExt c where
 
 /-- `shiftCompare ⟨z, (g, 0)⟩ = (g, z)` — the central shift applied to a zero-fibre lift. -/
 theorem shiftCompare_liftGen (g : L) (z : ZMod 2) :
-    shiftCompare (⟨z, ((g, 0) : CentExt c)⟩ : WordLift (ZMod 2) (CentExt c)) = ((g, z) : CentExt c) := by
-  apply CentExt.ext
-  · show (1 : L) * g = g
-    rw [one_mul]
-  · show z + (0 : ZMod 2) + c.κ 1 g = z
+    shiftCompare (⟨z, ((g, 0) : CentExt c)⟩ : WordLift (ZMod 2) (CentExt c)) = ((g, z) : CentExt c) :=
+  CentExt.ext (one_mul g) <| by
+    show z + (0 : ZMod 2) + c.κ 1 g = z
     rw [c.κ_one_left, add_zero, add_zero]
 
 /-- `liftMarking (liftMark t c) a` projects (via `wlBase`) back to `liftMark t c`. -/
@@ -526,17 +481,13 @@ theorem map_shiftCompare_liftMarking (t : Marking L) (a : Fin 4 → ZMod 2) :
 
 /-- The tame relator value's base coordinate of the lift recovers that of `liftMark t c`. -/
 theorem liftMarking_tameValue_g (t : Marking L) (a : Fin 4 → ZMod 2) :
-    (liftMarking (liftMark t c) a).tameValue.g = (liftMark t c).tameValue := by
-  have h := Marking.map_tameValue wlBase (liftMarking (liftMark t c) a)
-  rw [map_wlBase_liftMarking] at h
-  exact h.symm
+    (liftMarking (liftMark t c) a).tameValue.g = (liftMark t c).tameValue :=
+  map_wlBase_liftMarking t a ▸ (Marking.map_tameValue wlBase (liftMarking (liftMark t c) a)).symm
 
 /-- The wild relator value's base coordinate of the lift recovers that of `liftMark t c`. -/
 theorem liftMarking_wildValue_g [Finite L] (t : Marking L) (a : Fin 4 → ZMod 2) :
-    (liftMarking (liftMark t c) a).wildValue.g = (liftMark t c).wildValue := by
-  have h := Marking.map_wildValue wlBase (liftMarking (liftMark t c) a)
-  rw [map_wlBase_liftMarking] at h
-  exact h.symm
+    (liftMarking (liftMark t c) a).wildValue.g = (liftMark t c).wildValue :=
+  map_wlBase_liftMarking t a ▸ (Marking.map_wildValue wlBase (liftMarking (liftMark t c) a)).symm
 
 /-- The tame fibre shift of the lift is `a 1` (trivial action, char 2 — relation-free). -/
 theorem liftMarking_tameValue_u_eq (t : Marking L) (a : Fin 4 → ZMod 2) :
@@ -578,10 +529,8 @@ theorem exists_shift_of_relZ_eq [Finite L] (t : Marking L)
     ∃ a : Fin 4 → ZMod 2, (shiftLiftMark t a c).tameValue.fib = 0
       ∧ (shiftLiftMark t a c).wildValue.fib = 0 := by
   refine ⟨fun _ => (liftMark t c).tameValue.fib, ?_, ?_⟩
-  · rw [shiftLiftMark_tameValue_fib]
-    exact CharTwo.add_self_eq_zero _
-  · rw [shiftLiftMark_wildValue_fib, ← hrel]
-    exact CharTwo.add_self_eq_zero _
+  · rw [shiftLiftMark_tameValue_fib, CharTwo.add_self_eq_zero]
+  · rw [shiftLiftMark_wildValue_fib, ← hrel, CharTwo.add_self_eq_zero]
 
 end ShiftLaws
 
@@ -608,16 +557,8 @@ def TwoCocycle.comap (c : TwoCocycle L) (φ : L' →* L) : TwoCocycle L' where
 /-- The base hom `φ` lifts to a hom of central extensions `CentExt (c.comap φ) →* CentExt c`. -/
 def projExt (c : TwoCocycle L) (φ : L' →* L) : CentExt (c.comap φ) →* CentExt c where
   toFun p := ((φ p.base, p.fib) : CentExt c)
-  map_one' := by
-    apply CentExt.ext
-    · show φ (1 : L') = 1; rw [map_one]
-    · rfl
-  map_mul' p q := by
-    apply CentExt.ext
-    · show φ (p.base * q.base) = φ p.base * φ q.base; rw [map_mul]
-    · show p.fib + q.fib + (c.comap φ).κ p.base q.base
-        = p.fib + q.fib + c.κ (φ p.base) (φ q.base)
-      rfl
+  map_one' := CentExt.ext (map_one φ) rfl
+  map_mul' p q := CentExt.ext (map_mul φ p.base q.base) rfl
 
 @[simp] theorem projExt_fib (c : TwoCocycle L) (φ : L' →* L) (p : CentExt (c.comap φ)) :
     (projExt c φ p).fib = p.fib := rfl
@@ -712,14 +653,10 @@ instance : Group (FiberProd c₁ c₂) where
     · exact inv_mul_cancel p.1
     · show p.2.1 + c₁.κ p.1 p.1⁻¹ + p.2.1 + c₁.κ p.1⁻¹ p.1 = 0
       rw [c₁.κ_inv]
-      have h : p.2.1 + c₁.κ p.1⁻¹ p.1 + p.2.1 + c₁.κ p.1⁻¹ p.1
-          = (p.2.1 + c₁.κ p.1⁻¹ p.1) + (p.2.1 + c₁.κ p.1⁻¹ p.1) := by ring
-      rw [h, CharTwo.add_self_eq_zero]
+      exact (by decide : ∀ x y : ZMod 2, x + y + x + y = 0) _ _
     · show p.2.2 + c₂.κ p.1 p.1⁻¹ + p.2.2 + c₂.κ p.1⁻¹ p.1 = 0
       rw [c₂.κ_inv]
-      have h : p.2.2 + c₂.κ p.1⁻¹ p.1 + p.2.2 + c₂.κ p.1⁻¹ p.1
-          = (p.2.2 + c₂.κ p.1⁻¹ p.1) + (p.2.2 + c₂.κ p.1⁻¹ p.1) := by ring
-      rw [h, CharTwo.add_self_eq_zero]
+      exact (by decide : ∀ x y : ZMod 2, x + y + x + y = 0) _ _
 
 @[simp] theorem mul_base (p q : FiberProd c₁ c₂) : (p * q).base = p.base * q.base := rfl
 
@@ -738,16 +675,11 @@ def pr2 : FiberProd c₁ c₂ →* CentExt c₂ where
 /-- The fibre-sum hom to the sum extension — a homomorphism because `fibA + fibB` tracks `κ₁ + κ₂`. -/
 def prSum : FiberProd c₁ c₂ →* CentExt (c₁ + c₂) where
   toFun p := ((p.base, p.fibA + p.fibB) : CentExt (c₁ + c₂))
-  map_one' := by
-    apply CentExt.ext
-    · rfl
-    · exact add_zero (0 : ZMod 2)
-  map_mul' p q := by
-    apply CentExt.ext
-    · rfl
-    · show (p.fibA + q.fibA + c₁.κ p.base q.base) + (p.fibB + q.fibB + c₂.κ p.base q.base)
+  map_one' := CentExt.ext rfl (add_zero (0 : ZMod 2))
+  map_mul' p q := CentExt.ext rfl <| by
+    show (p.fibA + q.fibA + c₁.κ p.base q.base) + (p.fibB + q.fibB + c₂.κ p.base q.base)
         = (p.fibA + p.fibB) + (q.fibA + q.fibB) + (c₁.κ p.base q.base + c₂.κ p.base q.base)
-      ring
+    ring
 
 @[simp] theorem pr1_fib (p : FiberProd c₁ c₂) : (pr1 p).fib = p.fibA := rfl
 @[simp] theorem pr2_fib (p : FiberProd c₁ c₂) : (pr2 p).fib = p.fibB := rfl
@@ -867,16 +799,9 @@ of the coboundary extension with the split extension. -/
 def Psi (lam : L → ZMod 2) (hlam1 : lam 1 = 0) :
     CentExt (coboundaryCocycle lam hlam1) →* CentExt (zeroCocycle : TwoCocycle L) where
   toFun p := ((p.base, p.fib + lam p.base) : CentExt (zeroCocycle : TwoCocycle L))
-  map_one' := by
-    apply CentExt.ext
-    · rfl
-    · show (1 : CentExt (coboundaryCocycle lam hlam1)).fib
-          + lam (1 : CentExt (coboundaryCocycle lam hlam1)).base = (1 : CentExt _).fib
-      simp [CentExt.one_fib, CentExt.one_base, hlam1]
+  map_one' := CentExt.ext rfl (by show (0 : ZMod 2) + lam 1 = 0; simp [hlam1])
   map_mul' p q := by
-    apply CentExt.ext
-    · show p.base * q.base = p.base * q.base
-      rfl
+    refine CentExt.ext rfl ?_
     · show (p * q).fib + lam (p * q).base
           = (p.fib + lam p.base) + (q.fib + lam q.base) + (zeroCocycle : TwoCocycle L).κ p.base q.base
       rw [CentExt.mul_fib, CentExt.mul_base,
@@ -902,10 +827,10 @@ admissible level both relators die, so this is `0` — the vanishing of `obs` on
 theorem obs_coboundary_eq [Finite L] (t : Marking L) (lam : L → ZMod 2) (hlam1 : lam 1 = 0) :
     (relZPair t (coboundaryCocycle lam hlam1)).1 + (relZPair t (coboundaryCocycle lam hlam1)).2
       = lam t.tameValue + lam t.wildValue := by
-  have hz1 : (liftMark t (zeroCocycle : TwoCocycle L)).tameValue.fib = 0 := by
-    have := relZPair_zero t; rw [Prod.ext_iff] at this; exact this.1
-  have hz2 : (liftMark t (zeroCocycle : TwoCocycle L)).wildValue.fib = 0 := by
-    have := relZPair_zero t; rw [Prod.ext_iff] at this; exact this.2
+  have hz1 : (liftMark t (zeroCocycle : TwoCocycle L)).tameValue.fib = 0 :=
+    congrArg Prod.fst (relZPair_zero t)
+  have hz2 : (liftMark t (zeroCocycle : TwoCocycle L)).wildValue.fib = 0 :=
+    congrArg Prod.snd (relZPair_zero t)
   have htame : (relZPair t (coboundaryCocycle lam hlam1)).1
       = ![lam t.σ, lam t.τ, lam t.x₀, lam t.x₁] 1 + lam t.tameValue := by
     have h := congrArg CentExt.fib
@@ -954,9 +879,7 @@ noncomputable def levelProj (U : OpenNormalSubgroup (FreeProfiniteGroup (Fin 4))
     (hU : NA ≤ U.toSubgroup) :
     ContinuousMonoidHom (FreeProfiniteGroup (Fin 4) ⧸ NA)
       (FreeProfiniteGroup (Fin 4) ⧸ U.toSubgroup) :=
-  quotientLift NA (quotientMk U.toSubgroup) (by
-    rw [show (quotientMk U.toSubgroup).toMonoidHom.ker = U.toSubgroup from QuotientGroup.ker_mk' _]
-    exact hU)
+  quotientLift NA (quotientMk U.toSubgroup) (hU.trans_eq (QuotientGroup.ker_mk' _).symm)
 
 @[simp] theorem levelProj_quotientMk (U : OpenNormalSubgroup (FreeProfiniteGroup (Fin 4)))
     (hU : NA ≤ U.toSubgroup) (g : FreeProfiniteGroup (Fin 4)) :
@@ -1021,10 +944,8 @@ theorem exists_openNormalSubgroup_factor_two
     obtain ⟨A, B, hA, hB, hpA, hpB, hAB⟩ := isOpen_prod_iff.mp hop p.1 p.2 rfl
     have hOA : IsOpen ((fun w => p.1 * w) ⁻¹' A) := hA.preimage (continuous_const.mul continuous_id)
     have hOB : IsOpen ((fun w => p.2 * w) ⁻¹' B) := hB.preimage (continuous_const.mul continuous_id)
-    have h1A : (1 : G) ∈ (fun w => p.1 * w) ⁻¹' A := by
-      rw [Set.mem_preimage, mul_one]; exact hpA
-    have h1B : (1 : G) ∈ (fun w => p.2 * w) ⁻¹' B := by
-      rw [Set.mem_preimage, mul_one]; exact hpB
+    have h1A : (1 : G) ∈ (fun w => p.1 * w) ⁻¹' A := by simpa using hpA
+    have h1B : (1 : G) ∈ (fun w => p.2 * w) ⁻¹' B := by simpa using hpB
     obtain ⟨WA, hWA⟩ := ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one hOA h1A
     obtain ⟨WB, hWB⟩ := ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one hOB h1B
     refine ⟨WA ⊓ WB, fun u hu v hv => ?_⟩
@@ -1085,12 +1006,9 @@ theorem exists_twoCocycle_factor
   let U : OpenNormalSubgroup (FreeProfiniteGroup (Fin 4)) :=
     { toSubgroup := V.toSubgroup.comap (QuotientGroup.mk' NA)
       isOpen' := hUopen }
-  have hU : NA ≤ U.toSubgroup := by
-    intro n hn
-    show n ∈ V.toSubgroup.comap (QuotientGroup.mk' NA)
-    rw [Subgroup.mem_comap, show (QuotientGroup.mk' NA) n = 1 from
-      (QuotientGroup.eq_one_iff n).mpr hn]
-    exact one_mem _
+  have hU : NA ≤ U.toSubgroup :=
+    (QuotientGroup.ker_mk' NA).symm.trans_le
+      (Subgroup.ker_le_comap (f := QuotientGroup.mk' NA) V.toSubgroup)
   refine ⟨U, hU, ?_, ?_⟩
   · refine
       { κ := fun p q => Quotient.liftOn₂ p q
@@ -1110,9 +1028,7 @@ theorem exists_twoCocycle_factor
           * QuotientGroup.mk y₂ ∈ V := by
         have h := (Subgroup.mem_comap).mp hyU
         rwa [map_mul, map_inv] at h
-      have key := hV (QuotientGroup.mk x₁) (QuotientGroup.mk y₁) _ hxv _ hyv
-      rw [mul_inv_cancel_left, mul_inv_cancel_left] at key
-      exact key.symm
+      simpa using (hV (QuotientGroup.mk x₁) (QuotientGroup.mk y₁) _ hxv _ hyv).symm
     · show κ (QuotientGroup.mk 1, QuotientGroup.mk 1) = 0
       rw [QuotientGroup.mk_one]; exact hκ1
     · intro a b c
@@ -1148,12 +1064,9 @@ theorem exists_oneCochain_factor
   let U : OpenNormalSubgroup (FreeProfiniteGroup (Fin 4)) :=
     { toSubgroup := V.toSubgroup.comap (QuotientGroup.mk' NA)
       isOpen' := hUopen }
-  have hU : NA ≤ U.toSubgroup := by
-    intro n hn
-    show n ∈ V.toSubgroup.comap (QuotientGroup.mk' NA)
-    rw [Subgroup.mem_comap, show (QuotientGroup.mk' NA) n = 1 from
-      (QuotientGroup.eq_one_iff n).mpr hn]
-    exact one_mem _
+  have hU : NA ≤ U.toSubgroup :=
+    (QuotientGroup.ker_mk' NA).symm.trans_le
+      (Subgroup.ker_le_comap (f := QuotientGroup.mk' NA) V.toSubgroup)
   refine ⟨U, hU, fun p => Quotient.liftOn p (fun x => ψ (QuotientGroup.mk x)) ?_, ?_⟩
   · intro x₁ x₂ hx
     have hxU : x₁⁻¹ * x₂ ∈ V.toSubgroup.comap (QuotientGroup.mk' NA) :=
@@ -1162,9 +1075,7 @@ theorem exists_oneCochain_factor
         * QuotientGroup.mk x₂ ∈ V := by
       have h := (Subgroup.mem_comap).mp hxU
       rwa [map_mul, map_inv] at h
-    have key := hV (QuotientGroup.mk x₁) (QuotientGroup.mk x₁) _ hxv 1 (one_mem _)
-    rw [mul_inv_cancel_left] at key
-    exact key.symm
+    simpa using (hV (QuotientGroup.mk x₁) (QuotientGroup.mk x₁) _ hxv 1 (one_mem _)).symm
   · intro x
     induction x using QuotientGroup.induction_on with | H a =>
     rfl
@@ -1359,8 +1270,7 @@ theorem nonempty_levelFactor_normalize (φ : Z2 (FreeProfiniteGroup (Fin 4) ⧸ 
     Nonempty (LevelFactor (normalizeCochain φ.1)) := by
   have hφcont : Continuous φ.1 := (mem_Z2_iff.mp φ.2).1
   have hφcoc := (mem_Z2_iff.mp φ.2).2
-  have hcont : Continuous (normalizeCochain φ.1) := by
-    unfold normalizeCochain; exact hφcont.sub continuous_const
+  have hcont : Continuous (normalizeCochain φ.1) := hφcont.sub continuous_const
   have hnorm : normalizeCochain φ.1 (1, 1) = 0 := by
     simp only [normalizeCochain, Pi.sub_apply, sub_self]
   have hcoc : ∀ a b c, normalizeCochain φ.1 (a, b) + normalizeCochain φ.1 (a * b, c)
@@ -1437,13 +1347,9 @@ theorem obs_ker_le :
   rw [AddSubgroup.mem_addSubgroupOf]
   set F := (nonempty_levelFactor_normalize htriv φ).some with hF
   have hobs0 : F.obs = 0 := by rw [← obsFun_eq htriv φ F]; exact hφ
-  have hsum : (liftMark (univMarking.map (QuotientGroup.mk' F.U.toSubgroup)) F.c).tameValue.fib
-      + (liftMark (univMarking.map (QuotientGroup.mk' F.U.toSubgroup)) F.c).wildValue.fib = 0 :=
-    hobs0
   have hbal : (liftMark (univMarking.map (QuotientGroup.mk' F.U.toSubgroup)) F.c).tameValue.fib
-      = (liftMark (univMarking.map (QuotientGroup.mk' F.U.toSubgroup)) F.c).wildValue.fib := by
-    have key : ∀ a b : ZMod 2, a + b = 0 → a = b := by decide
-    exact key _ _ hsum
+      = (liftMark (univMarking.map (QuotientGroup.mk' F.U.toSubgroup)) F.c).wildValue.fib :=
+    CharTwo.add_eq_zero.mp hobs0
   have hnB2 : normalizeCochain φ.1 ∈ B2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2) :=
     mem_B2_of_factor_balanced (normalizeCochain φ.1) htriv F.U F.hU F.c F.hfact hbal
   have hconst : φ.1 = normalizeCochain φ.1 + fun _ => φ.1 (1, 1) := by

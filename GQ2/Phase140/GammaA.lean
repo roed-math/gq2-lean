@@ -77,14 +77,11 @@ theorem hZcard_gammaA
   haveI : DiscreteTopology En.Vmod := ⟨rfl⟩
   letI actG : DistribMulAction GA En.Vmod := DistribMulAction.compHom En.Vmod θ.toMonoidHom
   have hcomp : ∀ (γ : GA) (v : En.Vmod), γ • v = θ γ • v := fun _ _ => rfl
-  haveI : ContinuousSMul GA En.Vmod := by
-    constructor
-    have hfac : (fun p : GA × En.Vmod => p.1 • p.2)
-        = (fun q : RF.YC × En.Vmod => q.1 • q.2) ∘ (fun p : GA × En.Vmod => (θ p.1, p.2)) := by
-      funext p; rfl
-    rw [hfac]
-    exact continuous_of_discreteTopology.comp
-      ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  haveI : ContinuousSMul GA En.Vmod :=
+    ⟨show Continuous ((fun q : RF.YC × En.Vmod => q.1 • q.2)
+          ∘ fun p : GA × En.Vmod => (θ p.1, p.2)) from
+      continuous_of_discreteTopology.comp
+        ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)⟩
   have hA₂ : ∀ v : En.Vmod, v + v = 0 := fun v => Vmod_exp2 (En.descData l h) v
   -- the `VCocycle ≃ Z¹_cont(GA, En.Vmod)` bridge (continuity through the `iV ∘ ofAdd` injection)
   have hequiv : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
@@ -92,30 +89,20 @@ theorem hZcard_gammaA
     { toFun := fun c =>
         ⟨fun γ => (c.c γ : En.Vmod), by
           refine mem_Z1_iff.mpr ⟨?_, ?_⟩
-          · have hinj : Function.Injective
-                (fun v : En.Vmod => iV (En.descData l h) (Multiplicative.ofAdd v)) :=
-              fun a a' haa' => iV_ofAdd_inj (En.descData l h) haa'
-            have hlc : IsLocallyConstant
-                (fun γ => iV (En.descData l h) (Multiplicative.ofAdd (c.c γ : En.Vmod))) :=
-              (IsLocallyConstant.iff_continuous _).mpr c.cont
-            exact (IsLocallyConstant.desc (α := En.Vmod) (fun γ => (c.c γ : En.Vmod))
+          · exact (IsLocallyConstant.desc (α := En.Vmod) (fun γ => (c.c γ : En.Vmod))
               (fun v : En.Vmod => iV (En.descData l h) (Multiplicative.ofAdd v))
-              hlc hinj).continuous
+              ((IsLocallyConstant.iff_continuous _).mpr c.cont)
+              fun a a' haa' => iV_ofAdd_inj (En.descData l h) haa').continuous
           · intro γ δ
             have H := c.crossed γ δ
-            rw [hroundtrip γ] at H
-            exact H⟩
+            rwa [hroundtrip γ] at H⟩
       invFun := fun z =>
         { c := fun γ => (z.1 γ : (En.descData l h).Vmod)
-          cont := by
-            have hc : Continuous (fun v : En.Vmod => iV (En.descData l h) (Multiplicative.ofAdd v)) :=
-              continuous_of_discreteTopology
-            exact hc.comp (mem_Z1_iff.mp z.2).1
+          cont := (continuous_of_discreteTopology (f := fun v : En.Vmod =>
+            iV (En.descData l h) (Multiplicative.ofAdd v))).comp (mem_Z1_iff.mp z.2).1
           crossed := fun γ δ => by
-            have hz := (mem_Z1_iff.mp z.2).2 γ δ
-            rw [hroundtrip γ]
-            exact hz }
-      left_inv := fun c => by cases c; rfl
+            rw [hroundtrip γ]; exact (mem_Z1_iff.mp z.2).2 γ δ }
+      left_inv := fun c => rfl
       right_inv := fun z => rfl }
   -- the count: `#Z¹(GA, V) = #Z1w(markC θ) = #V² · #fixedPts Y_C (V^∨)` (candidate duality)
   have adm := markC_admissible θ hθs
@@ -124,7 +111,7 @@ theorem hZcard_gammaA
   -- `#fixedPts Y_C (V^∨) = 1` (simple module, nontrivial action)
   obtain ⟨v, hv⟩ := hVne
   have hsimpleMod : IsSimpleModTwo RF.YC En.Vmod :=
-    ⟨nontrivial_of_ne (0 : En.Vmod) v (Ne.symm hv), fun W hW => hsimple W (fun g w hw => hW g w hw)⟩
+    ⟨nontrivial_of_ne (0 : En.Vmod) v hv.symm, fun W hW => hsimple W hW⟩
   rw [card_fixedPts_elemDual_eq_one_of_nontrivial hsimpleMod hnt, mul_one, pow_two]
 
 /-- **`hμ` for `Γ_A`** — the `T`-cocycle count `#Z¹_{Γ_A,ρ'}(T) = #T²·#(T^∨)^{Y_B/M}` in the
@@ -164,55 +151,40 @@ theorem tcocycle_card_gammaA (ρ : BoundaryLifts b F RF.TC) :
   have hsmul : ∀ (γ : GA) (bb : RF.YB) (a : Additive ↥(En.radData l h).T),
       QuotientGroup.mk bb = θ γ →
       γ • a = Additive.ofMul (⟨bb * (Additive.toMul a).1 * bb⁻¹,
-        (En.radData l h).hT.conj_mem _ (Additive.toMul a).2 _⟩ : ↥(En.radData l h).T) := by
-    intro γ bb a hbb
-    apply Additive.toMul.injective; apply Subtype.ext
-    show (cactFun (En.radData l h) (θ γ) (Additive.toMul a)).1
-      = bb * (Additive.toMul a).1 * bb⁻¹
-    exact cactFun_eq (En.radData l h) (θ γ) hbb (Additive.toMul a)
-  haveI : ContinuousSMul GA (Additive ↥(En.radData l h).T) := by
-    constructor
-    have hfac : (fun p : GA × Additive ↥(En.radData l h).T => p.1 • p.2)
-        = (fun q : (RF.YB ⧸ (En.radData l h).M) × Additive ↥(En.radData l h).T => q.1 • q.2)
-          ∘ (fun p : GA × Additive ↥(En.radData l h).T => (θ p.1, p.2)) := by
-      funext p; rfl
-    rw [hfac]
-    exact continuous_of_discreteTopology.comp
-      ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
-  have hA₂ : ∀ a : Additive ↥(En.radData l h).T, a + a = 0 := fun a => by
-    apply Additive.toMul.injective
-    show (Additive.toMul a) * (Additive.toMul a) = 1
-    exact Subtype.ext ((En.radData l h).helem _ ((En.radData l h).hTM (Additive.toMul a).2))
+        (En.radData l h).hT.conj_mem _ (Additive.toMul a).2 _⟩ : ↥(En.radData l h).T) :=
+    fun γ bb a hbb => Additive.toMul.injective
+      (Subtype.ext (cactFun_eq (En.radData l h) (θ γ) hbb (Additive.toMul a)))
+  haveI : ContinuousSMul GA (Additive ↥(En.radData l h).T) :=
+    ⟨show Continuous
+        ((fun q : (RF.YB ⧸ (En.radData l h).M) × Additive ↥(En.radData l h).T => q.1 • q.2)
+          ∘ fun p : GA × Additive ↥(En.radData l h).T => (θ p.1, p.2)) from
+      continuous_of_discreteTopology.comp
+        ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)⟩
+  have hA₂ : ∀ a : Additive ↥(En.radData l h).T, a + a = 0 := fun a =>
+    Additive.toMul.injective
+      (Subtype.ext ((En.radData l h).helem _ ((En.radData l h).hTM (Additive.toMul a).2)))
   -- the direct `TCocycle ≃ Z¹_cont(GA, Additive T)` bridge (the local `hequiv`, verbatim)
   have hequiv : TCocycle (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
       ≃ ↥(Z1 GA (Additive ↥(En.radData l h).T)) :=
     { toFun := fun u =>
         ⟨fun γ => Additive.ofMul ⟨u.u γ, u.mem γ⟩, by
           refine mem_Z1_iff.mpr ⟨?_, ?_⟩
-          · show Continuous fun γ => (⟨u.u γ, u.mem γ⟩ : ↥(En.radData l h).T)
-            exact Continuous.subtype_mk u.cont _
+          · exact Continuous.subtype_mk u.cont _
           · intro γ δ
             rw [hsmul γ (Quotient.out (θ γ)) (Additive.ofMul ⟨u.u δ, u.mem δ⟩)
               (QuotientGroup.out_eq' _)]
-            apply Additive.toMul.injective
-            apply Subtype.ext
-            show u.u (γ * δ)
-              = u.u γ * (Quotient.out (θ γ) * u.u δ * (Quotient.out (θ γ))⁻¹)
-            exact u.crossed γ δ (Quotient.out (θ γ)) (QuotientGroup.out_eq' _)⟩
+            exact Additive.toMul.injective (Subtype.ext
+              (u.crossed γ δ (Quotient.out (θ γ)) (QuotientGroup.out_eq' _)))⟩
       invFun := fun z =>
         { u := fun γ => ((Additive.toMul (z.1 γ) : ↥(En.radData l h).T)).1
           mem := fun γ => (Additive.toMul (z.1 γ)).2
-          cont := by
-            have hz := (mem_Z1_iff.mp z.2).1
-            exact continuous_subtype_val.comp hz
-          crossed := by
-            intro γ δ bb hbb
+          cont := continuous_subtype_val.comp (mem_Z1_iff.mp z.2).1
+          crossed := fun γ δ bb hbb => by
             have hz := (mem_Z1_iff.mp z.2).2 γ δ
             rw [hsmul γ bb (z.1 δ) hbb] at hz
-            have := congrArg (fun a => ((Additive.toMul a : ↥(En.radData l h).T)).1) hz
-            exact this }
-      left_inv := fun u => by cases u; rfl
-      right_inv := fun z => Subtype.ext (funext fun γ => rfl) }
+            exact congrArg (fun a => ((Additive.toMul a : ↥(En.radData l h).T)).1) hz }
+      left_inv := fun u => rfl
+      right_inv := fun z => rfl }
   -- the count: `#Z¹(GA, T) = #Z1w(markC θ) = #T² · #fixedPts C (T^∨)` (candidate duality)
   have adm := markC_admissible θ hθs
   rw [Nat.card_congr hequiv, Nat.card_congr (z1Equiv θ hcomp hθs hA₂).toEquiv,
@@ -253,9 +225,7 @@ theorem b1_of_pair_cochain_B2
     ∃ n : ElemDual A, dZero GA (ElemDual A) n = ξ.1 := by
   classical
   have hA₂D : ∀ lam : ElemDual A, lam + lam = 0 := fun lam => by
-    ext a
-    simp only [ElemDual.add_apply, ElemDual.zero_apply]
-    exact CharTwo.add_self_eq_zero (lam a)
+    ext a; exact CharTwo.add_self_eq_zero (lam a)
   have adm := markC_admissible θ hθs
   obtain ⟨P, hPmix, _hPleft, hPright⟩ :=
     (GQ2.FoxH.prop_5_15 (markC θ) adm.2.1 adm.2.2.1 adm.1 hA₂ adm.2.2.2).2.2
@@ -265,11 +235,8 @@ theorem b1_of_pair_cochain_B2
     intro xw
     obtain ⟨zc, rfl⟩ := (z1Equiv θ hcompat hθs hA₂).surjective xw
     -- the paired `WordLift`-hom of `(zc, ξ)`
-    have hcompatP : ∀ (γ : GA) (p : A × ElemDual A), γ • p = θ γ • p := by
-      intro γ p
-      refine Prod.ext ?_ ?_
-      · rw [Prod.smul_fst, Prod.smul_fst]; exact hcompat γ p.1
-      · rw [Prod.smul_snd, Prod.smul_snd]; exact hcompatD γ p.2
+    have hcompatP : ∀ (γ : GA) (p : A × ElemDual A), γ • p = θ γ • p := fun γ p =>
+      Prod.ext (hcompat γ p.1) (hcompatD γ p.2)
     set H : ContinuousMonoidHom GA (WordLift (A × ElemDual A) Cf) :=
       wordHom θ hcompatP
         ⟨fun γ => (zc.1 γ, ξ.1 γ),
@@ -289,28 +256,24 @@ theorem b1_of_pair_cochain_B2
       show (ξ.1 a) (a • zc.1 b) = (ξ.1 a) (θ a • zc.1 b)
       exact congrArg (ξ.1 a) (hcompat a (zc.1 b))
     -- its obstruction vanishes (`obs` kills `B²`)
-    have hobs0 : obs htriv ⟨_, hmem⟩ = 0 := by
-      have hker : (⟨_, hmem⟩ : ↥(Z2 GA (ZMod 2))) ∈ (obs htriv).ker :=
-        obs_B2_eq_zero htriv (AddSubgroup.mem_addSubgroupOf.mpr (hvan zc))
-      exact AddMonoidHom.mem_ker.mp hker
+    have hobs0 : obs htriv ⟨_, hmem⟩ = 0 :=
+      AddMonoidHom.mem_ker.mp
+        (obs_B2_eq_zero htriv (AddSubgroup.mem_addSubgroupOf.mpr (hvan zc)))
     -- ... and equals the traced mixed pairing
     have hinfl := obs_inflation htriv H kappaHeis ⟨_, hmem⟩ hunfold
     have hmark : gammaGen.map H.toMonoidHom
         = mBaseMarking (markC θ) (eval zc) (eval ξ) := by
       rw [markC_map]; rfl
     rw [hmark] at hinfl
-    have hval : mixedB (markC θ) (eval zc) (eval ξ) = 0 := by
-      rw [mixedB_eq_relZPair, ← hinfl]
-      exact hobs0
-    exact hval
+    show mixedB (markC θ) (eval zc) (eval ξ) = 0
+    rw [mixedB_eq_relZPair, ← hinfl]
+    exact hobs0
   -- right-slot nondegeneracy kills the `ξ`-class
   have hcls0 : h1wMk (markC θ) (toZ1wHom θ hcompatD ξ) = 0 := by
     by_contra hne
     obtain ⟨hcl, hPne⟩ := hPright _ hne
     obtain ⟨xw, hxw⟩ := QuotientAddGroup.mk_surjective hcl
-    refine hPne ?_
-    rw [← hxw]
-    exact (hPmix xw (toZ1wHom θ hcompatD ξ)).trans (hmix0 xw)
+    exact hPne (hxw ▸ (hPmix xw (toZ1wHom θ hcompatD ξ)).trans (hmix0 xw))
   -- `B¹w`-extraction and pullback through the bridge
   have hmemB1w : ((toZ1wHom θ hcompatD ξ : ↥(Z1w (A := ElemDual A) (markC θ))) : Fin 4 → ElemDual A)
       ∈ B1w (A := ElemDual A) (markC θ) :=
@@ -322,8 +285,7 @@ theorem b1_of_pair_cochain_B2
     apply (z1Equiv θ hcompatD hθs hA₂D).injective
     apply Subtype.ext
     show eval (⟨dZero GA (ElemDual A) m, B1_le_Z1 ⟨m, rfl⟩⟩ : ↥(Z1 GA (ElemDual A))) = eval ξ
-    rw [eval_dZero θ hcompatD m]
-    exact hm
+    rwa [eval_dZero θ hcompatD m]
   exact congrArg Subtype.val hbundle
 
 end WordSeparator
@@ -359,13 +321,8 @@ theorem charKer_le (χ : ↥(TCharC D)) : charKer χ ≤ D.T :=
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem mem_charKer_iff (χ : ↥(TCharC D)) (t : ↥D.T) :
-    (t : Bg) ∈ charKer χ ↔ χ.1 t = 0 := by
-  rw [charKer, Subgroup.mem_map]
-  constructor
-  · rintro ⟨s, hs, hst⟩
-    rwa [Subtype.coe_injective hst] at hs
-  · intro ht
-    exact ⟨t, ht, rfl⟩
+    (t : Bg) ∈ charKer χ ↔ χ.1 t = 0 :=
+  Subgroup.mem_map_iff_mem Subtype.coe_injective
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem charKer_normal (χ : ↥(TCharC D)) : (charKer χ).Normal := by
@@ -375,15 +332,12 @@ theorem charKer_normal (χ : ↥(TCharC D)) : (charKer χ).Normal := by
   refine Subgroup.mem_map.mpr
     ⟨⟨g * (t : Bg) * g⁻¹, D.hT.conj_mem (t : Bg) t.2 g⟩, ?_, rfl⟩
   show χ.1 ⟨g * (t : Bg) * g⁻¹, _⟩ = 0
-  rw [TCharC.conj_invariant χ g t]
-  exact ht
+  rwa [TCharC.conj_invariant χ g t]
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem exists_val_one (χ : ↥(TCharC D)) (hχ : χ ≠ 0) : ∃ t : ↥D.T, χ.1 t = 1 := by
-  by_contra hall
-  refine hχ (Subtype.ext (funext fun t => ?_))
-  have h01 : ∀ a : ZMod 2, a ≠ 1 → a = 0 := by decide
-  exact h01 _ (fun h1 => hall ⟨t, h1⟩)
+  by_contra! hall
+  exact hχ (Subtype.ext (funext fun t => (zmod2_cases _).resolve_right (hall t)))
 
 /-- A witness `t₀ ∈ T` with `χ(t₀) = 1` (for `χ ≠ 0`) — the kernel generator's complement. -/
 noncomputable def charWitness (χ : ↥(TCharC D)) (hχ : χ ≠ 0) : ↥D.T :=
@@ -412,9 +366,7 @@ noncomputable def charCover (χ : ↥(TCharC D)) (hχ : χ ≠ 0) : CentralCover
       central := ?_
       ker_eq := ?_ }
   · -- surjectivity
-    intro x
-    induction x using QuotientGroup.induction_on with
-    | _ y => exact ⟨QuotientGroup.mk' (charKer χ) y, rfl⟩
+    exact fun x => QuotientGroup.induction_on x fun y => ⟨QuotientGroup.mk' (charKer χ) y, rfl⟩
   · -- `z ≠ 1`
     rw [Ne, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]
     intro hmem
@@ -423,10 +375,8 @@ noncomputable def charCover (χ : ↥(TCharC D)) (hχ : χ ≠ 0) : CentralCover
     exact one_ne_zero h0
   · -- `z² = 1`
     rw [← map_mul, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]
-    have hmem : ((charWitness χ hχ * charWitness χ hχ : ↥D.T) : Bg) ∈ charKer χ := by
-      rw [mem_charKer_iff, TCharC.map_mul χ, charWitness_spec χ hχ]
-      decide
-    exact hmem
+    exact (mem_charKer_iff χ (charWitness χ hχ * charWitness χ hχ)).mpr
+      (by rw [TCharC.map_mul χ, charWitness_spec χ hχ]; decide)
   · -- centrality: `[y, t₀] ∈ ker χ` by `C`-invariance
     intro x
     refine QuotientGroup.induction_on x (fun y => ?_)
@@ -462,13 +412,11 @@ noncomputable def charCover (χ : ↥(TCharC D)) (hχ : χ ≠ 0) : CentralCover
           (by rw [Subgroup.comap_id]; exact charKer_le χ)) (↑y) = ((y : Bg) : Bg ⧸ D.T)
           from rfl,
         QuotientGroup.eq_one_iff, Subgroup.mem_map]
-      constructor
-      · intro hy
-        exact ⟨y, hy, rfl⟩
-      · rintro ⟨r, hrT, hr⟩
-        rw [QuotientGroup.mk'_apply, QuotientGroup.eq] at hr
-        rw [show y = r * (r⁻¹ * y) from by group]
-        exact D.T.mul_mem hrT (charKer_le χ hr)
+      refine ⟨fun hy => ⟨y, hy, rfl⟩, ?_⟩
+      rintro ⟨r, hrT, hr⟩
+      rw [QuotientGroup.mk'_apply, QuotientGroup.eq] at hr
+      rw [show y = r * (r⁻¹ * y) from by group]
+      exact D.T.mul_mem hrT (charKer_le χ hr)
     rw [hker]
     apply le_antisymm
     · rw [Subgroup.map_le_iff_le_comap]
@@ -483,11 +431,8 @@ noncomputable def charCover (χ : ↥(TCharC D)) (hχ : χ ≠ 0) : CentralCover
       · have h1' : QuotientGroup.mk' (charKer χ) t
             = QuotientGroup.mk' (charKer χ) ((charWitness χ hχ : ↥D.T) : Bg) := by
           rw [QuotientGroup.mk'_apply, QuotientGroup.mk'_apply, QuotientGroup.eq]
-          have hmem : (((⟨t, htT⟩ : ↥D.T)⁻¹ * charWitness χ hχ : ↥D.T) : Bg) ∈ charKer χ := by
-            rw [mem_charKer_iff, TCharC.map_mul χ, TCharC.map_inv χ, h1,
-              charWitness_spec χ hχ]
-            decide
-          exact hmem
+          exact (mem_charKer_iff χ ((⟨t, htT⟩ : ↥D.T)⁻¹ * charWitness χ hχ)).mpr
+            (by rw [TCharC.map_mul χ, TCharC.map_inv χ, h1, charWitness_spec χ hχ]; decide)
         rw [h1']
         exact Subgroup.mem_zpowers _
     · rw [Subgroup.zpowers_le]
@@ -502,9 +447,8 @@ noncomputable def charCoverMap (χ : ↥(TCharC D)) (hχ : χ ≠ 0) :
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- The `χ`-cover covers `π_T` through its reduction. -/
 theorem charCover_p_comp (χ : ↥(TCharC D)) (hχ : χ ≠ 0) :
-    ((charCover χ hχ).p).comp (charCoverMap χ hχ) = QuotientGroup.mk' D.T := by
-  ext y
-  rfl
+    ((charCover χ hχ).p).comp (charCoverMap χ hχ) = QuotientGroup.mk' D.T :=
+  MonoidHom.ext fun _ => rfl
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- `T`-elements reduce to the kernel sign `z^{χ(t)}` in the `χ`-cover — the
@@ -522,10 +466,8 @@ theorem charCoverMap_coe_eq_zpow (χ : ↥(TCharC D)) (hχ : χ ≠ 0) (t : ↥D
       = QuotientGroup.mk' (charKer χ) ((charWitness χ hχ : ↥D.T) : Bg) ^ (1 : ZMod 2).val
     rw [ZMod.val_one, pow_one, QuotientGroup.mk'_apply, QuotientGroup.mk'_apply,
       QuotientGroup.eq]
-    have hmem : ((t⁻¹ * charWitness χ hχ : ↥D.T) : Bg) ∈ charKer χ := by
-      rw [mem_charKer_iff, TCharC.map_mul χ, TCharC.map_inv χ, h1, charWitness_spec χ hχ]
-      decide
-    exact hmem
+    exact (mem_charKer_iff χ (t⁻¹ * charWitness χ hχ)).mpr
+      (by rw [TCharC.map_mul χ, TCharC.map_inv χ, h1, charWitness_spec χ hχ]; decide)
 
 variable {Γ : Type} [Group Γ] [TopologicalSpace Γ]
 variable {DD : DescData D} {σ : DD.C0 →* Bg ⧸ D.T} {ρ : ContinuousMonoidHom Γ (Bg ⧸ D.M)}
@@ -592,14 +534,10 @@ theorem exists_lift_charCover [DistribMulAction Γ (ZMod 2)]
       (fun γ => charCoverMap χ hχ (fLift S c γ) * (charCover χ hχ).z ^ (ψ γ).val)
       (fun γ δ => hmul γ δ), ?_⟩, ?_⟩
   · -- continuity: a discrete-valued function of the continuous pair `(fLift, ψ)`
-    show Continuous fun γ =>
-      charCoverMap χ hχ (fLift S c γ) * (charCover χ hχ).z ^ (ψ γ).val
-    have hfac : (fun γ =>
-        charCoverMap χ hχ (fLift S c γ) * (charCover χ hχ).z ^ (ψ γ).val)
-        = (fun p : Bg × ZMod 2 => charCoverMap χ hχ p.1 * (charCover χ hχ).z ^ p.2.val)
-          ∘ (fun γ => (fLift S c γ, ψ γ)) := rfl
-    rw [hfac]
-    exact continuous_of_discreteTopology.comp ((fLift_continuous S c).prodMk hψcont)
+    exact show Continuous ((fun p : Bg × ZMod 2 =>
+          charCoverMap χ hχ p.1 * (charCover χ hχ).z ^ p.2.val)
+        ∘ fun γ => (fLift S c γ, ψ γ)) from
+      continuous_of_discreteTopology.comp ((fLift_continuous S c).prodMk hψcont)
   · -- covering `g_c`
     intro γ
     show (charCover χ hχ).p
@@ -651,8 +589,7 @@ theorem mlift_of_relatorFree_marking
   have hmemx₁ : tHat.x₁ ∈ J := Subgroup.subset_closure (by simp)
   set tJ : Marking ↥J :=
     ⟨⟨tHat.σ, hmemσ⟩, ⟨tHat.τ, hmemτ⟩, ⟨tHat.x₀, hmemx₀⟩, ⟨tHat.x₁, hmemx₁⟩⟩ with htJ
-  have hmapJ : tJ.map J.subtype = tHat := by
-    refine marking_ext ?_ ?_ ?_ ?_ <;> rfl
+  have hmapJ : tJ.map J.subtype = tHat := marking_ext rfl rfl rfl rfl
   have htameJ : tJ.TameRel := by
     rw [← Marking.tameValue_eq_one_iff]
     have h := Marking.map_tameValue J.subtype tJ
@@ -668,14 +605,7 @@ theorem mlift_of_relatorFree_marking
     have hpre : ({tJ.σ, tJ.τ, tJ.x₀, tJ.x₁} : Set ↥J)
         = ((↑) : ↥J → Bg) ⁻¹' {tHat.σ, tHat.τ, tHat.x₀, tHat.x₁} := by
       ext j
-      simp only [Set.mem_insert_iff, Set.mem_singleton_iff, Set.mem_preimage]
-      constructor
-      · rintro (rfl | rfl | rfl | rfl) <;> simp [htJ]
-      · rintro (h | h | h | h)
-        · exact Or.inl (Subtype.ext h)
-        · exact Or.inr (Or.inl (Subtype.ext h))
-        · exact Or.inr (Or.inr (Or.inl (Subtype.ext h)))
-        · exact Or.inr (Or.inr (Or.inr (Subtype.ext h)))
+      simp [htJ, Subtype.ext_iff]
     rw [hpre]
     exact Subgroup.closure_closure_coe_preimage
   -- §2: the corestriction `ḡ : Γ_A ↠ J̄ = ⟨g_Q-generator images⟩ ≤ B/T`
@@ -729,24 +659,15 @@ theorem mlift_of_relatorFree_marking
     intro i
     show Marking.classify tbar (FreeProfiniteGroup.of i) = _
     fin_cases i
-    · exact congrArg Marking.σ hclassbar
-    · exact congrArg Marking.τ hclassbar
-    · exact congrArg Marking.x₀ hclassbar
-    · exact congrArg Marking.x₁ hclassbar
+    exacts [congrArg Marking.σ hclassbar, congrArg Marking.τ hclassbar,
+      congrArg Marking.x₀ hclassbar, congrArg Marking.x₁ hclassbar]
   have hgenbar : Subgroup.closure ({tbar.σ, tbar.τ, tbar.x₀, tbar.x₁} : Set ↥Jbar) = ⊤ := by
     have hpre : ({tbar.σ, tbar.τ, tbar.x₀, tbar.x₁} : Set ↥Jbar)
         = ((↑) : ↥Jbar → Bg ⧸ D.T) ⁻¹'
           {(Marking.push gQ).σ, (Marking.push gQ).τ, (Marking.push gQ).x₀,
             (Marking.push gQ).x₁} := by
       ext j
-      simp only [Set.mem_insert_iff, Set.mem_singleton_iff, Set.mem_preimage]
-      constructor
-      · rintro (rfl | rfl | rfl | rfl) <;> simp [htbar]
-      · rintro (h | h | h | h)
-        · exact Or.inl (Subtype.ext h)
-        · exact Or.inr (Or.inl (Subtype.ext h))
-        · exact Or.inr (Or.inr (Or.inl (Subtype.ext h)))
-        · exact Or.inr (Or.inr (Or.inr (Subtype.ext h)))
+      simp [htbar, Subtype.ext_iff]
     rw [hpre]
     exact Subgroup.closure_closure_coe_preimage
   have hgbar_surj : Function.Surjective ⇑gbar := by
@@ -756,10 +677,7 @@ theorem mlift_of_relatorFree_marking
       exact Subgroup.mem_top y
     refine Subgroup.closure_induction ?_ ?_ ?_ ?_ hy
     · rintro z (rfl | rfl | rfl | rfl)
-      · exact ⟨quotientMk NA (FreeProfiniteGroup.of 0), hgbar_gen 0⟩
-      · exact ⟨quotientMk NA (FreeProfiniteGroup.of 1), hgbar_gen 1⟩
-      · exact ⟨quotientMk NA (FreeProfiniteGroup.of 2), hgbar_gen 2⟩
-      · exact ⟨quotientMk NA (FreeProfiniteGroup.of 3), hgbar_gen 3⟩
+      exacts [⟨_, hgbar_gen 0⟩, ⟨_, hgbar_gen 1⟩, ⟨_, hgbar_gen 2⟩, ⟨_, hgbar_gen 3⟩]
     · exact ⟨1, map_one gbar⟩
     · rintro a b - - ⟨γ, rfl⟩ ⟨δ, rfl⟩
       exact ⟨γ * δ, map_mul gbar γ δ⟩
@@ -785,10 +703,9 @@ theorem mlift_of_relatorFree_marking
     rw [hmapJc] at himg
     refine Subgroup.closure_mono ?_ himg
     rintro x ⟨y, (rfl | rfl | rfl | rfl), rfl⟩
-    · exact Or.inl (congrArg Marking.σ hproj)
-    · exact Or.inr (Or.inl (congrArg Marking.τ hproj))
-    · exact Or.inr (Or.inr (Or.inl (congrArg Marking.x₀ hproj)))
-    · exact Or.inr (Or.inr (Or.inr (congrArg Marking.x₁ hproj)))
+    exacts [Or.inl (congrArg Marking.σ hproj), Or.inr (Or.inl (congrArg Marking.τ hproj)),
+      Or.inr (Or.inr (Or.inl (congrArg Marking.x₀ hproj))),
+      Or.inr (Or.inr (Or.inr (congrArg Marking.x₁ hproj)))]
   set qJ' : ↥J →* ↥Jbar :=
     ((QuotientGroup.mk' D.T).comp J.subtype).codRestrict Jbar (fun j => hmemJbar j) with hqJ'
   have hcoreJ : tJ.Pro2Core := by
@@ -799,16 +716,12 @@ theorem mlift_of_relatorFree_marking
       hNB.comap qJ'
     have hcomap : ({tJ.x₀, tJ.x₁} : Set ↥J) ⊆
         ((Subgroup.normalClosure {tbar.x₀, tbar.x₁}).comap qJ' : Set ↥J) := by
-      rintro z hz
-      rcases hz with rfl | hz
-      · rw [SetLike.mem_coe, Subgroup.mem_comap]
-        have h1 : qJ' tJ.x₀ = tbar.x₀ := Subtype.ext (congrArg Marking.x₀ hproj)
-        rw [h1]
+      rintro z (rfl | rfl)
+      · rw [SetLike.mem_coe, Subgroup.mem_comap,
+          show qJ' tJ.x₀ = tbar.x₀ from Subtype.ext (congrArg Marking.x₀ hproj)]
         exact Subgroup.subset_normalClosure (by simp)
-      · rcases hz with rfl
-        rw [SetLike.mem_coe, Subgroup.mem_comap]
-        have h1 : qJ' tJ.x₁ = tbar.x₁ := Subtype.ext (congrArg Marking.x₁ hproj)
-        rw [h1]
+      · rw [SetLike.mem_coe, Subgroup.mem_comap,
+          show qJ' tJ.x₁ = tbar.x₁ from Subtype.ext (congrArg Marking.x₁ hproj)]
         exact Subgroup.subset_normalClosure (by simp)
     have hle := Subgroup.normalClosure_le_normal hcomap
     intro n
@@ -818,10 +731,9 @@ theorem mlift_of_relatorFree_marking
     refine ⟨k + 1, ?_⟩
     have hk' : (qJ' n.1) ^ 2 ^ k = 1 := by
       simpa using congrArg Subtype.val hk
-    have hkQ : QuotientGroup.mk' D.T (((n.1 : ↥J) : Bg)) ^ 2 ^ k = 1 := by
-      have h2 : ((qJ' n.1 : ↥Jbar) : Bg ⧸ D.T) ^ 2 ^ k = 1 := by
+    have hkQ : QuotientGroup.mk' D.T (((n.1 : ↥J) : Bg)) ^ 2 ^ k = 1 :=
+      show ((qJ' n.1 : ↥Jbar) : Bg ⧸ D.T) ^ 2 ^ k = 1 by
         simpa using congrArg Subtype.val hk'
-      exact h2
     have hmemT : ((n.1 : ↥J) : Bg) ^ 2 ^ k ∈ D.T := by
       rw [← QuotientGroup.eq_one_iff, ← QuotientGroup.mk'_apply, map_pow]
       exact hkQ
@@ -846,26 +758,14 @@ theorem mlift_of_relatorFree_marking
     univMarking_map_toHom (P := ProfiniteGrp.of ↥J) tJ
   have hpush : univMarking.map c₁.toMonoidHom = univMarking.map c₂.toMonoidHom := by
     refine marking_ext ?_ ?_ ?_ ?_
-    · have h1 : (Marking.classify tJ) univMarking.σ = tJ.σ := congrArg Marking.σ hclassify
-      show QuotientGroup.mk' D.T (fJ ((Marking.classify tJ) univMarking.σ))
-        = gQ (quotientMk NA univMarking.σ)
-      rw [h1]
-      exact congrArg Marking.σ hproj
-    · have h1 : (Marking.classify tJ) univMarking.τ = tJ.τ := congrArg Marking.τ hclassify
-      show QuotientGroup.mk' D.T (fJ ((Marking.classify tJ) univMarking.τ))
-        = gQ (quotientMk NA univMarking.τ)
-      rw [h1]
-      exact congrArg Marking.τ hproj
-    · have h1 : (Marking.classify tJ) univMarking.x₀ = tJ.x₀ := congrArg Marking.x₀ hclassify
-      show QuotientGroup.mk' D.T (fJ ((Marking.classify tJ) univMarking.x₀))
-        = gQ (quotientMk NA univMarking.x₀)
-      rw [h1]
-      exact congrArg Marking.x₀ hproj
-    · have h1 : (Marking.classify tJ) univMarking.x₁ = tJ.x₁ := congrArg Marking.x₁ hclassify
-      show QuotientGroup.mk' D.T (fJ ((Marking.classify tJ) univMarking.x₁))
-        = gQ (quotientMk NA univMarking.x₁)
-      rw [h1]
-      exact congrArg Marking.x₁ hproj
+    · exact (congrArg (fun t : Marking ↥J => QuotientGroup.mk' D.T (t.σ : Bg)) hclassify).trans
+        (congrArg Marking.σ hproj)
+    · exact (congrArg (fun t : Marking ↥J => QuotientGroup.mk' D.T (t.τ : Bg)) hclassify).trans
+        (congrArg Marking.τ hproj)
+    · exact (congrArg (fun t : Marking ↥J => QuotientGroup.mk' D.T (t.x₀ : Bg)) hclassify).trans
+        (congrArg Marking.x₀ hproj)
+    · exact (congrArg (fun t : Marking ↥J => QuotientGroup.mk' D.T (t.x₁ : Bg)) hclassify).trans
+        (congrArg Marking.x₁ hproj)
   have hc : c₁ = c₂ := by
     have h1 := Marking.toHom_hom_univMarking_map c₁
     have h2 := Marking.toHom_hom_univMarking_map c₂
@@ -906,41 +806,28 @@ theorem hsep_gammaA
     fun t ht => (En.radData l h).helem t ((En.radData l h).hTM ht)
   have hA₂ : ∀ a : Additive ↥(En.radData l h).T, a + a = 0 := fun a =>
     Additive.toMul.injective (Subtype.ext (htelem _ (Additive.toMul a).2))
-  have hgQ_over : ∀ γ : GA, piQbar (En.descData l h)
-      ((qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
-        (descSigma En l h Dsc) hσ c).1 γ)
+  set gq0 := qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
+    (descSigma En l h Dsc) hσ c with hgq0
+  have hgQ_over : ∀ γ : GA, piQbar (En.descData l h) (gq0.1 γ)
       = rho0 (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ) γ :=
-    fun γ => (qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
-      (descSigma En l h Dsc) hσ c).2 γ
+    fun γ => gq0.2 γ
   -- §1: a set-lift marking of `g_Q` through `π_T`
-  obtain ⟨yσ, hyσ⟩ := QuotientGroup.mk'_surjective (En.radData l h).T
-    ((Marking.push (qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
-      (descSigma En l h Dsc) hσ c).1).σ)
-  obtain ⟨yτ, hyτ⟩ := QuotientGroup.mk'_surjective (En.radData l h).T
-    ((Marking.push (qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
-      (descSigma En l h Dsc) hσ c).1).τ)
-  obtain ⟨yx₀, hyx₀⟩ := QuotientGroup.mk'_surjective (En.radData l h).T
-    ((Marking.push (qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
-      (descSigma En l h Dsc) hσ c).1).x₀)
-  obtain ⟨yx₁, hyx₁⟩ := QuotientGroup.mk'_surjective (En.radData l h).T
-    ((Marking.push (qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
-      (descSigma En l h Dsc) hσ c).1).x₁)
+  obtain ⟨yσ, hyσ⟩ := QuotientGroup.mk'_surjective (En.radData l h).T ((Marking.push gq0.1).σ)
+  obtain ⟨yτ, hyτ⟩ := QuotientGroup.mk'_surjective (En.radData l h).T ((Marking.push gq0.1).τ)
+  obtain ⟨yx₀, hyx₀⟩ := QuotientGroup.mk'_surjective (En.radData l h).T ((Marking.push gq0.1).x₀)
+  obtain ⟨yx₁, hyx₁⟩ := QuotientGroup.mk'_surjective (En.radData l h).T ((Marking.push gq0.1).x₁)
   set tB : Marking RF.YB := ⟨yσ, yτ, yx₀, yx₁⟩ with htB
-  have hproj : tB.map (QuotientGroup.mk' (En.radData l h).T)
-      = Marking.push (qOfCocycle (En.descData l h)
-        (RF.rhoPrime b F (En.radData l h) rfl ρ) (descSigma En l h Dsc) hσ c).1 :=
+  have hproj : tB.map (QuotientGroup.mk' (En.radData l h).T) = Marking.push gq0.1 :=
     marking_ext hyσ hyτ hyx₀ hyx₁
   -- §2: the relator values live in `T` (the relators die in `B/T` — `g_Q` is a hom)
   have hv₁mem : tB.tameValue ∈ (En.radData l h).T := by
     have hmt := Marking.map_tameValue (QuotientGroup.mk' (En.radData l h).T) tB
     rw [hproj, (Marking.tameValue_eq_one_iff _).mpr (push_tameRel _)] at hmt
-    rw [← QuotientGroup.ker_mk' (En.radData l h).T, MonoidHom.mem_ker]
-    exact hmt.symm
+    exact (QuotientGroup.eq_one_iff _).mp hmt.symm
   have hv₂mem : tB.wildValue ∈ (En.radData l h).T := by
     have hmw := Marking.map_wildValue (QuotientGroup.mk' (En.radData l h).T) tB
     rw [hproj, (Marking.wildValue_eq_one_iff _).mpr (push_wildRel _)] at hmw
-    rw [← QuotientGroup.ker_mk' (En.radData l h).T, MonoidHom.mem_ker]
-    exact hmw.symm
+    exact (QuotientGroup.eq_one_iff _).mp hmw.symm
   set v₁ : ↥(En.radData l h).T := ⟨tB.tameValue, hv₁mem⟩ with hv₁def
   set v₂ : ↥(En.radData l h).T := ⟨tB.wildValue, hv₂mem⟩ with hv₂def
   -- §3: the `C = B/M`-side word-complex package at `markC ρ'`
@@ -958,9 +845,7 @@ theorem hsep_gammaA
       rw [MonoidHom.mem_ker, map_mul, map_inv, haa', inv_mul_cancel]
     rwa [(En.descData l h).hkerC0] at hker
   have hfield : ∀ (y : RF.YB) (γ : GA),
-      QuotientGroup.mk' (En.radData l h).T y
-        = (qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
-          (descSigma En l h Dsc) hσ c).1 γ →
+      QuotientGroup.mk' (En.radData l h).T y = gq0.1 γ →
       QuotientGroup.mk (y : RF.YB) = RF.rhoPrime b F (En.radData l h) rfl ρ γ := by
     intro y γ hy
     refine hliftC0_inj ?_
@@ -1033,9 +918,7 @@ theorem hsep_gammaA
         chiLam hz c hB2
       have hkey := redValues_eq_of_coverLift (charCover chiLam hz)
         (QuotientGroup.mk' (En.radData l h).T) (charCoverMap chiLam hz)
-        (charCover_p_comp chiLam hz)
-        (qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
-          (descSigma En l h Dsc) hσ c).1 gc hgc tB hproj
+        (charCover_p_comp chiLam hz) gq0.1 gc hgc tB hproj
       -- `v₁ v₂⁻¹ ∈ ker χ`
       have hmemK : ((v₁ * v₂⁻¹ : ↥(En.radData l h).T) : RF.YB) ∈ charKer chiLam := by
         have h1 : charCoverMap chiLam hz (((v₁ * v₂⁻¹ : ↥(En.radData l h).T) : RF.YB)) = 1 := by
@@ -1109,8 +992,7 @@ theorem hsep_gammaA
     show ((v₂ : RF.YB)) * tB.wildValue = 1
     exact htelem _ hv₂mem
   have hprojHat : tHat.map (QuotientGroup.mk' (En.radData l h).T)
-      = Marking.push (qOfCocycle (En.descData l h)
-        (RF.rhoPrime b F (En.radData l h) rfl ρ) (descSigma En l h Dsc) hσ c).1 := by
+      = Marking.push gq0.1 := by
     have hker : ∀ a : Additive ↥(En.radData l h).T,
         QuotientGroup.mk' (En.radData l h).T
           ((Additive.toMul a : ↥(En.radData l h).T) : RF.YB) = 1 := by
@@ -1120,32 +1002,25 @@ theorem hsep_gammaA
     refine marking_ext ?_ ?_ ?_ ?_
     · show QuotientGroup.mk' (En.radData l h).T
         (((Additive.toMul (x 0) : ↥(En.radData l h).T) : RF.YB) * tB.σ) = _
-      rw [map_mul, hker, one_mul]
-      exact hyσ
+      rwa [map_mul, hker, one_mul]
     · show QuotientGroup.mk' (En.radData l h).T
         (((Additive.toMul (x 1) : ↥(En.radData l h).T) : RF.YB) * tB.τ) = _
-      rw [map_mul, hker, one_mul]
-      exact hyτ
+      rwa [map_mul, hker, one_mul]
     · show QuotientGroup.mk' (En.radData l h).T
         (((Additive.toMul (x 2) : ↥(En.radData l h).T) : RF.YB) * tB.x₀) = _
-      rw [map_mul, hker, one_mul]
-      exact hyx₀
+      rwa [map_mul, hker, one_mul]
     · show QuotientGroup.mk' (En.radData l h).T
         (((Additive.toMul (x 3) : ↥(En.radData l h).T) : RF.YB) * tB.x₁) = _
-      rw [map_mul, hker, one_mul]
-      exact hyx₁
+      rwa [map_mul, hker, one_mul]
   -- §7: descend and package as the `M`-lift
-  obtain ⟨f₀, hf₀⟩ := mlift_of_relatorFree_marking
-    (qOfCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
-      (descSigma En l h Dsc) hσ c).1 tHat hprojHat htameHat hwildHat
+  obtain ⟨f₀, hf₀⟩ := mlift_of_relatorFree_marking gq0.1 tHat hprojHat htameHat hwildHat
   refine ⟨⟨f₀, fun γ => ?_⟩, ?_⟩
   · exact hfield (f₀ γ) γ (hf₀ γ)
   · refine Subtype.ext (DFunLike.ext _ _ fun γ => ?_)
     rw [redTLift_apply]
     exact hf₀ γ
 
-set_option synthInstance.maxHeartbeats 4000000 in
-set_option maxHeartbeats 1600000 in
+set_option synthInstance.maxHeartbeats 2000000 in
 /-- **`hpartial` for `Γ_A`** — nondegeneracy of the obstruction pairing in the character:
 every nonzero `χ ∈ (T^∨)^C` is detected by some `V`-coordinate.  The `Γ_A` twin of
 `Phase140Local.hpartial_local`, stages 1–5 and 7–9 mirrored verbatim (they are frame-level
@@ -1160,12 +1035,8 @@ theorem hpartial_gammaA
         ≠ betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ
             (0 : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)) := by
   classical
-  by_contra hno
-  rw [not_exists] at hno
-  have hall : ∀ c : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ),
-      betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c
-        = betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ 0 :=
-    fun c => not_not.mp (hno c)
+  by_contra! hall
+  set c0 : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ) := 0 with hc0
   -- ### Stage 0: module instances over the raw quotient `GA` (the `hZcard_gammaA` block)
   let θ : ContinuousMonoidHom GA RF.YC := ρ.1.1
   have hθs : Function.Surjective ⇑θ := ρ.1.2
@@ -1181,20 +1052,15 @@ theorem hpartial_gammaA
   letI actG : DistribMulAction GA En.Vmod :=
     DistribMulAction.compHom En.Vmod θ.toMonoidHom
   have hcomp : ∀ (γ : GA) (v : En.Vmod), γ • v = θ γ • v := fun _ _ => rfl
-  haveI : ContinuousSMul GA En.Vmod := by
-    constructor
-    have hfac : (fun p : GA × En.Vmod => p.1 • p.2)
-        = (fun q : RF.YC × En.Vmod => q.1 • q.2)
-          ∘ (fun p : GA × En.Vmod => (θ p.1, p.2)) := by
-      funext p; rfl
-    rw [hfac]
-    exact continuous_of_discreteTopology.comp
-      ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  haveI : ContinuousSMul GA En.Vmod :=
+    ⟨show Continuous ((fun q : RF.YC × En.Vmod => q.1 • q.2)
+          ∘ fun p : GA × En.Vmod => (θ p.1, p.2)) from
+      continuous_of_discreteTopology.comp
+        ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)⟩
   have hA₂ : ∀ v : En.Vmod, v + v = 0 := fun v => Vmod_exp2 (En.descData l h) v
   letI : TopologicalSpace (ElemDual En.Vmod) := ⊥
   haveI : DiscreteTopology (ElemDual En.Vmod) := ⟨rfl⟩
-  have hcompD : ∀ (γ : GA) (lam : ElemDual En.Vmod), γ • lam = θ γ • lam := by
-    intro γ lam
+  have hcompD : ∀ (γ : GA) (lam : ElemDual En.Vmod), γ • lam = θ γ • lam := fun γ lam => by
     ext a
     rw [ElemDual.smul_apply, ElemDual.smul_apply]
     congr 1
@@ -1204,8 +1070,7 @@ theorem hpartial_gammaA
     have hfac : (fun p : GA × ElemDual En.Vmod => p.1 • p.2)
         = (fun q : RF.YC × ElemDual En.Vmod => q.1 • q.2)
           ∘ (fun p : GA × ElemDual En.Vmod => (θ p.1, p.2)) := by
-      funext p
-      exact hcompD p.1 p.2
+      funext p; exact hcompD p.1 p.2
     rw [hfac]
     exact continuous_of_discreteTopology.comp
       ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
@@ -1236,49 +1101,36 @@ theorem hpartial_gammaA
     have hB : ((fun p : GammaA × GammaA =>
           gχ (c.c (p.1 * p.2)) + gχ (c.c p.1) + gχ (c.c p.2))
         + (fun p : GammaA × GammaA =>
-          gχ ((0 : VCocycle (En.descData l h)
-              (RF.rhoPrime b F (En.radData l h) rfl ρ)).c (p.1 * p.2))
-            + gχ ((0 : VCocycle (En.descData l h)
-              (RF.rhoPrime b F (En.radData l h) rfl ρ)).c p.1)
-            + gχ ((0 : VCocycle (En.descData l h)
-              (RF.rhoPrime b F (En.radData l h) rfl ρ)).c p.2)))
+          gχ (c0.c (p.1 * p.2)) + gχ (c0.c p.1) + gχ (c0.c p.2)))
         ∈ B2 GammaA (ZMod 2) :=
       AddSubgroup.add_mem _
         (gPart_mem_B2 (descSigma_spec En l h Dsc) htrivA gχ c)
-        (gPart_mem_B2 (descSigma_spec En l h Dsc) htrivA gχ 0)
+        (gPart_mem_B2 (descSigma_spec En l h Dsc) htrivA gχ c0)
     have hdecomp : chiDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c
-        + chiDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ
-            (0 : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))
+        + chiDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c0
         = cupChi (En.descData l h) (descSections En l h Dsc)
             (RF.rhoPrime b F (En.radData l h) rfl ρ) (descSigma_spec En l h Dsc) gχ χ c
           + ((fun p : GammaA × GammaA =>
               gχ (c.c (p.1 * p.2)) + gχ (c.c p.1) + gχ (c.c p.2))
             + (fun p : GammaA × GammaA =>
-              gχ ((0 : VCocycle (En.descData l h)
-                  (RF.rhoPrime b F (En.radData l h) rfl ρ)).c (p.1 * p.2))
-                + gχ ((0 : VCocycle (En.descData l h)
-                  (RF.rhoPrime b F (En.radData l h) rfl ρ)).c p.1)
-                + gχ ((0 : VCocycle (En.descData l h)
-                  (RF.rhoPrime b F (En.radData l h) rfl ρ)).c p.2))) := by
+              gχ (c0.c (p.1 * p.2)) + gχ (c0.c p.1) + gχ (c0.c p.2))) := by
       funext p
       have h1 := chiDef_decomp (descSections En l h Dsc) (descSigma_spec En l h Dsc)
         χ gχ hg c p
       have h2 := chiDef_decomp (descSections En l h Dsc) (descSigma_spec En l h Dsc)
-        χ gχ hg (0 : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)) p
+        χ gχ hg c0 p
       have h3 := cupChi_zero (ρ := RF.rhoPrime b F (En.radData l h) rfl ρ)
         (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ gχ hg0 p
+      rw [← hc0] at h3
       linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]; try ring_nf))
         h1 + h2 + h3
     have hiota : iotaB (chiDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c
-        + chiDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ
-            (0 : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))) = 0 := by
+        + chiDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c0) = 0 := by
       rw [iotaB_add CardH2GammaA.card_H2_gammaA
         (chiDef_mem_Z2 (descSections En l h Dsc) (descSigma_spec En l h Dsc) htrivA χ c)
-        (chiDef_mem_Z2 (descSections En l h Dsc) (descSigma_spec En l h Dsc) htrivA χ
-          (0 : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)))]
+        (chiDef_mem_Z2 (descSections En l h Dsc) (descSigma_spec En l h Dsc) htrivA χ c0)]
       have hbc : iotaB (chiDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c)
-          = iotaB (chiDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ
-              (0 : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))) :=
+          = iotaB (chiDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c0) :=
         hall c
       rw [hbc, CharTwo.add_self_eq_zero]
     rw [hdecomp, hiotaB_shift _ _ hB] at hiota
@@ -1359,15 +1211,10 @@ theorem hpartial_gammaA
     -- the bridged `VCocycle` (the `hZcard_gammaA` construction)
     set c : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ) :=
       { c := fun γ => (zc.1 γ : (En.descData l h).Vmod)
-        cont := by
-          have hc : Continuous (fun v : En.Vmod =>
-              iV (En.descData l h) (Multiplicative.ofAdd v)) :=
-            continuous_of_discreteTopology
-          exact hc.comp (mem_Z1_iff.mp zc.2).1
+        cont := (continuous_of_discreteTopology (f := fun v : En.Vmod =>
+          iV (En.descData l h) (Multiplicative.ofAdd v))).comp (mem_Z1_iff.mp zc.2).1
         crossed := fun γ δ => by
-          have hz := (mem_Z1_iff.mp zc.2).2 γ δ
-          rw [hroundtrip γ]
-          exact hz } with hcdef
+          rw [hroundtrip γ]; exact (mem_Z1_iff.mp zc.2).2 γ δ } with hcdef
     have hident : (fun p : GA × GA => (ξfun p.1) (p.1 • zc.1 p.2))
         = cupChi (En.descData l h) (descSections En l h Dsc)
             (RF.rhoPrime b F (En.radData l h) rfl ρ) (descSigma_spec En l h Dsc) gχ χ c := by
@@ -1397,10 +1244,7 @@ theorem hpartial_gammaA
           = n v + n (cc • v) := by
       intro cc v
       obtain ⟨γ, hγ⟩ := hθs cc
-      have h2 : γ • n = ξfun γ + n := by
-        rw [← congrFun hn γ]
-        show γ • n = γ • n - n + n
-        abel
+      have h2 : γ • n = ξfun γ + n := sub_eq_iff_eq_add.mp (congrFun hn γ)
       have h4 : (γ • n) (cc • v) = n v := by
         rw [ElemDual.smul_apply]
         congr 1
@@ -1410,8 +1254,8 @@ theorem hpartial_gammaA
               (descSigma_spec En l h Dsc) cc v) + gχ (cc • v) + gχ v := by
         rw [show ξfun γ = Fξ (θ γ) from rfl, hFval]
         rw [hγ, inv_smul_smul]
-      have h3 : (γ • n) (cc • v) = ξfun γ (cc • v) + n (cc • v) := by
-        rw [h2]; rfl
+      have h3 : (γ • n) (cc • v) = ξfun γ (cc • v) + n (cc • v) :=
+        DFunLike.congr_fun h2 (cc • v)
       rw [← h5, ← h4, h3]
       have hchar : ∀ X Y : ZMod 2, X = X + Y + Y := by decide
       exact hchar _ _
@@ -1555,15 +1399,13 @@ theorem hpartial_gammaA
             * ((descSections En l h Dsc).uσ cc * (↑((descSections En l h Dsc).mV v) : RF.YB)
                 * ((descSections En l h Dsc).uσ cc)⁻¹
                 * (↑((descSections En l h Dsc).mV (cc • v)))⁻¹)
-        rw [hvc]
-        rw [← hsecconj]
+        rw [hvc, ← hsecconj]
         group
       have hlhs : ψ ⟨bb * (m : RF.YB) * bb⁻¹, hm⟩
           = χ.1 (⟨_, htmem m⟩ : ↥(En.radData l h).T)
             + χ.1 (conjDef (En.descData l h) (descSections En l h Dsc)
                 (descSigma_spec En l h Dsc) cc v)
             + gχ (cc • v) + n (cc • v) := by
-        rw [hψdef]
         show χ.1 ⟨_, htmem ⟨bb * (m : RF.YB) * bb⁻¹, hm⟩⟩
             + gχ (Multiplicative.toAdd ((En.descData l h).descend
                 ⟨bb * (m : RF.YB) * bb⁻¹, hm⟩))
@@ -1608,15 +1450,11 @@ theorem hpartial_gammaA
           ⟨t₀.1, (En.radData l h).hTM t₀.2⟩)) = 0 := by rw [hdesc1, toAdd_one]; exact hg0
       have hn0' : n (Multiplicative.toAdd ((En.descData l h).descend
           ⟨t₀.1, (En.radData l h).hTM t₀.2⟩)) = 0 := by
-        conv_lhs => rw [hdesc1]
-        exact map_zero n
+        rw [hdesc1]; exact map_zero n
       rw [harg, hg0', hn0', add_zero, add_zero]
     exact hval.symm.trans h0
   -- ### Stage 9: contradiction with `hχ`
-  apply hχ
-  apply Subtype.ext
-  funext t
-  exact hψ t
+  exact hχ (Subtype.ext (funext hψ))
 
 
 end HsepGammaA

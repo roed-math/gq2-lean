@@ -109,17 +109,11 @@ theorem zmodTwo_cases : ∀ x : ZMod 2, x = 0 ∨ x = 1 := by decide
 /-- Every `DistribMulAction` on `𝔽₂` is trivial: `ℤ/2` has no nontrivial additive
 automorphism. -/
 theorem smul_zmodTwo (h : H) (m : ZMod 2) : h • m = m := by
-  have hinj : Function.Injective (fun n : ZMod 2 => h • n) := fun a b hab => by
-    have := congrArg (fun x => h⁻¹ • x) hab
-    simpa only [← mul_smul, inv_mul_cancel, one_smul] using this
-  have h0 : h • (0 : ZMod 2) = 0 := smul_zero h
-  have h1 : h • (1 : ZMod 2) = 1 := by
-    rcases zmodTwo_cases (h • (1 : ZMod 2)) with hc | hc
-    · exact absurd (hinj (hc.trans h0.symm)) (by decide)
-    · exact hc
   rcases zmodTwo_cases m with rfl | rfl
-  · exact h0
-  · exact h1
+  · exact smul_zero h
+  · rcases zmodTwo_cases (h • (1 : ZMod 2)) with hc | hc
+    · exact absurd (MulAction.injective h (hc.trans (smul_zero h).symm)) (by decide)
+    · exact hc
 
 end Triv
 
@@ -136,18 +130,14 @@ theorem z1_mul (α : Z1 N (ZMod 2)) (x y : N) : α.1 (x * y) = α.1 x + α.1 y :
   rw [(mem_Z1_iff.mp α.2).2 x y, smul_zmodTwo]
 
 /-- `α(1) = 0`. -/
-theorem z1_one (α : Z1 N (ZMod 2)) : α.1 1 = 0 := by
-  have h := z1_mul N α 1 1
-  rw [mul_one] at h
-  exact h.trans (CharTwo.add_self_eq_zero (α.1 1))
+theorem z1_one (α : Z1 N (ZMod 2)) : α.1 1 = 0 :=
+  left_eq_add.mp (show α.1 1 = α.1 1 + α.1 1 by simpa using z1_mul N α 1 1)
 
 /-- `α(x⁻¹) = α(x)` in `𝔽₂`. -/
 theorem z1_inv (α : Z1 N (ZMod 2)) (x : N) : α.1 x⁻¹ = α.1 x := by
   have h := z1_mul N α x x⁻¹
   rw [mul_inv_cancel, z1_one] at h
-  have h2 : α.1 x = - α.1 x⁻¹ := add_eq_zero_iff_eq_neg.mp h.symm
-  rw [CharTwo.neg_eq] at h2
-  exact h2.symm
+  exact (CharTwo.add_eq_zero.mp h.symm).symm
 
 end Z1Hom
 
@@ -164,20 +154,15 @@ Because `H2ofFun` is junk-total (`0` off `Z²`), a coboundary difference forces
 theorem H2ofFun_eq_of_sub_mem_B2 {φ ψ : G × G → ZMod 2}
     (h : φ - ψ ∈ B2 G (ZMod 2)) : H2ofFun G φ = H2ofFun G ψ := by
   by_cases hφ : φ ∈ Z2 G (ZMod 2)
-  · have hψ : ψ ∈ Z2 G (ZMod 2) := by
-      have he : ψ = φ - (φ - ψ) := by abel
-      rw [he]; exact sub_mem hφ (B2_le_Z2 h)
+  · have hψ : ψ ∈ Z2 G (ZMod 2) := by simpa using sub_mem hφ (B2_le_Z2 h)
     rw [H2ofFun_of_mem hφ, H2ofFun_of_mem hψ]
     have hmem : (⟨φ, hφ⟩ : Z2 G (ZMod 2)) - ⟨ψ, hψ⟩
-        ∈ (B2 G (ZMod 2)).addSubgroupOf (Z2 G (ZMod 2)) := by
-      rw [AddSubgroup.mem_addSubgroupOf, AddSubgroup.coe_sub]
-      exact h
+        ∈ (B2 G (ZMod 2)).addSubgroupOf (Z2 G (ZMod 2)) :=
+      AddSubgroup.mem_addSubgroupOf.mpr h
     rw [← sub_eq_zero, ← map_sub]
     exact (QuotientAddGroup.eq_zero_iff _).mpr hmem
-  · have hψ : ψ ∉ Z2 G (ZMod 2) := by
-      intro hψ; apply hφ
-      have he : φ = ψ + (φ - ψ) := by abel
-      rw [he]; exact add_mem hψ (B2_le_Z2 h)
+  · have hψ : ψ ∉ Z2 G (ZMod 2) := fun hψ =>
+      hφ (by simpa using add_mem (B2_le_Z2 h) hψ)
     rw [H2ofFun, H2ofFun, dif_neg hφ, dif_neg hψ]
 
 end Coboundary
@@ -190,10 +175,8 @@ variable {G : Type*} [Group G]
 variable (N : Subgroup G) [N.Normal]
 
 /-- The `G`-action on `G ⧸ N` is left multiplication by the image: `g • z = ḡ · z`. -/
-theorem quot_smul_eq_mk_mul (g : G) (z : G ⧸ N) : g • z = (g : G ⧸ N) * z := by
-  refine QuotientGroup.induction_on z fun z₀ => ?_
-  rw [← QuotientGroup.mk_mul]
-  rfl
+theorem quot_smul_eq_mk_mul (g : G) (z : G ⧸ N) : g • z = (g : G ⧸ N) * z :=
+  QuotientGroup.induction_on z fun z₀ => (QuotientGroup.mk_mul N g z₀).symm
 
 /-- **Transversal 1-cocycle identity**: `ℓ_h(γη) = ℓ_h(γ) · ℓ_{γ⁻¹•h}(η)` (in `G`). -/
 theorem lWord_mul (h : G ⧸ N) (γ η : G) :
@@ -210,8 +193,7 @@ noncomputable def shiftCorr (ghat : G) (k : G ⧸ N) : G :=
 theorem shiftCorr_mem (ghat : G) (k : G ⧸ N) : shiftCorr N ghat k ∈ N := by
   have h1 : (((k.out * ghat : G)) : G ⧸ N) = k * (ghat : G ⧸ N) := by
     rw [QuotientGroup.mk_mul, QuotientGroup.out_eq']
-  have h2 : ((k * (ghat : G ⧸ N)).out : G ⧸ N) = k * (ghat : G ⧸ N) := QuotientGroup.out_eq' _
-  exact (QuotientGroup.eq (s := N)).mp (h1.trans h2.symm)
+  exact (QuotientGroup.eq (s := N)).mp (h1.trans (QuotientGroup.out_eq' _).symm)
 
 /-- The shift factorization of the transversal word:
 `ℓ_{kḡ}(η) = c(k)⁻¹ · (ĝ⁻¹·ℓ_k(η)·ĝ) · c(η⁻¹•k)`. -/
@@ -250,7 +232,7 @@ theorem continuous_inv_smul (hNo : IsOpen (N : Set G)) (h : G ⧸ N) :
   have he : (fun γ : G => γ⁻¹ • h) = (fun γ : G => ((γ : G ⧸ N))⁻¹ * h) := by
     funext γ; rw [quot_smul_eq_mk_mul]; rfl
   rw [he]
-  exact (continuous_mul_right h).comp ((continuous_inv).comp QuotientGroup.continuous_mk)
+  exact (continuous_mul_const h).comp (continuous_inv.comp QuotientGroup.continuous_mk)
 
 /-- `γ ↦ lTrans N h γ : G → ↥N` is continuous. -/
 theorem continuous_lTrans (hNo : IsOpen (N : Set G)) (h : G ⧸ N) :
@@ -258,7 +240,7 @@ theorem continuous_lTrans (hNo : IsOpen (N : Set G)) (h : G ⧸ N) :
   haveI := QuotientGroup.discreteTopology (N := N) hNo
   have hcont : Continuous fun γ : G => lWord N h γ := by
     simp only [lWord]
-    exact (continuous_mul_left h.out⁻¹).mul
+    exact (continuous_const_mul h.out⁻¹).mul
       ((continuous_of_discreteTopology (f := fun u : G ⧸ N => u.out)).comp
         (continuous_inv_smul N hNo h))
   exact hcont.subtype_mk _
@@ -270,12 +252,10 @@ theorem freeLambda_continuous (hNo : IsOpen (N : Set G)) (α β : Z1 N (ZMod 2))
   haveI : Fintype (G ⧸ N) := Fintype.ofFinite _
   have hα : Continuous α.1 := (mem_Z1_iff.mp α.2).1
   have hEq : freeLambda N α β ghat
-      = fun γ => ∑ h : G ⧸ N, α.1 (lTrans N h γ) * freeCorr N β ghat (γ⁻¹ • h) := by
-    funext γ
-    show (∑ᶠ h : G ⧸ N, α.1 (lTrans N h γ) * freeCorr N β ghat (γ⁻¹ • h)) = _
-    rw [finsum_eq_sum_of_fintype]
+      = fun γ => ∑ h : G ⧸ N, α.1 (lTrans N h γ) * freeCorr N β ghat (γ⁻¹ • h) :=
+    funext fun γ => finsum_eq_sum_of_fintype _
   rw [hEq]
-  refine continuous_finset_sum Finset.univ (fun h _ => ?_)
+  refine continuous_finsetSum Finset.univ (fun h _ => ?_)
   exact (hα.comp (continuous_lTrans N hNo h)).mul
     ((continuous_of_discreteTopology (f := freeCorr N β ghat)).comp
       (continuous_inv_smul N hNo h))
@@ -306,10 +286,8 @@ theorem phi_free_eq (α β : Z1 N (ZMod 2)) (ghat : G) (γ η : G) :
     graphPullback (freeOrbitDatum N (QuotientGroup.mk' N ghat)) (QuotientGroup.mk' N)
         (fun δ ↦ (shapiroFun N α.1 δ, shapiroFun N β.1 δ)) (γ, η)
       = ∑ᶠ h : G ⧸ N, α.1 (lTrans N h γ)
-          * β.1 (lTrans N ((QuotientGroup.mk' N γ)⁻¹ * (h * QuotientGroup.mk' N ghat)) η) := by
-  show (∑ᶠ h : G ⧸ N, α.1 (lTrans N h γ)
-      * β.1 (lTrans N ((QuotientGroup.mk' N γ)⁻¹ * (h * QuotientGroup.mk' N ghat)) η)) + 0 = _
-  rw [add_zero]
+          * β.1 (lTrans N ((QuotientGroup.mk' N γ)⁻¹ * (h * QuotientGroup.mk' N ghat)) η) :=
+  add_zero _
 
 /-- The corestriction side, unfolded to an explicit sum over `G ⧸ N` (definitional). -/
 theorem psi_free_eq (α β : Z1 N (ZMod 2)) (ghat : G) (γ η : G) :
@@ -342,9 +320,7 @@ theorem lemma_6_15_free_aux (hNo : IsOpen (N : Set G)) (α β : Z1 N (ZMod 2)) (
   obtain ⟨γ, η⟩ := p
   -- `(γ̄)⁻¹ · h = γ⁻¹•h`
   have hact : ∀ h : G ⧸ N, (QuotientGroup.mk' N γ)⁻¹ * h = γ⁻¹ • h := fun h => by
-    refine QuotientGroup.induction_on h fun h₀ => ?_
-    rw [QuotientGroup.mk'_apply, ← QuotientGroup.mk_inv, ← QuotientGroup.mk_mul]
-    rfl
+    rw [quot_smul_eq_mk_mul, QuotientGroup.mk_inv]; rfl
   -- LHS: δ¹Λ, char-2 normalized
   have hL : dOne G (ZMod 2) (freeLambda N α β ghat) (γ, η)
       = freeLambda N α β ghat η + freeLambda N α β ghat (γ * η) + freeLambda N α β ghat γ := by
@@ -394,7 +370,7 @@ theorem lemma_6_15_free_aux (hNo : IsOpen (N : Set G)) (α β : Z1 N (ZMod 2)) (
     rw [← sum_reindex_smul N γ
       (fun h => α.1 (lTrans N (γ⁻¹ • h) η) * freeCorr N β ghat ((γ * η)⁻¹ • h))]
     refine Finset.sum_congr rfl (fun h _ => ?_)
-    rw [show γ⁻¹ • (γ • h) = h from by rw [← mul_smul, inv_mul_cancel, one_smul],
+    rw [inv_smul_smul γ h,
       show (γ * η)⁻¹ • (γ • h) = η⁻¹ • h from by rw [← mul_smul]; congr 1; group]
   rw [hreindex]
   -- `Λη + Λ(γη) + Λγ = Λγ + (Λ(γη) + Λη)`
@@ -455,11 +431,9 @@ theorem lWordT_mem (T : G ⧸ U → G) (hT : ∀ v : G ⧸ U, (T v : G ⧸ U) = 
   have h2 : ((γ⁻¹ * T v : G) : G ⧸ U) = γ⁻¹ • v := by
     conv_rhs => rw [← hT v]
     exact MulAction.Quotient.smul_mk U γ⁻¹ (T v)
-  have h3 : (γ⁻¹ * T v)⁻¹ * T (γ⁻¹ • v) ∈ U :=
-    (QuotientGroup.eq (s := U)).mp (h2.trans h1.symm)
   have h4 : (γ⁻¹ * T v)⁻¹ * T (γ⁻¹ • v) = lWordT U T v γ := by
     rw [lWordT]; group
-  rwa [h4] at h3
+  exact h4 ▸ (QuotientGroup.eq (s := U)).mp (h2.trans h1.symm)
 
 /-- The transversal 1-cochain along `T`, valued in `↥U`. -/
 noncomputable def lTransT (T : G ⧸ U → G) (hT : ∀ v : G ⧸ U, (T v : G ⧸ U) = v)
@@ -533,27 +507,21 @@ theorem locallyConstant_inv_smul (hUo : IsOpen (U : Set G)) (v : G ⧸ U) :
     IsLocallyConstant fun γ : G => γ⁻¹ • v := by
   rw [IsLocallyConstant.iff_isOpen_fiber]
   intro w
+  have hmk : ∀ γ : G, ((γ⁻¹ * (v.out : G) : G) : G ⧸ U) = γ⁻¹ • v := fun γ => by
+    conv_rhs => rw [← QuotientGroup.out_eq' v]
+    exact MulAction.Quotient.smul_mk U γ⁻¹ v.out
   have hset : (fun γ : G => γ⁻¹ • v) ⁻¹' {w}
       = (fun γ : G => (γ⁻¹ * (v.out : G))⁻¹ * (w.out : G)) ⁻¹' (U : Set G) := by
     ext γ
     simp only [Set.mem_preimage, Set.mem_singleton_iff, SetLike.mem_coe]
     constructor
     · intro h
-      refine (QuotientGroup.eq (s := U)).mp ?_
-      have h2 : ((γ⁻¹ * (v.out : G) : G) : G ⧸ U) = γ⁻¹ • v := by
-        conv_rhs => rw [← QuotientGroup.out_eq' v]
-        exact MulAction.Quotient.smul_mk U γ⁻¹ v.out
-      rw [h2, h, QuotientGroup.out_eq']
+      exact (QuotientGroup.eq (s := U)).mp (by rw [hmk, h, QuotientGroup.out_eq'])
     · intro h
-      have h2 : ((γ⁻¹ * (v.out : G) : G) : G ⧸ U) = ((w.out : G) : G ⧸ U) :=
-        (QuotientGroup.eq (s := U)).mpr h
-      have h3 : ((γ⁻¹ * (v.out : G) : G) : G ⧸ U) = γ⁻¹ • v := by
-        conv_rhs => rw [← QuotientGroup.out_eq' v]
-        exact MulAction.Quotient.smul_mk U γ⁻¹ v.out
-      rw [← h3, h2, QuotientGroup.out_eq']
+      rw [← hmk γ, (QuotientGroup.eq (s := U)).mpr h, QuotientGroup.out_eq']
   rw [hset]
-  exact ((continuous_mul_right _).comp ((continuous_inv).comp
-    ((continuous_mul_right _).comp continuous_inv))).isOpen_preimage _ hUo
+  exact ((continuous_mul_const _).comp (continuous_inv.comp
+    ((continuous_mul_const _).comp continuous_inv))).isOpen_preimage _ hUo
 
 /-- Any function of `γ⁻¹ • v` is continuous (`U` open). -/
 theorem continuous_comp_inv_smul {X : Type*} [TopologicalSpace X]
@@ -566,9 +534,8 @@ theorem continuous_lTrans' (hUo : IsOpen (U : Set G)) (v : G ⧸ U) :
     Continuous fun γ : G => lTrans U v γ := by
   have hw : Continuous fun γ : G => lWord U v γ := by
     simp only [lWord]
-    exact ((continuous_mul_left _).mul
-      (continuous_comp_inv_smul U hUo v (fun w => (w.out : G)))).comp
-      (continuous_id)
+    exact (continuous_const_mul _).mul
+      (continuous_comp_inv_smul U hUo v (fun w => (w.out : G)))
   exact hw.subtype_mk _
 
 /-- `twistLambda` is continuous. -/
@@ -578,11 +545,10 @@ theorem twistLambda_continuous [Finite (G ⧸ U)] (hUo : IsOpen (U : Set G))
     Continuous (twistLambda U T hT ν) := by
   haveI : Fintype (G ⧸ U) := Fintype.ofFinite _
   have hEq : twistLambda U T hT ν = fun γ => ∑ v : G ⧸ U,
-      twistCorr ν (lTrans U v γ) (tCorrEl U T hT v) (tCorrEl U T hT (γ⁻¹ • v)) := by
-    funext γ
-    exact finsum_eq_sum_of_fintype _
+      twistCorr ν (lTrans U v γ) (tCorrEl U T hT v) (tCorrEl U T hT (γ⁻¹ • v)) :=
+    funext fun γ => finsum_eq_sum_of_fintype _
   rw [hEq]
-  refine continuous_finset_sum Finset.univ (fun v _ => ?_)
+  refine continuous_finsetSum Finset.univ (fun v _ => ?_)
   have ha : Continuous fun γ : G => lTrans U v γ := continuous_lTrans' U hUo v
   have hd : Continuous fun γ : G => tCorrEl U T hT (γ⁻¹ • v) :=
     continuous_comp_inv_smul U hUo v _
@@ -649,15 +615,11 @@ theorem cor2FunT_sub_cor2Fun_mem_B2 [Finite (G ⧸ U)] (hUo : IsOpen (U : Set G)
         twistCorr ν (lTrans U (γ⁻¹ • v) η) (tCorrEl U T hT (γ⁻¹ • v))
             (tCorrEl U T hT ((γ * η)⁻¹ • v))
           = (fun w => twistCorr ν (lTrans U w η) (tCorrEl U T hT w)
-              (tCorrEl U T hT (η⁻¹ • w))) (γ⁻¹ • v) := by
-      intro v
-      simp only
-      congr 2
-      rw [← mul_smul, mul_inv_rev]
+              (tCorrEl U T hT (η⁻¹ • w))) (γ⁻¹ • v) := fun v => by
+      simp only [← mul_smul, mul_inv_rev]
     rw [Finset.sum_congr rfl (fun v _ => hcong v)]
-    have := sum_reindex_smul' U γ (fun w => twistCorr ν (lTrans U w η) (tCorrEl U T hT w)
+    simpa using sum_reindex_smul' U γ (fun w => twistCorr ν (lTrans U w η) (tCorrEl U T hT w)
       (tCorrEl U T hT (η⁻¹ • w)))
-    simpa using this
   rw [hreindex]
   abel
 
@@ -683,29 +645,20 @@ variable (N : Subgroup G) [N.Normal]
 /-- `ḡ = mk ĝ` is an involution of `G/N` when `ĝ² ∈ N`. -/
 theorem ghatQuot_sq (ghat : G) (hg2 : ghat * ghat ∈ N) :
     (QuotientGroup.mk' N ghat) * (QuotientGroup.mk' N ghat) = 1 := by
-  rw [← map_mul, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]
-  exact hg2
+  rwa [← map_mul, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]
 
 /-- The image of `U₀ = ⟨N, ĝ⟩` under `G ↠ G/N` is `⟨ḡ⟩` (`N` dies, `ĝ ↦ ḡ`). -/
 theorem map_U0_eq_zpowers (ghat : G) (U₀ : Subgroup G)
     (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) :
     U₀.map (QuotientGroup.mk' N) = Subgroup.zpowers (QuotientGroup.mk' N ghat) := by
-  rw [hU₀, Subgroup.map_sup, MonoidHom.map_zpowers]
-  have hN : N.map (QuotientGroup.mk' N) = ⊥ := by
-    rw [Subgroup.eq_bot_iff_forall]
-    intro y hy
-    obtain ⟨x, hx, rfl⟩ := hy
-    rw [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]
-    exact hx
-  rw [hN, bot_sup_eq]
+  rw [hU₀, Subgroup.map_sup, MonoidHom.map_zpowers,
+    (Subgroup.map_eq_bot_iff N).mpr (QuotientGroup.ker_mk' N).ge, bot_sup_eq]
 
 /-- `G/U₀` is finite (`U₀ ⊇ N` has index dividing the finite `N.index`). -/
 theorem finite_quot_U0 [Finite (G ⧸ N)] (ghat : G) (U₀ : Subgroup G)
     (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) : Finite (G ⧸ U₀) := by
-  have hle : N ≤ U₀ := hU₀ ▸ le_sup_left
-  have hdvd : U₀.index ∣ N.index := Subgroup.index_dvd_of_le hle
-  have hN0 : N.index ≠ 0 := Subgroup.index_ne_zero_of_finite
-  haveI : U₀.FiniteIndex := ⟨fun h => hN0 (Nat.eq_zero_of_zero_dvd (h ▸ hdvd))⟩
+  haveI : N.FiniteIndex := Subgroup.finiteIndex_of_finite_quotient
+  haveI : U₀.FiniteIndex := Subgroup.finiteIndex_of_le (hU₀ ▸ le_sup_left)
   exact Subgroup.finite_quotient_of_finiteIndex
 
 /-- **The index correspondence** `G/U₀ ≃ (G/N)/⟨ḡ⟩`: both are the coset space of the
@@ -766,12 +719,7 @@ theorem orderOf_ghatQuot (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N) 
     orderOf (QuotientGroup.mk' N ghat) = 2 := by
   have hne : QuotientGroup.mk' N ghat ≠ 1 := by
     rw [QuotientGroup.mk'_apply, Ne, QuotientGroup.eq_one_iff]; exact hg
-  have hsq : (QuotientGroup.mk' N ghat) ^ 2 = 1 := by
-    rw [sq]; exact ghatQuot_sq N ghat hg2
-  have hdvd : orderOf (QuotientGroup.mk' N ghat) ∣ 2 := orderOf_dvd_of_pow_eq_one hsq
-  rcases (Nat.dvd_prime Nat.prime_two).mp hdvd with h1 | h2
-  · exact absurd (orderOf_eq_one_iff.mp h1) hne
-  · exact h2
+  exact orderOf_eq_prime (by rw [sq]; exact ghatQuot_sq N ghat hg2) hne
 
 /-- `N` has index 2 in `U₀ = ⟨N, ĝ⟩`: the map `U₀ → G/N` has kernel `N.subgroupOf U₀` and
 range `⟨ḡ⟩` (order 2), so `U₀/(N.subgroupOf U₀) ≅ ⟨ḡ⟩`. -/
@@ -786,9 +734,8 @@ theorem subgroupOf_index_two (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈
   have hrange : f.range = Subgroup.zpowers (QuotientGroup.mk' N ghat) := by
     rw [hf, MonoidHom.range_comp, Subgroup.subtype_range, map_U0_eq_zpowers N ghat U₀ hU₀]
   have hcard : Nat.card (U₀ ⧸ N.subgroupOf U₀) = 2 := by
-    rw [← hker]
-    rw [Nat.card_congr (QuotientGroup.quotientKerEquivRange f).toEquiv, hrange, Nat.card_zpowers,
-      orderOf_ghatQuot N ghat hg hg2]
+    rw [← hker, Nat.card_congr (QuotientGroup.quotientKerEquivRange f).toEquiv, hrange,
+      Nat.card_zpowers, orderOf_ghatQuot N ghat hg hg2]
   rw [Subgroup.index, hcard]
 
 /-! ### Involution assembly — setup -/
@@ -805,9 +752,8 @@ noncomputable def alphaOn (α : Z1 N (ZMod 2)) (U₀ : Subgroup G) :
 
 /-- `alphaOn` is additive (inherited from `α`, a hom on `N`). -/
 theorem alphaOn_hom (α : Z1 N (ZMod 2)) (U₀ : Subgroup G)
-    (x y : N.subgroupOf U₀) : alphaOn N α U₀ (x * y) = alphaOn N α U₀ x + alphaOn N α U₀ y := by
-  have h : (⟨(x * y).1.1, (x * y).2⟩ : N) = ⟨x.1.1, x.2⟩ * ⟨y.1.1, y.2⟩ := Subtype.ext rfl
-  simp only [alphaOn, h, z1_mul N α]
+    (x y : N.subgroupOf U₀) : alphaOn N α U₀ (x * y) = alphaOn N α U₀ x + alphaOn N α U₀ y :=
+  z1_mul N α ⟨x.1.1, x.2⟩ ⟨y.1.1, y.2⟩
 
 /-- `alphaOn` is continuous. -/
 theorem alphaOn_continuous (α : Z1 N (ZMod 2)) (U₀ : Subgroup G) :
@@ -871,9 +817,9 @@ theorem orbit_equiv (ghat : G) (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgrou
 theorem mem_zpowers_sq_one {H : Type*} [Group H] {g t : H} (hg2 : g * g = 1)
     (ht : t ∈ Subgroup.zpowers g) : t = 1 ∨ t = g := by
   obtain ⟨n, rfl⟩ := Subgroup.mem_zpowers_iff.mp ht
-  have hsq : g ^ (2 : ℤ) = 1 := by rw [show (2 : ℤ) = 1 + 1 by ring, zpow_add, zpow_one]; exact hg2
+  have hsq : g ^ (2 : ℤ) = 1 := (zpow_two g).trans hg2
   rcases Int.even_or_odd n with ⟨m, rfl⟩ | ⟨m, rfl⟩
-  · left; rw [show m + m = 2 * m by ring, zpow_mul, hsq, one_zpow]
+  · left; rw [← two_mul, zpow_mul, hsq, one_zpow]
   · right; rw [zpow_add, zpow_mul, hsq, one_zpow, one_mul, zpow_one]
 
 
@@ -976,17 +922,8 @@ theorem lWordT_invLift_mem_N_iff (ghat : G) (U₀ : Subgroup G)
       ↔ (QuotientGroup.mk' N γ)⁻¹ * (invIndexEquiv N ghat U₀ hU₀ v).out
           = orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * (invIndexEquiv N ghat U₀ hU₀ v).out) := by
   rw [← QuotientGroup.eq_one_iff (lWordT U₀ (invLift N ghat U₀ hU₀) v γ),
-    mk_lWordT_invLift N ghat U₀ hU₀ v γ, invIndexEquiv_smul_out N ghat U₀ hU₀ v γ]
-  constructor
-  · intro h
-    have h3 : ((invIndexEquiv N ghat U₀ hU₀ v).out⁻¹ * QuotientGroup.mk' N γ)⁻¹
-        = orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * (invIndexEquiv N ghat U₀ hU₀ v).out) :=
-      mul_eq_one_iff_inv_eq.mp h
-    rw [← h3]
-    group
-  · intro h
-    rw [← h]
-    group
+    mk_lWordT_invLift N ghat U₀ hU₀ v γ, invIndexEquiv_smul_out N ghat U₀ hU₀ v γ,
+    mul_eq_one_iff_inv_eq, mul_inv_rev, inv_inv]
 
 /-! ### Word identities and α-reads along `invLift` (Step 3)
 
@@ -1006,8 +943,7 @@ theorem invIndexEquiv_out_aligned (ghat : G) (U₀ : Subgroup G)
   rw [mk_lWordT_invLift N ghat U₀ hU₀ v γ] at h1
   have h2 : (invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out
       = (QuotientGroup.mk' N γ)⁻¹ * ((invIndexEquiv N ghat U₀ hU₀ v).out) := by
-    have h3 := mul_eq_one_iff_inv_eq.mp h1
-    rw [← h3]
+    rw [← mul_eq_one_iff_inv_eq.mp h1]
     group
   rw [h2, quot_smul_eq_mk_mul]
   rfl
@@ -1030,21 +966,17 @@ theorem invIndexEquiv_out_flipped (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * gha
     rw [Ne, QuotientGroup.eq_one_iff]
     exact hx
   have heq : (QuotientGroup.mk (lWordT U₀ (invLift N ghat U₀ hU₀) v γ) : G ⧸ N)
-      = QuotientGroup.mk' N ghat := by
-    rcases mem_zpowers_sq_one (ghatQuot_sq N ghat hg2) himg with h | h
-    · exact absurd h hne1
-    · exact h
+      = QuotientGroup.mk' N ghat :=
+    (mem_zpowers_sq_one (ghatQuot_sq N ghat hg2) himg).resolve_left hne1
   rw [mk_lWordT_invLift N ghat U₀ hU₀ v γ] at heq
   have h2 : (invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out
       = (QuotientGroup.mk' N γ)⁻¹ * ((invIndexEquiv N ghat U₀ hU₀ v).out)
-          * QuotientGroup.mk' N ghat := by
-    have h3 : ((invIndexEquiv N ghat U₀ hU₀ v).out)⁻¹ * (QuotientGroup.mk' N γ)
-        * ((invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out) = QuotientGroup.mk' N ghat := heq
+          * QuotientGroup.mk' N ghat :=
     calc (invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out
         = ((QuotientGroup.mk' N γ)⁻¹ * (invIndexEquiv N ghat U₀ hU₀ v).out)
             * (((invIndexEquiv N ghat U₀ hU₀ v).out)⁻¹ * (QuotientGroup.mk' N γ)
               * ((invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out)) := by group
-      _ = _ := by rw [h3]
+      _ = _ := by rw [heq]
   rw [h2, quot_smul_eq_mk_mul]
   rfl
 
@@ -1096,11 +1028,7 @@ theorem shiftCorr_ghat_mul (ghat : G) (hg2 : ghat * ghat ∈ N) (m : G ⧸ N) :
     out_ghat_shift N ghat m
   rw [hsq, h2] at h1
   -- h1 : m.out = m.out * ĝ * sc(m) * ĝ * sc(mḡ)
-  have h3 : shiftCorr N ghat (m * (ghat : G ⧸ N))
-      = (m.out * ghat * shiftCorr N ghat m * ghat)⁻¹ * m.out := by
-    rw [eq_inv_mul_iff_mul_eq]
-    exact h1.symm
-  rw [h3]
+  rw [eq_inv_mul_iff_mul_eq.mpr h1.symm]
   group
 
 
@@ -1123,9 +1051,7 @@ theorem mk_eq_ghat_of_notMem (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈
     exact Subgroup.mem_map.mpr ⟨_, hxU, rfl⟩
   have hne1 : (QuotientGroup.mk x : G ⧸ N) ≠ 1 := by
     rw [Ne, QuotientGroup.eq_one_iff]; exact hx
-  rcases mem_zpowers_sq_one (ghatQuot_sq N ghat hg2) himg with h | h
-  · exact absurd h hne1
-  · exact h
+  exact (mem_zpowers_sq_one (ghatQuot_sq N ghat hg2) himg).resolve_left hne1
 
 /-- `shiftCorr` as an element of `↥N`. -/
 noncomputable def scEl (ghat : G) (m : G ⧸ N) : N :=
@@ -1303,7 +1229,6 @@ theorem lWordT_mul_mem_of_notMem (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat
     mk_eq_ghat_of_notMem N ghat hg hg2 U₀ hU₀ _ (lWordT_mem U₀ T hT (γ⁻¹ • v) η) hy]
   exact ghatQuot_sq N ghat hg2
 
-set_option maxHeartbeats 1000000 in
 open scoped Classical in
 /-- **The position identity**: at each orbit position, the compatible-transversal Evens-norm
 read equals the two `phi_inv_eq` summands plus the three coboundary terms of the aligned-locus
@@ -1334,16 +1259,12 @@ theorem invPositionEval (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ N) (hg2 :
           + (if lWordT U₀ (invLift N ghat U₀ hU₀) v (γ * η) ∈ N then
               α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) (γ * η))
                 * dRead N α ghat ((γ * η)⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) else 0)) := by
-  classical
   -- the `mk'`-form indices reduce to plain shifts (mk'-form throughout; the `↑ghat`-atoms the
   -- R-lemmas introduce are converted at the end of each cell)
-  have hmk : (QuotientGroup.mk' N γ)⁻¹ * ((invIndexEquiv N ghat U₀ hU₀ v).out)
-      = γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out) :=
-    mk'_inv_mul N γ _
   have hidx1 : (QuotientGroup.mk' N γ)⁻¹
         * ((invIndexEquiv N ghat U₀ hU₀ v).out * QuotientGroup.mk' N ghat)
       = (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) * QuotientGroup.mk' N ghat := by
-    rw [← mul_assoc, hmk]
+    rw [← mul_assoc, mk'_inv_mul N γ]
   have horb : orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * ((invIndexEquiv N ghat U₀ hU₀ v).out))
       = (invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out :=
     (invIndexEquiv_smul_out N ghat U₀ hU₀ v γ).symm
@@ -1359,6 +1280,10 @@ theorem invPositionEval (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ N) (hg2 :
     rw [← mul_smul, mul_inv_rev]
   have hcoe : (ghat : G ⧸ N) = QuotientGroup.mk' N ghat := rfl
   have h2 : (2 : ZMod 2) = 0 := by decide
+  have hsplit : α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) (γ * η))
+      = α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) γ)
+        + α.1 (lTrans N (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) η) := by
+    rw [lTrans_mul' N _ γ η, z1_mul N α]
   by_cases hX : lWordT U₀ (invLift N ghat U₀ hU₀) v γ ∈ N
   · -- `γ`-aligned: `z' = γ⁻¹•z`
     have hz' : (invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out
@@ -1377,13 +1302,6 @@ theorem invPositionEval (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ N) (hg2 :
         exact mul_mem hX hY
       rw [bS_lTransT_aligned N α ghat hg hg2 U₀ hU₀ hgU hUi hs (γ⁻¹ • v) η hY]
       rw [if_pos hX, if_pos hY, if_pos hXY, if_pos hεpos]
-      have hsplit : α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) (γ * η))
-          = α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) γ)
-            + α.1 (lTrans N (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) η) := by
-        rw [show lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) (γ * η)
-            = lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) γ
-              * lTrans N (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) η from
-          lTrans_mul' N _ γ η, z1_mul N α]
       rw [hsplit, hidx1, hcompose, hz', hcoe]
       linear_combination (-(dRead N α ghat (η⁻¹ • (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)))
         * α.1 (lTrans N (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) η))) * h2
@@ -1443,13 +1361,6 @@ theorem invPositionEval (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ N) (hg2 :
       rw [evensAux_lTransT_flipped N α ghat hg hg2 U₀ hU₀ hgU hUi hs (γ⁻¹ • v) η hY]
       rw [bS_lTransT_flipped N α ghat hg hg2 U₀ hU₀ hgU hUi hs (γ⁻¹ • v) η hY]
       rw [if_neg hX, if_neg hY, if_pos hXY, if_neg hεneg, horb]
-      have hsplit : α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) (γ * η))
-          = α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) γ)
-            + α.1 (lTrans N (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) η) := by
-        rw [show lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) (γ * η)
-            = lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) γ
-              * lTrans N (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) η from
-          lTrans_mul' N _ γ η, z1_mul N α]
       rw [hsplit, hidx1, hz']
       rw [quot_mul_ghat_sq N ghat hg2 (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out))]
       rw [smul_mul_ghat N ghat η (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out))]
@@ -1489,9 +1400,7 @@ theorem invLambda_summand_eq (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G)
             then (1 : ZMod 2) else 0)
         * (α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) σ)
             * dRead N α ghat (σ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out))) := by
-  by_cases h : lWordT U₀ (invLift N ghat U₀ hU₀) v σ ∈ N
-  · rw [if_pos h, if_pos ((QuotientGroup.eq_one_iff _).mpr h), one_mul]
-  · rw [if_neg h, if_neg (fun h1 => h ((QuotientGroup.eq_one_iff _).mp h1)), zero_mul]
+  simp only [QuotientGroup.eq_one_iff, ite_mul, one_mul, zero_mul]
 
 /-- `invLambda` is continuous (`U₀ ⊇ N` is open; the alignment indicator factors through the
 discrete `G/N`). -/
@@ -1509,19 +1418,16 @@ theorem invLambda_continuous (hNo : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) (gh
       (if (QuotientGroup.mk (lWordT U₀ (invLift N ghat U₀ hU₀) v σ) : G ⧸ N) = 1
           then (1 : ZMod 2) else 0)
         * (α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) σ)
-            * dRead N α ghat (σ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out))) := by
-    funext σ
-    show (∑ᶠ v : G ⧸ U₀, _) = _
-    rw [finsum_eq_sum_of_fintype]
-    exact Finset.sum_congr rfl
-      (fun v _ => invLambda_summand_eq N α ghat U₀ hU₀ v σ)
+            * dRead N α ghat (σ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out))) :=
+    funext fun σ => (finsum_eq_sum_of_fintype _).trans (Finset.sum_congr rfl
+      fun v _ => invLambda_summand_eq N α ghat U₀ hU₀ v σ)
   rw [hEq]
-  refine continuous_finset_sum Finset.univ (fun v _ => ?_)
+  refine continuous_finsetSum Finset.univ (fun v _ => ?_)
   refine Continuous.mul ?_ (Continuous.mul ?_ ?_)
   · -- the alignment indicator factors through the discrete `G/N`
     have hword : Continuous fun σ : G => lWordT U₀ (invLift N ghat U₀ hU₀) v σ := by
       simp only [lWordT]
-      exact (continuous_mul_left _).mul
+      exact (continuous_const_mul _).mul
         (continuous_comp_inv_smul U₀ hU₀o v (invLift N ghat U₀ hU₀))
     exact (continuous_of_discreteTopology
       (f := fun q : G ⧸ N => if q = 1 then (1 : ZMod 2) else 0)).comp
@@ -1542,7 +1448,6 @@ theorem graphPullback_sub_cor2FunT_mem_B2 (hNo : IsOpen (N : Set G))
       - cor2FunT U₀ (invLift N ghat U₀ hU₀) (invLift_spec N ghat U₀ hU₀)
           (fun p => evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (p.1, p.2))
       ∈ B2 G (ZMod 2) := by
-  classical
   haveI : Finite (G ⧸ U₀) := finite_quot_U0 N ghat U₀ hU₀
   haveI : Fintype (G ⧸ U₀) := Fintype.ofFinite _
   haveI : Fintype ((G ⧸ N) ⧸ Subgroup.zpowers (QuotientGroup.mk' N ghat)) := Fintype.ofFinite _
@@ -1610,12 +1515,9 @@ theorem graphPullback_sub_cor2FunT_mem_B2 (hNo : IsOpen (N : Set G))
 
 /-- `alphaOn` kills the identity. -/
 theorem alphaOn_one (α : Z1 N (ZMod 2)) (U₀ : Subgroup G) :
-    alphaOn N α U₀ 1 = 0 := by
-  have h := alphaOn_hom N α U₀ 1 1
-  rw [mul_one] at h
-  have h2 : alphaOn N α U₀ 1 + (0 : ZMod 2)
-      = alphaOn N α U₀ 1 + alphaOn N α U₀ 1 := by rw [add_zero]; exact h
-  exact (add_left_cancel h2).symm
+    alphaOn N α U₀ 1 = 0 :=
+  left_eq_add.mp (show alphaOn N α U₀ 1 = alphaOn N α U₀ 1 + alphaOn N α U₀ 1 by
+    simpa using alphaOn_hom N α U₀ 1 1)
 
 /-- The Evens-norm cochain is right-normalized: `ν(z, 1) = 0`. -/
 theorem evensNormFun_right_one (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G)
@@ -1655,19 +1557,10 @@ theorem evensNormFun_cocForm (hNo : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) (gh
       (alphaOn N α U₀) (alphaOn_hom N α U₀) (alphaOn_continuous N α U₀)
   have e := (mem_Z2_iff.mp hZ2).2 a b c
   rw [smul_zmodTwo] at e
-  calc evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (b, c)
-        + evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a * b, c)
-        + evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a, b * c)
-        + evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a, b)
-      = (evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (b, c)
-          + evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a, b * c))
-        + (evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a * b, c)
-          + evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a, b)) := by ring
-    _ = (evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a * b, c)
-          + evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a, b))
-        + (evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a * b, c)
-          + evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a, b)) := by rw [e]
-    _ = 0 := CharTwo.add_self_eq_zero _
+  have h2 : (2 : ZMod 2) = 0 := by decide
+  linear_combination e
+    + (evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a * b, c)
+        + evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (a, b)) * h2
 
 /-- **Lemma 6.15, involution orbits (105)** — the graph pullback of the involution orbit datum
 equals the corestriction of the index-two Evens norm, as `H2ofFun`-classes.  Chains the
@@ -1696,12 +1589,10 @@ theorem lemma_6_15_involution_aux (hNo : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)
   have h2 := cor2FunT_sub_cor2Fun_mem_B2 U₀ hU₀o (invLift N ghat U₀ hU₀)
     (invLift_spec N ghat U₀ hU₀)
     (fun p => evensNormFun (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) (p.1, p.2))
-    (by
-      have := evensNormFun_continuous (subgroupOf_isOpen N hNo U₀) hUi hs
-        (alphaOn_continuous N α U₀)
-      exact this)
-    (fun a b c => evensNormFun_cocForm N hNo α ghat U₀ hgU hUi hs a b c)
-    (fun z => evensNormFun_right_one N α ghat U₀ hgU hUi hs z)
+    (evensNormFun_continuous (subgroupOf_isOpen N hNo U₀) hUi hs
+      (alphaOn_continuous N α U₀))
+    (evensNormFun_cocForm N hNo α ghat U₀ hgU hUi hs)
+    (evensNormFun_right_one N α ghat U₀ hgU hUi hs)
   have h3 := add_mem h1 h2
   rwa [sub_add_sub_cancel] at h3
 

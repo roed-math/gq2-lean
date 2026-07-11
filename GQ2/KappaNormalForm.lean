@@ -93,13 +93,7 @@ theorem permBas_smul (h : H) (n : Fin K) (x : H) :
   funext m y
   show (if m = n ∧ h⁻¹ * y = x then (1 : ZMod 2) else 0)
     = if m = n ∧ y = h * x then (1 : ZMod 2) else 0
-  have hiff : (m = n ∧ h⁻¹ * y = x) ↔ (m = n ∧ y = h * x) := by
-    constructor
-    · rintro ⟨rfl, hxy⟩
-      exact ⟨rfl, by rw [← hxy, mul_inv_cancel_left]⟩
-    · rintro ⟨rfl, rfl⟩
-      exact ⟨rfl, by rw [inv_mul_cancel_left]⟩
-  rw [if_congr hiff rfl rfl]
+  rw [inv_mul_eq_iff_eq_mul]
 
 private theorem zmod2_cases' : ∀ b : ZMod 2, b = 0 ∨ b = 1 := by decide
 
@@ -114,23 +108,11 @@ theorem permBas_support_decomp [Fintype H] (F : PermW H K) :
     intro p
     rw [permBas_apply]
     have hiff : (m = p.1 ∧ y = p.2) ↔ p = (m, y) := by
-      constructor
-      · rintro ⟨h1, h2⟩
-        exact Prod.ext h1.symm h2.symm
-      · rintro rfl
-        exact ⟨rfl, rfl⟩
+      simp [Prod.ext_iff, eq_comm]
     rw [if_congr hiff rfl rfl]
   rw [Finset.sum_congr rfl fun p _ => hterm p,
     Finset.sum_ite_eq' _ (m, y) (fun _ => (1 : ZMod 2))]
-  by_cases hmem : (m, y) ∈ Finset.univ.filter (fun p : Fin K × H => F p.1 p.2 = 1)
-  · rw [if_pos hmem]
-    rw [Finset.mem_filter] at hmem
-    exact hmem.2
-  · rw [if_neg hmem]
-    rw [Finset.mem_filter] at hmem
-    rcases zmod2_cases' (F m y) with h0 | h1
-    · exact h0
-    · exact absurd ⟨Finset.mem_univ _, h1⟩ hmem
+  rcases zmod2_cases' (F m y) with h | h <;> simp [h]
 
 /-! ## The expansion of a quadratic map in coordinates (ordered-pair form) -/
 
@@ -742,19 +724,15 @@ theorem isQuadraticFp2_add {V : Type*} [AddCommGroup V] {q q' : V → ZMod 2}
     IsQuadraticFp2 (fun v => q v + q' v) where
   map_zero := by rw [hq.map_zero, hq'.map_zero, add_zero]
   polar_add_left u v w := by
-    have h1 : ∀ a b : V, polar (fun v => q v + q' v) a b = polar q a b + polar q' a b := by
-      intro a b
-      simp only [polar]
-      ring
-    rw [h1, h1, h1, hq.polar_add_left, hq'.polar_add_left]
-    ring
+    have e1 := hq.polar_add_left u v w
+    have e2 := hq'.polar_add_left u v w
+    simp only [polar] at e1 e2 ⊢
+    linear_combination e1 + e2
   polar_add_right u v w := by
-    have h1 : ∀ a b : V, polar (fun v => q v + q' v) a b = polar q a b + polar q' a b := by
-      intro a b
-      simp only [polar]
-      ring
-    rw [h1, h1, h1, hq.polar_add_right, hq'.polar_add_right]
-    ring
+    have e1 := hq.polar_add_right u v w
+    have e2 := hq'.polar_add_right u v w
+    simp only [polar] at e1 e2 ⊢
+    linear_combination e1 + e2
 
 theorem polar_add_map {V : Type*} [AddCommGroup V] (q q' : V → ZMod 2) (v w : V) :
     polar (fun x => q x + q' x) v w = polar q v w + polar q' v w := by

@@ -57,14 +57,9 @@ theorem htriv_local' [DistribMulAction AbsGalQ2 (ZMod 2)] (γ : AbsGalQ2) (m : Z
   have hz : ∀ z : ZMod 2, z = 0 ∨ z = 1 := by decide
   rcases hz m with rfl | rfl
   · exact smul_zero γ
-  · by_contra hne
-    have h1 : γ • (1 : ZMod 2) = 0 := by
-      rcases hz (γ • (1 : ZMod 2)) with h | h
-      · exact h
-      · exact absurd h hne
-    have h2 : (1 : ZMod 2) = γ⁻¹ • (0 : ZMod 2) := by rw [← h1, inv_smul_smul]
-    rw [smul_zero] at h2
-    exact one_ne_zero h2
+  · rcases hz (γ • (1 : ZMod 2)) with h | h
+    · exact absurd (MulAction.injective γ (h.trans (smul_zero γ).symm)) one_ne_zero
+    · exact h
 
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
   [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
@@ -322,8 +317,6 @@ theorem hZcard_local
     vFixedPts_eq_one En hsimple hVne hnt, mul_one, pow_two]
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
-set_option synthInstance.maxHeartbeats 4000000 in
-set_option maxHeartbeats 1600000 in
 /-- **`hsep` for `G_ℚ₂`** — the `(T^∨)^C`-separation: a `V`-coordinate with all `χ`-obstructions
 `betaChi χ c = 0` is `T`-liftable.  The converse of the generic `betaChi_of_tliftable`
 (`VLiftCount.lean`); the `hsep_hom_local` pattern (`prop_5_16` cup clause (vi) `cup20`-bijectivity
@@ -726,7 +719,7 @@ theorem cup11_dualEval_right_separating
     (hvan : ∀ z : H1 AbsGalQ2 A, cup11 (dualEval A) hpair z ξ = 0) :
     ξ = 0 := by
   classical
-  have htor : ∀ x : A, (2 : ℕ) • x = 0 := fun x => by rw [two_nsmul]; exact hA₂ x
+  have htor : ∀ x : A, (2 : ℕ) • x = 0 := fun x => (two_nsmul x).trans (hA₂ x)
   have hμNe := muNTwoEquiv_equivariant htriv
   have heD := edEquivariant hpair htriv
   obtain ⟨d'', rfl⟩ := (H1congr dualAddEquiv heD).surjective ξ
@@ -752,8 +745,6 @@ theorem cup11_dualEval_right_separating
       AddMonoidHom.zero_apply]
   rw [hd0, map_zero]
 
-set_option synthInstance.maxHeartbeats 4000000 in
-set_option maxHeartbeats 1600000 in
 /-- **`hpartial` for `G_ℚ₂`** — nondegeneracy of the obstruction pairing in the character:
 every nonzero `χ ∈ (T^∨)^C` is detected by some `V`-coordinate.  Cup-duality clauses (iv)/(v) of
 `prop_5_16`.
