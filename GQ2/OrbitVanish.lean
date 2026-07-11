@@ -65,13 +65,10 @@ theorem H2ofFun_cor2Fun_coboundary_eq_zero (U : Subgroup AbsGalQ2) [Finite (AbsG
     rw [hEq]
     exact continuous_finsetSum _ fun u _ => hc.comp (continuous_lTrans' U hUo u)
   -- (3) hence the corestriction lies in `B²`, so its `H²`-class is `0`
-  have hB2 : cor2Fun U (fun ab => c ab.2 - c (ab.1 * ab.2) + c ab.1)
-      ∈ B2 AbsGalQ2 (ZMod 2) := by
-    rw [hcor]; exact ⟨cor1Fun U c, hcont, rfl⟩
   have hz : H2ofFun AbsGalQ2 (0 : AbsGalQ2 × AbsGalQ2 → ZMod 2) = 0 := by
     rw [H2ofFun_of_mem (zero_mem _)]; exact map_zero _
   rw [← hz]
-  exact H2ofFun_eq_of_sub_mem_B2 (by rw [sub_zero]; exact hB2)
+  exact H2ofFun_eq_of_sub_mem_B2 (by rw [sub_zero, hcor]; exact ⟨cor1Fun U c, hcont, rfl⟩)
 
 /-- **Class-level form** (the Lemma-6.15 orbit consumer): if a 2-cocycle `inner` on the subgroup
 `↥U` has trivial class in `H²(↥U, 𝔽₂)`, its degree-2 corestriction vanishes in `H²(G_ℚ₂, 𝔽₂)`.
@@ -205,7 +202,7 @@ theorem Q0loc_eq_orbit_sum_of_decomp (D : TateDuality 2) (dat : FactorSet C V)
     Q0loc D dat ρ x = ∑ o ∈ s, iotaF D (H2ofFun AbsGalQ2 (cor2Fun (U o) (inner o))) := by
   show iotaF D (H2ofFun AbsGalQ2 (graphPullback dat ρ (Quotient.out x).1)) = _
   rw [hdecomp, H2ofFun_sum_of_mem_Z2 s φ hφZ2, map_sum]
-  exact Finset.sum_congr rfl fun o ho => by rw [hcoh o ho]
+  exact Finset.sum_congr rfl fun o ho => congrArg (iotaF D) (hcoh o ho)
 
 omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
 /-- **The full P-15f2 reducer** (`lemma_6_17_vanish` modulo the monomial expansion): given the raw
@@ -487,9 +484,8 @@ theorem exists_refinement_of_zero_form (Δdat : FactorSet C V)
   have hsbase : ∀ v, (s v).base = v := fun v => by
     have := LinearMap.congr_fun hs v; simpa [π] using this
   refine ⟨fun v => (s v).fib, fun u w => ?_⟩
-  have hfib := congrArg ZFExt.fib (map_add s u w)
   show (s (u + w)).fib = (s u).fib + (s w).fib + Δdat.f u w
-  rw [hfib]
+  rw [congrArg ZFExt.fib (map_add s u w)]
   show (s u).fib + (s w).fib + Δdat.f (s u).base (s w).base
       = (s u).fib + (s w).fib + Δdat.f u w
   rw [hsbase u, hsbase w]
@@ -516,7 +512,6 @@ theorem exists_equivariant_refinement (Δdat : FactorSet C V)
     ∃ Δφ : V → ZMod 2, (∀ u w : V, Δφ (u + w) = Δφ u + Δφ w + Δdat.f u w) ∧
       (∀ (c : C) (v : V), Δφ (c • v) = Δφ v + Δdat.m c v) := by
   obtain ⟨φ0, hQ0⟩ := exists_refinement_of_zero_form Δdat hΔ hV2
-  have hmquad := hΔ.m_quad
   have hmmul := hΔ.m_mul
   haveI : Fintype ↥I := Fintype.ofFinite _
   have hoddsmul : ∀ x : ZMod 2, (Fintype.card ↥I) • x = x := by
@@ -528,17 +523,16 @@ theorem exists_equivariant_refinement (Δdat : FactorSet C V)
   set D : C → V → ZMod 2 := fun c v => φ0 (c • v) + φ0 v + Δdat.m c v with hD
   have hDadd : ∀ (c : C) (v w : V), D c (v + w) = D c v + D c w := by
     intro c v w
-    have h1 := hQ0 (c • v) (c • w); have h2 := hQ0 v w; have h3 := hmquad c v w
+    have h1 := hQ0 (c • v) (c • w); have h2 := hQ0 v w; have h3 := hΔ.m_quad c v w
     show φ0 (c • (v + w)) + φ0 (v + w) + Δdat.m c (v + w)
         = (φ0 (c • v) + φ0 v + Δdat.m c v) + (φ0 (c • w) + φ0 w + Δdat.m c w)
     rw [smul_add]
     linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) h1 + h2 + h3
   have hDcoc : ∀ (c d : C) (v : V), D (c * d) v = D c (d • v) + D d v := by
     intro c d v
-    have h := hmmul c d v
     show φ0 ((c * d) • v) + φ0 v + Δdat.m (c * d) v
       = (φ0 (c • d • v) + φ0 (d • v) + Δdat.m c (d • v)) + (φ0 (d • v) + φ0 v + Δdat.m d v)
-    rw [mul_smul, h]
+    rw [mul_smul, hmmul c d v]
     linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
   set L : V → ZMod 2 := fun v => ∑ i : ↥I, D (i : C) v with hL
   have hLadd : ∀ v w, L (v + w) = L v + L w := by
@@ -578,18 +572,17 @@ theorem exists_equivariant_refinement (Δdat : FactorSet C V)
     linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hstepA j v
   have hD'coc : ∀ (c d : C) (v : V), D' (c * d) v = D' c (d • v) + D' d v := by
     intro c d v
-    have h := hmmul c d v
     show Δφ ((c * d) • v) + Δφ v + Δdat.m (c * d) v
       = (Δφ (c • d • v) + Δφ (d • v) + Δdat.m c (d • v)) + (Δφ (d • v) + Δφ v + Δdat.m d v)
-    rw [mul_smul, h]
+    rw [mul_smul, hmmul c d v]
     linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
   have hinv : ∀ (c : C) (i : ↥I) (v : V), D' c ((i : C) • v) = D' c v := by
     intro c i v
     have hmem : c * (i : C) * c⁻¹ ∈ I := hIn.conj_mem _ i.2 c
     set i' : ↥I := ⟨c * (i : C) * c⁻¹, hmem⟩ with hi'
     have hci : c * (i : C) = (i' : C) * c := by
-      have : (i' : C) = c * (i : C) * c⁻¹ := rfl
-      rw [this]; group
+      show c * (i : C) = c * (i : C) * c⁻¹ * c
+      group
     have h1 := hD'coc c (i : C) v
     have h2 := hD'coc (i' : C) c v
     rw [hci] at h1
@@ -640,16 +633,14 @@ theorem graphPullback_mem_B2_of_refinement (Δdat : FactorSet C V)
     graphPullback Δdat ρ b.1 ∈ B2 AbsGalQ2 (ZMod 2) := by
   obtain ⟨hbc, hb⟩ := mem_Z1_iff.mp b.2
   refine AddSubgroup.mem_map.mpr ⟨fun g => Δφ (b.1 g), ?_, ?_⟩
-  · refine mem_C1_iff.mpr ?_
-    exact (continuous_of_discreteTopology (f := Δφ)).comp hbc
+  · exact mem_C1_iff.mpr ((continuous_of_discreteTopology (f := Δφ)).comp hbc)
   · funext p
     obtain ⟨g, h⟩ := p
     have hbgh : b.1 (g * h) = b.1 g + ρ g • b.1 h := by rw [hb g h, hρ]
-    have hk1 := hQ (b.1 g) (ρ g • b.1 h)
-    have hk2 := hE (ρ g) (b.1 h)
     simp only [dOne, AddMonoidHom.coe_mk, ZeroHom.coe_mk, absGal_smul_zmodTwo, graphPullback]
     rw [hbgh]
-    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hk1 + hk2
+    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
+      hQ (b.1 g) (ρ g • b.1 h) + hE (ρ g) (b.1 h)
 
 omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
 /-- **`Q⁰_loc` datum-independence from a refinement** (P-15f2a capstone): a quadratic refinement `Δφ`

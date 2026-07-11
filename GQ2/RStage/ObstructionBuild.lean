@@ -60,9 +60,8 @@ def trivialRCD {Bg : Type} [Group Bg] [Finite Bg] (C : CentralCover Bg) :
     rw [Subgroup.mem_bot.mp hm, Subgroup.mem_bot.mp hm']
   q := fun _ => 0
   hq := fun x hx => by
-    have hx1 : C.p x = 1 := Subgroup.mem_bot.mp hx
-    rw [show ((0 : ZMod 2)).val = 0 from rfl, pow_zero]
-    exact C.sq_eq_one_of_mem_ker (MonoidHom.mem_ker.mpr hx1)
+    rw [ZMod.val_zero, pow_zero]
+    exact C.sq_eq_one_of_mem_ker (MonoidHom.mem_ker.mpr (Subgroup.mem_bot.mp hx))
   hrad := fun t ht m hm => by simp [polarMul]
   hTzero := fun t ht => rfl
 
@@ -216,8 +215,7 @@ instance instModuleH2 : Module (ZMod 2) (H2 Γ (ZMod 2)) :=
     obtain ⟨c, rfl⟩ := H2mk_surjective x
     rw [← map_nsmul]
     have hc : (2 : ℕ) • c = 0 := by
-      apply Subtype.ext
-      funext gd
+      ext gd
       show (2 : ℕ) • (c.1 gd) = 0
       rw [two_nsmul, CharTwo.add_self_eq_zero]
     rw [hc, map_zero])
@@ -236,9 +234,7 @@ theorem obsLiftFam_p (D : RObstructionData RF) (g : ContinuousMonoidHom Γ RF.YB
 
 theorem obsLiftFam_cont (D : RObstructionData RF) (g : ContinuousMonoidHom Γ RF.YB)
     (d : D.DRmod) (h : D.toDR d ≠ RF.zeroDR) : Continuous (obsLiftFam RF D g d h) := by
-  have he : obsLiftFam RF D g d h
-      = (fun y => D.coverMap (D.toDR d) h (slift RF y)) ∘ (g : Γ → RF.YB) := rfl
-  rw [he]
+  show Continuous ((fun y => D.coverMap (D.toDR d) h (slift RF y)) ∘ (g : Γ → RF.YB))
   exact continuous_of_discreteTopology.comp (map_continuous g)
 
 /-- **The pointwise obstruction identity**: the obstruction cochain of the lift family equals
@@ -281,10 +277,7 @@ theorem homOb_eq_H2mk_pair (D : RObstructionData RF)
   rw [homOb, ob_eq_of_liftFam (trivialRCD (RF.scalarCover (D.toDR d) h)) (trivialRho g) htriv
       (trivialMLift (RF.scalarCover (D.toDR d) h) g) (obsLiftFam_cont RF D g d h)
       (fun x => obsLiftFam_p RF D g d h x)]
-  apply congrArg
-  apply Subtype.ext
-  funext gd
-  exact obCocOf_obsLiftFam RF D g d h gd.1 gd.2
+  exact congrArg _ (Subtype.ext (funext fun gd => obCocOf_obsLiftFam RF D g d h gd.1 gd.2))
 
 /-- The obstruction cochain lies in `Z²` for **every** `d` (the `toDR d = 0` case is the zero
 cochain, since `pair 0 = 0`). -/
@@ -313,8 +306,7 @@ noncomputable def obsMapAdd (D : RObstructionData RF)
       intro d d'
       rw [← map_add]
       congr 1
-      apply Subtype.ext
-      funext gd
+      ext gd
       show D.pair (d + d') _ = D.pair d _ + D.pair d' _
       rw [map_add]; rfl)
 
@@ -394,8 +386,7 @@ theorem hmB_holds (D : RObstructionData RF)
   refine Nat.card_congr (Equiv.subtypeEquivRight fun f => ?_).symm
   rw [obs_zero_iff_lifts RF D htriv hcard f.1.1 (D.toDR.symm l) hne]
   have hcov : RF.scalarCover (D.toDR (D.toDR.symm l)) hne = RF.scalarCover l h := by
-    congr 1
-    exact Equiv.apply_symm_apply _ _
+    congr 1; exact Equiv.apply_symm_apply _ _
   rw [hcov]
 
 /-! ## Step 5 — assemble: (136) modulo the two hard classical cores -/
@@ -429,8 +420,7 @@ theorem stageR136_ofRObstructionData (D : RObstructionData RF)
   refine stageR136_ofObstruction RF hfg b F D.DRmod D.toDR D.h0
     (fun g => obs RF D htriv hcard g.1.1) ?_ ?_ hfib
   · -- `hmB` — the obstruction-count identity, proved above
-    intro l hl
-    exact hmB_holds RF D htriv hcard b F l hl
+    exact hmB_holds RF D htriv hcard b F
   · -- `hobs` — the liftability biconditional
     intro g
     refine ⟨hsep g, ?_⟩
@@ -473,13 +463,13 @@ variable (RF : RecursionFrame T Blk)
 /-- `R = Φ(K) ≤ K ≤ P ≤ L_Y = ker π_Y`: `R`-twists preserve the head framing. -/
 theorem R_le_ker_piY : Blk.R ≤ T.piY.ker := by
   rw [T.ker_piY]
-  exact le_trans (frattiniLike_le Blk.K) (le_trans Blk.hKP Blk.hPL)
+  exact (frattiniLike_le Blk.K).trans (Blk.hKP.trans Blk.hPL)
 
 /-- `R = Φ(K) ≤ ker θ_Y` when `E` is elementary-2 (`lemma_7_3`): `R`-twists preserve the scalar
 framing.  This is exactly the `thm_4_2` decoration hypothesis (harmless downstream: §10 uses
 `E = 0`), and the one point flagged in `docs/p16d2-plan.md` for the fibre count. -/
 theorem R_le_ker_thetaY (hE2 : ∀ e : E, e ^ 2 = 1) : Blk.R ≤ T.thetaY.ker :=
-  le_trans (frattiniLike_le Blk.K) (lemma_7_3 Blk hE2 T.thetaY)
+  (frattiniLike_le Blk.K).trans (lemma_7_3 Blk hE2 T.thetaY)
 
 /-- **The R-stage torsor group** `Z¹_{Γ,ρ}(R)`: continuous crossed 1-cocycles `Γ → R = ker π_B`
 for the `f₀`-conjugation action of `Γ` on `R`, `f₀` a fixed reference `Y`-lift.  (Multiplicative
@@ -501,15 +491,14 @@ variable {RF} {f₀ : ContinuousMonoidHom Γ Y}
 
 /-- Extensionality: only the underlying map matters. -/
 theorem ext {c c' : RCocycle RF f₀} (h : c.u = c'.u) : c = c' := by
-  cases c; cases c'; simp only [] at h; subst h; rfl
+  cases c; cases c'; subst h; rfl
 
 /-- Cocycles are normalized: `u 1 = 1` (from `crossed` at `(1,1)`, `f₀ 1 = 1`). -/
 theorem u_one (c : RCocycle RF f₀) : c.u 1 = 1 := by
   have h := c.crossed 1 1
   rw [mul_one, map_one, one_mul, inv_one, mul_one] at h
   -- `h : c.u 1 = c.u 1 * c.u 1`; cancel on the left
-  have h2 : c.u 1 * 1 = c.u 1 * c.u 1 := by rw [mul_one]; exact h
-  exact (mul_left_cancel h2).symm
+  exact left_eq_mul.mp h
 
 /-- The reference lift `f₀` twisted by a cocycle `c`: `(c ⋆ f₀) γ = c.u γ · f₀ γ`, a continuous
 homomorphism `Γ → Y` (homomorphism by `crossed`, continuous since `Y` is discrete). -/

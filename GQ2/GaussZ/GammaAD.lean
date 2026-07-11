@@ -210,8 +210,7 @@ theorem gaussZResidueD_gammaA_unramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Bound
   haveI : ContinuousSMul AbsGalQ2 EnD.Vmod := ⟨by
     show Continuous fun p : AbsGalQ2 × EnD.Vmod =>
       ((1 : AbsGalQ2 →* (blockFrame T Blk hE2).YC) p.1) • p.2
-    simp only [MonoidHom.one_apply, one_smul]
-    exact continuous_snd⟩
+    simpa only [MonoidHom.one_apply, one_smul] using continuous_snd⟩
   haveI : ContinuousSMul AbsGalQ2 (EnD.descData l h).Vmod :=
     (inferInstance : ContinuousSMul AbsGalQ2 EnD.Vmod)
   have hA₂ : ∀ v : (EnD.descData l h).Vmod, v + v = 0 :=
@@ -225,7 +224,7 @@ theorem gaussZResidueD_gammaA_unramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Bound
   have hgenHV : Subgroup.closure ({cF tameSigma, cF tameTau} : Set (HVq T Blk)) = ⊤ :=
     SectionThree.gen_ttame_quotient cF.toMonoidHom cF.continuous_toFun hcF
   have hunramF : ∀ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), cF tameTau • v = v :=
-    fun v => hunram v
+    hunram
   have hntHV : ∃ (g : HVq T Blk) (v : (EnD.descData l h).Vmod), g • v ≠ v := by
     obtain ⟨g, v, hgv⟩ := hnt
     exact ⟨blockProjF T Blk g, v, fun heq => hgv ((hpc g v).trans heq)⟩
@@ -540,8 +539,7 @@ theorem gaussZResidueD_gammaA_ramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Boundar
   haveI : ContinuousSMul AbsGalQ2 EnD.Vmod := ⟨by
     show Continuous fun p : AbsGalQ2 × EnD.Vmod =>
       ((1 : AbsGalQ2 →* (blockFrame T Blk hE2).YC) p.1) • p.2
-    simp only [MonoidHom.one_apply, one_smul]
-    exact continuous_snd⟩
+    simpa only [MonoidHom.one_apply, one_smul] using continuous_snd⟩
   haveI : ContinuousSMul AbsGalQ2 (EnD.descData l h).Vmod :=
     (inferInstance : ContinuousSMul AbsGalQ2 EnD.Vmod)
   have hA₂ : ∀ v : (EnD.descData l h).Vmod, v + v = 0 :=
@@ -554,9 +552,7 @@ theorem gaussZResidueD_gammaA_ramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Boundar
       (boundaryLift_head_gammaA T Blk hE2 B F ρ γ)
   have hgenHV : Subgroup.closure ({cF tameSigma, cF tameTau} : Set (HVq T Blk)) = ⊤ :=
     SectionThree.gen_ttame_quotient cF.toMonoidHom cF.continuous_toFun hcF
-  have hramF : ∃ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), cF tameTau • v ≠ v := by
-    obtain ⟨v, hv⟩ := hram
-    exact ⟨v, hv⟩
+  have hramF : ∃ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), cF tameTau • v ≠ v := hram
   have hoddHV : Odd (orderOf (cF tameTau)) := LocalKummer.odd_orderOf_tameInertia cF
   have hrelHV : (cF tameSigma)⁻¹ * cF tameTau * cF tameSigma = cF tameTau ^ 2 := by
     have hrel := congrArg (⇑cF) tame_relation
@@ -843,13 +839,13 @@ theorem gaussZ_obtain_blockD [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace A
           m hm hcard l h hd,
         fun l h => gaussZResidueD_local_unramified T Blk hE2 B F (tateDuality 2)
           hsimple hVne hnt m hm hcard l h hd⟩
-    · push_neg at hd
+    · push Not at hd
       exact ⟨(2 ^ m : ℤ),
         fun l h => gaussZResidueD_gammaA_ramified T Blk hE2 B F hsimple hVne hnt
           m hm hcard l h hd,
         fun l h => gaussZResidueD_local_ramified T Blk hE2 B F (tateDuality 2) R horient
           hsimple hVne hnt m hm hcard l h hd⟩
-  · push_neg at hex
+  · push Not at hex
     exact ⟨0, fun l h => absurd (hex l) h, fun l h => absurd (hex l) h⟩
 
 end SectionNine

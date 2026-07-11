@@ -80,17 +80,14 @@ theorem map_mul (χ : ↥(TCharC D)) (t t' : ↥D.T) : χ.1 (t * t') = χ.1 t + 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem map_one (χ : ↥(TCharC D)) : χ.1 1 = 0 := by
   have h : χ.1 (1 * 1) = χ.1 1 + χ.1 1 := χ.2.1 1 1
-  rw [one_mul] at h
-  have hchar : ∀ a : ZMod 2, a = a + a → a = 0 := by decide
-  exact hchar _ h
+  rwa [one_mul, CharTwo.add_self_eq_zero] at h
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem map_inv (χ : ↥(TCharC D)) (t : ↥D.T) : χ.1 t⁻¹ = χ.1 t := by
   have h := χ.2.1 t t⁻¹
   rw [mul_inv_cancel, map_one] at h
-  have : χ.1 t + χ.1 t⁻¹ = 0 := h.symm
   have hchar : ∀ a b : ZMod 2, a + b = 0 → b = a := by decide
-  exact hchar _ _ this
+  exact hchar _ _ h.symm
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem conj_invariant (χ : ↥(TCharC D)) (bb : Bg) (t : ↥D.T)
@@ -246,10 +243,7 @@ theorem chiDef_mem_Z2 (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
         = (⟨fLift S c γ * ↑(tDef S hσ c (δ, ε)) * (fLift S c γ)⁻¹,
             D.hT.conj_mem _ (tDef S hσ c (δ, ε)).2 _⟩ : ↥D.T)
           * tDef S hσ c (γ, δ * ε) := by
-      apply Subtype.ext
-      show (tDef S hσ c (γ, δ) : Bg) * (tDef S hσ c (γ * δ, ε) : Bg)
-        = fLift S c γ * ↑(tDef S hσ c (δ, ε)) * (fLift S c γ)⁻¹ * ↑(tDef S hσ c (γ, δ * ε))
-      exact hraw
+      exact Subtype.ext hraw
     have hkey : χ.1 (tDef S hσ c (γ, δ)) + χ.1 (tDef S hσ c (γ * δ, ε))
         = χ.1 (tDef S hσ c (δ, ε)) + χ.1 (tDef S hσ c (γ, δ * ε)) := by
       calc χ.1 (tDef S hσ c (γ, δ)) + χ.1 (tDef S hσ c (γ * δ, ε))
@@ -321,9 +315,7 @@ theorem betaChi_of_tliftable (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
     have hsub : tDef S hσ c (γ, δ)
         = s γ * (⟨f.1 γ * ↑(s δ) * (f.1 γ)⁻¹, D.hT.conj_mem _ (s δ).2 _⟩ : ↥D.T)
           * (s (γ * δ))⁻¹ := by
-      apply Subtype.ext
-      show (tDef S hσ c (γ, δ) : Bg) = ↑(s γ) * (f.1 γ * ↑(s δ) * (f.1 γ)⁻¹) * (↑(s (γ * δ)))⁻¹
-      exact hdef γ δ
+      exact Subtype.ext (hdef γ δ)
     have hval : chiDef S hσ χ c (γ, δ) = χ.1 (s γ) + χ.1 (s δ) + χ.1 (s (γ * δ)) := by
       show χ.1 (tDef S hσ c (γ, δ)) = _
       rw [hsub, TCharC.map_mul, TCharC.map_mul, TCharC.map_inv,
@@ -457,9 +449,8 @@ theorem central_iff_betaXi (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
   classical
   haveI : DiscreteTopology (covQ Dsc) := discreteTopology_covQ Dsc
   set gc := (qOfCocycle DD ρ σ hσ c).1 with hgc
-  have hfγ : ∀ γ, piT (D := D) (f.1 γ) = gc γ := by
-    intro γ
-    exact congrArg (fun g : QLiftsOver DD ρ => g.1 γ) hf
+  have hfγ : ∀ γ, piT (D := D) (f.1 γ) = gc γ :=
+    fun γ => congrArg (fun g : QLiftsOver DD ρ => g.1 γ) hf
   set L1 : Γ → covQ Dsc := fun γ => QuotientGroup.mk' Dsc.N (liftFam D ρ f γ) with hL1def
   set L2 : Γ → covQ Dsc := fun γ => s0 Dsc (gc γ) with hL2def
   have hL1c : Continuous L1 :=
@@ -563,10 +554,7 @@ end GroupStructure
 omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
 /-- `β_χ` vanishes at the zero character. -/
 theorem betaChi_zero_char (c : VCocycle DD ρ) : betaChi S hσ (0 : ↥(TCharC D)) c = 0 := by
-  have h : chiDef S hσ (0 : ↥(TCharC D)) c = 0 := by
-    funext p
-    show ((0 : ↥(TCharC D)) : ↥D.T → ZMod 2) (tDef S hσ c p) = 0
-    rfl
+  have h : chiDef S hσ (0 : ↥(TCharC D)) c = 0 := rfl
   rw [betaChi, h]
   exact iotaB_of_mem_B2 (AddSubgroup.zero_mem _)
 
@@ -576,10 +564,7 @@ theorem betaChi_add_char (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
     (hH2 : Nat.card (H2 Γ (ZMod 2)) = 2)
     (χ ψ : ↥(TCharC D)) (c : VCocycle DD ρ) :
     betaChi S hσ (χ + ψ) c = betaChi S hσ χ c + betaChi S hσ ψ c := by
-  have h : chiDef S hσ (χ + ψ) c = chiDef S hσ χ c + chiDef S hσ ψ c := by
-    funext p
-    show ((χ + ψ : ↥(TCharC D)) : ↥D.T → ZMod 2) (tDef S hσ c p) = _
-    rfl
+  have h : chiDef S hσ (χ + ψ) c = chiDef S hσ χ c + chiDef S hσ ψ c := rfl
   rw [betaChi, h]
   exact iotaB_add hH2 (chiDef_mem_Z2 S hσ htriv χ c) (chiDef_mem_Z2 S hσ htriv ψ c)
 
@@ -601,14 +586,9 @@ theorem card_range_redT_eq :
   -- factor `redT = (raw coercion) ∘ redTLift`, both injective transports
   have h1 : (fun f : {f : MLifts D ρ // f.Central} => redT ρ f.1)
       = (fun g : QLiftsOver DD ρ => (⇑g.1 : Γ → Bg ⧸ D.T))
-        ∘ (fun f : {f : MLifts D ρ // f.Central} => redTLift DD f.1) := by
-    funext f
-    rfl
-  have hinj1 : Function.Injective (fun g : QLiftsOver DD ρ => (⇑g.1 : Γ → Bg ⧸ D.T)) := by
-    intro g g' h
-    apply Subtype.ext
-    apply ContinuousMonoidHom.ext
-    exact fun γ => congrFun h γ
+        ∘ (fun f : {f : MLifts D ρ // f.Central} => redTLift DD f.1) := rfl
+  have hinj1 : Function.Injective (fun g : QLiftsOver DD ρ => (⇑g.1 : Γ → Bg ⧸ D.T)) :=
+    fun g g' h => Subtype.ext (ContinuousMonoidHom.ext fun γ => congrFun h γ)
   have hinj2 : Function.Injective (cocycleOfQ DD ρ σ hσ) :=
     (vcocycleEquivLifts DD ρ σ hσ).symm.injective
   rw [h1, Set.range_comp, Nat.card_image_of_injective hinj1]

@@ -73,16 +73,9 @@ theorem minpoly_irreducible_of_noInvariant (T : Module.End (ZMod 2) V)
     have := Polynomial.natDegree_le_of_dvd hdvd hp0
     omega
   -- non-units in `𝔽₂[X]` have positive degree
-  have hnu_deg : ∀ p : (ZMod 2)[X], p ≠ 0 → ¬ IsUnit p → 0 < p.natDegree := by
-    intro p hp0 hpu
-    rcases Nat.eq_zero_or_pos p.natDegree with h | h
-    · exact absurd (Polynomial.isUnit_iff.mpr
-        ⟨p.coeff 0, isUnit_iff_ne_zero.mpr (by
-          intro hc0
-          apply hp0
-          rw [Polynomial.eq_C_of_natDegree_eq_zero h, hc0, map_zero]),
-        (Polynomial.eq_C_of_natDegree_eq_zero h).symm⟩) hpu
-    · exact h
+  have hnu_deg : ∀ p : (ZMod 2)[X], p ≠ 0 → ¬ IsUnit p → 0 < p.natDegree := fun p hp0 hpu =>
+    Polynomial.natDegree_pos_iff_degree_pos.mpr
+      (Polynomial.degree_pos_of_ne_zero_of_nonunit hp0 hpu)
   refine ⟨?_, ?_⟩
   · intro hu
     have := Polynomial.natDegree_eq_zero_of_isUnit hu
@@ -527,11 +520,9 @@ diagonalization. -/
 theorem two_pow_mod (m' s : ℕ) :
     ((2 : ZMod (2 ^ m' + 1)) ^ (m' * s)) = (-1) ^ s := by
   have hbase : (2 : ZMod (2 ^ m' + 1)) ^ m' = -1 := by
-    have h : ((2 ^ m' : ℕ) : ZMod (2 ^ m' + 1)) = ((2 ^ m' + 1 : ℕ) : ZMod (2 ^ m' + 1)) - 1 := by
-      push_cast; ring
-    rw [ZMod.natCast_self] at h
+    have h : ((2 ^ m' + 1 : ℕ) : ZMod (2 ^ m' + 1)) = 0 := ZMod.natCast_self _
     push_cast at h
-    rw [h]; ring
+    linear_combination h
   rw [pow_mul, hbase]
 
 /-- If `s` is odd then `2^{m'}+1 ∤ 2^{m'·s} − 1` (for `m' ≥ 1`). -/
@@ -540,20 +531,17 @@ theorem not_dvd_sub_one_of_odd {m' s : ℕ} (hm' : 1 ≤ m') (hs : Odd s) :
   intro hdvd
   have hle : 1 ≤ 2 ^ (m' * s) := Nat.one_le_two_pow
   have hmod : (2 : ZMod (2 ^ m' + 1)) ^ (m' * s) = 1 := by
-    have : ((2 ^ (m' * s) - 1 : ℕ) : ZMod (2 ^ m' + 1)) = 0 :=
+    have h0 : ((2 ^ (m' * s) - 1 : ℕ) : ZMod (2 ^ m' + 1)) = 0 :=
       (ZMod.natCast_eq_zero_iff _ _).mpr hdvd
-    have h2 : ((2 ^ (m' * s) : ℕ) : ZMod (2 ^ m' + 1)) - 1 = 0 := by
-      rw [← this]; push_cast [hle]; ring
-    push_cast at h2
-    linear_combination h2
+    rw [Nat.cast_sub hle] at h0
+    push_cast at h0
+    linear_combination h0
   rw [two_pow_mod, hs.neg_one_pow] at hmod
   have hchar : (2 : ZMod (2 ^ m' + 1)) = 0 := by linear_combination -hmod
   rw [show (2 : ZMod (2 ^ m' + 1)) = ((2 : ℕ) : ZMod (2 ^ m' + 1)) by push_cast; ring] at hchar
   have : (2 ^ m' + 1) ∣ 2 := (ZMod.natCast_eq_zero_iff _ _).mp hchar
   have h3 : 2 ^ m' + 1 ≤ 2 := Nat.le_of_dvd (by norm_num) this
-  have : 2 ≤ 2 ^ m' := by
-    calc 2 = 2 ^ 1 := (pow_one 2).symm
-      _ ≤ 2 ^ m' := Nat.pow_le_pow_right (by norm_num) hm'
+  have : 2 ≤ 2 ^ m' := Nat.le_self_pow (by omega) 2
   omega
 
 /-- If `s` is even then `2^{m'}+1 ∤ 2^{m'·s} + 1` (for `m' ≥ 1`). -/
@@ -570,9 +558,7 @@ theorem not_dvd_add_one_of_even {m' s : ℕ} (hm' : 1 ≤ m') (hs : Even s) :
   rw [show (2 : ZMod (2 ^ m' + 1)) = ((2 : ℕ) : ZMod (2 ^ m' + 1)) by push_cast; ring] at hchar
   have : (2 ^ m' + 1) ∣ 2 := (ZMod.natCast_eq_zero_iff _ _).mp hchar
   have h3 : 2 ^ m' + 1 ≤ 2 := Nat.le_of_dvd (by norm_num) this
-  have : 2 ≤ 2 ^ m' := by
-    calc 2 = 2 ^ 1 := (pow_one 2).symm
-      _ ≤ 2 ^ m' := Nat.pow_le_pow_right (by norm_num) hm'
+  have : 2 ≤ 2 ^ m' := Nat.le_self_pow (by omega) 2
   omega
 
 /-- **The dual Arf pinch**: free-action packets of size `n` with `n ∤ 2^m + 1` force `arf q = 0`
@@ -671,8 +657,7 @@ theorem arf_eq_of_free_norm_one (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns 
       (not_dvd_add_one_of_even hm' hs)
   · have hval : (s : ZMod 2) = 1 := by
       obtain ⟨j, rfl⟩ := hs
-      rw [show 2 * j + 1 = j + j + 1 by ring, Nat.cast_add, Nat.cast_add, Nat.cast_one,
-        CharTwo.add_self_eq_zero, zero_add]
+      push_cast [CharTwo.two_eq_zero]; ring
     rw [hval]
     exact arf_eq_one_of_dvd q hq hns (m := m' * s) hms1 hcard hdvd0 hdvd1
       (not_dvd_sub_one_of_odd hm' hs)
@@ -754,8 +739,7 @@ theorem arf_eq_of_free (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsing
       (gen_not_dvd_add_one_of_even hU2 hsq hs)
   · have hval : (s : ZMod 2) = 1 := by
       obtain ⟨j, rfl⟩ := hs
-      rw [show 2 * j + 1 = j + j + 1 by ring, Nat.cast_add, Nat.cast_add, Nat.cast_one,
-        CharTwo.add_self_eq_zero, zero_add]
+      push_cast [CharTwo.two_eq_zero]; ring
     rw [hval]
     exact arf_eq_one_of_dvd q hq hns (m := m' * s) hms1 hcard hdvd0 hdvd1
       (gen_not_dvd_sub_one_of_odd hsq hg1 hs)

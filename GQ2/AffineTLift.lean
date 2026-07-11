@@ -76,9 +76,7 @@ theorem pN_injective : Function.Injective (pN Dsc) := by
   rw [injective_iff_map_eq_one]
   intro n hn
   have hker : n.1 ∈ D.C.p.ker := by
-    rw [MonoidHom.mem_ker]
-    have := congrArg (Subtype.val) hn
-    simpa [pN] using this
+    rw [MonoidHom.mem_ker]; simpa [pN] using congrArg Subtype.val hn
   rcases ker_cases D hker with h1 | hz
   · exact Subtype.ext h1
   · exact absurd (hz ▸ n.2) Dsc.hNz
@@ -102,8 +100,7 @@ theorem sectN_mem (t : ↥D.T) : sectN Dsc t ∈ Dsc.N :=
 
 @[simp] theorem sectN_sect (t : ↥D.T) : D.C.p (sectN Dsc t) = t.1 := by
   have h : pN Dsc ((eN Dsc).symm t) = t := (eN Dsc).apply_symm_apply t
-  have := congrArg (Subtype.val) h
-  simpa [sectN, pN] using this
+  simpa [sectN, pN] using congrArg Subtype.val h
 
 /-- The `N`-section, packaged as a `TComplement`. -/
 noncomputable def SN : TComplement D :=
@@ -457,9 +454,8 @@ variable (DD : DescData D) (Dsc : Descent D)
 theorem Vmod_exp2 (v : DD.Vmod) : v + v = 0 := by
   obtain ⟨m, hm⟩ := DD.hdesc_surj (Multiplicative.ofAdd v)
   have hmm : (m * m : ↥D.M) = 1 := Subtype.ext (D.helem m.1 m.2)
-  have hof : Multiplicative.ofAdd (v + v) = Multiplicative.ofAdd (0 : DD.Vmod) := by
+  exact Multiplicative.ofAdd.injective <| by
     rw [ofAdd_add, ofAdd_zero, ← hm, ← map_mul, hmm, map_one]
-  exact Multiplicative.ofAdd.injective hof
 
 /-- **The fibre square identity** `ξ(iv, iv) = q̄(v)` (`lemma_6_21`'s `hξq`): the descended
 cover's square map on `V` is the descended form.  Uses `D.hq` (cover square relation) pushed
@@ -585,10 +581,9 @@ theorem exists_polar_inverse (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : N
     by_contra hane
     obtain ⟨w, hw⟩ := hns a hane
     exact hw (by rw [← hBapp a w, ha]; rfl)
-  have hfin : Module.finrank (ZMod 2) V
-      = Module.finrank (ZMod 2) (Module.Dual (ZMod 2) V) := Subspace.dual_finrank_eq.symm
   obtain ⟨a, ha⟩ :=
-    (LinearMap.injective_iff_surjective_of_finrank_eq_finrank hfin).mp hinj φ
+    (LinearMap.injective_iff_surjective_of_finrank_eq_finrank
+      Subspace.dual_finrank_eq.symm).mp hinj φ
   exact ⟨a, fun v => by rw [← hBapp a v, ha]⟩
 
 end Polar
@@ -659,8 +654,7 @@ noncomputable def tcocycle_torsor_equiv (f₀ : MLifts D ρ) :
       mem := fun γ => by
         have hred : (QuotientGroup.mk (f.1.1 γ) : Bg ⧸ D.T) = QuotientGroup.mk (f₀.1 γ) :=
           congrFun f.2 γ
-        have := QuotientGroup.eq_iff_div_mem.mp hred
-        rwa [div_eq_mul_inv] at this
+        rw [← div_eq_mul_inv]; exact QuotientGroup.eq_iff_div_mem.mp hred
       cont := (continuous_of_discreteTopology (f := fun p : Bg × Bg => p.1 * p.2⁻¹)).comp
         (f.1.1.continuous_toFun.prodMk f₀.1.continuous_toFun)
       crossed := fun γ δ b hb => by
@@ -668,13 +662,11 @@ noncomputable def tcocycle_torsor_equiv (f₀ : MLifts D ρ) :
         have hmM : b * (f₀.1 γ)⁻¹ ∈ D.M := by
           have heq : (QuotientGroup.mk b : Bg ⧸ D.M) = QuotientGroup.mk (f₀.1 γ) :=
             hb.trans (f₀.2 γ).symm
-          have := QuotientGroup.eq_iff_div_mem.mp heq
-          rwa [div_eq_mul_inv] at this
+          rw [← div_eq_mul_inv]; exact QuotientGroup.eq_iff_div_mem.mp heq
         have htδ : f.1.1 δ * (f₀.1 δ)⁻¹ ∈ D.T := by
           have hred : (QuotientGroup.mk (f.1.1 δ) : Bg ⧸ D.T) = QuotientGroup.mk (f₀.1 δ) :=
             congrFun f.2 δ
-          have := QuotientGroup.eq_iff_div_mem.mp hred
-          rwa [div_eq_mul_inv] at this
+          rw [← div_eq_mul_inv]; exact QuotientGroup.eq_iff_div_mem.mp hred
         have hconjT : f₀.1 γ * (f.1.1 δ * (f₀.1 δ)⁻¹) * (f₀.1 γ)⁻¹ ∈ D.T :=
           D.hT.conj_mem _ htδ _
         -- `b · (uδ) · b⁻¹ = f₀γ · uδ · f₀γ⁻¹` (the `M`-part cancels)
