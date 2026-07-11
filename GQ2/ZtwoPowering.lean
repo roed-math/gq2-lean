@@ -74,11 +74,9 @@ are equal.  (Via `DenseRange.addChar_eq_of_eval_one_eq` and `AddChar ℤ₂ M �
 lemma multPadicIntHom_ext {M : Type*} [Monoid M] [TopologicalSpace M] [T2Space M]
     {f g : Multiplicative ℤ_[2] →* M} (hf : Continuous f) (hg : Continuous g)
     (h : f (ofAdd (1 : ℤ_[2])) = g (ofAdd (1 : ℤ_[2]))) : f = g := by
-  have hext : AddChar.toMonoidHomEquiv.symm f = AddChar.toMonoidHomEquiv.symm g := by
-    refine PadicInt.denseRange_natCast.addChar_eq_of_eval_one_eq ?_ ?_ ?_
-    · exact hf.comp continuous_ofAdd
-    · exact hg.comp continuous_ofAdd
-    · simpa using h
+  have hext : AddChar.toMonoidHomEquiv.symm f = AddChar.toMonoidHomEquiv.symm g :=
+    PadicInt.denseRange_natCast.addChar_eq_of_eval_one_eq
+      (hf.comp continuous_ofAdd) (hg.comp continuous_ofAdd) (by simpa using h)
   simpa using congrArg AddChar.toMonoidHomEquiv hext
 
 /-! ## `ℤ₂`-powering of an element of `2`-power order
@@ -251,8 +249,7 @@ theorem ker_zhatProjTwo_le : zhatProjTwo.toMonoidHom.ker ≤ proPKernel 2 Zhat :
   -- evaluate at γ
   have hγU : q γ = 1 := by
     have heval := congrFun hagree γ
-    rw [hγ', map_one] at heval
-    exact heval
+    rwa [hγ', map_one] at heval
   rwa [hqdef, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at hγU
 
 /-- **`ker zhatProjTwo = proPKernel 2 ℤ̂`**: the projection to `ℤ₂` realizes exactly the
@@ -283,9 +280,8 @@ lemma ztwoDescend_bijective : Function.Bijective ztwoDescend := by
       = ⇑ztwoDescend.toMonoidHom from rfl, injective_iff_map_eq_one ztwoDescend.toMonoidHom]
     intro x hx
     obtain ⟨γ, rfl⟩ := quotientMk_surjective (proPKernel 2 Zhat) x
-    have hker : γ ∈ zhatProjTwo.toMonoidHom.ker := MonoidHom.mem_ker.mpr hx
-    rw [ker_zhatProjTwo] at hker
-    exact (quotientMk_eq_one_iff (proPKernel 2 Zhat)).mpr hker
+    exact (quotientMk_eq_one_iff (proPKernel 2 Zhat)).mpr
+      (ker_zhatProjTwo ▸ MonoidHom.mem_ker.mpr hx)
   · intro u
     obtain ⟨γ, hγ⟩ := zhatProjTwo_surjective u
     exact ⟨maxProPMk 2 Zhat γ, hγ⟩
@@ -369,15 +365,12 @@ lemma zpowZtwoHom_ofAdd_one (hP : IsProP 2 P) (x : P) :
 
 @[simp] lemma zpowZtwo_natCast (hP : IsProP 2 P) (x : P) (n : ℕ) :
     zpowZtwo hP x ((n : ℤ_[2])) = x ^ n := by
-  have h : ((n : ℤ_[2])) = (((n : ℤ)) : ℤ_[2]) := by push_cast; ring
-  rw [h, zpowZtwo_intCast, zpow_natCast]
+  simpa using zpowZtwo_intCast hP x (n : ℤ)
 
 /-- Exponent additivity (the hom law, in `zpowZtwo` clothing). -/
 lemma zpowZtwo_add (hP : IsProP 2 P) (x : P) (u v : ℤ_[2]) :
     zpowZtwo hP x (u + v) = zpowZtwo hP x u * zpowZtwo hP x v := by
-  show zpowZtwoHom hP x (ofAdd (u + v)) = _
-  rw [ofAdd_add, map_mul]
-  rfl
+  rw [zpowZtwo, zpowZtwo, zpowZtwo, ← map_mul, ← ofAdd_add]
 
 /-- **Uniqueness/identification principle**: any continuous hom `φ : ℤ₂ → P` *is* the
 `ℤ₂`-powering of its value at `1`.  (The tool for recognizing constructed maps as powerings —
@@ -500,13 +493,11 @@ lemma two_dvd_val_sub_one (u : ℤ_[2]ˣ) : (2 : ℤ_[2]) ∣ (u : ℤ_[2]) - 1 
     have hmem : ((u : ℤ_[2])) ∈ RingHom.ker (PadicInt.toZModPow (p := 2) 1) := h0
     rw [PadicInt.ker_toZModPow, pow_one, ← PadicInt.maximalIdeal_eq_span_p] at hmem
     exact (IsLocalRing.mem_maximalIdeal _).mp hmem u.isUnit
-  have h1 : PadicInt.toZModPow (p := 2) 1 ((u : ℤ_[2])) = 1 := by
-    have hall : ∀ c : ZMod (2 ^ 1), c ≠ 0 → c = 1 := by decide
-    exact hall _ hne
+  have h1 : PadicInt.toZModPow (p := 2) 1 ((u : ℤ_[2])) = 1 :=
+    (by decide : ∀ c : ZMod (2 ^ 1), c ≠ 0 → c = 1) _ hne
   have hker : ((u : ℤ_[2])) - 1 ∈ RingHom.ker (PadicInt.toZModPow (p := 2) 1) := by
     rw [RingHom.mem_ker, map_sub, map_one, h1, sub_self]
-  rw [PadicInt.ker_toZModPow, pow_one, Ideal.mem_span_singleton] at hker
-  exact hker
+  rwa [PadicInt.ker_toZModPow, pow_one, Ideal.mem_span_singleton] at hker
 
 /-- **Level gain under 2-power powers**: `2^{k+1} ∣ u^{2^k} − 1` for every `u ∈ ℤ₂ˣ`
 (squaring `1 + 2^m a` gains exactly one level: `(1+2^m a)² = 1 + 2^{m+1}(a + 2^{m-1}a²)`). -/
@@ -603,8 +594,7 @@ theorem isProP_two_unitsPadicInt : IsProP 2 ℤ_[2]ˣ := by
     rw [Units.embedProduct_apply]
     exact Set.mem_prod.mpr ⟨hvA, hvB⟩
   have hmemU : (g₀ ^ 2 ^ K : ℤ_[2]ˣ) ∈ Units.embedProduct ℤ_[2] ⁻¹' W := hmemW
-  rw [hWpre] at hmemU
-  exact hmemU
+  rwa [hWpre] at hmemU
 
 /-! ### The profinite-group instances on `ℤ₂ˣ`
 
@@ -647,9 +637,7 @@ theorem zpowZtwo_injective_of_exact_level (η a : ℤ_[2]ˣ)
   -- η^{c} = (η^{2^m})^{w}
   have hfactor : zpowZtwo isProP_two_unitsPadicInt (η ^ 2 ^ m) ((w : ℤ_[2]))
       = zpowZtwo isProP_two_unitsPadicInt η (c₁ - c₂) := by
-    have hnat : zpowZtwo isProP_two_unitsPadicInt η (((2 ^ m : ℕ) : ℤ_[2])) = η ^ 2 ^ m :=
-      zpowZtwo_natCast _ _ _
-    rw [← hnat, zpowZtwo_zpowZtwo]
+    rw [← zpowZtwo_natCast isProP_two_unitsPadicInt η (2 ^ m), zpowZtwo_zpowZtwo]
     congr 1
     rw [hspec]
     push_cast

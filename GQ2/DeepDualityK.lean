@@ -109,8 +109,7 @@ theorem zmodMuDualEquiv_equivariant (g : ↥(ρ.toMonoidHom.ker : Subgroup AbsGa
     (a : ZMod 2) : zmodMuDualEquiv (g • a) = g • zmodMuDualEquiv a := by
   have htriv : g • zmodMuDualEquiv a = zmodMuDualEquiv a := by
     refine MuDual.ext 2 (ZMod 2) (fun m => ?_)
-    rw [muDual_smul_apply]
-    rw [smul_muN_two_trivial_ker]
+    rw [muDual_smul_apply, smul_muN_two_trivial_ker]
     rfl
   rw [htriv]
   rfl
@@ -148,14 +147,10 @@ theorem pairingK_nondeg (x : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMo
         ((cup11 (muDualPairing 2 (ZMod 2)) (muDualPairing_equivariant 2 (ZMod 2)))
           (0 : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuDual 2 (ZMod 2)))) := by
     ext y
-    have := hx y
     rw [map_zero, AddMonoidHom.comp_zero]
-    exact this
-  have hinj := hperf.1 h0
-  have : x = (H1congr zmodMuDualEquiv (zmodMuDualEquiv_equivariant ρ)).symm
-      ((H1congr zmodMuDualEquiv (zmodMuDualEquiv_equivariant ρ)) x) :=
-    (AddEquiv.symm_apply_apply _ x).symm
-  rw [this, hinj, map_zero]
+    exact hx y
+  rw [← AddEquiv.symm_apply_apply (H1congr zmodMuDualEquiv (zmodMuDualEquiv_equivariant ρ)) x,
+    hperf.1 h0, map_zero]
 
 end Pairing
 
@@ -188,13 +183,12 @@ theorem comp_conjMap_mem_B2 (g : AbsGalQ2)
     (fun p => f (conjMap ρ g p.1, conjMap ρ g p.2))
       ∈ B2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2) := by
   obtain ⟨ψ, hψ, rfl⟩ := hf
-  refine ⟨ψ ∘ conjMap ρ g, ?_, ?_⟩
-  · exact (mem_C1_iff.mp hψ).comp (continuous_conjMap ρ g)
-  · funext p
-    show p.1 • ψ (conjMap ρ g p.2) - ψ (conjMap ρ g (p.1 * p.2)) + ψ (conjMap ρ g p.1)
+  refine ⟨ψ ∘ conjMap ρ g, (mem_C1_iff.mp hψ).comp (continuous_conjMap ρ g), ?_⟩
+  funext p
+  show p.1 • ψ (conjMap ρ g p.2) - ψ (conjMap ρ g (p.1 * p.2)) + ψ (conjMap ρ g p.1)
       = conjMap ρ g p.1 • ψ (conjMap ρ g p.2)
         - ψ (conjMap ρ g p.1 * conjMap ρ g p.2) + ψ (conjMap ρ g p.1)
-    rw [smul_muN_two_trivial_ker, smul_muN_two_trivial_ker, conjMap_mul_apply]
+  rw [smul_muN_two_trivial_ker, smul_muN_two_trivial_ker, conjMap_mul_apply]
 
 /-- The two-sided form: precomposition with `conjMap × conjMap` preserves `B²` in both
 directions. -/
@@ -204,16 +198,14 @@ theorem comp_conjMap_mem_B2_iff (g : AbsGalQ2)
     ((fun p => f (conjMap ρ g p.1, conjMap ρ g p.2))
         ∈ B2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2))
       ↔ f ∈ B2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2) := by
-  constructor
-  · intro h
-    have h' := comp_conjMap_mem_B2 ρ g⁻¹ h
-    have hfun : (fun p : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
-          × ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) =>
-        f (conjMap ρ g (conjMap ρ g⁻¹ p.1), conjMap ρ g (conjMap ρ g⁻¹ p.2))) = f := by
-      funext p
-      rw [conjMap_conjMap_inv, conjMap_conjMap_inv]
-    rwa [hfun] at h'
-  · exact comp_conjMap_mem_B2 ρ g
+  refine ⟨fun h => ?_, comp_conjMap_mem_B2 ρ g⟩
+  have h' := comp_conjMap_mem_B2 ρ g⁻¹ h
+  have hfun : (fun p : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+        × ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) =>
+      f (conjMap ρ g (conjMap ρ g⁻¹ p.1), conjMap ρ g (conjMap ρ g⁻¹ p.2))) = f := by
+    funext p
+    rw [conjMap_conjMap_inv, conjMap_conjMap_inv]
+  rwa [hfun] at h'
 
 /-- `conjAct` on an `H1mk`-class: the mk-level form of `conjAct_h1ofFun`. -/
 theorem conjAct_H1mk (g : AbsGalQ2)
@@ -241,9 +233,8 @@ theorem inv_H2mk_eq_of_comp_conjMap (g : AbsGalQ2)
       = (tateDualityK ρ).inv (H2mk ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2) F) := by
   have h2 : ∀ u v : ZMod 2, (u = 0 ↔ v = 0) → u = v := by decide
   have hiv : ∀ W : H2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2),
-      (tateDualityK ρ).inv W = 0 ↔ W = 0 := fun W =>
-    ⟨fun h => (tateDualityK ρ).inv.injective (h.trans (map_zero _).symm),
-      fun h => by rw [h, map_zero]⟩
+      (tateDualityK ρ).inv W = 0 ↔ W = 0 := fun _ =>
+    map_eq_zero_iff _ (tateDualityK ρ).inv.injective
   have hz : ∀ W : ↥(Z2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2)),
       (H2mk ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2) W = 0)
         ↔ W.1 ∈ B2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2) := fun W =>
@@ -281,8 +272,6 @@ theorem pairingK_conjModule (hρsurj : Function.Surjective ⇑ρ) (c : C)
     letI := conjModule ρ hρsurj
     pairingK ρ (c • x) (c • y) = pairingK ρ x y := by
   letI := conjModule ρ hρsurj
-  show pairingK ρ (conjAct ρ (Function.surjInv hρsurj c) x)
-      (conjAct ρ (Function.surjInv hρsurj c) y) = pairingK ρ x y
   exact pairingK_conjAct ρ _ x y
 
 end ConjInvariance
@@ -354,10 +343,8 @@ theorem midClass_eq_kummerClassK (k : IntermediateField ℚ_[2] ℚ̄₂)
     exact (IntermediateField.mem_fixedField_iff _ A).mpr hmid.2.1
   have hA0 : (⟨A, hAk⟩ : ↥k) ≠ 0 := by
     rw [Ne, Subtype.ext_iff]; exact hmid.1
-  have hcoe : ((⟨A, hAk⟩ : ↥k) : ℚ̄₂) = A := rfl
   refine ⟨Units.mk0 ⟨A, hAk⟩ hA0, ?_, ?_⟩
-  · show ‖((⟨A, hAk⟩ : ↥k) : ℚ̄₂) - 1‖ ≤ ‖(2 : ℚ̄₂)‖
-    rw [hcoe]; exact norm_sub_one_le_of_isMidUnit hmid
+  · exact norm_sub_one_le_of_isMidUnit hmid
   · have hccfun : Kummer.kummerCocycleFun (GQ2.sqrtCl A) = Kummer.kummerCocycleFun β := by
       have hsq2 : GQ2.sqrtCl A ^ 2 = A := GQ2.sqrtCl_sq A
       have hfac : (β - GQ2.sqrtCl A) * (β + GQ2.sqrtCl A) = 0 := by
@@ -457,9 +444,8 @@ theorem pairingK_deep_deep (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimen
   obtain ⟨ψ, hψc, hψeq⟩ := hB2k
   -- kill `inv_K`; reduce to `B²`-membership of the `μ₂`-valued cup cocycle over `ker ρ`
   have hiv : ∀ W : H2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2),
-      (tateDualityK ρ).inv W = 0 ↔ W = 0 := fun W =>
-    ⟨fun h => (tateDualityK ρ).inv.injective (h.trans (map_zero _).symm),
-      fun h => by rw [h, map_zero]⟩
+      (tateDualityK ρ).inv W = 0 ↔ W = 0 := fun _ =>
+    map_eq_zero_iff _ (tateDualityK ρ).inv.injective
   -- re-view the goal so the `H1ofFun`-terms match `hZ1β`/`hZ1δ` syntactically (the
   -- destructured form carries the definition's `GaloisGroup`-view of `↥(ker ρ)`)
   show pairingK ρ
@@ -563,9 +549,8 @@ theorem pairingK_mid_deep (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimens
   obtain ⟨ψ, hψc, hψeq⟩ := hB2k
   -- kill `inv_K`; reduce to `B²`-membership of the `μ₂`-valued cup cocycle over `ker ρ`
   have hiv : ∀ W : H2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2),
-      (tateDualityK ρ).inv W = 0 ↔ W = 0 := fun W =>
-    ⟨fun h => (tateDualityK ρ).inv.injective (h.trans (map_zero _).symm),
-      fun h => by rw [h, map_zero]⟩
+      (tateDualityK ρ).inv W = 0 ↔ W = 0 := fun _ =>
+    map_eq_zero_iff _ (tateDualityK ρ).inv.injective
   show pairingK ρ
       (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) fun n =>
         Kummer.kummerCocycleFun β (n : AbsGalQ2))

@@ -68,9 +68,8 @@ theorem eq_of_H1ofFun_eq (htriv : ∀ (g : G) (m : ZMod 2), g • m = m)
   have h0 : H1mk G (ZMod 2) (⟨φ, hφ⟩ - ⟨ψ, hψ⟩) = 0 := by
     rw [map_sub, h, sub_self]
   have hmem := (QuotientAddGroup.eq_zero_iff _).mp h0
-  rw [AddSubgroup.mem_addSubgroupOf, AddSubgroup.coe_sub,
+  rwa [AddSubgroup.mem_addSubgroupOf, AddSubgroup.coe_sub,
     B1_eq_bot_of_trivial htriv, AddSubgroup.mem_bot, sub_eq_zero] at hmem
-  exact hmem
 
 end Extraction
 
@@ -88,17 +87,12 @@ theorem mem_or_mul_mem_of_mem_sup {N : Subgroup G} [hNn : N.Normal] {ĝ : G}
     (hĝ2 : ĝ * ĝ ∈ N) {x : G} (hx : x ∈ N ⊔ Subgroup.zpowers ĝ) :
     x ∈ N ∨ x * ĝ ∈ N := by
   have hset : (x : G) ∈ (N : Set G) * (Subgroup.zpowers ĝ : Set G) := by
-    rw [← Subgroup.normal_mul]
-    exact hx
+    rwa [← Subgroup.normal_mul]
   obtain ⟨n, hn, z, hz, rfl⟩ := hset
   obtain ⟨m, rfl⟩ := (Subgroup.mem_zpowers_iff).mp hz
-  have hsq : ∀ k : ℤ, ĝ ^ (2 * k) ∈ N := by
-    intro k
+  have hsq : ∀ k : ℤ, ĝ ^ (2 * k) ∈ N := fun k => by
     rw [zpow_mul]
-    have h2 : ĝ ^ (2 : ℤ) ∈ N := by
-      rw [show (2 : ℤ) = (2 : ℕ) from rfl, zpow_natCast, pow_two]
-      exact hĝ2
-    exact Subgroup.zpow_mem N h2 k
+    exact Subgroup.zpow_mem N (by rw [zpow_two]; exact hĝ2) k
   rcases Int.even_or_odd m with ⟨k, hk⟩ | ⟨k, hk⟩
   · left
     subst hk
@@ -140,16 +134,8 @@ default-transparency-equal group structures by `rfl`-bridges). -/
 def toGal (U : Subgroup AbsGalQ2) : Subgroup (Kummer.GaloisGroup ℚ_[2]) where
   carrier := {x : Kummer.GaloisGroup ℚ_[2] | ResidueLift.toAbs x ∈ U}
   one_mem' := U.one_mem
-  mul_mem' := fun {a b} ha hb => by
-    have hab : ResidueLift.toAbs (a * b) = ResidueLift.toAbs a * ResidueLift.toAbs b := rfl
-    show ResidueLift.toAbs (a * b) ∈ U
-    rw [hab]
-    exact U.mul_mem ha hb
-  inv_mem' := fun {a} ha => by
-    have hia : ResidueLift.toAbs a⁻¹ = (ResidueLift.toAbs a)⁻¹ := rfl
-    show ResidueLift.toAbs a⁻¹ ∈ U
-    rw [hia]
-    exact U.inv_mem ha
+  mul_mem' := fun {_ _} ha hb => U.mul_mem ha hb
+  inv_mem' := fun {_} ha => U.inv_mem ha
 
 theorem mem_toGal (U : Subgroup AbsGalQ2) (x : Kummer.GaloisGroup ℚ_[2]) :
     x ∈ U ↔ x ∈ toGal U := Iff.rfl
@@ -161,8 +147,9 @@ theorem toGal_isOpen_of_ker_le (ρ : ContinuousMonoidHom AbsGalQ2 C) {U : Subgro
     (hle : (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) ≤ U) :
     IsOpen ((toGal U : Subgroup (Kummer.GaloisGroup ℚ_[2]))
       : Set (Kummer.GaloisGroup ℚ_[2])) := by
-  refine Subgroup.isOpen_mono (fun x hx => ?_) (ResidueLift.kerGal_isOpen ρ)
-  exact (mem_toGal U x).mp (hle ((ResidueLift.mem_kerGal ρ x).mpr hx))
+  exact Subgroup.isOpen_mono
+    (fun x hx => (mem_toGal U x).mp (hle ((ResidueLift.mem_kerGal ρ x).mpr hx)))
+    (ResidueLift.kerGal_isOpen ρ)
 
 end ToGal
 
@@ -190,9 +177,8 @@ theorem H2ofFun_eq_zero_comp (e : G₁ →* G₂) (hec : Continuous e)
     H2ofFun G₁ F₁ = 0 := by
   -- extract the `B²`-witness on the `G₂` side
   rw [H2ofFun_of_mem hZ2] at hvan
-  have hB2 : F₂ ∈ B2 G₂ (ZMod 2) := by
-    have hmem := (QuotientAddGroup.eq_zero_iff _).mp hvan
-    rwa [AddSubgroup.mem_addSubgroupOf] at hmem
+  have hB2 : F₂ ∈ B2 G₂ (ZMod 2) :=
+    AddSubgroup.mem_addSubgroupOf.mp ((QuotientAddGroup.eq_zero_iff _).mp hvan)
   obtain ⟨ψ, hψC1, hψeq⟩ := AddSubgroup.mem_map.mp hB2
   -- pull it back
   have hδeq : dOne G₁ (ZMod 2) (fun x => ψ (e x)) = F₁ := by
@@ -206,8 +192,8 @@ theorem H2ofFun_eq_zero_comp (e : G₁ →* G₂) (hec : Continuous e)
     rw [htriv₁, hcomp p, hR, map_mul]
   have hB1 : F₁ ∈ B2 G₁ (ZMod 2) :=
     AddSubgroup.mem_map.mpr ⟨fun x => ψ (e x), mem_C1_iff.mpr (hψC1.comp hec), hδeq⟩
-  refine ShapiroDeepness.H2ofFun_eq_zero_of_H2mk hZ1 ?_
-  exact (QuotientAddGroup.eq_zero_iff _).mpr (AddSubgroup.mem_addSubgroupOf.mpr hB1)
+  exact ShapiroDeepness.H2ofFun_eq_zero_of_H2mk hZ1
+    ((QuotientAddGroup.eq_zero_iff _).mpr (AddSubgroup.mem_addSubgroupOf.mpr hB1))
 
 end Transport
 
@@ -240,18 +226,14 @@ theorem evensNormFun_comp (e : G₁ →* G₂) {U₁ : Subgroup G₁} {U₂ : Su
       rw [evensAux_of_notMem hUi₁ hs₁ α₁ hx, evensAux_of_notMem hUi₂ hs₂ α₂ hx₂]
       have hxs : x * s₁ ∈ U₁ := notMem_mul_mem hUi₁ hx hs₁
       have hcast : (⟨e (x * s₁), (hmem _).mp hxs⟩ : ↥U₂)
-          = ⟨e x * s₂, notMem_mul_mem hUi₂ hx₂ hs₂⟩ := by
-        refine Subtype.ext ?_
-        show e (x * s₁) = e x * s₂
-        rw [map_mul, hs]
+          = ⟨e x * s₂, notMem_mul_mem hUi₂ hx₂ hs₂⟩ :=
+        Subtype.ext (show e (x * s₁) = e x * s₂ by rw [map_mul, hs])
       rw [hval (x * s₁) hxs, hcast]
   -- the `bS` agreement
   have hbS : ∀ x : G₁, bS U₁ s₁ α₁ x = bS U₂ s₂ α₂ (e x) := by
     intro x
     show evensAux U₁ s₁ α₁ (s₁⁻¹ * x) = evensAux U₂ s₂ α₂ (s₂⁻¹ * e x)
-    have harg : s₂⁻¹ * e x = e (s₁⁻¹ * x) := by
-      rw [map_mul, map_inv, hs]
-    rw [harg]
+    rw [show s₂⁻¹ * e x = e (s₁⁻¹ * x) by rw [map_mul, map_inv, hs]]
     exact hAux (s₁⁻¹ * x)
   -- the `evensNormFun` agreement
   show (if p.1 ∈ U₁ then evensAux U₁ s₁ α₁ p.1 * bS U₁ s₁ α₁ p.2
@@ -313,9 +295,8 @@ theorem hvanish_involution_ker (R : LocalReciprocity) (B : BoundaryMaps)
       Kummer.kummerCocycleFun β (n : AbsGalQ2)) ∈
       Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) := by
     rw [mem_Z1_iff_of_trivial htrivN]
-    refine ⟨(Kummer.kummerCocycleFun_continuous β).comp continuous_subtype_val,
-      fun g h => ?_⟩
-    exact kummerCocycleFun_hom_on hβ hβ0 hdeepN.2.1 g h
+    exact ⟨(Kummer.kummerCocycleFun_continuous β).comp continuous_subtype_val,
+      kummerCocycleFun_hom_on hβ hβ0 hdeepN.2.1⟩
   have hfeq : (fun n : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) =>
       Kummer.kummerCocycleFun β (n : AbsGalQ2)) = α :=
     eq_of_H1ofFun_eq htrivN hZ1kcf hαZ1 heqN
@@ -444,7 +425,6 @@ theorem hvanish_involution_ker (R : LocalReciprocity) (B : BoundaryMaps)
             : Kummer.GaloisGroup ℚ_[2])
           * ((z : ↥(IntermediateField.fixedField (toGal U₀)).fixingSubgroup)
               : Kummer.GaloisGroup ℚ_[2]) := by
-      push_cast
       rfl
     rw [hmul]
     exact kummerCocycleFun_hom_on hβ hβ0 hAfixL ⟨_, hwL⟩ ⟨_, hzL⟩
@@ -481,9 +461,8 @@ theorem hvanish_involution_ker (R : LocalReciprocity) (B : BoundaryMaps)
   have hαU : ∀ w z : ↥((ρ.toMonoidHom.ker : Subgroup AbsGalQ2).subgroupOf U₀),
       Kummer.kummerCocycleFun β (((w * z).1.1 : AbsGalQ2))
         = Kummer.kummerCocycleFun β ((w.1.1 : AbsGalQ2))
-          + Kummer.kummerCocycleFun β ((z.1.1 : AbsGalQ2)) := by
-    intro w z
-    exact kummerCocycleFun_hom_on hβ hβ0 hdeepN.2.1 ⟨w.1.1, w.2⟩ ⟨z.1.1, z.2⟩
+          + Kummer.kummerCocycleFun β ((z.1.1 : AbsGalQ2)) :=
+    fun w z => kummerCocycleFun_hom_on hβ hβ0 hdeepN.2.1 ⟨w.1.1, w.2⟩ ⟨z.1.1, z.2⟩
   have hαcU : Continuous fun w : ↥((ρ.toMonoidHom.ker : Subgroup AbsGalQ2).subgroupOf U₀) =>
       Kummer.kummerCocycleFun β (w.1.1 : AbsGalQ2) :=
     (Kummer.kummerCocycleFun_continuous β).comp
@@ -492,8 +471,7 @@ theorem hvanish_involution_ker (R : LocalReciprocity) (B : BoundaryMaps)
   have hZ2K := evensNormFun_mem_Z2 htrivK hUoK hindexK hsKnot _ hα hαc
   -- ### transport the vanishing along `e₀`
   exact H2ofFun_eq_zero_comp e₀ he₀c htrivU htrivK
-    (fun p => evensNormFun_comp e₀ hmemiff rfl hUiU hsUnot hindexK hsKnot _ _
-      (fun x hx => rfl) p)
+    (evensNormFun_comp e₀ hmemiff rfl hUiU hsUnot hindexK hsKnot _ _ (fun x hx => rfl))
     hZ2U hZ2K hvan
 
 end Capstone
@@ -575,13 +553,13 @@ theorem hvanish_cup_ker (ρ : ContinuousMonoidHom AbsGalQ2 C)
       refine eq_of_H1ofFun_eq htrivN ?_ hγZ1 hclass
       rw [mem_Z1_iff_of_trivial htrivN]
       exact ⟨(Kummer.kummerCocycleFun_continuous βk).comp continuous_subtype_val,
-        fun g h => kummerCocycleFun_hom_on hβk hβk0 hdeepA.2.1 g h⟩
+        kummerCocycleFun_hom_on hβk hβk0 hdeepA.2.1⟩
     have hZ1' : (fun w : ↥(ResidueLift.splitField ρ).fixingSubgroup =>
         Kummer.kummerCocycleFun βk (w : Kummer.GaloisGroup ℚ_[2]))
         ∈ Z1 ↥(ResidueLift.splitField ρ).fixingSubgroup (ZMod 2) := by
       rw [mem_Z1_iff_of_trivial htrivK]
       exact ⟨(Kummer.kummerCocycleFun_continuous βk).comp continuous_subtype_val,
-        fun g h => kummerCocycleFun_hom_on hβk hβk0 hAfix g h⟩
+        kummerCocycleFun_hom_on hβk hβk0 hAfix⟩
     refine ⟨fun w => Kummer.kummerCocycleFun βk (w : Kummer.GaloisGroup ℚ_[2]), hZ1', ?_, ?_⟩
     · refine ⟨A, βk, ⟨hdeepA.1, hAfix, ?_⟩, hβk, hβk0, H1ofFun_of_mem hZ1'⟩
       obtain ⟨b, hbf, hbe, hbn⟩ := hdeepA.2.2
@@ -603,7 +581,7 @@ theorem hvanish_cup_ker (ρ : ContinuousMonoidHom AbsGalQ2 C)
     cup11_mem_Z2 AddMonoidHom.mul (fun g m n => by rw [htrivK, htrivK, htrivK])
       ⟨α', hα'Z1⟩ ⟨β', hβ'Z1⟩
   exact H2ofFun_eq_zero_comp e₀ he₀c htrivN htrivK
-    (fun p => cup11Fun_comp htrivN htrivK e₀ α β α' β' hα'eq hβ'eq p)
+    (cup11Fun_comp htrivN htrivK e₀ α β α' β' hα'eq hβ'eq)
     hZ2N hZ2K hvan
 
 end CupKer

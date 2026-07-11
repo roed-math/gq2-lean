@@ -58,7 +58,7 @@ private theorem RecursionFrame.descend_piBC (RF : RecursionFrame T Blk)
   have hmemx₁ : tHat.x₁ ∈ J := Subgroup.subset_closure (by simp)
   set tJ : Marking ↥J :=
     ⟨⟨tHat.σ, hmemσ⟩, ⟨tHat.τ, hmemτ⟩, ⟨tHat.x₀, hmemx₀⟩, ⟨tHat.x₁, hmemx₁⟩⟩ with htJ
-  have hmapJ : tJ.map J.subtype = tHat := by refine marking_ext ?_ ?_ ?_ ?_ <;> rfl
+  have hmapJ : tJ.map J.subtype = tHat := marking_ext rfl rfl rfl rfl
   have htameJ : tJ.TameRel := by
     rw [← Marking.tameValue_eq_one_iff]
     have h := Marking.map_tameValue J.subtype tJ
@@ -108,10 +108,7 @@ private theorem RecursionFrame.descend_piBC (RF : RecursionFrame T Blk)
         exact Subgroup.subset_normalClosure (by simp)
     have hle := Subgroup.normalClosure_le_normal hcomap
     intro n
-    have hmemNB : qJ n.1 ∈ Subgroup.normalClosure
-        {(Marking.push ρc).x₀, (Marking.push ρc).x₁} :=
-      Subgroup.mem_comap.mp (hle n.2)
-    obtain ⟨k, hk⟩ := hadmB.2.2.2 ⟨qJ n.1, hmemNB⟩
+    obtain ⟨k, hk⟩ := hadmB.2.2.2 ⟨qJ n.1, Subgroup.mem_comap.mp (hle n.2)⟩
     refine ⟨k + 1, ?_⟩
     have hk' : (qJ n.1) ^ 2 ^ k = 1 := by simpa using congrArg Subtype.val hk
     have hYval : ((n.1 : RF.YB)) ^ 2 ^ (k + 1) = 1 := by
@@ -172,22 +169,17 @@ theorem RecursionFrame.liftsOver_nonempty_gammaA
   haveI hMBn : RF.MB.Normal := RF.ker_piBC ▸ RF.piBC.normal_ker
   have hcomm : ∀ x ∈ RF.MB, ∀ y ∈ RF.MB, x * y = y * x := by
     intro x hx y hy
-    have hxy := RF.MB_elem _ (mul_mem hx hy)
-    calc x * y = (x * y)⁻¹ := (inv_eq_of_mul_eq_one_right hxy).symm
-      _ = y⁻¹ * x⁻¹ := mul_inv_rev x y
-      _ = y * x := by
-          rw [inv_eq_of_mul_eq_one_right (RF.MB_elem _ hy),
-            inv_eq_of_mul_eq_one_right (RF.MB_elem _ hx)]
+    rw [← inv_eq_of_mul_eq_one_right (RF.MB_elem _ (mul_mem hx hy)), mul_inv_rev,
+      inv_eq_of_mul_eq_one_right (RF.MB_elem _ hy), inv_eq_of_mul_eq_one_right (RF.MB_elem _ hx)]
   have hconj_eq : ∀ {u v : RF.YB}, RF.piBC u = RF.piBC v → ∀ m : ↥RF.MB,
       u * m.1 * u⁻¹ = v * m.1 * v⁻¹ := by
     intro u v huv m
     have hm : u⁻¹ * v ∈ RF.MB := by
       rw [← RF.ker_piBC]
       exact MonoidHom.mem_ker.mpr (by rw [map_mul, map_inv, huv, inv_mul_cancel])
-    have hcm := hcomm _ hm _ m.2
     calc u * m.1 * u⁻¹
         = u * (m.1 * (u⁻¹ * v) * (u⁻¹ * v)⁻¹) * u⁻¹ := by group
-      _ = u * ((u⁻¹ * v) * m.1 * (u⁻¹ * v)⁻¹) * u⁻¹ := by rw [← hcm]
+      _ = u * ((u⁻¹ * v) * m.1 * (u⁻¹ * v)⁻¹) * u⁻¹ := by rw [← hcomm _ hm _ m.2]
       _ = v * m.1 * v⁻¹ := by group
   set sec : RF.YC → RF.YB := Function.surjInv RF.piBC_surj with hsecdef
   have hsec : ∀ c, RF.piBC (sec c) = c := fun c => Function.surjInv_eq RF.piBC_surj c
@@ -229,10 +221,8 @@ theorem RecursionFrame.liftsOver_nonempty_gammaA
           = (sec c * (Additive.toMul m).1 * (sec c)⁻¹)
               * (sec c * (Additive.toMul m').1 * (sec c)⁻¹)
         group }
-  have hA₂ : ∀ a : Additive ↥RF.MB, a + a = 0 := fun a => by
-    apply Additive.toMul.injective
-    show (Additive.toMul a) * (Additive.toMul a) = 1
-    exact Subtype.ext (RF.MB_elem _ (Additive.toMul a).2)
+  have hA₂ : ∀ a : Additive ↥RF.MB, a + a = 0 :=
+    fun a => Additive.toMul.injective (Subtype.ext (RF.MB_elem _ (Additive.toMul a).2))
   -- `#fixedPts = 1` (the `(M_B^∨)^{Y_C} = 0` group theory via `lemma_7_1_dual`)
   have hfix : Nat.card (fixedPts RF.YC (ElemDual (Additive ↥RF.MB))) = 1 := by
     have hzero : ∀ lam : ElemDual (Additive ↥RF.MB),
@@ -265,9 +255,7 @@ theorem RecursionFrame.liftsOver_nonempty_gammaA
         show lam a = 0
         obtain ⟨k, hk⟩ := hs_surj (Additive.toMul a)
         have h0 : lam (Additive.ofMul (s k)) = 0 := by
-          have hk1 : φ k = 1 := by rw [hφ1]; rfl
-          have := congrArg Multiplicative.toAdd hk1
-          simpa [hφ_apply] using this
+          simpa [hφ_apply] using congrArg Multiplicative.toAdd (show φ k = 1 by rw [hφ1]; rfl)
         rw [hk] at h0
         exact h0
       have hφsurj : Function.Surjective φ := by
@@ -327,7 +315,7 @@ theorem RecursionFrame.liftsOver_nonempty_gammaA
       exact absurd ⟨X, hXnormal, hRX, hXK, hidx⟩ (lemma_7_1_dual Blk)
     rw [Nat.card_eq_one_iff_unique]
     exact ⟨⟨fun x y => Subtype.ext ((hzero x.val x.2).trans (hzero y.val y.2).symm)⟩,
-      ⟨⟨0, fun c => smul_zero c⟩⟩⟩
+      ⟨⟨0, smul_zero⟩⟩⟩
   -- the candidate duality at `markC θ`, and the direct `Y_B`-conjugation action for `d1Fun`
   have adm := markC_admissible θ hθs
   have hsd := GQ2.FoxH.prop_5_15 (markC θ) adm.2.1 adm.2.2.1 adm.1 hA₂ adm.2.2.2
@@ -434,22 +422,17 @@ theorem RecursionFrame.liftsOver_card_gammaA_of_nonempty
   haveI hMBn : RF.MB.Normal := RF.ker_piBC ▸ RF.piBC.normal_ker
   have hcomm : ∀ x ∈ RF.MB, ∀ y ∈ RF.MB, x * y = y * x := by
     intro x hx y hy
-    have hxy := RF.MB_elem _ (mul_mem hx hy)
-    calc x * y = (x * y)⁻¹ := (inv_eq_of_mul_eq_one_right hxy).symm
-      _ = y⁻¹ * x⁻¹ := mul_inv_rev x y
-      _ = y * x := by
-          rw [inv_eq_of_mul_eq_one_right (RF.MB_elem _ hy),
-            inv_eq_of_mul_eq_one_right (RF.MB_elem _ hx)]
+    rw [← inv_eq_of_mul_eq_one_right (RF.MB_elem _ (mul_mem hx hy)), mul_inv_rev,
+      inv_eq_of_mul_eq_one_right (RF.MB_elem _ hy), inv_eq_of_mul_eq_one_right (RF.MB_elem _ hx)]
   have hconj_eq : ∀ {u v : RF.YB}, RF.piBC u = RF.piBC v → ∀ m : ↥RF.MB,
       u * m.1 * u⁻¹ = v * m.1 * v⁻¹ := by
     intro u v huv m
     have hm : u⁻¹ * v ∈ RF.MB := by
       rw [← RF.ker_piBC]
       exact MonoidHom.mem_ker.mpr (by rw [map_mul, map_inv, huv, inv_mul_cancel])
-    have hcm := hcomm _ hm _ m.2
     calc u * m.1 * u⁻¹
         = u * (m.1 * (u⁻¹ * v) * (u⁻¹ * v)⁻¹) * u⁻¹ := by group
-      _ = u * ((u⁻¹ * v) * m.1 * (u⁻¹ * v)⁻¹) * u⁻¹ := by rw [← hcm]
+      _ = u * ((u⁻¹ * v) * m.1 * (u⁻¹ * v)⁻¹) * u⁻¹ := by rw [← hcomm _ hm _ m.2]
       _ = v * m.1 * v⁻¹ := by group
   -- the set-section of `π_{BC}` and the lower map (over `GA`, for `z1Equiv`)
   set sec : RF.YC → RF.YB := Function.surjInv RF.piBC_surj with hsecdef
@@ -496,10 +479,8 @@ theorem RecursionFrame.liftsOver_card_gammaA_of_nonempty
   letI actG : DistribMulAction GA (Additive ↥RF.MB) :=
     DistribMulAction.compHom (Additive ↥RF.MB) θ.toMonoidHom
   have hcomp : ∀ (γ : GA) (a : Additive ↥RF.MB), γ • a = θ γ • a := fun _ _ => rfl
-  have hA₂ : ∀ a : Additive ↥RF.MB, a + a = 0 := fun a => by
-    apply Additive.toMul.injective
-    show (Additive.toMul a) * (Additive.toMul a) = 1
-    exact Subtype.ext (RF.MB_elem _ (Additive.toMul a).2)
+  have hA₂ : ∀ a : Additive ↥RF.MB, a + a = 0 :=
+    fun a => Additive.toMul.injective (Subtype.ext (RF.MB_elem _ (Additive.toMul a).2))
   haveI : ContinuousSMul GA (Additive ↥RF.MB) := by
     refine ⟨?_⟩
     have hfac : (fun p : GA × Additive ↥RF.MB => p.1 • p.2)
@@ -547,9 +528,7 @@ theorem RecursionFrame.liftsOver_card_gammaA_of_nonempty
         show lam a = 0
         obtain ⟨k, hk⟩ := hs_surj (Additive.toMul a)
         have h0 : lam (Additive.ofMul (s k)) = 0 := by
-          have hk1 : φ k = 1 := by rw [hφ1]; rfl
-          have := congrArg Multiplicative.toAdd hk1
-          simpa [hφ_apply] using this
+          simpa [hφ_apply] using congrArg Multiplicative.toAdd (show φ k = 1 by rw [hφ1]; rfl)
         rw [hk] at h0
         exact h0
       have hφsurj : Function.Surjective φ := by
@@ -609,7 +588,7 @@ theorem RecursionFrame.liftsOver_card_gammaA_of_nonempty
       exact absurd ⟨X, hXnormal, hRX, hXK, hidx⟩ (lemma_7_1_dual Blk)
     rw [Nat.card_eq_one_iff_unique]
     exact ⟨⟨fun x y => Subtype.ext ((hzero x.val x.2).trans (hzero y.val y.2).symm)⟩,
-      ⟨⟨0, fun c => smul_zero c⟩⟩⟩
+      ⟨⟨0, smul_zero⟩⟩⟩
   -- Step 2: the `Z¹`-torsor bridge (source-generic once a base lift `f₀` exists)
   have htorsor : Nat.card (RF.LiftsOver b F ρ)
       = Nat.card (Z1 GA (Additive ↥RF.MB)) := by

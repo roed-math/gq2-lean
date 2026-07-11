@@ -66,8 +66,8 @@ theorem conj_eq_of_mk_eq_K (hRK : ∀ r ∈ Blk.R, ∀ k ∈ Blk.K, r * k = k * 
     y * (r : Y) * y⁻¹ = w * (r : Y) * w⁻¹ := by
   obtain ⟨k, hk, hyk⟩ := (QuotientGroup.mk'_eq_mk' Blk.K).mp h
   subst hyk
-  have hcomm : (r : Y) * k = k * (r : Y) := hRK (r : Y) r.2 k hk
-  calc y * (r : Y) * y⁻¹ = y * (k * (r : Y) * k⁻¹) * y⁻¹ := by rw [← hcomm]; group
+  calc y * (r : Y) * y⁻¹ = y * (k * (r : Y) * k⁻¹) * y⁻¹ := by
+        rw [← hRK (r : Y) r.2 k hk]; group
     _ = y * k * (r : Y) * (y * k)⁻¹ := by group
 
 /-- Conjugation by `y` lands back in `R` (`R ◁ Y`). -/
@@ -87,8 +87,7 @@ of the representative by `conj_eq_of_mk_eq_K`). -/
         = QuotientGroup.mk' Blk.K 1 := by
       rw [map_one]
       exact Quotient.out_eq (1 : Y ⧸ Blk.K)
-    apply Additive.toMul.injective
-    apply Subtype.ext
+    refine Additive.toMul.injective (Subtype.ext ?_)
     show Quotient.out (1 : Y ⧸ Blk.K) * _ * (Quotient.out (1 : Y ⧸ Blk.K))⁻¹ = _
     rw [conj_eq_of_mk_eq_K hRK h1]
     group
@@ -98,20 +97,17 @@ of the representative by `conj_eq_of_mk_eq_K`). -/
       have hx : ∀ x : Y ⧸ Blk.K, QuotientGroup.mk' Blk.K (Quotient.out x) = x :=
         fun x => Quotient.out_eq x
       rw [map_mul, hx, hx, hx]
-    apply Additive.toMul.injective
-    apply Subtype.ext
+    refine Additive.toMul.injective (Subtype.ext ?_)
     show Quotient.out (c * d) * _ * (Quotient.out (c * d))⁻¹ = _
     rw [conj_eq_of_mk_eq_K hRK hcd]
     show _ = Quotient.out c * (Quotient.out d * _ * (Quotient.out d)⁻¹) * (Quotient.out c)⁻¹
     group
   smul_zero c := by
-    apply Additive.toMul.injective
-    apply Subtype.ext
+    refine Additive.toMul.injective (Subtype.ext ?_)
     show Quotient.out c * (1 : Y) * (Quotient.out c)⁻¹ = 1
     group
   smul_add c a b := by
-    apply Additive.toMul.injective
-    apply Subtype.ext
+    refine Additive.toMul.injective (Subtype.ext ?_)
     show Quotient.out c * (((Additive.toMul a : ↥Blk.R) : Y)
         * ((Additive.toMul b : ↥Blk.R) : Y)) * (Quotient.out c)⁻¹ = _
     show _ = (Quotient.out c * _ * (Quotient.out c)⁻¹) * (Quotient.out c * _ * (Quotient.out c)⁻¹)
@@ -126,8 +122,7 @@ theorem conjC_smul_of_mk (hRK : ∀ r ∈ Blk.R, ∀ k ∈ Blk.K, r * k = k * r)
   letI := conjC Blk hRK
   have hout : QuotientGroup.mk' Blk.K (Quotient.out (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K))
       = QuotientGroup.mk' Blk.K y := Quotient.out_eq _
-  apply Additive.toMul.injective
-  apply Subtype.ext
+  refine Additive.toMul.injective (Subtype.ext ?_)
   show Quotient.out (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K) * (r : Y) * _⁻¹
     = y * (r : Y) * y⁻¹
   exact conj_eq_of_mk_eq_K hRK hout r
@@ -138,7 +133,6 @@ end ConjAction
 
 section ZCount
 
-set_option maxHeartbeats 800000 in
 /-- **The `z_R` torsor count, local source** (P-16d6e residue): for every boundary lift `f₀`,
 `#RCocycle = z_R = #R² · #D_R`.  Route: `RCocycle ≃ Z¹(G_ℚ₂, R_{f₀})` (multiplicative crossed ↔
 additive, the conjugation action through `C = Y/K` pulled back along the surjective
@@ -176,17 +170,14 @@ theorem hZcount_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
     refine ⟨?_⟩
     have hfac : (fun p : AbsGalQ2 × Additive ↥Blk.R => p.1 • p.2)
         = (fun q : (Y ⧸ Blk.K) × Additive ↥Blk.R => q.1 • q.2)
-          ∘ (fun p : AbsGalQ2 × Additive ↥Blk.R => (θ p.1, p.2)) := by
-      funext p
-      rfl
+          ∘ (fun p : AbsGalQ2 × Additive ↥Blk.R => (θ p.1, p.2)) := rfl
     rw [hfac]
     exact continuous_of_discreteTopology.comp
       ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
   have hcomp : ∀ (γ : AbsGalQ2) (a : Additive ↥Blk.R), γ • a = θ γ • a := fun _ _ => rfl
   have hA₂ : ∀ a : Additive ↥Blk.R, a + a = 0 := by
     intro a
-    apply Additive.toMul.injective
-    apply Subtype.ext
+    refine Additive.toMul.injective (Subtype.ext ?_)
     exact hR2 _ (Additive.toMul a).2
   -- the action at the `f₀`-representative
   have hsmul : ∀ (γ : AbsGalQ2) (a : Additive ↥Blk.R),
@@ -209,8 +200,7 @@ theorem hZcount_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
             exact Continuous.subtype_mk c.cont _
           · intro γ δ
             rw [hsmul γ (Additive.ofMul ⟨c.u δ, c.mem δ⟩)]
-            apply Additive.toMul.injective
-            apply Subtype.ext
+            refine Additive.toMul.injective (Subtype.ext ?_)
             show c.u (γ * δ) = c.u γ * (f₀.1.1 γ * c.u δ * (f₀.1.1 γ)⁻¹)
             exact c.crossed γ δ⟩
       invFun := fun z =>
@@ -246,8 +236,7 @@ theorem hZcount_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
           = Additive.ofMul r := by
         rw [← map_inv]
         rw [conjC_smul_of_mk hRK y⁻¹ ⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩]
-        apply congrArg
-        apply Subtype.ext
+        refine congrArg _ (Subtype.ext ?_)
         show y⁻¹ * (y * (r : Y) * y⁻¹) * y⁻¹⁻¹ = (r : Y)
         group
       have h2 : ((QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K) • lam.1)
@@ -293,7 +282,6 @@ theorem htriv_local (γ : AbsGalQ2) (m : ZMod 2) : γ • m = m := by
 
 section SepHom
 
-set_option maxHeartbeats 1600000 in
 /-- **The `(R^∨)^C`-separation, local source** (P-16d6e residue): if the obstruction functional
 of a boundary lift `g` vanishes, `g` lifts to a continuous homomorphism into `Y`.  Route:
 `obs g = 0` kills every paired defect class (`obs_zero_iff_pairClass_zero`); the paired classes
@@ -392,16 +380,13 @@ theorem hsep_hom_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
     refine ⟨?_⟩
     have hfac : (fun p : AbsGalQ2 × Additive ↥Blk.R => p.1 • p.2)
         = (fun q : (Y ⧸ Blk.K) × Additive ↥Blk.R => q.1 • q.2)
-          ∘ (fun p : AbsGalQ2 × Additive ↥Blk.R => (θ p.1, p.2)) := by
-      funext p
-      rfl
+          ∘ (fun p : AbsGalQ2 × Additive ↥Blk.R => (θ p.1, p.2)) := rfl
     rw [hfac]
     exact continuous_of_discreteTopology.comp
       ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
   have hA₂ : ∀ a : Additive ↥Blk.R, a + a = 0 := by
     intro a
-    apply Additive.toMul.injective
-    apply Subtype.ext
+    refine Additive.toMul.injective (Subtype.ext ?_)
     exact hR2 _ (Additive.toMul a).2
   -- the action at the `slift ∘ g` representative
   have hsmul : ∀ (γ : AbsGalQ2) (a : Additive ↥Blk.R),
@@ -469,9 +454,7 @@ theorem hsep_hom_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
     refine ⟨?_⟩
     have hfac : (fun p : AbsGalQ2 × GQ2.FoxH.ElemDual (Additive ↥Blk.R) => p.1 • p.2)
         = (fun q : (Y ⧸ Blk.K) × GQ2.FoxH.ElemDual (Additive ↥Blk.R) => q.1 • q.2)
-          ∘ (fun p => (θ p.1, p.2)) := by
-      funext p
-      rfl
+          ∘ (fun p => (θ p.1, p.2)) := rfl
     rw [hfac]
     exact continuous_of_discreteTopology.comp
       ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
@@ -501,9 +484,7 @@ theorem hsep_hom_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
         show (θ γ • n.1) _ = _
         rw [GQ2.FoxH.ElemDual.smul_apply, hγ, ← map_inv,
           conjC_smul_of_mk hRK y⁻¹ ⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩]
-        apply congrArg
-        apply congrArg
-        apply Subtype.ext
+        refine congrArg _ (congrArg _ (Subtype.ext ?_))
         show y⁻¹ * (y * (r : Y) * y⁻¹) * y⁻¹⁻¹ = (r : Y)
         group
       rw [h2] at h1

@@ -79,9 +79,7 @@ theorem exponent_two_of_nonsingular {q : V → ZMod 2} (hq : IsQuadraticFp2 q)
     (hns : Nonsingular q) (v : V) : v + v = 0 := by
   by_contra hne
   obtain ⟨w, hw⟩ := hns (v + v) hne
-  apply hw
-  rw [hq.polar_add_left]
-  exact CharTwo.add_self_eq_zero _
+  exact hw (by rw [hq.polar_add_left]; exact CharTwo.add_self_eq_zero _)
 
 /-! ## Symmetric zero-diagonal 2-cocycles on an elementary-abelian group are coboundaries
 
@@ -230,8 +228,7 @@ theorem bflat_bijective :
       ext w
       show Bil v' w = φlin w
       rw [hBilapp, hv' w, hφlinapp]
-    calc v' = e.symm (e v') := (e.symm_apply_apply v').symm
-      _ = e.symm φlin := by rw [hev']
+    rw [← e.symm_apply_apply v', hev']
 
 include hcocycle hξq hq hns in
 /-- **The fibre antisymmetrization computes the polar**: for `u w : V`,
@@ -243,7 +240,7 @@ theorem polar_fibre (u w : V) :
                 + ξ (i (Multiplicative.ofAdd w), i (Multiplicative.ofAdd u)) := by
   -- normalization `ξ(1, ·) = 0`
   have hone : ξ ((1 : B), (1 : B)) = 0 := by
-    have h := hξq 0; rw [ofAdd_zero, map_one] at h; rw [h]; exact hq.map_zero
+    simpa [hq.map_zero] using hξq 0
   have h1L : ∀ x : B, ξ ((1 : B), x) = 0 := by
     intro x
     have h := hcocycle 1 1 x
@@ -341,7 +338,6 @@ theorem factorSet_spec (c d : C) :
   simp only [map_mul, map_inv, sigma_spec]
   group
 
-
 /-- The mixed transgression cochain `A c v = ξ(σc, i(c⁻¹•v)) + ξ(iv, σc)`. -/
 noncomputable def mixedA (c : C) (v : V) : ZMod 2 :=
   ξ (sigma p hp c, i (Multiplicative.ofAdd (c⁻¹ • v)))
@@ -398,7 +394,7 @@ theorem key_transgression (c d : C) (v : V) :
   simp only [mixedA, ← mul_smul, ← mul_inv_rev]
   -- normalization `ξ(1, ·) = 0 = ξ(·, 1)`
   have hone : ξ ((1 : B), (1 : B)) = 0 := by
-    have h := hξq 0; rw [ofAdd_zero, map_one] at h; rw [h]; exact hq.map_zero
+    simpa [hq.map_zero] using hξq 0
   have hone_left : ∀ x : B, ξ ((1 : B), x) = 0 := by
     intro x
     have h := hcocycle 1 1 x
@@ -407,8 +403,7 @@ theorem key_transgression (c d : C) (v : V) :
   have hone_right : ∀ y : B, ξ (y, (1 : B)) = 0 := by
     intro y
     have h := hcocycle y 1 1
-    rw [mul_one, mul_one, hone, zero_add, CharTwo.add_self_eq_zero] at h
-    exact h
+    rwa [mul_one, mul_one, hone, zero_add, CharTwo.add_self_eq_zero] at h
   -- conjugation-move relations (`hconj` + `sigma_spec`), raw form
   have m1 : i (Multiplicative.ofAdd v) * sigma p hp c
       = sigma p hp c * i (Multiplicative.ofAdd (c⁻¹ • v)) := by
@@ -502,17 +497,14 @@ theorem equivariant_lift_of_factorSet (dat : FactorSet C V)
   obtain ⟨θ, -, hθ⟩ := symm_cocycle_is_coboundary h2
     (fun v w => dat.f v w + ξ (i (Multiplicative.ofAdd v), i (Multiplicative.ofAdd w)))
     hScoc hSsymm hSdiag
-  have hθ' : ∀ v w : V,
-      dat.f v w + ξ (i (Multiplicative.ofAdd v), i (Multiplicative.ofAdd w))
-        = θ (v + w) + θ v + θ w := hθ
   refine ⟨fun c v => dat.m c v + θ (c • v) + θ v, fun c v w => ?_, fun c d v => ?_⟩
   · show (dat.m c (v + w) + θ (c • (v + w)) + θ (v + w))
         + (dat.m c v + θ (c • v) + θ v) + (dat.m c w + θ (c • w) + θ w)
       = ξ (i (Multiplicative.ofAdd (c • v)), i (Multiplicative.ofAdd (c • w)))
         + ξ (i (Multiplicative.ofAdd v), i (Multiplicative.ofAdd w))
     have hm := hdat.m_quad c v w
-    have hθ1 := hθ' (c • v) (c • w)
-    have hθ2 := hθ' v w
+    have hθ1 := hθ (c • v) (c • w)
+    have hθ2 := hθ v w
     rw [show c • v + c • w = c • (v + w) from (smul_add c v w).symm] at hθ1
     linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hm + hθ1 + hθ2
   · show dat.m (c * d) v + θ ((c * d) • v) + θ v
@@ -550,7 +542,7 @@ theorem splitting_of_global_cocycle
   have hinj : ∀ x y : V, (∀ w, polar q x w = polar q y w) → x = y := by
     intro x y hxy
     obtain ⟨z, _, hz⟩ := bflat_bijective q hq hns (fun w => polar q x w)
-      (fun w w' => hq.polar_add_right x w w')
+      (hq.polar_add_right x)
     rw [hz x fun w => rfl]
     exact (hz y fun w => (hxy w).symm).symm
   -- the corrected transgression cochain `Ã c v = mixedA c v + t c⁻¹ v` is additive in `v`
@@ -568,7 +560,7 @@ theorem splitting_of_global_cocycle
     have hrep : ∀ c : C, ∃ x : V, ∀ w,
         polar q x w = mixedA p hp i ξ c w + t c⁻¹ w := fun c =>
       (bflat_bijective q hq hns (fun w => mixedA p hp i ξ c w + t c⁻¹ w)
-        (fun v w => hAadd c v w)).exists
+        (hAadd c)).exists
     choose g hgrep using hrep
     refine ⟨g, fun cc dd v => ?_⟩
     have hk := key_transgression p hp i hrange hconj q hq hns ξ hcocycle hξq cc dd v
