@@ -134,7 +134,6 @@ include hcompat in
 /-- **Forward: `eval` lands in `Z1w`.** The evaluation of a continuous crossed cocycle at the four
 generators is a word cocycle, because both relators die in `Γ_A`. -/
 theorem eval_mem_Z1w (z : Z1 GA A) : eval z ∈ Z1w (markC q) := by
-  rw [Z1w, AddMonoidHom.mem_ker]
   have ht : (liftMarking (markC q) (eval z)).tameValue = 1 :=
     (Marking.tameValue_eq_one_iff _).mpr (liftMarking_eval_tameRel q hcompat z)
   have hw : (liftMarking (markC q) (eval z)).wildValue = 1 :=
@@ -201,14 +200,9 @@ theorem isPGroup_liftMarking_wildCore (hA₂ : ∀ a : A, a + a = 0) (t : Markin
     intro w hw
     rw [SetLike.mem_coe, Subgroup.mem_comap]
     simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hw
-    rcases hw with h | h <;> rw [h]
-    · show t.x₀ ∈ Subgroup.normalClosure {t.x₀, t.x₁}
-      exact Subgroup.subset_normalClosure (Set.mem_insert _ _)
-    · show t.x₁ ∈ Subgroup.normalClosure {t.x₀, t.x₁}
-      exact Subgroup.subset_normalClosure (Set.mem_insert_of_mem _ rfl)
-  intro g
-  obtain ⟨k, hk⟩ := hcomap ⟨g.1, hle g.2⟩
-  exact ⟨k, Subtype.ext (by rw [SubmonoidClass.coe_pow]; exact congrArg Subtype.val hk)⟩
+    rcases hw with h | h <;> rw [h] <;>
+      exact Subgroup.subset_normalClosure (by first | exact .inl rfl | exact .inr rfl)
+  exact hcomap.to_le hle
 
 /-- Projecting a lifted marking back through `gHom` recovers the base marking. -/
 theorem liftMarking_map_gHom (t : Marking C) (x : Fin 4 → A) :
@@ -224,9 +218,7 @@ theorem liftMarking_Z1w_tameRel (hq : Function.Surjective q) (x : Z1w (A := A) (
   have hg : (liftMarking (markC q) x.1).tameValue.g = 1 := by
     have : gHom ((liftMarking (markC q) x.1).tameValue) = (markC q).tameValue := by
       rw [← Marking.map_tameValue, liftMarking_map_gHom]
-    rw [show (liftMarking (markC q) x.1).tameValue.g
-        = gHom ((liftMarking (markC q) x.1).tameValue) from rfl, this]
-    exact (Marking.tameValue_eq_one_iff _).mpr (markC_admissible q hq).2.1
+    exact this.trans ((Marking.tameValue_eq_one_iff _).mpr (markC_admissible q hq).2.1)
   rw [← Marking.tameValue_eq_one_iff]
   exact WordLift.ext (by rw [hu]; rfl) (by rw [hg]; rfl)
 
@@ -238,9 +230,7 @@ theorem liftMarking_Z1w_wildRel (hq : Function.Surjective q) (x : Z1w (A := A) (
   have hg : (liftMarking (markC q) x.1).wildValue.g = 1 := by
     have : gHom ((liftMarking (markC q) x.1).wildValue) = (markC q).wildValue := by
       rw [← Marking.map_wildValue, liftMarking_map_gHom]
-    rw [show (liftMarking (markC q) x.1).wildValue.g
-        = gHom ((liftMarking (markC q) x.1).wildValue) from rfl, this]
-    exact (Marking.wildValue_eq_one_iff _).mpr (markC_admissible q hq).2.2.1
+    exact this.trans ((Marking.wildValue_eq_one_iff _).mpr (markC_admissible q hq).2.2.1)
   rw [← Marking.wildValue_eq_one_iff]
   exact WordLift.ext (by rw [hu]; rfl) (by rw [hg]; rfl)
 

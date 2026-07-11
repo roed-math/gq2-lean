@@ -183,9 +183,7 @@ theorem addHom_eq_sum_evReg [Fintype C] (φ : RegMod C Nr →+ ZMod 2) :
       φ (Pi.single n (Pi.single x (F n x))) = F n x * φ (Pi.single n (Pi.single x 1)) := by
     intro n x
     rcases hz (F n x) with h0 | h1
-    · rw [h0, zero_mul, show Pi.single (M := fun _ => ZMod 2) x (0 : ZMod 2) = 0 from
-        Pi.single_zero x, show Pi.single (M := fun _ => C → ZMod 2) n (0 : C → ZMod 2) = 0 from
-        Pi.single_zero n]
+    · simp only [h0, Pi.single_zero, zero_mul]
       exact map_zero φ
     · rw [h1, one_mul]
   -- LHS: `φ F` as the double sum of weighted single-values
@@ -255,7 +253,6 @@ variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [
 
 variable {ρ}
 
-set_option maxHeartbeats 1000000 in
 /-- **`FamiliesExtend` from the Lemma 6.11 package** (P-15f8): given the equivariant
 split-summand package `(ι, r)` embedding `V` into the regular module `𝔽₂[C]^{Nr}`
 (the `lemma_6_11`/`lemma_6_11_of_tame_pair` output shape), every admissible family extends to
@@ -284,9 +281,7 @@ theorem familiesExtend_of_package
     refine ⟨?_⟩
     have hfac : (fun p : AbsGalQ2 × RegMod C Nr => p.1 • p.2)
         = (fun q : C × RegMod C Nr => q.1 • q.2)
-          ∘ (fun p : AbsGalQ2 × RegMod C Nr => (ρ p.1, p.2)) := by
-      funext p
-      rfl
+          ∘ (fun p : AbsGalQ2 × RegMod C Nr => (ρ p.1, p.2)) := rfl
     rw [hfac]
     exact continuous_of_discreteTopology.comp
       ((ρ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
@@ -402,8 +397,8 @@ theorem familiesExtend_of_package
   -- the retract transfer: pull the extending class back to `V`
   have hcompat_r : ∀ (g : AbsGalQ2) (F : RegMod C Nr), r' (g • F) = g • r' F := by
     intro g F
-    have h1 : r' (g • F) = r (fun n x => F n ((ρ g)⁻¹ * x)) := rfl
-    rw [h1, hr (ρ g) F, ← hρ g (r F)]
+    show r (fun n x => F n ((ρ g)⁻¹ * x)) = g • r' F
+    rw [hr (ρ g) F, ← hρ g (r F)]
     rfl
   refine ⟨mapCoeff1 r' continuous_of_discreteTopology hcompat_r xR, fun φ => ?_⟩
   rw [phiRes_mapCoeff1 hρR hρ r' continuous_of_discreteTopology hcompat_r xR φ,

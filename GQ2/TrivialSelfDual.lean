@@ -37,8 +37,7 @@ theorem d1Fun_of_trivial (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     abel
   have h2 : (d1Fun t x).2 = x 1 := by
     show (liftMarking t x).wildValue.u = x 1
-    rw [liftMarking_wildValue_u t x hA₂ (fun v => htriv t.x₀ v) (fun v => htriv t.x₁ v)
-        (fun v => htriv t.τ v) (fun v => htriv t.sigma2 v)]
+    rw [liftMarking_wildValue_u t x hA₂ (htriv t.x₀) (htriv t.x₁) (htriv t.τ) (htriv t.sigma2)]
     simp only [htriv]
     rw [add_assoc, hA₂ (x 3), add_zero]
   exact Prod.ext h1 h2
@@ -67,18 +66,14 @@ theorem elemDual_smul_trivial (htriv : ∀ (c : C) (a : A), c • a = a) (g : C)
 theorem card_fixedPts_elemDual_trivial (htriv : ∀ (c : C) (a : A), c • a = a)
     (hA₂ : ∀ a : A, a + a = 0) :
     Nat.card (fixedPts C (ElemDual A)) = Nat.card A := by
-  have hset : fixedPts C (ElemDual A) = Set.univ := by
-    ext lam
-    simp only [fixedPts, Set.mem_setOf_eq, Set.mem_univ, iff_true]
-    exact fun g => elemDual_smul_trivial htriv g lam
+  have hset : fixedPts C (ElemDual A) = Set.univ :=
+    Set.eq_univ_of_forall fun lam g => elemDual_smul_trivial htriv g lam
   rw [hset, Nat.card_congr (Equiv.Set.univ _)]
   haveI : Module (ZMod 2) A := AddCommGroup.zmodModule (fun v => by rw [two_nsmul]; exact hA₂ v)
   have e1 : (A →+ ZMod 2) ≃+ Module.Dual (ZMod 2) A := AddMonoidHom.toZModLinearMapEquiv 2
   obtain ⟨e2⟩ : Nonempty (A ≃ₗ[ZMod 2] Module.Dual (ZMod 2) A) :=
     Basis.linearEquiv_dual_iff_finiteDimensional.mpr inferInstance
-  calc Nat.card (ElemDual A) = Nat.card (A →+ ZMod 2) := rfl
-    _ = Nat.card (Module.Dual (ZMod 2) A) := Nat.card_congr e1.toEquiv
-    _ = Nat.card A := (Nat.card_congr e2.toEquiv).symm
+  exact Nat.card_congr (e1.toEquiv.trans e2.toEquiv.symm)
 
 /-- On the trivial module `range d¹ = Δ` (the diagonal `a ↦ (a,a)`), of cardinality `#A`. -/
 theorem card_range_d1_trivial (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
@@ -120,8 +115,7 @@ theorem card_Z1w_trivial (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   rw [hfiso] at hlag
   -- hlag : Nat.card (Fin 4 → A) = Nat.card A * Nat.card (ker)
   have hcard4 : Nat.card (Fin 4 → A) = Nat.card A ^ 4 := by
-    rw [Nat.card_fun,
-      show Nat.card (Fin 4) = 4 from by rw [Nat.card_eq_fintype_card, Fintype.card_fin]]
+    rw [Nat.card_fun, Nat.card_fin]
   rw [hcard4] at hlag
   -- (Nat.card A)^4 = Nat.card A * Nat.card (ker)
   show Nat.card ((d1 (A := A) t).ker) = Nat.card A ^ 3
@@ -163,7 +157,6 @@ theorem B1w_trivial_eq_bot (t : Marking C) (htriv : ∀ (c : C) (a : A), c • a
   rintro y ⟨v, rfl⟩
   exact (AddSubgroup.mem_bot).mpr (d0_of_trivial t htriv v)
 
-set_option maxHeartbeats 1600000 in
 /-- **P-13f, part (i)**: the trivial module `𝔽₂` is self-dual.  Both card clauses and the degree-one
 pairing (table (25)) are proven: `mixedB` descends to `H¹w = Z¹w` (since `B¹w = ⊥`), its closed form
 `mixedB_cocycle = y₂(x₂)+y₃(x₀)−y₀(x₃)+u₁.z` has unit-determinant Gram matrix (the ω₂ scalar `u₁.z`
@@ -179,14 +172,13 @@ theorem trivialSelfDual (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     rw [card_Z1w_trivial t ht hw htriv hA₂, card_fixedPts_elemDual_trivial htriv hA₂]
     ring
   · -- The degree-one pairing (table 25): descend `mixedB` and prove perfection.
-    have htrivD : ∀ (c : C) (l : ElemDual A), c • l = l := fun c l => elemDual_smul_trivial htriv c l
+    have htrivD : ∀ (c : C) (l : ElemDual A), c • l = l := elemDual_smul_trivial htriv
     have hA₂d : ∀ l : ElemDual A, l + l = 0 := fun l => by
       ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]; exact CharTwo.add_self_eq_zero (l v)
     have hNA : (B1w (A := A) t).addSubgroupOf (Z1w (A := A) t) = ⊥ := by
-      rw [B1w_trivial_eq_bot t htriv]; exact AddSubgroup.bot_addSubgroupOf (Z1w (A := A) t)
+      rw [B1w_trivial_eq_bot t htriv, AddSubgroup.bot_addSubgroupOf]
     have hND : (B1w (A := ElemDual A) t).addSubgroupOf (Z1w (A := ElemDual A) t) = ⊥ := by
-      rw [B1w_trivial_eq_bot t htrivD]
-      exact AddSubgroup.bot_addSubgroupOf (Z1w (A := ElemDual A) t)
+      rw [B1w_trivial_eq_bot t htrivD, AddSubgroup.bot_addSubgroupOf]
     refine ⟨Quotient.lift₂ (fun (a : Z1w (A := A) t) (b : Z1w (A := ElemDual A) t) =>
         mixedB t a.val b.val) (fun a₁ b₁ a₂ b₂ h₁ h₂ => ?_), fun x y => rfl, ?_, ?_⟩
     · -- well-defined: the class group is `⊥`, so the relation is equality

@@ -55,14 +55,7 @@ section Prelim
 available at this layer for `G_ℚ₂ ⧸ N`). -/
 theorem discreteTopology_quotient_of_isOpen {G : Type*} [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] (N : Subgroup G) [N.Normal] (hNo : IsOpen (N : Set G)) :
-    DiscreteTopology (G ⧸ N) := by
-  refine discreteTopology_of_isOpen_singleton_one ?_
-  have hpre : (QuotientGroup.mk : G → G ⧸ N) ⁻¹' {1} = (N : Set G) := by
-    ext δ
-    simp only [Set.mem_preimage, Set.mem_singleton_iff, SetLike.mem_coe,
-      QuotientGroup.eq_one_iff]
-  rw [← (QuotientGroup.isQuotientMap_mk N).isOpen_preimage, hpre]
-  exact hNo
+    DiscreteTopology (G ⧸ N) := QuotientGroup.discreteTopology hNo
 
 /-- `graphPullback` functoriality along an equivariant `comap`: pulling the comapped datum back
 along `(ρ', b)` is pulling the datum back along `(ρ', i ∘ b)`.  Turns the block datums of
@@ -103,9 +96,7 @@ include hβ
 /-- The scalar coordinate is multiplicative on `N` (the base coset is `N`-fixed). -/
 theorem shapiroCoord_mul (n m : ↥N) :
     shapiroCoord N β (n * m) = shapiroCoord N β n + shapiroCoord N β m := by
-  have h1 : QuotientGroup.mk' N (n : G) = 1 := by
-    rw [QuotientGroup.mk'_apply]
-    exact (QuotientGroup.eq_one_iff (n : G)).mpr n.2
+  have h1 : QuotientGroup.mk' N (n : G) = 1 := (QuotientGroup.eq_one_iff (n : G)).mpr n.2
   show β ((n : G) * (m : G)) 1 = β (n : G) 1 + β (m : G) 1
   rw [hβ (n : G) (m : G), h1, one_smul]
   rfl
@@ -171,7 +162,7 @@ theorem shapiroCoord_mem_Z1 {β : G → RegRep N}
     (htriv : ∀ (n : ↥N) (m : ZMod 2), n • m = m) :
     shapiroCoord N β ∈ Z1 ↥N (ZMod 2) := by
   rw [mem_Z1_iff_of_trivial htriv]
-  exact ⟨hβc.comp continuous_subtype_val, fun n m => shapiroCoord_mul hβ n m⟩
+  exact ⟨hβc.comp continuous_subtype_val, shapiroCoord_mul hβ⟩
 
 end Z1Layer
 
@@ -229,12 +220,10 @@ private theorem H2ofFun_graphPullback_shift {K : ℕ} {qW : (Fin K → RegRep N)
         (fun g => b.1 g + (g • W₀ - W₀)))
       = H2ofFun AbsGalQ2 (graphPullback dat (⇑(QuotientGroup.mk' N)) b.1) := by
   haveI : DiscreteTopology (AbsGalQ2 ⧸ N) := discreteTopology_quotient_of_isOpen N hNo
-  have hρW : ∀ (g : AbsGalQ2) (F : Fin K → RegRep N), g • F = (mkQ N) g • F := by
-    intro g F
-    funext k
-    exact hmk g (F k)
-  have hB2 := RepIndependence.graphPullback_sub_mem_B2 dat hdat (mkQ N) hρW b W₀
-  exact ShapiroLedger.H2ofFun_eq_of_sub_mem_B2 hB2
+  have hρW : ∀ (g : AbsGalQ2) (F : Fin K → RegRep N), g • F = (mkQ N) g • F :=
+    fun g F => funext fun k => hmk g (F k)
+  exact ShapiroLedger.H2ofFun_eq_of_sub_mem_B2
+    (RepIndependence.graphPullback_sub_mem_B2 dat hdat (mkQ N) hρW b W₀)
 
 include hmk in
 /-- **P-15f2c1, square-orbit `hcoh`** (Lemma 6.15 eq. (103) at a block coordinate): the graph

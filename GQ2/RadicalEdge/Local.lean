@@ -52,8 +52,6 @@ theorem conj_eq_of_mk_eq {b b' : Bg}
   { (inferInstance : Group ↥D.T) with
     mul_comm := fun a b => Subtype.ext (D.hcomm _ (D.hTM a.2) _ (D.hTM b.2)) }
 
-set_option synthInstance.maxHeartbeats 400000 in
-set_option maxHeartbeats 1600000 in
 /-- **The B6 twist construction** (Lemma 8.6, local source, duality step): from `NoDescent`,
 a crossed `T`-cocycle whose variation cochain is not a (trivial-action) coboundary.  The
 statement is action-free (raw cochain level) so the consumer can bridge it to the
@@ -281,9 +279,8 @@ private theorem exists_good_twist (S : TComplement D)
   -- ===== `[φ] ≠ 0` (else the edge trivializes and the cover descends) =====
   have hφne : H1mk AbsGalQ2 (MuDual 2 (Additive ↥D.T)) ⟨φf, hφZ1⟩ ≠ 0 := by
     intro h0
-    have hmem : φf ∈ B1 AbsGalQ2 (MuDual 2 (Additive ↥D.T)) := by
-      have h1 := (QuotientAddGroup.eq_zero_iff _).mp h0
-      rwa [AddSubgroup.mem_addSubgroupOf] at h1
+    have hmem : φf ∈ B1 AbsGalQ2 (MuDual 2 (Additive ↥D.T)) :=
+      AddSubgroup.mem_addSubgroupOf.mp ((QuotientAddGroup.eq_zero_iff _).mp h0)
     obtain ⟨lam, hlam⟩ := hmem
     set ℓ : ↥D.T → ZMod 2 :=
       fun t => muNTwoEquiv ((lam : Additive ↥D.T →+ MuN 2) (Additive.ofMul t)) with hℓdef
@@ -325,12 +322,10 @@ private theorem exists_good_twist (S : TComplement D)
     have hedgeval : edge D S b t = ℓ t - ℓ (act γ t) := by
       rw [← edgeQ_eq D S (ρ γ) hγ.symm t, ← h2]
       rfl
-    have hconj : (⟨b * t.1 * b⁻¹, conj_mem_T D b t⟩ : ↥D.T) = act γ t := by
-      apply Subtype.ext
-      exact (hact_eq γ b hγ.symm t).symm
+    have hconj : (⟨b * t.1 * b⁻¹, conj_mem_T D b t⟩ : ↥D.T) = act γ t :=
+      Subtype.ext (hact_eq γ b hγ.symm t).symm
     rw [hedgeval, hconj]
-    have harith : ∀ a e : ZMod 2, a - e = e + a := by decide
-    exact harith _ _
+    exact (by decide : ∀ a e : ZMod 2, a - e = e + a) _ _
   -- ===== B6: perfectness produces the nonzero pairing partner =====
   have hperf := (GQ2.tateDuality 2).perfect11 (Additive ↥D.T) htorT
   obtain ⟨ξ, hξ⟩ : ∃ ξ : H1 AbsGalQ2 (Additive ↥D.T),
@@ -414,7 +409,6 @@ private theorem exists_good_twist (S : TComplement D)
   rw [hcup0, map_zero] at hξ
   exact hξ rfl
 
-set_option synthInstance.maxHeartbeats 400000 in
 /-- **Lemma 8.6, local source, engine form** — the half-torsor count for `G_ℚ₂` from
 `NoDescent`, via B6.  Consumed by `SectionEight.lemma_8_6_local`. -/
 theorem half_torsor_local
@@ -448,9 +442,8 @@ theorem half_torsor_local
   have hvar : H2mk AbsGalQ2 (ZMod 2)
       ⟨varCoc D ρ S u, varCoc_mem_Z2 D ρ S htriv u⟩ ≠ 0 := by
     intro h0
-    have hmem : varCoc D ρ S u ∈ B2 AbsGalQ2 (ZMod 2) := by
-      have h1 := (QuotientAddGroup.eq_zero_iff _).mp h0
-      rwa [AddSubgroup.mem_addSubgroupOf] at h1
+    have hmem : varCoc D ρ S u ∈ B2 AbsGalQ2 (ZMod 2) :=
+      AddSubgroup.mem_addSubgroupOf.mp ((QuotientAddGroup.eq_zero_iff _).mp h0)
     obtain ⟨c, hcC1, hceq⟩ := AddSubgroup.mem_map.mp hmem
     refine hraw ⟨c, hcC1, fun γ δ => ?_⟩
     have hpt := congrFun hceq (γ, δ)

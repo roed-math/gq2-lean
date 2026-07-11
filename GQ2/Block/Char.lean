@@ -38,7 +38,7 @@ theorem blockLam_hom (B : MinimalBlock L) (l : Subgroup Y)
   unfold blockLam
   by_cases h1 : (r : Y) ∈ l <;> by_cases h2 : (r' : Y) ∈ l <;>
     simp only [Subgroup.coe_mul, hkey, h1, h2, iff_true, iff_false, iff_self,
-      if_true, if_false, ite_true, ite_false] <;> decide
+      if_true, if_false] <;> decide
 
 /-- **`Y`-conjugation invariance**: `λ_l(y r y⁻¹) = λ_l(r)` — because `l` is `Y`-normal. -/
 theorem blockLam_conj (B : MinimalBlock L) (l : Subgroup Y) (hlN : l.Normal)
@@ -65,9 +65,8 @@ theorem blockLam_ne (B : MinimalBlock L) (l : Subgroup Y) (hlt : l < B.R) :
 theorem relIndex_two_of_le (B : MinimalBlock L) (l : Subgroup Y)
     (hlR : l ≤ B.R) (hle2 : l.relIndex B.R ≤ 2) (hne : l ≠ B.R) :
     l.relIndex B.R = 2 := by
-  have hlt : l < B.R := lt_of_le_of_ne hlR hne
   have hne1 : l.relIndex B.R ≠ 1 := fun hcon =>
-    absurd (le_antisymm hlR (Subgroup.relIndex_eq_one.mp hcon)) (ne_of_lt hlt)
+    absurd (le_antisymm hlR (Subgroup.relIndex_eq_one.mp hcon)) (ne_of_lt (hlR.lt_of_ne hne))
   have hne0 : l.relIndex B.R ≠ 0 := Subgroup.index_ne_zero_of_finite
   omega
 
@@ -83,8 +82,7 @@ theorem comm_mem_R_of_K (B : MinimalBlock L) (hRN : B.R.Normal)
   have hmem : (a * b) * (a * b) * ((a * a) * (b * b))⁻¹ ∈ B.R :=
     B.R.mul_mem (hsq _ (B.K.mul_mem ha hb))
       (B.R.inv_mem (B.R.mul_mem (hsq a ha) (hsq b hb)))
-  have hconjR : a * (b * a * b⁻¹ * a⁻¹) * a⁻¹ ∈ B.R := hconj ▸ hmem
-  have hback := hRN.conj_mem _ hconjR a⁻¹
+  have hback := hRN.conj_mem _ (hconj ▸ hmem) a⁻¹
   rwa [show a⁻¹ * (a * (b * a * b⁻¹ * a⁻¹) * a⁻¹) * a⁻¹⁻¹ = b * a * b⁻¹ * a⁻¹ from by group]
     at hback
 
@@ -142,10 +140,7 @@ theorem blockQbar_beta (hRN : B.R.Normal)
       = ⟨a * (b * a * b⁻¹ * a⁻¹) * a⁻¹, hcomm_conj⟩ * ⟨a * a, hsq a ha⟩ * ⟨b * b, hsq b hb⟩ :=
     Subtype.ext (by push_cast; group)
   rw [edecomp, hlam_hom, hlam_hom]
-  have hconj_eq : lam ⟨a * (b * a * b⁻¹ * a⁻¹) * a⁻¹, hcomm_conj⟩
-      = lam ⟨b * a * b⁻¹ * a⁻¹, comm_mem_R_of_K B hRN hsq ha hb⟩ :=
-    hlam_conj a (b * a * b⁻¹ * a⁻¹) (comm_mem_R_of_K B hRN hsq ha hb)
-  rw [hconj_eq]
+  rw [hlam_conj a (b * a * b⁻¹ * a⁻¹) (comm_mem_R_of_K B hRN hsq ha hb)]
   have hz : ∀ x p q : ZMod 2, x + p + q + p + q = x := by decide
   exact hz _ _ _
 
@@ -270,13 +265,10 @@ theorem betaP_biadd (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2)
 theorem betaP_one (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2) (h0 : qbar 1 = 0) (q : Y) :
     betaP B qbar 1 q = 0 := by
   unfold betaP
-  rw [one_mul]
   have h1 : qbP B qbar 1 = 0 := by
     rw [qbP_mem B qbar (one_mem _), show (⟨1, one_mem _⟩ : ↥B.P) = 1 from rfl,
       QuotientGroup.mk_one, h0]
-  rw [h1]
-  have hz : ∀ x : ZMod 2, x + 0 + x = 0 := by decide
-  exact hz _
+  rw [one_mul, h1, add_zero, CharTwo.add_self_eq_zero]
 
 /-- **The polar radical** as a subgroup of `Y` (contained in `P`): `{y ∈ P | ∀ q ∈ P, β(y,q)=0}`.
 A subgroup by biadditivity/normalization of `β`. -/
@@ -309,9 +301,7 @@ theorem S_le_radSub (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2) (hbiadd)
     rw [QuotientGroup.eq_one_iff]; exact Subgroup.mem_subgroupOf.mpr hs
   unfold betaP
   rw [qbP_mem B qbar (mul_mem hsP hq), qbP_mem B qbar hsP, qbP_mem B qbar hq,
-    ← mkP_mul B hsP hq, hs1, one_mul, h0]
-  have hz : ∀ x : ZMod 2, x + 0 + x = 0 := by decide
-  exact hz _
+    ← mkP_mul B hsP hq, hs1, one_mul, h0, add_zero, CharTwo.add_self_eq_zero]
 
 theorem radSub_normal (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2) (hbiadd) (h0)
     (hinv : ∀ (y p : Y) (hp : p ∈ B.P),
@@ -430,8 +420,7 @@ theorem blockQbar_nonsingular_mul (hRN : B.R.Normal)
         = (qbar (u * w) + qbar u + qbar w) + (qbar (v * w) + qbar v + qbar w) :=
     blockQbar_polar_add B hRN hsq lam hlam_hom hlam_conj qbar hspec
   intro a ha
-  by_contra hcon
-  push_neg at hcon
+  by_contra! hcon
   obtain ⟨p₀, hp₀⟩ := QuotientGroup.mk_surjective a
   have hp₀S : (↑p₀ : Y) ∉ B.S := by
     intro hmem
