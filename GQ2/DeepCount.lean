@@ -63,8 +63,7 @@ theorem exists_sq_of_kummerClassK_eq_zero (a : (↥k)ˣ) (h : kummerClassK k a =
     intro s hsfix
     rw [← InfiniteGalois.fixedField_fixingSubgroup k]
     exact (IntermediateField.mem_fixedField_iff _ _).mpr hsfix
-  refine ⟨⟨GQ2.sqrtCl ((a : ↥k) : ℚ̄₂), hmemk _ hfix⟩, ?_⟩
-  apply Subtype.ext
+  refine ⟨⟨GQ2.sqrtCl ((a : ↥k) : ℚ̄₂), hmemk _ hfix⟩, Subtype.ext ?_⟩
   rw [SubmonoidClass.coe_pow]
   exact GQ2.sqrtCl_sq _
 
@@ -265,9 +264,7 @@ theorem sq_mem_depthUnits (hπle : ‖π‖ ≤ 1) {e : ℕ} (he : ‖(2 : ℚ̄
     u ^ 2 ∈ depthUnits k π (2 * i) := by
   obtain ⟨hu1, hud⟩ := hu
   have hcast : (((u ^ 2 : (↥k)ˣ) : ↥k) : ℚ̄₂) = (((u : ↥k) : ℚ̄₂)) ^ 2 := by
-    rw [Units.val_pow_eq_pow_val]
-    push_cast
-    ring
+    push_cast; ring
   constructor
   · show ‖(((u ^ 2 : (↥k)ˣ) : ↥k) : ℚ̄₂)‖ = 1
     rw [hcast, norm_pow, hu1, one_pow]
@@ -289,9 +286,7 @@ theorem sq_mem_depthUnits_succ (hπle : ‖π‖ ≤ 1) {e : ℕ} (he : ‖(2 : 
     v ^ 2 ∈ depthUnits k π (2 * i + 1) := by
   obtain ⟨hv1, hvd⟩ := hv
   have hcast : (((v ^ 2 : (↥k)ˣ) : ↥k) : ℚ̄₂) = (((v : ↥k) : ℚ̄₂)) ^ 2 := by
-    rw [Units.val_pow_eq_pow_val]
-    push_cast
-    ring
+    push_cast; ring
   constructor
   · show ‖(((v ^ 2 : (↥k)ˣ) : ↥k) : ℚ̄₂)‖ = 1
     rw [hcast, norm_pow, hv1, one_pow]
@@ -389,13 +384,10 @@ theorem grSq_injective (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
     -- `hq' : v² ∈ U_{2i+1}`; extract the norm bound and apply the kernel-triviality core
     have hcast : ((((v : (↥k)ˣ) ^ 2 : (↥k)ˣ) : ↥k) : ℚ̄₂)
         = ((((v : (↥k)ˣ) : ↥k)) : ℚ̄₂) ^ 2 := by
-      rw [Units.val_pow_eq_pow_val]
-      push_cast
-      ring
+      push_cast; ring
     refine mem_depthUnits_succ_of_sq k π hπk hπ0 hπ1 hπmax he hie v.2 ?_
     have hd : ‖((((v : (↥k)ˣ) ^ 2 : (↥k)ˣ) : ↥k) : ℚ̄₂) - 1‖ ≤ ‖π‖ ^ (2 * i + 1) := hq'.2
-    rw [hcast] at hd
-    exact hd
+    rwa [hcast] at hd
 
 /-- **Surjectivity of the graded squaring** for `1 ≤ i`, `i + 1 ≤ e`: injective + both grs
 have `2^f` elements (B13 `card_gr`, passed as hypotheses). -/
@@ -629,9 +621,7 @@ variable (k : IntermediateField ℚ_[2] ℚ̄₂) (π : ℚ̄₂)
 theorem neg_one_mem_depthUnits {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) :
     (-1 : (↥k)ˣ) ∈ depthUnits k π e := by
   have hcast : (((-1 : (↥k)ˣ) : ↥k) : ℚ̄₂) = -1 := by
-    rw [Units.val_neg, Units.val_one]
-    push_cast
-    ring
+    push_cast; ring
   constructor
   · show ‖(((-1 : (↥k)ˣ) : ↥k) : ℚ̄₂)‖ = 1
     rw [hcast, norm_neg, norm_one]
@@ -645,9 +635,7 @@ theorem neg_one_not_mem_depthUnits_succ (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
   intro h
   have hd := h.2
   have hcast : (((-1 : (↥k)ˣ) : ↥k) : ℚ̄₂) = -1 := by
-    rw [Units.val_neg, Units.val_one]
-    push_cast
-    ring
+    push_cast; ring
   rw [hcast, show (-1 : ℚ̄₂) - 1 = -2 by ring, norm_neg, he] at hd
   have hπpos : (0 : ℝ) < ‖π‖ := norm_pos_iff.mpr hπ0
   have : ‖π‖ ^ (e + 1) < ‖π‖ ^ e := by
@@ -734,8 +722,7 @@ theorem exists_kummerDepth_ne_zero [FiniteDimensional ℚ_[2] k]
   -- `w` has depth `e` (the dichotomy)
   have hwd : ‖(w : ℚ̄₂) - 1‖ ≤ ‖π‖ ^ e := by
     rcases norm_sq_sub_one' ((w : ℚ̄₂)) with hcase | hcase
-    · rw [he] at hcase
-      exact hcase
+    · rwa [he] at hcase
     · have h2e : ‖(w : ℚ̄₂) - 1‖ ^ 2 ≤ (‖π‖ ^ e) ^ 2 := by
         calc ‖(w : ℚ̄₂) - 1‖ ^ 2 = ‖((w : ℚ̄₂)) ^ 2 - 1‖ := hcase.symm
           _ ≤ ‖π‖ ^ (2 * e) := by
@@ -796,8 +783,7 @@ theorem exists_nat_val (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
     · have hnot := Nat.find_min hex (Nat.sub_lt hpos one_pos)
       rw [not_lt] at hnot
       have harith : Nat.find hex - 1 + 1 = Nat.find hex := by omega
-      rw [harith] at hnot
-      exact hnot
+      rwa [harith] at hnot
   -- `y := x / π^m` is integral (norm ≤ 1) with `‖y‖ > ‖π‖`, hence `‖y‖ = 1`
   have hπmpos : (0 : ℝ) < ‖π‖ ^ Nat.find hex := pow_pos hπpos _
   have hy1 : ‖x / π ^ Nat.find hex‖ ≤ 1 := by
@@ -953,9 +939,7 @@ theorem card_quot_kummerDepth_one_le_two [FiniteDimensional ℚ_[2] k]
     -- the norm-one part `u := b · π₀⁻ᵐ`
     have hval : (((b * (piUnit k π hπk hπ0 ^ m)⁻¹ : (↥k)ˣ) : ↥k) : ℚ̄₂)
         = (((b : ↥k) : ℚ̄₂)) * ((π : ℚ̄₂) ^ m)⁻¹ := by
-      rw [Units.val_mul, Units.val_inv_eq_inv_val, Units.val_pow_eq_pow_val]
-      push_cast
-      rfl
+      push_cast; rfl
     have hπpos : (0 : ℝ) < ‖π‖ := norm_pos_iff.mpr hπ0
     have hu1 : ‖(((b * (piUnit k π hπk hπ0 ^ m)⁻¹ : (↥k)ˣ) : ↥k) : ℚ̄₂)‖ = 1 := by
       rw [hval, norm_mul, norm_inv, norm_pow, hm]
@@ -1033,6 +1017,7 @@ section Assembly
 variable (k : IntermediateField ℚ_[2] ℚ̄₂) (π : ℚ̄₂)
 variable [Finite (H1 k.fixingSubgroup (ZMod 2))]
 
+omit [Finite (H1 k.fixingSubgroup (ZMod 2))] in
 /-- Lagrange step-down for the class filtration:
 `#Dc_j = #(Dc_j/Dc_{j+1}) · #Dc_{j+1}`. -/
 theorem card_kummerDepth_step (hπ1 : ‖π‖ ≤ 1) (j : ℕ) :
@@ -1170,8 +1155,7 @@ theorem card_quot_deep_le_card_mid [FiniteDimensional ℚ_[2] k]
             (kummerDepth k π (e + 1 + s + 1)).addSubgroupOf (kummerDepth k π (e + 1 + s))) := by
         have := card_classGr_pair_le k π hπk hπ0 hπ1 hπmax he he_pos hf_pos hcard_gr
           (j := e - s - 1) (by omega) (by omega)
-        rw [hidx2] at this
-        exact this
+        rwa [hidx2] at this
       have hg'pos : 0 < Nat.card (↥(kummerDepth k π (e - s - 1)) ⧸
           (kummerDepth k π (e - s - 1 + 1)).addSubgroupOf (kummerDepth k π (e - s - 1))) := by
         haveI : Nonempty (↥(kummerDepth k π (e - s - 1)) ⧸

@@ -53,9 +53,8 @@ theorem x0Supported_mem_Z1w_split (t : Marking C) (ht : t.TameRel) (hw : t.WildR
     (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V) [Finite V]
     (hcore : t.Pro2Core) (htau : ∀ v : V, t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v)
     (hVS : ∀ v : V, t.σ • v = v → v = 0) (v : V) :
-    x0Supported v ∈ Z1w (A := V) t := by
-  rw [((lemma_5_13_split t ht hw hV₂ hsimple hcore htau hU hVS).1 (x0Supported v))]
-  exact ⟨rfl, rfl⟩
+    x0Supported v ∈ Z1w (A := V) t :=
+  ((lemma_5_13_split t ht hw hV₂ hsimple hcore htau hU hVS).1 (x0Supported v)).mpr ⟨rfl, rfl⟩
 
 /-- The `H¹_w`-class equality criterion in `h1wMk` vocabulary (`H1w` is a semireducible
 `def`, so the quotient lemmas do not elaborate against it directly — the
@@ -66,8 +65,7 @@ theorem h1wMk_eq_iff {t : Marking C} [Finite V] (x y : ↥(Z1w (A := V) t)) :
   show (QuotientAddGroup.mk x
       : ↥(Z1w (A := V) t) ⧸ (B1w (A := V) t).addSubgroupOf (Z1w (A := V) t))
     = QuotientAddGroup.mk y ↔ _
-  rw [QuotientAddGroup.eq_iff_sub_mem]
-  exact Iff.rfl
+  exact QuotientAddGroup.eq_iff_sub_mem
 
 /-- **The `x₀`-supported section of `H¹_w` is bijective** (split regime): injectivity from
 the `B¹`-shape (coboundaries live in the `σ`-row, so an `x₀`-row difference must vanish);
@@ -85,9 +83,7 @@ theorem x0Section_bijective_split (t : Marking C) (ht : t.TameRel) (hw : t.WildR
     have hmem := (h1wMk_eq_iff _ _).mp hvv'
     obtain ⟨w, hw'⟩ := (hshape.2 _).mp hmem
     have h2 := congrFun hw' 2
-    have h0 : v - v' = (0 : V) := by
-      simpa [x0Supported] using h2
-    exact sub_eq_zero.mp h0
+    exact sub_eq_zero.mp (by simpa [x0Supported] using h2)
   · -- surjective: normalize the `σ`-row away
     intro y
     induction y using QuotientAddGroup.induction_on with
@@ -96,16 +92,15 @@ theorem x0Section_bijective_split (t : Marking C) (ht : t.TameRel) (hw : t.WildR
       have hsurj : Function.Surjective (fun w : V => t.σ • w - w) :=
         Finite.injective_iff_surjective.mp (fun a b hab => by
           have hfix : t.σ • (a - b) = a - b := by
-            rw [smul_sub, sub_eq_sub_iff_sub_eq_sub]
-            exact hab
+            rwa [smul_sub, sub_eq_sub_iff_sub_eq_sub]
           exact sub_eq_zero.mp (hVS (a - b) hfix))
       obtain ⟨w, hw'⟩ := hsurj (z.1 0)
       refine ⟨z.1 2, ?_⟩
       show h1wMk t ⟨x0Supported (z.1 2), _⟩ = QuotientAddGroup.mk z
       rw [show (QuotientAddGroup.mk z
           : ↥(Z1w (A := V) t) ⧸ (B1w (A := V) t).addSubgroupOf (Z1w (A := V) t))
-        = h1wMk t z from rfl]
-      rw [h1wMk_eq_iff]
+        = h1wMk t z from rfl,
+        h1wMk_eq_iff]
       refine (hshape.2 _).mpr ⟨-w, ?_⟩
       have hw'' : t.σ • w - w = z.1 0 := hw'
       funext i
@@ -220,10 +215,10 @@ its fibre vanishes (no `TameRel` needed). -/
 theorem liftMark_kappa0_tameValue_fib (t : Marking (Sd C V))
     (hσ : t.σ.v = 0) (hτ : t.τ.v = 0) :
     (liftMark t (kappa0Cocycle dat hdat)).tameValue.fib = 0 := by
-  have hσ' : (liftMark t (kappa0Cocycle dat hdat)).σ = sdSec dat hdat t.σ.cc := by
-    refine CentExt.ext (Sd.ext hσ rfl) rfl
-  have hτ' : (liftMark t (kappa0Cocycle dat hdat)).τ = sdSec dat hdat t.τ.cc := by
-    refine CentExt.ext (Sd.ext hτ rfl) rfl
+  have hσ' : (liftMark t (kappa0Cocycle dat hdat)).σ = sdSec dat hdat t.σ.cc :=
+    CentExt.ext (Sd.ext hσ rfl) rfl
+  have hτ' : (liftMark t (kappa0Cocycle dat hdat)).τ = sdSec dat hdat t.τ.cc :=
+    CentExt.ext (Sd.ext hτ rfl) rfl
   show (conjP (liftMark t (kappa0Cocycle dat hdat)).τ
       (liftMark t (kappa0Cocycle dat hdat)).σ
     * ((liftMark t (kappa0Cocycle dat hdat)).τ ^ 2)⁻¹).fib = 0
@@ -286,7 +281,7 @@ theorem liftMark_d0_base (tS : Marking (Sd C V)) :
   have h := Marking.map_d0 (f := CentExt.proj (kappa0Cocycle dat hdat))
     (t := liftMark tS (kappa0Cocycle dat hdat))
   rw [liftMark_map_proj] at h
-  exact (congrArg (fun p => p) h).symm ▸ rfl
+  exact h.symm
 
 end FactorTransport
 
@@ -349,9 +344,7 @@ theorem m_inv_of_fixed (w : C) (v : V) (hfix : w • v = v) :
     dat.m w⁻¹ v = dat.m w v := by
   have h := hdat.m_mul w⁻¹ w v
   rw [inv_mul_cancel, hdat.m_one, hfix] at h
-  -- `0 = m_{w⁻¹}(v) + m_w(v)` in `ZMod 2`
-  have hchar : ∀ a b : ZMod 2, 0 = a + b → a = b := by decide
-  exact hchar _ _ h
+  exact CharTwo.add_eq_zero.mp h.symm
 
 include hdat in
 /-- `m` at a square of a `V`-fixing element vanishes. -/
@@ -389,7 +382,6 @@ theorem central_of_base_one (p : CentExt (kappa0Cocycle dat hdat)) (hp : p.base 
     rw [hdat.f_zero_left, hdat.m_one, smul_zero, hdat.f_zero_right, hdat.m_zero]
     ring
 
-set_option maxHeartbeats 800000 in
 /-- **The split wild κ⁰-value is the `x₀`-square** (paper (83), `T = 1` case): with the
 structural pack, the lifted wild relator value has fibre `q(x₀.v)` — every starred
 `m`-entry dies on `m_one`, and the base-central `d₀` collapses the word to `x₀²`. -/
@@ -537,24 +529,14 @@ theorem kappa0_cc_one (p r : Sd C V) (hp : p.cc = 1) :
 theorem inv_cc_one (p : CentExt (kappa0Cocycle dat hdat)) (hp : p.base.cc = 1)
     (hV₂ : ∀ w : V, w + w = 0) :
     p⁻¹.base = p.base ∧ p⁻¹.fib = p.fib + q p.base.v := by
-  constructor
-  · show p.base⁻¹ = p.base
-    refine Sd.ext ?_ ?_
-    · show -(p.base.cc⁻¹ • p.base.v) = p.base.v
-      rw [hp, inv_one, one_smul]
-      exact neg_eq_of_add_eq_zero_left (hV₂ _)
-    · show p.base.cc⁻¹ = p.base.cc
-      rw [hp, inv_one]
-  · show p.fib + (kappa0Cocycle dat hdat).κ p.base p.base⁻¹ = p.fib + q p.base.v
-    rw [kappa0_cc_one dat hdat _ _ hp]
-    congr 1
-    have hbv : p.base⁻¹.v = p.base.v := by
-      show -(p.base.cc⁻¹ • p.base.v) = p.base.v
-      rw [hp, inv_one, one_smul]
-      exact neg_eq_of_add_eq_zero_left (hV₂ _)
-    rw [hbv, hdat.f_diag]
+  have hbv : p.base⁻¹.v = p.base.v := by
+    show -(p.base.cc⁻¹ • p.base.v) = p.base.v
+    rw [hp, inv_one, one_smul]
+    exact neg_eq_of_add_eq_zero_left (hV₂ _)
+  refine ⟨Sd.ext hbv (by show p.base.cc⁻¹ = p.base.cc; rw [hp, inv_one]), ?_⟩
+  show p.fib + (kappa0Cocycle dat hdat).κ p.base p.base⁻¹ = p.fib + q p.base.v
+  rw [kappa0_cc_one dat hdat _ _ hp, hbv, hdat.f_diag]
 
-set_option maxHeartbeats 1600000 in
 /-- **The `V`-slice commutator fibre is the polar form** (the `[d₀,z₀]`-cell): for
 `CentExt κ⁰`-elements over `cc = 1` bases, `commP` has base `1` and fibre
 `polar q` of the `V`-parts. -/
@@ -601,7 +583,6 @@ theorem commP_fib_cc_one (p r : CentExt (kappa0Cocycle dat hdat))
   linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]; try ring_nf))
     hc1 + hc1' + hpol
 
-set_option maxHeartbeats 1600000 in
 /-- **The ramified wild κ⁰-value is the Wall double** (paper (83), `V^T = 0` case): with
 the structural pack, the lifted wild relator value has fibre
 `q(x₀.v) + polar q x₀.v (σ₂⁻¹ • x₀.v)`.  Unlike the split case `d₀` is no longer central —
@@ -914,21 +895,18 @@ theorem card_eq_two_pow_two_mul_of_nonsingular {V : Type u} [AddCommGroup V] [Fi
     intro V instG instF q hq hns hV₂ hn
     by_cases hV : ∃ v : V, v ≠ 0
     case neg =>
-      push_neg at hV
+      push Not at hV
       haveI : Subsingleton V := ⟨fun a b => by rw [hV a, hV b]⟩
       haveI : Inhabited V := ⟨0⟩
       exact ⟨0, by rw [Nat.card_unique]; decide⟩
     case pos =>
       obtain ⟨v, hv⟩ := hV
       obtain ⟨w, hw⟩ := hns v hv
-      have hBvw : polar q v w = 1 := by
-        rcases (show ∀ x : ZMod 2, x = 0 ∨ x = 1 from by decide) (polar q v w) with h | h
-        · exact absurd h hw
-        · exact h
+      have hBvw : polar q v w = 1 :=
+        ((show ∀ x : ZMod 2, x = 0 ∨ x = 1 by decide) (polar q v w)).resolve_left hw
       have hpz : ∀ x : V, polar q 0 x = 0 := fun x => by
         have h := hq.polar_add_left 0 0 x
-        rw [add_zero, CharTwo.add_self_eq_zero] at h
-        exact h
+        rwa [add_zero, CharTwo.add_self_eq_zero] at h
       -- the pairing hom onto `𝔽₂²`
       set φ : V →+ ZMod 2 × ZMod 2 :=
         { toFun := fun u => (polar q u v, polar q u w)
@@ -1209,19 +1187,14 @@ theorem zeroCount_qDouble_ramified_of_faithful {C : Type} [Group C] [Topological
     have hv₀mem : v₀ ∈ T := by
       show v₀ + v₀ = 0
       have := addOrderOf_nsmul_eq_zero v₀
-      rw [hv₀, two_nsmul] at this
-      exact this
+      rwa [hv₀, two_nsmul] at this
     have hv₀ne : v₀ ≠ 0 := by
       intro h0
       rw [h0, addOrderOf_zero] at hv₀
       omega
     rcases hsimple T hstab with hbot | htop
     · exact absurd (hbot ▸ hv₀mem) (fun hm' => hv₀ne (AddSubgroup.mem_bot.mp hm'))
-    · intro v
-      have hvT : v ∈ T := by
-        rw [htop]
-        exact AddSubgroup.mem_top v
-      exact hvT
+    · exact fun v => htop.ge (AddSubgroup.mem_top v)
   have hVne : ∃ v : V, v ≠ 0 := by
     have h1 : 1 < Nat.card V := by
       rw [hcard]
@@ -1438,11 +1411,7 @@ theorem exists_zpow_smul_of_gen (s t : C) (hgen : Subgroup.closure ({s, t} : Set
   | inv x hx ih =>
     obtain ⟨n, hn⟩ := ih
     refine ⟨-n, fun v => ?_⟩
-    have h1 : s ^ n • (x⁻¹ • v) = v := by rw [← hn (x⁻¹ • v), smul_inv_smul]
-    calc x⁻¹ • v = (s ^ (-n) * s ^ n) • (x⁻¹ • v) := by
-          rw [← zpow_add, neg_add_cancel, zpow_zero, one_smul]
-      _ = s ^ (-n) • (s ^ n • (x⁻¹ • v)) := mul_smul _ _ _
-      _ = s ^ (-n) • v := by rw [h1]
+    rw [inv_smul_eq_iff, hn, ← mul_smul, ← zpow_add, add_neg_cancel, zpow_zero, one_smul]
 
 /-- The cyclic-image commutation: every element's action commutes with powers of `s`. -/
 theorem smul_pow_comm_of_gen (s t : C) (hgen : Subgroup.closure ({s, t} : Set C) = ⊤)
@@ -1480,20 +1449,14 @@ theorem sigma_fixed_eq_zero_of_gen (s t : C)
     rw [← hcomm]
     exact congrArg (g • ·) hw
   rcases hsimple W hstab with hbot | htop
-  · intro v hv
-    have hmem : v ∈ W := hv
-    rw [hbot] at hmem
-    exact AddSubgroup.mem_bot.mp hmem
+  · exact fun v hv => AddSubgroup.mem_bot.mp (hbot ▸ (hv : v ∈ W))
   · exfalso
     obtain ⟨g, v, hgv⟩ := hnt
     obtain ⟨n, hn⟩ := exists_zpow_smul_of_gen s t hgen htriv g
-    have hs : ∀ w : V, s • w = w := fun w => by
-      have hmem : w ∈ W := by rw [htop]; exact AddSubgroup.mem_top w
-      exact hmem
+    have hs : ∀ w : V, s • w = w := fun w => htop.ge (AddSubgroup.mem_top w)
     refine hgv ?_
     rw [hn v]
-    have hmem : s ∈ MulAction.stabilizer C v := hs v
-    exact Subgroup.zpow_mem _ hmem n
+    exact Subgroup.zpow_mem _ (show s ∈ MulAction.stabilizer C v from hs v) n
 
 /-- **The split `σ₂`-triviality (`hU`)**: the 2-primary part `powOmega2 s` acts trivially —
 its fixed space is an invariant submodule (cyclic image), NONZERO because a 2-group acting
@@ -1553,11 +1516,8 @@ theorem powOmega2_smul_eq_of_gen [Finite C] [Finite V] (s t : C)
   have hwne : (x : V) ≠ 0 := fun h => hx (Subtype.ext h)
   -- the dichotomy: `W ≠ ⊥`, so `W = ⊤`
   rcases hsimple W hstab with hbot | htop
-  · exact absurd (show (x : V) ∈ W from hwfix)
-      (by rw [hbot]; exact fun hmem => hwne (AddSubgroup.mem_bot.mp hmem))
-  · intro v
-    have hmem : v ∈ W := by rw [htop]; exact AddSubgroup.mem_top v
-    exact hmem
+  · exact absurd (AddSubgroup.mem_bot.mp (hbot ▸ (hwfix : (x : V) ∈ W))) hwne
+  · exact fun v => htop.ge (AddSubgroup.mem_top v)
 
 /-- **The ramified inertia-freeness (`htauf`)**: with `C = ⟨s, t⟩`, the tame relation
 `s⁻¹ts = t²`, and `t` of odd order, every conjugate of `t` is a power of `t`
@@ -1660,15 +1620,10 @@ theorem tau_fixed_eq_zero_of_gen (s t : C)
       _ = g • ((g⁻¹ * t * g) • w) := mul_smul _ _ _
       _ = g • w := by rw [hfix]
   rcases hsimple W hstab with hbot | htop
-  · intro v hv
-    have hmem : v ∈ W := hv
-    rw [hbot] at hmem
-    exact AddSubgroup.mem_bot.mp hmem
+  · exact fun v hv => AddSubgroup.mem_bot.mp (hbot ▸ (hv : v ∈ W))
   · exfalso
     obtain ⟨v, hv⟩ := hmoved
-    refine hv ?_
-    have hmem : v ∈ W := by rw [htop]; exact AddSubgroup.mem_top v
-    exact hmem
+    exact hv (htop.ge (AddSubgroup.mem_top v))
 
 end SplitPack
 

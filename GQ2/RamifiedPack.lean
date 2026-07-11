@@ -1,13 +1,13 @@
 import GQ2.FoxHeisenberg
 import GQ2.QuadraticFp2
 import GQ2.TameSimple
-import Mathlib.Algebra.Module.ZMod
 import Mathlib.Algebra.Module.Torsion.Basic
+import Mathlib.Algebra.Module.ZMod
 import Mathlib.Algebra.Polynomial.Expand
 import Mathlib.Algebra.Polynomial.Module.AEval
-import Mathlib.RingTheory.AdjoinRoot
 import Mathlib.FieldTheory.Finiteness
 import Mathlib.FieldTheory.Separable
+import Mathlib.RingTheory.AdjoinRoot
 
 /-!
 # P-16d6e4aA-P3 — the ramified isotypic pack (the étale route)
@@ -38,40 +38,28 @@ variable {C : Type*} [Group C]
 
 /-- Conjugation distributes over `ℕ`-powers (the `MulAut.conj`/`map_pow` massage). -/
 theorem conj_pow_eq (z t : C) (N : ℕ) : z * t ^ N * z⁻¹ = (z * t * z⁻¹) ^ N := by
-  have h := map_pow (MulAut.conj z) t N
-  simpa [MulAut.conj_apply, mul_assoc] using h
+  simpa [MulAut.conj_apply, mul_assoc] using map_pow (MulAut.conj z) t N
 
 /-- Conjugation distributes over `ℕ`-powers, inverse flavor. -/
 theorem inv_conj_pow_eq (z t : C) (N : ℕ) : z⁻¹ * t ^ N * z = (z⁻¹ * t * z) ^ N := by
-  have h := conj_pow_eq z⁻¹ t N
-  rwa [inv_inv] at h
+  simpa using conj_pow_eq z⁻¹ t N
 
 /-- The square-root step: if `x² = t` with `x` of the same odd order `d`, then
 `x = t^{2^{φ(d)−1}}` — from Euler's `2^{φ(d)} ≡ 1 (mod d)`. -/
 theorem eq_two_pow_of_sq_eq {t x : C} (hd : Odd (orderOf t)) (hpos : 0 < orderOf t)
     (horder : orderOf x = orderOf t) (hx2 : x ^ 2 = t) :
     x = t ^ 2 ^ (Nat.totient (orderOf t) - 1) := by
-  have hcop : Nat.Coprime 2 (orderOf t) := by
-    refine (Nat.prime_two.coprime_iff_not_dvd).mpr ?_
-    rcases hd with ⟨k, hk⟩
-    omega
   have htot : (2 : ℕ) ^ Nat.totient (orderOf t) ≡ 1 [MOD orderOf t] :=
-    Nat.ModEq.pow_totient hcop
+    Nat.ModEq.pow_totient hd.coprime_two_left
   have htotpos : 0 < Nat.totient (orderOf t) := Nat.totient_pos.mpr hpos
   have h1 : x ^ 2 ^ Nat.totient (orderOf t) = x := by
     have hiff : x ^ 2 ^ Nat.totient (orderOf t) = x ^ 1
         ↔ 2 ^ Nat.totient (orderOf t) ≡ 1 [MOD orderOf x] := pow_eq_pow_iff_modEq
     rw [horder] at hiff
-    have h2 := hiff.mpr htot
-    rwa [pow_one] at h2
+    simpa using hiff.mpr htot
   calc x = x ^ 2 ^ Nat.totient (orderOf t) := h1.symm
     _ = (x ^ 2) ^ 2 ^ (Nat.totient (orderOf t) - 1) := by
-        rw [← pow_mul]
-        congr 1
-        obtain ⟨c, hc⟩ : ∃ c, Nat.totient (orderOf t) = c + 1 :=
-          ⟨Nat.totient (orderOf t) - 1, by omega⟩
-        rw [hc, Nat.add_sub_cancel, pow_succ]
-        ring
+        rw [← pow_mul, ← pow_succ', Nat.sub_add_cancel htotpos]
     _ = t ^ 2 ^ (Nat.totient (orderOf t) - 1) := by rw [hx2]
 
 /-- **Every element of `C = ⟨s, t⟩` conjugates `t` to a 2-power power of `t`** (both
@@ -87,9 +75,7 @@ theorem conj_eq_two_pow (s t : C)
   | mem x hx =>
     rcases Set.mem_insert_iff.mp hx with rfl | hx'
     · constructor
-      · refine ⟨1, ?_⟩
-        rw [hrel]
-        norm_num
+      · exact ⟨1, by rw [hrel, pow_one]⟩
       · -- the square root `x t x⁻¹ = t^{2^{φ(d)−1}}`
         have hsc : SemiconjBy x t (x * t * x⁻¹) := by
           show x * t = x * t * x⁻¹ * x
@@ -102,23 +88,9 @@ theorem conj_eq_two_pow (s t : C)
           group
         exact ⟨Nat.totient (orderOf t) - 1,
           eq_two_pow_of_sq_eq hodd hpos hsc.orderOf_eq.symm hx2⟩
-    · rw [Set.mem_singleton_iff] at hx'
-      subst hx'
-      constructor
-      · refine ⟨0, ?_⟩
-        rw [show x⁻¹ * x * x = x from by group]
-        norm_num
-      · refine ⟨0, ?_⟩
-        rw [show x * x * x⁻¹ = x from by group]
-        norm_num
-  | one =>
-    constructor
-    · refine ⟨0, ?_⟩
-      rw [show (1 : C)⁻¹ * t * 1 = t from by group]
-      norm_num
-    · refine ⟨0, ?_⟩
-      rw [show (1 : C) * t * 1⁻¹ = t from by group]
-      norm_num
+    · obtain rfl := Set.mem_singleton_iff.mp hx'
+      exact ⟨⟨0, by simp⟩, ⟨0, by simp⟩⟩
+  | one => exact ⟨⟨0, by simp⟩, ⟨0, by simp⟩⟩
   | mul x y hx hy ihx ihy =>
     obtain ⟨j₁, hj₁⟩ := ihx.1
     obtain ⟨j₁', hj₁'⟩ := ihx.2
@@ -162,8 +134,7 @@ variable {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [Module (ZMod 2) V]
 
 /-- The action of `t : C` as a `ZMod 2`-linear endomorphism (any additive map is). -/
 noncomputable def actEnd (t : C) : Module.End (ZMod 2) V :=
-  AddMonoidHom.toZModLinearMap 2 (DistribMulAction.toAddMonoidHom V t)
-
+  AddMonoidHom.toZModLinearMap 2 (DistribSMul.toAddMonoidHom V t)
 
 /-- `actEnd` turns group powers into endomorphism powers. -/
 theorem actEnd_pow (t : C) (n : ℕ) :
@@ -172,9 +143,7 @@ theorem actEnd_pow (t : C) (n : ℕ) :
   | zero =>
     rw [pow_zero, pow_zero]
     ext v
-    rw [Module.End.one_apply]
-    show (1 : C) • v = v
-    exact one_smul _ v
+    exact one_smul C v
   | succ k ih =>
     ext v
     rw [pow_succ, pow_succ, Module.End.mul_apply, ← ih]
@@ -190,27 +159,14 @@ theorem expand_two_pow_eq_pow (P : Polynomial (ZMod 2)) (j : ℕ) :
   have hid : iterateFrobenius (ZMod 2) 2 j = RingHom.id (ZMod 2) := by
     ext x
     rw [iterateFrobenius_def, RingHom.id_apply]
-    have : ∀ (k : ℕ) (y : ZMod 2), y ^ 2 ^ k = y := by
-      intro k
-      induction k with
-      | zero => intro y; rw [pow_zero, pow_one]
-      | succ i ih =>
-        intro y
-        rw [pow_succ, pow_mul, ih, pow_two]
-        revert y
-        decide
-    exact this j x
+    exact ZMod.pow_card_pow x
   rwa [hid, Polynomial.map_id] at h
 
 /-- **The operator-level char-2 Frobenius**: evaluating `P` at the `2^j`-th power of an
 endomorphism is the `2^j`-th power of the evaluation. -/
 theorem aeval_pow_two_pow (φ : Module.End (ZMod 2) V) (P : Polynomial (ZMod 2)) (j : ℕ) :
     Polynomial.aeval (φ ^ 2 ^ j) P = (Polynomial.aeval φ P) ^ 2 ^ j := by
-  calc Polynomial.aeval (φ ^ 2 ^ j) P
-      = Polynomial.aeval φ (Polynomial.expand (ZMod 2) (2 ^ j) P) :=
-        (Polynomial.expand_aeval _ _ _).symm
-    _ = Polynomial.aeval φ (P ^ 2 ^ j) := by rw [expand_two_pow_eq_pow]
-    _ = (Polynomial.aeval φ P) ^ 2 ^ j := map_pow _ _ _
+  rw [← Polynomial.expand_aeval, expand_two_pow_eq_pow, map_pow]
 
 /-- Polynomial evaluation transports across the group action by conjugating the
 operator. -/
@@ -229,10 +185,7 @@ theorem aeval_actEnd_smul (t g : C) (P : Polynomial (ZMod 2)) (v : V) :
     show (algebraMap (ZMod 2) (Module.End (ZMod 2) V) a) ((t ^ n) • (g • v))
       = g • ((algebraMap (ZMod 2) (Module.End (ZMod 2) V) a) (((g⁻¹ * t * g) ^ n) • v))
     have hconj : (t ^ n) • (g • v) = g • (((g⁻¹ * t * g) ^ n) • v) := by
-      rw [show (g⁻¹ * t * g) ^ n = g⁻¹ * t ^ n * g from by
-          have h := conj_pow_eq g⁻¹ t n
-          rw [inv_inv] at h
-          exact h.symm,
+      rw [show (g⁻¹ * t * g) ^ n = g⁻¹ * t ^ n * g from (inv_conj_pow_eq g t n).symm,
         ← mul_smul, ← mul_smul]
       congr 1
       group
@@ -249,12 +202,8 @@ theorem smul_mem_ker_aeval {t g : C} {j : ℕ} (hconj : g⁻¹ * t * g = t ^ 2 ^
     (P : Polynomial (ZMod 2)) (v : V)
     (hv : Polynomial.aeval (actEnd (V := V) t) P v = 0) :
     Polynomial.aeval (actEnd (V := V) t) P (g • v) = 0 := by
-  rw [aeval_actEnd_smul, hconj, actEnd_pow, aeval_pow_two_pow]
-  have hzero : ((Polynomial.aeval (actEnd (V := V) t) P) ^ 2 ^ j) v = 0 := by
-    have hpos : 0 < 2 ^ j := Nat.two_pow_pos j
-    obtain ⟨k, hk⟩ : ∃ k, 2 ^ j = k + 1 := ⟨2 ^ j - 1, by omega⟩
-    rw [hk, pow_succ, Module.End.mul_apply, hv, map_zero]
-  rw [hzero, smul_zero]
+  rw [aeval_actEnd_smul, hconj, actEnd_pow, aeval_pow_two_pow,
+    ← pow_sub_one_mul (Nat.two_pow_pos j).ne', Module.End.mul_apply, hv, map_zero, smul_zero]
 
 end PolyFrobenius
 
@@ -278,15 +227,9 @@ theorem list_prod_injective (L : List (Module.End (ZMod 2) V))
     (h : ∀ f ∈ L, Function.Injective f) :
     Function.Injective (L.prod : Module.End (ZMod 2) V) := by
   induction L with
-  | nil =>
-    rw [List.prod_nil]
-    intro a b hab
-    rwa [Module.End.one_apply, Module.End.one_apply] at hab
+  | nil => exact fun a b hab => hab
   | cons f L ih =>
     rw [List.prod_cons]
-    have hcomp : ⇑(f * L.prod) = ⇑f ∘ ⇑(L.prod) := rfl
-    rw [show Function.Injective ⇑(f * L.prod)
-        ↔ Function.Injective (⇑f ∘ ⇑(L.prod)) from by rw [hcomp]]
     exact (h f (List.mem_cons_self ..)).comp
       (ih fun g hg => h g (List.mem_cons_of_mem f hg))
 
@@ -295,10 +238,7 @@ theorem aeval_X_pow_orderOf_sub_one (t : C) :
     Polynomial.aeval (actEnd (V := V) t) (X ^ orderOf t - 1 : Polynomial (ZMod 2)) = 0 := by
   rw [map_sub, map_one, map_pow, Polynomial.aeval_X, ← actEnd_pow, pow_orderOf_eq_one]
   ext v
-  show (actEnd (V := V) 1 - (1 : Module.End (ZMod 2) V)) v = (0 : Module.End (ZMod 2) V) v
-  rw [LinearMap.sub_apply, LinearMap.zero_apply, Module.End.one_apply]
-  show (1 : C) • v - v = 0
-  rw [one_smul, sub_self]
+  exact sub_eq_zero_of_eq (one_smul C v)
 
 /-- **The single isotype** (design doc §2–3): with `C = ⟨s,t⟩`, `t` of odd order, and
 `V` a nonzero simple `C`-module, there is ONE monic irreducible `P ∣ X^d − 1` with
@@ -321,8 +261,7 @@ theorem exists_single_isotype [Finite V] (s t : C)
   have hfac : ∃ Q ∈ UniqueFactorizationMonoid.normalizedFactors
       (X ^ d - 1 : Polynomial (ZMod 2)),
       ∃ v : V, v ≠ 0 ∧ Polynomial.aeval (actEnd (V := V) t) Q v = 0 := by
-    by_contra hcon
-    push_neg at hcon
+    by_contra! hcon
     have hinj : ∀ f ∈ (UniqueFactorizationMonoid.normalizedFactors
         (X ^ d - 1 : Polynomial (ZMod 2))).toList.map
           (fun Q => Polynomial.aeval (actEnd (V := V) t) Q),
@@ -331,10 +270,8 @@ theorem exists_single_isotype [Finite V] (s t : C)
       obtain ⟨Q, hQ, rfl⟩ := List.mem_map.mp hf
       have hQmem := Multiset.mem_toList.mp hQ
       intro a b hab
-      have hker : Polynomial.aeval (actEnd (V := V) t) Q (a - b) = 0 := by
-        rw [map_sub, hab, sub_self]
       by_contra hne
-      exact (hcon Q hQmem (a - b) (sub_ne_zero.mpr hne)) hker
+      exact hcon Q hQmem (a - b) (sub_ne_zero.mpr hne) (by rw [map_sub, hab, sub_self])
     have hprodinj := list_prod_injective _ hinj
     have hprodeq : ((UniqueFactorizationMonoid.normalizedFactors
           (X ^ d - 1 : Polynomial (ZMod 2))).toList.map
@@ -376,8 +313,7 @@ theorem exists_single_isotype [Finite V] (s t : C)
         zero_mem' := map_zero _
         add_mem' := fun {a b} ha hb => by
           show Polynomial.aeval (actEnd (V := V) t) Q (a + b) = 0
-          rw [map_add]
-          rw [show Polynomial.aeval (actEnd (V := V) t) Q a = 0 from ha,
+          rw [map_add, show Polynomial.aeval (actEnd (V := V) t) Q a = 0 from ha,
             show Polynomial.aeval (actEnd (V := V) t) Q b = 0 from hb, add_zero]
         neg_mem' := fun {a} ha => by
           show Polynomial.aeval (actEnd (V := V) t) Q (-a) = 0
@@ -387,13 +323,8 @@ theorem exists_single_isotype [Finite V] (s t : C)
       obtain ⟨j, hj⟩ := (conj_eq_two_pow s t hgen hrel hodd hpos g).1
       exact smul_mem_ker_aeval hj Q w hw
     rcases hsimple K hstab with hbot | htop
-    · exfalso
-      have hmem : v₀ ∈ K := hv₀ker
-      rw [hbot] at hmem
-      exact hv₀ne (AddSubgroup.mem_bot.mp hmem)
-    · intro v
-      have hmem : v ∈ K := by rw [htop]; exact AddSubgroup.mem_top v
-      exact hmem
+    · exact absurd (AddSubgroup.mem_bot.mp (hbot ▸ (hv₀ker : v₀ ∈ K))) hv₀ne
+    · exact fun v => show v ∈ K from htop ▸ AddSubgroup.mem_top v
 
 end SingleIsotype
 
@@ -414,9 +345,8 @@ variable {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [Module (ZMod 2) V]
 theorem card_adjoinRoot (P : Polynomial (ZMod 2)) (hmon : P.Monic) :
     Nat.card (AdjoinRoot P) = 2 ^ P.natDegree := by
   classical
-  have hbasis := AdjoinRoot.powerBasisAux' hmon
-  rw [Nat.card_congr (hbasis.equivFun).toEquiv, Nat.card_eq_fintype_card,
-    Fintype.card_fun]
+  rw [Nat.card_congr (AdjoinRoot.powerBasisAux' hmon).equivFun.toEquiv,
+    Nat.card_eq_fintype_card, Fintype.card_fun]
   simp
 
 /-- **The free `D`-structure** (design doc §2): with `P` monic irreducible killing `t̂`
@@ -444,8 +374,7 @@ theorem exists_isotypic_equiv [Finite V] (t : C) (P : Polynomial (ZMod 2))
   refine ⟨Module.finrank (AdjoinRoot P) V,
     (Module.finBasis (AdjoinRoot P) V).equivFun.toAddEquiv, ?_, ?_⟩
   · -- `s ≥ 1`: a zero-dimensional space is a subsingleton, contradicting `hVne`
-    by_contra hs
-    push_neg at hs
+    by_contra! hs
     have hzero : Module.finrank (AdjoinRoot P) V = 0 := by omega
     haveI := Module.finrank_zero_iff.mp hzero
     obtain ⟨v, hv⟩ := hVne
@@ -483,9 +412,7 @@ variable {C : Type*} [Group C] (t : C) (P : Polynomial (ZMod 2))
 /-- Char 2 on `AdjoinRoot P`: every element is 2-torsion (the `hWt2` pack field). -/
 theorem adjoinRoot_add_self (w : AdjoinRoot P) : w + w = 0 := by
   obtain ⟨g, rfl⟩ := AdjoinRoot.mk_surjective w
-  rw [← map_add, show g + g = 0 from by
-    ext i
-    simp [CharTwo.add_self_eq_zero], map_zero]
+  rw [← map_add, CharTwo.add_self_eq_zero, map_zero]
 
 /-- Every element of `⟨t⟩` is a ℕ-power of `t` (finite order: reduce the ℤ-exponent
 mod `orderOf t`). -/
@@ -514,8 +441,7 @@ theorem root_pow_orderOf (hdvd : P ∣ (X ^ orderOf t - 1 : Polynomial (ZMod 2))
     AdjoinRoot.root P ^ orderOf t = 1 := by
   have h0 : AdjoinRoot.mk P (X ^ orderOf t - 1 : Polynomial (ZMod 2)) = 0 :=
     AdjoinRoot.mk_eq_zero.mpr hdvd
-  rw [map_sub, map_one, map_pow, AdjoinRoot.mk_X, sub_eq_zero] at h0
-  exact h0
+  rwa [map_sub, map_one, map_pow, AdjoinRoot.mk_X, sub_eq_zero] at h0
 
 variable {V : Type*} [AddCommGroup V] [DistribMulAction C V]
 
@@ -531,12 +457,10 @@ theorem equiv_pow_smul {s : ℕ} (e : V ≃+ (Fin s → AdjoinRoot P))
 variable [Fact (Irreducible P)]
 
 /-- The root is nonzero (else `0 = root^{orderOf t} = 1`). -/
-theorem root_ne_zero (hpos : 0 < orderOf t) (hdvd : P ∣ (X ^ orderOf t - 1 : Polynomial (ZMod 2))) :
-    AdjoinRoot.root P ≠ 0 := by
+theorem root_ne_zero (hpos : 0 < orderOf t)
+    (hdvd : P ∣ (X ^ orderOf t - 1 : Polynomial (ZMod 2))) : AdjoinRoot.root P ≠ 0 := by
   intro h
-  have h1 := root_pow_orderOf t P hdvd
-  rw [h, zero_pow hpos.ne'] at h1
-  exact zero_ne_one h1
+  simpa [h, zero_pow hpos.ne'] using root_pow_orderOf t P hdvd
 
 /-- The root as a unit of the field `AdjoinRoot P`. -/
 noncomputable def rootUnit (hpos : 0 < orderOf t)
@@ -614,9 +538,8 @@ theorem rootAction_gen_smul (hpos : 0 < orderOf t)
     letI := rootAction t P hpos hdvd
     (⟨t, Subgroup.mem_zpowers t⟩ : ↥(Subgroup.zpowers t)) • w = AdjoinRoot.root P * w := by
   letI := rootAction t P hpos hdvd
-  have h := rootAction_smul_of_pow t P hpos hdvd
-    (σ := ⟨t, Subgroup.mem_zpowers t⟩) (n := 1) (by rw [pow_one]) w
-  rwa [pow_one] at h
+  simpa using rootAction_smul_of_pow t P hpos hdvd
+    (σ := ⟨t, Subgroup.mem_zpowers t⟩) (n := 1) (pow_one t).symm w
 
 /-- **`Wt` is a simple `⟨t⟩`-module** (the `hWtsimple` pack field): a `t`-stable additive
 subgroup of `D = 𝔽₂[root P]` is stable under multiplication by every `mk P g`, hence a
@@ -652,15 +575,9 @@ theorem isSimpleModTwo_rootAction (hpos : 0 < orderOf t)
         | succ k ih =>
           rw [pow_succ', mul_assoc]
           exact hroot _ ih
-  rcases eq_or_ne W ⊥ with h | h
+  rcases W.bot_or_exists_ne_zero with h | ⟨w₀, hw₀W, hw₀ne⟩
   · exact Or.inl h
   · refine Or.inr ((AddSubgroup.eq_top_iff' W).mpr fun x => ?_)
-    obtain ⟨w₀, hw₀W, hw₀ne⟩ : ∃ w₀ ∈ W, w₀ ≠ (0 : AdjoinRoot P) := by
-      by_contra hcon
-      refine h ((AddSubgroup.eq_bot_iff_forall W).mpr fun y hy => ?_)
-      by_cases hy0 : y = 0
-      · exact hy0
-      · exact absurd ⟨y, hy, hy0⟩ hcon
     obtain ⟨g, hg⟩ := AdjoinRoot.mk_surjective (x * w₀⁻¹)
     have hx := hpoly g w₀ hw₀W
     rw [hg, mul_assoc, inv_mul_cancel₀ hw₀ne, mul_one] at hx
@@ -674,7 +591,8 @@ theorem equiv_zpowers_smul (hpos : 0 < orderOf t)
     {s : ℕ} (e : V ≃+ (Fin s → AdjoinRoot P))
     (he : ∀ (v : V) (j : Fin s), e (t • v) j = AdjoinRoot.root P * e v j) :
     letI := rootAction t P hpos hdvd
-    ∀ (σ : ↥(Subgroup.zpowers t)) (v : V) (j : Fin s), e ((σ : C) • v) j = σ • e v j := by
+    ∀ (σ : ↥(Subgroup.zpowers t)) (v : V) (j : Fin s),
+      e ((σ : C) • v) j = σ • e v j := by
   letI := rootAction t P hpos hdvd
   intro σ v j
   obtain ⟨n, hn⟩ := exists_pow_eq t hpos σ
@@ -865,9 +783,7 @@ theorem even_natDegree_of_aeval_inv_eq_zero (hmon : P.Monic)
       linear_combination hsq
     rcases mul_eq_zero.mp hfac with hc | hc
     · exact hroot1 (sub_eq_zero.mp hc)
-    · refine hroot1 ?_
-      have := eq_neg_of_add_eq_zero_left hc
-      rw [this, neg_eq_of_add_eq_zero_left h2]
+    · exact hroot1 (by rw [eq_neg_of_add_eq_zero_left hc, neg_eq_of_add_eq_zero_left h2])
   have hφsq : φ * φ = 1 := by
     have hroot2 : ((φ * φ).toAlgHom : AdjoinRoot P →ₐ[ZMod 2] AdjoinRoot P)
         (AdjoinRoot.root P)
@@ -960,9 +876,7 @@ theorem t_pow_eq_of_root_pow_eq (hfaith : ∀ g : C, (∀ v : V, g • v = v) �
   have hg : ∀ v : V, ((t ^ n)⁻¹ * t ^ m) • v = v := by
     intro v
     rw [mul_smul, hsmul v, inv_smul_smul]
-  have h1 := hfaith _ hg
-  rw [inv_mul_eq_one] at h1
-  exact h1.symm
+  exact (inv_mul_eq_one.mp (hfaith _ hg)).symm
 
 /-- With a faithful action, the root has the same order as `t`. -/
 theorem orderOf_root_eq (hfaith : ∀ g : C, (∀ v : V, g • v = v) → g = 1)
@@ -975,8 +889,7 @@ theorem orderOf_root_eq (hfaith : ∀ g : C, (∀ v : V, g • v = v) → g = 1)
     (orderOf_dvd_of_pow_eq_one ?_)
   have hx : AdjoinRoot.root P ^ orderOf (AdjoinRoot.root P) = AdjoinRoot.root P ^ 0 := by
     rw [pow_orderOf_eq_one, pow_zero]
-  have := t_pow_eq_of_root_pow_eq t P hfaith hx e he
-  rwa [pow_zero] at this
+  simpa using t_pow_eq_of_root_pow_eq t P hfaith hx e he
 
 variable [Fact (Irreducible P)]
 
@@ -1107,11 +1020,8 @@ theorem orderOf_t_dvd_two_pow_sub_one (hmon : P.Monic) (hpos : 0 < orderOf t)
   haveI := finite_adjoinRoot P hmon
   haveI : Fintype (AdjoinRoot P) := Fintype.ofFinite _
   have hxu : orderOf (rootUnit t P hpos hdvd) = orderOf t := by
-    have h1 : orderOf ((rootUnit t P hpos hdvd : (AdjoinRoot P)ˣ) : AdjoinRoot P)
-        = orderOf t := by
-      rw [rootUnit_val]
-      exact orderOf_root_eq t P hfaith hdvd e he
-    exact orderOf_units.symm.trans h1
+    rw [← orderOf_units, rootUnit_val]
+    exact orderOf_root_eq t P hfaith hdvd e he
   have h2 := orderOf_dvd_natCard (rootUnit t P hpos hdvd)
   rw [hxu] at h2
   have h3 : Nat.card ((AdjoinRoot P)ˣ) = 2 ^ P.natDegree - 1 := by
@@ -1136,8 +1046,7 @@ theorem powOmega2_pow_two_pow_eq_one [Finite C] [Finite V] (s : C)
   have hpos : 0 < orderOf t := orderOf_pos t
   have hdeg : 0 < P.natDegree := by
     rw [hfar]
-    rcases hr with ⟨j, hj⟩
-    exact Nat.mul_pos (Nat.two_pow_pos a) (by omega)
+    exact Nat.mul_pos (Nat.two_pow_pos a) hr.pos
   set k := orderOf s with hk
   set ω := omega2Exp k with hω
   have hU : powOmega2 s = s ^ ω := rfl
@@ -1145,12 +1054,10 @@ theorem powOmega2_pow_two_pow_eq_one [Finite C] [Finite V] (s : C)
   have htk : t ^ 2 ^ k = t ^ 1 := by
     have h1 := inv_pow_conj s t hrel k
     rw [show s ^ k = 1 from pow_orderOf_eq_one s, inv_one, one_mul, mul_one] at h1
-    rw [pow_one]
-    exact h1.symm
+    simpa using h1.symm
   -- transport to the root, pin `f ∣ k`
   have hxk : AdjoinRoot.root P ^ 2 ^ k = AdjoinRoot.root P := by
-    have h := root_pow_eq_of_t_pow_eq t P htk hsV e he
-    rwa [pow_one] at h
+    simpa using root_pow_eq_of_t_pow_eq t P htk hsV e he
   have hfk : P.natDegree ∣ k := natDegree_dvd_of_root_pow P hmon hdeg hxk
   -- `r ∣ ω`
   have hrk : r ∣ k := dvd_trans ⟨2 ^ a, by rw [hfar]; ring⟩ hfk
@@ -1173,8 +1080,8 @@ theorem powOmega2_pow_two_pow_eq_one [Finite C] [Finite V] (s : C)
       _ ≡ 1 ^ c [MOD orderOf t] := hmod_f.pow c
       _ = 1 := one_pow c
   have hWt : t ^ 2 ^ (ω * 2 ^ a) = t := by
-    have h := pow_eq_pow_iff_modEq.mpr (show 2 ^ (ω * 2 ^ a) ≡ 1 [MOD orderOf t] from hmod)
-    rwa [pow_one] at h
+    simpa using
+      pow_eq_pow_iff_modEq.mpr (show 2 ^ (ω * 2 ^ a) ≡ 1 [MOD orderOf t] from hmod)
   -- `W` commutes with the generators, hence is central
   set W := powOmega2 s ^ 2 ^ a with hWdef
   have hWs : W = s ^ (ω * 2 ^ a) := by rw [hWdef, hU, ← pow_mul]
@@ -1197,13 +1104,8 @@ theorem powOmega2_pow_two_pow_eq_one [Finite C] [Finite V] (s : C)
         subst hx'
         exact hcomm_t
     | one => rw [one_mul, mul_one]
-    | mul x y hx hy ihx ihy =>
-      calc x * y * W = x * (W * y) := by rw [mul_assoc, ihy]
-        _ = W * (x * y) := by rw [← mul_assoc, ihx, mul_assoc]
-    | inv x hx ih =>
-      calc x⁻¹ * W = x⁻¹ * W * x * x⁻¹ := by group
-        _ = x⁻¹ * (x * W) * x⁻¹ := by rw [mul_assoc x⁻¹ W x, ← ih]
-        _ = W * x⁻¹ := by group
+    | mul x y hx hy ihx ihy => exact Commute.mul_left ihx ihy
+    | inv x hx ih => exact Commute.inv_left ih
   -- the fixed subgroup of `W`
   set Wfix : AddSubgroup V :=
     { carrier := {v : V | W • v = v}
@@ -1254,9 +1156,7 @@ theorem powOmega2_pow_two_pow_eq_one [Finite C] [Finite V] (s : C)
   rcases hsimple Wfix hstab with hbot | htop
   · exact absurd (show (x₀ : V) ∈ Wfix from hwfix)
       (by rw [hbot]; exact fun hmem => hwne (AddSubgroup.mem_bot.mp hmem))
-  · refine hfaith W fun v => ?_
-    have hmem : v ∈ Wfix := by rw [htop]; exact AddSubgroup.mem_top v
-    exact hmem
+  · exact hfaith W fun v => show v ∈ Wfix from htop ▸ AddSubgroup.mem_top v
 
 end UKill
 
@@ -1294,9 +1194,8 @@ theorem artin_vector {M : Type*} [AddCommGroup M] [Module (AdjoinRoot P) M]
   | zero =>
     intro w hcard hsum i hi
     by_contra hne
-    have hmem : i ∈ (Finset.range m).filter (fun l => w l ≠ 0) :=
-      Finset.mem_filter.mpr ⟨hi, hne⟩
-    have := Finset.card_pos.mpr ⟨i, hmem⟩
+    have : 0 < ((Finset.range m).filter (fun l => w l ≠ 0)).card :=
+      Finset.card_pos.mpr ⟨i, Finset.mem_filter.mpr ⟨hi, hne⟩⟩
     omega
   | succ N ih =>
     intro w hcard hsum i hi
@@ -1309,12 +1208,8 @@ theorem artin_vector {M : Type*} [AddCommGroup M] [Module (AdjoinRoot P) M]
       rw [map_one, one_smul] at h1
       exact hne h1
     · -- a second nonzero index `j`
-      obtain ⟨j, hj, hji, hjne⟩ : ∃ j ∈ Finset.range m, j ≠ i ∧ w j ≠ 0 := by
-        by_contra hcon
-        refine hone fun j hjm hji => ?_
-        by_cases h0 : w j = 0
-        · exact h0
-        · exact absurd ⟨j, hjm, hji, h0⟩ hcon
+      push Not at hone
+      obtain ⟨j, hj, hji, hjne⟩ := hone
       have hσne : σ ^ j ≠ σ ^ i := fun heq =>
         hji (hdist j (Finset.mem_range.mp hj) i (Finset.mem_range.mp hi) heq)
       obtain ⟨μ, hμ⟩ := DFunLike.ne_iff.mp hσne
@@ -1330,10 +1225,7 @@ theorem artin_vector {M : Type*} [AddCommGroup M] [Module (AdjoinRoot P) M]
             mul_comm ((σ ^ l) y) ((σ ^ i) μ), ← smul_smul, ← smul_smul]
         rw [Finset.sum_congr rfl expand, Finset.sum_sub_distrib, ← Finset.smul_sum,
           hsum (y * μ), hsum y, smul_zero, sub_zero]
-      have hw'i : w' i = 0 := by
-        rw [hw']
-        show ((σ ^ i) μ - (σ ^ i) μ) • w i = 0
-        rw [sub_self, zero_smul]
+      have hw'i : w' i = 0 := by simp [hw']
       have hsupp : ((Finset.range m).filter (fun l => w' l ≠ 0)).card ≤ N := by
         have hsub : (Finset.range m).filter (fun l => w' l ≠ 0)
             ⊆ ((Finset.range m).filter (fun l => w l ≠ 0)).erase i := by
@@ -1343,10 +1235,7 @@ theorem artin_vector {M : Type*} [AddCommGroup M] [Module (AdjoinRoot P) M]
           · rintro rfl
             exact hl.2 hw'i
           · intro h0
-            refine hl.2 ?_
-            rw [hw']
-            show ((σ ^ l) μ - (σ ^ i) μ) • w l = 0
-            rw [h0, smul_zero]
+            exact hl.2 (by simp [hw', h0])
         have hicard : i ∈ (Finset.range m).filter (fun l => w l ≠ 0) :=
           Finset.mem_filter.mpr ⟨hi, hne⟩
         calc ((Finset.range m).filter (fun l => w' l ≠ 0)).card
@@ -1357,31 +1246,18 @@ theorem artin_vector {M : Type*} [AddCommGroup M] [Module (AdjoinRoot P) M]
           _ ≤ N := by omega
       have hall := ih w' hsupp hsum' j hj
       rw [hw'] at hall
-      have hscal : (σ ^ j) μ - (σ ^ i) μ ≠ 0 := sub_ne_zero.mpr hμ
-      refine hjne ?_
-      have h5 : ((σ ^ j) μ - (σ ^ i) μ)⁻¹ • (((σ ^ j) μ - (σ ^ i) μ) • w j) = 0 := by
-        rw [show ((σ ^ j) μ - (σ ^ i) μ) • w j = 0 from hall, smul_zero]
-      rwa [inv_smul_smul₀ hscal] at h5
+      exact hjne ((smul_eq_zero_iff_right (sub_ne_zero.mpr hμ)).mp hall)
 
 /-- The twist `frobEquiv^ω` has order exactly `2^a` when `ω` is odd with `r ∣ ω`
 (`gcd(f, ω) = r` at `f = 2^a·r`). -/
 theorem orderOf_frobEquiv_pow (hmon : P.Monic) (hdeg : 0 < P.natDegree) {ω r aa : ℕ}
     (hωodd : Odd ω) (hrω : r ∣ ω) (hfar : P.natDegree = 2 ^ aa * r) :
     orderOf (frobEquiv P hmon ^ ω) = 2 ^ aa := by
-  have hω0 : ω ≠ 0 := by
-    rcases hωodd with ⟨c, hc⟩
+  have hr0 : 0 < r := Nat.pos_of_ne_zero fun h0 => by
+    rw [h0, Nat.mul_zero] at hfar
     omega
-  have hr0 : 0 < r := by
-    rcases Nat.eq_zero_or_pos r with h0 | h
-    · rw [h0, Nat.mul_zero] at hfar
-      omega
-    · exact h
-  rw [orderOf_pow' _ hω0, orderOf_frobEquiv P hmon hdeg, hfar]
-  have hcop : Nat.Coprime (2 ^ aa) ω := by
-    refine Nat.Coprime.pow_left aa ?_
-    refine Nat.prime_two.coprime_iff_not_dvd.mpr ?_
-    rcases hωodd with ⟨c, hc⟩
-    omega
+  rw [orderOf_pow' _ hωodd.pos.ne', orderOf_frobEquiv P hmon hdeg, hfar]
+  have hcop : Nat.Coprime (2 ^ aa) ω := Nat.Coprime.pow_left aa hωodd.coprime_two_left
   rw [Nat.Coprime.gcd_mul_left_cancel r hcop, Nat.gcd_eq_left hrω,
     Nat.mul_div_assoc _ (dvd_refl r), Nat.div_self hr0, mul_one]
 
@@ -1390,15 +1266,11 @@ theorem mem_fixedField_zpowers_iff (σ : AdjoinRoot P ≃ₐ[ZMod 2] AdjoinRoot 
     (hσpos : 0 < orderOf σ) (y : AdjoinRoot P) :
     y ∈ IntermediateField.fixedField (Subgroup.zpowers σ) ↔ σ y = y := by
   rw [IntermediateField.mem_fixedField_iff]
-  constructor
-  · intro h
-    exact h σ (Subgroup.mem_zpowers σ)
-  · intro hσy g hg
-    obtain ⟨n, hn⟩ := exists_pow_eq σ hσpos (⟨g, hg⟩ : ↥(Subgroup.zpowers σ))
-    have hgn : g = σ ^ n := hn
-    rw [hgn]
-    clear hgn hn hg
-    induction n with
+  refine ⟨fun h => h σ (Subgroup.mem_zpowers σ), fun hσy g hg => ?_⟩
+  obtain ⟨n, hn⟩ := exists_pow_eq σ hσpos (⟨g, hg⟩ : ↥(Subgroup.zpowers σ))
+  rw [show g = σ ^ n from hn]
+  clear hn hg
+  induction n with
     | zero => rw [pow_zero]; rfl
     | succ i ihn => rw [pow_succ', AlgEquiv.mul_apply, ihn, hσy]
 
@@ -1441,21 +1313,18 @@ variable (P : Polynomial (ZMod 2)) [Fact (Irreducible P)]
 variable {n : ℕ} (σ : AdjoinRoot P ≃ₐ[ZMod 2] AdjoinRoot P)
   (β : (Fin n → AdjoinRoot P) ≃+ (Fin n → AdjoinRoot P))
 
-
 /-- Distinct powers of `σ` below its order. -/
 theorem pow_ne_pow_of_orderOf {aa : ℕ} (hord : orderOf σ = 2 ^ aa) :
     ∀ i < 2 ^ aa, ∀ j < 2 ^ aa, σ ^ i = σ ^ j → i = j := by
   intro i hi j hj hij
   have hmod := pow_eq_pow_iff_modEq.mp hij
   rw [hord] at hmod
-  have := Nat.ModEq.eq_of_lt_of_lt hmod hi hj
-  exact this
+  exact Nat.ModEq.eq_of_lt_of_lt hmod hi hj
 
 /-- The `↥F`-scalar bridge on `D^n`: the subfield scalar acts as its coercion. -/
 theorem coe_smul_fixedField (F : IntermediateField (ZMod 2) (AdjoinRoot P))
-    (c : ↥F) (w : Fin n → AdjoinRoot P) : (↑c : AdjoinRoot P) • w = c • w := by
-  have h := algebraMap_smul (AdjoinRoot P) c w
-  rwa [show algebraMap ↥F (AdjoinRoot P) c = (↑c : AdjoinRoot P) from rfl] at h
+    (c : ↥F) (w : Fin n → AdjoinRoot P) : (↑c : AdjoinRoot P) • w = c • w :=
+  algebraMap_smul (AdjoinRoot P) c w
 
 /-- **The fixed set of `β` as an `↥F`-submodule** of `D^n` (`F := fixedField ⟨σ⟩`):
 `σ`-fixed scalars pass through `β`. -/
@@ -1489,9 +1358,8 @@ theorem linearIndependent_of_fixed (hσpos : 0 < orderOf σ)
   | zero =>
     intro g hcard hsum j
     by_contra hne
-    have hmem : j ∈ Finset.univ.filter (fun l => g l ≠ 0) :=
-      Finset.mem_filter.mpr ⟨Finset.mem_univ j, hne⟩
-    have := Finset.card_pos.mpr ⟨j, hmem⟩
+    have : 0 < (Finset.univ.filter (fun l => g l ≠ 0)).card :=
+      Finset.card_pos.mpr ⟨j, Finset.mem_filter.mpr ⟨Finset.mem_univ j, hne⟩⟩
     omega
   | succ N ih =>
     intro g hcard hsum i
@@ -1510,11 +1378,10 @@ theorem linearIndependent_of_fixed (hσpos : 0 < orderOf σ)
     -- apply `β`
     have happ : ∑ j, σ (h j) • v j = 0 := by
       have h0 := congrArg β hsum2
-      rw [map_sum β (fun j => h j • v j) Finset.univ, map_zero β,
+      rwa [map_sum β (fun j => h j • v j) Finset.univ, map_zero β,
         Finset.sum_congr rfl (fun j _ => by
           show β (h j • v j) = σ (h j) • v j
           rw [hsemi, hfix j])] at h0
-      exact h0
     -- subtract
     have hsub : ∑ j, (h j - σ (h j)) • v j = 0 := by
       have : ∀ j ∈ Finset.univ, (h j - σ (h j)) • v j = h j • v j - σ (h j) • v j :=
@@ -1531,10 +1398,7 @@ theorem linearIndependent_of_fixed (hσpos : 0 < orderOf σ)
           refine hj.2 ?_
           rw [hhi, map_one, sub_self]
         · intro h0
-          refine hj.2 ?_
-          rw [hh]
-          show (g i)⁻¹ * g j - σ ((g i)⁻¹ * g j) = 0
-          rw [h0, mul_zero, map_zero, sub_zero]
+          exact hj.2 (by simp [hh, h0])
       have hicard : i ∈ Finset.univ.filter (fun j => g j ≠ 0) :=
         Finset.mem_filter.mpr ⟨Finset.mem_univ i, hne⟩
       calc (Finset.univ.filter (fun j => (h j - σ (h j)) ≠ 0)).card
@@ -1551,21 +1415,15 @@ theorem linearIndependent_of_fixed (hσpos : 0 < orderOf σ)
       rw [hF, mem_fixedField_zpowers_iff P σ hσpos]
       exact (sub_eq_zero.mp (hall j)).symm
     set c : ι → ↥F := fun j => ⟨h j, hmemF j⟩ with hc
-    have hterm : ∀ j, c j • v j = h j • v j := by
-      intro j
-      have h1 := coe_smul_fixedField P F (c j) (v j)
-      have h2 : ((c j : ↥F) : AdjoinRoot P) = h j := rfl
-      rw [h2] at h1
-      exact h1.symm
+    have hterm : ∀ j, c j • v j = h j • v j :=
+      fun j => (coe_smul_fixedField P F (c j) (v j)).symm
     have hFdep : ∑ j, c j • v j = 0 := by
       rw [Finset.sum_congr rfl (fun j _ => hterm j)]
       exact hsum2
     have hczero := Fintype.linearIndependent_iff.mp hindF c hFdep i
-    have : h i = 0 := by
-      have := congrArg Subtype.val hczero
-      exact this
-    rw [hhi] at this
-    exact one_ne_zero this
+    have h0 : h i = 0 := congrArg Subtype.val hczero
+    rw [hhi] at h0
+    exact one_ne_zero h0
 
 /-- **The fixed set `D`-spans** (the trace projector through the `artin_vector` engine on the
 quotient): every vector lies in the `D`-span of the `β`-fixed set. -/
@@ -1627,9 +1485,7 @@ theorem card_fixed_eq (hmon : P.Monic) {aa : ℕ} (hord : orderOf σ = 2 ^ aa)
   classical
   haveI := finite_adjoinRoot P hmon
   set F := IntermediateField.fixedField (Subgroup.zpowers σ) with hF
-  have hσpos : 0 < orderOf σ := by
-    rw [hord]
-    exact Nat.two_pow_pos aa
+  have hσpos : 0 < orderOf σ := hord ▸ Nat.two_pow_pos aa
   set Vfix := fixedSubmodule P σ β hσpos hsemi with hVfix
   haveI : Module.Finite ↥F ↥Vfix := Module.Finite.of_finite
   haveI : Module.Finite (AdjoinRoot P) (Fin n → AdjoinRoot P) := Module.Finite.of_finite
@@ -1667,10 +1523,7 @@ theorem card_fixed_eq (hmon : P.Monic) {aa : ℕ} (hord : orderOf σ = 2 ^ aa)
       rw [Submodule.span_le]
       exact hsub
     rw [span_fixed_eq_top P σ β hord hsemi hβord] at h2
-    have h3 : Submodule.span (AdjoinRoot P)
-        (Set.range (fun i : Fin u => ((b i : ↥Vfix) : Fin n → AdjoinRoot P))) = ⊤ :=
-      top_le_iff.mp h2
-    have h4 := finrank_le_of_span_eq_top h3
+    have h4 := finrank_le_of_span_eq_top (top_le_iff.mp h2)
     rwa [Module.finrank_fin_fun, Fintype.card_fin] at h4
   have huv : u = n := le_antisymm hle hge
   have hcount : Nat.card ↥Vfix = Nat.card ↥F ^ u := by
@@ -1734,8 +1587,7 @@ theorem card_fixed_powOmega2 [Finite C] [Finite V] (s : C)
   have hpos : 0 < orderOf t := orderOf_pos t
   have hdeg : 0 < P.natDegree := by
     rw [hfar]
-    rcases hr with ⟨j, hj⟩
-    exact Nat.mul_pos (Nat.two_pow_pos a) (by omega)
+    exact Nat.mul_pos (Nat.two_pow_pos a) hr.pos
   set k := orderOf s with hk
   have hkpos : 0 < k := orderOf_pos s
   set ω := omega2Exp k with hω
@@ -1745,11 +1597,9 @@ theorem card_fixed_powOmega2 [Finite C] [Finite V] (s : C)
   have htk : t ^ 2 ^ k = t ^ 1 := by
     have h1 := inv_pow_conj s t hrel k
     rw [show s ^ k = 1 from pow_orderOf_eq_one s, inv_one, one_mul, mul_one] at h1
-    rw [pow_one]
-    exact h1.symm
+    simpa using h1.symm
   have hxk : AdjoinRoot.root P ^ 2 ^ k = AdjoinRoot.root P := by
-    have h := root_pow_eq_of_t_pow_eq t P htk hsV e he
-    rwa [pow_one] at h
+    simpa using root_pow_eq_of_t_pow_eq t P htk hsV e he
   have hfk : P.natDegree ∣ k := natDegree_dvd_of_root_pow P hmon hdeg hxk
   have hrk : r ∣ k := dvd_trans ⟨2 ^ a, by rw [hfar]; ring⟩ hfk
   have hrodd : ¬(2 : ℕ) ∣ r := by
@@ -1762,12 +1612,8 @@ theorem card_fixed_powOmega2 [Finite C] [Finite V] (s : C)
     dvd_trans (dvd_trans (dvd_pow_self 2 (by omega : a ≠ 0)) ⟨r, hfar⟩) hfk
   have hv2k : k.factorization 2 ≠ 0 :=
     (Nat.Prime.factorization_pos_of_dvd Nat.prime_two hkpos.ne' h2k).ne'
-  have hωodd : Odd ω := by
-    have h1 := omega2Exp_modEq_one hkpos.ne' hv2k
-    have h2 : ω ≡ 1 [MOD 2] := h1.of_dvd (dvd_pow_self 2 hv2k)
-    rw [Nat.odd_iff]
-    unfold Nat.ModEq at h2
-    omega
+  have hωodd : Odd ω := Nat.odd_iff.mpr
+    ((omega2Exp_modEq_one hkpos.ne' hv2k).of_dvd (dvd_pow_self 2 hv2k))
   -- `U^{2^a} = 1` (increment 5a)
   have hW1 : U ^ 2 ^ a = 1 :=
     powOmega2_pow_two_pow_eq_one t P s hgen hrel hfaith hsimple hmon hdvd hr hfar hsV e he
@@ -1781,9 +1627,7 @@ theorem card_fixed_powOmega2 [Finite C] [Finite V] (s : C)
   -- semilinearity at the root
   have hconj : ∀ v : V, U⁻¹ • (t • v) = (t ^ 2 ^ ω) • (U⁻¹ • v) := by
     intro v
-    have h1 : U⁻¹ * t * U = t ^ 2 ^ ω := by
-      rw [hU]
-      exact inv_pow_conj s t hrel ω
+    have h1 : U⁻¹ * t * U = t ^ 2 ^ ω := hU ▸ inv_pow_conj s t hrel ω
     calc U⁻¹ • (t • v) = (U⁻¹ * t) • v := (mul_smul _ _ _).symm
       _ = (U⁻¹ * t * U * U⁻¹) • v := by
           rw [show U⁻¹ * t * U * U⁻¹ = U⁻¹ * t from by group]
@@ -1831,14 +1675,9 @@ theorem card_fixed_powOmega2 [Finite C] [Finite V] (s : C)
     rw [hβapp, AddEquiv.symm_apply_apply]
     constructor
     · intro h
-      have h2 : U⁻¹ • v = v := by
-        conv_lhs => rw [← h]
-        rw [inv_smul_smul]
-      rw [h2]
+      rw [inv_smul_eq_iff.mpr h.symm]
     · intro h
-      have h2 : U⁻¹ • v = v := e.injective h
-      calc U • v = U • (U⁻¹ • v) := by rw [h2]
-        _ = v := smul_inv_smul U v
+      exact (inv_smul_eq_iff.mp (e.injective h)).symm
   have hcongr : Nat.card {v : V // U • v = v}
       = Nat.card {w : Fin sV → AdjoinRoot P // β w = w} :=
     Nat.card_congr (Equiv.subtypeEquiv e.toEquiv (fun v => hfixiff v))
