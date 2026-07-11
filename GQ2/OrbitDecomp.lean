@@ -71,8 +71,7 @@ theorem regInd_apply (y h : G ⧸ N) : regInd N y h = if h = y then (1 : ZMod 2)
 theorem regInd_smul (c y : G ⧸ N) : c • regInd N y = regInd N (c * y) := by
   funext h
   show (if c⁻¹ * h = y then (1 : ZMod 2) else 0) = if h = c * y then 1 else 0
-  refine if_congr ?_ rfl rfl
-  exact inv_mul_eq_iff_eq_mul
+  exact if_congr inv_mul_eq_iff_eq_mul rfl rfl
 
 /-- The `(j, y)`-coordinate basis vector of the block module `𝔽₂[G/N]^K`. -/
 noncomputable def blockBas (j : Fin K) (y : G ⧸ N) : Fin K → RegRep N :=
@@ -84,8 +83,7 @@ theorem blockBas_apply (j : Fin K) (y : G ⧸ N) (i : Fin K) (h : G ⧸ N) :
   by_cases hij : i = j
   · show (if i = j then regInd N y else 0) h = _
     rw [if_pos hij, regInd_apply]
-    refine if_congr ?_ rfl rfl
-    exact (and_iff_right hij).symm
+    exact if_congr (and_iff_right hij).symm rfl rfl
   · show (if i = j then regInd N y else 0) h = _
     rw [if_neg hij, if_neg (fun hc => hij hc.1)]
     rfl
@@ -103,22 +101,12 @@ theorem blockBas_smul (c : G ⧸ N) (j : Fin K) (y : G ⧸ N) :
 omit [N.Normal] in
 /-- Pointwise evaluation of a finite sum in `RegRep N`. -/
 theorem regRep_sum_apply {ι : Type*} (s : Finset ι) (f : ι → RegRep N) (h : G ⧸ N) :
-    (∑ o ∈ s, f o) h = ∑ o ∈ s, f o h := by
-  induction s using Finset.induction_on with
-  | empty => rw [Finset.sum_empty, Finset.sum_empty]; rfl
-  | @insert b s' hb IH =>
-    rw [Finset.sum_insert hb, Finset.sum_insert hb, ← IH]
-    rfl
+    (∑ o ∈ s, f o) h = ∑ o ∈ s, f o h := Finset.sum_apply h s f
 
 omit [N.Normal] in
 /-- Blockwise evaluation of a finite sum in the block module. -/
 theorem block_sum_apply {ι : Type*} (s : Finset ι) (f : ι → (Fin K → RegRep N)) (i : Fin K) :
-    (∑ o ∈ s, f o) i = ∑ o ∈ s, f o i := by
-  induction s using Finset.induction_on with
-  | empty => rw [Finset.sum_empty, Finset.sum_empty]; rfl
-  | @insert b s' hb IH =>
-    rw [Finset.sum_insert hb, Finset.sum_insert hb, ← IH]
-    rfl
+    (∑ o ∈ s, f o) i = ∑ o ∈ s, f o i := Finset.sum_apply i s f
 
 omit [N.Normal] in
 /-- Every element of the block module is the sum of the basis vectors at its support
@@ -127,34 +115,20 @@ theorem blockBas_support_decomp [Fintype (G ⧸ N)] (F : Fin K → RegRep N) :
     F = ∑ p ∈ Finset.univ.filter (fun p : Fin K × (G ⧸ N) => F p.1 p.2 = 1),
       blockBas N p.1 p.2 := by
   funext i h
-  have happ : (∑ p ∈ Finset.univ.filter (fun p : Fin K × (G ⧸ N) => F p.1 p.2 = 1),
-      blockBas N p.1 p.2) i h
-      = ∑ p ∈ Finset.univ.filter (fun p : Fin K × (G ⧸ N) => F p.1 p.2 = 1),
-          blockBas N p.1 p.2 i h := by
-    rw [block_sum_apply]
-    exact regRep_sum_apply N _ _ h
-  rw [happ]
+  rw [block_sum_apply, regRep_sum_apply]
   have hterm : ∀ p : Fin K × (G ⧸ N),
-      blockBas N p.1 p.2 i h = if p = (i, h) then (1 : ZMod 2) else 0 := by
-    intro p
+      blockBas N p.1 p.2 i h = if p = (i, h) then (1 : ZMod 2) else 0 := fun p => by
     rw [blockBas_apply]
-    refine if_congr ?_ rfl rfl
-    constructor
-    · rintro ⟨h1, h2⟩
-      exact Prod.ext h1.symm h2.symm
-    · rintro rfl
-      exact ⟨rfl, rfl⟩
+    exact if_congr ⟨fun ⟨h1, h2⟩ => Prod.ext h1.symm h2.symm, by rintro rfl; exact ⟨rfl, rfl⟩⟩
+      rfl rfl
   rw [Finset.sum_congr rfl fun p _ => hterm p,
     Finset.sum_ite_eq' _ (i, h) (fun _ => (1 : ZMod 2))]
   by_cases hmem : (i, h) ∈ Finset.univ.filter (fun p : Fin K × (G ⧸ N) => F p.1 p.2 = 1)
   · rw [if_pos hmem]
-    rw [Finset.mem_filter] at hmem
-    exact hmem.2
+    exact (Finset.mem_filter.mp hmem).2
   · rw [if_neg hmem]
-    rw [Finset.mem_filter] at hmem
-    rcases zmod2_cases (F i h) with h0 | h1
-    · exact h0
-    · exact absurd ⟨Finset.mem_univ _, h1⟩ hmem
+    exact (zmod2_cases (F i h)).resolve_right fun h1 =>
+      hmem (Finset.mem_filter.mpr ⟨Finset.mem_univ _, h1⟩)
 
 end BlockBasis
 
@@ -493,12 +467,8 @@ theorem freeBlockDatum_f_blockBas (j k : Fin K) (u : G ⧸ N)
       · rw [if_pos h1, if_neg h2, if_neg fun hc => h2 hc.2, one_mul]
     · rw [if_neg h1, zero_mul, if_neg fun hc => h1 hc.1]
   rw [finsum_congr hterm, finsum_eq_single _ x (fun b hb => if_neg fun hc => hb hc.1.2)]
-  refine if_congr ?_ rfl rfl
-  constructor
-  · rintro ⟨⟨hj, -⟩, hk, hxy⟩
-    exact ⟨hj, hk, hxy⟩
-  · rintro ⟨hj, hk, hxy⟩
-    exact ⟨⟨hj, rfl⟩, hk, hxy⟩
+  exact if_congr ⟨fun ⟨⟨hj, _⟩, hk, hxy⟩ => ⟨hj, hk, hxy⟩,
+    fun ⟨hj, hk, hxy⟩ => ⟨⟨hj, rfl⟩, hk, hxy⟩⟩ rfl rfl
 
 /-- The square summand's diagonal at basis vectors: `1` exactly on its own block. -/
 theorem squareBlockMap_blockBas (j m : Fin K) (y : G ⧸ N) :
@@ -525,8 +495,7 @@ theorem freeBlockMap_blockBas (j k : Fin K) (u : G ⧸ N) (m : Fin K) (y : G ⧸
   have h := (isEquivariantFactorSet_freeBlockDatum N j k u).f_diag (blockBas N m y)
   rw [freeBlockDatum_f_blockBas] at h
   rw [← h]
-  refine if_congr (and_congr_right fun _ => and_congr_right fun _ => ?_) rfl rfl
-  exact mul_eq_left
+  exact if_congr (and_congr_right fun _ => and_congr_right fun _ => mul_eq_left) rfl rfl
 
 /-- The involution summand's diagonal at basis vectors vanishes (`u ≠ 1`). -/
 theorem invBlockMap_blockBas (j : Fin K) {u : G ⧸ N} (hu1 : u ≠ 1)
@@ -549,10 +518,7 @@ theorem polar_squareBlockMap (j : Fin K) (v w : Fin K → RegRep N) :
   have hadd : squareBlockMap N j (v + w) = squareBlockMap N j v + squareBlockMap N j w := by
     show ∑ᶠ h : G ⧸ N, (v + w) j h * (v + w) j h = _
     have hterm : ∀ h : G ⧸ N, (v + w) j h * (v + w) j h
-        = v j h * v j h + w j h * w j h := by
-      intro h
-      show (v j h + w j h) * (v j h + w j h) = _
-      exact zmod2_sq_add _ _
+        = v j h * v j h + w j h * w j h := fun h => zmod2_sq_add _ _
     rw [finsum_congr hterm]
     exact finsum_add_distrib (Set.toFinite _) (Set.toFinite _)
   show squareBlockMap N j (v + w) + squareBlockMap N j v + squareBlockMap N j w = 0
@@ -617,16 +583,8 @@ theorem invBlockDatum_f_blockBas (j : Fin K) (u : G ⧸ N)
   rw [finsum_congr hterm,
     finsum_eq_single _ ((x : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers u)
       (fun w hw => if_neg fun hc => hw (by rw [← Quotient.out_eq w, hc.1.2]))]
-  refine if_congr ?_ rfl rfl
-  constructor
-  · rintro ⟨⟨hj, hout⟩, hj', houty⟩
-    refine ⟨hj.symm, hj'.symm, hout, ?_⟩
-    rw [← hout]
-    exact houty
-  · rintro ⟨hm, hm', hout, hxy⟩
-    refine ⟨⟨hm.symm, hout⟩, hm'.symm, ?_⟩
-    rw [hout]
-    exact hxy
+  exact if_congr ⟨fun ⟨⟨hj, hout⟩, hj', houty⟩ => ⟨hj.symm, hj'.symm, hout, by rw [← hout]; exact houty⟩,
+    fun ⟨hm, hm', hout, hxy⟩ => ⟨⟨hm.symm, hout⟩, hm'.symm, by rw [hout]; exact hxy⟩⟩ rfl rfl
 
 /-- The involution summand's polar at basis vectors: the `u`-pairing indicator on block `j`
 (the two `out`-guards sum to exactly one across the coset `{x, xu}`). -/
@@ -888,10 +846,8 @@ theorem orbitSum_blockBas {Q : (Fin K → RegRep N) → ZMod 2} (hinv : IsInvari
   · rw [if_pos h]
     exact ((Finset.mem_filter.mp h).2).symm
   · rw [if_neg h]
-    rcases zmod2_cases (blockDiag N Q p.1) with h0 | h1
-    · exact h0.symm
-    · have hp1 : p.1 ∈ sqIdx N Q := Finset.mem_filter.mpr ⟨Finset.mem_univ p.1, h1⟩
-      exact absurd hp1 h
+    exact ((zmod2_cases (blockDiag N Q p.1)).resolve_right fun h1 =>
+      h (Finset.mem_filter.mpr ⟨Finset.mem_univ p.1, h1⟩)).symm
 
 /-- The relative-position equation `x·w = y ⟺ w = x⁻¹y`. -/
 private theorem mul_eq_iff_rel {x y w : G ⧸ N} : x * w = y ↔ w = x⁻¹ * y :=

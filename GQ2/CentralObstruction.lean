@@ -54,8 +54,7 @@ noncomputable def zsign (x : D.C.cover) : ZMod 2 :=
 theorem zsign_z : zsign D D.C.z = 1 := by simp [zsign, D.C.z_ne]
 
 /-- `z` is in the kernel. -/
-theorem z_mem_ker : D.C.z ∈ D.C.p.ker := by
-  rw [D.C.ker_eq]; exact Subgroup.mem_zpowers _
+theorem z_mem_ker : D.C.z ∈ D.C.p.ker := D.C.ker_eq ▸ Subgroup.mem_zpowers _
 
 /-- `p z = 1`. -/
 theorem p_z_eq_one : D.C.p D.C.z = 1 := MonoidHom.mem_ker.mp (z_mem_ker D)
@@ -82,12 +81,8 @@ theorem z_pow_zsign {x : D.C.cover} (hx : x ∈ D.C.p.ker) :
 /-- `zsign` is additive on the kernel. -/
 theorem zsign_mul {x y : D.C.cover} (hx : x ∈ D.C.p.ker) (hy : y ∈ D.C.p.ker) :
     zsign D (x * y) = zsign D x + zsign D y := by
-  rcases ker_cases D hx with rfl | rfl <;> rcases ker_cases D hy with rfl | rfl
-  · simp
-  · simp
-  · simp
-  · rw [D.C.z_sq, zsign_one, zsign_z]
-    decide
+  rcases ker_cases D hx with rfl | rfl <;> rcases ker_cases D hy with rfl | rfl <;>
+    simp [D.C.z_sq, zsign_z, zsign_one, CharTwo.add_self_eq_zero]
 
 /-- Kernel elements are their own inverses. -/
 theorem ker_inv_eq {x : D.C.cover} (hx : x ∈ D.C.p.ker) : x⁻¹ = x := by
@@ -214,10 +209,7 @@ theorem tComplement_nonempty : Nonempty (TComplement D) := by
     exact comm_of_p_mem_T D (Subgroup.mem_comap.mp hy)
       (D.hTM (Subgroup.mem_comap.mp hx))
   have hzP : D.C.z ∈ P := by
-    rw [hP, Subgroup.mem_comap]
-    show D.C.p D.C.z ∈ D.T
-    rw [p_z_eq_one D]
-    exact one_mem _
+    rw [hP, Subgroup.mem_comap, p_z_eq_one D]; exact one_mem _
   -- additivize: `A := Additive ↥P` is a finite elementary-2 `𝔽₂`-vector space
   letI : CommGroup ↥P := { (inferInstance : Group ↥P) with mul_comm := hPcomm }
   haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
@@ -228,8 +220,7 @@ theorem tComplement_nonempty : Nonempty (TComplement D) := by
   -- a coordinate functional not vanishing on `z`
   obtain ⟨χ, hχ⟩ : ∃ χ : Additive ↥P →ₗ[ZMod 2] ZMod 2,
       χ (Additive.ofMul (⟨D.C.z, hzP⟩ : ↥P)) ≠ 0 := by
-    by_contra h
-    push_neg at h
+    by_contra! h
     set zP : Additive ↥P := Additive.ofMul (⟨D.C.z, hzP⟩ : ↥P) with hzPdef
     have hzero : zP = 0 := by
       let b := Module.Free.chooseBasis (ZMod 2) (Additive ↥P)
@@ -249,11 +240,7 @@ theorem tComplement_nonempty : Nonempty (TComplement D) := by
     by_cases hc : χ (Additive.ofMul (⟨x0, hx0P⟩ : ↥P)) = 0
     · exact ⟨⟨x0, hx0P⟩, hx0, hc⟩
     · refine ⟨⟨D.C.z * x0, mul_mem hzP hx0P⟩, ?_, ?_⟩
-      · rw [map_mul]
-        have hz1 : D.C.p D.C.z = 1 := by
-          have hz : D.C.z ∈ D.C.p.ker := by rw [D.C.ker_eq]; exact Subgroup.mem_zpowers _
-          rwa [MonoidHom.mem_ker] at hz
-        rw [hz1, one_mul, hx0]
+      · rw [map_mul, p_z_eq_one D, one_mul, hx0]
       · have hsplit : (⟨D.C.z * x0, mul_mem hzP hx0P⟩ : ↥P)
             = (⟨D.C.z, hzP⟩ : ↥P) * ⟨x0, hx0P⟩ := rfl
         have : χ (Additive.ofMul ((⟨D.C.z, hzP⟩ : ↥P) * ⟨x0, hx0P⟩))
@@ -263,14 +250,10 @@ theorem tComplement_nonempty : Nonempty (TComplement D) := by
               = Additive.ofMul (⟨D.C.z, hzP⟩ : ↥P) + Additive.ofMul (⟨x0, hx0P⟩ : ↥P) from rfl,
             map_add]
         rw [hsplit, this]
-        have h1 : χ (Additive.ofMul (⟨D.C.z, hzP⟩ : ↥P)) = 1 := by
-          rcases zmod2_cases (χ (Additive.ofMul (⟨D.C.z, hzP⟩ : ↥P))) with h | h
-          · exact absurd h hχ
-          · exact h
-        have h2 : χ (Additive.ofMul (⟨x0, hx0P⟩ : ↥P)) = 1 := by
-          rcases zmod2_cases (χ (Additive.ofMul (⟨x0, hx0P⟩ : ↥P))) with h | h
-          · exact absurd h hc
-          · exact h
+        have h1 : χ (Additive.ofMul (⟨D.C.z, hzP⟩ : ↥P)) = 1 :=
+          (zmod2_cases _).resolve_left hχ
+        have h2 : χ (Additive.ofMul (⟨x0, hx0P⟩ : ↥P)) = 1 :=
+          (zmod2_cases _).resolve_left hc
         rw [h1, h2]
         exact CharTwo.add_self_eq_zero 1
   choose sfun hsp hsχ using hlift
@@ -283,8 +266,7 @@ theorem tComplement_nonempty : Nonempty (TComplement D) := by
       show D.C.p (x.1 * ((sfun t).1)⁻¹) = 1
       rw [map_mul, map_inv, hx, hsp t, mul_inv_cancel]
     rcases ker_cases D hker with h | h
-    · have : x * (sfun t)⁻¹ = 1 := Subtype.ext h
-      exact mul_inv_eq_one.mp this
+    · exact mul_inv_eq_one.mp (Subtype.ext h)
     · exfalso
       have hchi : χ (Additive.ofMul (x * (sfun t)⁻¹)) = 0 := by
         have hofmul : Additive.ofMul (x * (sfun t)⁻¹)
@@ -366,8 +348,7 @@ theorem edge_eq_of_spec {x : D.C.cover} {b : Bg} (hx : D.C.p x = b) (t : ↥D.T)
     edge D S b t = a := by
   have h2 := edge_spec D S hx t
   rw [h] at h2
-  have hzz := mul_left_cancel h2
-  have h3 := congrArg (zsign D) hzz
+  have h3 := congrArg (zsign D) (mul_left_cancel h2)
   rw [zsign_z_pow, zsign_z_pow] at h3
   exact h3.symm
 
@@ -383,11 +364,8 @@ theorem edge_mul (b₁ b₂ : Bg) (t : ↥D.T) :
   refine edge_eq_of_spec D S hp₁₂ t _ ?_
   have e₂ := edge_spec D S hp₂ t
   have e₁ := edge_spec D S hp₁ ⟨b₂ * t.1 * b₂⁻¹, conj_mem_T D b₂ t⟩
-  have hzc : ∀ (n : ℕ) (w : D.C.cover), D.C.z ^ n * w = w * D.C.z ^ n := by
-    intro n w
-    induction n with
-    | zero => simp
-    | succ m ih => rw [pow_succ, mul_assoc, D.C.central, ← mul_assoc, ih, mul_assoc]
+  have hzc : ∀ (n : ℕ) (w : D.C.cover), D.C.z ^ n * w = w * D.C.z ^ n :=
+    fun n w => Commute.pow_left (D.C.central w) n
   have hsub : (⟨b₁ * (b₂ * t.1 * b₂⁻¹) * b₁⁻¹,
       conj_mem_T D b₁ ⟨b₂ * t.1 * b₂⁻¹, conj_mem_T D b₂ t⟩⟩ : ↥D.T)
       = ⟨(b₁ * b₂) * t.1 * (b₁ * b₂)⁻¹, conj_mem_T D (b₁ * b₂) t⟩ := by
@@ -421,11 +399,8 @@ theorem edge_add (b : Bg) (t t' : ↥D.T) :
   refine edge_eq_of_spec D S hpx (t * t') _ ?_
   have e1 := edge_spec D S hpx t
   have e2 := edge_spec D S hpx t'
-  have hzc : ∀ (n : ℕ) (w : D.C.cover), D.C.z ^ n * w = w * D.C.z ^ n := by
-    intro n w
-    induction n with
-    | zero => simp
-    | succ m ih => rw [pow_succ, mul_assoc, D.C.central, ← mul_assoc, ih, mul_assoc]
+  have hzc : ∀ (n : ℕ) (w : D.C.cover), D.C.z ^ n * w = w * D.C.z ^ n :=
+    fun n w => Commute.pow_left (D.C.central w) n
   have hsmul : S.s (t * t') = S.s t * S.s t' := map_mul S.s t t'
   have hsub : (⟨b * (t.1 * t'.1) * b⁻¹, conj_mem_T D b (t * t')⟩ : ↥D.T)
       = ⟨b * t.1 * b⁻¹, conj_mem_T D b t⟩ * ⟨b * t'.1 * b⁻¹, conj_mem_T D b t'⟩ := by
@@ -484,11 +459,8 @@ theorem not_noDescent_of_edge_trivial (ℓ : ↥D.T → ZMod 2)
     ¬ D.NoDescent := by
   intro hnd
   apply hnd
-  have hzc : ∀ (n : ℕ) (w : D.C.cover), D.C.z ^ n * w = w * D.C.z ^ n := by
-    intro n w
-    induction n with
-    | zero => simp
-    | succ m ih => rw [pow_succ, mul_assoc, D.C.central, ← mul_assoc, ih, mul_assoc]
+  have hzc : ∀ (n : ℕ) (w : D.C.cover), D.C.z ^ n * w = w * D.C.z ^ n :=
+    fun n w => Commute.pow_left (D.C.central w) n
   -- the altered complement `s'(t) = s(t)·z^{ℓ(t)}`, a homomorphism
   have hker : ∀ a : ZMod 2, D.C.z ^ a.val ∈ D.C.p.ker :=
     fun a => pow_mem (z_mem_ker D) _
@@ -511,8 +483,7 @@ theorem not_noDescent_of_edge_trivial (ℓ : ↥D.T → ZMod 2)
   have hl1 : ℓ 1 = 0 := by
     have h11 := hadd 1 1
     rw [one_mul] at h11
-    have h2 : ℓ 1 + 0 = ℓ 1 + ℓ 1 := by rw [add_zero]; exact h11
-    exact (add_left_cancel h2).symm
+    exact left_eq_add.mp h11
   refine ⟨s'.range, ?_, ?_, ?_⟩
   · -- normality: conjugation lands back in the range, by `edge_spec` + the trivialization
     constructor
@@ -609,8 +580,7 @@ structure TCocycle where
 theorem TCocycle.u_one (u : TCocycle D ρ) : u.u 1 = 1 := by
   have h := u.crossed 1 1 1 (by rw [QuotientGroup.mk_one, map_one])
   simp only [one_mul, mul_one, inv_one] at h
-  have h2 : u.u 1 * 1 = u.u 1 * u.u 1 := by rw [mul_one]; exact h
-  exact (mul_left_cancel h2).symm
+  exact left_eq_mul.mp h
 
 /-- **The twist** of an `M`-lift by a crossed `T`-cocycle: `(u·f)(γ) = u(γ)·f(γ)`. -/
 noncomputable def twist (u : TCocycle D ρ) (f : MLifts D ρ) : MLifts D ρ :=
@@ -1072,8 +1042,7 @@ theorem half_count [Finite (MLifts D ρ)] (S : TComplement D)
   -- with `#H² = 2` and `v ≠ 0`, every class is `0` or `v`
   have hclass : ∀ x : H2 Γ (ZMod 2), x = 0 ∨ x = v := by
     intro x
-    by_contra hcon
-    rw [not_or] at hcon
+    by_contra! hcon
     obtain ⟨hx0, hxv⟩ := hcon
     haveI : Finite (H2 Γ (ZMod 2)) := Nat.finite_of_card_ne_zero (by rw [hcard]; omega)
     have hinj : Function.Injective

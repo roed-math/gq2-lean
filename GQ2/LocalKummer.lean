@@ -58,22 +58,9 @@ theorem sum_eq_two_mul_tail (e : ℕ) (d : ℕ → ℕ)
   have htop : (Finset.Ico 0 (e + 1)).sum d = (Finset.Ico 0 e).sum d + d e :=
     Finset.sum_Ico_succ_top (Nat.zero_le e) d
   have hbij : (Finset.Ico 0 e).sum d = (Finset.Ico (e + 1) (2 * e + 1)).sum d := by
-    refine Finset.sum_nbij' (fun j ↦ 2 * e - j) (fun j ↦ 2 * e - j) ?_ ?_ ?_ ?_ ?_
-    · intro a ha
-      rw [Finset.mem_Ico] at ha ⊢
-      omega
-    · intro a ha
-      rw [Finset.mem_Ico] at ha ⊢
-      omega
-    · intro a ha
-      rw [Finset.mem_Ico] at ha
-      omega
-    · intro a ha
-      rw [Finset.mem_Ico] at ha
-      omega
-    · intro a ha
-      rw [Finset.mem_Ico] at ha
-      exact hpair a (by omega)
+    refine Finset.sum_nbij' (fun j ↦ 2 * e - j) (fun j ↦ 2 * e - j) ?_ ?_ ?_ ?_ ?_ <;>
+      intro a ha <;> simp only [Finset.mem_Ico] at ha ⊢ <;>
+        first | omega | exact hpair a (by omega)
   rw [Finset.range_eq_Ico]
   omega
 
@@ -107,8 +94,7 @@ decoupled from the `FoxHeisenberg` import chain — a P-13f hot file.) -/
 theorem exists_functional_ne_zero {A : Type*} [AddCommGroup A]
     (hA2 : ∀ a : A, a + a = 0) {a : A} (ha : a ≠ 0) : ∃ φ : A →+ ZMod 2, φ a ≠ 0 := by
   haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  haveI : Module (ZMod 2) A := AddCommGroup.zmodModule (fun v => by
-    rw [two_nsmul]; exact hA2 v)
+  haveI : Module (ZMod 2) A := AddCommGroup.zmodModule (fun v => (two_nsmul v).trans (hA2 v))
   by_contra h
   refine ha ?_
   rw [← Module.forall_dual_apply_eq_zero_iff (ZMod 2) a]
@@ -134,9 +120,7 @@ theorem h1ofFun_eq_zero_iff {N : Subgroup AbsGalQ2} {f : ↥N → ZMod 2}
     show n • w₀ - w₀ = 0
     rw [show n • w₀ = w₀ from rfl, sub_self]
   · rintro rfl
-    rw [H1ofFun_of_mem hf]
-    have : (⟨0, hf⟩ : ↥(Z1 ↥N (ZMod 2))) = 0 := Subtype.ext rfl
-    rw [this, map_zero]
+    rw [H1ofFun_of_mem hf, show (⟨0, hf⟩ : ↥(Z1 ↥N (ZMod 2))) = 0 from Subtype.ext rfl, map_zero]
 
 variable (ρ : ContinuousMonoidHom AbsGalQ2 C)
 
@@ -173,9 +157,9 @@ theorem phiRes_of_rep (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
   unfold phiRes
   congr 1
   funext n
-  have h0 := vanish_on_ker_of_H1mk_eq_zero ρ hρ hd n
-  have hsub : b.1 (n : AbsGalQ2) - (Quotient.out x).1 (n : AbsGalQ2) = 0 := h0
-  rw [sub_eq_zero.mp hsub]
+  have h0 : b.1 (n : AbsGalQ2) - (Quotient.out x).1 (n : AbsGalQ2) = 0 :=
+    vanish_on_ker_of_H1mk_eq_zero ρ hρ hd n
+  rw [sub_eq_zero.mp h0]
 
 /-- `phiRes` is additive in the class. -/
 theorem phiRes_add (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
@@ -192,8 +176,7 @@ theorem phiRes_add (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
             φ ((Quotient.out y).1 (n : AbsGalQ2)) := by
     funext n
     show φ ((Quotient.out x).1 (n : AbsGalQ2) + (Quotient.out y).1 (n : AbsGalQ2)) = _
-    rw [map_add]
-    rfl
+    exact map_add φ _ _
   rw [hfun, H1ofFun_add (phiRestrict_mem_Z1 ρ hρ _ φ) (phiRestrict_mem_Z1 ρ hρ _ φ)]
   rfl
 
@@ -273,10 +256,9 @@ theorem deepClass_eq_kummerClassK (k : IntermediateField ℚ_[2] (AlgebraicClosu
     exact (IntermediateField.mem_fixedField_iff _ A).mpr hdeep.2.1
   have hA0 : (⟨A, hAk⟩ : ↥k) ≠ 0 := by
     rw [Ne, Subtype.ext_iff]; exact hdeep.1
-  have hcoe : ((⟨A, hAk⟩ : ↥k) : AlgebraicClosure ℚ_[2]) = A := rfl
   refine ⟨Units.mk0 ⟨A, hAk⟩ hA0, ?_, ?_⟩
   · show ‖((⟨A, hAk⟩ : ↥k) : AlgebraicClosure ℚ_[2]) - 1‖ < ‖(2 : AlgebraicClosure ℚ_[2])‖
-    rw [hcoe]; exact norm_sub_one_lt_of_isDeepUnit hdeep
+    exact norm_sub_one_lt_of_isDeepUnit hdeep
   · have hccfun : Kummer.kummerCocycleFun (GQ2.sqrtCl A) = Kummer.kummerCocycleFun β := by
       have hsq2 : GQ2.sqrtCl A ^ 2 = A := GQ2.sqrtCl_sq A
       have hfac : (β - GQ2.sqrtCl A) * (β + GQ2.sqrtCl A) = 0 := by
@@ -421,8 +403,7 @@ theorem odd_orderOf_tameInertia {D : Type*} [Group D] [TopologicalSpace D] [Fini
   rw [hpow] at hconj
   rcases Nat.even_or_odd (orderOf t) with heven | hodd
   · exfalso
-    have hdvd : 2 ∣ orderOf t := heven.two_dvd
-    rw [Nat.gcd_eq_right hdvd] at hconj
+    rw [Nat.gcd_eq_right heven.two_dvd] at hconj
     omega
   · exact hodd
 
@@ -751,7 +732,7 @@ theorem conjAct_zero (g : AbsGalQ2) :
     conjAct ρ g (0 : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)) = 0 := by
   have h : conjAct ρ g 0 + conjAct ρ g 0 = conjAct ρ g 0 := by
     rw [← conjAct_add ρ g 0 0, add_zero]
-  exact add_left_cancel (a := conjAct ρ g 0) (h.trans (add_zero _).symm)
+  exact add_eq_left.mp h
 
 omit [DiscreteTopology C] [Finite C] in
 /-- **`conjAct` is a left action** (contravariant `conjMap` composition): `conjAct (g·h)`
@@ -797,7 +778,7 @@ theorem conjAct_inner (m : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
     have hb1 : b.1 1 = 0 := by
       have h := hcoc 1 1
       rw [mul_one, htriv] at h
-      exact add_left_cancel (a := b.1 1) (h.symm.trans (add_zero _).symm)
+      exact add_eq_left.mp h.symm
     -- `b(m⁻¹ n m) = b(m⁻¹) + b(n) + b(m)`, and `b(m⁻¹) + b(m) = b(1) = 0`
     have he : conjMap ρ (m : AbsGalQ2) n = m⁻¹ * n * m := by
       apply Subtype.ext

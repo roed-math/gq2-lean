@@ -96,20 +96,15 @@ theorem hZcount_gammaA
   haveI : DiscreteTopology (Additive ↥Blk.R) :=
     ⟨(inferInstance : DiscreteTopology ↥Blk.R).eq_bot⟩
   haveI : Finite (Additive ↥Blk.R) := (inferInstance : Finite ↥Blk.R)
-  haveI : ContinuousSMul GA (Additive ↥Blk.R) := by
-    refine ⟨?_⟩
-    have hfac : (fun p : GA × Additive ↥Blk.R => p.1 • p.2)
-        = (fun q : (Y ⧸ Blk.K) × Additive ↥Blk.R => q.1 • q.2)
-          ∘ (fun p : GA × Additive ↥Blk.R => (θ p.1, p.2)) := by
-      funext p; rfl
-    rw [hfac]
+  haveI : ContinuousSMul GA (Additive ↥Blk.R) := ⟨by
+    show Continuous ((fun q : (Y ⧸ Blk.K) × Additive ↥Blk.R => q.1 • q.2)
+        ∘ (fun p : GA × Additive ↥Blk.R => (θ p.1, p.2)))
     exact continuous_of_discreteTopology.comp
-      ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+      ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)⟩
   have hcomp : ∀ (γ : GA) (a : Additive ↥Blk.R), γ • a = θ γ • a := fun _ _ => rfl
   have hA₂ : ∀ a : Additive ↥Blk.R, a + a = 0 := by
     intro a
-    apply Additive.toMul.injective
-    apply Subtype.ext
+    refine Additive.toMul.injective (Subtype.ext ?_)
     exact hR2 _ (Additive.toMul a).2
   -- the action at the `f₀`-representative (`f₀.1.1 γ` for `γ : GA` reads through `GammaA ≡ GA`)
   have hsmul : ∀ (γ : GA) (a : Additive ↥Blk.R),
@@ -117,10 +112,6 @@ theorem hZcount_gammaA
         = Additive.ofMul (⟨f₀.1.1 γ * ((Additive.toMul a : ↥Blk.R) : Y) * (f₀.1.1 γ)⁻¹,
             RStageLocal.conj_mem_R (f₀.1.1 γ) (Additive.toMul a)⟩ : ↥Blk.R) := by
     intro γ a
-    have h1 : γ • a
-        = (QuotientGroup.mk' Blk.K (f₀.1.1 γ) : Y ⧸ Blk.K) • Additive.ofMul (Additive.toMul a) :=
-      rfl
-    rw [h1]
     exact RStageLocal.conjC_smul_of_mk hRK (f₀.1.1 γ) (Additive.toMul a)
   -- the multiplicative↔additive crossed-cocycle bridge `RCocycle ≃ Z¹(Γ_A, R)`
   have hequiv : RCocycle (blockFrameImpl T Blk hE2) f₀.1.1
@@ -132,8 +123,7 @@ theorem hZcount_gammaA
             exact Continuous.subtype_mk c.cont _
           · intro γ δ
             rw [hsmul γ (Additive.ofMul ⟨c.u δ, c.mem δ⟩)]
-            apply Additive.toMul.injective
-            apply Subtype.ext
+            refine Additive.toMul.injective (Subtype.ext ?_)
             show c.u (γ * δ) = c.u γ * (f₀.1.1 γ * c.u δ * (f₀.1.1 γ)⁻¹)
             exact c.crossed γ δ⟩
       invFun := fun z =>
@@ -169,10 +159,9 @@ theorem hZcount_gammaA
       have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹
           • Additive.ofMul (⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩ : ↥Blk.R)
           = Additive.ofMul r := by
-        rw [← map_inv]
-        rw [RStageLocal.conjC_smul_of_mk hRK y⁻¹ ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩]
-        apply congrArg
-        apply Subtype.ext
+        rw [← map_inv,
+          RStageLocal.conjC_smul_of_mk hRK y⁻¹ ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩]
+        refine congrArg _ (Subtype.ext ?_)
         show y⁻¹ * (y * (r : Y) * y⁻¹) * y⁻¹⁻¹ = (r : Y)
         group
       have h2 : ((QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K) • lam.1)
@@ -182,8 +171,7 @@ theorem hZcount_gammaA
       rw [h2] at h1
       exact h1.symm
     · obtain ⟨y, rfl⟩ := QuotientGroup.mk'_surjective Blk.K c
-      apply GQ2.FoxH.ElemDual.ext
-      intro a
+      refine GQ2.FoxH.ElemDual.ext fun a => ?_
       rw [GQ2.FoxH.ElemDual.smul_apply]
       have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹ • a
           = Additive.ofMul (⟨y⁻¹ * ((Additive.toMul a : ↥Blk.R) : Y) * y⁻¹⁻¹,
@@ -241,8 +229,7 @@ theorem wTrace_injective (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     (hlam' : (d0 (A := ElemDual A) t) lam' = 0)
     (h : wTrace t ht hw lam hlam = wTrace t ht hw lam' hlam') : lam = lam' := by
   ext a
-  have hev := congrArg (fun Ψ => Ψ (QuotientAddGroup.mk (a, 0))) h
-  simpa only [wTrace_mk, add_zero] using hev
+  simpa only [wTrace_mk, add_zero] using congrArg (fun Ψ => Ψ (QuotientAddGroup.mk (a, 0))) h
 
 /-- **L3c: `λ ↦ Φ_λ` is surjective** onto `H2w →+ 𝔽₂` — the counting half of the perfect
 (2,0)-pairing (`docs/p16d6e5-plan.md` §2, L3).  The invariant characters, `#H2w`, and
@@ -542,9 +529,7 @@ section PushDescent
 /-- Four-field extensionality for markings. -/
 theorem marking_ext {G : Type*} {s t : Marking G} (h0 : s.σ = t.σ) (h1 : s.τ = t.τ)
     (h2 : s.x₀ = t.x₀) (h3 : s.x₁ = t.x₁) : s = t := by
-  cases s; cases t
-  cases h0; cases h1; cases h2; cases h3
-  rfl
+  cases s; cases t; cases h0; cases h1; cases h2; cases h3; rfl
 
 variable {G' : Type} [Group G'] [TopologicalSpace G'] [DiscreteTopology G'] [Finite G']
 
@@ -703,24 +688,16 @@ theorem redValues_eq_of_coverLift (Q : CentralCover B0) (piB : Y →* B0)
     intro a w h
     rw [MonoidHom.mem_ker, map_mul, map_inv, h, mul_inv_cancel]
   have hσ' : Q.p (red tY.σ) = Q.p (Marking.push gc).σ := by
-    rw [hred_p']
-    have h1 : piB tY.σ = (Marking.push gB).σ := congrArg Marking.σ hproj
-    rw [h1]
+    rw [hred_p', show piB tY.σ = (Marking.push gB).σ from congrArg Marking.σ hproj]
     exact (hgc gammaGen.σ).symm
   have hτ' : Q.p (red tY.τ) = Q.p (Marking.push gc).τ := by
-    rw [hred_p']
-    have h1 : piB tY.τ = (Marking.push gB).τ := congrArg Marking.τ hproj
-    rw [h1]
+    rw [hred_p', show piB tY.τ = (Marking.push gB).τ from congrArg Marking.τ hproj]
     exact (hgc gammaGen.τ).symm
   have hx₀' : Q.p (red tY.x₀) = Q.p (Marking.push gc).x₀ := by
-    rw [hred_p']
-    have h1 : piB tY.x₀ = (Marking.push gB).x₀ := congrArg Marking.x₀ hproj
-    rw [h1]
+    rw [hred_p', show piB tY.x₀ = (Marking.push gB).x₀ from congrArg Marking.x₀ hproj]
     exact (hgc gammaGen.x₀).symm
   have hx₁' : Q.p (red tY.x₁) = Q.p (Marking.push gc).x₁ := by
-    rw [hred_p']
-    have h1 : piB tY.x₁ = (Marking.push gB).x₁ := congrArg Marking.x₁ hproj
-    rw [h1]
+    rw [hred_p', show piB tY.x₁ = (Marking.push gB).x₁ from congrArg Marking.x₁ hproj]
     exact (hgc gammaGen.x₁).symm
   have hmem0 : red tY.σ * ((Marking.push gc).σ)⁻¹ ∈ Q.p.ker := hpr tY.σ _ hσ'
   have hmem1 : red tY.τ * ((Marking.push gc).τ)⁻¹ ∈ Q.p.ker := hpr tY.τ _ hτ'
@@ -740,11 +717,7 @@ theorem redValues_eq_of_coverLift (Q : CentralCover B0) (piB : Y →* B0)
   have hcorr : tY.map red = corrMark (Marking.push gc)
       (red tY.σ * ((Marking.push gc).σ)⁻¹) (red tY.τ * ((Marking.push gc).τ)⁻¹)
       (red tY.x₀ * ((Marking.push gc).x₀)⁻¹) (red tY.x₁ * ((Marking.push gc).x₁)⁻¹) := by
-    refine marking_ext ?_ ?_ ?_ ?_
-    · exact (inv_mul_cancel_right _ _).symm
-    · exact (inv_mul_cancel_right _ _).symm
-    · exact (inv_mul_cancel_right _ _).symm
-    · exact (inv_mul_cancel_right _ _).symm
+    refine marking_ext ?_ ?_ ?_ ?_ <;> exact (inv_mul_cancel_right _ _).symm
   -- both reduced relator values are the τ-correction `r̄₁` (L1 at the central 2-torsion kernel)
   have hredT : red tY.tameValue = red tY.τ * ((Marking.push gc).τ)⁻¹ := by
     have h := Marking.map_tameValue red tY
@@ -849,14 +822,12 @@ private theorem lift_of_relatorFree_marking (hE2 : ∀ e : E, e ^ 2 = 1)
           {(Marking.push gB).x₀, (Marking.push gB).x₁}).comap qJ : Set ↥J) := by
       rintro z hz
       rcases hz with rfl | hz
-      · rw [SetLike.mem_coe, Subgroup.mem_comap]
-        have h1 : qJ tJ.x₀ = (Marking.push gB).x₀ := congrArg Marking.x₀ hproj
-        rw [h1]
+      · rw [SetLike.mem_coe, Subgroup.mem_comap,
+          show qJ tJ.x₀ = (Marking.push gB).x₀ from congrArg Marking.x₀ hproj]
         exact Subgroup.subset_normalClosure (by simp)
       · rcases hz with rfl
-        rw [SetLike.mem_coe, Subgroup.mem_comap]
-        have h1 : qJ tJ.x₁ = (Marking.push gB).x₁ := congrArg Marking.x₁ hproj
-        rw [h1]
+        rw [SetLike.mem_coe, Subgroup.mem_comap,
+          show qJ tJ.x₁ = (Marking.push gB).x₁ from congrArg Marking.x₁ hproj]
         exact Subgroup.subset_normalClosure (by simp)
     have hle := Subgroup.normalClosure_le_normal hcomap
     intro n
@@ -894,30 +865,24 @@ private theorem lift_of_relatorFree_marking (hE2 : ∀ e : E, e ^ 2 = 1)
     univMarking_map_toHom (P := ProfiniteGrp.of ↥J) tJ
   have hpush : univMarking.map c₁.toMonoidHom = univMarking.map c₂.toMonoidHom := by
     refine marking_ext ?_ ?_ ?_ ?_
-    · have h1 : (Marking.classify tJ) univMarking.σ = tJ.σ := congrArg Marking.σ hclassify
-      show (blockFrameImpl T Blk hE2).piB (φY ((Marking.classify tJ) univMarking.σ))
+    · show (blockFrameImpl T Blk hE2).piB (φY ((Marking.classify tJ) univMarking.σ))
         = gB (quotientMk NA univMarking.σ)
-      rw [h1]
+      rw [show (Marking.classify tJ) univMarking.σ = tJ.σ from congrArg Marking.σ hclassify]
       exact congrArg Marking.σ hproj
-    · have h1 : (Marking.classify tJ) univMarking.τ = tJ.τ := congrArg Marking.τ hclassify
-      show (blockFrameImpl T Blk hE2).piB (φY ((Marking.classify tJ) univMarking.τ))
+    · show (blockFrameImpl T Blk hE2).piB (φY ((Marking.classify tJ) univMarking.τ))
         = gB (quotientMk NA univMarking.τ)
-      rw [h1]
+      rw [show (Marking.classify tJ) univMarking.τ = tJ.τ from congrArg Marking.τ hclassify]
       exact congrArg Marking.τ hproj
-    · have h1 : (Marking.classify tJ) univMarking.x₀ = tJ.x₀ := congrArg Marking.x₀ hclassify
-      show (blockFrameImpl T Blk hE2).piB (φY ((Marking.classify tJ) univMarking.x₀))
+    · show (blockFrameImpl T Blk hE2).piB (φY ((Marking.classify tJ) univMarking.x₀))
         = gB (quotientMk NA univMarking.x₀)
-      rw [h1]
+      rw [show (Marking.classify tJ) univMarking.x₀ = tJ.x₀ from congrArg Marking.x₀ hclassify]
       exact congrArg Marking.x₀ hproj
-    · have h1 : (Marking.classify tJ) univMarking.x₁ = tJ.x₁ := congrArg Marking.x₁ hclassify
-      show (blockFrameImpl T Blk hE2).piB (φY ((Marking.classify tJ) univMarking.x₁))
+    · show (blockFrameImpl T Blk hE2).piB (φY ((Marking.classify tJ) univMarking.x₁))
         = gB (quotientMk NA univMarking.x₁)
-      rw [h1]
+      rw [show (Marking.classify tJ) univMarking.x₁ = tJ.x₁ from congrArg Marking.x₁ hclassify]
       exact congrArg Marking.x₁ hproj
   have hc : c₁ = c₂ := by
-    have h1 := Marking.toHom_hom_univMarking_map c₁
-    have h2 := Marking.toHom_hom_univMarking_map c₂
-    rw [← h1, ← h2, hpush]
+    rw [← Marking.toHom_hom_univMarking_map c₁, ← Marking.toHom_hom_univMarking_map c₂, hpush]
   exact DFunLike.congr_fun hc w
 
 end Descend
@@ -979,21 +944,17 @@ theorem hsep_hom_gammaA
       show Continuous fun γ => qKR (g.1.1 γ)
       exact Continuous.comp continuous_of_discreteTopology g.1.1.continuous_toFun⟩ with hθdef
   have hθσ : θ gammaGen.σ = QuotientGroup.mk' Blk.K tY.σ := by
-    have h1 : (blockFrameImpl T Blk hE2).piB tY.σ = (Marking.push g.1.1).σ := hyσ
     show qKR ((Marking.push g.1.1).σ) = QuotientGroup.mk' Blk.K tY.σ
-    rw [← h1]; rfl
+    rw [← hyσ]; rfl
   have hθτ : θ gammaGen.τ = QuotientGroup.mk' Blk.K tY.τ := by
-    have h1 : (blockFrameImpl T Blk hE2).piB tY.τ = (Marking.push g.1.1).τ := hyτ
     show qKR ((Marking.push g.1.1).τ) = QuotientGroup.mk' Blk.K tY.τ
-    rw [← h1]; rfl
+    rw [← hyτ]; rfl
   have hθx₀ : θ gammaGen.x₀ = QuotientGroup.mk' Blk.K tY.x₀ := by
-    have h1 : (blockFrameImpl T Blk hE2).piB tY.x₀ = (Marking.push g.1.1).x₀ := hyx₀
     show qKR ((Marking.push g.1.1).x₀) = QuotientGroup.mk' Blk.K tY.x₀
-    rw [← h1]; rfl
+    rw [← hyx₀]; rfl
   have hθx₁ : θ gammaGen.x₁ = QuotientGroup.mk' Blk.K tY.x₁ := by
-    have h1 : (blockFrameImpl T Blk hE2).piB tY.x₁ = (Marking.push g.1.1).x₁ := hyx₁
     show qKR ((Marking.push g.1.1).x₁) = QuotientGroup.mk' Blk.K tY.x₁
-    rw [← h1]; rfl
+    rw [← hyx₁]; rfl
   have hθs : Function.Surjective ⇑θ := by
     intro c
     obtain ⟨y, hy⟩ := QuotientGroup.mk'_surjective Blk.K c
@@ -1004,8 +965,7 @@ theorem hsep_hom_gammaA
   -- §3: the word-complex duality package at `markC θ`
   have hA₂ : ∀ a : Additive ↥Blk.R, a + a = 0 := by
     intro a
-    apply Additive.toMul.injective
-    apply Subtype.ext
+    refine Additive.toMul.injective (Subtype.ext ?_)
     exact hR2 _ (Additive.toMul a).2
   have adm := markC_admissible θ hθs
   have hsd := GQ2.FoxH.prop_5_15 (markC θ) adm.2.1 adm.2.2.1 adm.1 hA₂ adm.2.2.2
@@ -1031,10 +991,9 @@ theorem hsep_hom_gammaA
       have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹
           • Additive.ofMul (⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩ : ↥Blk.R)
           = Additive.ofMul r := by
-        rw [← map_inv]
-        rw [RStageLocal.conjC_smul_of_mk hRK y⁻¹ ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩]
-        apply congrArg
-        apply Subtype.ext
+        rw [← map_inv,
+          RStageLocal.conjC_smul_of_mk hRK y⁻¹ ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩]
+        refine congrArg _ (Subtype.ext ?_)
         show y⁻¹ * (y * (r : Y) * y⁻¹) * y⁻¹⁻¹ = (r : Y)
         group
       have h2 : ((QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K) • lam)
@@ -1045,9 +1004,7 @@ theorem hsep_hom_gammaA
       exact h1.symm
     set dc : ↥(RCharSub Blk) := ⟨lam, hY⟩ with hdcdef
     by_cases hdc0 : dc = 0
-    · have hlam0 : lam = 0 := congrArg Subtype.val hdc0
-      rw [hlam0]
-      rfl
+    · rw [show lam = 0 from congrArg Subtype.val hdc0]; rfl
     · -- the nonzero case: extract the cover lift and run the L4 core
       have hne : (blockRObstructionData T Blk hE2).toDR dc
           ≠ (blockFrameImpl T Blk hE2).zeroDR := by
@@ -1115,15 +1072,13 @@ theorem hsep_hom_gammaA
     ((Additive.toMul (x 2) : ↥Blk.R) : Y) * tY.x₀,
     ((Additive.toMul (x 3) : ↥Blk.R) : Y) * tY.x₁⟩ with htHat
   have htameHat : tHat.TameRel := by
-    rw [← Marking.tameValue_eq_one_iff]
-    rw [show tHat.tameValue
+    rw [← Marking.tameValue_eq_one_iff, show tHat.tameValue
         = ((Additive.toMul ((d1Fun tY x).1) : ↥Blk.R) : Y) * tY.tameValue from
       corrected_tameValue (fun a => ((Additive.toMul a : ↥Blk.R) : Y)) hjmul hjconj tY x, hd1]
     show ((v₁ : Y)) * tY.tameValue = 1
     exact hR2 _ hv₁mem
   have hwildHat : tHat.WildRel := by
-    rw [← Marking.wildValue_eq_one_iff]
-    rw [show tHat.wildValue
+    rw [← Marking.wildValue_eq_one_iff, show tHat.wildValue
         = ((Additive.toMul ((d1Fun tY x).2) : ↥Blk.R) : Y) * tY.wildValue from
       corrected_wildValue (fun a => ((Additive.toMul a : ↥Blk.R) : Y)) hjmul hjconj tY x, hd1]
     show ((v₂ : Y)) * tY.wildValue = 1
@@ -1137,20 +1092,16 @@ theorem hsep_hom_gammaA
     refine marking_ext ?_ ?_ ?_ ?_
     · show (blockFrameImpl T Blk hE2).piB (((Additive.toMul (x 0) : ↥Blk.R) : Y) * tY.σ)
         = (Marking.push g.1.1).σ
-      rw [map_mul, hker, one_mul]
-      exact hyσ
+      rwa [map_mul, hker, one_mul]
     · show (blockFrameImpl T Blk hE2).piB (((Additive.toMul (x 1) : ↥Blk.R) : Y) * tY.τ)
         = (Marking.push g.1.1).τ
-      rw [map_mul, hker, one_mul]
-      exact hyτ
+      rwa [map_mul, hker, one_mul]
     · show (blockFrameImpl T Blk hE2).piB (((Additive.toMul (x 2) : ↥Blk.R) : Y) * tY.x₀)
         = (Marking.push g.1.1).x₀
-      rw [map_mul, hker, one_mul]
-      exact hyx₀
+      rwa [map_mul, hker, one_mul]
     · show (blockFrameImpl T Blk hE2).piB (((Additive.toMul (x 3) : ↥Blk.R) : Y) * tY.x₁)
         = (Marking.push g.1.1).x₁
-      rw [map_mul, hker, one_mul]
-      exact hyx₁
+      rwa [map_mul, hker, one_mul]
   -- §7: descend
   exact lift_of_relatorFree_marking hE2 hR2 g.1.1 g.1.2 tHat hprojHat htameHat hwildHat
 

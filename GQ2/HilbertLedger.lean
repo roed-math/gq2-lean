@@ -80,10 +80,7 @@ theorem h1_add_self (x : H1 G (ZMod 2)) : x + x = 0 := by
   have key : ∀ a : ZMod 2, a + a = 0 := by decide
   induction x using QuotientAddGroup.induction_on with
   | _ z =>
-    have hz : z + z = 0 := by
-      apply Subtype.ext
-      simp only [AddMemClass.coe_add, ZeroMemClass.coe_zero]
-      funext g; exact key _
+    have hz : z + z = 0 := Subtype.ext (funext fun g => key _)
     show H1mk G (ZMod 2) z + H1mk G (ZMod 2) z = 0
     rw [← map_add, hz, map_zero]
 
@@ -92,10 +89,7 @@ theorem h2_add_self (x : H2 G (ZMod 2)) : x + x = 0 := by
   have key : ∀ a : ZMod 2, a + a = 0 := by decide
   induction x using QuotientAddGroup.induction_on with
   | _ z =>
-    have hz : z + z = 0 := by
-      apply Subtype.ext
-      simp only [AddMemClass.coe_add, ZeroMemClass.coe_zero]
-      funext g; exact key _
+    have hz : z + z = 0 := Subtype.ext (funext fun g => key _)
     show H2mk G (ZMod 2) z + H2mk G (ZMod 2) z = 0
     rw [← map_add, hz, map_zero]
 
@@ -176,18 +170,13 @@ makes the cocycle `g ↦ if g • 1 = 1 then 0 else 1 ≡ 0`.] -/
 theorem kummerClassK_one : kummerClassK k (1 : (↥k)ˣ) = 0 := by
   have h := kummerClassK_mul k (1 : (↥k)ˣ) 1
   rw [mul_one] at h
-  have h2 : kummerClassK k (1 : (↥k)ˣ) + kummerClassK k 1 = kummerClassK k 1 + 0 := by
-    rw [add_zero]; exact h.symm
-  exact add_left_cancel h2
+  exact add_eq_left.mp h.symm
 
 /-- `[a⁻¹] = [a]` (derived). -/
 theorem kummerClassK_inv (a : (↥k)ˣ) : kummerClassK k a⁻¹ = kummerClassK k a := by
   have h := kummerClassK_mul k a a⁻¹
   rw [mul_inv_cancel, kummerClassK_one] at h
-  have h2 : kummerClassK k a⁻¹ = -kummerClassK k a := by
-    rw [eq_neg_iff_add_eq_zero, add_comm]
-    exact h.symm
-  rw [h2, neg_eq_of_add_eq_zero_left (h1_add_self (kummerClassK k a))]
+  exact add_left_cancel (h.symm.trans (h1_add_self (kummerClassK k a)).symm)
 
 /-- `[a²] = 0` (derived). -/
 theorem kummerClassK_mul_self (a : (↥k)ˣ) : kummerClassK k (a * a) = 0 := by

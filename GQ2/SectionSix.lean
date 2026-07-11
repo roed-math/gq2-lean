@@ -95,9 +95,7 @@ def muTwoOfF2 : ZMod 2 →+ MuN 2 :=
 
 /-- Galois fixes `−1 ∈ μ₂` (it lies in the base field). -/
 lemma smul_negOneMuTwo (g : AbsGalQ2) : g • negOneMuTwo = negOneMuTwo := by
-  apply Additive.toMul.injective
-  apply Subtype.ext
-  apply Units.ext
+  refine Additive.toMul.injective (Subtype.ext (Units.ext ?_))
   have hval := val_smul_units (K := ℚ_[2]) (L := ℚ̄₂)
     (show ℚ̄₂ ≃ₐ[ℚ_[2]] ℚ̄₂ from g) (-1 : ℚ̄₂ˣ)
   refine hval.trans ?_
@@ -286,11 +284,10 @@ theorem lemma_6_8 (c : ContinuousMonoidHom Ttame Hf) (hc : Function.Surjective c
       intro g
       obtain ⟨n, hn⟩ := Subgroup.mem_zpowers_iff.mp g.2
       exact Subgroup.mem_zpowers_iff.mpr ⟨n, Subtype.ext (by push_cast; exact hn)⟩
-    have hVfaith : ∀ g : Subgroup.zpowers (c tameTau), (∀ v : V, g • v = v) → g = 1 := by
-      intro g hg
-      exact Subtype.ext (hfaith (g : Hf) (fun v => hg v))
+    have hVfaith : ∀ g : Subgroup.zpowers (c tameTau), (∀ v : V, g • v = v) → g = 1 :=
+      fun g hg => Subtype.ext (hfaith (g : Hf) (fun v => hg v))
     refine GaussSigns.arf_eq_s_ramified ⟨c tameTau, hTmem⟩ hTgen hVfaith hWtsimple hV2 hWt2
-      q hq hns (fun g v => hinv (g : Hf) v) (2 ^ (a - 1) * r) s ?_ hs1 ?_ e (fun g v j => he g v j)
+      q hq hns (fun g v => hinv (g : Hf) v) (2 ^ (a - 1) * r) s ?_ hs1 ?_ e he
     · exact Nat.one_le_iff_ne_zero.mpr
         (Nat.mul_ne_zero (by positivity) (by rcases hr with ⟨j, hj⟩; omega))
     · rw [hWcard]; congr 1
@@ -347,17 +344,7 @@ theorem prop_6_9_unramified (c : ContinuousMonoidHom Ttame Hf) (hc : Function.Su
   have hgen : ∀ x : Hf, x ∈ Subgroup.zpowers (c tameSigma) := by
     have hcl : Subgroup.closure {c tameSigma, c tameTau} = ⊤ :=
       SectionThree.gen_ttame_quotient c.toMonoidHom c.continuous_toFun hc
-    rw [hunram] at hcl
-    have hz : Subgroup.closure ({c tameSigma, 1} : Set Hf) = Subgroup.zpowers (c tameSigma) := by
-      rw [Subgroup.zpowers_eq_closure]
-      apply le_antisymm
-      · rw [Subgroup.closure_le]
-        intro y hy
-        rcases hy with rfl | rfl
-        · exact Subgroup.subset_closure (Set.mem_singleton _)
-        · exact one_mem _
-      · exact Subgroup.closure_mono (Set.singleton_subset_iff.mpr (Set.mem_insert _ _))
-    rw [hz] at hcl
+    rw [hunram, Set.pair_comm, Subgroup.closure_insert_one, ← Subgroup.zpowers_eq_closure] at hcl
     intro x; rw [hcl]; trivial
   exact GaussSigns.prop_6_9_unramified_of_cyclic q hq hns m hm hcard h2 (c tameSigma) hgen
     hfaith hsimple (fun h v => hinv h v)
@@ -801,7 +788,7 @@ theorem lemma_6_16 (k L : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional
       intro hv
       apply unitCoe_ne_zero k u
       rw [hv] at hconj0
-      simpa using hconj0
+      simp at hconj0
     apply hδnk
     have hδeq : δ = (((u : ↥k) / v : ↥k) : ℚ̄₂) := by
       rw [IntermediateField.coe_div, eq_div_iff (by simpa using hvne)]
