@@ -96,7 +96,7 @@ variable {P : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P]
 theorem zpowHat_omega2_eq_self (hP : IsProP 2 P) (x : P) : x ^ᶻ omega2 = x := by
   have hmem : ∀ U : OpenNormalSubgroup P, (x ^ᶻ omega2) * x⁻¹ ∈ U := by
     intro U
-    haveI : DiscreteTopology (P ⧸ U.toSubgroup) := by
+    have : DiscreteTopology (P ⧸ U.toSubgroup) := by
       refine discreteTopology_of_isOpen_singleton_one ?_
       have hpre : (QuotientGroup.mk : P → P ⧸ U.toSubgroup) ⁻¹' {1}
           = (U.toSubgroup : Set P) := by
@@ -105,7 +105,7 @@ theorem zpowHat_omega2_eq_self (hP : IsProP 2 P) (x : P) : x ^ᶻ omega2 = x := 
           QuotientGroup.eq_one_iff]
       rw [← (QuotientGroup.isQuotientMap_mk U.toSubgroup).isOpen_preimage, hpre]
       exact U.isOpen'
-    haveI : Finite (P ⧸ U.toSubgroup) := Subgroup.quotient_finite_of_isOpen _ U.isOpen'
+    have : Finite (P ⧸ U.toSubgroup) := Subgroup.quotient_finite_of_isOpen _ U.isOpen'
     have hω := map_zpowHat_omega2 (P := P ⧸ U.toSubgroup)
       { toMonoidHom := QuotientGroup.mk' U.toSubgroup
         continuous_toFun := continuous_quot_mk } x
@@ -283,8 +283,7 @@ noncomputable def d0Lift (hH : IsProP 2 H) (m : Fin 3 → H)
         refine Subgroup.topologicalClosure_minimal _
           (Subgroup.normalClosure_le_normal ?_) ?_
         · intro r hr
-          rw [Set.mem_singleton_iff.mp hr, SetLike.mem_coe, MonoidHom.mem_ker]
-          exact hone
+          rwa [Set.mem_singleton_iff.mp hr, SetLike.mem_coe, MonoidHom.mem_ker]
         · have hker : (f.toMonoidHom.ker : Set (FreeProfiniteGroup (Fin 3)))
               = ⇑f ⁻¹' {1} := by
             ext x
@@ -432,11 +431,11 @@ variable {M : OpenNormalSubgroup K} (hM : M.toSubgroup.index = 2)
 include hM in
 /-- The index-2 quotient is commutative. -/
 lemma quotient_mul_comm (z w : K ⧸ M.toSubgroup) : z * w = w * z := by
-  haveI : Finite (K ⧸ M.toSubgroup) := Subgroup.quotient_finite_of_isOpen _ M.isOpen'
+  have : Finite (K ⧸ M.toSubgroup) := Subgroup.quotient_finite_of_isOpen _ M.isOpen'
   have hcard : Nat.card (K ⧸ M.toSubgroup) = 2 := by
-    rw [← Subgroup.index_eq_card]; exact hM
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  haveI := isCyclic_of_prime_card (p := 2) hcard
+    rwa [← Subgroup.index_eq_card]
+  have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have := isCyclic_of_prime_card (p := 2) hcard
   obtain ⟨g, hg⟩ := IsCyclic.exists_generator (α := K ⧸ M.toSubgroup)
   obtain ⟨i, hi⟩ := Subgroup.mem_zpowers_iff.mp (hg z)
   obtain ⟨j, hj⟩ := Subgroup.mem_zpowers_iff.mp (hg w)
@@ -445,9 +444,9 @@ lemma quotient_mul_comm (z w : K ⧸ M.toSubgroup) : z * w = w * z := by
 include hM in
 /-- Squares die in the index-2 quotient. -/
 lemma quotient_sq_eq_one (z : K ⧸ M.toSubgroup) : z ^ 2 = 1 := by
-  haveI : Finite (K ⧸ M.toSubgroup) := Subgroup.quotient_finite_of_isOpen _ M.isOpen'
+  have : Finite (K ⧸ M.toSubgroup) := Subgroup.quotient_finite_of_isOpen _ M.isOpen'
   have hcard : Nat.card (K ⧸ M.toSubgroup) = 2 := by
-    rw [← Subgroup.index_eq_card]; exact hM
+    rwa [← Subgroup.index_eq_card]
   have hdvd : orderOf z ∣ 2 := hcard ▸ orderOf_dvd_natCard z
   exact orderOf_dvd_iff_pow_eq_one.mp hdvd
 
@@ -468,8 +467,8 @@ include hM in
 /-- **B8's `ι`-powers die in index-2 quotients**: `q(x ^ᶻ ι u) = q(x)` (`u` is odd). -/
 lemma quotient_map_zpowHat_iota (R : PeripheralCyclotomicAction) (x : K) (u : ℤ_[2]ˣ) :
     QuotientGroup.mk' M.toSubgroup (x ^ᶻ R.ι u) = QuotientGroup.mk' M.toSubgroup x := by
-  haveI := discreteTopology_quotient_openNormal M
-  haveI : Finite (K ⧸ M.toSubgroup) := Subgroup.quotient_finite_of_isOpen _ M.isOpen'
+  have := discreteTopology_quotient_openNormal M
+  have : Finite (K ⧸ M.toSubgroup) := Subgroup.quotient_finite_of_isOpen _ M.isOpen'
   have h1 : IsTopologicalGroup (K ⧸ M.toSubgroup) := by infer_instance
   have h2 : CompactSpace (K ⧸ M.toSubgroup) := by infer_instance
   have h3 : TotallyDisconnectedSpace (K ⧸ M.toSubgroup) := by infer_instance
@@ -637,14 +636,14 @@ lemma lambdaHom_mem_closure (γ : Delta) :
 `u`-powers and the conjugators are invisible, so `Ψ_u` moves the generators by elements the
 generators already reach). -/
 theorem psiHom_surjective : Function.Surjective (psiHom R u) := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   refine surjective_of_forall_index_p_quotient_surjective isProP_d0 (psiHom R u) ?_
   intro M hM
-  haveI := discreteTopology_quotient_openNormal M
-  haveI : Finite ((D0 : Type) ⧸ M.toSubgroup) := Subgroup.quotient_finite_of_isOpen _ M.isOpen'
+  have := discreteTopology_quotient_openNormal M
+  have : Finite ((D0 : Type) ⧸ M.toSubgroup) := Subgroup.quotient_finite_of_isOpen _ M.isOpen'
   have hcard : Nat.card ((D0 : Type) ⧸ M.toSubgroup) = 2 := by
-    rw [← Subgroup.index_eq_card]; exact hM
-  haveI : Fact (Nat.Prime (Nat.card ((D0 : Type) ⧸ M.toSubgroup))) := ⟨hcard ▸ Nat.prime_two⟩
+    rwa [← Subgroup.index_eq_card]
+  have : Fact (Nat.Prime (Nat.card ((D0 : Type) ⧸ M.toSubgroup))) := ⟨hcard ▸ Nat.prime_two⟩
   set c : (D0 : Type) →* ((D0 : Type) ⧸ M.toSubgroup) :=
     (QuotientGroup.mk' M.toSubgroup).comp (psiHom R u).toMonoidHom with hcdef
   rcases c.range.eq_bot_or_eq_top_of_prime_card with hbot | htop
@@ -672,15 +671,14 @@ theorem psiHom_surjective : Function.Surjective (psiHom R u) := by
     -- … hence `y` …
     have hqy : QuotientGroup.mk' M.toSubgroup d0Y = 1 := by
       have h := hval d0Y
-      rw [psiHom_Y, map_mul, map_mul, map_inv, hκ (R.cP u), hκ (R.cT u), inv_one, one_mul,
+      rwa [psiHom_Y, map_mul, map_mul, map_inv, hκ (R.cP u), hκ (R.cT u), inv_one, one_mul,
         mul_one] at h
-      exact h
     -- … hence everything: the quotient is trivial, contradicting index 2.
     have hkerAll := topClosure_closure_le_ker
       (⟨QuotientGroup.mk' M.toSubgroup, continuous_quot_mk⟩ :
         ContinuousMonoidHom (D0 : Type) ((D0 : Type) ⧸ M.toSubgroup))
       (S := {d0A, d0S, d0Y}) (by rintro x (rfl | rfl | rfl) <;> assumption)
-    haveI : Nontrivial ((D0 : Type) ⧸ M.toSubgroup) := by
+    have : Nontrivial ((D0 : Type) ⧸ M.toSubgroup) := by
       rw [← Finite.one_lt_card_iff_nontrivial, hcard]
       norm_num
     obtain ⟨z, hz⟩ := exists_ne (1 : (D0 : Type) ⧸ M.toSubgroup)
@@ -807,8 +805,8 @@ lemma bCoordHom_A : bCoordHom B d0A = ofAdd ((1 : ZMod 2), (-2 : ℤ_[2]), (0 : 
   have hsplit : d0A = (d0A * d0S ^ 2) * (d0S ^ 2)⁻¹ := by group
   have hφt : bCoordHom B (d0A * d0S ^ 2)
       = ofAdd ((1 : ZMod 2), (0 : ℤ_[2]), (0 : ℤ_[2])) := B.map_t
-  rw [hsplit, map_mul, map_inv, map_pow, hφt, bCoordHom_S]
-  rw [← ofAdd_nsmul, ← ofAdd_neg, ← ofAdd_add]
+  rw [hsplit, map_mul, map_inv, map_pow, hφt, bCoordHom_S, ← ofAdd_nsmul, ← ofAdd_neg,
+    ← ofAdd_add]
   congr 1
   simp
 
@@ -1180,14 +1178,14 @@ local instance instCompactSpaceTopAbBridge {G : Type*} [Group G] [TopologicalSpa
 local instance instT2SpaceTopAbBridge {G : Type*} [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
     T2Space (topAbelianization G) :=
-  haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
+  have : IsClosed ((commutator G).topologicalClosure : Set G) :=
     (commutator G).isClosed_topologicalClosure
   inferInstanceAs (T2Space (G ⧸ (commutator G).topologicalClosure))
 
 local instance instTotallyDisconnectedSpaceTopAbBridge {G : Type*} [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
     TotallyDisconnectedSpace (topAbelianization G) :=
-  haveI : IsClosed ((commutator G).topologicalClosure : Set G) :=
+  have : IsClosed ((commutator G).topologicalClosure : Set G) :=
     (commutator G).isClosed_topologicalClosure
   inferInstanceAs (TotallyDisconnectedSpace (G ⧸ (commutator G).topologicalClosure))
 
@@ -1312,8 +1310,7 @@ lemma eta_pow_mod4 (y₀ : ℤ_[2]ˣ) (hy₀ : (y₀ : ℤ_[2]) = -3) (w : ℤ_[
     have hmul : ((y₀⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((y₀ : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
       rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
     have h := congrArg (PadicInt.toZModPow (p := 2) 2) hmul
-    rw [map_mul, map_one, hy0mod, mul_one] at h
-    exact h
+    rwa [map_mul, map_one, hy0mod, mul_one] at h
   set f : Multiplicative ℤ_[2] →* ZMod 4 :=
     (PadicInt.toZModPow (p := 2) 2 : ℤ_[2] →+* ZMod 4).toMonoidHom.comp
       ((Units.coeHom ℤ_[2]).comp
@@ -1341,12 +1338,12 @@ lemma chi_row_extract (y₀ : ℤ_[2]ˣ) (hy₀ : (y₀ : ℤ_[2]) = -3) (a y w 
   have hrlt : (PadicInt.toZModPow (p := 2) 1 a).val < 2 := by
     have hlt := ZMod.val_lt (PadicInt.toZModPow (p := 2) 1 a)
     simpa using hlt
-  rcases (by omega : (PadicInt.toZModPow (p := 2) 1 a).val = 0
+  rcases (by lia : (PadicInt.toZModPow (p := 2) 1 a).val = 0
       ∨ (PadicInt.toZModPow (p := 2) 1 a).val = 1) with hr0 | hr1
   · rw [hr0, pow_zero, one_mul] at h
     constructor
     · have hval0 : (PadicInt.toZModPow (p := 2) 1 a) = 0 := by
-        haveI : NeZero (2 ^ 1) := ⟨by norm_num⟩
+        have : NeZero (2 ^ 1) := ⟨by norm_num⟩
         exact (ZMod.val_eq_zero _).mp hr0
       have hker : a ∈ RingHom.ker (PadicInt.toZModPow (p := 2) 1) := hval0
       rw [PadicInt.ker_toZModPow, pow_one, Ideal.mem_span_singleton] at hker
