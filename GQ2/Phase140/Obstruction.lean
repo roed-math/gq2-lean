@@ -56,9 +56,7 @@ omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
 theorem iotaB_eq_zero_iff {φ : Γ × Γ → ZMod 2} :
     iotaB φ = 0 ↔ φ ∈ B2 Γ (ZMod 2) := by
   unfold iotaB
-  split_ifs with h
-  · exact ⟨fun _ => h, fun _ => rfl⟩
-  · exact ⟨fun h1 => absurd h1 one_ne_zero, fun hmem => absurd hmem h⟩
+  split_ifs with h <;> simp [h]
 
 omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
 theorem iotaB_of_mem_B2 {φ : Γ × Γ → ZMod 2} (h : φ ∈ B2 Γ (ZMod 2)) : iotaB φ = 0 :=
@@ -67,10 +65,8 @@ theorem iotaB_of_mem_B2 {φ : Γ × Γ → ZMod 2} (h : φ ∈ B2 Γ (ZMod 2)) :
 omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
 /-- The `H²`-class of a cocycle vanishes iff its underlying cochain is a coboundary. -/
 theorem H2mk_eq_zero_iff (φ : Z2 Γ (ZMod 2)) :
-    H2mk Γ (ZMod 2) φ = 0 ↔ (φ : Γ × Γ → ZMod 2) ∈ B2 Γ (ZMod 2) := by
-  rw [show H2mk Γ (ZMod 2) φ = 0 ↔ φ ∈ (B2 Γ (ZMod 2)).addSubgroupOf (Z2 Γ (ZMod 2)) from
-    QuotientAddGroup.eq_zero_iff φ]
-  exact AddSubgroup.mem_addSubgroupOf
+    H2mk Γ (ZMod 2) φ = 0 ↔ (φ : Γ × Γ → ZMod 2) ∈ B2 Γ (ZMod 2) :=
+  (QuotientAddGroup.eq_zero_iff φ).trans AddSubgroup.mem_addSubgroupOf
 
 omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
 /-- **Additivity of `ι_Γ` on cocycles** (`#H²(Γ,𝔽₂) = 2`): the indicator is the unique
@@ -89,22 +85,17 @@ theorem iotaB_add (hH2 : Nat.card (H2 Γ (ZMod 2)) = 2) {φ ψ : Γ × Γ → ZM
     have hcard3 : ({0, x, y} : Finset (H2 Γ (ZMod 2))).card = 3 := by
       rw [Finset.card_insert_of_notMem (by simp [Ne.symm hx, Ne.symm hy]),
         Finset.card_insert_of_notMem (by simp [hxy]), Finset.card_singleton]
-    have hle : ({0, x, y} : Finset (H2 Γ (ZMod 2))).card ≤ Fintype.card (H2 Γ (ZMod 2)) :=
-      Finset.card_le_univ _
+    have hle := Finset.card_le_univ ({0, x, y} : Finset (H2 Γ (ZMod 2)))
     rw [hcard3, ← Nat.card_eq_fintype_card, hH2] at hle
     omega
   by_cases h1 : φ ∈ B2 Γ (ZMod 2) <;> by_cases h2 : ψ ∈ B2 Γ (ZMod 2)
   · rw [iotaB_of_mem_B2 h1, iotaB_of_mem_B2 h2, iotaB_of_mem_B2 (AddSubgroup.add_mem _ h1 h2),
       add_zero]
-  · have hsum : φ + ψ ∉ B2 Γ (ZMod 2) := fun hmem => by
-      have := AddSubgroup.sub_mem _ hmem h1
-      rw [add_sub_cancel_left] at this
-      exact h2 this
+  · have hsum : φ + ψ ∉ B2 Γ (ZMod 2) :=
+      fun hmem => h2 (by simpa using AddSubgroup.sub_mem _ hmem h1)
     rw [iotaB_of_mem_B2 h1, iotaB, if_neg hsum, iotaB, if_neg h2, zero_add]
-  · have hsum : φ + ψ ∉ B2 Γ (ZMod 2) := fun hmem => by
-      have := AddSubgroup.sub_mem _ hmem h2
-      rw [add_sub_cancel_right] at this
-      exact h1 this
+  · have hsum : φ + ψ ∉ B2 Γ (ZMod 2) :=
+      fun hmem => h1 (by simpa using AddSubgroup.sub_mem _ hmem h2)
     rw [iotaB_of_mem_B2 h2, iotaB, if_neg hsum, iotaB, if_neg h1, add_zero]
   · -- both classes nonzero, hence equal; their sum is zero
     have hx : H2mk Γ (ZMod 2) ⟨φ, hφ⟩ ≠ 0 := fun h0 => h1 ((H2mk_eq_zero_iff _).mp h0)
@@ -112,15 +103,9 @@ theorem iotaB_add (hH2 : Nat.card (H2 Γ (ZMod 2)) = 2) {φ ψ : Γ × Γ → ZM
     have hxy := huniq _ _ hx hy
     have hyy : H2mk Γ (ZMod 2) ⟨ψ, hψ⟩ + H2mk Γ (ZMod 2) ⟨ψ, hψ⟩ = 0 := by
       by_contra hne
-      have hcollapse := huniq _ _ hne hy
-      have h0 : H2mk Γ (ZMod 2) ⟨ψ, hψ⟩ = 0 := by
-        have := congrArg (· - H2mk Γ (ZMod 2) ⟨ψ, hψ⟩) hcollapse
-        simpa using this
-      exact hy h0
+      exact hy (add_eq_right.mp (huniq _ _ hne hy))
     have hsum0 : H2mk Γ (ZMod 2) (⟨φ, hφ⟩ + ⟨ψ, hψ⟩) = 0 := by
-      have : H2mk Γ (ZMod 2) (⟨φ, hφ⟩ + ⟨ψ, hψ⟩)
-          = H2mk Γ (ZMod 2) ⟨φ, hφ⟩ + H2mk Γ (ZMod 2) ⟨ψ, hψ⟩ := map_add _ _ _
-      rw [this, hxy, hyy]
+      rw [map_add, hxy, hyy]
     have hmem : φ + ψ ∈ B2 Γ (ZMod 2) := (H2mk_eq_zero_iff _).mp hsum0
     rw [iotaB_of_mem_B2 hmem, iotaB, if_neg h1, iotaB, if_neg h2]
     decide
@@ -185,15 +170,14 @@ theorem CentralCover.ker_dichotomy (CC : CentralCover Y0) {x : CC.cover}
 /-- `z`-powers are central. -/
 theorem CentralCover.z_pow_comm (CC : CentralCover Y0) (n : ℕ) (x : CC.cover) :
     CC.z ^ n * x = x * CC.z ^ n := by
-  have hc : Commute CC.z x := CC.central x
-  exact (hc.pow_left n).eq
+  exact (Commute.pow_left (CC.central x) n).eq
 
 /-- `𝔽₂`-exponents of `z` are determined: `z^{a} = z^{b} → a = b`. -/
 theorem CentralCover.z_pow_val_inj (CC : CentralCover Y0) {a b : ZMod 2}
     (h : CC.z ^ a.val = CC.z ^ b.val) : a = b := by
   by_contra hne
-  rcases (show ∀ x : ZMod 2, x = 0 ∨ x = 1 from by decide) a with rfl | rfl <;>
-    rcases (show ∀ x : ZMod 2, x = 0 ∨ x = 1 from by decide) b with rfl | rfl
+  have key : ∀ x : ZMod 2, x = 0 ∨ x = 1 := by decide
+  rcases key a with rfl | rfl <;> rcases key b with rfl | rfl
   · exact hne rfl
   · rw [show ((0 : ZMod 2)).val = 0 from rfl, show ((1 : ZMod 2)).val = 1 from rfl,
       pow_zero, pow_one] at h
@@ -227,20 +211,15 @@ theorem centralCover_lift_iff (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
     rintro ⟨g, hg⟩
     classical
     set w : Γ → ZMod 2 := fun γ => if g γ * (s (f γ))⁻¹ = 1 then 0 else 1 with hw
-    have hker : ∀ γ, g γ * (s (f γ))⁻¹ ∈ CC.p.ker := by
-      intro γ
-      rw [MonoidHom.mem_ker, map_mul, map_inv, hg, hs, mul_inv_cancel]
+    have hker : ∀ γ, g γ * (s (f γ))⁻¹ ∈ CC.p.ker :=
+      fun γ => by rw [MonoidHom.mem_ker, map_mul, map_inv, hg, hs, mul_inv_cancel]
     have hrec : ∀ γ, g γ = CC.z ^ (w γ).val * s (f γ) := by
       intro γ
       rcases CC.ker_dichotomy (hker γ) with h1 | hz
-      · have heq : g γ = s (f γ) := by
-          have := congrArg (· * s (f γ)) h1
-          simpa [mul_assoc] using this
+      · have heq : g γ = s (f γ) := by simpa [mul_assoc] using congrArg (· * s (f γ)) h1
         have hwγ : w γ = 0 := if_pos h1
         rw [hwγ, show ((0 : ZMod 2)).val = 0 from rfl, pow_zero, one_mul, heq]
-      · have heq : g γ = CC.z * s (f γ) := by
-          have := congrArg (· * s (f γ)) hz
-          simpa [mul_assoc] using this
+      · have heq : g γ = CC.z * s (f γ) := by simpa [mul_assoc] using congrArg (· * s (f γ)) hz
         have hwγ : w γ = 1 := if_neg (fun h => CC.z_ne (hz.symm.trans h))
         rw [hwγ, show ((1 : ZMod 2)).val = 1 from rfl, pow_one, heq]
     refine ⟨w, ?_, ?_⟩
@@ -276,9 +255,8 @@ theorem centralCover_lift_iff (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
       have hval : w (γ * d) = w γ + w d + δ (f γ, f d) := CC.z_pow_val_inj hzeq
       show γ • w d - w (γ * d) + w γ = δ (f γ, f d)
       rw [htriv, hval]
-      have hchar : ∀ a b c : ZMod 2, a - (a + b + c) + b = c := by decide
-      rw [show w γ + w d + δ (f γ, f d) = w d + w γ + δ (f γ, f d) from by ring]
-      exact hchar (w d) (w γ) (δ (f γ, f d))
+      have hchar : ∀ a b c : ZMod 2, b - (a + b + c) + a = c := by decide
+      exact hchar (w γ) (w d) (δ (f γ, f d))
   · -- a trivializing cochain builds the lift `γ ↦ z^{w γ} · s(f γ)`
     rintro ⟨w, hwc, hw⟩
     have hwval : ∀ γ d : Γ, w (γ * d) = w γ + w d + δ (f γ, f d) := by
@@ -332,9 +310,7 @@ theorem sign_iotaB_pullCoc_eq_lift_sign (htriv : ∀ (γ : Γ) (m : ZMod 2), γ 
   by_cases hmem : pullCoc (⇑f) δ ∈ B2 Γ (ZMod 2)
   · rw [if_pos (hiff.mpr hmem), iotaB_of_mem_B2 hmem]
     decide
-  · rw [if_neg fun hex => hmem (hiff.mp hex)]
-    have h1 : iotaB (pullCoc (⇑f) δ) = 1 := by rw [iotaB, if_neg hmem]
-    rw [h1]
+  · rw [if_neg fun hex => hmem (hiff.mp hex), iotaB, if_neg hmem]
     decide
 
 end LiftIff
@@ -377,8 +353,7 @@ theorem sum_phaseSign [Fintype (BoundaryLifts b F RF.TC)] (Cζ : CentralCover RF
     Finset.sum_const, Finset.card_univ, nsmul_eq_mul, mul_one]
   congr 1
   · congr 1
-    rw [Finset.sum_boole]
-    rw [show RF.nPhase b F Cζ = Nat.card {f : BoundaryLifts b F RF.TC //
+    rw [Finset.sum_boole, show RF.nPhase b F Cζ = Nat.card {f : BoundaryLifts b F RF.TC //
         ∃ g : ContinuousMonoidHom Γ Cζ.cover, ∀ γ : Γ, Cζ.p (g γ) = f.1.1 γ} from rfl,
       Nat.card_eq_fintype_card, Fintype.card_subtype]
   · rw [show exactImageCount b F RF.TC = Nat.card (BoundaryLifts b F RF.TC) from rfl,
@@ -472,7 +447,7 @@ theorem phase140_of_phaseObstruction {Γ : Type} [Group Γ] [TopologicalSpace Γ
                 - (exactImageCount b F RF.TC : ℤ))) := by rw [hswap]
   -- assemble
   have hVcast : ((Nat.card ↥RF.MB / Nat.card ↥RF.TBsub : ℕ) : ℤ) = (cardV : ℤ) := by
-    exact_mod_cast congrArg (Nat.cast (R := ℤ)) hWV.symm
+    exact_mod_cast hWV.symm
   rw [hz, show 2 * (Nat.card DT : ℤ) * ((μ₀ : ℤ) * ∑ ρ, (img ρ : ℤ))
       = (μ₀ : ℤ) * (2 * (Nat.card DT : ℤ) * ∑ ρ, (img ρ : ℤ)) from by ring, hsum, hVcast,
     show ((cardV * μ₀ : ℕ) : ℤ) = (cardV : ℤ) * (μ₀ : ℤ) from by push_cast; ring]

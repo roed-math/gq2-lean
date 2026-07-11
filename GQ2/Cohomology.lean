@@ -230,8 +230,7 @@ theorem H2mk_surjective : Function.Surjective (H2mk G M) :=
 omit [IsTopologicalGroup G] [ContinuousSMul G M] in
 /-- A 1-cocycle vanishes at `1`. -/
 theorem Z1_apply_one (φ : Z1 G M) : φ.1 1 = 0 := by
-  have h := (mem_Z1_iff.mp φ.2).2 1 1
-  simpa using h
+  simpa using (mem_Z1_iff.mp φ.2).2 1 1
 
 end Lemmas
 
@@ -345,8 +344,7 @@ omit [IsTopologicalGroup G] [ContinuousSMul G M] in
 (`φ(gh) = φ(g) + φ(h)`). -/
 theorem mem_Z1_iff_of_trivial {φ : G → M} :
     φ ∈ Z1 G M ↔ Continuous φ ∧ ∀ g h : G, φ (g * h) = φ g + φ h := by
-  rw [mem_Z1_iff]
-  simp only [htriv]
+  simp only [mem_Z1_iff, htriv]
 
 include htriv in
 omit [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace M]
@@ -374,9 +372,8 @@ include htriv in
 omit [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace M]
   [IsTopologicalAddGroup M] [ContinuousSMul G M] in
 /-- With trivial action, everything is invariant. -/
-theorem H0_eq_top_of_trivial : H0 G M = ⊤ := by
-  rw [eq_top_iff]
-  exact fun m _ => fun g => htriv g m
+theorem H0_eq_top_of_trivial : H0 G M = ⊤ :=
+  eq_top_iff.mpr fun m _ g => htriv g m
 
 end Trivial
 
@@ -393,12 +390,10 @@ variable {M : Type*} [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGrou
 omit [IsTopologicalGroup G] [ContinuousSMul G M] in
 /-- The value of a 1-cocycle at an inverse: `φ(g⁻¹) = −g⁻¹ • φ(g)`. -/
 theorem Z1_apply_inv (φ : Z1 G M) (g : G) : φ.1 g⁻¹ = - (g⁻¹ • φ.1 g) := by
-  have hcyc := (mem_Z1_iff.mp φ.2).2
-  have h := hcyc g g⁻¹
+  have h := (mem_Z1_iff.mp φ.2).2 g g⁻¹
   rw [mul_inv_cancel, Z1_apply_one] at h
-  have h2 : g • φ.1 g⁻¹ = - φ.1 g := eq_neg_of_add_eq_zero_right h.symm
-  have h3 := congrArg (g⁻¹ • ·) h2
-  simpa only [smul_smul, inv_mul_cancel, one_smul, smul_neg] using h3
+  simpa only [smul_smul, inv_mul_cancel, one_smul, smul_neg] using
+    congrArg (g⁻¹ • ·) (eq_neg_of_add_eq_zero_right h.symm)
 
 end CocycleAlgebra
 

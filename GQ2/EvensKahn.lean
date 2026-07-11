@@ -78,18 +78,12 @@ variable {G : Type*} [Group G]
 lemma mul_mem_iff_of_index_two {U : Subgroup G} (h : U.index = 2) (x y : G) :
     x * y ∈ U ↔ (x ∈ U ↔ y ∈ U) := by
   by_cases hx : x ∈ U
-  · rw [U.mul_mem_cancel_left hx]
-    simp [hx]
+  · simp [U.mul_mem_cancel_left hx, hx]
   · obtain ⟨a, ha⟩ := Subgroup.index_eq_two_iff'.mp h
-    have hax : a * x ∈ U := by
-      rcases ha x with ⟨h1, _⟩ | ⟨h1, _⟩
-      · exact h1
-      · exact absurd h1 hx
+    have hax : a * x ∈ U := (ha x).elim (·.1) (fun h => absurd h.1 hx)
     have hxy := ha (x * y)
     rw [← mul_assoc, U.mul_mem_cancel_left hax] at hxy
-    rcases hxy with ⟨hy, hnxy⟩ | ⟨hxy', hny⟩
-    · simp [hnxy, hy, hx]
-    · simp [hxy', hny, hx]
+    rcases hxy with ⟨hy, hnxy⟩ | ⟨hxy', hny⟩ <;> simp [*]
 
 lemma notMem_mul_mem {U : Subgroup G} (h : U.index = 2) {x y : G}
     (hx : x ∉ U) (hy : y ∉ U) : x * y ∈ U :=
@@ -201,8 +195,7 @@ lemma evensAux_continuous (hUo : IsOpen (U : Set G)) (hUi : U.index = 2) (hs : s
       hUo.isOpenMap_subtype_val _ (hαc.isOpen_preimage _ (isOpen_discrete _)),
       ⟨⟨g, hg⟩, rfl, rfl⟩, ?_⟩
     rintro x ⟨⟨x', hx'⟩, hval, rfl⟩
-    rw [evensAux_of_mem α hx', evensAux_of_mem α hg]
-    exact hval
+    rwa [evensAux_of_mem α hx', evensAux_of_mem α hg]
   · have hgs : g * s ∈ U := notMem_mul_mem hUi hg hs
     refine ⟨(· * s) ⁻¹' (Subtype.val '' (α ⁻¹' {α ⟨g * s, hgs⟩})),
       (hUo.isOpenMap_subtype_val _ (hαc.isOpen_preimage _ (isOpen_discrete _))).preimage
@@ -210,8 +203,7 @@ lemma evensAux_continuous (hUo : IsOpen (U : Set G)) (hUi : U.index = 2) (hs : s
     rintro x ⟨⟨x', hx'⟩, hval, hxs⟩
     obtain rfl : x' = x * s := hxs
     have hxU : x ∉ U := fun h => hs ((U.mul_mem_cancel_left h).mp hx')
-    rw [evensAux_of_notMem hUi hs α hxU, evensAux_of_notMem hUi hs α hg]
-    exact hval
+    rwa [evensAux_of_notMem hUi hs α hxU, evensAux_of_notMem hUi hs α hg]
 
 lemma bS_continuous (hUo : IsOpen (U : Set G)) (hUi : U.index = 2) (hs : s ∉ U)
     {α : U → ZMod 2} (hαc : Continuous α) : Continuous (bS U s α) :=
@@ -287,9 +279,8 @@ lemma evensNormFun_continuous (hUo : IsOpen (U : Set G)) (hUi : U.index = 2) (hs
     {α : U → ZMod 2} (hαc : Continuous α) : Continuous (evensNormFun U s α) := by
   have hb1 := evensAux_continuous hUo hUi hs hαc
   have hbs := bS_continuous hUo hUi hs hαc
-  have hUc : IsClopen (U : Set G) := ⟨(OpenSubgroup.mk U hUo).isClosed, hUo⟩
-  have hclopen : IsClopen {q : G × G | q.1 ∈ U} := IsClopen.preimage hUc continuous_fst
-  have hfr : frontier {q : G × G | q.1 ∈ U} = ∅ := IsClopen.frontier_eq hclopen
+  have hfr : frontier {q : G × G | q.1 ∈ U} = ∅ :=
+    (IsClopen.preimage ⟨(OpenSubgroup.mk U hUo).isClosed, hUo⟩ continuous_fst).frontier_eq
   refine Continuous.if (fun q hq => absurd (hfr ▸ hq) (Set.notMem_empty q)) ?_ ?_
   · exact (hb1.comp continuous_fst).mul (hbs.comp continuous_snd)
   · exact ((hb1.comp continuous_fst).mul (hb1.comp continuous_snd)).add
@@ -350,12 +341,8 @@ variable {K : Type*} [Field K] [CharZero K]
 open Kummer
 
 /-- A nonzero element of a characteristic-zero field is not its own negative. -/
-lemma ne_neg_of_ne_zero {β : AlgebraicClosure K} (hβ0 : β ≠ 0) : β ≠ -β := by
-  intro h
-  have h2 : (2 : AlgebraicClosure K) * β = 0 := by linear_combination h
-  rcases mul_eq_zero.1 h2 with h' | h'
-  · exact two_ne_zero h'
-  · exact hβ0 h'
+lemma ne_neg_of_ne_zero {β : AlgebraicClosure K} (hβ0 : β ≠ 0) : β ≠ -β :=
+  fun h => hβ0 (CharZero.eq_neg_self_iff.mp h)
 
 omit [CharZero K] in
 /-- If `g` fixes `β²`, then `g√ = ±√`: the two-values lemma with an abstract fixed square
@@ -365,9 +352,7 @@ lemma two_values_of_fixed {A β : AlgebraicClosure K} (hβ : β ^ 2 = A)
   have key : (g • β) ^ 2 = β ^ 2 := by
     rw [AlgEquiv.smul_def, ← map_pow, hβ, ← AlgEquiv.smul_def, hg]
   have hfac : (g • β - β) * (g • β + β) = 0 := by linear_combination key
-  rcases mul_eq_zero.1 hfac with h | h
-  · exact Or.inl (sub_eq_zero.1 h)
-  · exact Or.inr (add_eq_zero_iff_eq_neg.1 h)
+  exact (mul_eq_zero.1 hfac).imp sub_eq_zero.1 add_eq_zero_iff_eq_neg.1
 
 variable {A β : AlgebraicClosure K} {N : Subgroup (GaloisGroup K)}
 
@@ -376,12 +361,10 @@ lemma kummerCocycleFun_hom_on (hβ : β ^ 2 = A) (hβ0 : β ≠ 0)
     (hN : ∀ g ∈ N, g • A = A) (g h : N) :
     kummerCocycleFun β ((g : GaloisGroup K) * h)
       = kummerCocycleFun β g + kummerCocycleFun β h := by
-  have hgA := hN g g.2
-  have hhA := hN h h.2
   have eq1 : ∀ {x : GaloisGroup K}, x • β = -β → kummerCocycleFun β x = 1 :=
     fun hx => if_neg (fun e => ne_neg_of_ne_zero hβ0 (e.symm.trans hx))
-  rcases two_values_of_fixed hβ hgA with hg' | hg' <;>
-    rcases two_values_of_fixed hβ hhA with hh' | hh'
+  rcases two_values_of_fixed hβ (hN g g.2) with hg' | hg' <;>
+    rcases two_values_of_fixed hβ (hN h h.2) with hh' | hh'
   · rw [kummerCocycleFun_eq0 hg', kummerCocycleFun_eq0 hh',
       kummerCocycleFun_eq0 (by rw [mul_smul, hh', hg'])]
     decide
@@ -425,11 +408,8 @@ noncomputable def sqrtCl (x : ℚ̄₂) : ℚ̄₂ :=
 @[simp] lemma sqrtCl_sq (x : ℚ̄₂) : sqrtCl x ^ 2 = x :=
   (IsAlgClosed.exists_pow_nat_eq x two_pos).choose_spec
 
-lemma sqrtCl_ne_zero {x : ℚ̄₂} (hx : x ≠ 0) : sqrtCl x ≠ 0 := by
-  intro h
-  apply hx
-  rw [← sqrtCl_sq x, h]
-  norm_num
+lemma sqrtCl_ne_zero {x : ℚ̄₂} (hx : x ≠ 0) : sqrtCl x ≠ 0 :=
+  fun h => hx (by rw [← sqrtCl_sq x, h]; norm_num)
 
 /-- `G_k = fixingSubgroup k` fixes the elements of `k`, in `•`-form. -/
 lemma fixingSubgroup_smul (k : IntermediateField ℚ_[2] ℚ̄₂)

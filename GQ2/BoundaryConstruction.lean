@@ -60,25 +60,16 @@ theorem wildRelWord_eq {G : Type*} [Group G] (σ x₀ x₁ : G)
         * conjP x₁ σ * (Marking.mk σ 1 x₀ x₁).c0
       = conjP x₀ (σ ^ 2) * x₀ * commP x₁ σ := by
   set t : Marking G := Marking.mk σ 1 x₀ x₁ with ht
-  have hu0 : t.u0 = x₀ := by
-    show powOmega2 (t.x₀ * t.τ) = x₀
-    rw [show t.x₀ = x₀ from rfl, show t.τ = 1 from rfl, mul_one, hx0]
-  have hu1 : t.u1 = x₁ := by
-    show powOmega2 (t.x₁ * t.τ) = x₁
-    rw [show t.x₁ = x₁ from rfl, show t.τ = 1 from rfl, mul_one, hx1]
-  have hs2 : t.sigma2 = σ := by
-    show powOmega2 t.σ = σ
-    rw [show t.σ = σ from rfl, hσ]
-  have hd0 : t.d0 = 1 := by
-    rw [Marking.d0, hu0, show t.x₀ = x₀ from rfl, mul_inv_cancel]
-  have hc0 : t.c0 = 1 := by
-    rw [Marking.c0, hd0]; simp [commP]
+  have hu0 : t.u0 = x₀ := by rw [show t.u0 = powOmega2 (x₀ * 1) from rfl, mul_one, hx0]
+  have hu1 : t.u1 = x₁ := by rw [show t.u1 = powOmega2 (x₁ * 1) from rfl, mul_one, hx1]
+  have hs2 : t.sigma2 = σ := hσ
+  have hd0 : t.d0 = 1 := by rw [Marking.d0, hu0, show t.x₀ = x₀ from rfl, mul_inv_cancel]
+  have hc0 : t.c0 = 1 := by rw [Marking.c0, hd0]; simp [commP]
   have hg0 : t.g0 = σ ^ 2 := by rw [Marking.g0, hs2]
   have hdg : t.dg = 1 := by rw [Marking.dg, hd0]; simp [conjP]
   have hhc : t.hc = 1 := by rw [Marking.hc, hdg, hd0]; simp [commP]
   have hh0 : t.h0 = conjP x₀ (σ ^ 2) * x₀ := by
-    rw [Marking.h0, hdg, hd0, hhc, hg0, show t.x₀ = x₀ from rfl]
-    simp
+    rw [Marking.h0, hdg, hd0, hhc, hg0, show t.x₀ = x₀ from rfl]; simp
   rw [hh0, hu1, hc0, mul_one]
   simp only [conjP, commP]
   group
@@ -125,15 +116,9 @@ theorem topGen_piBd :
     rw [← Set.range_comp]
     ext z
     constructor
-    · rintro ⟨i, rfl⟩; fin_cases i
-      · exact Set.mem_insert _ _
-      · exact Set.mem_insert_of_mem _ (Set.mem_insert _ _)
-      · exact Set.mem_insert_of_mem _ (Set.mem_insert_of_mem _ rfl)
-    · intro hz
-      rcases hz with rfl | rfl | rfl
-      · exact ⟨0, rfl⟩
-      · exact ⟨1, rfl⟩
-      · exact ⟨2, rfl⟩
+    · rintro ⟨i, rfl⟩; fin_cases i <;> simp
+    · rintro (rfl | rfl | rfl)
+      exacts [⟨0, rfl⟩, ⟨1, rfl⟩, ⟨2, rfl⟩]
   rwa [h1] at h
 
 /-- In every discrete continuous quotient of `Π`, the images of `πσ, πx₀, πx₁` generate. -/
@@ -186,30 +171,18 @@ theorem isAdmissible_piClassifier_level (V : OpenNormalSubgroup PiBd) :
   set q : PiBd →* PiBd ⧸ V.toSubgroup := QuotientGroup.mk' V.toSubgroup with hq
   set f : FreeProfiniteGroup (Fin 4) →* PiBd ⧸ V.toSubgroup :=
     q.comp piClassifier.hom.toMonoidHom with hf
-  have hσ : (univMarking.map f).σ = q piSigma := by
-    show f univMarking.σ = q piSigma
-    rw [hf, MonoidHom.comp_apply, piClassifier_sigma]
-  have hτ : (univMarking.map f).τ = 1 := by
-    show f univMarking.τ = 1
-    rw [hf, MonoidHom.comp_apply, piClassifier_tau, map_one]
-  have hx0 : (univMarking.map f).x₀ = q piX0 := by
-    show f univMarking.x₀ = q piX0
-    rw [hf, MonoidHom.comp_apply, piClassifier_x0]
-  have hx1 : (univMarking.map f).x₁ = q piX1 := by
-    show f univMarking.x₁ = q piX1
-    rw [hf, MonoidHom.comp_apply, piClassifier_x1]
+  have hσ : (univMarking.map f).σ = q piSigma := congrArg q piClassifier_sigma
+  have hτ : (univMarking.map f).τ = 1 := (congrArg q piClassifier_tau).trans (map_one q)
+  have hx0 : (univMarking.map f).x₀ = q piX0 := congrArg q piClassifier_x0
+  have hx1 : (univMarking.map f).x₁ = q piX1 := congrArg q piClassifier_x1
   refine ⟨?_, ?_, ?_, ?_⟩
   · -- Generates
     rw [Marking.Generates, hσ, hτ, hx0, hx1]
     have hgen : Subgroup.closure {q piSigma, q piX0, q piX1} = ⊤ :=
       gen_piBd_quotient q continuous_quot_mk (QuotientGroup.mk'_surjective _)
     rw [eq_top_iff, ← hgen]
-    refine Subgroup.closure_mono ?_
-    intro z hz
-    rcases hz with rfl | rfl | rfl
-    · exact Set.mem_insert _ _
-    · exact Set.mem_insert_of_mem _ (Set.mem_insert_of_mem _ (Set.mem_insert _ _))
-    · exact Set.mem_insert_of_mem _ (Set.mem_insert_of_mem _ (Set.mem_insert_of_mem _ rfl))
+    refine Subgroup.closure_mono fun z hz => ?_
+    rcases hz with rfl | rfl | rfl <;> simp
   · -- TameRel (τ = 1)
     rw [Marking.TameRel, hσ, hτ]
     simp [conjP]
@@ -237,9 +210,7 @@ theorem NA_le_ker_piClassifier : NA ≤ piClassifier.hom.toMonoidHom.ker := by
   set f : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4)) (PiBd ⧸ V.toSubgroup) :=
     (quotientMk V.toSubgroup).comp piClassifier.hom with hf
   have hadm : (univMarking.map f.toMonoidHom).Admissible := isAdmissible_piClassifier_level V
-  have hker := NA_le_ker f hadm hx
-  rw [MonoidHom.mem_ker] at hker
-  exact (QuotientGroup.eq_one_iff _).mp hker
+  exact (QuotientGroup.eq_one_iff _).mp (MonoidHom.mem_ker.mp (NA_le_ker f hadm hx))
 
 /-- The descent `φ_Π : Γ_A → Π` (`σ ↦ πσ, τ ↦ 1, x₀ ↦ πx₀, x₁ ↦ πx₁`) — Prop 3.14's `pro2A`. -/
 noncomputable def phiP : ContinuousMonoidHom GammaA PiBd :=
@@ -249,30 +220,22 @@ noncomputable def phiP : ContinuousMonoidHom GammaA PiBd :=
 @[simp] lemma phiP_gammaSigma : phiP gammaSigma = piSigma := by
   haveI : IsClosed (NA : Set (FreeProfiniteGroup (Fin 4))) := NA_isClosed
   show phiP (quotientMk NA univMarking.σ) = piSigma
-  rw [show phiP (quotientMk NA univMarking.σ)
-    = piClassifier.hom (univMarking.σ) from quotientLift_quotientMk _ _ _ _]
-  exact piClassifier_sigma
+  exact (quotientLift_quotientMk _ _ _ _).trans piClassifier_sigma
 
 @[simp] lemma phiP_gammaTau : phiP gammaTau = 1 := by
   haveI : IsClosed (NA : Set (FreeProfiniteGroup (Fin 4))) := NA_isClosed
   show phiP (quotientMk NA univMarking.τ) = 1
-  rw [show phiP (quotientMk NA univMarking.τ)
-    = piClassifier.hom (univMarking.τ) from quotientLift_quotientMk _ _ _ _]
-  exact piClassifier_tau
+  exact (quotientLift_quotientMk _ _ _ _).trans piClassifier_tau
 
 @[simp] lemma phiP_gammaX0 : phiP gammaX0 = piX0 := by
   haveI : IsClosed (NA : Set (FreeProfiniteGroup (Fin 4))) := NA_isClosed
   show phiP (quotientMk NA univMarking.x₀) = piX0
-  rw [show phiP (quotientMk NA univMarking.x₀)
-    = piClassifier.hom (univMarking.x₀) from quotientLift_quotientMk _ _ _ _]
-  exact piClassifier_x0
+  exact (quotientLift_quotientMk _ _ _ _).trans piClassifier_x0
 
 @[simp] lemma phiP_gammaX1 : phiP gammaX1 = piX1 := by
   haveI : IsClosed (NA : Set (FreeProfiniteGroup (Fin 4))) := NA_isClosed
   show phiP (quotientMk NA univMarking.x₁) = piX1
-  rw [show phiP (quotientMk NA univMarking.x₁)
-    = piClassifier.hom (univMarking.x₁) from quotientLift_quotientMk _ _ _ _]
-  exact piClassifier_x1
+  exact (quotientLift_quotientMk _ _ _ _).trans piClassifier_x1
 
 /-! ## The backward descent `Π → Γ_A(2)` -/
 
@@ -283,7 +246,7 @@ theorem gammaMarking_tameRel : conjP gammaTau gammaSigma = gammaTau ^ 2 := by
   have e : quotientMk NA univMarking.tameRelator
       = conjP gammaTau gammaSigma * (gammaTau ^ 2)⁻¹ := by
     rw [Marking.tameRelator]
-    simp only [map_mul, map_inv, map_pow, Marking.map_conjP]
+    simp only [map_mul, map_inv, map_pow]
     rfl
   exact mul_inv_eq_one.mp (e.symm.trans h)
 
@@ -369,22 +332,17 @@ theorem piRelatorWord_maxA_eq_one :
 noncomputable def PhiMax : ContinuousMonoidHom (maxProPQuotient 2 GammaA) PiBd :=
   quotientLift (proPKernel 2 GammaA) phiP (proPKernel_le_ker piBd_isProP phiP)
 
-@[simp] lemma PhiMax_mk_gammaSigma : PhiMax (maxProPMk 2 GammaA gammaSigma) = piSigma := by
-  rw [show PhiMax (maxProPMk 2 GammaA gammaSigma) = phiP gammaSigma from
-    quotientLift_quotientMk _ _ _ _]
-  exact phiP_gammaSigma
+@[simp] lemma PhiMax_mk_gammaSigma : PhiMax (maxProPMk 2 GammaA gammaSigma) = piSigma :=
+  (quotientLift_quotientMk _ _ _ _).trans phiP_gammaSigma
 
-@[simp] lemma PhiMax_mk_gammaX0 : PhiMax (maxProPMk 2 GammaA gammaX0) = piX0 := by
-  rw [show PhiMax (maxProPMk 2 GammaA gammaX0) = phiP gammaX0 from quotientLift_quotientMk _ _ _ _]
-  exact phiP_gammaX0
+@[simp] lemma PhiMax_mk_gammaX0 : PhiMax (maxProPMk 2 GammaA gammaX0) = piX0 :=
+  (quotientLift_quotientMk _ _ _ _).trans phiP_gammaX0
 
-@[simp] lemma PhiMax_mk_gammaX1 : PhiMax (maxProPMk 2 GammaA gammaX1) = piX1 := by
-  rw [show PhiMax (maxProPMk 2 GammaA gammaX1) = phiP gammaX1 from quotientLift_quotientMk _ _ _ _]
-  exact phiP_gammaX1
+@[simp] lemma PhiMax_mk_gammaX1 : PhiMax (maxProPMk 2 GammaA gammaX1) = piX1 :=
+  (quotientLift_quotientMk _ _ _ _).trans phiP_gammaX1
 
-@[simp] lemma PhiMax_mk_gammaTau : PhiMax (maxProPMk 2 GammaA gammaTau) = 1 := by
-  rw [show PhiMax (maxProPMk 2 GammaA gammaTau) = phiP gammaTau from quotientLift_quotientMk _ _ _ _]
-  exact phiP_gammaTau
+@[simp] lemma PhiMax_mk_gammaTau : PhiMax (maxProPMk 2 GammaA gammaTau) = 1 :=
+  (quotientLift_quotientMk _ _ _ _).trans phiP_gammaTau
 
 /-- The backward base map `F₃ → Γ_A(2)`, `σ ↦ [σ], x₀ ↦ [x₀], x₁ ↦ [x₁]`. -/
 noncomputable def psiBase : FreeProfiniteGroup (Fin 3) ⟶ maxProPQuotient 2 GammaA :=
@@ -474,11 +432,8 @@ theorem topGen_maxA :
       · exact Set.mem_insert_of_mem _ (Set.mem_insert _ _)
       · exact Set.mem_insert_of_mem _ (Set.mem_insert_of_mem _ (Set.mem_insert _ _))
       · exact Set.mem_insert_of_mem _ (Set.mem_insert_of_mem _ (Set.mem_insert_of_mem _ rfl))
-    · intro hz; rcases hz with rfl | rfl | rfl | rfl
-      · exact ⟨0, rfl⟩
-      · exact ⟨1, rfl⟩
-      · exact ⟨2, rfl⟩
-      · exact ⟨3, rfl⟩
+    · rintro (rfl | rfl | rfl | rfl)
+      exacts [⟨0, rfl⟩, ⟨1, rfl⟩, ⟨2, rfl⟩, ⟨3, rfl⟩]
   rwa [h1] at h
 
 /-- `Φ ∘ Ψ = id` on `Π` (both fix `πσ, πx₀, πx₁`; density). -/
@@ -489,13 +444,7 @@ theorem PhiMax_PsiMax (x : PiBd) : PhiMax (PsiMax x) = x := by
         exact PhiMax.continuous_toFun.comp PsiMax.continuous_toFun) continuous_id
     topGen_piBd ?_
   · exact h x
-  · rintro z (rfl | rfl | rfl)
-    · show PhiMax (PsiMax piSigma) = piSigma
-      rw [PsiMax_piSigma, PhiMax_mk_gammaSigma]
-    · show PhiMax (PsiMax piX0) = piX0
-      rw [PsiMax_piX0, PhiMax_mk_gammaX0]
-    · show PhiMax (PsiMax piX1) = piX1
-      rw [PsiMax_piX1, PhiMax_mk_gammaX1]
+  · rintro z (rfl | rfl | rfl) <;> simp
 
 /-- `Ψ ∘ Φ = id` on `Γ_A(2)` (checked on the four marked generator images; density). -/
 theorem PsiMax_PhiMax (x : maxProPQuotient 2 GammaA) : PsiMax (PhiMax x) = x := by
@@ -505,15 +454,7 @@ theorem PsiMax_PhiMax (x : maxProPQuotient 2 GammaA) : PsiMax (PhiMax x) = x := 
         exact PsiMax.continuous_toFun.comp PhiMax.continuous_toFun) continuous_id
     topGen_maxA ?_
   · exact h x
-  · rintro z (rfl | rfl | rfl | rfl)
-    · show PsiMax (PhiMax (maxProPMk 2 GammaA gammaSigma)) = maxProPMk 2 GammaA gammaSigma
-      rw [PhiMax_mk_gammaSigma, PsiMax_piSigma]
-    · show PsiMax (PhiMax (maxProPMk 2 GammaA gammaTau)) = maxProPMk 2 GammaA gammaTau
-      rw [PhiMax_mk_gammaTau, map_one, maxProPMk_gammaTau]
-    · show PsiMax (PhiMax (maxProPMk 2 GammaA gammaX0)) = maxProPMk 2 GammaA gammaX0
-      rw [PhiMax_mk_gammaX0, PsiMax_piX0]
-    · show PsiMax (PhiMax (maxProPMk 2 GammaA gammaX1)) = maxProPMk 2 GammaA gammaX1
-      rw [PhiMax_mk_gammaX1, PsiMax_piX1]
+  · rintro z (rfl | rfl | rfl | rfl) <;> simp [maxProPMk_gammaTau]
 
 /-- **The marked isomorphism `Γ_A(2) ≅ Π`** (Prop 3.10, `Γ_A` half). -/
 noncomputable def maxAEquiv : ContinuousMulEquiv (maxProPQuotient 2 GammaA) PiBd where
@@ -549,11 +490,8 @@ theorem topGen_gammaA :
       · exact Set.mem_insert_of_mem _ (Set.mem_insert _ _)
       · exact Set.mem_insert_of_mem _ (Set.mem_insert_of_mem _ (Set.mem_insert _ _))
       · exact Set.mem_insert_of_mem _ (Set.mem_insert_of_mem _ (Set.mem_insert_of_mem _ rfl))
-    · intro hz; rcases hz with rfl | rfl | rfl | rfl
-      · exact ⟨0, rfl⟩
-      · exact ⟨1, rfl⟩
-      · exact ⟨2, rfl⟩
-      · exact ⟨3, rfl⟩
+    · rintro (rfl | rfl | rfl | rfl)
+      exacts [⟨0, rfl⟩, ⟨1, rfl⟩, ⟨2, rfl⟩, ⟨3, rfl⟩]
   rwa [h1] at h
 
 end SectionThree

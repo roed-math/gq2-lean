@@ -129,9 +129,7 @@ theorem nsmul_H1_eq_zero (x : H1 G (ZMod p)) : p • x = 0 := by
   induction x using QuotientAddGroup.induction_on with
   | H φ =>
     have hφ : p • φ = 0 := by
-      apply Subtype.ext
-      show p • (φ : G → ZMod p) = 0
-      funext g
+      ext g
       show p • (φ.1 g) = 0
       rw [nsmul_eq_mul, ZMod.natCast_self, zero_mul]
     calc p • (H1mk G (ZMod p) φ) = H1mk G (ZMod p) (p • φ) := (map_nsmul _ _ _).symm
@@ -257,8 +255,7 @@ noncomputable def z1CyclicTwoEquiv : Z1 (DihedralGroup 1) (ZMod 2) ≃+ ZMod 2 w
     revert g h t
     decide⟩
   left_inv φ := by
-    apply Subtype.ext
-    funext g
+    ext g
     rcases cases_c2 g with rfl | rfl
     · show (if (1 : DihedralGroup 1) = 1 then (0 : ZMod 2) else 1) * φ.1 σ = φ.1 1
       rw [if_pos rfl, zero_mul, Z1_apply_one]
@@ -281,10 +278,7 @@ theorem card_H1_cyclicTwo : Nat.card (H1 (DihedralGroup 1) (ZMod 2)) = 2 := by
 def z2CyclicTwoEval : Z2 (DihedralGroup 1) (ZMod 2) →+ ZMod 2 where
   toFun φ := φ.1 (1, 1) + φ.1 (σ, σ)
   map_zero' := by simp
-  map_add' φ ψ := by
-    show (φ.1 (1, 1) + ψ.1 (1, 1)) + (φ.1 (σ, σ) + ψ.1 (σ, σ))
-        = (φ.1 (1, 1) + φ.1 (σ, σ)) + (ψ.1 (1, 1) + ψ.1 (σ, σ))
-    abel
+  map_add' φ ψ := add_add_add_comm _ _ _ _
 
 /-- The value constraints of the cocycle identity on `ℤ/2`: `f(1,σ) = f(1,1)` and
 `f(σ,1) = f(1,σ)`. -/
@@ -352,10 +346,9 @@ private lemma h2CyclicTwoEval_injective : Function.Injective h2CyclicTwoEval := 
     rw [AddSubgroup.mem_addSubgroupOf]
     refine AddSubgroup.mem_map.mpr ⟨fun _ => φ.1 (1, 1), continuous_const, ?_⟩
     funext q
-    have hd : dOne (DihedralGroup 1) (ZMod 2) (fun _ => φ.1 (1, 1)) q
-        = q.1 • φ.1 (1, 1) - φ.1 (1, 1) + φ.1 (1, 1) := rfl
     have hval : dOne (DihedralGroup 1) (ZMod 2) (fun _ => φ.1 (1, 1)) q = φ.1 (1, 1) := by
-      rw [hd, htrivC2, sub_self, zero_add]
+      show q.1 • φ.1 (1, 1) - φ.1 (1, 1) + φ.1 (1, 1) = φ.1 (1, 1)
+      rw [htrivC2, sub_self, zero_add]
     have hcases : ∀ q : DihedralGroup 1 × DihedralGroup 1,
         q = (1, 1) ∨ q = (1, σ) ∨ q = (σ, 1) ∨ q = (σ, σ) := by decide
     rcases hcases q with rfl | rfl | rfl | rfl
@@ -404,8 +397,7 @@ private lemma eq_c0_of_ne_zero (x : H1 (DihedralGroup 1) (ZMod 2)) (hx : x ≠ 0
     · exfalso
       apply hx
       have hzero : φ = 0 := by
-        apply Subtype.ext
-        funext g
+        ext g
         rcases cases_c2 g with rfl | rfl
         · show φ.1 1 = 0
           exact Z1_apply_one φ
@@ -413,8 +405,7 @@ private lemma eq_c0_of_ne_zero (x : H1 (DihedralGroup 1) (ZMod 2)) (hx : x ≠ 0
       rw [hzero]
       exact map_zero (H1mk _ _)
     · have hc0 : φ = cCyclicTwo := by
-        apply Subtype.ext
-        funext g
+        ext g
         rcases cases_c2 g with rfl | rfl
         · show φ.1 1 = if (1 : DihedralGroup 1) = 1 then 0 else 1
           rw [Z1_apply_one, if_pos rfl]
@@ -451,22 +442,18 @@ theorem demushkinQ_cyclicTwo : demushkinQ (DihedralGroup 1) = 2 := by
       show g * h * g⁻¹ * h⁻¹ = 1
       exact (by decide : ∀ g h : DihedralGroup 1, g * h * g⁻¹ * h⁻¹ = 1) g h
     rw [h1]
-    exact Subgroup.ext fun x => by
-      rw [← SetLike.mem_coe, Subgroup.topologicalClosure_coe,
-        IsClosed.closure_eq (isClosed_discrete _)]
-      rfl
+    exact le_antisymm (Subgroup.topologicalClosure_minimal _ le_rfl (isClosed_discrete _))
+      (Subgroup.le_topologicalClosure _)
   -- every element of the (finite) abelianization is torsion
   haveI : Finite (topAbelianization (DihedralGroup 1)) :=
     inferInstanceAs (Finite (DihedralGroup 1 ⧸ _))
   have htor : ∀ x : topAbelianization (DihedralGroup 1), IsOfFinOrder x :=
-    fun x => isOfFinOrder_of_finite x
-  rw [demushkinQ, Nat.card_congr (Equiv.subtypeUnivEquiv htor)]
+    isOfFinOrder_of_finite
   -- `G^{ab} ≃ G ⧸ ⊥ ≃ G`, of cardinality 2
-  have e1 : topAbelianization (DihedralGroup 1) ≃* DihedralGroup 1 ⧸ (⊥ : Subgroup _) :=
-    QuotientGroup.quotientMulEquivOfEq hcomm
-  have e2 : DihedralGroup 1 ⧸ (⊥ : Subgroup (DihedralGroup 1)) ≃* DihedralGroup 1 :=
-    QuotientGroup.quotientBot
-  rw [Nat.card_congr e1.toEquiv, Nat.card_congr e2.toEquiv, Nat.card_eq_fintype_card]
+  have e : topAbelianization (DihedralGroup 1) ≃* DihedralGroup 1 :=
+    (QuotientGroup.quotientMulEquivOfEq hcomm).trans QuotientGroup.quotientBot
+  rw [demushkinQ, Nat.card_congr (Equiv.subtypeUnivEquiv htor), Nat.card_congr e.toEquiv,
+    Nat.card_eq_fintype_card]
   decide
 
 end CyclicTwo
@@ -501,9 +488,8 @@ private lemma b2_eq_top_punit :
   rw [AddSubgroup.mem_addSubgroupOf]
   refine AddSubgroup.mem_map.mpr ⟨fun _ => φ.1 (1, 1), continuous_const, ?_⟩
   funext q
-  have hd : dOne PUnit (ZMod p) (fun _ => φ.1 (1, 1)) q
-      = q.1 • φ.1 (1, 1) - φ.1 (1, 1) + φ.1 (1, 1) := rfl
-  rw [hd, htrivPUnit, sub_self, zero_add]
+  show q.1 • φ.1 (1, 1) - φ.1 (1, 1) + φ.1 (1, 1) = φ.1 q
+  rw [htrivPUnit, sub_self, zero_add]
   -- the residual goal `φ.1 (1,1) = φ.1 q` is closed by `rw`'s `rfl` check: `PUnit` eta makes
   -- `q` definitionally `(1,1)`
 

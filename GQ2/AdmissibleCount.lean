@@ -42,8 +42,7 @@ noncomputable def deepClassesSubgroup (N : Subgroup (Kummer.GaloisGroup ℚ_[2])
     obtain ⟨hA₁0, hA₁fix, b₁, hb₁fix, hA₁eq, hb₁⟩ := hd₁
     obtain ⟨hA₂0, hA₂fix, b₂, hb₂fix, hA₂eq, hb₂⟩ := hd₂
     have h2le : ‖(2 : ℚ̄₂)‖ ≤ 1 := by
-      rw [show (2 : ℚ̄₂) = 1 + 1 by norm_num]
-      exact (IsUltrametricDist.norm_add_le_max 1 1).trans (by rw [norm_one, max_self])
+      simpa using IsUltrametricDist.norm_natCast_le_one ℚ̄₂ 2
     refine ⟨A₁ * A₂, β₁ * β₂,
       ⟨mul_ne_zero hA₁0 hA₂0, fun g hg => ?_, b₁ + b₂ + 2 * b₁ * b₂, fun g hg => ?_,
         by rw [hA₁eq, hA₂eq]; ring, ?_⟩,
@@ -55,18 +54,13 @@ noncomputable def deepClassesSubgroup (N : Subgroup (Kummer.GaloisGroup ℚ_[2])
     · have hprod : ‖(2 : ℚ̄₂) * b₁ * b₂‖ < 1 := by
         rw [norm_mul, norm_mul]
         calc ‖(2 : ℚ̄₂)‖ * ‖b₁‖ * ‖b₂‖
-            ≤ 1 * ‖b₁‖ * ‖b₂‖ := by
-              have := mul_le_mul_of_nonneg_right
-                (mul_le_mul_of_nonneg_right h2le (norm_nonneg b₁)) (norm_nonneg b₂)
-              simpa using this
+            ≤ 1 * ‖b₁‖ * ‖b₂‖ := by gcongr
           _ = ‖b₁‖ * ‖b₂‖ := by ring
           _ ≤ ‖b₁‖ * 1 := mul_le_mul_of_nonneg_left hb₂.le (norm_nonneg b₁)
           _ = ‖b₁‖ := mul_one _
           _ < 1 := hb₁
-      refine lt_of_le_of_lt (IsUltrametricDist.norm_add_le_max _ _) ?_
-      rw [max_lt_iff]
-      exact ⟨lt_of_le_of_lt (IsUltrametricDist.norm_add_le_max _ _)
-        (by rw [max_lt_iff]; exact ⟨hb₁, hb₂⟩), hprod⟩
+      exact lt_of_le_of_lt (IsUltrametricDist.norm_add_le_max _ _)
+        (max_lt (lt_of_le_of_lt (IsUltrametricDist.norm_add_le_max _ _) (max_lt hb₁ hb₂)) hprod)
     · have hLHS : (fun n : ↥N => Kummer.kummerCocycleFun (β₁ * β₂)
           ((n : Kummer.GaloisGroup ℚ_[2])))
           = (fun n : ↥N => Kummer.kummerCocycleFun β₁ ((n : Kummer.GaloisGroup ℚ_[2])))
@@ -107,8 +101,8 @@ trivial codomain action on `V →+ 𝔽₂`); consumers `letI` it. -/
     ext v
     show φ ((c * d)⁻¹ • v) = φ (d⁻¹ • c⁻¹ • v)
     rw [mul_inv_rev, mul_smul]
-  smul_zero c := by ext v; rfl
-  smul_add c φ ψ := by ext v; rfl
+  smul_zero c := rfl
+  smul_add c φ ψ := rfl
 
 omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [TopologicalSpace V]
   [DiscreteTopology V] [Finite V] [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] in
@@ -140,19 +134,13 @@ theorem conjAct_deepClasses (g : Kummer.GaloisGroup ℚ_[2])
   refine ⟨g • A, g • β, ⟨?_, ?_, g • b, ?_, ?_, ?_⟩, ?_, ?_, ?_⟩
   · rw [AlgEquiv.smul_def]; simpa using hA0
   · intro m hm
-    have hconj : (g⁻¹ * m * g) • A = A :=
-      hAfix _ (conj_mem_ker ρ g ⟨m, hm⟩)
-    calc m • (g • A) = g • ((g⁻¹ * m * g) • A) := by
-          rw [← mul_smul, ← mul_smul]; congr 1; group
-      _ = g • A := by rw [hconj]
+    rw [← mul_smul, show m * g = g * (g⁻¹ * m * g) from by group, mul_smul,
+      show (g⁻¹ * m * g) • A = A from hAfix _ (conj_mem_ker ρ g ⟨m, hm⟩)]
   · intro m hm
-    have hconj : (g⁻¹ * m * g) • b = b :=
-      hbfix _ (conj_mem_ker ρ g ⟨m, hm⟩)
-    calc m • (g • b) = g • ((g⁻¹ * m * g) • b) := by
-          rw [← mul_smul, ← mul_smul]; congr 1; group
-      _ = g • b := by rw [hconj]
+    rw [← mul_smul, show m * g = g * (g⁻¹ * m * g) from by group, mul_smul,
+      show (g⁻¹ * m * g) • b = b from hbfix _ (conj_mem_ker ρ g ⟨m, hm⟩)]
   · rw [hAeq, AlgEquiv.smul_def, map_add, map_one, map_mul, map_ofNat, ← AlgEquiv.smul_def]
-  · rw [norm_galois]; exact hb
+  · rwa [norm_galois]
   · rw [AlgEquiv.smul_def, AlgEquiv.smul_def, ← map_pow, hsq]
   · rw [AlgEquiv.smul_def]; simpa using hβ0
   · -- `H1ofFun (κ_{g•β}) = conjAct ρ g (H1ofFun κ_β)`.  `conjAct ρ g` wants `g : AbsGalQ2` while
@@ -198,10 +186,8 @@ is `conjModule`-invariant (`conjAct_deepClasses`), so the conjugation action res
     refine conjAct_ker ρ _ _ ?_ ξ.1
     rw [map_mul, Function.surjInv_eq hρsurj, Function.surjInv_eq hρsurj,
       Function.surjInv_eq hρsurj]
-  smul_zero c := by
-    apply Subtype.ext; exact conjAct_zero ρ (Function.surjInv hρsurj c)
-  smul_add c ξ η := by
-    apply Subtype.ext; exact conjAct_add ρ (Function.surjInv hρsurj c) ξ.1 η.1
+  smul_zero c := Subtype.ext (conjAct_zero ρ (Function.surjInv hρsurj c))
+  smul_add c ξ η := Subtype.ext (conjAct_add ρ (Function.surjInv hρsurj c) ξ.1 η.1)
 
 /-- The descent of `conjAct ρ g` to `H¹(N) ⧸ deepClassesSubgroup`, via `QuotientAddGroup.map`
 (well-defined because `deepClassesSubgroup` is `conjAct`-invariant, `conjAct_deepClasses`). -/
@@ -212,7 +198,7 @@ noncomputable def conjActQuotHom (g : AbsGalQ2) :
         deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :=
   QuotientAddGroup.map (deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
     (deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) (conjActHom ρ g)
-    (by intro x hx; exact AddSubgroup.mem_comap.mpr (conjAct_deepClasses ρ g hx))
+    (fun _ hx => AddSubgroup.mem_comap.mpr (conjAct_deepClasses ρ g hx))
 
 omit [DiscreteTopology C] [Finite C] in
 /-- Computation rule for `conjActQuotHom` on a class. -/
@@ -329,8 +315,8 @@ noncomputable def deepFamEquiv
   letI := conjModuleDeep ρ hρsurj
   letI : DistribMulAction C (V →+ ZMod 2) := dualModule
   { toFun := fun ξ => ⟨AddMonoidHom.mk' (fun φ => ⟨ξ.1.fam φ, ξ.2 φ⟩)
-      (fun φ ψ => by apply Subtype.ext; exact ξ.1.add' φ ψ),
-      fun c φ => by apply Subtype.ext; exact fam_equivariant ρ hρ hρsurj ξ.1 c φ⟩
+      (fun φ ψ => Subtype.ext (ξ.1.add' φ ψ)),
+      fun c φ => Subtype.ext (fam_equivariant ρ hρ hρsurj ξ.1 c φ)⟩
     invFun := fun f =>
       ⟨{ fam := fun φ => (f.1 φ).1
          add' := fun φ ψ => by rw [map_add]; rfl
@@ -402,10 +388,8 @@ theorem card_equivHoms_quotient_ses
     (QuotientAddGroup.mk' Deep) hπ (QuotientAddGroup.mk'_surjective Deep) ?_
   · intro w
     refine QuotientAddGroup.induction_on w (fun a => ?_)
-    calc (QuotientAddGroup.mk a : A ⧸ Deep) + QuotientAddGroup.mk a
-        = QuotientAddGroup.mk (a + a) := rfl
-      _ = QuotientAddGroup.mk (0 : A) := by rw [h2A]
-      _ = 0 := rfl
+    show (QuotientAddGroup.mk (a + a) : A ⧸ Deep) = 0
+    rw [h2A]; rfl
   · intro w
     constructor
     · intro hw
