@@ -153,8 +153,7 @@ theorem exactImageCount_eq_zero_of_not_headSurj {Y : Type} [Group Y] [Topologica
         = (fun x : ↥boundarySubgroup => (F.frameMap x).1) ∘ ⇑b := by
       funext γ
       exact congrArg Prod.fst (f.2 γ)
-    rw [heq] at hsurj
-    exact hsurj.of_comp
+    exact (heq ▸ hsurj).of_comp
   rw [exactImageCount]
   exact Nat.card_of_isEmpty
 
@@ -206,9 +205,7 @@ lemma card_stratum_mStage_lt {Y : Type} [Group Y] [TopologicalSpace Y] [Discrete
     have hne0 : (J.subgroupOf LB).index ≠ 0 := Subgroup.index_ne_zero_of_finite
     omega
   have h2c : 2 * Nat.card ↥(LB ⊓ J) ≤ Nat.card ↥LB := by
-    calc 2 * Nat.card ↥(LB ⊓ J) = Nat.card ↥(LB ⊓ J) * 2 := by ring
-      _ ≤ Nat.card ↥(LB ⊓ J) * (J.subgroupOf LB).index := by gcongr
-      _ = Nat.card ↥LB := hlag
+    rw [← hlag, mul_comm 2]; gcongr
   -- `|L_B| ≤ |L_Y|` by (145a) (`|R| ≥ 1`)
   have hLBle : Nat.card ↥LB ≤ Nat.card ↥T.LY := by
     rw [hLB]
@@ -274,7 +271,7 @@ theorem SectionEight.RecursionFrame.liftsOver_card_local
   -- the set-section of `π_{BC}` and the lower map
   set ρc := ρ.1.1 with hρcdef
   set sec : RF.YC → RF.YB := Function.surjInv RF.piBC_surj with hsecdef
-  have hsec : ∀ c, RF.piBC (sec c) = c := fun c => Function.surjInv_eq RF.piBC_surj c
+  have hsec : ∀ c, RF.piBC (sec c) = c := Function.surjInv_eq RF.piBC_surj
   -- `M_B` as an additive `𝔽₂`-space with the `ρ`-conjugation action
   letI : CommGroup ↥RF.MB :=
     { (inferInstance : Group ↥RF.MB) with
@@ -426,7 +423,7 @@ theorem SectionEight.RecursionFrame.liftsOver_card_local
       exact absurd ⟨X, hXnormal, hRX, hXK, hidx⟩ (lemma_7_1_dual Blk)
     rw [Nat.card_eq_one_iff_unique]
     exact ⟨⟨fun x y => Subtype.ext ((hzero x.val x.2).trans (hzero y.val y.2).symm)⟩,
-      ⟨⟨0, fun c => smul_zero c⟩⟩⟩
+      ⟨⟨0, smul_zero⟩⟩⟩
   -- Step 2: the `Z¹`-torsor bridge (`LiftsOver` nonempty from `#H² = 1`, then `≃ Z¹`)
   have htorsor : Nat.card (RF.LiftsOver b F ρ)
       = Nat.card (Z1 AbsGalQ2 (Additive ↥RF.MB)) := by

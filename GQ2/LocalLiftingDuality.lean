@@ -31,8 +31,7 @@ theorem card_muN_two : Nat.card (MuN 2) = 2 :=
 /-- An abstract additive isomorphism `MuN 2 ≃+ ZMod 2` (order-2 group). -/
 noncomputable def muNTwoEquiv : MuN 2 ≃+ ZMod 2 := by
   haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  haveI hcyc : IsAddCyclic (MuN 2) := isAddCyclic_of_prime_card card_muN_two
-  exact (card_muN_two ▸ zmodAddCyclicAddEquiv hcyc).symm
+  exact (card_muN_two ▸ zmodAddCyclicAddEquiv (isAddCyclic_of_prime_card card_muN_two)).symm
 
 /-- **`G_ℚ₂` acts trivially on `μ₂`**: the second roots of unity are `{±1} ⊆ ℚ₂`, fixed by every
 `ℚ₂`-algebra automorphism. -/
@@ -43,10 +42,9 @@ theorem smul_muN_two_trivial (g : AbsGalQ2) (x : MuN 2) : g • x = x := by
   · exact smul_zero g
   · have hgx : g • x ≠ 0 := fun h => hx (by rw [← inv_smul_smul g x, h, smul_zero])
     apply muNTwoEquiv.injective
-    have hz : ∀ y : MuN 2, muNTwoEquiv y = 0 → y = 0 := fun y h =>
-      muNTwoEquiv.injective (by rw [h, map_zero])
     have key : ∀ a : ZMod 2, a ≠ 0 → a = 1 := by decide
-    rw [key _ (fun h => hgx (hz _ h)), key _ (fun h => hx (hz _ h))]
+    rw [key _ (fun h => hgx (EmbeddingLike.map_eq_zero_iff.mp h)),
+      key _ (fun h => hx (EmbeddingLike.map_eq_zero_iff.mp h))]
 
 /-! ## Counting: `#(V →+ 𝔽₂) = #V` for a finite `𝔽₂`-vector space. -/
 
@@ -73,8 +71,7 @@ theorem exists_addHom_ne_zero {V : Type*} [AddCommGroup V] [Finite V]
   haveI : Module (ZMod 2) V := AddCommGroup.zmodModule (fun v => by rw [two_nsmul]; exact hV₂ v)
   haveI : Module.Finite (ZMod 2) V := Module.Finite.of_finite
   let b := Module.Free.chooseBasis (ZMod 2) V
-  by_contra h
-  push_neg at h
+  by_contra! h
   refine hv (b.forall_coord_eq_zero_iff.mp fun i => ?_)
   simpa using h (b.coord i).toAddMonoidHom
 
@@ -110,19 +107,14 @@ theorem bijective_cup {V W H : Type*} [AddCommGroup V] [AddCommGroup W] [AddComm
     obtain ⟨f, hf⟩ := exists_addHom_ne_zero hV₂ hcne
     obtain ⟨w, hw⟩ := hsurj f
     apply hf
-    have hcw := hw c
-    rw [hc] at hcw
-    simpa using hcw.symm
+    simpa [hc] using (hw c).symm
   haveI : Finite (W →+ H) := Finite.of_injective _ (DFunLike.coe_injective (F := W →+ H))
   haveI : Fintype V := Fintype.ofFinite V
   haveI : Fintype (W →+ H) := Fintype.ofFinite _
   refine (Fintype.bijective_iff_injective_and_card ⇑Φ).mpr ⟨hinj, ?_⟩
   rw [← Nat.card_eq_fintype_card, ← Nat.card_eq_fintype_card,
-    show Nat.card (W →+ H) = Nat.card (W →+ ZMod 2) from Nat.card_congr
-      { toFun := fun h => τ.toAddMonoidHom.comp h
-        invFun := fun h => τ.symm.toAddMonoidHom.comp h
-        left_inv := fun h => by ext w; simp
-        right_inv := fun h => by ext w; simp },
+    show Nat.card (W →+ H) = Nat.card (W →+ ZMod 2) from
+      Nat.card_congr τ.addMonoidHomCongrRight.toEquiv,
     card_addHom_zmod2 hW₂, hcardVW]
 
 /-! ## Degree-0 transport `#H⁰(MuDual 2 A) = #fixedPts C (ElemDual A)`.
@@ -181,8 +173,7 @@ theorem muDual_inv_pointwise {φ : MuDual 2 A} (hφ : ∀ γ : AbsGalQ2, γ • 
 /-- The `C`-invariance of a `𝔽₂`-dual `lam`, rewritten pointwise: `lam (c • a) = lam a`. -/
 theorem elemDual_fixed_pointwise {lam : ElemDual A} (hlam : ∀ c : C, c • lam = lam) (c : C)
     (a : A) : lam (c • a) = lam a := by
-  have h := DFunLike.congr_fun (hlam c⁻¹) a
-  rwa [ElemDual.smul_apply, inv_inv] at h
+  simpa [ElemDual.smul_apply, inv_inv] using DFunLike.congr_fun (hlam c⁻¹) a
 
 include hρ hcomp in
 /-- **Degree-0 transport**: the `G_ℚ₂`-invariants of the `μ₂`-dual biject with the `C`-invariants
@@ -202,10 +193,8 @@ theorem card_H0_muDual_eq_fixedPts :
   · exact Subtype.ext (DFunLike.ext _ _ fun a => muNTwoEquiv.apply_symm_apply _)
 
 /-- `H²(A)` is `2`-torsion when `A` is (it is a subquotient of `𝔽₂`-valued cochains). -/
-theorem H2_two_torsion (hA₂ : ∀ a : A, a + a = 0) (z : H2 AbsGalQ2 A) : z + z = 0 := by
-  obtain ⟨w, rfl⟩ := H2mk_surjective (G := AbsGalQ2) (M := A) z
-  rw [← map_add, show (w + w : ↥(Z2 AbsGalQ2 A)) = 0 from Subtype.ext (funext fun p => hA₂ _),
-    map_zero]
+theorem H2_two_torsion (hA₂ : ∀ a : A, a + a = 0) (z : H2 AbsGalQ2 A) : z + z = 0 :=
+  H2_two_torsion_gen hA₂ z
 
 include hρ hcomp in
 /-- **Clause (i)**: `#H²(A) = #fixedPts C (ElemDual A)` — B6's `(0,2)` duality (`H⁰(A′) ≅
@@ -343,8 +332,7 @@ theorem edEquivariant
   refine DFunLike.ext _ _ fun a => ?_
   have hEDsmul : (g • dualAddEquiv φ) a = (dualAddEquiv φ) (g⁻¹ • a) := by
     have h := hpair g (g⁻¹ • a) (dualAddEquiv φ)
-    rw [smul_inv_smul, dualEval_apply, dualEval_apply, htriv] at h
-    exact h
+    rwa [smul_inv_smul, dualEval_apply, dualEval_apply, htriv] at h
   rw [hEDsmul]
   simp only [dualAddEquiv_apply, muDual_smul_apply, smul_muN_two_trivial]
 
@@ -368,9 +356,7 @@ theorem bijective_cup11_dualEval
   let τ : H2 AbsGalQ2 (ZMod 2) ≃+ ZMod 2 :=
     (H2congr muNTwoEquiv hμNe).symm.trans (tateDuality 2).inv
   have hτapp : ∀ X, τ (H2congr muNTwoEquiv hμNe X) = (tateDuality 2).inv X := fun X => by
-    show ((H2congr muNTwoEquiv hμNe).symm.trans (tateDuality 2).inv)
-      (H2congr muNTwoEquiv hμNe X) = _
-    rw [AddEquiv.trans_apply, AddEquiv.symm_apply_apply]
+    simp [τ]
   have key : ∀ (c : H1 AbsGalQ2 A) (d'' : H1 AbsGalQ2 (MuDual 2 A)),
       τ (cup11 (dualEval A) hpair c (H1congr dualAddEquiv heD d''))
         = (tateDuality 2).inv
@@ -418,9 +404,7 @@ theorem bijective_cup02_dualEval
   let τ : H2 AbsGalQ2 (ZMod 2) ≃+ ZMod 2 :=
     (H2congr muNTwoEquiv hμNe).symm.trans (tateDuality 2).inv
   have hτapp : ∀ X, τ (H2congr muNTwoEquiv hμNe X) = (tateDuality 2).inv X := fun X => by
-    show ((H2congr muNTwoEquiv hμNe).symm.trans (tateDuality 2).inv)
-      (H2congr muNTwoEquiv hμNe X) = _
-    rw [AddEquiv.trans_apply, AddEquiv.symm_apply_apply]
+    simp [τ]
   have key : ∀ (c : ↥(H0 AbsGalQ2 A)) (d'' : H2 AbsGalQ2 (MuDual 2 A)),
       τ (cup02 (dualEval A) hpair c (H2congr dualAddEquiv heD d''))
         = (tateDuality 2).inv
@@ -466,9 +450,7 @@ theorem bijective_cup20_dualEval
   let τ : H2 AbsGalQ2 (ZMod 2) ≃+ ZMod 2 :=
     (H2congr muNTwoEquiv hμNe).symm.trans (tateDuality 2).inv
   have hτapp : ∀ X, τ (H2congr muNTwoEquiv hμNe X) = (tateDuality 2).inv X := fun X => by
-    show ((H2congr muNTwoEquiv hμNe).symm.trans (tateDuality 2).inv)
-      (H2congr muNTwoEquiv hμNe X) = _
-    rw [AddEquiv.trans_apply, AddEquiv.symm_apply_apply]
+    simp [τ]
   have key : ∀ (c : H2 AbsGalQ2 A) (d'' : ↥(H0 AbsGalQ2 (MuDual 2 A))),
       τ (cup20 (dualEval A) hpair c (H0congr dualAddEquiv heD d''))
         = (tateDuality 2).inv

@@ -66,10 +66,8 @@ theorem card_H0w_eq_one_of_nontrivial (t : Marking C) (hgen : t.Generates)
     (hsimple : IsSimpleModTwo C A) (hnt : ∃ (c : C) (a : A), c • a ≠ a) :
     Nat.card (H0w (A := A) t) = 1 := by
   have hfix : (H0w (A := A) t : Set A) = fixedPts C A := H0w_eq_fixedPts t hgen
-  have hmem : ∀ w : A, w ∈ H0w (A := A) t → ∀ g : C, g • w = w := by
-    intro w hw g
-    have : w ∈ fixedPts C A := by rw [← hfix]; exact hw
-    exact this g
+  have hmem : ∀ w : A, w ∈ H0w (A := A) t → ∀ g : C, g • w = w :=
+    fun w hw g => (hfix ▸ hw : w ∈ fixedPts C A) g
   have hstable : ∀ (g : C) (w : A), w ∈ H0w (A := A) t → g • w ∈ H0w (A := A) t := by
     intro g w hw; rw [hmem w hw g]; exact hw
   rcases hsimple.2 (H0w (A := A) t) hstable with h | h
@@ -92,9 +90,8 @@ theorem card_H2w_and_Z1w_of_nontrivial_simple (t : Marking C) (ht : t.TameRel) (
   have heuler := card_H1w_eq (A := A) t ht hw
   rw [hH1, hH0, mul_one] at heuler
   -- heuler : #A = #A * #H²w
-  have hH2 : Nat.card (H2w (A := A) t) = 1 := by
-    have : Nat.card A * 1 = Nat.card A * Nat.card (H2w (A := A) t) := by rw [mul_one]; exact heuler
-    exact (Nat.eq_of_mul_eq_mul_left hApos this).symm
+  have hH2 : Nat.card (H2w (A := A) t) = 1 :=
+    (Nat.eq_of_mul_eq_mul_left hApos (by rw [mul_one]; exact heuler)).symm
   refine ⟨hH2, ?_⟩
   rw [card_Z1w_eq_sq_mul_card_H2w, hH2, mul_one]
 
@@ -124,9 +121,8 @@ theorem card_fixedPts_elemDual_eq_one_of_nontrivial (hsimple : IsSimpleModTwo C 
           rw [hbot, AddSubgroup.mem_bot] at hz; exact hz)
       exact hca (hinj (hinv c a))
     · ext a
-      have hmem : a ∈ (lam : A →+ ZMod 2).ker := htop ▸ AddSubgroup.mem_top a
-      rw [AddMonoidHom.mem_ker] at hmem
-      rw [ElemDual.zero_apply]; exact hmem
+      rw [ElemDual.zero_apply]
+      exact AddMonoidHom.mem_ker.mp (htop ▸ AddSubgroup.mem_top a)
   rw [Nat.card_eq_one_iff_unique]
   exact ⟨⟨fun x y => Subtype.ext ((hzero x.val x.2).trans (hzero y.val y.2).symm)⟩,
     ⟨⟨0, fun c => smul_zero c⟩⟩⟩
@@ -300,9 +296,7 @@ theorem split_shapes_of_wild (t : Marking C) (ht : t.TameRel)
   simp only [Prod.fst_zero, Prod.snd_zero]
   constructor
   · rintro ⟨h1, h2⟩
-    have hx1z : x 1 = 0 := by
-      have := congrArg (t.σ • ·) h1
-      rwa [smul_zero, smul_inv_smul] at this
+    have hx1z : x 1 = 0 := (smul_eq_zero_iff_eq _).mp h1
     refine ⟨hx1z, ?_⟩
     apply hVS
     have h3 : t.σ⁻¹ • x 3 = x 3 := by
@@ -320,7 +314,7 @@ theorem split_shapes_of_wild (t : Marking C) (ht : t.TameRel)
 theorem x0mem_of_Z1wShape (t : Marking C)
     (hZ : ∀ x : Fin 4 → A, x ∈ Z1w (A := A) t ↔ x 1 = 0 ∧ x 3 = 0) :
     ∀ c : A, x0Supported c ∈ Z1w (A := A) t := fun c => by
-  rw [hZ]; exact ⟨by simp [x0Supported], by simp [x0Supported]⟩
+  simp [hZ, x0Supported]
 
 /-- **Split normal form**: from the `Z¹w`/`B¹w` shapes and surjectivity of `σ − 1` (from `V^S = 0`,
 `hVS`), every degree-one class has a unique `x₀`-supported representative. -/
@@ -384,19 +378,15 @@ theorem selfDual_of_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hge
   have dual_triv : ∀ g : C, (∀ a : A, g • a = a) → ∀ l : ElemDual A, g • l = l := by
     intro g hg l
     ext a
-    rw [ElemDual.smul_apply]
-    have hgi : g⁻¹ • a = a := by rw [inv_smul_eq_iff]; exact (hg a).symm
-    rw [hgi]
+    rw [ElemDual.smul_apply, inv_smul_eq_iff.mpr (hg a).symm]
   have hV₂D : ∀ l : ElemDual A, l + l = 0 := fun l => by
     ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]
     exact CharTwo.add_self_eq_zero (l v)
   have hVSD : ∀ l : ElemDual A, t.σ • l = l → l = 0 := by
     intro l hl
-    have hlσ : ∀ x : A, l (t.σ • x) = l x := by
-      intro x
+    have hlσ : ∀ x : A, l (t.σ • x) = l x := fun x => by
       have h := ElemDual.smul_apply t.σ l (t.σ • x)
-      rw [inv_smul_smul, hl] at h
-      exact h
+      rwa [inv_smul_smul, hl] at h
     ext a
     obtain ⟨b, hb⟩ := hsurjA a
     have hb' : t.σ • b - b = a := hb
@@ -454,9 +444,7 @@ theorem elemDual_smul_trivial_of (g : C) (hg : ∀ a : A, g • a = a) :
     ∀ l : ElemDual A, g • l = l := by
   intro l
   ext a
-  rw [ElemDual.smul_apply]
-  have hgi : g⁻¹ • a = a := by rw [inv_smul_eq_iff]; exact (hg a).symm
-  rw [hgi]
+  rw [ElemDual.smul_apply, inv_smul_eq_iff.mpr (hg a).symm]
 
 /-- In the ramified case the `x₀`-supported cochains are cocycles: the tame row (`d1Fun_tame`)
 involves only coordinates 0 and 1, the wild row is `S⁻¹x₃`
@@ -515,12 +503,10 @@ theorem selfDual_of_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
         rw [smul_sub, show t.τ⁻¹ • a - t.τ⁻¹ • b
             = (t.τ⁻¹ • a - a) - (t.τ⁻¹ • b - b) + (a - b) from by abel, hab']
         abel
-      have := congrArg (t.τ • ·) hfix
-      simpa [smul_inv_smul] using this.symm)
+      simpa [smul_inv_smul] using (congrArg (t.τ • ·) hfix).symm)
   have htauD : ∀ l : ElemDual A, t.τ • l = l → l = 0 := by
     intro l hl
-    have hlτ : ∀ x : A, l (t.τ⁻¹ • x) = l x := by
-      intro x
+    have hlτ : ∀ x : A, l (t.τ⁻¹ • x) = l x := fun x => by
       have h := congrArg (fun m : ElemDual A => m x) hl
       rwa [ElemDual.smul_apply] at h
     ext a
@@ -544,8 +530,7 @@ theorem selfDual_of_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
           simp only [smul_zero, add_zero, h0]))
     obtain ⟨lam, hlam⟩ := elemDual_separates hV₂ hne
     refine ⟨lam, ?_⟩
-    rw [lemma_5_13_pairing_ramified t ht hw hV₂ hx0 hx1 htau hTodd c lam]
-    exact hlam
+    rwa [lemma_5_13_pairing_ramified t ht hw hV₂ hx0 hx1 htau hTodd c lam]
   · intro lam hlam
     obtain ⟨w, hw'⟩ := DFunLike.ne_iff.mp hlam
     obtain ⟨c, hc⟩ := hopsurj w
@@ -564,7 +549,7 @@ theorem selfDual_of_split_case (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     IsSelfDual t A := by
   by_cases hσ : ∃ v : A, t.σ • v ≠ v
   · exact selfDual_of_split t ht hw hgen hV₂ hsimple hcore htau hσ
-  · push_neg at hσ
+  · push Not at hσ
     obtain ⟨hx0, hx1⟩ := wild_acts_trivially t hV₂ hsimple hcore
     exact selfDual_of_trivial_action t ht hw hgen hV₂ hσ htau hx0 hx1
 
@@ -597,7 +582,7 @@ theorem prop_5_15 (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hgen : t.Ge
     (hA₂ : ∀ a : A, a + a = 0) (hcore : t.Pro2Core) :
     IsSelfDual t A :=
   prop_5_15_of_simple t ht hw hgen hcore
-    (fun B _ _ _ hB₂ hBsimple => selfDual_of_simple t ht hw hgen hcore hB₂ hBsimple) hA₂
+    (fun _ _ _ _ hB₂ hBsimple => selfDual_of_simple t ht hw hgen hcore hB₂ hBsimple) hA₂
 
 end GQ2.FoxH
 

@@ -56,10 +56,9 @@ theorem relE_dvd_of_index [FiniteDimensional ℚ_[2] k] [FiniteDimensional ℚ_[
   haveI : Fintype (↥(k.fixingSubgroup) ⧸ (L.fixingSubgroup).subgroupOf k.fixingSubgroup) :=
     Fintype.ofFinite _
   refine relE_dvd Fk FL hkL fun x hx0 hxL => ?_
-  have hxF : x ∈ fixedField L.fixingSubgroup :=
-    (InfiniteGalois.fixedField_fixingSubgroup L).symm ▸ hxL
   obtain ⟨y, hymem, hy0, hnorm⟩ :=
-    exists_mem_fixedField_norm_pow (H := L.fixingSubgroup) (K := k.fixingSubgroup) hxF hx0
+    exists_mem_fixedField_norm_pow (H := L.fixingSubgroup) (K := k.fixingSubgroup)
+      ((InfiniteGalois.fixedField_fixingSubgroup L).symm ▸ hxL) hx0
   exact ⟨y, hy0, (InfiniteGalois.fixedField_fixingSubgroup k) ▸ hymem, hnorm⟩
 
 /-- Leg 1 at c2b's shape: the index-2 hypothesis gives `e(L/k) ∣ 2`. -/
@@ -91,15 +90,11 @@ def preimGal (ρ : ContinuousMonoidHom AbsGalQ2 C) (S : Subgroup C) :
   carrier := {x : Kummer.GaloisGroup ℚ_[2] | ρ (ResidueLift.toAbs x) ∈ S}
   one_mem' := by show ρ 1 ∈ S; rw [map_one]; exact one_mem S
   mul_mem' := fun {a b} ha hb => by
-    show ρ (ResidueLift.toAbs (a * b)) ∈ S
-    have hab : ResidueLift.toAbs (a * b) = ResidueLift.toAbs a * ResidueLift.toAbs b := rfl
-    rw [hab, map_mul]
-    exact mul_mem ha hb
+    show ρ (ResidueLift.toAbs a * ResidueLift.toAbs b) ∈ S
+    rw [map_mul]; exact mul_mem ha hb
   inv_mem' := fun {a} ha => by
-    show ρ (ResidueLift.toAbs a⁻¹) ∈ S
-    have hia : ResidueLift.toAbs a⁻¹ = (ResidueLift.toAbs a)⁻¹ := rfl
-    rw [hia, map_inv]
-    exact inv_mem ha
+    show ρ (ResidueLift.toAbs a)⁻¹ ∈ S
+    rw [map_inv]; exact inv_mem ha
 
 omit [DiscreteTopology C] [Finite C] in
 theorem kerGal_le_preimGal (ρ : ContinuousMonoidHom AbsGalQ2 C) (S : Subgroup C) :
@@ -111,14 +106,8 @@ theorem kerGal_le_preimGal (ρ : ContinuousMonoidHom AbsGalQ2 C) (S : Subgroup C
 omit [Finite C] in
 theorem preimGal_isOpen (ρ : ContinuousMonoidHom AbsGalQ2 C) (S : Subgroup C) :
     IsOpen ((preimGal ρ S : Subgroup (Kummer.GaloisGroup ℚ_[2]))
-      : Set (Kummer.GaloisGroup ℚ_[2])) := by
-  have hcont : Continuous fun x : Kummer.GaloisGroup ℚ_[2] => ρ (ResidueLift.toAbs x) :=
-    ρ.continuous_toFun
-  have h1 : ((preimGal ρ S : Subgroup (Kummer.GaloisGroup ℚ_[2]))
-      : Set (Kummer.GaloisGroup ℚ_[2]))
-      = (fun x : Kummer.GaloisGroup ℚ_[2] => ρ (ResidueLift.toAbs x)) ⁻¹' (S : Set C) := rfl
-  rw [h1]
-  exact (isOpen_discrete (S : Set C)).preimage hcont
+      : Set (Kummer.GaloisGroup ℚ_[2])) :=
+  (isOpen_discrete (S : Set C)).preimage ρ.continuous_toFun
 
 /-- The `⟨t⟩`-preimage field `F₀ := ℚ̄₂^{ρ⁻¹⟨t⟩}` — the fixed field of the preimage of the
 inertia-image `⟨t⟩ ≤ C`. -/
@@ -150,8 +139,7 @@ theorem inertiaField_le (ρ : ContinuousMonoidHom AbsGalQ2 C) (t : C) :
   intro x hx
   have hx' : x ∈ IntermediateField.fixedField (preimGal ρ (Subgroup.zpowers t)) := hx
   rw [IntermediateField.mem_fixedField_iff] at hx' ⊢
-  intro g hg
-  exact hx' g (kerGal_le_preimGal ρ (Subgroup.zpowers t) hg)
+  exact fun g hg => hx' g (kerGal_le_preimGal ρ (Subgroup.zpowers t) hg)
 
 omit [DiscreteTopology C] [Finite C] in
 /-- **The quotient count of leg 2**: `[T₀ : ker ρ] = orderOf t` for surjective `ρ` — the first
@@ -165,16 +153,9 @@ theorem card_quot_preimGal (ρ : ContinuousMonoidHom AbsGalQ2 C)
   -- the restricted map `T₀ →* ⟨t⟩`
   set ρ' : ↥T₀ →* ↥(Subgroup.zpowers t) :=
     { toFun := fun x => ⟨ρ (ResidueLift.toAbs x.1), x.2⟩,
-      map_one' := by
-        apply Subtype.ext
-        show ρ (ResidueLift.toAbs 1) = 1
-        exact map_one ρ,
-      map_mul' := fun a b => by
-        apply Subtype.ext
-        show ρ (ResidueLift.toAbs (a.1 * b.1)) = ρ (ResidueLift.toAbs a.1) * ρ (ResidueLift.toAbs b.1)
-        have hab : ResidueLift.toAbs (a.1 * b.1)
-            = ResidueLift.toAbs a.1 * ResidueLift.toAbs b.1 := rfl
-        rw [hab, map_mul] } with hρ'
+      map_one' := Subtype.ext (map_one ρ),
+      map_mul' := fun a b =>
+        Subtype.ext (map_mul ρ (ResidueLift.toAbs a.1) (ResidueLift.toAbs b.1)) } with hρ'
   have hsurj : Function.Surjective ρ' := by
     rintro ⟨y, hy⟩
     obtain ⟨g, hg⟩ := hρsurj y
@@ -186,11 +167,7 @@ theorem card_quot_preimGal (ρ : ContinuousMonoidHom AbsGalQ2 C)
   have hker : ρ'.ker = (ResidueLift.kerGal ρ).subgroupOf T₀ := by
     ext x
     rw [MonoidHom.mem_ker, Subgroup.mem_subgroupOf]
-    constructor
-    · intro h
-      exact congrArg Subtype.val h
-    · intro h
-      exact Subtype.ext h
+    exact ⟨fun h => congrArg Subtype.val h, fun h => Subtype.ext h⟩
   calc Nat.card (↥T₀ ⧸ (ResidueLift.kerGal ρ).subgroupOf T₀)
       = Nat.card (↥T₀ ⧸ ρ'.ker) := by rw [hker]
     _ = Nat.card ↥(Subgroup.zpowers t) :=
@@ -229,9 +206,7 @@ theorem hunram_of_odd_eF0
   -- `e(L/F₀)` is odd: it divides the odd `r`
   have hrelE₀_odd : Odd (relE F₀F FL hF₀L) := by
     obtain ⟨c, hc⟩ := hdvd
-    have hrZ : Odd (r : ℤ) := by exact_mod_cast hrodd
-    rw [hc] at hrZ
-    exact (Int.odd_mul.mp hrZ).1
+    exact (Int.odd_mul.mp (hc ▸ (by exact_mod_cast hrodd : Odd (r : ℤ)))).1
   -- `e_L` is odd: the tower product of two odds
   have heL_odd : Odd ((FL.e : ℤ)) := by
     rw [e_eq_relE_mul F₀F FL hF₀L]
@@ -244,11 +219,8 @@ theorem hunram_of_odd_eF0
   have hm1 : relE Fk FL hkL = 1 := by
     have hle : relE Fk FL hkL ≤ 2 := Int.le_of_dvd (by norm_num) hm2
     have hge : 1 ≤ relE Fk FL hkL := relE_pos Fk FL hkL
-    have hcases : relE Fk FL hkL = 1 ∨ relE Fk FL hkL = 2 := by omega
-    rcases hcases with h1 | h2
-    · exact h1
-    · rw [Int.odd_iff, h2] at hm_odd
-      norm_num at hm_odd
+    have := Int.odd_iff.mp hm_odd
+    omega
   -- equal uniformizer norms, then half (A)
   have hπ : ‖FL.π‖ = ‖Fk.π‖ := by
     have h := relE_spec Fk FL hkL
@@ -307,12 +279,7 @@ section OddPart
 variable {G : Type*} [Group G] [Finite G]
 
 /-- A divisor of an odd number is odd. -/
-theorem odd_of_dvd_odd {d n : ℕ} (h : d ∣ n) (hn : Odd n) : Odd d := by
-  rcases Nat.even_or_odd d with he | ho
-  · obtain ⟨c, hc⟩ := h
-    have hev : Even n := hc ▸ he.mul_right c
-    exact absurd hn (Nat.not_odd_iff_even.mpr hev)
-  · exact ho
+theorem odd_of_dvd_odd {d n : ℕ} (h : d ∣ n) (hn : Odd n) : Odd d := hn.of_dvd_nat h
 
 /-- The **odd-torsion subgroup** of a finite group whose elements commute: the elements of odd
 order.  (Stated with the commutativity as a hypothesis `hab` rather than `[CommGroup G]`, matching
@@ -397,11 +364,8 @@ theorem unit_dies_in_two_group {Q : Type*} [Group Q] [Finite Q] (hQ2 : IsPGroup 
     show Continuous fun x : Ttame => ξ' (c x)
     exact Continuous.comp (continuous_of_discreteTopology (α := C)) c.continuous_toFun
   set φ : ContinuousMonoidHom Ttame Q := ⟨ξ'.comp c.toMonoidHom, hcont⟩ with hφ
-  have hnu : GQ2.nuT (B.tameF g) = 1 := horient u g hg
-  have hkill : φ (B.tameF g) = 1 := map_eq_one_of_nuT_eq_one_finite hQ2 φ hnu
-  calc ξ' (ρ g) = ξ' (c (B.tameF g)) := by rw [hfac]
-    _ = φ (B.tameF g) := rfl
-    _ = 1 := hkill
+  rw [hfac]
+  exact map_eq_one_of_nuT_eq_one_finite hQ2 φ (horient u g hg)
 
 end TameKill
 
@@ -439,10 +403,8 @@ theorem odd_e_inertiaField (R : LocalReciprocity) (B : BoundaryMaps)
   haveI htN : (Subgroup.zpowers t).Normal := Tame.zpowers_normal_of_tame hgen hrel
   haveI hpreN : (preimGal ρ (Subgroup.zpowers t)).Normal := by
     refine ⟨fun n hn g => ?_⟩
-    show ρ (ResidueLift.toAbs (g * n * g⁻¹)) ∈ Subgroup.zpowers t
-    have hsplit : ResidueLift.toAbs (g * n * g⁻¹)
-        = ResidueLift.toAbs g * ResidueLift.toAbs n * (ResidueLift.toAbs g)⁻¹ := rfl
-    rw [hsplit, map_mul, map_mul, map_inv]
+    show ρ (ResidueLift.toAbs g * ResidueLift.toAbs n * (ResidueLift.toAbs g)⁻¹) ∈ Subgroup.zpowers t
+    rw [map_mul, map_mul, map_inv]
     exact htN.conj_mem _ hn _
   haveI hGalF₀ : IsGalois ℚ_[2] (inertiaField ρ t) := by
     refine (InfiniteGalois.normal_iff_isGalois (inertiaField ρ t)).mp ?_
@@ -597,10 +559,8 @@ theorem hunram_involution {k L : IntermediateField ℚ_[2] (AlgebraicClosure ℚ
       rw [hF₀, fixingSubgroup_inertiaField, hLfix]
       exact hcardpre
     rwa [hcards] at h
-  have hrodd : Odd (orderOf t) := by
-    have hrel : (c tameSigma)⁻¹ * c tameTau * c tameSigma = c tameTau ^ 2 :=
-      DimAssembly.tame_rel_image c
-    exact Tame.tame_odd_order (orderOf_pos (c tameSigma)).ne' hrel
+  have hrodd : Odd (orderOf t) :=
+    Tame.tame_odd_order (orderOf_pos (c tameSigma)).ne' (DimAssembly.tame_rel_image c)
   -- leg 3: `e_{F₀}` odd (the CFT/orientation input)
   have hodd : Odd F₀F.e := odd_e_inertiaField R B c hc ρ hfac horient F₀F
   -- the assembly
