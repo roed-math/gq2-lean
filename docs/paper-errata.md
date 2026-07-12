@@ -227,7 +227,8 @@ locally visible at the point of use.
 
 - **Finding**: the ±-sign in the ramified local computation (Prop 6.18's Gauss-sign comparison,
   hence Theorem 4.2) depends on the tame quotient's normalization against local reciprocity: two
-  clauses — *units land in the `ν_t`-kernel* (units ↦ inertia, Neukirch ANT V (6.2) at `n = 0`)
+  clauses — *units land in the `ν_t`-kernel* (units ↦ inertia, Serre *Local Fields* XIII §4,
+  Prop. 13 and its corollary; Neukirch ANT V (6.2) is only for `n > 0`)
   and *`rec(2)` has geometric σ-coordinate `1`* (units are unramified norms, Neukirch V (1.2) /
   NSW (7.1.2)(i)).  Formalizing Theorem 4.2 over abstract boundary data forced these clauses to
   be carried as an explicit hypothesis (`TameUnitOrientation`); the concrete boundary of §3

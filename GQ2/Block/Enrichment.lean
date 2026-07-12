@@ -279,9 +279,8 @@ theorem blockHtame (F : BoundaryFrame H E) :
 
 /-! ## `dat`/`hdat` and the final assembly -/
 
-/-- The κ⁰ base-class datum for `q̄_λ`, from `kappa0_exists` (Lemma 6.3), discharging its
-`hsimple`/`htame` hypotheses via `blockHsimple`/`blockHtame`.  Rides `kappa0_exists`'s sorry
-(the §9 induction). -/
+/-- The κ⁰ base-class datum for `q̄_λ`, from the proved `kappa0_exists` (Lemma 6.3),
+discharging its `hsimple`/`htame` hypotheses via `blockHsimple`/`blockHtame`. -/
 noncomputable def blockKappa0 (F : BoundaryFrame H E) (l : BlockDR T Blk)
     (hlne : l.1 ≠ Blk.frattiniK) :=
   letI := blockPS_commGroup Blk

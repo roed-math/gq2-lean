@@ -24,8 +24,9 @@ direction.*
 Here the paper's `t^s = t^2` means `s⁻¹ * t * s = t^2` (right-conjugation convention).
 
 The first assertion — `t` has odd order — is elementary and is **proved in full** below.
-The remaining structural claims (`C_e ⋊ C_n` shape, centrality of normal 2-subgroups) are
-**proved in full** below, via the semidirect-product recognition they require.
+The further claims used by the formalization — normality of `⟨t⟩` and centrality of normal
+2-subgroups — are also proved below.  The explicit `C_e ⋊ C_n` decomposition is not separately
+packaged because no downstream theorem consumes it.
 -/
 
 namespace GQ2.Tame
