@@ -54,16 +54,15 @@ theorem prop_3_10_local_marked_proved
   -- density lemma on `D₀`: `PropOneOne.nuUrBar ∘ e₁.symm = ζ ∘ ν₂ ∘ d0PiEquiv`
   have key : ∀ d : D0,
       PropOneOne.nuUrBar R (e₁.symm d) = ztwoEquivPadic (nuTwo (d0PiEquiv d)) := by
-    have h := monoidHom_eq_of_topGen
+    refine monoidHom_eq_of_topGen
       (f := ((PropOneOne.nuUrBar R).comp
         ⟨e₁.symm.toMulEquiv.toMonoidHom, e₁.symm.continuous_toFun⟩).toMonoidHom)
       (g := ((⟨ztwoEquivPadic.toMulEquiv.toMonoidHom, ztwoEquivPadic.continuous_toFun⟩ :
           ContinuousMonoidHom Ztwo (Multiplicative ℤ_[2])).comp
         (nuTwo.comp ⟨d0PiEquiv.toMulEquiv.toMonoidHom, d0PiEquiv.continuous_toFun⟩)).toMonoidHom)
-      (by exact ((PropOneOne.nuUrBar R).comp _).continuous_toFun)
-      (by exact (_root_.ContinuousMonoidHom.comp _ _).continuous_toFun)
+      ((PropOneOne.nuUrBar R).comp _).continuous_toFun
+      (_root_.ContinuousMonoidHom.comp _ _).continuous_toFun
       topGen_d0 ?_
-    · exact h
     · rintro z (rfl | rfl | rfl)
       · -- `A`: LHS `ofAdd (−2)`, RHS `(ζ²)⁻¹`
         show PropOneOne.nuUrBar R (e₁.symm d0A) = ztwoEquivPadic (nuTwo (d0PiEquiv d0A))

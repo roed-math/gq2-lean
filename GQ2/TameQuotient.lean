@@ -48,8 +48,7 @@ namespace GQ2
 the presentation — no axiom). -/
 theorem tame_relation : conjP tameTau tameSigma = tameTau ^ 2 := by
   have h := relator_quotientMk_eq_one {tameWord} rfl
-  rw [tameWord] at h
-  simp only [conjP] at h ⊢
+  simp only [tameWord, conjP] at h ⊢
   exact mul_inv_eq_one.mp h
 
 /-- **B10 (tame quotient of `G_ℚ₂`), the bundle.**  A closed normal pro-2 subgroup

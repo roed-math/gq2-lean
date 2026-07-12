@@ -42,23 +42,10 @@ P-16c4 word-relator obstruction on every continuous 2-cocycle — both are `𝔽
 kernel exactly `B²(Γ_A, 𝔽₂)`. -/
 theorem iotaB_eq_obs (φ : Z2 GA (ZMod 2)) :
     iotaB (φ : GA × GA → ZMod 2) = WordCoh2.obs htriv φ := by
-  have h1 : iotaB (φ : GA × GA → ZMod 2) = 0
-      ↔ (φ : GA × GA → ZMod 2) ∈ B2 GA (ZMod 2) := iotaB_eq_zero_iff
   have h2 : WordCoh2.obs htriv φ = 0 ↔ (φ : GA × GA → ZMod 2) ∈ B2 GA (ZMod 2) := by
-    constructor
-    · intro h0
-      have hker : φ ∈ (WordCoh2.obs htriv).ker := by
-        rw [AddMonoidHom.mem_ker]; exact h0
-      rw [obs_ker_eq_B2 htriv] at hker
-      exact AddSubgroup.mem_addSubgroupOf.mp hker
-    · intro hB
-      have hker : φ ∈ (WordCoh2.obs htriv).ker := by
-        rw [obs_ker_eq_B2 htriv]
-        exact AddSubgroup.mem_addSubgroupOf.mpr hB
-      rw [AddMonoidHom.mem_ker] at hker
-      exact hker
-  have key : ∀ a b : ZMod 2, (a = 0 ↔ b = 0) → a = b := by decide
-  exact key _ _ (h1.trans h2.symm)
+    rw [← AddMonoidHom.mem_ker, obs_ker_eq_B2 htriv, AddSubgroup.mem_addSubgroupOf]
+  exact (by decide : ∀ a b : ZMod 2, (a = 0 ↔ b = 0) → a = b) _ _
+    (iotaB_eq_zero_iff.trans h2.symm)
 
 /-- **The evaluation form** (the A-3 interface, cocycle-level): `ι_{Γ_A} φ` is the
 (tame + wild) relator obstruction of *any* finite-admissible-level factorization of the

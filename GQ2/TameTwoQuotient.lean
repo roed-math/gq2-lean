@@ -36,8 +36,7 @@ makes `orderOf (φ τ)` **odd**; in the `2`-group `Q` it is a power of `2`; the 
 theorem map_tameTau_eq_one {Q : Type*} [Group Q] [Finite Q] (hQ : IsPGroup 2 Q)
     (φ : Ttame →* Q) : φ tameTau = 1 := by
   have hrel : (φ tameSigma)⁻¹ * φ tameTau * φ tameSigma = (φ tameTau) ^ 2 := by
-    have h := congrArg φ tame_relation
-    simpa only [conjP, map_mul, map_inv, map_pow] using h
+    simpa only [conjP, map_mul, map_inv, map_pow] using congrArg φ tame_relation
   have hodd : Odd (orderOf (φ tameTau)) :=
     Tame.tame_odd_order (orderOf_pos (φ tameSigma)).ne' hrel
   obtain ⟨k, hk⟩ := (IsPGroup.iff_orderOf.mp hQ) (φ tameTau)
@@ -68,7 +67,7 @@ theorem maxProPMk_tameTau : maxProPMk 2 Ttame tameTau = 1 := by
 `maxProPMk_tameTau`) on `τ`; density on `{σ, τ}` gives `maxProPMk = ρ' ∘ ν_t`, so
 `ν_t x = 1 ⟹ maxProPMk x = 1 ⟹ x ∈ proPKernel`. -/
 theorem ker_nuT_le_proPKernel : GQ2.nuT.toMonoidHom.ker ≤ proPKernel 2 Ttame := by
-  set s : maxProPQuotient 2 Ttame := maxProPMk 2 Ttame tameSigma with hs
+  set s : maxProPQuotient 2 Ttame := maxProPMk 2 Ttame tameSigma
   let zhatHom : ContinuousMonoidHom Zhat (maxProPQuotient 2 Ttame) :=
     ⟨{ toFun := fun γ => s ^ᶻ γ, map_one' := zpowHat_one s,
        map_mul' := fun a b => zpowHat_mul s a b }, continuous_zpowHat s⟩

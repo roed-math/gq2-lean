@@ -50,16 +50,11 @@ noncomputable def lWord (U : Subgroup G) (u : G ⧸ U) (γ : G) : G :=
 
 /-- `ℓ_u(γ)` lands in `U`. -/
 theorem lWord_mem (U : Subgroup G) (u : G ⧸ U) (γ : G) : lWord U u γ ∈ U := by
-  have h1 : (((γ⁻¹ • u : G ⧸ U).out : G) : G ⧸ U) = γ⁻¹ • u := QuotientGroup.out_eq' _
   have h2 : ((γ⁻¹ * u.out : G) : G ⧸ U) = γ⁻¹ • u := by
     conv_rhs => rw [← QuotientGroup.out_eq' u]
     exact MulAction.Quotient.smul_mk U γ⁻¹ u.out
-  have h3 : (γ⁻¹ * u.out)⁻¹ * (γ⁻¹ • u : G ⧸ U).out ∈ U :=
-    (QuotientGroup.eq (s := U)).mp (h2.trans h1.symm)
-  have h4 : (γ⁻¹ * u.out)⁻¹ * (γ⁻¹ • u : G ⧸ U).out = lWord U u γ := by
-    rw [lWord]
-    group
-  rwa [h4] at h3
+  rw [lWord, show u.out⁻¹ * γ = (γ⁻¹ * u.out)⁻¹ by group]
+  exact (QuotientGroup.eq (s := U)).mp (h2.trans (QuotientGroup.out_eq' _).symm)
 
 /-- The transversal 1-cochain `ℓ_u(γ) ∈ U` (paper's `ℓ_u`, proof of Lemma 6.15, eq. (108)). -/
 noncomputable def lTrans (U : Subgroup G) (u : G ⧸ U) (γ : G) : U := ⟨lWord U u γ, lWord_mem U u γ⟩

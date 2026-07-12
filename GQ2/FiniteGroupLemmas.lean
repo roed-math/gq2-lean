@@ -34,16 +34,10 @@ theorem coprime_fiber_product {A B C : Type*} [Group A] [Group B] [Group C]
   have hI₁ : Function.Surjective (Prod.fst ∘ J.subtype) := hJA
   have hI₂ : Function.Surjective (Prod.snd ∘ J.subtype) := hJB
   -- The two Goursat kernels sit inside `ker f`, `ker g`.
-  have hG'ker : J.goursatFst ≤ f.ker := by
-    intro a ha
-    have h1 : (a, (1 : B)) ∈ J := Subgroup.mem_goursatFst.1 ha
-    have hfa : f a = 1 := by simpa using hJsub _ h1
-    exact MonoidHom.mem_ker.2 hfa
-  have hH'ker : J.goursatSnd ≤ g.ker := by
-    intro b hb
-    have h1 : ((1 : A), b) ∈ J := Subgroup.mem_goursatSnd.1 hb
-    have hgb : g b = 1 := by simpa using (hJsub _ h1).symm
-    exact MonoidHom.mem_ker.2 hgb
+  have hG'ker : J.goursatFst ≤ f.ker := fun a ha =>
+    MonoidHom.mem_ker.2 (by simpa using hJsub _ (Subgroup.mem_goursatFst.1 ha))
+  have hH'ker : J.goursatSnd ≤ g.ker := fun b hb =>
+    MonoidHom.mem_ker.2 (by simpa using (hJsub _ (Subgroup.mem_goursatSnd.1 hb)).symm)
   -- Goursat's isomorphism `A/goursatFst ≃* B/goursatSnd`.
   haveI hn1 : J.goursatFst.Normal := Subgroup.normal_goursatFst hI₁
   haveI hn2 : J.goursatSnd.Normal := Subgroup.normal_goursatSnd hI₂
@@ -66,41 +60,27 @@ theorem coprime_fiber_product {A B C : Type*} [Group A] [Group B] [Group C]
   have ii : Nat.card (B ⧸ J.goursatSnd) * Nat.card J.goursatSnd = Nat.card C * Nat.card g.ker := by
     rw [← hB]; exact hBg
   have key : Nat.card J.goursatFst * Nat.card g.ker
-           = Nat.card J.goursatSnd * Nat.card f.ker := by
-    apply Nat.eq_of_mul_eq_mul_left hqpos
-    calc Nat.card (B ⧸ J.goursatSnd) * (Nat.card J.goursatFst * Nat.card g.ker)
-        = (Nat.card (B ⧸ J.goursatSnd) * Nat.card J.goursatFst) * Nat.card g.ker := by ring
-      _ = (Nat.card C * Nat.card f.ker) * Nat.card g.ker := by rw [i]
-      _ = (Nat.card C * Nat.card g.ker) * Nat.card f.ker := by ring
-      _ = (Nat.card (B ⧸ J.goursatSnd) * Nat.card J.goursatSnd) * Nat.card f.ker := by rw [ii]
-      _ = Nat.card (B ⧸ J.goursatSnd) * (Nat.card J.goursatSnd * Nat.card f.ker) := by ring
+           = Nat.card J.goursatSnd * Nat.card f.ker :=
+    Nat.eq_of_mul_eq_mul_left hqpos (by rw [← mul_assoc, ← mul_assoc, i, ii]; ring)
   -- Coprimality upgrades `goursatSnd ≤ ker g` to an equality of orders, hence `ker g ≤ goursatSnd`.
   have hh'kg : Nat.card J.goursatSnd ∣ Nat.card g.ker := Subgroup.card_dvd_of_le hH'ker
-  have hkg_dvd : Nat.card g.ker ∣ Nat.card J.goursatSnd := by
-    have hdvd : Nat.card g.ker ∣ Nat.card J.goursatSnd * Nat.card f.ker :=
-      ⟨Nat.card J.goursatFst, by rw [← key]; ring⟩
-    exact hcop.symm.dvd_of_dvd_mul_right hdvd
+  have hkg_dvd : Nat.card g.ker ∣ Nat.card J.goursatSnd :=
+    hcop.symm.dvd_of_dvd_mul_right ⟨Nat.card J.goursatFst, by rw [← key]; ring⟩
   have hcard : Nat.card J.goursatSnd = Nat.card g.ker := Nat.dvd_antisymm hh'kg hkg_dvd
-  have hker_le : g.ker ≤ J.goursatSnd := by
-    have hset : (J.goursatSnd : Set B) = (g.ker : Set B) :=
-      (Set.toFinite (g.ker : Set B)).eq_of_subset_of_card_le
-        (SetLike.coe_subset_coe.2 hH'ker) (le_of_eq hcard.symm)
-    exact SetLike.coe_subset_coe.1 hset.ge
+  have hker_le : g.ker ≤ J.goursatSnd :=
+    SetLike.coe_subset_coe.1 ((Set.toFinite (g.ker : Set B)).eq_of_subset_of_card_le
+      (SetLike.coe_subset_coe.2 hH'ker) (le_of_eq hcard.symm)).ge
   -- Endgame: hit an arbitrary fibre-product element.
   rintro ⟨a, b⟩ hp
   obtain ⟨j, hj⟩ := hJA a
-  set b' := (j : A × B).2 with hb'
-  have hjmem : ((a, b') : A × B) ∈ J := by
-    have : (j : A × B) = (a, b') := Prod.ext hj rfl
-    rw [← this]; exact j.2
+  set b' := (j : A × B).2
+  have hjmem : ((a, b') : A × B) ∈ J := (Prod.ext hj rfl : (j : A × B) = (a, b')) ▸ j.2
   have hfab' : f a = g b' := by simpa [hj] using hJsub _ j.2
   have hgeq : g b' = g b := hfab'.symm.trans hp
   have hker : b'⁻¹ * b ∈ g.ker := by
     rw [MonoidHom.mem_ker, map_mul, map_inv, hgeq, inv_mul_cancel]
   have hmem2 : ((1 : A), b'⁻¹ * b) ∈ J := Subgroup.mem_goursatSnd.1 (hker_le hker)
-  have : ((a, b) : A × B) = (a, b') * (1, b'⁻¹ * b) := by
-    simp
-  rw [this]
+  rw [show ((a, b) : A × B) = (a, b') * (1, b'⁻¹ * b) by simp]
   exact J.mul_mem hjmem hmem2
 
 

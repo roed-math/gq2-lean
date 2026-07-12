@@ -47,11 +47,8 @@ well-defined action of the finite discrete group `C = Bg ⧸ D.M` on the abelian
 top of the existing `AddGroup (Additive ↥D.T)` (from the subgroup `Group`), so no diamond. -/
 noncomputable instance instACGaddT : AddCommGroup (Additive ↥D.T) :=
   { (inferInstance : AddGroup (Additive ↥D.T)) with
-    add_comm := fun a b => by
-      apply Additive.toMul.injective
-      show Additive.toMul a * Additive.toMul b = Additive.toMul b * Additive.toMul a
-      exact Subtype.ext
-        (D.hcomm _ (D.hTM (Additive.toMul a).2) _ (D.hTM (Additive.toMul b).2)) }
+    add_comm := fun a b => Additive.toMul.injective <| Subtype.ext
+      (D.hcomm _ (D.hTM (Additive.toMul a).2) _ (D.hTM (Additive.toMul b).2)) }
 
 /-- The conjugation action of `C = Bg ⧸ D.M` on `T`, at the canonical representative. -/
 noncomputable def cactFun (c : Bg ⧸ D.M) (t : ↥D.T) : ↥D.T :=

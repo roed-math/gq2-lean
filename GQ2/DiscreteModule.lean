@@ -32,12 +32,11 @@ variable {M : Type*} [AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
 
 /-- In a discrete module, point stabilizers are open subgroups. -/
 theorem isOpen_stabilizer (m : M) : IsOpen ((MulAction.stabilizer G m : Subgroup G) : Set G) := by
-  have hc : Continuous fun g : G => g • m := continuous_id.smul continuous_const
   have hset : ((MulAction.stabilizer G m : Subgroup G) : Set G)
       = (fun g : G => g • m) ⁻¹' {m} := by
     ext g; simp [MulAction.mem_stabilizer_iff]
   rw [hset]
-  exact (isOpen_discrete _).preimage hc
+  exact (isOpen_discrete _).preimage (continuous_id.smul continuous_const)
 
 /-- In a **finite** discrete module, the kernel of the action (the intersection of all point
 stabilizers) is an open subgroup. -/
@@ -56,9 +55,6 @@ theorem exists_openNormalSubgroup_smul_eq_self [Finite M]
   obtain ⟨U, hU⟩ := ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one
     (isOpen_iInf_stabilizer (G := G) (M := M))
     (Subgroup.one_mem _)
-  refine ⟨U, fun u hu m => ?_⟩
-  have hmem : u ∈ (⨅ m : M, MulAction.stabilizer G m : Subgroup G) := hU hu
-  rw [Subgroup.mem_iInf] at hmem
-  exact hmem m
+  exact ⟨U, fun u hu m => Subgroup.mem_iInf.mp (hU hu) m⟩
 
 end GQ2

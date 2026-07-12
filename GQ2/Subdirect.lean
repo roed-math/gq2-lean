@@ -73,9 +73,8 @@ variable [Finite G] (f : G →* H) (t : Marking G)
 omit [Finite G] in
 /-- The tame relation transfers along any group hom. -/
 lemma map_tameRel (h : t.TameRel) : (t.map f).TameRel := by
-  have h' : conjP t.τ t.σ = t.τ ^ 2 := h
   show conjP (f t.τ) (f t.σ) = (f t.τ) ^ 2
-  rw [← map_conjP, h', map_pow]
+  rw [← map_conjP, (h : conjP t.τ t.σ = t.τ ^ 2), map_pow]
 
 /-- The wild relator word commutes with any group hom `f`. -/
 lemma map_wildLHS :
@@ -85,9 +84,8 @@ lemma map_wildLHS :
 
 /-- The wild relation transfers along any group hom. -/
 lemma map_wildRel (h : t.WildRel) : (t.map f).WildRel := by
-  have h' : t.h0 * t.u1⁻¹ * conjP t.x₁ t.σ * t.c0 = 1 := h
   show (t.map f).h0 * (t.map f).u1⁻¹ * conjP (t.map f).x₁ (t.map f).σ * (t.map f).c0 = 1
-  rw [map_wildLHS, h', map_one]
+  rw [map_wildLHS, (h : t.h0 * t.u1⁻¹ * conjP t.x₁ t.σ * t.c0 = 1), map_one]
 
 end
 
@@ -102,8 +100,8 @@ theorem map_admissible {G H : Type*} [Group G] [Group H] [Finite G] [Finite H]
   · -- generation is preserved by surjective images
     rw [Generates] at hgen ⊢
     rw [show ({(t.map f).σ, (t.map f).τ, (t.map f).x₀, (t.map f).x₁} : Set H)
-          = f '' {t.σ, t.τ, t.x₀, t.x₁} by simp [map, Set.image_insert_eq, Set.image_singleton]]
-    rw [← MonoidHom.map_closure, hgen, Subgroup.map_top_of_surjective f hf]
+          = f '' {t.σ, t.τ, t.x₀, t.x₁} by simp [map, Set.image_insert_eq, Set.image_singleton],
+      ← MonoidHom.map_closure, hgen, Subgroup.map_top_of_surjective f hf]
   · -- the wild generators still have 2-group normal closure
     have himg : Subgroup.normalClosure {(t.map f).x₀, (t.map f).x₁}
         = (Subgroup.normalClosure {t.x₀, t.x₁}).map f := by

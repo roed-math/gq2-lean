@@ -81,8 +81,7 @@ in the full presentation `D0Full` (`d0Full_relation`) and is pushed through the 
 homomorphism `maxProPMk` (which commutes with `*`, `^`, `commP` definitionally). -/
 theorem d0_relation : d0A ^ 2 * d0S ^ 4 * commP d0S d0Y = 1 := by
   show maxProPMk 2 D0Full (d0FullA ^ 2 * d0FullS ^ 4 * commP d0FullS d0FullY) = 1
-  rw [d0Full_relation]
-  exact map_one _
+  rw [d0Full_relation, map_one]
 
 /-! ## Stress test: a concrete finite 2-group marking (`homEquiv` + `decide`)
 

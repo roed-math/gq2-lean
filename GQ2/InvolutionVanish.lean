@@ -41,9 +41,7 @@ theorem finiteDimensional_extendScalars (k L : IntermediateField ℚ_[2] ℚ̄�
       left_inv := fun _ => rfl
       right_inv := fun _ => rfl
       map_add' := fun _ _ => rfl
-      map_smul' := fun c x => by
-        apply Subtype.ext
-        simp only [IntermediateField.coe_smul, RingHom.id_apply, SetLike.val_smul] }
+      map_smul' := fun _ _ => rfl }
   exact Module.Finite.equiv e
 
 /-- **Index transport**: the fixing subgroup of `extendScalars hkL` inside `Gal(ℚ̄₂/↥k)` is the
@@ -57,11 +55,8 @@ theorem index_extendScalars_fixingSubgroup (k L : IntermediateField ℚ_[2] ℚ�
     ext φ
     rw [Subgroup.mem_map_equiv, Subgroup.mem_subgroupOf,
       IntermediateField.mem_fixingSubgroup_iff, IntermediateField.mem_fixingSubgroup_iff]
-    constructor
-    · intro h y hy
-      exact h y ((IntermediateField.mem_extendScalars hkL).mp hy)
-    · intro h y hy
-      exact h y ((IntermediateField.mem_extendScalars hkL).mpr hy)
+    simp only [IntermediateField.mem_extendScalars]
+    constructor <;> exact fun h y hy => h y hy
   rw [← hmap, Subgroup.index_map_of_bijective (fixingSubgroupEquiv k).bijective]
 
 /-- **The bridge** (P-15f2c2b core): a fixing-index-2 subextension has relative degree 2. -/
@@ -69,8 +64,8 @@ theorem finrank_extendScalars_eq_two (k L : IntermediateField ℚ_[2] ℚ̄₂)
     [FiniteDimensional ℚ_[2] L] (hkL : k ≤ L)
     (hindex : (L.fixingSubgroup.subgroupOf k.fixingSubgroup).index = 2) :
     Module.finrank ↥k ↥(extendScalars hkL) = 2 := by
-  have hHindex : ((extendScalars hkL).fixingSubgroup).index = 2 := by
-    rw [index_extendScalars_fixingSubgroup k L hkL]; exact hindex
+  have hHindex : ((extendScalars hkL).fixingSubgroup).index = 2 :=
+    (index_extendScalars_fixingSubgroup k L hkL).trans hindex
   haveI hHnorm : ((extendScalars hkL).fixingSubgroup).Normal :=
     Subgroup.normal_of_index_eq_two hHindex
   haveI : IsGalois ↥k ↥(extendScalars hkL) :=

@@ -63,11 +63,7 @@ theorem prop_6_18_ramified (D : TateDuality 2) (R : LocalReciprocity) (B : Bound
     Nat.card {x : H1 AbsGalQ2 V // Q0loc D dat ρ x = 0}
       = 2 ^ (2 * m - 1) + 2 ^ (m - 1) := by
   have hV2 : ∀ v : V, v + v = 0 := DeepPart.exp_two_of_simple_of_card hsimple m hm hcard
-  have hρsurj : Function.Surjective ⇑ρ := by
-    intro y
-    obtain ⟨t, ht⟩ := hc y
-    obtain ⟨g, hg⟩ := B.tameF_surjective t
-    exact ⟨g, by rw [hfac, hg, ht]⟩
+  have hρsurj : Function.Surjective ⇑ρ := DimAssembly.rho_surjective B c hc ρ hfac
   have hdim := ResidueLift.lemma_6_17_dim_final B c hc ρ hfac hρ hV2 hfaith hsimple hram
     q hq hns hinv
   have hvanish : ∀ x ∈ deepPart (V := V) ρ, Q0loc D dat ρ x = 0 := fun x hx =>

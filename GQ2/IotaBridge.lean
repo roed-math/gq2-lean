@@ -34,8 +34,7 @@ theorem iotaB_eq_iotaF_of_injective (D : TateDuality 2)
     {φ : AbsGalQ2 × AbsGalQ2 → ZMod 2} (hφ : φ ∈ Z2 AbsGalQ2 (ZMod 2)) :
     iotaB φ = iotaF D (H2ofFun AbsGalQ2 φ) := by
   rw [H2ofFun_of_mem hφ]
-  have hchar : ∀ a b : ZMod 2, (a = 0 ↔ b = 0) → a = b := by decide
-  refine hchar _ _ ?_
+  refine (by decide : ∀ a b : ZMod 2, (a = 0 ↔ b = 0) → a = b) _ _ ?_
   rw [iotaB_eq_zero_iff, map_eq_zero_iff (iotaF D) hinj, H2mk_eq_zero_iff]
 
 /-! ## The injectivity of `iotaF` — `mapCoeff2` of a coefficient bijection
@@ -62,22 +61,17 @@ theorem mapCoeff2_injective {A B : Type} [AddCommGroup A] [AddCommGroup B]
   induction xq using QuotientAddGroup.induction_on with
   | H b =>
     intro hxq
-    have hxq' : H2mk AbsGalQ2 B
-        (Z2comap (ContinuousMonoidHom.id AbsGalQ2) f hf (fun g n => hcompat g n) b) = 0 := hxq
-    have hmem := (QuotientAddGroup.eq_zero_iff _).mp hxq'
+    have hmem := (QuotientAddGroup.eq_zero_iff _).mp hxq
     rw [AddSubgroup.mem_addSubgroupOf] at hmem
     obtain ⟨ψ, hψC, hψ⟩ := AddSubgroup.mem_map.mp hmem
     -- pull the 1-cochain back along `f` (discrete coefficients ⟹ the section is continuous)
-    set m : AbsGalQ2 → A := fun g => Function.surjInv hsurj (ψ g) with hm
+    set m : AbsGalQ2 → A := fun g => Function.surjInv hsurj (ψ g)
     have hfm : ∀ g, f (m g) = ψ g := fun g => Function.surjInv_eq hsurj (ψ g)
     show H2mk AbsGalQ2 A b = 0
     refine (QuotientAddGroup.eq_zero_iff b).mpr ?_
     rw [AddSubgroup.mem_addSubgroupOf]
     refine AddSubgroup.mem_map.mpr ⟨m, ?_, ?_⟩
-    · show Continuous m
-      have hcomp : m = (Function.surjInv hsurj) ∘ ψ := rfl
-      rw [hcomp]
-      exact continuous_of_discreteTopology.comp hψC
+    · exact (continuous_of_discreteTopology (f := Function.surjInv hsurj)).comp hψC
     · -- `δ¹ m = b` pointwise, by `f`-injectivity
       funext p
       apply hinj
@@ -85,22 +79,18 @@ theorem mapCoeff2_injective {A B : Type} [AddCommGroup A] [AddCommGroup B]
         show f (p.1 • m p.2 - m (p.1 * p.2) + m p.1)
           = p.1 • ψ p.2 - ψ (p.1 * p.2) + ψ p.1
         rw [map_add, map_sub, hcompat, hfm, hfm, hfm]
-      have hRHS := congrFun hψ p
-      rw [hLHS, hRHS]
+      rw [hLHS, congrFun hψ p]
       rfl
 
 /-- `muTwoOfF2` is surjective (`𝔽₂ ≅ μ₂`, via `DeepPart.zmodTwoEquivMuTwo`). -/
-theorem muTwoOfF2_surjective : Function.Surjective ⇑SectionSix.muTwoOfF2 := by
-  rw [DeepPart.muTwoOfF2_eq]
-  exact DeepPart.zmodTwoEquivMuTwo.surjective
+theorem muTwoOfF2_surjective : Function.Surjective ⇑SectionSix.muTwoOfF2 :=
+  DeepPart.muTwoOfF2_eq ▸ DeepPart.zmodTwoEquivMuTwo.surjective
 
 /-- **`iotaF D` is injective**: `D.inv` is an equivalence and `mapCoeff2 muTwoOfF2` is
 injective (`mapCoeff2_injective` at the `𝔽₂ ≅ μ₂` bijection). -/
-theorem iotaF_injective (D : TateDuality 2) : Function.Injective (iotaF D) := by
-  have h2 : Function.Injective (mapCoeff2 SectionSix.muTwoOfF2 continuous_of_discreteTopology
-      SectionSix.muTwoOfF2_equivariant) :=
-    mapCoeff2_injective _ _ _ DeepPart.muTwoOfF2_injective muTwoOfF2_surjective
-  exact D.inv.injective.comp h2
+theorem iotaF_injective (D : TateDuality 2) : Function.Injective (iotaF D) :=
+  D.inv.injective.comp
+    (mapCoeff2_injective _ _ _ DeepPart.muTwoOfF2_injective muTwoOfF2_surjective)
 
 /-- **The abstract↔invariant obstruction bridge, unconditional** (P-16d6e4a §1(C) closed):
 `iotaB φ = iotaF D (H²ofFun φ)` on continuous 2-cocycles over `G_ℚ₂`. -/

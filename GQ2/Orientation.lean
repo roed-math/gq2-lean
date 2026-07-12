@@ -88,9 +88,7 @@ structure DyadicOrientation [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace Ab
 /-- Any homomorphism into a *commutative* group kills the commutator word. -/
 lemma map_commP_eq_one {G H : Type*} [Group G] [CommGroup H] (f : G →* H) (x y : G) :
     f (commP x y) = 1 := by
-  simp only [commP, map_mul, map_inv]
-  rw [mul_comm (f x)⁻¹ (f y)⁻¹]
-  group
+  simp [commP, mul_comm]
 
 section StressTests
 

@@ -45,13 +45,9 @@ theorem norm_eq_zpow {k : IntermediateField ℚ_[2] ℚ̄₂} (F : DyadicUnitFil
   · obtain ⟨m, hm⟩ :=
       exists_nat_val k F.π F.hπ_mem F.hπ_ne F.hπ_lt F.hπ_max hx hx0 h1
     exact ⟨(m : ℤ), by rw [hm, zpow_natCast]⟩
-  · have hxinv : x⁻¹ ∈ k := k.inv_mem hx
-    have hxinv0 : x⁻¹ ≠ 0 := inv_ne_zero hx0
-    have hnorm : ‖x⁻¹‖ ≤ 1 := by
-      rw [norm_inv]
-      exact le_of_lt (inv_lt_one_of_one_lt₀ h1)
+  · have hnorm : ‖x⁻¹‖ ≤ 1 := by rw [norm_inv]; exact (inv_lt_one_of_one_lt₀ h1).le
     obtain ⟨m, hm⟩ :=
-      exists_nat_val k F.π F.hπ_mem F.hπ_ne F.hπ_lt F.hπ_max hxinv hxinv0 hnorm
+      exists_nat_val k F.π F.hπ_mem F.hπ_ne F.hπ_lt F.hπ_max (k.inv_mem hx) (inv_ne_zero hx0) hnorm
     refine ⟨-(m : ℤ), ?_⟩
     rw [norm_inv] at hm
     rw [zpow_neg, zpow_natCast, ← hm, inv_inv]

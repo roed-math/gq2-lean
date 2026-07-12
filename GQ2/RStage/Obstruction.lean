@@ -89,8 +89,6 @@ theorem stageR136_ofObstruction
     intro l φ
     simp [he_def, Equiv.trans_apply, Module.evalEquiv_apply, Module.Dual.eval_apply]
   have he0 : e RF.zeroDR = 0 := by
-    have : e RF.zeroDR (0 : Module.Dual (ZMod 2) DRmod) = 0 := by
-      rw [heval]; simp
     ext φ
     rw [heval, h0]; simp
   refine stageR136_of RF hfg b F (Module.Dual (ZMod 2) DRmod) obs e he0 ?_ hobs hfib

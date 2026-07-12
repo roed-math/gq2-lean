@@ -38,10 +38,8 @@ lemma exists_span_pow_subset {S : Set ℤ_[2]} (hopen : IsOpen S) (hmem : (0 : �
   obtain ⟨ε, hε, hball⟩ := Metric.mem_nhds_iff.mp (hopen.mem_nhds hmem)
   obtain ⟨n, hn⟩ := exists_pow_lt_of_lt_one hε (by norm_num : (2 : ℝ)⁻¹ < 1)
   refine ⟨n, fun x hx => hball ?_⟩
-  have hx' : ‖x‖ ≤ (2 : ℝ) ^ (-n : ℤ) :=
-    (PadicInt.norm_le_pow_iff_mem_span_pow x n).mpr hx
   rw [Metric.mem_ball, dist_eq_norm, sub_zero]
-  calc ‖x‖ ≤ (2 : ℝ) ^ (-n : ℤ) := hx'
+  calc ‖x‖ ≤ (2 : ℝ) ^ (-n : ℤ) := (PadicInt.norm_le_pow_iff_mem_span_pow x n).mpr hx
     _ = ((2 : ℝ)⁻¹) ^ n := by rw [zpow_neg, zpow_natCast, inv_pow]
     _ < ε := hn
 
@@ -52,9 +50,7 @@ theorem isProP_two_multPadicInt : IsProP 2 (Multiplicative ℤ_[2]) := by
   -- `S = {x : ℤ₂ | ofAdd x ∈ U}`, an open set containing `0`.
   set S : Set ℤ_[2] := Multiplicative.ofAdd ⁻¹' (U.toSubgroup : Set (Multiplicative ℤ_[2])) with hS
   have hopen : IsOpen S := U.isOpen'.preimage continuous_ofAdd
-  have hmem : (0 : ℤ_[2]) ∈ S := by
-    simp only [hS, Set.mem_preimage, SetLike.mem_coe]
-    exact one_mem _
+  have hmem : (0 : ℤ_[2]) ∈ S := one_mem U.toSubgroup
   obtain ⟨n, hspan⟩ := exists_span_pow_subset hopen hmem
   intro g
   refine ⟨n, ?_⟩
@@ -62,13 +58,11 @@ theorem isProP_two_multPadicInt : IsProP 2 (Multiplicative ℤ_[2]) := by
   show (QuotientGroup.mk' U.toSubgroup m) ^ (2 ^ n) = 1
   rw [← map_pow, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]
   -- `m ^ 2^n = ofAdd (2^n • toAdd m)`; and `2^n • toAdd m ∈ span{2^n} ⊆ S`, i.e. its `ofAdd` is in U.
-  have hmem2 : (2 : ℤ_[2]) ^ n * Multiplicative.toAdd m ∈ S := by
-    apply hspan
-    exact Ideal.mul_mem_right _ _ (Ideal.mem_span_singleton_self _)
+  have hmem2 : (2 : ℤ_[2]) ^ n * Multiplicative.toAdd m ∈ S :=
+    hspan (Ideal.mul_mem_right _ _ (Ideal.mem_span_singleton_self _))
   have hpow : m ^ (2 ^ n) = Multiplicative.ofAdd ((2 : ℤ_[2]) ^ n * Multiplicative.toAdd m) := by
     rw [← ofAdd_toAdd m, ← ofAdd_nsmul, toAdd_ofAdd, nsmul_eq_mul, Nat.cast_pow, Nat.cast_ofNat]
-  rw [hpow]
-  simpa only [hS, Set.mem_preimage, SetLike.mem_coe] using hmem2
+  simpa only [hpow, hS, Set.mem_preimage, SetLike.mem_coe] using hmem2
 
 /-! ## The `ν_ur`-descent through the maximal pro-2 quotient -/
 

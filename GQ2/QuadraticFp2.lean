@@ -45,8 +45,7 @@ structure IsQuadraticFp2 (q : V → ZMod 2) : Prop where
 
 /-- The polar form is symmetric (immediately from commutativity of `+`). -/
 theorem polar_comm (q : V → ZMod 2) (v w : V) : polar q v w = polar q w v := by
-  unfold polar
-  rw [add_comm v w]
+  simp only [polar, add_comm v w]
   ring
 
 /-- Polarization at equal arguments computes `q(2v)`; on an exponent-2 group it vanishes, i.e.
@@ -54,8 +53,7 @@ the polar form is **alternating** (`B(v,v) = 0`), because `q(2v) = q(0) = 0`. -/
 theorem polar_self (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (h2 : ∀ v : V, v + v = 0) (v : V) :
     polar q v v = 0 := by
   unfold polar
-  rw [h2 v, hq.map_zero, zero_add]
-  exact CharTwo.add_self_eq_zero _
+  rw [h2 v, hq.map_zero, zero_add, CharTwo.add_self_eq_zero]
 
 /-- **Nonsingularity**: the polar radical is trivial — every nonzero vector pairs nontrivially
 with something.  (For finite `V` this is the paper's nondegeneracy; no dual-space bundling.) -/

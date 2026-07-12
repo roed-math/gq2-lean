@@ -35,7 +35,7 @@ discharge): `SectionThree.tameFHom` satisfies `TameUnitOrientation localReciproc
 clause is verbatim `tameQuotient.nuT_recip_unit`. -/
 theorem tameUnitOrientation_tameFHom :
     TameUnitOrientation localReciprocity SectionThree.tameFHom :=
-  fun u g hg => GQ2.tameQuotient.nuT_recip_unit u g hg
+  GQ2.tameQuotient.nuT_recip_unit
 
 /-- **The witness discharge in the consumer's verbatim shape** (`B := boundaryMapsWitness`):
 `boundaryMapsWitness.tameF` satisfies `TameUnitOrientation localReciprocity`.  This is the

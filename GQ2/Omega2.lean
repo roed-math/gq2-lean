@@ -16,15 +16,10 @@ open scoped Classical
 theorem oddPart_dvd_omega2Exp (n : ℕ) :
     (n / 2 ^ n.factorization 2) ∣ omega2Exp n := by
   unfold omega2Exp
-  set a := n.factorization 2 with ha
-  by_cases hn : n = 0
-  · subst hn; simp
-  by_cases haz : a = 0
+  by_cases haz : n.factorization 2 = 0
   · simp [haz]
   · simp only [haz, if_false]
-    have h2a : 2 ^ a ∣ n := ha ▸ Nat.ordProj_dvd n 2
-    have hdvd_n : (n / 2 ^ a) ∣ n := Nat.div_dvd_of_dvd h2a
-    rw [Nat.dvd_mod_iff hdvd_n]
+    rw [Nat.dvd_mod_iff (Nat.div_dvd_of_dvd (Nat.ordProj_dvd n 2))]
     exact dvd_pow_self _ (by positivity)
 
 /-- `omega2Exp n ≡ 1` modulo the 2-part `2 ^ v₂(n)` (the "`ω₂ ≡ 1` on the 2-part" condition),
@@ -33,23 +28,19 @@ for `n` with a nontrivial 2-part.  Uses Euler's theorem: the odd part is a unit 
 theorem omega2Exp_modEq_one {n : ℕ} (hn : n ≠ 0) (ha : n.factorization 2 ≠ 0) :
     omega2Exp n ≡ 1 [MOD 2 ^ n.factorization 2] := by
   set a := n.factorization 2 with hadef
-  have h2a : 2 ^ a ∣ n := hadef ▸ Nat.ordProj_dvd n 2
+  have h2a : 2 ^ a ∣ n := Nat.ordProj_dvd n 2
   -- `x % n ≡ x` modulo `2^a` since `2^a ∣ n`.
   have hmodn : omega2Exp n ≡ (n / 2 ^ a) ^ (2 ^ (a - 1)) [MOD 2 ^ a] := by
     unfold omega2Exp
     simp only [← hadef, ha, if_false]
     exact (Nat.mod_modEq _ _).of_dvd h2a
   -- The odd part is coprime to `2^a`, so Euler applies with `φ(2^a) = 2^(a-1)`.
-  have hnd : ¬ (2 : ℕ) ∣ (n / 2 ^ a) := by
-    have h := Nat.not_dvd_ordCompl (p := 2) Nat.prime_two hn
-    simpa [hadef] using h
+  have hnd : ¬ (2 : ℕ) ∣ (n / 2 ^ a) := Nat.not_dvd_ordCompl Nat.prime_two hn
   have hcop : Nat.Coprime (n / 2 ^ a) (2 ^ a) :=
     ((Nat.prime_two.coprime_iff_not_dvd.mpr hnd).symm).pow_right a
   have htot : Nat.totient (2 ^ a) = 2 ^ (a - 1) := by
     rw [Nat.totient_prime_pow Nat.prime_two (Nat.pos_of_ne_zero ha)]; simp
-  have heuler : (n / 2 ^ a) ^ (2 ^ (a - 1)) ≡ 1 [MOD 2 ^ a] := by
-    rw [← htot]; exact Nat.ModEq.pow_totient hcop
-  exact hmodn.trans heuler
+  exact hmodn.trans (htot ▸ Nat.ModEq.pow_totient hcop)
 
 /-- **Compatibility of the `ω₂` exponents across levels.**  For `N ∣ M` (`M ≠ 0`), the exponents
 at levels `M` and `N` agree modulo `N`: `omega2Exp M ≡ omega2Exp N [MOD N]`.  This is the
@@ -58,16 +49,15 @@ coherence making the family `(omega2Exp N)_N` a well-defined element `ω₂` of 
 combines the two congruences over the coprime factorisation `N = 2^{v₂ N} · (N / 2^{v₂ N})`. -/
 theorem omega2Exp_modEq {N M : ℕ} (hdvd : N ∣ M) (hM : M ≠ 0) :
     omega2Exp M ≡ omega2Exp N [MOD N] := by
-  have hN : N ≠ 0 := fun h0 => hM (by simpa [h0] using hdvd)
+  have hN : N ≠ 0 := ne_zero_of_dvd_ne_zero hM hdvd
   -- Congruent modulo the 2-part `2 ^ v₂(N)` (both `≡ 1`).
   have h2 : omega2Exp M ≡ omega2Exp N [MOD 2 ^ N.factorization 2] := by
     by_cases hα : N.factorization 2 = 0
     · rw [hα, pow_zero]; exact Nat.modEq_one
     · have hle : N.factorization 2 ≤ M.factorization 2 :=
         (Nat.factorization_le_iff_dvd hN hM).mpr hdvd 2
-      have e2 : omega2Exp M ≡ 1 [MOD 2 ^ N.factorization 2] :=
-        (omega2Exp_modEq_one hM (by omega)).of_dvd (pow_dvd_pow 2 hle)
-      exact e2.trans (omega2Exp_modEq_one hN hα).symm
+      exact ((omega2Exp_modEq_one hM (by lia)).of_dvd (pow_dvd_pow 2 hle)).trans
+        (omega2Exp_modEq_one hN hα).symm
   -- Congruent modulo the odd part `N / 2 ^ v₂(N)` (both `≡ 0`).
   have hodd : omega2Exp M ≡ omega2Exp N [MOD N / 2 ^ N.factorization 2] := by
     have e1 : (N / 2 ^ N.factorization 2) ∣ omega2Exp N := oddPart_dvd_omega2Exp N
@@ -87,9 +77,8 @@ projection: the choice of modulus `orderOf x` in its definition is immaterial, a
 modulus is a multiple of `orderOf x`.  (This is what makes `powOmega2` behave coordinatewise on
 products, cf. `powOmega2_prod`.) -/
 theorem powOmega2_pow_eq {G : Type*} [Group G] (x : G) {N : ℕ}
-    (hdvd : orderOf x ∣ N) (hN : N ≠ 0) : x ^ omega2Exp N = powOmega2 x := by
-  show x ^ omega2Exp N = x ^ omega2Exp (orderOf x)
-  exact pow_eq_pow_iff_modEq.mpr (omega2Exp_modEq hdvd hN)
+    (hdvd : orderOf x ∣ N) (hN : N ≠ 0) : x ^ omega2Exp N = powOmega2 x :=
+  pow_eq_pow_iff_modEq.mpr (omega2Exp_modEq hdvd hN)
 
 /-- **Naturality of `ω₂`.** The 2-primary projection commutes with every group homomorphism (out
 of a finite group): `f (x ^ ω₂) = (f x) ^ ω₂`.  This is the structural fact underlying the fact
@@ -97,9 +86,7 @@ that the paper's auxiliary words are preserved by quotient maps (needed for Lemm
 theorem powOmega2_map {G H : Type*} [Group G] [Group H] [Finite G] (f : G →* H) (x : G) :
     f (powOmega2 x) = powOmega2 (f x) := by
   rw [powOmega2, map_pow]
-  have hdvd : orderOf (f x) ∣ orderOf x :=
-    orderOf_dvd_of_pow_eq_one (by rw [← map_pow, pow_orderOf_eq_one, map_one])
-  exact powOmega2_pow_eq (f x) hdvd (orderOf_pos x).ne'
+  exact powOmega2_pow_eq (f x) (orderOf_map_dvd f x) (orderOf_pos x).ne'
 
 
 /-- **Appendix B, exact match.**  Our *computable* representative `omega2Exp`, evaluated at the
@@ -115,10 +102,8 @@ theorem omega2Exp_appendixB_value : omega2Exp 85667662080 = 40491355905 := by
       (Nat.Prime.pow_dvd_iff_le_factorization Nat.prime_two hn).mp (by decide)
     have h9 : ¬ 9 ≤ (85667662080 : ℕ).factorization 2 := fun h =>
       absurd ((Nat.Prime.pow_dvd_iff_le_factorization Nat.prime_two hn).mpr h) (by decide)
-    omega
-  unfold omega2Exp
-  simp only [hfac]
-  norm_num
+    lia
+  norm_num [omega2Exp, hfac]
 
 end GQ2
 

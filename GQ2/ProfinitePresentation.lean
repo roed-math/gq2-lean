@@ -26,9 +26,8 @@ noncomputable def relatorSubgroup {X : Type u} (rels : Set (FreeProfiniteGroup X
     Subgroup (FreeProfiniteGroup X) :=
   (Subgroup.normalClosure rels).topologicalClosure
 
-instance {X : Type u} (rels : Set (FreeProfiniteGroup X)) : (relatorSubgroup rels).Normal := by
-  unfold relatorSubgroup
-  exact Subgroup.is_normal_topologicalClosure _
+instance {X : Type u} (rels : Set (FreeProfiniteGroup X)) : (relatorSubgroup rels).Normal :=
+  Subgroup.is_normal_topologicalClosure _
 
 /-- The profinite group **presented** by generators `X` and relators `rels`: the free profinite
 group on `X` modulo the closed normal closure of the relators. -/

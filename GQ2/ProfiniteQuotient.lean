@@ -43,10 +43,9 @@ theorem isTopologicalBasis_clopen_quotient [IsClosed (N : Set G)] :
   have hcosetClopen : IsClopen ((Homeomorph.mulLeft p) '' (U : Set G)) :=
     ⟨(Homeomorph.mulLeft p).isClosedMap _ U.isClopen.1,
       (Homeomorph.mulLeft p).isOpenMap _ U.isClopen.2⟩
-  have hCclopen : IsClopen C := by
-    refine ⟨?_, ?_⟩
-    · exact (QuotientGroup.isClosedMap_coe hNcompact) _ hcosetClopen.1
-    · exact QuotientGroup.isOpenMap_coe _ hcosetClopen.2
+  have hCclopen : IsClopen C :=
+    ⟨(QuotientGroup.isClosedMap_coe hNcompact) _ hcosetClopen.1,
+      QuotientGroup.isOpenMap_coe _ hcosetClopen.2⟩
   refine ⟨C, hCclopen, ?_, ?_⟩
   · -- `x = q p ∈ C` since `p = p * 1 ∈ p · U`.
     exact ⟨p, ⟨1, U.one_mem, by simp⟩, rfl⟩
