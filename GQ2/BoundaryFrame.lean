@@ -100,14 +100,10 @@ noncomputable def presentationLift {X : Type} (rels : Set (FreeProfiniteGroup X)
     [Group P] [TopologicalSpace P] [IsTopologicalGroup P] [T2Space P]
     (f : ContinuousMonoidHom (FreeProfiniteGroup X) P) (hf : ∀ r ∈ rels, f r = 1) :
     ContinuousMonoidHom (FreeProfiniteGroup X ⧸ relatorSubgroup rels) P :=
-  quotientLift (relatorSubgroup rels) f <| by
-    have hker : IsClosed (f.toMonoidHom.ker : Set (FreeProfiniteGroup X)) := by
-      have hset : (f.toMonoidHom.ker : Set (FreeProfiniteGroup X)) = f ⁻¹' {1} := by
-        ext g; simp [MonoidHom.mem_ker]
-      rw [hset]
-      exact IsClosed.preimage f.continuous_toFun isClosed_singleton
-    exact Subgroup.topologicalClosure_minimal _
-      (Subgroup.normalClosure_le_normal fun r hr => MonoidHom.mem_ker.mpr (hf r hr)) hker
+  quotientLift (relatorSubgroup rels) f <|
+    Subgroup.topologicalClosure_minimal _
+      (Subgroup.normalClosure_le_normal fun r hr => MonoidHom.mem_ker.mpr (hf r hr))
+      (IsClosed.preimage f.continuous_toFun isClosed_singleton)
 
 @[simp] theorem presentationLift_mk {X : Type} (rels : Set (FreeProfiniteGroup X)) {P : Type}
     [Group P] [TopologicalSpace P] [IsTopologicalGroup P] [T2Space P]
@@ -186,8 +182,7 @@ theorem tameToZhat_tameWord : tameToZhat tameWord = 1 := by
 §3 fact, P-06/P-09 scope; only the map is needed to *state* §4.) -/
 noncomputable def nuT : ContinuousMonoidHom Ttame Ztwo :=
   presentationLift {tameWord} ((maxProPMk 2 Zhat).comp tameToZhat) <| by
-    intro r hr
-    rcases hr with rfl
+    rintro r rfl
     show maxProPMk 2 Zhat (tameToZhat tameWord) = 1
     rw [tameToZhat_tameWord, map_one]
 
@@ -222,8 +217,7 @@ theorem wildToZhat_piRelator : wildToZhat piRelator = 1 := by
 noncomputable def prePiToZtwo :
     ContinuousMonoidHom (profinitePresentation {piRelator}) Ztwo :=
   presentationLift {piRelator} ((maxProPMk 2 Zhat).comp wildToZhat) <| by
-    intro r hr
-    rcases hr with rfl
+    rintro r rfl
     show maxProPMk 2 Zhat (wildToZhat piRelator) = 1
     rw [wildToZhat_piRelator, map_one]
 

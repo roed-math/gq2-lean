@@ -72,11 +72,7 @@ private lemma range_of_eq_univMarking_set :
   simp only [Set.mem_range, univMarking, Set.mem_insert_iff, Set.mem_singleton_iff]
   constructor
   · rintro ⟨i, rfl⟩
-    fin_cases i
-    · exact Or.inl rfl
-    · exact Or.inr (Or.inl rfl)
-    · exact Or.inr (Or.inr (Or.inl rfl))
-    · exact Or.inr (Or.inr (Or.inr rfl))
+    fin_cases i <;> tauto
   · rintro (rfl | rfl | rfl | rfl)
     exacts [⟨0, rfl⟩, ⟨1, rfl⟩, ⟨2, rfl⟩, ⟨3, rfl⟩]
 
@@ -210,15 +206,13 @@ theorem isPGroup_normalClosure_image_inf {G : Type*} [Group G] {p : ℕ} (S : Se
     rw [SubgroupClass.coe_pow, OneMemClass.coe_one, ← map_pow] at h
     exact (QuotientGroup.eq_one_iff _).mp h
   refine ⟨i + j, ?_⟩
-  have hmem : n ^ p ^ (i + j) ∈ A ⊓ B := by
-    refine Subgroup.mem_inf.mpr ⟨?_, ?_⟩
-    · rw [pow_add, pow_mul]
-      exact Subgroup.pow_mem A hiA _
-    · rw [pow_add, mul_comm, pow_mul]
-      exact Subgroup.pow_mem B hjB _
   ext
   rw [SubgroupClass.coe_pow, OneMemClass.coe_one, ← hnx, ← map_pow]
-  exact (QuotientGroup.eq_one_iff _).mpr hmem
+  refine (QuotientGroup.eq_one_iff _).mpr (Subgroup.mem_inf.mpr ⟨?_, ?_⟩)
+  · rw [pow_add, pow_mul]
+    exact Subgroup.pow_mem A hiA _
+  · rw [pow_add, mul_comm, pow_mul]
+    exact Subgroup.pow_mem B hjB _
 
 /-- **The trivial quotient is admissible**: all four clauses are trivial in a subsingleton.
 (Nonvacuity of the admissible family, with no appeal to the Appendix-B `S₃` quotient.) -/
@@ -229,9 +223,7 @@ theorem isAdmissibleU_top :
     QuotientGroup.subsingleton_quotient_top
   refine ⟨?_, Subsingleton.elim _ _, Subsingleton.elim _ _, fun g => ⟨0, Subtype.ext ?_⟩⟩
   · rw [Marking.Generates, Subgroup.eq_top_iff']
-    intro x
-    rw [Subsingleton.elim x 1]
-    exact one_mem _
+    exact fun x => (Subsingleton.elim 1 x) ▸ one_mem _
   · exact Subsingleton.elim _ _
 
 /-- Pushing a marking along a composite is composing the pushes. -/
@@ -282,25 +274,22 @@ theorem exists_isAdmissibleU_le {W : OpenNormalSubgroup (FreeProfiniteGroup (Fin
   haveI : Nonempty ι := ⟨⟨topOpenNormalSubgroup _, isAdmissibleU_top⟩⟩
   set t : ι → Set (FreeProfiniteGroup (Fin 4)) :=
     fun U => (U.1 : Set (FreeProfiniteGroup (Fin 4))) ∩ (W.toSubgroup : Set _)ᶜ with ht
-  have htn : ∀ U, (t U).Nonempty := by
-    intro U
-    obtain ⟨x, hxU, hxW⟩ := SetLike.not_le_iff_exists.mp (hcon U.1 U.2)
-    exact ⟨x, hxU, hxW⟩
+  have htn : ∀ U, (t U).Nonempty :=
+    fun U => SetLike.not_le_iff_exists.mp (hcon U.1 U.2)
   have htcl : ∀ U, IsClosed (t U) :=
     fun U => (U.1.toOpenSubgroup.isClosed).inter W.toOpenSubgroup.isOpen.isClosed_compl
   have htc : ∀ U, IsCompact (t U) := fun U => (htcl U).isCompact
   have htd : Directed (· ⊇ ·) t := by
     intro U V
-    refine ⟨⟨U.1 ⊓ V.1, isAdmissibleU_inf U.2 V.2⟩, ?_, ?_⟩
-    · exact Set.inter_subset_inter_left _ (SetLike.coe_subset_coe.mpr inf_le_left)
-    · exact Set.inter_subset_inter_left _ (SetLike.coe_subset_coe.mpr inf_le_right)
+    exact ⟨⟨U.1 ⊓ V.1, isAdmissibleU_inf U.2 V.2⟩,
+      Set.inter_subset_inter_left _ (SetLike.coe_subset_coe.mpr inf_le_left),
+      Set.inter_subset_inter_left _ (SetLike.coe_subset_coe.mpr inf_le_right)⟩
   obtain ⟨x, hx⟩ :=
     IsCompact.nonempty_iInter_of_directed_nonempty_isCompact_isClosed t htd htn htc htcl
   rw [Set.mem_iInter] at hx
   have hxNA : x ∈ NA := by
     rw [NA, Subgroup.mem_iInf]
-    intro U
-    exact (hx U).1
+    exact fun U => (hx U).1
   exact (hx (Classical.arbitrary ι)).2 (hle hxNA)
 
 /-- Every open normal subgroup above `N_A` is itself admissible: push the marking forward from
@@ -444,13 +433,9 @@ theorem isProP_wildCore : IsProP 2 wildCore := by
       exact (QuotientGroup.eq_one_iff _).mpr hn'W
     exact (QuotientGroup.eq_one_iff _).mp h
   have hmV : m ^ 2 ^ k ∈ V.toSubgroup := by
-    have hval : ((m ^ 2 ^ k : wildCore) : FreeProfiniteGroup (Fin 4) ⧸ NA)
-        ∈ (W : Set (FreeProfiniteGroup (Fin 4) ⧸ NA)) := by
-      rw [SubgroupClass.coe_pow]
-      exact hmW
-    have hpre : (m ^ 2 ^ k : wildCore) ∈ Subtype.val ⁻¹' O := hWO hval
-    rw [hOV] at hpre
-    exact hpre
+    have hpre : (m ^ 2 ^ k : wildCore) ∈ Subtype.val ⁻¹' O :=
+      hWO (by rw [SubgroupClass.coe_pow]; exact hmW)
+    rwa [hOV] at hpre
   have h1 : (QuotientGroup.mk' V.toSubgroup) (m ^ 2 ^ k) = 1 :=
     (QuotientGroup.eq_one_iff _).mpr hmV
   rw [map_pow] at h1

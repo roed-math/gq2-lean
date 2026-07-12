@@ -45,11 +45,8 @@ variable {Γ : Type} [Group Γ] [TopologicalSpace Γ]
 `CentralObstruction.discreteTopology_quotient`). -/
 instance discreteTopology_quotient_T : DiscreteTopology (Bg ⧸ D.T) := by
   refine discreteTopology_iff_isOpen_singleton.mpr fun c => ?_
-  have h1 : IsOpen (QuotientGroup.mk ⁻¹' {c} : Set Bg) := isOpen_discrete _
-  have h2 : QuotientGroup.mk '' (QuotientGroup.mk ⁻¹' {c} : Set Bg) = {c} :=
-    Set.image_preimage_eq _ QuotientGroup.mk_surjective
-  rw [← h2]
-  exact QuotientGroup.isOpenMap_coe _ h1
+  rw [← Set.image_preimage_eq ({c} : Set (Bg ⧸ D.T)) QuotientGroup.mk_surjective]
+  exact QuotientGroup.isOpenMap_coe _ (isOpen_discrete _)
 
 section VCocycleLayer
 
@@ -94,15 +91,14 @@ omit [DiscreteTopology Bg] in
 @[simp] theorem VCocycle.c_one (u : VCocycle DD ρ) : u.c 1 = 0 := by
   have h := u.crossed 1 1
   rw [mul_one, map_one, one_smul] at h
-  have h2 : u.c 1 + u.c 1 = u.c 1 + 0 := by rw [add_zero]; exact h.symm
-  exact add_left_cancel h2
+  simpa using h
 
 /-! ### The additive structure on `Z¹` and the coboundary map -/
 
 instance : Zero (VCocycle DD ρ) where
   zero :=
     { c := fun _ => 0
-      cont := by simp only [ofAdd_zero, map_one]; exact continuous_const
+      cont := continuous_const
       crossed := fun γ δ => by simp }
 
 omit [DiscreteTopology Bg] in
@@ -112,11 +108,8 @@ instance : Add (VCocycle DD ρ) where
   add u w :=
     { c := fun γ => u.c γ + w.c γ
       cont := by
-        have h : (fun γ => iV DD (Multiplicative.ofAdd (u.c γ + w.c γ)))
-            = fun γ => iV DD (Multiplicative.ofAdd (u.c γ))
-                * iV DD (Multiplicative.ofAdd (w.c γ)) := by
-          funext γ; rw [ofAdd_add, map_mul]
-        rw [h]; exact u.cont.mul w.cont
+        simp only [ofAdd_add, map_mul]
+        exact u.cont.mul w.cont
       crossed := fun γ δ => by
         show u.c (γ * δ) + w.c (γ * δ) = (u.c γ + w.c γ) + rho0 DD ρ γ • (u.c δ + w.c δ)
         rw [u.crossed, w.crossed, smul_add]; abel }
@@ -129,10 +122,9 @@ This is the mathematical core of the Bug-1 recalibration: conjugating an `M`-lif
 noncomputable def vCob (DD : DescData D) (ρ : ContinuousMonoidHom Γ (Bg ⧸ D.M)) (v : DD.Vmod) :
     VCocycle DD ρ where
   c := fun γ => rho0 DD ρ γ • v - v
-  cont := by
-    have h : (fun γ => iV DD (Multiplicative.ofAdd (rho0 DD ρ γ • v - v)))
-        = (fun x : Bg ⧸ D.M => iV DD (Multiplicative.ofAdd (liftC0 DD x • v - v))) ∘ ρ := rfl
-    rw [h]; exact continuous_of_discreteTopology.comp ρ.continuous_toFun
+  cont := (continuous_of_discreteTopology
+      (f := fun x : Bg ⧸ D.M => iV DD (Multiplicative.ofAdd (liftC0 DD x • v - v)))).comp
+    ρ.continuous_toFun
   crossed := fun γ δ => by
     show rho0 DD ρ (γ * δ) • v - v
       = (rho0 DD ρ γ • v - v) + rho0 DD ρ γ • (rho0 DD ρ δ • v - v)
@@ -158,8 +150,7 @@ theorem vCob_c_eq_zero_iff (v : DD.Vmod) :
     (vCob DD ρ v).c = (fun _ => 0) ↔ ∀ γ : Γ, rho0 DD ρ γ • v = v := by
   constructor
   · intro h γ
-    have := congrFun h γ
-    simpa [sub_eq_zero] using this
+    simpa [sub_eq_zero] using congrFun h γ
   · intro h; funext γ; show rho0 DD ρ γ • v - v = 0; rw [h, sub_self]
 
 /-- **Freeness of the `B¹`-translation** (the `V^C = 0` clause of Bug 1): if `V` carries no
@@ -172,10 +163,8 @@ theorem vCob_injective (hfix : ∀ v : DD.Vmod, (∀ γ : Γ, rho0 DD ρ γ • 
   apply sub_eq_zero.mp
   apply hfix
   intro γ
-  have h1 : rho0 DD ρ γ • v - v = rho0 DD ρ γ • w - w := by
-    simpa using congrFun (congrArg VCocycle.c h) γ
   rw [smul_sub, sub_eq_sub_iff_sub_eq_sub]
-  exact h1
+  simpa using congrFun (congrArg VCocycle.c h) γ
 
 end VCocycleLayer
 
@@ -189,15 +178,13 @@ omit [TopologicalSpace Bg] [DiscreteTopology Bg]
 
 /-- `iV` lands in `ker piQbar`. -/
 @[simp] theorem piQbar_iV (DD : DescData D) (x : Multiplicative DD.Vmod) :
-    piQbar DD (iV DD x) = 1 := by
-  have hmem : iV DD x ∈ (piQbar DD).ker := by rw [← iV_range]; exact ⟨x, rfl⟩
-  exact MonoidHom.mem_ker.mp hmem
+    piQbar DD (iV DD x) = 1 :=
+  MonoidHom.mem_ker.mp (by rw [← iV_range]; exact ⟨x, rfl⟩)
 
 /-- Every `q ∈ ker piQbar` is `iV(ofAdd v)` for some `v : V`. -/
 theorem exists_iV_preimage (DD : DescData D) (q : Bg ⧸ D.T) (hq : piQbar DD q = 1) :
     ∃ v : DD.Vmod, iV DD (Multiplicative.ofAdd v) = q := by
-  have hmem : q ∈ (iV DD).range := by rw [iV_range]; exact MonoidHom.mem_ker.mpr hq
-  obtain ⟨w, hw⟩ := hmem
+  obtain ⟨w, hw⟩ : q ∈ (iV DD).range := by rw [iV_range]; exact MonoidHom.mem_ker.mpr hq
   exact ⟨Multiplicative.toAdd w, hw⟩
 
 /-- `iV ∘ ofAdd` is injective on `V`. -/
@@ -298,8 +285,7 @@ include hσ in
 theorem sigma_iV_comm (cc : DD.C0) (v : DD.Vmod) :
     σ cc * iV DD (Multiplicative.ofAdd v)
       = iV DD (Multiplicative.ofAdd (cc • v)) * σ cc := by
-  have h := sigma_conj_iV DD σ hσ cc v
-  rw [← h]; group
+  rw [← sigma_conj_iV DD σ hσ cc v]; group
 
 /-- `γ ↦ σ(ρ'γ)` is continuous (it factors through the discrete `Bg/M`). -/
 theorem sigma_rho0_continuous : Continuous (fun γ => σ (rho0 DD ρ γ)) :=
@@ -348,13 +334,8 @@ include hσ in
 `ρ'`, `c γ := iV⁻¹(g γ · σ(ρ'γ)⁻¹)`. -/
 noncomputable def cocycleOfQ (g : QLiftsOver DD ρ) : VCocycle DD ρ where
   c := fun γ => Classical.choose (exists_cocycleFun DD ρ σ hσ g γ)
-  cont := by
-    have h : (fun γ => iV DD (Multiplicative.ofAdd
-          (Classical.choose (exists_cocycleFun DD ρ σ hσ g γ))))
-        = fun γ => g.1 γ * (σ (rho0 DD ρ γ))⁻¹ := by
-      funext γ; exact Classical.choose_spec (exists_cocycleFun DD ρ σ hσ g γ)
-    rw [h]
-    exact g.1.continuous_toFun.mul (continuous_inv.comp (sigma_rho0_continuous DD ρ σ))
+  cont := (g.1.continuous_toFun.mul (continuous_inv.comp (sigma_rho0_continuous DD ρ σ))).congr
+    fun γ => (Classical.choose_spec (exists_cocycleFun DD ρ σ hσ g γ)).symm
   crossed := fun γ δ => by
     apply iV_ofAdd_inj DD
     have hγδ := Classical.choose_spec (exists_cocycleFun DD ρ σ hσ g (γ * δ))

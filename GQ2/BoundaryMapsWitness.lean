@@ -110,8 +110,7 @@ theorem proPKernel_image_ge {p : ℕ} {G H : Type*}
   have hpk : proPKernel p H ≤ (quotientMk Nim).toMonoidHom.ker :=
     proPKernel_le_ker hHNproP (quotientMk Nim)
   intro h hh
-  have hmem : quotientMk Nim h = 1 := hpk hh
-  exact (QuotientGroup.eq_one_iff h).mp hmem
+  exact (QuotientGroup.eq_one_iff h).mp (hpk hh)
 
 /-! ## The `Γ_A` side -/
 
@@ -131,21 +130,19 @@ theorem phiP_surjective : Function.Surjective phiP := by
 
 /-- `ν_t ∘ φ_A = ν₂ ∘ φ_Π` on `Γ_A`: density on the four marked generators. -/
 theorem compatA_proved (g : GammaA) : GQ2.nuT (phiA g) = GQ2.nuTwo (phiP g) := by
-  have key : ∀ x, (GQ2.nuT.comp phiA) x = (GQ2.nuTwo.comp phiP) x := by
-    refine monoidHom_eq_of_topGen (f := (GQ2.nuT.comp phiA).toMonoidHom)
-      (g := (GQ2.nuTwo.comp phiP).toMonoidHom)
-      (GQ2.nuT.comp phiA).continuous_toFun (GQ2.nuTwo.comp phiP).continuous_toFun
-      topGen_gammaA ?_
-    rintro z (rfl | rfl | rfl | rfl)
-    · show GQ2.nuT (phiA gammaSigma) = GQ2.nuTwo (phiP gammaSigma)
-      rw [phiA_gammaSigma, phiP_gammaSigma, nuT_tameSigma, nuTwo_piSigma]
-    · show GQ2.nuT (phiA gammaTau) = GQ2.nuTwo (phiP gammaTau)
-      rw [phiA_gammaTau, phiP_gammaTau, nuT_tameTau, map_one]
-    · show GQ2.nuT (phiA gammaX0) = GQ2.nuTwo (phiP gammaX0)
-      rw [phiA_gammaX0, phiP_gammaX0, map_one, nuTwo_piX0]
-    · show GQ2.nuT (phiA gammaX1) = GQ2.nuTwo (phiP gammaX1)
-      rw [phiA_gammaX1, phiP_gammaX1, map_one, nuTwo_piX1]
-  exact key g
+  refine monoidHom_eq_of_topGen (f := (GQ2.nuT.comp phiA).toMonoidHom)
+    (g := (GQ2.nuTwo.comp phiP).toMonoidHom)
+    (GQ2.nuT.comp phiA).continuous_toFun (GQ2.nuTwo.comp phiP).continuous_toFun
+    topGen_gammaA ?_ g
+  rintro z (rfl | rfl | rfl | rfl)
+  · show GQ2.nuT (phiA gammaSigma) = GQ2.nuTwo (phiP gammaSigma)
+    rw [phiA_gammaSigma, phiP_gammaSigma, nuT_tameSigma, nuTwo_piSigma]
+  · show GQ2.nuT (phiA gammaTau) = GQ2.nuTwo (phiP gammaTau)
+    rw [phiA_gammaTau, phiP_gammaTau, nuT_tameTau, map_one]
+  · show GQ2.nuT (phiA gammaX0) = GQ2.nuTwo (phiP gammaX0)
+    rw [phiA_gammaX0, phiP_gammaX0, map_one, nuTwo_piX0]
+  · show GQ2.nuT (phiA gammaX1) = GQ2.nuTwo (phiP gammaX1)
+    rw [phiA_gammaX1, phiP_gammaX1, map_one, nuTwo_piX1]
 
 /-! ## Reciprocity-side reduction kit (P-25b): `tame_reciprocity ⟸` two atomic values
 
@@ -158,13 +155,10 @@ range is infinitely 2-divisible in `ℤ₂`, hence `0`.  The `−4`-value is aut
 /-- `x² = 1` in `Multiplicative ℤ₂` forces `x = 1` (`ℤ₂` torsion-free). -/
 lemma mult_padic_sq_eq_one {x : Multiplicative ℤ_[2]} (hx : x ^ 2 = 1) : x = 1 := by
   have h : Multiplicative.toAdd x + Multiplicative.toAdd x = 0 := by
-    have h0 := congrArg Multiplicative.toAdd hx
-    rw [pow_two] at h0; exact h0
+    rw [pow_two] at hx; exact congrArg Multiplicative.toAdd hx
   have ha : Multiplicative.toAdd x = 0 := by
     have h2 : (2 : ℤ_[2]) * Multiplicative.toAdd x = 0 := by rw [two_mul]; exact h
-    rcases mul_eq_zero.mp h2 with hc | ha
-    · exact absurd hc (by norm_num)
-    · exact ha
+    exact (mul_eq_zero.mp h2).resolve_left (by norm_num)
   exact Multiplicative.toAdd.injective (by rw [ha]; rfl)
 
 /-- An element of `ℤ_[2]` divisible by `2^n` for every `n` is `0`. -/
@@ -275,9 +269,7 @@ theorem ker_tameFHom : tameFHom.toMonoidHom.ker = locTame.W := by
   rw [MonoidHom.mem_ker]
   constructor
   · intro h
-    have hx1 : quotientMk locTame.W x = 1 :=
-      locTame.equiv.injective (by rw [map_one]; exact h)
-    exact (QuotientGroup.eq_one_iff x).mp hx1
+    exact (QuotientGroup.eq_one_iff x).mp (locTame.equiv.injective (by rw [map_one]; exact h))
   · intro h
     show locTame.equiv (quotientMk locTame.W x) = 1
     have hmk : quotientMk locTame.W x = 1 := (QuotientGroup.eq_one_iff x).mpr h
@@ -363,16 +355,13 @@ theorem tame_reciprocity (g : AbsGalQ2) :
         = (localReciprocity).nu_ur ((localReciprocity).recip unitNeg3)
       rw [tame_recip_unitNeg3, nu_ur_recip_unitNeg3, Int.cast_zero, ofAdd_zero]
   have h := congrFun key (toAb g)
-  rw [tameChar_toAb] at h
-  exact h
+  rwa [tameChar_toAb] at h
 
 /-- `ν_t ∘ tameF = ν₂ ∘ pro2F` on `G_{ℚ₂}` — from `tame_reciprocity` and `prop_3_10_local_marked`. -/
 theorem compatF_proved (g : AbsGalQ2) : GQ2.nuT (tameFHom g) = GQ2.nuTwo (pro2FHom g) := by
-  have key : locPro2.choose (GQ2.nuT (tameFHom g))
-      = locPro2.choose (GQ2.nuTwo (pro2FHom g)) := by
-    rw [tame_reciprocity g]
-    exact locPro2.choose_spec.2.choose_spec g
-  exact locPro2.choose.injective key
+  refine locPro2.choose.injective ?_
+  rw [tame_reciprocity g]
+  exact locPro2.choose_spec.2.choose_spec g
 
 /-! ## Assembling the boundary maps -/
 

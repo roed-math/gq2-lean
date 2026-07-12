@@ -153,8 +153,8 @@ cancel in `ZMod 2`.)  Strengthens `conjP_z_of_slice` by dropping `g.z = 0` — n
 general offsets `g₀ = σ₂²` has `g₀.z = y₀(x₀) ≠ 0`. -/
 theorem conjP_z_of_alzero (p g : HeisLift A C) (hga : g.a = 0) (hgl : g.l = 0) :
     (conjP p g).z = p.z := by
-  simp only [conjP, HeisLift.mul_z, HeisLift.mul_l, HeisLift.mul_a, HeisLift.mul_g, HeisLift.inv_z,
-    HeisLift.inv_l, HeisLift.inv_a, HeisLift.inv_g, hga, hgl, smul_zero, neg_zero, map_zero,
+  simp only [conjP, HeisLift.mul_z, HeisLift.mul_l, HeisLift.mul_g, HeisLift.inv_z,
+    HeisLift.inv_l, HeisLift.inv_g, hga, hgl, smul_zero, neg_zero, map_zero,
     add_zero, zero_add, ElemDual.zero_apply]
   generalize g.z = a
   generalize p.z = b
@@ -172,9 +172,9 @@ theorem heisMarking_x1sig_z_trivial {C : Type*} [Group C] {V : Type*} [AddCommGr
   have hdtriv : ∀ (g : C) (lam : ElemDual V), g • lam = lam := fun g lam => by
     ext a; rw [ElemDual.smul_apply, htriv]
   show (conjP (⟨x 3, y 3, 0, t.x₁⟩ : HeisLift V C) ⟨x 0, y 0, 0, t.σ⟩).z = _
-  simp only [conjP, HeisLift.mul_z, HeisLift.mul_l, HeisLift.mul_a, HeisLift.mul_g,
-    HeisLift.inv_z, HeisLift.inv_l, HeisLift.inv_a, HeisLift.inv_g, htriv, hdtriv,
-    map_add, map_neg, ElemDual.add_apply, ElemDual.neg_apply]
+  simp only [conjP, HeisLift.mul_z, HeisLift.mul_l, HeisLift.mul_g,
+    HeisLift.inv_z, HeisLift.inv_l, HeisLift.inv_g, htriv, hdtriv,
+    ElemDual.add_apply, ElemDual.neg_apply]
   generalize y 3 (x 0) = a
   generalize y 0 (x 3) = b
   generalize y 0 (x 0) = d
@@ -197,15 +197,12 @@ theorem heisMarking_c0_z_cocycle {C : Type*} [Group C] [Finite C] {V : Type*} [A
   have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => by
     ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]; exact CharTwo.add_self_eq_zero (l v)
   set M := heisMarking t x y with hM
-  have hd0a : M.d0.a = 0 := by
-    rw [heisMarking_d0_a t x y, liftMarking_d0_u t x hV₂ hx0 htau]; exact hx1
-  have hd0l : M.d0.l = 0 := by
-    rw [heisMarking_d0_l t x y, liftMarking_d0_u t y hV₂d hx0d htaud]; exact hy1
+  have hd0a : M.d0.a = 0 := by rwa [heisMarking_d0_a t x y, liftMarking_d0_u t x hV₂ hx0 htau]
+  have hd0l : M.d0.l = 0 := by rwa [heisMarking_d0_l t x y, liftMarking_d0_u t y hV₂d hx0d htaud]
   have hd0g := heisMarking_d0_g_smul t x y hx0 htau
   have hz0g := heisMarking_z0_g_smul t x y hx0
   have h := HeisLift.commP_z_of_trivial M.d0 M.z0 hd0g hz0g
-  rw [hd0l, ElemDual.zero_apply, hd0a, map_zero, add_zero] at h
-  exact h
+  rwa [hd0l, ElemDual.zero_apply, hd0a, map_zero, add_zero] at h
 
 /-- **Wild `.z`, piece 3: `h₀ ↦ y₂(x₂)` on cocycles** — the main term, giving the `(2,2)` Gram
 entry.  Mirrors `heisMarking_h0_z` (the x₀-supported `↦ λ(c)`) with `x₁=y₁=0` in place of x₀-support:
@@ -226,10 +223,8 @@ theorem heisMarking_h0_z_cocycle {C : Type*} [Group C] [Finite C] {V : Type*} [A
     ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]; exact CharTwo.add_self_eq_zero (l v)
   set M := heisMarking t x y with hM
   -- leaf coordinates
-  have hd0a : M.d0.a = 0 := by
-    rw [heisMarking_d0_a t x y, liftMarking_d0_u t x hV₂ hx0 htau]; exact hx1
-  have hd0l : M.d0.l = 0 := by
-    rw [heisMarking_d0_l t x y, liftMarking_d0_u t y hV₂d hx0d htaud]; exact hy1
+  have hd0a : M.d0.a = 0 := by rwa [heisMarking_d0_a t x y, liftMarking_d0_u t x hV₂ hx0 htau]
+  have hd0l : M.d0.l = 0 := by rwa [heisMarking_d0_l t x y, liftMarking_d0_u t y hV₂d hx0d htaud]
   have hx0a : M.x₀.a = x 2 := rfl
   have hx0l : M.x₀.l = y 2 := rfl
   have hx0z : M.x₀.z = 0 := rfl
@@ -258,7 +253,7 @@ theorem heisMarking_h0_z_cocycle {C : Type*} [Group C] [Finite C] {V : Type*} [A
   have hhca : M.hc.a = 0 := HeisLift.commP_a_of_trivial M.dg M.d0 hdgg hd0g
   have hhcz : M.hc.z = 0 := by
     have h := HeisLift.commP_z_of_trivial M.dg M.d0 hdgg hd0g
-    rw [hd0a, hdga, map_zero, map_zero, add_zero] at h; exact h
+    rwa [hd0a, hdga, map_zero, map_zero, add_zero] at h
   -- base-trivialities of the accumulated products
   have hP1g : ∀ v : V, (conjP M.x₀ M.g0).g • v = v := HeisLift.conjP_g_trivial M.x₀ M.g0 hx0
   have hd02g : ∀ v : V, (M.d0 ^ 2).g • v = v := fun v => by
@@ -398,8 +393,6 @@ theorem heisMarking_u1_z_of_y3_zero (htriv : ∀ (g : C) (a : V), g • a = a) (
 theorem heisMarking_u1_z_of_x3_zero (htriv : ∀ (g : C) (a : V), g • a = a) (t : Marking C)
     (x : Fin 4 → V) (y : Fin 4 → ElemDual V) (hx1 : x 1 = 0) (hy1 : y 1 = 0) (hx3 : x 3 = 0) :
     (heisMarking t x y).u1.z = 0 := by
-  have hdtriv : ∀ (g : C) (lam : ElemDual V), g • lam = lam := fun g lam => by
-    ext a; rw [ElemDual.smul_apply, htriv]
   set w : HeisLift V C := (⟨x 3, y 3, 0, t.x₁⟩ : HeisLift V C) * ⟨x 1, y 1, 0, t.τ⟩ with hw
   have hwa : w.a = 0 := by
     rw [hw, HeisLift.mul_a]; show x 3 + t.x₁ • x 1 = 0

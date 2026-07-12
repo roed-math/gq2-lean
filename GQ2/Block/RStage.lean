@@ -33,9 +33,7 @@ variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite 
 noncomputable def blockRCoverData (T : MarkedTarget H E Y) (Blk : MinimalBlock T.LY)
     (hE2 : ∀ e : E, e ^ 2 = 1) :
     RCoverData (blockFrameImpl T Blk hE2) where
-  coverMap := fun l _h => by
-    haveI : (l.1).Normal := l.2.1
-    exact QuotientGroup.mk' l.1
+  coverMap := fun l _h => haveI : (l.1).Normal := l.2.1; QuotientGroup.mk' l.1
   coverMap_lifts := fun l _h => by
     haveI : (l.1).Normal := l.2.1
     ext y
@@ -64,7 +62,6 @@ def RCharSub (Blk : SectionSeven.MinimalBlock L) :
 
 /-- `D_Rmod` is finite. -/
 instance (Blk : SectionSeven.MinimalBlock L) : Finite ↥(RCharSub Blk) := by
-  haveI : Finite (Additive ↥Blk.R → ZMod 2) := inferInstance
   haveI : Finite (Additive ↥Blk.R →+ ZMod 2) :=
     Finite.of_injective _ (DFunLike.coe_injective (F := Additive ↥Blk.R →+ ZMod 2))
   infer_instance
@@ -72,9 +69,7 @@ instance (Blk : SectionSeven.MinimalBlock L) : Finite ↥(RCharSub Blk) := by
 /-- The kernel of a character `χ`, as a subgroup of `↥Blk.R`. -/
 def RCharKerSub (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) : Subgroup ↥Blk.R where
   carrier := {r | χ.1 (Additive.ofMul r) = 0}
-  one_mem' := by
-    show χ.1 (Additive.ofMul 1) = 0
-    rw [show Additive.ofMul (1 : ↥Blk.R) = 0 from rfl, map_zero]
+  one_mem' := map_zero χ.1
   mul_mem' := fun {a b} ha hb => by
     show χ.1 (Additive.ofMul (a * b)) = 0
     rw [show Additive.ofMul (a * b) = Additive.ofMul a + Additive.ofMul b from rfl,
@@ -106,8 +101,8 @@ def RCharKer (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) : Subg
   (RCharKerSub Blk χ).map Blk.R.subtype
 
 theorem RCharKer_le (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
-    RCharKer Blk χ ≤ Blk.R := by
-  rw [RCharKer]; exact Subgroup.map_subtype_le _
+    RCharKer Blk χ ≤ Blk.R :=
+  Subgroup.map_subtype_le _
 
 theorem RCharKer_normal (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
     (RCharKer Blk χ).Normal := by
@@ -118,8 +113,7 @@ theorem RCharKer_normal (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub B
   refine ⟨⟨g * (r : Y) * g⁻¹,
       (SectionSeven.frattiniLike_normal Blk.K Blk.hK).conj_mem (r : Y) r.2 g⟩, ?_, rfl⟩
   show χ.1 (Additive.ofMul ⟨g * (r : Y) * g⁻¹, _⟩) = 0
-  rw [χ.2 g r]
-  exact hr
+  rwa [χ.2 g r]
 
 theorem RCharKer_relIndex_le (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
     (RCharKer Blk χ).relIndex Blk.R ≤ 2 := by
@@ -127,10 +121,8 @@ theorem RCharKer_relIndex_le (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RChar
     rw [Subgroup.relIndex, RCharKer, ← Subgroup.comap_subtype,
       Subgroup.comap_map_eq_self_of_injective Blk.R.subtype_injective]
   rw [h1, RCharKerSub_eq_ker, Subgroup.index_ker]
-  calc Nat.card (RCharMulHom Blk χ).range
-      ≤ Nat.card (Multiplicative (ZMod 2)) :=
-        Nat.card_le_card_of_injective _ Subtype.val_injective
-    _ = 2 := by rw [Nat.card_eq_fintype_card]; rfl
+  exact (Nat.card_le_card_of_injective _ Subtype.val_injective).trans_eq
+    (by rw [Nat.card_eq_fintype_card]; rfl)
 
 /-- The `D_R` index type of the concrete frame `blockFrameImpl` (defeq to its `.DR`). -/
 abbrev BlockDRsub (Blk : SectionSeven.MinimalBlock L) : Type :=
@@ -154,7 +146,7 @@ noncomputable def RCharOfHom (Blk : SectionSeven.MinimalBlock L) (R' : BlockDRsu
     rcases Nat.lt_or_ge (R'.1.subgroupOf Blk.R).index 2 with hlt | hge
     · have h1 : (R'.1.subgroupOf Blk.R).index = 1 := by
         have hne0 : (R'.1.subgroupOf Blk.R).index ≠ 0 := Subgroup.index_ne_zero_of_finite
-        omega
+        lia
       have htop : R'.1.subgroupOf Blk.R = ⊤ := Subgroup.index_eq_one.mp h1
       have hmem : ∀ x : ↥Blk.R, (x : Y) ∈ R'.1 := fun x => by
         have hx : x ∈ R'.1.subgroupOf Blk.R := htop ▸ Subgroup.mem_top x
@@ -191,11 +183,9 @@ noncomputable def RCharOf (Blk : SectionSeven.MinimalBlock L) (R' : BlockDRsub B
 theorem RChar_eq_ind (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) (r : ↥Blk.R) :
     χ.1 (Additive.ofMul r) = if r ∈ RCharKerSub Blk χ then 0 else 1 := by
   by_cases h : r ∈ RCharKerSub Blk χ
-  · rw [if_pos h]; exact h
+  · rwa [if_pos h]
   · rw [if_neg h]
-    rcases (show ∀ a : ZMod 2, a = 0 ∨ a = 1 from by decide) (χ.1 (Additive.ofMul r)) with h0 | h1
-    · exact absurd h0 h
-    · exact h1
+    exact ((by decide : ∀ a : ZMod 2, a = 0 ∨ a = 1) _).resolve_left h
 
 /-- **Right inverse**: the kernel of the indicator character of `R'` is `R'`. -/
 theorem RCharKer_RCharOf (Blk : SectionSeven.MinimalBlock L) (R' : BlockDRsub Blk) :
@@ -243,7 +233,6 @@ theorem RCharKer_zero (Blk : SectionSeven.MinimalBlock L) : RCharKer Blk 0 = Blk
   have hsub : RCharKerSub Blk 0 = ⊤ := by
     ext r
     simp only [Subgroup.mem_top, iff_true]
-    show (0 : ↥(RCharSub Blk)).1 (Additive.ofMul r) = 0
     rfl
   rw [RCharKer, hsub, ← MonoidHom.range_eq_map, Subgroup.range_subtype]
 
@@ -281,9 +270,7 @@ noncomputable def blockRObstructionData (T : MarkedTarget H E Y)
       exact (CentralObstruction.zsign_one _).symm
     · rw [if_neg hr]
       have hne : QuotientGroup.mk' (RCharKer Blk d) (r : Y) ≠ 1 := fun hc => hr (hmem.mp hc)
-      symm
-      unfold CentralObstruction.zsign
-      exact if_neg hne
+      exact (if_neg hne).symm
 
 /-- **The `(R^∨)^C = D_R` cardinality bridge.**  The `Y`-invariant `𝔽₂`-characters of `R`
 (`RCharSub = D_Rmod = (R^∨)^C`) are equinumerous with the R-stage index type `D_R` of the concrete
