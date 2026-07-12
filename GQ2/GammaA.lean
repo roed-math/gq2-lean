@@ -184,11 +184,7 @@ lemma surjective_of_map_generates {P : Type*} [Group P]
   have hle : Subgroup.closure ({(univMarking.map f).σ, (univMarking.map f).τ,
       (univMarking.map f).x₀, (univMarking.map f).x₁} : Set P) ≤ f.range := by
     refine (Subgroup.closure_le _).mpr ?_
-    rintro z (rfl | rfl | rfl | rfl)
-    · exact ⟨univMarking.σ, rfl⟩
-    · exact ⟨univMarking.τ, rfl⟩
-    · exact ⟨univMarking.x₀, rfl⟩
-    · exact ⟨univMarking.x₁, rfl⟩
+    rintro z (rfl | rfl | rfl | rfl) <;> exact ⟨_, rfl⟩
   intro y
   exact hle (hgen ▸ Subgroup.mem_top y)
 
@@ -247,11 +243,8 @@ theorem NA_le_ker {P : Type} [Group P] [TopologicalSpace P] [DiscreteTopology P]
   let e : (FreeProfiniteGroup (Fin 4) ⧸ f.toMonoidHom.ker) ≃* P :=
     QuotientGroup.quotientKerEquivOfSurjective f.toMonoidHom hsurj
   have hcomp : ∀ x : FreeProfiniteGroup (Fin 4),
-      e.symm (f x) = QuotientGroup.mk' U.toSubgroup x := by
-    intro x
-    apply e.injective
-    rw [MulEquiv.apply_symm_apply]
-    rfl
+      e.symm (f x) = QuotientGroup.mk' U.toSubgroup x := fun x =>
+    e.injective (by rw [MulEquiv.apply_symm_apply]; rfl)
   have hadm : IsAdmissibleU U := by
     have h1 : univMarking.map (QuotientGroup.mk' U.toSubgroup)
         = (univMarking.map f.toMonoidHom).map e.symm.toMonoidHom := by

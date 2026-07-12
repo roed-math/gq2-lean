@@ -80,14 +80,12 @@ def cup11ZH : Z1 G M →+ Z1 G N →+ H2 G P :=
     (fun a => AddMonoidHom.mk'
       (fun b => H2mk G P ⟨cup11Fun μ a.1 b.1, cup11_mem_Z2 μ hμ a b⟩)
       (fun b b' => by
-        rw [← map_add]
-        congr 1
+        rw [← map_add]; congr 1
         exact Subtype.ext (cup11Fun_add_right μ a.1 b.1 b'.1)))
     (fun a a' => by
       ext b
       simp only [AddMonoidHom.mk'_apply, AddMonoidHom.add_apply]
-      rw [← map_add]
-      congr 1
+      rw [← map_add]; congr 1
       exact Subtype.ext (cup11Fun_add_left μ a.1 a'.1 b.1))
 
 include hμ in
@@ -99,15 +97,12 @@ lemma cup11_bcobound (a : Z1 G M) {c : G → N} (hc : c ∈ B1 G N) :
   have hac := (mem_Z1_iff.mp a.2).2
   refine AddSubgroup.mem_map.mpr ⟨-(fun g => μ (a.1 g) (g • n)), ?_, ?_⟩
   · exact (continuous_pairing μ (mem_Z1_iff.mp a.2).1 (continuous_id.smul continuous_const)).neg
-  · funext p
-    obtain ⟨g, h⟩ := p
-    have hcgh : c (g * h) = (g * h) • n - n := by rw [← hn]; rfl
+  · funext ⟨g, h⟩
     have hch : c h = h • n - n := by rw [← hn]; rfl
     show g • (-(fun g => μ (a.1 g) (g • n))) h - (-(fun g => μ (a.1 g) (g • n))) (g * h)
         + (-(fun g => μ (a.1 g) (g • n))) g = μ (a.1 g) (g • c h)
     simp only [Pi.neg_apply, smul_neg, hch, hac g h]
-    simp only [smul_sub, smul_add, map_add, map_sub, AddMonoidHom.add_apply,
-      AddMonoidHom.sub_apply, ← hμ, ← mul_smul]
+    simp only [smul_sub, map_add, map_sub, AddMonoidHom.add_apply, ← hμ, ← mul_smul]
     abel
 
 include hμ in
@@ -119,13 +114,12 @@ lemma cup11_acobound {c : G → M} (hc : c ∈ B1 G M) (b : Z1 G N) :
   have hbc := (mem_Z1_iff.mp b.2).2
   refine AddSubgroup.mem_map.mpr ⟨(fun g => μ m (b.1 g)), ?_, ?_⟩
   · exact continuous_pairing μ continuous_const (mem_Z1_iff.mp b.2).1
-  · funext p
-    obtain ⟨g, h⟩ := p
+  · funext ⟨g, h⟩
     have hcg : c g = g • m - m := by rw [← hm]; rfl
     show g • (fun g => μ m (b.1 g)) h - (fun g => μ m (b.1 g)) (g * h) + (fun g => μ m (b.1 g)) g
         = μ (c g) (g • b.1 h)
     simp only [hcg, hbc g h]
-    simp only [smul_add, map_add, map_sub, AddMonoidHom.add_apply, AddMonoidHom.sub_apply, ← hμ]
+    simp only [map_add, map_sub, AddMonoidHom.sub_apply, ← hμ]
     abel
 
 include hμ in
@@ -144,7 +138,7 @@ noncomputable def cup11 : H1 G M →+ H1 G N →+ H2 G P := by
     ext bq
     induction bq using QuotientAddGroup.induction_on with
     | H b =>
-      simp only [AddMonoidHom.add_apply, QuotientAddGroup.lift_mk']
+      simp only [QuotientAddGroup.lift_mk']
       rw [map_add]
       rfl
   · -- kills M-coboundaries
@@ -154,7 +148,7 @@ noncomputable def cup11 : H1 G M →+ H1 G N →+ H2 G P := by
     ext bq
     induction bq using QuotientAddGroup.induction_on with
     | H b =>
-      simp only [AddMonoidHom.mk'_apply, QuotientAddGroup.lift_mk', AddMonoidHom.zero_apply]
+      simp only [AddMonoidHom.mk'_apply, AddMonoidHom.zero_apply]
       exact (QuotientAddGroup.eq_zero_iff _).mpr
         ((AddSubgroup.mem_addSubgroupOf).mpr (cup11_acobound μ hμ ha b))
 
@@ -197,8 +191,7 @@ lemma cup02_bcobound (m : ↥(H0 G M)) {c : G × G → N} (hc : c ∈ B2 G N) :
     cup02Fun μ m.1 c ∈ B2 G P := by
   obtain ⟨ψ, hψc, hψ⟩ := hc
   refine AddSubgroup.mem_map.mpr ⟨fun g => μ m.1 (ψ g), continuous_pairing μ continuous_const hψc, ?_⟩
-  funext p
-  obtain ⟨g, h⟩ := p
+  funext ⟨g, h⟩
   have hc' : c (g, h) = g • ψ h - ψ (g * h) + ψ g := by rw [← hψ]; rfl
   show g • μ m.1 (ψ h) - μ m.1 (ψ (g * h)) + μ m.1 (ψ g) = μ m.1 (c (g, h))
   rw [hc', ← hμ g m.1 (ψ h), m.2 g, map_add, map_sub]
@@ -269,8 +262,7 @@ lemma cup20_acobound {c : G × G → M} (hc : c ∈ B2 G M) (n : ↥(H0 G N)) :
   obtain ⟨ψ, hψc, hψ⟩ := hc
   refine AddSubgroup.mem_map.mpr ⟨fun g => μ (ψ g) n.1, ?_, ?_⟩
   · exact continuous_pairing μ hψc continuous_const
-  · funext p
-    obtain ⟨g, h⟩ := p
+  · funext ⟨g, h⟩
     have hc' : c (g, h) = g • ψ h - ψ (g * h) + ψ g := by rw [← hψ]; rfl
     show g • μ (ψ h) n.1 - μ (ψ (g * h)) n.1 + μ (ψ g) n.1 = μ (c (g, h)) ((g * h) • n.1)
     rw [hc', hn, ← hμ g (ψ h) n.1, hn]

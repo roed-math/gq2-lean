@@ -82,8 +82,7 @@ theorem isPGroup_quotient_inf {p : ℕ} {G : Type*} [Group G] {A B : Subgroup G}
   · rw [injective_iff_map_eq_one]
     intro x hx
     obtain ⟨g, rfl⟩ := QuotientGroup.mk_surjective x
-    rw [QuotientGroup.lift_mk'] at hx
-    rw [MonoidHom.prod_apply, Prod.ext_iff] at hx
+    rw [QuotientGroup.lift_mk', MonoidHom.prod_apply, Prod.ext_iff] at hx
     simp only [QuotientGroup.mk'_apply, Prod.fst_one, Prod.snd_one,
       QuotientGroup.eq_one_iff] at hx
     exact (QuotientGroup.eq_one_iff g).mpr (Subgroup.mem_inf.mpr hx)
@@ -97,11 +96,7 @@ def topOpenNormalSubgroup (G : Type*) [Group G] [TopologicalSpace G] : OpenNorma
 /-- The trivial quotient `G ⧸ ⊤` is a `p`-group. -/
 theorem isPGroup_quotient_top {p : ℕ} {G : Type*} [Group G] :
     IsPGroup p (G ⧸ (⊤ : Subgroup G)) := by
-  haveI : Subsingleton (G ⧸ (⊤ : Subgroup G)) := by
-    refine ⟨fun a b => ?_⟩
-    obtain ⟨a, rfl⟩ := QuotientGroup.mk_surjective a
-    obtain ⟨b, rfl⟩ := QuotientGroup.mk_surjective b
-    exact QuotientGroup.eq.mpr (Subgroup.mem_top _)
+  haveI : Subsingleton (G ⧸ (⊤ : Subgroup G)) := QuotientGroup.subsingleton_quotient_top
   exact fun g => ⟨0, by rw [pow_zero, pow_one]; exact Subsingleton.elim g 1⟩
 
 /-! ## Intersection of open normal subgroups of a profinite group -/
@@ -176,9 +171,8 @@ theorem proPKernel_le_ker {p : ℕ} {G : Type*} [Group G] [TopologicalSpace G]
   have hUpg : IsPGroup p (G ⧸ U.toSubgroup) :=
     ((hP V).to_subgroup φ.range).of_equiv (QuotientGroup.quotientKerEquivRange φ).symm
   have hgU : g ∈ φ.ker := proPKernel_le U hUpg hg
-  rw [MonoidHom.mem_ker, hφ, MonoidHom.comp_apply, QuotientGroup.mk'_apply,
+  rwa [MonoidHom.mem_ker, hφ, MonoidHom.comp_apply, QuotientGroup.mk'_apply,
     QuotientGroup.eq_one_iff] at hgU
-  exact hgU
 
 /-- **Universal property of `G(p)`.**  For a pro-`p` profinite group `P`, restriction along the
 projection `G → G(p)` is a bijection `Hom_cont(G(p), P) ≃ Hom_cont(G, P)`: every continuous
@@ -234,8 +228,8 @@ theorem isPGroup_quotient_of_proPKernel_le {p : ℕ} {G : Type*} [Group G] [Topo
       rw [proPKernel, Subgroup.mem_iInf]; intro U; exact (hx U).1
     exact (hx (Classical.arbitrary ι)).2 (hle hxK)
   -- Step 2: `G ⧸ Ŵ` is a quotient of the `p`-group `G ⧸ U`.
-  have h := hUpg.to_quotient (W.toSubgroup.map (QuotientGroup.mk' U.toSubgroup))
-  exact h.of_equiv (QuotientGroup.quotientQuotientEquivQuotient _ _ hUW)
+  exact (hUpg.to_quotient (W.toSubgroup.map (QuotientGroup.mk' U.toSubgroup))).of_equiv
+    (QuotientGroup.quotientQuotientEquivQuotient _ _ hUW)
 
 /-- **`G(p)` is pro-`p`** (stated on the underlying quotient group).  Every finite continuous
 quotient of `G ⧸ proPKernel p G` is a `p`-group. -/
@@ -256,9 +250,8 @@ theorem isProP_quotient_proPKernel {p : ℕ} {G : Type*} [Group G] [TopologicalS
   have hWpg : IsPGroup p (G ⧸ Ŵ.toSubgroup) := isPGroup_quotient_of_proPKernel_le Ŵ hKle
   have hmap : Ŵ.toSubgroup.map (QuotientGroup.mk' (proPKernel p G)) = W.toSubgroup :=
     Subgroup.map_comap_eq_self_of_surjective (QuotientGroup.mk'_surjective _) _
-  have key := hWpg.of_equiv (QuotientGroup.quotientQuotientEquivQuotient (proPKernel p G)
-    Ŵ.toSubgroup hKle).symm
-  exact key.of_equiv (QuotientGroup.quotientMulEquivOfEq hmap)
+  exact (hWpg.of_equiv (QuotientGroup.quotientQuotientEquivQuotient (proPKernel p G)
+    Ŵ.toSubgroup hKle).symm).of_equiv (QuotientGroup.quotientMulEquivOfEq hmap)
 
 /-- **`G(p)` is pro-`p`.**  This is the defining property of the maximal pro-`p` quotient
 (same statement, phrased on the bundled `ProfiniteGrp` object). -/

@@ -42,9 +42,8 @@ namespace DimAssembly
 open ContCoh LocalKummer
 
 /-- The 𝔽₂-dual of any additive group is 2-torsion. -/
-theorem dual_add_self {V : Type} [AddCommGroup V] (φ : V →+ ZMod 2) : φ + φ = 0 := by
-  have h2 : ∀ x : ZMod 2, x + x = 0 := by decide
-  exact AddMonoidHom.ext fun v => h2 (φ v)
+theorem dual_add_self {V : Type} [AddCommGroup V] (φ : V →+ ZMod 2) : φ + φ = 0 :=
+  AddMonoidHom.ext fun v => (by decide : ∀ x : ZMod 2, x + x = 0) (φ v)
 
 variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
 
@@ -75,8 +74,7 @@ omit [DiscreteTopology C] [Finite C] in
 /-- The tame relation `σ⁻¹τσ = τ²` in the image (`tame_relation` pushed through `c`). -/
 theorem tame_rel_image (c : ContinuousMonoidHom Ttame C) :
     (c tameSigma)⁻¹ * c tameTau * c tameSigma = c tameTau ^ 2 := by
-  have h := congrArg (⇑c) tame_relation
-  simpa only [conjP, map_mul, map_inv, map_pow] using h
+  simpa only [conjP, map_mul, map_inv, map_pow] using congrArg (⇑c) tame_relation
 
 /-! ## 𝔽₂-dual transport: `V^∨` inherits the ramified-simple-faithful package from `V`
 

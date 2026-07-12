@@ -68,7 +68,7 @@ theorem zpowers_sq_dichotomy (hg2 : gbar * gbar = 1) {t : G ⧸ N}
   have hsq : gbar ^ (2 : ℤ) = 1 := by
     rw [show (2 : ℤ) = 1 + 1 from rfl, zpow_add, zpow_one]; exact hg2
   rcases Int.even_or_odd n with ⟨k, rfl⟩ | ⟨k, rfl⟩
-  · left; rw [show k + k = 2 * k from by ring, zpow_mul, hsq, one_zpow]
+  · left; rw [← two_mul, zpow_mul, hsq, one_zpow]
   · right; rw [zpow_add, zpow_mul, hsq, one_zpow, one_mul, zpow_one]
 
 /-- **Eq. (67)**: with `ḡ² = 1`, `c⁻¹·u.out` is either the canonical representative `π_c(u)` of its
@@ -147,8 +147,8 @@ theorem epsFun_mul (hg2 : gbar * gbar = 1) (c d : G ⧸ N) (u : O) :
   simp only [epsFun, hpout, hpcd]
   by_cases hc : c⁻¹ * u.out = piElt N gbar c u
   · by_cases hd : d⁻¹ * piElt N gbar c u = piElt N gbar (c * d) u
-    · rw [if_pos hc, if_pos hd, if_pos (by rw [hPcd, hc]; exact hd)]; decide
-    · rw [if_pos hc, if_neg hd, if_neg (by rw [hPcd, hc]; exact hd)]; decide
+    · rw [if_pos hc, if_pos hd, if_pos (by rwa [hPcd, hc])]; decide
+    · rw [if_pos hc, if_neg hd, if_neg (by rwa [hPcd, hc])]; decide
   · have hc2 : c⁻¹ * u.out = piElt N gbar c u * gbar :=
       (coset_out_decomp' N gbar hg2 c u).resolve_left hc
     by_cases hd : d⁻¹ * piElt N gbar c u = piElt N gbar (c * d) u
@@ -161,7 +161,7 @@ theorem epsFun_mul (hg2 : gbar * gbar = 1) (c d : G ⧸ N) (u : O) :
     · -- ε_c=1, ε_d=1: `Pcd = π_{cd}·ḡ² = π_{cd}`
       have hd2 : d⁻¹ * piElt N gbar c u = piElt N gbar (c * d) u * gbar := by
         have h := (coset_out_decomp' N gbar hg2 d (piEquiv N gbar c u)).resolve_left
-          (by rw [hpout, hpcd]; exact hd)
+          (by rwa [hpout, hpcd])
         rwa [hpout, hpcd] at h
       rw [if_neg hc, if_neg hd,
         if_pos (show (c * d)⁻¹ * u.out = piElt N gbar (c * d) u by
@@ -175,7 +175,7 @@ theorem invOrbitDatum_f_add_left [Finite (G ⧸ N)] (x x' y : RegRep N) :
       = (invOrbitDatum N gbar).f x y + (invOrbitDatum N gbar).f x' y := by
   simp only [invOrbitDatum_f_apply]
   rw [← finsum_add_distrib (Set.toFinite _) (Set.toFinite _)]
-  exact finsum_congr fun u => by rw [show (x + x') u.out = x u.out + x' u.out from rfl, add_mul]
+  exact finsum_congr fun u => add_mul _ _ _
 
 /-- Right-additivity of the involution factor set. -/
 theorem invOrbitDatum_f_add_right [Finite (G ⧸ N)] (x y y' : RegRep N) :
@@ -183,8 +183,7 @@ theorem invOrbitDatum_f_add_right [Finite (G ⧸ N)] (x y y' : RegRep N) :
       = (invOrbitDatum N gbar).f x y + (invOrbitDatum N gbar).f x y' := by
   simp only [invOrbitDatum_f_apply]
   rw [← finsum_add_distrib (Set.toFinite _) (Set.toFinite _)]
-  exact finsum_congr fun u => by
-    rw [show (y + y') (u.out * gbar) = y (u.out * gbar) + y' (u.out * gbar) from rfl, mul_add]
+  exact finsum_congr fun u => mul_add _ _ _
 
 /-- **The involution-orbit datum is an equivariant factor set** (Lemma 6.2, eqs. (71)–(73)) for
 its square map `q_g x = Σ_u x_{u} x_{uḡ}`.  Needs the involution hypothesis `ḡ² = 1`. -/
@@ -213,13 +212,11 @@ theorem isEquivariantFactorSet_invOrbitDatum [Finite (G ⧸ N)] (hg2 : gbar * gb
   · -- `f_zero_left`
     intro v
     rw [invOrbitDatum_f_apply]
-    exact (finsum_congr fun u => by
-      rw [show (0 : RegRep N) u.out = (0 : ZMod 2) from rfl, zero_mul]).trans finsum_zero
+    exact (finsum_congr fun u => zero_mul _).trans finsum_zero
   · -- `f_zero_right`
     intro v
     rw [invOrbitDatum_f_apply]
-    exact (finsum_congr fun u => by
-      rw [show (0 : RegRep N) (u.out * gbar) = (0 : ZMod 2) from rfl, mul_zero]).trans finsum_zero
+    exact (finsum_congr fun u => mul_zero _).trans finsum_zero
   · -- (71) `m_quad`: `m_c(v+w) + m_c v + m_c w = f(cv, cw) + f(v, w)`.
     intro c v w
     -- reindex `f(v,w)` by the bijection `π_c`

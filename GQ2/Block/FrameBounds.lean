@@ -252,9 +252,7 @@ lemma card_stratum_LB_lt (hR : Blk.R ≠ ⊥) (Cov : CentralCover (blockFrameImp
     have hne0 : (J.subgroupOf LB).index ≠ 0 := Subgroup.index_ne_zero_of_finite
     omega
   have hstep4 : 2 * Nat.card ↥(LB ⊓ J) ≤ Nat.card ↥LB := by
-    calc 2 * Nat.card ↥(LB ⊓ J) = Nat.card ↥(LB ⊓ J) * 2 := by ring
-      _ ≤ Nat.card ↥(LB ⊓ J) * (J.subgroupOf LB).index := by gcongr
-      _ = Nat.card ↥LB := hlag
+    rw [← hlag, mul_comm 2]; gcongr
   -- chain: `|W| ≤ 2|p(W)| ≤ 2|L_B ⊓ J| ≤ |L_B| < |L_Y|`
   calc Nat.card ↥(LB.comap Cov.p ⊓ J')
       ≤ 2 * Nat.card ↥((LB.comap Cov.p ⊓ J').map Cov.p) :=

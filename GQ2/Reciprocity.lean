@@ -108,9 +108,7 @@ lemma continuous_chiCyc : Continuous chiCyc :=
 it factors through `G_{ℚ₂}^{ab}`. -/
 lemma commClosure_le_ker_chiCyc : commClosure ≤ chiCyc.ker := by
   apply Subgroup.topologicalClosure_minimal _ (Abelianization.commutator_subset_ker chiCyc)
-  have : (chiCyc.ker : Set AbsGalQ2) = chiCyc ⁻¹' {1} := by
-    ext x; simp [MonoidHom.mem_ker, Set.mem_preimage]
-  rw [this]
+  rw [MonoidHom.coe_ker]
   exact isClosed_singleton.preimage continuous_chiCyc
 
 /-- The cyclotomic character as a map out of the abelianization, `χ_cyc : G_{ℚ₂}^{ab} →* ℤ₂ˣ`. -/
@@ -158,9 +156,7 @@ lemma commClosure_le_ker_restrictHom
     intro a _ b _
     rw [MonoidHom.mem_ker, map_commutatorElement, commutatorElement_eq_one_iff_commute]
     exact hab _ _
-  · have hk : (restrictHom L).ker = L.fixingSubgroup := IntermediateField.restrictNormalHom_ker L
-    rw [hk]
-    exact IntermediateField.fixingSubgroup_isClosed L
+  · exact IntermediateField.restrictNormalHom_ker L ▸ IntermediateField.fixingSubgroup_isClosed L
 
 /-- The **abelianized restriction** `G_{ℚ₂}^{ab} → Gal(L/ℚ₂)` for a finite abelian Galois layer
 `L/ℚ₂` (obtained by factoring Mathlib's `restrictNormalHom` through the abelianization). -/

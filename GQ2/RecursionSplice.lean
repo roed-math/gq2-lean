@@ -119,7 +119,7 @@ theorem zBC_eq_sum_centralOver {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsT
         ∃ g : ContinuousMonoidHom Γ (RF.scalarCover l h).cover,
           ∀ γ : Γ, (RF.scalarCover l h).p (g γ) = pr.2 γ} := Subtype.finite
   rw [Nat.card_congr (Equiv.sigmaFiberEquiv (fun x => x.1.1)).symm, Nat.card_sigma]
-  exact Finset.sum_congr rfl (fun ρ _ => Nat.card_congr (RF.zBCfibreEquiv b F l h ρ))
+  exact Finset.sum_congr rfl fun ρ _ => Nat.card_congr (RF.zBCfibreEquiv b F l h ρ)
 
 /-! ## `phase140` reduced to a clean "phase datum" (the `lemma_8_5`/8.7 analog of `stageR136_of`) -/
 
@@ -179,7 +179,7 @@ theorem central_card_eq_reductions_mul_tcocycle
     _ = ∑ r : ↥(Set.range red), Nat.card {s : {f : MLifts D ρ // f.Central} //
           (⟨red s, s, rfl⟩ : ↥(Set.range red)) = r} := Nat.card_sigma
     _ = ∑ _r : ↥(Set.range red), Nat.card (TCocycle D ρ) :=
-        Finset.sum_congr rfl (fun r _ => hfibre r)
+        Finset.sum_congr rfl fun r _ => hfibre r
     _ = Nat.card ↥(Set.range red) * Nat.card (TCocycle D ρ) := by
         rw [Finset.sum_const, Finset.card_univ, smul_eq_mul, ← Nat.card_eq_fintype_card]
 
@@ -303,8 +303,7 @@ theorem enrichment_card_Vmod {Y : Type} [Group Y] [TopologicalSpace Y] [Discrete
   classical
   have hker_eq : MonoidHom.ker En.descend = RF.TBsub.subgroupOf RF.MB := by
     ext m
-    rw [MonoidHom.mem_ker, Subgroup.mem_subgroupOf]
-    exact En.descend_ker m
+    rw [MonoidHom.mem_ker, Subgroup.mem_subgroupOf, En.descend_ker m]
   have hkercard : Nat.card ↥(MonoidHom.ker En.descend) = Nat.card ↥RF.TBsub := by
     rw [hker_eq]
     exact Nat.card_congr (Subgroup.subgroupOfEquivOfLe RF.TBsub_le_MB).toEquiv

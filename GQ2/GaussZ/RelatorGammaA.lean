@@ -158,14 +158,8 @@ variable {ρM : ContinuousMonoidHom Γ (Bg ⧸ D.M)}
 condition is exactly the homomorphism law. -/
 noncomputable def graphSdHom (c : VCocycle DD ρM) : Γ →* Sd DD.C0 DD.Vmod where
   toFun γ := (c.c γ, rho0 DD ρM γ)
-  map_one' := by
-    refine Prod.ext ?_ ?_
-    · exact c.c_one
-    · exact map_one (rho0 DD ρM)
-  map_mul' γ δ := by
-    refine Prod.ext ?_ ?_
-    · exact c.crossed γ δ
-    · exact map_mul (rho0 DD ρM) γ δ
+  map_one' := Prod.ext c.c_one (map_one (rho0 DD ρM))
+  map_mul' γ δ := Prod.ext (c.crossed γ δ) (map_mul (rho0 DD ρM) γ δ)
 
 @[simp] theorem graphSdHom_apply (c : VCocycle DD ρM) (γ : Γ) :
     graphSdHom c γ = (c.c γ, rho0 DD ρM γ) := rfl
@@ -236,10 +230,7 @@ theorem QZero_eq_relZPair_kappa0 [DistribMulAction GA (ZMod 2)] [ContinuousSMul 
     (graphSdHom c).comp (quotientMk NA).toMonoidHom with hfulldef
   have hfullcont : Continuous full := hgcont.comp (quotientMk NA).continuous
   have hkeropen : IsOpen (full.ker : Set (FreeProfiniteGroup (Fin 4))) := by
-    have hs : (full.ker : Set (FreeProfiniteGroup (Fin 4))) = full ⁻¹' {1} := by
-      ext g
-      simp [MonoidHom.mem_ker]
-    rw [hs]
+    rw [MonoidHom.coe_ker]
     exact IsOpen.preimage hfullcont (isOpen_discrete _)
   set U : OpenNormalSubgroup (FreeProfiniteGroup (Fin 4)) :=
     ⟨⟨full.ker, hkeropen⟩, full.normal_ker⟩ with hUdef
@@ -247,8 +238,7 @@ theorem QZero_eq_relZPair_kappa0 [DistribMulAction GA (ZMod 2)] [ContinuousSMul 
     intro n hn
     show full n = 1
     show (graphSdHom c) (quotientMk NA n) = 1
-    have h1 : quotientMk NA n = 1 := (QuotientGroup.eq_one_iff n).mpr hn
-    rw [h1, map_one]
+    rw [show quotientMk NA n = 1 from (QuotientGroup.eq_one_iff n).mpr hn, map_one]
   -- the descended level map, agreeing with the graph through `levelProj`
   set φU : (FreeProfiniteGroup (Fin 4) ⧸ U.toSubgroup) →* Sd DD.C0 DD.Vmod :=
     QuotientGroup.lift U.toSubgroup full (fun _ hu => hu) with hφUdef

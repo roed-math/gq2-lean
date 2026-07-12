@@ -144,12 +144,10 @@ instance [Finite M] : ContinuousSMul G (MuDual n M) := by
   refine Subgroup.isOpen_mono (fun u hu => ?_) hNopen
   -- `u` fixes all of `M` and all of `μₙ`, hence fixes `φ`
   rw [hN, Subgroup.mem_inf] at hu
-  have huM : ∀ m : M, u • m = m := fun m => by
-    have := Subgroup.mem_iInf.mp hu.1 m
-    rwa [MulAction.mem_stabilizer_iff] at this
-  have huμ : ∀ x : MuN n, u • x = x := fun x => by
-    have := Subgroup.mem_iInf.mp hu.2 x
-    rwa [MulAction.mem_stabilizer_iff] at this
+  have huM : ∀ m : M, u • m = m :=
+    fun m => MulAction.mem_stabilizer_iff.mp (Subgroup.mem_iInf.mp hu.1 m)
+  have huμ : ∀ x : MuN n, u • x = x :=
+    fun x => MulAction.mem_stabilizer_iff.mp (Subgroup.mem_iInf.mp hu.2 x)
   rw [MulAction.mem_stabilizer_iff]
   refine DFunLike.ext _ _ fun m => ?_
   rw [muDual_smul_apply, huμ]
@@ -288,17 +286,14 @@ theorem TateDuality.exists_cup_ne_zero_of_ne_zero {c : H1 AbsGalQ2 (MuDual n M)}
     (hc : c ≠ 0) :
     ∃ d : H1 AbsGalQ2 M,
       cup11 (muDualPairing n M) (muDualPairing_equivariant n M) c d ≠ 0 := by
-  by_contra hall
-  have hall' : ∀ d : H1 AbsGalQ2 M,
-      cup11 (muDualPairing n M) (muDualPairing_equivariant n M) c d = 0 :=
-    fun d => not_not.mp fun h => hall ⟨d, h⟩
+  by_contra! hall
   apply hc
   apply (D.perfect11 M htor).1
   show D.inv.toAddMonoidHom.comp (cup11 (muDualPairing n M) (muDualPairing_equivariant n M) c)
       = D.inv.toAddMonoidHom.comp (cup11 (muDualPairing n M) (muDualPairing_equivariant n M) 0)
   ext d
   simp only [AddMonoidHom.coe_comp, Function.comp_apply]
-  rw [hall' d, cup11_zero_left]
+  rw [hall d, cup11_zero_left]
 
 end Consequences
 

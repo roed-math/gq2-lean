@@ -84,11 +84,7 @@ theorem iotaB_add_mem_B2 {φ β : Γ × Γ → ZMod 2} (hβ : β ∈ B2 Γ (ZMod
   unfold iotaB
   by_cases h : φ ∈ B2 Γ (ZMod 2)
   · rw [if_pos h, if_pos (AddSubgroup.add_mem _ h hβ)]
-  · rw [if_neg h, if_neg ?_]
-    intro hc
-    have := AddSubgroup.sub_mem _ hc hβ
-    rw [add_sub_cancel_right] at this
-    exact h this
+  · rw [if_neg h, if_neg fun hc => h (by simpa using AddSubgroup.sub_mem _ hc hβ)]
 
 omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
 /-- **The base determinant graph pullback is `B¹`-shift-invariant mod `B²`** (generic-`Γ` form
@@ -177,10 +173,8 @@ theorem hfix_of_simple [Nontrivial DD.C0]
     (hfaith : ∀ g : DD.C0, (∀ v : DD.Vmod, g • v = v) → g = 1)
     (v : DD.Vmod) (hv : ∀ γ : Γ, rho0 DD ρ γ • v = v) : v = 0 := by
   -- `v` is fixed by all of `C₀` (surjectivity of `ρ'`)
-  have hvC : ∀ cc : DD.C0, cc • v = v := by
-    intro cc
-    obtain ⟨γ, hγ⟩ := hsurj cc
-    rw [← hγ]; exact hv γ
+  have hvC : ∀ cc : DD.C0, cc • v = v := fun cc =>
+    (hsurj cc).elim fun γ hγ => hγ ▸ hv γ
   -- the fixed submodule
   let W : AddSubgroup DD.Vmod :=
     { carrier := {w | ∀ cc : DD.C0, cc • w = w}
@@ -188,12 +182,10 @@ theorem hfix_of_simple [Nontrivial DD.C0]
       add_mem' := fun {a b} ha hb cc => by rw [smul_add, ha cc, hb cc]
       neg_mem' := fun {a} ha cc => by rw [smul_neg, ha cc] }
   have hWinv : ∀ (g : DD.C0), ∀ w ∈ W, g • w ∈ W := fun g w hw cc => by
-    show cc • g • w = g • w
     rw [hw g, hw cc]
   rcases hsimple W hWinv with hbot | htop
   · have : v ∈ W := hvC
-    rw [hbot, AddSubgroup.mem_bot] at this
-    exact this
+    rwa [hbot, AddSubgroup.mem_bot] at this
   · -- `W = ⊤` ⟹ every `cc` acts trivially ⟹ `C₀` trivial, contradicting `Nontrivial`
     exfalso
     obtain ⟨a, b, hab⟩ := (Nontrivial.exists_pair_ne (α := DD.C0))
@@ -202,7 +194,7 @@ theorem hfix_of_simple [Nontrivial DD.C0]
       intro cc w
       have hwW : w ∈ W := by rw [htop]; exact AddSubgroup.mem_top w
       exact hwW cc
-    rw [hfaith a (fun w => hall a w), hfaith b (fun w => hall b w)]
+    rw [hfaith a (hall a), hfaith b (hall b)]
 
 /-! ### The descended Gauss form and the reduction -/
 
@@ -222,8 +214,7 @@ noncomputable def QZeroBar (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
     rw [QuotientAddGroup.leftRel_apply] at hab
     obtain ⟨w, hw⟩ := hab
     rw [vCobHom_apply] at hw
-    have hb : b = a + vCob DD ρ w := by rw [hw]; abel
-    rw [hb, QZero_add_vCob htriv a w]
+    rw [show b = a + vCob DD ρ w by rw [hw]; abel, QZero_add_vCob htriv a w]
 
 omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
 @[simp] theorem QZeroBar_mk (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m) (c : VCocycle DD ρ) :
@@ -297,8 +288,7 @@ theorem card_quotient_vCobRange
       = Nat.card (VCocycle DD ρ ⧸ vCobRange DD ρ) * Nat.card ↥(vCobRange DD ρ) := by
     rw [← (vCobRange DD ρ).index_mul_card, (vCobRange DD ρ).index_eq_card]
   rw [hrange, hZcard] at hlag
-  have hVpos : 0 < Nat.card DD.Vmod := Nat.card_pos
-  exact (Nat.eq_of_mul_eq_mul_right hVpos hlag).symm
+  exact (Nat.eq_of_mul_eq_mul_right Nat.card_pos hlag).symm
 
 end GaussZ
 
