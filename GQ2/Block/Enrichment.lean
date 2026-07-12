@@ -49,8 +49,7 @@ theorem blockPS_exp2 :
   obtain ⟨k, hk, hv⟩ := exists_K_rep Blk (Additive.toMul v)
   have hkkS : (k * k : Y) ∈ Blk.S := ((lemma_7_1_head Blk).trans inf_le_right) (blockHsq T Blk k hk)
   have hsq1 : Additive.toMul v * Additive.toMul v = 1 := by
-    rw [← hv, mkP_mul Blk (Blk.hKP hk) (Blk.hKP hk)]
-    rw [QuotientGroup.eq_one_iff]
+    rw [← hv, mkP_mul Blk (Blk.hKP hk) (Blk.hKP hk), QuotientGroup.eq_one_iff]
     exact Subgroup.mem_subgroupOf.mpr hkkS
   show Additive.ofMul (Additive.toMul v * Additive.toMul v) = 0
   rw [hsq1]; rfl
@@ -114,15 +113,13 @@ theorem blockHsimple :
       refine (AddSubgroup.eq_bot_iff_forall W).mpr (fun w hw => ?_)
       obtain ⟨p, hp⟩ := QuotientGroup.mk_surjective (Additive.toMul w)
       have hpW : Additive.ofMul (QuotientGroup.mk p) ∈ W := by
-        rw [hp]; exact hw
+        rwa [hp]
       have hpX : (p : Y) ∈ X := Subgroup.mem_map.mpr ⟨p, hpW, rfl⟩
       rw [hXS] at hpX
       have hmk1 : (QuotientGroup.mk p : ↥Blk.P ⧸ Blk.S.subgroupOf Blk.P) = 1 :=
         (QuotientGroup.eq_one_iff _).mpr (Subgroup.mem_subgroupOf.mpr hpX)
-      calc w = Additive.ofMul (Additive.toMul w) := rfl
-        _ = Additive.ofMul (QuotientGroup.mk p) := by rw [hp]
-        _ = Additive.ofMul (1 : ↥Blk.P ⧸ Blk.S.subgroupOf Blk.P) := by rw [hmk1]
-        _ = 0 := rfl
+      have hweq : w = Additive.ofMul (QuotientGroup.mk p) := by rw [hp]; rfl
+      rw [hweq, hmk1]; rfl
     · -- `X = P` ⟹ `W = ⊤`
       right
       refine (AddSubgroup.eq_top_iff' W).mpr (fun w => ?_)
@@ -130,10 +127,8 @@ theorem blockHsimple :
       have hpX : (p : Y) ∈ X := by rw [hXP']; exact p.2
       obtain ⟨p', hp'WP, hp'eq⟩ := Subgroup.mem_map.mp hpX
       have hpWP : Additive.ofMul (QuotientGroup.mk p) ∈ W := by
-        rw [← Subtype.ext hp'eq]; exact hp'WP
-      have hweq : w = Additive.ofMul (QuotientGroup.mk p) := by
-        calc w = Additive.ofMul (Additive.toMul w) := rfl
-          _ = Additive.ofMul (QuotientGroup.mk p) := by rw [hp]
+        rwa [← Subtype.ext hp'eq]
+      have hweq : w = Additive.ofMul (QuotientGroup.mk p) := by rw [hp]; rfl
       rw [hweq]; exact hpWP
 
 /-- **`hnt`: the `Y/K`-action on `V = P/S` is nontrivial** — the enrichment-module form of
@@ -183,8 +178,7 @@ theorem blockLY_smul_eqY (l : Y) (hl : l ∈ T.LY) :
     (T.normal.map (QuotientGroup.mk' Blk.K) (QuotientGroup.mk'_surjective Blk.K))
     (T.isPGroup_two.map _)
     (QuotientGroup.mk' Blk.K l) (Subgroup.mem_map_of_mem _ hl) v
-  rw [← blockActV_mk' Blk l v]
-  exact h512
+  rwa [← blockActV_mk' Blk l v]
 
 /-- **The descended `Y/L_Y`-action on `V`** — `blockActVY` descends because `L_Y` acts trivially
 (`blockLY_smul_eqY`); mirrors `blockActV`'s descent through `Y/K`. -/
@@ -195,11 +189,9 @@ theorem blockLY_smul_eqY (l : Y) (hl : l ∈ T.LY) :
   letI := blockActVY Blk
   { smul := fun yb v => Quotient.liftOn' yb (fun y => (y : Y) • v) (by
       intro y₁ y₂ h
-      have hmem : y₁⁻¹ * y₂ ∈ T.LY := QuotientGroup.leftRel_apply.mp h
-      have htriv : (y₁⁻¹ * y₂) • v = v := blockLY_smul_eqY T Blk (y₁⁻¹ * y₂) hmem v
-      calc (y₁ : Y) • v = y₁ • ((y₁⁻¹ * y₂) • v) := by rw [htriv]
-        _ = (y₁ * (y₁⁻¹ * y₂)) • v := (mul_smul _ _ _).symm
-        _ = y₂ • v := by rw [mul_inv_cancel_left])
+      have htriv : (y₁⁻¹ * y₂) • v = v :=
+        blockLY_smul_eqY T Blk (y₁⁻¹ * y₂) (QuotientGroup.leftRel_apply.mp h) v
+      rw [← mul_inv_cancel_left y₁ y₂, mul_smul, htriv])
     one_smul := fun v => one_smul Y v
     mul_smul := fun yb1 yb2 v => by
       induction yb1 using QuotientGroup.induction_on with | _ y₁ =>
@@ -234,14 +226,13 @@ theorem blockHtame (F : BoundaryFrame H E) :
     fun y => QuotientGroup.lift_mk' _ _ _
   have hdsurj : Function.Surjective d := by
     intro h; obtain ⟨y, hy⟩ := T.piY_surjective h
-    exact ⟨QuotientGroup.mk' T.LY y, by rw [hd_mk]; exact hy⟩
+    exact ⟨QuotientGroup.mk' T.LY y, by rwa [hd_mk]⟩
   have hdinj : Function.Injective d := by
     rw [injective_iff_map_eq_one]
     intro x hx
     obtain ⟨y, rfl⟩ := QuotientGroup.mk'_surjective T.LY x
     rw [hd_mk] at hx
-    rw [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff, ← T.ker_piY]
-    exact hx
+    rwa [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff, ← T.ker_piY]
   let e : (Y ⧸ T.LY) ≃* H := MulEquiv.ofBijective d ⟨hdinj, hdsurj⟩
   have he_mk : ∀ y : Y, e (QuotientGroup.mk' T.LY y) = T.piY y := hd_mk
   -- the head action (transport `blockActLY` along `e`) and `π`
@@ -255,22 +246,21 @@ theorem blockHtame (F : BoundaryFrame H E) :
     F.alpha tameSigma, F.alpha tameTau, ?_, ?_, ?_, ?_⟩
   · -- `π` surjective
     intro h; obtain ⟨y, hy⟩ := T.piY_surjective h
-    exact ⟨QuotientGroup.mk' Blk.K y, by rw [hpiKH_mk]; exact hy⟩
+    exact ⟨QuotientGroup.mk' Blk.K y, by rwa [hpiKH_mk]⟩
   · -- compatibility `c • v = π c • v`
     intro c v
     induction c using QuotientGroup.induction_on with | _ y =>
     show (QuotientGroup.mk' Blk.K y) • v
       = e.symm (piKH (QuotientGroup.mk' Blk.K y)) • v
     rw [blockActV_mk' Blk y v, hpiKH_mk y,
-      show T.piY y = e (QuotientGroup.mk' T.LY y) from (he_mk y).symm, e.symm_apply_apply]
-    exact (blockActLY_mk' T Blk y v).symm
+      show T.piY y = e (QuotientGroup.mk' T.LY y) from (he_mk y).symm, e.symm_apply_apply,
+      blockActLY_mk' T Blk y v]
   · -- generation
     exact GQ2.SectionThree.gen_ttame_quotient F.alpha.toMonoidHom F.alpha.continuous_toFun
       F.alpha_surjective
   · -- tame relation
     have h := congrArg (⇑F.alpha) tame_relation
-    rw [conjP, map_mul, map_mul, map_inv, map_pow] at h
-    exact h
+    rwa [conjP, map_mul, map_mul, map_inv, map_pow] at h
 
 /-! ## `dat`/`hdat` and the final assembly -/
 

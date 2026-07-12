@@ -54,8 +54,7 @@ theorem fixingSubgroup_adjoin_simple (δ : E) :
   ext σ
   rw [IntermediateField.mem_fixingSubgroup_iff, MulAction.mem_stabilizer_iff, AlgEquiv.smul_def]
   constructor
-  · intro h
-    exact h δ (IntermediateField.mem_adjoin_simple_self F δ)
+  · exact fun h => h δ (IntermediateField.mem_adjoin_simple_self F δ)
   · intro hσ x hx
     have hst : Subgroup.zpowers σ ≤ MulAction.stabilizer (E ≃ₐ[F] E) δ :=
       Subgroup.zpowers_le.mpr
@@ -79,11 +78,9 @@ variable (k L : IntermediateField ℚ_[2] ℚ̄₂)
 bottom element along the subtype algebra map). -/
 theorem mem_bot_iff_mem (x : ℚ̄₂) : x ∈ (⊥ : IntermediateField ↥k ℚ̄₂) ↔ x ∈ k := by
   rw [IntermediateField.mem_bot]
-  constructor
-  · rintro ⟨y, rfl⟩
-    exact y.2
-  · intro hx
-    exact ⟨⟨x, hx⟩, rfl⟩
+  refine ⟨?_, fun hx => ⟨⟨x, hx⟩, rfl⟩⟩
+  rintro ⟨y, rfl⟩
+  exact y.2
 
 variable {k L}
 
@@ -101,7 +98,7 @@ theorem exists_sqrt_generator (hkL : k ≤ L)
   have hne : extendScalars hkL ≠ ⊥ := by
     intro h
     rw [h, IntermediateField.finrank_bot] at hdeg
-    exact absurd hdeg (by norm_num)
+    omega
   obtain ⟨θ, hθmem, hθbot⟩ := SetLike.exists_of_lt hne.bot_lt
   have hθk : θ ∉ k := fun h => hθbot ((mem_bot_iff_mem k θ).mpr h)
   have hθL : θ ∈ L := hθmem
@@ -121,9 +118,7 @@ theorem exists_sqrt_generator (hkL : k ≤ L)
     IntermediateField.eq_of_le_of_finrank_le hle (by rw [hdeg]; exact h2le)
   -- the minimal polynomial is a monic quadratic X² + aX + b
   have hpdeg : (minpoly ↥k θ).natDegree = 2 := by
-    have hfr := IntermediateField.adjoin.finrank hθint
-    rw [heq, hdeg] at hfr
-    exact hfr.symm
+    rw [← IntermediateField.adjoin.finrank hθint, heq, hdeg]
   set a : ↥k := (minpoly ↥k θ).coeff 1 with ha
   set b : ↥k := (minpoly ↥k θ).coeff 0 with hb
   have hrel : θ ^ 2 + (a : ℚ̄₂) * θ + (b : ℚ̄₂) = 0 := by
@@ -141,33 +136,21 @@ theorem exists_sqrt_generator (hkL : k ≤ L)
   set δ : ℚ̄₂ := 2 * θ + (a : ℚ̄₂) with hδdef
   set dd : ↥k := a ^ 2 - (b + b + b + b) with hdd
   have hδ2 : δ ^ 2 = ((dd : ↥k) : ℚ̄₂) := by
-    have hcast : ((dd : ↥k) : ℚ̄₂)
-        = (a : ℚ̄₂) ^ 2 - ((b : ℚ̄₂) + (b : ℚ̄₂) + (b : ℚ̄₂) + (b : ℚ̄₂)) := by
-      rw [hdd]; push_cast; ring
-    rw [hδdef, hcast]
+    rw [hδdef, hdd]
+    push_cast
     linear_combination (4 : ℚ̄₂) * hrel
   have h2k : (2 : ℚ̄₂) ∈ k := by simp
   have hθrec : θ = (δ - (a : ℚ̄₂)) * (2 : ℚ̄₂)⁻¹ := by
-    rw [hδdef]
-    field_simp
-    ring
-  have hδk : δ ∉ k := by
-    intro hδmem
-    refine hθk ?_
-    rw [hθrec]
-    exact k.mul_mem (k.sub_mem hδmem a.2) (k.inv_mem h2k)
+    rw [hδdef]; ring
+  have hδk : δ ∉ k := fun hδmem =>
+    hθk (by rw [hθrec]; exact k.mul_mem (k.sub_mem hδmem a.2) (k.inv_mem h2k))
   have hδL : δ ∈ L := by
-    rw [hδdef]
-    refine L.add_mem ?_ (hkL a.2)
-    rw [two_mul]
-    exact L.add_mem hθL hθL
+    rw [hδdef, two_mul]
+    exact L.add_mem (L.add_mem hθL hθL) (hkL a.2)
   have hdd0 : dd ≠ 0 := by
     intro h0
-    refine hδk ?_
-    have hz : δ ^ 2 = 0 := by rw [hδ2, h0]; simp
-    have hδ0 : δ = 0 := (pow_eq_zero_iff two_ne_zero).mp hz
-    rw [hδ0]
-    exact k.zero_mem
+    have hδ0 : δ = 0 := (pow_eq_zero_iff two_ne_zero).mp (by rw [hδ2, h0]; simp)
+    exact hδk (by rw [hδ0]; exact k.zero_mem)
   have hadj : IntermediateField.adjoin ↥k {δ} = IntermediateField.adjoin ↥k {θ} := by
     apply le_antisymm
     · rw [IntermediateField.adjoin_simple_le_iff, hδdef]
@@ -192,14 +175,12 @@ theorem exists_coords (hkL : k ≤ L)
   have hδint : IsIntegral ↥k δ := (Algebra.IsAlgebraic.isAlgebraic δ).isIntegral
   -- the minimal polynomial of δ is a monic quadratic
   have hqdeg : (minpoly ↥k δ).natDegree = 2 := by
-    have hfr := IntermediateField.adjoin.finrank hδint
-    rw [hadj, hdeg] at hfr
-    exact hfr.symm
+    rw [← IntermediateField.adjoin.finrank hδint, hadj, hdeg]
   have hqmonic : (minpoly ↥k δ).Monic := minpoly.monic hδint
   have hq1 : minpoly ↥k δ ≠ 1 := by
     intro h1
     rw [h1, Polynomial.natDegree_one] at hqdeg
-    exact absurd hqdeg (by norm_num)
+    omega
   -- A is a polynomial in δ
   have hA' : A ∈ IntermediateField.adjoin ↥k {δ} := by rw [hadj]; exact hAL
   have hAalg : A ∈ Algebra.adjoin ↥k ({δ} : Set ℚ̄₂) := by
@@ -227,8 +208,7 @@ theorem exists_coords (hkL : k ≤ L)
   have hexp := Polynomial.aeval_eq_sum_range' hrdeg δ
   rw [Finset.sum_range_succ, Finset.sum_range_one, pow_zero, pow_one,
     Algebra.smul_def, Algebra.smul_def, mul_one] at hexp
-  calc A = (Polynomial.aeval δ) r := hAr.symm
-    _ = ((r.coeff 0 : ↥k) : ℚ̄₂) + ((r.coeff 1 : ↥k) : ℚ̄₂) * δ := hexp
+  rw [← hAr]; exact hexp
 
 /-- **The conjugation**: some `↥k`-automorphism of `ℚ̄₂` negates `δ`.  Since `δ ∉ k`, the
 infinite Galois correspondence over `↥k` (at `⊥`, via `fixingSubgroup_bot`) produces a `σ`
@@ -240,19 +220,13 @@ theorem exists_conj {δ : ℚ̄₂} {d : ↥k} (hδ2 : δ ^ 2 = (d : ℚ̄₂)) 
     rw [← IntermediateField.fixingSubgroup_bot (F := ↥k) (E := ℚ̄₂)]
     exact InfiniteGalois.fixedField_fixingSubgroup ⊥
   have hmove : ∃ σ : ℚ̄₂ ≃ₐ[↥k] ℚ̄₂, σ δ ≠ δ := by
-    by_contra hall
-    rw [not_exists] at hall
-    refine hbot (htop ▸ (IntermediateField.mem_fixedField_iff _ _).mpr ?_)
-    intro f _
-    exact not_not.mp (hall f)
+    by_contra! hall
+    exact hbot (htop ▸ (IntermediateField.mem_fixedField_iff _ _).mpr fun f _ => hall f)
   obtain ⟨σ, hσδ⟩ := hmove
   refine ⟨σ, ?_⟩
   have hsq : (σ δ + δ) * (σ δ - δ) = 0 := by
-    have hcomm : σ (δ ^ 2) = δ ^ 2 := by
-      rw [hδ2]; exact σ.commutes d
-    have hz : σ δ ^ 2 - δ ^ 2 = 0 := by rw [← map_pow, hcomm, sub_self]
-    calc (σ δ + δ) * (σ δ - δ) = σ δ ^ 2 - δ ^ 2 := by ring
-      _ = 0 := hz
+    have hσδ2 : σ δ ^ 2 = δ ^ 2 := by rw [← map_pow, hδ2]; exact σ.commutes d
+    linear_combination hσδ2
   rcases mul_eq_zero.mp hsq with h | h
   · exact eq_neg_of_add_eq_zero_left h
   · exact absurd (sub_eq_zero.mp h) hσδ
@@ -268,9 +242,7 @@ theorem coord_unit {δ : ℚ̄₂} (σ : ℚ̄₂ ≃ₐ[↥k] ℚ̄₂) (hσ : 
   rintro rfl
   have hA : A = ((v : ↥k) : ℚ̄₂) * δ := by rw [hAuv, ZeroMemClass.coe_zero, zero_add]
   have hσA : σ A = -A := by
-    have hσv : σ ((v : ↥k) : ℚ̄₂) = ((v : ↥k) : ℚ̄₂) := σ.commutes v
-    rw [hA, map_mul, hσ, hσv]
-    ring
+    rw [hA, map_mul, hσ, show σ ((v : ↥k) : ℚ̄₂) = ((v : ↥k) : ℚ̄₂) from σ.commutes v]; ring
   have hnorm : ‖σ A - 1‖ = ‖A - 1‖ := by
     have h1 : σ A - 1 = (AlgEquiv.restrictScalars ℚ_[2] σ) • (A - 1) := by
       rw [AlgEquiv.smul_def]
@@ -279,7 +251,7 @@ theorem coord_unit {δ : ℚ̄₂} (σ : ℚ̄₂ ≃ₐ[↥k] ℚ̄₂) (hσ : 
     rw [h1, norm_galois]
   have hle : ‖(2 : ℚ̄₂)‖ ≤ max ‖A - 1‖ ‖σ A - 1‖ := by
     calc ‖(2 : ℚ̄₂)‖ = ‖(A - 1) + (σ A - 1)‖ := by
-          rw [hσA]; rw [show (A - 1) + (-A - 1) = -2 by ring, norm_neg]
+          rw [hσA, show (A - 1) + (-A - 1) = -2 by ring, norm_neg]
       _ ≤ max ‖A - 1‖ ‖σ A - 1‖ := IsUltrametricDist.norm_add_le_max _ _
   rw [hnorm, max_self] at hle
   exact absurd (lt_of_le_of_lt hle hA1) (lt_irrefl _)

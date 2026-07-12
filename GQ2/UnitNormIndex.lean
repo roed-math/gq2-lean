@@ -58,10 +58,9 @@ theorem norm_val (F : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ
     intro σ
     obtain ⟨g, hg⟩ := AlgEquiv.restrictNormalHom_surjective (F := ℚ_[2]) (K₁ := F) (E := ℚ̄₂) σ
     have hcomm : (algebraMap F ℚ̄₂ (σ x)) = g (algebraMap F ℚ̄₂ x) := by
-      rw [← hg]; exact (AlgEquiv.restrictNormal_commutes g F x)
-    have hg2 := norm_galois g (algebraMap F ℚ̄₂ x)
-    rw [AlgEquiv.smul_def] at hg2
-    rw [hcomm, hg2]
+      rw [← hg]; exact AlgEquiv.restrictNormal_commutes g F x
+    rw [hcomm, ← AlgEquiv.smul_def]
+    exact norm_galois g (algebraMap F ℚ̄₂ x)
   -- the norm as a product over automorphisms, coerced to `ℚ̄₂`
   have hprod : algebraMap ℚ_[2] F (Algebra.norm ℚ_[2] x) = ∏ σ : F ≃ₐ[ℚ_[2]] F, σ x :=
     Algebra.norm_eq_prod_automorphisms ℚ_[2] x
@@ -95,7 +94,7 @@ theorem e_mul_val_norm (F : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimension
   have hNB : ‖(Algebra.norm ℚ_[2] y : ℚ_[2])‖
       = ‖FF.π‖ ^ ((Module.finrank ℚ_[2] F : ℤ) * m) := by
     rw [norm_val F y, hm, ← zpow_natCast (‖FF.π‖ ^ m) (Module.finrank ℚ_[2] F), ← zpow_mul]
-    congr 1; ring
+    rw [mul_comm]
   have hcombine : (2 : ℝ) ^ (-(Algebra.norm ℚ_[2] y).valuation * (FF.e : ℤ))
       = (2 : ℝ) ^ (-((Module.finrank ℚ_[2] F : ℤ) * m)) := by
     calc (2 : ℝ) ^ (-(Algebra.norm ℚ_[2] y).valuation * (FF.e : ℤ))
@@ -115,8 +114,7 @@ section V2Calc
 
 /-- `v₂` is additive: units of `ℚ₂` are nonzero, so `Padic.valuation_mul` applies. -/
 theorem v2_mul (x y : ℚ_[2]ˣ) : v2 (x * y) = v2 x + v2 y := by
-  simp only [v2, Units.val_mul]
-  exact Padic.valuation_mul x.ne_zero y.ne_zero
+  simpa only [v2, Units.val_mul] using Padic.valuation_mul x.ne_zero y.ne_zero
 
 /-- `v₂(x^k) = k·v₂(x)` for `k : ℤ`. -/
 theorem v2_zpow (x : ℚ_[2]ˣ) (k : ℤ) : v2 (x ^ k) = k * v2 x := by
@@ -262,8 +260,7 @@ theorem card_unitImage_eq_e (R : LocalReciprocity) (F : IntermediateField ℚ_[2
   set Gu : Subgroup (F ≃ₐ[ℚ_[2]] F) := (φ.comp unitEmbed).range with hGu
   haveI hGuN : Gu.Normal := by
     refine ⟨fun n hn g => ?_⟩
-    have hcomm : g * n * g⁻¹ = n := by rw [hab g n, mul_inv_cancel_right]
-    rwa [hcomm]
+    rwa [hab g n, mul_inv_cancel_right]
   have hf0pos : 1 ≤ normValPi F FF := normValPi_pos F FF
   have hcast : ((normValPi F FF).toNat : ℤ) = normValPi F FF := Int.toNat_of_nonneg (by omega)
   set q : (F ≃ₐ[ℚ_[2]] F) ⧸ Gu := (QuotientGroup.mk (φ uniformizer)) with hqdef

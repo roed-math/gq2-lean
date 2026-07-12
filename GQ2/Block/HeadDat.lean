@@ -107,8 +107,7 @@ theorem blockPiCH_compat :
   induction c using QuotientGroup.induction_on with | _ y =>
   show (QuotientGroup.mk' Blk.K y) • v
     = (headEquiv T).symm (blockPiCH T Blk (QuotientGroup.mk' Blk.K y)) • v
-  rw [blockActV_mk' Blk y v, blockPiCH_mk T Blk y,
-    show T.piY y = headEquiv T (QuotientGroup.mk' T.LY y) from (headEquiv_mk T y).symm,
+  rw [blockActV_mk' Blk y v, blockPiCH_mk T Blk y, ← headEquiv_mk T y,
     (headEquiv T).symm_apply_apply]
   exact (blockActLY_mk' T Blk y v).symm
 
@@ -128,8 +127,7 @@ noncomputable def headActKer : Subgroup H :=
 instance headActKer_normal : (headActKer T Blk).Normal := by
   letI := blockPS_commGroup Blk
   letI := headAct T Blk
-  refine ⟨fun h hh g => ?_⟩
-  intro v
+  refine ⟨fun h hh g v => ?_⟩
   rw [mul_smul, mul_smul, hh (g⁻¹ • v), ← mul_smul, mul_inv_cancel, one_smul]
 
 /-- The faithful head quotient `H_V := H ⧸ ker(action)`. -/
@@ -143,11 +141,8 @@ abbrev HVq := H ⧸ headActKer T Blk
   letI := headAct T Blk
   { smul := fun hb v => Quotient.liftOn' hb (fun h => h • v) (by
       intro h₁ h₂ hrel
-      have hmem : h₁⁻¹ * h₂ ∈ headActKer T Blk := QuotientGroup.leftRel_apply.mp hrel
-      have htriv : (h₁⁻¹ * h₂) • v = v := hmem v
-      calc h₁ • v = h₁ • ((h₁⁻¹ * h₂) • v) := by rw [htriv]
-        _ = (h₁ * (h₁⁻¹ * h₂)) • v := (mul_smul _ _ _).symm
-        _ = h₂ • v := by rw [mul_inv_cancel_left])
+      have htriv : (h₁⁻¹ * h₂) • v = v := QuotientGroup.leftRel_apply.mp hrel v
+      rw [← mul_inv_cancel_left h₁ h₂, mul_smul, htriv])
     one_smul := fun v => one_smul H v
     mul_smul := fun a b v => by
       induction a using QuotientGroup.induction_on with | _ h₁ =>
@@ -174,7 +169,7 @@ theorem hvAct_faithful :
   intro g hg
   induction g using QuotientGroup.induction_on with | _ h =>
   rw [QuotientGroup.eq_one_iff]
-  exact fun v => hg v
+  exact hg
 
 /-- The full projection `Y⧸K →* H_V` (head, then faithful quotient). -/
 noncomputable def blockProjF : (Y ⧸ Blk.K) →* HVq T Blk :=
@@ -195,8 +190,7 @@ theorem blockProjF_compat :
   letI := headAct T Blk
   letI := hvAct T Blk
   intro c v
-  rw [blockPiCH_compat T Blk c v]
-  rfl
+  exact blockPiCH_compat T Blk c v
 
 /-! ## The tame pair in `H_V` and the transports -/
 
@@ -218,12 +212,8 @@ theorem hv_gen : Subgroup.closure {hvSigma T Blk F, hvTau T Blk F} = ⊤ := by
     GQ2.SectionThree.gen_ttame_quotient F.alpha.toMonoidHom F.alpha.continuous_toFun
       F.alpha_surjective
   have hmap := congrArg (Subgroup.map (QuotientGroup.mk' (headActKer T Blk))) hH
-  rw [MonoidHom.map_closure, Subgroup.map_top_of_surjective _
-    (QuotientGroup.mk'_surjective _)] at hmap
-  rw [show (QuotientGroup.mk' (headActKer T Blk)) ''
-      {F.alpha tameSigma, F.alpha tameTau} = {hvSigma T Blk F, hvTau T Blk F} from by
-    rw [Set.image_pair]; rfl] at hmap
-  exact hmap
+  rwa [MonoidHom.map_closure, Subgroup.map_top_of_surjective _
+    (QuotientGroup.mk'_surjective _), Set.image_pair] at hmap
 
 /-- The tame relation in `H_V` (image of `tame_relation` through `α` and the quotient). -/
 theorem hv_rel :
@@ -231,8 +221,7 @@ theorem hv_rel :
   have h := congrArg (⇑F.alpha) tame_relation
   rw [conjP, map_mul, map_mul, map_inv, map_pow] at h
   have h2 := congrArg (⇑(QuotientGroup.mk' (headActKer T Blk))) h
-  rw [map_mul, map_mul, map_inv, map_pow] at h2
-  exact h2
+  rwa [map_mul, map_mul, map_inv, map_pow] at h2
 
 /-- Invariance of `q̄_λ` under the faithful `H_V`-action (transport of `blockHinv`). -/
 theorem hv_inv (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :

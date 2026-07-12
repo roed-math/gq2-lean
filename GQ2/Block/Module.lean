@@ -46,15 +46,10 @@ theorem comm_bot_of_scalarChain :
       intro x hx g
       have h := hcomm 0 g x hx
       rwa [hc0, Subgroup.mem_bot] at h
-    have hZcomm : ∀ x ∈ c 1, ∀ g : G, g * x = x * g := by
-      intro x hx g
-      have h2 : g * x * g⁻¹ = x := mul_inv_eq_one.mp (hc1triv x hx g)
-      calc g * x = g * x * g⁻¹ * g := by group
-        _ = x * g := by rw [h2]
+    have hZcomm : ∀ x ∈ c 1, ∀ g : G, g * x = x * g := fun x hx g =>
+      mul_inv_eq_iff_eq_mul.mp (mul_inv_eq_one.mp (hc1triv x hx g))
     haveI hc1n : (c 1).Normal :=
-      ⟨fun x hx g => by
-        have he : g * x * g⁻¹ = x := mul_inv_eq_one.mp (hc1triv x hx g)
-        rw [he]; exact hx⟩
+      ⟨fun x hx g => by rwa [mul_inv_eq_one.mp (hc1triv x hx g)]⟩
     set φ : G →* G ⧸ c 1 := QuotientGroup.mk' (c 1) with hφ
     have hφsurj : Function.Surjective φ := QuotientGroup.mk'_surjective (c 1)
     -- push the chain to `G ⧸ c 1`
@@ -65,10 +60,7 @@ theorem comm_bot_of_scalarChain :
       intro i gq xq hxq
       obtain ⟨x, hx, rfl⟩ := Subgroup.mem_map.mp hxq
       obtain ⟨g, rfl⟩ := hφsurj gq
-      have hrw : φ g * φ x * (φ g)⁻¹ * (φ x)⁻¹ = φ (g * x * g⁻¹ * x⁻¹) := by
-        simp only [map_mul, map_inv]
-      rw [hrw]
-      exact Subgroup.mem_map_of_mem φ (hcomm (i + 1) g x hx)
+      simpa only [map_mul, map_inv] using Subgroup.mem_map_of_mem φ (hcomm (i + 1) g x hx)
     have hd1 : Nat.card ((c (n + 1)).map φ) ∣ Nat.card (c (n + 1)) :=
       Subgroup.card_map_dvd (H := c (n + 1)) φ
     have hd2 : Nat.card (Nt.map φ) ∣ Nat.card Nt := Subgroup.card_map_dvd (H := Nt) φ
@@ -116,10 +108,9 @@ theorem comm_bot_of_scalarChain :
       Nat.eq_one_of_dvd_coprimes hcop1 (Subgroup.card_range_dvd ψ)
         (Subgroup.card_dvd_of_le hψrange)
     have hbot : ψ.range = ⊥ := Subgroup.card_eq_one.mp hone
-    have hgx : ψ ⟨g, hg⟩ = 1 := by
-      have hmem : ψ ⟨g, hg⟩ ∈ ψ.range := ⟨⟨g, hg⟩, rfl⟩
-      rwa [hbot, Subgroup.mem_bot] at hmem
-    exact hgx
+    have hmem : ψ ⟨g, hg⟩ ∈ ψ.range := ⟨⟨g, hg⟩, rfl⟩
+    rw [hbot, Subgroup.mem_bot] at hmem
+    exact hmem
 
 /-! ## The `Y`-conjugation action on `V = P/S` -/
 
@@ -226,7 +217,7 @@ theorem exists_odd_moving_general
   haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   haveI hSPn : (S.subgroupOf P).Normal := hS.subgroupOf P
   by_contra hcon
-  simp only [not_exists, not_and, not_forall, not_not] at hcon
+  simp only [not_exists, not_and, not_not] at hcon
   have hodd_triv : ∀ y : Y, Odd (orderOf y) → ∀ p ∈ P, y * p * y⁻¹ * p⁻¹ ∈ S := fun y hy p hp =>
     hcon y hy p hp
   set Q := ↥P ⧸ S.subgroupOf P with hQdef
@@ -248,8 +239,7 @@ theorem exists_odd_moving_general
     refine QuotientGroup.induction_on q fun p => ?_
     show φ z (QuotientGroup.mk p) = QuotientGroup.mk p
     rw [hfix_iff]
-    have := hz (p : Y)⁻¹ (P.inv_mem p.2)
-    simpa using this
+    simpa using hz (p : Y)⁻¹ (P.inv_mem p.2)
   -- `φ.range` is a 2-group: the odd part of every `y` acts trivially
   have hrange2 : IsPGroup 2 (φ.range) := by
     rintro ⟨g, y, rfl⟩
@@ -291,7 +281,7 @@ theorem exists_odd_moving_general
     rintro ⟨g, y, rfl⟩
     show φ y (QuotientGroup.mk (1 : ↥P)) = QuotientGroup.mk 1
     rw [hfix_iff]
-    simpa using hS.conj_mem 1 (one_mem S) y
+    simp
   -- so there is a nonzero fixed coset
   have hFP2 : 2 ≤ Nat.card (MulAction.fixedPoints ↥φ.range Q) :=
     Nat.le_of_dvd (Nat.card_pos_iff.mpr ⟨⟨_, hFP1⟩, inferInstance⟩) hFPeven
@@ -317,7 +307,7 @@ theorem exists_odd_moving_general
   -- the fixed subgroup `W = {p ∈ P | ∀ y, [y,p] ∈ S}` is `Y`-normal, `S < W ≤ P`
   let W : Subgroup Y :=
     { carrier := {p | p ∈ P ∧ ∀ y : Y, y * p * y⁻¹ * p⁻¹ ∈ S}
-      one_mem' := ⟨one_mem P, fun y => by simpa using hS.conj_mem 1 (one_mem S) y⟩
+      one_mem' := ⟨one_mem P, fun y => by simp⟩
       mul_mem' := by
         rintro a b ⟨haP, ha⟩ ⟨hbP, hb⟩
         refine ⟨mul_mem haP hbP, fun y => ?_⟩

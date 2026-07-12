@@ -159,15 +159,14 @@ theorem gaussZResidueD_local_unramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Bounda
   letI : DistribMulAction ((blockFrame T Blk hE2).YC) (EnD.descData l h).Vmod :=
     blockActV Blk
   -- the roundtrip and the bridge
-  have hround : ∀ γ : AbsGalQ2, rho0 (EnD.descData l h) ρM γ = ρ.1.1 γ := fun γ =>
-    rho0_descData_rhoPrime B.bF F EnD l h ρ γ
+  have hround : ∀ γ : AbsGalQ2, rho0 (EnD.descData l h) ρM γ = ρ.1.1 γ :=
+    rho0_descData_rhoPrime B.bF F EnD l h ρ
   have hcomp : ∀ (γ : AbsGalQ2) (v : (EnD.descData l h).Vmod),
       γ • v = rho0 (EnD.descData l h) ρM γ • v := by
     intro γ v
-    have hpc : ∀ (cc : (EnD.descData l h).C0) (w : (EnD.descData l h).Vmod),
-        cc • w = blockProjF T Blk cc • w := fun cc w => blockProjF_compat T Blk cc w
     rw [show rho0 (EnD.descData l h) ρM γ • v
-        = blockProjF T Blk (rho0 (EnD.descData l h) ρM γ) • v from hpc _ v, hround γ]
+        = blockProjF T Blk (rho0 (EnD.descData l h) ρM γ) • v from blockProjF_compat T Blk _ v,
+      hround γ]
     rfl
   -- finiteness of `Z¹`, σ-free from the e3 count
   haveI hfinZ : Finite (VCocycle (EnD.descData l h) ρM) :=
@@ -181,13 +180,13 @@ theorem gaussZResidueD_local_unramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Bounda
       exact ⟨γ, (hround γ).trans hγ⟩
   have hfix : ∀ v : (EnD.descData l h).Vmod,
       (∀ γ : AbsGalQ2, rho0 (EnD.descData l h) ρM γ • v = v) → v = 0 :=
-    fun v hv => hfix_of_simple_nt hsurjρ' hsimple hnt v hv
+    hfix_of_simple_nt hsurjρ' hsimple hnt
   -- the transport bijection `Z¹⧸B¹ ≅ H¹`
   have hbij : Function.Bijective (h1OfVQuot hcomp) :=
     ⟨h1OfVQuot_injective hcomp, h1OfVQuot_surjective hcomp⟩
   -- the pinned value at the faithful head quotient
   have hunramF : ∀ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), cF tameTau • v = v :=
-    fun v => hunram v
+    hunram
   have hpinned := sum_sign_Q0loc_unramified D6 B cF hcF ρHV hfacHV (fun _ _ => rfl)
     (hvAct_faithful T Blk) (hv_simple T Blk) hVne hunramF
     (blockQbar T Blk F.alpha F.alpha_surjective l hl')
@@ -294,15 +293,14 @@ theorem gaussZResidueD_local_ramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Boundary
       (Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)) := blockActV Blk
   letI : DistribMulAction ((blockFrame T Blk hE2).YC) (EnD.descData l h).Vmod :=
     blockActV Blk
-  have hround : ∀ γ : AbsGalQ2, rho0 (EnD.descData l h) ρM γ = ρ.1.1 γ := fun γ =>
-    rho0_descData_rhoPrime B.bF F EnD l h ρ γ
+  have hround : ∀ γ : AbsGalQ2, rho0 (EnD.descData l h) ρM γ = ρ.1.1 γ :=
+    rho0_descData_rhoPrime B.bF F EnD l h ρ
   have hcomp : ∀ (γ : AbsGalQ2) (v : (EnD.descData l h).Vmod),
       γ • v = rho0 (EnD.descData l h) ρM γ • v := by
     intro γ v
-    have hpc : ∀ (cc : (EnD.descData l h).C0) (w : (EnD.descData l h).Vmod),
-        cc • w = blockProjF T Blk cc • w := fun cc w => blockProjF_compat T Blk cc w
     rw [show rho0 (EnD.descData l h) ρM γ • v
-        = blockProjF T Blk (rho0 (EnD.descData l h) ρM γ) • v from hpc _ v, hround γ]
+        = blockProjF T Blk (rho0 (EnD.descData l h) ρM γ) • v from blockProjF_compat T Blk _ v,
+      hround γ]
     rfl
   haveI hfinZ : Finite (VCocycle (EnD.descData l h) ρM) :=
     (Nat.card_ne_zero.mp (by
@@ -314,12 +312,10 @@ theorem gaussZResidueD_local_ramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Boundary
       exact ⟨γ, (hround γ).trans hγ⟩
   have hfix : ∀ v : (EnD.descData l h).Vmod,
       (∀ γ : AbsGalQ2, rho0 (EnD.descData l h) ρM γ • v = v) → v = 0 :=
-    fun v hv => hfix_of_simple_nt hsurjρ' hsimple hnt v hv
+    hfix_of_simple_nt hsurjρ' hsimple hnt
   have hbij : Function.Bijective (h1OfVQuot hcomp) :=
     ⟨h1OfVQuot_injective hcomp, h1OfVQuot_surjective hcomp⟩
-  have hramF : ∃ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), cF tameTau • v ≠ v := by
-    obtain ⟨v, hv⟩ := hram
-    exact ⟨v, hv⟩
+  have hramF : ∃ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), cF tameTau • v ≠ v := hram
   have hpinned := sum_sign_Q0loc_ramified D6 R B cF hcF ρHV hfacHV horient (fun _ _ => rfl)
     (hvAct_faithful T Blk) (hv_simple T Blk) hramF
     (blockQbar T Blk F.alpha F.alpha_surjective l hl')
