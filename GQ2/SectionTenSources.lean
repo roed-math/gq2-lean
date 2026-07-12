@@ -58,9 +58,8 @@ theorem tameCoord_bF_ker_isProP (B : BoundaryMaps) :
 `ψ_W = φ_A / W_A` is injective — it is the underlying map of the Prop-3.2 iso `tameAEquiv`. -/
 theorem ker_phiA : phiA.toMonoidHom.ker = wildPartB := by
   refine le_antisymm (fun x hx => ?_) wildPartB_le_ker_phiA
-  have h1 : psiW (quotientMk wildPartB x) = 1 := by
-    rw [show psiW (quotientMk wildPartB x) = phiA x from quotientLift_quotientMk _ _ _ _]
-    exact MonoidHom.mem_ker.mp hx
+  have h1 : psiW (quotientMk wildPartB x) = 1 :=
+    (quotientLift_quotientMk _ _ _ _).trans (MonoidHom.mem_ker.mp hx)
   have h2 : quotientMk wildPartB x = 1 :=
     tameAEquiv.injective (h1.trans (map_one psiW).symm)
   exact (quotientMk_eq_one_iff _).mp h2

@@ -84,18 +84,13 @@ lemma completion_exists_level {G : GrpCat} {γ : completion G} {U : Set (complet
   rcases (isOpen_pi_iff.mp hsO) _ hγ with ⟨J, fJ, hJ1, hJ2⟩
   let M : Subgroup G := iInf fun (j : J) => (j.val : Subgroup G)
   have hM : M.Normal := Subgroup.normal_iInf_normal fun j => inferInstance
-  have hMFinite : M.FiniteIndex := by
-    apply Subgroup.finiteIndex_iInf
-    infer_instance
+  have hMFinite : M.FiniteIndex := Subgroup.finiteIndex_iInf fun j => inferInstance
   let m : FiniteIndexNormalSubgroup G := { toSubgroup := M }
   refine ⟨m, fun δ hδ => ?_⟩
   rw [← hsv]
   refine Set.mem_preimage.mpr (hJ2 fun a haJ => ?_)
   let π : m ⟶ a := (iInf_le (fun (j : J) => (j.val : Subgroup G)) ⟨a, haJ⟩).hom
-  have hcomp : δ.1 a = γ.1 a := by
-    have hδa := (δ.2 π).symm
-    have hγa := γ.2 π
-    rw [hδa, hδ, hγa]
+  have hcomp : δ.1 a = γ.1 a := by rw [← δ.2 π, hδ, γ.2 π]
   exact Set.mem_of_eq_of_mem hcomp (hJ1 a haJ).2
 
 /-! ## `ℤ̂` -/
@@ -121,18 +116,9 @@ def ofInt (n : ℤ) : Zhat :=
 @[simp] lemma ofInt_zero : ofInt 0 = 1 := rfl
 
 /-- `ℤ` is dense in `ℤ̂`. -/
-lemma denseRange_ofInt : DenseRange ofInt := by
-  have h : Set.range ofInt
-      = Set.range (ProfiniteGrp.ProfiniteCompletion.etaFn (GrpCat.of (Multiplicative ℤ))) := by
-    ext γ
-    constructor
-    · rintro ⟨n, rfl⟩
-      exact ⟨Multiplicative.ofAdd n, rfl⟩
-    · rintro ⟨g, rfl⟩
-      exact ⟨g.toAdd, by simp [ofInt]⟩
-  show Dense (Set.range ofInt)
-  rw [h]
-  exact ProfiniteGrp.ProfiniteCompletion.denseRange _
+lemma denseRange_ofInt : DenseRange ofInt :=
+  (ProfiniteGrp.ProfiniteCompletion.denseRange _).mono
+    (Multiplicative.ofAdd.surjective.range_comp _).ge
 
 /-- Two continuous maps out of `ℤ̂` agreeing on `ℤ` agree everywhere. -/
 lemma funext_ofInt {X : Type*} [TopologicalSpace X] [T2Space X] {f g : Zhat → X}
@@ -212,12 +198,8 @@ lemma map_zpowHat (f : ContinuousMonoidHom G H) (x : G) (γ : Zhat) :
     apply ProfiniteGrp.ProfiniteCompletion.lift_unique
     rw [Functor.map_comp, ← Category.assoc, ProfiniteGrp.ProfiniteCompletion.lift_eta,
       ProfiniteGrp.ProfiniteCompletion.lift_eta]
-    apply GrpCat.ext
-    intro m
-    show f (zpowersHom G x m) = zpowersHom H (f x) m
-    simp [map_zpow]
-  have h2 := ConcreteCategory.congr_hom key γ
-  simpa [ProfiniteGrp.comp_apply, zpowHat, zpowHatHom] using! h2
+    exact GrpCat.ext fun m => show f (zpowersHom G x m) = zpowersHom H (f x) m by simp [map_zpow]
+  simpa [ProfiniteGrp.comp_apply, zpowHat, zpowHatHom] using! ConcreteCategory.congr_hom key γ
 
 
 /-! ## Evaluation of `ω₂` through finite quotients -/

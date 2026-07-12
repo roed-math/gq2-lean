@@ -50,14 +50,9 @@ theorem finite_continuousMonoidHom
     rw [dense_iff_closure_eq, ← Subgroup.topologicalClosure_coe, hs, Subgroup.coe_top]
   refine Finite.of_injective (fun (φ : ContinuousMonoidHom P H) => fun (x : s) => φ (x : P)) ?_
   intro φ ψ hφψ
-  have heq : Set.EqOn (⇑φ.toMonoidHom) (⇑ψ.toMonoidHom) (s : Set P) := by
-    intro x hx
-    exact congrFun hφψ ⟨x, hx⟩
   have hcl : Set.EqOn (⇑φ.toMonoidHom) (⇑ψ.toMonoidHom) (↑(Subgroup.closure (s : Set P))) :=
-    MonoidHom.eqOn_closure heq
-  have hfun : (⇑φ : P → H) = ⇑ψ :=
-    Continuous.ext_on hdense φ.continuous_toFun ψ.continuous_toFun hcl
-  exact DFunLike.coe_injective hfun
+    MonoidHom.eqOn_closure fun x hx => congrFun hφψ ⟨x, hx⟩
+  exact DFunLike.coe_injective (Continuous.ext_on hdense φ.continuous_toFun ψ.continuous_toFun hcl)
 
 /-- **Profinite Hopfian property** (paper Lemma 2.5, key input): a continuous surjective
 endomorphism of a *topologically finitely generated* profinite group is injective.  Non-standard;
@@ -77,15 +72,11 @@ theorem profinite_hopfian
   obtain ⟨U, hUsub⟩ := ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one
     (U := ({x}ᶜ : Set P)) isOpen_compl_singleton
     (Set.mem_compl_singleton_iff.mpr fun h => hx1 h.symm)
-  haveI : DiscreteTopology (P ⧸ U.toSubgroup) := inferInstance
-  haveI : Finite (P ⧸ U.toSubgroup) := inferInstance
   -- The (continuous, surjective) projection `π : P ↠ P ⧸ U` onto the finite discrete quotient.
   let π : ContinuousMonoidHom P (P ⧸ U.toSubgroup) :=
     ⟨QuotientGroup.mk' U.toSubgroup, QuotientGroup.continuous_mk⟩
-  have hπx : π x ≠ 1 := by
-    intro hcontra
-    have hxmem : x ∈ U.toSubgroup := (QuotientGroup.eq_one_iff x).mp hcontra
-    exact absurd (hUsub hxmem) (by simp)
+  have hπx : π x ≠ 1 := fun hcontra =>
+    absurd (hUsub ((QuotientGroup.eq_one_iff x).mp hcontra)) (by simp)
   -- `Hom(P, P⧸U)` is finite, and precomposition by the surjection `φ` is injective on it,
   -- hence (finite pigeonhole) surjective: some `β` satisfies `β ∘ φ = π`.
   haveI : Finite (ContinuousMonoidHom P (P ⧸ U.toSubgroup)) :=
@@ -122,8 +113,6 @@ theorem contSurj_quotient_nonempty_finite
         Nat.card (ContSurj R H) ≤ Nat.card (ContSurj S H))
     (V : OpenNormalSubgroup R) :
     Nonempty (ContSurj S (R ⧸ V.toSubgroup)) ∧ Finite (ContSurj S (R ⧸ V.toSubgroup)) := by
-  haveI : Finite (R ⧸ V.toSubgroup) := inferInstance
-  haveI : DiscreteTopology (R ⧸ V.toSubgroup) := inferInstance
   -- the projection `R ↠ R ⧸ V` witnesses `ContSurj R (R ⧸ V)`
   have hproj : Nonempty (ContSurj R (R ⧸ V.toSubgroup)) :=
     ⟨⟨⟨QuotientGroup.mk' V.toSubgroup, QuotientGroup.continuous_mk⟩, QuotientGroup.mk_surjective⟩⟩
@@ -164,10 +153,7 @@ theorem projMap_surjective {U U' : Subgroup R} [U.Normal] [U'.Normal]
 
 @[simp] theorem projMap_id {U : Subgroup R} [U.Normal] [DiscreteTopology (R ⧸ U)] (hle : U ≤ U) :
     projMap hle = ContinuousMonoidHom.id (R ⧸ U) := by
-  apply ContinuousMonoidHom.ext
-  intro y
-  obtain ⟨x, rfl⟩ := QuotientGroup.mk_surjective y
-  rfl
+  exact ContinuousMonoidHom.ext fun y => QuotientGroup.induction_on y fun _ => rfl
 
 @[simp] theorem projMap_comp_apply {U U' U'' : Subgroup R} [U.Normal] [U'.Normal] [U''.Normal]
     [DiscreteTopology (R ⧸ U)] [DiscreteTopology (R ⧸ U')]
@@ -304,9 +290,7 @@ theorem exists_contSurj_of_card_le
     obtain ⟨s, hs⟩ := this
     refine ⟨s, he_inj ?_⟩
     rw [hψe]
-    refine funext fun U => ?_
-    have : σ U s = QuotientGroup.mk r := Set.mem_iInter.mp hs U
-    simpa [e, Φ, MonoidHom.pi] using this
+    exact funext fun U => by simpa [e, Φ, MonoidHom.pi] using Set.mem_iInter.mp hs U
   exact ⟨⟨⟨MonoidHom.mk' ψ hψ_hom, hψ_cont⟩, hψ_surj⟩⟩
 
 /-- **Lemma 2.5 (equinumerosity form).**  `P` is a topologically finitely generated profinite group,
@@ -331,7 +315,7 @@ theorem reconstruction_of_equinum
       Finite (ContSurj P H) := by
     intro H _ _ _ _
     haveI := finite_continuousMonoidHom hPfg H
-    exact Finite.of_injective (fun s : ContSurj P H => s.val) (fun _ _ h => Subtype.ext h)
+    exact Subtype.finite
   have hQfin : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
       Finite (ContSurj Q H) := by
     intro H _ _ _ _
@@ -348,14 +332,10 @@ theorem reconstruction_of_equinum
   obtain ⟨⟨f, hf⟩⟩ : Nonempty (ContSurj P Q) :=
     exists_contSurj_of_card_le hQfin (fun H => (hcard H).ge)
   -- The composite `P → Q → P` is a surjective endomorphism of the top. f.g. profinite `P`.
-  have hcoe : (⇑(g.comp f) : P → P) = ⇑g ∘ ⇑f := rfl
-  have hcomp : Function.Surjective (g.comp f : ContinuousMonoidHom P P) := by
-    rw [hcoe]; exact hg.comp hf
+  have hcomp : Function.Surjective (g.comp f : ContinuousMonoidHom P P) := hg.comp hf
   -- Hopfian ⇒ the composite is injective ⇒ `f` is injective; `f` is a continuous bijection.
-  have hginj : Function.Injective (⇑(g.comp f) : P → P) := profinite_hopfian hPfg _ hcomp
-  rw [hcoe] at hginj
-  have hfinj : Function.Injective (f : P → Q) := hginj.of_comp
-  exact ⟨continuousMulEquivOfBijective f ⟨hfinj, hf⟩⟩
+  have hginj : Function.Injective (⇑g ∘ ⇑f) := profinite_hopfian hPfg (g.comp f) hcomp
+  exact ⟨continuousMulEquivOfBijective f ⟨hginj.of_comp, hf⟩⟩
 
 /-- **Lemma 2.5 (one-sided profinite reconstruction).**  `P` and `Q` are topologically finitely
 generated profinite groups with the same (finite) number of continuous surjections onto every finite
@@ -383,15 +363,9 @@ theorem reconstruction
   -- both surjection sets are finite (both groups top. f.g.), so equal `Nat.card` gives an equiv
   haveI := finite_continuousMonoidHom hPfg H
   haveI := finite_continuousMonoidHom hQfg H
-  haveI : Finite (ContSurj P H) :=
-    Finite.of_injective (fun s : ContSurj P H => s.val) (fun _ _ h => Subtype.ext h)
-  haveI : Finite (ContSurj Q H) :=
-    Finite.of_injective (fun s : ContSurj Q H => s.val) (fun _ _ h => Subtype.ext h)
-  haveI := Fintype.ofFinite (ContSurj P H)
-  haveI := Fintype.ofFinite (ContSurj Q H)
-  refine Fintype.card_eq.mp ?_
-  rw [← Nat.card_eq_fintype_card, ← Nat.card_eq_fintype_card]
-  exact hcount H
+  haveI : Finite (ContSurj P H) := Subtype.finite
+  haveI : Finite (ContSurj Q H) := Subtype.finite
+  exact Finite.card_eq.mp (hcount H)
 
 /-- **Finite core of the reconstruction lemma.**  For *finite* groups, having the same number of
 surjections onto every finite group forces an isomorphism.  This is the counting heart of
@@ -405,8 +379,6 @@ theorem reconstruction_finite {P Q : Type} [Group P] [Group Q] [Finite P] [Finit
     Nonempty (P ≃* Q) := by
   classical
   haveI : Finite (P →* P) := Finite.of_injective _ DFunLike.coe_injective
-  haveI : Finite (Q →* P) := Finite.of_injective _ DFunLike.coe_injective
-  haveI : Finite (P →* Q) := Finite.of_injective _ DFunLike.coe_injective
   haveI : Finite (Q →* Q) := Finite.of_injective _ DFunLike.coe_injective
   -- A surjection `Q ↠ P` exists, since `|Sur(Q,P)| = |Sur(P,P)| ≥ 1` (identity).
   have hposP : 0 < Nat.card {f : P →* P // Function.Surjective f} :=

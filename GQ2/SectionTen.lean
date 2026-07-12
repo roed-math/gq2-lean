@@ -118,11 +118,7 @@ form consumed by the t.f.g.-hom-finiteness machinery.  [P-18c] -/
 theorem ttame_tfg :
     ∃ s : Finset Ttame, (Subgroup.closure (s : Set Ttame)).topologicalClosure = ⊤ := by
   classical
-  refine ⟨{tameSigma, tameTau}, ?_⟩
-  have hcoe : (({tameSigma, tameTau} : Finset Ttame) : Set Ttame) = {tameSigma, tameTau} := by
-    simp
-  rw [hcoe]
-  exact SectionThree.topGen_ttame
+  exact ⟨{tameSigma, tameTau}, by simpa using SectionThree.topGen_ttame⟩
 
 /-- **The tame-frame index is finite** (so Lemma 10.1's sum is a finite sum): continuous
 homomorphisms from the topologically `2`-generated `Ttame` into the finite discrete `G/O₂(G)`
