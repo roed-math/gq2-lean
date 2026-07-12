@@ -81,8 +81,7 @@ noncomputable def cover : CentralCover Base where
       have hx2 : x = r 0 ∨ x = r 2 := by
         revert hx; rw [MonoidHom.mem_ker]; revert x; decide
       rcases hx2 with rfl | rfl
-      · exact one_mem _
-      · exact Subgroup.mem_zpowers _
+      exacts [one_mem _, Subgroup.mem_zpowers _]
     · rw [Subgroup.zpowers_le, MonoidHom.mem_ker]; decide
 
 /-- Squares of cover elements over `M` land in `⟨z⟩` — here trivially `= 1`, since `q ≡ 0`
@@ -158,13 +157,10 @@ theorem qmark_admissible : qmark.Admissible := by
     show Subgroup.closure {qmark.σ, qmark.τ, qmark.x₀, qmark.x₁} = ⊤
     rw [eq_top_iff]; intro x _
     obtain ⟨b, rfl⟩ := QuotientGroup.mk_surjective x
-    have hσ : qmark.σ ∈ Subgroup.closure {qmark.σ, qmark.τ, qmark.x₀, qmark.x₁} :=
-      Subgroup.subset_closure (by left; rfl)
     rcases quotient_cases b with h | h
     · rw [h]; exact one_mem _
-    · rw [h]; exact hσ
+    · rw [h]; exact Subgroup.subset_closure (by left; rfl)
   · -- TameRel: `τ = 1`
-    show conjP qmark.τ qmark.σ = qmark.τ ^ 2
     show conjP (1 : Base ⧸ Mlayer) (QuotientGroup.mk (r 1)) = (1 : Base ⧸ Mlayer) ^ 2
     rw [conjP, mul_one, inv_mul_cancel, one_pow]
   · -- WildRel: trivial wild generators

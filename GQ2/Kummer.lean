@@ -83,11 +83,8 @@ omit [CharZero K] in
 
 /-- A square root of a **unit** is not its own negative (characteristic `≠ 2`). -/
 lemma alpha_ne_neg {a : Kˣ} (hα : α ^ 2 = algebraMap K (AlgebraicClosure K) (a : K)) : α ≠ -α := by
-  have hα0 : α ≠ 0 := by
-    intro h0
-    apply a.ne_zero
-    have h1 : algebraMap K (AlgebraicClosure K) (a : K) = 0 := by rw [← hα, h0]; ring
-    exact (FaithfulSMul.algebraMap_eq_zero_iff K (AlgebraicClosure K)).1 h1
+  have hα0 : α ≠ 0 := fun h0 =>
+    a.ne_zero <| (FaithfulSMul.algebraMap_eq_zero_iff K (AlgebraicClosure K)).1 (by rw [← hα, h0]; ring)
   intro h
   have h2 : (2 : AlgebraicClosure K) * α = 0 := by linear_combination h
   rcases mul_eq_zero.1 h2 with h' | h'
@@ -107,9 +104,7 @@ lemma two_values {a : Kˣ} (hα : α ^ 2 = algebraMap K (AlgebraicClosure K) (a 
   have key : (g • α) ^ 2 = α ^ 2 := by
     rw [AlgEquiv.smul_def, ← map_pow, hα, AlgEquiv.commutes]
   have hfac : (g • α - α) * (g • α + α) = 0 := by linear_combination key
-  rcases mul_eq_zero.1 hfac with h | h
-  · exact Or.inl (sub_eq_zero.1 h)
-  · exact Or.inr (add_eq_zero_iff_eq_neg.1 h)
+  exact (mul_eq_zero.1 hfac).imp sub_eq_zero.1 add_eq_zero_iff_eq_neg.1
 
 omit [CharZero K] in
 /-- Changing the square root by a sign leaves the cocycle unchanged. -/
@@ -213,10 +208,7 @@ theorem kummerClass_eq_zero_iff (a : Kˣ) : kummerClass a = 0 ↔ IsSquare a := 
     rw [funext_iff]
     refine forall_congr' (fun g => ?_)
     show kummerCocycleFun (sqrtOf a) g = 0 ↔ _
-    simp only [kummerCocycleFun]
-    constructor
-    · intro hgg; by_contra hne; rw [if_neg hne] at hgg; exact one_ne_zero hgg
-    · intro hgg; rw [if_pos hgg]
+    simp [kummerCocycleFun, ite_eq_left_iff]
   rw [hfix]
   -- `∀ g, g • √a = √a` ↔ `√a ∈ range (algebraMap k k̄)` ↔ `IsSquare a`.
   have hrange : (∀ g : GaloisGroup K, g • sqrtOf a = sqrtOf a)

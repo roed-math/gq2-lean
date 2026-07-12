@@ -70,8 +70,7 @@ theorem irreducible_operator_pow_card_sub_one (m : ℕ)
     rw [map_sub, map_one, map_pow, AdjoinRoot.mk_X, hroot_pow, sub_self]
   obtain ⟨g, hg⟩ := hdvd
   have haev : Polynomial.aeval T (X ^ (2 ^ (2 * m) - 1) - 1 : (ZMod 2)[X]) = 0 := by
-    rw [hg, map_mul, show Polynomial.aeval T f = 0 from by rw [hf]; exact minpoly.aeval (ZMod 2) T,
-      zero_mul]
+    rw [hg, map_mul, show Polynomial.aeval T f = 0 from minpoly.aeval (ZMod 2) T, zero_mul]
   rw [map_sub, map_pow, aeval_X, map_one] at haev
   exact sub_eq_zero.mp haev
 
@@ -152,9 +151,7 @@ theorem arf_eq_s_ramified (T : G) (hTgen : ∀ g : G, g ∈ Subgroup.zpowers T)
     · intro h
       apply hWfaith
       intro w
-      have := congrFun (congrArg (fun (f : Module.End (ZMod 2) W) => (f : W → W)) h) w
-      rw [hTWpowapp] at this
-      simpa using this
+      simpa [hTWpowapp] using DFunLike.congr_fun h w
     · intro h
       ext w
       rw [Module.End.one_apply, hTWpowapp, h, one_smul]

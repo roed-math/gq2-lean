@@ -49,7 +49,7 @@ instance : TopologicalSpace (PermMod U) := ⊥
 instance : DiscreteTopology (PermMod U) := ⟨rfl⟩
 instance [Finite (AbsGalQ2 ⧸ U)] : Finite (PermMod U) :=
   inferInstanceAs (Finite ((AbsGalQ2 ⧸ U) → ZMod 2))
-instance : IsTopologicalAddGroup (PermMod U) := by infer_instance
+instance : IsTopologicalAddGroup (PermMod U) := inferInstance
 
 noncomputable instance : SMul AbsGalQ2 (PermMod U) :=
   ⟨fun g f => (fun x => (f : (AbsGalQ2 ⧸ U) → ZMod 2) (g⁻¹ • x))⟩
@@ -70,12 +70,7 @@ noncomputable instance : DistribMulAction AbsGalQ2 (PermMod U) where
 theorem continuous_orbit (x : AbsGalQ2 ⧸ U) :
     Continuous (fun g : AbsGalQ2 => g • x) := by
   induction x using QuotientGroup.induction_on with
-  | H a =>
-    have h : (fun g : AbsGalQ2 => g • (QuotientGroup.mk a : AbsGalQ2 ⧸ U))
-        = fun g => (QuotientGroup.mk (g * a) : AbsGalQ2 ⧸ U) := by
-      funext g; rfl
-    rw [h]
-    exact continuous_quotient_mk'.comp (continuous_mul_const a)
+  | H a => exact continuous_quotient_mk'.comp (continuous_mul_const a)
 
 /-- For fixed `f`, the map `g ↦ g • f` into the discrete module is continuous. -/
 theorem continuous_smul_left (hU : IsOpen (U : Set AbsGalQ2)) [Finite (AbsGalQ2 ⧸ U)]
@@ -114,17 +109,14 @@ theorem smul_base_of_mem {v : AbsGalQ2} (hv : v ∈ U) : v • (basePt U) = base
 noncomputable def ev (U : Subgroup AbsGalQ2) : PermMod U →+ ZMod 2 where
   toFun f := (f : (AbsGalQ2 ⧸ U) → ZMod 2) (basePt U)
   map_zero' := rfl
-  map_add' f₁ f₂ := rfl
+  map_add' _ _ := rfl
 
 theorem ev_continuous : Continuous (ev U) := continuous_of_discreteTopology
 
 /-- `ev` intertwines the `U`-actions (both trivial on the base value). -/
 theorem ev_compat (u : U) (n : PermMod U) : ev U (u • n) = u • ev U n := by
-  have htriv : u • ev U n = ev U n := rfl
-  rw [htriv]
-  have h1 : (u • n : PermMod U) = (↑u : AbsGalQ2) • n := rfl
-  show (((u • n : PermMod U)) : (AbsGalQ2 ⧸ U) → ZMod 2) (basePt U) = ev U n
-  rw [h1, smul_apply, smul_base_of_mem (U.inv_mem u.2)]
+  show (((u : AbsGalQ2) • n : PermMod U) : (AbsGalQ2 ⧸ U) → ZMod 2) (basePt U) = ev U n
+  rw [smul_apply, smul_base_of_mem (U.inv_mem u.2)]
   rfl
 
 /-- **The Shapiro map** `θ : H¹(G, 𝔽₂[G/U]) → H¹(U, 𝔽₂)`: restrict to `U`, then evaluate at
@@ -219,9 +211,8 @@ theorem sigmaFun_mem (c : Z1 U (ZMod 2)) (hU : IsOpen (U : Set AbsGalQ2))
   rw [mem_Z1_iff]
   refine ⟨sigmaFun_continuous c hU, fun g₁ g₂ => ?_⟩
   funext x
-  have hcyc := (mem_Z1_iff.mp c.2).2
   show c.1 (wElt (g₁ * g₂) x) = (sigmaFun c g₁ + g₁ • sigmaFun c g₂) x
-  rw [PermMod.add_apply, PermMod.smul_apply, wElt_mul, hcyc]
+  rw [PermMod.add_apply, PermMod.smul_apply, wElt_mul, (mem_Z1_iff.mp c.2).2]
   show c.1 (wElt g₂ (g₁⁻¹ • x)) + _ • c.1 (wElt g₁ x)
       = c.1 (wElt g₁ x) + c.1 (wElt g₂ (g₁⁻¹ • x))
   rw [show (wElt g₂ (g₁⁻¹ • x) : U) • c.1 (wElt g₁ x) = c.1 (wElt g₁ x) from rfl, add_comm]
@@ -238,10 +229,7 @@ theorem sigma_eval (c : Z1 U (ZMod 2)) (u : U) :
     simp only [sect_base]
     group
   rw [hw, Z1_apply_inv c u]
-  have htriv : (u⁻¹ : U) • c.1 u = c.1 u := rfl
-  rw [htriv]
-  have hneg : ∀ y : ZMod 2, -y = y := by decide
-  exact hneg _
+  exact CharTwo.neg_eq _
 
 /-- **Shapiro surjectivity.** -/
 theorem theta_surjective (hU : IsOpen (U : Set AbsGalQ2)) [Finite (AbsGalQ2 ⧸ U)] :
@@ -255,7 +243,6 @@ theorem theta_surjective (hU : IsOpen (U : Set AbsGalQ2)) [Finite (AbsGalQ2 ⧸ 
   congr 1
   apply Subtype.ext
   funext u
-  show c.1 (wElt (↑u) (basePt U)) = c.1 u
   exact sigma_eval c u
 
 end PermMod

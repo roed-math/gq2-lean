@@ -95,9 +95,7 @@ theorem admissible_of_NA_le_ker {G : Type} [Group G] [TopologicalSpace G] [Discr
   haveI : Finite (FreeProfiniteGroup (Fin 4) ⧸ f.toMonoidHom.ker) :=
     Finite.of_equiv G e.symm.toEquiv
   have hpush : univMarking.map f.toMonoidHom
-      = (univMarking.map (QuotientGroup.mk' f.toMonoidHom.ker)).map e.toMonoidHom := by
-    rw [Marking.map_map]
-    rfl
+      = (univMarking.map (QuotientGroup.mk' f.toMonoidHom.ker)).map e.toMonoidHom := rfl
   rw [IsAdmissibleU] at hadmU
   rw [hpush]
   exact Marking.map_admissible e.toMonoidHom e.surjective _ hadmU
@@ -118,8 +116,7 @@ Prop 2.3). -/
 theorem Marking.push_admissible
     (φ : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4) ⧸ NA) G)
     (hφ : Function.Surjective φ) : (Marking.push φ).Admissible := by
-  refine admissible_of_NA_le_ker _ (hφ.comp (quotientMk_surjective NA)) ?_
-  intro x hx
+  refine admissible_of_NA_le_ker _ (hφ.comp (quotientMk_surjective NA)) fun x hx => ?_
   rw [MonoidHom.mem_ker]
   show φ (quotientMk NA x) = 1
   rw [(quotientMk_eq_one_iff NA).mpr hx, map_one]
@@ -133,8 +130,7 @@ noncomputable def Marking.classify (t : Marking G) :
 lemma Marking.classify_ker (t : Marking G) (ht : t.Admissible) :
     NA ≤ (Marking.classify t).toMonoidHom.ker := by
   refine NA_le_ker _ ?_
-  rw [Marking.classify, univMarking_map_toHom]
-  exact ht
+  rwa [Marking.classify, univMarking_map_toHom]
 
 /-- The descended hom `Γ_A → G` of an admissible marking (backward direction of Prop 2.3). -/
 noncomputable def Marking.descend (t : Marking G) (ht : t.Admissible) :
@@ -159,9 +155,7 @@ theorem Marking.descend_surjective (t : Marking G) (ht : t.Admissible) :
 theorem Marking.push_descend (t : Marking G) (ht : t.Admissible) :
     Marking.push (Marking.descend t ht) = t := by
   have hcomp : ((Marking.descend t ht).comp (quotientMk NA)).toMonoidHom
-      = (Marking.classify t).toMonoidHom := by
-    ext x
-    rfl
+      = (Marking.classify t).toMonoidHom := rfl
   rw [Marking.push, hcomp, Marking.classify, univMarking_map_toHom]
 
 /-- Descending the pushed marking recovers the surjection (round-trip 2, via the uniqueness
@@ -173,9 +167,7 @@ theorem Marking.descend_push
   ext y
   obtain ⟨x, rfl⟩ := quotientMk_surjective NA y
   rw [Marking.descend_quotientMk]
-  have h : Marking.classify (Marking.push φ) = φ.comp (quotientMk NA) :=
-    Marking.toHom_hom_univMarking_map (φ.comp (quotientMk NA))
-  exact DFunLike.congr_fun h x
+  exact DFunLike.congr_fun (Marking.toHom_hom_univMarking_map (φ.comp (quotientMk NA))) x
 
 end Bijection
 

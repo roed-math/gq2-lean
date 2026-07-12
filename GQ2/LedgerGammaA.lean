@@ -39,9 +39,8 @@ noncomputable def pairHom (w : Z1 GA (Additive ↥D.T)) (φf : Z1 GA (ElemDual (
   wordHom ρ (fun γ a => Prod.ext (by rw [Prod.smul_fst, Prod.smul_fst]; exact hcompat γ a.1)
       (by rw [Prod.smul_snd, Prod.smul_snd]; exact hcompatD γ a.2))
     ⟨fun γ => (w.1 γ, φf.1 γ),
-      mem_Z1_iff.mpr ⟨((mem_Z1_iff.mp w.2).1).prodMk ((mem_Z1_iff.mp φf.2).1), fun γ δ => by
-        rw [Prod.ext_iff]
-        exact ⟨(mem_Z1_iff.mp w.2).2 γ δ, (mem_Z1_iff.mp φf.2).2 γ δ⟩⟩⟩
+      mem_Z1_iff.mpr ⟨((mem_Z1_iff.mp w.2).1).prodMk ((mem_Z1_iff.mp φf.2).1), fun γ δ =>
+        Prod.ext ((mem_Z1_iff.mp w.2).2 γ δ) ((mem_Z1_iff.mp φf.2).2 γ δ)⟩⟩
 
 omit [ContinuousSMul GA (Additive ↥D.T)] [ContinuousSMul GA (ElemDual (Additive ↥D.T))] in
 include hcompat hcompatD in
@@ -105,11 +104,6 @@ theorem exists_phiF (hρ : Function.Surjective ρ) (hedge : D.NoDescent) :
   have hsmulD : ∀ (γ : GA) (l : ElemDual (Additive ↥D.T)) (a : Additive ↥D.T),
       (γ • l) a = l (γ⁻¹ • a) := by
     intro γ l a; rw [hcompatD, ElemDual.smul_apply, hcompat γ⁻¹ a, map_inv]
-  have hA₂ : ∀ a : Additive ↥D.T, a + a = 0 := fun a =>
-    Additive.toMul.injective (Subtype.ext (D.helem _ (D.hTM (Additive.toMul a).2)))
-  have hA₂D : ∀ l : ElemDual (Additive ↥D.T), l + l = 0 := fun l => by
-    ext a; simp only [ElemDual.add_apply, ElemDual.zero_apply]
-    exact CharTwo.add_self_eq_zero (l a)
   have hactGA : ∀ (γ : GA) (s : Additive ↥D.T),
       Additive.toMul (γ • s) = cactFun D (ρ γ) (Additive.toMul s) := by
     intro γ s; rw [hcompat]; exact cActT_toMul D (ρ γ) s
@@ -224,8 +218,7 @@ theorem exists_phiF (hρ : Function.Surjective ρ) (hedge : D.NoDescent) :
       have hz := hcrossZ γ δ s
       show (φf (γ * δ)) s = (φf γ + γ • φf δ) s
       rw [ElemDual.add_apply, hsmulD]
-      simp only [hφapp]
-      exact hz
+      simpa only [hφapp] using hz
   refine ⟨⟨φf, hφZ1⟩, fun _ _ => rfl, ?_⟩
   intro h0
   have hmem : φf ∈ B1 GA (ElemDual (Additive ↥D.T)) := by
@@ -265,8 +258,7 @@ theorem exists_phiF (hρ : Function.Surjective ρ) (hedge : D.NoDescent) :
   show edge D S b t
     = lam (Additive.ofMul (⟨b * t.1 * b⁻¹, conj_mem_T D b t⟩ : ↥D.T)) + lam (Additive.ofMul t)
   rw [hbt, ← hval]
-  have harith : ∀ a e : ZMod 2, a - e = e + a := by decide
-  exact harith _ _
+  exact (by decide : ∀ a e : ZMod 2, a - e = e + a) _ _
 
 end LedgerGammaA
 

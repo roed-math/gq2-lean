@@ -80,8 +80,7 @@ theorem regular_isometric_embedding {C : Type} [Group C] [TopologicalSpace C] [F
   have hιsmul : ∀ (h : C) (v : V), ι (h • v) = h • ι v := by
     intro h v
     funext n x
-    rw [hι h v n x]
-    rfl
+    exact hι h v n x
   have hrsmul : ∀ (h : C) (F : PermW C N), r (h • F) = h • r F := by
     intro h F
     show r (fun n x => F n (h⁻¹ * x)) = h • r F
@@ -93,18 +92,12 @@ theorem regular_isometric_embedding {C : Type} [Group C] [TopologicalSpace C] [F
     · show q (r 0) = 0
       rw [map_zero, hq.map_zero]
     · intro a b d
-      show polar _ _ _ = polar _ _ _ + polar _ _ _
-      simp only [hqW, polar, map_add]
-      exact hq.polar_add_left (r a) (r b) (r d)
+      simpa only [hqW, polar, map_add] using hq.polar_add_left (r a) (r b) (r d)
     · intro a b d
-      show polar _ _ _ = polar _ _ _ + polar _ _ _
-      simp only [hqW, polar, map_add]
-      exact hq.polar_add_right (r a) (r b) (r d)
+      simpa only [hqW, polar, map_add] using hq.polar_add_right (r a) (r b) (r d)
   have hqWinv : IsInvariant C qW := by
     intro cc F
-    simp only [hqW]
-    rw [hrsmul cc F]
-    exact hinv cc (r F)
+    simpa only [hqW, hrsmul] using hinv cc (r F)
   obtain ⟨datW, hdatW⟩ := exists_datum_of_invariant_quadratic qW hqWquad hqWinv
   rw [hqW] at hdatW
   exact ⟨N, ι, r, datW, hdatW, fun v => by rw [hri v], hιsmul, hrsmul, hri⟩
@@ -204,13 +197,9 @@ theorem regular_isometric_embedding_orbit
     · show q (r 0) = 0
       rw [map_zero, hq.map_zero]
     · intro A B D
-      show polar _ _ _ = polar _ _ _ + polar _ _ _
-      simp only [polar, map_add]
-      exact hq.polar_add_left (r A) (r B) (r D)
+      simpa only [polar, map_add] using hq.polar_add_left (r A) (r B) (r D)
     · intro A B D
-      show polar _ _ _ = polar _ _ _ + polar _ _ _
-      simp only [polar, map_add]
-      exact hq.polar_add_right (r A) (r B) (r D)
+      simpa only [polar, map_add] using hq.polar_add_right (r A) (r B) (r D)
   refine ⟨K, ι, r, isEquivariantFactorSet_orbitSumDatum N hqWquad hqWinv, ?_, ?_, hretr⟩
   · intro v; rw [hretr v]
   · intro a v

@@ -54,17 +54,13 @@ theorem coatom_index_of_pGroup (hQ : IsPGroup p Q) {M : Subgroup Q} (hM : IsCoat
   haveI hMn : M.Normal := coatom_normal_of_pGroup hQ hM
   have hT : IsPGroup p (Q ⧸ M) := hQ.to_quotient M
   -- the quotient is nontrivial …
-  haveI : Nontrivial (Q ⧸ M) := by
-    obtain ⟨x, -, hx⟩ := SetLike.exists_of_lt (Ne.lt_top hM.1)
-    exact nontrivial_of_ne (QuotientGroup.mk x) 1
-      (fun hone => hx ((QuotientGroup.eq_one_iff x).mp hone))
+  haveI : Nontrivial (Q ⧸ M) := QuotientGroup.nontrivial_iff.mpr hM.1
   -- … and simple (subgroup correspondence + maximality)
   haveI : IsSimpleGroup (Q ⧸ M) := by
     constructor
     intro N hN
     have hle : M ≤ N.comap (QuotientGroup.mk' M) := fun m hm => by
-      have : QuotientGroup.mk' M m = 1 := (QuotientGroup.eq_one_iff m).mpr hm
-      simp [Subgroup.mem_comap, this]
+      simp [Subgroup.mem_comap, (QuotientGroup.eq_one_iff m).mpr hm]
     rcases eq_or_lt_of_le hle with heq | hlt
     · left
       rw [← Subgroup.map_comap_eq_self_of_surjective (QuotientGroup.mk'_surjective M) N, ← heq,
@@ -87,18 +83,8 @@ theorem coatom_index_of_pGroup (hQ : IsPGroup p Q) {M : Subgroup Q} (hM : IsCoat
   -- … hence of prime order, and the prime is `p`
   have hprime : (Nat.card (Q ⧸ M)).Prime := IsSimpleGroup.prime_card
   obtain ⟨k, hk⟩ := (IsPGroup.iff_card).mp hT
-  rw [Subgroup.index_eq_card, hk]
   rw [hk] at hprime
-  have hk1 : k = 1 := by
-    cases k with
-    | zero => exact absurd (by simpa using hprime) Nat.not_prime_one
-    | succ j =>
-      rcases hprime.eq_one_or_self_of_dvd p (dvd_pow_self p (Nat.succ_ne_zero j)) with h1 | hself
-      · exact absurd h1 (Fact.out (p := p.Prime)).ne_one
-      · have hpow : p ^ 1 = p ^ (j + 1) := by rw [pow_one]; exact hself
-        have := Nat.pow_right_injective (Fact.out (p := p.Prime)).two_le hpow
-        omega
-  rw [hk1, pow_one]
+  rw [Subgroup.index_eq_card, hk, hprime.eq_one_of_pow, pow_one]
 
 end FrattiniFinite
 
@@ -118,17 +104,13 @@ lemma eq_top_of_forall_map_eq_top {H : Subgroup K} (hHc : IsClosed (H : Set K))
   have hx : x ∈ closure (H : Set K) := by
     rw [mem_closure_iff]
     intro O hO hxO
-    have hO' : IsOpen ((x * ·) ⁻¹' O) := hO.preimage (continuous_const_mul x)
-    have h1O' : (1 : K) ∈ (x * ·) ⁻¹' O := by simpa using hxO
-    obtain ⟨U, hU⟩ := ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one hO' h1O'
-    have hmem : QuotientGroup.mk' U.toSubgroup x ∈ H.map (QuotientGroup.mk' U.toSubgroup) := by
-      rw [h U]
-      exact Subgroup.mem_top _
+    obtain ⟨U, hU⟩ := ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one
+      (hO.preimage (continuous_const_mul x)) (by simpa using hxO)
+    have hmem : QuotientGroup.mk' U.toSubgroup x ∈ H.map (QuotientGroup.mk' U.toSubgroup) :=
+      (h U).ge (Subgroup.mem_top _)
     obtain ⟨h₀, hh₀H, hh₀x⟩ := hmem
-    have hU' : x⁻¹ * h₀ ∈ U.toSubgroup := QuotientGroup.eq.mp hh₀x.symm
     refine ⟨h₀, ?_, hh₀H⟩
-    have hmemO := hU hU'
-    simpa [mul_inv_cancel_left] using hmemO
+    simpa [mul_inv_cancel_left] using hU (QuotientGroup.eq.mp hh₀x.symm)
   rwa [hHc.closure_eq] at hx
 
 /-- **The pro-`p` Frattini criterion, subgroup form**: a closed subgroup of a pro-`p` group
@@ -152,8 +134,7 @@ theorem eq_top_of_forall_not_le_index_p (hK : IsProP p K) {H : Subgroup K}
   haveI hMbarN : Mbar.Normal := coatom_normal_of_pGroup hpg hMbar
   -- pull the maximal subgroup back to an open normal subgroup of `K` of index `p`
   have hUle : U.toSubgroup ≤ Mbar.comap (QuotientGroup.mk' U.toSubgroup) := fun u hu => by
-    have : QuotientGroup.mk' U.toSubgroup u = 1 := (QuotientGroup.eq_one_iff u).mpr hu
-    simp [Subgroup.mem_comap, this]
+    simp [Subgroup.mem_comap, (QuotientGroup.eq_one_iff u).mpr hu]
   have hMopen : IsOpen ((Mbar.comap (QuotientGroup.mk' U.toSubgroup)) : Set K) :=
     Subgroup.isOpen_mono hUle U.isOpen'
   haveI hMnormal : (Mbar.comap (QuotientGroup.mk' U.toSubgroup)).Normal :=
@@ -176,12 +157,9 @@ theorem surjective_of_forall_not_le_index_p [T2Space K]
       ¬ f.toMonoidHom.range ≤ M.toSubgroup) :
     Function.Surjective f := by
   have hclosed : IsClosed ((f.toMonoidHom.range : Subgroup K) : Set K) := by
-    have hset : ((f.toMonoidHom.range : Subgroup K) : Set K) = Set.range f :=
-      MonoidHom.coe_range f.toMonoidHom
-    rw [hset]
+    rw [MonoidHom.coe_range f.toMonoidHom]
     exact (isCompact_range f.continuous_toFun).isClosed
-  have htop := eq_top_of_forall_not_le_index_p hK hclosed h
-  exact MonoidHom.range_eq_top.mp htop
+  exact MonoidHom.range_eq_top.mp (eq_top_of_forall_not_le_index_p hK hclosed h)
 
 /-- Convenience form: it suffices that the composite to **every** index-`p` quotient is
 surjective (the check P-08's legs perform on the marked generators). -/
@@ -199,10 +177,8 @@ theorem surjective_of_forall_index_p_quotient_surjective [T2Space K]
     exact (Fact.out (p := p.Prime)).one_lt
   obtain ⟨t, ht⟩ := exists_ne (1 : K ⧸ M.toSubgroup)
   obtain ⟨g, hg⟩ := h M hM t
-  have hone : QuotientGroup.mk' M.toSubgroup (f g) = 1 :=
-    (QuotientGroup.eq_one_iff _).mpr (hle ⟨g, rfl⟩)
   rw [Function.comp_apply] at hg
-  exact ht (hg.symm.trans hone)
+  exact ht (hg.symm.trans ((QuotientGroup.eq_one_iff _).mpr (hle ⟨g, rfl⟩)))
 
 end FrattiniProfinite
 

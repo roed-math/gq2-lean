@@ -47,16 +47,10 @@ theorem exists_int_triple {A B : ℤ_[2]} (h : IsHilbertSolvable (A : ℚ_[2]) (
     exact nonZeroDivisors.coe_ne_zero b
   have key : ∀ (w : ℚ_[2]) (w' : ℤ_[2]), algebraMap ℤ_[2] ℚ_[2] w' = c * w → w ≠ 0 → w' ≠ 0 := by
     intro w w' hw hwne hw'0
-    apply hwne
-    have hcw : c * w = 0 := by rw [← hw, hw'0, map_zero]
-    rcases mul_eq_zero.mp hcw with hcc | hww
-    · exact absurd hcc hcne
-    · exact hww
+    refine hwne ((mul_eq_zero.mp ?_).resolve_left hcne)
+    rw [← hw, hw'0, map_zero]
   refine ⟨x', y', z', ?_, ?_⟩
-  · rcases hne with hh | hh | hh
-    · exact Or.inl (key x x' hx' hh)
-    · exact Or.inr (Or.inl (key y y' hy' hh))
-    · exact Or.inr (Or.inr (key z z' hz' hh))
+  · exact hne.imp (key x x' hx') (Or.imp (key y y' hy') (key z z' hz'))
   · apply IsFractionRing.injective ℤ_[2] ℚ_[2]
     have heq' : algebraMap ℤ_[2] ℚ_[2] A * x ^ 2 + algebraMap ℤ_[2] ℚ_[2] B * y ^ 2 = z ^ 2 := heq
     rw [map_add, map_mul, map_mul, map_pow, map_pow, map_pow, hx', hy', hz']
@@ -133,12 +127,9 @@ theorem not_isHilbertSolvable_of_mod (A B : ℤ_[2]) (k : ℕ)
   intro hsolv
   obtain ⟨x, y, z, hprim, heq⟩ := exists_primitive_triple (exists_int_triple hsolv)
   refine hk (PadicInt.toZModPow k x) (PadicInt.toZModPow k y) (PadicInt.toZModPow k z) ?_ ?_
-  · rcases hprim with hh | hh | hh
-    · exact Or.inl (hh.map (PadicInt.toZModPow k))
-    · exact Or.inr (Or.inl (hh.map (PadicInt.toZModPow k)))
-    · exact Or.inr (Or.inr (hh.map (PadicInt.toZModPow k)))
-  · have hc := congrArg (PadicInt.toZModPow k) heq
-    simpa only [map_add, map_mul, map_pow] using hc
+  · exact hprim.imp (·.map (PadicInt.toZModPow k))
+      (Or.imp (·.map (PadicInt.toZModPow k)) (·.map (PadicInt.toZModPow k)))
+  · simpa only [map_add, map_mul, map_pow] using congrArg (PadicInt.toZModPow k) heq
 
 /-! ## The two `−1`-leaf families
 

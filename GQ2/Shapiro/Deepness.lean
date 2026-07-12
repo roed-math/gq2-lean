@@ -39,7 +39,7 @@ variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
 `H²ofFun`.  The shared tail of both `hvanish` cases. -/
 theorem H2ofFun_eq_zero_of_H2mk {φ : G × G → ZMod 2} (hZ2 : φ ∈ Z2 G (ZMod 2))
     (h0 : H2mk G (ZMod 2) ⟨φ, hZ2⟩ = 0) : H2ofFun G φ = 0 := by
-  rw [H2ofFun_of_mem hZ2]; exact h0
+  rwa [H2ofFun_of_mem hZ2]
 
 /-- **The deep-class cup vanishing** (P-15f2c, the square/free `hvanish` core): if two scalar
 cocycles `a, b` over `k.fixingSubgroup` have **deep** classes, their cup 2-cochain
@@ -57,8 +57,7 @@ theorem hvanish_cup (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
   have hZ2 : cup11Fun AddMonoidHom.mul a.1 b.1 ∈ Z2 k.fixingSubgroup (ZMod 2) :=
     cup11_mem_Z2 AddMonoidHom.mul (fun g m n => by rw [htriv, htriv, htriv]) a b
   -- eq.-(94): the deep classes cup to zero; `trivialCupPairing = cup11 = H2mk ⟨cup11Fun⟩`
-  refine H2ofFun_eq_zero_of_H2mk hZ2 ?_
-  exact cup_deepClasses k htriv ha hb
+  exact H2ofFun_eq_zero_of_H2mk hZ2 (cup_deepClasses k htriv ha hb)
 
 /-- **The involution `hvanish` cochain bridge** (P-15f2c): the Evens-norm class `evensNormH2`
 being zero (its content is `lemma_6_16`, for a **deep** scalar coordinate) gives the required

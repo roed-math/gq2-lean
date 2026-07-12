@@ -119,34 +119,18 @@ variable {A : Type*} [AddCommGroup A] [Finite A]
 the quotient is nontrivial). -/
 theorem card_lt_of_ne_top (W : AddSubgroup A) (hWtop : W ≠ ⊤) :
     Nat.card ↥W < Nat.card A := by
-  have hlag : Nat.card A = Nat.card (A ⧸ W) * Nat.card ↥W :=
-    AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup W
-  -- the quotient is nontrivial: some `a ∉ W`
   obtain ⟨a, ha⟩ : ∃ a : A, a ∉ W := by
     by_contra h
     push Not at h
     exact hWtop (eq_top_iff.mpr fun a _ => h a)
-  haveI : Nontrivial (A ⧸ W) := by
-    refine ⟨QuotientAddGroup.mk a, 0, ?_⟩
-    rw [Ne, QuotientAddGroup.eq_zero_iff]
-    exact ha
-  have h2 : 2 ≤ Nat.card (A ⧸ W) := Finite.one_lt_card_iff_nontrivial.mpr inferInstance
-  have hpos : 0 < Nat.card ↥W := Nat.card_pos
-  calc Nat.card ↥W < 2 * Nat.card ↥W := by omega
-    _ ≤ Nat.card (A ⧸ W) * Nat.card ↥W := Nat.mul_le_mul_right _ h2
-    _ = Nat.card A := hlag.symm
+  exact Finite.card_subtype_lt ha
 
 /-- The quotient by a nonzero additive subgroup has strictly smaller cardinality. -/
 theorem card_quot_lt_of_ne_bot (W : AddSubgroup A) (hWbot : W ≠ ⊥) :
     Nat.card (A ⧸ W) < Nat.card A := by
   have hlag : Nat.card A = Nat.card (A ⧸ W) * Nat.card ↥W :=
     AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup W
-  -- `W` is nontrivial: some `0 ≠ w ∈ W`
-  obtain ⟨w, hwW, hw0⟩ : ∃ w : A, w ∈ W ∧ w ≠ 0 := by
-    by_contra h
-    push Not at h
-    exact hWbot ((AddSubgroup.eq_bot_iff_forall W).mpr h)
-  haveI : Nontrivial ↥W := ⟨⟨w, hwW⟩, 0, by simp [hw0]⟩
+  haveI : Nontrivial ↥W := (AddSubgroup.nontrivial_iff_ne_bot W).mpr hWbot
   have h2 : 2 ≤ Nat.card ↥W := Finite.one_lt_card_iff_nontrivial.mpr inferInstance
   have hpos : 0 < Nat.card (A ⧸ W) := Nat.card_pos
   calc Nat.card (A ⧸ W) < Nat.card (A ⧸ W) * 2 := by omega
