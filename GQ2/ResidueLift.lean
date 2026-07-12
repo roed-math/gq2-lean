@@ -46,8 +46,7 @@ local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 theorem exists_nthRoot_near (y : ℚ̄₂) (m : ℕ) (hm : 1 ≤ m) (h : ‖y ^ m - 1‖ < 1) :
     ∃ ζ : ℚ̄₂, ζ ^ m = 1 ∧ ‖y - ζ‖ < 1 := by
   classical
-  by_contra hcon
-  push_neg at hcon
+  by_contra! hcon
   set p : Polynomial ℚ̄₂ := X ^ m - C 1 with hp
   have hmonic : p.Monic := monic_X_pow_sub_C 1 (by omega)
   have hsplits : p.Splits := IsAlgClosed.splits p
@@ -55,14 +54,10 @@ theorem exists_nthRoot_near (y : ℚ̄₂) (m : ℕ) (hm : 1 ≤ m) (h : ‖y ^ 
     hsplits.eq_prod_roots_of_monic hmonic
   -- evaluate at `y` and take norms
   have heval : y ^ m - 1 = (p.roots.map (fun r => y - r)).prod := by
-    have h1 : y ^ m - 1 = p.eval y := by simp [hp]
-    rw [h1]
+    rw [show y ^ m - 1 = p.eval y from by simp [hp]]
     conv_lhs => rw [hfact]
     rw [eval_multiset_prod, Multiset.map_map]
-    congr 1
-    apply Multiset.map_congr rfl
-    intro r _
-    simp
+    exact congr_arg Multiset.prod (Multiset.map_congr rfl fun r _ => by simp)
   have hnorm : ‖y ^ m - 1‖ = (p.roots.map (fun r => ‖y - r‖)).prod := by
     rw [heval]
     induction (p.roots) using Multiset.induction_on with
@@ -72,15 +67,9 @@ theorem exists_nthRoot_near (y : ℚ̄₂) (m : ℕ) (hm : 1 ≤ m) (h : ‖y ^ 
   have hge : ∀ z ∈ p.roots.map (fun r => ‖y - r‖), (1 : ℝ) ≤ z := by
     intro z hz
     obtain ⟨r, hr, rfl⟩ := Multiset.mem_map.mp hz
-    have hroot : r ^ m = 1 := by
-      have h0 : p.eval r = 0 := (mem_roots hmonic.ne_zero).mp hr
-      have h1 : r ^ m - 1 = 0 := by simpa [hp] using h0
-      exact sub_eq_zero.mp h1
-    exact hcon r hroot
-  have hprod : (1 : ℝ) ≤ (p.roots.map (fun r => ‖y - r‖)).prod :=
-    Multiset.one_le_prod hge
+    exact hcon r (sub_eq_zero.mp (by simpa [hp] using (mem_roots hmonic.ne_zero).mp hr))
   rw [hnorm] at h
-  linarith
+  linarith [Multiset.one_le_prod hge]
 
 /-! ## Step 2: Teichmüller approximation via the B13 unit filtration -/
 
@@ -115,16 +104,13 @@ theorem exists_rootOfUnity_near (y : ℚ̄₂) (hy : ‖y‖ = 1) :
       (depthUnits k D.π 1).subgroupOf (normUnits k)) = m := D.card_gr_zero
   have hq : (QuotientGroup.mk' ((depthUnits k D.π 1).subgroupOf (normUnits k))
       ((⟨u, humem⟩ : ↥(normUnits k)) ^ m)) = 1 := by
-    rw [map_pow]
-    have := pow_card_eq_one'
-      (x := QuotientGroup.mk' ((depthUnits k D.π 1).subgroupOf (normUnits k)) ⟨u, humem⟩)
-    rwa [hcardQ] at this
+    rw [map_pow, ← hcardQ]
+    exact pow_card_eq_one'
   have hmem2 : (⟨u, humem⟩ : ↥(normUnits k)) ^ m
       ∈ (depthUnits k D.π 1).subgroupOf (normUnits k) :=
     (QuotientGroup.eq_one_iff _).mp hq
   have hdepth : u ^ m ∈ depthUnits k D.π 1 := by
-    have h1 := (Subgroup.mem_subgroupOf).mp hmem2
-    simpa using h1
+    simpa using (Subgroup.mem_subgroupOf).mp hmem2
   have hbound := ((mem_depthUnits k D.π 1 (u ^ m)).mp hdepth).2
   have hcoe : (((u ^ m : (↥k)ˣ) : ↥k) : ℚ̄₂) = y ^ m := by
     rw [Units.val_pow_eq_pow_val]
@@ -173,19 +159,16 @@ theorem commutator_isResidueTrivial (N : Subgroup (Kummer.GaloisGroup ℚ_[2]))
   have hyx : (b * a) • y = x := smul_inv_smul _ x
   have hcomm : (a * b * a⁻¹ * b⁻¹) • x = (a * b) • y := by
     rw [show a * b * a⁻¹ * b⁻¹ = (a * b) * (b * a)⁻¹ from by group, mul_smul, hy_def]
-  have hgoal : (a * b * a⁻¹ * b⁻¹) • x - x = (a * b) • y - (b * a) • y := by
-    rw [hcomm, hyx]
-  rw [hgoal]
+  rw [hcomm, ← hyx]
   have hy1 : ‖y‖ ≤ 1 := by rw [hy_def, norm_galois]; exact hx1
   rcases lt_or_eq_of_le hy1 with hlt | heq
   · -- `‖y‖ < 1`: both terms are already small
-    have h1 : ‖(a * b) • y - (b * a) • y‖ ≤ max ‖(a * b) • y‖ ‖(b * a) • y‖ := by
-      rw [sub_eq_add_neg]
-      refine le_trans (IsUltrametricDist.norm_add_le_max _ _) ?_
-      rw [norm_neg]
     have hn1 : ‖(a * b) • y‖ = ‖y‖ := norm_galois _ _
     have hn2 : ‖(b * a) • y‖ = ‖y‖ := norm_galois _ _
-    rw [hn1, hn2, max_self] at h1
+    have h1 : ‖(a * b) • y - (b * a) • y‖ ≤ ‖y‖ := by
+      rw [sub_eq_add_neg]
+      refine (IsUltrametricDist.norm_add_le_max _ _).trans_eq ?_
+      rw [norm_neg, hn1, hn2, max_self]
     exact lt_of_le_of_lt h1 hlt
   · -- `‖y‖ = 1`: approximate by a root of unity, where the actions commute exactly
     obtain ⟨m, ζ, hm, hζ, hnear⟩ := exists_rootOfUnity_near y heq

@@ -56,17 +56,15 @@ theorem nontrivial_YC_of_not_scalarStack (T : MarkedTarget H E Y)
     obtain ⟨k, hk⟩ := T.isPGroup_two ⟨y, by rw [hLtop]; trivial⟩
     exact ⟨k, by simpa using congrArg Subtype.val hk⟩
   haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  haveI hnil : Group.IsNilpotent Y := h2Y.isNilpotent
   -- the upper central series is a scalar stack for `⊤ = L_Y`
-  obtain ⟨n, hn⟩ := hnil.nilpotent
+  obtain ⟨n, hn⟩ := h2Y.isNilpotent.nilpotent
   refine hstack ⟨n, fun i => Subgroup.upperCentralSeries Y i, Subgroup.upperCentralSeries_zero Y,
     by rw [hLtop]; exact hn,
     fun i => Subgroup.upperCentralSeries_mono Y (Nat.le_succ i),
     fun i => show (Subgroup.upperCentralSeries Y i).Normal from inferInstance, ?_⟩
   intro i y x hx
-  have h := (Subgroup.mem_upperCentralSeries_succ_iff).mp hx y
-  have hrw : y * x * y⁻¹ * x⁻¹ = (x * y * x⁻¹ * y⁻¹)⁻¹ := by group
-  rw [hrw]
+  have h := Subgroup.mem_upperCentralSeries_succ_iff.mp hx y
+  rw [show y * x * y⁻¹ * x⁻¹ = (x * y * x⁻¹ * y⁻¹)⁻¹ by group]
   exact inv_mem h
 
 /-- `C`-ontoness of a `B`-subgroup in sup form: `J.map π_{BC} = ⊤ ⟹ J ⊔ M_B = ⊤` (the shape
@@ -78,14 +76,12 @@ theorem sup_MB_eq_top_of_map_piBC (T : MarkedTarget H E Y)
     J ⊔ (blockFrameImpl T Blk hE2).MB = ⊤ := by
   refine top_unique fun y _ => ?_
   have hy : (blockFrameImpl T Blk hE2).piBC y ∈ J.map (blockFrameImpl T Blk hE2).piBC := by
-    rw [hJC]
-    exact Subgroup.mem_top _
+    rw [hJC]; exact Subgroup.mem_top _
   obtain ⟨j, hjJ, hj⟩ := Subgroup.mem_map.mp hy
   have hk : j⁻¹ * y ∈ (blockFrameImpl T Blk hE2).MB := by
     rw [← (blockFrameImpl T Blk hE2).ker_piBC]
     exact MonoidHom.mem_ker.mpr (by rw [map_mul, map_inv, hj, inv_mul_cancel])
-  have hyJ : y = j * (j⁻¹ * y) := by group
-  rw [hyJ]
+  rw [show y = j * (j⁻¹ * y) by group]
   exact Subgroup.mul_mem _ (Subgroup.mem_sup_left hjJ) (Subgroup.mem_sup_right hk)
 
 end RStageHelpers
@@ -179,8 +175,7 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
           have hTC : exactImageCount B.bA F (blockFrameImpl T Blk hE2).TC
               = exactImageCount B.bF F (blockFrameImpl T Blk hE2).TC := by
             refine IH _ ?_ _ (blockFrameImpl T Blk hE2).TC rfl
-            rw [← hcard]
-            exact card_LC_lt T Blk hE2
+            exact hcard ▸ card_LC_lt T Blk hE2
           -- IH at the proper `C`-onto strata (the `M`-stage bound, all-`R` valid)
           have hstrata : ∀ J ∈ {J : Subgroup (blockFrameImpl T Blk hE2).YB |
                 J.map (blockFrameImpl T Blk hE2).piBC = ⊤} \ {⊤},
@@ -194,8 +189,7 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
                 ((blockFrameImpl T Blk hE2).TB.piY.comp J.subtype)
             · rw [dif_pos hJ, dif_pos hJ]
               refine IH _ ?_ _ ((blockFrameImpl T Blk hE2).TB.stratum J hJ) rfl
-              rw [← hcard]
-              exact card_stratum_mStage_lt T Blk hE2 J (by simpa using hJne) hJC hJ
+              exact hcard ▸ card_stratum_mStage_lt T Blk hE2 J (by simpa using hJne) hJC hJ
             · rw [dif_neg hJ, dif_neg hJ]
           -- the `⊤`-stratum is the ambient count (`R = ⊥` ⟹ `π_B` iso)
           have htopA : SectionEight.exactImageCountOn B.bA F
@@ -208,10 +202,7 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
               (blockFrameImpl T Blk hE2).exactImageCount_TB_of_R_bot B.bF F hR]
           -- split the `⊤` stratum off both partitions and cancel the (equal) proper parts
           haveI : Finite (Subgroup (blockFrameImpl T Blk hE2).YB) :=
-            Finite.of_injective
-              (fun J : Subgroup (blockFrameImpl T Blk hE2).YB =>
-                (J : Set (blockFrameImpl T Blk hE2).YB))
-              SetLike.coe_injective
+            Finite.of_injective _ SetLike.coe_injective
           have hS_top : (⊤ : Subgroup (blockFrameImpl T Blk hE2).YB)
               ∈ {J : Subgroup (blockFrameImpl T Blk hE2).YB |
                   J.map (blockFrameImpl T Blk hE2).piBC = ⊤} :=
@@ -301,14 +292,12 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
           have hTB : exactImageCount B.bA F (blockFrameImpl T Blk hE2).TB
               = exactImageCount B.bF F (blockFrameImpl T Blk hE2).TB := by
             refine IH _ ?_ _ (blockFrameImpl T Blk hE2).TB rfl
-            rw [← hcard]
-            exact card_LB_lt T Blk hE2 hR
+            exact hcard ▸ card_LB_lt T Blk hE2 hR
           -- IH at the `C`-stage ((145c))
           have hTC : exactImageCount B.bA F (blockFrameImpl T Blk hE2).TC
               = exactImageCount B.bF F (blockFrameImpl T Blk hE2).TC := by
             refine IH _ ?_ _ (blockFrameImpl T Blk hE2).TC rfl
-            rw [← hcard]
-            exact card_LC_lt T Blk hE2
+            exact hcard ▸ card_LC_lt T Blk hE2
           -- IH at the pulled `B`-strata over proper `C`-onto images ((148))
           have hpull : ∀ (l : (blockFrameImpl T Blk hE2).DR)
               (h : l ≠ (blockFrameImpl T Blk hE2).zeroDR)
@@ -331,8 +320,7 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
               refine IH _ ?_ _
                 ((((blockFrameImpl T Blk hE2).scalarCover l hl).pullTarget
                   (blockFrameImpl T Blk hE2).TB).stratum J' hJ') rfl
-              rw [← hcard]
-              exact card_stratum_LB_lt T Blk hE2 hR
+              exact hcard ▸ card_stratum_LB_lt T Blk hE2 hR
                 ((blockFrameImpl T Blk hE2).scalarCover l hl) J' hJ' hJtop
                 (sup_MB_eq_top_of_map_piBC T Blk hE2 hJC)
             · rw [dif_neg hJ', dif_neg hJ']
@@ -357,8 +345,7 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
                 refine IH _ ?_ _
                   (((phase l hl ζ).pullTarget (blockFrameImpl T Blk hE2).TC).stratum J' hJ')
                   rfl
-                rw [← hcard]
-                exact card_stratum_LC_lt T Blk hE2 (phase l hl ζ) J' hJ'
+                exact hcard ▸ card_stratum_LC_lt T Blk hE2 (phase l hl ζ) J' hJ'
               · rw [dif_neg hJ', dif_neg hJ']
             have h8A := SectionEight.lemma_8_3 hfgA B.bA F (blockFrameImpl T Blk hE2).TC
               (phase l hl ζ) SectionEight.lemma_8_2_gammaA ⊤
@@ -377,7 +364,7 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
             omega
           -- solve (P-17h)
           exact SectionNine.count_eq_of_closedRecursion (blockFrameImpl T Blk hE2) B.bA B.bF F
-            μ G0' DT phase hA hF (Nat.pos_iff_ne_zero.mp hDTpos) hTB hTC hpull hphase
+            μ G0' DT phase hA hF hDTpos.ne' hTB hTC hpull hphase
         · -- head not covered: both counts vanish
           rw [exactImageCount_eq_zero_of_not_headSurj B.bA F T hhead,
             exactImageCount_eq_zero_of_not_headSurj B.bF F T hhead]

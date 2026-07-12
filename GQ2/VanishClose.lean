@@ -52,18 +52,14 @@ theorem isEquivariantFactorSet_reindexHom {q : V → ZMod 2} {dat : FactorSet C 
   f_zero_left := h.f_zero_left
   f_zero_right := h.f_zero_right
   m_quad c' v w := by
-    show dat.m (φ c') (v + w) + dat.m (φ c') v + dat.m (φ c') w
-        = dat.f (c' • v) (c' • w) + dat.f v w
     rw [hφ c' v, hφ c' w]
     exact h.m_quad (φ c') v w
   m_mul c' d' v := by
     show dat.m (φ (c' * d')) v = dat.m (φ c') (d' • v) + dat.m (φ d') v
-    rw [map_mul, hφ d' v]
-    exact h.m_mul (φ c') (φ d') v
+    rw [map_mul, hφ d' v]; exact h.m_mul (φ c') (φ d') v
   m_one v := by
     show dat.m (φ 1) v = 0
-    rw [map_one]
-    exact h.m_one v
+    rw [map_one]; exact h.m_one v
 
 /-! ## The classifying equivalence `e : C ≃* AbsGalQ2 ⧸ ker ρ` -/
 
@@ -85,10 +81,9 @@ pullback into the `mk' N`-level orbit map (where `lemma_6_15_*` are stated) and 
 `Q0loc`/reducer compatibility `hρW : g • w = ρ g • w` on `W`. -/
 theorem eOfSurj_rho (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρsurj : Function.Surjective ρ)
     (g : AbsGalQ2) :
-    eOfSurj ρ hρsurj (ρ g) = QuotientGroup.mk g := by
-  have he : QuotientGroup.quotientKerEquivOfSurjective ρ.toMonoidHom hρsurj (QuotientGroup.mk g)
-      = ρ g := QuotientGroup.kerLift_mk _ g
-  exact (QuotientGroup.quotientKerEquivOfSurjective ρ.toMonoidHom hρsurj).symm_apply_eq.mpr he.symm
+    eOfSurj ρ hρsurj (ρ g) = QuotientGroup.mk g :=
+  (QuotientGroup.quotientKerEquivOfSurjective ρ.toMonoidHom hρsurj).symm_apply_eq.mpr
+    (QuotientGroup.kerLift_mk _ g).symm
 
 end ETower
 
@@ -246,16 +241,28 @@ theorem lemma_6_17_vanish_final (D : TateDuality 2) (R : LocalReciprocity) (B : 
     haveI : (Uf o).FiniteIndex :=
       ⟨fun h0 => hfi.index_ne_zero (Nat.eq_zero_of_zero_dvd (h0 ▸ hdvd))⟩
     exact Subgroup.finite_quotient_of_finiteIndex
-  -- `hmk` for the base `RegRep N` action, in the shape `hcoh_*` consume
-  have hmkR : ∀ (g : AbsGalQ2) (y : RegRep N), g • y = QuotientGroup.mk' N g • y := hmk
   -- the block coordinates are deep `Z¹`-cocycles
   have hZ1blk : ∀ j : Fin K,
       shapiroCoord N (fun g => (Quotient.out xW).1 g j) ∈ Z1 ↥N (ZMod 2) :=
-    fun j => shapiroCoord_mem_Z1 (ShapiroRead.block_cocycle N hmkR (Quotient.out xW) j)
+    fun j => shapiroCoord_mem_Z1 (ShapiroRead.block_cocycle N hmk (Quotient.out xW) j)
       (ShapiroRead.block_continuous N (Quotient.out xW) j) (fun _ _ => rfl)
   have hdeepblk : ∀ j : Fin K,
       H1ofFun ↥N (shapiroCoord N (fun g => (Quotient.out xW).1 g j)) ∈ deepClasses N :=
     fun j => shapiroCoord_mem_deepClasses ρ j hxW
+  -- involution-position facts, shared across the three `Sum.inr (Sum.inl _)` branches
+  have hu_all : ∀ w : AbsGalQ2 ⧸ N, QuotientGroup.mk' N (Quotient.out w) = w := fun w => by
+    rw [QuotientGroup.mk'_apply]; exact QuotientGroup.out_eq' w
+  have hInv : ∀ w : AbsGalQ2 ⧸ N, w * w = 1 → w ≠ 1 →
+      Quotient.out w ∉ N ∧ Quotient.out w * Quotient.out w ∈ N := by
+    intro w hw2 hwne
+    have hw := hu_all w
+    refine ⟨fun h => hwne ?_, ?_⟩
+    · have h1 : QuotientGroup.mk' N (Quotient.out w) = 1 := by
+        rw [QuotientGroup.mk'_apply]; exact (QuotientGroup.eq_one_iff _).mpr h
+      rwa [hw] at h1
+    · have h1 : QuotientGroup.mk' N (Quotient.out w * Quotient.out w) = 1 := by
+        rw [map_mul, hw]; exact hw2
+      rwa [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at h1
   refine OrbitVanish.Q0loc_vanish_of_datum_decomp D datWC ρ hρW xW
     (orbitIndexSet N qW) (fun o => (orbitDatum N o).reindexHom e.toMonoidHom)
     (orbitSquareMap N) ?_ ?_ Uf ?_ ?_ innerf ?_ ?_ ?_
@@ -274,17 +281,7 @@ theorem lemma_6_17_vanish_final (D : TateDuality 2) (R : LocalReciprocity) (B : 
     · simp only [mem_orbitIndexSet_inv, invIdx, Finset.mem_filter, Finset.mem_univ,
         true_and] at ho
       obtain ⟨hu2, hune, -⟩ := ho
-      have hu : QuotientGroup.mk' N (Quotient.out u) = u := by
-        rw [QuotientGroup.mk'_apply]; exact QuotientGroup.out_eq' u
-      have hgN : Quotient.out u ∉ N := by
-        intro h
-        have h1 : QuotientGroup.mk' N (Quotient.out u) = 1 := by
-          rw [QuotientGroup.mk'_apply]; exact (QuotientGroup.eq_one_iff _).mpr h
-        rw [hu] at h1; exact hune h1
-      have hg2 : Quotient.out u * Quotient.out u ∈ N := by
-        have h1 : QuotientGroup.mk' N (Quotient.out u * Quotient.out u) = 1 := by
-          rw [map_mul, hu]; exact hu2
-        rwa [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at h1
+      obtain ⟨hgN, hg2⟩ := hInv u hu2 hune
       have hmemU : Quotient.out u ∈ N ⊔ Subgroup.zpowers (Quotient.out u) :=
         Subgroup.mem_sup_right (Subgroup.mem_zpowers _)
       have hsU : (⟨Quotient.out u, hmemU⟩ : ↥(N ⊔ Subgroup.zpowers (Quotient.out u)))
@@ -321,33 +318,22 @@ theorem lemma_6_17_vanish_final (D : TateDuality 2) (R : LocalReciprocity) (B : 
     rw [ShapiroDeepness.graphPullback_reindexHom (orbitDatum N o) (⇑e.toMonoidHom)
       (fun _ _ => rfl) (⇑ρ) (Quotient.out xW).1, hcomp]
     rcases o with j | ⟨j, u⟩ | ⟨j, k, u⟩
-    · exact hcoh_square N hmkR j hNopen (Quotient.out xW)
+    · exact hcoh_square N hmk j hNopen (Quotient.out xW)
     · simp only [mem_orbitIndexSet_inv, invIdx, Finset.mem_filter, Finset.mem_univ,
         true_and] at ho
       obtain ⟨hu2, hune, -⟩ := ho
-      have hu : QuotientGroup.mk' N (Quotient.out u) = u := by
-        rw [QuotientGroup.mk'_apply]; exact QuotientGroup.out_eq' u
-      have hgN : Quotient.out u ∉ N := by
-        intro h
-        have h1 : QuotientGroup.mk' N (Quotient.out u) = 1 := by
-          rw [QuotientGroup.mk'_apply]; exact (QuotientGroup.eq_one_iff _).mpr h
-        rw [hu] at h1
-        exact hune h1
-      have hg2 : Quotient.out u * Quotient.out u ∈ N := by
-        have h1 : QuotientGroup.mk' N (Quotient.out u * Quotient.out u) = 1 := by
-          rw [map_mul, hu]; exact hu2
-        rwa [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at h1
+      have hu : QuotientGroup.mk' N (Quotient.out u) = u := hu_all u
+      obtain ⟨hgN, hg2⟩ := hInv u hu2 hune
       have hs : (⟨Quotient.out u, Subgroup.mem_sup_right (Subgroup.mem_zpowers _)⟩ :
           ↥(N ⊔ Subgroup.zpowers (Quotient.out u)))
           ∉ N.subgroupOf (N ⊔ Subgroup.zpowers (Quotient.out u)) :=
         fun h => hgN (Subgroup.mem_subgroupOf.mp h)
-      have hg := hcoh_involution N hmkR j (Quotient.out u) hNopen hgN hg2
+      have hg := hcoh_involution N hmk j (Quotient.out u) hNopen hgN hg2
         (N ⊔ Subgroup.zpowers (Quotient.out u)) rfl hs (Quotient.out xW)
       rw [hu] at hg
       exact hg
-    · have hu : QuotientGroup.mk' N (Quotient.out u) = u := by
-        rw [QuotientGroup.mk'_apply]; exact QuotientGroup.out_eq' u
-      have hg := hcoh_free N hmkR j k (Quotient.out u) hNopen (Quotient.out xW)
+    · have hu : QuotientGroup.mk' N (Quotient.out u) = u := hu_all u
+      have hg := hcoh_free N hmk j k (Quotient.out u) hNopen (Quotient.out xW)
       rw [hu] at hg
       exact hg
   · -- hvanish
@@ -359,17 +345,7 @@ theorem lemma_6_17_vanish_final (D : TateDuality 2) (R : LocalReciprocity) (B : 
     · simp only [mem_orbitIndexSet_inv, invIdx, Finset.mem_filter, Finset.mem_univ,
         true_and] at ho
       obtain ⟨hu2, hune, -⟩ := ho
-      have hu : QuotientGroup.mk' N (Quotient.out u) = u := by
-        rw [QuotientGroup.mk'_apply]; exact QuotientGroup.out_eq' u
-      have hgN : Quotient.out u ∉ N := by
-        intro h
-        have h1 : QuotientGroup.mk' N (Quotient.out u) = 1 := by
-          rw [QuotientGroup.mk'_apply]; exact (QuotientGroup.eq_one_iff _).mpr h
-        rw [hu] at h1; exact hune h1
-      have hg2 : Quotient.out u * Quotient.out u ∈ N := by
-        have h1 : QuotientGroup.mk' N (Quotient.out u * Quotient.out u) = 1 := by
-          rw [map_mul, hu]; exact hu2
-        rwa [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at h1
+      obtain ⟨hgN, hg2⟩ := hInv u hu2 hune
       exact InvolutionSplice.hvanish_involution_ker R B c hc ρ hfac horient
         (shapiroCoord N (fun g => (Quotient.out xW).1 g j)) (hZ1blk j) (hdeepblk j)
         (Quotient.out u) hgN hg2 (N ⊔ Subgroup.zpowers (Quotient.out u)) rfl

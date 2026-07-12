@@ -50,14 +50,12 @@ noncomputable local instance instCommGroupTopAbP10 {G : Type*} [Group G] [Topolo
     obtain ⟨b, rfl⟩ := abMk_surjective (G := G) y
     rw [← map_mul, ← map_mul]
     show QuotientGroup.mk (a * b) = QuotientGroup.mk (b * a)
-    refine (QuotientGroup.eq).mpr ?_
-    have hcomm : (a * b)⁻¹ * (b * a) = b⁻¹ * a⁻¹ * b * a := by group
-    rw [hcomm]
+    refine QuotientGroup.eq.mpr ?_
+    rw [show (a * b)⁻¹ * (b * a) = b⁻¹ * a⁻¹ * b * a by group]
     apply Subgroup.le_topologicalClosure
-    have hmem := Subgroup.commutator_mem_commutator (G := G)
-      (Subgroup.mem_top b⁻¹) (Subgroup.mem_top a⁻¹)
     rw [commutator_def]
-    simpa [commutatorElement_def] using hmem
+    simpa [commutatorElement_def] using Subgroup.commutator_mem_commutator (G := G)
+      (Subgroup.mem_top b⁻¹) (Subgroup.mem_top a⁻¹)
 
 local instance instCompactSpaceTopAbP10 {G : Type*} [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
@@ -90,13 +88,7 @@ noncomputable def topAbLiftHom (f : ContinuousMonoidHom G H) :
     ContinuousMonoidHom (topAbelianization G) (topAbelianization H) :=
   ⟨QuotientGroup.lift (commutator G).topologicalClosure ((abMk (G := H)).comp f.toMonoidHom) (by
       refine Subgroup.topologicalClosure_minimal _ (Abelianization.commutator_subset_ker _) ?_
-      have hset : (((abMk (G := H)).comp f.toMonoidHom).ker : Set G)
-          = (fun g => abMk (f g)) ⁻¹' {1} := by
-        ext x
-        simp only [SetLike.mem_coe, MonoidHom.mem_ker, Set.mem_preimage, Set.mem_singleton_iff,
-          MonoidHom.comp_apply]
-        rfl
-      rw [hset]
+      rw [MonoidHom.coe_ker]
       exact isClosed_singleton.preimage (continuous_abMk.comp f.continuous_toFun)),
     (QuotientGroup.isQuotientMap_mk _).continuous_iff.mpr (continuous_abMk.comp f.continuous_toFun)⟩
 
@@ -119,13 +111,11 @@ noncomputable def topAbCongr {G H : Type*} [Group G] [TopologicalSpace G] [IsTop
         fun x => by
           obtain ⟨g, rfl⟩ := abMk_surjective (G := G) x
           simp only [topAbLiftHom_abMk]
-          show abMk (φ.symm (φ g)) = abMk g
-          rw [ContinuousMulEquiv.symm_apply_apply],
+          exact congrArg abMk (φ.symm_apply_apply g),
         fun x => by
           obtain ⟨h, rfl⟩ := abMk_surjective (G := H) x
           simp only [topAbLiftHom_abMk]
-          show abMk (φ (φ.symm h)) = abMk h
-          rw [ContinuousMulEquiv.apply_symm_apply]⟩)
+          exact congrArg abMk (φ.apply_symm_apply h)⟩)
 
 @[simp] lemma topAbCongr_abMk {G H : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
     [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
@@ -149,11 +139,7 @@ noncomputable def abDescend {G : Type*} [Group G] [TopologicalSpace G] [IsTopolo
     (f : ContinuousMonoidHom G A) : ContinuousMonoidHom (topAbelianization G) A :=
   ⟨QuotientGroup.lift (commutator G).topologicalClosure f.toMonoidHom (by
       refine Subgroup.topologicalClosure_minimal _ (Abelianization.commutator_subset_ker _) ?_
-      have hset : (f.toMonoidHom.ker : Set G) = f ⁻¹' {1} := by
-        ext x
-        simp only [SetLike.mem_coe, MonoidHom.mem_ker, Set.mem_preimage, Set.mem_singleton_iff]
-        rfl
-      rw [hset]
+      rw [MonoidHom.coe_ker]
       exact isClosed_singleton.preimage f.continuous_toFun),
     (QuotientGroup.isQuotientMap_mk _).continuous_iff.mpr f.continuous_toFun⟩
 
@@ -203,10 +189,10 @@ noncomputable def chiG :
 @[simp] lemma chiG_abMk (h : (maxProPQuotient 2 AbsGalQ2 : Type)) :
     chiG (abMk h) = orientBundle.chiTwo h := rfl
 
-lemma chiD0_A : chiD0 (abMk d0A) = -1 := by rw [chiD0_abMk]; exact orientBundle.chi_A
-lemma chiD0_S : chiD0 (abMk d0S) = 1 := by rw [chiD0_abMk]; exact orientBundle.chi_S
-lemma chiD0_Y (y : ℤ_[2]ˣ) (hy : (y : ℤ_[2]) = -3) : chiD0 (abMk d0Y) = y⁻¹ := by
-  rw [chiD0_abMk]; exact orientBundle.chi_Y y hy
+lemma chiD0_A : chiD0 (abMk d0A) = -1 := orientBundle.chi_A
+lemma chiD0_S : chiD0 (abMk d0S) = 1 := orientBundle.chi_S
+lemma chiD0_Y (y : ℤ_[2]ˣ) (hy : (y : ℤ_[2]) = -3) : chiD0 (abMk d0Y) = y⁻¹ :=
+  orientBundle.chi_Y y hy
 
 /-- `χ_G ∘ markedPi = chiCycAb`: the cyclotomic values agree with `markedPi`'s reciprocity classes
 (via `chiTwo_factors`). -/
@@ -316,16 +302,13 @@ theorem SectionThree.prop_1_1 :
   obtain ⟨eab, hA5, hS5, hY5⟩ := lemma_3_5_marked_abelianization R
   -- marked values of `eab` (resolve the lift quantifier via surjectivity of `toAb`)
   have eabA : eab (abMk d0A) = markedPi (R.recip unitNeg4) := by
-    obtain ⟨g, hg⟩ := QuotientGroup.mk_surjective (R.recip unitNeg4)
-    have hg' : toAb g = R.recip unitNeg4 := hg
+    obtain ⟨g, hg'⟩ : ∃ g, toAb g = R.recip unitNeg4 := QuotientGroup.mk_surjective _
     rw [hA5 g hg', ← markedPi_toAb, hg']
   have eabS : eab (abMk d0S) = (markedPi (R.recip uniformizer))⁻¹ := by
-    obtain ⟨g, hg⟩ := QuotientGroup.mk_surjective ((R.recip uniformizer)⁻¹)
-    have hg' : toAb g = (R.recip uniformizer)⁻¹ := hg
+    obtain ⟨g, hg'⟩ : ∃ g, toAb g = (R.recip uniformizer)⁻¹ := QuotientGroup.mk_surjective _
     rw [hS5 g hg', ← markedPi_toAb, hg', map_inv]
   have eabY : eab (abMk d0Y) = markedPi (R.recip unitNeg3) := by
-    obtain ⟨g, hg⟩ := QuotientGroup.mk_surjective (R.recip unitNeg3)
-    have hg' : toAb g = R.recip unitNeg3 := hg
+    obtain ⟨g, hg'⟩ : ∃ g, toAb g = R.recip unitNeg3 := QuotientGroup.mk_surjective _
     rw [hY5 g hg', ← markedPi_toAb, hg']
   -- the comparison automorphism `Θ = (topAbCongr equiv) ∘ eab`, χ-preserving
   set Θ : ContinuousMulEquiv (topAbelianization (D0 : Type)) (topAbelianization (D0 : Type)) :=

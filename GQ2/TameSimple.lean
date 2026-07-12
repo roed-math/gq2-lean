@@ -26,7 +26,7 @@ variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [DistribM
 /-- The set of `c : C` whose action commutes with a fixed automorphism `g •` is a subgroup. -/
 def actionCommutant (g : C) : Subgroup C where
   carrier := {c | ∀ v : V, g • (c • v) = c • (g • v)}
-  one_mem' v := by rw [one_smul, one_smul]
+  one_mem' v := by simp
   mul_mem' {a b} ha hb v := by
     rw [mul_smul, ha, hb, ← mul_smul]
   inv_mem' {a} ha v := by
@@ -38,7 +38,7 @@ def actionCommutant (g : C) : Subgroup C where
 Used to promote centrality of `g` to centrality of every `zpower` of `g`. -/
 def actionCentre : Subgroup C where
   carrier := {h | ∀ (c : C) (v : V), h • (c • v) = c • (h • v)}
-  one_mem' c v := by rw [one_smul, one_smul]
+  one_mem' c v := by simp
   mul_mem' {a b} ha hb c v := by rw [mul_smul, mul_smul, hb, ha]
   inv_mem' {a} ha c v := by
     have h := ha c (a⁻¹ • v)
@@ -58,17 +58,15 @@ theorem central_pow2_smul_trivial (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSi
   haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   haveI : Nontrivial V := hsimple.1
   -- every zpower of `g` is central too
-  have hcomm : ∀ h ∈ Subgroup.zpowers g, ∀ (c : C) (v : V), h • (c • v) = c • (h • v) := by
-    have hle : Subgroup.zpowers g ≤ actionCentre (C := C) (V := V) :=
-      Subgroup.zpowers_le.mpr (show g ∈ actionCentre (C := C) (V := V) from hcentral)
-    exact fun h hh => hle hh
+  have hcomm : ∀ h ∈ Subgroup.zpowers g, ∀ (c : C) (v : V), h • (c • v) = c • (h • v) :=
+    fun _ hh => Subgroup.zpowers_le.mpr
+      (show g ∈ actionCentre (C := C) (V := V) from hcentral) hh
   -- the fixed space of `⟨g⟩`
   let W : AddSubgroup V :=
     { carrier := {v | ∀ h ∈ Subgroup.zpowers g, h • v = v}
       zero_mem' := fun h _ => smul_zero h
       add_mem' := fun {a b} ha hb h hh => by rw [smul_add, ha h hh, hb h hh]
       neg_mem' := fun {a} ha h hh => by rw [smul_neg, ha h hh] }
-  have hmemW : ∀ {v : V}, v ∈ W ↔ ∀ h ∈ Subgroup.zpowers g, h • v = v := Iff.rfl
   -- `C`-stable by centrality
   have hstable : ∀ (c : C) (w : V), w ∈ W → c • w ∈ W := by
     intro c w hw h hh
@@ -181,18 +179,13 @@ theorem pow2_smul_trivial_of_stable (hV₂ : ∀ v : V, v + v = 0) (hsimple : Is
       zero_mem' := smul_zero g
       add_mem' := fun {a b} ha hb => by show g • (a + b) = a + b; rw [smul_add, ha, hb]
       neg_mem' := fun {a} ha => by show g • (-a) = -a; rw [smul_neg, ha] }
-  have hmemW : ∀ {v : V}, v ∈ W ↔ g • v = v := Iff.rfl
-  have hWstable : ∀ (c : C) (w : V), w ∈ W → c • w ∈ W := fun c w hw => hstable c w hw
   -- fixed points of `↥⟨g⟩` coincide with `W`
   have hset : (MulAction.fixedPoints ↥(Subgroup.zpowers g) V : Set V) = (W : Set V) := by
     ext v
-    constructor
-    · intro h
-      exact h ⟨g, Subgroup.mem_zpowers g⟩
-    · intro h ⟨x, hx⟩
-      have hle : Subgroup.zpowers g ≤ MulAction.stabilizer C v :=
-        Subgroup.zpowers_le.mpr (by rwa [MulAction.mem_stabilizer_iff])
-      exact hle hx
+    refine ⟨fun h => h ⟨g, Subgroup.mem_zpowers g⟩, fun h ⟨x, hx⟩ => ?_⟩
+    have hle : Subgroup.zpowers g ≤ MulAction.stabilizer C v :=
+      Subgroup.zpowers_le.mpr (by rwa [MulAction.mem_stabilizer_iff])
+    exact hle hx
   -- `|V|` even
   have h2 : 2 ∣ Nat.card V := by
     obtain ⟨v, hv⟩ := exists_ne (0 : V)
@@ -217,7 +210,7 @@ theorem pow2_smul_trivial_of_stable (hV₂ : ∀ v : V, v + v = 0) (hsimple : Is
     rw [hfp1] at hmod
     have h0 : Nat.card V ≡ 0 [MOD 2] := (Nat.modEq_zero_iff_dvd).mpr h2
     exact absurd (h0.symm.trans hmod) (by decide)
-  rcases hsimple.2 W hWstable with h | h
+  rcases hsimple.2 W hstable with h | h
   · exact absurd h hWne
   · intro v
     exact (h ▸ AddSubgroup.mem_top v : v ∈ W)
@@ -230,8 +223,7 @@ theorem conj_powOmega2_tau (t : Marking C) (ht : t.TameRel) :
   have htame : t.σ⁻¹ * t.τ * t.σ = t.τ ^ 2 := by
     have h := ht; rw [Marking.TameRel, conjP] at h; exact h
   have hconj : t.σ⁻¹ * powOmega2 t.τ * t.σ = powOmega2 (t.σ⁻¹ * t.τ * t.σ) := by
-    have h := powOmega2_map (MulAut.conj t.σ⁻¹).toMonoidHom t.τ
-    simpa [MulAut.conj_apply, mul_assoc] using h
+    simpa [MulAut.conj_apply, mul_assoc] using powOmega2_map (MulAut.conj t.σ⁻¹).toMonoidHom t.τ
   have hne : orderOf t.τ ≠ 0 := (orderOf_pos t.τ).ne'
   have hdvd : orderOf (t.τ ^ 2) ∣ orderOf t.τ :=
     orderOf_dvd_of_pow_eq_one (by rw [← pow_mul, mul_comm, pow_mul, pow_orderOf_eq_one, one_pow])
@@ -253,8 +245,6 @@ theorem tau_powOmega2_smul_trivial (t : Marking C) (ht : t.TameRel) (hgen : t.Ge
   refine pow2_smul_trivial_of_stable hV₂ hsimple (powOmega2 t.τ)
     (isPGroup_zpowers_powOmega2 t.τ) ?_
   -- the stabilizer of the fixed set is a subgroup containing the four generators
-  suffices hS : ∀ (c : C), ∀ v : V, powOmega2 t.τ • v = v → powOmega2 t.τ • (c • v) = c • v by
-    exact fun c v hv => hS c v hv
   have hσ : ∀ v : V, powOmega2 t.τ • v = v → powOmega2 t.τ • (t.σ • v) = t.σ • v := by
     intro v hv
     have hkey : powOmega2 t.τ * t.σ = t.σ * ((powOmega2 t.τ) ^ 2) := by
@@ -383,12 +373,8 @@ theorem fixedPoints_sigma_eq_zero (t : Marking C) (hgen : t.Generates)
     show t.σ • (c • w) = c • w
     rw [hcentralσ, hw]
   rcases hsimple.2 W hstable with h | h
-  · intro v hv
-    have hvW : v ∈ W := hv
-    rw [h, AddSubgroup.mem_bot] at hvW
-    exact hvW
-  · exfalso
-    obtain ⟨v, hv⟩ := hσ
-    exact hv (h.ge (AddSubgroup.mem_top v))
+  · exact fun v hv => AddSubgroup.mem_bot.mp (h ▸ (hv : v ∈ W))
+  · obtain ⟨v, hv⟩ := hσ
+    exact absurd (h.ge (AddSubgroup.mem_top v)) hv
 
 end GQ2.FoxH

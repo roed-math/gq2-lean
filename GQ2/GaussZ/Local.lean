@@ -59,14 +59,10 @@ noncomputable def toZ1 (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho0 DD 
     (c : VCocycle DD ρ) : ↥(Z1 Γ DD.Vmod) :=
   ⟨c.c, by
     refine mem_Z1_iff.mpr ⟨?_, ?_⟩
-    · have hinj : Function.Injective
-          (fun v : DD.Vmod => iV DD (Multiplicative.ofAdd v)) :=
-        fun a a' haa' => iV_ofAdd_inj DD haa'
-      have hlc : IsLocallyConstant
-          (fun γ => iV DD (Multiplicative.ofAdd (c.c γ))) :=
-        (IsLocallyConstant.iff_continuous _).mpr c.cont
-      exact (IsLocallyConstant.desc (α := DD.Vmod) c.c
-        (fun v : DD.Vmod => iV DD (Multiplicative.ofAdd v)) hlc hinj).continuous
+    · exact (IsLocallyConstant.desc (α := DD.Vmod) c.c
+        (fun v : DD.Vmod => iV DD (Multiplicative.ofAdd v))
+        ((IsLocallyConstant.iff_continuous _).mpr c.cont)
+        (fun a a' haa' => iV_ofAdd_inj DD haa')).continuous
     · intro γ δ
       rw [c.crossed γ δ, ← hcomp γ (c.c δ)]⟩
 
@@ -80,8 +76,7 @@ noncomputable def ofZ1 (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho0 DD 
       continuous_of_discreteTopology
     exact hc.comp (mem_Z1_iff.mp z.2).1
   crossed := fun γ δ => by
-    have hz := (mem_Z1_iff.mp z.2).2 γ δ
-    rw [hz, hcomp γ (z.1 δ)]
+    rw [(mem_Z1_iff.mp z.2).2 γ δ, hcomp γ (z.1 δ)]
 
 theorem toZ1_ofZ1 (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho0 DD ρ γ • v)
     (z : ↥(Z1 Γ DD.Vmod)) : toZ1 hcomp (ofZ1 hcomp z) = z := Subtype.ext rfl
@@ -112,11 +107,8 @@ noncomputable def h1OfVQuot (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho
     rw [H1mk_eq_iff, AddSubgroup.mem_addSubgroupOf]
     refine AddMonoidHom.mem_range.mpr ⟨w, ?_⟩
     funext γ
-    have h1 : ((toZ1 hcomp b - toZ1 hcomp a : ↥(Z1 Γ DD.Vmod)) : Γ → DD.Vmod) γ
-        = b.c γ - a.c γ := rfl
-    rw [h1, hbγ γ]
-    show γ • w - w = a.c γ + (rho0 DD ρ γ • w - w) - a.c γ
-    rw [hcomp γ w]
+    show γ • w - w = b.c γ - a.c γ
+    rw [hbγ γ, hcomp γ w]
     abel
 
 @[simp] theorem h1OfVQuot_mk (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho0 DD ρ γ • v)
@@ -146,12 +138,7 @@ theorem h1OfVQuot_injective
       have hab : a = b + vCob DD ρ w := by
         refine VCocycle.ext ?_
         funext γ
-        have hγ : (dZero Γ DD.Vmod w) γ = a.c γ - b.c γ := by
-          have h1 : ((toZ1 hcomp a - toZ1 hcomp b : ↥(Z1 Γ DD.Vmod)) : Γ → DD.Vmod) γ
-              = a.c γ - b.c γ := rfl
-          rw [← h1]
-          exact congrFun hw γ
-        have hγ' : γ • w - w = a.c γ - b.c γ := hγ
+        have hγ' : γ • w - w = a.c γ - b.c γ := congrFun hw γ
         show a.c γ = b.c γ + (rho0 DD ρ γ • w - w)
         rw [← hcomp γ w, hγ']
         abel
@@ -197,17 +184,8 @@ theorem QZeroBar_eq_Q0loc (D6 : TateDuality 2)
     have hz₀c : ((Quotient.out (H1mk AbsGalQ2 DD.Vmod (toZ1 hcomp c))
         : ↥(Z1 AbsGalQ2 DD.Vmod)) : AbsGalQ2 → DD.Vmod) = (c + vCob DD ρM w).c := by
       funext γ
-      have hγ : (dZero AbsGalQ2 DD.Vmod w) γ
-          = (Quotient.out (H1mk AbsGalQ2 DD.Vmod (toZ1 hcomp c))
-              : ↥(Z1 AbsGalQ2 DD.Vmod)).1 γ - c.c γ := by
-        have hcoe : ((Quotient.out (H1mk AbsGalQ2 DD.Vmod (toZ1 hcomp c))
-            - toZ1 hcomp c : ↥(Z1 AbsGalQ2 DD.Vmod)) : AbsGalQ2 → DD.Vmod) γ
-            = (Quotient.out (H1mk AbsGalQ2 DD.Vmod (toZ1 hcomp c))
-                : ↥(Z1 AbsGalQ2 DD.Vmod)).1 γ - c.c γ := rfl
-        rw [← hcoe]
-        exact congrFun hw γ
       have hγ' : γ • w - w = (Quotient.out (H1mk AbsGalQ2 DD.Vmod (toZ1 hcomp c))
-          : ↥(Z1 AbsGalQ2 DD.Vmod)).1 γ - c.c γ := hγ
+          : ↥(Z1 AbsGalQ2 DD.Vmod)).1 γ - c.c γ := congrFun hw γ
       show (Quotient.out (H1mk AbsGalQ2 DD.Vmod (toZ1 hcomp c))
           : ↥(Z1 AbsGalQ2 DD.Vmod)).1 γ = c.c γ + (rho0 DD ρM γ • w - w)
       rw [← hcomp γ w, hγ']
@@ -240,8 +218,7 @@ theorem exists_smul_ne_of_card (hsimple : ∀ W : AddSubgroup V,
     (hV : ∃ v : V, v ≠ 0) (hV2 : ∀ v : V, v + v = 0)
     (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
     ∃ (h₀ : C) (v : V), h₀ • v ≠ v := by
-  by_contra hcon
-  push_neg at hcon
+  by_contra! hcon
   obtain ⟨v, hv⟩ := hV
   haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   have hord : addOrderOf v = 2 := addOrderOf_eq_prime (by rw [two_nsmul]; exact hV2 v) hv
@@ -311,14 +288,8 @@ theorem sum_sign_Q0loc_unramified (D : TateDuality 2) (B : BoundaryMaps)
   rw [finsum_sign_eq D dat ρ _ hzc hH1]
   have hle : (2 : ℕ) ^ (m - 1) ≤ 2 ^ (2 * m - 1) :=
     Nat.pow_le_pow_right (by norm_num) (by omega)
-  have e1 : (2 : ℤ) ^ (2 * m) = 2 * 2 ^ (2 * m - 1) := by
-    rw [← pow_succ']
-    congr 1
-    omega
-  have e2 : (2 : ℤ) ^ m = 2 * 2 ^ (m - 1) := by
-    rw [← pow_succ']
-    congr 1
-    omega
+  have e1 : (2 : ℤ) ^ (2 * m) = 2 * 2 ^ (2 * m - 1) := by rw [← pow_succ']; congr 1; omega
+  have e2 : (2 : ℤ) ^ m = 2 * 2 ^ (m - 1) := by rw [← pow_succ']; congr 1; omega
   push_cast [Nat.cast_sub hle]
   linarith [e1, e2]
 
@@ -349,14 +320,8 @@ theorem sum_sign_Q0loc_ramified (D : TateDuality 2) (R : LocalReciprocity) (B : 
     DetRamified.prop_6_18_ramified D R B c hc ρ hfac horient hρ hfaith hsimple ⟨v₀, hv₀⟩
       q hq hns hinv dat hdat m hm hcard
   rw [finsum_sign_eq D dat ρ _ hzc hH1]
-  have e1 : (2 : ℤ) ^ (2 * m) = 2 * 2 ^ (2 * m - 1) := by
-    rw [← pow_succ']
-    congr 1
-    omega
-  have e2 : (2 : ℤ) ^ m = 2 * 2 ^ (m - 1) := by
-    rw [← pow_succ']
-    congr 1
-    omega
+  have e1 : (2 : ℤ) ^ (2 * m) = 2 * 2 ^ (2 * m - 1) := by rw [← pow_succ']; congr 1; omega
+  have e2 : (2 : ℤ) ^ m = 2 * 2 ^ (m - 1) := by rw [← pow_succ']; congr 1; omega
   push_cast
   linarith [e1, e2]
 
