@@ -7,6 +7,7 @@ import GQ2.GammaA
 import GQ2.SectionTenSources
 import GQ2.Prop23
 import GQ2.FinitelyGenerated
+import Mathlib.FieldTheory.Galois.Profinite
 
 /-!
 # Theorem 1.2, literal presentation form
@@ -29,12 +30,20 @@ generation of `G_{ℚ₂}`).
 
 namespace GQ2
 
+noncomputable local instance absGalQ2_compactSpace : CompactSpace AbsGalQ2 := by
+  change CompactSpace (AlgebraicClosure ℚ_[2] ≃ₐ[ℚ_[2]] AlgebraicClosure ℚ_[2])
+  infer_instance
+
+noncomputable local instance absGalQ2_totallyDisconnectedSpace :
+    TotallyDisconnectedSpace AbsGalQ2 := by
+  change TotallyDisconnectedSpace (AlgebraicClosure ℚ_[2] ≃ₐ[ℚ_[2]] AlgebraicClosure ℚ_[2])
+  infer_instance
+
 /-- **Theorem 1.2 (literal presentation form)**: the honest candidate `Γ_A` is continuously
 isomorphic to `G_{ℚ₂}`.  Instantiates `main_presentation` at `Γ_A`: `hΓA := prop_2_3` (the `Γ_A`
 admissible-marking count), `hcount := SectionTen.main_surjection_count'` (the `G_{ℚ₂}` surjection
 count), and the topological finite-generation witnesses of `Γ_A` and `G_{ℚ₂}`. -/
-theorem main_presentation_literal
-    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
+theorem main_presentation_literal :
     Nonempty (ContinuousMulEquiv GammaA AbsGalQ2) :=
   main_presentation GammaA
     gammaA_topologicallyFinitelyGenerated
