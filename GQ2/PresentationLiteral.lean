@@ -17,19 +17,28 @@ eq. (154) + Prop. 2.3).  `Prop23` and `SectionTenSources` sit **downstream** of 
 `GammaA.lean`, so an in-place proof would cycle — the statement-move pattern (P-08/P-15d/P-18e);
 `GammaA.lean` carries a comment-pointer here.
 
-**Axioms.**  Std-3 + `sorryAx` (through the allowlisted `SectionNine.thm_4_2` until P-17i) + the
-tower's Track-B literature axioms (via `main_surjection_count'` / the boundary construction) + B1
-(topological finite generation of `G_{ℚ₂}`).  No new axiom, no `sorry` token in this file.
+**Axioms.**  Std-3 plus the nine literature axioms enumerated in
+`GQ2/Foundations/Axioms.lean`, through `main_surjection_count'`, the boundary construction,
+and B1 (topological finite generation of `G_{ℚ₂}`).  The repo-wide ledger reports no
+`sorryAx`; this file introduces no new axiom.
 -/
 
 namespace GQ2
+
+noncomputable local instance absGalQ2_compactSpace : CompactSpace AbsGalQ2 := by
+  change CompactSpace (AlgebraicClosure ℚ_[2] ≃ₐ[ℚ_[2]] AlgebraicClosure ℚ_[2])
+  infer_instance
+
+noncomputable local instance absGalQ2_totallyDisconnectedSpace :
+    TotallyDisconnectedSpace AbsGalQ2 := by
+  change TotallyDisconnectedSpace (AlgebraicClosure ℚ_[2] ≃ₐ[ℚ_[2]] AlgebraicClosure ℚ_[2])
+  infer_instance
 
 /-- **Theorem 1.2 (literal presentation form)**: the honest candidate `Γ_A` is continuously
 isomorphic to `G_{ℚ₂}`.  Instantiates `main_presentation` at `Γ_A`: `hΓA := prop_2_3` (the `Γ_A`
 admissible-marking count), `hcount := SectionTen.main_surjection_count'` (the `G_{ℚ₂}` surjection
 count), and the topological finite-generation witnesses of `Γ_A` and `G_{ℚ₂}`. -/
-theorem main_presentation_literal
-    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
+theorem main_presentation_literal :
     Nonempty (ContinuousMulEquiv GammaA AbsGalQ2) :=
   main_presentation GammaA
     gammaA_topologicallyFinitelyGenerated
