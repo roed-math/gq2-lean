@@ -48,15 +48,19 @@ end Probes
 
 section KernelBundle
 
-variable [Finite C]
+variable [DiscreteTopology C] [Finite C]
 
-/-- **`G_K = ker ρ` is a local dualizing group**: the subtype embedding into `G_ℚ₂` is
-continuous, injective, of finite index (the quotient injects into the finite `C`), and acts on
+/-- **`G_K = ker ρ` is a local dualizing group**: the subtype topological embedding into
+`G_ℚ₂` has finite index (the quotient injects into the finite `C`) and acts on
 `μ₂` by restriction (definitionally). -/
 theorem ker_isLocalDualizingGroup :
     IsLocalDualizingGroup ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) 2 := by
-  refine ⟨(ρ.toMonoidHom.ker : Subgroup AbsGalQ2).subtype, continuous_subtype_val,
-    Subtype.val_injective, ?_, fun g x => rfl⟩
+  have hkerOpen :
+      IsOpen ((ρ.toMonoidHom.ker : Subgroup AbsGalQ2) : Set AbsGalQ2) := by
+    change IsOpen (ρ ⁻¹' ({1} : Set C))
+    exact (isOpen_discrete ({1} : Set C)).preimage ρ.continuous_toFun
+  refine ⟨(ρ.toMonoidHom.ker : Subgroup AbsGalQ2).subtype,
+    hkerOpen.isOpenEmbedding_subtypeVal, ?_, fun g x => rfl⟩
   rw [Subgroup.range_subtype]
   haveI : Finite (AbsGalQ2 ⧸ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :=
     Finite.of_injective _ (QuotientGroup.quotientKerEquivRange ρ.toMonoidHom).injective
@@ -67,7 +71,7 @@ noncomputable def tateDualityK :
     TateDualityG ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) 2 :=
   tateDualityAt ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) 2 (ker_isLocalDualizingGroup ρ)
 
-omit [Finite C] in
+omit [DiscreteTopology C] [Finite C] in
 /-- The kernel acts trivially on `μ₂` (restriction of the trivial `G_ℚ₂`-action). -/
 theorem smul_muN_two_trivial_ker (g : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) (x : MuN 2) :
     g • x = x :=
@@ -118,7 +122,7 @@ end CoefficientBridge
 
 section Pairing
 
-variable [Finite C]
+variable [DiscreteTopology C] [Finite C]
 
 /-- **The K-level Tate pairing** on `M = H¹(G_K, 𝔽₂)`: transport the left argument through the
 coefficient bridge, cup with the evaluation pairing, and read off through the invariant map of
@@ -219,7 +223,7 @@ theorem conjAct_H1mk (g : AbsGalQ2)
 
 section ConjInvariance
 
-variable [Finite C]
+variable [DiscreteTopology C] [Finite C]
 
 /-- The invariant map kills conjugation: if the cocycle `Fc` is (pointwise) `F` precomposed
 with `conjMap × conjMap`, the two `inv`-values agree.  `ZMod 2`-valued, so it suffices that the
@@ -394,7 +398,7 @@ private theorem isMidUnit_of_le {N N' : Subgroup (Kummer.GaloisGroup ℚ_[2])}
   obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hA
   exact ⟨hA0, fun g hg => hAfix g (hle g hg), b, fun g hg => hbfix g (hle g hg), hAeq, hb⟩
 
-variable [Finite C]
+variable [DiscreteTopology C] [Finite C]
 
 /-- **The shared witness-transport + `inv_K`-kill tail** of the two isotropy splices
 (`pairingK_deep_deep`/`pairingK_mid_deep`): once the `k`-side cup of the two restricted Kummer
