@@ -144,7 +144,7 @@ theorem lemma_6_17_vanish_final (D : TateDuality 2) (R : LocalReciprocity) (B : 
   haveI : IsTopologicalAddGroup (RegRep N) :=
     { continuous_add := continuous_of_discreteTopology
       continuous_neg := continuous_of_discreteTopology }
-  haveI hdq : DiscreteTopology (AbsGalQ2 ⧸ N) := discreteTopology_quotient_of_isOpen N hNopen
+  haveI hdq : DiscreteTopology (AbsGalQ2 ⧸ N) := QuotientGroup.discreteTopology hNopen
   letI actAbs : DistribMulAction AbsGalQ2 (RegRep N) :=
     DistribMulAction.compHom _ (QuotientGroup.mk' N)
   letI actC : DistribMulAction C (RegRep N) := DistribMulAction.compHom _ e.toMonoidHom

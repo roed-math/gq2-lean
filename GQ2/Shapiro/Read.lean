@@ -51,12 +51,6 @@ namespace ShapiroRead
 
 section Prelim
 
-/-- Quotients by open normal subgroups are discrete (the `AnabelianBridge` argument, made
-available at this layer for `G_ℚ₂ ⧸ N`). -/
-theorem discreteTopology_quotient_of_isOpen {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] (N : Subgroup G) [N.Normal] (hNo : IsOpen (N : Set G)) :
-    DiscreteTopology (G ⧸ N) := QuotientGroup.discreteTopology hNo
-
 /-- `graphPullback` functoriality along an equivariant `comap`: pulling the comapped datum back
 along `(ρ', b)` is pulling the datum back along `(ρ', i ∘ b)`.  Turns the block datums of
 `OrbitDecomp` (definitional `comap`s) into the literal orbit datums of Lemma 6.15. -/
@@ -219,11 +213,36 @@ private theorem H2ofFun_graphPullback_shift {K : ℕ} {qW : (Fin K → RegRep N)
     H2ofFun AbsGalQ2 (graphPullback dat (⇑(QuotientGroup.mk' N))
         (fun g => b.1 g + (g • W₀ - W₀)))
       = H2ofFun AbsGalQ2 (graphPullback dat (⇑(QuotientGroup.mk' N)) b.1) := by
-  haveI : DiscreteTopology (AbsGalQ2 ⧸ N) := discreteTopology_quotient_of_isOpen N hNo
+  haveI : DiscreteTopology (AbsGalQ2 ⧸ N) := QuotientGroup.discreteTopology hNo
   have hρW : ∀ (g : AbsGalQ2) (F : Fin K → RegRep N), g • F = (mkQ N) g • F :=
     fun g F => funext fun k => hmk g (F k)
   exact ShapiroLedger.H2ofFun_eq_of_sub_mem_B2
     (RepIndependence.graphPullback_sub_mem_B2 dat hdat (mkQ N) hρW b W₀)
+
+include hmk in
+/-- **The shared `hcoh` spine**: the `δ⁰W₀`-shift is invisible in `H²`
+(`H2ofFun_graphPullback_shift`), the block datum is the definitional `comap` of the orbit
+datum along the equivariant projection `i` (`graphPullback_comap`), and the projected shift
+is the Shapiro target (`hblock`). -/
+private theorem H2ofFun_graphPullback_comap_shift {K : ℕ} {W : Type*} [AddCommGroup W]
+    [DistribMulAction (AbsGalQ2 ⧸ N) W] {qW : (Fin K → RegRep N) → ZMod 2}
+    (dat : FactorSet (AbsGalQ2 ⧸ N) W) (i : (Fin K → RegRep N) →+ W)
+    (hi : ∀ (c : AbsGalQ2 ⧸ N) (v : Fin K → RegRep N), i (c • v) = c • i v)
+    (hdat : IsEquivariantFactorSet qW (dat.comap i)) (hNo : IsOpen (N : Set AbsGalQ2))
+    (b : ↥(Z1 AbsGalQ2 (Fin K → RegRep N))) (W₀ : Fin K → RegRep N) {target : AbsGalQ2 → W}
+    (hblock : (fun g => i (b.1 g + (g • W₀ - W₀))) = target) :
+    H2ofFun AbsGalQ2 (graphPullback (dat.comap i) (⇑(QuotientGroup.mk' N)) b.1)
+      = H2ofFun AbsGalQ2 (graphPullback dat (⇑(QuotientGroup.mk' N)) target) :=
+  calc H2ofFun AbsGalQ2 (graphPullback (dat.comap i) (⇑(QuotientGroup.mk' N)) b.1)
+      = H2ofFun AbsGalQ2 (graphPullback (dat.comap i) (⇑(QuotientGroup.mk' N))
+          (fun g => b.1 g + (g • W₀ - W₀))) :=
+        (H2ofFun_graphPullback_shift N hmk (dat.comap i) hdat hNo b W₀).symm
+    _ = H2ofFun AbsGalQ2 (graphPullback dat (⇑(QuotientGroup.mk' N))
+          (fun g => i (b.1 g + (g • W₀ - W₀)))) :=
+        congrArg (H2ofFun AbsGalQ2)
+          (graphPullback_comap dat i hi (⇑(QuotientGroup.mk' N))
+            (fun g => b.1 g + (g • W₀ - W₀)))
+    _ = H2ofFun AbsGalQ2 (graphPullback dat (⇑(QuotientGroup.mk' N)) target) := by rw [hblock]
 
 include hmk in
 /-- **P-15f2c1, square-orbit `hcoh`** (Lemma 6.15 eq. (103) at a block coordinate): the graph
@@ -245,24 +264,12 @@ theorem hcoh_square {K : ℕ} (j : Fin K) (hNo : IsOpen (N : Set AbsGalQ2))
     show b.1 g j + ((g • W₀) j - W₀ j) = _
     rw [hW₀def, Pi.smul_apply, Pi.single_eq_same, hmk,
       shapiroFun_shapiroCoord_eq hβ g]
-  calc H2ofFun AbsGalQ2 (graphPullback (squareBlockDatum N j) (⇑(QuotientGroup.mk' N)) b.1)
-      = H2ofFun AbsGalQ2 (graphPullback (squareBlockDatum N j) (⇑(QuotientGroup.mk' N))
-          (fun g => b.1 g + (g • W₀ - W₀))) :=
-        (H2ofFun_graphPullback_shift N hmk (squareBlockDatum N j)
-          (isEquivariantFactorSet_squareBlockDatum N j) hNo b W₀).symm
-    _ = H2ofFun AbsGalQ2 (graphPullback (squareOrbitDatum N) (⇑(QuotientGroup.mk' N))
-          (fun g => blockProj N j (b.1 g + (g • W₀ - W₀)))) :=
-        congrArg (H2ofFun AbsGalQ2)
-          (graphPullback_comap (squareOrbitDatum N) (blockProj N j)
-            (fun c v => blockProj_smul N j c v) (⇑(QuotientGroup.mk' N))
-            (fun g => b.1 g + (g • W₀ - W₀)))
-    _ = H2ofFun AbsGalQ2 (graphPullback (squareOrbitDatum N) (⇑(QuotientGroup.mk' N))
-          (shapiroFun N (shapiroCoord N (fun g => b.1 g j)))) := by rw [hblock]
-    _ = H2ofFun AbsGalQ2 (cor2Fun N (fun p =>
-          shapiroCoord N (fun g => b.1 g j) p.1 * shapiroCoord N (fun g => b.1 g j) p.2)) :=
-        lemma_6_15_square N hNo
-          ⟨shapiroCoord N (fun g => b.1 g j),
-            shapiroCoord_mem_Z1 hβ (block_continuous N b j) htriv⟩
+  refine (H2ofFun_graphPullback_comap_shift N hmk (squareOrbitDatum N) (blockProj N j)
+    (fun c v => blockProj_smul N j c v) (isEquivariantFactorSet_squareBlockDatum N j) hNo b W₀
+    hblock).trans ?_
+  exact lemma_6_15_square N hNo
+    ⟨shapiroCoord N (fun g => b.1 g j),
+      shapiroCoord_mem_Z1 hβ (block_continuous N b j) htriv⟩
 
 include hmk in
 /-- **P-15f2c1, free-orbit `hcoh`** (Lemma 6.15 eq. (104) at a block pair): the graph pullback
@@ -303,35 +310,15 @@ theorem hcoh_free {K : ℕ} (j k : Fin K) (ghat : AbsGalQ2) (hNo : IsOpen (N : S
           = shapiroFun N (shapiroCoord N (fun g' => b.1 g' k)) g
       rw [Pi.smul_apply, hW₀k, hmk]
       exact (shapiroFun_shapiroCoord_eq (β := fun g' => b.1 g' k) hβk g).symm
-  calc H2ofFun AbsGalQ2 (graphPullback (freeBlockDatum N j k (QuotientGroup.mk' N ghat))
-        (⇑(QuotientGroup.mk' N)) b.1)
-      = H2ofFun AbsGalQ2 (graphPullback (freeBlockDatum N j k (QuotientGroup.mk' N ghat))
-          (⇑(QuotientGroup.mk' N)) (fun g => b.1 g + (g • W₀ - W₀))) :=
-        (H2ofFun_graphPullback_shift N hmk (freeBlockDatum N j k (QuotientGroup.mk' N ghat))
-          (isEquivariantFactorSet_freeBlockDatum N j k (QuotientGroup.mk' N ghat)) hNo b
-          W₀).symm
-    _ = H2ofFun AbsGalQ2 (graphPullback (freeOrbitDatum N (QuotientGroup.mk' N ghat))
-          (⇑(QuotientGroup.mk' N))
-          (fun g => blockProj₂ N j k (b.1 g + (g • W₀ - W₀)))) :=
-        congrArg (H2ofFun AbsGalQ2)
-          (graphPullback_comap (freeOrbitDatum N (QuotientGroup.mk' N ghat))
-            (blockProj₂ N j k) (fun c v => blockProj₂_smul N j k c v)
-            (⇑(QuotientGroup.mk' N)) (fun g => b.1 g + (g • W₀ - W₀)))
-    _ = H2ofFun AbsGalQ2 (graphPullback (freeOrbitDatum N (QuotientGroup.mk' N ghat))
-          (⇑(QuotientGroup.mk' N))
-          (fun g => (shapiroFun N (shapiroCoord N (fun g' => b.1 g' j)) g,
-            shapiroFun N (shapiroCoord N (fun g' => b.1 g' k)) g))) :=
-        congrArg (fun c => H2ofFun AbsGalQ2 (graphPullback
-          (freeOrbitDatum N (QuotientGroup.mk' N ghat)) (⇑(QuotientGroup.mk' N)) c)) hblock
-    _ = H2ofFun AbsGalQ2 (cor2Fun N (fun p =>
-          shapiroCoord N (fun g => b.1 g j) p.1 *
-            shapiroCoord N (fun g => b.1 g k) ⟨ghat⁻¹ * (p.2 : AbsGalQ2) * ghat, by
-              simpa using Subgroup.Normal.conj_mem ‹N.Normal› _ p.2.2 ghat⁻¹⟩)) :=
-        lemma_6_15_free N hNo
-          ⟨shapiroCoord N (fun g => b.1 g j),
-            shapiroCoord_mem_Z1 hβj (block_continuous N b j) htriv⟩
-          ⟨shapiroCoord N (fun g => b.1 g k),
-            shapiroCoord_mem_Z1 hβk (block_continuous N b k) htriv⟩ ghat
+  refine (H2ofFun_graphPullback_comap_shift N hmk (freeOrbitDatum N (QuotientGroup.mk' N ghat))
+    (blockProj₂ N j k) (fun c v => blockProj₂_smul N j k c v)
+    (isEquivariantFactorSet_freeBlockDatum N j k (QuotientGroup.mk' N ghat)) hNo b W₀
+    hblock).trans ?_
+  exact lemma_6_15_free N hNo
+    ⟨shapiroCoord N (fun g => b.1 g j),
+      shapiroCoord_mem_Z1 hβj (block_continuous N b j) htriv⟩
+    ⟨shapiroCoord N (fun g => b.1 g k),
+      shapiroCoord_mem_Z1 hβk (block_continuous N b k) htriv⟩ ghat
 
 include hmk in
 /-- **P-15f2c1, involution-orbit `hcoh`** (Lemma 6.15 eq. (105) at a block coordinate): the
@@ -363,29 +350,12 @@ theorem hcoh_involution {K : ℕ} (j : Fin K) (ghat : AbsGalQ2) (hNo : IsOpen (N
     show b.1 g j + ((g • W₀) j - W₀ j) = _
     rw [hW₀def, Pi.smul_apply, Pi.single_eq_same, hmk,
       shapiroFun_shapiroCoord_eq hβ g]
-  calc H2ofFun AbsGalQ2 (graphPullback (invBlockDatum N j (QuotientGroup.mk' N ghat))
-        (⇑(QuotientGroup.mk' N)) b.1)
-      = H2ofFun AbsGalQ2 (graphPullback (invBlockDatum N j (QuotientGroup.mk' N ghat))
-          (⇑(QuotientGroup.mk' N)) (fun g => b.1 g + (g • W₀ - W₀))) :=
-        (H2ofFun_graphPullback_shift N hmk (invBlockDatum N j (QuotientGroup.mk' N ghat))
-          (isEquivariantFactorSet_invBlockDatum N j hu2) hNo b W₀).symm
-    _ = H2ofFun AbsGalQ2 (graphPullback (invOrbitDatum N (QuotientGroup.mk' N ghat))
-          (⇑(QuotientGroup.mk' N))
-          (fun g => blockProj N j (b.1 g + (g • W₀ - W₀)))) :=
-        congrArg (H2ofFun AbsGalQ2)
-          (graphPullback_comap (invOrbitDatum N (QuotientGroup.mk' N ghat)) (blockProj N j)
-            (fun c v => blockProj_smul N j c v) (⇑(QuotientGroup.mk' N))
-            (fun g => b.1 g + (g • W₀ - W₀)))
-    _ = H2ofFun AbsGalQ2 (graphPullback (invOrbitDatum N (QuotientGroup.mk' N ghat))
-          (⇑(QuotientGroup.mk' N))
-          (shapiroFun N (shapiroCoord N (fun g => b.1 g j)))) := by rw [hblock]
-    _ = H2ofFun AbsGalQ2 (cor2Fun U₀ (fun p =>
-          evensNormFun (N.subgroupOf U₀)
-            ⟨ghat, by rw [hU₀]; exact Subgroup.mem_sup_right (Subgroup.mem_zpowers ghat)⟩
-            (fun u => shapiroCoord N (fun g => b.1 g j) ⟨u.1.1, u.2⟩) (p.1, p.2))) :=
-        lemma_6_15_involution N hNo
-          ⟨shapiroCoord N (fun g => b.1 g j),
-            shapiroCoord_mem_Z1 hβ (block_continuous N b j) htriv⟩ ghat hg hg2 U₀ hU₀ hs
+  refine (H2ofFun_graphPullback_comap_shift N hmk (invOrbitDatum N (QuotientGroup.mk' N ghat))
+    (blockProj N j) (fun c v => blockProj_smul N j c v)
+    (isEquivariantFactorSet_invBlockDatum N j hu2) hNo b W₀ hblock).trans ?_
+  exact lemma_6_15_involution N hNo
+    ⟨shapiroCoord N (fun g => b.1 g j),
+      shapiroCoord_mem_Z1 hβ (block_continuous N b j) htriv⟩ ghat hg hg2 U₀ hU₀ hs
 
 end PerOrbit
 

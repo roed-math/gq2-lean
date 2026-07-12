@@ -320,6 +320,52 @@ theorem card_dvd_card_subtype_of_free {U : Type*} [Group U] [Finite U] [MulActio
   refine card_dvd_of_freeAction fun u v huv => ?_
   exact hfree u v.1 v.2 (Subtype.ext_iff.mp huv)
 
+/-- **Free-action zero-count divisibilities**: a finite group acting on `V` (`#V = 2^(2m)`)
+fixing `0`, preserving `q`, and freely on `V ∖ 0`, divides both `zeroCount q − 1` (nonzero zeros)
+and `2^(2m) − zeroCount q` (nonzeros).  (Factored from `prop_6_9_unramified_of_free`.) -/
+theorem free_zeroCount_dvds (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
+    {m : ℕ} (hcard : Nat.card V = 2 ^ (2 * m))
+    {U : Type*} [Group U] [Finite U] [MulAction U V]
+    (hU0 : ∀ u : U, u • (0 : V) = 0) (hUq : ∀ (u : U) (v : V), q (u • v) = q v)
+    (hfree : ∀ (u : U) (v : V), v ≠ 0 → u • v = v → u = 1) :
+    Nat.card U ∣ zeroCount q - 1 ∧ Nat.card U ∣ 2 ^ (2 * m) - zeroCount q := by
+  letI : Fintype V := Fintype.ofFinite V
+  have hufix : ∀ (u : U) (v : V), v ≠ 0 → u • v ≠ 0 := fun u v hv hcon =>
+    hv (smul_left_cancel u (hcon.trans (hU0 u).symm))
+  have hdvdZ : Nat.card U ∣ Nat.card {v : V // q v = 0 ∧ v ≠ 0} :=
+    card_dvd_card_subtype_of_free (fun v => q v = 0 ∧ v ≠ 0)
+      (fun u v hv => ⟨(hUq u v).trans hv.1, hufix u v hv.2⟩)
+      (fun u v hv h => hfree u v hv.2 h)
+  have hdvdN : Nat.card U ∣ Nat.card {v : V // q v ≠ 0} :=
+    card_dvd_card_subtype_of_free (fun v => q v ≠ 0)
+      (fun u v hv => by rw [hUq u v]; exact hv)
+      (fun u v hv h => hfree u v (fun hv0 => hv (by rw [hv0, hq.map_zero])) h)
+  have hzeros : zeroCount q = Nat.card {v : V // q v = 0 ∧ v ≠ 0} + 1 := by
+    have hset : {v : V | q v = 0} = insert 0 {v : V | q v = 0 ∧ v ≠ 0} := by
+      ext v
+      simp only [Set.mem_setOf_eq, Set.mem_insert_iff]
+      constructor
+      · intro h
+        by_cases hv : v = 0
+        · exact Or.inl hv
+        · exact Or.inr ⟨h, hv⟩
+      · rintro (rfl | ⟨h, _⟩)
+        · exact hq.map_zero
+        · exact h
+    rw [zeroCount, show {v : V // q v = 0} = ↥{v : V | q v = 0} from rfl,
+      Nat.card_coe_set_eq, hset,
+      Set.ncard_insert_of_notMem (by simp) (Set.toFinite _), ← Nat.card_coe_set_eq]
+    rfl
+  have hnonzeros : Nat.card {v : V // q v ≠ 0} = 2 ^ (2 * m) - zeroCount q := by
+    have hcompl : {v : V | q v ≠ 0} = {v : V | q v = 0}ᶜ := by
+      ext v; simp [Set.mem_compl_iff]
+    rw [show {v : V // q v ≠ 0} = ↥{v : V | q v ≠ 0} from rfl, Nat.card_coe_set_eq, hcompl,
+      Set.ncard_compl, ← Nat.card_coe_set_eq,
+      show ↥{v : V | q v = 0} = {v : V // q v = 0} from rfl, ← zeroCount, hcard]
+  refine ⟨?_, ?_⟩
+  · rw [hzeros, Nat.add_sub_cancel]; exact hdvdZ
+  · rw [← hnonzeros]; exact hdvdN
+
 /-- **Proposition 6.9, unramified case, from a free action** (the arithmetic core, independent
 of building the endomorphism field): if a finite group `U` acts on `V` (`#V = 2^(2m)`) fixing
 `0`, preserving a nonsingular `q`, freely on `V ∖ 0`, and with order not dividing `2^m − 1`,
@@ -337,48 +383,9 @@ theorem prop_6_9_unramified_of_free (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (
     (hfree : ∀ (u : U) (v : V), v ≠ 0 → u • v = v → u = 1) :
     zeroCount q = 2 ^ (2 * m - 1) - 2 ^ (m - 1) := by
   letI : Fintype V := Fintype.ofFinite V
-  have hufix : ∀ (u : U) (v : V), v ≠ 0 → u • v ≠ 0 := by
-    intro u v hv hcon
-    exact hv (smul_left_cancel u (hcon.trans (hU0 u).symm))
-  -- `#U` divides the count of nonzero zeros and of nonzeros
-  have hdvdZ : Nat.card U ∣ Nat.card {v : V // q v = 0 ∧ v ≠ 0} :=
-    card_dvd_card_subtype_of_free (fun v => q v = 0 ∧ v ≠ 0)
-      (fun u v hv => ⟨(hUq u v).trans hv.1, hufix u v hv.2⟩)
-      (fun u v hv h => hfree u v hv.2 h)
-  have hdvdN : Nat.card U ∣ Nat.card {v : V // q v ≠ 0} :=
-    card_dvd_card_subtype_of_free (fun v => q v ≠ 0)
-      (fun u v hv => by rw [hUq u v]; exact hv)
-      (fun u v hv h => hfree u v (fun hv0 => hv (by rw [hv0, hq.map_zero])) h)
-  -- translate to `zeroCount`
-  have hzeros : zeroCount q = Nat.card {v : V // q v = 0 ∧ v ≠ 0} + 1 := by
-    have hset : {v : V | q v = 0} = insert 0 {v : V | q v = 0 ∧ v ≠ 0} := by
-      ext v
-      simp only [Set.mem_setOf_eq, Set.mem_insert_iff]
-      constructor
-      · intro h
-        by_cases hv : v = 0
-        · exact Or.inl hv
-        · exact Or.inr ⟨h, hv⟩
-      · rintro (rfl | ⟨h, _⟩)
-        · exact hq.map_zero
-        · exact h
-    rw [zeroCount, show {v : V // q v = 0} = ↥{v : V | q v = 0} from rfl,
-      Nat.card_coe_set_eq, hset,
-      Set.ncard_insert_of_notMem (by simp) (Set.toFinite _),
-      ← Nat.card_coe_set_eq]
-    rfl
-  have hnonzeros : Nat.card {v : V // q v ≠ 0} = 2 ^ (2 * m) - zeroCount q := by
-    have hcompl : {v : V | q v ≠ 0} = {v : V | q v = 0}ᶜ := by
-      ext v; simp [Set.mem_compl_iff]
-    rw [show {v : V // q v ≠ 0} = ↥{v : V | q v ≠ 0} from rfl, Nat.card_coe_set_eq, hcompl,
-      Set.ncard_compl, ← Nat.card_coe_set_eq,
-      show ↥{v : V | q v = 0} = {v : V // q v = 0} from rfl, ← zeroCount, hcard]
-  -- feed the pinch
-  refine zeroCount_of_arf_one q hq hns hm
-    (by rw [← Nat.card_eq_fintype_card]; exact hcard)
-    (arf_eq_one_of_dvd q hq hns hm hcard (n := Nat.card U) ?_ ?_ hUdvd)
-  · rw [hzeros, Nat.add_sub_cancel]; exact hdvdZ
-  · rw [← hnonzeros]; exact hdvdN
+  obtain ⟨hdvd0, hdvd1⟩ := free_zeroCount_dvds q hq hcard hU0 hUq hfree
+  exact zeroCount_of_arf_one q hq hns hm (by rw [← Nat.card_eq_fintype_card]; exact hcard)
+    (arf_eq_one_of_dvd q hq hns hm hcard (n := Nat.card U) hdvd0 hdvd1 hUdvd)
 
 /-- **Proposition 6.9, unramified case, from abelian invariance** — the unramified branch reduced
 to two concrete facts.  If a finite **abelian** group `Hf` acts on `V` (`#V = 2^(2m)`)
@@ -586,52 +593,6 @@ theorem arf_eq_zero_of_dvd (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Non
         (A - (B - D)) - ((B - D) - 1) = C + 1 := by intro A B C D h1 h2 h3; omega
     rw [harith _ _ _ _ h2m hmm hlt] at hsub
     exact hnot hsub
-
-/-- **Free-action zero-count divisibilities**: a finite group acting on `V` (`#V = 2^(2m)`)
-fixing `0`, preserving `q`, and freely on `V ∖ 0`, divides both `zeroCount q − 1` (nonzero zeros)
-and `2^(2m) − zeroCount q` (nonzeros).  (Factored from `prop_6_9_unramified_of_free`.) -/
-theorem free_zeroCount_dvds (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
-    {m : ℕ} (hcard : Nat.card V = 2 ^ (2 * m))
-    {U : Type*} [Group U] [Finite U] [MulAction U V]
-    (hU0 : ∀ u : U, u • (0 : V) = 0) (hUq : ∀ (u : U) (v : V), q (u • v) = q v)
-    (hfree : ∀ (u : U) (v : V), v ≠ 0 → u • v = v → u = 1) :
-    Nat.card U ∣ zeroCount q - 1 ∧ Nat.card U ∣ 2 ^ (2 * m) - zeroCount q := by
-  letI : Fintype V := Fintype.ofFinite V
-  have hufix : ∀ (u : U) (v : V), v ≠ 0 → u • v ≠ 0 := fun u v hv hcon =>
-    hv (smul_left_cancel u (hcon.trans (hU0 u).symm))
-  have hdvdZ : Nat.card U ∣ Nat.card {v : V // q v = 0 ∧ v ≠ 0} :=
-    card_dvd_card_subtype_of_free (fun v => q v = 0 ∧ v ≠ 0)
-      (fun u v hv => ⟨(hUq u v).trans hv.1, hufix u v hv.2⟩)
-      (fun u v hv h => hfree u v hv.2 h)
-  have hdvdN : Nat.card U ∣ Nat.card {v : V // q v ≠ 0} :=
-    card_dvd_card_subtype_of_free (fun v => q v ≠ 0)
-      (fun u v hv => by rw [hUq u v]; exact hv)
-      (fun u v hv h => hfree u v (fun hv0 => hv (by rw [hv0, hq.map_zero])) h)
-  have hzeros : zeroCount q = Nat.card {v : V // q v = 0 ∧ v ≠ 0} + 1 := by
-    have hset : {v : V | q v = 0} = insert 0 {v : V | q v = 0 ∧ v ≠ 0} := by
-      ext v
-      simp only [Set.mem_setOf_eq, Set.mem_insert_iff]
-      constructor
-      · intro h
-        by_cases hv : v = 0
-        · exact Or.inl hv
-        · exact Or.inr ⟨h, hv⟩
-      · rintro (rfl | ⟨h, _⟩)
-        · exact hq.map_zero
-        · exact h
-    rw [zeroCount, show {v : V // q v = 0} = ↥{v : V | q v = 0} from rfl,
-      Nat.card_coe_set_eq, hset,
-      Set.ncard_insert_of_notMem (by simp) (Set.toFinite _), ← Nat.card_coe_set_eq]
-    rfl
-  have hnonzeros : Nat.card {v : V // q v ≠ 0} = 2 ^ (2 * m) - zeroCount q := by
-    have hcompl : {v : V | q v ≠ 0} = {v : V | q v = 0}ᶜ := by
-      ext v; simp [Set.mem_compl_iff]
-    rw [show {v : V // q v ≠ 0} = ↥{v : V | q v ≠ 0} from rfl, Nat.card_coe_set_eq, hcompl,
-      Set.ncard_compl, ← Nat.card_coe_set_eq,
-      show ↥{v : V | q v = 0} = {v : V // q v = 0} from rfl, ← zeroCount, hcard]
-  refine ⟨?_, ?_⟩
-  · rw [hzeros, Nat.add_sub_cancel]; exact hdvdZ
-  · rw [← hnonzeros]; exact hdvdN
 
 /-- **The norm-one Arf-parity engine** (Lemma 6.8 (87), Hermitian-model-free): if a finite group
 `U` of order `2^{m'} + 1` acts on `V` (`#V = 2^{2·m'·s}`, `m' ≥ 1`, `s ≥ 1`) fixing `0`,

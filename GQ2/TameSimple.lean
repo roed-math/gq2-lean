@@ -47,6 +47,39 @@ def actionCentre : Subgroup C where
 
 variable [Finite V]
 
+omit [Finite C] in
+/-- **Nonvanishing of 2-group fixed points, subgroup-packaged**: on a nontrivial finite module of
+exponent 2, an additive subgroup `W` whose carrier is the fixed-point set of a 2-power-order
+`⟨g⟩` is nonzero — `p`-group fixed points mod `p = 2`, with `#V` even.  The shared `hWne` engine
+of `central_pow2_smul_trivial` and `pow2_smul_trivial_of_stable`. -/
+private theorem fixedPoints_addSubgroup_ne_bot [Nontrivial V] (hV₂ : ∀ v : V, v + v = 0)
+    (g : C) (hpow : IsPGroup 2 (Subgroup.zpowers g)) (W : AddSubgroup V)
+    (hset : (MulAction.fixedPoints ↥(Subgroup.zpowers g) V : Set V) = (W : Set V)) :
+    W ≠ ⊥ := by
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  -- `|V|` even
+  have h2 : 2 ∣ Nat.card V := by
+    obtain ⟨v, hv⟩ := exists_ne (0 : V)
+    have hord : addOrderOf v = 2 := addOrderOf_eq_prime (by rw [two_nsmul]; exact hV₂ v) hv
+    exact hord ▸ addOrderOf_dvd_natCard v
+  intro hbot
+  have hmod := hpow.card_modEq_card_fixedPoints (p := 2) V
+  have hsub : Subsingleton ↥(MulAction.fixedPoints ↥(Subgroup.zpowers g) V) := by
+    constructor
+    rintro ⟨a, ha⟩ ⟨b, hb⟩
+    have haW : a ∈ W := by rw [← SetLike.mem_coe, ← hset]; exact ha
+    have hbW : b ∈ W := by rw [← SetLike.mem_coe, ← hset]; exact hb
+    rw [hbot, AddSubgroup.mem_bot] at haW hbW
+    exact Subtype.ext (haW.trans hbW.symm)
+  have h0fp : (0 : V) ∈ MulAction.fixedPoints ↥(Subgroup.zpowers g) V := by
+    have : (0 : V) ∈ (W : Set V) := W.zero_mem
+    rwa [← hset] at this
+  have hfp1 : Nat.card ↥(MulAction.fixedPoints ↥(Subgroup.zpowers g) V) = 1 :=
+    Nat.card_eq_one_iff_unique.mpr ⟨hsub, ⟨⟨0, h0fp⟩⟩⟩
+  rw [hfp1] at hmod
+  have h0 : Nat.card V ≡ 0 [MOD 2] := (Nat.modEq_zero_iff_dvd).mpr h2
+  exact absurd (h0.symm.trans hmod) (by decide)
+
 /-- **The central fixed-point lemma** (analogue of `lemma_5_12` with centrality for normality):
 a 2-power-order element `g` whose action commutes with the whole `C`-action acts trivially on a
 simple char-2 module.  Its fixed space is `C`-stable (centrality) and nonzero (`p`-group fixed
@@ -55,7 +88,6 @@ theorem central_pow2_smul_trivial (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSi
     (g : C) (hpow : IsPGroup 2 (Subgroup.zpowers g))
     (hcentral : ∀ (c : C) (v : V), g • (c • v) = c • (g • v)) :
     ∀ v : V, g • v = v := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   haveI : Nontrivial V := hsimple.1
   -- every zpower of `g` is central too
   have hcomm : ∀ h ∈ Subgroup.zpowers g, ∀ (c : C) (v : V), h • (c • v) = c • (h • v) :=
@@ -75,30 +107,8 @@ theorem central_pow2_smul_trivial (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSi
   have hset : (MulAction.fixedPoints ↥(Subgroup.zpowers g) V : Set V) = (W : Set V) := by
     ext v
     refine ⟨fun h g hg => h ⟨g, hg⟩, fun h g => h g.1 g.2⟩
-  -- `|V|` even
-  have h2 : 2 ∣ Nat.card V := by
-    obtain ⟨v, hv⟩ := exists_ne (0 : V)
-    have hord : addOrderOf v = 2 := addOrderOf_eq_prime (by rw [two_nsmul]; exact hV₂ v) hv
-    exact hord ▸ addOrderOf_dvd_natCard v
-  -- so `W ≠ ⊥`
-  have hWne : W ≠ ⊥ := by
-    intro hbot
-    have hmod := hpow.card_modEq_card_fixedPoints (p := 2) V
-    have hsub : Subsingleton ↥(MulAction.fixedPoints ↥(Subgroup.zpowers g) V) := by
-      constructor
-      rintro ⟨a, ha⟩ ⟨b, hb⟩
-      have haW : a ∈ W := by rw [← SetLike.mem_coe, ← hset]; exact ha
-      have hbW : b ∈ W := by rw [← SetLike.mem_coe, ← hset]; exact hb
-      rw [hbot, AddSubgroup.mem_bot] at haW hbW
-      exact Subtype.ext (haW.trans hbW.symm)
-    have h0fp : (0 : V) ∈ MulAction.fixedPoints ↥(Subgroup.zpowers g) V := by
-      have : (0 : V) ∈ (W : Set V) := W.zero_mem
-      rwa [← hset] at this
-    have hfp1 : Nat.card ↥(MulAction.fixedPoints ↥(Subgroup.zpowers g) V) = 1 :=
-      Nat.card_eq_one_iff_unique.mpr ⟨hsub, ⟨⟨0, h0fp⟩⟩⟩
-    rw [hfp1] at hmod
-    have h0 : Nat.card V ≡ 0 [MOD 2] := (Nat.modEq_zero_iff_dvd).mpr h2
-    exact absurd (h0.symm.trans hmod) (by decide)
+  -- `W ≠ ⊥`: 2-group fixed points on an even-cardinality module
+  have hWne : W ≠ ⊥ := fixedPoints_addSubgroup_ne_bot hV₂ g hpow W hset
   -- simplicity ⟹ `W = ⊤` ⟹ `g` acts trivially
   rcases hsimple.2 W hstable with h | h
   · exact absurd h hWne
@@ -171,7 +181,6 @@ theorem pow2_smul_trivial_of_stable (hV₂ : ∀ v : V, v + v = 0) (hsimple : Is
     (g : C) (hpow : IsPGroup 2 (Subgroup.zpowers g))
     (hstable : ∀ (c : C) (v : V), g • v = v → g • (c • v) = c • v) :
     ∀ v : V, g • v = v := by
-  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   haveI : Nontrivial V := hsimple.1
   -- the fixed space of `g` (fixed by `g` ⟺ fixed by all of `⟨g⟩`, via the stabilizer subgroup)
   let W : AddSubgroup V :=
@@ -186,30 +195,8 @@ theorem pow2_smul_trivial_of_stable (hV₂ : ∀ v : V, v + v = 0) (hsimple : Is
     have hle : Subgroup.zpowers g ≤ MulAction.stabilizer C v :=
       Subgroup.zpowers_le.mpr (by rwa [MulAction.mem_stabilizer_iff])
     exact hle hx
-  -- `|V|` even
-  have h2 : 2 ∣ Nat.card V := by
-    obtain ⟨v, hv⟩ := exists_ne (0 : V)
-    have hord : addOrderOf v = 2 := addOrderOf_eq_prime (by rw [two_nsmul]; exact hV₂ v) hv
-    exact hord ▸ addOrderOf_dvd_natCard v
-  -- so `W ≠ ⊥`
-  have hWne : W ≠ ⊥ := by
-    intro hbot
-    have hmod := hpow.card_modEq_card_fixedPoints (p := 2) V
-    have hsub : Subsingleton ↥(MulAction.fixedPoints ↥(Subgroup.zpowers g) V) := by
-      constructor
-      rintro ⟨a, ha⟩ ⟨b, hb⟩
-      have haW : a ∈ W := by rw [← SetLike.mem_coe, ← hset]; exact ha
-      have hbW : b ∈ W := by rw [← SetLike.mem_coe, ← hset]; exact hb
-      rw [hbot, AddSubgroup.mem_bot] at haW hbW
-      exact Subtype.ext (haW.trans hbW.symm)
-    have h0fp : (0 : V) ∈ MulAction.fixedPoints ↥(Subgroup.zpowers g) V := by
-      have : (0 : V) ∈ (W : Set V) := W.zero_mem
-      rwa [← hset] at this
-    have hfp1 : Nat.card ↥(MulAction.fixedPoints ↥(Subgroup.zpowers g) V) = 1 :=
-      Nat.card_eq_one_iff_unique.mpr ⟨hsub, ⟨⟨0, h0fp⟩⟩⟩
-    rw [hfp1] at hmod
-    have h0 : Nat.card V ≡ 0 [MOD 2] := (Nat.modEq_zero_iff_dvd).mpr h2
-    exact absurd (h0.symm.trans hmod) (by decide)
+  -- `W ≠ ⊥`: 2-group fixed points on an even-cardinality module
+  have hWne : W ≠ ⊥ := fixedPoints_addSubgroup_ne_bot hV₂ g hpow W hset
   rcases hsimple.2 W hstable with h | h
   · exact absurd h hWne
   · intro v

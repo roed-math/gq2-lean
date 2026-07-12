@@ -16,8 +16,9 @@ The proof mirrors `liftsOver_card_local` (the `#H² = 1` torsor bridge at the de
   supplies it instead.  `z1Equiv` (`WordCohBridge`, P-16c1) identifies `Z¹_cont(Γ_A, M_B)` with the
   Fox–Heisenberg word cocycles `Z¹_word(markC ρ)`, and `prop_5_15` clause 2 (`IsSelfDual`) counts
   those as `|M_B|² · #fixedPts_C(M_B^∨)`.  This is exactly the `hZcount_gammaA` route at module
-  `M_B` instead of `R`.  `#fixedPts = 1` is the source-independent `lemma_7_1_dual` bridge, proved
-  inline (identical to `liftsOver_card_local`'s `hfix`).
+  `M_B` instead of `R`.  `#fixedPts = 1` is the source-independent `lemma_7_1_dual` bridge,
+  extracted once as `card_fixedPts_MB_dual` (the same argument as `liftsOver_card_local`'s
+  `hfix`) inside the shared `M_B` module pack consumed by both twins.
 * **nonemptiness** — `Γ_A` has no degree-2 word↔continuous bridge, so the `#H² = 1 ⟹ coboundary`
   route of the local proof is unavailable.  Instead `liftsOver_nonempty_gammaA` ports the
   `hsep_hom_gammaA` + L5-descent argument (`RStageGammaA`) from `(π_B, R)` to `(π_BC, M_B)`: a
@@ -153,6 +154,206 @@ private theorem RecursionFrame.descend_piBC (RF : RecursionFrame T Blk)
     rw [← h1, ← h2, hpush]
   exact DFunLike.congr_fun hc w
 
+/-! ### The shared `M_B` module pack
+
+Both twins below run the same `M_B`-module setup: `M_B ⊴ Y_B` is elementary abelian (2-torsion
+by `MB_elem`), carries the `Y_C`-conjugation action through a set-section of `π_{BC}`, and has
+no nonzero `Y_C`-invariant `𝔽₂`-functional (`lemma_7_1_dual`).  The pack is extracted here
+once; the twins install it by `letI`/`have` and diverge only at their coboundary/torsor
+tails. -/
+
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
+/-- Elements of `M_B` commute: 2-torsion (`MB_elem`) makes every element self-inverse, so
+`xy = (xy)⁻¹ = y⁻¹x⁻¹ = yx`. -/
+private theorem RecursionFrame.MB_mul_comm (RF : RecursionFrame T Blk) :
+    ∀ x ∈ RF.MB, ∀ y ∈ RF.MB, x * y = y * x := by
+  intro x hx y hy
+  rw [← inv_eq_of_mul_eq_one_right (RF.MB_elem _ (mul_mem hx hy)), mul_inv_rev,
+    inv_eq_of_mul_eq_one_right (RF.MB_elem _ hy), inv_eq_of_mul_eq_one_right (RF.MB_elem _ hx)]
+
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
+/-- Conjugation on `M_B` depends only on the `π_{BC}`-image of the conjugator: two preimages
+differ by a kernel element, which is central in `M_B`. -/
+private theorem RecursionFrame.MB_conj_eq (RF : RecursionFrame T Blk) {u v : RF.YB}
+    (huv : RF.piBC u = RF.piBC v) (m : ↥RF.MB) : u * m.1 * u⁻¹ = v * m.1 * v⁻¹ := by
+  have hm : u⁻¹ * v ∈ RF.MB := by
+    rw [← RF.ker_piBC]
+    exact MonoidHom.mem_ker.mpr (by rw [map_mul, map_inv, huv, inv_mul_cancel])
+  calc u * m.1 * u⁻¹
+      = u * (m.1 * (u⁻¹ * v) * (u⁻¹ * v)⁻¹) * u⁻¹ := by group
+    _ = u * ((u⁻¹ * v) * m.1 * (u⁻¹ * v)⁻¹) * u⁻¹ := by rw [← RF.MB_mul_comm _ hm _ m.2]
+    _ = v * m.1 * v⁻¹ := by group
+
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
+/-- `M_B` is 2-torsion additively: `a + a = 0` in `Additive ↥M_B`. -/
+private theorem RecursionFrame.MB_add_self (RF : RecursionFrame T Blk)
+    (a : Additive ↥RF.MB) : a + a = 0 :=
+  Additive.toMul.injective (Subtype.ext (RF.MB_elem _ (Additive.toMul a).2))
+
+/-- The commutative-group structure on `M_B` (2-torsion ⟹ abelian, `MB_mul_comm`). -/
+@[reducible] private def RecursionFrame.mbCommGroup (RF : RecursionFrame T Blk) :
+    CommGroup ↥RF.MB :=
+  { (inferInstance : Group ↥RF.MB) with
+    mul_comm := fun a b => Subtype.ext (RF.MB_mul_comm _ a.2 _ b.2) }
+
+/-- A set-section of `π_{BC}` (choice-picked; `MB_conj_eq` makes the induced conjugation on
+`M_B` independent of the choice). -/
+private noncomputable def RecursionFrame.mbSec (RF : RecursionFrame T Blk) : RF.YC → RF.YB :=
+  Function.surjInv RF.piBC_surj
+
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
+private theorem RecursionFrame.mbSec_spec (RF : RecursionFrame T Blk) (c : RF.YC) :
+    RF.piBC (RF.mbSec c) = c :=
+  Function.surjInv_eq RF.piBC_surj c
+
+/-- The `Y_C`-conjugation action on the additivized `M_B`, through the set-section `mbSec`
+(well-defined by `MB_conj_eq`). -/
+@[reducible] private noncomputable def RecursionFrame.mbConjActC (RF : RecursionFrame T Blk) :
+    letI := RF.mbCommGroup
+    DistribMulAction RF.YC (Additive ↥RF.MB) :=
+  letI := RF.mbCommGroup
+  { smul := fun c m => Additive.ofMul
+      ⟨RF.mbSec c * (Additive.toMul m).1 * (RF.mbSec c)⁻¹,
+        RF.MB_normal.conj_mem _ (Additive.toMul m).2 _⟩
+    one_smul := fun m => by
+      apply Additive.toMul.injective; apply Subtype.ext
+      show RF.mbSec 1 * (Additive.toMul m).1 * (RF.mbSec 1)⁻¹ = (Additive.toMul m).1
+      have h1 : RF.mbSec 1 ∈ RF.MB := by
+        rw [← RF.ker_piBC]
+        exact MonoidHom.mem_ker.mpr (RF.mbSec_spec 1)
+      rw [RF.MB_mul_comm _ h1 _ (Additive.toMul m).2]; group
+    mul_smul := fun c c' m => by
+      apply Additive.toMul.injective; apply Subtype.ext
+      show RF.mbSec (c * c') * (Additive.toMul m).1 * (RF.mbSec (c * c'))⁻¹
+        = RF.mbSec c * (RF.mbSec c' * (Additive.toMul m).1 * (RF.mbSec c')⁻¹) * (RF.mbSec c)⁻¹
+      rw [show RF.mbSec c * (RF.mbSec c' * (Additive.toMul m).1 * (RF.mbSec c')⁻¹)
+            * (RF.mbSec c)⁻¹
+          = (RF.mbSec c * RF.mbSec c') * (Additive.toMul m).1 * (RF.mbSec c * RF.mbSec c')⁻¹
+          from by group]
+      exact RF.MB_conj_eq (by rw [RF.mbSec_spec, map_mul, RF.mbSec_spec, RF.mbSec_spec])
+        (Additive.toMul m)
+    smul_zero := fun c => by
+      apply Additive.toMul.injective; apply Subtype.ext
+      show RF.mbSec c * (1 : RF.YB) * (RF.mbSec c)⁻¹ = 1
+      group
+    smul_add := fun c m m' => by
+      apply Additive.toMul.injective; apply Subtype.ext
+      show RF.mbSec c * ((Additive.toMul m).1 * (Additive.toMul m').1) * (RF.mbSec c)⁻¹
+        = (RF.mbSec c * (Additive.toMul m).1 * (RF.mbSec c)⁻¹)
+            * (RF.mbSec c * (Additive.toMul m').1 * (RF.mbSec c)⁻¹)
+      group }
+
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
+/-- **`#(M_B^∨)^{Y_C} = 1`** — the source-independent `lemma_7_1_dual` bridge shared by both
+twins: a nonzero `Y_C`-invariant functional `λ : M_B^∨` would push `ker λ` to an index-2
+`Y`-normal subgroup between `Φ(K)` and `K`, which `lemma_7_1_dual` forbids. -/
+private theorem RecursionFrame.card_fixedPts_MB_dual (RF : RecursionFrame T Blk) :
+    letI := RF.mbCommGroup
+    letI := RF.mbConjActC
+    Nat.card (fixedPts RF.YC (ElemDual (Additive ↥RF.MB))) = 1 := by
+  classical
+  letI := RF.mbCommGroup
+  letI := RF.mbConjActC
+  show Nat.card (fixedPts RF.YC (ElemDual (Additive ↥RF.MB))) = 1
+  have hzero : ∀ lam : ElemDual (Additive ↥RF.MB),
+      (∀ g : RF.YC, g • lam = lam) → lam = 0 := by
+    intro lam hlam
+    by_contra hlamne
+    have hinv : ∀ (c : RF.YC) (a : Additive ↥RF.MB), lam (c • a) = lam a := by
+      intro c a
+      have h2 : (c⁻¹ • lam) a = lam a := by rw [hlam c⁻¹]
+      rwa [ElemDual.smul_apply, inv_inv] at h2
+    have hmem : ∀ k : ↥Blk.K, RF.piB k.1 ∈ RF.MB := by
+      intro k
+      rw [RF.MB_eq]; exact Subgroup.mem_map.mpr ⟨k.1, k.2, rfl⟩
+    let s : ↥Blk.K →* ↥RF.MB :=
+      (RF.piB.comp Blk.K.subtype).codRestrict RF.MB (fun k => hmem k)
+    have hs : ∀ k : ↥Blk.K, (s k).1 = RF.piB k.1 := fun _ => rfl
+    have hs_surj : Function.Surjective s := by
+      intro m
+      obtain ⟨k, hk, hkeq⟩ := (RF.MB_eq ▸ m.2 : m.1 ∈ Blk.K.map RF.piB)
+      exact ⟨⟨k, hk⟩, Subtype.ext hkeq⟩
+    let φ : ↥Blk.K →* Multiplicative (ZMod 2) :=
+      { toFun := fun k => Multiplicative.ofAdd (lam (Additive.ofMul (s k)))
+        map_one' := by simp
+        map_mul' := fun a b => by simp [map_mul] }
+    have hφ_apply : ∀ k, φ k = Multiplicative.ofAdd (lam (Additive.ofMul (s k))) := fun _ => rfl
+    have hφne : φ ≠ 1 := by
+      intro hφ1
+      apply hlamne
+      ext a
+      show lam a = 0
+      obtain ⟨k, hk⟩ := hs_surj (Additive.toMul a)
+      have h0 : lam (Additive.ofMul (s k)) = 0 := by
+        simpa [hφ_apply] using congrArg Multiplicative.toAdd (show φ k = 1 by rw [hφ1]; rfl)
+      rw [hk] at h0
+      exact h0
+    have hφsurj : Function.Surjective φ := by
+      intro y
+      rcases eq_or_ne y 1 with rfl | hy
+      · exact ⟨1, map_one φ⟩
+      · obtain ⟨k, hk⟩ := not_forall.mp (fun hh => hφne (MonoidHom.ext hh))
+        refine ⟨k, ?_⟩
+        have hpin : ∀ z : Multiplicative (ZMod 2), z ≠ 1 → z = Multiplicative.ofAdd 1 := by
+          decide
+        rw [hpin _ hk, hpin _ hy]
+    set X : Subgroup Y := φ.ker.map Blk.K.subtype with hXdef
+    have hXK : X ≤ Blk.K := by rw [hXdef]; exact Subgroup.map_subtype_le _
+    have hRX : Blk.frattiniK ≤ X := by
+      intro r hr
+      have hrK : r ∈ Blk.K := frattiniLike_le Blk.K hr
+      refine Subgroup.mem_map.mpr ⟨⟨r, hrK⟩, ?_, rfl⟩
+      rw [MonoidHom.mem_ker, hφ_apply]
+      have hs1 : s ⟨r, hrK⟩ = 1 := Subtype.ext (by
+        rw [hs]
+        show RF.piB r = 1
+        exact (RF.ker_piB.symm ▸ hr : r ∈ RF.piB.ker))
+      rw [hs1]; simp
+    have hXnormal : X.Normal := by
+      rw [hXdef]
+      refine ⟨fun x hx y => ?_⟩
+      obtain ⟨k, hkker, hkeq⟩ := Subgroup.mem_map.mp hx
+      have hxK : x ∈ Blk.K := hkeq ▸ k.2
+      have hyk : y * x * y⁻¹ ∈ Blk.K := Blk.hK.conj_mem x hxK y
+      refine Subgroup.mem_map.mpr ⟨⟨y * x * y⁻¹, hyk⟩, ?_, rfl⟩
+      rw [MonoidHom.mem_ker] at hkker ⊢
+      rw [hφ_apply] at hkker ⊢
+      have hconj : Additive.ofMul (s ⟨y * x * y⁻¹, hyk⟩)
+          = (RF.piBC (RF.piB y)) • Additive.ofMul (s ⟨x, hxK⟩) := by
+        have hact : (RF.piBC (RF.piB y)) • Additive.ofMul (s ⟨x, hxK⟩)
+            = Additive.ofMul (⟨RF.mbSec (RF.piBC (RF.piB y)) * (s ⟨x, hxK⟩).1
+                * (RF.mbSec (RF.piBC (RF.piB y)))⁻¹,
+                RF.MB_normal.conj_mem _ (s ⟨x, hxK⟩).2 _⟩ : ↥RF.MB) := rfl
+        rw [hact]
+        congr 1
+        apply Subtype.ext
+        rw [hs]
+        show RF.piB (y * x * y⁻¹)
+          = RF.mbSec (RF.piBC (RF.piB y)) * (s ⟨x, hxK⟩).1
+              * (RF.mbSec (RF.piBC (RF.piB y)))⁻¹
+        rw [hs, map_mul, map_mul, map_inv]
+        exact (RF.MB_conj_eq (RF.mbSec_spec (RF.piBC (RF.piB y)))
+          ⟨RF.piB x, hmem ⟨x, hxK⟩⟩).symm
+      rw [hconj, hinv]
+      have hkx : s ⟨x, hxK⟩ = s k := congrArg s (Subtype.ext hkeq.symm)
+      rw [hkx]; exact hkker
+    have hidx : (X.subgroupOf Blk.K).index = 2 := by
+      have hcm : X.subgroupOf Blk.K = φ.ker := by
+        rw [hXdef, Subgroup.subgroupOf,
+          Subgroup.comap_map_eq_self_of_injective Blk.K.subtype_injective]
+      show Nat.card (↥Blk.K ⧸ (X.subgroupOf Blk.K)) = 2
+      rw [hcm, Nat.card_congr (QuotientGroup.quotientKerEquivOfSurjective φ hφsurj).toEquiv]
+      simp
+    exact absurd ⟨X, hXnormal, hRX, hXK, hidx⟩ (lemma_7_1_dual Blk)
+  rw [Nat.card_eq_one_iff_unique]
+  exact ⟨⟨fun x y => Subtype.ext ((hzero x.val x.2).trans (hzero y.val y.2).symm)⟩,
+    ⟨⟨0, smul_zero⟩⟩⟩
+
 /-- **Nonemptiness of the `Γ_A` `B`-lift fibre** (P-17i, the M-stage residue): every lower
 boundary lift `ρ : Γ_A ↠ C` lifts to a continuous homomorphism `Γ_A → B` through `π_{BC}`.
 
@@ -165,157 +366,21 @@ theorem RecursionFrame.liftsOver_nonempty_gammaA
     (F : BoundaryFrame H E) (ρ : BoundaryLifts b F RF.TC) :
     Nonempty (RF.LiftsOver b F ρ) := by
   classical
-  -- `M_B` module setup (shared with `liftsOver_card_gammaA_of_nonempty`; see there)
-  haveI hMBn : RF.MB.Normal := RF.ker_piBC ▸ RF.piBC.normal_ker
-  have hcomm : ∀ x ∈ RF.MB, ∀ y ∈ RF.MB, x * y = y * x := by
-    intro x hx y hy
-    rw [← inv_eq_of_mul_eq_one_right (RF.MB_elem _ (mul_mem hx hy)), mul_inv_rev,
-      inv_eq_of_mul_eq_one_right (RF.MB_elem _ hy), inv_eq_of_mul_eq_one_right (RF.MB_elem _ hx)]
-  have hconj_eq : ∀ {u v : RF.YB}, RF.piBC u = RF.piBC v → ∀ m : ↥RF.MB,
-      u * m.1 * u⁻¹ = v * m.1 * v⁻¹ := by
-    intro u v huv m
-    have hm : u⁻¹ * v ∈ RF.MB := by
-      rw [← RF.ker_piBC]
-      exact MonoidHom.mem_ker.mpr (by rw [map_mul, map_inv, huv, inv_mul_cancel])
-    calc u * m.1 * u⁻¹
-        = u * (m.1 * (u⁻¹ * v) * (u⁻¹ * v)⁻¹) * u⁻¹ := by group
-      _ = u * ((u⁻¹ * v) * m.1 * (u⁻¹ * v)⁻¹) * u⁻¹ := by rw [← hcomm _ hm _ m.2]
-      _ = v * m.1 * v⁻¹ := by group
-  set sec : RF.YC → RF.YB := Function.surjInv RF.piBC_surj with hsecdef
-  have hsec : ∀ c, RF.piBC (sec c) = c := fun c => Function.surjInv_eq RF.piBC_surj c
+  -- the shared `M_B` module pack (extracted above; also used by the card twin)
+  haveI hMBn : RF.MB.Normal := RF.MB_normal
   set θ : ContinuousMonoidHom GA RF.YC :=
     ⟨ρ.1.1.toMonoidHom, ρ.1.1.continuous_toFun⟩ with hθdef
   have hθs : Function.Surjective ⇑θ := ρ.1.2
-  letI : CommGroup ↥RF.MB :=
-    { (inferInstance : Group ↥RF.MB) with
-      mul_comm := fun a b => Subtype.ext (hcomm _ a.2 _ b.2) }
+  letI : CommGroup ↥RF.MB := RF.mbCommGroup
   letI : TopologicalSpace (Additive ↥RF.MB) := (inferInstance : TopologicalSpace ↥RF.MB)
   haveI : DiscreteTopology (Additive ↥RF.MB) :=
     ⟨(inferInstance : DiscreteTopology ↥RF.MB).eq_bot⟩
   haveI : Finite (Additive ↥RF.MB) := (inferInstance : Finite ↥RF.MB)
-  letI actC : DistribMulAction RF.YC (Additive ↥RF.MB) :=
-    { smul := fun c m => Additive.ofMul
-        ⟨sec c * (Additive.toMul m).1 * (sec c)⁻¹,
-          hMBn.conj_mem _ (Additive.toMul m).2 _⟩
-      one_smul := fun m => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show sec 1 * (Additive.toMul m).1 * (sec 1)⁻¹ = (Additive.toMul m).1
-        have h1 : sec 1 ∈ RF.MB := by
-          rw [← RF.ker_piBC]
-          exact MonoidHom.mem_ker.mpr (hsec 1)
-        rw [hcomm _ h1 _ (Additive.toMul m).2]; group
-      mul_smul := fun c c' m => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show sec (c * c') * (Additive.toMul m).1 * (sec (c * c'))⁻¹
-          = sec c * (sec c' * (Additive.toMul m).1 * (sec c')⁻¹) * (sec c)⁻¹
-        rw [show sec c * (sec c' * (Additive.toMul m).1 * (sec c')⁻¹) * (sec c)⁻¹
-            = (sec c * sec c') * (Additive.toMul m).1 * (sec c * sec c')⁻¹ from by group]
-        exact hconj_eq (by rw [hsec, map_mul, hsec, hsec]) (Additive.toMul m)
-      smul_zero := fun c => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show sec c * (1 : RF.YB) * (sec c)⁻¹ = 1
-        group
-      smul_add := fun c m m' => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show sec c * ((Additive.toMul m).1 * (Additive.toMul m').1) * (sec c)⁻¹
-          = (sec c * (Additive.toMul m).1 * (sec c)⁻¹)
-              * (sec c * (Additive.toMul m').1 * (sec c)⁻¹)
-        group }
-  have hA₂ : ∀ a : Additive ↥RF.MB, a + a = 0 :=
-    fun a => Additive.toMul.injective (Subtype.ext (RF.MB_elem _ (Additive.toMul a).2))
+  letI actC : DistribMulAction RF.YC (Additive ↥RF.MB) := RF.mbConjActC
+  have hA₂ : ∀ a : Additive ↥RF.MB, a + a = 0 := RF.MB_add_self
   -- `#fixedPts = 1` (the `(M_B^∨)^{Y_C} = 0` group theory via `lemma_7_1_dual`)
-  have hfix : Nat.card (fixedPts RF.YC (ElemDual (Additive ↥RF.MB))) = 1 := by
-    have hzero : ∀ lam : ElemDual (Additive ↥RF.MB),
-        (∀ g : RF.YC, g • lam = lam) → lam = 0 := by
-      intro lam hlam
-      by_contra hlamne
-      have hinv : ∀ (c : RF.YC) (a : Additive ↥RF.MB), lam (c • a) = lam a := by
-        intro c a
-        have h2 : (c⁻¹ • lam) a = lam a := by rw [hlam c⁻¹]
-        rwa [ElemDual.smul_apply, inv_inv] at h2
-      have hmem : ∀ k : ↥Blk.K, RF.piB k.1 ∈ RF.MB := by
-        intro k
-        rw [RF.MB_eq]; exact Subgroup.mem_map.mpr ⟨k.1, k.2, rfl⟩
-      let s : ↥Blk.K →* ↥RF.MB :=
-        (RF.piB.comp Blk.K.subtype).codRestrict RF.MB (fun k => hmem k)
-      have hs : ∀ k : ↥Blk.K, (s k).1 = RF.piB k.1 := fun _ => rfl
-      have hs_surj : Function.Surjective s := by
-        intro m
-        obtain ⟨k, hk, hkeq⟩ := (RF.MB_eq ▸ m.2 : m.1 ∈ Blk.K.map RF.piB)
-        exact ⟨⟨k, hk⟩, Subtype.ext hkeq⟩
-      let φ : ↥Blk.K →* Multiplicative (ZMod 2) :=
-        { toFun := fun k => Multiplicative.ofAdd (lam (Additive.ofMul (s k)))
-          map_one' := by simp
-          map_mul' := fun a b => by simp [map_mul] }
-      have hφ_apply : ∀ k, φ k = Multiplicative.ofAdd (lam (Additive.ofMul (s k))) := fun _ => rfl
-      have hφne : φ ≠ 1 := by
-        intro hφ1
-        apply hlamne
-        ext a
-        show lam a = 0
-        obtain ⟨k, hk⟩ := hs_surj (Additive.toMul a)
-        have h0 : lam (Additive.ofMul (s k)) = 0 := by
-          simpa [hφ_apply] using congrArg Multiplicative.toAdd (show φ k = 1 by rw [hφ1]; rfl)
-        rw [hk] at h0
-        exact h0
-      have hφsurj : Function.Surjective φ := by
-        intro y
-        rcases eq_or_ne y 1 with rfl | hy
-        · exact ⟨1, map_one φ⟩
-        · obtain ⟨k, hk⟩ := not_forall.mp (fun hh => hφne (MonoidHom.ext hh))
-          refine ⟨k, ?_⟩
-          have hpin : ∀ z : Multiplicative (ZMod 2), z ≠ 1 → z = Multiplicative.ofAdd 1 := by
-            decide
-          rw [hpin _ hk, hpin _ hy]
-      set X : Subgroup Y := φ.ker.map Blk.K.subtype with hXdef
-      have hXK : X ≤ Blk.K := by rw [hXdef]; exact Subgroup.map_subtype_le _
-      have hRX : Blk.frattiniK ≤ X := by
-        intro r hr
-        have hrK : r ∈ Blk.K := frattiniLike_le Blk.K hr
-        refine Subgroup.mem_map.mpr ⟨⟨r, hrK⟩, ?_, rfl⟩
-        rw [MonoidHom.mem_ker, hφ_apply]
-        have hs1 : s ⟨r, hrK⟩ = 1 := Subtype.ext (by
-          rw [hs]
-          show RF.piB r = 1
-          exact (RF.ker_piB.symm ▸ hr : r ∈ RF.piB.ker))
-        rw [hs1]; simp
-      have hXnormal : X.Normal := by
-        rw [hXdef]
-        refine ⟨fun x hx y => ?_⟩
-        obtain ⟨k, hkker, hkeq⟩ := Subgroup.mem_map.mp hx
-        have hxK : x ∈ Blk.K := hkeq ▸ k.2
-        have hyk : y * x * y⁻¹ ∈ Blk.K := Blk.hK.conj_mem x hxK y
-        refine Subgroup.mem_map.mpr ⟨⟨y * x * y⁻¹, hyk⟩, ?_, rfl⟩
-        rw [MonoidHom.mem_ker] at hkker ⊢
-        rw [hφ_apply] at hkker ⊢
-        have hconj : Additive.ofMul (s ⟨y * x * y⁻¹, hyk⟩)
-            = (RF.piBC (RF.piB y)) • Additive.ofMul (s ⟨x, hxK⟩) := by
-          have hact : (RF.piBC (RF.piB y)) • Additive.ofMul (s ⟨x, hxK⟩)
-              = Additive.ofMul (⟨sec (RF.piBC (RF.piB y)) * (s ⟨x, hxK⟩).1
-                  * (sec (RF.piBC (RF.piB y)))⁻¹,
-                  hMBn.conj_mem _ (s ⟨x, hxK⟩).2 _⟩ : ↥RF.MB) := rfl
-          rw [hact]
-          congr 1
-          apply Subtype.ext
-          rw [hs]
-          show RF.piB (y * x * y⁻¹)
-            = sec (RF.piBC (RF.piB y)) * (s ⟨x, hxK⟩).1 * (sec (RF.piBC (RF.piB y)))⁻¹
-          rw [hs, map_mul, map_mul, map_inv]
-          exact (hconj_eq (hsec (RF.piBC (RF.piB y))) ⟨RF.piB x, hmem ⟨x, hxK⟩⟩).symm
-        rw [hconj, hinv]
-        have hkx : s ⟨x, hxK⟩ = s k := congrArg s (Subtype.ext hkeq.symm)
-        rw [hkx]; exact hkker
-      have hidx : (X.subgroupOf Blk.K).index = 2 := by
-        have hcm : X.subgroupOf Blk.K = φ.ker := by
-          rw [hXdef, Subgroup.subgroupOf,
-            Subgroup.comap_map_eq_self_of_injective Blk.K.subtype_injective]
-        show Nat.card (↥Blk.K ⧸ (X.subgroupOf Blk.K)) = 2
-        rw [hcm, Nat.card_congr (QuotientGroup.quotientKerEquivOfSurjective φ hφsurj).toEquiv]
-        simp
-      exact absurd ⟨X, hXnormal, hRX, hXK, hidx⟩ (lemma_7_1_dual Blk)
-    rw [Nat.card_eq_one_iff_unique]
-    exact ⟨⟨fun x y => Subtype.ext ((hzero x.val x.2).trans (hzero y.val y.2).symm)⟩,
-      ⟨⟨0, smul_zero⟩⟩⟩
+  have hfix : Nat.card (fixedPts RF.YC (ElemDual (Additive ↥RF.MB))) = 1 :=
+    RF.card_fixedPts_MB_dual
   -- the candidate duality at `markC θ`, and the direct `Y_B`-conjugation action for `d1Fun`
   have adm := markC_admissible θ hθs
   have hsd := GQ2.FoxH.prop_5_15 (markC θ) adm.2.1 adm.2.2.1 adm.1 hA₂ adm.2.2.2
@@ -344,8 +409,8 @@ theorem RecursionFrame.liftsOver_nonempty_gammaA
     intro g a
     apply Additive.toMul.injective; apply Subtype.ext
     show g * (Additive.toMul a).1 * g⁻¹
-      = sec (RF.piBC g) * (Additive.toMul a).1 * (sec (RF.piBC g))⁻¹
-    exact hconj_eq (by rw [hsec]) (Additive.toMul a)
+      = RF.mbSec (RF.piBC g) * (Additive.toMul a).1 * (RF.mbSec (RF.piBC g))⁻¹
+    exact RF.MB_conj_eq (by rw [RF.mbSec_spec]) (Additive.toMul a)
   -- §1: a set-lift marking of `ρ`'s marking through `π_{BC}`; relators land in `M_B`
   obtain ⟨yσ, hyσ⟩ := RF.piBC_surj ((Marking.push θ).σ)
   obtain ⟨yτ, hyτ⟩ := RF.piBC_surj ((Marking.push θ).τ)
@@ -418,69 +483,21 @@ theorem RecursionFrame.liftsOver_card_gammaA_of_nonempty
     (hne : Nonempty (RF.LiftsOver b F ρ)) :
     Nat.card (RF.LiftsOver b F ρ) = (Nat.card ↥RF.MB) ^ 2 := by
   classical
-  -- `M_B` is normal (the kernel of `π_{BC}`) and elementary abelian
-  haveI hMBn : RF.MB.Normal := RF.ker_piBC ▸ RF.piBC.normal_ker
-  have hcomm : ∀ x ∈ RF.MB, ∀ y ∈ RF.MB, x * y = y * x := by
-    intro x hx y hy
-    rw [← inv_eq_of_mul_eq_one_right (RF.MB_elem _ (mul_mem hx hy)), mul_inv_rev,
-      inv_eq_of_mul_eq_one_right (RF.MB_elem _ hy), inv_eq_of_mul_eq_one_right (RF.MB_elem _ hx)]
-  have hconj_eq : ∀ {u v : RF.YB}, RF.piBC u = RF.piBC v → ∀ m : ↥RF.MB,
-      u * m.1 * u⁻¹ = v * m.1 * v⁻¹ := by
-    intro u v huv m
-    have hm : u⁻¹ * v ∈ RF.MB := by
-      rw [← RF.ker_piBC]
-      exact MonoidHom.mem_ker.mpr (by rw [map_mul, map_inv, huv, inv_mul_cancel])
-    calc u * m.1 * u⁻¹
-        = u * (m.1 * (u⁻¹ * v) * (u⁻¹ * v)⁻¹) * u⁻¹ := by group
-      _ = u * ((u⁻¹ * v) * m.1 * (u⁻¹ * v)⁻¹) * u⁻¹ := by rw [← hcomm _ hm _ m.2]
-      _ = v * m.1 * v⁻¹ := by group
-  -- the set-section of `π_{BC}` and the lower map (over `GA`, for `z1Equiv`)
-  set sec : RF.YC → RF.YB := Function.surjInv RF.piBC_surj with hsecdef
-  have hsec : ∀ c, RF.piBC (sec c) = c := fun c => Function.surjInv_eq RF.piBC_surj c
+  -- the shared `M_B` module pack (extracted above), and the lower map (over `GA`)
+  haveI hMBn : RF.MB.Normal := RF.MB_normal
   set θ : ContinuousMonoidHom GA RF.YC :=
     ⟨ρ.1.1.toMonoidHom, ρ.1.1.continuous_toFun⟩ with hθdef
   have hθs : Function.Surjective ⇑θ := ρ.1.2
-  -- `M_B` as an additive `𝔽₂`-space with the `ρ`-conjugation action
-  letI : CommGroup ↥RF.MB :=
-    { (inferInstance : Group ↥RF.MB) with
-      mul_comm := fun a b => Subtype.ext (hcomm _ a.2 _ b.2) }
+  letI : CommGroup ↥RF.MB := RF.mbCommGroup
   letI : TopologicalSpace (Additive ↥RF.MB) := (inferInstance : TopologicalSpace ↥RF.MB)
   haveI : DiscreteTopology (Additive ↥RF.MB) :=
     ⟨(inferInstance : DiscreteTopology ↥RF.MB).eq_bot⟩
   haveI : Finite (Additive ↥RF.MB) := (inferInstance : Finite ↥RF.MB)
-  letI actC : DistribMulAction RF.YC (Additive ↥RF.MB) :=
-    { smul := fun c m => Additive.ofMul
-        ⟨sec c * (Additive.toMul m).1 * (sec c)⁻¹,
-          hMBn.conj_mem _ (Additive.toMul m).2 _⟩
-      one_smul := fun m => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show sec 1 * (Additive.toMul m).1 * (sec 1)⁻¹ = (Additive.toMul m).1
-        have h1 : sec 1 ∈ RF.MB := by
-          rw [← RF.ker_piBC]
-          exact MonoidHom.mem_ker.mpr (hsec 1)
-        rw [hcomm _ h1 _ (Additive.toMul m).2]; group
-      mul_smul := fun c c' m => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show sec (c * c') * (Additive.toMul m).1 * (sec (c * c'))⁻¹
-          = sec c * (sec c' * (Additive.toMul m).1 * (sec c')⁻¹) * (sec c)⁻¹
-        rw [show sec c * (sec c' * (Additive.toMul m).1 * (sec c')⁻¹) * (sec c)⁻¹
-            = (sec c * sec c') * (Additive.toMul m).1 * (sec c * sec c')⁻¹ from by group]
-        exact hconj_eq (by rw [hsec, map_mul, hsec, hsec]) (Additive.toMul m)
-      smul_zero := fun c => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show sec c * (1 : RF.YB) * (sec c)⁻¹ = 1
-        group
-      smul_add := fun c m m' => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show sec c * ((Additive.toMul m).1 * (Additive.toMul m').1) * (sec c)⁻¹
-          = (sec c * (Additive.toMul m).1 * (sec c)⁻¹)
-              * (sec c * (Additive.toMul m').1 * (sec c)⁻¹)
-        group }
+  letI actC : DistribMulAction RF.YC (Additive ↥RF.MB) := RF.mbConjActC
   letI actG : DistribMulAction GA (Additive ↥RF.MB) :=
     DistribMulAction.compHom (Additive ↥RF.MB) θ.toMonoidHom
   have hcomp : ∀ (γ : GA) (a : Additive ↥RF.MB), γ • a = θ γ • a := fun _ _ => rfl
-  have hA₂ : ∀ a : Additive ↥RF.MB, a + a = 0 :=
-    fun a => Additive.toMul.injective (Subtype.ext (RF.MB_elem _ (Additive.toMul a).2))
+  have hA₂ : ∀ a : Additive ↥RF.MB, a + a = 0 := RF.MB_add_self
   haveI : ContinuousSMul GA (Additive ↥RF.MB) := by
     refine ⟨?_⟩
     have hfac : (fun p : GA × Additive ↥RF.MB => p.1 • p.2)
@@ -497,98 +514,8 @@ theorem RecursionFrame.liftsOver_card_gammaA_of_nonempty
     rw [Nat.card_congr (z1Equiv θ hcomp hθs hA₂).toEquiv,
       (GQ2.FoxH.prop_5_15 (markC θ) adm.2.1 adm.2.2.1 adm.1 hA₂ adm.2.2.2).2.1]
   -- Step 4: `#fixedPts = 1` ⟵ `lemma_7_1_dual` (the `(M^∨)^C = 0` group theory, source-free)
-  have hfix : Nat.card (fixedPts RF.YC (ElemDual (Additive ↥RF.MB))) = 1 := by
-    have hzero : ∀ lam : ElemDual (Additive ↥RF.MB),
-        (∀ g : RF.YC, g • lam = lam) → lam = 0 := by
-      intro lam hlam
-      by_contra hlamne
-      have hinv : ∀ (c : RF.YC) (a : Additive ↥RF.MB), lam (c • a) = lam a := by
-        intro c a
-        have h2 : (c⁻¹ • lam) a = lam a := by rw [hlam c⁻¹]
-        rwa [ElemDual.smul_apply, inv_inv] at h2
-      have hmem : ∀ k : ↥Blk.K, RF.piB k.1 ∈ RF.MB := by
-        intro k
-        rw [RF.MB_eq]; exact Subgroup.mem_map.mpr ⟨k.1, k.2, rfl⟩
-      let s : ↥Blk.K →* ↥RF.MB :=
-        (RF.piB.comp Blk.K.subtype).codRestrict RF.MB (fun k => hmem k)
-      have hs : ∀ k : ↥Blk.K, (s k).1 = RF.piB k.1 := fun _ => rfl
-      have hs_surj : Function.Surjective s := by
-        intro m
-        obtain ⟨k, hk, hkeq⟩ := (RF.MB_eq ▸ m.2 : m.1 ∈ Blk.K.map RF.piB)
-        exact ⟨⟨k, hk⟩, Subtype.ext hkeq⟩
-      let φ : ↥Blk.K →* Multiplicative (ZMod 2) :=
-        { toFun := fun k => Multiplicative.ofAdd (lam (Additive.ofMul (s k)))
-          map_one' := by simp
-          map_mul' := fun a b => by simp [map_mul] }
-      have hφ_apply : ∀ k, φ k = Multiplicative.ofAdd (lam (Additive.ofMul (s k))) := fun _ => rfl
-      have hφne : φ ≠ 1 := by
-        intro hφ1
-        apply hlamne
-        ext a
-        show lam a = 0
-        obtain ⟨k, hk⟩ := hs_surj (Additive.toMul a)
-        have h0 : lam (Additive.ofMul (s k)) = 0 := by
-          simpa [hφ_apply] using congrArg Multiplicative.toAdd (show φ k = 1 by rw [hφ1]; rfl)
-        rw [hk] at h0
-        exact h0
-      have hφsurj : Function.Surjective φ := by
-        intro y
-        rcases eq_or_ne y 1 with rfl | hy
-        · exact ⟨1, map_one φ⟩
-        · obtain ⟨k, hk⟩ := not_forall.mp (fun hh => hφne (MonoidHom.ext hh))
-          refine ⟨k, ?_⟩
-          have hpin : ∀ z : Multiplicative (ZMod 2), z ≠ 1 → z = Multiplicative.ofAdd 1 := by
-            decide
-          rw [hpin _ hk, hpin _ hy]
-      set X : Subgroup Y := φ.ker.map Blk.K.subtype with hXdef
-      have hXK : X ≤ Blk.K := by rw [hXdef]; exact Subgroup.map_subtype_le _
-      have hRX : Blk.frattiniK ≤ X := by
-        intro r hr
-        have hrK : r ∈ Blk.K := frattiniLike_le Blk.K hr
-        refine Subgroup.mem_map.mpr ⟨⟨r, hrK⟩, ?_, rfl⟩
-        rw [MonoidHom.mem_ker, hφ_apply]
-        have hs1 : s ⟨r, hrK⟩ = 1 := Subtype.ext (by
-          rw [hs]
-          show RF.piB r = 1
-          exact (RF.ker_piB.symm ▸ hr : r ∈ RF.piB.ker))
-        rw [hs1]; simp
-      have hXnormal : X.Normal := by
-        rw [hXdef]
-        refine ⟨fun x hx y => ?_⟩
-        obtain ⟨k, hkker, hkeq⟩ := Subgroup.mem_map.mp hx
-        have hxK : x ∈ Blk.K := hkeq ▸ k.2
-        have hyk : y * x * y⁻¹ ∈ Blk.K := Blk.hK.conj_mem x hxK y
-        refine Subgroup.mem_map.mpr ⟨⟨y * x * y⁻¹, hyk⟩, ?_, rfl⟩
-        rw [MonoidHom.mem_ker] at hkker ⊢
-        rw [hφ_apply] at hkker ⊢
-        have hconj : Additive.ofMul (s ⟨y * x * y⁻¹, hyk⟩)
-            = (RF.piBC (RF.piB y)) • Additive.ofMul (s ⟨x, hxK⟩) := by
-          have hact : (RF.piBC (RF.piB y)) • Additive.ofMul (s ⟨x, hxK⟩)
-              = Additive.ofMul (⟨sec (RF.piBC (RF.piB y)) * (s ⟨x, hxK⟩).1
-                  * (sec (RF.piBC (RF.piB y)))⁻¹,
-                  hMBn.conj_mem _ (s ⟨x, hxK⟩).2 _⟩ : ↥RF.MB) := rfl
-          rw [hact]
-          congr 1
-          apply Subtype.ext
-          rw [hs]
-          show RF.piB (y * x * y⁻¹)
-            = sec (RF.piBC (RF.piB y)) * (s ⟨x, hxK⟩).1 * (sec (RF.piBC (RF.piB y)))⁻¹
-          rw [hs, map_mul, map_mul, map_inv]
-          exact (hconj_eq (hsec (RF.piBC (RF.piB y))) ⟨RF.piB x, hmem ⟨x, hxK⟩⟩).symm
-        rw [hconj, hinv]
-        have hkx : s ⟨x, hxK⟩ = s k := congrArg s (Subtype.ext hkeq.symm)
-        rw [hkx]; exact hkker
-      have hidx : (X.subgroupOf Blk.K).index = 2 := by
-        have hcm : X.subgroupOf Blk.K = φ.ker := by
-          rw [hXdef, Subgroup.subgroupOf,
-            Subgroup.comap_map_eq_self_of_injective Blk.K.subtype_injective]
-        show Nat.card (↥Blk.K ⧸ (X.subgroupOf Blk.K)) = 2
-        rw [hcm, Nat.card_congr (QuotientGroup.quotientKerEquivOfSurjective φ hφsurj).toEquiv]
-        simp
-      exact absurd ⟨X, hXnormal, hRX, hXK, hidx⟩ (lemma_7_1_dual Blk)
-    rw [Nat.card_eq_one_iff_unique]
-    exact ⟨⟨fun x y => Subtype.ext ((hzero x.val x.2).trans (hzero y.val y.2).symm)⟩,
-      ⟨⟨0, smul_zero⟩⟩⟩
+  have hfix : Nat.card (fixedPts RF.YC (ElemDual (Additive ↥RF.MB))) = 1 :=
+    RF.card_fixedPts_MB_dual
   -- Step 2: the `Z¹`-torsor bridge (source-generic once a base lift `f₀` exists)
   have htorsor : Nat.card (RF.LiftsOver b F ρ)
       = Nat.card (Z1 GA (Additive ↥RF.MB)) := by
@@ -599,9 +526,9 @@ theorem RecursionFrame.liftsOver_card_gammaA_of_nonempty
       intro γ a
       rw [hcomp]
       apply Additive.toMul.injective; apply Subtype.ext
-      show sec (θ γ) * (Additive.toMul a).1 * (sec (θ γ))⁻¹
+      show RF.mbSec (θ γ) * (Additive.toMul a).1 * (RF.mbSec (θ γ))⁻¹
         = f₀.1 γ * (Additive.toMul a).1 * (f₀.1 γ)⁻¹
-      exact hconj_eq (by rw [hsec]; exact (f₀.2 γ).symm) (Additive.toMul a)
+      exact RF.MB_conj_eq (by rw [RF.mbSec_spec]; exact (f₀.2 γ).symm) (Additive.toMul a)
     have hmemf : ∀ (f : RF.LiftsOver b F ρ) (γ : GA),
         f.1 γ * (f₀.1 γ)⁻¹ ∈ RF.MB := by
       intro f γ

@@ -106,6 +106,89 @@ theorem relZPair_kappa0_reindexHom [Finite C] [Finite C'] [Finite V] {q q' : V �
 
 end SdReindex
 
+/-! ## The x₀-supported section classes (stages 4/5/6 of both twins)
+
+The section cocycles `secC v := ofZ1 ∘ ofZ1w` at the x₀-supported word cocycles, their
+classes `ψ v` in the Gauss domain, the `h1CoordGammaA`-coordinate computation, the `eval`
+roundtrip, and bijectivity given the A-4.1 section bijection.  Generic in the enrichment and
+in the `Z¹_w`-membership pack (`hmem`), so the un/ramified twins differ only in how they
+discharge `hmem`/`hsec` (the split vs ramified shape lemmas).  Instance context as in
+`GQ2/GaussZ/CoordGammaA.lean` (the callers' letI-packs supply it). -/
+
+section X0Sections
+
+variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+  [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+variable {T : MarkedTarget H E Y} {Blk : MinimalBlock T.LY} {RF : RecursionFrame T Blk}
+variable (b : ContinuousMonoidHom GammaA ↥boundarySubgroup) (F : BoundaryFrame H E)
+  (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR) (ρ : BoundaryLifts b F RF.TC)
+variable [TopologicalSpace (En.descData l h).Vmod] [DiscreteTopology (En.descData l h).Vmod]
+  [DistribMulAction GA (En.descData l h).Vmod] [ContinuousSMul GA (En.descData l h).Vmod]
+  [DistribMulAction RF.YC (En.descData l h).Vmod]
+  [Finite (En.descData l h).Vmod]
+variable (hcomp : ∀ (γ : GA) (v : (En.descData l h).Vmod),
+    γ • v = rho0 (En.descData l h) (rhoPrimeGA b F En l h ρ) γ • v)
+  (hcompat : ∀ (γ : GA) (v : (En.descData l h).Vmod), γ • v = thetaGA b F ρ γ • v)
+  (hA₂ : ∀ v : (En.descData l h).Vmod, v + v = 0)
+  (hmem : ∀ v : (En.descData l h).Vmod,
+    x0Supported v ∈ Z1w (A := (En.descData l h).Vmod) (markC (thetaGA b F ρ)))
+
+/-- The x₀-supported section cocycle at `v` (stage 4 of the twins). -/
+noncomputable def x0SecC (v : (En.descData l h).Vmod) :
+    VCocycle (En.descData l h) (rhoPrimeGA b F En l h ρ) :=
+  ofZ1 hcomp (ofZ1w (thetaGA b F ρ) hcompat (thetaGA_surjective b F ρ) hA₂
+    ⟨x0Supported v, hmem v⟩)
+
+/-- The class of `x0SecC v` in the Gauss domain `Z¹⧸B¹` (the twins' `ψ`). -/
+noncomputable def x0SecClass (v : (En.descData l h).Vmod) :
+    VCocycle (En.descData l h) (rhoPrimeGA b F En l h ρ)
+      ⧸ vCobRange (En.descData l h) (rhoPrimeGA b F En l h ρ) :=
+  QuotientAddGroup.mk (x0SecC b F En l h ρ hcomp hcompat hA₂ hmem v)
+
+/-- `eval` recovers the x₀-supported tuple from the section's word cocycle (stage 6's
+`hevalx`). -/
+theorem eval_ofZ1w_x0Supported (v : (En.descData l h).Vmod) :
+    eval (ofZ1w (thetaGA b F ρ) hcompat (thetaGA_surjective b F ρ) hA₂
+      ⟨x0Supported v, hmem v⟩) = x0Supported v := by
+  have h2 := congrArg Subtype.val
+    (toZ1wHom_ofZ1w (thetaGA b F ρ) hcompat (thetaGA_surjective b F ρ) hA₂
+      ⟨x0Supported v, hmem v⟩)
+  rwa [toZ1wHom_coe] at h2
+
+/-- The `h1CoordGammaA`-coordinate of `x0SecClass v` is the class of the x₀-supported word
+cocycle (stage 5's `hcoordψ`). -/
+theorem h1CoordGammaA_x0SecClass (v : (En.descData l h).Vmod) :
+    h1CoordGammaA b F En l h ρ hcomp hcompat hA₂
+        (x0SecClass b F En l h ρ hcomp hcompat hA₂ hmem v)
+      = h1wMk (markC (thetaGA b F ρ)) ⟨x0Supported v, hmem v⟩ := by
+  show h1wMk (markC (thetaGA b F ρ))
+      (toZ1wHom (thetaGA b F ρ) hcompat
+        (toZ1 hcomp (x0SecC b F En l h ρ hcomp hcompat hA₂ hmem v))) = _
+  rw [show toZ1 hcomp (x0SecC b F En l h ρ hcomp hcompat hA₂ hmem v)
+      = ofZ1w (thetaGA b F ρ) hcompat (thetaGA_surjective b F ρ) hA₂
+          ⟨x0Supported v, hmem v⟩ from toZ1_ofZ1 hcomp _]
+  rw [toZ1wHom_ofZ1w]
+
+/-- Bijectivity of `v ↦ x0SecClass v`, given the A-4.1 section bijection (stage 5's
+`hψbij`). -/
+theorem x0SecClass_bijective
+    (hsec : Function.Bijective fun v : (En.descData l h).Vmod =>
+      h1wMk (markC (thetaGA b F ρ)) ⟨x0Supported v, hmem v⟩) :
+    Function.Bijective (x0SecClass b F En l h ρ hcomp hcompat hA₂ hmem) := by
+  constructor
+  · intro v v' hvv'
+    have h1 := congrArg (h1CoordGammaA b F En l h ρ hcomp hcompat hA₂) hvv'
+    rw [h1CoordGammaA_x0SecClass b F En l h ρ hcomp hcompat hA₂ hmem v,
+      h1CoordGammaA_x0SecClass b F En l h ρ hcomp hcompat hA₂ hmem v'] at h1
+    exact hsec.1 h1
+  · intro x
+    obtain ⟨v, hv⟩ := hsec.2 (h1CoordGammaA b F En l h ρ hcomp hcompat hA₂ x)
+    exact ⟨v, (h1CoordGammaA_bijective b F En l h ρ hcomp hcompat hA₂).1
+      ((h1CoordGammaA_x0SecClass b F En l h ρ hcomp hcompat hA₂ hmem v).trans hv)⟩
+
+end X0Sections
+
 /-! ## The twins -/
 
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
@@ -113,6 +196,58 @@ variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finit
 variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
 variable (T : MarkedTarget H E Y) (Blk : MinimalBlock T.LY)
 variable [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
+
+/-! ### The head-slot projections (stage 2/6 of both twins)
+
+`blockProjF ∘ θ = cF ∘ B.tameA` (`boundaryLift_head_gammaA` through `mk' (headActKer)`),
+evaluated at the four `Γ_A`-generators: the tame slots project to the fixed
+`headTameSurj`-values, the wild slots to `1`.  Both twins consume these at `markC θ` (via
+`markC_map`) and at the mapped `Sd`-marking's `cc`-slots (via the `rho0`-roundtrip). -/
+
+section HeadSlots
+
+variable (hE2 : ∀ e : E, e ^ 2 = 1) (B : BoundaryMaps) (F : BoundaryFrame H E)
+  (ρ : BoundaryLifts B.bA F (blockFrame T Blk hE2).TC)
+
+/-- The head factorization of the `Γ_A` boundary lift, through `mk' (headActKer)`. -/
+theorem blockProjF_thetaGA (γ : GA) :
+    blockProjF T Blk (thetaGA B.bA F ρ γ) = headTameSurj T Blk F (B.tameA γ) :=
+  congrArg (⇑(QuotientGroup.mk' (headActKer T Blk)))
+    (boundaryLift_head_gammaA T Blk hE2 B F ρ γ)
+
+/-- The `σ`-slot projects to the fixed tame `σ`-value. -/
+theorem blockProjF_thetaGA_sigma :
+    blockProjF T Blk (thetaGA B.bA F ρ gammaGen.σ) = headTameSurj T Blk F tameSigma := by
+  calc blockProjF T Blk (thetaGA B.bA F ρ gammaGen.σ)
+      = headTameSurj T Blk F (B.tameA (quotientMk NA univMarking.σ)) :=
+        blockProjF_thetaGA T Blk hE2 B F ρ _
+    _ = headTameSurj T Blk F tameSigma := by rw [B.tameA_sigma]
+
+/-- The `τ`-slot projects to the fixed tame `τ`-value. -/
+theorem blockProjF_thetaGA_tau :
+    blockProjF T Blk (thetaGA B.bA F ρ gammaGen.τ) = headTameSurj T Blk F tameTau := by
+  calc blockProjF T Blk (thetaGA B.bA F ρ gammaGen.τ)
+      = headTameSurj T Blk F (B.tameA (quotientMk NA univMarking.τ)) :=
+        blockProjF_thetaGA T Blk hE2 B F ρ _
+    _ = headTameSurj T Blk F tameTau := by rw [B.tameA_tau]
+
+/-- The `x₀`-slot projects to `1` (the wild generators die at the tame head). -/
+theorem blockProjF_thetaGA_x0 :
+    blockProjF T Blk (thetaGA B.bA F ρ gammaGen.x₀) = 1 := by
+  calc blockProjF T Blk (thetaGA B.bA F ρ gammaGen.x₀)
+      = headTameSurj T Blk F (B.tameA (quotientMk NA univMarking.x₀)) :=
+        blockProjF_thetaGA T Blk hE2 B F ρ _
+    _ = 1 := by rw [B.tameA_x0, map_one]
+
+/-- The `x₁`-slot projects to `1` (the wild generators die at the tame head). -/
+theorem blockProjF_thetaGA_x1 :
+    blockProjF T Blk (thetaGA B.bA F ρ gammaGen.x₁) = 1 := by
+  calc blockProjF T Blk (thetaGA B.bA F ρ gammaGen.x₁)
+      = headTameSurj T Blk F (B.tameA (quotientMk NA univMarking.x₁)) :=
+        blockProjF_thetaGA T Blk hE2 B F ρ _
+    _ = 1 := by rw [B.tameA_x1, map_one]
+
+end HeadSlots
 
 /-- **`hGaussZA` at the head-inflated enrichment, unramified case** (P4d): for the block
 enrichment `blockEnrichmentD`, `GaussZResidue B.bA F (blockEnrichmentD …) l h (−2^m)` with
@@ -149,13 +284,8 @@ theorem gaussZResidueD_gammaA_unramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Bound
   intro ρ
   set ρM := (blockFrame T Blk hE2).rhoPrime B.bA F (EnD.radData l h) rfl ρ with hρMdef
   -- ===== the fixed tame surjection into the faithful head quotient =====
-  set cF : ContinuousMonoidHom Ttame (HVq T Blk) :=
-    ⟨(QuotientGroup.mk' (headActKer T Blk)).comp F.alpha.toMonoidHom,
-      (continuous_of_discreteTopology
-        (f := fun hh : H => QuotientGroup.mk' (headActKer T Blk) hh)).comp
-        F.alpha.continuous_toFun⟩ with hcFdef
-  have hcF : Function.Surjective ⇑cF :=
-    (QuotientGroup.mk'_surjective _).comp F.alpha_surjective
+  set cF : ContinuousMonoidHom Ttame (HVq T Blk) := headTameSurj T Blk F with hcFdef
+  have hcF : Function.Surjective ⇑cF := headTameSurj_surjective T Blk F
   -- ===== stage 0: GA-instances and the letI pack =====
   letI : DistribMulAction GA (ZMod 2) :=
     inferInstanceAs (DistribMulAction GammaA (ZMod 2))
@@ -218,9 +348,6 @@ theorem gaussZResidueD_gammaA_unramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Bound
   -- ===== stage HV: the head factorization and the `HVq`-level facts =====
   have hpc : ∀ (cc : Y ⧸ Blk.K) (w : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)),
       cc • w = blockProjF T Blk cc • w := fun cc w => blockProjF_compat T Blk cc w
-  have hfacHV : ∀ γ : GA, blockProjF T Blk (thetaGA B.bA F ρ γ) = cF (B.tameA γ) := fun γ =>
-    congrArg (⇑(QuotientGroup.mk' (headActKer T Blk)))
-      (boundaryLift_head_gammaA T Blk hE2 B F ρ γ)
   have hgenHV : Subgroup.closure ({cF tameSigma, cF tameTau} : Set (HVq T Blk)) = ⊤ :=
     SectionThree.gen_ttame_quotient cF.toMonoidHom cF.continuous_toFun hcF
   have hunramF : ∀ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), cF tameTau • v = v :=
@@ -234,14 +361,10 @@ theorem gaussZResidueD_gammaA_unramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Bound
   -- ===== stage 2: the head-slot projections of `markC θ` =====
   have hσP : blockProjF T Blk ((markC (thetaGA B.bA F ρ)).σ) = cF tameSigma := by
     rw [congrArg Marking.σ (markC_map (thetaGA B.bA F ρ))]
-    calc blockProjF T Blk (thetaGA B.bA F ρ gammaGen.σ)
-        = cF (B.tameA (quotientMk NA univMarking.σ)) := hfacHV _
-      _ = cF tameSigma := by rw [B.tameA_sigma]
+    exact blockProjF_thetaGA_sigma T Blk hE2 B F ρ
   have hτP : blockProjF T Blk ((markC (thetaGA B.bA F ρ)).τ) = cF tameTau := by
     rw [congrArg Marking.τ (markC_map (thetaGA B.bA F ρ))]
-    calc blockProjF T Blk (thetaGA B.bA F ρ gammaGen.τ)
-        = cF (B.tameA (quotientMk NA univMarking.τ)) := hfacHV _
-      _ = cF tameTau := by rw [B.tameA_tau]
+    exact blockProjF_thetaGA_tau T Blk hE2 B F ρ
   have hadm := markC_admissible (thetaGA B.bA F ρ) hθsurj
   -- ===== stage 3: the split hypothesis pack at `markC θ`, through the head =====
   have hsimpleM : IsSimpleModTwo (blockFrame T Blk hE2).YC (EnD.descData l h).Vmod := by
@@ -275,43 +398,26 @@ theorem gaussZResidueD_gammaA_unramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Bound
       hsimpleM hadm.2.2.2 htauM hUM hVSM v
   have hsec := x0Section_bijective_split (markC (thetaGA B.bA F ρ)) hadm.2.1 hadm.2.2.1 hA₂
     hsimpleM hadm.2.2.2 htauM hUM hVSM
-  -- ===== stage 4: the section cocycles and the reindex map ψ =====
+  -- ===== stage 4/5: the section classes ψ, their coordinate, and bijectivity =====
   set secC : (EnD.descData l h).Vmod →
-      VCocycle (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ) := fun v =>
-    ofZ1 hcomp (ofZ1w (thetaGA B.bA F ρ) hcompat hθsurj hA₂ ⟨x0Supported v, hmem v⟩)
-    with hsecCdef
+      VCocycle (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ) :=
+    x0SecC B.bA F EnD l h ρ hcomp hcompat hA₂ hmem with hsecCdef
   set ψ : (EnD.descData l h).Vmod →
       (VCocycle (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ)
-        ⧸ vCobRange (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ)) := fun v =>
-    QuotientAddGroup.mk (secC v) with hψdef
-  -- ===== stage 5: ψ hits the x₀-supported section classes; bijectivity =====
+        ⧸ vCobRange (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ)) :=
+    x0SecClass B.bA F EnD l h ρ hcomp hcompat hA₂ hmem with hψdef
   have hcoordψ : ∀ v, h1CoordGammaA B.bA F EnD l h ρ hcomp hcompat hA₂ (ψ v)
-      = h1wMk (markC (thetaGA B.bA F ρ)) ⟨x0Supported v, hmem v⟩ := fun v => by
-    show h1wMk (markC (thetaGA B.bA F ρ))
-        (toZ1wHom (thetaGA B.bA F ρ) hcompat (toZ1 hcomp (secC v))) = _
-    rw [show toZ1 hcomp (secC v)
-        = ofZ1w (thetaGA B.bA F ρ) hcompat hθsurj hA₂ ⟨x0Supported v, hmem v⟩ from
-        toZ1_ofZ1 hcomp _]
-    rw [toZ1wHom_ofZ1w]
-  have hψbij : Function.Bijective ψ := by
-    constructor
-    · intro v v' hvv'
-      have h1 := congrArg (h1CoordGammaA B.bA F EnD l h ρ hcomp hcompat hA₂) hvv'
-      rw [hcoordψ v, hcoordψ v'] at h1
-      exact hsec.1 h1
-    · intro x
-      obtain ⟨v, hv⟩ := hsec.2 (h1CoordGammaA B.bA F EnD l h ρ hcomp hcompat hA₂ x)
-      exact ⟨v, (h1CoordGammaA_bijective B.bA F EnD l h ρ hcomp hcompat hA₂).1
-        ((hcoordψ v).trans hv)⟩
+      = h1wMk (markC (thetaGA B.bA F ρ)) ⟨x0Supported v, hmem v⟩ :=
+    h1CoordGammaA_x0SecClass B.bA F EnD l h ρ hcomp hcompat hA₂ hmem
+  have hψbij : Function.Bijective ψ :=
+    x0SecClass_bijective B.bA F EnD l h ρ hcomp hcompat hA₂ hmem hsec
   -- ===== stage 6: the value on section classes is `q̄` at the head quotient =====
   have hdat : IsEquivariantFactorSet ((EnD.descData l h).qbar) (EnD.descData l h).dat :=
     EnD.hdat l h
   have hevalx : ∀ v : (EnD.descData l h).Vmod,
       eval (ofZ1w (thetaGA B.bA F ρ) hcompat hθsurj hA₂ ⟨x0Supported v, hmem v⟩)
-        = x0Supported v := fun v => by
-    have h2 := congrArg Subtype.val
-      (toZ1wHom_ofZ1w (thetaGA B.bA F ρ) hcompat hθsurj hA₂ ⟨x0Supported v, hmem v⟩)
-    rwa [toZ1wHom_coe] at h2
+        = x0Supported v :=
+    eval_ofZ1w_x0Supported B.bA F EnD l h ρ hcompat hA₂ hmem
   have hval : ∀ v, QZeroBar (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ)
       htriv_gammaA (ψ v) = blockQbar T Blk F.alpha F.alpha_surjective l hl' v := fun v => by
     show QZero (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ) (secC v)
@@ -340,33 +446,25 @@ theorem gaussZResidueD_gammaA_unramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Bound
       show blockProjF T Blk
         (rho0 (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ) gammaGen.σ) = cF tameSigma
       rw [hround gammaGen.σ]
-      calc blockProjF T Blk (thetaGA B.bA F ρ gammaGen.σ)
-          = cF (B.tameA (quotientMk NA univMarking.σ)) := hfacHV _
-        _ = cF tameSigma := by rw [B.tameA_sigma]
+      exact blockProjF_thetaGA_sigma T Blk hE2 B F ρ
     have hccτ' : (((gammaGen.map (graphSdHom (secC v))).map
         (sdProjHom (blockProjF T Blk) hpc)).τ).cc = cF tameTau := by
       show blockProjF T Blk
         (rho0 (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ) gammaGen.τ) = cF tameTau
       rw [hround gammaGen.τ]
-      calc blockProjF T Blk (thetaGA B.bA F ρ gammaGen.τ)
-          = cF (B.tameA (quotientMk NA univMarking.τ)) := hfacHV _
-        _ = cF tameTau := by rw [B.tameA_tau]
+      exact blockProjF_thetaGA_tau T Blk hE2 B F ρ
     have hccx0' : (((gammaGen.map (graphSdHom (secC v))).map
         (sdProjHom (blockProjF T Blk) hpc)).x₀).cc = 1 := by
       show blockProjF T Blk
         (rho0 (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ) gammaGen.x₀) = 1
       rw [hround gammaGen.x₀]
-      calc blockProjF T Blk (thetaGA B.bA F ρ gammaGen.x₀)
-          = cF (B.tameA (quotientMk NA univMarking.x₀)) := hfacHV _
-        _ = 1 := by rw [B.tameA_x0, map_one]
+      exact blockProjF_thetaGA_x0 T Blk hE2 B F ρ
     have hccx1' : (((gammaGen.map (graphSdHom (secC v))).map
         (sdProjHom (blockProjF T Blk) hpc)).x₁).cc = 1 := by
       show blockProjF T Blk
         (rho0 (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ) gammaGen.x₁) = 1
       rw [hround gammaGen.x₁]
-      calc blockProjF T Blk (thetaGA B.bA F ρ gammaGen.x₁)
-          = cF (B.tameA (quotientMk NA univMarking.x₁)) := hfacHV _
-        _ = 1 := by rw [B.tameA_x1, map_one]
+      exact blockProjF_thetaGA_x1 T Blk hE2 B F ρ
     -- the wild value at the mapped marking is `q̄(v)` (the A-4.3c peel at `C := HVq`)
     have hwild : (liftMark ((gammaGen.map (graphSdHom (secC v))).map
         (sdProjHom (blockProjF T Blk) hpc))
@@ -480,13 +578,8 @@ theorem gaussZResidueD_gammaA_ramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Boundar
   intro ρ
   set ρM := (blockFrame T Blk hE2).rhoPrime B.bA F (EnD.radData l h) rfl ρ with hρMdef
   -- ===== the fixed tame surjection into the faithful head quotient =====
-  set cF : ContinuousMonoidHom Ttame (HVq T Blk) :=
-    ⟨(QuotientGroup.mk' (headActKer T Blk)).comp F.alpha.toMonoidHom,
-      (continuous_of_discreteTopology
-        (f := fun hh : H => QuotientGroup.mk' (headActKer T Blk) hh)).comp
-        F.alpha.continuous_toFun⟩ with hcFdef
-  have hcF : Function.Surjective ⇑cF :=
-    (QuotientGroup.mk'_surjective _).comp F.alpha_surjective
+  set cF : ContinuousMonoidHom Ttame (HVq T Blk) := headTameSurj T Blk F with hcFdef
+  have hcF : Function.Surjective ⇑cF := headTameSurj_surjective T Blk F
   -- ===== stage 0: GA-instances and the letI pack =====
   letI : DistribMulAction GA (ZMod 2) :=
     inferInstanceAs (DistribMulAction GammaA (ZMod 2))
@@ -547,9 +640,6 @@ theorem gaussZResidueD_gammaA_ramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Boundar
   -- ===== stage HV: the head factorization and the `HVq`-level facts =====
   have hpc : ∀ (cc : Y ⧸ Blk.K) (w : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)),
       cc • w = blockProjF T Blk cc • w := fun cc w => blockProjF_compat T Blk cc w
-  have hfacHV : ∀ γ : GA, blockProjF T Blk (thetaGA B.bA F ρ γ) = cF (B.tameA γ) := fun γ =>
-    congrArg (⇑(QuotientGroup.mk' (headActKer T Blk)))
-      (boundaryLift_head_gammaA T Blk hE2 B F ρ γ)
   have hgenHV : Subgroup.closure ({cF tameSigma, cF tameTau} : Set (HVq T Blk)) = ⊤ :=
     SectionThree.gen_ttame_quotient cF.toMonoidHom cF.continuous_toFun hcF
   have hramF : ∃ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), cF tameTau • v ≠ v := hram
@@ -560,24 +650,16 @@ theorem gaussZResidueD_gammaA_ramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Boundar
   -- ===== stage 2: the head-slot projections of `markC θ` =====
   have hσP : blockProjF T Blk ((markC (thetaGA B.bA F ρ)).σ) = cF tameSigma := by
     rw [congrArg Marking.σ (markC_map (thetaGA B.bA F ρ))]
-    calc blockProjF T Blk (thetaGA B.bA F ρ gammaGen.σ)
-        = cF (B.tameA (quotientMk NA univMarking.σ)) := hfacHV _
-      _ = cF tameSigma := by rw [B.tameA_sigma]
+    exact blockProjF_thetaGA_sigma T Blk hE2 B F ρ
   have hτP : blockProjF T Blk ((markC (thetaGA B.bA F ρ)).τ) = cF tameTau := by
     rw [congrArg Marking.τ (markC_map (thetaGA B.bA F ρ))]
-    calc blockProjF T Blk (thetaGA B.bA F ρ gammaGen.τ)
-        = cF (B.tameA (quotientMk NA univMarking.τ)) := hfacHV _
-      _ = cF tameTau := by rw [B.tameA_tau]
+    exact blockProjF_thetaGA_tau T Blk hE2 B F ρ
   have hx0P : blockProjF T Blk ((markC (thetaGA B.bA F ρ)).x₀) = 1 := by
     rw [congrArg Marking.x₀ (markC_map (thetaGA B.bA F ρ))]
-    calc blockProjF T Blk (thetaGA B.bA F ρ gammaGen.x₀)
-        = cF (B.tameA (quotientMk NA univMarking.x₀)) := hfacHV _
-      _ = 1 := by rw [B.tameA_x0, map_one]
+    exact blockProjF_thetaGA_x0 T Blk hE2 B F ρ
   have hx1P : blockProjF T Blk ((markC (thetaGA B.bA F ρ)).x₁) = 1 := by
     rw [congrArg Marking.x₁ (markC_map (thetaGA B.bA F ρ))]
-    calc blockProjF T Blk (thetaGA B.bA F ρ gammaGen.x₁)
-        = cF (B.tameA (quotientMk NA univMarking.x₁)) := hfacHV _
-      _ = 1 := by rw [B.tameA_x1, map_one]
+    exact blockProjF_thetaGA_x1 T Blk hE2 B F ρ
   have hadm := markC_admissible (thetaGA B.bA F ρ) hθsurj
   -- ===== stage 3: the ramified hypothesis pack at `markC θ`, through the head =====
   have hx0M : ∀ v : (EnD.descData l h).Vmod,
@@ -606,43 +688,26 @@ theorem gaussZResidueD_gammaA_ramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Boundar
       hx0M hx1M htauM hToddM v
   have hsec := x0Section_bijective_ramified (markC (thetaGA B.bA F ρ)) hadm.2.1 hadm.2.2.1
     hA₂ hx0M hx1M htauM hToddM
-  -- ===== stage 4: the section cocycles and the reindex map ψ =====
+  -- ===== stage 4/5: the section classes ψ, their coordinate, and bijectivity =====
   set secC : (EnD.descData l h).Vmod →
-      VCocycle (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ) := fun v =>
-    ofZ1 hcomp (ofZ1w (thetaGA B.bA F ρ) hcompat hθsurj hA₂ ⟨x0Supported v, hmem v⟩)
-    with hsecCdef
+      VCocycle (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ) :=
+    x0SecC B.bA F EnD l h ρ hcomp hcompat hA₂ hmem with hsecCdef
   set ψ : (EnD.descData l h).Vmod →
       (VCocycle (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ)
-        ⧸ vCobRange (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ)) := fun v =>
-    QuotientAddGroup.mk (secC v) with hψdef
-  -- ===== stage 5: ψ hits the x₀-supported section classes; bijectivity =====
+        ⧸ vCobRange (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ)) :=
+    x0SecClass B.bA F EnD l h ρ hcomp hcompat hA₂ hmem with hψdef
   have hcoordψ : ∀ v, h1CoordGammaA B.bA F EnD l h ρ hcomp hcompat hA₂ (ψ v)
-      = h1wMk (markC (thetaGA B.bA F ρ)) ⟨x0Supported v, hmem v⟩ := fun v => by
-    show h1wMk (markC (thetaGA B.bA F ρ))
-        (toZ1wHom (thetaGA B.bA F ρ) hcompat (toZ1 hcomp (secC v))) = _
-    rw [show toZ1 hcomp (secC v)
-        = ofZ1w (thetaGA B.bA F ρ) hcompat hθsurj hA₂ ⟨x0Supported v, hmem v⟩ from
-        toZ1_ofZ1 hcomp _]
-    rw [toZ1wHom_ofZ1w]
-  have hψbij : Function.Bijective ψ := by
-    constructor
-    · intro v v' hvv'
-      have h1 := congrArg (h1CoordGammaA B.bA F EnD l h ρ hcomp hcompat hA₂) hvv'
-      rw [hcoordψ v, hcoordψ v'] at h1
-      exact hsec.1 h1
-    · intro x
-      obtain ⟨v, hv⟩ := hsec.2 (h1CoordGammaA B.bA F EnD l h ρ hcomp hcompat hA₂ x)
-      exact ⟨v, (h1CoordGammaA_bijective B.bA F EnD l h ρ hcomp hcompat hA₂).1
-        ((hcoordψ v).trans hv)⟩
+      = h1wMk (markC (thetaGA B.bA F ρ)) ⟨x0Supported v, hmem v⟩ :=
+    h1CoordGammaA_x0SecClass B.bA F EnD l h ρ hcomp hcompat hA₂ hmem
+  have hψbij : Function.Bijective ψ :=
+    x0SecClass_bijective B.bA F EnD l h ρ hcomp hcompat hA₂ hmem hsec
   -- ===== stage 6: the value on section classes is the Wall double at the head quotient =====
   have hdat : IsEquivariantFactorSet ((EnD.descData l h).qbar) (EnD.descData l h).dat :=
     EnD.hdat l h
   have hevalx : ∀ v : (EnD.descData l h).Vmod,
       eval (ofZ1w (thetaGA B.bA F ρ) hcompat hθsurj hA₂ ⟨x0Supported v, hmem v⟩)
-        = x0Supported v := fun v => by
-    have h2 := congrArg Subtype.val
-      (toZ1wHom_ofZ1w (thetaGA B.bA F ρ) hcompat hθsurj hA₂ ⟨x0Supported v, hmem v⟩)
-    rwa [toZ1wHom_coe] at h2
+        = x0Supported v :=
+    eval_ofZ1w_x0Supported B.bA F EnD l h ρ hcompat hA₂ hmem
   have hval : ∀ v, QZeroBar (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ)
       htriv_gammaA (ψ v)
       = qDouble (blockQbar T Blk F.alpha F.alpha_surjective l hl')
@@ -673,33 +738,25 @@ theorem gaussZResidueD_gammaA_ramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Boundar
       show blockProjF T Blk
         (rho0 (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ) gammaGen.σ) = cF tameSigma
       rw [hround gammaGen.σ]
-      calc blockProjF T Blk (thetaGA B.bA F ρ gammaGen.σ)
-          = cF (B.tameA (quotientMk NA univMarking.σ)) := hfacHV _
-        _ = cF tameSigma := by rw [B.tameA_sigma]
+      exact blockProjF_thetaGA_sigma T Blk hE2 B F ρ
     have hccτ' : (((gammaGen.map (graphSdHom (secC v))).map
         (sdProjHom (blockProjF T Blk) hpc)).τ).cc = cF tameTau := by
       show blockProjF T Blk
         (rho0 (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ) gammaGen.τ) = cF tameTau
       rw [hround gammaGen.τ]
-      calc blockProjF T Blk (thetaGA B.bA F ρ gammaGen.τ)
-          = cF (B.tameA (quotientMk NA univMarking.τ)) := hfacHV _
-        _ = cF tameTau := by rw [B.tameA_tau]
+      exact blockProjF_thetaGA_tau T Blk hE2 B F ρ
     have hccx0' : (((gammaGen.map (graphSdHom (secC v))).map
         (sdProjHom (blockProjF T Blk) hpc)).x₀).cc = 1 := by
       show blockProjF T Blk
         (rho0 (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ) gammaGen.x₀) = 1
       rw [hround gammaGen.x₀]
-      calc blockProjF T Blk (thetaGA B.bA F ρ gammaGen.x₀)
-          = cF (B.tameA (quotientMk NA univMarking.x₀)) := hfacHV _
-        _ = 1 := by rw [B.tameA_x0, map_one]
+      exact blockProjF_thetaGA_x0 T Blk hE2 B F ρ
     have hccx1' : (((gammaGen.map (graphSdHom (secC v))).map
         (sdProjHom (blockProjF T Blk) hpc)).x₁).cc = 1 := by
       show blockProjF T Blk
         (rho0 (EnD.descData l h) (rhoPrimeGA B.bA F EnD l h ρ) gammaGen.x₁) = 1
       rw [hround gammaGen.x₁]
-      calc blockProjF T Blk (thetaGA B.bA F ρ gammaGen.x₁)
-          = cF (B.tameA (quotientMk NA univMarking.x₁)) := hfacHV _
-        _ = 1 := by rw [B.tameA_x1, map_one]
+      exact blockProjF_thetaGA_x1 T Blk hE2 B F ρ
     -- the wild value at the mapped marking is the Wall double (the A-4.4b peel at `HVq`)
     have hwild : (liftMark ((gammaGen.map (graphSdHom (secC v))).map
         (sdProjHom (blockProjF T Blk) hpc))

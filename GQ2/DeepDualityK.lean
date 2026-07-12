@@ -380,29 +380,48 @@ theorem cup_midClasses_deepClasses (k : IntermediateField ℚ_[2] ℚ̄₂)
   obtain ⟨b, hb, rfl⟩ := deepClass_eq_kummerClassK k hη
   exact cup_mid_deep k htriv a b ha hb
 
+/-- `SectionSix.IsDeepUnit` is antitone in the subgroup: only the two fixedness fields
+mention `N`. -/
+private theorem isDeepUnit_of_le {N N' : Subgroup (Kummer.GaloisGroup ℚ_[2])}
+    (hle : ∀ x ∈ N', x ∈ N) {A : ℚ̄₂} (hA : SectionSix.IsDeepUnit N A) :
+    SectionSix.IsDeepUnit N' A := by
+  obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hA
+  exact ⟨hA0, fun g hg => hAfix g (hle g hg), b, fun g hg => hbfix g (hle g hg), hAeq, hb⟩
+
+/-- `IsMidUnit` is antitone in the subgroup (the `≤`-mirror of `isDeepUnit_of_le`). -/
+private theorem isMidUnit_of_le {N N' : Subgroup (Kummer.GaloisGroup ℚ_[2])}
+    (hle : ∀ x ∈ N', x ∈ N) {A : ℚ̄₂} (hA : IsMidUnit N A) : IsMidUnit N' A := by
+  obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hA
+  exact ⟨hA0, fun g hg => hAfix g (hle g hg), b, fun g hg => hbfix g (hle g hg), hAeq, hb⟩
+
 variable [Finite C]
 
-/-- **(H3) Isotropy of the deep classes under the K-level pairing**: two deep Kummer classes
-pair to zero.  Spliced from the Tier-5 `cup_deepClasses` as described in the section header. -/
-theorem pairingK_deep_deep (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
+/-- **The shared witness-transport + `inv_K`-kill tail** of the two isotropy splices
+(`pairingK_deep_deep`/`pairingK_mid_deep`): once the `k`-side cup of the two restricted Kummer
+classes of `N`-fixed squares vanishes, the corresponding `pairingK`-value over `ker ρ`
+vanishes — the `k`-side coboundary witness transports through `kerToFixing` and the
+`𝔽₂ ≃+ μ₂` bridge, and the injective `inv_K` kills the class. -/
+private theorem pairingK_kummer_eq_zero (k : IntermediateField ℚ_[2] ℚ̄₂)
+    [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
     (hker : ∀ x : Kummer.GaloisGroup ℚ_[2],
       x ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) ↔ x ∈ k.fixingSubgroup)
-    {ξ η : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)}
-    (hξ : ξ ∈ deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
-    (hη : η ∈ deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :
-    pairingK ρ ξ η = 0 := by
-  obtain ⟨A, β, hdA, hsqA, hβ0, rfl⟩ := hξ
-  obtain ⟨B, δ, hdB, hsqB, hδ0, rfl⟩ := hη
-  obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hdA
-  obtain ⟨hB0, hBfix, c, hcfix, hBeq, hc⟩ := hdB
-  -- the same deep-unit data over the `k`-side view of the group
-  have hdA' : SectionSix.IsDeepUnit k.fixingSubgroup A :=
-    ⟨hA0, fun g hg => hAfix g ((hker g).mpr hg), b,
-      fun g hg => hbfix g ((hker g).mpr hg), hAeq, hb⟩
-  have hdB' : SectionSix.IsDeepUnit k.fixingSubgroup B :=
-    ⟨hB0, fun g hg => hBfix g ((hker g).mpr hg), c,
-      fun g hg => hcfix g ((hker g).mpr hg), hBeq, hc⟩
+    {A B β δ : ℚ̄₂} (hsqA : β ^ 2 = A) (hβ0 : β ≠ 0)
+    (hAfix : ∀ g : Kummer.GaloisGroup ℚ_[2],
+      g ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) → g • A = A)
+    (hsqB : δ ^ 2 = B) (hδ0 : δ ≠ 0)
+    (hBfix : ∀ g : Kummer.GaloisGroup ℚ_[2],
+      g ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) → g • B = B)
+    (hcup0 : trivialCupPairing 2 k.fixingSubgroup htriv
+      (H1ofFun ↥k.fixingSubgroup fun n =>
+        Kummer.kummerCocycleFun β (n : Kummer.GaloisGroup ℚ_[2]))
+      (H1ofFun ↥k.fixingSubgroup fun n =>
+        Kummer.kummerCocycleFun δ (n : Kummer.GaloisGroup ℚ_[2])) = 0) :
+    pairingK ρ
+      (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) fun n =>
+        Kummer.kummerCocycleFun β (n : AbsGalQ2))
+      (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) fun n =>
+        Kummer.kummerCocycleFun δ (n : AbsGalQ2)) = 0 := by
   -- restricted Kummer cocycles on both sides
   have hZ1β : (fun n : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) =>
         Kummer.kummerCocycleFun β (n : AbsGalQ2))
@@ -415,18 +434,12 @@ theorem pairingK_deep_deep (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimen
   have hZ1kβ : (fun n : ↥k.fixingSubgroup =>
         Kummer.kummerCocycleFun β (n : Kummer.GaloisGroup ℚ_[2]))
       ∈ Z1 ↥k.fixingSubgroup (ZMod 2) :=
-    GQ2.DeepPart.kummerRestrict_mem_Z1 hsqA hβ0 hdA'.2.1
+    GQ2.DeepPart.kummerRestrict_mem_Z1 hsqA hβ0 (fun g hg => hAfix g ((hker g).mpr hg))
   have hZ1kδ : (fun n : ↥k.fixingSubgroup =>
         Kummer.kummerCocycleFun δ (n : Kummer.GaloisGroup ℚ_[2]))
       ∈ Z1 ↥k.fixingSubgroup (ZMod 2) :=
-    GQ2.DeepPart.kummerRestrict_mem_Z1 hsqB hδ0 hdB'.2.1
-  -- the Tier-5 vanishing over `k`, and its coboundary witness
-  have hcup0 : trivialCupPairing 2 k.fixingSubgroup htriv
-      (H1ofFun ↥k.fixingSubgroup fun n =>
-        Kummer.kummerCocycleFun β (n : Kummer.GaloisGroup ℚ_[2]))
-      (H1ofFun ↥k.fixingSubgroup fun n =>
-        Kummer.kummerCocycleFun δ (n : Kummer.GaloisGroup ℚ_[2])) = 0 :=
-    cup_deepClasses k htriv ⟨A, β, hdA', hsqA, hβ0, rfl⟩ ⟨B, δ, hdB', hsqB, hδ0, rfl⟩
+    GQ2.DeepPart.kummerRestrict_mem_Z1 hsqB hδ0 (fun g hg => hBfix g ((hker g).mpr hg))
+  -- the `k`-side vanishing in mk-form, and its coboundary witness
   rw [H1ofFun_of_mem hZ1kβ, H1ofFun_of_mem hZ1kδ] at hcup0
   have hB2k : cup11Fun (AddMonoidHom.mul)
       (fun n : ↥k.fixingSubgroup => Kummer.kummerCocycleFun β (n : Kummer.GaloisGroup ℚ_[2]))
@@ -446,13 +459,6 @@ theorem pairingK_deep_deep (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimen
   have hiv : ∀ W : H2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2),
       (tateDualityK ρ).inv W = 0 ↔ W = 0 := fun _ =>
     map_eq_zero_iff _ (tateDualityK ρ).inv.injective
-  -- re-view the goal so the `H1ofFun`-terms match `hZ1β`/`hZ1δ` syntactically (the
-  -- destructured form carries the definition's `GaloisGroup`-view of `↥(ker ρ)`)
-  show pairingK ρ
-      (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) fun n =>
-        Kummer.kummerCocycleFun β (n : AbsGalQ2))
-      (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) fun n =>
-        Kummer.kummerCocycleFun δ (n : AbsGalQ2)) = 0
   rw [H1ofFun_of_mem hZ1β, H1ofFun_of_mem hZ1δ]
   show (tateDualityK ρ).inv
       ((cup11 (muDualPairing 2 (ZMod 2)) (muDualPairing_equivariant 2 (ZMod 2)))
@@ -485,6 +491,25 @@ theorem pairingK_deep_deep (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimen
     _ = Kummer.kummerCocycleFun β (p.1 : AbsGalQ2)
           * Kummer.kummerCocycleFun δ (p.2 : AbsGalQ2) := by rw [htriv]
 
+/-- **(H3) Isotropy of the deep classes under the K-level pairing**: two deep Kummer classes
+pair to zero.  Spliced from the Tier-5 `cup_deepClasses` as described in the section header. -/
+theorem pairingK_deep_deep (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (hker : ∀ x : Kummer.GaloisGroup ℚ_[2],
+      x ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) ↔ x ∈ k.fixingSubgroup)
+    {ξ η : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2)}
+    (hξ : ξ ∈ deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
+    (hη : η ∈ deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :
+    pairingK ρ ξ η = 0 := by
+  obtain ⟨A, β, hdA, hsqA, hβ0, rfl⟩ := hξ
+  obtain ⟨B, δ, hdB, hsqB, hδ0, rfl⟩ := hη
+  -- the Tier-5 vanishing over `k` (unit data transported to the `k`-side view), then the
+  -- shared witness-transport tail
+  exact pairingK_kummer_eq_zero ρ k htriv hker hsqA hβ0 hdA.2.1 hsqB hδ0 hdB.2.1
+    (cup_deepClasses k htriv
+      ⟨A, β, isDeepUnit_of_le (fun g hg => (hker g).mpr hg) hdA, hsqA, hβ0, rfl⟩
+      ⟨B, δ, isDeepUnit_of_le (fun g hg => (hker g).mpr hg) hdB, hsqB, hδ0, rfl⟩)
+
 /-- **Mid ⟂ deep under the K-level pairing** — `(U_e, U_{e+1}) = 1` spliced to `ker ρ`
 (same witness-transport as `pairingK_deep_deep`, with the Tier-5 input
 `cup_midClasses_deepClasses`).  The "easy half" of (H4)'s sharpness `Deep^⊥ = E`. -/
@@ -498,94 +523,12 @@ theorem pairingK_mid_deep (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimens
     pairingK ρ ξ η = 0 := by
   obtain ⟨A, β, hdA, hsqA, hβ0, rfl⟩ := hξ
   obtain ⟨B, δ, hdB, hsqB, hδ0, rfl⟩ := hη
-  obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hdA
-  obtain ⟨hB0, hBfix, c, hcfix, hBeq, hc⟩ := hdB
-  -- the same unit data over the `k`-side view of the group
-  have hdA' : IsMidUnit k.fixingSubgroup A :=
-    ⟨hA0, fun g hg => hAfix g ((hker g).mpr hg), b,
-      fun g hg => hbfix g ((hker g).mpr hg), hAeq, hb⟩
-  have hdB' : SectionSix.IsDeepUnit k.fixingSubgroup B :=
-    ⟨hB0, fun g hg => hBfix g ((hker g).mpr hg), c,
-      fun g hg => hcfix g ((hker g).mpr hg), hBeq, hc⟩
-  -- restricted Kummer cocycles on both sides
-  have hZ1β : (fun n : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) =>
-        Kummer.kummerCocycleFun β (n : AbsGalQ2))
-      ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) :=
-    GQ2.DeepPart.kummerRestrict_mem_Z1 hsqA hβ0 hAfix
-  have hZ1δ : (fun n : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) =>
-        Kummer.kummerCocycleFun δ (n : AbsGalQ2))
-      ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) :=
-    GQ2.DeepPart.kummerRestrict_mem_Z1 hsqB hδ0 hBfix
-  have hZ1kβ : (fun n : ↥k.fixingSubgroup =>
-        Kummer.kummerCocycleFun β (n : Kummer.GaloisGroup ℚ_[2]))
-      ∈ Z1 ↥k.fixingSubgroup (ZMod 2) :=
-    GQ2.DeepPart.kummerRestrict_mem_Z1 hsqA hβ0 hdA'.2.1
-  have hZ1kδ : (fun n : ↥k.fixingSubgroup =>
-        Kummer.kummerCocycleFun δ (n : Kummer.GaloisGroup ℚ_[2]))
-      ∈ Z1 ↥k.fixingSubgroup (ZMod 2) :=
-    GQ2.DeepPart.kummerRestrict_mem_Z1 hsqB hδ0 hdB'.2.1
-  -- the Tier-5 vanishing over `k`, and its coboundary witness
-  have hcup0 : trivialCupPairing 2 k.fixingSubgroup htriv
-      (H1ofFun ↥k.fixingSubgroup fun n =>
-        Kummer.kummerCocycleFun β (n : Kummer.GaloisGroup ℚ_[2]))
-      (H1ofFun ↥k.fixingSubgroup fun n =>
-        Kummer.kummerCocycleFun δ (n : Kummer.GaloisGroup ℚ_[2])) = 0 :=
-    cup_midClasses_deepClasses k htriv ⟨A, β, hdA', hsqA, hβ0, rfl⟩
-      ⟨B, δ, hdB', hsqB, hδ0, rfl⟩
-  rw [H1ofFun_of_mem hZ1kβ, H1ofFun_of_mem hZ1kδ] at hcup0
-  have hB2k : cup11Fun (AddMonoidHom.mul)
-      (fun n : ↥k.fixingSubgroup => Kummer.kummerCocycleFun β (n : Kummer.GaloisGroup ℚ_[2]))
-      (fun n : ↥k.fixingSubgroup => Kummer.kummerCocycleFun δ (n : Kummer.GaloisGroup ℚ_[2]))
-      ∈ B2 ↥k.fixingSubgroup (ZMod 2) := by
-    have h0 : H2mk ↥k.fixingSubgroup (ZMod 2)
-        ⟨cup11Fun (AddMonoidHom.mul)
-            (fun n : ↥k.fixingSubgroup =>
-              Kummer.kummerCocycleFun β (n : Kummer.GaloisGroup ℚ_[2]))
-            (fun n : ↥k.fixingSubgroup =>
-              Kummer.kummerCocycleFun δ (n : Kummer.GaloisGroup ℚ_[2])),
-          cup11_mem_Z2 (AddMonoidHom.mul) (fun g m n => by rw [htriv, htriv, htriv])
-            ⟨_, hZ1kβ⟩ ⟨_, hZ1kδ⟩⟩ = 0 := hcup0
-    exact AddSubgroup.mem_addSubgroupOf.mp ((QuotientAddGroup.eq_zero_iff _).mp h0)
-  obtain ⟨ψ, hψc, hψeq⟩ := hB2k
-  -- kill `inv_K`; reduce to `B²`-membership of the `μ₂`-valued cup cocycle over `ker ρ`
-  have hiv : ∀ W : H2 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2),
-      (tateDualityK ρ).inv W = 0 ↔ W = 0 := fun _ =>
-    map_eq_zero_iff _ (tateDualityK ρ).inv.injective
-  show pairingK ρ
-      (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) fun n =>
-        Kummer.kummerCocycleFun β (n : AbsGalQ2))
-      (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) fun n =>
-        Kummer.kummerCocycleFun δ (n : AbsGalQ2)) = 0
-  rw [H1ofFun_of_mem hZ1β, H1ofFun_of_mem hZ1δ]
-  show (tateDualityK ρ).inv
-      ((cup11 (muDualPairing 2 (ZMod 2)) (muDualPairing_equivariant 2 (ZMod 2)))
-        (H1congr zmodMuDualEquiv (zmodMuDualEquiv_equivariant ρ)
-          (H1mk _ _ ⟨_, hZ1β⟩)) (H1mk _ _ ⟨_, hZ1δ⟩)) = 0
-  rw [H1congr_mk, cup11_mk_mk, hiv]
-  refine (QuotientAddGroup.eq_zero_iff _).mpr (AddSubgroup.mem_addSubgroupOf.mpr ?_)
-  refine AddSubgroup.mem_map.mpr
-    ⟨fun n => LocalLiftingDuality.muNTwoEquiv.symm (ψ (kerToFixing ρ k hker n)),
-      mem_C1_iff.mpr (continuous_of_discreteTopology.comp
-        ((mem_C1_iff.mp hψc).comp (continuous_kerToFixing ρ k hker))), ?_⟩
-  funext p
-  show p.1 • LocalLiftingDuality.muNTwoEquiv.symm (ψ (kerToFixing ρ k hker p.2))
-      - LocalLiftingDuality.muNTwoEquiv.symm (ψ (kerToFixing ρ k hker (p.1 * p.2)))
-      + LocalLiftingDuality.muNTwoEquiv.symm (ψ (kerToFixing ρ k hker p.1))
-    = LocalLiftingDuality.muNTwoEquiv.symm
-        (Kummer.kummerCocycleFun β (p.1 : AbsGalQ2) * Kummer.kummerCocycleFun δ (p.2 : AbsGalQ2))
-  rw [smul_muN_two_trivial_ker, kerToFixing_mul, ← map_sub, ← map_add]
-  congr 1
-  calc ψ (kerToFixing ρ k hker p.2)
-      - ψ (kerToFixing ρ k hker p.1 * kerToFixing ρ k hker p.2)
-      + ψ (kerToFixing ρ k hker p.1)
-      = (kerToFixing ρ k hker p.1) • ψ (kerToFixing ρ k hker p.2)
-        - ψ (kerToFixing ρ k hker p.1 * kerToFixing ρ k hker p.2)
-        + ψ (kerToFixing ρ k hker p.1) := by rw [htriv]
-    _ = Kummer.kummerCocycleFun β (p.1 : AbsGalQ2)
-          * ((kerToFixing ρ k hker p.1) • Kummer.kummerCocycleFun δ (p.2 : AbsGalQ2)) :=
-        congrFun hψeq (kerToFixing ρ k hker p.1, kerToFixing ρ k hker p.2)
-    _ = Kummer.kummerCocycleFun β (p.1 : AbsGalQ2)
-          * Kummer.kummerCocycleFun δ (p.2 : AbsGalQ2) := by rw [htriv]
+  -- the Tier-5 vanishing over `k` (unit data transported to the `k`-side view), then the
+  -- shared witness-transport tail
+  exact pairingK_kummer_eq_zero ρ k htriv hker hsqA hβ0 hdA.2.1 hsqB hδ0 hdB.2.1
+    (cup_midClasses_deepClasses k htriv
+      ⟨A, β, isMidUnit_of_le (fun g hg => (hker g).mpr hg) hdA, hsqA, hβ0, rfl⟩
+      ⟨B, δ, isDeepUnit_of_le (fun g hg => (hker g).mpr hg) hdB, hsqB, hδ0, rfl⟩)
 
 /-- **The "easy half" of (H4) in `pairPerp` form**: `E = midClasses ≤ Deep^⊥` under
 `pairingK`.  Sharpness (`Deep^⊥ ≤ E`) follows from this + the cardinality balance

@@ -336,6 +336,35 @@ theorem edEquivariant
   rw [hEDsmul]
   simp only [dualAddEquiv_apply, muDual_smul_apply, smul_muN_two_trivial]
 
+/-- **The shared cup-clause skeleton** of clauses (iv)–(vi): an `𝔽₂`-side evaluation cup `Φ`
+that matches B6's `μ₂`-side pairing `Ψ` through the class transport `e` and the coefficient
+transport `muNTwoEquiv` (`hcomm`), with B6-side perfect surjectivity `hP` and equal finite
+cardinalities, is itself bijective — `bijective_cup` applied to the `τ`-transported opposite
+currying. -/
+private theorem bijective_cup_of_comm {V W Y : Type*} [AddCommGroup V] [AddCommGroup W]
+    [AddCommGroup Y] [Finite V] [Finite W]
+    (hV₂ : ∀ v : V, v + v = 0) (hW₂ : ∀ w : W, w + w = 0) (hcardVW : Nat.card V = Nat.card W)
+    (htriv : ∀ (γ : AbsGalQ2) (m : ZMod 2), γ • m = m)
+    (Φ : V →+ W →+ H2 AbsGalQ2 (ZMod 2)) (Ψ : Y →+ V →+ H2 AbsGalQ2 (MuN 2)) (e : Y ≃+ W)
+    (hP : Function.Surjective fun d'' : Y => (tateDuality 2).inv.toAddMonoidHom.comp (Ψ d''))
+    (hcomm : ∀ (c : V) (d'' : Y),
+      Φ c (e d'') = H2congr muNTwoEquiv (muNTwoEquiv_equivariant htriv) (Ψ d'' c)) :
+    Function.Bijective ⇑Φ := by
+  haveI : NeZero 2 := ⟨two_ne_zero⟩
+  haveI : Finite (H2 AbsGalQ2 (ZMod 2)) :=
+    (Foundations.absGalQ2_localEulerCharacteristic (ZMod 2)).2.2.1
+  let τ : H2 AbsGalQ2 (ZMod 2) ≃+ ZMod 2 :=
+    (H2congr muNTwoEquiv (muNTwoEquiv_equivariant htriv)).symm.trans (tateDuality 2).inv
+  have hτapp : ∀ X, τ (H2congr muNTwoEquiv (muNTwoEquiv_equivariant htriv) X)
+      = (tateDuality 2).inv X := fun X => by simp [τ]
+  have hsurj : ∀ f : V →+ ZMod 2, ∃ w : W, ∀ c : V, τ (Φ c w) = f c := by
+    intro f
+    obtain ⟨d'', hd''⟩ := hP f
+    refine ⟨e d'', fun c => ?_⟩
+    rw [hcomm c d'', hτapp]
+    exact DFunLike.congr_fun hd'' c
+  exact bijective_cup hV₂ hW₂ hcardVW τ Φ hsurj
+
 /-- **Clause (iv)**: the `(1,1)` evaluation cup `c ↦ (d ↦ c ∪ d) : H¹(A) → Hom(H¹(A′), H²(𝔽₂))` is
 bijective — the transpose of B6's `perfect11`, discharged by graded-commutativity + counting. -/
 theorem bijective_cup11_dualEval
@@ -348,41 +377,21 @@ theorem bijective_cup11_dualEval
   haveI : Finite (H1 AbsGalQ2 A) := (Foundations.absGalQ2_localEulerCharacteristic A).2.1
   haveI : Finite (H1 AbsGalQ2 (ElemDual A)) :=
     (Foundations.absGalQ2_localEulerCharacteristic (ElemDual A)).2.1
-  haveI : Finite (H2 AbsGalQ2 (ZMod 2)) :=
-    (Foundations.absGalQ2_localEulerCharacteristic (ZMod 2)).2.2.1
   have htor : ∀ x : A, (2 : ℕ) • x = 0 := fun x => by rw [two_nsmul]; exact hA₂ x
-  have hμNe := muNTwoEquiv_equivariant htriv
   have heD := edEquivariant hpair htriv
-  let τ : H2 AbsGalQ2 (ZMod 2) ≃+ ZMod 2 :=
-    (H2congr muNTwoEquiv hμNe).symm.trans (tateDuality 2).inv
-  have hτapp : ∀ X, τ (H2congr muNTwoEquiv hμNe X) = (tateDuality 2).inv X := fun X => by
-    simp [τ]
-  have key : ∀ (c : H1 AbsGalQ2 A) (d'' : H1 AbsGalQ2 (MuDual 2 A)),
-      τ (cup11 (dualEval A) hpair c (H1congr dualAddEquiv heD d''))
-        = (tateDuality 2).inv
-            (cup11 (muDualPairing 2 A) (muDualPairing_equivariant 2 A) d'' c) := by
-    intro c d''
-    have hgc : cup11 (dualEval A) hpair c (H1congr dualAddEquiv heD d'')
-        = H2congr muNTwoEquiv hμNe
-            (cup11 (muDualPairing 2 A) (muDualPairing_equivariant 2 A) d'' c) := by
-      rw [cup11_comm (dualEval A) hpair (fun p => CharTwo.add_self_eq_zero p) c
-        (H1congr dualAddEquiv heD d'')]
-      obtain ⟨a', rfl⟩ := H1mk_surjective (G := AbsGalQ2) (M := MuDual 2 A) d''
-      obtain ⟨b, rfl⟩ := H1mk_surjective (G := AbsGalQ2) (M := A) c
-      rw [H1congr_mk, cup11_mk_mk, cup11_mk_mk, H2congr_mk]
-      congr 1
-    rw [hgc, hτapp]
-  have hsurj : ∀ f : H1 AbsGalQ2 A →+ ZMod 2, ∃ w : H1 AbsGalQ2 (ElemDual A),
-      ∀ c, τ (cup11 (dualEval A) hpair c w) = f c := by
-    intro f
-    obtain ⟨d'', hd''⟩ := ((tateDuality 2).perfect11 A htor).2 f
-    refine ⟨H1congr dualAddEquiv heD d'', fun c => ?_⟩
-    rw [key c d'']
-    exact DFunLike.congr_fun hd'' c
-  exact bijective_cup (H1_two_torsion_gen hA₂) (H1_two_torsion_gen ElemDual.add_self_eq_zero)
+  refine bijective_cup_of_comm (H1_two_torsion_gen hA₂)
+    (H1_two_torsion_gen ElemDual.add_self_eq_zero)
     (by rw [← Nat.card_congr (H1congr dualAddEquiv heD).toEquiv,
       (tateDuality 2).card_H1_dual A htor, card_addHom_zmod2 (H1_two_torsion_gen hA₂)])
-    τ (cup11 (dualEval A) hpair) hsurj
+    htriv (cup11 (dualEval A) hpair)
+    (cup11 (muDualPairing 2 A) (muDualPairing_equivariant 2 A)) (H1congr dualAddEquiv heD)
+    ((tateDuality 2).perfect11 A htor).2 (fun c d'' => ?_)
+  rw [cup11_comm (dualEval A) hpair (fun p => CharTwo.add_self_eq_zero p) c
+    (H1congr dualAddEquiv heD d'')]
+  obtain ⟨a', rfl⟩ := H1mk_surjective (G := AbsGalQ2) (M := MuDual 2 A) d''
+  obtain ⟨b, rfl⟩ := H1mk_surjective (G := AbsGalQ2) (M := A) c
+  rw [H1congr_mk, cup11_mk_mk, cup11_mk_mk, H2congr_mk]
+  congr 1
 
 /-- **Clause (v)**: the `(0,2)` evaluation cup `c ↦ (d ↦ c ∪ d) : H⁰(A) → Hom(H²(A′), H²(𝔽₂))` is
 bijective — the transpose of B6's `perfect20` (`cup02 = cup20ᵀ` swaps the degree pair). -/
@@ -395,40 +404,19 @@ theorem bijective_cup02_dualEval
   haveI : NeZero 2 := ⟨two_ne_zero⟩
   haveI : Finite (H2 AbsGalQ2 (ElemDual A)) :=
     (Foundations.absGalQ2_localEulerCharacteristic (ElemDual A)).2.2.1
-  haveI : Finite (H2 AbsGalQ2 (ZMod 2)) :=
-    (Foundations.absGalQ2_localEulerCharacteristic (ZMod 2)).2.2.1
   have htor : ∀ x : A, (2 : ℕ) • x = 0 := fun x => by rw [two_nsmul]; exact hA₂ x
   have h0₂ : ∀ v : ↥(H0 AbsGalQ2 A), v + v = 0 := fun v => Subtype.ext (by simpa using hA₂ v.1)
-  have hμNe := muNTwoEquiv_equivariant htriv
   have heD := edEquivariant hpair htriv
-  let τ : H2 AbsGalQ2 (ZMod 2) ≃+ ZMod 2 :=
-    (H2congr muNTwoEquiv hμNe).symm.trans (tateDuality 2).inv
-  have hτapp : ∀ X, τ (H2congr muNTwoEquiv hμNe X) = (tateDuality 2).inv X := fun X => by
-    simp [τ]
-  have key : ∀ (c : ↥(H0 AbsGalQ2 A)) (d'' : H2 AbsGalQ2 (MuDual 2 A)),
-      τ (cup02 (dualEval A) hpair c (H2congr dualAddEquiv heD d''))
-        = (tateDuality 2).inv
-            (cup20 (muDualPairing 2 A) (muDualPairing_equivariant 2 A) d'' c) := by
-    intro c d''
-    have hgc : cup02 (dualEval A) hpair c (H2congr dualAddEquiv heD d'')
-        = H2congr muNTwoEquiv hμNe
-            (cup20 (muDualPairing 2 A) (muDualPairing_equivariant 2 A) d'' c) := by
-      rw [cup02_eq_cup20_flip (dualEval A) hpair c (H2congr dualAddEquiv heD d'')]
-      obtain ⟨a', rfl⟩ := H2mk_surjective (G := AbsGalQ2) (M := MuDual 2 A) d''
-      rw [H2congr_mk, cup20_mk_mk, cup20_mk_mk, H2congr_mk]
-      congr 1
-    rw [hgc, hτapp]
-  have hsurj : ∀ f : ↥(H0 AbsGalQ2 A) →+ ZMod 2, ∃ w : H2 AbsGalQ2 (ElemDual A),
-      ∀ c, τ (cup02 (dualEval A) hpair c w) = f c := by
-    intro f
-    obtain ⟨d'', hd''⟩ := ((tateDuality 2).perfect20 A htor).2 f
-    refine ⟨H2congr dualAddEquiv heD d'', fun c => ?_⟩
-    rw [key c d'']
-    exact DFunLike.congr_fun hd'' c
-  exact bijective_cup h0₂ (H2_two_torsion_gen ElemDual.add_self_eq_zero)
+  refine bijective_cup_of_comm h0₂ (H2_two_torsion_gen ElemDual.add_self_eq_zero)
     (by rw [← Nat.card_congr (H2congr dualAddEquiv heD).toEquiv,
       (tateDuality 2).card_H2_dual A htor, card_addHom_zmod2 h0₂])
-    τ (cup02 (dualEval A) hpair) hsurj
+    htriv (cup02 (dualEval A) hpair)
+    (cup20 (muDualPairing 2 A) (muDualPairing_equivariant 2 A)) (H2congr dualAddEquiv heD)
+    ((tateDuality 2).perfect20 A htor).2 (fun c d'' => ?_)
+  rw [cup02_eq_cup20_flip (dualEval A) hpair c (H2congr dualAddEquiv heD d'')]
+  obtain ⟨a', rfl⟩ := H2mk_surjective (G := AbsGalQ2) (M := MuDual 2 A) d''
+  rw [H2congr_mk, cup20_mk_mk, cup20_mk_mk, H2congr_mk]
+  congr 1
 
 /-- **Clause (vi)**: the `(2,0)` evaluation cup `c ↦ (d ↦ c ∪ d) : H²(A) → Hom(H⁰(A′), H²(𝔽₂))` is
 bijective — the transpose of B6's `perfect02` (`cup20 = cup02ᵀ` swaps the degree pair). -/
@@ -440,41 +428,20 @@ theorem bijective_cup20_dualEval
     Function.Bijective (fun c : H2 AbsGalQ2 A => cup20 (dualEval A) hpair c) := by
   haveI : NeZero 2 := ⟨two_ne_zero⟩
   haveI : Finite (H2 AbsGalQ2 A) := (Foundations.absGalQ2_localEulerCharacteristic A).2.2.1
-  haveI : Finite (H2 AbsGalQ2 (ZMod 2)) :=
-    (Foundations.absGalQ2_localEulerCharacteristic (ZMod 2)).2.2.1
   have htor : ∀ x : A, (2 : ℕ) • x = 0 := fun x => by rw [two_nsmul]; exact hA₂ x
   have hED0₂ : ∀ w : ↥(H0 AbsGalQ2 (ElemDual A)), w + w = 0 :=
     fun w => Subtype.ext (by simpa using ElemDual.add_self_eq_zero w.1)
-  have hμNe := muNTwoEquiv_equivariant htriv
   have heD := edEquivariant hpair htriv
-  let τ : H2 AbsGalQ2 (ZMod 2) ≃+ ZMod 2 :=
-    (H2congr muNTwoEquiv hμNe).symm.trans (tateDuality 2).inv
-  have hτapp : ∀ X, τ (H2congr muNTwoEquiv hμNe X) = (tateDuality 2).inv X := fun X => by
-    simp [τ]
-  have key : ∀ (c : H2 AbsGalQ2 A) (d'' : ↥(H0 AbsGalQ2 (MuDual 2 A))),
-      τ (cup20 (dualEval A) hpair c (H0congr dualAddEquiv heD d''))
-        = (tateDuality 2).inv
-            (cup02 (muDualPairing 2 A) (muDualPairing_equivariant 2 A) d'' c) := by
-    intro c d''
-    have hgc : cup20 (dualEval A) hpair c (H0congr dualAddEquiv heD d'')
-        = H2congr muNTwoEquiv hμNe
-            (cup02 (muDualPairing 2 A) (muDualPairing_equivariant 2 A) d'' c) := by
-      rw [cup20_eq_cup02_flip (dualEval A) hpair c (H0congr dualAddEquiv heD d'')]
-      obtain ⟨b, rfl⟩ := H2mk_surjective (G := AbsGalQ2) (M := A) c
-      rw [cup02_mk_mk, cup02_mk_mk, H2congr_mk]
-      congr 1
-    rw [hgc, hτapp]
-  have hsurj : ∀ f : H2 AbsGalQ2 A →+ ZMod 2, ∃ w : ↥(H0 AbsGalQ2 (ElemDual A)),
-      ∀ c, τ (cup20 (dualEval A) hpair c w) = f c := by
-    intro f
-    obtain ⟨d'', hd''⟩ := ((tateDuality 2).perfect02 A htor).2 f
-    refine ⟨H0congr dualAddEquiv heD d'', fun c => ?_⟩
-    rw [key c d'']
-    exact DFunLike.congr_fun hd'' c
-  exact bijective_cup (H2_two_torsion_gen hA₂) hED0₂
+  refine bijective_cup_of_comm (H2_two_torsion_gen hA₂) hED0₂
     (by rw [← Nat.card_congr (H0congr dualAddEquiv heD).toEquiv,
       (tateDuality 2).card_H0_dual A htor, card_addHom_zmod2 (H2_two_torsion_gen hA₂)])
-    τ (cup20 (dualEval A) hpair) hsurj
+    htriv (cup20 (dualEval A) hpair)
+    (cup02 (muDualPairing 2 A) (muDualPairing_equivariant 2 A)) (H0congr dualAddEquiv heD)
+    ((tateDuality 2).perfect02 A htor).2 (fun c d'' => ?_)
+  rw [cup20_eq_cup02_flip (dualEval A) hpair c (H0congr dualAddEquiv heD d'')]
+  obtain ⟨b, rfl⟩ := H2mk_surjective (G := AbsGalQ2) (M := A) c
+  rw [cup02_mk_mk, cup02_mk_mk, H2congr_mk]
+  congr 1
 
 end CupClauses
 

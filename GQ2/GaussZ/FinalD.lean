@@ -69,6 +69,24 @@ variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finit
 variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
 variable (T : MarkedTarget H E Y) (Blk : MinimalBlock T.LY)
 variable [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
+
+/-- **The fixed tame surjection into the faithful head quotient**
+(`cF := mk'(headActKer) ∘ F.alpha`), shared by the four `gaussZResidueD_*` twins (this file and
+`GQ2/GaussZ/GammaAD.lean`); the target carries the `⊥`-topology of the twins' `letI`-pack. -/
+noncomputable def headTameSurj (F : BoundaryFrame H E) :
+    letI : TopologicalSpace (HVq T Blk) := ⊥
+    ContinuousMonoidHom Ttame (HVq T Blk) :=
+  letI : TopologicalSpace (HVq T Blk) := ⊥
+  ⟨(QuotientGroup.mk' (headActKer T Blk)).comp F.alpha.toMonoidHom,
+    (continuous_of_discreteTopology
+      (f := fun hh : H => QuotientGroup.mk' (headActKer T Blk) hh)).comp
+      F.alpha.continuous_toFun⟩
+
+/-- `headTameSurj` is surjective (`mk'` after the surjective `F.alpha`). -/
+theorem headTameSurj_surjective (F : BoundaryFrame H E) :
+    Function.Surjective ⇑(headTameSurj T Blk F) :=
+  (QuotientGroup.mk'_surjective _).comp F.alpha_surjective
+
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
   [IsTopologicalGroup AbsGalQ2]
 
@@ -104,13 +122,8 @@ theorem gaussZResidueD_local_unramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Bounda
   intro ρ
   set ρM := (blockFrame T Blk hE2).rhoPrime B.bF F (EnD.radData l h) rfl ρ with hρMdef
   -- the fixed tame surjection into the faithful head quotient, and the per-`ρ` composite
-  set cF : ContinuousMonoidHom Ttame (HVq T Blk) :=
-    ⟨(QuotientGroup.mk' (headActKer T Blk)).comp F.alpha.toMonoidHom,
-      (continuous_of_discreteTopology
-        (f := fun hh : H => QuotientGroup.mk' (headActKer T Blk) hh)).comp
-        F.alpha.continuous_toFun⟩ with hcFdef
-  have hcF : Function.Surjective ⇑cF :=
-    (QuotientGroup.mk'_surjective _).comp F.alpha_surjective
+  set cF : ContinuousMonoidHom Ttame (HVq T Blk) := headTameSurj T Blk F with hcFdef
+  have hcF : Function.Surjective ⇑cF := headTameSurj_surjective T Blk F
   set ρHV : ContinuousMonoidHom AbsGalQ2 (HVq T Blk) :=
     ⟨(blockProjF T Blk).comp ρ.1.1.toMonoidHom,
       (continuous_of_discreteTopology
@@ -241,13 +254,8 @@ theorem gaussZResidueD_local_ramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Boundary
   set EnD := blockEnrichmentD T Blk hE2 F with hEnDdef
   intro ρ
   set ρM := (blockFrame T Blk hE2).rhoPrime B.bF F (EnD.radData l h) rfl ρ with hρMdef
-  set cF : ContinuousMonoidHom Ttame (HVq T Blk) :=
-    ⟨(QuotientGroup.mk' (headActKer T Blk)).comp F.alpha.toMonoidHom,
-      (continuous_of_discreteTopology
-        (f := fun hh : H => QuotientGroup.mk' (headActKer T Blk) hh)).comp
-        F.alpha.continuous_toFun⟩ with hcFdef
-  have hcF : Function.Surjective ⇑cF :=
-    (QuotientGroup.mk'_surjective _).comp F.alpha_surjective
+  set cF : ContinuousMonoidHom Ttame (HVq T Blk) := headTameSurj T Blk F with hcFdef
+  have hcF : Function.Surjective ⇑cF := headTameSurj_surjective T Blk F
   set ρHV : ContinuousMonoidHom AbsGalQ2 (HVq T Blk) :=
     ⟨(blockProjF T Blk).comp ρ.1.1.toMonoidHom,
       (continuous_of_discreteTopology

@@ -225,6 +225,20 @@ theorem lemma_6_6 (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (h2 : ∀ v : V, v 
 variable {Hf : Type} [Group Hf] [TopologicalSpace Hf] [DiscreteTopology Hf] [Finite Hf]
 variable [DistribMulAction Hf V]
 
+omit [Finite V] [DiscreteTopology Hf] in
+/-- `U = S^{ω₂} = powOmega2 (c σ)` acts on `V` with 2-power order: the `2^{v₂(ord(c σ))}`-fold
+iterate of the induced additive automorphism is the identity
+(`orderOf_powOmega2_dvd_two_pow`).  The shared `hU2` feed of `lemma_6_8` and
+`prop_6_9_ramified`. -/
+private theorem exists_iterate_powOmega2_eq_id (c : ContinuousMonoidHom Ttame Hf) :
+    ∃ n, (⇑(DistribMulAction.toAddEquiv V (powOmega2 (c tameSigma))))^[2 ^ n] = id := by
+  refine ⟨(orderOf (c tameSigma)).factorization 2, ?_⟩
+  have hp1 : powOmega2 (c tameSigma) ^ 2 ^ (orderOf (c tameSigma)).factorization 2 = 1 :=
+    orderOf_dvd_iff_pow_eq_one.mp (GQ2.FoxH.orderOf_powOmega2_dvd_two_pow (c tameSigma))
+  funext v
+  show (powOmega2 (c tameSigma) • ·)^[2 ^ (orderOf (c tameSigma)).factorization 2] v = v
+  rw [smul_iterate_apply, hp1, one_smul]
+
 /-- **Lemma 6.8 (ramified Hermitian model and Frobenius fixed space), eqs. (87)/(88)**:
 for a faithful simple ramified tame module `V` (tame image `Hf` marked by
 `c : T_tame ↠ Hf`; inertia `T = c(τ) ≠ 1`; `V|_⟨T⟩ ≅ W^{⊕s}` isotypic with
@@ -264,13 +278,7 @@ theorem lemma_6_8 (c : ContinuousMonoidHom Ttame Hf) (hc : Function.Surjective c
   letI := Fintype.ofFinite V
   set U := DistribMulAction.toAddEquiv V (powOmega2 (c tameSigma)) with hU
   have hUq : ∀ v, q (U v) = q v := fun v => hinv (powOmega2 (c tameSigma)) v
-  have hU2 : ∃ n, (⇑U)^[2 ^ n] = id := by
-    refine ⟨(orderOf (c tameSigma)).factorization 2, ?_⟩
-    have hp1 : powOmega2 (c tameSigma) ^ 2 ^ (orderOf (c tameSigma)).factorization 2 = 1 :=
-      orderOf_dvd_iff_pow_eq_one.mp (GQ2.FoxH.orderOf_powOmega2_dvd_two_pow (c tameSigma))
-    funext v
-    show (powOmega2 (c tameSigma) • ·)^[2 ^ (orderOf (c tameSigma)).factorization 2] v = v
-    rw [smul_iterate_apply, hp1, one_smul]
+  have hU2 : ∃ n, (⇑U)^[2 ^ n] = id := exists_iterate_powOmega2_eq_id c
   -- (88b): the rank is a 2-power `2^k` with `k ≡ s`
   obtain ⟨k, hk⟩ := exists_card_range_eq_two_pow hV2 (onePlusU U)
   have h88b : (k : ZMod 2) = (s : ZMod 2) := hrank k hk
@@ -375,13 +383,7 @@ theorem prop_6_9_ramified (c : ContinuousMonoidHom Ttame Hf) (hc : Function.Surj
   classical
   set U := DistribMulAction.toAddEquiv V (powOmega2 (c tameSigma)) with hU
   have hUq : ∀ v, q (U v) = q v := fun v => hinv (powOmega2 (c tameSigma)) v
-  have hU2 : ∃ n, (⇑U)^[2 ^ n] = id := by
-    refine ⟨(orderOf (c tameSigma)).factorization 2, ?_⟩
-    have hp1 : powOmega2 (c tameSigma) ^ 2 ^ (orderOf (c tameSigma)).factorization 2 = 1 :=
-      orderOf_dvd_iff_pow_eq_one.mp (GQ2.FoxH.orderOf_powOmega2_dvd_two_pow (c tameSigma))
-    funext v
-    show (powOmega2 (c tameSigma) • ·)^[2 ^ (orderOf (c tameSigma)).factorization 2] v = v
-    rw [smul_iterate_apply, hp1, one_smul]
+  have hU2 : ∃ n, (⇑U)^[2 ^ n] = id := exists_iterate_powOmega2_eq_id c
   -- `arf(q_U) = 0` is Lemma 6.8's fourth conjunct
   have h4 : arf (qDouble q (powOmega2 (c tameSigma) • ·)) = 0 :=
     (lemma_6_8 c hc hfaith hsimple hram q hq hns hinv hV2 s r a hr ha hs1 Wt hWt2 hWtsimple
