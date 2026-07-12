@@ -2,6 +2,7 @@
 Copyright (c) 2026. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 -/
+import GQ2.QuadraticFp2
 import GQ2.Tame
 import GQ2.TameQuotient
 
@@ -59,13 +60,6 @@ section RelativeTrace
 
 variable {C : Type} [Group C] [Finite C]
 variable {V : Type} [AddCommGroup V] [DistribMulAction C V]
-
-/-- In a 2-torsion additive group, an odd multiple is the identity.  (Local copy of
-`LocalKummer.odd_nsmul_eq_self`, which lives far higher in the import DAG.) -/
-private theorem odd_nsmul_eq_self' (htor : ∀ a : V, a + a = 0)
-    {n : ℕ} (hn : Odd n) (x : V) : n • x = x := by
-  obtain ⟨k, rfl⟩ := hn
-  rw [add_nsmul, one_nsmul, mul_nsmul', two_nsmul, htor, zero_add]
 
 /-- The relative-trace coset summand: the class `g·P` contributes `g • q (F n (g·—))`,
 independently of the representative by the `P`-equivariance of `q`. -/
@@ -180,7 +174,7 @@ theorem regular_summand_of_subgroup_summand (hV2 : ∀ v : V, v + v = 0)
     have hcard : Fintype.card (C ⧸ P) = P.index := by
       rw [Subgroup.index, Nat.card_eq_fintype_card]
     rw [hcard]
-    exact odd_nsmul_eq_self' hV2 hodd v
+    exact odd_nsmul_eq_self hV2 hodd v
 
 end RelativeTrace
 
@@ -313,8 +307,6 @@ hypothesis collapses `V = 0`. -/
 
 section FreenessCriterion
 
-private theorem zmod2_cases : ∀ b : ZMod 2, b = 0 ∨ b = 1 := by decide
-
 private theorem two_zmod_two_eq_zero : (2 : ZMod 2) = 0 := by decide
 
 /-- Freshman's dream for commuting elements in a ring with `2 = 0`:
@@ -371,34 +363,11 @@ private theorem geom_inverse_of_nilpotent {R : Type} [Ring R] (h2 : (2 : R) = 0)
   · have h := geom_sum_mul x m
     rwa [hm, zero_sub, sub_eq_add_neg, hneg] at h
 
-/-- `Fin.cons` as an additive equivalence `M × (Fin n → M) ≃+ (Fin (n+1) → M)`. -/
+/-- `Fin.cons` as an additive equivalence `M × (Fin n → M) ≃+ (Fin (n+1) → M)` — the `≃+`
+repackaging of Mathlib's `Fin.consLinearEquiv` over `ℕ` (Mathlib has no direct `≃+` form). -/
 private def finConsAddEquiv (M : Type) [AddCommMonoid M] (n : ℕ) :
-    (M × (Fin n → M)) ≃+ (Fin (n + 1) → M) where
-  toFun a := Fin.cons (α := fun _ => M) a.1 a.2
-  invFun F := (F 0, fun i => F i.succ)
-  left_inv a := by
-    refine Prod.ext ?_ ?_
-    · exact Fin.cons_zero (α := fun _ => M) a.1 a.2
-    · funext i
-      exact Fin.cons_succ (α := fun _ => M) a.1 a.2 i
-  right_inv F := by
-    funext i
-    refine Fin.cases ?_ ?_ i
-    · exact Fin.cons_zero (α := fun _ => M) _ _
-    · intro j
-      exact Fin.cons_succ (α := fun _ => M) _ _ j
-  map_add' a b := by
-    funext i
-    refine Fin.cases ?_ ?_ i
-    · show Fin.cons (α := fun _ => M) (a.1 + b.1) (a.2 + b.2) 0
-        = Fin.cons (α := fun _ => M) a.1 a.2 0 + Fin.cons (α := fun _ => M) b.1 b.2 0
-      rw [Fin.cons_zero, Fin.cons_zero, Fin.cons_zero]
-    · intro j
-      show Fin.cons (α := fun _ => M) (a.1 + b.1) (a.2 + b.2) j.succ
-        = Fin.cons (α := fun _ => M) a.1 a.2 j.succ
-          + Fin.cons (α := fun _ => M) b.1 b.2 j.succ
-      rw [Fin.cons_succ, Fin.cons_succ, Fin.cons_succ]
-      rfl
+    (M × (Fin n → M)) ≃+ (Fin (n + 1) → M) :=
+  (Fin.consLinearEquiv ℕ fun _ : Fin (n + 1) => M).toAddEquiv
 
 variable {P : Type} [Group P] {V : Type} [AddCommGroup V] [Module (ZMod 2) V]
   [DistribMulAction P V] [SMulCommClass P (ZMod 2) V]
@@ -960,7 +929,7 @@ private theorem free_of_card_aux (P : Type) [Group P] [Finite P]
     intro V _ _ _ hle hV2 hcount
     letI : Module (ZMod 2) V := AddCommGroup.zmodModule fun v => (two_nsmul v).trans (hV2 v)
     letI : SMulCommClass P (ZMod 2) V :=
-      ⟨fun p c v => by rcases zmod2_cases c with rfl | rfl <;> simp⟩
+      ⟨fun p c v => by rcases ZMod.eq_zero_or_eq_one c with rfl | rfl <;> simp⟩
     haveI : Fintype P := Fintype.ofFinite P
     have hsF : Fintype.card P = 2 ^ s := by rw [← Nat.card_eq_fintype_card]; exact hs
     have hfixker := card_fixedPoints_eq_card_ker_nuOp (V := V) g₀ hg
@@ -1113,7 +1082,7 @@ theorem card_fixedPoints_pow_le_of_half {P : Type} [Group P] [Finite P]
     Nat.card {v : V // ∀ p : P, p • v = v} ^ Nat.card P ≤ Nat.card V := by
   letI : Module (ZMod 2) V := AddCommGroup.zmodModule fun v => (two_nsmul v).trans (hV2 v)
   letI : SMulCommClass P (ZMod 2) V :=
-    ⟨fun p c v => by rcases zmod2_cases c with rfl | rfl <;> simp⟩
+    ⟨fun p c v => by rcases ZMod.eq_zero_or_eq_one c with rfl | rfl <;> simp⟩
   haveI : Fintype P := Fintype.ofFinite P
   haveI : FiniteDimensional (ZMod 2) V := Module.Finite.of_finite
   have hsF : Fintype.card P = 2 ^ s := by rw [← Nat.card_eq_fintype_card]; exact hs
@@ -1983,10 +1952,10 @@ theorem equivariant_lift_of_regular_summand [Finite C]
   haveI : Module (ZMod 2) W' := AddCommGroup.zmodModule fun w => (two_nsmul w).trans (h2W' w)
   have hsmul_comm : ∀ (h : C) (z : ZMod 2) (u : W), h • (z • u) = z • (h • u) := by
     intro h z u
-    rcases zmod2_cases z with rfl | rfl <;> simp
+    rcases ZMod.eq_zero_or_eq_one z with rfl | rfl <;> simp
   have hπz : ∀ (z : ZMod 2) (u : W), π (z • u) = z • π u := by
     intro z u
-    rcases zmod2_cases z with rfl | rfl <;> simp
+    rcases ZMod.eq_zero_or_eq_one z with rfl | rfl <;> simp
   -- `f` transported to the regular module.
   set f' : (Fin N → C → ZMod 2) →+ W' := f.comp r with hf'def
   have hf'eq : ∀ (h : C) (B : Fin N → C → ZMod 2),
@@ -2047,7 +2016,7 @@ theorem equivariant_lift_of_regular_summand [Finite C]
     refine (Finset.sum_congr rfl fun n _ => ?_)
     rw [map_sum]
     refine Finset.sum_congr rfl fun x _ => ?_
-    rcases zmod2_cases (F n x) with hz | hz <;> rw [hz] <;> simp
+    rcases ZMod.eq_zero_or_eq_one (F n x) with hz | hz <;> rw [hz] <;> simp
   -- assemble `g = G ∘ ι`.
   refine ⟨G.comp ι, fun h v => ?_, fun v => ?_⟩
   · show G (ι (h • v)) = h • G (ι v)

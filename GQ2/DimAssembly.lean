@@ -41,10 +41,6 @@ namespace DimAssembly
 
 open ContCoh LocalKummer
 
-/-- The 𝔽₂-dual of any additive group is 2-torsion. -/
-theorem dual_add_self {V : Type} [AddCommGroup V] (φ : V →+ ZMod 2) : φ + φ = 0 :=
-  AddMonoidHom.ext fun v => (by decide : ∀ x : ZMod 2, x + x = 0) (φ v)
-
 variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
 
 /-! ## Profinite plumbing -/
@@ -175,7 +171,7 @@ theorem dual_simple (hV2 : ∀ v : V, v + v = 0)
   haveI : Finite ↥W := Subtype.finite
   haveI : Finite (↥W →+ ZMod 2) := Finite.of_injective _ DFunLike.coe_injective
   have hWtors : ∀ x : ↥W, x + x = 0 := fun x =>
-    Subtype.ext (dual_add_self (x : V →+ ZMod 2))
+    Subtype.ext (FoxH.ElemDual.add_self_eq_zero (x : V →+ ZMod 2))
   have h1 : Nat.card V ≤ Nat.card (↥W →+ ZMod 2) :=
     Nat.card_le_card_of_injective ev hev_inj
   have h2 : Nat.card (↥W →+ ZMod 2) = Nat.card ↥W :=
@@ -227,7 +223,7 @@ theorem lemma_6_17_dim_of_hext_hduality (B : BoundaryMaps)
   -- the `V^∨` regular-summand package
   haveI : Finite (V →+ ZMod 2) := Finite.of_injective _ DFunLike.coe_injective
   letI : DistribMulAction C (V →+ ZMod 2) := dualModule
-  have hV2D : ∀ φ : V →+ ZMod 2, φ + φ = 0 := fun φ => dual_add_self φ
+  have hV2D : ∀ φ : V →+ ZMod 2, φ + φ = 0 := fun φ => FoxH.ElemDual.add_self_eq_zero φ
   have hfaithD : ∀ h : C, (∀ φ : V →+ ZMod 2, h • φ = φ) → h = 1 := by
     intro h hh
     exact dual_faithful hV2 hfaith h fun φ v =>

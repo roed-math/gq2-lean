@@ -70,7 +70,7 @@ theorem lemma_6_17_dim_of_residueLift (B : BoundaryMaps)
   -- the `V^∨` regular-summand package (as in `lemma_6_17_dim_of_hext_hduality`)
   haveI : Finite (V →+ ZMod 2) := Finite.of_injective _ DFunLike.coe_injective
   letI : DistribMulAction C (V →+ ZMod 2) := dualModule
-  have hV2D : ∀ φ : V →+ ZMod 2, φ + φ = 0 := dual_add_self
+  have hV2D : ∀ φ : V →+ ZMod 2, φ + φ = 0 := fun φ => FoxH.ElemDual.add_self_eq_zero φ
   have hfaithD : ∀ h : C, (∀ φ : V →+ ZMod 2, h • φ = φ) → h = 1 := fun h hh =>
     dual_faithful hV2 hfaith h fun φ v => congrArg (fun ψ : V →+ ZMod 2 => ψ v) (hh φ)
   have hsimpleD : ∀ W : AddSubgroup (V →+ ZMod 2),

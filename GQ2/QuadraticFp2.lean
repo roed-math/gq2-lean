@@ -26,6 +26,10 @@ orthogonal operator `U` (char 2: `U⁻¹x` and `Ux` give the same doubling since
 No `sorry` in this file — everything here is definitional or elementary.
 -/
 
+/-- Every element of `𝔽₂ = ZMod 2` is `0` or `1` (the shared case-split helper; consolidates
+the per-file `zmod2_cases` copies). -/
+theorem ZMod.eq_zero_or_eq_one (a : ZMod 2) : a = 0 ∨ a = 1 := by revert a; decide
+
 namespace GQ2
 
 namespace QuadraticFp2

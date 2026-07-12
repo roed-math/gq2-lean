@@ -52,8 +52,6 @@ open QuadraticFp2
 open OrbitVanish (sumDatum)
 open scoped Classical
 
-private theorem zmod2_cases : ∀ b : ZMod 2, b = 0 ∨ b = 1 := by decide
-
 /-! ## The carrier `𝔽₂[G/N]^K` and its coordinate basis -/
 
 section BlockBasis
@@ -127,7 +125,7 @@ theorem blockBas_support_decomp [Fintype (G ⧸ N)] (F : Fin K → RegRep N) :
   · rw [if_pos hmem]
     exact (Finset.mem_filter.mp hmem).2
   · rw [if_neg hmem]
-    exact (zmod2_cases (F i h)).resolve_right fun h1 =>
+    exact (ZMod.eq_zero_or_eq_one (F i h)).resolve_right fun h1 =>
       hmem (Finset.mem_filter.mpr ⟨Finset.mem_univ _, h1⟩)
 
 end BlockBasis
@@ -846,7 +844,7 @@ theorem orbitSum_blockBas {Q : (Fin K → RegRep N) → ZMod 2} (hinv : IsInvari
   · rw [if_pos h]
     exact ((Finset.mem_filter.mp h).2).symm
   · rw [if_neg h]
-    exact ((zmod2_cases (blockDiag N Q p.1)).resolve_right fun h1 =>
+    exact ((ZMod.eq_zero_or_eq_one (blockDiag N Q p.1)).resolve_right fun h1 =>
       h (Finset.mem_filter.mpr ⟨Finset.mem_univ p.1, h1⟩)).symm
 
 /-- The relative-position equation `x·w = y ⟺ w = x⁻¹y`. -/
@@ -940,7 +938,7 @@ theorem orbitSum_polar_blockBas {Q : (Fin K → RegRep N) → ZMod 2}
         · exact h hu2
       · rw [if_neg hab]
     rw [hinv0, zero_add]
-    rcases zmod2_cases (blockPolar N Q a b u₀) with h0 | h1
+    rcases ZMod.eq_zero_or_eq_one (blockPolar N Q a b u₀) with h0 | h1
     · have hn1 : (a, b, u₀) ∉ freeReps N Q := fun hmem =>
         absurd (((mem_freeReps_isFree N hmem).2 : blockPolar N Q a b u₀ = 1).symm.trans h0)
           (by decide)
@@ -980,7 +978,7 @@ theorem orbitSum_polar_blockBas {Q : (Fin K → RegRep N) → ZMod 2}
         rw [hu1]; exact polar_self Q hQ h2mod _
       rw [hbp]
     · -- involution: the indicator recovers blockPolar
-      rcases zmod2_cases (blockPolar N Q a a u₀) with h0 | h1
+      rcases ZMod.eq_zero_or_eq_one (blockPolar N Q a a u₀) with h0 | h1
       · rw [if_neg (fun hmem => absurd (Finset.mem_filter.mp hmem).2.2.2 (by rw [h0]; decide)), h0]
       · have hmem : (a, u₀) ∈ invIdx N Q :=
           Finset.mem_filter.mpr ⟨Finset.mem_univ _, hu2, hu1, h1⟩

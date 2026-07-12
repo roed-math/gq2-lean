@@ -173,8 +173,7 @@ theorem trivialSelfDual (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     ring
   · -- The degree-one pairing (table 25): descend `mixedB` and prove perfection.
     have htrivD : ∀ (c : C) (l : ElemDual A), c • l = l := elemDual_smul_trivial htriv
-    have hA₂d : ∀ l : ElemDual A, l + l = 0 := fun l => by
-      ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]; exact CharTwo.add_self_eq_zero (l v)
+    have hA₂d : ∀ l : ElemDual A, l + l = 0 := fun l => l.add_self_eq_zero
     have hNA : (B1w (A := A) t).addSubgroupOf (Z1w (A := A) t) = ⊥ := by
       rw [B1w_trivial_eq_bot t htriv, AddSubgroup.bot_addSubgroupOf]
     have hND : (B1w (A := ElemDual A) t).addSubgroupOf (Z1w (A := ElemDual A) t) = ⊥ := by

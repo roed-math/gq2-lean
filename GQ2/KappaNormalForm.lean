@@ -95,8 +95,6 @@ theorem permBas_smul (h : H) (n : Fin K) (x : H) :
     = if m = n ∧ y = h * x then (1 : ZMod 2) else 0
   rw [inv_mul_eq_iff_eq_mul]
 
-private theorem zmod2_cases' : ∀ b : ZMod 2, b = 0 ∨ b = 1 := by decide
-
 omit [Group H] in
 /-- Every `F : PermW H K` is the sum of the basis vectors at its support. -/
 theorem permBas_support_decomp [Fintype H] (F : PermW H K) :
@@ -112,7 +110,7 @@ theorem permBas_support_decomp [Fintype H] (F : PermW H K) :
     rw [if_congr hiff rfl rfl]
   rw [Finset.sum_congr rfl fun p _ => hterm p,
     Finset.sum_ite_eq' _ (m, y) (fun _ => (1 : ZMod 2))]
-  rcases zmod2_cases' (F m y) with h | h <;> simp [h]
+  rcases ZMod.eq_zero_or_eq_one (F m y) with h | h <;> simp [h]
 
 /-! ## The expansion of a quadratic map in coordinates (ordered-pair form) -/
 
@@ -171,7 +169,7 @@ private theorem quadratic_eq_double_sum [Fintype H]
     Q F = ∑ p : Fin K × H, ∑ p' : Fin K × H, F p.1 p.2 * F p'.1 p'.2 * f₀ p p' := by
   have hcoeff : ∀ (c : ZMod 2) (z : ZMod 2), c * z = if c = 1 then z else 0 := by
     intro c z
-    rcases zmod2_cases' c with h0 | h1
+    rcases ZMod.eq_zero_or_eq_one c with h0 | h1
     · rw [h0, zero_mul, if_neg (by decide)]
     · rw [h1, one_mul, if_pos rfl]
   calc Q F
@@ -364,7 +362,7 @@ private theorem exists_biadditive_refinement' {V : Type*} [AddCommGroup V] [Fini
   haveI : Module.Finite (ZMod 2) V := Module.Finite.of_finite
   have hsmul : ∀ (a : ZMod 2) (x : V), q (a • x) = (a * a) • q x := by
     intro a x
-    rcases zmod2_cases' a with rfl | rfl
+    rcases ZMod.eq_zero_or_eq_one a with rfl | rfl
     · simp [hq.map_zero]
     · simp
   have hcomp0 : ∀ x y : V, q (x + y) = q x + q y + polar q x y := by
@@ -879,7 +877,7 @@ theorem exists_datum_of_invariant_quadratic [Finite H]
       decide
     · -- no term contributes, and β n n u = 0 since (n,u) is not bad
       have hβ0 : β n n u = 0 := by
-        rcases zmod2_cases' (β n n u) with h0 | h1
+        rcases ZMod.eq_zero_or_eq_one (β n n u) with h0 | h1
         · exact h0
         · exact absurd (by
             rw [hBaddef, Finset.mem_filter]

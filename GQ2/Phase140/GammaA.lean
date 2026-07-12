@@ -297,9 +297,6 @@ section CharCover
 variable {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
   {D : RadicalCoverData Bg}
 
-/-- The `ZMod 2` value dichotomy. -/
-private theorem zmod2_cases : ∀ a : ZMod 2, a = 0 ∨ a = 1 := by decide
-
 /-- The kernel of a `C`-invariant character, as a subgroup of `↥D.T`. -/
 def charKerSub (χ : ↥(TCharC D)) : Subgroup ↥D.T where
   carrier := {t | χ.1 t = 0}
@@ -337,7 +334,7 @@ theorem charKer_normal (χ : ↥(TCharC D)) : (charKer χ).Normal := by
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem exists_val_one (χ : ↥(TCharC D)) (hχ : χ ≠ 0) : ∃ t : ↥D.T, χ.1 t = 1 := by
   by_contra! hall
-  exact hχ (Subtype.ext (funext fun t => (zmod2_cases _).resolve_right (hall t)))
+  exact hχ (Subtype.ext (funext fun t => (ZMod.eq_zero_or_eq_one _).resolve_right (hall t)))
 
 /-- A witness `t₀ ∈ T` with `χ(t₀) = 1` (for `χ ≠ 0`) — the kernel generator's complement. -/
 noncomputable def charWitness (χ : ↥(TCharC D)) (hχ : χ ≠ 0) : ↥D.T :=
@@ -422,7 +419,7 @@ noncomputable def charCover (χ : ↥(TCharC D)) (hχ : χ ≠ 0) : CentralCover
     · rw [Subgroup.map_le_iff_le_comap]
       intro t htT
       rw [Subgroup.mem_comap]
-      rcases zmod2_cases (χ.1 ⟨t, htT⟩) with h0 | h1
+      rcases ZMod.eq_zero_or_eq_one (χ.1 ⟨t, htT⟩) with h0 | h1
       · have h1' : QuotientGroup.mk' (charKer χ) t = 1 := by
           rw [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]
           exact (mem_charKer_iff χ ⟨t, htT⟩).mpr h0
@@ -456,7 +453,7 @@ omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem charCoverMap_coe_eq_zpow (χ : ↥(TCharC D)) (hχ : χ ≠ 0) (t : ↥D.T) :
     charCoverMap χ hχ (t : Bg) = (charCover χ hχ).z ^ (χ.1 t).val := by
   haveI : (charKer χ).Normal := charKer_normal χ
-  rcases zmod2_cases (χ.1 t) with h0 | h1
+  rcases ZMod.eq_zero_or_eq_one (χ.1 t) with h0 | h1
   · rw [h0]
     show QuotientGroup.mk' (charKer χ) (t : Bg) = _ ^ (0 : ZMod 2).val
     rw [ZMod.val_zero, pow_zero, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]

@@ -1642,12 +1642,7 @@ theorem hduality_of_data (hρsurj : Function.Surjective ⇑ρ)
     Finite.of_injective (DFunLike.coe : (V →+ ZMod 2) → (V → ZMod 2)) DFunLike.coe_injective
   have h2M : ∀ m : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2), m + m = 0 :=
     fun m => h1_add_self m
-  have h2U : ∀ φ : V →+ ZMod 2, φ + φ = 0 := by
-    intro φ
-    ext v
-    show φ v + φ v = 0
-    have hz : ∀ a : ZMod 2, a + a = 0 := by decide
-    exact hz _
+  have h2U : ∀ φ : V →+ ZMod 2, φ + φ = 0 := fun φ => FoxH.ElemDual.add_self_eq_zero φ
   have hsharp : pairPerp (pairingK ρ)
         (deepClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
       ≤ midClassesSubgroup (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) :=

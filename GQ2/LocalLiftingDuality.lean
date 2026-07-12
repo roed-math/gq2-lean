@@ -379,7 +379,7 @@ theorem bijective_cup11_dualEval
     refine ⟨H1congr dualAddEquiv heD d'', fun c => ?_⟩
     rw [key c d'']
     exact DFunLike.congr_fun hd'' c
-  exact bijective_cup (H1_two_torsion_gen hA₂) (H1_two_torsion_gen elemDual_two_torsion)
+  exact bijective_cup (H1_two_torsion_gen hA₂) (H1_two_torsion_gen ElemDual.add_self_eq_zero)
     (by rw [← Nat.card_congr (H1congr dualAddEquiv heD).toEquiv,
       (tateDuality 2).card_H1_dual A htor, card_addHom_zmod2 (H1_two_torsion_gen hA₂)])
     τ (cup11 (dualEval A) hpair) hsurj
@@ -425,7 +425,7 @@ theorem bijective_cup02_dualEval
     refine ⟨H2congr dualAddEquiv heD d'', fun c => ?_⟩
     rw [key c d'']
     exact DFunLike.congr_fun hd'' c
-  exact bijective_cup h0₂ (H2_two_torsion_gen elemDual_two_torsion)
+  exact bijective_cup h0₂ (H2_two_torsion_gen ElemDual.add_self_eq_zero)
     (by rw [← Nat.card_congr (H2congr dualAddEquiv heD).toEquiv,
       (tateDuality 2).card_H2_dual A htor, card_addHom_zmod2 h0₂])
     τ (cup02 (dualEval A) hpair) hsurj
@@ -444,7 +444,7 @@ theorem bijective_cup20_dualEval
     (Foundations.absGalQ2_localEulerCharacteristic (ZMod 2)).2.2.1
   have htor : ∀ x : A, (2 : ℕ) • x = 0 := fun x => by rw [two_nsmul]; exact hA₂ x
   have hED0₂ : ∀ w : ↥(H0 AbsGalQ2 (ElemDual A)), w + w = 0 :=
-    fun w => Subtype.ext (by simpa using elemDual_two_torsion w.1)
+    fun w => Subtype.ext (by simpa using ElemDual.add_self_eq_zero w.1)
   have hμNe := muNTwoEquiv_equivariant htriv
   have heD := edEquivariant hpair htriv
   let τ : H2 AbsGalQ2 (ZMod 2) ≃+ ZMod 2 :=

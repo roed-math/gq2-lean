@@ -245,10 +245,6 @@ theorem dualMap_equivariant {A B : Type*} [AddCommGroup A] [AddCommGroup B]
   ext a
   simp only [dualMap_apply, ElemDual.smul_apply, hφ]
 
-/-- `ElemDual A` is elementary (2-torsion). -/
-theorem elemDual_two_torsion {A : Type*} [AddCommGroup A] (lam : ElemDual A) : lam + lam = 0 :=
-  ElemDual.ext fun _ => CharTwo.add_self_eq_zero _
-
 /-- **Extension lemma**: every `𝔽₂`-functional extends along an injection into a finite
 elementary 2-group (`ZMod 2` is self-injective on this category; proof by complementing the
 image subspace). -/
@@ -313,7 +309,7 @@ theorem dualEval_bijective {A : Type*} [AddCommGroup A] [Finite A]
     obtain ⟨lam, hlam⟩ := elemDual_separates hA₂ (sub_ne_zero_of_ne hne)
     exact hlam (by rw [map_sub, h1 lam, sub_self])
   · show Nat.card A = Nat.card (ElemDual (ElemDual A))
-    rw [card_elemDual elemDual_two_torsion, card_elemDual hA₂]
+    rw [card_elemDual ElemDual.add_self_eq_zero, card_elemDual hA₂]
 
 /-- Dualizing a surjection gives an injection. -/
 theorem dualMap_injective {Y Z : Type*} [AddCommGroup Y] [AddCommGroup Z] (v : Y →+ Z)
@@ -583,7 +579,7 @@ theorem chi2_surjective (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     (hA₂ : ∀ a : A, a + a = 0) : Function.Surjective (chi2 (A := A) t ht hw) := by
   intro psi
   -- Extend `psi` along the subgroup inclusion to a functional on all of `A^∨`…
-  obtain ⟨Psi, hPsi⟩ := elemDual_extend elemDual_two_torsion
+  obtain ⟨Psi, hPsi⟩ := elemDual_extend ElemDual.add_self_eq_zero
     (H0w (A := ElemDual A) t).subtype (AddSubgroup.subtype_injective _)
     (psi : ElemDual ((H0w (A := ElemDual A) t : AddSubgroup (ElemDual A))))
   -- …and realize it as evaluation at some `w : A` (biduality).
@@ -849,7 +845,7 @@ theorem chi1_bij_of_inj (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   have he : Nat.card (ElemDual (H1w (A := ElemDual A) t))
       = Nat.card (H1w (A := ElemDual A) t) :=
     card_elemDual (A := H1w (A := ElemDual A) t)
-      (H1w_two_torsion t elemDual_two_torsion)
+      (H1w_two_torsion t ElemDual.add_self_eq_zero)
   have heT : Nat.card (ElemDual (H1w (A := A) t)) = Nat.card (H1w (A := A) t) :=
     card_elemDual (A := H1w (A := A) t) (H1w_two_torsion t hA₂)
   have hc1 : Nat.card (H1w (A := A) t) ≤ Nat.card (ElemDual (H1w (A := ElemDual A) t)) :=
@@ -935,7 +931,7 @@ theorem isSelfDualW_iff (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   have hED : Nat.card (ElemDual (H0w (A := ElemDual A) t))
       = Nat.card (H0w (A := ElemDual A) t) :=
     card_elemDual (A := H0w (A := ElemDual A) t)
-      (H0w_two_torsion t elemDual_two_torsion)
+      (H0w_two_torsion t ElemDual.add_self_eq_zero)
   constructor
   · rintro ⟨hc1, -, hpair⟩
     refine ⟨?_, (pairing_clause_iff t ht hw).mp hpair⟩
@@ -961,7 +957,7 @@ theorem chi_bij_of_selfdualW (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   have : Finite (H1w (A := ElemDual A) t) := inferInstanceAs (Finite (_ ⧸ _))
   have : Finite (H2w (A := A) t) := inferInstanceAs (Finite (_ ⧸ _))
   have : Finite (H2w (A := ElemDual A) t) := inferInstanceAs (Finite (_ ⧸ _))
-  have hD₂ : ∀ lam : ElemDual A, lam + lam = 0 := elemDual_two_torsion
+  have hD₂ : ∀ lam : ElemDual A, lam + lam = 0 := ElemDual.add_self_eq_zero
   obtain ⟨hbij2, hinj1, hinj1T⟩ := (isSelfDualW_iff t ht hw hA₂).mp hsd
   obtain ⟨hbij1, hbij1T, h11⟩ := chi1_bij_of_inj t ht hw hA₂ hinj1 hinj1T
   -- The card package.
@@ -1748,9 +1744,9 @@ theorem selfdualW_two_of_three (hA₂ : ∀ a : A, a + a = 0) (t : Marking C) (h
   -- Torsion on the outer modules and the duals.
   have hA'₂ : ∀ a' : A', a' + a' = 0 := two_torsion_of_injective f hinj hA₂
   have hA''₂ : ∀ a'' : A'', a'' + a'' = 0 := two_torsion_of_surjective g hsurj hA₂
-  have hD₂ : ∀ lam : ElemDual A, lam + lam = 0 := elemDual_two_torsion
-  have hD'₂ : ∀ lam : ElemDual A', lam + lam = 0 := elemDual_two_torsion
-  have hD''₂ : ∀ lam : ElemDual A'', lam + lam = 0 := elemDual_two_torsion
+  have hD₂ : ∀ lam : ElemDual A, lam + lam = 0 := ElemDual.add_self_eq_zero
+  have hD'₂ : ∀ lam : ElemDual A', lam + lam = 0 := ElemDual.add_self_eq_zero
+  have hD''₂ : ∀ lam : ElemDual A'', lam + lam = 0 := ElemDual.add_self_eq_zero
   -- Finiteness of the subquotients.
   have : Finite (H1w (A := A') t) := inferInstanceAs (Finite (_ ⧸ _))
   have : Finite (H1w (A := A) t) := inferInstanceAs (Finite (_ ⧸ _))

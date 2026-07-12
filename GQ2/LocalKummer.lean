@@ -376,12 +376,6 @@ section InflationProof
 
 variable (ρ : ContinuousMonoidHom AbsGalQ2 C)
 
-/-- In a 2-torsion additive group, an odd multiple is the identity. -/
-theorem odd_nsmul_eq_self {A : Type*} [AddCommGroup A] (htor : ∀ a : A, a + a = 0)
-    {n : ℕ} (hn : Odd n) (x : A) : n • x = x := by
-  obtain ⟨k, rfl⟩ := hn
-  rw [add_nsmul, one_nsmul, mul_nsmul', two_nsmul, htor, zero_add]
-
 /-- **The image of tame inertia has odd order.**  For any hom `c : T_tame →* C` into a finite
 group, `orderOf (c τ)` is odd: applying `c` to the tame relation `τ^σ = τ²` shows `c τ` is
 conjugate to `(c τ)²`, so `orderOf (c τ) = orderOf ((c τ)²) = orderOf (c τ) / gcd(·, 2)`, which

@@ -194,8 +194,7 @@ theorem heisMarking_c0_z_cocycle {C : Type*} [Group C] [Finite C] {V : Type*} [A
   have htau : ∀ v : V, t.τ • v = v := fun v => htriv t.τ v
   have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := fun l => HeisLift.smul_elemdual_trivial t.x₀ hx0 l
   have htaud : ∀ l : ElemDual V, t.τ • l = l := fun l => HeisLift.smul_elemdual_trivial t.τ htau l
-  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => by
-    ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]; exact CharTwo.add_self_eq_zero (l v)
+  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => l.add_self_eq_zero
   set M := heisMarking t x y with hM
   have hd0a : M.d0.a = 0 := by rwa [heisMarking_d0_a t x y, liftMarking_d0_u t x hV₂ hx0 htau]
   have hd0l : M.d0.l = 0 := by rwa [heisMarking_d0_l t x y, liftMarking_d0_u t y hV₂d hx0d htaud]
@@ -219,8 +218,7 @@ theorem heisMarking_h0_z_cocycle {C : Type*} [Group C] [Finite C] {V : Type*} [A
   have hU : ∀ v : V, t.sigma2 • v = v := fun v => htriv t.sigma2 v
   have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := fun l => HeisLift.smul_elemdual_trivial t.x₀ hx0 l
   have htaud : ∀ l : ElemDual V, t.τ • l = l := fun l => HeisLift.smul_elemdual_trivial t.τ htau l
-  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => by
-    ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]; exact CharTwo.add_self_eq_zero (l v)
+  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => l.add_self_eq_zero
   set M := heisMarking t x y with hM
   -- leaf coordinates
   have hd0a : M.d0.a = 0 := by rwa [heisMarking_d0_a t x y, liftMarking_d0_u t x hV₂ hx0 htau]
@@ -296,8 +294,7 @@ theorem heisMarking_wildValue_z_cocycle {C : Type*} [Group C] [Finite C] {V : Ty
   have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := fun l => HeisLift.smul_elemdual_trivial t.x₀ hx0 l
   have htaud : ∀ l : ElemDual V, t.τ • l = l := fun l => HeisLift.smul_elemdual_trivial t.τ htau l
   have hUd : ∀ l : ElemDual V, t.sigma2 • l = l := fun l => HeisLift.smul_elemdual_trivial t.sigma2 hU l
-  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => by
-    ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]; exact CharTwo.add_self_eq_zero (l v)
+  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => l.add_self_eq_zero
   set M := heisMarking t x y with hM
   have hh0g : ∀ v : V, M.h0.g • v = v := heisMarking_h0_g_smul t x y hx0 htau hU
   have hu1g : ∀ v : V, M.u1.g • v = v := heisMarking_u1_g_smul t x y hx1act htau

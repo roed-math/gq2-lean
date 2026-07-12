@@ -90,10 +90,7 @@ theorem x0Section_bijective_split (t : Marking C) (ht : t.TameRel) (hw : t.WildR
     | H z =>
       obtain ⟨h1, h3⟩ := (hshape.1 z.1).mp z.2
       have hsurj : Function.Surjective (fun w : V => t.σ • w - w) :=
-        Finite.injective_iff_surjective.mp (fun a b hab => by
-          have hfix : t.σ • (a - b) = a - b := by
-            rwa [smul_sub, sub_eq_sub_iff_sub_eq_sub]
-          exact sub_eq_zero.mp (hVS (a - b) hfix))
+        FoxH.surjective_smul_sub_of_fixedPointFree hVS
       obtain ⟨w, hw'⟩ := hsurj (z.1 0)
       refine ⟨z.1 2, ?_⟩
       show h1wMk t ⟨x0Supported (z.1 2), _⟩ = QuotientAddGroup.mk z

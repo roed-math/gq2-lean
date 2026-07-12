@@ -56,8 +56,7 @@ theorem exists_nonzero_varCoc_gammaA (D : RadicalCoverData Bg) (S : TComplement 
       ((ρ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
   have hA₂ : ∀ a : Additive ↥D.T, a + a = 0 := fun a =>
     Additive.toMul.injective (Subtype.ext (D.helem _ (D.hTM (Additive.toMul a).2)))
-  have hA₂D : ∀ l : ElemDual (Additive ↥D.T), l + l = 0 := fun l => by
-    ext a; simp only [ElemDual.add_apply, ElemDual.zero_apply]; exact CharTwo.add_self_eq_zero (l a)
+  have hA₂D : ∀ l : ElemDual (Additive ↥D.T), l + l = 0 := fun l => l.add_self_eq_zero
   -- ===== the shifted-edge dual cocycle and its nonzero `H¹`-class =====
   obtain ⟨φf, hφf, hφne⟩ := exists_phiF D S ρ hcompat hcompatD hρ hedge
   -- ===== `prop_5_15`: the perfect pairing detects `[φf] ≠ 0` =====

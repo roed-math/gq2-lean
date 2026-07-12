@@ -398,8 +398,6 @@ what remains, giving a factor `4 = (−2)²`. -/
 
 section WallCount
 
-private theorem zmod2_cases : ∀ z : ZMod 2, z = 0 ∨ z = 1 := by decide
-
 private theorem zmod2_self_add_val_smul_one : ∀ z : ZMod 2, z + z.val • (1 : ZMod 2) = 0 := by
   decide
 
@@ -577,7 +575,7 @@ private theorem wall_count_aux :
         refine Subtype.ext ?_
         rw [hiter, hm]
         rfl
-      rcases zmod2_cases (ω a a) with haa | haa
+      rcases ZMod.eq_zero_or_eq_one (ω a a) with haa | haa
       · -- **Case `ω a a = 0`**: choose `t₀` with `ω t₀ a = 1` and split `W` along `t₀`.
         -- Shifting the inner index by `a` changes the exponent by exactly the outer
         -- `t₀`-coordinate, so all blocks with a `t₀`-component cancel; on the surviving
@@ -637,7 +635,7 @@ private theorem wall_count_aux :
             have h1 := congrArg
               (· + (ψH (MH ↑c) + ψH (MH ↑c')).val • (⟨a, hAmem⟩ : ↥(ω a).ker)) h0.symm
             simpa [add_assoc, h2H] using h1
-          rcases zmod2_cases (ψH (MH ↑c) + ψH (MH ↑c')) with hε | hε
+          rcases ZMod.eq_zero_or_eq_one (ψH (MH ↑c) + ψH (MH ↑c')) with hε | hε
           · rw [hε, ZMod.val_zero, zero_nsmul] at hd
             have h0 : (↑c : ↥(ω a).ker) + ↑c' = 0 := by
               apply MH.injective

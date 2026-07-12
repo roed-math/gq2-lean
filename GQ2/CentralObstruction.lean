@@ -39,9 +39,6 @@ open ContCoh
 
 variable {Bg : Type} [Group Bg] [Finite Bg] (D : RadicalCoverData Bg)
 
-/-- Case split for `ZMod 2` values. -/
-private theorem zmod2_cases : ∀ a : ZMod 2, a = 0 ∨ a = 1 := by decide
-
 /-! ## The kernel-sign calculus: `ker p = {1, z} ≅ 𝔽₂` -/
 
 /-- The `z`-logarithm on the cover: `0` at `1`, `1` elsewhere — meaningful on `ker p = {1,z}`. -/
@@ -98,7 +95,7 @@ theorem ker_comm {d : D.C.cover} (hd : d ∈ D.C.p.ker) (w : D.C.cover) : d * w 
 
 /-- `zsign` of a `z`-power: `zsign (z^(a.val)) = a`. -/
 theorem zsign_z_pow (a : ZMod 2) : zsign D (D.C.z ^ a.val) = a := by
-  rcases zmod2_cases a with rfl | rfl
+  rcases ZMod.eq_zero_or_eq_one a with rfl | rfl
   · simp
   · rw [show ((1 : ZMod 2)).val = 1 by decide, pow_one, zsign_z]
 
@@ -251,9 +248,9 @@ theorem tComplement_nonempty : Nonempty (TComplement D) := by
             map_add]
         rw [hsplit, this]
         have h1 : χ (Additive.ofMul (⟨D.C.z, hzP⟩ : ↥P)) = 1 :=
-          (zmod2_cases _).resolve_left hχ
+          (ZMod.eq_zero_or_eq_one _).resolve_left hχ
         have h2 : χ (Additive.ofMul (⟨x0, hx0P⟩ : ↥P)) = 1 :=
-          (zmod2_cases _).resolve_left hc
+          (ZMod.eq_zero_or_eq_one _).resolve_left hc
         rw [h1, h2]
         exact CharTwo.add_self_eq_zero 1
   choose sfun hsp hsχ using hlift

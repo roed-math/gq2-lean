@@ -536,6 +536,12 @@ instance [Finite A] : Finite (ElemDual A) :=
 @[simp] theorem neg_apply (lam : ElemDual A) (a : A) : (-lam) a = -(lam a) := rfl
 @[simp] theorem sub_apply (lam mu : ElemDual A) (a : A) : (lam - mu) a = lam a - mu a := rfl
 
+/-- `ElemDual A` is elementary (2-torsion): every `𝔽₂`-dual functional kills itself.  The
+canonical form of the ubiquitous `hV₂d`-style hypotheses; also applies to raw `A →+ ZMod 2`
+maps (`ElemDual` is a def-synonym). -/
+theorem add_self_eq_zero (lam : ElemDual A) : lam + lam = 0 :=
+  ext fun a => CharTwo.add_self_eq_zero (lam a)
+
 section Action
 
 variable {C : Type*} [Group C] [DistribMulAction C A]
@@ -2325,8 +2331,7 @@ theorem heisMarking_h0_z (t : Marking C) (c : V) (lam : ElemDual V) (hV₂ : ∀
   set M := heisMarking t (x0Supported c) (x0Supported lam) with hM
   have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := HeisLift.smul_elemdual_trivial t.x₀ hx0
   have htaud : ∀ l : ElemDual V, t.τ • l = l := HeisLift.smul_elemdual_trivial t.τ htau
-  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l =>
-    ElemDual.ext fun v => CharTwo.add_self_eq_zero (l v)
+  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => l.add_self_eq_zero
   -- leaf coordinates
   have hd0a : M.d0.a = 0 :=
     (heisMarking_d0_a t (x0Supported c) (x0Supported lam)).trans
@@ -2400,8 +2405,7 @@ theorem heisMarking_c0_z (t : Marking C) (c : V) (lam : ElemDual V) (hV₂ : ∀
   set M := heisMarking t (x0Supported c) (x0Supported lam) with hM
   have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := HeisLift.smul_elemdual_trivial t.x₀ hx0
   have htaud : ∀ l : ElemDual V, t.τ • l = l := HeisLift.smul_elemdual_trivial t.τ htau
-  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l =>
-    ElemDual.ext fun v => CharTwo.add_self_eq_zero (l v)
+  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => l.add_self_eq_zero
   have hd0a : M.d0.a = 0 :=
     (heisMarking_d0_a t (x0Supported c) (x0Supported lam)).trans
       (liftMarking_d0_u t (x0Supported c) hV₂ hx0 htau)
@@ -2491,6 +2495,15 @@ the split case `g₀ = σ₂²` is not `g`-slice, so the peel uses `conjP_*_of_s
 `U`-action. -/
 
 omit [Finite C] in
+/-- Fixed-point-freeness makes `σ − 1` surjective on a finite module: if `σ • v = v` forces
+`v = 0` then `v ↦ σ • v − v` is injective (difference-telescope), hence surjective on the
+finite `V`.  The canonical form of the hand-rolled `hsurj`/`hτsurj` derivations. -/
+theorem surjective_smul_sub_of_fixedPointFree {σ : C} (hfpf : ∀ v : V, σ • v = v → v = 0) :
+    Function.Surjective fun v : V => σ • v - v :=
+  Finite.injective_iff_surjective.mp fun a b hab => sub_eq_zero.mp
+    (hfpf (a - b) (by rw [smul_sub, sub_eq_sub_iff_sub_eq_sub]; exact hab))
+
+omit [Finite C] in
 /-- Contragredient fixed-point-freeness: if `T = τ` has no nonzero fixed vector on the finite
 module `V` (`V^T = 0`), then the same holds on the dual `V^∨`.  (`T − 1` injective ⟹ surjective on
 finite `V`; the dual `T^∨ − 1` is then injective.)  Supplies the ramified `d₀.l = λ` computation. -/
@@ -2498,10 +2511,7 @@ theorem elemDual_fixedPointFree_of_fixedPointFree (t : Marking C)
     (htau : ∀ v : V, t.τ • v = v → v = 0) :
     ∀ lam : ElemDual V, t.τ • lam = lam → lam = 0 := by
   have hsurj : Function.Surjective (fun w : V => t.τ⁻¹ • w - w) :=
-    Finite.injective_iff_surjective.mp fun a b hab => by
-      have h2 : t.τ⁻¹ • (a - b) = a - b := by
-        rw [smul_sub, sub_eq_sub_iff_sub_eq_sub]; exact hab
-      exact sub_eq_zero.mp (htau (a - b) (inv_smul_eq_iff.mp h2).symm)
+    surjective_smul_sub_of_fixedPointFree fun w hw => htau w (inv_smul_eq_iff.mp hw).symm
   intro lam hlam
   ext v
   obtain ⟨w, hw⟩ := hsurj v
@@ -2520,8 +2530,7 @@ theorem heisMarking_h0_z_ramified (t : Marking C) (c : V) (lam : ElemDual V)
   set M := heisMarking t (x0Supported c) (x0Supported lam) with hM
   -- dual-side hypotheses
   have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := HeisLift.smul_elemdual_trivial t.x₀ hx0
-  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l =>
-    ElemDual.ext fun v => CharTwo.add_self_eq_zero (l v)
+  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => l.add_self_eq_zero
   have htaud : ∀ l : ElemDual V, t.τ • l = l → l = 0 :=
     elemDual_fixedPointFree_of_fixedPointFree t htau
   have hToddd : ∀ l : ElemDual V, powOmega2 t.τ • l = l :=
@@ -2611,8 +2620,7 @@ theorem heisMarking_c0_z_ramified (t : Marking C) (c : V) (lam : ElemDual V)
       = lam (t.sigma2⁻¹ • c) + lam (t.sigma2 • c) := by
   set M := heisMarking t (x0Supported c) (x0Supported lam) with hM
   have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := HeisLift.smul_elemdual_trivial t.x₀ hx0
-  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l =>
-    ElemDual.ext fun v => CharTwo.add_self_eq_zero (l v)
+  have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => l.add_self_eq_zero
   have htaud : ∀ l : ElemDual V, t.τ • l = l → l = 0 :=
     elemDual_fixedPointFree_of_fixedPointFree t htau
   have hToddd : ∀ l : ElemDual V, powOmega2 t.τ • l = l :=
@@ -2818,8 +2826,7 @@ theorem lemma_5_13_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     ∀ x ∈ Z1w (A := V) t, ∃! c : V, x - x0Supported c ∈ B1w (A := V) t := by
   -- `T − 1` is injective (`V^T = 0`) hence surjective on the finite space `V`.
   have hTsurj : Function.Surjective (fun w : V => t.τ • w - w) :=
-    Finite.injective_iff_surjective.mp fun a b hab => sub_eq_zero.mp
-      (htau (a - b) (by rw [smul_sub, sub_eq_sub_iff_sub_eq_sub]; exact hab))
+    surjective_smul_sub_of_fixedPointFree htau
   intro x hx
   rw [Z1w, AddMonoidHom.mem_ker] at hx
   -- Wild row `S⁻¹·x₃ = 0` forces `x₃ = 0`.

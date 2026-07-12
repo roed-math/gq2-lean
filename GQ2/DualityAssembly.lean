@@ -324,12 +324,7 @@ theorem normalForm_of_shapes (t : Marking C)
     (hVS : ∀ v : A, t.σ • v = v → v = 0) :
     ∀ x ∈ Z1w (A := A) t, ∃! c : A, x - x0Supported c ∈ B1w (A := A) t := by
   have hsurj : Function.Surjective (fun v : A => t.σ • v - v) :=
-    (Finite.injective_iff_surjective).mp (fun a b hab => by
-      have hab' : t.σ • a - a = t.σ • b - b := hab
-      refine sub_eq_zero.mp (hVS (a - b) ?_)
-      rw [smul_sub, show t.σ • a - t.σ • b = (t.σ • a - a) - (t.σ • b - b) + (a - b) from by abel,
-        hab']
-      abel)
+    surjective_smul_sub_of_fixedPointFree hVS
   intro x hx
   rw [hZ] at hx
   obtain ⟨hx1, hx3⟩ := hx
@@ -365,12 +360,7 @@ theorem selfDual_of_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hge
     fixedPoints_sigma_eq_zero t hgen hV₂ hsimple hcore htau ⟨v₀, hv₀⟩
   obtain ⟨hx0, hx1⟩ := wild_acts_trivially t hV₂ hsimple hcore
   have hsurjA : Function.Surjective (fun v : A => t.σ • v - v) :=
-    (Finite.injective_iff_surjective).mp (fun a b hab => by
-      have hab' : t.σ • a - a = t.σ • b - b := hab
-      refine sub_eq_zero.mp (hVS (a - b) ?_)
-      rw [smul_sub, show t.σ • a - t.σ • b = (t.σ • a - a) - (t.σ • b - b) + (a - b) from by abel,
-        hab']
-      abel)
+    surjective_smul_sub_of_fixedPointFree hVS
   obtain ⟨hZA, hBA⟩ := split_shapes_of_wild t ht hV₂ hx0 hx1 htau hU hVS
   have hnfA := normalForm_of_shapes t hZA hBA hVS
   have hx0A := x0mem_of_Z1wShape t hZA
@@ -379,9 +369,7 @@ theorem selfDual_of_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hge
     intro g hg l
     ext a
     rw [ElemDual.smul_apply, inv_smul_eq_iff.mpr (hg a).symm]
-  have hV₂D : ∀ l : ElemDual A, l + l = 0 := fun l => by
-    ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]
-    exact CharTwo.add_self_eq_zero (l v)
+  have hV₂D : ∀ l : ElemDual A, l + l = 0 := fun l => l.add_self_eq_zero
   have hVSD : ∀ l : ElemDual A, t.σ • l = l → l = 0 := by
     intro l hl
     have hlσ : ∀ x : A, l (t.σ • x) = l x := fun x => by
@@ -489,21 +477,12 @@ theorem selfDual_of_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   have hop := sigma2_pairing_operator_injective (V := A) t hV₂
   have hopsurj := Finite.injective_iff_surjective.mp hop
   -- dual-side hypotheses
-  have hV₂D : ∀ l : ElemDual A, l + l = 0 := fun l => by
-    ext v; simp only [ElemDual.add_apply, ElemDual.zero_apply]
-    exact CharTwo.add_self_eq_zero (l v)
+  have hV₂D : ∀ l : ElemDual A, l + l = 0 := fun l => l.add_self_eq_zero
   have hx0D := elemDual_smul_trivial_of (A := A) t.x₀ hx0
   have hx1D := elemDual_smul_trivial_of (A := A) t.x₁ hx1
   have hToddD := elemDual_smul_trivial_of (A := A) (powOmega2 t.τ) hTodd
   have hτsurj : Function.Surjective (fun v : A => t.τ⁻¹ • v - v) :=
-    (Finite.injective_iff_surjective).mp (fun a b hab => by
-      have hab' : t.τ⁻¹ • a - a = t.τ⁻¹ • b - b := hab
-      refine sub_eq_zero.mp (htau (a - b) ?_)
-      have hfix : t.τ⁻¹ • (a - b) = a - b := by
-        rw [smul_sub, show t.τ⁻¹ • a - t.τ⁻¹ • b
-            = (t.τ⁻¹ • a - a) - (t.τ⁻¹ • b - b) + (a - b) from by abel, hab']
-        abel
-      simpa [smul_inv_smul] using (congrArg (t.τ • ·) hfix).symm)
+    surjective_smul_sub_of_fixedPointFree fun v hv => htau v (inv_smul_eq_iff.mp hv).symm
   have htauD : ∀ l : ElemDual A, t.τ • l = l → l = 0 := by
     intro l hl
     have hlτ : ∀ x : A, l (t.τ⁻¹ • x) = l x := fun x => by
