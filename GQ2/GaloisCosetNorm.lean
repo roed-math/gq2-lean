@@ -52,15 +52,11 @@ theorem smul_eq_of_quot_eq {x : ℚ̄₂} (hx : x ∈ fixedField H) {g₁ g₂ :
     (h : (QuotientGroup.mk g₁ : ↥K ⧸ H.subgroupOf K) = QuotientGroup.mk g₂) :
     (↑g₁ : Kummer.GaloisGroup ℚ_[2]) • x = (↑g₂ : Kummer.GaloisGroup ℚ_[2]) • x := by
   rw [QuotientGroup.eq] at h
-  have hmem : (↑(g₁⁻¹ * g₂) : Kummer.GaloisGroup ℚ_[2]) ∈ H := (Subgroup.mem_subgroupOf).mp h
   have hfix : (↑(g₁⁻¹ * g₂) : Kummer.GaloisGroup ℚ_[2]) • x = x :=
-    (mem_fixedField_iff H x).mp hx _ hmem
+    (mem_fixedField_iff H x).mp hx _ ((Subgroup.mem_subgroupOf).mp h)
   have hcoe : (↑g₁ : Kummer.GaloisGroup ℚ_[2]) * ↑(g₁⁻¹ * g₂) = ↑g₂ := by
     rw [← Subgroup.coe_mul, mul_inv_cancel_left]
-  have : (↑g₂ : Kummer.GaloisGroup ℚ_[2]) • x
-      = (↑g₁ : Kummer.GaloisGroup ℚ_[2]) • ((↑(g₁⁻¹ * g₂) : Kummer.GaloisGroup ℚ_[2]) • x) := by
-    rw [← mul_smul, hcoe]
-  rw [this, hfix]
+  rw [← hcoe, mul_smul, hfix]
 
 /-- Each factor is nonzero, so the coset norm of a nonzero element is nonzero. -/
 theorem cosetNorm_ne_zero {x : ℚ̄₂} (hx : x ≠ 0) : cosetNorm H K x ≠ 0 := by
@@ -133,12 +129,10 @@ theorem relE_spec (FF : DyadicUnitFiltration F) (FL : DyadicUnitFiltration L) (h
 uniformizers meet `‖2‖ = ‖π‖^e`, and `‖π_F‖ = ‖π_L‖^{e(L/F)}`; zpow-injectivity on `‖π_L‖ ∈ (0,1)`). -/
 theorem e_eq_relE_mul (FF : DyadicUnitFiltration F) (FL : DyadicUnitFiltration L) (hFL : F ≤ L) :
     (FL.e : ℤ) = relE FF FL hFL * FF.e := by
-  have hb0 : (0 : ℝ) < ‖FL.π‖ := norm_pos_iff.mpr FL.hπ_ne
-  have hb1 : ‖FL.π‖ ≠ 1 := ne_of_lt FL.hπ_lt
   have hEq : ‖FL.π‖ ^ (FL.e : ℤ) = ‖FL.π‖ ^ (relE FF FL hFL * FF.e) := by
     rw [zpow_natCast, ← FL.he, FF.he, relE_spec FF FL hFL,
       ← zpow_natCast (‖FL.π‖ ^ relE FF FL hFL) FF.e, ← zpow_mul]
-  exact zpow_right_injective₀ hb0 hb1 hEq
+  exact zpow_right_injective₀ (norm_pos_iff.mpr FL.hπ_ne) (ne_of_lt FL.hπ_lt) hEq
 
 /-- `e(L/F) ≥ 1` (a genuine relative index): from tower multiplicativity and `e_L, e_F ≥ 1`. -/
 theorem relE_pos (FF : DyadicUnitFiltration F) (FL : DyadicUnitFiltration L) (hFL : F ≤ L) :
@@ -146,8 +140,7 @@ theorem relE_pos (FF : DyadicUnitFiltration F) (FL : DyadicUnitFiltration L) (hF
   have h := e_eq_relE_mul FF FL hFL
   have heL : 1 ≤ (FL.e : ℤ) := by exact_mod_cast FL.he_pos
   have heF : 1 ≤ (FF.e : ℤ) := by exact_mod_cast FF.he_pos
-  by_contra hlt
-  rw [not_le] at hlt
+  by_contra! hlt
   nlinarith [h, heL, heF, mul_nonneg (by omega : (0 : ℤ) ≤ -relE FF FL hFL)
     (by omega : (0 : ℤ) ≤ (FF.e : ℤ))]
 
@@ -159,11 +152,9 @@ theorem relE_dvd (FF : DyadicUnitFiltration F) (FL : DyadicUnitFiltration L) (hF
   obtain ⟨y, hy0, hyF, hxy⟩ := hn FL.π FL.hπ_ne FL.hπ_mem
   obtain ⟨a, ha⟩ := norm_eq_zpow FF hyF hy0
   refine ⟨a, ?_⟩
-  have hb0 : (0 : ℝ) < ‖FL.π‖ := norm_pos_iff.mpr FL.hπ_ne
-  have hb1 : ‖FL.π‖ ≠ 1 := ne_of_lt FL.hπ_lt
   have hEq : ‖FL.π‖ ^ (n : ℤ) = ‖FL.π‖ ^ (relE FF FL hFL * a) := by
     rw [zpow_natCast, hxy, ha, relE_spec FF FL hFL, ← zpow_mul]
-  exact zpow_right_injective₀ hb0 hb1 hEq
+  exact zpow_right_injective₀ (norm_pos_iff.mpr FL.hπ_ne) (ne_of_lt FL.hπ_lt) hEq
 
 
 end RelE

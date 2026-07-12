@@ -63,14 +63,9 @@ theorem kummerDepth_antitone (hπ1 : ‖π‖ ≤ 1) {i j : ℕ} (hij : i ≤ j)
 `[a] = 0` — package the root as a unit and apply `kummerClassK_mul_self`-style algebra. -/
 theorem kummerClassK_eq_zero_of_sq (a : (↥k)ˣ) (w : ↥k) (hw : w ^ 2 = (a : ↥k)) :
     kummerClassK k a = 0 := by
-  have hw0 : w ≠ 0 := by
-    intro h0
-    apply a.ne_zero
-    rw [← hw, h0]
-    ring
-  have hau : a = Units.mk0 w hw0 * Units.mk0 w hw0 := by
-    apply Units.ext
-    rw [Units.val_mul, Units.val_mk0, ← sq, hw]
+  have hw0 : w ≠ 0 := fun h0 => a.ne_zero (by rw [← hw, h0]; ring)
+  have hau : a = Units.mk0 w hw0 * Units.mk0 w hw0 :=
+    Units.ext (by rw [Units.val_mul, Units.val_mk0, ← sq, hw])
   rw [hau]
   exact kummerClassK_mul_self k (Units.mk0 w hw0)
 
@@ -89,10 +84,7 @@ theorem kummerDepth_eq_bot [FiniteDimensional ℚ_[2] k]
   have hlt : ‖((a : ↥k) : ℚ̄₂) - 1‖ < ‖(4 : ℚ̄₂)‖ := by
     refine lt_of_le_of_lt (le_trans ha.2 (pow_le_pow_of_le_one (norm_nonneg π) hπ1.le hj)) ?_
     rw [h4]
-    calc ‖π‖ ^ (2 * e + 1) = ‖π‖ ^ (2 * e) * ‖π‖ := by rw [pow_succ]
-      _ < ‖π‖ ^ (2 * e) * 1 := by
-          exact mul_lt_mul_of_pos_left hπ1 (pow_pos hπpos _)
-      _ = ‖π‖ ^ (2 * e) := mul_one _
+    exact pow_lt_pow_right_of_lt_one₀ hπpos hπ1 (by omega)
   obtain ⟨w, hw⟩ := sq_of_near_one k (a : ↥k) hlt
   rw [AddSubgroup.mem_bot]
   exact kummerClassK_eq_zero_of_sq k a w hw
@@ -119,8 +111,7 @@ theorem kummerClassK_mem_deepClasses (a : (↥k)ˣ)
     field_simp
     ring
   · -- `‖b‖ < 1`
-    rw [norm_div, div_lt_one h2pos]
-    exact ha
+    rwa [norm_div, div_lt_one h2pos]
   · -- the restricted Kummer cocycle of `sqrtCl A` presents `kummerClassK k a`
     have hmem : (fun n : ↥(k.fixingSubgroup) =>
         Kummer.kummerCocycleFun (GQ2.sqrtCl ((a : ↥k) : ℚ̄₂))
@@ -144,9 +135,8 @@ theorem coe_kummerDepth_deep [FiniteDimensional ℚ_[2] k]
   have hπpos : (0 : ℝ) < ‖π‖ := norm_pos_iff.mpr hπ0
   have hπepos : (0 : ℝ) < ‖π‖ ^ e := pow_pos hπpos e
   have hstep : ‖π‖ ^ (e + 1) < ‖(2 : ℚ̄₂)‖ := by
-    rw [he, pow_succ]
-    calc ‖π‖ ^ e * ‖π‖ < ‖π‖ ^ e * 1 := mul_lt_mul_of_pos_left hπ1 hπepos
-      _ = ‖π‖ ^ e := mul_one _
+    rw [he]
+    exact pow_lt_pow_right_of_lt_one₀ hπpos hπ1 (by omega)
   ext ξ
   constructor
   · -- depth `e+1` ⟹ deep

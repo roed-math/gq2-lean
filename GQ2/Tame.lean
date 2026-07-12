@@ -30,7 +30,6 @@ theorem conj_pow_iterate {s t : G} (h : s⁻¹ * t * s = t ^ 2) :
   | succ k ih =>
     have step : (s ^ (k + 1))⁻¹ * t * s ^ (k + 1)
         = (s ^ k)⁻¹ * (s⁻¹ * t * s) * s ^ k := by
-      rw [pow_succ]
       group
     rw [step, h]
     have conj_sq : (s ^ k)⁻¹ * t ^ 2 * s ^ k = ((s ^ k)⁻¹ * t * s ^ k) ^ 2 := by
@@ -49,17 +48,12 @@ theorem tame_odd_order {s t : G} (hs : orderOf s ≠ 0) (h : s⁻¹ * t * s = t 
   -- Hence `t = t^(2^k)`, so `t^(2^k - 1) = 1`.
   have hpos : 1 ≤ 2 ^ k := Nat.pos_of_ne_zero (pow_ne_zero _ (by norm_num))
   have hone : t ^ (2 ^ k - 1) = 1 := by
-    have heq : t ^ (2 ^ k - 1) * t = t := by
-      rw [← pow_succ, Nat.sub_add_cancel hpos, ← hconj]
-    have heq' : t ^ (2 ^ k - 1) * t = 1 * t := by rw [one_mul]; exact heq
-    exact mul_right_cancel heq'
+    rw [← mul_left_inj t, one_mul, ← pow_succ, Nat.sub_add_cancel hpos, ← hconj]
   -- So `orderOf t ∣ 2^k - 1`.  If `orderOf t` were even, then `2 ∣ 2^k` and `2 ∣ 2^k - 1`, absurd.
   have hdvd : orderOf t ∣ 2 ^ k - 1 := orderOf_dvd_of_pow_eq_one hone
   rcases Nat.even_or_odd (orderOf t) with he | ho
   · exfalso
-    obtain ⟨r, hr⟩ := he
-    have h2ot : (2 : ℕ) ∣ orderOf t := ⟨r, by omega⟩
-    have hd1 : (2 : ℕ) ∣ 2 ^ k - 1 := dvd_trans h2ot hdvd
+    have hd1 : (2 : ℕ) ∣ 2 ^ k - 1 := he.two_dvd.trans hdvd
     have h2p : (2 : ℕ) ∣ 2 ^ k := dvd_pow_self 2 hs
     omega
   · exact ho
@@ -100,8 +94,7 @@ theorem zpowers_normal_of_tame {s t : G} [Finite G] (hgen : Subgroup.closure {s,
   intro x hx
   simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hx
   rcases hx with rfl | rfl
-  · exact SetLike.mem_coe.2 hs_norm
-  · exact SetLike.mem_coe.2 ht_norm
+  exacts [SetLike.mem_coe.2 hs_norm, SetLike.mem_coe.2 ht_norm]
 
 
 /-- **Lemma 3.1 (normal 2-subgroups are central).** Every normal 2-subgroup `N` of a finite tame
@@ -156,9 +149,8 @@ theorem tame_normal_two_subgroup_central {s t : G} [Finite G]
     have hcT : n * t * n⁻¹ * t⁻¹ ∈ Subgroup.zpowers t :=
       Subgroup.mul_mem _ (hCn.conj_mem t (Subgroup.mem_zpowers t) n)
         (Subgroup.inv_mem _ (Subgroup.mem_zpowers t))
-    have hz : n * t * n⁻¹ * t⁻¹ = 1 :=
-      Subgroup.mem_bot.mp (hinf ▸ Subgroup.mem_inf.mpr ⟨hcN, hcT⟩)
-    exact commutatorElement_eq_one_iff_commute.mp hz
+    exact commutatorElement_eq_one_iff_commute.mp
+      (Subgroup.mem_bot.mp (hinf ▸ Subgroup.mem_inf.mpr ⟨hcN, hcT⟩))
   have hcs : Commute n s := by
     have hcN : n * s * n⁻¹ * s⁻¹ ∈ N := by
       have h1 : n * (s * n⁻¹ * s⁻¹) ∈ N := N.mul_mem hn (hNnorm.conj_mem _ (N.inv_mem hn) s)
@@ -172,9 +164,8 @@ theorem tame_normal_two_subgroup_central {s t : G} [Finite G]
       rw [← QuotientGroup.eq_one_iff, ← QuotientGroup.mk'_apply, ← hφ,
         map_mul, map_mul, map_mul, map_inv, map_inv, hcomm_q.eq]
       group
-    have hz : n * s * n⁻¹ * s⁻¹ = 1 :=
-      Subgroup.mem_bot.mp (hinf ▸ Subgroup.mem_inf.mpr ⟨hcN, hcT⟩)
-    exact commutatorElement_eq_one_iff_commute.mp hz
+    exact commutatorElement_eq_one_iff_commute.mp
+      (Subgroup.mem_bot.mp (hinf ▸ Subgroup.mem_inf.mpr ⟨hcN, hcT⟩))
   -- Commuting with `s` and `t` ⟹ commuting with all of `⟨s,t⟩ = ⊤`.
   rw [Subgroup.mem_center_iff]
   intro g

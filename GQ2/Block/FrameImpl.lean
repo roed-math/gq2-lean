@@ -56,7 +56,7 @@ noncomputable def blockFrameImpl (T : MarkedTarget H E Y) (Blk : MinimalBlock T.
           piY_surjective := fun hh => by
             obtain ⟨y, hy⟩ := T.piY_surjective hh
             exact ⟨QuotientGroup.mk' Blk.R y, by
-              rw [QuotientGroup.mk'_apply, QuotientGroup.lift_mk']; exact hy⟩
+              rwa [QuotientGroup.mk'_apply, QuotientGroup.lift_mk']⟩
           ker_piY := by rw [QuotientGroup.ker_lift, T.ker_piY]
           thetaY := QuotientGroup.lift Blk.R T.thetaY hRkerth }
       TB_head := QuotientGroup.lift_comp_mk' Blk.R T.piY hRkerpi
@@ -73,7 +73,7 @@ noncomputable def blockFrameImpl (T : MarkedTarget H E Y) (Blk : MinimalBlock T.
           piY_surjective := fun hh => by
             obtain ⟨y, hy⟩ := T.piY_surjective hh
             exact ⟨QuotientGroup.mk' Blk.K y, by
-              rw [QuotientGroup.mk'_apply, QuotientGroup.lift_mk']; exact hy⟩
+              rwa [QuotientGroup.mk'_apply, QuotientGroup.lift_mk']⟩
           ker_piY := by rw [QuotientGroup.ker_lift, T.ker_piY]
           thetaY := QuotientGroup.lift Blk.K T.thetaY hKkerth }
       TC_head := QuotientGroup.lift_comp_mk' Blk.K T.piY hKkerpi
@@ -130,7 +130,7 @@ noncomputable def blockFrameImpl (T : MarkedTarget H E Y) (Blk : MinimalBlock T.
             ker_eq := ?_ }
         · intro x
           induction x using QuotientGroup.induction_on with
-          | _ y => exact ⟨QuotientGroup.mk' l.1 y, by simp [QuotientGroup.map_mk']⟩
+          | _ y => exact ⟨QuotientGroup.mk' l.1 y, by simp⟩
         · rw [Ne, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]
           exact hr₀.2
         · -- `z² = 1`: `r₀ * r₀ ∈ R'`
@@ -141,8 +141,7 @@ noncomputable def blockFrameImpl (T : MarkedTarget H E Y) (Blk : MinimalBlock T.
           intro x
           refine QuotientGroup.induction_on x (fun y => ?_)
           have hbR : y⁻¹ * r₀⁻¹ * y ∈ Blk.R := by
-            have := hRn.conj_mem r₀⁻¹ (Blk.R.inv_mem hr₀.1) y⁻¹
-            simpa using this
+            simpa using hRn.conj_mem r₀⁻¹ (Blk.R.inv_mem hr₀.1) y⁻¹
           have hbR' : y⁻¹ * r₀⁻¹ * y ∉ l.1 := fun hbmem => hr₀.2 (by
             have := l.2.1.conj_mem _ hbmem y
             rw [show y * (y⁻¹ * r₀⁻¹ * y) * y⁻¹ = r₀⁻¹ from by group] at this
@@ -151,9 +150,8 @@ noncomputable def blockFrameImpl (T : MarkedTarget H E Y) (Blk : MinimalBlock T.
           rw [inv_inv] at hk
           show QuotientGroup.mk' l.1 r₀ * QuotientGroup.mk' l.1 y
             = QuotientGroup.mk' l.1 y * QuotientGroup.mk' l.1 r₀
-          rw [← map_mul, ← map_mul, QuotientGroup.mk'_apply, QuotientGroup.mk'_apply,
+          rwa [← map_mul, ← map_mul, QuotientGroup.mk'_apply, QuotientGroup.mk'_apply,
             QuotientGroup.eq, show (r₀ * y)⁻¹ * (y * r₀) = y⁻¹ * r₀⁻¹ * y * r₀ from by group]
-          exact hk
         · -- kernel: `p.ker = R.map (mk' R') = ⟨z⟩`
           have hker : (QuotientGroup.map l.1 Blk.R (MonoidHom.id Y)
               (by rw [Subgroup.comap_id]; exact l.2.2.1)).ker
@@ -164,13 +162,11 @@ noncomputable def blockFrameImpl (T : MarkedTarget H E Y) (Blk : MinimalBlock T.
               show (QuotientGroup.map l.1 Blk.R (MonoidHom.id Y)
                 (by rw [Subgroup.comap_id]; exact l.2.2.1)) (↑y) = ((y : Y) : Y ⧸ Blk.R) from rfl,
               QuotientGroup.eq_one_iff, Subgroup.mem_map]
-            constructor
-            · intro hy; exact ⟨y, hy, rfl⟩
-            · rintro ⟨r, hrR, hr⟩
-              rw [QuotientGroup.mk'_apply, QuotientGroup.eq] at hr
-              have hyr : y = r * (r⁻¹ * y) := by group
-              rw [hyr]
-              exact Blk.R.mul_mem hrR (l.2.2.1 hr)
+            refine ⟨fun hy => ⟨y, hy, rfl⟩, ?_⟩
+            rintro ⟨r, hrR, hr⟩
+            rw [QuotientGroup.mk'_apply, QuotientGroup.eq] at hr
+            rw [show y = r * (r⁻¹ * y) from by group]
+            exact Blk.R.mul_mem hrR (l.2.2.1 hr)
           rw [hker]
           apply le_antisymm
           · rw [Subgroup.map_le_iff_le_comap]

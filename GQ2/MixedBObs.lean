@@ -106,7 +106,7 @@ theorem obs_inflation {L : Type*} [Group L] [TopologicalSpace L] [DiscreteTopolo
     (hφ : ∀ a b, φ.1 (a, b) = κ.κ (H a) (H b)) :
     obs htriv φ = (relZPair (gammaGen.map H.toMonoidHom) κ).1
                 + (relZPair (gammaGen.map H.toMonoidHom) κ).2 := by
-  set G := H.comp (quotientMk NA) with hG
+  set G := H.comp (quotientMk NA)
   have hNA : NA ≤ G.toMonoidHom.ker := by
     intro g hg
     rw [MonoidHom.mem_ker]
@@ -120,13 +120,12 @@ theorem obs_inflation {L : Type*} [Group L] [TopologicalSpace L] [DiscreteTopolo
     rw [hset]
     exact (isOpen_discrete ({1} : Set L)).preimage G.continuous_toFun
   set U : OpenNormalSubgroup (FreeProfiniteGroup (Fin 4)) :=
-    { toSubgroup := G.toMonoidHom.ker, isOpen' := hopen } with hU
+    { toSubgroup := G.toMonoidHom.ker, isOpen' := hopen }
   have hUsub : NA ≤ U.toSubgroup := hNA
-  set Gbar := QuotientGroup.kerLift G.toMonoidHom with hGbar
+  set Gbar := QuotientGroup.kerLift G.toMonoidHom
   have hhom : Gbar.comp (QuotientGroup.mk' U.toSubgroup)
       = H.toMonoidHom.comp (quotientMk NA).toMonoidHom := by
     ext g
-    show Gbar (QuotientGroup.mk' U.toSubgroup g) = H (quotientMk NA g)
     exact QuotientGroup.kerLift_mk G.toMonoidHom g
   have hGbarproj : ∀ a : FreeProfiniteGroup (Fin 4) ⧸ NA, Gbar (levelProj U hUsub a) = H a := by
     intro a

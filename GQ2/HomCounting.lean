@@ -83,19 +83,14 @@ theorem card_ker_postCompHom (j : W' →+ W)
     ⟨?_, ?_⟩)).symm
   · -- injective
     intro f' g' h
-    have h1 : j.comp f'.1 = j.comp g'.1 := by
-      have := congrArg (fun x => ((x : ↥(equivHoms C V W)) : V →+ W)) (Subtype.ext_iff.mp h)
-      exact this
-    apply Subtype.ext
-    ext v
-    exact hjinj (DFunLike.congr_fun h1 v)
+    have h1 : j.comp f'.1 = j.comp g'.1 :=
+      congrArg (fun x => ((x : ↥(equivHoms C V W)) : V →+ W)) (Subtype.ext_iff.mp h)
+    exact Subtype.ext (AddMonoidHom.ext fun v => hjinj (DFunLike.congr_fun h1 v))
   · -- surjective: choice-lift each value through `j`
     rintro ⟨⟨f, hfeq⟩, hfker⟩
     have hker : ∀ v : V, π (f v) = 0 := by
       intro v
-      have h0 : π.comp f = 0 := by
-        have := Subtype.ext_iff.mp (AddMonoidHom.mem_ker.mp hfker)
-        exact this
+      have h0 : π.comp f = 0 := Subtype.ext_iff.mp (AddMonoidHom.mem_ker.mp hfker)
       exact DFunLike.congr_fun h0 v
     have hmem : ∀ v : V, ∃ w' : W', j w' = f v := fun v => (hexact _).mp (hker v)
     set u : V → W' := fun v => Function.invFun j (f v) with hu_def
@@ -148,11 +143,7 @@ theorem card_equivHoms_of_exact [Finite C] [Finite V] [Finite W] [Finite W'']
     intro g
     obtain ⟨g₀, hg₀eq, hg₀⟩ := equivariant_lift_of_regular_summand h2W h2W'' ι r hι hr hri
       π hπeq hπsurj g.1 g.2
-    refine ⟨⟨g₀, hg₀eq⟩, ?_⟩
-    apply Subtype.ext
-    show π.comp g₀ = g.1
-    ext v
-    exact hg₀ v
+    exact ⟨⟨g₀, hg₀eq⟩, Subtype.ext (AddMonoidHom.ext hg₀)⟩
   -- Lagrange + first isomorphism theorem
   have hlag : Nat.card ↥(equivHoms C V W)
       = Nat.card (↥(equivHoms C V W) ⧸ Φ.ker) * Nat.card ↥Φ.ker :=
@@ -176,18 +167,15 @@ theorem card_equivHoms_congr (e : W ≃+ W'')
         show e (f.1 (c • v)) = c • e (f.1 v)
         rw [f.2 c v, heq]⟩ : ↥(equivHoms C V W''))) ⟨?_, ?_⟩)
   · intro f g h
-    apply Subtype.ext
-    ext v
-    exact e.injective (DFunLike.congr_fun (Subtype.ext_iff.mp h) v)
+    exact Subtype.ext (AddMonoidHom.ext fun v =>
+      e.injective (DFunLike.congr_fun (Subtype.ext_iff.mp h) v))
   · intro g
     refine ⟨⟨e.symm.toAddMonoidHom.comp g.1, fun c v => by
       show e.symm (g.1 (c • v)) = c • e.symm (g.1 v)
       rw [g.2 c v]
       apply e.injective
       rw [AddEquiv.apply_symm_apply, heq, AddEquiv.apply_symm_apply]⟩, ?_⟩
-    apply Subtype.ext
-    ext v
-    exact e.apply_symm_apply (g.1 v)
+    exact Subtype.ext (AddMonoidHom.ext fun v => e.apply_symm_apply (g.1 v))
 
 end HomCounting
 

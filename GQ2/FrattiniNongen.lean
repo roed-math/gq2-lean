@@ -39,33 +39,24 @@ theorem comm_mem_frattiniLike {K : Subgroup Y} {k l : Y} (hk : k ∈ K) (hl : l 
 /-- Squares land in any index-2 subgroup (the quotient has order 2). -/
 private theorem sq_mem_of_index_two {Q : Type*} [Group Q] [Finite Q] {M : Subgroup Q}
     [M.Normal] (hM : M.index = 2) (k : Q) : k * k ∈ M := by
-  have hcard : Nat.card (Q ⧸ M) = 2 := by
-    rw [← hM]
-    exact (Subgroup.index_eq_card M).symm
-  have hpow : (QuotientGroup.mk k : Q ⧸ M) ^ 2 = 1 := by
-    rw [← hcard]
-    exact pow_card_eq_one'
-  have hmk : (QuotientGroup.mk (k * k) : Q ⧸ M) = 1 := by
-    rw [QuotientGroup.mk_mul, ← pow_two]
-    exact hpow
-  exact (QuotientGroup.eq_one_iff _).mp hmk
+  have hcard : Nat.card (Q ⧸ M) = 2 := hM ▸ (Subgroup.index_eq_card M).symm
+  refine (QuotientGroup.eq_one_iff _).mp ?_
+  rw [QuotientGroup.mk_mul, ← pow_two, ← hcard]
+  exact pow_card_eq_one'
 
 /-- Commutators land in any index-2 subgroup (the quotient has prime order, hence is
 cyclic and abelian). -/
 private theorem comm_mem_of_index_two {Q : Type*} [Group Q] [Finite Q] {M : Subgroup Q}
     [M.Normal] (hM : M.index = 2) (k l : Q) : k * l * k⁻¹ * l⁻¹ ∈ M := by
-  have hcard : Nat.card (Q ⧸ M) = 2 := by
-    rw [← hM]
-    exact (Subgroup.index_eq_card M).symm
+  have hcard : Nat.card (Q ⧸ M) = 2 := hM ▸ (Subgroup.index_eq_card M).symm
   haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   haveI : IsCyclic (Q ⧸ M) := isCyclic_of_prime_card hcard
   letI : CommGroup (Q ⧸ M) := IsCyclic.commGroup
-  have hmk : (QuotientGroup.mk (k * l * k⁻¹ * l⁻¹) : Q ⧸ M) = 1 := by
-    rw [QuotientGroup.mk_mul, QuotientGroup.mk_mul, QuotientGroup.mk_mul,
-      QuotientGroup.mk_inv, QuotientGroup.mk_inv]
-    rw [mul_comm (QuotientGroup.mk k : Q ⧸ M) (QuotientGroup.mk l)]
-    group
-  exact (QuotientGroup.eq_one_iff _).mp hmk
+  refine (QuotientGroup.eq_one_iff _).mp ?_
+  rw [QuotientGroup.mk_mul, QuotientGroup.mk_mul, QuotientGroup.mk_mul,
+    QuotientGroup.mk_inv, QuotientGroup.mk_inv,
+    mul_comm (QuotientGroup.mk k : Q ⧸ M) (QuotientGroup.mk l)]
+  group
 
 /-- **Frattini nongeneration** for the finite 2-group `K`: a subgroup `H ≤ K` with
 `H ⊔ Φ(K) = K` is all of `K`.  (`Φ(K) = K²[K,K] = frattiniLike K`.) -/
@@ -85,11 +76,7 @@ theorem frattiniLike_nongen {K H : Subgroup Y} (h2K : IsPGroup 2 ↥K) (hHK : H 
   -- a proper `H` would sit under a maximal subgroup that also contains `Φ'`
   rcases eq_top_or_exists_le_coatom (H.subgroupOf K) with heq | ⟨M, hM, hHM⟩
   · -- `H.subgroupOf K = ⊤` means `K ≤ H`
-    have : K ≤ H := by
-      intro k hk
-      have : (⟨k, hk⟩ : ↥K) ∈ H.subgroupOf K := by rw [heq]; trivial
-      exact this
-    exact le_antisymm hHK this
+    exact le_antisymm hHK (Subgroup.subgroupOf_eq_top.mp heq)
   · exfalso
     haveI hMn : M.Normal := coatom_normal_of_pGroup h2K hM
     have hMi : M.index = 2 := coatom_index_of_pGroup h2K hM
@@ -99,10 +86,7 @@ theorem frattiniLike_nongen {K H : Subgroup Y} (h2K : IsPGroup 2 ↥K) (hHK : H 
       rintro x (⟨k, rfl⟩ | ⟨k, l, rfl⟩)
       · exact sq_mem_of_index_two hMi k
       · exact comm_mem_of_index_two hMi k l
-    have : (⊤ : Subgroup ↥K) ≤ M := by
-      rw [← htop]
-      exact sup_le hHM hΦM
-    exact hM.1 (le_antisymm le_top this)
+    exact hM.1 (le_antisymm le_top (htop ▸ sup_le hHM hΦM))
 
 /-- **The §8 R-lift surjectivity** (paper, proof of Prop 8.9): if `J ≤ Y` maps onto
 `Y/R` for `R = Φ(K)` a normal subgroup with `R ≤ K` and `K` a 2-group inside the marked
@@ -124,13 +108,12 @@ theorem eq_top_of_map_frattini_quotient_top {B : Type} [Group B]
     have hker' : j⁻¹ * y ∈ frattiniLike K := by
       rw [← hker, MonoidHom.mem_ker, map_mul, map_inv, hj]
       group
-    have hy' : y = j * (j⁻¹ * y) := by group
-    rw [hy']
+    rw [show y = j * (j⁻¹ * y) from by group]
     exact Subgroup.mul_mem_sup hjJ hker'
   -- Dedekind step: `K = (J ⊓ K) ⊔ Φ(K)`
   have hKdec : (J ⊓ K) ⊔ frattiniLike K = K := by
     apply le_antisymm
-    · exact sup_le (le_trans inf_le_right le_rfl) hRK
+    · exact sup_le inf_le_right hRK
     · intro k hk
       -- `k ∈ ⊤ = J·Φ(K)` (`Φ(K)` normal): write `k = j·r`, then `j = k·r⁻¹ ∈ K`
       have hk' : k ∈ (J : Set Y) * (frattiniLike K : Set Y) := by
@@ -138,21 +121,13 @@ theorem eq_top_of_map_frattini_quotient_top {B : Type} [Group B]
         trivial
       obtain ⟨j, hjJ, r, hrR, rfl⟩ := hk'
       have hjK : j ∈ K := by
-        have hrK : r ∈ K := hRK hrR
-        have hj' : j = (j * r) * r⁻¹ := by group
-        rw [hj']
-        exact mul_mem hk (inv_mem hrK)
+        rw [show j = j * r * r⁻¹ from by group]
+        exact mul_mem hk (inv_mem (hRK hrR))
       exact Subgroup.mul_mem_sup (Subgroup.mem_inf.mpr ⟨hjJ, hjK⟩) hrR
   -- nongeneration: `J ⊓ K = K`, hence `K ≤ J`
   have hJK : J ⊓ K = K := frattiniLike_nongen h2K inf_le_right hKdec
-  have hKJ : K ≤ J := by
-    rw [← hJK]
-    exact inf_le_left
-  -- conclude
-  have hJfix : J ⊔ frattiniLike K = J := by
-    rw [sup_eq_left]
-    exact le_trans hRK hKJ
-  rw [← hJfix, hJR]
+  have hKJ : K ≤ J := hJK ▸ inf_le_left
+  exact (sup_eq_left.mpr (hRK.trans hKJ)).symm.trans hJR
 
 end GQ2
 

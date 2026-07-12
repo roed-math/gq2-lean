@@ -73,9 +73,8 @@ theorem gaussZResidue_local_unramified (D6 : TateDuality 2)
   letI instT : TopologicalSpace En.Vmod := ⊥
   haveI instD : DiscreteTopology En.Vmod := ⟨rfl⟩
   letI instA : DistribMulAction AbsGalQ2 En.Vmod := DistribMulAction.compHom _ ρ.1.1.toMonoidHom
-  haveI instC : ContinuousSMul AbsGalQ2 En.Vmod := ⟨by
-    show Continuous fun p : AbsGalQ2 × En.Vmod => ρ.1.1 p.1 • p.2
-    exact (continuous_of_discreteTopology (f := fun q : RF.YC × En.Vmod => q.1 • q.2)).comp
+  haveI instC : ContinuousSMul AbsGalQ2 En.Vmod :=
+    ⟨(continuous_of_discreteTopology (f := fun q : RF.YC × En.Vmod => q.1 • q.2)).comp
       ((ρ.1.1.continuous.comp continuous_fst).prodMk continuous_snd)⟩
   -- the same instances re-keyed at the syntactic `descData`-projections (synthesis is
   -- transparency-limited; the values are defeq)
@@ -149,9 +148,8 @@ theorem gaussZResidue_local_ramified (D6 : TateDuality 2) (R : LocalReciprocity)
   letI instT : TopologicalSpace En.Vmod := ⊥
   haveI instD : DiscreteTopology En.Vmod := ⟨rfl⟩
   letI instA : DistribMulAction AbsGalQ2 En.Vmod := DistribMulAction.compHom _ ρ.1.1.toMonoidHom
-  haveI instC : ContinuousSMul AbsGalQ2 En.Vmod := ⟨by
-    show Continuous fun p : AbsGalQ2 × En.Vmod => ρ.1.1 p.1 • p.2
-    exact (continuous_of_discreteTopology (f := fun q : RF.YC × En.Vmod => q.1 • q.2)).comp
+  haveI instC : ContinuousSMul AbsGalQ2 En.Vmod :=
+    ⟨(continuous_of_discreteTopology (f := fun q : RF.YC × En.Vmod => q.1 • q.2)).comp
       ((ρ.1.1.continuous.comp continuous_fst).prodMk continuous_snd)⟩
   -- the same instances re-keyed at the syntactic `descData`-projections (synthesis is
   -- transparency-limited; the values are defeq)

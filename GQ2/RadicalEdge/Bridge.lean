@@ -86,8 +86,7 @@ noncomputable def zBCfibreEquiv (l : RF.DR) (h : l ≠ RF.zeroDR)
     ⟨⟨⟨ρ, m.1.1⟩, fun γ => m.1.2 γ,
         RF.isBoundaryLift_of_over b F m.1.1 ρ m.1.2, m.2⟩, rfl⟩
   left_inv x := by
-    obtain ⟨⟨⟨ρ', m⟩, hcompat, hbd, hg⟩, hρ'⟩ := x
-    subst hρ'
+    obtain ⟨⟨⟨ρ', m⟩, hcompat, hbd, hg⟩, rfl⟩ := x
     rfl
   right_inv m := rfl
 
@@ -164,12 +163,10 @@ def liftsOver_equiv (D : RadicalCoverData RF.YB) (hD : D.M = RF.MB)
     (ρ : BoundaryLifts b F RF.TC) :
     LiftsOver RF b F ρ ≃ MLifts D (RF.rhoPrime b F D hD ρ) :=
   Equiv.subtypeEquivRight fun m => by
-    constructor
-    · intro hover γ
-      show QuotientGroup.mk (m γ) = (RF.piBCiso D hD).symm (ρ.1.1 γ)
+    refine ⟨fun hover γ => ?_, fun hmk γ => ?_⟩
+    · show QuotientGroup.mk (m γ) = (RF.piBCiso D hD).symm (ρ.1.1 γ)
       rw [← hover γ, ← RF.piBCiso_mk D hD, MulEquiv.symm_apply_apply]
-    · intro hmk γ
-      rw [← RF.piBCiso_mk D hD (m γ), hmk γ, rhoPrime_apply, MulEquiv.apply_symm_apply]
+    · rw [← RF.piBCiso_mk D hD (m γ), hmk γ, rhoPrime_apply, MulEquiv.apply_symm_apply]
 
 /-- **The `CentralOver ↔ central `MLifts`** bridge**: the `λ`-compatible lifts over `ρ` are the
 central `M`-lifts of `ρ'` (the scalar cover of `D`).  With `D := E.radData l h` the scalar

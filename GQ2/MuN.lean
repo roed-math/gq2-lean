@@ -102,8 +102,7 @@ private lemma stabilizer_eq_of_injective {G' X Y : Type*} [Group G']
     (hf' : ∀ (g : G') (x : X), f (g • x) = g • f x) (x : X) :
     MulAction.stabilizer G' x = MulAction.stabilizer G' (f x) := by
   ext g
-  simp only [MulAction.mem_stabilizer_iff]
-  rw [← hf' g x, hf.eq_iff]
+  simp only [MulAction.mem_stabilizer_iff, ← hf' g x, hf.eq_iff]
 
 /-- **The stabilizer bridge.**  The stabilizer of `x : Additive (μₙ)` in `Gal(L/K)` coincides with
 the stabilizer of the underlying field element `↑↑x.toMul : L` — the reduction that lets us reuse
@@ -112,8 +111,7 @@ lemma stabilizer_additive_eq_field (x : Additive (rootsOfUnity n L)) :
     MulAction.stabilizer (L ≃ₐ[K] L) x
       = MulAction.stabilizer (L ≃ₐ[K] L) (((x.toMul : Lˣ) : L)) := by
   refine stabilizer_eq_of_injective (G' := L ≃ₐ[K] L) (fun y => ((y.toMul : Lˣ) : L)) ?_ ?_ x
-  · exact fun a b h =>
-      Additive.toMul.injective (Subtype.ext (Units.ext h))
+  · exact fun a b h => Additive.toMul.injective (Subtype.ext (Units.ext h))
   · intro g y
     simp only [galRootsOfUnityAdd_toMul, galRootsOfUnity_val, val_smul_units]
 
@@ -146,8 +144,7 @@ noncomputable instance : DistribMulAction AbsGalQ2 (MuN n) :=
 /-- **Continuity of the Galois action on `μₙ`** (Krull topology): the stabilizer of each
 `x : μₙ` is the stabilizer of an algebraic (hence open-stabilized) field element. -/
 instance continuousSMul_gal : ContinuousSMul (ℚ̄₂ ≃ₐ[ℚ_[2]] ℚ̄₂) (MuN n) := by
-  rw [continuousSMul_iff_stabilizer_isOpen]
-  intro x
+  refine continuousSMul_iff_stabilizer_isOpen.2 fun x => ?_
   rw [stabilizer_additive_eq_field (K := ℚ_[2]) n x]
   exact stabilizer_isOpen_of_isIntegral _
 

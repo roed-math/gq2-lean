@@ -34,19 +34,13 @@ theorem h2ofFun_eq_of_sub_mem_B2 {φ ψ : AbsGalQ2 × AbsGalQ2 → ZMod 2}
     (h : φ - ψ ∈ B2 AbsGalQ2 (ZMod 2)) : H2ofFun AbsGalQ2 φ = H2ofFun AbsGalQ2 ψ := by
   by_cases hφ : φ ∈ Z2 AbsGalQ2 (ZMod 2)
   · have hψ : ψ ∈ Z2 AbsGalQ2 (ZMod 2) := by
-      have he : ψ = φ - (φ - ψ) := by abel
-      rw [he]; exact sub_mem hφ (B2_le_Z2 h)
-    rw [H2ofFun_of_mem hφ, H2ofFun_of_mem hψ]
-    have hmem : (⟨φ, hφ⟩ : Z2 AbsGalQ2 (ZMod 2)) - ⟨ψ, hψ⟩
-        ∈ (B2 AbsGalQ2 (ZMod 2)).addSubgroupOf (Z2 AbsGalQ2 (ZMod 2)) := by
-      rw [AddSubgroup.mem_addSubgroupOf, AddSubgroup.coe_sub]
-      exact h
-    rw [← sub_eq_zero, ← map_sub]
-    exact (QuotientAddGroup.eq_zero_iff _).mpr hmem
-  · have hψ : ψ ∉ Z2 AbsGalQ2 (ZMod 2) := by
-      intro hψ; apply hφ
-      have he : φ = ψ + (φ - ψ) := by abel
-      rw [he]; exact add_mem hψ (B2_le_Z2 h)
+      have := sub_mem hφ (B2_le_Z2 h); rwa [sub_sub_cancel] at this
+    rw [H2ofFun_of_mem hφ, H2ofFun_of_mem hψ, ← sub_eq_zero, ← map_sub]
+    refine (QuotientAddGroup.eq_zero_iff _).mpr ?_
+    rw [AddSubgroup.mem_addSubgroupOf, AddSubgroup.coe_sub]
+    exact h
+  · have hψ : ψ ∉ Z2 AbsGalQ2 (ZMod 2) := fun hψ =>
+      hφ <| by rw [show φ = ψ + (φ - ψ) from by abel]; exact add_mem hψ (B2_le_Z2 h)
     rw [H2ofFun, H2ofFun, dif_neg hφ, dif_neg hψ]
 
 /-- **`κ⁰` is a 2-cocycle on `V ⋊ C`** (the factor-set cocycle identity — display (61)/Lemma 6.1 —

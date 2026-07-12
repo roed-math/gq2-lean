@@ -34,7 +34,7 @@ include hμ in
 /-- The transposed pairing `μᵀ = μ.flip` is `G`-equivariant when `μ` is. -/
 lemma flip_equivariant :
     ∀ (g : G) (n : N) (m : M), μ.flip (g • n) (g • m) = g • μ.flip n m :=
-  fun g n m => by rw [AddMonoidHom.flip_apply, AddMonoidHom.flip_apply]; exact hμ g m n
+  fun g n m => by simpa only [AddMonoidHom.flip_apply] using hμ g m n
 
 include hμ in
 /-- **The graded-commutativity homotopy** (valid over `ℤ`): for cocycles `a, b`,
@@ -43,13 +43,10 @@ for `a, b` and the equivariance `hμ` leaves exactly `a ∪_μ b + b ∪_{μᵀ}
 lemma cup11Fun_add_flip_eq_dOne (a : Z1 G M) (b : Z1 G N) :
     cup11Fun μ a.1 b.1 + cup11Fun μ.flip b.1 a.1
       = dOne G P (fun g => -μ (a.1 g) (b.1 g)) := by
-  funext p
-  obtain ⟨g, h⟩ := p
-  have hca := (mem_Z1_iff.mp a.2).2 g h
-  have hcb := (mem_Z1_iff.mp b.2).2 g h
+  ext ⟨g, h⟩
   simp only [cup11Fun, AddMonoidHom.flip_apply, Pi.add_apply, dOne, AddMonoidHom.coe_mk,
     ZeroHom.coe_mk]
-  rw [hca, hcb]
+  rw [(mem_Z1_iff.mp a.2).2 g h, (mem_Z1_iff.mp b.2).2 g h]
   simp only [map_add, AddMonoidHom.add_apply, smul_neg, ← hμ]
   abel
 

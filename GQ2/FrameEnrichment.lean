@@ -78,11 +78,7 @@ theorem mForm_of_qbar (B : MinimalBlock L) {YB : Type} [Group YB]
     have hS' : (kk m)⁻¹ * k ∈ B.S := by
       have h1 : ((k⁻¹ * kk m)⁻¹ : Y) ∈ B.S := B.S.inv_mem (hRS hr)
       rwa [mul_inv_rev, inv_inv] at h1
-    have hSclass : (QuotientGroup.mk (⟨kk m, B.hKP (hkK m)⟩ : ↥B.P) :
-        ↥B.P ⧸ B.S.subgroupOf B.P) = QuotientGroup.mk ⟨k, B.hKP hk⟩ := by
-      rw [QuotientGroup.eq]
-      exact Subgroup.mem_subgroupOf.mpr hS'
-    rw [hSclass]
+    exact congrArg qbar (QuotientGroup.eq.mpr (Subgroup.mem_subgroupOf.mpr hS'))
   -- the identity coset has `q̄`-value zero (`λ` is additive)
   have hq1 : qbar (1 : ↥B.P ⧸ B.S.subgroupOf B.P) = 0 := by
     have h := hspec 1 (one_mem _)
@@ -104,8 +100,7 @@ theorem mForm_of_qbar (B : MinimalBlock L) {YB : Type} [Group YB]
     obtain ⟨k, hk, rfl⟩ := Subgroup.mem_map.mp hm
     have hxKS : x ∈ B.K ⊓ B.S := by
       rwa [sup_eq_left.mpr (lemma_7_1_head B)] at hx
-    have hxK : x ∈ B.K := (Subgroup.mem_inf.mp hxKS).1
-    have hxS : x ∈ B.S := (Subgroup.mem_inf.mp hxKS).2
+    obtain ⟨hxK, hxS⟩ := Subgroup.mem_inf.mp hxKS
     show qbar (QuotientGroup.mk
         ⟨kk ⟨piB x * piB k, mul_mem (blockT_map_le_blockM_map B piB ht) hm⟩,
           B.hKP (hkK _)⟩)
@@ -121,11 +116,9 @@ theorem mForm_of_qbar (B : MinimalBlock L) {YB : Type} [Group YB]
         ↥B.P ⧸ B.S.subgroupOf B.P) = QuotientGroup.mk ⟨k, B.hKP hk⟩ := by
       rw [QuotientGroup.eq]
       refine Subgroup.mem_subgroupOf.mpr ?_
-      have h1 : k⁻¹ * x⁻¹ * k⁻¹⁻¹ ∈ B.S := B.hS.conj_mem x⁻¹ (B.S.inv_mem hxS) k⁻¹
-      have h2 : ((x * k)⁻¹ * k : Y) = k⁻¹ * x⁻¹ * k⁻¹⁻¹ := by group
       show ((x * k)⁻¹ * k : Y) ∈ B.S
-      rw [h2]
-      exact h1
+      rw [show ((x * k)⁻¹ * k : Y) = k⁻¹ * x⁻¹ * k⁻¹⁻¹ by group]
+      exact B.hS.conj_mem x⁻¹ (B.S.inv_mem hxS) k⁻¹
     have hx1 : (QuotientGroup.mk (⟨x, B.hKP hxK⟩ : ↥B.P) :
         ↥B.P ⧸ B.S.subgroupOf B.P) = 1 :=
       (QuotientGroup.eq_one_iff _).mpr (Subgroup.mem_subgroupOf.mpr hxS)
@@ -136,12 +129,11 @@ theorem mForm_of_qbar (B : MinimalBlock L) {YB : Type} [Group YB]
     obtain ⟨x, hx, rfl⟩ := Subgroup.mem_map.mp ht
     have hxKS : x ∈ B.K ⊓ B.S := by
       rwa [sup_eq_left.mpr (lemma_7_1_head B)] at hx
-    have hxK : x ∈ B.K := (Subgroup.mem_inf.mp hxKS).1
-    have hxS : x ∈ B.S := (Subgroup.mem_inf.mp hxKS).2
+    obtain ⟨hxK, hxS⟩ := Subgroup.mem_inf.mp hxKS
     show qbar (QuotientGroup.mk ⟨kk ⟨piB x, blockT_map_le_blockM_map B piB ht⟩,
       B.hKP (hkK _)⟩) = 0
-    rw [hclass ⟨piB x, blockT_map_le_blockM_map B piB ht⟩ x hxK rfl]
-    rw [show (QuotientGroup.mk (⟨x, B.hKP hxK⟩ : ↥B.P) :
+    rw [hclass ⟨piB x, blockT_map_le_blockM_map B piB ht⟩ x hxK rfl,
+      show (QuotientGroup.mk (⟨x, B.hKP hxK⟩ : ↥B.P) :
         ↥B.P ⧸ B.S.subgroupOf B.P) = 1 from
       (QuotientGroup.eq_one_iff _).mpr (Subgroup.mem_subgroupOf.mpr hxS)]
     exact hq1

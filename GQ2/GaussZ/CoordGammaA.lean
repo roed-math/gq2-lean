@@ -76,14 +76,11 @@ theorem hfix_of_simple_nt
     show cc • g • w = g • w
     rw [hw g, hw cc]
   rcases hsimple W hWinv with hbot | htop
-  · have : v ∈ W := hvC
-    rw [hbot, AddSubgroup.mem_bot] at this
-    exact this
+  · rw [← AddSubgroup.mem_bot, ← hbot]; exact hvC
   · -- `W = ⊤` ⟹ every `cc` acts trivially — against `hnt`
     exfalso
     obtain ⟨g, w, hgw⟩ := hnt
-    have hwW : w ∈ W := by rw [htop]; exact AddSubgroup.mem_top w
-    exact hgw (hwW g)
+    exact hgw ((by rw [htop]; exact AddSubgroup.mem_top w : w ∈ W) g)
 
 end HfixNt
 

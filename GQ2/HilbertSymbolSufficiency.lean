@@ -47,8 +47,7 @@ theorem hilbertSymbol_eq_one_of_value {a b : ℚ_[2]ˣ} (x y w : ℤ_[2])
   obtain ⟨t, ht⟩ := DyadicSquares.isSquare_of_toZModPow_eq_one hw
   have hw0 : w ≠ 0 := by intro h; rw [h, map_zero] at hw; exact absurd hw (by decide)
   have ht0 : (t : ℚ_[2]) ≠ 0 := by
-    rw [Ne, PadicInt.coe_eq_zero]
-    intro h; exact hw0 (by rw [ht, h, mul_zero])
+    rw [Ne, PadicInt.coe_eq_zero]; intro h; exact hw0 (by rw [ht, h, mul_zero])
   have hsolv : IsHilbertSolvable (a : ℚ_[2]) (b : ℚ_[2]) :=
     ⟨(x : ℚ_[2]), (y : ℚ_[2]), (t : ℚ_[2]), Or.inr (Or.inr ht0), by
       rw [heq, ht]; push_cast; ring⟩

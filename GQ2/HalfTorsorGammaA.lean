@@ -77,8 +77,7 @@ theorem exists_nonzero_varCoc_gammaA (D : RadicalCoverData Bg) (S : TComplement 
   have hmixne : mixedB (markC ρ) x.val (eval φf) ≠ 0 := by
     have := hP x yZ1w
     rw [hyeq] at this
-    rw [← this]
-    exact hPne
+    rwa [← this]
   -- ===== the primal crossed cocycle `u` from `w = ofZ1w x` =====
   set w : Z1 GA (Additive ↥D.T) := ofZ1w ρ hcompat hρ hA₂ x with hwdef
   have hevalw : eval w = x.val := congrArg Subtype.val (toZ1wHom_ofZ1w ρ hcompat hρ hA₂ x)
@@ -119,10 +118,7 @@ theorem card_H2_gammaA_eq_two (D : RadicalCoverData Bg) (S : TComplement D)
     intro y
     rcases hy2 y with rfl | rfl
     · exact ⟨0, map_zero _⟩
-    · refine ⟨a, ?_⟩
-      rcases hy2 (obsH2 htriv a) with h | h
-      · exact absurd h hne
-      · exact h
+    · exact ⟨a, (hy2 _).resolve_left hne⟩
   rw [Nat.card_congr (Equiv.ofBijective _ ⟨hinj, hsurj⟩)]
   simp [Nat.card_eq_fintype_card, ZMod.card]
 
