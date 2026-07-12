@@ -33,7 +33,7 @@ capstone `card_deepPart_sq_of_duality` (and hence of f8's `lemma_6_17_dim_of_hdu
 
 section Finale
 
-variable {C : Type} [Group C] [TopologicalSpace C] [Finite C]
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
 variable {V : Type} [AddCommGroup V] [DistribMulAction C V] [Finite V]
 variable (ρ : ContinuousMonoidHom AbsGalQ2 C)
 
