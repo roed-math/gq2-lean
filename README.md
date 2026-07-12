@@ -115,3 +115,7 @@ lake build           # the GQ2 library
 bash scripts/check_axioms.sh          # axiom/sorry hygiene guard
 lake build GQ2.AxiomLedger            # optional: repo-wide #print axioms certificate
 ```
+
+## License
+
+GPL v3 or (at your option) any later version — see [LICENSE](LICENSE).
