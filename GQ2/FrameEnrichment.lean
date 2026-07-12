@@ -36,7 +36,7 @@ variable {Y : Type} [Group Y] [Finite Y] {L : Subgroup Y}
 `(K ∩ S) ⊔ R ≤ K` because `R = Φ(K) ≤ K ∩ S` (`lemma_7_1_head`). -/
 theorem blockT_map_le_blockM_map (B : MinimalBlock L) {YB : Type} [Group YB]
     (piB : Y →* YB) :
-    ((B.K ⊓ B.S) ⊔ B.R).map piB ≤ B.K.map piB :=
+    ((B.K ⊓ B.S) ⊔ B.frattiniK).map piB ≤ B.K.map piB :=
   Subgroup.map_mono (sup_le inf_le_left ((lemma_7_1_head B).trans inf_le_left))
 
 /-- **The `M_B`-level square form from the Prop 7.4 descent** (P-16d1): given the 7.4
@@ -46,25 +46,25 @@ package for a `Y`-invariant additive `λ` on `R` — the descended `q̄` on `V =
 per-`λ` `RadicalCoverData`.  Route: `ker π_B = R ≤ S` (`lemma_7_1_head`), so `π_B`-fibres
 lie in single `S`-cosets and every clause reduces to an `S`-coset computation in `q̄`. -/
 theorem mForm_of_qbar (B : MinimalBlock L) {YB : Type} [Group YB]
-    (piB : Y →* YB) (hker : piB.ker = B.R)
-    (lam : ↥B.R → ZMod 2)
-    (hlam_hom : ∀ r r' : ↥B.R, lam (r * r') = lam r + lam r')
-    (hsq : ∀ k ∈ B.K, k * k ∈ B.R)
+    (piB : Y →* YB) (hker : piB.ker = B.frattiniK)
+    (lam : ↥B.frattiniK → ZMod 2)
+    (hlam_hom : ∀ r r' : ↥B.frattiniK, lam (r * r') = lam r + lam r')
+    (hsq : ∀ k ∈ B.K, k * k ∈ B.frattiniK)
     (qbar : (↥B.P ⧸ (B.S.subgroupOf B.P)) → ZMod 2)
     (hspec : ∀ (k : Y) (hk : k ∈ B.K),
       lam ⟨k * k, hsq k hk⟩ = qbar (QuotientGroup.mk ⟨k, B.hKP hk⟩)) :
     ∃ qM : ↥(B.K.map piB) → ZMod 2,
       (∀ (k : Y) (hk : k ∈ B.K),
         qM ⟨piB k, Subgroup.mem_map_of_mem piB hk⟩ = lam ⟨k * k, hsq k hk⟩) ∧
-      (∀ (t : YB) (ht : t ∈ ((B.K ⊓ B.S) ⊔ B.R).map piB) (m : YB)
+      (∀ (t : YB) (ht : t ∈ ((B.K ⊓ B.S) ⊔ B.frattiniK).map piB) (m : YB)
         (hm : m ∈ B.K.map piB),
         polarMul qM (fun a b => ⟨a.1 * b.1, mul_mem a.2 b.2⟩)
           ⟨t, blockT_map_le_blockM_map B piB ht⟩ ⟨m, hm⟩ = 0) ∧
-      (∀ (t : YB) (ht : t ∈ ((B.K ⊓ B.S) ⊔ B.R).map piB),
+      (∀ (t : YB) (ht : t ∈ ((B.K ⊓ B.S) ⊔ B.frattiniK).map piB),
         qM ⟨t, blockT_map_le_blockM_map B piB ht⟩ = 0) := by
   classical
   haveI := B.hS
-  have hRS : B.R ≤ B.S := (lemma_7_1_head B).trans inf_le_right
+  have hRS : B.frattiniK ≤ B.S := (lemma_7_1_head B).trans inf_le_right
   -- choose a `K`-preimage of every element of `M_B`
   choose kk hkK hkk using fun m : ↥(B.K.map piB) => Subgroup.mem_map.mp m.2
   -- transport: ANY `K`-preimage computes the same `q̄`-value (fibres sit in `S`-cosets)
@@ -72,7 +72,7 @@ theorem mForm_of_qbar (B : MinimalBlock L) {YB : Type} [Group YB]
       qbar (QuotientGroup.mk ⟨kk m, B.hKP (hkK m)⟩)
         = qbar (QuotientGroup.mk ⟨k, B.hKP hk⟩) := by
     intro m k hk hkm
-    have hr : k⁻¹ * kk m ∈ B.R := by
+    have hr : k⁻¹ * kk m ∈ B.frattiniK := by
       rw [← hker, MonoidHom.mem_ker, map_mul, map_inv, hkk m, hkm]
       exact inv_mul_cancel _
     have hS' : (kk m)⁻¹ * k ∈ B.S := by
@@ -83,10 +83,10 @@ theorem mForm_of_qbar (B : MinimalBlock L) {YB : Type} [Group YB]
   have hq1 : qbar (1 : ↥B.P ⧸ B.S.subgroupOf B.P) = 0 := by
     have h := hspec 1 (one_mem _)
     rw [show (⟨1, B.hKP (one_mem _)⟩ : ↥B.P) = 1 from rfl, QuotientGroup.mk_one] at h
-    rw [← h, show (⟨1 * 1, hsq 1 (one_mem _)⟩ : ↥B.R) = 1 from Subtype.ext (one_mul 1)]
+    rw [← h, show (⟨1 * 1, hsq 1 (one_mem _)⟩ : ↥B.frattiniK) = 1 from Subtype.ext (one_mul 1)]
     have h2 := hlam_hom 1 1
     rw [one_mul] at h2
-    exact (add_left_cancel (a := lam (1 : ↥B.R)) (by rw [add_zero]; exact h2)).symm
+    exact (add_left_cancel (a := lam (1 : ↥B.frattiniK)) (by rw [add_zero]; exact h2)).symm
   refine ⟨fun m => qbar (QuotientGroup.mk ⟨kk m, B.hKP (hkK m)⟩), ?_, ?_, ?_⟩
   · -- value clause
     intro k hk

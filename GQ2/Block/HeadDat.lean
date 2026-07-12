@@ -42,7 +42,7 @@ variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finit
   [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
 variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
 variable (T : MarkedTarget H E Y) (Blk : MinimalBlock T.LY)
-variable [Blk.R.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
+variable [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
 
 /-! ## The head action as data (the `blockHtame` construction, unpacked) -/
 
@@ -224,7 +224,7 @@ theorem hv_rel :
   rwa [map_mul, map_mul, map_inv, map_pow] at h2
 
 /-- Invariance of `q̄_λ` under the faithful `H_V`-action (transport of `blockHinv`). -/
-theorem hv_inv (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
+theorem hv_inv (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     letI := blockPS_commGroup Blk
     letI := hvAct T Blk
     IsInvariant (HVq T Blk) (blockQbar T Blk F.alpha F.alpha_surjective l hlne) := by
@@ -257,7 +257,7 @@ theorem hv_simple :
 
 /-- The `H_V`-level κ⁰ existential: Lemma 6.3 (`kappa0_exists_tame`, landed P-17e5) at the
 faithful head quotient with the tame pair `(hvSigma, hvTau)`. -/
-noncomputable def blockKappa0HV (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :=
+noncomputable def blockKappa0HV (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :=
   letI := blockPS_commGroup Blk
   letI := hvAct T Blk
   kappa0_exists_tame (hv_gen T Blk F) (hv_rel T Blk F)
@@ -267,12 +267,12 @@ noncomputable def blockKappa0HV (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :=
     (hv_inv T Blk F l hlne) (blockHsimple T Blk).1 (hv_simple T Blk)
 
 /-- The chosen `H_V`-level base-class datum. -/
-noncomputable def blockDatHV (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
+noncomputable def blockDatHV (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     letI := blockPS_commGroup Blk
     FactorSet (HVq T Blk) (Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)) :=
   (blockKappa0HV T Blk F l hlne).choose
 
-theorem blockDatHV_spec (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
+theorem blockDatHV_spec (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     letI := blockPS_commGroup Blk
     letI := hvAct T Blk
     IsEquivariantFactorSet (blockQbar T Blk F.alpha F.alpha_surjective l hlne)

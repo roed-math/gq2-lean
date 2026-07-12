@@ -269,7 +269,7 @@ theorem RecursionFrame.liftsOver_nonempty_gammaA
           rw [hpin _ hk, hpin _ hy]
       set X : Subgroup Y := φ.ker.map Blk.K.subtype with hXdef
       have hXK : X ≤ Blk.K := by rw [hXdef]; exact Subgroup.map_subtype_le _
-      have hRX : Blk.R ≤ X := by
+      have hRX : Blk.frattiniK ≤ X := by
         intro r hr
         have hrK : r ∈ Blk.K := frattiniLike_le Blk.K hr
         refine Subgroup.mem_map.mpr ⟨⟨r, hrK⟩, ?_, rfl⟩
@@ -542,7 +542,7 @@ theorem RecursionFrame.liftsOver_card_gammaA_of_nonempty
           rw [hpin _ hk, hpin _ hy]
       set X : Subgroup Y := φ.ker.map Blk.K.subtype with hXdef
       have hXK : X ≤ Blk.K := by rw [hXdef]; exact Subgroup.map_subtype_le _
-      have hRX : Blk.R ≤ X := by
+      have hRX : Blk.frattiniK ≤ X := by
         intro r hr
         have hrK : r ∈ Blk.K := frattiniLike_le Blk.K hr
         refine Subgroup.mem_map.mpr ⟨⟨r, hrK⟩, ?_, rfl⟩

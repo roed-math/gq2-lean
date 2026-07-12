@@ -55,14 +55,15 @@ section ConjAction
 
 variable (Blk) in
 /-- `R` is abelian: it is central in `K` (`hRK`, from `lemma_7_2`) and contained in `K`. -/
-@[reducible] def rCommGroup (hRK : ∀ r ∈ Blk.R, ∀ k ∈ Blk.K, r * k = k * r) : CommGroup ↥Blk.R :=
-  { (inferInstance : Group ↥Blk.R) with
+@[reducible] def rCommGroup (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r) :
+    CommGroup ↥Blk.frattiniK :=
+  { (inferInstance : Group ↥Blk.frattiniK) with
     mul_comm := fun r s => Subtype.ext
       (hRK (r : Y) r.2 (s : Y) (SectionSeven.frattiniLike_le Blk.K s.2)) }
 
 /-- Conjugation on `R` by an element of `Y` depends only on its `K`-coset (`K`-centrality). -/
-theorem conj_eq_of_mk_eq_K (hRK : ∀ r ∈ Blk.R, ∀ k ∈ Blk.K, r * k = k * r) {y w : Y}
-    (h : QuotientGroup.mk' Blk.K y = QuotientGroup.mk' Blk.K w) (r : ↥Blk.R) :
+theorem conj_eq_of_mk_eq_K (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r) {y w : Y}
+    (h : QuotientGroup.mk' Blk.K y = QuotientGroup.mk' Blk.K w) (r : ↥Blk.frattiniK) :
     y * (r : Y) * y⁻¹ = w * (r : Y) * w⁻¹ := by
   obtain ⟨k, hk, hyk⟩ := (QuotientGroup.mk'_eq_mk' Blk.K).mp h
   subst hyk
@@ -71,16 +72,16 @@ theorem conj_eq_of_mk_eq_K (hRK : ∀ r ∈ Blk.R, ∀ k ∈ Blk.K, r * k = k * 
     _ = y * k * (r : Y) * (y * k)⁻¹ := by group
 
 /-- Conjugation by `y` lands back in `R` (`R ◁ Y`). -/
-theorem conj_mem_R (y : Y) (r : ↥Blk.R) : y * (r : Y) * y⁻¹ ∈ Blk.R :=
+theorem conj_mem_R (y : Y) (r : ↥Blk.frattiniK) : y * (r : Y) * y⁻¹ ∈ Blk.frattiniK :=
   (SectionSeven.frattiniLike_normal Blk.K Blk.hK).conj_mem (r : Y) r.2 y
 
 variable (Blk) in
 /-- The `C = Y/K` conjugation action on `Additive R` (`Quotient.out`-conjugation; independent
 of the representative by `conj_eq_of_mk_eq_K`). -/
-@[reducible] noncomputable def conjC (hRK : ∀ r ∈ Blk.R, ∀ k ∈ Blk.K, r * k = k * r) :
-    DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.R) where
+@[reducible] noncomputable def conjC (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r) :
+    DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) where
   smul c a := Additive.ofMul
-    ⟨Quotient.out c * ((Additive.toMul a : ↥Blk.R) : Y) * (Quotient.out c)⁻¹,
+    ⟨Quotient.out c * ((Additive.toMul a : ↥Blk.frattiniK) : Y) * (Quotient.out c)⁻¹,
       conj_mem_R _ _⟩
   one_smul a := by
     have h1 : QuotientGroup.mk' Blk.K (Quotient.out (1 : Y ⧸ Blk.K))
@@ -108,17 +109,17 @@ of the representative by `conj_eq_of_mk_eq_K`). -/
     group
   smul_add c a b := by
     refine Additive.toMul.injective (Subtype.ext ?_)
-    show Quotient.out c * (((Additive.toMul a : ↥Blk.R) : Y)
-        * ((Additive.toMul b : ↥Blk.R) : Y)) * (Quotient.out c)⁻¹ = _
+    show Quotient.out c * (((Additive.toMul a : ↥Blk.frattiniK) : Y)
+        * ((Additive.toMul b : ↥Blk.frattiniK) : Y)) * (Quotient.out c)⁻¹ = _
     show _ = (Quotient.out c * _ * (Quotient.out c)⁻¹) * (Quotient.out c * _ * (Quotient.out c)⁻¹)
     group
 
 /-- The action computed at any coset representative. -/
-theorem conjC_smul_of_mk (hRK : ∀ r ∈ Blk.R, ∀ k ∈ Blk.K, r * k = k * r) (y : Y)
-    (r : ↥Blk.R) :
+theorem conjC_smul_of_mk (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r) (y : Y)
+    (r : ↥Blk.frattiniK) :
     letI := conjC Blk hRK
     (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K) • Additive.ofMul r
-      = Additive.ofMul (⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩ : ↥Blk.R) := by
+      = Additive.ofMul (⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩ : ↥Blk.frattiniK) := by
   letI := conjC Blk hRK
   have hout : QuotientGroup.mk' Blk.K (Quotient.out (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K))
       = QuotientGroup.mk' Blk.K y := Quotient.out_eq _
@@ -140,15 +141,15 @@ additive, the conjugation action through `C = Y/K` pulled back along the surject
 `fixedPts C (R^∨) ≃ D_Rmod` + `blockRChar_card`. -/
 theorem hZcount_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hE2 : ∀ e : E, e ^ 2 = 1)
-    (hRK : ∀ r ∈ Blk.R, ∀ k ∈ Blk.K, r * k = k * r)
-    (hR2 : ∀ r ∈ Blk.R, r * r = 1)
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
     (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup) (F : BoundaryFrame H E)
     (f₀ : BoundaryLifts b F T) :
     Nat.card (RCocycle (blockFrameImpl T Blk hE2) f₀.1.1)
       = (blockFrameImpl T Blk hE2).zR := by
   classical
-  letI : CommGroup ↥Blk.R := rCommGroup Blk hRK
-  letI actC : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.R) := conjC Blk hRK
+  letI : CommGroup ↥Blk.frattiniK := rCommGroup Blk hRK
+  letI actC : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) := conjC Blk hRK
   -- the lower map through `C = Y/K`, surjective
   set θ : ContinuousMonoidHom AbsGalQ2 (Y ⧸ Blk.K) :=
     ⟨(QuotientGroup.mk' Blk.K).comp f₀.1.1.toMonoidHom, by
@@ -160,30 +161,31 @@ theorem hZcount_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
     obtain ⟨y, hy⟩ := QuotientGroup.mk'_surjective Blk.K c
     obtain ⟨γ, hγ⟩ := f₀.1.2 y
     exact ⟨γ, by show QuotientGroup.mk' Blk.K (f₀.1.1 γ) = c; rw [hγ, hy]⟩
-  letI actG : DistribMulAction AbsGalQ2 (Additive ↥Blk.R) :=
+  letI actG : DistribMulAction AbsGalQ2 (Additive ↥Blk.frattiniK) :=
     DistribMulAction.compHom _ θ.toMonoidHom
-  letI : TopologicalSpace (Additive ↥Blk.R) := (inferInstance : TopologicalSpace ↥Blk.R)
-  haveI : DiscreteTopology (Additive ↥Blk.R) :=
-    ⟨(inferInstance : DiscreteTopology ↥Blk.R).eq_bot⟩
-  haveI : Finite (Additive ↥Blk.R) := (inferInstance : Finite ↥Blk.R)
-  haveI : ContinuousSMul AbsGalQ2 (Additive ↥Blk.R) := by
+  letI : TopologicalSpace (Additive ↥Blk.frattiniK) :=
+    (inferInstance : TopologicalSpace ↥Blk.frattiniK)
+  haveI : DiscreteTopology (Additive ↥Blk.frattiniK) :=
+    ⟨(inferInstance : DiscreteTopology ↥Blk.frattiniK).eq_bot⟩
+  haveI : Finite (Additive ↥Blk.frattiniK) := (inferInstance : Finite ↥Blk.frattiniK)
+  haveI : ContinuousSMul AbsGalQ2 (Additive ↥Blk.frattiniK) := by
     refine ⟨?_⟩
-    have hfac : (fun p : AbsGalQ2 × Additive ↥Blk.R => p.1 • p.2)
-        = (fun q : (Y ⧸ Blk.K) × Additive ↥Blk.R => q.1 • q.2)
-          ∘ (fun p : AbsGalQ2 × Additive ↥Blk.R => (θ p.1, p.2)) := rfl
+    have hfac : (fun p : AbsGalQ2 × Additive ↥Blk.frattiniK => p.1 • p.2)
+        = (fun q : (Y ⧸ Blk.K) × Additive ↥Blk.frattiniK => q.1 • q.2)
+          ∘ (fun p : AbsGalQ2 × Additive ↥Blk.frattiniK => (θ p.1, p.2)) := rfl
     rw [hfac]
     exact continuous_of_discreteTopology.comp
       ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
-  have hcomp : ∀ (γ : AbsGalQ2) (a : Additive ↥Blk.R), γ • a = θ γ • a := fun _ _ => rfl
-  have hA₂ : ∀ a : Additive ↥Blk.R, a + a = 0 := by
+  have hcomp : ∀ (γ : AbsGalQ2) (a : Additive ↥Blk.frattiniK), γ • a = θ γ • a := fun _ _ => rfl
+  have hA₂ : ∀ a : Additive ↥Blk.frattiniK, a + a = 0 := by
     intro a
     refine Additive.toMul.injective (Subtype.ext ?_)
     exact hR2 _ (Additive.toMul a).2
   -- the action at the `f₀`-representative
-  have hsmul : ∀ (γ : AbsGalQ2) (a : Additive ↥Blk.R),
+  have hsmul : ∀ (γ : AbsGalQ2) (a : Additive ↥Blk.frattiniK),
       γ • a
-        = Additive.ofMul (⟨f₀.1.1 γ * ((Additive.toMul a : ↥Blk.R) : Y) * (f₀.1.1 γ)⁻¹,
-            conj_mem_R (f₀.1.1 γ) (Additive.toMul a)⟩ : ↥Blk.R) := by
+        = Additive.ofMul (⟨f₀.1.1 γ * ((Additive.toMul a : ↥Blk.frattiniK) : Y) * (f₀.1.1 γ)⁻¹,
+            conj_mem_R (f₀.1.1 γ) (Additive.toMul a)⟩ : ↥Blk.frattiniK) := by
     intro γ a
     have h1 : γ • a
         = (QuotientGroup.mk' Blk.K (f₀.1.1 γ) : Y ⧸ Blk.K) • Additive.ofMul (Additive.toMul a) :=
@@ -192,11 +194,11 @@ theorem hZcount_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
     exact conjC_smul_of_mk hRK (f₀.1.1 γ) (Additive.toMul a)
   -- the multiplicative↔additive crossed-cocycle bridge
   have hequiv : RCocycle (blockFrameImpl T Blk hE2) f₀.1.1
-      ≃ ↥(Z1 AbsGalQ2 (Additive ↥Blk.R)) :=
+      ≃ ↥(Z1 AbsGalQ2 (Additive ↥Blk.frattiniK)) :=
     { toFun := fun c =>
         ⟨fun γ => Additive.ofMul ⟨c.u γ, c.mem γ⟩, by
           refine mem_Z1_iff.mpr ⟨?_, ?_⟩
-          · show Continuous fun γ => (⟨c.u γ, c.mem γ⟩ : ↥Blk.R)
+          · show Continuous fun γ => (⟨c.u γ, c.mem γ⟩ : ↥Blk.frattiniK)
             exact Continuous.subtype_mk c.cont _
           · intro γ δ
             rw [hsmul γ (Additive.ofMul ⟨c.u δ, c.mem δ⟩)]
@@ -204,7 +206,7 @@ theorem hZcount_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
             show c.u (γ * δ) = c.u γ * (f₀.1.1 γ * c.u δ * (f₀.1.1 γ)⁻¹)
             exact c.crossed γ δ⟩
       invFun := fun z =>
-        { u := fun γ => ((Additive.toMul (z.1 γ) : ↥Blk.R) : Y)
+        { u := fun γ => ((Additive.toMul (z.1 γ) : ↥Blk.frattiniK) : Y)
           mem := fun γ => (Additive.toMul (z.1 γ)).2
           cont := by
             have hz := (mem_Z1_iff.mp z.2).1
@@ -213,14 +215,14 @@ theorem hZcount_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
             intro γ δ
             have hz := (mem_Z1_iff.mp z.2).2 γ δ
             rw [hsmul γ (z.1 δ)] at hz
-            have := congrArg (fun a => ((Additive.toMul a : ↥Blk.R) : Y)) hz
+            have := congrArg (fun a => ((Additive.toMul a : ↥Blk.frattiniK) : Y)) hz
             simpa using this }
       left_inv := fun c => RCocycle.ext rfl
       right_inv := fun z => Subtype.ext (funext fun γ => rfl) }
   rw [Nat.card_congr hequiv, card_Z1_eq hθs hcomp hA₂]
   -- the invariant-character bridge `fixedPts C (R^∨) ≃ D_Rmod`
   have hbridge : Nat.card
-      (GQ2.FoxH.fixedPts (Y ⧸ Blk.K) (GQ2.FoxH.ElemDual (Additive ↥Blk.R)))
+      (GQ2.FoxH.fixedPts (Y ⧸ Blk.K) (GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK)))
       = Nat.card ↥(RCharSub Blk) := by
     refine Nat.card_congr
       { toFun := fun lam => ⟨lam.1, fun y r => ?_⟩
@@ -229,10 +231,10 @@ theorem hZcount_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
         right_inv := fun chi => rfl }
     · -- fixed ⟹ Y-invariant
       have hfix := lam.2 (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)
-      have h1 := congrArg (fun mu : GQ2.FoxH.ElemDual (Additive ↥Blk.R) =>
+      have h1 := congrArg (fun mu : GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK) =>
         mu (Additive.ofMul ⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩)) hfix
       have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹
-          • Additive.ofMul (⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩ : ↥Blk.R)
+          • Additive.ofMul (⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩ : ↥Blk.frattiniK)
           = Additive.ofMul r := by
         rw [← map_inv]
         rw [conjC_smul_of_mk hRK y⁻¹ ⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩]
@@ -251,14 +253,14 @@ theorem hZcount_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
       intro a
       rw [GQ2.FoxH.ElemDual.smul_apply]
       have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹ • a
-          = Additive.ofMul (⟨y⁻¹ * ((Additive.toMul a : ↥Blk.R) : Y) * y⁻¹⁻¹,
-              conj_mem_R y⁻¹ (Additive.toMul a)⟩ : ↥Blk.R) := by
+          = Additive.ofMul (⟨y⁻¹ * ((Additive.toMul a : ↥Blk.frattiniK) : Y) * y⁻¹⁻¹,
+              conj_mem_R y⁻¹ (Additive.toMul a)⟩ : ↥Blk.frattiniK) := by
         rw [← map_inv]
         exact conjC_smul_of_mk hRK y⁻¹ (Additive.toMul a)
       rw [h3]
       exact chi.2 y⁻¹ (Additive.toMul a)
   rw [hbridge, blockRChar_card T Blk hE2,
-    Nat.card_congr (Additive.toMul (α := ↥Blk.R))]
+    Nat.card_congr (Additive.toMul (α := ↥Blk.frattiniK))]
   rfl
 
 end ZCount
@@ -292,8 +294,8 @@ continuous splitting cochain (exponent 2 kills the signs), and `homLift_of_split
 lift. -/
 theorem hsep_hom_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hE2 : ∀ e : E, e ^ 2 = 1)
-    (hRK : ∀ r ∈ Blk.R, ∀ k ∈ Blk.K, r * k = k * r)
-    (hR2 : ∀ r ∈ Blk.R, r * r = 1)
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
     (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup) (F : BoundaryFrame H E) :
     ∀ g : BoundaryLifts b F (blockFrameImpl T Blk hE2).TB,
       obs (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2) htriv_local
@@ -326,9 +328,9 @@ theorem hsep_hom_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
         (blockRObstructionData T Blk hE2) htriv_local (card_H2_zmod2_eq_two htriv_local)
         g.1.1 d h).mp (LinearMap.congr_fun hg d)
   -- the instance stack for the twisted module `A = Additive R` along `ϑ = piBC ∘ g`
-  letI : CommGroup ↥Blk.R := rCommGroup Blk hRK
-  letI actC : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.R) := conjC Blk hRK
-  have hRleK : Blk.R ≤ Blk.K := SectionSeven.frattiniLike_le Blk.K
+  letI : CommGroup ↥Blk.frattiniK := rCommGroup Blk hRK
+  letI actC : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) := conjC Blk hRK
+  have hRleK : Blk.frattiniK ≤ Blk.K := SectionSeven.frattiniLike_le Blk.K
   set θ : ContinuousMonoidHom AbsGalQ2 (Y ⧸ Blk.K) :=
     ⟨MonoidHom.mk' (fun γ => QuotientGroup.mk' Blk.K
         (slift (blockFrameImpl T Blk hE2) (g.1.1 γ))) (fun γ δ => by
@@ -364,37 +366,38 @@ theorem hsep_hom_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
     rw [hγ, ← hy]
     apply (QuotientGroup.mk'_eq_mk' Blk.K).mpr
     have hker : (slift (blockFrameImpl T Blk hE2) ((blockFrameImpl T Blk hE2).piB y))⁻¹ * y
-        ∈ Blk.R := by
+        ∈ Blk.frattiniK := by
       rw [← (blockFrameImpl T Blk hE2).ker_piB, MonoidHom.mem_ker, map_mul, map_inv,
         piB_slift]
       group
     exact ⟨(slift (blockFrameImpl T Blk hE2) ((blockFrameImpl T Blk hE2).piB y))⁻¹ * y,
       hRleK hker, by group⟩
-  letI actG : DistribMulAction AbsGalQ2 (Additive ↥Blk.R) :=
+  letI actG : DistribMulAction AbsGalQ2 (Additive ↥Blk.frattiniK) :=
     DistribMulAction.compHom _ θ.toMonoidHom
-  letI : TopologicalSpace (Additive ↥Blk.R) := (inferInstance : TopologicalSpace ↥Blk.R)
-  haveI : DiscreteTopology (Additive ↥Blk.R) :=
-    ⟨(inferInstance : DiscreteTopology ↥Blk.R).eq_bot⟩
-  haveI : Finite (Additive ↥Blk.R) := (inferInstance : Finite ↥Blk.R)
-  haveI : ContinuousSMul AbsGalQ2 (Additive ↥Blk.R) := by
+  letI : TopologicalSpace (Additive ↥Blk.frattiniK) :=
+    (inferInstance : TopologicalSpace ↥Blk.frattiniK)
+  haveI : DiscreteTopology (Additive ↥Blk.frattiniK) :=
+    ⟨(inferInstance : DiscreteTopology ↥Blk.frattiniK).eq_bot⟩
+  haveI : Finite (Additive ↥Blk.frattiniK) := (inferInstance : Finite ↥Blk.frattiniK)
+  haveI : ContinuousSMul AbsGalQ2 (Additive ↥Blk.frattiniK) := by
     refine ⟨?_⟩
-    have hfac : (fun p : AbsGalQ2 × Additive ↥Blk.R => p.1 • p.2)
-        = (fun q : (Y ⧸ Blk.K) × Additive ↥Blk.R => q.1 • q.2)
-          ∘ (fun p : AbsGalQ2 × Additive ↥Blk.R => (θ p.1, p.2)) := rfl
+    have hfac : (fun p : AbsGalQ2 × Additive ↥Blk.frattiniK => p.1 • p.2)
+        = (fun q : (Y ⧸ Blk.K) × Additive ↥Blk.frattiniK => q.1 • q.2)
+          ∘ (fun p : AbsGalQ2 × Additive ↥Blk.frattiniK => (θ p.1, p.2)) := rfl
     rw [hfac]
     exact continuous_of_discreteTopology.comp
       ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
-  have hA₂ : ∀ a : Additive ↥Blk.R, a + a = 0 := by
+  have hA₂ : ∀ a : Additive ↥Blk.frattiniK, a + a = 0 := by
     intro a
     refine Additive.toMul.injective (Subtype.ext ?_)
     exact hR2 _ (Additive.toMul a).2
   -- the action at the `slift ∘ g` representative
-  have hsmul : ∀ (γ : AbsGalQ2) (a : Additive ↥Blk.R),
+  have hsmul : ∀ (γ : AbsGalQ2) (a : Additive ↥Blk.frattiniK),
       γ • a = Additive.ofMul
         (⟨slift (blockFrameImpl T Blk hE2) (g.1.1 γ)
-            * ((Additive.toMul a : ↥Blk.R) : Y)
+            * ((Additive.toMul a : ↥Blk.frattiniK) : Y)
             * (slift (blockFrameImpl T Blk hE2) (g.1.1 γ))⁻¹,
-          conj_mem_R _ (Additive.toMul a)⟩ : ↥Blk.R) := by
+          conj_mem_R _ (Additive.toMul a)⟩ : ↥Blk.frattiniK) := by
     intro γ a
     have h1 : γ • a = QuotientGroup.mk' Blk.K
         (slift (blockFrameImpl T Blk hE2) (g.1.1 γ)) • Additive.ofMul (Additive.toMul a) := rfl
@@ -403,10 +406,10 @@ theorem hsep_hom_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
   -- the `R`-valued defect as an additive 2-cocycle
   have hdefZ2 : (fun p : AbsGalQ2 × AbsGalQ2 =>
       Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 p.1 p.2))
-      ∈ Z2 AbsGalQ2 (Additive ↥Blk.R) := by
+      ∈ Z2 AbsGalQ2 (Additive ↥Blk.frattiniK) := by
     refine mem_Z2_iff.mpr ⟨?_, ?_⟩
     · show Continuous fun p : AbsGalQ2 × AbsGalQ2 =>
-        (rDefect (blockFrameImpl T Blk hE2) g.1.1 p.1 p.2 : ↥Blk.R)
+        (rDefect (blockFrameImpl T Blk hE2) g.1.1 p.1 p.2 : ↥Blk.frattiniK)
       apply Continuous.subtype_mk
       have hs : Continuous fun x : (blockFrameImpl T Blk hE2).YB =>
           slift (blockFrameImpl T Blk hE2) x := continuous_of_discreteTopology
@@ -425,7 +428,7 @@ theorem hsep_hom_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
       apply Additive.toMul.injective
       show (⟨slift (blockFrameImpl T Blk hE2) (g.1.1 γ)
             * (rDefect (blockFrameImpl T Blk hE2) g.1.1 δ ε : Y)
-            * (slift (blockFrameImpl T Blk hE2) (g.1.1 γ))⁻¹, _⟩ : ↥Blk.R)
+            * (slift (blockFrameImpl T Blk hE2) (g.1.1 γ))⁻¹, _⟩ : ↥Blk.frattiniK)
           * rDefect (blockFrameImpl T Blk hE2) g.1.1 γ (δ * ε)
         = rDefect (blockFrameImpl T Blk hE2) g.1.1 (γ * δ) ε
           * rDefect (blockFrameImpl T Blk hE2) g.1.1 γ δ
@@ -446,40 +449,40 @@ theorem hsep_hom_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
         show γ * (δ * ε) = γ * δ * ε from (mul_assoc γ δ ε).symm]
       group
   -- the dual-side instances and the evaluation-pairing equivariance
-  letI actGD : DistribMulAction AbsGalQ2 (GQ2.FoxH.ElemDual (Additive ↥Blk.R)) :=
+  letI actGD : DistribMulAction AbsGalQ2 (GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK)) :=
     DistribMulAction.compHom _ θ.toMonoidHom
-  letI : TopologicalSpace (GQ2.FoxH.ElemDual (Additive ↥Blk.R)) := ⊥
-  haveI : DiscreteTopology (GQ2.FoxH.ElemDual (Additive ↥Blk.R)) := ⟨rfl⟩
-  haveI : ContinuousSMul AbsGalQ2 (GQ2.FoxH.ElemDual (Additive ↥Blk.R)) := by
+  letI : TopologicalSpace (GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK)) := ⊥
+  haveI : DiscreteTopology (GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK)) := ⟨rfl⟩
+  haveI : ContinuousSMul AbsGalQ2 (GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK)) := by
     refine ⟨?_⟩
-    have hfac : (fun p : AbsGalQ2 × GQ2.FoxH.ElemDual (Additive ↥Blk.R) => p.1 • p.2)
-        = (fun q : (Y ⧸ Blk.K) × GQ2.FoxH.ElemDual (Additive ↥Blk.R) => q.1 • q.2)
+    have hfac : (fun p : AbsGalQ2 × GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK) => p.1 • p.2)
+        = (fun q : (Y ⧸ Blk.K) × GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK) => q.1 • q.2)
           ∘ (fun p => (θ p.1, p.2)) := rfl
     rw [hfac]
     exact continuous_of_discreteTopology.comp
       ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
-  have hpair : ∀ (γ : AbsGalQ2) (a : Additive ↥Blk.R)
-      (lam : GQ2.FoxH.ElemDual (Additive ↥Blk.R)),
+  have hpair : ∀ (γ : AbsGalQ2) (a : Additive ↥Blk.frattiniK)
+      (lam : GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK)),
       GQ2.FoxH.dualEval _ (γ • a) (γ • lam) = γ • GQ2.FoxH.dualEval _ a lam := by
     intro γ a lam
     rw [htriv_local γ (GQ2.FoxH.dualEval _ a lam)]
     show (θ γ • lam) (θ γ • a) = lam a
     rw [GQ2.FoxH.ElemDual.smul_apply, inv_smul_smul]
   -- every `cup20`-value of the defect class vanishes
-  have hcup : ∀ n : ↥(H0 AbsGalQ2 (GQ2.FoxH.ElemDual (Additive ↥Blk.R))),
+  have hcup : ∀ n : ↥(H0 AbsGalQ2 (GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK))),
       cup20 (GQ2.FoxH.dualEval _) hpair
-        (H2mk AbsGalQ2 (Additive ↥Blk.R) ⟨_, hdefZ2⟩) n = 0 := by
+        (H2mk AbsGalQ2 (Additive ↥Blk.frattiniK) ⟨_, hdefZ2⟩) n = 0 := by
     intro n
     -- `Γ`-invariance transports to `Y`-invariance through the surjective `θ`
-    have hYinv : ∀ (y : Y) (r : ↥Blk.R),
-        n.1 (Additive.ofMul (⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩ : ↥Blk.R))
+    have hYinv : ∀ (y : Y) (r : ↥Blk.frattiniK),
+        n.1 (Additive.ofMul (⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩ : ↥Blk.frattiniK))
           = n.1 (Additive.ofMul r) := by
       intro y r
       obtain ⟨γ, hγ⟩ := hθs (QuotientGroup.mk' Blk.K y)
       have hfix := n.2 γ
-      have h1 := congrArg (fun mu : GQ2.FoxH.ElemDual (Additive ↥Blk.R) =>
-        mu (Additive.ofMul (⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩ : ↥Blk.R))) hfix
-      have h2 : (γ • n.1) (Additive.ofMul (⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩ : ↥Blk.R))
+      have h1 := congrArg (fun mu : GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK) =>
+        mu (Additive.ofMul (⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩ : ↥Blk.frattiniK))) hfix
+      have h2 : (γ • n.1) (Additive.ofMul (⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩ : ↥Blk.frattiniK))
           = n.1 (Additive.ofMul r) := by
         show (θ γ • n.1) _ = _
         rw [GQ2.FoxH.ElemDual.smul_apply, hγ, ← map_inv,
@@ -491,10 +494,10 @@ theorem hsep_hom_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
       exact h1.symm
     -- the value is the paired defect class, which `hall` kills
     have hred : cup20 (GQ2.FoxH.dualEval _) hpair
-        (H2mk AbsGalQ2 (Additive ↥Blk.R) ⟨_, hdefZ2⟩) n
+        (H2mk AbsGalQ2 (Additive ↥Blk.frattiniK) ⟨_, hdefZ2⟩) n
         = H2mk AbsGalQ2 (ZMod 2)
           ⟨fun gd => (blockRObstructionData T Blk hE2).pair
-              ⟨(n.1 : Additive ↥Blk.R →+ ZMod 2), fun y r => hYinv y r⟩
+              ⟨(n.1 : Additive ↥Blk.frattiniK →+ ZMod 2), fun y r => hYinv y r⟩
               (Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 gd.1 gd.2)),
             pairDefect_mem_Z2_all (blockFrameImpl T Blk hE2)
               (blockRObstructionData T Blk hE2) htriv_local g.1.1 _⟩ := by
@@ -502,16 +505,16 @@ theorem hsep_hom_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
           (Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 gd.1 gd.2))
           ((gd.1 * gd.2) • n.1))
           = fun gd => (blockRObstructionData T Blk hE2).pair
-              ⟨(n.1 : Additive ↥Blk.R →+ ZMod 2), fun y r => hYinv y r⟩
+              ⟨(n.1 : Additive ↥Blk.frattiniK →+ ZMod 2), fun y r => hYinv y r⟩
               (Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 gd.1 gd.2)) := by
         funext gd
         rw [n.2 (gd.1 * gd.2)]
         rfl
       exact congrArg (H2mk AbsGalQ2 (ZMod 2)) (Subtype.ext hfun)
     rw [hred]
-    exact hall ⟨(n.1 : Additive ↥Blk.R →+ ZMod 2), fun y r => hYinv y r⟩
+    exact hall ⟨(n.1 : Additive ↥Blk.frattiniK →+ ZMod 2), fun y r => hYinv y r⟩
   -- injectivity of the `(2,0)` cup forces the defect class to vanish
-  have hzero : H2mk AbsGalQ2 (Additive ↥Blk.R) ⟨_, hdefZ2⟩ = 0 := by
+  have hzero : H2mk AbsGalQ2 (Additive ↥Blk.frattiniK) ⟨_, hdefZ2⟩ = 0 := by
     apply (bijective_cup20_dualEval hA₂ htriv_local hpair).1
     show cup20 (GQ2.FoxH.dualEval _) hpair _ = cup20 (GQ2.FoxH.dualEval _) hpair 0
     rw [map_zero]
@@ -523,7 +526,7 @@ theorem hsep_hom_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
   have hψc : Continuous ψ := hψC1
   refine homLift_of_split (blockFrameImpl T Blk hE2) g.1.1
     (fun γ => Additive.toMul (ψ γ)) ?_ ?_
-  · show Continuous fun γ => ((Additive.toMul (ψ γ) : ↥Blk.R) : Y)
+  · show Continuous fun γ => ((Additive.toMul (ψ γ) : ↥Blk.frattiniK) : Y)
     exact continuous_subtype_val.comp hψc
   · intro γ δ
     have h : γ • ψ δ - ψ (γ * δ) + ψ γ
@@ -541,7 +544,7 @@ theorem hsep_hom_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
         abel
       rw [h3, sub_eq_add_neg, hD, add_comm (γ • ψ δ) (ψ γ)]
     rw [hsmul γ (ψ δ)] at h2
-    exact congrArg (fun a : Additive ↥Blk.R => ((Additive.toMul a : ↥Blk.R) : Y)) h2
+    exact congrArg (fun a : Additive ↥Blk.frattiniK => ((Additive.toMul a : ↥Blk.frattiniK) : Y)) h2
 
 end SepHom
 
@@ -559,8 +562,8 @@ section Assembly
 scoping note). -/
 theorem stageR136_local_of_hsep [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hE2 : ∀ e : E, e ^ 2 = 1)
-    (hRK : ∀ r ∈ Blk.R, ∀ k ∈ Blk.K, r * k = k * r)
-    (hR2 : ∀ r ∈ Blk.R, r * r = 1)
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
     (hfg : ∃ s : Finset AbsGalQ2, (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤)
     (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup) (F : BoundaryFrame H E)
     (hsep_hom : ∀ g : BoundaryLifts b F (blockFrameImpl T Blk hE2).TB,
@@ -581,8 +584,8 @@ the `lemma_7_2` structural facts (`hRK`/`hR2`) and `hfg` (**B1**, reserved for P
 conclusion is the `stageR136` field of the local `RecursionInputs` bundle, verbatim. -/
 theorem stageR136_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hE2 : ∀ e : E, e ^ 2 = 1)
-    (hRK : ∀ r ∈ Blk.R, ∀ k ∈ Blk.K, r * k = k * r)
-    (hR2 : ∀ r ∈ Blk.R, r * r = 1)
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
     (hfg : ∃ s : Finset AbsGalQ2, (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤)
     (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup) (F : BoundaryFrame H E) :
     (Nat.card (blockFrameImpl T Blk hE2).DR : ℤ) * exactImageCount b F T

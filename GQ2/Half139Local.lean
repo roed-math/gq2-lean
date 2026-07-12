@@ -76,9 +76,9 @@ private theorem conj_eq_of_mk_eq_M {Bg : Type} [Group Bg] [Finite Bg] {D : Radic
 Lemma 7.1 / `Hom_C(M, 𝔽₂) = 0`): any additive `ψ : ↥M_B → 𝔽₂` invariant under `Y`-conjugation is
 identically zero.  A nonzero such `ψ` would pull back (through `s : Blk.K ↠ M_B`, `s = piB|_K`) to a
 surjective character `φ : Blk.K ↠ 𝔽₂` whose kernel maps to a `Y`-normal index-2 subgroup `X` with
-`Blk.R ≤ X ≤ Blk.K`, contradicting `SectionSeven.lemma_7_1_dual`.  This is the shared kernel of both
-`hMcountM_local` (there via the `fixedPts (ElemDual …)` packaging) and P-16d6e3's `hpartial_local`
-(the nondegeneracy residue). -/
+`Blk.frattiniK ≤ X ≤ Blk.K`, contradicting `SectionSeven.lemma_7_1_dual`.  This is the shared
+kernel of both `hMcountM_local` (there via the `fixedPts (ElemDual …)` packaging) and P-16d6e3's
+`hpartial_local` (the nondegeneracy residue). -/
 theorem mchar_conj_invariant_eq_zero (RF : RecursionFrame T Blk)
     (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR)
     (ψ : ↥(En.radData l h).M → ZMod 2)
@@ -131,7 +131,7 @@ theorem mchar_conj_invariant_eq_zero (RF : RecursionFrame T Blk)
       rw [hpin _ hk, hpin _ hy]
   set X : Subgroup Y := φ.ker.map Blk.K.subtype with hXdef
   have hXK : X ≤ Blk.K := by rw [hXdef]; exact Subgroup.map_subtype_le _
-  have hRX : Blk.R ≤ X := by
+  have hRX : Blk.frattiniK ≤ X := by
     intro r hr
     have hrK : r ∈ Blk.K := SectionSeven.frattiniLike_le Blk.K hr
     refine Subgroup.mem_map.mpr ⟨⟨r, hrK⟩, ?_, rfl⟩
@@ -193,7 +193,7 @@ theorem hlem86M_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
 
 Fully proved inline (no sorry): `key : #Z¹ = |M_B|²·#fixedPts` (`card_Z1_eq`), `hfix : #fixedPts = 1`
 (the `lemma_7_1_dual` bridge — a nonzero `YC`-invariant functional's kernel gives a `Y`-normal
-index-2 `X` with `Blk.R ≤ X ≤ Blk.K`, refuted by `lemma_7_1_dual`), the explicit bijection
+index-2 `X` with `Blk.frattiniK ≤ X ≤ Blk.K`, refuted by `lemma_7_1_dual`), the explicit bijection
 `MLifts D ρ' ≃ Z¹_cont(G_ℚ₂, M_B)` (`f ↦ (γ ↦ f γ · f₀ γ⁻¹)`, a `Z¹`-torsor under the ρ'-conjugation
 action), and — the previously-open piece — **nonemptiness `Nonempty (MLifts D ρ')`** via the
 extension-splitting argument: a continuous set-section `s = Quotient.out ∘ ρ'` gives a factor-set
@@ -222,7 +222,8 @@ by the concurrent P-16d6b (`PhaseMuIndep.tcocycle_mu_indep`'s `hML`/`κM`).  The
    this is `GQ2.SectionSeven.lemma_7_1_dual` (`SectionSeven.lean:449`, std-3, no sorry) — "`K` has no
    `Y`-normal subgroup of index 2 above `R`" = `(M^∨)^C = 0`, via minimality of `K` + the `V = P/S`
    chief dichotomy.  Only a bridge (a nonzero `YC`-invariant functional's kernel ↦ an index-2
-   `Y`-normal `X` with `Blk.R ≤ X ≤ Blk.K`, refuted by `lemma_7_1_dual`) remains — no new math.
+   `Y`-normal `X` with `Blk.frattiniK ≤ X ≤ Blk.K`, refuted by `lemma_7_1_dual`) remains — no
+   new math.
 5. Combine: `#MLifts = #Z¹ = |M_B|² · 1 = |M_B|²`.
 
 Expected axioms at close: `std-3 + B6 + B7` (B6 via `card_H2_eq_fixedPts`, B7 via `card_Z1_eq`). -/

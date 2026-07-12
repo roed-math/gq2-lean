@@ -219,8 +219,8 @@ internally (`gammaA_topologicallyFinitelyGenerated`).  This is the `stageR136` f
 candidate `RecursionInputs` bundle (the P-16d6e7 assembly), verbatim. -/
 theorem stageR136_gammaA
     (hE2 : ∀ e : E, e ^ 2 = 1)
-    (hRK : ∀ r ∈ Blk.R, ∀ k ∈ Blk.K, r * k = k * r)
-    (hR2 : ∀ r ∈ Blk.R, r * r = 1)
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
     (b : ContinuousMonoidHom GammaA ↥boundarySubgroup) (F : BoundaryFrame H E) :
     (Nat.card (blockFrameImpl T Blk hE2).DR : ℤ) * exactImageCount b F T
       = (blockFrameImpl T Blk hE2).zR * ∑ᶠ l : (blockFrameImpl T Blk hE2).DR,

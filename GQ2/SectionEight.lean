@@ -1229,7 +1229,7 @@ structure RecursionFrame (T : MarkedTarget H E Y)
   /-- The projection `Y ↠ B`. -/
   piB : Y →* YB
   piB_surj : Function.Surjective piB
-  ker_piB : piB.ker = Blk.R
+  ker_piB : piB.ker = Blk.frattiniK
   /-- The `B`-stage boundary-framed target. -/
   TB : MarkedTarget H E YB
   TB_head : TB.piY.comp piB = T.piY
@@ -1256,7 +1256,7 @@ structure RecursionFrame (T : MarkedTarget H E Y)
   MB_eq : MB = Blk.K.map piB
   /-- The image of `T = T₀ = (K ⊓ S)·R` in `B`. -/
   TBsub : Subgroup YB
-  TBsub_eq : TBsub = ((Blk.K ⊓ Blk.S) ⊔ Blk.R).map piB
+  TBsub_eq : TBsub = ((Blk.K ⊓ Blk.S) ⊔ Blk.frattiniK).map piB
   /-- The scalar character index `D_R = (R^∨)^C`, with distinguished `0`. -/
   DR : Type
   [fintypeDR : Fintype DR]
@@ -1265,7 +1265,7 @@ structure RecursionFrame (T : MarkedTarget H E Y)
   index ≤ 2 (`λ = 0 ↔ R' = R`; `Y`-normality = `C`-invariance, the `lemma_7_1_dual`
   encoding). -/
   card_DR : Nat.card DR = Nat.card {R' : Subgroup Y //
-    R'.Normal ∧ R' ≤ Blk.R ∧ R'.relIndex Blk.R ≤ 2}
+    R'.Normal ∧ R' ≤ Blk.frattiniK ∧ R'.relIndex Blk.frattiniK ≤ 2}
   /-- The scalar central cover `p_λ : B_λ ↠ B` of each nonzero `λ` (paper §7.1: the pushout
   `K_λ = K/ker λ`, realized as `Y/ker λ ↠ Y/R`). -/
   scalarCover : (l : DR) → l ≠ zeroDR → CentralCover YB
@@ -1282,7 +1282,7 @@ variable (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E
 
 /-- `z_R = |Z¹_{Γ,ρ}(R)| = 2^{2·dim R + dim D_R}` (paper, before (136)), in card form:
 `|R|² · |D_R|`. -/
-noncomputable def zR : ℕ := (Nat.card ↥Blk.R) ^ 2 * Nat.card RF.DR
+noncomputable def zR : ℕ := (Nat.card ↥Blk.frattiniK) ^ 2 * Nat.card RF.DR
 
 open scoped Classical in
 /-- `m_{Γ,λ}(B)` (paper, before (136)): for `λ = 0`, `e_Γ(B)`; for `λ ≠ 0`, the number of
@@ -1399,7 +1399,7 @@ theorem MB_comm : ∀ m ∈ RF.MB, ∀ m' ∈ RF.MB, m * m' = m' * m := by
 
 /-- `T_B` is already the `K ∩ S`-image: the `R`-factor of `T₀ = (K∩S)·R` dies in `B`. -/
 theorem TBsub_eq_mapKS : RF.TBsub = (Blk.K ⊓ Blk.S).map RF.piB := by
-  have h0 : Blk.R.map RF.piB = ⊥ := (Subgroup.map_eq_bot_iff _).mpr RF.ker_piB.ge
+  have h0 : Blk.frattiniK.map RF.piB = ⊥ := (Subgroup.map_eq_bot_iff _).mpr RF.ker_piB.ge
   rw [RF.TBsub_eq, Subgroup.map_sup, h0, sup_bot_eq]
 
 /-- `T_B ◁ B`: image of the normal `K ∩ S` under the surjection `π_B`. -/

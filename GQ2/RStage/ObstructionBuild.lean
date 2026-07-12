@@ -174,12 +174,12 @@ structure RObstructionData (RF : RecursionFrame T Blk) extends RCoverData RF whe
   toDR : DRmod ≃ RF.DR
   /-- … sending `0 ↦ zeroDR`. -/
   h0 : toDR.symm RF.zeroDR = 0
-  /-- The `D_R ≃ (R^∨)^C` pairing: `pair d` is a `𝔽₂`-functional on the radical `R = Blk.R`,
+  /-- The `D_R ≃ (R^∨)^C` pairing: `pair d` is a `𝔽₂`-functional on the radical `R = Blk.frattiniK`,
   linear in `d`. -/
-  pair : DRmod →ₗ[ZMod 2] (Additive ↥Blk.R →+ ZMod 2)
+  pair : DRmod →ₗ[ZMod 2] (Additive ↥Blk.frattiniK →+ ZMod 2)
   /-- The pairing is `zsign ∘ coverMap_λ` on `R` (`λ = toDR d ≠ 0`): the scalar character `d`
   reads off the `λ`-cover's kernel sign of a radical element. -/
-  pair_coverMap : ∀ (d : DRmod) (h : toDR d ≠ RF.zeroDR) (r : ↥Blk.R),
+  pair_coverMap : ∀ (d : DRmod) (h : toDR d ≠ RF.zeroDR) (r : ↥Blk.frattiniK),
     pair d (Additive.ofMul r)
       = zsign (trivialRCD (RF.scalarCover (toDR d) h))
           (coverMap (toDR d) h (r : Y))
@@ -197,7 +197,7 @@ noncomputable def slift (x : RF.YB) : Y := Function.surjInv RF.piB_surj x
 
 /-- **The `R`-valued section defect** of a `B`-stage map `g : Γ → B` for the single set-lift
 `slift`: `Obs^s_g(γ,δ) = s(gγ)·s(gδ)·s(g(γδ))⁻¹ ∈ R = ker π_B`. -/
-noncomputable def rDefect (g : ContinuousMonoidHom Γ RF.YB) (γ δ : Γ) : ↥Blk.R :=
+noncomputable def rDefect (g : ContinuousMonoidHom Γ RF.YB) (γ δ : Γ) : ↥Blk.frattiniK :=
   ⟨slift RF (g γ) * slift RF (g δ) * (slift RF (g (γ * δ)))⁻¹, by
     rw [← RF.ker_piB, MonoidHom.mem_ker, map_mul, map_mul, map_inv,
       piB_slift, piB_slift, piB_slift, map_mul]
@@ -247,10 +247,10 @@ theorem obCocOf_obsLiftFam (D : RObstructionData RF) (g : ContinuousMonoidHom Γ
   show zsign (trivialRCD (RF.scalarCover (D.toDR d) h))
       (obsLiftFam RF D g d h γ * obsLiftFam RF D g d h δ * (obsLiftFam RF D g d h (γ * δ))⁻¹)
     = zsign (trivialRCD (RF.scalarCover (D.toDR d) h))
-        (D.coverMap (D.toDR d) h ((rDefect RF g γ δ : ↥Blk.R) : Y))
+        (D.coverMap (D.toDR d) h ((rDefect RF g γ δ : ↥Blk.frattiniK) : Y))
   congr 1
   simp only [obsLiftFam]
-  rw [show ((rDefect RF g γ δ : ↥Blk.R) : Y)
+  rw [show ((rDefect RF g γ δ : ↥Blk.frattiniK) : Y)
         = slift RF (g γ) * slift RF (g δ) * (slift RF (g (γ * δ)))⁻¹ from rfl]
   simp only [map_mul, map_inv]
 
@@ -461,14 +461,14 @@ variable {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
 variable (RF : RecursionFrame T Blk)
 
 /-- `R = Φ(K) ≤ K ≤ P ≤ L_Y = ker π_Y`: `R`-twists preserve the head framing. -/
-theorem R_le_ker_piY : Blk.R ≤ T.piY.ker := by
+theorem R_le_ker_piY : Blk.frattiniK ≤ T.piY.ker := by
   rw [T.ker_piY]
   exact (frattiniLike_le Blk.K).trans (Blk.hKP.trans Blk.hPL)
 
 /-- `R = Φ(K) ≤ ker θ_Y` when `E` is elementary-2 (`lemma_7_3`): `R`-twists preserve the scalar
 framing.  This is exactly the `thm_4_2` decoration hypothesis (harmless downstream: §10 uses
 `E = 0`), and the one point flagged in `docs/p16d2-plan.md` for the fibre count. -/
-theorem R_le_ker_thetaY (hE2 : ∀ e : E, e ^ 2 = 1) : Blk.R ≤ T.thetaY.ker :=
+theorem R_le_ker_thetaY (hE2 : ∀ e : E, e ^ 2 = 1) : Blk.frattiniK ≤ T.thetaY.ker :=
   (frattiniLike_le Blk.K).trans (lemma_7_3 Blk hE2 T.thetaY)
 
 /-- **The R-stage torsor group** `Z¹_{Γ,ρ}(R)`: continuous crossed 1-cocycles `Γ → R = ker π_B`
@@ -479,7 +479,7 @@ structure RCocycle (RF : RecursionFrame T Blk) (f₀ : ContinuousMonoidHom Γ Y)
   /-- The cocycle map. -/
   u : Γ → Y
   /-- Values lie in the radical `R = ker π_B`. -/
-  mem : ∀ γ, u γ ∈ Blk.R
+  mem : ∀ γ, u γ ∈ Blk.frattiniK
   /-- Continuity. -/
   cont : Continuous u
   /-- The twisted (crossed) cocycle law `u(γδ) = u γ · (f₀ γ · u δ · f₀ γ⁻¹)`. -/
@@ -517,7 +517,7 @@ end RCocycle
 variable (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
 
 /-- `π_B` kills the radical: `r ∈ R = ker π_B ⟹ π_B r = 1`. -/
-theorem piB_eq_one_of_mem_R {r : Y} (hr : r ∈ Blk.R) : RF.piB r = 1 := by
+theorem piB_eq_one_of_mem_R {r : Y} (hr : r ∈ Blk.frattiniK) : RF.piB r = 1 := by
   rw [← MonoidHom.mem_ker, RF.ker_piB]; exact hr
 
 /-- **Frattini surjectivity** (`eq_top_of_map_frattini_quotient_top`, `R = Φ(K)`, `K` a 2-group):
@@ -631,7 +631,7 @@ the abstractly-provable half of the separation: it turns "`[rDefect] = 0 ∈ H²
 cochain) into the hom lift that `liftB_fibre_nonempty_of_homLift` then upgrades to a fibre element.
 (`slift` is continuous because `B = Y/R` is discrete, so `φ` is genuinely continuous.) -/
 theorem homLift_of_split (g : ContinuousMonoidHom Γ RF.YB)
-    (c : Γ → ↥Blk.R) (hc : Continuous fun γ => ((c γ : Y)))
+    (c : Γ → ↥Blk.frattiniK) (hc : Continuous fun γ => ((c γ : Y)))
     (hsplit : ∀ γ δ, (c (γ * δ) : Y)
         = (c γ : Y) * (slift RF (g γ) * (c δ : Y) * (slift RF (g γ))⁻¹) * (rDefect RF g γ δ : Y)) :
     ∃ φ : ContinuousMonoidHom Γ Y, ∀ γ, RF.piB (φ γ) = g γ := by

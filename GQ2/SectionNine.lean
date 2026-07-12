@@ -70,13 +70,6 @@ theorem scalarStack_centralized_of_coprime {Y : Type} [Group Y] [Finite Y]
   have h := comm_bot_of_scalarChain n N c hc0 hmono hcomm (by rw [hcn]; exact hcop)
   rwa [hcn] at h
 
-/-- The scalar-stack layers are `Y`-normal, and `L` itself is (the top of the chain).  A small
-convenience for the Lemma 9.2 construction. -/
-theorem isScalarStack.normal {Y : Type} [Group Y] [Finite Y] {L : Subgroup Y}
-    (hstack : SectionSeven.IsScalarStack L) : L.Normal := by
-  obtain ⟨n, c, _, hcn, _, hnorm, _⟩ := hstack
-  rw [← hcn]; exact hnorm n
-
 /-! ## Tame 2-nilpotency  (P-17b2; Lemma 3.1 structural content)
 
 The gating foundation for Lemma 9.2: a finite quotient `H` of the tame group `Ttame`

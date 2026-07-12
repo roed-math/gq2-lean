@@ -95,7 +95,7 @@ variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite 
 variable (T : MarkedTarget H E Y) (Blk : MinimalBlock T.LY) (hE2 : ∀ e : E, e ^ 2 = 1)
 
 /-- `R = Φ(K)` is normal in `Y`. -/
-instance : (Blk.R).Normal := frattiniLike_normal Blk.K Blk.hK
+instance : (Blk.frattiniK).Normal := frattiniLike_normal Blk.K Blk.hK
 
 /-- `K` is normal in `Y` (block field, re-exposed as an instance). -/
 instance : (Blk.K).Normal := Blk.hK
@@ -105,7 +105,7 @@ instance : (Blk.K).Normal := Blk.hK
 omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
   [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y]
 
-lemma blockFrameImpl_R_le_LY : Blk.R ≤ T.LY :=
+lemma blockFrameImpl_R_le_LY : Blk.frattiniK ≤ T.LY :=
   (frattiniLike_le Blk.K).trans (Blk.hKP.trans Blk.hPL)
 
 lemma blockFrameImpl_K_le_LY : Blk.K ≤ T.LY := Blk.hKP.trans Blk.hPL
@@ -119,7 +119,7 @@ lemma blockFrameImpl_K_ne_bot : Blk.K ≠ ⊥ := by
 /-! ### Field-projection reductions -/
 
 @[simp] lemma blockFrameImpl_TB_LY :
-    (blockFrameImpl T Blk hE2).TB.LY = T.LY.map (QuotientGroup.mk' Blk.R) := rfl
+    (blockFrameImpl T Blk hE2).TB.LY = T.LY.map (QuotientGroup.mk' Blk.frattiniK) := rfl
 
 @[simp] lemma blockFrameImpl_TC_LY :
     (blockFrameImpl T Blk hE2).TC.LY = T.LY.map (QuotientGroup.mk' Blk.K) := rfl
@@ -129,22 +129,22 @@ lemma blockFrameImpl_K_ne_bot : Blk.K ≠ ⊥ := by
 `Cov`'s `(blockFrameImpl …).YB`-typed subgroups. -/
 lemma blockFrameImpl_MB_le_TB_LY :
     (blockFrameImpl T Blk hE2).MB ≤ (blockFrameImpl T Blk hE2).TB.LY := by
-  show Blk.K.map (QuotientGroup.mk' Blk.R) ≤ T.LY.map (QuotientGroup.mk' Blk.R)
+  show Blk.K.map (QuotientGroup.mk' Blk.frattiniK) ≤ T.LY.map (QuotientGroup.mk' Blk.frattiniK)
   exact Subgroup.map_mono (blockFrameImpl_K_le_LY T Blk)
 
 /-! ## (145) — the stage-target bounds -/
 
 /-- **(145a)**: `|L_B|·|R| = |L_Y|`. -/
 lemma card_LB_mul :
-    Nat.card ↥(blockFrameImpl T Blk hE2).TB.LY * Nat.card ↥Blk.R = Nat.card ↥T.LY := by
+    Nat.card ↥(blockFrameImpl T Blk hE2).TB.LY * Nat.card ↥Blk.frattiniK = Nat.card ↥T.LY := by
   rw [blockFrameImpl_TB_LY]
   exact card_map_mk'_mul (blockFrameImpl_R_le_LY T Blk)
 
 /-- **(145b)**: `|L_B| < |L_Y|` when `R ≠ ⊥`. -/
-lemma card_LB_lt (hR : Blk.R ≠ ⊥) :
+lemma card_LB_lt (hR : Blk.frattiniK ≠ ⊥) :
     Nat.card ↥(blockFrameImpl T Blk hE2).TB.LY < Nat.card ↥T.LY := by
   have hmul := card_LB_mul T Blk hE2
-  have hR2 : 1 < Nat.card ↥Blk.R :=
+  have hR2 : 1 < Nat.card ↥Blk.frattiniK :=
     Finite.one_lt_card_iff_nontrivial.mpr ((Subgroup.nontrivial_iff_ne_bot _).mpr hR)
   have hLB : 0 < Nat.card ↥(blockFrameImpl T Blk hE2).TB.LY := Nat.card_pos
   nlinarith [hmul, hR2, hLB]
@@ -217,7 +217,7 @@ lemma four_le_card_K : 4 ≤ Nat.card ↥Blk.K := by
 
 /-- **(148)**: for a central cover `Cov` of `B`, a proper (`J ≠ ⊤`) `C`-onto (`J ⊔ M = ⊤`)
 stratum has marked kernel `< |L_Y|`. -/
-lemma card_stratum_LB_lt (hR : Blk.R ≠ ⊥) (Cov : CentralCover (blockFrameImpl T Blk hE2).YB)
+lemma card_stratum_LB_lt (hR : Blk.frattiniK ≠ ⊥) (Cov : CentralCover (blockFrameImpl T Blk hE2).YB)
     (J' : Subgroup Cov.cover)
     (hJ' : Function.Surjective
       ((Cov.pullTarget (blockFrameImpl T Blk hE2).TB).piY.comp J'.subtype))

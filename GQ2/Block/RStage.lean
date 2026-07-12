@@ -45,12 +45,12 @@ open scoped Classical
 
 variable {L : Subgroup Y}
 
-/-- **Y-invariant `𝔽₂`-characters of `R = Blk.R = Φ(K)`** (`(R^∨)^C`): additive homs
+/-- **Y-invariant `𝔽₂`-characters of `R = Blk.frattiniK = Φ(K)`** (`(R^∨)^C`): additive homs
 `R → 𝔽₂` fixed by `Y`-conjugation.  Their kernels are exactly the index-≤2 `Y`-normal
 subgroups of `R`, i.e. `D_R`; this submodule is the `𝔽₂`-realization `D_Rmod`. -/
 def RCharSub (Blk : SectionSeven.MinimalBlock L) :
-    Submodule (ZMod 2) (Additive ↥Blk.R →+ ZMod 2) where
-  carrier := {χ | ∀ (y : Y) (r : ↥Blk.R),
+    Submodule (ZMod 2) (Additive ↥Blk.frattiniK →+ ZMod 2) where
+  carrier := {χ | ∀ (y : Y) (r : ↥Blk.frattiniK),
     χ (Additive.ofMul ⟨y * (r : Y) * y⁻¹,
         (SectionSeven.frattiniLike_normal Blk.K Blk.hK).conj_mem (r : Y) r.2 y⟩)
       = χ (Additive.ofMul r)}
@@ -62,12 +62,13 @@ def RCharSub (Blk : SectionSeven.MinimalBlock L) :
 
 /-- `D_Rmod` is finite. -/
 instance (Blk : SectionSeven.MinimalBlock L) : Finite ↥(RCharSub Blk) := by
-  haveI : Finite (Additive ↥Blk.R →+ ZMod 2) :=
-    Finite.of_injective _ (DFunLike.coe_injective (F := Additive ↥Blk.R →+ ZMod 2))
+  haveI : Finite (Additive ↥Blk.frattiniK →+ ZMod 2) :=
+    Finite.of_injective _ (DFunLike.coe_injective (F := Additive ↥Blk.frattiniK →+ ZMod 2))
   infer_instance
 
-/-- The kernel of a character `χ`, as a subgroup of `↥Blk.R`. -/
-def RCharKerSub (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) : Subgroup ↥Blk.R where
+/-- The kernel of a character `χ`, as a subgroup of `↥Blk.frattiniK`. -/
+def RCharKerSub (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
+    Subgroup ↥Blk.frattiniK where
   carrier := {r | χ.1 (Additive.ofMul r) = 0}
   one_mem' := map_zero χ.1
   mul_mem' := fun {a b} ha hb => by
@@ -80,11 +81,11 @@ def RCharKerSub (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) : S
 
 /-- `χ` as a `MonoidHom ↥R →* Multiplicative 𝔽₂` (for the kernel/index calculus). -/
 def RCharMulHom (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
-    ↥Blk.R →* Multiplicative (ZMod 2) where
+    ↥Blk.frattiniK →* Multiplicative (ZMod 2) where
   toFun r := Multiplicative.ofAdd (χ.1 (Additive.ofMul r))
   map_one' := by
-    show Multiplicative.ofAdd (χ.1 (Additive.ofMul (1 : ↥Blk.R))) = 1
-    rw [show Additive.ofMul (1 : ↥Blk.R) = 0 from rfl, map_zero]; rfl
+    show Multiplicative.ofAdd (χ.1 (Additive.ofMul (1 : ↥Blk.frattiniK))) = 1
+    rw [show Additive.ofMul (1 : ↥Blk.frattiniK) = 0 from rfl, map_zero]; rfl
   map_mul' := fun a b => by
     show Multiplicative.ofAdd (χ.1 (Additive.ofMul (a * b))) = _ * _
     rw [show Additive.ofMul (a * b) = Additive.ofMul a + Additive.ofMul b from rfl, map_add]; rfl
@@ -98,10 +99,10 @@ theorem RCharKerSub_eq_ker (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSu
 
 /-- The kernel of `χ`, pushed to a subgroup of `Y`. -/
 def RCharKer (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) : Subgroup Y :=
-  (RCharKerSub Blk χ).map Blk.R.subtype
+  (RCharKerSub Blk χ).map Blk.frattiniK.subtype
 
 theorem RCharKer_le (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
-    RCharKer Blk χ ≤ Blk.R :=
+    RCharKer Blk χ ≤ Blk.frattiniK :=
   Subgroup.map_subtype_le _
 
 theorem RCharKer_normal (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
@@ -116,47 +117,48 @@ theorem RCharKer_normal (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub B
   rwa [χ.2 g r]
 
 theorem RCharKer_relIndex_le (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
-    (RCharKer Blk χ).relIndex Blk.R ≤ 2 := by
-  have h1 : (RCharKer Blk χ).relIndex Blk.R = (RCharKerSub Blk χ).index := by
+    (RCharKer Blk χ).relIndex Blk.frattiniK ≤ 2 := by
+  have h1 : (RCharKer Blk χ).relIndex Blk.frattiniK = (RCharKerSub Blk χ).index := by
     rw [Subgroup.relIndex, RCharKer, ← Subgroup.comap_subtype,
-      Subgroup.comap_map_eq_self_of_injective Blk.R.subtype_injective]
+      Subgroup.comap_map_eq_self_of_injective Blk.frattiniK.subtype_injective]
   rw [h1, RCharKerSub_eq_ker, Subgroup.index_ker]
   exact (Nat.card_le_card_of_injective _ Subtype.val_injective).trans_eq
     (by rw [Nat.card_eq_fintype_card]; rfl)
 
 /-- The `D_R` index type of the concrete frame `blockFrameImpl` (defeq to its `.DR`). -/
 abbrev BlockDRsub (Blk : SectionSeven.MinimalBlock L) : Type :=
-  {R' : Subgroup Y // R'.Normal ∧ R' ≤ Blk.R ∧ R'.relIndex Blk.R ≤ 2}
+  {R' : Subgroup Y // R'.Normal ∧ R' ≤ Blk.frattiniK ∧ R'.relIndex Blk.frattiniK ≤ 2}
 
 /-- **The inverse direction**: the index-≤2 indicator character `r ↦ [r ∉ R']` of a `D_R`
 element, as an additive hom (additive by `mul_mem_iff_of_index_two`, with the `index ≤ 2`
 case-split covering `R' = R` — the zero character). -/
 noncomputable def RCharOfHom (Blk : SectionSeven.MinimalBlock L) (R' : BlockDRsub Blk) :
-    Additive ↥Blk.R →+ ZMod 2 where
-  toFun r := if ((Additive.toMul r : ↥Blk.R) : Y) ∈ R'.1 then 0 else 1
+    Additive ↥Blk.frattiniK →+ ZMod 2 where
+  toFun r := if ((Additive.toMul r : ↥Blk.frattiniK) : Y) ∈ R'.1 then 0 else 1
   map_zero' := by
-    show (if ((Additive.toMul (0 : Additive ↥Blk.R) : ↥Blk.R) : Y) ∈ R'.1
+    show (if ((Additive.toMul (0 : Additive ↥Blk.frattiniK) : ↥Blk.frattiniK) : Y) ∈ R'.1
       then (0 : ZMod 2) else 1) = 0
     exact if_pos (one_mem R'.1)
   map_add' a b := by
-    show (if ((Additive.toMul a * Additive.toMul b : ↥Blk.R) : Y) ∈ R'.1 then (0 : ZMod 2) else 1)
-      = (if ((Additive.toMul a : ↥Blk.R) : Y) ∈ R'.1 then 0 else 1)
-        + (if ((Additive.toMul b : ↥Blk.R) : Y) ∈ R'.1 then 0 else 1)
-    have hidx : (R'.1.subgroupOf Blk.R).index ≤ 2 := R'.2.2.2
-    rcases Nat.lt_or_ge (R'.1.subgroupOf Blk.R).index 2 with hlt | hge
-    · have h1 : (R'.1.subgroupOf Blk.R).index = 1 := by
-        have hne0 : (R'.1.subgroupOf Blk.R).index ≠ 0 := Subgroup.index_ne_zero_of_finite
+    show (if ((Additive.toMul a * Additive.toMul b : ↥Blk.frattiniK) : Y) ∈ R'.1
+        then (0 : ZMod 2) else 1)
+      = (if ((Additive.toMul a : ↥Blk.frattiniK) : Y) ∈ R'.1 then 0 else 1)
+        + (if ((Additive.toMul b : ↥Blk.frattiniK) : Y) ∈ R'.1 then 0 else 1)
+    have hidx : (R'.1.subgroupOf Blk.frattiniK).index ≤ 2 := R'.2.2.2
+    rcases Nat.lt_or_ge (R'.1.subgroupOf Blk.frattiniK).index 2 with hlt | hge
+    · have h1 : (R'.1.subgroupOf Blk.frattiniK).index = 1 := by
+        have hne0 : (R'.1.subgroupOf Blk.frattiniK).index ≠ 0 := Subgroup.index_ne_zero_of_finite
         lia
-      have htop : R'.1.subgroupOf Blk.R = ⊤ := Subgroup.index_eq_one.mp h1
-      have hmem : ∀ x : ↥Blk.R, (x : Y) ∈ R'.1 := fun x => by
-        have hx : x ∈ R'.1.subgroupOf Blk.R := htop ▸ Subgroup.mem_top x
+      have htop : R'.1.subgroupOf Blk.frattiniK = ⊤ := Subgroup.index_eq_one.mp h1
+      have hmem : ∀ x : ↥Blk.frattiniK, (x : Y) ∈ R'.1 := fun x => by
+        have hx : x ∈ R'.1.subgroupOf Blk.frattiniK := htop ▸ Subgroup.mem_top x
         rwa [Subgroup.mem_subgroupOf] at hx
       rw [if_pos (hmem _), if_pos (hmem _), if_pos (hmem _), add_zero]
-    · have h2 : (R'.1.subgroupOf Blk.R).index = 2 := le_antisymm hidx hge
+    · have h2 : (R'.1.subgroupOf Blk.frattiniK).index = 2 := le_antisymm hidx hge
       have hkey := mul_mem_iff_of_index_two h2 (Additive.toMul a) (Additive.toMul b)
       simp only [Subgroup.mem_subgroupOf, Subgroup.coe_mul] at hkey
-      by_cases h1 : ((Additive.toMul a : ↥Blk.R) : Y) ∈ R'.1 <;>
-        by_cases h2' : ((Additive.toMul b : ↥Blk.R) : Y) ∈ R'.1 <;>
+      by_cases h1 : ((Additive.toMul a : ↥Blk.frattiniK) : Y) ∈ R'.1 <;>
+        by_cases h2' : ((Additive.toMul b : ↥Blk.frattiniK) : Y) ∈ R'.1 <;>
         simp only [Subgroup.coe_mul, hkey, h1, h2', if_true, if_false, iff_true, iff_false,
           iff_self] <;> decide
 
@@ -165,10 +167,11 @@ theorem RCharOf_mem (Blk : SectionSeven.MinimalBlock L) (R' : BlockDRsub Blk) :
     RCharOfHom Blk R' ∈ RCharSub Blk := by
   intro y r
   show (if ((⟨y * (r : Y) * y⁻¹,
-        (SectionSeven.frattiniLike_normal Blk.K Blk.hK).conj_mem (r : Y) r.2 y⟩ : ↥Blk.R) : Y)
+        (SectionSeven.frattiniLike_normal Blk.K Blk.hK).conj_mem (r : Y) r.2 y⟩ :
+          ↥Blk.frattiniK) : Y)
       ∈ R'.1 then (0 : ZMod 2) else 1)
-    = if ((r : ↥Blk.R) : Y) ∈ R'.1 then 0 else 1
-  by_cases hrl : ((r : ↥Blk.R) : Y) ∈ R'.1
+    = if ((r : ↥Blk.frattiniK) : Y) ∈ R'.1 then 0 else 1
+  by_cases hrl : ((r : ↥Blk.frattiniK) : Y) ∈ R'.1
   · rw [if_pos (R'.2.1.conj_mem _ hrl y), if_pos hrl]
   · have hnot : y * (r : Y) * y⁻¹ ∉ R'.1 := fun h => hrl (by
       have hc := R'.2.1.conj_mem _ h y⁻¹
@@ -180,7 +183,8 @@ noncomputable def RCharOf (Blk : SectionSeven.MinimalBlock L) (R' : BlockDRsub B
     ↥(RCharSub Blk) := ⟨RCharOfHom Blk R', RCharOf_mem Blk R'⟩
 
 /-- A character is the indicator of its own kernel (`𝔽₂`-valued). -/
-theorem RChar_eq_ind (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) (r : ↥Blk.R) :
+theorem RChar_eq_ind (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk))
+    (r : ↥Blk.frattiniK) :
     χ.1 (Additive.ofMul r) = if r ∈ RCharKerSub Blk χ then 0 else 1 := by
   by_cases h : r ∈ RCharKerSub Blk χ
   · rwa [if_pos h]
@@ -190,11 +194,12 @@ theorem RChar_eq_ind (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)
 /-- **Right inverse**: the kernel of the indicator character of `R'` is `R'`. -/
 theorem RCharKer_RCharOf (Blk : SectionSeven.MinimalBlock L) (R' : BlockDRsub Blk) :
     RCharKer Blk (RCharOf Blk R') = R'.1 := by
-  have hker : RCharKerSub Blk (RCharOf Blk R') = R'.1.subgroupOf Blk.R := by
+  have hker : RCharKerSub Blk (RCharOf Blk R') = R'.1.subgroupOf Blk.frattiniK := by
     ext r
     rw [Subgroup.mem_subgroupOf]
-    show (if ((r : ↥Blk.R) : Y) ∈ R'.1 then (0 : ZMod 2) else 1) = 0 ↔ ((r : ↥Blk.R) : Y) ∈ R'.1
-    by_cases h : ((r : ↥Blk.R) : Y) ∈ R'.1 <;> simp [h]
+    show (if ((r : ↥Blk.frattiniK) : Y) ∈ R'.1 then (0 : ZMod 2) else 1) = 0
+      ↔ ((r : ↥Blk.frattiniK) : Y) ∈ R'.1
+    by_cases h : ((r : ↥Blk.frattiniK) : Y) ∈ R'.1 <;> simp [h]
   rw [RCharKer, hker, Subgroup.subgroupOf_map_subtype, inf_eq_left.mpr R'.2.2.1]
 
 /-- **Injectivity** of `χ ↦ ker χ`: a character is determined by its kernel. -/
@@ -202,9 +207,9 @@ theorem RCharKer_inj (Blk : SectionSeven.MinimalBlock L) :
     Function.Injective (fun χ : ↥(RCharSub Blk) => RCharKer Blk χ) := by
   intro χ χ' hker
   have hsub : RCharKerSub Blk χ = RCharKerSub Blk χ' := by
-    have h := congrArg (fun S => S.comap Blk.R.subtype) hker
+    have h := congrArg (fun S => S.comap Blk.frattiniK.subtype) hker
     simpa only [RCharKer,
-      Subgroup.comap_map_eq_self_of_injective Blk.R.subtype_injective] using h
+      Subgroup.comap_map_eq_self_of_injective Blk.frattiniK.subtype_injective] using h
   apply Subtype.ext
   apply AddMonoidHom.ext
   intro a
@@ -229,7 +234,7 @@ noncomputable def blockToDR (T : MarkedTarget H E Y) (Blk : SectionSeven.Minimal
     (blockToDR T Blk hE2 χ).1 = RCharKer Blk χ := rfl
 
 /-- The zero character's kernel is all of `R` (`= zeroDR`). -/
-theorem RCharKer_zero (Blk : SectionSeven.MinimalBlock L) : RCharKer Blk 0 = Blk.R := by
+theorem RCharKer_zero (Blk : SectionSeven.MinimalBlock L) : RCharKer Blk 0 = Blk.frattiniK := by
   have hsub : RCharKerSub Blk 0 = ⊤ := by
     ext r
     simp only [Subgroup.mem_top, iff_true]
@@ -250,7 +255,7 @@ noncomputable def blockRObstructionData (T : MarkedTarget H E Y)
   toDR := blockToDR T Blk hE2
   h0 := by
     refine (blockToDR T Blk hE2).symm_apply_eq.mpr (Subtype.ext ?_)
-    show Blk.R = (blockToDR T Blk hE2 0).1
+    show Blk.frattiniK = (blockToDR T Blk hE2 0).1
     rw [blockToDR_coe, RCharKer_zero]
   pair := (RCharSub Blk).subtype
   pair_coverMap := fun d h r => by
@@ -355,7 +360,7 @@ theorem hsep_hom_of_splitCriterion {T : MarkedTarget H E Y}
       (∀ d : D.DRmod, H2mk Γ (ZMod 2)
           ⟨fun gd => D.pair d (Additive.ofMul (rDefect RF g gd.1 gd.2)),
             pairDefect_mem_Z2_all RF D htriv g d⟩ = 0) →
-        ∃ c : Γ → ↥Blk.R, Continuous (fun γ => ((c γ : Y))) ∧
+        ∃ c : Γ → ↥Blk.frattiniK, Continuous (fun γ => ((c γ : Y))) ∧
           ∀ γ δ, (c (γ * δ) : Y)
             = (c γ : Y) * (slift RF (g γ) * (c δ : Y) * (slift RF (g γ))⁻¹)
                 * (rDefect RF g γ δ : Y)) :
@@ -399,7 +404,7 @@ theorem blockStageR136_ofSplitCriterion (T : MarkedTarget H E Y)
               (Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g gd.1 gd.2)),
             pairDefect_mem_Z2_all (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2)
               htriv g d⟩ = 0) →
-        ∃ c : Γ → ↥Blk.R, Continuous (fun γ => ((c γ : Y))) ∧
+        ∃ c : Γ → ↥Blk.frattiniK, Continuous (fun γ => ((c γ : Y))) ∧
           ∀ γ δ, (c (γ * δ) : Y)
             = (c γ : Y) * (slift (blockFrameImpl T Blk hE2) (g γ) * (c δ : Y)
                   * (slift (blockFrameImpl T Blk hE2) (g γ))⁻¹)

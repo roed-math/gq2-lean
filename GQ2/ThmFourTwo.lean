@@ -138,8 +138,8 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
       exact SectionNine.terminal_count_eq B F T hE2 hstack
     · -- Inductive case: a nonscalar chief factor exists; choose the §7 minimal block.
       obtain ⟨Blk⟩ := SectionSeven.exists_minimalBlock T.normal T.isPGroup_two hstack
-      by_cases hR : Blk.R = ⊥
-      · -- **`M`-stage lane** (`Blk.R = ⊥`, §9.2): the two `mStage_partition` (P-17f)
+      by_cases hR : Blk.frattiniK = ⊥
+      · -- **`M`-stage lane** (`Blk.frattiniK = ⊥`, §9.2): the two `mStage_partition` (P-17f)
         -- identities at the block frame, multiplicity `|M_B|²` per source, solved against
         -- the IH.
         classical
@@ -231,9 +231,9 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
         · -- head not covered: both counts vanish
           rw [exactImageCount_eq_zero_of_not_headSurj B.bA F T hhead,
             exactImageCount_eq_zero_of_not_headSurj B.bF F T hhead]
-      · -- **`R`-stage lane** (`Blk.R ≠ ⊥`, §9.3): the closed system of `prop_8_9` (P-16d6) at
-        -- `blockEnrichment` (P-17d), solved by `count_eq_of_closedRecursion` (P-17h) against
-        -- the IH at the (145)/(148)/(153) bounds (P-17g).
+      · -- **`R`-stage lane** (`Blk.frattiniK ≠ ⊥`, §9.3): the closed system of `prop_8_9`
+        -- (P-16d6) at `blockEnrichment` (P-17d), solved by `count_eq_of_closedRecursion` (P-17h)
+        -- against the IH at the (145)/(148)/(153) bounds (P-17g).
         classical
         by_cases hhead : Function.Surjective (fun x : ↥boundarySubgroup => (F.frameMap x).1)
         · -- head covered: obtain the closed system and feed the solver
@@ -250,7 +250,7 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
           -- block normality instances (the `blockEnrichmentD` section hypotheses)
           haveI : (Blk.S.subgroupOf Blk.P).Normal := Blk.hS.subgroupOf Blk.P
           haveI : Blk.K.Normal := Blk.hK
-          haveI : Blk.R.Normal := SectionSeven.frattiniLike_normal Blk.K Blk.hK
+          haveI : Blk.frattiniK.Normal := SectionSeven.frattiniLike_normal Blk.K Blk.hK
           haveI : Nontrivial (blockFrameImpl T Blk hE2).YC :=
             nontrivial_YC_of_not_scalarStack T Blk hE2 hstack
           -- the chief-factor structure of the enrichment module (P-17d's `blockHsimple`)

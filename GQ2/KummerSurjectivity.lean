@@ -31,7 +31,8 @@ variable (k : IntermediateField ℚ_[2] ℚ̄₂)
 
 /-- The `k.fixingSubgroup`-action on `ZMod 2` is trivial (it factors through `Kummer`'s trivial
 action on `𝔽₂`).  This is the `htriv` input of `mem_Z1_iff_of_trivial` for `G = G_k`. -/
-lemma htriv_fs : ∀ (g : ↥k.fixingSubgroup) (m : ZMod 2), g • m = m := fun _ _ ↦ rfl
+lemma fixingSubgroup_smul_zmod_two_eq_self :
+    ∀ (g : ↥k.fixingSubgroup) (m : ZMod 2), g • m = m := fun _ _ ↦ rfl
 
 /-- A degree-1 cocycle `z ∈ Z¹(G_k, 𝔽₂)` as a genuine group homomorphism
 `G_k →* Multiplicative (ZMod 2)` (trivial action ⇒ `z` is additive, `Z1_apply_one` ⇒ `z 1 = 0`).
@@ -42,7 +43,8 @@ noncomputable def zHom (z : Z1 (↥k.fixingSubgroup) (ZMod 2)) :
   toFun g := Multiplicative.ofAdd (z.1 g)
   map_one' := congrArg Multiplicative.ofAdd (Z1_apply_one z)
   map_mul' a b :=
-    congrArg Multiplicative.ofAdd (((mem_Z1_iff_of_trivial (htriv_fs k)).mp z.2).2 a b)
+    congrArg Multiplicative.ofAdd
+      (((mem_Z1_iff_of_trivial (fixingSubgroup_smul_zmod_two_eq_self k)).mp z.2).2 a b)
 
 variable {k}
 

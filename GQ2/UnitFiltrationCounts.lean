@@ -173,14 +173,14 @@ theorem gradeZeroHom_val (u : ↥(normUnits k)) :
       = Ideal.Quotient.mk (maxIdeal k) (normUnitToOsub k u) := rfl
 
 omit [FiniteDimensional ℚ_[2] ↥k] in
-theorem hcoe_sub (u : ↥(normUnits k)) :
+theorem coe_normUnitToOsub_sub_one (u : ↥(normUnits k)) :
     ((normUnitToOsub k u - 1 : ↥(Osub k)) : ↥k) = (u.1 : ↥k) - 1 := rfl
 
 omit [FiniteDimensional ℚ_[2] ↥k] in
 theorem gradeZeroHom_eq_one_iff (u : ↥(normUnits k)) :
     gradeZeroHom k u = 1 ↔ ‖(u.1 : ↥k) - 1‖ < 1 := by
   rw [← Units.val_eq_one, gradeZeroHom_val, Ideal.Quotient.mk_eq_one_iff_sub_mem, mem_maxIdeal,
-    hcoe_sub]
+    coe_normUnitToOsub_sub_one]
 
 omit [FiniteDimensional ℚ_[2] ↥k] in
 theorem gradeZeroHom_ker {π : ↥k} (hπlt : ‖π‖ < 1) (hπmax : ∀ y : ↥k, ‖y‖ < 1 → ‖y‖ ≤ ‖π‖) :
@@ -237,7 +237,7 @@ theorem depthToOsub_coe {π : ↥k} (hπne : π ≠ 0) (i : ℕ) (u : ↥(depthU
     (depthToOsub k hπne i u : ↥k) = ((u.1 : ↥k) - 1) / π ^ i := rfl
 
 omit [FiniteDimensional ℚ_[2] ↥k] in
-theorem gradeIres_zero_iff {π : ↥k} (hπne : π ≠ 0) (i : ℕ) (u : ↥(depthUnits k (π : ℚ̄₂) i)) :
+theorem depthRes_eq_zero_iff {π : ↥k} (hπne : π ≠ 0) (i : ℕ) (u : ↥(depthUnits k (π : ℚ̄₂) i)) :
     Ideal.Quotient.mk (maxIdeal k) (depthToOsub k hπne i u) = 0 ↔ ‖(u.1 : ↥k) - 1‖ < ‖π‖ ^ i := by
   rw [Ideal.Quotient.eq_zero_iff_mem, mem_maxIdeal, depthToOsub_coe, norm_div, norm_pow,
     div_lt_one (pow_pos (norm_pos_iff.mpr hπne) i)]
@@ -246,7 +246,7 @@ omit [FiniteDimensional ℚ_[2] ↥k] in
 theorem depthRes_one {π : ↥k} (hπne : π ≠ 0) (i : ℕ) :
     Ideal.Quotient.mk (maxIdeal k)
       (depthToOsub k hπne i (1 : ↥(depthUnits k (π : ℚ̄₂) i))) = 0 := by
-  rw [gradeIres_zero_iff]
+  rw [depthRes_eq_zero_iff]
   simp only [OneMemClass.coe_one, Units.val_one, sub_self, norm_zero]
   exact pow_pos (norm_pos_iff.mpr hπne) i
 
@@ -328,7 +328,7 @@ theorem gradeIHom_ker {π : ↥k} (hπne : π ≠ 0) (hπlt : ‖π‖ < 1)
   have hu1 : ‖((u.1 : ↥k) : ℚ̄₂)‖ = 1 := ((mem_depthUnits k (π : ℚ̄₂) i u.1).mp u.2).1
   have hkey : gradeIHom k hπne hπlt hi u = 1 ↔ ‖(u.1 : ↥k) - 1‖ < ‖π‖ ^ i := by
     rw [gradeIHom_apply, ← ofAdd_zero (α := ResidueField k),
-      Multiplicative.ofAdd.apply_eq_iff_eq, gradeIres_zero_iff]
+      Multiplicative.ofAdd.apply_eq_iff_eq, depthRes_eq_zero_iff]
   rw [MonoidHom.mem_ker, Subgroup.mem_subgroupOf, mem_depthUnits, norm_sub_one_bridge, hkey]
   exact ⟨fun h ↦ ⟨hu1, (scaled_exchange k hπne hπlt hπmax _ i).mp h⟩,
     fun h ↦ (scaled_exchange k hπne hπlt hπmax _ i).mpr h.2⟩

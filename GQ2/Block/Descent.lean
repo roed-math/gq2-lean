@@ -134,18 +134,18 @@ theorem blockK_smul_eq (B : MinimalBlock L) {k : Y} (hk : k ∈ B.K)
 
 section Descend
 
-variable (B : MinimalBlock L) [(B.R).Normal] [(B.S.subgroupOf B.P).Normal] [(B.K).Normal]
+variable (B : MinimalBlock L) [(B.frattiniK).Normal] [(B.S.subgroupOf B.P).Normal] [(B.K).Normal]
 
 /-- `M_B` = image of `K` in `Y/R`. -/
-noncomputable def blockMB : Subgroup (Y ⧸ B.R) := B.K.map (QuotientGroup.mk' B.R)
+noncomputable def blockMB : Subgroup (Y ⧸ B.frattiniK) := B.K.map (QuotientGroup.mk' B.frattiniK)
 
 /-- The corestricted surjection `κ' : K ↠ M_B`, `k ↦ [k]_R`. -/
 noncomputable def blockKappa : ↥B.K →* ↥(blockMB B) :=
-  ((QuotientGroup.mk' B.R).comp B.K.subtype).codRestrict (blockMB B)
+  ((QuotientGroup.mk' B.frattiniK).comp B.K.subtype).codRestrict (blockMB B)
     (fun k => Subgroup.mem_map_of_mem _ k.2)
 
-theorem blockKappa_coe (k : ↥B.K) : ((blockKappa B k : ↥(blockMB B)) : Y ⧸ B.R)
-    = QuotientGroup.mk' B.R (k : Y) := rfl
+theorem blockKappa_coe (k : ↥B.K) : ((blockKappa B k : ↥(blockMB B)) : Y ⧸ B.frattiniK)
+    = QuotientGroup.mk' B.frattiniK (k : Y) := rfl
 
 theorem blockKappa_surjective : Function.Surjective (blockKappa B) := by
   rintro ⟨m, hm⟩
@@ -170,8 +170,8 @@ theorem blockKappa_ker_le_alpha :
   intro x hx
   rw [MonoidHom.mem_ker] at hx
   rw [MonoidHom.mem_ker, blockAlpha_eq_one_iff]
-  have hxR : (x : Y) ∈ B.R := by
-    have hval : QuotientGroup.mk' B.R (x : Y) = 1 := by rw [← blockKappa_coe, hx]; rfl
+  have hxR : (x : Y) ∈ B.frattiniK := by
+    have hval : QuotientGroup.mk' B.frattiniK (x : Y) = 1 := by rw [← blockKappa_coe, hx]; rfl
     rwa [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at hval
   exact ((lemma_7_1_head B).trans inf_le_right) hxR
 
@@ -209,14 +209,14 @@ theorem blockDescend_surjective : Function.Surjective (blockDescend B) := by
   exact hb
 
 /-- `T_B = image of `K ⊓ S ⊔ R` in `Y/R` (the `BlockFrameImpl` definition). -/
-noncomputable def blockTBsub : Subgroup (Y ⧸ B.R) :=
-  ((B.K ⊓ B.S) ⊔ B.R).map (QuotientGroup.mk' B.R)
+noncomputable def blockTBsub : Subgroup (Y ⧸ B.frattiniK) :=
+  ((B.K ⊓ B.S) ⊔ B.frattiniK).map (QuotientGroup.mk' B.frattiniK)
 
 /-- **`ker descend = T_B`**: `descend m = 1 ↔ m ∈ T_B`.  Both sides reduce to `k ∈ S` for a
 `K`-representative `k` of `m`, using `R ≤ K ⊓ S` (`lemma_7_1_head`) to collapse `T_B` to the
 image of `K ⊓ S`. -/
 theorem blockDescend_ker (m : ↥(blockMB B)) :
-    blockDescend B m = 1 ↔ (m : Y ⧸ B.R) ∈ blockTBsub B := by
+    blockDescend B m = 1 ↔ (m : Y ⧸ B.frattiniK) ∈ blockTBsub B := by
   obtain ⟨k, rfl⟩ := blockKappa_surjective B m
   rw [blockDescend_kappa, blockAlpha_eq_one_iff, blockKappa_coe, blockTBsub,
     sup_eq_left.mpr (lemma_7_1_head B)]
@@ -229,11 +229,12 @@ theorem blockDescend_ker (m : ↥(blockMB B)) :
     exact (Subgroup.mem_inf.mp hmem).2
 
 /-- The `C`-stage projection `π_{BC} : Y/R ↠ Y/K` (the `BlockFrameImpl` definition). -/
-noncomputable def blockPiBC : (Y ⧸ B.R) →* (Y ⧸ B.K) :=
-  QuotientGroup.map B.R B.K (MonoidHom.id Y) (by rw [Subgroup.comap_id]; exact frattiniLike_le B.K)
+noncomputable def blockPiBC : (Y ⧸ B.frattiniK) →* (Y ⧸ B.K) :=
+  QuotientGroup.map B.frattiniK B.K (MonoidHom.id Y)
+    (by rw [Subgroup.comap_id]; exact frattiniLike_le B.K)
 
 theorem blockPiBC_mk' (y : Y) :
-    blockPiBC B (QuotientGroup.mk' B.R y) = QuotientGroup.mk' B.K y :=
+    blockPiBC B (QuotientGroup.mk' B.frattiniK y) = QuotientGroup.mk' B.K y :=
   QuotientGroup.map_mk' _ _ _ _ _
 
 /-- `Y/K`-action on `mk' K y` reduces to the `Y`-action of `y`. -/
@@ -252,24 +253,24 @@ theorem blockActVY_mk (y : Y) (p : ↥B.P) :
 /-- **`descend` intertwines `B`-conjugation with the `C`-stage action** (`descend_conj`): for the
 `Y/K`-action on `V = P/S`, `descend(b·m·b⁻¹) = π_{BC}(b) • descend(m)`.  Proved by lifting `m` and
 `b` to `K`- and `Y`-representatives and reducing both sides to `⟦y k y⁻¹⟧_S`. -/
-theorem blockDescend_conj (bb : Y ⧸ B.R) (m : ↥(blockMB B))
-    (hm : bb * (m : Y ⧸ B.R) * bb⁻¹ ∈ blockMB B) :
+theorem blockDescend_conj (bb : Y ⧸ B.frattiniK) (m : ↥(blockMB B))
+    (hm : bb * (m : Y ⧸ B.frattiniK) * bb⁻¹ ∈ blockMB B) :
     haveI := B.hK
     letI := blockActV B
     blockPiBC B bb • Additive.ofMul (blockDescend B m)
-      = Additive.ofMul (blockDescend B ⟨bb * (m : Y ⧸ B.R) * bb⁻¹, hm⟩) := by
+      = Additive.ofMul (blockDescend B ⟨bb * (m : Y ⧸ B.frattiniK) * bb⁻¹, hm⟩) := by
   haveI := B.hK
   letI := blockActV B
   obtain ⟨k, rfl⟩ := blockKappa_surjective B m
-  obtain ⟨y, rfl⟩ := QuotientGroup.mk'_surjective B.R bb
+  obtain ⟨y, rfl⟩ := QuotientGroup.mk'_surjective B.frattiniK bb
   have hyk : y * (k : Y) * y⁻¹ ∈ B.K := B.hK.conj_mem (k : Y) k.2 y
-  have hconjeq : (⟨QuotientGroup.mk' B.R y * (blockKappa B k : Y ⧸ B.R)
-      * (QuotientGroup.mk' B.R y)⁻¹, hm⟩ : ↥(blockMB B))
+  have hconjeq : (⟨QuotientGroup.mk' B.frattiniK y * (blockKappa B k : Y ⧸ B.frattiniK)
+      * (QuotientGroup.mk' B.frattiniK y)⁻¹, hm⟩ : ↥(blockMB B))
       = blockKappa B ⟨y * (k : Y) * y⁻¹, hyk⟩ := by
     apply Subtype.ext
-    show QuotientGroup.mk' B.R y * ((blockKappa B k : ↥(blockMB B)) : Y ⧸ B.R)
-        * (QuotientGroup.mk' B.R y)⁻¹
-      = ((blockKappa B ⟨y * (k : Y) * y⁻¹, hyk⟩ : ↥(blockMB B)) : Y ⧸ B.R)
+    show QuotientGroup.mk' B.frattiniK y * ((blockKappa B k : ↥(blockMB B)) : Y ⧸ B.frattiniK)
+        * (QuotientGroup.mk' B.frattiniK y)⁻¹
+      = ((blockKappa B ⟨y * (k : Y) * y⁻¹, hyk⟩ : ↥(blockMB B)) : Y ⧸ B.frattiniK)
     rw [blockKappa_coe, blockKappa_coe, ← map_inv, ← map_mul, ← map_mul]
   rw [hconjeq, blockDescend_kappa, blockDescend_kappa, blockPiBC_mk', blockActV_mk',
     blockAlpha_apply, blockAlpha_apply, blockActVY_mk]

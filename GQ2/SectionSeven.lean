@@ -154,7 +154,7 @@ structure MinimalBlock (L : Subgroup Y) where
 variable {L : Subgroup Y}
 
 /-- `R = Φ(K)`. -/
-def MinimalBlock.R (B : MinimalBlock L) : Subgroup Y := frattiniLike B.K
+def MinimalBlock.frattiniK (B : MinimalBlock L) : Subgroup Y := frattiniLike B.K
 
 /-- **Existence of the block** (§7 opening, "Choose …"): if the marked kernel `L` (a normal
 finite 2-group, `GQ2.MarkedTarget`'s `L_Y`) is not a scalar stack, a minimal block exists.
@@ -246,7 +246,7 @@ theorem exists_minimalBlock (hL : L.Normal) (h2 : IsPGroup 2 L)
 `M/T₀ ≅ V` are then the second isomorphism theorem
 (`QuotientGroup.quotientInfEquivProdNormalQuotient`), which Mathlib supplies — so the inclusion
 is the §7-specific content.  [P-14 statement; proof P-15.] -/
-theorem lemma_7_1_head (B : MinimalBlock L) : B.R ≤ B.K ⊓ B.S := by
+theorem lemma_7_1_head (B : MinimalBlock L) : B.frattiniK ≤ B.K ⊓ B.S := by
   refine le_inf (frattiniLike_le B.K) ?_
   -- the `Y`-normal candidate `(Φ(P) ⊔ S) ⊓ P` between `S` and `P`
   have := frattiniLike_normal B.P B.hP
@@ -401,9 +401,9 @@ chief dichotomy on `X ⊔ S` then leaves two branches — `= P` dies by `K`'s mi
 pins `X = K ⊓ S` by `X`'s maximality (a strict inclusion would force `K ≤ S`, hence `P = S`).
 Stated after the head clause, which it consumes.] -/
 theorem lemma_7_1_radical (B : MinimalBlock L)
-    (X : Subgroup Y) (hX : X.Normal) (_hRX : B.R ≤ X) (hXK : X < B.K)
+    (X : Subgroup Y) (hX : X.Normal) (_hRX : B.frattiniK ≤ X) (hXK : X < B.K)
     (hmax : ∀ X' : Subgroup Y, X'.Normal → X < X' → X' ≤ B.K → X' = B.K) :
-    X = (B.K ⊓ B.S) ⊔ B.R := by
+    X = (B.K ⊓ B.S) ⊔ B.frattiniK := by
   -- by the head clause `R ≤ K ⊓ S`, the right-hand side is `K ⊓ S`
   rw [sup_eq_left.mpr (lemma_7_1_head B)]
   -- `K ≰ S` (else `P = K ⊔ S = S`, contradicting `S < P`)
@@ -440,7 +440,7 @@ index 2 above `R` (a nonzero invariant functional on `M` would be its kernel).
 pins `|P/S| = 2`, whence the `Y`-action mod `S` is trivial, contradicting `nontrivial_action`.
 Finiteness-free.] -/
 theorem lemma_7_1_dual (B : MinimalBlock L) :
-    ¬ ∃ X : Subgroup Y, X.Normal ∧ B.R ≤ X ∧ X ≤ B.K ∧ (X.subgroupOf B.K).index = 2 := by
+    ¬ ∃ X : Subgroup Y, X.Normal ∧ B.frattiniK ≤ X ∧ X ≤ B.K ∧ (X.subgroupOf B.K).index = 2 := by
   rintro ⟨X, hXn, hRX, hXK, hidx⟩
   -- `X ≠ K` (index 2 ≠ 1)
   have hXne : X ≠ B.K := by
@@ -514,14 +514,14 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
     (π : Y →* H) (hπ : Function.Surjective π) (hkerπ : π.ker = L)
     (cH : ContinuousMonoidHom Ttame H) (hcH : Function.Surjective cH)
     (B : MinimalBlock L) :
-    (∀ r ∈ B.R, ∀ k ∈ B.K, r * k = k * r) ∧ (∀ r ∈ B.R, r * r = 1) ∧
+    (∀ r ∈ B.frattiniK, ∀ k ∈ B.K, r * k = k * r) ∧ (∀ r ∈ B.frattiniK, r * r = 1) ∧
       ∀ k ∈ B.K, k ^ 4 = 1 := by
   classical
   have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   have := B.hK
   have := B.hS
   have := B.hP
-  have hRN : (B.R).Normal := frattiniLike_normal B.K B.hK
+  have hRN : (B.frattiniK).Normal := frattiniLike_normal B.K B.hK
   -- `IsPGroup 2 P` and `IsPGroup 2 S`
   have hP2 : IsPGroup 2 B.P := B.h2L.to_le B.hPL
   have hS2 : IsPGroup 2 B.S := B.h2L.to_le (B.hSP.le.trans B.hPL)
@@ -541,30 +541,31 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
     have := GQ2.comm_bot_of_scalarChain n Ñ c hc0 hmono hccomm (by rw [hcn]; exact hcop)
     rwa [hcn] at this
   -- `R ≤ S`, hence `⁅Ñ, R⁆ = ⊥`
-  have hRS : B.R ≤ B.S := (lemma_7_1_head B).trans inf_le_right
-  have hÑR : ⁅Ñ, B.R⁆ = ⊥ := le_bot_iff.mp (hÑS ▸ Subgroup.commutator_mono le_rfl hRS)
-  have hÑcentR : Ñ ≤ Subgroup.centralizer (B.R : Set Y) :=
+  have hRS : B.frattiniK ≤ B.S := (lemma_7_1_head B).trans inf_le_right
+  have hÑR : ⁅Ñ, B.frattiniK⁆ = ⊥ := le_bot_iff.mp (hÑS ▸ Subgroup.commutator_mono le_rfl hRS)
+  have hÑcentR : Ñ ≤ Subgroup.centralizer (B.frattiniK : Set Y) :=
     Subgroup.commutator_eq_bot_iff_le_centralizer.mp hÑR
   -- `D = K ⊓ C_Y(R)` is `Y`-normal
-  set D := B.K ⊓ Subgroup.centralizer (B.R : Set Y) with hD
+  set D := B.K ⊓ Subgroup.centralizer (B.frattiniK : Set Y) with hD
   have : D.Normal := by
     refine ⟨fun d hd g => Subgroup.mem_inf.mpr
       ⟨B.hK.conj_mem d (Subgroup.mem_inf.mp hd).1 g, ?_⟩⟩
     rw [Subgroup.mem_centralizer_iff]
     intro r hr
     have hdc := Subgroup.mem_centralizer_iff.mp (Subgroup.mem_inf.mp hd).2
-    have hgr : g⁻¹ * r * g ∈ B.R := by simpa using hRN.conj_mem r hr g⁻¹
+    have hgr : g⁻¹ * r * g ∈ B.frattiniK := by simpa using hRN.conj_mem r hr g⁻¹
     have hcomm := hdc (g⁻¹ * r * g) hgr
     calc r * (g * d * g⁻¹) = g * ((g⁻¹ * r * g) * d) * g⁻¹ := by group
       _ = g * (d * (g⁻¹ * r * g)) * g⁻¹ := by rw [hcomm]
       _ = (g * d * g⁻¹) * r := by group
   -- three-subgroup lemma: `⁅⁅K, Ñ⁆, R⁆ = ⊥`
-  have hRK : ⁅B.R, B.K⁆ ≤ B.R := Subgroup.commutator_le_left B.R B.K
-  have h3 : ⁅⁅B.K, Ñ⁆, B.R⁆ = ⊥ := by
+  have hRK : ⁅B.frattiniK, B.K⁆ ≤ B.frattiniK := Subgroup.commutator_le_left B.frattiniK B.K
+  have h3 : ⁅⁅B.K, Ñ⁆, B.frattiniK⁆ = ⊥ := by
     refine Subgroup.commutator_commutator_eq_bot_of_rotate ?_ ?_
     · rw [hÑR, Subgroup.commutator_bot_left]
     · exact le_bot_iff.mp (hÑR ▸
-        (Subgroup.commutator_mono hRK le_rfl).trans (le_of_eq (Subgroup.commutator_comm B.R Ñ)))
+        (Subgroup.commutator_mono hRK le_rfl).trans
+          (le_of_eq (Subgroup.commutator_comm B.frattiniK Ñ)))
   -- `⁅K, Ñ⁆ ≤ D`
   have hKÑD : ⁅B.K, Ñ⁆ ≤ D :=
     le_inf (Subgroup.commutator_le_left B.K Ñ)
@@ -607,14 +608,14 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
     · exact hEqP
   -- minimality forces `K₁ = K`, hence `K ≤ D ≤ C_Y(R)`: conclusion (a)
   have hK₁eq : K₁ = B.K := B.minimal K₁ hK₁N hK₁K hK₁gen
-  have hKcentR : B.K ≤ Subgroup.centralizer (B.R : Set Y) := by
+  have hKcentR : B.K ≤ Subgroup.centralizer (B.frattiniK : Set Y) := by
     rw [← hK₁eq]; exact hK₁D.trans inf_le_right
-  have hRcentral : ∀ r ∈ B.R, ∀ k ∈ B.K, r * k = k * r := fun r hr k hk =>
+  have hRcentral : ∀ r ∈ B.frattiniK, ∀ k ∈ B.K, r * k = k * r := fun r hr k hk =>
     (Subgroup.mem_centralizer_iff.mp (hKcentR hk) r hr)
   -- squares and commutators of `K` land in `R = Φ(K)`
-  have hksq : ∀ k, k ∈ B.K → k * k ∈ B.R := fun k hk =>
+  have hksq : ∀ k, k ∈ B.K → k * k ∈ B.frattiniK := fun k hk =>
     Subgroup.subset_closure (Or.inl ⟨k, hk, rfl⟩)
-  have hcommR : ∀ k, k ∈ B.K → ∀ l, l ∈ B.K → k * l * k⁻¹ * l⁻¹ ∈ B.R := fun k hk l hl =>
+  have hcommR : ∀ k, k ∈ B.K → ∀ l, l ∈ B.K → k * l * k⁻¹ * l⁻¹ ∈ B.frattiniK := fun k hk l hl =>
     Subgroup.subset_closure (Or.inr ⟨k, hk, l, hl, rfl⟩)
   -- `group` will not expand `x ^ (4 : ℕ)`; unfold it explicitly wherever it meets a product
   have hp4 : ∀ x : Y, x ^ 4 = x * x * x * x := fun x => by
@@ -636,7 +637,7 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
   -- `(k*l)^4 = k^4 * l^4` (class-2 algebra with `[k,l]^2 = 1`)
   have hf_hom : ∀ k, k ∈ B.K → ∀ l, l ∈ B.K → (k * l) ^ 4 = k ^ 4 * l ^ 4 := by
     intro k hk l hl
-    have hclk : l * k * l⁻¹ * k⁻¹ ∈ B.R := hcommR l hl k hk
+    have hclk : l * k * l⁻¹ * k⁻¹ ∈ B.frattiniK := hcommR l hl k hk
     have hc' : k * (l * k * l⁻¹ * k⁻¹) = (l * k * l⁻¹ * k⁻¹) * k :=
       (hRcentral (l * k * l⁻¹ * k⁻¹) hclk k hk).symm
     have hsq : (k * l) ^ 2 = (l * k * l⁻¹ * k⁻¹) * (k * k) * (l * l) := by
@@ -675,7 +676,7 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
       _ = 1 * ((k * k) * (k * k)) * ((l * l) * (l * l)) := by rw [hlk2]
       _ = k ^ 4 * l ^ 4 := by rw [one_mul, hp4 k, hp4 l]; group
   -- `f k = k^4 ∈ R`
-  have hf_mem : ∀ k, k ∈ B.K → k ^ 4 ∈ B.R := by
+  have hf_mem : ∀ k, k ∈ B.K → k ^ 4 ∈ B.frattiniK := by
     intro k hk
     rw [show k ^ 4 = (k * k) * (k * k) by rw [hp4 k]; group]
     exact mul_mem (hksq k hk) (hksq k hk)
@@ -706,7 +707,7 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
         rw [hkn, hf_hom k hk _ hnkK,
           show (n * k⁻¹ * n⁻¹) ^ 4 = n * (k ^ 4)⁻¹ * n⁻¹ by
             rw [hp4 (n * k⁻¹ * n⁻¹), hp4 k]; group]
-        have hn' : n ∈ Subgroup.centralizer (B.R : Set Y) := hÑcentR hn
+        have hn' : n ∈ Subgroup.centralizer (B.frattiniK : Set Y) := hÑcentR hn
         have hcomm := Subgroup.mem_centralizer_iff.mp hn' (k ^ 4) (hf_mem k hk)
         have hncent : n * (k ^ 4)⁻¹ * n⁻¹ = (k ^ 4)⁻¹ := by
           calc n * (k ^ 4)⁻¹ * n⁻¹ = (n * k ^ 4 * n⁻¹)⁻¹ := by group
@@ -821,13 +822,13 @@ under which the paper proves 7.4 — restored here; see `docs/section67-extracti
 
 omit [Finite Y] in
 /-- Squares of `K` generate into `R = Φ(K)`. -/
-private theorem sq_mem_R (B : MinimalBlock L) {k : Y} (hk : k ∈ B.K) : k * k ∈ B.R :=
+private theorem sq_mem_R (B : MinimalBlock L) {k : Y} (hk : k ∈ B.K) : k * k ∈ B.frattiniK :=
   Subgroup.subset_closure (Or.inl ⟨k, hk, rfl⟩)
 
 omit [Finite Y] in
 /-- Commutators of `K` generate into `R = Φ(K)`. -/
 private theorem comm_mem_R (B : MinimalBlock L) {k l : Y} (hk : k ∈ B.K) (hl : l ∈ B.K) :
-    k * l * k⁻¹ * l⁻¹ ∈ B.R :=
+    k * l * k⁻¹ * l⁻¹ ∈ B.frattiniK :=
   Subgroup.subset_closure (Or.inr ⟨k, hk, l, hl, rfl⟩)
 
 omit [Finite Y] in
@@ -839,22 +840,22 @@ scalar-stack chain of `S` intersected with `K ∩ S` would have a first layer `�
 `t*` there has all its `Y`-commutators inside `T` — making `k ↦ λ([k, t*])` a nonzero
 `Y`-invariant functional on `K` killing `R`, whose kernel is a `Y`-normal index-2 subgroup of
 `K` above `R`, contradicting `lemma_7_1_dual`. -/
-private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.R.Normal)
-    (lam : ↥B.R → ZMod 2)
-    (hlam_hom : ∀ r r' : ↥B.R, lam (r * r') = lam r + lam r')
-    (hlam_conj : ∀ (y r : Y) (hr : r ∈ B.R),
+private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.frattiniK.Normal)
+    (lam : ↥B.frattiniK → ZMod 2)
+    (hlam_hom : ∀ r r' : ↥B.frattiniK, lam (r * r') = lam r + lam r')
+    (hlam_conj : ∀ (y r : Y) (hr : r ∈ B.frattiniK),
       lam ⟨y * r * y⁻¹, hRN.conj_mem r hr y⟩ = lam ⟨r, hr⟩) :
-    ∀ k, k ∈ B.K → ∀ t, t ∈ B.K ⊓ B.S → ∀ (h : k * t * k⁻¹ * t⁻¹ ∈ B.R),
+    ∀ k, k ∈ B.K → ∀ t, t ∈ B.K ⊓ B.S → ∀ (h : k * t * k⁻¹ * t⁻¹ ∈ B.frattiniK),
       lam ⟨k * t * k⁻¹ * t⁻¹, h⟩ = 0 := by
   classical
   -- λ-kit: value at 1, inverses, subtype products
   have hz2 : ∀ x y : ZMod 2, x + y = 0 → y = x := by decide
   have hxx : ∀ x : ZMod 2, x + x = 0 := by decide
   have lam_one : lam 1 = 0 := by simpa using hlam_hom 1 1
-  have lam_inv : ∀ (a : Y) (ha : a ∈ B.R), lam ⟨a⁻¹, inv_mem ha⟩ = lam ⟨a, ha⟩ := by
+  have lam_inv : ∀ (a : Y) (ha : a ∈ B.frattiniK), lam ⟨a⁻¹, inv_mem ha⟩ = lam ⟨a, ha⟩ := by
     intro a ha
     have h := hlam_hom ⟨a, ha⟩ ⟨a⁻¹, inv_mem ha⟩
-    have e : (⟨a, ha⟩ * ⟨a⁻¹, inv_mem ha⟩ : ↥B.R) = 1 := Subtype.ext (mul_inv_cancel a)
+    have e : (⟨a, ha⟩ * ⟨a⁻¹, inv_mem ha⟩ : ↥B.frattiniK) = 1 := Subtype.ext (mul_inv_cancel a)
     rw [e, lam_one] at h
     exact hz2 _ _ h.symm
   -- β-additivity in the `K`-slot: `[kk', t] = (k[k', t]k⁻¹)·[k, t]`
@@ -863,7 +864,7 @@ private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.R.Normal)
         = lam ⟨k' * t * k'⁻¹ * t⁻¹, comm_mem_R B hk' ht⟩
           + lam ⟨k * t * k⁻¹ * t⁻¹, comm_mem_R B hk ht⟩ := by
     intro k k' t hk hk' ht
-    have e : (⟨k * k' * t * (k * k')⁻¹ * t⁻¹, comm_mem_R B (B.K.mul_mem hk hk') ht⟩ : ↥B.R)
+    have e : (⟨k * k' * t * (k * k')⁻¹ * t⁻¹, comm_mem_R B (B.K.mul_mem hk hk') ht⟩ : ↥B.frattiniK)
         = ⟨k * (k' * t * k'⁻¹ * t⁻¹) * k⁻¹, hRN.conj_mem _ (comm_mem_R B hk' ht) k⟩
           * ⟨k * t * k⁻¹ * t⁻¹, comm_mem_R B hk ht⟩ := Subtype.ext (by
       show k * k' * t * (k * k')⁻¹ * t⁻¹
@@ -878,7 +879,8 @@ private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.R.Normal)
         = lam ⟨k * t * k⁻¹ * t⁻¹, comm_mem_R B hk ht⟩
           + lam ⟨k * t' * k⁻¹ * t'⁻¹, comm_mem_R B hk ht'⟩ := by
     intro k t t' hk ht ht'
-    have e : (⟨k * (t * t') * k⁻¹ * (t * t')⁻¹, comm_mem_R B hk (B.K.mul_mem ht ht')⟩ : ↥B.R)
+    have e : (⟨k * (t * t') * k⁻¹ * (t * t')⁻¹,
+          comm_mem_R B hk (B.K.mul_mem ht ht')⟩ : ↥B.frattiniK)
         = ⟨k * t * k⁻¹ * t⁻¹, comm_mem_R B hk ht⟩
           * ⟨t * (k * t' * k⁻¹ * t'⁻¹) * t⁻¹, hRN.conj_mem _ (comm_mem_R B hk ht') t⟩ :=
       Subtype.ext (by
@@ -889,10 +891,10 @@ private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.R.Normal)
     congr 1
     exact hlam_conj t _ (comm_mem_R B hk ht')
   -- β kills `R` in the `K`-slot: `[r, t] = r·(t r⁻¹ t⁻¹)`
-  have beta_R_k : ∀ (r t : Y) (hr : r ∈ B.R) (h : r * t * r⁻¹ * t⁻¹ ∈ B.R),
+  have beta_R_k : ∀ (r t : Y) (hr : r ∈ B.frattiniK) (h : r * t * r⁻¹ * t⁻¹ ∈ B.frattiniK),
       lam ⟨r * t * r⁻¹ * t⁻¹, h⟩ = 0 := by
     intro r t hr h
-    have e : (⟨r * t * r⁻¹ * t⁻¹, h⟩ : ↥B.R)
+    have e : (⟨r * t * r⁻¹ * t⁻¹, h⟩ : ↥B.frattiniK)
         = ⟨r, hr⟩ * ⟨t * r⁻¹ * t⁻¹, hRN.conj_mem _ (inv_mem hr) t⟩ := Subtype.ext (by
       show r * t * r⁻¹ * t⁻¹ = r * (t * r⁻¹ * t⁻¹)
       group)
@@ -900,18 +902,18 @@ private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.R.Normal)
     exact hxx _
   -- the right kernel `T` of the pairing, a subgroup of `Y` inside `K ⊓ S`
   let T : Subgroup Y :=
-    { carrier := {t | t ∈ B.K ⊓ B.S ∧ ∀ k, k ∈ B.K → ∀ h : k * t * k⁻¹ * t⁻¹ ∈ B.R,
+    { carrier := {t | t ∈ B.K ⊓ B.S ∧ ∀ k, k ∈ B.K → ∀ h : k * t * k⁻¹ * t⁻¹ ∈ B.frattiniK,
         lam ⟨k * t * k⁻¹ * t⁻¹, h⟩ = 0}
       one_mem' := by
         refine ⟨one_mem _, fun k hk h => ?_⟩
-        have e : (⟨k * 1 * k⁻¹ * 1⁻¹, h⟩ : ↥B.R) = 1 := Subtype.ext (by
+        have e : (⟨k * 1 * k⁻¹ * 1⁻¹, h⟩ : ↥B.frattiniK) = 1 := Subtype.ext (by
           show k * 1 * k⁻¹ * 1⁻¹ = 1
           group)
         rw [e, lam_one]
       mul_mem' := by
         rintro t t' ⟨htKS, ht⟩ ⟨ht'KS, ht'⟩
         refine ⟨mul_mem htKS ht'KS, fun k hk h => ?_⟩
-        have e : (⟨k * (t * t') * k⁻¹ * (t * t')⁻¹, h⟩ : ↥B.R)
+        have e : (⟨k * (t * t') * k⁻¹ * (t * t')⁻¹, h⟩ : ↥B.frattiniK)
             = ⟨k * (t * t') * k⁻¹ * (t * t')⁻¹,
                 comm_mem_R B hk (B.K.mul_mem htKS.1 ht'KS.1)⟩ := rfl
         rw [e, beta_add_t k t t' hk htKS.1 ht'KS.1,
@@ -921,12 +923,12 @@ private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.R.Normal)
         refine ⟨inv_mem htKS, fun k hk h => ?_⟩
         have h1 := beta_add_t k t t⁻¹ hk htKS.1 (B.K.inv_mem htKS.1)
         have e1 : (⟨k * (t * t⁻¹) * k⁻¹ * (t * t⁻¹)⁻¹,
-            comm_mem_R B hk (B.K.mul_mem htKS.1 (B.K.inv_mem htKS.1))⟩ : ↥B.R) = 1 :=
+            comm_mem_R B hk (B.K.mul_mem htKS.1 (B.K.inv_mem htKS.1))⟩ : ↥B.frattiniK) = 1 :=
           Subtype.ext (by
             show k * (t * t⁻¹) * k⁻¹ * (t * t⁻¹)⁻¹ = 1
             group)
         rw [e1, lam_one, ht k hk (comm_mem_R B hk htKS.1), zero_add] at h1
-        have e2 : (⟨k * t⁻¹ * k⁻¹ * t⁻¹⁻¹, h⟩ : ↥B.R)
+        have e2 : (⟨k * t⁻¹ * k⁻¹ * t⁻¹⁻¹, h⟩ : ↥B.frattiniK)
             = ⟨k * t⁻¹ * k⁻¹ * t⁻¹⁻¹, comm_mem_R B hk (B.K.inv_mem htKS.1)⟩ := rfl
         rw [e2, ← h1] }
   -- suppose some `[k₀, t₀]` survives
@@ -965,15 +967,15 @@ private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.R.Normal)
     exact hprev (Subgroup.mem_inf.mpr ⟨h2, h3⟩)
   -- the functional `β := λ([·, ts])` is `Y`-invariant
   have hbeta_conj : ∀ (y k : Y), k ∈ B.K →
-      ∀ (h1 : y * k * y⁻¹ * ts * (y * k * y⁻¹)⁻¹ * ts⁻¹ ∈ B.R)
-        (h2 : k * ts * k⁻¹ * ts⁻¹ ∈ B.R),
+      ∀ (h1 : y * k * y⁻¹ * ts * (y * k * y⁻¹)⁻¹ * ts⁻¹ ∈ B.frattiniK)
+        (h2 : k * ts * k⁻¹ * ts⁻¹ ∈ B.frattiniK),
       lam ⟨y * k * y⁻¹ * ts * (y * k * y⁻¹)⁻¹ * ts⁻¹, h1⟩
         = lam ⟨k * ts * k⁻¹ * ts⁻¹, h2⟩ := by
     intro y k hk h1 h2
     -- `[yky⁻¹, ts] = y·[k, y⁻¹ts y]·y⁻¹`
     have hin : y⁻¹ * ts * y ∈ B.K := by simpa using B.hK.conj_mem ts htsK y⁻¹
-    have hmemc : k * (y⁻¹ * ts * y) * k⁻¹ * (y⁻¹ * ts * y)⁻¹ ∈ B.R := comm_mem_R B hk hin
-    have e1 : (⟨y * k * y⁻¹ * ts * (y * k * y⁻¹)⁻¹ * ts⁻¹, h1⟩ : ↥B.R)
+    have hmemc : k * (y⁻¹ * ts * y) * k⁻¹ * (y⁻¹ * ts * y)⁻¹ ∈ B.frattiniK := comm_mem_R B hk hin
+    have e1 : (⟨y * k * y⁻¹ * ts * (y * k * y⁻¹)⁻¹ * ts⁻¹, h1⟩ : ↥B.frattiniK)
         = ⟨y * (k * (y⁻¹ * ts * y) * k⁻¹ * (y⁻¹ * ts * y)⁻¹) * y⁻¹,
             hRN.conj_mem _ hmemc y⟩ := Subtype.ext (by
       show y * k * y⁻¹ * ts * (y * k * y⁻¹)⁻¹ * ts⁻¹
@@ -986,7 +988,7 @@ private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.R.Normal)
       rw [hw]
       simpa using hcommT y⁻¹
     have hwK : w ∈ B.K := (Subgroup.mem_inf.mp hwT.1).1
-    have e2 : (⟨k * (y⁻¹ * ts * y) * k⁻¹ * (y⁻¹ * ts * y)⁻¹, hmemc⟩ : ↥B.R)
+    have e2 : (⟨k * (y⁻¹ * ts * y) * k⁻¹ * (y⁻¹ * ts * y)⁻¹, hmemc⟩ : ↥B.frattiniK)
         = ⟨k * (w * ts) * k⁻¹ * (w * ts)⁻¹, comm_mem_R B hk (B.K.mul_mem hwK htsK)⟩ := by
       refine Subtype.ext ?_
       show k * (y⁻¹ * ts * y) * k⁻¹ * (y⁻¹ * ts * y)⁻¹ = k * (w * ts) * k⁻¹ * (w * ts)⁻¹
@@ -995,18 +997,18 @@ private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.R.Normal)
     rw [e2, beta_add_t k w ts hk hwK htsK, hwT.2 k hk (comm_mem_R B hk hwK), zero_add]
   -- the kernel `Z` of `β` inside `K`: a `Y`-normal index-2 subgroup above `R`
   let Z : Subgroup Y :=
-    { carrier := {k | k ∈ B.K ∧ ∀ h : k * ts * k⁻¹ * ts⁻¹ ∈ B.R,
+    { carrier := {k | k ∈ B.K ∧ ∀ h : k * ts * k⁻¹ * ts⁻¹ ∈ B.frattiniK,
         lam ⟨k * ts * k⁻¹ * ts⁻¹, h⟩ = 0}
       one_mem' := by
         refine ⟨one_mem _, fun h => ?_⟩
-        have e : (⟨1 * ts * 1⁻¹ * ts⁻¹, h⟩ : ↥B.R) = 1 := Subtype.ext (by
+        have e : (⟨1 * ts * 1⁻¹ * ts⁻¹, h⟩ : ↥B.frattiniK) = 1 := Subtype.ext (by
           show 1 * ts * 1⁻¹ * ts⁻¹ = 1
           group)
         rw [e, lam_one]
       mul_mem' := by
         rintro k k' ⟨hkK, hk⟩ ⟨hk'K, hk'⟩
         refine ⟨mul_mem hkK hk'K, fun h => ?_⟩
-        have e : (⟨k * k' * ts * (k * k')⁻¹ * ts⁻¹, h⟩ : ↥B.R)
+        have e : (⟨k * k' * ts * (k * k')⁻¹ * ts⁻¹, h⟩ : ↥B.frattiniK)
             = ⟨k * k' * ts * (k * k')⁻¹ * ts⁻¹,
                 comm_mem_R B (B.K.mul_mem hkK hk'K) htsK⟩ := rfl
         rw [e, beta_add_k k k' ts hkK hk'K htsK, hk (comm_mem_R B hkK htsK),
@@ -1016,12 +1018,12 @@ private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.R.Normal)
         refine ⟨inv_mem hkK, fun h => ?_⟩
         have h1 := beta_add_k k k⁻¹ ts hkK (B.K.inv_mem hkK) htsK
         have e1 : (⟨k * k⁻¹ * ts * (k * k⁻¹)⁻¹ * ts⁻¹,
-            comm_mem_R B (B.K.mul_mem hkK (B.K.inv_mem hkK)) htsK⟩ : ↥B.R) = 1 :=
+            comm_mem_R B (B.K.mul_mem hkK (B.K.inv_mem hkK)) htsK⟩ : ↥B.frattiniK) = 1 :=
           Subtype.ext (by
             show k * k⁻¹ * ts * (k * k⁻¹)⁻¹ * ts⁻¹ = 1
             group)
         rw [e1, lam_one, hk (comm_mem_R B hkK htsK), add_zero] at h1
-        have e2 : (⟨k⁻¹ * ts * k⁻¹⁻¹ * ts⁻¹, h⟩ : ↥B.R)
+        have e2 : (⟨k⁻¹ * ts * k⁻¹⁻¹ * ts⁻¹, h⟩ : ↥B.frattiniK)
             = ⟨k⁻¹ * ts * k⁻¹⁻¹ * ts⁻¹, comm_mem_R B (B.K.inv_mem hkK) htsK⟩ := rfl
         rw [e2, ← h1] }
   have hZn : Z.Normal := by
@@ -1030,7 +1032,7 @@ private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.R.Normal)
     refine ⟨B.hK.conj_mem m hm.1 y, fun h => ?_⟩
     rw [hbeta_conj y m hm.1 h (comm_mem_R B hm.1 htsK)]
     exact hm.2 (comm_mem_R B hm.1 htsK)
-  have hRZ : B.R ≤ Z := by
+  have hRZ : B.frattiniK ≤ Z := by
     intro r hr
     exact ⟨frattiniLike_le B.K hr, fun h => beta_R_k r ts hr h⟩
   have hZK : Z ≤ B.K := fun z hz => hz.1
@@ -1041,7 +1043,7 @@ private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.R.Normal)
     by_contra hall
     push Not at hall
     refine htsT ⟨htsmem'.2, fun k hk h => ?_⟩
-    have e : (⟨k * ts * k⁻¹ * ts⁻¹, h⟩ : ↥B.R)
+    have e : (⟨k * ts * k⁻¹ * ts⁻¹, h⟩ : ↥B.frattiniK)
         = ⟨k * ts * k⁻¹ * ts⁻¹, comm_mem_R B hk htsK⟩ := rfl
     rw [e]
     by_contra hne0
@@ -1051,7 +1053,7 @@ private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.R.Normal)
         Multiplicative.ofAdd (lam ⟨k.1 * ts * k.1⁻¹ * ts⁻¹, comm_mem_R B k.2 htsK⟩)
       map_one' := by
         have e : (⟨(1 : ↥B.K).1 * ts * (1 : ↥B.K).1⁻¹ * ts⁻¹,
-            comm_mem_R B (1 : ↥B.K).2 htsK⟩ : ↥B.R) = 1 := Subtype.ext (by
+            comm_mem_R B (1 : ↥B.K).2 htsK⟩ : ↥B.frattiniK) = 1 := Subtype.ext (by
           show (1 : Y) * ts * (1 : Y)⁻¹ * ts⁻¹ = 1
           group)
         show Multiplicative.ofAdd _ = 1
@@ -1059,7 +1061,7 @@ private theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.R.Normal)
         rfl
       map_mul' := by
         intro a b
-        have e : (⟨(a * b).1 * ts * (a * b).1⁻¹ * ts⁻¹, comm_mem_R B (a * b).2 htsK⟩ : ↥B.R)
+        have e : (⟨(a * b).1 * ts * (a * b).1⁻¹ * ts⁻¹, comm_mem_R B (a * b).2 htsK⟩ : ↥B.frattiniK)
             = ⟨a.1 * b.1 * ts * (a.1 * b.1)⁻¹ * ts⁻¹,
                 comm_mem_R B (B.K.mul_mem a.2 b.2) htsK⟩ := rfl
         show Multiplicative.ofAdd _ = _
@@ -1138,7 +1140,7 @@ private theorem invariant_hom_absurd (B : MinimalBlock L)
     rw [hXmem] at hk ⊢
     exact ⟨B.hK.conj_mem k hk.1 y, by rw [hψinv y k hk.1, hk.2]⟩
   have hXK : X ≤ B.K := fun k hk => hk.1
-  have hRX : B.R ≤ X := by
+  have hRX : B.frattiniK ≤ X := by
     intro r hr
     refine Subgroup.closure_induction (p := fun g _ => g ∈ X) ?_ ⟨one_mem _, hψ1⟩
       (fun a b _ _ ha hb => mul_mem ha hb) (fun a _ ha => inv_mem ha) hr
@@ -1283,7 +1285,7 @@ omit [Finite Y] in
 Via `K/R` as an `𝔽₂`-vector space and `LinearMap.exists_extend`. -/
 private theorem sigma0_extends (B : MinimalBlock L) (σ : Y → ZMod 2)
     (hσhom : ∀ k, k ∈ B.K ⊓ B.S → ∀ l, l ∈ B.K ⊓ B.S → σ (k * l) = σ k + σ l)
-    (hσR : ∀ r, r ∈ B.R → σ r = 0) :
+    (hσR : ∀ r, r ∈ B.frattiniK → σ r = 0) :
     ∃ σ₀ : Y → ZMod 2,
       (∀ k, k ∈ B.K → ∀ l, l ∈ B.K → σ₀ (k * l) = σ₀ k + σ₀ l) ∧
       (∀ k, k ∈ B.K ⊓ B.S → σ₀ k = σ k) := by
@@ -2323,7 +2325,7 @@ private theorem hv_average_helper {H : Type} [Group H] [TopologicalSpace H] [Dis
   -- `K/(K∩S)` is abelian: commutators of `K` lie in `R ≤ K ∩ S ≤ S`.
   have hcomm : ∀ a, a ∈ B.K → ∀ b, b ∈ B.K → a * b * a⁻¹ * b⁻¹ ∈ B.S := by
     intro a ha b hb
-    have hR : a * b * a⁻¹ * b⁻¹ ∈ B.R :=
+    have hR : a * b * a⁻¹ * b⁻¹ ∈ B.frattiniK :=
       Subgroup.subset_closure (Or.inr ⟨a, ha, b, hb, rfl⟩)
     exact (Subgroup.mem_inf.mp (lemma_7_1_head B hR)).2
   -- **Remaining tame construction**: an odd normal `Ctil` that moves `V = P/S`.
@@ -2410,34 +2412,35 @@ private theorem key_extension {H : Type} [Group H] [TopologicalSpace H] [Discret
     [Finite H]
     (π : Y →* H) (hπ : Function.Surjective π) (hkerπ : π.ker = L)
     (cH : ContinuousMonoidHom Ttame H) (hcH : Function.Surjective cH)
-    (B : MinimalBlock L) (hRN : B.R.Normal)
-    (lam : ↥B.R → ZMod 2)
-    (hlam_hom : ∀ r r' : ↥B.R, lam (r * r') = lam r + lam r')
-    (hlam_conj : ∀ (y r : Y) (hr : r ∈ B.R),
+    (B : MinimalBlock L) (hRN : B.frattiniK.Normal)
+    (lam : ↥B.frattiniK → ZMod 2)
+    (hlam_hom : ∀ r r' : ↥B.frattiniK, lam (r * r') = lam r + lam r')
+    (hlam_conj : ∀ (y r : Y) (hr : r ∈ B.frattiniK),
       lam ⟨y * r * y⁻¹, hRN.conj_mem r hr y⟩ = lam ⟨r, hr⟩) :
     ∃ ψ : Y → ZMod 2,
       (∀ k, k ∈ B.K → ∀ l, l ∈ B.K → ψ (k * l) = ψ k + ψ l) ∧
       (∀ (y k : Y), k ∈ B.K → ψ (y * k * y⁻¹) = ψ k) ∧
-      (∀ k, k ∈ B.K ⊓ B.S → ∀ (hkk : k * k ∈ B.R), ψ k = lam ⟨k * k, hkk⟩) := by
+      (∀ k, k ∈ B.K ⊓ B.S → ∀ (hkk : k * k ∈ B.frattiniK), ψ k = lam ⟨k * k, hkk⟩) := by
   classical
   haveI := B.hK
   haveI := B.hS
   obtain ⟨hcentral, hr2, _hK4⟩ := lemma_7_2 π hπ hkerπ cH hcH B
   have hcomm_kill := lam_comm_vanish B hRN lam hlam_hom hlam_conj
   have lam_one : lam 1 = 0 := by simpa using hlam_hom 1 1
-  have hsq : ∀ k, k ∈ B.K → k * k ∈ B.R := fun k hk =>
+  have hsq : ∀ k, k ∈ B.K → k * k ∈ B.frattiniK := fun k hk =>
     Subgroup.subset_closure (Or.inl ⟨k, hk, rfl⟩)
-  set σ : Y → ZMod 2 := fun y => if h : y * y ∈ B.R then lam ⟨y * y, h⟩ else 0 with hσdef
+  set σ : Y → ZMod 2 := fun y => if h : y * y ∈ B.frattiniK then lam ⟨y * y, h⟩ else 0 with hσdef
   -- reduction: `σ` is a hom on `K ∩ S`
   have hσhom : ∀ k, k ∈ B.K ⊓ B.S → ∀ l, l ∈ B.K ⊓ B.S → σ (k * l) = σ k + σ l := by
     intro k hk l hl
     have hkK := (Subgroup.mem_inf.mp hk).1
     have hlK := (Subgroup.mem_inf.mp hl).1
     have hklK : k * l ∈ B.K := mul_mem hkK hlK
-    have hcomm : l * k * l⁻¹ * k⁻¹ ∈ B.R := Subgroup.subset_closure (Or.inr ⟨l, hlK, k, hkK, rfl⟩)
+    have hcomm : l * k * l⁻¹ * k⁻¹ ∈ B.frattiniK :=
+      Subgroup.subset_closure (Or.inr ⟨l, hlK, k, hkK, rfl⟩)
     rw [hσdef]
     simp only [dif_pos (hsq _ hklK), dif_pos (hsq _ hkK), dif_pos (hsq _ hlK)]
-    have e : (⟨(k * l) * (k * l), hsq _ hklK⟩ : ↥B.R)
+    have e : (⟨(k * l) * (k * l), hsq _ hklK⟩ : ↥B.frattiniK)
         = (⟨l * k * l⁻¹ * k⁻¹, hcomm⟩ * ⟨k * k, hsq k hkK⟩) * ⟨l * l, hsq l hlK⟩ :=
       Subtype.ext (by
         show (k * l) * (k * l) = l * k * l⁻¹ * k⁻¹ * (k * k) * (l * l)
@@ -2448,11 +2451,11 @@ private theorem key_extension {H : Type} [Group H] [TopologicalSpace H] [Discret
           _ = (l * k * l⁻¹ * k⁻¹) * k * (k * l * l) := by rw [hc']
           _ = l * k * l⁻¹ * k⁻¹ * (k * k) * (l * l) := by group)
     rw [e, hlam_hom, hlam_hom, hcomm_kill l hlK k hk hcomm, zero_add]
-  have hσR : ∀ r, r ∈ B.R → σ r = 0 := by
+  have hσR : ∀ r, r ∈ B.frattiniK → σ r = 0 := by
     intro r hr
     rw [hσdef]
-    simp only [dif_pos (by rw [hr2 r hr]; exact one_mem _ : r * r ∈ B.R)]
-    have : (⟨r * r, by rw [hr2 r hr]; exact one_mem _⟩ : ↥B.R) = 1 := Subtype.ext (hr2 r hr)
+    simp only [dif_pos (by rw [hr2 r hr]; exact one_mem _ : r * r ∈ B.frattiniK)]
+    have : (⟨r * r, by rw [hr2 r hr]; exact one_mem _⟩ : ↥B.frattiniK) = 1 := Subtype.ext (hr2 r hr)
     rw [this, lam_one]
   -- hom extension `σ₀`
   obtain ⟨σ₀, hσ₀hom, hσ₀ext⟩ := sigma0_extends B σ hσhom hσR
@@ -2464,7 +2467,7 @@ private theorem key_extension {H : Type} [Group H] [TopologicalSpace H] [Discret
       ⟨B.hK.conj_mem k hkK y, B.hS.conj_mem k (Subgroup.mem_inf.mp hk).2 y⟩
     rw [hσ₀ext _ hyk, hσ₀ext _ hk, hσdef]
     simp only [dif_pos (hsq _ (B.hK.conj_mem k hkK y)), dif_pos (hsq k hkK)]
-    have e : (⟨(y * k * y⁻¹) * (y * k * y⁻¹), hsq _ (B.hK.conj_mem k hkK y)⟩ : ↥B.R)
+    have e : (⟨(y * k * y⁻¹) * (y * k * y⁻¹), hsq _ (B.hK.conj_mem k hkK y)⟩ : ↥B.frattiniK)
         = ⟨y * (k * k) * y⁻¹, hRN.conj_mem _ (hsq k hkK) y⟩ := Subtype.ext (by group)
     rw [e, hlam_conj y (k * k) (hsq k hkK)]
   -- shear-vanishing: `σ₀` is `Y_V`-invariant
@@ -2479,15 +2482,16 @@ private theorem key_extension {H : Type} [Group H] [TopologicalSpace H] [Discret
       have hqinv : σ (z * k * z⁻¹) = σ k := by
         rw [hσdef]
         simp only [dif_pos (hsq _ (B.hK.conj_mem k hk z)), dif_pos (hsq k hk)]
-        have e : (⟨(z * k * z⁻¹) * (z * k * z⁻¹), hsq _ (B.hK.conj_mem k hk z)⟩ : ↥B.R)
+        have e : (⟨(z * k * z⁻¹) * (z * k * z⁻¹), hsq _ (B.hK.conj_mem k hk z)⟩ : ↥B.frattiniK)
             = ⟨z * (k * k) * z⁻¹, hRN.conj_mem _ (hsq k hk) z⟩ := Subtype.ext (by group)
         rw [e, hlam_conj z (k * k) (hsq k hk)]
       have hsplit : σ (s * k) = σ s + σ k := by
         have hskK : s * k ∈ B.K := mul_mem hsK hk
-        have hcomm2 : k * s * k⁻¹ * s⁻¹ ∈ B.R := Subgroup.subset_closure (Or.inr ⟨k, hk, s, hsK, rfl⟩)
+        have hcomm2 : k * s * k⁻¹ * s⁻¹ ∈ B.frattiniK :=
+          Subgroup.subset_closure (Or.inr ⟨k, hk, s, hsK, rfl⟩)
         rw [hσdef]
         simp only [dif_pos (hsq _ hskK), dif_pos (hsq _ hsK), dif_pos (hsq k hk)]
-        have e : (⟨(s * k) * (s * k), hsq _ hskK⟩ : ↥B.R)
+        have e : (⟨(s * k) * (s * k), hsq _ hskK⟩ : ↥B.frattiniK)
             = (⟨k * s * k⁻¹ * s⁻¹, hcomm2⟩ * ⟨s * s, hsq s hsK⟩) * ⟨k * k, hsq k hk⟩ :=
           Subtype.ext (by
             show (s * k) * (s * k) = k * s * k⁻¹ * s⁻¹ * (s * s) * (k * k)
@@ -2517,12 +2521,12 @@ private theorem lam_sq_vanish {H : Type} [Group H] [TopologicalSpace H] [Discret
     [Finite H]
     (π : Y →* H) (hπ : Function.Surjective π) (hkerπ : π.ker = L)
     (cH : ContinuousMonoidHom Ttame H) (hcH : Function.Surjective cH)
-    (B : MinimalBlock L) (hRN : B.R.Normal)
-    (lam : ↥B.R → ZMod 2)
-    (hlam_hom : ∀ r r' : ↥B.R, lam (r * r') = lam r + lam r')
-    (hlam_conj : ∀ (y r : Y) (hr : r ∈ B.R),
+    (B : MinimalBlock L) (hRN : B.frattiniK.Normal)
+    (lam : ↥B.frattiniK → ZMod 2)
+    (hlam_hom : ∀ r r' : ↥B.frattiniK, lam (r * r') = lam r + lam r')
+    (hlam_conj : ∀ (y r : Y) (hr : r ∈ B.frattiniK),
       lam ⟨y * r * y⁻¹, hRN.conj_mem r hr y⟩ = lam ⟨r, hr⟩) :
-    ∀ t, t ∈ B.K ⊓ B.S → ∀ (h : t * t ∈ B.R), lam ⟨t * t, h⟩ = 0 := by
+    ∀ t, t ∈ B.K ⊓ B.S → ∀ (h : t * t ∈ B.frattiniK), lam ⟨t * t, h⟩ = 0 := by
   classical
   obtain ⟨ψ, hψhom, hψinv, hψext⟩ :=
     key_extension π hπ hkerπ cH hcH B hRN lam hlam_hom hlam_conj
@@ -2544,11 +2548,11 @@ theorem prop_7_4 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] 
     (π : Y →* H) (hπ : Function.Surjective π) (hkerπ : π.ker = L)
     (cH : ContinuousMonoidHom Ttame H) (hcH : Function.Surjective cH)
     (B : MinimalBlock L)
-    (hRN : B.R.Normal)
-    (hsq : ∀ k ∈ B.K, k * k ∈ B.R)
-    (lam : ↥B.R → ZMod 2)
-    (hlam_hom : ∀ r r' : ↥B.R, lam (r * r') = lam r + lam r')
-    (hlam_conj : ∀ (y : Y) (r : Y) (hr : r ∈ B.R),
+    (hRN : B.frattiniK.Normal)
+    (hsq : ∀ k ∈ B.K, k * k ∈ B.frattiniK)
+    (lam : ↥B.frattiniK → ZMod 2)
+    (hlam_hom : ∀ r r' : ↥B.frattiniK, lam (r * r') = lam r + lam r')
+    (hlam_conj : ∀ (y : Y) (r : Y) (hr : r ∈ B.frattiniK),
       lam ⟨y * r * y⁻¹, hRN.conj_mem r hr y⟩ = lam ⟨r, hr⟩)
     (hlam_ne : lam ≠ 0) :
     ∃ qbar : (↥B.P ⧸ (B.S.subgroupOf B.P)) → ZMod 2,
@@ -2571,9 +2575,9 @@ theorem prop_7_4 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] 
     rw [QuotientGroup.eq] at hmk
     have htS : k⁻¹ * k' ∈ B.S := Subgroup.mem_subgroupOf.mp hmk
     have htK : k⁻¹ * k' ∈ B.K := B.K.mul_mem (B.K.inv_mem hk) hk'
-    have hcm : k⁻¹ * (k⁻¹ * k') * k⁻¹⁻¹ * (k⁻¹ * k')⁻¹ ∈ B.R :=
+    have hcm : k⁻¹ * (k⁻¹ * k') * k⁻¹⁻¹ * (k⁻¹ * k')⁻¹ ∈ B.frattiniK :=
       comm_mem_R B (B.K.inv_mem hk) htK
-    have e : (⟨k' * k', hsq k' hk'⟩ : ↥B.R)
+    have e : (⟨k' * k', hsq k' hk'⟩ : ↥B.frattiniK)
         = (⟨k * k, hsq k hk⟩ * ⟨k⁻¹ * (k⁻¹ * k') * k⁻¹⁻¹ * (k⁻¹ * k')⁻¹, hcm⟩)
             * ⟨(k⁻¹ * k') * (k⁻¹ * k'), hsq _ htK⟩ := Subtype.ext (by
       show k' * k'
@@ -2615,11 +2619,11 @@ theorem prop_7_4 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] 
       exact h0v _
     -- commutators vanish under λ
     have hcomm0 : ∀ (a b : Y), a ∈ B.K → b ∈ B.K →
-        ∀ h : a * b * a⁻¹ * b⁻¹ ∈ B.R, lam ⟨a * b * a⁻¹ * b⁻¹, h⟩ = 0 := by
+        ∀ h : a * b * a⁻¹ * b⁻¹ ∈ B.frattiniK, lam ⟨a * b * a⁻¹ * b⁻¹, h⟩ = 0 := by
       intro a b ha hb h
       have hx : a⁻¹ ∈ B.K := B.K.inv_mem ha
       have hxy : a⁻¹ * b ∈ B.K := B.K.mul_mem hx hb
-      have e : (⟨(a⁻¹ * b) * (a⁻¹ * b), hsq _ hxy⟩ : ↥B.R)
+      have e : (⟨(a⁻¹ * b) * (a⁻¹ * b), hsq _ hxy⟩ : ↥B.frattiniK)
           = (⟨a⁻¹ * a⁻¹, hsq _ hx⟩ * ⟨a * b * a⁻¹ * b⁻¹, h⟩) * ⟨b * b, hsq b hb⟩ :=
         Subtype.ext (by
           show (a⁻¹ * b) * (a⁻¹ * b) = a⁻¹ * a⁻¹ * (a * b * a⁻¹ * b⁻¹) * (b * b)
@@ -2629,7 +2633,7 @@ theorem prop_7_4 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] 
       exact h1
     -- so λ kills all of `R = Φ(K)`, contradicting `hlam_ne`
     let Z' : Subgroup Y :=
-      { carrier := {x | ∃ hx : x ∈ B.R, lam ⟨x, hx⟩ = 0}
+      { carrier := {x | ∃ hx : x ∈ B.frattiniK, lam ⟨x, hx⟩ = 0}
         one_mem' := ⟨one_mem _, lam_one⟩
         mul_mem' := by
           rintro a b ⟨ha, la⟩ ⟨hb, lb⟩
@@ -2641,12 +2645,12 @@ theorem prop_7_4 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] 
           rintro a ⟨ha, la⟩
           refine ⟨inv_mem ha, ?_⟩
           have h := hlam_hom ⟨a, ha⟩ ⟨a⁻¹, inv_mem ha⟩
-          have e : (⟨a, ha⟩ * ⟨a⁻¹, inv_mem ha⟩ : ↥B.R) = 1 := Subtype.ext (by
+          have e : (⟨a, ha⟩ * ⟨a⁻¹, inv_mem ha⟩ : ↥B.frattiniK) = 1 := Subtype.ext (by
             show a * a⁻¹ = 1
             group)
           rw [e, lam_one, la, zero_add] at h
           exact h.symm }
-    have hRZ : B.R ≤ Z' := by
+    have hRZ : B.frattiniK ≤ Z' := by
       refine (Subgroup.closure_le _).mpr ?_
       rintro x (⟨k, hk, rfl⟩ | ⟨k, hk, l, hl, rfl⟩)
       · exact ⟨sq_mem_R B hk, hsqv k hk⟩
@@ -2680,7 +2684,7 @@ theorem prop_7_4 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] 
       hwd (w _) (y * k * y⁻¹) (hwK _) (B.hK.conj_mem k hkK y) ((hwmk _).trans hmk1.symm)
     have step2 : lam ⟨(y * k * y⁻¹) * (y * k * y⁻¹), hsq _ (B.hK.conj_mem k hkK y)⟩
         = lam ⟨k * k, hsq k hkK⟩ := by
-      have e : (⟨(y * k * y⁻¹) * (y * k * y⁻¹), hsq _ (B.hK.conj_mem k hkK y)⟩ : ↥B.R)
+      have e : (⟨(y * k * y⁻¹) * (y * k * y⁻¹), hsq _ (B.hK.conj_mem k hkK y)⟩ : ↥B.frattiniK)
           = ⟨y * (k * k) * y⁻¹, hRN.conj_mem _ (hsq k hkK) y⟩ := Subtype.ext (by
         show (y * k * y⁻¹) * (y * k * y⁻¹) = y * (k * k) * y⁻¹
         group)

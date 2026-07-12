@@ -68,7 +68,7 @@ variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finit
   [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
 variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
 variable (T : MarkedTarget H E Y) (Blk : MinimalBlock T.LY)
-variable [Blk.R.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
+variable [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
   [IsTopologicalGroup AbsGalQ2]
 
@@ -99,7 +99,7 @@ theorem gaussZResidueD_local_unramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Bounda
   letI := hvAct T Blk
   letI : TopologicalSpace (HVq T Blk) := ⊥
   haveI : DiscreteTopology (HVq T Blk) := ⟨rfl⟩
-  have hl' : l.1 ≠ Blk.R := fun heq => h (Subtype.ext heq)
+  have hl' : l.1 ≠ Blk.frattiniK := fun heq => h (Subtype.ext heq)
   set EnD := blockEnrichmentD T Blk hE2 F with hEnDdef
   intro ρ
   set ρM := (blockFrame T Blk hE2).rhoPrime B.bF F (EnD.radData l h) rfl ρ with hρMdef
@@ -237,7 +237,7 @@ theorem gaussZResidueD_local_ramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Boundary
   letI := hvAct T Blk
   letI : TopologicalSpace (HVq T Blk) := ⊥
   haveI : DiscreteTopology (HVq T Blk) := ⟨rfl⟩
-  have hl' : l.1 ≠ Blk.R := fun heq => h (Subtype.ext heq)
+  have hl' : l.1 ≠ Blk.frattiniK := fun heq => h (Subtype.ext heq)
   set EnD := blockEnrichmentD T Blk hE2 F with hEnDdef
   intro ρ
   set ρM := (blockFrame T Blk hE2).rhoPrime B.bF F (EnD.radData l h) rfl ρ with hρMdef

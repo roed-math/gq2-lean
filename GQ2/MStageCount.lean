@@ -109,7 +109,7 @@ theorem SectionEight.RecursionFrame.exactImageCount_TB_of_R_bot {Y : Type} [Grou
     [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] {T : MarkedTarget H E Y}
     {Blk : MinimalBlock T.LY} (RF : RecursionFrame T Blk)
     (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
-    (hR : Blk.R = ⊥) :
+    (hR : Blk.frattiniK = ⊥) :
     exactImageCount b F RF.TB = exactImageCount b F T := by
   have hinj : Function.Injective RF.piB := by
     rw [← MonoidHom.ker_eq_bot_iff, RF.ker_piB]
@@ -210,7 +210,7 @@ lemma card_stratum_mStage_lt {Y : Type} [Group Y] [TopologicalSpace Y] [Discrete
   have hLBle : Nat.card ↥LB ≤ Nat.card ↥T.LY := by
     rw [hLB]
     calc Nat.card ↥(blockFrameImpl T Blk hE2).TB.LY
-        ≤ Nat.card ↥(blockFrameImpl T Blk hE2).TB.LY * Nat.card ↥Blk.R :=
+        ≤ Nat.card ↥(blockFrameImpl T Blk hE2).TB.LY * Nat.card ↥Blk.frattiniK :=
           Nat.le_mul_of_pos_right _ Nat.card_pos
       _ = Nat.card ↥T.LY := card_LB_mul T Blk hE2
   have hpos : 0 < Nat.card ↥(LB ⊓ J) := Nat.card_pos
@@ -377,7 +377,7 @@ theorem SectionEight.RecursionFrame.liftsOver_card_local
           rw [hpin _ hk, hpin _ hy]
       set X : Subgroup Y := φ.ker.map Blk.K.subtype with hXdef
       have hXK : X ≤ Blk.K := by rw [hXdef]; exact Subgroup.map_subtype_le _
-      have hRX : Blk.R ≤ X := by
+      have hRX : Blk.frattiniK ≤ X := by
         intro r hr
         have hrK : r ∈ Blk.K := frattiniLike_le Blk.K hr
         refine Subgroup.mem_map.mpr ⟨⟨r, hrK⟩, ?_, rfl⟩

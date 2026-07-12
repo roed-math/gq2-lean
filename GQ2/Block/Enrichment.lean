@@ -33,7 +33,7 @@ variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finit
 variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
 variable (T : MarkedTarget H E Y) (Blk : MinimalBlock T.LY) (hE2 : ∀ e : E, e ^ 2 = 1)
   (cH : ContinuousMonoidHom Ttame H) (hcH : Function.Surjective cH)
-variable [Blk.R.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
+variable [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
 
 open FoxH
 
@@ -267,7 +267,8 @@ theorem blockHtame (F : BoundaryFrame H E) :
 /-- The κ⁰ base-class datum for `q̄_λ`, from `kappa0_exists` (Lemma 6.3), discharging its
 `hsimple`/`htame` hypotheses via `blockHsimple`/`blockHtame`.  Rides `kappa0_exists`'s sorry
 (P-17e). -/
-noncomputable def blockKappa0 (F : BoundaryFrame H E) (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :=
+noncomputable def blockKappa0 (F : BoundaryFrame H E) (l : BlockDR T Blk)
+    (hlne : l.1 ≠ Blk.frattiniK) :=
   letI := blockPS_commGroup Blk
   letI := blockActVY Blk
   letI := blockActV Blk

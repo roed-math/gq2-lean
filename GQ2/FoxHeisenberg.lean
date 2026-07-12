@@ -1341,7 +1341,7 @@ theorem omega2Exp_exponent_heis_cast [Finite A] [Finite C] :
 
 /-- The wild `hr`: `fgWild` has trivial lower value, from `WildRel` (via the paper's `ω₂`-ledger
 evaluated at the target exponent). -/
-theorem hr_wild [Finite A] [Finite C] (t : Marking C) (hw : t.WildRel) :
+theorem lift_markVec_wildValueExp_eq_one [Finite A] [Finite C] (t : Marking C) (hw : t.WildRel) :
     FreeGroup.lift (markVec t)
         (wildValueExp freeMarking (omega2Exp (Monoid.exponent (HeisLift A C)))) = 1 := by
   have hfm : freeMarking.map (FreeGroup.lift (markVec t)) = t := by
@@ -1379,7 +1379,7 @@ theorem mixedB_wildRow [Finite A] [Finite C] (t : Marking C) (hw : t.WildRel) (a
     (heisMarking t (d0 t a) y).wildValue.z
       = (d1Fun (A := ElemDual A) t y).2 a + y 1 (t.τ • a) := by
   rw [bridge_wild, d0_eq_markVec,
-    lemma_5_7_left (markVec t) _ (hr_wild t hw) a y]
+    lemma_5_7_left (markVec t) _ (lift_markVec_wildValueExp_eq_one t hw) a y]
   congr 1
   · rw [stokesEval_wild_l]; rfl
   · have hvec : ∀ i, Multiplicative.toAdd
@@ -1490,7 +1490,8 @@ theorem mixedB_wildRow_right [Finite A] [Finite C] (t : Marking C) (hw : t.WildR
     (x : Fin 4 → A) (lam : ElemDual A) :
     (heisMarking t x (d0 (A := ElemDual A) t lam)).wildValue.z
       = lam ((d1Fun t x).2) + lam (x 1) := by
-  rw [bridge_wild, d0_eq_markVec, lemma_5_7_right (markVec t) _ (hr_wild t hw) x lam]
+  rw [bridge_wild, d0_eq_markVec,
+    lemma_5_7_right (markVec t) _ (lift_markVec_wildValueExp_eq_one t hw) x lam]
   congr 1
   · rw [stokesEval_wild_a]; rfl
   · have hvec : ∀ i, Multiplicative.toAdd
@@ -2425,7 +2426,7 @@ theorem heisMarking_u1_z (t : Marking C) (c : V) (lam : ElemDual V) :
 
 omit [Finite C] [Finite V] in
 /-- `x₁^σ` is a base-slice element on the x₀-rep, so its central coordinate vanishes. -/
-theorem heisMarking_x1sig_z (t : Marking C) (c : V) (lam : ElemDual V) :
+theorem heisMarking_conjP_x1_sigma_z (t : Marking C) (c : V) (lam : ElemDual V) :
     (conjP (heisMarking t (x0Supported c) (x0Supported lam)).x₁
       (heisMarking t (x0Supported c) (x0Supported lam)).σ).z = 0 := by
   rw [show conjP (heisMarking t (x0Supported c) (x0Supported lam)).x₁
@@ -2470,7 +2471,7 @@ theorem heisMarking_wildValue_z (t : Marking C) (c : V) (lam : ElemDual V) (hV�
   have hh0z := heisMarking_h0_z t c lam hV₂ hx0 htau hU
   have hu1z := heisMarking_u1_z t c lam
   have hu1invz : M.u1⁻¹.z = 0 := by rw [HeisLift.inv_z, hu1z, hu1a, map_zero, add_zero]
-  have hx1sigz := heisMarking_x1sig_z t c lam
+  have hx1sigz := heisMarking_conjP_x1_sigma_z t c lam
   have hc0z := heisMarking_c0_z t c lam hV₂ hx0 htau
   have hQ2g : ∀ v : V, (M.h0 * M.u1⁻¹).g • v = v := fun v =>
     HeisLift.mul_g_trivial _ M.u1⁻¹ hh0g hu1invg v
@@ -2493,7 +2494,7 @@ omit [Finite C] in
 /-- Contragredient fixed-point-freeness: if `T = τ` has no nonzero fixed vector on the finite
 module `V` (`V^T = 0`), then the same holds on the dual `V^∨`.  (`T − 1` injective ⟹ surjective on
 finite `V`; the dual `T^∨ − 1` is then injective.)  Supplies the ramified `d₀.l = λ` computation. -/
-theorem elemDual_fixedPointFree_of (t : Marking C)
+theorem elemDual_fixedPointFree_of_fixedPointFree (t : Marking C)
     (htau : ∀ v : V, t.τ • v = v → v = 0) :
     ∀ lam : ElemDual V, t.τ • lam = lam → lam = 0 := by
   have hsurj : Function.Surjective (fun w : V => t.τ⁻¹ • w - w) :=
@@ -2521,7 +2522,8 @@ theorem heisMarking_h0_z_ramified (t : Marking C) (c : V) (lam : ElemDual V)
   have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := HeisLift.smul_elemdual_trivial t.x₀ hx0
   have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l =>
     ElemDual.ext fun v => CharTwo.add_self_eq_zero (l v)
-  have htaud : ∀ l : ElemDual V, t.τ • l = l → l = 0 := elemDual_fixedPointFree_of t htau
+  have htaud : ∀ l : ElemDual V, t.τ • l = l → l = 0 :=
+    elemDual_fixedPointFree_of_fixedPointFree t htau
   have hToddd : ∀ l : ElemDual V, powOmega2 t.τ • l = l :=
     HeisLift.smul_elemdual_trivial (powOmega2 t.τ) hTodd
   -- `d₀` coordinates (ramified: `a = c`, `l = lam`, base trivial)
@@ -2611,7 +2613,8 @@ theorem heisMarking_c0_z_ramified (t : Marking C) (c : V) (lam : ElemDual V)
   have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := HeisLift.smul_elemdual_trivial t.x₀ hx0
   have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l =>
     ElemDual.ext fun v => CharTwo.add_self_eq_zero (l v)
-  have htaud : ∀ l : ElemDual V, t.τ • l = l → l = 0 := elemDual_fixedPointFree_of t htau
+  have htaud : ∀ l : ElemDual V, t.τ • l = l → l = 0 :=
+    elemDual_fixedPointFree_of_fixedPointFree t htau
   have hToddd : ∀ l : ElemDual V, powOmega2 t.τ • l = l :=
     HeisLift.smul_elemdual_trivial (powOmega2 t.τ) hTodd
   have hD_a : M.d0.a = c :=
@@ -2669,7 +2672,7 @@ theorem heisMarking_wildValue_z_ramified (t : Marking C) (c : V) (lam : ElemDual
   have hx1sa : (conjP M.x₁ M.σ).a = 0 := by
     rw [show conjP M.x₁ M.σ = secHom (conjP t.x₁ t.σ) from by
       simp only [conjP, map_mul, map_inv]; rfl]; rfl
-  have hx1sz : (conjP M.x₁ M.σ).z = 0 := heisMarking_x1sig_z t c lam
+  have hx1sz : (conjP M.x₁ M.σ).z = 0 := heisMarking_conjP_x1_sigma_z t c lam
   -- right-multiplication by a pure-base element preserves `.z`
   have hmulpure : ∀ (p q : HeisLift V C), q.a = 0 → q.z = 0 → (p * q).z = p.z :=
     fun p q hqa hqz => by rw [HeisLift.mul_z, hqa, smul_zero, map_zero, add_zero, hqz, add_zero]

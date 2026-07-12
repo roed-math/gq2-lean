@@ -112,7 +112,7 @@ variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finit
   [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
 variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
 variable (T : MarkedTarget H E Y) (Blk : MinimalBlock T.LY)
-variable [Blk.R.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
+variable [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
 
 /-- **`hGaussZA` at the head-inflated enrichment, unramified case** (P4d): for the block
 enrichment `blockEnrichmentD`, `GaussZResidue B.bA F (blockEnrichmentD …) l h (−2^m)` with
@@ -144,7 +144,7 @@ theorem gaussZResidueD_gammaA_unramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Bound
   haveI : ContinuousMul (HVq T Blk) := ⟨continuous_of_discreteTopology⟩
   haveI : ContinuousInv (HVq T Blk) := ⟨continuous_of_discreteTopology⟩
   haveI : IsTopologicalGroup (HVq T Blk) := { }
-  have hl' : l.1 ≠ Blk.R := fun heq => h (Subtype.ext heq)
+  have hl' : l.1 ≠ Blk.frattiniK := fun heq => h (Subtype.ext heq)
   set EnD := blockEnrichmentD T Blk hE2 F with hEnDdef
   intro ρ
   set ρM := (blockFrame T Blk hE2).rhoPrime B.bA F (EnD.radData l h) rfl ρ with hρMdef
@@ -475,7 +475,7 @@ theorem gaussZResidueD_gammaA_ramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Boundar
   haveI : ContinuousMul (HVq T Blk) := ⟨continuous_of_discreteTopology⟩
   haveI : ContinuousInv (HVq T Blk) := ⟨continuous_of_discreteTopology⟩
   haveI : IsTopologicalGroup (HVq T Blk) := { }
-  have hl' : l.1 ≠ Blk.R := fun heq => h (Subtype.ext heq)
+  have hl' : l.1 ≠ Blk.frattiniK := fun heq => h (Subtype.ext heq)
   set EnD := blockEnrichmentD T Blk hE2 F with hEnDdef
   intro ρ
   set ρM := (blockFrame T Blk hE2).rhoPrime B.bA F (EnD.radData l h) rfl ρ with hρMdef
@@ -824,7 +824,7 @@ theorem gaussZ_obtain_blockD [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace A
   letI := headAct T Blk
   by_cases hex : ∃ l : (blockFrame T Blk hE2).DR, l ≠ (blockFrame T Blk hE2).zeroDR
   · obtain ⟨l₀, hl₀⟩ := hex
-    have hl₀' : l₀.1 ≠ Blk.R := fun heq => hl₀ (Subtype.ext heq)
+    have hl₀' : l₀.1 ≠ Blk.frattiniK := fun heq => hl₀ (Subtype.ext heq)
     -- `m` from the nonsingular form on `V` (A-4.6b), `l`-free through `#V`
     obtain ⟨m, hm, hcard⟩ := exists_one_le_card_eq_two_pow_of_nonsingular
       (blockQbar T Blk F.alpha F.alpha_surjective l₀ hl₀')

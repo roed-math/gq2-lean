@@ -27,40 +27,42 @@ variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite 
 /-- **The concrete recursion frame of a §7 block** (P-17c). -/
 noncomputable def blockFrameImpl (T : MarkedTarget H E Y) (Blk : MinimalBlock T.LY)
     (hE2 : ∀ e : E, e ^ 2 = 1) : RecursionFrame T Blk := by
-  haveI hRn : Blk.R.Normal := frattiniLike_normal Blk.K Blk.hK
+  haveI hRn : Blk.frattiniK.Normal := frattiniLike_normal Blk.K Blk.hK
   haveI hKn : Blk.K.Normal := Blk.hK
-  have hRK : Blk.R ≤ Blk.K := frattiniLike_le Blk.K
+  have hRK : Blk.frattiniK ≤ Blk.K := frattiniLike_le Blk.K
   have hKL : Blk.K ≤ T.LY := Blk.hKP.trans Blk.hPL
-  have hRkerpi : Blk.R ≤ T.piY.ker := by rw [T.ker_piY]; exact hRK.trans hKL
+  have hRkerpi : Blk.frattiniK ≤ T.piY.ker := by rw [T.ker_piY]; exact hRK.trans hKL
   have hKkerpi : Blk.K ≤ T.piY.ker := by rw [T.ker_piY]; exact hKL
   have hKkerth : Blk.K ≤ T.thetaY.ker := lemma_7_3 Blk hE2 T.thetaY
-  have hRkerth : Blk.R ≤ T.thetaY.ker := hRK.trans hKkerth
-  letI : TopologicalSpace (Y ⧸ Blk.R) := ⊥
-  haveI : DiscreteTopology (Y ⧸ Blk.R) := ⟨rfl⟩
+  have hRkerth : Blk.frattiniK ≤ T.thetaY.ker := hRK.trans hKkerth
+  letI : TopologicalSpace (Y ⧸ Blk.frattiniK) := ⊥
+  haveI : DiscreteTopology (Y ⧸ Blk.frattiniK) := ⟨rfl⟩
   letI : TopologicalSpace (Y ⧸ Blk.K) := ⊥
   haveI : DiscreteTopology (Y ⧸ Blk.K) := ⟨rfl⟩
   haveI : Finite (Subgroup Y) :=
     Finite.of_injective (fun G : Subgroup Y => (G : Set Y)) SetLike.coe_injective
-  haveI hfDR : Fintype {R' : Subgroup Y // R'.Normal ∧ R' ≤ Blk.R ∧ R'.relIndex Blk.R ≤ 2} :=
+  haveI hfDR : Fintype
+      {R' : Subgroup Y // R'.Normal ∧ R' ≤ Blk.frattiniK ∧ R'.relIndex Blk.frattiniK ≤ 2} :=
     Fintype.ofFinite _
   exact
-    { YB := Y ⧸ Blk.R
-      piB := QuotientGroup.mk' Blk.R
-      piB_surj := QuotientGroup.mk'_surjective Blk.R
-      ker_piB := QuotientGroup.ker_mk' Blk.R
+    { YB := Y ⧸ Blk.frattiniK
+      piB := QuotientGroup.mk' Blk.frattiniK
+      piB_surj := QuotientGroup.mk'_surjective Blk.frattiniK
+      ker_piB := QuotientGroup.ker_mk' Blk.frattiniK
       TB :=
-        { LY := T.LY.map (QuotientGroup.mk' Blk.R)
-          normal := T.normal.map (QuotientGroup.mk' Blk.R) (QuotientGroup.mk'_surjective Blk.R)
+        { LY := T.LY.map (QuotientGroup.mk' Blk.frattiniK)
+          normal := T.normal.map (QuotientGroup.mk' Blk.frattiniK)
+            (QuotientGroup.mk'_surjective Blk.frattiniK)
           isPGroup_two := T.isPGroup_two.map _
-          piY := QuotientGroup.lift Blk.R T.piY hRkerpi
+          piY := QuotientGroup.lift Blk.frattiniK T.piY hRkerpi
           piY_surjective := fun hh => by
             obtain ⟨y, hy⟩ := T.piY_surjective hh
-            exact ⟨QuotientGroup.mk' Blk.R y, by
+            exact ⟨QuotientGroup.mk' Blk.frattiniK y, by
               rwa [QuotientGroup.mk'_apply, QuotientGroup.lift_mk']⟩
           ker_piY := by rw [QuotientGroup.ker_lift, T.ker_piY]
-          thetaY := QuotientGroup.lift Blk.R T.thetaY hRkerth }
-      TB_head := QuotientGroup.lift_comp_mk' Blk.R T.piY hRkerpi
-      TB_theta := QuotientGroup.lift_comp_mk' Blk.R T.thetaY hRkerth
+          thetaY := QuotientGroup.lift Blk.frattiniK T.thetaY hRkerth }
+      TB_head := QuotientGroup.lift_comp_mk' Blk.frattiniK T.piY hRkerpi
+      TB_theta := QuotientGroup.lift_comp_mk' Blk.frattiniK T.thetaY hRkerth
       YC := Y ⧸ Blk.K
       piC := QuotientGroup.mk' Blk.K
       piC_surj := QuotientGroup.mk'_surjective Blk.K
@@ -78,33 +80,33 @@ noncomputable def blockFrameImpl (T : MarkedTarget H E Y) (Blk : MinimalBlock T.
           thetaY := QuotientGroup.lift Blk.K T.thetaY hKkerth }
       TC_head := QuotientGroup.lift_comp_mk' Blk.K T.piY hKkerpi
       TC_theta := QuotientGroup.lift_comp_mk' Blk.K T.thetaY hKkerth
-      piBC := QuotientGroup.map Blk.R Blk.K (MonoidHom.id Y)
+      piBC := QuotientGroup.map Blk.frattiniK Blk.K (MonoidHom.id Y)
         (by rw [Subgroup.comap_id]; exact hRK)
       piBC_comp := by ext y; rfl
-      MB := Blk.K.map (QuotientGroup.mk' Blk.R)
+      MB := Blk.K.map (QuotientGroup.mk' Blk.frattiniK)
       MB_eq := rfl
-      TBsub := ((Blk.K ⊓ Blk.S) ⊔ Blk.R).map (QuotientGroup.mk' Blk.R)
+      TBsub := ((Blk.K ⊓ Blk.S) ⊔ Blk.frattiniK).map (QuotientGroup.mk' Blk.frattiniK)
       TBsub_eq := rfl
-      DR := {R' : Subgroup Y // R'.Normal ∧ R' ≤ Blk.R ∧ R'.relIndex Blk.R ≤ 2}
-      zeroDR := ⟨Blk.R, hRn, le_refl _, by rw [Subgroup.relIndex_self]; norm_num⟩
+      DR := {R' : Subgroup Y // R'.Normal ∧ R' ≤ Blk.frattiniK ∧ R'.relIndex Blk.frattiniK ≤ 2}
+      zeroDR := ⟨Blk.frattiniK, hRn, le_refl _, by rw [Subgroup.relIndex_self]; norm_num⟩
       card_DR := rfl
       scalarCover := fun l h => by
         haveI : (l.1).Normal := l.2.1
         letI : TopologicalSpace (Y ⧸ l.1) := ⊥
         haveI : DiscreteTopology (Y ⧸ l.1) := ⟨rfl⟩
-        have hlt : l.1 < Blk.R := lt_of_le_of_ne l.2.2.1 (fun heq => h (Subtype.ext heq))
+        have hlt : l.1 < Blk.frattiniK := lt_of_le_of_ne l.2.2.1 (fun heq => h (Subtype.ext heq))
         let r₀ : Y := (SetLike.exists_of_lt hlt).choose
-        have hr₀ : r₀ ∈ Blk.R ∧ r₀ ∉ l.1 := (SetLike.exists_of_lt hlt).choose_spec
+        have hr₀ : r₀ ∈ Blk.frattiniK ∧ r₀ ∉ l.1 := (SetLike.exists_of_lt hlt).choose_spec
         -- `[R : R'] = 2`
-        have hri2 : l.1.relIndex Blk.R = 2 := by
-          have hne1 : l.1.relIndex Blk.R ≠ 1 := fun hcon =>
+        have hri2 : l.1.relIndex Blk.frattiniK = 2 := by
+          have hne1 : l.1.relIndex Blk.frattiniK ≠ 1 := fun hcon =>
             absurd (le_antisymm l.2.2.1 (Subgroup.relIndex_eq_one.mp hcon)) (ne_of_lt hlt)
-          have hne0 : l.1.relIndex Blk.R ≠ 0 :=
+          have hne0 : l.1.relIndex Blk.frattiniK ≠ 0 :=
             Subgroup.index_ne_zero_of_finite
           have hle := l.2.2.2
           omega
         -- from index 2: two elements of `R` outside `R'` differ (right) by `R'`
-        have key : ∀ b ∈ Blk.R, b ∉ l.1 → ∀ c ∈ Blk.R, c ∉ l.1 → b * c⁻¹ ∈ l.1 := by
+        have key : ∀ b ∈ Blk.frattiniK, b ∉ l.1 → ∀ c ∈ Blk.frattiniK, c ∉ l.1 → b * c⁻¹ ∈ l.1 := by
           obtain ⟨a, _, hXor⟩ := Subgroup.relIndex_eq_two_iff.mp hri2
           intro b hbR hbR' c hcR hcR'
           have hba : b * a ∈ l.1 := by
@@ -120,7 +122,7 @@ noncomputable def blockFrameImpl (T : MarkedTarget H E Y) (Blk : MinimalBlock T.
         have hr₀inv : r₀⁻¹ ∉ l.1 := fun hc => hr₀.2 (by rwa [Subgroup.inv_mem_iff] at hc)
         refine
           { cover := Y ⧸ l.1
-            p := QuotientGroup.map l.1 Blk.R (MonoidHom.id Y)
+            p := QuotientGroup.map l.1 Blk.frattiniK (MonoidHom.id Y)
               (by rw [Subgroup.comap_id]; exact l.2.2.1)
             surj := ?_
             z := QuotientGroup.mk' l.1 r₀
@@ -135,38 +137,39 @@ noncomputable def blockFrameImpl (T : MarkedTarget H E Y) (Blk : MinimalBlock T.
           exact hr₀.2
         · -- `z² = 1`: `r₀ * r₀ ∈ R'`
           rw [← map_mul, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]
-          have := key r₀ hr₀.1 hr₀.2 r₀⁻¹ (Blk.R.inv_mem hr₀.1) hr₀inv
+          have := key r₀ hr₀.1 hr₀.2 r₀⁻¹ (Blk.frattiniK.inv_mem hr₀.1) hr₀inv
           rwa [inv_inv] at this
         · -- centrality: `[y, r₀] ∈ R'` for all `y`
           intro x
           refine QuotientGroup.induction_on x (fun y => ?_)
-          have hbR : y⁻¹ * r₀⁻¹ * y ∈ Blk.R := by
-            simpa using hRn.conj_mem r₀⁻¹ (Blk.R.inv_mem hr₀.1) y⁻¹
+          have hbR : y⁻¹ * r₀⁻¹ * y ∈ Blk.frattiniK := by
+            simpa using hRn.conj_mem r₀⁻¹ (Blk.frattiniK.inv_mem hr₀.1) y⁻¹
           have hbR' : y⁻¹ * r₀⁻¹ * y ∉ l.1 := fun hbmem => hr₀.2 (by
             have := l.2.1.conj_mem _ hbmem y
             rw [show y * (y⁻¹ * r₀⁻¹ * y) * y⁻¹ = r₀⁻¹ from by group] at this
             rwa [Subgroup.inv_mem_iff] at this)
-          have hk := key _ hbR hbR' r₀⁻¹ (Blk.R.inv_mem hr₀.1) hr₀inv
+          have hk := key _ hbR hbR' r₀⁻¹ (Blk.frattiniK.inv_mem hr₀.1) hr₀inv
           rw [inv_inv] at hk
           show QuotientGroup.mk' l.1 r₀ * QuotientGroup.mk' l.1 y
             = QuotientGroup.mk' l.1 y * QuotientGroup.mk' l.1 r₀
           rwa [← map_mul, ← map_mul, QuotientGroup.mk'_apply, QuotientGroup.mk'_apply,
             QuotientGroup.eq, show (r₀ * y)⁻¹ * (y * r₀) = y⁻¹ * r₀⁻¹ * y * r₀ from by group]
         · -- kernel: `p.ker = R.map (mk' R') = ⟨z⟩`
-          have hker : (QuotientGroup.map l.1 Blk.R (MonoidHom.id Y)
+          have hker : (QuotientGroup.map l.1 Blk.frattiniK (MonoidHom.id Y)
               (by rw [Subgroup.comap_id]; exact l.2.2.1)).ker
-              = Blk.R.map (QuotientGroup.mk' l.1) := by
+              = Blk.frattiniK.map (QuotientGroup.mk' l.1) := by
             ext x
             refine QuotientGroup.induction_on x (fun y => ?_)
             rw [MonoidHom.mem_ker,
-              show (QuotientGroup.map l.1 Blk.R (MonoidHom.id Y)
-                (by rw [Subgroup.comap_id]; exact l.2.2.1)) (↑y) = ((y : Y) : Y ⧸ Blk.R) from rfl,
+              show (QuotientGroup.map l.1 Blk.frattiniK (MonoidHom.id Y)
+                (by rw [Subgroup.comap_id]; exact l.2.2.1)) (↑y) = ((y : Y) : Y ⧸ Blk.frattiniK)
+                from rfl,
               QuotientGroup.eq_one_iff, Subgroup.mem_map]
             refine ⟨fun hy => ⟨y, hy, rfl⟩, ?_⟩
             rintro ⟨r, hrR, hr⟩
             rw [QuotientGroup.mk'_apply, QuotientGroup.eq] at hr
             rw [show y = r * (r⁻¹ * y) from by group]
-            exact Blk.R.mul_mem hrR (l.2.2.1 hr)
+            exact Blk.frattiniK.mul_mem hrR (l.2.2.1 hr)
           rw [hker]
           apply le_antisymm
           · rw [Subgroup.map_le_iff_le_comap]
@@ -178,9 +181,9 @@ noncomputable def blockFrameImpl (T : MarkedTarget H E Y) (Blk : MinimalBlock T.
               rw [h1]; exact one_mem _
             · have hrz : QuotientGroup.mk' l.1 r = QuotientGroup.mk' l.1 r₀ := by
                 rw [QuotientGroup.mk'_apply, QuotientGroup.mk'_apply, QuotientGroup.eq]
-                have hk := key r⁻¹ (Blk.R.inv_mem hrR)
+                have hk := key r⁻¹ (Blk.frattiniK.inv_mem hrR)
                   (fun hh => hrR' (by rwa [Subgroup.inv_mem_iff] at hh))
-                  r₀⁻¹ (Blk.R.inv_mem hr₀.1) hr₀inv
+                  r₀⁻¹ (Blk.frattiniK.inv_mem hr₀.1) hr₀inv
                 rwa [inv_inv] at hk
               rw [hrz]; exact Subgroup.mem_zpowers _
           · rw [Subgroup.zpowers_le]

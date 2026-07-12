@@ -11,8 +11,9 @@ Assembly of the §9 block enrichment's non-κ⁰ fields for the concrete frame
 `hqbar`, the radical/vanishing clauses `hrad`/`hTzero`, invariance `hinv`, quadraticity/
 nonsingularity `hquad`/`hns` (P-17d2c packaging), and the frame-local cover square `hq`.
 
-All per-`λ` items are stated over `l : BlockDR T Blk` (defeq to `RF.DR`) with `hlne : l.1 ≠ Blk.R`
-(defeq-encoding of `l ≠ RF.zeroDR`); the final assembly (P-17d3) drops them into the record.
+All per-`λ` items are stated over `l : BlockDR T Blk` (defeq to `RF.DR`) with
+`hlne : l.1 ≠ Blk.frattiniK` (defeq-encoding of `l ≠ RF.zeroDR`); the final assembly (P-17d3)
+drops them into the record.
 -/
 
 namespace GQ2
@@ -26,77 +27,78 @@ variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finit
 variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
 variable (T : MarkedTarget H E Y) (Blk : MinimalBlock T.LY) (hE2 : ∀ e : E, e ^ 2 = 1)
   (cH : ContinuousMonoidHom Ttame H) (hcH : Function.Surjective cH)
-variable [Blk.R.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
+variable [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal]
 
 /-- The scalar-character index type; reducibly `(blockFrame T Blk hE2).DR`. -/
 abbrev BlockDR : Type :=
-  {R' : Subgroup Y // R'.Normal ∧ R' ≤ Blk.R ∧ R'.relIndex Blk.R ≤ 2}
+  {R' : Subgroup Y // R'.Normal ∧ R' ≤ Blk.frattiniK ∧ R'.relIndex Blk.frattiniK ≤ 2}
 
 /-- Each `l : BlockDR` is `Y`-normal (its defining property), as an instance. -/
 instance blockDR_normal (l : BlockDR T Blk) : (l.1).Normal := l.2.1
 
 /-- `R = Φ(K)` is `Y`-normal. -/
-theorem blockHRn : Blk.R.Normal := frattiniLike_normal Blk.K Blk.hK
+theorem blockHRn : Blk.frattiniK.Normal := frattiniLike_normal Blk.K Blk.hK
 
 /-- `k² ∈ R` for `k ∈ K` (public route: squares generate `Φ(K)`). -/
-theorem blockHsq : ∀ k ∈ Blk.K, k * k ∈ Blk.R :=
+theorem blockHsq : ∀ k ∈ Blk.K, k * k ∈ Blk.frattiniK :=
   fun k hk => Subgroup.subset_closure (Or.inl ⟨k, hk, rfl⟩)
 
 /-- The relative index is exactly 2 for a proper `l`. -/
-theorem blockHidx (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
-    (l.1.subgroupOf Blk.R).index = 2 :=
+theorem blockHidx (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
+    (l.1.subgroupOf Blk.frattiniK).index = 2 :=
   relIndex_two_of_le Blk l.1 l.2.2.1 l.2.2.2 hlne
 
-/-- `l.1 < Blk.R`. -/
-theorem blockHlt (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) : (l.1 : Subgroup Y) < Blk.R :=
+/-- `l.1 < Blk.frattiniK`. -/
+theorem blockHlt (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
+    (l.1 : Subgroup Y) < Blk.frattiniK :=
   lt_of_le_of_ne l.2.2.1 hlne
 
 /-! ## The Prop 7.4 / mForm packages -/
 
 /-- The Prop 7.4 output existential for the block character `λ_l`. -/
-noncomputable def blockProp74 (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :=
+noncomputable def blockProp74 (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :=
   prop_7_4 T.piY T.piY_surjective T.ker_piY cH hcH Blk (blockHRn T Blk) (blockHsq T Blk)
     (blockLam Blk l.1) (blockLam_hom Blk l.1 (blockHidx T Blk l hlne))
     (blockLam_conj Blk l.1 l.2.1 (blockHRn T Blk))
     (blockLam_ne Blk l.1 (blockHlt T Blk l hlne))
 
 /-- The descended form `q̄_λ` on `V = P/S` (Prop 7.4's output, multiplicative model). -/
-noncomputable def blockQbarRaw (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
+noncomputable def blockQbarRaw (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P) → ZMod 2 :=
   (blockProp74 T Blk cH hcH l hlne).choose
 
 /-- The mForm output existential (the `M_B`-level square form). -/
-noncomputable def blockMForm (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :=
-  mForm_of_qbar Blk (QuotientGroup.mk' Blk.R) (QuotientGroup.ker_mk' Blk.R)
+noncomputable def blockMForm (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :=
+  mForm_of_qbar Blk (QuotientGroup.mk' Blk.frattiniK) (QuotientGroup.ker_mk' Blk.frattiniK)
     (blockLam Blk l.1) (blockLam_hom Blk l.1 (blockHidx T Blk l hlne)) (blockHsq T Blk)
     (blockQbarRaw T Blk cH hcH l hlne) (blockProp74 T Blk cH hcH l hlne).choose_spec.1
 
 /-- The `M_B`-level square form `q_λ` (the Enrichment `q` field). -/
-noncomputable def blockQ (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
-    ↥(Blk.K.map (QuotientGroup.mk' Blk.R)) → ZMod 2 :=
+noncomputable def blockQ (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
+    ↥(Blk.K.map (QuotientGroup.mk' Blk.frattiniK)) → ZMod 2 :=
   (blockMForm T Blk cH hcH l hlne).choose
 
 /-- The descended form on `Vmod = Additive (P/S)` (the Enrichment `qbar` field). -/
-noncomputable def blockQbar (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
+noncomputable def blockQbar (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P) → ZMod 2 :=
   fun v => blockQbarRaw T Blk cH hcH l hlne (Additive.toMul v)
 
 /-! ## Direct consequences (Prop 7.4 / mForm clauses) -/
 
 /-- `hspec`: `λ(k²) = q̄(⟦k⟧)`. -/
-theorem blockHspec (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
+theorem blockHspec (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     ∀ (k : Y) (hk : k ∈ Blk.K),
       blockLam Blk l.1 ⟨k * k, blockHsq T Blk k hk⟩
         = blockQbarRaw T Blk cH hcH l hlne (QuotientGroup.mk ⟨k, Blk.hKP hk⟩) :=
   (blockProp74 T Blk cH hcH l hlne).choose_spec.1
 
 /-- `q̄_λ ≠ 0` (Prop 7.4 nonzero). -/
-theorem blockHne (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
+theorem blockHne (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     blockQbarRaw T Blk cH hcH l hlne ≠ 0 :=
   (blockProp74 T Blk cH hcH l hlne).choose_spec.2.1
 
 /-- Raw `Y`-invariance of `q̄_λ` (Prop 7.4 third clause). -/
-theorem blockHinvRaw (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
+theorem blockHinvRaw (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     ∀ (y p : Y) (hp : p ∈ Blk.P),
       blockQbarRaw T Blk cH hcH l hlne
           (QuotientGroup.mk ⟨y * p * y⁻¹, Blk.hP.conj_mem p hp y⟩)
@@ -104,32 +106,34 @@ theorem blockHinvRaw (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
   (blockProp74 T Blk cH hcH l hlne).choose_spec.2.2
 
 /-- mForm value clause: `q_λ(π_B k) = λ(k²)`. -/
-theorem blockHval (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
+theorem blockHval (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     ∀ (k : Y) (hk : k ∈ Blk.K),
       blockQ T Blk cH hcH l hlne
-          ⟨QuotientGroup.mk' Blk.R k, Subgroup.mem_map_of_mem _ hk⟩
+          ⟨QuotientGroup.mk' Blk.frattiniK k, Subgroup.mem_map_of_mem _ hk⟩
         = blockLam Blk l.1 ⟨k * k, blockHsq T Blk k hk⟩ :=
   (blockMForm T Blk cH hcH l hlne).choose_spec.1
 
 /-- `hrad`: `T_B` lies in the polar radical of `q_λ`. -/
-theorem blockHrad (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
-    ∀ (t : Y ⧸ Blk.R) (ht : t ∈ ((Blk.K ⊓ Blk.S) ⊔ Blk.R).map (QuotientGroup.mk' Blk.R))
-      (m : Y ⧸ Blk.R) (hm : m ∈ Blk.K.map (QuotientGroup.mk' Blk.R)),
+theorem blockHrad (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
+    ∀ (t : Y ⧸ Blk.frattiniK)
+      (ht : t ∈ ((Blk.K ⊓ Blk.S) ⊔ Blk.frattiniK).map (QuotientGroup.mk' Blk.frattiniK))
+      (m : Y ⧸ Blk.frattiniK) (hm : m ∈ Blk.K.map (QuotientGroup.mk' Blk.frattiniK)),
       polarMul (blockQ T Blk cH hcH l hlne) (fun a b => ⟨a.1 * b.1, mul_mem a.2 b.2⟩)
-        ⟨t, blockT_map_le_blockM_map Blk (QuotientGroup.mk' Blk.R) ht⟩ ⟨m, hm⟩ = 0 :=
+        ⟨t, blockT_map_le_blockM_map Blk (QuotientGroup.mk' Blk.frattiniK) ht⟩ ⟨m, hm⟩ = 0 :=
   (blockMForm T Blk cH hcH l hlne).choose_spec.2.1
 
 /-- `hTzero`: `q_λ` vanishes on `T_B`. -/
-theorem blockHTzero (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
-    ∀ (t : Y ⧸ Blk.R) (ht : t ∈ ((Blk.K ⊓ Blk.S) ⊔ Blk.R).map (QuotientGroup.mk' Blk.R)),
+theorem blockHTzero (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
+    ∀ (t : Y ⧸ Blk.frattiniK)
+      (ht : t ∈ ((Blk.K ⊓ Blk.S) ⊔ Blk.frattiniK).map (QuotientGroup.mk' Blk.frattiniK)),
       blockQ T Blk cH hcH l hlne
-          ⟨t, blockT_map_le_blockM_map Blk (QuotientGroup.mk' Blk.R) ht⟩ = 0 :=
+          ⟨t, blockT_map_le_blockM_map Blk (QuotientGroup.mk' Blk.frattiniK) ht⟩ = 0 :=
   (blockMForm T Blk cH hcH l hlne).choose_spec.2.2
 
 /-! ## Quadraticity, nonsingularity (P-17d2c packaging) -/
 
 /-- `hquad`: `q̄_λ` is a quadratic form (biadditive polar). -/
-theorem blockHquad (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
+theorem blockHquad (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     letI := blockPS_commGroup Blk
     IsQuadraticFp2 (blockQbar T Blk cH hcH l hlne) := by
   haveI : (Blk.S.subgroupOf Blk.P).Normal := Blk.hS.subgroupOf Blk.P
@@ -144,7 +148,7 @@ theorem blockHquad (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
       (blockHspec T Blk cH hcH l hlne))
 
 /-- `hns`: `q̄_λ` is nonsingular. -/
-theorem blockHns (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
+theorem blockHns (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     letI := blockPS_commGroup Blk
     Nonsingular (blockQbar T Blk cH hcH l hlne) := by
   haveI : (Blk.S.subgroupOf Blk.P).Normal := Blk.hS.subgroupOf Blk.P
@@ -159,7 +163,7 @@ theorem blockHns (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
 /-! ## Invariance packaged over the `C = Y/K` action -/
 
 /-- `hinv`: `q̄_λ` is invariant under the `Y/K`-action (`blockActV`). -/
-theorem blockHinv (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
+theorem blockHinv (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     letI := blockActV Blk
     IsInvariant (Y ⧸ Blk.K) (blockQbar T Blk cH hcH l hlne) := by
   haveI := Blk.hK
@@ -180,7 +184,7 @@ theorem blockHinv (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
 /-! ## The coupling `hqbar : q_λ = q̄_λ ∘ descend` -/
 
 /-- `hqbar`: `q_λ(m) = q̄_λ(descend m)`. -/
-theorem blockHqbar (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
+theorem blockHqbar (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     ∀ m : ↥(blockMB Blk),
       blockQ T Blk cH hcH l hlne m
         = blockQbarRaw T Blk cH hcH l hlne (blockDescend Blk m) := by
@@ -199,17 +203,19 @@ theorem blockHqbar (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
 /-! ## The frame-local cover square `hq` -/
 
 /-- The scalar cover of `l` (reducibly `RF.scalarCover l (·)`). -/
-noncomputable def blockScalarCover (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) :
-    CentralCover (Y ⧸ Blk.R) :=
+noncomputable def blockScalarCover (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
+    CentralCover (Y ⧸ Blk.frattiniK) :=
   (blockFrame T Blk hE2).scalarCover l (fun heq => hlne (congrArg Subtype.val heq))
 
 /-- The cover projection sends `⟦y⟧_l` to `⟦y⟧_R`. -/
-theorem blockScalarCover_p (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) (y : Y) :
-    (blockScalarCover T Blk hE2 l hlne).p (QuotientGroup.mk' l.1 y) = QuotientGroup.mk' Blk.R y :=
+theorem blockScalarCover_p (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) (y : Y) :
+    (blockScalarCover T Blk hE2 l hlne).p (QuotientGroup.mk' l.1 y)
+      = QuotientGroup.mk' Blk.frattiniK y :=
   rfl
 
 /-- Auxiliary: for `r ∈ R`, the class `⟦r⟧_{l} = z^{λ_l(r)}` in the cover. -/
-theorem blockZ_pow_lam (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) (r : Y) (hr : r ∈ Blk.R) :
+theorem blockZ_pow_lam (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) (r : Y)
+    (hr : r ∈ Blk.frattiniK) :
     QuotientGroup.mk' l.1 r
       = (blockScalarCover T Blk hE2 l hlne).z ^ (blockLam Blk l.1 ⟨r, hr⟩).val := by
   have hp1 : (blockScalarCover T Blk hE2 l hlne).p (QuotientGroup.mk' l.1 r) = 1 := by
@@ -230,9 +236,9 @@ theorem blockZ_pow_lam (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R) (r : Y) (hr : 
     · exact he
 
 /-- `hq`: the cover square relation `x² = z^{q_λ(p x)}` on `M_B`. -/
-theorem blockHq (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R)
+theorem blockHq (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK)
     (x : (blockScalarCover T Blk hE2 l hlne).cover)
-    (hx : (blockScalarCover T Blk hE2 l hlne).p x ∈ Blk.K.map (QuotientGroup.mk' Blk.R)) :
+    (hx : (blockScalarCover T Blk hE2 l hlne).p x ∈ Blk.K.map (QuotientGroup.mk' Blk.frattiniK)) :
     x * x = (blockScalarCover T Blk hE2 l hlne).z
       ^ (blockQ T Blk cH hcH l hlne ⟨(blockScalarCover T Blk hE2 l hlne).p x, hx⟩).val := by
   obtain ⟨k, hk, hpk⟩ := Subgroup.mem_map.mp hx
@@ -264,8 +270,8 @@ theorem blockHq (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.R)
       = blockLam Blk l.1 ⟨k * k, blockHsq T Blk k hk⟩ := by
     have hval := blockHval T Blk cH hcH l hlne k hk
     have hxeq : (⟨(blockScalarCover T Blk hE2 l hlne).p x, hx⟩ :
-          ↥(Blk.K.map (QuotientGroup.mk' Blk.R)))
-        = ⟨QuotientGroup.mk' Blk.R k, Subgroup.mem_map_of_mem _ hk⟩ :=
+          ↥(Blk.K.map (QuotientGroup.mk' Blk.frattiniK)))
+        = ⟨QuotientGroup.mk' Blk.frattiniK k, Subgroup.mem_map_of_mem _ hk⟩ :=
       Subtype.ext hpk.symm
     rw [hxeq, hval]
   rw [hsqx, hqval, hkk]
