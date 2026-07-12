@@ -11,9 +11,9 @@ import GQ2.MStageCountGammaA
 
 Theorem 4.2 — equality of the boundary-framed exact-image counts of the two sources for
 **every** marked target — by strong induction on the marked 2-kernel size `|L_Y|`
-(paper pp. 44–47).  This file freezes the interfaces of the induction's ingredients as
-sorried statements (the P-11/P-12/P-14 statement-layer pattern); the sub-tickets
-P-17b–P-17i prove them.  Design note and work order: `docs/section9-extraction.md`.
+(paper pp. 44–47).  This file originally froze the induction interfaces using the
+P-11/P-12/P-14 statement-layer pattern; the P-17b–P-17i proof campaign is complete.
+Design note and historical work order: `docs/section9-extraction.md`.
 
 The two regimes:
 

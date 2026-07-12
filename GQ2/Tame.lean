@@ -11,8 +11,9 @@ direction.*
 Here the paper's `t^s = t^2` means `s⁻¹ * t * s = t^2` (right-conjugation convention).
 
 The first assertion — `t` has odd order — is elementary and is **proved in full** below.
-The remaining structural claims (`C_e ⋊ C_n` shape, centrality of normal 2-subgroups) are
-**proved in full** below, via the semidirect-product recognition they require.
+The further claims used by the formalization — normality of `⟨t⟩` and centrality of normal
+2-subgroups — are also proved below.  The explicit `C_e ⋊ C_n` decomposition is not separately
+packaged because no downstream theorem consumes it.
 -/
 
 namespace GQ2.Tame
@@ -69,12 +70,12 @@ theorem zpowers_sq_eq_of_odd {t : G} (ht : Odd (orderOf t)) :
   rw [zpow_natCast, ← pow_mul, show 2 * (m + 1) = orderOf t + 1 by omega, pow_succ,
     pow_orderOf_eq_one, one_mul]
 
-/-- The cyclic subgroup `⟨t⟩` is normal in `G = ⟨s, t⟩`.  *(Target; proof deferred.)*
+/-- The cyclic subgroup `⟨t⟩` is normal in `G = ⟨s, t⟩`.
 
 Proof plan (uses `zpowers_sq_eq_of_odd`): conjugation by `s⁻¹` is the automorphism `MulAut.conj s⁻¹`,
 and `(MulAut.conj s⁻¹) t = s⁻¹ t s = t²`, so `(⟨t⟩).map (conj s⁻¹) = ⟨t²⟩ = ⟨t⟩` (odd order). Hence
 `s` (and trivially `t`) lie in `(⟨t⟩).normalizer`; since `⟨s,t⟩ = ⊤`, the normalizer is `⊤`, i.e.
-`⟨t⟩` is normal. The remaining Lean work is `MulAut.conj`/`Subgroup.map`/`normalizer` API plumbing. -/
+`⟨t⟩` is normal. -/
 theorem zpowers_normal_of_tame {s t : G} [Finite G] (hgen : Subgroup.closure {s, t} = ⊤)
     (h : s⁻¹ * t * s = t ^ 2) : (Subgroup.zpowers t).Normal := by
   have hodd : Odd (orderOf t) := tame_odd_order (orderOf_pos s).ne' h

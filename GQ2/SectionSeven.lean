@@ -10,7 +10,8 @@ import GQ2.QuadraticFp2
 Statement-first extraction of the paper's §7 (pages 37–38; the step-1 docs never recorded its
 content — discovered at extraction, per the P-14 acceptance note): the group-theoretic block
 structure that §8 fixes ("For the simple-head block fixed in section 7, write `T = T₀`").
-Every `theorem … := by sorry` carries its paper reference; proofs are ticket P-15.
+The extracted statements and their downstream proofs are complete (the proof campaign was
+ticket P-15).
 
 ## The paper's setup and its encoding
 
@@ -38,7 +39,7 @@ Encodings (`docs/section67-extraction.md` §7):
 * The dual-invariants clause `(M^∨)^C = 0` of Lemma 7.1 is stated as: `K` has **no `Y`-normal
   subgroup of index 2** above `R` (nonzero invariant functionals ↔ such subgroups).
 
-Axioms: none (statement layer; census stays 10).
+Axioms: none in this statement-layer module; the repository census is nine.
 -/
 
 namespace GQ2

@@ -8,11 +8,11 @@ The two §6.3 Kummer cores `lemma_6_17_dim` / `lemma_6_17_vanish` are stated (fr
 `ResidueLift.lemma_6_17_dim_final` (P-15f8) and the vanishing clause by
 `VanishClose.lemma_6_17_vanish_final` (P-15f2d).  Their sole consumer `prop_6_18_ramified`
 (Proposition 6.18, the ramified dyadic base determinant count) lived in `GQ2/DeepPart.lean`,
-**upstream** of both proofs, so it inherited their `sorryAx`.
+**upstream** of both proofs, so it could not cite them directly.
 
 This leaf performs the **6.18ram statement-move** (the P-15d/`lemma_6_14` pattern): it re-homes
 `prop_6_18_ramified` here — downstream of both `_final` proofs — citing them directly through the
-banked reduction `DeepPart.card_Q0loc_zero_eq_of_dim_of_vanish`.  The sorried
+banked reduction `DeepPart.card_Q0loc_zero_eq_of_dim_of_vanish`.  The former
 `lemma_6_17_dim`/`lemma_6_17_vanish` stubs in `SectionSix` are removed (comment-pointers there),
 and `DeepPart.prop_6_18_ramified` is removed (comment-pointer there); the sole consumer
 `GaussZLocal.sum_sign_Q0loc_ramified` is rerouted here.

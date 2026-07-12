@@ -14,9 +14,9 @@ because it consumes `SectionNine.kappa0_exists`/`ActsThroughTame`, so it must si
 * `blockHtame` — the `Y/K`-action factors through the tame head `H` (`blockLY_smul_eqY` via
   `FoxH.lemma_5_12` ⟹ the action descends `Y/K ↠ Y/L_Y ≅ H`, generators `α σ, α τ`).
 
-`dat`/`hdat` come from `blockKappa0` (= `kappa0_exists`), so `#print axioms blockEnrichment` =
-std-3 + `sorryAx` where the **only** `sorryAx` flows through `kappa0_exists` (P-17e) — no
-B-axioms.  Signature: takes `F : BoundaryFrame H E` (`cH := F.alpha`, `hcH := F.alpha_surjective`
+`dat`/`hdat` come from `blockKappa0` (= the now-proved `kappa0_exists`), so
+`blockEnrichment` is `sorryAx`-free and introduces no B-axiom.  Signature: takes
+`F : BoundaryFrame H E` (`cH := F.alpha`, `hcH := F.alpha_surjective`
 for `prop_7_4`, and the tame generators `F.alpha tameSigma/tameTau` for `htame`).
 -/
 
@@ -264,9 +264,8 @@ theorem blockHtame (F : BoundaryFrame H E) :
 
 /-! ## `dat`/`hdat` and the final assembly -/
 
-/-- The κ⁰ base-class datum for `q̄_λ`, from `kappa0_exists` (Lemma 6.3), discharging its
-`hsimple`/`htame` hypotheses via `blockHsimple`/`blockHtame`.  Rides `kappa0_exists`'s sorry
-(P-17e). -/
+/-- The κ⁰ base-class datum for `q̄_λ`, from the proved `kappa0_exists` (Lemma 6.3),
+discharging its `hsimple`/`htame` hypotheses via `blockHsimple`/`blockHtame`. -/
 noncomputable def blockKappa0 (F : BoundaryFrame H E) (l : BlockDR T Blk)
     (hlne : l.1 ≠ Blk.frattiniK) :=
   letI := blockPS_commGroup Blk

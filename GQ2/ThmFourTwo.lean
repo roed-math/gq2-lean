@@ -109,10 +109,9 @@ these two.  The remaining topology instances the inductive lanes need (`GammaA`'
 compact/t.d./topological-group triple, `IsTopologicalGroup AbsGalQ2`) are globally inferable
 (`GammaA : ProfiniteGrp`; mathlib's Krull-topology instance), so they are *not* binders.
 
-*Status*: P-17i — induction scaffold, terminal lane, and the full `M`-stage lane are proved;
-the `R`-stage lane is the remaining sorry (assembled against `prop_8_9`, which is itself
-mid-close at P-16d6e; axioms B1/B3c/B6/B7/B7′/B8/B9 enter through the ingredients, per
-App. D). -/
+*Status*: proved.  The terminal, `M`-stage, and `R`-stage lanes are all assembled; the latter
+uses the proved `prop_8_9`.  Its literature-axiom footprint is reported by
+`GQ2/AxiomLedger.lean`, with no `sorryAx`. -/
 theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
     (R : LocalReciprocity) (horient : TameUnitOrientation R B.tameF)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]

@@ -10,8 +10,7 @@ The proof (paper): finiteness of `Sur(P, Pₙ)` gives, by compactness, an epimor
 symmetrically `P ↠ Q`; the composite `P ↠ Q ↠ P` is a surjective endomorphism of a
 topologically finitely generated profinite group, which is **Hopfian**, hence an isomorphism.
 
-This is grade **F′**: reachable from `ProfiniteGrp` once the Hopfian property of topologically
-f.g. profinite groups is packaged. Stated here; proof deferred.
+The required profinite Hopfian property and the reconstruction theorem are proved below.
 -/
 
 namespace GQ2
@@ -58,7 +57,8 @@ theorem finite_continuousMonoidHom
 endomorphism of a *topologically finitely generated* profinite group is injective.  Non-standard;
 absent from Mathlib.  Proof idea: a topologically f.g. profinite group has only finitely many open
 subgroups of each index, so a surjective endomorphism acts as a surjection — hence a bijection — on
-each finite quotient level, forcing injectivity in the limit.  Stated here; proof deferred. -/
+each finite quotient level, forcing injectivity in the limit.  The proof below implements this
+finite-hom-set argument. -/
 theorem profinite_hopfian
     {P : Type*} [Group P] [TopologicalSpace P] [IsTopologicalGroup P]
       [CompactSpace P] [TotallyDisconnectedSpace P]

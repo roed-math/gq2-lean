@@ -31,18 +31,14 @@ With these, the kernel hypothesis of `fiberProductExists` (`h(ker f) ⊇ ker β`
 * `G_{ℚ₂}` side: `tameF` from `prop_3_2_local` (B10 `LocalTameQuotient` + Lemma 3.3 maximality),
   `pro2F` from `prop_3_10_local_marked` (P-25) with `R = GQ2.localReciprocity` (B5).
 
-## The one arithmetic gap: `compatF` (`tame_reciprocity`)
+## The arithmetic compatibility: `compatF` (`tame_reciprocity`)
 
 `compatF : ∀ g, ν_t(tameF g) = ν₂(pro2F g)` is the internal tame-vs-pro-2 compatibility on
 `G_{ℚ₂}`.  Via `prop_3_10_local_marked` it reduces to the **tame reciprocity** statement
 `ι(ν_t(tameF g)) = ν_ur(toAb g)` — the tame quotient's unramified character equals `ν_ur`.
-The B10 tame-quotient bundle carries **no** orientation of its `σ` against Frobenius (its `equiv`
-is an unoriented iso `G/W ≅ T_tame`), and B5's `ν_ur` is defined via reciprocity; nothing in the
-current axioms ties the two together.  This is genuine arithmetic content (wild inertia is
-unramified-trivial), isolated here as `tame_reciprocity` and left as the single `sorry`.
-Per the design note (`docs/section3-extraction.md`, "marked half"), `compat…` carries no
-downstream `ν_ur`-anchor, so this is the natural minimal gap; discharging it cleanly wants a
-`tame_reciprocity` axiom (census decision, deferred to the user).
+The oriented B10 bundle now pins its tame quotient to the B5 reciprocity map.  The two generator
+values supplied by B10, together with `padic_hom_eq_of_gens`, prove `tame_reciprocity` below;
+there is no remaining gap.
 -/
 
 namespace GQ2
@@ -430,7 +426,7 @@ noncomputable def boundaryMapsWitness : BoundaryMaps where
         ker_pro2FHom.ge compatF_proved) t p hmem
     exact ⟨g, Subtype.ext (Prod.ext hg1 hg2)⟩
 
-/-- **Prop. 3.14** (proved modulo `tame_reciprocity`): the eq. (27) boundary data exists. -/
+/-- **Prop. 3.14**: the eq. (27) boundary data exists. -/
 theorem prop_3_14_proved : Nonempty BoundaryMaps :=
   ⟨boundaryMapsWitness⟩
 

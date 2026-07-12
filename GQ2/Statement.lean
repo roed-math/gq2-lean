@@ -40,11 +40,9 @@ paper eq. (154) + Prop. 2.3) — is **`GQ2.SectionTen.main_surjection_count'`** 
 needs the whole tower and the concrete `boundaryMapsWitness` — would cycle.  Per the statement-move
 pattern (P-08/P-15d), `main_presentation` below takes the count as the hypothesis `hcount`, supplied
 at P-19 (`main_presentation_literal`) from `main_surjection_count'`.  The proof reduces to a minimal
-list of nine classical literature results (Demushkin classification, `G_ℚ₂(2)` Demushkin, local
-reciprocity, local Tate duality, local Euler characteristic, dyadic Hilbert symbol, 2-adic
-cyclotomic surjectivity, `G_ℚ₂` top. f.g., Evens/Stiefel–Whitney), enumerated in
-`docs/literature-axioms.md`; it carries `sorryAx` through the allowlisted `thm_4_2` (§9) until
-P-17i. -/
+list of nine classical literature interfaces enumerated in `GQ2/Foundations/Axioms.lean` and
+`docs/literature-axioms.md`.  The downstream proof of `main_surjection_count'` and the literal
+presentation theorem are complete; the repo-wide ledger reports no `sorryAx`. -/
 
 /-!
 ## The literal presentation form (Theorem 1.2 as printed)

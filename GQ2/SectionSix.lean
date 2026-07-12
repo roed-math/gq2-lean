@@ -19,11 +19,10 @@ import GQ2.Transgression
 Statement-first extraction of the paper's §6 (pages 21–37), per the P-14 scope: the **Gauss-sign
 pair** 6.8/6.9, the **`D₈`/Evens-norm normalization** 6.13, the **orbit–stabilizer Shapiro
 ledger** 6.15, the **Hilbert ledger** 6.16 → 6.17 → **6.18** (the dyadic base determinant
-theorem, the section's headline), and the **transgression/shear pair** 6.21/6.22.  Every
-`theorem … := by sorry` carries its paper display number; proofs are ticket P-15
-(Ax: B5, B6, B7′, B9).  The definitional layer here (factor sets, graph pullbacks, orbit
-cocycles, the local functional `ι_F`) is `sorry`-free; classes of not-yet-proved cocycles are
-formed with the junk-total `H2ofFun`/`H1ofFun` (`GQ2/Corestriction.lean`).
+theorem, the section's headline), and the **transgression/shear pair** 6.21/6.22.  The extracted
+statements and their downstream proofs are complete (the proof campaign was ticket P-15;
+Ax: B5, B6, B9).  The definitional layer here uses the junk-total `H2ofFun`/`H1ofFun`
+for cochains (`GQ2/Corestriction.lean`).
 
 Design rationale, statement-by-statement display map, and **flagged deviations** (democratic
 Arf, canonical transversals, 6.5/6.19 deferred to the P-12/P-16 seam, 6.13's (100) folded into
@@ -50,7 +49,7 @@ Arf, canonical transversals, 6.5/6.19 deferred to the P-12/P-16 seam, 6.13's (10
   (`GQ2/BoundaryFrame.lean`), and the dichotomy is whether the inertia generator `tameTau` acts
   trivially on `V`.  `U = S^{ω₂}` is `powOmega2` (`GQ2/Omega2.lean`) of the Frobenius image.
 
-Axioms: **none consumed here** (statement layer); the census stays at 10.
+Axioms: **none consumed by this statement-layer module**; the repository census is nine.
 -/
 
 namespace GQ2
@@ -851,13 +850,13 @@ route analysis / counterexamples: `docs/p15f1-scoping.md`, `docs/p15f2-handoff.m
 base determinant form has the positive Gauss sign,
 `#(Q⁰_loc)⁻¹(0) = 2^{2m−1} + 2^{m−1}` (`#V = 2^{2m}`).  With Prop 6.9 this is Corollary
 6.19(iv): the two sources have equal base Gauss sums.
-**Proved (P-15f, modulo Lemma 6.17 above) as `GQ2.DeepPart.prop_6_18_ramified`** in
+**Proved (P-15f) as `GQ2.DeepPart.prop_6_18_ramified`** in
 `GQ2/DeepPart.lean` (downstream — its proof consumes the `Q⁰_loc` quadratic/nonsingular
 structure layer built there off `RepIndependence`, which imports this file; statement moved
 out to break the import cycle, per the P-15d pattern).  The `hc : Surjective ⇑c` amendment
 travels with it; `hV2` is derivable there from `hcard` + `hsimple` via additive Cauchy.
-Axioms: std-3 + B7 (B6 via the `D` parameter) + `sorryAx` through the two Lemma 6.17 sorries
-(the remaining §6.3 Kummer cores). -/
+Axioms: std-3 + B7 (B6 via the `D` parameter); the Lemma 6.17 Kummer cores are now proved,
+so the chain is `sorryAx`-free. -/
 
 /- **Proposition 6.18, eq. (115), unramified case**: negative Gauss sign,
 `#(Q⁰_loc)⁻¹(0) = 2^{2m−1} − 2^{m−1}`.

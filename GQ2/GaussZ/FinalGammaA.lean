@@ -1272,7 +1272,7 @@ theorem zeroCount_qDouble_ramified_of_faithful {C : Type} [Group C] [Topological
 
 /-- **The ramified zero count from action-level hypotheses**: the A-4.5b actionization
 pushed through `qDouble` — the faithful quotient has the same `σ₂`-action values
-(`powOmega2_map` along `mk'`), the action-level `hram` element-izes, and the (sorried)
+(`powOmega2_map` along `mk'`), the action-level `hram` element-izes, and the proved
 faithful-level count applies verbatim. -/
 theorem zeroCount_qDouble_ramified_of_action {C : Type} [Group C] [TopologicalSpace C]
     [DiscreteTopology C] [Finite C] {V : Type} [AddCommGroup V] [Finite V]
@@ -1355,7 +1355,7 @@ theorem zeroCount_qDouble_ramified_of_action {C : Type} [Group C] [TopologicalSp
   exact zeroCount_qDouble_ramified_of_faithful c' hc'surj hfaith' hsimple' hram'
     q hq hns hinv' m hm hcard
 
-/-- **The ramified `V`-sum**: `∑ᶠ sign(qDouble) = +2^m` — the plus finale on the (sorried)
+/-- **The ramified `V`-sum**: `∑ᶠ sign(qDouble) = +2^m` — the plus finale on the proved
 ramified count. -/
 theorem finsum_sign_ramified_of_action {C : Type} [Group C] [TopologicalSpace C]
     [DiscreteTopology C] [Finite C] {V : Type} [AddCommGroup V] [Finite V]

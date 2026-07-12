@@ -88,8 +88,8 @@ theorem tameCoord_bA_ker_isProP :
 
 Both live here (not in `SectionTen`) because `eq_154`'s A-side needs the concrete
 `boundaryMapsWitness` (`Γ_A`'s tame surjectivity `phiA_surjective` is witness-specific), and
-`BoundaryMapsWitness` is downstream of `SectionTen`.  They carry `sorryAx` through the allowlisted
-`SectionNine.thm_4_2` sorry until P-17i closes it. -/
+`BoundaryMapsWitness` is downstream of `SectionTen`.  `SectionNine.thm_4_2` is now proved, so
+both theorems are `sorryAx`-free. -/
 
 /-- **Eq. (154)**: the two sources have identical continuous-surjection counts onto every finite
 group.  `card_contSurj_eq` at `boundaryMapsWitness.bA`/`.bF` (per-source hypotheses above) rewrites
@@ -108,8 +108,9 @@ theorem eq_154 (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [F
       tameUnitOrientation_witness (tameTarget G) hE2
 
 /-- **Theorem 1.2, surjection-count form** (`GQ2.main_surjection_count`), proved from eq. (154) +
-Prop 2.3.  The `Statement.lean` sorry is resolved by the statement-move pattern (Statement is
-upstream of the tower); the moved statement carries the tower-standing `AbsGalQ2` instance binders. -/
+Prop 2.3.  The original `Statement.lean` placeholder was resolved by the statement-move pattern
+(Statement is upstream of the tower); the moved statement carries the tower-standing
+`AbsGalQ2` instance binders. -/
 theorem main_surjection_count'
     (G : Type) [Group G] [Finite G] [TopologicalSpace G] [DiscreteTopology G] :
     contSurjCount G = admissibleCount G :=

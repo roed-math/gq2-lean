@@ -13,8 +13,8 @@ import Mathlib.RingTheory.AdjoinRoot
 # P-16d6e4aA-P3 — the ramified isotypic pack (the étale route)
 
 Blueprint: `docs/p16d6e4aA-pack-design.md`.  Target: the pack fields of
-`SectionSix.prop_6_9_ramified`, discharging `zeroCount_qDouble_ramified_of_faithful`
-(the ONE remaining sorry of the `Γ_A` Gauss lane).
+`SectionSix.prop_6_9_ramified`, used to discharge
+`zeroCount_qDouble_ramified_of_faithful` (now proved, closing the `Γ_A` Gauss lane).
 
 This file builds the generic layer, bottom-up:
 

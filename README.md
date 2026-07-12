@@ -38,7 +38,7 @@ is the idempotent with $2$-adic coordinate $1$ and all odd-primary coordinates $
 > $$\sigma_2=\sigma^{\omega_2},\quad u_i=(x_i\tau)^{\omega_2},\quad d_0=u_0x_0^{-1},\quad
 >   z_0=x_0^{\sigma_2},\quad c_0=[d_0,z_0],$$
 > $$g_0=\sigma_2^{\,2},\quad d_g=d_0^{\,g_0},\quad h_c=[d_g,d_0],\quad
->   h_0=x_0^{\,g_0}\,x_0\,d_g\,d_0^{2}\,h_c.$$
+>   h_0=x_0^{\,g_0}\,x_0\,d_g\,d_0\,d_0^{2}\,h_c.$$
 
 The paper's route (its own §2, and the reconstruction Lemma 2.5) makes the theorem
 **equivalent** to a purely finite-combinatorial statement, which is the honest
@@ -59,10 +59,11 @@ Everything reduces to the standard three Lean axioms (`propext`, `Classical.choi
 `Quot.sound`) plus the **frozen 9-axiom census** in
 [`GQ2/Foundations/Axioms.lean`](GQ2/Foundations/Axioms.lean) — the only file allowed to
 contain `axiom` declarations, enforced by [`scripts/check_axioms.sh`](scripts/check_axioms.sh)
-(which also enforces **zero `sorry`s** repo-wide and no `native_decide`).  Each axiom is a
-named theorem of the literature (local Tate duality, the local Euler characteristic, the
-dyadic Hilbert symbol B7′, the unit filtration B13, …).  On 2026-07-09 five leaves were
-**proved in-repo** as same-name declarations (zero consumer churn), shrinking the census
+(which also enforces **zero `sorry`s** repo-wide and no `native_decide`).  The active census
+contains nine local-arithmetic inputs; the discharged dyadic Hilbert-symbol, Kummer-surjectivity,
+unit-filtration, and unramified unit-norm leaves are theorems or definitions in this repository,
+not axioms.  On 2026-07-09 five leaves were **proved in-repo** as same-name declarations
+(zero consumer churn), shrinking the census
 15 → 10: the dyadic Hilbert symbol (B7′), Kummer surjectivity (B12), the unit filtration (B13),
 and unramified unit-norm surjectivity (B11b, so `dyadicNormCriterion` now rests on B11a alone),
 plus deletion of the unused B2; on 2026-07-10 the similarly never-consumed **B4** (the standalone

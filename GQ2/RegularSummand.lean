@@ -1934,8 +1934,7 @@ theorem regBasis_translate {N : ℕ} (h : C) (n : Fin N) (x : C) :
   exact inv_mul_eq_iff_eq_mul
 
 /-- **Equivariant lifting along an equivariant surjection, from a regular-summand package**
-(the `Hom(V, −)`-exactness consequence of Lemma 6.11; itself sorry-free — `sorryAx` enters a
-consumer's audit only when the package is produced by `lemma_6_11`).  `W`, `W'` are 2-torsion
+(the `Hom(V, −)`-exactness consequence of the now-proved Lemma 6.11).  `W`, `W'` are 2-torsion
 (all consumers are). -/
 theorem equivariant_lift_of_regular_summand [Finite C]
     (h2W : ∀ w : W, w + w = 0) (h2W' : ∀ w : W', w + w = 0)

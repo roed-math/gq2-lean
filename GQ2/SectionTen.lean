@@ -28,14 +28,13 @@ Design (`docs/p18-plan.md`, extraction ledger `docs/section10-extraction.md`):
 
 * **Splice geometry** (P-18e): `Statement.lean` is imported by `GammaA`/`FoxHeisenberg`, i.e. it
   sits UPSTREAM of the whole tower, so `main_surjection_count` cannot be proven in place.  The
-  proof lives here as `main_surjection_count'`; at P-18e the `Statement.lean` sorry is resolved
-  by the statement-move pattern (comment-pointer upstream; `main_presentation` goes
+  proof lives downstream as `main_surjection_count'`; the original placeholder was resolved
+  by the statement-move pattern (comment-pointer upstream; `main_presentation` went
   hypothesis-form) and gains the two `AbsGalQ2` instance binders (they are file-level
   `variable`s throughout the tower, not global instances).
 
-Sorried here (proof tickets in parentheses): `twoCore_normal`/`twoCore_isPGroup` (P-18b),
-`isPGroup_map_of_isProP` (P-18b), `lemma_10_1`/`card_contSurj_eq` (P-18c), `eq_154` (P-18e,
-consuming `thm_4_2` per frame).  `SORRY_ALLOWLIST` carries this file until P-18b–e land.
+Current status: all P-18b–e obligations are proved, including `eq_154` downstream in
+`SectionTenSources`; this file is absent from the empty `SORRY_ALLOWLIST`.
 -/
 
 namespace GQ2
@@ -260,9 +259,8 @@ end Exhaustion
 `main_surjection_count'` (`contSurjCount G = admissibleCount G`) are proved in
 `GQ2/SectionTenSources.lean` (P-18e), **not here**: `eq_154`'s A-side needs the concrete
 `boundaryMapsWitness` (the `Γ_A` tame surjectivity `phiA_surjective` is witness-specific), and
-`GQ2/BoundaryMapsWitness.lean` is downstream of this file.  Both carry `sorryAx` through the
-allowlisted `SectionNine.thm_4_2` sorry until P-17i closes it.  With their move this file is
-sorry-free and leaves the `SORRY_ALLOWLIST`. -/
+`GQ2/BoundaryMapsWitness.lean` is downstream of this file.  Both moved theorems and
+`SectionNine.thm_4_2` are now proved; the repo-wide ledger reports no `sorryAx`. -/
 
 end SectionTen
 

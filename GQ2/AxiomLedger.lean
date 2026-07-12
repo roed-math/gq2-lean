@@ -6,15 +6,13 @@ import GQ2
 A batch `#print axioms` over **every** declaration under the `GQ2` namespace — the App. D
 *certificate check*, done repo-wide rather than per-session.  For each theorem/def it collects the
 axioms it transitively depends on, drops the standard three (`propext`, `Classical.choice`,
-`Quot.sound`), maps the twelve literature axioms (`GQ2/Foundations/Axioms.lean`) to their
+`Quot.sound`), maps the nine literature axioms (`GQ2/Foundations/Axioms.lean`) to their
 B-labels, and reports:
 
-* **certificate** — which declarations consume each B-axiom.  Diff this against the per-ticket `Ax`
-  column in `docs/tickets.md` and the App. D rows in `docs/literature-axioms.md` §C (Prop 1.1 →
-  `B3c,B4,B5,B7′`; Prop 3.2 → `B5`; Thm 4.2 → `B6,B7,B7′,B8,B9`; each proof ticket declares its
-  allowed B-set).
-* **gap map** — declarations still depending on `sorryAx` (the intentional open leaves; shrinks as
-  proof tickets land, empty at step-2 end).
+* **certificate** — which declarations consume each B-axiom.  This elaborated-environment output
+  is authoritative for the current tree; historical ticket `Ax` columns may still show leaves
+  that were later discharged or deleted.
+* **gap map** — declarations depending on `sorryAx` (currently empty; any regression is listed).
 * **alarm** — any *other* non-standard axiom.  Must be empty: a stray `axiom`, a `native_decide`
   (`Lean.ofReduceBool`), or a miscounted census would surface here.
 
@@ -27,7 +25,7 @@ whole library including `private` lemmas.
     lake build GQ2 && lake env lean GQ2/AxiomLedger.lean
 
 Prints the ledger to stdout.  This file is intentionally **not** imported by `GQ2.lean`, so it never
-runs during `lake build GQ2`.  If the axiom census (currently 11) ever changes, update `bAxioms`
+runs during `lake build GQ2`.  If the axiom census (currently 9) ever changes, update `bAxioms`
 below (and `scripts/check_axioms.sh`'s `EXPECTED_AXIOMS`, same commit).
 -/
 
@@ -35,9 +33,10 @@ open Lean
 
 namespace GQ2.AxiomLedger
 
-/-- The ten literature axioms → their B-labels (census 10 after the B10, B9′/B11, P-23
+/-- The nine literature axioms → their B-labels (census 9 after the B10, B9′/B11, P-23
 B11-split, P-15f1 B12/B13-addition, and 2026-07-09 B12/B7′/B13/B11b-discharge/B2-deletion census
-decisions; see `GQ2/Foundations/Axioms.lean`).  Written with `` `` `` so the
+decisions and the 2026-07-10 deletion of unused B4; see `GQ2/Foundations/Axioms.lean`).
+Written with `` `` `` so the
 file fails to compile if any axiom is renamed or removed — a free consistency check on the census.
 (`dyadicNormCriterion` is a same-name *theorem*, since 2026-07-09 over **B11a alone** (its
 `unramifiedQuadratic_units_are_norms` component — the former **B11b** — is now a same-name

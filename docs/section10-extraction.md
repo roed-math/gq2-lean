@@ -2,21 +2,22 @@
 
 Statement-layer encoding of paper §10 (pp. 47–48) in `GQ2/SectionTen.lean`.  Companion to the
 lane plan `docs/p18-plan.md` (routes, per-source obligations, sub-ticket split P-18a–e).
-Skeleton builds green; the six sorries and their owners are listed at the end.
+The extraction and all six original proof obligations are now complete; the final status is
+recorded at the end.
 
 ## Node map
 
 | paper node | Lean | status |
 |---|---|---|
-| `O₂(G)` (2-core; paper uses it implicitly in "put `L = O₂(G)`") | `SectionTen.twoCore` (sSup of normal 2-subgroups) + `twoCore_normal`/`twoCore_isPGroup`/`le_twoCore` | def ✓; props sorried (P-18b; `le_twoCore` proved) |
-| "characteristic marked wild subgroup maps into `O₂(G)`" | `isPGroup_map_of_isProP` (pro-2 image bridge) + `le_twoCore` | sorried (P-18b) |
+| `O₂(G)` (2-core; paper uses it implicitly in "put `L = O₂(G)`") | `SectionTen.twoCore` (sSup of normal 2-subgroups) + `twoCore_normal`/`twoCore_isPGroup`/`le_twoCore` | proved (P-18b) |
+| "characteristic marked wild subgroup maps into `O₂(G)`" | `isPGroup_map_of_isProP` (pro-2 image bridge) + `le_twoCore` | proved (P-18b) |
 | the single §10 target `(G, L, π, θ=0)` | `tameTarget G : MarkedTarget (G ⧸ twoCore G) E₀ G` | ✓ built |
 | a tame boundary frame with `E = 0` | `tameFrame α hα : BoundaryFrame H E₀` | ✓ built |
 | the (finite) set of tame frames `Ttame ↠ G/L` | `TameFrames G` (subtype) | ✓; finiteness P-18c |
-| Lemma 10.1 (exhaustion/disjointness) | `lemma_10_1` (sigma-equivalence) | sorried (P-18c) |
-| the summed count identity | `card_contSurj_eq` (`Nat.card (ContSurj Γ G) = ∑ᶠ α, e^β`) | sorried (P-18c) |
-| eq. (154) | `eq_154` | sorried (P-18e; consumes `thm_4_2` per frame) |
-| `main_surjection_count` (Theorem 1.2, count form) | `main_surjection_count'` | **PROVED modulo `eq_154`** (std-3 + sorryAx verified) — the end-to-end wiring type-checks |
+| Lemma 10.1 (exhaustion/disjointness) | `lemma_10_1` (sigma-equivalence) | proved (P-18c) |
+| the summed count identity | `card_contSurj_eq` (`Nat.card (ContSurj Γ G) = ∑ᶠ α, e^β`) | proved (P-18c) |
+| eq. (154) | `eq_154` | proved (P-18e; consumes the proved `thm_4_2` per frame) |
+| `main_surjection_count` (Theorem 1.2, count form) | `main_surjection_count'` | proved; repo-wide ledger reports no `sorryAx` |
 
 ## Encoding decisions and deviations (flagged for P-20)
 
@@ -75,15 +76,15 @@ Skeleton builds green; the six sorries and their owners are listed at the end.
     the P-18c helpers (unused there; deviation 8's rationale is the `exactImageCount` side,
     i.e. `card_contSurj_eq` keeps it).
 
-## Sorry ledger (all allowlisted via `GQ2/SectionTen.lean`)
+## Original proof-obligation ledger (all closed)
 
 | decl | owner |
 |---|---|
 | `twoCore_normal`, `twoCore_isPGroup` | P-18b — ✅ PROVED (2026-07-07, std-3) |
 | `isPGroup_map_of_isProP` | P-18b — ✅ PROVED (2026-07-07, std-3) |
 | `lemma_10_1`, `card_contSurj_eq` | P-18c — ✅ PROVED (2026-07-07, std-3; statement amendments in deviation 10) |
-| `eq_154` | P-18e (consumes `thm_4_2` per frame — carries `sorryAx` through the allowlisted `SectionNine` sorry until P-17i).  **The file's last sorry.** |
+| `eq_154` | P-18e — ✅ PROVED after `thm_4_2` closed; no `sorryAx` |
 
-`main_surjection_count'` is proved (std-3 + sorryAx via `eq_154`, verified); at P-18e it
-replaces the `Statement.lean:49` sorry by the statement move of deviation 7, taking
-`Statement.lean` off the `SORRY_ALLOWLIST`.
+`main_surjection_count'` is proved from `eq_154` and `prop_2_3`; the original
+`Statement.lean` placeholder was removed by the statement move of deviation 7.  The current
+repo-wide ledger reports no `sorryAx`.

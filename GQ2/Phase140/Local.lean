@@ -327,7 +327,7 @@ names verified to exist):**
 1. **Module.**  `A := Additive ↥(En.radData l h).T` with the `rhoPrime`-conjugation
    `AbsGalQ2`-action — REUSE `tcocycle_card_local`'s setup verbatim (`conj_eq_of_mk_eq_T`,
    `tCommGroup`, `actC`/`actG`, `hcomp`, `hsmul`, `ContinuousSMul`, `hA₂`), same module as the
-   T-count.  **✅ LANDED in-proof below** (the `sorry` is only for Stages 2–7).
+   T-count.  **✅ LANDED in-proof below**; stages 2–7 are also complete.
 2. **T-valued defect cocycle** `tDefZ2 : (fun p => Additive.ofMul (tDef S hσ c p)) ∈ Z2 AbsGalQ2 A`
    — extract from `chiDef_mem_Z2`'s `hraw`/`hsub` (`VLiftCount.lean:234-252`), BEFORE pushing
    through `χ`; the `γ•` in the `Z2` identity is conjugation by `fLift γ` (a rep of `ρ'γ`, so

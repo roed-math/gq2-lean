@@ -9,9 +9,8 @@ The paper's §5 sets up, for a finite *lower target* `C` and an elementary `𝔽
 the two cochain theories that the §9 induction compares: the **finite word complex** (30) on the
 candidate side, and continuous Galois cohomology on the local side.  This file provides the
 definition layer (the complex, the Heisenberg groups, the mixed central coordinate) and the
-**sorried statements** of Lemmas/Propositions 5.6, 5.7, 5.8, 5.11, 5.12, 5.13, 5.15, 5.16 with a
-proved 5.17-numerics wiring corollary.  Proof ticket: P-13 (axioms B6, B7 enter only there, in
-5.16).
+statements of Lemmas/Propositions 5.6, 5.7, 5.8, 5.11, 5.12, 5.13, 5.15, 5.16; their P-13
+proof campaign is complete (axioms B6, B7 enter in 5.16).
 
 ## The §5 objects and their encodings
 
@@ -37,10 +36,10 @@ proved 5.17-numerics wiring corollary.  Proof ticket: P-13 (axioms B6, B7 enter 
   `σ,τ,x₀,x₁`, matching `univMarking`); `d1Fun t x` is the pair of `A`-coordinates of the two
   relator values at the lifted marking `liftMarking t x` — the paper's "coefficient of `A` in
   the evaluated tame and wild relators", verbatim.  **Additivity of `d1Fun` is the paper's
-  "finite Fox rules" and is a sorried obligation** (`d1Fun_add`, P-13, via the ledger of
+  "finite Fox rules" and was the P-13 obligation `d1Fun_add` (via the ledger of
   Lemma 5.4); the bundled `d1 t` is built on it, and `Z1w/H0w/H1w/H2w` follow the `ContCoh`
   shape (`H1 = Z1 ⧸ B1.addSubgroupOf Z1` — total definitions, no chain condition needed; the
-  chain identity `d¹∘d⁰ = 0` under the relations is the separate sorried `d1Fun_comp_d0`).
+  chain identity `d¹∘d⁰ = 0` under the relations is the separate proved `d1Fun_comp_d0`).
   The **proved** stress test `d1Fun_tame` computes the tame row in closed form — the general
   form of display (34), validating the convention stack (lift order, `conjP`, the `(u,g)(v,h)`
   rule) end-to-end.
@@ -1403,7 +1402,7 @@ theorem mixedB_wildRow [Finite A] [Finite C] (t : Marking C) (hw : t.WildRel) (a
 identifications): `B_{ρ,A}(d⁰a, y) = ⟨a, L^{A^∨}_t(y) + L^{A^∨}_w(y)⟩`, where the dual
 first relation differentials are `d1Fun` on `A^∨`.
 
-*Status*: sorried (P-13), provable **as stated** (paper p. 17).  Proof plan: the tame summand is
+*Status*: proved (P-13).  The proof decomposes the tame summand as
 `mixedB_tameRow` — `⟨a, L^{A^∨}_t(y)⟩ + y_τ(τ·a)` (tame ε-vector `(0,1,0,0)`, `expMod2_fgTame`);
 the wild summand comes from `bridge_wild` + `lemma_5_7_left` with ε-vector
 `(0, e, 0, e+1) = (0,1,0,0)` at the odd `ω₂`-representative (`expMod2_wildValueExp`), i.e.
@@ -2806,8 +2805,8 @@ exactly because the odd action-period divides that length.  Like `hU`/`hVS` in t
 this is factored out as an explicit hypothesis, to be supplied per simple factor by P-13d.
 See `docs/p13-normal-form-hypothesis-gap.md` and P-13b in `docs/p13-ticket-split.md`.
 
-*Status*: hypothesis amended (P-13b); `P = 0` ledger landed; the wild/tame rows + `∃!`-assembly
-remain sorried.
+*Status*: proved after the P-13b hypothesis amendment; the `P = 0` ledger, wild/tame rows,
+and `∃!` assembly have all landed.
 
 **Signature note (P-13f, 2026-07-05)**: the trivial wild action is now taken as hypotheses
 `hx0`/`hx1` rather than derived from `(hsimple, hcore)` via `wild_acts_trivially` — so the lemma
@@ -2870,7 +2869,7 @@ theorem lemma_5_13_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
 /-- **Lemma 5.13, pairing display (54), split case**: on `x₀`-supported representatives the
 degree-one pairing is `(c, λ) ↦ λ(c)` when `T = 1`.
 
-*Status*: sorried (P-13; via the mixed Hessian ledger, Lemma 5.14 — `h₀ ↦ λ(c)` via
+*Status*: proved (P-13) via the mixed Hessian ledger, Lemma 5.14 — `h₀ ↦ λ(c)` via
 `classTwoIdentity` [needs `g₀ = σ₂²` trivial, i.e. `hU`], and the `[d₀,z₀]` term vanishes since
 `P + 1 = 0` in char 2 for `T = 1`).  `hsimple`/`hcore` give the trivial wild action
 (`wild_acts_trivially`); `hU` is the σ-tameness (derivable in split; see `lemma_5_13_split`). -/
