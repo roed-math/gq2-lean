@@ -12,7 +12,7 @@ Here the paper's `t^s = t^2` means `s⁻¹ * t * s = t^2` (right-conjugation con
 
 The first assertion — `t` has odd order — is elementary and is **proved in full** below.
 The remaining structural claims (`C_e ⋊ C_n` shape, centrality of normal 2-subgroups) are
-stated with `sorry`; they need semidirect-product recognition that is more involved.
+**proved in full** below, via the semidirect-product recognition they require.
 -/
 
 namespace GQ2.Tame

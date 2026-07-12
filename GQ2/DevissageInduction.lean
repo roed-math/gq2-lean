@@ -145,7 +145,7 @@ Strong induction on `Nat.card A`; the induction step is `lemma_5_11` (P-13e) alo
 `0 → W → A → A ⧸ W → 0` for a `C`-stable `W ∉ {⊥, ⊤}`; the subsingleton base is
 `trivialSelfDual` (P-13f part (i)). -/
 theorem prop_5_15_of_simple (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
-    (hgen : t.Generates) (hcore : t.Pro2Core)
+    (hgen : t.Generates)
     (hsimp : ∀ (B : Type u) [AddCommGroup B] [DistribMulAction C B] [Finite B],
       (∀ b : B, b + b = 0) → IsSimpleModTwo C B → IsSelfDual t B)
     {A : Type u} [AddCommGroup A] [DistribMulAction C A] [Finite A]

@@ -581,7 +581,7 @@ that file. -/
 theorem prop_5_15 (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hgen : t.Generates)
     (hA₂ : ∀ a : A, a + a = 0) (hcore : t.Pro2Core) :
     IsSelfDual t A :=
-  prop_5_15_of_simple t ht hw hgen hcore
+  prop_5_15_of_simple t ht hw hgen
     (fun _ _ _ _ hB₂ hBsimple => selfDual_of_simple t ht hw hgen hcore hB₂ hBsimple) hA₂
 
 end GQ2.FoxH

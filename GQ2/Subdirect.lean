@@ -112,11 +112,6 @@ theorem map_admissible {G H : Type*} [Group G] [Group H] [Finite G] [Finite H]
     rw [himg]
     exact hcore.map f
 
-/-- The **product** of two markings (componentwise). -/
-def prod (t₁ : Marking G) (t₂ : Marking H) : Marking (G × H) :=
-  ⟨(t₁.σ, t₂.σ), (t₁.τ, t₂.τ), (t₁.x₀, t₂.x₀), (t₁.x₁, t₂.x₁)⟩
-
-
 end Marking
 
 end GQ2

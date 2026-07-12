@@ -278,9 +278,6 @@ section OddPart
 
 variable {G : Type*} [Group G] [Finite G]
 
-/-- A divisor of an odd number is odd. -/
-theorem odd_of_dvd_odd {d n : ℕ} (h : d ∣ n) (hn : Odd n) : Odd d := hn.of_dvd_nat h
-
 /-- The **odd-torsion subgroup** of a finite group whose elements commute: the elements of odd
 order.  (Stated with the commutativity as a hypothesis `hab` rather than `[CommGroup G]`, matching
 the `hab`-shape of `Gal(F₀/ℚ₂)` in the assembly.) -/
@@ -290,7 +287,7 @@ def oddTorsion (hab : ∀ a b : G, a * b = b * a) : Subgroup G where
   mul_mem' := fun {a b} ha hb => by
     have hdvd : orderOf (a * b) ∣ Nat.lcm (orderOf a) (orderOf b) :=
       (Commute.orderOf_mul_dvd_lcm (hab a b))
-    exact odd_of_dvd_odd (hdvd.trans (Nat.lcm_dvd_mul _ _)) (ha.mul hb)
+    exact (ha.mul hb).of_dvd_nat (hdvd.trans (Nat.lcm_dvd_mul _ _))
   inv_mem' := fun {a} ha => by simpa [orderOf_inv] using ha
 
 omit [Finite G] in
@@ -489,7 +486,7 @@ theorem odd_e_inertiaField (R : LocalReciprocity) (B : BoundaryMaps)
   -- assemble the count
   have hodd_Gu : Odd (Nat.card
       (((restrictAb (inertiaField ρ t) hab).comp R.recip).comp unitEmbed).range) :=
-    odd_of_dvd_odd (Subgroup.card_dvd_of_le hGuO) (odd_card_oddTorsion hab)
+    (odd_card_oddTorsion hab).of_dvd_nat (Subgroup.card_dvd_of_le hGuO)
   have hcard := UnitNormIndex.card_unitImage_eq_e R (inertiaField ρ t) hab F₀F
   rwa [hcard] at hodd_Gu
 

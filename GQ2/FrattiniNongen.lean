@@ -97,7 +97,7 @@ theorem eq_top_of_map_frattini_quotient_top {B : Type} [Group B]
     (piB : Y →* B) {K : Subgroup Y} (h2K : IsPGroup 2 ↥K)
     (hker : piB.ker = frattiniLike K) (hRK : frattiniLike K ≤ K)
     [hRn : (frattiniLike K).Normal]
-    {J : Subgroup Y} (hJtop : J.map piB = ⊤) (hBtop : piB.range = ⊤) : J = ⊤ := by
+    {J : Subgroup Y} (hJtop : J.map piB = ⊤) : J = ⊤ := by
   classical
   -- `J ⊔ Φ(K) = ⊤`: every `y` has `piB`-image hit by some `j ∈ J`
   have hJR : J ⊔ frattiniLike K = ⊤ := by

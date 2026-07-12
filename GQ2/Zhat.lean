@@ -242,14 +242,4 @@ theorem map_zpowHat_omega2 {P : Type} [Group P] [TopologicalSpace P] [DiscreteTo
 
 end ZpowHat
 
-/-! ## Sanity checks in `S₃`
-
-The tame frame `S₃ = DihedralGroup 3` of `GQ2/AppendixB.lean`, now computed via the *profinite*
-`ω₂`: the odd rotation dies, the reflection survives. -/
-
-section SanityS3
-
-
-end SanityS3
-
 end GQ2

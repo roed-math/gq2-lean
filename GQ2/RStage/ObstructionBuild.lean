@@ -533,7 +533,6 @@ theorem surj_of_piB_surj {φ : ContinuousMonoidHom Γ Y}
     exact ⟨φ γ, ⟨γ, rfl⟩, hγ⟩
   have hrange : φ.toMonoidHom.range = ⊤ :=
     eq_top_of_map_frattini_quotient_top RF.piB h2K RF.ker_piB (frattiniLike_le Blk.K) hJtop
-      (MonoidHom.range_eq_top.mpr RF.piB_surj)
   exact MonoidHom.range_eq_top.mp hrange
 
 /-- **The R-stage fibre torsor** (`hfib` core): fixing a lift `f₀` of `g`, the fibre of `RF.liftB`
