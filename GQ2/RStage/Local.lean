@@ -130,6 +130,77 @@ theorem conjC_smul_of_mk (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k 
 
 end ConjAction
 
+/-! ## Shared `C = Y/K`-module helpers (used by `hZcount` and `hsep_hom`) -/
+
+/-- `R = Φ(K)` is elementary abelian: `Additive R` is 2-torsion. -/
+private lemma frattiniK_add_self
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1) :
+    letI : CommGroup ↥Blk.frattiniK := rCommGroup Blk hRK
+    ∀ a : Additive ↥Blk.frattiniK, a + a = 0 := by
+  letI : CommGroup ↥Blk.frattiniK := rCommGroup Blk hRK
+  intro a
+  refine Additive.toMul.injective (Subtype.ext ?_)
+  exact hR2 _ (Additive.toMul a).2
+
+/-- A `C = Y/K`-invariant character of `R` takes equal values on `Y`-conjugates: the fixed-point
+condition, evaluated through `conjC_smul_of_mk` at `y⁻¹`. -/
+private lemma elemDual_fixed_apply_conj
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r) :
+    letI : CommGroup ↥Blk.frattiniK := rCommGroup Blk hRK
+    letI := conjC Blk hRK
+    ∀ lam : GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK),
+      lam ∈ GQ2.FoxH.fixedPts (Y ⧸ Blk.K) (GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK)) →
+      ∀ (y : Y) (r : ↥Blk.frattiniK),
+        lam (Additive.ofMul ⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩)
+          = lam (Additive.ofMul r) := by
+  letI : CommGroup ↥Blk.frattiniK := rCommGroup Blk hRK
+  letI := conjC Blk hRK
+  intro lam hfix y r
+  have hfixy := hfix (QuotientGroup.mk' Blk.K y)
+  have h1 := congrArg (fun mu : GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK) =>
+    mu (Additive.ofMul ⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩)) hfixy
+  have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹
+      • Additive.ofMul (⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩ : ↥Blk.frattiniK)
+      = Additive.ofMul r := by
+    rw [← map_inv,
+      conjC_smul_of_mk hRK y⁻¹ ⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩]
+    refine congrArg _ (Subtype.ext ?_)
+    show y⁻¹ * (y * (r : Y) * y⁻¹) * y⁻¹⁻¹ = (r : Y)
+    group
+  have h2 : ((QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K) • lam)
+      (Additive.ofMul ⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩)
+      = lam (Additive.ofMul r) := by
+    rw [GQ2.FoxH.ElemDual.smul_apply, h3]
+  rw [h2] at h1
+  exact h1.symm
+
+/-- The invariant-character bridge `(R^∨)^C ≃ D_Rmod`: `#fixedPts C (R^∨) = #RCharSub`. -/
+private lemma card_fixedPts_eq_card_RCharSub
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r) :
+    letI : CommGroup ↥Blk.frattiniK := rCommGroup Blk hRK
+    letI := conjC Blk hRK
+    Nat.card
+      (GQ2.FoxH.fixedPts (Y ⧸ Blk.K) (GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK)))
+      = Nat.card ↥(RCharSub Blk) := by
+  letI : CommGroup ↥Blk.frattiniK := rCommGroup Blk hRK
+  letI := conjC Blk hRK
+  refine Nat.card_congr
+    { toFun := fun lam => ⟨lam.1, fun y r => elemDual_fixed_apply_conj hRK lam.1 lam.2 y r⟩
+      invFun := fun chi => ⟨chi.1, fun c => ?_⟩
+      left_inv := fun lam => rfl
+      right_inv := fun chi => rfl }
+  obtain ⟨y, rfl⟩ := QuotientGroup.mk'_surjective Blk.K c
+  refine GQ2.FoxH.ElemDual.ext fun a => ?_
+  rw [GQ2.FoxH.ElemDual.smul_apply]
+  have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹ • a
+      = Additive.ofMul (⟨y⁻¹ * ((Additive.toMul a : ↥Blk.frattiniK) : Y) * y⁻¹⁻¹,
+          conj_mem_R y⁻¹ (Additive.toMul a)⟩ : ↥Blk.frattiniK) := by
+    rw [← map_inv]
+    exact conjC_smul_of_mk hRK y⁻¹ (Additive.toMul a)
+  rw [h3]
+  exact chi.2 y⁻¹ (Additive.toMul a)
+
 /-! ## `hZcount`: the `z_R` torsor count at the local source -/
 
 section ZCount
@@ -177,10 +248,7 @@ theorem hZcount_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
     exact continuous_of_discreteTopology.comp
       ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
   have hcomp : ∀ (γ : AbsGalQ2) (a : Additive ↥Blk.frattiniK), γ • a = θ γ • a := fun _ _ => rfl
-  have hA₂ : ∀ a : Additive ↥Blk.frattiniK, a + a = 0 := by
-    intro a
-    refine Additive.toMul.injective (Subtype.ext ?_)
-    exact hR2 _ (Additive.toMul a).2
+  have hA₂ : ∀ a : Additive ↥Blk.frattiniK, a + a = 0 := frattiniK_add_self hRK hR2
   -- the action at the `f₀`-representative
   have hsmul : ∀ (γ : AbsGalQ2) (a : Additive ↥Blk.frattiniK),
       γ • a
@@ -219,47 +287,8 @@ theorem hZcount_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
             simpa using this }
       left_inv := fun c => RCocycle.ext rfl
       right_inv := fun z => Subtype.ext (funext fun γ => rfl) }
-  rw [Nat.card_congr hequiv, card_Z1_eq hθs hcomp hA₂]
-  -- the invariant-character bridge `fixedPts C (R^∨) ≃ D_Rmod`
-  have hbridge : Nat.card
-      (GQ2.FoxH.fixedPts (Y ⧸ Blk.K) (GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK)))
-      = Nat.card ↥(RCharSub Blk) := by
-    refine Nat.card_congr
-      { toFun := fun lam => ⟨lam.1, fun y r => ?_⟩
-        invFun := fun chi => ⟨chi.1, fun c => ?_⟩
-        left_inv := fun lam => rfl
-        right_inv := fun chi => rfl }
-    · -- fixed ⟹ Y-invariant
-      have hfix := lam.2 (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)
-      have h1 := congrArg (fun mu : GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK) =>
-        mu (Additive.ofMul ⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩)) hfix
-      have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹
-          • Additive.ofMul (⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩ : ↥Blk.frattiniK)
-          = Additive.ofMul r := by
-        rw [← map_inv]
-        rw [conjC_smul_of_mk hRK y⁻¹ ⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩]
-        refine congrArg _ (Subtype.ext ?_)
-        show y⁻¹ * (y * (r : Y) * y⁻¹) * y⁻¹⁻¹ = (r : Y)
-        group
-      have h2 : ((QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K) • lam.1)
-          (Additive.ofMul ⟨y * (r : Y) * y⁻¹, conj_mem_R y r⟩)
-          = lam.1 (Additive.ofMul r) := by
-        rw [GQ2.FoxH.ElemDual.smul_apply, h3]
-      rw [h2] at h1
-      exact h1.symm
-    · -- Y-invariant ⟹ fixed
-      obtain ⟨y, rfl⟩ := QuotientGroup.mk'_surjective Blk.K c
-      apply GQ2.FoxH.ElemDual.ext
-      intro a
-      rw [GQ2.FoxH.ElemDual.smul_apply]
-      have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹ • a
-          = Additive.ofMul (⟨y⁻¹ * ((Additive.toMul a : ↥Blk.frattiniK) : Y) * y⁻¹⁻¹,
-              conj_mem_R y⁻¹ (Additive.toMul a)⟩ : ↥Blk.frattiniK) := by
-        rw [← map_inv]
-        exact conjC_smul_of_mk hRK y⁻¹ (Additive.toMul a)
-      rw [h3]
-      exact chi.2 y⁻¹ (Additive.toMul a)
-  rw [hbridge, blockRChar_card T Blk hE2,
+  rw [Nat.card_congr hequiv, card_Z1_eq hθs hcomp hA₂,
+    card_fixedPts_eq_card_RCharSub hRK, blockRChar_card T Blk hE2,
     Nat.card_congr (Additive.toMul (α := ↥Blk.frattiniK))]
   rfl
 
@@ -283,6 +312,37 @@ theorem htriv_local (γ : AbsGalQ2) (m : ZMod 2) : γ • m = m := by
     exact one_ne_zero h2
 
 section SepHom
+
+/-- First stage of `hsep_hom_local`: when `obs g = 0`, every paired defect class in `H²(Γ,𝔽₂)`
+vanishes (`obs_zero_iff_pairClass_zero`, with the zero-`DR` case handled directly). -/
+private theorem pairClass_all_zero [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (g : BoundaryLifts b F (blockFrameImpl T Blk hE2).TB)
+    (hg : obs (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2) htriv_local
+        (card_H2_zmod2_eq_two htriv_local) g.1.1 = 0)
+    (d : (blockRObstructionData T Blk hE2).DRmod) :
+    H2mk AbsGalQ2 (ZMod 2)
+      ⟨fun gd => (blockRObstructionData T Blk hE2).pair d
+          (Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 gd.1 gd.2)),
+        pairDefect_mem_Z2_all (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2)
+          htriv_local g.1.1 d⟩ = 0 := by
+  by_cases h : (blockRObstructionData T Blk hE2).toDR d = (blockFrameImpl T Blk hE2).zeroDR
+  · have hd : d = 0 := by
+      rw [← (blockRObstructionData T Blk hE2).h0, ← h, Equiv.symm_apply_apply]
+    subst hd
+    have hz : (⟨fun gd => (blockRObstructionData T Blk hE2).pair 0
+        (Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 gd.1 gd.2)),
+        pairDefect_mem_Z2_all (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2)
+          htriv_local g.1.1 0⟩ : ↥(Z2 AbsGalQ2 (ZMod 2))) = 0 := by
+      apply Subtype.ext
+      funext gd
+      simp only [map_zero, AddMonoidHom.zero_apply]
+      rfl
+    rw [hz, map_zero]
+  · exact (obs_zero_iff_pairClass_zero (blockFrameImpl T Blk hE2)
+      (blockRObstructionData T Blk hE2) htriv_local (card_H2_zmod2_eq_two htriv_local)
+      g.1.1 d h).mp (LinearMap.congr_fun hg d)
 
 /-- **The `(R^∨)^C`-separation, local source** (P-16d6e residue): if the obstruction functional
 of a boundary lift `g` vanishes, `g` lifts to a continuous homomorphism into `Y`.  Route:
@@ -309,24 +369,8 @@ theorem hsep_hom_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
       ⟨fun gd => (blockRObstructionData T Blk hE2).pair d
           (Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 gd.1 gd.2)),
         pairDefect_mem_Z2_all (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2)
-          htriv_local g.1.1 d⟩ = 0 := by
-    intro d
-    by_cases h : (blockRObstructionData T Blk hE2).toDR d = (blockFrameImpl T Blk hE2).zeroDR
-    · have hd : d = 0 := by
-        rw [← (blockRObstructionData T Blk hE2).h0, ← h, Equiv.symm_apply_apply]
-      subst hd
-      have hz : (⟨fun gd => (blockRObstructionData T Blk hE2).pair 0
-          (Additive.ofMul (rDefect (blockFrameImpl T Blk hE2) g.1.1 gd.1 gd.2)),
-          pairDefect_mem_Z2_all (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2)
-            htriv_local g.1.1 0⟩ : ↥(Z2 AbsGalQ2 (ZMod 2))) = 0 := by
-        apply Subtype.ext
-        funext gd
-        simp only [map_zero, AddMonoidHom.zero_apply]
-        rfl
-      rw [hz, map_zero]
-    · exact (obs_zero_iff_pairClass_zero (blockFrameImpl T Blk hE2)
-        (blockRObstructionData T Blk hE2) htriv_local (card_H2_zmod2_eq_two htriv_local)
-        g.1.1 d h).mp (LinearMap.congr_fun hg d)
+          htriv_local g.1.1 d⟩ = 0 :=
+    fun d => pairClass_all_zero hE2 b F g hg d
   -- the instance stack for the twisted module `A = Additive R` along `ϑ = piBC ∘ g`
   letI : CommGroup ↥Blk.frattiniK := rCommGroup Blk hRK
   letI actC : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) := conjC Blk hRK
@@ -387,10 +431,7 @@ theorem hsep_hom_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
     rw [hfac]
     exact continuous_of_discreteTopology.comp
       ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
-  have hA₂ : ∀ a : Additive ↥Blk.frattiniK, a + a = 0 := by
-    intro a
-    refine Additive.toMul.injective (Subtype.ext ?_)
-    exact hR2 _ (Additive.toMul a).2
+  have hA₂ : ∀ a : Additive ↥Blk.frattiniK, a + a = 0 := frattiniK_add_self hRK hR2
   -- the action at the `slift ∘ g` representative
   have hsmul : ∀ (γ : AbsGalQ2) (a : Additive ↥Blk.frattiniK),
       γ • a = Additive.ofMul
