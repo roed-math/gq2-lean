@@ -118,6 +118,19 @@ theorem index_eq_two_of_decomp {U₀ : Subgroup G} {N' : Subgroup ↥U₀} {s : 
     rwa [inv_mul_cancel_left] at this
   · exact Or.inl ⟨hdec b hb, hb⟩
 
+/-- **Index 2 of a normal subgroup inside its involution overgroup**: for `N` normal with
+`ĝ² ∈ N`, the subgroup `N` has index 2 inside `U₀ = N ⊔ ⟨ĝ⟩` (combining the coset
+decomposition `mem_or_mul_mem_of_mem_sup` with `index_eq_two_of_decomp`). -/
+theorem subgroupOf_index_eq_two_of_sup {N : Subgroup G} [N.Normal] {ĝ : G}
+    (hĝ2 : ĝ * ĝ ∈ N) {U₀ : Subgroup G} (hU₀ : U₀ = N ⊔ Subgroup.zpowers ĝ)
+    (hmem : ĝ ∈ U₀) (hsUnot : (⟨ĝ, hmem⟩ : ↥U₀) ∉ N.subgroupOf U₀) :
+    (N.subgroupOf U₀).index = 2 := by
+  refine index_eq_two_of_decomp hsUnot (fun b hb => ?_)
+  have hbU : (b : G) ∈ N ⊔ Subgroup.zpowers ĝ := hU₀ ▸ b.2
+  rcases mem_or_mul_mem_of_mem_sup hĝ2 hbU with hbN | hbg
+  · exact absurd (Subgroup.mem_subgroupOf.mpr hbN) hb
+  · exact Subgroup.mem_subgroupOf.mpr hbg
+
 end IndexTwo
 
 /-! ## The Galois-view repackaging (the `kerGal` idiom, for overgroups of `ker ρ`) -/
@@ -258,6 +271,70 @@ local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
 variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
 
+omit [Finite C] in
+/-- The kernel of a continuous hom into a finite discrete group is open (its carrier is the
+preimage of the open point `{1}`). -/
+private theorem ker_isOpen (ρ : ContinuousMonoidHom AbsGalQ2 C) :
+    IsOpen ((ρ.toMonoidHom.ker : Subgroup AbsGalQ2) : Set AbsGalQ2) := by
+  have hset : ((ρ.toMonoidHom.ker : Subgroup AbsGalQ2) : Set AbsGalQ2) = ⇑ρ ⁻¹' {1} := by
+    ext g
+    simp only [SetLike.mem_coe, MonoidHom.mem_ker, Set.mem_preimage, Set.mem_singleton_iff]
+    rfl
+  rw [hset]
+  exact (isOpen_discrete {1}).preimage ρ.continuous_toFun
+
+/-- **`IsDeepUnit` transports along a carrier inclusion**: if every element of `N₁` lies in
+`N₂`, a deep unit for `N₂` is a deep unit for `N₁` (used to move the deep witness from
+`ker ρ` up to `(splitField ρ).fixingSubgroup`). -/
+private theorem isDeepUnit_of_forall_mem {N₁ N₂ : Subgroup (Kummer.GaloisGroup ℚ_[2])} {A : ℚ̄₂}
+    (h : ∀ g : Kummer.GaloisGroup ℚ_[2], g ∈ N₁ → g ∈ N₂) (hd : IsDeepUnit N₂ A) :
+    IsDeepUnit N₁ A := by
+  obtain ⟨hA0, hAfix, b, hbfix, hbeq, hbnorm⟩ := hd
+  exact ⟨hA0, fun g hg => hAfix g (h g hg), b, fun g hg => hbfix g (h g hg), hbeq, hbnorm⟩
+
+/-- **The Galois-view index-2 brick**: `kerGal ρ` has index 2 inside `toGal U₀` for
+`U₀ = ker ρ ⊔ ⟨ĝ⟩`, the `kerGal`-idiom mirror of `subgroupOf_index_eq_two_of_sup`. -/
+private theorem kerGal_subgroupOf_toGal_index_eq_two (ρ : ContinuousMonoidHom AbsGalQ2 C)
+    {ĝ : AbsGalQ2} (hĝN : ĝ ∉ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
+    (hĝ2 : ĝ * ĝ ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) {U₀ : Subgroup AbsGalQ2}
+    (hU₀ : U₀ = (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) ⊔ Subgroup.zpowers ĝ)
+    (hmem : ĝ ∈ U₀) :
+    ((ResidueLift.kerGal ρ).subgroupOf (toGal U₀)).index = 2 := by
+  have hgmemGal : toGalElem ĝ ∈ toGal U₀ := hmem
+  refine index_eq_two_of_decomp (s := ⟨toGalElem ĝ, hgmemGal⟩)
+    (fun h => hĝN ((ResidueLift.mem_kerGal ρ (toGalElem ĝ)).mpr
+      (Subgroup.mem_subgroupOf.mp h)))
+    (fun b hb => ?_)
+  have hbU : ResidueLift.toAbs b.1 ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+      ⊔ Subgroup.zpowers ĝ := hU₀ ▸ ((mem_toGal U₀ b.1).mpr b.2)
+  rcases mem_or_mul_mem_of_mem_sup hĝ2 hbU with hbN | hbg
+  · exact absurd (Subgroup.mem_subgroupOf.mpr
+      ((ResidueLift.mem_kerGal ρ b.1).mp hbN)) hb
+  · refine Subgroup.mem_subgroupOf.mpr ?_
+    refine (ResidueLift.mem_kerGal ρ _).mp ?_
+    have hbr : ResidueLift.toAbs ((b * ⟨toGalElem ĝ, hgmemGal⟩ : ↥(toGal U₀))
+        : Kummer.GaloisGroup ℚ_[2])
+        = ResidueLift.toAbs b.1 * ĝ := rfl
+    show ResidueLift.toAbs ((b * ⟨toGalElem ĝ, hgmemGal⟩ : ↥(toGal U₀))
+        : Kummer.GaloisGroup ℚ_[2]) ∈ ρ.toMonoidHom.ker
+    rw [hbr]
+    exact hbg
+
+/-- **Additivity of the Kummer cocycle on a `subgroupOf` of Galois fixing-subgroups**: the
+`hα`-style side condition for `lemma_6_16`, with the double-subtype coercion factored out. -/
+private theorem kummerCocycleFun_add_on_subgroupOf {W L' : Subgroup (Kummer.GaloisGroup ℚ_[2])}
+    {A β : ℚ̄₂} (hβ : β ^ 2 = A) (hβ0 : β ≠ 0) (hAfix : ∀ g ∈ L', g • A = A)
+    (w z : ↥(L'.subgroupOf W)) :
+    Kummer.kummerCocycleFun β ((w * z : ↥W) : Kummer.GaloisGroup ℚ_[2])
+      = Kummer.kummerCocycleFun β ((w : ↥W) : Kummer.GaloisGroup ℚ_[2])
+        + Kummer.kummerCocycleFun β ((z : ↥W) : Kummer.GaloisGroup ℚ_[2]) := by
+  have hwL := Subgroup.mem_subgroupOf.mp w.2
+  have hzL := Subgroup.mem_subgroupOf.mp z.2
+  have hmul : ((w * z : ↥W) : Kummer.GaloisGroup ℚ_[2])
+      = ((w : ↥W) : Kummer.GaloisGroup ℚ_[2]) * ((z : ↥W) : Kummer.GaloisGroup ℚ_[2]) := rfl
+  rw [hmul]
+  exact kummerCocycleFun_hom_on hβ hβ0 hAfix ⟨_, hwL⟩ ⟨_, hzL⟩
+
 /-- **The involution `hvanish` over `ker ρ`** (P-15f2d, the U₀-splice): for a deep block
 coordinate `α` on `N = ker ρ` and an involution lift `ĝ` (`ĝ ∉ N`, `ĝ² ∈ N`,
 `U₀ = N ⊔ ⟨ĝ⟩`), the Evens-norm inner cochain of the reducer's involution orbit has trivial
@@ -325,48 +402,18 @@ theorem hvanish_involution_ker (R : LocalReciprocity) (B : BoundaryMaps)
     intro x hx g
     exact hx ⟨g.1, (mem_toGal U₀ g.1).mp (hNle ((ResidueLift.mem_kerGal ρ g.1).mpr g.2))⟩
   -- ### index 2, both views
-  have hdecAbs : ∀ b : ↥U₀,
-      b ∉ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2).subgroupOf U₀ →
-      b * ⟨ĝ, hmem⟩ ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2).subgroupOf U₀ := by
-    intro b hb
-    have hbU : (b : AbsGalQ2) ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
-        ⊔ Subgroup.zpowers ĝ := hU₀ ▸ b.2
-    rcases mem_or_mul_mem_of_mem_sup hĝ2 hbU with hbN | hbg
-    · exact absurd (Subgroup.mem_subgroupOf.mpr hbN) hb
-    · exact Subgroup.mem_subgroupOf.mpr hbg
   have hsUnot : (⟨ĝ, hmem⟩ : ↥U₀)
       ∉ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2).subgroupOf U₀ :=
     fun h => hĝN (Subgroup.mem_subgroupOf.mp h)
   have hUiU : ((ρ.toMonoidHom.ker : Subgroup AbsGalQ2).subgroupOf U₀).index = 2 :=
-    index_eq_two_of_decomp hsUnot hdecAbs
-  have hgmemGal : toGalElem ĝ ∈ toGal U₀ := hmem
+    subgroupOf_index_eq_two_of_sup hĝ2 hU₀ hmem hsUnot
   have hindexK : (((ResidueLift.splitField ρ).fixingSubgroup).subgroupOf
       (IntermediateField.fixedField (toGal U₀)).fixingSubgroup).index = 2 := by
     rw [hLfix, hkfix]
-    refine index_eq_two_of_decomp (s := ⟨toGalElem ĝ, hgmemGal⟩)
-      (fun h => hĝN ((ResidueLift.mem_kerGal ρ (toGalElem ĝ)).mpr
-        (Subgroup.mem_subgroupOf.mp h)))
-      (fun b hb => ?_)
-    have hbU : ResidueLift.toAbs b.1 ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
-        ⊔ Subgroup.zpowers ĝ := hU₀ ▸ ((mem_toGal U₀ b.1).mpr b.2)
-    rcases mem_or_mul_mem_of_mem_sup hĝ2 hbU with hbN | hbg
-    · exact absurd (Subgroup.mem_subgroupOf.mpr
-        ((ResidueLift.mem_kerGal ρ b.1).mp hbN)) hb
-    · refine Subgroup.mem_subgroupOf.mpr ?_
-      refine (ResidueLift.mem_kerGal ρ _).mp ?_
-      have hbr : ResidueLift.toAbs ((b * ⟨toGalElem ĝ, hgmemGal⟩ : ↥(toGal U₀))
-          : Kummer.GaloisGroup ℚ_[2])
-          = ResidueLift.toAbs b.1 * ĝ := rfl
-      show ResidueLift.toAbs ((b * ⟨toGalElem ĝ, hgmemGal⟩ : ↥(toGal U₀))
-          : Kummer.GaloisGroup ℚ_[2]) ∈ ρ.toMonoidHom.ker
-      rw [hbr]
-      exact hbg
+    exact kerGal_subgroupOf_toGal_index_eq_two ρ hĝN hĝ2 hU₀ hmem
   -- ### the deep unit over `L`
-  have hdeepL : IsDeepUnit (ResidueLift.splitField ρ).fixingSubgroup A := by
-    obtain ⟨hA0, hAfix, hb⟩ := hdeepN
-    refine ⟨hA0, fun g hg => hAfix g ((hkerm g).mp hg), ?_⟩
-    obtain ⟨b, hbfix, hbeq, hbnorm⟩ := hb
-    exact ⟨b, fun g hg => hbfix g ((hkerm g).mp hg), hbeq, hbnorm⟩
+  have hdeepL : IsDeepUnit (ResidueLift.splitField ρ).fixingSubgroup A :=
+    isDeepUnit_of_forall_mem (fun g hg => (hkerm g).mp hg) hdeepN
   -- ### the c2a Kummer package and the c2c `hunram`
   obtain ⟨d, δ, u, v, hδ, hδL, hLδ, hAuv⟩ :=
     kummer_presentation_of_index_two (IntermediateField.fixedField (toGal U₀))
@@ -415,19 +462,8 @@ theorem hvanish_involution_ker (R : LocalReciprocity) (B : BoundaryMaps)
               : Kummer.GaloisGroup ℚ_[2])
           + Kummer.kummerCocycleFun β
               ((z : ↥(IntermediateField.fixedField (toGal U₀)).fixingSubgroup)
-                : Kummer.GaloisGroup ℚ_[2]) := by
-    intro w z
-    have hwL := Subgroup.mem_subgroupOf.mp w.2
-    have hzL := Subgroup.mem_subgroupOf.mp z.2
-    have hmul : ((w * z : ↥(IntermediateField.fixedField (toGal U₀)).fixingSubgroup)
-        : Kummer.GaloisGroup ℚ_[2])
-        = ((w : ↥(IntermediateField.fixedField (toGal U₀)).fixingSubgroup)
-            : Kummer.GaloisGroup ℚ_[2])
-          * ((z : ↥(IntermediateField.fixedField (toGal U₀)).fixingSubgroup)
-              : Kummer.GaloisGroup ℚ_[2]) := by
-      rfl
-    rw [hmul]
-    exact kummerCocycleFun_hom_on hβ hβ0 hAfixL ⟨_, hwL⟩ ⟨_, hzL⟩
+                : Kummer.GaloisGroup ℚ_[2]) :=
+    kummerCocycleFun_add_on_subgroupOf hβ hβ0 hAfixL
   have hαc : Continuous fun w : ↥(((ResidueLift.splitField ρ).fixingSubgroup).subgroupOf
       (IntermediateField.fixedField (toGal U₀)).fixingSubgroup) =>
       Kummer.kummerCocycleFun β
@@ -448,13 +484,7 @@ theorem hvanish_involution_ker (R : LocalReciprocity) (B : BoundaryMaps)
     rw [← hfeq]
   rw [hinner]
   -- ### `Z²`-memberships on both sides
-  have hNopen : IsOpen ((ρ.toMonoidHom.ker : Subgroup AbsGalQ2) : Set AbsGalQ2) := by
-    have hset : ((ρ.toMonoidHom.ker : Subgroup AbsGalQ2) : Set AbsGalQ2) = ⇑ρ ⁻¹' {1} := by
-      ext g
-      simp only [SetLike.mem_coe, MonoidHom.mem_ker, Set.mem_preimage, Set.mem_singleton_iff]
-      rfl
-    rw [hset]
-    exact (isOpen_discrete {1}).preimage ρ.continuous_toFun
+  have hNopen : IsOpen ((ρ.toMonoidHom.ker : Subgroup AbsGalQ2) : Set AbsGalQ2) := ker_isOpen ρ
   have hUoU : IsOpen ((((ρ.toMonoidHom.ker : Subgroup AbsGalQ2).subgroupOf U₀)
       : Subgroup ↥U₀) : Set ↥U₀) := hNopen.preimage continuous_subtype_val
   have htrivU : ∀ (g : ↥U₀) (m : ZMod 2), g • m = m := fun _ _ => rfl

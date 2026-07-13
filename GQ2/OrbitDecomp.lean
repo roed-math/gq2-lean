@@ -851,6 +851,151 @@ theorem orbitSum_blockBas {Q : (Fin K → RegRep N) → ZMod 2} (hinv : IsInvari
 private theorem mul_eq_iff_rel {x y w : G ⧸ N} : x * w = y ↔ w = x⁻¹ * y :=
   ⟨fun h => by rw [← h, inv_mul_cancel_left], fun h => by rw [h, mul_inv_cancel_left]⟩
 
+/-- The involution summands' polar contribution at basis vectors collapses to the same-block
+involution indicator at the relative position `x⁻¹y`. -/
+private theorem sum_polar_invBlockMap_blockBas (Q : (Fin K → RegRep N) → ZMod 2)
+    (a b : Fin K) (x y : G ⧸ N) :
+    (∑ q ∈ invIdx N Q,
+        polar (orbitSquareMap N (Sum.inr (Sum.inl q))) (blockBas N a x) (blockBas N b y))
+      = if a = b then (if (a, x⁻¹ * y) ∈ invIdx N Q then (1 : ZMod 2) else 0) else 0 := by
+  have hstep : (∑ q ∈ invIdx N Q,
+      polar (orbitSquareMap N (Sum.inr (Sum.inl q))) (blockBas N a x) (blockBas N b y))
+      = ∑ q ∈ invIdx N Q, if q = (a, x⁻¹ * y) ∧ a = b then (1 : ZMod 2) else 0 := by
+    refine Finset.sum_congr rfl fun q hq => ?_
+    have hf := Finset.mem_filter.mp hq
+    show polar (invBlockMap N q.1 q.2) (blockBas N a x) (blockBas N b y) = _
+    rw [polar_invBlockMap_blockBas N q.1 hf.2.1 hf.2.2.1]
+    refine if_congr ⟨?_, ?_⟩ rfl rfl
+    · rintro ⟨h1, h2, h3⟩
+      exact ⟨Prod.ext h1.symm ((mul_eq_iff_rel N).mp h3), h1.trans h2.symm⟩
+    · rintro ⟨rfl, hab⟩
+      exact ⟨rfl, hab.symm, (mul_eq_iff_rel N).mpr rfl⟩
+  rw [hstep]
+  by_cases hab : a = b
+  · rw [if_pos hab,
+      Finset.sum_congr rfl (fun q _ => if_congr (and_iff_left hab) rfl rfl),
+      Finset.sum_ite_eq' (invIdx N Q) (a, x⁻¹ * y) (fun _ => (1 : ZMod 2))]
+  · rw [if_neg hab]
+    exact Finset.sum_eq_zero fun q _ => if_neg (fun hc => hab hc.2)
+
+/-- The free summands' polar contribution at basis vectors collapses to the pair of oriented
+representatives of the swap-orbit at relative position `x⁻¹y`. -/
+private theorem sum_polar_freeBlockMap_blockBas (Q : (Fin K → RegRep N) → ZMod 2)
+    (a b : Fin K) (x y : G ⧸ N) :
+    (∑ r ∈ freeReps N Q,
+        polar (orbitSquareMap N (Sum.inr (Sum.inr r))) (blockBas N a x) (blockBas N b y))
+      = (if (a, b, x⁻¹ * y) ∈ freeReps N Q then (1 : ZMod 2) else 0)
+        + if (b, a, (x⁻¹ * y)⁻¹) ∈ freeReps N Q then (1 : ZMod 2) else 0 := by
+  have hstep : (∑ r ∈ freeReps N Q,
+      polar (orbitSquareMap N (Sum.inr (Sum.inr r))) (blockBas N a x) (blockBas N b y))
+      = ∑ r ∈ freeReps N Q,
+          ((if r = (a, b, x⁻¹ * y) then (1 : ZMod 2) else 0)
+            + if r = (b, a, (x⁻¹ * y)⁻¹) then (1 : ZMod 2) else 0) := by
+    refine Finset.sum_congr rfl fun r _ => ?_
+    show polar (freeBlockMap N r.1 r.2.1 r.2.2) (blockBas N a x) (blockBas N b y) = _
+    rw [polar_freeBlockMap_blockBas]
+    refine congrArg₂ (· + ·) (if_congr ⟨?_, ?_⟩ rfl rfl) (if_congr ⟨?_, ?_⟩ rfl rfl)
+    · rintro ⟨h1, h2, h3⟩
+      exact Prod.ext h1 (Prod.ext h2 ((mul_eq_iff_rel N).mp h3))
+    · rintro rfl
+      exact ⟨rfl, rfl, (mul_eq_iff_rel N).mpr rfl⟩
+    · rintro ⟨h1, h2, h3⟩
+      refine Prod.ext h1 (Prod.ext h2 ?_)
+      rw [(mul_eq_iff_rel N).mp h3, mul_inv_rev, inv_inv]
+    · rintro rfl
+      exact ⟨rfl, rfl, (mul_eq_iff_rel N).mpr (by rw [mul_inv_rev, inv_inv])⟩
+  rw [hstep, Finset.sum_add_distrib,
+    Finset.sum_ite_eq' (freeReps N Q) (a, b, x⁻¹ * y) (fun _ => (1 : ZMod 2)),
+    Finset.sum_ite_eq' (freeReps N Q) (b, a, (x⁻¹ * y)⁻¹) (fun _ => (1 : ZMod 2))]
+
+omit [Finite (G ⧸ N)] in
+/-- Free-position reconstruction: on a free position `(a, b, u)` the summed orbit indicators
+recover `blockPolar Q` (the involution part vanishes; the free part is the oriented representative). -/
+private theorem orbit_indicator_eq_blockPolar_free {Q : (Fin K → RegRep N) → ZMod 2}
+    (hinv : IsInvariant (G ⧸ N) Q) (a b : Fin K) {u : G ⧸ N}
+    (hfree : IsFreePos ((a, b, u) : Fin K × Fin K × (G ⧸ N))) :
+    (if a = b then (if (a, u) ∈ invIdx N Q then (1 : ZMod 2) else 0) else 0)
+        + ((if (a, b, u) ∈ freeReps N Q then (1 : ZMod 2) else 0)
+          + if (b, a, u⁻¹) ∈ freeReps N Q then (1 : ZMod 2) else 0)
+      = blockPolar N Q a b u := by
+  have hinv0 : (if a = b then (if (a, u) ∈ invIdx N Q then (1 : ZMod 2) else 0) else 0) = 0 := by
+    by_cases hab : a = b
+    · rw [if_pos hab]
+      refine if_neg (fun hmem => ?_)
+      have hu2 := (Finset.mem_filter.mp hmem).2.1
+      rcases hfree with h | h
+      · exact h hab
+      · exact h hu2
+    · rw [if_neg hab]
+  rw [hinv0, zero_add]
+  rcases ZMod.eq_zero_or_eq_one (blockPolar N Q a b u) with h0 | h1
+  · have hn1 : (a, b, u) ∉ freeReps N Q := fun hmem =>
+      absurd (((mem_freeReps_isFree N hmem).2 : blockPolar N Q a b u = 1).symm.trans h0) (by decide)
+    have hn2 : (b, a, u⁻¹) ∉ freeReps N Q := fun hmem =>
+      absurd (((blockPolar_symm N hinv a b u).trans
+        ((mem_freeReps_isFree N hmem).2 : blockPolar N Q b a u⁻¹ = 1)).symm.trans h0) (by decide)
+    rw [if_neg hn1, if_neg hn2, add_zero, h0]
+  · rw [h1]
+    rcases mem_freeReps_or_swap N hinv hfree h1 with hmem | hmem
+    · have hswap : (b, a, u⁻¹) ∈ freeReps N Q ↔ posSwap ((a, b, u)) ∈ freeReps N Q := Iff.rfl
+      rw [if_pos hmem, if_neg (fun hs => not_mem_freeReps_both N ⟨hmem, hswap.mp hs⟩), add_zero]
+    · have hmem' : (b, a, u⁻¹) ∈ freeReps N Q := hmem
+      rw [if_neg (fun hs => not_mem_freeReps_both N ⟨hs, hmem⟩), if_pos hmem', zero_add]
+
+omit [Finite (G ⧸ N)] in
+/-- Non-free-position reconstruction: on a non-free position `(a, b, u)` (so `a = b` and `u² = 1`)
+the summed orbit indicators recover `blockPolar Q` (the free part vanishes; the diagonal `u = 1`
+case is `0`, and the involution `u ≠ 1` case is the involution indicator). -/
+private theorem orbit_indicator_eq_blockPolar_notFree {Q : (Fin K → RegRep N) → ZMod 2}
+    (hQ : IsQuadraticFp2 Q) (a b : Fin K) {u : G ⧸ N}
+    (hnfree : ¬ IsFreePos ((a, b, u) : Fin K × Fin K × (G ⧸ N))) :
+    (if a = b then (if (a, u) ∈ invIdx N Q then (1 : ZMod 2) else 0) else 0)
+        + ((if (a, b, u) ∈ freeReps N Q then (1 : ZMod 2) else 0)
+          + if (b, a, u⁻¹) ∈ freeReps N Q then (1 : ZMod 2) else 0)
+      = blockPolar N Q a b u := by
+  have h2mod : ∀ v : Fin K → RegRep N, v + v = 0 := fun v => by
+    funext i h; exact CharTwo.add_self_eq_zero _
+  have hab : a = b := by by_contra hne; exact hnfree (Or.inl hne)
+  have hu2 : u * u = 1 := by by_contra hne; exact hnfree (Or.inr hne)
+  have hfree0 : (if (a, b, u) ∈ freeReps N Q then (1 : ZMod 2) else 0)
+      + (if (b, a, u⁻¹) ∈ freeReps N Q then (1 : ZMod 2) else 0) = 0 := by
+    have hn1 : (a, b, u) ∉ freeReps N Q := by
+      intro hmem; rcases (mem_freeReps_isFree N hmem).1 with h | h
+      · exact h hab
+      · exact h hu2
+    have hn2 : (b, a, u⁻¹) ∉ freeReps N Q := by
+      intro hmem; rcases (mem_freeReps_isFree N hmem).1 with h | h
+      · exact h hab.symm
+      · exact h (by rw [← mul_inv_rev, hu2, inv_one])
+    rw [if_neg hn1, if_neg hn2, add_zero]
+  rw [hfree0, add_zero]
+  subst hab
+  rw [if_pos rfl]
+  by_cases hu1 : u = 1
+  · rw [if_neg (fun hmem => (Finset.mem_filter.mp hmem).2.2.1 hu1)]
+    have hbp : blockPolar N Q a a u = 0 := by
+      show polar Q (blockBas N a 1) (blockBas N a u) = 0
+      rw [hu1]; exact polar_self Q hQ h2mod _
+    rw [hbp]
+  · rcases ZMod.eq_zero_or_eq_one (blockPolar N Q a a u) with h0 | h1
+    · rw [if_neg (fun hmem => absurd (Finset.mem_filter.mp hmem).2.2.2 (by rw [h0]; decide)), h0]
+    · have hmem : (a, u) ∈ invIdx N Q :=
+        Finset.mem_filter.mpr ⟨Finset.mem_univ _, hu2, hu1, h1⟩
+      rw [if_pos hmem, h1]
+
+omit [Finite (G ⧸ N)] in
+/-- Position reconstruction: the summed orbit indicators at a relative position `(a, b, u)` recover
+`blockPolar Q a b u` (free vs non-free split). -/
+private theorem orbit_indicator_eq_blockPolar {Q : (Fin K → RegRep N) → ZMod 2}
+    (hinv : IsInvariant (G ⧸ N) Q) (hQ : IsQuadraticFp2 Q) (a b : Fin K) (u : G ⧸ N) :
+    (if a = b then (if (a, u) ∈ invIdx N Q then (1 : ZMod 2) else 0) else 0)
+        + ((if (a, b, u) ∈ freeReps N Q then (1 : ZMod 2) else 0)
+          + if (b, a, u⁻¹) ∈ freeReps N Q then (1 : ZMod 2) else 0)
+      = blockPolar N Q a b u := by
+  by_cases hfree : IsFreePos ((a, b, u) : Fin K × Fin K × (G ⧸ N))
+  · exact orbit_indicator_eq_blockPolar_free N hinv a b hfree
+  · exact orbit_indicator_eq_blockPolar_notFree N hQ a b hfree
+
 /-- **Polar matching**: the orbit sum's polar agrees with `Q`'s polar on basis vectors.  The
 square summands contribute `0`; the surviving contribution is the involution indicator (same-block
 involution positions) or the free indicator (an oriented representative of the swap-orbit), which
@@ -861,128 +1006,18 @@ theorem orbitSum_polar_blockBas {Q : (Fin K → RegRep N) → ZMod 2}
       = polar Q (blockBas N p.1 p.2) (blockBas N p'.1 p'.2) := by
   obtain ⟨a, x⟩ := p
   obtain ⟨b, y⟩ := p'
-  set u₀ := x⁻¹ * y with hu₀
-  have h2mod : ∀ v : Fin K → RegRep N, v + v = 0 := fun v => by
-    funext i h; exact CharTwo.add_self_eq_zero _
-  have hRHS : polar Q (blockBas N a x) (blockBas N b y) = blockPolar N Q a b u₀ :=
-    polar_blockBas_eq N hinv a b x y
   have hLHS : polar (orbitSum N Q) (blockBas N a x) (blockBas N b y)
       = ∑ o ∈ orbitIndexSet N Q, polar (orbitSquareMap N o) (blockBas N a x) (blockBas N b y) :=
     polar_finset_sum (orbitIndexSet N Q) (orbitSquareMap N) _ _
-  rw [hLHS, hRHS, sum_orbitIndexSet]
-  -- square part vanishes
+  rw [hLHS, polar_blockBas_eq N hinv a b x y, sum_orbitIndexSet]
+  -- square part vanishes; involution/free parts collapse to their position indicators
   have hsq : (∑ j ∈ sqIdx N Q,
       polar (orbitSquareMap N (Sum.inl j)) (blockBas N a x) (blockBas N b y)) = 0 :=
     Finset.sum_eq_zero fun j _ => polar_squareBlockMap N j _ _
-  -- involution part = the same-block involution indicator
-  have hinvsum : (∑ q ∈ invIdx N Q,
-      polar (orbitSquareMap N (Sum.inr (Sum.inl q))) (blockBas N a x) (blockBas N b y))
-      = if a = b then (if (a, u₀) ∈ invIdx N Q then (1 : ZMod 2) else 0) else 0 := by
-    have hstep : (∑ q ∈ invIdx N Q,
-        polar (orbitSquareMap N (Sum.inr (Sum.inl q))) (blockBas N a x) (blockBas N b y))
-        = ∑ q ∈ invIdx N Q, if q = (a, u₀) ∧ a = b then (1 : ZMod 2) else 0 := by
-      refine Finset.sum_congr rfl fun q hq => ?_
-      have hf := Finset.mem_filter.mp hq
-      show polar (invBlockMap N q.1 q.2) (blockBas N a x) (blockBas N b y) = _
-      rw [polar_invBlockMap_blockBas N q.1 hf.2.1 hf.2.2.1]
-      refine if_congr ⟨?_, ?_⟩ rfl rfl
-      · rintro ⟨h1, h2, h3⟩
-        exact ⟨Prod.ext h1.symm ((mul_eq_iff_rel N).mp h3), h1.trans h2.symm⟩
-      · rintro ⟨rfl, hab⟩
-        exact ⟨rfl, hab.symm, (mul_eq_iff_rel N).mpr hu₀⟩
-    rw [hstep]
-    by_cases hab : a = b
-    · rw [if_pos hab,
-        Finset.sum_congr rfl (fun q _ => if_congr (and_iff_left hab) rfl rfl),
-        Finset.sum_ite_eq' (invIdx N Q) (a, u₀) (fun _ => (1 : ZMod 2))]
-    · rw [if_neg hab]
-      exact Finset.sum_eq_zero fun q _ => if_neg (fun hc => hab hc.2)
-  -- free part = the two oriented representatives
-  have hfreesum : (∑ r ∈ freeReps N Q,
-      polar (orbitSquareMap N (Sum.inr (Sum.inr r))) (blockBas N a x) (blockBas N b y))
-      = (if (a, b, u₀) ∈ freeReps N Q then (1 : ZMod 2) else 0)
-        + if (b, a, u₀⁻¹) ∈ freeReps N Q then (1 : ZMod 2) else 0 := by
-    have hstep : (∑ r ∈ freeReps N Q,
-        polar (orbitSquareMap N (Sum.inr (Sum.inr r))) (blockBas N a x) (blockBas N b y))
-        = ∑ r ∈ freeReps N Q,
-            ((if r = (a, b, u₀) then (1 : ZMod 2) else 0)
-              + if r = (b, a, u₀⁻¹) then (1 : ZMod 2) else 0) := by
-      refine Finset.sum_congr rfl fun r _ => ?_
-      show polar (freeBlockMap N r.1 r.2.1 r.2.2) (blockBas N a x) (blockBas N b y) = _
-      rw [polar_freeBlockMap_blockBas]
-      refine congrArg₂ (· + ·) (if_congr ⟨?_, ?_⟩ rfl rfl) (if_congr ⟨?_, ?_⟩ rfl rfl)
-      · rintro ⟨h1, h2, h3⟩
-        exact Prod.ext h1 (Prod.ext h2 ((mul_eq_iff_rel N).mp h3))
-      · rintro rfl
-        exact ⟨rfl, rfl, (mul_eq_iff_rel N).mpr hu₀⟩
-      · rintro ⟨h1, h2, h3⟩
-        refine Prod.ext h1 (Prod.ext h2 ?_)
-        rw [(mul_eq_iff_rel N).mp h3, hu₀, mul_inv_rev, inv_inv]
-      · rintro rfl
-        exact ⟨rfl, rfl, (mul_eq_iff_rel N).mpr (by rw [hu₀, mul_inv_rev, inv_inv])⟩
-    rw [hstep, Finset.sum_add_distrib,
-      Finset.sum_ite_eq' (freeReps N Q) (a, b, u₀) (fun _ => (1 : ZMod 2)),
-      Finset.sum_ite_eq' (freeReps N Q) (b, a, u₀⁻¹) (fun _ => (1 : ZMod 2))]
-  rw [hsq, hinvsum, hfreesum, zero_add]
-  -- final case analysis: free position vs involution vs diagonal
-  by_cases hfree : IsFreePos ((a, b, u₀) : Fin K × Fin K × (G ⧸ N))
-  · -- free: involution part vanishes, free part reconstructs the polar
-    have hinv0 : (if a = b then (if (a, u₀) ∈ invIdx N Q then (1 : ZMod 2) else 0) else 0)
-        = 0 := by
-      by_cases hab : a = b
-      · rw [if_pos hab]
-        refine if_neg (fun hmem => ?_)
-        have hu2 := (Finset.mem_filter.mp hmem).2.1
-        rcases hfree with h | h
-        · exact h hab
-        · exact h hu2
-      · rw [if_neg hab]
-    rw [hinv0, zero_add]
-    rcases ZMod.eq_zero_or_eq_one (blockPolar N Q a b u₀) with h0 | h1
-    · have hn1 : (a, b, u₀) ∉ freeReps N Q := fun hmem =>
-        absurd (((mem_freeReps_isFree N hmem).2 : blockPolar N Q a b u₀ = 1).symm.trans h0)
-          (by decide)
-      have hn2 : (b, a, u₀⁻¹) ∉ freeReps N Q := fun hmem =>
-        absurd (((blockPolar_symm N hinv a b u₀).trans
-          ((mem_freeReps_isFree N hmem).2 : blockPolar N Q b a u₀⁻¹ = 1)).symm.trans h0) (by decide)
-      rw [if_neg hn1, if_neg hn2, add_zero, h0]
-    · rw [h1]
-      rcases mem_freeReps_or_swap N hinv hfree h1 with hmem | hmem
-      · have hswap : (b, a, u₀⁻¹) ∈ freeReps N Q ↔ posSwap ((a, b, u₀)) ∈ freeReps N Q := Iff.rfl
-        rw [if_pos hmem,
-          if_neg (fun hs => not_mem_freeReps_both N ⟨hmem, hswap.mp hs⟩), add_zero]
-      · have hmem' : (b, a, u₀⁻¹) ∈ freeReps N Q := hmem
-        rw [if_neg (fun hs => not_mem_freeReps_both N ⟨hs, hmem⟩), if_pos hmem', zero_add]
-  · -- not free: a = b and u₀² = 1; free part vanishes
-    have hab : a = b := by by_contra hne; exact hfree (Or.inl hne)
-    have hu2 : u₀ * u₀ = 1 := by by_contra hne; exact hfree (Or.inr hne)
-    have hfree0 : (if (a, b, u₀) ∈ freeReps N Q then (1 : ZMod 2) else 0)
-        + (if (b, a, u₀⁻¹) ∈ freeReps N Q then (1 : ZMod 2) else 0) = 0 := by
-      have hn1 : (a, b, u₀) ∉ freeReps N Q := by
-        intro hmem; rcases (mem_freeReps_isFree N hmem).1 with h | h
-        · exact h hab
-        · exact h hu2
-      have hn2 : (b, a, u₀⁻¹) ∉ freeReps N Q := by
-        intro hmem; rcases (mem_freeReps_isFree N hmem).1 with h | h
-        · exact h hab.symm
-        · exact h (by rw [← mul_inv_rev, hu2, inv_one])
-      rw [if_neg hn1, if_neg hn2, add_zero]
-    rw [hfree0, add_zero]
-    subst hab
-    rw [if_pos rfl]
-    by_cases hu1 : u₀ = 1
-    · -- diagonal: both sides 0
-      rw [if_neg (fun hmem => (Finset.mem_filter.mp hmem).2.2.1 hu1)]
-      have hbp : blockPolar N Q a a u₀ = 0 := by
-        show polar Q (blockBas N a 1) (blockBas N a u₀) = 0
-        rw [hu1]; exact polar_self Q hQ h2mod _
-      rw [hbp]
-    · -- involution: the indicator recovers blockPolar
-      rcases ZMod.eq_zero_or_eq_one (blockPolar N Q a a u₀) with h0 | h1
-      · rw [if_neg (fun hmem => absurd (Finset.mem_filter.mp hmem).2.2.2 (by rw [h0]; decide)), h0]
-      · have hmem : (a, u₀) ∈ invIdx N Q :=
-          Finset.mem_filter.mpr ⟨Finset.mem_univ _, hu2, hu1, h1⟩
-        rw [if_pos hmem, h1]
+  rw [hsq, sum_polar_invBlockMap_blockBas N Q a b x y,
+    sum_polar_freeBlockMap_blockBas N Q a b x y, zero_add]
+  -- the summed indicators reconstruct blockPolar at the relative position `x⁻¹y`
+  exact orbit_indicator_eq_blockPolar N hinv hQ a b (x⁻¹ * y)
 
 /-- **The §6.2 orbit decomposition** (P-15f2b, the remaining clause): a `(G/N)`-invariant
 `𝔽₂`-quadratic map `Q` on the block module is the square map of the `sumDatum` of its orbit

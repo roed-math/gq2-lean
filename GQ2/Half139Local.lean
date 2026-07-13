@@ -70,6 +70,55 @@ private theorem conj_eq_of_mk_eq_M {Bg : Type} [Group Bg] [Finite Bg] {D : Radic
   { (inferInstance : Group ↥D.M) with
     mul_comm := fun a b => Subtype.ext (D.hcomm _ a.2 _ b.2) }
 
+/-- The `Bg/M`-conjugation action on `Additive ↥M` (`Quotient.out`-conjugation; representative-
+independent by `conj_eq_of_mk_eq_M`, since `M` is normal (`D.hM`) and abelian (`D.hcomm`)).  The
+`D.M`-analogue of `RStageLocal.conjC`. -/
+@[reducible] private noncomputable def mConjAction {Bg : Type} [Group Bg] [Finite Bg]
+    (D : RadicalCoverData Bg) : DistribMulAction (Bg ⧸ D.M) (Additive ↥D.M) where
+  smul c m := Additive.ofMul
+    ⟨Quotient.out c * (Additive.toMul m).1 * (Quotient.out c)⁻¹,
+      D.hM.conj_mem _ (Additive.toMul m).2 _⟩
+  one_smul m := by
+    apply Additive.toMul.injective; apply Subtype.ext
+    show Quotient.out (1 : Bg ⧸ D.M) * (Additive.toMul m).1
+        * (Quotient.out (1 : Bg ⧸ D.M))⁻¹ = (Additive.toMul m).1
+    have h1 : (Quotient.out (1 : Bg ⧸ D.M)) ∈ D.M := by
+      have := QuotientGroup.out_eq' (1 : Bg ⧸ D.M)
+      rwa [QuotientGroup.eq_one_iff] at this
+    rw [D.hcomm _ h1 _ (Additive.toMul m).2]; group
+  mul_smul c c' m := by
+    apply Additive.toMul.injective; apply Subtype.ext
+    show Quotient.out (c * c') * (Additive.toMul m).1 * (Quotient.out (c * c'))⁻¹
+      = Quotient.out c * (Quotient.out c' * (Additive.toMul m).1 * (Quotient.out c')⁻¹)
+          * (Quotient.out c)⁻¹
+    rw [show Quotient.out c * (Quotient.out c' * (Additive.toMul m).1 * (Quotient.out c')⁻¹)
+          * (Quotient.out c)⁻¹
+        = (Quotient.out c * Quotient.out c') * (Additive.toMul m).1
+          * (Quotient.out c * Quotient.out c')⁻¹ from by group]
+    exact conj_eq_of_mk_eq_M (by rw [QuotientGroup.out_eq', QuotientGroup.mk_mul,
+      QuotientGroup.out_eq', QuotientGroup.out_eq']) (Additive.toMul m)
+  smul_zero c := by
+    apply Additive.toMul.injective; apply Subtype.ext
+    show Quotient.out c * (1 : Bg) * (Quotient.out c)⁻¹ = 1
+    group
+  smul_add c m m' := by
+    apply Additive.toMul.injective; apply Subtype.ext
+    show Quotient.out c * ((Additive.toMul m).1 * (Additive.toMul m').1) * (Quotient.out c)⁻¹
+      = (Quotient.out c * (Additive.toMul m).1 * (Quotient.out c)⁻¹)
+          * (Quotient.out c * (Additive.toMul m').1 * (Quotient.out c)⁻¹)
+    group
+
+/-- The `mConjAction` action computed at any coset representative (`D.M`-analogue of
+`RStageLocal.conjC_smul_of_mk`). -/
+private theorem mConjAction_smul_of_mk {Bg : Type} [Group Bg] [Finite Bg]
+    (D : RadicalCoverData Bg) (y : Bg) (m : ↥D.M) :
+    letI := mConjAction D
+    (QuotientGroup.mk y : Bg ⧸ D.M) • Additive.ofMul m
+      = Additive.ofMul (⟨y * (m : Bg) * y⁻¹, D.hM.conj_mem _ m.2 _⟩ : ↥D.M) := by
+  letI := mConjAction D
+  apply Additive.toMul.injective; apply Subtype.ext
+  exact conj_eq_of_mk_eq_M (QuotientGroup.out_eq' _) m
+
 /-! ## The `(M∨)^C = 0` refutation (Lemma 7.1 / simple-head duality) -/
 
 /-- **No nonzero conjugation-invariant `M`-character** (`(M_B^∨)^{Y} = 0`, the operational form of
@@ -246,38 +295,7 @@ theorem hMcountM_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
     ⟨(inferInstance : DiscreteTopology ↥(En.radData l h).M).eq_bot⟩
   haveI : Finite (Additive ↥(En.radData l h).M) := (inferInstance : Finite ↥(En.radData l h).M)
   letI actC : DistribMulAction (RF.YB ⧸ (En.radData l h).M) (Additive ↥(En.radData l h).M) :=
-    { smul := fun c m => Additive.ofMul
-        ⟨Quotient.out c * (Additive.toMul m).1 * (Quotient.out c)⁻¹,
-          (En.radData l h).hM.conj_mem _ (Additive.toMul m).2 _⟩
-      one_smul := fun m => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show Quotient.out (1 : RF.YB ⧸ (En.radData l h).M) * (Additive.toMul m).1
-            * (Quotient.out (1 : RF.YB ⧸ (En.radData l h).M))⁻¹ = (Additive.toMul m).1
-        have h1 : (Quotient.out (1 : RF.YB ⧸ (En.radData l h).M)) ∈ (En.radData l h).M := by
-          have := QuotientGroup.out_eq' (1 : RF.YB ⧸ (En.radData l h).M)
-          rwa [QuotientGroup.eq_one_iff] at this
-        rw [(En.radData l h).hcomm _ h1 _ (Additive.toMul m).2]; group
-      mul_smul := fun c c' m => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show Quotient.out (c * c') * (Additive.toMul m).1 * (Quotient.out (c * c'))⁻¹
-          = Quotient.out c * (Quotient.out c' * (Additive.toMul m).1 * (Quotient.out c')⁻¹)
-              * (Quotient.out c)⁻¹
-        rw [show Quotient.out c * (Quotient.out c' * (Additive.toMul m).1 * (Quotient.out c')⁻¹)
-              * (Quotient.out c)⁻¹
-            = (Quotient.out c * Quotient.out c') * (Additive.toMul m).1
-              * (Quotient.out c * Quotient.out c')⁻¹ from by group]
-        exact conj_eq_of_mk_eq_M (by rw [QuotientGroup.out_eq', QuotientGroup.mk_mul,
-          QuotientGroup.out_eq', QuotientGroup.out_eq']) (Additive.toMul m)
-      smul_zero := fun c => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show Quotient.out c * (1 : RF.YB) * (Quotient.out c)⁻¹ = 1
-        group
-      smul_add := fun c m m' => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show Quotient.out c * ((Additive.toMul m).1 * (Additive.toMul m').1) * (Quotient.out c)⁻¹
-          = (Quotient.out c * (Additive.toMul m).1 * (Quotient.out c)⁻¹)
-              * (Quotient.out c * (Additive.toMul m').1 * (Quotient.out c)⁻¹)
-        group }
+    mConjAction (En.radData l h)
   letI actG : DistribMulAction AbsGalQ2 (Additive ↥(En.radData l h).M) :=
     DistribMulAction.compHom (Additive ↥(En.radData l h).M)
       (RF.rhoPrime b F (En.radData l h) rfl ρ).toMonoidHom
@@ -317,14 +335,8 @@ theorem hMcountM_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
       refine mchar_conj_invariant_eq_zero RF En l h (fun m => lam (Additive.ofMul m))
         (fun m m' => map_add lam (Additive.ofMul m) (Additive.ofMul m'))
         (fun bb m hm => ?_) (Additive.toMul a)
-      have hact : (QuotientGroup.mk bb : RF.YB ⧸ (En.radData l h).M) • Additive.ofMul m
-          = Additive.ofMul (⟨Quotient.out (QuotientGroup.mk bb) * (m : RF.YB)
-              * (Quotient.out (QuotientGroup.mk bb))⁻¹,
-              (En.radData l h).hM.conj_mem _ m.2 _⟩ : ↥(En.radData l h).M) := rfl
-      rw [← hinv (QuotientGroup.mk bb) (Additive.ofMul m), hact]
-      exact congrArg (fun z : ↥(En.radData l h).M => lam (Additive.ofMul z))
-        (Subtype.ext (conj_eq_of_mk_eq_M (D := En.radData l h)
-          (QuotientGroup.out_eq' _).symm m))
+      rw [← hinv (QuotientGroup.mk bb) (Additive.ofMul m),
+        mConjAction_smul_of_mk (En.radData l h) bb m]
     rw [Nat.card_eq_one_iff_unique]
     exact ⟨⟨fun x y => Subtype.ext ((hzero x.val x.2).trans (hzero y.val y.2).symm)⟩,
       ⟨⟨0, fun c => smul_zero c⟩⟩⟩
