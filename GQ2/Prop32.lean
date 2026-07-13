@@ -1000,138 +1000,146 @@ lemma tame_rel_map {H : Type*} [Group H] (f : Ttame →* H) :
 
 /-! ## Lemma 3.3, core form -/
 
-/-- **Lemma 3.3 (core)**: a normal subgroup of `T_tame` all of whose finite continuous images
-are 2-groups is trivial.  Paper argument: through each Fermat level `G_m` the image is a
-central 2-subgroup of a center-free group, hence trivial, so the `Q`-coordinate dies in every
-`C_{2^m}`; the cyclic level-comparison then kills the `Q`-image entirely, and the remaining
-inertia part has both odd and 2-power order levelwise. -/
-theorem eq_bot_of_normal_two_images (M : Subgroup Ttame) [hMn : M.Normal]
+/-- An element of a `2`-group subgroup has `2`-power order. -/
+private lemma IsPGroup.exists_orderOf_eq_two_pow {H : Type*} [Group H] {K : Subgroup H}
+    (hK : IsPGroup 2 K) {u : H} (hu : u ∈ K) : ∃ i : ℕ, orderOf u = 2 ^ i := by
+  obtain ⟨k, hk⟩ := hK ⟨u, hu⟩
+  have hk' : u ^ 2 ^ k = 1 := by
+    have h1 := congrArg (fun w : K => (w : H)) hk
+    simp only [SubmonoidClass.coe_pow, OneMemClass.coe_one] at h1
+    exact h1
+  obtain ⟨i, _, hi⟩ := (Nat.dvd_prime_pow Nat.prime_two).mp
+    (orderOf_dvd_iff_pow_eq_one.mpr hk')
+  exact ⟨i, hi⟩
+
+/-- Arithmetic core of the cyclic level-comparison: if a natural `n` factors both as
+`2 ^ a * cχ` and as `cU * cπ` with `a` the `2`-adic valuation of `cU`, then `cχ` and `cπ`
+have the same `2`-adic valuation. -/
+private lemma factorization_two_ker_eq {n cχ cπ cU a : ℕ}
+    (hχ : n = 2 ^ a * cχ) (hπ : n = cU * cπ)
+    (hcχ : cχ ≠ 0) (hcπ : cπ ≠ 0) (hcU : cU ≠ 0)
+    (ha : a = cU.factorization 2) :
+    cχ.factorization 2 = cπ.factorization 2 := by
+  have e1 : a + cχ.factorization 2 = n.factorization 2 := by
+    rw [hχ, Nat.factorization_mul (pow_ne_zero a two_ne_zero) hcχ, Finsupp.add_apply,
+      Nat.Prime.factorization_pow Nat.prime_two, Finsupp.single_eq_same]
+  have e2 : a + cπ.factorization 2 = n.factorization 2 := by
+    rw [hπ, Nat.factorization_mul hcU hcπ, Finsupp.add_apply, ← ha]
+  omega
+
+/-- **Lemma 3.3, `Q`-coordinate step.** For a normal subgroup `M` of `T_tame` with 2-group
+finite images, the image `qMk x` of any `x ∈ M` lies in every open normal subgroup `U ≤ Qur`:
+comparing the Fermat character `χ` (onto `C_{2^a}`) with the projection `π` onto `Qur/U`
+through the finer level `W`, the 2-power-order class of `x` in `Qur/W` sits in `ker χ`, and the
+matching 2-adic valuations (`factorization_two_ker_eq`) force it into `ker π`, i.e. into `U`. -/
+private lemma qMk_mem_of_two_images (M : Subgroup Ttame) [M.Normal]
     (h2 : ∀ (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [Finite G]
-      (f : Ttame →* G), Continuous f → IsPGroup 2 (M.map f)) :
-    M = ⊥ := by
-  rw [eq_bot_iff]
-  intro x hx
-  rw [Subgroup.mem_bot]
-  -- Step 1: the `Q`-image of `x` is trivial, i.e. `x ∈ inertiaPart`
-  have hxI : x ∈ inertiaPart := by
-    haveI hIc : IsClosed (inertiaPart : Set Ttame) := Subgroup.isClosed_topologicalClosure _
-    have hy1 : qMk x = 1 := by
-      refine eq_one_of_forall_mem_openNormalSubgroup fun U => ?_
-      haveI : Finite (Qur ⧸ U.toSubgroup) := inferInstance
-      set y : Qur := qMk x with hy
-      set a : ℕ := (Nat.card (Qur ⧸ U.toSubgroup)).factorization 2 with ha
-      have hKopen : IsOpen (((psiFermatQ a).toMonoidHom.ker : Subgroup Qur) : Set Qur) := by
-        rw [MonoidHom.coe_ker]
-        exact (isOpen_discrete _).preimage (psiFermatQ a).continuous_toFun
-      haveI hkerN : ((psiFermatQ a).toMonoidHom.ker).Normal := MonoidHom.normal_ker _
-      haveI hWn : (U.toSubgroup ⊓ (psiFermatQ a).toMonoidHom.ker).Normal := by
-        constructor
-        intro n hn g
-        exact ⟨U.isNormal'.conj_mem _ hn.1 g, hkerN.conj_mem _ hn.2 g⟩
-      obtain ⟨W, hWdef⟩ : ∃ W : OpenNormalSubgroup Qur,
-          W.toSubgroup = U.toSubgroup ⊓ (psiFermatQ a).toMonoidHom.ker :=
-        ⟨⟨⟨U.toSubgroup ⊓ (psiFermatQ a).toMonoidHom.ker,
-          U.toOpenSubgroup.isOpen'.inter hKopen⟩, hWn⟩, rfl⟩
-      haveI : Finite (Qur ⧸ W.toSubgroup) := inferInstance
-      set π : (Qur ⧸ W.toSubgroup) →* (Qur ⧸ U.toSubgroup) :=
-        QuotientGroup.map W.toSubgroup U.toSubgroup (MonoidHom.id _) (by
-          rw [Subgroup.comap_id, hWdef]
-          exact inf_le_left) with hπ
-      set χ : (Qur ⧸ W.toSubgroup) →* Multiplicative (ZMod (2 ^ a)) :=
-        QuotientGroup.lift W.toSubgroup (psiFermatQ a).toMonoidHom
-          (fun w hw => MonoidHom.mem_ker.mp (hWdef ▸ hw).2) with hχ
-      haveI hWnormal : W.toSubgroup.Normal := W.isNormal'
-      haveI hWtg : IsTopologicalGroup (Qur ⧸ W.toSubgroup) :=
-        QuotientGroup.instIsTopologicalGroup W.toSubgroup
-      haveI : IsCyclic (Qur ⧸ W.toSubgroup) := by
-        have hgenC : Subgroup.closure {(QuotientGroup.mk' W.toSubgroup) qSigma} = ⊤ := by
-          have h := topGen_map (f := QuotientGroup.mk' W.toSubgroup) QuotientGroup.continuous_mk
-            (QuotientGroup.mk'_surjective _) topGen_qur
-          rw [Set.image_singleton] at h
-          exact gen_of_topGen_discrete h
-        refine ⟨⟨(QuotientGroup.mk' W.toSubgroup) qSigma, fun z => ?_⟩⟩
-        have hz : z ∈ Subgroup.closure {(QuotientGroup.mk' W.toSubgroup) qSigma} :=
-          hgenC ▸ Subgroup.mem_top z
-        rwa [← Subgroup.zpowers_eq_closure] at hz
-      have hπsurj : Function.Surjective π := by
-        intro c
-        obtain ⟨z, rfl⟩ := QuotientGroup.mk'_surjective U.toSubgroup c
-        exact ⟨(QuotientGroup.mk' W.toSubgroup) z, QuotientGroup.map_mk' _ _ _ _ _⟩
-      have hχsurj : Function.Surjective χ := by
-        intro c
-        obtain ⟨q0, hq0⟩ := psiFermatQ_surjective a c
-        exact ⟨(QuotientGroup.mk' W.toSubgroup) q0,
-          (QuotientGroup.lift_mk' _ _ q0).trans hq0⟩
-      have hposχ : Nat.card ((χ.ker : Subgroup (Qur ⧸ W.toSubgroup))) ≠ 0 := Nat.card_pos.ne'
-      have hposπ : Nat.card ((π.ker : Subgroup (Qur ⧸ W.toSubgroup))) ≠ 0 := Nat.card_pos.ne'
-      have hposU : Nat.card (Qur ⧸ U.toSubgroup) ≠ 0 := Nat.card_pos.ne'
-      have hCχ : Nat.card (Qur ⧸ W.toSubgroup) = 2 ^ a * Nat.card χ.ker := by
-        have h1 := Subgroup.card_eq_card_quotient_mul_card_subgroup (χ.ker)
-        have hq2 : Nat.card ((Qur ⧸ W.toSubgroup) ⧸ χ.ker)
-            = Nat.card (Multiplicative (ZMod (2 ^ a))) :=
-          Nat.card_congr (QuotientGroup.quotientKerEquivOfSurjective χ hχsurj).toEquiv
-        have h3 : Nat.card (Multiplicative (ZMod (2 ^ a))) = 2 ^ a := by
-          rw [Nat.card_congr (Multiplicative.toAdd (α := ZMod (2 ^ a))), Nat.card_zmod]
-        rw [h1, hq2, h3]
-      have hCπ : Nat.card (Qur ⧸ W.toSubgroup)
-          = Nat.card (Qur ⧸ U.toSubgroup) * Nat.card π.ker := by
-        have h1 := Subgroup.card_eq_card_quotient_mul_card_subgroup (π.ker)
-        have hq2 : Nat.card ((Qur ⧸ W.toSubgroup) ⧸ π.ker) = Nat.card (Qur ⧸ U.toSubgroup) :=
-          Nat.card_congr (QuotientGroup.quotientKerEquivOfSurjective π hπsurj).toEquiv
-        rw [h1, hq2]
-      have hv2 : (Nat.card χ.ker).factorization 2 = (Nat.card π.ker).factorization 2 := by
-        have e1 : a + (Nat.card χ.ker).factorization 2
-            = (Nat.card (Qur ⧸ W.toSubgroup)).factorization 2 := by
-          rw [hCχ, Nat.factorization_mul (pow_ne_zero a two_ne_zero) hposχ, Finsupp.add_apply,
-            Nat.Prime.factorization_pow Nat.prime_two, Finsupp.single_eq_same]
-        have e2 : a + (Nat.card π.ker).factorization 2
-            = (Nat.card (Qur ⧸ W.toSubgroup)).factorization 2 := by
-          rw [hCπ, Nat.factorization_mul hposU hposπ, Finsupp.add_apply, ← ha]
-        omega
-      set u : Qur ⧸ W.toSubgroup := (QuotientGroup.mk' W.toSubgroup) y with hu
-      have huK : u ∈ χ.ker := by
-        rw [MonoidHom.mem_ker, hu]
-        rw [show χ ((QuotientGroup.mk' W.toSubgroup) y) = psiFermatQ a y from
-          QuotientGroup.lift_mk' _ _ y]
-        rw [hy, show psiFermatQ a (qMk x) = fermatNu a x from
-          quotientLift_quotientMk _ _ _ _]
-        show SemidirectProduct.rightHom (fermatHom a x) = 1
-        rw [fermatHom_eq_one_of_mem a h2 hx, map_one]
-      have hu2 : ∃ i : ℕ, orderOf u = 2 ^ i := by
-        have hcont : Continuous ((QuotientGroup.mk' W.toSubgroup).comp
-            qMk.toMonoidHom) := by
-          rw [MonoidHom.coe_comp]
-          exact Continuous.comp QuotientGroup.continuous_mk qMk.continuous_toFun
-        have hp2 := h2 _ ((QuotientGroup.mk' W.toSubgroup).comp
-          qMk.toMonoidHom) hcont
-        have hmem : u ∈ M.map ((QuotientGroup.mk' W.toSubgroup).comp
-            qMk.toMonoidHom) :=
-          Subgroup.mem_map.mpr ⟨x, hx, rfl⟩
-        obtain ⟨k, hk⟩ := hp2 ⟨u, hmem⟩
-        have hk' : u ^ 2 ^ k = 1 := by
-          have h1 := congrArg
-            (fun w : (M.map ((QuotientGroup.mk' W.toSubgroup).comp qMk.toMonoidHom)) =>
-              (w : Qur ⧸ W.toSubgroup)) hk
-          simp only [SubmonoidClass.coe_pow, OneMemClass.coe_one] at h1
-          exact h1
-        obtain ⟨i, _, hi⟩ := (Nat.dvd_prime_pow Nat.prime_two).mp
-          (orderOf_dvd_iff_pow_eq_one.mpr hk')
-        exact ⟨i, hi⟩
-      obtain ⟨i, hi⟩ := hu2
-      have hidvd : orderOf u ∣ Nat.card χ.ker := Subgroup.orderOf_dvd_natCard _ huK
-      have hile : i ≤ (Nat.card χ.ker).factorization 2 := by
-        rw [hi] at hidvd
-        exact (Nat.Prime.pow_dvd_iff_le_factorization Nat.prime_two hposχ).mp hidvd
-      have hidvd2 : orderOf u ∣ Nat.card π.ker := by
-        rw [hi]
-        exact (Nat.Prime.pow_dvd_iff_le_factorization Nat.prime_two hposπ).mpr (hv2 ▸ hile)
-      have huπ : u ∈ π.ker := mem_of_orderOf_dvd_card hidvd2
-      rw [MonoidHom.mem_ker, hu, show π ((QuotientGroup.mk' W.toSubgroup) y)
-        = (QuotientGroup.mk' U.toSubgroup) y from QuotientGroup.map_mk' _ _ _ _ y] at huπ
-      exact (QuotientGroup.eq_one_iff y).mp huπ
-    haveI hIc : IsClosed (inertiaPart : Set Ttame) := Subgroup.isClosed_topologicalClosure _
-    exact (quotientMk_eq_one_iff (N := inertiaPart)).mp hy1
-  -- Step 2: `x ∈ inertiaPart` with 2-power finite orders is trivial (odd ∧ 2-power)
+      (f : Ttame →* G), Continuous f → IsPGroup 2 (M.map f))
+    {x : Ttame} (hx : x ∈ M) (U : OpenNormalSubgroup Qur) : qMk x ∈ U := by
+  haveI : Finite (Qur ⧸ U.toSubgroup) := inferInstance
+  set y : Qur := qMk x with hy
+  set a : ℕ := (Nat.card (Qur ⧸ U.toSubgroup)).factorization 2 with ha
+  have hKopen : IsOpen (((psiFermatQ a).toMonoidHom.ker : Subgroup Qur) : Set Qur) := by
+    rw [MonoidHom.coe_ker]
+    exact (isOpen_discrete _).preimage (psiFermatQ a).continuous_toFun
+  haveI hkerN : ((psiFermatQ a).toMonoidHom.ker).Normal := MonoidHom.normal_ker _
+  haveI hWn : (U.toSubgroup ⊓ (psiFermatQ a).toMonoidHom.ker).Normal := by
+    constructor
+    intro n hn g
+    exact ⟨U.isNormal'.conj_mem _ hn.1 g, hkerN.conj_mem _ hn.2 g⟩
+  obtain ⟨W, hWdef⟩ : ∃ W : OpenNormalSubgroup Qur,
+      W.toSubgroup = U.toSubgroup ⊓ (psiFermatQ a).toMonoidHom.ker :=
+    ⟨⟨⟨U.toSubgroup ⊓ (psiFermatQ a).toMonoidHom.ker,
+      U.toOpenSubgroup.isOpen'.inter hKopen⟩, hWn⟩, rfl⟩
+  haveI : Finite (Qur ⧸ W.toSubgroup) := inferInstance
+  set π : (Qur ⧸ W.toSubgroup) →* (Qur ⧸ U.toSubgroup) :=
+    QuotientGroup.map W.toSubgroup U.toSubgroup (MonoidHom.id _) (by
+      rw [Subgroup.comap_id, hWdef]
+      exact inf_le_left) with hπ
+  set χ : (Qur ⧸ W.toSubgroup) →* Multiplicative (ZMod (2 ^ a)) :=
+    QuotientGroup.lift W.toSubgroup (psiFermatQ a).toMonoidHom
+      (fun w hw => MonoidHom.mem_ker.mp (hWdef ▸ hw).2) with hχ
+  haveI hWnormal : W.toSubgroup.Normal := W.isNormal'
+  haveI hWtg : IsTopologicalGroup (Qur ⧸ W.toSubgroup) :=
+    QuotientGroup.instIsTopologicalGroup W.toSubgroup
+  haveI : IsCyclic (Qur ⧸ W.toSubgroup) := by
+    have hgenC : Subgroup.closure {(QuotientGroup.mk' W.toSubgroup) qSigma} = ⊤ := by
+      have h := topGen_map (f := QuotientGroup.mk' W.toSubgroup) QuotientGroup.continuous_mk
+        (QuotientGroup.mk'_surjective _) topGen_qur
+      rw [Set.image_singleton] at h
+      exact gen_of_topGen_discrete h
+    refine ⟨⟨(QuotientGroup.mk' W.toSubgroup) qSigma, fun z => ?_⟩⟩
+    have hz : z ∈ Subgroup.closure {(QuotientGroup.mk' W.toSubgroup) qSigma} :=
+      hgenC ▸ Subgroup.mem_top z
+    rwa [← Subgroup.zpowers_eq_closure] at hz
+  have hπsurj : Function.Surjective π := by
+    intro c
+    obtain ⟨z, rfl⟩ := QuotientGroup.mk'_surjective U.toSubgroup c
+    exact ⟨(QuotientGroup.mk' W.toSubgroup) z, QuotientGroup.map_mk' _ _ _ _ _⟩
+  have hχsurj : Function.Surjective χ := by
+    intro c
+    obtain ⟨q0, hq0⟩ := psiFermatQ_surjective a c
+    exact ⟨(QuotientGroup.mk' W.toSubgroup) q0,
+      (QuotientGroup.lift_mk' _ _ q0).trans hq0⟩
+  have hposχ : Nat.card ((χ.ker : Subgroup (Qur ⧸ W.toSubgroup))) ≠ 0 := Nat.card_pos.ne'
+  have hposπ : Nat.card ((π.ker : Subgroup (Qur ⧸ W.toSubgroup))) ≠ 0 := Nat.card_pos.ne'
+  have hposU : Nat.card (Qur ⧸ U.toSubgroup) ≠ 0 := Nat.card_pos.ne'
+  have hCχ : Nat.card (Qur ⧸ W.toSubgroup) = 2 ^ a * Nat.card χ.ker := by
+    have h1 := Subgroup.card_eq_card_quotient_mul_card_subgroup (χ.ker)
+    have hq2 : Nat.card ((Qur ⧸ W.toSubgroup) ⧸ χ.ker)
+        = Nat.card (Multiplicative (ZMod (2 ^ a))) :=
+      Nat.card_congr (QuotientGroup.quotientKerEquivOfSurjective χ hχsurj).toEquiv
+    have h3 : Nat.card (Multiplicative (ZMod (2 ^ a))) = 2 ^ a := by
+      rw [Nat.card_congr (Multiplicative.toAdd (α := ZMod (2 ^ a))), Nat.card_zmod]
+    rw [h1, hq2, h3]
+  have hCπ : Nat.card (Qur ⧸ W.toSubgroup)
+      = Nat.card (Qur ⧸ U.toSubgroup) * Nat.card π.ker := by
+    have h1 := Subgroup.card_eq_card_quotient_mul_card_subgroup (π.ker)
+    have hq2 : Nat.card ((Qur ⧸ W.toSubgroup) ⧸ π.ker) = Nat.card (Qur ⧸ U.toSubgroup) :=
+      Nat.card_congr (QuotientGroup.quotientKerEquivOfSurjective π hπsurj).toEquiv
+    rw [h1, hq2]
+  have hv2 : (Nat.card χ.ker).factorization 2 = (Nat.card π.ker).factorization 2 :=
+    factorization_two_ker_eq hCχ hCπ hposχ hposπ hposU ha
+  set u : Qur ⧸ W.toSubgroup := (QuotientGroup.mk' W.toSubgroup) y with hu
+  have huK : u ∈ χ.ker := by
+    rw [MonoidHom.mem_ker, hu]
+    rw [show χ ((QuotientGroup.mk' W.toSubgroup) y) = psiFermatQ a y from
+      QuotientGroup.lift_mk' _ _ y]
+    rw [hy, show psiFermatQ a (qMk x) = fermatNu a x from
+      quotientLift_quotientMk _ _ _ _]
+    show SemidirectProduct.rightHom (fermatHom a x) = 1
+    rw [fermatHom_eq_one_of_mem a h2 hx, map_one]
+  have hu2 : ∃ i : ℕ, orderOf u = 2 ^ i := by
+    have hcont : Continuous ((QuotientGroup.mk' W.toSubgroup).comp
+        qMk.toMonoidHom) := by
+      rw [MonoidHom.coe_comp]
+      exact Continuous.comp QuotientGroup.continuous_mk qMk.continuous_toFun
+    have hmem : u ∈ M.map ((QuotientGroup.mk' W.toSubgroup).comp
+        qMk.toMonoidHom) :=
+      Subgroup.mem_map.mpr ⟨x, hx, rfl⟩
+    exact IsPGroup.exists_orderOf_eq_two_pow
+      (h2 _ ((QuotientGroup.mk' W.toSubgroup).comp qMk.toMonoidHom) hcont) hmem
+  obtain ⟨i, hi⟩ := hu2
+  have hidvd : orderOf u ∣ Nat.card χ.ker := Subgroup.orderOf_dvd_natCard _ huK
+  have hile : i ≤ (Nat.card χ.ker).factorization 2 := by
+    rw [hi] at hidvd
+    exact (Nat.Prime.pow_dvd_iff_le_factorization Nat.prime_two hposχ).mp hidvd
+  have hidvd2 : orderOf u ∣ Nat.card π.ker := by
+    rw [hi]
+    exact (Nat.Prime.pow_dvd_iff_le_factorization Nat.prime_two hposπ).mpr (hv2 ▸ hile)
+  have huπ : u ∈ π.ker := mem_of_orderOf_dvd_card hidvd2
+  rw [MonoidHom.mem_ker, hu, show π ((QuotientGroup.mk' W.toSubgroup) y)
+    = (QuotientGroup.mk' U.toSubgroup) y from QuotientGroup.map_mk' _ _ _ _ y] at huπ
+  exact (QuotientGroup.eq_one_iff y).mp huπ
+
+/-- **Lemma 3.3, inertia step.** An `x ∈ M` (2-group finite images) that already lies in
+`inertiaPart` is trivial: through every finite level `V`, its image lies in the tame
+`τ`-line `⟨τ̄⟩`, whose order is odd (Lemma 3.1), while `x`'s image has 2-power order — so it
+is trivial in every `V`, hence `x = 1`. -/
+private lemma eq_one_of_mem_inertiaPart (M : Subgroup Ttame)
+    (h2 : ∀ (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [Finite G]
+      (f : Ttame →* G), Continuous f → IsPGroup 2 (M.map f))
+    {x : Ttame} (hx : x ∈ M) (hxI : x ∈ inertiaPart) : x = 1 := by
   refine eq_one_of_forall_mem_openNormalSubgroup fun V => ?_
   haveI : Finite (Ttame ⧸ V.toSubgroup) := inferInstance
   set mkV : Ttame →* Ttame ⧸ V.toSubgroup := QuotientGroup.mk' V.toSubgroup with hmkV
@@ -1182,6 +1190,27 @@ theorem eq_bot_of_normal_two_images (M : Subgroup Ttame) [hMn : M.Normal]
   have hone : orderOf (mkV x) = 1 := Nat.eq_one_of_dvd_coprimes hcop hdvd_two hdvd_odd
   have hxone : mkV x = 1 := orderOf_eq_one_iff.mp hone
   exact (QuotientGroup.eq_one_iff x).mp hxone
+
+/-- **Lemma 3.3 (core)**: a normal subgroup of `T_tame` all of whose finite continuous images
+are 2-groups is trivial.  Paper argument: through each Fermat level `G_m` the image is a
+central 2-subgroup of a center-free group, hence trivial, so the `Q`-coordinate dies in every
+`C_{2^m}`; the cyclic level-comparison then kills the `Q`-image entirely, and the remaining
+inertia part has both odd and 2-power order levelwise. -/
+theorem eq_bot_of_normal_two_images (M : Subgroup Ttame) [hMn : M.Normal]
+    (h2 : ∀ (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [Finite G]
+      (f : Ttame →* G), Continuous f → IsPGroup 2 (M.map f)) :
+    M = ⊥ := by
+  rw [eq_bot_iff]
+  intro x hx
+  rw [Subgroup.mem_bot]
+  -- Step 1: the `Q`-image of `x` is trivial, i.e. `x ∈ inertiaPart`
+  have hxI : x ∈ inertiaPart := by
+    have hy1 : qMk x = 1 :=
+      eq_one_of_forall_mem_openNormalSubgroup (qMk_mem_of_two_images M h2 hx)
+    haveI hIc : IsClosed (inertiaPart : Set Ttame) := Subgroup.isClosed_topologicalClosure _
+    exact (quotientMk_eq_one_iff (N := inertiaPart)).mp hy1
+  -- Step 2: `x ∈ inertiaPart` with 2-power finite orders is trivial (odd ∧ 2-power)
+  exact eq_one_of_mem_inertiaPart M h2 hx hxI
 
 /-! ## Proposition 3.2, local side -/
 

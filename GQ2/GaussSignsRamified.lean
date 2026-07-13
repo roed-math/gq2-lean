@@ -83,6 +83,77 @@ section ArfRamified
 variable {V : Type*} [AddCommGroup V] [Finite V] {W : Type*} [AddCommGroup W]
   {G : Type*} [Group G] [Finite G] [DistribMulAction G V] [DistribMulAction G W]
 
+omit [Finite V] in
+/-- **Isotypic card count**: from `V ≅ W^{⊕s}` and `#W = 2^{2m'}` one gets `#V = 2^{2·m'·s}`. -/
+private theorem isotypic_card_eq (m' s : ℕ) (hWcard : Nat.card W = 2 ^ (2 * m'))
+    (e : V ≃+ (Fin s → W)) :
+    Nat.card V = 2 ^ (2 * (m' * s)) := by
+  rw [Nat.card_congr e.toEquiv, Nat.card_pi, Finset.prod_const, hWcard, Finset.card_univ,
+    Fintype.card_fin, ← pow_mul]
+  congr 1; ring
+
+omit [Finite V] [Finite G] in
+/-- **Faithfulness transports to the component**: if `G` acts faithfully on `V ≅ W^{⊕s}`
+(equivariantly via `e`), then it acts faithfully on the summand `W`. -/
+private theorem faithful_on_component {s : ℕ} (e : V ≃+ (Fin s → W))
+    (he : ∀ (g : G) (v : V) (j : Fin s), e (g • v) j = g • e v j)
+    (hVfaith : ∀ g : G, (∀ v : V, g • v = v) → g = 1) :
+    ∀ g : G, (∀ w : W, g • w = w) → g = 1 := by
+  intro g hg
+  refine hVfaith g (fun v => ?_)
+  apply e.injective
+  ext j
+  rw [he g v j, hg]
+
+/-- **Order lower bound**: an order dividing `2^{2a} − 1` but not `2^a − 1` (`a ≥ 1`) exceeds `2`
+(it is odd — else `2 ∣ 2^{2a} − 1` — and it is not `1`). -/
+private theorem two_lt_orderOf {n a : ℕ} (ha : 1 ≤ a) (hsub : n ∣ 2 ^ (2 * a) - 1)
+    (hnot : ¬ n ∣ 2 ^ a - 1) : 2 < n := by
+  have hne1 : n ≠ 1 := fun h1 => hnot (by rw [h1]; exact one_dvd _)
+  have hodd : Odd n := by
+    rcases Nat.even_or_odd n with h | h
+    · exfalso
+      have h2d : (2 : ℕ) ∣ 2 ^ (2 * a) - 1 := dvd_trans h.two_dvd hsub
+      have hev : (2 : ℕ) ∣ 2 ^ (2 * a) := dvd_pow_self 2 (by omega)
+      have h1le : 1 ≤ 2 ^ (2 * a) := Nat.one_le_two_pow
+      omega
+    · exact h
+  rcases hodd with ⟨j, hj⟩; omega
+
+omit [Finite V] [Finite G] in
+/-- **Freeness on `V ∖ 0`**: if `g` fixes a nonzero `v`, some `W`-component `e v j₀ ≠ 0` is fixed;
+its `G`-stable fixed subgroup `Fg` cannot be `⊥`, so by simplicity `Fg = ⊤`, i.e. `g` fixes all of
+`W`, whence `g = 1` by faithfulness. -/
+private theorem free_on_nonzero {s : ℕ} (T : G) (e : V ≃+ (Fin s → W))
+    (he : ∀ (g : G) (v : V) (j : Fin s), e (g • v) j = g • e v j)
+    (hWsimple : GQ2.FoxH.IsSimpleModTwo G W)
+    (hnatpow : ∀ g : G, ∃ k : ℕ, T ^ k = g)
+    (hWfaith : ∀ g : G, (∀ w : W, g • w = w) → g = 1) :
+    ∀ (g : G) (v : V), v ≠ 0 → g • v = v → g = 1 := by
+  intro g v hv hgv
+  have hcomp : ∀ j, g • e v j = e v j := fun j => by rw [← he g v, hgv]
+  obtain ⟨j₀, hj₀⟩ : ∃ j, e v j ≠ 0 := by
+    by_contra hc
+    simp only [not_exists, not_not] at hc
+    exact hv (e.injective (by ext j; rw [hc j]; simp))
+  -- `fix(g)` on `W` is a `G`-stable subgroup containing `e v j₀ ≠ 0`, hence `⊤`
+  let Fg : AddSubgroup W :=
+    { carrier := {w | g • w = w}
+      add_mem' := fun {x y} hx hy => by simp only [Set.mem_setOf_eq] at *; rw [smul_add, hx, hy]
+      zero_mem' := smul_zero g
+      neg_mem' := fun {x} hx => by simp only [Set.mem_setOf_eq] at *; rw [smul_neg, hx] }
+  have hFgstab : ∀ (h : G), ∀ w ∈ Fg, h • w ∈ Fg := by
+    intro h w hw
+    show g • (h • w) = h • w
+    obtain ⟨k, rfl⟩ := hnatpow h
+    obtain ⟨l, rfl⟩ := hnatpow g
+    rw [← mul_smul, ← pow_add, Nat.add_comm, pow_add, mul_smul]
+    exact congrArg (T ^ k • ·) hw
+  rcases hWsimple.2 Fg hFgstab with hb | ht
+  · exact absurd (hb ▸ (hcomp j₀ : g • e v j₀ = e v j₀) : e v j₀ ∈ (⊥ : AddSubgroup W))
+      (by rw [AddSubgroup.mem_bot]; exact hj₀)
+  · exact hWfaith g (fun w => (ht ▸ AddSubgroup.mem_top w : w ∈ Fg))
+
 /-- **Lemma 6.8 (87)** in engine form: for a finite cyclic `G = ⟨T⟩` acting faithfully on `V`,
 simply on the exponent-2 module `W` (`#W = 2^{2m'}`), with `V ≅ W^{⊕s}` `G`-equivariantly (via
 `e`, `he`) and a nonsingular `G`-invariant `q`, the Arf invariant is `arf q = s`.
@@ -102,10 +173,7 @@ theorem arf_eq_s_ramified (T : G) (hTgen : ∀ g : G, g ∈ Subgroup.zpowers T)
     arf q = (s : ZMod 2) := by
   classical
   -- `#V = 2^{2·m'·s}`
-  have hVcard : Nat.card V = 2 ^ (2 * (m' * s)) := by
-    rw [Nat.card_congr e.toEquiv, Nat.card_pi, Finset.prod_const, hWcard, Finset.card_univ,
-      Fintype.card_fin, ← pow_mul]
-    congr 1; ring
+  have hVcard : Nat.card V = 2 ^ (2 * (m' * s)) := isotypic_card_eq m' s hWcard e
   haveI : Nontrivial W := hWsimple.1
   -- `W` is finite and an `𝔽₂`-module of dimension `2m'`
   haveI : Finite W := by
@@ -133,12 +201,7 @@ theorem arf_eq_s_ramified (T : G) (hTgen : ∀ g : G, g ∈ Subgroup.zpowers T)
   have hnatpow : ∀ g : G, ∃ k : ℕ, T ^ k = g := fun g =>
     (Submonoid.mem_powers_iff g T).mp (hfin.mem_powers_iff_mem_zpowers.mpr (hTgen g))
   -- faithfulness of `G` on `W` (transported from `V` via `e`)
-  have hWfaith : ∀ g : G, (∀ w : W, g • w = w) → g = 1 := by
-    intro g hg
-    refine hVfaith g (fun v => ?_)
-    apply e.injective
-    ext j
-    rw [he g v j, hg]
+  have hWfaith : ∀ g : G, (∀ w : W, g • w = w) → g = 1 := faithful_on_component e he hVfaith
   -- `TW ^ k = 1 ↔ T ^ k = 1` (via faithfulness)
   have hTWpowapp : ∀ (k : ℕ) (w : W), (TW ^ k) w = T ^ k • w := by
     intro k
@@ -187,20 +250,7 @@ theorem arf_eq_s_ramified (T : G) (hTgen : ∀ g : G, g ∈ Subgroup.zpowers T)
     have hTk : T ^ (2 ^ m' - 1) = 1 := orderOf_dvd_iff_pow_eq_one.mp hd
     rw [← hTWpow] at hTk
     exact irreducible_operator_pow_ne_one m' hm' hfrW TW hirrW hTk
-  have hordgt : 2 < orderOf T := by
-    have hne1 : orderOf T ≠ 1 := by
-      intro h1
-      exact hordnot (by rw [h1]; exact one_dvd _)
-    have hpos : 0 < orderOf T := orderOf_pos T
-    have hodd : Odd (orderOf T) := by
-      rcases Nat.even_or_odd (orderOf T) with h | h
-      · exfalso
-        have h2d : (2 : ℕ) ∣ 2 ^ (2 * m') - 1 := dvd_trans h.two_dvd hordsub
-        have hev : (2 : ℕ) ∣ 2 ^ (2 * m') := dvd_pow_self 2 (by omega)
-        have h1le : 1 ≤ 2 ^ (2 * m') := Nat.one_le_two_pow
-        omega
-      · exact h
-    rcases hodd with ⟨j, hj⟩; omega
+  have hordgt : 2 < orderOf T := two_lt_orderOf hm' hordsub hordnot
   -- assemble via the general Arf-parity engine, `U := G`
   refine arf_eq_of_free q hq hns m' s hm' hs1 hVcard (U := G) ?_ ?_ ?_ ?_ ?_ ?_
   · rw [hcardG]; exact hordsub
@@ -209,29 +259,7 @@ theorem arf_eq_s_ramified (T : G) (hTgen : ∀ g : G, g ∈ Subgroup.zpowers T)
   · intro g; exact smul_zero g
   · exact hqinv
   · -- free on `V ∖ 0`: `g • v = v`, `v ≠ 0` ⟹ `g` fixes a nonzero `W`-component ⟹ `g` trivial ⟹ `g = 1`
-    intro g v hv hgv
-    have hcomp : ∀ j, g • e v j = e v j := fun j => by rw [← he g v, hgv]
-    obtain ⟨j₀, hj₀⟩ : ∃ j, e v j ≠ 0 := by
-      by_contra hc
-      simp only [not_exists, not_not] at hc
-      exact hv (e.injective (by ext j; rw [hc j]; simp))
-    -- `fix(g)` on `W` is a `G`-stable subgroup containing `e v j₀ ≠ 0`, hence `⊤`
-    let Fg : AddSubgroup W :=
-      { carrier := {w | g • w = w}
-        add_mem' := fun {x y} hx hy => by simp only [Set.mem_setOf_eq] at *; rw [smul_add, hx, hy]
-        zero_mem' := smul_zero g
-        neg_mem' := fun {x} hx => by simp only [Set.mem_setOf_eq] at *; rw [smul_neg, hx] }
-    have hFgstab : ∀ (h : G), ∀ w ∈ Fg, h • w ∈ Fg := by
-      intro h w hw
-      show g • (h • w) = h • w
-      obtain ⟨k, rfl⟩ := hnatpow h
-      obtain ⟨l, rfl⟩ := hnatpow g
-      rw [← mul_smul, ← pow_add, Nat.add_comm, pow_add, mul_smul]
-      exact congrArg (T ^ k • ·) hw
-    rcases hWsimple.2 Fg hFgstab with hb | ht
-    · exact absurd (hb ▸ (hcomp j₀ : g • e v j₀ = e v j₀) : e v j₀ ∈ (⊥ : AddSubgroup W))
-        (by rw [AddSubgroup.mem_bot]; exact hj₀)
-    · exact hWfaith g (fun w => (ht ▸ AddSubgroup.mem_top w : w ∈ Fg))
+    exact free_on_nonzero T e he hWsimple hnatpow hWfaith
 
 end ArfRamified
 

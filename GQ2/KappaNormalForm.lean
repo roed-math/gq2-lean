@@ -468,6 +468,65 @@ private theorem ite_sq (c : Prop) [Decidable c] :
   · rw [if_pos h, mul_one]
   · rw [if_neg h, mul_zero]
 
+/-- The per-element core of the involution-block polar computation: for a single coordinate
+`z`, the symmetrized product of the two basis indicators against the `u`-shift collapses to the
+`u`-pairing indicator on block `n` (paired with the `{z = x, z = x'}` support). Bridge-free —
+the `E_{n,u}` proof feeds each coset representative `z = ρ w.out` into this. -/
+private theorem permBas_pair_indicator (n m m' : Fin K) (x x' : H) {u : H}
+    (hu2 : u * u = 1) (z : H) :
+    permBas m x n z * permBas m' x' n (z * u) + permBas m' x' n z * permBas m x n (z * u)
+      = if m = n ∧ m' = n ∧ x' = x * u then
+          (if z = x then (1 : ZMod 2) else 0) + (if z = x' then (1 : ZMod 2) else 0)
+        else 0 := by
+  have hu' : u⁻¹ = u := inv_eq_of_mul_eq_one_left hu2
+  rw [permBas_apply, permBas_apply, permBas_apply, permBas_apply]
+  by_cases hm : m = n
+  · by_cases hm' : m' = n
+    · subst hm
+      subst hm'
+      simp only [true_and]
+      by_cases hxx' : x' = x * u
+      · rw [if_pos hxx']
+        have hiff1 : (z * u = x') ↔ (z = x) := by
+          constructor
+          · intro h
+            exact mul_right_cancel (h.trans hxx')
+          · intro h
+            rw [h, ← hxx']
+        have hiff2 : (z * u = x) ↔ (z = x') := by
+          constructor
+          · intro h
+            have h1 : z = x * u⁻¹ := eq_mul_inv_of_mul_eq h
+            rw [hu'] at h1
+            rw [h1, ← hxx']
+          · intro h
+            rw [h, hxx', mul_assoc, hu2, mul_one]
+        rw [if_congr hiff1 rfl rfl, if_congr hiff2 rfl rfl, ite_sq, ite_sq]
+      · rw [if_neg hxx']
+        have hc1 : z = x → ¬ z * u = x' := by
+          intro h1 h2
+          exact hxx' (by rw [← h2, h1])
+        have hc2 : z = x' → ¬ z * u = x := by
+          intro h1 h2
+          exact hxx' (by rw [← h2, mul_assoc, hu2, mul_one, h1])
+        by_cases hz1 : z = x
+        · rw [if_pos hz1, one_mul, if_neg (hc1 hz1), zero_add]
+          by_cases hz2 : z = x'
+          · rw [if_pos hz2, one_mul, if_neg (hc2 hz2)]
+          · rw [if_neg hz2, zero_mul]
+        · rw [if_neg hz1, zero_mul, zero_add]
+          by_cases hz2 : z = x'
+          · rw [if_pos hz2, one_mul, if_neg (hc2 hz2)]
+          · rw [if_neg hz2, zero_mul]
+    · have h1 : ¬(n = m' ∧ z * u = x') := fun h => hm' h.1.symm
+      have h2 : ¬(n = m' ∧ z = x') := fun h => hm' h.1.symm
+      have h3 : ¬(m = n ∧ m' = n ∧ x' = x * u) := fun h => hm' h.2.1
+      rw [if_neg h1, if_neg h2, if_neg h3, mul_zero, zero_mul, add_zero]
+  · have h1 : ¬(n = m ∧ z = x) := fun h => hm h.1.symm
+    have h2 : ¬(n = m ∧ z * u = x) := fun h => hm h.1.symm
+    have h3 : ¬(m = n ∧ m' = n ∧ x' = x * u) := fun h => hm h.1
+    rw [if_neg h1, if_neg h2, if_neg h3, zero_mul, mul_zero, add_zero]
+
 /-- **The involution-block datum**: for an involution `u` of `H` and a block `n`, there is a
 quadratic map `E` on `𝔽₂[H]^K` with an equivariant factor-set datum whose basis diagonal is
 zero and whose basis polar form is the indicator of `{x' = xu}` on block `n` (the orbit
@@ -552,7 +611,6 @@ theorem exists_invBlock_datum [Fintype H] (n : Fin K) {u : H} (hu2 : u * u = 1)
     intro p p' hpp'
     obtain ⟨m, x⟩ := p
     obtain ⟨m', x'⟩ := p'
-    have hu' : u⁻¹ = u := inv_eq_of_mul_eq_one_left hu2
     -- polar via `f_polar` of the datum
     rw [← hfinal.f_polar (permBas m x) (permBas m' x')]
     -- both `f`-terms are single-indicator finsums
@@ -579,54 +637,8 @@ theorem exists_invBlock_datum [Fintype H] (n : Fin K) {u : H} (hu2 : u * u = 1)
         congr 1
         rw [hgbar]
         exact hρπ u
-      rw [permBas_apply, permBas_apply, permBas_apply, permBas_apply, hshift]
-      set z := ρ w.out with hz
-      by_cases hm : m = n
-      · by_cases hm' : m' = n
-        · subst hm
-          subst hm'
-          simp only [true_and]
-          by_cases hxx' : x' = x * u
-          · rw [if_pos hxx']
-            have hiff1 : (z * u = x') ↔ (z = x) := by
-              constructor
-              · intro h
-                exact mul_right_cancel (h.trans hxx')
-              · intro h
-                rw [h, ← hxx']
-            have hiff2 : (z * u = x) ↔ (z = x') := by
-              constructor
-              · intro h
-                have h1 : z = x * u⁻¹ := eq_mul_inv_of_mul_eq h
-                rw [hu'] at h1
-                rw [h1, ← hxx']
-              · intro h
-                rw [h, hxx', mul_assoc, hu2, mul_one]
-            rw [if_congr hiff1 rfl rfl, if_congr hiff2 rfl rfl, ite_sq, ite_sq]
-          · rw [if_neg hxx']
-            have hc1 : z = x → ¬ z * u = x' := by
-              intro h1 h2
-              exact hxx' (by rw [← h2, h1])
-            have hc2 : z = x' → ¬ z * u = x := by
-              intro h1 h2
-              exact hxx' (by rw [← h2, mul_assoc, hu2, mul_one, h1])
-            by_cases hz1 : z = x
-            · rw [if_pos hz1, one_mul, if_neg (hc1 hz1), zero_add]
-              by_cases hz2 : z = x'
-              · rw [if_pos hz2, one_mul, if_neg (hc2 hz2)]
-              · rw [if_neg hz2, zero_mul]
-            · rw [if_neg hz1, zero_mul, zero_add]
-              by_cases hz2 : z = x'
-              · rw [if_pos hz2, one_mul, if_neg (hc2 hz2)]
-              · rw [if_neg hz2, zero_mul]
-        · have h1 : ¬(n = m' ∧ z * u = x') := fun h => hm' h.1.symm
-          have h2 : ¬(n = m' ∧ z = x') := fun h => hm' h.1.symm
-          have h3 : ¬(m = n ∧ m' = n ∧ x' = x * u) := fun h => hm' h.2.1
-          rw [if_neg h1, if_neg h2, if_neg h3, mul_zero, zero_mul, add_zero]
-      · have h1 : ¬(n = m ∧ z = x) := fun h => hm h.1.symm
-        have h2 : ¬(n = m ∧ z * u = x) := fun h => hm h.1.symm
-        have h3 : ¬(m = n ∧ m' = n ∧ x' = x * u) := fun h => hm h.1
-        rw [if_neg h1, if_neg h2, if_neg h3, zero_mul, mul_zero, add_zero]
+      rw [hshift]
+      exact permBas_pair_indicator n m m' x x' hu2 (ρ w.out)
     by_cases hcond : m = n ∧ m' = n ∧ x' = x * u
     · rw [if_pos hcond]
       have hterm' : ∀ w : (H ⧸ (⊥ : Subgroup H)) ⧸ Subgroup.zpowers gbar,
@@ -762,6 +774,31 @@ private theorem exists_datum_finset_sum {C V : Type*} [Group C] [AddCommGroup V]
     rw [hfun]
     exact ⟨_, datum_add hdatA hdatS⟩
 
+/-- Polar invariance under the diagonal action, for any `H`-invariant map on `PermW H K`. -/
+private theorem permBas_polar_smul_invariant (q : PermW H K → ZMod 2) (hq : IsInvariant H q)
+    (c : H) (v w : PermW H K) : polar q (c • v) (c • w) = polar q v w := by
+  simp only [polar]
+  rw [← smul_add, hq, hq, hq]
+
+/-- Diagonal orbit-constancy: an `H`-invariant map is constant on each block orbit of basis
+vectors, `q (e_{n,x}) = q (e_{n,1})`. -/
+private theorem permBas_diag_const (q : PermW H K → ZMod 2) (hq : IsInvariant H q)
+    (n : Fin K) (x : H) : q (permBas n x) = q (permBas n 1) := by
+  have h1 : permBas n x = x • (permBas n 1 : PermW H K) := by
+    rw [permBas_smul, mul_one]
+  rw [h1, hq]
+
+/-- The polar coordinates of an `H`-invariant map depend only on relative position:
+`polar q (e_{n,x}) (e_{m,y}) = polar q (e_{n,1}) (e_{m,x⁻¹y})`. -/
+private theorem permBas_polar_rel (q : PermW H K → ZMod 2) (hq : IsInvariant H q)
+    (n m : Fin K) (x y : H) :
+    polar q (permBas n x) (permBas m y) = polar q (permBas n 1) (permBas m (x⁻¹ * y)) := by
+  have h1 : permBas n 1 = x⁻¹ • (permBas n x : PermW H K) := by
+    rw [permBas_smul, inv_mul_cancel]
+  have h2 : permBas m (x⁻¹ * y) = x⁻¹ • (permBas m y : PermW H K) := by
+    rw [permBas_smul]
+  rw [h1, h2, permBas_polar_smul_invariant q hq]
+
 /-- **The κ⁰ normal form** (Lemma 6.3, step 2): every `H`-invariant quadratic map on the
 permutation module `𝔽₂[H]^K` admits an equivariant factor-set datum. -/
 theorem exists_datum_of_invariant_quadratic [Finite H]
@@ -771,29 +808,6 @@ theorem exists_datum_of_invariant_quadratic [Finite H]
   have h2W : ∀ F : PermW H K, F + F = 0 := fun F => by
     funext n x
     exact CharTwo.add_self_eq_zero _
-  -- polar invariance under a simultaneous action, for any invariant map
-  have hpolarinv : ∀ (q : PermW H K → ZMod 2), IsInvariant H q →
-      ∀ (c : H) (v w : PermW H K), polar q (c • v) (c • w) = polar q v w := by
-    intro q hq c v w
-    simp only [polar]
-    rw [← smul_add, hq, hq, hq]
-  -- diagonal orbit-constancy, for any invariant map
-  have hdiagconst : ∀ (q : PermW H K → ZMod 2), IsInvariant H q →
-      ∀ (n : Fin K) (x : H), q (permBas n x) = q (permBas n 1) := by
-    intro q hq n x
-    have h1 : permBas n x = x • (permBas n 1 : PermW H K) := by
-      rw [permBas_smul, mul_one]
-    rw [h1, hq]
-  -- polar coordinates in relative position, for any invariant map
-  have hcoordconst : ∀ (q : PermW H K → ZMod 2), IsInvariant H q →
-      ∀ (n m : Fin K) (x y : H), polar q (permBas n x) (permBas m y)
-        = polar q (permBas n 1) (permBas m (x⁻¹ * y)) := by
-    intro q hq n m x y
-    have h1 : permBas n 1 = x⁻¹ • (permBas n x : PermW H K) := by
-      rw [permBas_smul, inv_mul_cancel]
-    have h2 : permBas m (x⁻¹ * y) = x⁻¹ • (permBas m y : PermW H K) := by
-      rw [permBas_smul]
-    rw [h1, h2, hpolarinv q hq]
   -- the β-coordinates of Q and the bad (involution) locus
   set β : Fin K → Fin K → H → ZMod 2 :=
     fun n m u => polar Q (permBas n 1) (permBas m u) with hβdef
@@ -915,7 +929,7 @@ theorem exists_datum_of_invariant_quadratic [Finite H]
       else polar Q' (permBas p.1 1) (permBas p.1 (p.2⁻¹ * p.2)) * χ p.1 p.1 (p.2⁻¹ * p.2))
       = Q' (permBas p.1 p.2)
     rw [if_pos ⟨rfl, harg⟩]
-    exact (hdiagconst Q' hQ'inv p.1 p.2).symm
+    exact (permBas_diag_const Q' hQ'inv p.1 p.2).symm
   -- polar compatibility
   have hf₀polar : ∀ p p' : Fin K × H, p ≠ p' →
       f₀ p p' + f₀ p' p = polar Q' (permBas p.1 p.2) (permBas p'.1 p'.2) := by
@@ -944,14 +958,14 @@ theorem exists_datum_of_invariant_quadratic [Finite H]
     have hsymm : polar Q' (permBas m' 1) (permBas m u⁻¹)
         = polar Q' (permBas m 1) (permBas m' u) := by
       rw [polar_comm]
-      have h1 := hcoordconst Q' hQ'inv m m' u⁻¹ 1
+      have h1 := permBas_polar_rel Q' hQ'inv m m' u⁻¹ 1
       rw [inv_inv, mul_one] at h1
       exact h1
     rw [hsymm, ← mul_add]
     -- the coordinate to hit
     have hcoord : polar Q' (permBas m x) (permBas m' x')
         = polar Q' (permBas m 1) (permBas m' u) := by
-      rw [hcoordconst Q' hQ'inv m m' x x', hudef]
+      rw [permBas_polar_rel Q' hQ'inv m m' x x', hudef]
     rw [hcoord]
     -- case analysis on the χ-sum
     rcases lt_trichotomy m m' with hlt | heq | hgt
@@ -1059,6 +1073,69 @@ along the surjection with `comapHom`. -/
 
 section TameAssembly
 
+/-- **2-torsion from simplicity + nonsingularity**: on a simple `H`-module, a nonsingular
+quadratic map forces `v + v = 0` for all `v`.  The 2-torsion subgroup is `H`-stable, so it is
+`⊥` or `⊤`; if `⊥` then `|V|` is odd, whence every polar pairing `polar q v₀ ·` kills the whole
+module (a unit multiple of an odd-order sum), contradicting nonsingularity. -/
+private theorem two_torsion_of_nonsingular_simple {H : Type} [Group H] {V : Type}
+    [AddCommGroup V] [Finite V] [Nontrivial V] [DistribMulAction H V] {q : V → ZMod 2}
+    (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (g : H) (w : V), w ∈ W → g • w ∈ W) → W = ⊥ ∨ W = ⊤) :
+    ∀ v : V, v + v = 0 := by
+  classical
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  haveI : Fintype V := Fintype.ofFinite V
+  set W₂ : AddSubgroup V :=
+    { carrier := {v : V | v + v = 0}
+      zero_mem' := by rw [Set.mem_setOf_eq, add_zero]
+      add_mem' := fun {a b} ha hb => by
+        rw [Set.mem_setOf_eq] at ha hb ⊢
+        calc a + b + (a + b) = (a + a) + (b + b) := by abel
+          _ = 0 := by rw [ha, hb, add_zero]
+      neg_mem' := fun {a} ha => by
+        rw [Set.mem_setOf_eq] at ha ⊢
+        rw [← neg_add, ha, neg_zero] } with hW₂
+  have hstable : ∀ (g : H) (w : V), w ∈ W₂ → g • w ∈ W₂ := by
+    intro g w hw
+    show g • w + g • w = 0
+    rw [← smul_add, (hw : w + w = 0), smul_zero]
+  rcases hsimple W₂ hstable with hbot | htop
+  · -- no 2-torsion ⟹ |V| odd ⟹ all polar pairings vanish, against nonsingularity
+    exfalso
+    have hodd : Odd (Fintype.card V) := by
+      rw [← Nat.not_even_iff_odd]
+      intro heven
+      obtain ⟨a, ha⟩ := exists_prime_addOrderOf_dvd_card 2 heven.two_dvd
+      have ha2 : a + a = 0 := by
+        have h1 : (2 : ℕ) • a = 0 := by
+          rw [← ha]
+          exact addOrderOf_nsmul_eq_zero a
+        rwa [two_nsmul] at h1
+      have ha0 : a ≠ 0 := by
+        intro h
+        rw [h, addOrderOf_zero] at ha
+        omega
+      have : a ∈ W₂ := ha2
+      rw [hbot, AddSubgroup.mem_bot] at this
+      exact ha0 this
+    obtain ⟨v₀, hv₀⟩ := exists_ne (0 : V)
+    obtain ⟨w, hw⟩ := hns v₀ hv₀
+    set ψ : V →+ ZMod 2 := AddMonoidHom.mk' (fun w' => polar q v₀ w')
+      (fun w' w'' => hq.polar_add_right v₀ w' w'') with hψ
+    have hcard : Fintype.card V • w = 0 := card_nsmul_eq_zero
+    have h0 : ψ w = 0 := by
+      have h1 : Fintype.card V • ψ w = ψ (Fintype.card V • w) := (map_nsmul ψ _ _).symm
+      rw [hcard, map_zero] at h1
+      have hc1 : (Fintype.card V : ZMod 2) = 1 := by
+        obtain ⟨k, hk⟩ := hodd
+        rw [hk]
+        push_cast
+        linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
+      rwa [nsmul_eq_mul, hc1, one_mul] at h1
+    exact hw h0
+  · intro v
+    exact (htop ▸ AddSubgroup.mem_top v : v ∈ W₂)
+
 /-- **κ⁰ existence over a finite tame-generated group** (paper Lemma 6.3): a nonsingular
 invariant quadratic map on a nontrivial simple module for a finite group generated by a tame
 pair `(s, t)` admits an equivariant factor-set datum.
@@ -1081,57 +1158,7 @@ theorem kappa0_exists_tame {H : Type} [Group H] [Finite H]
   haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   haveI : Fintype V := Fintype.ofFinite V
   -- V is 2-torsion: the 2-torsion subgroup is stable, and `⊥` contradicts nonsingularity
-  have hV2 : ∀ v : V, v + v = 0 := by
-    set W₂ : AddSubgroup V :=
-      { carrier := {v : V | v + v = 0}
-        zero_mem' := by rw [Set.mem_setOf_eq, add_zero]
-        add_mem' := fun {a b} ha hb => by
-          rw [Set.mem_setOf_eq] at ha hb ⊢
-          calc a + b + (a + b) = (a + a) + (b + b) := by abel
-            _ = 0 := by rw [ha, hb, add_zero]
-        neg_mem' := fun {a} ha => by
-          rw [Set.mem_setOf_eq] at ha ⊢
-          rw [← neg_add, ha, neg_zero] } with hW₂
-    have hstable : ∀ (g : H) (w : V), w ∈ W₂ → g • w ∈ W₂ := by
-      intro g w hw
-      show g • w + g • w = 0
-      rw [← smul_add, (hw : w + w = 0), smul_zero]
-    rcases hsimple W₂ hstable with hbot | htop
-    · -- no 2-torsion ⟹ |V| odd ⟹ all polar pairings vanish, against nonsingularity
-      exfalso
-      have hodd : Odd (Fintype.card V) := by
-        rw [← Nat.not_even_iff_odd]
-        intro heven
-        obtain ⟨a, ha⟩ := exists_prime_addOrderOf_dvd_card 2 heven.two_dvd
-        have ha2 : a + a = 0 := by
-          have h1 : (2 : ℕ) • a = 0 := by
-            rw [← ha]
-            exact addOrderOf_nsmul_eq_zero a
-          rwa [two_nsmul] at h1
-        have ha0 : a ≠ 0 := by
-          intro h
-          rw [h, addOrderOf_zero] at ha
-          omega
-        have : a ∈ W₂ := ha2
-        rw [hbot, AddSubgroup.mem_bot] at this
-        exact ha0 this
-      obtain ⟨v₀, hv₀⟩ := exists_ne (0 : V)
-      obtain ⟨w, hw⟩ := hns v₀ hv₀
-      set ψ : V →+ ZMod 2 := AddMonoidHom.mk' (fun w' => polar q v₀ w')
-        (fun w' w'' => hq.polar_add_right v₀ w' w'') with hψ
-      have hcard : Fintype.card V • w = 0 := card_nsmul_eq_zero
-      have h0 : ψ w = 0 := by
-        have h1 : Fintype.card V • ψ w = ψ (Fintype.card V • w) := (map_nsmul ψ _ _).symm
-        rw [hcard, map_zero] at h1
-        have hc1 : (Fintype.card V : ZMod 2) = 1 := by
-          obtain ⟨k, hk⟩ := hodd
-          rw [hk]
-          push_cast
-          linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
-        rwa [nsmul_eq_mul, hc1, one_mul] at h1
-      exact hw h0
-    · intro v
-      exact (htop ▸ AddSubgroup.mem_top v : v ∈ W₂)
+  have hV2 : ∀ v : V, v + v = 0 := two_torsion_of_nonsingular_simple hq hns hsimple
   -- the faithful image Ĥ ≤ Perm V, with the tautological (distributive) action
   set α : H →* Equiv.Perm V := MulAction.toPermHom H V with hα
   haveI hfin : Finite ↥α.range := by

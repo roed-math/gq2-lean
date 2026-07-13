@@ -188,11 +188,16 @@ structure TComplement where
   /-- It sections `p` over `T`. -/
   sect : ∀ t : ↥D.T, D.C.p (s t) = t
 
-/-- **A linear complement exists**: split off `z` by an `𝔽₂`-functional on the elementary
-abelian `p⁻¹(T)`. -/
-theorem tComplement_nonempty : Nonempty (TComplement D) := by
+/-- `z` lies in the preimage `p⁻¹(T)`. -/
+private theorem z_mem_comapT : D.C.z ∈ D.T.comap D.C.p := by
+  rw [Subgroup.mem_comap, p_z_eq_one D]; exact one_mem _
+
+/-- **A splitting functional on `p⁻¹(T)`**: since `p⁻¹(T)` is finite elementary abelian
+(an `𝔽₂`-vector space) and `z ≠ 1`, there is an additive character nonzero on `z`. -/
+private theorem exists_comapT_addChar :
+    ∃ χ : Additive ↥(D.T.comap D.C.p) →+ ZMod 2,
+      χ (Additive.ofMul ⟨D.C.z, z_mem_comapT D⟩) = 1 := by
   classical
-  -- the preimage subgroup, elementary abelian
   set P : Subgroup D.C.cover := D.T.comap D.C.p with hP
   have hPelem : ∀ x : ↥P, x * x = 1 := by
     rintro ⟨x, hx⟩
@@ -205,16 +210,13 @@ theorem tComplement_nonempty : Nonempty (TComplement D) := by
     show x * y = y * x
     exact comm_of_p_mem_T D (Subgroup.mem_comap.mp hy)
       (D.hTM (Subgroup.mem_comap.mp hx))
-  have hzP : D.C.z ∈ P := by
-    rw [hP, Subgroup.mem_comap, p_z_eq_one D]; exact one_mem _
-  -- additivize: `A := Additive ↥P` is a finite elementary-2 `𝔽₂`-vector space
+  have hzP : D.C.z ∈ P := z_mem_comapT D
   letI : CommGroup ↥P := { (inferInstance : Group ↥P) with mul_comm := hPcomm }
   haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   letI : Module (ZMod 2) (Additive ↥P) := AddCommGroup.zmodModule (fun x => by
     rw [two_nsmul]
     exact hPelem x.toMul)
   haveI : Module.Finite (ZMod 2) (Additive ↥P) := Module.Finite.of_finite
-  -- a coordinate functional not vanishing on `z`
   obtain ⟨χ, hχ⟩ : ∃ χ : Additive ↥P →ₗ[ZMod 2] ZMod 2,
       χ (Additive.ofMul (⟨D.C.z, hzP⟩ : ↥P)) ≠ 0 := by
     by_contra! h
@@ -228,37 +230,41 @@ theorem tComplement_nonempty : Nonempty (TComplement D) := by
       rwa [show Additive.toMul zP = (⟨D.C.z, hzP⟩ : ↥P) from rfl,
         show Additive.toMul (0 : Additive ↥P) = (1 : ↥P) from rfl] at h1
     exact D.C.z_ne (congrArg Subtype.val hone)
-  -- the complement: for `t ∈ T`, the unique lift in `ker χ`
-  have hlift : ∀ t : ↥D.T, ∃ x : ↥P, D.C.p x.1 = t.1 ∧
-      χ (Additive.ofMul x) = 0 := by
-    intro t
-    obtain ⟨x0, hx0⟩ := D.C.surj t.1
-    have hx0P : x0 ∈ P := by rw [hP, Subgroup.mem_comap, hx0]; exact t.2
-    by_cases hc : χ (Additive.ofMul (⟨x0, hx0P⟩ : ↥P)) = 0
-    · exact ⟨⟨x0, hx0P⟩, hx0, hc⟩
-    · refine ⟨⟨D.C.z * x0, mul_mem hzP hx0P⟩, ?_, ?_⟩
-      · rw [map_mul, p_z_eq_one D, one_mul, hx0]
-      · have hsplit : (⟨D.C.z * x0, mul_mem hzP hx0P⟩ : ↥P)
-            = (⟨D.C.z, hzP⟩ : ↥P) * ⟨x0, hx0P⟩ := rfl
-        have : χ (Additive.ofMul ((⟨D.C.z, hzP⟩ : ↥P) * ⟨x0, hx0P⟩))
-            = χ (Additive.ofMul (⟨D.C.z, hzP⟩ : ↥P))
-              + χ (Additive.ofMul (⟨x0, hx0P⟩ : ↥P)) := by
-          rw [show Additive.ofMul ((⟨D.C.z, hzP⟩ : ↥P) * ⟨x0, hx0P⟩)
-              = Additive.ofMul (⟨D.C.z, hzP⟩ : ↥P) + Additive.ofMul (⟨x0, hx0P⟩ : ↥P) from rfl,
-            map_add]
-        rw [hsplit, this]
-        have h1 : χ (Additive.ofMul (⟨D.C.z, hzP⟩ : ↥P)) = 1 :=
-          (ZMod.eq_zero_or_eq_one _).resolve_left hχ
-        have h2 : χ (Additive.ofMul (⟨x0, hx0P⟩ : ↥P)) = 1 :=
-          (ZMod.eq_zero_or_eq_one _).resolve_left hc
-        rw [h1, h2]
-        exact CharTwo.add_self_eq_zero 1
-  choose sfun hsp hsχ using hlift
-  -- uniqueness of the `χ = 0` lift over each `t`
-  have huniq : ∀ (t : ↥D.T) (x : ↥P), D.C.p x.1 = t.1 → χ (Additive.ofMul x) = 0 →
-      x = sfun t := by
+  exact ⟨χ.toAddMonoidHom, (ZMod.eq_zero_or_eq_one _).resolve_left hχ⟩
+
+/-- Over each `t ∈ T`, a lift into `p⁻¹(T)` killed by the character `χ`. -/
+private theorem exists_comapT_lift_of_addChar
+    (χ : Additive ↥(D.T.comap D.C.p) →+ ZMod 2)
+    (hχ1 : χ (Additive.ofMul ⟨D.C.z, z_mem_comapT D⟩) = 1) (t : ↥D.T) :
+    ∃ x : ↥(D.T.comap D.C.p), D.C.p x.1 = t.1 ∧ χ (Additive.ofMul x) = 0 := by
+  classical
+  obtain ⟨x0, hx0⟩ := D.C.surj t.1
+  have hx0P : x0 ∈ D.T.comap D.C.p := by rw [Subgroup.mem_comap, hx0]; exact t.2
+  by_cases hc : χ (Additive.ofMul ⟨x0, hx0P⟩) = 0
+  · exact ⟨⟨x0, hx0P⟩, hx0, hc⟩
+  · refine ⟨⟨D.C.z * x0, mul_mem (z_mem_comapT D) hx0P⟩, ?_, ?_⟩
+    · rw [map_mul, p_z_eq_one D, one_mul, hx0]
+    · show χ (Additive.ofMul ⟨D.C.z * x0, mul_mem (z_mem_comapT D) hx0P⟩) = 0
+      rw [show Additive.ofMul (⟨D.C.z * x0, mul_mem (z_mem_comapT D) hx0P⟩
+            : ↥(D.T.comap D.C.p))
+          = Additive.ofMul ⟨D.C.z, z_mem_comapT D⟩ + Additive.ofMul ⟨x0, hx0P⟩ from rfl,
+        map_add, hχ1, (ZMod.eq_zero_or_eq_one _).resolve_left hc]
+      exact CharTwo.add_self_eq_zero 1
+
+/-- **Assemble the linear complement**: the `χ`-annihilated lift over each `t` is unique,
+hence multiplicative, giving the section homomorphism. -/
+private theorem exists_tComplement_of_addChar
+    (χ : Additive ↥(D.T.comap D.C.p) →+ ZMod 2)
+    (hχ1 : χ (Additive.ofMul ⟨D.C.z, z_mem_comapT D⟩) = 1) :
+    Nonempty (TComplement D) := by
+  classical
+  have hχ : χ (Additive.ofMul (⟨D.C.z, z_mem_comapT D⟩ : ↥(D.T.comap D.C.p))) ≠ 0 := by
+    rw [hχ1]; exact one_ne_zero
+  choose sfun hsp hsχ using exists_comapT_lift_of_addChar D χ hχ1
+  have huniq : ∀ (t : ↥D.T) (x : ↥(D.T.comap D.C.p)), D.C.p x.1 = t.1 →
+      χ (Additive.ofMul x) = 0 → x = sfun t := by
     intro t x hx hxχ
-    have hker : (x * (sfun t)⁻¹ : ↥P).1 ∈ D.C.p.ker := by
+    have hker : (x * (sfun t)⁻¹ : ↥(D.T.comap D.C.p)).1 ∈ D.C.p.ker := by
       rw [MonoidHom.mem_ker]
       show D.C.p (x.1 * ((sfun t).1)⁻¹) = 1
       rw [map_mul, map_inv, hx, hsp t, mul_inv_cancel]
@@ -270,7 +276,8 @@ theorem tComplement_nonempty : Nonempty (TComplement D) := by
             = Additive.ofMul x + Additive.ofMul (sfun t)⁻¹ := rfl
         have hinv : Additive.ofMul ((sfun t)⁻¹) = -(Additive.ofMul (sfun t)) := rfl
         rw [hofmul, map_add, hxχ, hinv, map_neg, hsχ t, neg_zero, add_zero]
-      have hzz : (x * (sfun t)⁻¹ : ↥P) = ⟨D.C.z, hzP⟩ := Subtype.ext h
+      have hzz : (x * (sfun t)⁻¹ : ↥(D.T.comap D.C.p)) = ⟨D.C.z, z_mem_comapT D⟩ :=
+        Subtype.ext h
       rw [hzz] at hchi
       exact hχ hchi
   refine ⟨⟨MonoidHom.mk' (fun t => (sfun t).1) ?_, fun t => hsp t⟩⟩
@@ -284,6 +291,12 @@ theorem tComplement_nonempty : Nonempty (TComplement D) := by
       rw [hofmul, map_add, hsχ t, hsχ t', add_zero]
   rw [hmul]
   rfl
+
+/-- **A linear complement exists**: split off `z` by an `𝔽₂`-functional on the elementary
+abelian `p⁻¹(T)`. -/
+theorem tComplement_nonempty : Nonempty (TComplement D) := by
+  obtain ⟨χ, hχ1⟩ := exists_comapT_addChar D
+  exact exists_tComplement_of_addChar D χ hχ1
 
 /-! ## The edge cocycle of (128) -/
 
@@ -447,6 +460,99 @@ theorem edge_coset (b m : Bg) (hm : m ∈ D.M) (t : ↥D.T) :
     edge D S (b * m) t = edge D S b t := by
   rw [edge_mul, edge_M_zero D S m hm t, add_zero, conj_M_fix D m hm t]
 
+/-- **The altered complement** `s'(t) = s(t)·z^{ℓ(t)}` twisted by an additive `ℓ`; a section
+homomorphism (uses exponent-2 centrality of `z` and additivity of `ℓ`). -/
+private noncomputable def twistedSection (ℓ : ↥D.T → ZMod 2)
+    (hadd : ∀ t t', ℓ (t * t') = ℓ t + ℓ t') : ↥D.T →* D.C.cover :=
+  MonoidHom.mk' (fun t => S.s t * D.C.z ^ (ℓ t).val) (by
+    intro t t'
+    have hker : ∀ a : ZMod 2, D.C.z ^ a.val ∈ D.C.p.ker := fun a => pow_mem (z_mem_ker D) _
+    rw [map_mul S.s, hadd, CentralCover.z_pow_val_add]
+    calc S.s t * S.s t' * (D.C.z ^ (ℓ t).val * D.C.z ^ (ℓ t').val)
+        = S.s t * (S.s t' * D.C.z ^ (ℓ t).val) * D.C.z ^ (ℓ t').val := by group
+      _ = S.s t * (D.C.z ^ (ℓ t).val * S.s t') * D.C.z ^ (ℓ t').val := by
+          rw [ker_comm D (hker (ℓ t)) (S.s t')]
+      _ = (S.s t * D.C.z ^ (ℓ t).val) * (S.s t' * D.C.z ^ (ℓ t').val) := by group)
+
+/-- The twisted complement still sections `p` over `T` (the `z^ℓ` factor dies under `p`). -/
+private theorem twistedSection_p (ℓ : ↥D.T → ZMod 2)
+    (hadd : ∀ t t', ℓ (t * t') = ℓ t + ℓ t') (t : ↥D.T) :
+    D.C.p (twistedSection D S ℓ hadd t) = t.1 := by
+  show D.C.p (S.s t * D.C.z ^ (ℓ t).val) = t.1
+  rw [map_mul, map_pow, p_z_eq_one D, one_pow, mul_one, S.sect]
+
+/-- **Conjugation-stability** of the twisted complement: when `ℓ` trivializes the edge,
+`g·s'(t)·g⁻¹ = s'(gtg⁻¹)`, so `range s'` is normal (via `edge_spec`). -/
+private theorem twistedSection_range_normal (ℓ : ↥D.T → ZMod 2)
+    (hadd : ∀ t t', ℓ (t * t') = ℓ t + ℓ t')
+    (h : ∀ (b : Bg) (t : ↥D.T), edge D S b t = ℓ ⟨b * t.1 * b⁻¹, conj_mem_T D b t⟩ + ℓ t) :
+    (twistedSection D S ℓ hadd).range.Normal := by
+  set s' := twistedSection D S ℓ hadd
+  have hzc : ∀ (n : ℕ) (w : D.C.cover), D.C.z ^ n * w = w * D.C.z ^ n :=
+    fun n w => Commute.pow_left (D.C.central w) n
+  constructor
+  intro n hn g
+  obtain ⟨t, rfl⟩ := MonoidHom.mem_range.mp hn
+  have hspec := edge_spec D S (rfl : D.C.p g = D.C.p g) t
+  refine MonoidHom.mem_range.mpr ⟨⟨D.C.p g * t.1 * (D.C.p g)⁻¹, conj_mem_T D _ t⟩, ?_⟩
+  show S.s ⟨D.C.p g * t.1 * (D.C.p g)⁻¹, _⟩
+      * D.C.z ^ (ℓ ⟨D.C.p g * t.1 * (D.C.p g)⁻¹, conj_mem_T D _ t⟩).val
+    = g * s' t * g⁻¹
+  have hexp : g * s' t * g⁻¹
+      = (g * S.s t * g⁻¹) * D.C.z ^ (ℓ t).val := by
+    show g * (S.s t * D.C.z ^ (ℓ t).val) * g⁻¹ = _
+    calc g * (S.s t * D.C.z ^ (ℓ t).val) * g⁻¹
+        = g * S.s t * (D.C.z ^ (ℓ t).val * g⁻¹) := by group
+      _ = g * S.s t * (g⁻¹ * D.C.z ^ (ℓ t).val) := by rw [hzc]
+      _ = (g * S.s t * g⁻¹) * D.C.z ^ (ℓ t).val := by group
+  have hexp2 : edge D S (D.C.p g) t + ℓ t
+      = ℓ ⟨D.C.p g * t.1 * (D.C.p g)⁻¹, conj_mem_T D (D.C.p g) t⟩ := by
+    rw [h (D.C.p g) t, add_assoc, CharTwo.add_self_eq_zero, add_zero]
+  calc S.s ⟨D.C.p g * t.1 * (D.C.p g)⁻¹, conj_mem_T D (D.C.p g) t⟩
+        * D.C.z ^ (ℓ ⟨D.C.p g * t.1 * (D.C.p g)⁻¹, conj_mem_T D (D.C.p g) t⟩).val
+      = S.s ⟨D.C.p g * t.1 * (D.C.p g)⁻¹, conj_mem_T D (D.C.p g) t⟩
+        * D.C.z ^ ((edge D S (D.C.p g) t + ℓ t)).val := by rw [hexp2]
+    _ = S.s ⟨D.C.p g * t.1 * (D.C.p g)⁻¹, conj_mem_T D (D.C.p g) t⟩
+        * (D.C.z ^ (edge D S (D.C.p g) t).val * D.C.z ^ (ℓ t).val) := by
+        rw [← CentralCover.z_pow_val_add]
+    _ = S.s ⟨D.C.p g * t.1 * (D.C.p g)⁻¹, conj_mem_T D (D.C.p g) t⟩
+        * D.C.z ^ (edge D S (D.C.p g) t).val * D.C.z ^ (ℓ t).val := by group
+    _ = (g * S.s t * g⁻¹) * D.C.z ^ (ℓ t).val := by rw [← hspec]
+    _ = g * s' t * g⁻¹ := hexp.symm
+
+/-- `p` maps the twisted complement's range onto `T`. -/
+private theorem twistedSection_range_map (ℓ : ↥D.T → ZMod 2)
+    (hadd : ∀ t t', ℓ (t * t') = ℓ t + ℓ t') :
+    (twistedSection D S ℓ hadd).range.map D.C.p = D.T := by
+  set s' := twistedSection D S ℓ hadd
+  have hps' : ∀ t : ↥D.T, D.C.p (s' t) = t.1 := twistedSection_p D S ℓ hadd
+  apply le_antisymm
+  · rintro y hy
+    obtain ⟨x, hx, rfl⟩ := Subgroup.mem_map.mp hy
+    obtain ⟨t, rfl⟩ := MonoidHom.mem_range.mp hx
+    rw [hps' t]
+    exact t.2
+  · intro y hy
+    exact Subgroup.mem_map.mpr ⟨s' ⟨y, hy⟩, MonoidHom.mem_range.mpr ⟨⟨y, hy⟩, rfl⟩,
+      hps' ⟨y, hy⟩⟩
+
+/-- `z` avoids the twisted complement's range (it would force a `T`-element to be trivial). -/
+private theorem z_not_mem_twistedSection_range (ℓ : ↥D.T → ZMod 2)
+    (hadd : ∀ t t', ℓ (t * t') = ℓ t + ℓ t') :
+    D.C.z ∉ (twistedSection D S ℓ hadd).range := by
+  set s' := twistedSection D S ℓ hadd
+  have hps' : ∀ t : ↥D.T, D.C.p (s' t) = t.1 := twistedSection_p D S ℓ hadd
+  intro hz
+  obtain ⟨t, ht⟩ := MonoidHom.mem_range.mp hz
+  have ht1 : t.1 = 1 := by
+    have := congrArg D.C.p ht
+    rwa [hps' t, p_z_eq_one D] at this
+  have hteq : t = 1 := Subtype.ext ht1
+  rw [hteq] at ht
+  have : s' 1 = 1 := map_one s'
+  rw [this] at ht
+  exact D.C.z_ne ht.symm
+
 /-- **The descent construction**: a crossed trivialization `ε(b)(t) = ℓ(btb⁻¹) + ℓ(t)` of the
 edge by an additive `ℓ` yields a normal complement to `p⁻¹(T)` missing `z` — refuting
 `NoDescent`.  (Alter the complement by `z^ℓ`; the new complement is conjugation-stable.) -/
@@ -455,84 +561,8 @@ theorem not_noDescent_of_edge_trivial (ℓ : ↥D.T → ZMod 2)
     (h : ∀ (b : Bg) (t : ↥D.T), edge D S b t = ℓ ⟨b * t.1 * b⁻¹, conj_mem_T D b t⟩ + ℓ t) :
     ¬ D.NoDescent := by
   intro hnd
-  apply hnd
-  have hzc : ∀ (n : ℕ) (w : D.C.cover), D.C.z ^ n * w = w * D.C.z ^ n :=
-    fun n w => Commute.pow_left (D.C.central w) n
-  -- the altered complement `s'(t) = s(t)·z^{ℓ(t)}`, a homomorphism
-  have hker : ∀ a : ZMod 2, D.C.z ^ a.val ∈ D.C.p.ker :=
-    fun a => pow_mem (z_mem_ker D) _
-  have hs'mul : ∀ t t' : ↥D.T,
-      S.s (t * t') * D.C.z ^ (ℓ (t * t')).val
-        = (S.s t * D.C.z ^ (ℓ t).val) * (S.s t' * D.C.z ^ (ℓ t').val) := by
-    intro t t'
-    rw [map_mul S.s, hadd, CentralCover.z_pow_val_add]
-    calc S.s t * S.s t' * (D.C.z ^ (ℓ t).val * D.C.z ^ (ℓ t').val)
-        = S.s t * (S.s t' * D.C.z ^ (ℓ t).val) * D.C.z ^ (ℓ t').val := by group
-      _ = S.s t * (D.C.z ^ (ℓ t).val * S.s t') * D.C.z ^ (ℓ t').val := by
-          rw [ker_comm D (hker (ℓ t)) (S.s t')]
-      _ = (S.s t * D.C.z ^ (ℓ t).val) * (S.s t' * D.C.z ^ (ℓ t').val) := by group
-  set s' : ↥D.T →* D.C.cover :=
-    MonoidHom.mk' (fun t => S.s t * D.C.z ^ (ℓ t).val) hs'mul with hs'def
-  have hps' : ∀ t : ↥D.T, D.C.p (s' t) = t.1 := by
-    intro t
-    show D.C.p (S.s t * D.C.z ^ (ℓ t).val) = t.1
-    rw [map_mul, map_pow, p_z_eq_one D, one_pow, mul_one, S.sect]
-  have hl1 : ℓ 1 = 0 := by
-    have h11 := hadd 1 1
-    rw [one_mul] at h11
-    exact left_eq_add.mp h11
-  refine ⟨s'.range, ?_, ?_, ?_⟩
-  · -- normality: conjugation lands back in the range, by `edge_spec` + the trivialization
-    constructor
-    intro n hn g
-    obtain ⟨t, rfl⟩ := MonoidHom.mem_range.mp hn
-    have hspec := edge_spec D S (rfl : D.C.p g = D.C.p g) t
-    refine MonoidHom.mem_range.mpr ⟨⟨D.C.p g * t.1 * (D.C.p g)⁻¹, conj_mem_T D _ t⟩, ?_⟩
-    show S.s ⟨D.C.p g * t.1 * (D.C.p g)⁻¹, _⟩
-        * D.C.z ^ (ℓ ⟨D.C.p g * t.1 * (D.C.p g)⁻¹, conj_mem_T D _ t⟩).val
-      = g * s' t * g⁻¹
-    have hexp : g * s' t * g⁻¹
-        = (g * S.s t * g⁻¹) * D.C.z ^ (ℓ t).val := by
-      show g * (S.s t * D.C.z ^ (ℓ t).val) * g⁻¹ = _
-      calc g * (S.s t * D.C.z ^ (ℓ t).val) * g⁻¹
-          = g * S.s t * (D.C.z ^ (ℓ t).val * g⁻¹) := by group
-        _ = g * S.s t * (g⁻¹ * D.C.z ^ (ℓ t).val) := by rw [hzc]
-        _ = (g * S.s t * g⁻¹) * D.C.z ^ (ℓ t).val := by group
-    have hexp2 : edge D S (D.C.p g) t + ℓ t
-        = ℓ ⟨D.C.p g * t.1 * (D.C.p g)⁻¹, conj_mem_T D (D.C.p g) t⟩ := by
-      rw [h (D.C.p g) t, add_assoc, CharTwo.add_self_eq_zero, add_zero]
-    calc S.s ⟨D.C.p g * t.1 * (D.C.p g)⁻¹, conj_mem_T D (D.C.p g) t⟩
-          * D.C.z ^ (ℓ ⟨D.C.p g * t.1 * (D.C.p g)⁻¹, conj_mem_T D (D.C.p g) t⟩).val
-        = S.s ⟨D.C.p g * t.1 * (D.C.p g)⁻¹, conj_mem_T D (D.C.p g) t⟩
-          * D.C.z ^ ((edge D S (D.C.p g) t + ℓ t)).val := by rw [hexp2]
-      _ = S.s ⟨D.C.p g * t.1 * (D.C.p g)⁻¹, conj_mem_T D (D.C.p g) t⟩
-          * (D.C.z ^ (edge D S (D.C.p g) t).val * D.C.z ^ (ℓ t).val) := by
-          rw [← CentralCover.z_pow_val_add]
-      _ = S.s ⟨D.C.p g * t.1 * (D.C.p g)⁻¹, conj_mem_T D (D.C.p g) t⟩
-          * D.C.z ^ (edge D S (D.C.p g) t).val * D.C.z ^ (ℓ t).val := by group
-      _ = (g * S.s t * g⁻¹) * D.C.z ^ (ℓ t).val := by rw [← hspec]
-      _ = g * s' t * g⁻¹ := hexp.symm
-  · -- image: `p` maps the range onto `T`
-    apply le_antisymm
-    · rintro y hy
-      obtain ⟨x, hx, rfl⟩ := Subgroup.mem_map.mp hy
-      obtain ⟨t, rfl⟩ := MonoidHom.mem_range.mp hx
-      rw [hps' t]
-      exact t.2
-    · intro y hy
-      exact Subgroup.mem_map.mpr ⟨s' ⟨y, hy⟩, MonoidHom.mem_range.mpr ⟨⟨y, hy⟩, rfl⟩,
-        hps' ⟨y, hy⟩⟩
-  · -- `z` is not in the range
-    intro hz
-    obtain ⟨t, ht⟩ := MonoidHom.mem_range.mp hz
-    have ht1 : t.1 = 1 := by
-      have := congrArg D.C.p ht
-      rwa [hps' t, p_z_eq_one D] at this
-    have hteq : t = 1 := Subtype.ext ht1
-    rw [hteq] at ht
-    have : s' 1 = 1 := map_one s'
-    rw [this] at ht
-    exact D.C.z_ne ht.symm
+  exact hnd ⟨(twistedSection D S ℓ hadd).range, twistedSection_range_normal D S ℓ hadd h,
+    twistedSection_range_map D S ℓ hadd, z_not_mem_twistedSection_range D S ℓ hadd⟩
 
 /-! ## The quotient edge (M-coset descent of the edge cocycle) -/
 
