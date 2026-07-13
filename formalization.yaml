@@ -1,0 +1,186 @@
+# formalization.yaml (v0.3) — see https://github.com/mathlib-initiative/formalization.yaml
+
+version: "v0.3"
+
+project:
+  name: "gq2-lean"
+  authors:
+    - "David Roe (orchestration, review, direction)"
+    - "Claude (Anthropic) agent swarm (Claude Opus 4.8, Claude Fable 5)"
+  license: "GPL-3.0"
+
+sources:
+  - title: "A Profinite Presentation of the Absolute Galois Group of Q_2"
+    authors: ["D. C. Turturean"]
+    id: "unpublished (June 2026); local copy at paper/A_Profinite_Presentation_for_G__Q_2.pdf"
+    type: "machine-generated preprint (GPT)"
+    license: ""
+    author_contacted: "n/a"
+    prior_work: ""
+
+status:
+  scope: >
+    Complete end-to-end formalization of the paper's main result (Theorem 1.2): the
+    absolute Galois group of Q_2 is isomorphic as a profinite group to an explicit
+    4-generator 2-relator marked quotient Gamma_A, together with the surjection-count
+    form (for every finite G, the number of continuous surjections G_Q2 ->> G equals
+    the number of admissible marked quadruples in G^4). Proved sorry-free from a
+    frozen census of 9 literature axioms (deep local-arithmetic inputs Mathlib does
+    not yet contain, each with a precise citation — see GQ2/Foundations/Axioms.lean
+    and docs/literature-axioms.md).
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms:
+    - "propext"
+    - "Classical.choice"
+    - "Quot.sound"
+    - "GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated"   # B1
+    - "GQ2.Foundations.absGalQ2_localEulerCharacteristic"           # B3c
+    - "GQ2.dyadicOrientation"                                       # B5
+    - "GQ2.localReciprocity"                                        # B6
+    - "GQ2.tateDualityAt"                                           # B7
+    - "GQ2.peripheralCyclotomicAction"                              # B8
+    - "GQ2.evensKahn_dyadic"                                        # B9
+    - "GQ2.tameQuotient"                                            # B10
+    - "GQ2.hilbertSymbol_normCriterion_finiteDyadic"                # B11a
+  main_results:
+    - declaration: "GQ2.main_presentation_literal"
+      file: "GQ2/PresentationLiteral.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+        - "GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated"
+        - "GQ2.Foundations.absGalQ2_localEulerCharacteristic"
+        - "GQ2.dyadicOrientation"
+        - "GQ2.localReciprocity"
+        - "GQ2.tateDualityAt"
+        - "GQ2.peripheralCyclotomicAction"
+        - "GQ2.evensKahn_dyadic"
+        - "GQ2.tameQuotient"
+        - "GQ2.hilbertSymbol_normCriterion_finiteDyadic"
+      comparator_config: "comparator-config.json"
+      literature_dependencies:
+        - statement: "G_Q2 is topologically finitely generated (B1)"
+          source: "standard local-fields literature; citation in GQ2/Foundations/Axioms.lean"
+        - statement: "local Euler characteristic formula at p = 2 (B3c)"
+          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+        - statement: "dyadic orientation / cyclotomic normalization (B5)"
+          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+        - statement: "local reciprocity (local class field theory) for Q_2 (B6)"
+          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+        - statement: "local Tate duality at finite extensions k/Q_2 (B7, base-generalized)"
+          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+        - statement: "peripheral cyclotomic action (B8)"
+          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+        - statement: "Evens-Kahn norm/restriction formula, dyadic case (B9)"
+          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+        - statement: "oriented tame quotient structure of G_Q2 (B10)"
+          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+        - statement: "Hilbert-symbol norm criterion for finite dyadic extensions (B11a)"
+          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+    - declaration: "GQ2.SectionTen.main_surjection_count'"
+      file: "GQ2/SectionTenSources.lean"
+      sorry_count: 0
+      axioms:                  # verified via #print axioms: same set as the literal form
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+        - "GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated"
+        - "GQ2.Foundations.absGalQ2_localEulerCharacteristic"
+        - "GQ2.dyadicOrientation"
+        - "GQ2.localReciprocity"
+        - "GQ2.tateDualityAt"
+        - "GQ2.peripheralCyclotomicAction"
+        - "GQ2.evensKahn_dyadic"
+        - "GQ2.tameQuotient"
+        - "GQ2.hilbertSymbol_normCriterion_finiteDyadic"
+      comparator_config: ""
+      literature_dependencies: []
+
+automation:
+  methods:
+    - method: "agent"
+      models: ["claude-opus-4-8", "claude-fable-5"]
+      framework: "Claude Code"
+      tool_setup: >
+        Multi-agent orchestrator-worker swarm: a main orchestrating session dispatched
+        parallel worker agents per ticket/file, coordinated through an on-disk ticket
+        board, per-ticket plans, and handoff documents (raw archive preserved in
+        docs/orchestration/). Workers used the lean-lsp MCP server and streaming
+        `lake build` verification; an axiom-hygiene gate (scripts/check_axioms.sh)
+        enforced the frozen axiom census, zero sorries, and no native_decide on every
+        wave. A post-completion 34-wave cleanup marathon (mathlib-quality skill suite:
+        per-file golf, renames, cross-file dedup, proof decomposition, file splitting)
+        brought the code toward mathlib contribution standards.
+      cost:
+        wall_time: "~2 weeks wall clock (2026-07-01 to 2026-07-13); main proof complete 2026-07-08"
+        spend_usd: "not tracked (subscription-based usage)"
+        hardware: "API-only; builds on a single developer workstation (Apple Silicon)"
+      prompting_notes: >
+        Per-ticket briefs with acceptance criteria and axiom budgets (see
+        docs/orchestration/tickets.md and p*.md plan files); cleanup-phase worker
+        prompts enforced byte-identical theorem statements, streaming-only builds,
+        and anti-destruction rules for parallel lanes.
+  spend_usd: "not tracked (subscription-based usage)"
+  notes: >
+    Human role was orchestration-level: approving axiom-census changes, owner-gated
+    design decisions, and review checkpoints; the Lean code was written by the agent
+    swarm. Commit trailers record the models used per commit.
+
+fidelity:
+  divergences: >
+    Statements track the paper closely; module docstrings carry paper-tag ledgers
+    mapping equations/propositions to declarations. Known deviations: (i) the nine
+    literature inputs are axiomatized rather than proved (each base-generalized only
+    where noted, e.g. Tate duality stated for all finite k/Q_2); (ii) a transcription
+    erratum in the paper's H^0 bookkeeping was found and corrected during
+    formalization (docs/erratum-h0-transcription.md); (iii) helper-lemma names follow
+    mathlib conventions rather than paper numbering; (iv) six axioms present at proof
+    completion were later discharged in-repo or deleted as unused (census 15 -> 9),
+    so the axiom set is smaller than the one the paper's appendix assumes.
+
+review:
+  status: "agent-reviewed"
+  reviewers: []
+  notes: >
+    No external human peer review yet. Internal review: adversarial multi-agent review
+    of the axiom census (docs/adversarial-axioms-review.md), a foundations audit
+    (docs/foundations-audit.md), off-path statement checks (docs/off-path-statements.md),
+    and continuous mechanical gates (kernel-checked builds, axiom census script,
+    zero-sorry enforcement). The main result is independently checkable with
+    leanprover/comparator via comparator-config.json (Challenge.lean / Solution.lean).
+
+alignment:
+  namespace: "GQ2"
+  statements:
+    - source: "Theorem 1.2 (presentation theorem)"
+      lean: "GQ2.main_presentation_literal"
+      module: "GQ2/PresentationLiteral.lean"
+      status: "proved"
+      note: "literal form: Nonempty (ContinuousMulEquiv GammaA AbsGalQ2)"
+    - source: "Theorem 1.2 (surjection-count form)"
+      lean: "GQ2.SectionTen.main_surjection_count'"
+      module: "GQ2/SectionTenSources.lean"
+      status: "proved"
+      note: "#{continuous surjections G_Q2 ->> G} = #{admissible marked quadruples in G^4}"
+    - source: "eq. (7) (the candidate group Gamma_A)"
+      lean: "GQ2.GammaA"
+      module: "GQ2/GammaA.lean"
+      status: "proved"
+      note: "largest quotient of the free profinite group F_4 all of whose finite quotients are admissible"
+    - source: "Prop. 2.3 (admissible-marking count for Gamma_A)"
+      lean: "GQ2.prop_2_3"
+      module: "GQ2/Prop23.lean"
+      status: "proved"
+    - source: "Appendix B literature inputs B1-B11a"
+      lean: "GQ2/Foundations/Axioms.lean (9 axioms)"
+      module: "GQ2/Foundations/Axioms.lean"
+      status: "literature-dependency"
+      note: "frozen census enforced by scripts/check_axioms.sh; per-axiom citations in docs/literature-axioms.md"
+
+acknowledgements: >
+  Built on mathlib4 (pinned at ec410d2, 2026-06-12). Comparator verification uses
+  leanprover/comparator and leanprover/lean4export. Process archive:
+  docs/orchestration/.

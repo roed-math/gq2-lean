@@ -1,0 +1,20 @@
+{
+    "challenge_module": "Challenge",
+    "solution_module": "Solution",
+    "theorem_names": ["challenge_main_presentation_literal"],
+    "permitted_axioms": [
+        "propext",
+        "Quot.sound",
+        "Classical.choice",
+        "GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated",
+        "GQ2.Foundations.absGalQ2_localEulerCharacteristic",
+        "GQ2.dyadicOrientation",
+        "GQ2.localReciprocity",
+        "GQ2.tateDualityAt",
+        "GQ2.peripheralCyclotomicAction",
+        "GQ2.evensKahn_dyadic",
+        "GQ2.tameQuotient",
+        "GQ2.hilbertSymbol_normCriterion_finiteDyadic"
+    ],
+    "enable_nanoda": false
+}

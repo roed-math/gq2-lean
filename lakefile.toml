@@ -25,3 +25,11 @@ rev = "ec410d23dfa4e7540d4663405b5e0dc71f3c3363"
 
 [[lean_lib]]
 name = "GQ2"
+
+# Comparator (leanprover/comparator) verification pair for the main theorem;
+# see comparator-config.json and formalization.yaml.
+[[lean_lib]]
+name = "Challenge"
+
+[[lean_lib]]
+name = "Solution"
