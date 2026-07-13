@@ -1413,6 +1413,139 @@ theorem two_torsion_of_centralizer_eq_one [Finite V] {sg t : C}
 
 end InvolutionKernel
 
+/-- **First-isomorphism counting for a self-retracting endomorphism.**  If every element of
+`ker A` lies in `range A` for an endomorphism `A` of a finite abelian group `V`, then
+`#(ker A) ^ 2 ≤ #V`, since `#V = #(range A) · #(ker A)` and `#(ker A) ≤ #(range A)`. -/
+private lemma card_ker_sq_le_of_ker_le_range {V : Type} [AddCommGroup V] [Finite V]
+    (A : V →+ V) (hle : A.ker ≤ A.range) : Nat.card ↥A.ker ^ 2 ≤ Nat.card V := by
+  have hcardle : Nat.card ↥A.ker ≤ Nat.card ↥A.range := AddSubgroup.card_le_of_le hle
+  have hiso : Nat.card (V ⧸ A.ker) = Nat.card ↥A.range :=
+    Nat.card_congr (QuotientAddGroup.quotientKerEquivRange A).toEquiv
+  have hprod : Nat.card V = Nat.card ↥A.range * Nat.card ↥A.ker := by
+    rw [AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup A.ker, hiso]
+  calc Nat.card ↥A.ker ^ 2 = Nat.card ↥A.ker * Nat.card ↥A.ker := by rw [pow_two]
+    _ ≤ Nat.card ↥A.range * Nat.card ↥A.ker := Nat.mul_le_mul_right _ hcardle
+    _ = Nat.card V := hprod.symm
+
+/-- **The multiply-by-`q` pairing of `(ZMod r) ∖ {0}`.**  When `q` is a unitary involution in
+`ZMod r` (`q² = 1`) with `q − 1` coprime to `r`, the map `k ↦ q·k` is a fixed-point-free
+involution of `(ZMod r) ∖ {0}`; the two `val`-comparison halves `Λ₁, Λ₂` partition
+`(ZMod r) ∖ {0}` and are swapped by `k ↦ q·k`.  (The unitary hypothesis `hcast` and the
+coprimality `hcop` are what make the involution fixed-point-free.) -/
+private lemma exists_transversal_pairing {r : ℕ} [NeZero r] (q : ℕ)
+    (hcop : Nat.Coprime (q - 1) r) (hcast : (q : ZMod r) * (q : ZMod r) = 1) (hq1 : 1 ≤ q) :
+    ∃ Λ₁ Λ₂ : Finset (ZMod r), Disjoint Λ₁ Λ₂ ∧
+      Λ₁ ∪ Λ₂ = Finset.univ.erase (0 : ZMod r) ∧
+      (∀ k ∈ Λ₁, (q : ZMod r) * k ∈ Λ₂) ∧ (∀ k ∈ Λ₂, (q : ZMod r) * k ∈ Λ₁) ∧
+      ∀ k : ZMod r, (q : ZMod r) * ((q : ZMod r) * k) = k := by
+  have hinv2 : ∀ k : ZMod r, (q : ZMod r) * ((q : ZMod r) * k) = k := fun k => by
+    rw [← mul_assoc, hcast, one_mul]
+  have hval_inj : ∀ a b : ZMod r, ZMod.val a = ZMod.val b → a = b := by
+    intro a b h
+    have ha := ZMod.natCast_rightInverse (n := r) a
+    have hb := ZMod.natCast_rightInverse (n := r) b
+    rw [← ha, ← hb, h]
+  have hqfix : ∀ k : ZMod r, k ≠ 0 → (q : ZMod r) * k ≠ k := by
+    intro k hk0 hfix
+    have h1 : ((q - 1 : ℕ) : ZMod r) * k = 0 := by
+      rw [Nat.cast_sub hq1, Nat.cast_one, sub_mul, one_mul, hfix, sub_self]
+    have hunit : IsUnit ((q - 1 : ℕ) : ZMod r) := (ZMod.isUnit_iff_coprime _ _).mpr hcop
+    exact hk0 ((IsUnit.mul_right_eq_zero hunit).mp h1)
+  have hq0' : ∀ k : ZMod r, k ≠ 0 → (q : ZMod r) * k ≠ 0 := fun k hk0 h0 =>
+    hk0 (by rw [← hinv2 k, h0, mul_zero])
+  refine ⟨Finset.univ.filter (fun k => k ≠ 0 ∧ ZMod.val k < ZMod.val ((q : ZMod r) * k)),
+    Finset.univ.filter (fun k => k ≠ 0 ∧ ZMod.val ((q : ZMod r) * k) < ZMod.val k),
+    ?_, ?_, ?_, ?_, hinv2⟩
+  · rw [Finset.disjoint_left]
+    intro k h1 h2
+    simp only [Finset.mem_filter] at h1 h2
+    omega
+  · ext k
+    simp only [Finset.mem_union, Finset.mem_filter, Finset.mem_univ, true_and,
+      Finset.mem_erase, and_true]
+    constructor
+    · rintro (⟨hk0, -⟩ | ⟨hk0, -⟩) <;> exact hk0
+    · intro hk0
+      have hne : ZMod.val ((q : ZMod r) * k) ≠ ZMod.val k := fun h =>
+        hqfix k hk0 (hval_inj _ _ h)
+      rcases Nat.lt_or_ge (ZMod.val k) (ZMod.val ((q : ZMod r) * k)) with h | h
+      · exact Or.inl ⟨hk0, h⟩
+      · exact Or.inr ⟨hk0, by omega⟩
+  · intro k hk
+    rw [Finset.mem_filter] at hk ⊢
+    refine ⟨Finset.mem_univ _, hq0' k hk.2.1, ?_⟩
+    rw [hinv2 k]; exact hk.2.2
+  · intro k hk
+    rw [Finset.mem_filter] at hk ⊢
+    refine ⟨Finset.mem_univ _, hq0' k hk.2.1, ?_⟩
+    rw [hinv2 k]; exact hk.2.2
+
+/-- **The `𝔽₂`-rational trace element** (heart of the involution bound).  For a 2-torsion
+action of a group with a unitary involution `ω` conjugating `u` (of order `r`) by `u ↦ u^q`,
+and a pairing of `(ZMod r) ∖ {0}` into halves `Λ₁, Λ₂` swapped by `k ↦ q·k`, every `ω`-fixed
+`v` equals `w + ω•w` for the trace `w = ∑_{k ∈ Λ₁} u^{k.val} • v`: the geometric-sum vanishing
+`∑_{k<r} u^k•v = 0` collapses the full orbit sum to `v`, and `ω` swaps the two half-sums. -/
+private lemma exists_trace_element {C : Type} [Group C] {V : Type} [AddCommGroup V]
+    [DistribMulAction C V] (hV2 : ∀ v : V, v + v = 0) {ω u : C} {r : ℕ} [NeZero r]
+    (huord : orderOf u = r) (husum : ∀ v : V, ∑ k ∈ Finset.range r, u ^ k • v = 0)
+    {q : ℕ} (hconju : ∀ a : ℕ, ω * u ^ a * ω⁻¹ = u ^ (q * a))
+    {Λ₁ Λ₂ : Finset (ZMod r)} (hdisj : Disjoint Λ₁ Λ₂)
+    (hunion : Λ₁ ∪ Λ₂ = Finset.univ.erase (0 : ZMod r))
+    (hmapsto : ∀ k ∈ Λ₁, (q : ZMod r) * k ∈ Λ₂)
+    (hmapsto' : ∀ k ∈ Λ₂, (q : ZMod r) * k ∈ Λ₁)
+    (hinv2 : ∀ k : ZMod r, (q : ZMod r) * ((q : ZMod r) * k) = k)
+    {v : V} (hv : ω • v = v) : ∃ w : V, v = w + ω • w := by
+  refine ⟨∑ k ∈ Λ₁, u ^ (ZMod.val k) • v, ?_⟩
+  have hstep : ∀ k : ZMod r,
+      ω • (u ^ (ZMod.val k) • v) = u ^ (ZMod.val ((q : ZMod r) * k)) • v := by
+    intro k
+    have h1 : ω * u ^ (ZMod.val k) = u ^ (q * ZMod.val k) * ω := by
+      calc ω * u ^ (ZMod.val k) = (ω * u ^ (ZMod.val k) * ω⁻¹) * ω := by group
+        _ = u ^ (q * ZMod.val k) * ω := by rw [hconju (ZMod.val k)]
+    have h2 : u ^ (q * ZMod.val k) = u ^ (ZMod.val ((q : ZMod r) * k)) := by
+      have hval : ZMod.val ((q : ZMod r) * k) = q * ZMod.val k % r := by
+        rw [ZMod.val_mul, ZMod.val_natCast]
+        exact (Nat.mod_modEq q r).mul_right (ZMod.val k)
+      have hpm : u ^ (q * ZMod.val k % r) = u ^ (q * ZMod.val k) := by
+        have h := pow_mod_orderOf u (q * ZMod.val k)
+        rwa [huord] at h
+      rw [hval]
+      exact hpm.symm
+    calc ω • (u ^ (ZMod.val k) • v) = (ω * u ^ (ZMod.val k)) • v := (mul_smul _ _ _).symm
+      _ = (u ^ (q * ZMod.val k) * ω) • v := by rw [h1]
+      _ = u ^ (q * ZMod.val k) • (ω • v) := mul_smul _ _ _
+      _ = u ^ (q * ZMod.val k) • v := by rw [hv]
+      _ = u ^ (ZMod.val ((q : ZMod r) * k)) • v := by rw [h2]
+  have hωsum : ω • (∑ k ∈ Λ₁, u ^ (ZMod.val k) • v) = ∑ k ∈ Λ₂, u ^ (ZMod.val k) • v := by
+    calc ω • (∑ k ∈ Λ₁, u ^ (ZMod.val k) • v)
+        = ∑ k ∈ Λ₁, ω • (u ^ (ZMod.val k) • v) := Finset.smul_sum
+      _ = ∑ k ∈ Λ₁, u ^ (ZMod.val ((q : ZMod r) * k)) • v :=
+          Finset.sum_congr rfl fun k _ => hstep k
+      _ = ∑ k ∈ Λ₂, u ^ (ZMod.val k) • v :=
+          Finset.sum_nbij' (fun k => (q : ZMod r) * k) (fun k => (q : ZMod r) * k)
+            hmapsto hmapsto' (fun k _ => hinv2 k) (fun k _ => hinv2 k) (fun k _ => rfl)
+  have h2 : ∑ k : ZMod r, u ^ (ZMod.val k) • v = ∑ j ∈ Finset.range r, u ^ j • v :=
+    Finset.sum_nbij' (fun k => ZMod.val k) (fun j => (j : ZMod r))
+      (fun k _ => Finset.mem_range.mpr (ZMod.val_lt k))
+      (fun j _ => Finset.mem_univ _)
+      (fun k _ => ZMod.natCast_rightInverse k)
+      (fun j hj => ZMod.val_cast_of_lt (Finset.mem_range.mp hj))
+      (fun k _ => rfl)
+  have hfull : ∑ k ∈ Finset.univ.erase (0 : ZMod r), u ^ (ZMod.val k) • v = v := by
+    have h1 : (∑ k ∈ Finset.univ.erase (0 : ZMod r), u ^ (ZMod.val k) • v)
+        + u ^ (ZMod.val (0 : ZMod r)) • v = ∑ k : ZMod r, u ^ (ZMod.val k) • v :=
+      Finset.sum_erase_add _ _ (Finset.mem_univ 0)
+    rw [h2, husum v, ZMod.val_zero, pow_zero, one_smul] at h1
+    calc ∑ k ∈ Finset.univ.erase (0 : ZMod r), u ^ (ZMod.val k) • v
+        = ((∑ k ∈ Finset.univ.erase (0 : ZMod r), u ^ (ZMod.val k) • v) + v) + v := by
+          rw [add_assoc, hV2, add_zero]
+      _ = 0 + v := by rw [h1]
+      _ = v := zero_add v
+  have hsplit : (∑ k ∈ Λ₁, u ^ (ZMod.val k) • v) + (∑ k ∈ Λ₂, u ^ (ZMod.val k) • v)
+      = ∑ k ∈ Finset.univ.erase (0 : ZMod r), u ^ (ZMod.val k) • v := by
+    rw [← Finset.sum_union hdisj, hunion]
+  rw [hωsum, hsplit, hfull]
+
 /-- **The involution counting bound** (the leaf of Lemma 6.11, P-17e4): the involution
 `ω = g₀^{2^{s-1}}` of the cyclic Sylow-2 subgroup acts freely enough on the ramified simple
 faithful module, `#V^ω ^ 2 ≤ #V`.  This is the `p = 2` elementary-abelian case of the
@@ -1598,111 +1731,12 @@ theorem involution_fixedPoints_sq_le_of_tame_pair {C : Type} [Group C]
       _ = (((q * q - 1) + 1 : ℕ) : ZMod r) := by rw [Nat.sub_add_cancel hqq0]
       _ = ((q * q - 1 : ℕ) : ZMod r) + 1 := by push_cast; ring
       _ = 1 := by rw [h0, zero_add]
-  have hinv2 : ∀ k : ZMod r, (q : ZMod r) * ((q : ZMod r) * k) = k := by
-    intro k
-    rw [← mul_assoc, hcast, one_mul]
-  have hval_inj : ∀ a b : ZMod r, ZMod.val a = ZMod.val b → a = b := by
-    intro a b h
-    have ha := ZMod.natCast_rightInverse (n := r) a
-    have hb := ZMod.natCast_rightInverse (n := r) b
-    rw [← ha, ← hb, h]
-  have hqfix : ∀ k : ZMod r, k ≠ 0 → (q : ZMod r) * k ≠ k := by
-    intro k hk0 hfix
-    have h1 : ((q - 1 : ℕ) : ZMod r) * k = 0 := by
-      rw [Nat.cast_sub (by omega : 1 ≤ q), Nat.cast_one, sub_mul, one_mul, hfix, sub_self]
-    have hunit : IsUnit ((q - 1 : ℕ) : ZMod r) := (ZMod.isUnit_iff_coprime _ _).mpr hcop'
-    exact hk0 ((IsUnit.mul_right_eq_zero hunit).mp h1)
-  -- the two half-transversals of the pairing k ↔ q·k
-  set Λ₁ : Finset (ZMod r) :=
-    Finset.univ.filter (fun k => k ≠ 0 ∧ ZMod.val k < ZMod.val ((q : ZMod r) * k)) with hΛ₁
-  set Λ₂ : Finset (ZMod r) :=
-    Finset.univ.filter (fun k => k ≠ 0 ∧ ZMod.val ((q : ZMod r) * k) < ZMod.val k) with hΛ₂
-  have hdisj : Disjoint Λ₁ Λ₂ := by
-    rw [Finset.disjoint_left]
-    intro k h1 h2
-    simp only [hΛ₁, hΛ₂, Finset.mem_filter] at h1 h2
-    omega
-  have hunion : Λ₁ ∪ Λ₂ = Finset.univ.erase (0 : ZMod r) := by
-    ext k
-    simp only [hΛ₁, hΛ₂, Finset.mem_union, Finset.mem_filter, Finset.mem_univ, true_and,
-      Finset.mem_erase, and_true]
-    constructor
-    · rintro (⟨hk0, -⟩ | ⟨hk0, -⟩) <;> exact hk0
-    · intro hk0
-      have hne : ZMod.val ((q : ZMod r) * k) ≠ ZMod.val k := fun h =>
-        hqfix k hk0 (hval_inj _ _ h)
-      rcases Nat.lt_or_ge (ZMod.val k) (ZMod.val ((q : ZMod r) * k)) with h | h
-      · exact Or.inl ⟨hk0, h⟩
-      · exact Or.inr ⟨hk0, by omega⟩
-  have hq0' : ∀ k : ZMod r, k ≠ 0 → (q : ZMod r) * k ≠ 0 := fun k hk0 h0 =>
-    hk0 (by rw [← hinv2 k, h0, mul_zero])
-  have hmapsto : ∀ k ∈ Λ₁, (q : ZMod r) * k ∈ Λ₂ := by
-    intro k hk
-    rw [hΛ₁, Finset.mem_filter] at hk
-    rw [hΛ₂, Finset.mem_filter]
-    refine ⟨Finset.mem_univ _, hq0' k hk.2.1, ?_⟩
-    rw [hinv2 k]
-    exact hk.2.2
-  have hmapsto' : ∀ k ∈ Λ₂, (q : ZMod r) * k ∈ Λ₁ := by
-    intro k hk
-    rw [hΛ₂, Finset.mem_filter] at hk
-    rw [hΛ₁, Finset.mem_filter]
-    refine ⟨Finset.mem_univ _, hq0' k hk.2.1, ?_⟩
-    rw [hinv2 k]
-    exact hk.2.2
+  -- the transversal pairing k ↔ q·k of `(ZMod r) ∖ {0}` (fixed-point-free involution)
+  obtain ⟨Λ₁, Λ₂, hdisj, hunion, hmapsto, hmapsto', hinv2⟩ :=
+    exists_transversal_pairing q hcop' hcast (by omega)
   -- the trace element: every ω-fixed vector is in the range of 1 + ω
-  have htrace : ∀ v : V, ω • v = v → ∃ w : V, v = w + ω • w := by
-    intro v hv
-    refine ⟨∑ k ∈ Λ₁, u ^ (ZMod.val k) • v, ?_⟩
-    have hstep : ∀ k : ZMod r,
-        ω • (u ^ (ZMod.val k) • v) = u ^ (ZMod.val ((q : ZMod r) * k)) • v := by
-      intro k
-      have h1 : ω * u ^ (ZMod.val k) = u ^ (q * ZMod.val k) * ω := by
-        calc ω * u ^ (ZMod.val k) = (ω * u ^ (ZMod.val k) * ω⁻¹) * ω := by group
-          _ = u ^ (q * ZMod.val k) * ω := by rw [hconju (ZMod.val k)]
-      have h2 : u ^ (q * ZMod.val k) = u ^ (ZMod.val ((q : ZMod r) * k)) := by
-        have hval : ZMod.val ((q : ZMod r) * k) = q * ZMod.val k % r := by
-          rw [ZMod.val_mul, ZMod.val_natCast]
-          exact (Nat.mod_modEq q r).mul_right (ZMod.val k)
-        have hpm : u ^ (q * ZMod.val k % r) = u ^ (q * ZMod.val k) := by
-          have h := pow_mod_orderOf u (q * ZMod.val k)
-          rwa [huord] at h
-        rw [hval]
-        exact hpm.symm
-      calc ω • (u ^ (ZMod.val k) • v) = (ω * u ^ (ZMod.val k)) • v := (mul_smul _ _ _).symm
-        _ = (u ^ (q * ZMod.val k) * ω) • v := by rw [h1]
-        _ = u ^ (q * ZMod.val k) • (ω • v) := mul_smul _ _ _
-        _ = u ^ (q * ZMod.val k) • v := by rw [hv]
-        _ = u ^ (ZMod.val ((q : ZMod r) * k)) • v := by rw [h2]
-    have hωsum : ω • (∑ k ∈ Λ₁, u ^ (ZMod.val k) • v) = ∑ k ∈ Λ₂, u ^ (ZMod.val k) • v := by
-      calc ω • (∑ k ∈ Λ₁, u ^ (ZMod.val k) • v)
-          = ∑ k ∈ Λ₁, ω • (u ^ (ZMod.val k) • v) := Finset.smul_sum
-        _ = ∑ k ∈ Λ₁, u ^ (ZMod.val ((q : ZMod r) * k)) • v :=
-            Finset.sum_congr rfl fun k _ => hstep k
-        _ = ∑ k ∈ Λ₂, u ^ (ZMod.val k) • v :=
-            Finset.sum_nbij' (fun k => (q : ZMod r) * k) (fun k => (q : ZMod r) * k)
-              hmapsto hmapsto' (fun k _ => hinv2 k) (fun k _ => hinv2 k) (fun k _ => rfl)
-    have h2 : ∑ k : ZMod r, u ^ (ZMod.val k) • v = ∑ j ∈ Finset.range r, u ^ j • v :=
-      Finset.sum_nbij' (fun k => ZMod.val k) (fun j => (j : ZMod r))
-        (fun k _ => Finset.mem_range.mpr (ZMod.val_lt k))
-        (fun j _ => Finset.mem_univ _)
-        (fun k _ => ZMod.natCast_rightInverse k)
-        (fun j hj => ZMod.val_cast_of_lt (Finset.mem_range.mp hj))
-        (fun k _ => rfl)
-    have hfull : ∑ k ∈ Finset.univ.erase (0 : ZMod r), u ^ (ZMod.val k) • v = v := by
-      have h1 : (∑ k ∈ Finset.univ.erase (0 : ZMod r), u ^ (ZMod.val k) • v)
-          + u ^ (ZMod.val (0 : ZMod r)) • v = ∑ k : ZMod r, u ^ (ZMod.val k) • v :=
-        Finset.sum_erase_add _ _ (Finset.mem_univ 0)
-      rw [h2, husum v, ZMod.val_zero, pow_zero, one_smul] at h1
-      calc ∑ k ∈ Finset.univ.erase (0 : ZMod r), u ^ (ZMod.val k) • v
-          = ((∑ k ∈ Finset.univ.erase (0 : ZMod r), u ^ (ZMod.val k) • v) + v) + v := by
-            rw [add_assoc, hV2, add_zero]
-        _ = 0 + v := by rw [h1]
-        _ = v := zero_add v
-    have hsplit : (∑ k ∈ Λ₁, u ^ (ZMod.val k) • v) + (∑ k ∈ Λ₂, u ^ (ZMod.val k) • v)
-        = ∑ k ∈ Finset.univ.erase (0 : ZMod r), u ^ (ZMod.val k) • v := by
-      rw [← Finset.sum_union hdisj, hunion]
-    rw [hωsum, hsplit, hfull]
+  have htrace : ∀ v : V, ω • v = v → ∃ w : V, v = w + ω • w := fun v hv =>
+    exists_trace_element hV2 huord husum hconju hdisj hunion hmapsto hmapsto' hinv2 hv
   -- counting: ker(1 + ω) ⊆ range(1 + ω) forces #ker² ≤ #V
   set A : V →+ V :=
     { toFun := fun w => w + ω • w
@@ -1729,16 +1763,9 @@ theorem involution_fixedPoints_sq_le_of_tame_pair {C : Type} [Group C]
     exact AddMonoidHom.mem_range.mpr ⟨w, hw.symm⟩
   have hcard1 : Nat.card {v : V // (g₀ ^ (2 ^ s / 2)) • v = v} = Nat.card ↥A.ker :=
     Nat.card_congr (Equiv.subtypeEquivRight hfixiff)
-  have hcardle : Nat.card ↥A.ker ≤ Nat.card ↥A.range := AddSubgroup.card_le_of_le hkerle
-  have hiso : Nat.card (V ⧸ A.ker) = Nat.card ↥A.range :=
-    Nat.card_congr (QuotientAddGroup.quotientKerEquivRange A).toEquiv
-  have hprod : Nat.card V = Nat.card ↥A.range * Nat.card ↥A.ker := by
-    rw [AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup A.ker, hiso]
   calc Nat.card {v : V // (g₀ ^ (2 ^ s / 2)) • v = v} ^ 2
-      = Nat.card ↥A.ker * Nat.card ↥A.ker := by rw [hcard1, pow_two]
-    _ ≤ Nat.card ↥A.range * Nat.card ↥A.ker :=
-        Nat.mul_le_mul_right _ hcardle
-    _ = Nat.card V := hprod.symm
+      = Nat.card ↥A.ker ^ 2 := by rw [hcard1]
+    _ ≤ Nat.card V := card_ker_sq_le_of_ker_le_range A hkerle
 
 /-- **The Sylow-2 fixed-space bound on a ramified simple faithful module.**  The full bound
 `#V^P ^ |P| ≤ #V` follows (via `card_fixedPoints_pow_le_of_half`, the elementary-abelian

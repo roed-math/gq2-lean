@@ -606,6 +606,148 @@ theorem card_range_redT_eq :
           cocycleOfQ DD ρ σ hσ (redTLift DD f.1) = c} := by rw [← h2]; rfl
 
 open scoped Classical in
+omit [ContinuousSMul Γ (ZMod 2)] in
+/-- **Step 1** of the master count: for each `c`, the `χ`-character sum of `sign (β_χ c)`
+collapses to the `T`-liftability indicator — `#D` when `c` is `T`-liftable (all `χ`-obstructions
+vanish, `betaChi_of_tliftable`) and `0` otherwise (the `hsep`-separation gives a nonzero linear
+character, whence balanced signs by `sum_sign_eq_zero`). -/
+private theorem sum_sign_betaChi_eq_ite [Fintype ↥(TCharC D)]
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hH2 : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (hsep : ∀ c : VCocycle DD ρ, (∀ χ : ↥(TCharC D), betaChi S hσ χ c = 0) → TLiftable hσ c)
+    (c : VCocycle DD ρ) :
+    (∑ χ : ↥(TCharC D), sign (betaChi S hσ χ c))
+      = if TLiftable hσ c then (Nat.card ↥(TCharC D) : ℤ) else 0 := by
+  classical
+  by_cases hc : TLiftable hσ c
+  · rw [if_pos hc]
+    rw [Finset.sum_congr rfl fun χ _ => by
+      rw [betaChi_of_tliftable S hσ htriv hc χ, sign_zero]]
+    rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul, mul_one,
+      Nat.card_eq_fintype_card]
+  · rw [if_neg hc]
+    have hnz : ¬∀ χ : ↥(TCharC D), betaChi S hσ χ c = 0 := fun hall => hc (hsep c hall)
+    have hadd : ∀ χ ψ : ↥(TCharC D),
+        betaChi S hσ (χ + ψ) c = betaChi S hσ χ c + betaChi S hσ ψ c :=
+      fun χ ψ => betaChi_add_char S hσ htriv hH2 χ ψ c
+    have := sum_sign_eq_zero (fun χ : ↥(TCharC D) => betaChi S hσ χ c) hadd hnz
+    rwa [finsum_eq_sum_of_fintype] at this
+
+open scoped Classical in
+omit [ContinuousSMul Γ (ZMod 2)] in
+/-- **Way 1** of the master double sum: for each `c`, the inner `χ`-sum equals
+`2·#D · [c central-liftable]`, so the whole double sum counts the central image. -/
+private theorem doubleSum_eq_two_mul_card_liftable
+    [Fintype ↥(TCharC D)] [Fintype (VCocycle DD ρ)]
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hH2 : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (hsep : ∀ c : VCocycle DD ρ, (∀ χ : ↥(TCharC D), betaChi S hσ χ c = 0) → TLiftable hσ c) :
+    (∑ c : VCocycle DD ρ, ∑ χ : ↥(TCharC D),
+        sign (betaChi S hσ χ c) * (1 + sign (betaXi hσ Dsc c)))
+      = 2 * (Nat.card ↥(TCharC D) : ℤ)
+        * (Nat.card {c : VCocycle DD ρ // TLiftable hσ c ∧ betaXi hσ Dsc c = 0} : ℤ) := by
+  classical
+  have hc : ∀ c : VCocycle DD ρ, (∑ χ : ↥(TCharC D),
+      sign (betaChi S hσ χ c) * (1 + sign (betaXi hσ Dsc c)))
+      = if TLiftable hσ c ∧ betaXi hσ Dsc c = 0
+        then 2 * (Nat.card ↥(TCharC D) : ℤ) else 0 := by
+    intro c
+    rw [← Finset.sum_mul, sum_sign_betaChi_eq_ite S hσ htriv hH2 hsep c, one_add_sign]
+    by_cases h1 : TLiftable hσ c <;> by_cases h2 : betaXi hσ Dsc c = 0
+    · rw [if_pos h1, if_pos h2, if_pos ⟨h1, h2⟩]; ring
+    · rw [if_pos h1, if_neg h2, if_neg (fun h => h2 h.2)]; ring
+    · rw [if_neg h1, if_pos h2, if_neg (fun h => h1 h.1)]; ring
+    · rw [if_neg h1, if_neg h2, if_neg (fun h => h1 h.1)]; ring
+  rw [Finset.sum_congr rfl fun c _ => hc c, ← Finset.sum_filter,
+    Finset.sum_const, Nat.card_eq_fintype_card (α := {c : VCocycle DD ρ //
+      TLiftable hσ c ∧ betaXi hσ Dsc c = 0}), Fintype.card_subtype]
+  ring
+
+open scoped Classical in
+omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
+/-- **Way 2, first double sum**: for `χ ≠ 0` the affine `χ`-obstruction (`haff`) with nonzero
+linear part (`hpartial`) has perfectly balanced signs, so only `χ = 0` survives — contributing
+`#Z¹(V)` (where `β₀ ≡ 0`). -/
+private theorem sum_sum_sign_betaChi_eq_card
+    [Fintype ↥(TCharC D)] [Fintype (VCocycle DD ρ)]
+    (haff : ∀ (χ : ↥(TCharC D)) (c c' : VCocycle DD ρ),
+      betaChi S hσ χ (c + c')
+        = betaChi S hσ χ c + betaChi S hσ χ c' + betaChi S hσ χ (0 : VCocycle DD ρ))
+    (hpartial : ∀ χ : ↥(TCharC D), χ ≠ 0 →
+      ∃ c : VCocycle DD ρ, betaChi S hσ χ c ≠ betaChi S hσ χ (0 : VCocycle DD ρ)) :
+    (∑ χ : ↥(TCharC D), ∑ c : VCocycle DD ρ, sign (betaChi S hσ χ c))
+      = (Nat.card (VCocycle DD ρ) : ℤ) := by
+  classical
+  rw [Finset.sum_eq_single (0 : ↥(TCharC D))]
+  · rw [Finset.sum_congr rfl fun c _ => by rw [betaChi_zero_char S hσ c, sign_zero],
+      Finset.sum_const, Finset.card_univ, nsmul_eq_mul, mul_one,
+      Nat.card_eq_fintype_card]
+  · intro χ _ hχ
+    have hadd : ∀ a b : VCocycle DD ρ,
+        (betaChi S hσ χ (a + b) + betaChi S hσ χ (0 : VCocycle DD ρ))
+          = (betaChi S hσ χ a + betaChi S hσ χ (0 : VCocycle DD ρ))
+            + (betaChi S hσ χ b + betaChi S hσ χ (0 : VCocycle DD ρ)) := by
+      intro a b
+      rw [haff χ a b]
+      ring
+    have hnz : ¬∀ a : VCocycle DD ρ, betaChi S hσ χ a + betaChi S hσ χ (0 : VCocycle DD ρ) = 0 := by
+      intro hall
+      obtain ⟨c₀, hc₀⟩ := hpartial χ hχ
+      have := hall c₀
+      have hchar : ∀ x y : ZMod 2, x + y = 0 → x = y := by decide
+      exact hc₀ (hchar _ _ this)
+    have hzero := sum_sign_eq_zero
+      (fun a : VCocycle DD ρ => betaChi S hσ χ a + betaChi S hσ χ (0 : VCocycle DD ρ)) hadd hnz
+    rw [finsum_eq_sum_of_fintype] at hzero
+    calc ∑ c : VCocycle DD ρ, sign (betaChi S hσ χ c)
+        = ∑ c : VCocycle DD ρ, sign (betaChi S hσ χ (0 : VCocycle DD ρ))
+            * sign (betaChi S hσ χ c + betaChi S hσ χ (0 : VCocycle DD ρ)) := by
+          refine Finset.sum_congr rfl fun c _ => ?_
+          rw [← sign_add]
+          congr 1
+          have hchar : ∀ x y : ZMod 2, x = y + (x + y) := by decide
+          exact hchar _ _
+      _ = sign (betaChi S hσ χ (0 : VCocycle DD ρ)) * ∑ c : VCocycle DD ρ,
+            sign (betaChi S hσ χ c + betaChi S hσ χ (0 : VCocycle DD ρ)) := by rw [Finset.mul_sum]
+      _ = 0 := by rw [hzero, mul_zero]
+  · intro h
+    exact absurd (Finset.mem_univ _) h
+
+open scoped Classical in
+omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
+/-- **Way 2, second double sum**: the keystone `(135)` completed square (`hkey`) turns the
+combined obstruction into the base `Q⁰`-Gauss sum (at the shifted argument `c + sh χ`) times the
+`Δ`-phase, and translation-invariance of the `Q⁰`-sum strips the shift. -/
+private theorem sum_sum_sign_betaChi_add_betaXi_eq
+    [Fintype ↥(TCharC D)] [Fintype (VCocycle DD ρ)]
+    (Δ : ↥(TCharC D) → DD.C0 × DD.C0 → ZMod 2) (sh : ↥(TCharC D) → VCocycle DD ρ)
+    (hkey : ∀ (χ : ↥(TCharC D)) (c : VCocycle DD ρ),
+      betaChi S hσ χ c + betaXi hσ Dsc c
+        = QZero DD ρ (c + sh χ) + iotaB (pullCoc (fun γ => rho0 DD ρ γ) (Δ χ))) :
+    (∑ χ : ↥(TCharC D), ∑ c : VCocycle DD ρ,
+        sign (betaChi S hσ χ c + betaXi hσ Dsc c))
+      = (∑ᶠ c : VCocycle DD ρ, sign (QZero DD ρ c))
+        * ∑ χ : ↥(TCharC D), sign (iotaB (pullCoc (fun γ => rho0 DD ρ γ) (Δ χ))) := by
+  classical
+  rw [Finset.mul_sum]
+  refine Finset.sum_congr rfl fun χ _ => ?_
+  calc ∑ c : VCocycle DD ρ, sign (betaChi S hσ χ c + betaXi hσ Dsc c)
+      = ∑ c : VCocycle DD ρ, sign (QZero DD ρ (c + sh χ))
+          * sign (iotaB (pullCoc (fun γ => rho0 DD ρ γ) (Δ χ))) := by
+        refine Finset.sum_congr rfl fun c _ => ?_
+        rw [← sign_add, hkey χ c]
+    _ = (∑ c : VCocycle DD ρ, sign (QZero DD ρ (c + sh χ)))
+          * sign (iotaB (pullCoc (fun γ => rho0 DD ρ γ) (Δ χ))) := by
+        rw [← Finset.sum_mul]
+    _ = (∑ᶠ c : VCocycle DD ρ, sign (QZero DD ρ c))
+          * sign (iotaB (pullCoc (fun γ => rho0 DD ρ γ) (Δ χ))) := by
+        congr 1
+        rw [finsum_eq_sum_of_fintype]
+        exact Fintype.sum_equiv (Equiv.addRight (sh χ))
+          (fun c => sign (QZero DD ρ (c + sh χ))) (fun c => sign (QZero DD ρ c))
+          (fun c => rfl)
+
+open scoped Classical in
 /-- **The master count** (P-16d6c1b/c1c interface): the per-`ρ` phase-obstruction identity of
 the paper's Prop 8.9 proof, derived from the (131)-characterization by double Fourier
 expansion.  The source-specific inputs are threaded: `hH2` (`#H²(Γ,𝔽₂) = 2`), `hsep` (the
@@ -646,122 +788,25 @@ theorem two_mul_card_centralImage
     rw [card_range_redT_eq hσ]
     exact Nat.card_congr (Equiv.subtypeEquivRight fun c =>
       mem_centralImage_iff hσ Dsc htriv c)
-  -- Step 1: the per-`c` character sum is the `TLiftable`-indicator
-  have hA : ∀ c : VCocycle DD ρ,
-      (∑ χ : ↥(TCharC D), sign (betaChi S hσ χ c))
-        = if TLiftable hσ c then (Nat.card ↥(TCharC D) : ℤ) else 0 := by
-    intro c
-    by_cases hc : TLiftable hσ c
-    · rw [if_pos hc]
-      rw [Finset.sum_congr rfl fun χ _ => by
-        rw [betaChi_of_tliftable S hσ htriv hc χ, sign_zero]]
-      rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul, mul_one,
-        Nat.card_eq_fintype_card]
-    · rw [if_neg hc]
-      have hnz : ¬∀ χ : ↥(TCharC D), betaChi S hσ χ c = 0 := fun hall => hc (hsep c hall)
-      have hadd : ∀ χ ψ : ↥(TCharC D),
-          betaChi S hσ (χ + ψ) c = betaChi S hσ χ c + betaChi S hσ ψ c :=
-        fun χ ψ => betaChi_add_char S hσ htriv hH2 χ ψ c
-      have := sum_sign_eq_zero (fun χ : ↥(TCharC D) => betaChi S hσ χ c) hadd hnz
-      rwa [finsum_eq_sum_of_fintype] at this
-  -- Step 2: the master double sum, evaluated two ways
-  set Tsum : ℤ := ∑ c : VCocycle DD ρ, ∑ χ : ↥(TCharC D),
-    sign (betaChi S hσ χ c) * (1 + sign (betaXi hσ Dsc c)) with hTsum
-  -- Way 1: `2·#D · #{central image}`
-  have hway1 : Tsum = 2 * (Nat.card ↥(TCharC D) : ℤ)
-      * (Nat.card {c : VCocycle DD ρ // TLiftable hσ c ∧ betaXi hσ Dsc c = 0} : ℤ) := by
-    have hc : ∀ c : VCocycle DD ρ, (∑ χ : ↥(TCharC D),
+  -- Step 1: split the master double sum `∑_c ∑_χ sign(β_χ c)·(1 + sign(βξ c))` into a
+  -- pure-`β_χ` part and a `β_χ + βξ` part (both re-indexed with `χ` outermost)
+  have hway1 := doubleSum_eq_two_mul_card_liftable S hσ Dsc htriv hH2 hsep
+  have hsplit : (∑ c : VCocycle DD ρ, ∑ χ : ↥(TCharC D),
         sign (betaChi S hσ χ c) * (1 + sign (betaXi hσ Dsc c)))
-        = if TLiftable hσ c ∧ betaXi hσ Dsc c = 0
-          then 2 * (Nat.card ↥(TCharC D) : ℤ) else 0 := by
-      intro c
-      rw [← Finset.sum_mul, hA c, one_add_sign]
-      by_cases h1 : TLiftable hσ c <;> by_cases h2 : betaXi hσ Dsc c = 0
-      · rw [if_pos h1, if_pos h2, if_pos ⟨h1, h2⟩]; ring
-      · rw [if_pos h1, if_neg h2, if_neg (fun h => h2 h.2)]; ring
-      · rw [if_neg h1, if_pos h2, if_neg (fun h => h1 h.1)]; ring
-      · rw [if_neg h1, if_neg h2, if_neg (fun h => h1 h.1)]; ring
-    rw [hTsum, Finset.sum_congr rfl fun c _ => hc c, ← Finset.sum_filter,
-      Finset.sum_const, Nat.card_eq_fintype_card (α := {c : VCocycle DD ρ //
-        TLiftable hσ c ∧ betaXi hσ Dsc c = 0}), Fintype.card_subtype]
-    ring
-  -- Way 2: expand, swap, evaluate the two `χ`-sums
-  have hway2 : Tsum = (Nat.card (VCocycle DD ρ) : ℤ)
-      + (∑ᶠ c : VCocycle DD ρ, sign (QZero DD ρ c))
-        * ∑ χ : ↥(TCharC D), sign (iotaB (pullCoc (fun γ => rho0 DD ρ γ) (Δ χ))) := by
-    have hsplit : Tsum = (∑ χ : ↥(TCharC D), ∑ c : VCocycle DD ρ, sign (betaChi S hσ χ c))
+      = (∑ χ : ↥(TCharC D), ∑ c : VCocycle DD ρ, sign (betaChi S hσ χ c))
         + ∑ χ : ↥(TCharC D), ∑ c : VCocycle DD ρ,
             sign (betaChi S hσ χ c + betaXi hσ Dsc c) := by
-      rw [hTsum, Finset.sum_comm, ← Finset.sum_add_distrib]
-      refine Finset.sum_congr rfl fun χ _ => ?_
-      rw [← Finset.sum_add_distrib]
-      refine Finset.sum_congr rfl fun c _ => ?_
-      rw [sign_add]
-      ring
-    -- first double sum: only `χ = 0` survives
-    have hfirst : (∑ χ : ↥(TCharC D), ∑ c : VCocycle DD ρ, sign (betaChi S hσ χ c))
-        = (Nat.card (VCocycle DD ρ) : ℤ) := by
-      rw [Finset.sum_eq_single (0 : ↥(TCharC D))]
-      · rw [Finset.sum_congr rfl fun c _ => by rw [betaChi_zero_char S hσ c, sign_zero],
-          Finset.sum_const, Finset.card_univ, nsmul_eq_mul, mul_one,
-          Nat.card_eq_fintype_card]
-      · intro χ _ hχ
-        -- affine with nonzero linear part: balanced signs
-        have hadd : ∀ a b : VCocycle DD ρ,
-            (betaChi S hσ χ (a + b) + betaChi S hσ χ (0 : VCocycle DD ρ))
-              = (betaChi S hσ χ a + betaChi S hσ χ (0 : VCocycle DD ρ))
-                + (betaChi S hσ χ b + betaChi S hσ χ (0 : VCocycle DD ρ)) := by
-          intro a b
-          rw [haff χ a b]
-          ring
-        have hnz : ¬∀ a : VCocycle DD ρ, betaChi S hσ χ a + betaChi S hσ χ (0 : VCocycle DD ρ) = 0 := by
-          intro hall
-          obtain ⟨c₀, hc₀⟩ := hpartial χ hχ
-          have := hall c₀
-          have hchar : ∀ x y : ZMod 2, x + y = 0 → x = y := by decide
-          exact hc₀ (hchar _ _ this)
-        have hzero := sum_sign_eq_zero
-          (fun a : VCocycle DD ρ => betaChi S hσ χ a + betaChi S hσ χ (0 : VCocycle DD ρ)) hadd hnz
-        rw [finsum_eq_sum_of_fintype] at hzero
-        calc ∑ c : VCocycle DD ρ, sign (betaChi S hσ χ c)
-            = ∑ c : VCocycle DD ρ, sign (betaChi S hσ χ (0 : VCocycle DD ρ))
-                * sign (betaChi S hσ χ c + betaChi S hσ χ (0 : VCocycle DD ρ)) := by
-              refine Finset.sum_congr rfl fun c _ => ?_
-              rw [← sign_add]
-              congr 1
-              have hchar : ∀ x y : ZMod 2, x = y + (x + y) := by decide
-              exact hchar _ _
-          _ = sign (betaChi S hσ χ (0 : VCocycle DD ρ)) * ∑ c : VCocycle DD ρ,
-                sign (betaChi S hσ χ c + betaChi S hσ χ (0 : VCocycle DD ρ)) := by rw [Finset.mul_sum]
-          _ = 0 := by rw [hzero, mul_zero]
-      · intro h
-        exact absurd (Finset.mem_univ _) h
-    -- second double sum: the keystone + translation-invariance of the `Q⁰`-Gauss sum
-    have hsecond : (∑ χ : ↥(TCharC D), ∑ c : VCocycle DD ρ,
-          sign (betaChi S hσ χ c + betaXi hσ Dsc c))
-        = (∑ᶠ c : VCocycle DD ρ, sign (QZero DD ρ c))
-          * ∑ χ : ↥(TCharC D), sign (iotaB (pullCoc (fun γ => rho0 DD ρ γ) (Δ χ))) := by
-      rw [Finset.mul_sum]
-      refine Finset.sum_congr rfl fun χ _ => ?_
-      calc ∑ c : VCocycle DD ρ, sign (betaChi S hσ χ c + betaXi hσ Dsc c)
-          = ∑ c : VCocycle DD ρ, sign (QZero DD ρ (c + sh χ))
-              * sign (iotaB (pullCoc (fun γ => rho0 DD ρ γ) (Δ χ))) := by
-            refine Finset.sum_congr rfl fun c _ => ?_
-            rw [← sign_add, hkey χ c]
-        _ = (∑ c : VCocycle DD ρ, sign (QZero DD ρ (c + sh χ)))
-              * sign (iotaB (pullCoc (fun γ => rho0 DD ρ γ) (Δ χ))) := by
-            rw [← Finset.sum_mul]
-        _ = (∑ᶠ c : VCocycle DD ρ, sign (QZero DD ρ c))
-              * sign (iotaB (pullCoc (fun γ => rho0 DD ρ γ) (Δ χ))) := by
-            congr 1
-            rw [finsum_eq_sum_of_fintype]
-            exact Fintype.sum_equiv (Equiv.addRight (sh χ))
-              (fun c => sign (QZero DD ρ (c + sh χ))) (fun c => sign (QZero DD ρ c))
-              (fun c => rfl)
-    rw [hsplit, hfirst, hsecond]
-  -- assemble
-  rw [hbridge, ← hway1, hway2, hZcard, hGaussZ, finsum_eq_sum_of_fintype,
-    Nat.cast_mul]
+    rw [Finset.sum_comm, ← Finset.sum_add_distrib]
+    refine Finset.sum_congr rfl fun χ _ => ?_
+    rw [← Finset.sum_add_distrib]
+    refine Finset.sum_congr rfl fun c _ => ?_
+    rw [sign_add]
+    ring
+  -- Step 2: assemble — Way 1 (central count) against Way 2 (base Gauss transport)
+  rw [hbridge, ← hway1, hsplit,
+    sum_sum_sign_betaChi_eq_card S hσ haff hpartial,
+    sum_sum_sign_betaChi_add_betaXi_eq S hσ Dsc Δ sh hkey,
+    hZcard, hGaussZ, finsum_eq_sum_of_fintype, Nat.cast_mul]
   ring
 
 end AffineTLift

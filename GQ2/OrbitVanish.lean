@@ -490,6 +490,107 @@ theorem exists_refinement_of_zero_form (Δdat : FactorSet C V)
       = (s u).fib + (s w).fib + Δdat.f u w
   rw [hsbase u, hsbase w]
 
+omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [TopologicalSpace V] [DiscreteTopology V]
+  [Finite V] [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] in
+/-- **Step A of the equivariance correction** (P-15f2a, averaging kernel): for a right `1`-cocycle
+defect `D` (`hDcoc`) on an odd subgroup `I`, the banked average `L = Σ_{i∈I} D i` satisfies
+`L(j•v) + L v = D j v` for `j ∈ I`.  Cocycle expansion `D(ij) = D i (j•v) + D j v`, `mulRight`
+reindexing of `Σ_i D(ij)` back to `L`, and `|I|` odd in `𝔽₂` collapse the correction. -/
+private lemma defect_avg_smul (D : C → V → ZMod 2)
+    (hDcoc : ∀ (c d : C) (v : V), D (c * d) v = D c (d • v) + D d v)
+    (I : Subgroup C) [Fintype ↥I] (hoddsmul : ∀ x : ZMod 2, Fintype.card ↥I • x = x)
+    (j : ↥I) (v : V) :
+    (∑ i : ↥I, D (i : C) ((j : C) • v)) + ∑ i : ↥I, D (i : C) v = D (j : C) v := by
+  have e1 : (∑ i : ↥I, D (i : C) ((j : C) • v))
+      = (∑ i : ↥I, D ((i : C) * (j : C)) v) + ∑ _i : ↥I, D (j : C) v := by
+    rw [← Finset.sum_add_distrib]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hDcoc (i : C) (j : C) v
+  have e2 : (∑ i : ↥I, D ((i : C) * (j : C)) v) = ∑ i : ↥I, D (i : C) v := by
+    refine Fintype.sum_equiv (Equiv.mulRight j) _ _ fun i => ?_
+    simp only [Equiv.coe_mulRight, Subgroup.coe_mul]
+  have e3 : (∑ _i : ↥I, D (j : C) v) = D (j : C) v := by
+    rw [Finset.sum_const, Finset.card_univ, hoddsmul]
+  rw [e1, e2, e3]
+  linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
+
+omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [TopologicalSpace V] [DiscreteTopology V]
+  [Finite V] [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] in
+/-- **The `H¹`-correction kills the defect** (P-15f2a increment B, Steps A+B core): for an additive
+(`hDadd`) right `1`-cocycle (`hDcoc`) defect `D` with banked average `L = Σ_{i∈I} D i` over an odd
+normal subgroup `I ◁ C` acting fixed-point-freely (`hVI : V^I = 0`), the corrected defect
+`D' c v = D c v + (L(c•v) + L v)` vanishes identically.  **Step A** (`defect_avg_smul`) makes `D'`
+vanish on `I`; **Step B**: normality makes `D'` `I`-invariant, so
+`D' c v = Σ_{i∈I} D' c (i•v) = D' c (Σ i•v) = D' c 0 = 0` since `Σ_{i∈I} i•v ∈ V^I = 0`.
+No general `H¹(C,V*)` theory. -/
+private lemma corrected_defect_vanishes (D : C → V → ZMod 2)
+    (hDadd : ∀ (c : C) (v w : V), D c (v + w) = D c v + D c w)
+    (hDcoc : ∀ (c d : C) (v : V), D (c * d) v = D c (d • v) + D d v)
+    (I : Subgroup C) [Fintype ↥I] (hIn : I.Normal) (hodd : Odd (Nat.card I))
+    (hVI : ∀ v : V, (∀ i ∈ I, i • v = v) → v = 0)
+    (L : V → ZMod 2) (hLdef : ∀ v, L v = ∑ i : ↥I, D (i : C) v) (c : C) (v : V) :
+    D c v + (L (c • v) + L v) = 0 := by
+  have hoddsmul : ∀ x : ZMod 2, Fintype.card ↥I • x = x := by
+    intro x
+    have h1 : (Fintype.card ↥I : ZMod 2) = 1 := by
+      have : Odd (Fintype.card ↥I) := by rwa [Nat.card_eq_fintype_card] at hodd
+      obtain ⟨k, hk⟩ := this; rw [hk]; push_cast; rw [show (2 : ZMod 2) = 0 by decide]; ring
+    rw [nsmul_eq_mul, h1, one_mul]
+  have hLadd : ∀ x y, L (x + y) = L x + L y := by
+    intro x y
+    rw [hLdef, hLdef, hLdef, ← Finset.sum_add_distrib]
+    exact Finset.sum_congr rfl fun i _ => hDadd (i : C) x y
+  set D' : C → V → ZMod 2 := fun c v => D c v + (L (c • v) + L v) with hD'
+  have hD'add : ∀ (c : C) (x y : V), D' c (x + y) = D' c x + D' c y := by
+    intro c x y
+    show D c (x + y) + (L (c • (x + y)) + L (x + y))
+        = (D c x + (L (c • x) + L x)) + (D c y + (L (c • y) + L y))
+    rw [hDadd, smul_add, hLadd, hLadd]; ring
+  have hD'I : ∀ (j : ↥I) (w : V), D' (j : C) w = 0 := by
+    intro j w
+    show D (j : C) w + (L ((j : C) • w) + L w) = 0
+    have hs : L ((j : C) • w) + L w = D (j : C) w := by
+      rw [hLdef, hLdef]; exact defect_avg_smul D hDcoc I hoddsmul j w
+    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hs
+  have hD'coc : ∀ (a d : C) (w : V), D' (a * d) w = D' a (d • w) + D' d w := by
+    intro a d w
+    show D (a * d) w + (L ((a * d) • w) + L w)
+        = (D a (d • w) + (L (a • d • w) + L (d • w))) + (D d w + (L (d • w) + L w))
+    rw [mul_smul]
+    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hDcoc a d w
+  have hinv : ∀ (a : C) (i : ↥I) (w : V), D' a ((i : C) • w) = D' a w := by
+    intro a i w
+    have hmem : a * (i : C) * a⁻¹ ∈ I := hIn.conj_mem _ i.2 a
+    set i' : ↥I := ⟨a * (i : C) * a⁻¹, hmem⟩ with hi'
+    have hci : a * (i : C) = (i' : C) * a := by
+      show a * (i : C) = a * (i : C) * a⁻¹ * a
+      group
+    have h1 := hD'coc a (i : C) w
+    have h2 := hD'coc (i' : C) a w
+    rw [hci] at h1
+    rw [hD'I i w, add_zero] at h1
+    rw [hD'I i' (a • w), zero_add] at h2
+    rw [h1] at h2; exact h2
+  show D' c v = 0
+  set S : V := ∑ i : ↥I, (i : C) • v with hS
+  have hSfix : ∀ j ∈ I, j • S = S := by
+    intro j hj
+    have step : j • S = ∑ i : ↥I, ((⟨j, hj⟩ * i : ↥I) : C) • v := by
+      rw [hS, Finset.smul_sum]
+      exact Finset.sum_congr rfl fun i _ => by rw [← mul_smul, Subgroup.coe_mul]
+    rw [step, hS]
+    exact Fintype.sum_equiv (Equiv.mulLeft (⟨j, hj⟩ : ↥I)) _ _ fun i => rfl
+  have hS0 : S = 0 := hVI S hSfix
+  let hom : V →+ ZMod 2 := AddMonoidHom.mk' (D' c) (fun a b => hD'add c a b)
+  have hmapsum : D' c S = ∑ i : ↥I, D' c ((i : C) • v) := by
+    show hom S = ∑ i : ↥I, hom ((i : C) • v)
+    rw [hS, map_sum]
+  calc D' c v = ∑ _i : ↥I, D' c v := by rw [Finset.sum_const, Finset.card_univ, hoddsmul]
+    _ = ∑ i : ↥I, D' c ((i : C) • v) := (Finset.sum_congr rfl fun i _ => hinv c i v).symm
+    _ = D' c S := hmapsum.symm
+    _ = D' c 0 := by rw [hS0]
+    _ = 0 := hom.map_zero
+
 omit [TopologicalSpace C] [DiscreteTopology C] [TopologicalSpace V] [DiscreteTopology V]
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] in
 /-- **(a2) the equivariance correction** (P-15f2a increment B): given the C-structure of an odd
@@ -514,12 +615,6 @@ theorem exists_equivariant_refinement (Δdat : FactorSet C V)
   obtain ⟨φ0, hQ0⟩ := exists_refinement_of_zero_form Δdat hΔ hV2
   have hmmul := hΔ.m_mul
   haveI : Fintype ↥I := Fintype.ofFinite _
-  have hoddsmul : ∀ x : ZMod 2, (Fintype.card ↥I) • x = x := by
-    intro x
-    have h1 : (Fintype.card ↥I : ZMod 2) = 1 := by
-      have : Odd (Fintype.card ↥I) := by rwa [Nat.card_eq_fintype_card] at hodd
-      obtain ⟨k, hk⟩ := this; rw [hk]; push_cast; rw [show (2 : ZMod 2) = 0 by decide]; ring
-    rw [nsmul_eq_mul, h1, one_mul]
   set D : C → V → ZMod 2 := fun c v => φ0 (c • v) + φ0 v + Δdat.m c v with hD
   have hDadd : ∀ (c : C) (v w : V), D c (v + w) = D c v + D c w := by
     intro c v w
@@ -544,73 +639,11 @@ theorem exists_equivariant_refinement (Δdat : FactorSet C V)
     intro u w
     show φ0 (u + w) + L (u + w) = (φ0 u + L u) + (φ0 w + L w) + Δdat.f u w
     rw [hQ0 u w, hLadd u w]; ring
-  set D' : C → V → ZMod 2 := fun c v => Δφ (c • v) + Δφ v + Δdat.m c v with hD'
-  have hD'eq : ∀ c v, D' c v = D c v + (L (c • v) + L v) := by
-    intro c v
-    show φ0 (c • v) + L (c • v) + (φ0 v + L v) + Δdat.m c v
-      = (φ0 (c • v) + φ0 v + Δdat.m c v) + (L (c • v) + L v)
-    ring
-  have hD'add : ∀ (c : C) (v w : V), D' c (v + w) = D' c v + D' c w := by
-    intro c v w; rw [hD'eq, hD'eq, hD'eq, hDadd, hLadd, smul_add, hLadd]; ring
-  have hstepA : ∀ (j : ↥I) (v : V), L ((j : C) • v) + L v = D (j : C) v := by
-    intro j v
-    have e1 : L ((j : C) • v) = (∑ i : ↥I, D ((i : C) * (j : C)) v) + ∑ _i : ↥I, D (j : C) v := by
-      show (∑ i : ↥I, D (i : C) ((j : C) • v)) = _
-      rw [← Finset.sum_add_distrib]
-      refine Finset.sum_congr rfl fun i _ => ?_
-      linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hDcoc (i : C) (j : C) v
-    have e2 : (∑ i : ↥I, D ((i : C) * (j : C)) v) = L v := by
-      show _ = ∑ i : ↥I, D (i : C) v
-      refine Fintype.sum_equiv (Equiv.mulRight j) _ _ fun i => ?_
-      simp only [Equiv.coe_mulRight, Subgroup.coe_mul]
-    have e3 : (∑ _i : ↥I, D (j : C) v) = D (j : C) v := by
-      rw [Finset.sum_const, Finset.card_univ, hoddsmul]
-    rw [e1, e2, e3]
-    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
-  have hD'I : ∀ (j : ↥I) (v : V), D' (j : C) v = 0 := by
-    intro j v; rw [hD'eq]
-    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hstepA j v
-  have hD'coc : ∀ (c d : C) (v : V), D' (c * d) v = D' c (d • v) + D' d v := by
-    intro c d v
-    show Δφ ((c * d) • v) + Δφ v + Δdat.m (c * d) v
-      = (Δφ (c • d • v) + Δφ (d • v) + Δdat.m c (d • v)) + (Δφ (d • v) + Δφ v + Δdat.m d v)
-    rw [mul_smul, hmmul c d v]
-    linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
-  have hinv : ∀ (c : C) (i : ↥I) (v : V), D' c ((i : C) • v) = D' c v := by
-    intro c i v
-    have hmem : c * (i : C) * c⁻¹ ∈ I := hIn.conj_mem _ i.2 c
-    set i' : ↥I := ⟨c * (i : C) * c⁻¹, hmem⟩ with hi'
-    have hci : c * (i : C) = (i' : C) * c := by
-      show c * (i : C) = c * (i : C) * c⁻¹ * c
-      group
-    have h1 := hD'coc c (i : C) v
-    have h2 := hD'coc (i' : C) c v
-    rw [hci] at h1
-    rw [hD'I i v, add_zero] at h1
-    rw [hD'I i' (c • v), zero_add] at h2
-    rw [h1] at h2; exact h2
   refine ⟨Δφ, hQ, fun c v => ?_⟩
-  have hDcv0 : D' c v = 0 := by
-    set S : V := ∑ i : ↥I, (i : C) • v with hS
-    have hSfix : ∀ j ∈ I, j • S = S := by
-      intro j hj
-      have step : j • S = ∑ i : ↥I, ((⟨j, hj⟩ * i : ↥I) : C) • v := by
-        rw [hS, Finset.smul_sum]
-        exact Finset.sum_congr rfl fun i _ => by rw [← mul_smul, Subgroup.coe_mul]
-      rw [step, hS]
-      exact Fintype.sum_equiv (Equiv.mulLeft (⟨j, hj⟩ : ↥I)) _ _ fun i => rfl
-    have hS0 : S = 0 := hVI S hSfix
-    let hom : V →+ ZMod 2 := AddMonoidHom.mk' (D' c) (fun a b => hD'add c a b)
-    have hmapsum : D' c S = ∑ i : ↥I, D' c ((i : C) • v) := by
-      show hom S = ∑ i : ↥I, hom ((i : C) • v)
-      rw [hS, map_sum]
-    calc D' c v = ∑ _i : ↥I, D' c v := by rw [Finset.sum_const, Finset.card_univ, hoddsmul]
-      _ = ∑ i : ↥I, D' c ((i : C) • v) := (Finset.sum_congr rfl fun i _ => hinv c i v).symm
-      _ = D' c S := hmapsum.symm
-      _ = D' c 0 := by rw [hS0]
-      _ = 0 := hom.map_zero
-  show Δφ (c • v) = Δφ v + Δdat.m c v
-  have h0 : Δφ (c • v) + Δφ v + Δdat.m c v = 0 := hDcv0
+  have hmain := corrected_defect_vanishes D hDadd hDcoc I hIn hodd hVI L
+    (fun v => congrFun hL v) c v
+  show φ0 (c • v) + L (c • v) = φ0 v + L v + Δdat.m c v
+  have h0 : φ0 (c • v) + φ0 v + Δdat.m c v + (L (c • v) + L v) = 0 := hmain
   linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) h0
 
 /-! ### f2a (P-15f2a): the DI-core cochain assembly — reduced to the existence of a refinement
