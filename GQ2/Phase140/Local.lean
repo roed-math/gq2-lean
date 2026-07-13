@@ -67,15 +67,15 @@ variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite 
   {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
   {RF : RecursionFrame T Blk}
 
-section LocalResidues
+/-! ### The shared `T`-module pack
 
-variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
-  [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)]
-variable (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup) (F : BoundaryFrame H E)
-  (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR) (Dsc : Descent (En.radData l h))
+Both `T`-layer residues below (`tcocycle_card_local` and `hsep_local`) run the same module
+setup: the polar radical `T ≤ M` of a `RadicalCoverData` is elementary abelian (`M` abelian and
+2-torsion), additivized to an `𝔽₂`-space carrying the conjugation action of the coset group
+`Bg ⧸ M` through `Quotient.out` representatives.  The pack is extracted here once (the
+`mbCommGroup`/`mbConjActC` idiom of `MStageCountGammaA`); the residues install it by
+`letI`/`have` and diverge at their count/separation tails. -/
 
-omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
-  [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)] in
 /-- Conjugation of `T`-elements only depends on the `M`-coset of the conjugator (`M` abelian
 centralizes `T ≤ M`).  Inlined `T`-analogue of `RadicalEdgeLocal.conj_eq_of_mk_eq`. -/
 private theorem conj_eq_of_mk_eq_T {Bg : Type} [Group Bg] [Finite Bg] {D : RadicalCoverData Bg}
@@ -87,6 +87,159 @@ private theorem conj_eq_of_mk_eq_T {Bg : Type} [Group Bg] [Finite Bg] {D : Radic
       = b * (t.1 * (b⁻¹ * b') * (b⁻¹ * b')⁻¹) * b⁻¹ := by group
     _ = b * ((b⁻¹ * b') * t.1 * (b⁻¹ * b')⁻¹) * b⁻¹ := by rw [← hcomm]
     _ = b' * t.1 * b'⁻¹ := by group
+
+/-- The commutative-group structure on the polar radical `D.T` (`T ≤ M` and `M` is abelian,
+`D.hcomm`). -/
+@[reducible] private def tCommGroup {Bg : Type} [Group Bg] [Finite Bg]
+    (D : RadicalCoverData Bg) : CommGroup ↥D.T :=
+  { (inferInstance : Group ↥D.T) with
+    mul_comm := fun a b => Subtype.ext (D.hcomm _ (D.hTM a.2) _ (D.hTM b.2)) }
+
+/-- `T` is 2-torsion additively: `a + a = 0` in `Additive ↥D.T` (`D.helem` on `T ≤ M`). -/
+private theorem tAdd_self {Bg : Type} [Group Bg] [Finite Bg] (D : RadicalCoverData Bg)
+    (a : Additive ↥D.T) : a + a = 0 :=
+  Additive.toMul.injective (Subtype.ext (D.helem _ (D.hTM (Additive.toMul a).2)))
+
+/-- The conjugation action of the coset group `Bg ⧸ M` on the additivized polar radical
+`Additive ↥D.T`, through `Quotient.out` representatives (well-defined because `M` centralizes
+`T ≤ M`, `conj_eq_of_mk_eq_T`). -/
+@[reducible] private noncomputable def tConjActC {Bg : Type} [Group Bg] [Finite Bg]
+    (D : RadicalCoverData Bg) :
+    letI := tCommGroup D
+    DistribMulAction (Bg ⧸ D.M) (Additive ↥D.T) :=
+  letI := tCommGroup D
+  { smul := fun cq t => Additive.ofMul
+      ⟨Quotient.out cq * (Additive.toMul t).1 * (Quotient.out cq)⁻¹,
+        D.hT.conj_mem _ (Additive.toMul t).2 _⟩
+    one_smul := fun t => by
+      apply Additive.toMul.injective; apply Subtype.ext
+      show Quotient.out (1 : Bg ⧸ D.M) * (Additive.toMul t).1
+          * (Quotient.out (1 : Bg ⧸ D.M))⁻¹ = (Additive.toMul t).1
+      have h1 : (Quotient.out (1 : Bg ⧸ D.M)) ∈ D.M := by
+        have := QuotientGroup.out_eq' (1 : Bg ⧸ D.M)
+        rwa [QuotientGroup.eq_one_iff] at this
+      rw [D.hcomm _ h1 _ (D.hTM (Additive.toMul t).2)]; group
+    mul_smul := fun cq cq' t => by
+      apply Additive.toMul.injective; apply Subtype.ext
+      show Quotient.out (cq * cq') * (Additive.toMul t).1 * (Quotient.out (cq * cq'))⁻¹
+        = Quotient.out cq * (Quotient.out cq' * (Additive.toMul t).1 * (Quotient.out cq')⁻¹)
+            * (Quotient.out cq)⁻¹
+      rw [show Quotient.out cq * (Quotient.out cq' * (Additive.toMul t).1 * (Quotient.out cq')⁻¹)
+            * (Quotient.out cq)⁻¹
+          = (Quotient.out cq * Quotient.out cq') * (Additive.toMul t).1
+            * (Quotient.out cq * Quotient.out cq')⁻¹ from by group]
+      exact conj_eq_of_mk_eq_T (by rw [QuotientGroup.out_eq', QuotientGroup.mk_mul,
+        QuotientGroup.out_eq', QuotientGroup.out_eq']) (Additive.toMul t)
+    smul_zero := fun cq => by
+      apply Additive.toMul.injective; apply Subtype.ext
+      show Quotient.out cq * (1 : Bg) * (Quotient.out cq)⁻¹ = 1
+      group
+    smul_add := fun cq t t' => by
+      apply Additive.toMul.injective; apply Subtype.ext
+      show Quotient.out cq * ((Additive.toMul t).1 * (Additive.toMul t').1) * (Quotient.out cq)⁻¹
+        = (Quotient.out cq * (Additive.toMul t).1 * (Quotient.out cq)⁻¹)
+            * (Quotient.out cq * (Additive.toMul t').1 * (Quotient.out cq)⁻¹)
+      group }
+
+/-- The `tConjActC` action at an explicit coset representative: `⟦bb⟧ = cq` computes `cq • a`
+as conjugation by `bb` (transport from the `Quotient.out` representative,
+`conj_eq_of_mk_eq_T`). -/
+private theorem tConjActC_smul_mk {Bg : Type} [Group Bg] [Finite Bg] (D : RadicalCoverData Bg) :
+    letI := tCommGroup D
+    letI := tConjActC D
+    ∀ (cq : Bg ⧸ D.M) (bb : Bg) (a : Additive ↥D.T), QuotientGroup.mk bb = cq →
+      cq • a = Additive.ofMul (⟨bb * (Additive.toMul a).1 * bb⁻¹,
+        D.hT.conj_mem _ (Additive.toMul a).2 _⟩ : ↥D.T) := by
+  letI := tCommGroup D
+  letI := tConjActC D
+  intro cq bb a hbb
+  apply Additive.toMul.injective; apply Subtype.ext
+  show Quotient.out cq * (Additive.toMul a).1 * (Quotient.out cq)⁻¹
+    = bb * (Additive.toMul a).1 * bb⁻¹
+  exact conj_eq_of_mk_eq_T (by rw [QuotientGroup.out_eq', hbb]) (Additive.toMul a)
+
+/-- A scalar action factoring, via a continuous homomorphism `θ`, through a discretely
+topologized acting monoid on a discrete module is continuous.  All the `ContinuousSMul` side
+goals of this file's residues are instances of this shape. -/
+private theorem continuousSMul_of_comp {G C A : Type} [Monoid G] [TopologicalSpace G]
+    [Monoid C] [TopologicalSpace C] [DiscreteTopology C]
+    [TopologicalSpace A] [DiscreteTopology A] [SMul C A] [SMul G A]
+    (θ : ContinuousMonoidHom G C) (hcomp : ∀ (g : G) (a : A), g • a = θ g • a) :
+    ContinuousSMul G A := by
+  refine ⟨?_⟩
+  have hfac : (fun p : G × A => p.1 • p.2)
+      = (fun q : C × A => q.1 • q.2) ∘ (fun p : G × A => (θ p.1, p.2)) := by
+    funext p; exact hcomp p.1 p.2
+  rw [hfac]
+  exact continuous_of_discreteTopology.comp
+    ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+
+section LocalResidues
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
+  [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)]
+variable (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup) (F : BoundaryFrame H E)
+  (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR) (Dsc : Descent (En.radData l h))
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [DistribMulAction AbsGalQ2 (ZMod 2)]
+  [ContinuousSMul AbsGalQ2 (ZMod 2)] in
+/-- The direct `TCocycle ≃ Z¹_cont(AbsGalQ2, Additive T)` bridge for the `T`-module pack:
+`TCocycle` stores continuity into `Bg` directly, so the crossed cocycle identity matches the
+`Z¹` identity through `tConjActC_smul_mk` at the `fLift`-free representative — no
+torsor/`Nonempty` detour. -/
+private noncomputable def tcocycleEquivZ1 (ρ : BoundaryLifts b F RF.TC) :
+    letI : CommGroup ↥(En.radData l h).T := tCommGroup (En.radData l h)
+    letI : TopologicalSpace (Additive ↥(En.radData l h).T) :=
+      (inferInstance : TopologicalSpace ↥(En.radData l h).T)
+    letI : DiscreteTopology (Additive ↥(En.radData l h).T) :=
+      ⟨(inferInstance : DiscreteTopology ↥(En.radData l h).T).eq_bot⟩
+    letI := tConjActC (En.radData l h)
+    letI := DistribMulAction.compHom (Additive ↥(En.radData l h).T)
+      (RF.rhoPrime b F (En.radData l h) rfl ρ).toMonoidHom
+    TCocycle (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
+      ≃ ↥(Z1 AbsGalQ2 (Additive ↥(En.radData l h).T)) :=
+  letI : CommGroup ↥(En.radData l h).T := tCommGroup (En.radData l h)
+  letI : TopologicalSpace (Additive ↥(En.radData l h).T) :=
+    (inferInstance : TopologicalSpace ↥(En.radData l h).T)
+  letI : DiscreteTopology (Additive ↥(En.radData l h).T) :=
+    ⟨(inferInstance : DiscreteTopology ↥(En.radData l h).T).eq_bot⟩
+  letI := tConjActC (En.radData l h)
+  letI := DistribMulAction.compHom (Additive ↥(En.radData l h).T)
+    (RF.rhoPrime b F (En.radData l h) rfl ρ).toMonoidHom
+  have hsmul : ∀ (γ : AbsGalQ2) (bb : RF.YB) (a : Additive ↥(En.radData l h).T),
+      QuotientGroup.mk bb = RF.rhoPrime b F (En.radData l h) rfl ρ γ →
+      γ • a = Additive.ofMul (⟨bb * (Additive.toMul a).1 * bb⁻¹,
+        (En.radData l h).hT.conj_mem _ (Additive.toMul a).2 _⟩ : ↥(En.radData l h).T) :=
+    fun γ bb a hbb => tConjActC_smul_mk (En.radData l h) _ bb a hbb
+  { toFun := fun u =>
+      ⟨fun γ => Additive.ofMul ⟨u.u γ, u.mem γ⟩, by
+        refine mem_Z1_iff.mpr ⟨?_, ?_⟩
+        · show Continuous fun γ => (⟨u.u γ, u.mem γ⟩ : ↥(En.radData l h).T)
+          exact Continuous.subtype_mk u.cont _
+        · intro γ δ
+          rw [hsmul γ (Quotient.out (RF.rhoPrime b F (En.radData l h) rfl ρ γ))
+              (Additive.ofMul ⟨u.u δ, u.mem δ⟩) (QuotientGroup.out_eq' _)]
+          apply Additive.toMul.injective
+          apply Subtype.ext
+          show u.u (γ * δ)
+            = u.u γ * (Quotient.out (RF.rhoPrime b F (En.radData l h) rfl ρ γ) * u.u δ
+                * (Quotient.out (RF.rhoPrime b F (En.radData l h) rfl ρ γ))⁻¹)
+          exact u.crossed γ δ (Quotient.out (RF.rhoPrime b F (En.radData l h) rfl ρ γ))
+            (QuotientGroup.out_eq' _)⟩
+    invFun := fun z =>
+      { u := fun γ => ((Additive.toMul (z.1 γ) : ↥(En.radData l h).T)).1
+        mem := fun γ => (Additive.toMul (z.1 γ)).2
+        cont := by
+          have hz := (mem_Z1_iff.mp z.2).1
+          exact continuous_subtype_val.comp hz
+        crossed := by
+          intro γ δ bb hbb
+          have hz := (mem_Z1_iff.mp z.2).2 γ δ
+          rw [hsmul γ bb (z.1 δ) hbb] at hz
+          have := congrArg (fun a => ((Additive.toMul a : ↥(En.radData l h).T)).1) hz
+          simpa using this }
+    left_inv := fun u => by cases u; rfl
+    right_inv := fun z => Subtype.ext (funext fun γ => rfl) }
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [DistribMulAction AbsGalQ2 (ZMod 2)]
   [ContinuousSMul AbsGalQ2 (ZMod 2)] in
@@ -104,116 +257,26 @@ theorem tcocycle_card_local (ρ : BoundaryLifts b F RF.TC) :
   classical
   have hρ's : Function.Surjective (RF.rhoPrime b F (En.radData l h) rfl ρ) :=
     rhoPrime_surjective RF b F (En.radData l h) rfl ρ
-  -- `T = (En.radData l h).T` as an additive `𝔽₂`-space with the `ρ'`-conjugation action
-  letI : CommGroup ↥(En.radData l h).T :=
-    { (inferInstance : Group ↥(En.radData l h).T) with
-      mul_comm := fun a b => Subtype.ext ((En.radData l h).hcomm _ ((En.radData l h).hTM a.2) _
-        ((En.radData l h).hTM b.2)) }
+  -- the shared `T`-module pack: `T = (En.radData l h).T` as an additive `𝔽₂`-space with the
+  -- `ρ'`-conjugation action
+  letI : CommGroup ↥(En.radData l h).T := tCommGroup (En.radData l h)
   letI : TopologicalSpace (Additive ↥(En.radData l h).T) :=
     (inferInstance : TopologicalSpace ↥(En.radData l h).T)
   haveI : DiscreteTopology (Additive ↥(En.radData l h).T) :=
     ⟨(inferInstance : DiscreteTopology ↥(En.radData l h).T).eq_bot⟩
   haveI : Finite (Additive ↥(En.radData l h).T) := (inferInstance : Finite ↥(En.radData l h).T)
   letI actC : DistribMulAction (RF.YB ⧸ (En.radData l h).M) (Additive ↥(En.radData l h).T) :=
-    { smul := fun c t => Additive.ofMul
-        ⟨Quotient.out c * (Additive.toMul t).1 * (Quotient.out c)⁻¹,
-          (En.radData l h).hT.conj_mem _ (Additive.toMul t).2 _⟩
-      one_smul := fun t => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show Quotient.out (1 : RF.YB ⧸ (En.radData l h).M) * (Additive.toMul t).1
-            * (Quotient.out (1 : RF.YB ⧸ (En.radData l h).M))⁻¹ = (Additive.toMul t).1
-        have h1 : (Quotient.out (1 : RF.YB ⧸ (En.radData l h).M)) ∈ (En.radData l h).M := by
-          have := QuotientGroup.out_eq' (1 : RF.YB ⧸ (En.radData l h).M)
-          rwa [QuotientGroup.eq_one_iff] at this
-        rw [(En.radData l h).hcomm _ h1 _ ((En.radData l h).hTM (Additive.toMul t).2)]; group
-      mul_smul := fun c c' t => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show Quotient.out (c * c') * (Additive.toMul t).1 * (Quotient.out (c * c'))⁻¹
-          = Quotient.out c * (Quotient.out c' * (Additive.toMul t).1 * (Quotient.out c')⁻¹)
-              * (Quotient.out c)⁻¹
-        rw [show Quotient.out c * (Quotient.out c' * (Additive.toMul t).1 * (Quotient.out c')⁻¹)
-              * (Quotient.out c)⁻¹
-            = (Quotient.out c * Quotient.out c') * (Additive.toMul t).1
-              * (Quotient.out c * Quotient.out c')⁻¹ from by group]
-        exact conj_eq_of_mk_eq_T (by rw [QuotientGroup.out_eq', QuotientGroup.mk_mul,
-          QuotientGroup.out_eq', QuotientGroup.out_eq']) (Additive.toMul t)
-      smul_zero := fun c => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show Quotient.out c * (1 : RF.YB) * (Quotient.out c)⁻¹ = 1
-        group
-      smul_add := fun c t t' => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show Quotient.out c * ((Additive.toMul t).1 * (Additive.toMul t').1) * (Quotient.out c)⁻¹
-          = (Quotient.out c * (Additive.toMul t).1 * (Quotient.out c)⁻¹)
-              * (Quotient.out c * (Additive.toMul t').1 * (Quotient.out c)⁻¹)
-        group }
+    tConjActC (En.radData l h)
   letI actG : DistribMulAction AbsGalQ2 (Additive ↥(En.radData l h).T) :=
     DistribMulAction.compHom (Additive ↥(En.radData l h).T)
       (RF.rhoPrime b F (En.radData l h) rfl ρ).toMonoidHom
   have hcomp : ∀ (γ : AbsGalQ2) (a : Additive ↥(En.radData l h).T),
       γ • a = (RF.rhoPrime b F (En.radData l h) rfl ρ) γ • a := fun _ _ => rfl
-  -- the action at a representative `b` of `ρ'(γ)`
-  have hsmul : ∀ (γ : AbsGalQ2) (bb : RF.YB) (a : Additive ↥(En.radData l h).T),
-      QuotientGroup.mk bb = RF.rhoPrime b F (En.radData l h) rfl ρ γ →
-      γ • a = Additive.ofMul (⟨bb * (Additive.toMul a).1 * bb⁻¹,
-        (En.radData l h).hT.conj_mem _ (Additive.toMul a).2 _⟩ : ↥(En.radData l h).T) := by
-    intro γ bb a hbb
-    apply Additive.toMul.injective; apply Subtype.ext
-    show Quotient.out (RF.rhoPrime b F (En.radData l h) rfl ρ γ) * (Additive.toMul a).1
-        * (Quotient.out (RF.rhoPrime b F (En.radData l h) rfl ρ γ))⁻¹
-      = bb * (Additive.toMul a).1 * bb⁻¹
-    exact conj_eq_of_mk_eq_T (by rw [QuotientGroup.out_eq', hbb]) (Additive.toMul a)
-  haveI : ContinuousSMul AbsGalQ2 (Additive ↥(En.radData l h).T) := by
-    constructor
-    have hfac : (fun p : AbsGalQ2 × Additive ↥(En.radData l h).T => p.1 • p.2)
-        = (fun cq : (RF.YB ⧸ (En.radData l h).M) × ↥(En.radData l h).T =>
-            Additive.ofMul (⟨Quotient.out cq.1 * cq.2.1 * (Quotient.out cq.1)⁻¹,
-              (En.radData l h).hT.conj_mem _ cq.2.2 _⟩ : ↥(En.radData l h).T))
-          ∘ (fun p : AbsGalQ2 × Additive ↥(En.radData l h).T =>
-              ((RF.rhoPrime b F (En.radData l h) rfl ρ p.1 : RF.YB ⧸ (En.radData l h).M),
-                Additive.toMul p.2)) := by
-      funext p; rfl
-    rw [hfac]
-    exact continuous_of_discreteTopology.comp
-      (((RF.rhoPrime b F (En.radData l h) rfl ρ).continuous_toFun.comp continuous_fst).prodMk
-        continuous_snd)
-  have hA₂ : ∀ a : Additive ↥(En.radData l h).T, a + a = 0 := fun a => by
-    apply Additive.toMul.injective
-    show (Additive.toMul a) * (Additive.toMul a) = 1
-    exact Subtype.ext ((En.radData l h).helem _ ((En.radData l h).hTM (Additive.toMul a).2))
-  -- the direct `TCocycle ≃ Z¹_cont(AbsGalQ2, Additive T)` bridge
-  have hequiv : TCocycle (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)
-      ≃ ↥(Z1 AbsGalQ2 (Additive ↥(En.radData l h).T)) :=
-    { toFun := fun u =>
-        ⟨fun γ => Additive.ofMul ⟨u.u γ, u.mem γ⟩, by
-          refine mem_Z1_iff.mpr ⟨?_, ?_⟩
-          · show Continuous fun γ => (⟨u.u γ, u.mem γ⟩ : ↥(En.radData l h).T)
-            exact Continuous.subtype_mk u.cont _
-          · intro γ δ
-            rw [hsmul γ (Quotient.out (RF.rhoPrime b F (En.radData l h) rfl ρ γ))
-                (Additive.ofMul ⟨u.u δ, u.mem δ⟩) (QuotientGroup.out_eq' _)]
-            apply Additive.toMul.injective
-            apply Subtype.ext
-            show u.u (γ * δ)
-              = u.u γ * (Quotient.out (RF.rhoPrime b F (En.radData l h) rfl ρ γ) * u.u δ
-                  * (Quotient.out (RF.rhoPrime b F (En.radData l h) rfl ρ γ))⁻¹)
-            exact u.crossed γ δ (Quotient.out (RF.rhoPrime b F (En.radData l h) rfl ρ γ))
-              (QuotientGroup.out_eq' _)⟩
-      invFun := fun z =>
-        { u := fun γ => ((Additive.toMul (z.1 γ) : ↥(En.radData l h).T)).1
-          mem := fun γ => (Additive.toMul (z.1 γ)).2
-          cont := by
-            have hz := (mem_Z1_iff.mp z.2).1
-            exact continuous_subtype_val.comp hz
-          crossed := by
-            intro γ δ bb hbb
-            have hz := (mem_Z1_iff.mp z.2).2 γ δ
-            rw [hsmul γ bb (z.1 δ) hbb] at hz
-            have := congrArg (fun a => ((Additive.toMul a : ↥(En.radData l h).T)).1) hz
-            simpa using this }
-      left_inv := fun u => by cases u; rfl
-      right_inv := fun z => Subtype.ext (funext fun γ => rfl) }
-  exact (Nat.card_congr hequiv).trans (card_Z1_eq hρ's hcomp hA₂)
+  haveI : ContinuousSMul AbsGalQ2 (Additive ↥(En.radData l h).T) :=
+    continuousSMul_of_comp (RF.rhoPrime b F (En.radData l h) rfl ρ) hcomp
+  have hA₂ : ∀ a : Additive ↥(En.radData l h).T, a + a = 0 := tAdd_self (En.radData l h)
+  -- the direct `TCocycle ≃ Z¹_cont(AbsGalQ2, Additive T)` bridge, then `card_Z1_eq` (5.16 (ii))
+  exact (Nat.card_congr (tcocycleEquivZ1 b F En l h ρ)).trans (card_Z1_eq hρ's hcomp hA₂)
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
   [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)] in
@@ -316,6 +379,112 @@ theorem hZcard_local
   rw [Nat.card_congr hequiv, card_Z1_eq ρ.1.2 hcomp hA₂,
     vFixedPts_eq_one En hsimple hVne hnt, mul_one, pow_two]
 
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
+  [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)] in
+/-- **`mk_M (fLift γ) = ρ'γ`**: the `M`-lift `fLift` of a `V`-cocycle `c` reduces mod `M` to the
+transported lower map `ρ'` (`mV (c γ) ∈ M` kills its coset, `uσ` is a `piC0`-section, `liftC0`
+injective).  Extracted from `hsep_local`'s STAGE 2a. -/
+private theorem fLift_mk_M (ρ : BoundaryLifts b F RF.TC)
+    (c : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)) :
+    ∀ γ : AbsGalQ2,
+      (QuotientGroup.mk (fLift (descSections En l h Dsc) c γ) : RF.YB ⧸ (En.radData l h).M)
+        = RF.rhoPrime b F (En.radData l h) rfl ρ γ := by
+  have hinj : Function.Injective (liftC0 (En.descData l h)) := by
+    intro x y hxy
+    induction x using QuotientGroup.induction_on with
+    | H bx =>
+      induction y using QuotientGroup.induction_on with
+      | H by' =>
+        rw [liftC0_mk, liftC0_mk] at hxy
+        apply (QuotientGroup.eq (s := (En.radData l h).M)).mpr
+        rw [← (En.descData l h).hkerC0, MonoidHom.mem_ker, map_mul, map_inv, hxy,
+          inv_mul_cancel]
+  intro γ
+  apply hinj
+  rw [liftC0_mk]
+  show (En.descData l h).piC0 ((descSections En l h Dsc).mV (c.c γ)
+        * (descSections En l h Dsc).uσ
+            (rho0 (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ) γ))
+      = rho0 (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ) γ
+  rw [map_mul,
+    MonoidHom.mem_ker.mp (show ((descSections En l h Dsc).mV (c.c γ) : RF.YB)
+        ∈ (En.descData l h).piC0.ker by
+      rw [(En.descData l h).hkerC0]; exact ((descSections En l h Dsc).mV (c.c γ)).2),
+    one_mul, ← piQbar_mk (En.descData l h), (descSections En l h Dsc).piT_uσ,
+    descSigma_spec En l h Dsc]
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [DistribMulAction AbsGalQ2 (ZMod 2)]
+  [ContinuousSMul AbsGalQ2 (ZMod 2)] in
+/-- **The `T`-valued defect is a `Z²`-cocycle**: pushing `tDef` (the `fLift`-conjugation defect of
+a `V`-cocycle `c`) into `Additive ↥T` gives a continuous inhomogeneous 2-cocycle for the
+`ρ'`-conjugation action (`M` abelian collapses the sign).  `hsep_local`'s STAGE 2b. -/
+private theorem tDef_mem_Z2 (ρ : BoundaryLifts b F RF.TC)
+    (c : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ)) :
+    letI : CommGroup ↥(En.radData l h).T := tCommGroup (En.radData l h)
+    letI : TopologicalSpace (Additive ↥(En.radData l h).T) :=
+      (inferInstance : TopologicalSpace ↥(En.radData l h).T)
+    letI : DiscreteTopology (Additive ↥(En.radData l h).T) :=
+      ⟨(inferInstance : DiscreteTopology ↥(En.radData l h).T).eq_bot⟩
+    letI := tConjActC (En.radData l h)
+    letI := DistribMulAction.compHom (Additive ↥(En.radData l h).T)
+      (RF.rhoPrime b F (En.radData l h) rfl ρ).toMonoidHom
+    (fun p : AbsGalQ2 × AbsGalQ2 =>
+      Additive.ofMul (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c p))
+      ∈ Z2 AbsGalQ2 (Additive ↥(En.radData l h).T) := by
+  letI : CommGroup ↥(En.radData l h).T := tCommGroup (En.radData l h)
+  letI : TopologicalSpace (Additive ↥(En.radData l h).T) :=
+    (inferInstance : TopologicalSpace ↥(En.radData l h).T)
+  letI : DiscreteTopology (Additive ↥(En.radData l h).T) :=
+    ⟨(inferInstance : DiscreteTopology ↥(En.radData l h).T).eq_bot⟩
+  letI := tConjActC (En.radData l h)
+  letI := DistribMulAction.compHom (Additive ↥(En.radData l h).T)
+    (RF.rhoPrime b F (En.radData l h) rfl ρ).toMonoidHom
+  have hsmul : ∀ (γ : AbsGalQ2) (bb : RF.YB) (a : Additive ↥(En.radData l h).T),
+      QuotientGroup.mk bb = RF.rhoPrime b F (En.radData l h) rfl ρ γ →
+      γ • a = Additive.ofMul (⟨bb * (Additive.toMul a).1 * bb⁻¹,
+        (En.radData l h).hT.conj_mem _ (Additive.toMul a).2 _⟩ : ↥(En.radData l h).T) :=
+    fun γ bb a hbb => tConjActC_smul_mk (En.radData l h) _ bb a hbb
+  have hfLmk := fLift_mk_M b F En l h Dsc ρ c
+  refine mem_Z2_iff.mpr ⟨?_, ?_⟩
+  · exact (continuous_of_discreteTopology (f := Additive.ofMul)).comp
+      (tDef_continuous (descSections En l h Dsc) (descSigma_spec En l h Dsc) c)
+  · intro γ δ ε
+    rw [hsmul γ (fLift (descSections En l h Dsc) c γ)
+        (Additive.ofMul (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (δ, ε)))
+        (hfLmk γ)]
+    apply Additive.toMul.injective
+    apply Subtype.ext
+    show fLift (descSections En l h Dsc) c γ
+          * (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (δ, ε) : RF.YB)
+          * (fLift (descSections En l h Dsc) c γ)⁻¹
+          * (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ, δ * ε) : RF.YB)
+        = (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ * δ, ε) : RF.YB)
+          * (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ, δ) : RF.YB)
+    have hraw : (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ, δ) : RF.YB)
+          * (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ * δ, ε) : RF.YB)
+        = fLift (descSections En l h Dsc) c γ
+            * (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (δ, ε) : RF.YB)
+            * (fLift (descSections En l h Dsc) c γ)⁻¹
+            * (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ, δ * ε) : RF.YB) := by
+      show fLift (descSections En l h Dsc) c γ * fLift (descSections En l h Dsc) c δ
+            * (fLift (descSections En l h Dsc) c (γ * δ))⁻¹
+            * (fLift (descSections En l h Dsc) c (γ * δ) * fLift (descSections En l h Dsc) c ε
+                * (fLift (descSections En l h Dsc) c (γ * δ * ε))⁻¹)
+          = fLift (descSections En l h Dsc) c γ
+              * (fLift (descSections En l h Dsc) c δ * fLift (descSections En l h Dsc) c ε
+                  * (fLift (descSections En l h Dsc) c (δ * ε))⁻¹)
+              * (fLift (descSections En l h Dsc) c γ)⁻¹
+            * (fLift (descSections En l h Dsc) c γ * fLift (descSections En l h Dsc) c (δ * ε)
+                * (fLift (descSections En l h Dsc) c (γ * (δ * ε)))⁻¹)
+      rw [show γ * δ * ε = γ * (δ * ε) from mul_assoc γ δ ε]
+      group
+    rw [← hraw]
+    exact (En.radData l h).hcomm _
+      ((En.radData l h).hTM
+        (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ, δ)).2) _
+      ((En.radData l h).hTM
+        (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ * δ, ε)).2)
+
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 /-- **`hsep` for `G_ℚ₂`** — the `(T^∨)^C`-separation: a `V`-coordinate with all `χ`-obstructions
 `betaChi χ c = 0` is `T`-liftable.  The converse of the generic `betaChi_of_tliftable`
@@ -359,49 +528,15 @@ theorem hsep_local
   haveI : (En.radData l h).M.Normal := (En.radData l h).hM
   letI : Inv (RF.YB ⧸ (En.radData l h).M) := inferInstance
   -- STAGE 1: `T = (En.radData l h).T` as an additive `𝔽₂`-space with the `ρ'`-conjugation action
-  -- (identical to `tcocycle_card_local`'s module setup)
-  letI : CommGroup ↥(En.radData l h).T :=
-    { (inferInstance : Group ↥(En.radData l h).T) with
-      mul_comm := fun a b => Subtype.ext ((En.radData l h).hcomm _ ((En.radData l h).hTM a.2) _
-        ((En.radData l h).hTM b.2)) }
+  -- (the shared `T`-module pack, identical to `tcocycle_card_local`'s setup)
+  letI : CommGroup ↥(En.radData l h).T := tCommGroup (En.radData l h)
   letI : TopologicalSpace (Additive ↥(En.radData l h).T) :=
     (inferInstance : TopologicalSpace ↥(En.radData l h).T)
   haveI : DiscreteTopology (Additive ↥(En.radData l h).T) :=
     ⟨(inferInstance : DiscreteTopology ↥(En.radData l h).T).eq_bot⟩
   haveI : Finite (Additive ↥(En.radData l h).T) := (inferInstance : Finite ↥(En.radData l h).T)
   letI actC : DistribMulAction (RF.YB ⧸ (En.radData l h).M) (Additive ↥(En.radData l h).T) :=
-    { smul := fun cc t => Additive.ofMul
-        ⟨Quotient.out cc * (Additive.toMul t).1 * (Quotient.out cc)⁻¹,
-          (En.radData l h).hT.conj_mem _ (Additive.toMul t).2 _⟩
-      one_smul := fun t => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show Quotient.out (1 : RF.YB ⧸ (En.radData l h).M) * (Additive.toMul t).1
-            * (Quotient.out (1 : RF.YB ⧸ (En.radData l h).M))⁻¹ = (Additive.toMul t).1
-        have h1 : (Quotient.out (1 : RF.YB ⧸ (En.radData l h).M)) ∈ (En.radData l h).M := by
-          have := QuotientGroup.out_eq' (1 : RF.YB ⧸ (En.radData l h).M)
-          rwa [QuotientGroup.eq_one_iff] at this
-        rw [(En.radData l h).hcomm _ h1 _ ((En.radData l h).hTM (Additive.toMul t).2)]; group
-      mul_smul := fun cc cc' t => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show Quotient.out (cc * cc') * (Additive.toMul t).1 * (Quotient.out (cc * cc'))⁻¹
-          = Quotient.out cc * (Quotient.out cc' * (Additive.toMul t).1 * (Quotient.out cc')⁻¹)
-              * (Quotient.out cc)⁻¹
-        rw [show Quotient.out cc * (Quotient.out cc' * (Additive.toMul t).1 * (Quotient.out cc')⁻¹)
-              * (Quotient.out cc)⁻¹
-            = (Quotient.out cc * Quotient.out cc') * (Additive.toMul t).1
-              * (Quotient.out cc * Quotient.out cc')⁻¹ from by group]
-        exact conj_eq_of_mk_eq_T (by rw [QuotientGroup.out_eq', QuotientGroup.mk_mul,
-          QuotientGroup.out_eq', QuotientGroup.out_eq']) (Additive.toMul t)
-      smul_zero := fun cc => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show Quotient.out cc * (1 : RF.YB) * (Quotient.out cc)⁻¹ = 1
-        group
-      smul_add := fun cc t t' => by
-        apply Additive.toMul.injective; apply Subtype.ext
-        show Quotient.out cc * ((Additive.toMul t).1 * (Additive.toMul t').1) * (Quotient.out cc)⁻¹
-          = (Quotient.out cc * (Additive.toMul t).1 * (Quotient.out cc)⁻¹)
-              * (Quotient.out cc * (Additive.toMul t').1 * (Quotient.out cc)⁻¹)
-        group }
+    tConjActC (En.radData l h)
   letI actG : DistribMulAction AbsGalQ2 (Additive ↥(En.radData l h).T) :=
     DistribMulAction.compHom (Additive ↥(En.radData l h).T)
       (RF.rhoPrime b F (En.radData l h) rfl ρ).toMonoidHom
@@ -411,101 +546,15 @@ theorem hsep_local
   have hsmul : ∀ (γ : AbsGalQ2) (bb : RF.YB) (a : Additive ↥(En.radData l h).T),
       QuotientGroup.mk bb = RF.rhoPrime b F (En.radData l h) rfl ρ γ →
       γ • a = Additive.ofMul (⟨bb * (Additive.toMul a).1 * bb⁻¹,
-        (En.radData l h).hT.conj_mem _ (Additive.toMul a).2 _⟩ : ↥(En.radData l h).T) := by
-    intro γ bb a hbb
-    apply Additive.toMul.injective; apply Subtype.ext
-    show Quotient.out (RF.rhoPrime b F (En.radData l h) rfl ρ γ) * (Additive.toMul a).1
-        * (Quotient.out (RF.rhoPrime b F (En.radData l h) rfl ρ γ))⁻¹
-      = bb * (Additive.toMul a).1 * bb⁻¹
-    exact conj_eq_of_mk_eq_T (by rw [QuotientGroup.out_eq', hbb]) (Additive.toMul a)
-  haveI : ContinuousSMul AbsGalQ2 (Additive ↥(En.radData l h).T) := by
-    constructor
-    have hfac : (fun p : AbsGalQ2 × Additive ↥(En.radData l h).T => p.1 • p.2)
-        = (fun cq : (RF.YB ⧸ (En.radData l h).M) × ↥(En.radData l h).T =>
-            Additive.ofMul (⟨Quotient.out cq.1 * cq.2.1 * (Quotient.out cq.1)⁻¹,
-              (En.radData l h).hT.conj_mem _ cq.2.2 _⟩ : ↥(En.radData l h).T))
-          ∘ (fun p : AbsGalQ2 × Additive ↥(En.radData l h).T =>
-              ((RF.rhoPrime b F (En.radData l h) rfl ρ p.1 : RF.YB ⧸ (En.radData l h).M),
-                Additive.toMul p.2)) := by
-      funext p; rfl
-    rw [hfac]
-    exact continuous_of_discreteTopology.comp
-      (((RF.rhoPrime b F (En.radData l h) rfl ρ).continuous_toFun.comp continuous_fst).prodMk
-        continuous_snd)
-  have hA₂ : ∀ a : Additive ↥(En.radData l h).T, a + a = 0 := fun a => by
-    apply Additive.toMul.injective
-    show (Additive.toMul a) * (Additive.toMul a) = 1
-    exact Subtype.ext ((En.radData l h).helem _ ((En.radData l h).hTM (Additive.toMul a).2))
-  -- STAGE 2a: `mk_M (fLift γ) = ρ'γ`  (`mV ∈ M` kills its coset; `uσ` is a `piC0`-section; `liftC0` inj)
-  have hfLmk : ∀ γ : AbsGalQ2,
-      (QuotientGroup.mk (fLift (descSections En l h Dsc) c γ) : RF.YB ⧸ (En.radData l h).M)
-        = RF.rhoPrime b F (En.radData l h) rfl ρ γ := by
-    have hinj : Function.Injective (liftC0 (En.descData l h)) := by
-      intro x y hxy
-      induction x using QuotientGroup.induction_on with
-      | H bx =>
-        induction y using QuotientGroup.induction_on with
-        | H by' =>
-          rw [liftC0_mk, liftC0_mk] at hxy
-          apply (QuotientGroup.eq (s := (En.radData l h).M)).mpr
-          rw [← (En.descData l h).hkerC0, MonoidHom.mem_ker, map_mul, map_inv, hxy,
-            inv_mul_cancel]
-    intro γ
-    apply hinj
-    rw [liftC0_mk]
-    show (En.descData l h).piC0 ((descSections En l h Dsc).mV (c.c γ)
-          * (descSections En l h Dsc).uσ
-              (rho0 (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ) γ))
-        = rho0 (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ) γ
-    rw [map_mul,
-      MonoidHom.mem_ker.mp (show ((descSections En l h Dsc).mV (c.c γ) : RF.YB)
-          ∈ (En.descData l h).piC0.ker by
-        rw [(En.descData l h).hkerC0]; exact ((descSections En l h Dsc).mV (c.c γ)).2),
-      one_mul, ← piQbar_mk (En.descData l h), (descSections En l h Dsc).piT_uσ,
-      descSigma_spec En l h Dsc]
-  -- STAGE 2b: the T-valued defect is a `Z²(Γ, Additive T)` cocycle
-  have tDefZ2 : (fun p : AbsGalQ2 × AbsGalQ2 =>
-      Additive.ofMul (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c p))
-      ∈ Z2 AbsGalQ2 (Additive ↥(En.radData l h).T) := by
-    refine mem_Z2_iff.mpr ⟨?_, ?_⟩
-    · exact (continuous_of_discreteTopology (f := Additive.ofMul)).comp
-        (tDef_continuous (descSections En l h Dsc) (descSigma_spec En l h Dsc) c)
-    · intro γ δ ε
-      rw [hsmul γ (fLift (descSections En l h Dsc) c γ)
-          (Additive.ofMul (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (δ, ε)))
-          (hfLmk γ)]
-      apply Additive.toMul.injective
-      apply Subtype.ext
-      show fLift (descSections En l h Dsc) c γ
-            * (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (δ, ε) : RF.YB)
-            * (fLift (descSections En l h Dsc) c γ)⁻¹
-            * (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ, δ * ε) : RF.YB)
-          = (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ * δ, ε) : RF.YB)
-            * (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ, δ) : RF.YB)
-      have hraw : (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ, δ) : RF.YB)
-            * (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ * δ, ε) : RF.YB)
-          = fLift (descSections En l h Dsc) c γ
-              * (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (δ, ε) : RF.YB)
-              * (fLift (descSections En l h Dsc) c γ)⁻¹
-              * (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ, δ * ε) : RF.YB) := by
-        show fLift (descSections En l h Dsc) c γ * fLift (descSections En l h Dsc) c δ
-              * (fLift (descSections En l h Dsc) c (γ * δ))⁻¹
-              * (fLift (descSections En l h Dsc) c (γ * δ) * fLift (descSections En l h Dsc) c ε
-                  * (fLift (descSections En l h Dsc) c (γ * δ * ε))⁻¹)
-            = fLift (descSections En l h Dsc) c γ
-                * (fLift (descSections En l h Dsc) c δ * fLift (descSections En l h Dsc) c ε
-                    * (fLift (descSections En l h Dsc) c (δ * ε))⁻¹)
-                * (fLift (descSections En l h Dsc) c γ)⁻¹
-              * (fLift (descSections En l h Dsc) c γ * fLift (descSections En l h Dsc) c (δ * ε)
-                  * (fLift (descSections En l h Dsc) c (γ * (δ * ε)))⁻¹)
-        rw [show γ * δ * ε = γ * (δ * ε) from mul_assoc γ δ ε]
-        group
-      rw [← hraw]
-      exact (En.radData l h).hcomm _
-        ((En.radData l h).hTM
-          (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ, δ)).2) _
-        ((En.radData l h).hTM
-          (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ * δ, ε)).2)
+        (En.radData l h).hT.conj_mem _ (Additive.toMul a).2 _⟩ : ↥(En.radData l h).T) :=
+    fun γ bb a hbb => tConjActC_smul_mk (En.radData l h) _ bb a hbb
+  haveI : ContinuousSMul AbsGalQ2 (Additive ↥(En.radData l h).T) :=
+    continuousSMul_of_comp (RF.rhoPrime b F (En.radData l h) rfl ρ) hcomp
+  have hA₂ : ∀ a : Additive ↥(En.radData l h).T, a + a = 0 := tAdd_self (En.radData l h)
+  -- STAGE 2a: `mk_M (fLift γ) = ρ'γ`  (extracted as `fLift_mk_M`)
+  have hfLmk := fLift_mk_M b F En l h Dsc ρ c
+  -- STAGE 2b: the T-valued defect is a `Z²(Γ, Additive T)` cocycle (extracted as `tDef_mem_Z2`)
+  have tDefZ2 := tDef_mem_Z2 b F En l h Dsc ρ c
   -- STAGE 3: the dual module `ElemDual (Additive T)` with the pairing equivariance `hpair`
   letI actGD : DistribMulAction AbsGalQ2 (FoxH.ElemDual (Additive ↥(En.radData l h).T)) :=
     DistribMulAction.compHom _ (RF.rhoPrime b F (En.radData l h) rfl ρ).toMonoidHom
@@ -745,6 +794,36 @@ theorem cup11_dualEval_right_separating
       AddMonoidHom.zero_apply]
   rw [hd0, map_zero]
 
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
+  [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)]
+  [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+  [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  [TopologicalSpace Y] [DiscreteTopology Y] in
+/-- **The `T`-part of the `(t, v)`-coordinatization of `M`**: for `m ∈ M`, dividing off the
+`V`-section `mV (descend m)` lands in the polar radical `T` (`= ker descend`, `hdesc_ker`). -/
+private theorem tPart_mem :
+    ∀ m : ↥(En.radData l h).M,
+      ((m * ((descSections En l h Dsc).mV (Multiplicative.toAdd
+        ((En.descData l h).descend m)))⁻¹ : ↥(En.radData l h).M) : RF.YB)
+        ∈ (En.radData l h).T := by
+  intro m
+  refine ((En.descData l h).hdesc_ker _).mp ?_
+  rw [map_mul, map_inv, (descSections En l h Dsc).descend_mV,
+    ofAdd_toAdd, mul_inv_cancel]
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
+  [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)]
+  [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+  [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  [TopologicalSpace Y] [DiscreteTopology Y] in
+/-- The `V`-coordinate `vco m := toAdd (descend m)` is additive (`descend` is a homomorphism). -/
+private theorem vco_mul :
+    ∀ m m' : ↥(En.radData l h).M,
+      Multiplicative.toAdd ((En.descData l h).descend (m * m'))
+        = Multiplicative.toAdd ((En.descData l h).descend m)
+          + Multiplicative.toAdd ((En.descData l h).descend m') := fun m m' => by
+  rw [map_mul]; rfl
+
 /-- **`hpartial` for `G_ℚ₂`** — nondegeneracy of the obstruction pairing in the character:
 every nonzero `χ ∈ (T^∨)^C` is detected by some `V`-coordinate.  Cup-duality clauses (iv)/(v) of
 `prop_5_16`.
@@ -783,32 +862,16 @@ theorem hpartial_local
   letI actG : DistribMulAction AbsGalQ2 En.Vmod :=
     DistribMulAction.compHom En.Vmod (ρ.1.1).toMonoidHom
   have hcomp : ∀ (γ : AbsGalQ2) (v : En.Vmod), γ • v = ρ.1.1 γ • v := fun _ _ => rfl
-  haveI : ContinuousSMul AbsGalQ2 En.Vmod := by
-    constructor
-    have hfac : (fun p : AbsGalQ2 × En.Vmod => p.1 • p.2)
-        = (fun q : RF.YC × En.Vmod => q.1 • q.2)
-          ∘ (fun p : AbsGalQ2 × En.Vmod => (ρ.1.1 p.1, p.2)) := by
-      funext p; rfl
-    rw [hfac]
-    exact continuous_of_discreteTopology.comp
-      ((ρ.1.1.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  haveI : ContinuousSMul AbsGalQ2 En.Vmod := continuousSMul_of_comp ρ.1.1 hcomp
   have hA₂ : ∀ v : En.Vmod, v + v = 0 := fun v => Vmod_exp2 (En.descData l h) v
   letI : TopologicalSpace (ElemDual En.Vmod) := ⊥
   haveI : DiscreteTopology (ElemDual En.Vmod) := ⟨rfl⟩
-  haveI : ContinuousSMul AbsGalQ2 (ElemDual En.Vmod) := by
-    constructor
-    have hfac : (fun p : AbsGalQ2 × ElemDual En.Vmod => p.1 • p.2)
-        = (fun q : RF.YC × ElemDual En.Vmod => q.1 • q.2)
-          ∘ (fun p : AbsGalQ2 × ElemDual En.Vmod => (ρ.1.1 p.1, p.2)) := by
-      funext p
-      show p.1 • p.2 = ρ.1.1 p.1 • p.2
+  haveI : ContinuousSMul AbsGalQ2 (ElemDual En.Vmod) :=
+    continuousSMul_of_comp ρ.1.1 fun γ lam => by
       ext a
       rw [ElemDual.smul_apply, ElemDual.smul_apply]
       congr 1
       rw [hcomp, map_inv]
-    rw [hfac]
-    exact continuous_of_discreteTopology.comp
-      ((ρ.1.1.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
   have htriv := htriv_local'
   have hH2 : Nat.card (H2 AbsGalQ2 (ZMod 2)) = 2 := card_H2_zmod2_eq_two htriv_local'
   have hpair : ∀ (γ : AbsGalQ2) (a : En.Vmod) (lam : ElemDual En.Vmod),
@@ -1034,21 +1097,10 @@ theorem hpartial_local
       rw [← h5, ← h4, h3]
       have hchar : ∀ X Y : ZMod 2, X = X + Y + Y := by decide
       exact hchar _ _
-    -- the `T`-part of the `(t, v)`-coordinatization of `M`
-    have htmem : ∀ m : ↥(En.radData l h).M,
-        ((m * ((descSections En l h Dsc).mV (Multiplicative.toAdd
-          ((En.descData l h).descend m)))⁻¹ : ↥(En.radData l h).M) : RF.YB)
-          ∈ (En.radData l h).T := by
-      intro m
-      refine ((En.descData l h).hdesc_ker _).mp ?_
-      rw [map_mul, map_inv, (descSections En l h Dsc).descend_mV,
-        ofAdd_toAdd, mul_inv_cancel]
-    -- the V-coordinate `vco m := toAdd (descend m)` and its additivity/conjugation laws
-    have hvco_mul : ∀ m m' : ↥(En.radData l h).M,
-        Multiplicative.toAdd ((En.descData l h).descend (m * m'))
-          = Multiplicative.toAdd ((En.descData l h).descend m)
-            + Multiplicative.toAdd ((En.descData l h).descend m') := fun m m' => by
-      rw [map_mul]; rfl
+    -- the `T`-part and `V`-coordinate of the `(t, v)`-coordinatization of `M`
+    -- (`tPart_mem` / `vco_mul`, extracted above)
+    have htmem := tPart_mem En l h Dsc
+    have hvco_mul := vco_mul En l h
     set ψ : ↥(En.radData l h).M → ZMod 2 := fun m =>
       χ.1 ⟨_, htmem m⟩
         + gχ (Multiplicative.toAdd ((En.descData l h).descend m))

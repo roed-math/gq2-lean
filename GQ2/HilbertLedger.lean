@@ -303,6 +303,100 @@ theorem norm_galois (g : Kummer.GaloisGroup ℚ_[2]) (x : ℚ̄₂) : ‖g • x
     NormedAlgebra.norm_eq_spectralNorm ℚ_[2]]
   exact (spectralNorm_eq_of_equiv g x).symm
 
+/-- Over a normed `ℚ₂`-algebra whose norm extends the dyadic one, `‖2‖ < 1`. -/
+private lemma norm_two_lt_one' {F : Type*} [NormedField F] [NormedAlgebra ℚ_[2] F] :
+    ‖(2 : F)‖ < 1 := by
+  rw [show (2 : F) = algebraMap ℚ_[2] F 2 from (map_ofNat _ 2).symm,
+    norm_algebraMap' (𝕜' := F) (2 : ℚ_[2])]
+  exact Padic.norm_p_lt_one
+
+/-- In an ultrametric normed field, anything within `< 1` of `1` has norm exactly `1`. -/
+private lemma norm_eq_one_of_norm_sub_one_lt {F : Type*} [NormedField F] [IsUltrametricDist F]
+    {x : F} (h : ‖x - 1‖ < 1) : ‖x‖ = 1 := by
+  rw [show x = (x - 1) + 1 by ring,
+    IsUltrametricDist.norm_add_eq_max_of_norm_ne_norm (by rw [norm_one]; exact ne_of_lt h),
+    norm_one, max_eq_right h.le]
+
+/-- The quadratic Newton iteration `w ↦ w − (w² − z)/(2w)` from `w₀ = 1`, converging to a
+square root of `z` in `sq_of_near_one`. -/
+private noncomputable def newtonSqrtSeq {k : IntermediateField ℚ_[2] ℚ̄₂} (z : ↥k) : ℕ → ↥k := fun n =>
+  Nat.rec (1 : ↥k) (fun _ wn => wn - (wn ^ 2 - z) / (2 * wn)) n
+
+/-- Invariant for the Newton iteration: each iterate stays within `‖2‖` of `1`, and the square
+error contracts geometrically with ratio `q = ‖z − 1‖ / ‖2‖² < 1`. -/
+private lemma newtonSqrtSeq_invariant {k : IntermediateField ℚ_[2] ℚ̄₂} {z : ↥k}
+    (hz' : ‖z - 1‖ < ‖(2 : ↥k)‖ ^ 2) (n : ℕ) :
+    ‖newtonSqrtSeq z n - 1‖ ≤ ‖(2 : ↥k)‖ ∧
+      ‖newtonSqrtSeq z n ^ 2 - z‖ ≤ ‖(2 : ↥k)‖ ^ 2 * (‖z - 1‖ / ‖(2 : ↥k)‖ ^ 2) ^ (n + 1) := by
+  have h2pos : (0 : ℝ) < ‖(2 : ↥k)‖ := norm_pos_iff.mpr two_ne_zero
+  have hsq2 : (0 : ℝ) < ‖(2 : ↥k)‖ ^ 2 := by positivity
+  have h4 : ‖(4 : ↥k)‖ = ‖(2 : ↥k)‖ ^ 2 := by
+    rw [show (4 : ↥k) = 2 * 2 by norm_num, norm_mul, sq]
+  set q : ℝ := ‖z - 1‖ / ‖(2 : ↥k)‖ ^ 2 with hq_def
+  have hq0 : 0 ≤ q := by positivity
+  have hq1 : q < 1 := by rw [hq_def, div_lt_one hsq2]; exact hz'
+  set w : ℕ → ↥k := newtonSqrtSeq z
+  have hw0 : w 0 = 1 := rfl
+  have hwS : ∀ m, w (m + 1) = w m - (w m ^ 2 - z) / (2 * w m) := fun _ => rfl
+  induction n with
+  | zero =>
+    refine ⟨?_, ?_⟩
+    · rw [hw0, sub_self, norm_zero]; exact norm_nonneg _
+    · rw [hw0, one_pow, pow_one, hq_def, mul_div_cancel₀ _ (ne_of_gt hsq2),
+        show (1 : ↥k) - z = -(z - 1) by ring, norm_neg]
+  | succ n ih =>
+    obtain ⟨ih1, ih2⟩ := ih
+    have hwn1 : ‖w n‖ = 1 :=
+      norm_eq_one_of_norm_sub_one_lt (lt_of_le_of_lt ih1 norm_two_lt_one')
+    have hwn0 : w n ≠ 0 := by
+      intro h; rw [h, norm_zero] at hwn1; exact one_ne_zero hwn1.symm
+    have hkey : w (n + 1) ^ 2 - z = (w n ^ 2 - z) ^ 2 / (4 * w n ^ 2) := by
+      rw [hwS]; field_simp; ring
+    have hen1 : ‖w (n + 1) ^ 2 - z‖ = ‖w n ^ 2 - z‖ ^ 2 / ‖(2 : ↥k)‖ ^ 2 := by
+      rw [hkey, norm_div, norm_pow, norm_mul, norm_pow, hwn1, one_pow, mul_one, h4]
+    have hbound : ‖w (n + 1) ^ 2 - z‖ ≤ ‖(2 : ↥k)‖ ^ 2 * q ^ (n + 1 + 1) := by
+      rw [hen1]
+      calc ‖w n ^ 2 - z‖ ^ 2 / ‖(2 : ↥k)‖ ^ 2
+          ≤ (‖(2 : ↥k)‖ ^ 2 * q ^ (n + 1)) ^ 2 / ‖(2 : ↥k)‖ ^ 2 := by gcongr
+        _ = ‖(2 : ↥k)‖ ^ 2 * q ^ (2 * (n + 1)) := by
+            rw [div_eq_iff (ne_of_gt hsq2)]; ring
+        _ ≤ ‖(2 : ↥k)‖ ^ 2 * q ^ (n + 1 + 1) := by
+            apply mul_le_mul_of_nonneg_left _ (le_of_lt hsq2)
+            exact pow_le_pow_of_le_one hq0 hq1.le (by omega)
+    refine ⟨?_, hbound⟩
+    have hjump : ‖w (n + 1) - w n‖ ≤ ‖(2 : ↥k)‖ := by
+      rw [hwS, show w n - (w n ^ 2 - z) / (2 * w n) - w n = -((w n ^ 2 - z) / (2 * w n)) by ring,
+        norm_neg, norm_div, norm_mul, hwn1, mul_one, div_le_iff₀ h2pos]
+      calc ‖w n ^ 2 - z‖ ≤ ‖(2 : ↥k)‖ ^ 2 * q ^ (n + 1) := ih2
+        _ ≤ ‖(2 : ↥k)‖ ^ 2 * 1 := by
+            gcongr; exact pow_le_one₀ hq0 hq1.le
+        _ = ‖(2 : ↥k)‖ * ‖(2 : ↥k)‖ := by rw [mul_one, sq]
+    rw [show w (n + 1) - 1 = (w (n + 1) - w n) + (w n - 1) by ring]
+    exact le_trans (IsUltrametricDist.norm_add_le_max _ _) (max_le hjump ih1)
+
+/-- Each Newton iterate has norm `1` (it stays within `‖2‖ < 1` of `1`). -/
+private lemma newtonSqrtSeq_norm_eq_one {k : IntermediateField ℚ_[2] ℚ̄₂} {z : ↥k}
+    (hz' : ‖z - 1‖ < ‖(2 : ↥k)‖ ^ 2) (n : ℕ) : ‖newtonSqrtSeq z n‖ = 1 :=
+  norm_eq_one_of_norm_sub_one_lt
+    (lt_of_le_of_lt (newtonSqrtSeq_invariant hz' n).1 norm_two_lt_one')
+
+/-- The Newton sequence is Cauchy: consecutive jumps are bounded by the geometric `‖2‖·qⁿ⁺¹`. -/
+private lemma newtonSqrtSeq_cauchySeq {k : IntermediateField ℚ_[2] ℚ̄₂} {z : ↥k}
+    (hz' : ‖z - 1‖ < ‖(2 : ↥k)‖ ^ 2) : CauchySeq (newtonSqrtSeq z) := by
+  have h2pos : (0 : ℝ) < ‖(2 : ↥k)‖ := norm_pos_iff.mpr two_ne_zero
+  have hsq2 : (0 : ℝ) < ‖(2 : ↥k)‖ ^ 2 := by positivity
+  set q : ℝ := ‖z - 1‖ / ‖(2 : ↥k)‖ ^ 2 with hq_def
+  have hq1 : q < 1 := by rw [hq_def, div_lt_one hsq2]; exact hz'
+  set w : ℕ → ↥k := newtonSqrtSeq z
+  have hwS : ∀ m, w (m + 1) = w m - (w m ^ 2 - z) / (2 * w m) := fun _ => rfl
+  have hnorm1 : ∀ m, ‖w m‖ = 1 := fun m => newtonSqrtSeq_norm_eq_one hz' m
+  refine cauchySeq_of_le_geometric q (‖(2 : ↥k)‖ * q) hq1 (fun n => ?_)
+  rw [dist_eq_norm, norm_sub_rev, hwS,
+    show w n - (w n ^ 2 - z) / (2 * w n) - w n = -((w n ^ 2 - z) / (2 * w n)) by ring,
+    norm_neg, norm_div, norm_mul, hnorm1 n, mul_one, div_le_iff₀ h2pos]
+  calc ‖w n ^ 2 - z‖ ≤ ‖(2 : ↥k)‖ ^ 2 * q ^ (n + 1) := (newtonSqrtSeq_invariant hz' n).2
+    _ = ‖(2 : ↥k)‖ * q * q ^ n * ‖(2 : ↥k)‖ := by rw [pow_succ]; ring
+
 /-- **Hensel depth** over a finite dyadic base: anything within `< ‖4‖` of `1` is a square —
 the (114) step `U_{2e+2}(k) ⊆ (k^×)²`.  [O: Newton contraction `w ↦ w − (w²−z)/(2w)` starting
 at `w₀ = 1`, run inside `↥k`; needs `NormedField ↥k` (subfield of `ℚ̄₂`, `SubfieldClass`
@@ -315,100 +409,160 @@ theorem sq_of_near_one (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimension
     ∃ w : ↥k, w ^ 2 = z := by
   haveI : CompleteSpace ↥k := FiniteDimensional.complete ℚ_[2] ↥k
   -- Norm bookkeeping in `↥k` (its norm is the restriction of `ℚ̄₂`'s, definitionally).
-  have h2ne : (2 : ↥k) ≠ 0 := two_ne_zero
-  have h2pos : (0 : ℝ) < ‖(2 : ↥k)‖ := norm_pos_iff.mpr h2ne
-  have h2lt1 : ‖(2 : ↥k)‖ < 1 := by
-    have he : ‖(2 : ↥k)‖ = ‖(2 : ℚ_[2])‖ := by
-      rw [show (2 : ↥k) = algebraMap ℚ_[2] ↥k 2 from (map_ofNat _ 2).symm]
-      exact norm_algebraMap' (𝕜' := ↥k) (2 : ℚ_[2])
-    rw [he]; exact Padic.norm_p_lt_one
-  have h4 : ‖(4 : ↥k)‖ = ‖(2 : ↥k)‖ ^ 2 := by
-    rw [show (4 : ↥k) = 2 * 2 by norm_num, norm_mul, sq]
-  have hsq2 : (0 : ℝ) < ‖(2 : ↥k)‖ ^ 2 := by positivity
   have hz' : ‖z - 1‖ < ‖(2 : ↥k)‖ ^ 2 := by
+    have h4 : ‖(4 : ↥k)‖ = ‖(2 : ↥k)‖ ^ 2 := by
+      rw [show (4 : ↥k) = 2 * 2 by norm_num, norm_mul, sq]
     have hzk : ‖z - 1‖ < ‖(4 : ↥k)‖ := hz
     rwa [h4] at hzk
+  obtain ⟨L, hL⟩ := cauchySeq_tendsto_of_complete (newtonSqrtSeq_cauchySeq hz')
+  refine ⟨L, tendsto_nhds_unique (hL.pow 2) ?_⟩
+  rw [tendsto_iff_norm_sub_tendsto_zero]
+  refine squeeze_zero (fun n => norm_nonneg _) (fun n => (newtonSqrtSeq_invariant hz' n).2) ?_
+  have hsq2 : (0 : ℝ) < ‖(2 : ↥k)‖ ^ 2 := pow_pos (norm_pos_iff.mpr two_ne_zero) 2
   set q : ℝ := ‖z - 1‖ / ‖(2 : ↥k)‖ ^ 2 with hq_def
   have hq0 : 0 ≤ q := by positivity
   have hq1 : q < 1 := by rw [hq_def, div_lt_one hsq2]; exact hz'
-  -- The Newton sequence `wₙ₊₁ = wₙ − (wₙ² − z)/(2wₙ)`, `w₀ = 1`.
-  set w : ℕ → ↥k :=
-    fun n => Nat.rec (1 : ↥k) (fun _ wn => wn - (wn ^ 2 - z) / (2 * wn)) n with hw_def
-  have hw0 : w 0 = 1 := rfl
-  have hwS : ∀ n, w (n + 1) = w n - (w n ^ 2 - z) / (2 * w n) := fun n => rfl
-  -- Invariant: `wₙ` stays within `‖2‖` of `1`, and the error contracts geometrically.
-  have inv : ∀ n, ‖w n - 1‖ ≤ ‖(2 : ↥k)‖ ∧ ‖w n ^ 2 - z‖ ≤ ‖(2 : ↥k)‖ ^ 2 * q ^ (n + 1) := by
-    intro n
-    induction n with
-    | zero =>
-      refine ⟨?_, ?_⟩
-      · rw [hw0, sub_self, norm_zero]; exact norm_nonneg _
-      · rw [hw0, one_pow, pow_one, hq_def, mul_div_cancel₀ _ (ne_of_gt hsq2),
-          show (1 : ↥k) - z = -(z - 1) by ring, norm_neg]
-    | succ n ih =>
-      obtain ⟨ih1, ih2⟩ := ih
-      have hwn1 : ‖w n‖ = 1 := by
-        have hlt : ‖w n - 1‖ < 1 := lt_of_le_of_lt ih1 h2lt1
-        rw [show w n = (w n - 1) + 1 by ring,
-          IsUltrametricDist.norm_add_eq_max_of_norm_ne_norm
-            (by rw [norm_one]; exact ne_of_lt hlt),
-          norm_one, max_eq_right (le_of_lt hlt)]
-      have hwn0 : w n ≠ 0 := by
-        intro h; rw [h, norm_zero] at hwn1; exact one_ne_zero hwn1.symm
-      have hkey : w (n + 1) ^ 2 - z = (w n ^ 2 - z) ^ 2 / (4 * w n ^ 2) := by
-        rw [hwS]; field_simp; ring
-      have hen1 : ‖w (n + 1) ^ 2 - z‖ = ‖w n ^ 2 - z‖ ^ 2 / ‖(2 : ↥k)‖ ^ 2 := by
-        rw [hkey, norm_div, norm_pow, norm_mul, norm_pow, hwn1, one_pow, mul_one, h4]
-      have hbound : ‖w (n + 1) ^ 2 - z‖ ≤ ‖(2 : ↥k)‖ ^ 2 * q ^ (n + 1 + 1) := by
-        rw [hen1]
-        calc ‖w n ^ 2 - z‖ ^ 2 / ‖(2 : ↥k)‖ ^ 2
-            ≤ (‖(2 : ↥k)‖ ^ 2 * q ^ (n + 1)) ^ 2 / ‖(2 : ↥k)‖ ^ 2 := by gcongr
-          _ = ‖(2 : ↥k)‖ ^ 2 * q ^ (2 * (n + 1)) := by
-              rw [div_eq_iff (ne_of_gt hsq2)]; ring
-          _ ≤ ‖(2 : ↥k)‖ ^ 2 * q ^ (n + 1 + 1) := by
-              apply mul_le_mul_of_nonneg_left _ (le_of_lt hsq2)
-              exact pow_le_pow_of_le_one hq0 hq1.le (by omega)
-      refine ⟨?_, hbound⟩
-      have hjump : ‖w (n + 1) - w n‖ ≤ ‖(2 : ↥k)‖ := by
-        rw [hwS, show w n - (w n ^ 2 - z) / (2 * w n) - w n = -((w n ^ 2 - z) / (2 * w n)) by ring,
-          norm_neg, norm_div, norm_mul, hwn1, mul_one, div_le_iff₀ h2pos]
-        calc ‖w n ^ 2 - z‖ ≤ ‖(2 : ↥k)‖ ^ 2 * q ^ (n + 1) := ih2
-          _ ≤ ‖(2 : ↥k)‖ ^ 2 * 1 := by
-              gcongr; exact pow_le_one₀ hq0 hq1.le
-          _ = ‖(2 : ↥k)‖ * ‖(2 : ↥k)‖ := by rw [mul_one, sq]
-      rw [show w (n + 1) - 1 = (w (n + 1) - w n) + (w n - 1) by ring]
-      exact le_trans (IsUltrametricDist.norm_add_le_max _ _) (max_le hjump ih1)
-  have hnorm1 : ∀ n, ‖w n‖ = 1 := fun n => by
-    have hlt : ‖w n - 1‖ < 1 := lt_of_le_of_lt (inv n).1 h2lt1
-    rw [show w n = (w n - 1) + 1 by ring,
-      IsUltrametricDist.norm_add_eq_max_of_norm_ne_norm (by rw [norm_one]; exact ne_of_lt hlt),
-      norm_one, max_eq_right (le_of_lt hlt)]
-  -- Cauchy via a geometric bound on the jumps.
-  have hcauchy : CauchySeq w := by
-    refine cauchySeq_of_le_geometric q (‖(2 : ↥k)‖ * q) hq1 (fun n => ?_)
-    rw [dist_eq_norm, norm_sub_rev, hwS,
-      show w n - (w n ^ 2 - z) / (2 * w n) - w n = -((w n ^ 2 - z) / (2 * w n)) by ring,
-      norm_neg, norm_div, norm_mul, hnorm1 n, mul_one, div_le_iff₀ h2pos]
-    calc ‖w n ^ 2 - z‖ ≤ ‖(2 : ↥k)‖ ^ 2 * q ^ (n + 1) := (inv n).2
-      _ = ‖(2 : ↥k)‖ * q * q ^ n * ‖(2 : ↥k)‖ := by rw [pow_succ]; ring
-  obtain ⟨L, hL⟩ := cauchySeq_tendsto_of_complete hcauchy
-  refine ⟨L, ?_⟩
-  have hLsq : Filter.Tendsto (fun n => w n ^ 2) Filter.atTop (nhds (L ^ 2)) := hL.pow 2
-  have hzlim : Filter.Tendsto (fun n => w n ^ 2) Filter.atTop (nhds z) := by
-    rw [tendsto_iff_norm_sub_tendsto_zero]
-    refine squeeze_zero (fun n => norm_nonneg _) (fun n => (inv n).2) ?_
-    have hqpow : Filter.Tendsto (fun n => q ^ (n + 1)) Filter.atTop (nhds 0) := by
-      have hbase := (tendsto_pow_atTop_nhds_zero_of_lt_one hq0 hq1).const_mul q
-      rw [mul_zero] at hbase
-      exact hbase.congr (fun n => by rw [pow_succ, mul_comm])
-    simpa using hqpow.const_mul (‖(2 : ↥k)‖ ^ 2)
-  exact tendsto_nhds_unique hLsq hzlim
+  have hqpow : Filter.Tendsto (fun n => q ^ (n + 1)) Filter.atTop (nhds 0) := by
+    have hbase := (tendsto_pow_atTop_nhds_zero_of_lt_one hq0 hq1).const_mul q
+    rw [mul_zero] at hbase
+    exact hbase.congr (fun n => by rw [pow_succ, mul_comm])
+  simpa using hqpow.const_mul (‖(2 : ↥k)‖ ^ 2)
+
+/-- Step 5 numerator bound of the ledger (paper eq. (114)): if `n = (1 + 2b)(1 + 2c)` and
+`u = 1 + (b + c)` with `‖b‖, ‖c‖ < 1`, then `‖n/(2u − 1) − 1‖ = ‖4‖·‖b‖·‖c‖ < ‖4‖`. -/
+private lemma ratio_sub_one_norm_lt {n u b c : ℚ̄₂} (hb : ‖b‖ < 1) (hc : ‖c‖ < 1)
+    (hn : n = (1 + 2 * b) * (1 + 2 * c)) (hu : u = 1 + (b + c)) :
+    ‖n * (2 * u - 1)⁻¹ - 1‖ < ‖(4 : ℚ̄₂)‖ := by
+  have hu1 : ‖u‖ = 1 := by
+    refine norm_eq_one_of_norm_sub_one_lt ?_
+    rw [hu, add_sub_cancel_left]
+    exact lt_of_le_of_lt (IsUltrametricDist.norm_add_le_max _ _) (max_lt hb hc)
+  have h2unorm : ‖2 * u - 1‖ = 1 := by
+    rw [norm_sub_rev]
+    refine norm_eq_one_of_norm_sub_one_lt ?_
+    rw [sub_sub_cancel_left, norm_neg, norm_mul, hu1, mul_one]
+    exact norm_two_lt_one'
+  have hpne' : (2 * u - 1) ≠ 0 := norm_ne_zero_iff.mp (by rw [h2unorm]; exact one_ne_zero)
+  have hnum : n - (2 * u - 1) = 4 * b * c := by rw [hn, hu]; ring
+  rw [show n * (2 * u - 1)⁻¹ - 1 = (n - (2 * u - 1)) * (2 * u - 1)⁻¹ by
+      field_simp,
+    hnum, norm_mul, norm_inv, h2unorm, inv_one, mul_one, norm_mul, norm_mul]
+  have h4pos : (0 : ℝ) < ‖(4 : ℚ̄₂)‖ := by rw [norm_pos_iff]; norm_num
+  have hbb : ‖b‖ * ‖c‖ < 1 := by nlinarith [norm_nonneg b, norm_nonneg c, hb, hc]
+  calc ‖(4 : ℚ̄₂)‖ * ‖b‖ * ‖c‖ = ‖(4 : ℚ̄₂)‖ * (‖b‖ * ‖c‖) := by ring
+    _ < ‖(4 : ℚ̄₂)‖ * 1 := mul_lt_mul_of_pos_left hbb h4pos
+    _ = ‖(4 : ℚ̄₂)‖ := mul_one _
 
 end Arithmetic
 
+/-! ### Tier-4 helpers: reflection identities, the Hensel step, and 2-torsion bookkeeping -/
+
+section LedgerHelpers
+
+/-- Cancellation in a 2-torsion abelian group: `(a + x) + (b + y + x) = a + b + c` forces
+`c = y` — the degree-1 bookkeeping for step 3 of the ledger. -/
+private lemma add_add_cancel_of_two_torsion {M : Type*} [AddCommGroup M]
+    (htor : ∀ m : M, m + m = 0) {a b c x y : M}
+    (h : a + x + (b + y + x) = a + b + c) : c = y := by
+  have h' : a + b + y = a + b + c := by
+    rw [← h, show a + x + (b + y + x) = a + b + y + (x + x) by abel, htor, add_zero]
+  exact (add_left_cancel h').symm
+
+/-- The 2-torsion cup-ledger collapse (steps 4–5 of `evensNorm_deepUnit_vanish`, abstracted):
+for a bilinear pairing `C` into a 2-torsion group with `(d,u) = 0`, `(d,n) = 0`,
+`(u,u) = (u,m)`, and `(t,n) + (u,n) = (u,m)`, the B9 degree-2 identity forces `E = 0`. -/
+private lemma ledger_collapse {M₁ M₂ : Type*} [AddCommGroup M₁] [AddCommGroup M₂]
+    (C : M₁ →+ M₁ →+ M₂) (htor : ∀ z : M₂, z + z = 0)
+    (comm : ∀ x y : M₁, C x y = C y x) {t u d n m : M₁} {E : M₂}
+    (hdu : C d u = 0) (hdn : C d n = 0) (hself : C u u = C u m)
+    (hCn : C t n + C u n = C u m)
+    (hdeg2 : C (t + u) (t + d + n + u) = C t (t + d) + C (t + (t + d)) n + E) :
+    E = 0 := by
+  have hL : C (t + u) (t + d + n + u) = C t t + C t d := by
+    have expand : C (t + u) (t + d + n + u)
+        = C t t + C t d + ((C t n + C u n) + C u u) + ((C t u + C u t) + C u d) := by
+      simp only [map_add, AddMonoidHom.add_apply]; abel
+    rw [expand, hCn, hself, htor, comm t u, htor, comm u d, hdu, add_zero, zero_add, add_zero]
+  have hR : C t (t + d) + C (t + (t + d)) n + E = C t t + C t d + E := by
+    have expand : C t (t + d) + C (t + (t + d)) n + E
+        = C t t + C t d + (C t n + C t n) + C d n + E := by
+      simp only [map_add, AddMonoidHom.add_apply]; abel
+    rw [expand, htor, hdn, add_zero, add_zero]
+  have h : C t t + C t d + 0 = C t t + C t d + E := by
+    rw [add_zero]; exact hL.symm.trans (hdeg2.trans hR)
+  exact (add_left_cancel h).symm
+
+/-- Step 1 of the ledger: a fixing-subgroup element outside the stabilizer of the square root
+`δ` of a base element reflects it, `s • δ = −δ` (`two_values_of_fixed` leaves only `±δ`). -/
+private lemma reflection_smul_root (k : IntermediateField ℚ_[2] ℚ̄₂) {d : ↥k} {δ : ℚ̄₂}
+    (hδ : δ ^ 2 = (d : ℚ̄₂)) (s : k.fixingSubgroup)
+    (hs : s ∉ (MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf k.fixingSubgroup) :
+    (↑s : Kummer.GaloisGroup ℚ_[2]) • δ = -δ := by
+  rcases two_values_of_fixed hδ (fixingSubgroup_smul k s.2 d) with h | h
+  · exact absurd (Subgroup.mem_subgroupOf.mpr (MulAction.mem_stabilizer_iff.mpr h)) hs
+  · exact h
+
+/-- Step 2 of the ledger (paper eq. (112)): the reflection `s • δ = −δ` conjugates the
+deep-unit presentation `x + vδ = 1 + 2b` into `x − vδ = 1 + 2(s • b)`. -/
+private lemma deepUnit_conj_presentation (k : IntermediateField ℚ_[2] ℚ̄₂) {x v : ↥k}
+    {δ b : ℚ̄₂} (s : k.fixingSubgroup) (hsd : (↑s : Kummer.GaloisGroup ℚ_[2]) • δ = -δ)
+    (hA : (x : ℚ̄₂) + (v : ℚ̄₂) * δ = 1 + 2 * b) :
+    (x : ℚ̄₂) - (v : ℚ̄₂) * δ = 1 + 2 * ((↑s : Kummer.GaloisGroup ℚ_[2]) • b) := by
+  have hfx : (↑s : Kummer.GaloisGroup ℚ_[2]) • (x : ℚ̄₂) = (x : ℚ̄₂) :=
+    fixingSubgroup_smul k s.2 x
+  have hfv : (↑s : Kummer.GaloisGroup ℚ_[2]) • (v : ℚ̄₂) = (v : ℚ̄₂) :=
+    fixingSubgroup_smul k s.2 v
+  have hf1 : (↑s : Kummer.GaloisGroup ℚ_[2]) • (1 : ℚ̄₂) = 1 := by
+    rw [AlgEquiv.smul_def, map_one]
+  have hf2 : (↑s : Kummer.GaloisGroup ℚ_[2]) • (2 : ℚ̄₂) = 2 := by
+    rw [AlgEquiv.smul_def, map_ofNat]
+  have h := congrArg (fun y => (↑s : Kummer.GaloisGroup ℚ_[2]) • y) hA
+  simp only [smul_add, smul_mul', hfx, hfv, hsd, hf1, hf2] at h
+  linear_combination h
+
+/-- If `n/p` is a square in `↥k`, the Kummer classes agree: `[n] = [p]`. -/
+private lemma kummerClassK_eq_of_sq_ratio (k : IntermediateField ℚ_[2] ℚ̄₂) (n p : (↥k)ˣ)
+    {w : ↥k} (hw : w ^ 2 = (n : ↥k) * (p : ↥k)⁻¹) :
+    kummerClassK k n = kummerClassK k p := by
+  have hwne : w ≠ 0 := by
+    intro h
+    have hne : ((n : ↥k) * (p : ↥k)⁻¹) ≠ 0 :=
+      mul_ne_zero (Units.ne_zero n) (inv_ne_zero (Units.ne_zero p))
+    exact hne (by rw [← hw, h]; ring)
+  have hnp : n = p * (Units.mk0 w hwne * Units.mk0 w hwne) := by
+    apply Units.ext
+    rw [Units.val_mul, Units.val_mul, Units.val_mk0, ← pow_two, hw,
+      mul_comm ((n : ↥k)) ((p : ↥k))⁻¹, ← mul_assoc, mul_inv_cancel₀ (Units.ne_zero p), one_mul]
+  rw [hnp, kummerClassK_mul, kummerClassK_mul_self, add_zero]
+
+set_option maxHeartbeats 300000 in
+/-- Step 5 of the ledger: for `[n] = [p]` with `p = 2u − 1`, Steinberg (`(2u, 1−2u) = 0`) and
+`(2, −1) = 0` give `(2, n) + (u, n) = (u, −1)`. -/
+private lemma cup_two_add_cup_eq_cup_neg_one (k : IntermediateField ℚ_[2] ℚ̄₂)
+    [FiniteDimensional ℚ_[2] k] (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (u n p : (↥k)ˣ) (hp : (p : ↥k) = 2 * (u : ↥k) - 1)
+    (hnp : kummerClassK k n = kummerClassK k p) :
+    trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k (twoUnit k)) (kummerClassK k n)
+      + trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k u) (kummerClassK k n)
+      = trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k u)
+          (kummerClassK k (-1)) := by
+  rw [← AddMonoidHom.add_apply, ← map_add, ← kummerClassK_mul, hnp]
+  have hpsplit : kummerClassK k p = kummerClassK k (-1) + kummerClassK k (-p) := by
+    have hpp : ((-1) * (-p) : (↥k)ˣ) = p := by rw [neg_mul_neg, one_mul]
+    nth_rewrite 1 [← hpp]
+    rw [kummerClassK_mul]
+  have hstein : trivialCupPairing 2 k.fixingSubgroup htriv
+      (kummerClassK k (twoUnit k * u)) (kummerClassK k (-p)) = 0 := by
+    refine cup_steinberg k htriv (twoUnit k * u) (-p) ?_
+    rw [Units.val_neg, hp, Units.val_mul, twoUnit, Units.val_mk0, neg_sub]
+  rw [hpsplit, map_add, hstein, add_zero, kummerClassK_mul, map_add, AddMonoidHom.add_apply,
+    cup_two_neg_one k htriv, zero_add]
+
+end LedgerHelpers
+
 /-! ## Tier 4: the assembled ledger -/
 
-set_option maxHeartbeats 2400000 in
+set_option maxHeartbeats 300000 in
 /-- **The Hilbert ledger** (paper, proof of Lemma 6.16; eqs. (111)–(114)) in the B9-native
 vocabulary: for a deep unit `a = u + vδ = 1 + 2b` (`‖b‖ < 1`) over the unramified quadratic
 Kummer datum `(d, δ)`, the index-two Evens norm of its Kummer cocycle vanishes.
@@ -456,29 +610,17 @@ theorem evensNorm_deepUnit_vanish
     evensNormH2 htriv hUo hidx hs α hα hαc = 0 := by
   set s' : Kummer.GaloisGroup ℚ_[2] := (↑s : Kummer.GaloisGroup ℚ_[2]) with hs'def
   -- Step 1: the reflection `s` sends `δ ↦ −δ` (it is not in the stabilizer of `δ`).
-  have hsd : s' • δ = -δ := by
-    rcases two_values_of_fixed hδ (fixingSubgroup_smul k s.2 (d : ↥k)) with h | h
-    · exact absurd (Subgroup.mem_subgroupOf.mpr (MulAction.mem_stabilizer_iff.mpr h)) hs
-    · exact h
-  -- `s'` fixes the base field `k`, and numerals.
-  have hfu : s' • ((u : ↥k) : ℚ̄₂) = ((u : ↥k) : ℚ̄₂) := fixingSubgroup_smul k s.2 (u : ↥k)
-  have hfv : s' • (v : ℚ̄₂) = (v : ℚ̄₂) := fixingSubgroup_smul k s.2 v
-  have hf1 : s' • (1 : ℚ̄₂) = 1 := by rw [AlgEquiv.smul_def, map_one]
-  have hf2 : s' • (2 : ℚ̄₂) = 2 := by rw [AlgEquiv.smul_def, map_ofNat]
+  have hsd : s' • δ = -δ := reflection_smul_root k hδ s hs
   -- Step 2 (112): the `s`-image of `hA`, and the resulting `u`, `n` identities in `ℚ̄₂`.
-  have hArev : ((u : ↥k) : ℚ̄₂) - (v : ℚ̄₂) * δ = 1 + 2 * (s' • b) := by
-    have h := congrArg (fun x => s' • x) hA
-    simp only [smul_add, smul_mul', hfu, hfv, hsd, hf1, hf2] at h
-    linear_combination h
+  have hArev : ((u : ↥k) : ℚ̄₂) - (v : ℚ̄₂) * δ = 1 + 2 * (s' • b) :=
+    deepUnit_conj_presentation k s hsd hA
   have hueq : ((u : ↥k) : ℚ̄₂) = 1 + (b + s' • b) := by
     linear_combination (hA + hArev) / 2
+  have hsb : ‖s' • b‖ < 1 := by rw [norm_galois]; exact hb
   have hu1 : ‖((u : ↥k) : ℚ̄₂)‖ = 1 := by
-    have hbb : ‖b + s' • b‖ < 1 := by
-      refine lt_of_le_of_lt (IsUltrametricDist.norm_add_le_max _ _) ?_
-      rw [norm_galois]; exact max_lt hb hb
-    rw [hueq, add_comm 1 (b + s' • b),
-      IsUltrametricDist.norm_add_eq_max_of_norm_ne_norm (by rw [norm_one]; exact ne_of_lt hbb),
-      norm_one, max_eq_right (le_of_lt hbb)]
+    refine norm_eq_one_of_norm_sub_one_lt ?_
+    rw [hueq, add_sub_cancel_left]
+    exact lt_of_le_of_lt (IsUltrametricDist.norm_add_le_max _ _) (max_lt hb hsb)
   have hnc : ((n : ↥k) : ℚ̄₂) = ((u : ↥k) : ℚ̄₂) ^ 2 - ((d : ↥k) : ℚ̄₂) * (v : ℚ̄₂) ^ 2 := by
     rw [hn]; push_cast; ring
   have hneq : ((n : ↥k) : ℚ̄₂) = (1 + 2 * b) * (1 + 2 * (s' • b)) := by
@@ -495,28 +637,13 @@ theorem evensNorm_deepUnit_vanish
         = kummerClassK k (twoUnit k * d) + kummerClassK k n + kummerClassK k u := by
       rw [kummerClassK_mul, kummerClassK_mul, kummerClassK_inv]
     rw [kummerClassK_mul k (twoUnit k) u, e2] at hdeg1
-    have hcancel :
-        kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d) + kummerClassK k n
-        = kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d)
-          + corH1 htriv hUo hidx hs α hα hαc := by
-      rw [← hdeg1,
-        show kummerClassK k (twoUnit k) + kummerClassK k u
-            + (kummerClassK k (twoUnit k * d) + kummerClassK k n + kummerClassK k u)
-          = kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d) + kummerClassK k n
-            + (kummerClassK k u + kummerClassK k u) by abel,
-        h1_add_self, add_zero]
-    exact (add_left_cancel hcancel).symm
+    exact add_add_cancel_of_two_torsion h1_add_self hdeg1
   -- Step 5 prep: `[n] = [2u−1]`, since `n/(2u−1)` is a Hensel square.
-  have h2lt1 : ‖(2 : ℚ̄₂)‖ < 1 := by
-    rw [show (2 : ℚ̄₂) = algebraMap ℚ_[2] ℚ̄₂ 2 from (map_ofNat _ 2).symm,
-      norm_algebraMap' (𝕜' := ℚ̄₂) (2 : ℚ_[2])]
-    exact Padic.norm_p_lt_one
-  have h2u : ‖2 * ((u : ↥k) : ℚ̄₂)‖ < 1 := by rw [norm_mul, hu1, mul_one]; exact h2lt1
   have h2unorm : ‖2 * ((u : ↥k) : ℚ̄₂) - 1‖ = 1 := by
-    rw [show 2 * ((u : ↥k) : ℚ̄₂) - 1 = -(1 + -(2 * ((u : ↥k) : ℚ̄₂))) by ring, norm_neg,
-      IsUltrametricDist.norm_add_eq_max_of_norm_ne_norm
-        (by rw [norm_one, norm_neg]; exact (ne_of_lt h2u).symm),
-      norm_one, norm_neg, max_eq_left (le_of_lt h2u)]
+    rw [norm_sub_rev]
+    refine norm_eq_one_of_norm_sub_one_lt ?_
+    rw [sub_sub_cancel_left, norm_neg, norm_mul, hu1, mul_one]
+    exact norm_two_lt_one'
   have hpne : (2 * (u : ↥k) - 1 : ↥k) ≠ 0 := by
     intro h
     have hz0 : ‖2 * ((u : ↥k) : ℚ̄₂) - 1‖ = 0 := by
@@ -526,90 +653,25 @@ theorem evensNorm_deepUnit_vanish
   set p : (↥k)ˣ := Units.mk0 (2 * (u : ↥k) - 1) hpne with hpdef
   have hpv : ((p : ↥k) : ℚ̄₂) = 2 * ((u : ↥k) : ℚ̄₂) - 1 := by
     rw [hpdef, Units.val_mk0]; norm_cast
-  have hpne' : (2 * ((u : ↥k) : ℚ̄₂) - 1) ≠ 0 :=
-    norm_ne_zero_iff.mp (by rw [h2unorm]; exact one_ne_zero)
-  have hnum : ((n : ↥k) : ℚ̄₂) - (2 * ((u : ↥k) : ℚ̄₂) - 1) = 4 * b * (s' • b) := by
-    rw [hneq, hueq]; ring
   have hzbound : ‖(((n : ↥k) * (p : ↥k)⁻¹ : ↥k) : ℚ̄₂) - 1‖ < ‖(4 : ℚ̄₂)‖ := by
     rw [show (((n : ↥k) * (p : ↥k)⁻¹ : ↥k) : ℚ̄₂)
-        = ((n : ↥k) : ℚ̄₂) * ((p : ↥k) : ℚ̄₂)⁻¹ by push_cast; ring, hpv,
-      show ((n : ↥k) : ℚ̄₂) * (2 * ((u : ↥k) : ℚ̄₂) - 1)⁻¹ - 1
-        = (((n : ↥k) : ℚ̄₂) - (2 * ((u : ↥k) : ℚ̄₂) - 1)) * (2 * ((u : ↥k) : ℚ̄₂) - 1)⁻¹ by
-          field_simp,
-      hnum, norm_mul, norm_inv, h2unorm, inv_one, mul_one, norm_mul, norm_mul, norm_galois]
-    have h4pos : (0 : ℝ) < ‖(4 : ℚ̄₂)‖ := by rw [norm_pos_iff]; norm_num
-    have hbb : ‖b‖ * ‖b‖ < 1 := by nlinarith [norm_nonneg b, hb]
-    calc ‖(4 : ℚ̄₂)‖ * ‖b‖ * ‖b‖ = ‖(4 : ℚ̄₂)‖ * (‖b‖ * ‖b‖) := by ring
-      _ < ‖(4 : ℚ̄₂)‖ * 1 := mul_lt_mul_of_pos_left hbb h4pos
-      _ = ‖(4 : ℚ̄₂)‖ := mul_one _
+        = ((n : ↥k) : ℚ̄₂) * ((p : ↥k) : ℚ̄₂)⁻¹ by push_cast; ring, hpv]
+    exact ratio_sub_one_norm_lt hb hsb hneq hueq
   obtain ⟨w, hw⟩ := sq_of_near_one k ((n : ↥k) * (p : ↥k)⁻¹) hzbound
-  have hwne : w ≠ 0 := by
-    intro h
-    have : ((n : ↥k) * (p : ↥k)⁻¹) ≠ 0 := mul_ne_zero (Units.ne_zero n) (inv_ne_zero (Units.ne_zero p))
-    apply this; rw [← hw, h]; ring
-  set wU : (↥k)ˣ := Units.mk0 w hwne with hwUdef
-  have hnp : n = p * (wU * wU) := by
-    apply Units.ext
-    have hwv : (wU : ↥k) = w := by rw [hwUdef, Units.val_mk0]
-    rw [Units.val_mul, Units.val_mul, hwv, ← pow_two, hw,
-      mul_comm ((n : ↥k)) ((p : ↥k))⁻¹, ← mul_assoc, mul_inv_cancel₀ (Units.ne_zero p), one_mul]
-  have hn2u1 : kummerClassK k n = kummerClassK k p := by
-    rw [hnp, kummerClassK_mul, kummerClassK_mul_self, add_zero]
+  have hn2u1 : kummerClassK k n = kummerClassK k p := kummerClassK_eq_of_sq_ratio k n p hw
   -- Steps 4–5: the degree-2 cup algebra collapses `N^{Ev}` to `0`.
   set C := trivialCupPairing 2 k.fixingSubgroup htriv with hCdef
-  have hv_du : C (kummerClassK k d) (kummerClassK k u) = 0 :=
-    cup_unramified_unit k htriv d δ hδ hunram u hu1
-  have hv_dn : C (kummerClassK k d) (kummerClassK k n) = 0 :=
-    cup_of_normForm k htriv d n (u : ↥k) v hn
-  have hv_2m : C (kummerClassK k (twoUnit k)) (kummerClassK k (-1)) = 0 :=
-    cup_two_neg_one k htriv
-  have h2u : kummerClassK k (twoUnit k * u) = kummerClassK k (twoUnit k) + kummerClassK k u :=
-    kummerClassK_mul k (twoUnit k) u
-  have h2d : kummerClassK k (twoUnit k * d) = kummerClassK k (twoUnit k) + kummerClassK k d :=
-    kummerClassK_mul k (twoUnit k) d
+  have hCn : C (kummerClassK k (twoUnit k)) (kummerClassK k n)
+      + C (kummerClassK k u) (kummerClassK k n) = C (kummerClassK k u) (kummerClassK k (-1)) :=
+    cup_two_add_cup_eq_cup_neg_one k htriv u n p (by rw [hpdef, Units.val_mk0]) hn2u1
   have h2dnu : kummerClassK k (twoUnit k * d * n * u⁻¹)
       = kummerClassK k (twoUnit k) + kummerClassK k d + kummerClassK k n + kummerClassK k u := by
     rw [kummerClassK_mul, kummerClassK_mul, kummerClassK_mul, kummerClassK_inv]
-  have h2p2d : kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d) = kummerClassK k d := by
-    rw [h2d, ← add_assoc, h1_add_self, zero_add]
-  -- Step 5: `[2]∪[n] + [u]∪[n] = [u]∪[−1]` (Hensel `[n]=[2u−1]` + Steinberg).
-  have hCn : C (kummerClassK k (twoUnit k)) (kummerClassK k n)
-      + C (kummerClassK k u) (kummerClassK k n) = C (kummerClassK k u) (kummerClassK k (-1)) := by
-    rw [← AddMonoidHom.add_apply, ← map_add, ← h2u, hn2u1]
-    have hpsplit : kummerClassK k p = kummerClassK k (-1) + kummerClassK k (-p) := by
-      have hpp : ((-1) * (-p) : (↥k)ˣ) = p := by rw [neg_mul_neg, one_mul]
-      nth_rewrite 1 [← hpp]
-      rw [kummerClassK_mul]
-    have hstein : C (kummerClassK k (twoUnit k * u)) (kummerClassK k (-p)) = 0 := by
-      refine cup_steinberg k htriv (twoUnit k * u) (-p) ?_
-      rw [Units.val_neg, hpdef, Units.val_mk0, Units.val_mul, twoUnit, Units.val_mk0]; ring
-    rw [hpsplit, map_add, hstein, add_zero, h2u, map_add, AddMonoidHom.add_apply, hv_2m, zero_add]
-  rw [hcor, h2p2d, hv_dn, add_zero, h2u, h2dnu, h2d] at hdeg2
-  simp only [map_add, AddMonoidHom.add_apply] at hdeg2
-  rw [trivialCupPairing_comm htriv (kummerClassK k u) (kummerClassK k d), hv_du,
-    cup_self_eq_neg_one k htriv u,
-    trivialCupPairing_comm htriv (kummerClassK k (twoUnit k)) (kummerClassK k u),
-    ← hCdef, hCn, add_zero,
-    show (C (kummerClassK k (twoUnit k))) (kummerClassK k (twoUnit k))
-        + (C (kummerClassK k u)) (kummerClassK k (twoUnit k))
-        + (C (kummerClassK k (twoUnit k))) (kummerClassK k d)
-        + (C (kummerClassK k u)) (kummerClassK k (-1))
-        + ((C (kummerClassK k u)) (kummerClassK k (twoUnit k))
-          + (C (kummerClassK k u)) (kummerClassK k (-1)))
-      = (C (kummerClassK k (twoUnit k))) (kummerClassK k (twoUnit k))
-          + (C (kummerClassK k (twoUnit k))) (kummerClassK k d)
-        + ((C (kummerClassK k u)) (kummerClassK k (twoUnit k))
-          + (C (kummerClassK k u)) (kummerClassK k (twoUnit k)))
-        + ((C (kummerClassK k u)) (kummerClassK k (-1))
-          + (C (kummerClassK k u)) (kummerClassK k (-1))) from by abel,
-    h2_add_self, h2_add_self, add_zero, add_zero] at hdeg2
-  have hfin : ((C (kummerClassK k (twoUnit k))) (kummerClassK k (twoUnit k))
-        + (C (kummerClassK k (twoUnit k))) (kummerClassK k d))
-      + evensNormH2 htriv hUo hidx hs α hα hαc
-      = ((C (kummerClassK k (twoUnit k))) (kummerClassK k (twoUnit k))
-        + (C (kummerClassK k (twoUnit k))) (kummerClassK k d)) + 0 := by
-    rw [add_zero]; exact hdeg2.symm
-  exact add_left_cancel hfin
+  rw [kummerClassK_mul k (twoUnit k) u, h2dnu, kummerClassK_mul k (twoUnit k) d, hcor] at hdeg2
+  exact ledger_collapse C h2_add_self (trivialCupPairing_comm htriv)
+    (cup_unramified_unit k htriv d δ hδ hunram u hu1)
+    (cup_of_normForm k htriv d n (u : ↥k) v hn)
+    (cup_self_eq_neg_one k htriv u) hCn hdeg2
 
 /-! ## Tier 5: the eq.-(94) deep-unit orthogonality  (P-15f1/P-15f2 shared leaf — NO new axiom)
 

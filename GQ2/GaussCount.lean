@@ -489,7 +489,544 @@ private theorem omega_expand {W : Type*} [AddCommGroup W] (ω : W →+ W →+ ZM
 
 universe u
 
-set_option maxHeartbeats 800000 in
+/-- **Isotropic descent (×4)**: on a finite exponent-2 group `H` with a functional `ψ` and a
+vector `b` (`ψ b = 1`) that is `ωH`-orthogonal to itself and to all of `C = ker ψ`, the Wall
+count of `ωH` on `H` is `4 ·` the Wall count of the restriction `ωC` to `C`.  (The `⟨b⟩`- and
+`ψ`-coordinates are invisible to the summand, so the count is `#(ZMod 2)² = 4` copies of the
+count on `C`.) -/
+private theorem wall_count_descent {H : Type u} [AddCommGroup H] [Fintype H]
+    (h2H : ∀ h : H, h + h = 0) (ωH : H →+ H →+ ZMod 2) (ψ : H →+ ZMod 2) [Fintype ↥ψ.ker]
+    (b : H) (hψb : ψ b = 1) (hbb : ωH b b = 0)
+    (hbc : ∀ c : ↥ψ.ker, ωH b ↑c = 0) (hcb : ∀ c : ↥ψ.ker, ωH ↑c b = 0)
+    (ωC : ↥ψ.ker →+ ↥ψ.ker →+ ZMod 2) (hωC : ∀ c c' : ↥ψ.ker, ωC c c' = ωH ↑c ↑c')
+    {k'' : ℕ} (hIH : (∑ c : ↥ψ.ker, ∑ c₂ : ↥ψ.ker, sign (ωC c c + ωC c₂ c₂ + ωC c c₂))
+      = (-2 : ℤ) ^ k'') :
+    (∑ h : H, ∑ h₂ : H, sign (ωH h h + ωH h₂ h₂ + ωH h h₂)) = (4 : ℤ) * (-2) ^ k'' := by
+  set eH : ZMod 2 × ↥ψ.ker ≃ H := splitEquiv h2H ψ b hψb with heHdef
+  have heH2 : ∀ (y : ZMod 2) (c : ↥ψ.ker), eH (y, c) = y.val • b + ↑c := fun _ _ => rfl
+  have hEH : ∀ (y y₂ : ZMod 2) (c c₂ : ↥ψ.ker),
+      (ωH (eH (y, c)) (eH (y, c)) + ωH (eH (y₂, c₂)) (eH (y₂, c₂))
+        + ωH (eH (y, c)) (eH (y₂, c₂)))
+      = ωC c c + ωC c₂ c₂ + ωC c c₂ := by
+    intro y y₂ c c₂
+    simp only [heH2, omega_expand, hbb, hbc, hcb, hωC, mul_zero, add_zero, zero_add]
+  calc (∑ h : H, ∑ h₂ : H, sign (ωH h h + ωH h₂ h₂ + ωH h h₂))
+      = ∑ q : (ZMod 2 × ↥ψ.ker) × (ZMod 2 × ↥ψ.ker),
+          sign (ωH (eH q.1) (eH q.1) + ωH (eH q.2) (eH q.2) + ωH (eH q.1) (eH q.2)) := by
+        rw [← Fintype.sum_prod_type']
+        exact (Equiv.sum_comp (eH.prodCongr eH) fun p : H × H =>
+          sign (ωH p.1 p.1 + ωH p.2 p.2 + ωH p.1 p.2)).symm
+    _ = ∑ r : (ZMod 2 × ZMod 2) × (↥ψ.ker × ↥ψ.ker),
+          sign (ωC r.2.1 r.2.1 + ωC r.2.2 r.2.2 + ωC r.2.1 r.2.2) := by
+        rw [← Equiv.sum_comp (Equiv.prodProdProdComm (ZMod 2) ↥ψ.ker (ZMod 2) ↥ψ.ker).symm]
+        refine Finset.sum_congr rfl fun r _ => ?_
+        obtain ⟨⟨y, y₂⟩, c, c₂⟩ := r
+        exact congrArg sign (hEH y y₂ c c₂)
+    _ = ∑ _pyy : ZMod 2 × ZMod 2, ∑ pcc : ↥ψ.ker × ↥ψ.ker,
+          sign (ωC pcc.1 pcc.1 + ωC pcc.2 pcc.2 + ωC pcc.1 pcc.2) := by
+        rw [Fintype.sum_prod_type]
+    _ = (4 : ℤ) * (-2) ^ k'' := by
+        rw [Finset.sum_const, show (Finset.univ : Finset (ZMod 2 × ZMod 2)).card = 4
+          from by decide, nsmul_eq_mul]
+        rw [show (∑ pcc : ↥ψ.ker × ↥ψ.ker,
+              sign (ωC pcc.1 pcc.1 + ωC pcc.2 pcc.2 + ωC pcc.1 pcc.2))
+            = (-2 : ℤ) ^ k'' from by rw [Fintype.sum_prod_type]; exact hIH]
+        norm_num
+
+/-- Assembly of the isotropic case: reindexing the count on `W ≃ ZMod 2 × ker (ω a)` along `t₀`,
+the `t₀`-odd blocks cancel (`hsh2`, `hsh1`), the surviving diagonal block is the kernel-level
+count (`hE00`), which descends to `4 · (-2)^k''` (`hDH`), giving `(-2)^(k''+2)`. -/
+private theorem wall_count_isotropic_assemble {W : Type u} [AddCommGroup W] [Fintype W]
+    (ω : W →+ W →+ ZMod 2) (a : W) (hAmem : a ∈ (ω a).ker) [Fintype ↥(ω a).ker]
+    (ωH : ↥(ω a).ker →+ ↥(ω a).ker →+ ZMod 2) (eT : ZMod 2 × ↥(ω a).ker ≃ W) {k'' : ℕ}
+    (hsh2 : ∀ (x y : ZMod 2) (h h₂ : ↥(ω a).ker),
+      (ω (eT (x, h)) (eT (x, h)) + ω (eT (y, h₂ + ⟨a, hAmem⟩)) (eT (y, h₂ + ⟨a, hAmem⟩))
+        + ω (eT (x, h)) (eT (y, h₂ + ⟨a, hAmem⟩)))
+      = (ω (eT (x, h)) (eT (x, h)) + ω (eT (y, h₂)) (eT (y, h₂))
+        + ω (eT (x, h)) (eT (y, h₂))) + x)
+    (hsh1 : ∀ (x y : ZMod 2) (h h₂ : ↥(ω a).ker),
+      (ω (eT (x, h + ⟨a, hAmem⟩)) (eT (x, h + ⟨a, hAmem⟩)) + ω (eT (y, h₂)) (eT (y, h₂))
+        + ω (eT (x, h + ⟨a, hAmem⟩)) (eT (y, h₂)))
+      = (ω (eT (x, h)) (eT (x, h)) + ω (eT (y, h₂)) (eT (y, h₂))
+        + ω (eT (x, h)) (eT (y, h₂))) + y)
+    (hE00 : ∀ h h₂ : ↥(ω a).ker,
+      (ω (eT (0, h)) (eT (0, h)) + ω (eT (0, h₂)) (eT (0, h₂))
+        + ω (eT (0, h)) (eT (0, h₂)))
+      = ωH h h + ωH h₂ h₂ + ωH h h₂)
+    (hDH : (∑ h : ↥(ω a).ker, ∑ h₂ : ↥(ω a).ker,
+        sign (ωH h h + ωH h₂ h₂ + ωH h h₂)) = (4 : ℤ) * (-2) ^ k'') :
+    (∑ t : W, ∑ u : W, sign (ω t t + ω u u + ω t u)) = (-2 : ℤ) ^ (k'' + 2) := by
+  calc (∑ t : W, ∑ u : W, sign (ω t t + ω u u + ω t u))
+      = ∑ q : (ZMod 2 × ↥(ω a).ker) × (ZMod 2 × ↥(ω a).ker),
+          sign (ω (eT q.1) (eT q.1) + ω (eT q.2) (eT q.2) + ω (eT q.1) (eT q.2)) := by
+        rw [← Fintype.sum_prod_type']
+        exact (Equiv.sum_comp (eT.prodCongr eT) fun p : W × W =>
+          sign (ω p.1 p.1 + ω p.2 p.2 + ω p.1 p.2)).symm
+    _ = ∑ x : ZMod 2, ∑ h : ↥(ω a).ker, ∑ p2 : ZMod 2 × ↥(ω a).ker,
+          sign (ω (eT (x, h)) (eT (x, h)) + ω (eT p2) (eT p2) + ω (eT (x, h)) (eT p2)) := by
+        rw [Fintype.sum_prod_type, Fintype.sum_prod_type]
+    _ = (-2 : ℤ) ^ (k'' + 2) := by
+        rw [show (Finset.univ : Finset (ZMod 2)) = {0, 1} from by decide,
+          Finset.sum_insert (by decide), Finset.sum_singleton]
+        -- the `x = 1` half vanishes: shift the inner kernel index by `a`
+        rw [show (∑ h : ↥(ω a).ker, ∑ p2 : ZMod 2 × ↥(ω a).ker,
+              sign (ω (eT (1, h)) (eT (1, h)) + ω (eT p2) (eT p2)
+                + ω (eT (1, h)) (eT p2))) = 0 from
+          Finset.sum_eq_zero fun h _ => by
+            rw [Fintype.sum_prod_type]
+            refine Finset.sum_eq_zero fun y _ => ?_
+            exact sum_sign_shift_eq_zero _ ⟨a, hAmem⟩ fun h₂ => hsh2 1 y h h₂]
+        rw [add_zero]
+        -- in the `x = 0` half, split the second `t₀`-coordinate
+        rw [show (∑ h : ↥(ω a).ker, ∑ p2 : ZMod 2 × ↥(ω a).ker,
+              sign (ω (eT (0, h)) (eT (0, h)) + ω (eT p2) (eT p2)
+                + ω (eT (0, h)) (eT p2)))
+            = ∑ h : ↥(ω a).ker,
+                ((∑ h₂ : ↥(ω a).ker,
+                  sign (ω (eT (0, h)) (eT (0, h)) + ω (eT (0, h₂)) (eT (0, h₂))
+                    + ω (eT (0, h)) (eT (0, h₂))))
+                + (∑ h₂ : ↥(ω a).ker,
+                  sign (ω (eT (0, h)) (eT (0, h)) + ω (eT (1, h₂)) (eT (1, h₂))
+                    + ω (eT (0, h)) (eT (1, h₂))))) from
+          Finset.sum_congr rfl fun h _ => by
+            rw [Fintype.sum_prod_type,
+              show (Finset.univ : Finset (ZMod 2)) = {0, 1} from by decide,
+              Finset.sum_insert (by decide), Finset.sum_singleton]]
+        rw [Finset.sum_add_distrib]
+        -- the `y = 1` half vanishes: shift the outer kernel index by `a`
+        rw [show (∑ h : ↥(ω a).ker, ∑ h₂ : ↥(ω a).ker,
+              sign (ω (eT (0, h)) (eT (0, h)) + ω (eT (1, h₂)) (eT (1, h₂))
+                + ω (eT (0, h)) (eT (1, h₂)))) = 0 from
+          sum_neg_shift_eq_zero _ ⟨a, hAmem⟩ fun h => by
+            rw [← Finset.sum_neg_distrib]
+            exact Finset.sum_congr rfl fun h₂ _ => by
+              rw [hsh1 0 1 h h₂, zmod2_sign_add_one]]
+        rw [add_zero]
+        -- the surviving block is the kernel count; descend and finish
+        rw [show (∑ h : ↥(ω a).ker, ∑ h₂ : ↥(ω a).ker,
+              sign (ω (eT (0, h)) (eT (0, h)) + ω (eT (0, h₂)) (eT (0, h₂))
+                + ω (eT (0, h)) (eT (0, h₂))))
+            = ∑ h : ↥(ω a).ker, ∑ h₂ : ↥(ω a).ker,
+                sign (ωH h h + ωH h₂ h₂ + ωH h h₂) from
+          Finset.sum_congr rfl fun h _ => Finset.sum_congr rfl fun h₂ _ =>
+            congrArg sign (hE00 h h₂)]
+        rw [hDH]
+        ring
+
+/-- The **corrected monodromy** on `C = ker ψH`: from the monodromy `MH` on `H = ker (ω a)`
+fixing `⟨a, ·⟩`, the map `c ↦ MH c + ψH(MH c) • a` is an automorphism of `C` that is again a
+`2`-power-order monodromy for the restricted form `ωC` (`ωC t u = ωC u (MC t)`). -/
+private theorem wall_count_corrected_monodromy {W : Type u} [AddCommGroup W]
+    (ω : W →+ W →+ ZMod 2) (M : W ≃+ W) (hM : ∀ t u : W, ω t u = ω u (M t))
+    (a : W) (hAmem : a ∈ (ω a).ker) (hMa : M a = a) [Fintype ↥(ω a).ker]
+    (h2H : ∀ h : ↥(ω a).ker, h + h = 0)
+    (MH : ↥(ω a).ker ≃+ ↥(ω a).ker) (hMHapp : ∀ h : ↥(ω a).ker, ↑(MH h) = M ↑h)
+    {m : ℕ} (hMH2m : (⇑MH)^[2 ^ m] = id)
+    (ψH : ↥(ω a).ker →+ ZMod 2) (hψA : ψH ⟨a, hAmem⟩ = 1)
+    (ωC : ↥ψH.ker →+ ↥ψH.ker →+ ZMod 2) (hωC : ∀ t u : ↥ψH.ker, ωC t u = ω ↑↑t ↑↑u)
+    (hcmem'' : ∀ c : ↥ψH.ker, ω ↑↑c a = 0) :
+    ∃ MC : ↥ψH.ker ≃+ ↥ψH.ker,
+      (∀ t u : ↥ψH.ker, ωC t u = ωC u (MC t)) ∧ ∃ m' : ℕ, (⇑MC)^[2 ^ m'] = id := by
+  have hMAfix : MH ⟨a, hAmem⟩ = ⟨a, hAmem⟩ := Subtype.ext (by rw [hMHapp]; exact hMa)
+  have hMCmem : ∀ c : ↥ψH.ker,
+      MH ↑c + (ψH (MH ↑c)).val • ⟨a, hAmem⟩ ∈ ψH.ker := by
+    intro c
+    rw [AddMonoidHom.mem_ker, map_add, map_nsmul, hψA]
+    exact zmod2_self_add_val_smul_one _
+  let MC0 : ↥ψH.ker →+ ↥ψH.ker :=
+    AddMonoidHom.mk' (fun c => ⟨MH ↑c + (ψH (MH ↑c)).val • ⟨a, hAmem⟩, hMCmem c⟩) (by
+      intro c c'
+      refine Subtype.ext ?_
+      show MH ↑(c + c') + (ψH (MH ↑(c + c'))).val • _ = _
+      rw [AddSubgroup.coe_add, map_add, map_add, zmod2_val_add_smul h2H]
+      show _ = (MH ↑c + (ψH (MH ↑c)).val • ⟨a, hAmem⟩)
+        + (MH ↑c' + (ψH (MH ↑c')).val • ⟨a, hAmem⟩)
+      abel)
+  have hMCapp : ∀ c : ↥ψH.ker, (↑(MC0 c) : ↥(ω a).ker)
+      = MH ↑c + (ψH (MH ↑c)).val • ⟨a, hAmem⟩ := fun _ => rfl
+  have hMC0inj : Function.Injective MC0 := by
+    intro c c' hcc
+    have hval : MH ↑c + (ψH (MH ↑c)).val • (⟨a, hAmem⟩ : ↥(ω a).ker)
+        = MH ↑c' + (ψH (MH ↑c')).val • ⟨a, hAmem⟩ := congrArg Subtype.val hcc
+    have hd : MH (↑c + ↑c') = (ψH (MH ↑c) + ψH (MH ↑c')).val • ⟨a, hAmem⟩ := by
+      have h0 : (MH ↑c + (ψH (MH ↑c)).val • (⟨a, hAmem⟩ : ↥(ω a).ker))
+          + (MH ↑c' + (ψH (MH ↑c')).val • ⟨a, hAmem⟩)
+          = MH (↑c + ↑c') + (ψH (MH ↑c) + ψH (MH ↑c')).val • ⟨a, hAmem⟩ := by
+        rw [map_add, zmod2_val_add_smul h2H]
+        abel
+      rw [hval, h2H] at h0
+      have h1 := congrArg
+        (· + (ψH (MH ↑c) + ψH (MH ↑c')).val • (⟨a, hAmem⟩ : ↥(ω a).ker)) h0.symm
+      simpa [add_assoc, h2H] using h1
+    rcases ZMod.eq_zero_or_eq_one (ψH (MH ↑c) + ψH (MH ↑c')) with hε | hε
+    · rw [hε, ZMod.val_zero, zero_nsmul] at hd
+      have h0 : (↑c : ↥(ω a).ker) + ↑c' = 0 := by
+        apply MH.injective
+        rw [hd, map_zero]
+      have h1 := congrArg (· + (↑c' : ↥(ω a).ker)) h0
+      refine Subtype.ext ?_
+      simpa [add_assoc, h2H] using h1
+    · rw [hε, ZMod.val_one, one_nsmul] at hd
+      have h0 : (↑c : ↥(ω a).ker) + ↑c' = ⟨a, hAmem⟩ := by
+        apply MH.injective
+        rw [hd, hMAfix]
+      have h1 : ψH (↑c + ↑c') = 1 := by rw [h0]; exact hψA
+      rw [map_add, AddMonoidHom.mem_ker.mp c.2, AddMonoidHom.mem_ker.mp c'.2,
+        add_zero] at h1
+      exact absurd h1 (by decide)
+  let MC : ↥ψH.ker ≃+ ↥ψH.ker :=
+    AddEquiv.ofBijective MC0 ⟨hMC0inj, Finite.injective_iff_surjective.mp hMC0inj⟩
+  have hMCapp' : ∀ c : ↥ψH.ker, (↑(MC c) : ↥(ω a).ker)
+      = MH ↑c + (ψH (MH ↑c)).val • ⟨a, hAmem⟩ := fun _ => rfl
+  -- monodromy identity on `C`
+  have hMCrest : ∀ t u : ↥ψH.ker, ωC t u = ωC u (MC t) := by
+    intro t u
+    rw [hωC, hωC]
+    have hcoe : ((↑↑(MC t) : ↥(ω a).ker) : W) = M ↑↑t + (ψH (MH ↑t)).val • a := by
+      rw [hMCapp']
+      push_cast
+      rw [hMHapp]
+    rw [hcoe, map_add, map_nsmul, zmod2_val_smul, hcmem'' u, mul_zero, add_zero]
+    exact hM ↑↑t ↑↑u
+  -- 2-power order on `C`
+  have hMC2 : ∃ m' : ℕ, (⇑MC)^[2 ^ m'] = id := by
+    refine ⟨m, ?_⟩
+    have hiter : ∀ (i : ℕ) (c : ↥ψH.ker),
+        (↑((⇑MC)^[i] c) : ↥(ω a).ker)
+          = (⇑MH)^[i] ↑c + (ψH ((⇑MH)^[i] ↑c)).val • ⟨a, hAmem⟩ := by
+      intro i
+      induction i with
+      | zero =>
+        intro c
+        show (↑c : ↥(ω a).ker) = ↑c + (ψH ↑c).val • ⟨a, hAmem⟩
+        rw [AddMonoidHom.mem_ker.mp c.2, ZMod.val_zero, zero_nsmul, add_zero]
+      | succ i ihi =>
+        intro c
+        rw [Function.iterate_succ_apply', Function.iterate_succ_apply']
+        rw [hMCapp' ((⇑MC)^[i] c), ihi c]
+        rw [map_add, map_nsmul, hMAfix]
+        rw [show ψH (MH ((⇑MH)^[i] ↑c) + (ψH ((⇑MH)^[i] ↑c)).val • ⟨a, hAmem⟩)
+              = ψH (MH ((⇑MH)^[i] ↑c)) + ψH ((⇑MH)^[i] ↑c) from by
+            rw [map_add, map_nsmul, hψA, zmod2_val_smul, mul_one]]
+        rw [zmod2_val_add_smul h2H]
+        rw [show ∀ X Y Z : ↥(ω a).ker, (X + Y) + (Z + Y) = (X + Z) + (Y + Y) from
+          fun X Y Z => by abel, h2H, add_zero]
+    funext c
+    refine Subtype.ext ?_
+    rw [hiter, hMH2m]
+    show (↑c : ↥(ω a).ker) + (ψH ↑c).val • ⟨a, hAmem⟩ = ↑c
+    rw [AddMonoidHom.mem_ker.mp c.2, ZMod.val_zero, zero_nsmul, add_zero]
+  exact ⟨MC, hMCrest, hMC2⟩
+
+/-- Inductive step of `wall_count_aux`, **isotropic case** `ω a a = 0`.  Choosing `t₀` with
+`ω t₀ a = 1` and splitting `W` along `t₀`, shifting the inner index by `a` changes the
+exponent by exactly the outer `t₀`-coordinate, so every block with a `t₀`-component cancels;
+on the surviving `ker (ω a)²` block the `⟨a⟩`-coordinates are invisible, giving `4 ·` the count
+on `C = ker ψ` (`ψ = ω t₀` restricted, monodromy `M` corrected by an `a`-component). -/
+private theorem wall_count_aux_isotropic {n : ℕ}
+    (ih : ∀ (W : Type u) [AddCommGroup W] [Fintype W],
+      (∀ w : W, w + w = 0) → ∀ (ω : W →+ W →+ ZMod 2) (M : W ≃+ W),
+        (∀ t u : W, ω t u = ω u (M t)) → (∃ m : ℕ, (⇑M)^[2 ^ m] = id) →
+        (∀ u : W, (∀ t : W, ω t u = 0) → u = 0) →
+        ∀ k : ℕ, Nat.card W = 2 ^ k → Fintype.card W ≤ n →
+        (∑ t : W, ∑ u : W, sign (ω t t + ω u u + ω t u)) = (-2 : ℤ) ^ k)
+    (W : Type u) [AddCommGroup W] [Fintype W]
+    (h2 : ∀ w : W, w + w = 0) (ω : W →+ W →+ ZMod 2) (M : W ≃+ W)
+    (hM : ∀ t u : W, ω t u = ω u (M t)) (hM2 : ∃ m : ℕ, (⇑M)^[2 ^ m] = id)
+    (hnd : ∀ u : W, (∀ t : W, ω t u = 0) → u = 0)
+    (k : ℕ) (hk : Nat.card W = 2 ^ k) (hn : Fintype.card W ≤ n + 1)
+    (a : W) (ha0 : a ≠ 0) (hMa : M a = a) (haa : ω a a = 0) :
+    (∑ t : W, ∑ u : W, sign (ω t t + ω u u + ω t u)) = (-2 : ℤ) ^ k := by
+  obtain ⟨m, hm⟩ := hM2
+  -- the row and column functionals of the `M`-fixed vector agree
+  have hacol : ∀ u : W, ω a u = ω u a := fun u => by rw [hM a u, hMa]
+  -- `M` preserves `ker (ω a)`
+  have hMker : ∀ u : W, ω a u = 0 → ω a (M u) = 0 := by
+    intro u hu
+    rw [← hM u a, ← hacol u]
+    exact hu
+  -- shared restricted structure on `H = ker (ω a)`
+  haveI : Fintype ↥(ω a).ker := Fintype.ofFinite _
+  have h2H : ∀ h : ↥(ω a).ker, h + h = 0 := fun h => Subtype.ext (h2 (h : W))
+  have hmem : ∀ h : ↥(ω a).ker, ω a ↑h = 0 := fun h => h.2
+  have hmem' : ∀ h : ↥(ω a).ker, ω ↑h a = 0 := fun h => by rw [← hacol]; exact hmem h
+  -- the doubly-restricted form
+  let ωH : ↥(ω a).ker →+ ↥(ω a).ker →+ ZMod 2 :=
+    AddMonoidHom.mk' (fun t => (ω ↑t).comp (ω a).ker.subtype) (by
+      intro t t'
+      ext u
+      simp [map_add])
+  have hωH : ∀ t u : ↥(ω a).ker, ωH t u = ω ↑t ↑u := fun _ _ => rfl
+  -- restricted monodromy on `ker (ω a)` (shared by both cases)
+  have hMHmem : ∀ h : ↥(ω a).ker, M ↑h ∈ (ω a).ker := fun h =>
+    AddMonoidHom.mem_ker.mpr (hMker ↑h (hmem h))
+  let MH0 : ↥(ω a).ker →+ ↥(ω a).ker :=
+    AddMonoidHom.mk' (fun h => ⟨M ↑h, hMHmem h⟩) (by
+      intro t t'
+      ext
+      simp)
+  have hMH0inj : Function.Injective MH0 := by
+    intro t t' htt
+    exact Subtype.ext (M.injective (congrArg Subtype.val htt))
+  let MH : ↥(ω a).ker ≃+ ↥(ω a).ker :=
+    AddEquiv.ofBijective MH0 ⟨hMH0inj, Finite.injective_iff_surjective.mp hMH0inj⟩
+  have hMHapp : ∀ h : ↥(ω a).ker, ↑(MH h) = M ↑h := fun _ => rfl
+  have hMrest : ∀ t u : ↥(ω a).ker, ωH t u = ωH u (MH t) := by
+    intro t u
+    rw [hωH, hωH, hMHapp]
+    exact hM ↑t ↑u
+  have hMH2m : (⇑MH)^[2 ^ m] = id := by
+    have hiter : ∀ (i : ℕ) (h : ↥(ω a).ker), ↑((⇑MH)^[i] h) = (⇑M)^[i] (h : W) := by
+      intro i
+      induction i with
+      | zero => intro h; rfl
+      | succ i ihi =>
+        intro h
+        rw [Function.iterate_succ_apply', Function.iterate_succ_apply', hMHapp, ihi]
+    funext h
+    refine Subtype.ext ?_
+    rw [hiter, hm]
+    rfl
+  obtain ⟨t₀, ht₀⟩ : ∃ t₀ : W, ω t₀ a ≠ 0 := by
+    by_contra hcon
+    exact ha0 (hnd a fun t => not_not.mp (not_exists.mp hcon t))
+  have ht₀1 : ω t₀ a = 1 := zmod2_ne_zero_eq_one _ ht₀
+  have hat₀ : ω a t₀ = 1 := by rw [hacol t₀]; exact ht₀1
+  have hAmem : a ∈ (ω a).ker := AddMonoidHom.mem_ker.mpr haa
+  -- the inner functional `ψ` and its kernel `C`
+  set ψH : ↥(ω a).ker →+ ZMod 2 := (ω t₀).comp (ω a).ker.subtype with hψdef
+  have hψA : ψH ⟨a, hAmem⟩ = 1 := ht₀1
+  haveI : Fintype ↥ψH.ker := Fintype.ofFinite _
+  have h2C : ∀ c : ↥ψH.ker, c + c = 0 := fun c => Subtype.ext (h2H (c : ↥(ω a).ker))
+  have hcmem : ∀ c : ↥ψH.ker, ω t₀ ↑↑c = 0 := fun c => AddMonoidHom.mem_ker.mp c.2
+  have hcmem' : ∀ c : ↥ψH.ker, ω a ↑↑c = 0 := fun c => hmem ↑c
+  have hcmem'' : ∀ c : ↥ψH.ker, ω ↑↑c a = 0 := fun c => hmem' ↑c
+  -- the doubly-restricted form
+  let ωC : ↥ψH.ker →+ ↥ψH.ker →+ ZMod 2 :=
+    AddMonoidHom.mk' (fun t => (ωH ↑t).comp ψH.ker.subtype) (by
+      intro t t'
+      ext u
+      simp [map_add])
+  have hωC : ∀ t u : ↥ψH.ker, ωC t u = ω ↑↑t ↑↑u := fun _ _ => rfl
+  -- the corrected monodromy `c ↦ MH c + ψ (MH c) • a` on `C`
+  obtain ⟨MC, hMCrest, hMC2⟩ := wall_count_corrected_monodromy ω M hM a hAmem hMa
+    h2H MH hMHapp hMH2m ψH hψA ωC hωC hcmem''
+  -- nondegeneracy on `C`
+  have hndC : ∀ u : ↥ψH.ker, (∀ t : ↥ψH.ker, ωC t u = 0) → u = 0 := by
+    intro u hu
+    refine Subtype.ext (Subtype.ext (hnd ↑↑u fun s => ?_))
+    obtain ⟨⟨x, h⟩, rfl⟩ := (splitEquiv h2 (ω a) t₀ hat₀).surjective s
+    obtain ⟨⟨y, c⟩, rfl⟩ := (splitEquiv h2H ψH ⟨a, hAmem⟩ hψA).surjective h
+    rw [splitEquiv_apply, splitEquiv_apply]
+    rw [map_add, AddMonoidHom.add_apply, map_nsmul, AddMonoidHom.nsmul_apply,
+      zmod2_val_smul, hcmem u, mul_zero, zero_add]
+    rw [show ((↑(y.val • (⟨a, hAmem⟩ : ↥(ω a).ker) + ↑c) : ↥(ω a).ker) : W)
+          = y.val • a + ↑↑c from by push_cast; rfl]
+    rw [map_add, AddMonoidHom.add_apply, map_nsmul, AddMonoidHom.nsmul_apply,
+      zmod2_val_smul, hcmem' u, mul_zero, zero_add]
+    exact hu c
+  -- cardinalities
+  have hc1 : Nat.card W = 2 * Nat.card ↥(ω a).ker :=
+    card_of_splitEquiv h2 (ω a) t₀ hat₀
+  have hc2 : Nat.card ↥(ω a).ker = 2 * Nat.card ↥ψH.ker :=
+    card_of_splitEquiv h2H ψH ⟨a, hAmem⟩ hψA
+  haveI : Nonempty ↥ψH.ker := ⟨0⟩
+  have hCpos := Nat.card_pos (α := ↥ψH.ker)
+  obtain ⟨k'', rfl⟩ : ∃ k'', k = k'' + 2 := by
+    rcases k with _ | _ | k''
+    · rw [pow_zero] at hk; omega
+    · rw [pow_one] at hk; omega
+    · exact ⟨k'', rfl⟩
+  have hkC : Nat.card ↥ψH.ker = 2 ^ k'' := by
+    have h4 : 4 * Nat.card ↥ψH.ker = 4 * 2 ^ k'' := by
+      have : (2 : ℕ) ^ (k'' + 2) = 4 * 2 ^ k'' := by ring
+      omega
+    omega
+  have hnC : Fintype.card ↥ψH.ker ≤ n := by
+    have e1 : Nat.card W = Fintype.card W := Nat.card_eq_fintype_card
+    have e2 : Nat.card ↥ψH.ker = Fintype.card ↥ψH.ker := Nat.card_eq_fintype_card
+    omega
+  have hIH := ih ↥ψH.ker h2C ωC MC hMCrest hMC2 hndC k'' hkC hnC
+  -- ### the sum computation
+  set eT : ZMod 2 × ↥(ω a).ker ≃ W := splitEquiv h2 (ω a) t₀ hat₀ with heTdef
+  have he2 : ∀ (x : ZMod 2) (h : ↥(ω a).ker), eT (x, h) = x.val • t₀ + ↑h :=
+    fun _ _ => rfl
+  -- shifting the inner index by `a` changes the exponent by the outer `t₀`-coordinate
+  have hsh2 : ∀ (x y : ZMod 2) (h h₂ : ↥(ω a).ker),
+      (ω (eT (x, h)) (eT (x, h)) + ω (eT (y, h₂ + ⟨a, hAmem⟩)) (eT (y, h₂ + ⟨a, hAmem⟩))
+        + ω (eT (x, h)) (eT (y, h₂ + ⟨a, hAmem⟩)))
+      = (ω (eT (x, h)) (eT (x, h)) + ω (eT (y, h₂)) (eT (y, h₂))
+        + ω (eT (x, h)) (eT (y, h₂))) + x := by
+    intro x y h h₂
+    simp only [he2, AddSubgroup.coe_add, omega_expand]
+    simp only [map_add, AddMonoidHom.add_apply, hmem, hmem', haa, ht₀1, hat₀, add_zero]
+    linear_combination (CharTwo.add_self_eq_zero y : y + y = 0)
+  -- shifting the outer kernel index changes the exponent by the inner `t₀`-coordinate
+  have hsh1 : ∀ (x y : ZMod 2) (h h₂ : ↥(ω a).ker),
+      (ω (eT (x, h + ⟨a, hAmem⟩)) (eT (x, h + ⟨a, hAmem⟩)) + ω (eT (y, h₂)) (eT (y, h₂))
+        + ω (eT (x, h + ⟨a, hAmem⟩)) (eT (y, h₂)))
+      = (ω (eT (x, h)) (eT (x, h)) + ω (eT (y, h₂)) (eT (y, h₂))
+        + ω (eT (x, h)) (eT (y, h₂))) + y := by
+    intro x y h h₂
+    simp only [he2, AddSubgroup.coe_add, omega_expand]
+    simp only [map_add, AddMonoidHom.add_apply, hmem, hmem', haa, ht₀1, hat₀, add_zero]
+    linear_combination (CharTwo.add_self_eq_zero x : x + x = 0)
+  -- the `(0,0)`-block is the kernel-level count
+  have hE00 : ∀ h h₂ : ↥(ω a).ker,
+      (ω (eT (0, h)) (eT (0, h)) + ω (eT (0, h₂)) (eT (0, h₂))
+        + ω (eT (0, h)) (eT (0, h₂)))
+      = ωH h h + ωH h₂ h₂ + ωH h h₂ := by
+    intro h h₂
+    simp only [he2, ZMod.val_zero, zero_nsmul, zero_add]
+    rw [hωH, hωH, hωH]
+  -- kernel-level count is `⟨a⟩`-blind: it descends to `C` with multiplicity 4
+  have hDH : (∑ h : ↥(ω a).ker, ∑ h₂ : ↥(ω a).ker,
+        sign (ωH h h + ωH h₂ h₂ + ωH h h₂)) = (4 : ℤ) * (-2) ^ k'' :=
+    wall_count_descent h2H ωH ψH ⟨a, hAmem⟩ hψA haa hcmem' hcmem'' ωC hωC hIH
+  -- assemble: reindex, split the two `t₀`-coordinates, kill the odd blocks
+  exact wall_count_isotropic_assemble ω a hAmem ωH eT hsh2 hsh1 hE00 hDH
+
+/-- Inductive step of `wall_count_aux`, **anisotropic case** `ω a a = 1`.  Splitting
+`W ≃ ZMod 2 × ker (ω a)` along `a`, the count factors as
+`(∑_{x,y} (−1)^{x+y+xy}) · (kernel count) = (−2) · (−2)^{k−1}`. -/
+private theorem wall_count_aux_anisotropic {n : ℕ}
+    (ih : ∀ (W : Type u) [AddCommGroup W] [Fintype W],
+      (∀ w : W, w + w = 0) → ∀ (ω : W →+ W →+ ZMod 2) (M : W ≃+ W),
+        (∀ t u : W, ω t u = ω u (M t)) → (∃ m : ℕ, (⇑M)^[2 ^ m] = id) →
+        (∀ u : W, (∀ t : W, ω t u = 0) → u = 0) →
+        ∀ k : ℕ, Nat.card W = 2 ^ k → Fintype.card W ≤ n →
+        (∑ t : W, ∑ u : W, sign (ω t t + ω u u + ω t u)) = (-2 : ℤ) ^ k)
+    (W : Type u) [AddCommGroup W] [Fintype W]
+    (h2 : ∀ w : W, w + w = 0) (ω : W →+ W →+ ZMod 2) (M : W ≃+ W)
+    (hM : ∀ t u : W, ω t u = ω u (M t)) (hM2 : ∃ m : ℕ, (⇑M)^[2 ^ m] = id)
+    (hnd : ∀ u : W, (∀ t : W, ω t u = 0) → u = 0)
+    (k : ℕ) (hk : Nat.card W = 2 ^ k) (hn : Fintype.card W ≤ n + 1)
+    (a : W) (_ha0 : a ≠ 0) (hMa : M a = a) (haa : ω a a = 1) :
+    (∑ t : W, ∑ u : W, sign (ω t t + ω u u + ω t u)) = (-2 : ℤ) ^ k := by
+  obtain ⟨m, hm⟩ := hM2
+  -- the row and column functionals of the `M`-fixed vector agree
+  have hacol : ∀ u : W, ω a u = ω u a := fun u => by rw [hM a u, hMa]
+  -- `M` preserves `ker (ω a)`
+  have hMker : ∀ u : W, ω a u = 0 → ω a (M u) = 0 := by
+    intro u hu
+    rw [← hM u a, ← hacol u]
+    exact hu
+  -- shared restricted structure on `H = ker (ω a)`
+  haveI : Fintype ↥(ω a).ker := Fintype.ofFinite _
+  have h2H : ∀ h : ↥(ω a).ker, h + h = 0 := fun h => Subtype.ext (h2 (h : W))
+  have hmem : ∀ h : ↥(ω a).ker, ω a ↑h = 0 := fun h => h.2
+  have hmem' : ∀ h : ↥(ω a).ker, ω ↑h a = 0 := fun h => by rw [← hacol]; exact hmem h
+  -- the doubly-restricted form
+  let ωH : ↥(ω a).ker →+ ↥(ω a).ker →+ ZMod 2 :=
+    AddMonoidHom.mk' (fun t => (ω ↑t).comp (ω a).ker.subtype) (by
+      intro t t'
+      ext u
+      simp [map_add])
+  have hωH : ∀ t u : ↥(ω a).ker, ωH t u = ω ↑t ↑u := fun _ _ => rfl
+  -- restricted monodromy on `ker (ω a)` (shared by both cases)
+  have hMHmem : ∀ h : ↥(ω a).ker, M ↑h ∈ (ω a).ker := fun h =>
+    AddMonoidHom.mem_ker.mpr (hMker ↑h (hmem h))
+  let MH0 : ↥(ω a).ker →+ ↥(ω a).ker :=
+    AddMonoidHom.mk' (fun h => ⟨M ↑h, hMHmem h⟩) (by
+      intro t t'
+      ext
+      simp)
+  have hMH0inj : Function.Injective MH0 := by
+    intro t t' htt
+    exact Subtype.ext (M.injective (congrArg Subtype.val htt))
+  let MH : ↥(ω a).ker ≃+ ↥(ω a).ker :=
+    AddEquiv.ofBijective MH0 ⟨hMH0inj, Finite.injective_iff_surjective.mp hMH0inj⟩
+  have hMHapp : ∀ h : ↥(ω a).ker, ↑(MH h) = M ↑h := fun _ => rfl
+  have hMrest : ∀ t u : ↥(ω a).ker, ωH t u = ωH u (MH t) := by
+    intro t u
+    rw [hωH, hωH, hMHapp]
+    exact hM ↑t ↑u
+  have hMH2m : (⇑MH)^[2 ^ m] = id := by
+    have hiter : ∀ (i : ℕ) (h : ↥(ω a).ker), ↑((⇑MH)^[i] h) = (⇑M)^[i] (h : W) := by
+      intro i
+      induction i with
+      | zero => intro h; rfl
+      | succ i ihi =>
+        intro h
+        rw [Function.iterate_succ_apply', Function.iterate_succ_apply', hMHapp, ihi]
+    funext h
+    refine Subtype.ext ?_
+    rw [hiter, hm]
+    rfl
+  have hMH2 : ∃ m' : ℕ, (⇑MH)^[2 ^ m'] = id := ⟨m, hMH2m⟩
+  -- nondegeneracy restricts
+  have hndH : ∀ u : ↥(ω a).ker, (∀ t : ↥(ω a).ker, ωH t u = 0) → u = 0 := by
+    intro u hu
+    refine Subtype.ext (hnd ↑u fun t => ?_)
+    obtain ⟨⟨x, h⟩, rfl⟩ := (splitEquiv h2 (ω a) a haa).surjective t
+    rw [splitEquiv_apply]
+    rw [map_add, AddMonoidHom.add_apply, map_nsmul, AddMonoidHom.nsmul_apply,
+      zmod2_val_smul, hmem u, mul_zero, zero_add]
+    exact hu h
+  -- cardinalities
+  have hcard2 : Nat.card W = 2 * Nat.card ↥(ω a).ker := card_of_splitEquiv h2 (ω a) a haa
+  haveI : Nonempty ↥(ω a).ker := ⟨0⟩
+  have hHpos := Nat.card_pos (α := ↥(ω a).ker)
+  have hk1 : k ≠ 0 := by
+    rintro rfl
+    rw [pow_zero] at hk
+    omega
+  obtain ⟨k', rfl⟩ : ∃ k', k = k' + 1 := ⟨k - 1, by omega⟩
+  have hkH : Nat.card ↥(ω a).ker = 2 ^ k' := by
+    have h : 2 * Nat.card ↥(ω a).ker = 2 * 2 ^ k' := by
+      rw [← hcard2, hk, pow_succ']
+    omega
+  have hnH : Fintype.card ↥(ω a).ker ≤ n := by
+    have h1 : Nat.card W = Fintype.card W := Nat.card_eq_fintype_card
+    have h2' : Nat.card ↥(ω a).ker = Fintype.card ↥(ω a).ker := Nat.card_eq_fintype_card
+    omega
+  have hIH := ih ↥(ω a).ker h2H ωH MH hMrest hMH2 hndH k' hkH hnH
+  -- the split-coordinate expansion of the summand
+  have he_apply : ∀ (x : ZMod 2) (h : ↥(ω a).ker),
+      splitEquiv h2 (ω a) a haa (x, h) = x.val • a + ↑h := fun _ _ => rfl
+  have hEsplit : ∀ (x y : ZMod 2) (h h₂ : ↥(ω a).ker),
+      ω (splitEquiv h2 (ω a) a haa (x, h)) (splitEquiv h2 (ω a) a haa (x, h))
+        + ω (splitEquiv h2 (ω a) a haa (y, h₂)) (splitEquiv h2 (ω a) a haa (y, h₂))
+        + ω (splitEquiv h2 (ω a) a haa (x, h)) (splitEquiv h2 (ω a) a haa (y, h₂))
+        = (x + y + x * y) + (ωH h h + ωH h₂ h₂ + ωH h h₂) := by
+    intro x y h h₂
+    rw [he_apply, he_apply, omega_expand, omega_expand, omega_expand,
+      haa, hωH, hωH, hωH, hmem h, hmem h₂, hmem' h, hmem' h₂]
+    simp only [mul_one, mul_zero, add_zero, zmod2_mul_self]
+    ring
+  -- reindex and factor
+  calc (∑ t : W, ∑ u : W, sign (ω t t + ω u u + ω t u))
+      = ∑ q : (ZMod 2 × ↥(ω a).ker) × (ZMod 2 × ↥(ω a).ker),
+          sign (ω (splitEquiv h2 (ω a) a haa q.1) (splitEquiv h2 (ω a) a haa q.1)
+            + ω (splitEquiv h2 (ω a) a haa q.2) (splitEquiv h2 (ω a) a haa q.2)
+            + ω (splitEquiv h2 (ω a) a haa q.1) (splitEquiv h2 (ω a) a haa q.2)) := by
+        rw [← Fintype.sum_prod_type']
+        exact (Equiv.sum_comp
+          ((splitEquiv h2 (ω a) a haa).prodCongr (splitEquiv h2 (ω a) a haa))
+          fun p : W × W => sign (ω p.1 p.1 + ω p.2 p.2 + ω p.1 p.2)).symm
+    _ = ∑ r : (ZMod 2 × ZMod 2) × (↥(ω a).ker × ↥(ω a).ker),
+          sign ((r.1.1 + r.1.2 + r.1.1 * r.1.2)
+            + (ωH r.2.1 r.2.1 + ωH r.2.2 r.2.2 + ωH r.2.1 r.2.2)) := by
+        rw [← Equiv.sum_comp
+          (Equiv.prodProdProdComm (ZMod 2) ↥(ω a).ker (ZMod 2) ↥(ω a).ker).symm]
+        refine Finset.sum_congr rfl fun r _ => ?_
+        obtain ⟨⟨x, y⟩, h, h₂⟩ := r
+        exact congrArg sign (hEsplit x y h h₂)
+    _ = (∑ pxy : ZMod 2 × ZMod 2, sign (pxy.1 + pxy.2 + pxy.1 * pxy.2))
+          * (∑ phh : ↥(ω a).ker × ↥(ω a).ker,
+              sign (ωH phh.1 phh.1 + ωH phh.2 phh.2 + ωH phh.1 phh.2)) := by
+        rw [Finset.sum_mul_sum, Fintype.sum_prod_type]
+        refine Finset.sum_congr rfl fun pxy _ => ?_
+        refine Finset.sum_congr rfl fun phh _ => ?_
+        rw [sign_add]
+    _ = (-2 : ℤ) ^ (k' + 1) := by
+        rw [show (∑ pxy : ZMod 2 × ZMod 2, sign (pxy.1 + pxy.2 + pxy.1 * pxy.2))
+              = -2 from by decide]
+        rw [show (∑ phh : ↥(ω a).ker × ↥(ω a).ker,
+              sign (ωH phh.1 phh.1 + ωH phh.2 phh.2 + ωH phh.1 phh.2))
+            = (-2 : ℤ) ^ k' from by rw [Fintype.sum_prod_type]; exact hIH]
+        ring
+
 /-- **The abstract Wall count**, by strong induction on the cardinality: for a biadditive
 `ω` on a finite exponent-2 group `W`, right-nondegenerate and with a `2`-power-order monodromy
 `M` (`ω t u = ω u (M t)`), the count `∑_{t,u} (−1)^{ω(t,t)+ω(u,u)+ω(t,u)}` equals `(−2)^k`,
@@ -524,416 +1061,11 @@ private theorem wall_count_aux :
       rw [huniv, Finset.sum_singleton, Finset.sum_singleton]
       simp [sign]
     · obtain ⟨w₀, hw₀⟩ := not_forall.mp hW
-      obtain ⟨m, hm⟩ := hM2
+      obtain ⟨m, hm⟩ := id hM2
       obtain ⟨a, ha0, hMa⟩ := exists_fixed_ne_zero h2 m M hm w₀ hw₀
-      -- the row and column functionals of the `M`-fixed vector agree
-      have hacol : ∀ u : W, ω a u = ω u a := fun u => by rw [hM a u, hMa]
-      -- `M` preserves `ker (ω a)`
-      have hMker : ∀ u : W, ω a u = 0 → ω a (M u) = 0 := by
-        intro u hu
-        rw [← hM u a, ← hacol u]
-        exact hu
-      -- shared restricted structure on `H = ker (ω a)`
-      haveI : Fintype ↥(ω a).ker := Fintype.ofFinite _
-      have h2H : ∀ h : ↥(ω a).ker, h + h = 0 := fun h => Subtype.ext (h2 (h : W))
-      have hmem : ∀ h : ↥(ω a).ker, ω a ↑h = 0 := fun h => h.2
-      have hmem' : ∀ h : ↥(ω a).ker, ω ↑h a = 0 := fun h => by rw [← hacol]; exact hmem h
-      -- the doubly-restricted form
-      let ωH : ↥(ω a).ker →+ ↥(ω a).ker →+ ZMod 2 :=
-        AddMonoidHom.mk' (fun t => (ω ↑t).comp (ω a).ker.subtype) (by
-          intro t t'
-          ext u
-          simp [map_add])
-      have hωH : ∀ t u : ↥(ω a).ker, ωH t u = ω ↑t ↑u := fun _ _ => rfl
-      -- restricted monodromy on `ker (ω a)` (shared by both cases)
-      have hMHmem : ∀ h : ↥(ω a).ker, M ↑h ∈ (ω a).ker := fun h =>
-        AddMonoidHom.mem_ker.mpr (hMker ↑h (hmem h))
-      let MH0 : ↥(ω a).ker →+ ↥(ω a).ker :=
-        AddMonoidHom.mk' (fun h => ⟨M ↑h, hMHmem h⟩) (by
-          intro t t'
-          ext
-          simp)
-      have hMH0inj : Function.Injective MH0 := by
-        intro t t' htt
-        exact Subtype.ext (M.injective (congrArg Subtype.val htt))
-      let MH : ↥(ω a).ker ≃+ ↥(ω a).ker :=
-        AddEquiv.ofBijective MH0 ⟨hMH0inj, Finite.injective_iff_surjective.mp hMH0inj⟩
-      have hMHapp : ∀ h : ↥(ω a).ker, ↑(MH h) = M ↑h := fun _ => rfl
-      have hMrest : ∀ t u : ↥(ω a).ker, ωH t u = ωH u (MH t) := by
-        intro t u
-        rw [hωH, hωH, hMHapp]
-        exact hM ↑t ↑u
-      have hMH2m : (⇑MH)^[2 ^ m] = id := by
-        have hiter : ∀ (i : ℕ) (h : ↥(ω a).ker), ↑((⇑MH)^[i] h) = (⇑M)^[i] (h : W) := by
-          intro i
-          induction i with
-          | zero => intro h; rfl
-          | succ i ihi =>
-            intro h
-            rw [Function.iterate_succ_apply', Function.iterate_succ_apply', hMHapp, ihi]
-        funext h
-        refine Subtype.ext ?_
-        rw [hiter, hm]
-        rfl
       rcases ZMod.eq_zero_or_eq_one (ω a a) with haa | haa
-      · -- **Case `ω a a = 0`**: choose `t₀` with `ω t₀ a = 1` and split `W` along `t₀`.
-        -- Shifting the inner index by `a` changes the exponent by exactly the outer
-        -- `t₀`-coordinate, so all blocks with a `t₀`-component cancel; on the surviving
-        -- `ker (ω a)²` block the `⟨a⟩`-coordinates are invisible, giving `4 ·` the count on
-        -- `C = ker ψ` (`ψ = ω t₀` restricted), whose monodromy is `M` corrected by an
-        -- `a`-component.
-        obtain ⟨t₀, ht₀⟩ : ∃ t₀ : W, ω t₀ a ≠ 0 := by
-          by_contra hcon
-          exact ha0 (hnd a fun t => not_not.mp (not_exists.mp hcon t))
-        have ht₀1 : ω t₀ a = 1 := zmod2_ne_zero_eq_one _ ht₀
-        have hat₀ : ω a t₀ = 1 := by rw [hacol t₀]; exact ht₀1
-        have hAmem : a ∈ (ω a).ker := AddMonoidHom.mem_ker.mpr haa
-        -- the inner functional `ψ` and its kernel `C`
-        set ψH : ↥(ω a).ker →+ ZMod 2 := (ω t₀).comp (ω a).ker.subtype with hψdef
-        have hψA : ψH ⟨a, hAmem⟩ = 1 := ht₀1
-        haveI : Fintype ↥ψH.ker := Fintype.ofFinite _
-        have h2C : ∀ c : ↥ψH.ker, c + c = 0 := fun c => Subtype.ext (h2H (c : ↥(ω a).ker))
-        have hcmem : ∀ c : ↥ψH.ker, ω t₀ ↑↑c = 0 := fun c => AddMonoidHom.mem_ker.mp c.2
-        have hcmem' : ∀ c : ↥ψH.ker, ω a ↑↑c = 0 := fun c => hmem ↑c
-        have hcmem'' : ∀ c : ↥ψH.ker, ω ↑↑c a = 0 := fun c => hmem' ↑c
-        -- the doubly-restricted form
-        let ωC : ↥ψH.ker →+ ↥ψH.ker →+ ZMod 2 :=
-          AddMonoidHom.mk' (fun t => (ωH ↑t).comp ψH.ker.subtype) (by
-            intro t t'
-            ext u
-            simp [map_add])
-        have hωC : ∀ t u : ↥ψH.ker, ωC t u = ω ↑↑t ↑↑u := fun _ _ => rfl
-        -- the corrected monodromy `c ↦ MH c + ψ (MH c) • a` on `C`
-        have hMAfix : MH ⟨a, hAmem⟩ = ⟨a, hAmem⟩ := Subtype.ext hMa
-        have hMCmem : ∀ c : ↥ψH.ker,
-            MH ↑c + (ψH (MH ↑c)).val • ⟨a, hAmem⟩ ∈ ψH.ker := by
-          intro c
-          rw [AddMonoidHom.mem_ker, map_add, map_nsmul, hψA]
-          exact zmod2_self_add_val_smul_one _
-        let MC0 : ↥ψH.ker →+ ↥ψH.ker :=
-          AddMonoidHom.mk' (fun c => ⟨MH ↑c + (ψH (MH ↑c)).val • ⟨a, hAmem⟩, hMCmem c⟩) (by
-            intro c c'
-            refine Subtype.ext ?_
-            show MH ↑(c + c') + (ψH (MH ↑(c + c'))).val • _ = _
-            rw [AddSubgroup.coe_add, map_add, map_add, zmod2_val_add_smul h2H]
-            show _ = (MH ↑c + (ψH (MH ↑c)).val • ⟨a, hAmem⟩)
-              + (MH ↑c' + (ψH (MH ↑c')).val • ⟨a, hAmem⟩)
-            abel)
-        have hMCapp : ∀ c : ↥ψH.ker, (↑(MC0 c) : ↥(ω a).ker)
-            = MH ↑c + (ψH (MH ↑c)).val • ⟨a, hAmem⟩ := fun _ => rfl
-        have hMC0inj : Function.Injective MC0 := by
-          intro c c' hcc
-          have hval : MH ↑c + (ψH (MH ↑c)).val • (⟨a, hAmem⟩ : ↥(ω a).ker)
-              = MH ↑c' + (ψH (MH ↑c')).val • ⟨a, hAmem⟩ := congrArg Subtype.val hcc
-          have hd : MH (↑c + ↑c') = (ψH (MH ↑c) + ψH (MH ↑c')).val • ⟨a, hAmem⟩ := by
-            have h0 : (MH ↑c + (ψH (MH ↑c)).val • (⟨a, hAmem⟩ : ↥(ω a).ker))
-                + (MH ↑c' + (ψH (MH ↑c')).val • ⟨a, hAmem⟩)
-                = MH (↑c + ↑c') + (ψH (MH ↑c) + ψH (MH ↑c')).val • ⟨a, hAmem⟩ := by
-              rw [map_add, zmod2_val_add_smul h2H]
-              abel
-            rw [hval, h2H] at h0
-            have h1 := congrArg
-              (· + (ψH (MH ↑c) + ψH (MH ↑c')).val • (⟨a, hAmem⟩ : ↥(ω a).ker)) h0.symm
-            simpa [add_assoc, h2H] using h1
-          rcases ZMod.eq_zero_or_eq_one (ψH (MH ↑c) + ψH (MH ↑c')) with hε | hε
-          · rw [hε, ZMod.val_zero, zero_nsmul] at hd
-            have h0 : (↑c : ↥(ω a).ker) + ↑c' = 0 := by
-              apply MH.injective
-              rw [hd, map_zero]
-            have h1 := congrArg (· + (↑c' : ↥(ω a).ker)) h0
-            refine Subtype.ext ?_
-            simpa [add_assoc, h2H] using h1
-          · rw [hε, ZMod.val_one, one_nsmul] at hd
-            have h0 : (↑c : ↥(ω a).ker) + ↑c' = ⟨a, hAmem⟩ := by
-              apply MH.injective
-              rw [hd, hMAfix]
-            have h1 : ψH (↑c + ↑c') = 1 := by rw [h0]; exact hψA
-            rw [map_add, AddMonoidHom.mem_ker.mp c.2, AddMonoidHom.mem_ker.mp c'.2,
-              add_zero] at h1
-            exact absurd h1 (by decide)
-        let MC : ↥ψH.ker ≃+ ↥ψH.ker :=
-          AddEquiv.ofBijective MC0 ⟨hMC0inj, Finite.injective_iff_surjective.mp hMC0inj⟩
-        have hMCapp' : ∀ c : ↥ψH.ker, (↑(MC c) : ↥(ω a).ker)
-            = MH ↑c + (ψH (MH ↑c)).val • ⟨a, hAmem⟩ := fun _ => rfl
-        -- monodromy identity on `C`
-        have hMCrest : ∀ t u : ↥ψH.ker, ωC t u = ωC u (MC t) := by
-          intro t u
-          rw [hωC, hωC]
-          have hcoe : ((↑↑(MC t) : ↥(ω a).ker) : W) = M ↑↑t + (ψH (MH ↑t)).val • a := by
-            rw [hMCapp']
-            push_cast
-            rw [hMHapp]
-          rw [hcoe, map_add, map_nsmul, zmod2_val_smul, hcmem'' u, mul_zero, add_zero]
-          exact hM ↑↑t ↑↑u
-        -- 2-power order on `C`
-        have hMC2 : ∃ m' : ℕ, (⇑MC)^[2 ^ m'] = id := by
-          refine ⟨m, ?_⟩
-          have hiter : ∀ (i : ℕ) (c : ↥ψH.ker),
-              (↑((⇑MC)^[i] c) : ↥(ω a).ker)
-                = (⇑MH)^[i] ↑c + (ψH ((⇑MH)^[i] ↑c)).val • ⟨a, hAmem⟩ := by
-            intro i
-            induction i with
-            | zero =>
-              intro c
-              show (↑c : ↥(ω a).ker) = ↑c + (ψH ↑c).val • ⟨a, hAmem⟩
-              rw [AddMonoidHom.mem_ker.mp c.2, ZMod.val_zero, zero_nsmul, add_zero]
-            | succ i ihi =>
-              intro c
-              rw [Function.iterate_succ_apply', Function.iterate_succ_apply']
-              rw [hMCapp' ((⇑MC)^[i] c), ihi c]
-              rw [map_add, map_nsmul, hMAfix]
-              rw [show ψH (MH ((⇑MH)^[i] ↑c) + (ψH ((⇑MH)^[i] ↑c)).val • ⟨a, hAmem⟩)
-                    = ψH (MH ((⇑MH)^[i] ↑c)) + ψH ((⇑MH)^[i] ↑c) from by
-                  rw [map_add, map_nsmul, hψA, zmod2_val_smul, mul_one]]
-              rw [zmod2_val_add_smul h2H]
-              rw [show ∀ X Y Z : ↥(ω a).ker, (X + Y) + (Z + Y) = (X + Z) + (Y + Y) from
-                fun X Y Z => by abel, h2H, add_zero]
-          funext c
-          refine Subtype.ext ?_
-          rw [hiter, hMH2m]
-          show (↑c : ↥(ω a).ker) + (ψH ↑c).val • ⟨a, hAmem⟩ = ↑c
-          rw [AddMonoidHom.mem_ker.mp c.2, ZMod.val_zero, zero_nsmul, add_zero]
-        -- nondegeneracy on `C`
-        have hndC : ∀ u : ↥ψH.ker, (∀ t : ↥ψH.ker, ωC t u = 0) → u = 0 := by
-          intro u hu
-          refine Subtype.ext (Subtype.ext (hnd ↑↑u fun s => ?_))
-          obtain ⟨⟨x, h⟩, rfl⟩ := (splitEquiv h2 (ω a) t₀ hat₀).surjective s
-          obtain ⟨⟨y, c⟩, rfl⟩ := (splitEquiv h2H ψH ⟨a, hAmem⟩ hψA).surjective h
-          rw [splitEquiv_apply, splitEquiv_apply]
-          rw [map_add, AddMonoidHom.add_apply, map_nsmul, AddMonoidHom.nsmul_apply,
-            zmod2_val_smul, hcmem u, mul_zero, zero_add]
-          rw [show ((↑(y.val • (⟨a, hAmem⟩ : ↥(ω a).ker) + ↑c) : ↥(ω a).ker) : W)
-                = y.val • a + ↑↑c from by push_cast; rfl]
-          rw [map_add, AddMonoidHom.add_apply, map_nsmul, AddMonoidHom.nsmul_apply,
-            zmod2_val_smul, hcmem' u, mul_zero, zero_add]
-          exact hu c
-        -- cardinalities
-        have hc1 : Nat.card W = 2 * Nat.card ↥(ω a).ker :=
-          card_of_splitEquiv h2 (ω a) t₀ hat₀
-        have hc2 : Nat.card ↥(ω a).ker = 2 * Nat.card ↥ψH.ker :=
-          card_of_splitEquiv h2H ψH ⟨a, hAmem⟩ hψA
-        haveI : Nonempty ↥ψH.ker := ⟨0⟩
-        have hCpos := Nat.card_pos (α := ↥ψH.ker)
-        obtain ⟨k'', rfl⟩ : ∃ k'', k = k'' + 2 := by
-          rcases k with _ | _ | k''
-          · rw [pow_zero] at hk; omega
-          · rw [pow_one] at hk; omega
-          · exact ⟨k'', rfl⟩
-        have hkC : Nat.card ↥ψH.ker = 2 ^ k'' := by
-          have h4 : 4 * Nat.card ↥ψH.ker = 4 * 2 ^ k'' := by
-            have : (2 : ℕ) ^ (k'' + 2) = 4 * 2 ^ k'' := by ring
-            omega
-          omega
-        have hnC : Fintype.card ↥ψH.ker ≤ n := by
-          have e1 : Nat.card W = Fintype.card W := Nat.card_eq_fintype_card
-          have e2 : Nat.card ↥ψH.ker = Fintype.card ↥ψH.ker := Nat.card_eq_fintype_card
-          omega
-        have hIH := ih ↥ψH.ker h2C ωC MC hMCrest hMC2 hndC k'' hkC hnC
-        -- ### the sum computation
-        set eT : ZMod 2 × ↥(ω a).ker ≃ W := splitEquiv h2 (ω a) t₀ hat₀ with heTdef
-        set eH : ZMod 2 × ↥ψH.ker ≃ ↥(ω a).ker := splitEquiv h2H ψH ⟨a, hAmem⟩ hψA with heHdef
-        have he2 : ∀ (x : ZMod 2) (h : ↥(ω a).ker), eT (x, h) = x.val • t₀ + ↑h :=
-          fun _ _ => rfl
-        have heH2 : ∀ (y : ZMod 2) (c : ↥ψH.ker), eH (y, c) = y.val • ⟨a, hAmem⟩ + ↑c :=
-          fun _ _ => rfl
-        have hAcoe : ((⟨a, hAmem⟩ : ↥(ω a).ker) : W) = a := rfl
-        -- shifting the inner index by `a` changes the exponent by the outer `t₀`-coordinate
-        have hsh2 : ∀ (x y : ZMod 2) (h h₂ : ↥(ω a).ker),
-            (ω (eT (x, h)) (eT (x, h)) + ω (eT (y, h₂ + ⟨a, hAmem⟩)) (eT (y, h₂ + ⟨a, hAmem⟩))
-              + ω (eT (x, h)) (eT (y, h₂ + ⟨a, hAmem⟩)))
-            = (ω (eT (x, h)) (eT (x, h)) + ω (eT (y, h₂)) (eT (y, h₂))
-              + ω (eT (x, h)) (eT (y, h₂))) + x := by
-          intro x y h h₂
-          simp only [he2, AddSubgroup.coe_add, omega_expand]
-          simp only [map_add, AddMonoidHom.add_apply, hmem, hmem', haa, ht₀1, hat₀, add_zero]
-          linear_combination (CharTwo.add_self_eq_zero y : y + y = 0)
-        -- shifting the outer kernel index changes the exponent by the inner `t₀`-coordinate
-        have hsh1 : ∀ (x y : ZMod 2) (h h₂ : ↥(ω a).ker),
-            (ω (eT (x, h + ⟨a, hAmem⟩)) (eT (x, h + ⟨a, hAmem⟩)) + ω (eT (y, h₂)) (eT (y, h₂))
-              + ω (eT (x, h + ⟨a, hAmem⟩)) (eT (y, h₂)))
-            = (ω (eT (x, h)) (eT (x, h)) + ω (eT (y, h₂)) (eT (y, h₂))
-              + ω (eT (x, h)) (eT (y, h₂))) + y := by
-          intro x y h h₂
-          simp only [he2, AddSubgroup.coe_add, omega_expand]
-          simp only [map_add, AddMonoidHom.add_apply, hmem, hmem', haa, ht₀1, hat₀, add_zero]
-          linear_combination (CharTwo.add_self_eq_zero x : x + x = 0)
-        -- the `(0,0)`-block is the kernel-level count
-        have hE00 : ∀ h h₂ : ↥(ω a).ker,
-            (ω (eT (0, h)) (eT (0, h)) + ω (eT (0, h₂)) (eT (0, h₂))
-              + ω (eT (0, h)) (eT (0, h₂)))
-            = ωH h h + ωH h₂ h₂ + ωH h h₂ := by
-          intro h h₂
-          simp only [he2, ZMod.val_zero, zero_nsmul, zero_add]
-          rw [hωH, hωH, hωH]
-        -- kernel-level count is `⟨a⟩`-blind: it descends to `C` with multiplicity 4
-        have hEH : ∀ (y y₂ : ZMod 2) (c c₂ : ↥ψH.ker),
-            (ωH (eH (y, c)) (eH (y, c)) + ωH (eH (y₂, c₂)) (eH (y₂, c₂))
-              + ωH (eH (y, c)) (eH (y₂, c₂)))
-            = ωC c c + ωC c₂ c₂ + ωC c c₂ := by
-          intro y y₂ c c₂
-          have hAA : ωH ⟨a, hAmem⟩ ⟨a, hAmem⟩ = 0 := haa
-          have hAc : ∀ c : ↥ψH.ker, ωH ⟨a, hAmem⟩ ↑c = 0 := fun c => hcmem' c
-          have hcA : ∀ c : ↥ψH.ker, ωH ↑c ⟨a, hAmem⟩ = 0 := fun c => hcmem'' c
-          simp only [heH2, omega_expand, hAA, hAc, hcA, mul_zero, add_zero, zero_add]
-          rfl
-        -- the kernel-level count, evaluated by the inner reindexing
-        have hDH : (∑ h : ↥(ω a).ker, ∑ h₂ : ↥(ω a).ker,
-              sign (ωH h h + ωH h₂ h₂ + ωH h h₂)) = (4 : ℤ) * (-2) ^ k'' := by
-          calc (∑ h : ↥(ω a).ker, ∑ h₂ : ↥(ω a).ker, sign (ωH h h + ωH h₂ h₂ + ωH h h₂))
-              = ∑ q : (ZMod 2 × ↥ψH.ker) × (ZMod 2 × ↥ψH.ker),
-                  sign (ωH (eH q.1) (eH q.1) + ωH (eH q.2) (eH q.2) + ωH (eH q.1) (eH q.2)) := by
-                rw [← Fintype.sum_prod_type']
-                exact (Equiv.sum_comp (eH.prodCongr eH) fun p : ↥(ω a).ker × ↥(ω a).ker =>
-                  sign (ωH p.1 p.1 + ωH p.2 p.2 + ωH p.1 p.2)).symm
-            _ = ∑ r : (ZMod 2 × ZMod 2) × (↥ψH.ker × ↥ψH.ker),
-                  sign (ωC r.2.1 r.2.1 + ωC r.2.2 r.2.2 + ωC r.2.1 r.2.2) := by
-                rw [← Equiv.sum_comp
-                  (Equiv.prodProdProdComm (ZMod 2) ↥ψH.ker (ZMod 2) ↥ψH.ker).symm]
-                refine Finset.sum_congr rfl fun r _ => ?_
-                obtain ⟨⟨y, y₂⟩, c, c₂⟩ := r
-                exact congrArg sign (hEH y y₂ c c₂)
-            _ = ∑ _pyy : ZMod 2 × ZMod 2, ∑ pcc : ↥ψH.ker × ↥ψH.ker,
-                  sign (ωC pcc.1 pcc.1 + ωC pcc.2 pcc.2 + ωC pcc.1 pcc.2) := by
-                rw [Fintype.sum_prod_type]
-            _ = (4 : ℤ) * (-2) ^ k'' := by
-                rw [Finset.sum_const, show (Finset.univ : Finset (ZMod 2 × ZMod 2)).card = 4
-                  from by decide, nsmul_eq_mul]
-                rw [show (∑ pcc : ↥ψH.ker × ↥ψH.ker,
-                      sign (ωC pcc.1 pcc.1 + ωC pcc.2 pcc.2 + ωC pcc.1 pcc.2))
-                    = (-2 : ℤ) ^ k'' from by rw [Fintype.sum_prod_type]; exact hIH]
-                norm_num
-        -- assemble: reindex, split the two `t₀`-coordinates, kill the odd blocks
-        calc (∑ t : W, ∑ u : W, sign (ω t t + ω u u + ω t u))
-            = ∑ q : (ZMod 2 × ↥(ω a).ker) × (ZMod 2 × ↥(ω a).ker),
-                sign (ω (eT q.1) (eT q.1) + ω (eT q.2) (eT q.2) + ω (eT q.1) (eT q.2)) := by
-              rw [← Fintype.sum_prod_type']
-              exact (Equiv.sum_comp (eT.prodCongr eT) fun p : W × W =>
-                sign (ω p.1 p.1 + ω p.2 p.2 + ω p.1 p.2)).symm
-          _ = ∑ x : ZMod 2, ∑ h : ↥(ω a).ker, ∑ p2 : ZMod 2 × ↥(ω a).ker,
-                sign (ω (eT (x, h)) (eT (x, h)) + ω (eT p2) (eT p2) + ω (eT (x, h)) (eT p2)) := by
-              rw [Fintype.sum_prod_type, Fintype.sum_prod_type]
-          _ = (-2 : ℤ) ^ (k'' + 2) := by
-              rw [show (Finset.univ : Finset (ZMod 2)) = {0, 1} from by decide,
-                Finset.sum_insert (by decide), Finset.sum_singleton]
-              -- the `x = 1` half vanishes: shift the inner kernel index by `a`
-              rw [show (∑ h : ↥(ω a).ker, ∑ p2 : ZMod 2 × ↥(ω a).ker,
-                    sign (ω (eT (1, h)) (eT (1, h)) + ω (eT p2) (eT p2)
-                      + ω (eT (1, h)) (eT p2))) = 0 from
-                Finset.sum_eq_zero fun h _ => by
-                  rw [Fintype.sum_prod_type]
-                  refine Finset.sum_eq_zero fun y _ => ?_
-                  exact sum_sign_shift_eq_zero _ ⟨a, hAmem⟩ fun h₂ => hsh2 1 y h h₂]
-              rw [add_zero]
-              -- in the `x = 0` half, split the second `t₀`-coordinate
-              rw [show (∑ h : ↥(ω a).ker, ∑ p2 : ZMod 2 × ↥(ω a).ker,
-                    sign (ω (eT (0, h)) (eT (0, h)) + ω (eT p2) (eT p2)
-                      + ω (eT (0, h)) (eT p2)))
-                  = ∑ h : ↥(ω a).ker,
-                      ((∑ h₂ : ↥(ω a).ker,
-                        sign (ω (eT (0, h)) (eT (0, h)) + ω (eT (0, h₂)) (eT (0, h₂))
-                          + ω (eT (0, h)) (eT (0, h₂))))
-                      + (∑ h₂ : ↥(ω a).ker,
-                        sign (ω (eT (0, h)) (eT (0, h)) + ω (eT (1, h₂)) (eT (1, h₂))
-                          + ω (eT (0, h)) (eT (1, h₂))))) from
-                Finset.sum_congr rfl fun h _ => by
-                  rw [Fintype.sum_prod_type,
-                    show (Finset.univ : Finset (ZMod 2)) = {0, 1} from by decide,
-                    Finset.sum_insert (by decide), Finset.sum_singleton]]
-              rw [Finset.sum_add_distrib]
-              -- the `y = 1` half vanishes: shift the outer kernel index by `a`
-              rw [show (∑ h : ↥(ω a).ker, ∑ h₂ : ↥(ω a).ker,
-                    sign (ω (eT (0, h)) (eT (0, h)) + ω (eT (1, h₂)) (eT (1, h₂))
-                      + ω (eT (0, h)) (eT (1, h₂)))) = 0 from
-                sum_neg_shift_eq_zero _ ⟨a, hAmem⟩ fun h => by
-                  rw [← Finset.sum_neg_distrib]
-                  exact Finset.sum_congr rfl fun h₂ _ => by
-                    rw [hsh1 0 1 h h₂, zmod2_sign_add_one]]
-              rw [add_zero]
-              -- the surviving block is the kernel count; descend and finish
-              rw [show (∑ h : ↥(ω a).ker, ∑ h₂ : ↥(ω a).ker,
-                    sign (ω (eT (0, h)) (eT (0, h)) + ω (eT (0, h₂)) (eT (0, h₂))
-                      + ω (eT (0, h)) (eT (0, h₂))))
-                  = ∑ h : ↥(ω a).ker, ∑ h₂ : ↥(ω a).ker,
-                      sign (ωH h h + ωH h₂ h₂ + ωH h h₂) from
-                Finset.sum_congr rfl fun h _ => Finset.sum_congr rfl fun h₂ _ =>
-                  congrArg sign (hE00 h h₂)]
-              rw [hDH]
-              ring
-      · -- **Case `ω a a = 1`**: split `W ≃ ZMod 2 × ker (ω a)` along `a`; the count factors
-        -- as `(∑_{x,y} (−1)^{x+y+xy}) · (kernel count) = (−2) · (−2)^{k−1}`.
-        have hMH2 : ∃ m' : ℕ, (⇑MH)^[2 ^ m'] = id := ⟨m, hMH2m⟩
-        -- nondegeneracy restricts
-        have hndH : ∀ u : ↥(ω a).ker, (∀ t : ↥(ω a).ker, ωH t u = 0) → u = 0 := by
-          intro u hu
-          refine Subtype.ext (hnd ↑u fun t => ?_)
-          obtain ⟨⟨x, h⟩, rfl⟩ := (splitEquiv h2 (ω a) a haa).surjective t
-          rw [splitEquiv_apply]
-          rw [map_add, AddMonoidHom.add_apply, map_nsmul, AddMonoidHom.nsmul_apply,
-            zmod2_val_smul, hmem u, mul_zero, zero_add]
-          exact hu h
-        -- cardinalities
-        have hcard2 : Nat.card W = 2 * Nat.card ↥(ω a).ker := card_of_splitEquiv h2 (ω a) a haa
-        haveI : Nonempty ↥(ω a).ker := ⟨0⟩
-        have hHpos := Nat.card_pos (α := ↥(ω a).ker)
-        have hk1 : k ≠ 0 := by
-          rintro rfl
-          rw [pow_zero] at hk
-          omega
-        obtain ⟨k', rfl⟩ : ∃ k', k = k' + 1 := ⟨k - 1, by omega⟩
-        have hkH : Nat.card ↥(ω a).ker = 2 ^ k' := by
-          have h : 2 * Nat.card ↥(ω a).ker = 2 * 2 ^ k' := by
-            rw [← hcard2, hk, pow_succ']
-          omega
-        have hnH : Fintype.card ↥(ω a).ker ≤ n := by
-          have h1 : Nat.card W = Fintype.card W := Nat.card_eq_fintype_card
-          have h2' : Nat.card ↥(ω a).ker = Fintype.card ↥(ω a).ker := Nat.card_eq_fintype_card
-          omega
-        have hIH := ih ↥(ω a).ker h2H ωH MH hMrest hMH2 hndH k' hkH hnH
-        -- the split-coordinate expansion of the summand
-        have he_apply : ∀ (x : ZMod 2) (h : ↥(ω a).ker),
-            splitEquiv h2 (ω a) a haa (x, h) = x.val • a + ↑h := fun _ _ => rfl
-        have hEsplit : ∀ (x y : ZMod 2) (h h₂ : ↥(ω a).ker),
-            ω (splitEquiv h2 (ω a) a haa (x, h)) (splitEquiv h2 (ω a) a haa (x, h))
-              + ω (splitEquiv h2 (ω a) a haa (y, h₂)) (splitEquiv h2 (ω a) a haa (y, h₂))
-              + ω (splitEquiv h2 (ω a) a haa (x, h)) (splitEquiv h2 (ω a) a haa (y, h₂))
-              = (x + y + x * y) + (ωH h h + ωH h₂ h₂ + ωH h h₂) := by
-          intro x y h h₂
-          rw [he_apply, he_apply, omega_expand, omega_expand, omega_expand,
-            haa, hωH, hωH, hωH, hmem h, hmem h₂, hmem' h, hmem' h₂]
-          simp only [mul_one, mul_zero, add_zero, zmod2_mul_self]
-          ring
-        -- reindex and factor
-        calc (∑ t : W, ∑ u : W, sign (ω t t + ω u u + ω t u))
-            = ∑ q : (ZMod 2 × ↥(ω a).ker) × (ZMod 2 × ↥(ω a).ker),
-                sign (ω (splitEquiv h2 (ω a) a haa q.1) (splitEquiv h2 (ω a) a haa q.1)
-                  + ω (splitEquiv h2 (ω a) a haa q.2) (splitEquiv h2 (ω a) a haa q.2)
-                  + ω (splitEquiv h2 (ω a) a haa q.1) (splitEquiv h2 (ω a) a haa q.2)) := by
-              rw [← Fintype.sum_prod_type']
-              exact (Equiv.sum_comp
-                ((splitEquiv h2 (ω a) a haa).prodCongr (splitEquiv h2 (ω a) a haa))
-                fun p : W × W => sign (ω p.1 p.1 + ω p.2 p.2 + ω p.1 p.2)).symm
-          _ = ∑ r : (ZMod 2 × ZMod 2) × (↥(ω a).ker × ↥(ω a).ker),
-                sign ((r.1.1 + r.1.2 + r.1.1 * r.1.2)
-                  + (ωH r.2.1 r.2.1 + ωH r.2.2 r.2.2 + ωH r.2.1 r.2.2)) := by
-              rw [← Equiv.sum_comp
-                (Equiv.prodProdProdComm (ZMod 2) ↥(ω a).ker (ZMod 2) ↥(ω a).ker).symm]
-              refine Finset.sum_congr rfl fun r _ => ?_
-              obtain ⟨⟨x, y⟩, h, h₂⟩ := r
-              exact congrArg sign (hEsplit x y h h₂)
-          _ = (∑ pxy : ZMod 2 × ZMod 2, sign (pxy.1 + pxy.2 + pxy.1 * pxy.2))
-                * (∑ phh : ↥(ω a).ker × ↥(ω a).ker,
-                    sign (ωH phh.1 phh.1 + ωH phh.2 phh.2 + ωH phh.1 phh.2)) := by
-              rw [Finset.sum_mul_sum, Fintype.sum_prod_type]
-              refine Finset.sum_congr rfl fun pxy _ => ?_
-              refine Finset.sum_congr rfl fun phh _ => ?_
-              rw [sign_add]
-          _ = (-2 : ℤ) ^ (k' + 1) := by
-              rw [show (∑ pxy : ZMod 2 × ZMod 2, sign (pxy.1 + pxy.2 + pxy.1 * pxy.2))
-                    = -2 from by decide]
-              rw [show (∑ phh : ↥(ω a).ker × ↥(ω a).ker,
-                    sign (ωH phh.1 phh.1 + ωH phh.2 phh.2 + ωH phh.1 phh.2))
-                  = (-2 : ℤ) ^ k' from by rw [Fintype.sum_prod_type]; exact hIH]
-              ring
+      · exact wall_count_aux_isotropic ih W h2 ω M hM hM2 hnd k hk hn a ha0 hMa haa
+      · exact wall_count_aux_anisotropic ih W h2 ω M hM hM2 hnd k hk hn a ha0 hMa haa
 
 /-- **The abstract Wall count**: for a biadditive `ω` on a finite exponent-2 group `W`,
 right-nondegenerate and admitting a `2`-power-order monodromy `M` (`ω t u = ω u (M t)`),

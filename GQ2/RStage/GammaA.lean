@@ -63,20 +63,92 @@ variable {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
 registered trivial action. -/
 theorem htriv_gammaA (γ : GammaA) (m : ZMod 2) : γ • m = m := rfl
 
-/-! ## `hZcount`: the `z_R` torsor count at the candidate source
+/-! ## Shared `C = Y/K`-module helpers (used by `hZcount` and `hsep_hom`) -/
 
-The candidate mirror of `RStageLocal.hZcount_local`: `RCocycle ≃ Z¹(Γ_A, R_{f₀})` (identical
-conjugation-action setup, reusing `RStageLocal`'s `ConjAction` section), then the count via
-`z1Equiv` + `prop_5_15` clause 2 (`#Z1w = #R²·#fixedPts C (R^∨)`) instead of the local
-`card_Z1_eq`, and the same `fixedPts ≃ RCharSub` bridge + `blockRChar_card`. -/
-theorem hZcount_gammaA
+/-- `R = Φ(K)` is elementary abelian: `Additive R` is 2-torsion. -/
+private lemma frattiniK_add_self
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1) :
+    letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+    ∀ a : Additive ↥Blk.frattiniK, a + a = 0 := by
+  letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+  intro a
+  refine Additive.toMul.injective (Subtype.ext ?_)
+  exact hR2 _ (Additive.toMul a).2
+
+/-- A `C = Y/K`-invariant character of `R` takes equal values on `Y`-conjugates: the fixed-point
+condition, evaluated through `conjC_smul_of_mk` at `y⁻¹`. -/
+private lemma elemDual_fixed_apply_conj
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r) :
+    letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+    letI := RStageLocal.conjC Blk hRK
+    ∀ lam : GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK),
+      lam ∈ GQ2.FoxH.fixedPts (Y ⧸ Blk.K) (GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK)) →
+      ∀ (y : Y) (r : ↥Blk.frattiniK),
+        lam (Additive.ofMul ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩)
+          = lam (Additive.ofMul r) := by
+  letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+  letI := RStageLocal.conjC Blk hRK
+  intro lam hfix y r
+  have hfixy := hfix (QuotientGroup.mk' Blk.K y)
+  have h1 := congrArg (fun mu : GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK) =>
+    mu (Additive.ofMul ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩)) hfixy
+  have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹
+      • Additive.ofMul (⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩ : ↥Blk.frattiniK)
+      = Additive.ofMul r := by
+    rw [← map_inv,
+      RStageLocal.conjC_smul_of_mk hRK y⁻¹ ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩]
+    refine congrArg _ (Subtype.ext ?_)
+    show y⁻¹ * (y * (r : Y) * y⁻¹) * y⁻¹⁻¹ = (r : Y)
+    group
+  have h2 : ((QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K) • lam)
+      (Additive.ofMul ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩)
+      = lam (Additive.ofMul r) := by
+    rw [GQ2.FoxH.ElemDual.smul_apply, h3]
+  rw [h2] at h1
+  exact h1.symm
+
+/-- The invariant-character bridge `(R^∨)^C ≃ D_Rmod`: `#fixedPts C (R^∨) = #RCharSub`. -/
+private lemma card_fixedPts_eq_card_rCharSub
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r) :
+    letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+    letI := RStageLocal.conjC Blk hRK
+    Nat.card
+      (GQ2.FoxH.fixedPts (Y ⧸ Blk.K) (GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK)))
+      = Nat.card ↥(RCharSub Blk) := by
+  letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+  letI := RStageLocal.conjC Blk hRK
+  refine Nat.card_congr
+    { toFun := fun lam => ⟨lam.1, fun y r => elemDual_fixed_apply_conj hRK lam.1 lam.2 y r⟩
+      invFun := fun chi => ⟨chi.1, fun c => ?_⟩
+      left_inv := fun lam => rfl
+      right_inv := fun chi => rfl }
+  obtain ⟨y, rfl⟩ := QuotientGroup.mk'_surjective Blk.K c
+  refine GQ2.FoxH.ElemDual.ext fun a => ?_
+  rw [GQ2.FoxH.ElemDual.smul_apply]
+  have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹ • a
+      = Additive.ofMul (⟨y⁻¹ * ((Additive.toMul a : ↥Blk.frattiniK) : Y) * y⁻¹⁻¹,
+          RStageLocal.conj_mem_R y⁻¹ (Additive.toMul a)⟩ : ↥Blk.frattiniK) := by
+    rw [← map_inv]
+    exact RStageLocal.conjC_smul_of_mk hRK y⁻¹ (Additive.toMul a)
+  rw [h3]
+  exact chi.2 y⁻¹ (Additive.toMul a)
+
+/-- The candidate-source torsor count through the word bridge: for a boundary lift `f₀`,
+`#RCocycle(f₀) = #R² · #((R^∨)^C)` — `RCocycle ≃ Z¹(Γ_A, R_{f₀})` (multiplicative crossed ↔
+additive cocycles), then `z1Equiv` + `prop_5_15` clause 2. -/
+private lemma card_rCocycle_eq_sq_mul_card_fixedPts
     (hE2 : ∀ e : E, e ^ 2 = 1)
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
     (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
     (b : ContinuousMonoidHom GammaA ↥boundarySubgroup) (F : BoundaryFrame H E)
     (f₀ : BoundaryLifts b F T) :
+    letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+    letI := RStageLocal.conjC Blk hRK
     Nat.card (RCocycle (blockFrameImpl T Blk hE2) f₀.1.1)
-      = (blockFrameImpl T Blk hE2).zR := by
+      = Nat.card (Additive ↥Blk.frattiniK) ^ 2
+        * Nat.card
+            (GQ2.FoxH.fixedPts (Y ⧸ Blk.K) (GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK))) := by
   classical
   letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
   letI actC : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) := RStageLocal.conjC Blk hRK
@@ -103,10 +175,7 @@ theorem hZcount_gammaA
     exact continuous_of_discreteTopology.comp
       ((θ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)⟩
   have hcomp : ∀ (γ : GA) (a : Additive ↥Blk.frattiniK), γ • a = θ γ • a := fun _ _ => rfl
-  have hA₂ : ∀ a : Additive ↥Blk.frattiniK, a + a = 0 := by
-    intro a
-    refine Additive.toMul.injective (Subtype.ext ?_)
-    exact hR2 _ (Additive.toMul a).2
+  have hA₂ : ∀ a : Additive ↥Blk.frattiniK, a + a = 0 := frattiniK_add_self hRK hR2
   -- the action at the `f₀`-representative (`f₀.1.1 γ` for `γ : GA` reads through `GammaA ≡ GA`)
   have hsmul : ∀ (γ : GA) (a : Additive ↥Blk.frattiniK),
       γ • a
@@ -145,43 +214,27 @@ theorem hZcount_gammaA
   have adm := markC_admissible θ hθs
   rw [Nat.card_congr (z1Equiv θ hcomp hθs hA₂).toEquiv,
     (GQ2.FoxH.prop_5_15 (markC θ) adm.2.1 adm.2.2.1 adm.1 hA₂ adm.2.2.2).2.1]
-  -- the invariant-character bridge `fixedPts C (R^∨) ≃ D_Rmod`
-  have hbridge : Nat.card
-      (GQ2.FoxH.fixedPts (Y ⧸ Blk.K) (GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK)))
-      = Nat.card ↥(RCharSub Blk) := by
-    refine Nat.card_congr
-      { toFun := fun lam => ⟨lam.1, fun y r => ?_⟩
-        invFun := fun chi => ⟨chi.1, fun c => ?_⟩
-        left_inv := fun lam => rfl
-        right_inv := fun chi => rfl }
-    · have hfix := lam.2 (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)
-      have h1 := congrArg (fun mu : GQ2.FoxH.ElemDual (Additive ↥Blk.frattiniK) =>
-        mu (Additive.ofMul ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩)) hfix
-      have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹
-          • Additive.ofMul (⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩ : ↥Blk.frattiniK)
-          = Additive.ofMul r := by
-        rw [← map_inv,
-          RStageLocal.conjC_smul_of_mk hRK y⁻¹ ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩]
-        refine congrArg _ (Subtype.ext ?_)
-        show y⁻¹ * (y * (r : Y) * y⁻¹) * y⁻¹⁻¹ = (r : Y)
-        group
-      have h2 : ((QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K) • lam.1)
-          (Additive.ofMul ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩)
-          = lam.1 (Additive.ofMul r) := by
-        rw [GQ2.FoxH.ElemDual.smul_apply, h3]
-      rw [h2] at h1
-      exact h1.symm
-    · obtain ⟨y, rfl⟩ := QuotientGroup.mk'_surjective Blk.K c
-      refine GQ2.FoxH.ElemDual.ext fun a => ?_
-      rw [GQ2.FoxH.ElemDual.smul_apply]
-      have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹ • a
-          = Additive.ofMul (⟨y⁻¹ * ((Additive.toMul a : ↥Blk.frattiniK) : Y) * y⁻¹⁻¹,
-              RStageLocal.conj_mem_R y⁻¹ (Additive.toMul a)⟩ : ↥Blk.frattiniK) := by
-        rw [← map_inv]
-        exact RStageLocal.conjC_smul_of_mk hRK y⁻¹ (Additive.toMul a)
-      rw [h3]
-      exact chi.2 y⁻¹ (Additive.toMul a)
-  rw [hbridge, blockRChar_card T Blk hE2,
+
+/-! ## `hZcount`: the `z_R` torsor count at the candidate source
+
+The candidate mirror of `RStageLocal.hZcount_local`: `RCocycle ≃ Z¹(Γ_A, R_{f₀})` (identical
+conjugation-action setup, reusing `RStageLocal`'s `ConjAction` section), then the count via
+`z1Equiv` + `prop_5_15` clause 2 (`#Z1w = #R²·#fixedPts C (R^∨)`) instead of the local
+`card_Z1_eq`, and the same `fixedPts ≃ RCharSub` bridge + `blockRChar_card`. -/
+theorem hZcount_gammaA
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hR2 : ∀ r ∈ Blk.frattiniK, r * r = 1)
+    (b : ContinuousMonoidHom GammaA ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (f₀ : BoundaryLifts b F T) :
+    Nat.card (RCocycle (blockFrameImpl T Blk hE2) f₀.1.1)
+      = (blockFrameImpl T Blk hE2).zR := by
+  classical
+  letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+  letI actC : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) := RStageLocal.conjC Blk hRK
+  -- the count through the word bridge, then the invariant-character bridge `(R^∨)^C ≃ D_Rmod`
+  rw [card_rCocycle_eq_sq_mul_card_fixedPts hE2 hRK hR2 b F f₀,
+    card_fixedPts_eq_card_rCharSub hRK, blockRChar_card T Blk hE2,
     Nat.card_congr (Additive.toMul (α := ↥Blk.frattiniK))]
   rfl
 
@@ -888,6 +941,77 @@ private theorem lift_of_relatorFree_marking (hE2 : ∀ e : E, e ^ 2 = 1)
 
 end Descend
 
+/-- **L4** (`docs/p16d6e5-plan.md` §2): every `markC θ`-invariant character annihilates the
+relator-value sum.  A nonzero invariant character is a nonzero `RCharSub` element `dc`; the
+vanishing obstruction `hg` lifts `g` through `dc`'s scalar cover (`obs_zero_iff_lifts`), and
+`redValues_eq_of_coverLift` forces the two reduced relator values to agree, so the character
+takes equal values on `v₁` and `v₂` and their sum vanishes. -/
+private lemma hsep_invariantChar_killsRelatorSum
+    (hE2 : ∀ e : E, e ^ 2 = 1)
+    (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
+    (hcard_A : Nat.card (H2 GammaA (ZMod 2)) = 2)
+    (b : ContinuousMonoidHom GammaA ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (g : BoundaryLifts b F (blockFrameImpl T Blk hE2).TB)
+    (hg : obs (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2) htriv_gammaA
+        hcard_A g.1.1 = 0)
+    (θ : ContinuousMonoidHom GA (Y ⧸ Blk.K)) (hθs : Function.Surjective ⇑θ)
+    (tY : Marking Y) (hproj : tY.map (blockFrameImpl T Blk hE2).piB = Marking.push g.1.1)
+    (hv₁mem : tY.tameValue ∈ Blk.frattiniK) (hv₂mem : tY.wildValue ∈ Blk.frattiniK) :
+    letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+    letI := RStageLocal.conjC Blk hRK
+    ∀ lam : ElemDual (Additive ↥Blk.frattiniK),
+      (d0 (A := ElemDual (Additive ↥Blk.frattiniK)) (markC θ)) lam = 0 →
+      lam (Additive.ofMul (⟨tY.tameValue, hv₁mem⟩ : ↥Blk.frattiniK)
+        + Additive.ofMul (⟨tY.wildValue, hv₂mem⟩ : ↥Blk.frattiniK)) = 0 := by
+  letI : CommGroup ↥Blk.frattiniK := RStageLocal.rCommGroup Blk hRK
+  letI actC : DistribMulAction (Y ⧸ Blk.K) (Additive ↥Blk.frattiniK) := RStageLocal.conjC Blk hRK
+  have adm := markC_admissible θ hθs
+  intro lam hlam
+  set v₁ : ↥Blk.frattiniK := ⟨tY.tameValue, hv₁mem⟩ with hv₁def
+  set v₂ : ↥Blk.frattiniK := ⟨tY.wildValue, hv₂mem⟩ with hv₂def
+  have hfixmem : lam ∈ fixedPts (Y ⧸ Blk.K) (ElemDual (Additive ↥Blk.frattiniK)) := by
+    rw [← H0w_eq_fixedPts (markC θ) adm.1]
+    exact AddMonoidHom.mem_ker.mpr hlam
+  have hY := elemDual_fixed_apply_conj hRK lam hfixmem
+  set dc : ↥(RCharSub Blk) := ⟨lam, hY⟩ with hdcdef
+  by_cases hdc0 : dc = 0
+  · rw [show lam = 0 from congrArg Subtype.val hdc0]; rfl
+  · have hne : (blockRObstructionData T Blk hE2).toDR dc
+        ≠ (blockFrameImpl T Blk hE2).zeroDR := by
+      intro hEq
+      refine hdc0 ?_
+      rw [← Equiv.symm_apply_apply (blockRObstructionData T Blk hE2).toDR dc, hEq]
+      exact (blockRObstructionData T Blk hE2).h0
+    obtain ⟨gc, hgc⟩ := (obs_zero_iff_lifts (blockFrameImpl T Blk hE2)
+      (blockRObstructionData T Blk hE2) htriv_gammaA hcard_A g.1.1 dc hne).mp
+      (LinearMap.congr_fun hg dc)
+    have hkey := redValues_eq_of_coverLift
+      ((blockFrameImpl T Blk hE2).scalarCover ((blockRObstructionData T Blk hE2).toDR dc) hne)
+      (blockFrameImpl T Blk hE2).piB
+      ((blockRObstructionData T Blk hE2).coverMap
+        ((blockRObstructionData T Blk hE2).toDR dc) hne)
+      ((blockRObstructionData T Blk hE2).coverMap_lifts
+        ((blockRObstructionData T Blk hE2).toDR dc) hne)
+      g.1.1 gc hgc tY hproj
+    have e1 : lam (Additive.ofMul v₁) = CentralObstruction.zsign
+        (trivialRCD ((blockFrameImpl T Blk hE2).scalarCover
+          ((blockRObstructionData T Blk hE2).toDR dc) hne))
+        (((blockRObstructionData T Blk hE2).coverMap
+          ((blockRObstructionData T Blk hE2).toDR dc) hne) (v₁ : Y)) :=
+      (blockRObstructionData T Blk hE2).pair_coverMap dc hne v₁
+    have e2 : lam (Additive.ofMul v₂) = CentralObstruction.zsign
+        (trivialRCD ((blockFrameImpl T Blk hE2).scalarCover
+          ((blockRObstructionData T Blk hE2).toDR dc) hne))
+        (((blockRObstructionData T Blk hE2).coverMap
+          ((blockRObstructionData T Blk hE2).toDR dc) hne) (v₂ : Y)) :=
+      (blockRObstructionData T Blk hE2).pair_coverMap dc hne v₂
+    rw [map_add, e1, e2,
+      show (((blockRObstructionData T Blk hE2).coverMap
+          ((blockRObstructionData T Blk hE2).toDR dc) hne) (v₁ : Y))
+        = (((blockRObstructionData T Blk hE2).coverMap
+          ((blockRObstructionData T Blk hE2).toDR dc) hne) (v₂ : Y)) from hkey]
+    exact CharTwo.add_self_eq_zero _
+
 /-! ## `hsep_hom`: the `(R^∨)^C` separation at the candidate source (L1–L5, the main work) -/
 
 /-- **The `(R^∨)^C`-separation at `Γ_A`** (P-16d6e5 residue): if the obstruction functional of a
@@ -964,84 +1088,12 @@ theorem hsep_hom_gammaA
     show qKR (g.1.1 γ) = c
     rw [hγ, ← hy]; rfl
   -- §3: the word-complex duality package at `markC θ`
-  have hA₂ : ∀ a : Additive ↥Blk.frattiniK, a + a = 0 := by
-    intro a
-    refine Additive.toMul.injective (Subtype.ext ?_)
-    exact hR2 _ (Additive.toMul a).2
+  have hA₂ : ∀ a : Additive ↥Blk.frattiniK, a + a = 0 := frattiniK_add_self hRK hR2
   have adm := markC_admissible θ hθs
   have hsd := GQ2.FoxH.prop_5_15 (markC θ) adm.2.1 adm.2.2.1 adm.1 hA₂ adm.2.2.2
   -- §4 (L4): every invariant character kills the relator-value sum
-  have hv : ∀ lam : ElemDual (Additive ↥Blk.frattiniK),
-      (d0 (A := ElemDual (Additive ↥Blk.frattiniK)) (markC θ)) lam = 0 →
-      lam (Additive.ofMul v₁ + Additive.ofMul v₂) = 0 := by
-    intro lam hlam
-    -- `d⁰`-invariance ⟹ full `C`-invariance (generation) ⟹ `Y`-conjugation invariance
-    have hfixmem : lam ∈ fixedPts (Y ⧸ Blk.K) (ElemDual (Additive ↥Blk.frattiniK)) := by
-      have hmem : lam ∈ H0w (A := ElemDual (Additive ↥Blk.frattiniK)) (markC θ) :=
-        AddMonoidHom.mem_ker.mpr hlam
-      rw [← H0w_eq_fixedPts (markC θ) adm.1]
-      exact hmem
-    have hY : ∀ (y : Y) (r : ↥Blk.frattiniK),
-        lam (Additive.ofMul ⟨y * (r : Y) * y⁻¹,
-          (SectionSeven.frattiniLike_normal Blk.K Blk.hK).conj_mem (r : Y) r.2 y⟩)
-        = lam (Additive.ofMul r) := by
-      intro y r
-      have hfix := hfixmem (QuotientGroup.mk' Blk.K y)
-      have h1 := congrArg (fun mu : ElemDual (Additive ↥Blk.frattiniK) =>
-        mu (Additive.ofMul ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩)) hfix
-      have h3 : (QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K)⁻¹
-          • Additive.ofMul (⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩ : ↥Blk.frattiniK)
-          = Additive.ofMul r := by
-        rw [← map_inv,
-          RStageLocal.conjC_smul_of_mk hRK y⁻¹ ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩]
-        refine congrArg _ (Subtype.ext ?_)
-        show y⁻¹ * (y * (r : Y) * y⁻¹) * y⁻¹⁻¹ = (r : Y)
-        group
-      have h2 : ((QuotientGroup.mk' Blk.K y : Y ⧸ Blk.K) • lam)
-          (Additive.ofMul ⟨y * (r : Y) * y⁻¹, RStageLocal.conj_mem_R y r⟩)
-          = lam (Additive.ofMul r) := by
-        rw [ElemDual.smul_apply, h3]
-      rw [h2] at h1
-      exact h1.symm
-    set dc : ↥(RCharSub Blk) := ⟨lam, hY⟩ with hdcdef
-    by_cases hdc0 : dc = 0
-    · rw [show lam = 0 from congrArg Subtype.val hdc0]; rfl
-    · -- the nonzero case: extract the cover lift and run the L4 core
-      have hne : (blockRObstructionData T Blk hE2).toDR dc
-          ≠ (blockFrameImpl T Blk hE2).zeroDR := by
-        intro hEq
-        refine hdc0 ?_
-        rw [← Equiv.symm_apply_apply (blockRObstructionData T Blk hE2).toDR dc, hEq]
-        exact (blockRObstructionData T Blk hE2).h0
-      obtain ⟨gc, hgc⟩ := (obs_zero_iff_lifts (blockFrameImpl T Blk hE2)
-        (blockRObstructionData T Blk hE2) htriv_gammaA hcard_A g.1.1 dc hne).mp
-        (LinearMap.congr_fun hg dc)
-      have hkey := redValues_eq_of_coverLift
-        ((blockFrameImpl T Blk hE2).scalarCover ((blockRObstructionData T Blk hE2).toDR dc) hne)
-        (blockFrameImpl T Blk hE2).piB
-        ((blockRObstructionData T Blk hE2).coverMap
-          ((blockRObstructionData T Blk hE2).toDR dc) hne)
-        ((blockRObstructionData T Blk hE2).coverMap_lifts
-          ((blockRObstructionData T Blk hE2).toDR dc) hne)
-        g.1.1 gc hgc tY hproj
-      have e1 : lam (Additive.ofMul v₁) = CentralObstruction.zsign
-          (trivialRCD ((blockFrameImpl T Blk hE2).scalarCover
-            ((blockRObstructionData T Blk hE2).toDR dc) hne))
-          (((blockRObstructionData T Blk hE2).coverMap
-            ((blockRObstructionData T Blk hE2).toDR dc) hne) (v₁ : Y)) :=
-        (blockRObstructionData T Blk hE2).pair_coverMap dc hne v₁
-      have e2 : lam (Additive.ofMul v₂) = CentralObstruction.zsign
-          (trivialRCD ((blockFrameImpl T Blk hE2).scalarCover
-            ((blockRObstructionData T Blk hE2).toDR dc) hne))
-          (((blockRObstructionData T Blk hE2).coverMap
-            ((blockRObstructionData T Blk hE2).toDR dc) hne) (v₂ : Y)) :=
-        (blockRObstructionData T Blk hE2).pair_coverMap dc hne v₂
-      rw [map_add, e1, e2,
-        show (((blockRObstructionData T Blk hE2).coverMap
-            ((blockRObstructionData T Blk hE2).toDR dc) hne) (v₁ : Y))
-          = (((blockRObstructionData T Blk hE2).coverMap
-            ((blockRObstructionData T Blk hE2).toDR dc) hne) (v₂ : Y)) from hkey]
-      exact CharTwo.add_self_eq_zero _
+  have hv := hsep_invariantChar_killsRelatorSum hE2 hRK hcard_A b F g hg θ hθs tY hproj
+    hv₁mem hv₂mem
   -- §5: the separation delivers word-level corrections
   have hsep := sep_word (markC θ) adm.2.1 adm.2.2.1 adm.1 hsd hA₂
     (Additive.ofMul v₁, Additive.ofMul v₂) hv
