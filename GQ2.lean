@@ -64,6 +64,11 @@ import GQ2.HilbertLedger
 import GQ2.Transgression
 import GQ2.LocalLiftingDuality
 import GQ2.SectionSeven
+import GQ2.SectionSeven.Basic
+import GQ2.SectionSeven.Decorations
+import GQ2.SectionSeven.Prop74Step1
+import GQ2.SectionSeven.ModuleCore
+import GQ2.SectionSeven.Prop74
 import GQ2.SectionEight
 import GQ2.AffineTLift
 import GQ2.VCocycle
