@@ -1236,6 +1236,146 @@ section WallSign
 
 variable {V : Type*} [AddCommGroup V] [Finite V] (q : V → ZMod 2) (U : V ≃+ V)
 
+omit [Finite V] in
+/-- **Independence of `polar q x (N y)` on the fibre of `N`.** If `N x = N x'` then `x` and `x'`
+pair identically against everything in `im N`; this is what lets the Wall form `ω` be defined on
+`R = im N` via any chosen representative. -/
+private theorem polar_indep_of_range (hq : IsQuadraticFp2 q) (h2 : ∀ v : V, v + v = 0)
+    (hUq : ∀ v, q (U v) = q v) (N : V →+ V) (hN : ∀ x, N x = x + U x)
+    {x x' : V} (hxx : N x = N x') (y : V) : polar q x (N y) = polar q x' (N y) := by
+  have hz : N (x + x') = 0 := by
+    rw [map_add, hxx]
+    exact h2 _
+  have h0 : polar q (x + x') (N y) = 0 := polar_ker_range q U hq h2 hUq N hN _ hz y
+  rw [hq.polar_add_left] at h0
+  have h1 := congrArg (· + polar q x' (N y)) h0
+  simpa [add_assoc, CharTwo.add_self_eq_zero] using h1
+
+omit [Finite V] in
+/-- **The diagonal of the Wall form is `q`.** For the Wall form `ω t u = polar q (xrep t) u` on
+`R = im N`, the value `ω t t` recovers `q ↑t`. -/
+private theorem wallForm_diag (hq : IsQuadraticFp2 q) (h2 : ∀ v : V, v + v = 0)
+    (hUq : ∀ v, q (U v) = q v) (N : V →+ V) (hN : ∀ x, N x = x + U x)
+    (xrep : ↥N.range → V) (hxrep : ∀ t, N (xrep t) = ↑t)
+    (ω : ↥N.range →+ ↥N.range →+ ZMod 2)
+    (hω : ∀ t u : ↥N.range, ω t u = polar q (xrep t) ↑u) (t : ↥N.range) : ω t t = q ↑t := by
+  rw [hω]
+  conv_lhs => rw [← hxrep t]
+  rw [hN, hq.polar_add_right, polar_self q hq h2, zero_add]
+  rw [show (↑t : V) = xrep t + U (xrep t) from by rw [← hN, hxrep]]
+  unfold polar
+  rw [hUq]
+  linear_combination CharTwo.add_self_eq_zero (q (xrep t))
+
+omit [Finite V] in
+/-- **The monodromy `MR = U⁻¹` on `R` is `2`-power-order.** From `U^[2^n] = id` we get
+`MR^[2^n] = id`, using that `↑(MR t) = U.symm ↑t`. -/
+private theorem monodromy_iterate_id (hU2 : ∃ n, (⇑U)^[2 ^ n] = id) (N : V →+ V)
+    (MR : ↥N.range ≃+ ↥N.range) (hMRapp : ∀ t : ↥N.range, (↑(MR t) : V) = U.symm ↑t) :
+    ∃ n' : ℕ, (⇑MR)^[2 ^ n'] = id := by
+  obtain ⟨n, hn⟩ := hU2
+  refine ⟨n, ?_⟩
+  have hLI : Function.LeftInverse ⇑U.symm ⇑U := U.symm_apply_apply
+  have hsymm : (⇑U.symm)^[2 ^ n] = id := by
+    funext v
+    have h := (hLI.iterate (2 ^ n)) v
+    rw [hn] at h
+    simpa using h
+  have hiter : ∀ (i : ℕ) (t : ↥N.range), ↑((⇑MR)^[i] t) = (⇑U.symm)^[i] (t : V) := by
+    intro i
+    induction i with
+    | zero => intro t; rfl
+    | succ i ihi =>
+      intro t
+      rw [Function.iterate_succ_apply', Function.iterate_succ_apply', hMRapp, ihi]
+  funext t
+  refine Subtype.ext ?_
+  rw [hiter, hsymm]
+  rfl
+
+omit [Finite V] in
+/-- **Wall's monodromy relation** `ω t u = ω u (MR t)`, where `MR = U⁻¹` on `R = im N`. This is the
+`U`-equivariance of the polar form transported to the Wall form. -/
+private theorem wallForm_monodromy_rel (hq : IsQuadraticFp2 q) (hUq : ∀ v, q (U v) = q v)
+    (N : V →+ V) (hN : ∀ x, N x = x + U x) (xrep : ↥N.range → V)
+    (hxrep : ∀ t, N (xrep t) = ↑t) (ω : ↥N.range →+ ↥N.range →+ ZMod 2)
+    (hω : ∀ t u : ↥N.range, ω t u = polar q (xrep t) ↑u) (MR : ↥N.range ≃+ ↥N.range)
+    (hMRapp : ∀ t : ↥N.range, (↑(MR t) : V) = U.symm ↑t) (t u : ↥N.range) :
+    ω t u = ω u (MR t) := by
+  rw [hω, hω, hMRapp]
+  conv_lhs => rw [← hxrep u]
+  rw [hN, hq.polar_add_right]
+  rw [show polar q (xrep t) (U (xrep u)) = polar q (U.symm (xrep t)) (xrep u) from by
+    conv_lhs => rw [show xrep t = U (U.symm (xrep t)) from (U.apply_symm_apply _).symm]
+    exact polar_isometry_both q U hUq _ _]
+  rw [← hq.polar_add_left, polar_comm]
+  congr 1
+  rw [show (↑t : V) = N (xrep t) from (hxrep t).symm, hN, map_add,
+    AddEquiv.symm_apply_apply]
+  exact add_comm _ _
+
+omit [Finite V] in
+/-- **Nondegeneracy of the Wall form.** If `ω t u = 0` for every `t`, then `u = 0`; this comes from
+nonsingularity of `q` together with `polar_indep_of_range`. -/
+private theorem wallForm_nondegenerate (hns : Nonsingular q) (N : V →+ V)
+    (xrep : ↥N.range → V) (hxrep : ∀ t, N (xrep t) = ↑t)
+    (hindep : ∀ (x x' : V), N x = N x' → ∀ y : V, polar q x (N y) = polar q x' (N y))
+    (ω : ↥N.range →+ ↥N.range →+ ZMod 2)
+    (hω : ∀ t u : ↥N.range, ω t u = polar q (xrep t) ↑u) (u : ↥N.range)
+    (hu : ∀ t : ↥N.range, ω t u = 0) : u = 0 := by
+  refine Subtype.ext ?_
+  by_contra hu0
+  obtain ⟨w, hw⟩ := hns ↑u hu0
+  have hall : ∀ x : V, polar q x ↑u = 0 := by
+    intro x
+    have ht := hu ⟨N x, ⟨x, rfl⟩⟩
+    rw [hω] at ht
+    obtain ⟨y, hy⟩ := AddMonoidHom.mem_range.mp u.2
+    rw [← hy] at ht ⊢
+    rw [hindep x (xrep ⟨N x, ⟨x, rfl⟩⟩) (by rw [hxrep]) y]
+    exact ht
+  exact hw ((polar_comm q ↑u w).trans (hall w))
+
+/-- **The kernel character sum.** Summing `sign (polar q ↑s u)` over `s ∈ ker N` gives `#ker N` when
+`u ∈ im N` (the perp of `ker N`) and `0` otherwise. -/
+private theorem kernelCharSum [Fintype V] [DecidableEq V] (hq : IsQuadraticFp2 q)
+    (h2 : ∀ v : V, v + v = 0) (hns : Nonsingular q) (hUq : ∀ v, q (U v) = q v) (N : V →+ V)
+    (hN : ∀ x, N x = x + U x) [Fintype ↥N.ker] (u : V) : (∑ s : ↥N.ker, sign (polar q ↑s u))
+      = if u ∈ N.range then (Nat.card ↥N.ker : ℤ) else 0 := by
+  by_cases hu : u ∈ N.range
+  · rw [if_pos hu]
+    have hz : ∀ s : ↥N.ker, polar q ↑s u = 0 :=
+      fun s => (perp_ker_iff_mem_range q U hq h2 hns hUq N hN u).mpr hu s
+    rw [show (∑ s : ↥N.ker, sign (polar q ↑s u)) = ∑ _s : ↥N.ker, 1 from
+      Finset.sum_congr rfl fun s _ => by rw [hz s]; decide]
+    rw [Finset.sum_const, Nat.card_eq_fintype_card, Finset.card_univ, nsmul_eq_mul, mul_one]
+  · rw [if_neg hu]
+    have hex : ∃ s₀ : ↥N.ker, polar q ↑s₀ u ≠ 0 := by
+      by_contra hcon
+      exact hu ((perp_ker_iff_mem_range q U hq h2 hns hUq N hN u).mp
+        fun s => not_not.mp (not_exists.mp hcon s))
+    obtain ⟨s₀, hs₀⟩ := hex
+    exact charSum_eq_zero ((polarHom q hq u).comp N.ker.subtype)
+      ⟨s₀, zmod2_ne_zero_eq_one _ hs₀⟩
+
+omit [Finite V] in
+/-- **The twisted double sum.** The product `g(q_U) · g(q)` is the double sum of
+`sign (q (N x) + q u + polar q x u)` over `x, u ∈ V`. -/
+private theorem twistedDoubleSum [Fintype V] (hUq : ∀ v, q (U v) = q v) (N : V →+ V)
+    (hN : ∀ x, N x = x + U x) : gaussSum (qDouble q ⇑U) * gaussSum q
+      = ∑ x : V, ∑ u : V, sign (q (N x) + q u + polar q x u) := by
+  unfold gaussSum
+  rw [Finset.sum_mul_sum]
+  refine Finset.sum_congr rfl fun x _ => ?_
+  rw [← Equiv.sum_comp (Equiv.addLeft x) (fun y => sign (qDouble q ⇑U x) * sign (q y))]
+  simp only [Equiv.coe_addLeft]
+  refine Finset.sum_congr rfl fun u _ => ?_
+  rw [← sign_add]
+  congr 1
+  rw [qDouble_eq_add q U hUq, hN]
+  unfold polar
+  linear_combination -CharTwo.add_self_eq_zero (q u)
+
 /-- **Wall's sign relation** (the last piece of Lemma 6.6, eq. (86)): for a nonsingular `q`
 and a `2`-power-order isometry `U`, with `N = 1 + U` and `#im N = 2^k`,
 
@@ -1251,15 +1391,8 @@ theorem gaussSum_qDouble [Fintype V] (hq : IsQuadraticFp2 q) (h2 : ∀ v : V, v 
   have h2R : ∀ t : ↥N.range, t + t = 0 := fun t => Subtype.ext (h2 (t : V))
   -- ### the Wall form `ω(Nx, u) = B(x, u)` on `R = im N`
   choose xrep hxrep using fun t : ↥N.range => AddMonoidHom.mem_range.mp t.2
-  have hindep : ∀ (x x' : V), N x = N x' → ∀ y : V, polar q x (N y) = polar q x' (N y) := by
-    intro x x' hxx y
-    have hz : N (x + x') = 0 := by
-      rw [map_add, hxx]
-      exact h2 _
-    have h0 : polar q (x + x') (N y) = 0 := polar_ker_range q U hq h2 hUq N hN _ hz y
-    rw [hq.polar_add_left] at h0
-    have h1 := congrArg (· + polar q x' (N y)) h0
-    simpa [add_assoc, CharTwo.add_self_eq_zero] using h1
+  have hindep : ∀ (x x' : V), N x = N x' → ∀ y : V, polar q x (N y) = polar q x' (N y) :=
+    fun x x' hxx y => polar_indep_of_range q U hq h2 hUq N hN hxx y
   let ω : ↥N.range →+ ↥N.range →+ ZMod 2 := AddMonoidHom.mk'
     (fun t => AddMonoidHom.mk' (fun u => polar q (xrep t) ↑u) (by
       intro u u'
@@ -1273,15 +1406,8 @@ theorem gaussSum_qDouble [Fintype V] (hq : IsQuadraticFp2 q) (h2 : ∀ v : V, v 
         (by rw [hxrep, map_add, hxrep, hxrep, AddSubgroup.coe_add]) y, hq.polar_add_left])
   have hω : ∀ t u : ↥N.range, ω t u = polar q (xrep t) ↑u := fun _ _ => rfl
   -- the diagonal of the Wall form is `q`
-  have hdiag : ∀ t : ↥N.range, ω t t = q ↑t := by
-    intro t
-    rw [hω]
-    conv_lhs => rw [← hxrep t]
-    rw [hN, hq.polar_add_right, polar_self q hq h2, zero_add]
-    rw [show (↑t : V) = xrep t + U (xrep t) from by rw [← hN, hxrep]]
-    unfold polar
-    rw [hUq]
-    linear_combination CharTwo.add_self_eq_zero (q (xrep t))
+  have hdiag : ∀ t : ↥N.range, ω t t = q ↑t :=
+    fun t => wallForm_diag q U hq h2 hUq N hN xrep hxrep ω hω t
   -- ### the monodromy `U⁻¹` on `R`
   have hUrange : ∀ t : ↥N.range, U.symm ↑t ∈ N.range := by
     intro t
@@ -1299,54 +1425,12 @@ theorem gaussSum_qDouble [Fintype V] (hq : IsQuadraticFp2 q) (h2 : ∀ v : V, v 
   let MR : ↥N.range ≃+ ↥N.range :=
     AddEquiv.ofBijective MR0 ⟨hMR0inj, Finite.injective_iff_surjective.mp hMR0inj⟩
   have hMRapp : ∀ t : ↥N.range, (↑(MR t) : V) = U.symm ↑t := fun _ => rfl
-  have hMrel : ∀ t u : ↥N.range, ω t u = ω u (MR t) := by
-    intro t u
-    rw [hω, hω, hMRapp]
-    conv_lhs => rw [← hxrep u]
-    rw [hN, hq.polar_add_right]
-    rw [show polar q (xrep t) (U (xrep u)) = polar q (U.symm (xrep t)) (xrep u) from by
-      conv_lhs => rw [show xrep t = U (U.symm (xrep t)) from (U.apply_symm_apply _).symm]
-      exact polar_isometry_both q U hUq _ _]
-    rw [← hq.polar_add_left, polar_comm]
-    congr 1
-    rw [show (↑t : V) = N (xrep t) from (hxrep t).symm, hN, map_add,
-      AddEquiv.symm_apply_apply]
-    exact add_comm _ _
-  have hMR2 : ∃ n' : ℕ, (⇑MR)^[2 ^ n'] = id := by
-    obtain ⟨n, hn⟩ := hU2
-    refine ⟨n, ?_⟩
-    have hLI : Function.LeftInverse ⇑U.symm ⇑U := U.symm_apply_apply
-    have hsymm : (⇑U.symm)^[2 ^ n] = id := by
-      funext v
-      have h := (hLI.iterate (2 ^ n)) v
-      rw [hn] at h
-      simpa using h
-    have hiter : ∀ (i : ℕ) (t : ↥N.range), ↑((⇑MR)^[i] t) = (⇑U.symm)^[i] (t : V) := by
-      intro i
-      induction i with
-      | zero => intro t; rfl
-      | succ i ihi =>
-        intro t
-        rw [Function.iterate_succ_apply', Function.iterate_succ_apply', hMRapp, ihi]
-    funext t
-    refine Subtype.ext ?_
-    rw [hiter, hsymm]
-    rfl
+  have hMrel : ∀ t u : ↥N.range, ω t u = ω u (MR t) :=
+    fun t u => wallForm_monodromy_rel q U hq hUq N hN xrep hxrep ω hω MR hMRapp t u
+  have hMR2 : ∃ n' : ℕ, (⇑MR)^[2 ^ n'] = id := monodromy_iterate_id U hU2 N MR hMRapp
   -- ### nondegeneracy of the Wall form
-  have hndR : ∀ u : ↥N.range, (∀ t : ↥N.range, ω t u = 0) → u = 0 := by
-    intro u hu
-    refine Subtype.ext ?_
-    by_contra hu0
-    obtain ⟨w, hw⟩ := hns ↑u hu0
-    have hall : ∀ x : V, polar q x ↑u = 0 := by
-      intro x
-      have ht := hu ⟨N x, ⟨x, rfl⟩⟩
-      rw [hω] at ht
-      obtain ⟨y, hy⟩ := AddMonoidHom.mem_range.mp u.2
-      rw [← hy] at ht ⊢
-      rw [hindep x (xrep ⟨N x, ⟨x, rfl⟩⟩) (by rw [hxrep]) y]
-      exact ht
-    exact hw ((polar_comm q ↑u w).trans (hall w))
+  have hndR : ∀ u : ↥N.range, (∀ t : ↥N.range, ω t u = 0) → u = 0 :=
+    fun u hu => wallForm_nondegenerate q hns N xrep hxrep hindep ω hω u hu
   -- ### the Wall count
   have hcount := wall_count h2R ω MR hMrel hMR2 hndR hk
   -- ### the fiber decomposition of the double Gauss sum
@@ -1376,37 +1460,12 @@ theorem gaussSum_qDouble [Fintype V] (hq : IsQuadraticFp2 q) (h2 : ∀ v : V, v 
         rw [add_comm (↑x : V) (xrep t), ← add_assoc, h2, zero_add] }
   -- the kernel character sum: `#K` on the perp of the kernel (= the range), `0` off it
   have hχ : ∀ u : V, (∑ s : ↥N.ker, sign (polar q ↑s u))
-      = if u ∈ N.range then (Nat.card ↥N.ker : ℤ) else 0 := by
-    intro u
-    by_cases hu : u ∈ N.range
-    · rw [if_pos hu]
-      have hz : ∀ s : ↥N.ker, polar q ↑s u = 0 :=
-        fun s => (perp_ker_iff_mem_range q U hq h2 hns hUq N hN u).mpr hu s
-      rw [show (∑ s : ↥N.ker, sign (polar q ↑s u)) = ∑ _s : ↥N.ker, 1 from
-        Finset.sum_congr rfl fun s _ => by rw [hz s]; decide]
-      rw [Finset.sum_const, Nat.card_eq_fintype_card, Finset.card_univ, nsmul_eq_mul, mul_one]
-    · rw [if_neg hu]
-      have hex : ∃ s₀ : ↥N.ker, polar q ↑s₀ u ≠ 0 := by
-        by_contra hcon
-        exact hu ((perp_ker_iff_mem_range q U hq h2 hns hUq N hN u).mp
-          fun s => not_not.mp (not_exists.mp hcon s))
-      obtain ⟨s₀, hs₀⟩ := hex
-      exact charSum_eq_zero ((polarHom q hq u).comp N.ker.subtype)
-        ⟨s₀, zmod2_ne_zero_eq_one _ hs₀⟩
+      = if u ∈ N.range then (Nat.card ↥N.ker : ℤ) else 0 :=
+    fun u => kernelCharSum q U hq h2 hns hUq N hN u
   -- the twisted double sum
   have hF1 : gaussSum (qDouble q ⇑U) * gaussSum q
-      = ∑ x : V, ∑ u : V, sign (q (N x) + q u + polar q x u) := by
-    unfold gaussSum
-    rw [Finset.sum_mul_sum]
-    refine Finset.sum_congr rfl fun x _ => ?_
-    rw [← Equiv.sum_comp (Equiv.addLeft x) (fun y => sign (qDouble q ⇑U x) * sign (q y))]
-    simp only [Equiv.coe_addLeft]
-    refine Finset.sum_congr rfl fun u _ => ?_
-    rw [← sign_add]
-    congr 1
-    rw [qDouble_eq_add q U hUq, hN]
-    unfold polar
-    linear_combination -CharTwo.add_self_eq_zero (q u)
+      = ∑ x : V, ∑ u : V, sign (q (N x) + q u + polar q x u) :=
+    twistedDoubleSum q U hUq N hN
   -- grouping over the fibers of `N`
   have hfiber : gaussSum (qDouble q ⇑U) * gaussSum q
       = (Nat.card ↥N.ker : ℤ)
