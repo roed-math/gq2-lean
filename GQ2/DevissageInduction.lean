@@ -23,10 +23,10 @@ Infrastructure (reusable): the transported actions `stableSubAction` on `↥W` a
 `QuotientAddGroup.mk' W`, exactness, the char-2 transfer to both subquotients, and the strict
 cardinality drops.
 
-Glue plan (single surgical edit at the very end, NOT here): `FoxHeisenberg.prop_5_15 :=
-prop_5_15_of_simple t ht hw hgen hcore (fun B _ _ _ hB₂ hsimple => …dispatch…)`, once the
-simple-case half lands.  Paper: Prop. 5.15, proof by dévissage along a composition series
-(§5.3); `Ax = ∅` (std-3).
+Glue (landed): `GQ2.FoxH.prop_5_15` in `GQ2/DualityAssembly.lean` composes
+`prop_5_15_of_simple t ht hw hgen` with the simple-case assembly `selfDual_of_simple`
+(dispatched via the `tau_split_or_ramified` dichotomy).  Paper: Prop. 5.15, proof by
+dévissage along a composition series (§5.3); `Ax = ∅` (std-3).
 -/
 
 namespace GQ2

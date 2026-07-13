@@ -32,10 +32,6 @@ provably agree, and the admissibility used in `N_A` is exactly the paper's.
 Finally, **Theorem 1.2 in its literal form** (`main_presentation_literal`,
 `Γ_A ≅ G_{ℚ₂}` as topological groups) is stated against this honest `Γ_A` — `sorry`-backed,
 awaiting Prop. 2.3 + step 2 of the program (see `docs/formalization-plan.md`).
-
-Sanity: the machine-checked admissible `S₃`-marking of `GQ2/AppendixB.lean` classifies an
-admissible quotient of `F₄` (`isAdmissible_markS3_toHom`), and `Γ_A` surjects onto `S₃`
-(`gammaA_surjective_s3`) — the marked quotient construction is nonvacuous.
 -/
 
 open CategoryTheory ProfiniteGrp
@@ -270,13 +266,6 @@ form for `G_{ℚ₂}`, eq. (154) + Prop 2.3) plus the two topological finite-gen
 `prop_2_3`/`main_surjection_count'` are **downstream** of this upstream file, so an in-place proof
 would cycle (the statement-move pattern P-08/P-15d/P-18e).  It carries `sorryAx` through the
 allowlisted §9 `thm_4_2` until P-17i. -/
-
-/-! ## Sanity: a concrete admissible quotient, and `Γ_A ↠ S₃` -/
-
-section SanityS3
-
-
-end SanityS3
 
 end GQ2
 
