@@ -451,10 +451,10 @@ end CupClauses
 paper's exact signature (`GQ2.FoxH.prop_5_16`).  This is the complete P-13g deliverable: clauses
 (i)–(iii) are the numeric/Euler-characteristic content, (iv)–(vi) the cup-perfectness content.
 
-`GQ2.FoxH.prop_5_16` itself cannot be spliced to `exact` this in place, because `FoxHeisenberg`
-(where it is declared) would then have to import this file, which already imports `FoxHeisenberg`
-(for `ElemDual`/`dualEval`) — an import cycle.  Discharging the sorry there needs the statement
-relocated out of the co-owned `FoxHeisenberg.lean` (a coordinated move, not a one-line splice). -/
+`GQ2.FoxH.prop_5_16` could not be proved by an `exact` splice in its original home, because
+`FoxHeisenberg` (where it was declared) would then have had to import this file, which already
+imports `FoxHeisenberg` (for `ElemDual`/`dualEval`) — an import cycle.  The statement was
+therefore relocated out of `FoxHeisenberg.lean` and is proved from this bundle below. -/
 theorem prop_5_16_bundle {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρ : Function.Surjective ρ)
     {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]

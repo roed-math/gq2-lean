@@ -673,8 +673,8 @@ exactly because the odd action-period divides that length.  Like `hU`/`hVS` in t
 this is factored out as an explicit hypothesis, to be supplied per simple factor by P-13d.
 See `docs/p13-normal-form-hypothesis-gap.md` and P-13b in `docs/p13-ticket-split.md`.
 
-*Status*: hypothesis amended (P-13b); `P = 0` ledger landed; the wild/tame rows + `∃!`-assembly
-remain sorried.
+*Status*: proved — hypothesis amended (P-13b); `P = 0` ledger landed; the wild/tame rows +
+`∃!`-assembly are discharged below.
 
 **Signature note (P-13f, 2026-07-05)**: the trivial wild action is now taken as hypotheses
 `hx0`/`hx1` rather than derived from `(hsimple, hcore)` via `wild_acts_trivially` — so the lemma
@@ -737,7 +737,7 @@ theorem lemma_5_13_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
 /-- **Lemma 5.13, pairing display (54), split case**: on `x₀`-supported representatives the
 degree-one pairing is `(c, λ) ↦ λ(c)` when `T = 1`.
 
-*Status*: sorried (P-13; via the mixed Hessian ledger, Lemma 5.14 — `h₀ ↦ λ(c)` via
+*Status*: proved (P-13; via the mixed Hessian ledger, Lemma 5.14 — `h₀ ↦ λ(c)` via
 `classTwoIdentity` [needs `g₀ = σ₂²` trivial, i.e. `hU`], and the `[d₀,z₀]` term vanishes since
 `P + 1 = 0` in char 2 for `T = 1`).  `hsimple`/`hcore` give the trivial wild action
 (`wild_acts_trivially`); `hU` is the σ-tameness (derivable in split; see `lemma_5_13_split`). -/

@@ -14,9 +14,9 @@ import GQ2.SectionSeven
 Statement-first extraction of the paper's §8 (pages 38–44): the **half-torsor count**
 (Lemma 8.6) and the **closed exact-image recursion** (Prop 8.9, displays (136)–(142)),
 together with the finite Fourier/Gauss engines they run on (Lemmas 8.4/8.5 — **proved
-here**) and the central-cover bookkeeping (Lemma 8.2/8.3).  Proofs of the sorried
-statements are the O-half of P-16; the §9 induction (P-17) consumes only the boxed
-system of Prop 8.9 plus Lemma 8.3.
+here**) and the central-cover bookkeeping (Lemma 8.2/8.3).  The remaining proofs were
+the O-half of P-16, since delivered — everything here is proved; the §9 induction (P-17)
+consumes only the boxed system of Prop 8.9 plus Lemma 8.3.
 
 Setting (§8 opening): the simple-head block of §7 (`GQ2.SectionSeven.MinimalBlock`) on a
 boundary-framed marked target `𝒴 = (Y, L_Y, π_Y, θ_Y)` (`GQ2.MarkedTarget`), with
@@ -66,8 +66,8 @@ witness (P-11).
    serves both sources — which is all the §9 induction uses.  Pinning the family to the
    phase classes `Δ_{χ,κ}` of (133)/(134) is the O-half's work (via 6.21/6.22/8.8).
 
-Axioms: none in this file (statement layer; sorried statements are allowlisted under
-P-16; the **Ax** budget B6/B7/B9 is consumed by the O-half proofs).
+Axioms: none in this file (statement layer; the **Ax** budget B6/B7/B9 was consumed by
+the O-half proofs, which all landed).
 -/
 
 open scoped Pointwise

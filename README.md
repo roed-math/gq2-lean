@@ -98,7 +98,7 @@ proved but not needed by the final route are catalogued in
 | `docs/tickets.md` | human-readable ticket summary (what was proved, where, when) |
 | `docs/orchestration/` | raw swarm archive: board, plans, handoffs, session logs |
 | `docs/foundations-audit.md` | the original Mathlib foundation audit (2026-07-02) |
-| `docs/proof-architecture.md` | the paper's proof DAG + formalization grades |
+| `docs/orchestration/proof-architecture.md` | the paper's proof DAG + formalization grades |
 | `scripts/check_axioms.sh` | the axiom/sorry/native_decide guard |
 | `scripts/atlas_audit.py` | renders `atlas-audit.md` from a Lean Atlas graph export |
 

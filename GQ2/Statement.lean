@@ -43,8 +43,8 @@ at P-19 (`main_presentation_literal`) from `main_surjection_count'`.  The proof 
 list of nine classical literature results (Demushkin classification, `G_ℚ₂(2)` Demushkin, local
 reciprocity, local Tate duality, local Euler characteristic, dyadic Hilbert symbol, 2-adic
 cyclotomic surjectivity, `G_ℚ₂` top. f.g., Evens/Stiefel–Whitney), enumerated in
-`docs/literature-axioms.md`; it carries `sorryAx` through the allowlisted `thm_4_2` (§9) until
-P-17i. -/
+`docs/literature-axioms.md`; the §9 `thm_4_2` it depends on was fully proved at P-17i, so its
+trust base is std-3 + the nine census axioms of `GQ2/Foundations/Axioms.lean`. -/
 
 /-!
 ## The literal presentation form (Theorem 1.2 as printed)
@@ -59,7 +59,8 @@ The schematic form below keeps the top-level logic explicit and checked: given P
 candidate (`hΓA`: its continuous surjection counts are the admissible-marking counts) and
 topological finite generation, `reconstruction` (Lemma 2.5) + `main_surjection_count` deliver
 the isomorphism.  Instantiating it at `Γ_A` (i.e. discharging `hΓA` — paper §2, Prop. 2.3 — and
-`hfgΓ`) is step 2 of the program; see `docs/formalization-plan.md`.
+`hfgΓ`) was step 2 of the program, done in `GQ2/PresentationLiteral.lean` (P-19); see
+`docs/orchestration/formalization-plan.md`.
 -/
 
 /-- **Theorem 1.2 (literal presentation form), schematic.** Any candidate profinite group `Γ_A`

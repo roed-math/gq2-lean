@@ -6,8 +6,8 @@ already exist in the literature**, and enumerates them with precise statements a
 meant for a quick expert check: *does each "leaf" below correctly match a known
 theorem in the cited reference?*
 
-> **Update (T-20):** all ten leaves are now *stated in Lean* — see
-> [`review-packet.md`](review-packet.md) for the Lean axiom name per leaf, the consolidated
+> **Update (T-20):** all leaves are now *stated in Lean* (current census: **nine** axioms) — see
+> [`review-packet.md`](orchestration/review-packet.md) for the Lean axiom name per leaf, the consolidated
 > deviations table, and mechanical verification instructions.  The citations and per-result
 > discussion below remain the authoritative literature reference.
 
@@ -19,7 +19,7 @@ faithful to the paper, then (modulo the routine profinite assembly noted in §A)
 
 **Lean status legend.**
 - ✅ **faithful** — stated as a typechecked Lean `axiom`/`theorem` against current Mathlib, in
-  `GQ2/Foundations.lean` (or already *proved*, in which case it is not a leaf at all).
+  `GQ2/Foundations/Axioms.lean` (or already *proved*, in which case it is not a leaf at all).
 - 🟡 **schematic** — the mathematical statement is precise (below) but a faithful Lean signature needs
   infrastructure Mathlib lacks (continuous Galois cohomology of a profinite group, Demushkin groups,
   local Tate duality pairings, the Hilbert symbol), so it is documented here, not in Lean.
@@ -118,7 +118,7 @@ not yet to hand.
   Thm 4(2) values *plus* the local-Galois fact (the Demushkin dualizing character equals the
   cyclotomic character, through *this* quotient map) *plus* the choice of a normalized B4
   isomorphism, and therefore **subsumes a marked B4**.  See its docstring and the classification
-  table (`docs/review-packet.md` §2).
+  table (`docs/orchestration/review-packet.md` §2).
 - **Used at.** Lemma 3.4 → Prop 1.1.
 
 ### B4. `G_ℚ₂(2)` is the rank-3 dyadic Demushkin group  🟡 schematic · **DELETED 2026-07-10 (unused — B3c subsumes a marked B4)**
@@ -259,7 +259,7 @@ not yet to hand.
 
 
 ### B10–B11b (added post-freeze)  ✅ faithful
-Recorded in §E below and in `review-packet.md` §2 (the census-amendment history): **B10**
+Recorded in §E below and in `orchestration/review-packet.md` §2 (the census-amendment history): **B10**
 (oriented tame quotient, NSW (7.5.3)/(7.5.2) + Neukirch ANT V (6.2)), **B11a** (norm criterion,
 Serre LF XIV §2 Prop. 4 iii)), ~~**B11b**~~ (unramified units are norms, Serre LF V §2 Prop. 3 +
 Cor. + Rem. 1) — **B11b discharged 2026-07-09** (B11b board): now a same-name std-3 **theorem**,
@@ -327,7 +327,7 @@ can confirm the Lean statements (where present) match the paper, and see the dep
 
 **Verified footprints (P-20, 2026-07-05).**  The "reduces to" column above records the *paper's*
 claim; the machine-checked per-node `#print axioms` footprints are tabulated in
-[`review-packet.md`](review-packet.md) §5 (and computed whole-library by `GQ2/AxiomLedger.lean`).
+[`review-packet.md`](orchestration/review-packet.md) §5 (and computed whole-library by `GQ2/AxiomLedger.lean`).
 Two are **tighter** than the claim: **Prop 1.1** is `{B3c, B8}` (not `B3,B4,B5,B7′` — B3c subsumes a
 marked B4, and B5/B7′ enter at the `lemma_3_5_hilbert_ledger` sub-node), and **Prop 5.15** is
 **std-3** (the §C annotation "uses B6" is discharged at `prop_5_16` instead, where `H²` is computed).

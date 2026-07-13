@@ -20,10 +20,11 @@ Statement-first extraction of the paper's §6 (pages 21–37), per the P-14 scop
 pair** 6.8/6.9, the **`D₈`/Evens-norm normalization** 6.13, the **orbit–stabilizer Shapiro
 ledger** 6.15, the **Hilbert ledger** 6.16 → 6.17 → **6.18** (the dyadic base determinant
 theorem, the section's headline), and the **transgression/shear pair** 6.21/6.22.  Every
-`theorem … := by sorry` carries its paper display number; proofs are ticket P-15
-(Ax: B5, B6, B7′, B9).  The definitional layer here (factor sets, graph pullbacks, orbit
-cocycles, the local functional `ι_F`) is `sorry`-free; classes of not-yet-proved cocycles are
-formed with the junk-total `H2ofFun`/`H1ofFun` (`GQ2/Corestriction.lean`).
+statement carries its paper display number; all are now proved — the proofs were ticket P-15
+(Ax: B5, B6, B9; B7′ has since been proved as a theorem).  The definitional layer here (factor
+sets, graph pullbacks, orbit cocycles, the local functional `ι_F`) never needed the proofs;
+classes of cocycles are formed with the junk-total `H2ofFun`/`H1ofFun`
+(`GQ2/Corestriction.lean`).
 
 Design rationale, statement-by-statement display map, and **flagged deviations** (democratic
 Arf, canonical transversals, 6.5/6.19 deferred to the P-12/P-16 seam, 6.13's (100) folded into
@@ -50,7 +51,7 @@ Arf, canonical transversals, 6.5/6.19 deferred to the P-12/P-16 seam, 6.13's (10
   (`GQ2/BoundaryFrame.lean`), and the dichotomy is whether the inertia generator `tameTau` acts
   trivially on `V`.  `U = S^{ω₂}` is `powOmega2` (`GQ2/Omega2.lean`) of the Frobenius image.
 
-Axioms: **none consumed here** (statement layer); the census stays at 10.
+Axioms: **none consumed here** (statement layer).
 -/
 
 namespace GQ2
@@ -856,8 +857,8 @@ base determinant form has the positive Gauss sign,
 structure layer built there off `RepIndependence`, which imports this file; statement moved
 out to break the import cycle, per the P-15d pattern).  The `hc : Surjective ⇑c` amendment
 travels with it; `hV2` is derivable there from `hcard` + `hsimple` via additive Cauchy.
-Axioms: std-3 + B7 (B6 via the `D` parameter) + `sorryAx` through the two Lemma 6.17 sorries
-(the remaining §6.3 Kummer cores). -/
+Axioms: std-3 + B7 (B6 via the `D` parameter); the two Lemma 6.17 obligations (the §6.3
+Kummer cores) have since been proved, so no `sorryAx`. -/
 
 /- **Proposition 6.18, eq. (115), unramified case**: negative Gauss sign,
 `#(Q⁰_loc)⁻¹(0) = 2^{2m−1} − 2^{m−1}`.

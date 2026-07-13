@@ -14,7 +14,7 @@ discharge the `prop_8_9` ledger hypothesis `hGaussZA` at the pinned values `∓2
   `GaussZCoordGammaA.finite_vcocycle_gammaA` and the `V^{C₀} = 0` freeness from
   `hfix_of_simple_nt` (`hnt`-only — no `hfaith` on the source side);
 * the **pinned-value seams** `sum_sign_QZeroBar_gammaA_{unramified,ramified}`:
-  `∑ sign(Q̄⁰) = ∓2^m` over `Z¹⧸B¹` — **the A-4 core, currently SORRIED (skeleton-first)**.
+  `∑ sign(Q̄⁰) = ∓2^m` over `Z¹⧸B¹` — **the A-4 core, skeleton-first and since proved**.
   Route (`docs/p16d6e4aA-a4-prep.md`, the paper's Prop 6.5/6.9): reindex the quotient by the
   `x₀`-supported section (`FoxHeisenberg.x0Supported`, the paper's gauge; bijective onto
   `H¹_w` by the `d¹`-closed forms + `card_H1w_gammaA`); evaluate `Q̄⁰` on the section through
@@ -24,7 +24,7 @@ discharge the `prop_8_9` ledger hypothesis `hGaussZA` at the pinned values `∓2
   `T = 1` ⟹ `U = 1` collapse) / `qDouble q̄ U` (ram) and count via `prop_6_9_unramified` /
   `lemma_6_8` clause 4 + `gaussSum_eq_of_arf_eq`.
 
-Axioms: the shell is std-3; the seams are expected std-3 (word-side; the pins are proved).
+Axioms: the shell is std-3; the seams landed as expected (word-side; the pins are proved).
 -/
 
 namespace GQ2
@@ -1272,7 +1272,7 @@ theorem zeroCount_qDouble_ramified_of_faithful {C : Type} [Group C] [Topological
 
 /-- **The ramified zero count from action-level hypotheses**: the A-4.5b actionization
 pushed through `qDouble` — the faithful quotient has the same `σ₂`-action values
-(`powOmega2_map` along `mk'`), the action-level `hram` element-izes, and the (sorried)
+(`powOmega2_map` along `mk'`), the action-level `hram` element-izes, and the proved
 faithful-level count applies verbatim. -/
 theorem zeroCount_qDouble_ramified_of_action {C : Type} [Group C] [TopologicalSpace C]
     [DiscreteTopology C] [Finite C] {V : Type} [AddCommGroup V] [Finite V]
@@ -1355,7 +1355,7 @@ theorem zeroCount_qDouble_ramified_of_action {C : Type} [Group C] [TopologicalSp
   exact zeroCount_qDouble_ramified_of_faithful c' hc'surj hfaith' hsimple' hram'
     q hq hns hinv' m hm hcard
 
-/-- **The ramified `V`-sum**: `∑ᶠ sign(qDouble) = +2^m` — the plus finale on the (sorried)
+/-- **The ramified `V`-sum**: `∑ᶠ sign(qDouble) = +2^m` — the plus finale on the
 ramified count. -/
 theorem finsum_sign_ramified_of_action {C : Type} [Group C] [TopologicalSpace C]
     [DiscreteTopology C] [Finite C] {V : Type} [AddCommGroup V] [Finite V]

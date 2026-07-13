@@ -31,10 +31,9 @@ The un/ramified dichotomy hypothesis is taken at the **head** (`F.alpha tameTau`
 `headAct`) — ρ-free and source-free, matching the P4c local twins, so the P4e obtain can
 `by_cases` on it once for both sources.
 
-Axioms: the unramified twin is std-3; the ramified twin inherits the transitive `sorryAx` of
-`zeroCount_qDouble_ramified_of_faithful` (through `finsum_sign_ramified_of_action`) exactly as
-the baseline ramified twin does — **no sorry token in this file**, and the trace heals when
-P3 lands.
+Axioms: the unramified twin is std-3; the ramified twin once inherited a transitive `sorryAx`
+from `zeroCount_qDouble_ramified_of_faithful` (through `finsum_sign_ramified_of_action`), but
+P3 landed and that count is proved — this file's trace is sorry-free.
 -/
 
 namespace GQ2

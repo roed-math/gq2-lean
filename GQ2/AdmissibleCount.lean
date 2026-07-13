@@ -404,9 +404,9 @@ omit [DiscreteTopology C] [TopologicalSpace V] [DiscreteTopology V] [DistribMulA
 `card_equivHoms_quotient_ses` at `A := H¹(N)`, `Deep := deepClassesSubgroup (ker ρ)` with the
 conjugation actions.  Yields `#Hom_C(V^∨, H¹(N)) = #Hom_C(V^∨, deep) · #Hom_C(V^∨, H¹(N)/deep)`.
 The regular-summand package `(ι, r)` for `V^∨` (Lemma-6.11 output shape) and `Finite (H¹ N)` are
-hypotheses; `sorryAx` enters a consumer's audit only through the eventual `lemma_6_11`
-instantiation of the package (f8).  The abstract helper sidesteps the `AbsGalQ2`/`GaloisGroup`
-view mismatch (handoff §4/§7). -/
+hypotheses; the `lemma_6_11` instantiation of the package (f8) is proved
+(`GQ2/RegularSummand.lean`), so consumers' audits are clean.  The abstract helper sidesteps the
+`AbsGalQ2`/`GaloisGroup` view mismatch (handoff §4/§7). -/
 theorem card_equivHoms_deepSES (hρsurj : Function.Surjective ⇑ρ)
     [Finite (H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))]
     {Nreg : ℕ} (ι : (V →+ ZMod 2) →+ (Fin Nreg → C → ZMod 2))

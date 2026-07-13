@@ -14,7 +14,8 @@ import Mathlib.RingTheory.AdjoinRoot
 
 Blueprint: `docs/p16d6e4aA-pack-design.md`.  Target: the pack fields of
 `SectionSix.prop_6_9_ramified`, discharging `zeroCount_qDouble_ramified_of_faithful`
-(the ONE remaining sorry of the `Γ_A` Gauss lane).
+(what was the last remaining gap of the `Γ_A` Gauss lane — now proved in
+`GQ2/GaussZ/FinalGammaA.lean`).
 
 This file builds the generic layer, bottom-up:
 

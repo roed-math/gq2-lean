@@ -32,8 +32,9 @@ the field level — see T-10's note in `docs/tickets.md`).
 ## The bundle
 
 `DyadicOrientation` packages:
-* `equiv : G_{ℚ₂}(2) ≅ D₀` — a B4 isomorphism (existence alone is axiom B4; the orientation
-  axiom strengthens it with the value normalization);
+* `equiv : G_{ℚ₂}(2) ≅ D₀` — a B4 isomorphism (existence alone was axiom B4, deleted
+  2026-07-10 as subsumed by B3c; the orientation axiom strengthens it with the value
+  normalization);
 * `chiTwo : G_{ℚ₂}(2) →* ℤ₂ˣ` continuous with `chiTwo ∘ π = χ_cyc` — the **descent** of the
   cyclotomic character through the maximal pro-2 quotient.  (The descent exists because `ℤ₂ˣ`
   is pro-2 — `(ℤ/2^k)ˣ` has order `2^{k−1}` — so `χ_cyc` kills the pro-2 kernel by T-05's

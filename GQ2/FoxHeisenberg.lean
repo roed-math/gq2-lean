@@ -9,11 +9,13 @@ import GQ2.FoxHeisenberg.HessianRow
 
 The paper's §5 sets up, for a finite *lower target* `C` and an elementary `𝔽₂[C]`-module `A`,
 the two cochain theories that the §9 induction compares: the **finite word complex** (30) on the
-candidate side, and continuous Galois cohomology on the local side.  This file provides the
-definition layer (the complex, the Heisenberg groups, the mixed central coordinate) and the
-**sorried statements** of Lemmas/Propositions 5.6, 5.7, 5.8, 5.11, 5.12, 5.13, 5.15, 5.16 with a
-proved 5.17-numerics wiring corollary.  Proof ticket: P-13 (axioms B6, B7 enter only there, in
-5.16).
+candidate side, and continuous Galois cohomology on the local side.  This file is a thin
+umbrella: the content now lives in the `GQ2/FoxHeisenberg/` sub-modules imported above
+(`Basic`, `Heisenberg`, `Traced`, `WildRow`, `HessianRow`), which provide the definition layer
+(the complex, the Heisenberg groups, the mixed central coordinate) and the **proved**
+Lemmas/Propositions 5.6, 5.7, 5.8, 5.11, 5.12, 5.13, 5.15, 5.16 together with the
+5.17-numerics wiring corollary.  The proofs were ticket P-13.  The overview below documents
+the §5 encodings shared by all the sub-modules.
 
 ## The §5 objects and their encodings
 
@@ -39,10 +41,10 @@ proved 5.17-numerics wiring corollary.  Proof ticket: P-13 (axioms B6, B7 enter 
   `σ,τ,x₀,x₁`, matching `univMarking`); `d1Fun t x` is the pair of `A`-coordinates of the two
   relator values at the lifted marking `liftMarking t x` — the paper's "coefficient of `A` in
   the evaluated tame and wild relators", verbatim.  **Additivity of `d1Fun` is the paper's
-  "finite Fox rules" and is a sorried obligation** (`d1Fun_add`, P-13, via the ledger of
-  Lemma 5.4); the bundled `d1 t` is built on it, and `Z1w/H0w/H1w/H2w` follow the `ContCoh`
-  shape (`H1 = Z1 ⧸ B1.addSubgroupOf Z1` — total definitions, no chain condition needed; the
-  chain identity `d¹∘d⁰ = 0` under the relations is the separate sorried `d1Fun_comp_d0`).
+  "finite Fox rules"**, proved as `d1Fun_add` (via the ledger of Lemma 5.4); the bundled
+  `d1 t` is built on it, and `Z1w/H0w/H1w/H2w` follow the `ContCoh` shape
+  (`H1 = Z1 ⧸ B1.addSubgroupOf Z1` — total definitions, no chain condition needed; the
+  chain identity `d¹∘d⁰ = 0` under the relations is the separate proved `d1Fun_comp_d0`).
   The **proved** stress test `d1Fun_tame` computes the tame row in closed form — the general
   form of display (34), validating the convention stack (lift order, `conjP`, the `(u,g)(v,h)`
   rule) end-to-end.
@@ -58,8 +60,8 @@ proved 5.17-numerics wiring corollary.  Proof ticket: P-13 (axioms B6, B7 enter 
   `FreeGroup (Fin n)` (Mathlib's, not profinite), evaluation `stokesEval` via `FreeGroup.lift`,
   mod-2 exponents `expMod2` via the lift to `Multiplicative (ZMod 2)`.  The tame relator's
   exponent vector `(0,1,0,0)` (Prop 5.8's proof) is **proved** here for the free-group tame
-  word (`expMod2_fgTame`); the wild word's vector is P-13 content (it needs the integer-`ω₂`
-  representative words).
+  word (`expMod2_fgTame`); the wild word's vector was P-13 content (it needs the integer-`ω₂`
+  representative words) and is proved in the sub-modules.
 * **Duality statements.**  5.15/5.16 are stated in `Nat.card` + pairing form; "perfect" is
   encoded as two-sided nondegeneracy (equivalent to perfectness for finite elementary groups,
   given the card clauses).  On the candidate side the descended `H¹×H¹`-pairing is carried
@@ -77,17 +79,17 @@ proved 5.17-numerics wiring corollary.  Proof ticket: P-13 (axioms B6, B7 enter 
   Prop 5.8's (41)/(42) with `L = d1Fun` on `A` resp. `A^∨`.  Statement content = 5.8 + 5.6;
   deviation flagged.
 
-## Deferred (flagged deviations)
+## Deviations (flagged, historical)
 
 * **Corollary 5.17's adjoint-boundary identity (58)** needs connecting maps
   `∂ : H¹(V) → H²(T)` in *both* theories (snake maps for the word complex, coefficient-SES
-  connecting maps for `ContCoh`) — infrastructure that does not exist yet and whose shape
-  should be fixed by its consumer (§9.2/9.3).  P-12 ships the *numerics* half
-  (`cor_5_17_card`, proved from 5.15+5.16); the (58)-half is deferred to P-13 with the §9
-  designer (P-17) as tiebreaker on the encoding.  Recorded on the board.
-* Lemmas 5.2/5.3/5.4/5.14 (class-two identity, `h₀`-shadow, ledger, Hessian) are proof-layer
-  calculations for P-13; Remark 5.9's `GL₂(𝔽₂)` regression test is P-13's designated test
-  case.  Lemma 5.1 is absorbed (see above).
+  connecting maps for `ContCoh`) — infrastructure whose shape was fixed by its consumer
+  (§9.2/9.3).  P-12 shipped the *numerics* half (`cor_5_17_card`, proved from 5.15+5.16);
+  the (58)-half was deferred to P-13 with the §9 designer (P-17) as tiebreaker on the
+  encoding.  Recorded on the board.
+* Lemmas 5.2/5.3/5.4/5.14 (class-two identity, `h₀`-shadow, ledger, Hessian) were proof-layer
+  calculations discharged in P-13; Remark 5.9's `GL₂(𝔽₂)` regression test was P-13's
+  designated test case.  Lemma 5.1 is absorbed (see above).
 
 Conventions: `x ^ g = g⁻¹xg` (`conjP`), `[x,y] = x⁻¹y⁻¹xy` (`commP`), marking order
 `(σ, τ, x₀, x₁)` = indices `0,1,2,3`.

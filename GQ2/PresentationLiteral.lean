@@ -17,9 +17,9 @@ eq. (154) + Prop. 2.3).  `Prop23` and `SectionTenSources` sit **downstream** of 
 `GammaA.lean`, so an in-place proof would cycle — the statement-move pattern (P-08/P-15d/P-18e);
 `GammaA.lean` carries a comment-pointer here.
 
-**Axioms.**  Std-3 + `sorryAx` (through the allowlisted `SectionNine.thm_4_2` until P-17i) + the
-tower's Track-B literature axioms (via `main_surjection_count'` / the boundary construction) + B1
-(topological finite generation of `G_{ℚ₂}`).  No new axiom, no `sorry` token in this file.
+**Axioms.**  Std-3 + the nine census axioms of `GQ2/Foundations/Axioms.lean` (B1, B3c, B5–B11a),
+entering via `main_surjection_count'` / the boundary construction and B1 (topological finite
+generation of `G_{ℚ₂}`).  No new axiom, no `sorry`.
 -/
 
 namespace GQ2

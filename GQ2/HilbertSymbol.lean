@@ -83,11 +83,12 @@ theorem ω_neg_one : ω (-1) = 0 := by
   rw [ω, toZModPow_neg_one]; decide
 
 
-/-! ## Inputs of the dyadic Hilbert-symbol formula (axiom B7′)
+/-! ## Inputs of the dyadic Hilbert-symbol formula (former axiom B7′)
 
-The axiom itself — `(2^α u, 2^β v)₂ = (-1)^{ε(u)ε(v) + αω(v) + βω(u)}`, Serre CiA III §1.2
+The statement itself — `(2^α u, 2^β v)₂ = (-1)^{ε(u)ε(v) + αω(v) + βω(u)}`, Serre CiA III §1.2
 Thm 1 — lives in `GQ2/Foundations/Axioms.lean` (`GQ2.HilbertSymbol.hilbertSymbol_dyadic`,
-consolidated there by T-19), together with its faithfulness check `(-1,-1)₂ = -1`.  Here we
+consolidated there by T-19; since 2026-07-09 a same-name *theorem*, proved in-repo via
+`GQ2/HilbertSymbolDyadicClose.lean`), together with its faithfulness check `(-1,-1)₂ = -1`.  Here we
 provide the two decomposition inputs of its statement. -/
 
 /-- The unit `2 ∈ ℚ₂ˣ`. -/

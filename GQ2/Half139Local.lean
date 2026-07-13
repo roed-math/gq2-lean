@@ -268,7 +268,7 @@ by the concurrent P-16d6b (`PhaseMuIndep.tcocycle_mu_indep`'s `hML`/`κM`).  The
    surjectivity (`rhoPrime_surjective`), `hcomp` from step 1, `hA₂` from `RF.MB_elem`.
 4. **`#fixedPts RF.YC (ElemDual MBmod) = 1`** — i.e. `H²(AbsGalQ2, M_B) = 0`
    (`card_H2_eq_fixedPts`, B6), i.e. `(M_B^∨)^{YC} = 0`.  **The group theory is already proved:**
-   this is `GQ2.SectionSeven.lemma_7_1_dual` (`SectionSeven.lean:449`, std-3, no sorry) — "`K` has no
+   this is `GQ2.SectionSeven.lemma_7_1_dual` (`GQ2/SectionSeven/Basic.lean`, std-3, no sorry) — "`K` has no
    `Y`-normal subgroup of index 2 above `R`" = `(M^∨)^C = 0`, via minimality of `K` + the `V = P/S`
    chief dichotomy.  Only a bridge (a nonzero `YC`-invariant functional's kernel ↦ an index-2
    `Y`-normal `X` with `Blk.frattiniK ≤ X ≤ Blk.K`, refuted by `lemma_7_1_dual`) remains — no

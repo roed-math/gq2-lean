@@ -23,20 +23,21 @@ import GQ2.UnramifiedQuadraticNorms
 `scripts/check_axioms.sh`).  Each one is a **classical, published** result that the paper's
 proof of Theorem 1.2 rests on — the intended leaves once the paper's own §§3–9 argument is
 granted.  The paper's own intermediate propositions (Prop. 1.1, Prop. 3.2, Thm. 4.2,
-Lemma 10.1, …) are **not** here — they are the paper's contribution and live as sorried nodes
-near `main_surjection_count`.
+Lemma 10.1, …) are **not** here — they are the paper's contribution and were formalized as
+their own nodes near `main_surjection_count`, all now fully proved (the library is
+`sorry`-free).
 
 **How to read this for review.**  Each `axiom` below is a result that already
 exists in the literature; the docstring gives the precise statement, the citation, and the
 paper cross-reference.  The B-labels follow `docs/literature-axioms.md` (which also records the
-dependency structure, paper App. D).  Current census — **ten** axioms (B11 split into
+dependency structure, paper App. D).  Current census — **nine** axioms (B11 split into
 B11a/B11b by P-23, 2026-07-04; B12/B13 added by P-15f1, 2026-07-06, census 13 → 15; **B12
 discharged in-repo as a same-name theorem and the unused B2 deleted, census 15 → 13** — B12
 board, user-approved 2026-07-09; **B7′ discharged in-repo as a same-name theorem, census
 13 → 12** — B7′ board, user-approved 2026-07-09; **B13 discharged in-repo as a same-name
 `noncomputable def`, census 12 → 11** — B13 board, user-approved 2026-07-09; **B11b discharged
-in-repo as a same-name theorem, census 11 → 10** — B11b board, user-approved 2026-07-09),
-faithfully stated against
+in-repo as a same-name theorem, census 11 → 10** — B11b board, user-approved 2026-07-09;
+**the unused B4 deleted, census 10 → 9** — user-approved 2026-07-10), faithfully stated against
 current Mathlib plus this repo's `ContCoh` cohomology:
 
 * **B1** `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` — `G_ℚ₂` top. f.g.
@@ -624,7 +625,7 @@ theorem kummerClassK_surjective (k : IntermediateField ℚ_[2] (AlgebraicClosure
     Function.Surjective (kummerClassK k) :=
   KummerSurjectivity.kummerClassK_surjective' k
 
-/-- **The B13 axiom (dyadic unit filtration).**
+/-- **The former B13 axiom (dyadic unit filtration).**
 
 Every finite extension `k/ℚ₂` carries a `DyadicUnitFiltration` (`GQ2/UnitFiltration.lean`):
 a uniformizer `π` (an element of maximal spectral norm `< 1` — discreteness of the value

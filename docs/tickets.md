@@ -8,7 +8,7 @@ formalized end-to-end: the literal statement
 is proved in [`GQ2/PresentationLiteral.lean`](../GQ2/PresentationLiteral.lean), together with
 the counting capstone `main_surjection_count'` (`#(continuous surjections G_{ℚ₂} ↠ G) =
 admissibleCount G`, [`GQ2/SectionTenSources.lean`](../GQ2/SectionTenSources.lean)).  The
-library is **fully `sorry`-free** (guard: [`scripts/check_axioms.sh`](../../scripts/check_axioms.sh),
+library is **fully `sorry`-free** (guard: [`scripts/check_axioms.sh`](../scripts/check_axioms.sh),
 allowlist emptied 2026-07-08) and rests on the **9-axiom census** of
 [`GQ2/Foundations/Axioms.lean`](../GQ2/Foundations/Axioms.lean) — every theorem is
 `#print axioms` ⊆ std-3 ∪ its declared B-leaves.  (15 at proof completion; see the census-flip

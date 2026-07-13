@@ -7,7 +7,8 @@ import Mathlib.LinearAlgebra.Dual.Lemmas
 /-!
 # §5.11 dévissage: two-out-of-three for `IsSelfDual` along a module SES  (ticket P-13e)
 
-`lemma_5_11` (`GQ2/FoxHeisenberg.lean`) is the two-out-of-three property of the `IsSelfDual`
+`lemma_5_11` (proved at the bottom of this file; the `IsSelfDual` package is defined in
+`GQ2/FoxHeisenberg/Traced.lean`) is the two-out-of-three property of the `IsSelfDual`
 package along a short exact sequence `0 → A' → A → A'' → 0` of finite elementary `𝔽₂[C]`-modules.
 The proof device is the **long exact cohomology sequence** of the word complex
 `C(A) : A --d⁰--> A⁴ --d¹--> A²` (displays (30)/(49)/(50)): the degreewise functors `A ↦ A`,

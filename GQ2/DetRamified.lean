@@ -24,7 +24,8 @@ vocabulary).  So `prop_6_18_ramified` gains `(R, horient)` as hypotheses (the `h
 precedent); consumers discharge them at `B := boundaryMapsWitness` via
 `TameOrientationWitness.tameFHom_tameUnitOrientation` (B10′) with `R := localReciprocity` (B5).
 
-Axioms: std-3 + {B6, B7, B9, B11a, B11b, B12, B13} (`lemma_6_17_dim_final`'s B6/B7/B11a/B12/B13 +
+Axioms: std-3 + {B6, B7, B9, B11a} (B11b/B12/B13 have since been discharged as in-repo std-3
+theorems/defs; the original budget was `lemma_6_17_dim_final`'s B6/B7/B11a/B12/B13 +
 `lemma_6_17_vanish_final`'s B9/B11a/B11b/B13, joined through `card_Q0loc_zero_eq_of_dim_of_vanish`,
 which adds only B6/B7 via `D`) — the full §6.3 deep-part budget, **no new axiom, no `sorryAx`**.
 -/

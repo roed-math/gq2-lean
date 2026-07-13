@@ -14,10 +14,10 @@ The `nuT`-factoring brick of the analytic-`hunram` derivation (`docs/p15f2c2c-ha
   odd; in a `2`-group it is a power of `2`; odd ∧ `2`-power ⟹ `1`.
 
 * **(ii) the factoring** *(axiom-free)*: any **continuous** `φ : Ttame → Q` into a finite discrete
-  `2`-group factors through `nuT : Ttame → Ztwo` (the pro-`2` tame character).  [in progress]
+  `2`-group factors through `nuT : Ttame → Ztwo` (the pro-`2` tame character).
 
 * **(iii) `TameUnitOrientation`** *(std-3 + B10′)*: the B10′-clause shape, plus its discharge at
-  the axiom witness `boundaryMapsWitness.tameF`.  [in progress]
+  the axiom witness `boundaryMapsWitness.tameF`.
 
 No new axiom (user decision of record 2026-07-08); (i)+(ii) are std-3.
 -/

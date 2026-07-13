@@ -22,10 +22,10 @@ isomorphism itself.  Paper: *"there exist topological generators `a, s, y` of `D
   Then `e := Ψ ∘ equiv` induces `e_ab` on abelianizations, so `e.symm(A/S/Y)` have the marked
   reciprocity classes, and the `ν_ur`-rows read off through `nu_ur_recip_*`.
 
-`e_ab` is Lemma 3.5, whose sole gap is the census-gated `markedHom_bijective` (Escalation 5); so
-`prop_1_1` inherits exactly that one sorry and nothing else.  Everything here (functorial
-abelianization, the `χ`-descent, the `Θ`-classification/lift, the `ν_ur`-readoff) is otherwise
-`std-3 + B3c + B8`.
+`e_ab` is Lemma 3.5, whose once census-gated ingredient `markedHom_bijective` (Escalation 5) is
+now a proved theorem (`GQ2/SectionThree.lean`); so `prop_1_1` is fully proved.  Everything here
+(functorial abelianization, the `χ`-descent, the `Θ`-classification/lift, the `ν_ur`-readoff)
+is `std-3 + B3c + B8`.
 -/
 
 open scoped Classical
@@ -287,7 +287,7 @@ lemma chiCycAb_recip_unitNeg3 : chiCycAb (R.recip unitNeg3) = unitNegThree⁻¹ 
 
 /-- **Proposition 1.1** (ticket P-10).  A marked isomorphism `e : G_{ℚ₂}(2) ≅ D₀` with unramified
 coordinates `ν_ur(a, s, y) = (−2, 1, 0)`.  Assembled from B3c (`orientBundle.equiv`), Lemma 3.5
-(`lemma_3_5_marked_abelianization`, ticket P-07 — its sole gap `markedHom_bijective` is inherited),
+(`lemma_3_5_marked_abelianization`, ticket P-07 — `markedHom_bijective` now proved),
 and Prop. 3.8 (`prop_3_8_classification`/`prop_3_8_lift`, ticket P-08).  Statement moved here from
 `GQ2/SectionThree.lean` (comment-pointer there), P-09 precedent. -/
 theorem SectionThree.prop_1_1 :

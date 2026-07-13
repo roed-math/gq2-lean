@@ -25,12 +25,13 @@ The paper's §6 evaluates determinant classes through the **normalized bar cores
   is part of the P-15 proof obligations.  **Deviation flagged.**
 * Sums are `finsum` (`∑ᶠ`), meaningful under `[Finite (G ⧸ U)]` (finite index) — total without it.
 * `H2ofFun`/`H1ofFun` are **junk-total class formers**: they send a raw function to its
-  cohomology class when it is a (continuous) cocycle and to `0` otherwise.  Statement tickets use
-  them to *define* classes whose cocycle property is itself a sorried statement (the
-  paper's Lemma 6.1/6.15 content), keeping all `def`s sorry-free.
+  cohomology class when it is a (continuous) cocycle and to `0` otherwise.  Statement tickets
+  used them to *define* classes whose cocycle property was, during development, a separately
+  stated obligation (the paper's Lemma 6.1/6.15 content, since proved), keeping all `def`s
+  total and independent of the proof layer.
 
 Cocycle membership, Mackey restriction, and transversal-independence are **not** proved here —
-they are the P-15 proof layer.  This file is `sorry`-free.
+they are the P-15 proof layer (proved downstream).  This file is definition-only.
 -/
 
 namespace GQ2
@@ -81,8 +82,9 @@ end Corestriction
 /-! ## Junk-total class formers
 
 Send a raw function to its cohomology class when it is a continuous cocycle, and to `0`
-otherwise.  These let statement files *define* classes whose cocycle property is one of their
-own sorried statements, without any `sorry` inside a `def`. -/
+otherwise.  These let statement files *define* classes whose cocycle property was, during
+development, one of their own separately stated obligations (since proved), keeping the `def`s
+total. -/
 
 section ClassFormers
 

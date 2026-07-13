@@ -30,8 +30,9 @@ words in a finite quotient is **the same** as the finite-level relations of `GQ2
 provably agree, and the admissibility used in `N_A` is exactly the paper's.
 
 Finally, **Theorem 1.2 in its literal form** (`main_presentation_literal`,
-`Γ_A ≅ G_{ℚ₂}` as topological groups) is stated against this honest `Γ_A` — `sorry`-backed,
-awaiting Prop. 2.3 + step 2 of the program (see `docs/formalization-plan.md`).
+`Γ_A ≅ G_{ℚ₂}` as topological groups) is stated against this honest `Γ_A` and **proved** in
+`GQ2/PresentationLiteral.lean` (P-19), via Prop. 2.3 + the surjection-count theorem (see
+`docs/orchestration/formalization-plan.md`).
 -/
 
 open CategoryTheory ProfiniteGrp
@@ -264,8 +265,8 @@ its proof instantiates `Statement.main_presentation` at `Γ_A` with `hΓA := pro
 `Γ_A` admissible-marking count) and `hcount := SectionTen.main_surjection_count'` (Theorem 1.2 count
 form for `G_{ℚ₂}`, eq. (154) + Prop 2.3) plus the two topological finite-generation witnesses — and
 `prop_2_3`/`main_surjection_count'` are **downstream** of this upstream file, so an in-place proof
-would cycle (the statement-move pattern P-08/P-15d/P-18e).  It carries `sorryAx` through the
-allowlisted §9 `thm_4_2` until P-17i. -/
+would cycle (the statement-move pattern P-08/P-15d/P-18e).  Its trust base is std-3 + the nine
+census axioms of `GQ2/Foundations/Axioms.lean` (the §9 `thm_4_2` was fully proved at P-17i). -/
 
 end GQ2
 
