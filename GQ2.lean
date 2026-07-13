@@ -45,6 +45,11 @@ import GQ2.SectionThreeMarked
 import GQ2.AdmissibleLimit
 import GQ2.Prop23
 import GQ2.FoxHeisenberg
+import GQ2.FoxHeisenberg.Basic
+import GQ2.FoxHeisenberg.Heisenberg
+import GQ2.FoxHeisenberg.Traced
+import GQ2.FoxHeisenberg.WildRow
+import GQ2.FoxHeisenberg.HessianRow
 import GQ2.Devissage
 import GQ2.QuadraticFp2
 import GQ2.GaussCount
