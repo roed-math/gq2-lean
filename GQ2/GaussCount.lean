@@ -719,6 +719,78 @@ private theorem wall_count_corrected_monodromy {W : Type u} [AddCommGroup W]
     rw [AddMonoidHom.mem_ker.mp c.2, ZMod.val_zero, zero_nsmul, add_zero]
   exact ⟨MC, hMCrest, hMC2⟩
 
+/-- If a monodromy `MH` on a subobject `K ↪ W` (embedding `f`, injective) is intertwined with a
+monodromy `M` on `W` (`f (MH h) = M (f h)`) and `M` has `2`-power order `2 ^ m`, then so does
+`MH`.  (Iterating the intertwining relation and cancelling the injection.) -/
+private theorem wall_count_ker_monodromy_pow {W : Type u} [AddCommGroup W] (M : W ≃+ W)
+    {K : Type u} [AddCommGroup K] (MH : K ≃+ K) (f : K → W) (hf : Function.Injective f)
+    (hMHapp : ∀ h : K, f (MH h) = M (f h)) {m : ℕ} (hm : (⇑M)^[2 ^ m] = id) :
+    (⇑MH)^[2 ^ m] = id := by
+  have hiter : ∀ (i : ℕ) (h : K), f ((⇑MH)^[i] h) = (⇑M)^[i] (f h) := by
+    intro i
+    induction i with
+    | zero => intro h; rfl
+    | succ i ihi =>
+      intro h
+      rw [Function.iterate_succ_apply', Function.iterate_succ_apply', hMHapp, ihi]
+  funext h
+  refine hf ?_
+  simp only [hiter, hm, id_eq]
+
+/-- Isotropic shift, inner index: with `W ≃ ZMod 2 × ker (ω a)` split along `t₀` (`he2`) and
+`a ∈ ker (ω a)`, shifting the *inner* kernel index by `a` changes the Wall exponent by exactly
+the *outer* `t₀`-coordinate `x`.  (Every `⟨a⟩`-cross term is a `t₀`-coordinate multiple.) -/
+private theorem wall_count_isotropic_shift_inner {W : Type u} [AddCommGroup W]
+    (ω : W →+ W →+ ZMod 2) (a t₀ : W) (hAmem : a ∈ (ω a).ker)
+    (eT : ZMod 2 × ↥(ω a).ker ≃ W)
+    (he2 : ∀ (x : ZMod 2) (h : ↥(ω a).ker), eT (x, h) = x.val • t₀ + ↑h)
+    (haa : ω a a = 0) (ht₀1 : ω t₀ a = 1) (hat₀ : ω a t₀ = 1)
+    (hmem : ∀ h : ↥(ω a).ker, ω a ↑h = 0) (hmem' : ∀ h : ↥(ω a).ker, ω ↑h a = 0) :
+    ∀ (x y : ZMod 2) (h h₂ : ↥(ω a).ker),
+      (ω (eT (x, h)) (eT (x, h)) + ω (eT (y, h₂ + ⟨a, hAmem⟩)) (eT (y, h₂ + ⟨a, hAmem⟩))
+        + ω (eT (x, h)) (eT (y, h₂ + ⟨a, hAmem⟩)))
+      = (ω (eT (x, h)) (eT (x, h)) + ω (eT (y, h₂)) (eT (y, h₂))
+        + ω (eT (x, h)) (eT (y, h₂))) + x := by
+  intro x y h h₂
+  simp only [he2, AddSubgroup.coe_add, omega_expand]
+  simp only [map_add, AddMonoidHom.add_apply, hmem, hmem', haa, ht₀1, hat₀, add_zero]
+  linear_combination (CharTwo.add_self_eq_zero y : y + y = 0)
+
+/-- Isotropic shift, outer index: shifting the *outer* kernel index by `a` changes the Wall
+exponent by exactly the *inner* `t₀`-coordinate `y` (mirror of `wall_count_isotropic_shift_inner`).
+-/
+private theorem wall_count_isotropic_shift_outer {W : Type u} [AddCommGroup W]
+    (ω : W →+ W →+ ZMod 2) (a t₀ : W) (hAmem : a ∈ (ω a).ker)
+    (eT : ZMod 2 × ↥(ω a).ker ≃ W)
+    (he2 : ∀ (x : ZMod 2) (h : ↥(ω a).ker), eT (x, h) = x.val • t₀ + ↑h)
+    (haa : ω a a = 0) (ht₀1 : ω t₀ a = 1) (hat₀ : ω a t₀ = 1)
+    (hmem : ∀ h : ↥(ω a).ker, ω a ↑h = 0) (hmem' : ∀ h : ↥(ω a).ker, ω ↑h a = 0) :
+    ∀ (x y : ZMod 2) (h h₂ : ↥(ω a).ker),
+      (ω (eT (x, h + ⟨a, hAmem⟩)) (eT (x, h + ⟨a, hAmem⟩)) + ω (eT (y, h₂)) (eT (y, h₂))
+        + ω (eT (x, h + ⟨a, hAmem⟩)) (eT (y, h₂)))
+      = (ω (eT (x, h)) (eT (x, h)) + ω (eT (y, h₂)) (eT (y, h₂))
+        + ω (eT (x, h)) (eT (y, h₂))) + y := by
+  intro x y h h₂
+  simp only [he2, AddSubgroup.coe_add, omega_expand]
+  simp only [map_add, AddMonoidHom.add_apply, hmem, hmem', haa, ht₀1, hat₀, add_zero]
+  linear_combination (CharTwo.add_self_eq_zero x : x + x = 0)
+
+/-- Isotropic diagonal block: on the `x = y = 0` block of the `t₀`-split, the Wall summand of `ω`
+is the kernel-level summand of the restricted form `ωH` (the `t₀`-coordinates being zero). -/
+private theorem wall_count_isotropic_diag_block {W : Type u} [AddCommGroup W]
+    (ω : W →+ W →+ ZMod 2) (a t₀ : W)
+    (ωH : ↥(ω a).ker →+ ↥(ω a).ker →+ ZMod 2)
+    (hωH : ∀ t u : ↥(ω a).ker, ωH t u = ω ↑t ↑u)
+    (eT : ZMod 2 × ↥(ω a).ker ≃ W)
+    (he2 : ∀ (x : ZMod 2) (h : ↥(ω a).ker), eT (x, h) = x.val • t₀ + ↑h) :
+    ∀ h h₂ : ↥(ω a).ker,
+      (ω (eT (0, h)) (eT (0, h)) + ω (eT (0, h₂)) (eT (0, h₂))
+        + ω (eT (0, h)) (eT (0, h₂)))
+      = ωH h h + ωH h₂ h₂ + ωH h h₂ := by
+  intro h h₂
+  simp only [he2, ZMod.val_zero, zero_nsmul, zero_add]
+  rw [hωH, hωH, hωH]
+
 /-- Inductive step of `wall_count_aux`, **isotropic case** `ω a a = 0`.  Choosing `t₀` with
 `ω t₀ a = 1` and splitting `W` along `t₀`, shifting the inner index by `a` changes the
 exponent by exactly the outer `t₀`-coordinate, so every block with a `t₀`-component cancels;
@@ -772,22 +844,8 @@ private theorem wall_count_aux_isotropic {n : ℕ}
   let MH : ↥(ω a).ker ≃+ ↥(ω a).ker :=
     AddEquiv.ofBijective MH0 ⟨hMH0inj, Finite.injective_iff_surjective.mp hMH0inj⟩
   have hMHapp : ∀ h : ↥(ω a).ker, ↑(MH h) = M ↑h := fun _ => rfl
-  have hMrest : ∀ t u : ↥(ω a).ker, ωH t u = ωH u (MH t) := by
-    intro t u
-    rw [hωH, hωH, hMHapp]
-    exact hM ↑t ↑u
-  have hMH2m : (⇑MH)^[2 ^ m] = id := by
-    have hiter : ∀ (i : ℕ) (h : ↥(ω a).ker), ↑((⇑MH)^[i] h) = (⇑M)^[i] (h : W) := by
-      intro i
-      induction i with
-      | zero => intro h; rfl
-      | succ i ihi =>
-        intro h
-        rw [Function.iterate_succ_apply', Function.iterate_succ_apply', hMHapp, ihi]
-    funext h
-    refine Subtype.ext ?_
-    rw [hiter, hm]
-    rfl
+  have hMH2m : (⇑MH)^[2 ^ m] = id :=
+    wall_count_ker_monodromy_pow M MH _ Subtype.coe_injective hMHapp hm
   obtain ⟨t₀, ht₀⟩ : ∃ t₀ : W, ω t₀ a ≠ 0 := by
     by_contra hcon
     exact ha0 (hnd a fun t => not_not.mp (not_exists.mp hcon t))
@@ -853,33 +911,11 @@ private theorem wall_count_aux_isotropic {n : ℕ}
   have he2 : ∀ (x : ZMod 2) (h : ↥(ω a).ker), eT (x, h) = x.val • t₀ + ↑h :=
     fun _ _ => rfl
   -- shifting the inner index by `a` changes the exponent by the outer `t₀`-coordinate
-  have hsh2 : ∀ (x y : ZMod 2) (h h₂ : ↥(ω a).ker),
-      (ω (eT (x, h)) (eT (x, h)) + ω (eT (y, h₂ + ⟨a, hAmem⟩)) (eT (y, h₂ + ⟨a, hAmem⟩))
-        + ω (eT (x, h)) (eT (y, h₂ + ⟨a, hAmem⟩)))
-      = (ω (eT (x, h)) (eT (x, h)) + ω (eT (y, h₂)) (eT (y, h₂))
-        + ω (eT (x, h)) (eT (y, h₂))) + x := by
-    intro x y h h₂
-    simp only [he2, AddSubgroup.coe_add, omega_expand]
-    simp only [map_add, AddMonoidHom.add_apply, hmem, hmem', haa, ht₀1, hat₀, add_zero]
-    linear_combination (CharTwo.add_self_eq_zero y : y + y = 0)
+  have hsh2 := wall_count_isotropic_shift_inner ω a t₀ hAmem eT he2 haa ht₀1 hat₀ hmem hmem'
   -- shifting the outer kernel index changes the exponent by the inner `t₀`-coordinate
-  have hsh1 : ∀ (x y : ZMod 2) (h h₂ : ↥(ω a).ker),
-      (ω (eT (x, h + ⟨a, hAmem⟩)) (eT (x, h + ⟨a, hAmem⟩)) + ω (eT (y, h₂)) (eT (y, h₂))
-        + ω (eT (x, h + ⟨a, hAmem⟩)) (eT (y, h₂)))
-      = (ω (eT (x, h)) (eT (x, h)) + ω (eT (y, h₂)) (eT (y, h₂))
-        + ω (eT (x, h)) (eT (y, h₂))) + y := by
-    intro x y h h₂
-    simp only [he2, AddSubgroup.coe_add, omega_expand]
-    simp only [map_add, AddMonoidHom.add_apply, hmem, hmem', haa, ht₀1, hat₀, add_zero]
-    linear_combination (CharTwo.add_self_eq_zero x : x + x = 0)
+  have hsh1 := wall_count_isotropic_shift_outer ω a t₀ hAmem eT he2 haa ht₀1 hat₀ hmem hmem'
   -- the `(0,0)`-block is the kernel-level count
-  have hE00 : ∀ h h₂ : ↥(ω a).ker,
-      (ω (eT (0, h)) (eT (0, h)) + ω (eT (0, h₂)) (eT (0, h₂))
-        + ω (eT (0, h)) (eT (0, h₂)))
-      = ωH h h + ωH h₂ h₂ + ωH h h₂ := by
-    intro h h₂
-    simp only [he2, ZMod.val_zero, zero_nsmul, zero_add]
-    rw [hωH, hωH, hωH]
+  have hE00 := wall_count_isotropic_diag_block ω a t₀ ωH hωH eT he2
   -- kernel-level count is `⟨a⟩`-blind: it descends to `C` with multiplicity 4
   have hDH : (∑ h : ↥(ω a).ker, ∑ h₂ : ↥(ω a).ker,
         sign (ωH h h + ωH h₂ h₂ + ωH h h₂)) = (4 : ℤ) * (-2) ^ k'' :=

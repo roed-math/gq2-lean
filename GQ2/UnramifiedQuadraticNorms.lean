@@ -475,6 +475,87 @@ lemma lagrange_pow_sub (L : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimension
     rw [hfac, norm_mul, hzeq, one_mul]
     exact lt_of_le_of_lt hmem.2 fil.hπ_lt
 
+/-- **The quadratic extension `L = k(δa)`.**  Packages `k⟮δa⟯`, viewed as an intermediate field
+over `ℚ₂` via `restrictScalars`, together with the facts the engine needs: it is finite over
+`ℚ₂`, contains `k` and `δa`, and its elements are exactly the elements of the `↥k`-adjunction
+(so `exists_coords` applies). -/
+private lemma exists_quadraticExt (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
+    {δa : ℚ̄₂} :
+    ∃ L : IntermediateField ℚ_[2] ℚ̄₂, FiniteDimensional ℚ_[2] L ∧ k ≤ L ∧ δa ∈ L ∧
+      ∀ z ∈ L, z ∈ IntermediateField.adjoin ↥k {δa} := by
+  have hδaint : IsIntegral ↥k δa := (Algebra.IsAlgebraic.isAlgebraic δa).isIntegral
+  have hSfin : FiniteDimensional ↥k ↥(IntermediateField.adjoin ↥k {δa}) :=
+    IntermediateField.adjoin.finiteDimensional hδaint
+  refine ⟨(IntermediateField.adjoin ↥k {δa}).restrictScalars ℚ_[2],
+    FiniteDimensional.trans ℚ_[2] ↥k ↥(IntermediateField.adjoin ↥k {δa}), ?_, ?_, fun z hz => hz⟩
+  · intro x hx
+    simpa using (IntermediateField.adjoin ↥k {δa}).algebraMap_mem ⟨x, hx⟩
+  · exact IntermediateField.mem_adjoin_simple_self ↥k δa
+
+/-- **`π`-transfer: the uniformizer is `L`-maximal.**  Given the spectral hypothesis `hunram`
+(every nonzero `z ∈ L` has the norm of some nonzero `w ∈ k`), the `k`-maximal uniformizer
+`filk.π` also attains the maximal norm `< 1` on all of `L`. -/
+private lemma norm_le_uniformizer (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
+    {a : (↥k)ˣ} {δa : ℚ̄₂} (hδ2 : δa ^ 2 = ((a : ↥k) : ℚ̄₂)) (hδk : δa ∉ k)
+    {L : IntermediateField ℚ_[2] ℚ̄₂}
+    (hLadj : ∀ z ∈ L, z ∈ IntermediateField.adjoin ↥k {δa})
+    (hunram : ∀ z : ℚ̄₂, z ≠ 0 →
+      (∃ x y : ↥k, z = (x : ℚ̄₂) + (y : ℚ̄₂) * δa) →
+      ∃ w : ↥k, w ≠ 0 ∧ ‖z‖ = ‖(w : ℚ̄₂)‖)
+    (filk : DyadicUnitFiltration k) :
+    ∀ z ∈ L, ‖z‖ < 1 → ‖z‖ ≤ ‖filk.π‖ := by
+  intro z hzL hzlt
+  rcases eq_or_ne z 0 with rfl | hz0
+  · rw [norm_zero]; positivity
+  · obtain ⟨x, y, hxy⟩ := exists_coords hδ2 hδk (hLadj z hzL)
+    obtain ⟨w, _hw0, hwnorm⟩ := hunram z hz0 ⟨x, y, hxy⟩
+    rw [hwnorm]
+    exact filk.hπ_max (w : ℚ̄₂) w.2 (hwnorm ▸ hzlt)
+
+/-- **One successive-approximation step.**  From a norm-one `w ∈ L` approximating the target norm
+`U` to depth `n + 1` (`‖U − w·σw‖ ≤ ‖π‖^{n+1}`) and a trace witness `z₀` for the quotient
+`(U − w·σw)/(w·σw·π^{n+1})`, the update `w' = w·(1 + π^{n+1}·z₀)` is again a norm-one element of
+`L` whose norm-form value approximates `U` to depth `n + 2`.  The gain is quadratic in `z₀`
+(char-2 telescoping: `U − w'·σw' = −(w·σw·π^{2(n+1)}·z₀·σz₀)`). -/
+private lemma approx_step (k : IntermediateField ℚ_[2] ℚ̄₂) {L : IntermediateField ℚ_[2] ℚ̄₂}
+    {σ : ℚ̄₂ ≃ₐ[↥k] ℚ̄₂} {π U : ℚ̄₂} (hπL : π ∈ L) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1) (hσπ : σ π = π)
+    (hNnorm : ∀ z : ℚ̄₂, ‖z‖ = 1 → ‖z * σ z‖ = 1) {n : ℕ} {w z₀ : ℚ̄₂} (hwL : w ∈ L)
+    (hwnorm : ‖w‖ = 1) (hz₀L : z₀ ∈ L) (hz₀norm : ‖z₀‖ ≤ 1)
+    (hz₀s : z₀ + σ z₀ = (U - w * σ w) / (w * σ w * π ^ (n + 1))) :
+    w * (1 + π ^ (n + 1) * z₀) ∈ L ∧ ‖w * (1 + π ^ (n + 1) * z₀)‖ = 1 ∧
+      ‖U - w * (1 + π ^ (n + 1) * z₀) * σ (w * (1 + π ^ (n + 1) * z₀))‖ ≤ ‖π‖ ^ (n + 1 + 1) := by
+  have hπpos : (0 : ℝ) < ‖π‖ := norm_pos_iff.mpr hπ0
+  have hNwnorm : ‖w * σ w‖ = 1 := hNnorm w hwnorm
+  have hNw0 : w * σ w ≠ 0 := fun h => by
+    rw [h, norm_zero] at hNwnorm; exact one_ne_zero hNwnorm.symm
+  set P : ℚ̄₂ := π ^ (n + 1) with hPdef
+  have hP0 : P ≠ 0 := pow_ne_zero _ hπ0
+  have hPnorm : ‖P‖ = ‖π‖ ^ (n + 1) := norm_pow _ _
+  have hPz0 : ‖P * z₀‖ < 1 := by
+    rw [norm_mul, hPnorm]
+    calc ‖π‖ ^ (n + 1) * ‖z₀‖ ≤ ‖π‖ ^ (n + 1) * 1 :=
+          mul_le_mul_of_nonneg_left hz₀norm (by positivity)
+      _ = ‖π‖ ^ (n + 1) := mul_one _
+      _ < 1 := pow_lt_one₀ hπpos.le hπ1 (by omega)
+  refine ⟨L.mul_mem hwL (L.add_mem L.one_mem (L.mul_mem (pow_mem hπL _) hz₀L)), ?_, ?_⟩
+  · rw [norm_mul, norm_one_add hPz0, hwnorm, one_mul]
+  · have hσw' : σ (w * (1 + P * z₀)) = σ w * (1 + P * σ z₀) := by
+      rw [map_mul, map_add, map_one, map_mul, hPdef, map_pow, hσπ, ← hPdef]
+    have hrel2 : (z₀ + σ z₀) * (w * σ w * P) = U - w * σ w := by
+      rw [hz₀s, hPdef]; exact div_mul_cancel₀ _ (mul_ne_zero hNw0 hP0)
+    have hz₀σz₀ : ‖z₀ * σ z₀‖ ≤ 1 := by
+      rw [norm_mul, norm_conj_eq]; exact mul_le_one₀ hz₀norm (norm_nonneg _) hz₀norm
+    have hkey : U - w * (1 + P * z₀) * σ (w * (1 + P * z₀))
+        = -(w * σ w * P ^ 2 * (z₀ * σ z₀)) := by
+      rw [hσw']; linear_combination -hrel2
+    rw [hkey, norm_neg]
+    have hb : ‖w * σ w * P ^ 2 * (z₀ * σ z₀)‖ ≤ ‖π‖ ^ ((n + 1) * 2) := by
+      rw [norm_mul, norm_mul, hNwnorm, one_mul, norm_pow, hPnorm, ← pow_mul]
+      calc ‖π‖ ^ ((n + 1) * 2) * ‖z₀ * σ z₀‖ ≤ ‖π‖ ^ ((n + 1) * 2) * 1 :=
+            mul_le_mul_of_nonneg_left hz₀σz₀ (by positivity)
+        _ = ‖π‖ ^ ((n + 1) * 2) := mul_one _
+    exact le_trans hb (pow_le_pow_of_le_one hπpos.le hπ1.le (by omega))
+
 /-- **The engine (non-degenerate case).**  For `δa ∉ k`, every norm-one unit of `k` is a value
 of the norm form `x² − a y²`.  Sets up `L = k(δa)`, the conjugation `σ`, the shared uniformizer
 `π` (via `hunram`), and the residue data at `L`, then runs the successive-approximation engine
@@ -490,21 +571,8 @@ theorem units_are_norms_nondegen (k : IntermediateField ℚ_[2] ℚ̄₂) [Finit
       ∃ w : ↥k, w ≠ 0 ∧ ‖z‖ = ‖(w : ℚ̄₂)‖) :
     ∀ u : (↥k)ˣ, ‖((u : ↥k) : ℚ̄₂)‖ = 1 → ∃ x y : ↥k, (u : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2 := by
   -- The quadratic extension `L = k(δa)`
-  have hδaint : IsIntegral ↥k δa := (Algebra.IsAlgebraic.isAlgebraic δa).isIntegral
-  have hSfin : FiniteDimensional ↥k ↥(IntermediateField.adjoin ↥k {δa}) :=
-    IntermediateField.adjoin.finiteDimensional hδaint
-  set L : IntermediateField ℚ_[2] ℚ̄₂ :=
-    (IntermediateField.adjoin ↥k {δa}).restrictScalars ℚ_[2] with hLdef
-  have hLmem : ∀ z, z ∈ L ↔ z ∈ IntermediateField.adjoin ↥k {δa} := fun _ => Iff.rfl
-  have hkL : k ≤ L := by
-    intro x hx
-    rw [hLmem]
-    simpa using (IntermediateField.adjoin ↥k {δa}).algebraMap_mem ⟨x, hx⟩
-  have hδaL : δa ∈ L := (hLmem δa).mpr (IntermediateField.mem_adjoin_simple_self ↥k δa)
-  have hLadj : ∀ z ∈ L, z ∈ IntermediateField.adjoin ↥k {δa} := fun z hz => (hLmem z).mp hz
-  have hLfin : FiniteDimensional ℚ_[2] ↥L := by
-    rw [hLdef]
-    exact FiniteDimensional.trans ℚ_[2] ↥k ↥(IntermediateField.adjoin ↥k {δa})
+  obtain ⟨L, hLfin, hkL, hδaL, hLadj⟩ := exists_quadraticExt k (δa := δa)
+  haveI := hLfin
   -- the conjugation `σ δa = −δa`
   obtain ⟨σ, hσ⟩ := exists_conj (d := (a : ↥k)) hδ2 hδk
   -- filtrations at `k` and `L`; the shared uniformizer `π ∈ k`
@@ -514,16 +582,10 @@ theorem units_are_norms_nondegen (k : IntermediateField ℚ_[2] ℚ̄₂) [Finit
   have hπk : π ∈ k := filk.hπ_mem
   have hπ0 : π ≠ 0 := filk.hπ_ne
   have hπ1 : ‖π‖ < 1 := filk.hπ_lt
+  have hπL : π ∈ L := hkL hπk
   -- π-transfer: `π` is `L`-maximal too (via `hunram` + `k`-maximality)
-  have hπmax : ∀ z ∈ L, ‖z‖ < 1 → ‖z‖ ≤ ‖π‖ := by
-    intro z hzL hzlt
-    rcases eq_or_ne z 0 with rfl | hz0
-    · rw [norm_zero]; positivity
-    · obtain ⟨x, y, hxy⟩ := exists_coords hδ2 hδk (hLadj z hzL)
-      obtain ⟨w, _hw0, hwnorm⟩ := hunram z hz0 ⟨x, y, hxy⟩
-      rw [hwnorm]
-      refine filk.hπ_max (w : ℚ̄₂) w.2 ?_
-      rw [← hwnorm]; exact hzlt
+  have hπmax : ∀ z ∈ L, ‖z‖ < 1 → ‖z‖ ≤ ‖π‖ :=
+    norm_le_uniformizer k hδ2 hδk hLadj hunram filk
   -- the residue exponent `q = 2^F` and the trace-covering hypotheses
   set q : ℕ := 2 ^ filL.f with hq
   have hqn : ‖((q : ℕ) : ℚ̄₂)‖ < 1 := by
@@ -599,43 +661,10 @@ theorem units_are_norms_nondegen (k : IntermediateField ℚ_[2] ℚ̄₂) [Finit
     | zero => exact hInv0
     | succ n ih =>
       obtain ⟨hwL, hwnorm, hwapprox⟩ := ih
-      have hNwk : wseq n * σ (wseq n) ∈ k := hNk _ hwL
-      have hNwnorm : ‖wseq n * σ (wseq n)‖ = 1 := hNnorm _ hwnorm
-      have hNw0 : wseq n * σ (wseq n) ≠ 0 := fun h => by
-        rw [h, norm_zero] at hNwnorm; exact one_ne_zero hNwnorm.symm
-      set P : ℚ̄₂ := π ^ (n + 1) with hPdef
-      have hPk : P ∈ k := pow_mem hπk _
-      have hP0 : P ≠ 0 := pow_ne_zero _ hπ0
-      have hPnorm : ‖P‖ = ‖π‖ ^ (n + 1) := norm_pow _ _
       obtain ⟨hz₀L, hz₀norm, hz₀s⟩ := hzc_spec n (wseq n) (hcval_ok n _ hwL hwnorm hwapprox)
-      have hPz0 : ‖P * zc n (wseq n)‖ < 1 := by
-        rw [norm_mul, hPnorm]
-        calc ‖π‖ ^ (n + 1) * ‖zc n (wseq n)‖ ≤ ‖π‖ ^ (n + 1) * 1 :=
-              mul_le_mul_of_nonneg_left hz₀norm (by positivity)
-          _ = ‖π‖ ^ (n + 1) := mul_one _
-          _ < 1 := pow_lt_one₀ hπpos.le hπ1 (by omega)
-      rw [hwseqS n, ← hPdef]
-      refine ⟨L.mul_mem hwL (L.add_mem L.one_mem (L.mul_mem (hkL hPk) hz₀L)), ?_, ?_⟩
-      · rw [norm_mul, norm_one_add hPz0, hwnorm, one_mul]
-      · -- ‖U - N w'‖ ≤ ‖π‖^{n+2}
-        set z₀ := zc n (wseq n) with hz₀def
-        have hσw' : σ (wseq n * (1 + P * z₀)) = σ (wseq n) * (1 + P * σ z₀) := by
-          rw [map_mul, map_add, map_one, map_mul, hPdef, map_pow, hσπ, ← hPdef]
-        have hrel2 : (z₀ + σ z₀) * (wseq n * σ (wseq n) * P) = U - wseq n * σ (wseq n) := by
-          rw [hz₀s]; simp only [hcval, ← hPdef]
-          exact div_mul_cancel₀ _ (mul_ne_zero hNw0 hP0)
-        have hz₀σz₀ : ‖z₀ * σ z₀‖ ≤ 1 := by
-          rw [norm_mul, norm_conj_eq]; exact mul_le_one₀ hz₀norm (norm_nonneg _) hz₀norm
-        have hkey : U - wseq n * (1 + P * z₀) * σ (wseq n * (1 + P * z₀))
-            = -(wseq n * σ (wseq n) * P ^ 2 * (z₀ * σ z₀)) := by
-          rw [hσw']; linear_combination -hrel2
-        rw [hkey, norm_neg]
-        have hb : ‖wseq n * σ (wseq n) * P ^ 2 * (z₀ * σ z₀)‖ ≤ ‖π‖ ^ ((n + 1) * 2) := by
-          rw [norm_mul, norm_mul, hNwnorm, one_mul, norm_pow, hPnorm, ← pow_mul]
-          calc ‖π‖ ^ ((n + 1) * 2) * ‖z₀ * σ z₀‖ ≤ ‖π‖ ^ ((n + 1) * 2) * 1 :=
-                mul_le_mul_of_nonneg_left hz₀σz₀ (by positivity)
-            _ = ‖π‖ ^ ((n + 1) * 2) := mul_one _
-        exact le_trans hb (pow_le_pow_of_le_one hπpos.le hπ1.le (by omega))
+      simp only [hcval] at hz₀s
+      rw [hwseqS n]
+      exact approx_step k hπL hπ0 hπ1 hσπ hNnorm hwL hwnorm hz₀L hz₀norm hz₀s
   -- the sequence lives in the complete `↥L`; extract the limit
   set wseqL : ℕ → ↥L := fun n => ⟨wseq n, (hInv n).1⟩ with hwseqL
   have hjump : ∀ n, dist (wseqL n) (wseqL (n + 1)) ≤ ‖π‖ * ‖π‖ ^ n := by
