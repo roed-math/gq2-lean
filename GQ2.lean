@@ -79,6 +79,11 @@ import GQ2.SectionSeven.Prop74Step1
 import GQ2.SectionSeven.ModuleCore
 import GQ2.SectionSeven.Prop74
 import GQ2.SectionEight
+import GQ2.SectionEight.Fourier
+import GQ2.SectionEight.Covers
+import GQ2.SectionEight.ScalarCount
+import GQ2.SectionEight.Partition
+import GQ2.SectionEight.Recursion
 import GQ2.AffineTLift
 import GQ2.VCocycle
 import GQ2.RadicalEdge.Bridge
