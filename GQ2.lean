@@ -51,6 +51,15 @@ import GQ2.FoxHeisenberg.Traced
 import GQ2.FoxHeisenberg.WildRow
 import GQ2.FoxHeisenberg.HessianRow
 import GQ2.Devissage
+import GQ2.Devissage.Naturality
+import GQ2.Devissage.ElemDualPack
+import GQ2.Devissage.EvalPairings
+import GQ2.Devissage.Chi1
+import GQ2.Devissage.SelfDual
+import GQ2.Devissage.LESCore
+import GQ2.Devissage.LESExact
+import GQ2.Devissage.LESMaster
+import GQ2.Devissage.GeneratesBridge
 import GQ2.QuadraticFp2
 import GQ2.GaussCount
 import GQ2.GaussSigns
@@ -89,6 +98,10 @@ import GQ2.Block.HeadDat
 import GQ2.GaussZ.FinalD
 import GQ2.ThmFourTwo
 import GQ2.DeepPart
+import GQ2.DeepPart.QuadraticFp2
+import GQ2.DeepPart.MuTwoPolarDual
+import GQ2.DeepPart.Q0locLayer
+import GQ2.DeepPart.HermitianCount
 import GQ2.LocalKummer
 import GQ2.RegularSummand
 import GQ2.KappaNormalForm
