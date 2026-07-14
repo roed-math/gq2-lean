@@ -64,6 +64,140 @@ lemma stratum_surj (hJ : Function.Surjective (T.piY.comp J.subtype))
 
 end Lemma83
 
+section Lemma83Fibres
+
+variable (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+  (T : MarkedTarget H E Y) (C : CentralCover Y) (J : Subgroup Y)
+  (hJ : Function.Surjective (T.piY.comp J.subtype))
+
+/-- The **image-stratum lifts** of Lemma 8.3: boundary lifts of the `J`-stratum that admit a
+cover lift.  It is the target of the projection fibration `masterLiftsProjB` of the master
+set, and its `p_λ`-fibres are torsors of `Hom_cont(Γ,𝔽₂)` (`masterLifts_projFibre`). -/
+private abbrev masterLiftsImage : Type :=
+  {f : BoundaryLifts b F (T.stratum J hJ) //
+    ∃ g : ContinuousMonoidHom Γ C.cover, ∀ γ : Γ, C.p (g γ) = (f.1.1 γ : Y)}
+
+omit [DiscreteTopology Y] in
+/-- Any master lift projects into `J` (its projection has image exactly `J`). -/
+private theorem masterLifts_pComp_mem (g : masterLifts b F T C J) :
+    ∀ γ : Γ, C.p (g.1 γ) ∈ J := fun γ => by
+  have hmem : (C.pCont.comp g.1).toMonoidHom γ ∈ (C.pCont.comp g.1).toMonoidHom.range := ⟨γ, rfl⟩
+  rw [g.2.1] at hmem; exact hmem
+
+/-- **The projection fibration map** `g ↦ p∘g`, corestricted onto the `J`-stratum: sends a
+master lift to the boundary lift of the `J`-stratum it covers. -/
+private noncomputable def masterLiftsProjB :
+    masterLifts b F T C J → masterLiftsImage b F T C J hJ :=
+  fun g =>
+    ⟨⟨⟨cmhCodRestrict (C.pCont.comp g.1) J (masterLifts_pComp_mem b F T C J g), fun y => by
+        have hy : (y : Y) ∈ (C.pCont.comp g.1).toMonoidHom.range := by rw [g.2.1]; exact y.2
+        obtain ⟨γ, hγ⟩ := hy
+        exact ⟨γ, Subtype.ext hγ⟩⟩, g.2.2⟩, g.1, fun γ => rfl⟩
+
+/-- **The image fibration map** `g ↦ g.range`: sends a master lift to the subgroup of the
+cover it surjects onto (which projects onto `J`). -/
+private noncomputable def masterLiftsImageMap :
+    masterLifts b F T C J → {J' : Subgroup C.cover // J'.map C.p = J} :=
+  fun g => ⟨g.1.toMonoidHom.range, by
+    have hrange : (C.pCont.comp g.1).toMonoidHom.range = g.1.toMonoidHom.range.map C.p :=
+      MonoidHom.range_comp _ _
+    rw [← hrange]; exact g.2.1⟩
+
+omit [DiscreteTopology Y] in
+/-- **Projection fibre = torsor of `Hom_cont(Γ,𝔽₂)`**: each fibre of `masterLiftsProjB` is
+the `p_λ`-scalar-twist torsor `fiberLiftEquiv`, of size `#Hom_cont(Γ,𝔽₂)`. -/
+private theorem masterLifts_projFibre (f : masterLiftsImage b F T C J hJ) :
+    Nat.card {g : masterLifts b F T C J // masterLiftsProjB b F T C J hJ g = f}
+      = Nat.card (ContinuousMonoidHom Γ (Multiplicative (ZMod 2))) := by
+  obtain ⟨g₀, hg₀⟩ := f.2
+  refine Nat.card_congr (Equiv.trans ?_ (fiberLiftEquiv C g₀).symm)
+  refine
+    { toFun := fun g => ⟨g.1.1, fun γ => ?_⟩
+      invFun := fun g' => ⟨⟨g'.1, ?_, ?_⟩, ?_⟩
+      left_inv := fun g => ?_
+      right_inv := fun g' => ?_ }
+  · -- `projB g.1 = f` ⇒ `C.p (g.1.1 γ) = ↑(f.1.1.1 γ) = C.p (g₀ γ)`
+    have h1 : C.p (g.1.1 γ) = (f.1.1.1 γ : Y) :=
+      congrArg (fun w : masterLiftsImage b F T C J hJ => (w.1.1.1 γ : Y)) g.2
+    rw [h1, ← hg₀]
+  · -- range = J for the included lift `g'`
+    show (C.pCont.comp g'.1).toMonoidHom.range = J
+    apply le_antisymm
+    · rintro _ ⟨γ, rfl⟩
+      show C.p (g'.1 γ) ∈ J
+      rw [g'.2 γ, hg₀]; exact (f.1.1.1 γ).2
+    · intro y hy
+      obtain ⟨γ, hγ⟩ := f.1.1.2 ⟨y, hy⟩
+      refine ⟨γ, ?_⟩
+      show C.p (g'.1 γ) = y
+      rw [g'.2 γ, hg₀, hγ]
+  · -- boundary-framed for the included lift
+    have heq : C.pCont.comp g'.1 = C.pCont.comp g₀ := by ext γ; exact g'.2 γ
+    rw [heq]
+    intro γ
+    show (T.piY (C.p (g₀ γ)), T.thetaY (C.p (g₀ γ))) = F.frameMap (b γ)
+    rw [hg₀ γ]
+    exact f.1.2 γ
+  · -- `projB (include g'.1) = f`, from `∀γ, C.p(g'.1 γ) = ↑(f.1.1.1 γ)`
+    apply Subtype.ext; apply Subtype.ext; apply Subtype.ext
+    ext γ
+    show C.p (g'.1 γ) = (f.1.1.1 γ : Y)
+    rw [g'.2 γ, hg₀]
+  · rfl
+  · rfl
+
+omit [DiscreteTopology Y] in
+include hJ in
+/-- **Image fibre = boundary lifts of the pullback stratum**: each fibre of
+`masterLiftsImageMap` over `J'` is, by corestriction/inclusion, the exact-image count of the
+`J'`-stratum of the pulled-back target. -/
+private theorem masterLifts_imageFibre
+    (J' : {J' : Subgroup C.cover // J'.map C.p = J}) :
+    Nat.card {g : masterLifts b F T C J // masterLiftsImageMap b F T C J g = J'}
+      = exactImageCountOn b F (C.pullTarget T) J'.1 := by
+  have hrange : ∀ (g : ContinuousMonoidHom Γ C.cover),
+      (C.pCont.comp g).toMonoidHom.range = g.toMonoidHom.range.map C.p := fun g =>
+    MonoidHom.range_comp _ _
+  have hsurj := stratum_surj hJ J'.2
+  rw [exactImageCountOn, dif_pos hsurj, exactImageCount]
+  apply Nat.card_congr
+  refine
+    { toFun := fun g => ?_
+      invFun := fun gt => ?_
+      left_inv := fun g => ?_
+      right_inv := fun gt => ?_ }
+  · -- forward: corestrict `g.1.1` to `↥J'.1`
+    have hrgK : g.1.1.toMonoidHom.range = J'.1 := congrArg Subtype.val g.2
+    have hmemK : ∀ γ, g.1.1 γ ∈ J'.1 := fun γ => hrgK ▸ ⟨γ, rfl⟩
+    refine ⟨⟨cmhCodRestrict g.1.1 J'.1 hmemK, ?_⟩, ?_⟩
+    · -- surjective onto `↥J'.1`
+      rintro ⟨y, hy⟩
+      rw [← hrgK] at hy
+      obtain ⟨γ, hγ⟩ := hy
+      exact ⟨γ, Subtype.ext hγ⟩
+    · -- boundary-framed for the stratum
+      intro γ
+      show ((C.pullTarget T).piY (g.1.1 γ), (C.pullTarget T).thetaY (g.1.1 γ)) = F.frameMap (b γ)
+      exact g.1.2.2 γ
+  · -- backward: include `gt.1.1` back to `C.cover`
+    have hsurj_gt : Function.Surjective ⇑gt.1.1.toMonoidHom := gt.1.2
+    have hincl : (cmhInclude J'.1 gt.1.1).toMonoidHom.range = J'.1 := by
+      show (J'.1.subtype.comp gt.1.1.toMonoidHom).range = J'.1
+      rw [MonoidHom.range_eq_map, ← Subgroup.map_map, ← MonoidHom.range_eq_map,
+        MonoidHom.range_eq_top.mpr hsurj_gt, ← MonoidHom.range_eq_map J'.1.subtype,
+        Subgroup.range_subtype]
+    refine ⟨⟨cmhInclude J'.1 gt.1.1, ?_, ?_⟩, ?_⟩
+    · rw [hrange, hincl]; exact J'.2
+    · intro γ
+      show (T.piY (C.p (gt.1.1 γ : C.cover)), T.thetaY (C.p (gt.1.1 γ : C.cover)))
+        = F.frameMap (b γ)
+      exact gt.2 γ
+    · exact Subtype.ext hincl
+  · apply Subtype.ext; apply Subtype.ext; ext γ; rfl
+  · apply Subtype.ext; apply Subtype.ext; ext γ; rfl
+
+end Lemma83Fibres
+
 theorem lemma_8_3
     [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
     (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
@@ -82,61 +216,17 @@ theorem lemma_8_3
   classical
   haveI : Finite (ContinuousMonoidHom Γ C.cover) := finite_continuousMonoidHom hfg C.cover
   haveI : Finite (masterLifts b F T C J) := Subtype.finite
-  -- membership: `p∘g` lands in `J` for any master lift.
-  have hmemJ : ∀ (g : masterLifts b F T C J) (γ : Γ), C.p (g.1 γ) ∈ J := fun g γ => by
-    have hmem : (C.pCont.comp g.1).toMonoidHom γ ∈ (C.pCont.comp g.1).toMonoidHom.range := ⟨γ, rfl⟩
-    rw [g.2.1] at hmem; exact hmem
+  -- `L` = image-stratum lifts; the fibration maps are `masterLiftsProjB`/`masterLiftsImageMap`.
   haveI : Finite (BoundaryLifts b F (T.stratum J hJ)) :=
     finite_boundaryLifts b F (T.stratum J hJ) hfg
-  set L := {f : BoundaryLifts b F (T.stratum J hJ) //
-    ∃ g : ContinuousMonoidHom Γ C.cover, ∀ γ : Γ, C.p (g γ) = (f.1.1 γ : Y)} with hLdef
+  set L := masterLiftsImage b F T C J hJ with hLdef
   haveI : Finite L := Subtype.finite
   haveI : Fintype L := Fintype.ofFinite L
-  -- **Projection fibration**: `projB g = ` the corestriction of `p∘g` to `↥J`.
-  set projB : masterLifts b F T C J → L := fun g =>
-    ⟨⟨⟨cmhCodRestrict (C.pCont.comp g.1) J (hmemJ g), fun y => by
-        have hy : (y : Y) ∈ (C.pCont.comp g.1).toMonoidHom.range := by rw [g.2.1]; exact y.2
-        obtain ⟨γ, hγ⟩ := hy
-        exact ⟨γ, Subtype.ext hγ⟩⟩, g.2.2⟩, g.1, fun γ => rfl⟩ with hprojBdef
+  -- **Projection fibration** (fibres are `Hom_cont(Γ,𝔽₂)`-torsors, `masterLifts_projFibre`).
+  set projB := masterLiftsProjB b F T C J hJ with hprojBdef
   have hfibB : ∀ f : L, Nat.card {g : masterLifts b F T C J // projB g = f}
-      = Nat.card (ContinuousMonoidHom Γ (Multiplicative (ZMod 2))) := by
-    intro f
-    obtain ⟨g₀, hg₀⟩ := f.2
-    refine Nat.card_congr (Equiv.trans ?_ (fiberLiftEquiv C g₀).symm)
-    refine
-      { toFun := fun g => ⟨g.1.1, fun γ => ?_⟩
-        invFun := fun g' => ⟨⟨g'.1, ?_, ?_⟩, ?_⟩
-        left_inv := fun g => ?_
-        right_inv := fun g' => ?_ }
-    · -- `projB g.1 = f` ⇒ `C.p (g.1.1 γ) = ↑(f.1.1.1 γ) = C.p (g₀ γ)`
-      have h1 : C.p (g.1.1 γ) = (f.1.1.1 γ : Y) :=
-        congrArg (fun w : L => (w.1.1.1 γ : Y)) g.2
-      rw [h1, ← hg₀]
-    · -- range = J for the included lift `g'`
-      show (C.pCont.comp g'.1).toMonoidHom.range = J
-      apply le_antisymm
-      · rintro _ ⟨γ, rfl⟩
-        show C.p (g'.1 γ) ∈ J
-        rw [g'.2 γ, hg₀]; exact (f.1.1.1 γ).2
-      · intro y hy
-        obtain ⟨γ, hγ⟩ := f.1.1.2 ⟨y, hy⟩
-        refine ⟨γ, ?_⟩
-        show C.p (g'.1 γ) = y
-        rw [g'.2 γ, hg₀, hγ]
-    · -- boundary-framed for the included lift
-      have heq : C.pCont.comp g'.1 = C.pCont.comp g₀ := by ext γ; exact g'.2 γ
-      rw [heq]
-      intro γ
-      show (T.piY (C.p (g₀ γ)), T.thetaY (C.p (g₀ γ))) = F.frameMap (b γ)
-      rw [hg₀ γ]
-      exact f.1.2 γ
-    · -- `projB (include g'.1) = f`, from `∀γ, C.p(g'.1 γ) = ↑(f.1.1.1 γ)`
-      apply Subtype.ext; apply Subtype.ext; apply Subtype.ext
-      ext γ
-      show C.p (g'.1 γ) = (f.1.1.1 γ : Y)
-      rw [g'.2 γ, hg₀]
-    · rfl
-    · rfl
+      = Nat.card (ContinuousMonoidHom Γ (Multiplicative (ZMod 2))) :=
+    masterLifts_projFibre b F T C J hJ
   have hB : Nat.card (masterLifts b F T C J) = 8 * liftableCount b F T C J hJ := by
     calc Nat.card (masterLifts b F T C J)
         = Nat.card (Σ f : L, {g : masterLifts b F T C J // projB g = f}) :=
@@ -146,57 +236,16 @@ theorem lemma_8_3
       _ = 8 * Nat.card L := by
           rw [Finset.sum_const, Finset.card_univ, Nat.card_eq_fintype_card,
             smul_eq_mul, mul_comm]
-  -- **Image fibration** (→ RHS).
-  have hrange : ∀ (g : ContinuousMonoidHom Γ C.cover),
-      (C.pCont.comp g).toMonoidHom.range = g.toMonoidHom.range.map C.p := fun g =>
-    MonoidHom.range_comp _ _
+  -- **Image fibration** (→ RHS; fibres are pullback-stratum lifts, `masterLifts_imageFibre`).
   haveI : Finite (Subgroup C.cover) :=
     Finite.of_injective (fun H : Subgroup C.cover => (H : Set C.cover)) SetLike.coe_injective
   haveI : Fintype (Subgroup C.cover) := Fintype.ofFinite _
-  set imageMap : masterLifts b F T C J → {J' : Subgroup C.cover // J'.map C.p = J} :=
-    fun g => ⟨g.1.toMonoidHom.range, by rw [← hrange, g.2.1]⟩ with himapdef
+  set imageMap := masterLiftsImageMap b F T C J with himapdef
   haveI : Fintype {J' : Subgroup C.cover // J'.map C.p = J} := Fintype.ofFinite _
   have hfibA : ∀ J' : {J' : Subgroup C.cover // J'.map C.p = J},
       Nat.card {g : masterLifts b F T C J // imageMap g = J'}
-        = exactImageCountOn b F (C.pullTarget T) J'.1 := by
-    intro J'
-    have hsurj := stratum_surj hJ J'.2
-    rw [exactImageCountOn, dif_pos hsurj, exactImageCount]
-    apply Nat.card_congr
-    refine
-      { toFun := fun g => ?_
-        invFun := fun gt => ?_
-        left_inv := fun g => ?_
-        right_inv := fun gt => ?_ }
-    · -- forward: corestrict `g.1.1` to `↥J'.1`
-      have hrgK : g.1.1.toMonoidHom.range = J'.1 := congrArg Subtype.val g.2
-      have hmemK : ∀ γ, g.1.1 γ ∈ J'.1 := fun γ => hrgK ▸ ⟨γ, rfl⟩
-      refine ⟨⟨cmhCodRestrict g.1.1 J'.1 hmemK, ?_⟩, ?_⟩
-      · -- surjective onto `↥J'.1`
-        rintro ⟨y, hy⟩
-        rw [← hrgK] at hy
-        obtain ⟨γ, hγ⟩ := hy
-        exact ⟨γ, Subtype.ext hγ⟩
-      · -- boundary-framed for the stratum
-        intro γ
-        show ((C.pullTarget T).piY (g.1.1 γ), (C.pullTarget T).thetaY (g.1.1 γ)) = F.frameMap (b γ)
-        exact g.1.2.2 γ
-    · -- backward: include `gt.1.1` back to `C.cover`
-      have hsurj_gt : Function.Surjective ⇑gt.1.1.toMonoidHom := gt.1.2
-      have hincl : (cmhInclude J'.1 gt.1.1).toMonoidHom.range = J'.1 := by
-        show (J'.1.subtype.comp gt.1.1.toMonoidHom).range = J'.1
-        rw [MonoidHom.range_eq_map, ← Subgroup.map_map, ← MonoidHom.range_eq_map,
-          MonoidHom.range_eq_top.mpr hsurj_gt, ← MonoidHom.range_eq_map J'.1.subtype,
-          Subgroup.range_subtype]
-      refine ⟨⟨cmhInclude J'.1 gt.1.1, ?_, ?_⟩, ?_⟩
-      · rw [hrange, hincl]; exact J'.2
-      · intro γ
-        show (T.piY (C.p (gt.1.1 γ : C.cover)), T.thetaY (C.p (gt.1.1 γ : C.cover)))
-          = F.frameMap (b γ)
-        exact gt.2 γ
-      · exact Subtype.ext hincl
-    · apply Subtype.ext; apply Subtype.ext; ext γ; rfl
-    · apply Subtype.ext; apply Subtype.ext; ext γ; rfl
+        = exactImageCountOn b F (C.pullTarget T) J'.1 :=
+    masterLifts_imageFibre b F T C J hJ
   -- assemble the image fibration and convert the sum shape.
   have hsumeq : ∑ᶠ J' ∈ {J' : Subgroup C.cover | J'.map C.p = J},
       exactImageCountOn b F (C.pullTarget T) J'

@@ -426,6 +426,162 @@ structure ClosedRecursion {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTop
             + G0 * ∑ᶠ ζ : DT,
                 (2 * (RF.nPhase b F (phase l h ζ) : ℤ) - exactImageCount b F RF.TC))
 
+section Partition137
+
+open scoped Classical
+
+variable {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+  (RF : RecursionFrame T Blk)
+  (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+  (l : RF.DR) (h : l ≠ RF.zeroDR)
+
+/-- The set of `B`-level lifts underlying `Z_{Γ,λ}(B/C)`: boundary-framed continuous homs
+`m : Γ → B` that are `C`-surjective (`π_{BC} ∘ m` onto) and `λ`-compatible (lift through the
+scalar cover `p_λ`).  A `Z`-pair is determined by its `m`, so `Z_{Γ,λ}(B/C)` counts this set
+(`partition137_zBC_eq_card`); stratifying it by the exact image proves (137). -/
+private abbrev partition137Set : Type :=
+  {m : ContinuousMonoidHom Γ RF.YB //
+    (IsBoundaryLift b F RF.TB m ∧ Function.Surjective (⇑RF.piBC ∘ ⇑m)) ∧
+      ∃ g : ContinuousMonoidHom Γ (RF.scalarCover l h).cover,
+        ∀ γ : Γ, (RF.scalarCover l h).p (g γ) = m γ}
+
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
+/-- **(137), pair elimination**: a `Z`-pair for the `λ`-cover is determined by its `B`-level
+lift `m` (its `C`-component is `π_{BC} ∘ m`), so `Z_{Γ,λ}(B/C)` is the cardinality of
+`partition137Set`. -/
+private theorem partition137_zBC_eq_card :
+    RF.zBC b F l h = Nat.card (partition137Set RF b F l h) := by
+  refine Nat.card_congr ⟨fun pr => ⟨pr.1.2, ⟨pr.2.2.1, ?_⟩, pr.2.2.2⟩,
+    fun m => ⟨(⟨⟨⟨RF.piBC.comp m.1.toMonoidHom,
+        (continuous_of_discreteTopology (f := ⇑RF.piBC)).comp m.1.continuous_toFun⟩,
+      m.2.1.2⟩,
+      fun γ => by
+        show (RF.TC.piY (RF.piBC (m.1 γ)), RF.TC.thetaY (RF.piBC (m.1 γ)))
+          = F.frameMap (b γ)
+        have h1 : RF.TC.piY (RF.piBC (m.1 γ)) = RF.TB.piY (m.1 γ) :=
+          DFunLike.congr_fun RF.headBC (m.1 γ)
+        have h2 : RF.TC.thetaY (RF.piBC (m.1 γ)) = RF.TB.thetaY (m.1 γ) :=
+          DFunLike.congr_fun RF.thetaBC (m.1 γ)
+        rw [h1, h2]
+        exact m.2.1.1 γ⟩, m.1), fun γ => rfl, m.2.1.1, m.2.2⟩,
+    fun pr => ?_, fun m => ?_⟩
+  · have hfun : ⇑RF.piBC ∘ ⇑pr.1.2 = ⇑pr.1.1.1.1 := funext fun γ => pr.2.1 γ
+    rw [hfun]
+    exact pr.1.1.1.2
+  · obtain ⟨⟨f, m⟩, hcompat, hbd, hg⟩ := pr
+    refine Subtype.ext (Prod.ext ?_ rfl)
+    refine Subtype.ext (Subtype.ext ?_)
+    apply ContinuousMonoidHom.ext
+    intro γ
+    exact hcompat γ
+  · exact Subtype.ext rfl
+
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
+/-- **(137), top stratum**: the fibre of `partition137Set` over the full image `⊤` is `m_B`
+(the `p_λ`-liftable boundary lifts onto `B`). -/
+private theorem partition137_card_fiber_top :
+    Nat.card {m : partition137Set RF b F l h // m.1.toMonoidHom.range = ⊤}
+      = RF.mB b F l := by
+  rw [RecursionFrame.mB, dif_neg h]
+  refine Nat.card_congr ⟨fun m => ⟨⟨⟨m.1.1, fun y => ?_⟩, m.1.2.1.1⟩, m.1.2.2⟩,
+    fun f => ⟨⟨f.1.1.1, ⟨f.1.2, RF.piBC_surj.comp f.1.1.2⟩, f.2⟩, ?_⟩,
+    fun m => Subtype.ext (Subtype.ext rfl),
+    fun f => Subtype.ext (Subtype.ext (Subtype.ext rfl))⟩
+  · have hy : y ∈ m.1.1.toMonoidHom.range := by rw [m.2]; trivial
+    exact hy
+  · rw [MonoidHom.range_eq_top]
+    exact f.1.1.2
+
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
+/-- **(137), proper stratum**: the fibre over a proper, `C`-onto, head-surjective stratum
+`J` is `m_{Γ,λ}(J)` (via the corestriction/inclusion equivalence to the stratum lifts). -/
+private theorem partition137_card_fiber_stratum (J : Subgroup RF.YB)
+    (hJc : J.map RF.piBC = ⊤)
+    (hJh : Function.Surjective (RF.TB.piY.comp J.subtype)) :
+    Nat.card {m : partition137Set RF b F l h // m.1.toMonoidHom.range = J}
+      = RF.mJ b F l h J hJh := by
+  rw [RecursionFrame.mJ, liftableCount]
+  have hmem : ∀ (m : partition137Set RF b F l h), m.1.toMonoidHom.range = J →
+      ∀ γ, m.1 γ ∈ J := by
+    intro m hm γ
+    have : m.1 γ ∈ m.1.toMonoidHom.range := ⟨γ, rfl⟩
+    rwa [hm] at this
+  refine Nat.card_congr ⟨fun m =>
+    ⟨⟨⟨cmhCodRestrict m.1.1 J (hmem m.1 m.2), fun j => ?_⟩, fun γ => ?_⟩, ?_⟩,
+    fun f => ⟨⟨cmhInclude J f.1.1.1, ⟨fun γ => f.1.2 γ, ?_⟩, ?_⟩, ?_⟩,
+    fun m => Subtype.ext (Subtype.ext rfl),
+    fun f => Subtype.ext (Subtype.ext (Subtype.ext (by
+      apply ContinuousMonoidHom.ext
+      intro γ
+      exact Subtype.ext rfl)))⟩
+  · -- corestriction surjective onto `↥J`
+    have hj : (j : RF.YB) ∈ m.1.1.toMonoidHom.range := by rw [m.2]; exact j.2
+    obtain ⟨γ, hγ⟩ := hj
+    exact ⟨γ, Subtype.ext hγ⟩
+  · -- stratum boundary equation (definitional transport)
+    exact m.1.2.1.1 γ
+  · -- the ∃g condition transports
+    obtain ⟨g, hg⟩ := m.1.2.2
+    exact ⟨g, fun γ => hg γ⟩
+  · -- `C`-surjectivity of the included map, from `J ↠ C`
+    intro c
+    have hc : c ∈ J.map RF.piBC := by rw [hJc]; trivial
+    obtain ⟨y, hyJ, hyc⟩ := Subgroup.mem_map.mp hc
+    obtain ⟨γ, hγ⟩ := f.1.1.2 ⟨y, hyJ⟩
+    exact ⟨γ, by
+      show RF.piBC ((f.1.1.1 γ : RF.YB)) = c
+      rw [hγ, hyc]⟩
+  · -- the ∃g condition transports back
+    obtain ⟨g, hg⟩ := f.2
+    exact ⟨g, fun γ => hg γ⟩
+  · -- the included map has range exactly `J`
+    have h1 : (cmhInclude J f.1.1.1).toMonoidHom.range
+        = f.1.1.1.toMonoidHom.range.map J.subtype := MonoidHom.range_comp _ _
+    rw [h1, MonoidHom.range_eq_top.mpr f.1.1.2, ← MonoidHom.range_eq_map,
+      Subgroup.range_subtype]
+
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
+/-- **(137), `C`-missing strata are empty**: the `C`-component of a `Z`-pair is onto `C`, so
+no `partition137Set` element has an image whose `π_{BC}`-map misses `C`. -/
+private theorem partition137_card_fiber_eq_zero_of_not_map (J : Subgroup RF.YB)
+    (hJc : J.map RF.piBC ≠ ⊤) :
+    Nat.card {m : partition137Set RF b F l h // m.1.toMonoidHom.range = J} = 0 := by
+  have hE : IsEmpty {m : partition137Set RF b F l h // m.1.toMonoidHom.range = J} := by
+    constructor
+    rintro ⟨m, hm⟩
+    apply hJc
+    rw [← hm, ← MonoidHom.range_comp]
+    rw [MonoidHom.range_eq_top]
+    intro c
+    obtain ⟨γ, hγ⟩ := m.2.1.2 c
+    exact ⟨γ, hγ⟩
+  exact Nat.card_of_isEmpty
+
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
+/-- **(137), head-missing strata are empty**: a `partition137Set` element is boundary-framed,
+so if its image missed the `H`-head the boundary map's head would too, contradicting `hhead`. -/
+private theorem partition137_card_fiber_eq_zero_of_not_head
+    (hhead : Function.Surjective (fun γ : Γ => (F.frameMap (b γ)).1)) (J : Subgroup RF.YB)
+    (hJh : ¬ Function.Surjective (RF.TB.piY.comp J.subtype)) :
+    Nat.card {m : partition137Set RF b F l h // m.1.toMonoidHom.range = J} = 0 := by
+  have hE : IsEmpty {m : partition137Set RF b F l h // m.1.toMonoidHom.range = J} := by
+    constructor
+    rintro ⟨m, hm⟩
+    apply hJh
+    intro hh
+    obtain ⟨γ, hγ⟩ := hhead hh
+    have hmemJ : m.1 γ ∈ J := by
+      have : m.1 γ ∈ m.1.toMonoidHom.range := ⟨γ, rfl⟩
+      rwa [hm] at this
+    refine ⟨⟨m.1 γ, hmemJ⟩, ?_⟩
+    show RF.TB.piY (m.1 γ) = hh
+    have hbd := m.2.1.1 γ
+    have := congrArg Prod.fst hbd
+    simpa [hγ] using this
+  exact Nat.card_of_isEmpty
+
+end Partition137
+
 open scoped Classical in
 /-- **The (137) partition** (P-16d item 2): the `partition137` input of `RecursionInputs`,
 derived outright.  A `Z`-pair is determined by its `B`-level lift `m` (the `C`-component is
@@ -452,136 +608,28 @@ theorem partition137_of {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopol
     Finite.of_injective (fun J : Subgroup RF.YB => (J : Set RF.YB)) SetLike.coe_injective
   haveI : Fintype (Subgroup RF.YB) := Fintype.ofFinite _
   -- ===== Step 1: eliminate the pair — `Z` is a set of `B`-level lifts =====
-  have e1 : RF.zBC b F l h = Nat.card {m : ContinuousMonoidHom Γ RF.YB //
-      (IsBoundaryLift b F RF.TB m ∧ Function.Surjective (⇑RF.piBC ∘ ⇑m)) ∧
-        ∃ g : ContinuousMonoidHom Γ (RF.scalarCover l h).cover,
-          ∀ γ : Γ, (RF.scalarCover l h).p (g γ) = m γ} := by
-    refine Nat.card_congr ⟨fun pr => ⟨pr.1.2, ⟨pr.2.2.1, ?_⟩, pr.2.2.2⟩,
-      fun m => ⟨(⟨⟨⟨RF.piBC.comp m.1.toMonoidHom,
-          (continuous_of_discreteTopology (f := ⇑RF.piBC)).comp m.1.continuous_toFun⟩,
-        m.2.1.2⟩,
-        fun γ => by
-          show (RF.TC.piY (RF.piBC (m.1 γ)), RF.TC.thetaY (RF.piBC (m.1 γ)))
-            = F.frameMap (b γ)
-          have h1 : RF.TC.piY (RF.piBC (m.1 γ)) = RF.TB.piY (m.1 γ) :=
-            DFunLike.congr_fun RF.headBC (m.1 γ)
-          have h2 : RF.TC.thetaY (RF.piBC (m.1 γ)) = RF.TB.thetaY (m.1 γ) :=
-            DFunLike.congr_fun RF.thetaBC (m.1 γ)
-          rw [h1, h2]
-          exact m.2.1.1 γ⟩, m.1), fun γ => rfl, m.2.1.1, m.2.2⟩,
-      fun pr => ?_, fun m => ?_⟩
-    · have hfun : ⇑RF.piBC ∘ ⇑pr.1.2 = ⇑pr.1.1.1.1 := funext fun γ => pr.2.1 γ
-      rw [hfun]
-      exact pr.1.1.1.2
-    · obtain ⟨⟨f, m⟩, hcompat, hbd, hg⟩ := pr
-      refine Subtype.ext (Prod.ext ?_ rfl)
-      refine Subtype.ext (Subtype.ext ?_)
-      apply ContinuousMonoidHom.ext
-      intro γ
-      exact hcompat γ
-    · exact Subtype.ext rfl
-  set Mset := {m : ContinuousMonoidHom Γ RF.YB //
-    (IsBoundaryLift b F RF.TB m ∧ Function.Surjective (⇑RF.piBC ∘ ⇑m)) ∧
-      ∃ g : ContinuousMonoidHom Γ (RF.scalarCover l h).cover,
-        ∀ γ : Γ, (RF.scalarCover l h).p (g γ) = m γ} with hMsetdef
+  set Mset := partition137Set RF b F l h with hMsetdef
   haveI : Finite Mset := Subtype.finite
+  have e1 : RF.zBC b F l h = Nat.card Mset := partition137_zBC_eq_card RF b F l h
   -- ===== Step 2: stratify by the exact image =====
   have e2 : Nat.card Mset
       = ∑ J : Subgroup RF.YB, Nat.card {m : Mset // m.1.toMonoidHom.range = J} := by
     rw [Nat.card_congr (Equiv.sigmaFiberEquiv
       (fun m : Mset => m.1.toMonoidHom.range)).symm, Nat.card_sigma]
-  -- ===== Step 3: the fibres =====
-  -- range of the composite with `π_BC`
-  have hrangeBC : ∀ m : Mset, (RF.piBC.comp m.1.toMonoidHom).range
-      = m.1.toMonoidHom.range.map RF.piBC := fun m => MonoidHom.range_comp _ _
-  -- the top stratum is `m_B`
-  have htop : Nat.card {m : Mset // m.1.toMonoidHom.range = ⊤} = RF.mB b F l := by
-    rw [RecursionFrame.mB, dif_neg h]
-    refine Nat.card_congr ⟨fun m => ⟨⟨⟨m.1.1, fun y => ?_⟩, m.1.2.1.1⟩, m.1.2.2⟩,
-      fun f => ⟨⟨f.1.1.1, ⟨f.1.2, RF.piBC_surj.comp f.1.1.2⟩, f.2⟩, ?_⟩,
-      fun m => Subtype.ext (Subtype.ext rfl),
-      fun f => Subtype.ext (Subtype.ext (Subtype.ext rfl))⟩
-    · have hy : y ∈ m.1.1.toMonoidHom.range := by rw [m.2]; trivial
-      exact hy
-    · rw [MonoidHom.range_eq_top]
-      exact f.1.1.2
-  -- proper `C`-onto head-surjective strata are `m_J`
-  have hstr : ∀ (J : Subgroup RF.YB) (hJc : J.map RF.piBC = ⊤)
+  -- ===== Step 3: the fibres (top `m_B`, proper `m_J`, empty off the `C`/`H` heads) =====
+  have htop : Nat.card {m : Mset // m.1.toMonoidHom.range = ⊤} = RF.mB b F l :=
+    partition137_card_fiber_top RF b F l h
+  have hstr : ∀ (J : Subgroup RF.YB) (_hJc : J.map RF.piBC = ⊤)
       (hJh : Function.Surjective (RF.TB.piY.comp J.subtype)),
-      Nat.card {m : Mset // m.1.toMonoidHom.range = J} = RF.mJ b F l h J hJh := by
-    intro J hJc hJh
-    rw [RecursionFrame.mJ, liftableCount]
-    have hmem : ∀ (m : Mset), m.1.toMonoidHom.range = J → ∀ γ, m.1 γ ∈ J := by
-      intro m hm γ
-      have : m.1 γ ∈ m.1.toMonoidHom.range := ⟨γ, rfl⟩
-      rwa [hm] at this
-    refine Nat.card_congr ⟨fun m =>
-      ⟨⟨⟨cmhCodRestrict m.1.1 J (hmem m.1 m.2), fun j => ?_⟩, fun γ => ?_⟩, ?_⟩,
-      fun f => ⟨⟨cmhInclude J f.1.1.1, ⟨fun γ => f.1.2 γ, ?_⟩, ?_⟩, ?_⟩,
-      fun m => Subtype.ext (Subtype.ext rfl),
-      fun f => Subtype.ext (Subtype.ext (Subtype.ext (by
-        apply ContinuousMonoidHom.ext
-        intro γ
-        exact Subtype.ext rfl)))⟩
-    · -- corestriction surjective onto `↥J`
-      have hj : (j : RF.YB) ∈ m.1.1.toMonoidHom.range := by rw [m.2]; exact j.2
-      obtain ⟨γ, hγ⟩ := hj
-      exact ⟨γ, Subtype.ext hγ⟩
-    · -- stratum boundary equation (definitional transport)
-      exact m.1.2.1.1 γ
-    · -- the ∃g condition transports
-      obtain ⟨g, hg⟩ := m.1.2.2
-      exact ⟨g, fun γ => hg γ⟩
-    · -- `C`-surjectivity of the included map, from `J ↠ C`
-      intro c
-      have hc : c ∈ J.map RF.piBC := by rw [hJc]; trivial
-      obtain ⟨y, hyJ, hyc⟩ := Subgroup.mem_map.mp hc
-      obtain ⟨γ, hγ⟩ := f.1.1.2 ⟨y, hyJ⟩
-      exact ⟨γ, by
-        show RF.piBC ((f.1.1.1 γ : RF.YB)) = c
-        rw [hγ, hyc]⟩
-    · -- the ∃g condition transports back
-      obtain ⟨g, hg⟩ := f.2
-      exact ⟨g, fun γ => hg γ⟩
-    · -- the included map has range exactly `J`
-      have h1 : (cmhInclude J f.1.1.1).toMonoidHom.range
-          = f.1.1.1.toMonoidHom.range.map J.subtype := MonoidHom.range_comp _ _
-      rw [h1, MonoidHom.range_eq_top.mpr f.1.1.2, ← MonoidHom.range_eq_map,
-        Subgroup.range_subtype]
-  -- `C`-missing strata are empty
+      Nat.card {m : Mset // m.1.toMonoidHom.range = J} = RF.mJ b F l h J hJh :=
+    fun J hJc hJh => partition137_card_fiber_stratum RF b F l h J hJc hJh
   have hemptyC : ∀ (J : Subgroup RF.YB), J.map RF.piBC ≠ ⊤ →
-      Nat.card {m : Mset // m.1.toMonoidHom.range = J} = 0 := by
-    intro J hJc
-    have hE : IsEmpty {m : Mset // m.1.toMonoidHom.range = J} := by
-      constructor
-      rintro ⟨m, hm⟩
-      apply hJc
-      rw [← hm, ← MonoidHom.range_comp]
-      rw [MonoidHom.range_eq_top]
-      intro c
-      obtain ⟨γ, hγ⟩ := m.2.1.2 c
-      exact ⟨γ, hγ⟩
-    exact Nat.card_of_isEmpty
-  -- head-missing strata are empty (via `hhead`)
+      Nat.card {m : Mset // m.1.toMonoidHom.range = J} = 0 :=
+    fun J hJc => partition137_card_fiber_eq_zero_of_not_map RF b F l h J hJc
   have hemptyH : ∀ (J : Subgroup RF.YB),
       ¬ Function.Surjective (RF.TB.piY.comp J.subtype) →
-      Nat.card {m : Mset // m.1.toMonoidHom.range = J} = 0 := by
-    intro J hJh
-    have hE : IsEmpty {m : Mset // m.1.toMonoidHom.range = J} := by
-      constructor
-      rintro ⟨m, hm⟩
-      apply hJh
-      intro hh
-      obtain ⟨γ, hγ⟩ := hhead hh
-      have hmemJ : m.1 γ ∈ J := by
-        have : m.1 γ ∈ m.1.toMonoidHom.range := ⟨γ, rfl⟩
-        rwa [hm] at this
-      refine ⟨⟨m.1 γ, hmemJ⟩, ?_⟩
-      show RF.TB.piY (m.1 γ) = hh
-      have hbd := m.2.1.1 γ
-      have := congrArg Prod.fst hbd
-      simpa [hγ] using this
-    exact Nat.card_of_isEmpty
+      Nat.card {m : Mset // m.1.toMonoidHom.range = J} = 0 :=
+    fun J hJh => partition137_card_fiber_eq_zero_of_not_head RF b F l h hhead J hJh
   -- ===== Step 4: assemble =====
   set fib : Subgroup RF.YB → ℕ :=
     fun J => Nat.card {m : Mset // m.1.toMonoidHom.range = J} with hfibdef
