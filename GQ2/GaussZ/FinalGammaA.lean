@@ -580,6 +580,66 @@ theorem commP_fib_cc_one (p r : CentExt (kappa0Cocycle dat hdat))
   linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]; try ring_nf))
     hc1 + hc1' + hpol
 
+/-- **The ramified `h₀`-telescope fibre** (`V^T = 0` prefix peel): for the six-factor wild
+prefix `A · X · Dg · D · D² · F` over `cc = 1` bases — `A, Dg` on the `V`-part `a`, `X, D`
+on `b`, and `F` slice-trivial (`base = 1`) — the base collapses to `(0, 1)` and each
+`kappa0_cc_one` step deposits one `f`-atom, giving the accumulated fibre below.  This is
+the `V^T = 0` analog of the split `h₀ = x₀²` collapse: nothing is central here. -/
+theorem liftMark_ramified_h0_fib (A X Dg D F : CentExt (kappa0Cocycle dat hdat))
+    (a b : V) (mA fD : ZMod 2) (hV₂ : ∀ w : V, w + w = 0)
+    (hAv : A.base.v = a) (hAcc : A.base.cc = 1) (hAf : A.fib = mA)
+    (hXv : X.base.v = b) (hXcc : X.base.cc = 1) (hXf : X.fib = 0)
+    (hDgv : Dg.base.v = a) (hDgcc : Dg.base.cc = 1) (hDgf : Dg.fib = fD + mA)
+    (hDv : D.base.v = b) (hDcc : D.base.cc = 1) (hDf : D.fib = fD)
+    (hFbase : F.base = 1) (hFf : F.fib = polar q a b) :
+    (A * X * Dg * D * D ^ 2 * F).base.v = 0
+      ∧ (A * X * Dg * D * D ^ 2 * F).base.cc = 1
+      ∧ (A * X * Dg * D * D ^ 2 * F).fib
+        = mA + dat.f a b + (fD + mA) + dat.f (a + b) a + fD + q b + q b
+          + polar q a b := by
+  have hP1v : (A * X).base.v = a + b := by
+    rw [CentExt.mul_base, Sd.mul_v, hAv, hAcc, one_smul, hXv]
+  have hP1cc : (A * X).base.cc = 1 := by
+    rw [CentExt.mul_base, Sd.mul_cc, hAcc, one_mul, hXcc]
+  have hP1f : (A * X).fib = mA + dat.f a b := by
+    rw [CentExt.mul_fib, hAf, hXf, add_zero, kappa0_cc_one dat hdat _ _ hAcc, hAv, hXv]
+  have hP2v : (A * X * Dg).base.v = b := by
+    rw [CentExt.mul_base, Sd.mul_v, hP1v, hP1cc, one_smul, hDgv,
+      show a + b + a = b + (a + a) from by abel, hV₂ a, add_zero]
+  have hP2cc : (A * X * Dg).base.cc = 1 := by
+    rw [CentExt.mul_base, Sd.mul_cc, hP1cc, hDgcc, one_mul]
+  have hP2f : (A * X * Dg).fib = mA + dat.f a b + (fD + mA) + dat.f (a + b) a := by
+    rw [CentExt.mul_fib, hP1f, hDgf, kappa0_cc_one dat hdat _ _ hP1cc, hP1v, hDgv]
+  have hP3v : (A * X * Dg * D).base.v = 0 := by
+    rw [CentExt.mul_base, Sd.mul_v, hP2v, hP2cc, one_smul, hDv]
+    exact hV₂ b
+  have hP3cc : (A * X * Dg * D).base.cc = 1 := by
+    rw [CentExt.mul_base, Sd.mul_cc, hP2cc, hDcc, one_mul]
+  have hP3f : (A * X * Dg * D).fib
+      = mA + dat.f a b + (fD + mA) + dat.f (a + b) a + fD + q b := by
+    rw [CentExt.mul_fib, hP2f, hDf, kappa0_cc_one dat hdat _ _ hP2cc, hP2v, hDv, hdat.f_diag]
+  have hDsqv : (D ^ 2).base.v = 0 := by
+    rw [pow_two, CentExt.mul_base, Sd.mul_v, hDv, hDcc, one_smul]
+    exact hV₂ b
+  have hDsqcc : (D ^ 2).base.cc = 1 := by
+    rw [pow_two, CentExt.mul_base, Sd.mul_cc, hDcc, one_mul]
+  have hDsqf : (D ^ 2).fib = q b := by
+    rw [pow_two, CentExt.mul_fib, kappa0_cc_one dat hdat _ _ hDcc, hDv, hdat.f_diag,
+      CharTwo.add_self_eq_zero, zero_add]
+  have hP4v : (A * X * Dg * D * D ^ 2).base.v = 0 := by
+    rw [CentExt.mul_base, Sd.mul_v, hP3v, hP3cc, one_smul, hDsqv, add_zero]
+  have hP4cc : (A * X * Dg * D * D ^ 2).base.cc = 1 := by
+    rw [CentExt.mul_base, Sd.mul_cc, hP3cc, hDsqcc, one_mul]
+  have hP4f : (A * X * Dg * D * D ^ 2).fib
+      = mA + dat.f a b + (fD + mA) + dat.f (a + b) a + fD + q b + q b := by
+    rw [CentExt.mul_fib, hP3f, hDsqf, kappa0_cc_one dat hdat _ _ hP3cc, hP3v,
+      hdat.f_zero_left, add_zero]
+  refine ⟨?_, ?_, ?_⟩
+  · rw [CentExt.mul_base, Sd.mul_v, hP4v, hP4cc, one_smul, hFbase, Sd.one_v, add_zero]
+  · rw [CentExt.mul_base, Sd.mul_cc, hP4cc, hFbase, Sd.one_cc, one_mul]
+  · rw [CentExt.mul_fib, hP4f, hFf, kappa0_cc_one dat hdat _ _ hP4cc, hP4v,
+      hdat.f_zero_left, add_zero]
+
 /-- **The ramified wild κ⁰-value is the Wall double** (paper (83), `V^T = 0` case): with
 the structural pack, the lifted wild relator value has fibre
 `q(x₀.v) + polar q x₀.v (σ₂⁻¹ • x₀.v)`.  Unlike the split case `d₀` is no longer central —
@@ -693,83 +753,21 @@ theorem liftMark_kappa0_wildValue_fib_ramified [Finite C] [Finite V]
       = polar q ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v := by
     show (commP M.dg M.d0).fib = _
     rw [commP_fib_cc_one dat hdat M.dg M.d0 hdgcc hd0bcc hV₂, hdgv, hd0bv]
-  -- the `h₀`-peel, prefix by prefix (all factors in the `V`-slice)
-  have hP1v : (conjP M.x₀ M.g0 * M.x₀).base.v
-      = (Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v + tS.x₀.v := by
-    rw [CentExt.mul_base, Sd.mul_v, hAv, hAcc, one_smul, hMx0bv]
-  have hP1cc : (conjP M.x₀ M.g0 * M.x₀).base.cc = 1 := by
-    rw [CentExt.mul_base, Sd.mul_cc, hAcc, one_mul, hMx0bcc, hx0cc]
-  have hP1f : (conjP M.x₀ M.g0 * M.x₀).fib
-      = dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v
-        + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v := by
-    rw [CentExt.mul_fib, hAf, hMx0f, add_zero, kappa0_cc_one dat hdat _ _ hAcc, hAv, hMx0bv]
-  have hP2v : (conjP M.x₀ M.g0 * M.x₀ * M.dg).base.v = tS.x₀.v := by
-    rw [CentExt.mul_base, Sd.mul_v, hP1v, hP1cc, one_smul, hdgv,
-      show (Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v + tS.x₀.v
-          + (Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v
-        = tS.x₀.v + ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v
-          + (Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) from by abel,
-      hV₂ ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v), add_zero]
-  have hP2cc : (conjP M.x₀ M.g0 * M.x₀ * M.dg).base.cc = 1 := by
-    rw [CentExt.mul_base, Sd.mul_cc, hP1cc, hdgcc, one_mul]
-  have hP2f : (conjP M.x₀ M.g0 * M.x₀ * M.dg).fib
-      = dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v
-        + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v
-        + (M.d0.fib + dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v)
-        + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v + tS.x₀.v)
-            ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) := by
-    rw [CentExt.mul_fib, hP1f, hdgf, kappa0_cc_one dat hdat _ _ hP1cc, hP1v, hdgv]
-  have hP3v : (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0).base.v = 0 := by
-    rw [CentExt.mul_base, Sd.mul_v, hP2v, hP2cc, one_smul, hd0bv]
-    exact hV₂ tS.x₀.v
-  have hP3cc : (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0).base.cc = 1 := by
-    rw [CentExt.mul_base, Sd.mul_cc, hP2cc, hd0bcc, one_mul]
-  have hP3f : (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0).fib
-      = dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v
-        + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v
-        + (M.d0.fib + dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v)
-        + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v + tS.x₀.v)
-            ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v)
-        + M.d0.fib + q tS.x₀.v := by
-    rw [CentExt.mul_fib, hP2f, kappa0_cc_one dat hdat _ _ hP2cc, hP2v, hd0bv, hdat.f_diag]
-  have hd0sqv : (M.d0 ^ 2).base.v = 0 := by
-    rw [pow_two, CentExt.mul_base, Sd.mul_v, hd0bv, hd0bcc, one_smul]
-    exact hV₂ tS.x₀.v
-  have hd0sqcc : (M.d0 ^ 2).base.cc = 1 := by
-    rw [pow_two, CentExt.mul_base, Sd.mul_cc, hd0bcc, one_mul]
-  have hd0sqf : (M.d0 ^ 2).fib = q tS.x₀.v := by
-    rw [pow_two, CentExt.mul_fib, kappa0_cc_one dat hdat _ _ hd0bcc, hd0bv, hdat.f_diag,
-      CharTwo.add_self_eq_zero, zero_add]
-  have hP4v : (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0 * M.d0 ^ 2).base.v = 0 := by
-    rw [CentExt.mul_base, Sd.mul_v, hP3v, hP3cc, one_smul, hd0sqv, add_zero]
-  have hP4cc : (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0 * M.d0 ^ 2).base.cc = 1 := by
-    rw [CentExt.mul_base, Sd.mul_cc, hP3cc, hd0sqcc, one_mul]
-  have hP4f : (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0 * M.d0 ^ 2).fib
-      = dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v
-        + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v
-        + (M.d0.fib + dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v)
-        + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v + tS.x₀.v)
-            ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v)
-        + M.d0.fib + q tS.x₀.v + q tS.x₀.v := by
-    rw [CentExt.mul_fib, hP3f, hd0sqf, kappa0_cc_one dat hdat _ _ hP3cc, hP3v,
-      hdat.f_zero_left, add_zero]
-  have hh0bv : M.h0.base.v = 0 := by
-    show (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0 * M.d0 ^ 2 * M.hc).base.v = 0
-    rw [CentExt.mul_base, Sd.mul_v, hP4v, hP4cc, one_smul, hhcbase, Sd.one_v, add_zero]
-  have hh0bcc : M.h0.base.cc = 1 := by
-    show (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0 * M.d0 ^ 2 * M.hc).base.cc = 1
-    rw [CentExt.mul_base, Sd.mul_cc, hP4cc, hhcbase, Sd.one_cc, one_mul]
-  have hh0f : M.h0.fib
-      = dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v
-        + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v
-        + (M.d0.fib + dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v)
-        + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v + tS.x₀.v)
-            ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v)
-        + M.d0.fib + q tS.x₀.v + q tS.x₀.v
-        + polar q ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v := by
-    show (conjP M.x₀ M.g0 * M.x₀ * M.dg * M.d0 * M.d0 ^ 2 * M.hc).fib = _
-    rw [CentExt.mul_fib, hP4f, hhcf, kappa0_cc_one dat hdat _ _ hP4cc, hP4v,
-      hdat.f_zero_left, add_zero]
+  -- the `h₀`-telescope: the six-factor `V`-slice prefix peels to base `(0, 1)` (helper)
+  obtain ⟨hh0bv, hh0bcc, hh0f⟩ :
+      M.h0.base.v = 0 ∧ M.h0.base.cc = 1 ∧ M.h0.fib
+        = dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v
+          + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v
+          + (M.d0.fib + dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v)
+          + dat.f ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v + tS.x₀.v)
+              ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v)
+          + M.d0.fib + q tS.x₀.v + q tS.x₀.v
+          + polar q ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v :=
+    liftMark_ramified_h0_fib dat hdat (conjP M.x₀ M.g0) M.x₀ M.dg M.d0 M.hc
+      ((Marking.g0 (sdBaseMarking tS))⁻¹ • tS.x₀.v) tS.x₀.v
+      (dat.m (Marking.g0 (sdBaseMarking tS))⁻¹ tS.x₀.v) M.d0.fib hV₂
+      hAv hAcc hAf hMx0bv (hMx0bcc.trans hx0cc) hMx0f hdgv hdgcc hdgf hd0bv hd0bcc rfl
+      hhcbase hhcf
   -- assemble the wild word
   show (M.h0 * M.u1⁻¹ * conjP M.x₁ M.σ * M.c0).fib
       = q tS.x₀.v + polar q tS.x₀.v ((Marking.sigma2 (sdBaseMarking tS))⁻¹ • tS.x₀.v)
@@ -1516,6 +1514,81 @@ theorem powOmega2_smul_eq_of_gen [Finite C] [Finite V] (s t : C)
   · exact absurd (AddSubgroup.mem_bot.mp (hbot ▸ (hwfix : (x : V) ∈ W))) hwne
   · exact fun v => htop.ge (AddSubgroup.mem_top v)
 
+/-- **The reverse tame conjugate is a `t`-power** (odd-order square root): if
+`s⁻¹ * t * s = t²` and `t` has odd order `d`, then `s * t * s⁻¹` is the square root
+`t^{(d+1)/2}` of `t` (squaring is invertible on the odd-order cyclic group `⟨t⟩`), hence
+lies in `⟨t⟩`. -/
+theorem conj_mem_zpowers_of_tameRel (s t : C) (hrel : s⁻¹ * t * s = t ^ 2)
+    (hodd : Odd (orderOf t)) : s * t * s⁻¹ ∈ Subgroup.zpowers t := by
+  have hsc : SemiconjBy s t (s * t * s⁻¹) := by
+    show s * t = s * t * s⁻¹ * s
+    group
+  have hx2 : (s * t * s⁻¹) ^ 2 = t := by
+    have h2 : (s * t * s⁻¹) ^ 2 = s * t ^ 2 * s⁻¹ := by
+      rw [pow_two, pow_two]
+      group
+    rw [h2, ← hrel]
+    group
+  have horder : orderOf (s * t * s⁻¹) = orderOf t := hsc.orderOf_eq.symm
+  obtain ⟨j, hj⟩ := hodd
+  have hpow : s * t * s⁻¹ = t ^ (j + 1) := by
+    have h1 : (s * t * s⁻¹) ^ (orderOf t + 1) = s * t * s⁻¹ := by
+      rw [pow_succ, ← horder, pow_orderOf_eq_one, one_mul]
+    calc s * t * s⁻¹ = (s * t * s⁻¹) ^ (orderOf t + 1) := h1.symm
+      _ = ((s * t * s⁻¹) ^ 2) ^ (j + 1) := by
+          rw [← pow_mul]
+          congr 1
+          omega
+      _ = t ^ (j + 1) := by rw [hx2]
+  rw [hpow]
+  exact pow_mem (Subgroup.mem_zpowers t) (j + 1)
+
+/-- **`⟨t⟩` is normalized by every group element** (both directions): with `C = ⟨s, t⟩`,
+`s⁻¹ * t * s = t²`, and `t` of odd order, every `g` conjugates `t` into `⟨t⟩` from either
+side, proved by closure induction over the generating set `{s, t}`. -/
+theorem conj_mem_zpowers_of_gen (s t : C)
+    (hgen : Subgroup.closure ({s, t} : Set C) = ⊤)
+    (hrel : s⁻¹ * t * s = t ^ 2) (hodd : Odd (orderOf t)) :
+    ∀ g : C, g⁻¹ * t * g ∈ Subgroup.zpowers t
+      ∧ g * t * g⁻¹ ∈ Subgroup.zpowers t := by
+  intro g
+  have hg : g ∈ Subgroup.closure ({s, t} : Set C) := by rw [hgen]; trivial
+  induction hg using Subgroup.closure_induction with
+  | mem x hx =>
+    rcases Set.mem_insert_iff.mp hx with rfl | hx'
+    · refine ⟨?_, conj_mem_zpowers_of_tameRel x t hrel hodd⟩
+      rw [hrel]
+      exact pow_mem (Subgroup.mem_zpowers t) 2
+    · rw [Set.mem_singleton_iff] at hx'
+      subst hx'
+      refine ⟨?_, ?_⟩
+      · rw [show x⁻¹ * x * x = x from by group]
+        exact Subgroup.mem_zpowers x
+      · rw [show x * x * x⁻¹ = x from by group]
+        exact Subgroup.mem_zpowers x
+  | one =>
+    refine ⟨?_, ?_⟩
+    · rw [show (1 : C)⁻¹ * t * 1 = t from by group]
+      exact Subgroup.mem_zpowers t
+    · rw [show (1 : C) * t * 1⁻¹ = t from by group]
+      exact Subgroup.mem_zpowers t
+  | mul x y hx hy ihx ihy =>
+    refine ⟨?_, ?_⟩
+    · obtain ⟨k, hk⟩ := Subgroup.mem_zpowers_iff.mp ihx.1
+      rw [show (x * y)⁻¹ * t * (x * y) = y⁻¹ * (x⁻¹ * t * x) * y from by group, ← hk,
+        show y⁻¹ * t ^ k * y = (y⁻¹ * t * y) ^ k from by
+          have h := map_zpow (MulAut.conj y⁻¹) t k
+          simpa [MulAut.conj_apply, mul_assoc] using h]
+      exact Subgroup.zpowers_le.mpr ihy.1 (zpow_mem (Subgroup.mem_zpowers _) k)
+    · obtain ⟨k, hk⟩ := Subgroup.mem_zpowers_iff.mp ihy.2
+      rw [show (x * y) * t * (x * y)⁻¹ = x * (y * t * y⁻¹) * x⁻¹ from by group, ← hk,
+        show x * t ^ k * x⁻¹ = (x * t * x⁻¹) ^ k from by
+          have h := map_zpow (MulAut.conj x) t k
+          simpa [MulAut.conj_apply, mul_assoc] using h]
+      exact Subgroup.zpowers_le.mpr ihx.2 (zpow_mem (Subgroup.mem_zpowers _) k)
+  | inv x hx ih =>
+    exact ⟨by rw [inv_inv]; exact ih.2, by rw [inv_inv]; exact ih.1⟩
+
 /-- **The ramified inertia-freeness (`htauf`)**: with `C = ⟨s, t⟩`, the tame relation
 `s⁻¹ts = t²`, and `t` of odd order, every conjugate of `t` is a power of `t`
 (`⟨t⟩` is normal: `s`-conjugation squares, and the reverse conjugate is the square ROOT
@@ -1530,68 +1603,7 @@ theorem tau_fixed_eq_zero_of_gen (s t : C)
     ∀ v : V, t • v = v → v = 0 := by
   classical
   -- every element conjugates `t` into `⟨t⟩` (both directions), by closure induction
-  have hconj : ∀ g : C, g⁻¹ * t * g ∈ Subgroup.zpowers t
-      ∧ g * t * g⁻¹ ∈ Subgroup.zpowers t := by
-    intro g
-    have hg : g ∈ Subgroup.closure ({s, t} : Set C) := by rw [hgen]; trivial
-    induction hg using Subgroup.closure_induction with
-    | mem x hx =>
-      rcases Set.mem_insert_iff.mp hx with rfl | hx'
-      · refine ⟨?_, ?_⟩
-        · rw [hrel]
-          exact pow_mem (Subgroup.mem_zpowers t) 2
-        · -- `x t x⁻¹` is the square root `t^{(d+1)/2}` of `t` (odd order `d`)
-          have hsc : SemiconjBy x t (x * t * x⁻¹) := by
-            show x * t = x * t * x⁻¹ * x
-            group
-          have hx2 : (x * t * x⁻¹) ^ 2 = t := by
-            have h2 : (x * t * x⁻¹) ^ 2 = x * t ^ 2 * x⁻¹ := by
-              rw [pow_two, pow_two]
-              group
-            rw [h2, ← hrel]
-            group
-          have horder : orderOf (x * t * x⁻¹) = orderOf t := hsc.orderOf_eq.symm
-          obtain ⟨j, hj⟩ := hodd
-          have hpow : x * t * x⁻¹ = t ^ (j + 1) := by
-            have h1 : (x * t * x⁻¹) ^ (orderOf t + 1) = x * t * x⁻¹ := by
-              rw [pow_succ, ← horder, pow_orderOf_eq_one, one_mul]
-            calc x * t * x⁻¹ = (x * t * x⁻¹) ^ (orderOf t + 1) := h1.symm
-              _ = ((x * t * x⁻¹) ^ 2) ^ (j + 1) := by
-                  rw [← pow_mul]
-                  congr 1
-                  omega
-              _ = t ^ (j + 1) := by rw [hx2]
-          rw [hpow]
-          exact pow_mem (Subgroup.mem_zpowers t) (j + 1)
-      · rw [Set.mem_singleton_iff] at hx'
-        subst hx'
-        refine ⟨?_, ?_⟩
-        · rw [show x⁻¹ * x * x = x from by group]
-          exact Subgroup.mem_zpowers x
-        · rw [show x * x * x⁻¹ = x from by group]
-          exact Subgroup.mem_zpowers x
-    | one =>
-      refine ⟨?_, ?_⟩
-      · rw [show (1 : C)⁻¹ * t * 1 = t from by group]
-        exact Subgroup.mem_zpowers t
-      · rw [show (1 : C) * t * 1⁻¹ = t from by group]
-        exact Subgroup.mem_zpowers t
-    | mul x y hx hy ihx ihy =>
-      refine ⟨?_, ?_⟩
-      · obtain ⟨k, hk⟩ := Subgroup.mem_zpowers_iff.mp ihx.1
-        rw [show (x * y)⁻¹ * t * (x * y) = y⁻¹ * (x⁻¹ * t * x) * y from by group, ← hk,
-          show y⁻¹ * t ^ k * y = (y⁻¹ * t * y) ^ k from by
-            have h := map_zpow (MulAut.conj y⁻¹) t k
-            simpa [MulAut.conj_apply, mul_assoc] using h]
-        exact Subgroup.zpowers_le.mpr ihy.1 (zpow_mem (Subgroup.mem_zpowers _) k)
-      · obtain ⟨k, hk⟩ := Subgroup.mem_zpowers_iff.mp ihy.2
-        rw [show (x * y) * t * (x * y)⁻¹ = x * (y * t * y⁻¹) * x⁻¹ from by group, ← hk,
-          show x * t ^ k * x⁻¹ = (x * t * x⁻¹) ^ k from by
-            have h := map_zpow (MulAut.conj x) t k
-            simpa [MulAut.conj_apply, mul_assoc] using h]
-        exact Subgroup.zpowers_le.mpr ihx.2 (zpow_mem (Subgroup.mem_zpowers _) k)
-    | inv x hx ih =>
-      exact ⟨by rw [inv_inv]; exact ih.2, by rw [inv_inv]; exact ih.1⟩
+  have hconj := conj_mem_zpowers_of_gen s t hgen hrel hodd
   -- the `t`-fixed space is an invariant submodule; the dichotomy
   set W : AddSubgroup V :=
     { carrier := {v : V | t • v = v}

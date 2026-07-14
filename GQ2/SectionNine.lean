@@ -1122,41 +1122,25 @@ this file because it consumes `kappa0_exists`/`ActsThroughTame`; its signature g
 
 /-! ## The elementary `M`-stage partition  (P-17f; §9.2, the `R = ⊥` lane) -/
 
-/-- **The `M`-stage partition** (§9.2): the unrestricted `B`-lifts of the lower exact-image
-maps, all with the same multiplicity `mult` over each lower map (`hmult` — the
-`|Z¹_{Γ,ρ}(M)| = 2^{2·dim M}` numerics of props 5.15/5.16, source-discharged at P-17i),
-partition by exact image into the `C`-onto strata of `T_B`:
-`mult · e_Γ(C) = Σ_{J ↠ C} e_Γ(stratum J)`.  Machinery: the `LiftsOver`-fibration of
-P-16d3 + the image-stratification of `partition137_of`/`lemma_8_3`.
-[P-17a statement; proof P-17f.] -/
-theorem mStage_partition {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y]
-    [Finite Y] {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
-    (RF : RecursionFrame T Blk) {Γ : Type} [Group Γ] [TopologicalSpace Γ]
-    [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+/-- Stages (A)+(B) of `mStage_partition`: the boundary-lift set `Mset` (unrestricted `B`-lifts
+whose `C`-projection is a boundary-framed surjection) fibres over its `C`-image, and the
+`LiftsOver`-fibration collapses through the uniform multiplicity `hmult` to `mult · e_Γ(C)`. -/
+private theorem mStage_Mset_card_eq_mult {Y : Type} [Group Y] [TopologicalSpace Y]
+    [DiscreteTopology Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk) {Γ : Type} [Group Γ]
+    [TopologicalSpace Γ] [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
     (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
-    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
-    (hhead : Function.Surjective (fun γ : Γ => (F.frameMap (b γ)).1))
-    (mult : ℕ)
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E) (mult : ℕ)
     (hmult : ∀ ρ : BoundaryLifts b F RF.TC, Nat.card (RF.LiftsOver b F ρ) = mult) :
-    mult * exactImageCount b F RF.TC
-      = ∑ᶠ J ∈ {J : Subgroup RF.YB | J.map RF.piBC = ⊤},
-          exactImageCountOn b F RF.TB J := by
+    Nat.card {m : ContinuousMonoidHom Γ RF.YB //
+        IsBoundaryLift b F RF.TB m ∧ Function.Surjective (⇑RF.piBC ∘ ⇑m)}
+      = mult * exactImageCount b F RF.TC := by
   classical
   haveI : Finite (ContinuousMonoidHom Γ RF.YB) := finite_continuousMonoidHom hfg RF.YB
-  haveI : Finite (BoundaryLifts b F RF.TB) := finite_boundaryLifts b F RF.TB hfg
   haveI : Finite (BoundaryLifts b F RF.TC) := finite_boundaryLifts b F RF.TC hfg
   haveI : Fintype (BoundaryLifts b F RF.TC) := Fintype.ofFinite _
-  haveI : Finite (Subgroup RF.YB) :=
-    Finite.of_injective (fun J : Subgroup RF.YB => (J : Set RF.YB)) SetLike.coe_injective
-  haveI : Fintype (Subgroup RF.YB) := Fintype.ofFinite _
-  have hpiBC_surj : Function.Surjective RF.piBC := by
-    intro c
-    obtain ⟨y, hy⟩ := RF.piC_surj c
-    exact ⟨RF.piB y, by rw [show RF.piBC (RF.piB y) = (RF.piBC.comp RF.piB) y from rfl,
-      RF.piBC_comp, hy]⟩
   have hheadBC : RF.TC.piY.comp RF.piBC = RF.TB.piY := RF.headBC
   have hthetaBC : RF.TC.thetaY.comp RF.piBC = RF.TB.thetaY := RF.thetaBC
-  -- the set of `B`-lifts whose `C`-projection is a (boundary-framed) surjection onto `C`
   set Mset := {m : ContinuousMonoidHom Γ RF.YB //
     IsBoundaryLift b F RF.TB m ∧ Function.Surjective (⇑RF.piBC ∘ ⇑m)} with hMsetdef
   haveI : Finite Mset := Subtype.finite
@@ -1192,109 +1176,184 @@ theorem mStage_partition {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopo
             Subtype.ext (Subtype.ext (ContinuousMonoidHom.ext fun γ => n.2 γ))⟩
         left_inv := fun mm => Subtype.ext (Subtype.ext rfl)
         right_inv := fun n => Subtype.ext rfl }
-  -- (C) `Mset` stratifies by exact image into the `C`-onto strata of `T_B`
-  have hstrat : Nat.card Mset
+  rw [eUnion]; exact hmultsum
+
+/-- Stage (C), `C`-onto head-surjective stratum: the exact-image fibre of `Mset` over a subgroup
+`J ↠ C` that is head-surjective counts the boundary-framed exact-image lifts of the stratum
+`T_B|_J` (the `partition137_of`/`lemma_8_3` image-stratification). -/
+private theorem mStage_stratum_fiber_card {Y : Type} [Group Y] [TopologicalSpace Y]
+    [DiscreteTopology Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk) {Γ : Type} [Group Γ]
+    [TopologicalSpace Γ] [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E) (J : Subgroup RF.YB)
+    (hJc : J.map RF.piBC = ⊤) (hJh : Function.Surjective (RF.TB.piY.comp J.subtype)) :
+    Nat.card {m : {n : ContinuousMonoidHom Γ RF.YB //
+          IsBoundaryLift b F RF.TB n ∧ Function.Surjective (⇑RF.piBC ∘ ⇑n)} //
+        m.1.toMonoidHom.range = J}
+      = exactImageCount b F (RF.TB.stratum J hJh) := by
+  classical
+  rw [exactImageCount]
+  have hmem : ∀ (m : {n : ContinuousMonoidHom Γ RF.YB //
+      IsBoundaryLift b F RF.TB n ∧ Function.Surjective (⇑RF.piBC ∘ ⇑n)}),
+      m.1.toMonoidHom.range = J → ∀ γ, m.1 γ ∈ J := by
+    intro m hm γ
+    have : m.1 γ ∈ m.1.toMonoidHom.range := ⟨γ, rfl⟩
+    rwa [hm] at this
+  refine Nat.card_congr ⟨fun m =>
+    ⟨⟨cmhCodRestrict m.1.1 J (hmem m.1 m.2), fun j => ?_⟩, fun γ => ?_⟩,
+    fun f => ⟨⟨cmhInclude J f.1.1, fun γ => f.2 γ, ?_⟩, ?_⟩,
+    fun m => Subtype.ext (Subtype.ext rfl),
+    fun f => Subtype.ext (Subtype.ext (ContinuousMonoidHom.ext fun γ => Subtype.ext rfl))⟩
+  · -- corestriction surjective onto `↥J`
+    have hj : (j : RF.YB) ∈ m.1.1.toMonoidHom.range := by rw [m.2]; exact j.2
+    obtain ⟨γ, hγ⟩ := hj
+    exact ⟨γ, Subtype.ext hγ⟩
+  · -- stratum boundary equation (definitional transport)
+    exact m.1.2.1 γ
+  · -- `C`-surjectivity of the included map, from `J ↠ C`
+    intro c
+    have hc : c ∈ J.map RF.piBC := by rw [hJc]; trivial
+    obtain ⟨y, hyJ, hyc⟩ := Subgroup.mem_map.mp hc
+    obtain ⟨γ, hγ⟩ := f.1.2 ⟨y, hyJ⟩
+    exact ⟨γ, by show RF.piBC ((f.1.1 γ : RF.YB)) = c; rw [hγ, hyc]⟩
+  · -- the included map has range exactly `J`
+    have h1 : (cmhInclude J f.1.1).toMonoidHom.range
+        = f.1.1.toMonoidHom.range.map J.subtype := MonoidHom.range_comp _ _
+    rw [h1, MonoidHom.range_eq_top.mpr f.1.2, ← MonoidHom.range_eq_map,
+      Subgroup.range_subtype]
+
+/-- Stage (C), `C`-missing stratum: a subgroup `J` that does not surject onto `C` has empty
+exact-image fibre in `Mset` (each `Mset`-member is `C`-onto, so its range is too). -/
+private theorem mStage_fiber_empty_of_not_onto {Y : Type} [Group Y] [TopologicalSpace Y]
+    [DiscreteTopology Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk) {Γ : Type} [Group Γ]
+    [TopologicalSpace Γ] [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E) (J : Subgroup RF.YB)
+    (hJc : J.map RF.piBC ≠ ⊤) :
+    Nat.card {m : {n : ContinuousMonoidHom Γ RF.YB //
+          IsBoundaryLift b F RF.TB n ∧ Function.Surjective (⇑RF.piBC ∘ ⇑n)} //
+        m.1.toMonoidHom.range = J} = 0 := by
+  classical
+  have hE : IsEmpty {m : {n : ContinuousMonoidHom Γ RF.YB //
+      IsBoundaryLift b F RF.TB n ∧ Function.Surjective (⇑RF.piBC ∘ ⇑n)} //
+      m.1.toMonoidHom.range = J} := by
+    constructor
+    rintro ⟨m, hm⟩
+    apply hJc
+    rw [← hm, ← MonoidHom.range_comp, MonoidHom.range_eq_top]
+    intro c
+    obtain ⟨γ, hγ⟩ := m.2.2 c
+    exact ⟨γ, hγ⟩
+  exact Nat.card_of_isEmpty
+
+/-- Stage (C), head-missing stratum: under the head-surjectivity hypothesis `hhead`, a subgroup
+`J` whose head projection misses `C` has empty exact-image fibre in `Mset`. -/
+private theorem mStage_fiber_empty_of_not_head {Y : Type} [Group Y] [TopologicalSpace Y]
+    [DiscreteTopology Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk) {Γ : Type} [Group Γ]
+    [TopologicalSpace Γ] [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (hhead : Function.Surjective (fun γ : Γ => (F.frameMap (b γ)).1)) (J : Subgroup RF.YB)
+    (hJh : ¬ Function.Surjective (RF.TB.piY.comp J.subtype)) :
+    Nat.card {m : {n : ContinuousMonoidHom Γ RF.YB //
+          IsBoundaryLift b F RF.TB n ∧ Function.Surjective (⇑RF.piBC ∘ ⇑n)} //
+        m.1.toMonoidHom.range = J} = 0 := by
+  classical
+  have hE : IsEmpty {m : {n : ContinuousMonoidHom Γ RF.YB //
+      IsBoundaryLift b F RF.TB n ∧ Function.Surjective (⇑RF.piBC ∘ ⇑n)} //
+      m.1.toMonoidHom.range = J} := by
+    constructor
+    rintro ⟨m, hm⟩
+    apply hJh
+    intro hh
+    obtain ⟨γ, hγ⟩ := hhead hh
+    have hmemJ : m.1 γ ∈ J := by
+      have : m.1 γ ∈ m.1.toMonoidHom.range := ⟨γ, rfl⟩
+      rwa [hm] at this
+    refine ⟨⟨m.1 γ, hmemJ⟩, ?_⟩
+    show RF.TB.piY (m.1 γ) = hh
+    have hbd := m.2.1 γ
+    have := congrArg Prod.fst hbd
+    simpa [hγ] using this
+  exact Nat.card_of_isEmpty
+
+/-- Stage (C) of `mStage_partition`: `Mset` stratifies by exact image into the `C`-onto strata
+of `T_B`, assembling the three fibre classifications (`mStage_stratum_fiber_card`,
+`mStage_fiber_empty_of_not_onto`, `mStage_fiber_empty_of_not_head`). -/
+private theorem mStage_Mset_card_eq_finsum {Y : Type} [Group Y] [TopologicalSpace Y]
+    [DiscreteTopology Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk) {Γ : Type} [Group Γ]
+    [TopologicalSpace Γ] [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (hhead : Function.Surjective (fun γ : Γ => (F.frameMap (b γ)).1)) :
+    Nat.card {m : ContinuousMonoidHom Γ RF.YB //
+        IsBoundaryLift b F RF.TB m ∧ Function.Surjective (⇑RF.piBC ∘ ⇑m)}
       = ∑ᶠ J ∈ {J : Subgroup RF.YB | J.map RF.piBC = ⊤}, exactImageCountOn b F RF.TB J := by
-    -- stratify `Mset` by the exact image `range m`
-    have e2 : Nat.card Mset
-        = ∑ J : Subgroup RF.YB, Nat.card {m : Mset // m.1.toMonoidHom.range = J} := by
-      rw [Nat.card_congr (Equiv.sigmaFiberEquiv
-        (fun m : Mset => m.1.toMonoidHom.range)).symm, Nat.card_sigma]
-    set fib : Subgroup RF.YB → ℕ :=
-      fun J => Nat.card {m : Mset // m.1.toMonoidHom.range = J} with hfibdef
-    set S : Finset (Subgroup RF.YB) :=
-      Finset.univ.filter (fun J => J.map RF.piBC = ⊤) with hSdef
-    -- `C`-onto head-surjective strata: the fibre is the stratum's exact-image count
-    have hstr : ∀ (J : Subgroup RF.YB) (_hJc : J.map RF.piBC = ⊤)
-        (hJh : Function.Surjective (RF.TB.piY.comp J.subtype)),
-        fib J = exactImageCount b F (RF.TB.stratum J hJh) := by
-      intro J hJc hJh
-      rw [hfibdef, exactImageCount]
-      have hmem : ∀ (m : Mset), m.1.toMonoidHom.range = J → ∀ γ, m.1 γ ∈ J := by
-        intro m hm γ
-        have : m.1 γ ∈ m.1.toMonoidHom.range := ⟨γ, rfl⟩
-        rwa [hm] at this
-      refine Nat.card_congr ⟨fun m =>
-        ⟨⟨cmhCodRestrict m.1.1 J (hmem m.1 m.2), fun j => ?_⟩, fun γ => ?_⟩,
-        fun f => ⟨⟨cmhInclude J f.1.1, fun γ => f.2 γ, ?_⟩, ?_⟩,
-        fun m => Subtype.ext (Subtype.ext rfl),
-        fun f => Subtype.ext (Subtype.ext (ContinuousMonoidHom.ext fun γ => Subtype.ext rfl))⟩
-      · -- corestriction surjective onto `↥J`
-        have hj : (j : RF.YB) ∈ m.1.1.toMonoidHom.range := by rw [m.2]; exact j.2
-        obtain ⟨γ, hγ⟩ := hj
-        exact ⟨γ, Subtype.ext hγ⟩
-      · -- stratum boundary equation (definitional transport)
-        exact m.1.2.1 γ
-      · -- `C`-surjectivity of the included map, from `J ↠ C`
-        intro c
-        have hc : c ∈ J.map RF.piBC := by rw [hJc]; trivial
-        obtain ⟨y, hyJ, hyc⟩ := Subgroup.mem_map.mp hc
-        obtain ⟨γ, hγ⟩ := f.1.2 ⟨y, hyJ⟩
-        exact ⟨γ, by show RF.piBC ((f.1.1 γ : RF.YB)) = c; rw [hγ, hyc]⟩
-      · -- the included map has range exactly `J`
-        have h1 : (cmhInclude J f.1.1).toMonoidHom.range
-            = f.1.1.toMonoidHom.range.map J.subtype := MonoidHom.range_comp _ _
-        rw [h1, MonoidHom.range_eq_top.mpr f.1.2, ← MonoidHom.range_eq_map,
-          Subgroup.range_subtype]
-    -- `C`-missing strata are empty
-    have hemptyC : ∀ (J : Subgroup RF.YB), J.map RF.piBC ≠ ⊤ → fib J = 0 := by
-      intro J hJc
-      rw [hfibdef]
-      have hE : IsEmpty {m : Mset // m.1.toMonoidHom.range = J} := by
-        constructor
-        rintro ⟨m, hm⟩
-        apply hJc
-        rw [← hm, ← MonoidHom.range_comp, MonoidHom.range_eq_top]
-        intro c
-        obtain ⟨γ, hγ⟩ := m.2.2 c
-        exact ⟨γ, hγ⟩
-      exact Nat.card_of_isEmpty
-    -- head-missing strata are empty (via `hhead`)
-    have hemptyH : ∀ (J : Subgroup RF.YB),
-        ¬ Function.Surjective (RF.TB.piY.comp J.subtype) → fib J = 0 := by
-      intro J hJh
-      rw [hfibdef]
-      have hE : IsEmpty {m : Mset // m.1.toMonoidHom.range = J} := by
-        constructor
-        rintro ⟨m, hm⟩
-        apply hJh
-        intro hh
-        obtain ⟨γ, hγ⟩ := hhead hh
-        have hmemJ : m.1 γ ∈ J := by
-          have : m.1 γ ∈ m.1.toMonoidHom.range := ⟨γ, rfl⟩
-          rwa [hm] at this
-        refine ⟨⟨m.1 γ, hmemJ⟩, ?_⟩
-        show RF.TB.piY (m.1 γ) = hh
-        have hbd := m.2.1 γ
-        have := congrArg Prod.fst hbd
-        simpa [hγ] using this
-      exact Nat.card_of_isEmpty
-    -- assemble: restrict to `S`, match `fib` to `exactImageCountOn`, convert to `finsum`
-    have hStep : (∑ J : Subgroup RF.YB, fib J) = ∑ J ∈ S, fib J := by
-      rw [hSdef, ← Finset.sum_filter_add_sum_filter_not Finset.univ
-        (fun J => J.map RF.piBC = ⊤) fib]
-      have hz : ∑ J ∈ Finset.univ.filter (fun J => ¬ J.map RF.piBC = ⊤), fib J = 0 :=
-        Finset.sum_eq_zero (fun J hJ => hemptyC J (Finset.mem_filter.mp hJ).2)
-      rw [hz, add_zero]
-    have hmatch : ∀ J ∈ S, fib J = exactImageCountOn b F RF.TB J := by
-      intro J hJ
-      rw [hSdef, Finset.mem_filter] at hJ
-      obtain ⟨_, hJc⟩ := hJ
-      by_cases hJh : Function.Surjective (RF.TB.piY.comp J.subtype)
-      · simp only [exactImageCountOn, dif_pos hJh]
-        exact hstr J hJc hJh
-      · simp only [exactImageCountOn, dif_neg hJh]
-        exact hemptyH J hJh
-    have hsetconv : {J : Subgroup RF.YB | J.map RF.piBC = ⊤} = ↑S := by
-      rw [hSdef]; ext J; simp
-    have hfinsum : ∑ᶠ J ∈ {J : Subgroup RF.YB | J.map RF.piBC = ⊤},
-          exactImageCountOn b F RF.TB J
-        = ∑ J ∈ S, exactImageCountOn b F RF.TB J := by
-      rw [hsetconv, finsum_mem_coe_finset]
-    rw [e2, hStep, Finset.sum_congr rfl hmatch]
-    exact hfinsum.symm
-  rw [← hmultsum, ← eUnion]
-  exact hstrat
+  classical
+  haveI : Finite (ContinuousMonoidHom Γ RF.YB) := finite_continuousMonoidHom hfg RF.YB
+  haveI : Finite (Subgroup RF.YB) :=
+    Finite.of_injective (fun J : Subgroup RF.YB => (J : Set RF.YB)) SetLike.coe_injective
+  haveI : Fintype (Subgroup RF.YB) := Fintype.ofFinite _
+  set Mset := {m : ContinuousMonoidHom Γ RF.YB //
+    IsBoundaryLift b F RF.TB m ∧ Function.Surjective (⇑RF.piBC ∘ ⇑m)} with hMsetdef
+  -- stratify `Mset` by the exact image `range m`
+  have e2 : Nat.card Mset
+      = ∑ J : Subgroup RF.YB, Nat.card {m : Mset // m.1.toMonoidHom.range = J} := by
+    rw [Nat.card_congr (Equiv.sigmaFiberEquiv
+      (fun m : Mset => m.1.toMonoidHom.range)).symm, Nat.card_sigma]
+  set fib : Subgroup RF.YB → ℕ :=
+    fun J => Nat.card {m : Mset // m.1.toMonoidHom.range = J} with hfibdef
+  set S : Finset (Subgroup RF.YB) :=
+    Finset.univ.filter (fun J => J.map RF.piBC = ⊤) with hSdef
+  -- assemble: restrict to `S`, match `fib` to `exactImageCountOn`, convert to `finsum`
+  have hStep : (∑ J : Subgroup RF.YB, fib J) = ∑ J ∈ S, fib J := by
+    rw [hSdef, ← Finset.sum_filter_add_sum_filter_not Finset.univ
+      (fun J => J.map RF.piBC = ⊤) fib]
+    have hz : ∑ J ∈ Finset.univ.filter (fun J => ¬ J.map RF.piBC = ⊤), fib J = 0 :=
+      Finset.sum_eq_zero (fun J hJ =>
+        mStage_fiber_empty_of_not_onto RF b F J (Finset.mem_filter.mp hJ).2)
+    rw [hz, add_zero]
+  have hmatch : ∀ J ∈ S, fib J = exactImageCountOn b F RF.TB J := by
+    intro J hJ
+    rw [hSdef, Finset.mem_filter] at hJ
+    obtain ⟨_, hJc⟩ := hJ
+    by_cases hJh : Function.Surjective (RF.TB.piY.comp J.subtype)
+    · simp only [exactImageCountOn, dif_pos hJh]
+      exact mStage_stratum_fiber_card RF b F J hJc hJh
+    · simp only [exactImageCountOn, dif_neg hJh]
+      exact mStage_fiber_empty_of_not_head RF b F hhead J hJh
+  have hsetconv : {J : Subgroup RF.YB | J.map RF.piBC = ⊤} = ↑S := by
+    rw [hSdef]; ext J; simp
+  have hfinsum : ∑ᶠ J ∈ {J : Subgroup RF.YB | J.map RF.piBC = ⊤},
+        exactImageCountOn b F RF.TB J
+      = ∑ J ∈ S, exactImageCountOn b F RF.TB J := by
+    rw [hsetconv, finsum_mem_coe_finset]
+  rw [e2, hStep, Finset.sum_congr rfl hmatch]
+  exact hfinsum.symm
+
+/-- **The `M`-stage partition** (§9.2): the unrestricted `B`-lifts of the lower exact-image
+maps, all with the same multiplicity `mult` over each lower map (`hmult` — the
+`|Z¹_{Γ,ρ}(M)| = 2^{2·dim M}` numerics of props 5.15/5.16, source-discharged at P-17i),
+partition by exact image into the `C`-onto strata of `T_B`:
+`mult · e_Γ(C) = Σ_{J ↠ C} e_Γ(stratum J)`.  Machinery: the `LiftsOver`-fibration of
+P-16d3 + the image-stratification of `partition137_of`/`lemma_8_3`.
+[P-17a statement; proof P-17f.] -/
+theorem mStage_partition {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y]
+    [Finite Y] {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+    (RF : RecursionFrame T Blk) {Γ : Type} [Group Γ] [TopologicalSpace Γ]
+    [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
+    (hhead : Function.Surjective (fun γ : Γ => (F.frameMap (b γ)).1))
+    (mult : ℕ)
+    (hmult : ∀ ρ : BoundaryLifts b F RF.TC, Nat.card (RF.LiftsOver b F ρ) = mult) :
+    mult * exactImageCount b F RF.TC
+      = ∑ᶠ J ∈ {J : Subgroup RF.YB | J.map RF.piBC = ⊤},
+          exactImageCountOn b F RF.TB J := by
+  classical
+  rw [← mStage_Mset_card_eq_mult RF hfg b F mult hmult]
+  exact mStage_Mset_card_eq_finsum RF hfg b F hhead
 
 /-! ## The recursion solver  (P-17h) -/
 
