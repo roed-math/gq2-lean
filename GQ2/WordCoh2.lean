@@ -4,19 +4,21 @@ import GQ2.WordCohBridge
 # The Γ_A degree-2 presentation comparison — foundation  (ticket P-16c2)
 
 Building on the degree-≤1 bridge `GQ2/WordCohBridge.lean` (`z1Equiv`/`h1Equiv`), this file develops
-the degree-2 half: an injection `H²(Γ_A, 𝔽₂) ↪ 𝔽₂² ⧸ im d1_triv = H2w(t_triv)` (evaluation of the two
-relator words on a central extension), whose target has cardinality `2` (`card_H2w_trivial`), giving
-`#H²(Γ_A, 𝔽₂) ≤ 2` — the source-side cohomological input `lemma_8_6_gammaA` (P-16c) needs.
+the degree-2 half: an injection `H²(Γ_A, 𝔽₂) ↪ 𝔽₂² ⧸ im d1_triv = H2w(t_triv)` (evaluation of the
+two relator words on a central extension), whose target has cardinality `2` (`card_H2w_trivial`),
+giving `#H²(Γ_A, 𝔽₂) ≤ 2` — the source-side cohomological input `lemma_8_6_gammaA` (P-16c) needs.
 
-**This file, so far — the central-extension foundation.**  A `ZMod 2`-valued 2-cocycle `κ` on a group
-`L` (normalized at `(1,1)`) is packaged as `TwoCocycle L`, and `CentExt c` is the central extension
-`L ×_κ ZMod 2`: carrier `L × ZMod 2`, product `(l,z)·(l',z') = (l·l', z + z' + κ l l')`.  The kernel
-`{(1, z)} ≅ ZMod 2` is central; the base projection is `CentExt c →* L`.  When `L` is finite discrete
-so is `CentExt c` — the codomain for a `Marking` whose relator values read off the cocycle's obstruction.
+**This file, so far — the central-extension foundation.**  A `ZMod 2`-valued 2-cocycle `κ` on a
+group `L` (normalized at `(1,1)`) is packaged as `TwoCocycle L`, and `CentExt c` is the central
+extension `L ×_κ ZMod 2`: carrier `L × ZMod 2`, product `(l,z)·(l',z') = (l·l', z + z' + κ l l')`.
+The kernel `{(1, z)} ≅ ZMod 2` is central; the base projection is `CentExt c →* L`.  When `L` is
+finite discrete so is `CentExt c` — the codomain for a `Marking` whose relator values read off the
+cocycle's obstruction.
 
-The remaining θ construction (factor a continuous cocycle through a finite admissible level, mark the
-extension by `(ḡᵢ, 0)`, read the tame/wild relator `z`-values, quotient by `im d1_triv`, prove additivity,
-vanishing on coboundaries, and injectivity via `Marking.descend`) is the next work; see the tail comment.
+The remaining θ construction (factor a continuous cocycle through a finite admissible level, mark
+the extension by `(ḡᵢ, 0)`, read the tame/wild relator `z`-values, quotient by `im d1_triv`, prove
+additivity, vanishing on coboundaries, and injectivity via `Marking.descend`) is the next work; see
+the tail comment.
 -/
 
 namespace GQ2
@@ -186,8 +188,8 @@ theorem liftMark_wildValue_eq_incl [Finite L] (t : Marking L) (hw : t.WildRel)
 For the injectivity of `θ` we adjust the fibre coordinates of the lifted marking by `a : Fin 4 → 𝔽₂`
 (so the relators can be made to die *exactly*), then run the `NA_le_ker` machinery of c1.  The
 `Pro2Core` clause of admissibility is the hard sub-step; it holds by the same argument as c1
-(`isPGroup_liftMarking_wildCore`): the wild core lands in `proj⁻¹(base wild core)`, a `2`-group as an
-extension of the base wild core by the central `𝔽₂`. -/
+(`isPGroup_liftMarking_wildCore`): the wild core lands in `proj⁻¹(base wild core)`, a `2`-group as
+an extension of the base wild core by the central `𝔽₂`. -/
 
 /-- The lifted marking with the four fibre coordinates shifted by `a`. -/
 def shiftLiftMark (t : Marking L) (a : Fin 4 → ZMod 2) (c : TwoCocycle L) : Marking (CentExt c) :=
@@ -229,8 +231,9 @@ theorem shiftLiftMark_wildValue_base [Finite L] (t : Marking L) (a : Fin 4 → Z
   shiftLiftMark_map_proj t a c ▸
     (Marking.map_wildValue (CentExt.proj c) (shiftLiftMark t a c)).symm
 
-/-- **Tame relator dies exactly.**  When the base marking satisfies the tame relation and the shifted
-tame `z`-value is `0`, the shifted lift's tame relator value is the identity of the extension. -/
+/-- **Tame relator dies exactly.**  When the base marking satisfies the tame relation and the
+shifted tame `z`-value is `0`, the shifted lift's tame relator value is the identity of the
+extension. -/
 theorem shiftLiftMark_tameValue_eq_one (t : Marking L) (ht : t.TameRel) (a : Fin 4 → ZMod 2)
     (c : TwoCocycle L) (hz : (shiftLiftMark t a c).tameValue.fib = 0) :
     (shiftLiftMark t a c).tameValue = 1 := by
@@ -238,8 +241,9 @@ theorem shiftLiftMark_tameValue_eq_one (t : Marking L) (ht : t.TameRel) (a : Fin
   · rw [shiftLiftMark_tameValue_base, (Marking.tameValue_eq_one_iff t).mpr ht, CentExt.one_base]
   · rw [hz, CentExt.one_fib]
 
-/-- **Wild relator dies exactly.**  When the base marking satisfies the wild relation and the shifted
-wild `z`-value is `0`, the shifted lift's wild relator value is the identity of the extension. -/
+/-- **Wild relator dies exactly.**  When the base marking satisfies the wild relation and the
+shifted wild `z`-value is `0`, the shifted lift's wild relator value is the identity of the
+extension. -/
 theorem shiftLiftMark_wildValue_eq_one [Finite L] (t : Marking L) (hw : t.WildRel)
     (a : Fin 4 → ZMod 2) (c : TwoCocycle L) (hz : (shiftLiftMark t a c).wildValue.fib = 0) :
     (shiftLiftMark t a c).wildValue = 1 := by
@@ -332,8 +336,9 @@ noncomputable def sectionHom (U : OpenNormalSubgroup (FreeProfiniteGroup (Fin 4)
       = 0) :
     ContinuousMonoidHom (FreeProfiniteGroup (Fin 4) ⧸ NA)
       (CentExt c) :=
-  quotientLift NA (Marking.classify (shiftLiftMark (univMarking.map (QuotientGroup.mk' U.toSubgroup))
-    a c)) (NA_le_ker_shiftLift U hU c a htame0 hwild0)
+  quotientLift NA
+    (Marking.classify (shiftLiftMark (univMarking.map (QuotientGroup.mk' U.toSubgroup)) a c))
+    (NA_le_ker_shiftLift U hU c a htame0 hwild0)
 
 /-- The section splits the base projection: `proj ∘ s` is the level projection `Γ_A ↠ F₄ ⧸ U`
 (pointwise, `proj (s (mk_{N_A} g)) = mk_U g`).  Proof by `Marking.toHom_hom_univMarking_map`
@@ -345,7 +350,8 @@ theorem projC_comp_sectionHom (U : OpenNormalSubgroup (FreeProfiniteGroup (Fin 4
       = 0)
     (hwild0 : (shiftLiftMark (univMarking.map (QuotientGroup.mk' U.toSubgroup)) a c).wildValue.fib
       = 0) (g : FreeProfiniteGroup (Fin 4)) :
-    (sectionHom U hU c a htame0 hwild0 (quotientMk NA g)).base = QuotientGroup.mk' U.toSubgroup g := by
+    (sectionHom U hU c a htame0 hwild0 (quotientMk NA g)).base
+      = QuotientGroup.mk' U.toSubgroup g := by
   haveI : DiscreteTopology (FreeProfiniteGroup (Fin 4) ⧸
       (U.toOpenSubgroup : Subgroup (FreeProfiniteGroup (Fin 4)))) :=
     Subgroup.instDiscreteTopologyQuotientOfSeparatelyContinuousMul U.toOpenSubgroup
@@ -420,9 +426,9 @@ end Coboundary
 `σ, x₀, x₁` (mod 2) — the same content computation as the trivial-module differential
 `d¹ = (a₁, a₁)` of `FoxH.d1Fun_of_trivial`.  We transport that computation through the comparison
 hom `WordLift (ZMod 2) (CentExt c) →* CentExt c`, `⟨z, g⟩ ↦ incl z · g`, which realizes
-`shiftLiftMark t a c` as `(liftMarking (liftMark t c) a).map _`.  (Note both fibres move by the *same*
-`a 1`, so the shift always stays in the diagonal `Δ = im d¹_triv` — exactly what makes `θ` land in
-`𝔽₂²/Δ` and its kernel adjustable by a shift.) -/
+`shiftLiftMark t a c` as `(liftMarking (liftMark t c) a).map _`.  (Note both fibres move by the
+*same* `a 1`, so the shift always stays in the diagonal `Δ = im d¹_triv` — exactly what makes `θ`
+land in `𝔽₂²/Δ` and its kernel adjustable by a shift.) -/
 
 section ShiftLaws
 
@@ -465,7 +471,8 @@ def wlBase : WordLift (ZMod 2) (CentExt c) →* CentExt c where
 
 /-- `shiftCompare ⟨z, (g, 0)⟩ = (g, z)` — the central shift applied to a zero-fibre lift. -/
 theorem shiftCompare_liftGen (g : L) (z : ZMod 2) :
-    shiftCompare (⟨z, ((g, 0) : CentExt c)⟩ : WordLift (ZMod 2) (CentExt c)) = ((g, z) : CentExt c) :=
+    shiftCompare (⟨z, ((g, 0) : CentExt c)⟩ : WordLift (ZMod 2) (CentExt c))
+      = ((g, z) : CentExt c) :=
   CentExt.ext (one_mul g) <| by
     show z + (0 : ZMod 2) + c.κ 1 g = z
     rw [c.κ_one_left, add_zero, add_zero]
@@ -502,7 +509,8 @@ theorem liftMarking_tameValue_u_eq (t : Marking L) (a : Fin 4 → ZMod 2) :
   show a 1 + -(a 1 + a 1) = a 1
   rw [CharTwo.add_self_eq_zero, neg_zero, add_zero]
 
-/-- The wild fibre shift of the lift is `a 1` (`liftMarking_wildValue_u` at trivial action, char 2). -/
+/-- The wild fibre shift of the lift is `a 1` (`liftMarking_wildValue_u` at trivial action,
+char 2). -/
 theorem liftMarking_wildValue_u_eq [Finite L] (t : Marking L) (a : Fin 4 → ZMod 2) :
     (liftMarking (liftMark t c) a).wildValue.u = a 1 := by
   rw [liftMarking_wildValue_u (liftMark t c) a (fun v => CharTwo.add_self_eq_zero v)
@@ -673,7 +681,8 @@ def pr2 : FiberProd c₁ c₂ →* CentExt c₂ where
   map_one' := rfl
   map_mul' _ _ := rfl
 
-/-- The fibre-sum hom to the sum extension — a homomorphism because `fibA + fibB` tracks `κ₁ + κ₂`. -/
+/-- The fibre-sum hom to the sum extension — a homomorphism because `fibA + fibB` tracks
+`κ₁ + κ₂`. -/
 def prSum : FiberProd c₁ c₂ →* CentExt (c₁ + c₂) where
   toFun p := ((p.base, p.fibA + p.fibB) : CentExt (c₁ + c₂))
   map_one' := CentExt.ext rfl (add_zero (0 : ZMod 2))
@@ -734,8 +743,8 @@ The obstruction `obs` (the sum of the tame and wild relator fibre values) vanish
 `CentExt (δ¹λ)` that is *trivialised* by `Ψ_λ : (l, z) ↦ (l, z + λ l)` onto the split extension
 `CentExt 0`.  Under `Ψ_λ`, the lifted marking becomes the `λ`-shifted split marking, whose relator
 fibres are `a 1` (the shift laws) plus `λ` of the (dying) relator base — so both relator fibres pick
-up the *same* value and their sum is `0`.  Combined with `obs_ker_le`, this makes `obs` descend to an
-injection `H²(Γ_A, 𝔽₂) ↪ 𝔽₂` — the degree-2 presentation-comparison, reusable Thm-4.2-ward. -/
+up the *same* value and their sum is `0`.  Combined with `obs_ker_le`, this makes `obs` descend to
+an injection `H²(Γ_A, 𝔽₂) ↪ 𝔽₂` — the degree-2 presentation-comparison, reusable Thm-4.2-ward. -/
 
 section CoboundaryObstruction
 
@@ -753,7 +762,8 @@ theorem trivialMarking_wildValue : (⟨1, 1, 1, 1⟩ : Marking L).wildValue = 1 
     Marking.u0, Marking.z0, Marking.sigma2, Marking.g0, Marking.dg, Marking.hc,
     conjP, commP, powOmega2]
 
-/-- The **trivial (split) 2-cocycle** `κ ≡ 0`: `CentExt zeroCocycle = L × 𝔽₂` is the direct product. -/
+/-- The **trivial (split) 2-cocycle** `κ ≡ 0`: `CentExt zeroCocycle = L × 𝔽₂` is the direct
+product. -/
 def zeroCocycle : TwoCocycle L where
   κ _ _ := 0
   norm := rfl
@@ -804,7 +814,8 @@ def Psi (lam : L → ZMod 2) (hlam1 : lam 1 = 0) :
   map_mul' p q := by
     refine CentExt.ext rfl ?_
     · show (p * q).fib + lam (p * q).base
-          = (p.fib + lam p.base) + (q.fib + lam q.base) + (zeroCocycle : TwoCocycle L).κ p.base q.base
+          = (p.fib + lam p.base) + (q.fib + lam q.base)
+            + (zeroCocycle : TwoCocycle L).κ p.base q.base
       rw [CentExt.mul_fib, CentExt.mul_base,
         show (zeroCocycle : TwoCocycle L).κ p.base q.base = (0 : ZMod 2) from rfl,
         show (coboundaryCocycle lam hlam1).κ p.base q.base
@@ -823,8 +834,8 @@ theorem map_Psi_liftMark (t : Marking L) (lam : L → ZMod 2) (hlam1 : lam 1 = 0
   simp only [liftMark, Marking.map, shiftLiftMark, Marking.mk.injEq]
   refine ⟨?_, ?_, ?_, ?_⟩ <;> exact CentExt.ext rfl (by simp [Psi, CentExt.fib, CentExt.base])
 
-/-- **The obstruction of a finite-level coboundary** is `λ (tame relator) + λ (wild relator)`.  At an
-admissible level both relators die, so this is `0` — the vanishing of `obs` on `B²`. -/
+/-- **The obstruction of a finite-level coboundary** is `λ (tame relator) + λ (wild relator)`.
+At an admissible level both relators die, so this is `0` — the vanishing of `obs` on `B²`. -/
 theorem obs_coboundary_eq [Finite L] (t : Marking L) (lam : L → ZMod 2) (hlam1 : lam 1 = 0) :
     (relZPair t (coboundaryCocycle lam hlam1)).1 + (relZPair t (coboundaryCocycle lam hlam1)).2
       = lam t.tameValue + lam t.wildValue := by
@@ -932,9 +943,10 @@ section Factoring
 
 /-- **Uniform local constancy** (2-variable form): a continuous map `f : G × G → M` from a profinite
 group to a discrete space is invariant under right-translation of *both* arguments by a single open
-normal subgroup `V` — equivalently, `f` factors through `(G ⧸ V) × (G ⧸ V)`.  Proof: each point has a
-basic clopen box on which `f` is constant (`isOpen_prod_iff` + `exist_openNormalSubgroup_sub_open_nhds_of_one`);
-compactness extracts a finite subcover; `V` is the (finite) intersection of the boxes' subgroups. -/
+normal subgroup `V` — equivalently, `f` factors through `(G ⧸ V) × (G ⧸ V)`.  Proof: each point
+has a basic clopen box on which `f` is constant (`isOpen_prod_iff` +
+`exist_openNormalSubgroup_sub_open_nhds_of_one`); compactness extracts a finite subcover; `V` is
+the (finite) intersection of the boxes' subgroups. -/
 theorem exists_openNormalSubgroup_factor_two
     {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
     [CompactSpace G] [TotallyDisconnectedSpace G]
@@ -1126,10 +1138,11 @@ end Assembly
 /-! ## The obstruction map and the cardinality bound `#H²(Γ_A, 𝔽₂) ≤ 2`
 
 Assembling everything.  The **obstruction** `obs : Z²_cont(Γ_A, 𝔽₂) →+ 𝔽₂` sends a continuous
-2-cocycle to the sum of its tame and wild relator obstructions, computed after normalizing at `(1,1)`
-and factoring through a finite admissible level.  The value is *level-independent* (`relZPair_comap`)
-and *additive* (`relZPair_add`), and its kernel lands in `B²` (`mem_B2_of_factor_balanced`).  Hence
-`H² = Z²/B²` is a quotient of `Z²/ker obs ↪ 𝔽₂`, giving `#H²(Γ_A, 𝔽₂) ≤ #𝔽₂ = 2`. -/
+2-cocycle to the sum of its tame and wild relator obstructions, computed after normalizing at
+`(1,1)` and factoring through a finite admissible level.  The value is *level-independent*
+(`relZPair_comap`) and *additive* (`relZPair_add`), and its kernel lands in `B²`
+(`mem_B2_of_factor_balanced`).  Hence `H² = Z²/B²` is a quotient of `Z²/ker obs ↪ 𝔽₂`, giving
+`#H²(Γ_A, 𝔽₂) ≤ #𝔽₂ = 2`. -/
 
 /-- Two `TwoCocycle`s with equal cochain are equal (the `norm`/`cocyc` fields are propositions). -/
 theorem TwoCocycle.ext {L : Type*} [Group L] {c d : TwoCocycle L} (h : c.κ = d.κ) : c = d := by
@@ -1288,7 +1301,8 @@ theorem nonempty_levelFactor_normalize (φ : Z2 (FreeProfiniteGroup (Fin 4) ⧸ 
   obtain ⟨U, hU, c, hfact⟩ := exists_twoCocycle_factor (normalizeCochain φ.1) hcont hnorm hcoc
   exact ⟨U, hU, c, hfact⟩
 
-/-- The per-cocycle obstruction: the relator obstruction of any factorization of the normalization. -/
+/-- The per-cocycle obstruction: the relator obstruction of any factorization of the
+normalization. -/
 noncomputable def obsFun (φ : Z2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)) : ZMod 2 :=
   (nonempty_levelFactor_normalize htriv φ).some.obs
 

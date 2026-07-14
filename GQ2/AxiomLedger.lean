@@ -53,7 +53,8 @@ and surfaces as a std-3 tracked declaration.
 The former **B2** `cyclotomicCharacter_two_surjective` was deleted the same day, unused.)
 
 Citation-faithfulness tiers (adversarial review 2026-07-04; docstrings + `docs/review-packet.md`
-§2): **direct** B1/B6/B7/B10 (B7′ until its discharge) · **classical + encoding** B5/B9 (B4 until its 2026-07-10 deletion, unused) ·
+§2): **direct** B1/B6/B7/B10 (B7′ until its discharge) · **classical + encoding** B5/B9
+(B4 until its 2026-07-10 deletion, unused) ·
 **composite interface** B3c/B8/B11a/B11b.  (B13, which postdated the review
 [`docs/p15f1-axiom-proposal.md`], was discharged in-repo 2026-07-09 — B13 board.) -/
 def bAxioms : List (Name × String) :=

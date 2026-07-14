@@ -61,8 +61,8 @@ theorem card_H1w_of_normalForm (t : Marking C)
 
 omit [Finite C] [Finite A] in
 /-- **No invariants for a nontrivial simple module**: `H⁰w(A) = A^C = 0`.  `H⁰w` is the `C`-fixed
-space (`H0w_eq_fixedPts`, using `hgen`), a `C`-submodule, so `⊥` or `⊤` by simplicity; `⊤` would make
-the action trivial, contradicting `hnt`. -/
+space (`H0w_eq_fixedPts`, using `hgen`), a `C`-submodule, so `⊥` or `⊤` by simplicity; `⊤` would
+make the action trivial, contradicting `hnt`. -/
 theorem card_H0w_eq_one_of_nontrivial (t : Marking C) (hgen : t.Generates)
     (hsimple : IsSimpleModTwo C A) (hnt : ∃ (c : C) (a : A), c • a ≠ a) :
     Nat.card (H0w (A := A) t) = 1 := by
@@ -132,9 +132,9 @@ theorem card_fixedPts_elemDual_eq_one_of_nontrivial (hsimple : IsSimpleModTwo C 
 omit [Finite C] in
 /-- **Split/ramified dichotomy for a simple module**: either `τ` acts trivially (split, `V^T = V`)
 or `V^T = 0` (ramified).  The `τ`-fixed space `V^T` is `C`-stable — `σ` preserves it via the tame
-relation `σ⁻¹τσ = τ²` (`τ(σv) = σ(τ²v) = σv`), `x₀,x₁` act trivially (`wild_acts_trivially`), and the
-stabilizer is a subgroup containing the generators, hence all of `C` (`hgen`) — so simplicity forces
-`V^T = ⊥` or `⊤`. -/
+relation `σ⁻¹τσ = τ²` (`τ(σv) = σ(τ²v) = σv`), `x₀,x₁` act trivially (`wild_acts_trivially`), and
+the stabilizer is a subgroup containing the generators, hence all of `C` (`hgen`) — so simplicity
+forces `V^T = ⊥` or `⊤`. -/
 theorem tau_split_or_ramified (t : Marking C) (ht : t.TameRel) (hgen : t.Generates)
     (hsimple : IsSimpleModTwo C A) (hcore : t.Pro2Core) (hV₂ : ∀ a : A, a + a = 0) :
     (∀ v : A, t.τ • v = v) ∨ (∀ v : A, t.τ • v = v → v = 0) := by
@@ -177,7 +177,8 @@ theorem tau_split_or_ramified (t : Marking C) (ht : t.TameRel) (hgen : t.Generat
     · intro v hv; rw [hmemW] at hv ⊢; rw [hx0]; exact hv
     · intro v hv; rw [hmemW] at hv ⊢; rw [hx1]; exact hv
   rw [hgen] at hgenS
-  have hstable : ∀ (g : C) (v : A), v ∈ W → g • v ∈ W := fun g v hv => hgenS (Subgroup.mem_top g) v hv
+  have hstable : ∀ (g : C) (v : A), v ∈ W → g • v ∈ W := fun g v hv =>
+    hgenS (Subgroup.mem_top g) v hv
   rcases hsimple.2 W hstable with hbot | htop
   · right
     intro v hv
@@ -414,7 +415,8 @@ theorem selfDual_of_trivial_action (t : Marking C) (ht : t.TameRel) (hw : t.Wild
         ({ carrier := {g | ∀ v : A, g • v = v}
            one_mem' := fun v => one_smul C v
            mul_mem' := fun {a b} ha hb v => by rw [mul_smul, hb v, ha v]
-           inv_mem' := fun {a} ha v => by rw [inv_smul_eq_iff]; exact (ha v).symm } : Subgroup C) := by
+           inv_mem' := fun {a} ha v => by
+             rw [inv_smul_eq_iff]; exact (ha v).symm } : Subgroup C) := by
       rw [Subgroup.closure_le]
       intro g hg
       simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hg

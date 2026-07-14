@@ -233,7 +233,8 @@ theorem powOmega2_u_of_oddFixedPointFree [Finite A] [Finite C] (p : WordLift A C
   rw [powOmega2_pow_eq p.g hdvd (orderOf_pos p).ne']
   exact hodd p.u
 
-/-- **Trivial left factor is `ω₂`-transparent**: if `g` acts trivially on `A`, then `powOmega2 (g·h)`
+/-- **Trivial left factor is `ω₂`-transparent**: if `g` acts trivially on `A`, then
+`powOmega2 (g·h)`
 acts the same as `powOmega2 h`.  (`ω₂` is natural through `MulAction.toPermHom C A`
 (`powOmega2_map`), and a trivially-acting `g` maps to `1`.)  Lets the ramified aux-word bases
 `x₁·τ`, `x₀·τ` inherit `hTodd`'s odd-order condition from `τ` alone. -/

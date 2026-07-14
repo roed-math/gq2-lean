@@ -58,7 +58,8 @@ theorem H2ofFun_cor2Fun_coboundary_eq_zero (U : Subgroup AbsGalQ2) [Finite (AbsG
     show cor1Fun U c p.2 - cor1Fun U c (p.1 * p.2) + cor1Fun U c p.1
         = p.1 • cor1Fun U c p.2 - cor1Fun U c (p.1 * p.2) + cor1Fun U c p.1
     rw [absGal_smul_zmodTwo]
-  -- (2) `cor1Fun c` is continuous (finite sum of `c ∘ ℓ_u`, each continuous by `continuous_lTrans'`)
+  -- (2) `cor1Fun c` is continuous (finite sum of `c ∘ ℓ_u`, each continuous by
+  -- `continuous_lTrans'`)
   have hcont : Continuous (cor1Fun U c) := by
     have hEq : cor1Fun U c = fun γ => ∑ u : AbsGalQ2 ⧸ U, c (lTrans U u γ) := by
       funext γ; exact finsum_eq_sum_of_fintype _
@@ -110,10 +111,10 @@ variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [
 omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
 /-- **The Lemma-6.17 vanishing assembly** (P-15f2, the verified reduction): if `Q⁰_loc` at a class
 `x` decomposes as a finite sum of per-orbit corestriction contributions — the monomial expansion
-`hexp`, i.e. Lemma 6.14 through the regular embedding + Lemma 6.15's orbit classes (the combinatorial
-"gap 2" of `docs/p15f2-scoping.md`) — and each orbit's inner `2`-cocycle vanishes in the subgroup's
-`H²` (`hvanish`: free/square by the (94) orthogonality `cup_deepClasses`, involution by Lemma 6.16,
-for a deep class), then `Q⁰_loc x = 0`.
+`hexp`, i.e. Lemma 6.14 through the regular embedding + Lemma 6.15's orbit classes (the
+combinatorial "gap 2" of `docs/p15f2-scoping.md`) — and each orbit's inner `2`-cocycle vanishes in
+the subgroup's `H²` (`hvanish`: free/square by the (94) orthogonality `cup_deepClasses`, involution
+by Lemma 6.16, for a deep class), then `Q⁰_loc x = 0`.
 
 Isolates the remaining combinatorial input `hexp` from the arithmetic vanishing, which discharges
 through the corestriction bridge `H2ofFun_cor2Fun_eq_zero_of_H2_eq_zero`.  Mirrors the f8 pattern:
@@ -286,9 +287,9 @@ subgroup's `H²` (`hvanish` — deep-class (94)/6.16), then `Q⁰_loc x = 0`.
 Composes the datum-additivity brick `graphPullback_sumDatum` (turning `hdat_eq` into the cochain
 decomposition `hdecomp`) with the full reducer `Q0loc_vanish_of_decomp`; per-orbit `Z²`-membership
 is discharged from the equivariant-factor-set hypotheses via `graphPullback_mem_Z2`.  Applied at the
-regular module `V := 𝔽₂[H_V]^N` after the Lemma-6.14 transport `Q⁰_loc dat ρ x = Q⁰_loc datW ρ ι_*x`,
-the **sole remaining input** for `lemma_6_17_vanish` is `hdat_eq` — the datum-level orbit
-decomposition of §6.2. -/
+regular module `V := 𝔽₂[H_V]^N` after the Lemma-6.14 transport
+`Q⁰_loc dat ρ x = Q⁰_loc datW ρ ι_*x`, the **sole remaining input** for `lemma_6_17_vanish` is
+`hdat_eq` — the datum-level orbit decomposition of §6.2. -/
 theorem Q0loc_vanish_of_datum_decomp (D : TateDuality 2) (dat : FactorSet C V)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
     (x : H1 AbsGalQ2 V)
@@ -324,11 +325,12 @@ This section reduces the general statement to a single crisp cohomological input
 rest of f2 was reduced: the **difference datum** `diffDatum dat1 dat2` (pointwise 𝔽₂-sum, = the
 char-2 difference) is an equivariant factor set for the **zero form**
 (`isEquivariantFactorSet_diffDatum`), and `graphPullback` is additive along it
-(`graphPullback_diffDatum`), so datum-independence follows once the graph pullback of a **zero-form**
-factor set is a coboundary (`hcore` — *DI-core*, the isolated Lemma-6.1/6.4 heart: the class
-`[κ⁰]` of a zero-form factor set on `V ⋊ C` is trivial, so its graph pullback lands in `B²`).  DI-core
-is **not** discharged here: the coboundary `Λ(g) = Δφ(b g)` needs a quadratic refinement `Δφ` of the
-difference (which *exists* — the two data share the polar, so `Δf` is a symmetric coboundary over 𝔽₂)
+(`graphPullback_diffDatum`), so datum-independence follows once the graph pullback of a
+**zero-form** factor set is a coboundary (`hcore` — *DI-core*, the isolated Lemma-6.1/6.4 heart:
+the class `[κ⁰]` of a zero-form factor set on `V ⋊ C` is trivial, so its graph pullback lands in
+`B²`).  DI-core is **not** discharged here: the coboundary `Λ(g) = Δφ(b g)` needs a quadratic
+refinement `Δφ` of the difference (which *exists* — the two data share the polar, so `Δf` is a
+symmetric coboundary over 𝔽₂)
 corrected against the C-equivariance defect `Δm` (an `H¹(C, V*)` obstruction — the genuine Lemma
 6.1/6.4 content).  It is stated as the parametric hypothesis so consumers and the eventual proof
 share the exact interface; see `docs/p15f2-option1-scoping.md`. -/
@@ -350,8 +352,8 @@ def diffDatum (dat1 dat2 : FactorSet C V) : FactorSet C V where
 
 omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [TopologicalSpace V]
   [DiscreteTopology V] [Finite V] [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] in
-/-- **Additivity of `graphPullback` along the difference datum**: `graphPullback` is 𝔽₂-linear in the
-datum, so the pullback of `diffDatum dat1 dat2` is the sum of the two pullbacks. -/
+/-- **Additivity of `graphPullback` along the difference datum**: `graphPullback` is 𝔽₂-linear in
+the datum, so the pullback of `diffDatum dat1 dat2` is the sum of the two pullbacks. -/
 theorem graphPullback_diffDatum (dat1 dat2 : FactorSet C V) {Γ : Type*} (ρ : Γ → C) (b : Γ → V) :
     graphPullback (diffDatum dat1 dat2) ρ b = graphPullback dat1 ρ b + graphPullback dat2 ρ b := by
   funext p
@@ -603,9 +605,10 @@ increment A can be corrected to also satisfy the **equivariance-defect identity*
 Proof (the banked f1 averaging pattern, cf. `inflationVanishes_of_oddNormal`): the defect
 `D c v = Δφ₀(c•v) + Δφ₀ v + Δm c v` is additive in `v` (`(Q)` + `m_quad`) and a right `1`-cocycle in
 `c` (`m_mul`).  **Step A**: `L₀ = Σ_{i∈I} D i` kills the defect on `I` (cocycle expansion +
-`mulRight` reindex + `|I|` odd in `𝔽₂`), and `Δφ = Δφ₀ + L₀` keeps `(Q)` (`L₀` additive).  **Step B**:
-normality makes the corrected defect `D'` `I`-invariant (`D' c (i•v) = D' c v` via
-`c i = i' c`, `i' = c i c⁻¹ ∈ I`), whence `D' c v = Σ_{i∈I} D' c (i•v) = D' c (Σ_{i∈I} i•v) = D' c 0 = 0`
+`mulRight` reindex + `|I|` odd in `𝔽₂`), and `Δφ = Δφ₀ + L₀` keeps `(Q)` (`L₀` additive).
+**Step B**: normality makes the corrected defect `D'` `I`-invariant (`D' c (i•v) = D' c v` via
+`c i = i' c`, `i' = c i c⁻¹ ∈ I`), whence
+`D' c v = Σ_{i∈I} D' c (i•v) = D' c (Σ_{i∈I} i•v) = D' c 0 = 0`
 since `Σ_{i∈I} i•v ∈ V^I = 0`.  No general `H¹(C,V*)` theory. -/
 theorem exists_equivariant_refinement (Δdat : FactorSet C V)
     (hΔ : IsEquivariantFactorSet (fun _ => (0 : ZMod 2)) Δdat) (hV2 : ∀ v : V, v + v = 0)
@@ -652,9 +655,9 @@ theorem exists_equivariant_refinement (Δdat : FactorSet C V)
 DI-core (`graphPullback (zero-form factor set) ∈ B²`) has an explicit coboundary witness
 `Λ(g) = Δφ(b g)` for a **quadratic refinement** `Δφ : V → 𝔽₂` of the datum, i.e. a `Δφ` with polar
 `Δdat.f` (`hQ`: `Δφ(u+w) = Δφ u + Δφ w + Δf u w`) and equivariance defect `Δdat.m`
-(`hE`: `Δφ(c•v) = Δφ v + Δm c v`).  The verification `δ¹Λ = graphPullback Δdat` is the char-2 identity
-below.  This lemma discharges the *cochain heart*; the **sole remaining input** for full DI-core /
-`Q0loc_datum_indep` is the **existence** of such a `Δφ` for the difference datum — the
+(`hE`: `Δφ(c•v) = Δφ v + Δm c v`).  The verification `δ¹Λ = graphPullback Δdat` is the char-2
+identity below.  This lemma discharges the *cochain heart*; the **sole remaining input** for full
+DI-core / `Q0loc_datum_indep` is the **existence** of such a `Δφ` for the difference datum — the
 `H²(V;𝔽₂)`-splitting `[Δf]=0` (free: `Δf` has zero diagonal) plus the `H¹(C,V*)` equivariance
 correction (`docs/p15f2-option1-scoping.md` §P0, sub-bricks a1/a2). -/
 omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
@@ -677,11 +680,11 @@ theorem graphPullback_mem_B2_of_refinement (Δdat : FactorSet C V)
       hQ (b.1 g) (ρ g • b.1 h) + hE (ρ g) (b.1 h)
 
 omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
-/-- **`Q⁰_loc` datum-independence from a refinement** (P-15f2a capstone): a quadratic refinement `Δφ`
-of the difference datum `diffDatum dat1 dat2` (with polar `hQ` and equivariance-defect `hE`) makes
-`Q⁰_loc` agree for `dat1` and `dat2`.  Composes `graphPullback_mem_B2_of_refinement` (the coboundary)
-with `Q0loc_datum_indep_of_core`.  The remaining f2a input is the *construction* of `Δφ` (the
-`H²(V;𝔽₂)`-splitting + `H¹(C,V*)` correction). -/
+/-- **`Q⁰_loc` datum-independence from a refinement** (P-15f2a capstone): a quadratic refinement
+`Δφ` of the difference datum `diffDatum dat1 dat2` (with polar `hQ` and equivariance-defect `hE`)
+makes `Q⁰_loc` agree for `dat1` and `dat2`.  Composes `graphPullback_mem_B2_of_refinement` (the
+coboundary) with `Q0loc_datum_indep_of_core`.  The remaining f2a input is the *construction* of
+`Δφ` (the `H²(V;𝔽₂)`-splitting + `H¹(C,V*)` correction). -/
 theorem Q0loc_datum_indep_of_refinement (D : TateDuality 2) (dat1 dat2 : FactorSet C V)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
     (x : H1 AbsGalQ2 V) (Δφ : V → ZMod 2)
@@ -695,9 +698,10 @@ omit [DiscreteTopology C] [ContinuousSMul AbsGalQ2 V] in
 /-- **(a3) `Q⁰_loc` datum-independence** (P-15f2a capstone): for two equivariant factor sets
 `dat1`, `dat2` of the **same** form `q`, an odd normal subgroup `I ◁ C` acting fixed-point-freely
 (`hVI : V^I = 0`) forces `Q⁰_loc dat1 = Q⁰_loc dat2`.  Composes `isEquivariantFactorSet_diffDatum`
-(the difference is a zero-form datum) → `exists_equivariant_refinement` (the full `(Q)∧(E)` refinement,
-increments A+B) → `Q0loc_datum_indep_of_refinement`.  This is the f2a deliverable; the tame
-instantiation of `(I, hIn, hodd, hVI)` (e.g. `I = zpowers (c tameTau)`, via the banked producers
+(the difference is a zero-form datum) → `exists_equivariant_refinement` (the full `(Q)∧(E)`
+refinement, increments A+B) → `Q0loc_datum_indep_of_refinement`.  This is the f2a deliverable; the
+tame instantiation of `(I, hIn, hodd, hVI)` (e.g. `I = zpowers (c tameTau)`, via the banked
+producers
 `tameInertia_normal` / `odd_orderOf_tameInertia` / `fixedByNormal_eq_bot`) stays with f2d. -/
 theorem Q0loc_datum_indep (D : TateDuality 2) {q : V → ZMod 2}
     (dat1 dat2 : FactorSet C V)

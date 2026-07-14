@@ -181,8 +181,8 @@ variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologi
 variable (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup) (F : BoundaryFrame H E)
   (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR) (Dsc : Descent (En.radData l h))
 
-omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [DistribMulAction AbsGalQ2 (ZMod 2)]
-  [ContinuousSMul AbsGalQ2 (ZMod 2)] in
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)] in
 /-- The direct `TCocycle ≃ Z¹_cont(AbsGalQ2, Additive T)` bridge for the `T`-module pack:
 `TCocycle` stores continuity into `Bg` directly, so the crossed cocycle identity matches the
 `Z¹` identity through `tConjActC_smul_mk` at the `fLift`-free representative — no
@@ -241,8 +241,9 @@ private noncomputable def tcocycleEquivZ1 (ρ : BoundaryLifts b F RF.TC) :
     left_inv := fun u => by cases u; rfl
     right_inv := fun z => Subtype.ext (funext fun γ => rfl) }
 
-omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [DistribMulAction AbsGalQ2 (ZMod 2)]
-  [ContinuousSMul AbsGalQ2 (ZMod 2)] [TopologicalSpace Y] [DiscreteTopology Y] in
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)] [TopologicalSpace Y]
+  [DiscreteTopology Y] in
 /-- **The `T`-cocycle count for `G_ℚ₂`** (the `hμ` supplier, P-16d6e3): the crossed-`T`-cocycle
 count is the `card_Z1_eq` closed form `#T² · #(T^∨)^{YB/M_B}`, which is **`ρ`-independent** (the RHS
 sees only the frame-level datum `En.radData l h`, not `ρ`) — so the capstone reads off `μ₀` and
@@ -341,7 +342,8 @@ theorem hZcard_local
   haveI : ContinuousSMul AbsGalQ2 En.Vmod := by
     constructor
     have hfac : (fun p : AbsGalQ2 × En.Vmod => p.1 • p.2)
-        = (fun q : RF.YC × En.Vmod => q.1 • q.2) ∘ (fun p : AbsGalQ2 × En.Vmod => (ρ.1.1 p.1, p.2)) := by
+        = (fun q : RF.YC × En.Vmod => q.1 • q.2)
+          ∘ (fun p : AbsGalQ2 × En.Vmod => (ρ.1.1 p.1, p.2)) := by
       funext p; rfl
     rw [hfac]
     exact continuous_of_discreteTopology.comp
@@ -371,7 +373,8 @@ theorem hZcard_local
       invFun := fun z =>
         { c := fun γ => (z.1 γ : (En.descData l h).Vmod)
           cont := by
-            have hc : Continuous (fun v : En.Vmod => iV (En.descData l h) (Multiplicative.ofAdd v)) :=
+            have hc :
+                Continuous (fun v : En.Vmod => iV (En.descData l h) (Multiplicative.ofAdd v)) :=
               continuous_of_discreteTopology
             exact hc.comp (mem_Z1_iff.mp z.2).1
           crossed := fun γ δ => by
@@ -418,8 +421,9 @@ private theorem fLift_mk_M (ρ : BoundaryLifts b F RF.TC)
     one_mul, ← piQbar_mk (En.descData l h), (descSections En l h Dsc).piT_uσ,
     descSigma_spec En l h Dsc]
 
-omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [DistribMulAction AbsGalQ2 (ZMod 2)]
-  [ContinuousSMul AbsGalQ2 (ZMod 2)] [TopologicalSpace Y] [DiscreteTopology Y] in
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)] [TopologicalSpace Y]
+  [DiscreteTopology Y] in
 /-- **The `T`-valued defect is a `Z²`-cocycle**: pushing `tDef` (the `fLift`-conjugation defect of
 a `V`-cocycle `c`) into `Additive ↥T` gives a continuous inhomogeneous 2-cocycle for the
 `ρ'`-conjugation action (`M` abelian collapses the sign).  `hsep_local`'s STAGE 2b. -/
@@ -470,7 +474,8 @@ private theorem tDef_mem_Z2 (ρ : BoundaryLifts b F RF.TC)
         = fLift (descSections En l h Dsc) c γ
             * (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (δ, ε) : RF.YB)
             * (fLift (descSections En l h Dsc) c γ)⁻¹
-            * (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ, δ * ε) : RF.YB) := by
+            * (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c
+                (γ, δ * ε) : RF.YB) := by
       show fLift (descSections En l h Dsc) c γ * fLift (descSections En l h Dsc) c δ
             * (fLift (descSections En l h Dsc) c (γ * δ))⁻¹
             * (fLift (descSections En l h Dsc) c (γ * δ) * fLift (descSections En l h Dsc) c ε
@@ -509,13 +514,15 @@ names verified to exist):**
    `= actG`-action by `conj_eq_of_mk_eq_T`).
 3. **Dual module** `ElemDual A` + `hpair` — copy `hsep_hom_local:466-486` (`compHom θ`, `⊥`
    topology, `hpair` via `htriv_local'` + `ElemDual.smul_apply` + `inv_smul_smul`).
-4. **`cup20`-values vanish** `∀ n : H0 AbsGalQ2 (ElemDual A), cup20 (dualEval A) hpair (H2mk … ⟨_,tDefZ2⟩) n = 0`:
+4. **`cup20`-values vanish**
+   `∀ n : H0 AbsGalQ2 (ElemDual A), cup20 (dualEval A) hpair (H2mk … ⟨_,tDefZ2⟩) n = 0`:
    `cup20 [tDef] n = H2mk (fun gd => dualEval (tDef gd) ((gd.1*gd.2)•n))` (congrArg H2mk, as in
    `hsep_hom_local:hred`); `n.2`-invariance ⟹ `= H2mk (fun gd => n(tDef gd)) = H2mk (chiDef χ_n c)`
    where `χ_n : ↥(TCharC D) := ⟨fun t => n.1 (Additive.ofMul t), ⟨additivity, conj-inv via θ-surj⟩⟩`
    (the `hYinv` transport, `hsep_hom_local:493-512`); then `hc χ_n : betaChi χ_n c = 0` gives
    `chiDef χ_n c ∈ B²` (`iotaB_eq_zero_iff`), so `H2mk (chiDef χ_n c) = 0` (`H2mk_eq_zero_iff`).
-5. **Class vanishes** `H2mk … ⟨_,tDefZ2⟩ = 0` via `(bijective_cup20_dualEval hA₂ htriv_local' hpair).1`
+5. **Class vanishes** `H2mk … ⟨_,tDefZ2⟩ = 0` via
+   `(bijective_cup20_dualEval hA₂ htriv_local' hpair).1`
    (injectivity) + `map_zero` + `AddMonoidHom.ext` over stage 4.
 6. **B²-extraction**: `(QuotientAddGroup.eq_zero_iff _).mp` + `mem_addSubgroupOf` ⟹
    `ψ : AbsGalQ2 → A` continuous with `dOne ψ = tDef` (`hsep_hom_local:541-543`).
@@ -523,7 +530,8 @@ names verified to exist):**
    layer): `f γ := (Additive.toMul (ψ γ) : Bg) * fLift S c γ`; a continuous hom over `ρ'`
    (`dOne ψ = tDef` cancels the `fLift`-defect, exponent-2 kills the sign as in `:554-563`;
    `ψ ∈ T ⊆ M` so `mk_M (f γ) = mk_M (fLift γ) = ρ'γ`), and `mk_T (f γ) = mk_T (fLift γ) =
-   (qOfCocycle c) γ` (since `ψ ∈ T`) ⟹ `redTLift f = qOfCocycle c` ⟹ `TLiftable`.  Bespoke ~40 lines. -/
+   (qOfCocycle c) γ` (since `ψ ∈ T`) ⟹ `redTLift f = qOfCocycle c` ⟹ `TLiftable`.
+   Bespoke ~40 lines. -/
 theorem hsep_local
     (ρ : BoundaryLifts b F RF.TC)
     (c : VCocycle (En.descData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))
@@ -713,12 +721,14 @@ theorem hsep_local
         = (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ, δ) : RF.YB)
             * fLift (descSections En l h Dsc) c (γ * δ) := by
       show _ = (fLift (descSections En l h Dsc) c γ * fLift (descSections En l h Dsc) c δ
-          * (fLift (descSections En l h Dsc) c (γ * δ))⁻¹) * fLift (descSections En l h Dsc) c (γ * δ)
+          * (fLift (descSections En l h Dsc) c (γ * δ))⁻¹)
+            * fLift (descSections En l h Dsc) c (γ * δ)
       group
     set pγ := ((Additive.toMul (ψ γ) : ↥(En.radData l h).T) : RF.YB) with hpγ
     set pδ := ((Additive.toMul (ψ δ) : ↥(En.radData l h).T) : RF.YB) with hpδ
     set pe := ((Additive.toMul (ψ (γ * δ)) : ↥(En.radData l h).T) : RF.YB) with hpe
-    set td := (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ, δ) : RF.YB) with htdd
+    set td := (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ, δ) : RF.YB)
+      with htdd
     have htdT : td ∈ (En.radData l h).T :=
       (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ, δ)).2
     have hTarith : pγ * td * pγ⁻¹ * pe * td = pe := by
@@ -727,7 +737,8 @@ theorem hsep_local
     symm
     calc (pγ * fLift (descSections En l h Dsc) c γ) * (pδ * fLift (descSections En l h Dsc) c δ)
         = pγ * (fLift (descSections En l h Dsc) c γ * pδ * (fLift (descSections En l h Dsc) c γ)⁻¹)
-            * (fLift (descSections En l h Dsc) c γ * fLift (descSections En l h Dsc) c δ) := by group
+            * (fLift (descSections En l h Dsc) c γ * fLift (descSections En l h Dsc) c δ) := by
+              group
       _ = pγ * (td * pγ⁻¹ * pe) * (td * fLift (descSections En l h Dsc) c (γ * δ)) := by
             rw [hsplit γ δ, htd]
       _ = (pγ * td * pγ⁻¹ * pe * td) * fLift (descSections En l h Dsc) c (γ * δ) := by group

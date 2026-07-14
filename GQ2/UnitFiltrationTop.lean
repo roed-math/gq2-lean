@@ -96,13 +96,15 @@ instance : Finite (↥(unitBall k).toAddSubgroup ⧸
   AddSubgroup.quotient_finite_of_isOpen _
     (continuous_subtype_val.isOpen_preimage _ (dyadicBall k).isOpen)
 
-/-- The index `M = #(O/2O)` — the length of the pigeonhole and the exponent of the value-group gap. -/
+/-- The index `M = #(O/2O)` — the length of the pigeonhole and the exponent of the value-group
+gap. -/
 noncomputable def dyadicIndex : ℕ := Nat.card (↥(unitBall k).toAddSubgroup ⧸
   (dyadicBall k).toAddSubgroup.addSubgroupOf (unitBall k).toAddSubgroup)
 
 theorem one_le_dyadicIndex : 1 ≤ dyadicIndex k := Nat.card_pos
 
-/-- **The uniformizer pigeonhole.**  For `‖x‖ ≤ 1`, two of the powers `x⁰, …, x^M` (`M = dyadicIndex`)
+/-- **The uniformizer pigeonhole.**  For `‖x‖ ≤ 1`, two of the powers `x⁰, …, x^M`
+(`M = dyadicIndex`)
 are congruent modulo the radius-`‖2‖` ball: `‖xⁱ − xʲ‖ ≤ ‖2‖` with `i < j ≤ M`. -/
 theorem exists_pow_sub_dyadic {x : ↥k} (hx : ‖x‖ ≤ 1) :
     ∃ i j : ℕ, i < j ∧ j ≤ dyadicIndex k ∧ ‖x ^ i - x ^ j‖ ≤ ‖(2 : ℚ̄₂)‖ := by

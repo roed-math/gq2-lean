@@ -30,7 +30,8 @@ universe u
 /-- A topological group is **topologically finitely generated** when some *finite* subset
 topologically generates it — i.e. the (algebraic) subgroup it generates is dense.  This is the
 predicate `main_presentation` needs of `Γ_A`. -/
-def IsTopologicallyFinGen (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] : Prop :=
+def IsTopologicallyFinGen (G : Type*) [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] : Prop :=
   ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤
 
 /-- **Topological finite generation passes along a continuous surjection.**  If `f : G →* Q` is

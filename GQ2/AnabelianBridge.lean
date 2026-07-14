@@ -628,7 +628,8 @@ lemma lambdaHom_mem_closure (γ : Delta) :
     Subgroup.le_topologicalClosure _
       (Subgroup.subset_closure (Set.mem_insert_of_mem _ rfl))
   have hle := topClosure_closure_le_comap lambdaHom (S := {deltaP, deltaT}) hcl ?_
-  · have hmem : γ ∈ (Subgroup.closure ({deltaP, deltaT} : Set (Delta : Type))).topologicalClosure := by
+  · have hmem :
+        γ ∈ (Subgroup.closure ({deltaP, deltaT} : Set (Delta : Type))).topologicalClosure := by
       rw [delta_pinned]
       exact Subgroup.mem_top γ
     exact Subgroup.mem_comap.mp (hle hmem)
@@ -1011,7 +1012,8 @@ lemma bCoord_lambda_mem (γ : Delta) : bCoordHom B (lambdaHom γ) ∈ bcoordMidd
     bcoordMiddle_isClosed.preimage (bCoordHom B).continuous_toFun
   have hle := topClosure_closure_le_comap lambdaHom (S := {deltaP, deltaT})
     (M := bcoordMiddle.comap (bCoordHom B).toMonoidHom) hcl ?_
-  · have hmem : γ ∈ (Subgroup.closure ({deltaP, deltaT} : Set (Delta : Type))).topologicalClosure := by
+  · have hmem :
+        γ ∈ (Subgroup.closure ({deltaP, deltaT} : Set (Delta : Type))).topologicalClosure := by
       rw [delta_pinned]
       exact Subgroup.mem_top γ
     have := hle hmem

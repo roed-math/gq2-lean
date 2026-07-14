@@ -8,7 +8,8 @@ The ramified Arf value is computed **without** the Hermitian model, involution, 
 tame inertia `⟨T⟩` itself acts diagonally on `V ≅ W^{⊕s}` (the isotypic decomposition), freely on
 `V ∖ 0` (`T` fixes only `0` in the simple faithful `W`), preserving `q`.  Feeding
 `GaussSigns.arf_eq_of_free` with `U = ⟨T⟩` and `n = ord(T)` — using `ord(T) ∣ 2^{2m'} − 1`
-(`T` a unit of the field `𝔽₂[T] ≅ 𝔽_{2^f}`) and `ord(T) ∤ 2^{m'} − 1` (`irreducible_operator_pow_ne_one`) —
+(`T` a unit of the field `𝔽₂[T] ≅ 𝔽_{2^f}`) and `ord(T) ∤ 2^{m'} − 1`
+(`irreducible_operator_pow_ne_one`) —
 pins `arf q = s`.
 
 Reuses P-13d (`GQ2/TameSimple.lean`): `IsSimpleModTwo`.
@@ -258,7 +259,8 @@ theorem arf_eq_s_ramified (T : G) (hTgen : ∀ g : G, g ∈ Subgroup.zpowers T)
   · rw [hcardG]; exact hordgt
   · intro g; exact smul_zero g
   · exact hqinv
-  · -- free on `V ∖ 0`: `g • v = v`, `v ≠ 0` ⟹ `g` fixes a nonzero `W`-component ⟹ `g` trivial ⟹ `g = 1`
+  · -- free on `V ∖ 0`: `g • v = v`, `v ≠ 0` ⟹ `g` fixes a nonzero `W`-component ⟹ `g` trivial
+    -- ⟹ `g = 1`
     exact free_on_nonzero T e he hWsimple hnatpow hWfaith
 
 end ArfRamified

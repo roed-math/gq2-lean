@@ -286,7 +286,8 @@ end Bridge
 
 /-! ## Clause (iii): `#H²(𝔽₂) = 2`. -/
 
-/-- **Clause (iii)**: `#H²(G_ℚ₂, 𝔽₂) = 2`.  With `G_ℚ₂` acting trivially the `μ₂`-dual invariants are
+/-- **Clause (iii)**: `#H²(G_ℚ₂, 𝔽₂) = 2`.  With `G_ℚ₂` acting trivially the `μ₂`-dual
+invariants are
 everything, so `#H⁰(MuDual 2 𝔽₂) = #(𝔽₂ →+ μ₂) = #(𝔽₂ →+ 𝔽₂) = 2`; B6's `(0,2)` duality then pins
 `#H²(𝔽₂)`. -/
 theorem card_H2_zmod2_eq_two [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]

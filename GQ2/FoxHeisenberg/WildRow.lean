@@ -127,8 +127,8 @@ theorem liftMarking_d0_u (t : Marking C) (x : Fin 4 → V) (hV₂ : ∀ v : V, v
   rw [hx0inv, hu0g]
   abel
 
-/-- **`σ₂`'s base is exactly `t.sigma2`** — the `ω₂`-exponent taken in `WordLift V C` agrees with the
-one in `C` (Lemma 5.1, finite-exponent independence): `orderOf t.σ ∣ orderOf σ_WL`, so
+/-- **`σ₂`'s base is exactly `t.sigma2`** — the `ω₂`-exponent taken in `WordLift V C` agrees
+with the one in `C` (Lemma 5.1, finite-exponent independence): `orderOf t.σ ∣ orderOf σ_WL`, so
 `powOmega2_pow_eq` identifies the two representatives.  Hence the σ-tameness `hU` (stated on
 `t.sigma2`) transfers to the wild-row evaluation — `hU v` gives `(liftMarking t x).sigma2.g • v = v`
 after `rw [liftMarking_sigma2_g]`. -/
@@ -147,8 +147,9 @@ theorem liftMarking_sigma2_g (t : Marking C) (x : Fin 4 → V) :
   exact powOmega2_pow_eq t.σ hdvd hN
 
 omit [Finite V] [Finite C] in
-/-- **`D(x₁^σ) = S⁻¹·x₃`** (tame case): conjugating by `σ` shifts the `x₁`-offset by `t.σ⁻¹`, and the
-`x₀`-offsets contributed by the two `σ`'s cancel.  This is the sole surviving `S⁻¹` in the wild row
+/-- **`D(x₁^σ) = S⁻¹·x₃`** (tame case): conjugating by `σ` shifts the `x₁`-offset by `t.σ⁻¹`, and
+the `x₀`-offsets contributed by the two `σ`'s cancel.  This is the sole surviving `S⁻¹` in the wild
+row
 (the paper's `xσ₁` ledger row `0 0 0 S⁻¹`). -/
 theorem liftMarking_conjP_x1_sigma_u (t : Marking C) (x : Fin 4 → V)
     (hx1 : ∀ v : V, t.x₁ • v = v) :
@@ -159,7 +160,8 @@ theorem liftMarking_conjP_x1_sigma_u (t : Marking C) (x : Fin 4 → V)
 /-! ### Base-triviality of the wild aux words (tame case)
 
 Each aux word evaluates to a trivially-based element, so `.u`-additivity (`mul_u_of_trivial` etc.)
-applies.  `g₀ = σ₂²` and `z₀ = x₀^{σ₂}` use σ-tameness `hU`; the rest use the wild-core triviality. -/
+applies.  `g₀ = σ₂²` and `z₀ = x₀^{σ₂}` use σ-tameness `hU`; the rest use the wild-core
+triviality. -/
 
 theorem liftMarking_g0_g_smul (t : Marking C) (x : Fin 4 → V) (hU : ∀ v : V, t.sigma2 • v = v)
     (v : V) : (liftMarking t x).g0.g • v = v := by

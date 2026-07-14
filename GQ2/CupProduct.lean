@@ -223,7 +223,8 @@ include hμ in
 lemma cup02_bcobound (m : ↥(H0 G M)) {c : G × G → N} (hc : c ∈ B2 G N) :
     cup02Fun μ m.1 c ∈ B2 G P := by
   obtain ⟨ψ, hψc, hψ⟩ := hc
-  refine AddSubgroup.mem_map.mpr ⟨fun g => μ m.1 (ψ g), continuous_pairing μ continuous_const hψc, ?_⟩
+  refine AddSubgroup.mem_map.mpr
+    ⟨fun g => μ m.1 (ψ g), continuous_pairing μ continuous_const hψc, ?_⟩
   funext ⟨g, h⟩
   have hc' : c (g, h) = g • ψ h - ψ (g * h) + ψ g := by rw [← hψ]; rfl
   show g • μ m.1 (ψ h) - μ m.1 (ψ (g * h)) + μ m.1 (ψ g) = μ m.1 (c (g, h))

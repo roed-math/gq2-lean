@@ -120,7 +120,8 @@ theorem epsResidue_table :
     epsResidue 1 = 0 ∧ epsResidue 3 = 1 ∧ epsResidue 5 = 0 ∧ epsResidue 7 = 1 := by
   decide
 
-/-- Residue table for `ω`: `ω ≡ 0` on `{1, 7}` (`≡ ±1 mod 8`), `ω ≡ 1` on `{3, 5}` (`≡ ±3 mod 8`). -/
+/-- Residue table for `ω`: `ω ≡ 0` on `{1, 7}` (`≡ ±1 mod 8`), `ω ≡ 1` on `{3, 5}`
+(`≡ ±3 mod 8`). -/
 theorem omegaResidue_table :
     omegaResidue 1 = 0 ∧ omegaResidue 3 = 1 ∧ omegaResidue 5 = 1 ∧ omegaResidue 7 = 0 := by
   decide
@@ -148,7 +149,8 @@ theorem isHilbertSolvable_iff (a b : ℚ_[2]) :
         have hz0 : z = 0 := pow_eq_zero_iff (n := 2) (by norm_num) |>.mp hz
         rcases hne with h | h | h
         exacts [h rfl, h rfl, h hz0]
-      exact ⟨z / x, by rw [div_mul_div_comm, eq_div_iff (mul_ne_zero hx hx)]; linear_combination heq⟩
+      exact ⟨z / x, by
+        rw [div_mul_div_comm, eq_div_iff (mul_ne_zero hx hx)]; linear_combination heq⟩
     · exact Or.inr ⟨z / y, x / y, by field_simp; linear_combination heq⟩
   · rintro (⟨c, hc⟩ | ⟨s, t, hst⟩)
     · exact ⟨1, 0, c, Or.inl one_ne_zero, by rw [hc]; ring⟩

@@ -322,8 +322,8 @@ private lemma norm_eq_one_of_norm_sub_one_lt {F : Type*} [NormedField F] [IsUltr
 
 /-- The quadratic Newton iteration `w ↦ w − (w² − z)/(2w)` from `w₀ = 1`, converging to a
 square root of `z` in `sq_of_near_one`. -/
-private noncomputable def newtonSqrtSeq {k : IntermediateField ℚ_[2] ℚ̄₂} (z : ↥k) : ℕ → ↥k := fun n =>
-  Nat.rec (1 : ↥k) (fun _ wn => wn - (wn ^ 2 - z) / (2 * wn)) n
+private noncomputable def newtonSqrtSeq {k : IntermediateField ℚ_[2] ℚ̄₂} (z : ↥k) : ℕ → ↥k :=
+  fun n => Nat.rec (1 : ↥k) (fun _ wn => wn - (wn ^ 2 - z) / (2 * wn)) n
 
 /-- Invariant for the Newton iteration: each iterate stays within `‖2‖` of `1`, and the square
 error contracts geometrically with ratio `q = ‖z − 1‖ / ‖2‖² < 1`. -/

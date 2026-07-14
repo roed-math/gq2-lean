@@ -174,7 +174,8 @@ theorem hvanish_free_conj (ρ : ContinuousMonoidHom AbsGalQ2 C)
       ∈ deepClasses (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :
     H2ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
         (cup11Fun AddMonoidHom.mul (shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) β)
-          (fun n => shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) γ (conjMap ρ g n))) = 0 := by
+          (fun n => shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) γ (conjMap ρ g n)))
+      = 0 := by
   have hZ1conj : (fun n : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) =>
       shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) γ (conjMap ρ g n))
       ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) :=

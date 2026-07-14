@@ -417,7 +417,8 @@ theorem additive_qbar_absurd (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2)
 
 /-- **`hns` core (multiplicative)**: the polar form is non-degenerate — every `a ≠ 1` in `V=P/S`
 pairs nontrivially.  If not, `radSub` is a nonzero `Y`-normal subgroup between `S` and `P`, so
-`= P` by `chief`; then `qbar` is additive, contradicting `lemma_7_1_dual` (`additive_qbar_absurd`). -/
+`= P` by `chief`; then `qbar` is additive, contradicting `lemma_7_1_dual`
+(`additive_qbar_absurd`). -/
 theorem blockQbar_nonsingular_mul (hRN : B.frattiniK.Normal)
     (hsq : ∀ k ∈ B.K, k * k ∈ B.frattiniK)
     (lam : ↥B.frattiniK → ZMod 2)

@@ -234,7 +234,8 @@ theorem exists_card_eq_two_pow {W : Type*} [AddCommGroup W] [Finite W]
     rw [pow_two, ← ofAdd_toAdd g, ← ofAdd_add, h2, ofAdd_zero]⟩
   exact (IsPGroup.iff_card (p := 2) (G := Multiplicative W)).mp hpg
 
-/-- The range of `1 + U` has `2`-power cardinality (it is a subgroup of the elem. ab. 2-group `V`). -/
+/-- The range of `1 + U` has `2`-power cardinality (it is a subgroup of the elem. ab. 2-group
+`V`). -/
 theorem exists_card_range_eq_two_pow {V : Type*} [AddCommGroup V] [Finite V]
     (h2 : ∀ v : V, v + v = 0) (f : V →+ V) : ∃ k, Nat.card f.range = 2 ^ k :=
   exists_card_eq_two_pow (fun w => Subtype.ext (h2 (w : V)))

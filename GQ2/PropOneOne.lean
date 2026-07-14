@@ -57,7 +57,8 @@ theorem isProP_two_multPadicInt : IsProP 2 (Multiplicative ℤ_[2]) := by
   obtain ⟨m, rfl⟩ := QuotientGroup.mk_surjective g
   show (QuotientGroup.mk' U.toSubgroup m) ^ (2 ^ n) = 1
   rw [← map_pow, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]
-  -- `m ^ 2^n = ofAdd (2^n • toAdd m)`; and `2^n • toAdd m ∈ span{2^n} ⊆ S`, i.e. its `ofAdd` is in U.
+  -- `m ^ 2^n = ofAdd (2^n • toAdd m)`; and `2^n • toAdd m ∈ span{2^n} ⊆ S`, i.e. its `ofAdd` is
+  -- in U.
   have hmem2 : (2 : ℤ_[2]) ^ n * Multiplicative.toAdd m ∈ S :=
     hspan (Ideal.mul_mem_right _ _ (Ideal.mem_span_singleton_self _))
   have hpow : m ^ (2 ^ n) = Multiplicative.ofAdd ((2 : ℤ_[2]) ^ n * Multiplicative.toAdd m) := by

@@ -400,7 +400,8 @@ theorem odd_e_inertiaField (R : LocalReciprocity) (B : BoundaryMaps)
   haveI htN : (Subgroup.zpowers t).Normal := Tame.zpowers_normal_of_tame hgen hrel
   haveI hpreN : (preimGal ρ (Subgroup.zpowers t)).Normal := by
     refine ⟨fun n hn g => ?_⟩
-    show ρ (ResidueLift.toAbs g * ResidueLift.toAbs n * (ResidueLift.toAbs g)⁻¹) ∈ Subgroup.zpowers t
+    show ρ (ResidueLift.toAbs g * ResidueLift.toAbs n * (ResidueLift.toAbs g)⁻¹)
+      ∈ Subgroup.zpowers t
     rw [map_mul, map_mul, map_inv]
     exact htN.conj_mem _ hn _
   haveI hGalF₀ : IsGalois ℚ_[2] (inertiaField ρ t) := by

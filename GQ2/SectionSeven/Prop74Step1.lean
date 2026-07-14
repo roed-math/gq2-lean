@@ -267,8 +267,8 @@ theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.frattiniK.Normal)
       rw [hw]
       group
     rw [e2, beta_add_t k w ts hk hwK htsK, hwT.2 k hk (comm_mem_R B hk hwK), zero_add]
-  -- `β(k) = λ([k, ts])` is a `Y`-invariant hom on `K`, nonzero somewhere, so `invariant_hom_absurd_core`
-  -- (which supplies the index-2 kernel above `R`) closes the goal
+  -- `β(k) = λ([k, ts])` is a `Y`-invariant hom on `K`, nonzero somewhere, so
+  -- `invariant_hom_absurd_core` (which supplies the index-2 kernel above `R`) closes the goal
   have hone : ∀ x : ZMod 2, x ≠ 0 → x = 1 := by decide
   have hsurj : ∃ k, ∃ hk : k ∈ B.K,
       lam ⟨k * ts * k⁻¹ * ts⁻¹, comm_mem_R B hk htsK⟩ = 1 := by
@@ -433,7 +433,8 @@ theorem sigma0_extends (B : MinimalBlock L) (σ : Y → ZMod 2)
         have hc : (((a * b)⁻¹ * (b * a) : ↥B.K) : Y)
             = (b : Y)⁻¹ * (a : Y)⁻¹ * ((b : Y)⁻¹)⁻¹ * ((a : Y)⁻¹)⁻¹ := by push_cast; group
         rw [hc]
-        exact Subgroup.subset_closure (Or.inr ⟨(b : Y)⁻¹, inv_mem b.2, (a : Y)⁻¹, inv_mem a.2, rfl⟩) }
+        exact Subgroup.subset_closure
+          (Or.inr ⟨(b : Y)⁻¹, inv_mem b.2, (a : Y)⁻¹, inv_mem a.2, rfl⟩) }
   letI : Module (ZMod 2) (Additive (↥B.K ⧸ Rsub)) := AddCommGroup.zmodModule (by
     intro x
     apply Additive.toMul.injective
@@ -468,7 +469,8 @@ theorem sigma0_extends (B : MinimalBlock L) (σ : Y → ZMod 2)
         have hc : (((a * b)⁻¹ * (b * a) : ↥KS) : Y)
             = (b : Y)⁻¹ * (a : Y)⁻¹ * ((b : Y)⁻¹)⁻¹ * ((a : Y)⁻¹)⁻¹ := by push_cast; group
         rw [hc]
-        exact Subgroup.subset_closure (Or.inr ⟨(b : Y)⁻¹, inv_mem hbK, (a : Y)⁻¹, inv_mem haK, rfl⟩) }
+        exact Subgroup.subset_closure
+          (Or.inr ⟨(b : Y)⁻¹, inv_mem hbK, (a : Y)⁻¹, inv_mem haK, rfl⟩) }
   letI : Module (ZMod 2) (Additive (↥KS ⧸ RsubU)) := AddCommGroup.zmodModule (by
     intro x
     apply Additive.toMul.injective
@@ -490,21 +492,25 @@ theorem sigma0_extends (B : MinimalBlock L) (σ : Y → ZMod 2)
         have : σ ((1 : ↥KS) : Y) = 0 := by simpa using hσhom 1 (one_mem _) 1 (one_mem _)
         rw [this]; rfl
       map_mul' := fun a b => by
-        show Multiplicative.ofAdd (σ ↑(a * b)) = Multiplicative.ofAdd (σ ↑a) * Multiplicative.ofAdd (σ ↑b)
-        rw [show ((a * b : ↥KS) : Y) = (↑a * ↑b : Y) from rfl, hσhom ↑a a.2 ↑b b.2]; rfl } with hσhomdef
+        show Multiplicative.ofAdd (σ ↑(a * b))
+          = Multiplicative.ofAdd (σ ↑a) * Multiplicative.ofAdd (σ ↑b)
+        rw [show ((a * b : ↥KS) : Y) = (↑a * ↑b : Y) from rfl,
+          hσhom ↑a a.2 ↑b b.2]; rfl } with hσhomdef
   have hkill : RsubU ≤ σhom.ker := by
     intro x hx
     rw [MonoidHom.mem_ker]
     show Multiplicative.ofAdd (σ ↑x) = 1
     rw [hRsubU, Subgroup.mem_subgroupOf] at hx
     rw [hσR ↑x hx]; rfl
-  set νmon : (↥KS ⧸ RsubU) →* Multiplicative (ZMod 2) := QuotientGroup.lift RsubU σhom hkill with hνmon
+  set νmon : (↥KS ⧸ RsubU) →* Multiplicative (ZMod 2) :=
+    QuotientGroup.lift RsubU σhom hkill with hνmon
   set νadd : U →+ ZMod 2 :=
     { toFun := fun x => Multiplicative.toAdd (νmon (Additive.toMul x))
       map_zero' := by simp
       map_add' := fun a b => by
         show Multiplicative.toAdd (νmon (Additive.toMul (a + b)))
-          = Multiplicative.toAdd (νmon (Additive.toMul a)) + Multiplicative.toAdd (νmon (Additive.toMul b))
+          = Multiplicative.toAdd (νmon (Additive.toMul a))
+            + Multiplicative.toAdd (νmon (Additive.toMul b))
         rw [toMul_add, map_mul, toAdd_mul] } with hνadd
   set ν : U →ₗ[ZMod 2] ZMod 2 := νadd.toZModLinearMap (n := 2) with hν
   -- === Λ : U →ₗ W (from inclusion K∩S ↪ K) ===

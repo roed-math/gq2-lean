@@ -256,7 +256,8 @@ lemma nu_ur_recip_unitNeg3 :
   norm_num
 
 /-- A unit of value `−3`. -/
-noncomputable def unitNegThree : ℤ_[2]ˣ := (isUnit_intCast_of_odd (⟨-2, by ring⟩ : Odd (-3 : ℤ))).unit
+noncomputable def unitNegThree : ℤ_[2]ˣ :=
+  (isUnit_intCast_of_odd (⟨-2, by ring⟩ : Odd (-3 : ℤ))).unit
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 @[simp] lemma unitNegThree_val : (unitNegThree : ℤ_[2]) = -3 := by

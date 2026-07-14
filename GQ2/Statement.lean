@@ -29,13 +29,15 @@ open scoped Classical
 noncomputable abbrev AbsGalQ2 : Type := Field.absoluteGaloisGroup ℚ_[2]
 
 /-- The number of continuous surjections `G_{ℚ₂} ↠ G` onto a finite discrete group `G`. -/
-noncomputable def contSurjCount (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] : ℕ :=
+noncomputable def contSurjCount (G : Type) [Group G] [TopologicalSpace G]
+    [DiscreteTopology G] : ℕ :=
   Nat.card (ContSurj AbsGalQ2 G)
 
 /-! **Theorem 1.2 (surjection-count form)** — for every finite group `G`, the number of continuous
 surjections `G_{ℚ₂} ↠ G` equals `admissibleCount G` (the admissible marked generating quadruples;
 paper eq. (154) + Prop. 2.3) — is **`GQ2.SectionTen.main_surjection_count'`** (proved in
-`GQ2/SectionTenSources.lean`, P-18e).  It cannot live here: `Statement.lean` sits **upstream** of the
+`GQ2/SectionTenSources.lean`, P-18e).  It cannot live here: `Statement.lean` sits **upstream** of
+the
 §§4–9 tower (it is imported by `GammaA.lean`/`FoxHeisenberg.lean`), so an in-place proof — which
 needs the whole tower and the concrete `boundaryMapsWitness` — would cycle.  Per the statement-move
 pattern (P-08/P-15d), `main_presentation` below takes the count as the hypothesis `hcount`, supplied
@@ -70,7 +72,8 @@ is continuously isomorphic to `G_{ℚ₂}`.
 `ΓA` stands in for the presented profinite group; `hΓA` is Prop. 2.3 (its finite quotients are the
 admissible markings); `hcount` is Theorem 1.2's surjection-count form for `G_{ℚ₂}`
 (`contSurjCount G = admissibleCount G`, = `SectionTen.main_surjection_count'`, supplied at P-19 —
-a hypothesis here because its proof is downstream of this upstream file, the statement-move pattern);
+a hypothesis here because its proof is downstream of this upstream file, the statement-move
+pattern);
 `hfgΓ`/`hfgG` are topological finite generation of `Γ_A` and of `G_{ℚ₂}` (both true — `G_{ℚ₂}` is
 topologically finitely generated, being the absolute Galois group of a local field). The conclusion
 is Theorem 1.2. -/

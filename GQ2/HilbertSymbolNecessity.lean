@@ -77,7 +77,8 @@ theorem exists_primitive_triple {A B : ℤ_[2]}
     rw [show (2 : ℤ_[2]) = ((2 : ℕ) : ℤ_[2]) by norm_num, hh]; omega
   have main : ∀ (n : ℕ) (x y z : ℤ_[2]), x.valuation + y.valuation + z.valuation = n →
       (x ≠ 0 ∨ y ≠ 0 ∨ z ≠ 0) → A * x ^ 2 + B * y ^ 2 = z ^ 2 →
-      ∃ x' y' z' : ℤ_[2], (IsUnit x' ∨ IsUnit y' ∨ IsUnit z') ∧ A * x' ^ 2 + B * y' ^ 2 = z' ^ 2 := by
+      ∃ x' y' z' : ℤ_[2], (IsUnit x' ∨ IsUnit y' ∨ IsUnit z') ∧
+        A * x' ^ 2 + B * y' ^ 2 = z' ^ 2 := by
     intro n
     induction n using Nat.strong_induction_on with
     | _ n ih =>
@@ -118,8 +119,8 @@ theorem exists_primitive_triple {A B : ℤ_[2]}
 
 /-- **Non-solvability from a finite obstruction.**  If `A X² + B Y² = Z²` has no primitive solution
 over `ZMod (2^k)` (some coordinate a unit), it has no nontrivial `ℚ₂`-solution: integralize,
-primitivize, and push through the ring hom `PadicInt.toZModPow k` (which sends the unit coordinate to
-a unit by `IsUnit.map`). -/
+primitivize, and push through the ring hom `PadicInt.toZModPow k` (which sends the unit
+coordinate to a unit by `IsUnit.map`). -/
 theorem not_isHilbertSolvable_of_mod (A B : ℤ_[2]) (k : ℕ)
     (hk : ∀ x y z : ZMod (2 ^ k), (IsUnit x ∨ IsUnit y ∨ IsUnit z) →
       PadicInt.toZModPow k A * x ^ 2 + PadicInt.toZModPow k B * y ^ 2 ≠ z ^ 2) :
@@ -134,9 +135,9 @@ theorem not_isHilbertSolvable_of_mod (A B : ℤ_[2]) (k : ℕ)
 /-! ## The two `−1`-leaf families
 
 Both reduce `hilbertSymbol … = -1` to a `decide`-checked non-solvability over `ZMod 8`, threading
-the axiom's `unitCoe`/`unit2` wrappers through `unitCoe_coe`/`unit2_coe`.  The `decide` obligation is
-passed as `hdec` so each concrete leaf below supplies it by `by decide` (512 triples, no
-`native_decide`). -/
+the axiom's `unitCoe`/`unit2` wrappers through `unitCoe_coe`/`unit2_coe`.  The `decide`
+obligation is passed as `hdec` so each concrete leaf below supplies it by `by decide`
+(512 triples, no `native_decide`). -/
 
 /-- Unit·unit `−1`-leaf: `(u, v)₂ = -1` at residues `(ru, rv)` for which `ru x² + rv y² = z²` has no
 primitive `ZMod 8` solution. -/

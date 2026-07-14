@@ -306,7 +306,8 @@ theorem lemma_6_8 (c : ContinuousMonoidHom Ttame Hf) (_ : Function.Surjective c)
         rw [mul_comm, ← pow_succ]; congr 1; omega
       rw [h2a]; ring
   refine ⟨h87, hVU, ⟨k, hk, h88b⟩, ?_⟩
-  exact GaussSigns.arf_qDouble_eq_zero q U hq hV2 hns hUq hU2 (onePlusU U) (fun _ => rfl) hk h87 h88b
+  exact GaussSigns.arf_qDouble_eq_zero q U hq hV2 hns hUq hU2 (onePlusU U) (fun _ => rfl) hk h87
+    h88b
 
 /-- **Proposition 6.9 (candidate base determinant zero count), eq. (91), unramified case**:
 if inertia acts trivially (`c(τ) = 1`, so `Q⁰_A = q` by (83)) and `#V = 2^{2m}`, then

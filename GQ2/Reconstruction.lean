@@ -223,7 +223,8 @@ theorem exists_contSurj_of_card_le
       projMap hle (σ U s) = σ U' s := by
     intro U U' hle s
     have := hsec hle.hom
-    exact congrArg (fun (t : {f : ContinuousMonoidHom S (R ⧸ U'.toSubgroup) // Function.Surjective f})
+    exact congrArg
+      (fun (t : {f : ContinuousMonoidHom S (R ⧸ U'.toSubgroup) // Function.Surjective f})
       => t.1 s) this
   -- Embed `R` into the product of its finite quotients.
   let Q : Type := ∀ U : OpenNormalSubgroup (ProfiniteGrp.of R), R ⧸ U.toSubgroup
@@ -295,9 +296,10 @@ theorem exists_contSurj_of_card_le
 
 /-- **Lemma 2.5 (equinumerosity form).**  `P` is a topologically finitely generated profinite group,
 `Q` is profinite, and for every finite group `H` the continuous-surjection sets are *equinumerous*
-(`ContSurj P H ≃ ContSurj Q H`); then `P ≅ Q` as topological groups.  Equinumerosity, unlike equality
-of `Nat.card`, forces the counts to be genuinely finite (via `P`'s finiteness) and so is not vacuous
-on infinite level sets; it is the most general faithful reading of "the same *number* of surjections"
+(`ContSurj P H ≃ ContSurj Q H`); then `P ≅ Q` as topological groups.  Equinumerosity, unlike
+equality of `Nat.card`, forces the counts to be genuinely finite (via `P`'s finiteness) and so is
+not vacuous on infinite level sets; it is the most general faithful reading of "the same *number*
+of surjections"
 and does not need `Q` finitely generated as a separate hypothesis (it follows).  Proved in full
 modulo the standard compactness input `exists_contSurj_of_card_le`. -/
 theorem reconstruction_of_equinum

@@ -145,7 +145,8 @@ theorem heisMarking_eq_map (t : Marking C) (x : Fin 4 → A) (y : Fin 4 → Elem
     Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons, Matrix.cons_val_two,
     Matrix.cons_val_three, Matrix.tail_cons]
 
-/-- `liftMarking t y` (dual coefficients) is the free marking pushed through `lgHom ∘ stokesEval`. -/
+/-- `liftMarking t y` (dual coefficients) is the free marking pushed through
+`lgHom ∘ stokesEval`. -/
 theorem liftMarking_eq_map (t : Marking C) (y : Fin 4 → ElemDual A) :
     liftMarking t y = freeMarking.map (lgHom.comp (stokesEval (markVec t) 0 y)) := by
   simp only [liftMarking, freeMarking, Marking.map, markVec, MonoidHom.comp_apply, lgHom,

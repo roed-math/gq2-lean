@@ -21,11 +21,13 @@ trivial coordinated edit to `SectionEight.lean` done last.
 
 * `stageR136` — `RStageObstructionBuild.stageR136_ofRSepData` from a concrete `RObstructionData`
   + the source residues (`hsep_hom`, `hZcount`) + `hE2` (P-16d2).
-* `half139` — `RecursionFrame.half139_of` (P-16d3) discharged by `centralOver_equiv`/`liftsOver_equiv`
+* `half139` — `RecursionFrame.half139_of` (P-16d3) discharged by
+  `centralOver_equiv`/`liftsOver_equiv`
   + `lemma_8_6_local` (`G_ℚ₂`) / `lemma_8_6_gammaA` (`Γ_A`) + the `M`-lift count (5.15/5.16).
 * `phase140` — the `lemma_8_7`/`lemma_8_5`/Prop 8.8/`lemma_6_21`/cor 5.17 chain (P-16d4/d5).
 * the witness `(μ, G0, DT, phase)` — `phaseFamily`/`centralCoverOfCocycle` (P-16d5).
-* side conditions `hfg` / `hscalar` / `hhead` — the source's t.f.g., `#Hom(Γ,𝔽₂)=8`, head surjectivity.
+* side conditions `hfg` / `hscalar` / `hhead` — the source's t.f.g., `#Hom(Γ,𝔽₂)=8`, head
+  surjectivity.
 -/
 
 namespace GQ2
@@ -35,7 +37,8 @@ namespace SectionEight
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
   [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
 
-/-- **Prop 8.9, reduced to the per-source `RecursionInputs` + shared witness** (the splice backbone).
+/-- **Prop 8.9, reduced to the per-source `RecursionInputs` + shared witness** (the splice
+backbone).
 Given the shared phase witness `(μ, G0, DT, phase)`, the two per-source side-condition triples, and
 the two `RecursionInputs` bundles, the boxed system holds for both sources — each via
 `prop_8_9_aux`.  The remaining work (the component-discharge lemmas below) feeds the two
@@ -74,8 +77,8 @@ facts** for the transported lower map `ρ' = rhoPrime …`:
   (`lemma_8_6_local` ✓ for `G_ℚ₂`; `lemma_8_6_gammaA` = P-16c for `Γ_A`), and
 * `hMcountM` — the `M`-lift count `#(M-lifts) = |M_B|²` (props 5.15/5.16).
 
-So a caller feeds `half139_of` (hence `RecursionInputs.half139`) directly from the source arithmetic,
-with no `CentralOver`/`LiftsOver` bookkeeping. -/
+So a caller feeds `half139_of` (hence `RecursionInputs.half139`) directly from the source
+arithmetic, with no `CentralOver`/`LiftsOver` bookkeeping. -/
 theorem half139_via_radData {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
     [CompactSpace Γ] [TotallyDisconnectedSpace Γ] {Y : Type} [Group Y] [TopologicalSpace Y]
     [DiscreteTopology Y] [Finite Y] {T : MarkedTarget H E Y}
@@ -279,10 +282,12 @@ theorem lemma_8_5_aggregated {W E : Type*} [AddCommGroup W] [Module (ZMod 2) W] 
           + gaussSum Q * ∑ᶠ χ : Module.Dual (ZMod 2) E, sign (χ (κ i) + ε i + Q (a χ))) :=
         Finset.sum_congr rfl fun i _ => lemma_8_5 L hL Q a ha (κ i) (ε i)
     _ = (∑ _i : I, (Nat.card W : ℤ))
-          + gaussSum Q * ∑ i : I, ∑ᶠ χ : Module.Dual (ZMod 2) E, sign (χ (κ i) + ε i + Q (a χ)) := by
+          + gaussSum Q
+            * ∑ i : I, ∑ᶠ χ : Module.Dual (ZMod 2) E, sign (χ (κ i) + ε i + Q (a χ)) := by
         rw [Finset.sum_add_distrib, Finset.mul_sum]
     _ = (Fintype.card I : ℤ) * (Nat.card W : ℤ)
-          + gaussSum Q * ∑ᶠ χ : Module.Dual (ZMod 2) E, ∑ i : I, sign (χ (κ i) + ε i + Q (a χ)) := by
+          + gaussSum Q
+            * ∑ᶠ χ : Module.Dual (ZMod 2) E, ∑ i : I, sign (χ (κ i) + ε i + Q (a χ)) := by
         rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul, hswap]
 
 /-! ## The capstone (140) reducer — `phase140` from the concrete correspondences -/

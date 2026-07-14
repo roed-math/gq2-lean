@@ -185,7 +185,8 @@ Mirror of the `WordLift` toolkit for the central coordinate.  On elements whose 
 trivially on the module, `.a` and `.l` are additive homs and `.z` follows the Heisenberg cocycle
 `(p*q).z = p.z + q.z + p.l(q.a)`.  This drives the `h₀ ↦ λ(c)` / `[d₀,z₀] ↦ 0` central ledger. -/
 
-/-- A `C`-element acting trivially on the module acts trivially on its `𝔽₂`-dual (contragredient). -/
+/-- A `C`-element acting trivially on the module acts trivially on its `𝔽₂`-dual
+(contragredient). -/
 theorem smul_elemdual_trivial (g : C) (hg : ∀ a : A, g • a = a) (lam : ElemDual A) :
     g • lam = lam := by
   ext a
@@ -508,7 +509,8 @@ theorem stokesEval_eq_rhsR (c : Fin n → C) (lam : ElemDual A) (x : Fin n → A
 
 /-- **Lemma 5.7, display (39)**: the dual-variable form,
 `β_r(x, d⁰λ) = ⟨L^A_r(x), λ⟩ + Σᵢ εᵢ(r)·λ(xᵢ)`.  (The lower-value hypothesis `hr` is recorded for
-symmetry with the left form; the dual central defect is `g`-independent, so it is not needed here.) -/
+symmetry with the left form; the dual central defect is `g`-independent, so it is not needed
+here.) -/
 theorem lemma_5_7_right (c : Fin n → C) (r : FreeGroup (Fin n))
     (_hr : FreeGroup.lift c r = 1) (x : Fin n → A) (lam : ElemDual A) :
     (stokesEval c x (fun i => c i • lam - lam) r).z

@@ -42,7 +42,8 @@ noncomputable def kappaHeis : TwoCocycle (WordLift (A × ElemDual A) C) where
       inv_smul_smul]
     abel
 
-/-- **The structural isomorphism** `CentExt kappaHeis →* HeisLift A C`, `(⟨(a,λ),g⟩, z) ↦ ⟨a,λ,z,g⟩`.
+/-- **The structural isomorphism** `CentExt kappaHeis →* HeisLift A C`,
+`(⟨(a,λ),g⟩, z) ↦ ⟨a,λ,z,g⟩`.
 It is a homomorphism precisely because `kappaHeis`'s defect matches the `HeisLift`
 multiplication's central term `λ(g • a')`. -/
 noncomputable def PhiHeis : CentExt (kappaHeis (A := A) (C := C)) →* HeisLift A C where

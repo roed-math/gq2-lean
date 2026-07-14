@@ -303,7 +303,8 @@ noncomputable def qOfCocycle (u : VCocycle DD ρ) : QLiftsOver DD ρ :=
             = iV DD (Multiplicative.ofAdd (u.c γ + rho0 DD ρ γ • u.c δ))
                 * σ (rho0 DD ρ γ * rho0 DD ρ δ) := by
               rw [u.crossed γ δ, map_mul (rho0 DD ρ) γ δ]
-          _ = iV DD (Multiplicative.ofAdd (u.c γ)) * iV DD (Multiplicative.ofAdd (rho0 DD ρ γ • u.c δ))
+          _ = iV DD (Multiplicative.ofAdd (u.c γ))
+                * iV DD (Multiplicative.ofAdd (rho0 DD ρ γ • u.c δ))
                 * (σ (rho0 DD ρ γ) * σ (rho0 DD ρ δ)) := by
               rw [ofAdd_add, map_mul, map_mul σ]
           _ = iV DD (Multiplicative.ofAdd (u.c γ))

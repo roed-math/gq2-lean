@@ -483,7 +483,8 @@ private theorem rtransOp_pow_apply (g₀ : P) :
     rw [pow_succ, pow_succ, ← mul_assoc]
     exact IH (rtransOp g₀ F) x
 
-/-- Right translation is unipotent of index dividing `|P| = 2^s`: `(rtransOp g₀ + 1) ^ 2 ^ s = 0`. -/
+/-- Right translation is unipotent of index dividing `|P| = 2^s`:
+`(rtransOp g₀ + 1) ^ 2 ^ s = 0`. -/
 private theorem rtransOp_add_one_pow_card (g₀ : P) {s : ℕ} (hs : Fintype.card P = 2 ^ s) :
     (rtransOp g₀ + 1) ^ 2 ^ s = 0 := by
   have hcard : rtransOp g₀ ^ 2 ^ s = 1 := by

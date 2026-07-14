@@ -215,7 +215,8 @@ theorem isAdmissible_tameClassifier_level (V : OpenNormalSubgroup Ttame) :
     rw [Marking.TameRel, hσ, hτ]
     simpa [conjP] using hrel
   · -- wild relation, via the ledger collapse
-    have h := Marking.wildRel_of_trivial_wild (Marking.mk (q tameSigma) (q tameTau) 1 1) rfl rfl (powOmega2_eq_one_of_odd hodd)
+    have h := Marking.wildRel_of_trivial_wild (Marking.mk (q tameSigma) (q tameTau) 1 1) rfl rfl
+      (powOmega2_eq_one_of_odd hodd)
     have ht : univMarking.map f = Marking.mk (q tameSigma) (q tameTau) 1 1 := by
       rw [show univMarking.map f = Marking.mk (univMarking.map f).σ (univMarking.map f).τ
         (univMarking.map f).x₀ (univMarking.map f).x₁ from rfl, hσ, hτ, hx₀, hx₁]
@@ -676,7 +677,8 @@ noncomputable def uChar : Multiplicative (ZMod (2 ^ m)) →* (ZMod (emN m))ˣ wh
     exact (pow_eq_pow_mod _ hper).symm
 
 /-- The Frobenius action `φ_m : C_{2^m} → Aut(C_{e_m})`. -/
-noncomputable def phiFermat : Multiplicative (ZMod (2 ^ m)) →* MulAut (Multiplicative (ZMod (emN m))) :=
+noncomputable def phiFermat :
+    Multiplicative (ZMod (2 ^ m)) →* MulAut (Multiplicative (ZMod (emN m))) :=
   (unitsMulAut (emN m)).comp (uChar m)
 
 lemma phiFermat_apply (h : Multiplicative (ZMod (2 ^ m))) (x : Multiplicative (ZMod (emN m))) :

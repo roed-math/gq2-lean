@@ -6,7 +6,8 @@ import GQ2.TameTwoQuotient
 /-!
 # `prop_3_14 : Nonempty BoundaryMaps` — the eq. (27) boundary data  (ticket P-25)
 
-The third and last of the orphaned `SectionThreeMarked.lean` obligations (now fully proved): the full 21-field `BoundaryMaps`
+The third and last of the orphaned `SectionThreeMarked.lean` obligations (now fully proved): the
+full 21-field `BoundaryMaps`
 bundle (`GQ2/BoundaryFrame.lean`), i.e. tame + maximal-pro-2 quotient maps for **both** sources
 `Γ_A` and `G_{ℚ₂}`, `ν`-compatible, jointly surjective onto the fibred boundary
 `∂bd = T_tame ×_{ℤ₂} Π`.
@@ -96,7 +97,8 @@ theorem proPKernel_image_ge {p : ℕ} {G H : Type*}
     exact Subgroup.mem_map.mpr ⟨g, hg, rfl⟩
   have hτraw : Function.Surjective ((quotientMk Nim).comp φ) :=
     (quotientMk_surjective Nim).comp hφ
-  have hτsurj : Function.Surjective (quotientLift (proPKernel p G) ((quotientMk Nim).comp φ) hle) := by
+  have hτsurj :
+      Function.Surjective (quotientLift (proPKernel p G) ((quotientMk Nim).comp φ) hle) := by
     intro y
     obtain ⟨x, hx⟩ := hτraw y
     exact ⟨quotientMk (proPKernel p G) x,
@@ -355,7 +357,8 @@ theorem tame_reciprocity (g : AbsGalQ2) :
   have h := congrFun key (toAb g)
   rwa [tameChar_toAb] at h
 
-/-- `ν_t ∘ tameF = ν₂ ∘ pro2F` on `G_{ℚ₂}` — from `tame_reciprocity` and `prop_3_10_local_marked`. -/
+/-- `ν_t ∘ tameF = ν₂ ∘ pro2F` on `G_{ℚ₂}` — from `tame_reciprocity` and
+`prop_3_10_local_marked`. -/
 theorem compatF_proved (g : AbsGalQ2) : GQ2.nuT (tameFHom g) = GQ2.nuTwo (pro2FHom g) := by
   refine locPro2.choose.injective ?_
   rw [tame_reciprocity g]

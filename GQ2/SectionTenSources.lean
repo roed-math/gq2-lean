@@ -108,8 +108,9 @@ theorem eq_154 (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [F
       tameUnitOrientation_witness (tameTarget G) hE2
 
 /-- **Theorem 1.2, surjection-count form** (`GQ2.main_surjection_count`), proved from eq. (154) +
-Prop 2.3.  The `Statement.lean` sorry was resolved (P-18e) by the statement-move pattern (Statement is
-upstream of the tower); the moved statement carries the tower-standing `AbsGalQ2` instance binders. -/
+Prop 2.3.  The `Statement.lean` sorry was resolved (P-18e) by the statement-move pattern
+(Statement is upstream of the tower); the moved statement carries the tower-standing `AbsGalQ2`
+instance binders. -/
 theorem main_surjection_count'
     (G : Type) [Group G] [Finite G] [TopologicalSpace G] [DiscreteTopology G] :
     contSurjCount G = admissibleCount G :=

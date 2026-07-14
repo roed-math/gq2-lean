@@ -59,14 +59,17 @@ namespace GQ2
 /-! ## `Δ` and its peripheral generators -/
 
 /-- **`Δ`** (paper §3): the maximal pro-2 quotient of the free profinite group on two generators —
-the geometric maximal pro-2 fundamental group `π₁^{pro-2}(ℙ¹ ∖ {0,1,∞})`, presented group-theoretically. -/
+the geometric maximal pro-2 fundamental group `π₁^{pro-2}(ℙ¹ ∖ {0,1,∞})`, presented
+group-theoretically. -/
 noncomputable abbrev Delta : ProfiniteGrp := maxProPQuotient 2 (FreeProfiniteGroup (Fin 2))
 
 /-- The peripheral generator `P` (image of the first free generator in `Δ`). -/
-noncomputable def deltaP : Delta := maxProPMk 2 (FreeProfiniteGroup (Fin 2)) (FreeProfiniteGroup.of 0)
+noncomputable def deltaP : Delta :=
+  maxProPMk 2 (FreeProfiniteGroup (Fin 2)) (FreeProfiniteGroup.of 0)
 
 /-- The peripheral generator `T` (image of the second free generator in `Δ`). -/
-noncomputable def deltaT : Delta := maxProPMk 2 (FreeProfiniteGroup (Fin 2)) (FreeProfiniteGroup.of 1)
+noncomputable def deltaT : Delta :=
+  maxProPMk 2 (FreeProfiniteGroup (Fin 2)) (FreeProfiniteGroup.of 1)
 
 /-- The third peripheral generator `C := (P·T)⁻¹` (so `P·T·C = 1`). -/
 noncomputable def deltaC : Delta := (deltaP * deltaT)⁻¹

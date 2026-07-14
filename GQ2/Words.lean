@@ -27,7 +27,8 @@ open scoped Classical
 
 /-- A concrete nonnegative-integer representative of the profinite idempotent `ω₂` modulo `n`:
 the unique `e ∈ [0, n)` with `e ≡ 1 (mod 2^{v₂ n})` and `e ≡ 0 (mod oddpart n)`.
-Realised as `(oddpart n) ^ (2^{v₂ n - 1})` (Euler: `m^{φ(2^a)} ≡ 1 mod 2^a`, and it is `≡ 0 mod m`). -/
+Realised as `(oddpart n) ^ (2^{v₂ n - 1})` (Euler: `m^{φ(2^a)} ≡ 1 mod 2^a`, and it is
+`≡ 0 mod m`). -/
 def omega2Exp (n : ℕ) : ℕ :=
   let a := n.factorization 2
   if a = 0 then 0 else (n / 2 ^ a) ^ (2 ^ (a - 1)) % n

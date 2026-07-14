@@ -216,7 +216,8 @@ is `conjModule`-invariant, the conjugation action descends to `H¹(N) ⧸ deepCl
   smul c x := conjActQuotHom ρ (Function.surjInv hρsurj c) x
   one_smul x := by
     refine QuotientAddGroup.induction_on x (fun a => ?_)
-    show conjActQuotHom ρ (Function.surjInv hρsurj 1) (QuotientAddGroup.mk a) = QuotientAddGroup.mk a
+    show conjActQuotHom ρ (Function.surjInv hρsurj 1) (QuotientAddGroup.mk a)
+      = QuotientAddGroup.mk a
     rw [conjActQuotHom_mk]
     congr 1
     refine (conjAct_ker ρ _ 1 ?_ a).trans (conjAct_one ρ a)

@@ -108,8 +108,8 @@ noncomputable def phaseFamily (En : RF.Enrichment) (l₀ : RF.DR) (h₀ : l₀ �
   else
     trivialPhaseCover RF.YC
 
-omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
-  [TopologicalSpace Y] [DiscreteTopology Y] in
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- The `dif_pos`-reduction of the phase family on the zero-edge locus (the pre-analyzed
 elaboration risk (b) of the row: the rewrite is proof-irrelevant in the stored descent
 witness, since `descentOf` consumes whichever proof the caller holds). -/
@@ -239,7 +239,8 @@ theorem prop_8_9 (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
       inferInstance, phaseFamily En l₀ h₀, card_TCharC_pos En l₀ h₀, ?_, ?_⟩
     · -- the `Γ_A` recursion
       refine prop_8_9_aux _ hfgA B.bA F lemma_8_2_gammaA hheadA _ _ _ _ ?_
-      refine ⟨CardH2GammaA.stageR136_gammaA hE2 hRK hR2 B.bA F, fun l h hedge => ?_, fun l h hN => ?_⟩
+      refine ⟨CardH2GammaA.stageR136_gammaA hE2 hRK hR2 B.bA F, fun l h hedge => ?_,
+        fun l h hN => ?_⟩
       · exact half139_gammaA _ B.bA F En hfgA l h hedge
       · -- (140) for `Γ_A`: the four P-16d6e6 residues through the source-generic assembly
         -- (P-16d6e2), at the unpacked descent + the `dif_pos`-reduction — the exact mirror
@@ -257,7 +258,8 @@ theorem prop_8_9 (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
         exact h140
     · -- the `G_ℚ₂` recursion — fully live (P-16d6e3 closed)
       refine prop_8_9_aux _ hfgF B.bF F (lemma_8_2_local B) hheadF _ _ _ _ ?_
-      refine ⟨RStageLocal.stageR136_local hE2 hRK hR2 hfgF B.bF F, fun l h hedge => ?_, fun l h hN => ?_⟩
+      refine ⟨RStageLocal.stageR136_local hE2 hRK hR2 hfgF B.bF F, fun l h hedge => ?_,
+        fun l h hN => ?_⟩
       · exact half139_local _ B.bF F En hfgF l h hedge
       · -- the landed local (140) at the unpacked descent + the `dif_pos`-reduction
         have h140 := phase140_local B.bF F En l h (descentOf En l h hN) hfgF

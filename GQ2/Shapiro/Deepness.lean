@@ -180,7 +180,8 @@ The field data is threaded as hypotheses — the c2a "abstract Kummer presentati
 `mem_deepPart_iff`/`deepClass_eq_kummerClassK` (the f2d/plumbing step).  **`hunram` HOLDS for every
 involution orbit** (Step-0 decision, `docs/p15f2c-design.md`): `ρ(ĝ)` is order 2 in `C`, but `C`'s
 tame inertia `⟨c tameTau⟩` has odd order (`Tame.tame_odd_order`), so `ρ(ĝ) ∉ inertia` ⟹ `L/k`
-unramified; c2c discharges `hunram` in spectral-norm vocabulary.  **Ax: B9, B11a (via `lemma_6_16`).** -/
+unramified; c2c discharges `hunram` in spectral-norm vocabulary.
+**Ax: B9, B11a (via `lemma_6_16`).** -/
 theorem hvanish_involution (k L : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
     [FiniteDimensional ℚ_[2] k] (hkL : k ≤ L)
     (hindex : ((L.fixingSubgroup).subgroupOf (k.fixingSubgroup)).index = 2)
@@ -208,7 +209,8 @@ theorem hvanish_involution (k L : IntermediateField ℚ_[2] (AlgebraicClosure �
         (fun w ↦ Kummer.kummerCocycleFun β
           ((w : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]))) = 0 :=
   hvanish_evensNorm htriv hUo hindex hs _ hα hαc
-    (lemma_6_16 k L hkL hindex hunram d δ hδ hδL hLδ A β hdeep hβ hβ0 u v hAuv s hs htriv hUo hα hαc)
+    (lemma_6_16 k L hkL hindex hunram d δ hδ hδL hLδ A β hdeep hβ hβ0 u v hAuv s hs htriv hUo
+      hα hαc)
 
 /-- **Deep class → involution `hvanish`** (P-15f2c2b, the witness-plumbing step): given a deep
 Kummer class `ξ ∈ deepClasses (L.fixingSubgroup)` at the involution block coordinate and the c2a

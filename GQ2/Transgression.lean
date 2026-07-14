@@ -627,7 +627,8 @@ theorem splitting_of_global_cocycle
               * (i (Multiplicative.ofAdd (factorSet p hp i cc dd)) * sigma p hp (cc * dd)) := by
               rw [hfs]
         _ = ((i (Multiplicative.ofAdd (g cc)))⁻¹ * (i (Multiplicative.ofAdd (cc • g dd)))⁻¹
-              * i (Multiplicative.ofAdd (factorSet p hp i cc dd))) * sigma p hp (cc * dd) := by group
+              * i (Multiplicative.ofAdd (factorSet p hp i cc dd))) * sigma p hp (cc * dd) := by
+              group
         _ = i (Multiplicative.ofAdd (g (cc * dd))) * sigma p hp (cc * dd) := by rw [hiprod]
     show (i (Multiplicative.ofAdd (g (cc * dd))))⁻¹ * sigma p hp (cc * dd)
        = (i (Multiplicative.ofAdd (g cc)))⁻¹ * sigma p hp cc

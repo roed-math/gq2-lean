@@ -71,10 +71,12 @@ theorem zpowers_sq_eq_of_odd {t : G} (ht : Odd (orderOf t)) :
 
 /-- The cyclic subgroup `⟨t⟩` is normal in `G = ⟨s, t⟩`.  *(Target; proof deferred.)*
 
-Proof plan (uses `zpowers_sq_eq_of_odd`): conjugation by `s⁻¹` is the automorphism `MulAut.conj s⁻¹`,
+Proof plan (uses `zpowers_sq_eq_of_odd`): conjugation by `s⁻¹` is the automorphism
+`MulAut.conj s⁻¹`,
 and `(MulAut.conj s⁻¹) t = s⁻¹ t s = t²`, so `(⟨t⟩).map (conj s⁻¹) = ⟨t²⟩ = ⟨t⟩` (odd order). Hence
 `s` (and trivially `t`) lie in `(⟨t⟩).normalizer`; since `⟨s,t⟩ = ⊤`, the normalizer is `⊤`, i.e.
-`⟨t⟩` is normal. The remaining Lean work is `MulAut.conj`/`Subgroup.map`/`normalizer` API plumbing. -/
+`⟨t⟩` is normal. The remaining Lean work is `MulAut.conj`/`Subgroup.map`/`normalizer` API
+plumbing. -/
 theorem zpowers_normal_of_tame {s t : G} [Finite G] (hgen : Subgroup.closure {s, t} = ⊤)
     (h : s⁻¹ * t * s = t ^ 2) : (Subgroup.zpowers t).Normal := by
   have hodd : Odd (orderOf t) := tame_odd_order (orderOf_pos s).ne' h
@@ -134,7 +136,8 @@ theorem tame_normal_two_subgroup_central {s t : G} [Finite G]
     · exact SetLike.mem_coe.2 (Subgroup.mem_sup_right (Subgroup.mem_zpowers _))
     · exact SetLike.mem_coe.2 (Subgroup.mem_sup_left (Subgroup.mem_zpowers _))
   set φ := QuotientGroup.mk' (Subgroup.zpowers t) with hφ
-  have htmk : φ t = 1 := by rw [hφ, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]; exact Subgroup.mem_zpowers t
+  have htmk : φ t = 1 := by
+    rw [hφ, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]; exact Subgroup.mem_zpowers t
   have htop : Subgroup.zpowers (φ s) = ⊤ := by
     have hm := congrArg (Subgroup.map φ) hsup
     rwa [Subgroup.map_sup, MonoidHom.map_zpowers, MonoidHom.map_zpowers, htmk,

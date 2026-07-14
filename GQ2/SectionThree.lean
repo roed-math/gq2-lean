@@ -100,8 +100,9 @@ profinite-group instances on `G^{ab}` (so `ZtwoPowering`'s `zpowZtwo` applies), 
 -- `local instance`, so the `CommGroup` is the genuine construction — wrapping it in a `def` +
 -- `attribute [local instance]` breaks the group structure downstream) and **file-scoped**: a global
 -- generic `CommGroup`/`CompactSpace`/… on `topAbelianization G` perturbs instance resolution for
--- unrelated profinite quotients `K ⧸ M` in files that import this one (`AnabelianBridge`), whereas a
--- file-local instance stays confined to the P-07 proofs (`Phi`/`D0ab_coord`/`lemma_3_5_injective`).
+-- unrelated profinite quotients `K ⧸ M` in files that import this one (`AnabelianBridge`),
+-- whereas a file-local instance stays confined to the P-07 proofs
+-- (`Phi`/`D0ab_coord`/`lemma_3_5_injective`).
 
 /-- `G^{ab}` is commutative. -/
 noncomputable local instance instCommGroupTopAb {G : Type*} [Group G] [TopologicalSpace G]
@@ -122,8 +123,9 @@ noncomputable local instance instCommGroupTopAb {G : Type*} [Group G] [Topologic
     rw [commutator_def]
     simpa [commutatorElement_def] using hmem
 
-local instance instCompactSpaceTopAb {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
-    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] : CompactSpace (topAbelianization G) :=
+local instance instCompactSpaceTopAb {G : Type*} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
+    CompactSpace (topAbelianization G) :=
   inferInstanceAs (CompactSpace (G ⧸ (commutator G).topologicalClosure))
 
 local instance instT2SpaceTopAb {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
@@ -752,7 +754,8 @@ noncomputable def unitNeg3 : ℚ_[2]ˣ := Units.mk0 (-3 : ℚ_[2]) (by norm_num)
 Escalation 5 in `docs/section3-extraction.md`): the descent `markedPi`, the marked hom
 `markedHom` (`Ā,S̄,Ȳ ↦ rec(−4), rec(1/2), rec(−3)`, relation verified), and the generator matching
 are all **std-3**; only `markedHom` being *bijective* — i.e. the three reciprocity classes
-coordinatize `(G_ℚ₂(2))^ab`, the pro-2 local-reciprocity iso, which B5 does not pin — remains open. -/
+coordinatize `(G_ℚ₂(2))^ab`, the pro-2 local-reciprocity iso, which B5 does not pin —
+remains open. -/
 
 /-! ### Arithmetic input for `markedHom_bijective`'s surjectivity
 

@@ -228,7 +228,8 @@ theorem NA_le_ker {P : Type} [Group P] [TopologicalSpace P] [DiscreteTopology P]
     NA ≤ f.toMonoidHom.ker := by
   have hsurj : Function.Surjective f := surjective_of_map_generates f.toMonoidHom hf.1
   -- the kernel, as an open normal subgroup
-  have hker_open : IsOpen ((f.toMonoidHom.ker : Subgroup _) : Set (FreeProfiniteGroup (Fin 4))) := by
+  have hker_open :
+      IsOpen ((f.toMonoidHom.ker : Subgroup _) : Set (FreeProfiniteGroup (Fin 4))) := by
     have hset : ((f.toMonoidHom.ker : Subgroup _) : Set (FreeProfiniteGroup (Fin 4)))
         = f ⁻¹' {1} := by
       ext g; simp [MonoidHom.mem_ker]

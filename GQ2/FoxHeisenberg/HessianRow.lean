@@ -189,7 +189,8 @@ theorem heisMarking_g0_z_zero (t : Marking C) (c : V) (lam : ElemDual V) :
 
 /-- **`h₀ ↦ λ(c)`** (Lemma 5.14, the `h₀`-shadow central contribution): on the x₀-supported rep the
 central coordinate of the wild `h₀` word is `λ(c)`.  With `g₀` in the base slice, `φ = conj by g₀`
-preserves all Heisenberg coordinates, so in the class-two peel `h₀ = φ(x₀)·x₀·φ(d₀)·d₀·d₀²·[φ(d₀),d₀]`
+preserves all Heisenberg coordinates, so in the class-two peel
+`h₀ = φ(x₀)·x₀·φ(d₀)·d₀·d₀²·[φ(d₀),d₀]`
 every factor but the leading `φ(x₀)·x₀` cross-term vanishes (`d₀.a = d₀.l = 0`; the paired `z`'s
 cancel in char 2), leaving `φ(x₀).l(x₀.a) = λ(c)`. -/
 theorem heisMarking_h0_z (t : Marking C) (c : V) (lam : ElemDual V) (hV₂ : ∀ v : V, v + v = 0)
@@ -318,7 +319,8 @@ theorem heisMarking_u1_a (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDu
 Outer peel of `wildValue = h₀·u₁⁻¹·x₁^σ·c₀`: all four factors are trivially-based with vanishing
 `.a` (naturality/base-slice), so `.z` is additive, and only `h₀.z = λ(c)` survives (`u₁⁻¹, x₁^σ, c₀`
 have `.z = 0`). -/
-theorem heisMarking_wildValue_z (t : Marking C) (c : V) (lam : ElemDual V) (hV₂ : ∀ v : V, v + v = 0)
+theorem heisMarking_wildValue_z (t : Marking C) (c : V) (lam : ElemDual V)
+    (hV₂ : ∀ v : V, v + v = 0)
     (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v) (htau : ∀ v : V, t.τ • v = v)
     (hU : ∀ v : V, t.sigma2 • v = v) :
     (heisMarking t (x0Supported c) (x0Supported lam)).wildValue.z = lam c := by
@@ -517,7 +519,8 @@ theorem heisMarking_c0_z_ramified (t : Marking C) (c : V) (lam : ElemDual V)
     ElemDual.smul_apply, inv_inv]
 
 /-- **The ramified mixed pairing, wild summand**: `wildValue.z = λ((1 + U + U⁻¹)c)`.  The peel
-`wildValue = h₀·u₁⁻¹·(x₁^σ)·c₀`: `u₁⁻¹` and `x₁^σ` are pure `secHom` base elements (`a = l = z = 0`),
+`wildValue = h₀·u₁⁻¹·(x₁^σ)·c₀`: `u₁⁻¹` and `x₁^σ` are pure `secHom` base elements
+(`a = l = z = 0`),
 so right-multiplication by them preserves `.z`; only `h₀.z = λ(c)` and `c₀.z = λ(Uc) + λ(U⁻¹c)`
 survive. -/
 theorem heisMarking_wildValue_z_ramified (t : Marking C) (c : V) (lam : ElemDual V)

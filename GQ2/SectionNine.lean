@@ -178,7 +178,8 @@ theorem tame_two_nilpotent {H : Type*} [Group H] [Finite H] {s t : H}
 
 For a terminal target `1 → L_Y → Y → H → 1` (`L_Y` a scalar-stack 2-group, `H` tame hence
 2-nilpotent by `tame_two_nilpotent`), Schur–Zassenhaus inside `P = π_Y⁻¹(O²H)` produces an odd
-complement `Ñ` to `L_Y`, which the scalar-stack centralization (`scalarStack_centralized_of_coprime`)
+complement `Ñ` to `L_Y`, which the scalar-stack centralization
+(`scalarStack_centralized_of_coprime`)
 forces to be *normal in `Y`* (`Ñ` = the odd-order elements of `P`).  The output bundle — `Ñ ◁ Y`
 odd, `Y/Ñ` a 2-group, `Ñ ∩ L_Y = ⊥`, `π_Y(Ñ) = O²H`, `Ñ·L_Y = π_Y⁻¹(O²H)` — is exactly the data
 P-17b3 feeds to `coprime_fiber_product` (Lemma 9.1) for `Y ≅ H ×_{H₂} (Y/Ñ)`. -/

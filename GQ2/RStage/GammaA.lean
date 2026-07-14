@@ -374,7 +374,8 @@ theorem powOmega2_central_involution {G : Type*} [Group G] [Finite G] (s a : G)
   have hsa_dvd : orderOf (s * a) ∣ M := dvd_mul_left _ _
   have ha_dvd : orderOf a ∣ M := (dvd_mul_left (orderOf a) 2).mul_right (orderOf (s * a))
   have hs_dvd : orderOf s ∣ M :=
-    (orderOf_dvd_of_pow_eq_one hs2).trans ((dvd_mul_right 2 (orderOf a)).mul_right (orderOf (s * a)))
+    (orderOf_dvd_of_pow_eq_one hs2).trans
+      ((dvd_mul_right 2 (orderOf a)).mul_right (orderOf (s * a)))
   have hps : powOmega2 s = s := by
     have hsord : orderOf s ∣ 2 ^ 1 := by rw [pow_one]; exact orderOf_dvd_of_pow_eq_one hs2
     obtain ⟨k, _, hk⟩ := (Nat.dvd_prime_pow Nat.prime_two).mp hsord
@@ -397,7 +398,8 @@ theorem tameValue_correction (σ τ x0 x1 r0 r1 : Y')
   rw [hsq, ← mul_assoc]
   congr 1
   simp only [conjP, mul_inv_rev]
-  -- `σ⁻¹ r0⁻¹ (r1 τ) r0 σ = r1 (σ⁻¹ τ σ)`: move `r0⁻¹` right to cancel `r0` (group), swap `r1`, `σ⁻¹`.
+  -- `σ⁻¹ r0⁻¹ (r1 τ) r0 σ = r1 (σ⁻¹ τ σ)`: move `r0⁻¹` right to cancel `r0` (group), swap
+  -- `r1`, `σ⁻¹`.
   rw [mul_assoc σ⁻¹ r0⁻¹ (r1 * τ), (hr0 (r1 * τ)).inv_left.eq]
   group
   rw [(hr1 (σ ^ (-1 : ℤ))).symm.eq]

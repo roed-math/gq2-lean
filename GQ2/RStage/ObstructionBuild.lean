@@ -716,8 +716,8 @@ variable [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
 omit [ContinuousSMul Γ (ZMod 2)] in
 /-- **(136), fully discharged modulo the two irreducible concrete inputs** (`hsep_hom` + `hZcount`).
 Every abstractly-provable ingredient is proven here — the obstruction map, `hmB`, the easy `hobs`,
-the `hfib` fibre-torsor, and `hsep`'s Frattini/framing wrapper — so a caller (the concrete `𝒴`-frame,
-P-16d6) supplies only:
+the `hfib` fibre-torsor, and `hsep`'s Frattini/framing wrapper — so a caller (the concrete
+`𝒴`-frame, P-16d6) supplies only:
 
 * `hsep_hom` — the **radical-obstruction separation**: `obs g = 0 ⟹ g` has a homomorphism lift to
   `Y`.  (Not provable in the bare abstract frame — it is the `(R^∨)^C`-detection of `H²(Γ,R)`, a

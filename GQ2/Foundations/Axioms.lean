@@ -96,8 +96,8 @@ current Mathlib plus this repo's `ContCoh` cohomology:
   the Krull–Galois correspondence) — zero consumer churn (B11 precedent).
 * ~~**B13** `dyadicUnitFiltration`~~ — the dyadic unit-filtration graded structure (added by
   P-15f1, 2026-07-06; `docs/p15f1-axiom-proposal.md`).  **Discharged 2026-07-09** (B13 board
-  `docs/orchestration/b13-tickets.md`): now a same-name **`noncomputable def`** below, built std-3 from the
-  in-repo proof `dyadicUnitFiltration'` (`GQ2/UnitFiltrationCounts.lean` +
+  `docs/orchestration/b13-tickets.md`): now a same-name **`noncomputable def`** below, built std-3
+  from the in-repo proof `dyadicUnitFiltration'` (`GQ2/UnitFiltrationCounts.lean` +
   `GQ2/UnitFiltrationTop.lean`) — the uniformizer via compactness + `O/2O` pigeonhole, the
   residue field `O/𝔪`, and the two graded-piece counts as explicit isomorphisms; zero consumer
   churn (B7′/B11/B12 precedent).
@@ -105,8 +105,9 @@ current Mathlib plus this repo's `ContCoh` cohomology:
 **Citation-faithfulness classification** (adversarial review 2026-07-04,
 `docs/adversarial-axioms-review.md`; full table in `docs/review-packet.md` §2).  The leaves fall
 in four tiers by how directly the Lean statement matches a single published theorem: **direct
-classical theorem** (B1, B6, B7; B7′ until its 2026-07-09 in-repo discharge), **classical theorem + encoding choices** (B4, B5,
-B9, B10 — since the B10′ orientation), **composite/project interface** (B3c, B8, B11a, B11b — each pairs a cited theorem with
+classical theorem** (B1, B6, B7; B7′ until its 2026-07-09 in-repo discharge),
+**classical theorem + encoding choices** (B4, B5, B9, B10 — since the B10′ orientation),
+**composite/project interface** (B3c, B8, B11a, B11b — each pairs a cited theorem with
 encoding/convention inputs, flagged in its own docstring), and **available/unused** (B2 — deleted
 2026-07-09 as unused, so this tier is now empty; B12/B13 postdate the review, see
 `docs/p15f1-axiom-proposal.md` for their citation records).  The distinction keeps a
@@ -455,16 +456,17 @@ Citation, existence: **NSW [1], Ch. VII §7.5, Theorem (7.5.3) (Iwasawa)** — `
 profinite group on `σ, τ` with the single relation `στσ⁻¹ = τ^q` (`q = 2`); with
 **(7.5.2)** (split extension `1 → Ẑ^{(p′)}(1) → G(k_tr|k) → Γ → 1`) and `G(k̄|k_tr)`
 pro-`p` (Serre, *Local Fields* [7], Ch. IV).  Citation, orientation clauses:
-**Neukirch, *Algebraic Number Theory* (Grundlehren 322), Chap. V, Theorem (6.2)** (norm residue symbol maps
-`U_K^{(n)}` onto the upper-numbering ramification groups; `n = 0`: units ↦ inertia, so prime
-elements ↦ Frobenius lifts) with **Chap. V, (1.2)** / NSW [1] (7.1.2)(i) (units are norms in
-unramified extensions).  (All verified against the PDFs in `references/`; the
+**Neukirch, *Algebraic Number Theory* (Grundlehren 322), Chap. V, Theorem (6.2)** (norm residue
+symbol maps `U_K^{(n)}` onto the upper-numbering ramification groups; `n = 0`: units ↦ inertia,
+so prime elements ↦ Frobenius lifts) with **Chap. V, (1.2)** / NSW [1] (7.1.2)(i) (units are
+norms in unramified extensions).  (All verified against the PDFs in `references/`; the
 Frobenius-direction convention `σ = geometric` and the clause encoding are documented at
 `OrientedTameQuotient` in `GQ2/TameQuotient.lean`.)
 
 History: added census 10→11 as the unoriented `TameQuotientData` (P-06 escalation);
 **strengthened in place to the oriented form (census unchanged) 2026-07-06** (P-25 escalation,
-user-approved) — the orientation discharges `tame_reciprocity` (`docs/p25-tame-reciprocity-plan.md`),
+user-approved) — the orientation discharges `tame_reciprocity`
+(`docs/p25-tame-reciprocity-plan.md`),
 whose derivation from B5's `norm_reciprocity` alone is blocked by the absence of local
 ramification theory for `Field.absoluteGaloisGroup` in Mathlib.  Paper: Prop. 3.2 local side +
 Prop. 3.14 / Cor. 3.12 (the "same natural unramified character").

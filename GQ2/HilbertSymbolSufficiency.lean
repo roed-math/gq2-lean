@@ -13,7 +13,8 @@ the `u ≡ 1 (mod 8)` freebie family.
 * `hilbertSymbol_eq_one_of_value` — if `a·x² + b·y²` equals a 2-adic integer `≡ 1 (mod 8)` (hence
   a square `t²` by `DyadicSquares.isSquare_of_toZModPow_eq_one`, `t ≠ 0`), then `(x, y, t)` is a
   nontrivial zero, so `(a, b)₂ = 1`.
-* seven witness leaves (`hilbertSymbol_uu_*` for unit·unit `{3,5},{5,5},{5,7}`, `hilbertSymbol_u2v_*`
+* seven witness leaves (`hilbertSymbol_uu_*` for unit·unit `{3,5},{5,5},{5,7}`,
+  `hilbertSymbol_u2v_*`
   for `(u, 2v)` `{3,3},{3,7},{7,1},{7,5}`), each `refine`-ing the glue at the witness/value from
   plan §1;
 * `hilbertSymbol_left_one` — `u ≡ 1 (mod 8) ⟹ (u, b)₂ = 1` for any `b`, via

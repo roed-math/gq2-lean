@@ -6,13 +6,13 @@ import GQ2.MaxProP
 # B4: the rank-3 dyadic Demushkin presentation `D₀ = ⟨A, S, Y | A²S⁴[S,Y]⟩`  (ticket T-08)
 
 The paper's Prop. 1.1 / Lemma 3.4 normalizes the maximal pro-2 quotient `G_{ℚ₂}(2)` as the
-**Demushkin group** `D₀ = ⟨A, S, Y | A²S⁴[S,Y] = 1⟩` (Labute's classification at `d = 1`).  This file
-constructs `D₀` as a `GQ2.profinitePresentation` and provides the relator; the actual isomorphism
-`G_{ℚ₂}(2) ≅ D₀` is axiom **B4** in `GQ2/Foundations/Axioms.lean`.
+**Demushkin group** `D₀ = ⟨A, S, Y | A²S⁴[S,Y] = 1⟩` (Labute's classification at `d = 1`).  This
+file constructs `D₀` as a `GQ2.profinitePresentation` and provides the relator; the actual
+isomorphism `G_{ℚ₂}(2) ≅ D₀` is axiom **B4** in `GQ2/Foundations/Axioms.lean`.
 
-* `GQ2.d0Relator : FreeProfiniteGroup (Fin 3)` — the relator `A²S⁴[S,Y]` with `A = of 0`, `S = of 1`,
-  `Y = of 2`, commutator `[S,Y] = S⁻¹Y⁻¹SY` (the paper's `commP`, `GQ2/Words.lean`).  It is
-  `ω₂`-free, hence a bare word in the free profinite group on three generators.
+* `GQ2.d0Relator : FreeProfiniteGroup (Fin 3)` — the relator `A²S⁴[S,Y]` with `A = of 0`,
+  `S = of 1`, `Y = of 2`, commutator `[S,Y] = S⁻¹Y⁻¹SY` (the paper's `commP`, `GQ2/Words.lean`).
+  It is `ω₂`-free, hence a bare word in the free profinite group on three generators.
 * `GQ2.D0 : ProfiniteGrp` — the presented group `profinitePresentation {d0Relator}`.
 
 Stress test (`homEquiv` + a `decide`-able finite 2-group): the concrete marking
@@ -56,11 +56,14 @@ theorem d0Relator_quotientMk_eq_one :
 /-! ### The marked generators  (T-11 input) -/
 
 /-- The generator `A` in the full presentation `D0Full` (image of `of 0`). -/
-noncomputable def d0FullA : D0Full := quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 0)
+noncomputable def d0FullA : D0Full :=
+  quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 0)
 /-- The generator `S` in the full presentation `D0Full` (image of `of 1`). -/
-noncomputable def d0FullS : D0Full := quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 1)
+noncomputable def d0FullS : D0Full :=
+  quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 1)
 /-- The generator `Y` in the full presentation `D0Full` (image of `of 2`). -/
-noncomputable def d0FullY : D0Full := quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 2)
+noncomputable def d0FullY : D0Full :=
+  quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 2)
 
 /-- The Demushkin relation `A²S⁴[S,Y] = 1` already in the full presentation `D0Full`. -/
 theorem d0Full_relation : d0FullA ^ 2 * d0FullS ^ 4 * commP d0FullS d0FullY = 1 := by

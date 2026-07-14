@@ -34,7 +34,8 @@ theorem exists_nonzero_varCoc_gammaA (D : RadicalCoverData Bg) (S : TComplement 
     DistribMulAction.compHom (Additive ↥D.T) ρ.toMonoidHom
   have hcompat : ∀ (γ : GA) (a : Additive ↥D.T), γ • a = ρ γ • a := fun _ _ => rfl
   have hactGA : ∀ (γ : GA) (s : Additive ↥D.T),
-      Additive.toMul (γ • s) = cactFun D (ρ γ) (Additive.toMul s) := fun γ s => cActT_toMul D (ρ γ) s
+      Additive.toMul (γ • s) = cactFun D (ρ γ) (Additive.toMul s) :=
+    fun γ s => cActT_toMul D (ρ γ) s
   haveI : ContinuousSMul GA (Additive ↥D.T) := by
     constructor
     have hfac : (fun p : GA × Additive ↥D.T => p.1 • p.2)

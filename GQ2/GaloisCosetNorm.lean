@@ -126,7 +126,8 @@ theorem relE_spec (FF : DyadicUnitFiltration F) (FL : DyadicUnitFiltration L) (h
   (norm_eq_zpow FL (hFL FF.hπ_mem) FF.hπ_ne).choose_spec
 
 /-- **Tower multiplicativity of the absolute ramification index**: `e_L = e(L/F) · e_F` (both
-uniformizers meet `‖2‖ = ‖π‖^e`, and `‖π_F‖ = ‖π_L‖^{e(L/F)}`; zpow-injectivity on `‖π_L‖ ∈ (0,1)`). -/
+uniformizers meet `‖2‖ = ‖π‖^e`, and `‖π_F‖ = ‖π_L‖^{e(L/F)}`; zpow-injectivity on
+`‖π_L‖ ∈ (0,1)`). -/
 theorem e_eq_relE_mul (FF : DyadicUnitFiltration F) (FL : DyadicUnitFiltration L) (hFL : F ≤ L) :
     (FL.e : ℤ) = relE FF FL hFL * FF.e := by
   have hEq : ‖FL.π‖ ^ (FL.e : ℤ) = ‖FL.π‖ ^ (relE FF FL hFL * FF.e) := by

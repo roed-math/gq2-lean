@@ -80,7 +80,8 @@ private theorem index_extendScalars_fixingSubgroup (k L : IntermediateField ℚ_
       fun h y hy ↦ h y ((IntermediateField.mem_extendScalars hkL).mpr hy)⟩
   rw [← hmap, Subgroup.index_map_of_bijective (fixingSubgroupEquiv k).bijective]
 
-/-- **The fixing-index-2 → degree-2 bridge**: a fixing-index-2 subextension has relative degree 2. -/
+/-- **The fixing-index-2 → degree-2 bridge**: a fixing-index-2 subextension has relative
+degree 2. -/
 private theorem finrank_extendScalars_eq_two (k L : IntermediateField ℚ_[2] ℚ̄₂)
     [FiniteDimensional ℚ_[2] L] (hkL : k ≤ L)
     (hindex : (L.fixingSubgroup.subgroupOf k.fixingSubgroup).index = 2) :
@@ -128,7 +129,8 @@ theorem exists_quadratic_of_open_index_two
   -- Push `H` forward into the ambient Galois group; it lands inside `k.fixingSubgroup`.
   set H' := H.map k.fixingSubgroup.subtype with hH'
   have hH'leK : H' ≤ k.fixingSubgroup := Subgroup.map_subtype_le H
-  -- `H'` is open (image of an open set under the open map `Subtype.val` of the open `k.fixingSubgroup`).
+  -- `H'` is open (image of an open set under the open map `Subtype.val` of the open
+  -- `k.fixingSubgroup`).
   have hKopen : IsOpen (↑(k.fixingSubgroup) : Set (ℚ̄₂ ≃ₐ[ℚ_[2]] ℚ̄₂)) := fixingSubgroup_isOpen k
   have hH'open : IsOpen (↑H' : Set (ℚ̄₂ ≃ₐ[ℚ_[2]] ℚ̄₂)) := by
     rw [hH', Subgroup.coe_map, Subgroup.coe_subtype]

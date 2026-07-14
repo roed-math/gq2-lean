@@ -341,7 +341,8 @@ theorem sigma2_pairing_operator_injective (t : Marking C) (hV₂ : ∀ v : V, v 
   exact sub_eq_zero.mp (hker _ hd)
 
 omit [Finite C] in
-/-- **P-13d output `hVS`**: on a nontrivial simple char-2 module at a *generating* split-tame marking
+/-- **P-13d output `hVS`**: on a nontrivial simple char-2 module at a *generating* split-tame
+marking
 where `σ` acts nontrivially, `V^S = 0` (the `1 + S⁻¹`-invertibility feeding `lemma_5_13_split`).
 `V^σ` is a `C`-submodule (`σ` central), so `⊥` or `⊤`; the nontriviality `hσ` kills `⊤`. -/
 theorem fixedPoints_sigma_eq_zero (t : Marking C) (hgen : t.Generates)

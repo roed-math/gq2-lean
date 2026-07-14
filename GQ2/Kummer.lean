@@ -17,8 +17,9 @@ homomorphism of the Kummer short exact sequence `1 → μ₂ → k̄ˣ →^{(·)
 Neukirch–Schmidt–Wingberg, *Cohomology of Number Fields* (Kummer theory `H¹(k, μ_n) ≅ kˣ/(kˣ)ⁿ`).
 
 The Galois group is Mathlib's `Field.absoluteGaloisGroup k = k̄ ≃ₐ[k] k̄` (the genuine `Gal(k̄/k)`,
-`k̄ = AlgebraicClosure k`); we spell it out as `GaloisGroup k` (a reducible abbreviation, so that the
-`MulAction` on `k̄` and the Krull topology are found by instance search).  For `k = ℚ₂` this is the
+`k̄ = AlgebraicClosure k`); we spell it out as `GaloisGroup k` (a reducible abbreviation, so that
+the `MulAction` on `k̄` and the Krull topology are found by instance search).  For `k = ℚ₂` this is
+the
 project's `AbsGalQ2` **by definition** (`example`s at the end certify this).
 
 ## Conventions (review targets)
@@ -84,7 +85,8 @@ omit [CharZero K] in
 /-- A square root of a **unit** is not its own negative (characteristic `≠ 2`). -/
 lemma alpha_ne_neg {a : Kˣ} (hα : α ^ 2 = algebraMap K (AlgebraicClosure K) (a : K)) : α ≠ -α := by
   have hα0 : α ≠ 0 := fun h0 =>
-    a.ne_zero <| (FaithfulSMul.algebraMap_eq_zero_iff K (AlgebraicClosure K)).1 (by rw [← hα, h0]; ring)
+    a.ne_zero <| (FaithfulSMul.algebraMap_eq_zero_iff K (AlgebraicClosure K)).1
+      (by rw [← hα, h0]; ring)
   intro h
   have h2 : (2 : AlgebraicClosure K) * α = 0 := by linear_combination h
   rcases mul_eq_zero.1 h2 with h' | h'
@@ -119,7 +121,8 @@ omit [CharZero K] in
 /-- `{g | g • α = α}` is (cl)open: it is the stabilizer of `α`, open in the Krull topology because
 `k̄/k` is algebraic (`stabilizer_isOpen_of_isIntegral`). -/
 lemma stab_isClopen (α : AlgebraicClosure K) : IsClopen {g : GaloisGroup K | g • α = α} := by
-  have heq : {g : GaloisGroup K | g • α = α} = (MulAction.stabilizer (GaloisGroup K) α : Set _) := by
+  have heq : {g : GaloisGroup K | g • α = α}
+      = (MulAction.stabilizer (GaloisGroup K) α : Set _) := by
     ext g; exact (MulAction.mem_stabilizer_iff).symm
   rw [heq]
   refine ⟨?_, stabilizer_isOpen_of_isIntegral (K := K) α⟩

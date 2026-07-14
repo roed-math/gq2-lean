@@ -105,7 +105,8 @@ theorem e_mul_val_norm (F : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimension
             rw [← zpow_mul, ← zpow_mul, mul_comm]
       _ = ((2 : ℝ) ^ (-1 : ℤ)) ^ ((Module.finrank ℚ_[2] F : ℤ) * m) := by rw [hBe]
       _ = (2 : ℝ) ^ (-((Module.finrank ℚ_[2] F : ℤ) * m)) := by rw [← zpow_mul]; ring_nf
-  have hinj := zpow_right_injective₀ (by norm_num : (0 : ℝ) < 2) (by norm_num : (2 : ℝ) ≠ 1) hcombine
+  have hinj :=
+    zpow_right_injective₀ (by norm_num : (0 : ℝ) < 2) (by norm_num : (2 : ℝ) ≠ 1) hcombine
   linarith [hinj]
 
 /-! ## The `v₂`-calculus on `ℚ₂ˣ` and the uniformizer-unit decomposition -/

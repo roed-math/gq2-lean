@@ -39,8 +39,10 @@ section Probes
 -- instance-resolution probes for the subgroup `G := ↥(ker ρ)` (empirical: these gate the
 -- `tateDualityAt` application)
 noncomputable example : IsTopologicalGroup ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) := inferInstance
-noncomputable example : DistribMulAction ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2) := inferInstance
-noncomputable example : ContinuousSMul ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2) := inferInstance
+noncomputable example : DistribMulAction ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2) :=
+  inferInstance
+noncomputable example : ContinuousSMul ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (MuN 2) :=
+  inferInstance
 example (g : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) (x : MuN 2) :
     g • x = (g : AbsGalQ2) • x := rfl
 
@@ -100,7 +102,8 @@ noncomputable def zmodMuDualEquiv : ZMod 2 ≃+ MuDual 2 (ZMod 2) where
   map_add' a b := by
     refine MuDual.ext 2 (ZMod 2) (fun m => ?_)
     show LocalLiftingDuality.muNTwoEquiv.symm ((a + b) * m)
-      = (LocalLiftingDuality.muNTwoEquiv.symm (a * m) + LocalLiftingDuality.muNTwoEquiv.symm (b * m))
+      = (LocalLiftingDuality.muNTwoEquiv.symm (a * m)
+        + LocalLiftingDuality.muNTwoEquiv.symm (b * m))
     rw [add_mul, map_add]
 
 /-- Equivariance of the coefficient bridge (both sides carry trivial `↥(ker ρ)`-actions:

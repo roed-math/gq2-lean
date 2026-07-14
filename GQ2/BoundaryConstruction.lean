@@ -372,7 +372,8 @@ theorem psiBase_piRelator : psiBase.hom.toMonoidHom piRelator = 1 := by
 /-- The lift through the presentation `Π(pre) → Γ_A(2)`. -/
 noncomputable def psiPres :
     ContinuousMonoidHom (profinitePresentation {piRelator}) (maxProPQuotient 2 GammaA) :=
-  presentationLift {piRelator} psiBase.hom fun r hr => by rcases hr with rfl; exact psiBase_piRelator
+  presentationLift {piRelator} psiBase.hom fun r hr => by
+    rcases hr with rfl; exact psiBase_piRelator
 
 /-- The backward map `Ψ : Π → Γ_A(2)` (through the max pro-`2` universal property). -/
 noncomputable def PsiMax : ContinuousMonoidHom PiBd (maxProPQuotient 2 GammaA) :=

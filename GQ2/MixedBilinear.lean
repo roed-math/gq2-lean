@@ -4,11 +4,11 @@ import GQ2.FoxHeisenberg
 # Bilinearity of the traced mixed coordinate `mixedB`
 
 The degree-one pairing `mixedB t x y = (heisMarking t x y).tameValue.z + (…).wildValue.z` is
-**bilinear** in the offsets `(x, y)`.  Via `bridge_tame`/`bridge_wild` this reduces to bilinearity of
-`(stokesEval c x y r).z` for an arbitrary free-group word `r`, which is an induction on `r` using the
-`HeisLift` coordinate cocycle rules: the `.a`-coordinate depends only on `x`, the `.l`-coordinate only
-on `y`, the `.g`-coordinate on neither, and the `.z`-coordinate is the bilinear cross-term
-`Σ λ_left(a_right)`.
+**bilinear** in the offsets `(x, y)`.  Via `bridge_tame`/`bridge_wild` this reduces to bilinearity
+of `(stokesEval c x y r).z` for an arbitrary free-group word `r`, which is an induction on `r`
+using the `HeisLift` coordinate cocycle rules: the `.a`-coordinate depends only on `x`, the
+`.l`-coordinate only on `y`, the `.g`-coordinate on neither, and the `.z`-coordinate is the
+bilinear cross-term `Σ λ_left(a_right)`.
 
 This is the general-offset toolkit consumed by the trivial-module Gram matrix (P-13f part i) and the
 ramified mixed Hessian (P-13c).
@@ -121,9 +121,9 @@ theorem mixedB_add_right [Finite A] [Finite C] (t : Marking C) (x : Fin 4 → A)
 /-! ## The tame `.z` in closed form (trivial action)
 
 For a trivial `C`-action, `fgTame = g₀⁻¹ g₁ g₀ g₁⁻²` evaluates (untwisted Heisenberg) to the
-bilinear form below.  Crucially every term carries an index-`1` (`τ`) factor, so it **vanishes on the
-split cocycles** `{x₁ = 0}` — i.e. the trivial-module degree-one pairing is carried entirely by the
-wild relator, not the tame one. -/
+bilinear form below.  Crucially every term carries an index-`1` (`τ`) factor, so it **vanishes on
+the split cocycles** `{x₁ = 0}` — i.e. the trivial-module degree-one pairing is carried entirely
+by the wild relator, not the tame one. -/
 theorem stokesEval_tame_z_trivial (htriv : ∀ (g : C) (a : A), g • a = a) (c : Fin 4 → C)
     (x : Fin 4 → A) (y : Fin 4 → ElemDual A) :
     (stokesEval c x y fgTame).z = y 1 (x 0) - y 0 (x 1) + y 1 (x 1) := by
@@ -204,9 +204,9 @@ theorem heisMarking_c0_z_cocycle {C : Type*} [Group C] [Finite C] {V : Type*} [A
   rwa [hd0l, ElemDual.zero_apply, hd0a, map_zero, add_zero] at h
 
 /-- **Wild `.z`, piece 3: `h₀ ↦ y₂(x₂)` on cocycles** — the main term, giving the `(2,2)` Gram
-entry.  Mirrors `heisMarking_h0_z` (the x₀-supported `↦ λ(c)`) with `x₁=y₁=0` in place of x₀-support:
-the `d₀`-derived leaf coords still vanish (`liftMarking_d0_u = x₁ = 0`), the `ω₂` in `d₀.z` cancels
-via the `dg·d₀` pair in char 2, and `g₀ = σ₂²` is `a=l`-slice (char-2 doubling) so
+entry.  Mirrors `heisMarking_h0_z` (the x₀-supported `↦ λ(c)`) with `x₁=y₁=0` in place of
+x₀-support: the `d₀`-derived leaf coords still vanish (`liftMarking_d0_u = x₁ = 0`), the `ω₂` in
+`d₀.z` cancels via the `dg·d₀` pair in char 2, and `g₀ = σ₂²` is `a=l`-slice (char-2 doubling) so
 `conjP_z_of_alzero` handles its nonzero `.z`. -/
 theorem heisMarking_h0_z_cocycle {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V]
     [DistribMulAction C V] [Finite V] (htriv : ∀ (g : C) (a : V), g • a = a)
@@ -278,22 +278,25 @@ theorem heisMarking_h0_z_cocycle {C : Type*} [Group C] [Finite C] {V : Type*} [A
   rw [HeisLift.mul_z_of_trivial _ _ hQ4g, e4, hhcz, hhca, map_zero, add_zero, add_zero]
 
 /-- **Wild `.z` assembly on cocycles**: peeling `wildValue = h₀·u₁⁻¹·(x₁^σ)·c₀` keeps the sum of the
-four factor `.z`'s plus one cross-term.  The `u₁.l`-terms — from `inv_z` (`u₁⁻¹.z = u₁.z + u₁.l(u₁.a)`)
-and from the `(x₁^σ)`-cross (`(h₀u₁⁻¹).l = −u₁.l`) — **cancel** because `u₁.a = (x₁^σ).a = x₃` (both
+four factor `.z`'s plus one cross-term.  The `u₁.l`-terms — from `inv_z`
+(`u₁⁻¹.z = u₁.z + u₁.l(u₁.a)`) and from the `(x₁^σ)`-cross (`(h₀u₁⁻¹).l = −u₁.l`) — **cancel**
+because `u₁.a = (x₁^σ).a = x₃` (both
 are the same primal Fox derivative), leaving the opaque `u₁.z` (the ω₂ scalar) confined to the
 `(3,3)` slot. -/
 theorem heisMarking_wildValue_z_cocycle {C : Type*} [Group C] [Finite C] {V : Type*}
     [AddCommGroup V] [DistribMulAction C V] [Finite V] (htriv : ∀ (g : C) (a : V), g • a = a)
     (hV₂ : ∀ v : V, v + v = 0) (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
     (hx1 : x 1 = 0) (hy1 : y 1 = 0) :
-    (heisMarking t x y).wildValue.z = y 2 (x 2) + y 3 (x 0) - y 0 (x 3) + (heisMarking t x y).u1.z := by
+    (heisMarking t x y).wildValue.z
+      = y 2 (x 2) + y 3 (x 0) - y 0 (x 3) + (heisMarking t x y).u1.z := by
   have hx0 : ∀ v : V, t.x₀ • v = v := fun v => htriv t.x₀ v
   have hx1act : ∀ v : V, t.x₁ • v = v := fun v => htriv t.x₁ v
   have htau : ∀ v : V, t.τ • v = v := fun v => htriv t.τ v
   have hU : ∀ v : V, t.sigma2 • v = v := fun v => htriv t.sigma2 v
   have hx0d : ∀ l : ElemDual V, t.x₀ • l = l := fun l => HeisLift.smul_elemdual_trivial t.x₀ hx0 l
   have htaud : ∀ l : ElemDual V, t.τ • l = l := fun l => HeisLift.smul_elemdual_trivial t.τ htau l
-  have hUd : ∀ l : ElemDual V, t.sigma2 • l = l := fun l => HeisLift.smul_elemdual_trivial t.sigma2 hU l
+  have hUd : ∀ l : ElemDual V, t.sigma2 • l = l := fun l =>
+    HeisLift.smul_elemdual_trivial t.sigma2 hU l
   have hV₂d : ∀ l : ElemDual V, l + l = 0 := fun l => l.add_self_eq_zero
   set M := heisMarking t x y with hM
   have hh0g : ∀ v : V, M.h0.g • v = v := heisMarking_h0_g_smul t x y hx0 htau hU
@@ -331,9 +334,10 @@ theorem heisMarking_wildValue_z_cocycle {C : Type*} [Group C] [Finite C] {V : Ty
   simp only [ElemDual.neg_apply]
   abel
 
-/-- **The trivial-module degree-one pairing on cocycles**: `mixedB t x y = y₂(x₂) + y₃(x₀) − y₀(x₃) +
-u₁.z`, the tame part vanishing (`stokesEval_tame_z_trivial_cocycle`) and the wild part from the peel.
-The opaque `u₁.z` is the ω₂ scalar, confined to the `(3,3)` slot. -/
+/-- **The trivial-module degree-one pairing on cocycles**:
+`mixedB t x y = y₂(x₂) + y₃(x₀) − y₀(x₃) + u₁.z`, the tame part vanishing
+(`stokesEval_tame_z_trivial_cocycle`) and the wild part from the peel.  The opaque `u₁.z` is the
+ω₂ scalar, confined to the `(3,3)` slot. -/
 theorem mixedB_cocycle {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V]
     [DistribMulAction C V] [Finite V] (htriv : ∀ (g : C) (a : V), g • a = a)
     (hV₂ : ∀ v : V, v + v = 0) (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)

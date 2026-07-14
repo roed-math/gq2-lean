@@ -70,7 +70,8 @@ into a Hausdorff monoid is determined by its value at `ofAdd 1`.  This single le
 the algebraic laws of `zpowZtwo` below. -/
 
 /-- Two continuous monoid homs `Multiplicative ℤ₂ →* M` (`M` Hausdorff) agreeing at `ofAdd 1`
-are equal.  (Via `DenseRange.addChar_eq_of_eval_one_eq` and `AddChar ℤ₂ M ≃ (Multiplicative ℤ₂ →* M)`.) -/
+are equal.  (Via `DenseRange.addChar_eq_of_eval_one_eq` and
+`AddChar ℤ₂ M ≃ (Multiplicative ℤ₂ →* M)`.) -/
 lemma multPadicIntHom_ext {M : Type*} [Monoid M] [TopologicalSpace M] [T2Space M]
     {f g : Multiplicative ℤ_[2] →* M} (hf : Continuous f) (hg : Continuous g)
     (h : f (ofAdd (1 : ℤ_[2])) = g (ofAdd (1 : ℤ_[2]))) : f = g := by

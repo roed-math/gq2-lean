@@ -195,7 +195,8 @@ theorem posSwap_posSwap (p : Fin K × Fin K × Γ) : posSwap (posSwap p) = p := 
   rw [inv_inv]
 
 /-- A **free position**: distinct blocks, or same-block relative position of order `> 2`.
-(The complements are the diagonal `(j,j,1)` and the involution positions `(j,j,u)`, `u² = 1 ≠ u`.) -/
+(The complements are the diagonal `(j,j,1)` and the involution positions `(j,j,u)`,
+`u² = 1 ≠ u`.) -/
 def IsFreePos (p : Fin K × Fin K × Γ) : Prop :=
   p.1 ≠ p.2.1 ∨ p.2.2 * p.2.2 ≠ 1
 
@@ -589,7 +590,8 @@ theorem invBlockDatum_f_blockBas (j : Fin K) (u : G ⧸ N)
   rw [finsum_congr hterm,
     finsum_eq_single _ ((x : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers u)
       (fun w hw => if_neg fun hc => hw (by rw [← Quotient.out_eq w, hc.1.2]))]
-  exact if_congr ⟨fun ⟨⟨hj, hout⟩, hj', houty⟩ => ⟨hj.symm, hj'.symm, hout, by rw [← hout]; exact houty⟩,
+  exact if_congr ⟨fun ⟨⟨hj, hout⟩, hj', houty⟩ =>
+    ⟨hj.symm, hj'.symm, hout, by rw [← hout]; exact houty⟩,
     fun ⟨hm, hm', hout, hxy⟩ => ⟨⟨hm.symm, hout⟩, hm'.symm, by rw [hout]; exact hxy⟩⟩ rfl rfl
 
 /-- The involution summand's polar at basis vectors: the `u`-pairing indicator on block `j`
@@ -922,7 +924,8 @@ private theorem sum_polar_freeBlockMap_blockBas (Q : (Fin K → RegRep N) → ZM
 
 omit [Finite (G ⧸ N)] in
 /-- Free-position reconstruction: on a free position `(a, b, u)` the summed orbit indicators
-recover `blockPolar Q` (the involution part vanishes; the free part is the oriented representative). -/
+recover `blockPolar Q` (the involution part vanishes; the free part is the oriented
+representative). -/
 private theorem orbit_indicator_eq_blockPolar_free {Q : (Fin K → RegRep N) → ZMod 2}
     (hinv : IsInvariant (G ⧸ N) Q) (a b : Fin K) {u : G ⧸ N}
     (hfree : IsFreePos ((a, b, u) : Fin K × Fin K × (G ⧸ N))) :

@@ -9,8 +9,8 @@ The paper's Lemma 3.5 evaluates the cup product
 the axiom **B7′**.
 
 * `GQ2.HilbertSymbol.IsHilbertSolvable a b` — the ternary form `a X² + b Y² - Z²` has a nontrivial
-  `ℚ₂`-zero.  `hilbertSymbol a b : ℤˣ` (`= {±1}`) is `1` on this locus, `-1` off it.  Defined with no
-  cohomology, so the elementary identities below are *theorems*.
+  `ℚ₂`-zero.  `hilbertSymbol a b : ℤˣ` (`= {±1}`) is `1` on this locus, `-1` off it.  Defined
+  with no cohomology, so the elementary identities below are *theorems*.
 * `GQ2.HilbertSymbol.ε`, `GQ2.HilbertSymbol.ω : ℤ₂ˣ → 𝔽₂` — Serre's residue characters
   `ε(u) ≡ (u-1)/2`, `ω(u) ≡ (u²-1)/8 (mod 2)` (*A Course in Arithmetic*, Ch. II §3.3), computed
   through the reduction `ℤ₂ → ℤ/8`.  Both are homomorphisms on units (`ε_mul`, `ω_mul`).
@@ -22,7 +22,8 @@ the ε/ω residue tables and their values on the unit `-1`; and (as a consequenc
 square-class-basis value `(-1,-1)₂ = -1`, the nontrivial diagonal entry of the paper's initial cup
 form `α² + βγ + γβ`.
 
-Conventions: `ℚ_[2] = Padic 2`, `ℤ_[2] = PadicInt 2`, `𝔽₂ = ZMod 2`; the symbol is `ℤˣ = {±1}`-valued
+Conventions: `ℚ_[2] = Padic 2`, `ℤ_[2] = PadicInt 2`, `𝔽₂ = ZMod 2`; the symbol is
+`ℤˣ = {±1}`-valued
 via `signOf : 𝔽₂ → ℤˣ`, `0 ↦ 1`, `1 ↦ -1`.
 
 The axiom is `[Classical.]` (a theorem of Mathlib-in-principle; axiomatized here at step 1). Per the
@@ -36,7 +37,8 @@ open scoped Classical
 /-! ## The Hilbert symbol via solvability of `z² = a x² + b y²` -/
 
 /-- `IsHilbertSolvable a b`: the ternary quadratic form `a X² + b Y² - Z²` has a nontrivial zero
-over `ℚ₂`, i.e. the Hilbert symbol `(a, b)₂` is `+1`.  (Serre, *A Course in Arithmetic*, III §1.1.) -/
+over `ℚ₂`, i.e. the Hilbert symbol `(a, b)₂` is `+1`.
+(Serre, *A Course in Arithmetic*, III §1.1.) -/
 def IsHilbertSolvable (a b : ℚ_[2]) : Prop :=
   ∃ x y z : ℚ_[2], (x ≠ 0 ∨ y ≠ 0 ∨ z ≠ 0) ∧ a * x ^ 2 + b * y ^ 2 = z ^ 2
 

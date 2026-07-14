@@ -40,8 +40,9 @@ omit [TopologicalSpace Y] [DiscreteTopology Y] in
 `ContSurj` (`ρ.1.2 : Surjective ρ.1.1`), and `piBCiso.symm` is a `MulEquiv`, so the composite is
 onto `B/M`.  Feeds `lemma_8_6_local`'s surjectivity hypothesis. -/
 theorem rhoPrime_surjective {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
-    (RF : RecursionFrame T Blk) (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
-    (D : RadicalCoverData RF.YB) (hD : D.M = RF.MB) (ρ : BoundaryLifts b F RF.TC) :
+    (RF : RecursionFrame T Blk) (b : ContinuousMonoidHom Γ ↥boundarySubgroup)
+    (F : BoundaryFrame H E) (D : RadicalCoverData RF.YB) (hD : D.M = RF.MB)
+    (ρ : BoundaryLifts b F RF.TC) :
     Function.Surjective (RF.rhoPrime b F D hD ρ) := fun y => by
   obtain ⟨γ, hγ⟩ := ρ.1.2 (RF.piBCiso D hD y)
   exact ⟨γ, by rw [RF.rhoPrime_apply, hγ, MulEquiv.symm_apply_apply]⟩
@@ -242,7 +243,8 @@ theorem hlem86M_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
 omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **`hMcountM` for `G_ℚ₂`** — the unrestricted `M`-lift count `#(M-lifts) = |M_B|²`.  **PROVED.**
 
-Fully proved inline (no sorry): `key : #Z¹ = |M_B|²·#fixedPts` (`card_Z1_eq`), `hfix : #fixedPts = 1`
+Fully proved inline (no sorry): `key : #Z¹ = |M_B|²·#fixedPts` (`card_Z1_eq`),
+`hfix : #fixedPts = 1`
 (the `lemma_7_1_dual` bridge — a nonzero `YC`-invariant functional's kernel gives a `Y`-normal
 index-2 `X` with `Blk.frattiniK ≤ X ≤ Blk.K`, refuted by `lemma_7_1_dual`), the explicit bijection
 `MLifts D ρ' ≃ Z¹_cont(G_ℚ₂, M_B)` (`f ↦ (γ ↦ f γ · f₀ γ⁻¹)`, a `Z¹`-torsor under the ρ'-conjugation
@@ -270,7 +272,8 @@ by the concurrent P-16d6b (`PhaseMuIndep.tcocycle_mu_indep`'s `hML`/`κM`).  The
    surjectivity (`rhoPrime_surjective`), `hcomp` from step 1, `hA₂` from `RF.MB_elem`.
 4. **`#fixedPts RF.YC (ElemDual MBmod) = 1`** — i.e. `H²(AbsGalQ2, M_B) = 0`
    (`card_H2_eq_fixedPts`, B6), i.e. `(M_B^∨)^{YC} = 0`.  **The group theory is already proved:**
-   this is `GQ2.SectionSeven.lemma_7_1_dual` (`GQ2/SectionSeven/Basic.lean`, std-3, no sorry) — "`K` has no
+   this is `GQ2.SectionSeven.lemma_7_1_dual` (`GQ2/SectionSeven/Basic.lean`, std-3, no sorry) —
+   "`K` has no
    `Y`-normal subgroup of index 2 above `R`" = `(M^∨)^C = 0`, via minimality of `K` + the `V = P/S`
    chief dichotomy.  Only a bridge (a nonzero `YC`-invariant functional's kernel ↦ an index-2
    `Y`-normal `X` with `Blk.frattiniK ≤ X ≤ Blk.K`, refuted by `lemma_7_1_dual`) remains — no

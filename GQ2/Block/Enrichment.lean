@@ -315,13 +315,15 @@ noncomputable def blockEnrichment (F : BoundaryFrame H E) : (blockFrame T Blk hE
       descend_ker := blockDescend_ker Blk
       descend_conj := fun bb m hm =>
         (congrArg Multiplicative.ofAdd (blockDescend_conj Blk bb m hm)).symm
-      qbar := fun l h => blockQbar T Blk F.alpha F.alpha_surjective l (fun heq => h (Subtype.ext heq))
+      qbar := fun l h =>
+        blockQbar T Blk F.alpha F.alpha_surjective l (fun heq => h (Subtype.ext heq))
       hqbar := fun l h =>
         blockHqbar T Blk F.alpha F.alpha_surjective l (fun heq => h (Subtype.ext heq))
       hquad := fun l h =>
         blockHquad T Blk F.alpha F.alpha_surjective l (fun heq => h (Subtype.ext heq))
       hns := fun l h => blockHns T Blk F.alpha F.alpha_surjective l (fun heq => h (Subtype.ext heq))
-      hinv := fun l h => blockHinv T Blk F.alpha F.alpha_surjective l (fun heq => h (Subtype.ext heq))
+      hinv := fun l h =>
+        blockHinv T Blk F.alpha F.alpha_surjective l (fun heq => h (Subtype.ext heq))
       dat := fun l h => (blockKappa0 T Blk F l (fun heq => h (Subtype.ext heq))).choose
       hdat := fun l h => (blockKappa0 T Blk F l (fun heq => h (Subtype.ext heq))).choose_spec }
 
