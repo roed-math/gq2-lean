@@ -5,17 +5,16 @@ version: "v0.3"
 project:
   name: "gq2-lean"
   authors:
-    - "David Roe (orchestration, review, direction)"
-    - "Claude (Anthropic) agent swarm (Claude Opus 4.8, Claude Fable 5)"
+    - "David Roe"
   license: "Apache-2.0"
 
 sources:
-  - title: "A Profinite Presentation of the Absolute Galois Group of Q_2"
-    authors: ["D. C. Turturean"]
+  - title: "A Presentation of the Absolute Galois Group of Q_2"
+    authors: ["David Turturean"]
     id: "unpublished (June 2026); local copy at paper/A_Profinite_Presentation_for_G__Q_2.pdf"
     type: "machine-generated preprint (GPT)"
     license: ""
-    author_contacted: "n/a"
+    author_contacted: "yes"
     prior_work: ""
 
 status:
@@ -80,24 +79,6 @@ status:
           source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
         - statement: "Hilbert-symbol norm criterion for finite dyadic extensions (B11a)"
           source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
-    - declaration: "GQ2.SectionTen.main_surjection_count'"
-      file: "GQ2/SectionTenSources.lean"
-      sorry_count: 0
-      axioms:                  # verified via #print axioms: same set as the literal form
-        - "propext"
-        - "Classical.choice"
-        - "Quot.sound"
-        - "GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated"
-        - "GQ2.Foundations.absGalQ2_localEulerCharacteristic"
-        - "GQ2.dyadicOrientation"
-        - "GQ2.localReciprocity"
-        - "GQ2.tateDualityAt"
-        - "GQ2.peripheralCyclotomicAction"
-        - "GQ2.evensKahn_dyadic"
-        - "GQ2.tameQuotient"
-        - "GQ2.hilbertSymbol_normCriterion_finiteDyadic"
-      comparator_config: ""
-      literature_dependencies: []
 
 automation:
   methods:
@@ -113,17 +94,17 @@ automation:
         enforced the frozen axiom census, zero sorries, and no native_decide on every
         wave. A post-completion 34-wave cleanup marathon (mathlib-quality skill suite:
         per-file golf, renames, cross-file dedup, proof decomposition, file splitting)
-        brought the code toward mathlib contribution standards.
+        improved the lean code quality, though not up to mathlib standards.
       cost:
-        wall_time: "~2 weeks wall clock (2026-07-01 to 2026-07-13); main proof complete 2026-07-08"
-        spend_usd: "not tracked (subscription-based usage)"
-        hardware: "API-only; builds on a single developer workstation (Apple Silicon)"
+        wall_time: "~2 weeks wall clock (2026-07-01 to 2026-07-14); main proof complete 2026-07-08"
+        spend_usd: "$600 (three Claude Max 20 subscriptions)"
+        hardware: "a single Macbook Pro laptop"
       prompting_notes: >
         Per-ticket briefs with acceptance criteria and axiom budgets (see
         docs/orchestration/tickets.md and p*.md plan files); cleanup-phase worker
         prompts enforced byte-identical theorem statements, streaming-only builds,
         and anti-destruction rules for parallel lanes.
-  spend_usd: "not tracked (subscription-based usage)"
+  spend_usd: "$600 (three Claude Max 20 subscriptions)"
   notes: >
     Human role was orchestration-level: approving axiom-census changes, owner-gated
     design decisions, and review checkpoints; the Lean code was written by the agent
