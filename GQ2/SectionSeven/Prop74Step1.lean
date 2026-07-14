@@ -44,6 +44,84 @@ theorem comm_mem_R (B : MinimalBlock L) {k l : Y} (hk : k ∈ B.K) (hl : l ∈ B
   Subgroup.subset_closure (Or.inr ⟨k, hk, l, hl, rfl⟩)
 
 omit [Finite Y] in
+/-- Core of the dual-invariants endgame: a `Y`-invariant group homomorphism `ψ : K → 𝔽₂` that is
+nonzero somewhere on `K` is impossible.  Such a `ψ` automatically kills `R = Φ(K)` (squares and
+commutators die in `𝔽₂`), so its kernel is a `Y`-normal index-2 subgroup of `K` above `R`,
+contradicting `lemma_7_1_dual`.  Shared by `lam_comm_vanish` and `invariant_hom_absurd`. -/
+private theorem invariant_hom_absurd_core (B : MinimalBlock L)
+    (ψ : Y → ZMod 2)
+    (hψhom : ∀ k, k ∈ B.K → ∀ l, l ∈ B.K → ψ (k * l) = ψ k + ψ l)
+    (hψinv : ∀ (y k : Y), k ∈ B.K → ψ (y * k * y⁻¹) = ψ k)
+    (t₀ : Y) (ht₀K : t₀ ∈ B.K) (ht₀ : ψ t₀ ≠ 0) : False := by
+  classical
+  have := B.hK
+  have hψ1 : ψ 1 = 0 := by simpa using hψhom 1 (one_mem _) 1 (one_mem _)
+  have hz2 : ∀ x y : ZMod 2, x + y = 0 → y = x := by decide
+  have hψinvK : ∀ k, k ∈ B.K → ψ k⁻¹ = ψ k := by
+    intro k hk
+    have h := hψhom k hk k⁻¹ (inv_mem hk)
+    rw [mul_inv_cancel, hψ1] at h
+    exact hz2 _ _ h.symm
+  -- the candidate index-2 subgroup `X = {k ∈ K | ψ k = 0}`
+  let X : Subgroup Y :=
+    { carrier := {k | k ∈ B.K ∧ ψ k = 0}
+      one_mem' := ⟨one_mem _, hψ1⟩
+      mul_mem' := fun {a b} ⟨haK, ha⟩ ⟨hbK, hb⟩ =>
+        ⟨mul_mem haK hbK, by rw [hψhom a haK b hbK, ha, hb, add_zero]⟩
+      inv_mem' := fun {a} ⟨haK, ha⟩ => ⟨inv_mem haK, by rw [hψinvK a haK, ha]⟩ }
+  have hXmem : ∀ k, k ∈ X ↔ k ∈ B.K ∧ ψ k = 0 := fun k => Iff.rfl
+  have hXn : X.Normal := by
+    refine ⟨fun k hk y => ?_⟩
+    rw [hXmem] at hk ⊢
+    exact ⟨B.hK.conj_mem k hk.1 y, by rw [hψinv y k hk.1, hk.2]⟩
+  have hXK : X ≤ B.K := fun k hk => hk.1
+  have hRX : B.frattiniK ≤ X := by
+    intro r hr
+    refine Subgroup.closure_induction (p := fun g _ => g ∈ X) ?_ ⟨one_mem _, hψ1⟩
+      (fun a b _ _ ha hb => mul_mem ha hb) (fun a _ ha => inv_mem ha) hr
+    have hz4 : ∀ a b : ZMod 2, a + b + a + b = 0 := by decide
+    rintro g (⟨k, hk, rfl⟩ | ⟨k, hk, l, hl, rfl⟩)
+    · exact ⟨mul_mem hk hk, by rw [hψhom k hk k hk]; exact CharTwo.add_self_eq_zero (ψ k)⟩
+    · have hmem : k * l * k⁻¹ * l⁻¹ ∈ B.K :=
+        mul_mem (mul_mem (mul_mem hk hl) (inv_mem hk)) (inv_mem hl)
+      refine ⟨hmem, ?_⟩
+      rw [hψhom _ (mul_mem (mul_mem hk hl) (inv_mem hk)) _ (inv_mem hl),
+        hψhom _ (mul_mem hk hl) _ (inv_mem hk),
+        hψhom _ hk _ hl, hψinvK k hk, hψinvK l hl]
+      exact hz4 _ _
+  -- `(X.subgroupOf K).index = 2`, via `χ : ↥K →* Multiplicative (ZMod 2)`
+  let χ : ↥B.K →* Multiplicative (ZMod 2) :=
+    { toFun := fun k => Multiplicative.ofAdd (ψ ↑k)
+      map_one' := by simp [hψ1]
+      map_mul' := fun a b => by
+        show Multiplicative.ofAdd (ψ (↑a * ↑b))
+          = Multiplicative.ofAdd (ψ ↑a) * Multiplicative.ofAdd (ψ ↑b)
+        rw [hψhom ↑a a.2 ↑b b.2]; rfl }
+  have hkerχ : X.subgroupOf B.K = χ.ker := by
+    ext ⟨y, hy⟩
+    rw [Subgroup.mem_subgroupOf, MonoidHom.mem_ker]
+    show (y ∈ B.K ∧ ψ y = 0) ↔ Multiplicative.ofAdd (ψ y) = 1
+    constructor
+    · rintro ⟨_, h0⟩; rw [h0]; exact ofAdd_zero
+    · intro h; exact ⟨hy, by simpa using congrArg Multiplicative.toAdd h⟩
+  have hidx : (X.subgroupOf B.K).index = 2 := by
+    rw [hkerχ, Subgroup.index_ker]
+    have h2 : Nat.card (Multiplicative (ZMod 2)) = 2 := by
+      rw [Nat.card_congr Multiplicative.toAdd, Nat.card_zmod]
+    have hdvd : Nat.card χ.range ∣ 2 := by
+      have h := Subgroup.card_subgroup_dvd_card χ.range
+      rwa [h2] at h
+    rcases (Nat.prime_two.eq_one_or_self_of_dvd _ hdvd) with h1 | h1
+    · exfalso
+      have hbot : χ.range = ⊥ := Subgroup.card_eq_one.mp h1
+      have hmem : χ ⟨t₀, ht₀K⟩ ∈ χ.range := ⟨_, rfl⟩
+      rw [hbot, Subgroup.mem_bot] at hmem
+      have h1' : Multiplicative.ofAdd (ψ t₀) = 1 := hmem
+      exact ht₀ (by simpa using congrArg Multiplicative.toAdd h1')
+    · exact h1
+  exact lemma_7_1_dual B ⟨X, hXn, hRX, hXK, hidx⟩
+
+omit [Finite Y] in
 /-- **Prop 7.4, step 1** (`b_λ(T₀, M) = 0`): a `Y`-invariant additive `λ : R → 𝔽₂` kills every
 commutator `[k, t]`, `k ∈ K`, `t ∈ K ∩ S`.  Abstract-block proof (no tame input) — the paper's
 socle argument run at subgroup level: the right kernel `T` of the pairing
@@ -60,16 +138,8 @@ theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.frattiniK.Normal)
     ∀ k, k ∈ B.K → ∀ t, t ∈ B.K ⊓ B.S → ∀ (h : k * t * k⁻¹ * t⁻¹ ∈ B.frattiniK),
       lam ⟨k * t * k⁻¹ * t⁻¹, h⟩ = 0 := by
   classical
-  -- λ-kit: value at 1, inverses, subtype products
-  have hz2 : ∀ x y : ZMod 2, x + y = 0 → y = x := by decide
-  have hxx : ∀ x : ZMod 2, x + x = 0 := by decide
+  -- λ-kit: value at 1
   have lam_one : lam 1 = 0 := by simpa using hlam_hom 1 1
-  have lam_inv : ∀ (a : Y) (ha : a ∈ B.frattiniK), lam ⟨a⁻¹, inv_mem ha⟩ = lam ⟨a, ha⟩ := by
-    intro a ha
-    have h := hlam_hom ⟨a, ha⟩ ⟨a⁻¹, inv_mem ha⟩
-    have e : (⟨a, ha⟩ * ⟨a⁻¹, inv_mem ha⟩ : ↥B.frattiniK) = 1 := Subtype.ext (mul_inv_cancel a)
-    rw [e, lam_one] at h
-    exact hz2 _ _ h.symm
   -- β-additivity in the `K`-slot: `[kk', t] = (k[k', t]k⁻¹)·[k, t]`
   have beta_add_k : ∀ (k k' t : Y) (hk : k ∈ B.K) (hk' : k' ∈ B.K) (ht : t ∈ B.K),
       lam ⟨k * k' * t * (k * k')⁻¹ * t⁻¹, comm_mem_R B (B.K.mul_mem hk hk') ht⟩
@@ -102,16 +172,6 @@ theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.frattiniK.Normal)
     rw [e, hlam_hom]
     congr 1
     exact hlam_conj t _ (comm_mem_R B hk ht')
-  -- β kills `R` in the `K`-slot: `[r, t] = r·(t r⁻¹ t⁻¹)`
-  have beta_R_k : ∀ (r t : Y) (hr : r ∈ B.frattiniK) (h : r * t * r⁻¹ * t⁻¹ ∈ B.frattiniK),
-      lam ⟨r * t * r⁻¹ * t⁻¹, h⟩ = 0 := by
-    intro r t hr h
-    have e : (⟨r * t * r⁻¹ * t⁻¹, h⟩ : ↥B.frattiniK)
-        = ⟨r, hr⟩ * ⟨t * r⁻¹ * t⁻¹, hRN.conj_mem _ (inv_mem hr) t⟩ := Subtype.ext (by
-      show r * t * r⁻¹ * t⁻¹ = r * (t * r⁻¹ * t⁻¹)
-      group)
-    rw [e, hlam_hom, hlam_conj t _ (inv_mem hr), lam_inv r hr]
-    exact hxx _
   -- the right kernel `T` of the pairing, a subgroup of `Y` inside `K ⊓ S`
   let T : Subgroup Y :=
     { carrier := {t | t ∈ B.K ⊓ B.S ∧ ∀ k, k ∈ B.K → ∀ h : k * t * k⁻¹ * t⁻¹ ∈ B.frattiniK,
@@ -207,48 +267,8 @@ theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.frattiniK.Normal)
       rw [hw]
       group
     rw [e2, beta_add_t k w ts hk hwK htsK, hwT.2 k hk (comm_mem_R B hk hwK), zero_add]
-  -- the kernel `Z` of `β` inside `K`: a `Y`-normal index-2 subgroup above `R`
-  let Z : Subgroup Y :=
-    { carrier := {k | k ∈ B.K ∧ ∀ h : k * ts * k⁻¹ * ts⁻¹ ∈ B.frattiniK,
-        lam ⟨k * ts * k⁻¹ * ts⁻¹, h⟩ = 0}
-      one_mem' := by
-        refine ⟨one_mem _, fun h => ?_⟩
-        have e : (⟨1 * ts * 1⁻¹ * ts⁻¹, h⟩ : ↥B.frattiniK) = 1 := Subtype.ext (by
-          show 1 * ts * 1⁻¹ * ts⁻¹ = 1
-          group)
-        rw [e, lam_one]
-      mul_mem' := by
-        rintro k k' ⟨hkK, hk⟩ ⟨hk'K, hk'⟩
-        refine ⟨mul_mem hkK hk'K, fun h => ?_⟩
-        have e : (⟨k * k' * ts * (k * k')⁻¹ * ts⁻¹, h⟩ : ↥B.frattiniK)
-            = ⟨k * k' * ts * (k * k')⁻¹ * ts⁻¹,
-                comm_mem_R B (B.K.mul_mem hkK hk'K) htsK⟩ := rfl
-        rw [e, beta_add_k k k' ts hkK hk'K htsK, hk (comm_mem_R B hkK htsK),
-          hk' (comm_mem_R B hk'K htsK), add_zero]
-      inv_mem' := by
-        rintro k ⟨hkK, hk⟩
-        refine ⟨inv_mem hkK, fun h => ?_⟩
-        have h1 := beta_add_k k k⁻¹ ts hkK (B.K.inv_mem hkK) htsK
-        have e1 : (⟨k * k⁻¹ * ts * (k * k⁻¹)⁻¹ * ts⁻¹,
-            comm_mem_R B (B.K.mul_mem hkK (B.K.inv_mem hkK)) htsK⟩ : ↥B.frattiniK) = 1 :=
-          Subtype.ext (by
-            show k * k⁻¹ * ts * (k * k⁻¹)⁻¹ * ts⁻¹ = 1
-            group)
-        rw [e1, lam_one, hk (comm_mem_R B hkK htsK), add_zero] at h1
-        have e2 : (⟨k⁻¹ * ts * k⁻¹⁻¹ * ts⁻¹, h⟩ : ↥B.frattiniK)
-            = ⟨k⁻¹ * ts * k⁻¹⁻¹ * ts⁻¹, comm_mem_R B (B.K.inv_mem hkK) htsK⟩ := rfl
-        rw [e2, ← h1] }
-  have hZn : Z.Normal := by
-    constructor
-    intro m hm y
-    refine ⟨B.hK.conj_mem m hm.1 y, fun h => ?_⟩
-    rw [hbeta_conj y m hm.1 h (comm_mem_R B hm.1 htsK)]
-    exact hm.2 (comm_mem_R B hm.1 htsK)
-  have hRZ : B.frattiniK ≤ Z := by
-    intro r hr
-    exact ⟨frattiniLike_le B.K hr, fun h => beta_R_k r ts hr h⟩
-  have hZK : Z ≤ B.K := fun z hz => hz.1
-  -- `β` is onto `𝔽₂` (it is nonzero at some `k*`), so `Z` has index 2 in `K`
+  -- `β(k) = λ([k, ts])` is a `Y`-invariant hom on `K`, nonzero somewhere, so `invariant_hom_absurd_core`
+  -- (which supplies the index-2 kernel above `R`) closes the goal
   have hone : ∀ x : ZMod 2, x ≠ 0 → x = 1 := by decide
   have hsurj : ∃ k, ∃ hk : k ∈ B.K,
       lam ⟨k * ts * k⁻¹ * ts⁻¹, comm_mem_R B hk htsK⟩ = 1 := by
@@ -260,64 +280,25 @@ theorem lam_comm_vanish (B : MinimalBlock L) (hRN : B.frattiniK.Normal)
     rw [e]
     by_contra hne0
     exact (hall k hk) (hone _ hne0)
-  set g' : ↥B.K →* Multiplicative (ZMod 2) :=
-    { toFun := fun k =>
-        Multiplicative.ofAdd (lam ⟨k.1 * ts * k.1⁻¹ * ts⁻¹, comm_mem_R B k.2 htsK⟩)
-      map_one' := by
-        have e : (⟨(1 : ↥B.K).1 * ts * (1 : ↥B.K).1⁻¹ * ts⁻¹,
-            comm_mem_R B (1 : ↥B.K).2 htsK⟩ : ↥B.frattiniK) = 1 := Subtype.ext (by
-          show (1 : Y) * ts * (1 : Y)⁻¹ * ts⁻¹ = 1
-          group)
-        show Multiplicative.ofAdd _ = 1
-        rw [e, lam_one]
-        rfl
-      map_mul' := by
-        intro a b
-        have e : (⟨(a * b).1 * ts * (a * b).1⁻¹ * ts⁻¹, comm_mem_R B (a * b).2 htsK⟩ : ↥B.frattiniK)
-            = ⟨a.1 * b.1 * ts * (a.1 * b.1)⁻¹ * ts⁻¹,
-                comm_mem_R B (B.K.mul_mem a.2 b.2) htsK⟩ := rfl
-        show Multiplicative.ofAdd _ = _
-        rw [e, beta_add_k a.1 b.1 ts a.2 b.2 htsK]
-        rw [ofAdd_add]
-        exact mul_comm _ _ } with hg'
-  have hg'app : ∀ x : ↥B.K,
-      g' x = Multiplicative.ofAdd (lam ⟨x.1 * ts * x.1⁻¹ * ts⁻¹, comm_mem_R B x.2 htsK⟩) :=
-    fun _ => rfl
-  have hker : Z.subgroupOf B.K = g'.ker := by
-    ext ⟨k, hk⟩
-    simp only [Subgroup.mem_subgroupOf, MonoidHom.mem_ker]
-    constructor
-    · intro hz
-      rw [hg'app, hz.2 (comm_mem_R B hk htsK)]
-      rfl
-    · intro h1
-      refine ⟨hk, fun h => ?_⟩
-      rw [hg'app] at h1
-      have h2 : lam ⟨k * ts * k⁻¹ * ts⁻¹, comm_mem_R B hk htsK⟩ = 0 := by
-        have := congrArg Multiplicative.toAdd h1
-        simpa using this
-      exact h2
-  have hidx : (Z.subgroupOf B.K).index = 2 := by
-    rw [hker, Subgroup.index_ker]
-    have h2 : Nat.card (Multiplicative (ZMod 2)) = 2 := by
-      rw [Nat.card_congr Multiplicative.toAdd, Nat.card_zmod]
-    have hdvd : Nat.card g'.range ∣ 2 := by
-      have h := Subgroup.card_subgroup_dvd_card g'.range
-      rwa [h2] at h
-    rcases (Nat.prime_two.eq_one_or_self_of_dvd _ hdvd) with h1 | h1
-    · exfalso
-      obtain ⟨ks, hks, hks1⟩ := hsurj
-      have hbot : g'.range = ⊥ := Subgroup.card_eq_one.mp h1
-      have hmem : g' ⟨ks, hks⟩ ∈ g'.range := ⟨_, rfl⟩
-      rw [hbot, Subgroup.mem_bot] at hmem
-      rw [hg'app] at hmem
-      have h0 : lam ⟨ks * ts * ks⁻¹ * ts⁻¹, comm_mem_R B hks htsK⟩ = 0 := by
-        have := congrArg Multiplicative.toAdd hmem
-        simpa using this
-      rw [hks1] at h0
-      exact one_ne_zero h0
-    · exact h1
-  exact lemma_7_1_dual B ⟨Z, hZn, hRZ, hZK, hidx⟩
+  set ψ : Y → ZMod 2 := fun k => if hk : k ∈ B.K then
+    lam ⟨k * ts * k⁻¹ * ts⁻¹, comm_mem_R B hk htsK⟩ else 0 with hψdef
+  have hψhom : ∀ k, k ∈ B.K → ∀ l, l ∈ B.K → ψ (k * l) = ψ k + ψ l := by
+    intro k hk l hl
+    rw [hψdef]
+    simp only [dif_pos (mul_mem hk hl), dif_pos hk, dif_pos hl]
+    exact (beta_add_k k l ts hk hl htsK).trans (add_comm _ _)
+  have hψinv : ∀ (y k : Y), k ∈ B.K → ψ (y * k * y⁻¹) = ψ k := by
+    intro y k hk
+    have hyk : y * k * y⁻¹ ∈ B.K := B.hK.conj_mem k hk y
+    rw [hψdef]
+    simp only [dif_pos hyk, dif_pos hk]
+    exact hbeta_conj y k hk (comm_mem_R B hyk htsK) (comm_mem_R B hk htsK)
+  obtain ⟨ks, hks, hks1⟩ := hsurj
+  exact invariant_hom_absurd_core B ψ hψhom hψinv ks hks (by
+    rw [hψdef]
+    simp only [dif_pos hks]
+    rw [hks1]
+    exact one_ne_zero)
 
 omit [Finite Y] in
 /-- **Endgame for Prop 7.4 step 2** (the `(K/R)^{∨ Y} = 0` clause, `= lemma_7_1_dual`): a
@@ -329,74 +310,8 @@ theorem invariant_hom_absurd (B : MinimalBlock L)
     (ψ : Y → ZMod 2)
     (hψhom : ∀ k, k ∈ B.K → ∀ l, l ∈ B.K → ψ (k * l) = ψ k + ψ l)
     (hψinv : ∀ (y k : Y), k ∈ B.K → ψ (y * k * y⁻¹) = ψ k)
-    (t₀ : Y) (ht₀K : t₀ ∈ B.K) (ht₀ : ψ t₀ ≠ 0) : False := by
-  classical
-  have := B.hK
-  have hψ1 : ψ 1 = 0 := by simpa using hψhom 1 (one_mem _) 1 (one_mem _)
-  have hz2 : ∀ x y : ZMod 2, x + y = 0 → y = x := by decide
-  have hψinvK : ∀ k, k ∈ B.K → ψ k⁻¹ = ψ k := by
-    intro k hk
-    have h := hψhom k hk k⁻¹ (inv_mem hk)
-    rw [mul_inv_cancel, hψ1] at h
-    exact hz2 _ _ h.symm
-  -- the candidate index-2 subgroup `X = {k ∈ K | ψ k = 0}`
-  let X : Subgroup Y :=
-    { carrier := {k | k ∈ B.K ∧ ψ k = 0}
-      one_mem' := ⟨one_mem _, hψ1⟩
-      mul_mem' := fun {a b} ⟨haK, ha⟩ ⟨hbK, hb⟩ =>
-        ⟨mul_mem haK hbK, by rw [hψhom a haK b hbK, ha, hb, add_zero]⟩
-      inv_mem' := fun {a} ⟨haK, ha⟩ => ⟨inv_mem haK, by rw [hψinvK a haK, ha]⟩ }
-  have hXmem : ∀ k, k ∈ X ↔ k ∈ B.K ∧ ψ k = 0 := fun k => Iff.rfl
-  have hXn : X.Normal := by
-    refine ⟨fun k hk y => ?_⟩
-    rw [hXmem] at hk ⊢
-    exact ⟨B.hK.conj_mem k hk.1 y, by rw [hψinv y k hk.1, hk.2]⟩
-  have hXK : X ≤ B.K := fun k hk => hk.1
-  have hRX : B.frattiniK ≤ X := by
-    intro r hr
-    refine Subgroup.closure_induction (p := fun g _ => g ∈ X) ?_ ⟨one_mem _, hψ1⟩
-      (fun a b _ _ ha hb => mul_mem ha hb) (fun a _ ha => inv_mem ha) hr
-    have hz4 : ∀ a b : ZMod 2, a + b + a + b = 0 := by decide
-    rintro g (⟨k, hk, rfl⟩ | ⟨k, hk, l, hl, rfl⟩)
-    · exact ⟨mul_mem hk hk, by rw [hψhom k hk k hk]; exact CharTwo.add_self_eq_zero (ψ k)⟩
-    · have hmem : k * l * k⁻¹ * l⁻¹ ∈ B.K :=
-        mul_mem (mul_mem (mul_mem hk hl) (inv_mem hk)) (inv_mem hl)
-      refine ⟨hmem, ?_⟩
-      rw [hψhom _ (mul_mem (mul_mem hk hl) (inv_mem hk)) _ (inv_mem hl),
-        hψhom _ (mul_mem hk hl) _ (inv_mem hk),
-        hψhom _ hk _ hl, hψinvK k hk, hψinvK l hl]
-      exact hz4 _ _
-  -- `(X.subgroupOf K).index = 2`, via `χ : ↥K →* Multiplicative (ZMod 2)`
-  let χ : ↥B.K →* Multiplicative (ZMod 2) :=
-    { toFun := fun k => Multiplicative.ofAdd (ψ ↑k)
-      map_one' := by simp [hψ1]
-      map_mul' := fun a b => by
-        show Multiplicative.ofAdd (ψ (↑a * ↑b))
-          = Multiplicative.ofAdd (ψ ↑a) * Multiplicative.ofAdd (ψ ↑b)
-        rw [hψhom ↑a a.2 ↑b b.2]; rfl }
-  have hkerχ : X.subgroupOf B.K = χ.ker := by
-    ext ⟨y, hy⟩
-    rw [Subgroup.mem_subgroupOf, MonoidHom.mem_ker]
-    show (y ∈ B.K ∧ ψ y = 0) ↔ Multiplicative.ofAdd (ψ y) = 1
-    constructor
-    · rintro ⟨_, h0⟩; rw [h0]; exact ofAdd_zero
-    · intro h; exact ⟨hy, by simpa using congrArg Multiplicative.toAdd h⟩
-  have hidx : (X.subgroupOf B.K).index = 2 := by
-    rw [hkerχ, Subgroup.index_ker]
-    have h2 : Nat.card (Multiplicative (ZMod 2)) = 2 := by
-      rw [Nat.card_congr Multiplicative.toAdd, Nat.card_zmod]
-    have hdvd : Nat.card χ.range ∣ 2 := by
-      have h := Subgroup.card_subgroup_dvd_card χ.range
-      rwa [h2] at h
-    rcases (Nat.prime_two.eq_one_or_self_of_dvd _ hdvd) with h1 | h1
-    · exfalso
-      have hbot : χ.range = ⊥ := Subgroup.card_eq_one.mp h1
-      have hmem : χ ⟨t₀, ht₀K⟩ ∈ χ.range := ⟨_, rfl⟩
-      rw [hbot, Subgroup.mem_bot] at hmem
-      have h1' : Multiplicative.ofAdd (ψ t₀) = 1 := hmem
-      exact ht₀ (by simpa using congrArg Multiplicative.toAdd h1')
-    · exact h1
-  exact lemma_7_1_dual B ⟨X, hXn, hRX, hXK, hidx⟩
+    (t₀ : Y) (ht₀K : t₀ ∈ B.K) (ht₀ : ψ t₀ ≠ 0) : False :=
+  invariant_hom_absurd_core B ψ hψhom hψinv t₀ ht₀K ht₀
 
 /-- **Odd averaging** (general, verified std-3): given an odd-order normal `A ◁ Y` with the
 vanishing `(V∨)^A = 0` (any `A`-invariant hom `K → 𝔽₂` vanishing on `K ∩ S` is zero) and a hom

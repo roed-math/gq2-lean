@@ -105,6 +105,94 @@ variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite 
 variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
+/-- **Out-lift of an order-2 nontrivial coset is a non-`N` involution mod `N`** (P-15f2d wiring):
+for `w : AbsGalQ2 ⧸ N` with `w * w = 1` and `w ≠ 1`, the section lift `Quotient.out w` lies outside
+`N` yet squares into `N`.  The involution-position fact shared by the three `Sum.inr (Sum.inl _)`
+orbit branches of the final assembly. -/
+theorem out_notMem_and_out_sq_mem (N : Subgroup AbsGalQ2) [N.Normal] {w : AbsGalQ2 ⧸ N}
+    (hw2 : w * w = 1) (hwne : w ≠ 1) :
+    Quotient.out w ∉ N ∧ Quotient.out w * Quotient.out w ∈ N := by
+  have hw : QuotientGroup.mk' N (Quotient.out w) = w := by
+    rw [QuotientGroup.mk'_apply]; exact QuotientGroup.out_eq' w
+  refine ⟨fun h => hwne ?_, ?_⟩
+  · have h1 : QuotientGroup.mk' N (Quotient.out w) = 1 := by
+      rw [QuotientGroup.mk'_apply]; exact (QuotientGroup.eq_one_iff _).mpr h
+    rwa [hw] at h1
+  · have h1 : QuotientGroup.mk' N (Quotient.out w * Quotient.out w) = 1 := by
+      rw [map_mul, hw]; exact hw2
+    rwa [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at h1
+
+/-- **The involution orbit's inner cochain is a 2-cocycle** (P-15f2d wiring): the `evensNormFun`
+splice attached to an involution coset `g ∉ N`, `g² ∈ N` on the index-2 pair `N ≤ N ⊔ ⟨g⟩`, built
+from a block cocycle `shapiroCoord N β`, is a `Z²`.  Discharges the `Sum.inr (Sum.inl _)` branch of
+the `hZ2` obligation. -/
+theorem evensNormFun_orbit_mem_Z2 (N : Subgroup AbsGalQ2) [N.Normal]
+    (hNopen : IsOpen (N : Set AbsGalQ2)) (g : AbsGalQ2) (hgN : g ∉ N) (hg2 : g * g ∈ N)
+    (β : AbsGalQ2 → RegRep N) (hZ1 : shapiroCoord N β ∈ Z1 ↥N (ZMod 2)) :
+    evensNormFun (N.subgroupOf (N ⊔ Subgroup.zpowers g))
+        ⟨g, Subgroup.mem_sup_right (Subgroup.mem_zpowers g)⟩
+        (fun w => shapiroCoord N β ⟨w.1.1, w.2⟩)
+      ∈ Z2 ↥(N ⊔ Subgroup.zpowers g) (ZMod 2) := by
+  have hsU : (⟨g, Subgroup.mem_sup_right (Subgroup.mem_zpowers g)⟩ : ↥(N ⊔ Subgroup.zpowers g))
+      ∉ N.subgroupOf (N ⊔ Subgroup.zpowers g) :=
+    fun h => hgN (Subgroup.mem_subgroupOf.mp h)
+  have hUi : (N.subgroupOf (N ⊔ Subgroup.zpowers g)).index = 2 :=
+    InvolutionSplice.index_eq_two_of_decomp hsU (fun bb hbb => by
+      rcases InvolutionSplice.mem_or_mul_mem_of_mem_sup hg2 bb.2 with hbN | hbg
+      · exact absurd (Subgroup.mem_subgroupOf.mpr hbN) hbb
+      · exact Subgroup.mem_subgroupOf.mpr hbg)
+  have hUo : IsOpen (((N.subgroupOf (N ⊔ Subgroup.zpowers g))
+      : Subgroup ↥(N ⊔ Subgroup.zpowers g)) : Set ↥(N ⊔ Subgroup.zpowers g)) :=
+    hNopen.preimage continuous_subtype_val
+  obtain ⟨hjc, hjhom⟩ := (mem_Z1_iff_of_trivial (fun _ _ => rfl)).mp hZ1
+  have hα : ∀ w z : ↥(N.subgroupOf (N ⊔ Subgroup.zpowers g)),
+      shapiroCoord N β ⟨(w * z).1.1, (w * z).2⟩
+        = shapiroCoord N β ⟨w.1.1, w.2⟩ + shapiroCoord N β ⟨z.1.1, z.2⟩ := by
+    intro w z
+    have := hjhom ⟨w.1.1, w.2⟩ ⟨z.1.1, z.2⟩
+    rwa [show (⟨(w * z).1.1, (w * z).2⟩ : ↥N) = ⟨w.1.1, w.2⟩ * ⟨z.1.1, z.2⟩ from Subtype.ext rfl]
+  have hαc : Continuous fun w : ↥(N.subgroupOf (N ⊔ Subgroup.zpowers g)) =>
+      shapiroCoord N β ⟨w.1.1, w.2⟩ :=
+    hjc.comp (Continuous.subtype_mk (continuous_subtype_val.comp continuous_subtype_val) _)
+  exact evensNormFun_mem_Z2 (fun _ _ => rfl) hUo hUi hsU _ hα hαc
+
+omit [Finite C] in
+/-- **The free orbit's inner cochain vanishes in `H²`** (P-15f2d wiring): the cup product of a deep
+`ker ρ`-block cocycle with the `g`-conjugate of another deep block cocycle is an `H²`-coboundary.
+Discharges the `Sum.inr (Sum.inr _)` branch of the `hvanish` obligation. -/
+theorem hvanish_free_conj (ρ : ContinuousMonoidHom AbsGalQ2 C)
+    (β γ : AbsGalQ2 → RegRep (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) (g : AbsGalQ2)
+    (hZβ : shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) β
+      ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))
+    (hZγ : shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) γ
+      ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2))
+    (hDβ : H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+      (shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) β)
+      ∈ deepClasses (ρ.toMonoidHom.ker : Subgroup AbsGalQ2))
+    (hDγ : H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+      (shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) γ)
+      ∈ deepClasses (ρ.toMonoidHom.ker : Subgroup AbsGalQ2)) :
+    H2ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+        (cup11Fun AddMonoidHom.mul (shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) β)
+          (fun n => shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) γ (conjMap ρ g n))) = 0 := by
+  have hZ1conj : (fun n : ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) =>
+      shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) γ (conjMap ρ g n))
+      ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) :=
+    comp_conjMap_mem_Z1 ρ hZγ g
+  have hdeepconj : H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (fun n =>
+      shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) γ (conjMap ρ g n))
+      ∈ deepClasses (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) := by
+    have heq : H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (fun n =>
+        shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) γ (conjMap ρ g n))
+        = conjAct ρ g (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+          (shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) γ)) :=
+      (conjAct_h1ofFun ρ g hZγ).symm
+    rw [heq]
+    exact conjAct_deepClasses (ρ := ρ) g hDγ
+  exact InvolutionSplice.hvanish_cup_ker ρ (shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) β)
+    (fun n => shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) γ (conjMap ρ g n))
+    hZβ hZ1conj hDβ hdeepconj
+
 /-- **`lemma_6_17_vanish`, closed downstream** (P-15f2d): the base connecting map `Q⁰loc`
 vanishes on the deep half, from `lemma_6_17_vanish`'s own hypotheses plus the reciprocity datum
 `(R, horient)` threaded per the c2c4 consumer note (P-20 flag). -/
@@ -253,17 +341,6 @@ theorem lemma_6_17_vanish_final (D : TateDuality 2) (R : LocalReciprocity) (B : 
   -- involution-position facts, shared across the three `Sum.inr (Sum.inl _)` branches
   have hu_all : ∀ w : AbsGalQ2 ⧸ N, QuotientGroup.mk' N (Quotient.out w) = w := fun w => by
     rw [QuotientGroup.mk'_apply]; exact QuotientGroup.out_eq' w
-  have hInv : ∀ w : AbsGalQ2 ⧸ N, w * w = 1 → w ≠ 1 →
-      Quotient.out w ∉ N ∧ Quotient.out w * Quotient.out w ∈ N := by
-    intro w hw2 hwne
-    have hw := hu_all w
-    refine ⟨fun h => hwne ?_, ?_⟩
-    · have h1 : QuotientGroup.mk' N (Quotient.out w) = 1 := by
-        rw [QuotientGroup.mk'_apply]; exact (QuotientGroup.eq_one_iff _).mpr h
-      rwa [hw] at h1
-    · have h1 : QuotientGroup.mk' N (Quotient.out w * Quotient.out w) = 1 := by
-        rw [map_mul, hw]; exact hw2
-      rwa [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at h1
   refine OrbitVanish.Q0loc_vanish_of_datum_decomp D datWC ρ hρW xW
     (orbitIndexSet N qW) (fun o => (orbitDatum N o).reindexHom e.toMonoidHom)
     (orbitSquareMap N) ?_ ?_ Uf ?_ ?_ innerf ?_ ?_ ?_
@@ -282,34 +359,9 @@ theorem lemma_6_17_vanish_final (D : TateDuality 2) (R : LocalReciprocity) (B : 
     · simp only [mem_orbitIndexSet_inv, invIdx, Finset.mem_filter, Finset.mem_univ,
         true_and] at ho
       obtain ⟨hu2, hune, -⟩ := ho
-      obtain ⟨hgN, hg2⟩ := hInv u hu2 hune
-      have hmemU : Quotient.out u ∈ N ⊔ Subgroup.zpowers (Quotient.out u) :=
-        Subgroup.mem_sup_right (Subgroup.mem_zpowers _)
-      have hsU : (⟨Quotient.out u, hmemU⟩ : ↥(N ⊔ Subgroup.zpowers (Quotient.out u)))
-          ∉ N.subgroupOf (N ⊔ Subgroup.zpowers (Quotient.out u)) :=
-        fun h => hgN (Subgroup.mem_subgroupOf.mp h)
-      have hUi : (N.subgroupOf (N ⊔ Subgroup.zpowers (Quotient.out u))).index = 2 :=
-        InvolutionSplice.index_eq_two_of_decomp hsU (fun bb hbb => by
-          rcases InvolutionSplice.mem_or_mul_mem_of_mem_sup hg2 bb.2 with hbN | hbg
-          · exact absurd (Subgroup.mem_subgroupOf.mpr hbN) hbb
-          · exact Subgroup.mem_subgroupOf.mpr hbg)
-      have hUo : IsOpen (((N.subgroupOf (N ⊔ Subgroup.zpowers (Quotient.out u)))
-          : Subgroup ↥(N ⊔ Subgroup.zpowers (Quotient.out u)))
-          : Set ↥(N ⊔ Subgroup.zpowers (Quotient.out u))) :=
-        hNopen.preimage continuous_subtype_val
-      obtain ⟨hjc, hjhom⟩ := (mem_Z1_iff_of_trivial (fun _ _ => rfl)).mp (hZ1blk j)
-      have hα : ∀ w z : ↥(N.subgroupOf (N ⊔ Subgroup.zpowers (Quotient.out u))),
-          shapiroCoord N (fun g => (Quotient.out xW).1 g j) ⟨(w * z).1.1, (w * z).2⟩
-            = shapiroCoord N (fun g => (Quotient.out xW).1 g j) ⟨w.1.1, w.2⟩
-              + shapiroCoord N (fun g => (Quotient.out xW).1 g j) ⟨z.1.1, z.2⟩ := by
-        intro w z
-        have := hjhom ⟨w.1.1, w.2⟩ ⟨z.1.1, z.2⟩
-        rwa [show (⟨(w * z).1.1, (w * z).2⟩ :
-            ↥N) = ⟨w.1.1, w.2⟩ * ⟨z.1.1, z.2⟩ from Subtype.ext rfl]
-      have hαc : Continuous fun w : ↥(N.subgroupOf (N ⊔ Subgroup.zpowers (Quotient.out u))) =>
-          shapiroCoord N (fun g => (Quotient.out xW).1 g j) ⟨w.1.1, w.2⟩ :=
-        hjc.comp (Continuous.subtype_mk (continuous_subtype_val.comp continuous_subtype_val) _)
-      exact evensNormFun_mem_Z2 (fun _ _ => rfl) hUo hUi hsU _ hα hαc
+      obtain ⟨hgN, hg2⟩ := out_notMem_and_out_sq_mem N hu2 hune
+      exact evensNormFun_orbit_mem_Z2 N hNopen (Quotient.out u) hgN hg2
+        (fun g => (Quotient.out xW).1 g j) (hZ1blk j)
     · exact cup11_mem_Z2 AddMonoidHom.mul (fun _ _ _ => rfl)
         ⟨_, hZ1blk j⟩ ⟨_, comp_conjMap_mem_Z1 ρ (hZ1blk k) (Quotient.out u)⟩
   · -- hcoh
@@ -324,7 +376,7 @@ theorem lemma_6_17_vanish_final (D : TateDuality 2) (R : LocalReciprocity) (B : 
         true_and] at ho
       obtain ⟨hu2, hune, -⟩ := ho
       have hu : QuotientGroup.mk' N (Quotient.out u) = u := hu_all u
-      obtain ⟨hgN, hg2⟩ := hInv u hu2 hune
+      obtain ⟨hgN, hg2⟩ := out_notMem_and_out_sq_mem N hu2 hune
       have hs : (⟨Quotient.out u, Subgroup.mem_sup_right (Subgroup.mem_zpowers _)⟩ :
           ↥(N ⊔ Subgroup.zpowers (Quotient.out u)))
           ∉ N.subgroupOf (N ⊔ Subgroup.zpowers (Quotient.out u)) :=
@@ -346,27 +398,14 @@ theorem lemma_6_17_vanish_final (D : TateDuality 2) (R : LocalReciprocity) (B : 
     · simp only [mem_orbitIndexSet_inv, invIdx, Finset.mem_filter, Finset.mem_univ,
         true_and] at ho
       obtain ⟨hu2, hune, -⟩ := ho
-      obtain ⟨hgN, hg2⟩ := hInv u hu2 hune
+      obtain ⟨hgN, hg2⟩ := out_notMem_and_out_sq_mem N hu2 hune
       exact InvolutionSplice.hvanish_involution_ker R B c hc ρ hfac horient
         (shapiroCoord N (fun g => (Quotient.out xW).1 g j)) (hZ1blk j) (hdeepblk j)
         (Quotient.out u) hgN hg2 (N ⊔ Subgroup.zpowers (Quotient.out u)) rfl
         (Subgroup.mem_sup_right (Subgroup.mem_zpowers _))
-    · have hZ1conj : (fun n : ↥N => shapiroCoord N (fun g => (Quotient.out xW).1 g k)
-          (conjMap ρ (Quotient.out u) n)) ∈ Z1 ↥N (ZMod 2) :=
-        comp_conjMap_mem_Z1 ρ (hZ1blk k) (Quotient.out u)
-      have hdeepconj : H1ofFun ↥N (fun n : ↥N =>
-          shapiroCoord N (fun g => (Quotient.out xW).1 g k) (conjMap ρ (Quotient.out u) n))
-          ∈ deepClasses N := by
-        have heq : H1ofFun ↥N (fun n : ↥N =>
-            shapiroCoord N (fun g => (Quotient.out xW).1 g k) (conjMap ρ (Quotient.out u) n))
-            = conjAct ρ (Quotient.out u)
-              (H1ofFun ↥N (shapiroCoord N (fun g => (Quotient.out xW).1 g k))) :=
-          (conjAct_h1ofFun ρ (Quotient.out u) (hZ1blk k)).symm
-        rw [heq]
-        exact conjAct_deepClasses (ρ := ρ) (Quotient.out u) (hdeepblk k)
-      exact InvolutionSplice.hvanish_cup_ker ρ (shapiroCoord N (fun g => (Quotient.out xW).1 g j))
-        (fun n => shapiroCoord N (fun g => (Quotient.out xW).1 g k) (conjMap ρ (Quotient.out u) n))
-        (hZ1blk j) hZ1conj (hdeepblk j) hdeepconj
+    · exact hvanish_free_conj ρ (fun g => (Quotient.out xW).1 g j)
+        (fun g => (Quotient.out xW).1 g k) (Quotient.out u) (hZ1blk j) (hZ1blk k)
+        (hdeepblk j) (hdeepblk k)
 
 end Assembly
 

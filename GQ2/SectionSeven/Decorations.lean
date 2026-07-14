@@ -26,6 +26,105 @@ variable {L : Subgroup Y}
 
 /-! ## Lemma 7.2 (Frattini–centralizer collapse) and Lemma 7.3 (decorations vanish) -/
 
+omit [Finite Y] in
+/-- With the squares and commutators of `K` central in `K` (`hcentral`), every commutator of
+elements of `K` is an involution: `[k, l]² = 1`. -/
+private theorem comm_sq_eq_one_of_central (K : Subgroup Y)
+    (hcentral : ∀ r ∈ frattiniLike K, ∀ k ∈ K, r * k = k * r)
+    {k l : Y} (hk : k ∈ K) (hl : l ∈ K) :
+    (k * l * k⁻¹ * l⁻¹) * (k * l * k⁻¹ * l⁻¹) = 1 := by
+  have hksq : ∀ m, m ∈ K → m * m ∈ frattiniLike K := fun m hm =>
+    Subgroup.subset_closure (Or.inl ⟨m, hm, rfl⟩)
+  have hcommR : ∀ m, m ∈ K → ∀ p, p ∈ K → m * p * m⁻¹ * p⁻¹ ∈ frattiniLike K := fun m hm p hp =>
+    Subgroup.subset_closure (Or.inr ⟨m, hm, p, hp, rfl⟩)
+  have hkkl : (k * k) * l * (k * k)⁻¹ * l⁻¹ = 1 := by
+    have hc := hcentral (k * k) (hksq k hk) l hl
+    rw [hc]; group
+  have hexp : (k * k) * l * (k * k)⁻¹ * l⁻¹
+      = k * (k * l * k⁻¹ * l⁻¹) * k⁻¹ * (k * l * k⁻¹ * l⁻¹) := by group
+  have hkc : k * (k * l * k⁻¹ * l⁻¹) * k⁻¹ = k * l * k⁻¹ * l⁻¹ := by
+    have hc := hcentral (k * l * k⁻¹ * l⁻¹) (hcommR k hk l hl) k hk
+    rw [show k * (k * l * k⁻¹ * l⁻¹) = (k * l * k⁻¹ * l⁻¹) * k from hc.symm]
+    group
+  rw [hexp, hkc] at hkkl
+  exact hkkl
+
+omit [Finite Y] in
+/-- Class-2 fourth-power law: with the squares and commutators of `K` central in `K` (`hcentral`),
+`(k * l)^4 = k^4 * l^4` for `k, l ∈ K`. -/
+private theorem mul_pow_four_of_central (K : Subgroup Y)
+    (hcentral : ∀ r ∈ frattiniLike K, ∀ k ∈ K, r * k = k * r)
+    {k l : Y} (hk : k ∈ K) (hl : l ∈ K) :
+    (k * l) ^ 4 = k ^ 4 * l ^ 4 := by
+  have hksq : ∀ m, m ∈ K → m * m ∈ frattiniLike K := fun m hm =>
+    Subgroup.subset_closure (Or.inl ⟨m, hm, rfl⟩)
+  have hcommR : ∀ m, m ∈ K → ∀ p, p ∈ K → m * p * m⁻¹ * p⁻¹ ∈ frattiniLike K := fun m hm p hp =>
+    Subgroup.subset_closure (Or.inr ⟨m, hm, p, hp, rfl⟩)
+  have hp4 : ∀ x : Y, x ^ 4 = x * x * x * x := fun x => by
+    rw [pow_succ, pow_succ, pow_succ, pow_one]
+  have hclk : l * k * l⁻¹ * k⁻¹ ∈ frattiniLike K := hcommR l hl k hk
+  have hc' : k * (l * k * l⁻¹ * k⁻¹) = (l * k * l⁻¹ * k⁻¹) * k :=
+    (hcentral (l * k * l⁻¹ * k⁻¹) hclk k hk).symm
+  have hsq : (k * l) ^ 2 = (l * k * l⁻¹ * k⁻¹) * (k * k) * (l * l) := by
+    calc (k * l) ^ 2
+        = k * (l * k * l⁻¹ * k⁻¹) * (k * l * l) := by rw [pow_two]; group
+      _ = (l * k * l⁻¹ * k⁻¹) * k * (k * l * l) := by rw [hc']
+      _ = (l * k * l⁻¹ * k⁻¹) * (k * k) * (l * l) := by group
+  have hlk2 : (l * k * l⁻¹ * k⁻¹) * (l * k * l⁻¹ * k⁻¹) = 1 :=
+    comm_sq_eq_one_of_central K hcentral hl hk
+  have s1 : (l * l) * (l * k * l⁻¹ * k⁻¹) = (l * k * l⁻¹ * k⁻¹) * (l * l) :=
+    hcentral (l * l) (hksq l hl) _ (frattiniLike_le K hclk)
+  have s2 : (k * k) * (l * k * l⁻¹ * k⁻¹) = (l * k * l⁻¹ * k⁻¹) * (k * k) :=
+    hcentral (k * k) (hksq k hk) _ (frattiniLike_le K hclk)
+  have s3 : (l * l) * (k * k) = (k * k) * (l * l) :=
+    hcentral (l * l) (hksq l hl) _ (mul_mem hk hk)
+  have h4 : (k * l) ^ 4 = ((l * k * l⁻¹ * k⁻¹) * (k * k) * (l * l))
+      * ((l * k * l⁻¹ * k⁻¹) * (k * k) * (l * l)) := by
+    rw [show (4 : ℕ) = 2 * 2 from rfl, pow_mul, hsq, pow_two]
+  rw [h4]
+  calc ((l * k * l⁻¹ * k⁻¹) * (k * k) * (l * l)) * ((l * k * l⁻¹ * k⁻¹) * (k * k) * (l * l))
+      = (l * k * l⁻¹ * k⁻¹) * (k * k) * ((l * l) * (l * k * l⁻¹ * k⁻¹)) * (k * k) * (l * l) := by
+        group
+    _ = (l * k * l⁻¹ * k⁻¹) * (k * k) * ((l * k * l⁻¹ * k⁻¹) * (l * l)) * (k * k) * (l * l) := by
+        rw [s1]
+    _ = (l * k * l⁻¹ * k⁻¹) * ((k * k) * (l * k * l⁻¹ * k⁻¹)) * (l * l) * (k * k) * (l * l) := by
+        group
+    _ = (l * k * l⁻¹ * k⁻¹) * ((l * k * l⁻¹ * k⁻¹) * (k * k)) * (l * l) * (k * k) * (l * l) := by
+        rw [s2]
+    _ = (l * k * l⁻¹ * k⁻¹) * (l * k * l⁻¹ * k⁻¹) * (k * k) * ((l * l) * (k * k)) * (l * l) := by
+        group
+    _ = (l * k * l⁻¹ * k⁻¹) * (l * k * l⁻¹ * k⁻¹) * (k * k) * ((k * k) * (l * l)) * (l * l) := by
+        rw [s3]
+    _ = ((l * k * l⁻¹ * k⁻¹) * (l * k * l⁻¹ * k⁻¹)) * ((k * k) * (k * k)) *
+          ((l * l) * (l * l)) := by
+        group
+    _ = 1 * ((k * k) * (k * k)) * ((l * l) * (l * l)) := by rw [hlk2]
+    _ = k ^ 4 * l ^ 4 := by rw [one_mul, hp4 k, hp4 l]; group
+
+omit [Finite Y] in
+/-- If every element of `K` satisfies `k^4 = 1` and the squares and commutators of `K` are central
+in `K` (`hcentral`), then every element of `Φ(K)` is an involution. -/
+private theorem frattini_sq_eq_one (K : Subgroup Y)
+    (hcentral : ∀ r ∈ frattiniLike K, ∀ k ∈ K, r * k = k * r)
+    (hk4 : ∀ k, k ∈ K → k ^ 4 = 1)
+    {r : Y} (hr : r ∈ frattiniLike K) : r * r = 1 := by
+  have hp4 : ∀ x : Y, x ^ 4 = x * x * x * x := fun x => by
+    rw [pow_succ, pow_succ, pow_succ, pow_one]
+  refine Subgroup.closure_induction (p := fun g _ => g * g = 1) ?_ ?_ ?_ ?_ hr
+  · rintro g (⟨k, hk, rfl⟩ | ⟨k, hk, l, hl, rfl⟩)
+    · rw [show (k * k) * (k * k) = k ^ 4 by rw [hp4 k]; group]; exact hk4 k hk
+    · exact comm_sq_eq_one_of_central K hcentral hk hl
+  · exact one_mul 1
+  · intro a b ha_mem hb_mem ha hb
+    have hbK : b ∈ K := frattiniLike_le K hb_mem
+    have hab : a * b = b * a := hcentral a ha_mem b hbK
+    calc (a * b) * (a * b) = a * (b * a) * b := by group
+      _ = a * (a * b) * b := by rw [hab]
+      _ = (a * a) * (b * b) := by group
+      _ = 1 := by rw [ha, hb, mul_one]
+  · intro a _ ha
+    rw [show a⁻¹ * a⁻¹ = (a * a)⁻¹ by group, ha, inv_one]
+
 /-- **Lemma 7.2**: for a tame head (the target's head map factors through `GQ2.Ttame`),
 `R = Φ(K)` is central elementary abelian in `K`, and `K⁴ = 1`.  [P-14 statement; proof P-15
 (odd Hall lift + three-subgroup lemma + the `G`-equivariant fourth-power map).] -/
@@ -134,66 +233,12 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
   -- squares and commutators of `K` land in `R = Φ(K)`
   have hksq : ∀ k, k ∈ B.K → k * k ∈ B.frattiniK := fun k hk =>
     Subgroup.subset_closure (Or.inl ⟨k, hk, rfl⟩)
-  have hcommR : ∀ k, k ∈ B.K → ∀ l, l ∈ B.K → k * l * k⁻¹ * l⁻¹ ∈ B.frattiniK := fun k hk l hl =>
-    Subgroup.subset_closure (Or.inr ⟨k, hk, l, hl, rfl⟩)
   -- `group` will not expand `x ^ (4 : ℕ)`; unfold it explicitly wherever it meets a product
   have hp4 : ∀ x : Y, x ^ 4 = x * x * x * x := fun x => by
     rw [pow_succ, pow_succ, pow_succ, pow_one]
-  -- `[k,l]² = 1`
-  have hcomm2 : ∀ k, k ∈ B.K → ∀ l, l ∈ B.K → (k * l * k⁻¹ * l⁻¹) * (k * l * k⁻¹ * l⁻¹) = 1 := by
-    intro k hk l hl
-    have hkkl : (k * k) * l * (k * k)⁻¹ * l⁻¹ = 1 := by
-      have hc := hRcentral (k * k) (hksq k hk) l hl
-      rw [hc]; group
-    have hexp : (k * k) * l * (k * k)⁻¹ * l⁻¹
-        = k * (k * l * k⁻¹ * l⁻¹) * k⁻¹ * (k * l * k⁻¹ * l⁻¹) := by group
-    have hkc : k * (k * l * k⁻¹ * l⁻¹) * k⁻¹ = k * l * k⁻¹ * l⁻¹ := by
-      have hc := hRcentral (k * l * k⁻¹ * l⁻¹) (hcommR k hk l hl) k hk
-      rw [show k * (k * l * k⁻¹ * l⁻¹) = (k * l * k⁻¹ * l⁻¹) * k from hc.symm]
-      group
-    rw [hexp, hkc] at hkkl
-    exact hkkl
-  -- `(k*l)^4 = k^4 * l^4` (class-2 algebra with `[k,l]^2 = 1`)
-  have hf_hom : ∀ k, k ∈ B.K → ∀ l, l ∈ B.K → (k * l) ^ 4 = k ^ 4 * l ^ 4 := by
-    intro k hk l hl
-    have hclk : l * k * l⁻¹ * k⁻¹ ∈ B.frattiniK := hcommR l hl k hk
-    have hc' : k * (l * k * l⁻¹ * k⁻¹) = (l * k * l⁻¹ * k⁻¹) * k :=
-      (hRcentral (l * k * l⁻¹ * k⁻¹) hclk k hk).symm
-    have hsq : (k * l) ^ 2 = (l * k * l⁻¹ * k⁻¹) * (k * k) * (l * l) := by
-      calc (k * l) ^ 2
-          = k * (l * k * l⁻¹ * k⁻¹) * (k * l * l) := by rw [pow_two]; group
-        _ = (l * k * l⁻¹ * k⁻¹) * k * (k * l * l) := by rw [hc']
-        _ = (l * k * l⁻¹ * k⁻¹) * (k * k) * (l * l) := by group
-    have hlk2 : (l * k * l⁻¹ * k⁻¹) * (l * k * l⁻¹ * k⁻¹) = 1 := hcomm2 l hl k hk
-    -- three central factors commute pairwise
-    have s1 : (l * l) * (l * k * l⁻¹ * k⁻¹) = (l * k * l⁻¹ * k⁻¹) * (l * l) :=
-      hRcentral (l * l) (hksq l hl) _ (frattiniLike_le B.K hclk)
-    have s2 : (k * k) * (l * k * l⁻¹ * k⁻¹) = (l * k * l⁻¹ * k⁻¹) * (k * k) :=
-      hRcentral (k * k) (hksq k hk) _ (frattiniLike_le B.K hclk)
-    have s3 : (l * l) * (k * k) = (k * k) * (l * l) :=
-      hRcentral (l * l) (hksq l hl) _ (mul_mem hk hk)
-    have h4 : (k * l) ^ 4 = ((l * k * l⁻¹ * k⁻¹) * (k * k) * (l * l))
-        * ((l * k * l⁻¹ * k⁻¹) * (k * k) * (l * l)) := by
-      rw [show (4 : ℕ) = 2 * 2 from rfl, pow_mul, hsq, pow_two]
-    rw [h4]
-    calc ((l * k * l⁻¹ * k⁻¹) * (k * k) * (l * l)) * ((l * k * l⁻¹ * k⁻¹) * (k * k) * (l * l))
-        = (l * k * l⁻¹ * k⁻¹) * (k * k) * ((l * l) * (l * k * l⁻¹ * k⁻¹)) * (k * k) * (l * l) := by
-          group
-      _ = (l * k * l⁻¹ * k⁻¹) * (k * k) * ((l * k * l⁻¹ * k⁻¹) * (l * l)) * (k * k) * (l * l) := by
-          rw [s1]
-      _ = (l * k * l⁻¹ * k⁻¹) * ((k * k) * (l * k * l⁻¹ * k⁻¹)) * (l * l) * (k * k) * (l * l) := by
-          group
-      _ = (l * k * l⁻¹ * k⁻¹) * ((l * k * l⁻¹ * k⁻¹) * (k * k)) * (l * l) * (k * k) * (l * l) := by
-          rw [s2]
-      _ = (l * k * l⁻¹ * k⁻¹) * (l * k * l⁻¹ * k⁻¹) * (k * k) * ((l * l) * (k * k)) * (l * l) := by
-          group
-      _ = (l * k * l⁻¹ * k⁻¹) * (l * k * l⁻¹ * k⁻¹) * (k * k) * ((k * k) * (l * l)) * (l * l) := by
-          rw [s3]
-      _ = ((l * k * l⁻¹ * k⁻¹) * (l * k * l⁻¹ * k⁻¹)) * ((k * k) * (k * k)) *
-            ((l * l) * (l * l)) := by
-          group
-      _ = 1 * ((k * k) * (k * k)) * ((l * l) * (l * l)) := by rw [hlk2]
-      _ = k ^ 4 * l ^ 4 := by rw [one_mul, hp4 k, hp4 l]; group
+  -- class-2 algebra: `(k*l)^4 = k^4 * l^4`, since `R = Φ(K)` is central in `K`
+  have hf_hom : ∀ k, k ∈ B.K → ∀ l, l ∈ B.K → (k * l) ^ 4 = k ^ 4 * l ^ 4 :=
+    fun k hk l hl => mul_pow_four_of_central B.K hRcentral hk hl
   -- `f k = k^4 ∈ R`
   have hf_mem : ∀ k, k ∈ B.K → k ^ 4 ∈ B.frattiniK := by
     intro k hk
@@ -240,23 +285,7 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
   -- `r^2 = 1`: `R = Φ(K)` is generated by squares (`k^4=1`) and commutators (`[k,l]^2=1`),
   -- and `R` is abelian (central in `K ⊇ R`), so the involution property closes under products.
   intro r hr
-  have key : ∀ x ∈ frattiniLike B.K, x * x = 1 := by
-    intro x hx
-    refine Subgroup.closure_induction (p := fun g _ => g * g = 1) ?_ ?_ ?_ ?_ hx
-    · rintro g (⟨k, hk, rfl⟩ | ⟨k, hk, l, hl, rfl⟩)
-      · rw [show (k * k) * (k * k) = k ^ 4 by rw [hp4 k]; group]; exact hf_ker k hk
-      · exact hcomm2 k hk l hl
-    · exact one_mul 1
-    · intro a b ha_mem hb_mem ha hb
-      have hbK : b ∈ B.K := frattiniLike_le B.K hb_mem
-      have hab : a * b = b * a := hRcentral a ha_mem b hbK
-      calc (a * b) * (a * b) = a * (b * a) * b := by group
-        _ = a * (a * b) * b := by rw [hab]
-        _ = (a * a) * (b * b) := by group
-        _ = 1 := by rw [ha, hb, mul_one]
-    · intro a _ ha
-      rw [show a⁻¹ * a⁻¹ = (a * a)⁻¹ by group, ha, inv_one]
-  exact key r hr
+  exact frattini_sq_eq_one B.K hRcentral hf_ker hr
 
 omit [Finite Y] in
 /-- **Lemma 7.3 (decorations vanish on the block)**: every homomorphism from `Y` to an

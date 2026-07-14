@@ -218,6 +218,86 @@ theorem exists_minimalBlock (hL : L.Normal) (h2 : IsPGroup 2 L)
 
 /-! ## Lemma 7.1 (simple head) -/
 
+/-- A finite 2-group `Q` all of whose elements lie in the closure of the squares and commutators
+— i.e. whose Frattini subgroup `Φ(Q) = Q²[Q,Q]` is everything — is trivial.  In the abelianization
+squaring is a surjective, hence injective, endomorphism; either the abelianization is trivial (so
+`Q` is perfect, impossible for a nontrivial nilpotent group) or it has an order-2 element killed by
+that injective squaring. -/
+private theorem subsingleton_of_sq_comm_closure_eq_top {Q : Type} [Group Q] [Finite Q]
+    (hQ2 : IsPGroup 2 Q)
+    (htop : ∀ x : Q, x ∈ Subgroup.closure
+      ({y | ∃ a, y = a * a} ∪ {y | ∃ a b, y = a * b * a⁻¹ * b⁻¹})) :
+    Subsingleton Q := by
+  have : Fact (Nat.Prime 2) := Nat.fact_prime_two
+  -- pass to the abelianization: every element is a square
+  have habel : ∀ w : Abelianization Q, w ∈ Subgroup.closure {x | ∃ a, x = a * a} := by
+    intro w
+    obtain ⟨q, rfl⟩ := QuotientGroup.mk'_surjective _ w
+    have hmem := Subgroup.mem_map_of_mem (Abelianization.of (G := Q)) (htop q)
+    rw [MonoidHom.map_closure] at hmem
+    have hcommW : ∀ u v : Abelianization Q, u * v * u⁻¹ * v⁻¹ = 1 := by
+      intro u v
+      rw [mul_comm u v, mul_assoc v u, mul_inv_cancel, mul_one, mul_inv_cancel]
+    refine (Subgroup.closure_le _).mpr ?_ hmem
+    rintro _ ⟨z, hz, rfl⟩
+    rcases hz with ⟨a, rfl⟩ | ⟨a, b, rfl⟩
+    · exact Subgroup.subset_closure ⟨_, by rw [map_mul]⟩
+    · have h1 : Abelianization.of (a * b * a⁻¹ * b⁻¹) = 1 := by
+        rw [map_mul, map_mul, map_mul, map_inv, map_inv, hcommW]
+      rw [h1]
+      exact one_mem _
+  -- squaring is a surjective, hence injective, endomorphism of the finite abelianization
+  have hsurj : Function.Surjective (powMonoidHom 2 : Abelianization Q →* _) := by
+    rw [← MonoidHom.range_eq_top, eq_top_iff]
+    intro w _
+    refine (Subgroup.closure_le _).mpr ?_ (habel w)
+    rintro _ ⟨a, rfl⟩
+    exact ⟨a, by rw [powMonoidHom_apply, pow_two]⟩
+  have hinj : Function.Injective (powMonoidHom 2 : Abelianization Q →* _) :=
+    Finite.injective_iff_surjective.mpr hsurj
+  by_cases hWt : Subsingleton (Abelianization Q)
+  · -- trivial abelianization: `Q` is perfect, contradicting nilpotency of finite 2-groups
+    have hcommQ : commutator Q = ⊤ := by
+      rw [eq_top_iff]
+      intro q _
+      have h1 : Abelianization.of q = 1 := Subsingleton.elim _ _
+      exact (QuotientGroup.eq_one_iff q).mp h1
+    have hnil := hQ2.isNilpotent
+    obtain ⟨n, hn⟩ := Subgroup.nilpotent_iff_lowerCentralSeries.mp hnil
+    have hall : ∀ m, Subgroup.lowerCentralSeries (⊤ : Subgroup Q) m = ⊤ := by
+      intro m
+      induction m with
+      | zero => rfl
+      | succ m ih =>
+        rwa [Subgroup.lowerCentralSeries_succ, ih, ← _root_.commutator_def]
+    rw [hall n] at hn
+    refine ⟨fun a b => ?_⟩
+    have ha : a = 1 := Subgroup.mem_bot.mp (hn ▸ Subgroup.mem_top a)
+    have hb : b = 1 := Subgroup.mem_bot.mp (hn ▸ Subgroup.mem_top b)
+    rw [ha, hb]
+  · -- nontrivial abelianization: an order-2 element dies under injective squaring
+    classical
+    rw [not_subsingleton_iff_nontrivial] at hWt
+    obtain ⟨w, hw⟩ := exists_ne (1 : Abelianization Q)
+    obtain ⟨n, hn⟩ := (hQ2.to_quotient (commutator _)) w
+    have hex : ∃ j, w ^ (2 : ℕ) ^ j = 1 := ⟨n, hn⟩
+    have hspec : w ^ (2 : ℕ) ^ Nat.find hex = 1 := Nat.find_spec hex
+    have hm0 : Nat.find hex ≠ 0 := by
+      intro h0
+      rw [h0, pow_zero, pow_one] at hspec
+      exact hw hspec
+    have hw'1 : w ^ (2 : ℕ) ^ (Nat.find hex - 1) ≠ 1 :=
+      Nat.find_min hex (Nat.sub_lt (Nat.pos_of_ne_zero hm0) one_pos)
+    have hw'sq : (powMonoidHom 2 : Abelianization _ →* _) (w ^ (2 : ℕ) ^ (Nat.find hex - 1))
+        = (powMonoidHom 2 : Abelianization _ →* _) 1 := by
+      rw [map_one, powMonoidHom_apply, ← pow_mul]
+      have harith : (2 : ℕ) ^ (Nat.find hex - 1) * 2 = 2 ^ Nat.find hex := by
+        rw [← pow_succ]
+        congr 1
+        omega
+      rw [harith, hspec]
+    exact absurd (hinj hw'sq) hw'1
+
 /-- **Lemma 7.1, head clause** — recorded in its load-bearing form `R ≤ K ∩ S` (the paper's
 "Since `K/(K∩S) ≅ V` is elementary abelian, `R ≤ K∩S`; the displayed sequence follows"): given
 `gen : K ⊔ S = P`, the exact sequence `0 → T₀ → M → V → 0` and the head identification
@@ -299,78 +379,7 @@ theorem lemma_7_1_head (B : MinimalBlock L) : B.frattiniK ≤ B.K ⊓ B.S := by
       · exact Subgroup.subset_closure (Or.inl ⟨_, by rw [map_mul]⟩)
       · exact Subgroup.subset_closure
           (Or.inr ⟨_, _, by rw [map_mul, map_mul, map_mul, map_inv, map_inv]⟩)
-    -- pass to the abelianization: every element is a square
-    have habel : ∀ w : Abelianization (↥B.P ⧸ B.S.subgroupOf B.P),
-        w ∈ Subgroup.closure {x | ∃ a, x = a * a} := by
-      intro w
-      obtain ⟨q, rfl⟩ := QuotientGroup.mk'_surjective _ w
-      have hmem := Subgroup.mem_map_of_mem
-        (Abelianization.of (G := ↥B.P ⧸ B.S.subgroupOf B.P)) (htop q)
-      rw [MonoidHom.map_closure] at hmem
-      have hcommW : ∀ u v : Abelianization (↥B.P ⧸ B.S.subgroupOf B.P),
-          u * v * u⁻¹ * v⁻¹ = 1 := by
-        intro u v
-        rw [mul_comm u v, mul_assoc v u, mul_inv_cancel, mul_one, mul_inv_cancel]
-      refine (Subgroup.closure_le _).mpr ?_ hmem
-      rintro _ ⟨z, hz, rfl⟩
-      rcases hz with ⟨a, rfl⟩ | ⟨a, b, rfl⟩
-      · exact Subgroup.subset_closure ⟨_, by rw [map_mul]⟩
-      · have h1 : Abelianization.of (a * b * a⁻¹ * b⁻¹) = 1 := by
-          rw [map_mul, map_mul, map_mul, map_inv, map_inv, hcommW]
-        rw [h1]
-        exact one_mem _
-    -- squaring is a surjective, hence injective, endomorphism of the finite abelianization
-    have hsurj : Function.Surjective
-        (powMonoidHom 2 : Abelianization (↥B.P ⧸ B.S.subgroupOf B.P) →* _) := by
-      rw [← MonoidHom.range_eq_top, eq_top_iff]
-      intro w _
-      refine (Subgroup.closure_le _).mpr ?_ (habel w)
-      rintro _ ⟨a, rfl⟩
-      exact ⟨a, by rw [powMonoidHom_apply, pow_two]⟩
-    have hinj : Function.Injective
-        (powMonoidHom 2 : Abelianization (↥B.P ⧸ B.S.subgroupOf B.P) →* _) :=
-      Finite.injective_iff_surjective.mpr hsurj
-    by_cases hWt : Subsingleton (Abelianization (↥B.P ⧸ B.S.subgroupOf B.P))
-    · -- trivial abelianization: `Q` is perfect, contradicting nilpotency of finite 2-groups
-      have hcommQ : commutator (↥B.P ⧸ B.S.subgroupOf B.P) = ⊤ := by
-        rw [eq_top_iff]
-        intro q _
-        have h1 : Abelianization.of q = 1 := Subsingleton.elim _ _
-        exact (QuotientGroup.eq_one_iff q).mp h1
-      have hnil := hQ2.isNilpotent
-      obtain ⟨n, hn⟩ := Subgroup.nilpotent_iff_lowerCentralSeries.mp hnil
-      have hall : ∀ m,
-          Subgroup.lowerCentralSeries (⊤ : Subgroup (↥B.P ⧸ B.S.subgroupOf B.P)) m = ⊤ := by
-        intro m
-        induction m with
-        | zero => rfl
-        | succ m ih =>
-          rwa [Subgroup.lowerCentralSeries_succ, ih, ← _root_.commutator_def]
-      rw [hall n] at hn
-      obtain ⟨q, hq⟩ := exists_ne (1 : ↥B.P ⧸ B.S.subgroupOf B.P)
-      exact hq (Subgroup.mem_bot.mp (hn ▸ Subgroup.mem_top q))
-    · -- nontrivial abelianization: an order-2 element dies under injective squaring
-      classical
-      rw [not_subsingleton_iff_nontrivial] at hWt
-      obtain ⟨w, hw⟩ := exists_ne (1 : Abelianization (↥B.P ⧸ B.S.subgroupOf B.P))
-      obtain ⟨n, hn⟩ := (hQ2.to_quotient (commutator _)) w
-      have hex : ∃ j, w ^ (2 : ℕ) ^ j = 1 := ⟨n, hn⟩
-      have hspec : w ^ (2 : ℕ) ^ Nat.find hex = 1 := Nat.find_spec hex
-      have hm0 : Nat.find hex ≠ 0 := by
-        intro h0
-        rw [h0, pow_zero, pow_one] at hspec
-        exact hw hspec
-      have hw'1 : w ^ (2 : ℕ) ^ (Nat.find hex - 1) ≠ 1 :=
-        Nat.find_min hex (Nat.sub_lt (Nat.pos_of_ne_zero hm0) one_pos)
-      have hw'sq : (powMonoidHom 2 : Abelianization _ →* _) (w ^ (2 : ℕ) ^ (Nat.find hex - 1))
-          = (powMonoidHom 2 : Abelianization _ →* _) 1 := by
-        rw [map_one, powMonoidHom_apply, ← pow_mul]
-        have harith : (2 : ℕ) ^ (Nat.find hex - 1) * 2 = 2 ^ Nat.find hex := by
-          rw [← pow_succ]
-          congr 1
-          omega
-        rw [harith, hspec]
-      exact hw'1 (hinj hw'sq)
+    exact absurd (subsingleton_of_sq_comm_closure_eq_top hQ2 htop) (not_subsingleton _)
 
 /-- **Lemma 7.1, radical clause**: `T₀ = (K ∩ S)·R` is the unique maximal `Y`-normal subgroup
 of `K` above `R` — i.e. `T₀ = rad_{𝔽₂[C]} M` and `M/T₀` is the unique simple head.
