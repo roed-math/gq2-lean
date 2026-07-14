@@ -7,7 +7,7 @@ project:
   authors:
     - "David Roe (orchestration, review, direction)"
     - "Claude (Anthropic) agent swarm (Claude Opus 4.8, Claude Fable 5)"
-  license: "GPL-3.0"
+  license: "Apache-2.0"
 
 sources:
   - title: "A Profinite Presentation of the Absolute Galois Group of Q_2"

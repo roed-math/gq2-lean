@@ -118,4 +118,4 @@ lake build GQ2.AxiomLedger            # optional: repo-wide #print axioms certif
 
 ## License
 
-GPL v3 or (at your option) any later version — see [LICENSE](LICENSE).
+Apache License 2.0 — see [LICENSE](LICENSE).
