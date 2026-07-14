@@ -254,6 +254,38 @@ theorem blockProjF_thetaGA_x1 :
         blockProjF_thetaGA T Blk hE2 B F ρ _
     _ = 1 := by rw [B.tameA_x1, map_one]
 
+omit [Blk.frattiniK.Normal] in
+/-- The head projection of the `markC θ` `σ`-slot is the fixed tame `σ`-value (stage 2 of both
+twins, at `markC θ` via `markC_map`). -/
+theorem blockProjF_markC_sigma :
+    blockProjF T Blk ((markC (thetaGA B.bA F ρ)).σ) = headTameSurj T Blk F tameSigma := by
+  rw [congrArg Marking.σ (markC_map (thetaGA B.bA F ρ))]
+  exact blockProjF_thetaGA_sigma T Blk hE2 B F ρ
+
+omit [Blk.frattiniK.Normal] in
+/-- The head projection of the `markC θ` `τ`-slot is the fixed tame `τ`-value (stage 2 of both
+twins, at `markC θ` via `markC_map`). -/
+theorem blockProjF_markC_tau :
+    blockProjF T Blk ((markC (thetaGA B.bA F ρ)).τ) = headTameSurj T Blk F tameTau := by
+  rw [congrArg Marking.τ (markC_map (thetaGA B.bA F ρ))]
+  exact blockProjF_thetaGA_tau T Blk hE2 B F ρ
+
+omit [Blk.frattiniK.Normal] in
+/-- The head projection of the `markC θ` `x₀`-slot is `1` (the wild generators die at the tame
+head; the ramified twin's stage 2). -/
+theorem blockProjF_markC_x0 :
+    blockProjF T Blk ((markC (thetaGA B.bA F ρ)).x₀) = 1 := by
+  rw [congrArg Marking.x₀ (markC_map (thetaGA B.bA F ρ))]
+  exact blockProjF_thetaGA_x0 T Blk hE2 B F ρ
+
+omit [Blk.frattiniK.Normal] in
+/-- The head projection of the `markC θ` `x₁`-slot is `1` (the wild generators die at the tame
+head; the ramified twin's stage 2). -/
+theorem blockProjF_markC_x1 :
+    blockProjF T Blk ((markC (thetaGA B.bA F ρ)).x₁) = 1 := by
+  rw [congrArg Marking.x₁ (markC_map (thetaGA B.bA F ρ))]
+  exact blockProjF_thetaGA_x1 T Blk hE2 B F ρ
+
 end HeadSlots
 
 /-- **`hGaussZA` at the head-inflated enrichment, unramified case** (P4d): for the block
@@ -366,12 +398,10 @@ theorem gaussZResidueD_gammaA_unramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Bound
     rw [show Nat.card (Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)) = 2 ^ (2 * m) from hcard]
     exact dvd_pow_self 2 (by omega)
   -- ===== stage 2: the head-slot projections of `markC θ` =====
-  have hσP : blockProjF T Blk ((markC (thetaGA B.bA F ρ)).σ) = cF tameSigma := by
-    rw [congrArg Marking.σ (markC_map (thetaGA B.bA F ρ))]
-    exact blockProjF_thetaGA_sigma T Blk hE2 B F ρ
-  have hτP : blockProjF T Blk ((markC (thetaGA B.bA F ρ)).τ) = cF tameTau := by
-    rw [congrArg Marking.τ (markC_map (thetaGA B.bA F ρ))]
-    exact blockProjF_thetaGA_tau T Blk hE2 B F ρ
+  have hσP : blockProjF T Blk ((markC (thetaGA B.bA F ρ)).σ) = cF tameSigma :=
+    blockProjF_markC_sigma T Blk hE2 B F ρ
+  have hτP : blockProjF T Blk ((markC (thetaGA B.bA F ρ)).τ) = cF tameTau :=
+    blockProjF_markC_tau T Blk hE2 B F ρ
   have hadm := markC_admissible (thetaGA B.bA F ρ) hθsurj
   -- ===== stage 3: the split hypothesis pack at `markC θ`, through the head =====
   have hsimpleM : IsSimpleModTwo (blockFrame T Blk hE2).YC (EnD.descData l h).Vmod := by
@@ -655,18 +685,14 @@ theorem gaussZResidueD_gammaA_ramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Boundar
     have hrel := congrArg (⇑cF) tame_relation
     simpa only [conjP, map_mul, map_inv, map_pow] using hrel
   -- ===== stage 2: the head-slot projections of `markC θ` =====
-  have hσP : blockProjF T Blk ((markC (thetaGA B.bA F ρ)).σ) = cF tameSigma := by
-    rw [congrArg Marking.σ (markC_map (thetaGA B.bA F ρ))]
-    exact blockProjF_thetaGA_sigma T Blk hE2 B F ρ
-  have hτP : blockProjF T Blk ((markC (thetaGA B.bA F ρ)).τ) = cF tameTau := by
-    rw [congrArg Marking.τ (markC_map (thetaGA B.bA F ρ))]
-    exact blockProjF_thetaGA_tau T Blk hE2 B F ρ
-  have hx0P : blockProjF T Blk ((markC (thetaGA B.bA F ρ)).x₀) = 1 := by
-    rw [congrArg Marking.x₀ (markC_map (thetaGA B.bA F ρ))]
-    exact blockProjF_thetaGA_x0 T Blk hE2 B F ρ
-  have hx1P : blockProjF T Blk ((markC (thetaGA B.bA F ρ)).x₁) = 1 := by
-    rw [congrArg Marking.x₁ (markC_map (thetaGA B.bA F ρ))]
-    exact blockProjF_thetaGA_x1 T Blk hE2 B F ρ
+  have hσP : blockProjF T Blk ((markC (thetaGA B.bA F ρ)).σ) = cF tameSigma :=
+    blockProjF_markC_sigma T Blk hE2 B F ρ
+  have hτP : blockProjF T Blk ((markC (thetaGA B.bA F ρ)).τ) = cF tameTau :=
+    blockProjF_markC_tau T Blk hE2 B F ρ
+  have hx0P : blockProjF T Blk ((markC (thetaGA B.bA F ρ)).x₀) = 1 :=
+    blockProjF_markC_x0 T Blk hE2 B F ρ
+  have hx1P : blockProjF T Blk ((markC (thetaGA B.bA F ρ)).x₁) = 1 :=
+    blockProjF_markC_x1 T Blk hE2 B F ρ
   have hadm := markC_admissible (thetaGA B.bA F ρ) hθsurj
   -- ===== stage 3: the ramified hypothesis pack at `markC θ`, through the head =====
   have hx0M : ∀ v : (EnD.descData l h).Vmod,
