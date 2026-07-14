@@ -287,12 +287,9 @@ theorem lemma_8_5_aggregated {W E : Type*} [AddCommGroup W] [Module (ZMod 2) W] 
 
 /-! ## The capstone (140) reducer — `phase140` from the concrete correspondences -/
 
-
 /-! ## Discharging the polar data `a_χ` from nonsingularity (the `En.hns` supply) -/
-
-
-
-
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] in
 /-- **The `|V| = |M_B|/|T_B|` match** (P-16d6): the enrichment's descent `M_B ↠ V` with
 `ker = T_B` gives `|V| = |M_B|/|T_B|` by the first isomorphism theorem — discharging the `hWV`
 cardinality match of `phase140_of_nonsingular` directly from `En` (with `W := En.Vmod`). -/

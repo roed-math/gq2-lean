@@ -50,6 +50,8 @@ variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
 
 variable (B : BoundaryMaps) (F : BoundaryFrame H E) (En : RF.Enrichment)
 
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [TopologicalSpace Y]
+  [DiscreteTopology Y] [IsTopologicalGroup AbsGalQ2] in
 /-- **`hGaussZF`, unramified case** (P-16d6e4a): with a per-lift tame package whose inertia
 acts trivially on `V`, `GaussZResidue B.bF F En l h (−2^m)` — the `prop_8_9` ledger
 hypothesis at the pinned unramified value. -/
@@ -125,6 +127,8 @@ theorem gaussZResidue_local_unramified (D6 : TateDuality 2)
         rfl
     _ = (Nat.card En.Vmod : ℤ) * (-(2 ^ m : ℤ)) := by rw [hpinned]
 
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [TopologicalSpace Y]
+  [DiscreteTopology Y] [IsTopologicalGroup AbsGalQ2] in
 /-- **`hGaussZF`, ramified case** (P-16d6e4a): with a per-lift tame package whose inertia
 moves `V`, `GaussZResidue B.bF F En l h (+2^m)` — the `prop_8_9` ledger hypothesis at the
 pinned ramified value. -/

@@ -122,6 +122,7 @@ noncomputable def conjHom (P : Subgroup Y) (hP : P.Normal) (y : Y) : ↥P →* �
   map_one' := Subtype.ext (by simp)
   map_mul' a b := Subtype.ext (by push_cast; group)
 
+omit [Finite Y] in
 theorem conjHom_compat (S P : Subgroup Y) (hS : S.Normal) (hP : P.Normal) (y : Y) :
     S.subgroupOf P ≤ (S.subgroupOf P).comap (conjHom P hP y) := by
   intro p hp
@@ -150,6 +151,7 @@ theorem conjHom_compat (S P : Subgroup Y) (hS : S.Normal) (hP : P.Normal) (y : Y
       show (y₁ * y₂) * (p : Y) * (y₁ * y₂)⁻¹ = y₁ * (y₂ * (p : Y) * y₂⁻¹) * y₁⁻¹
       group }
 
+omit [Finite Y] in
 theorem blockAction_smul_mk (S P : Subgroup Y) (hS : S.Normal) (hP : P.Normal)
     (y : Y) (p : ↥P) :
     letI := blockAction S P hS hP
@@ -193,6 +195,7 @@ noncomputable def blockPerm (S P : Subgroup Y) (hS : S.Normal) (hP : P.Normal) :
       exact Subtype.ext (by
         show (y₁ * y₂) * (p : Y) * (y₁ * y₂)⁻¹ = y₁ * (y₂ * (p : Y) * y₂⁻¹) * y₁⁻¹; group) }
 
+omit [Finite Y] in
 @[simp] theorem blockPerm_apply_mk (S P : Subgroup Y) (hS : S.Normal) (hP : P.Normal)
     (y : Y) (p : ↥P) :
     blockPerm S P hS hP y (QuotientGroup.mk p) = QuotientGroup.mk (conjHom P hP y p) := by

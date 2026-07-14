@@ -36,18 +36,30 @@ abbrev BlockDR : Type :=
 /-- Each `l : BlockDR` is `Y`-normal (its defining property), as an instance. -/
 instance blockDR_normal (l : BlockDR T Blk) : (l.1).Normal := l.2.1
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
+  [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal]
+  [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal] in
 /-- `R = Φ(K)` is `Y`-normal. -/
 theorem blockHRn : Blk.frattiniK.Normal := frattiniLike_normal Blk.K Blk.hK
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
+  [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal]
+  [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal] in
 /-- `k² ∈ R` for `k ∈ K` (public route: squares generate `Φ(K)`). -/
 theorem blockHsq : ∀ k ∈ Blk.K, k * k ∈ Blk.frattiniK :=
   fun k hk => Subgroup.subset_closure (Or.inl ⟨k, hk, rfl⟩)
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
+  [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal]
+  [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal] in
 /-- The relative index is exactly 2 for a proper `l`. -/
 theorem blockHidx (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     (l.1.subgroupOf Blk.frattiniK).index = 2 :=
   relIndex_two_of_le Blk l.1 l.2.2.1 l.2.2.2 hlne
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
+  [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal]
+  [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal] in
 /-- `l.1 < Blk.frattiniK`. -/
 theorem blockHlt (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     (l.1 : Subgroup Y) < Blk.frattiniK :=
@@ -84,7 +96,8 @@ noncomputable def blockQbar (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
   fun v => blockQbarRaw T Blk cH hcH l hlne (Additive.toMul v)
 
 /-! ## Direct consequences (Prop 7.4 / mForm clauses) -/
-
+omit [TopologicalSpace E] [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y]
+  [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal] in
 /-- `hspec`: `λ(k²) = q̄(⟦k⟧)`. -/
 theorem blockHspec (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     ∀ (k : Y) (hk : k ∈ Blk.K),
@@ -92,11 +105,15 @@ theorem blockHspec (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
         = blockQbarRaw T Blk cH hcH l hlne (QuotientGroup.mk ⟨k, Blk.hKP hk⟩) :=
   (blockProp74 T Blk cH hcH l hlne).choose_spec.1
 
+omit [TopologicalSpace E] [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y]
+  [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal] in
 /-- `q̄_λ ≠ 0` (Prop 7.4 nonzero). -/
 theorem blockHne (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     blockQbarRaw T Blk cH hcH l hlne ≠ 0 :=
   (blockProp74 T Blk cH hcH l hlne).choose_spec.2.1
 
+omit [TopologicalSpace E] [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y]
+  [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal] in
 /-- Raw `Y`-invariance of `q̄_λ` (Prop 7.4 third clause). -/
 theorem blockHinvRaw (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     ∀ (y p : Y) (hp : p ∈ Blk.P),
@@ -105,6 +122,8 @@ theorem blockHinvRaw (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
         = blockQbarRaw T Blk cH hcH l hlne (QuotientGroup.mk ⟨p, hp⟩) :=
   (blockProp74 T Blk cH hcH l hlne).choose_spec.2.2
 
+omit [TopologicalSpace E] [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y]
+  [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal] in
 /-- mForm value clause: `q_λ(π_B k) = λ(k²)`. -/
 theorem blockHval (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     ∀ (k : Y) (hk : k ∈ Blk.K),
@@ -113,6 +132,8 @@ theorem blockHval (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
         = blockLam Blk l.1 ⟨k * k, blockHsq T Blk k hk⟩ :=
   (blockMForm T Blk cH hcH l hlne).choose_spec.1
 
+omit [TopologicalSpace E] [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y]
+  [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal] in
 /-- `hrad`: `T_B` lies in the polar radical of `q_λ`. -/
 theorem blockHrad (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     ∀ (t : Y ⧸ Blk.frattiniK)
@@ -122,6 +143,8 @@ theorem blockHrad (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
         ⟨t, blockT_map_le_blockM_map Blk (QuotientGroup.mk' Blk.frattiniK) ht⟩ ⟨m, hm⟩ = 0 :=
   (blockMForm T Blk cH hcH l hlne).choose_spec.2.1
 
+omit [TopologicalSpace E] [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y]
+  [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal] in
 /-- `hTzero`: `q_λ` vanishes on `T_B`. -/
 theorem blockHTzero (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     ∀ (t : Y ⧸ Blk.frattiniK)
@@ -131,7 +154,8 @@ theorem blockHTzero (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
   (blockMForm T Blk cH hcH l hlne).choose_spec.2.2
 
 /-! ## Quadraticity, nonsingularity (P-17d2c packaging) -/
-
+omit [(Blk.S.subgroupOf Blk.P).Normal] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal] [Blk.K.Normal] in
 /-- `hquad`: `q̄_λ` is a quadratic form (biadditive polar). -/
 theorem blockHquad (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     letI := blockPS_commGroup Blk
@@ -147,6 +171,8 @@ theorem blockHquad (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
       (blockLam_conj Blk l.1 l.2.1 (blockHRn T Blk)) (blockQbarRaw T Blk cH hcH l hlne)
       (blockHspec T Blk cH hcH l hlne))
 
+omit [(Blk.S.subgroupOf Blk.P).Normal] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal] [Blk.K.Normal] in
 /-- `hns`: `q̄_λ` is nonsingular. -/
 theorem blockHns (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     letI := blockPS_commGroup Blk
@@ -162,6 +188,8 @@ theorem blockHns (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
 
 /-! ## Invariance packaged over the `C = Y/K` action -/
 
+omit [TopologicalSpace E] [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y]
+  [Blk.frattiniK.Normal] in
 /-- `hinv`: `q̄_λ` is invariant under the `Y/K`-action (`blockActV`). -/
 theorem blockHinv (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     letI := blockActV Blk
@@ -182,7 +210,8 @@ theorem blockHinv (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
   exact blockHinvRaw T Blk cH hcH l hlne y (p : Y) p.2
 
 /-! ## The coupling `hqbar : q_λ = q̄_λ ∘ descend` -/
-
+omit [Blk.K.Normal] [TopologicalSpace E] [DiscreteTopology E] [Finite E] [TopologicalSpace Y]
+  [DiscreteTopology Y] in
 /-- `hqbar`: `q_λ(m) = q̄_λ(descend m)`. -/
 theorem blockHqbar (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     ∀ m : ↥(blockMB Blk),
@@ -207,12 +236,16 @@ noncomputable def blockScalarCover (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.fratt
     CentralCover (Y ⧸ Blk.frattiniK) :=
   (blockFrame T Blk hE2).scalarCover l (fun heq => hlne (congrArg Subtype.val heq))
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
+  [Finite E] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal] in
 /-- The cover projection sends `⟦y⟧_l` to `⟦y⟧_R`. -/
 theorem blockScalarCover_p (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) (y : Y) :
     (blockScalarCover T Blk hE2 l hlne).p (QuotientGroup.mk' l.1 y)
       = QuotientGroup.mk' Blk.frattiniK y :=
   rfl
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
+  [Finite E] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal] in
 /-- Auxiliary: for `r ∈ R`, the class `⟦r⟧_{l} = z^{λ_l(r)}` in the cover. -/
 theorem blockZ_pow_lam (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) (r : Y)
     (hr : r ∈ Blk.frattiniK) :
@@ -235,6 +268,8 @@ theorem blockZ_pow_lam (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) (r : Y
     · exact absurd he hmkne
     · exact he
 
+omit [TopologicalSpace E] [DiscreteTopology E] [Finite E] [(Blk.S.subgroupOf Blk.P).Normal]
+  [Blk.K.Normal] in
 /-- `hq`: the cover square relation `x² = z^{q_λ(p x)}` on `M_B`. -/
 theorem blockHq (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK)
     (x : (blockScalarCover T Blk hE2 l hlne).cover)

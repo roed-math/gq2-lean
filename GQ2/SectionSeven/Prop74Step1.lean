@@ -32,7 +32,6 @@ step 2) and the genuinely tame step 2 (`q_λ|_{T₀} = 0`), which needs `H¹(H_V
 the head's action image and is therefore stated with the framed-target head data
 (P-15 amendment: the P-14 statement had dropped §7's standing framed-target hypothesis,
 under which the paper proves 7.4 — restored here; see `docs/section67-extraction.md`). -/
-
 omit [Finite Y] in
 /-- Squares of `K` generate into `R = Φ(K)`. -/
 theorem sq_mem_R (B : MinimalBlock L) {k : Y} (hk : k ∈ B.K) : k * k ∈ B.frattiniK :=

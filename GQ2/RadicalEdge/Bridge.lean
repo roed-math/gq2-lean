@@ -48,6 +48,8 @@ noncomputable def piBCiso (D : RadicalCoverData RF.YB) (hD : D.M = RF.MB) :
   (QuotientGroup.quotientMulEquivOfEq (hD.trans RF.ker_piBC.symm)).trans
     (QuotientGroup.quotientKerEquivOfSurjective RF.piBC RF.piBC_surj)
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 @[simp] theorem piBCiso_mk (D : RadicalCoverData RF.YB) (hD : D.M = RF.MB) (bb : RF.YB) :
     RF.piBCiso D hD (QuotientGroup.mk bb) = RF.piBC bb := by
   rw [piBCiso, MulEquiv.trans_apply]
@@ -90,6 +92,7 @@ noncomputable def zBCfibreEquiv (l : RF.DR) (h : l ≠ RF.zeroDR)
     rfl
   right_inv m := rfl
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **The (139) half count** (P-16d3): `2·zBC = |M_B|²·e_Γ(C)` when the radical edge is
 nonzero.  Source-generic: the two per-source inputs enter as hypotheses —
 
@@ -152,6 +155,7 @@ noncomputable def rhoPrime (D : RadicalCoverData RF.YB) (hD : D.M = RF.MB)
     (ρ : BoundaryLifts b F RF.TC) : ContinuousMonoidHom Γ (RF.YB ⧸ D.M) :=
   (RF.piBCisoSymm D hD).comp ρ.1.1
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] [IsTopologicalGroup Γ] in
 theorem rhoPrime_apply (D : RadicalCoverData RF.YB) (hD : D.M = RF.MB)
     (ρ : BoundaryLifts b F RF.TC) (γ : Γ) :
     RF.rhoPrime b F D hD ρ γ = (RF.piBCiso D hD).symm (ρ.1.1 γ) := rfl

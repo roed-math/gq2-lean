@@ -30,6 +30,7 @@ open OrbitVanish (sumDatum)
 variable {C C' V : Type*} [Group C] [Group C'] [AddCommGroup V]
   [DistribMulAction C V] [DistribMulAction C' V]
 
+omit [Group C] [Group C'] [AddCommGroup V] [DistribMulAction C V] [DistribMulAction C' V] in
 /-- **`reindexHom` distributes over `sumDatum`** (P-15f2d wiring): reindexing a datum sum's acting
 group along `φ` is the sum of the reindexed per-orbit data.  Both sides have the same factor set
 (`f` is untouched by `reindexHom`) and the same corrections (`m` pre-composes `φ` inside each

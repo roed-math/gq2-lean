@@ -304,9 +304,11 @@ def blockProj₂ (j k : Fin K) : (Fin K → RegRep N) →+ RegRep N × RegRep N 
   map_zero' := rfl
   map_add' _ _ := rfl
 
+omit [Finite (G ⧸ N)] in
 theorem blockProj_smul (j : Fin K) (c : G ⧸ N) (F : Fin K → RegRep N) :
     blockProj N j (c • F) = c • blockProj N j F := rfl
 
+omit [Finite (G ⧸ N)] in
 theorem blockProj₂_smul (j k : Fin K) (c : G ⧸ N) (F : Fin K → RegRep N) :
     blockProj₂ N j k (c • F) = c • blockProj₂ N j k F := rfl
 
@@ -339,7 +341,7 @@ noncomputable def invBlockMap (j : Fin K) (u : G ⧸ N) : (Fin K → RegRep N) �
   fun F => ∑ᶠ w : (G ⧸ N) ⧸ Subgroup.zpowers u, F j w.out * F j (w.out * u)
 
 /-! ### Equivariance of the three summands -/
-
+omit [N.Normal] in
 private theorem sq_f_add_left (x x' y : RegRep N) :
     (squareOrbitDatum N).f (x + x') y
       = (squareOrbitDatum N).f x y + (squareOrbitDatum N).f x' y := by
@@ -348,6 +350,7 @@ private theorem sq_f_add_left (x x' y : RegRep N) :
   simp only [add_mul]
   exact finsum_add_distrib (Set.toFinite _) (Set.toFinite _)
 
+omit [N.Normal] in
 private theorem sq_f_add_right (x y y' : RegRep N) :
     (squareOrbitDatum N).f x (y + y')
       = (squareOrbitDatum N).f x y + (squareOrbitDatum N).f x y' := by
@@ -448,7 +451,7 @@ theorem isQuadraticFp2_invBlockMap (j : Fin K) {u : G ⧸ N} (hu2 : u * u = 1) :
     exact invOrbitDatum_f_add_right N u _ _ _
 
 /-! ### Basis evaluations: factor sets, diagonals, polars -/
-
+omit [Finite (G ⧸ N)] in
 /-- The free summand's factor set at basis vectors: the single-position indicator. -/
 theorem freeBlockDatum_f_blockBas (j k : Fin K) (u : G ⧸ N)
     (m m' : Fin K) (x y : G ⧸ N) :
@@ -468,6 +471,7 @@ theorem freeBlockDatum_f_blockBas (j k : Fin K) (u : G ⧸ N)
   exact if_congr ⟨fun ⟨⟨hj, _⟩, hk, hxy⟩ => ⟨hj, hk, hxy⟩,
     fun ⟨hj, hk, hxy⟩ => ⟨⟨hj, rfl⟩, hk, hxy⟩⟩ rfl rfl
 
+omit [N.Normal] [Finite (G ⧸ N)] in
 /-- The square summand's diagonal at basis vectors: `1` exactly on its own block. -/
 theorem squareBlockMap_blockBas (j m : Fin K) (y : G ⧸ N) :
     squareBlockMap N j (blockBas N m y) = if j = m then 1 else 0 := by
@@ -495,6 +499,7 @@ theorem freeBlockMap_blockBas (j k : Fin K) (u : G ⧸ N) (m : Fin K) (y : G ⧸
   rw [← h]
   exact if_congr (and_congr_right fun _ => and_congr_right fun _ => mul_eq_left) rfl rfl
 
+omit [Finite (G ⧸ N)] in
 /-- The involution summand's diagonal at basis vectors vanishes (`u ≠ 1`). -/
 theorem invBlockMap_blockBas (j : Fin K) {u : G ⧸ N} (hu1 : u ≠ 1)
     (m : Fin K) (y : G ⧸ N) : invBlockMap N j u (blockBas N m y) = 0 := by
@@ -510,6 +515,7 @@ theorem invBlockMap_blockBas (j : Fin K) {u : G ⧸ N} (hu1 : u ≠ 1)
     rw [if_pos h1, if_neg h2, mul_zero]
   · rw [if_neg h1, zero_mul]
 
+omit [N.Normal] in
 /-- The square summand's polar form vanishes identically (`x ↦ Σ x_h²` is additive over `𝔽₂`). -/
 theorem polar_squareBlockMap (j : Fin K) (v w : Fin K → RegRep N) :
     polar (squareBlockMap N j) v w = 0 := by
@@ -533,7 +539,7 @@ theorem polar_freeBlockMap_blockBas (j k : Fin K) (u : G ⧸ N)
     freeBlockDatum_f_blockBas, freeBlockDatum_f_blockBas]
 
 /-! ### The involution summand's basis evaluation (the `Quotient.out` bookkeeping) -/
-
+omit [Finite (G ⧸ N)] in
 /-- With `u² = 1`, the canonical `⟨u⟩`-coset representative of `x` is `x` or `x·u`. -/
 theorem out_dichotomy {u : G ⧸ N} (hu2 : u * u = 1) (x : G ⧸ N) :
     ((x : (G ⧸ N) ⧸ Subgroup.zpowers u) : (G ⧸ N) ⧸ Subgroup.zpowers u).out = x
@@ -549,8 +555,9 @@ theorem out_dichotomy {u : G ⧸ N} (hu2 : u * u = 1) (x : G ⧸ N) :
     have hx : x = t * u := inv_mul_eq_iff_eq_mul.mp h
     rw [hx, mul_assoc, hu2, mul_one]
 
+omit [Finite (G ⧸ N)] in
 /-- With `u² = 1`, `x` and `x·u` lie in the same `⟨u⟩`-coset. -/
-theorem mk_mul_self_eq {u : G ⧸ N} (hu2 : u * u = 1) (x : G ⧸ N) :
+theorem mk_mul_self_eq {u : G ⧸ N} (_ : u * u = 1) (x : G ⧸ N) :
     ((x * u : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers u)
       = ((x : G ⧸ N) : (G ⧸ N) ⧸ Subgroup.zpowers u) := by
   rw [QuotientGroup.eq]
@@ -558,6 +565,7 @@ theorem mk_mul_self_eq {u : G ⧸ N} (hu2 : u * u = 1) (x : G ⧸ N) :
   show u ^ (-1 : ℤ) = (x * u)⁻¹ * x
   rw [zpow_neg_one, mul_inv_rev, mul_assoc, inv_mul_cancel, mul_one]
 
+omit [Finite (G ⧸ N)] in
 /-- The involution summand's factor set at basis vectors: the `out`-guarded position indicator. -/
 theorem invBlockDatum_f_blockBas (j : Fin K) (u : G ⧸ N)
     (m m' : Fin K) (x y : G ⧸ N) :
@@ -679,6 +687,7 @@ into an ordered kernel (never appears in a statement). -/
 @[reducible] noncomputable def coordOrder : LinearOrder (Fin K × (G ⧸ N)) :=
   LinearOrder.lift' (Fintype.equivFin (Fin K × (G ⧸ N))) (Equiv.injective _)
 
+omit [N.Normal] in
 /-- **Basis extensionality for quadratic maps**: two `𝔽₂`-quadratic maps on the block module that
 agree on the basis diagonal and the basis polar are equal.  (Both expand against a common ordered
 kernel through `quadratic_expansion`.) -/
@@ -759,6 +768,7 @@ noncomputable def orbitIndexSet (Q : (Fin K → RegRep N) → ZMod 2) :
     Finset (OrbitIx K (G ⧸ N)) :=
   (sqIdx N Q).disjSum ((invIdx N Q).disjSum (freeReps N Q))
 
+omit [Finite (G ⧸ N)] in
 /-- The three-way split of a sum over the orbit index set. -/
 theorem sum_orbitIndexSet {M : Type*} [AddCommMonoid M] (Q : (Fin K → RegRep N) → ZMod 2)
     (g : OrbitIx K (G ⧸ N) → M) :
@@ -768,6 +778,7 @@ theorem sum_orbitIndexSet {M : Type*} [AddCommMonoid M] (Q : (Fin K → RegRep N
           + ∑ r ∈ freeReps N Q, g (Sum.inr (Sum.inr r))) := by
   rw [orbitIndexSet, Finset.sum_disjSum, Finset.sum_disjSum]
 
+omit [Finite (G ⧸ N)] in
 /-- Involution-index membership. -/
 theorem mem_orbitIndexSet_inv {Q : (Fin K → RegRep N) → ZMod 2} {ju : Fin K × (G ⧸ N)} :
     Sum.inr (Sum.inl ju) ∈ orbitIndexSet N Q ↔ ju ∈ invIdx N Q := by
@@ -847,6 +858,7 @@ theorem orbitSum_blockBas {Q : (Fin K → RegRep N) → ZMod 2} (hinv : IsInvari
     exact ((ZMod.eq_zero_or_eq_one (blockDiag N Q p.1)).resolve_right fun h1 =>
       h (Finset.mem_filter.mpr ⟨Finset.mem_univ p.1, h1⟩)).symm
 
+omit [Finite (G ⧸ N)] [Fintype (G ⧸ N)] in
 /-- The relative-position equation `x·w = y ⟺ w = x⁻¹y`. -/
 private theorem mul_eq_iff_rel {x y w : G ⧸ N} : x * w = y ↔ w = x⁻¹ * y :=
   ⟨fun h => by rw [← h, inv_mul_cancel_left], fun h => by rw [h, mul_inv_cancel_left]⟩

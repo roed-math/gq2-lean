@@ -164,7 +164,7 @@ simply on the exponent-2 module `W` (`#W = 2^{2m'}`), with `V ≅ W^{⊕s}` `G`-
 theorem arf_eq_s_ramified (T : G) (hTgen : ∀ g : G, g ∈ Subgroup.zpowers T)
     (hVfaith : ∀ g : G, (∀ v : V, g • v = v) → g = 1)
     (hWsimple : GQ2.FoxH.IsSimpleModTwo G W)
-    (hV2 : ∀ v : V, v + v = 0) (hW2 : ∀ w : W, w + w = 0)
+    (_ : ∀ v : V, v + v = 0) (hW2 : ∀ w : W, w + w = 0)
     (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
     (hqinv : ∀ (g : G) (v : V), q (g • v) = q v)
     (m' s : ℕ) (hm' : 1 ≤ m') (hs1 : 1 ≤ s) (hWcard : Nat.card W = 2 ^ (2 * m'))

@@ -443,6 +443,7 @@ theorem card_equivHoms_deepSES (hρsurj : Function.Surjective ⇑ρ)
     (fun c w => rfl)
     (fun c w => (conjActQuotHom_mk ρ (Function.surjInv hρsurj c) w).symm)
 
+omit [DiscreteTopology C] in
 /-- **The deep-half dimension clause from the duality** (P-15f6 output, step 5): given the
 regular-summand package for `V^∨`, finiteness of `H¹(N)`, the two deferred cohomological inputs
 `hinf`/`hext` (Lemma-6.11 projectivity), and the graded Hilbert **duality**

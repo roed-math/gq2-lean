@@ -51,6 +51,7 @@ variable {DD : DescData D}
 variable {Γ : Type} [Group Γ] [TopologicalSpace Γ]
 variable {ρ : ContinuousMonoidHom Γ (Bg ⧸ D.M)}
 
+omit [DiscreteTopology Bg] in
 /-- **`V^{C₀} = 0` from the ledger hypotheses alone** — the `hnt`-variant of
 `GaussZReduction.hfix_of_simple`: faithfulness is NOT needed (nor block-derivable — the
 P-17i coordination flag); in the `W = ⊤` branch every `C₀`-element acts trivially,
@@ -101,6 +102,7 @@ Stage-0 idiom as a declaration). -/
 noncomputable def rhoPrimeGA : ContinuousMonoidHom GA (RF.YB ⧸ (En.radData l h).M) :=
   RF.rhoPrime b F (En.radData l h) rfl ρ
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **`Z¹` is finite** — σ-free from the e6 count (`Phase140GammaA.hZcard_gammaA`). -/
 theorem finite_vcocycle_gammaA
     (hsimple : ∀ W : AddSubgroup En.Vmod,
@@ -124,9 +126,14 @@ of the word complex (`markC (thetaGA …)`). -/
 noncomputable def thetaGA : ContinuousMonoidHom GA RF.YC :=
   ρ.1.1
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 theorem thetaGA_surjective : Function.Surjective ⇑(thetaGA b F ρ) :=
   ρ.1.2
 
+omit [TopologicalSpace Y] [DiscreteTopology Y]
+  [TopologicalSpace (En.descData l h).Vmod] [DiscreteTopology (En.descData l h).Vmod]
+  [DistribMulAction GA (En.descData l h).Vmod] [ContinuousSMul GA (En.descData l h).Vmod]
+  [DistribMulAction RF.YC (En.descData l h).Vmod] [Finite (En.descData l h).Vmod] in
 /-- The roundtrip `rho0 ∘ rhoPrime = θ` over `GA` (`rho0_descData_rhoPrime`, retyped).
 Callers derive the `h1OfVQuot`-compatibility from their letI-pack through this:
 `hcomp γ v := congrArg (· • v) (roundtripGA … γ).symm`-composed with the `compHom`-`rfl`. -/
@@ -153,6 +160,7 @@ noncomputable def h1CoordGammaA
   h1Equiv (thetaGA b F ρ) hcompat (thetaGA_surjective b F ρ) hA₂
     (h1OfVQuot hcomp x)
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 theorem h1CoordGammaA_bijective
     (hcomp : ∀ (γ : GA) (v : (En.descData l h).Vmod),
       γ • v = rho0 (En.descData l h) (rhoPrimeGA b F En l h ρ) γ • v)

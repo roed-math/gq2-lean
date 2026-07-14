@@ -158,6 +158,7 @@ variable [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod] [Finite DD.Vmod]
 variable [DistribMulAction AbsGalQ2 DD.Vmod] [ContinuousSMul AbsGalQ2 DD.Vmod]
 variable [TopologicalSpace DD.C0] [DiscreteTopology DD.C0] [Finite DD.C0]
 
+omit [Finite DD.Vmod] [ContinuousSMul AbsGalQ2 DD.Vmod] [DiscreteTopology DD.C0] [Finite DD.C0] in
 /-- **The form compatibility** (P-16d6e4a (C′)): under the transport `Φ = h1OfVQuot`, the
 descended base determinant form `Q̄⁰` is `Q⁰_loc` — the abstract `iotaB`-obstruction and the
 Tate-invariant obstruction agree (`iotaB_eq_iotaF`), and the `Quotient.out` representative on
@@ -211,6 +212,8 @@ variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite 
 variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
+omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [TopologicalSpace V]
+  [DiscreteTopology V] [Finite V] [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] in
 /-- The `C`-action moves some vector (else `V ≅ 𝔽₂`, contradicting `#V = 2^{2m}`, `m ≥ 1`) —
 the mover block of `prop_6_18_unramified`, extracted. -/
 theorem exists_smul_ne_of_card (hsimple : ∀ W : AddSubgroup V,
@@ -235,6 +238,7 @@ theorem exists_smul_ne_of_card (hsimple : ∀ W : AddSubgroup V,
       _ ≤ 2 ^ (2 * m) := Nat.pow_le_pow_right (by norm_num) (by omega)
   omega
 
+omit [DiscreteTopology C] [Finite C] in
 /-- The signed-sum extraction shared by both cases: with `zeroCount(Q⁰_loc)` and
 `#H¹ = 2^{2m}` known, `∑ᶠ sign(Q⁰_loc) = 2·zeroCount − 2^{2m}`. -/
 theorem finsum_sign_eq (D : TateDuality 2) (dat : FactorSet C V)

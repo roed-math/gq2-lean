@@ -275,6 +275,7 @@ variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite 
 variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
+omit [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
 /-- **The datum-level P-15f2 reducer** (`lemma_6_17_vanish` modulo the §6.2 datum decomposition):
 if the (regular-module) datum decomposes as a pointwise sum of per-orbit equivariant factor sets
 `dat = Σ_o datf_o` (`hdat_eq` — the datum-level "gap 2", `sumDatum`), each per-orbit pullback is

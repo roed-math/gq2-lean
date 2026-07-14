@@ -70,6 +70,7 @@ lemma zpowHat_zpow (x : G) (γ : Zhat) (n : ℤ) : (x ^ᶻ γ) ^ n = (x ^ n) ^�
     rw [zpowHat_ofInt, zpowHat_ofInt, ← zpow_mul, ← zpow_mul, mul_comm]
   exact congrFun hfun γ
 
+omit [T2Space G] in
 /-- `ẑ`-powers commute with conjugation: `(x ^ c) ^ᶻ γ = (x ^ᶻ γ) ^ c` (`conjP x c = c⁻¹xc`). -/
 lemma zpowHat_conjP (x c : G) (γ : Zhat) : conjP x c ^ᶻ γ = conjP (x ^ᶻ γ) c := by
   set φ : ContinuousMonoidHom G G :=
@@ -394,6 +395,7 @@ section IndexTwo
 variable {K : Type} [Group K] [TopologicalSpace K] [IsTopologicalGroup K]
   [CompactSpace K] [T2Space K] [TotallyDisconnectedSpace K]
 
+omit [CompactSpace K] [T2Space K] [TotallyDisconnectedSpace K] in
 /-- Quotients by open normal subgroups are discrete. -/
 lemma discreteTopology_quotient_openNormal (U : OpenNormalSubgroup K) :
     DiscreteTopology (K ⧸ U.toSubgroup) := by
@@ -429,6 +431,7 @@ section AtIndexTwo
 variable {M : OpenNormalSubgroup K} (hM : M.toSubgroup.index = 2)
 
 include hM in
+omit [T2Space K] [TotallyDisconnectedSpace K] in
 /-- The index-2 quotient is commutative. -/
 lemma quotient_mul_comm (z w : K ⧸ M.toSubgroup) : z * w = w * z := by
   have : Finite (K ⧸ M.toSubgroup) := Subgroup.quotient_finite_of_isOpen _ M.isOpen'
@@ -442,6 +445,7 @@ lemma quotient_mul_comm (z w : K ⧸ M.toSubgroup) : z * w = w * z := by
   rw [← hi, ← hj, ← zpow_add, ← zpow_add, add_comm]
 
 include hM in
+omit [T2Space K] [TotallyDisconnectedSpace K] in
 /-- Squares die in the index-2 quotient. -/
 lemma quotient_sq_eq_one (z : K ⧸ M.toSubgroup) : z ^ 2 = 1 := by
   have : Finite (K ⧸ M.toSubgroup) := Subgroup.quotient_finite_of_isOpen _ M.isOpen'
@@ -451,6 +455,7 @@ lemma quotient_sq_eq_one (z : K ⧸ M.toSubgroup) : z ^ 2 = 1 := by
   exact orderOf_dvd_iff_pow_eq_one.mp hdvd
 
 include hM in
+omit [T2Space K] [TotallyDisconnectedSpace K] in
 /-- Conjugation dies in the index-2 quotient. -/
 lemma quotient_map_conjP (x c : K) :
     QuotientGroup.mk' M.toSubgroup (conjP x c) = QuotientGroup.mk' M.toSubgroup x := by
@@ -464,6 +469,7 @@ lemma quotient_map_conjP (x c : K) :
         rw [mul_assoc, inv_mul_cancel, mul_one]
 
 include hM in
+omit [T2Space K] in
 /-- **B8's `ι`-powers die in index-2 quotients**: `q(x ^ᶻ ι u) = q(x)` (`u` is odd). -/
 lemma quotient_map_zpowHat_iota (R : PeripheralCyclotomicAction) (x : K) (u : ℤ_[2]ˣ) :
     QuotientGroup.mk' M.toSubgroup (x ^ᶻ R.ι u) = QuotientGroup.mk' M.toSubgroup x := by

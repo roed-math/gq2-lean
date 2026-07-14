@@ -37,6 +37,7 @@ variable [DistribMulAction GA (ZMod 2)] [ContinuousSMul GA (ZMod 2)]
 variable (htriv : ∀ (x : GA) (m : ZMod 2), x • m = m)
 include htriv
 
+omit [ContinuousSMul GA (ZMod 2)] in
 /-- **The `ι_{Γ_A}`-computation rule** (A-2 core): the coboundary indicator agrees with the
 P-16c4 word-relator obstruction on every continuous 2-cocycle — both are `𝔽₂`-valued with
 kernel exactly `B²(Γ_A, 𝔽₂)`. -/
@@ -47,6 +48,7 @@ theorem iotaB_eq_obs (φ : Z2 GA (ZMod 2)) :
   exact (by decide : ∀ a b : ZMod 2, (a = 0 ↔ b = 0) → a = b) _ _
     (iotaB_eq_zero_iff.trans h2.symm)
 
+omit [ContinuousSMul GA (ZMod 2)] in
 /-- **The evaluation form** (the A-3 interface, cocycle-level): `ι_{Γ_A} φ` is the
 (tame + wild) relator obstruction of *any* finite-admissible-level factorization of the
 `(1,1)`-normalization of `φ`. -/
@@ -61,6 +63,7 @@ variable {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopol
   {D : RadicalCoverData Bg} {DD : DescData D}
 variable {ρM : ContinuousMonoidHom GA (Bg ⧸ D.M)}
 
+omit [ContinuousSMul GA (ZMod 2)] in
 /-- **`Q⁰` over `Γ_A` is the word-relator obstruction** (A-2 → A-3 handoff, packaged form):
 the base determinant form evaluates through `obs` at the graph pullback. -/
 theorem QZero_eq_obs (c : VCocycle DD ρM) :
@@ -70,6 +73,7 @@ theorem QZero_eq_obs (c : VCocycle DD ρM) :
   iotaB_eq_obs htriv ⟨graphPullback DD.dat (fun γ => rho0 DD ρM γ) c.c,
     graphPullback_mem_Z2_of_cocycle htriv c⟩
 
+omit [ContinuousSMul GA (ZMod 2)] in
 /-- **The A-3 consumable**: `Q⁰_{Γ_A,ρ'}(c)` is the (tame + wild) relator obstruction of any
 finite-admissible-level factorization of the normalized graph pullback.  A-3 supplies an
 explicit `LevelFactor` in the e6 generator coordinates and expands `F.obs` along the two

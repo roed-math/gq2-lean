@@ -193,7 +193,7 @@ theorem liftMarking_z0_g_smul (t : Marking C) (x : Fin 4 → V) (hx0 : ∀ v : V
 
 omit [Finite C] [Finite V] in
 theorem liftMarking_h0_g_smul (t : Marking C) (x : Fin 4 → V) (hx0 : ∀ v : V, t.x₀ • v = v)
-    (htau : ∀ v : V, t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v) (v : V) :
+    (htau : ∀ v : V, t.τ • v = v) (_ : ∀ v : V, t.sigma2 • v = v) (v : V) :
     (liftMarking t x).h0.g • v = v := by
   have hd0g := liftMarking_d0_g_smul t x hx0 htau
   have hP1g : ∀ w : V, (conjP (liftMarking t x).x₀ (liftMarking t x).g0).g • w = w := fun w =>
@@ -254,7 +254,7 @@ theorem liftMarking_h0_u (t : Marking C) (x : Fin 4 → V) (hV₂ : ∀ v : V, v
 omit [Finite C] [Finite V] in
 /-- **`D(c₀) = 0`** (tame case): `c₀ = [d₀,z₀]` is a commutator of trivially-based elements. -/
 theorem liftMarking_c0_u (t : Marking C) (x : Fin 4 → V) (hx0 : ∀ v : V, t.x₀ • v = v)
-    (htau : ∀ v : V, t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v) :
+    (htau : ∀ v : V, t.τ • v = v) (_ : ∀ v : V, t.sigma2 • v = v) :
     (liftMarking t x).c0.u = 0 := by
   show (commP (liftMarking t x).d0 (liftMarking t x).z0).u = 0
   exact WordLift.commP_u_of_trivial _ _ (liftMarking_d0_g_smul t x hx0 htau)

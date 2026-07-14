@@ -115,7 +115,6 @@ lemma kummerCocycleFun_neg (α : AlgebraicClosure K) :
 
 
 /-! ## Continuity via the Krull topology -/
-
 omit [CharZero K] in
 /-- `{g | g • α = α}` is (cl)open: it is the stabilizer of `α`, open in the Krull topology because
 `k̄/k` is algebraic (`stabilizer_isOpen_of_isIntegral`). -/
@@ -184,8 +183,6 @@ noncomputable def kummerClass (a : Kˣ) : ContCoh.H1 (GaloisGroup K) (ZMod 2) :=
 
 
 /-! ## Stress tests -/
-
-
 omit [CharZero K] in
 /-- Auxiliary: under the trivial action, `[z] = 0` in `H¹` iff the cocycle `z` is the zero
 function (`B¹ = ⊥`). -/

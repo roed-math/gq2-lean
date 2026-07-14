@@ -1124,7 +1124,7 @@ noncomputable def nuT (R : LocalReciprocity) :
   abLiftG (PropOneOne.nuUrBar R)
 
 /-- `χ̃ : (G_ℚ₂(2))^ab → ℤ₂ˣ`, the descent of the cyclotomic character (via the max-pro-2 UP). -/
-noncomputable def chiT (R : LocalReciprocity) :
+noncomputable def chiT (_ : LocalReciprocity) :
     ContinuousMonoidHom (topAbelianization (maxProPQuotient 2 AbsGalQ2)) ℤ_[2]ˣ :=
   abLiftG ((maxProPHomEquiv isProP_two_unitsPadicInt).symm ⟨chiCyc, continuous_chiCyc⟩)
 

@@ -39,6 +39,8 @@ variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finit
 variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
 variable {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **L5 descent through `π_{BC}`** (the `π_B`-to-`π_{BC}` port of `RStageGammaA`'s private
 `lift_of_relatorFree_marking`): a marking of `B` covering `ρ`'s marking through `π_{BC}` and
 killing both relators descends to a continuous `φ : Γ_A → B` with `π_{BC} ∘ φ = ρc`.  Same proof
@@ -161,7 +163,6 @@ by `MB_elem`), carries the `Y_C`-conjugation action through a set-section of `π
 no nonzero `Y_C`-invariant `𝔽₂`-functional (`lemma_7_1_dual`).  The pack is extracted here
 once; the twins install it by `letI`/`have` and diverge only at their coboundary/torsor
 tails. -/
-
 omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
   [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- Elements of `M_B` commute: 2-torsion (`MB_elem`) makes every element self-inverse, so
@@ -354,6 +355,7 @@ private theorem RecursionFrame.card_fixedPts_MB_dual (RF : RecursionFrame T Blk)
   exact ⟨⟨fun x y => Subtype.ext ((hzero x.val x.2).trans (hzero y.val y.2).symm)⟩,
     ⟨⟨0, smul_zero⟩⟩⟩
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **Nonemptiness of the `Γ_A` `B`-lift fibre** (P-17i, the M-stage residue): every lower
 boundary lift `ρ : Γ_A ↠ C` lifts to a continuous homomorphism `Γ_A → B` through `π_{BC}`.
 
@@ -473,6 +475,7 @@ theorem RecursionFrame.liftsOver_nonempty_gammaA
   obtain ⟨φ, hφ⟩ := RF.descend_piBC θ hθs tHat hprojHat htameHat hwildHat
   exact ⟨⟨φ, fun γ => hφ γ⟩⟩
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **`hmultA` for `Γ_A`**, assuming the fibre is nonempty: `#LiftsOver(ρ) = |M_B|²`.  The
 `Z¹`-torsor bridge (`liftsOver_card_local`'s Step 2) is source-generic once a base lift exists;
 the `Z¹` count is the candidate-duality route (`z1Equiv` + `prop_5_15` clause 2), and `hfix = 1`
@@ -590,6 +593,7 @@ theorem RecursionFrame.liftsOver_card_gammaA_of_nonempty
   rw [htorsor, key, hfix, mul_one]
   rfl
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **`hmultA` for `Γ_A`**: `#LiftsOver(ρ) = |M_B|²` over every lower boundary lift. -/
 theorem RecursionFrame.liftsOver_card_gammaA
     (RF : RecursionFrame T Blk) (b : ContinuousMonoidHom GammaA ↥boundarySubgroup)

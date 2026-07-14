@@ -84,6 +84,7 @@ variable {W₁ W₂ : Type}
   [IsTopologicalAddGroup W₁] [IsTopologicalAddGroup W₂]
 variable {ρ : ContinuousMonoidHom AbsGalQ2 C}
 
+omit [DiscreteTopology C] [Finite C] [Finite W₁] [Finite W₂] in
 /-- **Deepness transports along an equivariant coefficient map** (P-15f2d): if `x ∈ deepPart ρ`
 over `W₁` and `f : W₁ →+ W₂` is a continuous `AbsGalQ2`-equivariant map, then the pushed-forward
 class `mapCoeff1 f x` is in `deepPart ρ` over `W₂`.  Every scalar restriction of `mapCoeff1 f x`

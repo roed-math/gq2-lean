@@ -393,7 +393,7 @@ theorem grSq_injective (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
 have `2^f` elements (B13 `card_gr`, passed as hypotheses). -/
 theorem grSq_surjective (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
     (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
-    (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) {f : ℕ} (hf_pos : 1 ≤ f)
+    (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) {f : ℕ} (_ : 1 ≤ f)
     {i : ℕ} (hie : i + 1 ≤ e)
     (hcard_i : Nat.card (↥(depthUnits k π i) ⧸
       (depthUnits k π (i + 1)).subgroupOf (depthUnits k π i)) = 2 ^ f)
@@ -650,8 +650,8 @@ grs) not surjective; a unit class `[a]` outside the range gives `kummerClassK a 
 it zero, the Kummer kernel would write `a = w²` with `w ∈ U_e` (norm-one by taking norms;
 depth-`e` by the dichotomy), and `[a] = grSq [w]`. -/
 theorem exists_kummerDepth_ne_zero [FiniteDimensional ℚ_[2] k]
-    (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
-    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    (_ : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    (_ : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
     {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) {f : ℕ}
     (hcard_e : Nat.card (↥(depthUnits k π e) ⧸
       (depthUnits k π (e + 1)).subgroupOf (depthUnits k π e)) = 2 ^ f)

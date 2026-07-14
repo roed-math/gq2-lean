@@ -30,12 +30,19 @@ variable {P : Type*} [AddCommGroup P] [TopologicalSpace P] [IsTopologicalAddGrou
 variable (μ : M →+ N →+ P)
   (hμ : ∀ (g : G) (m : M) (n : N), μ (g • m) (g • n) = g • μ m n)
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace M] [IsTopologicalAddGroup M]
+  [DiscreteTopology M] [ContinuousSMul G M] [TopologicalSpace N] [IsTopologicalAddGroup N]
+  [DiscreteTopology N] [ContinuousSMul G N] [TopologicalSpace P] [IsTopologicalAddGroup P]
+  [DiscreteTopology P] [ContinuousSMul G P] in
 include hμ in
 /-- The transposed pairing `μᵀ = μ.flip` is `G`-equivariant when `μ` is. -/
 lemma flip_equivariant :
     ∀ (g : G) (n : N) (m : M), μ.flip (g • n) (g • m) = g • μ.flip n m :=
   fun g n m => by simpa only [AddMonoidHom.flip_apply] using hμ g m n
 
+omit [IsTopologicalGroup G] [DiscreteTopology M] [ContinuousSMul G M] [DiscreteTopology N]
+  [ContinuousSMul G N] [TopologicalSpace P] [IsTopologicalAddGroup P] [DiscreteTopology P]
+  [ContinuousSMul G P] in
 include hμ in
 /-- **The graded-commutativity homotopy** (valid over `ℤ`): for cocycles `a, b`,
 `(a ∪_μ b) + (b ∪_{μᵀ} a) = δ¹(g ↦ −μ(a g)(b g))`.  Expanding `δ¹` with the cocycle identities
@@ -50,6 +57,7 @@ lemma cup11Fun_add_flip_eq_dOne (a : Z1 G M) (b : Z1 G N) :
   simp only [map_add, AddMonoidHom.add_apply, smul_neg, ← hμ]
   abel
 
+omit [IsTopologicalGroup G] [DiscreteTopology P] [ContinuousSMul G P] in
 include hμ in
 /-- **Cup graded-commutativity in characteristic 2**: for a `2`-torsion target `P`,
 `cup11 μ c d = cup11 μ.flip d c` in `H²`. -/
@@ -67,6 +75,7 @@ theorem cup11_comm (hP2 : ∀ p : P, p + p = 0) (x : H1 G M) (y : H1 G N) :
   exact AddSubgroup.mem_map.mpr ⟨_,
     (continuous_pairing μ (mem_Z1_iff.mp a.2).1 (mem_Z1_iff.mp b.2).1).neg, rfl⟩
 
+omit [IsTopologicalAddGroup M] [ContinuousSMul G N] [DiscreteTopology P] [ContinuousSMul G P] in
 include hμ in
 /-- **Graded-commutativity for the `(0,2)`/`(2,0)` pair** (no characteristic hypothesis needed):
 `cup02 μ c d = cup20 μᵀ d c`.  The `(g·h)`-twist in `cup20` is absorbed because the `H⁰` element
@@ -81,6 +90,7 @@ theorem cup02_eq_cup20_flip (c : ↥(H0 G M)) (d : H2 G N) :
   show μ c.1 (b.1 p) = μ.flip (b.1 p) ((p.1 * p.2) • c.1)
   rw [AddMonoidHom.flip_apply, c.2]
 
+omit [ContinuousSMul G M] [IsTopologicalAddGroup N] [DiscreteTopology P] [ContinuousSMul G P] in
 include hμ in
 /-- **Graded-commutativity for the `(2,0)`/`(0,2)` pair** (the transpose of `cup02_eq_cup20_flip`):
 `cup20 μ c d = cup02 μᵀ d c`.  Again the `(g·h)`-twist is absorbed by invariance of the `H⁰`
@@ -95,11 +105,14 @@ theorem cup20_eq_cup02_flip (c : H2 G M) (d : ↥(H0 G N)) :
   show μ (b.1 p) ((p.1 * p.2) • d.1) = μ.flip d.1 (b.1 p)
   rw [AddMonoidHom.flip_apply, d.2]
 
+omit [IsTopologicalGroup G] [IsTopologicalAddGroup M] [ContinuousSMul G M] [ContinuousSMul G N]
+  [DiscreteTopology P] [ContinuousSMul G P] in
 include hμ in
 /-- Class formula for the `(0,2)` cup (definitional, like `cup11_mk_mk`). -/
 @[simp] lemma cup02_mk_mk (m : ↥(H0 G M)) (b : Z2 G N) :
     cup02 μ hμ m (H2mk G N b) = H2mk G P ⟨cup02Fun μ m.1 b.1, cup02_mem_Z2 μ hμ m b⟩ := rfl
 
+omit [ContinuousSMul G M] [IsTopologicalAddGroup N] [DiscreteTopology P] [ContinuousSMul G P] in
 include hμ in
 /-- Class formula for the `(2,0)` cup (definitional, like `cup11_mk_mk`). -/
 @[simp] lemma cup20_mk_mk (a : Z2 G M) (n : ↥(H0 G N)) :
@@ -119,6 +132,9 @@ variable {N : Type*} [AddCommGroup N] [TopologicalSpace N] [IsTopologicalAddGrou
   [DiscreteTopology N] [DistribMulAction G N] [ContinuousSMul G N]
 variable (e : M ≃+ N) (he : ∀ (g : G) (m : M), e (g • m) = g • e m)
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace M] [IsTopologicalAddGroup M]
+  [DiscreteTopology M] [ContinuousSMul G M] [TopologicalSpace N] [IsTopologicalAddGroup N]
+  [DiscreteTopology N] [ContinuousSMul G N] in
 include he in
 /-- The inverse of a `G`-equivariant coefficient equivalence is `G`-equivariant. -/
 lemma addEquiv_symm_equivariant : ∀ (g : G) (n : N), e.symm (g • n) = g • e.symm n :=
@@ -143,6 +159,7 @@ noncomputable def H1congr : H1 G M ≃+ H1 G N where
       exact congrArg (H1mk G N) (Subtype.ext (funext fun g => e.apply_symm_apply _))
   map_add' := map_add _
 
+omit [IsTopologicalGroup G] [ContinuousSMul G M] [ContinuousSMul G N] in
 include he in
 /-- `H1congr` on a class is post-composition of a cocycle representative (definitional). -/
 lemma H1congr_mk (a : Z1 G M) :
@@ -150,6 +167,7 @@ lemma H1congr_mk (a : Z1 G M) :
       = H1mk G N (Z1comap (ContinuousMonoidHom.id G) e.toAddMonoidHom
           continuous_of_discreteTopology he a) := rfl
 
+omit [IsTopologicalGroup G] [ContinuousSMul G M] [DiscreteTopology N] [ContinuousSMul G N] in
 include he in
 /-- `mapCoeff2` on a class: post-composition of a 2-cocycle representative. -/
 lemma mapCoeff2_H2mk (a : Z2 G M) :
@@ -176,6 +194,7 @@ noncomputable def H2congr : H2 G M ≃+ H2 G N where
       exact congrArg (H2mk G N) (Subtype.ext (funext fun p => e.apply_symm_apply _))
   map_add' := map_add _
 
+omit [IsTopologicalGroup G] [ContinuousSMul G M] [ContinuousSMul G N] in
 include he in
 /-- `H2congr` on a class is post-composition of a 2-cocycle representative (definitional). -/
 lemma H2congr_mk (a : Z2 G M) :

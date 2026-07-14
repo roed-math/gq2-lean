@@ -42,7 +42,8 @@ noncomputable def pairHom (w : Z1 GA (Additive ↥D.T)) (φf : Z1 GA (ElemDual (
       mem_Z1_iff.mpr ⟨((mem_Z1_iff.mp w.2).1).prodMk ((mem_Z1_iff.mp φf.2).1), fun γ δ =>
         Prod.ext ((mem_Z1_iff.mp w.2).2 γ δ) ((mem_Z1_iff.mp φf.2).2 γ δ)⟩⟩
 
-omit [ContinuousSMul GA (Additive ↥D.T)] [ContinuousSMul GA (ElemDual (Additive ↥D.T))] in
+omit [ContinuousSMul GA (Additive ↥D.T)] [ContinuousSMul GA (ElemDual (Additive ↥D.T))]
+  [ContinuousSMul GA (ZMod 2)] in
 include hcompat hcompatD in
 theorem obs_varCoc_eq_mixedB
     (htriv : ∀ (x : GA) (m : ZMod 2), x • m = m)
@@ -66,7 +67,8 @@ theorem obs_varCoc_eq_mixedB
     rw [markC_map]; rfl
   rw [hmark, ← mixedB_eq_relZPair]
 
-omit [ContinuousSMul GA (Additive ↥D.T)] [ContinuousSMul GA (ElemDual (Additive ↥D.T))] in
+omit [ContinuousSMul GA (Additive ↥D.T)] [ContinuousSMul GA (ElemDual (Additive ↥D.T))]
+  [ContinuousSMul GA (ZMod 2)] in
 include hcompat hcompatD in
 /-- **The nonzero variation class** (P-16c4 `hvar`).  If the mixed pairing of the primal cocycle
 `w` against the shifted-edge dual `φf` is nonzero, the variation class `[varCoc u]` is a nonzero
@@ -91,7 +93,6 @@ theorem varCoc_class_ne_zero
 `φf γ = (s ↦ ε̄(ρ γ)(γ⁻¹ · s))` is the dual 1-cocycle carrying the edge; it is nonzero in `H¹`
 exactly when the cover does not descend (`NoDescent`).  This is c3's internal construction,
 re-exposed so the ledger identity can consume it. -/
-
 omit [ContinuousSMul GA (Additive ↥D.T)] [ContinuousSMul GA (ElemDual (Additive ↥D.T))]
   [DistribMulAction GA (ZMod 2)] [ContinuousSMul GA (ZMod 2)] in
 include hcompat hcompatD in

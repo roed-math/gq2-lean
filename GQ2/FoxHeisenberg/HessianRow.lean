@@ -360,7 +360,6 @@ The ramified degree-one pairing `B(c,λ) = λ((1 + U + U⁻¹)c)`.  Two central 
 `[d₀,z₀] ↦ λ(Uc) + λ(U⁻¹c)` (the symplectic commutator, now nonzero since `Dd₀ = c ≠ 0`).  Unlike
 the split case `g₀ = σ₂²` is not `g`-slice, so the peel uses `conjP_*_of_slice` to track the
 `U`-action. -/
-
 omit [Finite C] in
 /-- Fixed-point-freeness makes `σ − 1` surjective on a finite module: if `σ • v = v` forces
 `v = 0` then `v ↦ σ • v − v` is injective (difference-telescope), hence surjective on the
@@ -522,7 +521,7 @@ theorem heisMarking_c0_z_ramified (t : Marking C) (c : V) (lam : ElemDual V)
 so right-multiplication by them preserves `.z`; only `h₀.z = λ(c)` and `c₀.z = λ(Uc) + λ(U⁻¹c)`
 survive. -/
 theorem heisMarking_wildValue_z_ramified (t : Marking C) (c : V) (lam : ElemDual V)
-    (hV₂ : ∀ v : V, v + v = 0) (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v)
+    (hV₂ : ∀ v : V, v + v = 0) (hx0 : ∀ v : V, t.x₀ • v = v) (_ : ∀ v : V, t.x₁ • v = v)
     (htau : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v) :
     (heisMarking t (x0Supported c) (x0Supported lam)).wildValue.z
       = lam (c + t.sigma2 • c + t.sigma2⁻¹ • c) := by
@@ -633,7 +632,7 @@ See `docs/p13-normal-form-hypothesis-gap.md` §7.
 Proved (P-13): `B¹` half from `b1w_split_shape`; `Z¹` half from the tame row `d1Fun_tame_split`
 (`= S⁻¹·x₁`) and the wild row `liftMarking_wildValue_u` (`= x₁ + (1+S⁻¹)·x₃`), with `x 1 = 0` from
 `S⁻¹` injective and `x 3 = 0` from `hVS`. -/
-theorem lemma_5_13_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+theorem lemma_5_13_split (t : Marking C) (ht : t.TameRel) (_ : t.WildRel)
     (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V) [Finite V]
     (hcore : t.Pro2Core) (htau : ∀ v : V, t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v)
     (hVS : ∀ v : V, t.σ • v = v → v = 0) :
@@ -741,7 +740,7 @@ degree-one pairing is `(c, λ) ↦ λ(c)` when `T = 1`.
 `classTwoIdentity` [needs `g₀ = σ₂²` trivial, i.e. `hU`], and the `[d₀,z₀]` term vanishes since
 `P + 1 = 0` in char 2 for `T = 1`).  `hsimple`/`hcore` give the trivial wild action
 (`wild_acts_trivially`); `hU` is the σ-tameness (derivable in split; see `lemma_5_13_split`). -/
-theorem lemma_5_13_pairing_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+theorem lemma_5_13_pairing_split (t : Marking C) (_ : t.TameRel) (_ : t.WildRel)
     (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V) [Finite V] (hcore : t.Pro2Core)
     (htau : ∀ v : V, t.τ • v = v) (hU : ∀ v : V, t.sigma2 • v = v) (c : V) (lam : ElemDual V) :
     mixedB t (x0Supported c) (x0Supported (V := ElemDual V) lam) = lam c := by
@@ -764,7 +763,7 @@ The tame relator's central coordinate vanishes on the x₀-supported rep
 acts trivially on `V` (tame inertia is prime-to-2), needed for the ramified `Dd₀ = c` via the
 `P = 0` ledger.  Supplied per simple factor by P-13d.  The trivial wild action is taken as
 hypotheses `hx0`/`hx1` (P-13f signature note on `lemma_5_13_ramified`). -/
-theorem lemma_5_13_pairing_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+theorem lemma_5_13_pairing_ramified (t : Marking C) (_ : t.TameRel) (_ : t.WildRel)
     (hV₂ : ∀ v : V, v + v = 0) [Finite V]
     (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v)
     (htau : ∀ v : V, t.τ • v = v → v = 0)

@@ -64,7 +64,8 @@ registered trivial action. -/
 theorem htriv_gammaA (γ : GammaA) (m : ZMod 2) : γ • m = m := rfl
 
 /-! ## Shared `C = Y/K`-module helpers (used by `hZcount` and `hsep_hom`) -/
-
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- `R = Φ(K)` is elementary abelian: `Additive R` is 2-torsion. -/
 private lemma frattiniK_add_self
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
@@ -76,6 +77,8 @@ private lemma frattiniK_add_self
   refine Additive.toMul.injective (Subtype.ext ?_)
   exact hR2 _ (Additive.toMul a).2
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- A `C = Y/K`-invariant character of `R` takes equal values on `Y`-conjugates: the fixed-point
 condition, evaluated through `conjC_smul_of_mk` at `y⁻¹`. -/
 private lemma elemDual_fixed_apply_conj
@@ -108,6 +111,8 @@ private lemma elemDual_fixed_apply_conj
   rw [h2] at h1
   exact h1.symm
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- The invariant-character bridge `(R^∨)^C ≃ D_Rmod`: `#fixedPts C (R^∨) = #RCharSub`. -/
 private lemma card_fixedPts_eq_card_rCharSub
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r) :

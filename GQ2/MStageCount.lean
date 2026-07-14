@@ -162,7 +162,8 @@ theorem exactImageCount_eq_zero_of_not_headSurj {Y : Type} [Group Y] [Topologica
 The `R = ⊥` lane feeds the IH at the proper `C`-onto strata of `𝒴_B` itself; the (148) bound
 `card_stratum_LB_lt` is the *cover* version and requires `R ≠ ⊥`, so the lane needs its own
 bound — which in exchange holds for every `R`. -/
-
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] in
 /-- **`M`-stage stratum bound**: a proper (`J ≠ ⊤`) `C`-onto (`J.map π_{BC} = ⊤`) stratum of
 the `B`-stage target has marked kernel `< |L_Y|`.  Properness against `C`-ontoness forces
 `L_B ⊓ J` to have index `≥ 2` in `L_B` (if `L_B ≤ J` then `M_B ≤ J`, and `C`-ontoness pulls

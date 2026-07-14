@@ -391,6 +391,7 @@ section EvalPairings
 
 variable {A : Type*} [AddCommGroup A] [DistribMulAction C A] [Finite A] [Finite C]
 
+omit [Finite A] [Finite C] in
 /-- 2-torsion of the word-complex `H⁰w` (a subgroup of `A`). -/
 theorem H0w_two_torsion (t : Marking C) (hA₂ : ∀ a : A, a + a = 0) (a : H0w (A := A) t) :
     a + a = 0 :=
@@ -1060,11 +1061,13 @@ variable {A' A A'' : Type*}
   (hf : ∀ (c : C) (a : A'), f (c • a) = c • f a) (hg : ∀ (c : C) (a : A), g (c • a) = c • g a)
   (hinj : Function.Injective f) (hsurj : Function.Surjective g) (hexact : f.range = g.ker)
 
+omit [Finite A] [Finite A''] in
 include hsurj in
 /-- Degree-1 (`(·)⁴`) surjectivity: `g` applied componentwise is surjective. -/
 theorem pi_g_surjective : Function.Surjective (fun (x : Fin 4 → A) (i : Fin 4) => g (x i)) := by
   intro y; choose x hx using fun i => hsurj (y i); exact ⟨x, funext hx⟩
 
+omit [Finite A'] [Finite A] [Finite A''] in
 include hexact in
 /-- Degree-1 exactness: `ker(g∘·) = range(f∘·)` on `Fin 4 → A`. -/
 theorem pi_exact (y : Fin 4 → A) :
@@ -1082,11 +1085,13 @@ theorem pi_exact (y : Fin 4 → A) :
     show g (f (x i)) = 0
     exact AddMonoidHom.mem_ker.mp (hexact ▸ AddMonoidHom.mem_range.mpr ⟨x i, rfl⟩)
 
+omit [Finite A] [Finite A''] in
 include hsurj in
 /-- Degree-2 (`(·)²`) surjectivity: `g × g` is surjective. -/
 theorem prod_g_surjective : Function.Surjective (g.prodMap g) := by
   rw [AddMonoidHom.coe_prodMap]; exact hsurj.prodMap hsurj
 
+omit [Finite A'] [Finite A] [Finite A''] in
 include hexact in
 /-- Degree-2 exactness: `ker(g × g) = range(f × f)` on `A × A`. -/
 theorem prod_exact (p : A × A) :
@@ -1111,6 +1116,7 @@ include hsurj in
 /-- A chosen lift of a degree-1 `A''`-cochain to `A⁴` (via `g` surjective). -/
 noncomputable def snakeLift (c'' : Fin 4 → A'') : Fin 4 → A := fun i => (hsurj (c'' i)).choose
 
+omit [Finite A] [Finite A''] in
 include hsurj in
 @[simp] theorem snakeLift_spec (c'' : Fin 4 → A'') (i : Fin 4) :
     g (snakeLift g hsurj c'' i) = c'' i :=
@@ -1133,6 +1139,7 @@ noncomputable def snakeZ (t : Marking C) (c'' : Z1w (A := A'') t) : A' × A' :=
   ((prod_exact f g hexact (d1 t (snakeLift g hsurj c''.1))).mp
     (snake_d1_mem g hg hsurj t c'')).choose
 
+omit [DistribMulAction C A'] [Finite A'] in
 include hg hsurj hexact in
 theorem snakeZ_spec (t : Marking C) (c'' : Z1w (A := A'') t) :
     (f.prodMap f) (snakeZ f g hg hsurj hexact t c'') = d1 t (snakeLift g hsurj c''.1) :=
@@ -1205,7 +1212,7 @@ The mirror of `δ¹` one degree down.  Lift `a'' ∈ H⁰w(A'')` to `a ∈ A`; t
 (`f∘d¹w = d¹(f∘w) = d¹d⁰a = 0`, `f` injective).  `δ⁰(a'') := [w] ∈ H¹w(A')`; the class is
 independent of the lift `a` (a different lift shifts `w` by a coboundary).  The domain `H⁰w` is an
 honest subgroup (no quotient), so — unlike `δ¹` — no descent is needed, only lift-independence. -/
-
+omit [Finite A] [Finite A''] [Finite C] in
 include hg hsurj in
 /-- For `a'' ∈ H⁰w(A'')`, `d⁰` of the chosen lift lands in `ker(g∘·)` (degree 1). -/
 theorem snake0_d0_mem (t : Marking C) (a'' : H0w (A := A'') t) :
@@ -1218,12 +1225,14 @@ include hg hsurj hexact in
 noncomputable def snake0Z' (t : Marking C) (a'' : H0w (A := A'') t) : Fin 4 → A' :=
   ((pi_exact f g hexact (d0 t (hsurj a''.1).choose)).mp (snake0_d0_mem g hg hsurj t a'')).choose
 
+omit [DistribMulAction C A'] [Finite A'] [Finite A] [Finite A''] [Finite C] in
 include hg hsurj hexact in
 theorem snake0Z'_spec (t : Marking C) (a'' : H0w (A := A'') t) :
     (fun i => f (snake0Z' f g hg hsurj hexact t a'' i)) = d0 t (hsurj a''.1).choose :=
   ((pi_exact f g hexact (d0 t (hsurj a''.1).choose)).mp
     (snake0_d0_mem g hg hsurj t a'')).choose_spec
 
+omit [Finite A''] in
 include hf hg hinj hsurj hexact in
 /-- `snake0Z' ∈ Z¹w(A')`: its `d¹` vanishes (pull `d¹∘d⁰ = 0` back through the injection `f`). -/
 theorem snake0Z'_mem (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
@@ -1239,6 +1248,7 @@ theorem snake0Z'_mem (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   exact d1Fun_comp_d0 t ht hw _
 
 include hf hg hinj hsurj hexact in
+omit [Finite A''] in
 /-- Lift-independence of `δ⁰`: *any* lift `a` of `a''` with cocycle `w` (`f∘w = d⁰a`) gives the
 same class `[w] = δ⁰(a'')`.  A second lift differs by `f a'`, shifting `w` by `d⁰a'`. -/
 theorem delta0_welldef (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
@@ -1340,6 +1350,7 @@ theorem H2w_exact_mid (t : Marking C) (y : H2w (A := A) t) :
     rw [hgf]; exact QuotientAddGroup.mk_zero _
 
 
+omit [Finite A'] [Finite A] [Finite A''] [Finite C] in
 include hf hinj hexact in
 /-- Exactness at `H⁰w(A)`: `ker(H⁰wMap g) = range(H⁰wMap f)`. -/
 theorem H0w_exact_mid (t : Marking C) (a : H0w (A := A) t) :
@@ -1364,6 +1375,7 @@ theorem H0w_exact_mid (t : Marking C) (a : H0w (A := A) t) :
     exact AddMonoidHom.mem_ker.mp (hexact ▸ AddMonoidHom.mem_range.mpr ⟨a'.1, rfl⟩)
 
 include hf hg hinj hsurj hexact in
+omit [Finite A''] in
 /-- Exactness at `H⁰w(A'')`: `ker δ⁰ = range(H⁰wMap g)`. -/
 theorem H0w_exact_right (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     (a'' : H0w (A := A'') t) :
@@ -1402,6 +1414,7 @@ theorem H0w_exact_right (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     exact hwd.symm.trans (QuotientAddGroup.mk_zero _)
 
 include hf hg hinj hsurj hexact in
+omit [Finite A''] in
 /-- Exactness at `H¹w(A')`: `ker(H¹wMap f) = range δ⁰`. -/
 theorem H1w_exact_left (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (h : H1w (A := A') t) :
     h ∈ (H1wMap t f hf).ker ↔ h ∈ (delta0 f g hf hg hinj hsurj hexact t ht hw).range := by
@@ -1583,6 +1596,7 @@ noncomputable def delta1D (hA₂ : ∀ a : A, a + a = 0) (t : Marking C) (ht : t
     (dualMap_injective g hsurj) (dualMap_surjective hA₂ f hinj)
     (dual_ses_exact (two_torsion_of_surjective g hsurj hA₂) f g hexact) t ht hw
 
+omit [Finite A'] in
 include hf hg hinj hsurj hexact in
 /-- **δ-square core 1**: evaluating `λ ∈ H⁰w(A'^∨)` on the `δ¹`-snake of `c''` equals pairing
 `c''` against the dual `δ⁰`-snake word of `λ`.  (Lift `λ` to `Λ` along `f^∨`; both sides equal

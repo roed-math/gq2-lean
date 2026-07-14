@@ -108,6 +108,8 @@ noncomputable def phaseFamily (En : RF.Enrichment) (l₀ : RF.DR) (h₀ : l₀ �
   else
     trivialPhaseCover RF.YC
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- The `dif_pos`-reduction of the phase family on the zero-edge locus (the pre-analyzed
 elaboration risk (b) of the row: the rewrite is proof-irrelevant in the stored descent
 witness, since `descentOf` consumes whichever proof the caller holds). -/
@@ -143,6 +145,7 @@ section Half139GammaA
 variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
   {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **`hlem86M` for `Γ_A`** — the source's Lemma 8.6 half-torsor count over every boundary
 lift, for the radical datum `En.radData l h`, threading the `NoDescent` field hypothesis
 (the `hlem86M_local` mirror; no `hfg` needed — `lemma_8_6_gammaA` is word-side). -/
@@ -159,6 +162,7 @@ theorem hlem86M_gammaA
   lemma_8_6_gammaA (En.radData l h) hedge (RF.rhoPrime b F (En.radData l h) rfl ρ)
     (rhoPrime_surjective RF b F (En.radData l h) rfl ρ)
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **`hMcountM` for `Γ_A`** — the unrestricted `M`-lift count `#(M-lifts) = |M_B|²`: the
 P-17i `LiftsOver` count transported through the `LiftsOver ↔ MLifts` bridge. -/
 theorem hMcountM_gammaA

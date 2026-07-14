@@ -86,6 +86,7 @@ noncomputable def markC : Marking C := Marking.push q
 theorem markC_admissible (hq : Function.Surjective q) : (markC q).Admissible :=
   Marking.push_admissible q hq
 
+omit [DiscreteTopology C] [Finite C] in
 /-- `t_q = q ∘ (canonical Γ_A-marking)` on each generator (the `Marking.map_map` collapse). -/
 theorem markC_map : markC q = (gammaGen).map q.toMonoidHom := by
   show Marking.push q = (univMarking.map (quotientMk NA).toMonoidHom).map q.toMonoidHom
@@ -96,6 +97,7 @@ theorem markC_map : markC q = (gammaGen).map q.toMonoidHom := by
 noncomputable def eval (z : Z1 GA A) : Fin 4 → A :=
   ![z.1 gammaGen.σ, z.1 gammaGen.τ, z.1 gammaGen.x₀, z.1 gammaGen.x₁]
 
+omit [Finite A] [ContinuousSMul GA A] [Finite C] in
 /-- The lifted marking at `eval z` is the pushforward of `wordHom` along the canonical marking —
 the identity underlying "eval lands in `Z1w`". -/
 theorem liftMarking_eval (z : Z1 GA A) :
@@ -104,6 +106,7 @@ theorem liftMarking_eval (z : Z1 GA A) :
   refine Marking.mk.injEq .. ▸ ⟨?_, ?_, ?_, ?_⟩ <;>
     · apply WordLift.ext <;> rfl
 
+omit [Finite A] [ContinuousSMul GA A] [Finite C] in
 /-- The lifted marking at `eval z`, rewritten as the pushforward of the universal marking along
 `φ_z ∘ quotientMk : F₄ → WordLift` — the form the relator-death lemmas consume. -/
 theorem liftMarking_eval_univ (z : Z1 GA A) :
@@ -114,6 +117,7 @@ theorem liftMarking_eval_univ (z : Z1 GA A) :
   rw [Marking.map_map]
   rfl
 
+omit [Finite A] [ContinuousSMul GA A] [Finite C] in
 include hcompat in
 /-- The tame relation holds for the lifted marking at `eval z` (the tame relator dies in `Γ_A`). -/
 theorem liftMarking_eval_tameRel (z : Z1 GA A) :
@@ -122,6 +126,7 @@ theorem liftMarking_eval_tameRel (z : Z1 GA A) :
   show (wordHom q hcompat z) (quotientMk NA univMarking.tameRelator) = 1
   rw [(quotientMk_eq_one_iff NA).mpr tameRelator_mem_NA, map_one]
 
+omit [ContinuousSMul GA A] in
 include hcompat in
 /-- The wild relation holds for the lifted marking at `eval z` (the wild relator dies in `Γ_A`). -/
 theorem liftMarking_eval_wildRel (z : Z1 GA A) :
@@ -131,6 +136,7 @@ theorem liftMarking_eval_wildRel (z : Z1 GA A) :
   rw [(quotientMk_eq_one_iff NA).mpr wildRelator_mem_NA, map_one]
 
 include hcompat in
+omit [ContinuousSMul GA A] in
 /-- **Forward: `eval` lands in `Z1w`.** The evaluation of a continuous crossed cocycle at the four
 generators is a word cocycle, because both relators die in `Γ_A`. -/
 theorem eval_mem_Z1w (z : Z1 GA A) : eval z ∈ Z1w (markC q) := by
@@ -142,6 +148,7 @@ theorem eval_mem_Z1w (z : Z1 GA A) : eval z ∈ Z1w (markC q) := by
   rw [d1Fun, ht, hw]
   rfl
 
+omit [Finite A] [ContinuousSMul GA A] in
 /-- `eval` is additive (it is pointwise evaluation of the additive `z.1`). -/
 theorem eval_add (z z' : Z1 GA A) : eval (z + z') = eval z + eval z' := by
   funext i
@@ -155,6 +162,7 @@ noncomputable def toZ1wHom : Z1 GA A →+ Z1w (A := A) (markC q) :=
     (fun z => ⟨eval z, eval_mem_Z1w q hcompat z⟩)
     (fun z z' => Subtype.ext (eval_add z z'))
 
+omit [ContinuousSMul GA A] in
 @[simp] theorem toZ1wHom_coe (z : Z1 GA A) : (toZ1wHom q hcompat z : Fin 4 → A) = eval z := rfl
 
 /-! ## The `Pro2Core` crux: the wild core of a lifted marking is pro-2. -/
@@ -170,6 +178,8 @@ def gHom : WordLift A C →* C where
 def gHomC : ContinuousMonoidHom (WordLift A C) C := ⟨gHom, continuous_of_discreteTopology⟩
 
 
+omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [TopologicalSpace A]
+  [DiscreteTopology A] [Finite A] [DistribMulAction GA A] [ContinuousSMul GA A] in
 /-- The kernel of the base projection is elementary-2 (it is `A` with `g = 1`). -/
 theorem isPGroup_gHom_ker (hA₂ : ∀ a : A, a + a = 0) :
     IsPGroup 2 (gHom (A := A) (C := C)).ker := by
@@ -184,6 +194,8 @@ theorem isPGroup_gHom_ker (hA₂ : ∀ a : A, a + a = 0) :
   · show g.1.g * g.1.g = (1 : WordLift A C).g
     rw [hg1, WordLift.one_g, mul_one]
 
+omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [TopologicalSpace A]
+  [DiscreteTopology A] [Finite A] [DistribMulAction GA A] [ContinuousSMul GA A] in
 /-- **The `Pro2Core` crux**: the wild core `⟪(x₂,t.x₀), (x₃,t.x₁)⟫` of a lifted marking is a
 `2`-group — an extension of the (pro-2, `t.Pro2Core`) base wild core by the elementary-2 `A`.
 Proved with `IsPGroup.comap_of_ker_isPGroup`: the core is `≤ gHom⁻¹(base core)`. -/
@@ -204,11 +216,14 @@ theorem isPGroup_liftMarking_wildCore (hA₂ : ∀ a : A, a + a = 0) (t : Markin
       exact Subgroup.subset_normalClosure (by first | exact .inl rfl | exact .inr rfl)
   exact hcomap.to_le hle
 
+omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [TopologicalSpace A]
+  [DiscreteTopology A] [Finite A] [DistribMulAction GA A] [ContinuousSMul GA A] in
 /-- Projecting a lifted marking back through `gHom` recovers the base marking. -/
 theorem liftMarking_map_gHom (t : Marking C) (x : Fin 4 → A) :
     (liftMarking t x).map (gHom (A := A) (C := C)) = t := by
   refine Marking.mk.injEq .. ▸ ⟨rfl, rfl, rfl, rfl⟩
 
+omit [TopologicalSpace A] [DiscreteTopology A] [DistribMulAction GA A] [ContinuousSMul GA A] in
 /-- For a word cocycle `x ∈ Z1w`, the lifted marking satisfies the tame relation: the `.u`-slot
 dies because `x` is a cocycle, the `.g`-slot because `t_q` is admissible. -/
 theorem liftMarking_Z1w_tameRel (hq : Function.Surjective q) (x : Z1w (A := A) (markC q)) :
@@ -222,6 +237,7 @@ theorem liftMarking_Z1w_tameRel (hq : Function.Surjective q) (x : Z1w (A := A) (
   rw [← Marking.tameValue_eq_one_iff]
   exact WordLift.ext (by rw [hu]; rfl) (by rw [hg]; rfl)
 
+omit [TopologicalSpace A] [DiscreteTopology A] [DistribMulAction GA A] [ContinuousSMul GA A] in
 /-- For a word cocycle `x ∈ Z1w`, the lifted marking satisfies the wild relation. -/
 theorem liftMarking_Z1w_wildRel (hq : Function.Surjective q) (x : Z1w (A := A) (markC q)) :
     (liftMarking (markC q) x.1).WildRel := by
@@ -234,6 +250,7 @@ theorem liftMarking_Z1w_wildRel (hq : Function.Surjective q) (x : Z1w (A := A) (
   rw [← Marking.wildValue_eq_one_iff]
   exact WordLift.ext (by rw [hu]; rfl) (by rw [hg]; rfl)
 
+omit [TopologicalSpace A] [DiscreteTopology A] [DistribMulAction GA A] [ContinuousSMul GA A] in
 /-- **Backward, gateway step.**  For a word cocycle `x ∈ Z1w t_q`, the classified lift
 `c := classify (liftMarking t_q x) : F₄ →ₜ* WordLift A C` kills `N_A`.  Its kernel is an
 admissible open: `Generates` is automatic (`generates_univMarking_map`), both relators die
@@ -309,11 +326,13 @@ noncomputable def liftHom (hq : Function.Surjective q) (hA₂ : ∀ a : A, a + a
     (x : Z1w (A := A) (markC q)) : ContinuousMonoidHom GA (WordLift A C) :=
   quotientLift NA (Marking.classify (liftMarking (markC q) x.1)) (NA_le_ker_classify q hq hA₂ x)
 
+omit [TopologicalSpace A] [DiscreteTopology A] [DistribMulAction GA A] [ContinuousSMul GA A] in
 theorem liftHom_quotientMk (hq : Function.Surjective q) (hA₂ : ∀ a : A, a + a = 0)
     (x : Z1w (A := A) (markC q)) (g : FreeProfiniteGroup (Fin 4)) :
     liftHom q hq hA₂ x (quotientMk NA g) = Marking.classify (liftMarking (markC q) x.1) g :=
   quotientLift_quotientMk NA _ _ g
 
+omit [TopologicalSpace A] [DiscreteTopology A] [DistribMulAction GA A] [ContinuousSMul GA A] in
 /-- The descended hom lifts `q` on the base coordinate: `(liftHom x γ).g = q γ`.  (Both
 `gHomC ∘ liftHom` and `q` are the descent of the same `F₄ → C` hom, since projecting the lifted
 marking recovers `t_q` — `liftMarking_map_gHom`.) -/
@@ -362,6 +381,7 @@ descends `z1Equiv` through `B1 ↔ B1w` (degree-0 half of the comparison) — th
 -/
 
 include hcompat in
+omit [ContinuousSMul GA A] in
 /-- **Right inverse** (`toZ1wHom ∘ ofZ1w = id` on `Z1w`).  Evaluating the descended hom at the
 four generators returns `x`: `(liftHom x (quotientMk N_A (univMarking.slot))).u
 = (Marking.classify (liftMarking t_q x) (univMarking.slot)).u = ((liftMarking t_q x).slot).u
@@ -385,6 +405,7 @@ theorem toZ1wHom_ofZ1w (hq : Function.Surjective q) (hA₂ : ∀ a : A, a + a = 
     rw [liftHom_quotientMk]; exact congrArg WordLift.u (congrArg Marking.x₁ hut)
 
 include hcompat in
+omit [ContinuousSMul GA A] in
 /-- **Left inverse** (`ofZ1w ∘ toZ1wHom = id` on `Z1`).  The descended hom of `eval z` *is*
 `wordHom z`: both equal `(wordHom z).comp (quotientMk N_A)` after `quotientMk` (by
 `liftMarking_eval_univ` + `Marking.toHom_hom_univMarking_map`), so their `.u`-slots agree. -/
@@ -417,6 +438,7 @@ noncomputable def z1Equiv (hq : Function.Surjective q) (hA₂ : ∀ a : A, a + a
   right_inv := toZ1wHom_ofZ1w q hcompat hq hA₂
   map_add' := (toZ1wHom q hcompat).map_add'
 
+omit [Finite A] [DiscreteTopology C] [Finite C] in
 include hcompat in
 /-- **Degree-0 compatibility.**  Evaluation carries a `Γ_A`-coboundary `dZero m` to the
 word-coboundary `d0 t_q m`: on each generator `gammaGen.slot • m = t_q.slot • m`, since `q`

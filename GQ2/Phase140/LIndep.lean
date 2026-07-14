@@ -36,7 +36,8 @@ variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite 
 variable {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk)
 variable (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
 
-omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] in
+omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace Y]
+  [DiscreteTopology Y] in
 /-- **`l`-independence of the `T`-cocycle count** (P-16d6c, c3): for a fixed boundary lift `ρ`, the
 crossed count `#Z¹_{Γ,ρ}(T)` computed against the enrichment datum `En.radData l h` does not depend
 on the scalar `l` — the datum's `M`/`T` layers (and hence `TCocycle` and `rhoPrime`) are the same

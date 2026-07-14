@@ -74,6 +74,7 @@ section TwoTorsion
 variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
   [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] in
 /-- `H¹(G, 𝔽₂)` is 2-torsion.  The representative satisfies `f + f = 0` pointwise (char 2), so
 the sum is `H1mk` of the zero cocycle. -/
 theorem h1_add_self (x : H1 G (ZMod 2)) : x + x = 0 := by
@@ -84,6 +85,7 @@ theorem h1_add_self (x : H1 G (ZMod 2)) : x + x = 0 := by
     show H1mk G (ZMod 2) z + H1mk G (ZMod 2) z = 0
     rw [← map_add, hz, map_zero]
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] in
 /-- `H²(G, 𝔽₂)` is 2-torsion.  Same shape as `h1_add_self`, at `Z2`. -/
 theorem h2_add_self (x : H2 G (ZMod 2)) : x + x = 0 := by
   have key : ∀ a : ZMod 2, a + a = 0 := by decide
@@ -192,6 +194,7 @@ section CupComm
 variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
   [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
 
+omit [IsTopologicalGroup G] in
 /-- Symmetry of the degree-(1,1) cup pairing in char 2.  [O: at representatives,
 `cup11Fun a b + cup11Fun b a = δ¹(g ↦ a g · b g)` — expand `dOne`; the pointwise product of
 two 1-cocycles is a continuous 1-cochain, so the difference is in `B2`; conclude by

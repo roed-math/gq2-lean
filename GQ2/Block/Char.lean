@@ -24,10 +24,12 @@ variable {Y : Type} [Group Y] [Finite Y] {L : Subgroup Y}
 noncomputable def blockLam (B : MinimalBlock L) (l : Subgroup Y) : ↥B.frattiniK → ZMod 2 :=
   fun r => if (r : Y) ∈ l then 0 else 1
 
+omit [Finite Y] in
 theorem blockLam_eq_zero_iff (B : MinimalBlock L) (l : Subgroup Y) (r : ↥B.frattiniK) :
     blockLam B l r = 0 ↔ (r : Y) ∈ l := by
   unfold blockLam; split <;> simp_all
 
+omit [Finite Y] in
 /-- **Additivity**: `λ_l(r·r') = λ_l(r) + λ_l(r')` — from index-2 product membership
 (`mul_mem_iff_of_index_two`). -/
 theorem blockLam_hom (B : MinimalBlock L) (l : Subgroup Y)
@@ -40,6 +42,7 @@ theorem blockLam_hom (B : MinimalBlock L) (l : Subgroup Y)
     simp only [Subgroup.coe_mul, hkey, h1, h2, iff_true, iff_false, iff_self,
       if_true, if_false] <;> decide
 
+omit [Finite Y] in
 /-- **`Y`-conjugation invariance**: `λ_l(y r y⁻¹) = λ_l(r)` — because `l` is `Y`-normal. -/
 theorem blockLam_conj (B : MinimalBlock L) (l : Subgroup Y) (hlN : l.Normal)
     (hRN : B.frattiniK.Normal) (y : Y) (r : Y) (hr : r ∈ B.frattiniK) :
@@ -52,6 +55,7 @@ theorem blockLam_conj (B : MinimalBlock L) (l : Subgroup Y) (hlN : l.Normal)
       rwa [show y⁻¹ * (y * r * y⁻¹) * y⁻¹⁻¹ = r from by group] at this)
     rw [if_neg hnot, if_neg hrl]
 
+omit [Finite Y] in
 /-- **Nonzero**: since `l < R`, some `r ∈ R∖l` has `λ_l(r) = 1`. -/
 theorem blockLam_ne (B : MinimalBlock L) (l : Subgroup Y) (hlt : l < B.frattiniK) :
     blockLam B l ≠ 0 := by
@@ -71,7 +75,7 @@ theorem relIndex_two_of_le (B : MinimalBlock L) (l : Subgroup Y)
   omega
 
 /-! ## P-17d2c — `hquad`: the descended form `qbar` is quadratic (biadditive polar) -/
-
+omit [Finite Y] in
 /-- Commutators of `K` land in `R = Φ(K)`: `[b,a] = b a b⁻¹ a⁻¹ ∈ R` — via
 `a[b,a]a⁻¹ = (ab)²(a²b²)⁻¹ ∈ R` (squares, `hsq`) and `R`-normality. -/
 theorem comm_mem_R_of_K (B : MinimalBlock L) (hRN : B.frattiniK.Normal)
@@ -110,6 +114,7 @@ section Quad
 
 variable (B : MinimalBlock L) [(B.S.subgroupOf B.P).Normal]
 
+omit [Finite Y] in
 /-- `⟦a⟧·⟦b⟧ = ⟦ab⟧` on `P/S`, in the `K`-membership form (proof term `B.hKP (mul_mem …)`
 matches `hspec`/`blockQbar_beta`). -/
 theorem mkK_mul {a b : Y} (ha : a ∈ B.K) (hb : b ∈ B.K) :
@@ -118,6 +123,7 @@ theorem mkK_mul {a b : Y} (ha : a ∈ B.K) (hb : b ∈ B.K) :
   rw [← QuotientGroup.mk_mul]
   rfl
 
+omit [Finite Y] in
 /-- **The polar form is a conjugated commutator character**:
 `β(⟦a⟧,⟦b⟧) = qbar(⟦a⟧⟦b⟧) + qbar⟦a⟧ + qbar⟦b⟧ = λ([b,a])` — the linchpin of biadditivity. -/
 theorem blockQbar_beta (hRN : B.frattiniK.Normal)
@@ -144,8 +150,9 @@ theorem blockQbar_beta (hRN : B.frattiniK.Normal)
   have hz : ∀ x p q : ZMod 2, x + p + q + p + q = x := by decide
   exact hz _ _ _
 
+omit [Finite Y] in
 /-- **`qbar 1 = 0`** (`map_zero`): from `λ 1 = 0`. -/
-theorem blockQbar_map_zero (hRN : B.frattiniK.Normal)
+theorem blockQbar_map_zero (_ : B.frattiniK.Normal)
     (hsq : ∀ k ∈ B.K, k * k ∈ B.frattiniK)
     (lam : ↥B.frattiniK → ZMod 2)
     (hlam_hom : ∀ r r' : ↥B.frattiniK, lam (r * r') = lam r + lam r')
@@ -163,6 +170,7 @@ theorem blockQbar_map_zero (hRN : B.frattiniK.Normal)
   rw [← h, show (⟨(1 : Y) * 1, hsq 1 (one_mem _)⟩ : ↥B.frattiniK) = 1 from Subtype.ext (one_mul 1),
     lam_one]
 
+omit [Finite Y] [(B.S.subgroupOf B.P).Normal] in
 /-- Every class of `V = P/S` has a `K`-representative (from `KS = P`, `Blk.gen`). -/
 theorem exists_K_rep (v : ↥B.P ⧸ B.S.subgroupOf B.P) :
     ∃ k : Y, ∃ hk : k ∈ B.K,
@@ -179,6 +187,7 @@ theorem exists_K_rep (v : ↥B.P ⧸ B.S.subgroupOf B.P) :
   rw [show k⁻¹ * (p : Y) = s from by rw [← hks]; group]
   exact hs
 
+omit [Finite Y] in
 /-- **The multiplicative polar form is biadditive** (`hquad`'s core `polar_add_left`):
 `β(u·v, w) = β(u,w) + β(v,w)`.  Via `blockQbar_beta` (`β = λ(commutator)`) + the commutator
 identity `[w, uv] = [w,u]·u[w,v]u⁻¹` + `λ`'s additivity/conj-invariance. -/
@@ -216,9 +225,11 @@ theorem blockQbar_polar_add (hRN : B.frattiniK.Normal)
 noncomputable def qbP (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2) (y : Y) : ZMod 2 :=
   if h : y ∈ B.P then qbar (QuotientGroup.mk ⟨y, h⟩) else 0
 
+omit [Finite Y] [(B.S.subgroupOf B.P).Normal] in
 theorem qbP_mem (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2) {y : Y} (hy : y ∈ B.P) :
     qbP B qbar y = qbar (QuotientGroup.mk ⟨y, hy⟩) := dif_pos hy
 
+omit [Finite Y] in
 /-- `⟦p⟧·⟦q⟧ = ⟦pq⟧` on `P/S` (the `P`-membership form). -/
 theorem mkP_mul {a b : Y} (ha : a ∈ B.P) (hb : b ∈ B.P) :
     (QuotientGroup.mk ⟨a, ha⟩ : ↥B.P ⧸ B.S.subgroupOf B.P) * QuotientGroup.mk ⟨b, hb⟩
@@ -226,6 +237,7 @@ theorem mkP_mul {a b : Y} (ha : a ∈ B.P) (hb : b ∈ B.P) :
   rw [← QuotientGroup.mk_mul]
   rfl
 
+omit [Finite Y] [(B.S.subgroupOf B.P).Normal] in
 /-- **`Y`-conjugation invariance of the polar form** `β(g•a, g•b) = β(a,b)` (in `qbP` terms),
 from `qbar`'s `Y`-invariance `hinv`. -/
 theorem beta_conj (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2)
@@ -246,6 +258,7 @@ theorem beta_conj (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2)
 noncomputable def betaP (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2) (y q : Y) : ZMod 2 :=
   qbP B qbar (y * q) + qbP B qbar y + qbP B qbar q
 
+omit [Finite Y] in
 /-- `betaP` is additive in its first argument (from `qbar`'s polar biadditivity). -/
 theorem betaP_biadd (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2)
     (hbiadd : ∀ u v w : ↥B.P ⧸ B.S.subgroupOf B.P,
@@ -262,6 +275,7 @@ theorem betaP_biadd (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2)
     qbP_mem B qbar (mul_mem hy' hq), qbP_mem B qbar hy']
   exact key
 
+omit [Finite Y] in
 /-- `betaP 1 q = 0` (`⟦1⟧ = 0` in the polar form). -/
 theorem betaP_one (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2) (h0 : qbar 1 = 0) (q : Y) :
     betaP B qbar 1 q = 0 := by
@@ -291,8 +305,10 @@ def radSub (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2)
     rw [mul_inv_cancel, betaP_one B qbar h0 q, ha q hq, zero_add] at hbi
     exact hbi.symm
 
+omit [Finite Y] in
 theorem radSub_le_P (qbar) (hbiadd) (h0) : radSub B qbar hbiadd h0 ≤ B.P := fun _ hy => hy.1
 
+omit [Finite Y] in
 theorem S_le_radSub (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2) (hbiadd) (h0 : qbar 1 = 0) :
     B.S ≤ radSub B qbar hbiadd h0 := by
   intro s hs
@@ -304,6 +320,7 @@ theorem S_le_radSub (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2) (hbiadd)
   rw [qbP_mem B qbar (mul_mem hsP hq), qbP_mem B qbar hsP, qbP_mem B qbar hq,
     ← mkP_mul B hsP hq, hs1, one_mul, h0, add_zero, CharTwo.add_self_eq_zero]
 
+omit [Finite Y] in
 theorem radSub_normal (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2) (hbiadd) (h0)
     (hinv : ∀ (y p : Y) (hp : p ∈ B.P),
       qbar (QuotientGroup.mk ⟨y * p * y⁻¹, B.hP.conj_mem p hp y⟩)

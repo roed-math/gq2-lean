@@ -145,6 +145,7 @@ noncomputable def x0SecClass (v : (En.descData l h).Vmod) :
       ⧸ vCobRange (En.descData l h) (rhoPrimeGA b F En l h ρ) :=
   QuotientAddGroup.mk (x0SecC b F En l h ρ hcomp hcompat hA₂ hmem v)
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] [ContinuousSMul GA (En.descData l h).Vmod] in
 /-- `eval` recovers the x₀-supported tuple from the section's word cocycle (stage 6's
 `hevalx`). -/
 theorem eval_ofZ1w_x0Supported (v : (En.descData l h).Vmod) :
@@ -155,6 +156,7 @@ theorem eval_ofZ1w_x0Supported (v : (En.descData l h).Vmod) :
       ⟨x0Supported v, hmem v⟩)
   rwa [toZ1wHom_coe] at h2
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- The `h1CoordGammaA`-coordinate of `x0SecClass v` is the class of the x₀-supported word
 cocycle (stage 5's `hcoordψ`). -/
 theorem h1CoordGammaA_x0SecClass (v : (En.descData l h).Vmod) :
@@ -169,6 +171,7 @@ theorem h1CoordGammaA_x0SecClass (v : (En.descData l h).Vmod) :
           ⟨x0Supported v, hmem v⟩ from toZ1_ofZ1 hcomp _]
   rw [toZ1wHom_ofZ1w]
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- Bijectivity of `v ↦ x0SecClass v`, given the A-4.1 section bijection (stage 5's
 `hψbij`). -/
 theorem x0SecClass_bijective
@@ -208,12 +211,14 @@ section HeadSlots
 variable (hE2 : ∀ e : E, e ^ 2 = 1) (B : BoundaryMaps) (F : BoundaryFrame H E)
   (ρ : BoundaryLifts B.bA F (blockFrame T Blk hE2).TC)
 
+omit [Blk.frattiniK.Normal] in
 /-- The head factorization of the `Γ_A` boundary lift, through `mk' (headActKer)`. -/
 theorem blockProjF_thetaGA (γ : GA) :
     blockProjF T Blk (thetaGA B.bA F ρ γ) = headTameSurj T Blk F (B.tameA γ) :=
   congrArg (⇑(QuotientGroup.mk' (headActKer T Blk)))
     (boundaryLift_head_gammaA T Blk hE2 B F ρ γ)
 
+omit [Blk.frattiniK.Normal] in
 /-- The `σ`-slot projects to the fixed tame `σ`-value. -/
 theorem blockProjF_thetaGA_sigma :
     blockProjF T Blk (thetaGA B.bA F ρ gammaGen.σ) = headTameSurj T Blk F tameSigma := by
@@ -222,6 +227,7 @@ theorem blockProjF_thetaGA_sigma :
         blockProjF_thetaGA T Blk hE2 B F ρ _
     _ = headTameSurj T Blk F tameSigma := by rw [B.tameA_sigma]
 
+omit [Blk.frattiniK.Normal] in
 /-- The `τ`-slot projects to the fixed tame `τ`-value. -/
 theorem blockProjF_thetaGA_tau :
     blockProjF T Blk (thetaGA B.bA F ρ gammaGen.τ) = headTameSurj T Blk F tameTau := by
@@ -230,6 +236,7 @@ theorem blockProjF_thetaGA_tau :
         blockProjF_thetaGA T Blk hE2 B F ρ _
     _ = headTameSurj T Blk F tameTau := by rw [B.tameA_tau]
 
+omit [Blk.frattiniK.Normal] in
 /-- The `x₀`-slot projects to `1` (the wild generators die at the tame head). -/
 theorem blockProjF_thetaGA_x0 :
     blockProjF T Blk (thetaGA B.bA F ρ gammaGen.x₀) = 1 := by
@@ -238,6 +245,7 @@ theorem blockProjF_thetaGA_x0 :
         blockProjF_thetaGA T Blk hE2 B F ρ _
     _ = 1 := by rw [B.tameA_x0, map_one]
 
+omit [Blk.frattiniK.Normal] in
 /-- The `x₁`-slot projects to `1` (the wild generators die at the tame head). -/
 theorem blockProjF_thetaGA_x1 :
     blockProjF T Blk (thetaGA B.bA F ρ gammaGen.x₁) = 1 := by

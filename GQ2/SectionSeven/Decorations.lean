@@ -30,8 +30,8 @@ variable {L : Subgroup Y}
 `R = Φ(K)` is central elementary abelian in `K`, and `K⁴ = 1`.  [P-14 statement; proof P-15
 (odd Hall lift + three-subgroup lemma + the `G`-equivariant fourth-power map).] -/
 theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
-    (π : Y →* H) (hπ : Function.Surjective π) (hkerπ : π.ker = L)
-    (cH : ContinuousMonoidHom Ttame H) (hcH : Function.Surjective cH)
+    (π : Y →* H) (_ : Function.Surjective π) (_ : π.ker = L)
+    (cH : ContinuousMonoidHom Ttame H) (_ : Function.Surjective cH)
     (B : MinimalBlock L) :
     (∀ r ∈ B.frattiniK, ∀ k ∈ B.K, r * k = k * r) ∧ (∀ r ∈ B.frattiniK, r * r = 1) ∧
       ∀ k ∈ B.K, k ^ 4 = 1 := by

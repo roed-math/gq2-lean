@@ -519,6 +519,7 @@ noncomputable def DeltaScalar (dat : FactorSet C V) (γ : C → V →+ ZMod 2)
     (δ : C × C → ZMod 2) (a : C → V) : C × C → ZMod 2 :=
   fun cd => δ cd + thetaPhase dat a cd + gammaCupA γ a cd
 
+omit [Finite C] [Finite V] in
 /-- **Prop 8.8, target side** (P-16d4, 2.6): the edge-killing shear collapses the general
 determinant class to `κ⁰ + inf Δ` up to an explicit coboundary. -/
 theorem prop_8_8_target (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
@@ -606,11 +607,13 @@ variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
 variable (ρ : ContinuousMonoidHom Γ (Bg ⧸ D.M))
 variable [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- The `N`-complement's variation cochain vanishes (`edge ≡ 0`). -/
 theorem edgeQ_zero (Dsc : Descent D) (c : Bg ⧸ D.M) (t : ↥D.T) :
     edgeQ D (SN Dsc) c t = 0 :=
   edge_zero Dsc (Quotient.out c) t
 
+omit [ContinuousSMul Γ (ZMod 2)] in
 /-- **`central_twist_iff`** (P-16d4, 2.4b): in the zero-edge regime, twisting an `M`-lift by
 a `T`-cocycle preserves the central relation — the (129) variation class is zero because the
 normal `N`-complement has vanishing edge.  This is what makes `Central` constant on the
@@ -629,10 +632,13 @@ theorem central_twist_iff (Dsc : Descent D)
 `T`-cocycle torsors of Lemma 8.7. -/
 def redT (f : MLifts D ρ) : Γ → Bg ⧸ D.T := fun γ => QuotientGroup.mk (f.1 γ)
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- `M` centralizes `T` (`T ≤ M`, `M` abelian) — makes the crossed condition rep-independent. -/
 theorem M_cent_T {m : Bg} (hm : m ∈ D.M) {t : Bg} (ht : t ∈ D.T) : m * t * m⁻¹ = t := by
   rw [D.hcomm m hm t (D.hTM ht), mul_assoc, mul_inv_cancel, mul_one]
 
+omit [DiscreteTopology Bg] [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)]
+  [ContinuousSMul Γ (ZMod 2)] in
 /-- Extensionality for `T`-cocycles (only the underlying function matters). -/
 theorem tcocycle_ext {u v : TCocycle D ρ} (h : u.u = v.u) : u = v := by
   cases u with
@@ -696,6 +702,7 @@ noncomputable def tcocycle_torsor_equiv (f₀ : MLifts D ρ) :
     show f.1.1 γ * (f₀.1 γ)⁻¹ * f₀.1 γ = f.1.1 γ
     group
 
+omit [ContinuousSMul Γ (ZMod 2)] in
 /-- **Lemma 8.7, count form** (P-16d4, 2.4c): the central `M`-lifts sharing the `T`-reduction
 of a fixed central lift `f₀` number exactly `#Z¹_{Γ,ρ}(T)` — the multiplicity `μ` of (132),
 constant over the `V`-coordinate.  (`Central` is automatic on the torsor once `f₀` is central,

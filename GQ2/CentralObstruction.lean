@@ -604,6 +604,7 @@ structure TCocycle where
   cont : Continuous u
   crossed : ∀ γ δ (b : Bg), QuotientGroup.mk b = ρ γ → u (γ * δ) = u γ * (b * u δ * b⁻¹)
 
+omit [DiscreteTopology Bg] [IsTopologicalGroup Γ] in
 theorem TCocycle.u_one (u : TCocycle D ρ) : u.u 1 = 1 := by
   have h := u.crossed 1 1 1 (by rw [QuotientGroup.mk_one, map_one])
   simp only [one_mul, mul_one, inv_one] at h
@@ -622,6 +623,7 @@ noncomputable def twist (u : TCocycle D ρ) (f : MLifts D ρ) : MLifts D ρ :=
        one_mul, f.2 γ]⟩
 
 
+omit [IsTopologicalGroup Γ] in
 /-- **Twisting is an involution** (`T` has exponent 2). -/
 theorem twist_twist (u : TCocycle D ρ) (f : MLifts D ρ) :
     twist D ρ u (twist D ρ u f) = f := by
@@ -641,12 +643,15 @@ noncomputable def obCocOf (F : Γ → D.C.cover) : Γ × Γ → ZMod 2 :=
 noncomputable def liftFam (f : MLifts D ρ) : Γ → D.C.cover :=
   fun γ => Function.surjInv D.C.surj (f.1 γ)
 
+omit [DiscreteTopology Bg] [IsTopologicalGroup Γ] in
 theorem liftFam_p (f : MLifts D ρ) (γ : Γ) : D.C.p (liftFam D ρ f γ) = f.1 γ :=
   Function.surjInv_eq D.C.surj _
 
+omit [IsTopologicalGroup Γ] in
 theorem liftFam_cont (f : MLifts D ρ) : Continuous (liftFam D ρ f) :=
   continuous_of_discreteTopology.comp f.1.continuous_toFun
 
+omit [DiscreteTopology Bg] [IsTopologicalGroup Γ] in
 /-- Section defects of a lift family lie in the kernel. -/
 theorem obDefect_mem_ker {F : Γ → D.C.cover} {f : MLifts D ρ}
     (hF : ∀ γ, D.C.p (F γ) = f.1 γ) (γ δ : Γ) :
@@ -656,6 +661,7 @@ theorem obDefect_mem_ker {F : Γ → D.C.cover} {f : MLifts D ρ}
 
 variable [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
 
+omit [ContinuousSMul Γ (ZMod 2)] [DiscreteTopology Bg] in
 open ContCoh in
 /-- The obstruction cochain of a (continuous) lift family is a continuous 2-cocycle. -/
 theorem obCocOf_mem_Z2 (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
@@ -707,7 +713,8 @@ noncomputable def ob (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m) (f : MLi
   H2mk Γ (ZMod 2) ⟨obCocOf D (liftFam D ρ f),
     obCocOf_mem_Z2 D ρ htriv (liftFam_cont D ρ f) (liftFam_p D ρ f)⟩
 
-omit [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
+omit [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] [DiscreteTopology Bg]
+  [IsTopologicalGroup Γ] in
 /-- **Lift-family difference formula**: two lift families of the same `M`-lift have
 obstruction cochains differing by the explicit coboundary data of `c(γ) = zsign(F γ·F'γ⁻¹)`. -/
 theorem obCocOf_diff {f : MLifts D ρ} {F F' : Γ → D.C.cover}
@@ -753,6 +760,7 @@ theorem obCocOf_diff {f : MLifts D ρ} {F F' : Γ → D.C.cover}
     zsign_mul D (mul_mem (hd γ) (hd δ)) (hd (γ * δ)), zsign_mul D (hd γ) (hd δ)]
   rfl
 
+omit [ContinuousSMul Γ (ZMod 2)] in
 open ContCoh in
 /-- The obstruction class is lift-family independent. -/
 theorem ob_eq_of_liftFam (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m) (f : MLifts D ρ)
@@ -795,6 +803,7 @@ theorem discreteTopology_quotient : DiscreteTopology (Bg ⧸ D.M) := by
   rw [← h2]
   exact QuotientGroup.isOpenMap_coe _ h1
 
+omit [ContinuousSMul Γ (ZMod 2)] in
 open ContCoh in
 /-- **The central relation is the vanishing of the obstruction class**:
 `f` lifts through the cover iff `ob f = 0`. -/
@@ -880,6 +889,7 @@ variable (S : TComplement D)
 noncomputable def varCoc (u : TCocycle D ρ) : Γ × Γ → ZMod 2 :=
   fun gd => edgeQ D S (ρ gd.1) ⟨u.u gd.2, u.mem gd.2⟩
 
+omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
 open ContCoh in
 /-- The variation cochain is a continuous 2-cocycle. -/
 theorem varCoc_mem_Z2 (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m) (u : TCocycle D ρ) :
@@ -929,6 +939,7 @@ theorem varCoc_mem_Z2 (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m) (u : TC
     rw [e1, e2, e3, e4]
     ring
 
+omit [ContinuousSMul Γ (ZMod 2)] in
 open ContCoh in
 /-- **The variation formula (129), class level**: twisting shifts the obstruction class by
 the (`f`-independent) variation class of `u`. -/
@@ -1045,6 +1056,7 @@ theorem two_mul_card_of_swap {X : Type} [Finite X] (σ : X → X)
   rw [hsum, ← Nat.card_congr e, two_mul]
 
 open ContCoh in
+omit [ContinuousSMul Γ (ZMod 2)] in
 /-- **The engine's half-count** (Lemma 8.6, count clause, source-generic): given a crossed
 `T`-cocycle whose variation class is nonzero, and `#H²(Γ,𝔽₂) = 2`, exactly half of the
 `M`-lifts satisfy the central relation. -/

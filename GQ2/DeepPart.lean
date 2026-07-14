@@ -547,6 +547,7 @@ theorem polar_smul_smul (q : V → ZMod 2) (hqG : ∀ (g : AbsGalQ2) (v : V), q 
   unfold GQ2.QuadraticFp2.polar
   rw [← smul_add, hqG, hqG, hqG]
 
+omit [TopologicalSpace V] [DiscreteTopology V] [ContinuousSMul AbsGalQ2 V] in
 /-- **Polar self-duality**: a nonsingular Galois-invariant quadratic form on a finite exp-2
 module induces an equivariant additive iso `V ≃+ Hom(V, μ₂)`. -/
 theorem exists_polarSelfDual (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
@@ -612,6 +613,7 @@ theorem exists_polarSelfDual (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
   rw [smul_inv_smul] at hps
   exact hps
 
+omit [ContinuousSMul AbsGalQ2 V] [Finite V] in
 /-- `H²` of an exponent-2 module has exponent 2 (pointwise, by quotient induction). -/
 theorem h2_add_self (h2 : ∀ v : V, v + v = 0) (x : H2 AbsGalQ2 V) : x + x = 0 := by
   induction x using QuotientAddGroup.induction_on with
@@ -694,6 +696,7 @@ variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite 
 variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
+omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
 /-- **The (93) cochain identity**: the graph pullback is quadratic in the cocycle, with the
 cup cocycle of the polar pairing (swapped slots) as cross-term, up to the explicit coboundary
 `δ¹(g ↦ f(b₁ g, b₂ g))`. -/
@@ -732,12 +735,14 @@ theorem graphPullback_add_sub_mem_B2 (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
     linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
       hm + R₁ + R₂ + R₃ + R₄ + P
 
+omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
 /-- `Q⁰_loc` unfolded (definitional). -/
 theorem Q0loc_apply (D : TateDuality 2) (dat : FactorSet C V)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (x : H1 AbsGalQ2 V) :
     Q0loc D dat ρ x
       = iotaF D (H2ofFun AbsGalQ2 (graphPullback dat ρ (Quotient.out x).1)) := rfl
 
+omit [TopologicalSpace V] [DiscreteTopology V] [Finite V] [ContinuousSMul AbsGalQ2 V] in
 /-- The polar pairing is `G_ℚ₂`-equivariant for a Galois-invariant `q` (`𝔽₂` acts trivially). -/
 theorem polarBihom_equivariant (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
     (hqG : ∀ (g : AbsGalQ2) (v : V), q (g • v) = q v) (g : AbsGalQ2) (v w : V) :
@@ -745,6 +750,7 @@ theorem polarBihom_equivariant (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
   rw [absGal_smul_zmodTwo, polarBihom_apply, polarBihom_apply]
   exact polar_smul_smul V q hqG g v w
 
+omit [Finite C] [Finite V] in
 /-- **Eq. (93), class level**: `Q⁰_loc(x+y) = Q⁰_loc(x) + Q⁰_loc(y) + ι_F(y ∪_B x)`. -/
 theorem Q0loc_add (D : TateDuality 2) (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
     (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
@@ -788,6 +794,7 @@ theorem Q0loc_add (D : TateDuality 2) (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
   congr 1
   conv_rhs => rw [← H1mk_out y, ← H1mk_out x, cup11_mk_mk]
 
+omit [Finite C] [Finite V] in
 /-- **The polar form of `Q⁰_loc`** is the (swapped) polar-pairing cup through `ι_F` —
 eq. (93) in polar form. -/
 theorem polar_Q0loc (D : TateDuality 2) (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
@@ -802,6 +809,7 @@ theorem polar_Q0loc (D : TateDuality 2) (q : V → ZMod 2) (hq : IsQuadraticFp2 
   linear_combination CharTwo.add_self_eq_zero (Q0loc D dat ρ x)
     + CharTwo.add_self_eq_zero (Q0loc D dat ρ y)
 
+omit [Finite C] [Finite V] in
 /-- **`Q⁰_loc` is a quadratic map** on `H¹(G_ℚ₂, V)` (eq. (93)): normalized with biadditive
 polar form. -/
 theorem isQuadraticFp2_Q0loc (D : TateDuality 2) (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
@@ -851,6 +859,7 @@ noncomputable def polarMuDual (q : V → ZMod 2) (hq : IsQuadraticFp2 q) : V →
   postPairing (polarBihom q hq) SectionSix.muTwoOfF2
 
 
+omit [TopologicalSpace V] [DiscreteTopology V] [Finite V] [ContinuousSMul AbsGalQ2 V] in
 /-- Equivariance of the polar `μ₂`-dual map. -/
 theorem polarMuDual_equivariant (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
     (hqG : ∀ (g : AbsGalQ2) (v : V), q (g • v) = q v) (g : AbsGalQ2) (v : V) :
@@ -862,6 +871,8 @@ theorem polarMuDual_equivariant (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
   have hps := polar_smul_smul V q hqG g v (g⁻¹ • m)
   rwa [smul_inv_smul] at hps
 
+omit [TopologicalSpace V] [DiscreteTopology V] [DistribMulAction AbsGalQ2 V]
+  [ContinuousSMul AbsGalQ2 V] in
 /-- `#Hom(V, μ₂) = #V` for exp-2 `V`. -/
 theorem card_muDual (h2 : ∀ v : V, v + v = 0) : Nat.card (MuDual 2 V) = Nat.card V := by
   have h1 : Nat.card (MuDual 2 V) = Nat.card (V →+ ZMod 2) := by
@@ -875,6 +886,8 @@ theorem card_muDual (h2 : ∀ v : V, v + v = 0) : Nat.card (MuDual 2 V) = Nat.ca
       rw [AddEquiv.symm_apply_apply]
   rw [h1, card_addHom_zmod2 V h2]
 
+omit [TopologicalSpace V] [DiscreteTopology V] [DistribMulAction AbsGalQ2 V]
+  [ContinuousSMul AbsGalQ2 V] in
 /-- The polar `μ₂`-dual map is bijective (nonsingularity + counting). -/
 theorem polarMuDual_bijective (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
     (hns : Nonsingular q) (h2 : ∀ v : V, v + v = 0) :
@@ -928,6 +941,7 @@ theorem mapCoeff1_injective {A B : Type} [AddCommGroup A] [AddCommGroup B]
     rw [map_sub, hcompat]
     exact hg
 
+omit [Finite V] in
 /-- **Cup coefficient naturality at the polar pairing**: pushing the `𝔽₂`-valued polar cup along
 the `μ₂`-bridge is the `μ₂`-evaluation cup against the polar `μ₂`-dual class (definitional at
 representatives). -/
@@ -945,6 +959,7 @@ theorem mapCoeff2_muTwo_cup (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
     induction x using QuotientAddGroup.induction_on with
     | H a => rfl
 
+omit [Finite C] in
 /-- **`Q⁰_loc` is nonsingular** (§6.3): its polar form is a perfect pairing on `H¹(G_ℚ₂, V)`,
 via B6's `perfect11` clause through the polar `μ₂`-self-duality. -/
 theorem nonsingular_Q0loc (D : TateDuality 2) (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
@@ -980,7 +995,7 @@ theorem nonsingular_Q0loc (D : TateDuality 2) (q : V → ZMod 2) (hq : IsQuadrat
 there) and `X₊ + X₊ ⊆ X₊` (witness products: deep units are closed under multiplication, Kummer
 cocycles are multiplicative on `ker ρ`-fixed squares, and `out(x+y) = out x + out y` up to a
 coboundary that dies on `ker ρ`). -/
-
+omit [Finite V] [ContinuousSMul AbsGalQ2 V] in
 /-- `H¹` of an exponent-2 module has exponent 2. -/
 theorem h1_add_self (hV2 : ∀ v : V, v + v = 0) (x : H1 AbsGalQ2 V) : x + x = 0 := by
   induction x using QuotientAddGroup.induction_on with
@@ -992,6 +1007,7 @@ theorem h1_add_self (hV2 : ∀ v : V, v + v = 0) (x : H1 AbsGalQ2 V) : x + x = 0
     show H1mk AbsGalQ2 V z + H1mk AbsGalQ2 V z = 0
     rw [← map_add, hz, map_zero]
 
+omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
 /-- A `Z¹`-cocycle whose class vanishes dies pointwise on `ker ρ` (the coboundary
 `g ↦ g•w₀ − w₀` is trivial there since the action factors through `ρ`). -/
 theorem vanish_on_ker_of_H1mk_eq_zero (ρ : ContinuousMonoidHom AbsGalQ2 C)
@@ -1044,6 +1060,7 @@ theorem kummerRestrict_mem_Z1 {N : Subgroup (Kummer.GaloisGroup ℚ_[2])}
     rw [htriv, show (↑(n * m) : Kummer.GaloisGroup ℚ_[2]) = ↑n * ↑m from rfl,
       kummerRestrict_hom hsq hβ0 hAfix n m]
 
+omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
 /-- The `φ`-coordinate of a cocycle restricted to `ker ρ` lies in `Z¹(ker ρ, 𝔽₂)` (the action
 is trivial there). -/
 theorem phiRestrict_mem_Z1 (ρ : ContinuousMonoidHom AbsGalQ2 C)
@@ -1181,6 +1198,7 @@ noncomputable def deepPartSubgroup (ρ : ContinuousMonoidHom AbsGalQ2 C)
 /-! ### The dim clause and Prop 6.18 (ramified), reduced to the two Kummer cores -/
 
 
+omit [Finite C] in
 /-- **Prop 6.18 (eq. (115), ramified) from Lemma 6.17**: given the dim clause (`hdim`,
 `#X₊² = #H¹`) and the vanishing clause (`hvanish`, `Q⁰_loc|X₊ = 0`), the zero-count of
 `Q⁰_loc` is `2^{2m−1} + 2^{m−1}` — the positive Gauss sign, via the Lagrangian Arf package
@@ -1214,6 +1232,8 @@ theorem card_Q0loc_zero_eq_of_dim_of_vanish (D : TateDuality 2)
   exact zeroCount_of_arf_zero (Q0loc D dat ρ) hq' hns' hm
     (by rw [← Nat.card_eq_fintype_card]; exact hH1card) harf
 
+omit [TopologicalSpace V] [DiscreteTopology V] [DistribMulAction AbsGalQ2 V]
+  [ContinuousSMul AbsGalQ2 V] in
 /-- The two-torsion subgroup of a `2^{2m}`-order simple module is everything: `V` has
 exponent 2 (additive Cauchy + simplicity). -/
 theorem exp_two_of_simple_of_card {C : Type*} [Group C] [DistribMulAction C V]
@@ -1279,7 +1299,7 @@ open GQ2.QuadraticFp2
 variable {D : Type*} [Field D] [Fintype D]
 
 /-- A field of order `2^{2m}` (`m ≥ 1`) has characteristic 2. -/
-theorem ringChar_eq_two_of_card {m : ℕ} (hm : 1 ≤ m)
+theorem ringChar_eq_two_of_card {m : ℕ} (_ : 1 ≤ m)
     (hcard : Fintype.card D = 2 ^ (2 * m)) : ringChar D = 2 := by
   obtain ⟨n, hp, hn⟩ := FiniteField.card D (ringChar D)
   have h1 : ringChar D ∣ Fintype.card D := hn.symm ▸ dvd_pow_self _ n.2.ne'
@@ -1420,6 +1440,7 @@ def frobFixed (D : Type*) [Field D] [CharP D 2] (m : ℕ) : AddSubgroup D where
     show (-a) ^ 2 ^ m = -a
     rw [CharTwo.neg_eq, ha]
 
+omit [Fintype D] in
 @[simp] theorem mem_frobFixed [CharP D 2] (m : ℕ) (y : D) :
     y ∈ frobFixed D m ↔ y ^ 2 ^ m = y := Iff.rfl
 

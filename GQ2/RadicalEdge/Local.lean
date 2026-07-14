@@ -35,6 +35,7 @@ open CentralObstruction ContCoh LocalLiftingDuality
 variable {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
   (D : RadicalCoverData Bg)
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- Conjugation of `T`-elements only depends on the `M`-coset of the conjugator
 (`M` centralizes `T`). -/
 theorem conj_eq_of_mk_eq {b b' : Bg}
@@ -68,6 +69,7 @@ attribute [local instance] tCommGroup discreteTopology_quotient
 private noncomputable def outConj (c : Bg ⧸ D.M) (t : ↥D.T) : ↥D.T :=
   ⟨Quotient.out c * t.1 * (Quotient.out c)⁻¹, conj_mem_T D (Quotient.out c) t⟩
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- `outConj` computes as conjugation by any representative of the class. -/
 private theorem outConj_coe (c : Bg ⧸ D.M) (b : Bg) (hb : QuotientGroup.mk b = c)
     (t : ↥D.T) : (outConj D c t).1 = b * t.1 * b⁻¹ :=
@@ -94,6 +96,7 @@ private noncomputable def rhoConj (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸ D.M
     (γ : AbsGalQ2) (t : ↥D.T) : ↥D.T :=
   outConj D (ρ γ) t
 
+omit [DiscreteTopology Bg] in
 /-- `rhoConj` computes as conjugation by any representative of `ρ γ`. -/
 private theorem rhoConj_coe (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸ D.M)) (γ : AbsGalQ2)
     (b : Bg) (hb : QuotientGroup.mk b = ρ γ) (t : ↥D.T) :
@@ -112,6 +115,7 @@ private theorem rhoConj_map_one (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸ D.M))
     (γ : AbsGalQ2) : rhoConj D ρ γ 1 = 1 :=
   outConj_map_one D (ρ γ)
 
+omit [DiscreteTopology Bg] in
 /-- `rhoConj` at `γ = 1` is the identity. -/
 private theorem rhoConj_one (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸ D.M)) (t : ↥D.T) :
     rhoConj D ρ 1 t = t := by
@@ -119,6 +123,7 @@ private theorem rhoConj_one (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸ D.M)) (t 
   rw [rhoConj_coe D ρ 1 1 (by rw [QuotientGroup.mk_one, map_one]) t]
   group
 
+omit [DiscreteTopology Bg] in
 /-- `rhoConj` is an action: it composes along multiplication in `G_ℚ₂`. -/
 private theorem rhoConj_mul (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸ D.M)) (γ δ : AbsGalQ2)
     (t : ↥D.T) : rhoConj D ρ (γ * δ) t = rhoConj D ρ γ (rhoConj D ρ δ t) := by
@@ -134,6 +139,7 @@ private theorem rhoConj_mul (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸ D.M)) (γ
       * (Quotient.out (ρ δ) * t.1 * (Quotient.out (ρ δ))⁻¹) * (Quotient.out (ρ γ))⁻¹
   group
 
+omit [DiscreteTopology Bg] in
 /-- `rhoConj γ⁻¹` undoes `rhoConj γ`. -/
 private theorem rhoConj_inv_rhoConj (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸ D.M))
     (γ : AbsGalQ2) (t : ↥D.T) : rhoConj D ρ γ⁻¹ (rhoConj D ρ γ t) = t := by
@@ -191,6 +197,7 @@ private noncomputable def shiftedEdgeQ (S : TComplement D) (c : Bg ⧸ D.M) :
       (edgeQ_outConj_add D S c))
     : Additive ↥D.T →+ MuN 2)
 
+omit [DiscreteTopology Bg] in
 /-- Additivity in the `T`-slot of the shifted edge. -/
 private theorem edgeQ_rhoConj_add (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸ D.M))
     (S : TComplement D) (γ : AbsGalQ2) (s s' : Additive ↥D.T) :
@@ -211,6 +218,7 @@ private noncomputable def shiftedEdge (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸
       (edgeQ_rhoConj_add D ρ S γ))
     : Additive ↥D.T →+ MuN 2)
 
+omit [DiscreteTopology Bg] in
 /-- Evaluation of the shifted edge. -/
 private theorem shiftedEdge_apply (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸ D.M))
     (S : TComplement D) (γ : AbsGalQ2) (s : Additive ↥D.T) :
@@ -218,6 +226,7 @@ private theorem shiftedEdge_apply (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸ D.M
       = muNTwoEquiv.symm (edgeQ D S (ρ γ) (rhoConj D ρ γ⁻¹ (Additive.toMul s))) :=
   rfl
 
+omit [DiscreteTopology Bg] in
 /-- `shiftedEdge` factors through the discrete quotient. -/
 private theorem shiftedEdge_eq_comp (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸ D.M))
     (S : TComplement D) :
@@ -239,6 +248,7 @@ private theorem continuous_shiftedEdge (ρ : ContinuousMonoidHom AbsGalQ2 (Bg �
   rw [shiftedEdge_eq_comp]
   exact continuous_of_discreteTopology.comp ρ.continuous_toFun
 
+omit [DiscreteTopology Bg] in
 /-- The `ℤ/2`-level crossed law of the shifted edge (the `Z¹`-identity before dualizing). -/
 private theorem edgeQ_rhoConj_crossed (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸ D.M))
     (S : TComplement D) (γ δ : AbsGalQ2) (t : ↥D.T) :
@@ -428,6 +438,7 @@ private noncomputable def twistCocycle (ρ : ContinuousMonoidHom AbsGalQ2 (Bg �
           * ((rhoConj D ρ γ (Additive.toMul (w δ)) : ↥D.T) : Bg) from rfl,
       rhoConj_coe D ρ γ b hb]
 
+omit [DiscreteTopology Bg] in
 /-- **The exact bridge**: the cup-product cochain of the shifted edge against `w` is the
 `μ₂`-shadow of the variation cochain of the packaged twist. -/
 private theorem cup11Fun_shiftedEdge_eq_varCoc (ρ : ContinuousMonoidHom AbsGalQ2 (Bg ⧸ D.M))

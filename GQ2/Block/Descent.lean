@@ -144,9 +144,11 @@ noncomputable def blockKappa : ↥B.K →* ↥(blockMB B) :=
   ((QuotientGroup.mk' B.frattiniK).comp B.K.subtype).codRestrict (blockMB B)
     (fun k => Subgroup.mem_map_of_mem _ k.2)
 
+omit [Finite Y] [(B.S.subgroupOf B.P).Normal] [B.K.Normal] in
 theorem blockKappa_coe (k : ↥B.K) : ((blockKappa B k : ↥(blockMB B)) : Y ⧸ B.frattiniK)
     = QuotientGroup.mk' B.frattiniK (k : Y) := rfl
 
+omit [Finite Y] [(B.S.subgroupOf B.P).Normal] [B.K.Normal] in
 theorem blockKappa_surjective : Function.Surjective (blockKappa B) := by
   rintro ⟨m, hm⟩
   obtain ⟨k, hk, rfl⟩ := Subgroup.mem_map.mp hm
@@ -156,14 +158,17 @@ theorem blockKappa_surjective : Function.Surjective (blockKappa B) := by
 noncomputable def blockAlpha : ↥B.K →* (↥B.P ⧸ B.S.subgroupOf B.P) :=
   (QuotientGroup.mk' (B.S.subgroupOf B.P)).comp (Subgroup.inclusion B.hKP)
 
+omit [Finite Y] [B.frattiniK.Normal] [B.K.Normal] in
 theorem blockAlpha_apply (k : ↥B.K) :
     blockAlpha B k = QuotientGroup.mk (Subgroup.inclusion B.hKP k) := rfl
 
+omit [Finite Y] [B.frattiniK.Normal] [B.K.Normal] in
 theorem blockAlpha_eq_one_iff (k : ↥B.K) :
     blockAlpha B k = 1 ↔ (k : Y) ∈ B.S := by
   rw [blockAlpha, MonoidHom.comp_apply, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff,
     Subgroup.mem_subgroupOf, Subgroup.coe_inclusion]
 
+omit [B.K.Normal] in
 /-- `ker κ' ≤ ker α`: if `[k]_R = 1` then `k ∈ R ≤ S`, so `[k]_S = 1`. -/
 theorem blockKappa_ker_le_alpha :
     (blockKappa B).ker ≤ (blockAlpha B).ker := by
@@ -182,6 +187,7 @@ noncomputable def blockDescend : ↥(blockMB B) →* (↥B.P ⧸ B.S.subgroupOf 
     (QuotientGroup.quotientKerEquivOfSurjective (blockKappa B)
       (blockKappa_surjective B)).symm.toMonoidHom
 
+omit [B.K.Normal] in
 /-- **The characterizing identity**: `descend ∘ κ' = α`. -/
 theorem blockDescend_kappa (k : ↥B.K) :
     blockDescend B (blockKappa B k) = blockAlpha B k := by
@@ -191,6 +197,7 @@ theorem blockDescend_kappa (k : ↥B.K) :
   rw [blockDescend, MonoidHom.comp_apply, hmk, MulEquiv.coe_toMonoidHom,
     MulEquiv.symm_apply_apply, QuotientGroup.lift_mk]
 
+omit [B.K.Normal] in
 /-- **`descend` is surjective** onto `P/S`: every `[p]_S` is hit, because `KS = P` (`B.gen`)
 lets us replace `p` by a `K`-representative. -/
 theorem blockDescend_surjective : Function.Surjective (blockDescend B) := by
@@ -212,6 +219,7 @@ theorem blockDescend_surjective : Function.Surjective (blockDescend B) := by
 noncomputable def blockTBsub : Subgroup (Y ⧸ B.frattiniK) :=
   ((B.K ⊓ B.S) ⊔ B.frattiniK).map (QuotientGroup.mk' B.frattiniK)
 
+omit [B.K.Normal] in
 /-- **`ker descend = T_B`**: `descend m = 1 ↔ m ∈ T_B`.  Both sides reduce to `k ∈ S` for a
 `K`-representative `k` of `m`, using `R ≤ K ⊓ S` (`lemma_7_1_head`) to collapse `T_B` to the
 image of `K ⊓ S`. -/
@@ -233,16 +241,19 @@ noncomputable def blockPiBC : (Y ⧸ B.frattiniK) →* (Y ⧸ B.K) :=
   QuotientGroup.map B.frattiniK B.K (MonoidHom.id Y)
     (by rw [Subgroup.comap_id]; exact frattiniLike_le B.K)
 
+omit [Finite Y] [(B.S.subgroupOf B.P).Normal] in
 theorem blockPiBC_mk' (y : Y) :
     blockPiBC B (QuotientGroup.mk' B.frattiniK y) = QuotientGroup.mk' B.K y :=
   QuotientGroup.map_mk' _ _ _ _ _
 
+omit [B.frattiniK.Normal] [B.K.Normal] in
 /-- `Y/K`-action on `mk' K y` reduces to the `Y`-action of `y`. -/
 theorem blockActV_mk' (y : Y) (v : Additive (↥B.P ⧸ B.S.subgroupOf B.P)) :
     haveI := B.hK
     letI := blockActV B; letI := blockActVY B
     (QuotientGroup.mk' B.K y) • v = y • v := rfl
 
+omit [B.frattiniK.Normal] [B.K.Normal] in
 /-- The `Y`-action of `y` on `⟦p⟧` computes as `⟦y p y⁻¹⟧`. -/
 theorem blockActVY_mk (y : Y) (p : ↥B.P) :
     letI := blockActVY B
@@ -250,6 +261,7 @@ theorem blockActVY_mk (y : Y) (p : ↥B.P) :
       = Additive.ofMul (QuotientGroup.mk (conjHom B.P B.hP y p)) :=
   congrArg Additive.ofMul (blockAction_smul_mk B.S B.P B.hS B.hP y p)
 
+omit [B.K.Normal] in
 /-- **`descend` intertwines `B`-conjugation with the `C`-stage action** (`descend_conj`): for the
 `Y/K`-action on `V = P/S`, `descend(b·m·b⁻¹) = π_{BC}(b) • descend(m)`.  Proved by lifting `m` and
 `b` to `K`- and `Y`-representatives and reducing both sides to `⟦y k y⁻¹⟧_S`. -/

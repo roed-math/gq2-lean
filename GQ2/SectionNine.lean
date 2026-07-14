@@ -552,15 +552,20 @@ namespace L92
 
 variable (D : L92 H Y)
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] in
 /-- `Q = Y/Ñ` is discrete (quotient of a discrete group by an open subgroup). -/
 theorem discreteTopology_Q : DiscreteTopology D.Q :=
   QuotientGroup.discreteTopology (isOpen_discrete _)
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace Y]
+  [DiscreteTopology Y] in
 theorem piY_symm (z : D.fibreSub) : D.piY (D.fibreMulEquiv.symm z) = (z : H × D.Q).1 := by
   have h := D.fibreMulEquiv_apply (D.fibreMulEquiv.symm z)
   rw [MulEquiv.apply_symm_apply] at h
   exact ((Prod.ext_iff.mp h).1).symm
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace Y]
+  [DiscreteTopology Y] in
 theorem mk_symm (z : D.fibreSub) :
     (QuotientGroup.mk (D.fibreMulEquiv.symm z) : D.Q) = (z : H × D.Q).2 := by
   have h := D.fibreMulEquiv_apply (D.fibreMulEquiv.symm z)
@@ -570,6 +575,7 @@ theorem mk_symm (z : D.fibreSub) :
 /-- The quotient map `Y ↠ Q` as a continuous hom. -/
 def mkCH : ContinuousMonoidHom Y D.Q := ⟨QuotientGroup.mk' D.Ntil, continuous_quotient_mk'⟩
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [DiscreteTopology Y] in
 @[simp] theorem mkCH_apply (y : Y) : D.mkCH y = (QuotientGroup.mk y : D.Q) := rfl
 
 end L92
@@ -745,6 +751,7 @@ noncomputable def pro2FactorHom (pro2 : ContinuousMonoidHom Γ PiBd) :
     ContinuousMonoidHom (maxProPQuotient 2 Γ) PiBd :=
   (maxProPHomEquiv (isProP_maxProPQuotient (G := profinitePresentation {piRelator}))).symm pro2
 
+omit [T2Space Γ] in
 theorem pro2FactorHom_maxProPMk (pro2 : ContinuousMonoidHom Γ PiBd) (γ : Γ) :
     pro2FactorHom pro2 (maxProPMk 2 Γ γ) = pro2 γ :=
   DFunLike.congr_fun ((maxProPHomEquiv
@@ -766,6 +773,7 @@ noncomputable def pro2Iso (pro2 : ContinuousMonoidHom Γ PiBd) (hsurj : Function
         obtain ⟨γ, rfl⟩ := hsurj p
         exact ⟨maxProPMk 2 Γ γ, pro2FactorHom_maxProPMk pro2 γ⟩⟩
 
+omit [T2Space Γ] in
 theorem pro2Iso_maxProPMk (pro2 : ContinuousMonoidHom Γ PiBd) (hsurj : Function.Surjective pro2)
     (hker : pro2.toMonoidHom.ker = proPKernel 2 Γ) (γ : Γ) :
     pro2Iso pro2 hsurj hker (maxProPMk 2 Γ γ) = pro2 γ :=
@@ -781,6 +789,7 @@ noncomputable def compPro2Equiv (pro2 : ContinuousMonoidHom Γ PiBd)
     ContinuousMonoidHom PiBd Q ≃ ContinuousMonoidHom Γ Q :=
   (precompEquiv (pro2Iso pro2 hsurj hker)).trans (maxProPHomEquiv hQ)
 
+omit [T2Space Γ] in
 theorem compPro2Equiv_apply_apply (pro2 : ContinuousMonoidHom Γ PiBd)
     (hsurj : Function.Surjective pro2) (hker : pro2.toMonoidHom.ker = proPKernel 2 Γ)
     {Q : Type} [Group Q] [TopologicalSpace Q] [IsTopologicalGroup Q] [CompactSpace Q] [T2Space Q]

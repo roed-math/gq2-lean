@@ -95,6 +95,7 @@ noncomputable def homOb (C : CentralCover Bg) (g : ContinuousMonoidHom Γ Bg)
     (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m) : H2 Γ (ZMod 2) :=
   ob (trivialRCD C) (trivialRho g) htriv (trivialMLift C g)
 
+omit [ContinuousSMul Γ (ZMod 2)] in
 /-- **Step 1**: `g` lifts through the central cover `C` iff its scalar obstruction vanishes. -/
 theorem liftsThroughCover_iff_homOb (C : CentralCover Bg) (g : ContinuousMonoidHom Γ Bg)
     (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m) :
@@ -132,6 +133,7 @@ noncomputable def coverMapC (D : RCoverData RF) (l : RF.DR) (h : l ≠ RF.zeroDR
     ContinuousMonoidHom Y (RF.scalarCover l h).cover :=
   ⟨D.coverMap l h, continuous_of_discreteTopology⟩
 
+omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] in
 /-- **Easy `hobs` direction**: if a `B`-stage boundary lift `f` lifts all the way to `Y` (is
 `RF.liftB` of some `Y`-lift `F`), then it lifts through **every** scalar cover `p_λ` — compose the
 `Y`-lift with `coverMap λ`.  (The converse — "lifts through every `p_λ` ⟹ lifts to `Y`" — is the
@@ -192,6 +194,8 @@ variable (RF : RecursionFrame T Blk)
 /-- A set-theoretic section of `π_B : Y ↠ B`. -/
 noncomputable def slift (x : RF.YB) : Y := Function.surjInv RF.piB_surj x
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 @[simp] theorem piB_slift (x : RF.YB) : RF.piB (slift RF x) = x :=
   Function.surjInv_eq RF.piB_surj x
 
@@ -207,7 +211,7 @@ section Cohomology
 
 open ContCoh CentralObstruction
 
-variable [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+variable [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
 
 /-- `H²(Γ,𝔽₂)` is a `ZMod 2`-module (it has exponent 2, being a quotient of `𝔽₂`-cochains). -/
 instance instModuleH2 : Module (ZMod 2) (H2 Γ (ZMod 2)) :=
@@ -226,17 +230,29 @@ noncomputable def obsLiftFam (D : RObstructionData RF) (g : ContinuousMonoidHom 
     (d : D.DRmod) (h : D.toDR d ≠ RF.zeroDR) : Γ → (RF.scalarCover (D.toDR d) h).cover :=
   fun x => D.coverMap (D.toDR d) h (slift RF (g x))
 
+omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace H]
+  [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  [TopologicalSpace Y] [DiscreteTopology Y] [DistribMulAction Γ (ZMod 2)]
+  [ContinuousSMul Γ (ZMod 2)] in
 theorem obsLiftFam_p (D : RObstructionData RF) (g : ContinuousMonoidHom Γ RF.YB)
     (d : D.DRmod) (h : D.toDR d ≠ RF.zeroDR) (x : Γ) :
     (RF.scalarCover (D.toDR d) h).p (obsLiftFam RF D g d h x) = g x := by
   show (RF.scalarCover (D.toDR d) h).p (D.coverMap (D.toDR d) h (slift RF (g x))) = g x
   rw [← MonoidHom.comp_apply, D.coverMap_lifts (D.toDR d) h, piB_slift]
 
+omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace H]
+  [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  [TopologicalSpace Y] [DiscreteTopology Y] [DistribMulAction Γ (ZMod 2)]
+  [ContinuousSMul Γ (ZMod 2)] in
 theorem obsLiftFam_cont (D : RObstructionData RF) (g : ContinuousMonoidHom Γ RF.YB)
     (d : D.DRmod) (h : D.toDR d ≠ RF.zeroDR) : Continuous (obsLiftFam RF D g d h) := by
   show Continuous ((fun y => D.coverMap (D.toDR d) h (slift RF y)) ∘ (g : Γ → RF.YB))
   exact continuous_of_discreteTopology.comp (map_continuous g)
 
+omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace H]
+  [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  [TopologicalSpace Y] [DiscreteTopology Y] [DistribMulAction Γ (ZMod 2)]
+  [ContinuousSMul Γ (ZMod 2)] in
 /-- **The pointwise obstruction identity**: the obstruction cochain of the lift family equals
 `pair d` applied to the `R`-valued defect. -/
 theorem obCocOf_obsLiftFam (D : RObstructionData RF) (g : ContinuousMonoidHom Γ RF.YB)
@@ -254,6 +270,9 @@ theorem obCocOf_obsLiftFam (D : RObstructionData RF) (g : ContinuousMonoidHom Γ
         = slift RF (g γ) * slift RF (g δ) * (slift RF (g (γ * δ)))⁻¹ from rfl]
   simp only [map_mul, map_inv]
 
+omit [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace H] [DiscreteTopology H]
+  [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E] [TopologicalSpace Y]
+  [DiscreteTopology Y] [ContinuousSMul Γ (ZMod 2)] in
 theorem pairDefect_mem_Z2 (D : RObstructionData RF)
     (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
     (g : ContinuousMonoidHom Γ RF.YB) (d : D.DRmod) (h : D.toDR d ≠ RF.zeroDR) :
@@ -265,6 +284,9 @@ theorem pairDefect_mem_Z2 (D : RObstructionData RF)
   funext gd
   exact (obCocOf_obsLiftFam RF D g d h gd.1 gd.2).symm
 
+omit [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace H] [DiscreteTopology H]
+  [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E] [TopologicalSpace Y]
+  [DiscreteTopology Y] [ContinuousSMul Γ (ZMod 2)] in
 /-- **The connection** (step 2 core): the scalar obstruction `homOb` of `g` through the `λ`-cover
 is the class of `pair d ∘ rDefect` — so it is `H2mk` of a cochain **linear in `d`**. -/
 theorem homOb_eq_H2mk_pair (D : RObstructionData RF)
@@ -279,6 +301,9 @@ theorem homOb_eq_H2mk_pair (D : RObstructionData RF)
       (fun x => obsLiftFam_p RF D g d h x)]
   exact congrArg _ (Subtype.ext (funext fun gd => obCocOf_obsLiftFam RF D g d h gd.1 gd.2))
 
+omit [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace H] [DiscreteTopology H]
+  [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E] [TopologicalSpace Y]
+  [DiscreteTopology Y] [ContinuousSMul Γ (ZMod 2)] in
 /-- The obstruction cochain lies in `Z²` for **every** `d` (the `toDR d = 0` case is the zero
 cochain, since `pair 0 = 0`). -/
 theorem pairDefect_mem_Z2_all (D : RObstructionData RF)
@@ -310,6 +335,9 @@ noncomputable def obsMapAdd (D : RObstructionData RF)
       show D.pair (d + d') _ = D.pair d _ + D.pair d' _
       rw [map_add]; rfl)
 
+omit [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace H] [DiscreteTopology H]
+  [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E] [TopologicalSpace Y]
+  [DiscreteTopology Y] [ContinuousSMul Γ (ZMod 2)] in
 theorem obsMapAdd_apply (D : RObstructionData RF)
     (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
     (g : ContinuousMonoidHom Γ RF.YB) (d : D.DRmod) :
@@ -333,6 +361,9 @@ noncomputable def obs (D : RObstructionData RF)
       · rw [zero_smul, map_zero, map_zero, zero_smul]
       · rw [one_smul, one_smul] }
 
+omit [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace H] [DiscreteTopology H]
+  [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E] [TopologicalSpace Y]
+  [DiscreteTopology Y] [ContinuousSMul Γ (ZMod 2)] in
 /-- `obsMapAdd g d` is the scalar obstruction of `g` through the `λ`-cover (`λ = toDR d ≠ 0`). -/
 theorem obsMapAdd_eq_homOb (D : RObstructionData RF)
     (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
@@ -340,6 +371,9 @@ theorem obsMapAdd_eq_homOb (D : RObstructionData RF)
     obsMapAdd RF D htriv g d = homOb (RF.scalarCover (D.toDR d) h) g htriv :=
   (obsMapAdd_apply RF D htriv g d).trans (homOb_eq_H2mk_pair RF D htriv g d h).symm
 
+omit [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace H] [DiscreteTopology H]
+  [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E] [TopologicalSpace Y]
+  [DiscreteTopology Y] [ContinuousSMul Γ (ZMod 2)] in
 /-- **`obs g d = 0 ⟺ g lifts through the `λ`-cover** (`λ = toDR d ≠ 0`): the `hmB` pointwise
 identity. -/
 theorem obs_zero_iff_lifts (D : RObstructionData RF)
@@ -354,6 +388,9 @@ theorem obs_zero_iff_lifts (D : RObstructionData RF)
   rw [LinearEquiv.map_eq_zero_iff, obsMapAdd_eq_homOb RF D htriv g d h]
   exact (liftsThroughCover_iff_homOb (RF.scalarCover (D.toDR d) h) g htriv).symm
 
+omit [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace H] [DiscreteTopology H]
+  [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E] [TopologicalSpace Y]
+  [DiscreteTopology Y] [ContinuousSMul Γ (ZMod 2)] in
 /-- **`obs` at the `𝔽₂`-cochain level** (for the d6 separation discharge): `obs g d = 0` iff the
 `𝔽₂`-valued defect cochain `pair d ∘ rDefect` is a coboundary (`H2mk = 0` in `H²(Γ,𝔽₂)`).  This is
 the cochain-level face of `obs_zero_iff_lifts`; it pairs with `homLift_of_split` — from `obs g = 0`,
@@ -371,6 +408,8 @@ theorem obs_zero_iff_pairClass_zero (D : RObstructionData RF)
   rw [LinearEquiv.map_eq_zero_iff, obsMapAdd_eq_homOb RF D htriv g d h,
     homOb_eq_H2mk_pair RF D htriv g d h]
 
+omit [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace Y] [DiscreteTopology Y]
+  [ContinuousSMul Γ (ZMod 2)] in
 /-- **`hmB`** (step 2 payoff): `m_{Γ,λ}(B)` counts the `B`-lifts whose obstruction vanishes at the
 scalar character `λ`.  Matches `stageR136_ofObstruction`'s `hmB` hypothesis. -/
 theorem hmB_holds (D : RObstructionData RF)
@@ -390,7 +429,7 @@ theorem hmB_holds (D : RObstructionData RF)
   rw [hcov]
 
 /-! ## Step 5 — assemble: (136) modulo the two hard classical cores -/
-
+omit [ContinuousSMul Γ (ZMod 2)] in
 /-- **(136) from an `RObstructionData`, modulo the two hard classical cores.**  The obstruction map
 `obs`, its `𝔽₂`-linearity, the counting identity `hmB`, and the *easy* direction of `hobs` (a lift
 to `Y` kills the obstruction) are all discharged here; the (136) display of Prop 8.9 then follows
@@ -460,11 +499,15 @@ variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite 
 variable {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
 variable (RF : RecursionFrame T Blk)
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- `R = Φ(K) ≤ K ≤ P ≤ L_Y = ker π_Y`: `R`-twists preserve the head framing. -/
 theorem R_le_ker_piY : Blk.frattiniK ≤ T.piY.ker := by
   rw [T.ker_piY]
   exact (frattiniLike_le Blk.K).trans (Blk.hKP.trans Blk.hPL)
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- `R = Φ(K) ≤ ker θ_Y` when `E` is elementary-2 (`lemma_7_3`): `R`-twists preserve the scalar
 framing.  This is exactly the `thm_4_2` decoration hypothesis (harmless downstream: §10 uses
 `E = 0`), and the one point flagged in `docs/p16d2-plan.md` for the fibre count. -/
@@ -489,10 +532,16 @@ namespace RCocycle
 
 variable {RF} {f₀ : ContinuousMonoidHom Γ Y}
 
+omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace H]
+  [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  [DiscreteTopology Y] in
 /-- Extensionality: only the underlying map matters. -/
 theorem ext {c c' : RCocycle RF f₀} (h : c.u = c'.u) : c = c' := by
   cases c; cases c'; subst h; rfl
 
+omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace H]
+  [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  [DiscreteTopology Y] in
 /-- Cocycles are normalized: `u 1 = 1` (from `crossed` at `(1,1)`, `f₀ 1 = 1`). -/
 theorem u_one (c : RCocycle RF f₀) : c.u 1 = 1 := by
   have h := c.crossed 1 1
@@ -510,16 +559,23 @@ def twistHom (c : RCocycle RF f₀) : ContinuousMonoidHom Γ Y :=
        rw [c.crossed γ δ, map_mul]; group },
    c.cont.mul f₀.continuous_toFun⟩
 
+omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace H]
+  [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E] in
 @[simp] theorem twistHom_apply (c : RCocycle RF f₀) (γ : Γ) : c.twistHom γ = c.u γ * f₀ γ := rfl
 
 end RCocycle
 
 variable (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- `π_B` kills the radical: `r ∈ R = ker π_B ⟹ π_B r = 1`. -/
 theorem piB_eq_one_of_mem_R {r : Y} (hr : r ∈ Blk.frattiniK) : RF.piB r = 1 := by
   rw [← MonoidHom.mem_ker, RF.ker_piB]; exact hr
 
+omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace H]
+  [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  [DiscreteTopology Y] in
 /-- **Frattini surjectivity** (`eq_top_of_map_frattini_quotient_top`, `R = Φ(K)`, `K` a 2-group):
 a continuous hom `φ : Γ → Y` whose `π_B`-composite is onto `B` is itself onto `Y`. -/
 theorem surj_of_piB_surj {φ : ContinuousMonoidHom Γ Y}
@@ -593,6 +649,7 @@ noncomputable def fibreCocycleEquiv (hE2 : ∀ e : E, e ^ 2 = 1)
     show f.1.1.1 γ * (f₀.1.1 γ)⁻¹ * f₀.1.1 γ = f.1.1.1 γ
     group
 
+omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] in
 /-- **`hfib`** (step 4 payoff): the `liftB`-fibre over a liftable `g` has size `z_R`, reduced to the
 source `Z¹`-count `#RCocycle = z_R` (the 5.15/5.16 numeric + `card_DR`, supplied by d6).  The
 abstract torsor identification is `fibreCocycleEquiv`. -/
@@ -603,7 +660,7 @@ theorem hfib_holds (hE2 : ∀ e : E, e ^ 2 = 1)
   rw [← Nat.card_congr (fibreCocycleEquiv RF b F hE2 g f₀ hf₀), hcount]
 
 /-! ### `hsep` wrapper: a bare homomorphism lift upgrades to a fibre element -/
-
+omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] in
 /-- **Frattini/framing wrapper for `hsep`**: a bare homomorphism lift `φ : Γ → Y` of `g`
 (`π_B ∘ φ = g`) already lands in the `liftB`-fibre — it is surjective by `surj_of_piB_surj`
 (Frattini) and boundary-framed because the framing factors through `π_B` (`TB_head`/`TB_theta`).
@@ -623,6 +680,8 @@ theorem liftB_fibre_nonempty_of_homLift
   · apply Subtype.ext; apply Subtype.ext; apply ContinuousMonoidHom.ext
     intro γ; exact hφ γ
 
+omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace H]
+  [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E] in
 /-- **Constructive coboundary → hom lift** (`hsep` interior): a continuous `R`-valued cochain `c`
 splitting the section defect `rDefect` (the twisted-coboundary equation) assembles the set-section
 `slift ∘ g` into a genuine continuous homomorphism `φ γ = c γ · slift(g γ)` lifting `g`.  This is
@@ -654,6 +713,7 @@ open ContCoh CentralObstruction
 
 variable [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
 
+omit [ContinuousSMul Γ (ZMod 2)] in
 /-- **(136), fully discharged modulo the two irreducible concrete inputs** (`hsep_hom` + `hZcount`).
 Every abstractly-provable ingredient is proven here — the obstruction map, `hmB`, the easy `hobs`,
 the `hfib` fibre-torsor, and `hsep`'s Frattini/framing wrapper — so a caller (the concrete `𝒴`-frame,

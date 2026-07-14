@@ -381,6 +381,7 @@ variable [DistribMulAction (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)]
   [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
   [ContinuousSMul (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)]
 
+omit [ContinuousSMul (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)] in
 /-- **Coboundary extraction.**  With `𝔽₂` a trivial `Γ_A`-module, the 2-cocycle
 `(x,y) ↦ c.κ ((s x).base) ((s y).base)` — the level cocycle pulled back through the splitting
 section `s` — is a continuous 2-coboundary `dOne (fib ∘ s)`.  (`dOne λ (x,y) = λ(y) − λ(xy) + λ(x)`
@@ -881,10 +882,13 @@ noncomputable def levelProj (U : OpenNormalSubgroup (FreeProfiniteGroup (Fin 4))
       (FreeProfiniteGroup (Fin 4) ⧸ U.toSubgroup) :=
   quotientLift NA (quotientMk U.toSubgroup) (hU.trans_eq (QuotientGroup.ker_mk' _).symm)
 
+omit [DistribMulAction (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)] [TopologicalSpace (ZMod 2)]
+  [DiscreteTopology (ZMod 2)] [ContinuousSMul (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)] in
 @[simp] theorem levelProj_quotientMk (U : OpenNormalSubgroup (FreeProfiniteGroup (Fin 4)))
     (hU : NA ≤ U.toSubgroup) (g : FreeProfiniteGroup (Fin 4)) :
     levelProj U hU (quotientMk NA g) = QuotientGroup.mk' U.toSubgroup g := rfl
 
+omit [ContinuousSMul (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)] in
 /-- **Injectivity keystone.**  A finite-level cocycle with balanced relator obstruction inflates to
 a continuous 2-coboundary on `Γ_A`.  (`[Finite (F₄ ⧸ U)]` at statement level, as for
 `NA_le_ker_shiftLift`.) -/
@@ -1097,6 +1101,7 @@ variable [DistribMulAction (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)]
   [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
   [ContinuousSMul (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)]
 
+omit [ContinuousSMul (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)] in
 /-- **Injectivity, consumable form.**  If a continuous cochain `κ` factors through a finite level
 `c` (`κ = c.κ ∘ (levelProj × levelProj)`) whose relator obstruction is balanced
 (`tame.fib = wild.fib`), then `κ` is a continuous 2-coboundary. -/
@@ -1293,6 +1298,7 @@ theorem obsFun_eq (φ : Z2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2))
     (F : LevelFactor (normalizeCochain φ.1)) : obsFun htriv φ = F.obs :=
   LevelFactor.obs_congr _ F
 
+omit [ContinuousSMul (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)] in
 /-- **Additivity of the obstruction.**  Both `φ` and `ψ` factor through a common refinement
 `W = U_φ ⊓ U_ψ`, where their finite-level cocycles pull back and *add* (`relZPair_add`). -/
 theorem obsFun_add (φ ψ : Z2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)) :
@@ -1337,6 +1343,7 @@ theorem obsFun_add (φ ψ : Z2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)) :
 noncomputable def obs : Z2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2) →+ ZMod 2 :=
   AddMonoidHom.mk' (obsFun htriv) (obsFun_add htriv)
 
+omit [ContinuousSMul (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)] in
 /-- The kernel of the obstruction lands in the 2-coboundaries: an `obs`-trivial cocycle is balanced,
 hence a coboundary (`mem_B2_of_factor_balanced`), after adding back the normalization constant. -/
 theorem obs_ker_le :
@@ -1357,6 +1364,7 @@ theorem obs_ker_le :
   rw [hconst]
   exact AddSubgroup.add_mem _ hnB2 (const2_mem_B2 htriv (φ.1 (1, 1)))
 
+omit [ContinuousSMul (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)] in
 /-- **`obs` kills `B²`** (the vanishing on coboundaries).  A continuous coboundary `κ = δ¹ψ`
 normalizes to `δ¹ψ'` (`ψ' 1 = 0`), which factors through a finite admissible level as
 `coboundaryCocycle λ`; its obstruction is `λ(tameValue) + λ(wildValue) = λ 1 + λ 1 = 0` since both
@@ -1400,6 +1408,7 @@ theorem obs_B2_eq_zero :
       (Marking.wildValue_eq_one_iff _).mpr hadmU.2.2.1, hlam1, add_zero]
   exact hobs
 
+omit [ContinuousSMul (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)] in
 /-- **`ker obs = B²`** (P-16c4, lemma A).  The obstruction is trivial on coboundaries and nowhere
 else, so it descends to an *injection* `H²(Γ_A, 𝔽₂) ↪ 𝔽₂` — the reusable degree-2
 presentation-comparison.  (`obs_ker_le` ⊆, `obs_B2_eq_zero` ⊇.) -/
@@ -1413,6 +1422,7 @@ whose obstruction is nonzero is *not* a coboundary. -/
 noncomputable def obsH2 : H2 (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2) →+ ZMod 2 :=
   QuotientAddGroup.lift _ (obs htriv) (fun _ h => obs_B2_eq_zero htriv h)
 
+omit [ContinuousSMul (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)] in
 theorem obsH2_injective : Function.Injective (obsH2 htriv) := by
   rw [injective_iff_map_eq_zero]
   intro a

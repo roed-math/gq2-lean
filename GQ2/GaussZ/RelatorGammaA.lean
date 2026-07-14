@@ -56,6 +56,7 @@ def Sd.cc (p : Sd C V) : C := p.2
 /-- Pairs as semidirect elements. -/
 def Sd.mk (v : V) (c : C) : Sd C V := (v, c)
 
+omit [Group C] [AddCommGroup V] [DistribMulAction C V] in
 @[ext] theorem Sd.ext {p q : Sd C V} (h1 : p.v = q.v) (h2 : p.cc = q.cc) : p = q :=
   Prod.ext h1 h2
 
@@ -161,9 +162,11 @@ noncomputable def graphSdHom (c : VCocycle DD ρM) : Γ →* Sd DD.C0 DD.Vmod wh
   map_one' := Prod.ext c.c_one (map_one (rho0 DD ρM))
   map_mul' γ δ := Prod.ext (c.crossed γ δ) (map_mul (rho0 DD ρM) γ δ)
 
+omit [DiscreteTopology Bg] in
 @[simp] theorem graphSdHom_apply (c : VCocycle DD ρM) (γ : Γ) :
     graphSdHom c γ = (c.c γ, rho0 DD ρM γ) := rfl
 
+omit [DiscreteTopology Bg] in
 /-- **The graph pullback is the `κ⁰`-pullback along the graph hom** (eq. (62), on the
 nose). -/
 theorem graphPullback_eq_kappa0_graph {q : DD.Vmod → ZMod 2}
@@ -185,6 +188,8 @@ variable {ρM : ContinuousMonoidHom GA (Bg ⧸ D.M)}
 variable [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod]
 variable [TopologicalSpace DD.C0] [DiscreteTopology DD.C0] [Finite DD.C0] [Finite DD.Vmod]
 
+omit [DiscreteTopology DD.Vmod] [TopologicalSpace DD.C0] [DiscreteTopology DD.C0] [Finite DD.C0]
+  [Finite DD.Vmod] in
 /-- A crossed cocycle's underlying function is continuous into the (discrete) module: its
 composition with the injective `iV ∘ ofAdd` is continuous into the discrete `Bg ⧸ T`, so
 every fiber is open. -/

@@ -125,14 +125,17 @@ variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
   [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
 variable (N : Subgroup G)
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] in
 /-- A `Z¹(N, 𝔽₂)`-cocycle is additive (the action is trivial). -/
 theorem z1_mul (α : Z1 N (ZMod 2)) (x y : N) : α.1 (x * y) = α.1 x + α.1 y := by
   rw [(mem_Z1_iff.mp α.2).2 x y, smul_zmodTwo]
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] in
 /-- `α(1) = 0`. -/
 theorem z1_one (α : Z1 N (ZMod 2)) : α.1 1 = 0 :=
   left_eq_add.mp (show α.1 1 = α.1 1 + α.1 1 by simpa using z1_mul N α 1 1)
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] in
 /-- `α(x⁻¹) = α(x)` in `𝔽₂`. -/
 theorem z1_inv (α : Z1 N (ZMod 2)) (x : N) : α.1 x⁻¹ = α.1 x := by
   have h := z1_mul N α x x⁻¹
@@ -178,6 +181,7 @@ variable (N : Subgroup G) [N.Normal]
 theorem quot_smul_eq_mk_mul (g : G) (z : G ⧸ N) : g • z = (g : G ⧸ N) * z :=
   QuotientGroup.induction_on z fun z₀ => (QuotientGroup.mk_mul N g z₀).symm
 
+omit [N.Normal] in
 /-- **Transversal 1-cocycle identity**: `ℓ_h(γη) = ℓ_h(γ) · ℓ_{γ⁻¹•h}(η)` (in `G`). -/
 theorem lWord_mul (h : G ⧸ N) (γ η : G) :
     lWord N h (γ * η) = lWord N h γ * lWord N (γ⁻¹ • h) η := by
@@ -225,15 +229,17 @@ noncomputable def freeLambda (α β : Z1 N (ZMod 2)) (ghat : G) : G → ZMod 2 :
   fun γ => ∑ᶠ h : G ⧸ N, α.1 (lTrans N h γ) * freeCorr N β ghat (γ⁻¹ • h)
 
 
+omit [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- `γ ↦ γ⁻¹ • h : G → G ⧸ N` is continuous (into the discrete quotient). -/
-theorem continuous_inv_smul (hNo : IsOpen (N : Set G)) (h : G ⧸ N) :
+theorem continuous_inv_smul (_hNo : IsOpen (N : Set G)) (h : G ⧸ N) :
     Continuous fun γ : G => γ⁻¹ • h := by
-  haveI := QuotientGroup.discreteTopology (N := N) hNo
+  haveI := QuotientGroup.discreteTopology (N := N) _hNo
   have he : (fun γ : G => γ⁻¹ • h) = (fun γ : G => ((γ : G ⧸ N))⁻¹ * h) := by
     funext γ; rw [quot_smul_eq_mk_mul]; rfl
   rw [he]
   exact (continuous_mul_const h).comp (continuous_inv.comp QuotientGroup.continuous_mk)
 
+omit [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- `γ ↦ lTrans N h γ : G → ↥N` is continuous. -/
 theorem continuous_lTrans (hNo : IsOpen (N : Set G)) (h : G ⧸ N) :
     Continuous fun γ : G => lTrans N h γ := by
@@ -245,6 +251,7 @@ theorem continuous_lTrans (hNo : IsOpen (N : Set G)) (h : G ⧸ N) :
         (continuous_inv_smul N hNo h))
   exact hcont.subtype_mk _
 
+omit [ContinuousSMul G (ZMod 2)] in
 /-- `freeLambda` is continuous. -/
 theorem freeLambda_continuous (hNo : IsOpen (N : Set G)) (α β : Z1 N (ZMod 2)) (ghat : G) :
     Continuous (freeLambda N α β ghat) := by
@@ -260,11 +267,14 @@ theorem freeLambda_continuous (hNo : IsOpen (N : Set G)) (α β : Z1 N (ZMod 2))
     ((continuous_of_discreteTopology (f := freeCorr N β ghat)).comp
       (continuous_inv_smul N hNo h))
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- The conjugate `ĝ⁻¹·ℓ_k(η)·ĝ` lands in `N` (`N` normal). -/
 theorem conjN_mem (ghat : G) (k : G ⧸ N) (η : G) :
     ghat⁻¹ * lWord N k η * ghat ∈ N := by
   simpa using ‹N.Normal›.conj_mem _ (lWord_mem N k η) ghat⁻¹
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- **Per-term shift**: `β(ℓ_{kḡ}(η)) = Δ(k) + β(ĝ⁻¹ℓ_k(η)ĝ) + Δ(η⁻¹•k)`, absorbing the
 `.out` discrepancy into the two corrections (`β` a hom). -/
 theorem beta_lTrans_shift (β : Z1 N (ZMod 2)) (ghat : G) (k : G ⧸ N) (η : G) :
@@ -281,6 +291,7 @@ theorem beta_lTrans_shift (β : Z1 N (ZMod 2)) (ghat : G) (k : G ⧸ N) (η : G)
   rw [hsub, z1_mul N β, z1_mul N β, z1_inv N β]
   rfl
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- The free graph pullback, unfolded to an explicit sum over `G ⧸ N`. -/
 theorem phi_free_eq (α β : Z1 N (ZMod 2)) (ghat : G) (γ η : G) :
     graphPullback (freeOrbitDatum N (QuotientGroup.mk' N ghat)) (QuotientGroup.mk' N)
@@ -289,6 +300,7 @@ theorem phi_free_eq (α β : Z1 N (ZMod 2)) (ghat : G) (γ η : G) :
           * β.1 (lTrans N ((QuotientGroup.mk' N γ)⁻¹ * (h * QuotientGroup.mk' N ghat)) η) :=
   add_zero _
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- The corestriction side, unfolded to an explicit sum over `G ⧸ N` (definitional). -/
 theorem psi_free_eq (α β : Z1 N (ZMod 2)) (ghat : G) (γ η : G) :
     cor2Fun N (fun p ↦ α.1 p.1 * β.1 ⟨ghat⁻¹ * (p.2 : G) * ghat,
@@ -297,6 +309,8 @@ theorem psi_free_eq (α β : Z1 N (ZMod 2)) (ghat : G) (γ η : G) :
       = ∑ᶠ u : G ⧸ N, α.1 (lTrans N u γ)
           * β.1 ⟨ghat⁻¹ * lWord N (γ⁻¹ • u) η * ghat, conjN_mem N ghat (γ⁻¹ • u) η⟩ := rfl
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- Reindexing over `G ⧸ N` by left translation. -/
 theorem sum_reindex_smul [Fintype (G ⧸ N)] (γ : G) (F : G ⧸ N → ZMod 2) :
     ∑ h : G ⧸ N, F (γ • h) = ∑ h : G ⧸ N, F h :=
@@ -559,6 +573,7 @@ theorem twistLambda_continuous [Finite (G ⧸ U)] (hUo : IsOpen (U : Set G))
 
 variable [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
 
+omit [ContinuousSMul G (ZMod 2)] in
 /-- **Transversal change for corestriction**: the `T`-corestriction of a right-normalized
 2-cocycle `ν` on the open finite-index `U` differs from the canonical one by a coboundary. -/
 theorem cor2FunT_sub_cor2Fun_mem_B2 [Finite (G ⧸ U)] (hUo : IsOpen (U : Set G))
@@ -642,11 +657,15 @@ variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
 variable (N : Subgroup G) [N.Normal]
 
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] in
 /-- `ḡ = mk ĝ` is an involution of `G/N` when `ĝ² ∈ N`. -/
 theorem ghatQuot_sq (ghat : G) (hg2 : ghat * ghat ∈ N) :
     (QuotientGroup.mk' N ghat) * (QuotientGroup.mk' N ghat) = 1 := by
   rwa [← map_mul, QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff]
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] in
 /-- The image of `U₀ = ⟨N, ĝ⟩` under `G ↠ G/N` is `⟨ḡ⟩` (`N` dies, `ĝ ↦ ḡ`). -/
 theorem map_U0_eq_zpowers (ghat : G) (U₀ : Subgroup G)
     (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) :
@@ -654,6 +673,8 @@ theorem map_U0_eq_zpowers (ghat : G) (U₀ : Subgroup G)
   rw [hU₀, Subgroup.map_sup, MonoidHom.map_zpowers,
     (Subgroup.map_eq_bot_iff N).mpr (QuotientGroup.ker_mk' N).ge, bot_sup_eq]
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [N.Normal] in
 /-- `G/U₀` is finite (`U₀ ⊇ N` has index dividing the finite `N.index`). -/
 theorem finite_quot_U0 [Finite (G ⧸ N)] (ghat : G) (U₀ : Subgroup G)
     (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) : Finite (G ⧸ U₀) := by
@@ -697,6 +718,7 @@ variable [Finite (G ⧸ N)]
 noncomputable def orbOut (ghat : G) (z : G ⧸ N) : G ⧸ N :=
   ((z : (G ⧸ N) ⧸ Subgroup.zpowers (QuotientGroup.mk' N ghat)).out)
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 open scoped Classical in
 /-- The involution graph pullback, unfolded to the two explicit sums of paper eq. (107)
 (the oriented factor-set term + the orientation-reversal correction). -/
@@ -714,6 +736,8 @@ theorem phi_inv_eq (α : Z1 N (ZMod 2)) (ghat : G) (γ η : G) :
                     * QuotientGroup.mk' N ghat) η)) := rfl
 
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- `ḡ = mk ĝ` has order exactly 2 in `G/N` (`ĝ ∉ N`, `ĝ² ∈ N`). -/
 theorem orderOf_ghatQuot (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N) :
     orderOf (QuotientGroup.mk' N ghat) = 2 := by
@@ -721,6 +745,8 @@ theorem orderOf_ghatQuot (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N) 
     rw [QuotientGroup.mk'_apply, Ne, QuotientGroup.eq_one_iff]; exact hg
   exact orderOf_eq_prime (by rw [sq]; exact ghatQuot_sq N ghat hg2) hne
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- `N` has index 2 in `U₀ = ⟨N, ĝ⟩`: the map `U₀ → G/N` has kernel `N.subgroupOf U₀` and
 range `⟨ḡ⟩` (order 2), so `U₀/(N.subgroupOf U₀) ≅ ⟨ḡ⟩`. -/
 theorem subgroupOf_index_two (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
@@ -739,7 +765,8 @@ theorem subgroupOf_index_two (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈
   rw [Subgroup.index, hcard]
 
 /-! ### Involution assembly — setup -/
-
+omit [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
+  [N.Normal] [Finite (G ⧸ N)] in
 /-- `N.subgroupOf U₀` is open in `U₀` (preimage of the open `N` under `U₀ ↪ G`). -/
 theorem subgroupOf_isOpen (hNo : IsOpen (N : Set G)) (U₀ : Subgroup G) :
     IsOpen ((N.subgroupOf U₀ : Subgroup U₀) : Set U₀) := by
@@ -750,11 +777,13 @@ theorem subgroupOf_isOpen (hNo : IsOpen (N : Set G)) (U₀ : Subgroup G) :
 noncomputable def alphaOn (α : Z1 N (ZMod 2)) (U₀ : Subgroup G) :
     (N.subgroupOf U₀) → ZMod 2 := fun u ↦ α.1 ⟨u.1.1, u.2⟩
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [N.Normal] [Finite (G ⧸ N)] in
 /-- `alphaOn` is additive (inherited from `α`, a hom on `N`). -/
 theorem alphaOn_hom (α : Z1 N (ZMod 2)) (U₀ : Subgroup G)
     (x y : N.subgroupOf U₀) : alphaOn N α U₀ (x * y) = alphaOn N α U₀ x + alphaOn N α U₀ y :=
   z1_mul N α ⟨x.1.1, x.2⟩ ⟨y.1.1, y.2⟩
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [N.Normal] [Finite (G ⧸ N)] in
 /-- `alphaOn` is continuous. -/
 theorem alphaOn_continuous (α : Z1 N (ZMod 2)) (U₀ : Subgroup G) :
     Continuous (alphaOn N α U₀) := by
@@ -766,24 +795,27 @@ theorem alphaOn_continuous (α : Z1 N (ZMod 2)) (U₀ : Subgroup G) :
 
 `evensAux`/`bS` on `U₀` (relative to `N.subgroupOf U₀`, shift `ĝ`) read `α` at the underlying
 `N`-element, using the index-2 side bookkeeping (`ĝ ∉ N`; `x·ĝ ∈ N ⟺ x ∉ N`). -/
-
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [N.Normal] [Finite (G ⧸ N)] in
 theorem evensAux_alphaOn_mem (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G) (hgU : ghat ∈ U₀)
     (x : U₀) (hx : (x : G) ∈ N) :
     evensAux (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) x = α.1 ⟨(x : G), hx⟩ :=
   evensAux_of_mem (alphaOn N α U₀) (Subgroup.mem_subgroupOf.mpr hx)
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [N.Normal] [Finite (G ⧸ N)] in
 theorem evensAux_alphaOn_notMem (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G) (hgU : ghat ∈ U₀)
     (hUi : (N.subgroupOf U₀).index = 2) (hs : (⟨ghat, hgU⟩ : U₀) ∉ N.subgroupOf U₀)
     (x : U₀) (hx : (x : G) ∉ N) (hmem : (x : G) * ghat ∈ N) :
     evensAux (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) x = α.1 ⟨(x : G) * ghat, hmem⟩ :=
   evensAux_of_notMem hUi hs (alphaOn N α U₀) (fun h => hx (Subgroup.mem_subgroupOf.mp h))
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [N.Normal] [Finite (G ⧸ N)] in
 theorem bS_alphaOn_mem (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G) (hgU : ghat ∈ U₀)
     (hUi : (N.subgroupOf U₀).index = 2) (hs : (⟨ghat, hgU⟩ : U₀) ∉ N.subgroupOf U₀)
     (y : U₀) (hy : (y : G) ∈ N) (hmem : ghat⁻¹ * (y : G) * ghat ∈ N) :
     bS (N.subgroupOf U₀) ⟨ghat, hgU⟩ (alphaOn N α U₀) y = α.1 ⟨ghat⁻¹ * (y : G) * ghat, hmem⟩ :=
   bS_of_mem hUi hs (alphaOn N α U₀) (Subgroup.mem_subgroupOf.mpr hy)
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [N.Normal] [Finite (G ⧸ N)] in
 theorem bS_alphaOn_notMem (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G) (hgU : ghat ∈ U₀)
     (hUi : (N.subgroupOf U₀).index = 2) (hs : (⟨ghat, hgU⟩ : U₀) ∉ N.subgroupOf U₀)
     (y : U₀) (hy : (y : G) ∉ N) (hmem : ghat⁻¹ * (y : G) ∈ N) :
@@ -795,8 +827,8 @@ theorem bS_alphaOn_notMem (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G) (h
 Both sides are now sums over `O = (G/N)/⟨ḡ⟩` (`phi_inv_eq`, `psi_inv_reindex`).  The pieces below
 bridge the `U₀`-transversal words (`ℓ^{U₀}`, used by `psi`) and the `N`-transversal words (`ℓ^N`,
 used by `phi`), and the orientation. -/
-
-
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- **Orbit equivariance**: the `⟨ḡ⟩`-orbit of `mk((γ⁻¹•v).out)` equals that of `γ̄⁻¹·mk(v.out)`
 (both are `N`-images of `U₀`-lifts of `γ⁻¹•v`). -/
 theorem orbit_equiv (ghat : G) (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat)
@@ -823,6 +855,8 @@ theorem mem_zpowers_sq_one {H : Type*} [Group H] {g t : H} (hg2 : g * g = 1)
   · right; rw [zpow_add, zpow_mul, hsq, one_zpow, one_mul, zpow_one]
 
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- The `.out` shift: `(k·ḡ).out = k.out · ĝ · shiftCorr(k)` (rearranged `shiftCorr`). -/
 theorem out_ghat_shift (ghat : G) (k : G ⧸ N) :
     (k * (ghat : G ⧸ N)).out = k.out * ghat * shiftCorr N ghat k := by
@@ -835,7 +869,8 @@ theorem out_ghat_shift (ghat : G) (k : G ⧸ N) :
 `G/N`-base point `z_u` — the same base point `phi_inv_eq` reads.  Along it the `ℓ^T`-words are
 based exactly at `phi`'s indices and the aligned/flipped discriminant is literally `phi`'s
 `ε`-condition. -/
-
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- `invIndexEquiv` computes on `mk`-classes (definitional). -/
 theorem invIndexEquiv_mk (ghat : G) (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat)
     (g : G) :
@@ -849,6 +884,8 @@ noncomputable def invLift (ghat : G) (U₀ : Subgroup G)
     (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) : G ⧸ U₀ → G :=
   fun v => (((invIndexEquiv N ghat U₀ hU₀ v).out : G ⧸ N).out : G)
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- The `G/N`-image of `invLift v` is the orbit-canonical base point `z_u`. -/
 theorem mk_invLift (ghat : G) (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat)
     (v : G ⧸ U₀) :
@@ -856,6 +893,8 @@ theorem mk_invLift (ghat : G) (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup
       = (invIndexEquiv N ghat U₀ hU₀ v).out :=
   QuotientGroup.out_eq' _
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- `invLift` is a genuine transversal: it lifts `v` to `v`. -/
 theorem invLift_spec (ghat : G) (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat)
     (v : G ⧸ U₀) :
@@ -864,6 +903,8 @@ theorem invLift_spec (ghat : G) (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgro
   rw [invIndexEquiv_mk, mk_invLift]
   exact QuotientGroup.out_eq' _
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- The `γ`-shifted index in orbit form: `invIndexEquiv (γ⁻¹ • v) = mk_O (γ̄⁻¹ · z_u)`. -/
 theorem invIndexEquiv_smul (ghat : G) (U₀ : Subgroup G)
     (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (v : G ⧸ U₀) (γ : G) :
@@ -894,6 +935,8 @@ theorem invIndexEquiv_smul (ghat : G) (U₀ : Subgroup G)
   rw [hrw]
   exact hmem
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- The `γ`-shifted base point is the orbit-canonical rep of `γ̄⁻¹ · z_u`. -/
 theorem invIndexEquiv_smul_out (ghat : G) (U₀ : Subgroup G)
     (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (v : G ⧸ U₀) (γ : G) :
@@ -901,6 +944,8 @@ theorem invIndexEquiv_smul_out (ghat : G) (U₀ : Subgroup G)
       = orbOut N ghat ((QuotientGroup.mk' N γ)⁻¹ * (invIndexEquiv N ghat U₀ hU₀ v).out) := by
   rw [orbOut, invIndexEquiv_smul N ghat U₀ hU₀ v γ]
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- The `G/N`-image of the compatible-transversal word: `z_u⁻¹ · γ̄ · z_{u'}`. -/
 theorem mk_lWordT_invLift (ghat : G) (U₀ : Subgroup G)
     (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (v : G ⧸ U₀) (γ : G) :
@@ -914,6 +959,8 @@ theorem mk_lWordT_invLift (ghat : G) (U₀ : Subgroup G)
     show QuotientGroup.mk' N (invLift N ghat U₀ hU₀ (γ⁻¹ • v))
         = (invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out from mk_invLift N ghat U₀ hU₀ (γ⁻¹ • v)]
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- **Alignment discriminant**: the compatible-transversal word lies in `N` iff `γ̄⁻¹ · z_u` is
 its own orbit-canonical rep — literally `phi_inv_eq`'s `ε`-condition. -/
 theorem lWordT_invLift_mem_N_iff (ghat : G) (U₀ : Subgroup G)
@@ -930,7 +977,8 @@ theorem lWordT_invLift_mem_N_iff (ghat : G) (U₀ : Subgroup G)
 On the compatible transversal the aligned reads are **on the nose** and every flipped or
 `bS`-read carries only `shiftCorr`-corrections, collapsed to the single correction read
 `dRead` via the duality `sc(m·ḡ) = (ĝ·sc(m)·ĝ)⁻¹`. -/
-
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- **Aligned `z'`-characterization**: if the compatible word lies in `N`, the shifted base
 point is the plain `γ`-shift of the base point. -/
 theorem invIndexEquiv_out_aligned (ghat : G) (U₀ : Subgroup G)
@@ -948,9 +996,11 @@ theorem invIndexEquiv_out_aligned (ghat : G) (U₀ : Subgroup G)
   rw [h2, quot_smul_eq_mk_mul]
   rfl
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- **Flipped `z'`-characterization**: if the compatible word is not in `N`, the shifted base
 point is the `γ`-shift times `ḡ`. -/
-theorem invIndexEquiv_out_flipped (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
+theorem invIndexEquiv_out_flipped (ghat : G) (_ : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
     (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (v : G ⧸ U₀) (γ : G)
     (hx : lWordT U₀ (invLift N ghat U₀ hU₀) v γ ∉ N) :
     (invIndexEquiv N ghat U₀ hU₀ (γ⁻¹ • v)).out
@@ -980,6 +1030,8 @@ theorem invIndexEquiv_out_flipped (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * gha
   rw [h2, quot_smul_eq_mk_mul]
   rfl
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- **W1 (aligned word identity)**: on the aligned locus the compatible word IS the canonical
 `N`-transversal word at the base point — on the nose. -/
 theorem lWordT_invLift_aligned (ghat : G) (U₀ : Subgroup G)
@@ -994,6 +1046,8 @@ theorem lWordT_invLift_aligned (ghat : G) (U₀ : Subgroup G)
       * ((γ⁻¹ • (invIndexEquiv N ghat U₀ hU₀ v).out).out)
   rw [invLift, invLift, hz']
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- **W2 (flipped word identity)**: on the flipped locus the compatible word is the canonical
 word times `ĝ` times a `shiftCorr` correction. -/
 theorem lWordT_invLift_flipped (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
@@ -1015,6 +1069,8 @@ theorem lWordT_invLift_flipped (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat �
   rw [hout]
   group
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- **`shiftCorr` duality**: `sc(m·ḡ) = (ĝ · sc(m) · ĝ)⁻¹` (from shifting twice, `ḡ² = 1`). -/
 theorem shiftCorr_ghat_mul (ghat : G) (hg2 : ghat * ghat ∈ N) (m : G ⧸ N) :
     shiftCorr N ghat (m * (ghat : G ⧸ N)) = (ghat * shiftCorr N ghat m * ghat)⁻¹ := by
@@ -1032,6 +1088,8 @@ theorem shiftCorr_ghat_mul (ghat : G) (hg2 : ghat * ghat ∈ N) (m : G ⧸ N) :
   group
 
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- The `ĝ`-conjugated canonical word (rearranged `lWord_shift`):
 `ĝ⁻¹·ℓ_k(η)·ĝ = sc(k) · ℓ_{kḡ}(η) · sc(η⁻¹•k)⁻¹`. -/
 theorem ghat_conj_lWord (ghat : G) (k : G ⧸ N) (η : G) :
@@ -1041,8 +1099,10 @@ theorem ghat_conj_lWord (ghat : G) (k : G ⧸ N) (η : G) :
   rw [lWord_shift N ghat k η]
   group
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- `x ∈ U₀ \ N` has `G/N`-image exactly `ḡ`. -/
-theorem mk_eq_ghat_of_notMem (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
+theorem mk_eq_ghat_of_notMem (ghat : G) (_ : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
     (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat)
     (x : G) (hxU : x ∈ U₀) (hx : x ∉ N) :
     (QuotientGroup.mk x : G ⧸ N) = QuotientGroup.mk' N ghat := by
@@ -1061,6 +1121,7 @@ noncomputable def scEl (ghat : G) (m : G ⧸ N) : N :=
 noncomputable def dRead (α : Z1 N (ZMod 2)) (ghat : G) (m : G ⧸ N) : ZMod 2 :=
   α.1 (scEl N ghat m)
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- **R1 (aligned `evensAux`-read)**: on the aligned locus, the `evensAux`-read of the
 compatible word is the canonical `α`-read at the base point — no corrections. -/
 theorem evensAux_lTransT_aligned (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G)
@@ -1072,6 +1133,7 @@ theorem evensAux_lTransT_aligned (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgrou
   rw [evensAux_alphaOn_mem N α ghat U₀ hgU _ hx]
   exact congrArg α.1 (Subtype.ext (lWordT_invLift_aligned N ghat U₀ hU₀ v γ hx))
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- **R2 (flipped `evensAux`-read)**: on the flipped locus, the read is the canonical `α`-read
 plus the correction `D((γ⁻¹•z)·ḡ)`. -/
 theorem evensAux_lTransT_flipped (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ N)
@@ -1109,10 +1171,11 @@ theorem evensAux_lTransT_flipped (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ 
   rw [hfac, z1_mul N α, z1_inv N α]
   rfl
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- **R5 (aligned `bS`-read)**: for an aligned `η`-slot at base `z'`, the `bS`-read is the
 canonical `α`-read at `z'·ḡ` plus corrections `D(z') + D(η⁻¹•z')`. -/
-theorem bS_lTransT_aligned (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ N)
-    (hg2 : ghat * ghat ∈ N) (U₀ : Subgroup G)
+theorem bS_lTransT_aligned (α : Z1 N (ZMod 2)) (ghat : G) (_ : ghat ∉ N)
+    (_ : ghat * ghat ∈ N) (U₀ : Subgroup G)
     (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat) (hgU : ghat ∈ U₀)
     (hUi : (N.subgroupOf U₀).index = 2) (hs : (⟨ghat, hgU⟩ : U₀) ∉ N.subgroupOf U₀)
     (w : G ⧸ U₀) (η : G)
@@ -1147,6 +1210,7 @@ theorem bS_lTransT_aligned (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ N)
   rw [hfac, z1_mul N α, z1_mul N α, z1_inv N α]
   rfl
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- **R6 (flipped `bS`-read)**: for a flipped `η`-slot at base `z'`, the `bS`-read is
 `D(z')` plus the canonical `α`-read at `z'·ḡ`. -/
 theorem bS_lTransT_flipped (α : Z1 N (ZMod 2)) (ghat : G) (hg : ghat ∉ N)
@@ -1198,13 +1262,16 @@ Per orbit position, the compatible-transversal `evensNormFun`-read equals `phi_i
 two summands plus the three coboundary terms of the aligned-locus
 `Λ(σ) = Σ_{u aligned-for-σ} α(ℓ_{z_u}σ)·D(σ̄⁻¹•z_u)` — verified cell-by-cell over the four
 aligned/flipped combinations. -/
-
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- `ḡ²`-collapse on `G/N`. -/
 theorem quot_mul_ghat_sq (ghat : G) (hg2 : ghat * ghat ∈ N) (m : G ⧸ N) :
     (m * (ghat : G ⧸ N)) * (ghat : G ⧸ N) = m := by
   rw [mul_assoc, ← QuotientGroup.mk_mul,
     (QuotientGroup.eq_one_iff (ghat * ghat)).mpr hg2, mul_one]
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- The `σ`-action commutes with right-`ḡ`: `σ⁻¹•(m·ḡ) = (σ⁻¹•m)·ḡ`. -/
 theorem smul_mul_ghat (ghat : G) (σ : G) (m : G ⧸ N) :
     σ⁻¹ • (m * (ghat : G ⧸ N)) = (σ⁻¹ • m) * (ghat : G ⧸ N) := by
@@ -1218,6 +1285,8 @@ theorem mk'_inv_mul (σ : G) (m : G ⧸ N) :
   rw [quot_smul_eq_mk_mul, QuotientGroup.mk_inv]
   rfl
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [DistribMulAction G (ZMod 2)]
+  [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 /-- **(F,F) product membership**: two flipped words multiply into `N` (`ḡ² = 1`). -/
 theorem lWordT_mul_mem_of_notMem (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
     (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat)
@@ -1229,6 +1298,7 @@ theorem lWordT_mul_mem_of_notMem (ghat : G) (hg : ghat ∉ N) (hg2 : ghat * ghat
     mk_eq_ghat_of_notMem N ghat hg hg2 U₀ hU₀ _ (lWordT_mem U₀ T hT (γ⁻¹ • v) η) hy]
   exact ghatQuot_sq N ghat hg2
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 open scoped Classical in
 /-- **Position identity, `γ`-aligned case** (`ℓ_v γ ∈ N`, so `z' = γ⁻¹•z`): the two aligned
 cells `(A,A)` and `(A,F)` of `invPositionEval`. -/
@@ -1314,6 +1384,7 @@ private theorem invPositionEval_aligned (α : Z1 N (ZMod 2)) (ghat : G) (hg : gh
     rw [hidx1, hz', hcoe]
     ring
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 open scoped Classical in
 /-- **Position identity, `γ`-flipped case** (`ℓ_v γ ∉ N`, so `z' = (γ⁻¹•z)·ḡ`): the two
 flipped cells `(F,A)` and `(F,F)` of `invPositionEval`. -/
@@ -1425,6 +1496,7 @@ private theorem invPositionEval_flipped (α : Z1 N (ZMod 2)) (ghat : G) (hg : gh
           ((γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) * QuotientGroup.mk' N ghat)
         * dRead N α ghat (η⁻¹ • (γ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)))) * h2
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 open scoped Classical in
 /-- **The position identity**: at each orbit position, the compatible-transversal Evens-norm
 read equals the two `phi_inv_eq` summands plus the three coboundary terms of the aligned-locus
@@ -1471,6 +1543,7 @@ noncomputable def invLambda (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G)
       α.1 (lTrans N ((invIndexEquiv N ghat U₀ hU₀ v).out) σ)
         * dRead N α ghat (σ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out)) else 0
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [Finite (G ⧸ N)] in
 open scoped Classical in
 /-- The aligned-indicator summand in indicator-product form (for continuity). -/
 theorem invLambda_summand_eq (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G)
@@ -1484,6 +1557,7 @@ theorem invLambda_summand_eq (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G)
             * dRead N α ghat (σ⁻¹ • ((invIndexEquiv N ghat U₀ hU₀ v).out))) := by
   simp only [QuotientGroup.eq_one_iff, ite_mul, one_mul, zero_mul]
 
+omit [ContinuousSMul G (ZMod 2)] in
 /-- `invLambda` is continuous (`U₀ ⊇ N` is open; the alignment indicator factors through the
 discrete `G/N`). -/
 theorem invLambda_continuous (hNo : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) (ghat : G)
@@ -1518,6 +1592,7 @@ theorem invLambda_continuous (hNo : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) (gh
   · exact (continuous_of_discreteTopology (f := fun m : G ⧸ N => dRead N α ghat m)).comp
       (continuous_inv_smul N hNo _)
 
+omit [ContinuousSMul G (ZMod 2)] in
 open scoped Classical in
 /-- **The involution coboundary (Step 4b)**: the graph pullback differs from the
 compatible-transversal corestriction by `δ¹(invLambda)`. -/
@@ -1594,13 +1669,14 @@ theorem graphPullback_sub_cor2FunT_mem_B2 (hNo : IsOpen (N : Set G))
   simp only [neg_one_zsmul, CharTwo.neg_eq]
 
 /-! ### The final chain (Step 5): `lemma_6_15_involution_aux` -/
-
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [N.Normal] [Finite (G ⧸ N)] in
 /-- `alphaOn` kills the identity. -/
 theorem alphaOn_one (α : Z1 N (ZMod 2)) (U₀ : Subgroup G) :
     alphaOn N α U₀ 1 = 0 :=
   left_eq_add.mp (show alphaOn N α U₀ 1 = alphaOn N α U₀ 1 + alphaOn N α U₀ 1 by
     simpa using alphaOn_hom N α U₀ 1 1)
 
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] [N.Normal] [Finite (G ⧸ N)] in
 /-- The Evens-norm cochain is right-normalized: `ν(z, 1) = 0`. -/
 theorem evensNormFun_right_one (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup G)
     (hgU : ghat ∈ U₀) (hUi : (N.subgroupOf U₀).index = 2)
@@ -1625,6 +1701,7 @@ theorem evensNormFun_right_one (α : Z1 N (ZMod 2)) (ghat : G) (U₀ : Subgroup 
     show _ * evensAux _ _ _ 1 + evensAux _ _ _ 1 * bS _ _ _ 1 = 0
     rw [hb1, hbS1, mul_zero, zero_mul, add_zero]
 
+omit [ContinuousSMul G (ZMod 2)] [N.Normal] [Finite (G ⧸ N)] in
 /-- The Evens-norm cochain satisfies the char-2 four-term cocycle identity. -/
 theorem evensNormFun_cocForm (hNo : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) (ghat : G)
     (U₀ : Subgroup G) (hgU : ghat ∈ U₀) (hUi : (N.subgroupOf U₀).index = 2)

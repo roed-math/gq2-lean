@@ -226,6 +226,7 @@ variable {W₁ W₂ : Type}
 
 variable {ρ}
 
+omit [DiscreteTopology C] [Finite C] [Finite W₁] [Finite W₂] in
 /-- **`phiRes` is natural in the coefficient module**: restricting a pushed-forward class is
 pre-composing the functional.  The workhorse of the retract transfer. -/
 theorem phiRes_mapCoeff1 (hρ₁ : ∀ (g : AbsGalQ2) (w : W₁), g • w = ρ g • w)
@@ -253,6 +254,7 @@ variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [
 
 variable {ρ}
 
+omit [Finite V] in
 /-- **`FamiliesExtend` from the Lemma 6.11 package** (P-15f8): given the equivariant
 split-summand package `(ι, r)` embedding `V` into the regular module `𝔽₂[C]^{Nr}`
 (the `lemma_6_11`/`lemma_6_11_of_tame_pair` output shape), every admissible family extends to

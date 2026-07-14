@@ -420,6 +420,7 @@ def mapCoeff0 : H0 G N →+ H0 G M :=
 def mapCoeff1 : H1 G N →+ H1 G M :=
   H1comap (ContinuousMonoidHom.id G) f hf fun g n => hcompat g n
 
+omit [IsTopologicalGroup G] [ContinuousSMul G M] [ContinuousSMul G N] in
 /-- `mapCoeff1` computes on classes: the image of `H1mk z` is `H1mk` of the pushed-forward
 cocycle (definitional). -/
 theorem mapCoeff1_H1mk (z : Z1 G N) :

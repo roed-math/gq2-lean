@@ -27,7 +27,7 @@ variable {C : Type*} [Group C] [Finite C] {A : Type*} [AddCommGroup A] [Finite A
 /-- **`d¹` on the trivial module** collapses to the diagonal `x ↦ (x₁, x₁)`: the tame row
 (`d1Fun_tame`) is `x₀−x₀ + x₁ − (x₁+x₁) = x₁` and the wild row (`liftMarking_wildValue_u`,
 `x₁ + (1+S⁻¹)x₃`) is `x₁ + x₃ + x₃ = x₁`, both in char 2 with every generator acting trivially. -/
-theorem d1Fun_of_trivial (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+theorem d1Fun_of_trivial (t : Marking C) (ht : t.TameRel) (_ : t.WildRel)
     (htriv : ∀ (c : C) (a : A), c • a = a) (hA₂ : ∀ a : A, a + a = 0) (x : Fin 4 → A) :
     d1Fun t x = (x 1, x 1) := by
   have h1 : (d1Fun t x).1 = x 1 := by
@@ -48,6 +48,7 @@ theorem d1_of_trivial (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     d1 t x = (x 1, x 1) :=
   d1Fun_of_trivial t ht hw htriv hA₂ x
 
+omit [Finite C] [Finite A] in
 /-- `d⁰ = 0` on the trivial module. -/
 theorem d0_of_trivial (t : Marking C) (htriv : ∀ (c : C) (a : A), c • a = a) (v : A) :
     d0 t v = 0 := by
@@ -55,12 +56,13 @@ theorem d0_of_trivial (t : Marking C) (htriv : ∀ (c : C) (a : A), c • a = a)
   fin_cases i <;> simp [d0, htriv]
 
 /-! ## The two cardinality clauses -/
-
+omit [Finite C] [Finite A] in
 /-- Contragredience of a trivial action is trivial. -/
 theorem elemDual_smul_trivial (htriv : ∀ (c : C) (a : A), c • a = a) (g : C) (lam : ElemDual A) :
     g • lam = lam := by
   ext a; rw [ElemDual.smul_apply, htriv]
 
+omit [Finite C] in
 /-- `#(A^∨)^C = #A^∨ = #A`: the dual of a finite elementary-2 module has the same cardinality
 (finite `𝔽₂`-vector space is self-dual in cardinality), and every point is `C`-fixed here. -/
 theorem card_fixedPts_elemDual_trivial (htriv : ∀ (c : C) (a : A), c • a = a)
@@ -150,6 +152,7 @@ theorem mem_Z1w_trivial_iff (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   show x ∈ (d1 (A := A) t).ker ↔ _
   rw [AddMonoidHom.mem_ker, d1_of_trivial t ht hw htriv hA₂, Prod.mk_eq_zero, and_self]
 
+omit [Finite C] [Finite A] in
 /-- On the trivial module `B¹w = ⊥` (`d⁰ = 0`), so `H¹w = Z¹w` and the class map is injective. -/
 theorem B1w_trivial_eq_bot (t : Marking C) (htriv : ∀ (c : C) (a : A), c • a = a) :
     B1w (A := A) t = ⊥ := by

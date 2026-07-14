@@ -90,6 +90,7 @@ def RCharMulHom (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
     show Multiplicative.ofAdd (χ.1 (Additive.ofMul (a * b))) = _ * _
     rw [show Additive.ofMul (a * b) = Additive.ofMul a + Additive.ofMul b from rfl, map_add]; rfl
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] in
 theorem RCharKerSub_eq_ker (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
     RCharKerSub Blk χ = (RCharMulHom Blk χ).ker := by
   ext r
@@ -101,10 +102,12 @@ theorem RCharKerSub_eq_ker (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSu
 def RCharKer (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) : Subgroup Y :=
   (RCharKerSub Blk χ).map Blk.frattiniK.subtype
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] in
 theorem RCharKer_le (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
     RCharKer Blk χ ≤ Blk.frattiniK :=
   Subgroup.map_subtype_le _
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] in
 theorem RCharKer_normal (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
     (RCharKer Blk χ).Normal := by
   constructor
@@ -116,6 +119,7 @@ theorem RCharKer_normal (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub B
   show χ.1 (Additive.ofMul ⟨g * (r : Y) * g⁻¹, _⟩) = 0
   rwa [χ.2 g r]
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] in
 theorem RCharKer_relIndex_le (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
     (RCharKer Blk χ).relIndex Blk.frattiniK ≤ 2 := by
   have h1 : (RCharKer Blk χ).relIndex Blk.frattiniK = (RCharKerSub Blk χ).index := by
@@ -162,6 +166,7 @@ noncomputable def RCharOfHom (Blk : SectionSeven.MinimalBlock L) (R' : BlockDRsu
         simp only [Subgroup.coe_mul, hkey, h1, h2', if_true, if_false, iff_true, iff_false,
           iff_self] <;> decide
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- `RCharOfHom R'` is Y-invariant, hence a member of `RCharSub` — from `R'.Normal`. -/
 theorem RCharOf_mem (Blk : SectionSeven.MinimalBlock L) (R' : BlockDRsub Blk) :
     RCharOfHom Blk R' ∈ RCharSub Blk := by
@@ -182,6 +187,7 @@ theorem RCharOf_mem (Blk : SectionSeven.MinimalBlock L) (R' : BlockDRsub Blk) :
 noncomputable def RCharOf (Blk : SectionSeven.MinimalBlock L) (R' : BlockDRsub Blk) :
     ↥(RCharSub Blk) := ⟨RCharOfHom Blk R', RCharOf_mem Blk R'⟩
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] in
 /-- A character is the indicator of its own kernel (`𝔽₂`-valued). -/
 theorem RChar_eq_ind (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk))
     (r : ↥Blk.frattiniK) :
@@ -191,6 +197,7 @@ theorem RChar_eq_ind (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)
   · rw [if_neg h]
     exact ((by decide : ∀ a : ZMod 2, a = 0 ∨ a = 1) _).resolve_left h
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **Right inverse**: the kernel of the indicator character of `R'` is `R'`. -/
 theorem RCharKer_RCharOf (Blk : SectionSeven.MinimalBlock L) (R' : BlockDRsub Blk) :
     RCharKer Blk (RCharOf Blk R') = R'.1 := by
@@ -202,6 +209,7 @@ theorem RCharKer_RCharOf (Blk : SectionSeven.MinimalBlock L) (R' : BlockDRsub Bl
     by_cases h : ((r : ↥Blk.frattiniK) : Y) ∈ R'.1 <;> simp [h]
   rw [RCharKer, hker, Subgroup.subgroupOf_map_subtype, inf_eq_left.mpr R'.2.2.1]
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] in
 /-- **Injectivity** of `χ ↦ ker χ`: a character is determined by its kernel. -/
 theorem RCharKer_inj (Blk : SectionSeven.MinimalBlock L) :
     Function.Injective (fun χ : ↥(RCharSub Blk) => RCharKer Blk χ) := by
@@ -229,10 +237,13 @@ noncomputable def blockToDR (T : MarkedTarget H E Y) (Blk : SectionSeven.Minimal
     ⟨fun _ _ h => RCharKer_inj Blk (Subtype.ext_iff.mp h),
      fun R' => ⟨RCharOf Blk R', Subtype.ext (RCharKer_RCharOf Blk R')⟩⟩
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
+  [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 @[simp] theorem blockToDR_coe (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
     (hE2 : ∀ e : E, e ^ 2 = 1) (χ : ↥(RCharSub Blk)) :
     (blockToDR T Blk hE2 χ).1 = RCharKer Blk χ := rfl
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] in
 /-- The zero character's kernel is all of `R` (`= zeroDR`). -/
 theorem RCharKer_zero (Blk : SectionSeven.MinimalBlock L) : RCharKer Blk 0 = Blk.frattiniK := by
   have hsub : RCharKerSub Blk 0 = ⊤ := by
@@ -277,6 +288,8 @@ noncomputable def blockRObstructionData (T : MarkedTarget H E Y)
       have hne : QuotientGroup.mk' (RCharKer Blk d) (r : Y) ≠ 1 := fun hc => hr (hmem.mp hc)
       exact (if_neg hne).symm
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
+  [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **The `(R^∨)^C = D_R` cardinality bridge.**  The `Y`-invariant `𝔽₂`-characters of `R`
 (`RCharSub = D_Rmod = (R^∨)^C`) are equinumerous with the R-stage index type `D_R` of the concrete
 frame, since `blockToDR` is a bijection.  So the `z_R = #R²·#D_R` torsor count's `#D_R` factor is
@@ -297,6 +310,7 @@ variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
   [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
   [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
 
+omit [ContinuousSMul Γ (ZMod 2)] in
 /-- **P-16d6a (136) for the concrete §7-block frame.**  Instantiates the abstract R-stage finish
 line `stageR136_ofRSepData` at the concrete frame `blockFrameImpl` with the concrete obstruction
 datum `blockRObstructionData` (the full `(R^∨)^C` character duality, std-3).  `hE2` is discharged
@@ -349,7 +363,7 @@ in `H²(Γ,𝔽₂)`, then the defect splits by a continuous `R`-cochain.*  On t
 since `cup20 c φ = [φ ∘ c]` for invariant `φ`) plus `B²`-extraction at the `compHom` action (the
 `slift`-conjugation action on `R` factors through `C = Y/K` by `lemma_7_2`'s `K`-centrality); on
 the candidate source it is the §5 word-complex route (`docs/p16d6a-handoff.md` §3). -/
-
+omit [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [ContinuousSMul Γ (ZMod 2)] in
 theorem hsep_hom_of_splitCriterion {T : MarkedTarget H E Y}
     {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk)
     (D : RObstructionData RF)
@@ -388,6 +402,7 @@ theorem hsep_hom_of_splitCriterion {T : MarkedTarget H E Y}
   obtain ⟨c, hc, hs⟩ := hsplit g.1.1 hall
   exact homLift_of_split RF g.1.1 c hc hs
 
+omit [ContinuousSMul Γ (ZMod 2)] in
 /-- **(136) for the block frame, from the split criterion** — `blockStageR136` with `hsep_hom`
 pre-discharged by `hsep_hom_of_splitCriterion`.  The per-`Γ` inputs are now exactly the source's
 5.15/5.16 duality package: the numerics `hcard`/`hfg`, the **split criterion** `hsplit` (the

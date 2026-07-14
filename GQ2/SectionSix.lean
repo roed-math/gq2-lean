@@ -145,6 +145,7 @@ def Q0loc (D : TateDuality 2) (dat : FactorSet C V) (ρ : ContinuousMonoidHom Ab
     H1 AbsGalQ2 V → ZMod 2 :=
   fun x ↦ iotaF D (H2ofFun AbsGalQ2 (graphPullback dat ρ (Quotient.out x).1))
 
+omit [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
 /-- **Well-formedness of the graph pullback** (Lemma 6.1's cocycle assertion, specialized to the
 graph (62)): for an equivariant factor-set datum and a continuous 1-cocycle `b` (with the
 `G_ℚ₂`-action on `V` acting through `ρ`), the pullback is a continuous 2-cocycle.
@@ -240,6 +241,7 @@ private theorem exists_iterate_powOmega2_eq_id (c : ContinuousMonoidHom Ttame Hf
   show (powOmega2 (c tameSigma) • ·)^[2 ^ (orderOf (c tameSigma)).factorization 2] v = v
   rw [smul_iterate_apply, hp1, one_smul]
 
+omit [DiscreteTopology Hf] in
 /-- **Lemma 6.8 (ramified Hermitian model and Frobenius fixed space), eqs. (87)/(88)**:
 for a faithful simple ramified tame module `V` (tame image `Hf` marked by
 `c : T_tame ↠ Hf`; inertia `T = c(τ) ≠ 1`; `V|_⟨T⟩ ≅ W^{⊕s}` isotypic with
@@ -250,10 +252,10 @@ for a faithful simple ramified tame module `V` (tame image `Hf` marked by
 * consequently `Arf(q_U) = 0` (the ramified candidate base form of (83)).
 
 [P-14 statement; proof P-15.] -/
-theorem lemma_6_8 (c : ContinuousMonoidHom Ttame Hf) (hc : Function.Surjective c)
+theorem lemma_6_8 (c : ContinuousMonoidHom Ttame Hf) (_ : Function.Surjective c)
     (hfaith : ∀ h : Hf, (∀ v : V, h • v = v) → h = 1)
-    (hsimple : ∀ W : AddSubgroup V, (∀ (h : Hf), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
-    (hram : c tameTau ≠ 1)
+    (_ : ∀ W : AddSubgroup V, (∀ (h : Hf), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (_ : c tameTau ≠ 1)
     (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant Hf q)
     (hV2 : ∀ v : V, v + v = 0)
     (s r a : ℕ) (hr : Odd r) (ha : 1 ≤ a) (hs1 : 1 ≤ s)
@@ -312,7 +314,7 @@ if inertia acts trivially (`c(τ) = 1`, so `Q⁰_A = q` by (83)) and `#V = 2^{2m
 theorem prop_6_9_unramified (c : ContinuousMonoidHom Ttame Hf) (hc : Function.Surjective c)
     (hfaith : ∀ h : Hf, (∀ v : V, h • v = v) → h = 1)
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : Hf), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
-    (hV : ∃ v : V, v ≠ 0) (hunram : c tameTau = 1)
+    (_ : ∃ v : V, v ≠ 0) (hunram : c tameTau = 1)
     (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant Hf q)
     (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
     zeroCount q = 2 ^ (2 * m - 1) - 2 ^ (m - 1) := by
@@ -358,6 +360,7 @@ theorem prop_6_9_unramified (c : ContinuousMonoidHom Ttame Hf) (hc : Function.Su
   exact GaussSigns.prop_6_9_unramified_of_cyclic q hq hns m hm hcard h2 (c tameSigma) hgen
     hfaith hsimple (fun h v => hinv h v)
 
+omit [DiscreteTopology Hf] in
 /-- **Proposition 6.9, eq. (91), ramified case**: if inertia acts nontrivially
 (`Q⁰_A = q_U`, `U = S^{ω₂}`, by (83)) and `#V = 2^{2m}`, then
 `#(Q⁰_A)⁻¹(0) = 2^{2m−1} + 2^{m−1}` (positive Gauss sign).  [P-14 statement; proof P-15.] -/
@@ -648,10 +651,11 @@ variable (N : Subgroup G) [N.Normal]
 
 variable [Finite (G ⧸ N)]
 
+omit [Finite (G ⧸ N)] in
 /-- **Lemma 6.15, eq. (103) (square orbits)**: the graph pullback of the square-orbit datum at
 the Shapiro cochain of `α` is the corestriction of the cup square `α ⌣ α`.
 [P-14 statement; proof P-15.] -/
-theorem lemma_6_15_square (hNo : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) :
+theorem lemma_6_15_square (_ : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) :
     H2ofFun G (graphPullback (squareOrbitDatum N) (QuotientGroup.mk' N) (shapiroFun N α.1))
       = H2ofFun G (cor2Fun N (fun p ↦ α.1 p.1 * α.1 p.2)) := by
   -- The two raw cochains agree on the nose, so `H2ofFun` of them agree (no cocycle needed).
@@ -893,6 +897,7 @@ section Transgression
 variable {C : Type} [Group C] [Finite C]
 variable {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
 
+omit [Finite C] in
 /-- **Lemma 6.21 (determinant transgression), consequence form** — *relative to the fixed
 equivariant class* `κ⁰_q`: if a finite extension `1 → V → B → C → 1` (encoded: `p : B ↠ C` with
 central-kernel data `i`) admits a class `ξ ∈ Z²(B, 𝔽₂)` whose fibre restriction has square map
@@ -907,7 +912,7 @@ without it the intrinsic equivariance obstruction blocks the proof; see
 `docs/p15i-transgression-gap.md`.  [P-14 statement; proof P-15i.] -/
 theorem lemma_6_21 {B : Type} [Group B] [Finite B]
     (p : B →* C) (hp : Function.Surjective p)
-    (i : Multiplicative V →* B) (hi : Function.Injective i)
+    (i : Multiplicative V →* B) (_ : Function.Injective i)
     (hrange : i.range = p.ker)
     (hconj : ∀ (b : B) (v : V), b * i (Multiplicative.ofAdd v) * b⁻¹
       = i (Multiplicative.ofAdd (p b • v)))
@@ -942,6 +947,7 @@ def thetaPhase (dat : FactorSet C V) (a : C → V) : C × C → ZMod 2 :=
 def gammaCupA (γ : C → V →+ ZMod 2) (a : C → V) : C × C → ZMod 2 :=
   fun p ↦ γ p.1 (p.1 • a p.2)
 
+omit [Finite C] [Finite V] in
 /-- **Lemma 6.22 (marking-preserving shear), eq. (121)**: pulling a general determinant class
 `κ = κ⁰_q + Γ_γ + inf δ` back along the shear `s_a` (for a 1-cocycle `a ∈ Z¹(C, V)`) shifts the
 edge by the polar adjoint and the scalar by the phase terms:

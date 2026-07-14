@@ -114,7 +114,6 @@ Two group homomorphisms cutting the unit filtration into residue-field data:
 The isomorphism theorem then gives `#(U⁰/U¹) = #(O/𝔪)ˣ = 2^f − 1` and
 `#(U^i/U^{i+1}) = #(O/𝔪) = 2^f`.
 Everything is parameterized by a uniformizer `π : ↥k` (B13-2's `exists_uniformizer`). -/
-
 omit [FiniteDimensional ℚ_[2] ↥k] in
 theorem mem_Osub {x : ↥k} : x ∈ Osub k ↔ ‖x‖ ≤ 1 := Iff.rfl
 
@@ -135,7 +134,6 @@ theorem scaled_exchange {π : ↥k} (hπne : π ≠ 0) (hπlt : ‖π‖ < 1)
   · exact h.trans_lt (pow_lt_pow_right_of_lt_one₀ (norm_pos_iff.mpr hπne) hπlt i.lt_succ_self)
 
 /-! ### Grade 0: `U⁰/U¹ ≃ (O/𝔪)ˣ` -/
-
 omit [FiniteDimensional ℚ_[2] ↥k] in
 /-- A norm-one unit of `k` as an element of the valuation ring `O`. -/
 noncomputable def normUnitToOsub (u : ↥(normUnits k)) : ↥(Osub k) :=
@@ -215,7 +213,6 @@ theorem card_gradeZero {π : ↥k} (hπlt : ‖π‖ < 1) (hπmax : ∀ y : ↥k
     (gradeZeroHom_surjective k)).toEquiv
 
 /-! ### Grade `i ≥ 1`: `U^{(i)}/U^{(i+1)} ≃ (O/𝔪, +)` -/
-
 omit [FiniteDimensional ℚ_[2] ↥k] in
 /-- `(u − 1)/πⁱ`, the value whose residue is the grade-`i` datum. -/
 noncomputable def depthDiv {π : ↥k} (i : ℕ) (u : ↥(depthUnits k (π : ℚ̄₂) i)) : ↥k :=

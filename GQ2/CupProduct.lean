@@ -39,25 +39,38 @@ variable (μ : M →+ N →+ P) (hμ : ∀ (g : G) (m : M) (n : N), μ (g • m)
 /-- The `(1,1)`-cup cochain `(a ∪ b)(g,h) = μ (a g) (g • b h)`. -/
 def cup11Fun (a : G → M) (b : G → N) : G × G → P := fun p => μ (a p.1) (p.1 • b p.2)
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace M] [IsTopologicalAddGroup M]
+  [DiscreteTopology M] [DistribMulAction G M] [ContinuousSMul G M] [TopologicalSpace N]
+  [IsTopologicalAddGroup N] [DiscreteTopology N] [ContinuousSMul G N] [TopologicalSpace P]
+  [IsTopologicalAddGroup P] [DistribMulAction G P] [ContinuousSMul G P] in
 lemma cup11Fun_add_left (a a' : G → M) (b : G → N) :
     cup11Fun μ (a + a') b = cup11Fun μ a b + cup11Fun μ a' b := by
   funext p; simp only [cup11Fun, Pi.add_apply, map_add, AddMonoidHom.add_apply]
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace M] [IsTopologicalAddGroup M]
+  [DiscreteTopology M] [DistribMulAction G M] [ContinuousSMul G M] [TopologicalSpace N]
+  [IsTopologicalAddGroup N] [DiscreteTopology N] [ContinuousSMul G N] [TopologicalSpace P]
+  [IsTopologicalAddGroup P] [DistribMulAction G P] [ContinuousSMul G P] in
 lemma cup11Fun_add_right (a : G → M) (b b' : G → N) :
     cup11Fun μ a (b + b') = cup11Fun μ a b + cup11Fun μ a b' := by
   funext p; simp only [cup11Fun, Pi.add_apply, smul_add, map_add]
 
+omit [IsTopologicalAddGroup M] [IsTopologicalAddGroup N] [IsTopologicalAddGroup P] in
 /-- A product-of-values map into `P` out of two continuous maps into the discrete modules
 `M, N` is continuous (the pairing is automatically continuous since `M × N` is discrete). -/
 lemma continuous_pairing {α : Type*} [TopologicalSpace α] {u : α → M} {v : α → N}
     (hu : Continuous u) (hv : Continuous v) : Continuous (fun x => μ (u x) (v x)) :=
   (continuous_of_discreteTopology (f := fun q : M × N => μ q.1 q.2)).comp (hu.prodMk hv)
 
+omit [IsTopologicalGroup G] [IsTopologicalAddGroup M] [DistribMulAction G M] [ContinuousSMul G M]
+  [IsTopologicalAddGroup N] [IsTopologicalAddGroup P] [DistribMulAction G P]
+  [ContinuousSMul G P] in
 lemma continuous_cup11Fun {a : G → M} {b : G → N} (ha : Continuous a) (hb : Continuous b) :
     Continuous (cup11Fun μ a b) :=
   continuous_pairing μ (ha.comp continuous_fst)
     (Continuous.smul continuous_fst (hb.comp continuous_snd))
 
+omit [IsTopologicalGroup G] [ContinuousSMul G M] [ContinuousSMul G P] in
 include hμ in
 /-- **Cup of cocycles is a cocycle**: the key 2-cocycle identity for `(1,1)`. -/
 lemma cup11_mem_Z2 (a : Z1 G M) (b : Z1 G N) : cup11Fun μ a.1 b.1 ∈ Z2 G P := by
@@ -88,6 +101,8 @@ def cup11ZH : Z1 G M →+ Z1 G N →+ H2 G P :=
       rw [← map_add]; congr 1
       exact Subtype.ext (cup11Fun_add_left μ a.1 a'.1 b.1))
 
+omit [IsTopologicalGroup G] [ContinuousSMul G M] [IsTopologicalAddGroup N]
+  [ContinuousSMul G P] in
 include hμ in
 /-- **Descent, right variable**: if the `N`-cocycle is a coboundary, the cup is a coboundary
 (uses that the `M`-argument is a cocycle). -/
@@ -105,6 +120,8 @@ lemma cup11_bcobound (a : Z1 G M) {c : G → N} (hc : c ∈ B1 G N) :
     simp only [smul_sub, map_add, map_sub, AddMonoidHom.add_apply, ← hμ, ← mul_smul]
     abel
 
+omit [IsTopologicalGroup G] [IsTopologicalAddGroup M] [ContinuousSMul G M] [ContinuousSMul G N]
+  [ContinuousSMul G P] in
 include hμ in
 /-- **Descent, left variable**: if the `M`-cocycle is a coboundary, the cup is a coboundary
 (uses that the `N`-argument is a cocycle). -/
@@ -152,12 +169,14 @@ noncomputable def cup11 : H1 G M →+ H1 G N →+ H2 G P := by
       exact (QuotientAddGroup.eq_zero_iff _).mpr
         ((AddSubgroup.mem_addSubgroupOf).mpr (cup11_acobound μ hμ ha b))
 
+omit [IsTopologicalGroup G] [ContinuousSMul G M] [ContinuousSMul G P] in
 include hμ in
 @[simp] lemma cup11_mk_mk (a : Z1 G M) (b : Z1 G N) :
     cup11 μ hμ (H1mk G M a) (H1mk G N b) = H2mk G P ⟨cup11Fun μ a.1 b.1, cup11_mem_Z2 μ hμ a b⟩ :=
   rfl
 
 
+omit [IsTopologicalGroup G] [ContinuousSMul G M] [ContinuousSMul G P] in
 @[simp] lemma cup11_zero_left (y : H1 G N) : cup11 μ hμ 0 y = 0 := by
   rw [map_zero]; rfl
 
@@ -167,14 +186,26 @@ include hμ in
 /-- The `(0,2)`-cup cochain `(a ∪ b)(g,h) = μ a (b (g,h))`. -/
 def cup02Fun (m : M) (b : G × G → N) : G × G → P := fun p => μ m (b p)
 
+omit [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace M]
+  [IsTopologicalAddGroup M] [DiscreteTopology M] [DistribMulAction G M] [ContinuousSMul G M]
+  [TopologicalSpace N] [IsTopologicalAddGroup N] [DiscreteTopology N] [DistribMulAction G N]
+  [ContinuousSMul G N] [TopologicalSpace P] [IsTopologicalAddGroup P] [DistribMulAction G P]
+  [ContinuousSMul G P] in
 lemma cup02Fun_add_left (m m' : M) (b : G × G → N) :
     cup02Fun μ (m + m') b = cup02Fun μ m b + cup02Fun μ m' b := by
   funext p; simp only [cup02Fun, map_add, AddMonoidHom.add_apply, Pi.add_apply]
 
+omit [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace M]
+  [IsTopologicalAddGroup M] [DiscreteTopology M] [DistribMulAction G M] [ContinuousSMul G M]
+  [TopologicalSpace N] [IsTopologicalAddGroup N] [DiscreteTopology N] [DistribMulAction G N]
+  [ContinuousSMul G N] [TopologicalSpace P] [IsTopologicalAddGroup P] [DistribMulAction G P]
+  [ContinuousSMul G P] in
 lemma cup02Fun_add_right (m : M) (b b' : G × G → N) :
     cup02Fun μ m (b + b') = cup02Fun μ m b + cup02Fun μ m b' := by
   funext p; simp only [cup02Fun, Pi.add_apply, map_add]
 
+omit [IsTopologicalGroup G] [IsTopologicalAddGroup M] [ContinuousSMul G M] [ContinuousSMul G N]
+  [ContinuousSMul G P] in
 include hμ in
 /-- Cup of an invariant with a 2-cocycle is a 2-cocycle. -/
 lemma cup02_mem_Z2 (m : ↥(H0 G M)) (b : Z2 G N) : cup02Fun μ m.1 b.1 ∈ Z2 G P := by
@@ -185,6 +216,8 @@ lemma cup02_mem_Z2 (m : ↥(H0 G M)) (b : Z2 G N) : cup02Fun μ m.1 b.1 ∈ Z2 G
       = μ m.1 (b.1 (g * h, k)) + μ m.1 (b.1 (g, h))
   rw [← hμ g m.1 (b.1 (h, k)), m.2 g, ← map_add, ← map_add, hb]
 
+omit [IsTopologicalGroup G] [IsTopologicalAddGroup M] [ContinuousSMul G M] [ContinuousSMul G N]
+  [ContinuousSMul G P] in
 include hμ in
 /-- Descent for `(0,2)`: cup with a coboundary is a coboundary. -/
 lemma cup02_bcobound (m : ↥(H0 G M)) {c : G × G → N} (hc : c ∈ B2 G N) :
@@ -228,19 +261,31 @@ noncomputable def cup02 : ↥(H0 G M) →+ H2 G N →+ H2 G P :=
 /-- The `(2,0)`-cup cochain `(a ∪ b)(g,h) = μ (a (g,h)) ((g·h) • b)`. -/
 def cup20Fun (a : G × G → M) (n : N) : G × G → P := fun p => μ (a p) ((p.1 * p.2) • n)
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace M] [IsTopologicalAddGroup M]
+  [DiscreteTopology M] [DistribMulAction G M] [ContinuousSMul G M] [TopologicalSpace N]
+  [IsTopologicalAddGroup N] [DiscreteTopology N] [ContinuousSMul G N] [TopologicalSpace P]
+  [IsTopologicalAddGroup P] [DistribMulAction G P] [ContinuousSMul G P] in
 lemma cup20Fun_add_left (a a' : G × G → M) (n : N) :
     cup20Fun μ (a + a') n = cup20Fun μ a n + cup20Fun μ a' n := by
   funext p; simp only [cup20Fun, Pi.add_apply, map_add, AddMonoidHom.add_apply]
 
+omit [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace M] [IsTopologicalAddGroup M]
+  [DiscreteTopology M] [DistribMulAction G M] [ContinuousSMul G M] [TopologicalSpace N]
+  [IsTopologicalAddGroup N] [DiscreteTopology N] [ContinuousSMul G N] [TopologicalSpace P]
+  [IsTopologicalAddGroup P] [DistribMulAction G P] [ContinuousSMul G P] in
 lemma cup20Fun_add_right (a : G × G → M) (n n' : N) :
     cup20Fun μ a (n + n') = cup20Fun μ a n + cup20Fun μ a n' := by
   funext p; simp only [cup20Fun, Pi.add_apply, smul_add, map_add]
 
+omit [IsTopologicalAddGroup M] [DistribMulAction G M] [ContinuousSMul G M]
+  [IsTopologicalAddGroup N] [IsTopologicalAddGroup P] [DistribMulAction G P]
+  [ContinuousSMul G P] in
 lemma continuous_cup20Fun {a : G × G → M} (ha : Continuous a) (n : N) :
     Continuous (cup20Fun μ a n) :=
   continuous_pairing μ ha
     (Continuous.smul (continuous_fst.mul continuous_snd) continuous_const)
 
+omit [ContinuousSMul G M] [IsTopologicalAddGroup N] [ContinuousSMul G P] in
 include hμ in
 /-- Cup of a 2-cocycle with an invariant is a 2-cocycle. -/
 lemma cup20_mem_Z2 (a : Z2 G M) (n : ↥(H0 G N)) : cup20Fun μ a.1 n.1 ∈ Z2 G P := by
@@ -254,6 +299,8 @@ lemma cup20_mem_Z2 (a : Z2 G M) (n : ↥(H0 G N)) : cup20Fun μ a.1 n.1 ∈ Z2 G
   rw [← hμ g (a.1 (h, k)) n.1, hn, ← AddMonoidHom.add_apply, ← map_add,
     ← AddMonoidHom.add_apply, ← map_add, ha]
 
+omit [IsTopologicalGroup G] [ContinuousSMul G M] [IsTopologicalAddGroup N] [ContinuousSMul G N]
+  [ContinuousSMul G P] in
 include hμ in
 /-- Descent for `(2,0)`: cup of a coboundary with an invariant is a coboundary. -/
 lemma cup20_acobound {c : G × G → M} (hc : c ∈ B2 G M) (n : ↥(H0 G N)) :

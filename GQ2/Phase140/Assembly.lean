@@ -66,6 +66,8 @@ variable (Dsc : Descent (En.radData l h))
 noncomputable def descSigma : (En.descData l h).C0 →* RF.YB ⧸ (En.radData l h).T :=
   (descended_splitting Dsc (En.descData l h)).choose
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 theorem descSigma_spec :
     ∀ cc : (En.descData l h).C0,
       piQbar (En.descData l h) (descSigma En l h Dsc cc) = cc :=
@@ -88,6 +90,8 @@ noncomputable def phaseChi (ζ : ↥(TCharC (En.radData l h))) : CentralCover RF
     (DeltaChi_one_right (descSections En l h Dsc) Dsc (descSigma_spec En l h Dsc)
       (En.hinv l h) ζ)
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- The phase index is nonempty: `0 < #(T^∨)^C` (the P-17i strengthening's supplier). -/
 theorem card_TCharC_pos : 0 < Nat.card ↥(TCharC (En.radData l h)) := by
   haveI : Nonempty ↥(TCharC (En.radData l h)) := ⟨0⟩
@@ -101,6 +105,7 @@ variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
 variable (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
 variable (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR)
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] [IsTopologicalGroup Γ] in
 /-- **The lower-map roundtrip**: the `C₀`-descent of the transported lower map is the
 original `C`-exact-image map — `rho0 (descData) (rhoPrime ρ) = ρ.1.1`.  This is what aligns
 the master count's `ι_Γ(ρ'^*Δ)`-signs with `phaseSign`'s lift-condition at `ρ.1.1`. -/
@@ -140,6 +145,7 @@ def GaussZResidue (G0 : ℤ) : Prop :=
 
 variable (Dsc : Descent (En.radData l h))
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **The per-`ρ` phase-obstruction identity from the residues** (the `hMobst` of the
 paper-faithful (140) reducer): the master count `two_mul_card_centralImage` at the keystone
 data (`Δ := DeltaChi`, `sh := shChi`, `hkey := keystone`), with each `±1` rewritten to the

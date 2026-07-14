@@ -362,7 +362,7 @@ theorem compatF_proved (g : AbsGalQ2) : GQ2.nuT (tameFHom g) = GQ2.nuTwo (pro2FH
   exact locPro2.choose_spec.2.choose_spec g
 
 /-! ## Assembling the boundary maps -/
-
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 /-- The kernel hypothesis for `fiberProductExists`, uniformly: `pro2X` maps `ker tameX` onto
 `ker ν₂`, via `ker ν_t ⊆ proPKernel 2 T_tame ⊆ tameX(proPKernel 2 dom) ⊆ tameX(ker tameX)`
 (the last since `proPKernel 2 dom ≤ ker pro2X` and we correct within `ker pro2X`). -/

@@ -230,6 +230,7 @@ theorem bflat_bijective :
       rw [hBilapp, hv' w, hφlinapp]
     rw [← e.symm_apply_apply v', hev']
 
+omit [Finite V] [Finite B] in
 include hcocycle hξq hq hns in
 /-- **The fibre antisymmetrization computes the polar**: for `u w : V`,
 `polar q u w = ξ(iu, iw) + ξ(iw, iu)`.  Proof: expand `q(u+w) = ξ(iu·iw, iu·iw)` by the
@@ -266,6 +267,7 @@ theorem polar_fibre (u w : V) :
   rw [hquw, hqu, hqw]
   linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hc1 + hc2
 
+omit [Finite B] in
 include hcocycle in
 /-- **Conjugation is a coboundary**: for a trivial-coefficient 2-cocycle `ξ`, conjugation by a
 fixed `s` changes `ξ` by the coboundary of the 1-cochain `β_s(z) = ξ(s, z) + ξ(szs⁻¹, s)`:
@@ -284,6 +286,7 @@ theorem xi_conj_cobound (s x y : B) :
   have hc3 := hcocycle s x y
   linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hc1 + hc2 + hc3
 
+omit [Finite C] [Finite V] [Finite B] in
 include hp hconj hcocycle hξq hq hns in
 /-- Conjugation-invariance of the polar form: `polar q (c•v) (c•w) = polar q v w`.  The polar is
 the fibre antisymmetrization (`polar_fibre`), and by `xi_conj_cobound` conjugation changes `ξ`
@@ -312,6 +315,7 @@ noncomputable def sigma : C → B := fun c =>
   letI := Classical.dec (c = 1)
   if c = 1 then 1 else Function.surjInv hp c
 
+omit [Finite C] [Finite B] in
 theorem sigma_spec (c : C) : p (sigma p hp c) = c := by
   unfold sigma
   split
@@ -325,6 +329,7 @@ noncomputable def factorSet (c d : C) : V :=
   Multiplicative.toAdd (Function.invFun i
     (sigma p hp c * sigma p hp d * (sigma p hp (c * d))⁻¹))
 
+omit [Finite V] [DistribMulAction C V] [Finite C] [Finite B] in
 include hp hrange in
 /-- Defining property of the factor set: `i (ofAdd (f c d)) = σc · σd · σ(cd)⁻¹`
 (well-defined since `σc·σd·σ(cd)⁻¹ ∈ ker p = i.range`). -/
@@ -343,6 +348,7 @@ noncomputable def mixedA (c : C) (v : V) : ZMod 2 :=
   ξ (sigma p hp c, i (Multiplicative.ofAdd (c⁻¹ • v)))
     + ξ (i (Multiplicative.ofAdd v), sigma p hp c)
 
+omit [Finite V] [Finite C] [Finite B] in
 include hp hconj hcocycle in
 /-- **The additivity defect of `mixedA` is the fibre-restriction conjugation defect** (the
 `D_c` of the P-15i gap analysis): `mixedA c` fails additivity in `v` by exactly
@@ -380,6 +386,7 @@ theorem mixedA_defect (c : C) (v w : V) :
   rw [hXvw] at hC
   linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hA + hB + hC
 
+omit [Finite V] [Finite C] [Finite B] in
 include hp hrange hconj hcocycle hξq hq hns in
 /-- **The key transgression identity** — the cochain-level eq. (116): `B_q^♭(f c d) = (δA)(c,d)`
 as functionals on `V`, i.e. `polar q (f c d) v = A c v + A d (c⁻¹•v) + A (c*d) v`.  Proof: rewrite
@@ -452,6 +459,7 @@ theorem key_transgression (c d : C) (v : V) :
   linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
     hA + hB + hC + hD + hE + hF + hG + hH + hI
 
+omit [Finite C] [Finite V] [Finite B] in
 include hq hns hcocycle hξq in
 /-- **The `κ⁰_q`-datum supplies the coherent equivariant lift** (Lemma 6.1 → the paper's
 `α_c`-family): from an equivariant factor-set datum for `q` (`IsEquivariantFactorSet`),
@@ -514,6 +522,7 @@ theorem equivariant_lift_of_factorSet (dat : FactorSet C V)
     linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hm
 
 include hp hrange hconj hcocycle hξq hq hns in
+omit [Finite C] [Finite B] in
 /-- **The assembled splitting** (= `lemma_6_21`, *relative to the fixed equivariant class*).
 The `κ⁰_q` hypothesis is the family `(t, ht_quad, ht_mul)`: each `t c` is the central-correction
 datum of an automorphism of the fibre extension `𝔽₂ ×_{ξ|fibre} V` over the `c`-action

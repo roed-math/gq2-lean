@@ -203,6 +203,7 @@ theorem block_continuous {K : ℕ} (b : ↥(Z1 AbsGalQ2 (Fin K → RegRep N))) (
     (f := fun F : Fin K → RegRep N => F j (1 : AbsGalQ2 ⧸ N))).comp (mem_Z1_iff.mp b.2).1
 
 include hmk in
+omit [Finite (AbsGalQ2 ⧸ N)] [Finite (RegRep N)] [ContinuousSMul AbsGalQ2 (RegRep N)] in
 /-- The shared `B²`-shift engine: replacing the `Z¹`-representative by its `δ⁰W₀`-shift does not
 change the `H²ofFun` class of any equivariant graph pullback (banked
 `graphPullback_sub_mem_B2`). -/
@@ -220,6 +221,7 @@ private theorem H2ofFun_graphPullback_shift {K : ℕ} {qW : (Fin K → RegRep N)
     (RepIndependence.graphPullback_sub_mem_B2 dat hdat (mkQ N) hρW b W₀)
 
 include hmk in
+omit [Finite (AbsGalQ2 ⧸ N)] [Finite (RegRep N)] [ContinuousSMul AbsGalQ2 (RegRep N)] in
 /-- **The shared `hcoh` spine**: the `δ⁰W₀`-shift is invisible in `H²`
 (`H2ofFun_graphPullback_shift`), the block datum is the definitional `comap` of the orbit
 datum along the equivariant projection `i` (`graphPullback_comap`), and the projected shift
@@ -245,6 +247,7 @@ private theorem H2ofFun_graphPullback_comap_shift {K : ℕ} {W : Type*} [AddComm
     _ = H2ofFun AbsGalQ2 (graphPullback dat (⇑(QuotientGroup.mk' N)) target) := by rw [hblock]
 
 include hmk in
+omit [Finite (RegRep N)] [ContinuousSMul AbsGalQ2 (RegRep N)] in
 /-- **P-15f2c1, square-orbit `hcoh`** (Lemma 6.15 eq. (103) at a block coordinate): the graph
 pullback of the square block datum at any `Z¹`-representative is, in `H²`, the corestriction of
 the cup square of the block's scalar Shapiro coordinate. -/
@@ -272,6 +275,7 @@ theorem hcoh_square {K : ℕ} (j : Fin K) (hNo : IsOpen (N : Set AbsGalQ2))
       shapiroCoord_mem_Z1 hβ (block_continuous N b j) htriv⟩
 
 include hmk in
+omit [Finite (RegRep N)] [ContinuousSMul AbsGalQ2 (RegRep N)] in
 /-- **P-15f2c1, free-orbit `hcoh`** (Lemma 6.15 eq. (104) at a block pair): the graph pullback
 of the free block datum with shift `mk' ĝ` at any `Z¹`-representative is, in `H²`, the
 corestriction of `α_j ⌣ ĝα_k` (conjugated second coordinate). -/
@@ -321,6 +325,7 @@ theorem hcoh_free {K : ℕ} (j k : Fin K) (ghat : AbsGalQ2) (hNo : IsOpen (N : S
       shapiroCoord_mem_Z1 hβk (block_continuous N b k) htriv⟩ ghat
 
 include hmk in
+omit [Finite (RegRep N)] [ContinuousSMul AbsGalQ2 (RegRep N)] in
 /-- **P-15f2c1, involution-orbit `hcoh`** (Lemma 6.15 eq. (105) at a block coordinate): the
 graph pullback of the involution block datum at any `Z¹`-representative is, in `H²`, the
 `U₀`-corestriction of the Evens norm of the block's scalar Shapiro coordinate. -/

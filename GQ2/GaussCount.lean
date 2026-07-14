@@ -130,7 +130,7 @@ theorem gaussSum_sq [Fintype V] (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns 
           (fun h => absurd (Finset.mem_univ _) h), if_pos rfl, hq.map_zero, sign_zero, one_mul]
 
 /-! ## From the Gauss sum to the zero count -/
-
+omit [AddCommGroup V] in
 /-- **Bridge**: `g(q) = 2·#q⁻¹(0) − #V` (the Gauss sum counts zeros minus ones). -/
 theorem gaussSum_eq [Fintype V] (q : V → ZMod 2) :
     gaussSum q = 2 * (zeroCount q : ℤ) - Fintype.card V := by
@@ -142,6 +142,7 @@ theorem gaussSum_eq [Fintype V] (q : V → ZMod 2) :
   rw [gaussSum, Finset.sum_congr rfl (fun v _ => hsign v), Finset.sum_sub_distrib,
     ← Finset.mul_sum, Finset.sum_const, Finset.card_univ, ← hz, nsmul_eq_mul, mul_one]
 
+omit [AddCommGroup V] in
 /-- The democratic `arf` is `0` exactly when the Gauss sum is positive (zeros a strict majority). -/
 theorem arf_eq_zero_iff_gaussSum_pos [Fintype V] (q : V → ZMod 2) :
     arf q = 0 ↔ 0 < gaussSum q := by

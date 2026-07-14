@@ -34,6 +34,8 @@ section RStageHelpers
 
 variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **The `C`-stage is nontrivial off the scalar-stack regime** (discharges `prop_8_9`'s
 `[Nontrivial YC]`): if `K = ⊤` then `L_Y = ⊤`, so `Y` is a finite 2-group, hence nilpotent —
 and its upper central series exhibits `L_Y` as a scalar stack, contradicting the inductive
@@ -67,6 +69,8 @@ theorem nontrivial_YC_of_not_scalarStack (T : MarkedTarget H E Y)
   rw [show y * x * y⁻¹ * x⁻¹ = (x * y * x⁻¹ * y⁻¹)⁻¹ by group]
   exact inv_mem h
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- `C`-ontoness of a `B`-subgroup in sup form: `J.map π_{BC} = ⊤ ⟹ J ⊔ M_B = ⊤` (the shape
 `card_stratum_LB_lt` consumes; `ker π_{BC} = M_B`). -/
 theorem sup_MB_eq_top_of_map_piBC (T : MarkedTarget H E Y)
@@ -198,7 +202,7 @@ private theorem rStage_lane (B : BoundaryMaps) (F : BoundaryFrame H E)
     {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
     (T : MarkedTarget H E Y) (hE2 : ∀ e : E, e ^ 2 = 1)
     (Blk : SectionSeven.MinimalBlock T.LY)
-    (hstack : ¬ SectionSeven.IsScalarStack T.LY) (hR : Blk.frattiniK ≠ ⊥) (n : ℕ)
+    (_hstack : ¬ SectionSeven.IsScalarStack T.LY) (hR : Blk.frattiniK ≠ ⊥) (n : ℕ)
     (hcard : Nat.card ↥T.LY = n)
     (IH : ∀ m, m < n → ∀ (Z : Type) [Group Z] [TopologicalSpace Z] [DiscreteTopology Z]
       [Finite Z] (T' : MarkedTarget H E Z), Nat.card ↥T'.LY = m →
@@ -222,7 +226,7 @@ private theorem rStage_lane (B : BoundaryMaps) (F : BoundaryFrame H E)
     haveI : Blk.K.Normal := Blk.hK
     haveI : Blk.frattiniK.Normal := SectionSeven.frattiniLike_normal Blk.K Blk.hK
     haveI : Nontrivial (blockFrameImpl T Blk hE2).YC :=
-      nontrivial_YC_of_not_scalarStack T Blk hE2 hstack
+      nontrivial_YC_of_not_scalarStack T Blk hE2 _hstack
     -- the chief-factor structure of the enrichment module (P-17d's `blockHsimple`)
     have hSimp := SectionNine.blockHsimple T Blk
     have hsimple : ∀ W : AddSubgroup (SectionNine.blockEnrichmentD T Blk hE2 F).Vmod,

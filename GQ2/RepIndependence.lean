@@ -43,6 +43,8 @@ theorem h2ofFun_eq_of_sub_mem_B2 {φ ψ : AbsGalQ2 × AbsGalQ2 → ZMod 2}
       hφ <| by rw [show φ = ψ + (φ - ψ) from by abel]; exact add_mem hψ (B2_le_Z2 h)
     rw [H2ofFun, H2ofFun, dif_neg hφ, dif_neg hψ]
 
+omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [TopologicalSpace W]
+  [DiscreteTopology W] [Finite W] [DistribMulAction AbsGalQ2 W] [ContinuousSMul AbsGalQ2 W] in
 /-- **`κ⁰` is a 2-cocycle on `V ⋊ C`** (the factor-set cocycle identity — display (61)/Lemma 6.1 —
 from the equivariant factor-set axioms `m_mul`, `m_quad`, `f_cocycle`). -/
 theorem kappa0_cocycle {q : W → ZMod 2} {dat : FactorSet C W}
@@ -59,6 +61,8 @@ def etaS {C W : Type*} [Group C] [AddCommGroup W] [DistribMulAction C W]
     (dat : FactorSet C W) (s x : SemiProd C W) : ZMod 2 :=
   kappa0 dat s x + kappa0 dat (s * x * s⁻¹) s
 
+omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [TopologicalSpace W]
+  [DiscreteTopology W] [Finite W] [DistribMulAction AbsGalQ2 W] [ContinuousSMul AbsGalQ2 W] in
 /-- **Inner automorphisms act trivially on `H²`** (pointwise): `c_s^*κ⁰ − κ⁰ = δ¹(η_s)`, i.e.
 `η_s(y) + η_s(xy) + η_s(x) = κ⁰(sxs⁻¹, sys⁻¹) + κ⁰(x, y)` in char 2.  Three instances of the
 2-cocycle identity `kappa0_cocycle` at `(s,x,y)`, `(sxs⁻¹, s, y)`, `(sxs⁻¹, sys⁻¹, s)`. -/
@@ -75,6 +79,7 @@ theorem innerConj {q : W → ZMod 2} {dat : FactorSet C W}
   simp only [etaS]
   linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) A1 + A2 + A3
 
+omit [Finite C] [Finite W] [ContinuousSMul AbsGalQ2 W] in
 /-- **Core cochain identity (Lemma 6.4 / conjugation coboundary).**  Shifting a cocycle `b` by the
 principal coboundary `g ↦ g·w₀ − w₀` changes `graphPullback dat ρ b` by a 2-coboundary — the
 `(−w₀,1)`-conjugation phase `ψ = η_s ∘ φ_b` on `V ⋊ C` (`φ_b(g) = (b g, ρ g)`, `s = (−w₀,1)`;
@@ -117,6 +122,7 @@ theorem graphPullback_sub_mem_B2 {q : W → ZMod 2} (dat : FactorSet C W)
     linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
       innerConj hdat s (φb g) (φb h)
 
+omit [Finite C] [Finite W] [ContinuousSMul AbsGalQ2 W] in
 /-- **Representative independence (Lemma 6.4).**  `H2ofFun (graphPullback dat ρ ·)` depends only on
 the `H¹`-class of the cocycle. -/
 theorem repIndep {q : W → ZMod 2} (dat : FactorSet C W) (hdat : IsEquivariantFactorSet q dat)
@@ -145,6 +151,7 @@ lemma H1mk_out {M : Type*} [AddCommGroup M] [TopologicalSpace M] [IsTopologicalA
     [DistribMulAction AbsGalQ2 M] [ContinuousSMul AbsGalQ2 M] (y : H1 AbsGalQ2 M) :
     H1mk AbsGalQ2 M (Quotient.out y) = y := Quotient.out_eq y
 
+omit [Finite V] [Finite C] [Finite W] in
 /-- **Lemma 6.14 (regular-module realization), eq. (102).**  Amended (documented) with the
 compatibility hypotheses `Q⁰_loc` requires: `hdatW` (equivariant factor set on `W`), `hiC`
 (`i` a `C`-module map, eq. (77)'s `i ⋊ 1`), `hρW` (`G_ℚ₂` acts on `W` through `ρ`). -/

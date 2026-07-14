@@ -44,7 +44,6 @@ open ContCoh LocalKummer
 variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
 
 /-! ## Profinite plumbing -/
-
 omit [DiscreteTopology C] [Finite C] in
 /-- `ρ = c ∘ tameF` is surjective when `c` is (`tameF` is onto, `B.tameF_surjective`). -/
 theorem rho_surjective (B : BoundaryMaps) (c : ContinuousMonoidHom Ttame C)
@@ -81,6 +80,7 @@ section Dual
 
 variable {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
 
+omit [Finite V] in
 /-- Functionals separate points (via `exists_functional_ne_zero`). -/
 theorem eq_of_forall_functional_eq (hV2 : ∀ v : V, v + v = 0) {a b : V}
     (h : ∀ φ : V →+ ZMod 2, φ a = φ b) : a = b := by
@@ -88,7 +88,7 @@ theorem eq_of_forall_functional_eq (hV2 : ∀ v : V, v + v = 0) {a b : V}
   obtain ⟨φ, hφ⟩ := exists_functional_ne_zero hV2 (sub_ne_zero.mpr hne)
   exact hφ (by rw [map_sub, h φ, sub_self])
 
-omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] in
+omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [Finite V] in
 /-- Dual faithfulness: if `h` fixes every functional (pointwise form
 `φ (h⁻¹ • v) = φ v`), it is the identity. -/
 theorem dual_faithful (hV2 : ∀ v : V, v + v = 0)
@@ -98,7 +98,7 @@ theorem dual_faithful (hV2 : ∀ v : V, v + v = 0)
     eq_of_forall_functional_eq hV2 fun φ => hh φ v
   rw [← inv_inv h, hinv, inv_one]
 
-omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] in
+omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [Finite V] in
 /-- Dual inertia-nontriviality: if `t` moves a vector, it moves a functional
 (pointwise form). -/
 theorem dual_ram (hV2 : ∀ v : V, v + v = 0) {t : C} (hram : ∃ v : V, t • v ≠ v) :

@@ -578,7 +578,7 @@ variable {C : Type} [Group C] [Finite C]
 variable {U : Type} [AddCommGroup U] [DistribMulAction C U]
 
 /-- The cardinality-bounded induction core of `card_equivHoms_comm`. -/
-theorem card_equivHoms_comm_aux [Finite U]
+private theorem card_equivHoms_comm_aux [Finite U]
     (h2U : ∀ u : U, u + u = 0)
     (hsimple : ∀ S : AddSubgroup U, (∀ (h : C), ∀ w ∈ S, h • w ∈ S) → S = ⊥ ∨ S = ⊤)
     (hnt : Nontrivial U)
@@ -1345,6 +1345,7 @@ theorem dualSelfDual_equivariant (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
   rw [hsymm, evalDualEquiv_equivariant h2V c]
   rfl
 
+omit [Finite V] in
 /-- **The `ht₀U` input**: inertia nontriviality dualizes — if `t₀` moves some vector of `V`, it
 moves some functional of `V^∨` (under `dualModule`; by `𝔽₂`-functional separation). -/
 theorem exists_dualModule_smul_ne (h2V : ∀ v : V, v + v = 0) (t₀ : C)

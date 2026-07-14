@@ -197,7 +197,6 @@ theorem hfix_of_simple [Nontrivial DD.C0]
     rw [hfaith a (hall a), hfaith b (hall b)]
 
 /-! ### The descended Gauss form and the reduction -/
-
 omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
 /-- `vCob` is injective when `V` carries no nonzero `ρ'`-fixed vector, hence the coboundary
 hom is injective (`|B¹| = #V`). -/

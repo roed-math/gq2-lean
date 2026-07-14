@@ -80,6 +80,7 @@ private theorem fixedPoints_addSubgroup_ne_bot [Nontrivial V] (hV₂ : ∀ v : V
   have h0 : Nat.card V ≡ 0 [MOD 2] := (Nat.modEq_zero_iff_dvd).mpr h2
   exact absurd (h0.symm.trans hmod) (by decide)
 
+omit [Finite C] in
 /-- **The central fixed-point lemma** (analogue of `lemma_5_12` with centrality for normality):
 a 2-power-order element `g` whose action commutes with the whole `C`-action acts trivially on a
 simple char-2 module.  Its fixed space is `C`-stable (centrality) and nonzero (`p`-group fixed
@@ -140,6 +141,7 @@ theorem isPGroup_zpowers_powOmega2 {G : Type*} [Group G] [Finite G] (x : G) :
   obtain ⟨k, _, hk⟩ := (Nat.dvd_prime_pow Nat.prime_two).mp (orderOf_powOmega2_dvd_two_pow x)
   exact IsPGroup.of_card (by rw [Nat.card_zpowers, hk])
 
+omit [Finite C] [Finite V] in
 /-- With `τ, x₀, x₁` acting trivially and the marking generating `C`, any `g` whose action commutes
 with `σ`'s is central for the whole `C`-action.  The commutant `{c | g·c = c·g on V}` is a subgroup
 containing the four generators (three act trivially, `σ` by hypothesis), hence is all of `C`. -/
@@ -172,6 +174,7 @@ theorem sigma2_smul_trivial (t : Marking C) (hgen : t.Generates)
   have hcomm : Commute t.sigma2 t.σ := (Commute.refl t.σ).pow_left _
   rw [smul_smul, smul_smul, hcomm.eq]
 
+omit [Finite C] in
 /-- **The stable fixed-point lemma** (the `central_pow2_smul_trivial` mechanism with `C`-stability
 of the fixed space assumed instead of derived from centrality): a 2-power-order `g` whose fixed
 space is `C`-stable acts trivially on a simple char-2 module.  This is what the *ramified* tame
@@ -278,6 +281,7 @@ theorem tau_powOmega2_smul_trivial (t : Marking C) (ht : t.TameRel) (hgen : t.Ge
   rw [hgen] at hgenS
   exact fun c => hgenS (Subgroup.mem_top c)
 
+omit [Finite V] in
 /-- **The ramified pairing operator `1 + U + U⁻¹` is injective** for `U = σ₂` on a char-2 module —
 with *no* hypothesis on how `σ₂` acts.  `U` has 2-power order (`orderOf_powOmega2_dvd_two_pow`),
 so in char 2 the operator is unipotent: writing `E_j(w) = U^{2^j}w + w = (U+1)^{2^j}w`, the
@@ -336,6 +340,7 @@ theorem sigma2_pairing_operator_injective (t : Marking C) (hV₂ : ∀ v : V, v 
         = a + U • a + U⁻¹ • a - (b + U • b + U⁻¹ • b) from by abel, hab, sub_self]
   exact sub_eq_zero.mp (hker _ hd)
 
+omit [Finite C] in
 /-- **P-13d output `hVS`**: on a nontrivial simple char-2 module at a *generating* split-tame marking
 where `σ` acts nontrivially, `V^S = 0` (the `1 + S⁻¹`-invertibility feeding `lemma_5_13_split`).
 `V^σ` is a `C`-submodule (`σ` central), so `⊥` or `⊤`; the nontriviality `hσ` kills `⊤`. -/

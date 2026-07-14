@@ -242,7 +242,7 @@ private noncomputable def tcocycleEquivZ1 (ρ : BoundaryLifts b F RF.TC) :
     right_inv := fun z => Subtype.ext (funext fun γ => rfl) }
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [DistribMulAction AbsGalQ2 (ZMod 2)]
-  [ContinuousSMul AbsGalQ2 (ZMod 2)] in
+  [ContinuousSMul AbsGalQ2 (ZMod 2)] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **The `T`-cocycle count for `G_ℚ₂`** (the `hμ` supplier, P-16d6e3): the crossed-`T`-cocycle
 count is the `card_Z1_eq` closed form `#T² · #(T^∨)^{YB/M_B}`, which is **`ρ`-independent** (the RHS
 sees only the frame-level datum `En.radData l h`, not `ρ`) — so the capstone reads off `μ₀` and
@@ -279,7 +279,10 @@ theorem tcocycle_card_local (ρ : BoundaryLifts b F RF.TC) :
   exact (Nat.card_congr (tcocycleEquivZ1 b F En l h ρ)).trans (card_Z1_eq hρ's hcomp hA₂)
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
-  [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)] in
+  [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)]
+  [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+  [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **No `YC`-invariant functionals on `V`**: `#(V^∨)^{YC} = 1` — the `fixedPts` factor of the
 `hZcard` `card_Z1_eq` count.  From `DualityAssembly.card_fixedPts_elemDual_eq_one_of_nontrivial`,
 packaging the ledger `hsimple`/`hVne` as `IsSimpleModTwo RF.YC En.Vmod` and the nontrivial action
@@ -296,8 +299,9 @@ theorem vFixedPts_eq_one
       fun W hW => hsimple W (fun g w hw => hW g w hw)⟩
   exact card_fixedPts_elemDual_eq_one_of_nontrivial hsimpleMod hnt
 
-omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [DistribMulAction AbsGalQ2 (ZMod 2)]
-  [ContinuousSMul AbsGalQ2 (ZMod 2)] in
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
+  [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)] [TopologicalSpace Y]
+  [DiscreteTopology Y] in
 /-- **`hZcard` for `G_ℚ₂`** — `#Z¹_{Γ,ρ'}(V) = #V²`.  Mirrors `hMcountM_local` at `A := En.Vmod`
 (which already carries the `RF.YC`-action of the enrichment) with the descent lower map
 `rho0 = ρ.1.1` (`rho0_descData_rhoPrime`, surjective since `ρ` is a `ContSurj`), building the
@@ -380,7 +384,8 @@ theorem hZcard_local
     vFixedPts_eq_one En hsimple hVne hnt, mul_one, pow_two]
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
-  [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)] in
+  [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)] [TopologicalSpace Y]
+  [DiscreteTopology Y] in
 /-- **`mk_M (fLift γ) = ρ'γ`**: the `M`-lift `fLift` of a `V`-cocycle `c` reduces mod `M` to the
 transported lower map `ρ'` (`mV (c γ) ∈ M` kills its coset, `uσ` is a `piC0`-section, `liftC0`
 injective).  Extracted from `hsep_local`'s STAGE 2a. -/
@@ -414,7 +419,7 @@ private theorem fLift_mk_M (ρ : BoundaryLifts b F RF.TC)
     descSigma_spec En l h Dsc]
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [DistribMulAction AbsGalQ2 (ZMod 2)]
-  [ContinuousSMul AbsGalQ2 (ZMod 2)] in
+  [ContinuousSMul AbsGalQ2 (ZMod 2)] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **The `T`-valued defect is a `Z²`-cocycle**: pushing `tDef` (the `fLift`-conjugation defect of
 a `V`-cocycle `c`) into `Additive ↥T` gives a continuous inhomogeneous 2-cocycle for the
 `ρ'`-conjugation action (`M` abelian collapses the sign).  `hsep_local`'s STAGE 2b. -/
@@ -485,7 +490,8 @@ private theorem tDef_mem_Z2 (ρ : BoundaryLifts b F RF.TC)
       ((En.radData l h).hTM
         (tDef (descSections En l h Dsc) (descSigma_spec En l h Dsc) c (γ * δ, ε)).2)
 
-omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [TopologicalSpace Y]
+  [DiscreteTopology Y] in
 /-- **`hsep` for `G_ℚ₂`** — the `(T^∨)^C`-separation: a `V`-coordinate with all `χ`-obstructions
 `betaChi χ c = 0` is `T`-liftable.  The converse of the generic `betaChi_of_tliftable`
 (`VLiftCount.lean`); the `hsep_hom_local` pattern (`prop_5_16` cup clause (vi) `cup20`-bijectivity
@@ -749,7 +755,8 @@ theorem hsep_local
         = piT (D := En.radData l h) (fLift (descSections En l h Dsc) c γ) from rfl,
       fLift_mk (descSections En l h Dsc) (descSigma_spec En l h Dsc) c γ]
 
-omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
+  [ContinuousSMul AbsGalQ2 (ZMod 2)] in
 /-- **cup11 right-slot separation** (clause (iv), vanishing-detector form): a degree-1
 `ElemDual`-class killed by the evaluation cup against every `H¹(A)`-class is zero.  Mirrors
 `bijective_cup11_dualEval`'s internals (`cup11_comm` slot swap + B6 `perfect11` injectivity on
@@ -824,6 +831,8 @@ private theorem vco_mul :
           + Multiplicative.toAdd ((En.descData l h).descend m') := fun m m' => by
   rw [map_mul]; rfl
 
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [TopologicalSpace Y]
+  [DiscreteTopology Y] in
 /-- **`hpartial` for `G_ℚ₂`** — nondegeneracy of the obstruction pairing in the character:
 every nonzero `χ ∈ (T^∨)^C` is detected by some `V`-coordinate.  Cup-duality clauses (iv)/(v) of
 `prop_5_16`.

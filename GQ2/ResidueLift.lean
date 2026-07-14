@@ -244,9 +244,11 @@ def kerGal (ρ : ContinuousMonoidHom AbsGalQ2 C) : Subgroup (Kummer.GaloisGroup 
     show ρ (toAbs a⁻¹) = 1
     rw [hia, map_inv, ha, inv_one]
 
+omit [DiscreteTopology C] [Finite C] in
 theorem mem_kerGal (ρ : ContinuousMonoidHom AbsGalQ2 C) (x : Kummer.GaloisGroup ℚ_[2]) :
     x ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) ↔ x ∈ kerGal ρ := Iff.rfl
 
+omit [Finite C] in
 theorem kerGal_isOpen (ρ : ContinuousMonoidHom AbsGalQ2 C) :
     IsOpen ((kerGal ρ : Subgroup (Kummer.GaloisGroup ℚ_[2]))
       : Set (Kummer.GaloisGroup ℚ_[2])) := by
@@ -258,6 +260,7 @@ theorem kerGal_isOpen (ρ : ContinuousMonoidHom AbsGalQ2 C) :
   rw [h1]
   exact (isOpen_discrete ({1} : Set C)).preimage hcont
 
+omit [Finite C] in
 theorem kerGal_isClosed (ρ : ContinuousMonoidHom AbsGalQ2 C) :
     IsClosed ((kerGal ρ : Subgroup (Kummer.GaloisGroup ℚ_[2]))
       : Set (Kummer.GaloisGroup ℚ_[2])) :=
@@ -268,11 +271,13 @@ noncomputable def splitField (ρ : ContinuousMonoidHom AbsGalQ2 C) :
     IntermediateField ℚ_[2] ℚ̄₂ :=
   IntermediateField.fixedField (kerGal ρ)
 
+omit [Finite C] in
 /-- The closed-subgroup Galois correspondence recovers `ker ρ` from its fixed field. -/
 theorem fixingSubgroup_splitField (ρ : ContinuousMonoidHom AbsGalQ2 C) :
     (splitField ρ).fixingSubgroup = kerGal ρ :=
   InfiniteGalois.fixingSubgroup_fixedField ⟨kerGal ρ, kerGal_isClosed ρ⟩
 
+omit [Finite C] in
 /-- `ker ρ` is open, so its fixed field is finite over `ℚ₂`. -/
 theorem splitField_finiteDimensional (ρ : ContinuousMonoidHom AbsGalQ2 C) :
     FiniteDimensional ℚ_[2] (splitField ρ) := by
@@ -280,6 +285,7 @@ theorem splitField_finiteDimensional (ρ : ContinuousMonoidHom AbsGalQ2 C) :
   rw [fixingSubgroup_splitField]
   exact kerGal_isOpen ρ
 
+omit [Finite C] in
 theorem hker_splitField (ρ : ContinuousMonoidHom AbsGalQ2 C)
     (x : Kummer.GaloisGroup ℚ_[2]) :
     x ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) ↔ x ∈ (splitField ρ).fixingSubgroup := by

@@ -41,7 +41,8 @@ open FoxH
 instance blockLY_normal : (T.LY).Normal := T.normal
 
 /-! ## `hsimple` : `V = P/S` is a simple `𝔽₂[Y/K]`-module -/
-
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
+  [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal] [Blk.K.Normal] in
 /-- `V = P/S` is **exponent 2**: every element has a `K`-representative `k`, and `k² ∈ R ≤ S`. -/
 theorem blockPS_exp2 :
     ∀ v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P), v + v = 0 := by
@@ -54,6 +55,8 @@ theorem blockPS_exp2 :
   show Additive.ofMul (Additive.toMul v * Additive.toMul v) = 0
   rw [hsq1]; rfl
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
+  [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal] in
 /-- `hsimple`: `V = P/S` is a simple `𝔽₂[Y/K]`-module (nontrivial; the only `Y/K`-stable
 `AddSubgroup`s are `⊥`/`⊤`, by `Blk.chief` under the subgroup correspondence). -/
 theorem blockHsimple :
@@ -131,6 +134,9 @@ theorem blockHsimple :
       have hweq : w = Additive.ofMul (QuotientGroup.mk p) := by rw [hp]; rfl
       rw [hweq]; exact hpWP
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
+  [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
+omit [Blk.frattiniK.Normal] in
 /-- **`hnt`: the `Y/K`-action on `V = P/S` is nontrivial** — the enrichment-module form of
 the block's `nontrivial_action` field.  (P-17i coordination, 2026-07-08: `prop_8_9`'s former
 `hfaith` hypothesis is weakened to this — faithfulness is NOT block-derivable (a central
@@ -164,6 +170,8 @@ theorem blockHnt :
 
 /-! ## `htame` : the `Y/K`-action factors through the tame head `H` -/
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
+  [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal] in
 /-- **`L_Y` acts trivially on `V`**: `L_Y/K` is a normal 2-subgroup of `Y/K` acting on the simple
 module `V`, hence trivial by `FoxH.lemma_5_12`; pull back to the `Y`-conjugation action. -/
 theorem blockLY_smul_eqY (l : Y) (hl : l ∈ T.LY) :
@@ -204,11 +212,14 @@ theorem blockLY_smul_eqY (l : Y) (hl : l ∈ T.LY) :
       induction yb using QuotientGroup.induction_on with | _ y =>
       exact smul_add y a b }
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
+  [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal] in
 /-- `Y/L_Y`-action on `mk' L_Y y` reduces to the `Y`-conjugation action of `y`. -/
 theorem blockActLY_mk' (y : Y) (v : Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)) :
     letI := blockActLY T Blk; letI := blockActVY Blk
     (QuotientGroup.mk' T.LY y) • v = y • v := rfl
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal] in
 /-- `htame`: the `Y/K`-action on `V` factors through the tame head `H` (`α : Ttame ↠ H`);
 the action descends `Y/K ↠ Y/L_Y ≅ H`, generators `α σ, α τ` satisfy the tame relation. -/
 theorem blockHtame (F : BoundaryFrame H E) :

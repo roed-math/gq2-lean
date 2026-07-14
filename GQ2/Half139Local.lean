@@ -35,7 +35,7 @@ variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite 
 variable {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
 
 /-! ## `rhoPrime` surjectivity (both sources) -/
-
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **The transported lower map `ρ' = piBCiso⁻¹ ∘ ρ` is surjective.**  A boundary lift `ρ` wraps a
 `ContSurj` (`ρ.1.2 : Surjective ρ.1.1`), and `piBCiso.symm` is a `MulEquiv`, so the composite is
 onto `B/M`.  Feeds `lemma_8_6_local`'s surjectivity hypothesis. -/
@@ -120,7 +120,8 @@ private theorem mConjAction_smul_of_mk {Bg : Type} [Group Bg] [Finite Bg]
   exact conj_eq_of_mk_eq_M (QuotientGroup.out_eq' _) m
 
 /-! ## The `(M∨)^C = 0` refutation (Lemma 7.1 / simple-head duality) -/
-
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **No nonzero conjugation-invariant `M`-character** (`(M_B^∨)^{Y} = 0`, the operational form of
 Lemma 7.1 / `Hom_C(M, 𝔽₂) = 0`): any additive `ψ : ↥M_B → 𝔽₂` invariant under `Y`-conjugation is
 identically zero.  A nonzero such `ψ` would pull back (through `s : Blk.K ↠ M_B`, `s = piB|_K`) to a
@@ -221,7 +222,7 @@ theorem mchar_conj_invariant_eq_zero (RF : RecursionFrame T Blk)
   exact absurd ⟨X, hXnormal, hRX, hXK, hidx⟩ (SectionSeven.lemma_7_1_dual Blk)
 
 /-! ## The two hypotheses for `G_ℚ₂` -/
-
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **`hlem86M` for `G_ℚ₂`** — the source's Lemma 8.6 half-torsor count over every boundary lift,
 for the radical datum `En.radData l h`, threading the `NoDescent` field hypothesis. -/
 theorem hlem86M_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
@@ -238,6 +239,7 @@ theorem hlem86M_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
   lemma_8_6_local (En.radData l h) hfg hedge (RF.rhoPrime b F (En.radData l h) rfl ρ)
     (rhoPrime_surjective RF b F (En.radData l h) rfl ρ)
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **`hMcountM` for `G_ℚ₂`** — the unrestricted `M`-lift count `#(M-lifts) = |M_B|²`.  **PROVED.**
 
 Fully proved inline (no sorry): `key : #Z¹ = |M_B|²·#fixedPts` (`card_Z1_eq`), `hfix : #fixedPts = 1`
@@ -280,7 +282,7 @@ theorem hMcountM_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
     [IsTopologicalGroup AbsGalQ2]
     (RF : RecursionFrame T Blk) (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup)
     (F : BoundaryFrame H E) (En : RF.Enrichment)
-    (hfg : ∃ s : Finset AbsGalQ2, (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤)
+    (_ : ∃ s : Finset AbsGalQ2, (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤)
     (l : RF.DR) (h : l ≠ RF.zeroDR) (ρ : BoundaryLifts b F RF.TC) :
     Nat.card (MLifts (En.radData l h) (RF.rhoPrime b F (En.radData l h) rfl ρ))
       = (Nat.card ↥RF.MB) ^ 2 := by

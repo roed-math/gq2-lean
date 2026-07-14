@@ -44,6 +44,7 @@ variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V]
   [DistribMulAction C V] [DistribMulAction C' V]
 
+omit [Finite V] [ContinuousSMul AbsGalQ2 V] in
 /-- **`Q0loc` reindexing along a `MonoidHom`-composite** (the P4c transport): `Q⁰_loc` of the
 `φ`-reindexed datum along `ρ'` equals `Q⁰_loc` of the datum along any continuous hom `ρc`
 whose values are `φ ∘ ρ'`.  The `MonoidHom`-level variant of the banked
@@ -82,6 +83,7 @@ noncomputable def headTameSurj (F : BoundaryFrame H E) :
       (f := fun hh : H => QuotientGroup.mk' (headActKer T Blk) hh)).comp
       F.alpha.continuous_toFun⟩
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal] in
 /-- `headTameSurj` is surjective (`mk'` after the surjective `F.alpha`). -/
 theorem headTameSurj_surjective (F : BoundaryFrame H E) :
     Function.Surjective ⇑(headTameSurj T Blk F) :=
@@ -90,6 +92,8 @@ theorem headTameSurj_surjective (F : BoundaryFrame H E) :
 variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
   [IsTopologicalGroup AbsGalQ2]
 
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  [IsTopologicalGroup AbsGalQ2] in
 /-- **`hGaussZF` at the head-inflated enrichment, unramified case** (P4c): for the block
 enrichment `blockEnrichmentD`, `GaussZResidue B.bF F (blockEnrichmentD …) l h (−2^m)` with
 **no per-lift tame package** — the dichotomy hypothesis is the head-level
@@ -223,6 +227,8 @@ theorem gaussZResidueD_local_unramified (hE2 : ∀ e : E, e ^ 2 = 1) (B : Bounda
         gaussZ_reduction htriv_local' hfix
     _ = (Nat.card EnD.Vmod : ℤ) * (-(2 ^ m : ℤ)) := by rw [hQbar]
 
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  [IsTopologicalGroup AbsGalQ2] in
 /-- **`hGaussZF` at the head-inflated enrichment, ramified case** (P4c): inertia moves the
 module at the head — `GaussZResidue B.bF F (blockEnrichmentD …) l h (+2^m)`, no per-lift
 package; the local side carries the tame-unit orientation as before. -/

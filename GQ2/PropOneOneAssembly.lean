@@ -226,7 +226,6 @@ lemma nu_ur_eq_nuUrBarAb_markedPi (x : AbsGalQ2ab) :
 /-! ### Reciprocity values of the marked classes (`std-3 + B5`)
 
 These consume only the bundle `R`, not the compactness of `AbsGalQ2`. -/
-
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 /-- `ν_ur(rec(−4)) = −2`. -/
 lemma nu_ur_recip_unitNeg4 :

@@ -43,13 +43,16 @@ def pmul (p q : DD.Vmod × DD.C0) : DD.Vmod × DD.C0 :=
 /-- The semidirect identity. -/
 def pone : DD.Vmod × DD.C0 := (0, 1)
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem pmul_assoc (p q r : DD.Vmod × DD.C0) :
     pmul (pmul p q) r = pmul p (pmul q r) := by
   simp [pmul, smul_add, mul_smul, add_assoc, mul_assoc]
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem pone_pmul (p : DD.Vmod × DD.C0) : pmul pone p = p := by
   simp [pmul, pone]
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem pmul_pone (p : DD.Vmod × DD.C0) : pmul p pone = p := by
   simp [pmul, pone]
 
@@ -60,6 +63,7 @@ noncomputable def jmap (σ : DD.C0 →* Bg ⧸ D.T) (p : DD.Vmod × DD.C0) : Bg 
 
 variable {σ : DD.C0 →* Bg ⧸ D.T} (hσ : ∀ cc : DD.C0, piQbar DD (σ cc) = cc)
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 include hσ in
 /-- `jmap` is multiplicative for the semidirect product. -/
 theorem jmap_mul (p q : DD.Vmod × DD.C0) :
@@ -75,6 +79,7 @@ theorem jmap_mul (p q : DD.Vmod × DD.C0) :
         rw [iV_ofAdd_add, map_mul]
         group
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem jmap_pone : jmap DD σ pone = 1 := by
   unfold jmap pone
   show iV DD (Multiplicative.ofAdd (0 : DD.Vmod)) * σ 1 = 1
@@ -91,12 +96,14 @@ variable {DD : DescData D} {σ : DD.C0 →* Bg ⧸ D.T} (S : CountSections DD σ
 /-- The pointwise product lift into `Bg`: `J (v, cc) = mV(v)·uσ(cc)`. -/
 noncomputable def Jmap (p : DD.Vmod × DD.C0) : Bg := (S.mV p.1 : Bg) * S.uσ p.2
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem piT_Jmap (p : DD.Vmod × DD.C0) : piT (D := D) (Jmap S p) = jmap DD σ p := by
   unfold Jmap jmap
   rw [map_mul, piT_mV, S.piT_uσ]
 
 variable (hσ : ∀ cc : DD.C0, piQbar DD (σ cc) = cc)
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 include hσ in
 /-- The `J`-defect lands in `T`. -/
 theorem Jmap_defect_mem (p q : DD.Vmod × DD.C0) :
@@ -110,7 +117,7 @@ noncomputable def JDefT (p q : DD.Vmod × DD.C0) : ↥D.T :=
   ⟨Jmap S p * Jmap S q * (Jmap S (pmul p q))⁻¹, Jmap_defect_mem S hσ p q⟩
 
 /-! ### The three atoms -/
-
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- The `mV`-additivity defect `mDef v w = mV(v)·mV(w)·mV(v+w)⁻¹ ∈ T`. -/
 theorem mDef_mem (v w : DD.Vmod) :
     (S.mV v : Bg) * S.mV w * ((S.mV (v + w) : Bg))⁻¹ ∈ D.T := by
@@ -124,6 +131,7 @@ variable (DD) in
 noncomputable def mDef (S : CountSections DD σ) (v w : DD.Vmod) : ↥D.T :=
   ⟨(S.mV v : Bg) * S.mV w * ((S.mV (v + w) : Bg))⁻¹, mDef_mem S v w⟩
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 include hσ in
 /-- The conjugation defect `conjDef cc w = uσ(cc)·mV(w)·uσ(cc)⁻¹·mV(cc•w)⁻¹ ∈ T`. -/
 theorem conjDef_mem (cc : DD.C0) (w : DD.Vmod) :
@@ -142,6 +150,7 @@ noncomputable def conjDef (S : CountSections DD σ)
     (hσ : ∀ cc : DD.C0, piQbar DD (σ cc) = cc) (cc : DD.C0) (w : DD.Vmod) : ↥D.T :=
   ⟨S.uσ cc * (S.mV w : Bg) * (S.uσ cc)⁻¹ * ((S.mV (cc • w) : Bg))⁻¹, conjDef_mem S hσ cc w⟩
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- The `uσ`-multiplicativity defect `uDef cc dd = uσ(cc)·uσ(dd)·uσ(cc·dd)⁻¹ ∈ T` — the class
 `e` of Lemma 8.7. -/
 theorem uDef_mem (cc dd : DD.C0) : S.uσ cc * S.uσ dd * (S.uσ (cc * dd))⁻¹ ∈ D.T := by
@@ -154,6 +163,7 @@ variable (DD) in
 noncomputable def uDef (S : CountSections DD σ) (cc dd : DD.C0) : ↥D.T :=
   ⟨S.uσ cc * S.uσ dd * (S.uσ (cc * dd))⁻¹, uDef_mem S cc dd⟩
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- `M` commutes with `T` elementwise (commutation form of `M_cent_T`). -/
 theorem M_comm_T {m t : Bg} (hm : m ∈ D.M) (ht : t ∈ D.T) : m * t = t * m := by
   have h := M_cent_T (D := D) hm ht
@@ -161,6 +171,7 @@ theorem M_comm_T {m t : Bg} (hm : m ∈ D.M) (ht : t ∈ D.T) : m * t = t * m :=
     _ = t * m := by rw [h]
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- **The product formula**: the `J`-defect is the all-`T` product
 `conjDef · uDef · mDef` (`M` abelian, `T` centralized by `M`). -/
 theorem JDefT_eq (p q : DD.Vmod × DD.C0) :
@@ -206,25 +217,30 @@ local instance commGroupM : CommGroup ↥D.M :=
   { (inferInstance : Group ↥D.M) with
     mul_comm := fun a b => Subtype.ext (D.hcomm _ a.2 _ b.2) }
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem mDef_symm (v w : DD.Vmod) : mDef DD S v w = mDef DD S w v := by
   apply Subtype.ext
   show (S.mV v : Bg) * S.mV w * ((S.mV (v + w) : Bg))⁻¹
     = (S.mV w : Bg) * S.mV v * ((S.mV (w + v) : Bg))⁻¹
   rw [D.hcomm _ (S.mV v).2 _ (S.mV w).2, add_comm]
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem mDef_self (v : DD.Vmod) : mDef DD S v v = 1 := by
   apply Subtype.ext
   show (S.mV v : Bg) * S.mV v * ((S.mV (v + v) : Bg))⁻¹ = 1
   rw [Vmod_exp2 DD v, S.mV_zero, D.helem _ (S.mV v).2, OneMemClass.coe_one, inv_one, mul_one]
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem mDef_zero_left (w : DD.Vmod) : mDef DD S 0 w = 1 := by
   apply Subtype.ext
   show (S.mV 0 : Bg) * S.mV w * ((S.mV (0 + w) : Bg))⁻¹ = 1
   rw [zero_add, S.mV_zero, OneMemClass.coe_one, one_mul, mul_inv_cancel]
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem mDef_zero_right (v : DD.Vmod) : mDef DD S v 0 = 1 := by
   rw [mDef_symm, mDef_zero_left]
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- The `mDef`-cocycle identity (the `f_cocycle` field of the zero-form factor set). -/
 theorem mDef_cocycle (v w x : DD.Vmod) :
     mDef DD S (v + w) x * mDef DD S v w = mDef DD S v (w + x) * mDef DD S w x := by
@@ -243,7 +259,7 @@ theorem mDef_cocycle (v w x : DD.Vmod) :
   exact_mod_cast congrArg Subtype.val hM
 
 /-! ### The `conjDef`-atom identities -/
-
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- `mV(w+w')` split through the defect: `mV(w+w') = mDef(w,w')⁻¹ · mV w · mV w'`. -/
 theorem mV_add_split (w w' : DD.Vmod) :
     (S.mV (w + w') : Bg) = ((mDef DD S w w' : Bg))⁻¹ * S.mV w * S.mV w' := by
@@ -252,6 +268,7 @@ theorem mV_add_split (w w' : DD.Vmod) :
   group
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- The `conjDef` additivity defect (`m_quad`-shape): conjugating the `mV`-split by `uσ cc`. -/
 theorem conjDef_add (cc : DD.C0) (w w' : DD.Vmod) :
     conjDef DD S hσ cc (w + w')
@@ -287,6 +304,7 @@ theorem conjDef_add (cc : DD.C0) (w w' : DD.Vmod) :
           * (X * Y * ((S.mV (cc • w + cc • w') : Bg))⁻¹) := by group
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- The `conjDef` composition law (`m_mul`-shape): splitting `uσ(cc·dd)` through `uDef`. -/
 theorem conjDef_mul (cc dd : DD.C0) (v : DD.Vmod) :
     conjDef DD S hσ (cc * dd) v
@@ -327,6 +345,7 @@ theorem conjDef_mul (cc dd : DD.C0) (v : DD.Vmod) :
     _ = (U * (W * (S.mV v : Bg) * W⁻¹ * ((S.mV (dd • v) : Bg))⁻¹) * U⁻¹)
           * (U * (S.mV (dd • v) : Bg) * U⁻¹ * ((S.mV (cc • dd • v) : Bg))⁻¹) := by group
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 include hσ in
 /-- `conjDef` at the identity of `C₀` is trivial. -/
 theorem conjDef_one_left (w : DD.Vmod) : conjDef DD S hσ 1 w = 1 := by
@@ -334,6 +353,7 @@ theorem conjDef_one_left (w : DD.Vmod) : conjDef DD S hσ 1 w = 1 := by
   show S.uσ 1 * (S.mV w : Bg) * (S.uσ 1)⁻¹ * ((S.mV ((1 : DD.C0) • w) : Bg))⁻¹ = 1
   rw [S.uσ_one, one_smul, one_mul, inv_one, mul_one, mul_inv_cancel]
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 include hσ in
 /-- `conjDef` at the zero vector is trivial. -/
 theorem conjDef_zero_right (cc : DD.C0) : conjDef DD S hσ cc 0 = 1 := by
@@ -354,6 +374,7 @@ noncomputable def datChi (S : CountSections DD σ)
   m cc w := χ.1 (conjDef DD S hσ cc w)
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- `datChi` is an equivariant factor-set datum **for the zero form**. -/
 theorem isEquivariantFactorSet_datChi (χ : ↥(TCharC D)) :
     IsEquivariantFactorSet (fun _ : DD.Vmod => (0 : ZMod 2)) (datChi DD S hσ χ) where
@@ -405,6 +426,7 @@ theorem isEquivariantFactorSet_datChi (χ : ↥(TCharC D)) :
     rw [conjDef_one_left, TCharC.map_one]
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- **The `ω_χ`-decomposition** (design §2): the `χ`-pushforward of the `J`-defect is the base
 cocycle of `datChi` plus the inflated scalar `e_χ = χ ∘ uDef` — the explicit `(130)`-normal
 form of the `χ`-pushout cover. -/
@@ -516,26 +538,31 @@ section XiCalculus
 
 variable {DD : DescData D} (Dsc : Descent D)
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem xi_one_left (x : Bg ⧸ D.T) : xi Dsc (1, x) = 0 := by
   show ccZsign Dsc (s0 Dsc 1 * s0 Dsc x * (s0 Dsc (1 * x))⁻¹) = 0
   rw [s0_one, one_mul, one_mul, mul_inv_cancel, ccZsign_one]
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem xi_one_right (x : Bg ⧸ D.T) : xi Dsc (x, 1) = 0 := by
   show ccZsign Dsc (s0 Dsc x * s0 Dsc 1 * (s0 Dsc (x * 1))⁻¹) = 0
   rw [s0_one, mul_one, mul_one, mul_inv_cancel, ccZsign_one]
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- Kernel elements of `descP` are involutions. -/
 theorem ker_sq_one {x : covQ Dsc} (hx : x ∈ (descP Dsc).ker) : x * x = 1 := by
   rcases descKerCases Dsc hx with rfl | rfl
   · rw [one_mul]
   · exact zbar_sq Dsc
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- The diagonal of `ξ` at an involution is the section-square sign. -/
 theorem xi_diag_sq {x : Bg ⧸ D.T} (hx : x * x = 1) :
     xi Dsc (x, x) = ccZsign Dsc (s0 Dsc x * s0 Dsc x) := by
   show ccZsign Dsc (s0 Dsc x * s0 Dsc x * (s0 Dsc (x * x))⁻¹) = _
   rw [hx, s0_one, inv_one, mul_one]
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- **The cover-commutator = polar lemma** (design §5): the symmetry defect of `ξ` on the
 `V`-fibre is the polar form of the descended square map `q̄`. -/
 theorem xi_polar (v w : DD.Vmod) :
@@ -636,6 +663,7 @@ noncomputable def kfull (p q : DD.Vmod × DD.C0) : ZMod 2 :=
 
 variable (hσ : ∀ cc : DD.C0, piQbar DD (σ cc) = cc)
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 include hσ in
 /-- `κfull` satisfies the raw Serre identity for `pmul`. -/
 theorem kfull_serre (p q r : DD.Vmod × DD.C0) :
@@ -645,18 +673,21 @@ theorem kfull_serre (p q r : DD.Vmod × DD.C0) :
   rw [← jmap_mul hσ q r, ← jmap_mul hσ p q]
   exact xi_cocycle Dsc (jmap DD σ p) (jmap DD σ q) (jmap DD σ r)
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 omit hσ in
 theorem kfull_pone_left (q : DD.Vmod × DD.C0) : kfull σ Dsc pone q = 0 := by
   unfold kfull
   rw [jmap_pone]
   exact xi_one_left Dsc _
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 omit hσ in
 theorem kfull_pone_right (p : DD.Vmod × DD.C0) : kfull σ Dsc p pone = 0 := by
   unfold kfull
   rw [jmap_pone]
   exact xi_one_right Dsc _
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- `m_c(0) = 0` for an equivariant factor-set datum. -/
 theorem m_zero {q : DD.Vmod → ZMod 2} {dat : FactorSet DD.C0 DD.Vmod}
     (hdat : IsEquivariantFactorSet q dat) (cc : DD.C0) : dat.m cc 0 = 0 := by
@@ -665,6 +696,7 @@ theorem m_zero {q : DD.Vmod → ZMod 2} {dat : FactorSet DD.C0 DD.Vmod}
   have hchar : ∀ a : ZMod 2, a + a + a = 0 + 0 → a = 0 := by decide
   exact hchar _ h
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- The raw Serre identity for `kappa0` of any equivariant factor-set datum. -/
 theorem kappa0_serre {q : DD.Vmod → ZMod 2} {dat : FactorSet DD.C0 DD.Vmod}
     (hdat : IsEquivariantFactorSet q dat) (p q' r : DD.Vmod × DD.C0) :
@@ -680,6 +712,7 @@ theorem kappa0_serre {q : DD.Vmod → ZMod 2} {dat : FactorSet DD.C0 DD.Vmod}
   have hmq := hdat.m_quad p.2 q'.1 (q'.2 • r.1)
   linear_combination (norm := (ring_nf; try simp [CharTwo.two_eq_zero])) hf + hmm + hmq
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- The `pmul`-coboundary of a 1-cochain satisfies the raw Serre identity. -/
 theorem pcob_serre (G : DD.Vmod × DD.C0 → ZMod 2) (p q r : DD.Vmod × DD.C0) :
     (G (pmul q r) + G q + G r) + (G (pmul p (pmul q r)) + G p + G (pmul q r))
@@ -690,7 +723,7 @@ theorem pcob_serre (G : DD.Vmod × DD.C0 → ZMod 2) (p q r : DD.Vmod × DD.C0) 
       (a + b + c) + (d + e + a) = (d + f + c) + (f + e + b) := by decide
   exact hchar _ _ _ _ _ _
 
-include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- **`Θ := κfull + κ⁰`** has zero diagonal and symmetric `V×V`-part. -/
 theorem theta_facts :
     (∀ v : DD.Vmod, kfull σ Dsc ((v, 1) : DD.Vmod × DD.C0) (v, 1)
@@ -745,6 +778,7 @@ noncomputable def theta (p q : DD.Vmod × DD.C0) : ZMod 2 :=
   kfull σ Dsc p q + kappa0 DD.dat p q
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem theta_serre (p q r : DD.Vmod × DD.C0) :
     theta σ Dsc q r + theta σ Dsc p (pmul q r)
       = theta σ Dsc (pmul p q) r + theta σ Dsc p q := by
@@ -753,12 +787,14 @@ theorem theta_serre (p q r : DD.Vmod × DD.C0) :
   unfold theta
   linear_combination (norm := (ring_nf; try simp [CharTwo.two_eq_zero])) h1 + h2
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem theta_pone_left (q : DD.Vmod × DD.C0) : theta σ Dsc pone q = 0 := by
   unfold theta
   rw [kfull_pone_left]
   show 0 + (DD.dat.f 0 ((1 : DD.C0) • q.1) + DD.dat.m 1 q.1) = 0
   rw [DD.hdat.f_zero_left, DD.hdat.m_one, add_zero, add_zero]
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem theta_pone_right (p : DD.Vmod × DD.C0) : theta σ Dsc p pone = 0 := by
   unfold theta
   rw [kfull_pone_right]
@@ -766,6 +802,7 @@ theorem theta_pone_right (p : DD.Vmod × DD.C0) : theta σ Dsc p pone = 0 := by
   rw [smul_zero, DD.hdat.f_zero_right, m_zero (DD := DD) DD.hdat, add_zero, add_zero]
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- The splitting data for `Θ|_{V×V}` exists. -/
 theorem gkappa_exists : ∃ g : DD.Vmod → ZMod 2, g 0 = 0 ∧
     ∀ v w : DD.Vmod, theta σ Dsc ((v, 1) : DD.Vmod × DD.C0) (w, 1)
@@ -784,9 +821,9 @@ theorem gkappa_exists : ∃ g : DD.Vmod → ZMod 2, g 0 = 0 ∧
     rw [pm1, pm2] at hs
     linear_combination (norm := (ring_nf; try simp [CharTwo.two_eq_zero])) hs
   · -- symmetric
-    exact (theta_facts σ Dsc hσ).2
+    exact (theta_facts σ Dsc).2
   · -- zero diagonal
-    exact (theta_facts σ Dsc hσ).1
+    exact (theta_facts σ Dsc).1
   · -- left-normalized
     exact fun v => theta_pone_left σ Dsc ((v, 1) : DD.Vmod × DD.C0)
 
@@ -794,9 +831,11 @@ theorem gkappa_exists : ∃ g : DD.Vmod → ZMod 2, g 0 = 0 ∧
 noncomputable def gkappa : DD.Vmod → ZMod 2 :=
   Classical.choose (gkappa_exists σ Dsc hσ)
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem gkappa_zero : gkappa σ Dsc hσ 0 = 0 :=
   (Classical.choose_spec (gkappa_exists σ Dsc hσ)).1
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem gkappa_split (v w : DD.Vmod) :
     theta σ Dsc ((v, 1) : DD.Vmod × DD.C0) (w, 1)
       = gkappa σ Dsc hσ (v + w) + gkappa σ Dsc hσ v + gkappa σ Dsc hσ w :=
@@ -808,6 +847,7 @@ noncomputable def theta' (p q : DD.Vmod × DD.C0) : ZMod 2 :=
     + (gkappa σ Dsc hσ (pmul p q).1 + gkappa σ Dsc hσ p.1 + gkappa σ Dsc hσ q.1)
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem theta'_serre (p q r : DD.Vmod × DD.C0) :
     theta' σ Dsc hσ q r + theta' σ Dsc hσ p (pmul q r)
       = theta' σ Dsc hσ (pmul p q) r + theta' σ Dsc hσ p q := by
@@ -816,6 +856,7 @@ theorem theta'_serre (p q r : DD.Vmod × DD.C0) :
   unfold theta'
   linear_combination (norm := (ring_nf; try simp [CharTwo.two_eq_zero])) h1 + h2
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem theta'_VV (v w : DD.Vmod) :
     theta' σ Dsc hσ ((v, 1) : DD.Vmod × DD.C0) (w, 1) = 0 := by
   unfold theta'
@@ -844,22 +885,26 @@ noncomputable def gammakap (cc : DD.C0) (x : DD.Vmod) : ZMod 2 :=
   gkraw σ Dsc hσ cc (cc⁻¹ • x) + ukap σ Dsc hσ (x) (cc)
 
 /- `pmul`-evaluations used in the chases. -/
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem pm_v1_0c (v : DD.Vmod) (cc : DD.C0) :
     pmul ((v, 1) : DD.Vmod × DD.C0) (0, cc) = (v, cc) := by
   unfold pmul
   rw [smul_zero, add_zero, one_mul]
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem pm_0c_wd (cc : DD.C0) (w : DD.Vmod) (dd : DD.C0) :
     pmul ((0, cc) : DD.Vmod × DD.C0) (w, dd) = (cc • w, cc * dd) := by
   unfold pmul
   rw [zero_add]
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem pm_v1_x1 (v x : DD.Vmod) (ee : DD.C0) :
     pmul ((v, 1) : DD.Vmod × DD.C0) (x, ee) = (v + x, ee) := by
   unfold pmul
   rw [one_smul, one_mul]
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- Chase E2: `Θ'` on a `V`-row. -/
 theorem chaseE2 (v x : DD.Vmod) (ee : DD.C0) :
     theta' σ Dsc hσ ((v, 1) : DD.Vmod × DD.C0) (x, ee)
@@ -871,6 +916,7 @@ theorem chaseE2 (v x : DD.Vmod) (ee : DD.C0) :
   linear_combination (norm := (ring_nf; try simp [CharTwo.two_eq_zero])) hs + hVV
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- Chase E1: peel the `V`-coordinate off the first argument. -/
 theorem chaseE1 (v : DD.Vmod) (cc : DD.C0) (w : DD.Vmod) (dd : DD.C0) :
     theta' σ Dsc hσ ((v, cc) : DD.Vmod × DD.C0) (w, dd)
@@ -883,6 +929,7 @@ theorem chaseE1 (v : DD.Vmod) (cc : DD.C0) (w : DD.Vmod) (dd : DD.C0) :
   linear_combination (norm := (ring_nf; try simp [CharTwo.two_eq_zero])) hs
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- Chase E3: peel the `V`-coordinate off the second argument. -/
 theorem chaseE3 (cc : DD.C0) (w : DD.Vmod) (dd : DD.C0) :
     theta' σ Dsc hσ ((0, cc) : DD.Vmod × DD.C0) (w, dd)
@@ -899,6 +946,7 @@ theorem chaseE3 (cc : DD.C0) (w : DD.Vmod) (dd : DD.C0) :
   linear_combination (norm := (ring_nf; try simp [CharTwo.two_eq_zero])) hs
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- Chase E4: reduce the mixed corner to `δκ` and `uκ`. -/
 theorem chaseE4 (cc dd : DD.C0) (y : DD.Vmod) :
     theta' σ Dsc hσ ((y, cc) : DD.Vmod × DD.C0) (0, dd)
@@ -912,6 +960,7 @@ theorem chaseE4 (cc dd : DD.C0) (y : DD.Vmod) :
   linear_combination (norm := (ring_nf; try simp [CharTwo.two_eq_zero])) hs
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- **The extraction** (design §4): `Θ'` in `Γγκ + inf δκ + ∂uκ` normal form (raw values). -/
 theorem theta'_decomp (v : DD.Vmod) (cc : DD.C0) (w : DD.Vmod) (dd : DD.C0) :
     theta' σ Dsc hσ ((v, cc) : DD.Vmod × DD.C0) (w, dd)
@@ -926,6 +975,7 @@ theorem theta'_decomp (v : DD.Vmod) (cc : DD.C0) (w : DD.Vmod) (dd : DD.C0) :
   linear_combination (norm := (ring_nf; try simp [CharTwo.two_eq_zero])) h1 + h3 + h4 + h2
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- Chase E5: `gkraw` additivity up to `uκ`-corrections. -/
 theorem chaseE5 (cc : DD.C0) (a b : DD.Vmod) :
     gkraw σ Dsc hσ cc (a + b)
@@ -954,6 +1004,7 @@ theorem chaseE5 (cc : DD.C0) (a b : DD.Vmod) :
     hsA + hVV + hsB + hsC
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- `γκ` is additive. -/
 theorem gammakap_add (cc : DD.C0) (x y : DD.Vmod) :
     gammakap σ Dsc hσ cc (x + y)
@@ -967,6 +1018,7 @@ theorem gammakap_add (cc : DD.C0) (x y : DD.Vmod) :
   linear_combination (norm := (ring_nf; try simp [CharTwo.two_eq_zero])) h5
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- Chase E6: the `gkraw`-composition law. -/
 theorem chaseE6 (cc dd : DD.C0) (w : DD.Vmod) :
     gkraw σ Dsc hσ (cc * dd) w
@@ -990,6 +1042,7 @@ theorem chaseE6 (cc dd : DD.C0) (w : DD.Vmod) :
   linear_combination (norm := (ring_nf; try simp [CharTwo.two_eq_zero])) hsA + hsB + hsC
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- **The dual-crossed law for `γκ`** (design §6): `γκ(cc·dd)(x) = γκ(cc)(x) + γκ(dd)(cc⁻¹•x)`. -/
 theorem gammakap_dual_crossed (cc dd : DD.C0) (x : DD.Vmod) :
     gammakap σ Dsc hσ (cc * dd) x
@@ -1013,6 +1066,7 @@ variable {Γ : Type} [Group Γ] [TopologicalSpace Γ]
 variable {ρ : ContinuousMonoidHom Γ (Bg ⧸ D.M)}
 variable (hσ : ∀ cc : DD.C0, piQbar DD (σ cc) = cc)
 
+omit [DiscreteTopology Bg] in
 /-- The graph of a crossed cocycle is `pmul`-multiplicative. -/
 theorem graph_pmul (c : VCocycle DD ρ) (γ δ : Γ) :
     pmul (c.c γ, rho0 DD ρ γ) (c.c δ, rho0 DD ρ δ)
@@ -1095,6 +1149,7 @@ theorem cupChi_add (χ : ↥(TCharC D)) (gχ : DD.Vmod → ZMod 2)
   linear_combination (norm := (ring_nf; try simp [CharTwo.two_eq_zero])) (rfl : (0 : ZMod 2) = 0)
 
 include hσ in
+omit [DiscreteTopology Bg] in
 /-- The cup part vanishes at the zero cocycle. -/
 theorem cupChi_zero (χ : ↥(TCharC D)) (gχ : DD.Vmod → ZMod 2) (hg0 : gχ 0 = 0)
     (p : Γ × Γ) :
@@ -1106,9 +1161,9 @@ theorem cupChi_zero (χ : ↥(TCharC D)) (gχ : DD.Vmod → ZMod 2) (hg0 : gχ 0
 variable [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
 
 omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
-include hσ in
 /-- The `g`-coboundary part of the `chiDef`-decomposition is a continuous coboundary. -/
-theorem gPart_mem_B2 (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+theorem gPart_mem_B2 (_hσ : ∀ cc : DD.C0, piQbar DD (σ cc) = cc)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
     (gχ : DD.Vmod → ZMod 2) (cx : VCocycle DD ρ) :
     (fun p : Γ × Γ => gχ (cx.c (p.1 * p.2)) + gχ (cx.c p.1) + gχ (cx.c p.2))
       ∈ B2 Γ (ZMod 2) := by
@@ -1134,6 +1189,7 @@ theorem gPart_mem_B2 (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
     have hchar : ∀ a b cc : ZMod 2, a - b + cc = b + cc + a := by decide
     exact hchar _ _ _
 
+omit [ContinuousSMul Γ (ZMod 2)] in
 include hσ in
 /-- **The affineness `haff`** (the master count's threaded hypothesis, design §6): `β_χ` is
 affine in the cocycle — the cup part is additive, the `g`-part is a coboundary killed by
@@ -1208,6 +1264,7 @@ variable (Dsc : Descent D)
 variable (hσ : ∀ cc : DD.C0, piQbar DD (σ cc) = cc)
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- The splitting data for `f_χ = χ ∘ mDef` exists. -/
 theorem gchi_exists (χ : ↥(TCharC D)) : ∃ g : DD.Vmod → ZMod 2, g 0 = 0 ∧
     ∀ v w : DD.Vmod, χ.1 (mDef DD S v w) = g (v + w) + g v + g w :=
@@ -1222,6 +1279,7 @@ theorem gchi_exists (χ : ↥(TCharC D)) : ∃ g : DD.Vmod → ZMod 2, g 0 = 0 �
 noncomputable def gchi (χ : ↥(TCharC D)) : DD.Vmod → ZMod 2 :=
   Classical.choose (gchi_exists S hσ χ)
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem gchi_split (χ : ↥(TCharC D)) (v w : DD.Vmod) :
     χ.1 (mDef DD S v w) = gchi S hσ χ (v + w) + gchi S hσ χ v + gchi S hσ χ w :=
   (Classical.choose_spec (gchi_exists S hσ χ)).2 v w
@@ -1231,6 +1289,7 @@ noncomputable def gamma2 (χ : ↥(TCharC D)) (cc : DD.C0) (x : DD.Vmod) : ZMod 
   χ.1 (conjDef DD S hσ cc (cc⁻¹ • x)) + gchi S hσ χ x + gchi S hσ χ (cc⁻¹ • x)
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- `γ''_χ(cc)` is additive. -/
 theorem gamma2_add (χ : ↥(TCharC D)) (cc : DD.C0) (x y : DD.Vmod) :
     gamma2 S hσ χ cc (x + y) = gamma2 S hσ χ cc x + gamma2 S hσ χ cc y := by
@@ -1246,6 +1305,7 @@ theorem gamma2_add (χ : ↥(TCharC D)) (cc : DD.C0) (x y : DD.Vmod) :
   linear_combination (norm := (ring_nf; try simp [CharTwo.two_eq_zero])) hmq + hg1 + hg2
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- The dual-crossed law for `γ''_χ`. -/
 theorem gamma2_dual_crossed (χ : ↥(TCharC D)) (cc dd : DD.C0) (x : DD.Vmod) :
     gamma2 S hσ χ (cc * dd) x = gamma2 S hσ χ cc x + gamma2 S hσ χ dd (cc⁻¹ • x) := by
@@ -1265,6 +1325,7 @@ noncomputable def gammatot (χ : ↥(TCharC D)) (cc : DD.C0) (x : DD.Vmod) : ZMo
   gamma2 S hσ χ cc x + gammakap σ Dsc hσ cc x
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem gammatot_add (χ : ↥(TCharC D)) (cc : DD.C0) (x y : DD.Vmod) :
     gammatot S Dsc hσ χ cc (x + y)
       = gammatot S Dsc hσ χ cc x + gammatot S Dsc hσ χ cc y := by
@@ -1273,6 +1334,7 @@ theorem gammatot_add (χ : ↥(TCharC D)) (cc : DD.C0) (x y : DD.Vmod) :
   ring
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem gammatot_dual_crossed (χ : ↥(TCharC D)) (cc dd : DD.C0) (x : DD.Vmod) :
     gammatot S Dsc hσ χ (cc * dd) x
       = gammatot S Dsc hσ χ cc x + gammatot S Dsc hσ χ dd (cc⁻¹ • x) := by
@@ -1280,6 +1342,7 @@ theorem gammatot_dual_crossed (χ : ↥(TCharC D)) (cc dd : DD.C0) (x : DD.Vmod)
   rw [gamma2_dual_crossed S hσ χ cc dd x, gammakap_dual_crossed σ Dsc hσ cc dd x]
   ring
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- Polar-inverse for additive functionals (module-free wrapper). -/
 theorem exists_polar_inverse' {q : DD.Vmod → ZMod 2} (hq : IsQuadraticFp2 q)
     (hns : Nonsingular q) (φ : DD.Vmod → ZMod 2)
@@ -1305,6 +1368,7 @@ theorem exists_polar_inverse' {q : DD.Vmod → ZMod 2} (hq : IsQuadraticFp2 q)
   obtain ⟨a, ha⟩ := exists_polar_inverse q hq hns φL
   exact ⟨a, ha⟩
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- Polar injectivity: nonsingular forms separate points through the polar pairing. -/
 theorem polar_inj {q : DD.Vmod → ZMod 2} (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
     {a b : DD.Vmod} (h : ∀ v : DD.Vmod, polar q a v = polar q b v) : a = b := by
@@ -1317,7 +1381,7 @@ theorem polar_inj {q : DD.Vmod → ZMod 2} (hq : IsQuadraticFp2 q) (hns : Nonsin
   exact CharTwo.add_self_eq_zero _
 
 /-! ### The shear family `a_χ` and the total scalar phase -/
-
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- Polar equivariance for an invariant form: `B(cc•u, v) = B(u, cc⁻¹•v)`. -/
 theorem polar_smul_inv {q : DD.Vmod → ZMod 2} (hinvQ : IsInvariant DD.C0 q)
     (cc : DD.C0) (u v : DD.Vmod) :
@@ -1336,12 +1400,14 @@ noncomputable def achi (χ : ↥(TCharC D)) (cc : DD.C0) : DD.Vmod :=
   Classical.choose (exists_polar_inverse' (DD := DD) DD.hquad DD.hns
     (gammatot S Dsc hσ χ cc) (gammatot_add S Dsc hσ χ cc))
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem achi_spec (χ : ↥(TCharC D)) (cc : DD.C0) (v : DD.Vmod) :
     polar DD.qbar (achi S Dsc hσ χ cc) v = gammatot S Dsc hσ χ cc v :=
   Classical.choose_spec (exists_polar_inverse' (DD := DD) DD.hquad DD.hns
     (gammatot S Dsc hσ χ cc) (gammatot_add S Dsc hσ χ cc)) v
 
 include hinvQ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- `a_χ` is a crossed 1-cocycle (the `ha` of `prop_8_8_target`). -/
 theorem achi_crossed (χ : ↥(TCharC D)) (cc dd : DD.C0) :
     achi S Dsc hσ χ (cc * dd) = achi S Dsc hσ χ cc + cc • achi S Dsc hσ χ dd := by
@@ -1350,7 +1416,7 @@ theorem achi_crossed (χ : ↥(TCharC D)) (cc dd : DD.C0) :
   rw [achi_spec, gammatot_dual_crossed S Dsc hσ χ cc dd v, DD.hquad.polar_add_left,
     achi_spec, polar_smul_inv hinvQ, achi_spec]
 
-include hinvQ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- The kill condition (`hkill` of `prop_8_8_target`). -/
 theorem achi_kill (χ : ↥(TCharC D)) (cc : DD.C0) (v : DD.Vmod) :
     polar DD.qbar (achi S Dsc hσ χ cc) v
@@ -1362,6 +1428,7 @@ theorem achi_kill (χ : ↥(TCharC D)) (cc : DD.C0) (v : DD.Vmod) :
 /-! ### The `Ψ_χ`-normal form -/
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- The zero-form `kappa0` in `γ'' + ∂g`-normal form (pair level). -/
 theorem kappa0_datChi_decomp (χ : ↥(TCharC D)) (p q : DD.Vmod × DD.C0) :
     kappa0 (datChi DD S hσ χ) p q
@@ -1384,6 +1451,7 @@ noncomputable def wtot (χ : ↥(TCharC D)) (x : DD.Vmod × DD.C0) : ZMod 2 :=
   gchi S hσ χ x.1 + gkappa σ Dsc hσ x.1 + ukap σ Dsc hσ x.1 x.2
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- **The `Ψ_χ`-normal form** (design §6): the full obstruction cochain is
 `κ⁰ + Γγtot + inf δtot + ∂W_χ`, pointwise. -/
 theorem psi_decomp (χ : ↥(TCharC D)) (p q : DD.Vmod × DD.C0) :
@@ -1570,7 +1638,7 @@ theorem keystone (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
   obtain ⟨w, hw⟩ := prop_8_8_target DD.qbar DD.hquad DD.dat DD.hdat
     (fun cc => AddMonoidHom.mk' (gammatot S Dsc hσ χ cc) (gammatot_add S Dsc hσ χ cc))
     (fun cd => deltatot S Dsc hσ χ cd.1 cd.2)
-    (achi S Dsc hσ χ) (achi_crossed S Dsc hσ hinvQ χ) (achi_kill S Dsc hσ hinvQ χ)
+    (achi S Dsc hσ χ) (achi_crossed S Dsc hσ hinvQ χ) (achi_kill S Dsc hσ χ)
   -- the exponent-2 shear collapse: `s_a(graph c₀) = graph c`
   have hcol : ∀ γ' : Γ, shear (achi S Dsc hσ χ) (c₀.c γ', rho0 DD ρ γ')
       = (c.c γ', rho0 DD ρ γ') := by
@@ -1686,6 +1754,7 @@ variable (Dsc : Descent D)
 variable (hσ : ∀ cc : DD.C0, piQbar DD (σ cc) = cc)
 variable (hinvQ : IsInvariant DD.C0 DD.qbar)
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- `Θ'` vanishes on `pone`-rows. -/
 theorem theta'_pone_left (q : DD.Vmod × DD.C0) : theta' σ Dsc hσ pone q = 0 := by
   unfold theta'
@@ -1694,6 +1763,7 @@ theorem theta'_pone_left (q : DD.Vmod × DD.C0) : theta' σ Dsc hσ pone q = 0 :
   rw [gkappa_zero, zero_add, add_zero]
   exact CharTwo.add_self_eq_zero _
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- `Θ'` vanishes on `pone`-columns. -/
 theorem theta'_pone_right (p : DD.Vmod × DD.C0) : theta' σ Dsc hσ p pone = 0 := by
   unfold theta'
@@ -1702,12 +1772,14 @@ theorem theta'_pone_right (p : DD.Vmod × DD.C0) : theta' σ Dsc hσ p pone = 0 
   rw [gkappa_zero, zero_add, add_zero]
   exact CharTwo.add_self_eq_zero _
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- `uσ`-defect normalization, left. -/
 theorem uDef_one_left (cc : DD.C0) : uDef DD S 1 cc = 1 := by
   apply Subtype.ext
   show S.uσ 1 * S.uσ cc * (S.uσ (1 * cc))⁻¹ = 1
   rw [S.uσ_one, one_mul, one_mul, mul_inv_cancel]
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- `uσ`-defect normalization, right. -/
 theorem uDef_one_right (cc : DD.C0) : uDef DD S cc 1 = 1 := by
   apply Subtype.ext
@@ -1715,6 +1787,7 @@ theorem uDef_one_right (cc : DD.C0) : uDef DD S cc 1 = 1 := by
   rw [S.uσ_one, mul_one, mul_one, mul_inv_cancel]
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- `γtot_χ(cc)` kills `0`. -/
 theorem gammatot_zero (χ : ↥(TCharC D)) (cc : DD.C0) : gammatot S Dsc hσ χ cc 0 = 0 := by
   have h := gammatot_add S Dsc hσ χ cc 0 0
@@ -1722,6 +1795,7 @@ theorem gammatot_zero (χ : ↥(TCharC D)) (cc : DD.C0) : gammatot S Dsc hσ χ 
   exact left_eq_add.mp h
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- `γtot_χ(1) = 0` (the edge is normalized at the identity). -/
 theorem gammatot_one (χ : ↥(TCharC D)) (x : DD.Vmod) : gammatot S Dsc hσ χ 1 x = 0 := by
   unfold gammatot
@@ -1735,6 +1809,7 @@ theorem gammatot_one (χ : ↥(TCharC D)) (x : DD.Vmod) : gammatot S Dsc hσ χ 
   rw [h2, hk, add_zero]
 
 include hinvQ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- The shear family is normalized: `a_χ(1) = 0`. -/
 theorem achi_one (χ : ↥(TCharC D)) : achi S Dsc hσ χ 1 = 0 := by
   have h := achi_crossed S Dsc hσ hinvQ χ 1 1
@@ -1742,6 +1817,7 @@ theorem achi_one (χ : ↥(TCharC D)) : achi S Dsc hσ χ 1 = 0 := by
   exact left_eq_add.mp h
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- `δtot_χ` is normalized on the left. -/
 theorem deltatot_one_left (χ : ↥(TCharC D)) (cc : DD.C0) : deltatot S Dsc hσ χ 1 cc = 0 := by
   unfold deltatot
@@ -1752,6 +1828,7 @@ theorem deltatot_one_left (χ : ↥(TCharC D)) (cc : DD.C0) : deltatot S Dsc hσ
   rw [hd, add_zero]
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- `δtot_χ` is normalized on the right. -/
 theorem deltatot_one_right (χ : ↥(TCharC D)) (cc : DD.C0) : deltatot S Dsc hσ χ cc 1 = 0 := by
   unfold deltatot
@@ -1762,6 +1839,7 @@ theorem deltatot_one_right (χ : ↥(TCharC D)) (cc : DD.C0) : deltatot S Dsc h�
   rw [hd, add_zero]
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- **Serre identity for `χ ∘ JDefT`**: the associativity defect of the product lift `Jmap`
 conjugates by `Jmap p`, and the `C`-invariance of `χ` kills the conjugation. -/
 theorem chiJDefT_serre (χ : ↥(TCharC D)) (p q r : DD.Vmod × DD.C0) :
@@ -1800,6 +1878,7 @@ theorem chiJDefT_serre (χ : ↥(TCharC D)) (p q r : DD.Vmod × DD.C0) :
   linear_combination (norm := (ring_nf; try simp [CharTwo.two_eq_zero])) hkey
 
 include hσ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- **Serre identity for the `Ψ_χ`-bundle** `κ⁰ + Γγtot + inf δtot`, by the `psi_decomp`
 normal form and the three component Serre identities. -/
 theorem bundle_serre (χ : ↥(TCharC D)) (p q r : DD.Vmod × DD.C0) :
@@ -1823,6 +1902,7 @@ theorem bundle_serre (χ : ↥(TCharC D)) (p q r : DD.Vmod × DD.C0) :
     h1 + h2 + h3 + h4 + hj + hk + hpw
 
 include hinvQ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- **The phase-cover cocycle law** (`hcoc` of `centralCoverOfCocycle`): `Δ_χ` satisfies the
 raw Serre identity on `C₀` — the completed square on the `(0,·)`-section, minus the
 bundle/base/coboundary Serre identities. -/
@@ -1832,7 +1912,7 @@ theorem DeltaChi_cocycle (χ : ↥(TCharC D)) (g h k : DD.C0) :
   obtain ⟨w, hw⟩ := prop_8_8_target DD.qbar DD.hquad DD.dat DD.hdat
     (fun cc => AddMonoidHom.mk' (gammatot S Dsc hσ χ cc) (gammatot_add S Dsc hσ χ cc))
     (fun cd => deltatot S Dsc hσ χ cd.1 cd.2)
-    (achi S Dsc hσ χ) (achi_crossed S Dsc hσ hinvQ χ) (achi_kill S Dsc hσ hinvQ χ)
+    (achi S Dsc hσ χ) (achi_crossed S Dsc hσ hinvQ χ) (achi_kill S Dsc hσ χ)
   -- the `(0,·)`-section, its shear, and their `pmul`-multiplicativity
   have hsh : ∀ x : DD.C0, shear (achi S Dsc hσ χ) ((0, x) : DD.Vmod × DD.C0)
       = (achi S Dsc hσ χ x, x) := by
@@ -1870,6 +1950,7 @@ theorem DeltaChi_cocycle (χ : ↥(TCharC D)) (g h k : DD.C0) :
     h1 + h2 + h3 + h4 + hb + hk0 + hpw
 
 include hinvQ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- **Left normalization** (`hl` of `centralCoverOfCocycle`): `Δ_χ(1, ·) = 0`. -/
 theorem DeltaChi_one_left (χ : ↥(TCharC D)) (cc : DD.C0) :
     DeltaChi S Dsc hσ χ (1, cc) = 0 := by
@@ -1885,6 +1966,7 @@ theorem DeltaChi_one_left (χ : ↥(TCharC D)) (cc : DD.C0) :
   decide
 
 include hinvQ in
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 /-- **Right normalization** (`hr` of `centralCoverOfCocycle`): `Δ_χ(·, 1) = 0`. -/
 theorem DeltaChi_one_right (χ : ↥(TCharC D)) (cc : DD.C0) :
     DeltaChi S Dsc hσ χ (cc, 1) = 0 := by

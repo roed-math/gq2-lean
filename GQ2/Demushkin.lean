@@ -110,6 +110,7 @@ section Api
 variable {p : ℕ} {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
   [DistribMulAction G (ZMod p)] [ContinuousSMul G (ZMod p)]
 
+omit [IsTopologicalGroup G] in
 /-- The left non-degeneracy clause, consumable with *any* proof of action-triviality (the
 pairing does not depend on the proof). -/
 theorem IsDemushkin.nondegen_left' (hD : IsDemushkin p G)
@@ -117,6 +118,7 @@ theorem IsDemushkin.nondegen_left' (hD : IsDemushkin p G)
     ∃ y, trivialCupPairing p G htriv x y ≠ 0 :=
   hD.nondegen_left x hx
 
+omit [IsTopologicalGroup G] in
 /-- Right-slot variant of `IsDemushkin.nondegen_left'`. -/
 theorem IsDemushkin.nondegen_right' (hD : IsDemushkin p G)
     (htriv : ∀ (g : G) (m : ZMod p), g • m = m) (y : H1 G (ZMod p)) (hy : y ≠ 0) :
@@ -135,6 +137,7 @@ theorem nsmul_H1_eq_zero (x : H1 G (ZMod p)) : p • x = 0 := by
     calc p • (H1mk G (ZMod p) φ) = H1mk G (ZMod p) (p • φ) := (map_nsmul _ _ _).symm
     _ = 0 := by rw [hφ, map_zero]
 
+omit [IsTopologicalGroup G] in
 /-- For a Demushkin group, `#H¹ = p ^ rank` — the `Nat.card` clause really encodes an
 `𝔽_p`-dimension. -/
 theorem IsDemushkin.card_H1_eq_pow [Fact p.Prime] (hD : IsDemushkin p G) :

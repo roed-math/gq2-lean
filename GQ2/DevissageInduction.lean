@@ -73,6 +73,7 @@ variable {A : Type*} [AddCommGroup A] [DistribMulAction C A]
   smul_zero c := map_zero _
   smul_add c q₁ q₂ := map_add _ q₁ q₂
 
+omit [Finite C] in
 /-- `W.subtype` is `C`-equivariant for the restricted action. -/
 theorem stableSubAction_subtype_equivariant (W : AddSubgroup A)
     (hW : ∀ (g : C) (w : A), w ∈ W → g • w ∈ W) :
@@ -80,6 +81,7 @@ theorem stableSubAction_subtype_equivariant (W : AddSubgroup A)
     ∀ (c : C) (w : ↥W), W.subtype (c • w) = c • W.subtype w :=
   fun _ _ => rfl
 
+omit [Finite C] in
 /-- `QuotientAddGroup.mk' W` is `C`-equivariant for the descended action. -/
 theorem stableQuotAction_mk'_equivariant (W : AddSubgroup A)
     (hW : ∀ (g : C) (w : A), w ∈ W → g • w ∈ W) :

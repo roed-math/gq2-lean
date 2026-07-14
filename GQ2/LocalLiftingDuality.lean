@@ -135,12 +135,16 @@ variable {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite
 noncomputable def dualMap (φ : MuDual 2 A) : ElemDual A :=
   muNTwoEquiv.toAddMonoidHom.comp (φ : A →+ MuN 2)
 
+omit [TopologicalSpace A] [DiscreteTopology A] [Finite A] [DistribMulAction AbsGalQ2 A]
+  [ContinuousSMul AbsGalQ2 A] in
 @[simp] theorem dualMap_apply (φ : MuDual 2 A) (a : A) : dualMap φ a = muNTwoEquiv (φ a) := rfl
 
 /-- Inverse direction. -/
 noncomputable def dualMapInv (lam : ElemDual A) : MuDual 2 A :=
   muNTwoEquiv.symm.toAddMonoidHom.comp (lam : A →+ ZMod 2)
 
+omit [TopologicalSpace A] [DiscreteTopology A] [Finite A] [DistribMulAction AbsGalQ2 A]
+  [ContinuousSMul AbsGalQ2 A] in
 @[simp] theorem dualMapInv_apply (lam : ElemDual A) (a : A) :
     dualMapInv lam a = muNTwoEquiv.symm (lam a) := rfl
 
@@ -154,10 +158,14 @@ noncomputable def dualAddEquiv : MuDual 2 A ≃+ ElemDual A where
   map_add' φ ψ := DFunLike.ext _ _ fun a => by
     simp only [dualMap_apply, MuDual.add_apply, ElemDual.add_apply, map_add]
 
+omit [TopologicalSpace A] [DiscreteTopology A] [Finite A] [DistribMulAction AbsGalQ2 A]
+  [ContinuousSMul AbsGalQ2 A] in
 @[simp] theorem dualAddEquiv_apply (φ : MuDual 2 A) (a : A) :
     dualAddEquiv φ a = muNTwoEquiv (φ a) := rfl
 
 include hρ hcomp in
+omit [DiscreteTopology C] [Finite C] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
+  [ContinuousSMul AbsGalQ2 A] in
 /-- The `G_ℚ₂`-invariance of `φ` (a `μ₂`-dual) rewritten pointwise, then transported to `C`-orbits
 via `ρ`: `φ (c • a) = φ a` for every `c : C`. -/
 theorem muDual_inv_pointwise {φ : MuDual 2 A} (hφ : ∀ γ : AbsGalQ2, γ • φ = φ) (c : C) (a : A) :
@@ -170,12 +178,16 @@ theorem muDual_inv_pointwise {φ : MuDual 2 A} (hφ : ∀ γ : AbsGalQ2, γ • 
   rw [hid] at h
   exact h.symm
 
+omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [TopologicalSpace A] [DiscreteTopology A]
+  [Finite A] [DistribMulAction AbsGalQ2 A] [ContinuousSMul AbsGalQ2 A] in
 /-- The `C`-invariance of a `𝔽₂`-dual `lam`, rewritten pointwise: `lam (c • a) = lam a`. -/
 theorem elemDual_fixed_pointwise {lam : ElemDual A} (hlam : ∀ c : C, c • lam = lam) (c : C)
     (a : A) : lam (c • a) = lam a := by
   simpa [ElemDual.smul_apply, inv_inv] using DFunLike.congr_fun (hlam c⁻¹) a
 
 include hρ hcomp in
+omit [DiscreteTopology C] [Finite C] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
+  [ContinuousSMul AbsGalQ2 A] in
 /-- **Degree-0 transport**: the `G_ℚ₂`-invariants of the `μ₂`-dual biject with the `C`-invariants
 of the `𝔽₂`-dual (via post-composition with `muNTwoEquiv`). -/
 theorem card_H0_muDual_eq_fixedPts :
@@ -192,11 +204,13 @@ theorem card_H0_muDual_eq_fixedPts :
   · exact Subtype.ext (DFunLike.ext _ _ fun a => muNTwoEquiv.symm_apply_apply _)
   · exact Subtype.ext (DFunLike.ext _ _ fun a => muNTwoEquiv.apply_symm_apply _)
 
+omit [Finite A] in
 /-- `H²(A)` is `2`-torsion when `A` is (it is a subquotient of `𝔽₂`-valued cochains). -/
 theorem H2_two_torsion (hA₂ : ∀ a : A, a + a = 0) (z : H2 AbsGalQ2 A) : z + z = 0 :=
   H2_two_torsion_gen hA₂ z
 
 include hρ hcomp in
+omit [DiscreteTopology C] [Finite C] in
 /-- **Clause (i)**: `#H²(A) = #fixedPts C (ElemDual A)` — B6's `(0,2)` duality (`H⁰(A′) ≅
 Hom(H²(A), 𝔽₂)`), the self-dual count `#Hom(H²(A),𝔽₂) = #H²(A)`, and the degree-0 transport. -/
 theorem card_H2_eq_fixedPts (hA₂ : ∀ a : A, a + a = 0) :
@@ -210,7 +224,7 @@ theorem card_H2_eq_fixedPts (hA₂ : ∀ a : A, a + a = 0) :
     _ = Nat.card (fixedPts C (ElemDual A)) := card_H0_muDual_eq_fixedPts hρ hcomp
 
 /-! ### Structural cardinalities for clause (ii). -/
-
+omit [TopologicalSpace A] [DiscreteTopology A] [Finite A] [ContinuousSMul AbsGalQ2 A] in
 /-- `ker(d⁰) = H⁰`. -/
 theorem dZero_ker_eq_H0 : (dZero AbsGalQ2 A).ker = H0 AbsGalQ2 A := by
   ext m
@@ -223,6 +237,7 @@ theorem dZero_ker_eq_H0 : (dZero AbsGalQ2 A).ker = H0 AbsGalQ2 A := by
     ext g
     rw [show (dZero AbsGalQ2 A) m g = g • m - m from rfl, h g, sub_self]; rfl
 
+omit [TopologicalSpace A] [DiscreteTopology A] [Finite A] [ContinuousSMul AbsGalQ2 A] in
 /-- `#A = #B¹ · #H⁰` (first isomorphism theorem for `d⁰`: `B¹ = im d⁰ ≅ A/ker d⁰ = A/H⁰`). -/
 theorem card_A_eq_B1_mul_H0 :
     Nat.card A = Nat.card (B1 AbsGalQ2 A) * Nat.card (H0 AbsGalQ2 A) := by
@@ -232,6 +247,7 @@ theorem card_A_eq_B1_mul_H0 :
   · rw [← dZero_ker_eq_H0]
     exact Nat.card_congr (QuotientAddGroup.quotientKerEquivRange (dZero AbsGalQ2 A)).toEquiv
 
+omit [Finite A] in
 /-- `#Z¹ = #H¹ · #B¹` (Lagrange on `H¹ = Z¹/B¹`). -/
 theorem card_Z1_eq_H1_mul_B1 :
     Nat.card (Z1 AbsGalQ2 A) = Nat.card (H1 AbsGalQ2 A) * Nat.card (B1 AbsGalQ2 A) := by
@@ -240,6 +256,8 @@ theorem card_Z1_eq_H1_mul_B1 :
   rwa [Nat.card_congr
     (AddSubgroup.addSubgroupOfEquivOfLe (B1_le_Z1 (G := AbsGalQ2) (M := A))).toEquiv] at h
 
+omit [TopologicalSpace A] [DiscreteTopology A] [DistribMulAction AbsGalQ2 A]
+  [ContinuousSMul AbsGalQ2 A] in
 /-- `2 ^ v₂(#A) = #A` for finite `2`-torsion `A` (a finite `𝔽₂`-vector space). -/
 theorem pow_padicValNat_card (hA₂ : ∀ a : A, a + a = 0) :
     2 ^ padicValNat 2 (Nat.card A) = Nat.card A := by
@@ -248,6 +266,7 @@ theorem pow_padicValNat_card (hA₂ : ∀ a : A, a + a = 0) :
   rw [← FiniteField.pow_finrank_eq_natCard 2 A, padicValNat.prime_pow]
 
 include hρ hcomp in
+omit [DiscreteTopology C] [Finite C] in
 /-- **Clause (ii)**: `#Z¹(A) = #A² · #fixedPts C (ElemDual A)` — from `#Z¹ = #H¹·#B¹`, the B7 Euler
 characteristic `#H¹ = #H⁰·#H²·#A`, `#A = #B¹·#H⁰`, and clause (i). -/
 theorem card_Z1_eq (hA₂ : ∀ a : A, a + a = 0) :
@@ -316,11 +335,16 @@ variable {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [
   [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
   [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)]
 
+omit [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)] in
 /-- `muNTwoEquiv : μ₂ ≃+ 𝔽₂` is `G`-equivariant (both actions are trivial). -/
 theorem muNTwoEquiv_equivariant (htriv : ∀ (γ : AbsGalQ2) (m : ZMod 2), γ • m = m) :
     ∀ (g : AbsGalQ2) (m : MuN 2), muNTwoEquiv (g • m) = g • muNTwoEquiv m :=
   fun g m => by rw [smul_muN_two_trivial]; exact (htriv g (muNTwoEquiv m)).symm
 
+omit [TopologicalSpace A] [DiscreteTopology A] [Finite A] [ContinuousSMul AbsGalQ2 A]
+  [TopologicalSpace (ElemDual A)] [DiscreteTopology (ElemDual A)]
+  [ContinuousSMul AbsGalQ2 (ElemDual A)] [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
+  [ContinuousSMul AbsGalQ2 (ZMod 2)] in
 /-- `dualAddEquiv : MuDual 2 A ≃+ ElemDual A` is `G`-equivariant: the conjugation action on the
 `μ₂`-dual matches the contragredient action on the `𝔽₂`-dual, which `hpair` pins down. -/
 theorem edEquivariant
@@ -464,7 +488,7 @@ theorem prop_5_16_bundle {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTop
     (hA₂ : ∀ a : A, a + a = 0)
     [TopologicalSpace (ElemDual A)] [DiscreteTopology (ElemDual A)]
     [DistribMulAction AbsGalQ2 (ElemDual A)] [ContinuousSMul AbsGalQ2 (ElemDual A)]
-    (hcompD : ∀ (γ : AbsGalQ2) (lam : ElemDual A), γ • lam = ρ γ • lam)
+    (_ : ∀ (γ : AbsGalQ2) (lam : ElemDual A), γ • lam = ρ γ • lam)
     [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
     [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)]
     (htriv : ∀ (γ : AbsGalQ2) (m : ZMod 2), γ • m = m)

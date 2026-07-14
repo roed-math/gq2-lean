@@ -48,6 +48,7 @@ variable {RF : RecursionFrame T Blk}
 variable (b : ContinuousMonoidHom GammaA ↥boundarySubgroup) (F : BoundaryFrame H E)
   (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR)
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **`hZcard` for `Γ_A`** — `#Z¹_{Γ_A,ρ'}(V) = #V²`.  Mirror of `Phase140Local.hZcard_local` with
 the candidate count: the `VCocycle ≃ Z¹_cont(Γ_A, V)` bridge (structurally `Γ`-generic, copied
 from the local file), then `z1Equiv` + `prop_5_15` clause 2 (`#Z1w = #V²·#fixedPts`) instead of
@@ -114,6 +115,7 @@ theorem hZcard_gammaA
     ⟨nontrivial_of_ne (0 : En.Vmod) v hv.symm, fun W hW => hsimple W hW⟩
   rw [card_fixedPts_elemDual_eq_one_of_nontrivial hsimpleMod hnt, mul_one, pow_two]
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **`hμ` for `Γ_A`** — the `T`-cocycle count `#Z¹_{Γ_A,ρ'}(T) = #T²·#(T^∨)^{Y_B/M}` in the
 `muZero` closed form (`Phase140Local.tcocycle_card_local`'s twin).  Same module setup (the
 global `RadicalEdgeGammaA.cActT` conjugation action replaces the proof-local one) and the
@@ -213,6 +215,7 @@ variable {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [
   [DistribMulAction GA (ZMod 2)] [ContinuousSMul GA (ZMod 2)]
 variable (θ : ContinuousMonoidHom GA Cf)
 
+omit [ContinuousSMul GA A] in
 theorem b1_of_pair_cochain_B2
     (hcompat : ∀ (γ : GA) (a : A), γ • a = θ γ • a)
     (hcompatD : ∀ (γ : GA) (lam : ElemDual A), γ • lam = θ γ • lam)
@@ -867,6 +870,8 @@ section HsepGammaA
 
 variable (Dsc : Descent (En.radData l h))
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- A `C`-fixed elementary dual of `Additive T` is conjugation-invariant: its values depend on
 the `T`-element only up to `Y_B`-conjugacy (`hsep_gammaA` L4, invariance step). -/
 private theorem fixed_elemDual_conj_apply (lam : ElemDual (Additive ↥(En.radData l h).T))
@@ -898,6 +903,7 @@ private theorem fixed_elemDual_conj_apply (lam : ElemDual (Additive ↥(En.radDa
   rw [h2] at h1
   exact h1.symm
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **`hsep_gammaA` L4 at one character**: a nonzero invariant character whose `β_χ(c)`
 obstruction is a coboundary takes equal values on the tame and wild relator values of a
 set-lift marking of `g_c` — the `χ`-cover lift (`exists_lift_charCover`) forces reduced-value
@@ -933,6 +939,7 @@ private theorem tCharC_relatorSum_eq_zero (ρ : BoundaryLifts b F RF.TC)
   rw [TCharC.map_mul χ, TCharC.map_inv χ] at hchival
   exact hchival
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **`hsep_gammaA` L4**: when all `χ`-obstructions of `c` vanish, every `d⁰`-invariant
 elementary dual kills the relator-value sum of a set-lift marking of `g_c` — zero characters
 kill both values outright, nonzero ones agree on them by `tCharC_relatorSum_eq_zero`. -/
@@ -979,6 +986,8 @@ private theorem invariant_dual_relatorSum_eq_zero
         ∈ B2 GammaA (ZMod 2) := iotaB_eq_zero_iff.mp (hc chiLam)
     exact tCharC_relatorSum_eq_zero b F En l h Dsc ρ c chiLam hz hB2 hproj hv₁mem hv₂mem
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- `cActT` through the `M`-quotient map is `Y_B`-conjugation on `T`-realizations
 (`hsep_gammaA` L5, the `hjconj` field of the correction calculus). -/
 private theorem coe_toMul_mkM_smul (y : RF.YB) (a : Additive ↥(En.radData l h).T) :
@@ -991,6 +1000,7 @@ private theorem coe_toMul_mkM_smul (y : RF.YB) (a : Additive ↥(En.radData l h)
   exact cactFun_eq (En.radData l h) (QuotientGroup.mk' (En.radData l h).M y) rfl
     (Additive.toMul a)
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **`hsep_gammaA` L5, correction step**: a word-level correction `x` with
 `d¹x = (v₁, v₂)` (at the pushed `B/M`-base) turns a set-lift marking `tB` into one that kills
 both relators (`corrected_tameValue`/`corrected_wildValue` + `T`-elementarity) and still
@@ -1069,6 +1079,7 @@ private theorem exists_relatorFree_marking (ρ : BoundaryLifts b F RF.TC)
       rw [map_mul, hker, one_mul]
       exact congrArg Marking.x₁ hproj
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **`hsep` for `Γ_A`** — the `(T^∨)^C`-separation at the candidate source: a `V`-coordinate
 whose `χ`-obstructions all vanish is `T`-liftable.  The `Γ_A` twin of
 `Phase140Local.hsep_local`, by the **marking route** (the local `prop_5_16` `cup20` route has
@@ -1136,6 +1147,8 @@ theorem hsep_gammaA
   rw [redTLift_apply]
   exact hf₀ γ
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- The `T`-realization of an `M`-element (`hpartial_gammaA` stage 8): `m · mV(v_m)⁻¹ ∈ T`,
 where `v_m = toAdd(descend m)` is the `V`-coordinate; its `descend` is trivial, so it lands in
 `T = ker(descend)|_M`. -/
@@ -1146,6 +1159,8 @@ private theorem descend_tPart_mem (m : ↥(En.radData l h).M) :
   refine ((En.descData l h).hdesc_ker _).mp ?_
   rw [map_mul, map_inv, (descSections En l h Dsc).descend_mV, ofAdd_toAdd, mul_inv_cancel]
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **T-part product law** (`hpartial_gammaA` stage 8): `tpart(mm') = tpart m · tpart m' ·
 mDef(v_m, v_{m'})` — the section 2-cocycle `mDef` corrects the product (`M` abelian). -/
 private theorem descend_tPart_mul (m m' : ↥(En.radData l h).M) :
@@ -1204,6 +1219,8 @@ private noncomputable def psiVCoord (χ : ↥(TCharC (En.radData l h)))
     + gχ (Multiplicative.toAdd ((En.descData l h).descend m))
     + n (Multiplicative.toAdd ((En.descData l h).descend m))
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- `ψ = psiVCoord …` is additive (`hpartial_gammaA` stage 8): the `mDef` term of the T-part
 product law (`descend_tPart_mul`) is exactly `gχ`'s splitting defect of `χ`, cancelling in
 characteristic two. -/
@@ -1240,6 +1257,8 @@ private theorem psiVCoord_add (χ : ↥(TCharC (En.radData l h)))
       A + B + (FF + P + Q) + FF + (R + S) = (A + P + R) + (B + Q + S) := by decide
   exact hchar _ _ _ _ _ _ _
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- `ψ = psiVCoord …` is `Y_B`-conjugation invariant (`hpartial_gammaA` stage 8): conjugating
 `m` by `bb` shifts its T-part by `conjDef(cc, v_m)` and its V-coordinate by `cc • v_m`
 (`cc = π_{C₀}(bb)`, `bb = uσ(cc)·k` with `k ∈ M` central in `M`); the `∂n`-relation `hkey`
@@ -1327,6 +1346,7 @@ private theorem psiVCoord_conj (χ : ↥(TCharC (En.radData l h)))
       CJ + GCV + GV = NV + NCV → TP + CJ + GCV + NCV = TP + GV + NV := by decide
   exact hfin _ _ _ _ _ _ hk
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **Stage 2 of `hpartial_gammaA`**: the cup part of every `χ`-difference vanishes in `H²`.
 The `betaChi`-collapse `hall` forces `iotaB` of the `χ`-difference to be `0`; peeling off the
 `B²` `g`-parts (`gPart_mem_B2`) leaves exactly the cup cochain. -/
@@ -1382,6 +1402,7 @@ private theorem cupChi_iotaB_eq_zero (ρ : BoundaryLifts b F RF.TC)
   exact hiota
 
 set_option synthInstance.maxHeartbeats 800000 in
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **`hpartial` for `Γ_A`** — nondegeneracy of the obstruction pairing in the character:
 every nonzero `χ ∈ (T^∨)^C` is detected by some `V`-coordinate.  The `Γ_A` twin of
 `Phase140Local.hpartial_local`, stages 1–5 and 7–9 mirrored verbatim (they are frame-level

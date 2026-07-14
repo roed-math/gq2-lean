@@ -368,6 +368,7 @@ theorem heisLift_pow_a_z_zero (w : HeisLift A C) (ha : w.a = 0) (hz : w.z = 0) (
 variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
   [Finite V]
 
+omit [Finite C] [Finite V] in
 /-- `u₁.z = 0` when `y₃ = 0` (on cocycles): `u₁ = powOmega2(x₁τ)` and `x₁τ` has `l = 0, z = 0`, so
 its powers do too. -/
 theorem heisMarking_u1_z_of_y3_zero (htriv : ∀ (g : C) (a : V), g • a = a) (t : Marking C)
@@ -386,9 +387,10 @@ theorem heisMarking_u1_z_of_y3_zero (htriv : ∀ (g : C) (a : V), g • a = a) (
   rw [powOmega2]
   exact (heisLift_pow_l_z_zero w hwl hwz _).2
 
+omit [Finite C] [Finite V] in
 /-- `u₁.z = 0` when `x₃ = 0` (on cocycles), dually. -/
 theorem heisMarking_u1_z_of_x3_zero (htriv : ∀ (g : C) (a : V), g • a = a) (t : Marking C)
-    (x : Fin 4 → V) (y : Fin 4 → ElemDual V) (hx1 : x 1 = 0) (hy1 : y 1 = 0) (hx3 : x 3 = 0) :
+    (x : Fin 4 → V) (y : Fin 4 → ElemDual V) (hx1 : x 1 = 0) (_ : y 1 = 0) (hx3 : x 3 = 0) :
     (heisMarking t x y).u1.z = 0 := by
   set w : HeisLift V C := (⟨x 3, y 3, 0, t.x₁⟩ : HeisLift V C) * ⟨x 1, y 1, 0, t.τ⟩ with hw
   have hwa : w.a = 0 := by

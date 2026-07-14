@@ -158,7 +158,7 @@ variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
 variable (b : ContinuousMonoidHom Γ ↥boundarySubgroup)
 variable (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [Finite G]
 
-omit [IsTopologicalGroup Γ] in
+omit [IsTopologicalGroup Γ] [Finite G] in
 /-- The image of the wild kernel under a continuous epimorphism `f : Γ ↠ G` lands in the
 2-core: it is normal (image of a kernel under a surjection) and a 2-group (the pro-2 image
 bridge `isPGroup_map_of_isProP`).  [P-18c] -/
@@ -179,7 +179,7 @@ noncomputable def inducedHom (htame : Function.Surjective (tameCoord b))
       rw [MonoidHom.mem_ker, MonoidHom.comp_apply, ← MonoidHom.mem_ker, QuotientGroup.ker_mk']
       exact map_wildKer_le_twoCore b G hwild f (Subgroup.mem_map_of_mem _ hx)⟩
 
-omit [IsTopologicalGroup Γ] in
+omit [IsTopologicalGroup Γ] [Finite G] in
 /-- The defining property of the descent: `α_f ∘ (pr₁ ∘ b) = π ∘ f` pointwise.  [P-18c] -/
 theorem inducedHom_tameCoord (htame : Function.Surjective (tameCoord b))
     (hwild : IsProP 2 (tameCoord b).toMonoidHom.ker) (f : ContSurj Γ G) (γ : Γ) :

@@ -155,6 +155,7 @@ theorem mem_toGal (U : Subgroup AbsGalQ2) (x : Kummer.GaloisGroup ℚ_[2]) :
 
 variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
 
+omit [Finite C] in
 /-- `toGal` of an overgroup of `ker ρ` is open (it contains the open `kerGal ρ`). -/
 theorem toGal_isOpen_of_ker_le (ρ : ContinuousMonoidHom AbsGalQ2 C) {U : Subgroup AbsGalQ2}
     (hle : (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) ≤ U) :
@@ -292,6 +293,7 @@ private theorem isDeepUnit_of_forall_mem {N₁ N₂ : Subgroup (Kummer.GaloisGro
   obtain ⟨hA0, hAfix, b, hbfix, hbeq, hbnorm⟩ := hd
   exact ⟨hA0, fun g hg => hAfix g (h g hg), b, fun g hg => hbfix g (h g hg), hbeq, hbnorm⟩
 
+omit [DiscreteTopology C] [Finite C] in
 /-- **The Galois-view index-2 brick**: `kerGal ρ` has index 2 inside `toGal U₀` for
 `U₀ = ker ρ ⊔ ⟨ĝ⟩`, the `kerGal`-idiom mirror of `subgroupOf_index_eq_two_of_sup`. -/
 private theorem kerGal_subgroupOf_toGal_index_eq_two (ρ : ContinuousMonoidHom AbsGalQ2 C)
@@ -529,6 +531,7 @@ theorem cup11Fun_comp {G₁ G₂ : Type*} [Group G₁] [Group G₂]
       = AddMonoidHom.mul (α₂ (e p.1)) (e p.1 • β₂ (e p.2))
   rw [htriv₁, htriv₂, hα, hβ]
 
+omit [Finite C] in
 /-- **The square/free `hvanish` over `ker ρ`** (P-15f2d): the cup of two deep block coordinates
 over `N = ker ρ` has trivial `H²ofFun` class.  Same tower/carrier splice as
 `hvanish_involution_ker`, but with `U = N` (no lift, no index-2) and the cup in place of the

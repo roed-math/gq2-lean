@@ -61,6 +61,8 @@ variable (Blk) in
     mul_comm := fun r s => Subtype.ext
       (hRK (r : Y) r.2 (s : Y) (SectionSeven.frattiniLike_le Blk.K s.2)) }
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- Conjugation on `R` by an element of `Y` depends only on its `K`-coset (`K`-centrality). -/
 theorem conj_eq_of_mk_eq_K (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r) {y w : Y}
     (h : QuotientGroup.mk' Blk.K y = QuotientGroup.mk' Blk.K w) (r : ↥Blk.frattiniK) :
@@ -71,6 +73,8 @@ theorem conj_eq_of_mk_eq_K (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * 
         rw [← hRK (r : Y) r.2 k hk]; group
     _ = y * k * (r : Y) * (y * k)⁻¹ := by group
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- Conjugation by `y` lands back in `R` (`R ◁ Y`). -/
 theorem conj_mem_R (y : Y) (r : ↥Blk.frattiniK) : y * (r : Y) * y⁻¹ ∈ Blk.frattiniK :=
   (SectionSeven.frattiniLike_normal Blk.K Blk.hK).conj_mem (r : Y) r.2 y
@@ -114,6 +118,8 @@ of the representative by `conj_eq_of_mk_eq_K`). -/
     show _ = (Quotient.out c * _ * (Quotient.out c)⁻¹) * (Quotient.out c * _ * (Quotient.out c)⁻¹)
     group
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- The action computed at any coset representative. -/
 theorem conjC_smul_of_mk (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r) (y : Y)
     (r : ↥Blk.frattiniK) :
@@ -131,7 +137,8 @@ theorem conjC_smul_of_mk (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k 
 end ConjAction
 
 /-! ## Shared `C = Y/K`-module helpers (used by `hZcount` and `hsep_hom`) -/
-
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- `R = Φ(K)` is elementary abelian: `Additive R` is 2-torsion. -/
 private lemma frattiniK_add_self
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
@@ -143,6 +150,8 @@ private lemma frattiniK_add_self
   refine Additive.toMul.injective (Subtype.ext ?_)
   exact hR2 _ (Additive.toMul a).2
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- A `C = Y/K`-invariant character of `R` takes equal values on `Y`-conjugates: the fixed-point
 condition, evaluated through `conjC_smul_of_mk` at `y⁻¹`. -/
 private lemma elemDual_fixed_apply_conj
@@ -175,6 +184,8 @@ private lemma elemDual_fixed_apply_conj
   rw [h2] at h1
   exact h1.symm
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- The invariant-character bridge `(R^∨)^C ≃ D_Rmod`: `#fixedPts C (R^∨) = #RCharSub`. -/
 private lemma card_fixedPts_eq_card_RCharSub
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r) :
@@ -313,6 +324,7 @@ theorem htriv_local (γ : AbsGalQ2) (m : ZMod 2) : γ • m = m := by
 
 section SepHom
 
+omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- First stage of `hsep_hom_local`: when `obs g = 0`, every paired defect class in `H²(Γ,𝔽₂)`
 vanishes (`obs_zero_iff_pairClass_zero`, with the zero-`DR` case handled directly). -/
 private theorem pairClass_all_zero [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]

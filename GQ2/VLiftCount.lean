@@ -440,6 +440,7 @@ theorem ccZsign_mk_of_ker {x : D.C.cover} (hx : x ∈ D.C.p.ker) :
       CentralObstruction.zsign_z]
 
 include hσ in
+omit [ContinuousSMul Γ (ZMod 2)] in
 /-- **The scalar-obstruction bridge**: an `M`-lift with `T`-reduction `g_c` is central iff the
 `ξ`-obstruction of `g_c` vanishes — `CentralObstruction.ob` computed through `mk_N` and
 transported to the `s₀`-section by sign-defect well-definedness. -/
@@ -499,6 +500,7 @@ theorem central_iff_betaXi (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
     iotaB_eq_zero_iff]
 
 include hσ in
+omit [ContinuousSMul Γ (ZMod 2)] in
 /-- **The complete (131)-characterization** (P-16d6c1b): `c` is the `V`-coordinate of a
 **central** `M`-lift iff it is `T`-liftable and its scalar `ξ`-obstruction vanishes. -/
 theorem mem_centralImage_iff (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
@@ -521,6 +523,7 @@ theorem mem_centralImage_iff (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
 
 section GroupStructure
 
+/-! ## The `χ`-additivity of the `T`-obstruction and the base form `Q⁰` -/
 omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
 
 /-- Negation on `Z¹_{Γ,ρ}(V)` is the identity (`V` has exponent 2). -/
@@ -549,8 +552,6 @@ theorem finite_vcocycle (σ : DD.C0 →* Bg ⧸ D.T) (hσ : ∀ cc : DD.C0, piQb
 
 end GroupStructure
 
-/-! ## The `χ`-additivity of the `T`-obstruction and the base form `Q⁰` -/
-
 omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
 /-- `β_χ` vanishes at the zero character. -/
 theorem betaChi_zero_char (c : VCocycle DD ρ) : betaChi S hσ (0 : ↥(TCharC D)) c = 0 := by
@@ -575,7 +576,6 @@ noncomputable def QZero (c : VCocycle DD ρ) : ZMod 2 :=
   iotaB (graphPullback DD.dat (fun γ => rho0 DD ρ γ) c.c)
 
 /-! ## The master count -/
-
 omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
 /-- Transporting the central `red_T`-image count to the `V`-cocycle layer. -/
 theorem card_range_redT_eq :
@@ -748,6 +748,7 @@ private theorem sum_sum_sign_betaChi_add_betaXi_eq
           (fun c => rfl)
 
 open scoped Classical in
+omit [ContinuousSMul Γ (ZMod 2)] in
 /-- **The master count** (P-16d6c1b/c1c interface): the per-`ρ` phase-obstruction identity of
 the paper's Prop 8.9 proof, derived from the (131)-characterization by double Fourier
 expansion.  The source-specific inputs are threaded: `hH2` (`#H²(Γ,𝔽₂) = 2`), `hsep` (the

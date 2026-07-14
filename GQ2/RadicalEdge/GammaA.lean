@@ -54,14 +54,17 @@ noncomputable instance instACGaddT : AddCommGroup (Additive ↥D.T) :=
 noncomputable def cactFun (c : Bg ⧸ D.M) (t : ↥D.T) : ↥D.T :=
   ⟨Quotient.out c * t.1 * (Quotient.out c)⁻¹, conj_mem_T D (Quotient.out c) t⟩
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem cactFun_eq (c : Bg ⧸ D.M) {b : Bg} (hb : QuotientGroup.mk b = c) (t : ↥D.T) :
     (cactFun D c t).1 = b * t.1 * b⁻¹ :=
   conj_eq_of_mk_eq D (by rw [QuotientGroup.out_eq' c, hb]) t
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem cactFun_one (t : ↥D.T) : cactFun D 1 t = t := by
   apply Subtype.ext
   rw [cactFun_eq D 1 (by rw [QuotientGroup.mk_one]) t]; group
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem cactFun_mul (c c' : Bg ⧸ D.M) (t : ↥D.T) :
     cactFun D (c * c') t = cactFun D c (cactFun D c' t) := by
   apply Subtype.ext
@@ -96,6 +99,7 @@ noncomputable instance cActT : DistribMulAction (Bg ⧸ D.M) (Additive ↥D.T) :
     smul_zero := fun c => cactFun_one_elt D c
     smul_add := fun c t t' => cactFun_mul' D c (Additive.toMul t) (Additive.toMul t') }
 
+omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 theorem cActT_toMul (c : Bg ⧸ D.M) (t : Additive ↥D.T) :
     Additive.toMul (c • t) = cactFun D c (Additive.toMul t) := rfl
 

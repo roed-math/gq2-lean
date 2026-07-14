@@ -96,6 +96,7 @@ variable [DistribMulAction (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)]
   [ContinuousSMul (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)]
   (htriv : ∀ (x : FreeProfiniteGroup (Fin 4) ⧸ NA) (m : ZMod 2), x • m = m)
 
+omit [ContinuousSMul (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)] in
 /-- **Obstruction of an inflated cocycle.**  If a continuous 2-cocycle `φ` on `Γ_A` factors
 pointwise through a finite group `L` as `φ(a,b) = κ(H a)(H b)` for a continuous hom
 `H : Γ_A → L` and a 2-cocycle `κ` on `L`, its obstruction is the relator-`z` pair of the

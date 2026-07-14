@@ -69,8 +69,6 @@ variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite 
 variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
-omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V]
-  [DistribMulAction C V] in
 
 /-! ## Layer 2a: the scalar restriction map and the deep classes
 
@@ -85,7 +83,6 @@ extension of equivariant homs) are plain ambient statements about cocycles.
 Since the `N`-action on both `V` (as `N = ker ρ`) and `𝔽₂` is trivial, `B¹` vanishes on both
 sides of the restriction: `H¹(N, 𝔽₂)`-classes are just continuous homs (`h1ofFun_eq_zero_iff`)
 and restriction is representative-independent at the raw-cocycle level (`phiRes_of_rep`). -/
-
 section ScalarRestriction
 
 /-- `𝔽₂`-functionals separate points on an elementary finite 2-group.  (Local copy of
@@ -143,6 +140,7 @@ theorem phiRes_def (x : H1 AbsGalQ2 V) (φ : V →+ ZMod 2) :
 
 variable {ρ}
 
+omit [DiscreteTopology C] [Finite C] [Finite V] in
 /-- **Representative independence** of the scalar restriction: any `Z¹`-representative of `x`
 computes `phiRes ρ x φ` (representatives differ by a coboundary, and coboundaries vanish
 pointwise on `ker ρ`). -/
@@ -161,6 +159,7 @@ theorem phiRes_of_rep (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
     vanish_on_ker_of_H1mk_eq_zero ρ hρ hd n
   rw [sub_eq_zero.mp h0]
 
+omit [DiscreteTopology C] [Finite C] [Finite V] in
 /-- `phiRes` is additive in the class. -/
 theorem phiRes_add (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
     (x y : H1 AbsGalQ2 V) (φ : V →+ ZMod 2) :
@@ -180,6 +179,7 @@ theorem phiRes_add (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
   rw [hfun, H1ofFun_add (phiRestrict_mem_Z1 ρ hρ _ φ) (phiRestrict_mem_Z1 ρ hρ _ φ)]
   rfl
 
+omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
 /-- `phiRes` is additive in the functional. -/
 theorem phiRes_add_phi (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
     (x : H1 AbsGalQ2 V) (φ ψ : V →+ ZMod 2) :
@@ -312,6 +312,7 @@ def InflationVanishes : Prop :=
 
 variable {ρ}
 
+omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
 /-- All scalar restrictions of `x` vanish iff the canonical representative vanishes pointwise
 on `N = ker ρ` (functionals separate points; `B¹(N, 𝔽₂) = 0`). -/
 theorem phiRes_eq_zero_iff (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
@@ -334,6 +335,7 @@ theorem phiRes_eq_zero_iff (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g •
     rw [h n, map_zero]
     rfl
 
+omit [DiscreteTopology C] [Finite C] [Finite V] in
 /-- **Injectivity of the scalar restriction package** from the inflation input: two classes
 with equal scalar restrictions are equal.  (With `InflationVanishes` discharged by Lemma 6.11
 projectivity, this is the injectivity half of `H¹(ℚ₂,V) ≅ Hom_{H_V}(V^∨, M_K)`.) -/
@@ -851,6 +853,7 @@ theorem cocycle_conj (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
       = g⁻¹ • b.1 (n : AbsGalQ2) + b.1 g⁻¹ := add_comm _ _
   exact (add_right_cancel (hcomm.symm.trans this)).symm
 
+omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
 /-- **Equivariance of the scalar restriction family**:
 `g · (phiRes x φ) = phiRes x (φ ∘ (g⁻¹ • ·))`. -/
 theorem phiRes_conj (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
@@ -920,6 +923,7 @@ noncomputable def h1EquivFam (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g �
         cases hfam
         rfl⟩
 
+omit [DiscreteTopology C] [Finite C] [Finite V] in
 /-- **Count `H¹` by families** (modulo the deferred inputs). -/
 theorem card_H1_eq_card_fam (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
     (hV2 : ∀ v : V, v + v = 0) (hinf : InflationVanishes (V := V) ρ)
@@ -927,6 +931,7 @@ theorem card_H1_eq_card_fam (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g �
     Nat.card (H1 AbsGalQ2 V) = Nat.card (AdmissibleFam (V := V) ρ) :=
   Nat.card_congr (h1EquivFam hρ hV2 hinf hext)
 
+omit [DiscreteTopology C] [Finite C] [Finite V] in
 /-- **Count the deep half by deep-valued families** (modulo the deferred inputs): the
 identification carries `X₊` onto the admissible families valued in the deep classes. -/
 theorem card_deepPart_eq_card_deepFam (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)

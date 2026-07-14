@@ -59,6 +59,7 @@ theorem card_H1w_of_normalForm (t : Marking C)
       obtain ⟨c, hc, -⟩ := hnf x.val x.2
       exact ⟨c, (key ⟨x0Supported c, hx0mem c⟩ x).mpr hc⟩
 
+omit [Finite C] [Finite A] in
 /-- **No invariants for a nontrivial simple module**: `H⁰w(A) = A^C = 0`.  `H⁰w` is the `C`-fixed
 space (`H0w_eq_fixedPts`, using `hgen`), a `C`-submodule, so `⊥` or `⊤` by simplicity; `⊤` would make
 the action trivial, contradicting `hnt`. -/
@@ -95,6 +96,7 @@ theorem card_H2w_and_Z1w_of_nontrivial_simple (t : Marking C) (ht : t.TameRel) (
   refine ⟨hH2, ?_⟩
   rw [card_Z1w_eq_sq_mul_card_H2w, hH2, mul_one]
 
+omit [Finite C] [Finite A] in
 /-- **No dual invariants for a nontrivial simple module**: `#(A^∨)^C = 1`.  A nonzero `C`-invariant
 `λ` has `C`-stable kernel, which is `⊥` by simplicity, so `λ` is injective; but `λ(c·a) = λ(a)`
 (invariance) then forces `c·a = a`, a trivial action — contradicting `hnt`. -/
@@ -127,6 +129,7 @@ theorem card_fixedPts_elemDual_eq_one_of_nontrivial (hsimple : IsSimpleModTwo C 
   exact ⟨⟨fun x y => Subtype.ext ((hzero x.val x.2).trans (hzero y.val y.2).symm)⟩,
     ⟨⟨0, fun c => smul_zero c⟩⟩⟩
 
+omit [Finite C] in
 /-- **Split/ramified dichotomy for a simple module**: either `τ` acts trivially (split, `V^T = V`)
 or `V^T = 0` (ramified).  The `τ`-fixed space `V^T` is `C`-stable — `σ` preserves it via the tame
 relation `σ⁻¹τσ = τ²` (`τ(σv) = σ(τ²v) = σv`), `x₀,x₁` act trivially (`wild_acts_trivially`), and the
@@ -425,7 +428,7 @@ theorem selfDual_of_trivial_action (t : Marking C) (ht : t.TameRel) (hw : t.Wild
   exact trivialSelfDual t ht hw htriv hV₂
 
 /-! ## Ramified simple case -/
-
+omit [Finite C] [Finite A] in
 /-- Elementwise contragredient triviality: if `g` acts trivially on `A` it acts trivially on
 `A∨` (`(g•λ)a = λ(g⁻¹•a) = λ(a)`). -/
 theorem elemDual_smul_trivial_of (g : C) (hg : ∀ a : A, g • a = a) :
