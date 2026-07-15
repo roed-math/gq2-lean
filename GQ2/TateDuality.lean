@@ -237,19 +237,19 @@ is unchanged. -/
 abbrev TateDuality (n : ℕ) [NeZero n] : Type := TateDualityG AbsGalQ2 n
 
 /-- **`G` is a local dualizing group over `ℚ₂`** — the truth-side hypothesis gating the
-base-generalized B6 axiom `GQ2.tateDualityAt`: `G` embeds continuously and injectively as a
-**finite-index** (hence open, closed) subgroup of `G_ℚ₂`, compatibly with the `μₙ`-action.  Such
+base-generalized B6 axiom `GQ2.tateDualityAt`: `G` embeds topologically as a
+**open finite-index** subgroup of `G_ℚ₂`, compatibly with the `μₙ`-action.  Such
 `G` are exactly the `G_K = Gal(ℚ̄₂/K)` for `K/ℚ₂` finite (`K` = the fixed field of the image),
 for which local Tate duality holds; `G = G_ℚ₂` is the identity embedding. -/
 def IsLocalDualizingGroup (G : Type) [Group G] [TopologicalSpace G] (n : ℕ) [NeZero n]
     [DistribMulAction G (MuN n)] : Prop :=
-  ∃ ι : G →* AbsGalQ2, Continuous ι ∧ Function.Injective ι ∧ (ι.range).FiniteIndex ∧
+  ∃ ι : G →* AbsGalQ2, Topology.IsOpenEmbedding ι ∧ (ι.range).FiniteIndex ∧
     ∀ (g : G) (x : MuN n), g • x = ι g • x
 
 /-- `G_ℚ₂` itself is a local dualizing group (the identity embedding). -/
 theorem isLocalDualizingGroup_absGalQ2 (n : ℕ) [NeZero n] :
     IsLocalDualizingGroup AbsGalQ2 n :=
-  ⟨MonoidHom.id AbsGalQ2, continuous_id, Function.injective_id,
+  ⟨MonoidHom.id AbsGalQ2, Topology.IsOpenEmbedding.id,
     by rw [MonoidHom.range_eq_top.mpr Function.surjective_id]; infer_instance,
     fun _ _ => rfl⟩
 

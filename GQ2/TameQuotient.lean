@@ -89,14 +89,13 @@ is NSW (7.5.3)'s `σ⁻¹`).
 Both clauses read the value through an arbitrary lift `g` of the abelianized class (well-posed:
 `ν_t ∘ equiv ∘ mk` kills `commClosure` — continuous into an abelian `T2` target).
 
-Citation: **Neukirch, *Algebraic Number Theory* (Grundlehren 322), Chap. V, Theorem (6.2)** —
-the norm
-residue symbol maps `U_K^{(n)}` onto the upper-numbering ramification group `G^n(L|K)` for
-every finite abelian `L|K`; at `n = 0`: **units ↦ inertia**, whence prime elements ↦ Frobenius
-lifts (with **Chap. V, (1.2)**: `Ĥ^i(G(L|K), U_L) = 1` for `L|K` unramified — units are norms
-at every finite unramified level; NSW [1] (7.1.2)(i) is the same statement in
-cohomological-triviality form).  Tame structure and orientation: **NSW [1] (7.5.2)/(7.5.3)**.
-(All verified against the PDFs in `references/`.) -/
+Citation: **Serre, *Local Fields*, Ch. XIII §4, Proposition 13 and its corollary** — local
+reciprocity maps the unit group onto inertia; hence a uniformizer maps to a Frobenius lift.
+For the higher unit filtration, Neukirch, *Algebraic Number Theory*, Ch. V, Theorem (6.2)
+maps `U_K^{(n)}` onto `G^n(L|K)` for `n > 0` (it should not be cited for the `n = 0` clause).
+For unramified norm-triviality use Neukirch Ch. V (1.2), equivalently NSW [1] (7.1.2)(i).
+Tame structure and orientation: NSW [1] (7.5.2)/(7.5.3).  Verified against the cited PDFs;
+the audit copies are not vendored in this repository. -/
 structure OrientedTameQuotient (R : LocalReciprocity) extends TameQuotientData where
   /-- Units are unramified-trivial: `ν_t(tameF(rec(u))) = 1` for every 2-adic unit `u`. -/
   nuT_recip_unit : ∀ (u : ℤ_[2]ˣ) (g : AbsGalQ2),
