@@ -4,3 +4,5 @@ references/
 /scratch/
 /atlas-graph.json
 /atlas-graph.json.cache
+.mcp.json
+.mathlib-quality/
