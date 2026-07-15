@@ -1,5 +1,7 @@
 # gq2-lean — A presentation of $G_{\mathbf{Q}_2}$ in Lean
 
+[![CI](https://github.com/roed-math/gq2-lean/actions/workflows/ci.yml/badge.svg)](https://github.com/roed-math/gq2-lean/actions/workflows/ci.yml)
+
 This repository contains a Lean 4 +
 [Mathlib](https://github.com/leanprover-community/mathlib4) formalization of an explicit
 presentation of the absolute Galois group of the 2-adic numbers.
@@ -14,8 +16,10 @@ treating displayed theorem numbers as stable; see [`docs/paper-api.md`](docs/pap
 
 ## Result
 
-The formalization is complete and contains no `sorry`. Its literal form of the presentation
-theorem is
+The `GQ2` library and its exported solution are complete and contain no `sorry`. The separate
+Comparator input [`Challenge.lean`](Challenge.lean) intentionally contains one `sorry`: it is the
+untrusted challenge statement whose proof is supplied by [`Solution.lean`](Solution.lean). The
+literal form of the proved presentation theorem is
 
 ```lean
 GQ2.main_presentation_literal :
@@ -60,7 +64,9 @@ their precise statements, citations, and deviations from the cited formulations 
 [`docs/literature-axioms.md`](docs/literature-axioms.md).
 
 [`scripts/check_axioms.sh`](scripts/check_axioms.sh) enforces the axiom census, rejects `sorry` and
-`native_decide`, and ensures that no other file declares axioms. Building
+`native_decide` from the `GQ2` library, and ensures that no other library file declares axioms. It
+deliberately does not treat the single Comparator placeholder in `Challenge.lean` as a library
+proof gap. Building
 [`GQ2/AxiomLedger.lean`](GQ2/AxiomLedger.lean) reports the transitive consumers of every literature
 axiom and detects unknown non-standard axioms.
 
@@ -74,8 +80,8 @@ declarations, and permitted axiom set using the
 The main theorem is also packaged for
 [`leanprover/comparator`](https://github.com/leanprover/comparator):
 
-- [`Challenge.lean`](Challenge.lean) states the theorem using only the imports needed for its
-  statement;
+- [`Challenge.lean`](Challenge.lean) states the theorem, with one intentional `sorry`, using only
+  the imports needed for its statement;
 - [`Solution.lean`](Solution.lean) supplies `GQ2.main_presentation_literal` as its proof;
 - [`comparator-config.json`](comparator-config.json) names the theorem and permits exactly the
   standard three axioms plus the nine documented literature axioms.
@@ -124,6 +130,10 @@ python3 scripts/atlas_audit.py atlas-graph.json
 [`atlas-audit.md`](atlas-audit.md) is committed so reviewers can inspect the exact post-refactor
 review cone without installing the Atlas viewer.
 
+The [GitHub Actions workflow](.github/workflows/ci.yml) performs the full Lean build, including the
+Comparator challenge and solution, then runs the axiom-hygiene script and transitive axiom ledger
+on every push to and pull request against `master`.
+
 ## Repository guide
 
 | Path | Purpose |
@@ -140,6 +150,7 @@ review cone without installing the Atlas viewer.
 | `atlas-audit.md` | Regenerated Lean Compass review cone and kernel axiom report |
 | `docs/` | Maintained mathematical audits, paper crosswalks, errata, and historical proof-design archive; see [`docs/README.md`](docs/README.md) |
 | `scripts/` | Axiom hygiene, Atlas report generation, and paper-API audit tools |
+| `.github/workflows/ci.yml` | Automated build, axiom-hygiene, and ledger checks |
 
 Large proof developments are split into focused submodules while their original import paths remain
 thin public umbrellas. Public declarations stay under the `GQ2` namespace, so the file split does

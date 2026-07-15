@@ -75,8 +75,8 @@ theorem elemDual_extend {A' A : Type*} [AddCommGroup A'] [AddCommGroup A] [Finit
   rw [h1]
   exact congrFun (AddMonoidHom.coe_toZModLinearMap 2 _) a'
 
-/-- The `𝔽₂`-dual separates points on a finite elementary 2-group. -/
-theorem elemDual_separates {A : Type*} [AddCommGroup A] [Finite A]
+/-- The `𝔽₂`-dual separates points on an elementary 2-group. -/
+theorem elemDual_separates {A : Type*} [AddCommGroup A]
     (hA₂ : ∀ a : A, a + a = 0) {a : A} (ha : a ≠ 0) : ∃ lam : ElemDual A, lam a ≠ 0 := by
   have : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   have : Module (ZMod 2) A := AddCommGroup.zmodModule (fun v => by rw [two_nsmul]; exact hA₂ v)

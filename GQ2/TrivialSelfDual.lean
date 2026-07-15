@@ -12,6 +12,7 @@ public import Mathlib.AlgebraicTopology.SimplexCategory.Basic
 public import GQ2.FoxHeisenberg
 public import GQ2.FoxHeisenberg.WildRow
 public import GQ2.MixedBilinear
+public import GQ2.Devissage.ElemDualPack
 
 @[expose] public section
 
@@ -151,13 +152,6 @@ scalar `u₁.z` confined to the `(3,3)` slot (`heisMarking_u1_z_of_{x3,y3}_zero`
 therefore unit-determinant regardless of `u₁.z`, and `elemDual_separates` gives nondegeneracy.
 `trivialSelfDual` descends `mixedB` to `H¹w = Z¹w` via `Quotient.lift₂` and closes both
 nondegeneracy conditions by the case analysis below (std-3). -/
-
-/-- The `𝔽₂`-dual separates points of a finite elementary-2 module. -/
-theorem elemDual_separates (hA₂ : ∀ a : A, a + a = 0) {a : A} (ha : a ≠ 0) :
-    ∃ lam : ElemDual A, lam a ≠ 0 := by
-  haveI : Module (ZMod 2) A := AddCommGroup.zmodModule (fun v => by rw [two_nsmul]; exact hA₂ v)
-  obtain ⟨f, hf⟩ := Module.Projective.exists_dual_ne_zero (ZMod 2) ha
-  exact ⟨f.toAddMonoidHom, hf⟩
 
 /-- On the trivial module `Z¹w = {x | x₁ = 0}`. -/
 theorem mem_Z1w_trivial_iff (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
