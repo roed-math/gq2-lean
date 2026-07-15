@@ -21,7 +21,8 @@ ring, residue field, or ramification bookkeeping is introduced.
 The structure `DyadicUnitFiltration` bundles the **former B13 axiom content**: existence of a
 uniformizer (discreteness of the value group), the normalization `‖2‖ = ‖π‖^e`, and the
 residue counts of the graded pieces of the filtration — **Serre, *Local Fields* [7],
-Ch. IV §2, Proposition 6** (verified verbatim against the `references/` scan):
+Ch. IV §2, Proposition 6** (verified verbatim against the cited source; the audit copy is
+not vendored):
 `U^{(0)}/U^{(1)} ≅ k̄^×` (order `2^f − 1`) and `U^{(i)}/U^{(i+1)} ≅ k̄⁺` (order `2^f`) for
 `i ≥ 1`.  The interface `GQ2.dyadicUnitFiltration` asserting an instance for every finite `k`
 lives in `GQ2/Foundations/Axioms.lean`; everything in this file is a plain definition or a
