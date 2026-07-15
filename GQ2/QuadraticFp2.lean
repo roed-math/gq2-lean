@@ -1,7 +1,20 @@
-import Mathlib
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.Dynamics.Flow
+public import Mathlib.Algebra.Field.ZMod
+public import Mathlib.Tactic.Abel
+public import Mathlib.Tactic.Ring
+
+@[expose] public section
+
 
 /-!
-# Quadratic maps to `𝔽₂` on finite elementary abelian `2`-groups  (ticket P-14 def-layer)
+# Quadratic maps to `𝔽₂` on finite elementary abelian `2`-groups
 
 The paper's §6 determinant obstructions are quadratic maps `q : V → 𝔽₂` on finite elementary
 abelian `2`-groups (equivalently `𝔽₂`-vector spaces), with their **polar forms**

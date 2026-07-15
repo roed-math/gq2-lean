@@ -1,12 +1,21 @@
-import GQ2.LocalKummer
-import GQ2.UnitFiltration
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.LocalKummer
+public import GQ2.UnitFiltration
+
+@[expose] public section
 
 /-!
-# The Kummer depth filtration on `H¹(G_k, 𝔽₂)`  (ticket P-15f6, brick i)
+# The Kummer depth filtration on `H¹(G_k, 𝔽₂)`
 
 The image of the unit filtration `U^{(j)}(k)` (`GQ2/UnitFiltration.lean`) under the Kummer
 class map, as a decreasing chain of additive subgroups of `H¹(G_k, 𝔽₂)` — the filtration whose
-graded `Hom`-counts (P-15f5's engine) produce `DeepKummerData.card_fam`/`card_deepFam` for the
+graded `Hom`-counts (the deep-part proof's engine) produce `DeepKummerData.card_fam`/`card_deepFam` for the
 Lemma-6.17 dimension clause.
 
 * `kummerDepth k π j` — classes `kummerClassK k a` of depth-`j` units; an `AddSubgroup` by the
@@ -14,15 +23,15 @@ Lemma-6.17 dimension clause.
 * `kummerDepth_antitone` — decreasing in `j`;
 * `kummerDepth_eq_bot` — the filtration dies at `j = 2e + 1` (`U^{(2e+1)} ⊆ (k^×)²` — the
   Local Square Theorem `sq_of_near_one` + `kummerClassK_sq`), the endpoint for the
-  P-15f5 iteration;
+  the deep-part proof iteration;
 * `kummerClassK_mem_deepClasses` / `coe_kummerDepth_deep` — stage `e + 1` **is** the deep
   classes: `(kummerDepth k π (e+1) : Set _) = LocalKummer.deepClasses k.fixingSubgroup`.
-  (In particular `deepClasses` is an additive subgroup — the form P-15f2's orbit analysis and
+  (In particular `deepClasses` is an additive subgroup — the form the Lemma 6.17 vanishing proof's orbit analysis and
   the `card_deepFam` count consume.)
 
 The B13 inputs — the uniformizer `π ∈ k`, `‖2‖ = ‖π‖^e`, `‖π‖ < 1`, and value-group
 discreteness `hπ_max` — enter only as **hypotheses** (the consumer pulls them from the
-`GQ2.dyadicUnitFiltration` bundle), so this file is std-3 sorry-free and axiom-free.
+`GQ2.dyadicUnitFiltration` bundle), so this file is axiom-free.
 -/
 
 namespace GQ2
@@ -70,7 +79,7 @@ theorem kummerClassK_eq_zero_of_sq (a : (↥k)ˣ) (w : ↥k) (hw : w ^ 2 = (a : 
   exact kummerClassK_mul_self k (Units.mk0 w hw0)
 
 /-- **The filtration endpoint** (`U^{(2e+1)} ⊆ (k^×)²`, the Local Square Theorem): past depth
-`2e` every Kummer class dies.  The P-15f5 iteration terminates here
+`2e` every Kummer class dies.  The the deep-part proof iteration terminates here
 (`card_equivHoms_of_subsingleton`). -/
 theorem kummerDepth_eq_bot [FiniteDimensional ℚ_[2] k]
     (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1) {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e)

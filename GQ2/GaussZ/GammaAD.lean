@@ -1,11 +1,17 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.GaussZ.FinalGammaA
 import GQ2.GaussZ.FinalD
 
 /-!
-# P-16d6e4aA-P4d — the `Γ_A` `GaussZResidue` twins at the head-inflated enrichment
+# The `Γ_A` `GaussZResidue` twins at the head-inflated enrichment
 
-The P4 reshape's `Γ_A` side (`docs/p16d6e4aA-p4-tame-package.md` §3,
-`docs/p16d6e4aA-p4d-handoff.md`): the two `gaussZResidue_gammaA_*` twins of
+The `Γ_A` side of the head-inflation reshape
+(`docs/orchestration/p16d6e4aA-p4-tame-package.md` §3,
+`docs/orchestration/p16d6e4aA-p4d-handoff.md`): the two `gaussZResidue_gammaA_*` twins of
 `GQ2/GaussZFinalGammaA.lean` replayed at `En := blockEnrichmentD` — **without the refuted
 per-lift `hpack`**.  For an arbitrary boundary lift `ρ` the tame factorization is recovered at
 the faithful head quotient:
@@ -31,9 +37,8 @@ The un/ramified dichotomy hypothesis is taken at the **head** (`F.alpha tameTau`
 `headAct`) — ρ-free and source-free, matching the P4c local twins, so the P4e obtain can
 `by_cases` on it once for both sources.
 
-Axioms: the unramified twin is std-3; the ramified twin once inherited a transitive `sorryAx`
-from `zeroCount_qDouble_ramified_of_faithful` (through `finsum_sign_ramified_of_action`), but
-P3 landed and that count is proved — this file's trace is sorry-free.
+Axioms: the unramified and ramified twins use only the standard axioms; the ramified zero count is
+provided by `zeroCount_qDouble_ramified_of_faithful` through `finsum_sign_ramified_of_action`.
 -/
 
 namespace GQ2

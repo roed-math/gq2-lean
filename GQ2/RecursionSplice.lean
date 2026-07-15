@@ -1,9 +1,14 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.RStage.ObstructionBuild
 import GQ2.RadicalEdge.Bridge
 import GQ2.AffineTLift
 
 /-!
-# §8 capstone — the Prop 8.9 two-source splice  (P-16d6)
+# §8 capstone — the Proposition 8.9 two-source splice helpers
 
 `GQ2.SectionEight.prop_8_9` asserts the boxed recursion system `ClosedRecursion` for **both**
 sources `B.bA` (`Γ_A`) and `B.bF` (`G_ℚ₂`), sharing one witness `(μ, G0, DT, phase)`.  Its proof is
@@ -11,21 +16,20 @@ the final assembly of §8: `prop_8_9_aux` turns a per-source `RecursionInputs` b
 (`stageR136` + `half139` + `phase140`, with `(137)`/`(138)` discharged internally) into
 `ClosedRecursion`, and the two sources share the phase witness.
 
-This file builds the splice **in a leaf, off the co-owned `SectionEight.lean`** (per the parallel
-shared-tree convention): `prop_8_9_of` reduces `prop_8_9`'s conclusion to the per-source inputs +
-witness, and the component-discharge lemmas feed those inputs from the landed
-P-16d2/d3/d4/d5 APIs.  The final one-line splice into `prop_8_9` (`exact prop_8_9_of …`) is a
-trivial coordinated edit to `SectionEight.lean` done last.
+This file keeps the splice in a leaf of the import graph: `prop_8_9_of` reduces the conclusion to
+the per-source inputs and shared witness, and the component lemmas construct those inputs from the
+obstruction, half-torsor, and phase APIs.  The final theorem is assembled downstream in
+`GQ2/Prop89Close.lean`.
 
 ## Inputs (per source `s ∈ {A, F}`, `Γ_s ∈ {Γ_A, G_ℚ₂}`)
 
 * `stageR136` — `RStageObstructionBuild.stageR136_ofRSepData` from a concrete `RObstructionData`
-  + the source residues (`hsep_hom`, `hZcount`) + `hE2` (P-16d2).
-* `half139` — `RecursionFrame.half139_of` (P-16d3) discharged by
+  + the source residues (`hsep_hom`, `hZcount`) + `hE2`.
+* `half139` — `RecursionFrame.half139_of`, discharged by
   `centralOver_equiv`/`liftsOver_equiv`
   + `lemma_8_6_local` (`G_ℚ₂`) / `lemma_8_6_gammaA` (`Γ_A`) + the `M`-lift count (5.15/5.16).
-* `phase140` — the `lemma_8_7`/`lemma_8_5`/Prop 8.8/`lemma_6_21`/cor 5.17 chain (P-16d4/d5).
-* the witness `(μ, G0, DT, phase)` — `phaseFamily`/`centralCoverOfCocycle` (P-16d5).
+* `phase140` — the `lemma_8_7`/`lemma_8_5`/Prop 8.8/`lemma_6_21`/cor 5.17 chain.
+* the witness `(μ, G0, DT, phase)` — `phaseFamily`/`centralCoverOfCocycle`.
 * side conditions `hfg` / `hscalar` / `hhead` — the source's t.f.g., `#Hom(Γ,𝔽₂)=8`, head
   surjectivity.
 -/
@@ -41,8 +45,7 @@ variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finit
 backbone).
 Given the shared phase witness `(μ, G0, DT, phase)`, the two per-source side-condition triples, and
 the two `RecursionInputs` bundles, the boxed system holds for both sources — each via
-`prop_8_9_aux`.  The remaining work (the component-discharge lemmas below) feeds the two
-`RecursionInputs`. -/
+`prop_8_9_aux`.  The component lemmas below construct the two `RecursionInputs`. -/
 theorem prop_8_9_of (B : BoundaryMaps)
     [CompactSpace GammaA] [TotallyDisconnectedSpace GammaA] [IsTopologicalGroup GammaA]
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
@@ -69,12 +72,12 @@ theorem prop_8_9_of (B : BoundaryMaps)
 
 /-! ## `half139` reduced to the source's `MLifts`-level count (d3 bridge discharged)
 
-`half139_via_radData` strips the P-16d3 bridge plumbing (`centralOver_equiv`/`liftsOver_equiv`
+`half139_via_radData` strips the Prop. 8.9 assembly bridge plumbing (`centralOver_equiv`/`liftsOver_equiv`
 over `En.radData`) off the `half139` obligation, reducing it to the two **pure `MLifts` source
 facts** for the transported lower map `ρ' = rhoPrime …`:
 
 * `hlem86M` — the source's Lemma 8.6 half-torsor identity `2·#{central M-lifts} = #(M-lifts)`
-  (`lemma_8_6_local` ✓ for `G_ℚ₂`; `lemma_8_6_gammaA` = P-16c for `Γ_A`), and
+  (`lemma_8_6_local` ✓ for `G_ℚ₂`; `lemma_8_6_gammaA` = the Γ_A half-torsor proof for `Γ_A`), and
 * `hMcountM` — the `M`-lift count `#(M-lifts) = |M_B|²` (props 5.15/5.16).
 
 So a caller feeds `half139_of` (hence `RecursionInputs.half139`) directly from the source
@@ -130,7 +133,7 @@ theorem zBC_eq_sum_centralOver {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsT
 /-! ## `hfib` level 2 — the per-`ρ` μ-partition of the central `M`-lifts -/
 
 open AffineTLift CentralObstruction in
-/-- **The per-`ρ` μ-partition** (P-16d6, `hfib` level 2): in the zero-edge regime the central
+/-- **The per-`ρ` μ-partition** (the Prop. 8.9 assembly, `hfib` level 2): in the zero-edge regime the central
 `M`-lifts of a lower map `ρ` split into the fibres of the `T`-reduction map `red_T`, and each
 (nonempty) fibre is a free `Z¹_{Γ,ρ}(T)`-torsor of size `μ = #Z¹(T)` (`lemma_8_7_count`,
 `Central` constant by `central_twist_iff`).  Hence the central-lift count factors as
@@ -187,7 +190,7 @@ theorem central_card_eq_reductions_mul_tcocycle
         rw [Finset.sum_const, Finset.card_univ, smul_eq_mul, ← Nat.card_eq_fintype_card]
 
 open AffineTLift CentralObstruction in
-/-- **The per-`ρ` μ-partition, in bridge vocabulary** (P-16d6): transporting
+/-- **The per-`ρ` μ-partition, in bridge vocabulary** (the Prop. 8.9 assembly): transporting
 `central_card_eq_reductions_mul_tcocycle` through `centralOver_equiv`, the `zBC`-fibre
 `#CentralOver(ρ)` (the summand of `zBC_eq_sum_centralOver`) factors as
 `(#achievable central `T`-reductions of `ρ' = rhoPrime …`) · #Z¹(T)`.  This is the per-fibre form
@@ -211,7 +214,7 @@ theorem centralOver_card_eq_reductions_mul_tcocycle {Γ : Type} [Group Γ] [Topo
   exact central_card_eq_reductions_mul_tcocycle (RF.rhoPrime b F D hD ρ) Dsc htriv hfg
 
 open AffineTLift CentralObstruction in
-/-- **The (140) `hfib` datum, reduced to μ-independence** (P-16d6).  Summing the per-`ρ`
+/-- **The (140) `hfib` datum, reduced to μ-independence** (the Prop. 8.9 assembly).  Summing the per-`ρ`
 μ-partition (`centralOver_card_eq_reductions_mul_tcocycle`) over the `C`-image via
 `zBC_eq_sum_centralOver` and factoring out the common `μ` (hypothesis `hμ`: the `T`-cocycle
 count `#Z¹(T)` is `ρ`-independent — the source 5.15/5.16 fact) gives the (140) fibration
@@ -244,7 +247,7 @@ theorem zBC_eq_mu_mul_reductionCount {Γ : Type} [Group Γ] [TopologicalSpace Γ
 /-! ## `hgauss` level 1 — aggregating the Gauss engine `lemma_8_5` over the ρ-family -/
 
 open QuadraticFp2 in
-/-- **The aggregated constrained-Gauss identity** (P-16d6, `hgauss` level 1): summing the proved
+/-- **The aggregated constrained-Gauss identity** (the Prop. 8.9 assembly, `hgauss` level 1): summing the proved
 Gauss engine `lemma_8_5` over a finite index family `I` (the `C`-image `ρ`, each with its own
 constraint `(κ_i, ε_i)`) and swapping the resulting double sum gives
 
@@ -295,7 +298,7 @@ theorem lemma_8_5_aggregated {W E : Type*} [AddCommGroup W] [Module (ZMod 2) W] 
 /-! ## Discharging the polar data `a_χ` from nonsingularity (the `En.hns` supply) -/
 omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
   [DiscreteTopology E] [Finite E] in
-/-- **The `|V| = |M_B|/|T_B|` match** (P-16d6): the enrichment's descent `M_B ↠ V` with
+/-- **The `|V| = |M_B|/|T_B|` match** (the Prop. 8.9 assembly): the enrichment's descent `M_B ↠ V` with
 `ker = T_B` gives `|V| = |M_B|/|T_B|` by the first isomorphism theorem — discharging the `hWV`
 cardinality match of `phase140_of_nonsingular` directly from `En` (with `W := En.Vmod`). -/
 theorem enrichment_card_Vmod {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y]

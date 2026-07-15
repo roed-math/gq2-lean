@@ -6,7 +6,7 @@
 Ticket IDs `T-xx` cited in module docstrings and commit messages refer to **this** file.
 
 **Post-archive addendum (2026-07-04):** an adversarial review of the axiom layer
-([`adversarial-axioms-review.md`](adversarial-axioms-review.md)) found no false statement but
+([`adversarial-axioms-review.md`](../adversarial-axioms-review.md)) found no false statement but
 flagged citation-faithfulness gaps in three step-1 deliverables — B8 is stronger than its Stix
 citation alone (needs a cyclotomic-surjectivity input), B3c is a composite interface (not bare
 Labute), and B11 is a composite of several classical facts plus a repo-specific spectral-norm

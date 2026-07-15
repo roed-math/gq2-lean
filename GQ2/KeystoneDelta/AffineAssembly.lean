@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.KeystoneDelta.ThetaExtraction
 
 /-!
@@ -249,7 +254,7 @@ noncomputable def gchi (χ : ↥(TCharC D)) : DD.Vmod → ZMod 2 :=
   Classical.choose (gchi_exists S hσ χ)
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
-theorem gchi_split (χ : ↥(TCharC D)) (v w : DD.Vmod) :
+private theorem gchi_split (χ : ↥(TCharC D)) (v w : DD.Vmod) :
     χ.1 (mDef DD S v w) = gchi S hσ χ (v + w) + gchi S hσ χ v + gchi S hσ χ w :=
   (Classical.choose_spec (gchi_exists S hσ χ)).2 v w
 
@@ -304,7 +309,7 @@ theorem gammatot_add (χ : ↥(TCharC D)) (cc : DD.C0) (x y : DD.Vmod) :
 
 include hσ in
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
-theorem gammatot_dual_crossed (χ : ↥(TCharC D)) (cc dd : DD.C0) (x : DD.Vmod) :
+private theorem gammatot_dual_crossed (χ : ↥(TCharC D)) (cc dd : DD.C0) (x : DD.Vmod) :
     gammatot S Dsc hσ χ (cc * dd) x
       = gammatot S Dsc hσ χ cc x + gammatot S Dsc hσ χ dd (cc⁻¹ • x) := by
   unfold gammatot
@@ -370,7 +375,7 @@ noncomputable def achi (χ : ↥(TCharC D)) (cc : DD.C0) : DD.Vmod :=
     (gammatot S Dsc hσ χ cc) (gammatot_add S Dsc hσ χ cc))
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
-theorem achi_spec (χ : ↥(TCharC D)) (cc : DD.C0) (v : DD.Vmod) :
+private theorem achi_spec (χ : ↥(TCharC D)) (cc : DD.C0) (v : DD.Vmod) :
     polar DD.qbar (achi S Dsc hσ χ cc) v = gammatot S Dsc hσ χ cc v :=
   Classical.choose_spec (exists_polar_inverse' (DD := DD) DD.hquad DD.hns
     (gammatot S Dsc hσ χ cc) (gammatot_add S Dsc hσ χ cc)) v

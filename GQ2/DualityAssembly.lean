@@ -1,10 +1,19 @@
-import GQ2.Devissage
-import GQ2.TrivialSelfDual
-import GQ2.TameSimple
-import GQ2.DevissageInduction
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.Devissage
+public import GQ2.TrivialSelfDual
+public import GQ2.TameSimple
+public import GQ2.DevissageInduction
+
+@[expose] public section
 
 /-!
-# P-13f: assembling `prop_5_15` (deformation duality) from the simple-module case + dévissage
+# Assembling `prop_5_15` (deformation duality) from the simple-module case + dévissage
 
 `prop_5_15 : IsSelfDual t A` for every finite elementary `𝔽₂[C]`-module.  Route: the simple modules
 are self-dual (trivial module via `trivialSelfDual`; nontrivial simples via `lemma_5_13` + the
@@ -349,7 +358,7 @@ theorem normalForm_of_shapes (t : Marking C)
 
 /-- **Proposition 5.15, split simple case.**  A nontrivial simple module on which `τ` acts trivially
 (`htau`) and `σ` acts nontrivially (`hσ`) is self-dual.  The `σ`-tameness `hU` and fixed-point
-freeness `hVS` come from P-13d; the contragredient dual `A∨` inherits split + trivial-wild action
+freeness `hVS` come from the tame representation-theory proof; the contragredient dual `A∨` inherits split + trivial-wild action
 from `A` (via `ElemDual.smul_apply`), giving both normal forms; the cards close clauses 1–2 and
 `clause3_of_normalForm` (with the split pairing `(c,λ) ↦ λ(c)`) closes clause 3. -/
 theorem selfDual_of_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hgen : t.Generates)
@@ -358,7 +367,7 @@ theorem selfDual_of_split (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hge
     IsSelfDual t A := by
   obtain ⟨v₀, hv₀⟩ := hσ
   have hnt : ∃ (c : C) (a : A), c • a ≠ a := ⟨t.σ, v₀, hv₀⟩
-  -- `A`-side hypotheses (P-13d) and the split shapes / normal form
+  -- `A`-side hypotheses (the tame representation-theory proof) and the split shapes / normal form
   have hU : ∀ v : A, t.sigma2 • v = v := sigma2_smul_trivial t hgen hV₂ hsimple hcore htau
   have hVS : ∀ v : A, t.σ • v = v → v = 0 :=
     fixedPoints_sigma_eq_zero t hgen hV₂ hsimple hcore htau ⟨v₀, hv₀⟩
@@ -549,14 +558,14 @@ theorem selfDual_of_simple (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   · exact selfDual_of_split_case t ht hw hgen hV₂ hsimple hcore htau
   · exact selfDual_of_ramified t ht hw hgen hV₂ hsimple hcore htau
 
-/-- **Prop 5.15 (candidate deformation duality) — PROVED**: the Fox–Heisenberg chain map is a
+/-- **Prop. 5.15 (candidate deformation duality):** the Fox–Heisenberg chain map is a
 quasi-isomorphism for every finite elementary module — packaged: the display-(56) numerics hold
 and the descended `B`-pairing is perfect.
 
 The composition: the dévissage strong induction `prop_5_15_of_simple`
 (`GQ2/DevissageInduction.lean`, via `lemma_5_11` along `0 → W → A → A/W → 0` for a proper
 `C`-stable `W`) reduces to the simple case, which `selfDual_of_simple` closes by the
-`tau_split_or_ramified` dichotomy — split (`lemma_5_13_split` + the P-13d tame providers) or
+`tau_split_or_ramified` dichotomy — split (`lemma_5_13_split` + the tame representation-theory providers) or
 ramified (`lemma_5_13_ramified` + `hTodd` derived + the unipotent pairing operator).
 
 Relocated here from `GQ2/FoxHeisenberg.lean` (statement unchanged, same fully qualified name

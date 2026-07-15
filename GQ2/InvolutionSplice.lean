@@ -1,8 +1,13 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.InvolutionVanish
 import GQ2.UnramifiedBridge
 
 /-!
-# P-15f2d: the involution `hvanish` in `ker ρ`-vocabulary  (the U₀-splice)
+# The involution `hvanish` in `ker ρ`-vocabulary  (the U₀-splice)
 
 The last §6.3 input of the `lemma_6_17_vanish` assembly: for a deep block coordinate
 `α : ↥(ker ρ) → 𝔽₂` and an involution lift `ĝ` (`ĝ ∉ ker ρ`, `ĝ² ∈ ker ρ`,
@@ -35,10 +40,10 @@ The two Galois-group views (`AbsGalQ2` vs `Kummer.GaloisGroup ℚ_[2]`) share th
 operations at default transparency; all cross-view steps are `rfl`-bridges in the `kerGal`
 idiom (`ResidueLift` §Plumbing).
 
-Deliverable: **`hvanish_involution_ker`** — consumed by the `lemma_6_17_vanish` assembly
-(`docs/p15f2d-handoff.md` §3) at the involution orbits.  `R : LocalReciprocity` and
+Main result: **`hvanish_involution_ker`** — consumed by the `lemma_6_17_vanish` assembly
+(`docs/orchestration/p15f2d-handoff.md` §3) at the involution orbits.  `R : LocalReciprocity` and
 `horient : TameUnitOrientation R B.tameF` are threaded per the c2c4 consumer note (the
-`hc`/`hV2` amendment precedent; P-20 flag).
+`hc`/`hV2` amendment precedent; the architecture review flag).
 
 Axioms: std-3 + {B5 (via `R`-instantiation downstream), B9, B11a/b (via `lemma_6_16`),
 B13 (`dyadicUnitFiltration`, via `hunram_involution`)} — the §6.3 involution budget.
@@ -150,7 +155,7 @@ def toGal (U : Subgroup AbsGalQ2) : Subgroup (Kummer.GaloisGroup ℚ_[2]) where
   mul_mem' := fun {_ _} ha hb => U.mul_mem ha hb
   inv_mem' := fun {_} ha => U.inv_mem ha
 
-theorem mem_toGal (U : Subgroup AbsGalQ2) (x : Kummer.GaloisGroup ℚ_[2]) :
+private theorem mem_toGal (U : Subgroup AbsGalQ2) (x : Kummer.GaloisGroup ℚ_[2]) :
     x ∈ U ↔ x ∈ toGal U := Iff.rfl
 
 variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
@@ -337,7 +342,7 @@ private theorem kummerCocycleFun_add_on_subgroupOf {W L' : Subgroup (Kummer.Galo
   rw [hmul]
   exact kummerCocycleFun_hom_on hβ hβ0 hAfix ⟨_, hwL⟩ ⟨_, hzL⟩
 
-/-- **The involution `hvanish` over `ker ρ`** (P-15f2d, the U₀-splice): for a deep block
+/-- **The involution `hvanish` over `ker ρ`** (the Lemma 6.17 vanishing proof, the U₀-splice): for a deep block
 coordinate `α` on `N = ker ρ` and an involution lift `ĝ` (`ĝ ∉ N`, `ĝ² ∈ N`,
 `U₀ = N ⊔ ⟨ĝ⟩`), the Evens-norm inner cochain of the reducer's involution orbit has trivial
 `H²ofFun` class.  This is the reducer's `hvanish`-input at the involution orbits, with the
@@ -532,7 +537,7 @@ theorem cup11Fun_comp {G₁ G₂ : Type*} [Group G₁] [Group G₂]
   rw [htriv₁, htriv₂, hα, hβ]
 
 omit [Finite C] in
-/-- **The square/free `hvanish` over `ker ρ`** (P-15f2d): the cup of two deep block coordinates
+/-- **The square/free `hvanish` over `ker ρ`** (the Lemma 6.17 vanishing proof): the cup of two deep block coordinates
 over `N = ker ρ` has trivial `H²ofFun` class.  Same tower/carrier splice as
 `hvanish_involution_ker`, but with `U = N` (no lift, no index-2) and the cup in place of the
 Evens norm; the field-side vanishing is `hvanish_cup` (eq.-(94) orthogonality). -/

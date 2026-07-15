@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.SectionSeven
 import Mathlib.GroupTheory.IsPerfect
 
@@ -9,7 +14,7 @@ open scoped Pointwise
 
 variable {Y : Type} [Group Y] [Finite Y] {L : Subgroup Y}
 
-/-- **Linchpin of the block descent (P-17d1)**: the layer top `P` is abelian mod the scalar
+/-- **Linchpin of the block descent (the §9 induction)**: the layer top `P` is abelian mod the scalar
 socle `S` — `⁅P, P⁆ ≤ S`.  `⁅P,P⁆ ⊔ S` is `Y`-normal between `S` and `P`, so by the chief
 condition it is `S` or `P`; if `P`, then `P̄ = P/S` would be a **perfect** nontrivial finite
 2-group, impossible (2-groups are nilpotent, `IsPerfect.not_isNilpotent`). -/
@@ -130,7 +135,7 @@ theorem blockK_smul_eq (B : MinimalBlock L) {k : Y} (hk : k ∈ B.K)
       induction yb using QuotientGroup.induction_on with | _ y =>
       exact smul_add y a b }
 
-/-! ## The descent surjection `M_B ↠ V = P/S` (P-17d1, piece ⑥) -/
+/-! ## The descent surjection `M_B ↠ V = P/S` -/
 
 section Descend
 
@@ -145,7 +150,7 @@ noncomputable def blockKappa : ↥B.K →* ↥(blockMB B) :=
     (fun k => Subgroup.mem_map_of_mem _ k.2)
 
 omit [Finite Y] [(B.S.subgroupOf B.P).Normal] [B.K.Normal] in
-theorem blockKappa_coe (k : ↥B.K) : ((blockKappa B k : ↥(blockMB B)) : Y ⧸ B.frattiniK)
+private theorem blockKappa_coe (k : ↥B.K) : ((blockKappa B k : ↥(blockMB B)) : Y ⧸ B.frattiniK)
     = QuotientGroup.mk' B.frattiniK (k : Y) := rfl
 
 omit [Finite Y] [(B.S.subgroupOf B.P).Normal] [B.K.Normal] in
@@ -242,7 +247,7 @@ noncomputable def blockPiBC : (Y ⧸ B.frattiniK) →* (Y ⧸ B.K) :=
     (by rw [Subgroup.comap_id]; exact frattiniLike_le B.K)
 
 omit [Finite Y] [(B.S.subgroupOf B.P).Normal] in
-theorem blockPiBC_mk' (y : Y) :
+private theorem blockPiBC_mk' (y : Y) :
     blockPiBC B (QuotientGroup.mk' B.frattiniK y) = QuotientGroup.mk' B.K y :=
   QuotientGroup.map_mk' _ _ _ _ _
 

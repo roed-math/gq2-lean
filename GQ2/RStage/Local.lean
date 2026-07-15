@@ -1,16 +1,21 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.Block.RStage
 import GQ2.LocalLiftingDuality
 
 /-!
-# P-16d6e (residue package, local source): the (136) R-stage for `Γ = G_ℚ₂`
+# The (136) R-stage for `Γ = G_ℚ₂`
 
 Discharges the per-source residues of `blockStageR136` (`GQ2/BlockRStage.lean`) at the local
-source `Γ = AbsGalQ2`, per the route of record (`docs/p16d6a-handoff.md` §3): **one
+source `Γ = AbsGalQ2`, per the route of record (`docs/orchestration/p16d6a-handoff.md` §3): **one
 `prop_5_16`-package invocation per twisted module**, through its standalone pieces —
 
 * `hcard` — `#H²(G_ℚ₂, 𝔽₂) = 2` = `card_H2_zmod2_eq_two` (clause (iii));
 * `hZcount` — `#RCocycle = z_R = #R²·#D_R`: the crossed-cocycle group is `Z¹(G_ℚ₂, R_{f₀})`
-  (multiplicative↔additive bridge, the P-16d6b `TCocycle` pattern), counted by `card_Z1_eq`
+  (multiplicative↔additive bridge, the Prop. 8.9 assembly `TCocycle` pattern), counted by `card_Z1_eq`
   (clause (ii)), with `#fixedPts C (R^∨) = #D_R` via the `Y`-invariance bridge
   (`fixedPtsEquivRChar`) + `blockRChar_card`;
 * `hsep_hom` — the `(R^∨)^C`-separation: `obs g = 0` forces every invariant character to kill
@@ -26,12 +31,12 @@ supplied directly to `blockStageR136` rather than through `hsep_hom_of_splitCrit
 `hsplit` quantifies over arbitrary, possibly non-surjective `g`).
 
 The `lemma_7_2` outputs (`hRK` = `R` central in `K`, `hR2` = `R` exponent 2) and `hfg`
-(t.f.g. of `G_ℚ₂` — **B1**, reserved for P-17i) thread hypothesis-side to the assembly.
+(t.f.g. of `G_ℚ₂` — **B1**, reserved for the §9 induction) thread hypothesis-side to the assembly.
 Axioms here: std-3 + B6 + B7 (through `card_Z1_eq`/`card_H2_zmod2_eq_two`/
 `bijective_cup20_dualEval`).
 
-Deliverable: **`stageR136_local`** — the (136) identity for the block frame at the local
-source, the exact `stageR136` field of the `RecursionInputs` bundle (P-16d6e assembly).
+Main result: **`stageR136_local`** — the (136) identity for the block frame at the local
+source, the exact `stageR136` field of the `RecursionInputs` bundle (the Prop. 8.9 assembly).
 -/
 
 namespace GQ2
@@ -216,7 +221,7 @@ private lemma card_fixedPts_eq_card_RCharSub
 
 section ZCount
 
-/-- **The `z_R` torsor count, local source** (P-16d6e residue): for every boundary lift `f₀`,
+/-- **The `z_R` torsor count, local source** (the Prop. 8.9 assembly residue): for every boundary lift `f₀`,
 `#RCocycle = z_R = #R² · #D_R`.  Route: `RCocycle ≃ Z¹(G_ℚ₂, R_{f₀})` (multiplicative crossed ↔
 additive, the conjugation action through `C = Y/K` pulled back along the surjective
 `mk' K ∘ f₀`), `card_Z1_eq` (5.16 clause (ii), B6+B7), and the invariant-character bridge
@@ -356,7 +361,7 @@ private theorem pairClass_all_zero [CompactSpace AbsGalQ2] [TotallyDisconnectedS
       (blockRObstructionData T Blk hE2) htriv_local (card_H2_zmod2_eq_two htriv_local)
       g.1.1 d h).mp (LinearMap.congr_fun hg d)
 
-/-- **The `(R^∨)^C`-separation, local source** (P-16d6e residue): if the obstruction functional
+/-- **The `(R^∨)^C`-separation, local source** (the Prop. 8.9 assembly residue): if the obstruction functional
 of a boundary lift `g` vanishes, `g` lifts to a continuous homomorphism into `Y`.  Route:
 `obs g = 0` kills every paired defect class (`obs_zero_iff_pairClass_zero`); the paired classes
 are the `cup20`-values of the `R`-valued defect class against the invariant characters, and
@@ -607,9 +612,9 @@ section Assembly
 
 
 /-- **(136) for the block frame at the local source, parametric over `hsep_hom`**
-(P-16d6e residue assembly): `htriv`/`hcard`/`hZcount` are discharged
+(the Prop. 8.9 assembly residue assembly): `htriv`/`hcard`/`hZcount` are discharged
 (`htriv_local`/`card_H2_zmod2_eq_two`/`hZcount_local`); the remaining inputs are the
-`lemma_7_2` structural facts (`hRK`/`hR2`), `hfg` (**B1**, reserved for P-17i), and
+`lemma_7_2` structural facts (`hRK`/`hR2`), `hfg` (**B1**, reserved for the §9 induction), and
 **`hsep_hom`** — the `(R^∨)^C`-separation (next increment: `prop_5_16` clause (vi) +
 `B²`-extraction + `homLift_of_split`; see the module docstring for the surjectivity
 scoping note). -/
@@ -632,8 +637,8 @@ theorem stageR136_local_of_hsep [CompactSpace AbsGalQ2] [TotallyDisconnectedSpac
     (fun f₀ => hZcount_local hE2 hRK hR2 b F f₀)
 
 /-- **(136) for the block frame at the local source — all residues discharged**
-(P-16d6e): `htriv`/`hcard`/`hZcount`/`hsep_hom` are all proved; the remaining hypotheses are
-the `lemma_7_2` structural facts (`hRK`/`hR2`) and `hfg` (**B1**, reserved for P-17i).  The
+(the Prop. 8.9 assembly): `htriv`/`hcard`/`hZcount`/`hsep_hom` are all proved; the remaining hypotheses are
+the `lemma_7_2` structural facts (`hRK`/`hR2`) and `hfg` (**B1**, reserved for the §9 induction).  The
 conclusion is the `stageR136` field of the local `RecursionInputs` bundle, verbatim. -/
 theorem stageR136_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     (hE2 : ∀ e : E, e ^ 2 = 1)

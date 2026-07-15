@@ -1,8 +1,17 @@
-import GQ2.Reciprocity
-import GQ2.MaxProP
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.Reciprocity
+public import GQ2.MaxProP
+
+@[expose] public section
 
 /-!
-# Proposition 1.1 infrastructure: `ℤ₂` is pro-2, and `ν_ur` descends  (ticket P-10)
+# Proposition 1.1 infrastructure: `ℤ₂` is pro-2, and `ν_ur` descends
 
 Proposition 1.1 (`GQ2.SectionThree.prop_1_1`) reads the unramified coordinates `ν_ur(a,s,y) =
 (−2,1,0)` of the marked generators through arbitrary lifts to `G_{ℚ₂}`.  For that reading to be
@@ -18,11 +27,9 @@ This file supplies that descent.  Its engine is:
 * `nu_ur_descends` : `ν_ur ∘ toAb` factors through `maxProPMk 2 G_{ℚ₂}`, via the universal property
   of the maximal pro-2 quotient (`proPKernel_le_ker` for the pro-2 target above).
 
-`docs/section3-extraction.md` §1.1 flags exactly this (`IsProP 2 (Multiplicative ℤ₂)` descent).
-The remaining assembly of `prop_1_1` (compose B4's iso with Lemma 3.5's marked abelianization and
-Prop. 3.8's automorphism lift) is **blocked** on P-07 (`lemma_3_5_marked_abelianization`, in
-progress) and P-08 (`prop_3_8_*`, infrastructure-escalated — see the design note §Escalations 4);
-this descent is the part of P-10 that is independent of them.
+The full proposition is assembled in `GQ2/PropOneOneAssembly.lean` from this descent, Lemma 3.5's
+marked abelianization, and Proposition 3.8's automorphism lift.  Keeping the descent isolated here
+also makes its dependence on the maximal pro-2 universal property explicit.
 -/
 
 open scoped Classical

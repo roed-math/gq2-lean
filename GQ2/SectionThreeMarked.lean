@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.Reciprocity
 import GQ2.BoundaryFrame
 import GQ2.BoundaryConstruction
@@ -5,24 +10,19 @@ import GQ2.LocalMarked
 import GQ2.BoundaryMapsWitness
 
 /-!
-# §3 statements, marked-quotient half: Prop. 3.10 and Prop. 3.14  (ticket P-06, P-11 handoff)
+# §3 statements, marked-quotient half: Prop. 3.10 and Prop. 3.14
 
-Sorried statements of the paper's **Prop. 3.10** (maximal pro-2 quotient of `Γ_A` is `Π`,
+Theorems implementing the paper's **Prop. 3.10** (maximal pro-2 quotient of `Γ_A` is `Π`,
 eq. (20); marked local identification `(Π, ν₂) ≅ (G_{ℚ₂}(2), ν_ur)`, via Cor. 3.12) and
 **Prop. 3.14** (fully marked tame and pro-2 quotients — the eq. (27) boundary epimorphisms),
-phrased against P-11's `GQ2/BoundaryFrame.lean` def-layer (`Ttame`, `PiBd`, `nuT`, `nuTwo`,
-`BoundaryMaps`), per the board handoff "P-06 states Prop 3.10/3.14 against these defs
-(instantiation = P-09/P-10)".
+phrased against the definitions in `GQ2/BoundaryFrame.lean` (`Ttame`, `PiBd`, `nuT`, `nuTwo`,
+`BoundaryMaps`).
 
-Kept in a **separate file from `GQ2/SectionThree.lean`** only for commit sequencing: this file
-imports the (at extraction time, not-yet-committed) `BoundaryFrame.lean`, while the core §3
-statements depend only on step-1 modules.  Same logical home: everything here is in namespace
-`GQ2.SectionThree`; the companion design note is `docs/section3-extraction.md` §"marked half".
-
-Proof assignments (design note): `prop_3_10_gammaA`, `nuT_surjective`, `nuTwo_surjective` →
-P-09; `prop_3_10_local_marked` → P-10 (route: Prop 1.1 + the Nielsen transform of
-Prop. 3.11/Cor. 3.12 — not separately stated, they are proof steps — plus the `Z₂`-bridge
-below); `prop_3_14` → P-09/P-10 jointly (the `BoundaryMaps` witness).
+This stays separate from `GQ2/SectionThree.lean` because it imports the boundary layer, while the
+core §3 statements remain upstream.  Everything is nevertheless in namespace
+`GQ2.SectionThree`.  The local marked equivalence uses Prop. 1.1, the Nielsen transform of
+Prop. 3.11/Cor. 3.12, and the `Z₂` bridge below; the final `BoundaryMaps` witness is constructed
+in `GQ2/BoundaryMapsWitness.lean`.
 -/
 
 namespace GQ2
@@ -40,7 +40,8 @@ becomes the relator of (20); conversely every finite quotient of (20) is admissi
 
 /-- **Prop. 3.10, `Γ_A` half**: the maximal pro-2 quotient of `Γ_A` is `Π`, canonically —
 the isomorphism matches the marked generators (`σ ↦ σ`, `x₀ ↦ x₀`, `x₁ ↦ x₁`; `τ` dies).
-(Proof ticket P-09: the word-collapse computation above, through the T-06/T-21 bridges.) -/
+The proof is the word-collapse computation above, through the profinite-exponentiation API and
+the literal `Γ_A` construction. -/
 theorem prop_3_10_gammaA :
     ∃ e : ContinuousMulEquiv (maxProPQuotient 2 GammaA) PiBd,
       e (maxProPMk 2 GammaA (quotientMk NA univMarking.σ)) = piSigma ∧
@@ -54,8 +55,8 @@ the fully unramified marked pair `(G_{ℚ₂}(2), ν_ur)`.  The `ℤ₂`-identif
 two `ν`-targets (`Ztwo = maxProPQuotient 2 ℤ̂` on the boundary side, `Multiplicative ℤ₂` on
 the B5 side) is quantified explicitly as a continuous isomorphism `ι` pinned by
 `ι(1) = ofAdd 1`; the `ν_ur`-values are read through arbitrary lifts, as in `prop_1_1`.
-(Proof ticket P-10: Prop. 1.1 + the Nielsen transform (23)/(24) of Prop. 3.11, plus the
-`Ztwo ≅ ℤ₂` bridge — flagged as P-10 infrastructure in the design note.) -/
+The proof combines Prop. 1.1, the Nielsen transform (23)/(24) of Prop. 3.11, and the
+`Ztwo ≅ ℤ₂` bridge. -/
 theorem prop_3_10_local_marked
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] (R : LocalReciprocity) :
     ∃ ι : ContinuousMulEquiv Ztwo (Multiplicative ℤ_[2]),
@@ -70,18 +71,18 @@ theorem prop_3_10_local_marked
 Paper: `ν_t : T_tame ↠ ℤ₂` (`σ ↦ 1, τ ↦ 0`) and `ν₂ : Π ↠ ℤ₂` (eq. (21)); for each source
 `Γ ∈ {Γ_A, G_{ℚ₂}}` the tame and maximal pro-2 quotient maps may be chosen with equal
 `ν`-composites — the common unramified character `ν_Γ : Γ ↠ ℤ₂`.  The chosen-maps data is
-exactly P-11's `BoundaryMaps` bundle (eq. (27)); the two surjectivity claims below are the
-`↠`-content of the displayed arrows (flagged in `BoundaryFrame.lean` as P-06/P-09 scope). -/
+exactly the boundary-frame design's `BoundaryMaps` bundle (eq. (27)); the two surjectivity claims below are the
+`↠`-content of the displayed arrows (flagged in `BoundaryFrame.lean` as the §3 statement layer/Prop. 3.2 scope). -/
 
 /- The two surjectivity claims — `ν_t : T_tame ↠ Z₂` (Prop. 3.14's arrow) and
 `ν₂ : Π ↠ Z₂` (eq. (21)'s arrow) — are stated and **proved** in `GQ2/Prop32.lean`
-(`GQ2.SectionThree.nuT_surjective`, `GQ2.SectionThree.nuTwo_surjective`, ticket P-09). -/
+(`GQ2.SectionThree.nuT_surjective`, `GQ2.SectionThree.nuTwo_surjective`). -/
 
 /-- **Prop. 3.14** (with Cor. 3.12 supplying the `G_{ℚ₂}`-side): the eq. (27) boundary data
 exists — tame and maximal pro-2 quotient maps for both sources, `ν`-compatible, jointly
 surjective onto the fibred boundary, with the `Γ_A`-side taking the marked generator values
 and the `G_{ℚ₂}`-side pinned intrinsically (Lemma 3.3 2-core kernel; `proPKernel` kernel).
-(Proof tickets P-09/P-10: instantiate `BoundaryMaps`.) -/
+The construction instantiates `BoundaryMaps` from Prop. 3.2 and Prop. 1.1. -/
 theorem prop_3_14 [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
     Nonempty BoundaryMaps :=
   prop_3_14_proved

@@ -1,11 +1,16 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.RStage.GammaA
 
 /-!
-# P-16d6e6: `#H²(Γ_A, 𝔽₂) = 2`, unconditionally  (the `hcard_A` residue of P-16d6e5)
+# `#H²(Γ_A, 𝔽₂) = 2`, unconditionally
 
-The existing `LedgerGammaA.card_H2_gammaA_eq_two` (P-16c4) proves `#H²(Γ_A, 𝔽₂) = 2` but takes a
+The existing `LedgerGammaA.card_H2_gammaA_eq_two` (the Γ_A half-torsor proof) proves `#H²(Γ_A, 𝔽₂) = 2` but takes a
 **`NoDescent`** radical-cover datum as input (the nonzero variation class is built from a nonzero
-radical edge).  The R-stage assembly of P-16d6e5 needs the bare cardinality with **no cover data
+radical edge).  The R-stage assembly of the Prop. 8.9 assembly needs the bare cardinality with **no cover data
 in scope** (the "zero-edge" regime), so this file discharges the `NoDescent` hypothesis once and
 for all against a **concrete witness**:
 
@@ -151,7 +156,7 @@ theorem quotient_cases (b : Base) :
       = QuotientGroup.mk (r 1) := by
   revert b; decide
 
-theorem qmark_admissible : qmark.Admissible := by
+private theorem qmark_admissible : qmark.Admissible := by
   refine ⟨?_, ?_, ?_, ?_⟩
   · -- Generates: `[r̄]` alone generates the order-2 quotient
     show Subgroup.closure {qmark.σ, qmark.τ, qmark.x₀, qmark.x₁} = ⊤
@@ -182,7 +187,7 @@ noncomputable def rho : ContinuousMonoidHom GA (Base ⧸ Mlayer) :=
 theorem rho_surjective : Function.Surjective rho :=
   Marking.descend_surjective qmark qmark_admissible
 
-/-- **`#H²(Γ_A, 𝔽₂) = 2`, unconditionally** (P-16d6e6, over the raw quotient `GA`).  The `NoDescent`
+/-- **`#H²(Γ_A, 𝔽₂) = 2`, unconditionally** (the Prop. 8.9 assembly, over the raw quotient `GA`).  The `NoDescent`
 hypothesis of `LedgerGammaA.card_H2_gammaA_eq_two` is discharged by the concrete witness
 `datum`/`datum_noDescent`; `ρ = rho` is any surjection onto `𝔽₂²/⟨s̄⟩`. -/
 theorem card_H2_gammaA_unit
@@ -205,18 +210,18 @@ variable {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
 
 /-- **`#H²(Γ_A, 𝔽₂) = 2`** over the packaged `GammaA`, with its canonical trivial action
 (`RStageGammaA.instDistribMulActionGammaA`).  This is the exact `hcard_A` residue that
-`RStageGammaA.stageR136_gammaA_of_hcard` threads — supplied here unconditionally (P-16d6e6),
+`RStageGammaA.stageR136_gammaA_of_hcard` threads — supplied here unconditionally (the Prop. 8.9 assembly),
 bridging the raw-quotient `GA` result across the `GA ≡ GammaA` defeq. -/
 theorem card_H2_gammaA : Nat.card (H2 GammaA (ZMod 2)) = 2 := by
   letI : DistribMulAction GA (ZMod 2) := instDistribMulActionGammaA
   letI : ContinuousSMul GA (ZMod 2) := ⟨continuous_snd⟩
   exact card_H2_gammaA_unit (fun _ _ => rfl)
 
-/-- **(136) for the block frame at the candidate source, hypothesis-free** (P-16d6e6): drops the
+/-- **(136) for the block frame at the candidate source, hypothesis-free** (the Prop. 8.9 assembly): drops the
 `hcard_A` argument of `RStageGammaA.stageR136_gammaA_of_hcard` by supplying `card_H2_gammaA`.
 The remaining `hRK`/`hR2` are the `lemma_7_2` structural facts of the block; `hfg` is discharged
 internally (`gammaA_topologicallyFinitelyGenerated`).  This is the `stageR136` field of the
-candidate `RecursionInputs` bundle (the P-16d6e7 assembly), verbatim. -/
+candidate `RecursionInputs` bundle (the Prop. 8.9 assembly), verbatim. -/
 theorem stageR136_gammaA
     (hE2 : ∀ e : E, e ^ 2 = 1)
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)

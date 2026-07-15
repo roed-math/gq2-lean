@@ -1,9 +1,18 @@
-import GQ2.ProfinitePresentation
-import GQ2.Subdirect
-import GQ2.MaxProP
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.ProfinitePresentation
+public import GQ2.Subdirect
+public import GQ2.MaxProP
+
+@[expose] public section
 
 /-!
-# B4: the rank-3 dyadic Demushkin presentation `D₀ = ⟨A, S, Y | A²S⁴[S,Y]⟩`  (ticket T-08)
+# B4: the rank-3 dyadic Demushkin presentation `D₀ = ⟨A, S, Y | A²S⁴[S,Y]⟩`
 
 The paper's Prop. 1.1 / Lemma 3.4 normalizes the maximal pro-2 quotient `G_{ℚ₂}(2)` as the
 **Demushkin group** `D₀ = ⟨A, S, Y | A²S⁴[S,Y] = 1⟩` (Labute's classification at `d = 1`).  This
@@ -53,7 +62,7 @@ theorem d0Relator_quotientMk_eq_one :
     quotientMk (relatorSubgroup {d0Relator}) d0Relator = 1 :=
   relator_quotientMk_eq_one {d0Relator} rfl
 
-/-! ### The marked generators  (T-11 input) -/
+/-! ### The marked generators -/
 
 /-- The generator `A` in the full presentation `D0Full` (image of `of 0`). -/
 noncomputable def d0FullA : D0Full :=

@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.GaussZ.Reduction
 import GQ2.IotaBridge
 import GQ2.Shapiro.Ledger
@@ -5,19 +10,19 @@ import GQ2.UnramifiedModel
 import GQ2.DetRamified
 
 /-!
-# P-16d6e4a: the local (83)-evaluation — the `VCocycle ↔ H¹` transport and the pinned Gauss value
+# The local (83)-evaluation — the `VCocycle ↔ H¹` transport and the pinned Gauss value
 
-Layer (II) of the source-Gauss residue (design `docs/p16d6e4a-evaluation-design.md` §1): the
+Layer (II) of the source-Gauss residue (design `docs/orchestration/p16d6e4a-evaluation-design.md` §1): the
 descended base-determinant form `Q̄⁰` on `Z¹_{Γ,ρ}(V) ⧸ B¹` is, over `Γ = G_ℚ₂`, carried by an
 explicit bijection onto `(H¹(G_ℚ₂, V), Q⁰_loc)` — whose Gauss sum §6.2/§6.3 already computed
-(`prop_6_18_{unramified,ramified}`, both sorry-free).  Pieces:
+(`prop_6_18_{unramified,ramified}`).  Pieces:
 
 * **(A) the `Z¹`-bridge** `toZ1`/`ofZ1` (the shared e3 bridge as reusable declarations): a
   `VCocycle` IS a continuous 1-cocycle once the `Γ`-action on `V` factors through `ρ'`
   (`hcomp`); continuity crosses the topology-free `V` through the `iV ∘ ofAdd` embedding.
 * **(B) the quotient bijection** `h1OfVQuot : (Z¹ ⧸ B¹) → H¹(Γ, V)` — `vCob`-cosets map to
   `dZero`-cosets; bijective.
-* **(C′) the form-compatibility** `QZeroBar_eq_Q0loc`: `Q̄⁰ = Q⁰_loc ∘ Φ`, by the landed
+* **(C′) the form-compatibility** `QZeroBar_eq_Q0loc`: `Q̄⁰ = Q⁰_loc ∘ Φ`, by the proved
   `iotaB_eq_iotaF` bridge (`IotaBridge`) + the `B¹`-shift invariance of the graph pullback
   (`GaussZReduction.graphPullback_shift_mem_B2`) absorbing the `Quotient.out` representative.
 * **(D)/(E) the pinned value** `sum_sign_Q0loc_{unramified,ramified}`:
@@ -51,7 +56,7 @@ variable {ρ : ContinuousMonoidHom Γ (Bg ⧸ D.M)}
 variable [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod]
 variable [DistribMulAction Γ DD.Vmod]
 
-/-- **The `VCocycle → Z¹` bridge** (P-16d6e4a (A), the e3 bridge as a declaration): under an
+/-- **The `VCocycle → Z¹` bridge** (the Prop. 8.9 assembly (A), the e3 bridge as a declaration): under an
 action identification `γ • v = ρ'(γ) • v`, a crossed `V`-cocycle is a continuous 1-cocycle.
 Continuity crosses the topology-free `V` through the injective `iV ∘ ofAdd` into the discrete
 `Bg ⧸ T` (`IsLocallyConstant.desc`). -/
@@ -93,7 +98,7 @@ theorem H1mk_eq_iff {M : Type*} [AddCommGroup M] [TopologicalSpace M]
   exact QuotientAddGroup.eq_iff_sub_mem
 
 
-/-- **The quotient map** `Φ : Z¹_{Γ,ρ}(V) ⧸ B¹ → H¹(Γ, V)` (P-16d6e4a (B)). -/
+/-- **The quotient map** `Φ : Z¹_{Γ,ρ}(V) ⧸ B¹ → H¹(Γ, V)` (the Prop. 8.9 assembly (B)). -/
 noncomputable def h1OfVQuot (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho0 DD ρ γ • v)
     (x : VCocycle DD ρ ⧸ vCobRange DD ρ) : H1 Γ DD.Vmod :=
   Quotient.liftOn' x (fun c => H1mk Γ DD.Vmod (toZ1 hcomp c)) fun a b hab => by
@@ -111,7 +116,7 @@ noncomputable def h1OfVQuot (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho
     rw [hbγ γ, hcomp γ w]
     abel
 
-@[simp] theorem h1OfVQuot_mk (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho0 DD ρ γ • v)
+@[simp] private theorem h1OfVQuot_mk (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho0 DD ρ γ • v)
     (c : VCocycle DD ρ) :
     h1OfVQuot hcomp (QuotientAddGroup.mk c) = H1mk Γ DD.Vmod (toZ1 hcomp c) := rfl
 
@@ -159,7 +164,7 @@ variable [DistribMulAction AbsGalQ2 DD.Vmod] [ContinuousSMul AbsGalQ2 DD.Vmod]
 variable [TopologicalSpace DD.C0] [DiscreteTopology DD.C0] [Finite DD.C0]
 
 omit [Finite DD.Vmod] [ContinuousSMul AbsGalQ2 DD.Vmod] [DiscreteTopology DD.C0] [Finite DD.C0] in
-/-- **The form compatibility** (P-16d6e4a (C′)): under the transport `Φ = h1OfVQuot`, the
+/-- **The form compatibility** (the Prop. 8.9 assembly (C′)): under the transport `Φ = h1OfVQuot`, the
 descended base determinant form `Q̄⁰` is `Q⁰_loc` — the abstract `iotaB`-obstruction and the
 Tate-invariant obstruction agree (`iotaB_eq_iotaF`), and the `Quotient.out` representative on
 the `H¹` side differs from the transported cocycle by a `B¹`-shift, which the graph pullback
@@ -191,7 +196,7 @@ theorem QZeroBar_eq_Q0loc (D6 : TateDuality 2)
           : ↥(Z1 AbsGalQ2 DD.Vmod)).1 γ = c.c γ + (rho0 DD ρM γ • w - w)
       rw [← hcomp γ w, hγ']
       abel
-    -- assemble through the landed bridges
+    -- assemble through the proved bridges
     show QZero DD ρM c = iotaF D6 (H2ofFun AbsGalQ2 (graphPullback DD.dat (⇑ρc)
       ((Quotient.out (H1mk AbsGalQ2 DD.Vmod (toZ1 hcomp c)) : ↥(Z1 AbsGalQ2 DD.Vmod)) : _)))
     have hρfun : (⇑ρc : AbsGalQ2 → DD.C0) = fun γ => rho0 DD ρM γ := funext hρc
@@ -263,7 +268,7 @@ theorem finsum_sign_eq (D : TateDuality 2) (dat : FactorSet C V)
         push_cast
         ring
 
-/-- **The pinned local Gauss value, unramified** (P-16d6e4a (D)/(E)):
+/-- **The pinned local Gauss value, unramified** (the Prop. 8.9 assembly (D)/(E)):
 `∑ᶠ sign(Q⁰_loc) = −2^m` — `prop_6_18_unramified`'s zero count through `gaussSum_eq`. -/
 theorem sum_sign_Q0loc_unramified (D : TateDuality 2) (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
@@ -297,7 +302,7 @@ theorem sum_sign_Q0loc_unramified (D : TateDuality 2) (B : BoundaryMaps)
   push_cast [Nat.cast_sub hle]
   linarith [e1, e2]
 
-/-- **The pinned local Gauss value, ramified** (P-16d6e4a (D)/(E)):
+/-- **The pinned local Gauss value, ramified** (the Prop. 8.9 assembly (D)/(E)):
 `∑ᶠ sign(Q⁰_loc) = +2^m` — `prop_6_18_ramified`'s zero count through `gaussSum_eq`. -/
 theorem sum_sign_Q0loc_ramified (D : TateDuality 2) (R : LocalReciprocity) (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)

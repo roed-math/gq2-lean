@@ -1,16 +1,26 @@
-import GQ2.Foundations.Axioms
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.Foundations.Axioms
+
+@[expose] public section
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
-# The Hilbert ledger for Lemma 6.16  (ticket P-15e — COMPLETE)
+# The Hilbert ledger for Lemma 6.16
 
 Proof layer for `GQ2.SectionSix.lemma_6_16` (deep-unit Evens norm vanishing, paper eq. (110)),
 following the paper's ledger (111)–(114) through axioms **B9** (`evensKahn_dyadic`) and **B11**
-(`dyadicNormCriterion`).  The tier structure, the sub-lemma interface, and the B11-consequence
-tier are fixed here; **all bodies are now proved (file is sorry-free, ticket P-15e closed
-2026-07-04)**.  Every theorem is `#print axioms` ⊆ std-3, except the Tier-4 assembly
-`evensNorm_deepUnit_vanish`, which is std-3 ∪ {B9, B11}.  **P-15f1/f2 addendum (2026-07-06):
-Tier 5** — the eq.-(94) deep-unit orthogonality instances (`normForm_*` std-3 sorry-free;
-`cup_deep_*` std-3 ∪ {B11a}); NO new axiom — see the Tier-5 section header for provenance.
+(`dyadicNormCriterion`).  Every theorem uses only the standard three axioms, except the Tier-4
+assembly `evensNorm_deepUnit_vanish`, which additionally uses B9 and B11.  Tier 5 supplies the
+eq.-(94) deep-unit orthogonality instances: `normForm_*` is proved at the standard three axioms,
+while `cup_deep_*` additionally uses B11a.
 
 ## The ledger (paper, proof of Lemma 6.16)
 
@@ -32,23 +42,22 @@ With `L = k(δ)`, `δ² = d`, `a = u + vδ` a deep unit (`a = 1 + 2b`, `‖b‖ 
    `(2,−1) = 0` (`cup_two_neg_one`: `−1 = 1² − 2·1²`), so `(2u,−1) = (u,−1)` and the two
    surviving terms cancel by `h2_add_self`.
 
-## O-finish list  (ALL 6 DONE ☑ 2026-07-04 — file is sorry-free; every theorem std-3, and the
-Tier-4 assembly is std-3 ∪ {B9 `evensKahn_dyadic`, B11 `dyadicNormCriterion`})
+## Supporting lemmas
 
-* ☑ `h1_add_self` / `h2_add_self` — 2-torsion of the coefficient quotients (pointwise char-2 at
+* `h1_add_self` / `h2_add_self` — 2-torsion of the coefficient quotients (pointwise char-2 at
   `Z1`/`Z2` level + `H1mk`/`H2mk` quotient induction).
-* ☑ `kummerClassK_mul`, `kummerClassK_one` — via the two `ℚ̄₂`-level helpers `kcf_root_indep'`
+* `kummerClassK_mul`, `kummerClassK_one` — via the two `ℚ̄₂`-level helpers `kcf_root_indep'`
   and `kcf_mul_of_fixed` (off EvensKahn's `two_values_of_fixed`), transported through `H1mk`.
-* ☑ `trivialCupPairing_comm` — graded-commutativity in char 2: the two cup cocycles differ by
+* `trivialCupPairing_comm` — graded-commutativity in char 2: the two cup cocycles differ by
   `dOne (g ↦ −(a g · b g))` (identity holds over ℤ) `∈ B2`; then `eq_zero_iff` + `h2_add_self`.
-* ☑ `norm_galois` — Galois invariance of the spectral norm, via Mathlib
+* `norm_galois` — Galois invariance of the spectral norm, via Mathlib
   `NormedAlgebra.norm_eq_spectralNorm ℚ_[2]` + `spectralNorm_eq_of_equiv`.
-* ☑ `sq_of_near_one` — the Hensel depth `‖z−1‖ < ‖4‖ ⟹ z ∈ (k^×)²`: hand-rolled quadratic
+* `sq_of_near_one` — the Hensel depth `‖z−1‖ < ‖4‖ ⟹ z ∈ (k^×)²`: hand-rolled quadratic
   Newton `w ↦ w − (w²−z)/(2w)` from `w₀ = 1` inside `↥k`; invariants `‖wₙ−1‖ ≤ ‖2‖`,
   `‖wₙ²−z‖ ≤ ‖2‖²·qⁿ⁺¹` (`q = ‖z−1‖/‖4‖ < 1`) ⟹ `cauchySeq_of_le_geometric` ⟹ limit ⟹ root.
   `NormedField ↥k` restricts `ℚ̄₂`'s (`rfl`), `CompleteSpace ↥k := FiniteDimensional.complete
   ℚ_[2] ↥k`.  Mathlib's `Padic.hensels_lemma` is `ℤ_p`-specific; `ℚ̄₂` itself is NOT complete.
-* ☑ `evensNorm_deepUnit_vanish` — the assembled ledger (5-step script above).  Proof: step 1
+* `evensNorm_deepUnit_vanish` — the assembled ledger (5-step script above).  Proof: step 1
   `s'•δ = −δ` (`two_values_of_fixed` + `hs`); step 2 apply `s'` to `hA` ⟹ `(u:ℚ̄₂) = 1+b+s'•b`,
   `(n:ℚ̄₂) = (1+2b)(1+2s'•b)`, `‖u‖ = 1`, `‖n/(2u−1)−1‖ = ‖4‖‖b‖² < ‖4‖`; step 3 degree-1 B9 +
   `kummerClassK_mul`/`_inv`/`h1_add_self` ⟹ `cor = [n]`; step 5-prep `[n] = [2u−1]` (Hensel
@@ -57,8 +66,8 @@ Tier-4 assembly is std-3 ∪ {B9 `evensKahn_dyadic`, B11 `dyadicNormCriterion`})
   (`cup_of_normForm`), `(u,u)=(u,−1)` (`cup_self_eq_neg_one`); step 5 `cup_steinberg` + Hensel ⟹
   `(2,−1) = 0` (`cup_two_neg_one`) closes it.  (Uses `set_option maxHeartbeats` — large context.)
 
-The `lemma_6_16` splice additionally transports along the statement's `hLδ` (the Kummer
-presentation of `L/k`, P-15e statement amendment — see `docs/section67-extraction.md`).
+The `lemma_6_16` splice additionally transports along the statement's `hLδ`, the Kummer
+presentation of `L/k`; see `docs/section67-extraction.md` for the encoding decision.
 -/
 
 namespace GQ2
@@ -240,9 +249,8 @@ variable (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
   (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
 
 /-- The norm-form direction of the **B11** criterion, applied: an explicit representation
-`b = x² − a y²` kills the symbol.  [P-15f1 sharpening 2026-07-06: consume **B11a** directly
-rather than the bundled `dyadicNormCriterion`, so the axiom trace is std-3 ∪ {B11a} without
-the unused B11b clause.] -/
+`b = x² − a y²` kills the symbol.  This consumes **B11a** directly rather than the bundled
+`dyadicNormCriterion`, so the axiom trace is std-3 ∪ {B11a} without the unused B11b clause. -/
 theorem cup_of_normForm (a b : (↥k)ˣ) (x y : ↥k)
     (hb : (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2) :
     trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k b) = 0 :=
@@ -676,7 +684,7 @@ theorem evensNorm_deepUnit_vanish
     (cup_of_normForm k htriv d n (u : ↥k) v hn)
     (cup_self_eq_neg_one k htriv u) hCn hdeg2
 
-/-! ## Tier 5: the eq.-(94) deep-unit orthogonality  (P-15f1/P-15f2 shared leaf — NO new axiom)
+/-! ## Tier 5: the eq.-(94) deep-unit orthogonality
 
 Paper eq. (94) (§6.3, p. 29) is the Hilbert-symbol orthogonality `Uᵢ^⊥ = U_{2e−i+1}` of the
 dyadic square-class filtration together with `−1 ∈ U_e`.  Lemma 6.17 consumes only two "⊆"
@@ -684,8 +692,8 @@ instances: **deep ⟂ deep** (`U_{e+1} ⟂ U_{e+1}` — f1's isotropy and f2's f
 **deep ⟂ −1** (f2's square orbits).  Neither is a numbered theorem in the provided texts —
 Fesenko–Vostokov, *Local Fields and Their Extensions* (2nd ed.), Ch. VII §4 records the
 general statements only as **Exercises 4c and 5b**, and O'Meara, *Introduction to Quadratic
-Forms*, §63 assembles them from the quadratic-defect propositions — so they are **proved**
-here (2026-07-06 user directive: no exercise-grade axioms), by the classical norm-form
+Forms*, §63 assembles them from the quadratic-defect propositions.  They are proved here by
+the classical norm-form
 descent:
 
 1. values of the binary norm form `x² − a·y²` are closed under multiplication
@@ -698,7 +706,8 @@ descent:
 4. `b = x² − a·y²` kills the symbol via `cup_of_normForm` (**B11a** = Serre LF Ch. XIV §2,
    Prop. 7 iii — the only axiom in the chain).
 
-The `normForm_*` layer is std-3 sorry-free; the `cup_deep_*` corollaries are std-3 ∪ {B11a}.
+The `normForm_*` layer uses only the standard axioms; the `cup_deep_*` corollaries additionally
+use B11a.
 -/
 
 section DeepOrthogonality
@@ -844,7 +853,7 @@ theorem normForm_of_deep (a b : ↥k)
     exact normForm_of_deep_aux k a ha' j b hb'
       (by rw [mul_comm]; exact (lt_div_iff₀ hr).mp hj)
 
-/-- **The norm-form descent engine at a MID base** — eq. (94) at `(U_e, U_{e+1})` (P-15f7's
+/-- **The norm-form descent engine at a MID base** — eq. (94) at `(U_e, U_{e+1})` (the deep-part proof's
 `hsharp` arithmetic): with `a` only MID (`‖a − 1‖ ≤ ‖2‖`, i.e. `a ∈ U_e`), the error of the
 exact solve contracts by the CURRENT depth `‖b−1‖/‖2‖ < 1` instead of the fixed ratio
 `‖a−1‖/‖2‖` (which is only `≤ 1` here) — the budget hypothesis is self-referential in `b`,
@@ -890,7 +899,7 @@ theorem normForm_of_mid (a b : ↥k)
 
 variable (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
 
-/-- **Eq. (94), deep ⟂ deep** (P-15f1's isotropy `hiso` and P-15f2's free-orbit leaf): the
+/-- **Eq. (94), deep ⟂ deep** (the deep-part proof's isotropy `hiso` and the Lemma 6.17 vanishing proof's free-orbit leaf): the
 symbol of two deep units vanishes.  std-3 ∪ {B11a}. -/
 theorem cup_deep_deep (a b : (↥k)ˣ)
     (ha : ‖((a : ↥k) : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖)
@@ -899,7 +908,7 @@ theorem cup_deep_deep (a b : (↥k)ˣ)
   obtain ⟨x, y, hxy⟩ := normForm_of_deep k (a : ↥k) (b : ↥k) ha hb
   exact cup_of_normForm k htriv a b x y hxy
 
-/-- **Eq. (94), mid ⟂ deep** — `(U_e, U_{e+1}) = 1` (P-15f7's `hsharp` inclusion input): the
+/-- **Eq. (94), mid ⟂ deep** — `(U_e, U_{e+1}) = 1` (the deep-part proof's `hsharp` inclusion input): the
 symbol of a MID unit against a deep unit vanishes.  std-3 ∪ {B11a}. -/
 theorem cup_mid_deep (a b : (↥k)ˣ)
     (ha : ‖((a : ↥k) : ℚ̄₂) - 1‖ ≤ ‖(2 : ℚ̄₂)‖)

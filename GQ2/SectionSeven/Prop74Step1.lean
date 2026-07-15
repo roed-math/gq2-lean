@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.SectionSeven.Decorations
 
 /-!
@@ -30,7 +35,7 @@ variable {L : Subgroup Y}
 The proof layer splits the paper's argument into an abstract-block tier (everything except
 step 2) and the genuinely tame step 2 (`q_λ|_{T₀} = 0`), which needs `H¹(H_V, V^∨) = 0` for
 the head's action image and is therefore stated with the framed-target head data
-(P-15 amendment: the P-14 statement had dropped §7's standing framed-target hypothesis,
+(the §§6–7 proof layer amendment: the §§6–7 statement had dropped §7's standing framed-target hypothesis,
 under which the paper proves 7.4 — restored here; see `docs/section67-extraction.md`). -/
 omit [Finite Y] in
 /-- Squares of `K` generate into `R = Φ(K)`. -/

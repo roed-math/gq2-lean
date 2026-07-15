@@ -1,4 +1,13 @@
-import GQ2.DeepPart.QuadraticFp2
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.DeepPart.QuadraticFp2
+
+@[expose] public section
 
 /-!
 # Euler-characteristic collapse, the `μ₂` bricks, and polar self-duality
@@ -8,7 +17,7 @@ The opening `GQ2.DeepPart` layer: the Euler-characteristic collapse `#H¹ = #M` 
 bricks with trivial Galois action; and the polar self-duality `V ≃+ Hom(V, μ₂)` yielding `#H² = 1`
 (§6.3 step 2, Ax B6 via the Tate-duality parameter `D`).
 
-This file is part of the `GQ2.DeepPart` split (P-15f); see `GQ2/DeepPart.lean` for the overview.
+This file is part of the `GQ2.DeepPart` split (the deep-part proof); see `GQ2/DeepPart.lean` for the overview.
 -/
 
 open scoped Classical

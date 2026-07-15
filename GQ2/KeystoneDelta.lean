@@ -1,12 +1,17 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.KeystoneDelta.AtomCalculus
 import GQ2.KeystoneDelta.ThetaExtraction
 import GQ2.KeystoneDelta.AffineAssembly
 import GQ2.KeystoneDelta.Keystone
 
 /-!
-# P-16d6c1c/c2 (stage A): the semidirect atom calculus and the `ω_χ`-decomposition
+# The semidirect atom calculus and the `ω_χ`-decomposition
 
-First stage of the (135)-keystone build (`docs/p16d6c-keystone-design.md` — the authoritative
+First stage of the (135)-keystone build (`docs/orchestration/p16d6c-keystone-design.md` — the authoritative
 design record; this file implements §§1–2).  Contents:
 
 * the **raw semidirect calculus** on `V × C₀` (`pmul`, `pone`, associativity — no bundled

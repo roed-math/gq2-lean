@@ -1,22 +1,22 @@
 /-
-Copyright (c) 2026. All rights reserved.
+Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2.RegularSummand
 import GQ2.InvolutionDatum
 import Mathlib.LinearAlgebra.QuadraticForm.Basic
+import Mathlib.LinearAlgebra.QuadraticForm.Basis
 
 /-!
-# P-17e5: the κ⁰ normal form on permutation modules and the tame assembly
+# The κ⁰ normal form on permutation modules and the tame assembly
 
-The analytic heart of the paper's **Lemma 6.3** (κ⁰ base-class existence), own file for the
-`kappa0_exists` splice in `GQ2/SectionNine.lean` (which imports this file — hence this file
-carries *copies* of the small factor-set assembly lemmas that live in the
-`GQ2.SectionNine` namespace; the scoping note `docs/p17e-kappa0-scoping.md` already anticipated
-promoting them to a low shared file and deferred it to avoid churn on the co-owned §9 file.
-**P-15f2b pass (2026-07-07)**: the generic-in-`V` copies (`datum_*`, `polar_*`,
-`isQuadraticFp2_*`, `quadratic_expansion`, `polar_sum_right`) are now **public** — the §6.2
-orbit decomposition `GQ2/OrbitDecomp.lean` consumes them; names checked clash-free repo-wide).
+The analytic heart of the paper's **Lemma 6.3** (κ⁰ base-class existence), in its own file for
+the `kappa0_exists` splice in `GQ2/SectionNine.lean`.  This file carries copies of the small
+factor-set assembly lemmas in the `GQ2.SectionNine` namespace to avoid an import cycle; the
+scoping discussion is recorded in `docs/orchestration/p17e-kappa0-scoping.md`.  The generic-in-`V` copies
+(`datum_*`, `polar_*`, `isQuadraticFp2_*`, `quadratic_expansion`, `polar_sum_right`) are public
+because the §6.2 orbit decomposition in `GQ2/OrbitDecomp.lean` consumes them.
 
 ## Contents
 
@@ -30,7 +30,7 @@ orbit decomposition `GQ2/OrbitDecomp.lean` consumes them; names checked clash-fr
   ordered-pair form: for any kernel `f₀` with `f₀ p p = Q(e_p)` and
   `f₀ p p' + f₀ p' p = polar Q (e_p) (e_{p'})`, one has `Q F = ∑_{p,p'} F_p F_{p'} f₀(p,p')`.
 * `invBlockSquare`/`isEquivariantFactorSet_invBlockDatum` — the **involution correction**
-  `E_{n,u}` (paper Lemma 6.2): P-17e3's `invOrbitDatum`, instantiated at `N = ⊥` and
+  `E_{n,u}` (paper Lemma 6.2): the §9 induction's `invOrbitDatum`, instantiated at `N = ⊥` and
   transported to block `n` of `PermW H K` by `comapHom`/`comap` (no new orientation
   bookkeeping).
 * `exists_datum_of_invariant_quadratic` — the **normal form** (paper (75)/(76) + Lemma 6.2,
@@ -84,7 +84,7 @@ noncomputable def permBas (n : Fin K) (x : H) : PermW H K :=
   fun m y => if m = n ∧ y = x then 1 else 0
 
 omit [Group H] in
-theorem permBas_apply (n : Fin K) (x : H) (m : Fin K) (y : H) :
+private theorem permBas_apply (n : Fin K) (x : H) (m : Fin K) (y : H) :
     permBas n x m y = if m = n ∧ y = x then (1 : ZMod 2) else 0 := rfl
 
 /-- Left translation carries basis vectors to basis vectors: `h • e_{(n,x)} = e_{(n,hx)}`. -/
@@ -451,7 +451,7 @@ end DatumLemmas
 
 /-! ## The involution-block correction `E_{n,u}`  (paper Lemma 6.2, transported)
 
-P-17e3's `invOrbitDatum` lives over `G ⧸ N` acting on `RegRep N`.  We instantiate it at
+the §9 induction's `invOrbitDatum` lives over `G ⧸ N` acting on `RegRep N`.  We instantiate it at
 `G := H`, `N := ⊥` and transport along the canonical `H ≃* H ⧸ ⊥` (`comapHom`) and the block
 projection `PermW H K →+ RegRep ⊥` (`comap`) — no new orientation bookkeeping.  The package
 records the two coordinate facts the normal form consumes: `E` vanishes on basis vectors, and
@@ -553,7 +553,7 @@ theorem exists_invBlock_datum [Fintype H] (n : Fin K) {u : H} (hu2 : u * u = 1)
     map_mul eqv.symm w w'
   have hρinv : ∀ w : H ⧸ (⊥ : Subgroup H), ρ w⁻¹ = (ρ w)⁻¹ := fun w => map_inv eqv.symm w
   have hρinj : Function.Injective ρ := eqv.symm.injective
-  -- the involution downstairs and the base datum (P-17e3)
+  -- the involution downstairs and the base datum (the §9 induction)
   set gbar : H ⧸ (⊥ : Subgroup H) := π u with hgbar
   have hg2 : gbar * gbar = 1 := by rw [hgbar, ← map_mul, hu2, map_one]
   have hbase := isEquivariantFactorSet_invOrbitDatum (⊥ : Subgroup H) gbar hg2
@@ -729,7 +729,7 @@ theorem isQuadraticFp2_finset_sum {V : Type*} [AddCommGroup V] {ι : Type*}
     rw [polar_finset_sum, polar_finset_sum, polar_finset_sum, ← Finset.sum_add_distrib]
     exact Finset.sum_congr rfl fun i hi => (h i hi).polar_add_right u v w
 
-theorem isQuadraticFp2_add {V : Type*} [AddCommGroup V] {q q' : V → ZMod 2}
+private theorem isQuadraticFp2_add {V : Type*} [AddCommGroup V] {q q' : V → ZMod 2}
     (hq : IsQuadraticFp2 q) (hq' : IsQuadraticFp2 q') :
     IsQuadraticFp2 (fun v => q v + q' v) where
   map_zero := by rw [hq.map_zero, hq'.map_zero, add_zero]
@@ -744,7 +744,7 @@ theorem isQuadraticFp2_add {V : Type*} [AddCommGroup V] {q q' : V → ZMod 2}
     simp only [polar] at e1 e2 ⊢
     linear_combination e1 + e2
 
-theorem polar_add_map {V : Type*} [AddCommGroup V] (q q' : V → ZMod 2) (v w : V) :
+private theorem polar_add_map {V : Type*} [AddCommGroup V] (q q' : V → ZMod 2) (v w : V) :
     polar (fun x => q x + q' x) v w = polar q v w + polar q' v w := by
   simp only [polar]
   ring
@@ -813,7 +813,7 @@ theorem exists_datum_of_invariant_quadratic [Finite H]
     fun n m u => polar Q (permBas n 1) (permBas m u) with hβdef
   set Bad : Finset (Fin K × H) :=
     Finset.univ.filter (fun p => p.2 * p.2 = 1 ∧ p.2 ≠ 1 ∧ β p.1 p.1 p.2 = 1) with hBaddef
-  -- the involution corrections (P-17e3, transported)
+  -- the involution corrections (the §9 induction, transported)
   have hEex : ∀ p : {p : Fin K × H // p ∈ Bad},
       ∃ (E : PermW H K → ZMod 2) (dat : FactorSet H (PermW H K)),
         IsEquivariantFactorSet E dat ∧ IsQuadraticFp2 E ∧

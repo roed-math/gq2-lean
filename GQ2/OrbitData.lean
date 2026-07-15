@@ -1,4 +1,13 @@
-import GQ2.QuadraticFp2
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.QuadraticFp2
+
+@[expose] public section
 
 /-!
 # Orbit-data def-layer for §6  (extracted from `GQ2/SectionSix.lean`)
@@ -12,7 +21,7 @@ own-file's proved lemma back into `SectionSix`
 (`lemma_6_15_free := ShapiroLedger.lemma_6_15_free_aux …`) is a **circular import**.  Placing the
 def-layer here, in the **top-level `namespace GQ2`** (not `GQ2.SectionSix`), lets both
 `SectionSix` and the own-files reach the names unqualified with no per-file edits (they are all in
-`namespace GQ2`).  See `docs/orbit-data-refactor.md`.
+`namespace GQ2`).  See `docs/orchestration/orbit-data-refactor.md`.
 
 Moved verbatim from `SectionSix`.  No axioms; `Ax = ∅`.
 -/
@@ -45,9 +54,8 @@ variable {C V}
 structure IsEquivariantFactorSet (q : V → ZMod 2) (dat : FactorSet C V) : Prop where
   /-- `f` is a genuine **factor set**: the (trivial-action, additive) 2-cocycle identity on `V`
   — the associativity of the central extension `E_f` (Lemma 6.1's "normalized factor set").
-  [Field added in the P-15 pass: caught by proving `graphPullback_mem_Z2`, which is false
-  without it; all of the paper's concrete factor sets ((75)/(76)/(73)/(95)) are bilinear in the
-  coordinates, hence satisfy it.  Deviation ledger updated.] -/
+  This field is required for `graphPullback_mem_Z2`; all of the paper's concrete factor sets
+  ((75)/(76)/(73)/(95)) are bilinear in the coordinates, hence satisfy it. -/
   f_cocycle : ∀ v w x, dat.f (v + w) x + dat.f v w = dat.f v (w + x) + dat.f w x
   f_diag : ∀ v, dat.f v v = q v
   f_polar : ∀ v w, dat.f v w + dat.f w v = polar q v w

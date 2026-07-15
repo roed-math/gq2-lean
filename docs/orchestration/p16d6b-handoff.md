@@ -2,7 +2,7 @@
 
 *Self-contained handoff (Fable, 2026-07-06).  Everything a fresh session needs to finish
 P-16d6b is here — no chat/session-memory dependency.  Companion to
-[`GQ2/PhaseMuIndep.lean`](../GQ2/PhaseMuIndep.lean).*
+[`GQ2/Phase140/LIndep.lean`](../../GQ2/Phase140/LIndep.lean).*
 
 ---
 

@@ -1,12 +1,13 @@
 /-
-Copyright (c) 2026. All rights reserved.
+Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2.KappaNormalForm
 import GQ2.OrbitDecomp
 
 /-!
-# P-15f2b: the isometric regular embedding
+# The isometric regular embedding
 
 The `C`-equivariant **split embedding** of a ramified simple faithful quadratic `𝔽₂[C]`-module
 `(V, q)` into a regular module `W = PermW C N = 𝔽₂[C]^N`, carrying the pulled-back form
@@ -35,24 +36,24 @@ through.
 
 ## Relation to the full f2b interface / the remaining core
 
-The full f2b deliverable additionally asks for `datW = sumDatum (orbit datums)` — the §6.2
+The full f2b result additionally asks for `datW = sumDatum (orbit datums)` — the §6.2
 **orbit decomposition** of `Q_W` into square/free/involution orbit polynomials ((75)/(76)/Lemma
 6.2), whose per-orbit equivariance is banked (`isEquivariantFactorSet_{square,free,inv}OrbitDatum`
 in `SectionNine`/`InvolutionDatum`).  The banked normal form `exists_datum_of_invariant_quadratic`
 deliberately takes the *single* invariant-biadditive `β`-refinement route
-(`docs/p17e-kappa0-scoping.md`), so it produces `datW` but **not** its orbit-sum form; recovering
-the latter is the remaining combinatorial core of the orbit route.  This file delivers the
+(`docs/orchestration/p17e-kappa0-scoping.md`), so it produces `datW` but **not** its orbit-sum form; recovering
+the latter is the combinatorial core of the orbit route.  This file supplies the
 datum-independent isometric-embedding infrastructure that either route (the orbit route or the
-flagged `β`-route of `docs/p15f2-subtickets.md`) consumes.
+flagged `β`-route) consumes.
 
-No axioms; `Ax = ∅` (std-3 throughout, inheriting `lemma_6_11`'s `sorry`-free status).
+No axioms; `Ax = ∅` (std-3 throughout, inheriting only the axioms of `lemma_6_11`).
 -/
 
 namespace GQ2
 
 open QuadraticFp2
 
-/-- **The isometric regular embedding** (P-15f2b, P1 + the β-datum): a ramified simple faithful
+/-- **The isometric regular embedding** (the Lemma 6.17 vanishing proof, P1 + the β-datum): a ramified simple faithful
 2-torsion quadratic `𝔽₂[C]`-module `(V, q)` embeds `C`-equivariantly as a split summand of a
 regular module `W = 𝔽₂[C]^N`, carrying the pulled-back form `Q_W := q ∘ r` and an equivariant
 factor-set datum for it, so that `ι` is an **isometry** `Q_W (ι v) = q v`.
@@ -102,7 +103,7 @@ theorem regular_isometric_embedding {C : Type} [Group C] [TopologicalSpace C] [F
   rw [hqW] at hdatW
   exact ⟨N, ι, r, datW, hdatW, fun v => by rw [hri v], hιsmul, hrsmul, hri⟩
 
-/-! ## P-15f2b capstone: the orbit-sum isometric embedding
+/-! ## The orbit-sum isometric embedding
 
 Reindex the foundation's regular summand `𝔽₂[C]` to `RegRep N` along `e : C ≃* G ⧸ N`, then
 apply the §6.2 orbit decomposition (`OrbitDecomp.isEquivariantFactorSet_orbitSumDatum`) to the
@@ -123,7 +124,7 @@ def reSummand (e : C ≃* G ⧸ N) : (C → ZMod 2) ≃+ RegRep N where
   right_inv g := by funext h; show g (e (e.symm h)) = g h; rw [MulEquiv.apply_symm_apply]
   map_add' _ _ := rfl
 
-theorem reSummand_smul (e : C ≃* G ⧸ N) (c : C) (f : C → ZMod 2) :
+private theorem reSummand_smul (e : C ≃* G ⧸ N) (c : C) (f : C → ZMod 2) :
     reSummand N e (fun x => f (c⁻¹ * x)) = e c • reSummand N e f := by
   funext h
   show f (c⁻¹ * e.symm h) = reSummand N e f ((e c)⁻¹ * h)
@@ -134,26 +135,26 @@ theorem reSummand_smul (e : C ≃* G ⧸ N) (c : C) (f : C → ZMod 2) :
 def reBlock (e : C ≃* G ⧸ N) (K : ℕ) : (Fin K → C → ZMod 2) ≃+ (Fin K → RegRep N) :=
   AddEquiv.piCongrRight (fun _ => reSummand N e)
 
-theorem reBlock_apply (e : C ≃* G ⧸ N) {K : ℕ} (F : Fin K → C → ZMod 2) (k : Fin K) :
+private theorem reBlock_apply (e : C ≃* G ⧸ N) {K : ℕ} (F : Fin K → C → ZMod 2) (k : Fin K) :
     reBlock N e K F k = reSummand N e (F k) := rfl
 
-theorem reBlock_smul (e : C ≃* G ⧸ N) {K : ℕ} (c : C) (F : PermW C K) :
+private theorem reBlock_smul (e : C ≃* G ⧸ N) {K : ℕ} (c : C) (F : PermW C K) :
     reBlock N e K (c • F) = e c • reBlock N e K F := by
   funext k
   show reSummand N e (fun x => F k (c⁻¹ * x)) = e c • reBlock N e K F k
   rw [reBlock_apply, reSummand_smul]
 
-theorem reBlock_symm_smul (e : C ≃* G ⧸ N) {K : ℕ} (d : G ⧸ N) (Y : Fin K → RegRep N) :
+private theorem reBlock_symm_smul (e : C ≃* G ⧸ N) {K : ℕ} (d : G ⧸ N) (Y : Fin K → RegRep N) :
     (reBlock N e K).symm (d • Y) = e.symm d • (reBlock N e K).symm Y := by
   apply (reBlock N e K).injective
   rw [AddEquiv.apply_symm_apply, reBlock_smul, AddEquiv.apply_symm_apply,
     MulEquiv.apply_symm_apply]
 
-/-- **The orbit-sum isometric embedding** (P-15f2b): a ramified simple faithful quadratic
+/-- **The orbit-sum isometric embedding** (the Lemma 6.17 vanishing proof): a ramified simple faithful quadratic
 `𝔽₂[C]`-module `(V, q)` embeds `C`-equivariantly (through `e : C ≃* G ⧸ N`) as a split summand of
 `Fin K → RegRep N`, carrying the pulled-back form `Q_W := q ∘ r` together with the **§6.2
 orbit-sum datum** `sumDatum (orbitIndexSet Q_W) orbitDatum` for it, an isometry.  This is the full
-P-15f2b interface with `datW` *definitionally* the orbit sum — the shape
+the Lemma 6.17 vanishing proof interface with `datW` *definitionally* the orbit sum — the shape
 `OrbitVanish.Q0loc_vanish_of_datum_decomp` consumes. -/
 theorem regular_isometric_embedding_orbit
     [TopologicalSpace C] [Finite C] [Fintype (G ⧸ N)]

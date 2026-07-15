@@ -1,12 +1,22 @@
-import GQ2.EvensKahn
-import GQ2.KummerKrullBridge
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.EvensKahn
+public import GQ2.KummerKrullBridge
+
+@[expose] public section
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
-# B12 discharge — surjectivity of `kummerClassK` (hom/kernel layer B12-1 + capstone B12-3)
+# Surjectivity of `kummerClassK`
 
-Groundwork for proving `GQ2.kummerClassK_surjective` (`Foundations/Axioms.lean`) in-repo,
-retiring axiom **B12** (landed 2026-07-09, census 15 → 13 together with the B2 deletion).
-See `docs/orchestration/b12-tickets.md` / `b12-proof-plan.md` (archived board + plan).
+This file proves `GQ2.kummerClassK_surjective`, the former B12 axiom interface, in-repo.
 
 This file is the **hom/kernel layer** (B12-1): it turns a degree-1 class
 `c ∈ H¹(G_k, 𝔽₂)` — via `H1mk_surjective`, some cocycle `z ∈ Z¹` — into an open, index-2
@@ -15,10 +25,10 @@ reconnect a Kummer cocycle to `z` at the end (`eq_of_zero_set`, `mem_zHom_ker`) 
 base case (`kummerClassK_one`).  It lives strictly upstream of `Foundations/Axioms.lean`
 (imports only `GQ2.EvensKahn` + Mathlib) so the eventual flip is the zero-churn B11 pattern.
 
-The Krull bridge that consumes `zHom_ker_isOpen` + `zHom_index_ker` to produce the quadratic
-subextension is ticket B12-2 (`GQ2.KummerKrullBridge.exists_quadratic_of_open_index_two`,
-imported above).  The **capstone** (B12-3) is assembled below as `kummerClassK_surjective'`, after
-five `private` field-theory ports; `Foundations/Axioms.lean` calls it at the B12-4 census flip.
+The Krull bridge `GQ2.KummerKrullBridge.exists_quadratic_of_open_index_two` consumes
+`zHom_ker_isOpen` and `zHom_index_ker` to produce the quadratic subextension.  The capstone is
+assembled below as `kummerClassK_surjective'` after five private field-theory ports;
+`Foundations/Axioms.lean` exposes it under the public interface name.
 -/
 
 namespace GQ2.KummerSurjectivity
@@ -48,7 +58,7 @@ noncomputable def zHom (z : Z1 (↥k.fixingSubgroup) (ZMod 2)) :
 
 variable {k}
 
-@[simp] lemma zHom_apply (z : Z1 (↥k.fixingSubgroup) (ZMod 2)) (g : ↥k.fixingSubgroup) :
+@[simp] private lemma zHom_apply (z : Z1 (↥k.fixingSubgroup) (ZMod 2)) (g : ↥k.fixingSubgroup) :
     zHom k z g = Multiplicative.ofAdd (z.1 g) := rfl
 
 /-- The kernel of `zHom` is exactly the zero-set of the cocycle. -/
@@ -265,7 +275,8 @@ private lemma kcf_eq_zero_iff (x : ℚ̄₂) (γ : Kummer.GaloisGroup ℚ_[2]) :
 kernel is an open index-2 subgroup, which the B12-2 bridge turns into a quadratic `L = k⟮δ⟯`, and
 completing the square exhibits `d ∈ kˣ` whose Kummer cocycle vanishes on exactly `ker z = Stab δ` —
 so, both being `𝔽₂`-homs, `kummerClassK k d = c`.  Consumed by `Foundations/Axioms.lean` at the
-B12-4 census flip (same-name theorem, zero consumer churn). -/
+The theorem is exposed under the former interface name, so downstream consumers require no
+special adapter. -/
 theorem kummerClassK_surjective' (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k] :
     Function.Surjective (kummerClassK k) := by
   intro c

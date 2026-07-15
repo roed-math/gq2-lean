@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.SectionEight.Fourier
 
 /-!
@@ -6,7 +11,7 @@ import GQ2.SectionEight.Fourier
 Central double covers and their pulled-back boundary-framed structure (Lemma 8.3 setup),
 corestriction of continuous homs, the totalized stratum count `exactImageCountOn`, the
 liftable count `u^β_Γ(p, J)` (`liftableCount`), and the scalar-twist torsor structure on
-cover lifts (Lemma 8.2's second clause).  Split out of `GQ2.SectionEight` (wave 38a).
+cover lifts (Lemma 8.2's second clause).
 -/
 
 open scoped Pointwise
@@ -27,8 +32,8 @@ construction. -/
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
   [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
 
-/- `CentralCover` and `CentralCover.sq_eq_one_of_mem_ker` moved to `GQ2/RadicalEdgeData.lean`
-(P-16a def-layer relocation, 2026-07-04; see `docs/p16-ticket-split.md`). -/
+/- `CentralCover` and `CentralCover.sq_eq_one_of_mem_ker` live in
+`GQ2/RadicalEdge/Data.lean` to keep the cover data upstream of this consumer. -/
 
 namespace CentralCover
 

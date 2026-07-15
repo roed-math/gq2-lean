@@ -1,19 +1,24 @@
 /-
-Copyright (c) 2026. All rights reserved.
+Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
-import GQ2.DeepPart
-import GQ2.HilbertLedger
-import Mathlib.Algebra.Module.ZMod
-import Mathlib.LinearAlgebra.Dual.Lemmas
-import Mathlib.FieldTheory.Galois.Infinite
+module
+
+public import GQ2.DeepPart
+public import GQ2.HilbertLedger
+public import Mathlib.Algebra.Module.ZMod
+public import Mathlib.LinearAlgebra.Dual.Lemmas
+public import Mathlib.FieldTheory.Galois.Infinite
+
+@[expose] public section
 
 /-!
-# Local Kummer theory for the deep half  (ticket P-15f1)
+# Local Kummer theory for the deep half
 
 Infrastructure for `SectionSix.lemma_6_17_dim` — the deep-half dimension count
 `#X₊² = #H¹(ℚ₂, V)` for ramified `V` — via the paper's filtration route (Route B of
-`docs/p15f1-scoping.md`): under the Kummer identification
+`docs/orchestration/p15f1-scoping.md`): under the Kummer identification
 `H¹(ℚ₂, V) ≅ Hom_{H_V}(V^∨, M_K)` (`M_K = K^×/K^{×2}`, `K` the tame splitting field),
 the multiplicity `d j` of `V^∨` at filtration depth `j` satisfies `d j = d (2e − j)`
 (graded duality, self-duality of `V` through the invariant form `q`) and `d e = 0`
@@ -25,19 +30,10 @@ total — no `H¹`-pairing is involved.
 * **Layer 1 (this file, bottom)**: the counting core — pure `Finset` arithmetic turning the
   four count facts (`htotal`, `hdeep`, `hpair`, `hmid`) into the `lemma_6_17_dim` goal.
   Std-3, no axioms, no design risk.
-* **Layer 2 (to come)**: the `DeepKummerData` bundle (B6/`TateDuality` pattern) with fields
-  the literature-leaf candidates L1 (Kummer bijectivity of `kummerClassK`), L2 (the (93)
-  square-class filtration), L3 ((94) Hilbert orthogonality — consumed by P-15f2, not here),
-  plus the flagged Lemma-6.11 consequence (`Hom`-exactness; paper-proved content, must be
-  discharged before any axiom is declared).  The construction `DeepKummerData → Layer-1
-  counts` is the P3 (inflation–restriction) + P4 (`deepPart` bridge) + P5 work of the
-  scoping doc.
-
-## Ticket protocol
-
-Own file of **P-15f1**; the eventual `SectionSix` splice follows the P-15d/6.18ram pattern
-(statement moves out at closure).  Axiom census unchanged (13) — Layer 2's leaf bundle is
-PENDING USER APPROVAL and nothing here declares an axiom.
+* **Layer 2 (below)**: the `DeepKummerData` bundle records the filtration multiplicities,
+  inflation and extension inputs, graded self-duality, middle vanishing, and the two family
+  counts.  The resulting dimension theorem is parametric in this data; downstream modules
+  construct the required inputs from the proved Kummer and duality interfaces.
 -/
 
 namespace GQ2.LocalKummer
@@ -87,7 +83,7 @@ section ScalarRestriction
 
 /-- `𝔽₂`-functionals separate points on an elementary finite 2-group.  (Local copy of
 `GQ2.FoxH.elemDual_separates` from `GQ2/Devissage.lean`, duplicated to keep this file's build
-decoupled from the `FoxHeisenberg` import chain — a P-13f hot file.) -/
+decoupled from the `FoxHeisenberg` import chain — a the Prop. 5.15 proof hot file.) -/
 theorem exists_functional_ne_zero {A : Type*} [AddCommGroup A]
     (hA2 : ∀ a : A, a + a = 0) {a : A} (ha : a ≠ 0) : ∃ φ : A →+ ZMod 2, φ a ≠ 0 := by
   haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
@@ -961,13 +957,13 @@ literature-leaf outputs that the filtration count produces, so that `lemma_6_17_
   `#{deep families} = 2^{Σ_{j>e} d j}`, the exact-`Hom_{H_V}(V^∨, −)` computation over the unit
   filtration of `M_K`).
 
-NONE of these is an axiom; the census is unchanged.  Producing an instance is the remaining f1
-work (the L1/L2 leaves — pending approval — plus the Lemma-6.11 discharge). -/
+None of these fields is declared as an axiom; the theorem below is parametric in the bundled
+mathematical inputs. -/
 
 section DeepKummerData
 
 /-- The bundled local-Kummer count data for a ramified simple module, from which the deep-half
-dimension clause follows parametrically (Route B of `docs/p15f1-scoping.md`). -/
+dimension clause follows parametrically (Route B of `docs/orchestration/p15f1-scoping.md`). -/
 structure DeepKummerData (ρ : ContinuousMonoidHom AbsGalQ2 C) : Type where
   /-- The filtration depth bound `e = v_K(2)`. -/
   e : ℕ

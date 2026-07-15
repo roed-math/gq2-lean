@@ -1,4 +1,13 @@
-import GQ2.CupProduct
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.CupProduct
+
+@[expose] public section
 
 /-!
 # Cup graded-commutativity in characteristic 2
@@ -12,7 +21,7 @@ The proof is a clean cochain homotopy that holds **over `ℤ`** at the cocycle l
 `cup11Fun μ a b + cup11Fun μᵀ b a = δ¹(g ↦ −μ(a g)(b g))` (`cup11Fun_add_flip_eq_dOne`);
 2-torsion of `P` is used only to turn the class difference `α − β` into the sum `α + β`.
 
-This is the general form of `GQ2.HilbertLedger.trivialCupPairing_comm` (P-15e), which is the
+This is the general form of `GQ2.HilbertLedger.trivialCupPairing_comm` (the Hilbert-ledger proof), which is the
 special case `μ = AddMonoidHom.mul` on the trivial `𝔽₂`-module (`μ.flip = μ` by `mul_comm`); a
 future refactor can derive that lemma from `cup11_comm` here.  Designed to live in
 `GQ2/CupProduct.lean` (kept in a separate file for now to avoid churn on the shared foundation).

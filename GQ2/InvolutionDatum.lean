@@ -1,7 +1,14 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.OrbitData
+import Mathlib.Tactic.Group
+import Mathlib.Tactic.LinearCombination
 
 /-!
-# P-17e3: the involution-orbit datum is an equivariant factor set  (Lemma 6.2)
+# The involution-orbit datum is an equivariant factor set  (Lemma 6.2)
 
 `GQ2.invOrbitDatum N gbar` (defined in `GQ2/OrbitData.lean`) is the paper's involution-orbit
 cocycle `E_ḡ` (Lemma 6.2, eqs. (67)–(73)): for an involution `ḡ` of `C = G/N`, the factor set
@@ -11,7 +18,7 @@ cocycle `E_ḡ` (Lemma 6.2, eqs. (67)–(73)): for an involution `ḡ` of `C = G
 
 This file proves `isEquivariantFactorSet_invOrbitDatum`: the seven `IsEquivariantFactorSet`
 identities, the hard ones being (71) `m_quad` and (72) `m_mul`.  Own file (imports only
-`OrbitData`); spliced into the §9 layer by the consumer (`kappa0_exists` orbit-sum, P-17e5).
+`OrbitData`); consumed by the `kappa0_exists` orbit sum in the §9 layer.
 
 ## The transversal bookkeeping (eqs. (67), (74))
 

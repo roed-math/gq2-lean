@@ -1,12 +1,17 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.OrbitDecomp
 import GQ2.RepIndependence
 import GQ2.LocalKummer
 
 /-!
-# P-15f2c1: the Shapiro H¹ coordinate read  (`hcoh`, the f2c keystone)
+# The Shapiro H¹ coordinate read  (`hcoh`, the f2c keystone)
 
-The remaining cohomological input of the `lemma_6_17_vanish` orbit route (P-15f2, handoff
-`docs/p15f2-handoff.md` §5): each block coordinate of a `Z¹(G_ℚ₂, 𝔽₂[G/N]^K)`-representative is
+The remaining cohomological input of the `lemma_6_17_vanish` orbit route (the Lemma 6.17 vanishing proof, handoff
+`docs/orchestration/p15f2-handoff.md` §5): each block coordinate of a `Z¹(G_ℚ₂, 𝔽₂[G/N]^K)`-representative is
 **cohomologous to the Shapiro cochain of its scalar coordinate**, so the banked
 `SectionSix.lemma_6_15_{square,free,involution}` (stated at `shapiroFun`, acting map `mk' N`)
 fire on the per-orbit graph pullbacks of `OrbitDecomp`'s block datums.
@@ -248,7 +253,7 @@ private theorem H2ofFun_graphPullback_comap_shift {K : ℕ} {W : Type*} [AddComm
 
 include hmk in
 omit [Finite (RegRep N)] [ContinuousSMul AbsGalQ2 (RegRep N)] in
-/-- **P-15f2c1, square-orbit `hcoh`** (Lemma 6.15 eq. (103) at a block coordinate): the graph
+/-- **the Lemma 6.17 vanishing proof, square-orbit `hcoh`** (Lemma 6.15 eq. (103) at a block coordinate): the graph
 pullback of the square block datum at any `Z¹`-representative is, in `H²`, the corestriction of
 the cup square of the block's scalar Shapiro coordinate. -/
 theorem hcoh_square {K : ℕ} (j : Fin K) (hNo : IsOpen (N : Set AbsGalQ2))
@@ -276,7 +281,7 @@ theorem hcoh_square {K : ℕ} (j : Fin K) (hNo : IsOpen (N : Set AbsGalQ2))
 
 include hmk in
 omit [Finite (RegRep N)] [ContinuousSMul AbsGalQ2 (RegRep N)] in
-/-- **P-15f2c1, free-orbit `hcoh`** (Lemma 6.15 eq. (104) at a block pair): the graph pullback
+/-- **the Lemma 6.17 vanishing proof, free-orbit `hcoh`** (Lemma 6.15 eq. (104) at a block pair): the graph pullback
 of the free block datum with shift `mk' ĝ` at any `Z¹`-representative is, in `H²`, the
 corestriction of `α_j ⌣ ĝα_k` (conjugated second coordinate). -/
 theorem hcoh_free {K : ℕ} (j k : Fin K) (ghat : AbsGalQ2) (hNo : IsOpen (N : Set AbsGalQ2))
@@ -326,7 +331,7 @@ theorem hcoh_free {K : ℕ} (j k : Fin K) (ghat : AbsGalQ2) (hNo : IsOpen (N : S
 
 include hmk in
 omit [Finite (RegRep N)] [ContinuousSMul AbsGalQ2 (RegRep N)] in
-/-- **P-15f2c1, involution-orbit `hcoh`** (Lemma 6.15 eq. (105) at a block coordinate): the
+/-- **the Lemma 6.17 vanishing proof, involution-orbit `hcoh`** (Lemma 6.15 eq. (105) at a block coordinate): the
 graph pullback of the involution block datum at any `Z¹`-representative is, in `H²`, the
 `U₀`-corestriction of the Evens norm of the block's scalar Shapiro coordinate. -/
 theorem hcoh_involution {K : ℕ} (j : Fin K) (ghat : AbsGalQ2) (hNo : IsOpen (N : Set AbsGalQ2))

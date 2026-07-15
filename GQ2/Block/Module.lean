@@ -1,7 +1,22 @@
-import Mathlib
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.GroupTheory.PGroup
+public import Mathlib.Order.CompletePartialOrder
+public import Mathlib.FieldTheory.Normal.Defs
+public import Mathlib.RingTheory.UniqueFactorizationDomain.Finsupp
+public import Mathlib.Algebra.Order.Star.Basic
+public import Mathlib.Analysis.Normed.Ring.Lemmas
+
+@[expose] public section
+
 
 /-!
-# Block-module infrastructure for §7  (ticket P-15g)
+# Block-module infrastructure for §7
 
 Reusable finite-group-theory layer for `GQ2.SectionSeven.lemma_7_2` (and, later, §§8–9's
 scalar-regime arguments).  Block-agnostic: everything is phrased for subgroups `S ≤ P ≤ Y`
@@ -209,7 +224,7 @@ omit [Finite Y] in
 /-- **An odd-order element moves the simple head `V = P/S`.**  Given the chief condition and a
 nontrivial `Y`-action, there is an odd-order `y ∈ Y` and a `p ∈ P` with `[y, p] ∉ S`.  The
 paper's odd Hall lift is replaced by this p-group/Cauchy argument (no Hall / Schur–Zassenhaus).
-[P-15g.] -/
+[the Lemma 7.2 proof.] -/
 theorem exists_odd_moving_general
     (S P : Subgroup Y) (hS : S.Normal) (hP : P.Normal) (hSP : S < P)
     (hP2 : IsPGroup 2 P)

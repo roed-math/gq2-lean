@@ -1,8 +1,13 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.GaussZ.Local
 import GQ2.Phase140.Local
 
 /-!
-# P-16d6e4a — the local `GaussZResidue` discharge (the e7 composition)
+# The local `GaussZResidue` discharge (the e7 composition)
 
 `gaussZ_reduction` (layer (I), `GaussZReduction.lean`) ∘ the `H¹`-transport
 (`h1OfVQuot` + `QZeroBar_eq_Q0loc`, `GaussZLocal.lean`) ∘ the pinned values
@@ -11,7 +16,7 @@ import GQ2.Phase140.Local
   `∑ᶠ c : Z¹_{G_ℚ₂,ρ'}(V), sign(Q⁰ c) = #V · G0`,  `G0 = −2^m` (unram) / `+2^m` (ram)
 
 — `GaussZResidue B.bF F En l h G0` verbatim, i.e. `prop_8_9`'s `hGaussZF` at the pinned value
-(design: `docs/p16d6e4a-evaluation-design.md` §1 + §"Hypothesis supply").
+(design: `docs/orchestration/p16d6e4a-evaluation-design.md` §1 + §"Hypothesis supply").
 
 * The **tame factorization is packaged per boundary lift** (`hpack`): each lower map
   `ρ.1.1 : G_ℚ₂ → Y_C` factors through `B.tameF` by a surjective `c : Ttame → Y_C` carrying
@@ -52,7 +57,7 @@ variable (B : BoundaryMaps) (F : BoundaryFrame H E) (En : RF.Enrichment)
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [TopologicalSpace Y]
   [DiscreteTopology Y] [IsTopologicalGroup AbsGalQ2] in
-/-- **`hGaussZF`, unramified case** (P-16d6e4a): with a per-lift tame package whose inertia
+/-- **`hGaussZF`, unramified case** (the Prop. 8.9 assembly): with a per-lift tame package whose inertia
 acts trivially on `V`, `GaussZResidue B.bF F En l h (−2^m)` — the `prop_8_9` ledger
 hypothesis at the pinned unramified value. -/
 theorem gaussZResidue_local_unramified (D6 : TateDuality 2)
@@ -129,7 +134,7 @@ theorem gaussZResidue_local_unramified (D6 : TateDuality 2)
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [TopologicalSpace Y]
   [DiscreteTopology Y] [IsTopologicalGroup AbsGalQ2] in
-/-- **`hGaussZF`, ramified case** (P-16d6e4a): with a per-lift tame package whose inertia
+/-- **`hGaussZF`, ramified case** (the Prop. 8.9 assembly): with a per-lift tame package whose inertia
 moves `V`, `GaussZResidue B.bF F En l h (+2^m)` — the `prop_8_9` ledger hypothesis at the
 pinned ramified value. -/
 theorem gaussZResidue_local_ramified (D6 : TateDuality 2) (R : LocalReciprocity)

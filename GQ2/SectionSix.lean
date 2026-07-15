@@ -1,33 +1,46 @@
-import GQ2.BoundaryFrame
-import GQ2.EvensKahn
-import GQ2.TateDuality
-import GQ2.Omega2
-import GQ2.QuadraticFp2
-import GQ2.GaussCount
-import GQ2.GaussSigns
-import GQ2.GaussSignsRamified
-import GQ2.HilbertLedger
-import GQ2.Prop32
-import GQ2.Corestriction
-import GQ2.OrbitData
-import GQ2.Shapiro.Ledger
-import GQ2.Transgression
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.Algebra.Group.MinimalAxioms
+public import GQ2.BoundaryFrame
+public import GQ2.EvensKahn
+public import GQ2.TateDuality
+public import GQ2.Omega2
+public import GQ2.QuadraticFp2
+public import GQ2.GaussCount
+public import GQ2.GaussSigns
+public import GQ2.GaussSignsRamified
+public import GQ2.HilbertLedger
+public import GQ2.Prop32
+public import GQ2.Corestriction
+public import GQ2.OrbitData
+public import GQ2.Shapiro.Ledger
+public import GQ2.Transgression
+
+@[expose] public section
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
-# §6: quadratic determinant obstructions — statements  (ticket P-14)
+# §6: quadratic determinant obstructions — statements
 
-Statement-first extraction of the paper's §6 (pages 21–37), per the P-14 scope: the **Gauss-sign
+Statement-first extraction of the paper's §6 (pages 21–37): the **Gauss-sign
 pair** 6.8/6.9, the **`D₈`/Evens-norm normalization** 6.13, the **orbit–stabilizer Shapiro
 ledger** 6.15, the **Hilbert ledger** 6.16 → 6.17 → **6.18** (the dyadic base determinant
 theorem, the section's headline), and the **transgression/shear pair** 6.21/6.22.  Every
-statement carries its paper display number; all are now proved — the proofs were ticket P-15
+statement carries its paper display number; all are proved
 (Ax: B5, B6, B9; B7′ has since been proved as a theorem).  The definitional layer here (factor
 sets, graph pullbacks, orbit cocycles, the local functional `ι_F`) never needed the proofs;
 classes of cocycles are formed with the junk-total `H2ofFun`/`H1ofFun`
 (`GQ2/Corestriction.lean`).
 
 Design rationale, statement-by-statement display map, and **flagged deviations** (democratic
-Arf, canonical transversals, 6.5/6.19 deferred to the P-12/P-16 seam, 6.13's (100) folded into
+Arf, canonical transversals, 6.5/6.19 represented through their downstream interfaces, 6.13's (100) folded into
 6.15's (105), 6.21 in consequence form, (83) as the definition shape of `Q⁰_A`):
 `docs/section67-extraction.md`.
 
@@ -42,7 +55,7 @@ Arf, canonical transversals, 6.5/6.19 deferred to the P-12/P-16 seam, 6.13's (10
   through the `𝔽₂ ≅ μ₂` coefficient bridge (`muTwoOfF2`) and B6's invariant `D.inv`
   (`GQ2/TateDuality.lean`).  `Q0loc` (eq. (92)) is the base quadratic connecting map, on
   `H¹`-classes via the canonical representative (`Quotient.out`; well-definedness = Lemma 6.4,
-  a P-15 obligation).
+  a the §§6–7 proof layer obligation).
 * **Deep units** (§6.3, eqs. (93)/(94)): `IsDeepUnit N A` says `A = 1 + 2b` with `‖b‖ < 1`,
   `A, b` fixed by `N` — i.e. `A ∈ U_{e+1}(K)` for `K` the fixed field of `N`, phrased through
   the spectral norm on `ℚ̄₂` (Mathlib's `NormedField (AlgebraicClosure ℚ_[p])`), with **no
@@ -127,7 +140,7 @@ def iotaF (D : TateDuality 2) : H2 AbsGalQ2 (ZMod 2) →+ ZMod 2 :=
 
 `FactorSet`, `IsEquivariantFactorSet`, `kappa0`, `graphPullback`, `FactorSet.comap` now live in
 `GQ2/OrbitData.lean` (top-level `namespace GQ2`), reachable here unqualified.  See
-`docs/orbit-data-refactor.md`. -/
+`docs/orchestration/orbit-data-refactor.md`. -/
 
 /-! ## `Q⁰_loc`: the base quadratic connecting map  (§6.3, eq. (92)) -/
 
@@ -139,7 +152,7 @@ variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [
 
 /-- **`Q⁰_loc`** (eq. (92)): `Q⁰_loc([b]) = inv_{ℚ₂}((b, ρ)^* κ⁰_q)`, on `H¹(G_ℚ₂, V)` via the
 canonical cocycle representative.  Independence of the representative (and of the datum, given
-`IsEquivariantFactorSet`) is the Lemma 6.4 content — a P-15 obligation, not baked into the
+`IsEquivariantFactorSet`) is the Lemma 6.4 content — a the §§6–7 proof layer obligation, not baked into the
 definition.  Junk value `0` when the pullback is not a cocycle (`H2ofFun`). -/
 def Q0loc (D : TateDuality 2) (dat : FactorSet C V) (ρ : ContinuousMonoidHom AbsGalQ2 C) :
     H1 AbsGalQ2 V → ZMod 2 :=
@@ -149,7 +162,7 @@ omit [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
 /-- **Well-formedness of the graph pullback** (Lemma 6.1's cocycle assertion, specialized to the
 graph (62)): for an equivariant factor-set datum and a continuous 1-cocycle `b` (with the
 `G_ℚ₂`-action on `V` acting through `ρ`), the pullback is a continuous 2-cocycle.
-Paper: Lemma 6.1, display (62).  [P-14 statement; proof P-15.] -/
+Paper: Lemma 6.1, display (62).  [the §§6–7 statement; proof the §§6–7 proof layer.] -/
 theorem graphPullback_mem_Z2 {q : V → ZMod 2} (dat : FactorSet C V)
     (hdat : IsEquivariantFactorSet q dat) (ρ : ContinuousMonoidHom AbsGalQ2 C)
     (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v) (b : Z1 AbsGalQ2 V) :
@@ -189,7 +202,7 @@ end Q0loc
 
 The candidate base form is taken in its evaluated shape (83): `Q⁰_A = q` when the inertia image
 is trivial (`T = 1`), and `Q⁰_A = q_U = qDouble q U` with `U = S^{ω₂}` when `V^T = 0` (ramified).
-Deriving (83) from the relator ledger is Prop 6.5 = the P-12 seam (deviation note §6.5). -/
+Deriving (83) from the relator ledger is Prop 6.5 = the Fox–Heisenberg design seam (deviation note §6.5). -/
 
 section GaussSign
 
@@ -205,7 +218,7 @@ def onePlusU (U : V ≃+ V) : V →+ V :=
 /-- **Lemma 6.6 (Wall doubling), eq. (86)**: for a nonsingular `q` and an orthogonal operator
 `U` of 2-power order, the doubling `q_U(x) = q(x) + B(x, Ux)` is nonsingular and
 `Arf(q_U) = Arf(q) + rank(1 + U) (mod 2)`.  The rank enters as the exponent `k` of
-`#im(1 + U) = 2^k`.  [P-14 statement; proof P-15.] -/
+`#im(1 + U) = 2^k`.  [the §§6–7 statement; proof the §§6–7 proof layer.] -/
 theorem lemma_6_6 (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (h2 : ∀ v : V, v + v = 0)
     (hns : Nonsingular q) (U : V ≃+ V) (hUq : ∀ v, q (U v) = q v)
     (hU2 : ∃ n : ℕ, (⇑U)^[2 ^ n] = id) :
@@ -214,11 +227,11 @@ theorem lemma_6_6 (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (h2 : ∀ v : V, v 
         arf (qDouble q ⇑U) = arf q + (k : ZMod 2) := by
   classical
   letI := Fintype.ofFinite V
-  -- nonsingularity of `q_U` and the `2`-power rank are proved in `GQ2/GaussCount.lean` (P-15a).
+  -- nonsingularity of `q_U` and the `2`-power rank are proved in `GQ2/GaussCount.lean` (the Wall and Gauss-count proof).
   refine ⟨qDouble_nonsingular q U hq h2 hns hUq hU2, ?_⟩
   obtain ⟨k, hk⟩ := exists_card_range_eq_two_pow h2 (onePlusU U)
   refine ⟨k, hk, arf_qDouble_of_gaussSum_sign q U (gaussSum_ne_zero q hq hns) ?_⟩
-  -- **Wall's sign relation** `g(q_U) = (−1)ᵏ g(q)`: proved in `GQ2/GaussCount.lean` (P-15a) —
+  -- **Wall's sign relation** `g(q_U) = (−1)ᵏ g(q)`: proved in `GQ2/GaussCount.lean` (the Wall and Gauss-count proof) —
   -- grouping the double Gauss sum over the fibers of `1 + U` reduces it to the abstract Wall
   -- count of the Wall form `ω(Nx, u) = B(x, u)` on `im (1 + U)`, whose monodromy `U⁻¹` has
   -- 2-power order.
@@ -251,7 +264,7 @@ for a faithful simple ramified tame module `V` (tame image `Hf` marked by
 * (88) `#V^U = 2^{rs}` and `rank(1 + U) ≡ s (mod 2)`, for `U = S^{ω₂} = powOmega2 (c σ)`;
 * consequently `Arf(q_U) = 0` (the ramified candidate base form of (83)).
 
-[P-14 statement; proof P-15.] -/
+[the §§6–7 statement; proof the §§6–7 proof layer.] -/
 theorem lemma_6_8 (c : ContinuousMonoidHom Ttame Hf) (_ : Function.Surjective c)
     (hfaith : ∀ h : Hf, (∀ v : V, h • v = v) → h = 1)
     (_ : ∀ W : AddSubgroup V, (∀ (h : Hf), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
@@ -285,7 +298,7 @@ theorem lemma_6_8 (c : ContinuousMonoidHom Ttame Hf) (_ : Function.Surjective c)
   -- (88b): the rank is a 2-power `2^k` with `k ≡ s`
   obtain ⟨k, hk⟩ := exists_card_range_eq_two_pow hV2 (onePlusU U)
   have h88b : (k : ZMod 2) = (s : ZMod 2) := hrank k hk
-  -- (87): `arf q = s` via the `⟨T⟩` route (`GaussSignsRamified`), reusing P-13d's simplicity
+  -- (87): `arf q = s` via the `⟨T⟩` route (`GaussSignsRamified`), reusing the tame representation-theory proof's simplicity
   have h87 : arf q = (s : ZMod 2) := by
     letI : DistribMulAction (Subgroup.zpowers (c tameTau)) V :=
       DistribMulAction.compHom V (Subgroup.zpowers (c tameTau)).subtype
@@ -311,7 +324,7 @@ theorem lemma_6_8 (c : ContinuousMonoidHom Ttame Hf) (_ : Function.Surjective c)
 
 /-- **Proposition 6.9 (candidate base determinant zero count), eq. (91), unramified case**:
 if inertia acts trivially (`c(τ) = 1`, so `Q⁰_A = q` by (83)) and `#V = 2^{2m}`, then
-`#(Q⁰_A)⁻¹(0) = 2^{2m−1} − 2^{m−1}` (negative Gauss sign).  [P-14 statement; proof P-15.] -/
+`#(Q⁰_A)⁻¹(0) = 2^{2m−1} − 2^{m−1}` (negative Gauss sign).  [the §§6–7 statement; proof the §§6–7 proof layer.] -/
 theorem prop_6_9_unramified (c : ContinuousMonoidHom Ttame Hf) (hc : Function.Surjective c)
     (hfaith : ∀ h : Hf, (∀ v : V, h • v = v) → h = 1)
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : Hf), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
@@ -364,7 +377,7 @@ theorem prop_6_9_unramified (c : ContinuousMonoidHom Ttame Hf) (hc : Function.Su
 omit [DiscreteTopology Hf] in
 /-- **Proposition 6.9, eq. (91), ramified case**: if inertia acts nontrivially
 (`Q⁰_A = q_U`, `U = S^{ω₂}`, by (83)) and `#V = 2^{2m}`, then
-`#(Q⁰_A)⁻¹(0) = 2^{2m−1} + 2^{m−1}` (positive Gauss sign).  [P-14 statement; proof P-15.] -/
+`#(Q⁰_A)⁻¹(0) = 2^{2m−1} + 2^{m−1}` (positive Gauss sign).  [the §§6–7 statement; proof the §§6–7 proof layer.] -/
 theorem prop_6_9_ramified (c : ContinuousMonoidHom Ttame Hf) (hc : Function.Surjective c)
     (hfaith : ∀ h : Hf, (∀ v : V, h • v = v) → h = 1)
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : Hf), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
@@ -400,7 +413,7 @@ end GaussSign
 /-! ## Lemma 6.13: the universal two-point class and the index-two Evens norm
 
 The repo *defines* the index-two Evens norm by the two-point graph cocycle (98)
-(`GQ2/EvensKahn.lean`, per the T-18 design), so the paper's eq. (99) is definitional here.
+(`GQ2/EvensKahn.lean`, per the Evens–Kahn interface design), so the paper's eq. (99) is definitional here.
 The remaining 6.13 content is the universal model: the explicit `κ_J` on `E ⋊ J`
 (eq. (95)), its `D₈` fibre extension, and eq. (96) `[κ_J] = N^{Ev}(e₁^∨)`.
 Eq. (100) is folded into 6.15's (105) (deviation note). -/
@@ -417,7 +430,7 @@ def swapSmul (c : Multiplicative (ZMod 2)) (v : swapE) : swapE :=
 
 instance : SMul (Multiplicative (ZMod 2)) swapE := ⟨swapSmul⟩
 
-@[simp] lemma swapSmul_def (c : Multiplicative (ZMod 2)) (v : swapE) :
+@[simp] private lemma swapSmul_def (c : Multiplicative (ZMod 2)) (v : swapE) :
     c • v = if c.toAdd = 0 then v else v.swap := rfl
 
 /-- The swap action of `J = Multiplicative (ZMod 2)` on `E`. -/
@@ -463,8 +476,8 @@ instance : DecidableEq twoPointExt :=
 instance : Fintype twoPointExt := inferInstanceAs (Fintype (swapE × ZMod 2))
 
 /-- The group structure on the two-point fibre extension — the axioms are kernel-checked finite
-computations over the 8 elements (`decide`; the board's convention allows it, `native_decide`
-does not appear). -/
+computations over the 8 elements using kernel-checkable `decide`; `native_decide` does not
+appear. -/
 instance twoPointExtGroup : Group twoPointExt where
   mul := (· * ·)
   one := ((0, 0), 0)
@@ -489,7 +502,7 @@ private def dihedralHom : DihedralGroup 4 →* twoPointExt where
 
 /-- **Lemma 6.13, the `D₈` claim**: the fibre extension of the universal two-point class is the
 dihedral group of order 8 — via the explicit exponent-table map `r ↦ ẽ₁ẽ_s`, `sr 0 ↦ ẽ₁`;
-all axioms are kernel-checked finite computations.  Paper: Lemma 6.13.  [P-15.] -/
+all axioms are kernel-checked finite computations.  Paper: Lemma 6.13.  [the §§6–7 proof layer.] -/
 theorem lemma_6_13_dihedral : Nonempty (twoPointExt ≃* DihedralGroup 4) :=
   ⟨(MulEquiv.ofBijective dihedralHom (by decide)).symm⟩
 
@@ -509,7 +522,7 @@ instance : Inv (SemiProd C V) := ⟨fun p ↦ (-(p.2⁻¹ • p.1), p.2⁻¹)⟩
 
 @[simp] lemma mul_def (a b : SemiProd C V) : a * b = (a.1 + a.2 • b.1, a.2 * b.2) := rfl
 
-@[simp] lemma one_def : (1 : SemiProd C V) = ((0 : V), (1 : C)) := rfl
+@[simp] private lemma one_def : (1 : SemiProd C V) = ((0 : V), (1 : C)) := rfl
 
 @[simp] lemma inv_def (a : SemiProd C V) : a⁻¹ = (-(a.2⁻¹ • a.1), a.2⁻¹) := rfl
 
@@ -558,7 +571,7 @@ index-two Evens norm of the first coordinate functional `e₁^∨ ∈ H¹(E, �
 *defines* the Evens norm by the two-point graph cocycle (98) (`GQ2/EvensKahn.lean`, so the
 paper's (99) is definitional), this statement is the normalization anchoring that definition to
 the paper's universal model.  Quantified over the side-condition proofs `evensNormH2` takes.
-[P-14 statement; proof P-15.] -/
+[the §§6–7 statement; proof the §§6–7 proof layer.] -/
 theorem lemma_6_13_evens
     (sJ : SemiProd (Multiplicative (ZMod 2)) swapE)
     (hsJ : sJ = ((0 : swapE), Multiplicative.ofAdd (1 : ZMod 2)))
@@ -648,14 +661,14 @@ variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
 variable (N : Subgroup G) [N.Normal]
 
 -- `RegRep`, `squareOrbitDatum`, `freeOrbitDatum`, `invOrbitDatum` moved to `GQ2/OrbitData.lean`
--- (top-level `namespace GQ2`), reachable here unqualified.  See `docs/orbit-data-refactor.md`.
+-- (top-level `namespace GQ2`), reachable here unqualified.  See `docs/orchestration/orbit-data-refactor.md`.
 
 variable [Finite (G ⧸ N)]
 
 omit [Finite (G ⧸ N)] in
 /-- **Lemma 6.15, eq. (103) (square orbits)**: the graph pullback of the square-orbit datum at
 the Shapiro cochain of `α` is the corestriction of the cup square `α ⌣ α`.
-[P-14 statement; proof P-15.] -/
+[the §§6–7 statement; proof the §§6–7 proof layer.] -/
 theorem lemma_6_15_square (_ : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) :
     H2ofFun G (graphPullback (squareOrbitDatum N) (QuotientGroup.mk' N) (shapiroFun N α.1))
       = H2ofFun G (cor2Fun N (fun p ↦ α.1 p.1 * α.1 p.2)) := by
@@ -681,15 +694,15 @@ theorem lemma_6_15_square (_ : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) :
 
 /-- **Lemma 6.15, eq. (104) (free orbits)**: the graph pullback of the free-orbit datum with
 shift `ḡ` at the Shapiro cochains of `α, β` is the corestriction of `α ⌣ ḡβ` (`ḡβ` = conjugate
-cocycle through a lift `ĝ` of `ḡ`).  [P-14 statement; proof P-15.] -/
+cocycle through a lift `ĝ` of `ḡ`).  [the §§6–7 statement; proof the §§6–7 proof layer.] -/
 theorem lemma_6_15_free (hNo : IsOpen (N : Set G)) (α β : Z1 N (ZMod 2)) (ghat : G) :
     H2ofFun G (graphPullback (freeOrbitDatum N (QuotientGroup.mk' N ghat))
         (QuotientGroup.mk' N) (fun γ ↦ (shapiroFun N α.1 γ, shapiroFun N β.1 γ)))
       = H2ofFun G (cor2Fun N (fun p ↦ α.1 p.1 *
           β.1 ⟨ghat⁻¹ * (p.2 : G) * ghat, by
             simpa using Subgroup.Normal.conj_mem ‹N.Normal› _ p.2.2 ghat⁻¹⟩)) :=
-  -- Spliced (P-15c): proved in `GQ2/ShapiroLedger.lean` (`Ax = ∅`, std-3) — the ĝ-shift
-  -- coboundary `δ¹Λ` via `H2ofFun_eq_of_sub_mem_B2`.  See `docs/orbit-data-refactor.md`.
+  -- Spliced (the Shapiro-ledger proof): proved in `GQ2/ShapiroLedger.lean` (`Ax = ∅`, std-3) — the ĝ-shift
+  -- coboundary `δ¹Λ` via `H2ofFun_eq_of_sub_mem_B2`.  See `docs/orchestration/orbit-data-refactor.md`.
   ShapiroLedger.lemma_6_15_free_aux N hNo α β ghat
 
 /-- **Lemma 6.15, eq. (105) (involution orbits)**: for an involution `ḡ = mk ĝ` of `G/N`, the
@@ -697,7 +710,7 @@ graph pullback of the involution-orbit datum at the Shapiro cochain of `α` is
 `cor_{K₀/F} N^{Ev}_{K/K₀}(α)`, where `U₀ = ⟨N, ĝ⟩` is the index-2-over-`N` subgroup (fixed field
 `K₀ = K^{⟨ḡ⟩}`) and the Evens norm is the repo's two-point graph cocycle (98).  This statement
 also absorbs the paper's eq. (100) (deviation note).  Quantified over the membership/side proofs.
-[P-14 statement; proof P-15.] -/
+[the §§6–7 statement; proof the §§6–7 proof layer.] -/
 theorem lemma_6_15_involution (hNo : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) (ghat : G)
     (hg : ghat ∉ N) (hg2 : ghat * ghat ∈ N)
     (U₀ : Subgroup G) (hU₀ : U₀ = N ⊔ Subgroup.zpowers ghat)
@@ -709,7 +722,7 @@ theorem lemma_6_15_involution (hNo : IsOpen (N : Set G)) (α : Z1 N (ZMod 2)) (g
           evensNormFun (N.subgroupOf U₀)
             ⟨ghat, by rw [hU₀]; exact Subgroup.mem_sup_right (Subgroup.mem_zpowers ghat)⟩
             (fun u ↦ α.1 ⟨u.1.1, u.2⟩) (p.1, p.2))) :=
-  -- Spliced (P-15c): proved in `GQ2/ShapiroLedger.lean` (`Ax = ∅`, std-3) — the compatible
+  -- Spliced (the Shapiro-ledger proof): proved in `GQ2/ShapiroLedger.lean` (`Ax = ∅`, std-3) — the compatible
   -- transversal `invLift` (words based at `phi`'s own orbit-canonical points), the position
   -- identity, the aligned-locus coboundary `invLambda`, and the generic transversal-change
   -- brick `cor2FunT_sub_cor2Fun_mem_B2`, chained through `H2ofFun_eq_of_sub_mem_B2`.
@@ -737,11 +750,11 @@ and a deep unit `a ∈ U_{e+1}(L)`, the index-two Evens norm of the Kummer class
 
 The Evens norm is the repo's `evensNormH2Z` (the two-point graph cocycle (98)); the proof route
 is the Hilbert-symbol ledger (111)–(114) through axioms B9/B11 — `GQ2/HilbertLedger.lean`
-(P-15e, Ax: B7′, B9, B11).  Quantified over the side-condition proofs.  [P-14 statement;
-**P-15e amendment**: added `[FiniteDimensional ℚ_[2] k]` (the statement's "finite dyadic
+(the Hilbert-ledger proof, Ax: B7′, B9, B11).  Quantified over the side-condition proofs.  [the §§6–7 statement;
+**the Hilbert-ledger proof amendment**: added `[FiniteDimensional ℚ_[2] k]` (the statement's "finite dyadic
 local fields", needed by B9/B11) and the **Kummer presentation of `L/k`** — the generator data
 `(d, δ, hδ, hLδ)` with `L = k(δ)`, `δ² = d`, and the coordinates `(u, v, hAuv)` of the deep
-unit `A = u + vδ` (the paper's "write `L = k(√d)`, `a = u + v√d`"); consumers (6.17, P-15f)
+unit `A = u + vδ` (the paper's "write `L = k(√d)`, `a = u + v√d`"); consumers (6.17, the deep-part proof)
 construct these concretely, and char-≠2 Kummer theory guarantees them abstractly.  See
 `docs/section67-extraction.md`.] -/
 theorem lemma_6_16 (k L : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
@@ -766,7 +779,7 @@ theorem lemma_6_16 (k L : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional
     evensNormH2 htriv hUo hindex hs
       (fun u ↦ Kummer.kummerCocycleFun β ((u : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]))
       hα hαc = 0 := by
-  -- P-15e splice: reduce to `HilbertLedger.evensNorm_deepUnit_vanish` (self-contained over
+  -- the Hilbert-ledger proof splice: reduce to `HilbertLedger.evensNorm_deepUnit_vanish` (self-contained over
   -- `stabilizer δ`).  Extract `b` from the deep unit, build the norm unit `n = u²−d·v²`
   -- (nonzero: `A = β² ≠ 0` and `δ ∉ k`), convert `hunram` via `δ ∈ L`, transport along `hLδ`.
   obtain ⟨hA0, _hAfix, b, _hbfix, hAb, hb⟩ := hdeep
@@ -827,7 +840,7 @@ variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [
 Kummer coordinates are deep units — for every functional `φ ∈ V^∨`, the restriction of `φ∘x`
 to `N = ker ρ` (`= G_K`, `K` the splitting field) is the Kummer class of a deep unit of `K`.
 Encodes `X₊ = Hom_{H_V}(V^∨, U_{e+1}) ⊂ H¹(ℚ₂, V)` without the Kummer-theoretic
-identification of `H¹` (which is proof-side, P-15). -/
+identification of `H¹` (which is proof-side, the §§6–7 proof layer). -/
 def deepPart (ρ : ContinuousMonoidHom AbsGalQ2 C) : Set (H1 AbsGalQ2 V) :=
   {x | ∀ φ : V →+ ZMod 2,
     ∃ (A β : ℚ̄₂) (_ : IsDeepUnit (ρ.toMonoidHom.ker :
@@ -836,42 +849,37 @@ def deepPart (ρ : ContinuousMonoidHom AbsGalQ2 C) : Set (H1 AbsGalQ2 V) :=
           (fun n ↦ Kummer.kummerCocycleFun β (n : AbsGalQ2))
         = H1ofFun ρ.toMonoidHom.ker (fun n ↦ φ ((Quotient.out x).1 (n : AbsGalQ2)))}
 
-/- **Lemma 6.17 (the deep half is totally singular)** — both clauses PROVED downstream, statement
-moved out (P-15f8/f2d, the P-15d/`lemma_6_14` statement-move pattern; sorried stubs removed
-2026-07-08).  The frozen statements are re-homed with their proofs:
+/- **Lemma 6.17 (the deep half is totally singular).**  Its two clauses live downstream to
+respect the import DAG:
 
-* dimension clause `#X₊² = #H¹` — **`GQ2.ResidueLift.lemma_6_17_dim_final`** (P-15f8, std-3 +
+* dimension clause `#X₊² = #H¹` — **`GQ2.ResidueLift.lemma_6_17_dim_final`** (the deep-part proof, std-3 +
   {B6, B7, B11a, B12, B13}); the graded self-duality count assembled off f5/f6/f7 with the
   residue-trivial tame lift proved in-repo (no residue-field axiom).
-* vanishing clause `Q⁰_loc|X₊ = 0` — **`GQ2.VanishClose.lemma_6_17_vanish_final`** (P-15f2d,
+* vanishing clause `Q⁰_loc|X₊ = 0` — **`GQ2.VanishClose.lemma_6_17_vanish_final`** (the Lemma 6.17 vanishing proof,
   std-3 + {B9, B11a, B11b, B13}); the §6.2 orbit decomposition + §6.3 deepness through the
-  regular embedding, amended (P-20 flag) with the reciprocity datum `(R, horient)` its
+  regular embedding, amended (the architecture review flag) with the reciprocity datum `(R, horient)` its
   involution `hunram` requires.
 
-Their sole consumer `prop_6_18_ramified` is re-homed to **`GQ2.DetRamified`** (downstream of both
-proofs) and cited from there.  The amendments (`hc`, `hV2`, the invariant-form package
+Their sole consumer `prop_6_18_ramified` lives in **`GQ2.DetRamified`** (downstream of both
+proofs) and cites them there.  The required hypotheses (`hc`, `hV2`, the invariant-form package
 `(q, hq, hns, hinv)`, and `(R, horient)` on the vanish side) travel with the moved statements;
-route analysis / counterexamples: `docs/p15f1-scoping.md`, `docs/p15f2-handoff.md`. -/
+route analysis / counterexamples: `docs/orchestration/p15f1-scoping.md`, `docs/orchestration/p15f2-handoff.md`. -/
 
 /- **Proposition 6.18 (dyadic base determinant theorem), eq. (115), ramified case**: the local
 base determinant form has the positive Gauss sign,
 `#(Q⁰_loc)⁻¹(0) = 2^{2m−1} + 2^{m−1}` (`#V = 2^{2m}`).  With Prop 6.9 this is Corollary
 6.19(iv): the two sources have equal base Gauss sums.
-**Proved (P-15f, modulo Lemma 6.17 above) as `GQ2.DeepPart.prop_6_18_ramified`** in
-`GQ2/DeepPart.lean` (downstream — its proof consumes the `Q⁰_loc` quadratic/nonsingular
-structure layer built there off `RepIndependence`, which imports this file; statement moved
-out to break the import cycle, per the P-15d pattern).  The `hc : Surjective ⇑c` amendment
-travels with it; `hV2` is derivable there from `hcard` + `hsimple` via additive Cauchy.
+The theorem is `GQ2.DetRamified.prop_6_18_ramified`; its downstream placement permits it to
+consume both Lemma 6.17 clauses and the `Q⁰_loc` structure layer.  Its
+`hc : Surjective ⇑c` hypothesis and the derivable `hV2` condition are part of that interface.
 Axioms: std-3 + B7 (B6 via the `D` parameter); the two Lemma 6.17 obligations (the §6.3
 Kummer cores) have since been proved, so no `sorryAx`. -/
 
 /- **Proposition 6.18, eq. (115), unramified case**: negative Gauss sign,
 `#(Q⁰_loc)⁻¹(0) = 2^{2m−1} − 2^{m−1}`.
-**Proved (P-15f3, 2026-07-05) as `GQ2.UnramifiedModel.prop_6_18_unramified`** in
-`GQ2/UnramifiedModel.lean` (downstream — its proof consumes the `Q0loc` structure layer of
-`DeepPart`/`RepIndependence`, which import this file; statement moved out to break the import
-cycle, per the `prop_6_18_ramified`/P-15d pattern; sorried copy removed 2026-07-07).
-The `hc : Function.Surjective ⇑c` amendment travels with it (flag for P-20), as does the
+The theorem is `GQ2.UnramifiedModel.prop_6_18_unramified`; its downstream placement permits it
+to consume the `Q0loc` structure layer of `DeepPart`/`RepIndependence`.  The
+`hc : Function.Surjective ⇑c` hypothesis travels with it, as does the
 route: C cyclic → Schur field `F` → `H¹` an `F`-line → C-invariant Hermitian trace model →
 `card_normOne_invariant_form_zero`.  Axioms: std-3 + B7 (B6 via the `D : TateDuality 2`
 parameter), no `sorryAx`. -/
@@ -879,10 +887,10 @@ parameter), no `sorryAx`. -/
 /- **Lemma 6.14 (regular-module realization), eq. (102)**: the base connecting map computed
 through an equivariant split embedding `i : V →+ W` into a regular-type module agrees with the
 `W`-level map at the pushed class: `Q⁰_{loc, i^*dat_W}(x) = Q⁰_{loc, dat_W}(i_* x)`.
-**Proved (P-15d, std-3, no B-axioms) as `GQ2.RepIndependence.lemma_6_14`** in
+The std-3 theorem is `GQ2.RepIndependence.lemma_6_14` in
 `GQ2/RepIndependence.lean` (downstream — its proof uses `Q0loc`/`graphPullback`/`kappa0`/`SemiProd`
-from this file, so the statement is moved out to break the import cycle, per the P-08/P-09/P-10
-pattern).  The proved statement is **amended** (documented) with the compatibility hypotheses
+from this file, so the statement is moved out to break the import cycle, per the Lemmas 3.6–3.8 proof/Prop. 3.2/Prop. 1.1
+pattern).  Its compatibility hypotheses
 `Q⁰_loc` requires: `hdatW : IsEquivariantFactorSet q datW`, `hiC : ∀ c v, i (c • v) = c • i v`
 (`i` a `C`-module map, eq. (77)'s `i ⋊ 1`), `hρW : ∀ g w, g • w = ρ g • w`.  Proof: `graphPullback`
 is a pullback of the factor-cocycle `κ⁰`; changing the `Quotient.out` representative conjugates the
@@ -906,11 +914,11 @@ a **nonsingular** `q` (i.e. `ξ(i v, i v) = q v`), and an equivariant factor-set
 supplied (`(dat, hdat)` = Lemma 6.1's `κ⁰_q` — the paper's stated hypothesis *"assume a
 zero-section-normalized equivariant class restricting to `q` on `V` has been fixed"*), then the
 extension splits: `B ≅ V ⋊ C` over `C`.  The paper's obstruction formula `d₂(q) = B_q^♭∘η`
-(eq. (116)) is the proof mechanism (P-15i, `GQ2/Transgression.lean`); only the splitting
-consequence is consumed (§§8–9).  Deviation note, amended 2026-07-04: the `κ⁰_q` hypothesis
-restores the paper's relative clause, dropped by the original consequence-form extraction —
+(eq. (116)) is the proof mechanism (the Lemma 6.21 proof, `GQ2/Transgression.lean`); only the splitting
+consequence is consumed (§§8–9).  **Encoding correction:** the `κ⁰_q` hypothesis restores the
+paper's relative clause, dropped by the original consequence-form extraction —
 without it the intrinsic equivariance obstruction blocks the proof; see
-`docs/p15i-transgression-gap.md`.  [P-14 statement; proof P-15i.] -/
+`docs/orchestration/p15i-transgression-gap.md`.  [the §§6–7 statement; proof the Lemma 6.21 proof.] -/
 theorem lemma_6_21 {B : Type} [Group B] [Finite B]
     (p : B →* C) (hp : Function.Surjective p)
     (i : Multiplicative V →* B) (_ : Function.Injective i)
@@ -958,7 +966,7 @@ edge by the polar adjoint and the scalar by the phase terms:
 as an identity of `𝔽₂`-valued functions on `(V ⋊ C)²` **up to a normalized coboundary** — here
 stated cochain-exactly modulo the coboundary of an explicit 1-cochain `w`, quantified
 existentially.  In particular (`q` nonsingular) a unique edge-killing shear class exists —
-recorded as the paper's phase-cover input to §8 (Prop 8.8).  [P-14 statement; proof P-15.] -/
+recorded as the paper's phase-cover input to §8 (Prop 8.8).  [the §§6–7 statement; proof the §§6–7 proof layer.] -/
 theorem lemma_6_22 (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
     (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
     (γ : C → V →+ ZMod 2) (δ : C × C → ZMod 2)

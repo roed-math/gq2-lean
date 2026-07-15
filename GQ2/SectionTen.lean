@@ -1,48 +1,48 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.SectionNine
 import GQ2.Prop23
 import GQ2.MaxProP
 
 /-!
-# §10 — Passage to all finite quotients  (P-18; statements: P-18a)
+# §10 — Passage to all finite quotients
 
 Paper §10 (pp. 47–48): **Lemma 10.1** (exhaustion by tame boundary frames) and the assembly of
 **eq. (154)** `|Sur(Γ_A, G)| = |Sur(G_ℚ₂, G)|`, which combined with Prop 2.3 gives
 `main_surjection_count` (`GQ2/Statement.lean`) and hence Theorem 1.2.
 
-Design (`docs/p18-plan.md`, extraction ledger `docs/section10-extraction.md`):
+Proof architecture:
 
 * **The 2-core.**  Lemma 10.1 fixes `L = O₂(G)` — ONE marked target `tameTarget G` for all
   epimorphisms; only the tame frame `α : Ttame ↠ G/O₂(G)` varies.  The image of the source's
   pro-2 wild kernel under any epimorphism is a normal 2-subgroup, hence lands in `O₂(G)`
   automatically — so the `E = 0` boundary-framing condition *is* the fixed-frame condition, the
   fixed-frame sets are literally `BoundaryLifts`, and no Möbius/poset induction is needed.
-  Mathlib has no `pCore`; `twoCore` is defined here, its three properties proved by **P-18b**.
+  Mathlib has no `pCore`; `twoCore` and its three required properties are defined here.
 
 * **Γ-generic form.**  The paper's "for either source" is encoded hypothesis-side: `lemma_10_1`
   and `card_contSurj_eq` are stated over any `(Γ, b)` with `htame` (the tame coordinate of `b`
-  is onto) and `hwild` (its kernel is pro-2); **P-18d** discharges both per source — the
+  is onto) and `hwild` (its kernel is pro-2); these are proved for each source — the
   `G_ℚ₂` side from the `BoundaryMaps` clauses (`tameF_surjective`, `wild_isProP`), the `Γ_A`
-  side from the generator clauses + `isProP_wildCore` (P-04).
+  side from the generator clauses + `isProP_wildCore`.
 
 * **Trivial decoration.**  `E = 0` is `E₀ := PUnit` (`hE2` and the `ψ̄`-condition are trivial).
 
-* **Splice geometry** (P-18e): `Statement.lean` is imported by `GammaA`/`FoxHeisenberg`, i.e. it
+* **Splice geometry:** `Statement.lean` is imported by `GammaA`/`FoxHeisenberg`, i.e. it
   sits UPSTREAM of the whole tower, so `main_surjection_count` cannot be proven in place.  The
-  proof lives here as `main_surjection_count'`; at P-18e the `Statement.lean` sorry is resolved
-  by the statement-move pattern (comment-pointer upstream; `main_presentation` goes
-  hypothesis-form) and gains the two `AbsGalQ2` instance binders (they are file-level
-  `variable`s throughout the tower, not global instances).
-
-All proof tickets landed: `twoCore_normal`/`twoCore_isPGroup` (P-18b), `isPGroup_map_of_isProP`
-(P-18b), `lemma_10_1`/`card_contSurj_eq` (P-18c), `eq_154` (P-18e, consuming `thm_4_2` per
-frame).  The file is sorry-free and off the `SORRY_ALLOWLIST`.
+  proof lives here as `main_surjection_count'`, while the upstream statement points to this
+  theorem.  The two `AbsGalQ2` topology hypotheses remain explicit instance binders rather than
+  global instances.
 -/
 
 namespace GQ2
 
 namespace SectionTen
 
-/-! ## The 2-core `O₂(G)`  (P-18b proves the three properties)
+/-! ## The 2-core `O₂(G)`
 
 The family of normal 2-subgroups is directed (the join of two normal 2-subgroups is again a
 normal 2-subgroup, by the second isomorphism theorem and closure of `p`-groups under
@@ -109,12 +109,12 @@ noncomputable def tameFrame {H : Type} [Group H] [TopologicalSpace H] [DiscreteT
 
 /-- **The tame-frame index** of Lemma 10.1: continuous surjections `Ttame ↠ G/O₂(G)`.
 Finite because `Ttame` is topologically 2-generated (`gen_ttame_quotient`); the finiteness
-instance is P-18c's. -/
+instance is the Lemma 10.1 proof's. -/
 def TameFrames : Type :=
   {α : ContinuousMonoidHom Ttame (G ⧸ twoCore G) // Function.Surjective α}
 
 /-- `Ttame` is topologically finitely generated (by `σ, τ`): `topGen_ttame` in the `Finset`
-form consumed by the t.f.g.-hom-finiteness machinery.  [P-18c] -/
+form consumed by the t.f.g.-hom-finiteness machinery.  [the Lemma 10.1 proof] -/
 theorem ttame_tfg :
     ∃ s : Finset Ttame, (Subgroup.closure (s : Set Ttame)).topologicalClosure = ⊤ := by
   classical
@@ -122,7 +122,7 @@ theorem ttame_tfg :
 
 /-- **The tame-frame index is finite** (so Lemma 10.1's sum is a finite sum): continuous
 homomorphisms from the topologically `2`-generated `Ttame` into the finite discrete `G/O₂(G)`
-form a finite type.  [P-18c] -/
+form a finite type.  [the Lemma 10.1 proof] -/
 instance : Finite (TameFrames G) := by
   haveI : Finite (ContinuousMonoidHom Ttame (G ⧸ twoCore G)) :=
     finite_continuousMonoidHom ttame_tfg _
@@ -150,7 +150,7 @@ noncomputable def tameCoord (b : ContinuousMonoidHom Γ ↥boundarySubgroup) :
 
 end TameCoord
 
-/-! ## Lemma 10.1 — exhaustion by tame boundary frames  (P-18c proves) -/
+/-! ## Lemma 10.1 — exhaustion by tame boundary frames -/
 
 section Exhaustion
 
@@ -161,7 +161,7 @@ variable (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [Finite 
 omit [IsTopologicalGroup Γ] [Finite G] in
 /-- The image of the wild kernel under a continuous epimorphism `f : Γ ↠ G` lands in the
 2-core: it is normal (image of a kernel under a surjection) and a 2-group (the pro-2 image
-bridge `isPGroup_map_of_isProP`).  [P-18c] -/
+bridge `isPGroup_map_of_isProP`).  [the Lemma 10.1 proof] -/
 theorem map_wildKer_le_twoCore (hwild : IsProP 2 (tameCoord b).toMonoidHom.ker)
     (f : ContSurj Γ G) :
     ((tameCoord b).toMonoidHom.ker.map f.1.toMonoidHom) ≤ twoCore G :=
@@ -170,7 +170,7 @@ theorem map_wildKer_le_twoCore (hwild : IsProP 2 (tameCoord b).toMonoidHom.ker)
 
 /-- **The descended homomorphism** of Lemma 10.1's forward map: `π ∘ f` kills the wild kernel
 (`map_wildKer_le_twoCore`), so it factors through the surjective tame coordinate as
-`α_f : Ttame →* G/O₂(G)`.  [P-18c] -/
+`α_f : Ttame →* G/O₂(G)`.  [the Lemma 10.1 proof] -/
 noncomputable def inducedHom (htame : Function.Surjective (tameCoord b))
     (hwild : IsProP 2 (tameCoord b).toMonoidHom.ker) (f : ContSurj Γ G) :
     Ttame →* G ⧸ twoCore G :=
@@ -180,7 +180,7 @@ noncomputable def inducedHom (htame : Function.Surjective (tameCoord b))
       exact map_wildKer_le_twoCore b G hwild f (Subgroup.mem_map_of_mem _ hx)⟩
 
 omit [IsTopologicalGroup Γ] [Finite G] in
-/-- The defining property of the descent: `α_f ∘ (pr₁ ∘ b) = π ∘ f` pointwise.  [P-18c] -/
+/-- The defining property of the descent: `α_f ∘ (pr₁ ∘ b) = π ∘ f` pointwise.  [the Lemma 10.1 proof] -/
 theorem inducedHom_tameCoord (htame : Function.Surjective (tameCoord b))
     (hwild : IsProP 2 (tameCoord b).toMonoidHom.ker) (f : ContSurj Γ G) (γ : Γ) :
     inducedHom b G htame hwild f (tameCoord b γ) = QuotientGroup.mk' (twoCore G) (f.1 γ) :=
@@ -189,8 +189,8 @@ theorem inducedHom_tameCoord (htame : Function.Surjective (tameCoord b))
 /-- **The induced tame frame** of a continuous epimorphism `f : Γ ↠ G` (Lemma 10.1, forward
 map): the descent `α_f`, continuous because the tame coordinate of a *compact* source is a
 topological quotient map (a continuous surjection onto the Hausdorff `Ttame` is closed, hence
-quotient), and surjective because `π ∘ f` is.  [P-18c; the `[CompactSpace Γ]` binder is a
-statement amendment over the P-18a skeleton — see `docs/section10-extraction.md`] -/
+quotient), and surjective because `π ∘ f` is.  [the Lemma 10.1 proof; the `[CompactSpace Γ]` binder is a
+statement amendment over the §10 statement layer skeleton — see `docs/section10-extraction.md`] -/
 noncomputable def inducedFrame [CompactSpace Γ] (htame : Function.Surjective (tameCoord b))
     (hwild : IsProP 2 (tameCoord b).toMonoidHom.ker) (f : ContSurj Γ G) : TameFrames G :=
   have hquot : Topology.IsQuotientMap (tameCoord b) :=
@@ -211,9 +211,9 @@ whose tame coordinate is onto with pro-2 kernel, the ordinary continuous epimorp
 are exactly the boundary-framed epimorphisms onto the single target `tameTarget G`, fibered
 over the (finitely many) tame frames — `f` lands in the fiber of its induced frame `α_f`
 (well-defined because `f(ker (pr₁ ∘ b))` is a normal 2-subgroup of `G`, hence `≤ O₂(G)`);
-distinct frames give disjoint fibers (`α` is determined by `α ∘ (pr₁ ∘ b)`).  [P-18c;
-`[CompactSpace Γ]` added over the P-18a skeleton — the descent's continuity needs the tame
-coordinate to be a quotient map.  Both sources are profinite, so this is free at P-18e.] -/
+distinct frames give disjoint fibers (`α` is determined by `α ∘ (pr₁ ∘ b)`).  [the Lemma 10.1 proof;
+`[CompactSpace Γ]` added over the §10 statement layer skeleton — the descent's continuity needs the tame
+coordinate to be a quotient map.  Both sources are profinite, so this is free at the final count assembly.] -/
 theorem lemma_10_1 [CompactSpace Γ]
     (htame : Function.Surjective (tameCoord b))
     (hwild : IsProP 2 (tameCoord b).toMonoidHom.ker) :
@@ -234,9 +234,9 @@ theorem lemma_10_1 [CompactSpace Γ]
     exact (inducedHom_tameCoord b G htame hwild f γ).trans (congrArg Prod.fst (hf γ))
 
 /-- **Lemma 10.1, counting form** (the (154)-assembly workhorse): the ordinary surjection count
-is the sum of the fixed-frame exact-image counts over all tame frames.  [P-18c; finiteness of
+is the sum of the fixed-frame exact-image counts over all tame frames.  [the Lemma 10.1 proof; finiteness of
 the fibers from `hfg` via `finite_boundaryLifts` (whence the `[TotallyDisconnectedSpace Γ]`
-binder, an amendment over the P-18a skeleton like `lemma_10_1`'s `[CompactSpace Γ]`), of the
+binder, an amendment over the §10 statement layer skeleton like `lemma_10_1`'s `[CompactSpace Γ]`), of the
 index from `Ttame` t.f.g.] -/
 theorem card_contSurj_eq [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
     (htame : Function.Surjective (tameCoord b))
@@ -254,15 +254,15 @@ theorem card_contSurj_eq [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
 
 end Exhaustion
 
-/-! ## Eq. (154) and the surjection-count theorem  (P-18e — proved downstream)
+/-! ## Eq. (154) and the surjection-count theorem
 
 `eq_154` (`Nat.card (ContSurj GammaA G) = Nat.card (ContSurj AbsGalQ2 G)`) and
 `main_surjection_count'` (`contSurjCount G = admissibleCount G`) are proved in
-`GQ2/SectionTenSources.lean` (P-18e), **not here**: `eq_154`'s A-side needs the concrete
+`GQ2/SectionTenSources.lean`, **not here**: `eq_154`'s A-side needs the concrete
 `boundaryMapsWitness` (the `Γ_A` tame surjectivity `phiA_surjective` is witness-specific), and
-`GQ2/BoundaryMapsWitness.lean` is downstream of this file.  Both are sorry-free (the `thm_4_2`
-they consume was fully proved at P-17i).  With their move this file left the
-`SORRY_ALLOWLIST`. -/
+`GQ2/BoundaryMapsWitness.lean` is downstream of this file.  This placement avoids an import cycle;
+both the source-specific theorem and the `thm_4_2` it consumes are proved in the downstream
+assembly. -/
 
 end SectionTen
 

@@ -1,8 +1,25 @@
-import Mathlib
-import GQ2.Cohomology
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.FieldTheory.AbsoluteGaloisGroup
+public import Mathlib.FieldTheory.Galois.Infinite
+public import Mathlib.Algebra.Field.ZMod
+public import Mathlib.NumberTheory.Padics.PadicNumbers
+public import Mathlib.Topology.LocallyConstant.Basic
+public import Mathlib.Algebra.Order.Ring.Star
+public import Mathlib.Topology.Defs.Basic
+public import Mathlib.Topology.Instances.ZMod
+public import GQ2.Cohomology
+
+@[expose] public section
+
 
 /-!
-# The mod-2 Kummer class `kˣ → H¹(k, 𝔽₂)`  (ticket T-13, infra I5)
+# The mod-2 Kummer class `kˣ → H¹(k, 𝔽₂)`
 
 For a field `k` of characteristic `≠ 2` (we assume `CharZero k`, which covers `ℚ₂` and all of its
 finite extensions — the fields the paper works over) and `a ∈ kˣ`, the **Kummer class** `[a]` is the
@@ -29,7 +46,7 @@ project's `AbsGalQ2` **by definition** (`example`s at the end certify this).
 * **Cocycle sign.** `κ_a(g) = 0 ⟺ g` fixes `√a`; `κ_a(g) = 1 ⟺ g` negates it.  Root choice is
   irrelevant: `κ` for `√a` and for `−√a` is the *same function* (`kummerCocycleFun_neg`).
 
-## Deliverables (this file, all proved at the standard three axioms)
+## Main results (this file, all proved at the standard three axioms)
 * `kummerCocycleFun`, `kummerCocycle : ContCoh.Z1 (GaloisGroup k) (ZMod 2)` — the explicit
   continuous 1-cocycle (continuity from openness of the stabilizer of `√a` in the Krull topology).
 * `kummerClass : kˣ → ContCoh.H1 (GaloisGroup k) (ZMod 2)` — the Kummer class map.

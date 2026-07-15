@@ -4,7 +4,7 @@
 independent sub-tickets so the remaining work can run in parallel.  The split-case machinery
 (P-13a) is now a **proven, shared foundation** that the ramified and assembly tickets consume.
 
-All code is in [`GQ2/FoxHeisenberg.lean`](../GQ2/FoxHeisenberg.lean).  Every sub-ticket keeps the
+All code is under the [`GQ2/FoxHeisenberg.lean`](../../GQ2/FoxHeisenberg.lean) public umbrella. Every sub-ticket keeps the
 project rules: no new `axiom`s except where the **Ax** column says so; new theorems `#print axioms`
 ⊆ std-3 ∪ the ticket's Ax column.  Claim a sub-ticket by marking its board row ◐ before starting.
 

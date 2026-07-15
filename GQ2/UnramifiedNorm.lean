@@ -1,10 +1,15 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.DeepCount
 import GQ2.UnitFiltration
 
 /-!
-# P-15f2c2c (half A): the analytic `hunram` from equal value groups
+# The analytic `hunram` from equal value groups
 
-The involution vanish route of P-15f2 (`SectionSix.lemma_6_17_vanish`) threads, through
+The involution vanish route of the Lemma 6.17 vanishing proof (`SectionSix.lemma_6_17_vanish`) threads, through
 `ShapiroDeepness.hvanish_involution` / `hvanish_involution_of_deepClass` and ultimately
 `SectionSix.lemma_6_16` / `HilbertLedger.cup_unramified_unit`, the **analytic `hunram`**
 hypothesis
@@ -17,7 +22,7 @@ i.e. the value groups of the tower `k ≤ L` coincide (`‖L^×‖ = ‖k^×‖`
 `L/k` is **unramified**, in the repo's spectral-norm vocabulary (no valuation ring / residue
 field; see B13's convention).
 
-This file is **half (A)** of P-15f2c2c (`docs/p15f2c2c-scoping.md`): given the B13
+This file is **half (A)** of the Lemma 6.17 vanishing proof (`docs/orchestration/p15f2c2c-scoping.md`): given the B13
 `DyadicUnitFiltration` data of `k` and `L` and the unramifiedness datum in norm vocabulary —
 **equal uniformizer norm** `‖π_L‖ = ‖π_k‖` (equivalently equal absolute ramification index
 `e_L = e_k`) — the analytic `hunram` holds.  The remaining **half (B)** — deriving

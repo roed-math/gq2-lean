@@ -1,4 +1,13 @@
-import GQ2.DeepPart.MuTwoPolarDual
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.DeepPart.MuTwoPolarDual
+
+@[expose] public section
 
 /-!
 # The `Q⁰_loc` quadratic structure  (§6.3, eq. (93))
@@ -11,7 +20,7 @@ needed.  Class level via `RepIndependence.repIndep` (Lemma 6.4).  This layer als
 nonsingularity of `Q⁰_loc`, that the deep half `X₊` is an additive subgroup, and the dim clause
 feeding Prop 6.18 (ramified).
 
-This file is part of the `GQ2.DeepPart` split (P-15f); see `GQ2/DeepPart.lean` for the overview.
+This file is part of the `GQ2.DeepPart` split (the deep-part proof); see `GQ2/DeepPart.lean` for the overview.
 -/
 
 open scoped Classical
@@ -179,7 +188,7 @@ theorem isQuadraticFp2_Q0loc (D : TateDuality 2) (q : V → ZMod 2) (hq : IsQuad
 /-- SectionSix's `𝔽₂ → μ₂` bridge is (definitionally) the `DeepPart` one. -/
 theorem muTwoOfF2_eq : SectionSix.muTwoOfF2 = zmodTwoToMuTwo := rfl
 
-theorem zmodTwoToMuTwo_injective : Function.Injective zmodTwoToMuTwo :=
+private theorem zmodTwoToMuTwo_injective : Function.Injective zmodTwoToMuTwo :=
   zmodTwoEquivMuTwo.injective
 
 theorem muTwoOfF2_injective : Function.Injective SectionSix.muTwoOfF2 :=
@@ -605,13 +614,13 @@ theorem exp_two_of_simple_of_card {C : Type*} [Group C] [DistribMulAction C V]
   have htop := (hsimple T hstable).resolve_left hTne
   exact fun v => (htop ▸ AddSubgroup.mem_top v : v ∈ T)
 
-/- **Proposition 6.18 (dyadic base determinant theorem), ramified case** — re-homed to
-`GQ2.DetRamified.prop_6_18_ramified` (P-15f8/f2d statement-move, 2026-07-08): now that both
-Lemma-6.17 clauses are proved DOWNSTREAM (`ResidueLift.lemma_6_17_dim_final`,
+/- **Proposition 6.18 (dyadic base determinant theorem), ramified case** lives downstream as
+`GQ2.DetRamified.prop_6_18_ramified`.  Both Lemma-6.17 clauses are provided downstream
+(`ResidueLift.lemma_6_17_dim_final`,
 `VanishClose.lemma_6_17_vanish_final`), `prop_6_18_ramified` — their sole consumer — moves below
 them so it cites the real proofs (`card_Q0loc_zero_eq_of_dim_of_vanish` above is the banked
-reduction it feeds).  This file (`DeepPart`) is upstream of the two proofs, hence the move; the
-`(R, horient)` amendment travels with it. -/
+reduction it feeds).  This file (`DeepPart`) is upstream of the two proofs, so the theorem
+cannot live here; its `(R, horient)` hypotheses travel with it. -/
 
 end Q0locLayer
 end GQ2.DeepPart

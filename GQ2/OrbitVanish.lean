@@ -1,9 +1,14 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.SectionSix
 import GQ2.CorestrictionCohomology
 import GQ2.LocalKummer
 
 /-!
-# P-15f2 (increment 1): the corestriction-of-coboundary bridge for Lemma 6.17's vanishing clause
+# The corestriction-of-coboundary bridge for Lemma 6.17's vanishing clause
 
 `lemma_6_17_vanish` (`Q⁰_loc|X₊ = 0`) reduces — after the `H_V`-split embedding of Lemma 6.14 and
 the orbit decomposition of Lemma 6.15 — to a sum of per-orbit contributions, each of the form
@@ -13,7 +18,7 @@ the (94) orthogonality (`LocalKummer.cup_deepClasses` / `HilbertLedger.cup_deep_
 by Lemma 6.16.
 
 This file supplies the reusable brick that turns "`inner` is a coboundary" into "its corestriction
-vanishes in `H²`" — the cochain heart the P-15f2 scoping doc flagged as *"the continuity → B2 step
+vanishes in `H²`" — the cochain heart the Lemma 6.17 vanishing proof scoping doc flagged as *"the continuity → B2 step
 still needed"*.  `Corestriction.cor2Fun_dOne` gives `cor2Fun U (δ¹c) = δ¹(cor1Fun U c)`, the trivial
 `𝔽₂`-action (`absGal_smul_zmodTwo`, `rfl`) identifies it with the genuine coboundary
 `dOne (cor1Fun U c)`, and `cor1Fun U c` is continuous (`ShapiroLedger.continuous_lTrans'`), so the
@@ -27,7 +32,7 @@ namespace OrbitVanish
 open Corestriction ShapiroLedger ContCoh
 
 /-- Carrier of the twisted extension `V ×_{Δf} 𝔽₂` used to split a zero-form factor set
-(P-15f2a, increment A): a pair `(base, fib)` carrying the twisted addition
+(the Lemma 6.17 vanishing proof, increment A): a pair `(base, fib)` carrying the twisted addition
 `(v,a) + (w,b) = (v+w, a+b+Δf v w)`.  For a **symmetric, zero-diagonal** cocycle `Δf` on a
 `2`-torsion `V` this is an elementary abelian `2`-group, hence an `𝔽₂`-vector space; the `𝔽₂`-linear
 section of the `base` projection provides the quadratic refinement `Δφ`. -/
@@ -38,7 +43,7 @@ private structure ZFExt (V : Type*) where
   /-- The central `𝔽₂`-coordinate. -/
   fib : ZMod 2
 
-/-- **Corestriction of a coboundary vanishes in `H²`** (P-15f2, the per-orbit cochain heart):
+/-- **Corestriction of a coboundary vanishes in `H²`** (the Lemma 6.17 vanishing proof, the per-orbit cochain heart):
 if `inner = δ¹c` is the trivial-action coboundary of a continuous 1-cochain `c : ↥U → 𝔽₂`, then
 the degree-2 corestriction `cor2Fun U inner` is `0` in `H²(G_ℚ₂, 𝔽₂)`.
 
@@ -109,10 +114,10 @@ variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
 omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
-/-- **The Lemma-6.17 vanishing assembly** (P-15f2, the verified reduction): if `Q⁰_loc` at a class
+/-- **The Lemma-6.17 vanishing assembly** (the Lemma 6.17 vanishing proof, the verified reduction): if `Q⁰_loc` at a class
 `x` decomposes as a finite sum of per-orbit corestriction contributions — the monomial expansion
 `hexp`, i.e. Lemma 6.14 through the regular embedding + Lemma 6.15's orbit classes (the
-combinatorial "gap 2" of `docs/p15f2-scoping.md`) — and each orbit's inner `2`-cocycle vanishes in
+combinatorial "gap 2" of `docs/orchestration/p15f2-scoping.md`) — and each orbit's inner `2`-cocycle vanishes in
 the subgroup's `H²` (`hvanish`: free/square by the (94) orthogonality `cup_deepClasses`, involution
 by Lemma 6.16, for a deep class), then `Q⁰_loc x = 0`.
 
@@ -187,7 +192,7 @@ variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
 omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
-/-- **The `hexp` producer** (P-15f2): the monomial expansion in cochain-level form.  If the
+/-- **The `hexp` producer** (the Lemma 6.17 vanishing proof): the monomial expansion in cochain-level form.  If the
 graph pullback of the base class decomposes as a finite sum of per-orbit `2`-cocycles `φ_o`
 (`hdecomp` — the combinatorial "gap 2") and each `φ_o` is cohomologous to `cor2Fun (U_o) (inner_o)`
 (`hcoh` — Lemma 6.15, banked), then `Q⁰_loc x` is the orbit sum `hexp` consumed by
@@ -206,7 +211,7 @@ theorem Q0loc_eq_orbit_sum_of_decomp (D : TateDuality 2) (dat : FactorSet C V)
   exact Finset.sum_congr rfl fun o ho => congrArg (iotaF D) (hcoh o ho)
 
 omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
-/-- **The full P-15f2 reducer** (`lemma_6_17_vanish` modulo the monomial expansion): given the raw
+/-- **The full the Lemma 6.17 vanishing proof reducer** (`lemma_6_17_vanish` modulo the monomial expansion): given the raw
 per-orbit cochain decomposition `hdecomp`, the Lemma-6.15 cohomologies `hcoh`, and the deep-class
 per-orbit vanishing `hvanish` (free/square = `cup_deepClasses`, involution = `lemma_6_16`),
 `Q⁰_loc x = 0`.  Composes `Q0loc_eq_orbit_sum_of_decomp` (→ `hexp`) with
@@ -277,7 +282,7 @@ variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
 omit [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
-/-- **The datum-level P-15f2 reducer** (`lemma_6_17_vanish` modulo the §6.2 datum decomposition):
+/-- **The datum-level the Lemma 6.17 vanishing proof reducer** (`lemma_6_17_vanish` modulo the §6.2 datum decomposition):
 if the (regular-module) datum decomposes as a pointwise sum of per-orbit equivariant factor sets
 `dat = Σ_o datf_o` (`hdat_eq` — the datum-level "gap 2", `sumDatum`), each per-orbit pullback is
 cohomologous to its Lemma-6.15 corestriction (`hcoh` — free/square = eq. (103)/(104), involution =
@@ -333,7 +338,7 @@ refinement `Δφ` of the difference (which *exists* — the two data share the p
 symmetric coboundary over 𝔽₂)
 corrected against the C-equivariance defect `Δm` (an `H¹(C, V*)` obstruction — the genuine Lemma
 6.1/6.4 content).  It is stated as the parametric hypothesis so consumers and the eventual proof
-share the exact interface; see `docs/p15f2-option1-scoping.md`. -/
+share the exact interface; see `docs/orchestration/p15f2-option1-scoping.md`. -/
 
 section DatumIndependence
 
@@ -427,7 +432,7 @@ theorem Q0loc_datum_indep_of_core (D : TateDuality 2) (dat1 dat2 : FactorSet C V
 
 omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [TopologicalSpace V] [DiscreteTopology V]
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] in
-/-- **(a1) the C-independent quadratic refinement** (P-15f2a increment A): a zero-form equivariant
+/-- **(a1) the C-independent quadratic refinement** (the Lemma 6.17 vanishing proof increment A): a zero-form equivariant
 factor set `Δdat` admits a **quadratic refinement** `Δφ` with polar `Δdat.f`, i.e.
 `Δφ(u+w) = Δφ u + Δφ w + Δdat.f u w` (the identity `(Q)`).  The zero form makes `Δdat.f` symmetric
 (`f_polar`) with zero diagonal (`f_diag`), so the twisted extension `ZFExt` — addition
@@ -495,7 +500,7 @@ theorem exists_refinement_of_zero_form (Δdat : FactorSet C V)
 
 omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [TopologicalSpace V] [DiscreteTopology V]
   [Finite V] [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] in
-/-- **Step A of the equivariance correction** (P-15f2a, averaging kernel): for a right `1`-cocycle
+/-- **Step A of the equivariance correction** (the Lemma 6.17 vanishing proof, averaging kernel): for a right `1`-cocycle
 defect `D` (`hDcoc`) on an odd subgroup `I`, the banked average `L = Σ_{i∈I} D i` satisfies
 `L(j•v) + L v = D j v` for `j ∈ I`.  Cocycle expansion `D(ij) = D i (j•v) + D j v`, `mulRight`
 reindexing of `Σ_i D(ij)` back to `L`, and `|I|` odd in `𝔽₂` collapse the correction. -/
@@ -519,7 +524,7 @@ private lemma defect_avg_smul (D : C → V → ZMod 2)
 
 omit [TopologicalSpace C] [DiscreteTopology C] [Finite C] [TopologicalSpace V] [DiscreteTopology V]
   [Finite V] [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] in
-/-- **The `H¹`-correction kills the defect** (P-15f2a increment B, Steps A+B core): for an additive
+/-- **The `H¹`-correction kills the defect** (the Lemma 6.17 vanishing proof increment B, Steps A+B core): for an additive
 (`hDadd`) right `1`-cocycle (`hDcoc`) defect `D` with banked average `L = Σ_{i∈I} D i` over an odd
 normal subgroup `I ◁ C` acting fixed-point-freely (`hVI : V^I = 0`), the corrected defect
 `D' c v = D c v + (L(c•v) + L v)` vanishes identically.  **Step A** (`defect_avg_smul`) makes `D'`
@@ -596,7 +601,7 @@ private lemma corrected_defect_vanishes (D : C → V → ZMod 2)
 
 omit [TopologicalSpace C] [DiscreteTopology C] [TopologicalSpace V] [DiscreteTopology V]
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] in
-/-- **(a2) the equivariance correction** (P-15f2a increment B): given the C-structure of an odd
+/-- **(a2) the equivariance correction** (the Lemma 6.17 vanishing proof increment B): given the C-structure of an odd
 normal subgroup `I ◁ C` acting fixed-point-freely (`hVI : V^I = 0`), the quadratic refinement of
 increment A can be corrected to also satisfy the **equivariance-defect identity** `(E)`
 `Δφ(c•v) = Δφ v + Δdat.m c v`, giving the full refinement `(Q) ∧ (E)` that
@@ -650,7 +655,7 @@ theorem exists_equivariant_refinement (Δdat : FactorSet C V)
   have h0 : φ0 (c • v) + φ0 v + Δdat.m c v + (L (c • v) + L v) = 0 := hmain
   linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) h0
 
-/-! ### f2a (P-15f2a): the DI-core cochain assembly — reduced to the existence of a refinement
+/-! ### The DI-core cochain assembly — reduced to the existence of a refinement
 
 DI-core (`graphPullback (zero-form factor set) ∈ B²`) has an explicit coboundary witness
 `Λ(g) = Δφ(b g)` for a **quadratic refinement** `Δφ : V → 𝔽₂` of the datum, i.e. a `Δφ` with polar
@@ -659,9 +664,9 @@ DI-core (`graphPullback (zero-form factor set) ∈ B²`) has an explicit cobound
 identity below.  This lemma discharges the *cochain heart*; the **sole remaining input** for full
 DI-core / `Q0loc_datum_indep` is the **existence** of such a `Δφ` for the difference datum — the
 `H²(V;𝔽₂)`-splitting `[Δf]=0` (free: `Δf` has zero diagonal) plus the `H¹(C,V*)` equivariance
-correction (`docs/p15f2-option1-scoping.md` §P0, sub-bricks a1/a2). -/
+correction (`docs/orchestration/p15f2-option1-scoping.md` §P0, sub-bricks a1/a2). -/
 omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
-theorem graphPullback_mem_B2_of_refinement (Δdat : FactorSet C V)
+private theorem graphPullback_mem_B2_of_refinement (Δdat : FactorSet C V)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
     (Δφ : V → ZMod 2)
     (hQ : ∀ u w : V, Δφ (u + w) = Δφ u + Δφ w + Δdat.f u w)
@@ -680,7 +685,7 @@ theorem graphPullback_mem_B2_of_refinement (Δdat : FactorSet C V)
       hQ (b.1 g) (ρ g • b.1 h) + hE (ρ g) (b.1 h)
 
 omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
-/-- **`Q⁰_loc` datum-independence from a refinement** (P-15f2a capstone): a quadratic refinement
+/-- **`Q⁰_loc` datum-independence from a refinement** (the Lemma 6.17 vanishing proof capstone): a quadratic refinement
 `Δφ` of the difference datum `diffDatum dat1 dat2` (with polar `hQ` and equivariance-defect `hE`)
 makes `Q⁰_loc` agree for `dat1` and `dat2`.  Composes `graphPullback_mem_B2_of_refinement` (the
 coboundary) with `Q0loc_datum_indep_of_core`.  The remaining f2a input is the *construction* of
@@ -695,11 +700,11 @@ theorem Q0loc_datum_indep_of_refinement (D : TateDuality 2) (dat1 dat2 : FactorS
     (graphPullback_mem_B2_of_refinement (diffDatum dat1 dat2) ρ hρ Δφ hQ hE (Quotient.out x))
 
 omit [DiscreteTopology C] [ContinuousSMul AbsGalQ2 V] in
-/-- **(a3) `Q⁰_loc` datum-independence** (P-15f2a capstone): for two equivariant factor sets
+/-- **(a3) `Q⁰_loc` datum-independence** (the Lemma 6.17 vanishing proof capstone): for two equivariant factor sets
 `dat1`, `dat2` of the **same** form `q`, an odd normal subgroup `I ◁ C` acting fixed-point-freely
 (`hVI : V^I = 0`) forces `Q⁰_loc dat1 = Q⁰_loc dat2`.  Composes `isEquivariantFactorSet_diffDatum`
 (the difference is a zero-form datum) → `exists_equivariant_refinement` (the full `(Q)∧(E)`
-refinement, increments A+B) → `Q0loc_datum_indep_of_refinement`.  This is the f2a deliverable; the
+refinement, increments A+B) → `Q0loc_datum_indep_of_refinement`.  This is the f2a result; the
 tame instantiation of `(I, hIn, hodd, hVI)` (e.g. `I = zpowers (c tameTau)`, via the banked
 producers
 `tameInertia_normal` / `odd_orderOf_tameInertia` / `fixedByNormal_eq_bot`) stays with f2d. -/

@@ -1,4 +1,17 @@
-import Mathlib
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.GroupTheory.Goursat
+public import Mathlib.GroupTheory.Index
+public import Mathlib.Order.CompletePartialOrder
+public import Mathlib.Tactic.Ring.RingNF
+
+@[expose] public section
+
 
 /-!
 # Lemmas 9.1–9.2 — finite group theory feeding the induction

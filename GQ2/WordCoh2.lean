@@ -1,12 +1,17 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.WordCohBridge
 
 /-!
-# The Γ_A degree-2 presentation comparison — foundation  (ticket P-16c2)
+# The Γ_A degree-2 presentation comparison — foundation
 
 Building on the degree-≤1 bridge `GQ2/WordCohBridge.lean` (`z1Equiv`/`h1Equiv`), this file develops
 the degree-2 half: an injection `H²(Γ_A, 𝔽₂) ↪ 𝔽₂² ⧸ im d1_triv = H2w(t_triv)` (evaluation of the
 two relator words on a central extension), whose target has cardinality `2` (`card_H2w_trivial`),
-giving `#H²(Γ_A, 𝔽₂) ≤ 2` — the source-side cohomological input `lemma_8_6_gammaA` (P-16c) needs.
+giving `#H²(Γ_A, 𝔽₂) ≤ 2` — the source-side cohomological input `lemma_8_6_gammaA` (the Γ_A half-torsor proof) needs.
 
 **This file, so far — the central-extension foundation.**  A `ZMod 2`-valued 2-cocycle `κ` on a
 group `L` (normalized at `(1,1)`) is packaged as `TwoCocycle L`, and `CentExt c` is the central
@@ -105,8 +110,8 @@ instance : Group (CentExt c) where
 
 @[simp] theorem mul_base (p q : CentExt c) : (p * q).base = p.base * q.base := rfl
 @[simp] theorem mul_fib (p q : CentExt c) : (p * q).fib = p.fib + q.fib + c.κ p.base q.base := rfl
-@[simp] theorem one_base : (1 : CentExt c).base = 1 := rfl
-@[simp] theorem one_fib : (1 : CentExt c).fib = 0 := rfl
+@[simp] private theorem one_base : (1 : CentExt c).base = 1 := rfl
+@[simp] private theorem one_fib : (1 : CentExt c).fib = 0 := rfl
 
 /-- The base projection `L ×_κ ZMod 2 →* L`, a group homomorphism. -/
 def proj (c : TwoCocycle L) : CentExt c →* L where
@@ -118,8 +123,8 @@ def proj (c : TwoCocycle L) : CentExt c →* L where
 /-- The central inclusion `ZMod 2 → L ×_κ ZMod 2`, `z ↦ (1, z)`. -/
 def incl (c : TwoCocycle L) : ZMod 2 → CentExt c := fun z => (1, z)
 
-@[simp] theorem incl_base (z : ZMod 2) : (incl c z).base = 1 := rfl
-@[simp] theorem incl_fib (z : ZMod 2) : (incl c z).fib = z := rfl
+@[simp] private theorem incl_base (z : ZMod 2) : (incl c z).base = 1 := rfl
+@[simp] private theorem incl_fib (z : ZMod 2) : (incl c z).fib = z := rfl
 
 /-- An element of the extension lies over the base identity iff it is in the central `ZMod 2`. -/
 theorem base_eq_one_iff (p : CentExt c) : p.base = 1 ↔ p = incl c p.fib :=
@@ -195,7 +200,7 @@ an extension of the base wild core by the central `𝔽₂`. -/
 def shiftLiftMark (t : Marking L) (a : Fin 4 → ZMod 2) (c : TwoCocycle L) : Marking (CentExt c) :=
   ⟨(t.σ, a 0), (t.τ, a 1), (t.x₀, a 2), (t.x₁, a 3)⟩
 
-@[simp] theorem shiftLiftMark_map_proj (t : Marking L) (a : Fin 4 → ZMod 2) (c : TwoCocycle L) :
+@[simp] private theorem shiftLiftMark_map_proj (t : Marking L) (a : Fin 4 → ZMod 2) (c : TwoCocycle L) :
     (shiftLiftMark t a c).map (CentExt.proj c) = t := rfl
 
 /-- The base projection's kernel `{(1, z)} ≅ 𝔽₂` is elementary-2. -/
@@ -456,10 +461,10 @@ def shiftCompare : WordLift (ZMod 2) (CentExt c) →* CentExt c where
         show ∀ (g : CentExt c) (z : ZMod 2), g • z = z from fun _ _ => rfl]
       abel
 
-@[simp] theorem shiftCompare_apply (p : WordLift (ZMod 2) (CentExt c)) :
+@[simp] private theorem shiftCompare_apply (p : WordLift (ZMod 2) (CentExt c)) :
     shiftCompare p = CentExt.incl c p.u * p.g := rfl
 
-theorem shiftCompare_fib (p : WordLift (ZMod 2) (CentExt c)) :
+private theorem shiftCompare_fib (p : WordLift (ZMod 2) (CentExt c)) :
     (shiftCompare p).fib = p.u + p.g.fib :=
   CentExt.incl_mul_fib p.u p.g
 
@@ -569,7 +574,7 @@ def projExt (c : TwoCocycle L) (φ : L' →* L) : CentExt (c.comap φ) →* Cent
   map_one' := CentExt.ext (map_one φ) rfl
   map_mul' p q := CentExt.ext (map_mul φ p.base q.base) rfl
 
-@[simp] theorem projExt_fib (c : TwoCocycle L) (φ : L' →* L) (p : CentExt (c.comap φ)) :
+@[simp] private theorem projExt_fib (c : TwoCocycle L) (φ : L' →* L) (p : CentExt (c.comap φ)) :
     (projExt c φ p).fib = p.fib := rfl
 
 /-- `liftMark t' (c.comap φ)` maps to `liftMark (t'.map φ) c` under `projExt`. -/
@@ -613,7 +618,7 @@ instance : Add (TwoCocycle L) where
       cocyc := fun a b d => by
         have h1 := c₁.cocyc a b d; have h2 := c₂.cocyc a b d; linear_combination h1 + h2 }
 
-@[simp] theorem TwoCocycle.add_κ (c₁ c₂ : TwoCocycle L) (a b : L) :
+@[simp] private theorem TwoCocycle.add_κ (c₁ c₂ : TwoCocycle L) (a b : L) :
     (c₁ + c₂).κ a b = c₁.κ a b + c₂.κ a b := rfl
 
 /-- The fiber product `CentExt c₁ ×_L CentExt c₂`: a central extension of `L` by `𝔽₂ × 𝔽₂`. -/
@@ -630,7 +635,7 @@ def fibA (p : FiberProd c₁ c₂) : ZMod 2 := p.2.1
 /-- Second fibre coordinate. -/
 def fibB (p : FiberProd c₁ c₂) : ZMod 2 := p.2.2
 
-@[ext] theorem ext {p q : FiberProd c₁ c₂} (h1 : p.base = q.base) (h2 : p.fibA = q.fibA)
+@[ext] private theorem ext {p q : FiberProd c₁ c₂} (h1 : p.base = q.base) (h2 : p.fibA = q.fibA)
     (h3 : p.fibB = q.fibB) : p = q :=
   Prod.ext h1 (Prod.ext h2 h3)
 
@@ -667,7 +672,7 @@ instance : Group (FiberProd c₁ c₂) where
       rw [c₂.κ_inv]
       exact (by decide : ∀ x y : ZMod 2, x + y + x + y = 0) _ _
 
-@[simp] theorem mul_base (p q : FiberProd c₁ c₂) : (p * q).base = p.base * q.base := rfl
+@[simp] private theorem mul_base (p q : FiberProd c₁ c₂) : (p * q).base = p.base * q.base := rfl
 
 /-- Projection to the first central extension. -/
 def pr1 : FiberProd c₁ c₂ →* CentExt c₁ where
@@ -691,9 +696,9 @@ def prSum : FiberProd c₁ c₂ →* CentExt (c₁ + c₂) where
         = (p.fibA + p.fibB) + (q.fibA + q.fibB) + (c₁.κ p.base q.base + c₂.κ p.base q.base)
     ring
 
-@[simp] theorem pr1_fib (p : FiberProd c₁ c₂) : (pr1 p).fib = p.fibA := rfl
-@[simp] theorem pr2_fib (p : FiberProd c₁ c₂) : (pr2 p).fib = p.fibB := rfl
-@[simp] theorem prSum_fib (p : FiberProd c₁ c₂) : (prSum p).fib = p.fibA + p.fibB := rfl
+@[simp] private theorem pr1_fib (p : FiberProd c₁ c₂) : (pr1 p).fib = p.fibA := rfl
+@[simp] private theorem pr2_fib (p : FiberProd c₁ c₂) : (pr2 p).fib = p.fibB := rfl
+@[simp] private theorem prSum_fib (p : FiberProd c₁ c₂) : (prSum p).fib = p.fibA + p.fibB := rfl
 
 instance [Finite L] : Finite (FiberProd c₁ c₂) := inferInstanceAs (Finite (L × ZMod 2 × ZMod 2))
 
@@ -703,13 +708,13 @@ end FiberProd
 def liftMarkFP (t : Marking L) (c₁ c₂ : TwoCocycle L) : Marking (FiberProd c₁ c₂) :=
   ⟨(t.σ, 0, 0), (t.τ, 0, 0), (t.x₀, 0, 0), (t.x₁, 0, 0)⟩
 
-@[simp] theorem map_pr1_liftMarkFP (t : Marking L) (c₁ c₂ : TwoCocycle L) :
+@[simp] private theorem map_pr1_liftMarkFP (t : Marking L) (c₁ c₂ : TwoCocycle L) :
     (liftMarkFP t c₁ c₂).map FiberProd.pr1 = liftMark t c₁ := rfl
 
-@[simp] theorem map_pr2_liftMarkFP (t : Marking L) (c₁ c₂ : TwoCocycle L) :
+@[simp] private theorem map_pr2_liftMarkFP (t : Marking L) (c₁ c₂ : TwoCocycle L) :
     (liftMarkFP t c₁ c₂).map FiberProd.pr2 = liftMark t c₂ := rfl
 
-@[simp] theorem map_prSum_liftMarkFP (t : Marking L) (c₁ c₂ : TwoCocycle L) :
+@[simp] private theorem map_prSum_liftMarkFP (t : Marking L) (c₁ c₂ : TwoCocycle L) :
     (liftMarkFP t c₁ c₂).map FiberProd.prSum = liftMark t (c₁ + c₂) := by
   simp only [liftMarkFP, Marking.map, liftMark, Marking.mk.injEq]
   refine ⟨?_, ?_, ?_, ?_⟩ <;> exact CentExt.ext rfl (add_zero (0 : ZMod 2))
@@ -823,7 +828,7 @@ def Psi (lam : L → ZMod 2) (hlam1 : lam 1 = 0) :
       abel_nf
       simp [CharTwo.two_eq_zero]
 
-@[simp] theorem Psi_fib (lam : L → ZMod 2) (hlam1 : lam 1 = 0)
+@[simp] private theorem Psi_fib (lam : L → ZMod 2) (hlam1 : lam 1 = 0)
     (p : CentExt (coboundaryCocycle lam hlam1)) : (Psi lam hlam1 p).fib = p.fib + lam p.base := rfl
 
 /-- `Ψ_λ` carries the lifted marking of the coboundary extension onto the `λ`-shifted split
@@ -874,9 +879,9 @@ end CoboundaryObstruction
 Assembling the shift laws (`exists_shift_of_relZ_eq`) with `cocycle_mem_B2`: if a finite-level
 2-cocycle `c` has *balanced* relator obstruction (`tame.fib = wild.fib`, i.e. `relZPair ∈ Δ = im
 d¹_triv`), then the 2-cocycle it inflates to on `Γ_A` — `(x, y) ↦ c.κ (level x) (level y)` — is a
-continuous 2-coboundary.  This is the hard half of `θ`-injectivity: a class killed by `θ` (balanced
-obstruction) is trivial.  Factoring a *continuous* `Γ_A`-cocycle into this inflated form (through a
-finite level) is the remaining topological input; the algebra is complete here. -/
+continuous 2-coboundary.  This is the algebraic half of `θ`-injectivity: a class killed by `θ`
+(balanced obstruction) is trivial after factoring the continuous cocycle through a finite level.
+The finite-level factorization is supplied at the topological consumer. -/
 
 section Injectivity
 
@@ -1260,7 +1265,7 @@ noncomputable def normalizeCochain (κ : (FreeProfiniteGroup (Fin 4) ⧸ NA)
     (FreeProfiniteGroup (Fin 4) ⧸ NA) × (FreeProfiniteGroup (Fin 4) ⧸ NA) → ZMod 2 :=
   κ - fun _ => κ (1, 1)
 
-theorem normalizeCochain_add (κ κ' : (FreeProfiniteGroup (Fin 4) ⧸ NA)
+private theorem normalizeCochain_add (κ κ' : (FreeProfiniteGroup (Fin 4) ⧸ NA)
     × (FreeProfiniteGroup (Fin 4) ⧸ NA) → ZMod 2) :
     normalizeCochain (κ + κ') = normalizeCochain κ + normalizeCochain κ' := by
   funext p; simp only [normalizeCochain, Pi.add_apply, Pi.sub_apply]; abel
@@ -1406,7 +1411,7 @@ theorem obs_B2_eq_zero :
       = lam (levelProj U hU p) + lam (levelProj U hU q)
         + lam (levelProj U hU p * levelProj U hU q)
     rw [← map_mul (levelProj U hU) p q, ← hlamfact p, ← hlamfact q, ← hlamfact (p * q), hx1]
-    simp only [normalizeCochain, Pi.sub_apply, Pi.add_apply, hψ'def, dOne, AddMonoidHom.coe_mk,
+    simp only [normalizeCochain, Pi.sub_apply, hψ'def, dOne, AddMonoidHom.coe_mk,
       ZeroHom.coe_mk, htriv, mul_one, CharTwo.sub_eq_add]
     abel
   have hobs : obsFun htriv x = 0 := by
@@ -1423,7 +1428,7 @@ theorem obs_B2_eq_zero :
   exact hobs
 
 omit [ContinuousSMul (FreeProfiniteGroup (Fin 4) ⧸ NA) (ZMod 2)] in
-/-- **`ker obs = B²`** (P-16c4, lemma A).  The obstruction is trivial on coboundaries and nowhere
+/-- **`ker obs = B²`** (the Γ_A half-torsor proof, lemma A).  The obstruction is trivial on coboundaries and nowhere
 else, so it descends to an *injection* `H²(Γ_A, 𝔽₂) ↪ 𝔽₂` — the reusable degree-2
 presentation-comparison.  (`obs_ker_le` ⊆, `obs_B2_eq_zero` ⊇.) -/
 theorem obs_ker_eq_B2 :

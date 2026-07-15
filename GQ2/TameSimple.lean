@@ -1,11 +1,23 @@
-import GQ2.FoxHeisenberg
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.FoxHeisenberg
+
+@[expose] public section
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
-# P-13d: tameness of the split-case simple factors
+# Tameness of the split-case simple factors
 
 For a nontrivial simple `𝔽₂[C]`-module `V` at a marking whose tame/wild inertia (`τ, x₀, x₁`) acts
 trivially and which **generates** `C`, the `C`-action factors through the cyclic `⟨σ̄⟩`, so it is
-abelian.  Two consequences, which `prop_5_15` (P-13f) feeds to `lemma_5_13_split`:
+abelian.  Two consequences, which `prop_5_15` (the Prop. 5.15 proof) feeds to `lemma_5_13_split`:
 
 * **`sigma2_smul_trivial`** (`hU`) — the 2-primary part `σ₂ = σ^{ω₂}` acts trivially.  Because the
   action is abelian, `σ₂` is central, so its fixed space `V^{σ₂}` is a `C`-submodule; `⟨σ₂⟩` is a
@@ -161,7 +173,7 @@ theorem central_of_commutes_sigma (t : Marking C) (hgen : t.Generates)
   rw [hgen] at hle
   exact fun c v => hle (Subgroup.mem_top c) v
 
-/-- **P-13d output `hU`**: on a nontrivial simple char-2 module at a *generating* split-tame marking
+/-- **the tame representation-theory proof output `hU`**: on a nontrivial simple char-2 module at a *generating* split-tame marking
 (`τ, x₀, x₁` trivial), the 2-primary part `σ₂` acts trivially.  `σ₂` is central (`σ₂` is a power of
 `σ`, and the module is generated) and of 2-power order, so `central_pow2_smul_trivial` applies. -/
 theorem sigma2_smul_trivial (t : Marking C) (hgen : t.Generates)
@@ -222,7 +234,7 @@ theorem conj_powOmega2_tau (t : Marking C) (ht : t.TameRel) :
     rfl
   rw [hconj, htame, hpow2]
 
-/-- **P-13d ramified output `hTodd`**: on a simple char-2 module at a generating admissible-style
+/-- **the tame representation-theory proof ramified output `hTodd`**: on a simple char-2 module at a generating admissible-style
 marking, the 2-primary part `τ^{ω₂}` of the tame generator acts trivially — i.e. `τ` acts with odd
 order.  Its fixed space is `C`-stable: `σ` preserves it via `conj_powOmega2_tau` (a `τ^{ω₂}`-fixed
 vector is fixed by `(τ^{ω₂})²`), `τ` commutes with its own power, and `x₀, x₁` act trivially
@@ -341,7 +353,7 @@ theorem sigma2_pairing_operator_injective (t : Marking C) (hV₂ : ∀ v : V, v 
   exact sub_eq_zero.mp (hker _ hd)
 
 omit [Finite C] in
-/-- **P-13d output `hVS`**: on a nontrivial simple char-2 module at a *generating* split-tame
+/-- **the tame representation-theory proof output `hVS`**: on a nontrivial simple char-2 module at a *generating* split-tame
 marking
 where `σ` acts nontrivially, `V^S = 0` (the `1 + S⁻¹`-invertibility feeding `lemma_5_13_split`).
 `V^σ` is a `C`-submodule (`σ` central), so `⊥` or `⊤`; the nontriviality `hσ` kills `⊤`. -/

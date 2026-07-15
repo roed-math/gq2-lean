@@ -1,12 +1,26 @@
-import GQ2.EvensKahn
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.GroupTheory.IndexNormal
+public import Mathlib.FieldTheory.Galois.Infinite
+public import Mathlib.FieldTheory.PurelyInseparable.Basic
+public import Mathlib.NumberTheory.Padics.Complex
+public import GQ2.EvensKahn
+
+@[expose] public section
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
-# B12-2 — the Krull bridge: open index-2 subgroup ⇒ quadratic subextension
+# The Krull bridge: open index-2 subgroup ⇒ quadratic subextension
 
-This file supplies the **B12-2 deliverable** of the `kummerClassK_surjective` axiom-discharge
-initiative (archived board `docs/orchestration/b12-tickets.md`, plan `b12-proof-plan.md`,
-§4-I2): given an **open
-subgroup of index 2** `H ≤ G_k := ↥(k.fixingSubgroup)`, it produces the quadratic subextension
+As part of the proof of `kummerClassK_surjective`, this file shows that an **open
+subgroup of index 2** `H ≤ G_k := ↥(k.fixingSubgroup)` determines a quadratic subextension
 `k ≤ L` whose fixing group cuts out exactly `H`, with `[L : k] = 2`
 (`exists_quadratic_of_open_index_two`).
 
@@ -19,19 +33,15 @@ yield `FiniteDimensional ℚ_[2] L`; the `subgroupOf`-form descends by
 `comap_map_eq_self_of_injective`; and the degree is the ported `finrank_extendScalars_eq_two`.
 
 **Placement.**  It imports only `GQ2.EvensKahn` (+ Mathlib), so it stays strictly upstream of
-`Foundations/Axioms.lean` — the zero-churn requirement for the eventual census flip (B12-4).  The
+`Foundations/Axioms.lean`.  The
 three `extendScalars` degree lemmas it needs (`finiteDimensional_extendScalars`,
 `index_extendScalars_fixingSubgroup`, `finrank_extendScalars_eq_two`) live downstream in
 `GQ2.ShapiroDeepness` (`InvolutionVanish.lean`), so they are re-proved here as **`private`** copies,
 verbatim-modulo-namespace (pure Mathlib field theory; the `private` marker guarantees no clash with
 any parallel port).
 
-*File-split note (B12-2 ∥ B12-1 coordination).*  The board routes B12-1/B12-2/B12-3 through one
-shared file `GQ2/KummerSurjectivity.lean`.  Two agents independently *creating* that same new file
-produces a whole-file merge conflict, whereas separate files merge cleanly; so the B12-2 lane is
-developed here in its own leaf and exported for B12-3 to import.  It can be folded back into
-`KummerSurjectivity.lean` in the later consolidation pass the plan already contemplates (§3).  The
-public name lives in namespace `GQ2.KummerSurjectivity` so B12-3 references it unqualified.
+The public theorem lives in namespace `GQ2.KummerSurjectivity` so the final surjectivity assembly
+can import this field-theoretic layer without introducing a cycle.
 -/
 
 namespace GQ2

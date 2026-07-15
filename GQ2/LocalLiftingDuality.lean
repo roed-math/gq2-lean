@@ -1,16 +1,29 @@
-import GQ2.FoxHeisenberg
-import GQ2.TateDuality
-import GQ2.CupSymmetry
-import GQ2.Foundations.Axioms
-import GQ2.DualityAssembly
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.FieldTheory.Finite.GaloisField
+public import GQ2.FoxHeisenberg
+public import GQ2.TateDuality
+public import GQ2.CupSymmetry
+public import GQ2.Foundations.Axioms
+public import GQ2.DualityAssembly
+
+@[expose] public section
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
-# P-13g: Prop 5.16 (local lifting duality) from B6 + B7
+# Prop 5.16 (local lifting duality) from B6 + B7
 
 The paper's local lifting duality `prop_5_16` (§5.16) is the local Tate duality bundle **B6**
 (`GQ2.tateDuality`) plus the local Euler characteristic **B7**
 (`GQ2.Foundations.absGalQ2_localEulerCharacteristic`), re-expressed against the `𝔽₂`-valued
-`ElemDual`/`dualEval` cup framework (T-14) used in §5.
+`ElemDual`/`dualEval` cup framework (the Tate-duality interface) used in §5.
 
 The bridge is the `n = 2` transport `MuN 2 ≅ ZMod 2` (the second roots of unity are `{±1} ⊂ ℚ₂`,
 so `G_ℚ₂` acts trivially); it carries `MuDual 2 A ≅ ElemDual A` and `muDualPairing ≅ dualEval`.
@@ -145,7 +158,7 @@ noncomputable def dualMapInv (lam : ElemDual A) : MuDual 2 A :=
 
 omit [TopologicalSpace A] [DiscreteTopology A] [Finite A] [DistribMulAction AbsGalQ2 A]
   [ContinuousSMul AbsGalQ2 A] in
-@[simp] theorem dualMapInv_apply (lam : ElemDual A) (a : A) :
+@[simp] private theorem dualMapInv_apply (lam : ElemDual A) (a : A) :
     dualMapInv lam a = muNTwoEquiv.symm (lam a) := rfl
 
 /-- The `μ₂`-dual and the `𝔽₂`-dual are additively isomorphic (post-composition with
@@ -160,7 +173,7 @@ noncomputable def dualAddEquiv : MuDual 2 A ≃+ ElemDual A where
 
 omit [TopologicalSpace A] [DiscreteTopology A] [Finite A] [DistribMulAction AbsGalQ2 A]
   [ContinuousSMul AbsGalQ2 A] in
-@[simp] theorem dualAddEquiv_apply (φ : MuDual 2 A) (a : A) :
+@[simp] private theorem dualAddEquiv_apply (φ : MuDual 2 A) (a : A) :
     dualAddEquiv φ a = muNTwoEquiv (φ a) := rfl
 
 include hρ hcomp in
@@ -473,7 +486,7 @@ end CupClauses
 /-! ## Assembly: the full `prop_5_16` conclusion. -/
 
 /-- **`prop_5_16` (local lifting duality), fully assembled** — all six clauses, stated with the
-paper's exact signature (`GQ2.FoxH.prop_5_16`).  This is the complete P-13g deliverable: clauses
+paper's exact signature (`GQ2.FoxH.prop_5_16`).  This is the complete the Prop. 5.16 proof result: clauses
 (i)–(iii) are the numeric/Euler-characteristic content, (iv)–(vi) the cup-perfectness content.
 
 `GQ2.FoxH.prop_5_16` could not be proved by an `exact` splice in its original home, because
@@ -519,15 +532,15 @@ namespace GQ2.FoxH
 open GQ2.ContCoh GQ2.LocalLiftingDuality
 
 /-- **Prop 5.16 (local lifting duality)**: for a finite elementary module with `G_ℚ₂`-action
-factoring through `ρ : G_ℚ₂ ↠ C`, the display-(57) numerics hold and the T-04 evaluation-cup
-pairings are perfect in all three degree pairs (T-14 phrasing; the clause `#H²(𝔽₂) = 2`
-certifies the target line).  The two-actions setup follows T-02's compatible-pair pattern:
+factoring through `ρ : G_ℚ₂ ↠ C`, the display-(57) numerics hold and the cup-product API evaluation-cup
+pairings are perfect in all three degree pairs (the Tate-duality interface phrasing; the clause `#H²(𝔽₂) = 2`
+certifies the target line).  The two-actions setup follows the continuous-cohomology API's compatible-pair pattern:
 separate `C`- and `G_ℚ₂`-actions related pointwise through `ρ` — no double instance on one
 type.
 
-*Status*: **PROVED** (P-13g), via `GQ2.LocalLiftingDuality.prop_5_16_bundle`; this is where
-axioms B6 and B7 enter (App. D row).  Relocated out of `GQ2/FoxHeisenberg.lean` to break an
-import cycle (the `𝔽₂`-cup/B6 infrastructure imports that file). -/
+The proof is `GQ2.LocalLiftingDuality.prop_5_16_bundle`; this is where axioms B6 and B7 enter
+(App. D row).  It lives outside `GQ2/FoxHeisenberg.lean` to break an
+public import cycle (the `𝔽₂`-cup/B6 infrastructure imports that file). -/
 theorem prop_5_16 {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρ : Function.Surjective ρ)
     {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]

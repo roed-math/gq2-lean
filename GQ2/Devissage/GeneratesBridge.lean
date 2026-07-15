@@ -1,4 +1,13 @@
-import GQ2.Devissage.LESMaster
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.Devissage.LESMaster
+
+@[expose] public section
 
 /-!
 # §5.11 dévissage: the Generates bridge and Lemma 5.11
@@ -66,10 +75,9 @@ theorem isSelfDual_iff_W {A : Type*} [AddCommGroup A] [DistribMulAction C A] [Fi
 
 end GeneratesBridge
 
-/-! ## Lemma 5.11, `fixedPts`-form (the P-12 statement, relocated and proved)
+/-! ## Lemma 5.11, `fixedPts`-form
 
-The statement formerly sorried in `GQ2/FoxHeisenberg.lean` — same fully qualified name
-`GQ2.FoxH.lemma_5_11` — with one hypothesis added: `hgen : t.Generates`.  Generation identifies
+The theorem `GQ2.FoxH.lemma_5_11` includes the hypothesis `hgen : t.Generates`.  Generation identifies
 `ker d⁰` with the `C`-fixed points (`H0w_eq_fixedPts`), bridging the word-internal dévissage
 `selfdualW_two_of_three` to the `fixedPts`-phrased `IsSelfDual`; the paper's setting
 (admissible markings) always provides it.  It lives here rather than in `FoxHeisenberg.lean`

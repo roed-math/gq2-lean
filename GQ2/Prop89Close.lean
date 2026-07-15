@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.KeystoneDelta
 import GQ2.RStage.Local
 import GQ2.Half139Local
@@ -13,12 +18,11 @@ import GQ2.Phase140.GammaA
 import GQ2.MStageCountGammaA
 
 /-!
-# The P-16 capstone: `prop_8_9` at the concrete block frame  (P-16d6e)
+# Proposition 8.9 at the concrete block frame
 
 **Proposition 8.9 (closed exact-image recursion)**, relocated here from `SectionEight.lean`
 (which cannot name `blockFrameImpl` — it sits above `BlockFrameImpl.lean` in the import
-order; `thm_4_2`-relocation pattern).  Two reviewed statement actions relative to the
-original draft (`docs/p16d6e-assembly-plan.md` §1, the authoritative record):
+order).  Two interface choices are important:
 
 * **Per-`λ` phase family** — the paper's (134) classes `Δ_{χ,κ}` carry the scalar-pushout
   class `κ = κ_λ` of the `λ`-cover, so the family is
@@ -26,17 +30,15 @@ original draft (`docs/p16d6e-assembly-plan.md` §1, the authoritative record):
   a transcription deviation; it would force an unproven `zBC`-l-independence).
 * **Concrete block frame + hypothesis ledger** — the statement is at
   `RF := blockFrameImpl T Blk hE2` (the only intended consumer: SectionNine's inductive
-  branch at `blockFrame`/`blockEnrichment`, P-17c/P-17h; general-`RF` (136) is not provable
-  — no axioms tie a bare frame's `DR`/`zR`/`mB` to obstruction theory).  Hypothesis-side
-  (dischargers recorded in the plan doc §1): `hE2` (P-17a standing), `hfgF` (**B1**, first
-  consumption reserved to P-17i), `hheadA`/`hheadF` (§9 boundary data), `hsimple`/`hVne`/
-  `hnt` (the block's chief-factor structure, P-17h — `hnt` = `SectionNine.blockHnt`; the
-  former `hfaith` was weakened to it at the P-17i coordination flag, 2026-07-08:
+  branch at `blockFrame`/`blockEnrichment`; general-`RF` (136) is not provable
+  — no axioms tie a bare frame's `DR`/`zR`/`mB` to obstruction theory).  The hypotheses are
+  explicit: `hE2`, `hfgF` (**B1**), `hheadA`/`hheadF` (§9 boundary data),
+  `hsimple`/`hVne`/`hnt` (the block's chief-factor structure; `hnt` = `SectionNine.blockHnt`;
   faithfulness is NOT block-derivable, and only `hnt` was consumed), `hG0indep` (c3-G0's
-  `gaussSum_qbar_l_indep_*` at the block's tame package, P-17h).
-* Conclusion strengthened with `0 < Nat.card DT` (P-17i; free — `0 ∈ (T^∨)^C`).
+  `gaussSum_qbar_l_indep_*` at the block's tame package).
+* The conclusion includes `0 < Nat.card DT`, witnessed by `0 ∈ (T^∨)^C`.
 
-## Assembly record (P-16d6e7 — CLOSED 2026-07-08)
+## Assembly
 
 The witness assembly: the `hex`-split (`¬hex`: `DT := PUnit`, vacuous (137)–(140), only the
 two (136) stages live), the shared `DT := (T^∨)^C` at a reference `λ₀` (definitionally
@@ -49,16 +51,16 @@ family with its `dif_pos`-reduction (`phaseFamily_pos`), the shared `μ = #V·μ
 block's `nontrivial_action`, via `SectionNine.blockHnt`).
 
 Input bundles: **local** = `RStageLocal.stageR136_local` + `half139_local` +
-`phase140_local` (P-16d6e3); **`Γ_A`** = `CardH2GammaA.stageR136_gammaA` +
-`half139_gammaA` (below — P-16d6e6: `lemma_8_6_gammaA` + the P-17i `liftsOver_card_gammaA`
-through `half139_via_radData`) + the four P-16d6e6 residues (`hsep_gammaA` /
+`phase140_local`; **`Γ_A`** = `CardH2GammaA.stageR136_gammaA` +
+`half139_gammaA` (below: `lemma_8_6_gammaA` + `liftsOver_card_gammaA`
+through `half139_via_radData`) + the four residues (`hsep_gammaA` /
 `hpartial_gammaA` / `hZcard_gammaA` / `tcocycle_card_gammaA`) through the source-generic
-`phase140_from_residues` (P-16d6e2).
+`phase140_from_residues`.
 
-**Gate (2026-07-08): sorry-free; `#print axioms prop_8_9` = std-3 + {B6 `tateDualityAt`,
-B7 `absGalQ2_localEulerCharacteristic`} — leaner than the App. D budget (B9 never enters
-this proof).  Elaboration gotcha recorded: `simpa … using` fails the cross-`λ`
-`TCharC`-defeq close (transparency wall); `simp only […]` + bare `exact` works.**
+`#print axioms prop_8_9` is the standard three axioms plus B6 `tateDualityAt` and
+B7 `absGalQ2_localEulerCharacteristic`, leaner than the App. D budget because B9 never enters
+this proof.  One elaboration detail is worth preserving: `simpa … using` fails the cross-`λ`
+`TCharC` definitional-equality close, while `simp only […]` followed by a bare `exact` works.
 -/
 
 namespace GQ2
@@ -132,10 +134,10 @@ noncomputable def muZero (En : RF.Enrichment) (l₀ : RF.DR) (h₀ : l₀ ≠ RF
 
 end PhaseWitness
 
-/-! ## The `Γ_A` (139) half count (P-16d6e6)
+/-! ## The `Γ_A` (139) half count
 
 The `half139_local` twin: both deep inputs are already banked — `lemma_8_6_gammaA`
-(P-16c, the word-side half-torsor count) and the P-17i `M`-lift count
+(the Γ_A half-torsor proof, the word-side half-torsor count) and the §9 induction `M`-lift count
 `liftsOver_card_gammaA` (`MStageCountGammaA`), the latter transported through the
 `LiftsOver ↔ MLifts` bridge (`RadicalEdgeBridge.liftsOver_equiv`).  Wired through the
 source-generic `half139_via_radData`. -/
@@ -164,7 +166,7 @@ theorem hlem86M_gammaA
 
 omit [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **`hMcountM` for `Γ_A`** — the unrestricted `M`-lift count `#(M-lifts) = |M_B|²`: the
-P-17i `LiftsOver` count transported through the `LiftsOver ↔ MLifts` bridge. -/
+the §9 induction `LiftsOver` count transported through the `LiftsOver ↔ MLifts` bridge. -/
 theorem hMcountM_gammaA
     (RF : RecursionFrame T Blk) (b : ContinuousMonoidHom GammaA ↥boundarySubgroup)
     (F : BoundaryFrame H E) (En : RF.Enrichment)
@@ -174,7 +176,7 @@ theorem hMcountM_gammaA
   (Nat.card_congr (RF.liftsOver_equiv b F (En.radData l h) rfl ρ)).symm.trans
     (RF.liftsOver_card_gammaA b F ρ)
 
-/-- **P-16d6e6 deliverable**: the (139) half count for `Γ_A`, in the exact shape of the
+/-- **the Prop. 8.9 assembly result**: the (139) half count for `Γ_A`, in the exact shape of the
 `RecursionInputs.half139` field (the `half139_local` twin). -/
 theorem half139_gammaA
     (RF : RecursionFrame T Blk) (b : ContinuousMonoidHom GammaA ↥boundarySubgroup)
@@ -194,8 +196,8 @@ boundary-framed target with a §7 simple-head block, there are **shared** data
 `(μ, G⁰, D_T)` and a **per-`λ`** phase family such that the boxed system (136)–(142) holds
 for **both sources**.  Every count on the right sides concerns a target with strictly
 smaller marked 2-kernel, so the system is a closed deterministic recursion (paper, end of
-§8).  [P-16 statement — relocated & amended at P-16d6e, see the module docstring; proof =
-the P-16d6e assembly.  Verified axioms: std-3 + {B6, B7} (within the App. D ≤ {B6, B7, B9}
+§8).  [the §8 proof layer statement — relocated & amended at the Prop. 8.9 assembly, see the module docstring; proof =
+the Prop. 8.9 assembly.  Verified axioms: std-3 + {B6, B7} (within the App. D ≤ {B6, B7, B9}
 budget; B9 never enters).] -/
 theorem prop_8_9 (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
     [DiscreteTopology Y] [Finite Y] (T : MarkedTarget H E Y)
@@ -242,8 +244,8 @@ theorem prop_8_9 (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
       refine ⟨CardH2GammaA.stageR136_gammaA hE2 hRK hR2 B.bA F, fun l h hedge => ?_,
         fun l h hN => ?_⟩
       · exact half139_gammaA _ B.bA F En hfgA l h hedge
-      · -- (140) for `Γ_A`: the four P-16d6e6 residues through the source-generic assembly
-        -- (P-16d6e2), at the unpacked descent + the `dif_pos`-reduction — the exact mirror
+      · -- (140) for `Γ_A`: the four the Prop. 8.9 assembly residues through the source-generic assembly
+        -- (the Prop. 8.9 assembly), at the unpacked descent + the `dif_pos`-reduction — the exact mirror
         -- of the local branch below
         have h140 := phase140_from_residues B.bA F En l h (descentOf En l h hN)
           RStageGammaA.htriv_gammaA hfgA CardH2GammaA.card_H2_gammaA
@@ -256,12 +258,12 @@ theorem prop_8_9 (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
           (hGaussZA l h)
         simp only [phaseFamily_pos En l₀ h₀ l h hN]
         exact h140
-    · -- the `G_ℚ₂` recursion — fully live (P-16d6e3 closed)
+    · -- the `G_ℚ₂` recursion
       refine prop_8_9_aux _ hfgF B.bF F (lemma_8_2_local B) hheadF _ _ _ _ ?_
       refine ⟨RStageLocal.stageR136_local hE2 hRK hR2 hfgF B.bF F, fun l h hedge => ?_,
         fun l h hN => ?_⟩
       · exact half139_local _ B.bF F En hfgF l h hedge
-      · -- the landed local (140) at the unpacked descent + the `dif_pos`-reduction
+      · -- the proved local (140) at the unpacked descent + the `dif_pos`-reduction
         have h140 := phase140_local B.bF F En l h (descentOf En l h hN) hfgF
           (muZero En l₀ h₀) G0 hsimple hVne hnt
           (fun ρ => (tcocycle_card_l_indep _ B.bF F En l h l₀ h₀ ρ).trans

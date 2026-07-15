@@ -1,13 +1,24 @@
-import Mathlib
-import GQ2.MaxProP
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.GroupTheory.Nilpotent
+public import Mathlib.FieldTheory.Normal.Defs
+public import GQ2.MaxProP
+
+@[expose] public section
+
 
 /-!
-# The pro-`p` Frattini/Burnside criterion  (ticket P-21, phase (iv))
+# The pro-`p` Frattini/Burnside criterion
 
 The "surjective on the Frattini quotient ⇒ surjective" criterion for pro-`p` groups, in
 **index-`p` detection form** — no Frattini subgroup object is introduced; the criterion
 quantifies over the open normal subgroups of index `p` directly (they are exactly the kernels
-of the maps to the Frattini quotient's `ℤ/p`-lines, and this is the form P-08's surjectivity
+of the maps to the Frattini quotient's `ℤ/p`-lines, and this is the form the Lemmas 3.6–3.8 proof's surjectivity
 legs check on generators):
 
 * `coatom_normal_of_pGroup` / `coatom_index_of_pGroup` — the **finite** ingredients: a maximal
@@ -162,7 +173,7 @@ theorem surjective_of_forall_not_le_index_p [T2Space K]
   exact MonoidHom.range_eq_top.mp (eq_top_of_forall_not_le_index_p hK hclosed h)
 
 /-- Convenience form: it suffices that the composite to **every** index-`p` quotient is
-surjective (the check P-08's legs perform on the marked generators). -/
+surjective (the check the Lemmas 3.6–3.8 proof's legs perform on the marked generators). -/
 theorem surjective_of_forall_index_p_quotient_surjective [T2Space K]
     {G : Type*} [Group G] [TopologicalSpace G] [CompactSpace G]
     (hK : IsProP p K) (f : ContinuousMonoidHom G K)

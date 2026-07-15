@@ -1,4 +1,13 @@
-import GQ2.FoxHeisenberg.WildRow
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.FoxHeisenberg.WildRow
+
+@[expose] public section
 
 /-!
 # Lemma 5.14 (mixed Hessian), normal forms, and the main duality
@@ -35,11 +44,11 @@ variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [DistribM
 def x0Supported (c : V) : Fin 4 → V := ![0, 0, c, 0]
 
 omit [Finite C] [Finite V] in
-theorem heisMarking_map_agHom (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+private theorem heisMarking_map_agHom (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
     (heisMarking t x y).map agHom = liftMarking t x := rfl
 
 omit [Finite C] [Finite V] in
-theorem heisMarking_map_lgHom (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+private theorem heisMarking_map_lgHom (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
     (heisMarking t x y).map lgHom = liftMarking t y := rfl
 
 /-- Naturality: the `.a` of an aux word at `heisMarking` is the `liftMarking` `.u` (via `agHom`);
@@ -54,7 +63,7 @@ theorem heisMarking_h0_l (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDu
   congrArg WordLift.u (show lgHom (heisMarking t x y).h0 = (liftMarking t y).h0 by
     rw [← Marking.map_h0, heisMarking_map_lgHom])
 
-theorem heisMarking_h0_g_eq (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+private theorem heisMarking_h0_g_eq (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
     (heisMarking t x y).h0.g = (liftMarking t x).h0.g :=
   congrArg WordLift.g (show agHom (heisMarking t x y).h0 = (liftMarking t x).h0 by
     rw [← Marking.map_h0, heisMarking_map_agHom])
@@ -69,7 +78,7 @@ theorem heisMarking_d0_l (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDu
   congrArg WordLift.u (show lgHom (heisMarking t x y).d0 = (liftMarking t y).d0 by
     rw [← Marking.map_d0, heisMarking_map_lgHom])
 
-theorem heisMarking_d0_g_eq (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+private theorem heisMarking_d0_g_eq (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
     (heisMarking t x y).d0.g = (liftMarking t x).d0.g :=
   congrArg WordLift.g (show agHom (heisMarking t x y).d0 = (liftMarking t x).d0 by
     rw [← Marking.map_d0, heisMarking_map_agHom])
@@ -79,27 +88,27 @@ theorem heisMarking_c0_a (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDu
   congrArg WordLift.u (show agHom (heisMarking t x y).c0 = (liftMarking t x).c0 by
     rw [← Marking.map_c0, heisMarking_map_agHom])
 
-theorem heisMarking_c0_g_eq (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+private theorem heisMarking_c0_g_eq (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
     (heisMarking t x y).c0.g = (liftMarking t x).c0.g :=
   congrArg WordLift.g (show agHom (heisMarking t x y).c0 = (liftMarking t x).c0 by
     rw [← Marking.map_c0, heisMarking_map_agHom])
 
-theorem heisMarking_u1_g_eq (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+private theorem heisMarking_u1_g_eq (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
     (heisMarking t x y).u1.g = (liftMarking t x).u1.g :=
   congrArg WordLift.g (show agHom (heisMarking t x y).u1 = (liftMarking t x).u1 by
     rw [← Marking.map_u1, heisMarking_map_agHom])
 
-theorem heisMarking_sigma2_a (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+private theorem heisMarking_sigma2_a (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
     (heisMarking t x y).sigma2.a = (liftMarking t x).sigma2.u :=
   congrArg WordLift.u (show agHom (heisMarking t x y).sigma2 = (liftMarking t x).sigma2 by
     rw [← Marking.map_sigma2, heisMarking_map_agHom])
 
-theorem heisMarking_sigma2_l (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+private theorem heisMarking_sigma2_l (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
     (heisMarking t x y).sigma2.l = (liftMarking t y).sigma2.u :=
   congrArg WordLift.u (show lgHom (heisMarking t x y).sigma2 = (liftMarking t y).sigma2 by
     rw [← Marking.map_sigma2, heisMarking_map_lgHom])
 
-theorem heisMarking_sigma2_g_eq (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
+private theorem heisMarking_sigma2_g_eq (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
     (heisMarking t x y).sigma2.g = (liftMarking t x).sigma2.g :=
   congrArg WordLift.g (show agHom (heisMarking t x y).sigma2 = (liftMarking t x).sigma2 by
     rw [← Marking.map_sigma2, heisMarking_map_agHom])
@@ -149,13 +158,13 @@ theorem heisMarking_dg_g_smul (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → E
   HeisLift.conjP_g_trivial (heisMarking t x y).d0 (heisMarking t x y).g0
     (heisMarking_d0_g_smul t x y hx0 htau) v
 
-theorem heisMarking_hc_g_smul (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
+private theorem heisMarking_hc_g_smul (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
     (hx0 : ∀ v : V, t.x₀ • v = v) (htau : ∀ v : V, t.τ • v = v) (v : V) :
     (heisMarking t x y).hc.g • v = v :=
   HeisLift.commP_g_trivial (heisMarking t x y).dg (heisMarking t x y).d0
     (heisMarking_dg_g_smul t x y hx0 htau) (heisMarking_d0_g_smul t x y hx0 htau) v
 
-theorem heisMarking_c0_g_smul (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
+private theorem heisMarking_c0_g_smul (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V)
     (hx0 : ∀ v : V, t.x₀ • v = v) (htau : ∀ v : V, t.τ • v = v) (v : V) :
     (heisMarking t x y).c0.g • v = v :=
   HeisLift.commP_g_trivial (heisMarking t x y).d0 (heisMarking t x y).z0
@@ -163,25 +172,25 @@ theorem heisMarking_c0_g_smul (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → E
 
 /-! ### `g₀ = σ₂²` is a base-slice element on the x₀-supported rep (`a = l = z = 0`). -/
 
-theorem heisMarking_sigma2_a_zero (t : Marking C) (c : V) (lam : ElemDual V) :
+private theorem heisMarking_sigma2_a_zero (t : Marking C) (c : V) (lam : ElemDual V) :
     (heisMarking t (x0Supported c) (x0Supported lam)).sigma2.a = 0 := by
   rw [heisMarking_sigma2_a]; exact heisMarking_sigma2_u_zero t (x0Supported c) rfl
 
-theorem heisMarking_sigma2_l_zero (t : Marking C) (c : V) (lam : ElemDual V) :
+private theorem heisMarking_sigma2_l_zero (t : Marking C) (c : V) (lam : ElemDual V) :
     (heisMarking t (x0Supported c) (x0Supported lam)).sigma2.l = 0 := by
   rw [heisMarking_sigma2_l]; exact WordLift.powOmega2_u_zero _ rfl
 
-theorem heisMarking_g0_a_zero (t : Marking C) (c : V) (lam : ElemDual V) :
+private theorem heisMarking_g0_a_zero (t : Marking C) (c : V) (lam : ElemDual V) :
     (heisMarking t (x0Supported c) (x0Supported lam)).g0.a = 0 := by
   show ((heisMarking t (x0Supported c) (x0Supported lam)).sigma2 ^ 2).a = 0
   rw [pow_two, HeisLift.mul_a, heisMarking_sigma2_a_zero t c lam, smul_zero, add_zero]
 
-theorem heisMarking_g0_l_zero (t : Marking C) (c : V) (lam : ElemDual V) :
+private theorem heisMarking_g0_l_zero (t : Marking C) (c : V) (lam : ElemDual V) :
     (heisMarking t (x0Supported c) (x0Supported lam)).g0.l = 0 := by
   show ((heisMarking t (x0Supported c) (x0Supported lam)).sigma2 ^ 2).l = 0
   rw [pow_two, HeisLift.mul_l, heisMarking_sigma2_l_zero t c lam, smul_zero, add_zero]
 
-theorem heisMarking_g0_z_zero (t : Marking C) (c : V) (lam : ElemDual V) :
+private theorem heisMarking_g0_z_zero (t : Marking C) (c : V) (lam : ElemDual V) :
     (heisMarking t (x0Supported c) (x0Supported lam)).g0.z = 0 := by
   show ((heisMarking t (x0Supported c) (x0Supported lam)).sigma2 ^ 2).z = 0
   rw [pow_two, HeisLift.mul_z, heisMarking_sigma2_a_zero t c lam, smul_zero, map_zero, add_zero,
@@ -307,7 +316,7 @@ theorem heisMarking_conjP_x1_sigma_z (t : Marking C) (c : V) (lam : ElemDual V) 
   rfl
 
 omit [Finite C] [Finite V] in
-theorem powOmega2_secHom_a (w : C) : (powOmega2 (secHom (A := V) w)).a = 0 := by
+private theorem powOmega2_secHom_a (w : C) : (powOmega2 (secHom (A := V) w)).a = 0 := by
   rw [powOmega2, ← map_pow]; rfl
 
 theorem heisMarking_u1_a (t : Marking C) (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
@@ -355,7 +364,7 @@ theorem heisMarking_wildValue_z (t : Marking C) (c : V) (lam : ElemDual V)
     HeisLift.mul_z_of_trivial _ _ hQ2g, hx1sigz, hx1siga, map_zero, add_zero, add_zero,
     HeisLift.mul_z_of_trivial _ _ hh0g, hh0z, hu1invz, hu1inva, map_zero, add_zero, add_zero]
 
-/-! ### Ramified mixed Hessian (P-13c): `U = σ₂` acts nontrivially
+/-! ### Ramified mixed Hessian: `U = σ₂` acts nontrivially
 
 The ramified degree-one pairing `B(c,λ) = λ((1 + U + U⁻¹)c)`.  Two central contributions:
 `h₀ ↦ λ(c)` (the shadow, with all `U²`-twisted cross-terms cancelling in char 2) and
@@ -591,7 +600,7 @@ omit [Finite C] in
 /-- **The `B¹` coboundary shape when the wild generators act trivially** (the paper's `B¹` in
 Lemma 5.13(i), with the trivial wild action made an explicit hypothesis — however it is obtained:
 directly, or via the proved `lemma_5_12` from `Pro2Core`; see
-`docs/p13-normal-form-hypothesis-gap.md`).  Under `T = 1` and `x₀, x₁` acting trivially, every
+`docs/orchestration/p13-normal-form-hypothesis-gap.md`).  Under `T = 1` and `x₀, x₁` acting trivially, every
 coboundary `d⁰v` is supported on the `σ`-slot: `B¹ = {((S−1)v, 0, 0, 0)}`. -/
 theorem b1w_split_shape (t : Marking C)
     (htau : ∀ v : V, t.τ • v = v) (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v)
@@ -622,7 +631,7 @@ theorem heisMarking_tameValue_z_eq_zero (t : Marking C) (x : Fin 4 → V)
 /-- **Lemma 5.13, split case (i), cocycle shape**: if `T = 1` (trivial `τ`-action on a
 nontrivial simple module), `Z¹ = {(a, 0, c, 0)}` and `B¹ = {((S−1)v, 0, 0, 0)}`.
 
-Hypotheses (per `docs/p13-normal-form-hypothesis-gap.md`): `hcore` supplies trivial wild action
+Hypotheses (per `docs/orchestration/p13-normal-form-hypothesis-gap.md`): `hcore` supplies trivial wild action
 (`wild_acts_trivially`); `hVS` is `V^S = 0`, i.e. `1 + S⁻¹` invertible — it excludes the trivial
 module `𝔽₂` (where `1 + S⁻¹ = 0` and the `x 3 = 0` clause would fail; that module is handled
 separately in `prop_5_15`).  `hU` is the σ-tameness (`σ₂ = U` acts trivially).  Both `hVS` and `hU`
@@ -630,9 +639,9 @@ are *derivable* in the split case — with `τ, x₀, x₁` acting trivially the
 the cyclic `⟨σ̄⟩`, so a nontrivial simple `V` is a simple `𝔽₂[⟨σ⟩]`-module: `V^S = V^C = 0` and `σ`
 has odd order (⇒ `σ₂ = 1`).  Those derivations need `t.Generates` and simple-cyclic rep theory, so
 they are factored out as hypotheses here, keeping the normal-form proof pure finite-Fox calculus.
-See `docs/p13-normal-form-hypothesis-gap.md` §7.
+See `docs/orchestration/p13-normal-form-hypothesis-gap.md` §7.
 
-Proved (P-13): `B¹` half from `b1w_split_shape`; `Z¹` half from the tame row `d1Fun_tame_split`
+Proved (the §5 proof layer): `B¹` half from `b1w_split_shape`; `Z¹` half from the tame row `d1Fun_tame_split`
 (`= S⁻¹·x₁`) and the wild row `liftMarking_wildValue_u` (`= x₁ + (1+S⁻¹)·x₃`), with `x 1 = 0` from
 `S⁻¹` injective and `x 3 = 0` from `hVS`. -/
 theorem lemma_5_13_split (t : Marking C) (ht : t.TameRel) (_ : t.WildRel)
@@ -664,7 +673,7 @@ class has a unique representative supported on `x₀` (display (53)).
 Hypothesis `hcore` supplies trivial wild action (`wild_acts_trivially`); the ramified condition
 `V^T = 0` (`htau`) gives `1 + T` invertible.
 
-**Hypothesis `hTodd`** (added P-13b, 2026-07-04): `τ`'s 2-primary part `powOmega2 t.τ` acts
+**Hypothesis `hTodd`**: `τ`'s 2-primary part `powOmega2 t.τ` acts
 trivially on `V`, i.e. `τ` acts with *odd* order on `V`.  This is the ramified analogue of the
 split case's `hU : ∀ v, t.sigma2 • v = v` (`sigma2 = powOmega2 t.σ`), and is the arithmetic fact
 that `τ = ` tame inertia is prime-to-2, so acts through an odd quotient on the `𝔽₂`-module `V`.
@@ -672,19 +681,16 @@ It is **required** (not implied by `V^T = 0`, which admits even-order fixed-poin
 the wild-row aux offset `(powOmega2 p).u` is a geometric sum whose length is the `ω₂`-exponent,
 and it collapses to `0` (via the `P = 0` norm ledger `WordLift.norm_eq_zero_of_fixedPointFree`)
 exactly because the odd action-period divides that length.  Like `hU`/`hVS` in the split case,
-this is factored out as an explicit hypothesis, to be supplied per simple factor by P-13d.
-See `docs/p13-normal-form-hypothesis-gap.md` and P-13b in `docs/p13-ticket-split.md`.
+this is factored out as an explicit hypothesis, supplied by the simple-factor analysis.
+See `docs/orchestration/p13-normal-form-hypothesis-gap.md` for the counterexample and rationale.
 
-*Status*: proved — hypothesis amended (P-13b); `P = 0` ledger landed; the wild/tame rows +
-`∃!`-assembly are discharged below.
-
-**Signature note (P-13f, 2026-07-05)**: the trivial wild action is now taken as hypotheses
+**Signature note**: the trivial wild action is taken as hypotheses
 `hx0`/`hx1` rather than derived from `(hsimple, hcore)` via `wild_acts_trivially` — so the lemma
 applies to the contragredient dual `A∨` (whose wild-triviality transfers from `A`'s) without a
 "dual of simple is simple" detour, mirroring the split-side `split_shapes_of_wild`.
 
-**`hU` REMOVED (P-13f de-`hU`, 2026-07-05)**: the σ-tameness `∀ v, σ₂ • v = v` is *not derivable
-from admissibility* (`S₃` on its 2-dim simple module and `C₅⋊C₄` on `𝔽₁₆`, markings `x₀=x₁=1`,
+No `hU` hypothesis is needed: the σ-tameness `∀ v, σ₂ • v = v` is *not derivable from
+admissibility* (`S₃` on its 2-dim simple module and `C₅⋊C₄` on `𝔽₁₆`, markings `x₀=x₁=1`,
 are admissible ramified counterexamples), and it is not needed: the `h₀`-row `x₂`-cancellation
 happens in `g₀`-conjugate pairs (`liftMarking_h0_u_ramified`, via `conjP_u_of_base_trivial`). -/
 theorem lemma_5_13_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
@@ -739,9 +745,9 @@ theorem lemma_5_13_ramified (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
 /-- **Lemma 5.13, pairing display (54), split case**: on `x₀`-supported representatives the
 degree-one pairing is `(c, λ) ↦ λ(c)` when `T = 1`.
 
-*Status*: proved (P-13; via the mixed Hessian ledger, Lemma 5.14 — `h₀ ↦ λ(c)` via
+The proof uses the mixed Hessian ledger, Lemma 5.14 — `h₀ ↦ λ(c)` via
 `classTwoIdentity` [needs `g₀ = σ₂²` trivial, i.e. `hU`], and the `[d₀,z₀]` term vanishes since
-`P + 1 = 0` in char 2 for `T = 1`).  `hsimple`/`hcore` give the trivial wild action
+`P + 1 = 0` in char 2 for `T = 1`.  `hsimple`/`hcore` give the trivial wild action
 (`wild_acts_trivially`); `hU` is the σ-tameness (derivable in split; see `lemma_5_13_split`). -/
 theorem lemma_5_13_pairing_split (t : Marking C) (_ : t.TameRel) (_ : t.WildRel)
     (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V) [Finite V] (hcore : t.Pro2Core)
@@ -762,10 +768,10 @@ The tame relator's central coordinate vanishes on the x₀-supported rep
 (`heisMarking_wildValue_z_ramified`): `h₀ ↦ λ(c)` (the shadow) plus the `[d₀,z₀]` symplectic term
 `λ(Uc) + λ(U⁻¹c)` (nonzero here because `Dd₀ = c ≠ 0`, unlike the split `P + 1 = 0` collapse).
 
-**Hypothesis `hTodd`** (added P-13c, mirroring P-13b's `lemma_5_13_ramified`): `τ`'s 2-primary part
+**Hypothesis `hTodd`** (added the §5 proof layer, mirroring the §5 proof layer's `lemma_5_13_ramified`): `τ`'s 2-primary part
 acts trivially on `V` (tame inertia is prime-to-2), needed for the ramified `Dd₀ = c` via the
-`P = 0` ledger.  Supplied per simple factor by P-13d.  The trivial wild action is taken as
-hypotheses `hx0`/`hx1` (P-13f signature note on `lemma_5_13_ramified`). -/
+`P = 0` ledger.  Supplied per simple factor by the tame representation-theory proof.  The trivial wild action is taken as
+hypotheses `hx0`/`hx1` (the Prop. 5.15 proof signature note on `lemma_5_13_ramified`). -/
 theorem lemma_5_13_pairing_ramified (t : Marking C) (_ : t.TameRel) (_ : t.WildRel)
     (hV₂ : ∀ v : V, v + v = 0) [Finite V]
     (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v)
@@ -785,17 +791,17 @@ section MainDuality
 
 variable {C : Type*} [Group C] [Finite C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
 
-/- **Prop 5.15 relocated to `GQ2/DualityAssembly.lean` (P-13f) — PROVED, no sorry.**  The proof
+/- **Prop. 5.15 lives in `GQ2/DualityAssembly.lean`.**  The proof
 composes the dévissage strong induction `prop_5_15_of_simple` (`GQ2/DevissageInduction.lean`,
 via `lemma_5_11`) with the simple case `selfDual_of_simple` (split/ramified dichotomy) — all of
 which live in files importing *this* one, so proving it here would be an import cycle.  The
 qualified name `GQ2.FoxH.prop_5_15` and the statement are unchanged. -/
 
-/- **§5.16–§5.17 relocated to `GQ2/LocalLiftingDuality.lean` (P-13g).**  `prop_5_16` (local
-lifting duality) and its corollary `cor_5_17_card` moved there so their proofs can invoke B6
+/- **§§5.16–5.17 live in `GQ2/LocalLiftingDuality.lean`.**  `prop_5_16` (local
+lifting duality) and its corollary `cor_5_17_card` live there so their proofs can invoke B6
 (`GQ2.tateDuality`) and the `𝔽₂`-cup transport, which live in files that import *this* one —
 proving them here would be an import cycle.  Both keep their `GQ2.FoxH.*` qualified names, so
-downstream references are unaffected.  `prop_5_15` (P-13f) stays above. -/
+downstream references are unaffected. -/
 
 end MainDuality
 

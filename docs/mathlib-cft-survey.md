@@ -1,11 +1,12 @@
 # What Mathlib and ClassFieldTheory currently provide (survey)
 
-Ticket T-00, done 2026-07-03 against **mathlib `ec410d2`** (2026-06-12) and **ClassFieldTheory
-`3565c752`**.  Purpose: a current map of what already exists, so we stop being surprised by
-Mathlib/CFT content (this has bitten us twice — continuous cohomology and the local-field class
-were both already upstreamed).  Organized by the infrastructure our nine literature leaves (B1–B9,
-see `docs/literature-axioms.md`) and tickets need.  Each entry: **EXISTS**(name · file) or
-**ABSENT**, with a one-line note.
+Surveyed 2026-07-03 against **Mathlib `ec410d2`** (2026-06-12) and **ClassFieldTheory
+`3565c752`**. This is a pinned dependency snapshot, not a live survey of later upstream versions.
+The experimental ClassFieldTheory dependency was removed after the audit because the completed
+library did not import it. The file remains useful as a record of which foundations were available
+when the interfaces were designed.
+
+Entries use **EXISTS** (name and file) or **ABSENT**, with a short consequence for this project.
 
 > Convention: mathlib paths are under `.lake/packages/mathlib/Mathlib/`; CFT under
 > `.lake/packages/ClassFieldTheory/ClassFieldTheory/`.
@@ -69,7 +70,7 @@ see `docs/literature-axioms.md`) and tickets need.  Each entry: **EXISTS**(name 
   `IsPGroup` (finite) and `ProfiniteGrp`/`profiniteCompletion`/`OpenNormalSubgroup` exist.
   ⇒ **T-05 (max pro-`p` quotient) is build-from-scratch** (confirmed), on top of `profiniteQuotient`.
 - **ABSENT** any Demushkin classification ⇒ **B3** stays an axiom (stated via `IsDemushkin`,
-  `ContCoh` H¹/H² + cup, per `docs/formalization-plan.md`).
+  `ContCoh` H¹/H² + cup, per `docs/orchestration/formalization-plan.md`).
 
 ## B5 — local reciprocity · B6 — local Tate duality · B9 — Evens/corestriction
 
@@ -119,7 +120,7 @@ is not there yet.**
 ## B8 — Galois action on `π₁(ℙ¹∖{0,1,∞})`
 
 - **ABSENT** (expected) étale fundamental group / `π₁`.  Stated as the group-theoretic conclusion
-  (Lemma 3.6); see `docs/formalization-plan.md` B8.
+  (Lemma 3.6); see `docs/orchestration/formalization-plan.md` B8.
 
 ## B9 detail — Kummer theory, Stiefel–Whitney, Evens norm
 
@@ -130,30 +131,25 @@ is not there yet.**
   ourselves (in `ContCoh`), reusing the extension-level facts.
 - **Evens norm / Stiefel–Whitney**: **Stiefel–Whitney classes of quadratic forms — ABSENT** in
   Mathlib, as is any char-2 / Arf theory (see B7′).  The Evens norm and the low-degree SW classes
-  are transcribed from the paper's explicit cocycles (per `docs/formalization-plan.md` B9); CFT's
+  are transcribed from the paper's explicit cocycles (the original plan is archived at
+  `docs/orchestration/formalization-plan.md`); CFT's
   `cores` (`cores_res` proved) supplies corestriction.
 
-## Ticket implications
+## Consequences for this formalization
 
-- **T-05 (max pro-`p` quotient)** — **build from scratch**; nothing in Mathlib
-  (`maximalProP`/`proPCompletion` absent).  Foundation available: `ProfiniteGrp`,
-  `profiniteCompletion`, `OpenNormalSubgroup`, `IsPGroup`, and our `profiniteQuotient`.  Plan
-  unchanged (`docs/formalization-plan.md` I4).
-- **T-13 (Kummer class)** — **build the cocycle** in `ContCoh`; reuse `FieldTheory.KummerExtension`
-  (`autEquivRootsOfUnity`, splitting) for the field-theoretic input.  No cohomological Kummer iso
-  in Mathlib.
-- **T-15 (μ_n as a discrete `G`-module)** — **build**: `rootsOfUnity`, `IsPrimitiveRoot`,
-  `cyclotomicCharacter`/`modularCyclotomicCharacter : (L≃+*L) →* (ZMod n)ˣ` exist, but the
-  `DistribMulAction`/continuity of the Galois action on `rootsOfUnity` (needed as a `ContCoh`
-  coefficient) is **absent** — assemble it from the Galois action + Krull-open stabilizers.
-- **Cohomology coefficient bridges** — the *discrete* analogue of our `toContRep` already exists
-  (`Rep.ofDistribMulAction`); keep our `CtsCohBridge.toContRep` for the *continuous* side.
+- **Maximal pro-`p` quotient** — built in `GQ2/MaxProP.lean` from `ProfiniteGrp`, open normal
+  subgroups, and finite `p`-group quotients.
+- **Kummer classes** — the cocycle and its surjectivity are built in `GQ2/Kummer.lean`,
+  `GQ2/KummerKrullBridge.lean`, and `GQ2/KummerSurjectivity.lean`, reusing Mathlib's
+  field-theoretic Kummer API where it applies.
+- **Roots of unity as continuous coefficients** — assembled in `GQ2/MuN.lean` from the Galois
+  action, cyclotomic character, and open stabilizers.
+- **Continuous-cohomology comparison** — no final bridge theorem is claimed. The explicit
+  `ContCoh` model is used directly; see `docs/cts-cohomology-gap.md`.
 - **Cup products** — Mathlib has none anywhere; `GQ2/CupProduct.lean` is the only cup product in
   scope.  (If ever upstreaming, both continuous and discrete `groupCohomology` would want it.)
-- **T-07 (Hilbert symbol + B7′)** — **build**: no Hilbert symbol in Mathlib.  Reuse the (char ≠ 2)
-  `QuadraticForm` API for the `z²=ax²+by²` solvability definition; build `ε`, `ω`, the
-  `ℤ₂ˣ ≅ {±1}×(1+2ℤ₂)` decomposition from `PadicInt.unitCoeff`/`padicVal*`.  No shared deps ⇒ can
-  start immediately.
+- **Hilbert symbol and the former B7′ leaf** — implemented in the `HilbertSymbol*` and
+  `DyadicSquares` modules. The explicit dyadic formula is now a theorem, not an axiom.
 - **B9 char-2 caveat** — Mathlib's quadratic-form diagonalization requires `Invertible 2`, so it is
   unavailable over `𝔽₂`; B9's SW/Evens content must use the paper's explicit diagonal
   representatives, not a Mathlib diagonalization.

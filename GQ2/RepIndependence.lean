@@ -1,7 +1,16 @@
-import GQ2.SectionSix
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.SectionSix
+
+@[expose] public section
 
 /-!
-# P-15d: representative independence of `Q⁰_loc`  (Lemma 6.4 layer ⟹ Lemma 6.14)
+# Representative independence of `Q⁰_loc`  (Lemma 6.4 layer ⟹ Lemma 6.14)
 
 The base quadratic connecting map `Q⁰_loc` (`GQ2/SectionSix.lean`, eq. (92)) is defined on
 `H¹`-classes through the canonical cocycle representative `Quotient.out`.  Its well-definedness —
@@ -29,7 +38,7 @@ variable {W : Type} [AddCommGroup W] [TopologicalSpace W] [DiscreteTopology W] [
   [DistribMulAction AbsGalQ2 W] [ContinuousSMul AbsGalQ2 W] [DistribMulAction C W]
 
 /-- If two raw 2-cochains differ by a continuous coboundary, their `H2ofFun` classes agree.
-(Replica of `ShapiroLedger.H2ofFun_eq_of_sub_mem_B2`, kept local to avoid a cross-ticket import.) -/
+(Replica of `ShapiroLedger.H2ofFun_eq_of_sub_mem_B2`, kept local to avoid a cross-module import.) -/
 theorem h2ofFun_eq_of_sub_mem_B2 {φ ψ : AbsGalQ2 × AbsGalQ2 → ZMod 2}
     (h : φ - ψ ∈ B2 AbsGalQ2 (ZMod 2)) : H2ofFun AbsGalQ2 φ = H2ofFun AbsGalQ2 ψ := by
   by_cases hφ : φ ∈ Z2 AbsGalQ2 (ZMod 2)

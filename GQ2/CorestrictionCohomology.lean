@@ -1,7 +1,12 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.Corestriction
 
 /-!
-# Corestriction commutes with the coboundary differential  (P-15f2 support)
+# Corestriction commutes with the coboundary differential
 
 The degree-2 corestriction cochain `cor2Fun U` (`GQ2/Corestriction.lean`, eq. (108)) commutes
 with the group-cohomology differential: for a `𝔽₂`-valued `0`-cochain-shifted `1`-cochain

@@ -1,11 +1,29 @@
-import Mathlib
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.NumberTheory.Padics.Complex
+public import Mathlib.Topology.Connected.Separation
+public import Mathlib.Topology.EMetricSpace.Paracompact
+public import Mathlib.Topology.Separation.CompletelyRegular
+public import Mathlib.Algebra.Order.Ring.Star
+public import Mathlib.Algebra.Order.Star.Real
+public import Mathlib.Topology.MetricSpace.Ultra.TotallySeparated
+
+@[expose] public section
+
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
-# B11b-2 (lane A) — Teichmüller units, odd-root separation, successive approximation
+# Teichmüller units, odd-root separation, and successive approximation
 
-The three **σ-free bricks** of the B11b residue layer (`unramifiedQuadratic_units_are_norms`
-discharge; archived board `docs/orchestration/b11b-tickets.md` §B11b-2, plan
-`b11b-proof-plan.md` §1(R)):
+The three **σ-free ingredients** of the residue-field proof of
+`unramifiedQuadratic_units_are_norms` are:
 
 * `exists_teichmuller` — §1(R)1: in a finite (hence complete) subextension `L/ℚ₂`, a norm-one
   `w` with `‖w^q − w‖ < 1` (`q` of norm `< 1`, e.g. any even `q`) has a **Teichmüller
@@ -24,11 +42,11 @@ discharge; archived board `docs/orchestration/b11b-tickets.md` §B11b-2, plan
   `k` (the "`l = k̄`" hypothesis, in norm form), then `L ≤ k` — `π`-adic successive
   approximation with `k`-coefficients, plus closedness of the finite-dimensional `k`.
 
-**Interface note (deviation from the plan's §3 file spec).**  The plan slates this file to
-import `GQ2.UnitFiltrationCounts` (B13); the bricks as stated need **no** filtration interface
+**Interface note.**  These lemmas need **no** filtration interface
 — every B13 input is abstracted into an explicit norm hypothesis (`hwq`, `hπmax`, `hres`), so
-the file imports Mathlib only.  B11b-3 wires the concrete B13 data in at the call sites
-(lane B).  This also keeps lane A build-decoupled from the in-flight B13 lane.
+the file imports Mathlib only.  `GQ2/UnramifiedQuadraticNorms.lean` supplies the concrete
+filtration data at the call sites.  This keeps the elementary approximation layer independent
+of the filtration implementation.
 
 Axioms: **∅** (std-3 target).  Paper: §6.3 via Serre LF Ch. V §2 (see the plan).
 -/

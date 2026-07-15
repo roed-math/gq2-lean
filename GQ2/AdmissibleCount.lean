@@ -1,12 +1,21 @@
-import GQ2.KummerFiltration
-import GQ2.HomCounting
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.KummerFiltration
+public import GQ2.HomCounting
+
+@[expose] public section
 
 /-!
-# Counting admissible families via the equivariant-Hom engine  (ticket P-15f6, brick iii)
+# Counting admissible families via the equivariant-Hom engine
 
 The bridge identifying `LocalKummer.AdmissibleFam ρ` with the equivariant Homs
 `equivHoms C (V →+ 𝔽₂) (H¹(N, 𝔽₂))` (the acting group `C = H_V`; `H¹(N)` carries the
-`conjModule` action from brick ii, `V^∨` the dual action `dualModule`), so that the P-15f5
+`conjModule` action from brick ii, `V^∨` the dual action `dualModule`), so that the deep-part proof
 counting engine applies to the `U_{e+1}` filtration.
 
 * `dualModule` — the dual `C`-action on `V^∨ = V →+ 𝔽₂`, `(c • φ) v = φ (c⁻¹ • v)`.
@@ -23,7 +32,7 @@ local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 /-- **`deepClasses` as an additive subgroup** of `H¹(N, 𝔽₂)`: the deep Kummer classes are closed
 under `0`/`+`/`neg` — deep units form a group (`A₁A₂` deep), `[a] + [b] = [ab]` via
 `kcf_mul_of_fixed`, and `H¹` is 2-torsion so `neg = id`.  The subgroup form the `U_{e+1}` short
-exact sequence (P-15f6 brick iii-b) and f2's orbit analysis consume. -/
+exact sequence (the deep-part proof brick iii-b) and f2's orbit analysis consume. -/
 noncomputable def deepClassesSubgroup (N : Subgroup (Kummer.GaloisGroup ℚ_[2])) :
     AddSubgroup (H1 ↥N (ZMod 2)) where
   carrier := deepClasses N
@@ -113,7 +122,7 @@ theorem dualModule_smul_apply (c : C) (φ : V →+ ZMod 2) (v : V) :
 variable (ρ : ContinuousMonoidHom AbsGalQ2 C)
 
 omit [DiscreteTopology C] [Finite C] in
-/-- **`conjModule`-invariance of `deepClasses`** (P-15f6 brick iii-b — the §4-handoff gate):
+/-- **`conjModule`-invariance of `deepClasses`** (the deep-part proof brick iii-b — the §4-handoff gate):
 the `G_ℚ₂`-conjugation `conjAct ρ g` carries a deep Kummer class to a deep Kummer class.
 Concretely `conjAct ρ g [κ_β] = [κ_{g•β}]` (via `conjAct_h1ofFun` + `kcf_conj`), and `g • A` is
 again a deep unit: normality of `ker ρ` keeps it `N`-fixed, and `‖g • b‖ = ‖b‖` by
@@ -288,7 +297,7 @@ noncomputable def admissibleFamEquiv
 omit [DiscreteTopology C] [Finite C] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
   [ContinuousSMul AbsGalQ2 V] in
 /-- **Count admissible families as equivariant Homs**: `#AdmissibleFam = #equivHoms C V^∨ H¹(N)`.
-This lets the P-15f5 engine (`card_equivHoms_of_exact`) count `AdmissibleFam` across the
+This lets the deep-part proof engine (`card_equivHoms_of_exact`) count `AdmissibleFam` across the
 `U_{e+1}` filtration of `H¹(N) ≅ M_K`. -/
 theorem card_admissibleFam_eq (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
     (hρsurj : Function.Surjective ⇑ρ) :
@@ -301,7 +310,7 @@ theorem card_admissibleFam_eq (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g 
   letI : DistribMulAction C (V →+ ZMod 2) := dualModule
   Nat.card_congr (admissibleFamEquiv ρ hρ hρsurj)
 
-/-- **The deep-families bridge** (P-15f6 step 4): the admissible families valued in the deep
+/-- **The deep-families bridge** (the deep-part proof step 4): the admissible families valued in the deep
 classes are exactly the `C`-equivariant maps `V^∨ → deepClassesSubgroup` (under `dualModule` on
 `V^∨` and the restricted `conjModuleDeep` on the deep subgroup).  Mirrors `admissibleFamEquiv`,
 restricted through `deepClassesSubgroup`. -/
@@ -339,7 +348,7 @@ noncomputable def deepFamEquiv
 omit [DiscreteTopology C] [Finite C] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
   [ContinuousSMul AbsGalQ2 V] in
 /-- **Count the deep families as equivariant Homs into the deep subgroup**:
-`#{deep families} = #equivHoms C V^∨ deepClassesSubgroup` (P-15f6 step 4). -/
+`#{deep families} = #equivHoms C V^∨ deepClassesSubgroup` (the deep-part proof step 4). -/
 theorem card_deepFam_eq (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
     (hρsurj : Function.Surjective ⇑ρ) :
     letI := conjModuleDeep ρ hρsurj
@@ -401,7 +410,7 @@ theorem card_equivHoms_quotient_ses
 end QuotientSES
 
 omit [DiscreteTopology C] [TopologicalSpace V] [DiscreteTopology V] [DistribMulAction AbsGalQ2 V] in
-/-- **The `U_{e+1}` short exact sequence count** (P-15f6 step 3): instantiate
+/-- **The `U_{e+1}` short exact sequence count** (the deep-part proof step 3): instantiate
 `card_equivHoms_quotient_ses` at `A := H¹(N)`, `Deep := deepClassesSubgroup (ker ρ)` with the
 conjugation actions.  Yields `#Hom_C(V^∨, H¹(N)) = #Hom_C(V^∨, deep) · #Hom_C(V^∨, H¹(N)/deep)`.
 The regular-summand package `(ι, r)` for `V^∨` (Lemma-6.11 output shape) and `Finite (H¹ N)` are
@@ -445,7 +454,7 @@ theorem card_equivHoms_deepSES (hρsurj : Function.Surjective ⇑ρ)
     (fun c w => (conjActQuotHom_mk ρ (Function.surjInv hρsurj c) w).symm)
 
 omit [DiscreteTopology C] in
-/-- **The deep-half dimension clause from the duality** (P-15f6 output, step 5): given the
+/-- **The deep-half dimension clause from the duality** (the deep-part proof output, step 5): given the
 regular-summand package for `V^∨`, finiteness of `H¹(N)`, the two deferred cohomological inputs
 `hinf`/`hext` (Lemma-6.11 projectivity), and the graded Hilbert **duality**
 `#Hom_C(V^∨, deep) = #Hom_C(V^∨, H¹(N)/deep)` (f7's job — the self-duality `V ≅ V^∨` through the

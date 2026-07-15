@@ -1,11 +1,19 @@
-import GQ2.HilbertSymbolDyadic
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.HilbertSymbolDyadic
+
+@[expose] public section
 
 /-!
-# B7′-3 — the necessity engine and the 11 `−1`-leaves
+# The necessity engine and the 11 `−1`-leaves
 
-This file is the **B7′-3 deliverable** of the `hilbertSymbol_dyadic` axiom-discharge initiative
-(board `docs/b7prime-tickets.md`, plan `docs/b7prime-proof-plan.md`, §4-B7′-3; coordination with the
-parallel B7′-4 lane in `docs/b7prime-b34-coordination.md`).  It provides the machinery that proves a
+This file proves the **B7′-3 component** of `hilbertSymbol_dyadic`, coordinated with the
+parallel B7′-4 development described in `docs/orchestration/b7prime-b34-coordination.md`.  It provides the machinery that proves a
 dyadic Hilbert symbol is `−1` — i.e. a ternary form has **no** nontrivial `ℚ₂`-zero — from a finite
 mod-`2^k` obstruction, and applies it to the eleven `−1` residue leaves.
 

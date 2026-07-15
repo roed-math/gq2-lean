@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.Shapiro.Deepness
 import GQ2.RegularIsometry
 import GQ2.OrbitDecomp
@@ -7,7 +12,7 @@ import GQ2.InvolutionSplice
 import GQ2.AdmissibleCount
 
 /-!
-# P-15f2d: final assembly of `lemma_6_17_vanish` — wiring bricks
+# Final assembly of `lemma_6_17_vanish` — wiring bricks
 
 The capstone composing f2a (datum-independence) + Lemma 6.14 (`RepIndependence.lemma_6_14`) + f2b
 (the orbit decomposition `regular_isometric_embedding_orbit`) + f2c (`hcoh`/`hvanish`) through
@@ -16,7 +21,7 @@ The capstone composing f2a (datum-independence) + Lemma 6.14 (`RepIndependence.l
 This file begins with the **mechanical wiring bricks** — independent of the open f2a/f2c1/f2c2
 mathematics, buildable now.  f2b's orbit datum lives over `G ⧸ N` while the ambient `Q0loc` /
 Lemma-6.14 transport is over `C`; the assembly reindexes the datum along `e : C ≃* G ⧸ N` (the
-`FactorSet.reindexHom`/`Q0loc_reindexHom` bridge landed in `ShapiroDeepness`).  These two bricks
+`FactorSet.reindexHom`/`Q0loc_reindexHom` bridge proved in `ShapiroDeepness`).  These two bricks
 say `reindexHom` distributes over `sumDatum` and preserves equivariance under the `φ`-pullback
 action — the two facts needed to feed the reindexed orbit sum into the reducer.
 -/
@@ -31,14 +36,14 @@ variable {C C' V : Type*} [Group C] [Group C'] [AddCommGroup V]
   [DistribMulAction C V] [DistribMulAction C' V]
 
 omit [Group C] [Group C'] [AddCommGroup V] [DistribMulAction C V] [DistribMulAction C' V] in
-/-- **`reindexHom` distributes over `sumDatum`** (P-15f2d wiring): reindexing a datum sum's acting
+/-- **`reindexHom` distributes over `sumDatum`** (the Lemma 6.17 vanishing proof wiring): reindexing a datum sum's acting
 group along `φ` is the sum of the reindexed per-orbit data.  Both sides have the same factor set
 (`f` is untouched by `reindexHom`) and the same corrections (`m` pre-composes `φ` inside each
 summand), so this is definitional. -/
 theorem reindexHom_sumDatum {ι : Type*} (s : Finset ι) (datf : ι → FactorSet C V) (φ : C' → C) :
     (sumDatum s datf).reindexHom φ = sumDatum s (fun o => (datf o).reindexHom φ) := rfl
 
-/-- **Equivariance is preserved under `reindexHom`** (P-15f2d wiring): if `dat` is an equivariant
+/-- **Equivariance is preserved under `reindexHom`** (the Lemma 6.17 vanishing proof wiring): if `dat` is an equivariant
 factor set for `q` over `C`, `φ : C' →* C` is a group hom, and the `C'`-action on `V` is the
 `φ`-pullback of the `C`-action (`hφ`), then `dat.reindexHom φ` is an equivariant factor set for `q`
 over `C'`.  The factor-set clauses are inherited verbatim (`f` unchanged); the correction clauses
@@ -68,7 +73,7 @@ section ETower
 
 variable {C : Type} [Group C] [TopologicalSpace C]
 
-/-- **The classifying equivalence** `e : C ≃* AbsGalQ2 ⧸ ker ρ` (P-15f2d): for a surjective `ρ`,
+/-- **The classifying equivalence** `e : C ≃* AbsGalQ2 ⧸ ker ρ` (the Lemma 6.17 vanishing proof): for a surjective `ρ`,
 the inverse of the first-isomorphism `AbsGalQ2 ⧸ ker ρ ≃* C`.  It is what f2b's
 `regular_isometric_embedding_orbit` consumes to give the regular module `W = Fin K → RegRep (ker ρ)`
 its `C`-view (the `e`-pullback of the canonical `G ⧸ N`-action). -/
@@ -76,7 +81,7 @@ noncomputable def eOfSurj (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρsurj : Funct
     C ≃* AbsGalQ2 ⧸ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) :=
   (QuotientGroup.quotientKerEquivOfSurjective ρ.toMonoidHom hρsurj).symm
 
-/-- **`e ∘ ρ = mk'`** (P-15f2d): the classifying equivalence sends `ρ g` back to its coset, so
+/-- **`e ∘ ρ = mk'`** (the Lemma 6.17 vanishing proof): the classifying equivalence sends `ρ g` back to its coset, so
 `e` composed with `ρ` is the quotient map.  This is the identity that turns the `C`-level reindexed
 pullback into the `mk' N`-level orbit map (where `lemma_6_15_*` are stated) and supplies the
 `Q0loc`/reducer compatibility `hρW : g • w = ρ g • w` on `W`. -/
@@ -105,7 +110,7 @@ variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite 
 variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
-/-- **Out-lift of an order-2 nontrivial coset is a non-`N` involution mod `N`** (P-15f2d wiring):
+/-- **Out-lift of an order-2 nontrivial coset is a non-`N` involution mod `N`** (the Lemma 6.17 vanishing proof wiring):
 for `w : AbsGalQ2 ⧸ N` with `w * w = 1` and `w ≠ 1`, the section lift `Quotient.out w` lies outside
 `N` yet squares into `N`.  The involution-position fact shared by the three `Sum.inr (Sum.inl _)`
 orbit branches of the final assembly. -/
@@ -122,7 +127,7 @@ theorem out_notMem_and_out_sq_mem (N : Subgroup AbsGalQ2) [N.Normal] {w : AbsGal
       rw [map_mul, hw]; exact hw2
     rwa [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at h1
 
-/-- **The involution orbit's inner cochain is a 2-cocycle** (P-15f2d wiring): the `evensNormFun`
+/-- **The involution orbit's inner cochain is a 2-cocycle** (the Lemma 6.17 vanishing proof wiring): the `evensNormFun`
 splice attached to an involution coset `g ∉ N`, `g² ∈ N` on the index-2 pair `N ≤ N ⊔ ⟨g⟩`, built
 from a block cocycle `shapiroCoord N β`, is a `Z²`.  Discharges the `Sum.inr (Sum.inl _)` branch of
 the `hZ2` obligation. -/
@@ -157,7 +162,7 @@ theorem evensNormFun_orbit_mem_Z2 (N : Subgroup AbsGalQ2) [N.Normal]
   exact evensNormFun_mem_Z2 (fun _ _ => rfl) hUo hUi hsU _ hα hαc
 
 omit [Finite C] in
-/-- **The free orbit's inner cochain vanishes in `H²`** (P-15f2d wiring): the cup product of a deep
+/-- **The free orbit's inner cochain vanishes in `H²`** (the Lemma 6.17 vanishing proof wiring): the cup product of a deep
 `ker ρ`-block cocycle with the `g`-conjugate of another deep block cocycle is an `H²`-coboundary.
 Discharges the `Sum.inr (Sum.inr _)` branch of the `hvanish` obligation. -/
 theorem hvanish_free_conj (ρ : ContinuousMonoidHom AbsGalQ2 C)
@@ -194,9 +199,9 @@ theorem hvanish_free_conj (ρ : ContinuousMonoidHom AbsGalQ2 C)
     (fun n => shapiroCoord (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) γ (conjMap ρ g n))
     hZβ hZ1conj hDβ hdeepconj
 
-/-- **`lemma_6_17_vanish`, closed downstream** (P-15f2d): the base connecting map `Q⁰loc`
+/-- **`lemma_6_17_vanish`, closed downstream** (the Lemma 6.17 vanishing proof): the base connecting map `Q⁰loc`
 vanishes on the deep half, from `lemma_6_17_vanish`'s own hypotheses plus the reciprocity datum
-`(R, horient)` threaded per the c2c4 consumer note (P-20 flag). -/
+`(R, horient)` threaded per the c2c4 consumer note (the architecture review flag). -/
 theorem lemma_6_17_vanish_final (D : TateDuality 2) (R : LocalReciprocity) (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))

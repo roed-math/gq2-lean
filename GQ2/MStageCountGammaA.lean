@@ -1,8 +1,13 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.MStageCount
 import GQ2.RStage.GammaA
 
 /-!
-# P-17i: the `Γ_A`-side `M`-stage multiplicity count (`hmultA`)
+# The `Γ_A`-side `M`-stage multiplicity count (`hmultA`)
 
 The `M`-stage lane of `thm_4_2` (`GQ2/SectionNine.lean`, the `R = ⊥` branch) applies
 `mStage_partition` at both sources with multiplicity `mult = |M_B|²`; the `G_ℚ₂` count is
@@ -10,10 +15,10 @@ The `M`-stage lane of `thm_4_2` (`GQ2/SectionNine.lean`, the `R = ⊥` branch) a
 count `#LiftsOver_{Γ_A}(ρ) = |M_B|²` (`hmultA`).
 
 The proof mirrors `liftsOver_card_local` (the `#H² = 1` torsor bridge at the descended module
-`M_B`), with the two `Γ_A`-specific substitutions of the P-16d6e5 `RStageGammaA` playbook:
+`M_B`), with the two `Γ_A`-specific substitutions of the Prop. 8.9 assembly `RStageGammaA` playbook:
 
 * **the `Z¹` count** — there is no local Euler characteristic for `Γ_A`; the candidate duality
-  supplies it instead.  `z1Equiv` (`WordCohBridge`, P-16c1) identifies `Z¹_cont(Γ_A, M_B)` with the
+  supplies it instead.  `z1Equiv` (`WordCohBridge`, the Γ_A half-torsor proof) identifies `Z¹_cont(Γ_A, M_B)` with the
   Fox–Heisenberg word cocycles `Z¹_word(markC ρ)`, and `prop_5_15` clause 2 (`IsSelfDual`) counts
   those as `|M_B|² · #fixedPts_C(M_B^∨)`.  This is exactly the `hZcount_gammaA` route at module
   `M_B` instead of `R`.  `#fixedPts = 1` is the source-independent `lemma_7_1_dual` bridge,
@@ -356,7 +361,7 @@ private theorem RecursionFrame.card_fixedPts_MB_dual (RF : RecursionFrame T Blk)
     ⟨⟨0, smul_zero⟩⟩⟩
 
 omit [TopologicalSpace Y] [DiscreteTopology Y] in
-/-- **Nonemptiness of the `Γ_A` `B`-lift fibre** (P-17i, the M-stage residue): every lower
+/-- **Nonemptiness of the `Γ_A` `B`-lift fibre** (the §9 induction, the M-stage residue): every lower
 boundary lift `ρ : Γ_A ↠ C` lifts to a continuous homomorphism `Γ_A → B` through `π_{BC}`.
 
 Ported from `RStageGammaA.hsep_hom_gammaA` (which lifts through `π_B : Y ↠ B`) to `π_{BC} : B ↠ C`

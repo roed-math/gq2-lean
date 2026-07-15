@@ -2,8 +2,8 @@
 
 **Ticket:** P-17i — prove `GQ2.thm_4_2` (Theorem 4.2, the boundary-framed exact-image
 equality) by strong induction on the marked 2-kernel size.
-**Deliverable:** fill the **one** `sorry` at [`GQ2/SectionNine.lean:1713`](../GQ2/SectionNine.lean).
-**Companion (authoritative design):** [`docs/section9-extraction.md`](section9-extraction.md)
+**Historical deliverable:** the theorem then located in [`GQ2/SectionNine.lean`](../../GQ2/SectionNine.lean).
+**Maintained companion:** [`docs/section9-extraction.md`](../section9-extraction.md)
 §"Work order → P-17i" (lines 277–306) and the sub-ticket DAG.
 **Status as of 2026-07-08 (Fable 5):** the two easy induction lanes rest on finished
 machinery; the hard lane is doubly gated (see the dependency table). Not yet claimed — mark
@@ -40,7 +40,7 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E) {Y : Type} [Group Y]
 ```
 
 `exactImageCount b F T = Nat.card (BoundaryLifts b F T)` — the number of boundary-framed
-continuous epimorphisms from the source into `Y` ([`BoundaryFrame.lean:358`](../GQ2/BoundaryFrame.lean)).
+continuous epimorphisms from the source into `Y` ([`BoundaryFrame.lean`](../../GQ2/BoundaryFrame.lean)).
 `B.bA` is the `Γ_A` source, `B.bF` is the `G_ℚ₂` source. The theorem says the two agree for
 every marked target.
 
@@ -288,7 +288,7 @@ as `sorry` before touching any lane.
 
 ## 9. References
 
-- [`docs/section9-extraction.md`](section9-extraction.md) — the authoritative design + work
+- [`docs/section9-extraction.md`](../section9-extraction.md) — the maintained crosswalk and design
   order + sub-ticket DAG (P-17b–i). Read §"P-17i" and the deviations list first.
 - [`docs/p17e-kappa0-scoping.md`](p17e-kappa0-scoping.md) — the `kappa0_exists`/`blockEnrichment`
   gate (deviation 4, the Griess counterexample; why `hsimple`/`htame` were added).

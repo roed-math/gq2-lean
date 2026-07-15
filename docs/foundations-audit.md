@@ -5,6 +5,10 @@ Audited against **Mathlib `v4.31.0`** (the pinned revision), plus a survey of th
 The question: what does the paper's statement and proof need, and how much of it
 exists or is in flight?
 
+This document is intentionally date-stamped. Names and merged-PR status describe the pinned
+environment used by the formalization and should not be read as a claim about current Mathlib
+`main`.
+
 ## Legend
 - ✅ **in Mathlib** — usable today.
 - 🟡 **partial / open PR** — exists but incomplete, or only in an unmerged PR.

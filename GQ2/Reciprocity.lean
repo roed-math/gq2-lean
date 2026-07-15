@@ -1,8 +1,24 @@
-import Mathlib
-import GQ2.Statement
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.NumberTheory.Cyclotomic.CyclotomicCharacter
+public import Mathlib.NumberTheory.Padics.Complex
+public import Mathlib.NumberTheory.Padics.ProperSpace
+public import Mathlib.RingTheory.SimpleRing.Principal
+public import Mathlib.Topology.Compactness.Paracompact
+public import Mathlib.Algebra.Order.Ring.Star
+public import Mathlib.Topology.MetricSpace.Ultra.TotallySeparated
+public import GQ2.Statement
+
+@[expose] public section
+
 
 /-!
-# B5: the local reciprocity bundle for `ℚ₂`  (ticket T-17)
+# B5: the local reciprocity bundle for `ℚ₂`
 
 This file states the paper's **local class field theory** input (leaf **B5**) as a single bundled
 axiom: the existence of the arithmetic local reciprocity map `rec` and the unramified coordinate
@@ -22,7 +38,7 @@ itself.
 * `rec  : ℚ₂ˣ →* G_{ℚ₂}^{ab}`  (dense image), and
 * `ν_ur : G_{ℚ₂}^{ab} →* Multiplicative ℤ₂`  (continuous, surjective),
 
-subject to the three clauses of the plan (`docs/formalization-plan.md`, §B5):
+subject to the three clauses of the plan (`docs/orchestration/formalization-plan.md`, §B5):
 
 * **(a) norm residue.** For every *finite abelian* `L/ℚ₂` inside `ℚ̄₂`, the induced map
   `ℚ₂ˣ → Gal(L/ℚ₂)` (i.e. `rec` followed by the abelianized restriction `restrictAb`) is surjective
@@ -71,10 +87,10 @@ consistent.
 
 References: [1] Neukirch–Schmidt–Wingberg, *Cohomology of Number Fields*, 2nd ed., (7.1.1)/(7.1.5)
 (class formation ⇒ local reciprocity); [7] Serre, *Local Fields*, Ch. XI–XIII.  Paper: Turturean,
-Lemma 3.5, eq. (13); Prop. 1.1.  Ticket: `docs/tickets.md` T-17.
+Lemma 3.5, eq. (13); Prop. 1.1.
 
-*Note:* the axiom `GQ2.localReciprocity` itself lives in `GQ2/Foundations/Axioms.lean` (T-19
-consolidation); this file holds the bundle *definition* and the axiom-free, bundle-parametrized
+*Note:* the axiom `GQ2.localReciprocity` itself lives in `GQ2/Foundations/Axioms.lean`; this file
+holds the bundle *definition* and the axiom-free, bundle-parametrized
 stress tests.
 -/
 
@@ -236,7 +252,7 @@ structure LocalReciprocity where
   chiCyc_recip_uniformizer : chiCycAb (recip uniformizer) = 1
 
 /- The B5 axiom `GQ2.localReciprocity : LocalReciprocity` lives in
-`GQ2/Foundations/Axioms.lean` (consolidated there by T-19). -/
+`GQ2/Foundations/Axioms.lean` (consolidated there by the consolidated axiom interface). -/
 
 /-! ## Stress tests: the bundle reproduces the paper's equation (13)
 
@@ -250,10 +266,10 @@ section StressTests
 variable (R : LocalReciprocity)
 
 /-- `−4 ∈ ℚ₂ˣ`, the class `ā` of (13). -/
-private noncomputable def uNeg4 : ℚ_[2]ˣ := Units.mk0 (-4 : ℚ_[2]) (by norm_num)
+noncomputable def uNeg4 : ℚ_[2]ˣ := Units.mk0 (-4 : ℚ_[2]) (by norm_num)
 
 /-- `−3 ∈ ℚ₂ˣ`, the class `ȳ` of (13). -/
-private noncomputable def uNeg3 : ℚ_[2]ˣ := Units.mk0 (-3 : ℚ_[2]) (by norm_num)
+noncomputable def uNeg3 : ℚ_[2]ˣ := Units.mk0 (-3 : ℚ_[2]) (by norm_num)
 
 /-- **(b) at the uniformizer — the arithmetic-Frobenius normalization.** `ν_ur(rec 2) = −1`:
 `rec` sends the uniformizer to arithmetic Frobenius, whose geometric coordinate is `−1`. -/

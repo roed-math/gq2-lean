@@ -1,8 +1,13 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.VCocycle
 import GQ2.Phase140.Obstruction
 
 /-!
-# P-16d6c1b: the affine `T`-lifting obstruction over the `V`-cocycle layer (Lemma 8.7, (131))
+# The affine `T`-lifting obstruction over the `V`-cocycle layer (Lemma 8.7, (131))
 
 For a `V`-coordinate `c ∈ Z¹_{Γ,ρ}(V)` (c1a's `VCocycle`), when is `g_c = qOfCocycle c` the
 `T`-reduction of an actual — and central — `M`-lift?  Following the paper's Lemma 8.7 (p. 41)
@@ -19,7 +24,7 @@ at cocycle level:
   the source-specific **separation** `hsep` (the `(T^∨)^C ≅ H²_{Γ,ρ}(T)^∨` perfectness of
   cor. 5.17/5.16, threaded to the d6e residue list — the d6a `hsep_hom` idiom).
 * **`betaXi`** — the scalar obstruction `ι_Γ(g_c^*ξ)` through the descended cover `Q̃ = B̃/N`
-  (`xi` of P-16d4), with **`central_iff_betaXi`**: an `M`-lift over `g_c` is central iff
+  (`xi` of the Prop. 8.9 assembly), with **`central_iff_betaXi`**: an `M`-lift over `g_c` is central iff
   `betaXi c = 0` (the bridge from `CentralObstruction.ob` through `mk_N`).
 * **`mem_centralImage_iff`**: `c` is the `V`-coordinate of a **central** `M`-lift iff
   `TLiftable c ∧ betaXi c = 0` — the complete (131)-characterization the master count consumes.
@@ -501,7 +506,7 @@ theorem central_iff_betaXi (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
 
 include hσ in
 omit [ContinuousSMul Γ (ZMod 2)] in
-/-- **The complete (131)-characterization** (P-16d6c1b): `c` is the `V`-coordinate of a
+/-- **The complete (131)-characterization** (the Prop. 8.9 assembly): `c` is the `V`-coordinate of a
 **central** `M`-lift iff it is `T`-liftable and its scalar `ξ`-obstruction vanishes. -/
 theorem mem_centralImage_iff (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
     (c : VCocycle DD ρ) :
@@ -749,7 +754,7 @@ private theorem sum_sum_sign_betaChi_add_betaXi_eq
 
 open scoped Classical in
 omit [ContinuousSMul Γ (ZMod 2)] in
-/-- **The master count** (P-16d6c1b/c1c interface): the per-`ρ` phase-obstruction identity of
+/-- **The master count** (the Prop. 8.9 assembly/c1c interface): the per-`ρ` phase-obstruction identity of
 the paper's Prop 8.9 proof, derived from the (131)-characterization by double Fourier
 expansion.  The source-specific inputs are threaded: `hH2` (`#H²(Γ,𝔽₂) = 2`), `hsep` (the
 `(T^∨)^C`-separation of the `T`-obstruction), `haff`/`hpartial` (affineness and nontriviality

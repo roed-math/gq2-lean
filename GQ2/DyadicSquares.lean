@@ -1,10 +1,20 @@
-import Mathlib
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.NumberTheory.Padics.Hensel
+public import Mathlib.NumberTheory.Padics.RingHoms
+
+@[expose] public section
+
 
 /-!
-# The dyadic square criterion  (ticket B7′-1)
+# The dyadic square criterion
 
-Groundwork toward discharging axiom **B7′** (`hilbertSymbol_dyadic`) in-repo — see
-`docs/b7prime-tickets.md` / `docs/b7prime-proof-plan.md`.  This file is the 2-adic
+Groundwork for the in-repo proof of **B7′** (`hilbertSymbol_dyadic`).  This file is the 2-adic
 **square-lifting** input, independent of the Hilbert symbol and reusable (it is the `k = ℚ₂`
 germ of the B13/B11b unit-filtration square-class computations).
 

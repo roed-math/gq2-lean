@@ -1,23 +1,25 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.RStage.Obstruction
 import GQ2.CentralObstruction
 
 /-!
-# §8 R-stage obstruction module — Option-A construction  (P-16d2)
+# §8 R-stage obstruction module — Option-A construction
 
 Builds the obstruction datum `obs`/`hmB`/`hobs`/`hfib` consumed by
 `GQ2.SectionEight.stageR136_ofObstruction` (`GQ2/RStageObstruction.lean`), from the **Option-A
-compatibility structure** `RCoverData` (user-approved 2026-07-05): the datum, absent from the bare
+compatibility structure** `RCoverData`: the datum, absent from the bare
 `RecursionFrame` + `Enrichment`, that each scalar cover `p_λ = (scalarCover l).p` really is a
 quotient of the single radical extension `Y ↠ B = Y/R` — a hom family
 `coverMap_λ : Y →* (scalarCover l).cover` with `p_λ ∘ coverMap_λ = π_B`.
 
-Kept self-contained here (own file, no edit to the co-owned `Enrichment`); a later refactor may
-fold `RCoverData` into `Enrichment` as a field.  See `docs/p16d2-plan.md` for the full route.
-
-Build status (see the per-lemma notes): the compatibility structure and the "lifts to `Y` ⟹ lifts
-through every `p_λ`" direction are std-3; the obstruction-linearity, the hard separation, and the
-`z_R` torsor count are the remaining cores (each needs the twisted-cocycle layer for the
-`R`-extension — tracked).
+The compatibility datum remains a separate structure rather than a field of `Enrichment`, keeping
+the generic recursion frame independent of this particular cover realization.  This file proves
+the obstruction bridge, fibre count, separation-based lift construction, and the resulting
+`stageR136_ofRSepData` interface consumed by the recursion splice.
 -/
 
 namespace GQ2
@@ -110,7 +112,7 @@ variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finit
 variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
 variable [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
 
-/-- **Option-A compatibility datum (P-16d2)**: the missing link between the frame's abstract scalar
+/-- **Option-A compatibility datum (the Prop. 8.9 assembly)**: the missing link between the frame's abstract scalar
 covers and the single radical extension `Y ↠ B`.  For each nonzero scalar character `λ`, a
 homomorphism `coverMap λ : Y →* (scalarCover λ).cover` realizing `scalarCover λ` as a quotient of
 `Y` over `B`: `p_λ ∘ coverMap λ = π_B`.  (This is the frame-level content of "`p_λ` is the pushout
@@ -164,7 +166,7 @@ variable {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
 together with the `𝔽₂`-module realization of the scalar-character index `D_R` and the
 `D_R ≃ (R^∨)^C` **pairing** `pair` (a linear map `D_Rmod → (R →+ 𝔽₂)`), pinned to the covers by
 `pair_coverMap` (`pair d = zsign ∘ coverMap_{λ}` on `R`, for `λ = toDR d ≠ 0`).  This is exactly
-what the concrete `𝒴`-frame (P-16d5/d6) supplies; from it the obstruction map, its linearity, and
+what the concrete `𝒴`-frame (the Prop. 8.9 assembly/d6) supplies; from it the obstruction map, its linearity, and
 `hmB` follow. -/
 structure RObstructionData (RF : RecursionFrame T Blk) extends RCoverData RF where
   /-- The `𝔽₂`-module realization of the scalar-character index `D_R`. -/
@@ -234,7 +236,7 @@ omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [To
   [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
   [TopologicalSpace Y] [DiscreteTopology Y] [DistribMulAction Γ (ZMod 2)]
   [ContinuousSMul Γ (ZMod 2)] in
-theorem obsLiftFam_p (D : RObstructionData RF) (g : ContinuousMonoidHom Γ RF.YB)
+private theorem obsLiftFam_p (D : RObstructionData RF) (g : ContinuousMonoidHom Γ RF.YB)
     (d : D.DRmod) (h : D.toDR d ≠ RF.zeroDR) (x : Γ) :
     (RF.scalarCover (D.toDR d) h).p (obsLiftFam RF D g d h x) = g x := by
   show (RF.scalarCover (D.toDR d) h).p (D.coverMap (D.toDR d) h (slift RF (g x))) = g x
@@ -244,7 +246,7 @@ omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [To
   [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
   [TopologicalSpace Y] [DiscreteTopology Y] [DistribMulAction Γ (ZMod 2)]
   [ContinuousSMul Γ (ZMod 2)] in
-theorem obsLiftFam_cont (D : RObstructionData RF) (g : ContinuousMonoidHom Γ RF.YB)
+private theorem obsLiftFam_cont (D : RObstructionData RF) (g : ContinuousMonoidHom Γ RF.YB)
     (d : D.DRmod) (h : D.toDR d ≠ RF.zeroDR) : Continuous (obsLiftFam RF D g d h) := by
   show Continuous ((fun y => D.coverMap (D.toDR d) h (slift RF y)) ∘ (g : Γ → RF.YB))
   exact continuous_of_discreteTopology.comp (map_continuous g)
@@ -338,7 +340,7 @@ noncomputable def obsMapAdd (D : RObstructionData RF)
 omit [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace H] [DiscreteTopology H]
   [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E] [TopologicalSpace Y]
   [DiscreteTopology Y] [ContinuousSMul Γ (ZMod 2)] in
-theorem obsMapAdd_apply (D : RObstructionData RF)
+private theorem obsMapAdd_apply (D : RObstructionData RF)
     (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
     (g : ContinuousMonoidHom Γ RF.YB) (d : D.DRmod) :
     obsMapAdd RF D htriv g d = H2mk Γ (ZMod 2)
@@ -510,7 +512,7 @@ omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
   [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- `R = Φ(K) ≤ ker θ_Y` when `E` is elementary-2 (`lemma_7_3`): `R`-twists preserve the scalar
 framing.  This is exactly the `thm_4_2` decoration hypothesis (harmless downstream: §10 uses
-`E = 0`), and the one point flagged in `docs/p16d2-plan.md` for the fibre count. -/
+`E = 0`), and the one point flagged in `docs/orchestration/p16d2-plan.md` for the fibre count. -/
 theorem R_le_ker_thetaY (hE2 : ∀ e : E, e ^ 2 = 1) : Blk.frattiniK ≤ T.thetaY.ker :=
   (frattiniLike_le Blk.K).trans (lemma_7_3 Blk hE2 T.thetaY)
 
@@ -561,7 +563,7 @@ def twistHom (c : RCocycle RF f₀) : ContinuousMonoidHom Γ Y :=
 
 omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace H]
   [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E] [Finite E] in
-@[simp] theorem twistHom_apply (c : RCocycle RF f₀) (γ : Γ) : c.twistHom γ = c.u γ * f₀ γ := rfl
+@[simp] private theorem twistHom_apply (c : RCocycle RF f₀) (γ : Γ) : c.twistHom γ = c.u γ * f₀ γ := rfl
 
 end RCocycle
 
@@ -717,7 +719,7 @@ omit [ContinuousSMul Γ (ZMod 2)] in
 /-- **(136), fully discharged modulo the two irreducible concrete inputs** (`hsep_hom` + `hZcount`).
 Every abstractly-provable ingredient is proven here — the obstruction map, `hmB`, the easy `hobs`,
 the `hfib` fibre-torsor, and `hsep`'s Frattini/framing wrapper — so a caller (the concrete
-`𝒴`-frame, P-16d6) supplies only:
+`𝒴`-frame, the Prop. 8.9 assembly) supplies only:
 
 * `hsep_hom` — the **radical-obstruction separation**: `obs g = 0 ⟹ g` has a homomorphism lift to
   `Y`.  (Not provable in the bare abstract frame — it is the `(R^∨)^C`-detection of `H²(Γ,R)`, a

@@ -1,12 +1,14 @@
 # Erratum: `h₀` transcription bug (missing `d₀` factor) — resolution of the Prop 5.8 concern
 
-**Date**: 2026-07-03 · **Found by**: P-13 (ε-exponent formalization) · **Status**: fix planned, see §5
+**Date**: 2026-07-03 · **Found during**: the ε-exponent formalization · **Status**: repaired and
+regression-documented
 
 ## 1. Verdict
 
 The Prop 5.8 "inconsistency" flagged during P-13 (commits `f1441e7`, `72dea54`) is **not a paper
-error**.  It is a **transcription bug in this repo**: the auxiliary word `h₀` of paper eq. (3)
-was transcribed with one factor dropped.
+error**. It was a **transcription bug in the first Lean transcription**: the auxiliary word `h₀`
+of paper eq. (3) had been copied with one factor dropped. The current Lean definitions contain the
+factor and agree with the paper.
 
 * **Paper, eq. (3)** (p. 2–3) and **Appendix B machine block** (p. 50), *identically*:
 
@@ -14,7 +16,7 @@ was transcribed with one factor dropped.
   h0 = (x0^g0) * x0 * dg * d0 * d0^2 * hcomm
   ```
 
-* **Repo** (`GQ2/Words.lean:99`, and the profinite mirror `GQ2/GammaA.lean:75` `h0Hat`):
+* **Pre-fix Lean transcription** (formerly in `GQ2/Words.lean` and its `h0Hat` mirror):
 
   ```
   h0 = (x0^g0) * x0 * dg *      d0^2 * hcomm     -- bare d0 missing (haplography)
@@ -56,35 +58,30 @@ With `h₀ = x₀^{g₀}·x₀·d_g·d₀·d₀²·h_c` (`ε(d₀) = (0, e, e+1,
 * Remark 5.9 ("the wild relator supplies the compensating value") is also correct for the
   paper's word.
 
-## 4. Impact map
+## 4. Repair map
 
-| Site | Kind | Action |
+| Site | Kind | Completed repair |
 |---|---|---|
-| `GQ2/Words.lean:99` `Marking.h0` (+ line 75 doc quote) | **definition (finite)** | insert `* t.d0` before `t.d0 ^ 2` (paper-verbatim `dg·d0·d0²`) |
-| `GQ2/GammaA.lean:75` `h0Hat` | **definition (profinite)** | same insertion |
-| `GQ2/FoxHeisenberg.lean` `wildValueExp` | mirror of the ledger | same insertion |
-| `GQ2/FoxHeisenberg.lean` `expMod2_wildValueExp` | theorem about the word | vector becomes `![0, e, 0, e+1]`; same proof shape |
-| `GQ2/FoxHeisenberg.lean` `expMod2_wildValueExp_tau` | obsolete (claim false for corrected word) | delete; un-flag the `prop_5_8_left/right` docstrings (statements provable as written) |
-| `GQ2/Subdirect.lean` `map_h0`; `GQ2/GammaA.lean` `map_h0Hat` | naturality simp proofs | expected to close unchanged (one more `map_mul`) |
-| `GQ2/AppendixB.lean:87`, `GQ2/Prop32.lean:180` | collapse proofs (`d₀ = 1` in context) | expected to close unchanged (`hd0` in simp set) |
-| `GQ2/SectionEight.lean:756` `wildRel_of_comm2` | **statement changes** | in exponent-2 abelian groups the corrected `h₀ = 1` (not `τ`), so `wildValue = τ`: WildRel is **not** unconditional — it becomes `↔ τ = 1`. Restate; at the call site (:917) derive `τ = 1` from the TameRel component (`tameRel_iff_of_comm2`). Character counts unchanged (tame already forces `τ = 1`). |
+| `GQ2/Words.lean` `Marking.h0` | **definition (finite)** | inserted `* t.d0` before `t.d0 ^ 2` (paper-verbatim `dg·d0·d0²`) |
+| `GQ2/GammaA.lean` `h0Hat` | **definition (profinite)** | made the same insertion |
+| `GQ2/FoxHeisenberg/Traced.lean` `wildValueExp` | mirror of the ledger | made the same insertion |
+| `GQ2/FoxHeisenberg/Traced.lean` `expMod2_wildValueExp` | theorem about the word | changed the vector to `![0, e, 0, e+1]` |
+| former `expMod2_wildValueExp_tau` | obsolete claim | deleted; the corrected `prop_5_8_left/right` statements are proved |
+| `GQ2/Subdirect.lean` `map_h0`; `GQ2/GammaA.lean` `map_h0Hat` | naturality simp proofs | closed with the extra multiplication factor |
+| `GQ2/AppendixB.lean`, `GQ2/Prop32.lean` | collapse proofs (`d₀ = 1` in context) | closed using the existing `hd0` simplification |
+| `GQ2/SectionEight/ScalarCount.lean` `wildRel_of_comm2` | **statement correction** | restated the exponent-2 abelian case with the required `τ = 1`, supplied by the tame relation at its consumer |
 | `GQ2/Foundations/Axioms.lean`, `scripts/check_axioms.sh` | axiom layer | **no text change** (no axiom mentions `h0`/`WildRel`); census unchanged. Semantic content of `Admissible`-consumers (Statement, Prop23, AdmissibleLimit) auto-corrects. |
 
 All other `wildValue`/`WildRel` consumers use the words abstractly (via `Marking.map_*`
 naturality) and are unaffected.
 
-## 5. Landing plan
+## 5. Resolution
 
-1. One **atomic commit**: both definition sites + `FoxHeisenberg` mirror/exponent redo +
-   `SectionEight` restatement + any fallout the full `lake build GQ2` reveals; re-run
-   `scripts/check_axioms.sh`.
-2. **Sequencing caution**: `SectionEight.lean` (and `tickets.md`) currently carry uncommitted
-   parallel-session work; land after pausing that session or hand its one-lemma repair to its owner.
-3. Then P-13 resumes the wild row against the corrected word, now targeting the **paper-verbatim**
-   Prop 5.8: generalized `wildValueExp_eq_wildValue_of_dvd` (order-divisibility form) + section
-   homs (`C ↪ H(A)⋊C`, `A^∨⋊C ↪ H(A)⋊C` ⇒ exponent divisibilities) + `omega2Exp`-odd helper ⇒
-   `hr`, `stokesEval_wild_l`, `mixedB_wildRow`, and the assembly of `prop_5_8_left/right`
-   (corrections cancel).  Lemma 5.13's normal forms consume the same bridges.
+The finite and profinite definitions, the Fox–Heisenberg exponent ledger, and the §8 scalar-count
+consumer were repaired together. The corrected word is now stated directly in the docstrings of
+`Marking.h0` and `h0Hat`; `prop_5_8_left/right` and the later normal-form arguments compile against
+that definition. The repository-wide build and axiom gates include this path, so the earlier
+transcription cannot reappear without invalidating downstream proofs.
 
 ## 6. External note
 

@@ -1,8 +1,21 @@
-import Mathlib
-import GQ2.ProfiniteQuotient
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.GroupTheory.PGroup
+public import Mathlib.Data.ZMod.Defs
+public import Mathlib.Topology.Defs.Basic
+public import Mathlib.Topology.Instances.ZMod
+public import GQ2.ProfiniteQuotient
+
+@[expose] public section
+
 
 /-!
-# The maximal pro-`p` quotient  (ticket T-05, plan item I4)
+# The maximal pro-`p` quotient
 
 For a profinite group `G` and a prime `p`, the paper repeatedly uses the **maximal pro-`p`
 quotient** `G(p)` (e.g. `G_{ℚ₂}(2)` in B4, and `Δ = maxPro2(FreeProfinite (Fin 2))` in B8).

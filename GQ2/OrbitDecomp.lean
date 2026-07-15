@@ -1,12 +1,13 @@
 /-
-Copyright (c) 2026. All rights reserved.
+Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2.KappaNormalForm
 import GQ2.OrbitVanish
 
 /-!
-# P-15f2b: the §6.2 orbit-sum decomposition on a multi-block regular module
+# The §6.2 orbit-sum decomposition on a multi-block regular module
 
 The **orbit decomposition** of a `(G/N)`-invariant quadratic map `Q` on the block module
 `𝔽₂[G/N]^K = Fin K → RegRep N` into the paper's three orbit-polynomial types
@@ -23,10 +24,10 @@ The **orbit decomposition** of a `(G/N)`-invariant quadratic map `Q` on the bloc
 Every summand is a **definitional `FactorSet.comap` of a literal `OrbitData` datum**, so the
 per-orbit graph pullbacks are *syntactically* the Lemma-6.15 inputs
 (`SectionSix.lemma_6_15_square/free/involution`) at the block coordinates of the cocycle — no
-per-orbit datum bridging is needed downstream (P-15f2c).
+per-orbit datum bridging is needed downstream (the Lemma 6.17 vanishing proof).
 
-This is the remaining clause of the P-15f2b interface (`docs/p15f2b-foundation-notes.md`); the
-banked normal form `exists_datum_of_invariant_quadratic` (P-17e5) deliberately took the
+This is the orbit-decomposition clause of the Lemma 6.17 vanishing interface (`docs/orchestration/p15f2b-foundation-notes.md`); the
+banked normal form `exists_datum_of_invariant_quadratic` (the §9 induction) deliberately took the
 non-orbit-decomposed single-β route and cannot supply it.  Layer plan:
 
 * **Carrier layer**: the coordinate basis `blockBas`, its translation action, and the support
@@ -63,7 +64,7 @@ noncomputable def regInd (y : G ⧸ N) : RegRep N :=
   fun h => if h = y then 1 else 0
 
 omit [N.Normal] in
-theorem regInd_apply (y h : G ⧸ N) : regInd N y h = if h = y then (1 : ZMod 2) else 0 := rfl
+private theorem regInd_apply (y h : G ⧸ N) : regInd N y h = if h = y then (1 : ZMod 2) else 0 := rfl
 
 /-- Left translation carries indicators to indicators: `c • e_y = e_{c·y}`. -/
 theorem regInd_smul (c y : G ⧸ N) : c • regInd N y = regInd N (c * y) := by
@@ -76,7 +77,7 @@ noncomputable def blockBas (j : Fin K) (y : G ⧸ N) : Fin K → RegRep N :=
   fun i => if i = j then regInd N y else 0
 
 omit [N.Normal] in
-theorem blockBas_apply (j : Fin K) (y : G ⧸ N) (i : Fin K) (h : G ⧸ N) :
+private theorem blockBas_apply (j : Fin K) (y : G ⧸ N) (i : Fin K) (h : G ⧸ N) :
     blockBas N j y i h = if i = j ∧ h = y then (1 : ZMod 2) else 0 := by
   by_cases hij : i = j
   · show (if i = j then regInd N y else 0) h = _
@@ -190,7 +191,7 @@ unordered coordinate-pair orbit). -/
 def posSwap (p : Fin K × Fin K × Γ) : Fin K × Fin K × Γ :=
   (p.2.1, p.1, p.2.2⁻¹)
 
-theorem posSwap_posSwap (p : Fin K × Fin K × Γ) : posSwap (posSwap p) = p := by
+private theorem posSwap_posSwap (p : Fin K × Fin K × Γ) : posSwap (posSwap p) = p := by
   show (p.1, p.2.1, p.2.2⁻¹⁻¹) = p
   rw [inv_inv]
 
@@ -200,7 +201,7 @@ theorem posSwap_posSwap (p : Fin K × Fin K × Γ) : posSwap (posSwap p) = p := 
 def IsFreePos (p : Fin K × Fin K × Γ) : Prop :=
   p.1 ≠ p.2.1 ∨ p.2.2 * p.2.2 ≠ 1
 
-theorem isFreePos_posSwap {p : Fin K × Fin K × Γ} (h : IsFreePos p) : IsFreePos (posSwap p) := by
+private theorem isFreePos_posSwap {p : Fin K × Fin K × Γ} (h : IsFreePos p) : IsFreePos (posSwap p) := by
   rcases h with h | h
   · exact Or.inl (Ne.symm h)
   · refine Or.inr ?_
@@ -242,7 +243,7 @@ noncomputable def freeReps (Q : (Fin K → RegRep N) → ZMod 2) :
   Finset.univ.filter fun p =>
     IsFreePos p ∧ blockPolar N Q p.1 p.2.1 p.2.2 = 1 ∧ p < posSwap p
 
-theorem mem_freeReps_isFree {Q : (Fin K → RegRep N) → ZMod 2}
+private theorem mem_freeReps_isFree {Q : (Fin K → RegRep N) → ZMod 2}
     {p : Fin K × Fin K × (G ⧸ N)} (hp : p ∈ freeReps N Q) :
     IsFreePos p ∧ blockPolar N Q p.1 p.2.1 p.2.2 = 1 := by
   letI := posOrder (Γ := G ⧸ N) (K := K)
@@ -416,7 +417,7 @@ theorem isEquivariantFactorSet_invBlockDatum (j : Fin K) {u : G ⧸ N} (hu2 : u 
 
 /-! ### Quadraticity of the three square maps -/
 
-theorem isQuadraticFp2_squareBlockMap (j : Fin K) : IsQuadraticFp2 (squareBlockMap N j) := by
+private theorem isQuadraticFp2_squareBlockMap (j : Fin K) : IsQuadraticFp2 (squareBlockMap N j) := by
   refine datum_isQuadratic (isEquivariantFactorSet_squareBlockDatum N j) ?_ ?_
   · intro v v' w
     show (squareOrbitDatum N).f (blockProj N j (v + v')) (blockProj N j w) = _
@@ -427,7 +428,7 @@ theorem isQuadraticFp2_squareBlockMap (j : Fin K) : IsQuadraticFp2 (squareBlockM
     rw [map_add]
     exact sq_f_add_right N _ _ _
 
-theorem isQuadraticFp2_freeBlockMap (j k : Fin K) (u : G ⧸ N) :
+private theorem isQuadraticFp2_freeBlockMap (j k : Fin K) (u : G ⧸ N) :
     IsQuadraticFp2 (freeBlockMap N j k u) := by
   refine datum_isQuadratic (isEquivariantFactorSet_freeBlockDatum N j k u) ?_ ?_
   · intro v v' w
@@ -439,7 +440,7 @@ theorem isQuadraticFp2_freeBlockMap (j k : Fin K) (u : G ⧸ N) :
     rw [map_add]
     exact free_f_add_right N u _ _ _
 
-theorem isQuadraticFp2_invBlockMap (j : Fin K) {u : G ⧸ N} (hu2 : u * u = 1) :
+private theorem isQuadraticFp2_invBlockMap (j : Fin K) {u : G ⧸ N} (hu2 : u * u = 1) :
     IsQuadraticFp2 (invBlockMap N j u) := by
   refine datum_isQuadratic (isEquivariantFactorSet_invBlockDatum N j hu2) ?_ ?_
   · intro v v' w
@@ -1034,7 +1035,7 @@ theorem orbitSum_polar_blockBas {Q : (Fin K → RegRep N) → ZMod 2}
   -- the summed indicators reconstruct blockPolar at the relative position `x⁻¹y`
   exact orbit_indicator_eq_blockPolar N hinv hQ a b (x⁻¹ * y)
 
-/-- **The §6.2 orbit decomposition** (P-15f2b, the remaining clause): a `(G/N)`-invariant
+/-- **The §6.2 orbit decomposition** (the Lemma 6.17 vanishing proof): a `(G/N)`-invariant
 `𝔽₂`-quadratic map `Q` on the block module is the square map of the `sumDatum` of its orbit
 datums.  Feeds `OrbitVanish.Q0loc_vanish_of_datum_decomp` with `dat = sumDatum … orbitDatum`. -/
 theorem isEquivariantFactorSet_orbitSumDatum {Q : (Fin K → RegRep N) → ZMod 2}

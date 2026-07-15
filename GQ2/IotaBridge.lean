@@ -1,17 +1,22 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.Phase140.Obstruction
 import GQ2.SectionSix
 import GQ2.DeepPart
 
 /-!
-# P-16d6e4a, sub-lemma (C): the `ι_Γ ↔ inv_{ℚ₂}` obstruction bridge
+# The `ι_Γ ↔ inv_{ℚ₂}` obstruction bridge
 
 The master-count / keystone layer measures the base-class obstruction with the **abstract**
 coboundary indicator `iotaB` (`GQ2/PhaseObstruction.lean`); the §6 base-determinant layer
 measures it with the **Tate invariant map** `iotaF ∘ H²ofFun` (`GQ2/SectionSix.lean`,
 `Q0loc`).  On continuous 2-cocycles over `G_ℚ₂` the two agree, because `#H²(G_ℚ₂,𝔽₂) = 2` and
 `iotaF D` is the invariant-map isomorphism.  This is the bridge that lets `prop_6_18`'s
-`Q0loc`-Gauss-sum feed the `QZero` source-Gauss residue (P-16d6e4a; design
-`docs/p16d6e4a-evaluation-design.md` §1(C)).
+`Q0loc`-Gauss-sum feed the `QZero` source-Gauss residue (the Prop. 8.9 assembly; design
+`docs/orchestration/p16d6e4a-evaluation-design.md` §1(C)).
 
 `iotaB_eq_iotaF_of_injective` is stated with the injectivity of `iotaF D` as an explicit
 hypothesis — a self-contained, reusable form.  The injectivity itself (`iotaF D = D.inv ∘
@@ -25,7 +30,7 @@ namespace SectionEight
 
 open ContCoh SectionSix
 
-/-- **The abstract↔invariant obstruction bridge** (P-16d6e4a §1(C)): on a continuous
+/-- **The abstract↔invariant obstruction bridge** (the Prop. 8.9 assembly §1(C)): on a continuous
 2-cocycle `φ` over `G_ℚ₂`, the abstract coboundary indicator `iotaB φ` equals the Tate
 invariant `iotaF D (H²ofFun φ)`, given `iotaF D` injective.  Both vanish exactly on `B²`, and
 a `ZMod 2` value is determined by whether it is `0`. -/
@@ -92,7 +97,7 @@ theorem iotaF_injective (D : TateDuality 2) : Function.Injective (iotaF D) :=
   D.inv.injective.comp
     (mapCoeff2_injective _ _ _ DeepPart.muTwoOfF2_injective muTwoOfF2_surjective)
 
-/-- **The abstract↔invariant obstruction bridge, unconditional** (P-16d6e4a §1(C) closed):
+/-- **The abstract↔invariant obstruction bridge, unconditional** (the Prop. 8.9 assembly §1(C) closed):
 `iotaB φ = iotaF D (H²ofFun φ)` on continuous 2-cocycles over `G_ℚ₂`. -/
 theorem iotaB_eq_iotaF (D : TateDuality 2)
     {φ : AbsGalQ2 × AbsGalQ2 → ZMod 2} (hφ : φ ∈ Z2 AbsGalQ2 (ZMod 2)) :

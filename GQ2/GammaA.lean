@@ -1,11 +1,20 @@
-import GQ2.Zhat
-import GQ2.FreeProfinite
-import GQ2.ProfiniteQuotient
-import GQ2.Subdirect
-import GQ2.Statement
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.Zhat
+public import GQ2.FreeProfinite
+public import GQ2.ProfiniteQuotient
+public import GQ2.Subdirect
+public import GQ2.Statement
+
+@[expose] public section
 
 /-!
-# `Γ_A` and the literal Theorem 1.2  (ticket T-21)
+# `Γ_A` and the literal Theorem 1.2
 
 The paper's candidate group, **exactly as defined in §2.1, eq. (7)** (the *marked quotient
 construction*): let `F₄` be the free profinite group on `σ, τ, x₀, x₁`; call a finite quotient
@@ -26,12 +35,12 @@ of eqs. (1)–(3) with genuine `ω₂ ∈ ℤ̂` exponents (`Marking.sigma2Hat`,
 via `^ᶻ omega2` from `GQ2/Zhat.lean`).  The bridge lemmas
 `map_tameRelator_eq_one_iff` / `map_wildRelator_eq_one_iff` prove that killing these profinite
 words in a finite quotient is **the same** as the finite-level relations of `GQ2/Words.lean`
-(via the T-06 headline `map_zpowHat_omega2`) — so the two readings of Theorem 1.2's relations
+(via the profinite-exponentiation API headline `map_zpowHat_omega2`) — so the two readings of Theorem 1.2's relations
 provably agree, and the admissibility used in `N_A` is exactly the paper's.
 
 Finally, **Theorem 1.2 in its literal form** (`main_presentation_literal`,
 `Γ_A ≅ G_{ℚ₂}` as topological groups) is stated against this honest `Γ_A` and **proved** in
-`GQ2/PresentationLiteral.lean` (P-19), via Prop. 2.3 + the surjection-count theorem (see
+`GQ2/PresentationLiteral.lean` (the literal-presentation proof), via Prop. 2.3 + the surjection-count theorem (see
 `docs/orchestration/formalization-plan.md`).
 -/
 
@@ -84,7 +93,7 @@ end
 /-! ### Faithfulness bridge: the profinite words evaluate to the finite words
 
 Through any continuous homomorphism to a finite group, the `^ᶻ omega2`-ledger computes the
-`powOmega2`-ledger of `GQ2/Words.lean` (the T-06 headline `map_zpowHat_omega2`, pushed through
+`powOmega2`-ledger of `GQ2/Words.lean` (the profinite-exponentiation API headline `map_zpowHat_omega2`, pushed through
 the whole word ledger).  In particular relations (5)/(6) read profinitely (relator dies) and
 finitely (`TameRel`/`WildRel` of the pushed marking) are the same condition. -/
 
@@ -95,37 +104,37 @@ variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
   {P : Type} [Group P] [TopologicalSpace P] [DiscreteTopology P] [Finite P]
   (f : ContinuousMonoidHom G P) (t : Marking G)
 
-@[simp] lemma map_sigma2Hat : (t.map f.toMonoidHom).sigma2 = f.toMonoidHom t.sigma2Hat := by
+@[simp] private lemma map_sigma2Hat : (t.map f.toMonoidHom).sigma2 = f.toMonoidHom t.sigma2Hat := by
   simp only [sigma2, map_σ, sigma2Hat]
   exact (map_zpowHat_omega2 f t.σ).symm
 
-@[simp] lemma map_u0Hat : (t.map f.toMonoidHom).u0 = f.toMonoidHom t.u0Hat := by
+@[simp] private lemma map_u0Hat : (t.map f.toMonoidHom).u0 = f.toMonoidHom t.u0Hat := by
   simp only [u0, u, map_x₀, map_τ, ← map_mul, u0Hat, uHat]
   exact (map_zpowHat_omega2 f _).symm
 
-@[simp] lemma map_u1Hat : (t.map f.toMonoidHom).u1 = f.toMonoidHom t.u1Hat := by
+@[simp] private lemma map_u1Hat : (t.map f.toMonoidHom).u1 = f.toMonoidHom t.u1Hat := by
   simp only [u1, u, map_x₁, map_τ, ← map_mul, u1Hat, uHat]
   exact (map_zpowHat_omega2 f _).symm
 
-@[simp] lemma map_d0Hat : (t.map f.toMonoidHom).d0 = f.toMonoidHom t.d0Hat := by
+@[simp] private lemma map_d0Hat : (t.map f.toMonoidHom).d0 = f.toMonoidHom t.d0Hat := by
   simp only [d0, map_u0Hat, map_x₀, d0Hat, map_mul, map_inv]
 
-@[simp] lemma map_z0Hat : (t.map f.toMonoidHom).z0 = f.toMonoidHom t.z0Hat := by
+@[simp] private lemma map_z0Hat : (t.map f.toMonoidHom).z0 = f.toMonoidHom t.z0Hat := by
   simp only [z0, map_x₀, map_sigma2Hat, z0Hat, map_conjP]
 
-@[simp] lemma map_c0Hat : (t.map f.toMonoidHom).c0 = f.toMonoidHom t.c0Hat := by
+@[simp] private lemma map_c0Hat : (t.map f.toMonoidHom).c0 = f.toMonoidHom t.c0Hat := by
   simp only [c0, map_d0Hat, map_z0Hat, c0Hat, map_commP]
 
-@[simp] lemma map_g0Hat : (t.map f.toMonoidHom).g0 = f.toMonoidHom t.g0Hat := by
+@[simp] private lemma map_g0Hat : (t.map f.toMonoidHom).g0 = f.toMonoidHom t.g0Hat := by
   simp only [g0, map_sigma2Hat, g0Hat, map_pow]
 
-@[simp] lemma map_dgHat : (t.map f.toMonoidHom).dg = f.toMonoidHom t.dgHat := by
+@[simp] private lemma map_dgHat : (t.map f.toMonoidHom).dg = f.toMonoidHom t.dgHat := by
   simp only [dg, map_d0Hat, map_g0Hat, dgHat, map_conjP]
 
-@[simp] lemma map_hcHat : (t.map f.toMonoidHom).hc = f.toMonoidHom t.hcHat := by
+@[simp] private lemma map_hcHat : (t.map f.toMonoidHom).hc = f.toMonoidHom t.hcHat := by
   simp only [hc, map_dgHat, map_d0Hat, hcHat, map_commP]
 
-@[simp] lemma map_h0Hat : (t.map f.toMonoidHom).h0 = f.toMonoidHom t.h0Hat := by
+@[simp] private lemma map_h0Hat : (t.map f.toMonoidHom).h0 = f.toMonoidHom t.h0Hat := by
   simp only [h0, map_x₀, map_g0Hat, map_dgHat, map_d0Hat, map_hcHat, h0Hat, map_conjP,
     map_mul, map_pow]
 
@@ -261,13 +270,13 @@ theorem NA_le_ker {P : Type} [Group P] [TopologicalSpace P] [DiscreteTopology P]
 
 /-! **Theorem 1.2 (literal presentation form)** — `Γ_A ≅ G_{ℚ₂}` as topological groups, with `Γ_A`
 the honest marked-quotient profinite group of paper eq. (7) defined above — is
-`GQ2.main_presentation_literal`, proved in **`GQ2/PresentationLiteral.lean`** (P-19), **not here**:
+`GQ2.main_presentation_literal`, proved in **`GQ2/PresentationLiteral.lean`** (the literal-presentation proof), **not here**:
 its proof instantiates `Statement.main_presentation` at `Γ_A` with `hΓA := prop_2_3` (Prop. 2.3, the
 `Γ_A` admissible-marking count) and `hcount := SectionTen.main_surjection_count'` (Theorem 1.2 count
 form for `G_{ℚ₂}`, eq. (154) + Prop 2.3) plus the two topological finite-generation witnesses — and
 `prop_2_3`/`main_surjection_count'` are **downstream** of this upstream file, so an in-place proof
-would cycle (the statement-move pattern P-08/P-15d/P-18e).  Its trust base is std-3 + the nine
-census axioms of `GQ2/Foundations/Axioms.lean` (the §9 `thm_4_2` was fully proved at P-17i). -/
+would create an import cycle.  Its trust base is std-3 plus the nine census axioms of
+`GQ2/Foundations/Axioms.lean`. -/
 
 end GQ2
 

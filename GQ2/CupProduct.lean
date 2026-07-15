@@ -1,7 +1,16 @@
-import GQ2.Cohomology
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.Cohomology
+
+@[expose] public section
 
 /-!
-# Cup products in continuous cohomology (degrees ≤ 2)  (ticket T-04, unlock U2)
+# Cup products in continuous cohomology (degrees ≤ 2)
 
 Cup products relative to a `G`-equivariant biadditive pairing `μ : M →+ N →+ P`, in the three
 shapes needed by the literature axioms (B3 Demushkin, B6 local Tate duality):
@@ -43,7 +52,7 @@ omit [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace M] [IsTopolog
   [DiscreteTopology M] [DistribMulAction G M] [ContinuousSMul G M] [TopologicalSpace N]
   [IsTopologicalAddGroup N] [DiscreteTopology N] [ContinuousSMul G N] [TopologicalSpace P]
   [IsTopologicalAddGroup P] [DistribMulAction G P] [ContinuousSMul G P] in
-lemma cup11Fun_add_left (a a' : G → M) (b : G → N) :
+private lemma cup11Fun_add_left (a a' : G → M) (b : G → N) :
     cup11Fun μ (a + a') b = cup11Fun μ a b + cup11Fun μ a' b := by
   funext p; simp only [cup11Fun, Pi.add_apply, map_add, AddMonoidHom.add_apply]
 
@@ -51,7 +60,7 @@ omit [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace M] [IsTopolog
   [DiscreteTopology M] [DistribMulAction G M] [ContinuousSMul G M] [TopologicalSpace N]
   [IsTopologicalAddGroup N] [DiscreteTopology N] [ContinuousSMul G N] [TopologicalSpace P]
   [IsTopologicalAddGroup P] [DistribMulAction G P] [ContinuousSMul G P] in
-lemma cup11Fun_add_right (a : G → M) (b b' : G → N) :
+private lemma cup11Fun_add_right (a : G → M) (b b' : G → N) :
     cup11Fun μ a (b + b') = cup11Fun μ a b + cup11Fun μ a b' := by
   funext p; simp only [cup11Fun, Pi.add_apply, smul_add, map_add]
 
@@ -65,7 +74,7 @@ lemma continuous_pairing {α : Type*} [TopologicalSpace α] {u : α → M} {v : 
 omit [IsTopologicalGroup G] [IsTopologicalAddGroup M] [DistribMulAction G M] [ContinuousSMul G M]
   [IsTopologicalAddGroup N] [IsTopologicalAddGroup P] [DistribMulAction G P]
   [ContinuousSMul G P] in
-lemma continuous_cup11Fun {a : G → M} {b : G → N} (ha : Continuous a) (hb : Continuous b) :
+private lemma continuous_cup11Fun {a : G → M} {b : G → N} (ha : Continuous a) (hb : Continuous b) :
     Continuous (cup11Fun μ a b) :=
   continuous_pairing μ (ha.comp continuous_fst)
     (Continuous.smul continuous_fst (hb.comp continuous_snd))
@@ -191,7 +200,7 @@ omit [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace M]
   [TopologicalSpace N] [IsTopologicalAddGroup N] [DiscreteTopology N] [DistribMulAction G N]
   [ContinuousSMul G N] [TopologicalSpace P] [IsTopologicalAddGroup P] [DistribMulAction G P]
   [ContinuousSMul G P] in
-lemma cup02Fun_add_left (m m' : M) (b : G × G → N) :
+private lemma cup02Fun_add_left (m m' : M) (b : G × G → N) :
     cup02Fun μ (m + m') b = cup02Fun μ m b + cup02Fun μ m' b := by
   funext p; simp only [cup02Fun, map_add, AddMonoidHom.add_apply, Pi.add_apply]
 
@@ -200,7 +209,7 @@ omit [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace M]
   [TopologicalSpace N] [IsTopologicalAddGroup N] [DiscreteTopology N] [DistribMulAction G N]
   [ContinuousSMul G N] [TopologicalSpace P] [IsTopologicalAddGroup P] [DistribMulAction G P]
   [ContinuousSMul G P] in
-lemma cup02Fun_add_right (m : M) (b b' : G × G → N) :
+private lemma cup02Fun_add_right (m : M) (b b' : G × G → N) :
     cup02Fun μ m (b + b') = cup02Fun μ m b + cup02Fun μ m b' := by
   funext p; simp only [cup02Fun, Pi.add_apply, map_add]
 
@@ -266,7 +275,7 @@ omit [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace M] [IsTopolog
   [DiscreteTopology M] [DistribMulAction G M] [ContinuousSMul G M] [TopologicalSpace N]
   [IsTopologicalAddGroup N] [DiscreteTopology N] [ContinuousSMul G N] [TopologicalSpace P]
   [IsTopologicalAddGroup P] [DistribMulAction G P] [ContinuousSMul G P] in
-lemma cup20Fun_add_left (a a' : G × G → M) (n : N) :
+private lemma cup20Fun_add_left (a a' : G × G → M) (n : N) :
     cup20Fun μ (a + a') n = cup20Fun μ a n + cup20Fun μ a' n := by
   funext p; simp only [cup20Fun, Pi.add_apply, map_add, AddMonoidHom.add_apply]
 
@@ -274,14 +283,14 @@ omit [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace M] [IsTopolog
   [DiscreteTopology M] [DistribMulAction G M] [ContinuousSMul G M] [TopologicalSpace N]
   [IsTopologicalAddGroup N] [DiscreteTopology N] [ContinuousSMul G N] [TopologicalSpace P]
   [IsTopologicalAddGroup P] [DistribMulAction G P] [ContinuousSMul G P] in
-lemma cup20Fun_add_right (a : G × G → M) (n n' : N) :
+private lemma cup20Fun_add_right (a : G × G → M) (n n' : N) :
     cup20Fun μ a (n + n') = cup20Fun μ a n + cup20Fun μ a n' := by
   funext p; simp only [cup20Fun, Pi.add_apply, smul_add, map_add]
 
 omit [IsTopologicalAddGroup M] [DistribMulAction G M] [ContinuousSMul G M]
   [IsTopologicalAddGroup N] [IsTopologicalAddGroup P] [DistribMulAction G P]
   [ContinuousSMul G P] in
-lemma continuous_cup20Fun {a : G × G → M} (ha : Continuous a) (n : N) :
+private lemma continuous_cup20Fun {a : G × G → M} (ha : Continuous a) (n : N) :
     Continuous (cup20Fun μ a n) :=
   continuous_pairing μ ha
     (Continuous.smul (continuous_fst.mul continuous_snd) continuous_const)
@@ -342,7 +351,7 @@ noncomputable def cup20 : H2 G M →+ ↥(H0 G N) →+ H2 G P :=
     exact (QuotientAddGroup.eq_zero_iff _).mpr
       ((AddSubgroup.mem_addSubgroupOf).mpr (cup20_acobound μ hμ ha n)))
 
-/-! ## Coefficient naturality (T-04 acceptance)
+/-! ## Coefficient naturality
 
 The cup product is natural in the pairing's target: post-composing `μ` with a continuous
 `G`-equivariant `fP : P →+ P'` and cupping equals cupping and then applying the coefficient map

@@ -1,39 +1,44 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.AdmissibleLimit
 
 /-!
-# Proposition 2.3: `|Sur(Γ_A, G)| = N(G)`  (ticket P-05)
+# Proposition 2.3: `|Sur(Γ_A, G)| = N(G)`
 
 The paper's **Prop. 2.3** (§2.2): for every finite group `G`, continuous surjections
 `Γ_A ↠ G` correspond bijectively to *admissible marked generating quadruples* in `G`, so
 `Nat.card (ContSurj Γ_A G) = admissibleCount G`.  This is the `Γ_A` half of the
 surjection-count Theorem 1.2 (the `G_{ℚ₂}` half is `main_surjection_count`, Track B); together
-with Lemma 2.5 (`reconstruction`, P-02) and t.f.g. (P-03) it yields the literal presentation
-form in P-19.
+with Lemma 2.5 (`reconstruction`, the reconstruction proof) and t.f.g. (the finite-generation proof) it yields the literal presentation
+form in the literal-presentation proof.
 
 ## The bijection
 
 `contSurjEquivAdmissible : ContSurj (F₄ ⧸ N_A) G ≃ {t : Marking G // t.Admissible}`
 
 * **forward**: push the universal marking through `φ ∘ π` (`π : F₄ → F₄ ⧸ N_A` the projection).
-  Admissibility is `admissible_of_NA_le_ker` — the **converse of `NA_le_ker`** (T-21): for a
+  Admissibility is `admissible_of_NA_le_ker` — the **converse of `NA_le_ker`** (the literal Γ_A construction): for a
   continuous `f : F₄ → G` into a finite discrete group, *surjective with `N_A ≤ ker f`*, the
   pushed marking is admissible.  Proof: `ker f` is an admissible open normal subgroup
-  (`isAdmissibleU_of_NA_le`, P-04), and admissibility transfers along the induced isomorphism
+  (`isAdmissibleU_of_NA_le`, the admissible-limit proof), and admissibility transfers along the induced isomorphism
   `F₄ ⧸ ker f ≃* G` (Lemma 2.2, `Marking.map_admissible`).  Together `NA_le_ker` and
   `admissible_of_NA_le_ker` say: *for surjective continuous `f`, the pushed marking is
   admissible iff `N_A ≤ ker f`* — the paper's "quotients of `Γ_A` = admissible quotients".
 * **backward** (`Marking.descend`): an admissible `t` classifies `t.toHom : F₄ ⟶ G` (universal
   property of `F₄`), which kills `N_A` by `NA_le_ker`, hence descends along `quotientLift`;
   surjectivity from `t.Generates` (`surjective_of_map_generates`).
-* **round-trips**: `univMarking_map_toHom` (T-21) in one direction; in the other, the
+* **round-trips**: `univMarking_map_toHom` (the literal Γ_A construction) in one direction; in the other, the
   **uniqueness half of the universal property** (`Marking.toHom_univMarking_map`: any morphism
   out of `F₄` is `toHom` of its own pushed marking) plus surjectivity of `π`.
-  *Deviation from the board sketch*: topological finite generation (P-03) is **not needed** —
+  *Encoding note*: topological finite generation is **not needed** —
   `homEquiv`-injectivity replaces the density argument for "agreeing on generators ⇒ equal".
 
 The count `Nat.card (ContSurj GammaA G) = admissibleCount G` (`prop_2_3`) is stated in exactly
-the `hΓA` shape consumed by `main_presentation` (`GQ2/Statement.lean`), so P-19 can pass it
-through verbatim.  Everything is at the standard three axioms (`Ax = ∅`).
+the `hΓA` shape consumed by `main_presentation` (`GQ2/Statement.lean`).  Everything is at the
+standard three axioms (`Ax = ∅`).
 -/
 
 open CategoryTheory ProfiniteGrp
@@ -70,7 +75,7 @@ end FiniteTarget
 quotients of `F₄` as exactly the surjections killing `N_A`, §2.1–2.2).  If a continuous
 homomorphism `f : F₄ → G` into a finite discrete group is surjective and kills `N_A`, then the
 pushed universal marking of `G` is admissible: `ker f` is then an open normal subgroup above
-`N_A`, hence admissible (`isAdmissibleU_of_NA_le`, P-04), and admissibility transfers to `G`
+`N_A`, hence admissible (`isAdmissibleU_of_NA_le`, the admissible-limit proof), and admissibility transfers to `G`
 along `F₄ ⧸ ker f ≃* G` (Lemma 2.2). -/
 theorem admissible_of_NA_le_ker {G : Type} [Group G] [TopologicalSpace G] [DiscreteTopology G]
     [Finite G] (f : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4)) G)
@@ -127,7 +132,7 @@ noncomputable def Marking.classify (t : Marking G) :
     ContinuousMonoidHom (FreeProfiniteGroup (Fin 4)) G :=
   (Marking.toHom (P := ProfiniteGrp.of G) t).hom
 
-lemma Marking.classify_ker (t : Marking G) (ht : t.Admissible) :
+private lemma Marking.classify_ker (t : Marking G) (ht : t.Admissible) :
     NA ≤ (Marking.classify t).toMonoidHom.ker := by
   refine NA_le_ker _ ?_
   rwa [Marking.classify, univMarking_map_toHom]
@@ -137,7 +142,7 @@ noncomputable def Marking.descend (t : Marking G) (ht : t.Admissible) :
     ContinuousMonoidHom (FreeProfiniteGroup (Fin 4) ⧸ NA) G :=
   quotientLift NA (Marking.classify t) (Marking.classify_ker t ht)
 
-@[simp] lemma Marking.descend_quotientMk (t : Marking G) (ht : t.Admissible)
+@[simp] private lemma Marking.descend_quotientMk (t : Marking G) (ht : t.Admissible)
     (x : FreeProfiniteGroup (Fin 4)) :
     Marking.descend t ht (quotientMk NA x) = Marking.classify t x := rfl
 

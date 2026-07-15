@@ -1,11 +1,23 @@
-import GQ2.DeepDuality
-import GQ2.LocalLiftingDuality
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.DeepDuality
+public import GQ2.LocalLiftingDuality
+
+@[expose] public section
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
-# The K-level Tate pairing  (ticket P-15f7, concrete layer)
+# The K-level Tate pairing
 
-The first consumer of the **base-generalized B6** (`GQ2.tateDualityAt`, user-approved
-2026-07-07): the `𝔽₂`-valued Tate pairing on `M = H¹(G_K, 𝔽₂)` for `K` the splitting field
+The first consumer of the **base-generalized B6** (`GQ2.tateDualityAt`): the `𝔽₂`-valued Tate
+pairing on `M = H¹(G_K, 𝔽₂)` for `K` the splitting field
 (`G_K = ker ρ`), supplying the pairing hypotheses of the abstract `hduality`
 (`GQ2.card_equivHoms_deep_eq_quot`, `GQ2/DeepDuality.lean` §F):
 
@@ -23,8 +35,8 @@ The first consumer of the **base-generalized B6** (`GQ2.tateDualityAt`, user-app
 Everything is `ρ.ker`-vocabulary (no `IntermediateField` enters); the isotropy (H3) discharge
 (`cup_deepClasses` lives over `k.fixingSubgroup`) is the f8 splice's `k`-plumbing.
 
-Ticket: P-15f7 (`docs/tickets.md`); design: `docs/p15f-handoff.md` §8, proposal
-`docs/p15f7-axiom-proposal.md`.
+Design details are recorded in `docs/orchestration/p15f-handoff.md` §8 and
+`docs/orchestration/p15f7-axiom-proposal.md`.
 -/
 
 namespace GQ2

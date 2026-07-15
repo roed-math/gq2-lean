@@ -1,10 +1,15 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.UnramifiedNorm
 import GQ2.HilbertLedger
 
 /-!
-# P-15f2c2c1 (N1): the Galois coset-norm kit + the relative ramification index
+# The Galois coset-norm kit + the relative ramification index
 
-Two axiom-free kits feeding the c2c4 assembly of the analytic `hunram` (`docs/p15f2c2c-handoff.md`).
+Two axiom-free kits feeding the c2c4 assembly of the analytic `hunram` (`docs/orchestration/p15f2c2c-handoff.md`).
 
 **Part 1 — the coset norm.**  For `H ≤ K` closed subgroups of `Gal(ℚ̄₂/ℚ₂)` with finite index
 `[K : H]`, the product `cosetNorm H K x = ∏_{c ∈ K ⧸ H} (out c) • x` of the `K`-cosets of `H`

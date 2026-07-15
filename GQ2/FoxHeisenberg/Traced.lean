@@ -1,4 +1,13 @@
-import GQ2.FoxHeisenberg.Heisenberg
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.FoxHeisenberg.Heisenberg
+
+@[expose] public section
 
 /-!
 # Prop 5.8 / 5.10 and the duality package (5.11–5.15)
@@ -58,7 +67,7 @@ def markVec (t : Marking C) : Fin 4 → C := ![t.σ, t.τ, t.x₀, t.x₁]
 def freeMarking : Marking (FreeGroup (Fin 4)) :=
   ⟨FreeGroup.of 0, FreeGroup.of 1, FreeGroup.of 2, FreeGroup.of 3⟩
 
-@[simp] theorem freeMarking_tameValue : freeMarking.tameValue = fgTame := rfl
+@[simp] private theorem freeMarking_tameValue : freeMarking.tameValue = fgTame := rfl
 
 /-- The wild relator word with the `ω₂`-powers replaced by an explicit integer exponent `e` (the
 paper's `ω₂` becomes `(·)^e` for a concrete `e = omega2Exp N`, a multiple of the relevant orders).
@@ -226,7 +235,7 @@ noncomputable def secHom : C →* HeisLift A C where
   map_one' := rfl
   map_mul' g g' := by ext <;> simp
 
-theorem secHom_injective : Function.Injective (secHom (A := A) (C := C)) :=
+private theorem secHom_injective : Function.Injective (secHom (A := A) (C := C)) :=
   fun _ _ h => congrArg HeisLift.g h
 
 /-- The section `⟨λ,g⟩ ↦ ⟨0,λ,0,g⟩ : A^∨ ⋊ C →* H(A) ⋊ C` (injective). -/
@@ -235,7 +244,7 @@ noncomputable def secWL : WordLift (ElemDual A) C →* HeisLift A C where
   map_one' := rfl
   map_mul' p q := by ext <;> simp
 
-theorem secWL_injective : Function.Injective (secWL (A := A) (C := C)) := by
+private theorem secWL_injective : Function.Injective (secWL (A := A) (C := C)) := by
   intro p q h
   exact WordLift.ext (congrArg HeisLift.l h) (congrArg HeisLift.g h)
 
@@ -330,7 +339,7 @@ theorem mixedB_wildRow [Finite A] [Finite C] (t : Marking C) (hw : t.WildRel) (a
 identifications): `B_{ρ,A}(d⁰a, y) = ⟨a, L^{A^∨}_t(y) + L^{A^∨}_w(y)⟩`, where the dual
 first relation differentials are `d1Fun` on `A^∨`.
 
-*Status*: proved (P-13) **as stated** (paper p. 17).  Proof: the tame summand is
+The proof follows the paper's statement on p. 17.  The tame summand is
 `mixedB_tameRow` — `⟨a, L^{A^∨}_t(y)⟩ + y_τ(τ·a)` (tame ε-vector `(0,1,0,0)`, `expMod2_fgTame`);
 the wild summand comes from `bridge_wild` + `lemma_5_7_left` with ε-vector
 `(0, e, 0, e+1) = (0,1,0,0)` at the odd `ω₂`-representative (`expMod2_wildValueExp`), i.e.
@@ -363,11 +372,11 @@ noncomputable def secWA : WordLift A C →* HeisLift A C where
   map_one' := rfl
   map_mul' p q := by ext <;> simp
 
-theorem secWA_injective : Function.Injective (secWA (A := A) (C := C)) := by
+private theorem secWA_injective : Function.Injective (secWA (A := A) (C := C)) := by
   intro p q h
   exact WordLift.ext (congrArg HeisLift.a h) (congrArg HeisLift.g h)
 
-theorem orderOf_dvd_exponent_heis_wa [Finite A] [Finite C] (w : WordLift A C) :
+private theorem orderOf_dvd_exponent_heis_wa [Finite A] [Finite C] (w : WordLift A C) :
     orderOf w ∣ Monoid.exponent (HeisLift A C) := by
   rw [← orderOf_injective (secWA (A := A)) secWA_injective w]
   exact Monoid.order_dvd_exponent _
@@ -540,8 +549,8 @@ def IsSelfDual (t : Marking C) (A : Type*) [AddCommGroup A] [DistribMulAction C 
     (∀ h, h ≠ 0 → ∃ h', P h h' ≠ 0) ∧
     (∀ h', h' ≠ 0 → ∃ h, P h h' ≠ 0)
 
-/- **Lemma 5.11 (exact cone dévissage) — PROVED, relocated to `GQ2/Devissage.lean` (P-13e).**
-Same fully qualified name `GQ2.FoxH.lemma_5_11`, with one hypothesis added relative to the P-12
+/- **Lemma 5.11 (exact cone dévissage)** lives in `GQ2/Devissage.lean`, under the same fully
+qualified name `GQ2.FoxH.lemma_5_11`, with one hypothesis added relative to the Fox–Heisenberg design
 statement: `hgen : t.Generates`.  Generation identifies `ker d⁰` with the `C`-fixed points
 (`H0w_eq_fixedPts`), which the word-complex dévissage needs to reach the `fixedPts`-phrased
 `IsSelfDual`; admissible markings always have it.  It lives there because the proof needs the
@@ -559,11 +568,11 @@ omit [Finite C] in
 /-- **Lemma 5.12 (simple characteristic-two modules are tame)**: a normal 2-subgroup `L ◁ C`
 acts trivially on every simple `𝔽₂[C]`-module.  Proof: the `L`-fixed subspace is nonzero (the
 `p`-group congruence `#V ≡ #Vᴸ (mod 2)` with `#V` even) and `C`-stable (`L` normal), so
-simplicity forces it to be all of `V`.  (Proved for P-13, as part of the Heisenberg
+simplicity forces it to be all of `V`.  (Proved for the §5 proof layer, as part of the Heisenberg
 word-evaluation core — `d1Fun_add`, `d1Fun_comp_d0`, Lemma 5.6, Lemma 5.7 both forms, and the
 tame row of Prop 5.8; the *wild row* (Prop 5.8/Lemma 5.13, needing the target-dependent
 integer-`ω₂` representative of the wild word) and the mapping-cone dévissage Lemma 5.11
-followed later in P-13 and are also proved.) -/
+followed later in the §5 proof layer and are also proved.) -/
 theorem lemma_5_12 {V : Type*} [AddCommGroup V] [DistribMulAction C V] [Finite V]
     (hV₂ : ∀ v : V, v + v = 0) (hsimple : IsSimpleModTwo C V)
     (L : Subgroup C) (hnormal : L.Normal) (hL : IsPGroup 2 L) :

@@ -1,14 +1,19 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.Shapiro.Deepness
 import GQ2.QuadraticAdjoin
 
 /-!
-# P-15f2c2b: the involution spine — discharging the c2a package
+# The involution spine — discharging the c2a package
 
-`ShapiroDeepness.hvanish_involution_of_deepClass` (the landed assembly) is parameterized by an
+`ShapiroDeepness.hvanish_involution_of_deepClass` (the proved assembly) is parameterized by an
 abstract "Kummer presentation package" `hc2a` and by `hunram`.  This file **discharges `hc2a`**
-from the concrete `QuadraticAdjoin.exists_kummer_presentation` (P-15f2c2a), leaving a version
+from the concrete `QuadraticAdjoin.exists_kummer_presentation` (the Lemma 6.17 vanishing proof), leaving a version
 `hvanish_involution_of_deepClass'` that no longer carries the abstract package — only the tower
-`(k ≤ L, hindex)` and the unramifiedness `hunram` (the latter supplied by P-15f2c2c4's
+`(k ≤ L, hindex)` and the unramifiedness `hunram` (the latter supplied by the Lemma 6.17 vanishing proof's
 `UnramifiedBridge.hunram_involution` at the call site / f2d).
 
 The one real brick is the **fixing-index-2 → degree-2 bridge**
@@ -59,7 +64,7 @@ theorem index_extendScalars_fixingSubgroup (k L : IntermediateField ℚ_[2] ℚ�
     constructor <;> exact fun h y hy => h y hy
   rw [← hmap, Subgroup.index_map_of_bijective (fixingSubgroupEquiv k).bijective]
 
-/-- **The bridge** (P-15f2c2b core): a fixing-index-2 subextension has relative degree 2. -/
+/-- **The bridge** (the Lemma 6.17 vanishing proof core): a fixing-index-2 subextension has relative degree 2. -/
 theorem finrank_extendScalars_eq_two (k L : IntermediateField ℚ_[2] ℚ̄₂)
     [FiniteDimensional ℚ_[2] L] (hkL : k ≤ L)
     (hindex : (L.fixingSubgroup.subgroupOf k.fixingSubgroup).index = 2) :
@@ -90,7 +95,7 @@ theorem finrank_extendScalars_eq_two (k L : IntermediateField ℚ_[2] ℚ̄₂)
 
 /-! ## Discharging the c2a package -/
 
-/-- **`hc2a` discharged** (P-15f2c2b): the abstract Kummer presentation package of
+/-- **`hc2a` discharged** (the Lemma 6.17 vanishing proof): the abstract Kummer presentation package of
 `hvanish_involution_of_deepClass`, proved from `QuadraticAdjoin.exists_kummer_presentation`. -/
 theorem kummer_presentation_of_index_two (k L : IntermediateField ℚ_[2] ℚ̄₂)
     [FiniteDimensional ℚ_[2] k] [FiniteDimensional ℚ_[2] L] (hkL : k ≤ L)

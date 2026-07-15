@@ -1,13 +1,22 @@
-import GQ2.DiscreteModule
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.DiscreteModule
+
+@[expose] public section
 
 /-!
-# Continuous cohomology of topological groups in degrees ≤ 2  (ticket T-02, unlock U2)
+# Continuous cohomology of topological groups in degrees ≤ 2
 
 Continuous (inhomogeneous) cochain cohomology `H⁰, H¹, H²` of a topological group `G` with
 coefficients in a topological `G`-module `M`, following Serre, *Galois Cohomology* I §2.2.
 This is the coefficient system for the literature axioms B3 (Demushkin), B6 (local Tate
 duality), B7 (local Euler characteristic) and B9 (Evens/Kahn) — see
-`docs/formalization-plan.md` (U2).  **Design constraints**: no derived functors, no new
+`docs/orchestration/formalization-plan.md` (U2).  **Design constraints**: no derived functors, no new
 coefficient structures (module = Mathlib classes, cf. `GQ2/DiscreteModule.lean`), everything
 explicit and human-checkable.
 
@@ -36,12 +45,12 @@ continuous additive map `f : N →+ M` intertwining the actions (`f (π g • n)
 * **inflation**: for `π : G ↠ Q` and a `Q`-module `N`, instantiate the `G`-module as `N` with
   the composed action `letI := DistribMulAction.compHom N π.toMonoidHom`; then
   `hcompat` is `rfl` and `H1comap π (AddMonoidHom.id N) …` *is* inflation.  (Kept as a recipe
-  rather than a def to avoid carrying two actions on one type; the finite-level comparison is
-  ticket T-03.)
+  rather than a def to avoid carrying two actions on one type; finite-level comparison lemmas
+  live in the downstream cohomology layer.)
 
-Corestriction (degree 1, open finite-index `U`) is ticket T-18's explicit coset formula; cup
-products relative to a pairing `M →+ N →+ P` are ticket T-04.  Both build on the `Z`-level API
-here.
+Corestriction (degree 1, open finite-index `U`) is given by the Evens–Kahn explicit coset formula;
+cup products relative to a pairing `M →+ N →+ P` are defined in `GQ2/CupProduct.lean`.  Both
+build on the `Z`-level API here.
 
 ## Stress tests
 
@@ -149,13 +158,13 @@ variable {M : Type*} [AddCommGroup M] [TopologicalSpace M] [IsTopologicalAddGrou
 
 omit [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace M]
   [IsTopologicalAddGroup M] [ContinuousSMul G M] in
-@[simp] lemma mem_H0_iff {m : M} : m ∈ H0 G M ↔ ∀ g : G, g • m = m := Iff.rfl
+@[simp] private lemma mem_H0_iff {m : M} : m ∈ H0 G M ↔ ∀ g : G, g • m = m := Iff.rfl
 
 omit [Group G] [IsTopologicalGroup G] [DistribMulAction G M] [ContinuousSMul G M] in
 @[simp] lemma mem_C1_iff {φ : G → M} : φ ∈ C1 G M ↔ Continuous φ := Iff.rfl
 
 omit [Group G] [IsTopologicalGroup G] [DistribMulAction G M] [ContinuousSMul G M] in
-@[simp] lemma mem_C2_iff {φ : G × G → M} : φ ∈ C2 G M ↔ Continuous φ := Iff.rfl
+@[simp] private lemma mem_C2_iff {φ : G × G → M} : φ ∈ C2 G M ↔ Continuous φ := Iff.rfl
 
 omit [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace M]
   [IsTopologicalAddGroup M] [ContinuousSMul G M] in
@@ -198,10 +207,10 @@ theorem mem_Z2_iff {φ : G × G → M} :
     sub_eq_zero]
 
 omit [IsTopologicalGroup G] [ContinuousSMul G M] in
-theorem Z1_le_C1 : Z1 G M ≤ C1 G M := inf_le_left
+private theorem Z1_le_C1 : Z1 G M ≤ C1 G M := inf_le_left
 
 omit [IsTopologicalGroup G] [ContinuousSMul G M] in
-theorem Z2_le_C2 : Z2 G M ≤ C2 G M := inf_le_left
+private theorem Z2_le_C2 : Z2 G M ≤ C2 G M := inf_le_left
 
 omit [IsTopologicalGroup G] in
 theorem B1_le_Z1 : B1 G M ≤ Z1 G M := by
@@ -377,7 +386,7 @@ theorem H0_eq_top_of_trivial : H0 G M = ⊤ :=
 
 end Trivial
 
-/-! ## Cocycle algebra (T-03)
+/-! ## Cocycle algebra
 
 A few more identities for continuous 1-cocycles, beyond `Z1_apply_one`. -/
 
@@ -397,7 +406,7 @@ theorem Z1_apply_inv (φ : Z1 G M) (g : G) : φ.1 g⁻¹ = - (g⁻¹ • φ.1 g)
 
 end CocycleAlgebra
 
-/-! ## Coefficient functoriality (T-03)
+/-! ## Coefficient functoriality
 
 The `π = id` special case of `Hicomap`: a continuous `G`-equivariant additive map `f : N →+ M`
 (same group `G`) induces `Hⁱ(G,N) →+ Hⁱ(G,M)`.  Needed by B6/B9 (pairing- and connecting-maps
@@ -434,7 +443,7 @@ def mapCoeff2 : H2 G N →+ H2 G M :=
 
 end Coefficients
 
-/-! ## Inflation (T-03)
+/-! ## Inflation
 
 The `f = id` special case of `Hicomap` along a continuous hom `π : G →ₜ* Q` whose associated
 `Q`-action on `M` agrees, through `π`, with a given `G`-action (`hπ : π g • m = g • m`).  For a

@@ -1,9 +1,18 @@
-import GQ2.Cohomology
-import GQ2.Statement
-import GQ2.Foundations.Axioms
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.Cohomology
+public import GQ2.Statement
+public import GQ2.Foundations.Axioms
+
+@[expose] public section
 
 /-!
-# B7 — the local Euler–Poincaré characteristic of `G_ℚ₂`  (ticket T-16, leaf B7)
+# B7 — the local Euler–Poincaré characteristic of `G_ℚ₂`
 
 This file states the **local Euler–Poincaré characteristic formula** for the absolute Galois group
 `G_ℚ₂ = Gal(ℚ̄₂ / ℚ₂)` (`GQ2.AbsGalQ2`) as the classical literature leaf `B7` of Theorem 1.2,
@@ -44,7 +53,7 @@ For the elementary `𝔽₂`-modules there (`#M = 2 ^ dim M`) this reads `#H¹ =
 (`card_H1_of_card_eq_two_pow`).
 
 The axiom itself (`GQ2.Foundations.absGalQ2_localEulerCharacteristic`) lives in
-`GQ2/Foundations/Axioms.lean` (T-19 consolidation); this file documents its conventions and
+`GQ2/Foundations/Axioms.lean` (the consolidated axiom interface consolidation); this file documents its conventions and
 derives the consequences below from it.
 -/
 

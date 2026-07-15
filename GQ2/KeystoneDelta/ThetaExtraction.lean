@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.KeystoneDelta.AtomCalculus
 
 /-!
@@ -124,12 +129,12 @@ section XiCalculus
 variable {DD : DescData D} (Dsc : Descent D)
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
-theorem xi_one_left (x : Bg ⧸ D.T) : xi Dsc (1, x) = 0 := by
+private theorem xi_one_left (x : Bg ⧸ D.T) : xi Dsc (1, x) = 0 := by
   show ccZsign Dsc (s0 Dsc 1 * s0 Dsc x * (s0 Dsc (1 * x))⁻¹) = 0
   rw [s0_one, one_mul, one_mul, mul_inv_cancel, ccZsign_one]
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
-theorem xi_one_right (x : Bg ⧸ D.T) : xi Dsc (x, 1) = 0 := by
+private theorem xi_one_right (x : Bg ⧸ D.T) : xi Dsc (x, 1) = 0 := by
   show ccZsign Dsc (s0 Dsc x * s0 Dsc 1 * (s0 Dsc (x * 1))⁻¹) = 0
   rw [s0_one, mul_one, mul_one, mul_inv_cancel, ccZsign_one]
 
@@ -260,14 +265,14 @@ theorem kfull_serre (p q r : DD.Vmod × DD.C0) :
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 omit hσ in
-theorem kfull_pone_left (q : DD.Vmod × DD.C0) : kfull σ Dsc pone q = 0 := by
+private theorem kfull_pone_left (q : DD.Vmod × DD.C0) : kfull σ Dsc pone q = 0 := by
   unfold kfull
   rw [jmap_pone]
   exact xi_one_left Dsc _
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
 omit hσ in
-theorem kfull_pone_right (p : DD.Vmod × DD.C0) : kfull σ Dsc p pone = 0 := by
+private theorem kfull_pone_right (p : DD.Vmod × DD.C0) : kfull σ Dsc p pone = 0 := by
   unfold kfull
   rw [jmap_pone]
   exact xi_one_right Dsc _
@@ -364,7 +369,7 @@ noncomputable def theta (p q : DD.Vmod × DD.C0) : ZMod 2 :=
 
 include hσ in
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
-theorem theta_serre (p q r : DD.Vmod × DD.C0) :
+private theorem theta_serre (p q r : DD.Vmod × DD.C0) :
     theta σ Dsc q r + theta σ Dsc p (pmul q r)
       = theta σ Dsc (pmul p q) r + theta σ Dsc p q := by
   have h1 := kfull_serre σ Dsc hσ p q r
@@ -421,7 +426,7 @@ theorem gkappa_zero : gkappa σ Dsc hσ 0 = 0 :=
   (Classical.choose_spec (gkappa_exists σ Dsc hσ)).1
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
-theorem gkappa_split (v w : DD.Vmod) :
+private theorem gkappa_split (v w : DD.Vmod) :
     theta σ Dsc ((v, 1) : DD.Vmod × DD.C0) (w, 1)
       = gkappa σ Dsc hσ (v + w) + gkappa σ Dsc hσ v + gkappa σ Dsc hσ w :=
   (Classical.choose_spec (gkappa_exists σ Dsc hσ)).2 v w
@@ -433,7 +438,7 @@ noncomputable def theta' (p q : DD.Vmod × DD.C0) : ZMod 2 :=
 
 include hσ in
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
-theorem theta'_serre (p q r : DD.Vmod × DD.C0) :
+private theorem theta'_serre (p q r : DD.Vmod × DD.C0) :
     theta' σ Dsc hσ q r + theta' σ Dsc hσ p (pmul q r)
       = theta' σ Dsc hσ (pmul p q) r + theta' σ Dsc hσ p q := by
   have h1 := theta_serre σ Dsc hσ p q r
@@ -471,19 +476,19 @@ noncomputable def gammakap (cc : DD.C0) (x : DD.Vmod) : ZMod 2 :=
 
 /- `pmul`-evaluations used in the chases. -/
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
-theorem pm_v1_0c (v : DD.Vmod) (cc : DD.C0) :
+private theorem pm_v1_0c (v : DD.Vmod) (cc : DD.C0) :
     pmul ((v, 1) : DD.Vmod × DD.C0) (0, cc) = (v, cc) := by
   unfold pmul
   rw [smul_zero, add_zero, one_mul]
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
-theorem pm_0c_wd (cc : DD.C0) (w : DD.Vmod) (dd : DD.C0) :
+private theorem pm_0c_wd (cc : DD.C0) (w : DD.Vmod) (dd : DD.C0) :
     pmul ((0, cc) : DD.Vmod × DD.C0) (w, dd) = (cc • w, cc * dd) := by
   unfold pmul
   rw [zero_add]
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
-theorem pm_v1_x1 (v x : DD.Vmod) (ee : DD.C0) :
+private theorem pm_v1_x1 (v x : DD.Vmod) (ee : DD.C0) :
     pmul ((v, 1) : DD.Vmod × DD.C0) (x, ee) = (v + x, ee) := by
   unfold pmul
   rw [one_smul, one_mul]

@@ -1,8 +1,13 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.SectionEight
 import GQ2.AffineTLift
 
 /-!
-# The `zBC ↔ MLifts` bridge and the (139) half count  (ticket P-16d3)
+# The `zBC ↔ MLifts` bridge and the (139) half count
 
 The nonzero-radical-edge display (139), `2·Z_{Γ,λ}(B/C) = 2^{2·dim M}·e_Γ(C)`, in the
 `RecursionInputs.half139` shape `2·zBC = |M_B|²·e_Γ(C)`.
@@ -13,9 +18,9 @@ enter as hypotheses, so d6 plugs in `lemma_8_6_local`/`lemma_8_6_gammaA` and the
 
 1. `zBC` fibres over the lower exact-image map `ρ : Γ ↠ C` (`BoundaryLifts b F T_C`); the
    fibre is the set of `λ`-compatible `B`-lifts over `ρ`, whose `IsBoundaryLift` clause is
-   redundant (`RecursionFrame.isBoundaryLift_of_over`, P-16d4).
+   redundant (`RecursionFrame.isBoundaryLift_of_over`, the Prop. 8.9 assembly).
 2. Via the iso `B/M ≅ C` (`piBCiso`, from `ker π_{BC} = M_B`), that fibre is exactly the
-   central `M`-lifts `{f : MLifts (E.radData l h) ρ' // f.Central}` of P-16a/d1 (`Central` =
+   central `M`-lifts `{f : MLifts (E.radData l h) ρ' // f.Central}` of the central-obstruction framework/d1 (`Central` =
    lifts through the scalar cover).
 3. Lemma 8.6 halves it (`2·#central = #MLifts`); the props 5.15/5.16 count gives
    `#MLifts = |M_B|²`.  Summing over `ρ` and clearing the `2` yields (139).
@@ -67,7 +72,7 @@ def LiftsOver (ρ : BoundaryLifts b F RF.TC) : Type :=
   {m : ContinuousMonoidHom Γ RF.YB // ∀ γ : Γ, RF.piBC (m γ) = ρ.1.1 γ}
 
 /-- **The `λ`-compatible (central) `B`-lifts over `ρ`**: those lifting through the scalar
-cover `p_λ` — the `Central` relation of P-16a. -/
+cover `p_λ` — the `Central` relation of the central-obstruction framework. -/
 def CentralOver (l : RF.DR) (h : l ≠ RF.zeroDR) (ρ : BoundaryLifts b F RF.TC) : Type :=
   {m : LiftsOver RF b F ρ // ∃ g : ContinuousMonoidHom Γ (RF.scalarCover l h).cover,
     ∀ γ : Γ, (RF.scalarCover l h).p (g γ) = m.1.1 γ}
@@ -93,7 +98,7 @@ noncomputable def zBCfibreEquiv (l : RF.DR) (h : l ≠ RF.zeroDR)
   right_inv m := rfl
 
 omit [TopologicalSpace Y] [DiscreteTopology Y] in
-/-- **The (139) half count** (P-16d3): `2·zBC = |M_B|²·e_Γ(C)` when the radical edge is
+/-- **The (139) half count** (the Prop. 8.9 assembly): `2·zBC = |M_B|²·e_Γ(C)` when the radical edge is
 nonzero.  Source-generic: the two per-source inputs enter as hypotheses —
 
 * `hlem86` = the source's **Lemma 8.6** half-torsor count (`lemma_8_6_local`/`gammaA` after
@@ -139,7 +144,7 @@ theorem half139_of [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
 
 /-! ### The `MLifts` transport
 
-`LiftsOver ρ` and `CentralOver ρ` (bridge vocabulary, over `π_{BC}`) are the P-16a `MLifts`
+`LiftsOver ρ` and `CentralOver ρ` (bridge vocabulary, over `π_{BC}`) are the central-obstruction framework `MLifts`
 and their central relation for the datum `E.radData l h`, over the transported lower map
 `ρ' := piBCiso⁻¹ ∘ ρ`.  These equivalences let d6 discharge `half139_of`'s `hlem86`/`hMcount`
 directly from the source's `lemma_8_6` and the 5.15/5.16 `M`-lift count. -/

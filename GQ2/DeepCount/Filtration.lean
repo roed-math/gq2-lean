@@ -1,0 +1,600 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.DeepDualityK
+
+@[expose] public section
+
+/-!
+# Kummer-depth filtration comparisons
+
+The Kummer kernel, square-depth parity, graded squaring, and class-graded comparison.
+
+See `GQ2.DeepCount` for the paper-facing overview, source citations, and deviations.
+-/
+
+namespace GQ2
+
+open ContCoh LocalKummer
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+section KummerKernel
+
+variable (k : IntermediateField ℚ_[2] ℚ̄₂)
+
+/-- **The Kummer kernel** (converse of `kummerClassK_eq_zero_of_sq`): a unit of `k` with
+vanishing Kummer class is a square in `k`.  `B¹(G_k, 𝔽₂) = 0` because the coefficient action
+is trivial (`δ⁰m = g•m − m = 0`), so class-zero forces the COCYCLE to vanish pointwise:
+`G_k` fixes `sqrtCl a`, hence `sqrtCl a ∈ ℚ̄₂^{G_k} = k` by the Galois correspondence. -/
+theorem exists_sq_of_kummerClassK_eq_zero (a : (↥k)ˣ) (h : kummerClassK k a = 0) :
+    ∃ w : ↥k, w ^ 2 = (a : ↥k) := by
+  -- class-zero ⟹ the cocycle is a coboundary `δ⁰ m`
+  have hmem := (QuotientAddGroup.eq_zero_iff _).mp h
+  rw [AddSubgroup.mem_addSubgroupOf] at hmem
+  obtain ⟨m, hm⟩ := hmem
+  -- with the trivial action `δ⁰ m ≡ m − m = 0`, so the cocycle vanishes: `G_k` fixes the root
+  have hfix : ∀ g ∈ k.fixingSubgroup,
+      g • GQ2.sqrtCl ((a : ↥k) : ℚ̄₂) = GQ2.sqrtCl ((a : ↥k) : ℚ̄₂) := by
+    intro g hg
+    have happ := congrFun hm (⟨g, hg⟩ : k.fixingSubgroup)
+    have hview : m - m = Kummer.kummerCocycleFun (GQ2.sqrtCl ((a : ↥k) : ℚ̄₂))
+        ((⟨g, hg⟩ : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]) := happ
+    rw [sub_self] at hview
+    by_contra hne
+    have h1 := hview.symm
+    simp only [Kummer.kummerCocycleFun] at h1
+    rw [if_neg hne] at h1
+    exact one_ne_zero h1
+  have hmemk : ∀ s : ℚ̄₂, (∀ g ∈ k.fixingSubgroup, g • s = s) → s ∈ k := by
+    intro s hsfix
+    rw [← InfiniteGalois.fixedField_fixingSubgroup k]
+    exact (IntermediateField.mem_fixedField_iff _ _).mpr hsfix
+  refine ⟨⟨GQ2.sqrtCl ((a : ↥k) : ℚ̄₂), hmemk _ hfix⟩, Subtype.ext ?_⟩
+  rw [SubmonoidClass.coe_pow]
+  exact GQ2.sqrtCl_sq _
+
+end KummerKernel
+
+section MidStage
+
+variable (k : IntermediateField ℚ_[2] ℚ̄₂) (π : ℚ̄₂)
+
+/-- **Mid units give mid classes** — the `≤`-mirror of `kummerClassK_mem_deepClasses`.
+Witnesses: `A := a`, `β := sqrtCl A`, `b := (A − 1)/2`. -/
+theorem kummerClassK_mem_midClasses (a : (↥k)ˣ)
+    (ha : ‖((a : ↥k) : ℚ̄₂) - 1‖ ≤ ‖(2 : ℚ̄₂)‖) :
+    kummerClassK k a ∈ midClassesSubgroup k.fixingSubgroup := by
+  have hA0 : ((a : ↥k) : ℚ̄₂) ≠ 0 := unitCoe_ne_zero k a
+  have hfix : ∀ g ∈ k.fixingSubgroup, g • ((a : ↥k) : ℚ̄₂) = ((a : ↥k) : ℚ̄₂) :=
+    fun g hg => fixingSubgroup_smul k hg (a : ↥k)
+  have h2pos : (0 : ℝ) < ‖(2 : ℚ̄₂)‖ := norm_pos_iff.mpr two_ne_zero
+  refine ⟨((a : ↥k) : ℚ̄₂), GQ2.sqrtCl ((a : ↥k) : ℚ̄₂),
+    ⟨hA0, hfix, (((a : ↥k) : ℚ̄₂) - 1) / 2, ?_, ?_, ?_⟩,
+    GQ2.sqrtCl_sq _, GQ2.sqrtCl_ne_zero hA0, ?_⟩
+  · -- the shift `b = (A − 1)/2` is `G_k`-fixed
+    intro g hg
+    have hgA := hfix g hg
+    rw [AlgEquiv.smul_def] at hgA ⊢
+    rw [map_div₀, map_sub, map_one, map_ofNat, hgA]
+  · -- `A = 1 + 2 b`
+    field_simp
+    ring
+  · -- `‖b‖ ≤ 1`
+    rw [norm_div, div_le_one h2pos]
+    exact ha
+  · -- the restricted Kummer cocycle of `sqrtCl A` presents `kummerClassK k a`
+    have hmem : (fun n : ↥(k.fixingSubgroup) =>
+        Kummer.kummerCocycleFun (GQ2.sqrtCl ((a : ↥k) : ℚ̄₂))
+          (n : Kummer.GaloisGroup ℚ_[2])) ∈ Z1 k.fixingSubgroup (ZMod 2) :=
+      (GQ2.kummerZ1On k.fixingSubgroup (GQ2.sqrtCl_sq _) (GQ2.sqrtCl_ne_zero hA0) hfix).2
+    rw [H1ofFun_of_mem hmem]
+    unfold GQ2.kummerClassK
+    congr 1
+
+/-- **Stage `e` of the Kummer depth filtration is exactly the mid classes** — the `≤`-mirror
+of `coe_kummerDepth_deep`.  Forward: `‖a − 1‖ ≤ ‖π‖^e = ‖2‖` is mid; backward: a mid class is
+`kummerClassK` of a unit with `‖a − 1‖ ≤ ‖2‖` (`midClass_eq_kummerClassK`), and mid IS
+depth-`e` on the nose (no discreteness upgrade). -/
+theorem coe_kummerDepth_mid [FiniteDimensional ℚ_[2] k]
+    {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) :
+    (kummerDepth k π e : Set (H1 k.fixingSubgroup (ZMod 2)))
+      = (midClassesSubgroup k.fixingSubgroup : Set (H1 k.fixingSubgroup (ZMod 2))) := by
+  have h2lt1 : ‖(2 : ℚ̄₂)‖ < 1 := by
+    rw [show (2 : ℚ̄₂) = algebraMap ℚ_[2] ℚ̄₂ 2 from (map_ofNat _ 2).symm,
+      norm_algebraMap' (𝕜' := ℚ̄₂) (2 : ℚ_[2])]
+    exact Padic.norm_p_lt_one
+  ext ξ
+  constructor
+  · -- depth `e` ⟹ mid
+    rintro ⟨a, ha, rfl⟩
+    exact kummerClassK_mem_midClasses k a (by rw [he]; exact ha.2)
+  · -- mid ⟹ depth `e`, via the bridge
+    intro hξ
+    obtain ⟨a, ha, rfl⟩ := midClass_eq_kummerClassK k hξ
+    have hA1 : ‖((a : ↥k) : ℚ̄₂)‖ = 1 := by
+      have hlt1 : ‖((a : ↥k) : ℚ̄₂) - 1‖ < 1 := lt_of_le_of_lt ha h2lt1
+      rw [show ((a : ↥k) : ℚ̄₂) = (((a : ↥k) : ℚ̄₂) - 1) + 1 by ring,
+        IsUltrametricDist.norm_add_eq_max_of_norm_ne_norm
+          (by rw [norm_one]; exact ne_of_lt hlt1),
+        norm_one, max_eq_right hlt1.le]
+    exact ⟨a, ⟨hA1, by rw [← he]; exact ha⟩, rfl⟩
+
+end MidStage
+
+/-! ## The square-depth parity core
+
+`w² − 1 = (w − 1)(w + 1)` with `w + 1 = (w − 1) + 2`: by the ultrametric, either
+`‖w − 1‖ > ‖2‖` and `‖w² − 1‖ = ‖w − 1‖²` (an EVEN `π`-power), or `‖w² − 1‖ ≤ ‖4‖`
+(past depth `2e`).  Consequence: no square sits at an odd depth `< 2e` — the injectivity
+half of the odd-level class-gr fullness. -/
+
+section SquareParity
+
+variable (k : IntermediateField ℚ_[2] ℚ̄₂) (π : ℚ̄₂)
+
+/-- **The discreteness step-down** (extracted from `coe_kummerDepth_deep`): a `k`-rational
+element strictly below depth `i` is at depth `i + 1`. -/
+theorem norm_step_down (hπk : π ∈ k) (hπ0 : π ≠ 0)
+    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    {x : ℚ̄₂} (hx : x ∈ k) {i : ℕ} (h : ‖x‖ < ‖π‖ ^ i) : ‖x‖ ≤ ‖π‖ ^ (i + 1) := by
+  have hπpos : (0 : ℝ) < ‖π‖ := norm_pos_iff.mpr hπ0
+  have hπipos : (0 : ℝ) < ‖π‖ ^ i := pow_pos hπpos i
+  have hy : ‖x / π ^ i‖ ≤ ‖π‖ := by
+    refine hπmax _ (div_mem hx (pow_mem hπk i)) ?_
+    rw [norm_div, norm_pow, div_lt_one hπipos]
+    exact h
+  have hπe0 : π ^ i ≠ 0 := pow_ne_zero i hπ0
+  calc ‖x‖ = ‖x / π ^ i‖ * ‖π‖ ^ i := by
+        rw [norm_div, norm_pow, div_mul_cancel₀ _ (ne_of_gt hπipos)]
+    _ ≤ ‖π‖ * ‖π‖ ^ i := mul_le_mul_of_nonneg_right hy (le_of_lt hπipos)
+    _ = ‖π‖ ^ (i + 1) := by rw [pow_succ, mul_comm]
+
+/-- **The square-depth dichotomy**: `‖w² − 1‖ = ‖w − 1‖²` or `‖w² − 1‖ ≤ ‖4‖`. -/
+theorem norm_sq_sub_one (w : ℚ̄₂) :
+    ‖w ^ 2 - 1‖ = ‖w - 1‖ ^ 2 ∨ ‖w ^ 2 - 1‖ ≤ ‖(4 : ℚ̄₂)‖ := by
+  have hfac : w ^ 2 - 1 = (w - 1) * (w + 1) := by ring
+  have hplus : w + 1 = (w - 1) + 2 := by ring
+  rcases lt_trichotomy ‖w - 1‖ ‖(2 : ℚ̄₂)‖ with hlt | heq | hgt
+  · -- `‖w−1‖ < ‖2‖`: `‖w+1‖ = ‖2‖`, so `‖w²−1‖ = ‖w−1‖·‖2‖ < ‖4‖`
+    right
+    have hp : ‖w + 1‖ = ‖(2 : ℚ̄₂)‖ := by
+      rw [hplus, IsUltrametricDist.norm_add_eq_max_of_norm_ne_norm (ne_of_lt hlt),
+        max_eq_right hlt.le]
+    rw [hfac, norm_mul, hp, show (4 : ℚ̄₂) = 2 * 2 by norm_num, norm_mul]
+    exact mul_le_mul_of_nonneg_right hlt.le (norm_nonneg _)
+  · -- `‖w−1‖ = ‖2‖`: `‖w+1‖ ≤ ‖2‖`, so `‖w²−1‖ ≤ ‖4‖`
+    right
+    have hp : ‖w + 1‖ ≤ ‖(2 : ℚ̄₂)‖ := by
+      rw [hplus]
+      exact le_trans (IsUltrametricDist.norm_add_le_max _ _) (by rw [heq, max_self])
+    rw [hfac, norm_mul, heq, show (4 : ℚ̄₂) = 2 * 2 by norm_num, norm_mul]
+    exact mul_le_mul_of_nonneg_left hp (norm_nonneg _)
+  · -- `‖w−1‖ > ‖2‖`: `‖w+1‖ = ‖w−1‖`, so `‖w²−1‖ = ‖w−1‖²`
+    left
+    have hp : ‖w + 1‖ = ‖w - 1‖ := by
+      rw [hplus, IsUltrametricDist.norm_add_eq_max_of_norm_ne_norm (ne_of_gt hgt),
+        max_eq_left hgt.le]
+    rw [hfac, norm_mul, hp, sq]
+
+/-- **No square at an odd depth `< 2e`**: if `w²` is within `‖π‖^j` of `1` for ODD
+`j ≤ 2e − 1`, it is within `‖π‖^{j+1}` (the depth skips the odd level).  Even case of the
+dichotomy: an even power cannot land at exactly an odd level (discreteness step-down on
+`w − 1`); `≤ ‖4‖`-case: `‖4‖ = ‖π‖^{2e} ≤ ‖π‖^{j+1}`. -/
+theorem norm_sq_sub_one_le_succ_of_odd (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e)
+    {w : ↥k} {t : ℕ} (hj2e : 2 * t + 1 ≤ 2 * e - 1) (he_pos : 1 ≤ e)
+    (h : ‖((w : ℚ̄₂)) ^ 2 - 1‖ ≤ ‖π‖ ^ (2 * t + 1)) :
+    ‖((w : ℚ̄₂)) ^ 2 - 1‖ ≤ ‖π‖ ^ (2 * t + 2) := by
+  have hπpos : (0 : ℝ) < ‖π‖ := norm_pos_iff.mpr hπ0
+  rcases norm_sq_sub_one ((w : ℚ̄₂)) with hcase | hcase
+  · -- even case: `‖w²−1‖ = ‖w−1‖²`
+    have hs : ‖(w : ℚ̄₂) - 1‖ ^ 2 ≤ ‖π‖ ^ (2 * t + 1) := by rw [← hcase]; exact h
+    -- `‖w−1‖² ≤ ‖π‖^{2t+1} < ‖π‖^{2t}` forces `‖w−1‖ < ‖π‖^t`, then step-down
+    have hlt : ‖(w : ℚ̄₂) - 1‖ < ‖π‖ ^ t := by
+      have h1 : ‖(w : ℚ̄₂) - 1‖ ^ 2 < (‖π‖ ^ t) ^ 2 := by
+        calc ‖(w : ℚ̄₂) - 1‖ ^ 2 ≤ ‖π‖ ^ (2 * t + 1) := hs
+          _ < ‖π‖ ^ (2 * t) := by
+              rw [pow_succ]
+              calc ‖π‖ ^ (2 * t) * ‖π‖ < ‖π‖ ^ (2 * t) * 1 :=
+                    mul_lt_mul_of_pos_left hπ1 (pow_pos hπpos _)
+                _ = ‖π‖ ^ (2 * t) := mul_one _
+          _ = (‖π‖ ^ t) ^ 2 := by rw [← pow_mul, mul_comm]
+      exact lt_of_pow_lt_pow_left₀ 2 (le_of_lt (pow_pos hπpos t)) h1
+    have hstep : ‖(w : ℚ̄₂) - 1‖ ≤ ‖π‖ ^ (t + 1) :=
+      norm_step_down k π hπk hπ0 hπmax (sub_mem (w : ↥k).2 (one_mem k)) hlt
+    rw [hcase]
+    calc ‖(w : ℚ̄₂) - 1‖ ^ 2 ≤ (‖π‖ ^ (t + 1)) ^ 2 :=
+          pow_le_pow_left₀ (norm_nonneg _) hstep 2
+      _ = ‖π‖ ^ (2 * t + 2) := by rw [← pow_mul]; ring_nf
+  · -- past-`2e` case: `‖4‖ = ‖π‖^{2e} ≤ ‖π‖^{2t+2}`
+    refine le_trans hcase ?_
+    have h4 : ‖(4 : ℚ̄₂)‖ = ‖π‖ ^ (2 * e) := by
+      rw [show (4 : ℚ̄₂) = 2 * 2 by norm_num, norm_mul, he, ← pow_add, two_mul]
+    rw [h4]
+    refine pow_le_pow_of_le_one (norm_nonneg π) hπ1.le ?_
+    omega
+
+end SquareParity
+
+/-! ## The graded squaring `U_i/U_{i+1} → U_{2i}/U_{2i+1}` and the even-level collapse
+
+Squaring doubles depth for `i ≤ e` (`w² − 1 = (w−1)(w+1)`, `‖w+1‖ ≤ max(‖w−1‖, ‖2‖)`).
+The induced map of graded pieces is INJECTIVE for `i < e` (the square-parity dichotomy +
+discreteness), and both grs have `2^f` elements (B13 `card_gr`), so it is SURJECTIVE — every
+even-depth unit is a square times something deeper.  Consequence
+(`kummerDepth_even_collapse`): the class-level filtration COLLAPSES at even levels
+`0 < 2i < 2e`. -/
+
+section GrSquaring
+
+variable (k : IntermediateField ℚ_[2] ℚ̄₂) (π : ℚ̄₂)
+
+/-- The strengthened square-depth dichotomy, retaining the base-side bound in the degenerate
+branch: either `‖w − 1‖ ≤ ‖2‖` (the unit is mid-or-deeper) or `‖w² − 1‖ = ‖w − 1‖²`. -/
+theorem norm_sq_sub_one' (w : ℚ̄₂) :
+    ‖w - 1‖ ≤ ‖(2 : ℚ̄₂)‖ ∨ ‖w ^ 2 - 1‖ = ‖w - 1‖ ^ 2 := by
+  rcases le_or_gt ‖w - 1‖ ‖(2 : ℚ̄₂)‖ with hle | hgt
+  · exact Or.inl hle
+  · right
+    have hfac : w ^ 2 - 1 = (w - 1) * (w + 1) := by ring
+    have hp : ‖w + 1‖ = ‖w - 1‖ := by
+      rw [show w + 1 = (w - 1) + 2 by ring,
+        IsUltrametricDist.norm_add_eq_max_of_norm_ne_norm (ne_of_gt hgt),
+        max_eq_left hgt.le]
+    rw [hfac, norm_mul, hp, sq]
+
+/-- **Squaring doubles depth**: `u ∈ U_i ⟹ u² ∈ U_{2i}` for `i ≤ e`. -/
+theorem sq_mem_depthUnits (hπle : ‖π‖ ≤ 1) {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e)
+    {i : ℕ} (hie : i ≤ e) {u : (↥k)ˣ} (hu : u ∈ depthUnits k π i) :
+    u ^ 2 ∈ depthUnits k π (2 * i) := by
+  obtain ⟨hu1, hud⟩ := hu
+  have hcast : (((u ^ 2 : (↥k)ˣ) : ↥k) : ℚ̄₂) = (((u : ↥k) : ℚ̄₂)) ^ 2 := by
+    push_cast; ring
+  constructor
+  · show ‖(((u ^ 2 : (↥k)ˣ) : ↥k) : ℚ̄₂)‖ = 1
+    rw [hcast, norm_pow, hu1, one_pow]
+  · show ‖(((u ^ 2 : (↥k)ˣ) : ↥k) : ℚ̄₂) - 1‖ ≤ ‖π‖ ^ (2 * i)
+    have hplus : ‖((u : ↥k) : ℚ̄₂) + 1‖ ≤ ‖π‖ ^ i := by
+      rw [show ((u : ↥k) : ℚ̄₂) + 1 = (((u : ↥k) : ℚ̄₂) - 1) + 2 by ring]
+      refine le_trans (IsUltrametricDist.norm_add_le_max _ _) (max_le hud ?_)
+      rw [he]
+      exact pow_le_pow_of_le_one (norm_nonneg π) hπle hie
+    rw [hcast, show (((u : ↥k) : ℚ̄₂)) ^ 2 - 1
+        = (((u : ↥k) : ℚ̄₂) - 1) * (((u : ↥k) : ℚ̄₂) + 1) by ring,
+      norm_mul, two_mul, pow_add]
+    exact mul_le_mul hud hplus (norm_nonneg _) (by positivity)
+
+/-- **Squaring sends `U_{i+1}` into `U_{2i+1}`** (`i ≤ e`) — the well-definedness of the
+graded squaring. -/
+theorem sq_mem_depthUnits_succ (hπle : ‖π‖ ≤ 1) {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e)
+    {i : ℕ} (hie : i ≤ e) {v : (↥k)ˣ} (hv : v ∈ depthUnits k π (i + 1)) :
+    v ^ 2 ∈ depthUnits k π (2 * i + 1) := by
+  obtain ⟨hv1, hvd⟩ := hv
+  have hcast : (((v ^ 2 : (↥k)ˣ) : ↥k) : ℚ̄₂) = (((v : ↥k) : ℚ̄₂)) ^ 2 := by
+    push_cast; ring
+  constructor
+  · show ‖(((v ^ 2 : (↥k)ˣ) : ↥k) : ℚ̄₂)‖ = 1
+    rw [hcast, norm_pow, hv1, one_pow]
+  · show ‖(((v ^ 2 : (↥k)ˣ) : ↥k) : ℚ̄₂) - 1‖ ≤ ‖π‖ ^ (2 * i + 1)
+    have hplus : ‖((v : ↥k) : ℚ̄₂) + 1‖ ≤ ‖π‖ ^ min (i + 1) e := by
+      rw [show ((v : ↥k) : ℚ̄₂) + 1 = (((v : ↥k) : ℚ̄₂) - 1) + 2 by ring]
+      refine le_trans (IsUltrametricDist.norm_add_le_max _ _) (max_le ?_ ?_)
+      · exact hvd.trans (pow_le_pow_of_le_one (norm_nonneg π) hπle (min_le_left _ _))
+      · rw [he]
+        exact pow_le_pow_of_le_one (norm_nonneg π) hπle (min_le_right _ _)
+    rw [hcast, show (((v : ↥k) : ℚ̄₂)) ^ 2 - 1
+        = (((v : ↥k) : ℚ̄₂) - 1) * (((v : ↥k) : ℚ̄₂) + 1) by ring, norm_mul]
+    calc ‖((v : ↥k) : ℚ̄₂) - 1‖ * ‖((v : ↥k) : ℚ̄₂) + 1‖
+        ≤ ‖π‖ ^ (i + 1) * ‖π‖ ^ min (i + 1) e :=
+          mul_le_mul hvd hplus (norm_nonneg _) (by positivity)
+      _ = ‖π‖ ^ (i + 1 + min (i + 1) e) := by rw [← pow_add]
+      _ ≤ ‖π‖ ^ (2 * i + 1) :=
+          pow_le_pow_of_le_one (norm_nonneg π) hπle (by omega)
+
+/-- **A unit whose square is one level deeper than double is itself one level deeper**
+(`i + 1 ≤ e`): the kernel-triviality core of the graded squaring, via the strengthened
+dichotomy + the discreteness step-down. -/
+theorem mem_depthUnits_succ_of_sq (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) {i : ℕ} (hie : i + 1 ≤ e)
+    {v : (↥k)ˣ} (hv : v ∈ depthUnits k π i)
+    (hsq : ‖(((v : ↥k) : ℚ̄₂)) ^ 2 - 1‖ ≤ ‖π‖ ^ (2 * i + 1)) :
+    v ∈ depthUnits k π (i + 1) := by
+  have hπpos : (0 : ℝ) < ‖π‖ := norm_pos_iff.mpr hπ0
+  obtain ⟨hv1, hvd⟩ := hv
+  refine ⟨hv1, ?_⟩
+  rcases norm_sq_sub_one' ((v : ↥k) : ℚ̄₂) with hcase | hcase
+  · -- `‖v−1‖ ≤ ‖2‖ = ‖π‖^e ≤ ‖π‖^{i+1}`
+    refine hcase.trans ?_
+    rw [he]
+    exact pow_le_pow_of_le_one (norm_nonneg π) hπ1.le hie
+  · -- `‖v−1‖² ≤ ‖π‖^{2i+1} < ‖π‖^{2i}` forces `‖v−1‖ < ‖π‖^i`, then step-down
+    have hlt : ‖((v : ↥k) : ℚ̄₂) - 1‖ < ‖π‖ ^ i := by
+      have h1 : ‖((v : ↥k) : ℚ̄₂) - 1‖ ^ 2 < (‖π‖ ^ i) ^ 2 := by
+        calc ‖((v : ↥k) : ℚ̄₂) - 1‖ ^ 2 = ‖(((v : ↥k) : ℚ̄₂)) ^ 2 - 1‖ := hcase.symm
+          _ ≤ ‖π‖ ^ (2 * i + 1) := hsq
+          _ < ‖π‖ ^ (2 * i) := by
+              rw [pow_succ]
+              calc ‖π‖ ^ (2 * i) * ‖π‖ < ‖π‖ ^ (2 * i) * 1 :=
+                    mul_lt_mul_of_pos_left hπ1 (pow_pos hπpos _)
+                _ = ‖π‖ ^ (2 * i) := mul_one _
+          _ = (‖π‖ ^ i) ^ 2 := by rw [← pow_mul, mul_comm]
+      exact lt_of_pow_lt_pow_left₀ 2 (le_of_lt (pow_pos hπpos i)) h1
+    exact norm_step_down k π hπk hπ0 hπmax
+      (sub_mem (((v : (↥k)ˣ) : ↥k)).2 (one_mem k)) hlt
+
+variable {e : ℕ}
+
+/-- The squaring homomorphism `U_i →* U_{2i}` on the subtype groups (`i ≤ e`). -/
+noncomputable def sqHom (hπle : ‖π‖ ≤ 1) (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e)
+    {i : ℕ} (hie : i ≤ e) :
+    ↥(depthUnits k π i) →* ↥(depthUnits k π (2 * i)) where
+  toFun u := ⟨(u : (↥k)ˣ) ^ 2, sq_mem_depthUnits k π hπle he hie u.2⟩
+  map_one' := by
+    apply Subtype.ext
+    show ((1 : (↥k)ˣ)) ^ 2 = 1
+    rw [one_pow]
+  map_mul' u v := by
+    apply Subtype.ext
+    show ((u : (↥k)ˣ) * v) ^ 2 = ((u : (↥k)ˣ)) ^ 2 * ((v : (↥k)ˣ)) ^ 2
+    rw [mul_pow]
+
+/-- **The graded squaring** `U_i/U_{i+1} →* U_{2i}/U_{2i+1}` (`i ≤ e`). -/
+noncomputable def grSq (hπle : ‖π‖ ≤ 1) (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e)
+    {i : ℕ} (hie : i ≤ e) :
+    (↥(depthUnits k π i) ⧸ (depthUnits k π (i + 1)).subgroupOf (depthUnits k π i)) →*
+      (↥(depthUnits k π (2 * i)) ⧸
+        (depthUnits k π (2 * i + 1)).subgroupOf (depthUnits k π (2 * i))) :=
+  QuotientGroup.map _ _ (sqHom k π hπle he hie) (by
+    intro v hv
+    rw [Subgroup.mem_subgroupOf] at hv
+    rw [Subgroup.mem_comap, Subgroup.mem_subgroupOf]
+    exact sq_mem_depthUnits_succ k π hπle he hie hv)
+
+/-- **Injectivity of the graded squaring** for `i + 1 ≤ e`. -/
+theorem grSq_injective (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) {i : ℕ} (hie : i + 1 ≤ e) :
+    Function.Injective (grSq k π hπ1.le he (Nat.le_of_succ_le hie)) := by
+  rw [injective_iff_map_eq_one]
+  intro q hq
+  induction q using QuotientGroup.induction_on with
+  | H v =>
+    -- `grSq (mk v) = mk (sqHom v)` by definition of `QuotientGroup.map`
+    have hq' : (QuotientGroup.mk (sqHom k π hπ1.le he (Nat.le_of_succ_le hie) v)
+        : ↥(depthUnits k π (2 * i)) ⧸
+          (depthUnits k π (2 * i + 1)).subgroupOf (depthUnits k π (2 * i))) = 1 := hq
+    rw [QuotientGroup.eq_one_iff, Subgroup.mem_subgroupOf] at hq'
+    rw [QuotientGroup.eq_one_iff, Subgroup.mem_subgroupOf]
+    -- `hq' : v² ∈ U_{2i+1}`; extract the norm bound and apply the kernel-triviality core
+    have hcast : ((((v : (↥k)ˣ) ^ 2 : (↥k)ˣ) : ↥k) : ℚ̄₂)
+        = ((((v : (↥k)ˣ) : ↥k)) : ℚ̄₂) ^ 2 := by
+      push_cast; ring
+    refine mem_depthUnits_succ_of_sq k π hπk hπ0 hπ1 hπmax he hie v.2 ?_
+    have hd : ‖((((v : (↥k)ˣ) ^ 2 : (↥k)ˣ) : ↥k) : ℚ̄₂) - 1‖ ≤ ‖π‖ ^ (2 * i + 1) := hq'.2
+    rwa [hcast] at hd
+
+/-- **Surjectivity of the graded squaring** for `1 ≤ i`, `i + 1 ≤ e`: injective + both grs
+have `2^f` elements (B13 `card_gr`, passed as hypotheses). -/
+theorem grSq_surjective (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) {f : ℕ} (_ : 1 ≤ f)
+    {i : ℕ} (hie : i + 1 ≤ e)
+    (hcard_i : Nat.card (↥(depthUnits k π i) ⧸
+      (depthUnits k π (i + 1)).subgroupOf (depthUnits k π i)) = 2 ^ f)
+    (hcard_2i : Nat.card (↥(depthUnits k π (2 * i)) ⧸
+      (depthUnits k π (2 * i + 1)).subgroupOf (depthUnits k π (2 * i))) = 2 ^ f) :
+    Function.Surjective (grSq k π hπ1.le he (Nat.le_of_succ_le hie)) := by
+  haveI hfin1 : Finite (↥(depthUnits k π i) ⧸
+      (depthUnits k π (i + 1)).subgroupOf (depthUnits k π i)) :=
+    (Nat.card_pos_iff.mp (by rw [hcard_i]; positivity)).2
+  haveI hfin2 : Finite (↥(depthUnits k π (2 * i)) ⧸
+      (depthUnits k π (2 * i + 1)).subgroupOf (depthUnits k π (2 * i))) :=
+    (Nat.card_pos_iff.mp (by rw [hcard_2i]; positivity)).2
+  haveI := Fintype.ofFinite (↥(depthUnits k π i) ⧸
+      (depthUnits k π (i + 1)).subgroupOf (depthUnits k π i))
+  haveI := Fintype.ofFinite (↥(depthUnits k π (2 * i)) ⧸
+      (depthUnits k π (2 * i + 1)).subgroupOf (depthUnits k π (2 * i)))
+  have hcards : Fintype.card (↥(depthUnits k π i) ⧸
+        (depthUnits k π (i + 1)).subgroupOf (depthUnits k π i))
+      = Fintype.card (↥(depthUnits k π (2 * i)) ⧸
+        (depthUnits k π (2 * i + 1)).subgroupOf (depthUnits k π (2 * i))) := by
+    rw [← Nat.card_eq_fintype_card, ← Nat.card_eq_fintype_card, hcard_i, hcard_2i]
+  exact ((Fintype.bijective_iff_injective_and_card _).mpr
+    ⟨grSq_injective k π hπk hπ0 hπ1 hπmax he hie, hcards⟩).2
+
+/-- **The even-level collapse** (`0 < 2i < 2e`): the class-level Kummer filtration does not
+move at even levels — every even-depth unit is a square times a one-deeper unit, and squares
+have trivial class. -/
+theorem kummerDepth_even_collapse (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) {f : ℕ} (hf_pos : 1 ≤ f)
+    {i : ℕ} (hie : i + 1 ≤ e)
+    (hcard_i : Nat.card (↥(depthUnits k π i) ⧸
+      (depthUnits k π (i + 1)).subgroupOf (depthUnits k π i)) = 2 ^ f)
+    (hcard_2i : Nat.card (↥(depthUnits k π (2 * i)) ⧸
+      (depthUnits k π (2 * i + 1)).subgroupOf (depthUnits k π (2 * i))) = 2 ^ f) :
+    kummerDepth k π (2 * i) ≤ kummerDepth k π (2 * i + 1) := by
+  rintro ξ ⟨a, ha, rfl⟩
+  -- hit `[a]` in the gr by the surjective graded squaring
+  obtain ⟨wq, hwq⟩ := grSq_surjective k π hπk hπ0 hπ1 hπmax he hf_pos hie hcard_i hcard_2i
+    (QuotientGroup.mk (⟨a, ha⟩ : ↥(depthUnits k π (2 * i))))
+  obtain ⟨w, rfl⟩ := QuotientGroup.mk_surjective wq
+  -- unpack: `(sqHom w)⁻¹ · a ∈ U_{2i+1}`
+  have hco : (QuotientGroup.mk (sqHom k π hπ1.le he (Nat.le_of_succ_le hie) w)
+      : ↥(depthUnits k π (2 * i)) ⧸
+        (depthUnits k π (2 * i + 1)).subgroupOf (depthUnits k π (2 * i)))
+      = QuotientGroup.mk ⟨a, ha⟩ := hwq
+  rw [QuotientGroup.eq] at hco
+  rw [Subgroup.mem_subgroupOf] at hco
+  -- `b := (w²)⁻¹ · a` is a depth-`2i+1` unit and `a = w² · b`
+  set b : (↥k)ˣ := ((w : (↥k)ˣ) ^ 2)⁻¹ * a with hbdef
+  have hb : b ∈ depthUnits k π (2 * i + 1) := hco
+  have hdecomp : a = (w : (↥k)ˣ) ^ 2 * b := by
+    rw [hbdef, mul_inv_cancel_left]
+  rw [show kummerClassK k a = kummerClassK k ((w : (↥k)ˣ) ^ 2) + kummerClassK k b from by
+    rw [← kummerClassK_mul, ← hdecomp]]
+  rw [kummerClassK_eq_zero_of_sq k ((w : (↥k)ˣ) ^ 2) ((w : (↥k)ˣ) : ↥k)
+    (by rw [Units.val_pow_eq_pow_val]), zero_add]
+  exact ⟨b, hb, rfl⟩
+
+end GrSquaring
+
+/-! ## The class-graded comparison map and the odd-level count
+
+`classGrMap : U_j/U_{j+1} → Dc_j/Dc_{j+1}`, `[u] ↦ [[u]]` — always surjective (depth-`j`
+classes are classes of depth-`j` units by definition), and INJECTIVE at odd `j < 2e`:
+a unit whose class drops a level is `b·w²` with `b` one deeper and `w²` a square in `U_j`
+(the Kummer kernel), and squares skip odd levels (`norm_sq_sub_one_le_succ_of_odd`), so the
+unit itself is one deeper.  Consequences: `#(Dc_j/Dc_{j+1}) ≤ 2^f` always, `= 2^f` at odd
+`j < 2e`, and `= 1` at even `0 < j < 2e` (increment 2's collapse). -/
+
+section ClassGr
+
+variable (k : IntermediateField ℚ_[2] ℚ̄₂) (π : ℚ̄₂)
+
+/-- The comparison map from the unit-graded piece to the class-graded piece. -/
+noncomputable def classGrMap (j : ℕ) :
+    (↥(depthUnits k π j) ⧸ (depthUnits k π (j + 1)).subgroupOf (depthUnits k π j)) →
+      (↥(kummerDepth k π j) ⧸
+        (kummerDepth k π (j + 1)).addSubgroupOf (kummerDepth k π j)) :=
+  fun q => Quotient.liftOn' q
+    (fun u => QuotientAddGroup.mk
+      ⟨kummerClassK k (u : (↥k)ˣ),
+        (mem_kummerDepth_iff k π).mpr ⟨(u : (↥k)ˣ), u.2, rfl⟩⟩)
+    (by
+      intro u v huv
+      rw [QuotientGroup.leftRel_apply] at huv
+      rw [Subgroup.mem_subgroupOf] at huv
+      refine QuotientAddGroup.eq.mpr ?_
+      rw [AddSubgroup.mem_addSubgroupOf]
+      have hgoal : -(kummerClassK k (u : (↥k)ˣ)) + kummerClassK k (v : (↥k)ˣ)
+          ∈ kummerDepth k π (j + 1) := by
+        refine (mem_kummerDepth_iff k π).mpr ⟨((u : (↥k)ˣ))⁻¹ * v, huv, ?_⟩
+        rw [kummerClassK_mul, kummerClassK_inv,
+          neg_eq_of_add_eq_zero_left (h1_add_self (kummerClassK k (u : (↥k)ˣ)))]
+      exact hgoal)
+
+/-- Computation rule (definitional). -/
+theorem classGrMap_mk (j : ℕ) (u : ↥(depthUnits k π j)) :
+    classGrMap k π j (QuotientGroup.mk u)
+      = QuotientAddGroup.mk ⟨kummerClassK k (u : (↥k)ˣ),
+          (mem_kummerDepth_iff k π).mpr ⟨(u : (↥k)ˣ), u.2, rfl⟩⟩ := rfl
+
+/-- `classGrMap` is surjective (depth-`j` classes are classes of depth-`j` units). -/
+theorem classGrMap_surjective (j : ℕ) : Function.Surjective (classGrMap k π j) := by
+  intro q
+  induction q using QuotientAddGroup.induction_on with
+  | H x =>
+    obtain ⟨a, ha, hax⟩ := x.2
+    exact ⟨QuotientGroup.mk ⟨a, ha⟩, congrArg QuotientAddGroup.mk (Subtype.ext hax)⟩
+
+/-- **`classGrMap` is injective at odd `j ≤ 2e − 1`** — the odd-level fullness core. -/
+theorem classGrMap_injective [FiniteDimensional ℚ_[2] k]
+    (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) (he_pos : 1 ≤ e)
+    {t : ℕ} (hj2e : 2 * t + 1 ≤ 2 * e - 1) :
+    Function.Injective (classGrMap k π (2 * t + 1)) := by
+  intro q q'
+  induction q using QuotientGroup.induction_on with
+  | H u =>
+    induction q' using QuotientGroup.induction_on with
+    | H v =>
+      intro hqq
+      rw [classGrMap_mk, classGrMap_mk] at hqq
+      have hqq' := QuotientAddGroup.eq.mp hqq
+      rw [AddSubgroup.mem_addSubgroupOf] at hqq'
+      -- re-view the membership with the subtype-coe reduced
+      have hqq2 : -(kummerClassK k (u : (↥k)ˣ)) + kummerClassK k (v : (↥k)ˣ)
+          ∈ kummerDepth k π (2 * t + 1 + 1) := hqq'
+      obtain ⟨b, hb, hbeq⟩ := hqq2
+      -- flip the sign (2-torsion): `[b] = [u] + [v]`
+      have hbeq' : kummerClassK k b
+          = kummerClassK k (u : (↥k)ˣ) + kummerClassK k (v : (↥k)ˣ) := by
+        rw [hbeq, neg_eq_of_add_eq_zero_left (h1_add_self (kummerClassK k (u : (↥k)ˣ)))]
+      -- `[u⁻¹·v·b⁻¹] = 0`, so it is a square
+      have h0 : kummerClassK k ((u : (↥k)ˣ)⁻¹ * (v : (↥k)ˣ) * b⁻¹) = 0 := by
+        rw [kummerClassK_mul, kummerClassK_mul, kummerClassK_inv, kummerClassK_inv, hbeq']
+        exact h1_add_self _
+      obtain ⟨w, hw⟩ := exists_sq_of_kummerClassK_eq_zero k _ h0
+      -- the square `w² = u⁻¹·v·b⁻¹` is a depth-`j` unit, hence depth-`j+1` (odd parity)
+      have hc : (u : (↥k)ˣ)⁻¹ * (v : (↥k)ˣ) * b⁻¹ ∈ depthUnits k π (2 * t + 1) :=
+        mul_mem (mul_mem (inv_mem u.2) v.2)
+          (inv_mem (depthUnits_antitone k π hπ1.le (Nat.le_succ _) hb))
+      have hcoe : ((w : ℚ̄₂)) ^ 2
+          = ((((u : (↥k)ˣ)⁻¹ * (v : (↥k)ˣ) * b⁻¹ : (↥k)ˣ) : ↥k) : ℚ̄₂) := by
+        rw [← SubmonoidClass.coe_pow, hw]
+      have hwnorm : ‖((w : ℚ̄₂)) ^ 2 - 1‖ ≤ ‖π‖ ^ (2 * t + 1) := by
+        rw [hcoe]
+        exact hc.2
+      have hpar := norm_sq_sub_one_le_succ_of_odd k π hπk hπ0 hπ1 hπmax he hj2e he_pos hwnorm
+      have hcmem : (u : (↥k)ˣ)⁻¹ * (v : (↥k)ˣ) * b⁻¹ ∈ depthUnits k π (2 * t + 2) := by
+        refine ⟨hc.1, ?_⟩
+        rw [← hcoe]
+        exact hpar
+      -- `u⁻¹·v = (u⁻¹·v·b⁻¹)·b ∈ U_{j+1}`
+      have huv : (u : (↥k)ˣ)⁻¹ * (v : (↥k)ˣ) ∈ depthUnits k π (2 * t + 1 + 1) := by
+        rw [show (u : (↥k)ˣ)⁻¹ * (v : (↥k)ˣ)
+            = ((u : (↥k)ˣ)⁻¹ * (v : (↥k)ˣ) * b⁻¹) * b by group]
+        exact mul_mem hcmem hb
+      rw [QuotientGroup.eq]
+      rw [Subgroup.mem_subgroupOf]
+      exact huv
+
+
+/-- **The odd-level class-gr count**: `#(Dc_j/Dc_{j+1}) = 2^f` at odd `j ≤ 2e − 1`
+(the comparison map is bijective). -/
+theorem card_classGr_odd [FiniteDimensional ℚ_[2] k]
+    (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) (he_pos : 1 ≤ e)
+    {t : ℕ} (hj2e : 2 * t + 1 ≤ 2 * e - 1) {f : ℕ}
+    (hcard_j : Nat.card (↥(depthUnits k π (2 * t + 1)) ⧸
+      (depthUnits k π (2 * t + 1 + 1)).subgroupOf (depthUnits k π (2 * t + 1))) = 2 ^ f) :
+    Nat.card (↥(kummerDepth k π (2 * t + 1)) ⧸
+      (kummerDepth k π (2 * t + 1 + 1)).addSubgroupOf (kummerDepth k π (2 * t + 1)))
+      = 2 ^ f := by
+  haveI : Finite (↥(depthUnits k π (2 * t + 1)) ⧸
+      (depthUnits k π (2 * t + 1 + 1)).subgroupOf (depthUnits k π (2 * t + 1))) :=
+    (Nat.card_pos_iff.mp (by rw [hcard_j]; positivity)).2
+  rw [← hcard_j]
+  exact Nat.card_eq_of_bijective _
+    ⟨classGrMap_injective k π hπk hπ0 hπ1 hπmax he he_pos hj2e,
+      classGrMap_surjective k π (2 * t + 1)⟩ |>.symm
+
+/-- **The even-level class-gr count**: `#(Dc_{2i}/Dc_{2i+1}) = 1` for `0 < 2i < 2e`
+(increment 2's collapse makes the quotient a subsingleton). -/
+theorem card_classGr_even (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) {f : ℕ} (hf_pos : 1 ≤ f)
+    {i : ℕ} (hie : i + 1 ≤ e)
+    (hcard_i : Nat.card (↥(depthUnits k π i) ⧸
+      (depthUnits k π (i + 1)).subgroupOf (depthUnits k π i)) = 2 ^ f)
+    (hcard_2i : Nat.card (↥(depthUnits k π (2 * i)) ⧸
+      (depthUnits k π (2 * i + 1)).subgroupOf (depthUnits k π (2 * i))) = 2 ^ f) :
+    Nat.card (↥(kummerDepth k π (2 * i)) ⧸
+      (kummerDepth k π (2 * i + 1)).addSubgroupOf (kummerDepth k π (2 * i))) = 1 := by
+  have hcollapse := kummerDepth_even_collapse k π hπk hπ0 hπ1 hπmax he hf_pos hie
+    hcard_i hcard_2i
+  have hsub : Subsingleton (↥(kummerDepth k π (2 * i)) ⧸
+      (kummerDepth k π (2 * i + 1)).addSubgroupOf (kummerDepth k π (2 * i))) := by
+    refine ⟨fun x y => ?_⟩
+    induction x using QuotientAddGroup.induction_on with
+    | H a =>
+      induction y using QuotientAddGroup.induction_on with
+      | H b =>
+        refine QuotientAddGroup.eq.mpr ?_
+        rw [AddSubgroup.mem_addSubgroupOf]
+        exact hcollapse (AddSubgroup.add_mem _ (AddSubgroup.neg_mem _ a.2) b.2)
+  exact Nat.card_eq_one_iff_unique.mpr ⟨⟨fun x y => Subsingleton.elim x y⟩, ⟨0⟩⟩
+
+end ClassGr
+
+end GQ2

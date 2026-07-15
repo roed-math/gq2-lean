@@ -1,29 +1,38 @@
-import GQ2.Devissage
-import GQ2.TrivialSelfDual
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.Devissage
+public import GQ2.TrivialSelfDual
+
+@[expose] public section
 
 /-!
-# The dévissage induction: `prop_5_15` from the simple case  (ticket P-13f, induction half)
+# The dévissage induction: `prop_5_15` from the simple case
 
 `prop_5_15_of_simple`: if `IsSelfDual t B` holds for every **simple** finite elementary-2
-`C`-module `B` (hypothesis `hsimp` — the split/ramified dispatch, the other P-13f half), then it
+`C`-module `B` (hypothesis `hsimp` — the split/ramified dispatch, the other the Prop. 5.15 proof half), then it
 holds for *every* finite elementary-2 `C`-module `A`.
 
 Strong induction on `Nat.card A`:
 
 * `Subsingleton A` — the zero module carries the trivial action, so `trivialSelfDual`
-  (P-13f part (i), proved) applies;
+  (the Prop. 5.15 proof part (i), proved) applies;
 * `IsSimpleModTwo C A` — the hypothesis `hsimp`;
 * otherwise `A` has a `C`-stable additive subgroup `W ∉ {⊥, ⊤}`; the short exact sequence
   `0 → W → A → A ⧸ W → 0` (with the transported actions below) has both ends of strictly
   smaller cardinality, so the inductive hypothesis applies to them, and `lemma_5_11`
-  (P-13e, proved — the mapping-cone two-out-of-three for `IsSelfDual`) yields the middle.
+  (the dévissage proof, proved — the mapping-cone two-out-of-three for `IsSelfDual`) yields the middle.
 
 Infrastructure (reusable): the transported actions `stableSubAction` on `↥W` and
 `stableQuotAction` on `A ⧸ W` for a `C`-stable `W`, the equivariance of `W.subtype` and
 `QuotientAddGroup.mk' W`, exactness, the char-2 transfer to both subquotients, and the strict
 cardinality drops.
 
-Glue (landed): `GQ2.FoxH.prop_5_15` in `GQ2/DualityAssembly.lean` composes
+Glue (proved): `GQ2.FoxH.prop_5_15` in `GQ2/DualityAssembly.lean` composes
 `prop_5_15_of_simple t ht hw hgen` with the simple-case assembly `selfDual_of_simple`
 (dispatched via the `tau_split_or_ramified` dichotomy).  Paper: Prop. 5.15, proof by
 dévissage along a composition series (§5.3); `Ax = ∅` (std-3).
@@ -141,11 +150,11 @@ theorem card_quot_lt_of_ne_bot (W : AddSubgroup A) (hWbot : W ≠ ⊥) :
 
 end CardDrops
 
-/-- **Prop 5.15, dévissage half (P-13f)**: `IsSelfDual` for *all* finite elementary-2
+/-- **Prop 5.15, dévissage half (the Prop. 5.15 proof)**: `IsSelfDual` for *all* finite elementary-2
 `C`-modules, parameterized over the simple case (`hsimp` — the split/ramified dispatch).
-Strong induction on `Nat.card A`; the induction step is `lemma_5_11` (P-13e) along
+Strong induction on `Nat.card A`; the induction step is `lemma_5_11` (the dévissage proof) along
 `0 → W → A → A ⧸ W → 0` for a `C`-stable `W ∉ {⊥, ⊤}`; the subsingleton base is
-`trivialSelfDual` (P-13f part (i)). -/
+`trivialSelfDual` (the Prop. 5.15 proof part (i)). -/
 theorem prop_5_15_of_simple (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     (hgen : t.Generates)
     (hsimp : ∀ (B : Type u) [AddCommGroup B] [DistribMulAction C B] [Finite B],
@@ -180,7 +189,7 @@ theorem prop_5_15_of_simple (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
         -- inductive hypotheses on the ends
         have ihW : IsSelfDual t ↥W := IH _ hltW ↥W rfl hW₂
         have ihQ : IsSelfDual t (A ⧸ W) := IH _ hltQ (A ⧸ W) rfl hQ₂
-        -- dévissage (P-13e) along `0 → W → A → A ⧸ W → 0`
+        -- dévissage (the dévissage proof) along `0 → W → A → A ⧸ W → 0`
         exact (lemma_5_11 t ht hw hgen hA₂ W.subtype (QuotientAddGroup.mk' W)
           (stableSubAction_subtype_equivariant W hWstable)
           (stableQuotAction_mk'_equivariant W hWstable)

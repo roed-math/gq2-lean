@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.SectionEight.ScalarCount
 
 /-!
@@ -5,7 +10,6 @@ import GQ2.SectionEight.ScalarCount
 
 **Lemma 8.3** (display (124)): the eight-lift partition of the master set of cover lifts.
 **Lemma 8.6** (displays (127)/(128)): the radical-edge half-torsor count, per source.
-Split out of `GQ2.SectionEight` (wave 38a).
 -/
 
 open scoped Pointwise
@@ -198,6 +202,10 @@ private theorem masterLifts_imageFibre
 
 end Lemma83Fibres
 
+/-- **Central-cover exact-image transform.**  For a scalar central cover, eight times the
+liftable count over an image subgroup `J` equals the sum of exact-image counts over the subgroups
+of the cover mapping onto `J`.  This is the result currently numbered Lemma 8.3 in the paper
+(stable paper identifier `lem-covertransform`). -/
 theorem lemma_8_3
     [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
     (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
@@ -208,7 +216,7 @@ theorem lemma_8_3
     8 * liftableCount b F T C J hJ
       = ∑ᶠ J' ∈ {J' : Subgroup C.cover | J'.map C.p = J},
           exactImageCountOn b F (C.pullTarget T) J' := by
-  -- Scaffolding for the O-finish (all landed above): `masterLifts` (the master set `R`),
+  -- Scaffolding for the O-finish (all proved above): `masterLifts` (the master set `R`),
   -- `stratum_surj`, the corestriction layer (`cmhCodRestrict`/`cmhInclude`/`cmhSubgroupEquiv`),
   -- `pCont`, and the torsor core (`fiberLiftEquiv` etc.).  Remaining: the two `Nat.card_sigma`
   -- fibrations of `R` (by projection → `8·u^β` via `fiberLiftEquiv`; by image → the RHS via
@@ -268,8 +276,8 @@ descends to `B/T` iff `p⁻¹(T)` has a normal complement missing `z` (the paper
 clause), and "edge ≠ 0" is the negation. -/
 
 /- `polarMul`, `RadicalCoverData` (+`instNormalM`, `NoDescent`), `two_mul_card_fiber`,
-`MLifts`, and `MLifts.Central` moved to `GQ2/RadicalEdgeData.lean` (P-16a def-layer
-relocation, 2026-07-04; see `docs/p16-ticket-split.md`). -/
+`MLifts`, and `MLifts.Central` live in `GQ2/RadicalEdge/Data.lean`, upstream of the source-specific
+half-torsor proofs. -/
 
 section HalfTorsor
 
@@ -279,7 +287,7 @@ variable {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Fin
 every lower *epimorphism* `ρ : Γ_A ↠ B/M`, exactly half of the unrestricted `M`-lifts of
 `ρ` satisfy the central relation.  (The degree-one duality making the variation functional
 (127) nonzero is §5 content for `Γ_A` — B7 enters through 5.15/5.16.)
-[P-16 statement; proof = O-half.] -/
+[the §8 proof layer statement; proof = O-half.] -/
 theorem lemma_8_6_gammaA (D : RadicalCoverData Bg)
     (hedge : D.NoDescent)
     (ρ : ContinuousMonoidHom GammaA (Bg ⧸ D.M))
@@ -288,10 +296,10 @@ theorem lemma_8_6_gammaA (D : RadicalCoverData Bg)
   LedgerGammaA.half_torsor_gammaA D hedge ρ hρ
 
 /-- **Lemma 8.6 (half-torsor count), local source**: as `lemma_8_6_gammaA`, for `G_ℚ₂`
-(degree-one duality = B6).  **Amended (P-16b, 2026-07-05, documented)** with the standing
-§8 side conditions, per the `lemma_8_2_local` (compactness) and `lemma_8_3` (`hfg`
+(degree-one duality = B6).  The standing §8 side conditions are explicit, following
+`lemma_8_2_local` (compactness) and `lemma_8_3` (`hfg`
 topological finite generation, the B1-shaped input) precedents — they finitize the counted
-`MLifts`.  Proof: P-16a's central-obstruction engine + the B6 twist of
+`MLifts`.  Proof: the central-obstruction framework's central-obstruction engine + the B6 twist of
 `GQ2/RadicalEdgeLocal.lean` (`half_torsor_local`).  Ax: B6, B7. -/
 theorem lemma_8_6_local (D : RadicalCoverData Bg)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]

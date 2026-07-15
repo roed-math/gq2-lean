@@ -1,11 +1,16 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.TameQuotient
 import GQ2.Tame
 import GQ2.Prop32
 
 /-!
-# P-15f2c2c3 (N3): the tame 2-quotient factoring + the B10′ orientation package
+# The tame 2-quotient factoring + the B10′ orientation package
 
-The `nuT`-factoring brick of the analytic-`hunram` derivation (`docs/p15f2c2c-handoff.md`
+The `nuT`-factoring brick of the analytic-`hunram` derivation (`docs/orchestration/p15f2c2c-handoff.md`
 §half-(B) step 4).  Three pieces:
 
 * **(i) τ-death in 2-groups** *(pure finite group theory, axiom-free)*: any group hom
@@ -19,7 +24,7 @@ The `nuT`-factoring brick of the analytic-`hunram` derivation (`docs/p15f2c2c-ha
 * **(iii) `TameUnitOrientation`** *(std-3 + B10′)*: the B10′-clause shape, plus its discharge at
   the axiom witness `boundaryMapsWitness.tameF`.
 
-No new axiom (user decision of record 2026-07-08); (i)+(ii) are std-3.
+Parts (i) and (ii) are std-3; part (iii) uses B10′.
 -/
 
 namespace GQ2
@@ -29,7 +34,7 @@ open SectionThree
 
 /-! ## (i) τ-death in a finite 2-group -/
 
-/-- **τ-death** (P-15f2c2c3(i)): a group hom from `T_tame` into a finite `2`-group kills the
+/-- **τ-death** (the Lemma 6.17 vanishing proof(i)): a group hom from `T_tame` into a finite `2`-group kills the
 tame generator `τ`.  The tame relation `σ⁻¹ τ σ = τ²` pushes to `Q`, so `Tame.tame_odd_order`
 makes `orderOf (φ τ)` **odd**; in the `2`-group `Q` it is a power of `2`; the only odd power of
 `2` is `1`, so `φ τ = 1`.  Pure finite group theory — no topology, no axiom. -/
@@ -90,7 +95,7 @@ theorem ker_nuT_le_proPKernel : GQ2.nuT.toMonoidHom.ker ≤ proPKernel 2 Ttame :
     rw [key x]; show ρ' (GQ2.nuT x) = 1; rw [hnuT, map_one]
   exact (QuotientGroup.eq_one_iff x).mp hmk
 
-/-- **The factoring** (P-15f2c2c3(ii)): a continuous hom `φ : T_tame → Q` into a **pro-2** group
+/-- **The factoring** (the Lemma 6.17 vanishing proof(ii)): a continuous hom `φ : T_tame → Q` into a **pro-2** group
 kills everything `ν_t` kills — `ν_t x = 1 ⟹ φ x = 1`.  (`ker ν_t ≤ proPKernel 2 T_tame ≤ ker φ`,
 the second inclusion by `proPKernel_le_ker`.) -/
 theorem map_eq_one_of_nuT_eq_one {Q : Type*} [Group Q] [TopologicalSpace Q] [IsTopologicalGroup Q]
@@ -107,7 +112,7 @@ theorem map_eq_one_of_nuT_eq_one_finite {Q : Type*} [Group Q] [Finite Q] [Topolo
 
 /-! ## (iii) the B10′ orientation clause -/
 
-/-- **`TameUnitOrientation`** (P-15f2c2c3(iii)): the B10′ orientation clause for an arbitrary tame
+/-- **`TameUnitOrientation`** (the Lemma 6.17 vanishing proof(iii)): the B10′ orientation clause for an arbitrary tame
 coordinate `tameF : G_ℚ₂ → T_tame` — every local-reciprocity image of a `2`-adic **unit** is killed
 by `ν_t ∘ tameF`.  For the axiom bundle's own tame coordinate this is `OrientedTameQuotient`'s
 `nuT_recip_unit`; a general `B : BoundaryMaps` carries no reciprocity clause, so the moved

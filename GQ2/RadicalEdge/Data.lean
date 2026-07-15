@@ -1,17 +1,24 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.QuadraticFp2
+import Mathlib.Topology.Algebra.ContinuousMonoidHom
+import Mathlib.Topology.Algebra.Group.Quotient
 
 /-!
-# §8 radical-edge def-layer  (P-16a relocation; extracted from `GQ2/SectionEight.lean`)
+# §8 radical-edge def-layer
 
 The Lemma 8.6 **definition layer** — `CentralCover`, `polarMul`, `RadicalCoverData`,
 `NoDescent`, `MLifts`, `MLifts.Central` — and the generic half-count engine
 `two_mul_card_fiber`, lifted out of `GQ2/SectionEight.lean` into this lower shared file.
 
-**Why.**  The P-16 own-files (`GQ2/CentralObstruction.lean`, …) need these defs to state and
+**Why.**  The §8 proof-layer files (`GQ2/CentralObstruction.lean`, …) need these definitions to state and
 prove their lemmas, but must not import `SectionEight` — otherwise splicing a proved lemma
 back into `SectionEight` (`lemma_8_6_local := CentralObstruction…`) is a **circular import**
-(the P-13g `prop_5_16` trap).  Same pattern as `GQ2/OrbitData.lean` for §6
-(`docs/orbit-data-refactor.md`); see `docs/p16-ticket-split.md` (P-16a).
+(the Prop. 5.16 proof `prop_5_16` trap).  Same pattern as `GQ2/OrbitData.lean` for §6
+(`docs/orchestration/orbit-data-refactor.md`).
 
 Moved verbatim from `SectionEight` (namespace preserved: `GQ2.SectionEight`).  No axioms;
 `Ax = ∅`.

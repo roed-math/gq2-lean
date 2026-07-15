@@ -15,7 +15,7 @@
 > [TotallyDisconnectedSpace AbsGalQ2]` (codebase convention), and `SectionNine` imports
 > `GQ2.SectionThreeMarked`.  The design below is retained for the record.
 
-Companion to the P-17b3 infrastructure in [`GQ2/SectionNine.lean`](../GQ2/SectionNine.lean).
+Companion to the P-17b3 infrastructure under [`GQ2/SectionNine.lean`](../../GQ2/SectionNine.lean).
 Goal: prove
 ```
 terminal_count_eq : exactImageCount B.bA F T = exactImageCount B.bF F T

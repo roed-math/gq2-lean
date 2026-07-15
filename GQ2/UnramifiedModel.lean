@@ -1,7 +1,13 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.DeepPart
+import Mathlib.RingTheory.LittleWedderburn
 
 /-!
-# P-15f3: `prop_6_18_unramified` via the Hermitian-line model
+# `prop_6_18_unramified` via the Hermitian-line model
 
 The unramified case of Proposition 6.18 (eq. (115)): for a simple faithful `𝔽₂[C]`-module `V`
 of cardinality `2^{2m}` at an **unramified** marking (`c tameTau` acts trivially), the base
@@ -17,7 +23,7 @@ whose zero-count is `2^{2m−1} − 2^{m−1}` by the model-free algebraic core
 `GQ2.DeepPart.card_normOne_invariant_form_zero`.
 
 This file lives downstream of `DeepPart` (which supplies `Q0loc`, the Euler collapse, the
-Hermitian count, and `nonsingular_Q0loc`), so — following the P-15d / 6.18-ramified pattern — the
+Hermitian count, and `nonsingular_Q0loc`), so — following the Lemma 6.14 proof / 6.18-ramified pattern — the
 statement is **moved out** of `SectionSix.lean` (a pointer comment is left there); the fully
 qualified name stays `GQ2.SectionSix.prop_6_18_unramified` is preserved by re-export.
 -/
@@ -572,9 +578,9 @@ private theorem Q0loc_smul_eq (D : TateDuality 2) (ρ : ContinuousMonoidHom AbsG
 
 Proved via the Hermitian-line model (see the file docstring): identify `V` with `𝔽_{2^{2m}}`,
 transport `Q⁰_loc` to a norm-one-invariant nonsingular form, and count zeros with
-`card_normOne_invariant_form_zero`.  [P-14 statement; proof P-15f3, Ax: B6, B7.]
+`card_normOne_invariant_form_zero`.  [the §§6–7 statement; proof the deep-part proof, Ax: B6, B7.]
 
-**Statement amended (P-15f, flag for P-20)**: added `hc : Function.Surjective ⇑c` (as in
+**Signature note:** the hypothesis `hc : Function.Surjective ⇑c` (as in
 `prop_6_18_ramified`). -/
 theorem prop_6_18_unramified (D : TateDuality 2) (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C)

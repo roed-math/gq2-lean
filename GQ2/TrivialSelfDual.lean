@@ -1,8 +1,22 @@
-import GQ2.FoxHeisenberg
-import GQ2.MixedBilinear
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.Order.CompletePartialOrder
+public import Mathlib.Algebra.Module.ZMod
+public import Mathlib.Algebra.Homology.Homotopy
+public import Mathlib.AlgebraicTopology.SimplexCategory.Basic
+public import GQ2.FoxHeisenberg
+public import GQ2.FoxHeisenberg.WildRow
+public import GQ2.MixedBilinear
+
+@[expose] public section
 
 /-!
-# P-13f, part (i): the trivial module `𝔽₂` is self-dual
+# The trivial module `𝔽₂` is self-dual
 
 The base case of the `prop_5_15` dévissage: `IsSelfDual t A` when `C` acts **trivially** on the
 finite elementary-2 module `A` (the trivial simple `𝔽₂[C]`-module is `𝔽₂` with trivial action).
@@ -136,7 +150,7 @@ form `mixedB_cocycle : mixedB t x y = y₂(x₂) + y₃(x₀) − y₀(x₃) + u
 scalar `u₁.z` confined to the `(3,3)` slot (`heisMarking_u1_z_of_{x3,y3}_zero`).  The Gram matrix is
 therefore unit-determinant regardless of `u₁.z`, and `elemDual_separates` gives nondegeneracy.
 `trivialSelfDual` descends `mixedB` to `H¹w = Z¹w` via `Quotient.lift₂` and closes both
-nondegeneracy conditions by the case analysis below — **fully proven, std-3**. -/
+nondegeneracy conditions by the case analysis below (std-3). -/
 
 /-- The `𝔽₂`-dual separates points of a finite elementary-2 module. -/
 theorem elemDual_separates (hA₂ : ∀ a : A, a + a = 0) {a : A} (ha : a ≠ 0) :
@@ -160,7 +174,7 @@ theorem B1w_trivial_eq_bot (t : Marking C) (htriv : ∀ (c : C) (a : A), c • a
   rintro y ⟨v, rfl⟩
   exact (AddSubgroup.mem_bot).mpr (d0_of_trivial t htriv v)
 
-/-- **P-13f, part (i)**: the trivial module `𝔽₂` is self-dual.  Both card clauses and the degree-one
+/-- **the Prop. 5.15 proof, part (i)**: the trivial module `𝔽₂` is self-dual.  Both card clauses and the degree-one
 pairing (table (25)) are proven: `mixedB` descends to `H¹w = Z¹w` (since `B¹w = ⊥`), its closed form
 `mixedB_cocycle = y₂(x₂)+y₃(x₀)−y₀(x₃)+u₁.z` has unit-determinant Gram matrix (the ω₂ scalar `u₁.z`
 sits only on the `(3,3)` slot, killed by choosing the paired dual coordinate `≠ 3`), and

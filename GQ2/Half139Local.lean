@@ -1,12 +1,17 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.RecursionSplice
 
 /-!
-# P-16d6d: the (139) half count for the local source `G_ℚ₂`
+# The (139) half count for the local source `G_ℚ₂`
 
 Discharge the two per-source hypotheses of `half139_via_radData` (`RecursionSplice.lean`) for the
 **local** source `Γ = G_ℚ₂ = AbsGalQ2`, producing the (139) identity
 `2·zBC = |M_B|²·exactImageCount` in exactly the shape of the `RecursionInputs.half139` field
-(consumed at P-16d6e).
+(consumed at the Prop. 8.9 assembly).
 
 Two obligations, per boundary lift `ρ` of the `C`-target:
 
@@ -128,7 +133,7 @@ Lemma 7.1 / `Hom_C(M, 𝔽₂) = 0`): any additive `ψ : ↥M_B → 𝔽₂` inv
 identically zero.  A nonzero such `ψ` would pull back (through `s : Blk.K ↠ M_B`, `s = piB|_K`) to a
 surjective character `φ : Blk.K ↠ 𝔽₂` whose kernel maps to a `Y`-normal index-2 subgroup `X` with
 `Blk.frattiniK ≤ X ≤ Blk.K`, contradicting `SectionSeven.lemma_7_1_dual`.  This is the shared
-kernel of both `hMcountM_local` (there via the `fixedPts (ElemDual …)` packaging) and P-16d6e3's
+kernel of both `hMcountM_local` (there via the `fixedPts (ElemDual …)` packaging) and the Prop. 8.9 assembly's
 `hpartial_local` (the nondegeneracy residue). -/
 theorem mchar_conj_invariant_eq_zero (RF : RecursionFrame T Blk)
     (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR)
@@ -241,19 +246,19 @@ theorem hlem86M_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2
     (rhoPrime_surjective RF b F (En.radData l h) rfl ρ)
 
 omit [TopologicalSpace Y] [DiscreteTopology Y] in
-/-- **`hMcountM` for `G_ℚ₂`** — the unrestricted `M`-lift count `#(M-lifts) = |M_B|²`.  **PROVED.**
+/-- **`hMcountM` for `G_ℚ₂`** — the unrestricted `M`-lift count `#(M-lifts) = |M_B|²`.
 
-Fully proved inline (no sorry): `key : #Z¹ = |M_B|²·#fixedPts` (`card_Z1_eq`),
+The proof uses `key : #Z¹ = |M_B|²·#fixedPts` (`card_Z1_eq`),
 `hfix : #fixedPts = 1`
 (the `lemma_7_1_dual` bridge — a nonzero `YC`-invariant functional's kernel gives a `Y`-normal
 index-2 `X` with `Blk.frattiniK ≤ X ≤ Blk.K`, refuted by `lemma_7_1_dual`), the explicit bijection
 `MLifts D ρ' ≃ Z¹_cont(G_ℚ₂, M_B)` (`f ↦ (γ ↦ f γ · f₀ γ⁻¹)`, a `Z¹`-torsor under the ρ'-conjugation
-action), and — the previously-open piece — **nonemptiness `Nonempty (MLifts D ρ')`** via the
+action), and nonemptiness `Nonempty (MLifts D ρ')` via the
 extension-splitting argument: a continuous set-section `s = Quotient.out ∘ ρ'` gives a factor-set
 2-cocycle `c(γ,δ) = s γ · s δ · s(γδ)⁻¹ ∈ Z²(G_ℚ₂, M_B)`, which is a coboundary `c = δ¹ψ` because
 `#H²(G_ℚ₂,M_B) = 1` (`card_H2_eq_fixedPts` + `hfix`), and then `f γ = (toMul (ψ γ))⁻¹ · s γ` is a
 continuous homomorphic lift of `ρ'`.  This `#MLifts` count is also the shared deep input consumed
-by the concurrent P-16d6b (`PhaseMuIndep.tcocycle_mu_indep`'s `hML`/`κM`).  The route
+by the concurrent the Prop. 8.9 assembly (`PhaseMuIndep.tcocycle_mu_indep`'s `hML`/`κM`).  The route
 (all steps over `G_ℚ₂ = AbsGalQ2`):
 
 1. **Additive `M`-module** `MBmod := Additive ↥(En.radData l h).M` (`= Additive ↥RF.MB`), with the
@@ -265,22 +270,21 @@ by the concurrent P-16d6b (`PhaseMuIndep.tcocycle_mu_indep`'s `hML`/`κM`).  The
 2. **Torsor bridge** `MLifts D ρ' ≃ Z¹_cont(AbsGalQ2, MBmod)` — `f ↦ (γ ↦ f γ · f₀ γ⁻¹)` for a base
    lift `f₀`.  **Nonemptiness of `MLifts` is a theorem, not a hypothesis**: the lift obstruction of
    `ρ' : Γ → YB/M_B` through `YB ↠ YB/M_B` lives in `H²(AbsGalQ2, M_B)`, which is `0` by step 4 —
-   so `MLifts` is nonempty and the torsor bijection holds.  (No existing `H²`-obstruction-vanishing
-   lemma in-repo; this is the piece to build/locate.)
+   so `MLifts` is nonempty and the torsor bijection holds.
 3. **`card_Z1_eq`** (`LocalLiftingDuality.lean:264`, B7 Euler char):
    `#Z¹(AbsGalQ2, MBmod) = |MBmod|² · #fixedPts RF.YC (ElemDual MBmod)`, feeding `hρ = rhoPrime`
    surjectivity (`rhoPrime_surjective`), `hcomp` from step 1, `hA₂` from `RF.MB_elem`.
 4. **`#fixedPts RF.YC (ElemDual MBmod) = 1`** — i.e. `H²(AbsGalQ2, M_B) = 0`
-   (`card_H2_eq_fixedPts`, B6), i.e. `(M_B^∨)^{YC} = 0`.  **The group theory is already proved:**
-   this is `GQ2.SectionSeven.lemma_7_1_dual` (`GQ2/SectionSeven/Basic.lean`, std-3, no sorry) —
+   (`card_H2_eq_fixedPts`, B6), i.e. `(M_B^∨)^{YC} = 0`.  The group-theoretic input is
+   `GQ2.SectionSeven.lemma_7_1_dual` (`GQ2/SectionSeven/Basic.lean`, std-3) —
    "`K` has no
    `Y`-normal subgroup of index 2 above `R`" = `(M^∨)^C = 0`, via minimality of `K` + the `V = P/S`
    chief dichotomy.  Only a bridge (a nonzero `YC`-invariant functional's kernel ↦ an index-2
-   `Y`-normal `X` with `Blk.frattiniK ≤ X ≤ Blk.K`, refuted by `lemma_7_1_dual`) remains — no
-   new math.
+   `Y`-normal `X` with `Blk.frattiniK ≤ X ≤ Blk.K`, refuted by `lemma_7_1_dual`).
 5. Combine: `#MLifts = #Z¹ = |M_B|² · 1 = |M_B|²`.
 
-Expected axioms at close: `std-3 + B6 + B7` (B6 via `card_H2_eq_fixedPts`, B7 via `card_Z1_eq`). -/
+The expected axioms are `std-3 + B6 + B7` (B6 via `card_H2_eq_fixedPts`, B7 via
+`card_Z1_eq`). -/
 theorem hMcountM_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     [IsTopologicalGroup AbsGalQ2]
     (RF : RecursionFrame T Blk) (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup)
@@ -523,8 +527,8 @@ theorem hMcountM_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ
   rw [htorsor, key, hfix, mul_one]
   rfl
 
-/-- **P-16d6d deliverable**: the (139) half count for `G_ℚ₂`, in the exact shape of the
-`RecursionInputs.half139` field (consumed at P-16d6e). -/
+/-- **the Prop. 8.9 assembly result**: the (139) half count for `G_ℚ₂`, in the exact shape of the
+`RecursionInputs.half139` field (consumed at the Prop. 8.9 assembly). -/
 theorem half139_local [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
     [IsTopologicalGroup AbsGalQ2]
     (RF : RecursionFrame T Blk) (b : ContinuousMonoidHom AbsGalQ2 ↥boundarySubgroup)

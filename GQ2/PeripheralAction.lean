@@ -1,11 +1,20 @@
-import GQ2.MaxProP
-import GQ2.Zhat
-import GQ2.FreeProfinite
-import GQ2.Subdirect
-import GQ2.ZtwoPowering
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.MaxProP
+public import GQ2.Zhat
+public import GQ2.FreeProfinite
+public import GQ2.Subdirect
+public import GQ2.ZtwoPowering
+
+@[expose] public section
 
 /-!
-# B8: the cyclotomic action on the peripheral generators (Lemma 3.6)  (ticket T-12)
+# B8: the cyclotomic action on the peripheral generators (Lemma 3.6)
 
 The paper's Lemma 3.6 records the **group-theoretic output** of the outer Galois action on the
 geometric maximal pro-2 fundamental group `Δ = π₁^{pro-2}(ℙ¹_{ℚ̄} ∖ {0,1,∞})`: for the three
@@ -13,10 +22,10 @@ geometric maximal pro-2 fundamental group `Δ = π₁^{pro-2}(ℙ¹_{ℚ̄} ∖ 
 cyclotomic character acts by a continuous automorphism `φ_u` sending every peripheral generator to a
 **cyclotomic conjugate** `φ_u(P) = c_P⁻¹ · P^u · c_P`, etc.
 
-## Faithfulness deviation (flagged for reviewers)
+## Faithfulness deviation
 
 The *literal* statement quantifies the outer action `G_ℚ → Out(Δ)` on an étale/anabelian `π₁`, which
-Mathlib has no types for.  Following the ticket, we state **exactly the group-theoretic conclusion**
+Mathlib has no types for.  We therefore state **exactly the group-theoretic conclusion**
 (Lemma 3.6), on the concrete `Δ = maxProPQuotient 2 (FreeProfiniteGroup (Fin 2))`:
 
 * `Δ`, `P = of 0`, `T = of 1`, `C = (PT)⁻¹` — `GQ2.Delta`, `GQ2.deltaP/T/C`.
@@ -25,14 +34,13 @@ Mathlib has no types for.  Following the ticket, we state **exactly the group-th
   part and `≡ 0` on the odd part, so on the pro-2 group `Δ` it computes the `u`-th power.  `ι` is
   carried as *data* of the bundle (as `rec`/`inv` are for B5/B6), pinned by `hι_cont` (continuity),
   `hι_one : ι 1 = ω₂` (`GQ2.omega2`; the `u = 1` cyclotomic exponent is exactly the idempotent
-  of T-06 — on a pro-2 group `x ^ᶻ ω₂ = x`), and `hι_proj` (see below).
+  of the profinite-exponentiation API — on a pro-2 group `x ^ᶻ ω₂ = x`), and `hι_proj` (see below).
 
-**Statement amendment (P-21 follow-up, 2026-07-03 — flagged for reviewers).**  The T-12 bundle
-originally pinned `ι` by `hι_cont` + `hι_one` only, noting that the full pinning ("`ι(u) ≡ u` on
-the pro-2 part", i.e. `ι(u) = u·ω₂`) needed the ring structure of `ℤ̂`, out of scope.  That was
-**too weak to consume**: without it, `ι(u)`'s action on a pro-2 group is undetermined for `u ≠ 1`
+**Interface correction.**  Pinning `ι` by `hι_cont` + `hι_one` alone is too weak: without the
+full condition "`ι(u) ≡ u` on the pro-2 part" (i.e. `ι(u) = u·ω₂`), `ι(u)`'s action on a pro-2
+group is undetermined for `u ≠ 1`
 (e.g. `ι ≡ ω₂` satisfies both pinnings), so Lemma 3.7's proof cannot extract the `u`-th power.
-P-21's projection `GQ2.zhatProjTwo : ℤ̂ → ℤ₂` (`ker = proPKernel 2 ℤ̂`) makes the intended pinning
+The projection `GQ2.zhatProjTwo : ℤ̂ → ℤ₂` (`ker = proPKernel 2 ℤ̂`) makes the intended pinning
 expressible **without** any `ℤ̂`-ring structure, and `hι_proj` states exactly it:
 `zhatProjTwo (ι u) = ofAdd u`.  Consequently, on every pro-2 group `x ^ᶻ ι u = zpowZtwo x u`
 (`GQ2/ZtwoPowering.lean`'s `zpowHat_eq_zpowZtwo`) — the `u`-th 2-adic power, as Lemma 3.6 intends.
@@ -87,10 +95,10 @@ structure PeripheralCyclotomicAction where
   ι : ℤ_[2]ˣ → Zhat
   /-- `ι` is continuous. -/
   hι_cont : Continuous ι
-  /-- `ι(1) = ω₂`: the `u = 1` cyclotomic exponent is the idempotent of T-06 (so `P ^ᶻ ι 1 = P` on
+  /-- `ι(1) = ω₂`: the `u = 1` cyclotomic exponent is the idempotent of the profinite-exponentiation API (so `P ^ᶻ ι 1 = P` on
   the pro-2 group `Δ`). -/
   hι_one : ι 1 = omega2
-  /-- **`ι(u) ≡ u` on the pro-2 part** (the P-21 amendment; module docstring): the canonical
+  /-- **`ι(u) ≡ u` on the pro-2 part** (see the module docstring): the canonical
   projection `ℤ̂ → ℤ₂` sends `ι u` to `u`.  This is what makes `x ^ᶻ ι u` the `u`-th 2-adic power
   on every pro-2 group (`zpowHat_eq_zpowZtwo`). -/
   hι_proj : ∀ u : ℤ_[2]ˣ, zhatProjTwo (ι u) = Multiplicative.ofAdd ((u : ℤ_[2]))

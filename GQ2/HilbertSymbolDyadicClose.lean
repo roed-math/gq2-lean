@@ -1,13 +1,23 @@
-import GQ2.HilbertSymbolNecessity
-import GQ2.HilbertSymbolSufficiency
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.HilbertSymbolNecessity
+public import GQ2.HilbertSymbolSufficiency
+
+@[expose] public section
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
-# B7′-5 — the dispatch pyramid and the capstone `hilbertSymbol_dyadic'`
+# The dispatch pyramid and the capstone `hilbertSymbol_dyadic'`
 
-The **B7′-5 deliverable** of the `hilbertSymbol_dyadic` axiom-discharge initiative (board
-`docs/b7prime-tickets.md`, plan `docs/b7prime-proof-plan.md` §4-B7′-5, coordination
-`docs/b7prime-b34-coordination.md`): the assembly of the two leaf engines into Serre's dyadic
-Hilbert-symbol formula, byte-exact against the B7′ axiom statement.
+This is the assembly of the necessity and sufficiency engines into Serre's dyadic Hilbert-symbol
+formula, with a statement matching the public theorem in `Foundations/Axioms.lean`.
 
 **The pyramid.**
 1. **Parity** — `symbol_zpow_reduce` splits `2^α = 2^{α%2}·(2^{α/2})²` in each slot; square-class
@@ -22,9 +32,8 @@ Hilbert-symbol formula, byte-exact against the B7′ axiom statement.
    the `ε/ω` bookkeeping (`ε(−uv) = 1+ε(u)+ε(v)`, `ω(−uv) = ω(u)+ω(v)`, `ε² = ε`) is a 16-case
    `decide` in `𝔽₂`.
 
-The capstone `hilbertSymbol_dyadic'` is consumed by the census flip: `Foundations/Axioms.lean`
-re-declares the axiom as the same-name theorem `hilbertSymbol_dyadic := hilbertSymbol_dyadic'`
-(the B11/B12 zero-churn pattern).
+`Foundations/Axioms.lean` exposes the capstone `hilbertSymbol_dyadic'` under the public theorem name
+`hilbertSymbol_dyadic`.
 -/
 
 namespace GQ2.HilbertSymbol
@@ -133,8 +142,8 @@ private lemma intCast_emod_two (α : ℤ) : ((α % 2 : ℤ) : ZMod 2) = (α : ZM
 `u, v ∈ ℤ₂ˣ`,
 `(a, b)₂ = (−1)^{ε(u)ε(v) + α ω(v) + β ω(u)}`.
 
-Byte-exact against the **B7′ axiom statement** (`Foundations/Axioms.lean`), which the census flip
-re-declares as `hilbertSymbol_dyadic := hilbertSymbol_dyadic'`.  Fully proved from the definition of
+The public statement in `Foundations/Axioms.lean` is
+`hilbertSymbol_dyadic := hilbertSymbol_dyadic'`.  This is proved from the definition of
 `hilbertSymbol` by solvability of `a X² + b Y² = Z²` — 2-adic Hensel + finite `decide`s, std-3. -/
 theorem hilbertSymbol_dyadic' (α β : ℤ) (u v : ℤ_[2]ˣ) :
     hilbertSymbol (unit2 ^ α * unitCoe u) (unit2 ^ β * unitCoe v)

@@ -1,41 +1,54 @@
-import GQ2.Demushkin
-import GQ2.DyadicPresentation
-import GQ2.MaxProP
-import GQ2.Reciprocity
-import GQ2.HilbertSymbol
-import GQ2.GammaA
-import GQ2.TameQuotient
-import GQ2.AdmissibleLimit
-import GQ2.Foundations.Axioms
-import GQ2.ZtwoPowering
-import GQ2.FinitelyGenerated
-import GQ2.PropOneOne
-import GQ2.FrattiniCriterion
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.Demushkin
+public import GQ2.DyadicPresentation
+public import GQ2.MaxProP
+public import GQ2.Reciprocity
+public import GQ2.HilbertSymbol
+public import GQ2.GammaA
+public import GQ2.TameQuotient
+public import GQ2.AdmissibleLimit
+public import GQ2.Foundations.Axioms
+public import GQ2.ZtwoPowering
+public import GQ2.FinitelyGenerated
+public import GQ2.PropOneOne
+public import GQ2.FrattiniCriterion
+
+@[expose] public section
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
-# §3 statements: the tame and maximal pro-2 quotients  (ticket P-06)
+# §3 statements: the tame and maximal pro-2 quotients
 
-Sorried, faithful Lean statements of the paper's §3 interior nodes — **Prop. 3.2**,
-**Lemmas 3.5, 3.7, Prop. 3.8**, and **Prop. 1.1** — phrased against the step-1 def-layers.
-Proof tickets: P-07 (3.5 ledger), P-08 (3.7/3.8), P-09 (3.2), P-10 (1.1).  The companion
+Faithful Lean statements of the paper's §3 interior nodes — **Prop. 3.2**,
+**Lemmas 3.5, 3.7, Prop. 3.8**, and **Prop. 1.1** — phrased against the foundational APIs.
+The companion
 design note `docs/section3-extraction.md` maps every statement to its paper display and
-records the absorption/deviation/escalation decisions summarized here:
+records the absorption and deviation decisions summarized here:
 
-* **Lemma 3.4 is absorbed** by the axiom layer: its abstract-isomorphism clause *was* axiom B4
-  (`absGalQ2_maxProTwo_presentation`, deleted 2026-07-10 as unused — B3c subsumes a marked
-  B4), its orientation-value clause *is* the B3c interface
+* **Lemma 3.4 is absorbed** by the axiom layer: its abstract-isomorphism clause is subsumed by
+  the marked B3c interface (`absGalQ2_maxProTwo_presentation` is not used as a separate B4 axiom),
+  and its orientation-value clause is also part of B3c
   (`DyadicOrientation`, route (ii)), and its classification-membership clause ("`D₀` is the
   standard rank-3, `q = 2` Demushkin group") is deliberately-unformalized Labute content per
-  the standing B3b decision (T-10/T-11).  No sorried statement is introduced for it.
+  the standing B3b decision (the Demushkin classification and orientation interface).  No
+  additional statement is introduced for it.
 * **Lemma 3.6 is absorbed**: it is axiom B8 (`peripheralCyclotomicAction`) verbatim — the
-  T-12 bundle was designed as exactly Lemma 3.6's group-theoretic conclusion.
+  peripheral-action interface bundle is exactly Lemma 3.6's group-theoretic conclusion.
 * **Lemma 3.5's `(ν_ur, χ_D)` rows of eq. (13) and the abelianized relation `ā²s̄⁴ = 1` are
   already proved** (bundle-parametrized) in `GQ2/Reciprocity.lean`: `nu_ur_recip_neg4` /
   `nu_ur_recip_uniformizer` / `nu_ur_recip_neg3`, `chiCyc_recip_neg4` / `chiCyc_recip_neg3`,
   `abelianized_relator`.  What remains here: the marked pro-2-abelianization identification,
   the Hilbert-symbol square-class ledger, and the injectivity of the pair `(ν_ur, χ_D)`.
-* **Prop. 3.2's local side rests on axiom B10** (`GQ2.tameQuotient`, added by explicit
-  census decision after this ticket's escalation): the classical tame-quotient description
+* **Prop. 3.2's local side rests on axiom B10** (`GQ2.tameQuotient`): the classical
+  tame-quotient description
   of `G_{ℚ₂}` (NSW (7.5.3), Iwasawa) is not derivable from the 2-centric step-1 census.
   The bundle and citation discussion live in `GQ2/TameQuotient.lean`; what remains a
   *theorem* here is Lemma 3.3's maximality (the `maximal` field `prop_3_2_local` adds on
@@ -54,10 +67,9 @@ namespace SectionThree
 
 /-! ## Topology on the topological abelianization
 
-`GQ2.topAbelianization` (T-10) registered only the `Group` instance; the statements below
+`GQ2.topAbelianization` (the Demushkin classification) registered only the `Group` instance; the statements below
 compare topological abelianizations, so we register its canonical quotient topology.  These
-are the (unique) canonical instances, named explicitly to avoid auto-name collisions across
-parallel tickets. -/
+are the (unique) canonical instances, named explicitly to avoid auto-name collisions. -/
 
 section TopAb
 
@@ -88,7 +100,7 @@ lemma abMk_surjective : Function.Surjective (abMk (G := G)) := Quotient.mk_surje
 
 end TopAb
 
-/-! ## Pro-2 abelianization infrastructure for `D₀`  (ticket P-07)
+/-! ## Pro-2 abelianization infrastructure for `D₀`
 
 The instances and coordinate machinery that Lemmas 3.5/3.7/3.8 and Prop. 1.1 consume: the
 profinite-group instances on `G^{ab}` (so `ZtwoPowering`'s `zpowZtwo` applies), the pro-2-ness of
@@ -101,7 +113,7 @@ profinite-group instances on `G^{ab}` (so `ZtwoPowering`'s `zpowZtwo` applies), 
 -- `attribute [local instance]` breaks the group structure downstream) and **file-scoped**: a global
 -- generic `CommGroup`/`CompactSpace`/… on `topAbelianization G` perturbs instance resolution for
 -- unrelated profinite quotients `K ⧸ M` in files that import this one (`AnabelianBridge`),
--- whereas a file-local instance stays confined to the P-07 proofs
+-- whereas a file-local instance stays confined to the Lemmas 3.4–3.5 proofs
 -- (`Phi`/`D0ab_coord`/`lemma_3_5_injective`).
 
 /-- `G^{ab}` is commutative. -/
@@ -241,7 +253,7 @@ noncomputable def Phi : Multiplicative (ℤ_[2] × ℤ_[2] × ℤ_[2]) →* topA
     rw [zpowZtwo_add, zpowZtwo_add, zpowZtwo_add]
     ac_rfl
 
-lemma continuous_Phi : Continuous Phi := by
+private lemma continuous_Phi : Continuous Phi := by
   show Continuous fun p : Multiplicative (ℤ_[2] × ℤ_[2] × ℤ_[2]) =>
     zpowZtwo isProP_two_topAb_D0 (abMk d0A) p.toAdd.1
       * zpowZtwo isProP_two_topAb_D0 (abMk d0S) p.toAdd.2.1
@@ -319,15 +331,15 @@ lemma D0ab_coord (z : topAbelianization D0) :
 /-! ## The finite-quotient tame group `T_tame`  (paper §3, first display)
 
 `T_tame = ⟨σ, τ | τ^σ = τ²⟩_prof` is `GQ2.Ttame` with marked generators
-`tameSigma`/`tameTau` (the P-11 layer, `GQ2/BoundaryFrame.lean`; the tame relation
+`tameSigma`/`tameTau` (the boundary-frame design layer, `GQ2/BoundaryFrame.lean`; the tame relation
 `τ^σ = τ²` is proved as `GQ2.tame_relation` in `GQ2/TameQuotient.lean`).
 `GQ2/Tame.lean` (Lemma 3.1, fully proved) describes its finite quotients. -/
 
 /-! ## The marked generators of `Γ_A` and its wild subgroup `W_A`  (paper §2.1/§3)
 
 `W_A` is the closed normal subgroup of `Γ_A` generated by the images of `x₀, x₁` (paper
-§2.1, after eq. (7)).  **Deduplicated with P-04** (`GQ2/AdmissibleLimit.lean`): `wildPart`
-is definitionally `GQ2.wildCore` (the generator spellings agree up to `rfl`), so P-04's
+§2.1, after eq. (7)).  **Deduplicated with the admissible-limit proof** (`GQ2/AdmissibleLimit.lean`): `wildPart`
+is definitionally `GQ2.wildCore` (the generator spellings agree up to `rfl`), so the admissible-limit proof's
 limit theorems transfer verbatim — in particular `isProP_wildPart` below *is*
 `isProP_wildCore`, the pro-2 clause of eq. (7) in the limit. -/
 
@@ -352,7 +364,7 @@ noncomputable def gammaX1 : GammaA :=
   quotientMk NA univMarking.x₁
 
 /-- **`W_A`** (paper §2.1): the closed normal subgroup of `Γ_A` generated by `x₀, x₁` —
-definitionally `GQ2.wildCore` (P-04), under the `Subgroup GammaA` spelling of this layer.
+definitionally `GQ2.wildCore` (the admissible-limit proof), under the `Subgroup GammaA` spelling of this layer.
 (`normalClosure {gammaX0, gammaX1}`-based unfoldings still hold by `rfl`;
 see `wildPart_eq_closure`.) -/
 noncomputable def wildPart : Subgroup GammaA := wildCore
@@ -365,7 +377,7 @@ instance wildPart_normal : wildPart.Normal := wildCore_normal
 
 theorem wildPart_isClosed : IsClosed (wildPart : Set GammaA) := wildCore_isClosed
 
-/-- **`W_A` is pro-2** — the pro-2 clause of eq. (7) holds in the limit.  This is P-04's
+/-- **`W_A` is pro-2** — the pro-2 clause of eq. (7) holds in the limit.  This is the admissible-limit proof's
 `isProP_wildCore` (`GQ2/AdmissibleLimit.lean`), re-exported under the §3 name; it is the
 input Prop. 3.2's `Γ_A` side needs for "`W_A` is the wild part". -/
 theorem isProP_wildPart : IsProP 2 wildPart := isProP_wildCore
@@ -379,7 +391,7 @@ on the `Γ_A` side and (ii) uniqueness-by-maximality of the wild subgroup on the
 (the residual choice of local isomorphism is count-invisible downstream — design note §3.2). -/
 
 /- **Prop. 3.2, `Γ_A` side** is stated and **proved** in `GQ2/Prop32.lean`
-(`GQ2.SectionThree.prop_3_2_gammaA`, ticket P-09) — declared there because its proof needs
+(`GQ2.SectionThree.prop_3_2_gammaA`) — declared there because its proof needs
 this file's def-layer. -/
 
 /-- **Prop. 3.2, local side + Lemma 3.3's characterization, bundled.**  Extends the B10
@@ -394,7 +406,7 @@ structure LocalTameQuotient extends TameQuotientData where
     IsProP 2 N → N ≤ W
 
 /- **Prop. 3.2, local side** (`GQ2.SectionThree.prop_3_2_local : Nonempty
-LocalTameQuotient`) is stated and **proved** in `GQ2/Prop32.lean` (ticket P-09, `Ax = B10`):
+LocalTameQuotient`) is stated and **proved** in `GQ2/Prop32.lean` (`Ax = B10`):
 the axiom supplies the `TameQuotientData`, and Lemma 3.3's maximality is proved there via
 Lemma 3.1's finite analysis and the order-`2^{2^m}−1` inertia levels of the paper's proof. -/
 
@@ -460,7 +472,7 @@ noncomputable def d0LiftHom (hH : IsProP 2 H) (m : Fin 3 → H)
           rw [hker]
           exact isClosed_singleton.preimage f.continuous_toFun))
 
-@[simp] lemma d0LiftHom_A (hH : IsProP 2 H) (m : Fin 3 → H)
+@[simp] private lemma d0LiftHom_A (hH : IsProP 2 H) (m : Fin 3 → H)
     (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
     d0LiftHom hH m hrel d0A = m 0 := by
   show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
@@ -468,7 +480,7 @@ noncomputable def d0LiftHom (hH : IsProP 2 H) (m : Fin 3 → H)
   rw [maxProPHomEquiv_symm_apply_maxProPMk]
   exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
 
-@[simp] lemma d0LiftHom_S (hH : IsProP 2 H) (m : Fin 3 → H)
+@[simp] private lemma d0LiftHom_S (hH : IsProP 2 H) (m : Fin 3 → H)
     (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
     d0LiftHom hH m hrel d0S = m 1 := by
   show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
@@ -476,7 +488,7 @@ noncomputable def d0LiftHom (hH : IsProP 2 H) (m : Fin 3 → H)
   rw [maxProPHomEquiv_symm_apply_maxProPMk]
   exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
 
-@[simp] lemma d0LiftHom_Y (hH : IsProP 2 H) (m : Fin 3 → H)
+@[simp] private lemma d0LiftHom_Y (hH : IsProP 2 H) (m : Fin 3 → H)
     (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
     d0LiftHom hH m hrel d0Y = m 2 := by
   show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
@@ -506,7 +518,7 @@ noncomputable def abLift {H : Type} [CommGroup H] [TopologicalSpace H] [IsTopolo
     rw [hset]
     exact isClosed_singleton.preimage g.continuous_toFun)
 
-@[simp] lemma abLift_abMk {H : Type} [CommGroup H] [TopologicalSpace H] [IsTopologicalGroup H]
+@[simp] private lemma abLift_abMk {H : Type} [CommGroup H] [TopologicalSpace H] [IsTopologicalGroup H]
     [T2Space H] (g : ContinuousMonoidHom D0 H) (d : D0) : abLift g (abMk d) = g d := rfl
 
 /-- Source-generic `abLift`: descend a continuous hom `G → H` (H abelian, T2) through `abMk`. -/
@@ -553,15 +565,15 @@ noncomputable def tHom : ContinuousMonoidHom (topAbelianization D0) (Multiplicat
         Matrix.cons_val_two, Matrix.tail_cons, commP, ← ofAdd_nsmul, ← ofAdd_neg, ← ofAdd_add]
       rw [← ofAdd_zero]; congr 1))
 
-@[simp] lemma sHom_A : sHom (abMk d0A) = ofAdd (-2 : ℤ_[2]) := by simp [sHom]
-@[simp] lemma sHom_S : sHom (abMk d0S) = ofAdd (1 : ℤ_[2]) := by simp [sHom]
-@[simp] lemma sHom_Y : sHom (abMk d0Y) = ofAdd (0 : ℤ_[2]) := by simp [sHom]
-@[simp] lemma yHom_A : yHom (abMk d0A) = ofAdd (0 : ℤ_[2]) := by simp [yHom]
-@[simp] lemma yHom_S : yHom (abMk d0S) = ofAdd (0 : ℤ_[2]) := by simp [yHom]
-@[simp] lemma yHom_Y : yHom (abMk d0Y) = ofAdd (1 : ℤ_[2]) := by simp [yHom]
-@[simp] lemma tHom_A : tHom (abMk d0A) = ofAdd (1 : ZMod 2) := by simp [tHom]
-@[simp] lemma tHom_S : tHom (abMk d0S) = ofAdd (0 : ZMod 2) := by simp [tHom]
-@[simp] lemma tHom_Y : tHom (abMk d0Y) = ofAdd (0 : ZMod 2) := by simp [tHom]
+@[simp] private lemma sHom_A : sHom (abMk d0A) = ofAdd (-2 : ℤ_[2]) := by simp [sHom]
+@[simp] private lemma sHom_S : sHom (abMk d0S) = ofAdd (1 : ℤ_[2]) := by simp [sHom]
+@[simp] private lemma sHom_Y : sHom (abMk d0Y) = ofAdd (0 : ℤ_[2]) := by simp [sHom]
+@[simp] private lemma yHom_A : yHom (abMk d0A) = ofAdd (0 : ℤ_[2]) := by simp [yHom]
+@[simp] private lemma yHom_S : yHom (abMk d0S) = ofAdd (0 : ℤ_[2]) := by simp [yHom]
+@[simp] private lemma yHom_Y : yHom (abMk d0Y) = ofAdd (1 : ℤ_[2]) := by simp [yHom]
+@[simp] private lemma tHom_A : tHom (abMk d0A) = ofAdd (1 : ZMod 2) := by simp [tHom]
+@[simp] private lemma tHom_S : tHom (abMk d0S) = ofAdd (0 : ZMod 2) := by simp [tHom]
+@[simp] private lemma tHom_Y : tHom (abMk d0Y) = ofAdd (0 : ZMod 2) := by simp [tHom]
 
 /-! ### The combined coordinate hom `φ = (τ, σ, γ)` -/
 
@@ -575,20 +587,20 @@ noncomputable def phiHom :
     rw [← ofAdd_add]
     rfl
 
-lemma continuous_phiHom : Continuous phiHom := by
+private lemma continuous_phiHom : Continuous phiHom := by
   show Continuous fun z => ofAdd ((tHom z).toAdd, (sHom z).toAdd, (yHom z).toAdd)
   exact continuous_ofAdd.comp
     ((continuous_toAdd.comp tHom.continuous_toFun).prodMk
       ((continuous_toAdd.comp sHom.continuous_toFun).prodMk
         (continuous_toAdd.comp yHom.continuous_toFun)))
 
-@[simp] lemma phiHom_A : phiHom (abMk d0A) = ofAdd ((1 : ZMod 2), (-2 : ℤ_[2]), (0 : ℤ_[2])) := by
+@[simp] private lemma phiHom_A : phiHom (abMk d0A) = ofAdd ((1 : ZMod 2), (-2 : ℤ_[2]), (0 : ℤ_[2])) := by
   simp only [phiHom, MonoidHom.coe_mk, OneHom.coe_mk, sHom_A, tHom_A, yHom_A, toAdd_ofAdd]
 
-@[simp] lemma phiHom_S : phiHom (abMk d0S) = ofAdd ((0 : ZMod 2), (1 : ℤ_[2]), (0 : ℤ_[2])) := by
+@[simp] private lemma phiHom_S : phiHom (abMk d0S) = ofAdd ((0 : ZMod 2), (1 : ℤ_[2]), (0 : ℤ_[2])) := by
   simp only [phiHom, MonoidHom.coe_mk, OneHom.coe_mk, sHom_S, tHom_S, yHom_S, toAdd_ofAdd]
 
-@[simp] lemma phiHom_Y : phiHom (abMk d0Y) = ofAdd ((0 : ZMod 2), (0 : ℤ_[2]), (1 : ℤ_[2])) := by
+@[simp] private lemma phiHom_Y : phiHom (abMk d0Y) = ofAdd ((0 : ZMod 2), (0 : ℤ_[2]), (1 : ℤ_[2])) := by
   simp only [phiHom, MonoidHom.coe_mk, OneHom.coe_mk, sHom_Y, tHom_Y, yHom_Y, toAdd_ofAdd]
 
 /-! ### Coordinate computations on `Ā^a S̄^s Ȳ^y` -/
@@ -598,7 +610,7 @@ private noncomputable def word (a s y : ℤ_[2]) : topAbelianization D0 :=
   zpowZtwo isProP_two_topAb_D0 (abMk d0A) a * zpowZtwo isProP_two_topAb_D0 (abMk d0S) s
     * zpowZtwo isProP_two_topAb_D0 (abMk d0Y) y
 
-lemma sHom_word (a s y : ℤ_[2]) : sHom (word a s y) = ofAdd ((-2) * a + s) := by
+private lemma sHom_word (a s y : ℤ_[2]) : sHom (word a s y) = ofAdd ((-2) * a + s) := by
   rw [word, map_mul, map_mul,
     map_zpowZtwo isProP_two_topAb_D0 PropOneOne.isProP_two_multPadicInt sHom,
     map_zpowZtwo isProP_two_topAb_D0 PropOneOne.isProP_two_multPadicInt sHom,
@@ -607,7 +619,7 @@ lemma sHom_word (a s y : ℤ_[2]) : sHom (word a s y) = ofAdd ((-2) * a + s) := 
     ← ofAdd_add, ← ofAdd_add]
   congr 1; ring
 
-lemma yHom_word (a s y : ℤ_[2]) : yHom (word a s y) = ofAdd y := by
+private lemma yHom_word (a s y : ℤ_[2]) : yHom (word a s y) = ofAdd y := by
   rw [word, map_mul, map_mul,
     map_zpowZtwo isProP_two_topAb_D0 PropOneOne.isProP_two_multPadicInt yHom,
     map_zpowZtwo isProP_two_topAb_D0 PropOneOne.isProP_two_multPadicInt yHom,
@@ -616,7 +628,7 @@ lemma yHom_word (a s y : ℤ_[2]) : yHom (word a s y) = ofAdd y := by
     ← ofAdd_add, ← ofAdd_add]
   congr 1; ring
 
-lemma tHom_word (a s y : ℤ_[2]) :
+private lemma tHom_word (a s y : ℤ_[2]) :
     tHom (word a s y) = zpowZtwo isProP_two_multZMod2 (ofAdd (1 : ZMod 2)) a := by
   rw [word, map_mul, map_mul,
     map_zpowZtwo isProP_two_topAb_D0 isProP_two_multZMod2 tHom,
@@ -643,7 +655,7 @@ lemma tbar_sq : (abMk d0A * zpowZtwo isProP_two_topAb_D0 (abMk d0S) 2) ^ 2 = 1 :
     show (2 : ℤ_[2]) + 2 = ((4 : ℕ) : ℤ_[2]) by push_cast; ring, zpowZtwo_natCast]
   exact abMk_rel
 
-lemma phiHom_injective : Function.Injective phiHom := by
+private lemma phiHom_injective : Function.Injective phiHom := by
   rw [injective_iff_map_eq_one]
   intro z hz
   obtain ⟨a, s, y, rfl⟩ := D0ab_coord z
@@ -695,7 +707,7 @@ lemma zpowZtwo_ofAdd_one_zmod2 (c : ZMod 2) :
   rw [nsmul_eq_mul, mul_one]
   exact ZMod.natCast_rightInverse c
 
-lemma phiHom_surjective : Function.Surjective phiHom := by
+private lemma phiHom_surjective : Function.Surjective phiHom := by
   intro w
   rw [← ofAdd_toAdd w]
   obtain ⟨c, s, y⟩ := w.toAdd
@@ -716,10 +728,10 @@ noncomputable def phiEquiv :
   continuousMulEquivOfBijective ⟨phiHom, continuous_phiHom⟩
     ⟨phiHom_injective, phiHom_surjective⟩
 
-@[simp] lemma phiEquiv_apply (z : topAbelianization D0) : phiEquiv z = phiHom z := rfl
+@[simp] private lemma phiEquiv_apply (z : topAbelianization D0) : phiEquiv z = phiHom z := rfl
 
 /-- **Equation (11)** (paper §3.1 preamble): the marked decomposition of `B` exists.
-(Proof ticket P-07, std-3: the marked pro-2 abelianization `D₀^ab ≅ ℤ/2 × ℤ₂ × ℤ₂` via the
+(Proof the Lemmas 3.4–3.5 proof, std-3: the marked pro-2 abelianization `D₀^ab ≅ ℤ/2 × ℤ₂ × ℤ₂` via the
 coordinate homs `τ, σ, γ` built from `d0LiftHom` + `abLift`, shown bijective.) -/
 theorem b_decomposition : Nonempty BDecomposition :=
   ⟨{ e := phiEquiv
@@ -750,12 +762,10 @@ noncomputable def unitNeg3 : ℚ_[2]ˣ := Units.mk0 (-3 : ℚ_[2]) (by norm_num)
 
 /-! ### Marked-abelianization clause
 
-**Reduced to the single reciprocity-iso lemma `markedHom_bijective`** (the one census-gated gap,
-Escalation 5 in `docs/section3-extraction.md`): the descent `markedPi`, the marked hom
-`markedHom` (`Ā,S̄,Ȳ ↦ rec(−4), rec(1/2), rec(−3)`, relation verified), and the generator matching
-are all **std-3**; only `markedHom` being *bijective* — i.e. the three reciprocity classes
-coordinatize `(G_ℚ₂(2))^ab`, the pro-2 local-reciprocity iso, which B5 does not pin —
-remains open. -/
+The descent `markedPi`, the marked hom `markedHom`
+(`Ā,S̄,Ȳ ↦ rec(−4), rec(1/2), rec(−3)`, relation verified), and the generator matching are
+std-3.  Bijectivity of `markedHom` — that the three reciprocity classes coordinatize
+`(G_ℚ₂(2))^ab` — uses B5. -/
 
 /-! ### Arithmetic input for `markedHom_bijective`'s surjectivity
 
@@ -842,7 +852,7 @@ noncomputable def neg3Int : ℤ_[2]ˣ :=
       PadicInt.norm_int_lt_one_iff_dvd]
     norm_num).unit
 
-@[simp] lemma neg3Int_val : (neg3Int : ℤ_[2]) = -3 := IsUnit.unit_spec _
+@[simp] private lemma neg3Int_val : (neg3Int : ℤ_[2]) = -3 := IsUnit.unit_spec _
 
 /-- A norm-`1` element of `ℚ₂ˣ` comes from a `ℤ₂`-unit. -/
 lemma norm_one_unit (u : ℚ_[2]ˣ) (h : ‖(u : ℚ_[2])‖ = 1) :
@@ -946,7 +956,7 @@ theorem units_gen (x : ℚ_[2]ˣ) :
 /-- **Lemma 3.5, injectivity clause**: the pair `(ν_ur, χ_D) : B → ℤ₂ × ℤ₂ˣ` is injective.
 Stated intrinsically on `B = D₀^{ab}`: any continuous pair with the eq. (13) rows on the
 marked generator classes separates points.  (The rows pin `ν, χ` on a dense subgroup, hence
-everywhere, so this *is* the paper's clause.)  Proof ticket P-07 — from `b_decomposition`
+everywhere, so this *is* the paper's clause.)  Proof the Lemmas 3.4–3.5 proof — from `b_decomposition`
 plus `v₂(η − 1) = 2` (`η = (−3)⁻¹` topologically generates `1 + 4ℤ₂`). -/
 theorem lemma_3_5_injective
     (ν : topAbelianization D0 →* Multiplicative ℤ_[2]) (hν : Continuous ν)
@@ -1107,15 +1117,15 @@ noncomputable def markedHom (R : LocalReciprocity) :
         norm_num
       rw [hc, mul_one, inv_pow, ← map_pow, ← map_pow, ← map_inv, ← map_mul, hu, map_one]))
 
-@[simp] lemma markedHom_A (R : LocalReciprocity) :
+@[simp] private lemma markedHom_A (R : LocalReciprocity) :
     markedHom R (abMk d0A) = markedPi (R.recip unitNeg4) := by
   rw [markedHom, abLift_abMk, d0LiftHom_A]; rfl
 
-@[simp] lemma markedHom_S (R : LocalReciprocity) :
+@[simp] private lemma markedHom_S (R : LocalReciprocity) :
     markedHom R (abMk d0S) = (markedPi (R.recip uniformizer))⁻¹ := by
   rw [markedHom, abLift_abMk, d0LiftHom_S]; rfl
 
-@[simp] lemma markedHom_Y (R : LocalReciprocity) :
+@[simp] private lemma markedHom_Y (R : LocalReciprocity) :
     markedHom R (abMk d0Y) = markedPi (R.recip unitNeg3) := by
   rw [markedHom, abLift_abMk, d0LiftHom_Y]; rfl
 
@@ -1131,13 +1141,13 @@ noncomputable def chiT (_ : LocalReciprocity) :
     ContinuousMonoidHom (topAbelianization (maxProPQuotient 2 AbsGalQ2)) ℤ_[2]ˣ :=
   abLiftG ((maxProPHomEquiv isProP_two_unitsPadicInt).symm ⟨chiCyc, continuous_chiCyc⟩)
 
-lemma nuT_markedPi (R : LocalReciprocity) (x : AbsGalQ2ab) :
+private lemma nuT_markedPi (R : LocalReciprocity) (x : AbsGalQ2ab) :
     nuT R (markedPi x) = R.nu_ur x := by
   obtain ⟨g, rfl⟩ := QuotientGroup.mk_surjective x
   show nuT R (markedPi (toAb g)) = R.nu_ur (toAb g)
   rw [markedPi_toAb, nuT, abLiftG_abMk, PropOneOne.nuUrBar_maxProPMk]
 
-lemma chiT_markedPi (R : LocalReciprocity) (x : AbsGalQ2ab) :
+private lemma chiT_markedPi (R : LocalReciprocity) (x : AbsGalQ2ab) :
     chiT R (markedPi x) = chiCycAb x := by
   obtain ⟨g, rfl⟩ := QuotientGroup.mk_surjective x
   show chiT R (markedPi (toAb g)) = chiCycAb (toAb g)
@@ -1178,7 +1188,7 @@ theorem markedHom_injective (R : LocalReciprocity) : Function.Injective (markedH
   · show nuT R (markedHom R x) = nuT R (markedHom R z); rw [hxz]
   · show chiT R (markedHom R x) = chiT R (markedHom R z); rw [hxz]
 
-lemma continuous_markedPi : Continuous (markedPi : AbsGalQ2ab → _) := by
+private lemma continuous_markedPi : Continuous (markedPi : AbsGalQ2ab → _) := by
   refine (QuotientGroup.isQuotientMap_mk commClosure).continuous_iff.mpr ?_
   have hfun : (markedPi ∘ (QuotientGroup.mk : AbsGalQ2 → AbsGalQ2ab))
       = fun g => abMk (maxProPMk 2 AbsGalQ2 g) := by
@@ -1186,7 +1196,7 @@ lemma continuous_markedPi : Continuous (markedPi : AbsGalQ2ab → _) := by
   rw [hfun]
   exact continuous_abMk.comp (maxProPMk 2 AbsGalQ2).continuous_toFun
 
-lemma markedPi_surjective : Function.Surjective (markedPi : AbsGalQ2ab → _) := by
+private lemma markedPi_surjective : Function.Surjective (markedPi : AbsGalQ2ab → _) := by
   intro y
   obtain ⟨t, rfl⟩ := abMk_surjective y
   obtain ⟨g, rfl⟩ := quotientMk_surjective (proPKernel 2 AbsGalQ2) t
@@ -1263,8 +1273,8 @@ theorem markedHom_bijective (R : LocalReciprocity) : Function.Bijective (markedH
 /-- **Lemma 3.5, marked-abelianization clause**: the pro-2 abelianization of `D = G_{ℚ₂}(2)`
 is identified with `B = D₀^{ab}` by `Ā ↦ ā = rec(−4)`, `S̄ ↦ s̄ = rec(2)⁻¹ = rec(1/2)`,
 `Ȳ ↦ ȳ = rec(−3)`.  The `rec`-classes live in `G^{ab}` (`R.recip`); the matching is quantified
-over lifts `g ∈ G_{ℚ₂}` (all lifts agree via `markedPi`, an abelian descent).  **Proved modulo
-`markedHom_bijective`** (the sole census-gated gap; ticket P-07, `Ax = B5`). -/
+over lifts `g ∈ G_{ℚ₂}` (all lifts agree via `markedPi`, an abelian descent).  The proof uses
+`markedHom_bijective` and B5. -/
 theorem lemma_3_5_marked_abelianization (R : LocalReciprocity) :
     ∃ e : ContinuousMulEquiv (topAbelianization D0)
       (topAbelianization (maxProPQuotient 2 AbsGalQ2)),
@@ -1293,8 +1303,8 @@ on the square-class basis `(−1, 2, −3)` of Lemma 3.5, the dyadic Hilbert sym
 values `(−1,−1)₂ = −1`, `(2,−3)₂ = −1`, and `+1` on every other (unordered) pair.  In the
 dual basis `(α, β, γ)` of `H¹(D, 𝔽₂)` this is exactly the quadratic initial form
 `α² + βγ + γβ` — the degree-two initial form of `r₀ = A²S⁴[S,Y]` (design note §3.5 for the
-dictionary; the Kummer-cocycle cup reading enters at §6, tickets P-14/P-15).
-(Proof ticket P-07, `Ax = B7′`: six evaluations of `hilbertSymbol_dyadic`.) -/
+dictionary; the Kummer-cocycle cup reading enters at §6).  The proof consists of six evaluations
+of `hilbertSymbol_dyadic`. -/
 theorem lemma_3_5_hilbert_ledger :
     hilbertSymbol (unitCoe (-1)) (unitCoe (-1)) = -1 ∧
     (∀ y : ℤ_[2]ˣ, (y : ℤ_[2]) = -3 → hilbertSymbol unit2 (unitCoe y) = -1) ∧
@@ -1361,18 +1371,18 @@ pro-2 abelian groups is automatically `ℤ₂`-linear, so the coordinate transcr
 are exactly the paper's `ℤ₂`-module statements (design note §3.7–3.8). -/
 
 /- **Lemma 3.7 (square-root and HNN lifting)** is stated and **proved** in
-`GQ2/AnabelianBridge.lean` (`GQ2.SectionThree.lemma_3_7`, ticket P-08, `Ax = B8`) — declared
+`GQ2/AnabelianBridge.lean` (`GQ2.SectionThree.lemma_3_7`, `Ax = B8`) — declared
 there because its proof needs the anabelian bridge (B8's peripheral identity pushed along
-`Δ → D₀`), which imports this file; same namespace, per the P-09 precedent (`GQ2/Prop32.lean`). -/
+`Δ → D₀`), which imports this file; same namespace, per the Prop. 3.2 precedent (`GQ2/Prop32.lean`). -/
 
 /- **Proposition 3.8, lifting half** is stated and **proved** in `GQ2/AnabelianBridge.lean`
-(`GQ2.SectionThree.prop_3_8_lift`, ticket P-08, `Ax = B8`): `Ψ_u` composed with the shear
+(`GQ2.SectionThree.prop_3_8_lift`, `Ax = B8`): `Ψ_u` composed with the shear
 `Θ_{b'}` of paper (19). -/
 
 /- **Proposition 3.8, classification half** is stated and **proved** in
-`GQ2/AnabelianBridge.lean` (`GQ2.SectionThree.prop_3_8_classification`, ticket P-08,
+`GQ2/AnabelianBridge.lean` (`GQ2.SectionThree.prop_3_8_classification`,
 axiom-free): `ker χ₀ = ℤ₂S̄`, the torsion subgroup is `⟨t⟩`, and `η`-injectivity
-(P-21 (iii)) — pure (11) module algebra over this file's `D0ab_coord` toolkit. -/
+(the ℤ₂-powering development (iii)) — pure (11) module algebra over this file's `D0ab_coord` toolkit. -/
 
 /-! ## Proposition 1.1 — the marked dyadic Demushkin normalization
 
@@ -1381,14 +1391,14 @@ Paper: *"There exist topological generators `a, s, y` of `D = G_{ℚ₂}(2)` wit
 presentation clause is packaged as a continuous isomorphism `e : G_{ℚ₂}(2) ≅ D₀` (then
 `a = e⁻¹(A)`, `s = e⁻¹(S)`, `y = e⁻¹(Y)` topologically generate and satisfy the relation, by
 transport of `d0_relation`); the `ν_ur`-row is read through arbitrary lifts to `G_{ℚ₂}`, as
-in the T-11 full-group readings (`chiCyc_eq_neg_one_of_lift_A`). -/
+in the orientation interface full-group readings (`chiCyc_eq_neg_one_of_lift_A`). -/
 
-/- **Proposition 1.1** (proof ticket P-10) is stated and **proved** in
+/- **Proposition 1.1** is stated and **proved** in
 `GQ2/PropOneOneAssembly.lean` (`GQ2.SectionThree.prop_1_1`): a marked isomorphism
 `G_{ℚ₂}(2) ≅ D₀` with unramified coordinates `ν_ur(a, s, y) = (−2, 1, 0)`.  It composes B3c
 (`orientBundle.equiv`) with Lemma 3.5 (`lemma_3_5_marked_abelianization`) and Prop. 3.8
 (`prop_3_8_classification`/`prop_3_8_lift`), and so inherits Lemma 3.5's sole census-gated gap
-`markedHom_bijective`.  Declared in that downstream file (P-09 precedent: it imports the P-08
+`markedHom_bijective`.  It is declared in that downstream file because it imports the
 `AnabelianBridge` layer, which imports this file). -/
 
 end SectionThree

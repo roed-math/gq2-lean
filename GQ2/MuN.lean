@@ -1,8 +1,26 @@
-import GQ2.Cohomology
-import GQ2.Statement
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.CategoryTheory.Action.Concrete
+public import Mathlib.NumberTheory.Padics.Complex
+public import Mathlib.RingTheory.RootsOfUnity.AlgebraicallyClosed
+public import Mathlib.RingTheory.SimpleRing.Principal
+public import Mathlib.Topology.Connected.Separation
+public import Mathlib.Topology.MetricSpace.Ultra.TotallySeparated
+public import GQ2.Cohomology
+public import GQ2.Statement
+
+@[expose] public section
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
-# `μₙ` as a finite discrete `G_ℚ₂`-module  (ticket T-15, infra I10)
+# `μₙ` as a finite discrete `G_ℚ₂`-module
 
 The literature axioms **B6** (local Tate duality) and **B7** (local Euler characteristic) are stated
 for finite discrete `G_ℚ₂`-modules, and B6 uses `μₙ` (the group of `n`-th roots of unity, as the
@@ -31,7 +49,7 @@ and then, over `ℚ₂`:
 
 ## Conventions / citations
 
-* The additive convention matches `GQ2/DiscreteModule.lean` (T-01) and `GQ2/Cohomology.lean` (T-02):
+* The additive convention matches `GQ2/DiscreteModule.lean` (the discrete-module conventions) and `GQ2/Cohomology.lean` (the continuous-cohomology API):
   a discrete `G`-module is `[AddCommGroup M] [TopologicalSpace M] [DiscreteTopology M]
   [DistribMulAction G M] [ContinuousSMul G M]`.  `μₙ` is naturally *multiplicative*, so we transport
   it through `Additive`.
@@ -39,7 +57,7 @@ and then, over `ℚ₂`:
   (cyclotomic) subextension, hence has open stabilizer in the Krull topology.  Cf. Neukirch–Schmidt–
   Wingberg, *Cohomology of Number Fields*, and Serre, *Galois Cohomology* I §1–2 (discrete modules).
 
-The stress tests at the bottom confirm the deliverable: `H⁰/H¹/H²(G_ℚ₂, μₙ)` all typecheck — `μₙ` is
+The stress tests at the bottom confirm the result: `H⁰/H¹/H²(G_ℚ₂, μₙ)` all typecheck — `μₙ` is
 a legal `ContCoh` coefficient — and `μₙ` is finite.  `#print axioms` of every proof = the standard
 three.
 -/
@@ -65,7 +83,7 @@ instance galRootsOfUnity : MulDistribMulAction (L ≃ₐ[K] L) (rootsOfUnity n L
   smul_one g := Subtype.ext (smul_one g)
   smul_mul g ζ ξ := Subtype.ext (smul_mul' g (ζ : Lˣ) (ξ : Lˣ))
 
-@[simp] lemma galRootsOfUnity_val (g : L ≃ₐ[K] L) (ζ : rootsOfUnity n L) :
+@[simp] private lemma galRootsOfUnity_val (g : L ≃ₐ[K] L) (ζ : rootsOfUnity n L) :
     ((g • ζ : rootsOfUnity n L) : Lˣ) = g • (ζ : Lˣ) := rfl
 
 /-- **`μₙ` as an additive `Gal(L/K)`-module.**  The project's cohomology takes additive modules;
@@ -89,7 +107,7 @@ instance galRootsOfUnityAdd :
         = Additive.ofMul (g • x.toMul) + Additive.ofMul (g • y.toMul)
     rw [smul_mul']; rfl
 
-@[simp] lemma galRootsOfUnityAdd_toMul (g : L ≃ₐ[K] L) (x : Additive (rootsOfUnity n L)) :
+@[simp] private lemma galRootsOfUnityAdd_toMul (g : L ≃ₐ[K] L) (x : Additive (rootsOfUnity n L)) :
     (g • x).toMul = g • x.toMul := rfl
 
 /-- The units action and the field action agree under the coercion `Lˣ → L`. -/
@@ -163,7 +181,7 @@ example : True := by
   have _ : AddCommGroup (ContCoh.H2 AbsGalQ2 (MuN n)) := inferInstance
   trivial
 
-/-- `μₙ` is finite (the "finite" of the ticket). -/
+/-- `μₙ` is finite. -/
 example : Finite (MuN n) := inferInstance
 
 /-- `μₙ` is a discrete module. -/

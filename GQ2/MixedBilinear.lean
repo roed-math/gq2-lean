@@ -1,4 +1,13 @@
-import GQ2.FoxHeisenberg
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.FoxHeisenberg
+
+@[expose] public section
 
 /-!
 # Bilinearity of the traced mixed coordinate `mixedB`
@@ -10,8 +19,8 @@ using the `HeisLift` coordinate cocycle rules: the `.a`-coordinate depends only 
 `.l`-coordinate only on `y`, the `.g`-coordinate on neither, and the `.z`-coordinate is the
 bilinear cross-term `Σ λ_left(a_right)`.
 
-This is the general-offset toolkit consumed by the trivial-module Gram matrix (P-13f part i) and the
-ramified mixed Hessian (P-13c).
+This is the general-offset toolkit consumed by the trivial-module Gram matrix (the Prop. 5.15 proof part i) and the
+ramified mixed Hessian (the §5 proof layer).
 -/
 
 namespace GQ2.FoxH
@@ -124,7 +133,7 @@ For a trivial `C`-action, `fgTame = g₀⁻¹ g₁ g₀ g₁⁻²` evaluates (un
 bilinear form below.  Crucially every term carries an index-`1` (`τ`) factor, so it **vanishes on
 the split cocycles** `{x₁ = 0}` — i.e. the trivial-module degree-one pairing is carried entirely
 by the wild relator, not the tame one. -/
-theorem stokesEval_tame_z_trivial (htriv : ∀ (g : C) (a : A), g • a = a) (c : Fin 4 → C)
+private theorem stokesEval_tame_z_trivial (htriv : ∀ (g : C) (a : A), g • a = a) (c : Fin 4 → C)
     (x : Fin 4 → A) (y : Fin 4 → ElemDual A) :
     (stokesEval c x y fgTame).z = y 1 (x 0) - y 0 (x 1) + y 1 (x 1) := by
   have hdtriv : ∀ (g : C) (lam : ElemDual A), g • lam = lam := fun g lam => by
@@ -165,7 +174,7 @@ theorem conjP_z_of_alzero (p g : HeisLift A C) (hga : g.a = 0) (hgl : g.l = 0) :
 
 One factor of the wild relator `wildValue = h₀·u₁⁻¹·x₁^σ·c₀`.  Its central coordinate is the
 **symplectic pairing of the σ- and x₁-slots**, `y₃(x₀) − y₀(x₃)` — the (0,3)/(3,0) Gram entries. -/
-theorem heisMarking_x1sig_z_trivial {C : Type*} [Group C] {V : Type*} [AddCommGroup V]
+private theorem heisMarking_x1sig_z_trivial {C : Type*} [Group C] {V : Type*} [AddCommGroup V]
     [DistribMulAction C V] (htriv : ∀ (g : C) (a : V), g • a = a) (t : Marking C)
     (x : Fin 4 → V) (y : Fin 4 → ElemDual V) :
     (conjP (heisMarking t x y).x₁ (heisMarking t x y).σ).z = y 3 (x 0) - y 0 (x 3) := by

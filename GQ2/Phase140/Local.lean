@@ -1,18 +1,23 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.Phase140.Assembly
 import GQ2.Half139Local
 
 /-!
-# P-16d6e3: the local (140) residues for `G_ℚ₂`
+# The local (140) residues for `G_ℚ₂`
 
-Discharge, for the local source `Γ = G_ℚ₂ = AbsGalQ2`, the per-source residues consumed by the
-source-generic `phase140_from_residues` (P-16d6e2, `GQ2/Phase140Assembly.lean`): `hsep`,
-`hpartial`, `hZcard`, and `hμ` (the `T`-cocycle count).  `hGaussZ` is the deeper P-16d6e4 lane
+For the local source `Γ = G_ℚ₂ = AbsGalQ2`, this file proves the per-source residues consumed by
+the source-generic `phase140_from_residues` in `GQ2/Phase140Assembly.lean`: `hsep`,
+`hpartial`, `hZcard`, and `hμ` (the `T`-cocycle count).  `hGaussZ` is supplied separately
 (kept as a hypothesis here); `htriv`/`hH2` are discharged locally (`htriv_local'` /
 `card_H2_zmod2_eq_two`).
 
-**Status (Fable, 2026-07-08): COMPLETE — `phase140_local` is sorry-free**, `#print axioms` =
-std-3 + B6 (`tateDualityAt`) + B7 (`absGalQ2_localEulerCharacteristic`), exactly `⊆ {B6, B7}`.
-**All four residues PROVED**: `htriv_local'`, `vFixedPts_eq_one`, the two **counting** residues
+`#print axioms phase140_local` is contained in the standard three axioms together with B6
+(`tateDualityAt`) and B7 (`absGalQ2_localEulerCharacteristic`).  The four residues are
+`htriv_local'`, `vFixedPts_eq_one`, the two **counting** residues
 **`tcocycle_card_local`** (the `hμ` supplier) and **`hZcard_local`**; the deep separation residue
 **`hsep_local`** (7 stages: `Additive T` module → `tDef ∈ Z²` → dual/`hpair` → `cup20`-bridge with
 the `χ↔n∈TCharC` invariance transport → `bijective_cup20` injectivity → B²-extraction → the direct
@@ -23,10 +28,10 @@ vanishes → the dual-connecting cochain `ξ` is a `Z¹(Γ, ElemDual V)` whose e
 `ψ(m) = χ(t-part m) + (gχ+n)(V-part m)` (additive; `Y`-conjugation-invariant via `bb=uσ(cc)·k`,
 `k∈M`, `M` abelian, collapsing to `hkey`) → `ψ = 0` by `Half139Local.mchar_conj_invariant_eq_zero`
 (`(M∨)^C = 0`, Lemma 7.1) → `χ = 0`, contradiction).
-**⚠ statement finding**: `hZcard_local` gained `hnt : ∃ g v, g•v≠v` (the ledger
-`hsimple`/`hfaith`/`hVne` is insufficient — see `hZcard_local`), which the capstone ledger must add.
+The theorem `hZcard_local` requires `hnt : ∃ g v, g • v ≠ v`; the other module hypotheses alone
+do not imply this nontriviality condition, as explained in its declaration below.
 
-The four residues follow two worked patterns already landed for the local source:
+The four residues follow two common patterns for the local source:
 
 * the **counting** residues `hμ` and `hZcard` mirror `hMcountM_local`
   (`GQ2/Half139Local.lean`): build the additive `𝔽₂`-module of the layer (`T` resp. `V`) with
@@ -40,7 +45,7 @@ All four are `∀ ρ`-parametric over the `C`-boundary lifts, in exactly the sha
 `phase140_from_residues` consumes; the assembly `phase140_local` wires them (plus the ledger
 `hGaussZ`) into the `RecursionInputs.phase140`-field display.
 
-Axioms (audit at close): `⊆ {B6, B7}` — B6/B7 via `card_Z1_eq` / `card_H2_eq_fixedPts`, exactly
+Axiom use: `⊆ {B6, B7}` — B6/B7 via `card_Z1_eq` / `card_H2_eq_fixedPts`, exactly
 as in `hMcountM_local`/`hZcount_local`.
 -/
 
@@ -244,7 +249,7 @@ private noncomputable def tcocycleEquivZ1 (ρ : BoundaryLifts b F RF.TC) :
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
   [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)] [TopologicalSpace Y]
   [DiscreteTopology Y] in
-/-- **The `T`-cocycle count for `G_ℚ₂`** (the `hμ` supplier, P-16d6e3): the crossed-`T`-cocycle
+/-- **The `T`-cocycle count for `G_ℚ₂`** (the `hμ` supplier, the Prop. 8.9 assembly): the crossed-`T`-cocycle
 count is the `card_Z1_eq` closed form `#T² · #(T^∨)^{YB/M_B}`, which is **`ρ`-independent** (the RHS
 sees only the frame-level datum `En.radData l h`, not `ρ`) — so the capstone reads off `μ₀` and
 `hμ := fun ρ => tcocycle_card_local … ρ`.  Mirrors `hMcountM_local` steps 1–3 at
@@ -308,17 +313,15 @@ omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalG
 `rho0 = ρ.1.1` (`rho0_descData_rhoPrime`, surjective since `ρ` is a `ContSurj`), building the
 `VCocycle ≃ Z¹_cont(AbsGalQ2, En.Vmod)` bridge and applying `card_Z1_eq`
 (5.16 clause (ii)) to get `#V² · #fixedPts RF.YC (ElemDual En.Vmod)`; the `fixedPts` factor is `1`
-by **`vFixedPts_eq_one` (PROVED above)**.  Only the bridge + module-instance setup remain (the
-`hMcountM_local` steps 1–3 pattern at `A := En.Vmod`).
+by `vFixedPts_eq_one`.  The proof follows the bridge and module-instance setup from
+`hMcountM_local` at `A := En.Vmod`.
 
-**⚠ statement amendment (P-16d6e3, `docs/section10`-style finding)**: `hnt` (the nontrivial action)
-is REQUIRED and is NOT derivable from `hsimple`/`hfaith`/`hVne` alone — in the corner `#V = 2 ∧
+The hypothesis `hnt` (a nontrivial action) is necessary and is not derivable from
+`hsimple`/`hfaith`/`hVne` alone: in the corner `#V = 2 ∧
 YC = 1` the ledger is satisfiable (`𝔽₂` is a faithful — vacuously — simple `𝔽₂[1]`-module) yet
 `#(V^∨)^{YC} = 2 ≠ 1`, so `hZcard` is FALSE there.  `hnt` (equivalently `Nontrivial RF.YC`, via
 `hfaith`) rules it out and is discharged at the capstone from the block's chief-factor structure
-(the ramified regular summand has a nontrivial `YC`-action).  The capstone ledger must add it.
-(`hfaith` is then no longer needed *here* — `hnt` subsumes it — but is kept in `phase140_local`'s
-signature as part of the ledger, where the capstone uses it to produce `hnt`.) -/
+(the ramified regular summand has a nontrivial `YC`-action). -/
 theorem hZcard_local
     (hsimple : ∀ W : AddSubgroup En.Vmod,
       (∀ g : RF.YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
@@ -502,12 +505,11 @@ omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [TopologicalSpa
 (`VLiftCount.lean`); the `hsep_hom_local` pattern (`prop_5_16` cup clause (vi) `cup20`-bijectivity
 + `B²`-extraction) at the `T`-module through the `M`-lift obstruction.
 
-**EXECUTABLE RECIPE (7 stages, mirroring `RStageLocal.hsep_hom_local` at the T-layer; all lemma
-names verified to exist):**
+**Proof outline** (mirroring `RStageLocal.hsep_hom_local` at the `T`-layer):
 1. **Module.**  `A := Additive ↥(En.radData l h).T` with the `rhoPrime`-conjugation
-   `AbsGalQ2`-action — REUSE `tcocycle_card_local`'s setup verbatim (`conj_eq_of_mk_eq_T`,
+   `AbsGalQ2`-action, using `tcocycle_card_local`'s setup (`conj_eq_of_mk_eq_T`,
    `tCommGroup`, `actC`/`actG`, `hcomp`, `hsmul`, `ContinuousSMul`, `hA₂`), same module as the
-   T-count.  **✅ LANDED in-proof below** (the `sorry` is only for Stages 2–7).
+   T-count.
 2. **T-valued defect cocycle** `tDefZ2 : (fun p => Additive.ofMul (tDef S hσ c p)) ∈ Z2 AbsGalQ2 A`
    — extract from `chiDef_mem_Z2`'s `hraw`/`hsub` (`VLiftCount.lean:234-252`), BEFORE pushing
    through `χ`; the `γ•` in the `Z2` identity is conjugation by `fLift γ` (a rep of `ρ'γ`, so
@@ -1313,12 +1315,10 @@ end LocalResidues
 
 /-! ## The local (140) display -/
 
-/-- **The `RecursionInputs.phase140` field for `G_ℚ₂`** (P-16d6e3 assembly): the source-generic
-`phase140_from_residues` (P-16d6e2) with `htriv`/`hH2` discharged locally and the four per-source
-residues supplied by the lemmas above.  `hGaussZ` is threaded from the P-16d6e4 lane; `μ₀`/`G0` and
-the module-ledger hypotheses (`hsimple`/`hVne`/`hnt`) are the `prop_8_9` ledger, fed at the
-capstone (`Prop89Close`).  (The former dead `_hfaith` parameter was removed at the P-17i
-`hfaith`-weakening amendment, 2026-07-08.) -/
+/-- **The `RecursionInputs.phase140` field for `G_ℚ₂`**: the source-generic
+`phase140_from_residues` with `htriv`/`hH2` discharged locally and the four per-source residues
+supplied by the lemmas above.  `hGaussZ`, `μ₀`, `G0`, and the module hypotheses
+`hsimple`/`hVne`/`hnt` are supplied by the `prop_8_9` assembly in `GQ2/Prop89Close.lean`. -/
 theorem phase140_local
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
     [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)]

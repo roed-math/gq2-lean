@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.SectionEight.Covers
 
 /-!
@@ -5,8 +10,7 @@ import GQ2.SectionEight.Covers
 
 The exponent-2 abelian ledger collapse and the two character counts it yields:
 `|Hom_cont(Γ_A, 𝔽₂)| = 8` (`lemma_8_2_gammaA`) and `|Hom_cont(G_ℚ₂, 𝔽₂)| = 8`
-(`lemma_8_2_local`), via the `Π`-side count `card_char_piBd`.  Split out of
-`GQ2.SectionEight` (wave 38a).
+(`lemma_8_2_local`), via the `Π`-side count `card_char_piBd`.
 -/
 
 open scoped Pointwise
@@ -19,7 +23,7 @@ open QuadraticFp2
 
 /-! ## Lemma 8.2: the common scalar character group
 
-The `Γ_A`-side proof runs entirely over the P-04/P-05 layer: continuous characters of
+The `Γ_A`-side proof runs entirely over the admissible-limit proof/Prop. 2.3 layer: continuous characters of
 `Γ_A` are `F₄`-generator values killing `N_A`; killing `N_A` forces `c(τ) = 1`
 (`tameRelator_mem_NA`), and conversely `c(τ) = 1` makes `ker c` admissible — because in an
 **exponent-2 abelian** quotient the whole `ω₂`-word ledger collapses and the wild relation
@@ -113,7 +117,7 @@ private lemma comp_quotientLift_eq {G : Type} [Group G] [TopologicalSpace G]
   rfl
 
 /-- Characters of a topological quotient group `G ⧸ N` are characters of `G` killing `N`
-(the P-05 `push`/`descend` mechanics, without surjectivity; instantiated at `N_A` for the
+(the Prop. 2.3 `push`/`descend` mechanics, without surjectivity; instantiated at `N_A` for the
 `Γ_A`-count and at the relator subgroup for the `Π`-count). -/
 noncomputable def charEquiv {G : Type} [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] (N : Subgroup G) [N.Normal] :
@@ -142,7 +146,7 @@ private lemma homEquiv_symm_hom_of_values {X : Type}
   rfl
 
 /-- Characters of a free profinite group are their generator values (the universal
-property, in `ContinuousMonoidHom` form via the P-05 uniqueness lemma). -/
+property, in `ContinuousMonoidHom` form via the Prop. 2.3 uniqueness lemma). -/
 noncomputable def cmhEquivFun {X : Type} :
     ContinuousMonoidHom (FreeProfiniteGroup X) (Multiplicative (ZMod 2))
       ≃ (X → Multiplicative (ZMod 2)) where
@@ -158,10 +162,10 @@ private lemma card_M2 : Nat.card (Multiplicative (ZMod 2)) = 2 := by
   rw [Nat.card_congr Multiplicative.toAdd, Nat.card_zmod]
 
 /-- **The kills-`N_A` criterion**: a character of `F₄` kills `N_A` iff it kills `τ`.
-Forward: `N_A` contains the tame relator (P-04), whose `𝔽₂`-image is `c(τ)`.  Backward:
+Forward: `N_A` contains the tame relator (the admissible-limit proof), whose `𝔽₂`-image is `c(τ)`.  Backward:
 `ker c` is then an *admissible* open normal subgroup (generation is automatic, the tame
 relation is the `τ`-kill, and the wild relation and 2-core are unconditional in an
-exponent-2 abelian quotient), so `N_A ≤ ker c` by the P-04 characterization. -/
+exponent-2 abelian quotient), so `N_A ≤ ker c` by the admissible-limit proof characterization. -/
 theorem ker_char_NA_le_iff
     (c : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4)) (Multiplicative (ZMod 2))) :
     NA ≤ c.toMonoidHom.ker ↔ c univMarking.τ = 1 := by
@@ -233,7 +237,7 @@ def vecEquiv : {v : Fin 4 → Multiplicative (ZMod 2) // v 1 = 1}
 end CharGammaA
 
 /-- **Lemma 8.2, candidate source**: `|Hom_cont(Γ_A, 𝔽₂)| = 8`.  **Proved** over the
-P-04/P-05 layer: characters of `Γ_A` are `F₄`-generator values killing `N_A`
+the admissible-limit proof/Prop. 2.3 layer: characters of `Γ_A` are `F₄`-generator values killing `N_A`
 (`charEquiv`/`cmhEquivFun`), and killing `N_A` is exactly killing `τ`
 (`ker_char_NA_le_iff` — the tame relator forces it, and conversely `c(τ) = 1` gives both
 relations in exponent-2 abelian quotients, `Marking.wildRel_of_comm2`).  That leaves the free
@@ -246,7 +250,7 @@ theorem lemma_8_2_gammaA :
 
 /-! ### The `Π`-side count and the local source
 
-`𝔽₂`-characters kill the pro-2 kernel (T-05), so they factor through the maximal pro-2
+`𝔽₂`-characters kill the pro-2 kernel (the maximal pro-p quotient API), so they factor through the maximal pro-2
 quotient; `BoundaryMaps.ker_pro2F` pins that quotient as `Π`, whose characters are the
 free `𝔽₂³` of `σ, x₀, x₁`-values (the `piRelator`-condition is vacuous by the same
 exponent-2 ledger collapse). -/
@@ -308,7 +312,7 @@ private def vecEquiv₃ : (Fin 3 → Multiplicative (ZMod 2))
 generators and its relator has no mod-2 linear part (paper, proof of Lemma 8.2). -/
 theorem card_char_piBd :
     Nat.card (ContinuousMonoidHom PiBd (Multiplicative (ZMod 2))) = 8 := by
-  -- peel the maximal-pro-2 layer (T-05 universal property; `𝔽₂` is pro-2)
+  -- peel the maximal-pro-2 layer (the maximal pro-p quotient API universal property; `𝔽₂` is pro-2)
   have e1 : ContinuousMonoidHom PiBd (Multiplicative (ZMod 2))
       ≃ ContinuousMonoidHom (profinitePresentation {piRelator}) (Multiplicative (ZMod 2)) :=
     maxProPHomEquiv isProP_M2
@@ -325,11 +329,11 @@ theorem card_char_piBd :
 /-- **Lemma 8.2, local source**: `|Hom_cont(G_ℚ₂, 𝔽₂)| = 8` (`= |ℚ₂ˣ/(ℚ₂ˣ)²|`).  **Proved**
 via the common marked maximal pro-2 quotient: a `BoundaryMaps` witness pins `pro2F` as *the*
 maximal pro-2 quotient map (`ker_pro2F`), every `𝔽₂`-character kills the pro-2 kernel
-(T-05 `proPKernel_le_ker`), so precomposition with `pro2F` bijects characters of `Π` with
+(the maximal pro-p quotient API `proPKernel_le_ker`), so precomposition with `pro2F` bijects characters of `Π` with
 characters of `G_ℚ₂`, and `card_char_piBd` finishes.  [Statement amendment (F-owner): the
 `BoundaryMaps` hypothesis and the `CompactSpace`/`TotallyDisconnectedSpace` instance
 hypotheses on `AbsGalQ2` (the `main_presentation` house pattern) — without the bundle the
-count is B4/B5-content outside the P-16 axiom budget.] -/
+count is B4/B5-content outside the §8 proof layer axiom budget.] -/
 theorem lemma_8_2_local (B : BoundaryMaps)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
     Nat.card (ContinuousMonoidHom AbsGalQ2 (Multiplicative (ZMod 2))) = 8 := by
@@ -365,7 +369,7 @@ theorem lemma_8_2_local (B : BoundaryMaps)
           exact ⟨quotientMk _ x, hx⟩
       -- … hence a topological isomorphism (compact source, T2 target)
       set e := continuousMulEquivOfBijective ψ hψbij with he
-      -- factor `c` through the canonical quotient (T-05) and transport along `e`
+      -- factor `c` through the canonical quotient (the maximal pro-p quotient API) and transport along `e`
       set c' : ContinuousMonoidHom (maxProPQuotient 2 AbsGalQ2) (Multiplicative (ZMod 2)) :=
         (maxProPHomEquiv isProP_M2).symm c with hc'
       refine ⟨c'.comp ⟨e.symm.toMulEquiv.toMonoidHom, e.symm.continuous_toFun⟩, ?_⟩

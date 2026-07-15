@@ -1,8 +1,13 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.SectionSeven
 import GQ2.FrattiniCriterion
 
 /-!
-# Frattini nongeneration for `frattiniLike`  (ticket P-16d, the (136) surjectivity step)
+# Frattini nongeneration for `frattiniLike`
 
 The finite-2-group **nongeneration property** of `Φ(K) = K²[K,K]`
 (`SectionSeven.frattiniLike`): `H ⊔ Φ(K) = K` forces `H = K`.  Every maximal subgroup of the

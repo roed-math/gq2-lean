@@ -1,4 +1,18 @@
-import Mathlib
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.CategoryTheory.CofilteredSystem
+public import Mathlib.Topology.Algebra.ClopenNhdofOne
+public import Mathlib.Topology.Connected.Separation
+public import Mathlib.Topology.Separation.Lemmas
+public import Mathlib.Topology.Algebra.Category.ProfiniteGrp.Basic
+
+@[expose] public section
+
 
 /-!
 # Lemma 2.5 — one-sided profinite reconstruction
@@ -10,8 +24,8 @@ The proof (paper): finiteness of `Sur(P, Pₙ)` gives, by compactness, an epimor
 symmetrically `P ↠ Q`; the composite `P ↠ Q ↠ P` is a surjective endomorphism of a
 topologically finitely generated profinite group, which is **Hopfian**, hence an isomorphism.
 
-This is grade **F′**: reachable from `ProfiniteGrp` once the Hopfian property of topologically
-f.g. profinite groups is packaged. Stated here; proof deferred.
+The proof below packages the Hopfian property, constructs compatible surjections through finite
+quotients, and applies compactness to obtain the required inverse maps.
 -/
 
 namespace GQ2
@@ -58,7 +72,7 @@ theorem finite_continuousMonoidHom
 endomorphism of a *topologically finitely generated* profinite group is injective.  Non-standard;
 absent from Mathlib.  Proof idea: a topologically f.g. profinite group has only finitely many open
 subgroups of each index, so a surjective endomorphism acts as a surjection — hence a bijection — on
-each finite quotient level, forcing injectivity in the limit.  Stated here; proof deferred. -/
+each finite quotient level, forcing injectivity in the limit. -/
 theorem profinite_hopfian
     {P : Type*} [Group P] [TopologicalSpace P] [IsTopologicalGroup P]
       [CompactSpace P] [TotallyDisconnectedSpace P]
@@ -101,7 +115,7 @@ ways.  (The projection witnesses `ContSurj R (R ⧸ V)`, which is finite by `hRf
 `≥ 1`; the count hypothesis `h` transports this to `S`, and `Nat.card_pos_iff` unpacks it as
 nonempty-and-finite — the latter automatically, since an infinite level set would have count `0`.)
 These level sets, over `V : OpenNormalSubgroup R` (a `SemilatticeInf`, hence cofiltered), are the
-nonempty finite objects fed to König in the deferred assembly. -/
+nonempty finite objects used in the compactness assembly below. -/
 theorem contSurj_quotient_nonempty_finite
     {S R : Type} [Group S] [TopologicalSpace S] [IsTopologicalGroup S]
       [CompactSpace S] [TotallyDisconnectedSpace S]
@@ -140,7 +154,7 @@ noncomputable def projMap {U U' : Subgroup R} [U.Normal] [U'.Normal]
     ContinuousMonoidHom (R ⧸ U) (R ⧸ U') :=
   ⟨QuotientGroup.map U U' (MonoidHom.id R) hle, continuous_of_discreteTopology⟩
 
-@[simp] theorem projMap_mk {U U' : Subgroup R} [U.Normal] [U'.Normal]
+@[simp] private theorem projMap_mk {U U' : Subgroup R} [U.Normal] [U'.Normal]
     [DiscreteTopology (R ⧸ U)] (hle : U ≤ U') (x : R) :
     projMap hle (QuotientGroup.mk x) = QuotientGroup.mk x := rfl
 
@@ -151,11 +165,11 @@ theorem projMap_surjective {U U' : Subgroup R} [U.Normal] [U'.Normal]
   obtain ⟨x, rfl⟩ := QuotientGroup.mk_surjective y
   exact ⟨QuotientGroup.mk x, rfl⟩
 
-@[simp] theorem projMap_id {U : Subgroup R} [U.Normal] [DiscreteTopology (R ⧸ U)] (hle : U ≤ U) :
+@[simp] private theorem projMap_id {U : Subgroup R} [U.Normal] [DiscreteTopology (R ⧸ U)] (hle : U ≤ U) :
     projMap hle = ContinuousMonoidHom.id (R ⧸ U) := by
   exact ContinuousMonoidHom.ext fun y => QuotientGroup.induction_on y fun _ => rfl
 
-@[simp] theorem projMap_comp_apply {U U' U'' : Subgroup R} [U.Normal] [U'.Normal] [U''.Normal]
+@[simp] private theorem projMap_comp_apply {U U' U'' : Subgroup R} [U.Normal] [U'.Normal] [U''.Normal]
     [DiscreteTopology (R ⧸ U)] [DiscreteTopology (R ⧸ U')]
     (hle : U ≤ U') (hle' : U' ≤ U'') (y : R ⧸ U) :
     projMap hle' (projMap hle y) = projMap (hle.trans hle') y := by

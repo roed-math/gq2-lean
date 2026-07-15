@@ -59,7 +59,7 @@ declarations in `GQ2/` unless said otherwise.
 - **How caught**: failed proof — proving (134) verbatim from the (proved) `lemma_6_22` leaves the
   cup term; recorded 2026-07-05 (P-16d4).
 - **Witness**: `GQ2/AffineTLift.lean` (`prop_8_8_target`), `SectionSix.lemma_6_22`;
-  `docs/section8-extraction.md` §"P-16d statement corrections", item 5(b).
+  `docs/section8-extraction.md` §“Proposition 8.8 keeps the full normalized phase”.
 - **Fix for the rewrite**: add the `γ ⌣ a` term to (134) (or remark that the phase is taken
   modulo the cup contribution, which the existential formulation absorbs).
 
@@ -146,7 +146,8 @@ locally visible at the point of use.
   existence.
 - **How caught**: failed proof at the over-general transcription; sharpness witness from the
   literature.  (The manuscript does not currently cite Griess anywhere.)
-- **Witness**: `docs/section9-extraction.md` deviation 4 and §P-17e; `SectionNine.kappa0_exists`
+- **Witness**: `docs/section9-extraction.md` §“`kappa0_exists` uses the paper's simple tame
+  hypotheses”; `SectionNine.kappa0_exists`
   (amended with `hsimple`/`htame`, proved).
 - **For the rewrite**: at Lemma 6.3, add a remark with the Griess citation: the simplicity/tameness
   hypotheses are not conveniences — the lifting problem is genuinely obstructed in general.
@@ -163,7 +164,7 @@ locally visible at the point of use.
   odd-cyclic image in the unramified case) but is **false for general finite heads** — sharp
   already at `H¹`, e.g. `L₃(2)`-type action images.  A transcription of Prop 7.4 without the
   framed-target head data is unprovable.
-- **Witness**: `docs/section67-extraction.md` §"P-15 amendments" (soundness amendment #3);
+- **Witness**: `docs/section67-extraction.md` §“Proposition 7.4 needs the framed tame head”;
   `GQ2/SectionSeven.lean` `prop_7_4` (amended, proved).
 - **For the rewrite**: restate the standing assumption (tame head `π : Y ↠ H`, `H` a quotient of
   `T_tame`) in Prop 7.4's own hypothesis list.
@@ -204,7 +205,8 @@ locally visible at the point of use.
   proof does not go through (and §10 only ever uses `E = 0`).
 - **How caught**: failed proof — our Def 4.1 transcription had generalized `E`; the induction
   forced the exponent-2 hypothesis back in (P-17a, 2026-07-06).
-- **Witness**: `docs/section9-extraction.md` deviation 1; `SectionNine.thm_4_2` (with
+- **Witness**: `docs/section9-extraction.md` §“The decoration group must have exponent two”;
+  `GQ2.thm_4_2` (with
   `hE2 : ∀ e : E, e^2 = 1`, proved).
 - **For the rewrite**: repeat "`E` elementary abelian of exponent 2 (as fixed above)" inside
   Def 4.1, so the definition is self-contained.
@@ -216,7 +218,7 @@ locally visible at the point of use.
   standing data: the square form of `p_λ` restricted to `M_B` (polar radical ⊇ `T_B`, vanishing
   on `T_B` — Prop 7.4's output) and a *fixed* equivariant base class `κ⁰_{q̄_λ}` for the descended
   module `V ≅ M_B/T_B` (the Lemma 6.1/6.21 datum of entry 2.1).
-- **Witness**: `docs/section8-extraction.md` §"P-16d statement corrections", item 3;
+- **Witness**: `docs/section8-extraction.md` §“Proposition 8.9 requires the §7/§6 enrichment data”;
   `GQ2/SectionEight.lean` (`RecursionFrame.Enrichment`), `prop_8_9` (proved at the enrichment).
 - **For the rewrite**: list the standing data in Prop 8.9's hypothesis line (or a displayed
   "Setting" block opening §8.3), rather than leaving it distributed across §§6–7.
@@ -250,7 +252,8 @@ locally visible at the point of use.
   `T_tame` is closed, hence a quotient map.  Without compactness of the source the descended
   homomorphism need not be continuous; the lemma's statement should carry the (always satisfied)
   compactness explicitly.
-- **Witness**: `docs/section10-extraction.md` deviation 10; `SectionTen.lemma_10_1` (proved).
+- **Witness**: `docs/section10-extraction.md` §“Topology hypotheses are explicit where they are
+  used”; `SectionTen.lemma_10_1`.
 - **For the rewrite**: one clause in the proof ("since Γ is compact and `T_tame` Hausdorff, the
   tame coordinate is a quotient map, so the induced frame is continuous").
 
@@ -276,7 +279,8 @@ locally visible at the point of use.
   (Serre, *Local Fields* XIV §2 Prop. 7(iii), V §2 Prop. 3) and unramified unit-norm surjectivity.
   The formalization's axiom census was amended accordingly (B9 base-generalized; B11a/B11b added;
   user-approved 2026-07-03).
-- **Witness**: `docs/section67-extraction.md` §"P-15 amendments" (escalation 6.16);
+- **Witness**: `docs/section67-extraction.md` §“The classical inputs must apply over a general
+  finite dyadic base”;
   `docs/literature-axioms.md` B9/B11a/B11b entries; `GQ2/HilbertLedger.lean`, `GQ2/DimClose.lean`.
 - **For the rewrite**: cite Evens–Kahn (Evens; Kahn; Kozlowski) in their general-base forms at
   6.16, and name the two auxiliary norm facts where they are used.
@@ -390,13 +394,14 @@ An intermediate transcription moved the coboundary factor out of the multiplicit
 
 The unrestricted sum over proper strata overcounts (strata missing `C` have empty `Z`-slices but
 nonzero `m_{Γ,λ}`).  The paper's (137) is stated with the surjectivity restriction; a transcriber
-who drops it gets a false identity.  (`docs/section8-extraction.md`, P-16d correction 2.)
+who drops it gets a false identity. (`docs/section8-extraction.md`, “Display (137) sums only over
+strata surjecting onto `C`”.)
 
 ### 4.4 "Normalized factor set" includes the 2-cocycle identity
 
 Lemma 6.1's factor-set data (59)–(61) includes associativity of the twisted product (the additive
 2-cocycle identity for `f`).  A field list that drops it makes the graph pullback fail to be a
-cocycle.  (`docs/section67-extraction.md`, P-15 amendment 1.)
+cocycle. (`docs/section67-extraction.md`, “A normalized factor set includes associativity”.)
 
 ---
 

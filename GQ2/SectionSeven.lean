@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.SectionSeven.Basic
 import GQ2.SectionSeven.Decorations
 import GQ2.SectionSeven.Prop74Step1
@@ -5,14 +10,13 @@ import GQ2.SectionSeven.ModuleCore
 import GQ2.SectionSeven.Prop74
 
 /-!
-# §7: a minimal nontrivial module layer in the wild kernel — statements  (ticket P-14)
+# §7: a minimal nontrivial module layer in the wild kernel — statements
 
-Statement-first extraction of the paper's §7 (pages 37–38; the step-1 docs never recorded its
-content — discovered at extraction, per the P-14 acceptance note): the group-theoretic block
+Statement-first extraction of the paper's §7 (pages 37–38): the group-theoretic block
 structure that §8 fixes ("For the simple-head block fixed in section 7, write `T = T₀`").
 This file is now a thin umbrella: the content lives in the `GQ2/SectionSeven/` sub-modules
 imported above (`Basic`, `Decorations`, `Prop74Step1`, `ModuleCore`, `Prop74`).  Every
-statement carries its paper reference; all are proved (the proofs were ticket P-15).
+statement carries its paper reference; all are proved.
 
 ## The paper's setup and its encoding
 

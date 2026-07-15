@@ -1,25 +1,39 @@
-import GQ2.Zhat
-import GQ2.MaxProP
-import GQ2.PropOneOne
-import GQ2.Reconstruction
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Algebra.Order.Star.Real
+public import Mathlib.Topology.Algebra.Monoid.AddChar
+public import GQ2.Zhat
+public import GQ2.MaxProP
+public import GQ2.PropOneOne
+public import GQ2.Reconstruction
+
+@[expose] public section
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
-# ℤ₂-powering on pro-2 groups  (ticket P-21)
+# ℤ₂-powering on pro-2 groups
 
-The foundations layer requested by P-08's escalation (`docs/section3-extraction.md`
-§Escalations 4): `x ^ u` for a 2-adic exponent `u ∈ ℤ₂` and `x` in any **pro-2** group, with the
-laws the §3 proofs consume.  Everything is proved (no axioms, no sorries; std-3 throughout).
+This file defines `x ^ u` for a 2-adic exponent `u ∈ ℤ₂` and `x` in any **pro-2** group, with the
+laws consumed by the proofs in §3.
 
 ## Contents
 
-**(i) The projection `ℤ̂ ↠ ℤ₂` and the seam isomorphism** (T-12's deferred nice-to-have).
+**(i) The projection `ℤ̂ ↠ ℤ₂` and the seam isomorphism.**
 * `zhatProjTwo : ℤ̂ → Multiplicative ℤ₂` — defined as `γ ↦ (ofAdd 1) ^ᶻ γ`, i.e. as a
-  `ẑ`-power (T-06), so continuity/hom-ness/`ofInt`-anchors come from the existing API.
+  `ẑ`-power (the profinite-exponentiation API), so continuity/hom-ness/`ofInt`-anchors come from the existing API.
 * `zhatProjTwo_surjective`, `ker_zhatProjTwo : ker = proPKernel 2 ℤ̂`.
 * `ztwoEquivPadic : maxProPQuotient 2 ℤ̂ ≃ₜ* Multiplicative ℤ₂`, pinned by
   `maxProPMk (ofInt 1) ↦ ofAdd 1`.  Since `Ztwo := maxProPQuotient 2 Zhat`
   (`GQ2/BoundaryFrame.lean`, definitionally), **this is the `ι` of
-  `SectionThree.prop_3_10_local_marked`** and the identification P-09's `nuTwo`-surjectivity
+  `SectionThree.prop_3_10_local_marked`** and the identification Prop. 3.2's `nuTwo`-surjectivity
   can compose with.
 
 **(ii) `ℤ₂`-powering on pro-2 groups.**
@@ -32,9 +46,9 @@ laws the §3 proofs consume.  Everything is proved (no axioms, no sorries; std-3
   `ℤ₂ → P` is determined by its value at `1` — the tool for identifying constructed maps
   with powerings).
 * **Bijectivity**: `zpowZtwo_bijective` (`x ↦ x^u` bijective for `u ∈ ℤ₂ˣ`, inverse `x ↦ x^{u⁻¹}`)
-  and `pow_bijective_of_odd` (odd integer powers; P-08's "cube roots", inverse `x ↦ x^{m⁻¹}`).
+  and `pow_bijective_of_odd` (odd integer powers; the Lemmas 3.6–3.8 proof's "cube roots", inverse `x ↦ x^{m⁻¹}`).
 
-**(iii) The `η`-facts** (shared P-07 `lemma_3_5_injective` / P-08 `prop_3_8_classification`
+**(iii) The `η`-facts** (shared the Lemmas 3.4–3.5 proof `lemma_3_5_injective` / the Lemmas 3.6–3.8 proof `prop_3_8_classification`
 prerequisite).
 * `isProP_two_unitsPadicInt : IsProP 2 ℤ₂ˣ` — so `η ^ u` makes sense for `η ∈ ℤ₂ˣ`, `u ∈ ℤ₂`.
 * `zpowZtwo_injective_of_norm` — **`η`-injectivity**: if `‖η − 1‖ = 2⁻²` (i.e. `v₂(η−1) = 2`;
@@ -42,18 +56,14 @@ prerequisite).
   This is the consumable form of the paper's "`η` topologically generates `1 + 4ℤ₂`"
   (Lemma 3.5's injectivity row and Prop. 3.8's `Ȳ`-coordinate forcing use exactly injectivity).
 
-**(iv) Pro-2 Frattini/Burnside criterion — deliberately deferred (phase 2 of P-21).**
-"Surjective on `G/Φ(G)` ⇒ surjective" for pro-2 `G`.  Its only §3 consumers (`lemma_3_7` /
-`prop_3_8_lift`'s surjectivity legs) remain blocked on the escalation's (a) HNN gap regardless.
-Route when picked up: a proper closed subgroup of a profinite group lies in a proper open one
-(`⨅ (H·U) = H` by compactness); maximal open subgroups of pro-`p` groups are normal of index `p`
-(finite `p`-groups: nilpotent ⇒ normalizer condition ⇒ maximal-normal; simple `p`-group ≅ `ℤ/p`);
-`Φ(G) ≤ M` for every maximal `M`.
+**(iv) Pro-2 Frattini/Burnside criterion.**
+The complementary statement "surjective on `G/Φ(G)` implies surjective" is proved in
+`GQ2/FrattiniCriterion.lean` in index-`p` detection form.
 
 ## Conventions
 
 Multiplicative throughout: exponents live in `Multiplicative ℤ_[2]` (group law = addition of
-exponents), matching `Zhat`'s convention (T-06); `zpowZtwo` takes the *additive* `u : ℤ_[2]` and
+exponents), matching `Zhat`'s convention; `zpowZtwo` takes the *additive* `u : ℤ_[2]` and
 wraps it.  `2`-specific facts use `p = 2` instances (`Fact (Nat.Prime 2)` is found automatically).
 -/
 
@@ -171,7 +181,7 @@ private lemma pow_val_intCast_eq_zpow {Q : Type*} [Group Q] (g : Q) (k : ℕ)
 
 /-! ## The canonical projection `ℤ̂ ↠ ℤ₂`  (part (i))
 
-`zhatProjTwo := γ ↦ (ofAdd 1) ^ᶻ γ` — the `ẑ`-power of `1 ∈ ℤ₂` (T-06 machinery), which on
+`zhatProjTwo := γ ↦ (ofAdd 1) ^ᶻ γ` — the `ẑ`-power of `1 ∈ ℤ₂` (the profinite-exponentiation API machinery), which on
 integer exponents is just `n ↦ n : ℤ → ℤ₂`. -/
 
 /-- The dense embedding `ℤ → ℤ̂`, bundled (multiplicative convention, as everywhere in
@@ -194,7 +204,7 @@ lemma Zhat.ofInt_one_zpow (n : ℤ) : (Zhat.ofInt 1) ^ n = Zhat.ofInt n := by
 noncomputable def zhatProjTwo : ContinuousMonoidHom Zhat (Multiplicative ℤ_[2]) :=
   (zpowHatHom (G := Multiplicative ℤ_[2]) (ofAdd (1 : ℤ_[2]))).hom
 
-@[simp] lemma zhatProjTwo_ofInt (n : ℤ) :
+@[simp] private lemma zhatProjTwo_ofInt (n : ℤ) :
     zhatProjTwo (Zhat.ofInt n) = ofAdd ((n : ℤ_[2])) := by
   have h : zhatProjTwo (Zhat.ofInt n) = (ofAdd (1 : ℤ_[2])) ^ᶻ (Zhat.ofInt n) := rfl
   rw [h, zpowHat_ofInt, ← ofAdd_zsmul, zsmul_eq_mul, mul_one]
@@ -272,10 +282,10 @@ noncomputable def ztwoDescend :
     ContinuousMonoidHom (maxProPQuotient 2 Zhat) (Multiplicative ℤ_[2]) :=
   quotientLift (proPKernel 2 Zhat) zhatProjTwo (le_of_eq ker_zhatProjTwo.symm)
 
-@[simp] lemma ztwoDescend_maxProPMk (γ : Zhat) :
+@[simp] private lemma ztwoDescend_maxProPMk (γ : Zhat) :
     ztwoDescend (maxProPMk 2 Zhat γ) = zhatProjTwo γ := rfl
 
-lemma ztwoDescend_bijective : Function.Bijective ztwoDescend := by
+private lemma ztwoDescend_bijective : Function.Bijective ztwoDescend := by
   constructor
   · rw [show (⇑ztwoDescend : maxProPQuotient 2 Zhat → Multiplicative ℤ_[2])
       = ⇑ztwoDescend.toMonoidHom from rfl, injective_iff_map_eq_one ztwoDescend.toMonoidHom]
@@ -287,13 +297,13 @@ lemma ztwoDescend_bijective : Function.Bijective ztwoDescend := by
     obtain ⟨γ, hγ⟩ := zhatProjTwo_surjective u
     exact ⟨maxProPMk 2 Zhat γ, hγ⟩
 
-/-- **`maxPro2(ℤ̂) ≅ ℤ₂`** — the T-12 "nice-to-have", and the `ι`-seam of
-`prop_3_10_local_marked`/P-09's `nuTwo` (as `Ztwo = maxProPQuotient 2 Zhat` definitionally). -/
+/-- **`maxPro2(ℤ̂) ≅ ℤ₂`** — the peripheral-action interface "nice-to-have", and the `ι`-seam of
+`prop_3_10_local_marked`/Prop. 3.2's `nuTwo` (as `Ztwo = maxProPQuotient 2 Zhat` definitionally). -/
 noncomputable def ztwoEquivPadic :
     ContinuousMulEquiv (maxProPQuotient 2 Zhat) (Multiplicative ℤ_[2]) :=
   continuousMulEquivOfBijective ztwoDescend ztwoDescend_bijective
 
-@[simp] lemma ztwoEquivPadic_apply (x : maxProPQuotient 2 Zhat) :
+@[simp] private lemma ztwoEquivPadic_apply (x : maxProPQuotient 2 Zhat) :
     ztwoEquivPadic x = ztwoDescend x := rfl
 
 /-- The generator pin: `ztwoOne = maxProPMk (ofInt 1) ↦ ofAdd 1` (the normalization
@@ -302,14 +312,14 @@ noncomputable def ztwoEquivPadic :
     ztwoEquivPadic (maxProPMk 2 Zhat (Zhat.ofInt 1)) = ofAdd (1 : ℤ_[2]) := by
   rw [ztwoEquivPadic_apply, ztwoDescend_maxProPMk, zhatProjTwo_ofInt, Int.cast_one]
 
-lemma ztwoEquivPadic_symm_ofAdd_one :
+private lemma ztwoEquivPadic_symm_ofAdd_one :
     ztwoEquivPadic.symm (ofAdd (1 : ℤ_[2])) = maxProPMk 2 Zhat (Zhat.ofInt 1) := by
   rw [← ztwoEquivPadic_ofInt_one]
   exact ztwoEquivPadic.symm_apply_apply _
 
 /-! ## `ℤ₂`-powering on pro-2 groups  (part (ii))
 
-For `x` in a pro-2 profinite group `P`, the `ẑ`-power morphism `zpowHatHom x : ℤ̂ ⟶ P` (T-06)
+For `x` in a pro-2 profinite group `P`, the `ẑ`-power morphism `zpowHatHom x : ℤ̂ ⟶ P` (the profinite-exponentiation API)
 kills `proPKernel 2 ℤ̂` (universal property, since `P` is pro-2), so through
 `ker zhatProjTwo = proPKernel 2 ℤ̂` (part (i)) it factors through `ℤ₂`: this is `zpowZtwoHom`.
 Everything else follows from the extension-by-density workhorse `multPadicIntHom_ext`. -/
@@ -375,7 +385,7 @@ lemma zpowZtwo_add (hP : IsProP 2 P) (x : P) (u v : ℤ_[2]) :
 
 /-- **Uniqueness/identification principle**: any continuous hom `φ : ℤ₂ → P` *is* the
 `ℤ₂`-powering of its value at `1`.  (The tool for recognizing constructed maps as powerings —
-e.g. P-08's `Θ_b` legs.) -/
+e.g. the Lemmas 3.6–3.8 proof's `Θ_b` legs.) -/
 lemma zpowZtwoHom_unique (hP : IsProP 2 P) {φ : Multiplicative ℤ_[2] →* P}
     (hφ : Continuous φ) (u : ℤ_[2]) : φ (ofAdd u) = zpowZtwo hP (φ (ofAdd 1)) u := by
   have hext : φ = (zpowZtwoHom hP (φ (ofAdd 1))).toMonoidHom := by
@@ -444,7 +454,7 @@ lemma map_zpowZtwo {Q : Type} [Group Q] [TopologicalSpace Q] [IsTopologicalGroup
     _ = zpowZtwo hQ (f x) u := by rw [zpowZtwoHom_ofAdd_one]
 
 /-- **Bridge to `ẑ`-powers**: on a pro-2 group, `x ^ᶻ γ` computes the `ℤ₂`-power at the
-projection of `γ` — the profinite exponents of T-06 (e.g. `ω₂`) factor through `ℤ₂` here. -/
+projection of `γ` — the profinite exponents of the profinite-exponentiation API (e.g. `ω₂`) factor through `ℤ₂` here. -/
 lemma zpowHat_eq_zpowZtwo (hP : IsProP 2 P) (x : P) (γ : Zhat) :
     x ^ᶻ γ = zpowZtwo hP x (zhatProjTwo γ).toAdd := by
   have hfun : (fun γ : Zhat => x ^ᶻ γ)
@@ -461,7 +471,8 @@ end ZpowZtwo
 
 /-! ## `ℤ₂ˣ` is pro-2, and the `η`-injectivity  (part (iii))
 
-The shared P-07/P-08 prerequisite.  Level-tracking is done **algebraically** (divisibility by
+This is a shared prerequisite for the Lemmas 3.4–3.8 proofs.  Level-tracking is done
+**algebraically** (divisibility by
 `2^k`, with unit witnesses for exact levels) — `p = 2` is what makes `ℤ₂ˣ` pro-2: every unit is
 `≡ 1 (mod 2)`, and squaring gains exactly one level.  Real norms appear only once, bridging to
 the open-ball description of a neighbourhood in `ℤ₂ˣ`. -/
@@ -667,7 +678,8 @@ lemma neg_three_inv_exact_level (y : ℤ_[2]ˣ) (hy : (y : ℤ_[2]) = -3) :
   rw [hsub, hy]
   ring
 
-/-- **The P-07/P-08 consumable**: `u ↦ ((−3)⁻¹) ^ u` is injective (`η = y⁻¹` for the class
+/-- **The form consumed by the Lemmas 3.4–3.8 proofs**: `u ↦ ((−3)⁻¹) ^ u` is injective
+(`η = y⁻¹` for the class
 `y = −3` of Lemma 3.5 / Prop. 3.8). -/
 theorem zpowZtwo_injective_neg_three_inv (y : ℤ_[2]ˣ) (hy : (y : ℤ_[2]) = -3) :
     Function.Injective (zpowZtwo isProP_two_unitsPadicInt (y⁻¹)) :=

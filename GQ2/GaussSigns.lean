@@ -1,16 +1,26 @@
-import GQ2.GaussCount
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.FieldTheory.Finite.Extension
+public import GQ2.GaussCount
+
+@[expose] public section
 
 /-!
-# Gauss signs: assembly layer for Lemma 6.8 / Proposition 6.9  (ticket P-15b)
+# Gauss signs: assembly layer for Lemma 6.8 / Proposition 6.9
 
 Proof-side bricks for the Gauss-sign pair (§6.2), stated **below** `GQ2/SectionSix.lean` in the
-import order (this file must not import `SectionSix`, which will consume it — the P-15c cycle
+public import order (this file must not import `SectionSix`, which will consume it — the Shapiro-ledger proof cycle
 lesson).  Everything here is abstract over the acting group / the isometry; the `SectionSix`
 splices instantiate `U := powOmega2 (c tameSigma)` and `G := Hf`.
 
 * `arf_qDouble_eq_zero` — **the final clause of Lemma 6.8 from (87) + (88)**: if `arf q = s`
   and the rank exponent `k` of `1 + U` has `k ≡ s (mod 2)`, then `arf (q_U) = 0`.  This
-  consumes the now-proved Wall sign (`gaussSum_qDouble`, P-15a).
+  consumes the now-proved Wall sign (`gaussSum_qDouble`, the Wall and Gauss-count proof).
 * `zeroCount_qDouble_of_arf_zero` — **the ramified count of Proposition 6.9 from
   `arf (q_U) = 0`**: the doubling of a nonsingular form by a 2-power isometry is nonsingular
   (`qDouble_nonsingular`), so the engine's `zeroCount_of_arf_zero` evaluates `#(q_U)⁻¹(0)`.
@@ -29,7 +39,7 @@ namespace GaussSigns
 
 open QuadraticFp2
 
-/-! ### The cyclic-operator crux (P-15b (U2))
+/-! ### The cyclic-operator crux
 
 For the unramified branch we need the arithmetic input `#Hf ∤ 2^m − 1` (equivalently, the
 generator is not contained in the proper subfield `𝔽_{2^m}`).  The heart of it, stated for a
@@ -170,7 +180,7 @@ theorem finrank_eq_natDegree_minpoly (T : Module.End (ZMod 2) V)
       (Ideal.span {minpoly (ZMod 2) T})).finrank_eq,
     finrank_quotient_span_eq_natDegree]
 
-/-- **The cyclic-operator crux of P-15b (U2)**: an irreducible `𝔽₂`-operator on a
+/-- **The cyclic-operator crux of the Gauss-sign proof (U2)**: an irreducible `𝔽₂`-operator on a
 `2m`-dimensional space (`m ≥ 1`) cannot satisfy `T^(2^m − 1) = 1`. -/
 theorem irreducible_operator_pow_ne_one (m : ℕ) (hm : 1 ≤ m)
     (hdim : Module.finrank (ZMod 2) V = 2 * m) (T : Module.End (ZMod 2) V)
@@ -210,7 +220,7 @@ variable {V : Type*} [AddCommGroup V] [Finite V]
 
 /-- **Lemma 6.8, final clause, from (87) and (88)**: for a nonsingular `q` and a 2-power-order
 isometry `U` with `arf q = s` and rank exponent `k ≡ s (mod 2)` for `N = 1 + U`, the doubling
-has `arf (q_U) = 0`.  (Wall's relation `arf (q_U) = arf q + k`, now fully proved, plus
+has `arf (q_U) = 0`.  (Wall's relation `arf (q_U) = arf q + k`, plus
 `s + s = 0`.) -/
 theorem arf_qDouble_eq_zero (q : V → ZMod 2) (U : V ≃+ V) (hq : IsQuadraticFp2 q)
     (h2 : ∀ v : V, v + v = 0) (hns : Nonsingular q) (hUq : ∀ v, q (U v) = q v)

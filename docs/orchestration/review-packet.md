@@ -30,7 +30,7 @@ are:
 > where it carries an **added hypothesis**, is that addition sound (a genuine standing assumption of
 > the paper, not a smuggled weakening)?
 
-Full citations with per-result discussion: [`literature-axioms.md`](literature-axioms.md).
+Full citations with per-result discussion: [`literature-axioms.md`](../literature-axioms.md).
 Design rationale: [`formalization-plan.md`](formalization-plan.md).  Ticket-level acceptance
 records: [`tickets-step1.md`](tickets-step1.md) (the live step-2 board is
 [`tickets.md`](tickets.md)).
@@ -49,12 +49,12 @@ lake env lean GQ2/AxiomLedger.lean   # the repo-wide per-declaration certificate
 
 For any individual theorem, `#print axioms <name>` in a scratch file shows its axiom footprint;
 every *theorem* in the repo is std-3, plus (for declared consumers) exactly the B-axioms it
-consumes.  §5 tabulates these footprints for the interior nodes; [`GQ2/AxiomLedger.lean`](../GQ2/AxiomLedger.lean)
+consumes. §5 tabulates these footprints for the interior nodes; [`GQ2/AxiomLedger.lean`](../../GQ2/AxiomLedger.lean)
 is the mechanical, whole-library version.
 
 ## 2. The axioms: Lean names per B-leaf
 
-All fifteen live in [`GQ2/Foundations/Axioms.lean`](../GQ2/Foundations/Axioms.lean) — the single
+All fifteen lived in [`GQ2/Foundations/Axioms.lean`](../../GQ2/Foundations/Axioms.lean) in this historical snapshot — the single
 file permitted to declare axioms.  "Defs" = the file with the supporting definitions (each of
 which is *fully proved*, never assumed).
 
@@ -234,7 +234,7 @@ These are *constructions with full proofs* (std-3), so the review question is on
 | B11a | "`b` is a norm from `k(√a)`" encoded by the norm form `∃ x y, b = x² − ay²` | elementary and extension-plumbing-free; for `a` a square the norm form is universal, so the criterion needs no non-square hypothesis |
 | B11b | "`k(√a)/k` unramified" encoded as elementwise equality of norm value groups (spectral norm on `ℚ̄₂`, the `def IsUnramifiedQuadraticSpectral`) | matches the `IsDeepUnit`/`lemma_6_16` convention; avoids ramification-index bookkeeping (`e = v_k(2)`: depth `≥ e+1 ⟺ ‖·‖ < ‖2‖`) |
 | B11a | Steinberg `[x]∪[1−x] = 0` and `[2]∪[−1] = 0` are not separate clauses | consequences of the criterion via the norm representations `1−x = 1²−x·1²`, `−1 = 1²−2·1²` |
-| general | cohomology is this repo's explicit `ContCoh` (degrees ≤ 2), not Mathlib's homogeneous `continuousCohomology` | Mathlib's has no low-degree cochain surface yet; `H⁰` agreement is proved (`GQ2/CtsCohBridge.lean`), `H¹/H²` comparison is Mathlib's own open TODO ([`cts-cohomology-gap.md`](cts-cohomology-gap.md)) |
+| general | cohomology is this repo's explicit `ContCoh` (degrees ≤ 2), not Mathlib's homogeneous `continuousCohomology` | Mathlib's pinned API has no low-degree cochain surface; the experimental bridge was later removed as unused, and the remaining comparison gap is documented in [`cts-cohomology-gap.md`](../cts-cohomology-gap.md) |
 
 Bundle-style axioms (B5, B6, B8, B3c) assert *existence of data with properties* (structure
 types `LocalReciprocity`, `TateDuality n`, `PeripheralCyclotomicAction`, `DyadicOrientation`);
@@ -338,7 +338,7 @@ own lemmas (it names no literature axioms).  The certificate check has two layer
 repo realize each App. D edge, and **(b)** does each node's machine-checked `#print axioms` footprint
 match the literature leaves that edge chain reduces to (`literature-axioms.md` §C)?  All footprints
 below are verified against a green build; the whole-library version is
-[`GQ2/AxiomLedger.lean`](../GQ2/AxiomLedger.lean).
+[`GQ2/AxiomLedger.lean`](../../GQ2/AxiomLedger.lean).
 
 **Reading the footprint.**  `std-3` = `[propext, Classical.choice, Quot.sound]` (no mathematical
 content).  A leaf label (B5, B6, …) means the node invokes that **axiom term**; a node *parametric*

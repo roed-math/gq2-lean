@@ -1,7 +1,17 @@
-import Mathlib
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.Topology.Algebra.ClopenNhdofOne
+
+@[expose] public section
+
 
 /-!
-# Discrete topological `G`-modules: conventions and basic facts  (ticket T-01, infra I1)
+# Discrete topological `G`-modules: conventions and basic facts
 
 **Convention — no new structures.**  Throughout the project, a *topological `G`-module* is a type
 `M` with the Mathlib classes

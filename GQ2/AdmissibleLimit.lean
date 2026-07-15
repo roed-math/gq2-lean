@@ -1,12 +1,24 @@
-import GQ2.GammaA
-import GQ2.MaxProP
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.GammaA
+public import GQ2.MaxProP
+
+@[expose] public section
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
-# The universal marking is admissible in the limit  (ticket P-04)
+# The universal marking is admissible in the limit
 
 `Γ_A = F₄ ⧸ N_A` (paper §2.1, eq. (7); `GQ2/GammaA.lean`) is the largest quotient of the free
 profinite group `F₄` all of whose finite quotients are admissible.  This file proves that the
-presentation data survives the limit — the three facts Prop 2.3 (P-05) needs about `Γ_A` itself:
+presentation data survives the limit — the three facts Prop 2.3 (Prop. 2.3) needs about `Γ_A` itself:
 
 * **relators die in the limit**: `tameRelator_mem_NA` / `wildRelator_mem_NA` — the profinite
   relator words of the universal marking (relations (5)/(6)) lie in `N_A`, i.e. their images in
@@ -119,7 +131,7 @@ theorem generates_univMarking_map (W : OpenNormalSubgroup (FreeProfiniteGroup (F
 
 end Generation
 
-/-! ## The relator words lie in `N_A`  (deliverable (i))
+/-! ## The relator words lie in `N_A`  (result (i))
 
 Each admissible open normal `U` kills both relator words (the finite-level relations of
 `IsAdmissibleU` read back through the profinite⟺finite bridges of `GQ2/GammaA.lean`), so the
@@ -320,7 +332,7 @@ theorem isAdmissibleU_of_NA_le {W : OpenNormalSubgroup (FreeProfiniteGroup (Fin 
 
 /-- **The admissible opens are exactly the opens above `N_A`** — the order-theoretic form of
 "`Γ_A = F₄ ⧸ N_A` is the largest quotient all of whose finite quotients are admissible"
-(paper §2.1, eq. (7)).  This is the interface Prop 2.3 (P-05) consumes. -/
+(paper §2.1, eq. (7)).  This is the interface Prop 2.3 (Prop. 2.3) consumes. -/
 theorem isAdmissibleU_iff_NA_le (U : OpenNormalSubgroup (FreeProfiniteGroup (Fin 4))) :
     IsAdmissibleU U ↔ NA ≤ U.toSubgroup :=
   ⟨fun h => iInf_le (fun V : {V : OpenNormalSubgroup (FreeProfiniteGroup (Fin 4)) //
@@ -328,7 +340,7 @@ theorem isAdmissibleU_iff_NA_le (U : OpenNormalSubgroup (FreeProfiniteGroup (Fin
 
 end Directed
 
-/-! ## The wild pair's closed normal closure is pro-2  (deliverable (ii))
+/-! ## The wild pair's closed normal closure is pro-2  (result (ii))
 
 The pro-2 clause of eq. (7) holds *in the limit*: the closed normal subgroup of `Γ_A` generated
 by the images of `x₀, x₁` is a pro-2 group.  Every open normal subgroup of it is trapped, via an
@@ -340,8 +352,8 @@ section WildCore
 /-- **The wild core of `Γ_A`**: the closed normal closure `⟨⟨x₀, x₁⟩⟩ ≤ Γ_A` of the images of
 the wild generators — the subgroup that paper eq. (7) requires to be pro-2.  (Stated on the
 underlying quotient `F₄ ⧸ N_A`, to which `GammaA` is definitionally equal.  The §3 layer's
-`GQ2.SectionThree.wildPart` is *definitionally this subgroup* — deduplicated 2026-07-03 —
-so `isProP_wildCore` etc. transfer verbatim; see `GQ2/SectionThree.lean`.) -/
+`GQ2.SectionThree.wildPart` is definitionally this subgroup, so `isProP_wildCore` etc.
+transfer verbatim; see `GQ2/SectionThree.lean`.) -/
 noncomputable def wildCore : Subgroup (FreeProfiniteGroup (Fin 4) ⧸ NA) :=
   (Subgroup.normalClosure
     {quotientMk NA univMarking.x₀, quotientMk NA univMarking.x₁}).topologicalClosure

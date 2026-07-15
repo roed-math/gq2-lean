@@ -1,7 +1,12 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.LocalKummer
 
 /-!
-# P-15f8 (increment 2): `FamiliesExtend` from the Lemma 6.11 package
+# `FamiliesExtend` from the Lemma 6.11 package
 
 `FamiliesExtend ρ` (`GQ2/LocalKummer.lean`) — every admissible family `V^∨ → H¹(N, 𝔽₂)` is the
 scalar-restriction family of a class in `H¹(ℚ₂, V)` — is the `H²(H_V, V) = 0` input of the
@@ -30,7 +35,7 @@ declared here are the only candidates.  Everything here is `#print axioms` ⊆ s
 
 Consumer: `GQ2/DimAssembly.lean` (`lemma_6_17_dim_of_hduality`), which obtains the `V`-side
 package from `lemma_6_11_of_tame_pair` and thereby removes `hext` from the `lemma_6_17_dim`
-parameter list (leaving only P-15f7's `hduality`).
+parameter list (leaving only the deep-part proof's `hduality`).
 -/
 
 open scoped Classical
@@ -51,7 +56,7 @@ noncomputable def sec1 (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρsurj : Function
   if c = 1 then 1 else Function.surjInv hρsurj c
 
 omit [DiscreteTopology C] [Finite C] in
-theorem sec1_spec (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρsurj : Function.Surjective ⇑ρ)
+private theorem sec1_spec (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρsurj : Function.Surjective ⇑ρ)
     (c : C) : ρ (sec1 ρ hρsurj c) = c := by
   unfold sec1
   split_ifs with h
@@ -59,7 +64,7 @@ theorem sec1_spec (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρsurj : Function.Surj
   · exact Function.surjInv_eq hρsurj c
 
 omit [DiscreteTopology C] [Finite C] in
-theorem sec1_one (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρsurj : Function.Surjective ⇑ρ) :
+private theorem sec1_one (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρsurj : Function.Surjective ⇑ρ) :
     sec1 ρ hρsurj 1 = 1 := if_pos rfl
 
 variable (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρsurj : Function.Surjective ⇑ρ)
@@ -255,7 +260,7 @@ variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [
 variable {ρ}
 
 omit [Finite V] in
-/-- **`FamiliesExtend` from the Lemma 6.11 package** (P-15f8): given the equivariant
+/-- **`FamiliesExtend` from the Lemma 6.11 package** (the deep-part proof): given the equivariant
 split-summand package `(ι, r)` embedding `V` into the regular module `𝔽₂[C]^{Nr}`
 (the `lemma_6_11`/`lemma_6_11_of_tame_pair` output shape), every admissible family extends to
 a class of `H¹(ℚ₂, V)`.

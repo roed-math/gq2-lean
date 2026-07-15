@@ -176,7 +176,8 @@ not yet to hand.
   (5.1)(1)/(9).
 - **Used at.** §5 (the three-term duality complex, Lemmas 5.11/5.13), §9.2, and **§6.3 P-15f7**
   (the `(1,1)` pairing at `G_K = ker ρ` is the invariant nondegenerate `B` of
-  `GQ2.card_equivHoms_deep_eq_quot`, `GQ2/DeepDuality.lean`; proposal `docs/p15f7-axiom-proposal.md`).
+  `GQ2.card_equivHoms_deep_eq_quot`, `GQ2/DeepDuality.lean`; proposal
+  `docs/orchestration/p15f7-axiom-proposal.md`).
 
 ### B7. Local Euler–Poincaré characteristic  🟡 schematic
 - **Statement.** For `K` `p`-adic and finite `G_K`-module `M`,
@@ -303,7 +304,7 @@ the square + a depth-by-depth norm-form approximation against the B13 filtration
   Excluded because provable: the square-class graded computation (93),
   `U^{(2e+1)} ⊆ squares` (= `sq_of_near_one`, proved P-15e), `−1 ∈ U^{(e)}`, the graded
   duality, Lemma 6.10, and the proposal's (F2) inertia-twist clause (found derivable from the
-  `he` normalization during statement design — `docs/p15f1-axiom-proposal.md`).
+  `he` normalization during statement design — `docs/orchestration/p15f1-axiom-proposal.md`).
 - **Used at.** Lemma 6.17 dim clause (P-15f1 `DeepKummerData` instantiation).
 
 ---
@@ -422,7 +423,7 @@ Stiefel–Whitney/Evens classes, étale `π₁`) before they can be stated faith
   = 1` for `L|K` unramified: units are norms at every finite unramified level; NSW (7.1.2)(i)
   is the cohomological-triviality form).  The clauses are pinned to the B5 constant (a
   ∀-bundle form would be false under Frobenius-coordinate twists); discharge `tame_reciprocity`
-  = Prop 3.14's `compatF` (`docs/p25-tame-reciprocity-plan.md`).
+  = Prop 3.14's `compatF` (`docs/orchestration/p25-tame-reciprocity-plan.md`).
 - **B8** — Stix [8], **§3.3 + Definition 37** (the paper's exact citation): cyclotomic action on
   cuspidal inertia — verified. (Deligne, MSRI 16 (1989), is the classical *origin*, not cited by the
   paper.)

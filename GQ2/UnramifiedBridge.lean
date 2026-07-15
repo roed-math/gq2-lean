@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.GaloisCosetNorm
 import GQ2.ResidueLift
 import GQ2.TameTwoQuotient
@@ -5,9 +10,9 @@ import GQ2.UnitNormIndex
 import GQ2.DimAssembly
 
 /-!
-# P-15f2c2c4 (N4): the `hunram` assembly — increment 1, the `e`-chain
+# The `hunram` assembly — increment 1, the `e`-chain
 
-The capstone of the analytic-`hunram` derivation (`docs/p15f2c2c-handoff.md` §2): for the
+The capstone of the analytic-`hunram` derivation (`docs/orchestration/p15f2c2c-handoff.md` §2): for the
 involution tower `k ≤ L` of c2b (`[L : k]`-fixing-index 2) the norm value groups agree,
 `‖L^×‖ = ‖k^×‖`, in the verbatim shape `hvanish_involution` consumes.
 
@@ -97,14 +102,14 @@ def preimGal (ρ : ContinuousMonoidHom AbsGalQ2 C) (S : Subgroup C) :
     rw [map_inv]; exact inv_mem ha
 
 omit [DiscreteTopology C] [Finite C] in
-theorem kerGal_le_preimGal (ρ : ContinuousMonoidHom AbsGalQ2 C) (S : Subgroup C) :
+private theorem kerGal_le_preimGal (ρ : ContinuousMonoidHom AbsGalQ2 C) (S : Subgroup C) :
     ResidueLift.kerGal ρ ≤ preimGal ρ S := fun x hx => by
   show ρ (ResidueLift.toAbs x) ∈ S
   rw [show ρ (ResidueLift.toAbs x) = 1 from hx]
   exact one_mem S
 
 omit [Finite C] in
-theorem preimGal_isOpen (ρ : ContinuousMonoidHom AbsGalQ2 C) (S : Subgroup C) :
+private theorem preimGal_isOpen (ρ : ContinuousMonoidHom AbsGalQ2 C) (S : Subgroup C) :
     IsOpen ((preimGal ρ S : Subgroup (Kummer.GaloisGroup ℚ_[2]))
       : Set (Kummer.GaloisGroup ℚ_[2])) :=
   (isOpen_discrete (S : Set C)).preimage ρ.continuous_toFun
@@ -182,7 +187,7 @@ section Assembly
 
 variable {k L F₀ : IntermediateField ℚ_[2] ℚ̄₂}
 
-/-- **The `e`-chain assembly** (P-15f2c2c4, modulo the c2c2/c2c3 oddness input): given
+/-- **The `e`-chain assembly** (the Lemma 6.17 vanishing proof, modulo the c2c2/c2c3 oddness input): given
 * the index-2 leg `e(L/k) ∣ 2`,
 * the inertia leg `e(L/F₀) ∣ r` with `r` odd, and
 * the CFT input `e_{F₀}` **odd** (`hodd` — c2c2's unit-index theorem + the c2c3
@@ -309,7 +314,7 @@ theorem odd_card_oddTorsion (hab : ∀ a b : G, a * b = b * a) :
     exact orderOf_injective (oddTorsion hab).subtype Subtype.val_injective x
   have hodd : Odd (orderOf (x : G)) := x.2
   rw [hcoe] at hodd
-  norm_num at hodd
+  exact (Nat.not_odd_iff_even.mpr ⟨1, rfl⟩) hodd
 
 /-- The quotient by the odd torsion is a `2`-group: `g^{2^a}` has odd order for
 `a := (orderOf g).factorization 2`, so every class has `2`-power order. -/
@@ -499,7 +504,7 @@ section Finale
 
 variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
 
-/-- **P-15f2c2c4, the deliverable**: the analytic `hunram` for c2b's involution tower — for
+/-- **the Lemma 6.17 vanishing proof, the result**: the analytic `hunram` for c2b's involution tower — for
 `k ≤ L` with fixing-index `2` and `L` the splitting field of `ρ` (`hLfix`), the norm value
 groups of `L` and `k` agree, verbatim in the shape `ShapiroDeepness.hvanish_involution` and
 `SectionSix.lemma_6_16` consume.

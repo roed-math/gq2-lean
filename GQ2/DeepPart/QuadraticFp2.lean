@@ -1,7 +1,19 @@
-import GQ2.EulerCharacteristic
-import GQ2.GaussCount
-import GQ2.RepIndependence
-import GQ2.TateDuality
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.EulerCharacteristic
+public import GQ2.GaussCount
+public import GQ2.RepIndependence
+public import GQ2.TateDuality
+
+@[expose] public section
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
 # Gauss sum over a Lagrangian (the ramified Prop 6.18 combinatorial core)
@@ -13,7 +25,7 @@ by its Arf invariant (`GQ2/GaussCount.lean`, `zeroCount_of_arf_{zero,one}`).  Le
 singular, self-perpendicular `X` forces `g(q) = #X > 0`.  This is pure `𝔽₂` combinatorics — no
 cohomology — proved by the two-way evaluation of `∑_v ∑_{x∈X} (−1)^{q(v+x)}`.
 
-This file is part of the `GQ2.DeepPart` split (P-15f); see `GQ2/DeepPart.lean` for the overview.
+This file is part of the `GQ2.DeepPart` split (the deep-part proof); see `GQ2/DeepPart.lean` for the overview.
 -/
 
 open scoped Classical

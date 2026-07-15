@@ -1,10 +1,19 @@
-import Mathlib
-import GQ2.DyadicPresentation
-import GQ2.MaxProP
-import GQ2.Reciprocity
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.DyadicPresentation
+public import GQ2.MaxProP
+public import GQ2.Reciprocity
+
+@[expose] public section
+
 
 /-!
-# B3c: the canonical dyadic orientation — cyclotomic interface  (ticket T-11, route (ii))
+# B3c: the canonical dyadic orientation — cyclotomic interface
 
 Labute's classification of Demushkin groups (Theorem 8) attaches to each Demushkin group the
 **canonical (dualizing) orientation character** `χ : G → U_p = ℤ_pˣ`, unique by his Theorem 4,
@@ -18,28 +27,25 @@ and — in the `q = 2` case — classifies by rank together with `Im χ`.  For t
 B5 stress tests (`chiCyc_recip_neg4 = −1`, `chiCyc_recip_neg3 = (−3)⁻¹` in
 `GQ2/Reciprocity.lean`).
 
-## Route decision (the ticket's 🔴 choice) — **route (ii), interface form**
+## Encoding choice — interface form
 
-Following `docs/formalization-plan.md` §B3c, we do **not** formalize Labute's abstract
+Following `docs/orchestration/formalization-plan.md` §B3c, we do **not** formalize Labute's abstract
 dualizing-module characterization of `χ` (his Prop. 6 — route (i), a stretch goal); instead we
 state the **interface** the paper's Lemmas 3.4/3.5 actually consume: there is a choice of B4
 isomorphism `ψ : G_{ℚ₂}(2) ≅ D₀` under which the descended cyclotomic character takes the
 Theorem 4(2) values on the marked generators `A, S, Y`.  **Deviation flagged**: only the
 interface ships; "`χ_D` is *the canonical* orientation in Labute's abstract sense" is not
-formalized (route (i) remains open; the classification statement B3b correspondingly stays at
-the field level — see T-10's note in `docs/tickets.md`).
+formalized; the classification statement correspondingly stays at the field level.
 
 ## The bundle
 
 `DyadicOrientation` packages:
-* `equiv : G_{ℚ₂}(2) ≅ D₀` — a B4 isomorphism (existence alone was axiom B4, deleted
-  2026-07-10 as subsumed by B3c; the orientation axiom strengthens it with the value
-  normalization);
+* `equiv : G_{ℚ₂}(2) ≅ D₀` — the underlying Demushkin-group isomorphism, strengthened here by
+  the orientation-value normalization;
 * `chiTwo : G_{ℚ₂}(2) →* ℤ₂ˣ` continuous with `chiTwo ∘ π = χ_cyc` — the **descent** of the
   cyclotomic character through the maximal pro-2 quotient.  (The descent exists because `ℤ₂ˣ`
-  is pro-2 — `(ℤ/2^k)ˣ` has order `2^{k−1}` — so `χ_cyc` kills the pro-2 kernel by T-05's
-  `proPKernel_le_ker`; carrying it as data avoids formalizing `IsProP 2 ℤ₂ˣ`, an O-finish
-  refinement flagged below);
+  is pro-2 — `(ℤ/2^k)ˣ` has order `2^{k−1}` — so `χ_cyc` kills the pro-2 kernel by
+  `proPKernel_le_ker`; carrying it as data avoids adding an `IsProP 2 ℤ₂ˣ` development);
 * `surjective_chiTwo` — `Im χ = ℤ₂ˣ = {±1} × U₂⁽²⁾`, the `f = 2` image invariant of
   Theorem 4(2) (the local analogue of B2's cyclotomic surjectivity);
 * the three **values** `χ(A) = −1`, `χ(S) = 1`, `χ(Y) = (−3)⁻¹` under `equiv.symm` (the `−3`
@@ -65,7 +71,7 @@ namespace GQ2
 Theorem 4(2) values `(−1, 1, (−3)⁻¹)` on the marked generators `A, S, Y`.  See the module
 docstring for the route decision and flagged deviations. -/
 structure DyadicOrientation [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] where
-  /-- A B4 isomorphism `G_{ℚ₂}(2) ≅ D₀` (its existence alone is axiom B4). -/
+  /-- The underlying isomorphism `G_{ℚ₂}(2) ≅ D₀`. -/
   equiv : ContinuousMulEquiv (maxProPQuotient 2 AbsGalQ2) D0
   /-- The cyclotomic character, descended to the maximal pro-2 quotient. -/
   chiTwo : maxProPQuotient 2 AbsGalQ2 →* ℤ_[2]ˣ

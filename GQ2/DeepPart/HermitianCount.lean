@@ -1,4 +1,13 @@
-import GQ2.DeepPart.Q0locLayer
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.DeepPart.Q0locLayer
+
+@[expose] public section
 
 /-!
 # The Hermitian-line count  (paper Prop 6.18, unramified computation)
@@ -10,7 +19,7 @@ so the `D₀`-level form `Tr_{D₀/𝔽₂}(a·N(x))` in absolute-trace clothing
 finite-field counting: norm fibres are `ker`-cosets of size `2^m+1` (cyclic `gcd` count), and
 the nonzero trace-kernel of the fixed field contributes `2^{m−1}−1`.
 
-This file is part of the `GQ2.DeepPart` split (P-15f); see `GQ2/DeepPart.lean` for the overview.
+This file is part of the `GQ2.DeepPart` split (the deep-part proof); see `GQ2/DeepPart.lean` for the overview.
 -/
 
 open scoped Classical
@@ -168,7 +177,7 @@ def frobFixed (D : Type*) [Field D] [CharP D 2] (m : ℕ) : AddSubgroup D where
     rw [CharTwo.neg_eq, ha]
 
 omit [Fintype D] in
-@[simp] theorem mem_frobFixed [CharP D 2] (m : ℕ) (y : D) :
+@[simp] private theorem mem_frobFixed [CharP D 2] (m : ℕ) (y : D) :
     y ∈ frobFixed D m ↔ y ^ 2 ^ m = y := Iff.rfl
 
 /-- `#𝔽_{2^m} = 2^m` inside `D = 𝔽_{2^{2m}}` (cyclic `gcd` count on the units). -/

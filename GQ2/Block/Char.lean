@@ -1,8 +1,13 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.SectionSeven
 import GQ2.EvensKahn
 
 /-!
-# P-17d2a — the index-2 character `blockLam` (scratch)
+# The index-2 character `blockLam` (scratch)
 
 The `lam` input to `prop_7_4` / `mForm_of_qbar`: for a `Y`-normal `l ≤ R` of relative index 2,
 the character `λ_l : ↥R → 𝔽₂` cutting `R ↠ R/l ≅ 𝔽₂`.  Additive (`blockLam_hom`), `Y`-conjugation
@@ -74,7 +79,7 @@ theorem relIndex_two_of_le (B : MinimalBlock L) (l : Subgroup Y)
   have hne0 : l.relIndex B.frattiniK ≠ 0 := Subgroup.index_ne_zero_of_finite
   omega
 
-/-! ## P-17d2c — `hquad`: the descended form `qbar` is quadratic (biadditive polar) -/
+/-! ## `hquad`: the descended form `qbar` is quadratic (biadditive polar) -/
 omit [Finite Y] in
 /-- Commutators of `K` land in `R = Φ(K)`: `[b,a] = b a b⁻¹ a⁻¹ ∈ R` — via
 `a[b,a]a⁻¹ = (ab)²(a²b²)⁻¹ ∈ R` (squares, `hsq`) and `R`-normality. -/
@@ -219,14 +224,14 @@ theorem blockQbar_polar_add (hRN : B.frattiniK.Normal)
     Subtype.ext (by push_cast; group)
   rw [hcid, hlam_hom, hlam_conj ku (kw * kv * kw⁻¹ * kv⁻¹) (comm_mem_R_of_K B hRN hsq hkv hkw)]
 
-/-! ## P-17d2c — `hns`: the descended form `qbar` is nonsingular -/
+/-! ## `hns`: the descended form `qbar` is nonsingular -/
 
 /-- Total extension of `qbar` to `Y`: `qbP y = qbar⟦y⟧` for `y ∈ P`, else `0`. -/
 noncomputable def qbP (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2) (y : Y) : ZMod 2 :=
   if h : y ∈ B.P then qbar (QuotientGroup.mk ⟨y, h⟩) else 0
 
 omit [Finite Y] [(B.S.subgroupOf B.P).Normal] in
-theorem qbP_mem (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2) {y : Y} (hy : y ∈ B.P) :
+private theorem qbP_mem (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2) {y : Y} (hy : y ∈ B.P) :
     qbP B qbar y = qbar (QuotientGroup.mk ⟨y, hy⟩) := dif_pos hy
 
 omit [Finite Y] in
@@ -306,10 +311,10 @@ def radSub (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2)
     exact hbi.symm
 
 omit [Finite Y] in
-theorem radSub_le_P (qbar) (hbiadd) (h0) : radSub B qbar hbiadd h0 ≤ B.P := fun _ hy => hy.1
+private theorem radSub_le_P (qbar) (hbiadd) (h0) : radSub B qbar hbiadd h0 ≤ B.P := fun _ hy => hy.1
 
 omit [Finite Y] in
-theorem S_le_radSub (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2) (hbiadd) (h0 : qbar 1 = 0) :
+private theorem S_le_radSub (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2) (hbiadd) (h0 : qbar 1 = 0) :
     B.S ≤ radSub B qbar hbiadd h0 := by
   intro s hs
   have hsP : s ∈ B.P := B.hSP.le hs
@@ -321,7 +326,7 @@ theorem S_le_radSub (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2) (hbiadd)
     ← mkP_mul B hsP hq, hs1, one_mul, h0, add_zero, CharTwo.add_self_eq_zero]
 
 omit [Finite Y] in
-theorem radSub_normal (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2) (hbiadd) (h0)
+private theorem radSub_normal (qbar : (↥B.P ⧸ B.S.subgroupOf B.P) → ZMod 2) (hbiadd) (h0)
     (hinv : ∀ (y p : Y) (hp : p ∈ B.P),
       qbar (QuotientGroup.mk ⟨y * p * y⁻¹, B.hP.conj_mem p hp y⟩)
         = qbar (QuotientGroup.mk ⟨p, hp⟩)) :

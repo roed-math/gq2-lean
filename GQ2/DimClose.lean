@@ -1,10 +1,15 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.DimAssembly
 import GQ2.DeepCount
 
 /-!
-# P-15f8 (finale): `lemma_6_17_dim`, reduced to the residue-trivial tame lift
+# `lemma_6_17_dim`, reduced to the residue-trivial tame lift
 
-The f6/f7/f8 chain is now fully assembled.  This leaf feeds every input of f7's deliverable
+This leaf assembles the f6/f7/f8 chain and feeds every input of the duality result
 `DeepCount.hduality_of_data` from `lemma_6_17_dim`'s own hypotheses, and hands the result to
 f8's `DimAssembly.lemma_6_17_dim_of_hduality` (whose `hext` is already discharged by
 `ShapiroExtend`).  Concretely:
@@ -43,7 +48,7 @@ variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite 
 variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
-/-- **`lemma_6_17_dim`, reduced to the residue-trivial tame lift** (P-15f8 finale): the §6.3
+/-- **`lemma_6_17_dim`, reduced to the residue-trivial tame lift** (the deep-part proof finale): the §6.3
 deep-half dimension identity `#X₊² = #H¹(ℚ₂, V)`, assembled from f7's `hduality_of_data` + f8's
 `lemma_6_17_dim_of_hduality`, with the single arithmetic input — a residue-trivial lift of tame
 inertia — threaded as a hypothesis, alongside the standard Galois-correspondence `k`-plumbing. -/

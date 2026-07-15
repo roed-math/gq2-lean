@@ -1,74 +1,79 @@
-# Lean Atlas — dependency-graph tooling
+# Lean Atlas and Lean Compass
 
-[Lean Atlas](https://github.com/NyxFoundation/lean-atlas) is a Lean 4 dependency-graph tool. We
-use it to produce [`atlas-audit.md`](../atlas-audit.md) — the trust-base audit of the
-formalization capstone `GQ2.SectionTen.main_surjection_count'`:
+[Lean Atlas](https://github.com/NyxFoundation/lean-atlas) exports a Lean project's declaration
+dependency graph. Its Lean Compass algorithm removes value dependencies originating in theorem
+proofs: Lean's type checker has already verified those proof terms, so human semantic review can
+focus on the statements and definitions that determine what the selected theorem means.
 
-- **the axioms the proof rests on** (its `#print axioms`, minus the `propext`/`Classical.choice`/
-  `Quot.sound` core), and
-- **the Lean Compass review cone** — the statement-level nodes whose *semantic* correctness can
-  affect the capstone (the full closure minus the theorem-proof value edges the type checker
-  already guarantees). For the capstone that is 30 nodes out of a 3185-node closure (≈ 99 %).
+This repository uses Atlas to generate [`../atlas-audit.md`](../atlas-audit.md) for
+`GQ2.SectionTen.main_surjection_count'`, the count-form capstone.
 
-It is wired in as a Lake dependency (`lakefile.toml`) pinned to a commit that builds under this
-repo's toolchain. **`GQ2` never imports it**, so normal builds are unaffected.
+## Current result
 
-## Regenerating `atlas-audit.md`
+The graph regenerated after the July 14 module and API refactor contains 4,225 project nodes and
+35,335 edges. The target's 638-node Atlas closure reduces to a **30-declaration Lean Compass
+review cone** (95.3% reduction). Those 30 declarations are the project statements and definitions
+that, under Compass's dependency model, should receive human semantic review. The generated report
+links every declaration to its current source location.
 
-Two commands from the repo root — no source edits:
+This number is not an axiom count. The capstone separately depends on all **nine** documented
+literature axioms.
 
-```bash
-lake exe atlas graph-data -o atlas-graph.json      # export the graph (~8 MB; do NOT commit it)
-python3 scripts/atlas_audit.py atlas-graph.json    # render atlas-audit.md
+## Why the report uses two data sources
+
+Lean Atlas intentionally filters compiler-internal names, including Lean's mangled names for
+`private` declarations. This is appropriate for the visible semantic-review graph: private
+theorems used only inside a checked proof do not create additional public statements to align.
+It does mean that the full Atlas graph is not an authoritative way to reconstruct a theorem's
+kernel axiom dependencies. An axiom can be reached through a private proof helper and therefore be
+absent from the user-visible graph closure.
+
+Accordingly, [`../scripts/atlas_audit.py`](../scripts/atlas_audit.py) combines:
+
+1. the Atlas graph and the official Compass edge-pruning rule for the semantic review cone; and
+2. Lean's own `#print axioms` result for the complete kernel trust base.
+
+The generator fails if a kernel-reported project axiom is absent from the exported project's axiom
+census, preventing the post-privatization undercount that a graph-only report would produce.
+
+## Regenerating the report
+
+From the repository root:
+
+```sh
+lake exe atlas graph-data -o atlas-graph.json
+python3 scripts/atlas_audit.py atlas-graph.json
 ```
 
-`scripts/atlas_audit.py` computes the cone directly from the graph and the target name, so it
-needs neither the web viewer nor a `mainTheorem` marker.
+The first command rebuilds the project as needed and exports the graph. The second computes the
+Compass cone, queries Lean for the target's axioms, and rewrites `atlas-audit.md`. The generated
+`atlas-graph.json` and its cache are ignored; `atlas-audit.md` is committed.
 
-**Different target:** pass its fully-qualified name, e.g.
+To inspect another declaration without overwriting the capstone report, pass the target and output
+path explicitly:
 
-```bash
-python3 scripts/atlas_audit.py atlas-graph.json GQ2.thm_4_2
+```sh
+python3 scripts/atlas_audit.py atlas-graph.json GQ2.thm_4_2 /tmp/thm-4-2-audit.md
 ```
 
-(`thm_4_2` additionally pulls in the B9/B11/B12/B13 Kummer axioms.) Line numbers in the audit
-are a snapshot from graph-export time — regenerate after source edits.
+The target must be available after `import GQ2`.
 
-## Optional: the official `lake exe atlas compass`
+## Relationship to `lake exe atlas compass`
 
-`scripts/atlas_audit.py` already replicates Compass's reduction and prints the actual cone. If
-you want the tool's own reduction-rate output, Compass reads a `mainTheorem` flag from the
-environment. Mark the target temporarily (do **not** commit — importing `LeanAtlas` from a `GQ2`
-module would couple every build to the dev tool):
+The upstream `atlas compass` command requires target declarations to carry Lean Atlas's
+`mainTheorem` metadata. Importing `LeanAtlas` into a mathematical `GQ2` module merely to attach that
+attribute would couple the library to a review-only tool. The local generator instead applies the
+same rule directly to the exported edge kinds:
 
-```bash
-cat > GQ2/AtlasMarks.lean <<'EOF'
-import LeanAtlas
-import GQ2.SectionTenSources
-attribute [formalMeta "main_surjection_count'"
-  "Formalization capstone: #(continuous surjections G_Q2 ↠ G) = admissibleCount G" mainTheorem]
-  GQ2.SectionTen.main_surjection_count'
-EOF
-echo 'import GQ2.AtlasMarks' >> GQ2.lean
-lake build GQ2 && lake exe atlas compass
-# back out:
-sed -i '' -e '/^import GQ2\.AtlasMarks$/d' GQ2.lean   # macOS; drop the '' on Linux
-rm GQ2/AtlasMarks.lean
-```
+- keep type dependencies and definition-value dependencies;
+- remove `theorem_value_to_definition` and `theorem_value_to_theorem` edges.
 
-## Optional: the interactive web viewer
+This produces the same Compass cone without changing the mathematical import graph. Lean Atlas is
+pinned as a Lake development dependency, but no `GQ2` source module imports it.
 
-`lake exe atlas serve` starts a viewer at `http://localhost:5326` (needs Node ≥ 18 + pnpm; the
-first `serve` runs `pnpm install` in `.lake/packages/lean-atlas/web`). **Caveat:** the full GQ2
-graph (~4.4k nodes / 39k edges) overwhelms the browser renderer and hangs — the headless
-`graph-data` / `compass` + `scripts/atlas_audit.py` path above is the practical interface for a
-project this size.
+## Interactive viewer
 
-## Backing out entirely
-
-```bash
-# remove the dependency, then:
-lake update      # rewrites lake-manifest.json without lean-atlas
-rm -rf .lake/packages/lean-atlas atlas-graph.json
-```
-and delete the `[[require]] name = "lean-atlas"` block from `lakefile.toml`.
+`lake exe atlas serve` starts the Atlas viewer at `http://localhost:5326`. It requires Node 18 or
+newer and `pnpm`; the first run installs web dependencies under `.lake/packages/lean-atlas/web`.
+For reproducible review, the headless graph export and committed Markdown report are the primary
+interface.

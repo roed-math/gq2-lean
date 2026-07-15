@@ -1,4 +1,18 @@
-import Mathlib
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.Topology.Algebra.ClopenNhdofOne
+public import Mathlib.Topology.Compactness.Paracompact
+public import Mathlib.Topology.Separation.CompletelyRegular
+public import Mathlib.Topology.Algebra.ProperAction.Basic
+public import Mathlib.Topology.Algebra.Category.ProfiniteGrp.Basic
+
+@[expose] public section
+
 
 /-!
 # Quotients of profinite groups by closed normal subgroups are profinite

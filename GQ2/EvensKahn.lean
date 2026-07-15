@@ -1,10 +1,19 @@
-import Mathlib
-import GQ2.CupProduct
-import GQ2.Kummer
-import GQ2.Demushkin
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.CupProduct
+public import GQ2.Kummer
+public import GQ2.Demushkin
+
+@[expose] public section
+
 
 /-!
-# B9: corestriction, the index-two Evens norm, and eq. (111)'s ingredients  (ticket T-18)
+# B9: corestriction, the index-two Evens norm, and eq. (111)'s ingredients
 
 Statement infrastructure for the paper's **Evens/Kahn/Kozlowski** leaf (**B9**): the paper's
 eq. (111)
@@ -33,12 +42,12 @@ continuous homomorphism `α : U → 𝔽₂` (a trivial-action 1-cocycle):
   `H²(G,𝔽₂)`.  By the paper's Lemma 6.13 (eq. (99)) this class **is** the index-two Evens
   norm `N^{Ev}([α])` — we *define* the Evens norm by this cocycle, exactly as the plan
   prescribes ("transcribe (95)–(98) as the definition").
-* Over `k` with algebraic closure `k̄` (T-13's setting): `kummerZ1On` — the **Kummer cocycle
-  of `a ∈ Lˣ` over the subgroup** `N = G_L` (`β² = a`, `N` fixing `a`), generalizing T-13's
+* Over `k` with algebraic closure `k̄` (the Kummer-class API's setting): `kummerZ1On` — the **Kummer cocycle
+  of `a ∈ Lˣ` over the subgroup** `N = G_L` (`β² = a`, `N` fixing `a`), generalizing the Kummer-class API's
   full-group `kummerCocycle` to elements algebraic over `k`.
 * Stiefel–Whitney classes of **diagonal rank-2 forms** are *notational*: for `⟨x, y⟩` over
-  `ℚ₂`, `w₁ = [x] + [y]` (Kummer classes, T-13) and `w₂ = [x] ∪ [y]`
-  (`trivialCupPairing`, T-09/T-04).  Following the plan, no `QuadraticForm` machinery is
+  `ℚ₂`, `w₁ = [x] + [y]` (Kummer classes, the Kummer-class API) and `w₂ = [x] ∪ [y]`
+  (`trivialCupPairing`, the Demushkin interface/the cup-product API).  Following the plan, no `QuadraticForm` machinery is
   used: (111) is asserted at the paper's fixed diagonal representatives
   `Tr_{L/k}⟨a⟩ ≃ ⟨2u, 2dn/u⟩`, `Tr_{L/k}⟨1⟩ ≃ ⟨2, 2d⟩` (Lemma 6.16), absorbing the Delzant
   well-definedness question into the axiom's scoping.  **Deviation flagged.**
@@ -93,7 +102,7 @@ lemma notMem_mul_notMem {U : Subgroup G} (h : U.index = 2) {x y : G}
     (hx : x ∉ U) (hy : y ∈ U) : x * y ∉ U := fun hxy =>
   hx (((mul_mem_iff_of_index_two h x y).mp hxy).mpr hy)
 
-lemma mem_mul_notMem {U : Subgroup G} (h : U.index = 2) {x y : G}
+private lemma mem_mul_notMem {U : Subgroup G} (h : U.index = 2) {x y : G}
     (hx : x ∈ U) (hy : y ∉ U) : x * y ∉ U := fun hxy =>
   hy (((mul_mem_iff_of_index_two h x y).mp hxy).mp hx)
 
@@ -205,7 +214,7 @@ lemma evensAux_continuous (hUo : IsOpen (U : Set G)) (hUi : U.index = 2) (hs : s
     have hxU : x ∉ U := fun h => hs ((U.mul_mem_cancel_left h).mp hx')
     rwa [evensAux_of_notMem hUi hs α hxU, evensAux_of_notMem hUi hs α hg]
 
-lemma bS_continuous (hUo : IsOpen (U : Set G)) (hUi : U.index = 2) (hs : s ∉ U)
+private lemma bS_continuous (hUo : IsOpen (U : Set G)) (hUi : U.index = 2) (hs : s ∉ U)
     {α : U → ZMod 2} (hαc : Continuous α) : Continuous (bS U s α) :=
   (evensAux_continuous hUo hUi hs hαc).comp (continuous_const_mul s⁻¹)
 
@@ -233,7 +242,7 @@ lemma corFun_hom (hUi : U.index = 2) (hs : s ∉ U) (α : U → ZMod 2)
 
 variable [TopologicalSpace G] [IsTopologicalGroup G]
 
-lemma corFun_continuous (hUo : IsOpen (U : Set G)) (hUi : U.index = 2) (hs : s ∉ U)
+private lemma corFun_continuous (hUo : IsOpen (U : Set G)) (hUi : U.index = 2) (hs : s ∉ U)
     {α : U → ZMod 2} (hαc : Continuous α) : Continuous (corFun U s α) :=
   (evensAux_continuous hUo hUi hs hαc).add (bS_continuous hUo hUi hs hαc)
 
@@ -328,7 +337,7 @@ noncomputable def evensNormH2 (htriv : ∀ (g : G) (m : ZMod 2), g • m = m)
 
 end EvensNorm
 
-/-! ## Kummer cocycles over a subgroup (T-13, relativized)
+/-! ## Kummer cocycles over a subgroup
 
 For `a ∈ Lˣ` (rather than `kˣ`), the Kummer cocycle `g ↦ [g√a ≠ √a]` is a homomorphism on any
 subgroup `N ≤ G_k` that fixes `a` — the input `[a] ∈ H¹(G_L, 𝔽₂)` of the Evens norm and
@@ -346,7 +355,7 @@ lemma ne_neg_of_ne_zero {β : AlgebraicClosure K} (hβ0 : β ≠ 0) : β ≠ -β
 
 omit [CharZero K] in
 /-- If `g` fixes `β²`, then `g√ = ±√`: the two-values lemma with an abstract fixed square
-(T-13's `two_values`, relativized off the base field). -/
+(the Kummer-class API's `two_values`, relativized off the base field). -/
 lemma two_values_of_fixed {A β : AlgebraicClosure K} (hβ : β ^ 2 = A)
     {g : GaloisGroup K} (hg : g • A = A) : g • β = β ∨ g • β = -β := by
   have key : (g • β) ^ 2 = β ^ 2 := by
@@ -389,10 +398,10 @@ noncomputable def kummerZ1On (N : Subgroup (GaloisGroup K)) (hβ : β ^ 2 = A) (
 
 end SubgroupKummer
 
-/-! ## Base-general Kummer classes over `G_k`  (B9/B11 amendment layer, P-15)
+/-! ## Base-general Kummer classes over `G_k`
 
-The base-general forms of B9 and B11 (finite dyadic base `k` — the P-15 census amendment,
-`docs/section67-extraction.md` §P-15 amendments) phrase Kummer classes of units of `k` over the
+The base-general forms of B9 and B11 (finite dyadic base `k` — the §§6–7 proof layer census amendment,
+`docs/section67-extraction.md` §the §§6–7 proof layer amendments) phrase Kummer classes of units of `k` over the
 **subtype group** `G_k = ↥(k.fixingSubgroup)` inside the one fixed `G_ℚ₂` — no second algebraic
 closure is introduced, so the classes compose directly with the subgroup-relative corestriction
 and Evens norm above (exactly the shape `GQ2.SectionSix.lemma_6_16` consumes). -/
@@ -423,7 +432,7 @@ lemma unitCoe_ne_zero (k : IntermediateField ℚ_[2] ℚ̄₂) (a : (↥k)ˣ) :
 
 /-- **The base-general Kummer class** `[a] ∈ H¹(G_k, 𝔽₂)` of a unit `a ∈ kˣ`, over the subtype
 group of `k.fixingSubgroup` and via the canonical root `sqrtCl` (class independent of the root,
-T-13's `kummerCocycleFun_root_indep`).  Specializes T-13's base-`ℚ₂` `kummerClass` to arbitrary
+the Kummer-class API's `kummerCocycleFun_root_indep`).  Specializes the Kummer-class API's base-`ℚ₂` `kummerClass` to arbitrary
 finite dyadic bases; the input shape of the amended B9/B11 axioms. -/
 noncomputable def kummerClassK (k : IntermediateField ℚ_[2] ℚ̄₂) (a : (↥k)ˣ) :
     H1 k.fixingSubgroup (ZMod 2) :=

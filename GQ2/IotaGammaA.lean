@@ -1,12 +1,17 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.KeystoneDelta
 import GQ2.WordCoh2
 
 /-!
-# P-16d6e4aA (A-2) — the `ι_{Γ_A}`-computation rule
+# The `ι_{Γ_A}`-computation rule
 
-The F-brick of the (83)-for-`Γ_A` seam (`docs/p16d6e4aA-gammaA-gauss-design.md` §2):
+The F-brick of the (83)-for-`Γ_A` seam (`docs/orchestration/p16d6e4aA-gammaA-gauss-design.md` §2):
 the coboundary indicator `ι_Γ` (`SectionEight.iotaB`, the `Q⁰`-valuation) is computed, over
-the raw candidate carrier `GA = F₄ ⧸ N_A`, by the **word-relator obstruction** of the P-16c4
+the raw candidate carrier `GA = F₄ ⧸ N_A`, by the **word-relator obstruction** of the Γ_A half-torsor proof
 degree-2 presentation-comparison:
 
 * `iotaB_eq_obs` — `ι_{Γ_A} φ = obs φ` for every continuous 2-cocycle `φ`: both are
@@ -21,7 +26,7 @@ degree-2 presentation-comparison:
   brick A-3 constructs an explicit `LevelFactor` for the graph pullback in the e6 generator
   coordinates and reads the two relator values off the factor-set expansion.
 
-Everything is glue over landed technology (`iotaB` = the `B²`-indicator,
+Everything is glue over proved technology (`iotaB` = the `B²`-indicator,
 `PhaseObstruction.lean:51`; `obs`/`obs_ker_eq_B2`/`obsFun_eq`, `WordCoh2.lean` §CardBound;
 `graphPullback_mem_Z2_of_cocycle`, `KeystoneDelta.lean:1516`, generic-`Γ`) — std-3, no
 axioms, no sorries.
@@ -39,7 +44,7 @@ include htriv
 
 omit [ContinuousSMul GA (ZMod 2)] in
 /-- **The `ι_{Γ_A}`-computation rule** (A-2 core): the coboundary indicator agrees with the
-P-16c4 word-relator obstruction on every continuous 2-cocycle — both are `𝔽₂`-valued with
+the Γ_A half-torsor proof word-relator obstruction on every continuous 2-cocycle — both are `𝔽₂`-valued with
 kernel exactly `B²(Γ_A, 𝔽₂)`. -/
 theorem iotaB_eq_obs (φ : Z2 GA (ZMod 2)) :
     iotaB (φ : GA × GA → ZMod 2) = WordCoh2.obs htriv φ := by

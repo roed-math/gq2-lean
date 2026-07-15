@@ -1,13 +1,18 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.Block.FrameImpl
 
 /-!
-# P-17g: the Lemma 9.4 descent bounds for `blockFrame`
+# The Lemma 9.4 descent bounds for `blockFrame`
 
 Displays (145)/(148)/(153) of the paper's §9 induction: the marked-kernel cardinalities of the
 `blockFrame`'s stage targets and of the pulled-back strata all drop strictly below `|L_Y|`, which
-is what lets the master induction (P-17i) recurse on `n = Nat.card ↥T.LY`.
+is what lets the master induction (the §9 induction) recurse on `n = Nat.card ↥T.LY`.
 
-Stated against `blockFrameImpl` (P-17c, committed); `SectionNine.blockFrame` delegates to it, so
+Stated against `blockFrameImpl`; `SectionNine.blockFrame` delegates to it, so
 these apply to `blockFrame` by definitional unfolding.
 
 * `card_LB_mul` / `card_LB_lt` — `|L_B|·|R| = |L_Y|`, and `|L_B| < |L_Y|` when `R ≠ ⊥`.
@@ -18,7 +23,7 @@ these apply to `blockFrame` by definitional unfolding.
 * `card_stratum_LC_lt` — (153): any stratum of a central cover of `C` has `|stratum.L| < |L_Y|`
   (trivial `⊆ p⁻¹(L_C)` bound `= 2|L_C|`, against `4 ≤ |K|`).
 
-All bounds are **cover-generic** (independent of which `CentralCover`), which is what lets P-17i
+All bounds are **cover-generic** (independent of which `CentralCover`), which is what lets the §9 induction
 apply them to `prop_8_9`'s ∃-quantified phase family.
 -/
 
@@ -105,7 +110,7 @@ instance : (Blk.K).Normal := Blk.hK
 omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
   [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y]
 
-lemma blockFrameImpl_R_le_LY : Blk.frattiniK ≤ T.LY :=
+private lemma blockFrameImpl_R_le_LY : Blk.frattiniK ≤ T.LY :=
   (frattiniLike_le Blk.K).trans (Blk.hKP.trans Blk.hPL)
 
 lemma blockFrameImpl_K_le_LY : Blk.K ≤ T.LY := Blk.hKP.trans Blk.hPL
@@ -118,10 +123,10 @@ lemma blockFrameImpl_K_ne_bot : Blk.K ≠ ⊥ := by
 
 /-! ### Field-projection reductions -/
 
-@[simp] lemma blockFrameImpl_TB_LY :
+@[simp] private lemma blockFrameImpl_TB_LY :
     (blockFrameImpl T Blk hE2).TB.LY = T.LY.map (QuotientGroup.mk' Blk.frattiniK) := rfl
 
-@[simp] lemma blockFrameImpl_TC_LY :
+@[simp] private lemma blockFrameImpl_TC_LY :
     (blockFrameImpl T Blk hE2).TC.LY = T.LY.map (QuotientGroup.mk' Blk.K) := rfl
 
 

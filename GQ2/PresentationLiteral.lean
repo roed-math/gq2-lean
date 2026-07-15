@@ -1,10 +1,15 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.GammaA
 import GQ2.SectionTenSources
 import GQ2.Prop23
 import GQ2.FinitelyGenerated
 
 /-!
-# Theorem 1.2, literal presentation form  (P-19)
+# Theorem 1.2, literal presentation form
 
 `main_presentation_literal : Nonempty (ContinuousMulEquiv GammaA AbsGalQ2)` — the literal
 Theorem 1.2 — as the instantiation of `Statement.main_presentation` at the honest candidate `Γ_A`
@@ -14,12 +19,12 @@ Theorem 1.2 — as the instantiation of `Statement.main_presentation` at the hon
 `hΓA := prop_2_3` (Prop. 2.3, `Nat.card (ContSurj Γ_A G) = admissibleCount G`) and
 `hcount := SectionTen.main_surjection_count'` (Theorem 1.2's surjection count for `G_{ℚ₂}`,
 eq. (154) + Prop. 2.3).  `Prop23` and `SectionTenSources` sit **downstream** of the upstream
-`GammaA.lean`, so an in-place proof would cycle — the statement-move pattern (P-08/P-15d/P-18e);
+`GammaA.lean`, so an in-place proof would create an import cycle;
 `GammaA.lean` carries a comment-pointer here.
 
 **Axioms.**  Std-3 + the nine census axioms of `GQ2/Foundations/Axioms.lean` (B1, B3c, B5–B11a),
 entering via `main_surjection_count'` / the boundary construction and B1 (topological finite
-generation of `G_{ℚ₂}`).  No new axiom, no `sorry`.
+generation of `G_{ℚ₂}`).
 -/
 
 namespace GQ2

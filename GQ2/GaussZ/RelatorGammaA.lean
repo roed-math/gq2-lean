@@ -1,9 +1,14 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.IotaGammaA
 
 /-!
-# P-16d6e4aA (A-3) — `Q⁰` over `Γ_A` as a relator value in the `κ⁰`-extension
+# `Q⁰` over `Γ_A` as a relator value in the `κ⁰`-extension
 
-The evaluation brick of the (83)-for-`Γ_A` seam (`docs/p16d6e4aA-gammaA-gauss-design.md` §2):
+The evaluation brick of the (83)-for-`Γ_A` seam (`docs/orchestration/p16d6e4aA-gammaA-gauss-design.md` §2):
 the graph pullback is, on the nose, the pullback of the **base central cocycle** `κ⁰_q` on the
 semidirect product `V ⋊ C` (eq. (61)/(62): `graphPullback dat ρ₀ b = κ⁰ ∘ (graph × graph)`,
 where `graph γ = (b γ, ρ₀ γ)` is a homomorphism exactly because `b` is a crossed cocycle).
@@ -163,7 +168,7 @@ noncomputable def graphSdHom (c : VCocycle DD ρM) : Γ →* Sd DD.C0 DD.Vmod wh
   map_mul' γ δ := Prod.ext (c.crossed γ δ) (map_mul (rho0 DD ρM) γ δ)
 
 omit [DiscreteTopology Bg] in
-@[simp] theorem graphSdHom_apply (c : VCocycle DD ρM) (γ : Γ) :
+@[simp] private theorem graphSdHom_apply (c : VCocycle DD ρM) (γ : Γ) :
     graphSdHom c γ = (c.c γ, rho0 DD ρM γ) := rfl
 
 omit [DiscreteTopology Bg] in

@@ -1,14 +1,19 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.SectionNine
 import GQ2.Block.Enrichment
 import GQ2.Prop89Close
 import GQ2.GaussZ.GammaAD
 
 /-!
-# Theorem 4.2 — the §9 sink  (P-17i)
+# Theorem 4.2 — the §9 sink
 
 `thm_4_2` (the boundary-framed exact-image theorem) and its stratum clause, **relocated from
 `GQ2/SectionNine.lean`** (second hop of the established relocation pattern; first hop was
-`BoundaryFrame → SectionNine`, P-17a).  The move is forced by the import DAG: the `R`-stage
+`BoundaryFrame → SectionNine`, the §9 induction).  The move is forced by the import DAG: the `R`-stage
 lane consumes `prop_8_9` (`GQ2/Prop89Close.lean`, incomparable with `SectionNine`) **and**
 `SectionNine.blockEnrichment` (`GQ2/BlockEnrichment.lean`, strictly *downstream* of
 `SectionNine` because it consumes `kappa0_exists`) — so the proof cannot live inside
@@ -16,9 +21,9 @@ lane consumes `prop_8_9` (`GQ2/Prop89Close.lean`, incomparable with `SectionNine
 is unchanged, so call sites only gain an import.
 
 The proof: strong induction on `|L_Y|` with three lanes — terminal (`terminal_count_eq`,
-P-17b), `M`-stage (`R = ⊥`: `mStage_partition` ×2 at multiplicity `|M_B|²`, P-17f +
+the §9 induction), `M`-stage (`R = ⊥`: `mStage_partition` ×2 at multiplicity `|M_B|²`, the §9 induction +
 `MStageCount`/`MStageCountGammaA`), and `R`-stage (`R ≠ ⊥`: `blockEnrichment` + `prop_8_9`
-solved by `count_eq_of_closedRecursion` against the P-17g bounds).
+solved by `count_eq_of_closedRecursion` against the §9 induction bounds).
 -/
 
 namespace GQ2
@@ -91,7 +96,7 @@ theorem sup_MB_eq_top_of_map_piBC (T : MarkedTarget H E Y)
 end RStageHelpers
 
 /-- **The `M`-stage lane** (`R = ⊥`) of the §9 master induction: the two `mStage_partition`
-(P-17f) identities at the block frame, multiplicity `|M_B|²` per source, solved against the
+(the §9 induction) identities at the block frame, multiplicity `|M_B|²` per source, solved against the
 strong-induction hypothesis `IH`.  Extracted from `thm_4_2`. -/
 private theorem mStage_lane (B : BoundaryMaps) (F : BoundaryFrame H E)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
@@ -125,7 +130,7 @@ private theorem mStage_lane (B : BoundaryMaps) (F : BoundaryFrame H E)
         Nat.card ((blockFrameImpl T Blk hE2).LiftsOver B.bA F ρ)
           = (Nat.card ↥(blockFrameImpl T Blk hE2).MB) ^ 2 :=
       (blockFrameImpl T Blk hE2).liftsOver_card_gammaA B.bA F
-    -- the two partition identities (P-17f)
+    -- the two partition identities (the §9 induction)
     have hpartA := SectionNine.mStage_partition (blockFrameImpl T Blk hE2)
       hfgA B.bA F hheadA ((Nat.card ↥(blockFrameImpl T Blk hE2).MB) ^ 2)
       hmultA
@@ -277,8 +282,8 @@ private theorem rStage_phase (B : BoundaryMaps) (F : BoundaryFrame H E)
   omega
 
 /-- **The `R`-stage lane** (`R ≠ ⊥`) of the §9 master induction: the closed system of
-`prop_8_9` (P-16d6) at `blockEnrichment` (P-17d), solved by `count_eq_of_closedRecursion`
-(P-17h) against the IH at the (145)/(148)/(153) bounds.  Extracted from `thm_4_2`. -/
+`prop_8_9` (the Prop. 8.9 assembly) at `blockEnrichment` (the §9 induction), solved by `count_eq_of_closedRecursion`
+(the §9 induction) against the IH at the (145)/(148)/(153) bounds.  Extracted from `thm_4_2`. -/
 private theorem rStage_lane (B : BoundaryMaps) (F : BoundaryFrame H E)
     (R : LocalReciprocity) (horient : TameUnitOrientation R B.tameF)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
@@ -310,7 +315,7 @@ private theorem rStage_lane (B : BoundaryMaps) (F : BoundaryFrame H E)
     haveI : Blk.frattiniK.Normal := SectionSeven.frattiniLike_normal Blk.K Blk.hK
     haveI : Nontrivial (blockFrameImpl T Blk hE2).YC :=
       nontrivial_YC_of_not_scalarStack T Blk hE2 _hstack
-    -- the chief-factor structure of the enrichment module (P-17d's `blockHsimple`)
+    -- the chief-factor structure of the enrichment module (the §9 induction's `blockHsimple`)
     have hSimp := SectionNine.blockHsimple T Blk
     have hsimple : ∀ W : AddSubgroup (SectionNine.blockEnrichmentD T Blk hE2 F).Vmod,
         (∀ g : (blockFrameImpl T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤ :=
@@ -320,13 +325,13 @@ private theorem rStage_lane (B : BoundaryMaps) (F : BoundaryFrame H E)
       exact exists_ne 0
     -- `hnt` (the nontrivial `Y/K`-action on `V`): the block's `nontrivial_action`
     -- field in the enrichment-module form (`blockHnt`).  The former `hfaith`
-    -- hypothesis was weakened to this at the e6/e7 amendment (2026-07-08) —
+    -- the weaker hypothesis is sufficient here —
     -- faithfulness is NOT block-derivable (a central 2-part of `Y` outside `K`
     -- centralizes `V` — e.g. `C₂ × (C₃ ⋉ C₂²)`-type blocks).
     have hnt : ∃ (g : (blockFrameImpl T Blk hE2).YC)
         (v : (SectionNine.blockEnrichmentD T Blk hE2 F).Vmod), g • v ≠ v :=
       SectionNine.blockHnt T Blk
-    -- the Gauss-`Z` residues (P-16d6e4aA-P4e): the hypothesis-free obtain at the
+    -- the Gauss-`Z` residues (the Γ_A Gauss-sum package): the hypothesis-free obtain at the
     -- head-inflated enrichment — `G0 = ∓2^m` by the head dichotomy, orientation from
     -- the theorem's `(R, horient)` binders (the `lemma_6_17_vanish` threading pattern)
     obtain ⟨G0, hGaussZA, hGaussZF⟩ :
@@ -340,7 +345,7 @@ private theorem rStage_lane (B : BoundaryMaps) (F : BoundaryFrame H E)
             SectionEight.GaussZResidue B.bF F
               (SectionNine.blockEnrichmentD T Blk hE2 F) l h G0) :=
       SectionNine.gaussZ_obtain_blockD T Blk hE2 B F R horient hsimple hVne hnt
-    -- the closed system (P-16d6)
+    -- the closed system (the Prop. 8.9 assembly)
     obtain ⟨μ, G0', DT, instDT, phase, hDTpos, hA, hF⟩ :=
       SectionEight.prop_8_9 B T Blk hE2 (SectionNine.blockEnrichmentD T Blk hE2 F) F
         hfgF hheadA hheadF hsimple hVne hnt G0 hGaussZA hGaussZF
@@ -356,7 +361,7 @@ private theorem rStage_lane (B : BoundaryMaps) (F : BoundaryFrame H E)
       refine IH _ ?_ _ (blockFrameImpl T Blk hE2).TC rfl
       exact hcard ▸ card_LC_lt T Blk hE2
     -- IH at the pulled `B`-strata ((148), `rStage_pull`) and phase-cover agreement
-    -- ((141)/(142), `rStage_phase`); then solve (P-17h).
+    -- ((141)/(142), `rStage_phase`); then solve (the §9 induction).
     exact SectionNine.count_eq_of_closedRecursion (blockFrameImpl T Blk hE2) B.bA B.bF F
       μ G0' DT phase hA hF hDTpos.ne' hTB hTC
       (fun l h J' hJtop hJC => rStage_pull B F T hE2 Blk hR n hcard IH l h J' hJtop hJC)
@@ -372,24 +377,24 @@ agree: `e^β_{Γ_A}(𝒴) = e^β_{G_ℚ₂}(𝒴)`.
 Stated for any `BoundaryMaps` witness of the Prop 3.14 data (the choice is fixed "once and
 for all" in §4 and only its bundled properties are used).
 
-**Amended (P-17a, 2026-07-06, documented)** with `(hE2 : ∀ e : E, e ^ 2 = 1)`: the §9
-induction descends the θ-decoration through the block via `lemma_7_3`, whose (paper-stated)
+**Encoding correction** (documented in `docs/section9-extraction.md`): the hypothesis
+`(hE2 : ∀ e : E, e ^ 2 = 1)` is required because the §9 induction descends the θ-decoration
+through the block via `lemma_7_3`, whose (paper-stated)
 hypothesis is that the decoration target is elementary abelian 2; the terminal case kills
 the odd complement through `θ` for the same reason.  §10 consumes the theorem at `E = 0`
-only, so the amendment is downstream-harmless.  Relocated `BoundaryFrame → SectionNine`
-(P-17a: the proof needs §§5–9 machinery) `→ ThmFourTwo` (P-17i: the `R`-stage lane needs
-`blockEnrichment` + `prop_8_9`, both off-limits inside `SectionNine` — see the module
-docstring).
+only, so the correction is downstream-harmless.  The theorem lives here because its proof
+needs §§5–9 machinery, including `blockEnrichment` and
+`prop_8_9`, both downstream of `SectionNine`; see the module docstring.
 
-**Instance binders (P-17i, documented)**: the two `AbsGalQ2` topology hypotheses mirror
+**Instance binders**: the two `AbsGalQ2` topology hypotheses mirror
 `terminal_count_eq`'s (the `Half139Local`/`BoundaryMapsWitness` tower discipline — they are
-deliberately not global instances); the sole consumer `eq_154` (P-18e) already carries exactly
+deliberately not global instances); the consumer `eq_154` already carries exactly
 these two.  The remaining topology instances the inductive lanes need (`GammaA`'s
 compact/t.d./topological-group triple, `IsTopologicalGroup AbsGalQ2`) are globally inferable
 (`GammaA : ProfiniteGrp`; mathlib's Krull-topology instance), so they are *not* binders.
 
-*Status*: fully proved (P-17i) — induction scaffold, terminal lane, `M`-stage lane, and the
-`R`-stage lane (assembled against `prop_8_9`, closed in `GQ2/Prop89Close.lean` at P-16d6e).
+The proof combines the induction scaffold, terminal lane, `M`-stage lane, and the `R`-stage lane
+assembled against `prop_8_9` in `GQ2/Prop89Close.lean`.
 Axioms B1/B3c/B6/B7/B8/B9 enter through the ingredients, per App. D (B7′, the dyadic Hilbert
 symbol, is now an in-repo theorem, not an axiom). -/
 theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
@@ -413,7 +418,7 @@ theorem thm_4_2 (B : BoundaryMaps) (F : BoundaryFrame H E)
     intro Y instGY instTY instDY instFY T hcard
     by_cases hstack : SectionSeven.IsScalarStack T.LY
     · -- **Terminal lane** (`IsScalarStack T.LY`, §9.1–9.2): the two exact-image problems are
-      -- identified through the common marked pro-2 quotient — `terminal_count_eq` (P-17b).
+      -- identified through the common marked pro-2 quotient — `terminal_count_eq` (the §9 induction).
       exact SectionNine.terminal_count_eq B F T hE2 hstack
     · -- Inductive case: a nonscalar chief factor exists; choose the §7 minimal block.
       obtain ⟨Blk⟩ := SectionSeven.exists_minimalBlock T.normal T.isPGroup_two hstack

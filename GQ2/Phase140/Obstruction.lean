@@ -1,7 +1,12 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.RecursionSplice
 
 /-!
-# P-16d6c (c1b/c2 infrastructure): the `𝔽₂`-cover obstruction calculus and the
+# The `𝔽₂`-cover obstruction calculus and the
 paper-faithful (140) reducer
 
 Central `𝔽₂`-covers enter the (140) analysis through **one** scalar invariant: whether a
@@ -126,7 +131,7 @@ def pullCoc (f : Γ → C0) (δ : C0 × C0 → ZMod 2) : Γ × Γ → ZMod 2 :=
 
 omit [Group Γ] [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)]
   [ContinuousSMul Γ (ZMod 2)] [Group C0] in
-theorem pullCoc_continuous {f : Γ → C0} (hf : Continuous f) (δ : C0 × C0 → ZMod 2) :
+private theorem pullCoc_continuous {f : Γ → C0} (hf : Continuous f) (δ : C0 × C0 → ZMod 2) :
     Continuous (pullCoc f δ) :=
   (continuous_of_discreteTopology (f := fun q : C0 × C0 => δ q)).comp
     ((hf.comp continuous_fst).prodMk (hf.comp continuous_snd))
@@ -291,7 +296,7 @@ theorem centralCover_lift_iff (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
 open AffineTLift in
 open scoped Classical in
 omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
-/-- **The sign bridge** (P-16d6e supply): for the twisted-product phase cover of a normalized
+/-- **The sign bridge** (the Prop. 8.9 assembly supply): for the twisted-product phase cover of a normalized
 raw 2-cocycle `δ`, the master count's `±1` (`sign ι_Γ(f^*δ)`) IS the signed liftability
 through the cover — `phaseSign`'s if-form at `f`.  Composes `centralCover_lift_iff` with the
 canonical section of `centralCoverOfCocycle` and `ι_Γ`'s defining dichotomy. -/
@@ -367,7 +372,7 @@ variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finit
   [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
 
 open AffineTLift CentralObstruction in
-/-- **The (140) display from per-`ρ` phase-obstruction data** (P-16d6c, paper-faithful form).
+/-- **The (140) display from per-`ρ` phase-obstruction data** (the Prop. 8.9 assembly, paper-faithful form).
 Unlike `phase140_of_nonsingular` (which interpolates through `lemma_8_5`'s
 `Lin`/`κ_ρ`/`ε_ρ`/`N(κ,ε)` data), this reducer consumes the identity the paper's Prop 8.9 proof
 actually produces per lower map (pp. 42–43, (126)+(135) before the `ρ`-sum):

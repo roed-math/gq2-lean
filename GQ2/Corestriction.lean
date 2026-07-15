@@ -1,7 +1,20 @@
-import GQ2.Cohomology
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.Data.ZMod.Defs
+public import Mathlib.Topology.Defs.Basic
+public import Mathlib.Topology.Instances.ZMod
+public import Mathlib.Tactic.Group
+public import GQ2.Cohomology
+
+@[expose] public section
 
 /-!
-# Transversal calculus: Shapiro cochains and degree-2 corestriction  (ticket P-14 def-layer)
+# Transversal calculus: Shapiro cochains and degree-2 corestriction
 
 The paper's §6 evaluates determinant classes through the **normalized bar corestriction** and the
 **normalized Shapiro map** for an open finite-index subgroup `U ≤ G` (eqs. (97), (106), (108)):
@@ -22,16 +35,16 @@ The paper's §6 evaluates determinant classes through the **normalized bar cores
   quantifies over transversals and proves the class is independent of the choice (Lemmas 6.13/6.15,
   "up to the normalized coboundary caused by a change of transversal"); fixing the canonical one
   makes every definition here choice-parameter-free.  Transversal-independence, where needed,
-  is part of the P-15 proof obligations.  **Deviation flagged.**
+  is part of the §§6–7 proof obligations.  **Deviation flagged.**
 * Sums are `finsum` (`∑ᶠ`), meaningful under `[Finite (G ⧸ U)]` (finite index) — total without it.
 * `H2ofFun`/`H1ofFun` are **junk-total class formers**: they send a raw function to its
-  cohomology class when it is a (continuous) cocycle and to `0` otherwise.  Statement tickets
-  used them to *define* classes whose cocycle property was, during development, a separately
-  stated obligation (the paper's Lemma 6.1/6.15 content, since proved), keeping all `def`s
+  cohomology class when it is a (continuous) cocycle and to `0` otherwise.  This permits
+  definitions of classes whose cocycle property is proved separately (the paper's Lemma
+  6.1/6.15 content), keeping all `def`s
   total and independent of the proof layer.
 
-Cocycle membership, Mackey restriction, and transversal-independence are **not** proved here —
-they are the P-15 proof layer (proved downstream).  This file is definition-only.
+Cocycle membership, Mackey restriction, and transversal-independence are proved downstream.
+This file is definition-only.
 -/
 
 namespace GQ2
@@ -83,7 +96,7 @@ end Corestriction
 
 Send a raw function to its cohomology class when it is a continuous cocycle, and to `0`
 otherwise.  These let statement files *define* classes whose cocycle property was, during
-development, one of their own separately stated obligations (since proved), keeping the `def`s
+development, one of their own separately stated obligations, keeping the `def`s
 total. -/
 
 section ClassFormers

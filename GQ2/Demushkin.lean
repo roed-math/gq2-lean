@@ -1,9 +1,26 @@
-import Mathlib
-import GQ2.CupProduct
-import GQ2.MaxProP
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.Order.CompletePartialOrder
+public import Mathlib.Algebra.Field.ZMod
+public import Mathlib.GroupTheory.SpecificGroups.Dihedral
+public import Mathlib.NumberTheory.Padics.PadicVal.Basic
+public import Mathlib.Topology.Algebra.Group.TopologicalAbelianization
+public import GQ2.CupProduct
+public import GQ2.MaxProP
+
+@[expose] public section
+
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
-# `IsDemushkin`: Demushkin pro-`p` groups  (ticket T-09, plan item B3a)
+# `IsDemushkin`: Demushkin pro-`p` groups
 
 A profinite pro-`p` group `G` is **Demushkin** (Serre, *Galois Cohomology* I §4.5; NSW
 Def. 3.9.9; Labute, *Classification of Demushkin groups*, Canad. J. Math. 19 (1967)) if, for
@@ -15,27 +32,28 @@ Def. 3.9.9; Labute, *Classification of Demushkin groups*, Canad. J. Math. 19 (19
 3. the cup product `H¹ × H¹ → H²` is a non-degenerate bilinear form.
 
 This is the definition behind the paper's B3/B4 leaves: `G_{ℚ₂}(2) = maxProPQuotient 2 AbsGalQ2`
-is Demushkin of rank 3 with `q = 2` (NSW Thm 7.5.11(ii); to be stated at T-08/T-10).
+is Demushkin of rank 3 with `q = 2` (NSW Thm 7.5.11(ii)), encoded by the dyadic presentation and
+orientation interfaces.
 
 ## Encoding
 
-* Cohomology is `GQ2.ContCoh` (T-02) with coefficients the *literal* `ZMod p`; following the
-  T-02 note, dimension conditions are phrased via `Nat.card` — `H¹`/`H²` are `p`-torsion, so
+* Cohomology is `GQ2.ContCoh` (the continuous-cohomology API) with coefficients the *literal* `ZMod p`; following the
+  the continuous-cohomology API note, dimension conditions are phrased via `Nat.card` — `H¹`/`H²` are `p`-torsion, so
   finiteness forces `Nat.card = p ^ dim` (`IsDemushkin.card_H1_eq_pow`), and clause 2 becomes
   `Nat.card (H2 G (ZMod p)) = p`.  The **rank** is recovered as
   `demushkinRank p G := padicValNat p (Nat.card (H1 G (ZMod p)))`.
-* The cup form is T-04's `cup11` relative to the multiplication pairing
+* The cup form is the cup-product API's `cup11` relative to the multiplication pairing
   `AddMonoidHom.mul : ZMod p →+ ZMod p →+ ZMod p` (`trivialCupPairing`); non-degeneracy is
   stated **two-sidedly** (`nondegen_left`/`nondegen_right`) since graded-commutativity of
   `cup11` is not formalized — for `p = 2` the form is symmetric and the clauses coincide, and
   in the literature each implies the other by finite-dimensional linear algebra.
-* The trivial action enters as in T-02/T-13: the ambient `[DistribMulAction G (ZMod p)]`
+* The trivial action enters as in the continuous-cohomology API/the Kummer-class API: the ambient `[DistribMulAction G (ZMod p)]`
   instance is *constrained* by the structure field `smul_trivial`.  (For `p = 2` every action
   is trivial — `Aut(ℤ/2) = 1` — so this is no restriction there.)  By proof irrelevance,
   `trivialCupPairing p G h₁` and `trivialCupPairing p G h₂` are definitionally equal, so the
   non-degeneracy clauses can be consumed with any proof of triviality
   (`IsDemushkin.nondegen_left'`).
-* `isProP` is T-05's predicate; profiniteness of `G` is ambient, entering only through the
+* `isProP` is the maximal pro-p quotient API's predicate; profiniteness of `G` is ambient, entering only through the
   instances a caller supplies.
 
 ## Stress tests
@@ -52,11 +70,11 @@ is Demushkin of rank 3 with `q = 2` (NSW Thm 7.5.11(ii); to be stated at T-08/T-
   has `H² = 0`, so clause 2 fails (`Nat.card H² = 1 ≠ p`); free pro-`p` groups are the
   archetypal non-Demushkin groups (plan B3a: "`H² = 0`, pick cheap ones").
 * The plan's `H¹(G,𝔽₂) ≃ ContinuousMonoidHom G 𝔽₂` sanity check is delivered wrapper-free, as
-  in T-02: `ContCoh.H1equivZ1OfTrivial` composed with the explicit evaluation equivalence
+  in the continuous-cohomology API: `ContCoh.H1equivZ1OfTrivial` composed with the explicit evaluation equivalence
   `z1CyclicTwoEquiv` (avoiding `Multiplicative`-wrapped hom-types).
 
-Consumers: T-08 (`IsDemushkin (maxProPQuotient 2 AbsGalQ2)` strengthening), T-10 (rank-3
-`q = 2` classification; use `demushkinRank_eq_of_card`), T-11 (the orientation character pairs
+Consumers: the dyadic-presentation interface (`IsDemushkin (maxProPQuotient 2 AbsGalQ2)` strengthening), the Demushkin classification (rank-3
+`q = 2` classification; use `demushkinRank_eq_of_card`), the orientation interface (the orientation character pairs
 against `trivialCupPairing`).
 -/
 
@@ -84,7 +102,7 @@ be trivial by the field `smul_trivial`. -/
 structure IsDemushkin : Prop where
   /-- The coefficient action is the trivial one (the literature's `𝔽_p`). -/
   smul_trivial : ∀ (g : G) (m : ZMod p), g • m = m
-  /-- `G` is pro-`p` (T-05's `IsProP`). -/
+  /-- `G` is pro-`p` (the maximal pro-p quotient API's `IsProP`). -/
   isProP : IsProP p G
   /-- Clause 1: `dim H¹ < ∞`. -/
   finiteH1 : Finite (H1 G (ZMod p))
@@ -161,7 +179,7 @@ theorem demushkinRank_eq_of_card [Fact p.Prime] {n : ℕ}
 
 end Api
 
-/-! ## The `q`-invariant  (ticket T-10, B3b)
+/-! ## The `q`-invariant
 
 Labute's second invariant: for a Demushkin group, `G^{ab} ≅ ℤ_p^{n−1} × ℤ/q` with `q = p^s`
 (or `q = 0`, torsion-free), and the classification (his Théorème 8) is by `(n, q)` — plus, in
@@ -171,9 +189,9 @@ right notion for profinite `G`) and read `q` off as the number of torsion elemen
 (`#(ℤ/q) = q` when the torsion is finite cyclic; junk value otherwise, in particular the
 sensible reading of "`q = 0`" is not encoded — documented deviation).
 
-**B3b is deliberately *not* an axiom** (`docs/formalization-plan.md` §B3): stating the abstract
+**B3b is deliberately *not* an axiom** (`docs/orchestration/formalization-plan.md` §B3): stating the abstract
 rank-3 `q = 2` classification honestly requires Labute's *canonical* character (his Prop. 6
-dualizing characterization — route (i) of T-11, deferred); quantifying over an arbitrary
+dualizing characterization — route (i) of the orientation interface, deferred); quantifying over an arbitrary
 continuous character with the right image would be a different (and possibly false) statement.
 At the field level the classification instance the paper uses **is** axiom B4
 (`G_{ℚ₂}(2) ≅ D₀`), whose orientation normalization is axiom B3c (`dyadicOrientation`,
@@ -270,11 +288,11 @@ noncomputable def z1CyclicTwoEquiv : Z1 (DihedralGroup 1) (ZMod 2) ≃+ ZMod 2 w
   map_add' φ ψ := rfl
 
 /-- `H¹(ℤ/2, 𝔽₂) ≃+ 𝔽₂` (the plan's "`H¹ ≃` continuous homs" check, in the wrapper-free
-T-02 form). -/
+the continuous-cohomology API form). -/
 noncomputable def h1CyclicTwoEquiv : H1 (DihedralGroup 1) (ZMod 2) ≃+ ZMod 2 :=
   (H1equivZ1OfTrivial htrivC2).trans z1CyclicTwoEquiv
 
-theorem card_H1_cyclicTwo : Nat.card (H1 (DihedralGroup 1) (ZMod 2)) = 2 := by
+private theorem card_H1_cyclicTwo : Nat.card (H1 (DihedralGroup 1) (ZMod 2)) = 2 := by
   rw [Nat.card_congr h1CyclicTwoEquiv.toEquiv, Nat.card_zmod]
 
 /-- The evaluation functional `f ↦ f(1,1) + f(σ,σ)` on 2-cocycles. -/
@@ -371,7 +389,7 @@ noncomputable def h2CyclicTwoEquiv : H2 (DihedralGroup 1) (ZMod 2) ≃+ ZMod 2 :
   AddEquiv.ofBijective h2CyclicTwoEval
     ⟨h2CyclicTwoEval_injective, h2CyclicTwoEval_surjective⟩
 
-theorem card_H2_cyclicTwo : Nat.card (H2 (DihedralGroup 1) (ZMod 2)) = 2 := by
+private theorem card_H2_cyclicTwo : Nat.card (H2 (DihedralGroup 1) (ZMod 2)) = 2 := by
   rw [Nat.card_congr h2CyclicTwoEquiv.toEquiv, Nat.card_zmod]
 
 /-- **The generator's cup square is the product cocycle** `w(g,h) = c₀(g)·c₀(h)`
@@ -433,7 +451,7 @@ theorem isDemushkin_cyclicTwo : IsDemushkin 2 (DihedralGroup 1) where
 theorem demushkinRank_cyclicTwo : demushkinRank 2 (DihedralGroup 1) = 1 :=
   demushkinRank_eq_of_card (by rw [card_H1_cyclicTwo, pow_one])
 
-/-- **`ℤ/2` has `q`-invariant 2** (T-10 stress): it is abelian and finite, so
+/-- **`ℤ/2` has `q`-invariant 2** (the Demushkin classification stress): it is abelian and finite, so
 `G^{ab} = G = ℤ/2` and every element is torsion — matching Labute's `q(⟨x | x²⟩) = 2`. -/
 theorem demushkinQ_cyclicTwo : demushkinQ (DihedralGroup 1) = 2 := by
   -- the closed commutator is trivial (the group is abelian and discrete)
@@ -496,7 +514,7 @@ private lemma b2_eq_top_punit :
   -- the residual goal `φ.1 (1,1) = φ.1 q` is closed by `rw`'s `rfl` check: `PUnit` eta makes
   -- `q` definitionally `(1,1)`
 
-theorem subsingleton_H2_punit : Subsingleton (H2 PUnit (ZMod p)) := by
+private theorem subsingleton_H2_punit : Subsingleton (H2 PUnit (ZMod p)) := by
   show Subsingleton
     (Z2 PUnit (ZMod p) ⧸ (B2 PUnit (ZMod p)).addSubgroupOf (Z2 PUnit (ZMod p)))
   rw [b2_eq_top_punit]

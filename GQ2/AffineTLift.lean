@@ -1,9 +1,14 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.FrameEnrichment
 import GQ2.CentralObstruction
 import GQ2.SectionSix
 
 /-!
-# §8 zero-edge engines: Lemma 8.7 (affine `T`-lifting) + Prop 8.8, target side  (P-16d4)
+# §8 zero-edge engines: Lemma 8.7 (affine `T`-lifting) + Prop 8.8, target side
 
 When the radical edge of the scalar cover `p_λ` vanishes — the `∃ N`-branch of the (140)
 case split, i.e. `¬ D.NoDescent` — the paper (pp. 40–43) runs three steps to evaluate the
@@ -11,24 +16,24 @@ constrained Gauss sum.  This file provides the **source-generic, target-side** h
 
 1. **`descended_splitting`** (Lemma 6.21 application): the descent datum `N` makes
    `Q = Bg/T` a split extension of `C₀` by `V`, i.e. `∃ σ : C₀ →* Q` sectioning `piQbar`.
-   Consumes the `κ⁰_q` datum (the `Enrichment` fields of P-16d1) exactly as the paper's
+   Consumes the `κ⁰_q` datum (the `Enrichment` fields of the Prop. 8.9 assembly) exactly as the paper's
    "fix the base determinant class" clause requires.
 2. **`lemma_8_7_count`** (Lemma 8.7, (131)/(132), count form): the central `M`-lifts over a
    lower map `ρ` fibre over their `V`-coordinates with constant multiplicity `#Z¹_{Γ,ρ}(T)`.
-   The torsor structure is the P-16a `twist` involution; `Central`-invariance under a
+   The torsor structure is the central-obstruction framework `twist` involution; `Central`-invariance under a
    `T`-twist is `ob_twist` with the **vanishing** variation class (the `N`-complement has
    `edge ≡ 0`).
 3. **`prop_8_8_target`** (Prop 8.8, (133)/(134), target side): the edge-killing shear, an
    instance of the proved `lemma_6_22`, produces the total scalar phase `DeltaScalar`.
    The Γ-level completed-square (135) — which consumes cor. 5.17 — is **out of scope**
-   (P-16d6, behind the P-13f firewall).
+   (the Prop. 8.9 assembly, behind the Prop. 5.15 proof firewall).
 
 Plus **`exists_polar_inverse`**, the finite-linear-algebra supplier of the shift vectors
 `a_{χ,κ}` of (133) (cf. `lemma_8_5`'s `a`-data-with-spec).
 
-Design decisions D1–D6 and the full work order: `docs/p16d4-plan.md`.  Deviation-ledger
+Design decisions D1–D6 and the full work order: `docs/orchestration/p16d4-plan.md`.  Deviation-ledger
 entries D1 (cocycle-level 8.7) and D3 (6.22-normalized `Δ`): `docs/section8-extraction.md`.
-Everything is finite-group / generic-`Γ`; **no B6/B7, no P-13f material**; all std-3.
+Everything is finite-group / generic-`Γ`; **no B6/B7, no the Prop. 5.15 proof material**; all std-3.
 -/
 
 namespace GQ2
@@ -70,9 +75,9 @@ theorem pN_mem_T (n : ↥Dsc.N) : D.C.p n.1 ∈ D.T := by
 noncomputable def pN : ↥Dsc.N →* ↥D.T :=
   (D.C.p.comp Dsc.N.subtype).codRestrict D.T (fun n => pN_mem_T Dsc n)
 
-@[simp] theorem pN_coe (n : ↥Dsc.N) : ((pN Dsc n : ↥D.T) : Bg) = D.C.p n.1 := rfl
+@[simp] private theorem pN_coe (n : ↥Dsc.N) : ((pN Dsc n : ↥D.T) : Bg) = D.C.p n.1 := rfl
 
-theorem pN_injective : Function.Injective (pN Dsc) := by
+private theorem pN_injective : Function.Injective (pN Dsc) := by
   rw [injective_iff_map_eq_one]
   intro n hn
   have hker : n.1 ∈ D.C.p.ker := by
@@ -81,7 +86,7 @@ theorem pN_injective : Function.Injective (pN Dsc) := by
   · exact Subtype.ext h1
   · exact absurd (hz ▸ n.2) Dsc.hNz
 
-theorem pN_surjective : Function.Surjective (pN Dsc) := by
+private theorem pN_surjective : Function.Surjective (pN Dsc) := by
   intro t
   have ht : t.1 ∈ Dsc.N.map D.C.p := by rw [Dsc.hNT]; exact t.2
   obtain ⟨n, hnN, hn⟩ := Subgroup.mem_map.mp ht
@@ -95,10 +100,10 @@ noncomputable def eN : ↥Dsc.N ≃* ↥D.T :=
 noncomputable def sectN : ↥D.T →* D.C.cover :=
   Dsc.N.subtype.comp (eN Dsc).symm.toMonoidHom
 
-theorem sectN_mem (t : ↥D.T) : sectN Dsc t ∈ Dsc.N :=
+private theorem sectN_mem (t : ↥D.T) : sectN Dsc t ∈ Dsc.N :=
   ((eN Dsc).symm t).2
 
-@[simp] theorem sectN_sect (t : ↥D.T) : D.C.p (sectN Dsc t) = t.1 := by
+@[simp] private theorem sectN_sect (t : ↥D.T) : D.C.p (sectN Dsc t) = t.1 := by
   have h : pN Dsc ((eN Dsc).symm t) = t := (eN Dsc).apply_symm_apply t
   simpa [sectN, pN] using congrArg Subtype.val h
 
@@ -144,7 +149,7 @@ the descent iso `descend : M ↠ V` gives the inclusion `iV : V ↪ Q` character
 
 instance instNormalT (D : RadicalCoverData Bg) : D.T.Normal := D.hT
 
-/-- **The descended `κ⁰_q` datum** for the zero-edge regime (the P-16d1 `Enrichment` fields at
+/-- **The descended `κ⁰_q` datum** for the zero-edge regime (the Prop. 8.9 assembly `Enrichment` fields at
 a fixed nonzero `λ`, in the source-generic `RadicalCoverData` vocabulary).  The `C`-stage
 group `C₀` (with `piC₀ : Bg ↠ C₀`, `ker = M`), the descended module `V = M/T` with its
 `C₀`-action and the descent surjection `descend : M ↠ V`, the descended nonsingular form
@@ -202,7 +207,7 @@ noncomputable def piQbar : (Bg ⧸ D.T) →* DD.C0 :=
 @[simp] theorem piQbar_mk (b : Bg) : piQbar DD (piT (D := D) b) = DD.piC0 b :=
   QuotientGroup.lift_mk' _ _ b
 
-theorem piQbar_surj : Function.Surjective (piQbar DD) := by
+private theorem piQbar_surj : Function.Surjective (piQbar DD) := by
   intro c
   obtain ⟨b, rfl⟩ := DD.hpiC0 c
   exact ⟨piT (D := D) b, piQbar_mk DD b⟩
@@ -316,14 +321,14 @@ theorem descP_surj : Function.Surjective (descP Dsc) := by
 /-- The central involution `z̄ = mk z` of the descended cover. -/
 noncomputable def zbar : covQ Dsc := QuotientGroup.mk' Dsc.N D.C.z
 
-theorem zbar_ne_one : zbar Dsc ≠ 1 := by
+private theorem zbar_ne_one : zbar Dsc ≠ 1 := by
   rw [zbar, QuotientGroup.mk'_apply, Ne, QuotientGroup.eq_one_iff]
   exact Dsc.hNz
 
 theorem zbar_sq : zbar Dsc * zbar Dsc = 1 := by
   rw [zbar, ← map_mul, D.C.z_sq, map_one]
 
-theorem zbar_central (x : covQ Dsc) : zbar Dsc * x = x * zbar Dsc := by
+private theorem zbar_central (x : covQ Dsc) : zbar Dsc * x = x * zbar Dsc := by
   obtain ⟨w, rfl⟩ := QuotientGroup.mk'_surjective Dsc.N x
   rw [zbar, ← map_mul, ← map_mul, D.C.central]
 
@@ -443,7 +448,7 @@ end Cover
 /-! ## `descended_splitting`: the Lemma 6.21 application
 
 With `ξ` in hand, the extension `1 → V → Q → C₀ → 1` splits.  `hξq` reads the fibre square
-map of `ξ` off `q̄` (via `D.hq`/`hqbar`); `lemma_6_21` (P-15i, proved) then delivers the
+map of `ξ` off `q̄` (via `D.hq`/`hqbar`); `lemma_6_21` (the Lemma 6.21 proof, proved) then delivers the
 group-theoretic section `σ : C₀ →* Q`. -/
 
 section Splitting
@@ -487,7 +492,7 @@ theorem xi_diag (v : DD.Vmod) :
     DD.hqbar ⟨D.C.p x, hpxM⟩, hdesc_eq, toAdd_ofAdd]
 
 include Dsc in
-/-- **`descended_splitting`** (P-16d4, 2.2): in the zero-edge regime the extension
+/-- **`descended_splitting`** (the Prop. 8.9 assembly, 2.2): in the zero-edge regime the extension
 `1 → V → Q → C₀ → 1` splits — `∃ σ : C₀ →* Q` sectioning `piQbar`.  This is Lemma 6.21 at the
 descended data, the paper's "`B/T ≅ V ⋊ C`".  d6 provides `DD`/`Dsc` from the `Enrichment`. -/
 theorem descended_splitting :
@@ -504,7 +509,7 @@ The completed-square identity (135), C-level half.  Given an **edge-killing shea
 (`B_q̄(a c, ·) = γ c`, i.e. `hkill`), the general determinant class `κ⁰ + Γ_γ + inf δ`
 shears to `κ⁰ + inf(Δ)` up to coboundary, where `Δ = δ + Θ⁰_q̄(a) + (γ ⌣ a)` is the total
 scalar phase.  Direct instance of the proved `lemma_6_22` with the `γ + B♭a = 0` collapse.
-The Γ-level (135) (which pulls this back along cor. 5.17) is d6, behind the P-13f firewall. -/
+The Γ-level (135) (which pulls this back along cor. 5.17) is d6, behind the Prop. 5.15 proof firewall. -/
 
 section Phase
 
@@ -520,7 +525,7 @@ noncomputable def DeltaScalar (dat : FactorSet C V) (γ : C → V →+ ZMod 2)
   fun cd => δ cd + thetaPhase dat a cd + gammaCupA γ a cd
 
 omit [Finite C] [Finite V] in
-/-- **Prop 8.8, target side** (P-16d4, 2.6): the edge-killing shear collapses the general
+/-- **Prop 8.8, target side** (the Prop. 8.9 assembly, 2.6): the edge-killing shear collapses the general
 determinant class to `κ⁰ + inf Δ` up to an explicit coboundary. -/
 theorem prop_8_8_target (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
     (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
@@ -559,7 +564,7 @@ section Polar
 
 variable {V : Type} [AddCommGroup V] [Module (ZMod 2) V] [Finite V]
 
-/-- **`exists_polar_inverse`** (P-16d4, 2.5): for nonsingular `q` on a finite `𝔽₂`-space,
+/-- **`exists_polar_inverse`** (the Prop. 8.9 assembly, 2.5): for nonsingular `q` on a finite `𝔽₂`-space,
 every functional `φ` is `B_q(a, ·)` for some `a`. -/
 theorem exists_polar_inverse (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
     (φ : Module.Dual (ZMod 2) V) : ∃ a : V, ∀ v : V, polar q a v = φ v := by
@@ -595,7 +600,7 @@ In the zero-edge regime the `N`-complement has `edge ≡ 0`, so the (129) variat
 every `T`-cocycle vanishes.  Hence twisting by a `T`-cocycle preserves the central relation
 (`central_twist_iff`), and the fibres of the `T`-reduction map on `M`-lifts are free
 `T`-cocycle torsors on which `Central` is constant.  This is the multiplicity `μ = #Z¹(T)`
-of Lemma 8.7 (131)/(132) — the `V`-coordinate factorization.  The Γ-machinery is P-16a's
+of Lemma 8.7 (131)/(132) — the `V`-coordinate factorization.  The Γ-machinery is the central-obstruction framework's
 `twist`/`ob`/`central_iff_ob_eq_zero`, reused verbatim. -/
 
 section Count
@@ -614,7 +619,7 @@ theorem edgeQ_zero (Dsc : Descent D) (c : Bg ⧸ D.M) (t : ↥D.T) :
   edge_zero Dsc (Quotient.out c) t
 
 omit [ContinuousSMul Γ (ZMod 2)] in
-/-- **`central_twist_iff`** (P-16d4, 2.4b): in the zero-edge regime, twisting an `M`-lift by
+/-- **`central_twist_iff`** (the Prop. 8.9 assembly, 2.4b): in the zero-edge regime, twisting an `M`-lift by
 a `T`-cocycle preserves the central relation — the (129) variation class is zero because the
 normal `N`-complement has vanishing edge.  This is what makes `Central` constant on the
 `T`-cocycle torsors. -/
@@ -645,7 +650,7 @@ theorem tcocycle_ext {u v : TCocycle D ρ} (h : u.u = v.u) : u = v := by
   | mk uu um uc ucr => cases v with
     | mk vu vm vc vcr => simp only [] at h; subst h; rfl
 
-/-- **The `T`-cocycle torsor** (P-16d4, 2.4a): fixing an `M`-lift `f₀`, the fibre of `red_T`
+/-- **The `T`-cocycle torsor** (the Prop. 8.9 assembly, 2.4a): fixing an `M`-lift `f₀`, the fibre of `red_T`
 through `f₀` is a torsor under `Z¹_{Γ,ρ}(T)` — every `M`-lift with the same `T`-reduction is a
 unique `T`-twist of `f₀`.  (Combined with `central_twist_iff`, this is the constant `μ`
 multiplicity of (132).) -/
@@ -703,7 +708,7 @@ noncomputable def tcocycle_torsor_equiv (f₀ : MLifts D ρ) :
     group
 
 omit [ContinuousSMul Γ (ZMod 2)] in
-/-- **Lemma 8.7, count form** (P-16d4, 2.4c): the central `M`-lifts sharing the `T`-reduction
+/-- **Lemma 8.7, count form** (the Prop. 8.9 assembly, 2.4c): the central `M`-lifts sharing the `T`-reduction
 of a fixed central lift `f₀` number exactly `#Z¹_{Γ,ρ}(T)` — the multiplicity `μ` of (132),
 constant over the `V`-coordinate.  (`Central` is automatic on the torsor once `f₀` is central,
 by `central_twist_iff`.)  d6 sums this over the liftable `V`-coordinates to reach `zBC`. -/
@@ -724,12 +729,12 @@ theorem lemma_8_7_count (Dsc : Descent D)
 
 end Count
 
-/-! ## The phase covers: `centralCoverOfCocycle`  (P-16d5)
+/-! ## The phase covers: `centralCoverOfCocycle`
 
 The twisted product `𝔽₂ ×_δ C₀` of a **normalized** `𝔽₂`-valued 2-cocycle `δ` on a finite
 group `C₀` — a central double cover of `C₀`.  This is the (133)/(134) phase-cover
 constructor: d6's `prop_8_9` phase family is `ζ ↦ centralCoverOfCocycle (Δ_{χ,κ})`, with the
-scalar `Δ` produced by `prop_8_8_target`/`DeltaScalar`.  Multiplicative analog of P-15i's
+scalar `Δ` produced by `prop_8_8_target`/`DeltaScalar`.  Multiplicative analog of the Lemma 6.21 proof's
 additive `Transgression.Twisted`. -/
 
 /-- Carrier of the twisted product `𝔽₂ ×_δ C₀` (`δ` a phantom parameter). -/
@@ -756,7 +761,7 @@ private def equivProd : TwistCov δ ≃ ZMod 2 × C0 where
 
 end TwistCov
 
-/-- **The phase cover** (P-16d5): the central double cover `𝔽₂ ×_δ C₀ ↠ C₀` of a normalized
+/-- **The phase cover** (the Prop. 8.9 assembly): the central double cover `𝔽₂ ×_δ C₀ ↠ C₀` of a normalized
 `𝔽₂`-2-cocycle `δ` — multiplication `(s,c)(t,d) = (s+t+δ(c,d), cd)`, kernel `⟨z⟩` with
 `z = (1,1)`.  d6 instantiates `δ := DeltaScalar …` (the (134) total phase). -/
 noncomputable def centralCoverOfCocycle {C0 : Type} [Group C0] [Finite C0]
@@ -826,7 +831,7 @@ noncomputable def centralCoverOfCocycle {C0 : Type} [Group C0] [Finite C0]
         exact hpc.symm
     }
 
-/-- **The phase family** (P-16d5): the `prop_8_9`-shaped phase-cover family
+/-- **The phase family** (the Prop. 8.9 assembly): the `prop_8_9`-shaped phase-cover family
 `DT → CentralCover C₀` from a family of normalized 2-cocycles.  d6 supplies
 `Δ ζ := DeltaScalar …` (the (134) total phase `Δ_{χ,κ}`), giving `prop_8_9`'s `phase`
 component directly; the shared `(μ, G⁰, DT)` are `lemma_8_7_count`'s `#Z¹(T)`, `gaussSum`
@@ -838,7 +843,7 @@ noncomputable def phaseFamily {C0 : Type} [Group C0] [Finite C0] {DT : Type}
     DT → CentralCover C0 :=
   fun ζ => centralCoverOfCocycle (Δ ζ) (hcoc ζ) (hl ζ) (hr ζ)
 
-/-- **The canonical section of the twisted-product cover** (P-16d6c2 export): the phase cover
+/-- **The canonical section of the twisted-product cover** (the Prop. 8.9 assembly export): the phase cover
 `𝔽₂ ×_δ C₀` admits a normalized set-section `s` with multiplication defect exactly `δ`
 (`s c · s d = z^{δ(c,d)} · s(cd)`).  This is the (only) internals fact the phase-obstruction
 layer needs: a lift of `ρ` through the cover exists iff `ρ^*δ` is a continuous coboundary

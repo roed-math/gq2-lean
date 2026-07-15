@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.AdmissibleLimit
 import GQ2.AppendixB
 import GQ2.BoundaryFrame
@@ -13,7 +18,7 @@ import GQ2.SectionSeven
 
 The sign calculus over `𝔽₂` and the two multiplied-out integer identities it powers:
 **Lemma 8.4** (Fourier inversion, display (125)) and **Lemma 8.5** (the constrained
-quadratic Gauss transform, display (126)).  Split out of `GQ2.SectionEight` (wave 38a).
+quadratic Gauss transform, display (126)).
 -/
 
 open scoped Pointwise

@@ -1,11 +1,17 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.GaussZ.Final
 import GQ2.GaussZ.CoordGammaA
 import GQ2.Block.HeadDat
 
 /-!
-# P-16d6e4aA-P4c — the local `GaussZResidue` twins at the head-inflated enrichment
+# The local `GaussZResidue` twins at the head-inflated enrichment
 
-The P4 reshape's local side (`docs/p16d6e4aA-p4-tame-package.md` §3): the two
+The local side of the head-inflation reshape
+(`docs/orchestration/p16d6e4aA-p4-tame-package.md` §3): the two
 `gaussZResidue_local_*` twins of `GQ2/GaussZFinal.lean` replayed at
 `En := blockEnrichmentD` — **without the refuted per-lift `hpack`**.  For an arbitrary
 boundary lift `ρ` the tame factorization is recovered at the faithful head quotient:

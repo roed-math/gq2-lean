@@ -1,8 +1,13 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.RadicalEdge.Bridge
 import GQ2.FiniteGroupLemmas
 
 /-!
-# P-17c: the concrete recursion frame of a §7 block (`blockFrame` implementation)
+# The concrete recursion frame of a §7 block (`blockFrame` implementation)
 
 Constructs the `SectionEight.RecursionFrame T Blk` of the paper's §9 induction from a marked
 target `T` and a §7 minimal block `Blk` on `T.LY`.  The `B`-stage is `Y/R` and the `C`-stage is
@@ -12,7 +17,7 @@ The scalar-character index `D_R` is the subtype of `Y`-normal index-≤2 subgrou
 nonzero `λ` gives the scalar central cover `Y/λ ↠ Y/R` with central generator the class of an
 `r₀ ∈ R ∖ λ` (centrality: `R/λ` is an order-2 normal subgroup of `Y/λ`, hence central).
 
-This is the implementation half of `GQ2.SectionNine.blockFrame` (P-17c); `SectionNine.blockFrame`
+This is the implementation half of `GQ2.SectionNine.blockFrame` (the §9 induction); `SectionNine.blockFrame`
 delegates to `blockFrameImpl`.
 -/
 
@@ -24,7 +29,7 @@ variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finit
   [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
 variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
 
-/-- **The concrete recursion frame of a §7 block** (P-17c). -/
+/-- **The concrete recursion frame of a §7 block** (the §9 induction). -/
 noncomputable def blockFrameImpl (T : MarkedTarget H E Y) (Blk : MinimalBlock T.LY)
     (hE2 : ∀ e : E, e ^ 2 = 1) : RecursionFrame T Blk := by
   haveI hRn : Blk.frattiniK.Normal := frattiniLike_normal Blk.K Blk.hK

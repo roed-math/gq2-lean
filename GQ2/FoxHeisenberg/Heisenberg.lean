@@ -1,4 +1,13 @@
-import GQ2.FoxHeisenberg.Basic
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.FoxHeisenberg.Basic
+
+@[expose] public section
 
 /-!
 # §5.2 definitions: the Heisenberg lift `H(A) ⋊ C` and the finite Stokes formula
@@ -96,7 +105,7 @@ def gHom : HeisLift A C →* C where
   map_one' := rfl
   map_mul' _ _ := rfl
 
-@[simp] theorem gHom_apply (p : HeisLift A C) : gHom p = p.g := rfl
+@[simp] private theorem gHom_apply (p : HeisLift A C) : gHom p = p.g := rfl
 
 /-- The central element `⟨0, 0, w, 1⟩` (the paper's `z(w)`).  It is genuinely central. -/
 noncomputable def zc (w : ZMod 2) : HeisLift A C := ⟨0, 0, w, 1⟩
@@ -107,10 +116,10 @@ omit [DistribMulAction C A] in
 omit [DistribMulAction C A] in
 @[simp] theorem zc_zero : zc (A := A) (C := C) (0 : ZMod 2) = 1 := rfl
 
-theorem mul_zc (p : HeisLift A C) (w : ZMod 2) : p * zc w = ⟨p.a, p.l, p.z + w, p.g⟩ := by
+private theorem mul_zc (p : HeisLift A C) (w : ZMod 2) : p * zc w = ⟨p.a, p.l, p.z + w, p.g⟩ := by
   ext <;> simp [zc]
 
-@[simp] theorem mul_zc_z (p : HeisLift A C) (w : ZMod 2) : (p * zc w).z = p.z + w := by
+@[simp] private theorem mul_zc_z (p : HeisLift A C) (w : ZMod 2) : (p * zc w).z = p.z + w := by
   rw [mul_zc]
 
 /-- `zc` is additive in its argument: `z(u+v) = z(u)·z(v)`. -/
@@ -127,7 +136,7 @@ noncomputable def zcHom : Multiplicative (ZMod 2) →* HeisLift A C where
   map_one' := rfl
   map_mul' _ _ := zc_add _ _
 
-@[simp] theorem zcHom_apply (w : Multiplicative (ZMod 2)) :
+@[simp] private theorem zcHom_apply (w : Multiplicative (ZMod 2)) :
     zcHom (A := A) (C := C) w = zc (Multiplicative.toAdd w) := rfl
 
 /-- The image of `zcHom` is central. -/
@@ -356,7 +365,7 @@ noncomputable def conjPa (a : A) : HeisLift A C →* HeisLift A C where
   map_one' := by group
   map_mul' q q' := by group
 
-@[simp] theorem conjPa_apply (a : A) (q : HeisLift A C) :
+@[simp] private theorem conjPa_apply (a : A) (q : HeisLift A C) :
     conjPa a q = (⟨a, 0, 0, 1⟩ : HeisLift A C)⁻¹ * q * ⟨a, 0, 0, 1⟩ := rfl
 
 /-- The `z`-coordinate of `p_a⁻¹ · q · p_a` when `q` sits in the `g`-slice (`q.a = 0`, `q.z = 0`):
@@ -456,7 +465,7 @@ noncomputable def conjQlam (lam : ElemDual A) : HeisLift A C →* HeisLift A C w
   map_one' := by group
   map_mul' q q' := by group
 
-@[simp] theorem conjQlam_apply (lam : ElemDual A) (q : HeisLift A C) :
+@[simp] private theorem conjQlam_apply (lam : ElemDual A) (q : HeisLift A C) :
     conjQlam lam q = (⟨0, lam, 0, 1⟩ : HeisLift A C)⁻¹ * q * ⟨0, lam, 0, 1⟩ := rfl
 
 /-- The `z`-coordinate of `q_λ⁻¹ · q · q_λ` when `q` sits in the `g`-slice (`q.l = 0`, `q.z = 0`):

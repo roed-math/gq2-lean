@@ -1,12 +1,17 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.BoundaryConstruction
 import GQ2.LocalMarked
 import GQ2.Prop32
 import GQ2.TameTwoQuotient
 
 /-!
-# `prop_3_14 : Nonempty BoundaryMaps` — the eq. (27) boundary data  (ticket P-25)
+# `prop_3_14 : Nonempty BoundaryMaps` — the eq. (27) boundary data
 
-The third and last of the orphaned `SectionThreeMarked.lean` obligations (now fully proved): the
+This file constructs the third `SectionThreeMarked.lean` ingredient: the
 full 21-field `BoundaryMaps`
 bundle (`GQ2/BoundaryFrame.lean`), i.e. tame + maximal-pro-2 quotient maps for **both** sources
 `Γ_A` and `G_{ℚ₂}`, `ν`-compatible, jointly surjective onto the fibred boundary
@@ -27,10 +32,10 @@ Everything reduces to a small kit:
 With these, the kernel hypothesis of `fiberProductExists` (`h(ker f) ⊇ ker β`) becomes
 `ker ν₂ ⊆ pro2X(ker tameX)`, discharged uniformly by `hker_uniform`.
 
-* `Γ_A` side: `tameA = φ_A` (P-09), `pro2A = φ_Π` (P-25 `prop_3_10_gammaA`), `compatA` by density
+* `Γ_A` side: `tameA = φ_A` (Prop. 3.2), `pro2A = φ_Π` (the marked pro-2 isomorphisms `prop_3_10_gammaA`), `compatA` by density
   on the four marked generators.
 * `G_{ℚ₂}` side: `tameF` from `prop_3_2_local` (B10 `LocalTameQuotient` + Lemma 3.3 maximality),
-  `pro2F` from `prop_3_10_local_marked` (P-25) with `R = GQ2.localReciprocity` (B5).
+  `pro2F` from `prop_3_10_local_marked` (the marked pro-2 isomorphisms) with `R = GQ2.localReciprocity` (B5).
 
 ## The one arithmetic ingredient: `compatF` (`tame_reciprocity`)
 
@@ -40,7 +45,7 @@ With these, the kernel hypothesis of `fiberProductExists` (`h(ker f) ⊇ ker β`
 The B10 tame-quotient bundle carries **no** orientation of its `σ` against Frobenius (its `equiv`
 is an unoriented iso `G/W ≅ T_tame`), and B5's `ν_ur` is defined via reciprocity, so this is
 genuine arithmetic content (wild inertia is unramified-trivial).  It was once left as the
-file's single `sorry` (an axiom was considered but never needed): the P-25b reduction kit below
+file's single `sorry` (an axiom was considered but never needed): the boundary-witness reduction kit below
 proves `tame_reciprocity` as a theorem in this file, from the two atomic reciprocity values.
 -/
 
@@ -121,7 +126,7 @@ theorem phiA_surjective : Function.Surjective phiA := by
   obtain ⟨g, rfl⟩ := quotientMk_surjective wildPartB x
   exact ⟨g, hx⟩
 
-/-- `φ_Π : Γ_A ↠ Π` is surjective (P-25 `prop_3_10_gammaA`, via `maxAEquiv`). -/
+/-- `φ_Π : Γ_A ↠ Π` is surjective (the marked pro-2 isomorphisms `prop_3_10_gammaA`, via `maxAEquiv`). -/
 theorem phiP_surjective : Function.Surjective phiP := by
   intro p
   obtain ⟨x, hx⟩ := maxAEquiv.surjective p
@@ -144,7 +149,7 @@ theorem compatA_proved (g : GammaA) : GQ2.nuT (phiA g) = GQ2.nuTwo (phiP g) := b
   · show GQ2.nuT (phiA gammaX1) = GQ2.nuTwo (phiP gammaX1)
     rw [phiA_gammaX1, phiP_gammaX1, map_one, nuTwo_piX1]
 
-/-! ## Reciprocity-side reduction kit (P-25b): `tame_reciprocity ⟸` two atomic values
+/-! ## Reciprocity-side reduction kit: `tame_reciprocity ⟸` two atomic values
 
 Both `f₁ = ι∘ν_t∘tameF` and `ν_ur∘toAb` factor through `G_{ℚ₂}^{ab}` (abelian target `ℤ₂`); by
 `denseRange_recip` they agree iff they agree on `recip(ℚ₂ˣ)`.  Two continuous homs `ℚ₂ˣ → ℤ₂`
@@ -238,7 +243,7 @@ noncomputable def locTame : LocalTameQuotient :=
     maximal := tameData_maximal GQ2.tameQuotient.toTameQuotientData }
 
 
-/-- The chosen local pro-2 marked iso (P-25 `prop_3_10_local_marked`) at `R = localReciprocity`. -/
+/-- The chosen local pro-2 marked iso (the marked pro-2 isomorphisms `prop_3_10_local_marked`) at `R = localReciprocity`. -/
 noncomputable def locPro2 := prop_3_10_local_marked_proved (localReciprocity)
 
 /-- `tameF : G_{ℚ₂} ↠ T_tame`, the tame quotient map (composite `G ↠ G/W ≅ T_tame`). -/
@@ -255,11 +260,11 @@ noncomputable def pro2FHom : ContinuousMonoidHom AbsGalQ2 PiBd :=
     ContinuousMonoidHom (maxProPQuotient 2 AbsGalQ2) PiBd).comp (maxProPMk 2 AbsGalQ2)
 
 
-theorem tameFHom_surjective : Function.Surjective tameFHom := by
+private theorem tameFHom_surjective : Function.Surjective tameFHom := by
   haveI := locTame.normal
   exact locTame.equiv.surjective.comp (quotientMk_surjective locTame.W)
 
-theorem pro2FHom_surjective : Function.Surjective pro2FHom :=
+private theorem pro2FHom_surjective : Function.Surjective pro2FHom :=
   locPro2.choose_spec.2.choose.surjective.comp (quotientMk_surjective (proPKernel 2 AbsGalQ2))
 
 /-- `ker tameF = W`. -/
@@ -298,7 +303,7 @@ noncomputable def tameCharRaw : ContinuousMonoidHom AbsGalQ2 (Multiplicative ℤ
 noncomputable def tameChar : ContinuousMonoidHom AbsGalQ2ab (Multiplicative ℤ_[2]) :=
   abLiftG tameCharRaw
 
-@[simp] lemma tameChar_toAb (g : AbsGalQ2) :
+@[simp] private lemma tameChar_toAb (g : AbsGalQ2) :
     tameChar (toAb g) = locPro2.choose (GQ2.nuT (tameFHom g)) :=
   abLiftG_abMk tameCharRaw g
 
@@ -336,7 +341,7 @@ theorem tame_recip_unitNeg3 :
     GQ2.tameQuotient.nuT_recip_unit u g (by rw [hg', hemb])
   rw [← hg', tameChar_toAb, hval, map_one]
 
-/-- **Tame reciprocity** (P-25b reduction): `ι(ν_t(tameF g)) = ν_ur(toAb g)`.  Both sides factor
+/-- **Tame reciprocity** (the boundary-witness reduction reduction): `ι(ν_t(tameF g)) = ν_ur(toAb g)`.  Both sides factor
 through `G_{ℚ₂}^{ab}`; agree on the dense image of `recip` by `padic_hom_eq_of_gens`, whose two
 generator inputs are exactly the atoms `tame_recip_uniformizer` (F) and `tame_recip_unitNeg3`
 (U₋₃) matched against `nu_ur_recip_*`. -/

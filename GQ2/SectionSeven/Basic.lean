@@ -1,8 +1,14 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.Block.Module
 import GQ2.BoundaryFrame
 import GQ2.EvensKahn
 import GQ2.Prop32
 import GQ2.QuadraticFp2
+import Mathlib.GroupTheory.Abelianization.Finite
 
 /-!
 # §7 block structure and Lemma 7.1 (simple head)
@@ -98,12 +104,11 @@ theorem frattiniLike_normal (K : Subgroup Y) (hK : K.Normal) : (frattiniLike K).
 scalar, `V = P/S` a nontrivial simple `Y`-chief factor, and `K ◁ Y` minimal with `KS = P`. -/
 structure MinimalBlock (L : Subgroup Y) where
   /-- The marked kernel is normal (a `GQ2.MarkedTarget` guarantee, carried so the block is
-  self-contained).  [Field added in the P-15 pass, with `h2L`.] -/
+  self-contained). -/
   hL : L.Normal
   /-- The marked kernel is a 2-group — the paper's standing "marked normal **2**-subgroup"
-  hypothesis.  [Field added in the P-15 pass: caught by attempting `lemma_7_1_head`, which is
-  **false** without it (counterexample `Y = S₃`, `L = P = K = A₃`, `S = ⊥`: all other fields
-  hold but `Φ(A₃) = A₃ ≰ K ⊓ S`).  Deviation ledger updated.] -/
+  hypothesis.  It is necessary: without it, take `Y = S₃`, `L = P = K = A₃`, `S = ⊥`; all
+  other fields hold but `Φ(A₃) = A₃ ≰ K ⊓ S`. -/
   h2L : IsPGroup 2 L
   /-- The scalar socle `S`. -/
   S : Subgroup Y
@@ -136,7 +141,7 @@ def MinimalBlock.frattiniK (B : MinimalBlock L) : Subgroup Y := frattiniLike B.K
 
 /-- **Existence of the block** (§7 opening, "Choose …"): if the marked kernel `L` (a normal
 finite 2-group, `GQ2.MarkedTarget`'s `L_Y`) is not a scalar stack, a minimal block exists.
-[P-14 statement; proof P-15.] -/
+[the §§6–7 statement; proof the §§6–7 proof layer.] -/
 theorem exists_minimalBlock (hL : L.Normal) (h2 : IsPGroup 2 L)
     (h : ¬ IsScalarStack L) : Nonempty (MinimalBlock L) := by
   have : Finite (Subgroup Y) :=
@@ -303,7 +308,7 @@ private theorem subsingleton_of_sq_comm_closure_eq_top {Q : Type} [Group Q] [Fin
 `gen : K ⊔ S = P`, the exact sequence `0 → T₀ → M → V → 0` and the head identification
 `M/T₀ ≅ V` are then the second isomorphism theorem
 (`QuotientGroup.quotientInfEquivProdNormalQuotient`), which Mathlib supplies — so the inclusion
-is the §7-specific content.  [P-14 statement; proof P-15.] -/
+is the §7-specific content.  [the §§6–7 statement; proof the §§6–7 proof layer.] -/
 theorem lemma_7_1_head (B : MinimalBlock L) : B.frattiniK ≤ B.K ⊓ B.S := by
   refine le_inf (frattiniLike_le B.K) ?_
   -- the `Y`-normal candidate `(Φ(P) ⊔ S) ⊓ P` between `S` and `P`
@@ -383,7 +388,7 @@ theorem lemma_7_1_head (B : MinimalBlock L) : B.frattiniK ≤ B.K ⊓ B.S := by
 
 /-- **Lemma 7.1, radical clause**: `T₀ = (K ∩ S)·R` is the unique maximal `Y`-normal subgroup
 of `K` above `R` — i.e. `T₀ = rad_{𝔽₂[C]} M` and `M/T₀` is the unique simple head.
-[P-14 statement; proof P-15: the head clause collapses the right-hand side to `K ⊓ S`; the
+[the §§6–7 statement; proof the §§6–7 proof layer: the head clause collapses the right-hand side to `K ⊓ S`; the
 chief dichotomy on `X ⊔ S` then leaves two branches — `= P` dies by `K`'s minimality, `= S`
 pins `X = K ⊓ S` by `X`'s maximality (a strict inclusion would force `K ≤ S`, hence `P = S`).
 Stated after the head clause, which it consumes.] -/
@@ -423,7 +428,7 @@ theorem lemma_7_1_radical (B : MinimalBlock L)
 omit [Finite Y] in
 /-- **Lemma 7.1, dual-invariants clause**: `(M^∨)^C = 0` — `K` has no `Y`-normal subgroup of
 index 2 above `R` (a nonzero invariant functional on `M` would be its kernel).
-[P-14 statement; proof P-15 — chief-dichotomy on `X ⊔ S` + minimality; the `X ⊔ S = S` branch
+[the §§6–7 statement; proof the §§6–7 proof layer — chief-dichotomy on `X ⊔ S` + minimality; the `X ⊔ S = S` branch
 pins `|P/S| = 2`, whence the `Y`-action mod `S` is trivial, contradicting `nontrivial_action`.
 Finiteness-free.] -/
 theorem lemma_7_1_dual (B : MinimalBlock L) :

@@ -1,9 +1,14 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.KeystoneDelta
 
 /-!
-# P-16d6e: the generic (140) assembly
+# The generic (140) assembly
 
-The source-generic wiring from the keystone chain (P-16d6c) to the
+The source-generic wiring from the keystone chain (the Prop. 8.9 assembly) to the
 `RecursionInputs.phase140` field, per `(l, h)` in the zero-edge case:
 
 * **`Enrichment.descData`** — the `DescData (En.radData l h)` repackaging of the enrichment
@@ -11,7 +16,7 @@ The source-generic wiring from the keystone chain (P-16d6c) to the
 * **`descSigma`/`descSections`** — the chosen descended splitting (`descended_splitting`,
   Lemma 6.21) and normalized count-sections;
 * **`phaseChi`** — the per-`(l,h)` phase-cover family
-  `ζ ↦ centralCoverOfCocycle (Δ_{ζ,κ_λ})` from the landed `DeltaChi` data;
+  `ζ ↦ centralCoverOfCocycle (Δ_{ζ,κ_λ})` from the proved `DeltaChi` data;
 * **`rho0_descData_rhoPrime`** — the transported lower map's `C₀`-descent is the original
   `C`-lift (`rho0 ∘ rhoPrime = ρ.1.1`), which makes the master count's sign match
   `phaseSign` on the nose through `sign_iotaB_pullCoc_eq_lift_sign`;
@@ -78,7 +83,7 @@ noncomputable def descSections : CountSections (En.descData l h) (descSigma En l
   (countSections_exist (En.descData l h) (descSigma En l h Dsc)).some
 
 /-- **The per-`(l,h)` phase-cover family** (the paper's `ζ ↦ C_{Δ_{ζ,κ_λ}}`): the twisted
-product of the landed total scalar phase `Δ_ζ`, with the cocycle law and normalizations
+product of the proved total scalar phase `Δ_ζ`, with the cocycle law and normalizations
 from the keystone file. -/
 noncomputable def phaseChi (ζ : ↥(TCharC (En.radData l h))) : CentralCover RF.YC :=
   centralCoverOfCocycle
@@ -92,7 +97,7 @@ noncomputable def phaseChi (ζ : ↥(TCharC (En.radData l h))) : CentralCover RF
 
 omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
   [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
-/-- The phase index is nonempty: `0 < #(T^∨)^C` (the P-17i strengthening's supplier). -/
+/-- The phase index is nonempty: `0 < #(T^∨)^C` (the §9 induction strengthening's supplier). -/
 theorem card_TCharC_pos : 0 < Nat.card ↥(TCharC (En.radData l h)) := by
   haveI : Nonempty ↥(TCharC (En.radData l h)) := ⟨0⟩
   exact Nat.card_pos
@@ -132,10 +137,10 @@ variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
 variable (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
 variable (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR)
 
-/-- **The source-Gauss residue** (P-16d6e4): the exact `hGaussZ` input of
+/-- **The source-Gauss residue** (the Prop. 8.9 assembly): the exact `hGaussZ` input of
 `phase140_from_residues` — `∑ᶠ c : Z¹_{Γ,ρ'}(V), sign(Q⁰ c) = #V · G0` at every lower map.
-By P-16d6e4's layer (I) (`gaussZ_reduction`) this reduces to `∑_{Z¹⧸B¹} sign(Q̄⁰) = G0`, the
-(83)-evaluation `G0 = ∓2^m` (P-16d6e4a).  A named abbreviation so the `prop_8_9` ledger stays
+By the Prop. 8.9 assembly's layer (I) (`gaussZ_reduction`) this reduces to `∑_{Z¹⧸B¹} sign(Q̄⁰) = G0`, the
+(83)-evaluation `G0 = ∓2^m` (the Prop. 8.9 assembly).  A named abbreviation so the `prop_8_9` ledger stays
 readable. -/
 def GaussZResidue (G0 : ℤ) : Prop :=
   ∀ ρ : BoundaryLifts b F RF.TC,

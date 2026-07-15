@@ -1,11 +1,16 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.FrattiniNongen
 import GQ2.RadicalEdge.Data
 import GQ2.OrbitData
 
 /-!
-# §8 frame-enrichment, block layer  (P-16d1)
+# §8 frame-enrichment, block layer
 
-The **constructibility half** of the P-16d1 frame-enrichment layer: at the `B = Y/R` stage
+The **constructibility half** of the Prop. 8.9 assembly frame-enrichment layer: at the `B = Y/R` stage
 of the §8 recursion the scalar covers `p_λ` carry square-form data on `M_B = π_B(K)` with
 polar radical containing `T_B = π_B((K∩S)·R)` — a per-`λ` Lemma 8.6 datum
 (`RadicalCoverData`).  The abstract per-`λ` fields live on the recursion frame
@@ -39,7 +44,7 @@ theorem blockT_map_le_blockM_map (B : MinimalBlock L) {YB : Type} [Group YB]
     ((B.K ⊓ B.S) ⊔ B.frattiniK).map piB ≤ B.K.map piB :=
   Subgroup.map_mono (sup_le inf_le_left ((lemma_7_1_head B).trans inf_le_left))
 
-/-- **The `M_B`-level square form from the Prop 7.4 descent** (P-16d1): given the 7.4
+/-- **The `M_B`-level square form from the Prop 7.4 descent** (the Prop. 8.9 assembly): given the 7.4
 package for a `Y`-invariant additive `λ` on `R` — the descended `q̄` on `V = P/S` with
 `λ(k²) = q̄(k mod S)` — the assignment `q_M(π_B k) := λ(k²)` is well defined on
 `M_B = π_B(K)` and satisfies the value, polar-radical, and `T`-vanishing clauses of the

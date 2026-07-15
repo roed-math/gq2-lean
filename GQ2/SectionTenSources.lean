@@ -1,10 +1,15 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.SectionTen
 import GQ2.ThmFourTwo
 import GQ2.BoundaryMapsWitness
 import GQ2.TameOrientationWitness
 
 /-!
-# §10 — the per-source discharge of Lemma 10.1's hypotheses  (P-18d)
+# §10 — the per-source discharge of Lemma 10.1's hypotheses
 
 `SectionTen.card_contSurj_eq` (Lemma 10.1, counting form) is stated Γ-generically over the two
 hypotheses on a boundary map `b`:
@@ -12,7 +17,7 @@ hypotheses on a boundary map `b`:
 * `htame : Function.Surjective (tameCoord b)` — the tame coordinate `pr₁ ∘ b` is onto `Ttame`;
 * `hwild : IsProP 2 (tameCoord b).toMonoidHom.ker` — its kernel (the wild inertia) is pro-2.
 
-This file discharges both for the two real sources, so P-18e's `eq_154` can invoke
+This file discharges both for the two real sources, so `eq_154` can invoke
 `card_contSurj_eq` twice.  Since `tameCoord (B.bA) = B.tameA` and `tameCoord (B.bF) = B.tameF`
 (`bA_apply_coe`/`bF_apply_coe`):
 
@@ -21,7 +26,7 @@ This file discharges both for the two real sources, so P-18e's `eq_154` can invo
 * **`Γ_A` (A-side) — for the concrete `boundaryMapsWitness`**: `tameA := φ_A` is surjective
   (`phiA_surjective`), and `ker φ_A = W_A` (the wild core) because the descent
   `φ_A / W_A = ψ_W` is injective (`tameAEquiv`, Prop 3.2's `Γ_A`-side iso), which is pro-2 by
-  `isProP_wildPart` (P-04).  So the A-side needs **no `BoundaryMaps` amendment** — the witness
+  `isProP_wildPart`.  Thus the A-side needs **no `BoundaryMaps` amendment** — the witness
   supplies it.
 -/
 
@@ -77,19 +82,19 @@ theorem tameCoord_bA_surjective :
   rw [tameCoord_bA]; exact phiA_surjective
 
 /-- **`hwild` for `Γ_A`** (the witness): the wild inertia `ker tameA = ker φ_A = W_A` is pro-2
-(`isProP_wildPart`, P-04). -/
+(`isProP_wildPart`). -/
 theorem tameCoord_bA_ker_isProP :
     IsProP 2 (tameCoord boundaryMapsWitness.bA).toMonoidHom.ker := by
   rw [tameCoord_bA]
   show IsProP 2 phiA.toMonoidHom.ker
   rw [ker_phiA]; exact isProP_wildPart
 
-/-! ## Eq. (154) and the surjection-count theorem  (P-18e)
+/-! ## Eq. (154) and the surjection-count theorem
 
 Both live here (not in `SectionTen`) because `eq_154`'s A-side needs the concrete
 `boundaryMapsWitness` (`Γ_A`'s tame surjectivity `phiA_surjective` is witness-specific), and
-`BoundaryMapsWitness` is downstream of `SectionTen`.  Both are sorry-free: the `thm_4_2` they
-consume was fully proved at P-17i. -/
+`BoundaryMapsWitness` is downstream of `SectionTen`.  The proof then applies the proved
+`thm_4_2` frame by frame. -/
 
 /-- **Eq. (154)**: the two sources have identical continuous-surjection counts onto every finite
 group.  `card_contSurj_eq` at `boundaryMapsWitness.bA`/`.bF` (per-source hypotheses above) rewrites
@@ -108,7 +113,7 @@ theorem eq_154 (G : Type) [Group G] [TopologicalSpace G] [DiscreteTopology G] [F
       tameUnitOrientation_witness (tameTarget G) hE2
 
 /-- **Theorem 1.2, surjection-count form** (`GQ2.main_surjection_count`), proved from eq. (154) +
-Prop 2.3.  The `Statement.lean` sorry was resolved (P-18e) by the statement-move pattern
+Prop 2.3.  The `Statement.lean` sorry was resolved (the final count assembly) by the statement-move pattern
 (Statement is upstream of the tower); the moved statement carries the tower-standing `AbsGalQ2`
 instance binders. -/
 theorem main_surjection_count'

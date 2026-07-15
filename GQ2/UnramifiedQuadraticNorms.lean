@@ -1,13 +1,24 @@
-import Mathlib
-import GQ2.TeichmullerLift
-import GQ2.UnitFiltrationCounts
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.TeichmullerLift
+public import GQ2.UnitFiltrationCounts
+
+@[expose] public section
+
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
 # B11b-1 — the quadratic layer · B11b-2 — the residue layer
 
-Discharges axiom **B11b** (`unramifiedQuadratic_units_are_norms`) in-repo (landed 2026-07-09,
-census 11 → 10; archived board + plan at `docs/orchestration/b11b-tickets.md` /
-`b11b-proof-plan.md`).  This file is the **quadratic layer**
+Proves the former axiom interface **B11b** (`unramifiedQuadratic_units_are_norms`) in-repo.  This
+file is the **quadratic layer**
 (lane B, §1(Q)+(D)): the conjugation `σ`, `k`-coordinates on `k⟮δa⟯`, the norm/trace forms, and
 the degenerate `δa ∈ k` case.  Imports Mathlib only (the B13 filtration and the σ-free
 Teichmüller bricks of `GQ2.TeichmullerLift` enter later, at the engine B11b-3).
@@ -23,8 +34,8 @@ For `k ≤ ℚ̄₂` finite and `δa ∈ ℚ̄₂` with `δa² = a ∈ kˣ`, `δ
 * `conj_fixed_iff` — on `↥k⟮δa⟯`, `σz = z ↔ z ∈ k`;
 * `norm_form_of_mem` — the degenerate case: if `δa ∈ k` every `u ∈ ↥k` is `x² − ay²`.
 
-**B11b-2 (lane B closure, plan §1(R)3 + board "s̄ surjective")** — the residue layer, appended
-below over the quadratic layer + the σ-free bricks of `GQ2.TeichmullerLift`:
+The residue layer below builds on the quadratic layer and the σ-free bricks of
+`GQ2.TeichmullerLift`:
 
 * `le_of_conj_residue_trivial` — **the crux** `σ̄ = id ⟹ L ≤ k`, entirely in norm vocabulary
   (`σ̄ = id` ⟺ `∀ z ∈ O_L, ‖σz − z‖ < 1`): a norm-one `z` has a Teichmüller representative
@@ -33,7 +44,7 @@ below over the quadratic layer + the σ-free bricks of `GQ2.TeichmullerLift`:
   lies in `k`, and successive approximation closes `L ≤ k`.
 * `exists_conj_unit` — contrapositive at `δa ∈ L ∖ k`: some `z₁ ∈ O_L` has `‖σz₁ − z₁‖ = 1`
   ("`σ̄ ≠ id`").
-* `trace_covers` — **the engine deliverable** (consumed by the B11b-3 increments): the trace
+* `trace_covers` — **the engine result** (consumed by the B11b-3 increments): the trace
   `s(z) = z + σz` covers the integral elements of `k` *exactly* (not just mod `𝔪`): writing
   `z₁ = x + yδa`, the unit trace value `t := s(z₁) = 2x ∈ k` has `‖t‖ = 1` (char-2 shift:
   `s(z₁)` and `σz₁ − z₁` differ by `2z₁`), and `k`-linearity of `s` scales it to any target —
@@ -307,7 +318,7 @@ theorem le_of_conj_residue_trivial [FiniteDimensional ℚ_[2] k] [FiniteDimensio
   have hωk : ω ∈ k := (conj_fixed_iff hδ2 hδk hσ (hLadj ω hωL)).mp hσω
   exact ⟨ω, hωk, by rwa [norm_sub_rev]⟩
 
-/-- **`σ̄ ≠ id`** (the board's B11b-2 lane-B item, contrapositive form): with `δa ∈ L ∖ k`
+/-- **`σ̄ ≠ id`**, in contrapositive form: with `δa ∈ L ∖ k`
 witnessing `¬(L ≤ k)`, some integral `z₁ ∈ L` has `‖σz₁ − z₁‖ = 1` — the conjugation moves a
 residue. -/
 theorem exists_conj_unit [FiniteDimensional ℚ_[2] k] [FiniteDimensional ℚ_[2] L]
@@ -333,8 +344,7 @@ theorem exists_conj_unit [FiniteDimensional ℚ_[2] k] [FiniteDimensional ℚ_[2
   exact hδk (le_of_conj_residue_trivial hkL hδ2 hδk hσ hLadj hπk hπ0 hπ1 hπmax hqn hqodd
     hlag hσid hδaL)
 
-/-- **Trace coverage** (the engine deliverable, board "`s̄` surjective onto `⊇ k̄`" —
-strengthened to an *exact* statement).  The trace `s(z) = z + σz` hits every integral element
+/-- **Trace coverage.**  The trace `s(z) = z + σz` hits every integral element
 of `k` from an integral element of `L`: the witness `z₁` of `σ̄ ≠ id` has unit trace value
 `t := s(z₁) = 2x ∈ k` (`z₁ = x + yδa`; `s(z₁)` differs from `σz₁ − z₁` by `2z₁`, of norm
 `< 1`), and `s` is `k`-linear, so `z := (c/t)·z₁` does it.  No residue-field interface and no
@@ -714,8 +724,8 @@ norms — every norm-one `u ∈ k` is `x² − a y²`.  Dispatches the degenerat
 The statement is the axiom `GQ2.unramifiedQuadratic_units_are_norms`
 (`GQ2/Foundations/Axioms.lean`) **with `IsUnramifiedQuadraticSpectral k δa` written unfolded** —
 that predicate is a plain `def` downstream of this file, so it cannot be named here; the B11b-5
-census flip supplies it definitionally (`:= unramifiedQuadratic_units_are_norms' k a δa hδa
-hunram`, zero consumer churn — the B11a/`dyadicNormCriterion` precedent). -/
+public theorem supplies it definitionally from
+`unramifiedQuadratic_units_are_norms' k a δa hδa hunram`. -/
 theorem unramifiedQuadratic_units_are_norms' (k : IntermediateField ℚ_[2] ℚ̄₂)
     [FiniteDimensional ℚ_[2] k] (a : (↥k)ˣ) (δa : ℚ̄₂)
     (hδa : δa ^ 2 = ((a : ↥k) : ℚ̄₂))

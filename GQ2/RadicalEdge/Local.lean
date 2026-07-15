@@ -1,15 +1,20 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.CentralObstruction
 import GQ2.LocalLiftingDuality
 
 /-!
-# Lemma 8.6, local source: the B6 half-torsor count  (ticket P-16b)
+# Lemma 8.6, local source: the B6 half-torsor count
 
-Closes `SectionEight.lemma_8_6_local` through the P-16a engine
+Closes `SectionEight.lemma_8_6_local` through the central-obstruction framework engine
 (`GQ2/CentralObstruction.lean`): given `NoDescent`, the twist producing the flip involution is
 manufactured from **B6's perfect `(1,1)` pairing** (`GQ2.tateDuality 2 |>.perfect11`) applied
 to the `T`-conjugation module.
 
-The bridge (`docs/p16-ticket-split.md`, P-16b): the shifted edge
+The bridge to the local half-torsor proof uses the shifted edge
 `φ(γ)(s) := ε̄(ρ(γ))(γ⁻¹•s)` is an exact `Z¹(G_ℚ₂, (A_T)^{μ₂∨})`-cocycle, and on the nose
 `cup11Fun (muDualPairing) φ w = muNTwoEquiv.symm ∘ varCoc u_w` for the crossed `T`-cocycle
 `u_w` corresponding to `w ∈ Z¹(A_T)`.  `NoDescent` forbids `[φ] = 0` (a coboundary constant

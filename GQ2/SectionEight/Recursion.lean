@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.SectionEight.Partition
 
 /-!
@@ -5,8 +10,7 @@ import GQ2.SectionEight.Partition
 
 The `RecursionFrame` on a §7 block, its derived layer and `Enrichment`, the boxed system
 `ClosedRecursion` (displays (136)–(142)), the source-side input bundle `RecursionInputs`,
-and the assembly steps `partition137_of`, `prop_8_9_aux`, `stageR136_of`.  Split out of
-`GQ2.SectionEight` (wave 38a).
+and the assembly steps `partition137_of`, `prop_8_9_aux`, `stageR136_of`.
 -/
 
 open scoped Pointwise
@@ -137,7 +141,7 @@ exact-image maps to `C`, **without** imposing generation in `B` — pairs of an 
 `ρ` onto the `C`-target and a boundary-compatible continuous lift `m` into `B` over it that
 is `λ`-compatible (lifts through the scalar cover).
 
-**Corrected in the P-16d pass (2026-07-05, deviation documented)**: the original encoding
+**Encoding correction (deviation from the earlier encoding).**  The original encoding
 took the cover-valued lift `g` itself as the pair datum; since the boundary equation of the
 pulled-back target only constrains `p_λ ∘ g`, each `λ`-compatible `B`-lift `m` carries
 exactly `#Hom(Γ,𝔽₂)` cover lifts (the `z`-scalar twists), so that encoding overcounts the
@@ -157,7 +161,7 @@ noncomputable def nPhase (Cζ : CentralCover RF.YC) : ℕ :=
   Nat.card {f : BoundaryLifts b F RF.TC //
     ∃ g : ContinuousMonoidHom Γ Cζ.cover, ∀ γ : Γ, Cζ.p (g γ) = f.1.1 γ}
 
-/-- **The `B`-stage projection of a boundary lift** (P-16d, the (136) fibration map):
+/-- **The `B`-stage projection of a boundary lift** (the Prop. 8.9 assembly, the (136) fibration map):
 composing an exact-image boundary lift onto `Y` with `π_B : Y ↠ B`.  Surjectivity is
 inherited (`π_B` epi), continuity is free (`Y` discrete), and the boundary equation
 transports along the spec fields `TB_head`/`TB_theta`. -/
@@ -174,7 +178,7 @@ noncomputable def liftB (f : BoundaryLifts b F T) : BoundaryLifts b F RF.TB :=
      rw [h1, h2]
      exact f.2 γ⟩
 
-/-! ### The frame-enrichment layer  (P-16d1)
+/-! ### The frame-enrichment layer
 
 `RecursionFrame` pins the stages and the scalar covers only as bare group data; the
 (139)/(140) analyses use more.  First the **derived layer facts** — normality and
@@ -183,9 +187,9 @@ structure carrying what the frame does not determine: per nonzero `λ`, the squa
 `p_λ` on `M_B` (§7.4; block-level constructibility = `mForm_of_qbar` in
 `GQ2/FrameEnrichment.lean`), and the descended module `V ≅ M_B/T_B` over the `C`-stage
 with the form `q̄_λ` and its fixed equivariant factor-set datum (`κ⁰_{q̄_λ}`, Lemma 6.1 —
-the relative hypothesis of `lemma_6_21`, consumed by Lemma 8.7/Prop 8.8, P-16d4).
+the relative hypothesis of `lemma_6_21`, consumed by Lemma 8.7/Prop 8.8, the Prop. 8.9 assembly).
 `Enrichment.radData` assembles the per-`λ` Lemma 8.6 datum; `radData_noDescent_iff`
-aligns its descent clause with the (139)/(140) case split (P-16d3's hand-off to
+aligns its descent clause with the (139)/(140) case split (the Prop. 8.9 assembly's hand-off to
 `lemma_8_6_local`/`_gammaA`). -/
 
 section DerivedLayer
@@ -263,7 +267,7 @@ theorem piBC_surj : Function.Surjective RF.piBC := by
   exact h.of_comp
 
 /-- **The head factors through `π_{BC}`**: `π^C_Y ∘ π_{BC} = π^B_Y` (the spec fields + `π_B`
-epi).  Exported for the D5 boundary-framing argument (P-16d4/d6). -/
+epi).  Exported for the D5 boundary-framing argument (the Prop. 8.9 assembly/d6). -/
 theorem headBC : RF.TC.piY.comp RF.piBC = RF.TB.piY := by
   have h1 : (RF.TC.piY.comp RF.piBC).comp RF.piB = RF.TB.piY.comp RF.piB := by
     rw [MonoidHom.comp_assoc, RF.piBC_comp, RF.TC_head, RF.TB_head]
@@ -278,7 +282,7 @@ theorem thetaBC : RF.TC.thetaY.comp RF.piBC = RF.TB.thetaY := by
 end DerivedLayer
 
 omit [TopologicalSpace Y] [DiscreteTopology Y] in
-/-- **Boundary-framing rides free over `ρ`** (P-16d4, D5): a continuous hom into `B` lying
+/-- **Boundary-framing rides free over `ρ`** (the Prop. 8.9 assembly, D5): a continuous hom into `B` lying
 over a boundary-framed `C`-lift `ρ` is itself boundary-framed — both boundary components
 factor through `π_{BC}`.  This is why the `IsBoundaryLift` clause of `zBC`'s pairs is
 redundant, and no `θ|_T` hypotheses are needed in the count. -/
@@ -293,7 +297,7 @@ theorem isBoundaryLift_of_over (f : ContinuousMonoidHom Γ RF.YB)
   rw [h1, h2]
   exact ρ.2 γ
 
-/-- **The frame enrichment** (P-16d1): the per-`λ` data of the §8 analyses that the bare
+/-- **The frame enrichment** (the Prop. 8.9 assembly): the per-`λ` data of the §8 analyses that the bare
 frame does not determine.  Square-form block: the form `q_λ` of the scalar cover on `M_B`
 (cover square relation, `T_B` in the polar radical, vanishing on `T_B`) — with the derived
 layer facts above, exactly a per-`λ` Lemma 8.6 datum (`radData`); §7.4 supplies it for the
@@ -388,7 +392,7 @@ structure ClosedRecursion {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTop
         (2 * (RF.mB b F l : ℤ) - exactImageCount b F RF.TB)
   /-- **(137)**, additively: `Z_{Γ,λ}(B/C) = m_{Γ,λ}(B) + Σ_{J < B, J ↠ C} m_{Γ,λ}(J)` (the
   exact-image subtraction; strata missing the `H`-head contribute `0` through the
-  totalized `mJOn`).  **Index set corrected in the P-16d pass (2026-07-05)**: the paper's
+  totalized `mJOn`).  **Index-set correction.**  The paper's
   sum runs over the proper strata **surjecting onto `C`** (`J ↠ C`) — the `C`-level
   component of a `Z`-pair forces the image stratum onto `C`, and proper `C`-missing strata
   can carry nonzero `m_{Γ,λ}(J)`, so the unrestricted sum would overcount. -/
@@ -414,8 +418,8 @@ structure ClosedRecursion {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTop
   /-- **(140)–(142)**, folded: when the `λ`-cover descends (radical edge zero), the
   compatible-lift count is the constrained Gauss value over the **per-`λ`** phase family
   (paper (134): the classes `Δ_{χ,κ}` carry the scalar-pushout class `κ = κ_λ` of the
-  `λ`-cover — amended from a shared family in the P-16d6e paper-faithfulness pass,
-  `docs/p16d6e-assembly-plan.md` §1A):
+  `λ`-cover — a per-`λ`, rather than shared, family, matching the paper; see
+  `docs/orchestration/p16d6e-assembly-plan.md` §1A):
   `2^{r+1} Z_{Γ,λ}(B/C) = μ (2^d e_Γ(C) + G⁰ Σ_{ζ ∈ D_T} (2 n_{Γ,0}(ζ_λ) − e_Γ(C)))`, with
   `2^{r+1} = 2|D_T|` and `2^d = |M|/|T| = |V|`. -/
   eq140 : ∀ (l : RF.DR) (h : l ≠ RF.zeroDR),
@@ -583,7 +587,7 @@ private theorem partition137_card_fiber_eq_zero_of_not_head
 end Partition137
 
 open scoped Classical in
-/-- **The (137) partition** (P-16d item 2): the `partition137` input of `RecursionInputs`,
+/-- **The (137) partition** (the Prop. 8.9 assembly item 2): the `partition137` input of `RecursionInputs`,
 derived outright.  A `Z`-pair is determined by its `B`-level lift `m` (the `C`-component is
 `π_{BC} ∘ m`); stratifying by the exact image `J = im m` gives the top stratum (`m_B`, at
 `J = ⊤`) plus the proper `C`-onto strata (`m_J`, via the corestriction equivalence), while
@@ -685,7 +689,7 @@ theorem partition137_of {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopol
   ring
 
 open scoped Classical in
-/-- **The source-side input bundle of the Prop 8.9 assembly** (P-16d skeleton).  Each field
+/-- **The source-side input bundle of the Prop 8.9 assembly** (the Prop. 8.9 assembly skeleton).  Each field
 is one gated derivation of the boxed recursion, with its intended supplier recorded; the
 displays **(137) and (138) are *not* inputs** — `prop_8_9_aux` discharges them from the
 proved `partition137_of` and `lemma_8_3`.
@@ -695,7 +699,7 @@ proved `partition137_of` and `lemma_8_3`.
   surjectivity of `R`-lifts (`GQ2.eq_top_of_map_frattini_quotient_top`, proved).
 * `half139` — the nonzero-edge half count: the `zBC ↔ MLifts` fibration bridge composed with
   the half-torsor Lemma 8.6 (`lemma_8_6_local` **proved** for the `G_ℚ₂` source;
-  `lemma_8_6_gammaA` = P-16c, gated on P-13f).
+  `lemma_8_6_gammaA` = the Γ_A half-torsor proof, gated on the Prop. 5.15 proof).
 * `phase140` — the zero-edge constrained-Gauss value: the descended `V ⋊ C` splitting
   (`lemma_6_21`, proved), Lemma 8.7's affine `T`-lifting, the completed-square identity
   (135)/Prop 8.8, and `lemma_8_5`, summed over lower exact-image maps. -/
@@ -716,7 +720,7 @@ structure RecursionInputs {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTop
         N.map (RF.scalarCover l h).p = RF.TBsub ∧ (RF.scalarCover l h).z ∉ N) →
       2 * RF.zBC b F l h = (Nat.card ↥RF.MB) ^ 2 * exactImageCount b F RF.TC
   /-- The (140) constrained-Gauss value (gated: 8.5 + 8.7 + (135)/8.8 + 6.21/6.22 chain);
-  per-`λ` phase family per the paper's `Δ_{χ,κ_λ}` (P-16d6e amendment). -/
+  per-`λ` phase family per the paper's `Δ_{χ,κ_λ}` (the Prop. 8.9 assembly amendment). -/
   phase140 : ∀ (l : RF.DR) (h : l ≠ RF.zeroDR),
     (∃ N : Subgroup (RF.scalarCover l h).cover, N.Normal ∧
         N.map (RF.scalarCover l h).p = RF.TBsub ∧ (RF.scalarCover l h).z ∉ N) →
@@ -726,7 +730,7 @@ structure RecursionInputs {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTop
                 (2 * (RF.nPhase b F (phase l h ζ) : ℤ) - exactImageCount b F RF.TC))
 
 open scoped Classical in
-/-- **The Prop 8.9 assembly step** (P-16d): given the source-side input bundle, the boxed
+/-- **The Prop 8.9 assembly step** (the Prop. 8.9 assembly): given the source-side input bundle, the boxed
 system holds — with **(138) discharged from the proved `lemma_8_3`** (the eight-lift
 partition, instantiated at each scalar cover `p_λ` over the `B`-stage target).  The
 side conditions (`Γ` profinite + t.f.g. `hfg`, `#Hom(Γ,𝔽₂) = 8`) are exactly `lemma_8_3`'s;
@@ -750,7 +754,7 @@ theorem prop_8_9_aux {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology
   eq140 := inp.phase140
 
 open scoped Classical in
-/-- **The (136) stage, combinatorial core** (P-16d item 1): the `stageR136` input of
+/-- **The (136) stage, combinatorial core** (the Prop. 8.9 assembly item 1): the `stageR136` input of
 `RecursionInputs` follows from an **obstruction-module datum** for the `R`-stage.  Given
 
 * an `𝔽₂`-module `W` with an obstruction map `o` on the `B`-stage lifts whose vanishing
@@ -859,22 +863,22 @@ theorem stageR136_of {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology
         rw [h3]
 
 /-! **Proposition 8.9 (closed exact-image recursion)** — statement **relocated** to
-`GQ2/Prop89Close.lean` (`GQ2.SectionEight.prop_8_9`), the P-16d6e capstone leaf (the
+`GQ2/Prop89Close.lean` (`GQ2.SectionEight.prop_8_9`), the Prop. 8.9 assembly capstone leaf (the
 `thm_4_2`-relocation pattern: the statement is specialized to the concrete block frame
 `blockFrameImpl T Blk hE2`, which this file cannot name — it sits above `BlockFrameImpl.lean`
 in the import order).  Two reviewed statement actions at the relocation
-(`docs/p16d6e-assembly-plan.md` §1):
+(`docs/orchestration/p16d6e-assembly-plan.md` §1):
 
 * the phase family is **per-`λ`** (`phase : (l : DR) → l ≠ zeroDR → DT → CentralCover YC`) —
   the paper's (134) classes `Δ_{χ,κ}` carry the scalar-pushout class `κ = κ_λ` of the
   `λ`-cover, so the shared-family draft form was a transcription deviation (Bug-3 of the
   c-lane family; a shared family would force an unproven `zBC`-l-independence);
 * the frame is the **concrete block frame** with hypothesis ledger
-  `{hE2, hfgF (B1 → P-17i), hheadA, hheadF, hsimple, hfaith, hVne, hG0indep}` and the P-17i
+  `{hE2, hfgF (B1 → the §9 induction), hheadA, hheadF, hsimple, hfaith, hVne, hG0indep}` and the §9 induction
   strengthening `0 < Nat.card DT` in the conclusion — general-`RF` (136) is not provable
-  (no axioms tie the bare frame's `DR`/`zR`/`mB` to obstruction theory; P-16d6a built the
+  (no axioms tie the bare frame's `DR`/`zR`/`mB` to obstruction theory; the Prop. 8.9 assembly built the
   R-stage against `blockFrameImpl` by decision), and SectionNine's inductive branch consumes
-  the proposition exactly at `blockFrame = blockFrameImpl` (P-17c/P-17h). -/
+  the proposition exactly at `blockFrame = blockFrameImpl`. -/
 
 end Recursion
 

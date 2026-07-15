@@ -11,7 +11,7 @@ project:
 sources:
   - title: "A Presentation of the Absolute Galois Group of Q_2"
     authors: ["David Turturean"]
-    id: "unpublished (June 2026); local copy at paper/A_Profinite_Presentation_for_G__Q_2.pdf"
+    id: "current writeup at https://roed314.github.io/gq2/; original source snapshot at paper/A_Profinite_Presentation_for_G__Q_2.pdf"
     type: "machine-generated preprint (GPT)"
     license: ""
     author_contacted: "yes"
@@ -19,7 +19,8 @@ sources:
 
 status:
   scope: >
-    Complete end-to-end formalization of the paper's main result (Theorem 1.2): the
+    Complete end-to-end formalization of the paper's main result (numbered Theorem 1.2
+    in the retained original PDF): the
     absolute Galois group of Q_2 is isomorphic as a profinite group to an explicit
     4-generator 2-relator marked quotient Gamma_A, together with the surjection-count
     form (for every finite G, the number of continuous surjections G_Q2 ->> G equals
@@ -130,32 +131,34 @@ review:
     of the axiom census (docs/adversarial-axioms-review.md), a foundations audit
     (docs/foundations-audit.md), off-path statement checks (docs/off-path-statements.md),
     and continuous mechanical gates (kernel-checked builds, axiom census script,
-    zero-sorry enforcement). The main result is independently checkable with
+    zero-sorry enforcement). The post-refactor Lean Compass report identifies 30 project
+    declarations for human semantic review (atlas-audit.md); those declarations have not yet
+    received external human review. The main result is independently checkable with
     leanprover/comparator via comparator-config.json (Challenge.lean / Solution.lean).
 
 alignment:
   namespace: "GQ2"
   statements:
-    - source: "Theorem 1.2 (presentation theorem)"
+    - source: "Presentation theorem (Theorem 1.2 in the retained original PDF)"
       lean: "GQ2.main_presentation_literal"
       module: "GQ2/PresentationLiteral.lean"
       status: "proved"
       note: "literal form: Nonempty (ContinuousMulEquiv GammaA AbsGalQ2)"
-    - source: "Theorem 1.2 (surjection-count form)"
+    - source: "Presentation theorem, surjection-count form (Theorem 1.2 in the retained original PDF)"
       lean: "GQ2.SectionTen.main_surjection_count'"
       module: "GQ2/SectionTenSources.lean"
       status: "proved"
       note: "#{continuous surjections G_Q2 ->> G} = #{admissible marked quadruples in G^4}"
-    - source: "eq. (7) (the candidate group Gamma_A)"
+    - source: "Definition of the candidate group Gamma_A (equation (7) in the retained original PDF)"
       lean: "GQ2.GammaA"
       module: "GQ2/GammaA.lean"
       status: "proved"
       note: "largest quotient of the free profinite group F_4 all of whose finite quotients are admissible"
-    - source: "Prop. 2.3 (admissible-marking count for Gamma_A)"
+    - source: "Admissible-marking count for Gamma_A (Proposition 2.3 in the retained original PDF)"
       lean: "GQ2.prop_2_3"
       module: "GQ2/Prop23.lean"
       status: "proved"
-    - source: "Appendix B literature inputs B1-B11a"
+    - source: "Literature inputs B1-B11a (Appendix B in the retained original PDF)"
       lean: "GQ2/Foundations/Axioms.lean (9 axioms)"
       module: "GQ2/Foundations/Axioms.lean"
       status: "literature-dependency"

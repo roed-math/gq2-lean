@@ -1,4 +1,13 @@
-import GQ2.FoxHeisenberg.Traced
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.FoxHeisenberg.Traced
+
+@[expose] public section
 
 /-!
 # Lemma 5.4/5.5: the finite Fox derivatives of the wild aux words (tame case)
@@ -54,7 +63,7 @@ theorem liftMarking_u1_u (t : Marking C) (x : Fin 4 → V) (hV₂ : ∀ v : V, v
   show x 3 + t.x₁ • x 1 = x 3 + x 1
   rw [hx1]
 
-/-! ### Ramified (`V^T = 0`) aux-word offsets (P-13b)
+/-! ### Ramified (`V^T = 0`) aux-word offsets
 
 In the ramified case `τ` acts non-trivially, but its 2-primary part is trivial (`hTodd`), so the
 ω₂-power bases `u0 = (x₀τ)^{ω₂}`, `u1 = (x₁τ)^{ω₂}` still act *trivially* on `V` (their base is the
@@ -163,13 +172,13 @@ Each aux word evaluates to a trivially-based element, so `.u`-additivity (`mul_u
 applies.  `g₀ = σ₂²` and `z₀ = x₀^{σ₂}` use σ-tameness `hU`; the rest use the wild-core
 triviality. -/
 
-theorem liftMarking_g0_g_smul (t : Marking C) (x : Fin 4 → V) (hU : ∀ v : V, t.sigma2 • v = v)
+private theorem liftMarking_g0_g_smul (t : Marking C) (x : Fin 4 → V) (hU : ∀ v : V, t.sigma2 • v = v)
     (v : V) : (liftMarking t x).g0.g • v = v := by
   show ((liftMarking t x).sigma2 ^ 2).g • v = v
   rw [WordLift.pow_g, pow_two, mul_smul, liftMarking_sigma2_g, hU, hU]
 
 omit [Finite C] [Finite V] in
-theorem liftMarking_u0_g_smul (t : Marking C) (x : Fin 4 → V) (hx0 : ∀ v : V, t.x₀ • v = v)
+private theorem liftMarking_u0_g_smul (t : Marking C) (x : Fin 4 → V) (hx0 : ∀ v : V, t.x₀ • v = v)
     (htau : ∀ v : V, t.τ • v = v) (v : V) : (liftMarking t x).u0.g • v = v := by
   apply WordLift.powOmega2_g_smul_of_trivial
   intro a; show (t.x₀ * t.τ) • a = a; rw [mul_smul, htau, hx0]
@@ -188,7 +197,7 @@ theorem liftMarking_d0_g_smul (t : Marking C) (x : Fin 4 → V) (hx0 : ∀ v : V
     (WordLift.inv_g_trivial (liftMarking t x).x₀ hx0) v
 
 omit [Finite C] [Finite V] in
-theorem liftMarking_z0_g_smul (t : Marking C) (x : Fin 4 → V) (hx0 : ∀ v : V, t.x₀ • v = v)
+private theorem liftMarking_z0_g_smul (t : Marking C) (x : Fin 4 → V) (hx0 : ∀ v : V, t.x₀ • v = v)
     (v : V) : (liftMarking t x).z0.g • v = v := by
   show (conjP (liftMarking t x).x₀ (liftMarking t x).sigma2).g • v = v
   exact WordLift.conjP_g_trivial _ _ hx0 v
@@ -287,7 +296,7 @@ theorem liftMarking_wildValue_u (t : Marking C) (x : Fin 4 → V) (hV₂ : ∀ v
     show -(x 3 + x 1) = x 3 + x 1 from neg_eq_of_add_eq_zero_left (hV₂ (x 3 + x 1))]
   abel
 
-/-! ### Ramified wild row (P-13b): `L_w = S⁻¹·d`
+/-! ### Ramified wild row: `L_w = S⁻¹·d`
 
 With `u0.u = u1.u = 0` (collapse) and every aux base trivial, the ramified aux offsets are
 `d0.u = x₂` (vs `x₁` split), `h0.u = 0`, `c0.u = 0`, and `conjP(x₁,σ).u = S⁻¹·x₃` (the split lemma,
@@ -337,7 +346,7 @@ theorem liftMarking_h0_g_ramified (t : Marking C) (x : Fin 4 → V) (hx0 : ∀ v
     (liftMarking t x).hc).g • v = v
   exact WordLift.mul_g_trivial _ _ hq4 hhcg v
 
-/-- Ramified `D(h₀) = 0` — **`hU`-free** (de-`hU`'d 2026-07-05): the cancellation happens in
+/-- Ramified `D(h₀) = 0` without an `hU` hypothesis: the cancellation happens in
 `g₀`-conjugate *pairs*, `(g₀⁻¹•x₂ + x₂) + (g₀⁻¹•x₂ + x₂) = 0`, via `conjP_u_of_base_trivial` —
 the `x₀^{g₀}`/`dg` terms carry the same `g₀⁻¹` prefix as each other, so no triviality of `g₀`'s
 action is needed.  (`hU` is *not* derivable from admissibility: `S₃` on its 2-dimensional simple

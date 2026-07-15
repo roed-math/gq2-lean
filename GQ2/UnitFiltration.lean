@@ -1,8 +1,14 @@
 /-
-Copyright (c) 2026. All rights reserved.
+Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
-import GQ2.EvensKahn
+module
+
+public import Mathlib.NumberTheory.Padics.Complex
+public import GQ2.EvensKahn
+
+@[expose] public section
 
 /-!
 # The unit filtration of a finite dyadic field  (supporting definitions for B13)
@@ -17,17 +23,17 @@ uniformizer (discreteness of the value group), the normalization `‖2‖ = ‖�
 residue counts of the graded pieces of the filtration — **Serre, *Local Fields* [7],
 Ch. IV §2, Proposition 6** (verified verbatim against the `references/` scan):
 `U^{(0)}/U^{(1)} ≅ k̄^×` (order `2^f − 1`) and `U^{(i)}/U^{(i+1)} ≅ k̄⁺` (order `2^f`) for
-`i ≥ 1`.  The former axiom `GQ2.dyadicUnitFiltration` asserting an instance for every finite `k`
-lives in `GQ2/Foundations/Axioms.lean` (T-19 placement; discharged 2026-07-09 as a same-name
-`noncomputable def`); everything in this file is a plain definition or a proved lemma.
+`i ≥ 1`.  The interface `GQ2.dyadicUnitFiltration` asserting an instance for every finite `k`
+lives in `GQ2/Foundations/Axioms.lean`; everything in this file is a plain definition or a
+proved lemma.
 
 The proposal's (F2) clause (the inertia twist `θ_g = (g•π)/π` acting on `gr_j` by `θ_g^j`)
 turned out to be **derivable** and is therefore NOT a field: `g•(1+a) = 1 + θ_g^i·g(a/π^i)·π^i`
 is exact `ℚ̄₂`-algebra, and `θ_g^e = g(u)/u ≡ 1 (mod 𝔪)` for inertial `g` follows from the
-`he` normalization with `u = π^e/2`.  See `docs/p15f1-axiom-proposal.md` and the B13 entry of
+`he` normalization with `u = π^e/2`.  See `docs/orchestration/p15f1-axiom-proposal.md` and the B13 entry of
 `docs/literature-axioms.md`.
 
-Ticket: P-15f1.
+the deep-part proof.
 -/
 
 namespace GQ2

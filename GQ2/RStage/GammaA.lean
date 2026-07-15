@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.RStage.Local
 import GQ2.WordCohBridge
 import GQ2.HalfTorsorGammaA
@@ -5,20 +10,20 @@ import GQ2.FinitelyGenerated
 import GQ2.LocalLiftingDuality
 
 /-!
-# P-16d6e5 (residue package, candidate source): the (136) R-stage for `Γ = Γ_A`
+# The (136) R-stage for `Γ = Γ_A`
 
-Mirror of `GQ2/RStageLocal.lean` at the candidate source `Γ_A`, per `docs/p16d6e5-plan.md`.
+Mirror of `GQ2/RStageLocal.lean` at the candidate source `Γ_A`, per `docs/orchestration/p16d6e5-plan.md`.
 The local file counts `Z¹(G_ℚ₂, R)` with `prop_5_16`'s `card_Z1_eq` (B6/B7); here the same
 counts come from the **candidate duality** `prop_5_15` (`IsSelfDual`) through the word-complex
 bridge `z1Equiv : Z1 GA A ≃+ Z1w (markC ρ)` (`WordCohBridge`) — **no B-axioms on the word side**.
 
-Deliverables (route of record: `docs/p16d6e5-plan.md`):
+Main results (route of record: `docs/orchestration/p16d6e5-plan.md`):
 * `htriv_gammaA` — the trivial `Γ_A`-action on `𝔽₂` (registered here as the canonical trivial
   `DistribMulAction GammaA (ZMod 2)`; `γ • m = m` is then `rfl`);
 * `hZcount_gammaA` — `#RCocycle = z_R` via `z1Equiv` + `prop_5_15` clause 2 + `blockRChar_card`;
 * `hsep_hom_gammaA` — the `(R^∨)^C`-separation via the marking-level lifting argument (L1–L5 of
   the plan; the trace-span package is `prop_5_8_right`-based, NO `H²(Γ_A,R)`);
-* `stageR136_gammaA_of_hcard` — the (136) identity, threading `hcard_A` (P-16d6e6's
+* `stageR136_gammaA_of_hcard` — the (136) identity, threading `hcard_A` (the Prop. 8.9 assembly's
   `card_H2_gammaA_eq_two`) so e5 is decoupled from e6.
 
 **Standing plumbing note (the `GA`/`GammaA` bridge).**  `GammaA := profiniteQuotient NA` is
@@ -26,7 +31,7 @@ Deliverables (route of record: `docs/p16d6e5-plan.md`):
 (distinct head symbols): `GammaA` carries `TotallyDisconnectedSpace` (a `ProfiniteGrp`) while
 `GA` does not auto-synthesise it, and a `DistribMulAction GammaA (ZMod 2)` is not found when a
 `DistribMulAction GA (ZMod 2)` is requested.  The theorems are stated over `Γ := GammaA` (so the
-`blockStageR136`/`RecursionInputs` instances resolve and the conclusion matches the P-16d6e7
+`blockStageR136`/`RecursionInputs` instances resolve and the conclusion matches the Prop. 8.9 assembly
 `RecursionInputs RF B.bA F …` bundle); the word-machinery calls (over `GA`) are bridged inside
 each proof by `inferInstanceAs`/`show`-transports across the defeq (`gammaA_eq_GA` below).  This
 is the main mechanical cost of the candidate side and is isolated to the proof interiors.
@@ -59,7 +64,7 @@ variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finit
 variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
 variable {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
 
-/-- **The `Γ_A`-action on `𝔽₂` is trivial** (P-16d6e5 residue): definitional, from the
+/-- **The `Γ_A`-action on `𝔽₂` is trivial** (the Prop. 8.9 assembly residue): definitional, from the
 registered trivial action. -/
 theorem htriv_gammaA (γ : GammaA) (m : ZMod 2) : γ • m = m := rfl
 
@@ -263,7 +268,7 @@ open GQ2.FoxH
 variable {C : Type} [Group C] [Finite C]
 variable {A : Type} [AddCommGroup A] [Finite A] [DistribMulAction C A]
 
-/-- **The trace functional** `Φ_λ : H2w(A) →+ 𝔽₂`, `[v] ↦ λ(v.1 + v.2)` (`docs/p16d6e5-plan.md`
+/-- **The trace functional** `Φ_λ : H2w(A) →+ 𝔽₂`, `[v] ↦ λ(v.1 + v.2)` (`docs/orchestration/p16d6e5-plan.md`
 §2, L3).  Well-defined on the quotient `H2w = (A×A) ⧸ im d¹` because for an invariant `λ`
 (`d⁰λ = 0`), `prop_5_8_right` gives `λ((d¹x).1 + (d¹x).2) = mixedB t x (d⁰λ) = mixedB t x 0 = 0`.
 This is the (2,0)-pairing the candidate `IsSelfDual` omits — supplied by `prop_5_8` directly. -/
@@ -276,7 +281,7 @@ noncomputable def wTrace (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     rw [hlam, mixedB_zero_right] at h58
     exact h58.symm)
 
-@[simp] theorem wTrace_mk (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
+@[simp] private theorem wTrace_mk (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
     (lam : ElemDual A) (hlam : (d0 (A := ElemDual A) t) lam = 0) (v : A × A) :
     wTrace t ht hw lam hlam (QuotientAddGroup.mk v) = lam (v.1 + v.2) := rfl
 
@@ -291,7 +296,7 @@ theorem wTrace_injective (t : Marking C) (ht : t.TameRel) (hw : t.WildRel)
   simpa only [wTrace_mk, add_zero] using congrArg (fun Ψ => Ψ (QuotientAddGroup.mk (a, 0))) h
 
 /-- **L3c: `λ ↦ Φ_λ` is surjective** onto `H2w →+ 𝔽₂` — the counting half of the perfect
-(2,0)-pairing (`docs/p16d6e5-plan.md` §2, L3).  The invariant characters, `#H2w`, and
+(2,0)-pairing (`docs/orchestration/p16d6e5-plan.md` §2, L3).  The invariant characters, `#H2w`, and
 `#(H2w →+ 𝔽₂)` are all equinumerous:
 `#{λ : d⁰λ = 0} = #fixedPts C (A^∨) = #H2w = #(H2w →+ 𝔽₂)` — by `H0w_eq_fixedPts` (needs
 `Generates`), `IsSelfDual` clause 1, and `card_addHom_zmod2`.  A finite injection
@@ -321,7 +326,7 @@ theorem wTrace_surjective (t : Marking C) (ht : t.TameRel) (hw : t.WildRel) (hge
   obtain ⟨x, hx⟩ := ((Fintype.bijective_iff_injective_and_card Θ).mpr ⟨hinj, hcard⟩).2 Ψ
   exact ⟨x.1, AddMonoidHom.mem_ker.mp x.2, hx⟩
 
-/-- **L3d: `sep_word` — the separation** (`docs/p16d6e5-plan.md` §2, L3).  If `v.1 + v.2` is
+/-- **L3d: `sep_word` — the separation** (`docs/orchestration/p16d6e5-plan.md` §2, L3).  If `v.1 + v.2` is
 killed by every invariant character `λ` (`d⁰λ = 0`), then `v ∈ im d¹`.  Proof: if `[v] ≠ 0` in
 `H2w`, then `exists_addHom_ne_zero` (finite `𝔽₂`-space) produces a functional `Ψ` with
 `Ψ [v] ≠ 0`; by `wTrace_surjective`, `Ψ = Φ_λ` for some invariant `λ`, and
@@ -359,7 +364,7 @@ section RelatorCorrection
 variable {Y' : Type*} [Group Y']
 
 /-- **`powOmega2` under a central-involution correction** — the crux of the wild relator
-correction (`docs/p16d6e5-plan.md` §2, L1-wild).  For a central involution `s`, the 2-primary
+correction (`docs/orchestration/p16d6e5-plan.md` §2, L1-wild).  For a central involution `s`, the 2-primary
 projection satisfies `powOmega2 (s * a) = s * powOmega2 a`: `s` is its own 2-part, and `powOmega2`
 is multiplicative on the abelian subgroup `⟨s, a⟩`.  The `orderOf (s*a)`-shift (which breaks the
 naive `powOmega2_pow_eq` at `a`'s own order) is dissolved by evaluating all three `ω₂`-powers at a
@@ -383,7 +388,7 @@ theorem powOmega2_central_involution {G : Type*} [Group G] [Finite G] (s a : G)
   rw [← powOmega2_pow_eq (s * a) hsa_dvd hMne, (hs a).mul_pow,
     powOmega2_pow_eq s hs_dvd hMne, powOmega2_pow_eq a ha_dvd hMne, hps]
 
-/-- **L1 tame row, central 2-torsion** (`docs/p16d6e5-plan.md` §2, L1): correcting a marking's
+/-- **L1 tame row, central 2-torsion** (`docs/orchestration/p16d6e5-plan.md` §2, L1): correcting a marking's
 generators by central involutions shifts the tame relator value by exactly the τ-correction —
 `tameValue⟨r₀σ, r₁τ, x₀, x₁⟩ = r₁ · tameValue⟨σ, τ, x₀, x₁⟩`.  The σ-correction `r₀` cancels
 (`σ⁻¹r₀⁻¹(r₁τ)r₀σ`, `r₀` central), and the τ-square kills `r₁²`.  This is the group-level Fox tame
@@ -404,7 +409,7 @@ theorem tameValue_correction (σ τ x0 x1 r0 r1 : Y')
   group
   rw [(hr1 (σ ^ (-1 : ℤ))).symm.eq]
 
-/-- **Conjugation under central corrections** (`docs/p16d6e5-plan.md` §2, L1-wild building block):
+/-- **Conjugation under central corrections** (`docs/orchestration/p16d6e5-plan.md` §2, L1-wild building block):
 `conjP (rₐ·x) (r_g·g) = rₐ · conjP x g` for central `rₐ, r_g` — the conjugating correction `r_g`
 cancels (`g⁻¹r_g⁻¹…r_g g`), the conjugated correction `rₐ` survives.  Used for `z0 = conjP x₀ σ₂`,
 `x₁^σ`, `dg = conjP d₀ g₀`, and the `x₀^g₀` factor of `h₀`. -/
@@ -416,7 +421,7 @@ theorem conjP_central_correction (x g ra rg : Y')
   group
   rw [(hra (g ^ (-1 : ℤ))).symm.eq]
 
-/-- **Commutators are insensitive to central corrections** (`docs/p16d6e5-plan.md` §2, L1-wild
+/-- **Commutators are insensitive to central corrections** (`docs/orchestration/p16d6e5-plan.md` §2, L1-wild
 building block): `commP (rₐ·a) (r_b·b) = commP a b` for central `rₐ, r_b` — both corrections cancel
 in the commutator (`a⁻¹rₐ⁻¹ b⁻¹r_b⁻¹ rₐa r_bb`, all central factors pair off).  Used for
 `c0 = commP d₀ z₀` and `h_c = commP dg d₀` — these two auxiliary words are correction-free. -/
@@ -438,15 +443,15 @@ section WildCorrection
 
 variable {Y' : Type*} [Group Y'] {t : Marking Y'} {r0 r1 r2 r3 : Y'}
 
-/-- The marking with each generator corrected by a central involution (`docs/p16d6e5-plan.md`
+/-- The marking with each generator corrected by a central involution (`docs/orchestration/p16d6e5-plan.md`
 §2, L1).  The wild relator value shifts by exactly `r₁` — proved word-by-word below. -/
 def corrMark (t : Marking Y') (r0 r1 r2 r3 : Y') : Marking Y' :=
   ⟨r0 * t.σ, r1 * t.τ, r2 * t.x₀, r3 * t.x₁⟩
 
-@[simp] lemma corrMark_σ : (corrMark t r0 r1 r2 r3).σ = r0 * t.σ := rfl
-@[simp] lemma corrMark_τ : (corrMark t r0 r1 r2 r3).τ = r1 * t.τ := rfl
-@[simp] lemma corrMark_x₀ : (corrMark t r0 r1 r2 r3).x₀ = r2 * t.x₀ := rfl
-@[simp] lemma corrMark_x₁ : (corrMark t r0 r1 r2 r3).x₁ = r3 * t.x₁ := rfl
+@[simp] private lemma corrMark_σ : (corrMark t r0 r1 r2 r3).σ = r0 * t.σ := rfl
+@[simp] private lemma corrMark_τ : (corrMark t r0 r1 r2 r3).τ = r1 * t.τ := rfl
+@[simp] private lemma corrMark_x₀ : (corrMark t r0 r1 r2 r3).x₀ = r2 * t.x₀ := rfl
+@[simp] private lemma corrMark_x₁ : (corrMark t r0 r1 r2 r3).x₁ = r3 * t.x₁ := rfl
 
 /-- A product of central involutions is a central involution. -/
 private lemma central_mul_comm {a b : Y'} (ha : ∀ z : Y', Commute a z)
@@ -560,7 +565,7 @@ theorem corrMark_h0 [Finite Y'] (hr0 : ∀ z : Y', Commute r0 z) (hr1 : ∀ z : 
     central_pair hr2 hr2sq, central_pair hr1 hr1sq]
   group
 
-/-- **L1 wild row, central 2-torsion** (`docs/p16d6e5-plan.md` §2, L1-wild): the wild relator value
+/-- **L1 wild row, central 2-torsion** (`docs/orchestration/p16d6e5-plan.md` §2, L1-wild): the wild relator value
 shifts by exactly the τ-correction `r₁` — `wildValue(r⃗·ŷ) = r₁ · wildValue ŷ`.  `h₀` and `c₀` are
 correction-free; `u₁⁻¹` contributes `(r₃r₁)⁻¹` and `x₁^σ` contributes `r₃`, whose `r₃`'s cancel,
 leaving `r₁⁻¹ = r₁`.  Matches `d1Fun_wild_trivial`'s `x 1`. -/
@@ -595,7 +600,7 @@ theorem marking_ext {G : Type*} {s t : Marking G} (h0 : s.σ = t.σ) (h1 : s.τ 
 variable {G' : Type} [Group G'] [TopologicalSpace G'] [DiscreteTopology G'] [Finite G']
 
 omit [DiscreteTopology G'] [Finite G'] in
-/-- **Relators die along any continuous hom from `Γ_A`, tame** (`docs/p16d6e5-plan.md` §2, L4 —
+/-- **Relators die along any continuous hom from `Γ_A`, tame** (`docs/orchestration/p16d6e5-plan.md` §2, L4 —
 NO surjectivity, unlike `markC_admissible`): the pushed marking of any `f : Γ_A →ₜ* G'` satisfies
 the tame relation, because the tame relator word lies in `N_A` (`tameRelator_mem_NA`). -/
 theorem push_tameRel (f : ContinuousMonoidHom GA G') : (Marking.push f).TameRel :=
@@ -613,7 +618,7 @@ end PushDescent
 
 /-! ## The `WordLift` multiplication/base-change calculus — the general relator correction
 
-The landed L1 (`tameValue_correction`/`wildValue_correction`) handles corrections by **central**
+The proved L1 (`tameValue_correction`/`wildValue_correction`) handles corrections by **central**
 involutions — the per-cover algebra of L4.  L5 additionally needs the **general** correction at
 `Y` itself (corrections in the non-central `R`), which factors through the lift group
 `A ⋊ Y = WordLift`: evaluating the relators at `liftMarking t x` and pushing through the
@@ -725,13 +730,13 @@ section CoverLift
 variable {B0 : Type} [Group B0] [Finite B0] [TopologicalSpace B0] [DiscreteTopology B0]
 
 omit [TopologicalSpace Y] [DiscreteTopology Y] [DiscreteTopology B0] in
-/-- **The per-cover L4 core** (`docs/p16d6e5-plan.md` §2, L4), abstractly over a bare central
+/-- **The per-cover L4 core** (`docs/orchestration/p16d6e5-plan.md` §2, L4), abstractly over a bare central
 cover: if `g_B` lifts through `Q` (via `gc`), then any set-lift marking `tY` of `g_B` has equal
 tame and wild relator values after reduction along `red`.  Both `tY.map red` and the lift's
 pushed marking cover `g_B`'s marking, so they differ by corrections in the **central 2-torsion**
-kernel (`CentralCover.central`/`z_sq`); the landed L1 (`tameValue_correction`/
+kernel (`CentralCover.central`/`z_sq`); the proved L1 (`tameValue_correction`/
 `wildValue_correction`) evaluates both reduced relator values to the same `r̄₁`.  (Un-privated
-for P-16d6e6's `hsep_gammaA`, which runs the same extraction at the `T`-stage covers.) -/
+for the Prop. 8.9 assembly's `hsep_gammaA`, which runs the same extraction at the `T`-stage covers.) -/
 theorem redValues_eq_of_coverLift (Q : CentralCover B0) (piB : Y →* B0)
     (red : Y →* Q.cover) (hred_p : Q.p.comp red = piB)
     (gB : ContinuousMonoidHom GA B0)
@@ -814,7 +819,7 @@ section Descend
 
 omit [TopologicalSpace H] [DiscreteTopology H] [Finite H]
   [TopologicalSpace E] [DiscreteTopology E] [Finite E] in
-/-- **L5, the descent** (`docs/p16d6e5-plan.md` §2, L5): a marking of `Y` that covers `g_B`'s
+/-- **L5, the descent** (`docs/orchestration/p16d6e5-plan.md` §2, L5): a marking of `Y` that covers `g_B`'s
 marking through `π_B` and kills both relators descends to a continuous `φ : Γ_A → Y` with
 `π_B ∘ φ = g_B`.  The marking generates a subgroup `J ≤ Y` on which it is **admissible**
 (`Generates` by construction; `TameRel`/`WildRel` by subtype injectivity; `Pro2Core` pointwise —
@@ -948,7 +953,7 @@ private theorem lift_of_relatorFree_marking (hE2 : ∀ e : E, e ^ 2 = 1)
 
 end Descend
 
-/-- **L4** (`docs/p16d6e5-plan.md` §2): every `markC θ`-invariant character annihilates the
+/-- **L4** (`docs/orchestration/p16d6e5-plan.md` §2): every `markC θ`-invariant character annihilates the
 relator-value sum.  A nonzero invariant character is a nonzero `RCharSub` element `dc`; the
 vanishing obstruction `hg` lifts `g` through `dc`'s scalar cover (`obs_zero_iff_lifts`), and
 `redValues_eq_of_coverLift` forces the two reduced relator values to agree, so the character
@@ -1021,13 +1026,13 @@ private lemma hsep_invariantChar_killsRelatorSum
 
 /-! ## `hsep_hom`: the `(R^∨)^C` separation at the candidate source (L1–L5, the main work) -/
 
-/-- **The `(R^∨)^C`-separation at `Γ_A`** (P-16d6e5 residue): if the obstruction functional of a
+/-- **The `(R^∨)^C`-separation at `Γ_A`** (the Prop. 8.9 assembly residue): if the obstruction functional of a
 boundary lift `g` vanishes, `g` lifts to a continuous homomorphism into `Y`.  Route
-(`docs/p16d6e5-plan.md` §2): `obs g = 0` gives, per invariant character, a concrete lift through
+(`docs/orchestration/p16d6e5-plan.md` §2): `obs g = 0` gives, per invariant character, a concrete lift through
 the scalar cover (`obs_zero_iff_lifts`); the relator-value corrections of a set-lift are `d1Fun`
 rows (L1); the trace-span package (L3, `prop_5_8_right`) forces full word-solvability; the
 corrected marking descends by `markC_admissible` + `NA_le_ker` + `quotientLift` (L5).  `hcard_A`
-is threaded (proof-irrelevant Prop; supplied by P-16d6e6's `card_H2_gammaA_eq_two`). -/
+is threaded (proof-irrelevant Prop; supplied by the Prop. 8.9 assembly's `card_H2_gammaA_eq_two`). -/
 theorem hsep_hom_gammaA
     (hE2 : ∀ e : E, e ^ 2 = 1)
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)
@@ -1169,12 +1174,12 @@ theorem hsep_hom_gammaA
 
 /-! ## `stageR136`: the (136) identity, assembled -/
 
-/-- **(136) for the block frame at the candidate source** (P-16d6e5, threading `hcard_A`):
-`htriv`/`hZcount`/`hsep_hom` are the residues discharged here; `hcard_A` (P-16d6e6) and the
+/-- **(136) for the block frame at the candidate source** (the Prop. 8.9 assembly, threading `hcard_A`):
+`htriv`/`hZcount`/`hsep_hom` are the residues discharged here; `hcard_A` (the Prop. 8.9 assembly) and the
 `lemma_7_2` structural facts `hRK`/`hR2` thread hypothesis-side.  `hfg` is
-`gammaA_topologicallyFinitelyGenerated` (P-03 ✓ — dischargeable here, unlike the local B1
+`gammaA_topologicallyFinitelyGenerated` (the finite-generation proof ✓ — dischargeable here, unlike the local B1
 reservation).  The conclusion is the `stageR136` field of the candidate `RecursionInputs`
-bundle (P-16d6e7 assembly), verbatim. -/
+bundle (the Prop. 8.9 assembly), verbatim. -/
 theorem stageR136_gammaA_of_hcard
     (hE2 : ∀ e : E, e ^ 2 = 1)
     (hRK : ∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r)

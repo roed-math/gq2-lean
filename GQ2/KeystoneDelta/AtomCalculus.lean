@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.VLiftCount
 
 /-!
@@ -93,7 +98,7 @@ variable {DD : DescData D} {σ : DD.C0 →* Bg ⧸ D.T} (S : CountSections DD σ
 noncomputable def Jmap (p : DD.Vmod × DD.C0) : Bg := (S.mV p.1 : Bg) * S.uσ p.2
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
-theorem piT_Jmap (p : DD.Vmod × DD.C0) : piT (D := D) (Jmap S p) = jmap DD σ p := by
+private theorem piT_Jmap (p : DD.Vmod × DD.C0) : piT (D := D) (Jmap S p) = jmap DD σ p := by
   unfold Jmap jmap
   rw [map_mul, piT_mV, S.piT_uσ]
 
@@ -233,7 +238,7 @@ theorem mDef_zero_left (w : DD.Vmod) : mDef DD S 0 w = 1 := by
   rw [zero_add, S.mV_zero, OneMemClass.coe_one, one_mul, mul_inv_cancel]
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
-theorem mDef_zero_right (v : DD.Vmod) : mDef DD S v 0 = 1 := by
+private theorem mDef_zero_right (v : DD.Vmod) : mDef DD S v 0 = 1 := by
   rw [mDef_symm, mDef_zero_left]
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in

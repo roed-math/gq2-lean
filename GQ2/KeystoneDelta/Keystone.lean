@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.KeystoneDelta.AffineAssembly
 
 /-!
@@ -33,7 +38,7 @@ Pulling the `Ψ_χ`-normal form back along the graph of `c` and completing the s
   `β_χ(c) + β_ξ(c) = Q⁰(c + sh_χ) + ι_Γ(ρ'^* Δ_χ)`
 
 at `Δ_χ := DeltaScalar (γtot_χ, δtot_χ, a_χ)` and `sh_χ := a_χ ∘ ρ'`.  The only Γ-residues
-are `htriv` and `hH2`; everything else is the C-level data landed above. -/
+are `htriv` and `hH2`; everything else is the C-level data proved above. -/
 
 section Keystone
 
@@ -283,7 +288,7 @@ end Keystone
 `centralCoverOfCocycle` consumes a **normalized raw 2-cocycle** on `C₀`.  Here we supply the
 three inputs for `Δ_χ`: the Serre identity (`DeltaChi_cocycle` — the completed square on the
 `(0,·)`-section minus the bundle/base/coboundary Serre identities) and the two normalizations
-(`DeltaChi_one_left`/`right` — from the landed normalization atoms).  All C-level. -/
+(`DeltaChi_one_left`/`right` — from the proved normalization atoms).  All C-level. -/
 
 section PhaseData
 

@@ -1,7 +1,17 @@
-import Mathlib
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.NumberTheory.Padics.RingHoms
+
+@[expose] public section
+
 
 /-!
-# B7′: the dyadic Hilbert symbol  (ticket T-07)
+# B7′: the dyadic Hilbert symbol
 
 The paper's Lemma 3.5 evaluates the cup product
 `H¹(ℚ₂, μ₂) × H¹(ℚ₂, μ₂) → H²(ℚ₂, μ₂) ≅ 𝔽₂` on the square-class basis via the *Hilbert symbol*
@@ -26,8 +36,8 @@ Conventions: `ℚ_[2] = Padic 2`, `ℤ_[2] = PadicInt 2`, `𝔽₂ = ZMod 2`; th
 `ℤˣ = {±1}`-valued
 via `signOf : 𝔽₂ → ℤˣ`, `0 ↦ 1`, `1 ↦ -1`.
 
-The axiom is `[Classical.]` (a theorem of Mathlib-in-principle; axiomatized here at step 1). Per the
-ticket rule it will be migrated to `GQ2/Foundations/Axioms.lean` by T-19.
+The dyadic formula is proved in `GQ2/HilbertSymbolDyadicClose.lean`; its public theorem is
+exposed from `GQ2/Foundations/Axioms.lean` alongside the remaining literature interfaces.
 -/
 
 namespace GQ2.HilbertSymbol
@@ -88,9 +98,9 @@ theorem ω_neg_one : ω (-1) = 0 := by
 /-! ## Inputs of the dyadic Hilbert-symbol formula (former axiom B7′)
 
 The statement itself — `(2^α u, 2^β v)₂ = (-1)^{ε(u)ε(v) + αω(v) + βω(u)}`, Serre CiA III §1.2
-Thm 1 — lives in `GQ2/Foundations/Axioms.lean` (`GQ2.HilbertSymbol.hilbertSymbol_dyadic`,
-consolidated there by T-19; since 2026-07-09 a same-name *theorem*, proved in-repo via
-`GQ2/HilbertSymbolDyadicClose.lean`), together with its faithfulness check `(-1,-1)₂ = -1`.  Here we
+Thm 1 — lives in `GQ2/Foundations/Axioms.lean` (`GQ2.HilbertSymbol.hilbertSymbol_dyadic`) as a
+theorem proved in `GQ2/HilbertSymbolDyadicClose.lean`, together with its faithfulness check
+`(-1,-1)₂ = -1`.  Here we
 provide the two decomposition inputs of its statement. -/
 
 /-- The unit `2 ∈ ℚ₂ˣ`. -/

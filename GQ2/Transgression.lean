@@ -1,8 +1,25 @@
-import GQ2.QuadraticFp2
-import GQ2.OrbitData
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Algebra.Module.ZMod
+public import Mathlib.LinearAlgebra.BilinearForm.Properties
+public import Mathlib.Algebra.Module.StablyFree.Basic
+public import Mathlib.Analysis.Normed.Ring.Lemmas
+public import GQ2.QuadraticFp2
+public import GQ2.OrbitData
+
+@[expose] public section
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
-# Transgression splitting for Lemma 6.21  (ticket P-15i — F-design)
+# Transgression splitting for Lemma 6.21
 
 Proof layer for `GQ2.SectionSix.lemma_6_21`: an extension `1 → V → B → C → 1` carrying a
 global `𝔽₂`-valued 2-cocycle `ξ` whose fibre diagonal is a **nonsingular** quadratic form `q`
@@ -27,8 +44,8 @@ proved by expanding `hcocycle` on mixed triples from `{σ c, σ d, i v}` (the gr
 over the cocycle instances, after normalizing arguments with `hconj`/`hσ`).
 
 `A c` is **not additive** in `v` (defect = the conjugation defect of the fibre restriction
-`R := ξ∘(i×i)`, `mixedA_defect`), so `B_q^♭⁻¹` cannot be applied to it directly — this was the
-P-15i design gap (`docs/p15i-transgression-gap.md`).  The paper's Lemma 6.21 resolves it with
+`R := ξ∘(i×i)`, `mixedA_defect`), so `B_q^♭⁻¹` cannot be applied to it directly.  The paper's
+Lemma 6.21 resolves this obstruction with
 its *"fixed equivariant class `κ⁰_q`"* hypothesis: in cochain avatar, a family
 `t : C → V → 𝔽₂` with
 
@@ -53,13 +70,13 @@ which is exactly Lemma 6.1's `IsEquivariantFactorSet` correction family `m`, tra
   it by an explicit coboundary `δ(k_b)`; diagonals and antisymmetrizations of coboundaries
   vanish (`δa` is symmetric with zero diagonal), so both are conjugation-invariant.
 
-## Status
+## Result
 
-**Sorry-free** (P-15i closed 2026-07-04): all lemmas and the assembly
-`splitting_of_global_cocycle` are proved; `SectionSix.lemma_6_21` splices the assembly through
+The theorem `splitting_of_global_cocycle` implements the complete assembly, and
+`SectionSix.lemma_6_21` applies it through
 `equivariant_lift_of_factorSet`.  The `κ⁰_q` hypothesis `(t, ht_quad, ht_mul)` restores the
 paper's *"relative to the fixed equivariant class"* clause dropped by the consequence-form
-extraction — see `docs/p15i-transgression-gap.md`.
+extraction — see `docs/orchestration/p15i-transgression-gap.md`.
 -/
 
 namespace GQ2
@@ -316,7 +333,7 @@ noncomputable def sigma : C → B := fun c =>
   if c = 1 then 1 else Function.surjInv hp c
 
 omit [Finite C] [Finite B] in
-theorem sigma_spec (c : C) : p (sigma p hp c) = c := by
+private theorem sigma_spec (c : C) : p (sigma p hp c) = c := by
   unfold sigma
   split
   · rename_i h; rw [map_one, h]
@@ -351,7 +368,7 @@ noncomputable def mixedA (c : C) (v : V) : ZMod 2 :=
 omit [Finite V] [Finite C] [Finite B] in
 include hp hconj hcocycle in
 /-- **The additivity defect of `mixedA` is the fibre-restriction conjugation defect** (the
-`D_c` of the P-15i gap analysis): `mixedA c` fails additivity in `v` by exactly
+`D_c` of the Lemma 6.21 proof gap analysis): `mixedA c` fails additivity in `v` by exactly
 `ξ(i(c⁻¹v), i(c⁻¹w)) + ξ(iv, iw)`.  Three `hcocycle` instances after two `hconj` moves;
 this is what blocks `B_q^♭⁻¹ ∘ mixedA` and forces the `κ⁰_q` hypothesis. -/
 theorem mixedA_defect (c : C) (v w : V) :
@@ -530,7 +547,7 @@ datum of an automorphism of the fibre extension `𝔽₂ ×_{ξ|fibre} V` over t
 it is supplied by `equivariant_lift_of_factorSet` from Lemma 6.1's `IsEquivariantFactorSet`.
 Structure of the proof:
 
-* **Additive primitive** (the former gap, now closed): `Ã c := mixedA c + t c⁻¹` is additive in
+* **Additive primitive:** `Ã c := mixedA c + t c⁻¹` is additive in
   `v` (`mixedA_defect` cancels against `ht_quad` at `c⁻¹`) and has the same `C`-coboundary as
   `mixedA` (`ht_mul` telescopes), so `key_transgression` + `bflat_bijective` produce a
   `B_q^♭`-representable transgression primitive `g : C → V`.
@@ -562,7 +579,7 @@ theorem splitting_of_global_cocycle
     have hd := mixedA_defect p hp i hconj ξ hcocycle c v w
     have hq' := ht_quad c⁻¹ v w
     linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hd + hq'
-  -- existence of a `B_q^♭`-representable transgression primitive (the closed P-15i gap)
+  -- existence of a `B_q^♭`-representable transgression primitive (the closed the Lemma 6.21 proof gap)
   obtain ⟨g, hg⟩ : ∃ g : C → V, ∀ (cc dd : C) (v : V),
       polar q (factorSet p hp i cc dd) v
         = polar q (g cc) v + polar q (g dd) (cc⁻¹ • v) + polar q (g (cc * dd)) v := by

@@ -1,10 +1,20 @@
-import GQ2.UnitFiltration
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.Analysis.Normed.Module.FiniteDimension
+public import Mathlib.NumberTheory.Padics.ProperSpace
+public import GQ2.UnitFiltration
+
+@[expose] public section
 
 /-!
 # B13-1 + B13-2 — the topology layer and the uniformizer
 
-This is the **B13-1 + B13-2 deliverable** (lane A) of the `dyadicUnitFiltration` axiom-discharge
-initiative (board `docs/b13-tickets.md`, plan `docs/b13-proof-plan.md`).
+This file proves the **B13-1 + B13-2 components** of `dyadicUnitFiltration`.
 
 **B13-1 (topology).**  The compact unit ball `O = {‖x‖ ≤ 1}` of a finite extension `k/ℚ₂` (a
 bundled `OpenAddSubgroup` off `IsUltrametricDist.closedBall_openAddSubgroup`), the finite quotient
@@ -45,10 +55,10 @@ noncomputable def unitBall : OpenAddSubgroup ↥k := closedBall_openAddSubgroup 
 noncomputable def dyadicBall : OpenAddSubgroup ↥k :=
   closedBall_openAddSubgroup ↥k (r := ‖(2 : ℚ̄₂)‖) (norm_pos_iff.mpr two_ne_zero)
 
-@[simp] theorem mem_unitBall {x : ↥k} : x ∈ (unitBall k).toAddSubgroup ↔ ‖x‖ ≤ 1 :=
+@[simp] private theorem mem_unitBall {x : ↥k} : x ∈ (unitBall k).toAddSubgroup ↔ ‖x‖ ≤ 1 :=
   mem_closedBall_zero_iff
 
-@[simp] theorem mem_dyadicBall {x : ↥k} :
+@[simp] private theorem mem_dyadicBall {x : ↥k} :
     x ∈ (dyadicBall k).toAddSubgroup ↔ ‖x‖ ≤ ‖(2 : ℚ̄₂)‖ := mem_closedBall_zero_iff
 
 /-- The `ℚ₂`-value `‖(2 : ↥k)‖` is `‖(2 : ℚ̄₂)‖` (the norm on `↥k` restricts `ℚ̄₂`'s). -/
@@ -101,7 +111,7 @@ gap. -/
 noncomputable def dyadicIndex : ℕ := Nat.card (↥(unitBall k).toAddSubgroup ⧸
   (dyadicBall k).toAddSubgroup.addSubgroupOf (unitBall k).toAddSubgroup)
 
-theorem one_le_dyadicIndex : 1 ≤ dyadicIndex k := Nat.card_pos
+private theorem one_le_dyadicIndex : 1 ≤ dyadicIndex k := Nat.card_pos
 
 /-- **The uniformizer pigeonhole.**  For `‖x‖ ≤ 1`, two of the powers `x⁰, …, x^M`
 (`M = dyadicIndex`)
@@ -189,7 +199,7 @@ theorem exists_uniformizer :
   · intro y hy
     exact hmax' _ (show ‖y‖ ^ M ≤ ‖(2 : ℚ̄₂)‖ from uniform_gap k hy)
 
-/-- **The uniformizer + ramification data** (B13-2's deliverable for the B13-5 capstone), in the
+/-- **The uniformizer + ramification data** (B13-2's result for the B13-5 capstone), in the
 `ℚ̄₂`-vocabulary of the `DyadicUnitFiltration` structure: a `π ∈ k`, `π ≠ 0`, `‖π‖ < 1`,
 norm-maximal below `1`, together with `e ≥ 1` and `‖2‖ = ‖π‖^e`. -/
 theorem exists_uniformizer_data :

@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.WordCoh2
 
 /-!
@@ -14,7 +19,7 @@ The structural heart is the isomorphism `HeisLift A C ≅ CentExt kappaHeis`: th
 naturality of the relator values (`Marking.map_{tame,wild}Value`) this turns the traced-`z`
 sum defining `mixedB` into the traced-`fib` sum defining `relZPair`.
 
-This is the *source-generic, edge-free* half of the P-16c4 ledger identity
+This is the *source-generic, edge-free* half of the Γ_A half-torsor proof ledger identity
 `obs(varCoc u) = mixedB t_ρ x_w y_φ`; the edge-specific half (identifying `varCoc u` with the
 inflation of `kappaHeis`) is assembled downstream over the `RadicalCoverData` context.
 -/

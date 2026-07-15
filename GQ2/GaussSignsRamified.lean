@@ -1,8 +1,20 @@
-import GQ2.GaussSigns
-import GQ2.TameSimple
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.GaussSigns
+public import GQ2.TameSimple
+
+@[expose] public section
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
-# Ramified Arf value (Lemma 6.8 (87)):  `arf q = s`  via the `⟨T⟩` route  (ticket P-15b)
+# Ramified Arf value (Lemma 6.8 (87)):  `arf q = s`  via the `⟨T⟩` route
 
 The ramified Arf value is computed **without** the Hermitian model, involution, or norm-one group:
 tame inertia `⟨T⟩` itself acts diagonally on `V ≅ W^{⊕s}` (the isotypic decomposition), freely on
@@ -12,7 +24,7 @@ tame inertia `⟨T⟩` itself acts diagonally on `V ≅ W^{⊕s}` (the isotypic 
 (`irreducible_operator_pow_ne_one`) —
 pins `arf q = s`.
 
-Reuses P-13d (`GQ2/TameSimple.lean`): `IsSimpleModTwo`.
+Reuses the tame representation-theory proof (`GQ2/TameSimple.lean`): `IsSimpleModTwo`.
 
 No `sorry`.
 -/

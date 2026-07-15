@@ -1,22 +1,26 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.Block.FormFields
 
 /-!
-# §9 concrete block enrichment — `SectionNine.blockEnrichment`  (P-17d3)
+# §9 concrete block enrichment — `SectionNine.blockEnrichment`
 
-Assembles `(blockFrame T Blk hE2).Enrichment` from the P-17d1 descent (`GQ2/BlockDescent.lean`),
-the P-17d2b form fields (`GQ2/BlockFormFields.lean`), and the κ⁰ base-class datum.  Placed in a
+Assembles `(blockFrame T Blk hE2).Enrichment` from the descent (`GQ2/BlockDescent.lean`),
+the form fields (`GQ2/BlockFormFields.lean`), and the κ⁰ base-class datum.  Placed in a
 separate module (under `namespace SectionNine`, preserving the FQN `SectionNine.blockEnrichment`)
 because it consumes `SectionNine.kappa0_exists`/`ActsThroughTame`, so it must sit *downstream* of
-`GQ2.SectionNine`.  The two substantive pieces are both **std-3, sorry-free**:
+`GQ2.SectionNine`.  The two substantive pieces use only the standard axioms:
 
 * `blockHsimple` — `V = P/S` is a simple `𝔽₂[Y/K]`-module (`blockPS_exp2` exp-2 + `Blk.chief`
   under the `W ↦ WP ≤ ↥P ↦ X ≤ Y` subgroup correspondence);
 * `blockHtame` — the `Y/K`-action factors through the tame head `H` (`blockLY_smul_eqY` via
   `FoxH.lemma_5_12` ⟹ the action descends `Y/K ↠ Y/L_Y ≅ H`, generators `α σ, α τ`).
 
-`dat`/`hdat` come from `blockKappa0` (= `kappa0_exists`), so `#print axioms blockEnrichment` =
-std-3 + `sorryAx` where the **only** `sorryAx` flows through `kappa0_exists` (P-17e) — no
-B-axioms.  Signature: takes `F : BoundaryFrame H E` (`cH := F.alpha`, `hcH := F.alpha_surjective`
+`dat`/`hdat` come from `blockKappa0` (= `kappa0_exists`).  The signature takes
+`F : BoundaryFrame H E` (`cH := F.alpha`, `hcH := F.alpha_surjective`
 for `prop_7_4`, and the tame generators `F.alpha tameSigma/tameTau` for `htame`).
 -/
 
@@ -138,8 +142,8 @@ omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [
   [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 omit [Blk.frattiniK.Normal] in
 /-- **`hnt`: the `Y/K`-action on `V = P/S` is nontrivial** — the enrichment-module form of
-the block's `nontrivial_action` field.  (P-17i coordination, 2026-07-08: `prop_8_9`'s former
-`hfaith` hypothesis is weakened to this — faithfulness is NOT block-derivable (a central
+the block's `nontrivial_action` field.  Only nontriviality is assumed: faithfulness is not
+block-derivable (a central
 2-part of `Y` outside `K` centralizes `V`), but the capstone only consumed `hfaith` through
 `hnt`.)  The moving pair is `(⟦y⟧_K, ⟦p⟧_S)`: `⟦y⟧•⟦p⟧ = ⟦p⟧` would put `y p y⁻¹ p⁻¹ ∈ S`
 (conjugating the coset relation by `p`), against `nontrivial_action`. -/
@@ -277,7 +281,7 @@ theorem blockHtame (F : BoundaryFrame H E) :
 
 /-- The κ⁰ base-class datum for `q̄_λ`, from `kappa0_exists` (Lemma 6.3), discharging its
 `hsimple`/`htame` hypotheses via `blockHsimple`/`blockHtame`.  Rides `kappa0_exists`'s sorry
-(P-17e). -/
+(the §9 induction). -/
 noncomputable def blockKappa0 (F : BoundaryFrame H E) (l : BlockDR T Blk)
     (hlne : l.1 ≠ Blk.frattiniK) :=
   letI := blockPS_commGroup Blk
@@ -289,11 +293,11 @@ noncomputable def blockKappa0 (F : BoundaryFrame H E) (l : BlockDR T Blk)
     (blockHinv T Blk F.alpha F.alpha_surjective l hlne)
     (blockHsimple T Blk) (blockHtame T Blk F)
 
-/-- **The concrete block enrichment** (P-17d3): the full `RF.Enrichment` record assembled from
-the P-17d1 descent (`blockDescend*`/`blockActV`), the P-17d2b form fields
+/-- **The concrete block enrichment** (the §9 induction): the full `RF.Enrichment` record assembled from
+the §9 induction descent (`blockDescend*`/`blockActV`), the §9 induction form fields
 (`blockQ`/`blockQbar`/…), and the κ⁰ datum (`blockKappa0`).  Takes the boundary frame `F`
 (supplying `cH := F.alpha` for `prop_7_4` and the tame generators for `htame`).  Axiom-clean
-modulo `kappa0_exists` (P-17e). -/
+modulo `kappa0_exists` (the §9 induction). -/
 noncomputable def blockEnrichment (F : BoundaryFrame H E) : (blockFrame T Blk hE2).Enrichment := by
   letI := blockPS_commGroup Blk
   letI := blockActVY Blk

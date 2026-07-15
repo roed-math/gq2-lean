@@ -1,7 +1,12 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.HilbertLedger
 
 /-!
-# P-15f2c2a: the abstract Kummer presentation package
+# The abstract Kummer presentation package
 
 For a degree-2 extension `k ≤ L` of intermediate fields of `ℚ̄₂/ℚ_[2]` and a deep element
 `A ∈ L` (`‖A − 1‖ < ‖2‖`), produce the concrete Kummer presentation that
@@ -15,8 +20,8 @@ For a degree-2 extension `k ≤ L` of intermediate fields of `ℚ̄₂/ℚ_[2]` 
   `GQ2.norm_galois`).
 
 The exported statement `exists_kummer_presentation` matches `lemma_6_16`'s hypothesis shapes
-on the nose.  **Interface note (refinement over the board row)**: the deepness input is the
-norm inequality `‖A − 1‖ < ‖2‖` — the consumer (P-15f2c2b) converts `IsDeepUnit` via the
+on the nose.  **Interface note**: the deepness input is the norm inequality
+`‖A − 1‖ < ‖2‖` — the consumer converts `IsDeepUnit` via the
 banked `LocalKummer.norm_sub_one_lt_of_isDeepUnit`; this keeps the file free of `IsDeepUnit`
 and §6 imports.
 
@@ -283,12 +288,12 @@ section Export
 
 variable {k L : IntermediateField ℚ_[2] ℚ̄₂}
 
-/-- **The abstract Kummer presentation package** (P-15f2c2a, exported interface): a degree-2
+/-- **The abstract Kummer presentation package** (the Lemma 6.17 vanishing proof, exported interface): a degree-2
 extension `k ≤ L` inside `ℚ̄₂/ℚ_[2]` together with a deep element `A ∈ L` yields the full
 generator-and-coordinates data of `SectionSix.lemma_6_16`: `d, δ` with `δ² = d`, `δ ∈ L`,
 the fixing-subgroup/stabilizer identification, and `A = u + v·δ` with `u` a **unit**.
 
-Consumer (P-15f2c2b) supplies `hdeg` from the index-2 hypothesis (fixing-index → degree
+Consumer (the Lemma 6.17 vanishing proof) supplies `hdeg` from the index-2 hypothesis (fixing-index → degree
 bridge) and `hA1` from `IsDeepUnit` via `LocalKummer.norm_sub_one_lt_of_isDeepUnit`. -/
 theorem exists_kummer_presentation (hkL : k ≤ L)
     (hdeg : Module.finrank ↥k ↥(extendScalars hkL) = 2)

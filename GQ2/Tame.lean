@@ -1,4 +1,17 @@
-import Mathlib
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.GroupTheory.PGroup
+public import Mathlib.Order.CompletePartialOrder
+public import Mathlib.FieldTheory.Normal.Defs
+public import Mathlib.Algebra.Order.Star.Basic
+
+@[expose] public section
+
 
 /-!
 # Lemma 3.1 — structure of finite tame quotients
@@ -69,14 +82,13 @@ theorem zpowers_sq_eq_of_odd {t : G} (ht : Odd (orderOf t)) :
   rw [zpow_natCast, ← pow_mul, show 2 * (m + 1) = orderOf t + 1 by omega, pow_succ,
     pow_orderOf_eq_one, one_mul]
 
-/-- The cyclic subgroup `⟨t⟩` is normal in `G = ⟨s, t⟩`.  *(Target; proof deferred.)*
+/-- The cyclic subgroup `⟨t⟩` is normal in `G = ⟨s, t⟩`.
 
-Proof plan (uses `zpowers_sq_eq_of_odd`): conjugation by `s⁻¹` is the automorphism
+The proof uses `zpowers_sq_eq_of_odd`: conjugation by `s⁻¹` is the automorphism
 `MulAut.conj s⁻¹`,
 and `(MulAut.conj s⁻¹) t = s⁻¹ t s = t²`, so `(⟨t⟩).map (conj s⁻¹) = ⟨t²⟩ = ⟨t⟩` (odd order). Hence
 `s` (and trivially `t`) lie in `(⟨t⟩).normalizer`; since `⟨s,t⟩ = ⊤`, the normalizer is `⊤`, i.e.
-`⟨t⟩` is normal. The remaining Lean work is `MulAut.conj`/`Subgroup.map`/`normalizer` API
-plumbing. -/
+`⟨t⟩` is normal. -/
 theorem zpowers_normal_of_tame {s t : G} [Finite G] (hgen : Subgroup.closure {s, t} = ⊤)
     (h : s⁻¹ * t * s = t ^ 2) : (Subgroup.zpowers t).Normal := by
   have hodd : Odd (orderOf t) := tame_odd_order (orderOf_pos s).ne' h

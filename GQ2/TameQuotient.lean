@@ -1,9 +1,18 @@
-import GQ2.BoundaryFrame
-import GQ2.MaxProP
-import GQ2.Reciprocity
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.BoundaryFrame
+public import GQ2.MaxProP
+public import GQ2.Reciprocity
+
+@[expose] public section
 
 /-!
-# B10: the tame quotient of `G_ℚ₂` — definition layer  (P-06 follow-up)
+# B10: the tame quotient of `G_ℚ₂` — definition layer
 
 The paper's Prop. 3.2 needs, on the local side, the **classical description of the tame
 quotient of a local absolute Galois group**: there is a closed normal pro-2 subgroup
@@ -18,12 +27,11 @@ is the profinite group on two generators `σ, τ` with the single relation `στ
 Γ → 1`) and the standard fact that `G(k̄|k_tr) = W_F` is pro-`p` (ramification theory; Serre,
 *Local Fields* [7], Ch. IV).  It was **not** in the step-1 census (which is otherwise
 2-centric); it enters now as axiom **B10** (`GQ2.tameQuotient`, in
-`GQ2/Foundations/Axioms.lean`) by explicit decision after the P-06 escalation — see
-`docs/section3-extraction.md` §"escalations" and the board's P-06 bullet.
+`GQ2/Foundations/Axioms.lean`).
 
 ## Conventions
 
-* `Ttame`, `tameSigma`, `tameTau` are the P-11 layer's (`GQ2/BoundaryFrame.lean`) — the
+* `Ttame`, `tameSigma`, `tameTau` are defined in `GQ2/BoundaryFrame.lean` — the
   presented profinite group on `σ = of 0`, `τ = of 1` with relator `tameWord = τ^σ·(τ²)⁻¹`,
   where `x ^ g = g⁻¹xg` (`conjP`) and the paper's `σ` is **geometric** Frobenius ("geometric
   Frobenius acts by squaring", Prop. 3.2's proof).  NSW's (7.5.3) is stated with arithmetic
@@ -35,7 +43,7 @@ is the profinite group on two generators `σ, τ` with the single relation `στ
   normal pro-2 `W` with tame quotient `T_tame`.  By paper Lemma 3.3 (`O₂(G_{ℚ₂}) = W_F`)
   such a `W` is unique — but **maximality is not part of the axiom**: it is Lemma 3.3's
   *proved* content (pure profinite group theory of `T_tame`, from Lemma 3.1's finite
-  analysis), and stays a theorem obligation (P-09; consumed by `prop_3_2_local`, which
+  analysis), and stays a theorem obligation (Prop. 3.2; consumed by `prop_3_2_local`, which
   `extends` this bundle with the maximality field).
 
 The `normal` field is an instance-binder so that the `equiv` field's quotient `AbsGalQ2 ⧸ W`

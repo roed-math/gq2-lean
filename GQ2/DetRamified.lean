@@ -1,23 +1,23 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.VanishClose
 
 /-!
-# P-15f2d/f8 statement-move: the ramified base determinant theorem, wired
+# The ramified base determinant theorem, wired
 
 The two §6.3 Kummer cores `lemma_6_17_dim` / `lemma_6_17_vanish` are stated (frozen) upstream in
 `GQ2/SectionSix.lean` but proved **downstream** — the dimension clause by
-`ResidueLift.lemma_6_17_dim_final` (P-15f8) and the vanishing clause by
-`VanishClose.lemma_6_17_vanish_final` (P-15f2d).  Their sole consumer `prop_6_18_ramified`
-(Proposition 6.18, the ramified dyadic base determinant count) lived in `GQ2/DeepPart.lean`,
-**upstream** of both proofs, so it inherited their `sorryAx`.
+`ResidueLift.lemma_6_17_dim_final` (the deep-part proof) and the vanishing clause by
+`VanishClose.lemma_6_17_vanish_final` (the Lemma 6.17 vanishing proof).
 
-This leaf performs the **6.18ram statement-move** (the P-15d/`lemma_6_14` pattern): it re-homes
-`prop_6_18_ramified` here — downstream of both `_final` proofs — citing them directly through the
-banked reduction `DeepPart.card_Q0loc_zero_eq_of_dim_of_vanish`.  The sorried
-`lemma_6_17_dim`/`lemma_6_17_vanish` stubs in `SectionSix` are removed (comment-pointers there),
-and `DeepPart.prop_6_18_ramified` is removed (comment-pointer there); the sole consumer
-`GaussZLocal.sum_sign_Q0loc_ramified` is rerouted here.
+This leaf places `prop_6_18_ramified` downstream of both `_final` proofs and cites them through
+the reduction `DeepPart.card_Q0loc_zero_eq_of_dim_of_vanish`.  This placement breaks the import
+cycle that would arise if the theorem lived with the shared definitions in `SectionSix`.
 
-**Amendment (P-20 flag)**: `lemma_6_17_vanish_final` carries the reciprocity datum
+**Amendment (the architecture review flag)**: `lemma_6_17_vanish_final` carries the reciprocity datum
 `(R : LocalReciprocity, horient : TameUnitOrientation R B.tameF)` — the c2c4 route to the
 involution `hunram` (odd tame inertia ⟹ the involution extension is unramified, in CFT
 vocabulary).  So `prop_6_18_ramified` gains `(R, horient)` as hypotheses (the `hc`/`hV2`
@@ -41,14 +41,14 @@ variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
 /-- **Proposition 6.18 (dyadic base determinant theorem), eq. (115), ramified case** — wired
-downstream (the P-15f8/f2d statement-move): the local base determinant form has the positive
+downstream (the deep-part proof/f2d statement-move): the local base determinant form has the positive
 Gauss sign, `#(Q⁰_loc)⁻¹(0) = 2^{2m−1} + 2^{m−1}` (`#V = 2^{2m}`).  With Prop 6.9 this is
 Corollary 6.19(iv): the two sources have equal base Gauss sums.
 
-Proved from the two §6.3 Kummer cores now that both are landed downstream:
+Proved from the two §6.3 Kummer cores now that both are proved downstream:
 `ResidueLift.lemma_6_17_dim_final` (`#X₊² = #H¹`) and `VanishClose.lemma_6_17_vanish_final`
 (`Q⁰_loc|X₊ = 0`), fed to the banked Lagrangian-Arf count `card_Q0loc_zero_eq_of_dim_of_vanish`.
-Amended (P-20 flag) with `(R, horient)` — the reciprocity datum `lemma_6_17_vanish_final`
+Amended (the architecture review flag) with `(R, horient)` — the reciprocity datum `lemma_6_17_vanish_final`
 requires; consumers discharge it at the boundary-maps witness. -/
 theorem prop_6_18_ramified (D : TateDuality 2) (R : LocalReciprocity) (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)

@@ -1,16 +1,25 @@
-import GQ2.GammaA
-import GQ2.MaxProP
-import GQ2.ProfinitePresentation
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.GammaA
+public import GQ2.MaxProP
+public import GQ2.ProfinitePresentation
+
+@[expose] public section
 
 /-!
-# §4: the common boundary and Theorem 4.2  (ticket P-11)
+# §4: the common boundary and Theorem 4.2
 
 The paper's §4 fixes, **once and for all**, a common finite-headed boundary shared by the two
 source groups `Γ_A` and `G_ℚ₂`, and states the *boundary-framed exact-image theorem* (Thm 4.2) —
 the technical heart of the proof of eq. (154), proved in §9 by strong induction on `|L_Y|`.
 This file provides the §4 objects; the **statement** of Theorem 4.2 (`thm_4_2`) lives in
-`GQ2/SectionNine.lean` since P-17a (moved-out pattern: its §9 proof machinery imports this
-file), with the reviewed `hE2` amendment.
+`GQ2/ThmFourTwo.lean`, because its §9 proof machinery imports this file, with the explicit
+`hE2` hypothesis required by the encoded frame.
 
 ## The paper's objects and their encodings
 
@@ -29,7 +38,7 @@ file), with the reviewed `hE2` amendment.
   image of `1 ∈ ℤ`.
 * **`nuT`, `nuTwo`** (Prop 3.14's `ν_t` and eq. (21)'s `ν₂`): the unramified markings, pinned by
   `ν_t(σ) = 1, ν_t(τ) = 0` and `ν₂(σ) = 1, ν₂(x₀) = ν₂(x₁) = 0`, built by `presentationLift`
-  (kill the relator, descend) and — for `nuTwo` — the T-05 universal property of `maxProP`
+  (kill the relator, descend) and — for `nuTwo` — the universal property of `maxProP`
   (`proPKernel_le_ker`; the target `Ztwo` is pro-2 by `isProP_maxProPQuotient`).  The generator
   values are **proved** below (`nuT_tameSigma`, …) — they are this file's stress tests.
 * **`boundarySubgroup` / `Boundary`** (eq. (26)): `∂bd = Ttame ×_{Z₂} Π`, encoded as the
@@ -49,14 +58,12 @@ file), with the reviewed `hE2` amendment.
   finite generation the set is genuinely finite (`finite_boundaryLifts`).  §5's "`ρ : Γ ↠ C`
   satisfies the boundary equation" and §8's `X_Γ(C)` (Def 8.1) are `BoundaryLifts` verbatim.
 
-## The design decision: `BoundaryMaps` (the (27) epimorphisms as a hypothesis bundle)
+## `BoundaryMaps`: the epimorphisms of (27) as an interface bundle
 
-Theorem 4.2 is stated relative to the maps `b_Γ : Γ ↠ ∂bd` of eq. (27), whose *existence* is
-Proposition 3.14 — a §3 result (tickets P-06/P-09/P-10), **not constructible today** (the
-`G_ℚ₂`-side needs wild inertia / B5-derived structure; the `Γ_A`-side needs Prop 3.2's
-wild-relator computation).  Following the repo's bundle pattern (B5/B6/B8), the structure
-`BoundaryMaps` carries the tame and pro-2 components of both maps together with the properties
-Prop 3.14 asserts of them:
+Theorem 4.2 is stated relative to the maps `b_Γ : Γ ↠ ∂bd` of eq. (27).  The structure
+`BoundaryMaps` carries the tame and pro-2 components of both maps together with exactly the
+properties Proposition 3.14 asserts; `GQ2/BoundaryMapsWitness.lean` constructs the concrete
+witness used by the final assembly.
 
 * `Γ_A`-side: pinned **rigidly** by generator values — `tameA : σ ↦ σ, τ ↦ τ, x₀, x₁ ↦ 1` and
   `pro2A : σ ↦ σ, τ ↦ 1, xᵢ ↦ xᵢ` (Prop 3.10 and Prop 3.14's proof).  A continuous hom out of
@@ -65,7 +72,7 @@ Prop 3.14 asserts of them:
 * `G_ℚ₂`-side: pinned **intrinsically** — `tameF` is surjective with kernel *the* characteristic
   2-core (Lemma 3.3's characterization of wild inertia `W_F = O₂(G_ℚ₂)`: the kernel is pro-2
   normal and contains every closed normal pro-2 subgroup), and `pro2F` is surjective with kernel
-  exactly `proPKernel 2 AbsGalQ2` (i.e. *the* maximal pro-2 quotient map, T-05).
+  exactly `proPKernel 2 AbsGalQ2` (i.e. *the* maximal pro-2 quotient map).
 * both sides: the ν-compatibility (`compatA`/`compatF` — Prop 3.14's conclusion; this is what
   makes the pairs land in `∂bd`) and joint surjectivity onto `∂bd` (eq. (27); the paper derives
   it by profinite Goursat, so instantiators may prove rather than assume it).
@@ -73,16 +80,11 @@ Prop 3.14 asserts of them:
 `thm_4_2` quantifies over **all** `BoundaryMaps` witnesses.  This is the faithful reading:
 Prop 3.14 says the quotient maps "**may be chosen** so that" the compatibility holds, and §4
 fixes such a choice "**once and for all**" — nothing after §4 uses more about the choice than
-the properties above.  **Flagged residual risk** (for P-17/P-20 review): if the §9 induction
-turns out to use a property of the Prop 3.14 choice not listed here (cf. Remark 3.15 on the full
-marking being load-bearing — the ν-compatibility field is exactly that marking), `BoundaryMaps`
-must be extended, which is a reviewed statement change.  Instantiation: P-06 states Prop 3.10 /
-3.14 against these definitions; P-09/P-10 prove them.
+the properties above.  In particular, the full marking from Remark 3.15 is represented by the
+ν-compatibility fields rather than reconstructed later.
 
-Axioms: **none** — the statement layer is axiom-free (matching App. D, where Thm 4.2's inputs
-B1/B3c/B6/B7/B7′/B8/B9 enter only through the §§5–9 *proof*, ticket P-17).  Since P-17a this
-file is **sorry-free** (`thm_4_2`/`thm_4_2_stratum` relocated to `GQ2/SectionNine.lean`, which
-takes over the allowlist slot).
+Axioms: **none** — the statement layer is axiom-free.  The literature inputs listed for Theorem
+4.2 in Appendix D enter only through the §§5–9 proof.
 -/
 
 open scoped Pointwise
@@ -93,7 +95,7 @@ namespace GQ2
 
 A continuous hom out of the free profinite group killing every relator kills their closed normal
 closure (the kernel is closed and normal), hence descends to the presented group.  Stated here
-for P-11's `ν`-maps; P-12 may promote it to `GQ2/ProfinitePresentation.lean`. -/
+for the `ν`-maps used below. -/
 
 /-- Descend a relator-killing continuous hom to the profinite presentation. -/
 noncomputable def presentationLift {X : Type} (rels : Set (FreeProfiniteGroup X)) {P : Type}
@@ -168,18 +170,18 @@ noncomputable def ztwoOne : Ztwo := maxProPMk 2 Zhat (Zhat.ofInt 1)
 noncomputable def tameToZhat : ContinuousMonoidHom (FreeProfiniteGroup (Fin 2)) Zhat :=
   ((FreeProfiniteGroup.homEquiv (Fin 2) Zhat).symm ![Zhat.ofInt 1, 1]).hom
 
-@[simp] theorem tameToZhat_of_zero : tameToZhat (FreeProfiniteGroup.of 0) = Zhat.ofInt 1 :=
+@[simp] private theorem tameToZhat_of_zero : tameToZhat (FreeProfiniteGroup.of 0) = Zhat.ofInt 1 :=
   FreeProfiniteGroup.homEquiv_symm_of _ _ _
 
-@[simp] theorem tameToZhat_of_one : tameToZhat (FreeProfiniteGroup.of 1) = 1 :=
+@[simp] private theorem tameToZhat_of_one : tameToZhat (FreeProfiniteGroup.of 1) = 1 :=
   FreeProfiniteGroup.homEquiv_symm_of _ _ _
 
-theorem tameToZhat_tameWord : tameToZhat tameWord = 1 := by
+private theorem tameToZhat_tameWord : tameToZhat tameWord = 1 := by
   simp only [tameWord, conjP, map_mul, map_inv, map_pow, tameToZhat_of_zero, tameToZhat_of_one]
   group
 
 /-- **`ν_t : Ttame ↠ Z₂`** (Prop 3.14): `ν_t(σ) = 1`, `ν_t(τ) = 0`.  (Surjectivity is a
-§3 fact, P-06/P-09 scope; only the map is needed to *state* §4.) -/
+§3 fact, the §3 statement layer/Prop. 3.2 scope; only the map is needed to *state* §4.) -/
 noncomputable def nuT : ContinuousMonoidHom Ttame Ztwo :=
   presentationLift {tameWord} ((maxProPMk 2 Zhat).comp tameToZhat) <| by
     rintro r rfl
@@ -199,16 +201,16 @@ noncomputable def nuT : ContinuousMonoidHom Ttame Ztwo :=
 noncomputable def wildToZhat : ContinuousMonoidHom (FreeProfiniteGroup (Fin 3)) Zhat :=
   ((FreeProfiniteGroup.homEquiv (Fin 3) Zhat).symm ![Zhat.ofInt 1, 1, 1]).hom
 
-@[simp] theorem wildToZhat_of_zero : wildToZhat (FreeProfiniteGroup.of 0) = Zhat.ofInt 1 :=
+@[simp] private theorem wildToZhat_of_zero : wildToZhat (FreeProfiniteGroup.of 0) = Zhat.ofInt 1 :=
   FreeProfiniteGroup.homEquiv_symm_of _ _ _
 
-@[simp] theorem wildToZhat_of_one : wildToZhat (FreeProfiniteGroup.of 1) = 1 :=
+@[simp] private theorem wildToZhat_of_one : wildToZhat (FreeProfiniteGroup.of 1) = 1 :=
   FreeProfiniteGroup.homEquiv_symm_of _ _ _
 
-@[simp] theorem wildToZhat_of_two : wildToZhat (FreeProfiniteGroup.of 2) = 1 :=
+@[simp] private theorem wildToZhat_of_two : wildToZhat (FreeProfiniteGroup.of 2) = 1 :=
   FreeProfiniteGroup.homEquiv_symm_of _ _ _
 
-theorem wildToZhat_piRelator : wildToZhat piRelator = 1 := by
+private theorem wildToZhat_piRelator : wildToZhat piRelator = 1 := by
   simp only [piRelator, conjP, commP, map_mul, map_inv, map_pow, wildToZhat_of_zero,
     wildToZhat_of_one, wildToZhat_of_two]
   group
@@ -222,7 +224,7 @@ noncomputable def prePiToZtwo :
     rw [wildToZhat_piRelator, map_one]
 
 /-- **`ν₂ : Π ↠ Z₂`** (eq. (21)): `ν₂(σ) = 1`, `ν₂(x₀) = ν₂(x₁) = 0`.  Descends through the
-maximal pro-2 quotient by the T-05 universal property (`Z₂` is pro-2). -/
+maximal pro-2 quotient by the maximal pro-p quotient API universal property (`Z₂` is pro-2). -/
 noncomputable def nuTwo : ContinuousMonoidHom PiBd Ztwo :=
   quotientLift (proPKernel 2 (profinitePresentation {piRelator})) prePiToZtwo
     (proPKernel_le_ker isProP_maxProPQuotient prePiToZtwo)
@@ -344,7 +346,7 @@ noncomputable def exactImageCount [Group Y] [TopologicalSpace Y] [Finite Y]
   Nat.card (BoundaryLifts b F T)
 
 /-- The count (29) is genuinely finite when `Γ` is a topologically finitely generated
-profinite group (`Γ_A` after P-03; `G_ℚ₂` by axiom B1). -/
+profinite group (`Γ_A` after the finite-generation proof; `G_ℚ₂` by axiom B1). -/
 theorem finite_boundaryLifts [IsTopologicalGroup Γ] [CompactSpace Γ]
     [TotallyDisconnectedSpace Γ] [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
     (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E)
@@ -358,10 +360,10 @@ theorem finite_boundaryLifts [IsTopologicalGroup Γ] [CompactSpace Γ]
 /-! ## The Prop 3.14 interface: the epimorphisms `b_Γ`  (eq. (27)) -/
 
 /-- **The boundary maps of eq. (27)**, as the tame/pro-2 component pairs Prop 3.14 provides —
-carried as a hypothesis bundle (its existence is §3 content: P-06 states it, P-09/P-10 prove
+carried as a hypothesis bundle (its existence is §3 content: the §3 statement layer states it, Prop. 3.2/Prop. 1.1 prove
 it).  See the module docstring for the pinning rationale: the `Γ_A`-components are determined
 by their generator values; the `G_ℚ₂`-components by Lemma 3.3's 2-core characterization of wild
-inertia and by `proPKernel` (T-05); `compat…` is Prop 3.14's ν-compatibility (the "full
+inertia and by `proPKernel` (the maximal pro-p quotient API); `compat…` is Prop 3.14's ν-compatibility (the "full
 marking", Remark 3.15); `surj…` is eq. (27)'s joint surjectivity. -/
 structure BoundaryMaps where
   /-- The tame quotient map of `Γ_A`. -/
@@ -395,7 +397,7 @@ structure BoundaryMaps where
   wild_isMax : ∀ N : Subgroup AbsGalQ2, N.Normal → IsClosed (N : Set AbsGalQ2) →
     IsProP 2 N → N ≤ tameF.toMonoidHom.ker
   pro2F_surjective : Function.Surjective pro2F
-  /-- `pro2F` is *the* maximal pro-2 quotient map: its kernel is the pro-2 kernel of T-05. -/
+  /-- `pro2F` is *the* maximal pro-2 quotient map: its kernel is the pro-2 kernel of the maximal pro-p quotient API. -/
   ker_pro2F : pro2F.toMonoidHom.ker = proPKernel 2 AbsGalQ2
   /-- Eq. (27) for `G_ℚ₂`: `b_{G_ℚ₂} : G_ℚ₂ ↠ ∂bd`. -/
   surjF : Function.Surjective
@@ -431,11 +433,11 @@ end BoundaryMaps
 
 /-! ## Theorem 4.2
 
-The statement `GQ2.thm_4_2` (and its stratum clause `thm_4_2_stratum`) **moved to
-`GQ2/SectionNine.lean`** (P-17a, 2026-07-06): its proof is the §9 strong induction, whose
-machinery imports this file, so the statement cannot stay here (the P-08/P-10 moved-out
-pattern).  The move also applied the reviewed `hE2` amendment (decoration target of
-exponent 2 — the `lemma_7_3` hypothesis); see `docs/section9-extraction.md` §Deviations. -/
+The statement `GQ2.thm_4_2` (and its stratum clause `thm_4_2_stratum`) lives downstream in
+`GQ2/ThmFourTwo.lean`: its proof is the §9 strong induction, whose
+machinery imports this file, so the statement cannot stay here (the Lemmas 3.6–3.8 proof/Prop. 1.1 moved-out
+pattern).  Its `hE2` hypothesis says that the decoration target has exponent 2, as required
+by `lemma_7_3`; see `docs/section9-extraction.md` §Deviations. -/
 
 end GQ2
 

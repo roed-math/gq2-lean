@@ -1,4 +1,16 @@
-import GQ2.Devissage.LESExact
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.Devissage.LESExact
+
+@[expose] public section
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
 # §5.11 dévissage: the dualized SES, δ-squares, and the master two-of-three

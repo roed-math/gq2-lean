@@ -1,7 +1,16 @@
-import GQ2.RegularSummand
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.RegularSummand
+
+@[expose] public section
 
 /-!
-# The equivariant-Hom counting engine  (ticket P-15f5)
+# The equivariant-Hom counting engine
 
 The single-step multiplicativity of equivariant-Hom counts across an equivariant short exact
 presentation, from a regular-summand package (the Lemma-6.11 output shape, taken as a
@@ -14,15 +23,14 @@ post-composition with `π` is an additive map `Φ` between these Hom groups; the
 Lagrange (`AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup`) + the first isomorphism
 theorem (`QuotientAddGroup.quotientKerEquivOfSurjective`), with
 
-* **surjectivity of `Φ`** supplied by the banked `equivariant_lift_of_regular_summand`
-  (`GQ2/RegularSummand.lean`; since P-17e4 the producing `lemma_6_11` node is itself proved
-  std-3, so the whole package is `sorryAx`-free), and
+* **surjectivity of `Φ`** supplied by `equivariant_lift_of_regular_summand`
+  (`GQ2/RegularSummand.lean`; its input `lemma_6_11` is std-3), and
 * **`ker Φ ≃ Hom_C(V, W')`** from the kernel identification along `j` (choice-lift through the
   injection).
 
-The iterated product over a full filtration is intentionally left to the consumer
-(P-15f6/P-15f8): concrete graded presentations vary, and each step is one application of
-`card_equivHoms_of_exact`.  This file is std-3 sorry-free and axiom-free.
+The iterated product over a full filtration is intentionally left to the consumer: concrete
+graded presentations vary, and each step is one application of
+`card_equivHoms_of_exact`.  This file is axiom-free.
 -/
 
 namespace GQ2
@@ -110,7 +118,7 @@ theorem card_ker_postCompHom (j : W' →+ W)
     ext v
     exact hju v
 
-/-- **The counting step (P-15f5)**: given a regular-summand package `(ι, r)` for `V` (the
+/-- **The counting step (the deep-part proof)**: given a regular-summand package `(ι, r)` for `V` (the
 Lemma-6.11 output shape, as a hypothesis) and a `C`-equivariant short exact presentation
 `W' —j→ W —π→ W''` of finite 2-torsion modules, the equivariant-Hom counts multiply:
 

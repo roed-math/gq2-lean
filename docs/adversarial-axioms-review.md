@@ -4,6 +4,13 @@ Date: 2026-07-04.  Scope: review of the literature axioms in
 `GQ2/Foundations/Axioms.lean`, with emphasis on whether the Lean statements match the cited
 results.  Existing files were not edited.
 
+This is a historical review snapshot, not a current status report. Its two operational findings
+were resolved after the review: unused B2 was deleted, and the repository now has zero `sorry` with
+`scripts/check_axioms.sh` passing. The discussion of encoded/composite interfaces—especially B8,
+B10′, and the dyadic norm inputs—remains relevant. Current names, statements, and citations are in
+[`literature-axioms.md`](literature-axioms.md); the live trust base is generated in
+[`../atlas-audit.md`](../atlas-audit.md).
+
 ## Executive findings
 
 ### 1. B8 silently absorbs cyclotomic surjectivity
@@ -19,8 +26,8 @@ hP : ∀ u, aut u deltaP = conjP (deltaP ^ᶻ ι u) (cP u)
 The Stix citation supports the statement that the decomposition group acts on cusp inertia
 through the cyclotomic character.  It does not, by itself, produce an automorphism for every
 2-adic unit; that requires a surjectivity input for the relevant cyclotomic character.  The
-project has B2, but B8 is axiomatized as a standalone bundle and current tickets say B2 turned
-out unused.
+project had B2, but B8 was axiomatized as a standalone bundle and the development board already
+showed that B2 was unused.
 
 Risk: the B8 axiom is stronger than its displayed citation.  It is probably true after adding
 the cyclotomic surjectivity input, but the ledger should say so explicitly, or B8 should be
@@ -29,7 +36,7 @@ weakened to quantify over the cyclotomic image.
 Relevant code:
 - `GQ2/PeripheralAction.lean`, `PeripheralCyclotomicAction`
 - `GQ2/Foundations/Axioms.lean`, B8
-- `docs/tickets.md`, P-08 says "B2 turned out unneeded"
+- `docs/orchestration/tickets.md`, historical P-08 row
 
 ### 2. B11 is the least citation-faithful axiom
 
@@ -100,7 +107,7 @@ Risk: low for soundness, medium for audit clarity.
 
 Relevant code: `GQ2/Foundations/Axioms.lean:102`.
 
-### 5. The axiom guard currently fails
+### 5. The axiom guard failed in the reviewed snapshot
 
 Running `scripts/check_axioms.sh` reports:
 
@@ -110,8 +117,8 @@ GQ2/WF72.lean:239:    sorry
 ```
 
 `GQ2/WF72.lean` is not imported by `GQ2.lean`, so this is not necessarily in the built library.
-But it means the advertised hygiene check is not green in the working tree, and the repo-wide
-story "all open leaves are tracked" is stale.
+But it meant the advertised hygiene check was not green in that worktree. `WF72.lean` is not part
+of the completed library and the present repository-wide guard passes.
 
 Risk: process/tooling, not mathematics.  Fix either by importing/tracking the file deliberately,
 removing it, or updating the docs to say it is scratch/untracked.
@@ -265,13 +272,13 @@ Possible cleanup:
 Either remove B2 from the minimal axiom list if no declaration consumes it, or keep it with an
 honest label such as "available but currently unused / intended for B8 elimination".
 
-The current state is confusing: B2 is presented as a theorem the proof rests on, while the ticket
-history says it turned out unnecessary.
+The reviewed state was confusing: B2 was presented as a theorem the proof rested on, while the
+development history said it was unnecessary. B2 was subsequently removed from the census.
 
 ### 5. Fix the axiom-hygiene failure
 
-`scripts/check_axioms.sh` currently fails because `GQ2/WF72.lean` contains a non-allowlisted
-`sorry`.
+In the reviewed worktree, `scripts/check_axioms.sh` failed because `GQ2/WF72.lean` contained a
+non-allowlisted `sorry`.
 
 Reasonable outcomes:
 

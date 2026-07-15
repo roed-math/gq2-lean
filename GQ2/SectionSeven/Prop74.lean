@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.SectionSeven.ModuleCore
 
 /-!
@@ -25,7 +30,7 @@ variable {Y : Type} [Group Y] [Finite Y]
 
 variable {L : Subgroup Y}
 
-/-- **H_V averaging (Prop 7.4 step 2)** — PROVED std-3: given a hom `σ₀ : K → 𝔽₂` whose
+/-- **H_V averaging (Prop. 7.4 step 2)** (std-3): given a hom `σ₀ : K → 𝔽₂` whose
 restriction to `K ∩ S` is `Y`-invariant and which is `Y_V`-invariant (shear-vanishing), the
 `H_V`-average of `σ₀` over an odd normal `Ctil ◁ Y` moving `V = P/S` is a `Y`-invariant hom
 extending `σ₀|_{K∩S}`.  The module/averaging tier: `Y_V = ker(blockPerm)` acts trivially on `V`
@@ -34,7 +39,7 @@ extending `σ₀|_{K∩S}`.  The module/averaging tier: `Y_V = ker(blockPerm)` a
 `quotient_average`.  The tame construction of `Ctil` is a **case split** (`by_cases` on whether the
 tame inertia `⟨cH τ⟩` moves `V`): ramified `Ctil := π⁻¹⟨cH τ⟩` (odd via `odd_preimage_quot`), or
 unramified `Ctil := ⊤` with `Y/Y_V` odd (`unram_odd`: `H_V` cyclic `cyc_YV` + `O₂(H_V) = 1`).
-[P-15h CLOSED.] -/
+[the Prop. 7.4 proof CLOSED.] -/
 private theorem hv_average_helper {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
     [Finite H]
     (π : Y →* H) (hπ : Function.Surjective π) (hkerπ : π.ker = L)
@@ -162,7 +167,7 @@ private theorem hv_average_helper {H : Type} [Group H] [TopologicalSpace H] [Dis
 `K ∩ S` extends to a `Y`-invariant hom `ψ : K → 𝔽₂`.  Now assembled from the reduction (`σ := λ∘sq`
 is a `Y`-invariant hom on `K∩S` killing `R`, via `lemma_7_2` + `lam_comm_vanish`), the hom
 extension `sigma0_extends` (`σ₀ : K → 𝔽₂`), the automatic `Y_V`-invariance of `σ₀` (shear-vanishing,
-from `q`-invariance), and the `H_V`-averaging `hv_average_helper` (now fully proved std-3). -/
+from `q`-invariance), and the std-3 `H_V`-averaging lemma `hv_average_helper`. -/
 private theorem key_extension {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
     [Finite H]
     (π : Y →* H) (hπ : Function.Surjective π) (hkerπ : π.ker = L)
@@ -295,8 +300,8 @@ pushout square map of the central extension `1 → 𝔽₂ → K_λ → M → 1`
 form kills `(T₀, M)`; hence it descends to a **nonzero, nonsingular, `Y`-invariant** quadratic
 form `q̄_λ : V → 𝔽₂` on the simple head `V = P/S` — the form §8's Gauss sums live on.
 Stated with the square-map spec `λ(k²) = q̄(k mod S)` (`hsq` supplies `k² ∈ R`, Lemma 7.2's
-clause, so 7.4 is consumable independently).  [P-14 statement; **P-15 amendment**: the
-framed-target head data (as in `lemma_7_2`) restored — §7's standing hypothesis, under which
+clause, so 7.4 is consumable independently).  The framed-target head data (as in `lemma_7_2`)
+encode §7's standing hypothesis, under which
 the paper proves 7.4; its step 2 (`q_λ|_{T₀} = 0`) consumes `H¹(H_V, V^∨) = 0`, which needs
 the tame structure and fails for general finite heads.  See `docs/section67-extraction.md`.] -/
 theorem prop_7_4 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]

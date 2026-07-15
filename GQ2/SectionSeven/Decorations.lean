@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.SectionSeven.Basic
 
 /-!
@@ -126,7 +131,7 @@ private theorem frattini_sq_eq_one (K : Subgroup Y)
     rw [show a⁻¹ * a⁻¹ = (a * a)⁻¹ by group, ha, inv_one]
 
 /-- **Lemma 7.2**: for a tame head (the target's head map factors through `GQ2.Ttame`),
-`R = Φ(K)` is central elementary abelian in `K`, and `K⁴ = 1`.  [P-14 statement; proof P-15
+`R = Φ(K)` is central elementary abelian in `K`, and `K⁴ = 1`.  [the §§6–7 statement; proof the §§6–7 proof layer
 (odd Hall lift + three-subgroup lemma + the `G`-equivariant fourth-power map).] -/
 theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
     (π : Y →* H) (_ : Function.Surjective π) (_ : π.ker = L)
@@ -290,7 +295,7 @@ theorem lemma_7_2 {H : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
 omit [Finite Y] in
 /-- **Lemma 7.3 (decorations vanish on the block)**: every homomorphism from `Y` to an
 elementary abelian 2-group kills `K` (via Lemma 7.1's dual clause).  The frame decorations
-`θ_Y` of `GQ2.MarkedTarget` are such homomorphisms.  [P-14 statement; proof P-15: a nonzero
+`θ_Y` of `GQ2.MarkedTarget` are such homomorphisms.  [the §§6–7 statement; proof the §§6–7 proof layer: a nonzero
 value `f k₀ ≠ 1` yields — through the `𝔽₂`-module structure on `Additive E` and a separating
 dual functional — a `C₂`-character of `Y` nontrivial on `K` and killing `R`, whose kernel meets
 `K` in a `Y`-normal index-2 subgroup above `R`, contradicting `lemma_7_1_dual`.

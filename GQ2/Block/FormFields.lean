@@ -1,18 +1,23 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.SectionNine
 import GQ2.FrameEnrichment
 import GQ2.Block.Descent
 import GQ2.Block.Char
 
 /-!
-# P-17d2b — the concrete block-form enrichment fields (scratch)
+# The concrete block-form enrichment fields (scratch)
 
 Assembly of the §9 block enrichment's non-κ⁰ fields for the concrete frame
 `RF = blockFrame T Blk hE2`: `q`/`qbar` (from `prop_7_4` + `mForm_of_qbar`), the coupling
 `hqbar`, the radical/vanishing clauses `hrad`/`hTzero`, invariance `hinv`, quadraticity/
-nonsingularity `hquad`/`hns` (P-17d2c packaging), and the frame-local cover square `hq`.
+nonsingularity `hquad`/`hns` (the §9 induction packaging), and the frame-local cover square `hq`.
 
 All per-`λ` items are stated over `l : BlockDR T Blk` (defeq to `RF.DR`) with
-`hlne : l.1 ≠ Blk.frattiniK` (defeq-encoding of `l ≠ RF.zeroDR`); the final assembly (P-17d3)
+`hlne : l.1 ≠ Blk.frattiniK` (defeq-encoding of `l ≠ RF.zeroDR`); the final assembly (the §9 induction)
 drops them into the record.
 -/
 
@@ -153,7 +158,7 @@ theorem blockHTzero (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
           ⟨t, blockT_map_le_blockM_map Blk (QuotientGroup.mk' Blk.frattiniK) ht⟩ = 0 :=
   (blockMForm T Blk cH hcH l hlne).choose_spec.2.2
 
-/-! ## Quadraticity, nonsingularity (P-17d2c packaging) -/
+/-! ## Quadraticity, nonsingularity -/
 omit [(Blk.S.subgroupOf Blk.P).Normal] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
   [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal] [Blk.K.Normal] in
 /-- `hquad`: `q̄_λ` is a quadratic form (biadditive polar). -/

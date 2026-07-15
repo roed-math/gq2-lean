@@ -1,7 +1,16 @@
-import GQ2.GammaA
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.GammaA
+
+@[expose] public section
 
 /-!
-# Topological finite generation, and `Γ_A` (ticket P-03, Track A)
+# Topological finite generation, and `Γ_A`
 
 `main_presentation` (`GQ2/Statement.lean`) consumes topological finite generation of its candidate
 group `Γ_A` in the shape `∃ s : Finset _, (Subgroup.closure ↑s).topologicalClosure = ⊤`.  This file
@@ -15,8 +24,8 @@ discharges it for `GQ2.GammaA`, via two reusable facts:
   `DenseRange.topologicalClosure_map_subgroup`), in particular to any `profiniteQuotient`.
 
 Instantiating the second at the quotient projection `F₄ ↠ F₄ ⧸ N_A = Γ_A` gives
-`GQ2.gammaA_topologicallyFinitelyGenerated`, in exactly the form `main_presentation` (hence the
-step-2 assembly `main_presentation_literal`, ticket P-19) needs.
+`GQ2.gammaA_topologicallyFinitelyGenerated`, in exactly the form needed by `main_presentation`
+and `main_presentation_literal`.
 
 No axioms: every result here is at the standard three (`#print axioms`).
 -/
@@ -78,7 +87,7 @@ theorem gammaA_isTopologicallyFinGen : IsTopologicallyFinGen (GammaA : Type) := 
     (quotientMk NA).continuous_toFun (quotientMk_surjective NA)
 
 /-- **`Γ_A` is topologically finitely generated**, in exactly the `∃ s : Finset _, …` shape that
-`GQ2.main_presentation` consumes (used by the step-2 assembly `main_presentation_literal`, P-19). -/
+`GQ2.main_presentation` consumes (used by the step-2 assembly `main_presentation_literal`, the literal-presentation proof). -/
 theorem gammaA_topologicallyFinitelyGenerated :
     ∃ s : Finset (GammaA : Type),
       (Subgroup.closure (s : Set (GammaA : Type))).topologicalClosure = ⊤ :=

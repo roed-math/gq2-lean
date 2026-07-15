@@ -1,18 +1,28 @@
-import Mathlib
-import GQ2.CupProduct
-import GQ2.MuN
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.CupProduct
+public import GQ2.MuN
+
+@[expose] public section
+
 
 /-!
-# B6: local Tate duality for `ℚ₂` — the dual module and the duality bundle  (ticket T-14)
+# B6: local Tate duality for `ℚ₂` — the dual module and the duality bundle
 
 This file provides the *statement infrastructure* for the paper's **local Tate duality** leaf
 (**B6**): the `μₙ`-dual of a finite discrete `G_ℚ₂`-module, the evaluation cup pairing, and the
 bundle `TateDuality n` packaging the invariant map `inv : H²(G_ℚ₂, μₙ) ≃+ ℤ/n` together with
 perfectness of the cup pairing in the three degree pairs.  The axiom itself
-(`GQ2.tateDuality : ∀ n [NeZero n], TateDuality n`) lives in `GQ2/Foundations/Axioms.lean`
-(T-19 rule); everything here is definitions plus axiom-free, bundle-parametrized stress tests.
+(`GQ2.tateDualityAt : ∀ n [NeZero n], TateDuality n`) lives in
+`GQ2/Foundations/Axioms.lean`; everything here is definitions plus axiom-free,
+bundle-parametrized stress tests.
 
-## Design decisions (the ticket's 🔴 items, resolved)
+## Encoding decisions
 
 * **Per-`n` form, not the colimit.**  The literature states duality with `μ = ⋃ₙ μₙ` and
   `H²(G_k, μ) ≅ ℚ/ℤ`.  We state it per `n` (for `n`-torsion modules), which suffices for the
@@ -27,10 +37,10 @@ perfectness of the cup pairing in the three degree pairs.  The axiom itself
   (`DistribMulAction M (A →+ B)`, `Mathlib/Algebra/GroupWithZero/Action/Hom.lean`), so the
   Galois **conjugation** action `(g • φ)(m) = g • φ(g⁻¹ • m)` must live on a synonym to avoid
   an instance diamond.  Continuity of the conjugation action is via open stabilizers
-  (`continuousSMul_iff_stabilizer_isOpen` + T-01's `isOpen_iInf_stabilizer`: the joint action
+  (`continuousSMul_iff_stabilizer_isOpen` + `isOpen_iInf_stabilizer`: the joint action
   kernel on `M` and `μₙ` is open and stabilizes every `φ`).
 * **Perfectness, single currying.**  For each degree pair — `(0,2)`, `(1,1)`, `(2,0)`, i.e.
-  exactly T-04's three cup shapes with `M′` in the left slot and the evaluation pairing
+  exactly the three cup shapes with `M′` in the left slot and the evaluation pairing
   `muDualPairing : M′ →+ M →+ μₙ` — the clause asserts that
   `x ↦ inv ∘ (x ∪ ·) : Hⁱ(M′) → (H^{2−i}(M) →+ ZMod n)` is **bijective**.
   **Deviation flagged**: the opposite currying (`H^{2−i}(M) → Hom(Hⁱ(M′), ℤ/n)`) is not
@@ -155,7 +165,7 @@ instance [Finite M] : ContinuousSMul G (MuDual n M) := by
   rw [inv_smul_eq_iff, huM m]
 
 /-- **The evaluation pairing** `Hom(M, μₙ) →+ M →+ μₙ` — under the type synonym, literally the
-identity.  This is the `μ` fed to the T-04 cup products in the duality clauses. -/
+identity.  This is the `μ` fed to the cup products in the duality clauses. -/
 noncomputable def muDualPairing : MuDual n M →+ M →+ MuN n := AddMonoidHom.id (M →+ MuN n)
 
 omit [NeZero n] [DistribMulAction G (MuN n)] [ContinuousSMul G (MuN n)] [TopologicalSpace M]

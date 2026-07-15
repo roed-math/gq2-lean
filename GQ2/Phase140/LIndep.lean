@@ -1,13 +1,18 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.RadicalEdge.Bridge
 import GQ2.AffineTLift
 
 /-!
-# P-16d6c (part c3): `l`-independence of the `T`-cocycle count
+# `l`-independence of the `T`-cocycle count
 
 The (140) witness `μ` of `prop_8_9` is fixed once, at a reference scalar `l₀`
-(`docs/p16d6-concrete-spec.md` §1: `μ := Nat.card (TCocycle (En.radData l₀ h₀) …)`), but the
+(`docs/orchestration/p16d6-concrete-spec.md` §1: `μ := Nat.card (TCocycle (En.radData l₀ h₀) …)`), but the
 `phase140_of_nonsingular` field needs `hμ (l h) : ∀ ρ, Nat.card (TCocycle (En.radData l h) …) = μ`
-at the **current** scalar `l`.  Combined with the `ρ`-independence of P-16d6b
+at the **current** scalar `l`.  Combined with the `ρ`-independence of the Prop. 8.9 assembly
 (`tcocycle_mu_indep`), that requires the count to be **independent of `l`** as well.
 
 This is nearly definitional: the enrichment datum `En.radData l h` varies with `l` only in its
@@ -19,7 +24,7 @@ cover `C := RF.scalarCover l h` and its square form `q := En.q l h`, but
   only through `D.M = RF.MB` (via `piBCiso`), again constant in `l`.
 
 So the two count objects coincide.  Pure std-3, no source input — the genuinely `l`-dependent piece
-of the witness is `G0 = gaussSum (En.qbar l h)` (part of P-16d6c; see `docs/p16d6c-handoff.md`).
+of the witness is `G0 = gaussSum (En.qbar l h)` (part of the Prop. 8.9 assembly; see `docs/orchestration/p16d6c-handoff.md`).
 -/
 
 namespace GQ2
@@ -38,11 +43,11 @@ variable (b : ContinuousMonoidHom Γ ↥boundarySubgroup) (F : BoundaryFrame H E
 
 omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace Y]
   [DiscreteTopology Y] in
-/-- **`l`-independence of the `T`-cocycle count** (P-16d6c, c3): for a fixed boundary lift `ρ`, the
+/-- **`l`-independence of the `T`-cocycle count** (the Prop. 8.9 assembly, c3): for a fixed boundary lift `ρ`, the
 crossed count `#Z¹_{Γ,ρ}(T)` computed against the enrichment datum `En.radData l h` does not depend
 on the scalar `l` — the datum's `M`/`T` layers (and hence `TCocycle` and `rhoPrime`) are the same
 for every `l`.  Feeds the (140) `hμ` field: pin `μ` at a reference `l₀`, transport to the current
-`l` here, then apply P-16d6b's `ρ`-independence. -/
+`l` here, then apply the Prop. 8.9 assembly's `ρ`-independence. -/
 theorem tcocycle_card_l_indep (En : RF.Enrichment)
     (l : RF.DR) (h : l ≠ RF.zeroDR) (l' : RF.DR) (h' : l' ≠ RF.zeroDR)
     (ρ : BoundaryLifts b F RF.TC) :

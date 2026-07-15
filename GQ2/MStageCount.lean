@@ -1,14 +1,19 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.RadicalEdge.Bridge
 import GQ2.Block.FrameBounds
 import GQ2.FinitelyGenerated
 
 /-!
-# P-17i infrastructure: the `M`-stage lane of the §9 master induction
+# The `M`-stage lane of the §9 master induction
 
-`thm_4_2`'s `R = ⊥` lane applies `mStage_partition` (P-17f) to the block frame at both sources
+`thm_4_2`'s `R = ⊥` lane applies `mStage_partition` (the §9 induction) to the block frame at both sources
 and solves the two partition identities against the induction hypothesis.  This file provides
-the lane's inputs (design note `docs/section9-extraction.md` §P-17i; handoff
-`docs/p17i-handoff.md` §5.2):
+the lane's inputs (design note `docs/section9-extraction.md` §the §9 induction; handoff
+`docs/orchestration/p17i-handoff.md` §5.2):
 
 * **target transports** — `exactImageCount_congr` (count invariance along an iso of marked
   targets), the `⊤`-stratum evaluation `SectionEight.exactImageCountOn_top`, and the `R = ⊥`
@@ -40,7 +45,7 @@ variable {Γ : Type} [Group Γ] [TopologicalSpace Γ]
 
 /-- **The boundary-lift bijection along an isomorphism of marked targets** (the equiv
 underlying `exactImageCount_congr`, exposed so decorated counts can subtype over it — the
-P-17i `nPhase`/`liftableCount` bridge below). -/
+the §9 induction `nPhase`/`liftableCount` bridge below). -/
 noncomputable def boundaryLiftsCongr {Y₁ Y₂ : Type}
     [Group Y₁] [TopologicalSpace Y₁] [DiscreteTopology Y₁] [Finite Y₁]
     [Group Y₂] [TopologicalSpace Y₂] [DiscreteTopology Y₂] [Finite Y₂]
@@ -117,7 +122,7 @@ theorem SectionEight.RecursionFrame.exactImageCount_TB_of_R_bot {Y : Type} [Grou
   exact (exactImageCount_congr b F T RF.TB (MulEquiv.ofBijective RF.piB ⟨hinj, RF.piB_surj⟩)
     (fun y => DFunLike.congr_fun RF.TB_head y) (fun y => DFunLike.congr_fun RF.TB_theta y)).symm
 
-/-- **The phase count is the `⊤`-stratum liftable count** (the P-17i `hphase` feed):
+/-- **The phase count is the `⊤`-stratum liftable count** (the §9 induction `hphase` feed):
 `n_{Γ,0}(ζ) = u^β_Γ(p_ζ, ⊤)`, so `lemma_8_3` at the `⊤` stratum expands `8·nPhase` into the
 pulled-stratum counts of the phase cover.  The `⊤`-stratum transport is `boundaryLiftsCongr`
 at `↥⊤ ≃* Y_C`, and the cover-lift decorations agree definitionally (the coercion `↥⊤ → Y_C`
@@ -228,7 +233,7 @@ from `#H² = 1`; `card_Z1_eq` [B7]; `#fixedPts = 1` from `lemma_7_1_dual`) with 
 `Y_B ⧸ M` replaced by `Y_C` itself (`π_{BC}` has kernel `M_B`, `RecursionFrame.ker_piBC`) and
 the coset section `Quotient.out` replaced by `Function.surjInv π_{BC}`.  Stated on
 `RecursionFrame.LiftsOver` directly because the `R = ⊥` lane has no radical datum (and
-`blockEnrichment` is gated on P-17d).
+`blockEnrichment` is gated on the §9 induction).
 
 Axioms: `std-3 + B6 + B7` (B6 via `card_H2_eq_fixedPts`, B7 via `card_Z1_eq`) — as for
 `hMcountM_local`. -/

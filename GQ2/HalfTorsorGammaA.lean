@@ -1,13 +1,18 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.LedgerGammaA
 import GQ2.FinitelyGenerated
 import GQ2.Reconstruction
 
 /-!
-# The nonzero variation class over `Γ_A` (P-16c4 deliverable)
+# The nonzero variation class over `Γ_A`
 
 Assembling the ledger identity with the `prop_5_15` self-duality: from `NoDescent`, there is a
 crossed `T`-cocycle `u` whose variation class `[varCoc u] ∈ H²(Γ_A, 𝔽₂)` is nonzero.  This is the
-`hvar` input to the abstract half-torsor count `CentralObstruction.n` (P-16c5).
+`hvar` input to the abstract half-torsor count `CentralObstruction.n` (the Γ_A half-torsor proof).
 -/
 
 namespace GQ2
@@ -20,7 +25,7 @@ open CentralObstruction ContCoh WordCohBridge FoxH WordCoh2 MixedBObs RadicalEdg
 
 variable {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
 
-/-- **The nonzero variation class over `Γ_A`** (P-16c4).  For a lower epimorphism `ρ : Γ_A ↠ B/M`
+/-- **The nonzero variation class over `Γ_A`** (the Γ_A half-torsor proof).  For a lower epimorphism `ρ : Γ_A ↠ B/M`
 with nonzero radical edge (`NoDescent`), there is a crossed `T`-cocycle `u` whose variation class
 is a nonzero element of `H²(Γ_A, 𝔽₂)`. -/
 theorem exists_nonzero_varCoc_gammaA (D : RadicalCoverData Bg) (S : TComplement D)
@@ -102,7 +107,7 @@ theorem exists_nonzero_varCoc_gammaA (D : RadicalCoverData Bg) (S : TComplement 
   rw [hevalw]
   exact hmixne
 
-/-- **`#H²(Γ_A, 𝔽₂) = 2`** (P-16c4 `hcard`).  The obstruction injection `obsH2 : H² ↪ 𝔽₂` (c2)
+/-- **`#H²(Γ_A, 𝔽₂) = 2`** (the Γ_A half-torsor proof `hcard`).  The obstruction injection `obsH2 : H² ↪ 𝔽₂` (c2)
 gives `≤ 2`; the nonzero variation class makes it surjective, hence a bijection. -/
 theorem card_H2_gammaA_eq_two (D : RadicalCoverData Bg) (S : TComplement D)
     (hedge : D.NoDescent) (ρ : ContinuousMonoidHom GA (Bg ⧸ D.M)) (hρ : Function.Surjective ρ)
@@ -122,7 +127,7 @@ theorem card_H2_gammaA_eq_two (D : RadicalCoverData Bg) (S : TComplement D)
   rw [Nat.card_congr (Equiv.ofBijective _ ⟨hinj, hsurj⟩)]
   simp [Nat.card_eq_fintype_card, ZMod.card]
 
-/-- **Lemma 8.6, `Γ_A` source** (P-16c5): with a nonzero radical edge, exactly half of the
+/-- **Lemma 8.6, `Γ_A` source** (the Γ_A half-torsor proof): with a nonzero radical edge, exactly half of the
 unrestricted `M`-lifts of a lower epimorphism `ρ : Γ_A ↠ B/M` satisfy the central relation.
 The abstract half-count `CentralObstruction.half_count` fed by the nonzero variation class
 (`exists_nonzero_varCoc_gammaA`) and `#H² = 2` (`card_H2_gammaA_eq_two`); the counted lift set is

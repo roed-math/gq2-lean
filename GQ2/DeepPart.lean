@@ -1,16 +1,24 @@
-import GQ2.DeepPart.QuadraticFp2
-import GQ2.DeepPart.MuTwoPolarDual
-import GQ2.DeepPart.Q0locLayer
-import GQ2.DeepPart.HermitianCount
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.DeepPart.QuadraticFp2
+public import GQ2.DeepPart.MuTwoPolarDual
+public import GQ2.DeepPart.Q0locLayer
+public import GQ2.DeepPart.HermitianCount
+
+@[expose] public section
 
 /-!
-# Deep part and the §6 headline (Prop 6.18) — ticket P-15f
-
+# Deep part and the §6 headline (Prop 6.18)
 Proof-side layer for Lemma 6.17 (`X₊ = deepPart` is totally singular, `#X₊² = #H¹`) and
 Proposition 6.18 (the dyadic base determinant theorem, eq. (115)).  The `lemma_6_17_*` /
 `prop_6_18_*` statements live in `GQ2/SectionSix.lean`; the heavy proofs are assembled here (this
 file imports `SectionSix` once the deep-part/`Q0loc` symbols are needed) and one-line-spliced,
-per the P-15d (`RepIndependence`) pattern.
+per the Lemma 6.14 proof (`RepIndependence`) pattern.
 
 **Structure of `lemma_6_17_dim` (`#X₊² = #H¹`, ramified, Ax B6+B7):**
 1. **Euler-characteristic collapse** `#H¹ = #V` — `card_H1_eq_card_of_H0_H2_trivial` below (this
@@ -19,7 +27,7 @@ per the P-15d (`RepIndependence`) pattern.
    nontrivial **simple** module on which inertia acts nontrivially.  ⚠ NOTE: the frozen
    `lemma_6_17_dim` lacks `hc : Surjective c`; `V^{im ρ}` is `C`-stable (so simplicity ⟹ `⊥`)
    only when `im ρ ◁ C` (e.g. `c` surjective).  Likely a statement amendment (cf. `lemma_6_8`),
-   flag for P-20.
+   flag for the architecture review.
 3. **`#X₊ = 2^m`** — the Lagrangian half-count: `X₊` is self-orthogonal under the B6 Tate pairing
    on `H¹(V) ≅ H¹(V^∨)` (deep units pair trivially by (94)), and maximal, so `X₊ = X₊^⊥` and
    `#X₊·#X₊^⊥ = #H¹` gives `#X₊² = #H¹`.  This is the hard cohomological core (deep-unit Kummer
@@ -27,7 +35,7 @@ per the P-15d (`RepIndependence`) pattern.
 
 No `sorry` in this file.
 
-**File organisation (P-15f split, wave 37).**  The proofs are spread over four sub-modules
+**File organisation.**  The proofs are spread over four sub-modules
 re-exported here:
 * `GQ2.DeepPart.QuadraticFp2` — the Gauss-sum-over-a-Lagrangian `𝔽₂` combinatorics.
 * `GQ2.DeepPart.MuTwoPolarDual` — Euler collapse, the `μ₂` bricks, and polar self-duality.

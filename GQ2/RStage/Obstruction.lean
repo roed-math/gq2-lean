@@ -1,9 +1,14 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.SectionEight
 
 /-!
-# §8 R-stage obstruction module — the reduction  (P-16d2)
+# §8 R-stage obstruction module — the reduction
 
-`GQ2.SectionEight.stageR136_of` (P-16d item 1, combinatorial core) derives the (136) display of
+`GQ2.SectionEight.stageR136_of` (the Prop. 8.9 assembly item 1, combinatorial core) derives the (136) display of
 Prop 8.9 from an obstruction-module datum stated in `Module.Dual`-of-`W` vocabulary
 (`W`, `o : BoundaryLifts(B) → W`, `e : D_R ≃ Wᵛ`, `hmB`/`hobs`/`hfib`).  This file repackages
 that datum in the **natural obstruction shape**: the obstruction of a `B`-stage boundary lift is
@@ -24,19 +29,18 @@ and `e := evalEquiv ∘ (·⁻¹)` the finite-dimensional double-dual identifica
 axioms — the arithmetic axioms (B6, B7) enter only when a *caller* discharges `hfib` from the
 numerics.
 
-## Design status (P-16d2, 2026-07-05)
+## Interface boundary
 
-This is the **reduction half** of P-16d2, and is complete and reusable.  Constructing the
+This reduction is reusable independently of the concrete block construction.  Constructing the
 `obs`/`hmB`/`hobs`/`hfib` witness for the concrete `𝒴`-frame needs one input the **bare
 `RecursionFrame` + `Enrichment` do not carry**: the compatibility that the abstract per-`λ`
 `scalarCover l` really is the `λ`-pushout `Y/ker λ ↠ Y/R` of the *single* radical extension
 `Y ↠ B` (the frame stores `scalarCover` as unrelated central covers, documented — not enforced —
 as the pushouts).  Without that link, `λ ↦ [g lifts through p_λ]` has no reason to be `𝔽₂`-linear
 (the `obs`-linearity) and "lifts through every `p_λ` ⟺ lifts to `Y`" (the `hobs` separation) is
-not derivable.  This is a **design escalation**, analysed with the full construction route in
-[`docs/p16d2-plan.md`](../docs/p16d2-plan.md): either extend the frame with the pushout-compatible
-map family `Y ↠ (scalarCover l).cover`, or state the witness for the concrete `𝒴`-frame (P-16d5/d6)
-where the covers are the pushouts by construction.  Either way the witness feeds *this* lemma.
+not derivable from the abstract frame alone.  The concrete `RObstructionData` and its
+pushout-compatible cover maps are constructed in `GQ2/RStage/ObstructionBuild.lean`; its
+`stageR136_ofRSepData` theorem feeds those data into the reduction proved here.
 -/
 
 namespace GQ2
@@ -51,7 +55,7 @@ variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite 
 variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
   [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
 
-/-- **The R-stage obstruction module → (136)** (P-16d2 reduction).  Given a finite `𝔽₂`-module
+/-- **The R-stage obstruction module → (136)** (the Prop. 8.9 assembly reduction).  Given a finite `𝔽₂`-module
 `D_Rmod` realizing the scalar-character index `D_R` (`toDR`, sending `0 ↦ zeroDR`) and the
 obstruction as a linear functional `obs g ∈ D_Rmodᵛ` on each `B`-stage boundary lift, whose
 

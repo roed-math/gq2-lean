@@ -1,9 +1,14 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.FoxHeisenberg
 import GQ2.Prop23
 import GQ2.AdmissibleLimit
 
 /-!
-# The Γ_A degree-≤1 presentation comparison  (ticket P-16c1)
+# The Γ_A degree-≤1 presentation comparison
 
 For a finite discrete `C`-module `A` and a continuous surjection `q : Γ_A ↠ C`, the continuous
 `H¹` of `Γ_A` (with `A` a `Γ_A`-module through `q`) is computed by the **Fox–Heisenberg word
@@ -12,7 +17,7 @@ complex** `Z1w`/`H1w` of the pushed marking `t_q = Marking.push q`:
   `z1Equiv : ContCoh.Z1 Γ_A A ≃+ Z1w t_q`   (evaluation at the four marked generators),
 
 descending to `h1Equiv : ContCoh.H1 Γ_A A ≃+ H1w t_q`.  This is the Γ_A-side replacement for
-B6/Tate duality that P-16c (`lemma_8_6_gammaA`) needs — the word-complex self-duality `prop_5_15`
+B6/Tate duality that the Γ_A half-torsor proof (`lemma_8_6_gammaA`) needs — the word-complex self-duality `prop_5_15`
 then transports to `H¹(Γ_A)`.  Reusable beyond §8 (the degree-1 half of the presentation
 comparison, wanted again for Theorem 4.2).
 
@@ -327,7 +332,7 @@ noncomputable def liftHom (hq : Function.Surjective q) (hA₂ : ∀ a : A, a + a
   quotientLift NA (Marking.classify (liftMarking (markC q) x.1)) (NA_le_ker_classify q hq hA₂ x)
 
 omit [TopologicalSpace A] [DiscreteTopology A] [DistribMulAction GA A] [ContinuousSMul GA A] in
-theorem liftHom_quotientMk (hq : Function.Surjective q) (hA₂ : ∀ a : A, a + a = 0)
+private theorem liftHom_quotientMk (hq : Function.Surjective q) (hA₂ : ∀ a : A, a + a = 0)
     (x : Z1w (A := A) (markC q)) (g : FreeProfiniteGroup (Fin 4)) :
     liftHom q hq hA₂ x (quotientMk NA g) = Marking.classify (liftMarking (markC q) x.1) g :=
   quotientLift_quotientMk NA _ _ g
@@ -371,7 +376,7 @@ noncomputable def ofZ1w (hq : Function.Surjective q) (hA₂ : ∀ a : A, a + a =
        rw [liftHom_g, hcompat]⟩⟩
 
 
-/-! ## The equivalence (P-16c1, remaining)
+/-! ## The equivalence
 
 The forward map `toZ1wHom` and backward map `ofZ1w` are complete and verified below, together
 with both round trips and the additive equivalence `z1Equiv`.  Neither round trip needs the
@@ -427,7 +432,7 @@ theorem ofZ1w_toZ1wHom (hq : Function.Surjective q) (hA₂ : ∀ a : A, a + a = 
   rw [key γ]; rfl
 
 include hcompat in
-/-- **The degree-1 comparison** (P-16c1): continuous crossed cocycles of `Γ_A` valued in the
+/-- **The degree-1 comparison** (the Γ_A half-torsor proof): continuous crossed cocycles of `Γ_A` valued in the
 elementary-2 module `A` are exactly the Fox–Heisenberg word cocycles of the pushed marking
 `t_q = Marking.push q`, via evaluation at the four marked generators. -/
 noncomputable def z1Equiv (hq : Function.Surjective q) (hA₂ : ∀ a : A, a + a = 0) :
@@ -457,7 +462,7 @@ theorem eval_dZero (m : A) :
   · show gammaGen.x₁ • m - m = (markC q).x₁ • m - m; rw [hcompat, h1]
 
 include hcompat in
-/-- **The degree-1 comparison in cohomology** (P-16c1): `H¹(Γ_A, A) ≃+ H¹_word(t_q)`, obtained by
+/-- **The degree-1 comparison in cohomology** (the Γ_A half-torsor proof): `H¹(Γ_A, A) ≃+ H¹_word(t_q)`, obtained by
 descending `z1Equiv` through the coboundary correspondence `B¹ ↔ B¹_word` (`eval_dZero`). -/
 noncomputable def h1Equiv (hq : Function.Surjective q) (hA₂ : ∀ a : A, a + a = 0) :
     ContCoh.H1 GA A ≃+ H1w (A := A) (markC q) :=

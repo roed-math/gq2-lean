@@ -1,10 +1,15 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.MixedBObs
 import GQ2.RadicalEdge.GammaA
 
 /-!
 # The `Γ_A` ledger identity: `obs(varCoc u) = mixedB`
 
-The edge-specific half of P-16c4.  For a primal crossed cocycle `w : Z¹(Γ_A, T)` (packaged as
+The edge-specific half of the Γ_A half-torsor proof.  For a primal crossed cocycle `w : Z¹(Γ_A, T)` (packaged as
 `u : TCocycle`) and the shifted-edge dual cocycle `φf : Z¹(Γ_A, T^∨)`, the `WordCoh2`
 obstruction of the variation class `varCoc u` equals the Fox–Heisenberg mixed pairing:
 `obs(varCoc u) = mixedB (markC ρ) (eval w) (eval φf)`.
@@ -70,7 +75,7 @@ theorem obs_varCoc_eq_mixedB
 omit [ContinuousSMul GA (Additive ↥D.T)] [ContinuousSMul GA (ElemDual (Additive ↥D.T))]
   [ContinuousSMul GA (ZMod 2)] in
 include hcompat hcompatD in
-/-- **The nonzero variation class** (P-16c4 `hvar`).  If the mixed pairing of the primal cocycle
+/-- **The nonzero variation class** (the Γ_A half-torsor proof `hvar`).  If the mixed pairing of the primal cocycle
 `w` against the shifted-edge dual `φf` is nonzero, the variation class `[varCoc u]` is a nonzero
 element of `H²(Γ_A, 𝔽₂)`: a trivial class would be a coboundary, on which `obs` — hence `mixedB`
 by the ledger — vanishes. -/

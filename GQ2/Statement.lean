@@ -1,6 +1,17 @@
-import Mathlib
-import GQ2.Words
-import GQ2.Reconstruction
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.FieldTheory.AbsoluteGaloisGroup
+public import Mathlib.NumberTheory.Padics.PadicNumbers
+public import GQ2.Words
+public import GQ2.Reconstruction
+
+@[expose] public section
+
 
 /-!
 # The main theorem (Theorem 1.2)
@@ -36,17 +47,16 @@ noncomputable def contSurjCount (G : Type) [Group G] [TopologicalSpace G]
 /-! **Theorem 1.2 (surjection-count form)** — for every finite group `G`, the number of continuous
 surjections `G_{ℚ₂} ↠ G` equals `admissibleCount G` (the admissible marked generating quadruples;
 paper eq. (154) + Prop. 2.3) — is **`GQ2.SectionTen.main_surjection_count'`** (proved in
-`GQ2/SectionTenSources.lean`, P-18e).  It cannot live here: `Statement.lean` sits **upstream** of
-the
+`GQ2/SectionTenSources.lean`).  It cannot live here: `Statement.lean` sits **upstream** of the
 §§4–9 tower (it is imported by `GammaA.lean`/`FoxHeisenberg.lean`), so an in-place proof — which
-needs the whole tower and the concrete `boundaryMapsWitness` — would cycle.  Per the statement-move
-pattern (P-08/P-15d), `main_presentation` below takes the count as the hypothesis `hcount`, supplied
-at P-19 (`main_presentation_literal`) from `main_surjection_count'`.  The proof reduces to a minimal
+needs the whole tower and the concrete `boundaryMapsWitness` — would cycle.  Therefore
+`main_presentation` below takes the count as the hypothesis `hcount`; the downstream theorem
+`main_presentation_literal` supplies it from `main_surjection_count'`.  The proof reduces to a minimal
 list of nine classical literature results (Demushkin classification, `G_ℚ₂(2)` Demushkin, local
 reciprocity, local Tate duality, local Euler characteristic, dyadic Hilbert symbol, 2-adic
 cyclotomic surjectivity, `G_ℚ₂` top. f.g., Evens/Stiefel–Whitney), enumerated in
-`docs/literature-axioms.md`; the §9 `thm_4_2` it depends on was fully proved at P-17i, so its
-trust base is std-3 + the nine census axioms of `GQ2/Foundations/Axioms.lean`. -/
+`docs/literature-axioms.md`; its trust base is the standard three axioms plus the nine literature
+interfaces in `GQ2/Foundations/Axioms.lean`. -/
 
 /-!
 ## The literal presentation form (Theorem 1.2 as printed)
@@ -60,9 +70,8 @@ readings provably agree).  The literal Theorem 1.2 is stated there as
 The schematic form below keeps the top-level logic explicit and checked: given Prop. 2.3 for a
 candidate (`hΓA`: its continuous surjection counts are the admissible-marking counts) and
 topological finite generation, `reconstruction` (Lemma 2.5) + `main_surjection_count` deliver
-the isomorphism.  Instantiating it at `Γ_A` (i.e. discharging `hΓA` — paper §2, Prop. 2.3 — and
-`hfgΓ`) was step 2 of the program, done in `GQ2/PresentationLiteral.lean` (P-19); see
-`docs/orchestration/formalization-plan.md`.
+the isomorphism.  `GQ2/PresentationLiteral.lean` instantiates it at `Γ_A`, discharging `hΓA`
+(paper §2, Prop. 2.3) and `hfgΓ`.
 -/
 
 /-- **Theorem 1.2 (literal presentation form), schematic.** Any candidate profinite group `Γ_A`
@@ -71,9 +80,8 @@ is continuously isomorphic to `G_{ℚ₂}`.
 
 `ΓA` stands in for the presented profinite group; `hΓA` is Prop. 2.3 (its finite quotients are the
 admissible markings); `hcount` is Theorem 1.2's surjection-count form for `G_{ℚ₂}`
-(`contSurjCount G = admissibleCount G`, = `SectionTen.main_surjection_count'`, supplied at P-19 —
-a hypothesis here because its proof is downstream of this upstream file, the statement-move
-pattern);
+(`contSurjCount G = admissibleCount G`, = `SectionTen.main_surjection_count'`; it is a hypothesis
+here because its proof is downstream of this upstream file);
 `hfgΓ`/`hfgG` are topological finite generation of `Γ_A` and of `G_{ℚ₂}` (both true — `G_{ℚ₂}` is
 topologically finitely generated, being the absolute Galois group of a local field). The conclusion
 is Theorem 1.2. -/
@@ -93,7 +101,7 @@ theorem main_presentation
   intro G _ _ _ _
   rw [hΓA G]
   -- `admissibleCount G = |Sur(G_{ℚ₂}, G)|` is `hcount` (Theorem 1.2 count form,
-  -- `SectionTen.main_surjection_count'`, reversed); supplied at P-19.
+  -- `SectionTen.main_surjection_count'`, reversed).
   exact (hcount G).symm
 
 end GQ2

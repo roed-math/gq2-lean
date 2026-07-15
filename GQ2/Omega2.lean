@@ -1,4 +1,14 @@
-import GQ2.Words
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.FieldTheory.Finite.Basic
+public import GQ2.Words
+
+@[expose] public section
 
 /-!
 # The `ω₂` exponent: specification and Appendix-B cross-check

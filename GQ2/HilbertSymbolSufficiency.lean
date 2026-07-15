@@ -1,12 +1,23 @@
-import GQ2.HilbertSymbolDyadic
-import GQ2.DyadicSquares
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.HilbertSymbolDyadic
+public import GQ2.DyadicSquares
+
+@[expose] public section
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
-# B7′-4 — the sufficiency engine and the `+1` witness leaves
+# The sufficiency engine and the `+1` witness leaves
 
-The **B7′-4 deliverable** of the `hilbertSymbol_dyadic` axiom-discharge initiative
-(board `docs/b7prime-tickets.md`, plan `docs/b7prime-proof-plan.md`, coordination
-`docs/b7prime-b34-coordination.md`).  It supplies, in namespace `GQ2.HilbertSymbol`, the `+1`
+This file proves the **B7′-4 component** of `hilbertSymbol_dyadic`, coordinated through
+`docs/orchestration/b7prime-b34-coordination.md`.  It supplies, in namespace `GQ2.HilbertSymbol`, the `+1`
 side of the leaf dispatch: the Hensel **value glue** plus the seven explicit-witness leaves and
 the `u ≡ 1 (mod 8)` freebie family.
 

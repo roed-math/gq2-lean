@@ -1,6 +1,15 @@
-import GQ2.CupProduct
-import GQ2.Statement
-import GQ2.Subdirect
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.CupProduct
+public import GQ2.Statement
+public import GQ2.Subdirect
+
+@[expose] public section
 
 /-!
 # §5 definitions: the word complex `(30)/(31)` and the lift group `A ⋊ C`
@@ -15,7 +24,7 @@ provides:
   `(u, g)(v, h) = (u + g•v, gh)`;
 * the **finite word complex** (30)/(31): `d0`, `d1Fun`/`d1`, `Z1w/H0w/H1w/H2w`, and the proved
   tame-row stress test `d1Fun_tame`;
-* the `𝔽₂`-dual `ElemDual A := A →+ ZMod 2` (T-14's def-synonym recipe) with its contragredient
+* the `𝔽₂`-dual `ElemDual A := A →+ ZMod 2` (the Tate-duality interface's def-synonym recipe) with its contragredient
   `C`-action, the shared helper `ElemDual.add_self_eq_zero`, and the evaluation pairing `dualEval`.
 
 See `GQ2.FoxHeisenberg` for the umbrella module docstring.
@@ -127,7 +136,7 @@ def baseEmbed : C →* WordLift A C where
   map_one' := rfl
   map_mul' g h := by ext <;> simp
 
-@[simp] theorem baseEmbed_apply (g : C) : (baseEmbed (A := A) g) = ⟨0, g⟩ := rfl
+@[simp] private theorem baseEmbed_apply (g : C) : (baseEmbed (A := A) g) = ⟨0, g⟩ := rfl
 
 /-- Conjugating a base generator `(0, g)` by `(v, 1)` produces the coboundary offset
 `(g • v − v, g)` — the shape of `d⁰`. -/
@@ -423,7 +432,7 @@ noncomputable instance [Finite A] [Finite C] (t : Marking C) : AddCommGroup (H2w
 
 /-- **The tame row of `d¹`, in closed form** — the general (pre-`𝔽₂`) form of display (34),
 `D(τ^σ τ⁻²)(a, b) = S⁻¹(T−1)a + S⁻¹b − (1+T)b`, valid at a marking satisfying the tame
-relation.  This is the P-12 stress test: it pins the lift convention, the `conjP` direction,
+relation.  This is the Fox–Heisenberg design stress test: it pins the lift convention, the `conjP` direction,
 and the (30)-encoding against the paper's own computation (Lemma 5.5's proof). -/
 theorem d1Fun_tame (t : Marking C) (ht : t.TameRel) (x : Fin 4 → A) :
     (d1Fun t x).1
@@ -437,10 +446,10 @@ theorem d1Fun_tame (t : Marking C) (ht : t.TameRel) (x : Fin 4 → A) :
 
 end WordComplex
 
-/-! ## The `𝔽₂`-dual  (T-14's def-synonym recipe) -/
+/-! ## The `𝔽₂`-dual -/
 
 /-- The `𝔽₂`-dual `A^∨ = Hom(A, 𝔽₂)`, as a def-synonym (a plain abbrev would pick up
-Mathlib's codomain-action instances — the T-14 diamond). -/
+Mathlib's codomain-action instances — the Tate-duality interface diamond). -/
 def ElemDual (A : Type*) [AddCommGroup A] : Type _ := A →+ ZMod 2
 
 namespace ElemDual
@@ -499,7 +508,7 @@ end Action
 
 end ElemDual
 
-/-- The evaluation pairing `A →+ A^∨ →+ 𝔽₂`, `(a, λ) ↦ λ(a)` (bundled for the T-04 cup
+/-- The evaluation pairing `A →+ A^∨ →+ 𝔽₂`, `(a, λ) ↦ λ(a)` (bundled for the cup-product API cup
 products; equivariant into the trivial module by contragredience). -/
 noncomputable def dualEval (A : Type*) [AddCommGroup A] : A →+ ElemDual A →+ ZMod 2 :=
   AddMonoidHom.mk' (fun a => AddMonoidHom.mk' (fun lam : ElemDual A => lam a) fun _ _ => rfl)

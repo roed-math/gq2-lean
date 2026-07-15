@@ -1,11 +1,16 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.Block.FrameImpl
 import GQ2.RStage.ObstructionBuild
 
 /-!
-# P-16d6a: the concrete R-stage obstruction datum + (136) for `blockFrame`
+# The concrete R-stage obstruction datum + (136) for `blockFrame`
 
 Builds `RObstructionData (blockFrameImpl T Blk hE2)` — the (136) `stageR136` datum — against the
-concrete §7-block frame (P-17c ✓, `blockFrameImpl`), and wires it into `stageR136_ofRSepData`
+concrete §7-block frame (the §9 induction ✓, `blockFrameImpl`), and wires it into `stageR136_ofRSepData`
 to produce the (136) identity `blockStageR136`.
 
 Concrete covers (`blockFrameImpl`): `YB = Y/R`, `piB = mk' R`, `scalarCover l h` = the cover
@@ -15,8 +20,8 @@ and `coverMap_lifts` is `map ∘ mk' = mk'`.
 **a-DRmod / a-assemble** (std-3): `blockRObstructionData` — the full `(R^∨)^C` character duality.
 
 **a-residues** (`blockStageR136`): `hE2` is discharged from the frame argument; the source residues
-`htriv`/`hcard`/`hfg`/`hZcount`/`hsep_hom` are threaded as hypotheses (supplied by the P-16d6e
-assembly / P-17i, where `Γ = GammaA`/`AbsGalQ2` carry the concrete trivial action and the 5.15/5.16
+`htriv`/`hcard`/`hfg`/`hZcount`/`hsep_hom` are threaded as hypotheses (supplied by the Prop. 8.9 assembly
+assembly / the §9 induction, where `Γ = GammaA`/`AbsGalQ2` carry the concrete trivial action and the 5.15/5.16
 numerics).  `hZcount` (the `z_R = #R²·#D_R` torsor count) and `hsep_hom` (the `(R^∨)^C`-separation)
 are the two irreducible source cores — see the notes on `blockStageR136`.
 -/
@@ -39,7 +44,7 @@ noncomputable def blockRCoverData (T : MarkedTarget H E Y) (Blk : MinimalBlock T
     ext y
     rfl
 
-/-! ## a-DRmod: `D_Rmod` as the Y-invariant `𝔽₂`-characters of `R` -/
+/-! ## A-DRmod: `D_Rmod` as the Y-invariant `𝔽₂`-characters of `R` -/
 
 open scoped Classical
 
@@ -103,12 +108,12 @@ def RCharKer (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) : Subg
   (RCharKerSub Blk χ).map Blk.frattiniK.subtype
 
 omit [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] in
-theorem RCharKer_le (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
+private theorem RCharKer_le (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
     RCharKer Blk χ ≤ Blk.frattiniK :=
   Subgroup.map_subtype_le _
 
 omit [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] in
-theorem RCharKer_normal (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
+private theorem RCharKer_normal (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
     (RCharKer Blk χ).Normal := by
   constructor
   intro n hn g
@@ -120,7 +125,7 @@ theorem RCharKer_normal (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub B
   rwa [χ.2 g r]
 
 omit [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y] in
-theorem RCharKer_relIndex_le (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
+private theorem RCharKer_relIndex_le (Blk : SectionSeven.MinimalBlock L) (χ : ↥(RCharSub Blk)) :
     (RCharKer Blk χ).relIndex Blk.frattiniK ≤ 2 := by
   have h1 : (RCharKer Blk χ).relIndex Blk.frattiniK = (RCharKerSub Blk χ).index := by
     rw [Subgroup.relIndex, RCharKer, ← Subgroup.comap_subtype,
@@ -224,7 +229,7 @@ theorem RCharKer_inj (Blk : SectionSeven.MinimalBlock L) :
   show χ.1 (Additive.ofMul (Additive.toMul a)) = χ'.1 (Additive.ofMul (Additive.toMul a))
   rw [RChar_eq_ind, RChar_eq_ind, hsub]
 
-/-! ## a-DRmod: assembling the `(R^∨)^C` bijection and `pair` -/
+/-! ## A-DRmod: assembling the `(R^∨)^C` bijection and `pair` -/
 
 /-- **The `(R^∨)^C` bijection** `D_Rmod ≃ D_R`: `χ ↦ ker χ` (inverse `R' ↦` its indicator).
 Codomain is the concrete frame's `.DR` (so the assembly's `pair_coverMap` types align). -/
@@ -239,7 +244,7 @@ noncomputable def blockToDR (T : MarkedTarget H E Y) (Blk : SectionSeven.Minimal
 
 omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
   [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
-@[simp] theorem blockToDR_coe (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
+@[simp] private theorem blockToDR_coe (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
     (hE2 : ∀ e : E, e ^ 2 = 1) (χ : ↥(RCharSub Blk)) :
     (blockToDR T Blk hE2 χ).1 = RCharKer Blk χ := rfl
 
@@ -252,9 +257,9 @@ theorem RCharKer_zero (Blk : SectionSeven.MinimalBlock L) : RCharKer Blk 0 = Blk
     rfl
   rw [RCharKer, hsub, ← MonoidHom.range_eq_map, Subgroup.range_subtype]
 
-/-! ## a-assemble: the concrete R-stage obstruction datum `blockRObstructionData` -/
+/-! ## A-assemble: the concrete R-stage obstruction datum `blockRObstructionData` -/
 
-/-- **The concrete R-stage obstruction datum** for the §7-block frame (P-16d6a): assembles
+/-- **The concrete R-stage obstruction datum** for the §7-block frame (the Prop. 8.9 assembly): assembles
 `blockRCoverData` with the `(R^∨)^C` module `D_Rmod = RCharSub`, the bijection `blockToDR`, and
 `pair =` the submodule inclusion, whose `pair_coverMap` matches the cover kernel-sign `zsign`
 (`= [r ∉ ker d]`).  This is the `RObstructionData` input to `stageR136_ofRSepData`. -/
@@ -300,7 +305,7 @@ theorem blockRChar_card (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBloc
     Nat.card ↥(RCharSub Blk) = Nat.card (blockFrameImpl T Blk hE2).DR :=
   Nat.card_congr (blockToDR T Blk hE2)
 
-/-! ## a-residues → (136): wiring `blockRObstructionData` into `stageR136_ofRSepData` -/
+/-! ## A-residues → (136): wiring `blockRObstructionData` into `stageR136_ofRSepData` -/
 
 section StageR136
 
@@ -311,16 +316,16 @@ variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
   [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
 
 omit [ContinuousSMul Γ (ZMod 2)] in
-/-- **P-16d6a (136) for the concrete §7-block frame.**  Instantiates the abstract R-stage finish
+/-- **the Prop. 8.9 assembly (136) for the concrete §7-block frame.**  Instantiates the abstract R-stage finish
 line `stageR136_ofRSepData` at the concrete frame `blockFrameImpl` with the concrete obstruction
 datum `blockRObstructionData` (the full `(R^∨)^C` character duality, std-3).  `hE2` is discharged
 from the frame's own argument; the remaining inputs are the source residues threaded by the
-P-16d6e assembly:
+the Prop. 8.9 assembly:
 
 * `htriv` — the trivial `Γ`-action on `𝔽₂` (`fun _ _ => rfl` once `Γ = GammaA`/`AbsGalQ2`);
 * `hcard` — `#H²(Γ,𝔽₂) = 2` (props 5.15/5.16);
-* `hfg` — `Γ` topologically finitely generated (`GammaA` via P-03; `AbsGalQ2` via B1, reserved to
-  P-17i — kept hypothesis-side);
+* `hfg` — `Γ` topologically finitely generated (`GammaA` via the finite-generation proof; `AbsGalQ2` via B1, reserved to
+  the §9 induction — kept hypothesis-side);
 * `hsep_hom` — **the `(R^∨)^C`-separation** `obs g = 0 ⟹ g` has a homomorphism lift to `Y`.  This
   is the Γ-specific arithmetic duality `D_R = (R^∨)^C ≅ H²_{Γ,ρ}(R)^∨` — the `R`-instance of the
   duality the paper displays for the phase module `T` (p. 42 top), used implicitly by Prop 8.9 (the
@@ -332,7 +337,7 @@ P-16d6e assembly:
 * `hZcount` — **the `z_R` torsor count** `#RCocycle = z_R = #R²·#D_R = |Z¹_{Γ,ρ}(R)|` (the 5.15/5.16
   numeric for the `R`-extension, the (139)-`hMcount` analogue).
 
-The conclusion is the `stageR136` field of `RecursionInputs` verbatim (for the P-16d6e assembly). -/
+The conclusion is the `stageR136` field of `RecursionInputs` verbatim (for the Prop. 8.9 assembly). -/
 theorem blockStageR136 (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY)
     (hE2 : ∀ e : E, e ^ 2 = 1)
     (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
@@ -362,7 +367,7 @@ in `H²(Γ,𝔽₂)`, then the defect splits by a continuous `R`-cochain.*  On t
 `prop_5_16` clause 6 (`cup20` bijectivity, i.e. pushforward-injectivity `H²(Γ,R_ρ) ↪ ((R^∨)^C)^∨`,
 since `cup20 c φ = [φ ∘ c]` for invariant `φ`) plus `B²`-extraction at the `compHom` action (the
 `slift`-conjugation action on `R` factors through `C = Y/K` by `lemma_7_2`'s `K`-centrality); on
-the candidate source it is the §5 word-complex route (`docs/p16d6a-handoff.md` §3). -/
+the candidate source it is the §5 word-complex route (`docs/orchestration/p16d6a-handoff.md` §3). -/
 omit [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [ContinuousSMul Γ (ZMod 2)] in
 theorem hsep_hom_of_splitCriterion {T : MarkedTarget H E Y}
     {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk)

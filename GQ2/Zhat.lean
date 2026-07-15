@@ -1,7 +1,22 @@
-import GQ2.AppendixB
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import Mathlib.Topology.AlexandrovDiscrete
+public import Mathlib.Topology.NoetherianSpace
+public import Mathlib.Combinatorics.Quiver.ReflQuiver
+public import Mathlib.Topology.Compactness.Paracompact
+public import Mathlib.Topology.Separation.Lemmas
+public import Mathlib.Topology.Algebra.Category.ProfiniteGrp.Completion
+public import GQ2.Omega2
+
+@[expose] public section
 
 /-!
-# `ℤ̂` and `ẑ`-exponentiation: the profinite home of `ω₂`  (ticket T-06, unlock U1)
+# `ℤ̂` and `ẑ`-exponentiation: the profinite home of `ω₂`
 
 The paper's presentation `Γ_A` uses words with *profinite* exponents: `τ^{ω₂}`, `x₀^{ω₂}` for the
 idempotent `ω₂ ∈ ℤ̂` (`≡ 1` on the pro-2 part, `≡ 0` on the odd part).  This file provides that
@@ -230,7 +245,7 @@ theorem zpowHat_omega2 {P : Type} [Group P] [TopologicalSpace P] [DiscreteTopolo
   rw [zpowHat_ofInt, zpow_natCast, powOmega2_pow_eq x (Nat.dvd_lcm_right _ _) hM] at hev
   exact hev.symm
 
-/-- **Headline lemma of T-06**: for any continuous homomorphism `f` from a profinite group to a
+/-- **Headline lemma of the profinite-exponentiation API**: for any continuous homomorphism `f` from a profinite group to a
 finite (discrete) group, `f (x ^ᶻ ω₂) = powOmega2 (f x)` — the profinite `ω₂` and the paper's
 finite `ω₂`-calculus compute the same thing through every finite quotient.  In particular the
 `Γ_A`-relator words, once written with `^ᶻ omega2`, evaluate in finite markings to exactly the

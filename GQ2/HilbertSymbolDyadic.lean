@@ -1,16 +1,23 @@
-import GQ2.HilbertSymbol
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.HilbertSymbol
+
+@[expose] public section
 
 /-!
-# B7′-2 — elementary identities, the norm-form layer, and parity reduction
+# Elementary identities, the norm-form layer, and parity reduction
 
-This file is the **B7′-2 deliverable** of the `hilbertSymbol_dyadic` axiom-discharge initiative
-(board `docs/b7prime-tickets.md`, plan `docs/b7prime-proof-plan.md`, §4-B7′-2).  It supplies, in
+This file proves the **B7′-2 component** of `hilbertSymbol_dyadic`.  It supplies, in
 namespace `GQ2.HilbertSymbol`, the elementary Hilbert-symbol algebra the later engines
 (B7′-3/4/5) rely on:
 
-1. **Restored elementary identities** — twelve once-green, definition-level theorems pruned on
-   2026-07-08 (commit `2a238af`) as then-unconsumed, restored here verbatim-modulo-nothing (the
-   base definitions in `GQ2/HilbertSymbol.lean` are unchanged): the symmetry / self-negation /
+1. **Elementary identities** — twelve definition-level theorems (the base definitions in
+   `GQ2/HilbertSymbol.lean` are unchanged): the symmetry / self-negation /
    square-class lemmas for `IsHilbertSolvable` and `hilbertSymbol`, and the `ε`/`ω` residue
    homomorphism + table facts.  Added: `hilbertSymbol_mul_sq_right` (square-class invariance on
    the right, via `comm`) and `hilbertSymbol_isSquare_left` (a square first slot ⇒ symbol `1`).
@@ -22,9 +29,8 @@ namespace `GQ2.HilbertSymbol`, the elementary Hilbert-symbol algebra the later e
    helper `toZModPow_unit_mem` (`u mod 8 ∈ {1,3,5,7}`), which feed the final leaf `rcases`.
 
 **Placement.**  It imports `GQ2.HilbertSymbol` only (Mathlib-only, upstream of
-`Foundations/Axioms.lean`), keeping the eventual flip (B7′-5) the zero-churn B11/B12 pattern.  The
-`GQ2.DyadicSquares` import (B7′-1's Hensel square criterion) is **not** needed here and is deferred
-to B7′-3/4, which add it to this file's header when they land the necessity/sufficiency engines.
+`Foundations/Axioms.lean`).  The `GQ2.DyadicSquares` import (B7′-1's Hensel square criterion) is
+not needed here; the necessity and sufficiency engines import it directly.
 -/
 
 namespace GQ2.HilbertSymbol
@@ -210,7 +216,7 @@ theorem toZModPow_unit_mem (u : ℤ_[2]ˣ) :
 The axiom's arguments are the `unit2`/`unitCoe` wrappers; the leaf proofs (necessity via
 `not_isHilbertSolvable_of_mod`, sufficiency via explicit witnesses) work with raw `ℤ_[2] → ℚ_[2]`
 coercions.  These two `rfl`-lemmas bridge them.  Owned by B7′-3 per
-`docs/b7prime-b34-coordination.md`; B7′-4 imports (does not edit) this file. -/
+`docs/orchestration/b7prime-b34-coordination.md`; B7′-4 imports (does not edit) this file. -/
 
 /-- The `ℚ₂`-value of the unit `2` is `2`. -/
 theorem unit2_coe : ((unit2 : ℚ_[2]ˣ) : ℚ_[2]) = 2 := rfl

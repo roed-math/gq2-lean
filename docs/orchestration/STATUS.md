@@ -4,7 +4,7 @@ Current-tree record of the GQ2 library, organized by **layer** (per-declaration 
 the machine ledger — see below — so this file stays maintainable as the tree grows).  Refreshed
 **2026-07-03** at the step-1→step-2 boundary (all statement tickets `T-xx` landed; proof tickets
 `P-xx` beginning).  See [`step2-plan.md`](step2-plan.md) for the proof-phase DAG,
-[`tickets.md`](tickets.md) for the live board, and [`literature-axioms.md`](literature-axioms.md) for
+[`tickets.md`](tickets.md) for the historical board, and [`literature-axioms.md`](../literature-axioms.md) for
 the App. D certificate.
 
 ## Snapshot (machine-checked)

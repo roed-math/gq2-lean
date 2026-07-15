@@ -1,8 +1,17 @@
-import GQ2.DeepCount
-import Mathlib
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.DeepCount
+
+@[expose] public section
+
 
 /-!
-# Shapiro finiteness: `H¹(U, 𝔽₂)` is finite for an open subgroup `U ≤ G_ℚ₂`  (P-15f8 support)
+# Shapiro finiteness: `H¹(U, 𝔽₂)` is finite for an open subgroup `U ≤ G_ℚ₂`
 
 The `[Finite (H¹(G_K, 𝔽₂))]` instance threaded through the whole deep-part counting layer
 (`DeepCount`, `DimClose`, `DimAssembly`, `ResidueLift`, `AdmissibleCount`) is discharged here
@@ -100,7 +109,7 @@ theorem continuousSMul (hU : IsOpen (U : Set AbsGalQ2)) [Finite (AbsGalQ2 ⧸ U)
 /-- The base coset `⟦1⟧ ∈ G ⧸ U`. -/
 noncomputable def basePt (U : Subgroup AbsGalQ2) : AbsGalQ2 ⧸ U := QuotientGroup.mk 1
 
-theorem smul_base_of_mem {v : AbsGalQ2} (hv : v ∈ U) : v • (basePt U) = basePt U := by
+private theorem smul_base_of_mem {v : AbsGalQ2} (hv : v ∈ U) : v • (basePt U) = basePt U := by
   show (QuotientGroup.mk (v * 1) : AbsGalQ2 ⧸ U) = QuotientGroup.mk 1
   rw [mul_one]
   exact QuotientGroup.eq.mpr (by simpa using U.inv_mem hv)
@@ -135,7 +144,7 @@ noncomputable def thetaZ1 (U : Subgroup AbsGalQ2) (hU : IsOpen (U : Set AbsGalQ2
   (Z1comap (ContinuousMonoidHom.id (↥U)) (ev U) ev_continuous (fun u n => ev_compat u n)).comp
     (Z1comap (subgroupIncl AbsGalQ2 U) (AddMonoidHom.id (PermMod U)) continuous_id (fun _ _ => rfl))
 
-theorem theta_H1mk (U : Subgroup AbsGalQ2) (hU : IsOpen (U : Set AbsGalQ2))
+private theorem theta_H1mk (U : Subgroup AbsGalQ2) (hU : IsOpen (U : Set AbsGalQ2))
     [Finite (AbsGalQ2 ⧸ U)] (C : Z1 AbsGalQ2 (PermMod U)) :
     theta U hU (H1mk AbsGalQ2 (PermMod U) C) = H1mk (↥U) (ZMod 2) (thetaZ1 U hU C) := by
   haveI := PermMod.continuousSMul hU
@@ -148,13 +157,13 @@ open Classical in
 noncomputable def sect (x : AbsGalQ2 ⧸ U) : AbsGalQ2 :=
   if x = basePt U then 1 else Quotient.out x
 
-theorem sect_mk (x : AbsGalQ2 ⧸ U) : (QuotientGroup.mk (sect x) : AbsGalQ2 ⧸ U) = x := by
+private theorem sect_mk (x : AbsGalQ2 ⧸ U) : (QuotientGroup.mk (sect x) : AbsGalQ2 ⧸ U) = x := by
   unfold sect
   split
   · rename_i h; rw [h]; rfl
   · exact QuotientGroup.out_eq' x
 
-theorem sect_base : sect (basePt U) = 1 := by unfold sect; rw [if_pos rfl]
+private theorem sect_base : sect (basePt U) = 1 := by unfold sect; rw [if_pos rfl]
 
 /-- The **Shapiro word** `w(g,x) = sect(g⁻¹•x)⁻¹ · g⁻¹ · sect x` lies in `U`. -/
 theorem wElt_mem (g : AbsGalQ2) (x : AbsGalQ2 ⧸ U) :
@@ -185,7 +194,7 @@ theorem wElt_mul (g₁ g₂ : AbsGalQ2) (x : AbsGalQ2 ⧸ U) :
 noncomputable def sigmaFun (c : Z1 U (ZMod 2)) : AbsGalQ2 → PermMod U :=
   fun g => (fun x => c.1 (wElt g x) : PermMod U)
 
-theorem sigmaFun_continuous (c : Z1 U (ZMod 2)) (hU : IsOpen (U : Set AbsGalQ2))
+private theorem sigmaFun_continuous (c : Z1 U (ZMod 2)) (hU : IsOpen (U : Set AbsGalQ2))
     [Finite (AbsGalQ2 ⧸ U)] : Continuous (sigmaFun c) := by
   haveI := QuotientGroup.discreteTopology hU
   refine (IsLocallyConstant.iff_isOpen_fiber.mpr (fun φ₀ => ?_)).continuous
@@ -206,7 +215,7 @@ theorem sigmaFun_continuous (c : Z1 U (ZMod 2)) (hU : IsOpen (U : Set AbsGalQ2))
   have hc1 : Continuous c.1 := (mem_Z1_iff.mp c.2).1
   exact (hc1.comp hcU).isOpen_preimage {φ₀ x} (isOpen_discrete _)
 
-theorem sigmaFun_mem (c : Z1 U (ZMod 2)) (hU : IsOpen (U : Set AbsGalQ2))
+private theorem sigmaFun_mem (c : Z1 U (ZMod 2)) (hU : IsOpen (U : Set AbsGalQ2))
     [Finite (AbsGalQ2 ⧸ U)] : sigmaFun c ∈ Z1 AbsGalQ2 (PermMod U) := by
   rw [mem_Z1_iff]
   refine ⟨sigmaFun_continuous c hU, fun g₁ g₂ => ?_⟩

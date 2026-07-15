@@ -1,10 +1,15 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.Block.Enrichment
 import GQ2.Shapiro.Deepness
 
 /-!
-# P-16d6e4aA-P4b — the head-inflated block enrichment (`blockEnrichmentD`)
+# The head-inflated block enrichment (`blockEnrichmentD`)
 
-Substrate for the c3-G0 **head-inflation reshape** (`docs/p16d6e4aA-p4-tame-package.md`,
+Substrate for the c3-G0 **head-inflation reshape** (`docs/orchestration/p16d6e4aA-p4-tame-package.md`,
 authoritative; the frozen `TamePackage`/`hpack` shape is refuted there).  This leaf builds:
 
 * the head identification `headEquiv : Y⧸L_Y ≃* H` and the `H`-action on `V = P/S`
@@ -25,7 +30,7 @@ authoritative; the frozen `TamePackage`/`hpack` shape is refuted there).  This l
 * the boundary-equation head components `boundaryLift_head_gammaA`/`boundaryLift_head_local`
   (the per-lift tame factorization at the head — `rfl`-level from `IsBoundaryLift`).
 
-Everything here is std-3 (no sorries; `kappa0_exists_tame` is the landed P-17e5 theorem).
+Everything here is std-3 (no sorries; `kappa0_exists_tame` is the proved the §9 induction theorem).
 Consumers: P4c (local residue twins at `blockEnrichmentD`), P4d (`Γ_A` twins), P4e (the
 hypothesis-free G0-obtain), P5 (the ThmFourTwo `En`-swap).
 -/
@@ -66,7 +71,7 @@ noncomputable def headEquiv : (Y ⧸ T.LY) ≃* H :=
 
 omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
   [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
-@[simp] theorem headEquiv_mk (y : Y) :
+@[simp] private theorem headEquiv_mk (y : Y) :
     headEquiv T (QuotientGroup.mk' T.LY y) = T.piY y :=
   show QuotientGroup.lift T.LY T.piY (le_of_eq T.ker_piY.symm)
       (QuotientGroup.mk' T.LY y) = T.piY y from QuotientGroup.lift_mk' _ _ _
@@ -87,14 +92,14 @@ noncomputable def blockPiCH : (Y ⧸ Blk.K) →* H :=
 omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
   [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal]
   [(Blk.S.subgroupOf Blk.P).Normal] in
-@[simp] theorem blockPiCH_mk (y : Y) :
+@[simp] private theorem blockPiCH_mk (y : Y) :
     blockPiCH T Blk (QuotientGroup.mk' Blk.K y) = T.piY y :=
   QuotientGroup.lift_mk' _ _ _
 
 omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
   [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal]
   [(Blk.S.subgroupOf Blk.P).Normal] in
-theorem blockPiCH_surjective : Function.Surjective (blockPiCH T Blk) := fun h => by
+private theorem blockPiCH_surjective : Function.Surjective (blockPiCH T Blk) := fun h => by
   obtain ⟨y, hy⟩ := T.piY_surjective h
   exact ⟨QuotientGroup.mk' Blk.K y, (blockPiCH_mk T Blk y).trans hy⟩
 
@@ -189,7 +194,7 @@ noncomputable def blockProjF : (Y ⧸ Blk.K) →* HVq T Blk :=
 
 omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
   [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal] in
-theorem blockProjF_surjective : Function.Surjective (blockProjF T Blk) :=
+private theorem blockProjF_surjective : Function.Surjective (blockProjF T Blk) :=
   (QuotientGroup.mk'_surjective _).comp (blockPiCH_surjective T Blk)
 
 omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E] [DiscreteTopology E]
@@ -276,7 +281,7 @@ theorem hv_simple :
 
 /-! ## The `H_V`-level κ⁰ datum and the head-inflated enrichment -/
 
-/-- The `H_V`-level κ⁰ existential: Lemma 6.3 (`kappa0_exists_tame`, landed P-17e5) at the
+/-- The `H_V`-level κ⁰ existential: Lemma 6.3 (`kappa0_exists_tame`, proved the §9 induction) at the
 faithful head quotient with the tame pair `(hvSigma, hvTau)`. -/
 noncomputable def blockKappa0HV (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :=
   letI := blockPS_commGroup Blk
@@ -303,13 +308,13 @@ theorem blockDatHV_spec (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
 
 end TamePair
 
-/-- **The head-inflated block enrichment** (P-16d6e4aA-P4b): `blockEnrichment` with the κ⁰
+/-- **The head-inflated block enrichment** (the Γ_A Gauss-sum package): `blockEnrichment` with the κ⁰
 datum replaced by the definitionally-transparent inflation
 `(blockDatHV …).reindexHom blockProjF` of the faithful-head-quotient datum — every other
 field (module, action, forms, descent) is `blockEnrichment`'s own.  At this enrichment every
 `QZero`/`Q0loc` evaluation transports down `graphPullback_reindexHom` to `C := H_V`, where
 every boundary lift is tame-factored through the *fixed* `mk' ∘ F.alpha` and `hfaith` holds
-by construction (`hvAct_faithful`) — see `docs/p16d6e4aA-p4-tame-package.md`. -/
+by construction (`hvAct_faithful`) — see `docs/orchestration/p16d6e4aA-p4-tame-package.md`. -/
 noncomputable def blockEnrichmentD (hE2 : ∀ e : E, e ^ 2 = 1) (F : BoundaryFrame H E) :
     (blockFrame T Blk hE2).Enrichment :=
   letI := blockPS_commGroup Blk

@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.AdmissibleCount
 import GQ2.DeepDuality
 import GQ2.RegularSummand
@@ -5,34 +10,30 @@ import GQ2.Prop32
 import GQ2.Shapiro.Extend
 
 /-!
-# P-15f8 (increment 1): the parametric `lemma_6_17_dim` assembly
+# The parametric `lemma_6_17_dim` assembly
 
-The f6 capstone `card_deepPart_sq_of_duality` (`GQ2/AdmissibleCount.lean`) proves
+The capstone `card_deepPart_sq_of_duality` (`GQ2/AdmissibleCount.lean`) proves
 `#X₊² = #H¹(ℚ₂,V)` — `lemma_6_17_dim`'s exact conclusion — from: `hρsurj`, `hinf`, `hext`,
 a regular-summand package `(ι, r)` for the **dual** module `V^∨ = V →+ 𝔽₂`, and the graded
-duality `hduality` (P-15f7's in-flight deliverable).  This file assembles everything that is
-available **today** from `lemma_6_17_dim`'s own hypothesis set, leaving exactly `hext` and
-`hduality` as parameters:
+duality `hduality`.  This file exposes two parametric assembly theorems: one taking both `hext`
+and `hduality`, and one deriving `hext` internally and taking only `hduality`.
 
 * **profinite plumbing** — `rho_surjective` (`ρ = c ∘ tameF` is onto), `gen_of_surjective`
   (the images of `σ, τ` generate the finite discrete image, via `SectionThree.gen_ttame_quotient`),
   `tame_rel_image` (the tame relation `σ⁻¹τσ = τ²` pushed through `c`, from `tame_relation`);
 * **`hinf`** — discharged via the banked `inflationVanishes_ramifiedTame`;
-* **the `V^∨` package** — `lemma_6_11_of_tame_pair` (P-17e4, std-3) applied at `dualModule`,
+* **the `V^∨` package** — `lemma_6_11_of_tame_pair` applied at `dualModule`,
   with the 𝔽₂-dual transport bricks `dual_faithful` / `dual_simple` / `dual_ram` proving that
   `V^∨` inherits faithfulness, simplicity, and inertia-nontriviality from `V` (separation of
   points by functionals, `exists_functional_ne_zero`; annihilator + double-dual counting via
   `card_addHom_zmod2` for simplicity).
 
-The capstone application is `lemma_6_17_dim_of_hext_hduality`.  **Remaining for f8**:
-`hduality` ← P-15f7 (in flight); `hext` ← the `FamiliesExtend` production (next increment —
-route: Shapiro for the regular module `𝔽₂[C] = Ind_N^G 𝔽₂` along the `V`-side 6.11 package,
-the paper's (78) projectivity logic; the `familiesExtend_of_card_le` card bound has no
-filtration-free producer, see the P-15f8 board row).  Then `lemma_6_17_dim` closes by the
-6.18ram statement-move.
+The second theorem derives `FamiliesExtend` from the `V`-side regular-module package using inverse
+Shapiro and retract transfer.  The concrete arithmetic producer for `hduality` lives in
+`GQ2/DeepCount.lean`.
 
-All declarations here are `#print axioms` ⊆ std-3 (the 6.11 chain is std-3 since P-17e4
-closed; B6/B7 enter only through the consumed banked lemmas at instantiation).
+The declarations here use only the standard axioms; B6/B7 enter through the supplied downstream
+lemmas at instantiation.
 -/
 
 namespace GQ2
@@ -74,7 +75,7 @@ theorem tame_rel_image (c : ContinuousMonoidHom Ttame C) :
 /-! ## 𝔽₂-dual transport: `V^∨` inherits the ramified-simple-faithful package from `V`
 
 Stated in **pointwise** form (no `SMul (V →+ 𝔽₂)` instance mentioned), so they can be consumed
-under any `letI := dualModule` without instance-diamond friction (the P-15f6 handoff idiom). -/
+under any `letI := dualModule` without instance-diamond friction (the deep-part proof handoff idiom). -/
 
 section Dual
 
@@ -189,12 +190,12 @@ end Dual
 variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
-/-- **`lemma_6_17_dim`, parametric over `hext` and `hduality`** (P-15f8, increment 1):
+/-- **`lemma_6_17_dim`, parametric over `hext` and `hduality`** (the deep-part proof, increment 1):
 from `lemma_6_17_dim`'s own hypothesis set, discharge `hρsurj`/`hgen`/`hinf` (profinite
 plumbing + `inflationVanishes_ramifiedTame`) and the `V^∨` regular-summand package
 (`lemma_6_11_of_tame_pair` at `dualModule`, via the 𝔽₂-dual transport bricks), and apply the
-f6 capstone.  The two remaining parameters are `hext` (`FamiliesExtend`, next f8 increment)
-and `hduality` (P-15f7's deliverable). -/
+f6 capstone.  The parameters are `hext` (`FamiliesExtend`)
+and `hduality` (the deep-part proof's result). -/
 theorem lemma_6_17_dim_of_hext_hduality (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
@@ -240,11 +241,11 @@ theorem lemma_6_17_dim_of_hext_hduality (B : BoundaryMaps)
   exact card_deepPart_sq_of_duality ρ hρ hV2 hρsurj hinf hext ι r
     (fun h φ n x => hι h φ n x) (fun h F => hr h F) hri hduality
 
-/-- **`lemma_6_17_dim`, parametric over `hduality` alone** (P-15f8, increment 2): the `hext`
+/-- **`lemma_6_17_dim`, parametric over `hduality` alone** (the deep-part proof, increment 2): the `hext`
 parameter of `lemma_6_17_dim_of_hext_hduality` is now **discharged** — the `V`-side
 regular-summand package (`lemma_6_11_of_tame_pair` at `V` itself, whose hypotheses are the
 theorem's own) feeds `ShapiroExtend.familiesExtend_of_package` (inverse Shapiro at the regular
-module + the retract transfer).  The single remaining parameter is P-15f7's `hduality`. -/
+module + the retract transfer).  The final parameter is the deep-part duality hypothesis `hduality`. -/
 theorem lemma_6_17_dim_of_hduality (B : BoundaryMaps)
     (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))

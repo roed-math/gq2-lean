@@ -1,9 +1,14 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.AnabelianBridge
 import GQ2.Orientation
 import GQ2.Foundations.Axioms
 
 /-!
-# Proposition 1.1 — the assembly  (ticket P-10)
+# Proposition 1.1 — the assembly
 
 `GQ2/PropOneOne.lean` supplied the `ν_ur`-descent infrastructure; this file assembles the marked
 isomorphism itself.  Paper: *"there exist topological generators `a, s, y` of `D = G_{ℚ₂}(2)` with
@@ -13,17 +18,17 @@ isomorphism itself.  Paper: *"there exist topological generators `a, s, y` of `D
 
 * **B3c** (`dyadicOrientation`) provides a *group* isomorphism `equiv : G_{ℚ₂}(2) ≅ D₀` whose
   descended cyclotomic character `chiTwo` takes the marked values `(−1, 1, (−3)⁻¹)` on `A, S, Y`.
-* **Lemma 3.5** (`lemma_3_5_marked_abelianization`, ticket P-07) provides an *abelianization*
+* **Lemma 3.5** (`lemma_3_5_marked_abelianization`) provides an *abelianization*
   isomorphism `e_ab : D₀^{ab} ≅ G_{ℚ₂}(2)^{ab}` sending `Ā, S̄, Ȳ` to the reciprocity classes
   `π(rec −4), π(rec 1/2), π(rec −3)` — which carry the `ν_ur`-row `(−2, 1, 0)`.
 * The two isomorphisms need not agree on abelianizations; they differ by a `χ`-preserving
-  automorphism `Θ` of `D₀^{ab}`, which by **Prop. 3.8** (P-08: `prop_3_8_classification` +
+  automorphism `Θ` of `D₀^{ab}`, which by **Prop. 3.8** (the Lemmas 3.6–3.8 proof: `prop_3_8_classification` +
   `prop_3_8_lift`) is some `α_{u,b}` and hence **lifts** to a group automorphism `Ψ` of `D₀`.
   Then `e := Ψ ∘ equiv` induces `e_ab` on abelianizations, so `e.symm(A/S/Y)` have the marked
   reciprocity classes, and the `ν_ur`-rows read off through `nu_ur_recip_*`.
 
-`e_ab` is Lemma 3.5, whose once census-gated ingredient `markedHom_bijective` (Escalation 5) is
-now a proved theorem (`GQ2/SectionThree.lean`); so `prop_1_1` is fully proved.  Everything here
+`e_ab` is Lemma 3.5, using the theorem `markedHom_bijective` from `GQ2/SectionThree.lean`.
+Everything here
 (functorial abelianization, the `χ`-descent, the `Θ`-classification/lift, the `ν_ur`-readoff)
 is `std-3 + B3c + B8`.
 -/
@@ -92,7 +97,7 @@ noncomputable def topAbLiftHom (f : ContinuousMonoidHom G H) :
       exact isClosed_singleton.preimage (continuous_abMk.comp f.continuous_toFun)),
     (QuotientGroup.isQuotientMap_mk _).continuous_iff.mpr (continuous_abMk.comp f.continuous_toFun)⟩
 
-@[simp] lemma topAbLiftHom_abMk (f : ContinuousMonoidHom G H) (g : G) :
+@[simp] private lemma topAbLiftHom_abMk (f : ContinuousMonoidHom G H) (g : G) :
     topAbLiftHom f (abMk g) = abMk (f g) := rfl
 
 end FunctorialAb
@@ -117,14 +122,14 @@ noncomputable def topAbCongr {G H : Type*} [Group G] [TopologicalSpace G] [IsTop
           simp only [topAbLiftHom_abMk]
           exact congrArg abMk (φ.apply_symm_apply h)⟩)
 
-@[simp] lemma topAbCongr_abMk {G H : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+@[simp] private lemma topAbCongr_abMk {G H : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
     [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
     [Group H] [TopologicalSpace H] [IsTopologicalGroup H]
     [CompactSpace H] [T2Space H] [TotallyDisconnectedSpace H]
     (φ : ContinuousMulEquiv G H) (g : G) :
     topAbCongr φ (abMk g) = abMk (φ g) := rfl
 
-@[simp] lemma topAbCongr_symm_abMk {G H : Type*} [Group G] [TopologicalSpace G]
+@[simp] private lemma topAbCongr_symm_abMk {G H : Type*} [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
     [Group H] [TopologicalSpace H] [IsTopologicalGroup H]
     [CompactSpace H] [T2Space H] [TotallyDisconnectedSpace H]
@@ -183,15 +188,15 @@ noncomputable def chiG :
     ContinuousMonoidHom (topAbelianization (maxProPQuotient 2 AbsGalQ2)) ℤ_[2]ˣ :=
   abDescend ⟨orientBundle.chiTwo, orientBundle.continuous_chiTwo⟩
 
-@[simp] lemma chiD0_abMk (d : (D0 : Type)) :
+@[simp] private lemma chiD0_abMk (d : (D0 : Type)) :
     chiD0 (abMk d) = orientBundle.chiTwo (orientBundle.equiv.symm d) := rfl
 
-@[simp] lemma chiG_abMk (h : (maxProPQuotient 2 AbsGalQ2 : Type)) :
+@[simp] private lemma chiG_abMk (h : (maxProPQuotient 2 AbsGalQ2 : Type)) :
     chiG (abMk h) = orientBundle.chiTwo h := rfl
 
-lemma chiD0_A : chiD0 (abMk d0A) = -1 := orientBundle.chi_A
-lemma chiD0_S : chiD0 (abMk d0S) = 1 := orientBundle.chi_S
-lemma chiD0_Y (y : ℤ_[2]ˣ) (hy : (y : ℤ_[2]) = -3) : chiD0 (abMk d0Y) = y⁻¹ :=
+private lemma chiD0_A : chiD0 (abMk d0A) = -1 := orientBundle.chi_A
+private lemma chiD0_S : chiD0 (abMk d0S) = 1 := orientBundle.chi_S
+private lemma chiD0_Y (y : ℤ_[2]ˣ) (hy : (y : ℤ_[2]) = -3) : chiD0 (abMk d0Y) = y⁻¹ :=
   orientBundle.chi_Y y hy
 
 /-- `χ_G ∘ markedPi = chiCycAb`: the cyclotomic values agree with `markedPi`'s reciprocity classes
@@ -260,7 +265,7 @@ noncomputable def unitNegThree : ℤ_[2]ˣ :=
   (isUnit_intCast_of_odd (⟨-2, by ring⟩ : Odd (-3 : ℤ))).unit
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
-@[simp] lemma unitNegThree_val : (unitNegThree : ℤ_[2]) = -3 := by
+@[simp] private lemma unitNegThree_val : (unitNegThree : ℤ_[2]) = -3 := by
   rw [unitNegThree, IsUnit.unit_spec]; push_cast; ring
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
@@ -285,11 +290,11 @@ lemma chiCycAb_recip_unitNeg3 : chiCycAb (R.recip unitNeg3) = unitNegThree⁻¹ 
 
 /-! ### Proposition 1.1 -/
 
-/-- **Proposition 1.1** (ticket P-10).  A marked isomorphism `e : G_{ℚ₂}(2) ≅ D₀` with unramified
+/-- **Proposition 1.1.**  A marked isomorphism `e : G_{ℚ₂}(2) ≅ D₀` with unramified
 coordinates `ν_ur(a, s, y) = (−2, 1, 0)`.  Assembled from B3c (`orientBundle.equiv`), Lemma 3.5
-(`lemma_3_5_marked_abelianization`, ticket P-07 — `markedHom_bijective` now proved),
-and Prop. 3.8 (`prop_3_8_classification`/`prop_3_8_lift`, ticket P-08).  Statement moved here from
-`GQ2/SectionThree.lean` (comment-pointer there), P-09 precedent. -/
+(`lemma_3_5_marked_abelianization`, using `markedHom_bijective`),
+and Prop. 3.8 (`prop_3_8_classification`/`prop_3_8_lift`).  The statement is placed here to
+respect the import DAG; see the pointer in `GQ2/SectionThree.lean`. -/
 theorem SectionThree.prop_1_1 :
     ∃ e : ContinuousMulEquiv (maxProPQuotient 2 AbsGalQ2) D0,
       (∀ g : AbsGalQ2, maxProPMk 2 AbsGalQ2 g = e.symm d0A →

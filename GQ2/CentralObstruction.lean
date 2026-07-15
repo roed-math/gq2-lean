@@ -1,11 +1,21 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.RadicalEdge.Data
 import GQ2.Cohomology
+import Mathlib.Algebra.Module.ZMod
+import Mathlib.LinearAlgebra.Basis.VectorSpace
+import Mathlib.LinearAlgebra.FreeModule.Finite.Basic
+import Mathlib.Tactic.Group
+import Mathlib.Tactic.LinearCombination
+import Mathlib.Topology.Instances.ZMod
 
 /-!
-# The central-obstruction engine for Lemma 8.6  (ticket P-16a)
+# The central-obstruction engine for Lemma 8.6
 
-The Γ-generic machinery behind the §8 half-torsor count (`docs/p16-ticket-split.md`,
-`docs/section8-extraction.md` §"O-half work order" item 3), faithful to the paper's proof of
+The Γ-generic machinery behind the §8 half-torsor count, faithful to the paper's proof of
 Lemma 8.6:
 
 * **kernel-sign calculus** `zsign` on the central double cover (`ker p = {1, z} ≅ 𝔽₂`);
@@ -25,7 +35,8 @@ Lemma 8.6:
   swaps `Central` and its complement, so exactly half the `M`-lifts are central.
 
 The per-source content — producing the nonzero-variation twist from `NoDescent` (B6 for the
-local source, 5.15/5.16 for the candidate source) — is P-16b/P-16c, in downstream files.
+local source, 5.15/5.16 for the candidate source) — lives in the downstream local and `Γ_A`
+half-torsor proofs.
 No axioms enter here; everything is std-3.
 -/
 

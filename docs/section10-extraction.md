@@ -1,89 +1,68 @@
-# §10 extraction — Lemma 10.1 and eq. (154)  (P-18a, 2026-07-07)
+# §10 crosswalk — tame-frame exhaustion and equation (154)
 
-Statement-layer encoding of paper §10 (pp. 47–48) in `GQ2/SectionTen.lean`.  Companion to the
-lane plan `docs/p18-plan.md` (routes, per-source obligations, sub-ticket split P-18a–e).
-Skeleton builds green; the six sorries and their owners are listed at the end.
+This note maps paper §10 to the completed Lean development in `GQ2/SectionTen.lean` and
+`GQ2/SectionTenSources.lean`. It records the representation choices and statement amendments that
+matter when revising or reviewing the paper.
 
-## Node map
+## Statement map
 
-| paper node | Lean | status |
-|---|---|---|
-| `O₂(G)` (2-core; paper uses it implicitly in "put `L = O₂(G)`") | `SectionTen.twoCore` (sSup of normal 2-subgroups) + `twoCore_normal`/`twoCore_isPGroup`/`le_twoCore` | def ✓; props sorried (P-18b; `le_twoCore` proved) |
-| "characteristic marked wild subgroup maps into `O₂(G)`" | `isPGroup_map_of_isProP` (pro-2 image bridge) + `le_twoCore` | sorried (P-18b) |
-| the single §10 target `(G, L, π, θ=0)` | `tameTarget G : MarkedTarget (G ⧸ twoCore G) E₀ G` | ✓ built |
-| a tame boundary frame with `E = 0` | `tameFrame α hα : BoundaryFrame H E₀` | ✓ built |
-| the (finite) set of tame frames `Ttame ↠ G/L` | `TameFrames G` (subtype) | ✓; finiteness P-18c |
-| Lemma 10.1 (exhaustion/disjointness) | `lemma_10_1` (sigma-equivalence) | sorried (P-18c) |
-| the summed count identity | `card_contSurj_eq` (`Nat.card (ContSurj Γ G) = ∑ᶠ α, e^β`) | sorried (P-18c) |
-| eq. (154) | `eq_154` | sorried (P-18e; consumes `thm_4_2` per frame) |
-| `main_surjection_count` (Theorem 1.2, count form) | `main_surjection_count'` | **PROVED modulo `eq_154`** (std-3 + sorryAx verified) — the end-to-end wiring type-checks |
-
-## Encoding decisions and deviations (flagged for P-20)
-
-1. **`O₂(G)` is built, not cited.**  Mathlib has no `pCore`; `twoCore := sSup {N | N.Normal ∧
-   IsPGroup 2 N}`.  The three properties are P-18b's (directedness via the second isomorphism
-   theorem + `p`-groups closed under extension; statements hold for arbitrary groups, no
-   finiteness needed).
-2. **"For either source" is hypothesis-form.**  `lemma_10_1`/`card_contSurj_eq` are stated over
-   any `(Γ, b)` with `htame : Surjective (tameCoord b)` and `hwild : IsProP 2 (ker (tameCoord
-   b))`; P-18d discharges per source.  `tameCoord (B.bA) = B.tameA` and `tameCoord (B.bF) =
-   B.tameF` hold on the nose (`bA_apply_coe`/`bF_apply_coe` are `rfl`).  The `G_ℚ₂` side is
-   already bundled in `BoundaryMaps` (`tameF_surjective`, `wild_isProP`); the `Γ_A` side is the
-   one open obligation (plan §4, P-18d, with the `BoundaryMaps`-amendment fallback).
-3. **"Determines a unique tame boundary frame … disjoint sets" is the sigma-equivalence.**
-   `ContSurj Γ G ≃ (α : TameFrames G) × BoundaryLifts b (tameFrame α) (tameTarget G)` — the
-   fibration IS the partition + uniqueness; no standalone uniqueness lemma is stated.
-4. **`E = 0` is `E₀ := PUnit`.**  `exponent_two` is `rfl`; `ψ̄ := 1`; `thm_4_2`'s `hE2` will be
-   discharged by `fun _ => rfl` at P-18e.  (Precedent for `PUnit` group instances:
-   `GQ2/Demushkin.lean` §PUnitNot.)
-5. **The counting form uses `∑ᶠ` over the `TameFrames` subtype.**  Finiteness of the index is
-   Ttame-t.f.g. content (`SectionThree.gen_ttame_quotient`, `GQ2/Prop32.lean:134`) and of the
-   fibers is `finite_boundaryLifts` + `hfg` — both inside P-18c's proof; the statement carries
-   only `hfg` (the house `∃ Finset …topologicalClosure = ⊤` shape).
-6. **Eq. (154) is split**: `eq_154` (the two-source `Nat.card (ContSurj …)` equality) then
-   `main_surjection_count' := (eq_154 G).symm.trans prop_2_3` — the latter **already compiles**
-   (shape-validates the whole design: `contSurjCount` unfolds definitionally, `prop_2_3`'s
-   binders match).
-7. **Import geometry (load-bearing).**  `Statement.lean` is imported by `GammaA.lean` and
-   `FoxHeisenberg.lean` — it sits UPSTREAM of the entire §§4–9 tower, so `main_surjection_count`
-   cannot be proven in place (a `Statement → SectionTen` import would cycle).  **P-18e uses the
-   statement-move pattern** (P-08/P-15d precedent): the theorem moves here (comment-pointer in
-   `Statement.lean`), and `main_presentation` (which consumes it) goes **hypothesis-form**
-   (gains `hcount : ∀ G …, contSurjCount G = admissibleCount G`; P-19 supplies it).  The moved
-   statement also gains the two instance binders `[CompactSpace AbsGalQ2]
-   [TotallyDisconnectedSpace AbsGalQ2]` — these are file-level `variable`s throughout the tower
-   (e.g. `SectionThree.lean:1075`, `BoundaryMapsWitness.lean:291`), NOT global instances, so
-   every theorem mentioning `AbsGalQ2` carries them; `main_presentation` already binds them, so
-   the amendment is invisible downstream.  **P-19 note**: `main_presentation_literal`
-   (`GammaA.lean:283`) is also upstream and will need the same statement-move at P-19 (its proof
-   needs `prop_2_3` + `main_surjection_count`, both downstream of `GammaA.lean`).
-8. **`[IsTopologicalGroup Γ]`** is added to the generic-section variables (the
-   `exactImageCount` context requires it); both sources satisfy it.
-9. **Quotient-head discreteness** `DiscreteTopology (G ⧸ twoCore G)` is proved via
-   `discreteTopology_iff_forall_isOpen` + `isOpen_coinduced` (the `⟨rfl⟩` trick of
-   `BlockFrameImpl.lean:39` does not transfer to an abstract `[DiscreteTopology G]`).
-10. **P-18c statement amendments (landed 2026-07-07).**  Over the P-18a skeleton:
-    `lemma_10_1` gains `[CompactSpace Γ]` — the induced frame `α_f` is continuous only because
-    the tame coordinate is a topological *quotient map* (a continuous surjection from a compact
-    source onto the Hausdorff `Ttame` is closed, hence quotient); without compactness the
-    descended hom need not be continuous (no strong-completeness machinery is formalized).
-    `card_contSurj_eq` gains `[CompactSpace Γ] [TotallyDisconnectedSpace Γ]` (the latter for
-    `finite_boundaryLifts`/`finite_continuousMonoidHom`).  Both are free at the P-18e call
-    sites, but note the `GammaA` instances are bound per-theorem in the tower — `eq_154` will
-    bind `[CompactSpace GammaA] [TotallyDisconnectedSpace GammaA]` alongside deviation 7's
-    `AbsGalQ2` binders.  Conversely `[IsTopologicalGroup Γ]` is `omit`ted on `lemma_10_1` and
-    the P-18c helpers (unused there; deviation 8's rationale is the `exactImageCount` side,
-    i.e. `card_contSurj_eq` keeps it).
-
-## Sorry ledger (all allowlisted via `GQ2/SectionTen.lean`)
-
-| decl | owner |
+| Paper object or result | Lean encoding |
 |---|---|
-| `twoCore_normal`, `twoCore_isPGroup` | P-18b — ✅ PROVED (2026-07-07, std-3) |
-| `isPGroup_map_of_isProP` | P-18b — ✅ PROVED (2026-07-07, std-3) |
-| `lemma_10_1`, `card_contSurj_eq` | P-18c — ✅ PROVED (2026-07-07, std-3; statement amendments in deviation 10) |
-| `eq_154` | P-18e (consumes `thm_4_2` per frame — carries `sorryAx` through the allowlisted `SectionNine` sorry until P-17i).  **The file's last sorry.** |
+| `O₂(G)` | `SectionTen.twoCore`, with `twoCore_normal`, `twoCore_isPGroup`, and `le_twoCore` |
+| Image of the pro-2 wild subgroup lies in `O₂(G)` | `isPGroup_map_of_isProP` followed by `le_twoCore` |
+| The §10 marked target `(G,O₂(G),π,0)` | `tameTarget G : MarkedTarget (G ⧸ twoCore G) E₀ G` |
+| A tame boundary frame with trivial decoration | `tameFrame α hα : BoundaryFrame H E₀` |
+| Finite family of tame frames onto `G/O₂(G)` | `TameFrames G` |
+| Lemma 10.1, exhaustion and disjointness | `SectionTen.lemma_10_1` |
+| Summed count identity | `SectionTen.card_contSurj_eq` |
+| Equation (154) | `SectionTen.eq_154` |
+| Theorem 1.2, count form | `SectionTen.main_surjection_count'` |
 
-`main_surjection_count'` is proved (std-3 + sorryAx via `eq_154`, verified); at P-18e it
-replaces the `Statement.lean:49` sorry by the statement move of deviation 7, taking
-`Statement.lean` off the `SORRY_ALLOWLIST`.
+All declarations in the table are proved. The capstone's transitive trust base is reported by
+`GQ2/AxiomLedger.lean` and `atlas-audit.md`.
+
+## Encoding decisions and deviations
+
+1. **`O₂(G)` is constructed rather than cited.** Mathlib has no ready `pCore` definition for this
+   use. Lean defines
+   `twoCore := sSup {N | N.Normal ∧ IsPGroup 2 N}` and proves normality, the 2-group property,
+   and its universal property. The argument uses directedness through the second isomorphism
+   theorem and closure of finite 2-groups under extensions.
+2. **“For either source” becomes a generic theorem.** `lemma_10_1` and `card_contSurj_eq` are
+   stated for a source `(Γ,b)` with a surjective tame coordinate and pro-2 kernel. The local and
+   `Γ_A` sides then supply those hypotheses separately. This keeps the exhaustion argument
+   independent of the source-specific constructions.
+3. **Uniqueness and disjointness are represented by an equivalence.** The paper's assertion that a
+   surjection determines a unique tame boundary frame is encoded as
+   `ContSurj Γ G ≃ (α : TameFrames G) × BoundaryLifts b (tameFrame α) (tameTarget G)`.
+   This single sigma-equivalence provides the partition, uniqueness, and fibre identification.
+4. **The trivial decoration group is `PUnit`.** The group `E₀ := PUnit` has exponent two
+   definitionally, so the `hE2` hypothesis of `thm_4_2` is discharged by `fun _ => rfl`.
+5. **The count is a finite sum over the subtype of tame frames.** Finiteness of the index uses
+   topological finite generation of `Ttame`; finiteness of each fibre uses
+   `finite_boundaryLifts` and finite generation of the source.
+6. **Equation (154) and the final finite count are separate declarations.** `eq_154` compares the
+   two source counts. Then `main_surjection_count'` composes its symmetry with `prop_2_3`, which
+   identifies the `Γ_A` count with `admissibleCount`.
+7. **The capstone lives downstream of the statement modules.** Proving the count theorem in
+   `Statement.lean` would introduce an import cycle through the §§4–9 machinery. The theorem is
+   therefore implemented in `SectionTenSources.lean`, while upstream declarations consume the
+   appropriate hypothesis or downstream theorem. This is an architectural placement, not a
+   mathematical change.
+8. **Topology hypotheses are explicit where they are used.** Compactness makes the continuous
+   surjective tame coordinate a quotient map, which is needed to descend the induced frame.
+   Total disconnectedness supplies finiteness of the continuous-hom and boundary-lift spaces.
+   The source instances are intentionally theorem binders rather than new global instances.
+9. **The quotient head is proved discrete.** `DiscreteTopology (G ⧸ twoCore G)` follows from
+   `discreteTopology_iff_forall_isOpen` and openness in the coinduced quotient topology; the proof
+   does not rely on an accidental definitional instance.
+
+## Proof assembly
+
+For each tame frame, `thm_4_2` equates the exact-image count for the `Γ_A` boundary map and the
+local boundary map. `card_contSurj_eq` expresses each global count as the sum of those framewise
+counts. Summing the pointwise equality gives `eq_154`; `prop_2_3` then converts the `Γ_A` side to
+admissible marked quadruples.
+
+This formulation makes the only genuinely source-specific inputs visible: the two tame-coordinate
+surjectivity/kernel packages and the per-frame theorem from §9.

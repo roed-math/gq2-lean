@@ -1,7 +1,8 @@
 # The homogeneous ↔ inhomogeneous gap in continuous cohomology
 
-Status note (2026-07-03).  Records exactly what is and isn't available for continuous group
-cohomology, so we don't rediscover it.  Companion to `GQ2/CtsCohBridge.lean`.
+This is a dated API survey against the repository's pinned Mathlib revision. It explains why the
+formalization uses the explicit low-degree model in `GQ2/Cohomology.lean` rather than silently
+identifying it with Mathlib's abstract homogeneous continuous cohomology.
 
 ## What Mathlib has (as of mathlib `ec410d2`, 2026-06-12)
 
@@ -52,24 +53,23 @@ for `n ≤ 2`.  Scale: Mathlib's *abstract* analogue over `Rep R G`
 formalization task, not a mechanical port, and the natural place to coordinate with the upstream authors / the
 Mathlib effort.
 
-## What we have built (and where it connects)
+## What the formalization uses
 
 - `GQ2/Cohomology.lean` — explicit **inhomogeneous** continuous cochains `H⁰/H¹/H²` over the
   elementary `[DistribMulAction G M] [ContinuousSMul G M]` interface (Serre GC I §2.2 conventions).
   This *is* the concrete low-degree model Mathlib's TODO asks for.
 - `GQ2/CupProduct.lean` — cup products `(1,1),(0,2),(2,0)` on that model.
-- `GQ2/CtsCohBridge.lean` — the seam:
-  - **coefficient bridge** `toContRep`/`toTopRep`/`toAction` (a `[DistribMulAction]` discrete
-    module as `Action (TopModuleCat ℤ) G`);
-  - **degree-0 bridge** `H0Equiv : (continuousCohomology ℤ G 0).obj (toAction M) ≃+ H0 G M`
-    (done, via `continuousCohomologyZeroIso`).
 
-## Plan to close the gap (deferred)
+The earlier experimental `CtsCohBridge.lean` adapter was removed during cleanup because no theorem
+in the final proof consumed it. The absence of that file is deliberate: the formalization does not
+claim a proved equivalence between its explicit `ContCoh.H¹/H²` and Mathlib's abstract functor.
+
+## What would close the gap
 
 1. Build the degree-1 and degree-2 continuous homogeneous↔inhomogeneous chain isos above.
 2. Obtain `ContCoh.H1 ≅ (continuousCohomology ℤ G 1).obj (toAction M)` and likewise `H2`.
-3. Transport the `CupProduct.lean` cups onto `continuousCohomology` along these isos.
+3. Transport the `CupProduct.lean` cups onto `continuousCohomology` along these isomorphisms.
 
 Until then, the B-axiom statements that need continuous cohomology are phrased against our explicit
-`ContCoh.Hⁱ`, with `H0Equiv` certifying agreement in degree 0 and the above as the pending
-certification in degrees 1–2.
+`ContCoh.Hⁱ`. The classical comparison is part of the intended mathematical interpretation, but it
+is not represented as a theorem in the present repository.

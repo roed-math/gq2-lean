@@ -1,8 +1,20 @@
-import GQ2.AdmissibleCount
-import GQ2.GaussCount
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
+module
+
+public import GQ2.AdmissibleCount
+public import GQ2.GaussCount
+
+@[expose] public section
+
+set_option backward.privateInPublic true
+set_option backward.privateInPublic.warn false
 
 /-!
-# The deep/quotient Hom-count duality  (ticket P-15f7)
+# The deep/quotient Hom-count duality
 
 Produces the `hduality` input of the f6 capstone `card_deepPart_sq_of_duality`
 (`GQ2/AdmissibleCount.lean`):
@@ -55,7 +67,7 @@ approval only there.
 * §E — the perp layer: `pairPerp`, stability, `perpEquivDualQuot` (`ann(S) ≅ (M/S)^∨`).
 * §F — the assembly `card_equivHoms_deep_eq_quot` (abstract `hduality`).
 
-Ticket: P-15f7 (board `docs/tickets.md`); consumer: `card_deepPart_sq_of_duality` (P-15f6).
+The main consumer is `card_deepPart_sq_of_duality`.
 -/
 
 namespace GQ2
@@ -369,7 +381,7 @@ def evalDualHom {W : Type} [AddCommGroup W] : W →+ ((W →+ ZMod 2) →+ ZMod 
   map_zero' := by ext φ; exact map_zero φ
   map_add' := fun x y => by ext φ; exact map_add φ x y
 
-@[simp] theorem evalDualHom_apply {W : Type} [AddCommGroup W] (w : W) (φ : W →+ ZMod 2) :
+@[simp] private theorem evalDualHom_apply {W : Type} [AddCommGroup W] (w : W) (φ : W →+ ZMod 2) :
     evalDualHom w φ = φ w := rfl
 
 /-- **The double-dual evaluation is an isomorphism** for a finite 2-torsion group:
@@ -848,7 +860,7 @@ section Assembly
 
 variable {C : Type} [Group C] [Finite C]
 
-/-- **The abstract `hduality`** (P-15f7 §F): for a finite 2-torsion `C`-module `M` with a
+/-- **The abstract `hduality`** (the deep-part proof §F): for a finite 2-torsion `C`-module `M` with a
 `C`-invariant nondegenerate pairing `B`, `C`-stable subgroups `Deep ≤ E`, the banked isotropy
 `Deep ≤ Deep^⊥`, the ONE sharp instance `Deep^⊥ ≤ E`, and the middle twist (conjugates of `t₀`
 trivial on `E/Deep`), the equivariant-Hom counts from a simple, nontrivial, self-dual,

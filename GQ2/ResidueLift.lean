@@ -1,8 +1,13 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.DimClose
 import GQ2.Shapiro.Finiteness
 
 /-!
-# The residue-trivial tame lift — proved, no new axiom  (P-15f8)
+# The residue-trivial tame lift — proved, no new axiom
 
 `DimClose.lemma_6_17_dim_of_residueLift` reduced `lemma_6_17_dim` to one arithmetic input: a
 lift `g₀` of tame inertia (`ρ g₀ = c tameTau`) acting trivially on the residue field
@@ -27,7 +32,7 @@ existing axiom budget** — no residue fields and no new axiom — by a commutat
    * Hence `‖[a,b]x − x‖ = ‖(ab)y − (ba)y‖ ≤ max(‖y − ζ‖, 0, ‖ζ − y‖) < 1`
      (`commutator_isResidueTrivial`).
 
-The deliverable is `exists_residueTrivial_tameLift`.  Everything is `#print axioms` ⊆ std-3 +
+The result is `exists_residueTrivial_tameLift`.  Everything is `#print axioms` ⊆ std-3 +
 B13 (`dyadicUnitFiltration`), already in the census.
 -/
 
@@ -261,7 +266,7 @@ theorem kerGal_isOpen (ρ : ContinuousMonoidHom AbsGalQ2 C) :
   exact (isOpen_discrete ({1} : Set C)).preimage hcont
 
 omit [Finite C] in
-theorem kerGal_isClosed (ρ : ContinuousMonoidHom AbsGalQ2 C) :
+private theorem kerGal_isClosed (ρ : ContinuousMonoidHom AbsGalQ2 C) :
     IsClosed ((kerGal ρ : Subgroup (Kummer.GaloisGroup ℚ_[2]))
       : Set (Kummer.GaloisGroup ℚ_[2])) :=
   Subgroup.isClosed_of_isOpen _ (kerGal_isOpen ρ)
@@ -286,7 +291,7 @@ theorem splitField_finiteDimensional (ρ : ContinuousMonoidHom AbsGalQ2 C) :
   exact kerGal_isOpen ρ
 
 omit [Finite C] in
-theorem hker_splitField (ρ : ContinuousMonoidHom AbsGalQ2 C)
+private theorem hker_splitField (ρ : ContinuousMonoidHom AbsGalQ2 C)
     (x : Kummer.GaloisGroup ℚ_[2]) :
     x ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) ↔ x ∈ (splitField ρ).fixingSubgroup := by
   rw [fixingSubgroup_splitField]
@@ -319,10 +324,10 @@ variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [
   [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
 
 open ContCoh QuadraticFp2 in
-/-- **`lemma_6_17_dim`, closed** (P-15f8 + the residue-lift derivation): the §6.3 deep-half
+/-- **`lemma_6_17_dim`, closed** (the deep-part proof + the residue-lift derivation): the §6.3 deep-half
 dimension identity `#X₊² = #H¹(ℚ₂, V)`, from `SectionSix.lemma_6_17_dim`'s own hypothesis set
 plus only the finiteness instance `[Finite (H¹(ker ρ, 𝔽₂))]` (the local finiteness
-`H¹(G_K, 𝔽₂) ≅ K^×/2`; a B12/B13 consequence, threaded pending its own splice).  No new
+`H¹(G_K, 𝔽₂) ≅ K^×/2`, supplied by the B12/B13 interface).  No new
 axiom: the residue-trivial tame lift is `exists_residueTrivial_tameLift`, and the splitting
 field with its Galois-correspondence data is `splitField`. -/
 theorem lemma_6_17_dim_final (B : BoundaryMaps)

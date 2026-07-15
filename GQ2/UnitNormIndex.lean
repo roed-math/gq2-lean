@@ -1,13 +1,14 @@
 /-
-Copyright (c) 2026. All rights reserved.
+Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2.Reciprocity
 import GQ2.UnramifiedNorm
 import GQ2.HilbertLedger
 
 /-!
-# P-15f2c2c2 (N2): the CFT unit-index equals the ramification index
+# The CFT unit-index equals the ramification index
 
 For a finite **abelian** Galois layer `F/ℚ₂` inside `ℚ̄₂ = AlgebraicClosure ℚ_[2]`, local class
 field theory (B5, `LocalReciprocity.norm_reciprocity`) identifies `Gal(F/ℚ₂) ≅ ℚ₂ˣ / N_{F/ℚ₂}(Fˣ)`,
@@ -18,7 +19,7 @@ ramification index `e = FF.e`.  This file proves that count:
 Nat.card ↥(((restrictAb F hab).comp R.recip).comp unitEmbed).range = FF.e.
 ```
 
-**Design (`docs/p15f2c2c-handoff.md` §3 N2, scoping §half-(B) step 3).**  With `n := finrank ℚ₂ F`,
+**Design (`docs/orchestration/p15f2c2c-handoff.md` §3 N2, scoping §half-(B) step 3).**  With `n := finrank ℚ₂ F`,
 `N := normSubgroup F`, `U := unitEmbed.range` (`= ker v₂`):
 
 * `norm_val` (analytic core): `‖(Algebra.norm ℚ₂ x : ℚ₂)‖ = ‖(x : ℚ̄₂)‖ ^ n`, via
@@ -238,7 +239,7 @@ end NormVal
 
 /-! ## The main count: the unit-image in `Gal(F/ℚ₂)` has exactly `e` elements -/
 
-/-- **P-15f2c2c2, the deliverable.**  For a finite abelian Galois layer `F/ℚ₂` with B13
+/-- **the Lemma 6.17 vanishing proof, the result.**  For a finite abelian Galois layer `F/ℚ₂` with B13
 filtration data `FF`, the image in `Gal(F/ℚ₂)` of the `ℤ₂`-units under the (bundled) reciprocity
 map has exactly `FF.e` elements — "inertia has order `e`", in the only vocabulary the repo
 carries (no inertia subgroup, no residue fields).

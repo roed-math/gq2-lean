@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.CentralObstruction
 import GQ2.LocalLiftingDuality
 import GQ2.WordCohBridge
@@ -5,26 +10,26 @@ import GQ2.DualityAssembly
 import GQ2.RadicalEdge.Local
 
 /-!
-# Lemma 8.6, `Γ_A` source: the duality half via `prop_5_15`  (ticket P-16c3)
+# Lemma 8.6, `Γ_A` source: the duality half via `prop_5_15`
 
 The `Γ_A`-side analogue of `RadicalEdgeLocal.exists_good_twist`: from `NoDescent`, the
 Fox–Heisenberg self-duality `prop_5_15` produces a nonzero *traced mixed pairing*
 `mixedB t_ρ x_w y_φ ≠ 0`, where `y_φ` is the shifted-edge dual class and `x_w` its
-`prop_5_15`-pairing partner.  This is the c3 deliverable; the Θ–mixedB comparison
-(`mixedB ≠ 0 ⟹ [varCoc u_w] ≠ 0`, using c2's `θ`) is P-16c4.
+`prop_5_15`-pairing partner.  This is the c3 result; the Θ–mixedB comparison
+(`mixedB ≠ 0 ⟹ [varCoc u_w] ≠ 0`, using c2's `θ`) is the Γ_A half-torsor proof.
 
-**Structural pivot (docs/p16c3-recon.md):** `MuDual`'s `DistribMulAction` is hardcoded to
+**Structural pivot (docs/orchestration/p16c3-recon.md):** `MuDual`'s `DistribMulAction` is hardcoded to
 `AbsGalQ2` (`GQ2/TateDuality.lean`), so the local proof's `φf : Γ → MuDual 2 (Additive ↥T)`
 does not port to `Γ = GA`.  The shifted-edge cocycle is built directly in
 `ElemDual (Additive ↥T)` (generic `DistribMulAction C (ElemDual A)`, `FoxHeisenberg`;
 `(g•λ)a = λ(g⁻¹•a)`), which also removes `dualAddEquiv` from the bridge.
 
 Source group is the **raw** `GA = F₄ ⧸ N_A` (matching `WordCohBridge`; the `GammaA` transport
-is P-16c5).  The `C = Bg ⧸ D.M`-conjugation action on `T` is the primary module structure
+is the Γ_A half-torsor proof).  The `C = Bg ⧸ D.M`-conjugation action on `T` is the primary module structure
 (what `mixedB`/`Z1w`/`markC` consume); the `GA`-action is its pullback `DistribMulAction.compHom
 ρ` (so `hcompat` for `h1Equiv` is `rfl`).
 
-Axioms (target): std-3 only — the pairing comes from `prop_5_15` (P-13f), not B6.
+Axioms (target): std-3 only — the pairing comes from `prop_5_15` (the Prop. 5.15 proof), not B6.
 -/
 
 namespace GQ2
@@ -60,7 +65,7 @@ theorem cactFun_eq (c : Bg ⧸ D.M) {b : Bg} (hb : QuotientGroup.mk b = c) (t : 
   conj_eq_of_mk_eq D (by rw [QuotientGroup.out_eq' c, hb]) t
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
-theorem cactFun_one (t : ↥D.T) : cactFun D 1 t = t := by
+private theorem cactFun_one (t : ↥D.T) : cactFun D 1 t = t := by
   apply Subtype.ext
   rw [cactFun_eq D 1 (by rw [QuotientGroup.mk_one]) t]; group
 
@@ -78,7 +83,7 @@ theorem cactFun_mul (c c' : Bg ⧸ D.M) (t : ↥D.T) :
   group
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
-theorem cactFun_mul' (c : Bg ⧸ D.M) (t t' : ↥D.T) :
+private theorem cactFun_mul' (c : Bg ⧸ D.M) (t t' : ↥D.T) :
     cactFun D c (t * t') = cactFun D c t * cactFun D c t' := by
   apply Subtype.ext
   show Quotient.out c * (t.1 * t'.1) * (Quotient.out c)⁻¹
@@ -87,7 +92,7 @@ theorem cactFun_mul' (c : Bg ⧸ D.M) (t t' : ↥D.T) :
   group
 
 omit [TopologicalSpace Bg] [DiscreteTopology Bg] in
-theorem cactFun_one_elt (c : Bg ⧸ D.M) : cactFun D c 1 = 1 := by
+private theorem cactFun_one_elt (c : Bg ⧸ D.M) : cactFun D c 1 = 1 := by
   apply Subtype.ext
   show Quotient.out c * (1 : Bg) * (Quotient.out c)⁻¹ = 1; group
 

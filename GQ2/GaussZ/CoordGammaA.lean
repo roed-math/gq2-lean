@@ -1,10 +1,15 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
+-/
 import GQ2.GaussZ.Local
 import GQ2.Phase140.GammaA
 
 /-!
-# P-16d6e4aA-1: the `Γ_A` (83)-coordinates — `Z¹⧸B¹` in word generator coordinates
+# The `Γ_A` (83)-coordinates — `Z¹⧸B¹` in word generator coordinates
 
-Route W brick **A-1** (`docs/p16d6e4aA-gammaA-gauss-design.md` §2): the e6 Stage-0 bridge
+Route W brick **A-1** (`docs/orchestration/p16d6e4aA-gammaA-gauss-design.md` §2): the e6 Stage-0 bridge
 as reusable per-`ρ` declarations, composed with the banked degree-1 word comparison
 (`WordCohBridge.h1Equiv`) into the generator-coordinate model of the `Γ_A` Gauss domain:
 
@@ -23,7 +28,7 @@ classes (`Fin 4 → V` generator tuples).  Contents:
 * `finite_vcocycle_gammaA` — `Z¹` finiteness, σ-free from `Phase140GammaA.hZcard_gammaA`;
 * `hfix_of_simple_nt` — the **`hnt`-variant** of `GaussZReduction.hfix_of_simple`:
   `V^{C₀} = 0` from `ρ'`-surjectivity + `hsimple` + `hnt` alone — the `W = ⊤` branch
-  contradicts `hnt` directly, so the NON-block-derivable `hfaith` (the P-17i flag) and the
+  contradicts `hnt` directly, so the NON-block-derivable `hfaith` (the §9 induction flag) and the
   `[Nontrivial C0]` instance are both dropped; the A-lane runs entirely on the `prop_8_9`
   ledger hypotheses;
 * `h1CoordGammaA` + `h1CoordGammaA_bijective` + `card_H1w_gammaA` (`#H¹_w = #V`).
@@ -54,7 +59,7 @@ variable {ρ : ContinuousMonoidHom Γ (Bg ⧸ D.M)}
 omit [DiscreteTopology Bg] in
 /-- **`V^{C₀} = 0` from the ledger hypotheses alone** — the `hnt`-variant of
 `GaussZReduction.hfix_of_simple`: faithfulness is NOT needed (nor block-derivable — the
-P-17i coordination flag); in the `W = ⊤` branch every `C₀`-element acts trivially,
+the §9 induction coordination flag); in the `W = ⊤` branch every `C₀`-element acts trivially,
 contradicting `hnt` directly. -/
 theorem hfix_of_simple_nt
     (hsurj : Function.Surjective (fun γ : Γ => rho0 DD ρ γ))
@@ -142,7 +147,7 @@ theorem roundtripGA : ∀ γ : GA,
   fun γ => rho0_descData_rhoPrime b F En l h ρ γ
 
 
-/-- **The A-1 deliverable**: the generator-coordinate model of the `Γ_A` Gauss domain —
+/-- **The A-1 result**: the generator-coordinate model of the `Γ_A` Gauss domain —
 the quotient bijection `h1OfVQuot` into `H¹(Γ_A, V)` composed with the banked degree-1
 word comparison `h1Equiv` into `H¹_w(markC θ)` (classes of `Fin 4 → V` generator tuples).
 The two compatibility hypotheses are the same fact at the two actions the banked pieces
