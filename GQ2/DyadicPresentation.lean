@@ -12,12 +12,14 @@ public import GQ2.MaxProP
 @[expose] public section
 
 /-!
-# B4: the rank-3 dyadic Demushkin presentation `D₀ = ⟨A, S, Y | A²S⁴[S,Y]⟩`
+# The rank-3 dyadic Demushkin presentation `D₀ = ⟨A, S, Y | A²S⁴[S,Y]⟩` (the B4 interface)
 
 The paper's Prop. 1.1 / Lemma 3.4 normalizes the maximal pro-2 quotient `G_{ℚ₂}(2)` as the
 **Demushkin group** `D₀ = ⟨A, S, Y | A²S⁴[S,Y] = 1⟩` (Labute's classification at `d = 1`).  This
 file constructs `D₀` as a `GQ2.profinitePresentation` and provides the relator; the actual
-isomorphism `G_{ℚ₂}(2) ≅ D₀` is axiom **B4** in `GQ2/Foundations/Axioms.lean`.
+isomorphism `G_{ℚ₂}(2) ≅ D₀` enters through the composite axiom **B3c** (`dyadicOrientation`) in
+`GQ2/Foundations/Axioms.lean`, which bundles a marked B4 isomorphism — the standalone B4 axiom
+was deleted 2026-07-10 as unused (`docs/literature-axioms.md` §B4).
 
 * `GQ2.d0Relator : FreeProfiniteGroup (Fin 3)` — the relator `A²S⁴[S,Y]` with `A = of 0`,
   `S = of 1`, `Y = of 2`, commutator `[S,Y] = S⁻¹Y⁻¹SY` (the paper's `commP`, `GQ2/Words.lean`).
@@ -49,12 +51,14 @@ The paper's `D₀ = G_{ℚ₂}(2)` is **pro-2**, so `D₀` is the maximal pro-2 
 (`D0` below); the bare presentation is *not* pro-2 — e.g. `A,S ↦ 0, Y ↦ 1` gives a surjection
 onto `ℤ/3` (the relator dies in an abelian target), so its abelianization carries an odd part.
 Working with the pro-2 quotient is what makes `topAbelianization D₀ ≅ ℤ/2 × ℤ₂ × ℤ₂` (paper (11))
-and keeps axiom **B4** (`G_{ℚ₂}(2) ≅ D₀`, a pro-2 ≅ pro-2 statement) faithful. -/
+and keeps the B4 interface (`G_{ℚ₂}(2) ≅ D₀`, a pro-2 ≅ pro-2 statement, bundled by B3c)
+faithful. -/
 noncomputable def D0Full : ProfiniteGrp := profinitePresentation {d0Relator}
 
 /-- **`D₀`** (paper Prop. 1.1): the **pro-2** group presented by `⟨A, S, Y | A²S⁴[S,Y] = 1⟩`, i.e.
 the maximal pro-2 quotient of the free profinite presentation.  This is the rank-3 dyadic
-Demushkin group; axiom **B4** asserts `G_{ℚ₂}(2) ≅ D₀`. -/
+Demushkin group; the B3c bundle (`dyadicOrientation`) supplies the B4 isomorphism
+`G_{ℚ₂}(2) ≅ D₀`. -/
 noncomputable def D0 : ProfiniteGrp := maxProPQuotient 2 D0Full
 
 /-- The relator holds in the full presentation: `A²S⁴[S,Y] = 1`. -/

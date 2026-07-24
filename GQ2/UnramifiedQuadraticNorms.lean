@@ -571,7 +571,8 @@ of the norm form `x² − a y²`.  Sets up `L = k(δa)`, the conjugation `σ`, t
 `π` (via `hunram`), and the residue data at `L`, then runs the successive-approximation engine
 against `trace_covers`.
 
-`hunram` is `IsUnramifiedQuadraticSpectral k δa` written **unfolded** — that predicate is a plain
+`hunram` is `HasEqualNormValueGroups k δa` (named `IsUnramifiedQuadraticSpectral` before
+2026-07-24) written **unfolded** — that predicate is a plain
 `def` in the (downstream) axiom file, so it cannot be named here; the B11b flip supplies it
 definitionally. -/
 theorem units_are_norms_nondegen (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
@@ -722,7 +723,7 @@ norms — every norm-one `u ∈ k` is `x² − a y²`.  Dispatches the degenerat
 `units_are_norms_nondegen`.
 
 The statement is the axiom `GQ2.unramifiedQuadratic_units_are_norms`
-(`GQ2/Foundations/Axioms.lean`) **with `IsUnramifiedQuadraticSpectral k δa` written unfolded** —
+(`GQ2/Foundations/Axioms.lean`) **with `HasEqualNormValueGroups k δa` written unfolded** —
 that predicate is a plain `def` downstream of this file, so it cannot be named here; the B11b-5
 public theorem supplies it definitionally from
 `unramifiedQuadratic_units_are_norms' k a δa hδa hunram`. -/

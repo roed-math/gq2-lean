@@ -35,10 +35,10 @@ status:
     - "Classical.choice"
     - "Quot.sound"
     - "GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated"   # B1
-    - "GQ2.Foundations.absGalQ2_localEulerCharacteristic"           # B3c
-    - "GQ2.dyadicOrientation"                                       # B5
-    - "GQ2.localReciprocity"                                        # B6
-    - "GQ2.tateDualityAt"                                           # B7
+    - "GQ2.Foundations.absGalQ2_localEulerCharacteristic"           # B7
+    - "GQ2.dyadicOrientation"                                       # B3c
+    - "GQ2.localReciprocity"                                        # B5
+    - "GQ2.tateDualityAt"                                           # B6
     - "GQ2.peripheralCyclotomicAction"                              # B8
     - "GQ2.evensKahn_dyadic"                                        # B9
     - "GQ2.tameQuotient"                                            # B10
@@ -64,13 +64,13 @@ status:
       literature_dependencies:
         - statement: "G_Q2 is topologically finitely generated (B1)"
           source: "standard local-fields literature; citation in GQ2/Foundations/Axioms.lean"
-        - statement: "local Euler characteristic formula at p = 2 (B3c)"
+        - statement: "local Euler characteristic formula at p = 2 (B7)"
           source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
-        - statement: "dyadic orientation / cyclotomic normalization (B5)"
+        - statement: "dyadic orientation / cyclotomic normalization (B3c)"
           source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
-        - statement: "local reciprocity (local class field theory) for Q_2 (B6)"
+        - statement: "local reciprocity (local class field theory) for Q_2 (B5)"
           source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
-        - statement: "local Tate duality at finite extensions k/Q_2 (B7, base-generalized)"
+        - statement: "local Tate duality at finite extensions k/Q_2 (B6, base-generalized)"
           source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
         - statement: "peripheral cyclotomic action (B8)"
           source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"

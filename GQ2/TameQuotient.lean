@@ -20,7 +20,7 @@ quotient of a local absolute Galois group**: there is a closed normal pro-2 subg
 
   `G_{ℚ₂}/W_F ≅ T_tame = ⟨σ, τ ∣ τ^σ = τ²⟩_prof`.
 
-This is a literature leaf on a par with B1/B4 — **NSW [1], Ch. VII §7.5, Theorem (7.5.3)
+This is a literature leaf on a par with B1 — **NSW [1], Ch. VII §7.5, Theorem (7.5.3)
 (Iwasawa)**: the Galois group of the maximal tamely ramified extension of a local field `k`
 is the profinite group on two generators `σ, τ` with the single relation `στσ⁻¹ = τ^q`
 (`q = #κ = 2` here); together with **(7.5.2)** (the split extension `1 → Ẑ^{(p′)}(1) → G_k →

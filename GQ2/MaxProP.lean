@@ -18,7 +18,8 @@ public import GQ2.ProfiniteQuotient
 # The maximal pro-`p` quotient
 
 For a profinite group `G` and a prime `p`, the paper repeatedly uses the **maximal pro-`p`
-quotient** `G(p)` (e.g. `G_{ℚ₂}(2)` in B4, and `Δ = maxPro2(FreeProfinite (Fin 2))` in B8).
+quotient** `G(p)` (e.g. `G_{ℚ₂}(2)` in the B4 interface inside B3c, and
+`Δ = maxPro2(FreeProfinite (Fin 2))` in B8).
 This file constructs it and proves the two facts that pin it down:
 
 * it is a **pro-`p` group** (`isProP_maxProPQuotient`), and

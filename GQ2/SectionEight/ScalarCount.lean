@@ -333,7 +333,7 @@ maximal pro-2 quotient map (`ker_pro2F`), every `𝔽₂`-character kills the pr
 characters of `G_ℚ₂`, and `card_char_piBd` finishes.  [Statement amendment (F-owner): the
 `BoundaryMaps` hypothesis and the `CompactSpace`/`TotallyDisconnectedSpace` instance
 hypotheses on `AbsGalQ2` (the `main_presentation` house pattern) — without the bundle the
-count is B4/B5-content outside the §8 proof layer axiom budget.] -/
+count is B3c/B5-content (formerly labelled B4/B5) outside the §8 proof layer axiom budget.] -/
 theorem lemma_8_2_local (B : BoundaryMaps)
     [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] :
     Nat.card (ContinuousMonoidHom AbsGalQ2 (Multiplicative (ZMod 2))) = 8 := by

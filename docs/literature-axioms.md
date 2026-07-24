@@ -452,7 +452,8 @@ single published theorem.
   So for `K` with finite residue field (`ℚ₂`: residue `𝔽₂`) and `L/K` unramified, `U_K = N_{L/K}(U_L)`:
   every unit is a norm.  Rests on Prop. 1 (`N: Uⁿ_L→Uⁿ_K`) and Prop. 2 (graded pieces = residue
   norm/trace) of §2.  The repo-specific "unramified = equal spectral-norm value groups" bridge is a
-  `def` (`GQ2.IsUnramifiedQuadraticSpectral`), a named convention rather than a cited theorem, so it
+  `def` (`GQ2.HasEqualNormValueGroups`, named `GQ2.IsUnramifiedQuadraticSpectral` before
+  2026-07-24), a named convention rather than a cited theorem, so it
   adds no proof-theoretic strength (P-23).  (**Discharged 2026-07-09** (B11b board): no longer an
   axiom — proved in-repo, std-3, in `GQ2/UnramifiedQuadraticNorms.lean` + `GQ2/TeichmullerLift.lean`
   via the norm-form successive-approximation engine against the B13 filtration; `dyadicNormCriterion`

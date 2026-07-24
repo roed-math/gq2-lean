@@ -102,17 +102,22 @@ noncomputable section
 
 /-! ## The abelianized absolute Galois group and the maps out of it -/
 
-/-- `G_{ℚ₂}^{ab}`, the **topological abelianization** of `G_{ℚ₂}`, i.e. Mathlib's
-`Field.absoluteGaloisGroupAbelianization ℚ₂ = G_{ℚ₂} ⧸ closure⁅G_{ℚ₂}, G_{ℚ₂}⁆`.  This is the
-genuine `Gal(ℚ₂^{ab}/ℚ₂)`; it is a topological (indeed profinite, though we do not need that)
-`CommGroup`. -/
+/-- `G_{ℚ₂}^{ab}`, the **topological abelianization** of `G_{ℚ₂}`.  This *is* Mathlib's
+definition, not a rival one: it unfolds (by `abbrev`) to
+`Field.absoluteGaloisGroupAbelianization ℚ₂ = TopologicalAbelianization (G_{ℚ₂})
+= G_{ℚ₂} ⧸ closure⁅G_{ℚ₂}, G_{ℚ₂}⁆`.  This is the genuine `Gal(ℚ₂^{ab}/ℚ₂)`; it is a
+topological (indeed profinite, though we do not need that) `CommGroup`. -/
 noncomputable abbrev AbsGalQ2ab : Type := Field.absoluteGaloisGroupAbelianization ℚ_[2]
 
-/-- The closed commutator subgroup `closure⁅G_{ℚ₂}, G_{ℚ₂}⁆`;
-`AbsGalQ2ab = AbsGalQ2 ⧸ commClosure`. -/
+/-- The closed commutator subgroup `closure⁅G_{ℚ₂}, G_{ℚ₂}⁆` — precisely the subgroup Mathlib's
+`TopologicalAbelianization` quotients by, so `AbsGalQ2ab = AbsGalQ2 ⧸ commClosure` *is* the
+Mathlib abelianization.  Named locally only because Mathlib (as of the pinned revision) exports
+no projection/lift/kernel API for it; if `TopologicalAbelianization.of`/`lift` ever land
+upstream, `toAb`/`chiCycAb`/`restrictAb` below should be replaced by them. -/
 noncomputable abbrev commClosure : Subgroup AbsGalQ2 := (commutator AbsGalQ2).topologicalClosure
 
-/-- The abelianization projection `G_{ℚ₂} ↠ G_{ℚ₂}^{ab}`. -/
+/-- The abelianization projection `G_{ℚ₂} ↠ G_{ℚ₂}^{ab}` (the missing
+`TopologicalAbelianization.of` of Mathlib's API, specialized to `G_{ℚ₂}`). -/
 noncomputable def toAb : AbsGalQ2 →* AbsGalQ2ab := QuotientGroup.mk' commClosure
 
 /-! ### The 2-adic cyclotomic character on `G_{ℚ₂}` and its abelianization -/

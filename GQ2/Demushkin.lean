@@ -96,6 +96,13 @@ noncomputable def trivialCupPairing (htriv : ∀ (g : G) (m : ZMod p), g • m =
     H1 G (ZMod p) →+ H1 G (ZMod p) →+ H2 G (ZMod p) :=
   cup11 (AddMonoidHom.mul) (fun g m n => by rw [htriv, htriv, htriv])
 
+/-- Scoped cup-product notation for `trivialCupPairing`: `a ⌣[htriv] b` is the cup product of the
+`H¹(G, 𝔽_p)` classes `a` and `b` relative to the multiplication pairing, with `htriv` the
+trivial-action witness (`p` and `G` are inferred from the classes).  Binds tighter than `+`, so
+`x ⌣[h] y + z ⌣[h] w` reads as expected and sums of classes must be parenthesized before
+cupping. -/
+scoped notation:70 a:71 " ⌣[" htriv "] " b:71 => GQ2.trivialCupPairing _ _ htriv a b
+
 /-- **Demushkin pro-`p` group** (Serre GC I §4.5, NSW Def. 3.9.9), with the dimension clauses
 in `Nat.card` form (see module docstring).  The ambient action on `ZMod p` is constrained to
 be trivial by the field `smul_trivial`. -/
@@ -193,9 +200,9 @@ sensible reading of "`q = 0`" is not encoded — documented deviation).
 rank-3 `q = 2` classification honestly requires Labute's *canonical* character (his Prop. 6
 dualizing characterization — route (i) of the orientation interface, deferred); quantifying over an arbitrary
 continuous character with the right image would be a different (and possibly false) statement.
-At the field level the classification instance the paper uses **is** axiom B4
-(`G_{ℚ₂}(2) ≅ D₀`), whose orientation normalization is axiom B3c (`dyadicOrientation`,
-route (ii)).  This section supplies the invariant so that the classification *data*
+At the field level the classification instance the paper uses is the **B4 isomorphism**
+`G_{ℚ₂}(2) ≅ D₀`, supplied in marked, oriented form by axiom B3c (`dyadicOrientation`,
+route (ii); the standalone B4 axiom was deleted 2026-07-10 as unused).  This section supplies the invariant so that the classification *data*
 `(rank, q) = (3, 2)` is at least expressible; `demushkinQ D₀ = 2` itself is Labute-content and
 is not attempted. -/
 

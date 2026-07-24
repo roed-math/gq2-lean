@@ -289,7 +289,8 @@ subtype group `G_k = k.fixingSubgroup ≤ G_ℚ₂`), `L = k(δ)` with `δ² = d
 stabilizer of `δ` within `G_k` (assumed of index 2 — i.e. `d` is a non-square in `k`), `s ∉ N`,
 and `a = u + vδ ∈ Lˣ` with norm `n = u² − dv² ∈ kˣ` and a square root `β = √a ∈ k̄ˣ`.  With
 `[x] = kummerClassK k x` the base-general Kummer classes (canonical roots, `GQ2/EvensKahn.lean`),
-`∪ = trivialCupPairing`, `cor = corH1` and `N^{Ev} = evensNormH2` (the unbundled forms; the
+`x ⌣[htriv] y` the `trivialCupPairing` cup notation, `cor = corH1` and `N^{Ev} = evensNormH2`
+(the unbundled forms; the
 Kummer 1-cocycle `α(g) = κ_β(g)` of `a` over `N` enters via its defining equation `hαdef`, with
 its hom/continuity side-proofs quantified), the two components of (111) read:
 
@@ -328,13 +329,10 @@ axiom evensKahn_dyadic
     (kummerClassK k (twoUnit k * u) + kummerClassK k (twoUnit k * d * n * u⁻¹)
       = kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d)
         + corH1 htriv hUo hidx hs α hα hαc)
-    ∧ (trivialCupPairing 2 k.fixingSubgroup htriv
-          (kummerClassK k (twoUnit k * u)) (kummerClassK k (twoUnit k * d * n * u⁻¹))
-      = trivialCupPairing 2 k.fixingSubgroup htriv
-          (kummerClassK k (twoUnit k)) (kummerClassK k (twoUnit k * d))
-        + trivialCupPairing 2 k.fixingSubgroup htriv
-            (kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d))
-            (corH1 htriv hUo hidx hs α hα hαc)
+    ∧ (kummerClassK k (twoUnit k * u) ⌣[htriv] kummerClassK k (twoUnit k * d * n * u⁻¹)
+      = kummerClassK k (twoUnit k) ⌣[htriv] kummerClassK k (twoUnit k * d)
+        + (kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d)) ⌣[htriv]
+            corH1 htriv hUo hidx hs α hα hαc
         + evensNormH2 htriv hUo hidx hs α hα hαc)
 
 /-! ## B10 — the tame quotient of `G_ℚ₂` (Iwasawa)
@@ -379,10 +377,11 @@ the in-repository proof of unramified unit-norm surjectivity.  The combined
 * `hilbertSymbol_normCriterion_finiteDyadic` — the symbol/norm criterion (classical).
 * `unramifiedQuadratic_units_are_norms` — units of an unramified quadratic extension are norms
   (classical).
-* `IsUnramifiedQuadraticSpectral` — **not an axiom**: the repo's spectral-norm *working
-  definition* of "`k(δa)/k` is unramified" (equal norm value groups on `ℚ̄₂`).  Isolated here as
-  the review's "riskiest piece": it is a project convention, not a Mathlib unramifiedness notion,
-  and is deliberately a `def` (asserting nothing) rather than a bridge axiom.
+* `HasEqualNormValueGroups` (named `IsUnramifiedQuadraticSpectral` before 2026-07-24) — **not an
+  axiom**: the repo's spectral-norm *working criterion* for "`k(δa)/k` is unramified" (equal norm
+  value groups on `ℚ̄₂`, i.e. `e = 1`).  Isolated here as the review's "riskiest piece": it is a
+  project convention, not a Mathlib unramifiedness notion, and is deliberately a `def` (asserting
+  nothing) rather than a bridge axiom.
 
 Encoding conventions carried over from the pre-split axiom: the "`b` is a norm from `k(√a)`"
 condition is the **norm form** `b = x² − a y²` (elementary, no relative field-extension
@@ -398,19 +397,27 @@ over `ℚ_p` also CiA [CiA] Ch. III §1.1 Prop. 1), and Ch. V §2 (norms of unra
 are the units times the norms of uniformizers).  Paper: §6.3, displays (93)/(94) and Lemma 6.16.
 -/
 
-/-- **Project convention — isolated spectral-norm bridge.**  The repo's working
-definition of "`k(δa)/k` is unramified", encoded via the spectral norm on `ℚ̄₂`: every nonzero
-`z = x + y·δa` (`x, y ∈ k`) has the same norm as some nonzero element of the base `k` — i.e.
-`k(δa)` and `k` have equal norm value groups.  This is **not** a Mathlib unramifiedness notion
+/-- **Equal norm value groups for `k(δa)/k` — the project's unramifiedness criterion.**  Every
+nonzero `z = x + y·δa` (`x, y ∈ k`) has the same norm as some nonzero element of the base `k`,
+i.e. `k(δa)` and `k` have equal norm value groups.  For a quadratic extension of complete
+discretely valued fields this says `e(k(δa)/k) = 1`, the standard unramifiedness criterion
+(Serre, *Local Fields*, Ch. I §4); the definition is named by what it literally asserts because
+the equivalence with a bona-fide ramification-theoretic notion is *not* proved here (no Mathlib
+ramification theory applies at these types yet — `IsNonarchimedeanLocalField` has no
+extension/ramification layer as of 2026-07-24).  This is **not** a Mathlib unramifiedness notion
 and is asserted by nothing (it is a `def`, not an axiom); it is the convention the §6 ledger
 consumes, named and isolated per adversarial review rec 2 so a human reviewer can see exactly
-where the project departs from a directly citable statement. -/
-def IsUnramifiedQuadraticSpectral
+where the project departs from a directly citable statement.  Named
+`IsUnramifiedQuadraticSpectral` before 2026-07-24 (deprecated alias below). -/
+def HasEqualNormValueGroups
     (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
     (δa : AlgebraicClosure ℚ_[2]) : Prop :=
   ∀ z : AlgebraicClosure ℚ_[2], z ≠ 0 →
     (∃ x y : ↥k, z = (x : AlgebraicClosure ℚ_[2]) + (y : AlgebraicClosure ℚ_[2]) * δa) →
     ∃ w : ↥k, w ≠ 0 ∧ ‖z‖ = ‖(w : AlgebraicClosure ℚ_[2])‖
+
+@[deprecated HasEqualNormValueGroups (since := "2026-07-24")]
+alias IsUnramifiedQuadraticSpectral := HasEqualNormValueGroups
 
 /-- **[Classical — B11a.]**  The dyadic Hilbert-symbol **norm criterion** over a finite base
 `k/ℚ₂`, in Kummer-cup form: for `a, b ∈ kˣ`, `[a] ∪ [b] = 0` in `H²(G_k, 𝔽₂)` iff `b` is a norm
@@ -425,11 +432,11 @@ axiom hilbertSymbol_normCriterion_finiteDyadic
     (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m) :
     ∀ a b : (↥k)ˣ,
-      trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k b) = 0
+      kummerClassK k a ⌣[htriv] kummerClassK k b = 0
         ↔ ∃ x y : ↥k, (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2
 
 /-- **Unramified unit-norm surjectivity, formerly interface B11b.**  If
-`k(√a)/k` is unramified (the `IsUnramifiedQuadraticSpectral` convention on a chosen root `δa`,
+`k(√a)/k` is unramified (the `HasEqualNormValueGroups` convention on a chosen root `δa`,
 `δa² = a`), then every unit of `k` (`‖u‖ = 1`) is a norm from `k(√a)` — i.e. `u = x² − a y²` is
 solvable in `k`.
 
@@ -445,19 +452,20 @@ theorem unramifiedQuadratic_units_are_norms
     (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
     (a : (↥k)ˣ) (δa : AlgebraicClosure ℚ_[2])
     (hδa : δa ^ 2 = ((a : ↥k) : AlgebraicClosure ℚ_[2]))
-    (hunram : IsUnramifiedQuadraticSpectral k δa) :
+    (hunram : HasEqualNormValueGroups k δa) :
     ∀ u : (↥k)ˣ, ‖((u : ↥k) : AlgebraicClosure ℚ_[2])‖ = 1 →
       ∃ x y : ↥k, (u : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2 :=
   UnramifiedQuadraticNorms.unramifiedQuadratic_units_are_norms' k a δa hδa hunram
 
 /-- **The combined dyadic norm criterion.**  This theorem pairs the classical B11a leaf with the
-proved unramified-unit theorem.  The spectral-unramifiedness convention remains isolated in
-`IsUnramifiedQuadraticSpectral`, which is a definition rather than an axiom. -/
+proved unramified-unit theorem.  The equal-norm-value-groups convention remains isolated in
+`HasEqualNormValueGroups` (named `IsUnramifiedQuadraticSpectral` before 2026-07-24), which is a
+definition rather than an axiom. -/
 theorem dyadicNormCriterion
     (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m) :
     (∀ a b : (↥k)ˣ,
-      trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k b) = 0
+      kummerClassK k a ⌣[htriv] kummerClassK k b = 0
         ↔ ∃ x y : ↥k, (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2)
     ∧ ∀ (a : (↥k)ˣ) (δa : AlgebraicClosure ℚ_[2]),
         δa ^ 2 = ((a : ↥k) : AlgebraicClosure ℚ_[2]) →
