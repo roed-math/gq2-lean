@@ -8,7 +8,7 @@ dispatch; each ticket commits on green and updates its row here.
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
 | T0 | mathlib QuadraticForm API recon | opus | none (read-only report) | — | dispatched 2026-07-24 |
-| T1 | axiom statement design + skeletons | fable | `GQ2/StiefelWhitney.lean`, `GQ2/TraceForm.lean` (new), design memo | T0 report | dispatched 2026-07-24 |
+| T1 | axiom statement design + skeletons | fable | `GQ2/StiefelWhitney.lean`, `GQ2/TraceForm.lean` (new), design memo | T0 report | done 2026-07-24 (7 sorries: 3×T3, 3×T2, 1×T5 draft axiom; memo `b9a-t1-design.md`) |
 | T2 | trace-form diagonalizations (N3) | opus | `GQ2/TraceForm.lean` | T1 | pending |
 | T3 | Delzant invariance (N2) | fable | `GQ2/StiefelWhitney.lean` | T1 | pending |
 | T4 | truncation/product glue (N4) | opus | `GQ2/StiefelWhitney.lean` (glue section) or fold into T5 | T1 | pending |
