@@ -121,7 +121,10 @@ fidelity:
     formalization (docs/erratum-h0-transcription.md); (iii) helper-lemma names follow
     mathlib conventions rather than paper numbering; (iv) six axioms present at proof
     completion were later discharged in-repo or deleted as unused (census 15 -> 9),
-    so the axiom set is smaller than the one the paper's appendix assumes.
+    so the axiom set is smaller than the one the paper's appendix assumes; (v) on
+    2026-07-24 B9 was restated as the relative Stiefel-Whitney identity
+    (relativeStiefelWhitney_dyadic), and the previous composite B9 statement is now a
+    derived theorem (evensKahn_dyadic) proved from it + B11a; census unchanged at 9.
 
 review:
   status: "agent-reviewed"

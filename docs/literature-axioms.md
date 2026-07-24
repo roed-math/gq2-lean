@@ -229,11 +229,22 @@ not yet to hand.
 - **Lean.** Schematic (no étale/anabelian `π₁` in Mathlib).
 - **Used at.** Lemma 3.6.
 
-### B9. Evens transfer / total Stiefel–Whitney class machinery  🟡 schematic
-- **Statement.** The Evens multiplicative transfer and the Evens–Kahn formula for the total
-  Stiefel–Whitney class of an induced/quadratic representation, used to normalize the half-orbit
-  Evens class and compute the base Arf invariant over `𝔽₂[C]`.
-- **Citation** (precise; verified against the provided PDFs):
+### B9. Relative Stiefel–Whitney (Evens–Kahn) identity  🟡 schematic · **RESTATED 2026-07-24 (B9-A flip)**
+- **Statement.** The **relative Stiefel–Whitney identity** at the quadratic-form level: for a
+  quadratic extension `L = k(δ)/k` of a finite dyadic base (`δ² = d ∈ kˣ`) and *arbitrary*
+  `a ∈ Lˣ`,
+  `w(Tr_{L/k}⟨a⟩) = w(Tr_{L/k}⟨1⟩)·(1 + cor_{L/k}[a] + N^{Ev}_{L/k}[a])`  in degrees ≤ 2,
+  where `w₁ ∈ H¹(G_k, 𝔽₂)` and `w₂ ∈ H²(G_k, 𝔽₂)` are the Stiefel–Whitney classes **defined on
+  isometry classes** of nondegenerate binary quadratic forms over `k` (not on fixed diagonal
+  representatives).  Componentwise:
+  * degree 1: `w₁(Tr⟨a⟩) = w₁(Tr⟨1⟩) + cor[a]`;
+  * degree 2: `w₂(Tr⟨a⟩) = w₂(Tr⟨1⟩) + w₁(Tr⟨1⟩) ⌣ cor[a] + N^{Ev}[a]`.
+
+  This is Kahn Th. 2 at the rank-1 form `⟨a⟩`, expanded via Evens Th. 1 / Kozlowski Thm 1.1 at
+  index 2 — now checkable against the source *without* the Lemma 6.16 diagonalization scoping.
+  (Since the 2026-07-24 B9-A flip this is the B9 leaf; the earlier composite statement — eq. (111)
+  at the Lemma 6.16 diagonalizations — is the *derived* form recorded under **Lean** below.)
+- **Citation** (precise; verified against the provided PDFs — unchanged by the flip):
   * **Evens norm** `N_{H→G} : H²(H,k) → H²(G,k)`, with `N(1+x) = 1 + tr_{H→G}(x) + N(x)` for index 2,
     and its double-coset (Mackey) restriction formula: **Evens [9], §§4–5, Theorem 1**
     `[✓ verified]` (Trans. AMS 108 (1963), 54–65).
@@ -248,9 +259,38 @@ not yet to hand.
   The paper's eq. (111) `w(Tr_{L/k}⟨a⟩) = w(Tr_{L/k}⟨1⟩)(1 + cor_{L/k}[a] + N^{Ev}_{L/k}[a])` is
   Kahn Th. 2 at `q=⟨a⟩` (rank 1) expanded via Evens Th. 1. **Guillot [6]** is a *background* reference
   (in the bibliography only — no body citation).
-- **Lean.** Schematic (no Stiefel–Whitney/Evens classes in Mathlib).
-- **Used at.** §6 (Lemmas 6.13 (Evens norm normalization), 6.16 (deep-unit Evens norm)); the
-  Shapiro–corestriction of Lemma 6.15 is Kahn Th. 2's Shapiro case.
+- **Lean.** `GQ2.relativeStiefelWhitney_dyadic` (the B9 axiom since 2026-07-24; `GQ2/Foundations/Axioms.lean`).
+  The Stiefel–Whitney classes `swOne k` and `swTwo k htriv` are now **genuine Lean definitions on
+  isometry classes** of binary quadratic forms (`GQ2/StiefelWhitney.lean`, on Mathlib
+  `QuadraticForm ↥k V` with `QuadraticMap.Equivalent`), evaluated on the twisted trace forms
+  `Tr_{k(δ)/k}⟨a⟩`/`Tr_{k(δ)/k}⟨1⟩` of `GQ2/TraceForm.lean`.  **Delzant well-definedness is proved**
+  (`swOne_well_defined`, `swTwo_well_defined` — sorry-free, std-3): the degree-1 case is discriminant
+  invariance; the degree-2 case is parametrized by the B11a norm criterion as an explicit hypothesis
+  `hnorm` (the Q2 firewall — `GQ2/StiefelWhitney.lean` stays strictly upstream of the axiom file, so
+  it takes the criterion as a hypothesis rather than importing it), discharged from
+  `hilbertSymbol_normCriterion_finiteDyadic` at the flip site.  Still marked 🟡 because the underlying
+  continuous cohomology and SW-class machinery are the repository's own `ContCoh`/`StiefelWhitney`
+  layer — Mathlib has neither (as for B6's `ContCoh` encoding).
+  - **Derived form (was the pre-flip B9).** The previous composite B9 statement — eq. (111) at the
+    fixed Lemma 6.16 diagonalizations `Tr⟨a⟩ ≃ ⟨2u, 2dn/u⟩`, `Tr⟨1⟩ ≃ ⟨2, 2d⟩`, with
+    `w₁⟨x,y⟩ = [x]+[y]` and `w₂⟨x,y⟩ = [x] ⌣ [y]` — is now the same-name **theorem**
+    `GQ2.evensKahn_dyadic` (`GQ2/Foundations/Axioms.lean`, placed *after* B11a, which its proof
+    consumes), **byte-identical** to the pre-flip axiom so **no consumer changed** (the
+    B7′/B11b/B12/B13 flip pattern).  It is proved by `evensKahn_dyadic_of_rsw`
+    (`GQ2/EvensKahnDerived.lean`) from `relativeStiefelWhitney_dyadic` together with B11a: the
+    proved trace-form diagonalizations and `swOne_diag`/`swTwo_diag` rewrite the abstract identity
+    into the Kummer-class form.  Its footprint is
+    `#print axioms = {relativeStiefelWhitney_dyadic, hilbertSymbol_normCriterion_finiteDyadic, + std-3}`.
+    Census **9 → 9**, user-approved 2026-07-24 (B9-A board, `docs/orchestration/b9a-tickets.md`,
+    T5 gate; plan `docs/orchestration/b9a-proof-plan.md`).
+  - **Deviations** (flagged, unchanged by the flip): truncation to degrees ≤ 2; `N^{Ev}` *defined*
+    by the two-point graph cocycle (98) (`evensNormH2`, Lemma 6.13); finite dyadic base; `hdeg`
+    (`[k(δ):k] = 2`) carried redundantly (provable from `hidx`/`hUo` via `finrank_quadExt_eq_two`)
+    so the statement is locally Kahn's `L/k` setting, per the owner's Q1 decision.
+    ~~Delzant well-definedness absorbed into the diagonalization scoping~~ — **REMOVED by the flip**:
+    well-definedness of `w₁`/`w₂` is now *proved*, not scoped away.
+- **Used at.** §6 (Lemmas 6.13 (Evens norm normalization), 6.16 (deep-unit Evens norm)), through the
+  derived `evensKahn_dyadic`; the Shapiro–corestriction of Lemma 6.15 is Kahn Th. 2's Shapiro case.
 
 **Already discharged (not leaves).**
 - **Ribes–Zalesskiĭ Hopfian** (a finitely generated profinite group is Hopfian): **RZ [4],
@@ -337,6 +377,15 @@ marked B4, and B5/B7′ enter at the `lemma_3_5_hilbert_ledger` sub-node), and *
 **Prop 3.2** (local) is `{B10}` as §C states — note the `AxiomLedger.lean` header's older
 "Prop 3.2 → B5" predates the B10 census decision.
 
+**B9-A footprint note (added 2026-07-24).**  After the B9-A flip the `B9` entries in the "reduces
+to" column and in the dependency chain below are consumed through the *derived* theorem
+`evensKahn_dyadic`, whose `#print axioms` is now `{relativeStiefelWhitney_dyadic (B9),
+hilbertSymbol_normCriterion_finiteDyadic (B11a), + std-3}`.  So every §6 node that consumed B9
+(Lemmas 6.13, 6.16, and via them Thm 4.2) now surfaces the pair **{B9 = `relativeStiefelWhitney_dyadic`,
+B11a}** in its footprint — the extra B11a co-dependence coming from the Delzant well-definedness
+layer that the derivation traverses (plan node N2, `docs/orchestration/b9a-proof-plan.md`).  Those
+nodes already consumed B11a independently at `lemma_6_16`, so the whole-library census is unchanged.
+
 Internal dependency chain feeding **Thm 4.2** (paper App. D), all *paper* lemmas resting on §B:
 5.7/5.8 (Stokes) → 5.10 (Fox–Heisenberg chain map); 5.11/5.13 → 5.15 (elementary-module duality, uses
 B6); 6.13 → Evens normalization (B9); 6.15 → 6.17 (deep-half vanishing); 6.8 → 6.9 (ramified Gauss
@@ -358,7 +407,7 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 | B7  local Euler characteristic | **NSW (7.3.1) (Tate)** `χ=‖a‖`; Serre *GC* II §5.7; Milne I.2.8 | ✅ **verified** | 🟡 |
 | B7′ dyadic Hilbert symbol | **Serre *Course in Arithmetic* Ch. III §1.2 Thm 1** (`ε,ω`: Ch. II §3.3) | ✅ **verified** | ✅ **proved** (2026-07-09) |
 | B8  Galois action on `π₁(ℙ¹∖{0,1,∞})` | **Stix [8] §3.3 + Def 37** (Deligne MSRI 16: classical origin) | ✅ **verified** | ✅ axiom (bundle) |
-| B9  Evens / Stiefel–Whitney | **Evens [9] §§4–5 Thm 1**; **Kahn [10] Thm 1–3**; **Kozlowski [11] Thm 1.1** (Guillot [6]: background only) | ✅ **verified** | 🟡 |
+| B9  relative Stiefel–Whitney (`relativeStiefelWhitney_dyadic`; **restated 2026-07-24**, `evensKahn_dyadic` now the derived theorem) | **Evens [9] §§4–5 Thm 1**; **Kahn [10] Thm 1–3**; **Kozlowski [11] Thm 1.1** (Guillot [6]: background only) | ✅ **verified** | 🟡 axiom (SW classes in-repo) |
 | B10 tame quotient of `G_ℚ₂` (**oriented**, B10′ since 2026-07-06) | **NSW (7.5.3) (Iwasawa)** with (7.5.2); Serre *LF* Ch. IV (wild pro-`p`); orientation clauses: **Serre *LF* XIII §4 Prop. 13 + cor.** (units ↦ inertia, prime ↦ Frobenius) + **Neukirch ANT V (1.2)** / NSW (7.1.2)(i) (units are unramified norms) | ✅ **verified** | ✅ axiom (bundle) |
 | — RZ Hopfian | RZ [4], Prop. 2.5.2 | **confirmed** | ✅ **proved** |
 | — Schur–Zassenhaus | Mathlib | — | ✅ **proved** |
@@ -375,7 +424,9 @@ discharged in-repo** (B13 a same-name `noncomputable def` over the `UnitFiltrati
 lane; B11b a same-name theorem over the norm-form engine `UnramifiedQuadraticNorms`/`TeichmullerLift`;
 the never-consumed **B4 deleted 2026-07-10** (user-approved; census 10 → 9, citation record in its §B4 above),
 so `dyadicNormCriterion` rests on B11a alone), B7′-, B13-, and B11b-board census flips,
-user-approved 2026-07-09); of the two
+user-approved 2026-07-09; **B9 restated in place 2026-07-24 as the relative Stiefel–Whitney
+identity `relativeStiefelWhitney_dyadic`, its former composite statement now the derived theorem
+`evensKahn_dyadic` — B9-A board, census-neutral**); of the two
 finite-group inputs that would also have appeared (RZ Hopfian, Schur–Zassenhaus) both are already
 proved.  The active declarations are faithful project interfaces over the repository's encodings;
 B3c, B5, B8, B9, and B10 are composite interfaces whose cited ingredients require the explicit

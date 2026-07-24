@@ -245,6 +245,10 @@ all flagged in the docstring).  Restructure options, not mutually exclusive:
   paper does).  Net effect: the axiom becomes checkable against Kahn Théorème 2 nearly verbatim;
   census stays at 9.  Mathlib prerequisites exist (`QuadraticForm.Equivalent`, diagonalization
   over fields of char ≠ 2).
+  *(Postscript, 2026-07-24: **B9-A was executed and landed** — B9 is now
+  `relativeStiefelWhitney_dyadic` (SW classes `swOne`/`swTwo` with Delzant well-definedness proved),
+  the former composite statement is the byte-identical derived theorem `evensKahn_dyadic`, census
+  stays at 9; board `docs/orchestration/b9a-tickets.md`, write-up `docs/literature-axioms.md` §B9.)*
 - **(B9-B, days, do regardless)**  Discharge B9's **degree-1 component** in-repo: it is classical
   `cor[a] = [N_{L/k}a]` compatibility, and with our *explicit* `corFun = b₁ + b_s` and Kummer
   cocycles it reduces to a cocycle computation (`κ_β(g) + κ_{s⁻¹·}(g)` against `κ_{β·sβ}`).
@@ -259,7 +263,7 @@ all flagged in the docstring).  Restructure options, not mutually exclusive:
 | W0 mechanical | yaml 4×2 label fixes; B4 stale-docstring sweep; gap-doc rewrite (C4) | ~1 h | none | **done** |
 | W1 audit | label lint vs `AxiomLedger.bAxioms`; paper-numbering drift pass; per-axiom docstring↔statement agent audit; ask David for Sol's B8 transcript | ~1 day | none | open (owner: the B8 ask) |
 | W2 readability | cup/`⌣` notation (C1); `commClosure` docs (A1); rename to `HasEqualNormValueGroups` (U1) | 1–2 days | statement-preserving only | **done** at the axiom surface; broad ⌣ sweep = ticket W2c, negative test = ticket W2n (b9a board) |
-| W3 axiom quality | **B9-A approved & started** (board `docs/orchestration/b9a-tickets.md`); B9-B/B9-C folded into that board | 1–2 weeks | axiom statement change gated on owner sign-off (T5) | in progress |
+| W3 axiom quality | **B9-A landed 2026-07-24** (board `docs/orchestration/b9a-tickets.md`; census-neutral 9→9, B9 ↦ `relativeStiefelWhitney_dyadic`, `evensKahn_dyadic` now a byte-identical derived theorem); B9-B/B9-C folded into that board | 1–2 weeks | axiom statement change was gated on owner sign-off (T5 gate, cleared) | **done 2026-07-24** |
 | W4 bridges | finite-group bridge to `groupCohomology` (C2); upstream `TopologicalAbelianization.of/lift` (A2) | ~1 week + review latency | none to repo | **deferred** (owner: no mathlib PRs now) |
 | W5 upstream | bridge to the Hill–Xie `ContCohomology` stack after it stabilizes (C3); local-field unramifiedness bridge when available (U2) | weeks, elapsed | external dependencies | watching (no bump now) |
 

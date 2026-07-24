@@ -177,6 +177,24 @@ B2's unused status is recorded on its axiom docstring and re-confirmed by the §
   (injectivity proved); B13's proposed (F2) inertia-twist clause was found derivable and
   deliberately excluded.  Precise-citation record: `docs/p15f1-axiom-proposal.md`.
   Census 13 → 15.
+* **B9-A restatement** (`relativeStiefelWhitney_dyadic`) — by explicit census decision
+  (**Angdinata review response**, `docs/angdinata-review-plan.md` §5 option B9-A, user-approved
+  2026-07-24; by this point six of the fifteen historical leaves had been discharged or deleted,
+  so the live census was already **nine**).  The composite B9 axiom `evensKahn_dyadic` (eq. (111)
+  at the *fixed* Lemma 6.16 diagonalizations, with the Stiefel–Whitney classes only notational and
+  well-definedness absorbed into the scoping) is **restated** as the cleaner *relative
+  Stiefel–Whitney identity* at the quadratic-form level,
+  `w(Tr_{L/k}⟨a⟩) = w(Tr_{L/k}⟨1⟩)(1 + cor[a] + N^{Ev}[a])` in degrees ≤ 2, with `w₁/w₂` **defined
+  on isometry classes** (`swOne`/`swTwo`, Delzant well-definedness now *proved* in
+  `GQ2/StiefelWhitney.lean`, sorry-free, std-3).  The former composite statement is re-derived as a
+  **byte-identical same-name theorem** `evensKahn_dyadic` (`GQ2/Foundations/Axioms.lean`, via
+  `evensKahn_dyadic_of_rsw` in `GQ2/EvensKahnDerived.lean` from the new axiom **+ B11a**), so no
+  consumer changed — the B7′/B11b/B12/B13 pattern.  The ledger label **B9** moves to the new
+  declaration; every §6 `#print axioms` that showed B9 now shows the pair
+  `{relativeStiefelWhitney_dyadic (B9), hilbertSymbol_normCriterion_finiteDyadic (B11a)}`, the B11a
+  co-dependence entering through the Delzant well-definedness layer.  Net effect: the axiom is now
+  checkable against Kahn Théorème 2 nearly verbatim, without the diagonalization scoping.
+  **Census-neutral, 9 → 9.**  Board: `docs/orchestration/b9a-tickets.md` / `b9a-proof-plan.md`.
 
 **B3a/B3b are deliberately not axioms.**  B3a (the *definition* of a Demushkin group) is
 formalized and stress-tested (`GQ2.IsDemushkin`, `GQ2.demushkinRank`, `GQ2.demushkinQ` in
