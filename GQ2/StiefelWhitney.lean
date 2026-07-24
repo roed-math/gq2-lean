@@ -151,7 +151,7 @@ private theorem trivialCupPairing_comm (htriv : ∀ (g : G) (m : ZMod 2), g • 
       μ₁ = μ₂ → cup11 μ₁ h₁ = cup11 μ₂ h₂ := by
     rintro μ₁ _ h₁ h₂ rfl
     rfl
-  show trivialCupPairing 2 G htriv α β = trivialCupPairing 2 G htriv β α
+  show α ⌣[htriv] β = β ⌣[htriv] α
   unfold trivialCupPairing
   rw [cup11_comm _ _ (by decide) α β,
     hcongr _ AddMonoidHom.mul _ (fun g m n ↦ by rw [htriv, htriv, htriv])

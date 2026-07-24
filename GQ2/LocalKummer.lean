@@ -284,7 +284,7 @@ theorem cup_deepClasses (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
     {ξ η : H1 k.fixingSubgroup (ZMod 2)}
     (hξ : ξ ∈ deepClasses k.fixingSubgroup) (hη : η ∈ deepClasses k.fixingSubgroup) :
-    GQ2.trivialCupPairing 2 k.fixingSubgroup htriv ξ η = 0 := by
+    ξ ⌣[htriv] η = 0 := by
   obtain ⟨a, ha, rfl⟩ := deepClass_eq_kummerClassK k hξ
   obtain ⟨b, hb, rfl⟩ := deepClass_eq_kummerClassK k hη
   exact GQ2.cup_deep_deep k htriv a b ha hb

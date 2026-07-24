@@ -394,7 +394,7 @@ theorem cup_midClasses_deepClasses (k : IntermediateField ℚ_[2] ℚ̄₂)
     {ξ η : H1 k.fixingSubgroup (ZMod 2)}
     (hξ : ξ ∈ midClassesSubgroup k.fixingSubgroup)
     (hη : η ∈ deepClasses k.fixingSubgroup) :
-    trivialCupPairing 2 k.fixingSubgroup htriv ξ η = 0 := by
+    ξ ⌣[htriv] η = 0 := by
   obtain ⟨a, ha, rfl⟩ := midClass_eq_kummerClassK k hξ
   obtain ⟨b, hb, rfl⟩ := deepClass_eq_kummerClassK k hη
   exact cup_mid_deep k htriv a b ha hb
@@ -431,10 +431,9 @@ private theorem pairingK_kummer_eq_zero (k : IntermediateField ℚ_[2] ℚ̄₂)
     (hsqB : δ ^ 2 = B) (hδ0 : δ ≠ 0)
     (hBfix : ∀ g : Kummer.GaloisGroup ℚ_[2],
       g ∈ (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) → g • B = B)
-    (hcup0 : trivialCupPairing 2 k.fixingSubgroup htriv
-      (H1ofFun ↥k.fixingSubgroup fun n =>
+    (hcup0 : (H1ofFun ↥k.fixingSubgroup fun n =>
         Kummer.kummerCocycleFun β (n : Kummer.GaloisGroup ℚ_[2]))
-      (H1ofFun ↥k.fixingSubgroup fun n =>
+      ⌣[htriv] (H1ofFun ↥k.fixingSubgroup fun n =>
         Kummer.kummerCocycleFun δ (n : Kummer.GaloisGroup ℚ_[2])) = 0) :
     pairingK ρ
       (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) fun n =>

@@ -117,10 +117,10 @@ structure IsDemushkin : Prop where
   cardH2 : Nat.card (H2 G (ZMod p)) = p
   /-- Clause 3, left: every non-zero `H¹`-class cups non-trivially with something. -/
   nondegen_left : ∀ x : H1 G (ZMod p), x ≠ 0 →
-      ∃ y, trivialCupPairing p G smul_trivial x y ≠ 0
+      ∃ y, x ⌣[smul_trivial] y ≠ 0
   /-- Clause 3, right: the symmetric clause (graded-commutativity is not formalized). -/
   nondegen_right : ∀ y : H1 G (ZMod p), y ≠ 0 →
-      ∃ x, trivialCupPairing p G smul_trivial x y ≠ 0
+      ∃ x, x ⌣[smul_trivial] y ≠ 0
 
 /-- **The rank of a Demushkin group**: `n = dim_{𝔽_p} H¹(G,𝔽_p)`, recovered from the
 cardinality (see `IsDemushkin.card_H1_eq_pow`).  Junk value when `G` is not Demushkin. -/
@@ -140,14 +140,14 @@ omit [IsTopologicalGroup G] in
 pairing does not depend on the proof). -/
 theorem IsDemushkin.nondegen_left' (hD : IsDemushkin p G)
     (htriv : ∀ (g : G) (m : ZMod p), g • m = m) (x : H1 G (ZMod p)) (hx : x ≠ 0) :
-    ∃ y, trivialCupPairing p G htriv x y ≠ 0 :=
+    ∃ y, x ⌣[htriv] y ≠ 0 :=
   hD.nondegen_left x hx
 
 omit [IsTopologicalGroup G] in
 /-- Right-slot variant of `IsDemushkin.nondegen_left'`. -/
 theorem IsDemushkin.nondegen_right' (hD : IsDemushkin p G)
     (htriv : ∀ (g : G) (m : ZMod p), g • m = m) (y : H1 G (ZMod p)) (hy : y ≠ 0) :
-    ∃ x, trivialCupPairing p G htriv x y ≠ 0 :=
+    ∃ x, x ⌣[htriv] y ≠ 0 :=
   hD.nondegen_right y hy
 
 omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod p)] in
@@ -403,13 +403,11 @@ private theorem card_H2_cyclicTwo : Nat.card (H2 (DihedralGroup 1) (ZMod 2)) = 2
 (definitional: `cup11Fun` with the multiplication pairing and the `rfl`-trivial action
 literally *is* `w`). -/
 private lemma cup_generator :
-    trivialCupPairing 2 (DihedralGroup 1) htrivC2
-        (H1mk _ _ cCyclicTwo) (H1mk _ _ cCyclicTwo)
+    H1mk _ _ cCyclicTwo ⌣[htrivC2] H1mk _ _ cCyclicTwo
       = H2mk _ _ wCyclicTwo := rfl
 
 private lemma cup_generator_ne_zero :
-    trivialCupPairing 2 (DihedralGroup 1) htrivC2
-        (H1mk _ _ cCyclicTwo) (H1mk _ _ cCyclicTwo) ≠ 0 := by
+    H1mk _ _ cCyclicTwo ⌣[htrivC2] H1mk _ _ cCyclicTwo ≠ 0 := by
   rw [cup_generator]
   intro h0
   have h1 := congrArg h2CyclicTwoEval h0

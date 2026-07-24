@@ -210,7 +210,7 @@ two 1-cocycles is a continuous 1-cochain, so the difference is in `B2`; conclude
 `QuotientAddGroup.eq'` through `H2mk`.] -/
 theorem trivialCupPairing_comm (htriv : ∀ (g : G) (m : ZMod 2), g • m = m)
     (x y : H1 G (ZMod 2)) :
-    trivialCupPairing 2 G htriv x y = trivialCupPairing 2 G htriv y x := by
+    x ⌣[htriv] y = y ⌣[htriv] x := by
   induction x using QuotientAddGroup.induction_on with | _ a =>
   induction y using QuotientAddGroup.induction_on with | _ b =>
   show cup11 (AddMonoidHom.mul) _ (H1mk G (ZMod 2) a) (H1mk G (ZMod 2) b)
@@ -253,40 +253,38 @@ variable (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
 `dyadicNormCriterion`, so the axiom trace is std-3 ∪ {B11a} without the unused B11b clause. -/
 theorem cup_of_normForm (a b : (↥k)ˣ) (x y : ↥k)
     (hb : (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2) :
-    trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k b) = 0 :=
+    kummerClassK k a ⌣[htriv] kummerClassK k b = 0 :=
   (hilbertSymbol_normCriterion_finiteDyadic k htriv a b).mpr ⟨x, y, hb⟩
 
 /-- `(a, −a) = 0` — the norm form represents `−a` as `0² − a·1²`. -/
 theorem cup_neg_self (a : (↥k)ˣ) :
-    trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k (-a)) = 0 :=
+    kummerClassK k a ⌣[htriv] kummerClassK k (-a) = 0 :=
   cup_of_normForm k htriv a (-a) 0 1 (by rw [Units.val_neg]; ring)
 
 /-- Steinberg `(a, 1−a) = 0` — the norm form represents `1 − a` as `1² − a·1²`. -/
 theorem cup_steinberg (a b : (↥k)ˣ) (hab : (b : ↥k) = 1 - (a : ↥k)) :
-    trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k b) = 0 :=
+    kummerClassK k a ⌣[htriv] kummerClassK k b = 0 :=
   cup_of_normForm k htriv a b 1 1 (by rw [hab]; ring)
 
 /-- `(2, −1) = 0` — `−1 = 1² − 2·1²` (the paper's `2 = N_{k(i)/k}(1+i)` step, replaced by the
 explicit dyadic representation; cf. the B11 docstring). -/
 theorem cup_two_neg_one :
-    trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k (twoUnit k))
-      (kummerClassK k (-1)) = 0 :=
+    kummerClassK k (twoUnit k) ⌣[htriv] kummerClassK k (-1) = 0 :=
   cup_of_normForm k htriv (twoUnit k) (-1) 1 1 (by
     simp only [Units.val_neg, Units.val_one, twoUnit, Units.val_mk0]
     ring)
 
 /-- `(a, a) = (a, −1)` (derived: `0 = (a, −a) = (a, −1) + (a, a)` + 2-torsion). -/
 theorem cup_self_eq_neg_one (a : (↥k)ˣ) :
-    trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k a)
-      = trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a)
-          (kummerClassK k (-1)) := by
+    kummerClassK k a ⌣[htriv] kummerClassK k a
+      = kummerClassK k a ⌣[htriv] kummerClassK k (-1) := by
   have h0 := cup_neg_self k htriv a
   have hm : kummerClassK k (-a) = kummerClassK k (-1) + kummerClassK k a := by
     rw [← kummerClassK_mul, neg_one_mul]
   rw [hm, map_add] at h0
   rw [← neg_eq_of_add_eq_zero_left h0,
     neg_eq_of_add_eq_zero_left (h2_add_self
-      (trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k a)))]
+      (kummerClassK k a ⌣[htriv] kummerClassK k a))]
 
 /-- Unramified unit-norm vanishing: if `k(δa)/k` has equal norm value groups then every unit
 symbol `(a, u)` dies — the **B11** clause-2 consumer. -/
@@ -295,7 +293,7 @@ theorem cup_unramified_unit (a : (↥k)ˣ) (δa : ℚ̄₂)
     (hunram : ∀ z : ℚ̄₂, z ≠ 0 → (∃ x y : ↥k, z = x + y * δa) →
       ∃ w : ↥k, w ≠ 0 ∧ ‖z‖ = ‖(w : ℚ̄₂)‖)
     (u : (↥k)ˣ) (hu : ‖((u : ↥k) : ℚ̄₂)‖ = 1) :
-    trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k u) = 0 := by
+    kummerClassK k a ⌣[htriv] kummerClassK k u = 0 := by
   obtain ⟨x, y, hxy⟩ := (dyadicNormCriterion k htriv).2 a δa hδa hunram u hu
   exact cup_of_normForm k htriv a u x y hxy
 
@@ -553,17 +551,15 @@ private lemma cup_two_add_cup_eq_cup_neg_one (k : IntermediateField ℚ_[2] ℚ�
     [FiniteDimensional ℚ_[2] k] (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
     (u n p : (↥k)ˣ) (hp : (p : ↥k) = 2 * (u : ↥k) - 1)
     (hnp : kummerClassK k n = kummerClassK k p) :
-    trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k (twoUnit k)) (kummerClassK k n)
-      + trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k u) (kummerClassK k n)
-      = trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k u)
-          (kummerClassK k (-1)) := by
+    kummerClassK k (twoUnit k) ⌣[htriv] kummerClassK k n
+      + kummerClassK k u ⌣[htriv] kummerClassK k n
+      = kummerClassK k u ⌣[htriv] kummerClassK k (-1) := by
   rw [← AddMonoidHom.add_apply, ← map_add, ← kummerClassK_mul, hnp]
   have hpsplit : kummerClassK k p = kummerClassK k (-1) + kummerClassK k (-p) := by
     have hpp : ((-1) * (-p) : (↥k)ˣ) = p := by rw [neg_mul_neg, one_mul]
     nth_rewrite 1 [← hpp]
     rw [kummerClassK_mul]
-  have hstein : trivialCupPairing 2 k.fixingSubgroup htriv
-      (kummerClassK k (twoUnit k * u)) (kummerClassK k (-p)) = 0 := by
+  have hstein : kummerClassK k (twoUnit k * u) ⌣[htriv] kummerClassK k (-p) = 0 := by
     refine cup_steinberg k htriv (twoUnit k * u) (-p) ?_
     rw [Units.val_neg, hp, Units.val_mul, twoUnit, Units.val_mk0, neg_sub]
   rw [hpsplit, map_add, hstein, add_zero, kummerClassK_mul, map_add, AddMonoidHom.add_apply,
@@ -904,7 +900,7 @@ symbol of two deep units vanishes.  std-3 ∪ {B11a}. -/
 theorem cup_deep_deep (a b : (↥k)ˣ)
     (ha : ‖((a : ↥k) : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖)
     (hb : ‖((b : ↥k) : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖) :
-    trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k b) = 0 := by
+    kummerClassK k a ⌣[htriv] kummerClassK k b = 0 := by
   obtain ⟨x, y, hxy⟩ := normForm_of_deep k (a : ↥k) (b : ↥k) ha hb
   exact cup_of_normForm k htriv a b x y hxy
 
@@ -913,7 +909,7 @@ symbol of a MID unit against a deep unit vanishes.  std-3 ∪ {B11a}. -/
 theorem cup_mid_deep (a b : (↥k)ˣ)
     (ha : ‖((a : ↥k) : ℚ̄₂) - 1‖ ≤ ‖(2 : ℚ̄₂)‖)
     (hb : ‖((b : ↥k) : ℚ̄₂) - 1‖ < ‖(2 : ℚ̄₂)‖) :
-    trivialCupPairing 2 k.fixingSubgroup htriv (kummerClassK k a) (kummerClassK k b) = 0 := by
+    kummerClassK k a ⌣[htriv] kummerClassK k b = 0 := by
   obtain ⟨x, y, hxy⟩ := normForm_of_mid k (a : ↥k) (b : ↥k) ha hb
   exact cup_of_normForm k htriv a b x y hxy
 
