@@ -9,7 +9,7 @@ dispatch; each ticket commits on green and updates its row here.
 |---|---|---|---|---|---|
 | T0 | mathlib QuadraticForm API recon | opus | none (read-only report) | — | **done 2026-07-24** → `b9a-t0-recon.md` (committed on `master`) |
 | T1 | axiom statement design + skeletons | fable | `GQ2/StiefelWhitney.lean`, `GQ2/TraceForm.lean` (new), design memo | T0 report | done 2026-07-24 (7 sorries: 3×T3, 3×T2, 1×T5 draft axiom; memo `b9a-t1-design.md`) |
-| T2 | trace-form diagonalizations (N3) | opus | `GQ2/TraceForm.lean` + de-`private` two lemmas in `GQ2/KummerSurjectivity.lean` (sole change there) | T1 | dispatched 2026-07-24 |
+| T2 | trace-form diagonalizations (N3) | opus | `GQ2/TraceForm.lean` (+`public import GQ2.KummerKrullBridge`); `KummerSurjectivity.lean` **untouched** — de-`private` not needed | T1 | done 2026-07-24 (3 sorries filled; finrank via public `exists_quadratic_of_open_index_two`, not the private recon lemmas) |
 | T3 | Delzant invariance (N2) | fable | `GQ2/StiefelWhitney.lean` | T1 | done 2026-07-24 (3 sorries → 0, std-3 axioms; helpers `private` per Q3; + `CupSymmetry` import) |
 | T4 | derive old B9 from the draft (N4/N5 prep) | opus | `GQ2/EvensKahnDerived.lean` (new) | T1 | **done 2026-07-24** — sorry-free; engine `evensKahn_dyadic_of_rsw` (pre-does T5 item 2) + `evensKahn_dyadic_derived` = byte-identical B9 + one trailing `hnorm`(=B11a, Q2 firewall); no unit-arith bridge needed; `#print axioms`={sorryAx,std-3} |
 | T5 | the flip (N5) — axiom in, theorem out | fable | `GQ2/Foundations/Axioms.lean`, `GQ2/AxiomLedger.lean`, `scripts/check_axioms.sh`, `GQ2/EvensKahnDerived.lean` (parametrize), `GQ2/TraceForm.lean` (drop draft §) | T2–T4 | **gate cleared 2026-07-24** — run once T2–T4 land (checklist below) |
