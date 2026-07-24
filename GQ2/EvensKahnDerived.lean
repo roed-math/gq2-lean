@@ -13,38 +13,32 @@ public import GQ2.StiefelWhitney
 /-!
 # Deriving the Evens–Kahn formula (B9) from the relative Stiefel–Whitney identity (B9-A, N4/N5)
 
-This file **proves** today's `GQ2.evensKahn_dyadic` (axiom **B9**, `GQ2/Foundations/Axioms.lean`)
-from the B9-A replacement identity `GQ2.relativeStiefelWhitney_dyadic`, discharging ticket **T4**
-(plan `docs/orchestration/b9a-proof-plan.md`, node N4) and pre-building ticket **T5**'s reduction
-(the owner's T5 checklist item 2, `docs/orchestration/b9a-tickets.md`).
+This file supplies the engine behind the B9-A flip (plan `docs/orchestration/b9a-proof-plan.md`,
+nodes N4/N5): since 2026-07-24, `GQ2/Foundations/Axioms.lean` proves the same-name theorem
+`evensKahn_dyadic` — byte-identical to the pre-flip axiom — as
+`evensKahn_dyadic_of_rsw relativeStiefelWhitney_dyadic …
+(hilbertSymbol_normCriterion_finiteDyadic k htriv)`.
 
-Two declarations:
+One declaration:
 
-* `evensKahn_dyadic_of_rsw` — the reusable engine.  It takes the relative Stiefel–Whitney statement
-  as an explicit hypothesis `hrsw` (the file stays upstream of the axiom file, so it cannot name
-  the identity once T5 moves it there) together with the B11a norm criterion `hnorm`, and proves the
-  B9 conclusion.  **This is the theorem T5 applies**: inside `Foundations/Axioms.lean`,
-  `theorem evensKahn_dyadic … := evensKahn_dyadic_of_rsw relativeStiefelWhitney_dyadic …
-  (hilbertSymbol_normCriterion_finiteDyadic k htriv)` recovers the byte-identical B9 statement (no
-  extra hypotheses) as a `theorem`.
-* `evensKahn_dyadic_derived` — the same conclusion from **today's** draft
-  `relativeStiefelWhitney_dyadic` (the sorried `theorem` in `GQ2/TraceForm.lean`), i.e. the engine
-  instantiated at `hrsw := relativeStiefelWhitney_dyadic`.  Its statement is byte-identical to the
-  axiom except for the single trailing hypothesis `hnorm` (below); it is the concrete,
-  compile-checked realization of the T5 obligation on the current branch.
+* `evensKahn_dyadic_of_rsw` — the reusable engine.  It takes the relative Stiefel–Whitney
+  statement as an explicit hypothesis `hrsw` (this file stays upstream of the axiom file, so it
+  cannot name the B9 axiom) together with the B11a norm criterion `hnorm`, and proves the
+  pre-flip B9 conclusion.
 
 ## The `hnorm` hypothesis (owner-approved firewall, Q2)
 
-Both declarations carry `hnorm`, the dyadic Hilbert-symbol norm criterion — the exact conclusion of
+The engine carries `hnorm`, the dyadic Hilbert-symbol norm criterion — the exact conclusion of
 axiom **B11a**, `hilbertSymbol_normCriterion_finiteDyadic k htriv`.  It is forced: the degree-2
 component evaluates `swTwo` on the diagonal transfer forms via `swTwo_diag`, whose Delzant
-well-definedness (`swTwo_well_defined`, plan node N2) consumes the criterion.  B11a lives downstream
-in `GQ2/Foundations/Axioms.lean`, so it cannot be imported here; the firewall carries it as a
-hypothesis (`GQ2/StiefelWhitney.lean`'s `swTwo_diag`/`swTwo_congr` already do), and this file
-inherits it one level up.  The owner approved this design (Q2, `docs/orchestration/b9a-tickets.md`).
-The degree-1 component needs no such input.  At the T5 flip the hypothesis is discharged from B11a,
-so the flipped `evensKahn_dyadic` is byte-identical (no `hnorm`) with `#print axioms` =
-{`relativeStiefelWhitney_dyadic`, `hilbertSymbol_normCriterion_finiteDyadic`, …} (plan node N2).
+well-definedness (`swTwo_well_defined`, plan node N2) consumes the criterion.  B11a lives
+downstream in `GQ2/Foundations/Axioms.lean`, so it cannot be imported here; the firewall carries
+it as a hypothesis (`GQ2/StiefelWhitney.lean`'s `swTwo_diag`/`swTwo_congr` already do), and this
+file inherits it one level up.  The owner approved this design (Q2,
+`docs/orchestration/b9a-tickets.md`).  The degree-1 component needs no such input.  At the flip
+the hypothesis is discharged from B11a, so the flipped `evensKahn_dyadic` is byte-identical (no
+`hnorm`) with `#print axioms` = {`relativeStiefelWhitney_dyadic`,
+`hilbertSymbol_normCriterion_finiteDyadic`, + std-3} (plan node N2).
 
 ## No unit-arithmetic bridge is needed
 
@@ -91,8 +85,9 @@ field `quadExt k δ` (its image is `β² ≠ 0`); `finrank_quadExt_eq_two` gives
 gives the two Stiefel–Whitney components; the Lemma 6.16 diagonalizations `Tr⟨a⟩ ≃ ⟨2u, 2dn/u⟩` and
 `Tr⟨1⟩ ≃ ⟨2, 2d⟩`, via `swOne_diag`/`swTwo_diag`, rewrite them into the B9 Kummer-class form.
 
-**T5** instantiates this at `hrsw := relativeStiefelWhitney_dyadic` (then the axiom) and
-`hnorm := hilbertSymbol_normCriterion_finiteDyadic k htriv`, recovering the byte-identical B9. -/
+`GQ2/Foundations/Axioms.lean` instantiates this at the B9 axiom
+`relativeStiefelWhitney_dyadic` and `hnorm := hilbertSymbol_normCriterion_finiteDyadic k htriv`,
+recovering the byte-identical B9 statement as the same-name theorem. -/
 theorem evensKahn_dyadic_of_rsw
     (hrsw : ∀ (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
         (d : (↥k)ˣ) (δ β : AlgebraicClosure ℚ_[2])
@@ -198,47 +193,5 @@ theorem evensKahn_dyadic_of_rsw
   refine ⟨?_, ?_⟩
   · rw [hsw1Tw, hsw1One] at eq1; exact eq1
   · rw [hsw2Tw, hsw2One, hsw1One] at eq2; exact eq2
-
-/-- **Derivation of B9 from the current draft `relativeStiefelWhitney_dyadic`.**
-`evensKahn_dyadic_of_rsw` instantiated at the sorried draft identity in `GQ2/TraceForm.lean`.
-Hypotheses and conclusion are byte-identical to the axiom `GQ2.evensKahn_dyadic` except for the
-final hypothesis `hnorm` (the B11a norm criterion; see the module docstring).  This is the
-compile-checked realization of ticket **T5's proof obligation** on the current branch. -/
-theorem evensKahn_dyadic_derived
-    (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
-    (u n d : (↥k)ˣ) (v : ↥k)
-    (hn : (n : ↥k) = (u : ↥k) ^ 2 - (d : ↥k) * v ^ 2)
-    (δ β : AlgebraicClosure ℚ_[2])
-    (hδ : δ ^ 2 = ((d : ↥k) : AlgebraicClosure ℚ_[2]))
-    (hβ : β ^ 2 = ((u : ↥k) : AlgebraicClosure ℚ_[2]) + (v : AlgebraicClosure ℚ_[2]) * δ)
-    (hβ0 : β ≠ 0)
-    (hidx : ((MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf
-        k.fixingSubgroup).index = 2)
-    (s : k.fixingSubgroup)
-    (hs : s ∉ (MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf k.fixingSubgroup)
-    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
-    (hUo : IsOpen (((MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf
-        k.fixingSubgroup : Subgroup k.fixingSubgroup) : Set k.fixingSubgroup))
-    (α : ((MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf
-        k.fixingSubgroup) → ZMod 2)
-    (hαdef : ∀ g, α g = Kummer.kummerCocycleFun β
-        ((g : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]))
-    (hα : ∀ g h, α (g * h) = α g + α h)
-    (hαc : Continuous α)
-    -- The single deviation from the byte-identical B9 statement: the B11a norm criterion, forced by
-    -- the degree-2 evaluation `swTwo_diag`, discharged from B11a at the T5 flip.  See module doc.
-    (hnorm : ∀ a b : (↥k)ˣ,
-      kummerClassK k a ⌣[htriv] kummerClassK k b = 0
-        ↔ ∃ x y : ↥k, (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2) :
-    (kummerClassK k (twoUnit k * u) + kummerClassK k (twoUnit k * d * n * u⁻¹)
-      = kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d)
-        + corH1 htriv hUo hidx hs α hα hαc)
-    ∧ (kummerClassK k (twoUnit k * u) ⌣[htriv] kummerClassK k (twoUnit k * d * n * u⁻¹)
-      = kummerClassK k (twoUnit k) ⌣[htriv] kummerClassK k (twoUnit k * d)
-        + (kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d)) ⌣[htriv]
-            corH1 htriv hUo hidx hs α hα hαc
-        + evensNormH2 htriv hUo hidx hs α hα hαc) :=
-  evensKahn_dyadic_of_rsw relativeStiefelWhitney_dyadic k u n d v hn δ β hδ hβ hβ0 hidx s hs
-    htriv hUo α hαdef hα hαc hnorm
 
 end GQ2

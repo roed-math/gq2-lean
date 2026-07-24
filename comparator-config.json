@@ -12,7 +12,7 @@
         "GQ2.localReciprocity",
         "GQ2.tateDualityAt",
         "GQ2.peripheralCyclotomicAction",
-        "GQ2.evensKahn_dyadic",
+        "GQ2.relativeStiefelWhitney_dyadic",
         "GQ2.tameQuotient",
         "GQ2.hilbertSymbol_normCriterion_finiteDyadic"
     ],

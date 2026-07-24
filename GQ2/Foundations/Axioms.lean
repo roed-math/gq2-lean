@@ -22,6 +22,8 @@ public import GQ2.UnitFiltration
 public import GQ2.UnitFiltrationCounts
 public import GQ2.KummerSurjectivity
 public import GQ2.UnramifiedQuadraticNorms
+public import GQ2.TraceForm
+public import GQ2.EvensKahnDerived
 
 @[expose] public section
 
@@ -43,15 +45,18 @@ The current census contains nine axioms:
 * **B7** `Foundations.absGalQ2_localEulerCharacteristic` — the local Euler characteristic.
 * **B8** `peripheralCyclotomicAction` — the cyclotomic action on the peripheral generators of
   `Δ = maxPro2(F₂)`.
-* **B9** `evensKahn_dyadic` — the degree-at-most-two Evens–Kahn identity over finite dyadic bases.
+* **B9** `relativeStiefelWhitney_dyadic` — the degree-at-most-two relative Stiefel–Whitney
+  (Evens–Kahn) identity over finite dyadic bases.
 * **B10** `tameQuotient` — the oriented tame quotient of `G_ℚ₂`.
 * **B11a** `hilbertSymbol_normCriterion_finiteDyadic` — the Hilbert-symbol norm criterion over
   finite dyadic bases.
 
-Four interfaces that were formerly axioms are now constructed in the repository under the same
+Five interfaces that were formerly axioms are now constructed in the repository under the same
 names: `HilbertSymbol.hilbertSymbol_dyadic`, `unramifiedQuadratic_units_are_norms`,
-`kummerClassK_surjective`, and `dyadicUnitFiltration`.  Keeping their public names unchanged lets
-consumers use the proved implementations without an API migration.
+`kummerClassK_surjective`, `dyadicUnitFiltration`, and `evensKahn_dyadic` (since 2026-07-24 a
+theorem derived from the current B9 leaf `relativeStiefelWhitney_dyadic` together with B11a).
+Keeping their public names unchanged lets consumers use the proved implementations without an
+API migration.
 
 For review, the live leaves fall into three citation-faithfulness classes:
 
@@ -267,51 +272,52 @@ character — the paper's exact citation) together with local cyclotomic surject
 classical origin Deligne, MSRI 16 (1989).  Paper: Lemma 3.6.  `docs/literature-axioms.md` B8. -/
 axiom peripheralCyclotomicAction : PeripheralCyclotomicAction
 
-/-! ## B9 — the Evens/Kahn formula (paper eq. (111)), degrees ≤ 2
+/-! ## B9 — the relative Stiefel–Whitney identity (paper eq. (111)), degrees ≤ 2
 
-The ingredients — degree-1 corestriction `corH1Z`, the index-two Evens norm `evensNormH2Z`
-(the paper's two-point graph cocycle (98), Lemma 6.13), and the subgroup Kummer cocycle
-`kummerZ1On` — are all *defined* (with full well-formedness proofs) in `GQ2/EvensKahn.lean`;
-Stiefel–Whitney classes of the rank-2 transfer forms enter through the paper's fixed
-diagonalizations `Tr_{L/k}⟨a⟩ ≃ ⟨2u, 2dn/u⟩`, `Tr_{L/k}⟨1⟩ ≃ ⟨2, 2d⟩` (Lemma 6.16), with
-`w₁⟨x,y⟩ = [x]+[y]` and `w₂⟨x,y⟩ = [x]∪[y]` in Kummer classes.  The axiom asserts the
-degree-1 and degree-2 components of (111) for these representatives.  **Deviations (flagged;
-see `GQ2/EvensKahn.lean`)**: truncation to degrees ≤ 2; concrete diagonal representatives
-(Delzant well-definedness absorbed into the scoping); the degree-1 component is equivalent to
-the classical `cor[a] = [N_{L/k}a]` compatibility. -/
+Since the B9-A flip (2026-07-24, `docs/orchestration/b9a-proof-plan.md`) the B9 leaf is the
+**relative Stiefel–Whitney identity** at the quadratic-form level: the left-hand sides are
+genuine isometry-class invariants (`swOne`/`swTwo`, `GQ2/StiefelWhitney.lean`, with Delzant
+well-definedness **proved**, not scoped away), evaluated on the twisted trace forms
+`Tr_{k(δ)/k}⟨a⟩` of `GQ2/TraceForm.lean`.  The previous composite axiom statement — eq. (111)
+at the fixed Lemma 6.16 diagonalizations — is now the same-name **theorem** `evensKahn_dyadic`
+below (placed after B11a, which its proof consumes), derived via `evensKahn_dyadic_of_rsw`
+(`GQ2/EvensKahnDerived.lean`); consumers were untouched.  The cocycle-level ingredients
+(`corH1`, `evensNormH2`, `kummerClassK`) are unchanged from `GQ2/EvensKahn.lean`. -/
 
-/-- **The B9 axiom** (Kahn Théorème 2 at rank 1, expanded by Evens Theorem 1 / Kozlowski
-Thm 1.1 for index 2; paper eq. (111), degrees ≤ 2, at the Lemma 6.16 diagonalizations), over an
-arbitrary **finite dyadic base** `k`.
+/-- **The B9 axiom — the relative Stiefel–Whitney identity** (Kahn, Invent. Math. 78 (1984),
+Théorème 2 at the rank-1 form `⟨a⟩`, expanded through Evens Thm 1 / Kozlowski Thm 1.1 at
+index 2; paper eq. (111), degrees ≤ 2), over an arbitrary **finite dyadic base** `k`.
 
-Setting: `k/ℚ₂` finite (an `IntermediateField` of the fixed `ℚ̄₂`, so all classes live over the
-subtype group `G_k = k.fixingSubgroup ≤ G_ℚ₂`), `L = k(δ)` with `δ² = d ∈ kˣ`, `G_L = N =` the
-stabilizer of `δ` within `G_k` (assumed of index 2 — i.e. `d` is a non-square in `k`), `s ∉ N`,
-and `a = u + vδ ∈ Lˣ` with norm `n = u² − dv² ∈ kˣ` and a square root `β = √a ∈ k̄ˣ`.  With
-`[x] = kummerClassK k x` the base-general Kummer classes (canonical roots, `GQ2/EvensKahn.lean`),
-`x ⌣[htriv] y` the `trivialCupPairing` cup notation, `cor = corH1` and `N^{Ev} = evensNormH2`
-(the unbundled forms; the
-Kummer 1-cocycle `α(g) = κ_β(g)` of `a` over `N` enters via its defining equation `hαdef`, with
-its hom/continuity side-proofs quantified), the two components of (111) read:
+Setting: `k/ℚ₂` finite inside the fixed `ℚ̄₂`; `d ∈ kˣ` with `δ² = d`; `L = k(δ) = quadExt k δ`,
+quadratic over `k` (`hdeg` — provable from `hidx`/`hUo` via `finrank_quadExt_eq_two`, but
+carried so the statement is locally Kahn's `L/k` setting, per the owner's Q1 decision);
+`G_L ∩ G_k` is the stabilizer subgroup of `δ` (the verbatim pre-flip encoding: `hidx`, `s`,
+`hs`, `htriv`, `hUo`); `a ∈ Lˣ` **arbitrary**, entering degree-wise through the Kummer
+1-cocycle `α` of a square root `β` of `a` (`hβ`/`hβ0`/`hαdef`/`hα`/`hαc`).  With `w₁ = swOne k`
+and `w₂ = swTwo k htriv` the Stiefel–Whitney classes of `GQ2/StiefelWhitney.lean`, the two
+components of Kahn's identity `w(Tr⟨a⟩) = w(Tr⟨1⟩)·(1 + cor[a] + N^{Ev}[a])` read:
 
-* degree 1: `[2u] + [2dn/u] = [2] + [2d] + cor[a]`;
-* degree 2: `[2u] ∪ [2dn/u] = [2] ∪ [2d] + ([2] + [2d]) ∪ cor[a] + N^{Ev}[a]`.
+* degree 1: `w₁(Tr⟨a⟩) = w₁(Tr⟨1⟩) + cor[a]`;
+* degree 2: `w₂(Tr⟨a⟩) = w₂(Tr⟨1⟩) + w₁(Tr⟨1⟩) ⌣ cor[a] + N^{Ev}[a]`.
 
 The cited theorems hold over any field of characteristic different from `2` (Kahn Th. 2 requires
-no local hypothesis), while the paper invokes (111) over the finite dyadic base `k` of Lemma 6.16.
-The interface is therefore base-general within the dyadic setting; `k = ℚ₂` is the bottom-field
-instance.
+no local hypothesis), while the paper invokes (111) over finite dyadic bases; the interface is
+therefore base-general within the dyadic setting.  Deviations (flagged): truncation to degrees
+≤ 2; `N^{Ev}` *defined* by the two-point graph cocycle (98) (`evensNormH2`, Lemma 6.13); finite
+dyadic base.  Removed relative to the pre-flip axiom: the Lemma 6.16 diagonalization scoping.
 
 Citation: Kahn, Invent. Math. 78 (1984), Théorème 2 (with Théorème 1); Kozlowski, Proc. AMS
 91 (1984), Thm 1.1; Evens, Trans. AMS 108 (1963), Thm 1.  Paper: §6, eq. (111),
-Lemmas 6.13/6.16.  `docs/literature-axioms.md` B9. -/
-axiom evensKahn_dyadic
+Lemmas 6.13/6.16.  `docs/literature-axioms.md` B9; census swap user-approved 2026-07-24
+(`docs/orchestration/b9a-tickets.md`, T5 gate). -/
+axiom relativeStiefelWhitney_dyadic
     (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
-    (u n d : (↥k)ˣ) (v : ↥k)
-    (hn : (n : ↥k) = (u : ↥k) ^ 2 - (d : ↥k) * v ^ 2)
+    (d : (↥k)ˣ)
     (δ β : AlgebraicClosure ℚ_[2])
     (hδ : δ ^ 2 = ((d : ↥k) : AlgebraicClosure ℚ_[2]))
-    (hβ : β ^ 2 = ((u : ↥k) : AlgebraicClosure ℚ_[2]) + (v : AlgebraicClosure ℚ_[2]) * δ)
+    (hdeg : Module.finrank ↥k ↥(quadExt k δ) = 2)
+    (a : (↥(quadExt k δ))ˣ)
+    (hβ : β ^ 2 = ((a : ↥(quadExt k δ)) : AlgebraicClosure ℚ_[2]))
     (hβ0 : β ≠ 0)
     (hidx : ((MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf
         k.fixingSubgroup).index = 2)
@@ -326,13 +332,11 @@ axiom evensKahn_dyadic
         ((g : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]))
     (hα : ∀ g h, α (g * h) = α g + α h)
     (hαc : Continuous α) :
-    (kummerClassK k (twoUnit k * u) + kummerClassK k (twoUnit k * d * n * u⁻¹)
-      = kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d)
-        + corH1 htriv hUo hidx hs α hα hαc)
-    ∧ (kummerClassK k (twoUnit k * u) ⌣[htriv] kummerClassK k (twoUnit k * d * n * u⁻¹)
-      = kummerClassK k (twoUnit k) ⌣[htriv] kummerClassK k (twoUnit k * d)
-        + (kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d)) ⌣[htriv]
-            corH1 htriv hUo hidx hs α hα hαc
+    (swOne k (traceFormTwisted k δ ↑a)
+      = swOne k (traceFormOne k δ) + corH1 htriv hUo hidx hs α hα hαc)
+    ∧ (swTwo k htriv (traceFormTwisted k δ ↑a)
+      = swTwo k htriv (traceFormOne k δ)
+        + swOne k (traceFormOne k δ) ⌣[htriv] corH1 htriv hUo hidx hs α hα hαc
         + evensNormH2 htriv hUo hidx hs α hα hαc)
 
 /-! ## B10 — the tame quotient of `G_ℚ₂` (Iwasawa)
@@ -434,6 +438,54 @@ axiom hilbertSymbol_normCriterion_finiteDyadic
     ∀ a b : (↥k)ˣ,
       kummerClassK k a ⌣[htriv] kummerClassK k b = 0
         ↔ ∃ x y : ↥k, (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2
+
+/-! ### B9, derived form (placed after B11a, which the proof consumes) -/
+
+/-- **Formerly the B9 axiom — since 2026-07-24 a derived theorem** (the B9-A flip; the statement
+is byte-identical to the pre-flip axiom, zero consumer churn — the B7′/B11b/B12/B13 pattern).
+Eq. (111) at the paper's Lemma 6.16 diagonalizations `Tr_{L/k}⟨a⟩ ≃ ⟨2u, 2dn/u⟩`,
+`Tr_{L/k}⟨1⟩ ≃ ⟨2, 2d⟩`, with `w₁⟨x,y⟩ = [x]+[y]` and `w₂⟨x,y⟩ = [x] ⌣ [y]`:
+
+* degree 1: `[2u] + [2dn/u] = [2] + [2d] + cor[a]`;
+* degree 2: `[2u] ⌣ [2dn/u] = [2] ⌣ [2d] + ([2] + [2d]) ⌣ cor[a] + N^{Ev}[a]`.
+
+Proof: `evensKahn_dyadic_of_rsw` (`GQ2/EvensKahnDerived.lean`) applied to the B9 axiom
+`relativeStiefelWhitney_dyadic` and to B11a (the `hnorm` input of the Delzant well-definedness
+layer); the T2 trace-form diagonalizations and the proved `swOne`/`swTwo` invariance do the
+rewriting.  `#print axioms`: `relativeStiefelWhitney_dyadic` and
+`hilbertSymbol_normCriterion_finiteDyadic` (+ the standard three).  Full setting and citations:
+the B9 axiom's docstring above and `docs/literature-axioms.md` §B9. -/
+theorem evensKahn_dyadic
+    (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
+    (u n d : (↥k)ˣ) (v : ↥k)
+    (hn : (n : ↥k) = (u : ↥k) ^ 2 - (d : ↥k) * v ^ 2)
+    (δ β : AlgebraicClosure ℚ_[2])
+    (hδ : δ ^ 2 = ((d : ↥k) : AlgebraicClosure ℚ_[2]))
+    (hβ : β ^ 2 = ((u : ↥k) : AlgebraicClosure ℚ_[2]) + (v : AlgebraicClosure ℚ_[2]) * δ)
+    (hβ0 : β ≠ 0)
+    (hidx : ((MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf
+        k.fixingSubgroup).index = 2)
+    (s : k.fixingSubgroup)
+    (hs : s ∉ (MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf k.fixingSubgroup)
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (hUo : IsOpen (((MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf
+        k.fixingSubgroup : Subgroup k.fixingSubgroup) : Set k.fixingSubgroup))
+    (α : ((MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf
+        k.fixingSubgroup) → ZMod 2)
+    (hαdef : ∀ g, α g = Kummer.kummerCocycleFun β
+        ((g : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]))
+    (hα : ∀ g h, α (g * h) = α g + α h)
+    (hαc : Continuous α) :
+    (kummerClassK k (twoUnit k * u) + kummerClassK k (twoUnit k * d * n * u⁻¹)
+      = kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d)
+        + corH1 htriv hUo hidx hs α hα hαc)
+    ∧ (kummerClassK k (twoUnit k * u) ⌣[htriv] kummerClassK k (twoUnit k * d * n * u⁻¹)
+      = kummerClassK k (twoUnit k) ⌣[htriv] kummerClassK k (twoUnit k * d)
+        + (kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d)) ⌣[htriv]
+            corH1 htriv hUo hidx hs α hα hαc
+        + evensNormH2 htriv hUo hidx hs α hα hαc) :=
+  evensKahn_dyadic_of_rsw relativeStiefelWhitney_dyadic k u n d v hn δ β hδ hβ hβ0 hidx s hs
+    htriv hUo α hαdef hα hαc (hilbertSymbol_normCriterion_finiteDyadic k htriv)
 
 /-- **Unramified unit-norm surjectivity, formerly interface B11b.**  If
 `k(√a)/k` is unramified (the `HasEqualNormValueGroups` convention on a chosen root `δa`,
