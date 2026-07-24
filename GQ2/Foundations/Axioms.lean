@@ -423,6 +423,43 @@ def HasEqualNormValueGroups
 @[deprecated HasEqualNormValueGroups (since := "2026-07-24")]
 alias IsUnramifiedQuadraticSpectral := HasEqualNormValueGroups
 
+/-- **Negative stress test for `HasEqualNormValueGroups`** (adversarial-review plan U1): the
+*ramified* quadratic extension `ℚ₂(√2)/ℚ₂` **fails** the criterion, so the predicate is not
+vacuously satisfied — it genuinely detects `e = 1`.  Take the base `k = ⊥` (every element is the
+image of a `2`-adic scalar) and `δa` any square root of `2` in `ℚ̄₂`.  The witness `z = δa`
+(`= ↑0 + ↑1·δa`) has `‖δa‖² = ‖δa²‖ = ‖(2 : ℚ̄₂)‖ = ‖(2 : ℚ₂)‖`, while every nonzero `w ∈ ⊥` is
+`algebraMap c` for some `c ∈ ℚ₂` with `‖w‖ = ‖c‖` in the discrete value group `{2ⁿ : n ∈ ℤ}`.
+A match `‖δa‖ = ‖w‖` would give `‖(2 : ℚ₂)‖ = ‖c²‖`, i.e. `v₂(2) = v₂(c²)`, i.e. `1 = 2·v₂(c)`
+in `ℤ` — impossible.  Contrast `unramifiedQuadratic_units_are_norms`, whose conclusion the
+criterion supplies precisely in the unramified case it does hold. -/
+lemma not_hasEqualNormValueGroups_sqrt_two (δa : AlgebraicClosure ℚ_[2])
+    (hδa : δa ^ 2 = (2 : AlgebraicClosure ℚ_[2])) :
+    ¬ HasEqualNormValueGroups ⊥ δa := by
+  intro h
+  have h2q : (2 : ℚ_[2]) ≠ 0 := two_ne_zero
+  have hδa0 : δa ≠ 0 := by
+    intro h0
+    rw [h0, zero_pow two_ne_zero] at hδa
+    exact two_ne_zero hδa.symm
+  obtain ⟨w, hw0, hnorm⟩ := h δa hδa0 ⟨0, 1, by simp⟩
+  obtain ⟨c, hc⟩ := IntermediateField.mem_bot.1 w.2
+  have hwne0 : (w : AlgebraicClosure ℚ_[2]) ≠ 0 := by simpa using hw0
+  have hc0 : c ≠ 0 := fun h0 => hwne0 (by rw [← hc, h0, map_zero])
+  -- `‖δa‖² = ‖2‖`, transported from the algebraic closure down to the `2`-adic base.
+  have hδanorm : ‖δa‖ ^ 2 = ‖(2 : ℚ_[2])‖ := by
+    rw [← norm_pow, hδa, ← map_ofNat (algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2])) 2,
+      norm_algebraMap' (𝕜' := AlgebraicClosure ℚ_[2])]
+  have hcnorm : ‖(w : AlgebraicClosure ℚ_[2])‖ = ‖c‖ := by
+    rw [← hc, norm_algebraMap' (𝕜' := AlgebraicClosure ℚ_[2])]
+  -- Squaring the (hypothetical) equal norm collapses to `‖2‖ = ‖c²‖` inside `ℚ₂`.
+  have key : ‖(2 : ℚ_[2])‖ = ‖c ^ 2‖ := by rw [← hδanorm, hnorm, hcnorm, norm_pow]
+  rw [Padic.norm_eq_zpow_neg_valuation h2q,
+    Padic.norm_eq_zpow_neg_valuation (pow_ne_zero 2 hc0),
+    zpow_right_inj₀ (by norm_num) (by norm_num)] at key
+  have hv2 : (2 : ℚ_[2]).valuation = 1 := by exact_mod_cast Padic.valuation_p (p := 2)
+  have hvp : (c ^ 2).valuation = 2 * c.valuation := by exact_mod_cast Padic.valuation_pow c 2
+  omega
+
 /-- **[Classical — B11a.]**  The dyadic Hilbert-symbol **norm criterion** over a finite base
 `k/ℚ₂`, in Kummer-cup form: for `a, b ∈ kˣ`, `[a] ∪ [b] = 0` in `H²(G_k, 𝔽₂)` iff `b` is a norm
 from `k(√a)` — iff `b = x² − a y²` has a solution in `k` (for `a` a square the norm form is
