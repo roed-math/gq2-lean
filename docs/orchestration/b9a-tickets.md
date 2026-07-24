@@ -7,15 +7,42 @@ dispatch; each ticket commits on green and updates its row here.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| T0 | mathlib QuadraticForm API recon | opus | none (read-only report) | — | dispatched 2026-07-24 |
+| T0 | mathlib QuadraticForm API recon | opus | none (read-only report) | — | **done 2026-07-24** → `b9a-t0-recon.md` (committed on `master`) |
 | T1 | axiom statement design + skeletons | fable | `GQ2/StiefelWhitney.lean`, `GQ2/TraceForm.lean` (new), design memo | T0 report | done 2026-07-24 (7 sorries: 3×T3, 3×T2, 1×T5 draft axiom; memo `b9a-t1-design.md`) |
-| T2 | trace-form diagonalizations (N3) | opus | `GQ2/TraceForm.lean` | T1 | pending |
-| T3 | Delzant invariance (N2) | fable | `GQ2/StiefelWhitney.lean` | T1 | pending |
-| T4 | truncation/product glue (N4) | opus | `GQ2/StiefelWhitney.lean` (glue section) or fold into T5 | T1 | pending |
-| T5 | the flip (N5) — axiom in, theorem out | fable | `GQ2/Foundations/Axioms.lean`, `GQ2/AxiomLedger.lean`, `scripts/check_axioms.sh` | T2–T4 + **owner sign-off on statement** | blocked (gate) |
+| T2 | trace-form diagonalizations (N3) | opus | `GQ2/TraceForm.lean` + de-`private` two lemmas in `GQ2/KummerSurjectivity.lean` (sole change there) | T1 | dispatched 2026-07-24 |
+| T3 | Delzant invariance (N2) | fable | `GQ2/StiefelWhitney.lean` | T1 | dispatched 2026-07-24 |
+| T4 | derive old B9 from the draft (N4/N5 prep) | opus | `GQ2/EvensKahnDerived.lean` (new) | T1 | dispatched 2026-07-24 |
+| T5 | the flip (N5) — axiom in, theorem out | fable | `GQ2/Foundations/Axioms.lean`, `GQ2/AxiomLedger.lean`, `scripts/check_axioms.sh`, `GQ2/EvensKahnDerived.lean` (parametrize), `GQ2/TraceForm.lean` (drop draft §) | T2–T4 | **gate cleared 2026-07-24** — run once T2–T4 land (checklist below) |
 | T6 | docs sweep after flip | opus | `docs/literature-axioms.md`, `formalization.yaml`, `docs/orchestration/review-packet.md`, `docs/angdinata-review-plan.md` | T5 | pending |
 | W2n | `HasEqualNormValueGroups` negative stress test (`ℚ₂(√2)` fails it) | opus | new `example`/lemma near the def's stress tests | — (independent) | pending |
 | W2c | ⌣ notation sweep at remaining consumer sites (`SectionSix.lemma_6_16`, `HilbertLedger`, `Shapiro/Deepness`) | opus | those files, display-only rewrites | — (independent) | pending |
+
+## T5 gate — owner sign-off recorded 2026-07-24
+
+Owner approved the draft statement (`GQ2/TraceForm.lean` §Draft) and answered the memo's
+questions: **Q1** keep `hdeg` (goal: statement as close as possible to the published theorem);
+**Q2** the `hnorm` firewall design is approved; **Q3** keep the T3 helper re-proofs local for
+now — upstreaming HilbertLedger tiers can happen after the proof is complete.
+
+T5 execution checklist (single atomic commit on `b9a`, then merge to `master`):
+
+1. Move `relativeStiefelWhitney_dyadic` into `GQ2/Foundations/Axioms.lean` as the B9 `axiom`
+   (docstring: Kahn Th. 2 + Evens Th. 1 / Kozlowski Thm 1.1 citations, the `hdeg`-redundancy
+   note, retained deviations, and the B11a/`hnorm` instantiation note); delete the draft
+   section from `TraceForm.lean`; `Axioms.lean` gains `public import GQ2.TraceForm` (and
+   transitively `StiefelWhitney`).
+2. Parametrize `GQ2/EvensKahnDerived.lean`: its theorem takes the statement as a hypothesis
+   `hrsw : ∀ …` (the file cannot import the axiom file); `Foundations/Axioms.lean` then defines
+   `theorem evensKahn_dyadic … := evensKahn_dyadic_of_rsw relativeStiefelWhitney_dyadic …` with
+   the statement **byte-identical** to today's axiom.
+3. Same commit: `AxiomLedger.bAxioms` B9 ↦ `GQ2.relativeStiefelWhitney_dyadic`;
+   `scripts/check_axioms.sh` `EXPECTED_AXIOMS` swap; `formalization.yaml` axiom list + the B9
+   `literature_dependencies` line; check whether `Challenge.lean` / `comparator-config.json`
+   pin the axiom-name list and update if so.
+4. Gates before merge: `lake build` green; `lake env lean GQ2/AxiomLedger.lean` — certificate
+   shows B9 = `relativeStiefelWhitney_dyadic`, ALARM empty, gap map empty;
+   `scripts/check_axioms.sh` passes; zero sorries anywhere on the branch.
+5. Merge `b9a` → `master` (board copies reconcile to this file), then T6 docs sweep.
 
 ## Ticket briefs
 
@@ -39,9 +66,16 @@ recording the N1 design choice (mathlib `QuadraticForm` vs light structure) and 
 exact statement for owner review.  Do not touch existing files.
 
 **T2/T3/T4** — fill the sorried skeletons per plan nodes N3/N2/N4; disjoint files as listed;
-commit per green file.
+commit per green file.  T2 addendum (from the T0 recon): the finrank-2 route needs
+`exists_sqrt_generator` and `fixingSubgroup_subgroupOf_eq_stabilizer`, currently **`private`** in
+`GQ2/KummerSurjectivity.lean` — T2's ownership is extended to that file for the sole change of
+removing those two `private` keywords (no other edits there); mathlib's
+`X_pow_sub_C_irreducible_of_prime_pow` excludes `p = 2`, so do not chase that route.
+T4 rescope (2026-07-24 dispatch): T4 = new file `GQ2/EvensKahnDerived.lean` proving the verbatim
+old `evensKahn_dyadic` statement from the draft `relativeStiefelWhitney_dyadic` + the T2/T3
+lemma statements (no `sorry` of its own); N4 glue folds in only as needed.
 
-**T5** — gated; do not start without the owner's explicit statement sign-off recorded here.
+**T5** — gate cleared (see the sign-off section above); execute the checklist.
 
 **T6** — align every doc with the new census entry (label B9 ↦ new declaration name), including
 the §C App-D rows for the B11a co-dependence noted in plan node N2.
