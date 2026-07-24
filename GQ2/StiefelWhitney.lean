@@ -37,15 +37,17 @@ No bespoke light structure is needed.
   base-general Kummer classes `kummerClassK` of `GQ2/EvensKahn.lean`; junk value `0` when no
   unit diagonalization exists (the repository's junk-value convention, cf. `IsDemushkin`).
 
-## Sorried statements (nodes N2 of the plan; ticket T3)
+## The invariance layer (node N2 of the plan; proved by ticket T3, 2026-07-24)
 
-* `exists_isDiagonalization` — a nondegenerate binary form has a unit diagonalization.
-* `swOne_well_defined` — degree-1 (discriminant) invariance across diagonalizations.
-* `swTwo_well_defined` — degree-2 (Delzant/Hasse) invariance.  Its cup-relation inputs are the
-  B11a norm criterion; since this file must stay strictly upstream of
-  `GQ2/Foundations/Axioms.lean` (the flipped axiom will live there and import this file), the
-  criterion enters as the explicit hypothesis `hnorm`, instantiated by
-  `hilbertSymbol_normCriterion_finiteDyadic` at the flip site (plan node N2 and risk R4).
+* `exists_isDiagonalization` — a nondegenerate binary form has a unit diagonalization (proved).
+* `swOne_well_defined` — degree-1 (discriminant) invariance across diagonalizations (proved via
+  an exact Brahmagupta identity `x'y' = xy·(ad−bc)²` extracted from the isometry).
+* `swTwo_well_defined` — degree-2 (Delzant/Hasse) invariance (proved: representation lemma +
+  a single Steinberg instance).  Its cup-relation input is the B11a norm criterion; since this
+  file is strictly upstream of `GQ2/Foundations/Axioms.lean` (the B9 axiom lives there and
+  imports this file), the criterion enters as the explicit hypothesis `hnorm`, instantiated by
+  `hilbertSymbol_normCriterion_finiteDyadic` at the flip site (plan node N2; owner decision Q2).
+  All three are sorry-free with `#print axioms` = the standard three.
 
 The evaluation lemmas `swOne_diag`/`swTwo_diag` and the isometry-class congruences
 `swOne_congr`/`swTwo_congr` are proved here from the two invariance statements.

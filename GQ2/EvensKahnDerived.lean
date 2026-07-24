@@ -47,16 +47,16 @@ T1 pinned the diagonalization weights of `traceFormOne_isDiagonalization` (`⟨2
 B9 normal form, so `swOne_diag`/`swTwo_diag` land on the B9 `kummerClassK` arguments syntactically;
 the two components close by `rw` with no `(↥k)ˣ` associativity/commutativity bridging.
 
-## Imports and `sorry` status
+## Imports and axiom status
 
 Imports are strictly upstream of `GQ2/Foundations/Axioms.lean` (`GQ2.TraceForm`,
 `GQ2.StiefelWhitney` and their closure supply the B9 vocabulary
-`kummerClassK`/`corH1`/`evensNormH2`/`twoUnit` from `GQ2.EvensKahn`).  This file has **no** `sorry`
-and **no** `axiom`.  `evensKahn_dyadic_of_rsw` depends only on the sorried Lemma 6.16
-diagonalizations and Delzant well-definedness (`GQ2/TraceForm.lean`, `GQ2/StiefelWhitney.lean`;
-tickets T2/T3); `evensKahn_dyadic_derived` additionally uses the sorried draft
-`relativeStiefelWhitney_dyadic`.  Those sorries are reported by `lake` against *their* files, never
-this one.
+`kummerClassK`/`corH1`/`evensNormH2`/`twoUnit` from `GQ2.EvensKahn`).  This file has **no**
+`sorry` and **no** `axiom`, and since the 2026-07-24 flip its dependencies are sorry-free too:
+the Lemma 6.16 diagonalizations (`GQ2/TraceForm.lean`, T2) and the Delzant well-definedness
+(`GQ2/StiefelWhitney.lean`, T3) are proved, so `evensKahn_dyadic_of_rsw` carries only the
+standard three axioms — the B-axioms enter downstream, when `Foundations/Axioms.lean`
+instantiates `hrsw` and `hnorm`.
 
 ## Citations
 
