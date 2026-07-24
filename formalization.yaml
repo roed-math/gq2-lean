@@ -40,7 +40,7 @@ status:
     - "GQ2.localReciprocity"                                        # B5
     - "GQ2.tateDualityAt"                                           # B6
     - "GQ2.peripheralCyclotomicAction"                              # B8
-    - "GQ2.evensKahn_dyadic"                                        # B9
+    - "GQ2.relativeStiefelWhitney_dyadic"                                        # B9
     - "GQ2.tameQuotient"                                            # B10
     - "GQ2.hilbertSymbol_normCriterion_finiteDyadic"                # B11a
   main_results:
@@ -57,7 +57,7 @@ status:
         - "GQ2.localReciprocity"
         - "GQ2.tateDualityAt"
         - "GQ2.peripheralCyclotomicAction"
-        - "GQ2.evensKahn_dyadic"
+        - "GQ2.relativeStiefelWhitney_dyadic"
         - "GQ2.tameQuotient"
         - "GQ2.hilbertSymbol_normCriterion_finiteDyadic"
       comparator_config: "comparator-config.json"
@@ -74,7 +74,7 @@ status:
           source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
         - statement: "peripheral cyclotomic action (B8)"
           source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
-        - statement: "Evens-Kahn norm/restriction formula, dyadic case (B9)"
+        - statement: "relative Stiefel-Whitney identity (Evens-Kahn/Kozlowski), dyadic case (B9)"
           source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
         - statement: "oriented tame quotient structure of G_Q2 (B10)"
           source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"

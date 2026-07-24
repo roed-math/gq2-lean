@@ -46,7 +46,7 @@ def bAxioms : List (Name × String) :=
   , (``GQ2.tateDualityAt,                                         "B6")
   , (``GQ2.Foundations.absGalQ2_localEulerCharacteristic,         "B7")
   , (``GQ2.peripheralCyclotomicAction,                            "B8")
-  , (``GQ2.evensKahn_dyadic,                                      "B9")
+  , (``GQ2.relativeStiefelWhitney_dyadic,                         "B9")
   , (``GQ2.tameQuotient,                                          "B10")
   , (``GQ2.hilbertSymbol_normCriterion_finiteDyadic,              "B11a") ]
 
