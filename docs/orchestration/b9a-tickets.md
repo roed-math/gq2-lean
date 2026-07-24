@@ -7,7 +7,7 @@ dispatch; each ticket commits on green and updates its row here.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| T0 | mathlib QuadraticForm API recon | opus | none (read-only report) | — | dispatched 2026-07-24 |
+| T0 | mathlib QuadraticForm API recon | opus | none (read-only report) | — | **done 2026-07-24** → `b9a-t0-recon.md` |
 | T1 | axiom statement design + skeletons | fable | `GQ2/StiefelWhitney.lean`, `GQ2/TraceForm.lean` (new), design memo | T0 report | dispatched 2026-07-24 |
 | T2 | trace-form diagonalizations (N3) | opus | `GQ2/TraceForm.lean` | T1 | pending |
 | T3 | Delzant invariance (N2) | fable | `GQ2/StiefelWhitney.lean` | T1 | pending |
@@ -39,7 +39,11 @@ recording the N1 design choice (mathlib `QuadraticForm` vs light structure) and 
 exact statement for owner review.  Do not touch existing files.
 
 **T2/T3/T4** — fill the sorried skeletons per plan nodes N3/N2/N4; disjoint files as listed;
-commit per green file.
+commit per green file.  T2 addendum (from the T0 recon): the finrank-2 route needs
+`exists_sqrt_generator` and `fixingSubgroup_subgroupOf_eq_stabilizer`, currently **`private`** in
+`GQ2/KummerSurjectivity.lean` — T2's ownership is extended to that file for the sole change of
+removing those two `private` keywords (no other edits there); mathlib's
+`X_pow_sub_C_irreducible_of_prime_pow` excludes `p = 2`, so do not chase that route.
 
 **T5** — gated; do not start without the owner's explicit statement sign-off recorded here.
 
