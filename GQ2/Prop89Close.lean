@@ -191,6 +191,181 @@ theorem half139_gammaA
 
 end Half139GammaA
 
+/-! ## The source-generic layer (the SourceData seam, R30)
+
+`prop_8_9` with the candidate slot abstracted: the source enters only through its boundary
+map `b` and the supply obligations (the `GQ2.SourceData` field list — t.f.g.,
+`#Hom(Γ,𝔽₂) = 8`, `#H²(Γ,𝔽₂) = 2`, the (136) stage, the Lemma 8.6 / `M`-lift leaves, the
+four (140) residues, and the Gauss-`Z` residues at the shared `G0`).  The `G_ℚ₂` slot stays
+pinned to `B` (`lemma_8_2_local`/`stageR136_local`/`half139_local`/`phase140_local`).  The
+`Γ_A` capstone `prop_8_9` below is re-derived from this statement at the untouched `_gammaA`
+supply lemmas; R32 instantiates the same statement at `sourceR` (`GQ2/SourceData.lean`
+bundles the obligations). -/
+
+section SourceGeneric
+
+variable {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+  {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+
+/-- **The (139) half count from the source leaves** (the SourceData seam): the exact
+`RecursionInputs.half139` shape for an abstract source, from the source's Lemma 8.6
+half-torsor obligation (`hlem86`, ⟦lem-radicaledge⟧ — `lemma_8_6_gammaA`'s ∀-shape) and its
+`M`-lift count obligation (`hMcount`, props 5.15/5.16 — `liftsOver_card_gammaA`'s shape),
+assembled through the source-generic `half139_via_radData` exactly as in the `Γ_A` trio
+above. -/
+theorem half139_of_leaves
+    (RF : RecursionFrame T Blk) (b : ContinuousMonoidHom Γ ↥boundarySubgroup)
+    (F : BoundaryFrame H E) (En : RF.Enrichment)
+    (hfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (hlem86 : ∀ {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+      (D : RadicalCoverData Bg), D.NoDescent →
+      ∀ (ρ : ContinuousMonoidHom Γ (Bg ⧸ D.M)), Function.Surjective ρ →
+        2 * Nat.card {f : MLifts D ρ // f.Central} = Nat.card (MLifts D ρ))
+    (hMcount : ∀ ρ : BoundaryLifts b F RF.TC,
+      Nat.card (RF.LiftsOver b F ρ) = (Nat.card ↥RF.MB) ^ 2)
+    (l : RF.DR) (h : l ≠ RF.zeroDR)
+    (hedge : ¬∃ N : Subgroup (RF.scalarCover l h).cover, N.Normal ∧
+      N.map (RF.scalarCover l h).p = RF.TBsub ∧ (RF.scalarCover l h).z ∉ N) :
+    2 * RF.zBC b F l h = (Nat.card ↥RF.MB) ^ 2 * exactImageCount b F RF.TC :=
+  half139_via_radData RF b F En l h hfg
+    (fun ρ => hlem86 (En.radData l h) hedge (RF.rhoPrime b F (En.radData l h) rfl ρ)
+      (rhoPrime_surjective RF b F (En.radData l h) rfl ρ))
+    (fun ρ => (Nat.card_congr (RF.liftsOver_equiv b F (En.radData l h) rfl ρ)).symm.trans
+      (hMcount ρ))
+
+end SourceGeneric
+
+/-- **Proposition 8.9 over an abstract source** (the SourceData seam): `prop_8_9` with the
+candidate slot abstracted over `(Γ, b)` and the supply obligations taken as hypotheses, in
+the exact shapes of the `_gammaA` supply lemmas (see the section docstring above).  Proof =
+the Prop. 8.9 assembly verbatim, with each `_gammaA` citation replaced by the corresponding
+obligation. -/
+theorem prop_8_9_of_source (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
+    [DiscreteTopology Y] [Finite Y] (T : MarkedTarget H E Y)
+    (Blk : SectionSeven.MinimalBlock T.LY) (hE2 : ∀ e : E, e ^ 2 = 1)
+    (En : (blockFrameImpl T Blk hE2).Enrichment) (F : BoundaryFrame H E)
+    {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+    [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+    [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup)
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (hfgS : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (hscalarS : Nat.card (ContinuousMonoidHom Γ (Multiplicative (ZMod 2))) = 8)
+    (hH2S : Nat.card (H2 Γ (ZMod 2)) = 2)
+    (hstageS : (∀ r ∈ Blk.frattiniK, ∀ k ∈ Blk.K, r * k = k * r) →
+      (∀ r ∈ Blk.frattiniK, r * r = 1) →
+      (Nat.card (blockFrameImpl T Blk hE2).DR : ℤ) * exactImageCount b F T
+        = (blockFrameImpl T Blk hE2).zR * ∑ᶠ l : (blockFrameImpl T Blk hE2).DR,
+            (2 * ((blockFrameImpl T Blk hE2).mB b F l : ℤ)
+              - exactImageCount b F (blockFrameImpl T Blk hE2).TB))
+    (hlem86S : ∀ {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+      (D : RadicalCoverData Bg), D.NoDescent →
+      ∀ (ρ : ContinuousMonoidHom Γ (Bg ⧸ D.M)), Function.Surjective ρ →
+        2 * Nat.card {f : MLifts D ρ // f.Central} = Nat.card (MLifts D ρ))
+    (hMcountS : ∀ ρ : BoundaryLifts b F (blockFrameImpl T Blk hE2).TC,
+      Nat.card ((blockFrameImpl T Blk hE2).LiftsOver b F ρ)
+        = (Nat.card ↥(blockFrameImpl T Blk hE2).MB) ^ 2)
+    (htcocS : ∀ (l : (blockFrameImpl T Blk hE2).DR)
+      (h : l ≠ (blockFrameImpl T Blk hE2).zeroDR)
+      (ρ : BoundaryLifts b F (blockFrameImpl T Blk hE2).TC),
+      Nat.card (TCocycle (En.radData l h)
+          ((blockFrameImpl T Blk hE2).rhoPrime b F (En.radData l h) rfl ρ))
+        = Nat.card (Additive ↥(En.radData l h).T) ^ 2
+          * Nat.card (fixedPts ((blockFrameImpl T Blk hE2).YB ⧸ (En.radData l h).M)
+              (ElemDual (Additive ↥(En.radData l h).T))))
+    (hsepS : ∀ (l : (blockFrameImpl T Blk hE2).DR)
+      (h : l ≠ (blockFrameImpl T Blk hE2).zeroDR) (Dsc : Descent (En.radData l h))
+      (ρ : BoundaryLifts b F (blockFrameImpl T Blk hE2).TC)
+      (c : VCocycle (En.descData l h)
+        ((blockFrameImpl T Blk hE2).rhoPrime b F (En.radData l h) rfl ρ)),
+      (∀ χ : ↥(TCharC (En.radData l h)),
+        betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c = 0) →
+        TLiftable (descSigma_spec En l h Dsc) c)
+    (hpartialS : ∀ (l : (blockFrameImpl T Blk hE2).DR)
+      (h : l ≠ (blockFrameImpl T Blk hE2).zeroDR) (Dsc : Descent (En.radData l h))
+      (ρ : BoundaryLifts b F (blockFrameImpl T Blk hE2).TC)
+      (χ : ↥(TCharC (En.radData l h))), χ ≠ 0 →
+      ∃ c : VCocycle (En.descData l h)
+        ((blockFrameImpl T Blk hE2).rhoPrime b F (En.radData l h) rfl ρ),
+        betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c
+          ≠ betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ
+              (0 : VCocycle (En.descData l h)
+                ((blockFrameImpl T Blk hE2).rhoPrime b F (En.radData l h) rfl ρ)))
+    (hZcardS : ∀ (l : (blockFrameImpl T Blk hE2).DR)
+      (h : l ≠ (blockFrameImpl T Blk hE2).zeroDR)
+      (ρ : BoundaryLifts b F (blockFrameImpl T Blk hE2).TC),
+      Nat.card (VCocycle (En.descData l h)
+          ((blockFrameImpl T Blk hE2).rhoPrime b F (En.radData l h) rfl ρ))
+        = Nat.card En.Vmod * Nat.card En.Vmod)
+    (hfgF : ∃ s : Finset AbsGalQ2, (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤)
+    (hheadS : Function.Surjective (fun γ : Γ => (F.frameMap (b γ)).1))
+    (hheadF : Function.Surjective (fun γ : AbsGalQ2 => (F.frameMap (B.bF γ)).1))
+    (hsimple : ∀ W : AddSubgroup En.Vmod,
+      (∀ g : (blockFrameImpl T Blk hE2).YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hVne : ∃ v : En.Vmod, v ≠ 0)
+    (hnt : ∃ (g : (blockFrameImpl T Blk hE2).YC) (v : En.Vmod), g • v ≠ v)
+    (G0 : ℤ)
+    (hGaussZS : ∀ (l : (blockFrameImpl T Blk hE2).DR)
+      (h : l ≠ (blockFrameImpl T Blk hE2).zeroDR), GaussZResidue b F En l h G0)
+    (hGaussZF : ∀ (l : (blockFrameImpl T Blk hE2).DR)
+      (h : l ≠ (blockFrameImpl T Blk hE2).zeroDR), GaussZResidue B.bF F En l h G0) :
+    ∃ (μ : ℕ) (G0' : ℤ) (DT : Type) (_ : Fintype DT)
+      (phase : (l : (blockFrameImpl T Blk hE2).DR) →
+        l ≠ (blockFrameImpl T Blk hE2).zeroDR → DT →
+          CentralCover (blockFrameImpl T Blk hE2).YC),
+      0 < Nat.card DT ∧
+        ClosedRecursion (blockFrameImpl T Blk hE2) b F μ G0' DT phase ∧
+          ClosedRecursion (blockFrameImpl T Blk hE2) B.bF F μ G0' DT phase := by
+  classical
+  -- the block's R-layer facts, discharged internally (source-independent: `lemma_7_2` at
+  -- `π := T.piY`, `cH := F.alpha`)
+  obtain ⟨hRK, hR2, -⟩ :=
+    lemma_7_2 T.piY T.piY_surjective T.ker_piY F.alpha F.alpha_surjective Blk
+  by_cases hex : ∃ l : (blockFrameImpl T Blk hE2).DR, l ≠ (blockFrameImpl T Blk hE2).zeroDR
+  · -- some `λ ≠ 0` exists: share `DT := (T^∨)^C`, read at a reference `λ₀`
+    obtain ⟨l₀, h₀⟩ := hex
+    haveI : Fintype ↥(TCharC (En.radData l₀ h₀)) := Fintype.ofFinite _
+    refine ⟨Nat.card En.Vmod * muZero En l₀ h₀, G0, ↥(TCharC (En.radData l₀ h₀)),
+      inferInstance, phaseFamily En l₀ h₀, card_TCharC_pos En l₀ h₀, ?_, ?_⟩
+    · -- the source recursion
+      refine prop_8_9_aux _ hfgS b F hscalarS hheadS _ _ _ _ ?_
+      refine ⟨hstageS hRK hR2, fun l h hedge => ?_, fun l h hN => ?_⟩
+      · exact half139_of_leaves _ b F En hfgS hlem86S hMcountS l h hedge
+      · -- (140) for the source: the four residues through the source-generic assembly,
+        -- at the unpacked descent + the `dif_pos`-reduction
+        have h140 := phase140_from_residues b F En l h (descentOf En l h hN)
+          htriv hfgS hH2S (muZero En l₀ h₀) G0
+          (fun ρ => (tcocycle_card_l_indep _ b F En l h l₀ h₀ ρ).trans (htcocS l₀ h₀ ρ))
+          (fun ρ => hsepS l h (descentOf En l h hN) ρ)
+          (fun ρ => hpartialS l h (descentOf En l h hN) ρ)
+          (fun ρ => hZcardS l h ρ)
+          (hGaussZS l h)
+        simp only [phaseFamily_pos En l₀ h₀ l h hN]
+        exact h140
+    · -- the `G_ℚ₂` recursion
+      refine prop_8_9_aux _ hfgF B.bF F (lemma_8_2_local B) hheadF _ _ _ _ ?_
+      refine ⟨RStageLocal.stageR136_local hE2 hRK hR2 hfgF B.bF F, fun l h hedge => ?_,
+        fun l h hN => ?_⟩
+      · exact half139_local _ B.bF F En hfgF l h hedge
+      · -- the proved local (140) at the unpacked descent + the `dif_pos`-reduction
+        have h140 := phase140_local B.bF F En l h (descentOf En l h hN) hfgF
+          (muZero En l₀ h₀) G0 hsimple hVne hnt
+          (fun ρ => (tcocycle_card_l_indep _ B.bF F En l h l₀ h₀ ρ).trans
+            (tcocycle_card_local B.bF F En l₀ h₀ ρ))
+          (hGaussZF l h)
+        simp only [phaseFamily_pos En l₀ h₀ l h hN]
+        exact h140
+  · -- no nonzero `λ`: (137)–(140) are vacuous, and only the two (136) stages are live
+    refine ⟨1, G0, PUnit, inferInstance, fun l h _ => absurd ⟨l, h⟩ hex, by simp, ?_, ?_⟩
+    · exact prop_8_9_aux _ hfgS b F hscalarS hheadS _ _ _ _
+        ⟨hstageS hRK hR2, fun l h => absurd ⟨l, h⟩ hex, fun l h => absurd ⟨l, h⟩ hex⟩
+    · exact prop_8_9_aux _ hfgF B.bF F (lemma_8_2_local B) hheadF _ _ _ _
+        ⟨RStageLocal.stageR136_local hE2 hRK hR2 hfgF B.bF F,
+          fun l h => absurd ⟨l, h⟩ hex, fun l h => absurd ⟨l, h⟩ hex⟩
+
 /-- **Proposition 8.9 (closed exact-image recursion)**: for the concrete block frame of a
 boundary-framed target with a §7 simple-head block, there are **shared** data
 `(μ, G⁰, D_T)` and a **per-`λ`** phase family such that the boxed system (136)–(142) holds
@@ -224,61 +399,19 @@ theorem prop_8_9 (B : BoundaryMaps) {Y : Type} [Group Y] [TopologicalSpace Y]
       0 < Nat.card DT ∧
         ClosedRecursion (blockFrameImpl T Blk hE2) B.bA F μ G0' DT phase ∧
           ClosedRecursion (blockFrameImpl T Blk hE2) B.bF F μ G0' DT phase := by
-  classical
-  -- the block's R-layer facts, discharged internally (plan-doc ledger: `lemma_7_2` at
-  -- `π := T.piY`, `cH := F.alpha`)
-  obtain ⟨hRK, hR2, -⟩ :=
-    lemma_7_2 T.piY T.piY_surjective T.ker_piY F.alpha F.alpha_surjective Blk
-  -- `Γ_A` is t.f.g. (internal)
-  have hfgA : ∃ s : Finset GammaA,
-      (Subgroup.closure (s : Set GammaA)).topologicalClosure = ⊤ :=
-    gammaA_topologicallyFinitelyGenerated
-  by_cases hex : ∃ l : (blockFrameImpl T Blk hE2).DR, l ≠ (blockFrameImpl T Blk hE2).zeroDR
-  · -- some `λ ≠ 0` exists: share `DT := (T^∨)^C`, read at a reference `λ₀`
-    obtain ⟨l₀, h₀⟩ := hex
-    haveI : Fintype ↥(TCharC (En.radData l₀ h₀)) := Fintype.ofFinite _
-    refine ⟨Nat.card En.Vmod * muZero En l₀ h₀, G0, ↥(TCharC (En.radData l₀ h₀)),
-      inferInstance, phaseFamily En l₀ h₀, card_TCharC_pos En l₀ h₀, ?_, ?_⟩
-    · -- the `Γ_A` recursion
-      refine prop_8_9_aux _ hfgA B.bA F lemma_8_2_gammaA hheadA _ _ _ _ ?_
-      refine ⟨CardH2GammaA.stageR136_gammaA hE2 hRK hR2 B.bA F, fun l h hedge => ?_,
-        fun l h hN => ?_⟩
-      · exact half139_gammaA _ B.bA F En hfgA l h hedge
-      · -- (140) for `Γ_A`: the four the Prop. 8.9 assembly residues through the source-generic assembly
-        -- (the Prop. 8.9 assembly), at the unpacked descent + the `dif_pos`-reduction — the exact mirror
-        -- of the local branch below
-        have h140 := phase140_from_residues B.bA F En l h (descentOf En l h hN)
-          RStageGammaA.htriv_gammaA hfgA CardH2GammaA.card_H2_gammaA
-          (muZero En l₀ h₀) G0
-          (fun ρ => (tcocycle_card_l_indep _ B.bA F En l h l₀ h₀ ρ).trans
-            (Phase140GammaA.tcocycle_card_gammaA B.bA F En l₀ h₀ ρ))
-          (fun ρ => Phase140GammaA.hsep_gammaA B.bA F En l h (descentOf En l h hN) ρ)
-          (fun ρ => Phase140GammaA.hpartial_gammaA B.bA F En l h (descentOf En l h hN) ρ)
-          (fun ρ => Phase140GammaA.hZcard_gammaA B.bA F En l h hsimple hVne hnt ρ)
-          (hGaussZA l h)
-        simp only [phaseFamily_pos En l₀ h₀ l h hN]
-        exact h140
-    · -- the `G_ℚ₂` recursion
-      refine prop_8_9_aux _ hfgF B.bF F (lemma_8_2_local B) hheadF _ _ _ _ ?_
-      refine ⟨RStageLocal.stageR136_local hE2 hRK hR2 hfgF B.bF F, fun l h hedge => ?_,
-        fun l h hN => ?_⟩
-      · exact half139_local _ B.bF F En hfgF l h hedge
-      · -- the proved local (140) at the unpacked descent + the `dif_pos`-reduction
-        have h140 := phase140_local B.bF F En l h (descentOf En l h hN) hfgF
-          (muZero En l₀ h₀) G0 hsimple hVne hnt
-          (fun ρ => (tcocycle_card_l_indep _ B.bF F En l h l₀ h₀ ρ).trans
-            (tcocycle_card_local B.bF F En l₀ h₀ ρ))
-          (hGaussZF l h)
-        simp only [phaseFamily_pos En l₀ h₀ l h hN]
-        exact h140
-  · -- no nonzero `λ`: (137)–(140) are vacuous, and only the two (136) stages are live
-    refine ⟨1, G0, PUnit, inferInstance, fun l h _ => absurd ⟨l, h⟩ hex, by simp, ?_, ?_⟩
-    · exact prop_8_9_aux _ hfgA B.bA F lemma_8_2_gammaA hheadA _ _ _ _
-        ⟨CardH2GammaA.stageR136_gammaA hE2 hRK hR2 B.bA F,
-          fun l h => absurd ⟨l, h⟩ hex, fun l h => absurd ⟨l, h⟩ hex⟩
-    · exact prop_8_9_aux _ hfgF B.bF F (lemma_8_2_local B) hheadF _ _ _ _
-        ⟨RStageLocal.stageR136_local hE2 hRK hR2 hfgF B.bF F,
-          fun l h => absurd ⟨l, h⟩ hex, fun l h => absurd ⟨l, h⟩ hex⟩
+  -- the same-name flip (the SourceData refactor): the assembly now lives in
+  -- `prop_8_9_of_source`; this capstone re-derives the byte-identical statement by feeding
+  -- the untouched `Γ_A` supply lemmas into the abstract source slot.
+  exact prop_8_9_of_source B T Blk hE2 En F B.bA RStageGammaA.htriv_gammaA
+    gammaA_topologicallyFinitelyGenerated lemma_8_2_gammaA CardH2GammaA.card_H2_gammaA
+    (fun hRK hR2 => CardH2GammaA.stageR136_gammaA hE2 hRK hR2 B.bA F)
+    (fun D hedge ρ hρ => lemma_8_6_gammaA D hedge ρ hρ)
+    ((blockFrameImpl T Blk hE2).liftsOver_card_gammaA B.bA F)
+    (fun l h ρ => Phase140GammaA.tcocycle_card_gammaA B.bA F En l h ρ)
+    (fun l h Dsc ρ c hc => Phase140GammaA.hsep_gammaA B.bA F En l h Dsc ρ c hc)
+    (fun l h Dsc ρ χ hχ => Phase140GammaA.hpartial_gammaA B.bA F En l h Dsc ρ χ hχ)
+    (fun l h ρ => Phase140GammaA.hZcard_gammaA B.bA F En l h hsimple hVne hnt ρ)
+    hfgF hheadA hheadF hsimple hVne hnt G0 hGaussZA hGaussZF
 
 end SectionEight
 
