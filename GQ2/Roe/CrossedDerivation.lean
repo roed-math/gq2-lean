@@ -13,7 +13,10 @@ public import GQ2.FoxHeisenberg.Basic
 /-!
 # The χ-twisted crossed-derivation calculus for `r₂`  (Roe note §3.2, ⟦prop:orientation⟧)
 
-**Skeleton (ticket R7; fills are R9/R11).**  Statements are final; proofs may be `sorry`.
+**Statements final (ticket R7); proofs filled (ticket R9)** — complete except
+`isLabuteOrientation_ext`, whose density step awaits ticket R8's `dr_hom_ext`
+(`GQ2/Roe/DRAbelianization.lean`, in flight and uncommitted at R9 fill time; the finished
+three-line proof is recorded in a comment at the `sorry`).
 
 Labute's characterization of the canonical Demushkin orientation ([Labute], Théorème 4; note
 Prop. 3.3 ⟦prop:orientation⟧): for a character `χ` of the free pro-2 group, a **crossed
@@ -129,7 +132,44 @@ Fill (R9): expand via `conjP_wordLift`/`commP_wordLift`, `WordLift.mul_u`/`pow_u
 theorem drWord_wordLift (S X Y : ℤ_[2]ˣ) (Ds Dx Dy : ℤ_[2]) :
     drWord (⟨Ds, S⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ⟨Dx, X⟩ ⟨Dy, Y⟩
       = ⟨csR S X Y * Ds + cxR S X * Dx + cyR S X Y * Dy, (X ^ 4)⁻¹ * Y ^ 2⟩ := by
-  sorry
+  have h3 : (⟨Dx, X⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ^ 3 = ⟨Dx, X⟩ * ⟨Dx, X⟩ * ⟨Dx, X⟩ := by
+    rw [pow_succ, pow_succ, pow_one]
+  have h2 : (⟨Dy, Y⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ^ 2 = ⟨Dy, Y⟩ * ⟨Dy, Y⟩ := pow_two _
+  ext
+  · simp only [drWord, h3, h2, conjP, commP, csR, cxR, cyR, WordLift.mul_u, WordLift.mul_g,
+      WordLift.inv_u, WordLift.inv_g, Units.smul_def, smul_eq_mul, mul_inv_rev, inv_inv,
+      Units.val_mul]
+    linear_combination
+      (Ds*(↑S : ℤ_[2])*(↑(S⁻¹) : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])^4*(↑(Y⁻¹) : ℤ_[2])^2
+        - Ds*(↑S : ℤ_[2])*(↑(S⁻¹) : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])^3*(↑(Y⁻¹) : ℤ_[2])^2
+        + Ds*(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])^4*(↑(Y⁻¹) : ℤ_[2])^2
+        - Ds*(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])^3*(↑(Y⁻¹) : ℤ_[2])^2
+        + Ds*(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])^2*(↑(Y⁻¹) : ℤ_[2])^2
+        - Ds*(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])^2*(↑(Y⁻¹) : ℤ_[2])
+        - Dx*(↑(X⁻¹) : ℤ_[2])^4 - Dx*(↑(X⁻¹) : ℤ_[2])^3 - Dx*(↑(X⁻¹) : ℤ_[2])^2
+        + Dy*(↑S : ℤ_[2])*(↑(S⁻¹) : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])^3*(↑(Y⁻¹) : ℤ_[2])^2
+        + Dy*(↑S : ℤ_[2])*(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])^2*(↑(Y⁻¹) : ℤ_[2])^2
+        + Dy*(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])^3*(↑(Y⁻¹) : ℤ_[2])^2
+        - Dy*(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])^2*(↑(Y⁻¹) : ℤ_[2])^2
+        + Dy*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])^2*(↑(Y⁻¹) : ℤ_[2])^2
+        - Dy*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])^2*(↑(Y⁻¹) : ℤ_[2])
+        + Dy*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2]) + Dy*(↑(X⁻¹) : ℤ_[2])^4) * Units.inv_mul S
+        + (Ds*(↑(S⁻¹) : ℤ_[2])) * Units.inv_mul X
+        + (Ds*(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])^3*(↑(Y⁻¹) : ℤ_[2])
+        - Ds*(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])^2*(↑(Y⁻¹) : ℤ_[2])
+        + Ds*(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])^2
+        + Ds*(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])*(↑(Y⁻¹) : ℤ_[2])
+        - 2*Ds*(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])
+        + Ds*(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4
+        + Dy*(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])^2*(↑(Y⁻¹) : ℤ_[2])
+        - Dy*(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])*(↑(Y⁻¹) : ℤ_[2])
+        + Dy*(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])
+        - Dy*(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4
+        + Dy*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])*(↑(Y⁻¹) : ℤ_[2]) - Dy*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])
+        + Dy*(↑(X⁻¹) : ℤ_[2])^4) * Units.inv_mul Y
+  · have hg : (drWord (⟨Ds, S⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ⟨Dx, X⟩ ⟨Dy, Y⟩).g = drWord S X Y := by
+      simp only [drWord, conjP, commP, WordLift.mul_g, WordLift.inv_g, WordLift.pow_g]
+    rw [hg, drWord_comm]
 
 /-! ## The Labute descent condition -/
 
@@ -160,13 +200,55 @@ Fill (R9): rewrite by `drWord_wordLift`; forward direction plugs the three coord
 theorem isLabuteOrientationDatum_iff (S X Y : ℤ_[2]ˣ) :
     IsLabuteOrientationDatum S X Y ↔
       (Y ^ 2 = X ^ 4 ∧ cxR S X = 0 ∧ csR S X Y = 0 ∧ cyR S X Y = 0) := by
-  sorry
+  constructor
+  · intro h
+    refine ⟨?_, ?_, ?_, ?_⟩
+    · have hg := congrArg WordLift.g (h 0 0 0)
+      rw [drWord_wordLift] at hg
+      have hg' : (X ^ 4)⁻¹ * Y ^ 2 = 1 := hg
+      exact (inv_mul_eq_one.mp hg').symm
+    · have hu := congrArg WordLift.u (h 0 1 0)
+      rw [drWord_wordLift] at hu
+      have hu' : csR S X Y * 0 + cxR S X * 1 + cyR S X Y * 0 = 0 := hu
+      simpa using hu'
+    · have hu := congrArg WordLift.u (h 1 0 0)
+      rw [drWord_wordLift] at hu
+      have hu' : csR S X Y * 1 + cxR S X * 0 + cyR S X Y * 0 = 0 := hu
+      simpa using hu'
+    · have hu := congrArg WordLift.u (h 0 0 1)
+      rw [drWord_wordLift] at hu
+      have hu' : csR S X Y * 0 + cxR S X * 0 + cyR S X Y * 1 = 0 := hu
+      simpa using hu'
+  · rintro ⟨hchar, hx, hs, hy⟩ Ds Dx Dy
+    rw [drWord_wordLift]
+    ext
+    · simp only [hx, hs, hy, zero_mul, add_zero, WordLift.one_u]
+    · simp only [hchar, inv_mul_cancel, WordLift.one_g]
 
 /-! ## Existence and uniqueness of the solution  ⟦eq:orientationvalues⟧
 
 The root facts are consumed as hypotheses whose shapes match ticket R10's planned
 `GQ2/Roe/OrientationRoot.lean` interface (`rootX`/`rootX_spec`, `Sval`/`Sval_spec`,
 uniqueness of the unit root) — see the R7 design memo §R10 for the name map. -/
+
+/-- `z² + z + 1` is odd for **every** `z : ℤ₂` (`z² ≡ z mod 2`), hence nonzero — the
+"the denominator is a unit" input to solving ⟦eq:SfromX⟧ for `S` (here in the ≠ 0 form the
+cancellation steps consume; stated for arbitrary `z`, not just the root). -/
+private lemma sq_add_self_add_one_ne_zero (z : ℤ_[2]) : z ^ 2 + z + 1 ≠ 0 := by
+  intro h0
+  have h1 := congrArg (PadicInt.toZModPow (p := 2) 1) h0
+  simp only [map_add, map_pow, map_one, map_zero] at h1
+  exact (by decide : ∀ r : ZMod (2 ^ 1), ¬(r ^ 2 + r + 1 = 0)) _ h1
+
+/-- `z² − z − 1` is odd for **every** `z : ℤ₂`, hence nonzero — the "second factor is odd"
+step excluding the `Y = X²` branch in the ⟦prop:orientation⟧ proof (the specialization to the
+Hensel root is R10's `isUnit_sq_sub_self_sub_one_of_odd`; this file keeps the general form to
+stay import-free of the parallel R10 file). -/
+private lemma sq_sub_self_sub_one_ne_zero (z : ℤ_[2]) : z ^ 2 - z - 1 ≠ 0 := by
+  intro h0
+  have h1 := congrArg (PadicInt.toZModPow (p := 2) 1) h0
+  simp only [map_sub, map_pow, map_one, map_zero] at h1
+  exact (by decide : ∀ r : ZMod (2 ^ 1), ¬(r ^ 2 - r - 1 = 0)) _ h1
 
 /-- **Existence** ⟦eq:orientationvalues⟧: given a unit root `X` of `Z³ + 2Z² + 1` (R10's
 `rootX_spec`), the unit `S` with `S·(X²+X+1) = −X³` (R10's `Sval_spec`; the denominator is a
@@ -181,7 +263,46 @@ theorem isLabuteOrientationDatum_of_root (X S Y : ℤ_[2]ˣ)
     (Sval_spec : (↑S : ℤ_[2]) * ((↑X : ℤ_[2]) ^ 2 + (↑X : ℤ_[2]) + 1) = -(↑X : ℤ_[2]) ^ 3)
     (hY : (↑Y : ℤ_[2]) = -(↑X : ℤ_[2]) ^ 2) :
     IsLabuteOrientationDatum S X Y := by
-  sorry
+  -- The Bezout-style consequence `2S = X² + 1` (inverting the odd denominator `X²+X+1`
+  -- through `Sval_spec`, using the cubic): the engine behind "`Cy` is automatic".
+  have h2S : 2 * (↑S : ℤ_[2]) = (↑X : ℤ_[2]) ^ 2 + 1 := by
+    linear_combination
+      (-(↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^3 - (↑(X⁻¹) : ℤ_[2])^3) * Sval_spec
+        + ((↑S : ℤ_[2])*(↑X : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^3
+        + (↑S : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^3) * rootX_spec
+        + (-2*(↑S : ℤ_[2])*(↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^2
+        - 2*(↑S : ℤ_[2])*(↑X : ℤ_[2])*(↑(X⁻¹) : ℤ_[2]) - 2*(↑S : ℤ_[2])
+        + (↑X : ℤ_[2])^4*(↑(X⁻¹) : ℤ_[2])^2 + (↑X : ℤ_[2])^3*(↑(X⁻¹) : ℤ_[2])
+        + (↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^2 + (↑X : ℤ_[2])^2 + (↑X : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])
+        + 1) * Units.inv_mul X
+  refine (isLabuteOrientationDatum_iff S X Y).mpr ⟨?_, ?_, ?_, ?_⟩
+  · refine Units.ext ?_
+    rw [Units.val_pow_eq_pow_val, Units.val_pow_eq_pow_val]
+    linear_combination ((↑Y : ℤ_[2]) - (↑X : ℤ_[2]) ^ 2) * hY
+  · simp only [cxR]
+    linear_combination
+      (-(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4) * Sval_spec + ((↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^4
+        + (↑X : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4 + (↑(X⁻¹) : ℤ_[2])^4) * Units.inv_mul S
+        + ((↑(S⁻¹) : ℤ_[2])*(↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^3
+        + (↑(S⁻¹) : ℤ_[2])*(↑X : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^2 + (↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])
+        + (↑X : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^3 + (↑(X⁻¹) : ℤ_[2])^3
+        + (↑(X⁻¹) : ℤ_[2])^2) * Units.inv_mul X
+  · simp only [csR]
+    linear_combination
+      ((↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4) * rootX_spec
+        + (-(↑(S⁻¹) : ℤ_[2])*(↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^4
+        + (↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])
+        - 2*(↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4) * hY
+        + ((↑(S⁻¹) : ℤ_[2])*(↑X : ℤ_[2])^3*(↑(X⁻¹) : ℤ_[2])^3
+        - (↑(S⁻¹) : ℤ_[2])*(↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^3
+        + (↑(S⁻¹) : ℤ_[2])*(↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^2
+        - (↑(S⁻¹) : ℤ_[2])*(↑X : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^2
+        + (↑(S⁻¹) : ℤ_[2])*(↑X : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])
+        - (↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])) * Units.inv_mul X
+  · simp only [cyR]
+    linear_combination
+      ((↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4) * h2S + ((↑(S⁻¹) : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])^4) * hY
+        + (-2*(↑(X⁻¹) : ℤ_[2])^4) * Units.inv_mul S
 
 /-- **Solution extraction** ⟦eq:orientationvalues⟧: any Labute orientation datum satisfies
 `Y = −X²`, the cubic `X³ + 2X² + 1 = 0`, and `S·(X²+X+1) = −X³` (the multiplicatively cleared
@@ -196,7 +317,74 @@ theorem isLabuteOrientationDatum_solution {S X Y : ℤ_[2]ˣ}
     (↑X : ℤ_[2]) ^ 3 + 2 * (↑X : ℤ_[2]) ^ 2 + 1 = 0 ∧
       (↑Y : ℤ_[2]) = -(↑X : ℤ_[2]) ^ 2 ∧
       (↑S : ℤ_[2]) * ((↑X : ℤ_[2]) ^ 2 + (↑X : ℤ_[2]) + 1) = -(↑X : ℤ_[2]) ^ 3 := by
-  sorry
+  obtain ⟨hchar, hx, hs, hy⟩ := (isLabuteOrientationDatum_iff S X Y).mp h
+  simp only [cxR] at hx
+  simp only [csR] at hs
+  simp only [cyR] at hy
+  -- ⟦eq:SfromX⟧ in cleared form, from ⟦eq:Cx⟧ alone.
+  have hSeq : (↑S : ℤ_[2]) * ((↑X : ℤ_[2]) ^ 2 + (↑X : ℤ_[2]) + 1) = -(↑X : ℤ_[2]) ^ 3 := by
+    linear_combination
+      (-(↑S : ℤ_[2])*(↑X : ℤ_[2])^4) * hx + (-(↑X : ℤ_[2])^4*(↑(X⁻¹) : ℤ_[2])) * Units.inv_mul S
+        + (-(↑S : ℤ_[2])*(↑X : ℤ_[2])^3*(↑(X⁻¹) : ℤ_[2])^3
+        - (↑S : ℤ_[2])*(↑X : ℤ_[2])^3*(↑(X⁻¹) : ℤ_[2])^2
+        - (↑S : ℤ_[2])*(↑X : ℤ_[2])^3*(↑(X⁻¹) : ℤ_[2])
+        - (↑S : ℤ_[2])*(↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^2
+        - (↑S : ℤ_[2])*(↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2]) - (↑S : ℤ_[2])*(↑X : ℤ_[2])^2
+        - (↑S : ℤ_[2])*(↑X : ℤ_[2])*(↑(X⁻¹) : ℤ_[2]) - (↑S : ℤ_[2])*(↑X : ℤ_[2]) - (↑S : ℤ_[2])
+        - (↑X : ℤ_[2])^3) * Units.inv_mul X
+  -- ⟦eq:charrelation⟧ coerced and split: `Y = ±X²`.
+  have hchar' : (↑Y : ℤ_[2]) ^ 2 = (↑X : ℤ_[2]) ^ 4 := by
+    have hv := congrArg Units.val hchar
+    rwa [Units.val_pow_eq_pow_val, Units.val_pow_eq_pow_val] at hv
+  have hsplit : ((↑Y : ℤ_[2]) - (↑X : ℤ_[2]) ^ 2) * ((↑Y : ℤ_[2]) + (↑X : ℤ_[2]) ^ 2) = 0 := by
+    linear_combination hchar'
+  rcases mul_eq_zero.mp hsplit with hY1 | hY2
+  · -- Excluded branch `Y = X²`: ⟦eq:Cs⟧ clears to `(X−1)(X²−X−1) = 0`; the second factor is
+    -- odd, so `X = 1`, and then ⟦eq:Cy⟧'s left side is `2 ≠ 0`.
+    exfalso
+    have hfac : ((↑X : ℤ_[2]) - 1) * ((↑X : ℤ_[2]) ^ 2 - (↑X : ℤ_[2]) - 1) = 0 := by
+      linear_combination
+        ((↑S : ℤ_[2])*(↑X : ℤ_[2])^4) * hs + (-(↑X : ℤ_[2])^2 - (↑Y : ℤ_[2]) + 2) * hY1
+          + ((↑X : ℤ_[2])^5*(↑(X⁻¹) : ℤ_[2]) - (↑X : ℤ_[2])^4*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])^2
+          + 2*(↑X : ℤ_[2])^4*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2]) - (↑X : ℤ_[2])^4*(↑(X⁻¹) : ℤ_[2])^4
+          - (↑X : ℤ_[2])^4*(↑(X⁻¹) : ℤ_[2])) * Units.inv_mul S + ((↑X : ℤ_[2])^4
+          - (↑X : ℤ_[2])^3*(↑(X⁻¹) : ℤ_[2])^3*(↑Y : ℤ_[2])^2
+          + 2*(↑X : ℤ_[2])^3*(↑(X⁻¹) : ℤ_[2])^3*(↑Y : ℤ_[2]) - (↑X : ℤ_[2])^3*(↑(X⁻¹) : ℤ_[2])^3
+          - (↑X : ℤ_[2])^3 - (↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^2*(↑Y : ℤ_[2])^2
+          + 2*(↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^2*(↑Y : ℤ_[2]) - (↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^2
+          - (↑X : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])*(↑Y : ℤ_[2])^2
+          + 2*(↑X : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])*(↑Y : ℤ_[2]) - (↑X : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])
+          - (↑Y : ℤ_[2])^2 + 2*(↑Y : ℤ_[2]) - 1) * Units.inv_mul X
+    rcases mul_eq_zero.mp hfac with hX1 | hbad
+    · have h20 : (2 : ℤ_[2]) = 0 := by
+        linear_combination
+          ((↑X : ℤ_[2])^4) * hy + (-(↑(S⁻¹) : ℤ_[2])*(↑X : ℤ_[2]) - (↑(S⁻¹) : ℤ_[2])) * hX1
+            + (-(↑(S⁻¹) : ℤ_[2])) * hY1
+            + (-(↑(S⁻¹) : ℤ_[2])*(↑X : ℤ_[2])^3*(↑(X⁻¹) : ℤ_[2])^3*(↑Y : ℤ_[2])
+            + (↑(S⁻¹) : ℤ_[2])*(↑X : ℤ_[2])^3*(↑(X⁻¹) : ℤ_[2])^3
+            - (↑(S⁻¹) : ℤ_[2])*(↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^2*(↑Y : ℤ_[2])
+            + (↑(S⁻¹) : ℤ_[2])*(↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^2
+            - (↑(S⁻¹) : ℤ_[2])*(↑X : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])*(↑Y : ℤ_[2])
+            + (↑(S⁻¹) : ℤ_[2])*(↑X : ℤ_[2])*(↑(X⁻¹) : ℤ_[2]) - (↑(S⁻¹) : ℤ_[2])*(↑Y : ℤ_[2])
+            + (↑(S⁻¹) : ℤ_[2]) - 2*(↑X : ℤ_[2])^3*(↑(X⁻¹) : ℤ_[2])^3
+            - 2*(↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^2 - 2*(↑X : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])
+            - 2) * Units.inv_mul X
+      exact two_ne_zero h20
+    · exact sq_sub_self_sub_one_ne_zero _ hbad
+  · -- Branch `Y = −X²`: ⟦eq:Cs⟧ clears to the cubic.
+    refine ⟨?_, by linear_combination hY2, hSeq⟩
+    linear_combination
+      ((↑S : ℤ_[2])*(↑X : ℤ_[2])^4) * hs + ((↑X : ℤ_[2])^2 - (↑Y : ℤ_[2]) + 2) * hY2
+        + ((↑X : ℤ_[2])^5*(↑(X⁻¹) : ℤ_[2]) - (↑X : ℤ_[2])^4*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2])^2
+        + 2*(↑X : ℤ_[2])^4*(↑(X⁻¹) : ℤ_[2])^4*(↑Y : ℤ_[2]) - (↑X : ℤ_[2])^4*(↑(X⁻¹) : ℤ_[2])^4
+        - (↑X : ℤ_[2])^4*(↑(X⁻¹) : ℤ_[2])) * Units.inv_mul S + ((↑X : ℤ_[2])^4
+        - (↑X : ℤ_[2])^3*(↑(X⁻¹) : ℤ_[2])^3*(↑Y : ℤ_[2])^2
+        + 2*(↑X : ℤ_[2])^3*(↑(X⁻¹) : ℤ_[2])^3*(↑Y : ℤ_[2]) - (↑X : ℤ_[2])^3*(↑(X⁻¹) : ℤ_[2])^3
+        - (↑X : ℤ_[2])^3 - (↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^2*(↑Y : ℤ_[2])^2
+        + 2*(↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^2*(↑Y : ℤ_[2]) - (↑X : ℤ_[2])^2*(↑(X⁻¹) : ℤ_[2])^2
+        - (↑X : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])*(↑Y : ℤ_[2])^2
+        + 2*(↑X : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])*(↑Y : ℤ_[2]) - (↑X : ℤ_[2])*(↑(X⁻¹) : ℤ_[2])
+        - (↑Y : ℤ_[2])^2 + 2*(↑Y : ℤ_[2]) - 1) * Units.inv_mul X
 
 /-- **Uniqueness of the datum**, relative to uniqueness of the unit root of the cubic (the
 Hensel-uniqueness fact supplied by R10; consumed here as the hypothesis `rootX_unique`):
@@ -212,7 +400,18 @@ theorem isLabuteOrientationDatum_unique
     {S X Y S' X' Y' : ℤ_[2]ˣ}
     (h : IsLabuteOrientationDatum S X Y) (h' : IsLabuteOrientationDatum S' X' Y') :
     S = S' ∧ X = X' ∧ Y = Y' := by
-  sorry
+  obtain ⟨hcub, hYv, hSeq⟩ := isLabuteOrientationDatum_solution h
+  obtain ⟨hcub', hYv', hSeq'⟩ := isLabuteOrientationDatum_solution h'
+  have hXX : X = X' := rootX_unique X X' hcub hcub'
+  subst hXX
+  refine ⟨?_, rfl, ?_⟩
+  · -- `S` is pinned by `S·(X²+X+1) = −X³` since the (odd) factor `X²+X+1` cancels.
+    have h0 : ((↑S : ℤ_[2]) - (↑S' : ℤ_[2])) * ((↑X : ℤ_[2]) ^ 2 + (↑X : ℤ_[2]) + 1) = 0 := by
+      linear_combination hSeq - hSeq'
+    rcases mul_eq_zero.mp h0 with h1 | h1
+    · exact Units.ext (by linear_combination h1)
+    · exact absurd h1 (sq_add_self_add_one_ne_zero _)
+  · exact Units.ext (hYv.trans hYv'.symm)
 
 /-- **Uniqueness at the character level**: two Labute orientations of `D_R` agree — they agree
 on the generators by `isLabuteOrientationDatum_unique`, hence everywhere by topological
@@ -224,6 +423,12 @@ theorem isLabuteOrientation_ext
       (↑b : ℤ_[2]) ^ 3 + 2 * (↑b : ℤ_[2]) ^ 2 + 1 = 0 → a = b)
     {χ χ' : (DR : Type) →* ℤ_[2]ˣ} (hχ : Continuous χ) (hχ' : Continuous χ')
     (h : IsLabuteOrientation χ) (h' : IsLabuteOrientation χ') : χ = χ' := by
+  -- Blocked on ticket R8 (`GQ2/Roe/DRAbelianization.lean`, in flight and uncommitted at the
+  -- time of the R9 fill): once its `dr_hom_ext` lands, the proof is exactly
+  --   obtain ⟨hS, hX, hY⟩ := isLabuteOrientationDatum_unique rootX_unique h h'
+  --   have hcont := dr_hom_ext ⟨χ, hχ⟩ ⟨χ', hχ'⟩ hS hX hY
+  --   exact congrArg ContinuousMonoidHom.toMonoidHom hcont
+  -- (plus `public import GQ2.Roe.DRAbelianization` in the header; no cycle, checked).
   sorry
 
 /-! ## Stress test -/
