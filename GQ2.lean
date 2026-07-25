@@ -173,3 +173,4 @@ import GQ2.Roe.Words
 import GQ2.Roe.GammaR
 import GQ2.Roe.AdmissibleLimit
 import GQ2.Roe.Stokes
+import GQ2.Roe.OrientationRoot
