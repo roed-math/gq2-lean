@@ -51,7 +51,7 @@ numerics on file for cross-checks.
 | R7 | D_R presentation (sorry-free) + P2 skeletons (DRDemushkin/CrossedDerivation/MarkedPro2, stmts final) + design memo incl. B-Lab draft | fable | `GQ2/Roe/DRPresentation.lean`, skeletons `DRDemushkin.lean`/`CrossedDerivation.lean`/`MarkedPro2.lean`, memo `roe-r7-design.md` | G1 ✓ | **dispatched 2026-07-24 night** |
 | R8 | B_R abelianization bookkeeping (BDecomposition clone, t = ȳ−2x̄) | opus | `GQ2/Roe/DRAbelianization.lean` | R7 | queued |
 | R9 | χ-twisted crossed-derivation fills: the 4 equations + branch exclusion | fable | `GQ2/Roe/CrossedDerivation.lean` (fills) | R7, R10 | queued |
-| R10 | cubic Hensel + orientation-value arithmetic (STANDALONE — rescoped off R7's critical path) | opus | `GQ2/Roe/OrientationRoot.lean` | — | **dispatched 2026-07-24 night** |
+| R10 | cubic Hensel + orientation-value arithmetic (STANDALONE — rescoped off R7's critical path) | opus | `GQ2/Roe/OrientationRoot.lean` | — | **done 2026-07-24** (1f4b265, 290 ln, 0 sorries, std-3; build 3313; mathlib-only imports). API for R9/R11: `rootX(_isRoot/_unique/_isUnit/_toZModPow_four=5/_five=21)`, `Sval(_mul_denom/_toZModPow_four=13)`, `Yval(_eq/_toZModPow_four=7/_ne_sq)`, `denom_isUnit`, `isUnit_sq_sub_self_sub_one_of_odd`, norm facts + exact-level `rootX_sub_one_eq`/`Sval_sub_one_eq` (∃ unit a, ·−1=4a — feeds `zpowZtwo_injective_of_exact_level`). All congruences match spike table |
 | R11 | im χ_R = {±1}×(1+4ℤ₂) | opus | `GQ2/Roe/OrientationImage.lean` | R9, R10 | queued |
 | R12 | Demushkin-ness: dim H¹(D_R) = 3 | fable | `GQ2/Roe/DRDemushkin.lean` (fills, H¹ half) | R7 | queued |
 | R13 | dim H²(D_R) = 1 + cup Gram nonsingular (mind R2's p=2 bilinear-Gram pitfall) | opus | `GQ2/Roe/DRH2.lean` | R12 | queued |
