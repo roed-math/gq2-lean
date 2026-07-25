@@ -131,14 +131,8 @@ end SelfDualW
 /-! ## The four lemma (injectivity form)
 
 The standard diagram chase, hand-rolled for `AddMonoidHom`s with pointwise exactness data — the
-engine that turns the ladder squares into the conditional halves of the `χ`-bijectivities. -/
-
-section FourLemma
-
-variable {A₁ A₂ A₃ A₄ B₁ B₂ B₃ B₄ : Type*}
-  [AddCommGroup A₁] [AddCommGroup A₂] [AddCommGroup A₃] [AddCommGroup A₄]
-  [AddCommGroup B₁] [AddCommGroup B₂] [AddCommGroup B₃] [AddCommGroup B₄]
-
-end FourLemma
+engine that turns the ladder squares into the conditional halves of the `χ`-bijectivities.  It is
+word-free (`(A)`-generic, recon §1.13), so the `r_R` spine reuses `GQ2.FoxH.four_lemma_inj` from
+`GQ2.Devissage.SelfDual` verbatim; there is deliberately no `_R` clone. -/
 
 end GQ2.FoxH

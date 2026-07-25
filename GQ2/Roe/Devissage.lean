@@ -18,11 +18,11 @@ public import GQ2.Roe.Devissage.GeneratesBridge
 @[expose] public section
 
 /-!
-# §5.11 dévissage on the `r_R` spine: two-out-of-three for `IsSelfDualR`
+# §5.11 dévissage on the `r_R` spine: two-out-of-three for `IsSelfDual_R`
 
 Mechanical R-spine clone hub, mirroring `GQ2/Devissage.lean` (campaign decision,
 `docs/orchestration/roe-r20-recon.md`).  `lemma_5_11_R` (bottom of
-`GQ2/Roe/Devissage/GeneratesBridge.lean`) is the two-out-of-three property of `IsSelfDualR` along
+`GQ2/Roe/Devissage/GeneratesBridge.lean`) is the two-out-of-three property of `IsSelfDual_R` along
 a short exact sequence of finite elementary `𝔽₂[C]`-modules, proved via the long exact cohomology
 sequence of the Roe word complex `C_R(A) : A --d⁰--> A⁴ --d¹_R--> A²` exactly as the `Γ_A`
 capstone.
