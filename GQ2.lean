@@ -214,3 +214,5 @@ import GQ2.Roe.CoverLiftR
 import GQ2.WordCoh2R
 import GQ2.MixedBObsR
 import GQ2.IotaGammaR
+import GQ2.LedgerGammaR
+import GQ2.HalfTorsorGammaR

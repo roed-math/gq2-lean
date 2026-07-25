@@ -31,7 +31,8 @@ exactly the part that reads the *wild* relator off a marking, plus the part type
 * the wild shift law `shiftLiftMark_wildValueR_fib` (from `FoxH.liftMarking_wildValueR_u`, whose
   row `x₁ + (1 + S⁻¹)·x₂` replaces `Γ_A`'s `x₁ + (1 + S⁻¹)·x₃` — the *same* fibre shift `a 1`);
 * the splitting section over `N_R` (`NR_le_ker_shiftLiftR`/`sectionHomR`), which runs the
-  `IsAdmissibleUR`/`isAdmissibleUR_iff_NR_le` route in place of `IsAdmissibleU`/`isAdmissibleU_iff_NA_le`;
+  `IsAdmissibleUR`/`isAdmissibleUR_iff_NR_le` route in place of
+  `IsAdmissibleU`/`isAdmissibleU_iff_NA_le`;
 * the `N_R`-typed factoring/assembly chain and the obstruction homomorphism itself
   (`LevelFactorR`, `obs_R`, `obs_ker_eq_B2_R`, `obsH2_R`).
 
