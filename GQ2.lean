@@ -110,6 +110,7 @@ import GQ2.SectionNine
 import GQ2.Block.Enrichment
 import GQ2.Block.HeadDat
 import GQ2.GaussZ.FinalD
+import GQ2.SourceData
 import GQ2.ThmFourTwo
 import GQ2.DeepPart
 import GQ2.DeepPart.QuadraticFp2
