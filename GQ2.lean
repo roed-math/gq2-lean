@@ -210,3 +210,4 @@ import GQ2.Roe.Supply
 import GQ2.RStage.GammaR
 import GQ2.WordCohBridgeR
 import GQ2.Roe.CorrectionR
+import GQ2.WordCoh2R
