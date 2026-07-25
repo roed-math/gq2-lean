@@ -33,8 +33,11 @@ namespace GQ2
 
 namespace Phase140GammaR
 
+-- `RStageGammaA` is opened for the **word-free** marking calculus it hosts (`marking_ext`,
+-- `corrMark`, `tameValue_correction`) — the same reuse discipline `GQ2/Roe/CoverLiftR.lean` and
+-- `GQ2/RStage/GammaR.lean` follow; nothing `Γ_A`-specific is consumed from it.
 open SectionEight AffineTLift CentralObstruction ContCoh WordCohBridgeR GQ2.FoxH RStageGammaR
-  RadicalEdgeGammaA WordCoh2R MixedBObsR
+  RStageGammaA RadicalEdgeGammaA WordCoh2R MixedBObsR
 
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
   [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
@@ -186,6 +189,179 @@ theorem tcocycle_card_gammaR (ρ : BoundaryLifts b F RF.TC) :
   have adm := markC_admissible_R θ hθs
   rw [Nat.card_congr hequiv, Nat.card_congr (z1EquivR θ hcomp hθs hA₂).toEquiv,
     (GQ2.FoxH.prop_5_15_R (markC_R θ) adm.2.1 adm.2.2.1 adm.1 hA₂ adm.2.2.2).2.1]
+
+/-! ## L5 descent at the `T`-stage: a relator-free covering marking of `B` descends from `Γ_R`
+
+The `T`-stage consumer of the shared `Γ_R` L5 kernel (`GQ2/Roe/CoverLiftR.lean`), with the one
+twist the `Γ_A` side also had to absorb: the covered map `g_Q : Γ_R → B/T` is **not surjective**
+(its image is the graph-like subgroup of a `V`-cocycle), so `Marking.pushR_admissible` does not
+apply to it directly and no `Pro2Core` certificate is available downstairs.
+
+The `Γ_A` file solved this by cloning the whole descent (`Phase140GammaA.mlift_of_relatorFree_marking`,
+221 ln).  Here the kernel was deliberately generalised — `lift_of_relatorFree_markingR` takes an
+**abstract** `π` and the `Pro2Core` input **directly** rather than through surjectivity of `g_B` —
+so the fix is just a corestriction: the four `B/T`-generator images generate `J̄`, the `F₄`-hom
+classified by the `J̄`-marking kills `N_R`, so it descends to a **surjective** `ḡ : Γ_R ↠ J̄`, whose
+pushed marking is `R`-admissible and supplies `hcoreB`.  Nothing of the kernel is cloned. -/
+
+section DescendT
+
+variable {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {D : RadicalCoverData Bg}
+
+/-- **The `T`-stage descent** (`hsep_gammaR` L5): a marking of `B` that covers `g_Q`'s marking
+through `π_T` and kills both `Γ_R` relators descends to a continuous `f : Γ_R → B` with
+`π_T ∘ f = g_Q`.  `Γ_R` twin of `Phase140GammaA.mlift_of_relatorFree_marking`, but assembled from
+the shared kernel `RStageGammaR.lift_of_relatorFree_markingR` at the corestricted projection
+`qJ' : J → J̄` instead of re-deriving the descent. -/
+theorem mlift_of_relatorFree_markingR
+    (gQ : ContinuousMonoidHom GR (Bg ⧸ D.T))
+    (tHat : Marking Bg)
+    (hproj : tHat.map (QuotientGroup.mk' D.T) = Marking.pushR gQ)
+    (htame : tHat.TameRel) (hwild : tHat.WildRelR) :
+    ∃ f : ContinuousMonoidHom GammaR Bg,
+      ∀ γ, QuotientGroup.mk' D.T (f γ) = gQ γ := by
+  classical
+  have htelem : ∀ t ∈ D.T, t * t = 1 := fun t ht => D.helem t (D.hTM ht)
+  -- §1: the generated subgroup of `B` and its marking
+  set J : Subgroup Bg := Subgroup.closure {tHat.σ, tHat.τ, tHat.x₀, tHat.x₁} with hJ
+  have hmemσ : tHat.σ ∈ J := Subgroup.subset_closure (by simp)
+  have hmemτ : tHat.τ ∈ J := Subgroup.subset_closure (by simp)
+  have hmemx₀ : tHat.x₀ ∈ J := Subgroup.subset_closure (by simp)
+  have hmemx₁ : tHat.x₁ ∈ J := Subgroup.subset_closure (by simp)
+  set tJ : Marking ↥J :=
+    ⟨⟨tHat.σ, hmemσ⟩, ⟨tHat.τ, hmemτ⟩, ⟨tHat.x₀, hmemx₀⟩, ⟨tHat.x₁, hmemx₁⟩⟩ with htJ
+  have hmapJ : tJ.map J.subtype = tHat := marking_ext rfl rfl rfl rfl
+  have htameJ : tJ.TameRel := by
+    rw [← Marking.tameValue_eq_one_iff]
+    have hm := Marking.map_tameValue J.subtype tJ
+    rw [hmapJ, (Marking.tameValue_eq_one_iff tHat).mpr htame] at hm
+    exact Subtype.val_injective hm.symm
+  have hwildJ : tJ.WildRelR := by
+    rw [← Marking.wildValueR_eq_one_iff]
+    have hm := Marking.map_wildValueR J.subtype tJ
+    rw [hmapJ, (Marking.wildValueR_eq_one_iff tHat).mpr hwild] at hm
+    exact Subtype.val_injective hm.symm
+  -- §2: the corestriction `ḡ : Γ_R ↠ J̄ = ⟨g_Q-generator images⟩ ≤ B/T`
+  set Jbar : Subgroup (Bg ⧸ D.T) := Subgroup.closure
+    {(Marking.pushR gQ).σ, (Marking.pushR gQ).τ, (Marking.pushR gQ).x₀, (Marking.pushR gQ).x₁}
+    with hJbar
+  have hmemσ' : (Marking.pushR gQ).σ ∈ Jbar := Subgroup.subset_closure (by simp)
+  have hmemτ' : (Marking.pushR gQ).τ ∈ Jbar := Subgroup.subset_closure (by simp)
+  have hmemx₀' : (Marking.pushR gQ).x₀ ∈ Jbar := Subgroup.subset_closure (by simp)
+  have hmemx₁' : (Marking.pushR gQ).x₁ ∈ Jbar := Subgroup.subset_closure (by simp)
+  set tbar : Marking ↥Jbar :=
+    ⟨⟨(Marking.pushR gQ).σ, hmemσ'⟩, ⟨(Marking.pushR gQ).τ, hmemτ'⟩,
+      ⟨(Marking.pushR gQ).x₀, hmemx₀'⟩, ⟨(Marking.pushR gQ).x₁, hmemx₁'⟩⟩ with htbar
+  have hclassbar : univMarking.map (Marking.classify tbar).toMonoidHom = tbar :=
+    univMarking_map_toHom (P := ProfiniteGrp.of ↥Jbar) tbar
+  -- the classified hom, compared with `g_Q ∘ quotientMk` through the subtype
+  set cbar : ContinuousMonoidHom (FreeProfiniteGroup (Fin 4)) (Bg ⧸ D.T) :=
+    (⟨Jbar.subtype, continuous_subtype_val⟩ :
+        ContinuousMonoidHom ↥Jbar (Bg ⧸ D.T)).comp (Marking.classify tbar) with hcbar
+  have hcomp : cbar = gQ.comp (quotientMk NR) := by
+    have h1 := Marking.toHom_hom_univMarking_map cbar
+    have h2 := Marking.toHom_hom_univMarking_map (gQ.comp (quotientMk NR))
+    have hpushc : univMarking.map cbar.toMonoidHom
+        = univMarking.map (gQ.comp (quotientMk NR)).toMonoidHom := by
+      refine marking_ext ?_ ?_ ?_ ?_
+      · exact congrArg (fun t : Marking ↥Jbar => (t.σ : Bg ⧸ D.T)) hclassbar
+      · exact congrArg (fun t : Marking ↥Jbar => (t.τ : Bg ⧸ D.T)) hclassbar
+      · exact congrArg (fun t : Marking ↥Jbar => (t.x₀ : Bg ⧸ D.T)) hclassbar
+      · exact congrArg (fun t : Marking ↥Jbar => (t.x₁ : Bg ⧸ D.T)) hclassbar
+    rw [← h1, ← h2, hpushc]
+  have hker : NR ≤ (Marking.classify tbar).toMonoidHom.ker := by
+    intro x hx
+    rw [MonoidHom.mem_ker]
+    refine Subtype.val_injective ?_
+    have h1 : (((Marking.classify tbar).toMonoidHom x : ↥Jbar) : Bg ⧸ D.T) = cbar x := rfl
+    rw [h1, hcomp]
+    show gQ (quotientMk NR x) = ((1 : ↥Jbar) : Bg ⧸ D.T)
+    rw [(quotientMk_eq_one_iff NR).mpr hx, map_one]
+    rfl
+  set gbar : ContinuousMonoidHom GR ↥Jbar :=
+    quotientLift NR (Marking.classify tbar) hker with hgbar
+  have hgbar_val : ∀ γ : GR, (gbar γ : Bg ⧸ D.T) = gQ γ := by
+    intro γ
+    obtain ⟨w, rfl⟩ := quotientMk_surjective NR γ
+    show (Marking.classify tbar w : Bg ⧸ D.T) = gQ (quotientMk NR w)
+    rw [show (Marking.classify tbar w : Bg ⧸ D.T) = cbar w from rfl, hcomp]
+    rfl
+  -- `ḡ` hits the four generators, hence is surjective; its pushed marking is `tbar`
+  have hgbar_gen : ∀ i : Fin 4, gbar (quotientMk NR (FreeProfiniteGroup.of i)) =
+      ![tbar.σ, tbar.τ, tbar.x₀, tbar.x₁] i := by
+    intro i
+    show Marking.classify tbar (FreeProfiniteGroup.of i) = _
+    fin_cases i
+    exacts [congrArg Marking.σ hclassbar, congrArg Marking.τ hclassbar,
+      congrArg Marking.x₀ hclassbar, congrArg Marking.x₁ hclassbar]
+  have hpushbar : Marking.pushR gbar = tbar := by
+    refine marking_ext ?_ ?_ ?_ ?_
+    · exact hgbar_gen 0
+    · exact hgbar_gen 1
+    · exact hgbar_gen 2
+    · exact hgbar_gen 3
+  have hgenbar : Subgroup.closure ({tbar.σ, tbar.τ, tbar.x₀, tbar.x₁} : Set ↥Jbar) = ⊤ := by
+    have hpre : ({tbar.σ, tbar.τ, tbar.x₀, tbar.x₁} : Set ↥Jbar)
+        = ((↑) : ↥Jbar → Bg ⧸ D.T) ⁻¹'
+          {(Marking.pushR gQ).σ, (Marking.pushR gQ).τ, (Marking.pushR gQ).x₀,
+            (Marking.pushR gQ).x₁} := by
+      ext j
+      simp [htbar, Subtype.ext_iff]
+    rw [hpre]
+    exact Subgroup.closure_closure_coe_preimage
+  have hgbar_surj : Function.Surjective ⇑gbar := by
+    intro y
+    have hy : y ∈ Subgroup.closure ({tbar.σ, tbar.τ, tbar.x₀, tbar.x₁} : Set ↥Jbar) := by
+      rw [hgenbar]
+      exact Subgroup.mem_top y
+    refine Subgroup.closure_induction ?_ ?_ ?_ ?_ hy
+    · rintro z (rfl | rfl | rfl | rfl)
+      exacts [⟨_, hgbar_gen 0⟩, ⟨_, hgbar_gen 1⟩, ⟨_, hgbar_gen 2⟩, ⟨_, hgbar_gen 3⟩]
+    · exact ⟨1, map_one gbar⟩
+    · rintro a b - - ⟨γ, rfl⟩ ⟨δ, rfl⟩
+      exact ⟨γ * δ, map_mul gbar γ δ⟩
+    · rintro a - ⟨γ, rfl⟩
+      exact ⟨γ⁻¹, map_inv gbar γ⟩
+  -- §3: the corestricted comparison `qJ' : J → J̄`, and the kernel torsion `π_T`-elementarity
+  have hmapJc : J.map (QuotientGroup.mk' D.T)
+      = Subgroup.closure ((QuotientGroup.mk' D.T) '' {tHat.σ, tHat.τ, tHat.x₀, tHat.x₁}) := by
+    rw [hJ, MonoidHom.map_closure]
+  have hmemJbar : ∀ j : ↥J, QuotientGroup.mk' D.T (j : Bg) ∈ Jbar := by
+    intro j
+    have himg : QuotientGroup.mk' D.T (j : Bg)
+        ∈ J.map (QuotientGroup.mk' D.T) := Subgroup.mem_map_of_mem _ j.2
+    rw [hmapJc] at himg
+    refine Subgroup.closure_mono ?_ himg
+    rintro x ⟨y, (rfl | rfl | rfl | rfl), rfl⟩
+    exacts [Or.inl (congrArg Marking.σ hproj), Or.inr (Or.inl (congrArg Marking.τ hproj)),
+      Or.inr (Or.inr (Or.inl (congrArg Marking.x₀ hproj))),
+      Or.inr (Or.inr (Or.inr (congrArg Marking.x₁ hproj)))]
+  set qJ' : ↥J →* ↥Jbar :=
+    ((QuotientGroup.mk' D.T).comp J.subtype).codRestrict Jbar (fun j => hmemJbar j) with hqJ'
+  have hker2 : ∀ j ∈ qJ'.ker, j * j = 1 := by
+    intro j hj
+    rw [MonoidHom.mem_ker] at hj
+    have hjT : (j : Bg) ∈ D.T := by
+      have h1 : QuotientGroup.mk' D.T (j : Bg) = 1 := congrArg Subtype.val hj
+      rwa [QuotientGroup.mk'_apply, QuotientGroup.eq_one_iff] at h1
+    exact Subtype.val_injective (by simpa using htelem _ hjT)
+  have hprojJ : tJ.map qJ' = Marking.pushR gbar := by
+    rw [hpushbar]
+    refine marking_ext ?_ ?_ ?_ ?_
+    exacts [Subtype.ext (congrArg Marking.σ hproj), Subtype.ext (congrArg Marking.τ hproj),
+      Subtype.ext (congrArg Marking.x₀ hproj), Subtype.ext (congrArg Marking.x₁ hproj)]
+  -- §4: descend through the shared `Γ_R` L5 kernel, then include `J ↪ B`
+  obtain ⟨φ, hφ⟩ := lift_of_relatorFree_markingR qJ' hker2 gbar
+    (Marking.pushR_admissible gbar hgbar_surj).2.2.2 tJ hprojJ htameJ hwildJ
+  refine ⟨(⟨J.subtype, continuous_subtype_val⟩ : ContinuousMonoidHom ↥J Bg).comp φ, ?_⟩
+  intro γ
+  show QuotientGroup.mk' D.T ((φ γ : ↥J) : Bg) = gQ γ
+  rw [show QuotientGroup.mk' D.T ((φ γ : ↥J) : Bg) = ((qJ' (φ γ) : ↥Jbar) : Bg ⧸ D.T) from rfl,
+    hφ γ]
+  exact hgbar_val γ
+
+end DescendT
 
 /-! ### `SourceData` field-type smoke tests (R31 spelling discipline)
 
