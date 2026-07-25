@@ -69,21 +69,21 @@ mirroring `GQ2.nuTwo` (`GQ2/BoundaryFrame.lean:228`) with the same target
 property of `D_R` (`drLiftHom` = kill the relator on the free profinite group, descend through
 the presentation and the maximal pro-2 quotient): every factor of `r₂` has unramified image
 zero. -/
-noncomputable def nuR : ContinuousMonoidHom (DR : Type) Ztwo :=
+noncomputable def nuDR : ContinuousMonoidHom (DR : Type) Ztwo :=
   drLiftHom isProP_maxProPQuotient ![ztwoOne, 1, 1] (by
     show drWord ztwoOne 1 1 = 1
     simp [drWord, conjP, commP])
 
-@[simp] theorem nuR_drS : nuR drS = ztwoOne := drLiftHom_S _ _ _
+@[simp] theorem nuR_drS : nuDR drS = ztwoOne := drLiftHom_S _ _ _
 
-@[simp] theorem nuR_drX : nuR drX = 1 := drLiftHom_X _ _ _
+@[simp] theorem nuR_drX : nuDR drX = 1 := drLiftHom_X _ _ _
 
-@[simp] theorem nuR_drY : nuR drY = 1 := drLiftHom_Y _ _ _
+@[simp] theorem nuR_drY : nuDR drY = 1 := drLiftHom_Y _ _ _
 
 /-- `ν_R` is surjective (note Lemma 2.1: "it is surjective because `σ` maps to `1`").
 Fill (R15): `ztwoOne` topologically generates `Ztwo`, and the image of a continuous hom of
 profinite groups is closed — the `nuTwo_surjective` argument (`GQ2/Prop32.lean`) verbatim. -/
-theorem nuR_surjective : Function.Surjective nuR := by
+theorem nuR_surjective : Function.Surjective nuDR := by
   sorry
 
 /-! ## The B-Lab classification hypothesis  (draft for owner review — ticket R14 flips) -/
@@ -151,7 +151,7 @@ theorem markedPro2_R [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
       ι ztwoOne = Multiplicative.ofAdd ((1 : ℤ) : ℤ_[2]) ∧
       ∃ e : ContinuousMulEquiv (maxProPQuotient 2 AbsGalQ2) (DR : Type),
         ∀ g : AbsGalQ2,
-          R.nu_ur (toAb g) = ι (nuR (e (maxProPMk 2 AbsGalQ2 g))) := by
+          R.nu_ur (toAb g) = ι (nuDR (e (maxProPMk 2 AbsGalQ2 g))) := by
   sorry
 
 end GQ2
