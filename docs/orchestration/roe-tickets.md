@@ -77,9 +77,13 @@ numerics on file for cross-checks.
 
 ## Wave 3 — P4 + P5 + P6
 
+Orchestrator addition (2026-07-24 night): R30a read-only SourceData recon dispatched (Explore,
+memo `roe-r30-recon.md`) — field list, minimal-diff refactor shape (b9a-flip technique),
+Γ_R-readiness table. De-risks the morning R30 serialized refactor; no file edits.
+
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| R27 | quadratic expansion + Gauss signs by instantiation (note prop:quadratic, cor:gauss; word-level layer only — GaussZ package = R31) | opus | `GQ2/Roe/Gauss.lean` | R24 ✓ | **dispatched 2026-07-24 night** |
+| R27 | quadratic expansion + Gauss signs by instantiation (note prop:quadratic, cor:gauss; word-level layer only — GaussZ package = R31) | opus | `GQ2/Roe/Gauss.lean` | R24 ✓ | **done 2026-07-24** (45095be, 252 ln, 0 sorries, std-3 on 7 capstones). `QZeroR(_apply/_split/_eq_qDouble)`, `polar_QZeroR` + nonsingularity via R24's operator, zero counts + finsum signs ∓2^m by instantiating prop_6_9/lemma_6_6/6_8 verbatim. NON-module file (needs non-module GaussZ.FinalGammaA). κ⁰/honest word evaluation deferred to R31 per scope |
 | R30 | SourceData extraction + thm_4_2/prop_8_9 generalization; Γ_A capstones byte-identical (regression-gated, serialized) | fable | `BoundaryFrame.lean`, `Prop89Close.lean`, `RecursionSplice.lean`, `ThmFourTwo.lean`, new `GQ2/SourceData.lean` | R20; ideally after R26 | — |
 | R31 | Γ_R supply lemmas: lemma_8_2_R, liftsOver_card_R, lemma_8_6_R, GaussZ package (file list fixed by R30) | opus | `GQ2/Roe/Supply*.lean` | R30, R26, R27, P2 | — |
 | R32 | sourceR instance + eq_154_R + main_surjection_count_R + main_presentation_literal_roe | fable | `GQ2/Roe/Main.lean` | R31, R4, P1, P2 | — |
