@@ -168,3 +168,5 @@ import GQ2.GaussZ.GammaAD
 import GQ2.RamifiedPack
 import GQ2.UnramifiedQuadraticNorms
 import GQ2.UnitFiltrationCounts
+-- Roe-candidate verification (GQ2/Roe/, see docs/orchestration/roe-verification-plan.md)
+import GQ2.Roe.Words
