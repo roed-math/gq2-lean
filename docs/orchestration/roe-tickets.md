@@ -27,38 +27,42 @@ updates rows here and merges `roe` → `master` at wave boundaries.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| R1 | Roe words + WildRelR + admissibleCountR + wildValueExpR (+stress) | fable | `GQ2/Roe/Words.lean` | — | **dispatched 2026-07-24 evening** (worktree warm: build green 3308 jobs) |
-| R2 | Nielsen search spike: ν-constrained D_R ⇄ D₀ words (off-Lean, q2 archive tooling; timeboxed) | fable | report `roe-r2-spike.md` (no Lean) | — | **dispatched 2026-07-24 evening** |
-| R3 | GammaR marked quotient + AdmissibleLimit clone | opus | `GQ2/Roe/GammaR.lean`, `GQ2/Roe/AdmissibleLimit.lean` | R1 | queued |
-| R4 | prop_2_3_R epi-semantics | opus | `GQ2/Roe/Prop23.lean` | R3 | queued |
-| R5 | small-group numerical cross-check vs June LMFDB-verified counts | opus | `GQ2/Roe/Sanity.lean` | R1 | queued |
-| R6 | tame quotient + ν_R + W_R = O₂ (note lem:tame) | opus | `GQ2/Roe/Tame.lean` | R1 | queued |
+| R1 | Roe words + WildRelR + admissibleCountR + wildValueExpR (+stress) | fable | `GQ2/Roe/Words.lean` | — | **done 2026-07-24** (278053c, 261 ln, 0 sorries, std-3 axioms; full build 3309 green). API: `Marking.aR/y1R/cR/wildValueR/WildRelR/AdmissibleR`, `GQ2.admissibleCountR`, `wildValueExpR(+_of_dvd, TWO ω₂-subwords — σ₂ also ω₂; ticket sketch corrected per tex), map naturality, zmod8 stress incl. genuine-ω₂ `wildValueR_zmod8`. Exponent preview for R23: (0,e,e+1,0) |
+| R2 | Nielsen search spike: ν-constrained D_R ⇄ D₀ words (off-Lean, q2 archive tooling; timeboxed) | fable | report `roe-r2-spike.md` (no Lean) | — | **done 2026-07-24** (fe4469d) → **ROUTE N NOT VIABLE — impossibility THEOREM** (any word-epi is auto-iso by 5-term exact seq; isos intertwine canonical orientations; norm kill in ℚ(X), disc −59: η has N = −1/27, word-values land in ±4^ℤ). Method validated on d0PiEquiv; §3.2 computation independently re-derived (X≡5, S≡13 mod 16; b≡91367, u≡898793 mod 2^20); Hom-counts agree on all 2668 2-groups ≤128. Extras banked: R13 p=2 cup–Bockstein pitfall, R15 Gram-isometry seed, R5 Hom-count trick |
+| R3 | GammaR marked quotient + AdmissibleLimit clone (+`wildRelatorR` profinite word + finite↔profinite bridge; `map_admissibleR` via Subdirect:104 clone) | opus | `GQ2/Roe/GammaR.lean`, `GQ2/Roe/AdmissibleLimit.lean` | R1 | **dispatched 2026-07-24 night** |
+| R4 | prop_2_3_R epi-semantics + `markC_admissible_R` | opus | `GQ2/Roe/Prop23.lean` | R3 | queued |
+| R5 | small-group numerical cross-check vs June LMFDB-verified counts | opus | `GQ2/Roe/Sanity.lean` (+optional `scripts/roe_sanity_counts.py`) | R1 | **dispatched 2026-07-24 night** (first dispatch aborted instantly w/ zero tool uses — glitched run, relaunched) |
+| R6 | tame quotient + ν_R + W_R = O₂ (note lem:tame) | opus | `GQ2/Roe/Tame.lean` | ~~R1~~ **R3** (νR lives on GammaR) | queued |
 | R20 | §5 scaffolding parameter-boundary recon (read-only, citation-dense) | opus | report `roe-r20-recon.md` | — | **done 2026-07-24** → `roe-r20-recon.md` (e78bdb7). Key: word couples via definitional spine (`wildValue→d1Fun/Z1w/H*w/mixedB`); dévissage states over the FIXED spine — no `mixedB_R` drop-in. Orchestrator decision: **clone route** for `Devissage/`-dependent assembly (~3k ln, proofs port verbatim, new files only; spine-generalization noted as post-campaign cleanup option — no frozen-file edits overnight). `prop_5_16` is word-generic, reused verbatim → R26 scope gains thin `cor_5_17_card_R` instead. `markC_admissible_R` assigned to R4. Q6 decl list drives R21–R26 prompts |
 
-## Gate G1 (owner → delegated to orchestrator 2026-07-24, see decisions log)
+## Gate G1 — DECIDED 2026-07-24 night (delegated): **ROUTE L**
 
-Route selection for P2 from the R2 spike result; if Route L, the B-Lab axiom statement is
-drafted and used ONLY as a hypothesis until owner sign-off (R14 flip stays owner-gated).
+R2 proved Route N impossible (see R2 row — a theorem, not a failed search). Route N tickets
+R7n–R11n are cancelled. Route L proceeds hypothesis-parametrized: the B-Lab classification
+statement (Labute 1967 Thm 8+4 instance) enters only as `BLabHypothesis`/explicit hypothesis;
+**the R14 census-flip commit that would make it an axiom waits for owner morning sign-off.**
+Bonus de-risk: the exact §3.2 computation was independently re-derived by the spike, with
+numerics on file for cross-checks.
 
-## Wave 2 — P2 (route-dependent) ∥ P3 word level
+## Wave 2 — P2 Route L ∥ P3 word level
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| R7n/R7 | D_R presentation (+ Route N: NielsenIso skeleton / Route L: design memo) | fable | `GQ2/Roe/DRPresentation.lean` (+`NielsenIso.lean` \| memo) | G1 | blocked (G1) |
-| R8n/R8 | N: forward relator ledger \| L: B_R abelianization (BDecomposition clone) | opus | route-fixed | R7 | blocked (G1) |
-| R9n/R9 | N: backward ledger + mutual inverse \| L: χ-twisted crossed-derivation calculus + 4 equations | opus \| fable | route-fixed | R7 | blocked (G1) |
-| R10n/R10 | N: marked matching (ν direct) \| L: branch exclusion + cubic Hensel + mod-16 | opus | route-fixed | R8,R9 | blocked (G1) |
-| R11n/R11 | N: marked assembly to G_ℚ₂(2) \| L: im χ_R = {±1}×(1+4ℤ₂) | fable \| opus | route-fixed | R10 | blocked (G1) |
-| R12 | L only: Demushkin-ness — dim H¹ = 3 | fable | `GQ2/Roe/DRDemushkin.lean` | R7 | blocked (G1) |
-| R13 | L only: dim H² = 1 + cup Gram (shares R25 machinery) | opus | `GQ2/Roe/DRH2.lean` | R12 | blocked (G1) |
-| R14 | L only: B-Lab axiom flip (mirrors b9a T5 checklist) | fable | `Foundations/Axioms.lean`, `AxiomLedger.lean`, `check_axioms.sh` | R11–R13, G1 | blocked (G1) |
-| R15 | L only: marked matching assembly (prop_1_1 clone; S = X^b, k-shear, prop_3_8 reuse) | fable | `GQ2/Roe/MarkedPro2.lean` | R14 | blocked (G1) |
-| R21 | wild Fox row split+ramified + trivial-module differential (note prop:jacobian, lem:trivial) | fable | `GQ2/Roe/WildRow.lean` | R1, R20 | queued after W1 |
-| R22 | simple normal forms (0,0,0,d) | opus | `GQ2/Roe/NormalForms.lean` | R21 | — |
-| R23 | Stokes endpoint (0,1,0,0) + chain-map rows | opus | `GQ2/Roe/Stokes.lean` | R1, R20 | — |
-| R24 | mixed Hessian + 1+U+U⁻¹ pairing (note prop:hessian) | opus | `GQ2/Roe/Hessian.lean` | R21 | — |
-| R25 | trivial-module Gram + mixedB_cocycle analogue | opus | `GQ2/Roe/TrivialSelfDual.lean` | R23 | — |
-| R26 | prop_5_15_R / prop_5_16_R duality assembly (note prop:duality) | fable | `GQ2/Roe/DualityAssembly.lean` | R22–R25 | — |
+| R7 | D_R presentation (sorry-free) + P2 skeletons (DRDemushkin/CrossedDerivation/MarkedPro2, stmts final) + design memo incl. B-Lab draft | fable | `GQ2/Roe/DRPresentation.lean`, skeletons `DRDemushkin.lean`/`CrossedDerivation.lean`/`MarkedPro2.lean`, memo `roe-r7-design.md` | G1 ✓ | **dispatched 2026-07-24 night** |
+| R8 | B_R abelianization bookkeeping (BDecomposition clone, t = ȳ−2x̄) | opus | `GQ2/Roe/DRAbelianization.lean` | R7 | queued |
+| R9 | χ-twisted crossed-derivation fills: the 4 equations + branch exclusion | fable | `GQ2/Roe/CrossedDerivation.lean` (fills) | R7, R10 | queued |
+| R10 | cubic Hensel + orientation-value arithmetic (STANDALONE — rescoped off R7's critical path) | opus | `GQ2/Roe/OrientationRoot.lean` | — | **dispatched 2026-07-24 night** |
+| R11 | im χ_R = {±1}×(1+4ℤ₂) | opus | `GQ2/Roe/OrientationImage.lean` | R9, R10 | queued |
+| R12 | Demushkin-ness: dim H¹(D_R) = 3 | fable | `GQ2/Roe/DRDemushkin.lean` (fills, H¹ half) | R7 | queued |
+| R13 | dim H²(D_R) = 1 + cup Gram nonsingular (mind R2's p=2 bilinear-Gram pitfall) | opus | `GQ2/Roe/DRH2.lean` | R12 | queued |
+| R14 | B-Lab axiom flip (b9a-T5-style checklist) — **OWNER-GATED, do not dispatch** | fable | `Foundations/Axioms.lean`, `AxiomLedger.lean`, `check_axioms.sh` | R11–R13 + owner sign-off | blocked (owner) |
+| R15 | marked matching assembly (prop_1_1 clone; unique b with S = X^b, k-shear, prop_3_8 reuse; R2's isometry seed + b,u numerics as cross-checks) | fable | `GQ2/Roe/MarkedPro2.lean` (fills) | R7–R13 (hypothesis-parametrized, not R14) | queued |
+| R21 | r_R Fox spine (`d1FunR`/`Z1wR`/`H*wR` + `mixedB_R` def) + evaluated wild row split/ramified + trivial-module differential (b,b) | fable | `GQ2/Roe/FoxBasic.lean`, `GQ2/Roe/WildRow.lean` | R1 ✓, R20 ✓ | **dispatched 2026-07-24 night** |
+| R22 | simple normal forms (0,0,0,d) | opus | `GQ2/Roe/NormalForms.lean` | R21 | queued |
+| R23 | Stokes exponent vector ![0,e,e+1,0] + odd-e (0,1,0,0) endpoint input (RESCOPED: chain-map rows moved to R25) | opus | `GQ2/Roe/Stokes.lean` | R1 ✓ | **dispatched 2026-07-24 night** |
+| R24 | mixed Hessian z-ledger + 1+U+U⁻¹ pairing (note prop:hessian) | opus | `GQ2/Roe/Hessian.lean` | R21 | queued |
+| R25 | traced chain-map rows (prop_5_8_*_R) + `mixedB_cocycle_R` + trivial-module Gram a·c′+c·a′+d·d′ + trivialSelfDual_R base | opus | `GQ2/Roe/TrivialSelfDual.lean` | R21, R23 | queued |
+| R26 | Devissage clone (per R20 decision) + prop_5_15_R assembly + thin cor_5_17_card_R (prop_5_16 reused verbatim) | fable (+opus clone subtickets if split) | `GQ2/Roe/Devissage*.lean`, `GQ2/Roe/DualityAssembly.lean` | R22, R24, R25 | queued |
 
 ## Wave 3 — P4 + P5 + P6
 
