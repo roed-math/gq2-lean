@@ -915,7 +915,21 @@ theorem obsH2_DR_eq_of_factor {L : Type} [Group L] [Finite L]
     (φ : Z2 DRT (ZMod 2)) (ρ : DRT →* L) (c : TwoCocycle L)
     (hfact : ∀ g h : DRT, φ.1 (g, h) = c.κ (ρ g) (ρ h)) :
     obsH2_DR htriv (H2mk DRT (ZMod 2) φ) = drRelZ (fun k => ρ (drGens k)) c := by
-  sorry
+  -- `φ` is already normalized: `φ (1,1) = c.κ 1 1 = 0`.
+  have hone : φ.1 (1, 1) = 0 := by rw [hfact, map_one, c.norm]
+  have hnorm : normalizeCochain φ.1 = φ.1 := by
+    funext p; simp only [normalizeCochain, Pi.sub_apply, hone, sub_zero]
+  set F := (nonempty_levelFactor_normalize htriv φ).some with hF
+  have h1 : obsH2_DR htriv (H2mk DRT (ZMod 2) φ) = F.obs := rfl
+  -- Both markings pull `c` (resp. `F.c`) back to the *same* cocycle on `D_R` itself, so no
+  -- continuity of `ρ` is needed: the two factorizations agree pointwise through `hfact`.
+  have hcc : F.c.comap (QuotientGroup.mk' F.V.toSubgroup) = c.comap ρ := by
+    refine TwoCocycle.ext ?_
+    funext g h
+    rw [TwoCocycle.comap_κ, TwoCocycle.comap_κ, ← F.hfact g h, hnorm, hfact]
+  rw [h1]
+  show drRelZ (fun k => QuotientGroup.mk' F.V.toSubgroup (drGens k)) F.c = _
+  rw [drRelZ_comap drGens F.c (QuotientGroup.mk' F.V.toSubgroup), drRelZ_comap drGens c ρ, hcc]
 
 end Obstruction
 
