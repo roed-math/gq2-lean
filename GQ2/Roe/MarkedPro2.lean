@@ -3,21 +3,25 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
-module
-
-public import GQ2.Roe.DRDemushkin
-public import GQ2.Roe.CrossedDerivation
-public import GQ2.DyadicPresentation
-public import GQ2.BoundaryFrame
-public import GQ2.Reciprocity
-
-@[expose] public section
+import GQ2.Roe.DRDemushkin
+import GQ2.Roe.CrossedDerivation
+import GQ2.Roe.MarkedMatching
+import GQ2.Roe.MaxPro2Bridge
+import GQ2.DyadicPresentation
+import GQ2.BoundaryFrame
+import GQ2.Reciprocity
 
 /-!
 # The marked pro-2 identification `(D_R, ν_R) ≅ (G_{ℚ₂}(2), ν_ur)`  (Roe note §3.3)
 
-**Skeleton (ticket R7; fills are R15, gated through R14's owner-approved B-Lab flip).**
-Statements are final; proofs may be `sorry`.
+**Statements final (ticket R7); fills ticket R15** (through R14's owner-approved B-Lab flip:
+the classification input stays a *hypothesis* `BLabHypothesis` here).
+
+**File-infrastructure note (R15).** This file was converted from a `module` file to a plain
+(non-module) file: the R7-designed fill route runs through `prop_1_1`,
+`prop_3_8_classification`/`prop_3_8_lift` and the `ζ`-bridge of `GQ2/LocalMarked.lean`, all of
+which live in non-module June files, and a `module` file cannot import non-module files.  Every
+statement below is verbatim the R7 skeleton's; only the header/imports and the proofs changed.
 
 The endgame of the note's §3 ⟦prop:markedpro2⟧: `D_R` carries the unramified marking
 `ν_R(s, x, y) = (1, 0, 0)` (note Lemma 2.1 ⟦lem:tame⟧ restricted to the pro-2 quotient, and
@@ -48,6 +52,11 @@ with its convention docstring.
    bijectivity; `b ≡ 3 (mod 4)`), the shear basis `k = s̄ − b·x̄`, the unique `u` with
    `η^u = X` (`u ≡ 1 (mod 4)`; `η = (−3)⁻¹`, `GQ2.norm_inv_neg_three`-side facts), and the
    ν- and χ-preserving `φ_ab : B_R ≅ D₀^{ab}`, `t ↦ t₀, k ↦ S̄₀, x̄ ↦ u·Ȳ₀` ⟦eq:desiredab⟧.
+   (Implementation, `GQ2/Roe/MarkedMatching.lean`: the shear/`φ_ab` data is encoded as the
+   `(u, b)`-solution of the coordinate system `σᵢ·u + τᵢ·b = ν_R(genᵢ)`, solvable because the
+   coordinate matrix is mod-2 invertible and `τ₂` is odd — the `X = η^{τ₂}` face of the
+   unique-`u` step; orientation-compatibility of the abstract `f` is
+   `isLabuteOrientation_comp_iso` + `isLabuteOrientation_ext`.)
 3. Correct `f` by `prop_3_8_classification` + `prop_3_8_lift`
    (`GQ2/AnabelianBridge/Classification.lean:342`, `Construction.lean:1089` — both live on the
    `D₀` side and are reused **as-is**), so the corrected isomorphism abelianizes to `φ_ab`,
@@ -59,6 +68,8 @@ mod-2 Gram-isometry seed `s̄ ↦ S̄+Ȳ, x̄ ↦ Ȳ, ȳ ↦ Ā`.
 -/
 
 namespace GQ2
+
+open SectionThree Roe Multiplicative
 
 /-! ## The unramified marking `ν_R` -/
 
@@ -83,8 +94,8 @@ noncomputable def nuDR : ContinuousMonoidHom (DR : Type) Ztwo :=
 /-- `ν_R` is surjective (note Lemma 2.1: "it is surjective because `σ` maps to `1`").
 Fill (R15): `ztwoOne` topologically generates `Ztwo`, and the image of a continuous hom of
 profinite groups is closed — the `nuTwo_surjective` argument (`GQ2/Prop32.lean`) verbatim. -/
-theorem nuDR_surjective : Function.Surjective nuDR := by
-  sorry
+theorem nuDR_surjective : Function.Surjective nuDR :=
+  surjective_of_mem_range_topGen nuDR topGen_ztwo ⟨drS, nuDR_drS⟩
 
 /-! ## The B-Lab classification hypothesis  (draft for owner review — ticket R14 flips) -/
 
@@ -152,7 +163,87 @@ theorem markedPro2_R [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
       ∃ e : ContinuousMulEquiv (maxProPQuotient 2 AbsGalQ2) (DR : Type),
         ∀ g : AbsGalQ2,
           R.nu_ur (toAb g) = ι (nuDR (e (maxProPMk 2 AbsGalQ2 g))) := by
-  sorry
+  -- Step 1: the B-Lab abstract isomorphism, with its antecedents (R10–R13b) discharged.
+  have habs : Nonempty (ContinuousMulEquiv (DR : Type) (D0 : Type)) :=
+    hBLab isDemushkin_DR demushkinRank_DR demushkinQ_DR
+      ⟨chiR.toMonoidHom, chiR.continuous_toFun, isLabuteOrientation_chiR, chiR_surjective⟩
+  -- Steps 2–3: the ν-matched corrected isomorphism `F` (`MarkedMatching` keystone).
+  obtain ⟨F, hFS, hFX, hFY⟩ := exists_matching_iso habs
+  -- The `D_R`-side density: `ζ ∘ ν_R = sHom ∘ abMk ∘ F` (checked on `s, x, y`).
+  have hkeyR : ∀ w : (DR : Type), ztwoEquivPadic (nuDR w) = sHom (abMk (F w)) := by
+    have h := monoidHom_eq_of_topGen
+      (f := ztwoEquivPadic.toMulEquiv.toMonoidHom.comp nuDR.toMonoidHom)
+      (g := sHom.toMonoidHom.comp (abMk.comp F.toMulEquiv.toMonoidHom))
+      (ztwoEquivPadic.continuous_toFun.comp nuDR.continuous_toFun)
+      (sHom.continuous_toFun.comp (continuous_abMk.comp F.continuous_toFun))
+      dr_topGen ?_
+    · exact h
+    · rintro w (rfl | rfl | rfl)
+      · show ztwoEquivPadic (nuDR drS) = sHom (abMk (F drS))
+        rw [nuDR_drS]
+        exact SectionThree.ztwoEquivPadic_ztwoOne.trans hFS.symm
+      · show ztwoEquivPadic (nuDR drX) = sHom (abMk (F drX))
+        rw [nuDR_drX]
+        exact ztwoEquivPadic.toMulEquiv.map_one.trans hFX.symm
+      · show ztwoEquivPadic (nuDR drY) = sHom (abMk (F drY))
+        rw [nuDR_drY]
+        exact ztwoEquivPadic.toMulEquiv.map_one.trans hFY.symm
+  -- Step 4: compose with Prop. 1.1 through the `sHom`-bridge (`nuUrBar_symm_eq_sHom`).
+  obtain ⟨e₁, hA, hS, hY⟩ := SectionThree.prop_1_1 (R := R)
+  refine ⟨ztwoEquivPadic, ?_, e₁.trans F.symm, ?_⟩
+  · rw [show ((1 : ℤ) : ℤ_[2]) = 1 from Int.cast_one]
+    exact SectionThree.ztwoEquivPadic_ztwoOne
+  · intro g
+    have h1 := nuUrBar_symm_eq_sHom R e₁ hA hS hY (e₁ (maxProPMk 2 AbsGalQ2 g))
+    rw [e₁.symm_apply_apply] at h1
+    calc R.nu_ur (toAb g)
+        = PropOneOne.nuUrBar R (maxProPMk 2 AbsGalQ2 g) :=
+          (PropOneOne.nuUrBar_maxProPMk R g).symm
+      _ = sHom (abMk (e₁ (maxProPMk 2 AbsGalQ2 g))) := h1
+      _ = sHom (abMk (F (F.symm (e₁ (maxProPMk 2 AbsGalQ2 g))))) := by
+          rw [F.apply_symm_apply]
+      _ = ztwoEquivPadic (nuDR (F.symm (e₁ (maxProPMk 2 AbsGalQ2 g)))) := (hkeyR _).symm
+      _ = ztwoEquivPadic (nuDR ((e₁.trans F.symm) (maxProPMk 2 AbsGalQ2 g))) := rfl
+
+/-! ## The `ν`-composite over the `Γ_R` bridge  (the R15a hand-off one-liners)
+
+`maxPro2Bridge : Γ_R(2) ≅ D_R` (`GQ2/Roe/MaxPro2Bridge.lean`) matches the marked generators;
+composing with `ν_R` therefore reads the unramified marking of the Roe candidate on its pro-2
+quotient: `σ ↦ 1, τ ↦ 0, x₀ ↦ 0, x₁ ↦ 0` — the ⟦lem:tame⟧/⟦eq:BRsplit⟧ values the boundary
+assembly (R32) consumes. -/
+
+section NuComposite
+
+local instance : T2Space (FreeProfiniteGroup (Fin 4) ⧸ NR) :=
+  haveI : IsClosed (NR : Set (FreeProfiniteGroup (Fin 4))) := NR_isClosed
+  inferInstance
+
+local instance : TotallyDisconnectedSpace (FreeProfiniteGroup (Fin 4) ⧸ NR) :=
+  haveI : IsClosed (NR : Set (FreeProfiniteGroup (Fin 4))) := NR_isClosed
+  inferInstance
+
+/-- **Stress test (`ν`-composite, `σ`-row):** `ν_R(bridge(σ)) = 1`. -/
+theorem nuDR_maxPro2Bridge_sigma :
+    nuDR (maxPro2Bridge (maxProPMk 2 (FreeProfiniteGroup (Fin 4) ⧸ NR) gammaSigmaR))
+      = ztwoOne := by
+  rw [maxPro2Bridge_gammaSigmaR, nuDR_drS]
+
+/-- **Stress test (`ν`-composite, `τ`-row):** `ν_R(bridge(τ)) = 0`. -/
+theorem nuDR_maxPro2Bridge_tau :
+    nuDR (maxPro2Bridge (maxProPMk 2 (FreeProfiniteGroup (Fin 4) ⧸ NR) gammaTauR)) = 1 := by
+  rw [maxPro2Bridge_gammaTauR, map_one]
+
+/-- **Stress test (`ν`-composite, `x₀`-row):** `ν_R(bridge(x₀)) = 0`. -/
+theorem nuDR_maxPro2Bridge_x0 :
+    nuDR (maxPro2Bridge (maxProPMk 2 (FreeProfiniteGroup (Fin 4) ⧸ NR) gammaX0R)) = 1 := by
+  rw [maxPro2Bridge_gammaX0R, nuDR_drX]
+
+/-- **Stress test (`ν`-composite, `x₁`-row):** `ν_R(bridge(x₁)) = 0`. -/
+theorem nuDR_maxPro2Bridge_x1 :
+    nuDR (maxPro2Bridge (maxProPMk 2 (FreeProfiniteGroup (Fin 4) ⧸ NR) gammaX1R)) = 1 := by
+  rw [maxPro2Bridge_gammaX1R, nuDR_drY]
+
+end NuComposite
 
 end GQ2
 
@@ -161,6 +252,6 @@ end GQ2
   * Prop 3.6 = ⟦prop:markedpro2⟧
   * Cor 3.4 = ⟦cor:abstractD0⟧ (`BLabHypothesis` draft)
   * eq. (3.14)–(3.16) = ⟦eq:B0⟧/⟦eq:nu0⟧/⟦eq:chi0⟧ (fill-side inputs, `GQ2/SectionThree.lean`)
-  * eq. (3.17) = ⟦eq:desiredab⟧ (fill R15)
-  * Lemma 2.1 = ⟦lem:tame⟧ (`ν_R` values)
+  * eq. (3.17) = ⟦eq:desiredab⟧ (fill R15, via `GQ2/Roe/MarkedMatching.lean`)
+  * Lemma 2.1 = ⟦lem:tame⟧ (`ν_R` values; `ν`-composite over `maxPro2Bridge`)
 -/
