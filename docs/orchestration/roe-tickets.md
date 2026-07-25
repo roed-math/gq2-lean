@@ -10,22 +10,35 @@ own files on green (`roe Rn: <summary>`) and ends with a report (files, commit h
 sorry/axiom state, deviations, discoveries affecting later tickets); the orchestrator alone
 updates rows here and merges `roe` → `master` at wave boundaries.
 
+## Campaign decisions (orchestrator log)
+
+- 2026-07-24 (owner, pre-sleep): work lives inside `gq2-lean` (single docs tree for the
+  website). Placement decided by orchestrator: **`GQ2/Roe/` inside the `GQ2` library**
+  (namespace `GQ2.Roe`, `Marking`-dot-notation defs where natural; one `import GQ2.Roe.X`
+  line per lane in `GQ2.lean`) — same-library gives verbatim imports and atlas coverage.
+- 2026-07-24 (owner, pre-sleep): **G1 route decision delegated to the orchestrator** once
+  the R2 spike reports. Safeguard retained: on Route L, all math proceeds
+  hypothesis-parametrized; the actual axiom-insertion commit (R14 census flip) still waits
+  for owner sign-off in the morning. Owner also flagged 79% weekly fable usage — prefer
+  opus where the plan allows; expect possible interruption (commit early, board always
+  current).
+
 ## Wave 1 (parallel: R1→R3→R4→R5 lane; R6 lane; R2 lane; R20 lane)
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| R1 | Roe words + WildRelR + admissibleCountR + wildValueExpR (+stress) | fable | `GQ2/Roe/Words.lean` | — | queued |
-| R2 | Nielsen search spike: ν-constrained D_R ⇄ D₀ words (off-Lean, q2 archive tooling; timeboxed) | fable | report `roe-r2-spike.md` (no Lean) | — | queued |
+| R1 | Roe words + WildRelR + admissibleCountR + wildValueExpR (+stress) | fable | `GQ2/Roe/Words.lean` | — | queued (gated on worktree build warm-up) |
+| R2 | Nielsen search spike: ν-constrained D_R ⇄ D₀ words (off-Lean, q2 archive tooling; timeboxed) | fable | report `roe-r2-spike.md` (no Lean) | — | **dispatched 2026-07-24 evening** |
 | R3 | GammaR marked quotient + AdmissibleLimit clone | opus | `GQ2/Roe/GammaR.lean`, `GQ2/Roe/AdmissibleLimit.lean` | R1 | queued |
 | R4 | prop_2_3_R epi-semantics | opus | `GQ2/Roe/Prop23.lean` | R3 | queued |
 | R5 | small-group numerical cross-check vs June LMFDB-verified counts | opus | `GQ2/Roe/Sanity.lean` | R1 | queued |
 | R6 | tame quotient + ν_R + W_R = O₂ (note lem:tame) | opus | `GQ2/Roe/Tame.lean` | R1 | queued |
-| R20 | §5 scaffolding parameter-boundary recon (read-only, citation-dense) | opus | report `roe-r20-recon.md` | — | queued |
+| R20 | §5 scaffolding parameter-boundary recon (read-only, citation-dense) | opus | report `roe-r20-recon.md` | — | **dispatched 2026-07-24 evening** |
 
-## Gate G1 (owner)
+## Gate G1 (owner → delegated to orchestrator 2026-07-24, see decisions log)
 
-Route selection for P2 from the R2 spike result; if Route L, sign off the B-Lab axiom
-statement (Labute 1967 Thm 8+4 instance, descent-characterized orientation). Blocks R7+.
+Route selection for P2 from the R2 spike result; if Route L, the B-Lab axiom statement is
+drafted and used ONLY as a hypothesis until owner sign-off (R14 flip stays owner-gated).
 
 ## Wave 2 — P2 (route-dependent) ∥ P3 word level
 
