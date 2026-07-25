@@ -27,7 +27,7 @@ updates rows here and merges `roe` → `master` at wave boundaries.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| R1 | Roe words + WildRelR + admissibleCountR + wildValueExpR (+stress) | fable | `GQ2/Roe/Words.lean` | — | queued (gated on worktree build warm-up) |
+| R1 | Roe words + WildRelR + admissibleCountR + wildValueExpR (+stress) | fable | `GQ2/Roe/Words.lean` | — | **dispatched 2026-07-24 evening** (worktree warm: build green 3308 jobs) |
 | R2 | Nielsen search spike: ν-constrained D_R ⇄ D₀ words (off-Lean, q2 archive tooling; timeboxed) | fable | report `roe-r2-spike.md` (no Lean) | — | **dispatched 2026-07-24 evening** |
 | R3 | GammaR marked quotient + AdmissibleLimit clone | opus | `GQ2/Roe/GammaR.lean`, `GQ2/Roe/AdmissibleLimit.lean` | R1 | queued |
 | R4 | prop_2_3_R epi-semantics | opus | `GQ2/Roe/Prop23.lean` | R3 | queued |
