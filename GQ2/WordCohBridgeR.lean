@@ -41,7 +41,8 @@ with the discrete `WordLift` topology instances registered there.  Likewise `mar
 `q.comp (quotientMk NR)` must unify.
 
 The spine: a continuous crossed cocycle `z : GR → A` (for the `q`-conjugation action) is exactly the
-`.u`-component of a continuous hom `φ_z : GR → WordLift A C = A ⋊ C` lifting `q` (`(φ_z γ).g = q γ`).
+`.u`-component of a continuous hom `φ_z : GR → WordLift A C = A ⋊ C` lifting `q`
+(`(φ_z γ).g = q γ`).
 Evaluating `φ_z` at the generators lands in `Z1wR` because both `Γ_R` relators die in `GR`;
 conversely a Roe word cocycle `x ∈ Z1wR` gives an `R`-admissible marking of `WordLift`, which
 descends to the hom, whose `.u`-component is the cocycle.
@@ -311,8 +312,9 @@ theorem NR_le_ker_classify_R (hq : Function.Surjective q) (hA₂ : ∀ a : A, a 
         exact Subgroup.subset_normalClosure (Set.mem_insert_of_mem _ rfl)
   exact (isAdmissibleUR_iff_NR_le U).mp hadm
 
-/-- The descended `WordLift`-valued hom of a Roe word cocycle: `Marking.classify (liftMarking t_q x)`
-pushed through `Γ_R = F₄ ⧸ N_R` (legitimate by `NR_le_ker_classify_R`). -/
+/-- The descended `WordLift`-valued hom of a Roe word cocycle:
+`Marking.classify (liftMarking t_q x)` pushed through `Γ_R = F₄ ⧸ N_R` (legitimate by
+`NR_le_ker_classify_R`). -/
 noncomputable def liftHomR (hq : Function.Surjective q) (hA₂ : ∀ a : A, a + a = 0)
     (x : Z1wR (A := A) (markC_R q)) : ContinuousMonoidHom GR (WordLift A C) :=
   quotientLift NR (Marking.classify (liftMarking (markC_R q) x.1)) (NR_le_ker_classify_R q hq hA₂ x)
