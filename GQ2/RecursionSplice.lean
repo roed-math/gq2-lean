@@ -41,6 +41,36 @@ namespace SectionEight
 variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
   [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
 
+/-- **The splice backbone over an abstract source** (the SourceData seam, R30): `prop_8_9_of`
+with the candidate slot abstracted over `(Γ, b)`, the `#Hom(Γ,𝔽₂) = 8` obligation taken as
+the hypothesis `hscalarS` (the `lemma_8_2_gammaA` shape), and the `G_ℚ₂` slot pinned to `B`.
+`prop_8_9_of` below re-derives the byte-identical `Γ_A` statement from this one. -/
+theorem prop_8_9_of_inputs (B : BoundaryMaps)
+    {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+    [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] [IsTopologicalGroup AbsGalQ2]
+    {Y : Type} [Group Y] [TopologicalSpace Y]
+    [DiscreteTopology Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk)
+    (b : ContinuousMonoidHom Γ ↥boundarySubgroup)
+    (F : BoundaryFrame H E)
+    (μ : ℕ) (G0 : ℤ) (DT : Type) [Fintype DT]
+    (phase : (l : RF.DR) → l ≠ RF.zeroDR → DT → CentralCover RF.YC)
+    (hfgS : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (hscalarS : Nat.card (ContinuousMonoidHom Γ (Multiplicative (ZMod 2))) = 8)
+    (hheadS : Function.Surjective (fun γ : Γ => (F.frameMap (b γ)).1))
+    (hfgF : ∃ s : Finset AbsGalQ2, (Subgroup.closure (s : Set AbsGalQ2)).topologicalClosure = ⊤)
+    (hheadF : Function.Surjective (fun γ : AbsGalQ2 => (F.frameMap (B.bF γ)).1))
+    (inpS : RecursionInputs RF b F μ G0 DT phase)
+    (inpF : RecursionInputs RF B.bF F μ G0 DT phase) :
+    ∃ (μ' : ℕ) (G0' : ℤ) (DT' : Type) (_ : Fintype DT')
+      (phase' : (l : RF.DR) → l ≠ RF.zeroDR → DT' → CentralCover RF.YC),
+      ClosedRecursion RF b F μ' G0' DT' phase' ∧
+        ClosedRecursion RF B.bF F μ' G0' DT' phase' :=
+  ⟨μ, G0, DT, inferInstance, phase,
+    prop_8_9_aux RF hfgS b F hscalarS hheadS μ G0 DT phase inpS,
+    prop_8_9_aux RF hfgF B.bF F (lemma_8_2_local B) hheadF μ G0 DT phase inpF⟩
+
 /-- **Prop 8.9, reduced to the per-source `RecursionInputs` + shared witness** (the splice
 backbone).
 Given the shared phase witness `(μ, G0, DT, phase)`, the two per-source side-condition triples, and
@@ -65,10 +95,10 @@ theorem prop_8_9_of (B : BoundaryMaps)
       (phase' : (l : RF.DR) → l ≠ RF.zeroDR → DT' → CentralCover RF.YC),
       ClosedRecursion RF B.bA F μ' G0' DT' phase' ∧
         ClosedRecursion RF B.bF F μ' G0' DT' phase' :=
-  -- `hscalar` (#Hom(Γ,𝔽₂) = 8) is discharged internally from the proved `lemma_8_2_*`.
-  ⟨μ, G0, DT, inferInstance, phase,
-    prop_8_9_aux RF hfgA B.bA F lemma_8_2_gammaA hheadA μ G0 DT phase inpA,
-    prop_8_9_aux RF hfgF B.bF F (lemma_8_2_local B) hheadF μ G0 DT phase inpF⟩
+  -- `hscalar` (#Hom(Γ,𝔽₂) = 8) is discharged from the proved `lemma_8_2_gammaA`, through
+  -- the abstract-source backbone (the SourceData refactor same-name flip).
+  prop_8_9_of_inputs B RF B.bA F μ G0 DT phase hfgA lemma_8_2_gammaA hheadA hfgF hheadF
+    inpA inpF
 
 /-! ## `half139` reduced to the source's `MLifts`-level count (d3 bridge discharged)
 
