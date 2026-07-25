@@ -1200,4 +1200,19 @@ theorem nuUrBar_symm_eq_sHom (R : LocalReciprocity)
       rw [← hgY', PropOneOne.nuUrBar_maxProPMk, hY gY hgY', sHom_Y']
       exact congrArg ofAdd (by push_cast; ring)
 
+/-! ## Stress lemmas (plan rule 9) -/
+
+/-- **Stress test (group-level orientation values)** ⟦eq:chi0⟧:
+`χ₀(A, S₀, Y₀) = (−1, 1, (−3)⁻¹)`. -/
+theorem chiD0G_values :
+    chiD0G d0A = -1 ∧ chiD0G d0S = 1 ∧ chiD0G d0Y = unitNegThree⁻¹ :=
+  ⟨chiD0G_A, chiD0G_S, chiD0G_Y⟩
+
+/-- **Stress test (orientation functoriality, `X`-value)**: the pulled-back canonical
+orientation agrees with `χ_R` on the wild generator — `χ₀(f(x)) = χ_R(x) = X`, the Hensel
+root, for **every** continuous isomorphism `f : D_R ≅ D₀`. -/
+theorem chiD0G_iso_drX (f : ContinuousMulEquiv (DR : Type) (D0 : Type)) :
+    chiD0G (f drX) = chiR drX :=
+  DFunLike.congr_fun (chiD0G_comp_iso_eq_chiR f) drX
+
 end Masters
