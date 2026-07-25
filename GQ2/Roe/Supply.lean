@@ -3,13 +3,9 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
-module
-
-public import GQ2.SectionEight.ScalarCount
-public import GQ2.Roe.AdmissibleLimit
-public import GQ2.FinitelyGenerated
-
-@[expose] public section
+import GQ2.SectionEight.ScalarCount
+import GQ2.Roe.AdmissibleLimit
+import GQ2.FinitelyGenerated
 
 /-!
 # `Γ_R` source-data supply: topological finite generation and the scalar character count
@@ -42,6 +38,14 @@ exact byte-for-byte clone of its `Γ_A` original, with the same carrier spelling
 
 Both declarations become `SourceData` field values for R30/R32.  No new axioms (`#print axioms` at
 the standard three throughout); all counting scaffolding is reused, never re-proved.
+
+**Module-system note.** Unlike its `GQ2/Roe/*` siblings this file is deliberately *not* a `module`
+(plain `import`, no `@[expose] public section`): it depends on `GQ2.SectionEight.ScalarCount`, and
+the whole `GQ2/SectionEight/` chain is non-`module`, so a `module` header here fails to elaborate
+with `cannot import non-`module` GQ2.SectionEight.ScalarCount from `module``.  Same resolution as
+the sibling `GQ2/Roe/Prop23.lean`, which reaches into the same non-`module` §2/§8 stack.  Importing
+the `module` files `GQ2.Roe.AdmissibleLimit` / `GQ2.FinitelyGenerated` from here is fine — the
+restriction is one-directional.  R30's `GQ2/SourceData.lean` will inherit the same constraint.
 -/
 
 open CategoryTheory ProfiniteGrp
