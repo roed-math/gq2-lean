@@ -22,6 +22,11 @@ updates rows here and merges `roe` → `master` at wave boundaries.
   for owner sign-off in the morning. Owner also flagged 79% weekly fable usage — prefer
   opus where the plan allows; expect possible interruption (commit early, board always
   current).
+- 2026-07-24 night (orchestrator hotfix daecc5a): `GQ2.nuR` name collision — R6's Tame.lean
+  (Γ_R-side) vs R7's MarkedPro2.lean skeleton (D_R-side) both defined `nuR`; MarkedPro2's
+  renamed `nuDR` (mechanical, file unowned at the time). Aggregate build unblocked. New
+  convention: orchestrator + workers use path-limited `git commit -- <files>` (shared-index
+  races swept files twice tonight).
 
 ## Wave 1 (parallel: R1→R3→R4→R5 lane; R6 lane; R2 lane; R20 lane)
 
@@ -53,13 +58,14 @@ numerics on file for cross-checks.
 | R9 | χ-twisted crossed-derivation fills: master evaluation, the 4 equations, branch exclusion, solution uniqueness (may leave 1 sorry if `_ext` needs in-flight R8) | fable | `GQ2/Roe/CrossedDerivation.lean` (fills) | R7 ✓, R10 ✓ | **dispatched 2026-07-24 night** |
 | R10 | cubic Hensel + orientation-value arithmetic (STANDALONE — rescoped off R7's critical path) | opus | `GQ2/Roe/OrientationRoot.lean` | — | **done 2026-07-24** (1f4b265, 290 ln, 0 sorries, std-3; build 3313; mathlib-only imports). API for R9/R11: `rootX(_isRoot/_unique/_isUnit/_toZModPow_four=5/_five=21)`, `Sval(_mul_denom/_toZModPow_four=13)`, `Yval(_eq/_toZModPow_four=7/_ne_sq)`, `denom_isUnit`, `isUnit_sq_sub_self_sub_one_of_odd`, norm facts + exact-level `rootX_sub_one_eq`/`Sval_sub_one_eq` (∃ unit a, ·−1=4a — feeds `zpowZtwo_injective_of_exact_level`). All congruences match spike table |
 | R11 | im χ_R = {±1}×(1+4ℤ₂) | opus | `GQ2/Roe/OrientationImage.lean` | R9, R10 | queued |
-| R12+13 | **MERGED (single file owner per R7's flag)**: all 14 DRDemushkin sorries — H² card 2 (WordCoh2/CardH2GammaA clone + witness), nine cup-Gram entries + nondegen (p=2 bilinear pitfall), H¹ card 8, demushkinQ (may leave ≤2 sorries if R8 in flight) | opus (fable escalation if H² witness stalls) | `GQ2/Roe/DRDemushkin.lean` (fills) | R7 ✓ (+R8 for demushkinQ only) | **dispatched 2026-07-24 night** |
+| R12+13 | MERGED: DRDemushkin fills | opus | `GQ2/Roe/DRDemushkin.lean` (fills) | R7 ✓ | **partial 2026-07-24** (140033f): H¹ half DONE (`drH1_bijective`, `card_H1_DR=8`, `demushkinRank_DR=3` — std-3). H² half (12 sorries: card_H2, 9 Gram, nondegen, demushkinQ) BLOCKED on missing 3-gen/1-relator word-coh infra (WordCoh2/WordCohBridge hard-wired to Γ_A) → escalated to R13b |
+| R13b | ESCALATION: 3-gen/1-relator WordCoh2+WordCohBridge clone for D_R (`DRWordCoh.lean`) + H² witness + discharge DRDemushkin's 12 sorries (≤3 R8-gated OK) | opus | `GQ2/Roe/DRWordCoh.lean` (+`DRH2.lean`), `GQ2/Roe/DRDemushkin.lean` (fills) | R12+13 partial, R21 ✓, R24 ✓ (+R8 for ss/xx/demushkinQ) | **dispatched 2026-07-24 night** |
 | R14 | B-Lab axiom flip (b9a-T5-style checklist) — **OWNER-GATED, do not dispatch** | fable | `Foundations/Axioms.lean`, `AxiomLedger.lean`, `check_axioms.sh` | R11–R13 + owner sign-off | blocked (owner) |
 | R15 | marked matching assembly (prop_1_1 clone; unique b with S = X^b, k-shear, prop_3_8 reuse; R2's isometry seed + b,u numerics as cross-checks) | fable | `GQ2/Roe/MarkedPro2.lean` (fills) | R7–R13 (hypothesis-parametrized, not R14) | queued |
 | R21 | r_R Fox spine (`d1FunR`/`Z1wR`/`H*wR` + `mixedB_R` def) + evaluated wild row split/ramified + trivial-module differential (b,b) | fable | `GQ2/Roe/FoxBasic.lean`, `GQ2/Roe/WildRow.lean` | R1 ✓, R20 ✓ | **done 2026-07-24** (633daae, 607 ins, 0 sorries, std-3; ns `GQ2.FoxH`). Rows: split `x1+x2+σ⁻¹•x2` (needs NO hU — weaker than Γ_A!), ramified `σ⁻¹•x2`; swap-vs-Γ_A mechanized (`liftMarking_wildValueR_u_eq_swap`); trivial collapse `d1FunR_of_trivial` (=(x1,x1)); `mixedB_R`+`bridge_wildR` in FoxBasic — later tickets IMPORT bridge_wildR, never re-define. (check_axioms repo-wide currently red on MarkedPro2's in-flight skeleton sorries — expected mid-wave; wave-close gate) |
 | R22 | simple normal forms (0,0,0,d) | opus | `GQ2/Roe/NormalForms.lean` | R21 ✓ | **done 2026-07-24** (36cfe95, 206 ln, 0 sorries, std-3). `x1Supported`, `lemma_5_13_split_R` (no hU — one fewer arg), `lemma_5_13_ramified_R` (∃! (0,0,0,d) rep, hypothesis-based for A and A∨), `b1wR_split_shape`. Scope map for R26: H⁰/H²/H¹-cards + `split_shapes_of_wild_R`-style DualityAssembly helpers are R26's (mechanical x2↔x3 swaps); pairing lemmas are R24's |
 | R23 | Stokes exponent vector ![0,e,e+1,0] + odd-e (0,1,0,0) endpoint input (RESCOPED: chain-map rows moved to R25) | opus | `GQ2/Roe/Stokes.lean` | R1 ✓ | **done 2026-07-24** (4abf603, +150 ln, std-3, 0 sorries; ns `GQ2.FoxH` beside consumers). R25 endpoint input = `expMod2_wildValueExpR_odd` via `congrFun (… (omega2Exp_exponent_heis_cast))`; sum-zero endpoint `expMod2_tame_add_wildValueExpR_odd`; e=3 `decide` stress |
-| R24 | mixed Hessian z-ledger + 1+U+U⁻¹ pairing (note prop:hessian) | opus | `GQ2/Roe/Hessian.lean` | R21 | queued |
+| R24 | mixed Hessian z-ledger + 1+U+U⁻¹ pairing (note prop:hessian) | opus | `GQ2/Roe/Hessian.lean` | R21 ✓ | **done 2026-07-24** (d3001c0, 395 ln, 0 sorries, std-3). Ledger + assembled `heisMarking_wildValueR_z(_ramified)`, `mixedB_R_pairing_split/_ramified`, `pairingR_operator_injective` (thin alias — Γ_A's operator lemma verbatim, presentation-independent); htau kept as unused binder for R26 signature parity; ramified diagonal needs NO ω₂-collapse (the h₀-free simplification, confirmed) |
 | R25 | traced chain-map rows (prop_5_8_*_R) + `mixedB_cocycle_R` + trivial-module Gram a·c′+c·a′+d·d′ + trivialSelfDual_R base | opus | `GQ2/Roe/TrivialSelfDual.lean` | R21 ✓, R23 ✓ (may leave ≤2 sorries if R24 in flight) | **dispatched 2026-07-24 night** |
 | R26a | mechanical dévissage clone onto the r_R spine (`IsSelfDualR`, Devissage/ + DevissageInduction twins, target `prop_5_15_of_simple_R`; ElemDualPack + generic helpers reused not cloned) | opus | `GQ2/Roe/SelfDual.lean`, `GQ2/Roe/Devissage*.lean`, `GQ2/Roe/DevissageInduction.lean` | R21 ✓ (spine only) | **dispatched 2026-07-24 night** |
 | R26b | duality assembly: `selfDual_of_simple_R` + `prop_5_15_R` + thin `cor_5_17_card_R` (prop_5_16 reused verbatim) | fable | `GQ2/Roe/DualityAssembly.lean` | R22 ✓, R24, R25, R26a | queued |
@@ -68,7 +74,7 @@ numerics on file for cross-checks.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| R27 | quadratic expansion + Gauss signs by instantiation (note prop:quadratic, cor:gauss) | opus | `GQ2/Roe/Gauss.lean` | R24, R26 | — |
+| R27 | quadratic expansion + Gauss signs by instantiation (note prop:quadratic, cor:gauss; word-level layer only — GaussZ package = R31) | opus | `GQ2/Roe/Gauss.lean` | R24 ✓ | **dispatched 2026-07-24 night** |
 | R30 | SourceData extraction + thm_4_2/prop_8_9 generalization; Γ_A capstones byte-identical (regression-gated, serialized) | fable | `BoundaryFrame.lean`, `Prop89Close.lean`, `RecursionSplice.lean`, `ThmFourTwo.lean`, new `GQ2/SourceData.lean` | R20; ideally after R26 | — |
 | R31 | Γ_R supply lemmas: lemma_8_2_R, liftsOver_card_R, lemma_8_6_R, GaussZ package (file list fixed by R30) | opus | `GQ2/Roe/Supply*.lean` | R30, R26, R27, P2 | — |
 | R32 | sourceR instance + eq_154_R + main_surjection_count_R + main_presentation_literal_roe | fable | `GQ2/Roe/Main.lean` | R31, R4, P1, P2 | — |
