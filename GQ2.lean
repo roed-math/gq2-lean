@@ -180,6 +180,7 @@ import GQ2.Roe.Sanity
 import GQ2.Roe.DRPresentation
 import GQ2.Roe.DRAbelianization
 import GQ2.Roe.CrossedDerivation
+import GQ2.Roe.DRWordCoh
 import GQ2.Roe.DRDemushkin
 import GQ2.Roe.MarkedPro2
 import GQ2.Roe.MaxPro2Bridge
@@ -190,7 +191,6 @@ import GQ2.Roe.Hessian
 import GQ2.Roe.ChiR
 import GQ2.Roe.Gauss
 import GQ2.Roe.TrivialSelfDual
-import GQ2.Roe.SelfDual
 import GQ2.Roe.Devissage.TracedRows
 import GQ2.Roe.Devissage.Naturality
 import GQ2.Roe.Devissage.EvalPairings
@@ -202,3 +202,4 @@ import GQ2.Roe.Devissage.LESMaster
 import GQ2.Roe.Devissage.GeneratesBridge
 import GQ2.Roe.Devissage
 import GQ2.Roe.DevissageInduction
+import GQ2.Roe.Supply

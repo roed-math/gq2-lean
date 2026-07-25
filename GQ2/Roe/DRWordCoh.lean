@@ -661,4 +661,264 @@ theorem DRLevelFactor.obs_congr {κ : DRT × DRT → ZMod 2}
 
 end LevelFactor
 
+/-! ## `CentExt` over a finite quotient of `D_R` is pro-2 -/
+
+/-- `CentExt c` over a finite quotient of the pro-2 group `D_R` is a finite `2`-group, hence
+pro-2 — the target hypothesis of `drLiftHom`. -/
+theorem isProP_CentExt {V : OpenNormalSubgroup DRT} (c : TwoCocycle (DRT ⧸ V.toSubgroup)) :
+    IsProP 2 (CentExt c) := by
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  refine isProP_of_isPGroup (IsPGroup.of_card (p := 2) ?_)
+  obtain ⟨k, hk⟩ := (IsPGroup.iff_card (p := 2)).mp (isProP_DR V)
+  refine ⟨k + 1, ?_⟩
+  have hcard : Nat.card (CentExt c) = Nat.card (DRT ⧸ V.toSubgroup) * Nat.card (ZMod 2) :=
+    Nat.card_prod _ _
+  rw [hcard, ← Nat.card_eq_fintype_card (α := DRT ⧸ V.toSubgroup)] at *
+  rw [hcard, hk, Nat.card_zmod, pow_succ]
+
+/-! ## The relation holds at every finite level -/
+
+/-- The Roe relation `drWord (s, x, y) = 1` is inherited by every finite quotient `D_R ⧸ V`. -/
+theorem drWord_mk_eq_one (V : OpenNormalSubgroup DRT) :
+    drWord (QuotientGroup.mk' V.toSubgroup (drGens 0)) (QuotientGroup.mk' V.toSubgroup (drGens 1))
+      (QuotientGroup.mk' V.toSubgroup (drGens 2)) = 1 := by
+  have h := map_drWord (QuotientGroup.mk' V.toSubgroup) (drGens 0) (drGens 1) (drGens 2)
+  simp only [drGens_zero, drGens_one, drGens_two] at h ⊢
+  rw [← h, ← map_drWord, dr_relation, map_one]
+
+/-! ## The obstruction homomorphism and its injectivity -/
+
+section Obstruction
+
+variable [DistribMulAction DRT (ZMod 2)] [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
+  [ContinuousSMul DRT (ZMod 2)]
+
+/-- Normalize a 2-cochain at `(1,1)` by subtracting the constant `κ (1,1)`. -/
+def normalizeCochain (κ : DRT × DRT → ZMod 2) : DRT × DRT → ZMod 2 := κ - fun _ => κ (1, 1)
+
+private theorem normalizeCochain_add (κ κ' : DRT × DRT → ZMod 2) :
+    normalizeCochain (κ + κ') = normalizeCochain κ + normalizeCochain κ' := by
+  funext p; simp only [normalizeCochain, Pi.add_apply, Pi.sub_apply]; abel
+
+variable (htriv : ∀ (x : DRT) (m : ZMod 2), x • m = m)
+include htriv
+
+omit [ContinuousSMul DRT (ZMod 2)] in
+/-- A constant 2-cochain is a continuous coboundary. -/
+theorem const2_mem_B2 (v : ZMod 2) :
+    (fun _ : DRT × DRT => v) ∈ B2 DRT (ZMod 2) := by
+  rw [B2, AddSubgroup.mem_map]
+  refine ⟨fun _ => v, continuous_const, ?_⟩
+  funext p
+  simp only [dOne, AddMonoidHom.coe_mk, ZeroHom.coe_mk, htriv]
+  abel
+
+omit [ContinuousSMul DRT (ZMod 2)] in
+/-- The normalization of a continuous 2-cocycle factors through a finite quotient. -/
+theorem nonempty_levelFactor_normalize (φ : Z2 DRT (ZMod 2)) :
+    Nonempty (DRLevelFactor (normalizeCochain φ.1)) := by
+  have hφcont : Continuous φ.1 := (mem_Z2_iff.mp φ.2).1
+  have hφcoc := (mem_Z2_iff.mp φ.2).2
+  have hcont : Continuous (normalizeCochain φ.1) := hφcont.sub continuous_const
+  have hnorm : normalizeCochain φ.1 (1, 1) = 0 := by
+    simp only [normalizeCochain, Pi.sub_apply, sub_self]
+  have hcoc : ∀ a b c, normalizeCochain φ.1 (a, b) + normalizeCochain φ.1 (a * b, c)
+      = normalizeCochain φ.1 (a, b * c) + normalizeCochain φ.1 (b, c) := by
+    intro a b c
+    have hz := hφcoc a b c
+    rw [htriv] at hz
+    simp only [normalizeCochain, Pi.sub_apply]
+    linear_combination -hz
+  obtain ⟨V, c, hfact⟩ := exists_twoCocycle_factor_DR (normalizeCochain φ.1) hcont hnorm hcoc
+  exact ⟨V, c, hfact⟩
+
+/-- The per-cocycle obstruction. -/
+noncomputable def obsFun_DR (φ : Z2 DRT (ZMod 2)) : ZMod 2 :=
+  (nonempty_levelFactor_normalize htriv φ).some.obs
+
+omit [ContinuousSMul DRT (ZMod 2)] in
+/-- `obsFun_DR` may be computed at *any* factorization of the normalization. -/
+theorem obsFun_DR_eq (φ : Z2 DRT (ZMod 2)) (F : DRLevelFactor (normalizeCochain φ.1)) :
+    obsFun_DR htriv φ = F.obs :=
+  DRLevelFactor.obs_congr _ F
+
+omit [ContinuousSMul DRT (ZMod 2)] in
+/-- **Additivity of the obstruction.** -/
+theorem obsFun_DR_add (φ ψ : Z2 DRT (ZMod 2)) :
+    obsFun_DR htriv (φ + ψ) = obsFun_DR htriv φ + obsFun_DR htriv ψ := by
+  set Fφ := (nonempty_levelFactor_normalize htriv φ).some with hFφ
+  set Fψ := (nonempty_levelFactor_normalize htriv ψ).some with hFψ
+  set W : OpenNormalSubgroup DRT := Fφ.V ⊓ Fψ.V with hWdef
+  have hW1 : W.toSubgroup ≤ Fφ.V.toSubgroup := fun x hx => SetLike.le_def.mp inf_le_left hx
+  have hW2 : W.toSubgroup ≤ Fψ.V.toSubgroup := fun x hx => SetLike.le_def.mp inf_le_right hx
+  set pφ : (DRT ⧸ W.toSubgroup) →* (DRT ⧸ Fφ.V.toSubgroup) :=
+    QuotientGroup.map W.toSubgroup Fφ.V.toSubgroup (MonoidHom.id _)
+      (by rw [Subgroup.comap_id]; exact hW1) with hpφdef
+  set pψ : (DRT ⧸ W.toSubgroup) →* (DRT ⧸ Fψ.V.toSubgroup) :=
+    QuotientGroup.map W.toSubgroup Fψ.V.toSubgroup (MonoidHom.id _)
+      (by rw [Subgroup.comap_id]; exact hW2) with hpψdef
+  have hpφ : pφ.comp (QuotientGroup.mk' W.toSubgroup) = QuotientGroup.mk' Fφ.V.toSubgroup := by
+    ext g; rw [hpφdef, MonoidHom.comp_apply, QuotientGroup.map_mk']; rfl
+  have hpψ : pψ.comp (QuotientGroup.mk' W.toSubgroup) = QuotientGroup.mk' Fψ.V.toSubgroup := by
+    ext g; rw [hpψdef, MonoidHom.comp_apply, QuotientGroup.map_mk']; rfl
+  have hFsum : obsFun_DR htriv (φ + ψ)
+      = drRelZ (fun k => QuotientGroup.mk' W.toSubgroup (drGens k))
+          (Fφ.c.comap pφ + Fψ.c.comap pψ) := by
+    refine obsFun_DR_eq htriv (φ + ψ) ⟨W, Fφ.c.comap pφ + Fψ.c.comap pψ, ?_⟩
+    intro x y
+    rw [TwoCocycle.add_κ, TwoCocycle.comap_κ, TwoCocycle.comap_κ]
+    have hex : ∀ (z : DRT), pφ (QuotientGroup.mk' W.toSubgroup z) = QuotientGroup.mk' Fφ.V.toSubgroup z :=
+      fun z => by rw [← MonoidHom.comp_apply, hpφ]
+    have hey : ∀ (z : DRT), pψ (QuotientGroup.mk' W.toSubgroup z) = QuotientGroup.mk' Fψ.V.toSubgroup z :=
+      fun z => by rw [← MonoidHom.comp_apply, hpψ]
+    rw [hex, hex, hey, hey, ← Fφ.hfact x y, ← Fψ.hfact x y]
+    show normalizeCochain (φ.1 + ψ.1) (x, y) = normalizeCochain φ.1 (x, y) + normalizeCochain ψ.1 (x, y)
+    rw [normalizeCochain_add, Pi.add_apply]
+  rw [obsFun_DR_eq htriv φ Fφ, obsFun_DR_eq htriv ψ Fψ, hFsum,
+    Fφ.obs_eq_comap W pφ hpφ, Fψ.obs_eq_comap W pψ hpψ, drRelZ_add]
+
+/-- The **obstruction homomorphism** `Z²_cont(D_R, 𝔽₂) →+ 𝔽₂`. -/
+noncomputable def obs_DR : Z2 DRT (ZMod 2) →+ ZMod 2 :=
+  AddMonoidHom.mk' (obsFun_DR htriv) (obsFun_DR_add htriv)
+
+/-! ### The obstruction kills coboundaries -/
+
+omit [ContinuousSMul DRT (ZMod 2)] in
+/-- **`obs` kills `B²`.**  A continuous coboundary normalizes to `δ¹ψ'` (`ψ' 1 = 0`), which factors
+as `coboundaryCocycle λ`; its obstruction is `λ (drWord (s,x,y)) = λ 1 = 0` (the relation dies at the
+level). -/
+theorem obs_DR_B2_eq_zero :
+    (B2 DRT (ZMod 2)).addSubgroupOf (Z2 DRT (ZMod 2)) ≤ (obs_DR htriv).ker := by
+  intro x hx
+  rw [AddMonoidHom.mem_ker]
+  rw [AddSubgroup.mem_addSubgroupOf, B2, AddSubgroup.mem_map] at hx
+  obtain ⟨ψ, hψc, hψeq⟩ := hx
+  have hψcont : Continuous ψ := mem_C1_iff.mp hψc
+  have hx1 : x.1 = dOne DRT (ZMod 2) ψ := hψeq.symm
+  set ψ' : DRT → ZMod 2 := ψ - fun _ => ψ 1 with hψ'def
+  obtain ⟨V, lam, hlamfact⟩ := exists_oneCochain_factor_DR ψ' (hψcont.sub continuous_const)
+  have hlam1 : lam 1 = 0 := by
+    have h := hlamfact 1
+    rw [show QuotientGroup.mk' V.toSubgroup (1 : DRT) = 1 from map_one _] at h
+    rw [← h]; simp [hψ'def]
+  have hfact : ∀ p q : DRT, normalizeCochain x.1 (p, q)
+      = (coboundaryCocycle lam hlam1).κ (QuotientGroup.mk' V.toSubgroup p)
+          (QuotientGroup.mk' V.toSubgroup q) := by
+    intro p q
+    show normalizeCochain x.1 (p, q)
+      = lam (QuotientGroup.mk' V.toSubgroup p) + lam (QuotientGroup.mk' V.toSubgroup q)
+        + lam (QuotientGroup.mk' V.toSubgroup p * QuotientGroup.mk' V.toSubgroup q)
+    rw [← map_mul (QuotientGroup.mk' V.toSubgroup) p q, ← hlamfact p, ← hlamfact q,
+      ← hlamfact (p * q), hx1]
+    simp only [normalizeCochain, Pi.sub_apply, hψ'def, dOne, AddMonoidHom.coe_mk,
+      ZeroHom.coe_mk, htriv, mul_one, CharTwo.sub_eq_add]
+    abel
+  have hobs : obsFun_DR htriv x = 0 := by
+    rw [obsFun_DR_eq htriv x ⟨V, coboundaryCocycle lam hlam1, hfact⟩]
+    show drRelZ (fun k => QuotientGroup.mk' V.toSubgroup (drGens k)) (coboundaryCocycle lam hlam1) = 0
+    rw [drRelZ_coboundary]
+    have : drWord (QuotientGroup.mk' V.toSubgroup (drGens 0)) (QuotientGroup.mk' V.toSubgroup (drGens 1))
+        (QuotientGroup.mk' V.toSubgroup (drGens 2)) = 1 := drWord_mk_eq_one V
+    rw [this, hlam1]
+  exact hobs
+
+/-! ### The injectivity keystone: `obs = 0` ⟹ coboundary (via a `drLiftHom` section) -/
+
+omit [ContinuousSMul DRT (ZMod 2)] in
+/-- **Coboundary extraction.**  A continuous hom `sect : D_R → CentExt c` splitting the level
+projection (`(sect g).base = mk_V g`) makes the level cocycle a continuous coboundary `δ¹ (fib ∘
+sect)`. -/
+theorem cocycle_mem_B2_DR {V : OpenNormalSubgroup DRT} {c : TwoCocycle (DRT ⧸ V.toSubgroup)}
+    (sect : ContinuousMonoidHom DR (CentExt c)) :
+    (fun p : DRT × DRT => c.κ (sect p.1).base (sect p.2).base) ∈ B2 DRT (ZMod 2) := by
+  have key : ∀ x y z : ZMod 2, y - (x + y + z) + x = z := by decide
+  refine ⟨fun g => (sect g).fib, ?_, ?_⟩
+  · rw [SetLike.mem_coe, mem_C1_iff]
+    exact (continuous_of_discreteTopology (f := CentExt.fib)).comp sect.continuous_toFun
+  · funext p
+    obtain ⟨g, h⟩ := p
+    show g • (sect h).fib - (sect (g * h)).fib + (sect g).fib = c.κ (sect g).base (sect h).base
+    rw [htriv, map_mul sect, CentExt.mul_fib]
+    exact key (sect g).fib (sect h).fib (c.κ (sect g).base (sect h).base)
+
+omit [ContinuousSMul DRT (ZMod 2)] in
+/-- **Injectivity keystone.**  A continuous 2-cocycle with `obs = 0` is a continuous coboundary: the
+relator dies exactly at the factoring level, so `drLiftHom` builds a splitting section and the level
+cocycle is `δ¹ (fib ∘ section)`. -/
+theorem obs_DR_ker_le :
+    (obs_DR htriv).ker ≤ (B2 DRT (ZMod 2)).addSubgroupOf (Z2 DRT (ZMod 2)) := by
+  intro φ hφ
+  rw [AddMonoidHom.mem_ker] at hφ
+  rw [AddSubgroup.mem_addSubgroupOf]
+  set F := (nonempty_levelFactor_normalize htriv φ).some with hF
+  have hobs0 : F.obs = 0 := by rw [← obsFun_DR_eq htriv φ F]; exact hφ
+  -- build the splitting section from `drLiftHom`
+  set V := F.V with hV
+  set c := F.c with hc
+  set m : Fin 3 → CentExt c := fun k => drLift (fun j => QuotientGroup.mk' V.toSubgroup (drGens j)) c k
+    with hm
+  have hrel : drWord (m 0) (m 1) (m 2) = 1 := by
+    apply CentExt.ext
+    · show (drWord (m 0) (m 1) (m 2)).base = (1 : CentExt c).base
+      rw [drRelZ_base]; exact drWord_mk_eq_one V
+    · show (drWord (m 0) (m 1) (m 2)).fib = (1 : CentExt c).fib
+      exact hobs0
+  set sect : ContinuousMonoidHom DR (CentExt c) := drLiftHom (isProP_CentExt c) m hrel with hsect
+  -- `sect` splits the level projection
+  haveI : DiscreteTopology (DRT ⧸ V.toSubgroup) :=
+    Subgroup.instDiscreteTopologyQuotientOfSeparatelyContinuousMul V.toOpenSubgroup
+  have hbase : ∀ g : DRT, (sect g).base = QuotientGroup.mk' V.toSubgroup g := by
+    have hcomp : (⟨CentExt.proj c, continuous_of_discreteTopology⟩ :
+        ContinuousMonoidHom (CentExt c) (DRT ⧸ V.toSubgroup)).comp sect = quotientMk V.toSubgroup := by
+      refine dr_hom_ext _ _ ?_ ?_ ?_
+      · show CentExt.proj c (sect drS) = quotientMk V.toSubgroup drS
+        rw [hsect, drLiftHom_S]; rfl
+      · show CentExt.proj c (sect drX) = quotientMk V.toSubgroup drX
+        rw [hsect, drLiftHom_X]; rfl
+      · show CentExt.proj c (sect drY) = quotientMk V.toSubgroup drY
+        rw [hsect, drLiftHom_Y]; rfl
+    intro g
+    exact DFunLike.congr_fun hcomp g
+  -- the normalization is the level cocycle pulled back through the section
+  have hnB2 : normalizeCochain φ.1 ∈ B2 DRT (ZMod 2) := by
+    have heq : normalizeCochain φ.1 = fun p : DRT × DRT => c.κ (sect p.1).base (sect p.2).base := by
+      funext p
+      rw [hbase, hbase]
+      exact F.hfact p.1 p.2
+    rw [heq]
+    exact cocycle_mem_B2_DR htriv sect
+  have hconst : φ.1 = normalizeCochain φ.1 + fun _ => φ.1 (1, 1) := by
+    funext p; simp only [normalizeCochain, Pi.sub_apply, Pi.add_apply]; abel
+  rw [hconst]
+  exact AddSubgroup.add_mem _ hnB2 (const2_mem_B2 htriv (φ.1 (1, 1)))
+
+/-! ### Assembly: the descended obstruction and its injectivity -/
+
+/-- The **descended obstruction** `H²(D_R, 𝔽₂) →+ 𝔽₂`. -/
+noncomputable def obsH2_DR : H2 DRT (ZMod 2) →+ ZMod 2 :=
+  QuotientAddGroup.lift _ (obs_DR htriv) (fun _ h => obs_DR_B2_eq_zero htriv h)
+
+omit [ContinuousSMul DRT (ZMod 2)] in
+/-- **`obsH2_DR` is injective** — the `#H² ≤ 2` half. -/
+theorem obsH2_DR_injective : Function.Injective (obsH2_DR htriv) := by
+  rw [injective_iff_map_eq_zero]
+  intro a
+  induction a using QuotientAddGroup.induction_on with | H φ =>
+  intro ha
+  exact (QuotientAddGroup.eq_zero_iff φ).mpr (obs_DR_ker_le htriv (AddMonoidHom.mem_ker.mpr ha))
+
+/-! ### The factoring bridge: computing `obsH2_DR` at any finite quotient -/
+
+omit [ContinuousSMul DRT (ZMod 2)] in
+/-- **The obstruction at an explicit factoring.**  For a continuous 2-cocycle `φ` factoring through
+a finite quotient `L` as `φ (g, h) = c.κ (ρ g) (ρ h)`, the obstruction is the single-relator
+obstruction `drRelZ (ρ ∘ (s, x, y)) c` — the hook the Gram matrix of `GQ2/Roe/DRH2.lean` consumes. -/
+theorem obsH2_DR_eq_of_factor {L : Type} [Group L] [Finite L]
+    (φ : Z2 DRT (ZMod 2)) (ρ : DRT →* L) (c : TwoCocycle L)
+    (hfact : ∀ g h : DRT, φ.1 (g, h) = c.κ (ρ g) (ρ h)) :
+    obsH2_DR htriv (H2mk DRT (ZMod 2) φ) = drRelZ (fun k => ρ (drGens k)) c := by
+  sorry
+
+end Obstruction
+
 end GQ2
