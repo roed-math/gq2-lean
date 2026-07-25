@@ -387,6 +387,11 @@ end DRCoh
 
 open GQ2.DRCoh ContCoh
 
+/-- The carrier of `D_R` as a plain `Type`.  Coercing the `ProfiniteGrp` object `DR` once (rather
+than inside an explicit product `DRT × DRT`, where the second ascription fails to
+fire) avoids a universe-inference quirk. -/
+abbrev DRT : Type := DR
+
 /-! ## The single-relator obstruction `drRelZ` -/
 
 section RelZ
@@ -514,5 +519,146 @@ theorem drRelZ_coboundary (m : Fin 3 → L) (lam : L → ZMod 2) (hlam1 : lam 1 
   rw [eq_neg_of_add_eq_zero_left hsum, CharTwo.neg_eq]
 
 end RelZCoboundary
+
+/-! ## The named generator triple and its image obstruction -/
+
+/-- The marked generators `s, x, y` of `D_R`, packaged as a triple. -/
+noncomputable def drGens : Fin 3 → DRT := ![drS, drX, drY]
+
+@[simp] theorem drGens_zero : drGens 0 = drS := rfl
+@[simp] theorem drGens_one : drGens 1 = drX := rfl
+@[simp] theorem drGens_two : drGens 2 = drY := rfl
+
+/-- The obstruction of `c` read through the marking `φ ∘ (s, x, y)` for a hom `φ : D_R →* L`. -/
+theorem drRelZ_drGens_comap {L : Type*} [Group L] (φ : DRT →* L) (c : TwoCocycle L) :
+    drRelZ (fun k => φ (drGens k)) c = drRelZ drGens (c.comap φ) :=
+  drRelZ_comap drGens c φ
+
+/-! ## Factoring a continuous cocycle through a finite quotient of `D_R`
+
+`D_R` is profinite and already the presented pro-2 group, so the generic compactness core applies
+*directly*: a continuous 2-cocycle on `D_R` factors through a finite quotient `D_R ⧸ V`, and the
+relation `drWord (s,x,y) = 1` is inherited by that quotient (no `N_A`/admissibility machinery). -/
+
+section Factoring
+
+/-- **Factoring a normalized continuous 2-cocycle on `D_R`** (`WordCoh2.exists_twoCocycle_factor`,
+directly on `D_R`). -/
+theorem exists_twoCocycle_factor_DR
+    (κ : DRT × DRT → ZMod 2)
+    (hκc : Continuous κ) (hκ1 : κ (1, 1) = 0)
+    (hκcoc : ∀ a b c : DRT, κ (a, b) + κ (a * b, c) = κ (a, b * c) + κ (b, c)) :
+    ∃ (V : OpenNormalSubgroup DRT) (c : TwoCocycle (DRT ⧸ V.toSubgroup)),
+      ∀ x y : DRT,
+        κ (x, y) = c.κ (QuotientGroup.mk' V.toSubgroup x) (QuotientGroup.mk' V.toSubgroup y) := by
+  obtain ⟨V, hV⟩ := DRCoh.exists_openNormalSubgroup_factor_two κ hκc
+  refine ⟨V, ?_, ?_⟩
+  · refine { κ := fun p q => Quotient.liftOn₂ p q (fun x y => κ (x, y)) ?_, norm := ?_, cocyc := ?_ }
+    · intro x₁ y₁ x₂ y₂ hx hy
+      have hxv : x₁⁻¹ * x₂ ∈ V.toSubgroup := QuotientGroup.leftRel_apply.mp hx
+      have hyv : y₁⁻¹ * y₂ ∈ V.toSubgroup := QuotientGroup.leftRel_apply.mp hy
+      have h := hV x₁ y₁ _ hxv _ hyv
+      rw [mul_inv_cancel_left, mul_inv_cancel_left] at h
+      exact h.symm
+    · show κ (1, 1) = 0; exact hκ1
+    · intro a b c
+      induction a using QuotientGroup.induction_on with | H x =>
+      induction b using QuotientGroup.induction_on with | H y =>
+      induction c using QuotientGroup.induction_on with | H z =>
+      show κ (x, y) + κ (x * y, z) = κ (x, y * z) + κ (y, z)
+      exact hκcoc x y z
+  · intro x y; rfl
+
+/-- **Factoring a continuous 1-cochain on `D_R`**. -/
+theorem exists_oneCochain_factor_DR
+    (ψ : DRT → ZMod 2) (hψc : Continuous ψ) :
+    ∃ (V : OpenNormalSubgroup DRT) (lam : DRT ⧸ V.toSubgroup → ZMod 2),
+      ∀ x : DRT, ψ x = lam (QuotientGroup.mk' V.toSubgroup x) := by
+  obtain ⟨V, hV⟩ := DRCoh.exists_openNormalSubgroup_factor_two (fun p => ψ p.1)
+    (hψc.comp continuous_fst)
+  refine ⟨V, fun p => Quotient.liftOn p (fun x => ψ x) ?_, ?_⟩
+  · intro x₁ x₂ hx
+    have hxv : x₁⁻¹ * x₂ ∈ V.toSubgroup := QuotientGroup.leftRel_apply.mp hx
+    have h := hV x₁ x₁ _ hxv 1 (one_mem _)
+    rw [mul_inv_cancel_left, mul_one] at h
+    exact h.symm
+  · intro x; rfl
+
+end Factoring
+
+/-! ## The level-independent obstruction `DRLevelFactor.obs` -/
+
+section LevelFactor
+
+/-- Every open normal subgroup of `D_R` has finite quotient. -/
+instance quotient_finite_openNormal_DR (V : OpenNormalSubgroup DRT) :
+    Finite (DRT ⧸ V.toSubgroup) :=
+  Subgroup.quotient_finite_of_isOpen V.toSubgroup V.isOpen'
+
+/-- A factorization of a `D_R`-cochain `κ` through a finite quotient `D_R ⧸ V`. -/
+structure DRLevelFactor (κ : DRT × DRT → ZMod 2) where
+  /-- The finite level `D_R ⧸ V`. -/
+  V : OpenNormalSubgroup DRT
+  /-- The finite-level 2-cocycle whose inflation is `κ`. -/
+  c : TwoCocycle (DRT ⧸ V.toSubgroup)
+  /-- `κ` is the inflation of `c`. -/
+  hfact : ∀ x y : DRT,
+    κ (x, y) = c.κ (QuotientGroup.mk' V.toSubgroup x) (QuotientGroup.mk' V.toSubgroup y)
+
+/-- The relator obstruction of a factorization: the single-relator obstruction of the finite-level
+cocycle at the projected generators. -/
+noncomputable def DRLevelFactor.obs {κ : DRT × DRT → ZMod 2}
+    (F : DRLevelFactor κ) : ZMod 2 :=
+  drRelZ (fun k => QuotientGroup.mk' F.V.toSubgroup (drGens k)) F.c
+
+/-- **Level-independence.**  `F.obs` may be computed at any finer level `W` through the pulled-back
+cocycle `F.c.comap proj`. -/
+theorem DRLevelFactor.obs_eq_comap {κ : DRT × DRT → ZMod 2}
+    (F : DRLevelFactor κ) (W : OpenNormalSubgroup DRT)
+    (proj : (DRT ⧸ W.toSubgroup) →* (DRT ⧸ F.V.toSubgroup))
+    (hproj : proj.comp (QuotientGroup.mk' W.toSubgroup) = QuotientGroup.mk' F.V.toSubgroup) :
+    F.obs = drRelZ (fun k => QuotientGroup.mk' W.toSubgroup (drGens k)) (F.c.comap proj) := by
+  rw [← drRelZ_comap (fun k => QuotientGroup.mk' W.toSubgroup (drGens k)) F.c proj]
+  show drRelZ (fun k => QuotientGroup.mk' F.V.toSubgroup (drGens k)) F.c
+    = drRelZ (fun k => proj (QuotientGroup.mk' W.toSubgroup (drGens k))) F.c
+  congr 1
+  funext k
+  rw [← MonoidHom.comp_apply, hproj]
+
+/-- **Well-definedness.**  `F.obs` depends only on `κ`, not on the chosen factorization. -/
+theorem DRLevelFactor.obs_congr {κ : DRT × DRT → ZMod 2}
+    (F₁ F₂ : DRLevelFactor κ) : F₁.obs = F₂.obs := by
+  set W : OpenNormalSubgroup DRT := F₁.V ⊓ F₂.V with hWdef
+  have hW1 : W.toSubgroup ≤ F₁.V.toSubgroup := fun x hx => SetLike.le_def.mp inf_le_left hx
+  have hW2 : W.toSubgroup ≤ F₂.V.toSubgroup := fun x hx => SetLike.le_def.mp inf_le_right hx
+  set p1 : (DRT ⧸ W.toSubgroup) →* (DRT ⧸ F₁.V.toSubgroup) :=
+    QuotientGroup.map W.toSubgroup F₁.V.toSubgroup (MonoidHom.id _)
+      (by rw [Subgroup.comap_id]; exact hW1) with hp1def
+  set p2 : (DRT ⧸ W.toSubgroup) →* (DRT ⧸ F₂.V.toSubgroup) :=
+    QuotientGroup.map W.toSubgroup F₂.V.toSubgroup (MonoidHom.id _)
+      (by rw [Subgroup.comap_id]; exact hW2) with hp2def
+  have hp1 : p1.comp (QuotientGroup.mk' W.toSubgroup) = QuotientGroup.mk' F₁.V.toSubgroup := by
+    ext g; rw [hp1def, MonoidHom.comp_apply, QuotientGroup.map_mk']; rfl
+  have hp2 : p2.comp (QuotientGroup.mk' W.toSubgroup) = QuotientGroup.mk' F₂.V.toSubgroup := by
+    ext g; rw [hp2def, MonoidHom.comp_apply, QuotientGroup.map_mk']; rfl
+  rw [F₁.obs_eq_comap W p1 hp1, F₂.obs_eq_comap W p2 hp2]
+  have hcc : F₁.c.comap p1 = F₂.c.comap p2 := by
+    apply TwoCocycle.ext
+    funext a b
+    obtain ⟨g, rfl⟩ := QuotientGroup.mk'_surjective W.toSubgroup a
+    obtain ⟨h, rfl⟩ := QuotientGroup.mk'_surjective W.toSubgroup b
+    have e1g : p1 (QuotientGroup.mk' W.toSubgroup g) = QuotientGroup.mk' F₁.V.toSubgroup g := by
+      rw [← MonoidHom.comp_apply, hp1]
+    have e1h : p1 (QuotientGroup.mk' W.toSubgroup h) = QuotientGroup.mk' F₁.V.toSubgroup h := by
+      rw [← MonoidHom.comp_apply, hp1]
+    have e2g : p2 (QuotientGroup.mk' W.toSubgroup g) = QuotientGroup.mk' F₂.V.toSubgroup g := by
+      rw [← MonoidHom.comp_apply, hp2]
+    have e2h : p2 (QuotientGroup.mk' W.toSubgroup h) = QuotientGroup.mk' F₂.V.toSubgroup h := by
+      rw [← MonoidHom.comp_apply, hp2]
+    rw [TwoCocycle.comap_κ, TwoCocycle.comap_κ, e1g, e1h, e2g, e2h,
+      ← F₁.hfact g h, ← F₂.hfact g h]
+  rw [hcc]
+
+end LevelFactor
 
 end GQ2
