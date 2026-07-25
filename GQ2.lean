@@ -174,3 +174,8 @@ import GQ2.Roe.GammaR
 import GQ2.Roe.AdmissibleLimit
 import GQ2.Roe.Stokes
 import GQ2.Roe.OrientationRoot
+import GQ2.Roe.Sanity
+import GQ2.Roe.DRPresentation
+import GQ2.Roe.CrossedDerivation
+import GQ2.Roe.DRDemushkin
+import GQ2.Roe.MarkedPro2
