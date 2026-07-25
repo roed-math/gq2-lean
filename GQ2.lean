@@ -192,6 +192,7 @@ import GQ2.Roe.WildRow
 import GQ2.Roe.NormalForms
 import GQ2.Roe.Hessian
 import GQ2.Roe.ChiR
+import GQ2.Roe.Labute.TwoCentralTower
 import GQ2.Roe.Gauss
 import GQ2.Roe.TrivialSelfDual
 import GQ2.Roe.Devissage.TracedRows
