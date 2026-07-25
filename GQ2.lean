@@ -179,3 +179,5 @@ import GQ2.Roe.DRPresentation
 import GQ2.Roe.CrossedDerivation
 import GQ2.Roe.DRDemushkin
 import GQ2.Roe.MarkedPro2
+import GQ2.Roe.FoxBasic
+import GQ2.Roe.WildRow
