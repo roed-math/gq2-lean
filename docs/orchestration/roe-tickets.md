@@ -71,15 +71,19 @@ numerics on file for cross-checks.
 | R22 | simple normal forms (0,0,0,d) | opus | `GQ2/Roe/NormalForms.lean` | R21 ✓ | **done 2026-07-24** (36cfe95, 206 ln, 0 sorries, std-3). `x1Supported`, `lemma_5_13_split_R` (no hU — one fewer arg), `lemma_5_13_ramified_R` (∃! (0,0,0,d) rep, hypothesis-based for A and A∨), `b1wR_split_shape`. Scope map for R26: H⁰/H²/H¹-cards + `split_shapes_of_wild_R`-style DualityAssembly helpers are R26's (mechanical x2↔x3 swaps); pairing lemmas are R24's |
 | R23 | Stokes exponent vector ![0,e,e+1,0] + odd-e (0,1,0,0) endpoint input (RESCOPED: chain-map rows moved to R25) | opus | `GQ2/Roe/Stokes.lean` | R1 ✓ | **done 2026-07-24** (4abf603, +150 ln, std-3, 0 sorries; ns `GQ2.FoxH` beside consumers). R25 endpoint input = `expMod2_wildValueExpR_odd` via `congrFun (… (omega2Exp_exponent_heis_cast))`; sum-zero endpoint `expMod2_tame_add_wildValueExpR_odd`; e=3 `decide` stress |
 | R24 | mixed Hessian z-ledger + 1+U+U⁻¹ pairing (note prop:hessian) | opus | `GQ2/Roe/Hessian.lean` | R21 ✓ | **done 2026-07-24** (d3001c0, 395 ln, 0 sorries, std-3). Ledger + assembled `heisMarking_wildValueR_z(_ramified)`, `mixedB_R_pairing_split/_ramified`, `pairingR_operator_injective` (thin alias — Γ_A's operator lemma verbatim, presentation-independent); htau kept as unused binder for R26 signature parity; ramified diagonal needs NO ω₂-collapse (the h₀-free simplification, confirmed) |
-| R25 | traced chain-map rows (prop_5_8_*_R) + `mixedB_cocycle_R` + trivial-module Gram a·c′+c·a′+d·d′ + trivialSelfDual_R base | opus | `GQ2/Roe/TrivialSelfDual.lean` | R21 ✓, R23 ✓ (may leave ≤2 sorries if R24 in flight) | **dispatched 2026-07-24 night** |
+| R25 | traced chain-map rows (prop_5_8_*_R) + `mixedB_cocycle_R` + trivial-module Gram + trivialSelfDual_R base | opus | `GQ2/Roe/TrivialSelfDual.lean` | R21 ✓, R23 ✓ | **done 2026-07-24** (3f1aa2a, 582 ln, 0 sorries, std-3). prop_5_8_left/right_R via bridge_wildR + R23 endpoint; Gram [[0,1,0],[1,0,0],[0,0,1]] by decide; ω₂-scalar aR.z lands on (2,2) slot (wild-column swap) w/ killer lemmas; Stokes-bridge helpers built here (R23 shipped exponents only). ⚠ defined `IsSelfDual_R` locally — RECONCILE with R26a's planned `IsSelfDualR` in R26b (single predicate must win) |
 | R26a | mechanical dévissage clone onto the r_R spine (`IsSelfDualR`, Devissage/ + DevissageInduction twins, target `prop_5_15_of_simple_R`; ElemDualPack + generic helpers reused not cloned) | opus | `GQ2/Roe/SelfDual.lean`, `GQ2/Roe/Devissage*.lean`, `GQ2/Roe/DevissageInduction.lean` | R21 ✓ (spine only) | **dispatched 2026-07-24 night** |
 | R26b | duality assembly: `selfDual_of_simple_R` + `prop_5_15_R` + thin `cor_5_17_card_R` (prop_5_16 reused verbatim) | fable | `GQ2/Roe/DualityAssembly.lean` | R22 ✓, R24, R25, R26a | queued |
 
 ## Wave 3 — P4 + P5 + P6
 
-Orchestrator addition (2026-07-24 night): R30a read-only SourceData recon dispatched (Explore,
-memo `roe-r30-recon.md`) — field list, minimal-diff refactor shape (b9a-flip technique),
-Γ_R-readiness table. De-risks the morning R30 serialized refactor; no file edits.
+Orchestrator addition (2026-07-24 night): R30a SourceData recon **done** — memo committed
+`roe-r30-recon.md` (28bcd0b): 12+1 A-side fields (promote ker_pro2 to field), 7 obligation
+families = R31's list, minimal-diff b9a-flip refactor shape (6 files touched, core+producers
+untouched), Γ_R readiness table (tame/ν/ker/epi DONE; pro2 gated on R15a; sourceR → R32),
+top risks (shared-G0 Gauss seam — recommend external-G0 fields; binder/carrier fragility —
+regression-gate capstones). R30 EXECUTION HELD FOR MORNING (pairs with B-Lab sign-off).
+| R31a | R30-independent supply: `gammaR_topologicallyFinitelyGenerated` + `lemma_8_2_R` (#Hom=8) | opus | `GQ2/Roe/Supply.lean` | R3 ✓, R6 ✓, recon | **dispatched 2026-07-24 night** |
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
