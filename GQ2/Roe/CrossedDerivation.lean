@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 module
 
 public import GQ2.Roe.DRPresentation
+public import GQ2.Roe.DRAbelianization
 public import GQ2.FoxHeisenberg.Basic
 
 @[expose] public section
@@ -13,10 +14,10 @@ public import GQ2.FoxHeisenberg.Basic
 /-!
 # The χ-twisted crossed-derivation calculus for `r₂`  (Roe note §3.2, ⟦prop:orientation⟧)
 
-**Statements final (ticket R7); proofs filled (ticket R9)** — complete except
-`isLabuteOrientation_ext`, whose density step awaits ticket R8's `dr_hom_ext`
-(`GQ2/Roe/DRAbelianization.lean`, in flight and uncommitted at R9 fill time; the finished
-three-line proof is recorded in a comment at the `sorry`).
+**Statements final (ticket R7); proofs filled (ticket R9)** — sorry-free. The last piece,
+`isLabuteOrientation_ext`, uses R8's `dr_hom_ext` (`GQ2/Roe/DRAbelianization.lean`); its
+density step was stitched in by the orchestrator once R8 landed (R9 had recorded the
+finished proof at the former `sorry`).
 
 Labute's characterization of the canonical Demushkin orientation ([Labute], Théorème 4; note
 Prop. 3.3 ⟦prop:orientation⟧): for a character `χ` of the free pro-2 group, a **crossed
@@ -423,13 +424,9 @@ theorem isLabuteOrientation_ext
       (↑b : ℤ_[2]) ^ 3 + 2 * (↑b : ℤ_[2]) ^ 2 + 1 = 0 → a = b)
     {χ χ' : (DR : Type) →* ℤ_[2]ˣ} (hχ : Continuous χ) (hχ' : Continuous χ')
     (h : IsLabuteOrientation χ) (h' : IsLabuteOrientation χ') : χ = χ' := by
-  -- Blocked on ticket R8 (`GQ2/Roe/DRAbelianization.lean`, in flight and uncommitted at the
-  -- time of the R9 fill): once its `dr_hom_ext` lands, the proof is exactly
-  --   obtain ⟨hS, hX, hY⟩ := isLabuteOrientationDatum_unique rootX_unique h h'
-  --   have hcont := dr_hom_ext ⟨χ, hχ⟩ ⟨χ', hχ'⟩ hS hX hY
-  --   exact congrArg ContinuousMonoidHom.toMonoidHom hcont
-  -- (plus `public import GQ2.Roe.DRAbelianization` in the header; no cycle, checked).
-  sorry
+  obtain ⟨hS, hX, hY⟩ := isLabuteOrientationDatum_unique rootX_unique h h'
+  have hcont := dr_hom_ext ⟨χ, hχ⟩ ⟨χ', hχ'⟩ hS hX hY
+  exact congrArg ContinuousMonoidHom.toMonoidHom hcont
 
 /-! ## Stress test -/
 

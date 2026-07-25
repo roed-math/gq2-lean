@@ -74,16 +74,16 @@ noncomputable def nuDR : ContinuousMonoidHom (DR : Type) Ztwo :=
     show drWord ztwoOne 1 1 = 1
     simp [drWord, conjP, commP])
 
-@[simp] theorem nuR_drS : nuDR drS = ztwoOne := drLiftHom_S _ _ _
+@[simp] theorem nuDR_drS : nuDR drS = ztwoOne := drLiftHom_S _ _ _
 
-@[simp] theorem nuR_drX : nuDR drX = 1 := drLiftHom_X _ _ _
+@[simp] theorem nuDR_drX : nuDR drX = 1 := drLiftHom_X _ _ _
 
-@[simp] theorem nuR_drY : nuDR drY = 1 := drLiftHom_Y _ _ _
+@[simp] theorem nuDR_drY : nuDR drY = 1 := drLiftHom_Y _ _ _
 
 /-- `ν_R` is surjective (note Lemma 2.1: "it is surjective because `σ` maps to `1`").
 Fill (R15): `ztwoOne` topologically generates `Ztwo`, and the image of a continuous hom of
 profinite groups is closed — the `nuTwo_surjective` argument (`GQ2/Prop32.lean`) verbatim. -/
-theorem nuR_surjective : Function.Surjective nuDR := by
+theorem nuDR_surjective : Function.Surjective nuDR := by
   sorry
 
 /-! ## The B-Lab classification hypothesis  (draft for owner review — ticket R14 flips) -/
