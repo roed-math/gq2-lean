@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 module
 
 public import GQ2.Roe.FoxBasic
+public import GQ2.Roe.NormalForms
 public import GQ2.TameSimple
 
 @[expose] public section
@@ -76,11 +77,10 @@ section HessianRowR
 variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
   [Finite V]
 
-/-- The degree-one tuple supported on the `x₁`-slot (⟦lem:normalforms⟧'s normal form `(0,0,0,d)` —
-the `x₀ ↔ x₁` swap of `Γ_A`'s `x0Supported`). -/
-def x1Supported (d : V) : Fin 4 → V := ![0, 0, 0, d]
-
 /-! ### The base generators land in the base slice on the `x₁`-supported rep
+
+The `x₁`-supported tuple `x1Supported` (⟦lem:normalforms⟧'s normal form `(0,0,0,d)`) is
+`GQ2.Roe.NormalForms`'s — imported, not redeclared.
 
 `σ, τ, x₀` (indices `0,1,2`) have zero primal/dual offsets on `x1Supported`, so they are pure
 `secHom` base elements; only `x₁` (index `3`) carries the varying coordinate `d`. -/
