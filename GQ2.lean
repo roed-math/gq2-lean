@@ -170,4 +170,6 @@ import GQ2.UnramifiedQuadraticNorms
 import GQ2.UnitFiltrationCounts
 -- Roe-candidate verification (GQ2/Roe/, see docs/orchestration/roe-verification-plan.md)
 import GQ2.Roe.Words
+import GQ2.Roe.GammaR
+import GQ2.Roe.AdmissibleLimit
 import GQ2.Roe.Stokes
