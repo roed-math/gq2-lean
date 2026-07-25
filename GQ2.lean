@@ -210,4 +210,7 @@ import GQ2.Roe.Supply
 import GQ2.RStage.GammaR
 import GQ2.WordCohBridgeR
 import GQ2.Roe.CorrectionR
+import GQ2.Roe.CoverLiftR
 import GQ2.WordCoh2R
+import GQ2.MixedBObsR
+import GQ2.IotaGammaR
