@@ -186,3 +186,4 @@ import GQ2.Roe.FoxBasic
 import GQ2.Roe.WildRow
 import GQ2.Roe.NormalForms
 import GQ2.Roe.Hessian
+import GQ2.Roe.Gauss
