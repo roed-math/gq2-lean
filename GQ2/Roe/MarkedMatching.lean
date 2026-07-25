@@ -59,7 +59,7 @@ no `BLabHypothesis` occurs — the abstract isomorphism is a *hypothesis* of the
 
 namespace GQ2
 
-open FoxH Multiplicative SectionThree
+open FoxH Multiplicative SectionThree Roe
 
 /-! ## The lift group `ℤ₂ ⋊ ℤ₂ˣ` as a profinite 2-group
 
@@ -620,5 +620,584 @@ theorem isLabuteOrientation_comp_iso (f : ContinuousMulEquiv (DR : Type) (D0 : T
     show h drX = ⟨Dx, chiD0G (f drX)⟩ from hval 1,
     show h drY = ⟨Dy, chiD0G (f drY)⟩ from hval 2] at hword
   exact hword
+
+/-! ## Local copies of the `sHom`/`yHom` generator values (private in `GQ2/SectionThree.lean`) -/
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+/-- The `sHom`-defining relator computation, reusable for both coordinate homs (the target is
+abelian, so the commutator dies and the relation is `2·a + 4·s = 0` on the exponents). -/
+private lemma coordRel (a s y : ℤ_[2]) (h : 2 * a + 4 * s = 0) :
+    (![ofAdd a, ofAdd s, ofAdd y] : Fin 3 → Multiplicative ℤ_[2]) 0 ^ 2
+        * ![ofAdd a, ofAdd s, ofAdd y] 1 ^ 4
+        * commP (![ofAdd a, ofAdd s, ofAdd y] 1) (![ofAdd a, ofAdd s, ofAdd y] 2) = 1 := by
+  simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons, Matrix.cons_val_two,
+    Matrix.tail_cons, commP, ← ofAdd_nsmul, ← ofAdd_neg, ← ofAdd_add]
+  rw [← ofAdd_zero]
+  congr 1
+  simp only [nsmul_eq_mul]
+  push_cast
+  linear_combination h
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+private lemma sHom_A' : sHom (abMk d0A) = ofAdd (-2 : ℤ_[2]) :=
+  d0LiftHom_A' PropOneOne.isProP_two_multPadicInt
+    ![ofAdd (-2 : ℤ_[2]), ofAdd (1 : ℤ_[2]), ofAdd (0 : ℤ_[2])] (coordRel _ _ _ (by ring))
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+private lemma sHom_S' : sHom (abMk d0S) = ofAdd (1 : ℤ_[2]) :=
+  d0LiftHom_S' PropOneOne.isProP_two_multPadicInt
+    ![ofAdd (-2 : ℤ_[2]), ofAdd (1 : ℤ_[2]), ofAdd (0 : ℤ_[2])] (coordRel _ _ _ (by ring))
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+private lemma sHom_Y' : sHom (abMk d0Y) = ofAdd (0 : ℤ_[2]) :=
+  d0LiftHom_Y' PropOneOne.isProP_two_multPadicInt
+    ![ofAdd (-2 : ℤ_[2]), ofAdd (1 : ℤ_[2]), ofAdd (0 : ℤ_[2])] (coordRel _ _ _ (by ring))
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+private lemma yHom_A' : yHom (abMk d0A) = ofAdd (0 : ℤ_[2]) :=
+  d0LiftHom_A' PropOneOne.isProP_two_multPadicInt
+    ![ofAdd (0 : ℤ_[2]), ofAdd (0 : ℤ_[2]), ofAdd (1 : ℤ_[2])] (coordRel _ _ _ (by ring))
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+private lemma yHom_S' : yHom (abMk d0S) = ofAdd (0 : ℤ_[2]) :=
+  d0LiftHom_S' PropOneOne.isProP_two_multPadicInt
+    ![ofAdd (0 : ℤ_[2]), ofAdd (0 : ℤ_[2]), ofAdd (1 : ℤ_[2])] (coordRel _ _ _ (by ring))
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+private lemma yHom_Y' : yHom (abMk d0Y) = ofAdd (1 : ℤ_[2]) :=
+  d0LiftHom_Y' PropOneOne.isProP_two_multPadicInt
+    ![ofAdd (0 : ℤ_[2]), ofAdd (0 : ℤ_[2]), ofAdd (1 : ℤ_[2])] (coordRel _ _ _ (by ring))
+
+/-! ## The identification `χ₀ ∘ f = χ_R` and the `Ȳ₀`-coordinate parity -/
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+private lemma rootX_unique_pair : ∀ a b : ℤ_[2]ˣ,
+    (↑a : ℤ_[2]) ^ 3 + 2 * (↑a : ℤ_[2]) ^ 2 + 1 = 0 →
+    (↑b : ℤ_[2]) ^ 3 + 2 * (↑b : ℤ_[2]) ^ 2 + 1 = 0 → a = b := fun _ _ ha hb =>
+  Units.ext ((rootX_unique ha).trans (rootX_unique hb).symm)
+
+/-- **`χ₀ ∘ f = χ_R`**: the pullback of `D₀`'s canonical orientation along the B-Lab
+isomorphism is the Roe orientation, by uniqueness of Labute orientations of `D_R`
+(`isLabuteOrientation_ext`, fed by `isLabuteOrientation_comp_iso` and R11's
+`isLabuteOrientation_chiR`). -/
+private lemma chiD0G_comp_iso_eq_chiR (f : ContinuousMulEquiv (DR : Type) (D0 : Type)) :
+    chiD0G.toMonoidHom.comp f.toMulEquiv.toMonoidHom = chiR.toMonoidHom :=
+  isLabuteOrientation_ext rootX_unique_pair
+    (chiD0G.continuous_toFun.comp f.continuous_toFun) chiR.continuous_toFun
+    (isLabuteOrientation_comp_iso f) isLabuteOrientation_chiR
+
+private lemma chiD0_abMk_iso_drX (f : ContinuousMulEquiv (DR : Type) (D0 : Type)) :
+    chiD0 (abMk (f drX)) = rootXUnit := by
+  have h := DFunLike.congr_fun (chiD0G_comp_iso_eq_chiR f) drX
+  exact h.trans chiR_drX
+
+/-- The squared canonical orientation, as a continuous hom. -/
+private noncomputable def chiSqHom :
+    ContinuousMonoidHom (topAbelianization (D0 : Type)) ℤ_[2]ˣ where
+  toFun w := chiD0 w ^ 2
+  map_one' := by rw [map_one, one_pow]
+  map_mul' a b := by rw [map_mul, mul_pow]
+  continuous_toFun := (continuous_pow 2).comp chiD0.continuous_toFun
+
+/-- The `(η²)`-power of the `Ȳ₀`-coordinate, as a continuous hom. -/
+private noncomputable def etaYHom :
+    ContinuousMonoidHom (topAbelianization (D0 : Type)) ℤ_[2]ˣ where
+  toFun w := zpowZtwoHom isProP_two_unitsPadicInt (unitNegThree⁻¹ ^ 2) (yHom w)
+  map_one' := by rw [map_one, map_one]
+  map_mul' a b := by rw [map_mul, map_mul]
+  continuous_toFun := (zpowZtwoHom isProP_two_unitsPadicInt
+    (unitNegThree⁻¹ ^ 2)).continuous_toFun.comp yHom.continuous_toFun
+
+/-- The squared canonical orientation kills the torsion and reads off the `Ȳ₀`-coordinate:
+`χ₀(z)² = (η²)^{Ȳ₀-coordinate of z}`. -/
+private lemma chiD0_sq_eq (z : topAbelianization (D0 : Type)) :
+    chiD0 z ^ 2 = zpowZtwoHom isProP_two_unitsPadicInt (unitNegThree⁻¹ ^ 2) (yHom z) := by
+  have h := d0ab_hom_ext isProP_two_unitsPadicInt chiSqHom etaYHom ?_ ?_ ?_ z
+  · exact h
+  · show chiD0 (abMk d0A) ^ 2
+      = zpowZtwoHom isProP_two_unitsPadicInt (unitNegThree⁻¹ ^ 2) (yHom (abMk d0A))
+    rw [show chiD0 (abMk d0A) = chiD0G d0A from rfl, chiD0G_A, yHom_A', neg_one_sq,
+      show ofAdd (0 : ℤ_[2]) = (1 : Multiplicative ℤ_[2]) from rfl, map_one]
+  · show chiD0 (abMk d0S) ^ 2
+      = zpowZtwoHom isProP_two_unitsPadicInt (unitNegThree⁻¹ ^ 2) (yHom (abMk d0S))
+    rw [show chiD0 (abMk d0S) = chiD0G d0S from rfl, chiD0G_S, yHom_S', one_pow,
+      show ofAdd (0 : ℤ_[2]) = (1 : Multiplicative ℤ_[2]) from rfl, map_one]
+  · show chiD0 (abMk d0Y) ^ 2
+      = zpowZtwoHom isProP_two_unitsPadicInt (unitNegThree⁻¹ ^ 2) (yHom (abMk d0Y))
+    rw [show chiD0 (abMk d0Y) = chiD0G d0Y from rfl, chiD0G_Y, yHom_Y',
+      zpowZtwoHom_ofAdd_one]
+
+/-! ## `τ₂` is odd: the mod-16 argument -/
+
+local instance instTopZModSixteen : TopologicalSpace (ZMod (2 ^ 4)) := ⊥
+
+local instance : DiscreteTopology (ZMod (2 ^ 4)) := ⟨rfl⟩
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+private lemma continuous_toZModPow_four : Continuous (PadicInt.toZModPow (p := 2) 4) := by
+  rw [continuous_def]
+  intro T _
+  exact isOpen_preimage_toZModPow 4 T
+
+/-- Reduction mod 16 of `ℤ₂ˣ`, as a continuous hom into the finite 2-group `(ℤ/16)ˣ`. -/
+private noncomputable def unitsMod16 : ContinuousMonoidHom ℤ_[2]ˣ (ZMod (2 ^ 4))ˣ where
+  toMonoidHom := Units.map (PadicInt.toZModPow (p := 2) 4).toMonoidHom
+  continuous_toFun := Units.continuous_iff.mpr
+    ⟨continuous_toZModPow_four.comp Units.continuous_val,
+      continuous_toZModPow_four.comp (Units.continuous_val.comp continuous_inv)⟩
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+private lemma isProP_two_unitsZMod16 : IsProP 2 (ZMod (2 ^ 4))ˣ :=
+  isProP_of_isPGroup (IsPGroup.of_card (p := 2) (n := 3)
+    (by rw [Nat.card_eq_fintype_card]; decide))
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+private lemma unitsMod16_val (x : ℤ_[2]ˣ) :
+    ((unitsMod16 x : (ZMod (2 ^ 4))ˣ) : ZMod (2 ^ 4)) = PadicInt.toZModPow 4 (x : ℤ_[2]) :=
+  rfl
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+/-- `η⁴ ≡ 1 (mod 16)`: the value of `unitsMod16` at `(η²)²` is trivial (`η ≡ 5`,
+`5⁴ = 625 ≡ 1`). -/
+private lemma unitsMod16_eta_four :
+    unitsMod16 (((unitNegThree⁻¹ : ℤ_[2]ˣ) ^ 2) ^ (2 : ℕ)) = 1 := by
+  refine Units.ext ?_
+  rw [unitsMod16_val]
+  have hval : ((((unitNegThree⁻¹ : ℤ_[2]ˣ) ^ 2) ^ (2 : ℕ) : ℤ_[2]ˣ) : ℤ_[2])
+      = ((unitNegThree⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) ^ 4 := by
+    rw [Units.val_pow_eq_pow_val, Units.val_pow_eq_pow_val, ← pow_mul]
+  rw [hval, map_pow]
+  -- `v · 13 = 1` in `ℤ/16`, and `13⁴ = 1`
+  have hmul : ((unitNegThree⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((unitNegThree : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
+    rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
+  have h13 : PadicInt.toZModPow 4 ((unitNegThree : ℤ_[2]ˣ) : ℤ_[2]) = 13 := by
+    rw [unitNegThree_val', show (-3 : ℤ_[2]) = ((-3 : ℤ) : ℤ_[2]) from by push_cast; ring,
+      map_intCast]
+    decide
+  have hv : PadicInt.toZModPow 4 ((unitNegThree⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * 13 = 1 := by
+    have := congrArg (PadicInt.toZModPow (p := 2) 4) hmul
+    rwa [map_mul, map_one, h13] at this
+  set v := PadicInt.toZModPow 4 ((unitNegThree⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) with hvdef
+  have h134 : (13 : ZMod (2 ^ 4)) ^ 4 = 1 := by decide
+  calc v ^ 4 = v ^ 4 * (13 : ZMod (2 ^ 4)) ^ 4 := by rw [h134, mul_one]
+    _ = (v * 13) ^ 4 := by ring
+    _ = 1 := by rw [hv, one_pow]
+
+/-- **The `Ȳ₀`-coordinate of `f(x)` is odd**: `X² = (η²)^{τ₂}` with `X ≡ 5 (mod 16)`, while
+an even `τ₂` would give `X² = (η⁴)^{t} ≡ 1 (mod 16)` — but `X² ≡ 25 ≡ 9`. -/
+private lemma toZModPow_one_tau (f : ContinuousMulEquiv (DR : Type) (D0 : Type)) :
+    PadicInt.toZModPow 1 ((yHom (abMk (f drX))).toAdd) = 1 := by
+  by_contra hne
+  have h0 : PadicInt.toZModPow 1 ((yHom (abMk (f drX))).toAdd) = 0 := by
+    have hall : ∀ w : ZMod (2 ^ 1), w ≠ 1 → w = 0 := by decide
+    exact hall _ hne
+  obtain ⟨t, ht⟩ : (2 : ℤ_[2]) ∣ (yHom (abMk (f drX))).toAdd := by
+    have hker : (yHom (abMk (f drX))).toAdd
+        ∈ RingHom.ker (PadicInt.toZModPow (p := 2) 1) := h0
+    rw [PadicInt.ker_toZModPow, Ideal.mem_span_singleton] at hker
+    obtain ⟨w, hw⟩ := hker
+    exact ⟨w, by rw [hw]; ring⟩
+  have hsq' : rootXUnit ^ 2
+      = zpowZtwo isProP_two_unitsPadicInt (unitNegThree⁻¹ ^ 2)
+        ((yHom (abMk (f drX))).toAdd) := by
+    have h := chiD0_sq_eq (abMk (f drX))
+    rw [chiD0_abMk_iso_drX f] at h
+    exact h
+  rw [ht, show (2 : ℤ_[2]) * t = ((2 : ℕ) : ℤ_[2]) * t from by push_cast; ring,
+    ← zpowZtwo_zpowZtwo, zpowZtwo_natCast] at hsq'
+  -- push through the mod-16 reduction
+  have hR : unitsMod16 (zpowZtwo isProP_two_unitsPadicInt
+      ((unitNegThree⁻¹ ^ 2) ^ (2 : ℕ)) t) = 1 := by
+    rw [map_zpowZtwo isProP_two_unitsPadicInt isProP_two_unitsZMod16 unitsMod16 _ t,
+      show unitsMod16 ((unitNegThree⁻¹ ^ 2) ^ (2 : ℕ)) = 1 from unitsMod16_eta_four,
+      zpowZtwo_one_base]
+  have h1 : unitsMod16 (rootXUnit ^ 2) = 1 := by rw [hsq']; exact hR
+  have h9 : ((unitsMod16 (rootXUnit ^ 2) : (ZMod (2 ^ 4))ˣ) : ZMod (2 ^ 4)) = 9 := by
+    rw [unitsMod16_val, Units.val_pow_eq_pow_val, map_pow, val_rootXUnit,
+      rootX_toZModPow_four]
+    decide
+  rw [h1] at h9
+  exact absurd h9 (by decide)
+
+/-! ## The `(u, b)`-correction data -/
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+/-- **The torsion-square trick**: for any continuous isomorphism `e : D_R ≅ D₀` and any
+`ℤ₂`-valued coordinate `κ` of `D₀^{ab}`, the relation `ȳ = t·x̄²` of `B_R` (with `t` of
+order 2 and `ℤ₂` torsion-free) forces `κ(e(y)) = κ(e(x))²`. -/
+private lemma coordHom_abMk_iso_drY
+    (κ : ContinuousMonoidHom (topAbelianization (D0 : Type)) (Multiplicative ℤ_[2]))
+    (e : ContinuousMulEquiv (DR : Type) (D0 : Type)) :
+    κ (abMk (e drY)) = κ (abMk (e drX)) ^ 2 := by
+  obtain ⟨BR⟩ := br_decomposition
+  have htors : (abMk (drY * (drX ^ 2)⁻¹) : topAbelianization (DR : Type)) ^ 2 = 1 := by
+    refine EquivLike.injective BR.e ?_
+    rw [map_pow, BR.map_t, map_one, pow_two, ← ofAdd_add]
+    rw [show ((1 : ZMod 2), (0 : ℤ_[2]), (0 : ℤ_[2])) + (1, 0, 0) = (0, 0, 0) from by
+      refine Prod.ext (by decide) (Prod.ext (by norm_num) (by norm_num))]
+    rfl
+  have htors' : (abMk (e (drY * (drX ^ 2)⁻¹)) : topAbelianization (D0 : Type)) ^ 2 = 1 := by
+    have h2 : (abMk (e (drY * (drX ^ 2)⁻¹)) : topAbelianization (D0 : Type))
+        = topAbCongr e (abMk (drY * (drX ^ 2)⁻¹)) := (topAbCongr_abMk' e _).symm
+    rw [h2, ← map_pow, htors, map_one]
+  have hval : κ (abMk (e (drY * (drX ^ 2)⁻¹))) = 1 := by
+    have h3 := congrArg κ htors'
+    rw [map_pow, map_one] at h3
+    have h4 : (2 : ℕ) • (κ (abMk (e (drY * (drX ^ 2)⁻¹)))).toAdd = 0 := by
+      rw [← toAdd_pow, h3, toAdd_one]
+    rw [nsmul_eq_mul] at h4
+    have h5 : (κ (abMk (e (drY * (drX ^ 2)⁻¹)))).toAdd = 0 := by
+      rcases mul_eq_zero.mp h4 with h | h
+      · exact absurd (by exact_mod_cast h) (two_ne_zero (α := ℤ_[2]))
+      · exact h
+    have h6 : κ (abMk (e (drY * (drX ^ 2)⁻¹)))
+        = ofAdd (κ (abMk (e (drY * (drX ^ 2)⁻¹)))).toAdd := rfl
+    rw [h6, h5, ofAdd_zero]
+  have hfact : e drY = e (drY * (drX ^ 2)⁻¹) * e drX ^ 2 := by
+    rw [← map_pow, ← map_mul, inv_mul_cancel_right]
+  rw [hfact, map_mul, map_mul, map_pow, map_pow, hval, one_mul]
+
+/-- The pair of mod-2 coordinates `(S̄₀, Ȳ₀) (mod 2)` of the abelianization, as a continuous
+hom into `𝔽₂²`. -/
+private noncomputable def pairMod2 : (D0 : Type) →* Multiplicative (Fin 2 → ZMod (2 ^ 1)) where
+  toFun g := ofAdd ![PadicInt.toZModPow 1 ((sHom (abMk g)).toAdd),
+    PadicInt.toZModPow 1 ((yHom (abMk g)).toAdd)]
+  map_one' := by
+    rw [← ofAdd_zero]
+    congr 1
+    funext j
+    fin_cases j
+    · show PadicInt.toZModPow 1 ((sHom (abMk (1 : (D0 : Type)))).toAdd) = 0
+      rw [map_one, map_one, toAdd_one, map_zero]
+    · show PadicInt.toZModPow 1 ((yHom (abMk (1 : (D0 : Type)))).toAdd) = 0
+      rw [map_one, map_one, toAdd_one, map_zero]
+  map_mul' g h := by
+    rw [← ofAdd_add]
+    congr 1
+    funext j
+    fin_cases j
+    · show PadicInt.toZModPow 1 ((sHom (abMk (g * h))).toAdd)
+        = PadicInt.toZModPow 1 ((sHom (abMk g)).toAdd)
+          + PadicInt.toZModPow 1 ((sHom (abMk h)).toAdd)
+      rw [map_mul, map_mul, toAdd_mul, map_add]
+    · show PadicInt.toZModPow 1 ((yHom (abMk (g * h))).toAdd)
+        = PadicInt.toZModPow 1 ((yHom (abMk g)).toAdd)
+          + PadicInt.toZModPow 1 ((yHom (abMk h)).toAdd)
+      rw [map_mul, map_mul, toAdd_mul, map_add]
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+private lemma continuous_pairMod2 : Continuous pairMod2 := by
+  refine continuous_ofAdd.comp (continuous_pi fun j => ?_)
+  fin_cases j
+  · exact continuous_toZModPow_one.comp (continuous_toAdd.comp
+      (sHom.continuous_toFun.comp continuous_abMk))
+  · exact continuous_toZModPow_one.comp (continuous_toAdd.comp
+      (yHom.continuous_toFun.comp continuous_abMk))
+
+/-- The `(S̄₀, Ȳ₀)`-coordinate matrix of `(f(s), f(x))`. -/
+private noncomputable def coordMatrix (f : ContinuousMulEquiv (DR : Type) (D0 : Type)) :
+    Matrix (Fin 2) (Fin 2) ℤ_[2] :=
+  Matrix.of ![![(sHom (abMk (f drS))).toAdd, (yHom (abMk (f drS))).toAdd],
+    ![(sHom (abMk (f drX))).toAdd, (yHom (abMk (f drX))).toAdd]]
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+private lemma pairMod2_d0S : (pairMod2 d0S).toAdd = Pi.single (0 : Fin 2) (1 : ZMod (2 ^ 1)) := by
+  funext j
+  fin_cases j
+  · show PadicInt.toZModPow 1 ((sHom (abMk d0S)).toAdd) = 1
+    rw [sHom_S']
+    show PadicInt.toZModPow 1 (1 : ℤ_[2]) = 1
+    rw [map_one]
+  · show PadicInt.toZModPow 1 ((yHom (abMk d0S)).toAdd) = 0
+    rw [yHom_S']
+    show PadicInt.toZModPow 1 (0 : ℤ_[2]) = 0
+    rw [map_zero]
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+private lemma pairMod2_d0Y : (pairMod2 d0Y).toAdd = Pi.single (1 : Fin 2) (1 : ZMod (2 ^ 1)) := by
+  funext j
+  fin_cases j
+  · show PadicInt.toZModPow 1 ((sHom (abMk d0Y)).toAdd) = 0
+    rw [sHom_Y']
+    show PadicInt.toZModPow 1 (0 : ℤ_[2]) = 0
+    rw [map_zero]
+  · show PadicInt.toZModPow 1 ((yHom (abMk d0Y)).toAdd) = 1
+    rw [yHom_Y']
+    show PadicInt.toZModPow 1 (1 : ℤ_[2]) = 1
+    rw [map_one]
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+/-- The third transported generator has trivial mod-2 pair coordinates (`ȳ = t·x̄²`). -/
+private lemma pairMod2_iso_drY (f : ContinuousMulEquiv (DR : Type) (D0 : Type)) :
+    pairMod2 (f drY) = 1 := by
+  have hs := coordHom_abMk_iso_drY sHom f
+  have hy := coordHom_abMk_iso_drY yHom f
+  rw [← ofAdd_zero]
+  show ofAdd _ = _
+  congr 1
+  funext j
+  fin_cases j
+  · show PadicInt.toZModPow 1 ((sHom (abMk (f drY))).toAdd) = 0
+    rw [hs, toAdd_pow, nsmul_eq_mul, map_mul,
+      show ((2 : ℕ) : ℤ_[2]) = 2 from by push_cast; ring]
+    rw [show PadicInt.toZModPow (p := 2) 1 (2 : ℤ_[2]) = 0 from by
+      rw [show (2 : ℤ_[2]) = ((2 : ℕ) : ℤ_[2]) from by push_cast; ring, map_natCast]; decide]
+    rw [zero_mul]
+  · show PadicInt.toZModPow 1 ((yHom (abMk (f drY))).toAdd) = 0
+    rw [hy, toAdd_pow, nsmul_eq_mul, map_mul,
+      show ((2 : ℕ) : ℤ_[2]) = 2 from by push_cast; ring]
+    rw [show PadicInt.toZModPow (p := 2) 1 (2 : ℤ_[2]) = 0 from by
+      rw [show (2 : ℤ_[2]) = ((2 : ℕ) : ℤ_[2]) from by push_cast; ring, map_natCast]; decide]
+    rw [zero_mul]
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+/-- **The coordinate matrix is invertible** (same engine as `isUnit_evalMatrix`, with the
+`ȳ`-row degenerate). -/
+private lemma isUnit_coordMatrix (f : ContinuousMulEquiv (DR : Type) (D0 : Type)) :
+    IsUnit (coordMatrix f) := by
+  rw [Matrix.isUnit_iff_isUnit_det]
+  set Nb : Matrix (Fin 2) (Fin 2) (ZMod (2 ^ 1)) := (coordMatrix f).map (PadicInt.toZModPow 1)
+    with hNb
+  have hrow0 : Nb.row 0 = (pairMod2 (f drS)).toAdd := by
+    funext j
+    fin_cases j <;> rfl
+  have hrow1 : Nb.row 1 = (pairMod2 (f drX)).toAdd := by
+    funext j
+    fin_cases j <;> rfl
+  have hspan : ∀ v : Fin 2 → ZMod (2 ^ 1),
+      v ∈ Submodule.span (ZMod (2 ^ 1)) (Set.range Nb.row) := by
+    have hmem : ∀ d : (D0 : Type), (pairMod2 d).toAdd
+        ∈ Submodule.span (ZMod (2 ^ 1)) (Set.range Nb.row) := by
+      intro d
+      have h1 := mem_closure_gens_of_iso pairMod2 continuous_pairMod2 f d
+      have h2 := toAdd_mem_span_of_mem_closure h1
+      refine (Submodule.span_le.mpr ?_) h2
+      rintro z (rfl | rfl | rfl)
+      · exact Submodule.subset_span ⟨0, hrow0⟩
+      · exact Submodule.subset_span ⟨1, hrow1⟩
+      · rw [pairMod2_iso_drY f]
+        show (1 : Multiplicative (Fin 2 → ZMod (2 ^ 1))).toAdd ∈ _
+        exact Submodule.zero_mem _
+    intro v
+    have hv : v = ∑ i, v i • Pi.single (M := fun _ => ZMod (2 ^ 1)) i 1 := by
+      funext k
+      simp [Pi.single_apply]
+    rw [hv]
+    refine Submodule.sum_mem _ fun i _ => Submodule.smul_mem _ _ ?_
+    fin_cases i
+    · exact pairMod2_d0S ▸ hmem d0S
+    · exact pairMod2_d0Y ▸ hmem d0Y
+  have hNbUnit : IsUnit Nb := by
+    rw [← Matrix.vecMul_surjective_iff_isUnit]
+    intro v
+    have hv := hspan v
+    rw [← range_vecMulLinear, LinearMap.mem_range] at hv
+    obtain ⟨c, hc⟩ := hv
+    exact ⟨c, hc⟩
+  have hdet2 : PadicInt.toZModPow 1 ((coordMatrix f).det) = 1 := by
+    have hmap : PadicInt.toZModPow 1 ((coordMatrix f).det) = Nb.det := by
+      rw [hNb, ← RingHom.mapMatrix_apply, ← RingHom.map_det]
+    rw [hmap]
+    exact zmod2_eq_one_of_isUnit ((Matrix.isUnit_iff_isUnit_det Nb).mp hNbUnit)
+  exact isUnit_of_toZModPow_one_eq_one' hdet2
+
+/-- **The correction data**: `(u, b)` with `σ₁u + τ₁b = 1`, `σ₂u + τ₂b = 0`, and `u` odd. -/
+private lemma exists_correction (f : ContinuousMulEquiv (DR : Type) (D0 : Type)) :
+    ∃ u b : ℤ_[2],
+      (sHom (abMk (f drS))).toAdd * u + (yHom (abMk (f drS))).toAdd * b = 1 ∧
+      (sHom (abMk (f drX))).toAdd * u + (yHom (abMk (f drX))).toAdd * b = 0 ∧
+      PadicInt.toZModPow 1 u = 1 := by
+  obtain ⟨c, hc⟩ := (Matrix.mulVec_surjective_iff_isUnit.mpr (isUnit_coordMatrix f)) ![1, 0]
+  have h0 := congrFun hc 0
+  have h1 := congrFun hc 1
+  simp only [Matrix.mulVec, dotProduct, Fin.sum_univ_two] at h0 h1
+  have hS1 : (sHom (abMk (f drS))).toAdd * c 0 + (yHom (abMk (f drS))).toAdd * c 1 = 1 := h0
+  have hX0 : (sHom (abMk (f drX))).toAdd * c 0 + (yHom (abMk (f drX))).toAdd * c 1 = 0 := h1
+  refine ⟨c 0, c 1, hS1, hX0, ?_⟩
+  -- mod-2 parity: `τ₂ = 1 (mod 2)` forces `u` odd
+  have hm1 := congrArg (PadicInt.toZModPow (p := 2) 1) hS1
+  have hm2 := congrArg (PadicInt.toZModPow (p := 2) 1) hX0
+  rw [map_add, map_mul, map_mul, map_one] at hm1
+  rw [map_add, map_mul, map_mul, map_zero, toZModPow_one_tau f] at hm2
+  have hdec : ∀ s1 t1 s2 uu bb : ZMod (2 ^ 1),
+      s1 * uu + t1 * bb = 1 → s2 * uu + 1 * bb = 0 → uu = 1 := by decide
+  exact hdec _ _ _ _ _ hm1 hm2
+
+/-! ## The corrected isomorphism and the keystone -/
+
+/-- The middle (`S̄₀`)-coordinate functional of the coordinate group. -/
+private noncomputable def midCoordHom :
+    ContinuousMonoidHom (Multiplicative (ZMod 2 × ℤ_[2] × ℤ_[2])) (Multiplicative ℤ_[2]) where
+  toFun z := ofAdd z.toAdd.2.1
+  map_one' := rfl
+  map_mul' _ _ := rfl
+  continuous_toFun := continuous_ofAdd.comp
+    (continuous_fst.comp (continuous_snd.comp continuous_toAdd))
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+/-- The forced `Ā`-row of the coordinate frame: `Ā = t − 2S̄ ↦ (1, −2, 0)`. -/
+private lemma bE_A (B0 : BDecomposition) :
+    B0.e (abMk d0A) = ofAdd ((1 : ZMod 2), (-2 : ℤ_[2]), (0 : ℤ_[2])) := by
+  have hdec : (abMk d0A : topAbelianization (D0 : Type))
+      = abMk (d0A * d0S ^ 2) * ((abMk d0S) ^ 2)⁻¹ := by
+    rw [map_mul, map_pow, mul_inv_cancel_right]
+  rw [hdec, map_mul, map_inv, map_pow, B0.map_t, B0.map_S, pow_two, ← ofAdd_add, ← ofAdd_neg,
+    ← ofAdd_add]
+  congr 1
+  refine Prod.ext ?_ (Prod.ext ?_ ?_)
+  · show (1 : ZMod 2) + -((0 : ZMod 2) + 0) = 1
+    decide
+  · show (0 : ℤ_[2]) + -((1 : ℤ_[2]) + 1) = -2
+    ring
+  · show (0 : ℤ_[2]) + -((0 : ℤ_[2]) + 0) = 0
+    ring
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+/-- `sHom` reads off the middle `B0.e`-coordinate. -/
+private lemma sHom_eq_mid (B0 : BDecomposition) (z : topAbelianization (D0 : Type)) :
+    sHom z = midCoordHom (B0.e z) := by
+  have h := d0ab_hom_ext PropOneOne.isProP_two_multPadicInt sHom
+    (midCoordHom.comp ⟨B0.e.toMulEquiv.toMonoidHom, B0.e.continuous_toFun⟩) ?_ ?_ ?_ z
+  · exact h
+  · show sHom (abMk d0A) = midCoordHom (B0.e (abMk d0A))
+    rw [sHom_A', bE_A B0]
+    rfl
+  · show sHom (abMk d0S) = midCoordHom (B0.e (abMk d0S))
+    rw [sHom_S', B0.map_S]
+    rfl
+  · show sHom (abMk d0Y) = midCoordHom (B0.e (abMk d0Y))
+    rw [sHom_Y', B0.map_Y]
+    rfl
+
+/-- The `(u, b)`-combination functional `z ↦ σ(z)·u + τ(z)·b` (multiplicatively). -/
+private noncomputable def comboHom (u b : ℤ_[2]) :
+    ContinuousMonoidHom (topAbelianization (D0 : Type)) (Multiplicative ℤ_[2]) where
+  toFun z := ofAdd ((sHom z).toAdd * u + (yHom z).toAdd * b)
+  map_one' := by
+    show ofAdd ((sHom (1 : topAbelianization (D0 : Type))).toAdd * u
+      + (yHom (1 : topAbelianization (D0 : Type))).toAdd * b) = 1
+    rw [show sHom (1 : topAbelianization (D0 : Type)) = 1 from map_one _,
+      show yHom (1 : topAbelianization (D0 : Type)) = 1 from map_one _,
+      toAdd_one, zero_mul, zero_mul, add_zero, ofAdd_zero]
+  map_mul' a c := by
+    show ofAdd ((sHom (a * c)).toAdd * u + (yHom (a * c)).toAdd * b) = _
+    rw [show sHom (a * c) = sHom a * sHom c from map_mul _ _ _,
+      show yHom (a * c) = yHom a * yHom c from map_mul _ _ _, toAdd_mul, toAdd_mul,
+      ← ofAdd_add]
+    congr 1
+    ring
+  continuous_toFun := continuous_ofAdd.comp (Continuous.add
+    ((continuous_toAdd.comp sHom.continuous_toFun).mul continuous_const)
+    ((continuous_toAdd.comp yHom.continuous_toFun).mul continuous_const))
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+/-- The `prop_3_8_lift` automorphism's `S̄₀`-coordinate is the `(u, b)`-combination of the
+original coordinates — the abelianized action of the correction. -/
+private lemma sHom_psi (B0 : BDecomposition) (Ψ : ContinuousMulEquiv (D0 : Type) (D0 : Type))
+    (u b : ℤ_[2])
+    (hA : B0.e (abMk (Ψ d0A)) = Multiplicative.ofAdd (1, -2 * u, 0))
+    (hS : B0.e (abMk (Ψ d0S)) = Multiplicative.ofAdd (0, u, 0))
+    (hY : B0.e (abMk (Ψ d0Y)) = Multiplicative.ofAdd (0, b, 1))
+    (z : topAbelianization (D0 : Type)) :
+    sHom (topAbCongr Ψ z) = comboHom u b z := by
+  have h := d0ab_hom_ext PropOneOne.isProP_two_multPadicInt
+    (sHom.comp ⟨(topAbCongr Ψ).toMulEquiv.toMonoidHom, (topAbCongr Ψ).continuous_toFun⟩)
+    (comboHom u b) ?_ ?_ ?_ z
+  · exact h
+  · show sHom (topAbCongr Ψ (abMk d0A)) = comboHom u b (abMk d0A)
+    rw [topAbCongr_abMk', sHom_eq_mid B0, hA]
+    show ofAdd (-2 * u)
+      = ofAdd ((sHom (abMk d0A)).toAdd * u + (yHom (abMk d0A)).toAdd * b)
+    rw [sHom_A', yHom_A']
+    show ofAdd (-2 * u) = ofAdd ((-2 : ℤ_[2]) * u + (0 : ℤ_[2]) * b)
+    congr 1
+    ring
+  · show sHom (topAbCongr Ψ (abMk d0S)) = comboHom u b (abMk d0S)
+    rw [topAbCongr_abMk', sHom_eq_mid B0, hS]
+    show ofAdd u = ofAdd ((sHom (abMk d0S)).toAdd * u + (yHom (abMk d0S)).toAdd * b)
+    rw [sHom_S', yHom_S']
+    show ofAdd u = ofAdd ((1 : ℤ_[2]) * u + (0 : ℤ_[2]) * b)
+    congr 1
+    ring
+  · show sHom (topAbCongr Ψ (abMk d0Y)) = comboHom u b (abMk d0Y)
+    rw [topAbCongr_abMk', sHom_eq_mid B0, hY]
+    show ofAdd b = ofAdd ((sHom (abMk d0Y)).toAdd * u + (yHom (abMk d0Y)).toAdd * b)
+    rw [sHom_Y', yHom_Y']
+    show ofAdd b = ofAdd ((0 : ℤ_[2]) * u + (1 : ℤ_[2]) * b)
+    congr 1
+    ring
+
+/-- **The matching isomorphism** (⟦prop:markedpro2⟧ engine, note §3.3): from any abstract
+continuous isomorphism `D_R ≅ D₀` (the B-Lab input) there is a **marked** one — a corrected
+`F = Ψ_{u,b} ∘ f` whose `S̄₀`-coordinate takes the unramified marking values `(1, 0, 0)` on
+the generators of `D_R`.  (Stated on generator values; the consumer `markedPro2_R` runs the
+`dr_topGen` density argument against `ν_{D_R}`, which lives downstream.)  Everything upstream
+(orientation functoriality, the `τ₂`-parity, the coordinate solve, `prop_3_8_lift`) is
+packaged here. -/
+theorem exists_matching_iso (hex : Nonempty (ContinuousMulEquiv (DR : Type) (D0 : Type))) :
+    ∃ F : ContinuousMulEquiv (DR : Type) (D0 : Type),
+      sHom (abMk (F drS)) = ofAdd (1 : ℤ_[2]) ∧
+      sHom (abMk (F drX)) = 1 ∧ sHom (abMk (F drY)) = 1 := by
+  obtain ⟨f⟩ := hex
+  obtain ⟨B0⟩ := b_decomposition
+  obtain ⟨u, b, hS1, hX0, humod⟩ := exists_correction f
+  have huUnit : IsUnit u := isUnit_of_toZModPow_one_eq_one' humod
+  obtain ⟨Ψ, hΨA, hΨS, hΨY⟩ := SectionThree.prop_3_8_lift B0 huUnit.unit b
+  rw [huUnit.unit_spec] at hΨA hΨS
+  refine ⟨f.trans Ψ, ?_, ?_, ?_⟩
+  · show sHom (abMk (Ψ (f drS))) = ofAdd (1 : ℤ_[2])
+    rw [← topAbCongr_abMk' Ψ (f drS), sHom_psi B0 Ψ u b hΨA hΨS hΨY]
+    show ofAdd ((sHom (abMk (f drS))).toAdd * u + (yHom (abMk (f drS))).toAdd * b)
+      = ofAdd (1 : ℤ_[2])
+    rw [hS1]
+  · show sHom (abMk (Ψ (f drX))) = 1
+    rw [← topAbCongr_abMk' Ψ (f drX), sHom_psi B0 Ψ u b hΨA hΨS hΨY]
+    show ofAdd ((sHom (abMk (f drX))).toAdd * u + (yHom (abMk (f drX))).toAdd * b) = 1
+    rw [hX0, ofAdd_zero]
+  · have hY2 := coordHom_abMk_iso_drY sHom (f.trans Ψ)
+    rw [hY2]
+    have hvX : sHom (abMk ((f.trans Ψ) drX)) = 1 := by
+      show sHom (abMk (Ψ (f drX))) = 1
+      rw [← topAbCongr_abMk' Ψ (f drX), sHom_psi B0 Ψ u b hΨA hΨS hΨY]
+      show ofAdd ((sHom (abMk (f drX))).toAdd * u + (yHom (abMk (f drX))).toAdd * b) = 1
+      rw [hX0, ofAdd_zero]
+    rw [hvX, one_pow]
+
+/-- **The `prop_1_1` unramified rows compute `sHom`** — the `D₀`-side density bridge the
+`markedPro2_R` assembly consumes: if `e₁ : G_{ℚ₂}(2) ≅ D₀` has the `prop_1_1` unramified
+coordinates `(−2, 1, 0)` at `(A, S₀, Y₀)` (read through arbitrary lifts), then
+`ν̄_ur ∘ e₁⁻¹ = sHom ∘ abMk` everywhere (density over `topGen_d0`). -/
+theorem nuUrBar_symm_eq_sHom (R : LocalReciprocity)
+    (e₁ : ContinuousMulEquiv (maxProPQuotient 2 AbsGalQ2) (D0 : Type))
+    (hA : ∀ g : AbsGalQ2, maxProPMk 2 AbsGalQ2 g = e₁.symm d0A →
+      R.nu_ur (toAb g) = Multiplicative.ofAdd ((-2 : ℤ) : ℤ_[2]))
+    (hS : ∀ g : AbsGalQ2, maxProPMk 2 AbsGalQ2 g = e₁.symm d0S →
+      R.nu_ur (toAb g) = Multiplicative.ofAdd ((1 : ℤ) : ℤ_[2]))
+    (hY : ∀ g : AbsGalQ2, maxProPMk 2 AbsGalQ2 g = e₁.symm d0Y →
+      R.nu_ur (toAb g) = Multiplicative.ofAdd ((0 : ℤ) : ℤ_[2]))
+    (d : (D0 : Type)) : PropOneOne.nuUrBar R (e₁.symm d) = sHom (abMk d) := by
+  have h := monoidHom_eq_of_topGen
+    (f := (PropOneOne.nuUrBar R).toMonoidHom.comp e₁.symm.toMulEquiv.toMonoidHom)
+    (g := sHom.toMonoidHom.comp abMk)
+    ((PropOneOne.nuUrBar R).continuous_toFun.comp e₁.symm.continuous_toFun)
+    (sHom.continuous_toFun.comp continuous_abMk)
+    topGen_d0 ?_
+  · exact h d
+  · rintro w (rfl | rfl | rfl)
+    · show PropOneOne.nuUrBar R (e₁.symm d0A) = sHom (abMk d0A)
+      obtain ⟨gA, hgA⟩ := quotientMk_surjective (proPKernel 2 AbsGalQ2) (e₁.symm d0A)
+      have hgA' : maxProPMk 2 AbsGalQ2 gA = e₁.symm d0A := hgA
+      rw [← hgA', PropOneOne.nuUrBar_maxProPMk, hA gA hgA', sHom_A']
+      exact congrArg ofAdd (by push_cast; ring)
+    · show PropOneOne.nuUrBar R (e₁.symm d0S) = sHom (abMk d0S)
+      obtain ⟨gS, hgS⟩ := quotientMk_surjective (proPKernel 2 AbsGalQ2) (e₁.symm d0S)
+      have hgS' : maxProPMk 2 AbsGalQ2 gS = e₁.symm d0S := hgS
+      rw [← hgS', PropOneOne.nuUrBar_maxProPMk, hS gS hgS', sHom_S']
+      exact congrArg ofAdd (by push_cast; ring)
+    · show PropOneOne.nuUrBar R (e₁.symm d0Y) = sHom (abMk d0Y)
+      obtain ⟨gY, hgY⟩ := quotientMk_surjective (proPKernel 2 AbsGalQ2) (e₁.symm d0Y)
+      have hgY' : maxProPMk 2 AbsGalQ2 gY = e₁.symm d0Y := hgY
+      rw [← hgY', PropOneOne.nuUrBar_maxProPMk, hY gY hgY', sHom_Y']
+      exact congrArg ofAdd (by push_cast; ring)
 
 end Masters
