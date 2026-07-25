@@ -172,6 +172,7 @@ import GQ2.UnitFiltrationCounts
 import GQ2.Roe.Words
 import GQ2.Roe.GammaR
 import GQ2.Roe.AdmissibleLimit
+import GQ2.Roe.Tame
 import GQ2.Roe.Prop23
 import GQ2.Roe.Stokes
 import GQ2.Roe.OrientationRoot
