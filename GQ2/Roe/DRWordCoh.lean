@@ -668,12 +668,10 @@ pro-2 — the target hypothesis of `drLiftHom`. -/
 theorem isProP_CentExt {V : OpenNormalSubgroup DRT} (c : TwoCocycle (DRT ⧸ V.toSubgroup)) :
     IsProP 2 (CentExt c) := by
   haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  refine isProP_of_isPGroup (IsPGroup.of_card (p := 2) ?_)
   obtain ⟨k, hk⟩ := (IsPGroup.iff_card (p := 2)).mp (isProP_DR V)
-  refine ⟨k + 1, ?_⟩
+  refine isProP_of_isPGroup ((IsPGroup.iff_card (p := 2)).mpr ⟨k + 1, ?_⟩)
   have hcard : Nat.card (CentExt c) = Nat.card (DRT ⧸ V.toSubgroup) * Nat.card (ZMod 2) :=
     Nat.card_prod _ _
-  rw [hcard, ← Nat.card_eq_fintype_card (α := DRT ⧸ V.toSubgroup)] at *
   rw [hcard, hk, Nat.card_zmod, pow_succ]
 
 /-! ## The relation holds at every finite level -/
@@ -684,21 +682,21 @@ theorem drWord_mk_eq_one (V : OpenNormalSubgroup DRT) :
       (QuotientGroup.mk' V.toSubgroup (drGens 2)) = 1 := by
   have h := map_drWord (QuotientGroup.mk' V.toSubgroup) (drGens 0) (drGens 1) (drGens 2)
   simp only [drGens_zero, drGens_one, drGens_two] at h ⊢
-  rw [← h, ← map_drWord, dr_relation, map_one]
+  rw [← h, dr_relation, map_one]
 
 /-! ## The obstruction homomorphism and its injectivity -/
 
-section Obstruction
-
-variable [DistribMulAction DRT (ZMod 2)] [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
-  [ContinuousSMul DRT (ZMod 2)]
-
 /-- Normalize a 2-cochain at `(1,1)` by subtracting the constant `κ (1,1)`. -/
-def normalizeCochain (κ : DRT × DRT → ZMod 2) : DRT × DRT → ZMod 2 := κ - fun _ => κ (1, 1)
+noncomputable def normalizeCochain (κ : DRT × DRT → ZMod 2) : DRT × DRT → ZMod 2 :=
+  κ - fun _ => κ (1, 1)
 
 private theorem normalizeCochain_add (κ κ' : DRT × DRT → ZMod 2) :
     normalizeCochain (κ + κ') = normalizeCochain κ + normalizeCochain κ' := by
   funext p; simp only [normalizeCochain, Pi.add_apply, Pi.sub_apply]; abel
+
+section Obstruction
+
+variable [DistribMulAction DRT (ZMod 2)] [ContinuousSMul DRT (ZMod 2)]
 
 variable (htriv : ∀ (x : DRT) (m : ZMod 2), x • m = m)
 include htriv
