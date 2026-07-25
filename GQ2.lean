@@ -182,6 +182,7 @@ import GQ2.Roe.DRAbelianization
 import GQ2.Roe.CrossedDerivation
 import GQ2.Roe.DRWordCoh
 import GQ2.Roe.DRDemushkin
+import GQ2.Roe.MarkedMatching
 import GQ2.Roe.MarkedPro2
 import GQ2.Roe.MaxPro2Bridge
 import GQ2.Roe.FoxBasic
