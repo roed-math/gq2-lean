@@ -33,7 +33,7 @@ updates rows here and merges `roe` → `master` at wave boundaries.
 | R4 | prop_2_3_R epi-semantics | opus | `GQ2/Roe/Prop23.lean` | R3 | queued |
 | R5 | small-group numerical cross-check vs June LMFDB-verified counts | opus | `GQ2/Roe/Sanity.lean` | R1 | queued |
 | R6 | tame quotient + ν_R + W_R = O₂ (note lem:tame) | opus | `GQ2/Roe/Tame.lean` | R1 | queued |
-| R20 | §5 scaffolding parameter-boundary recon (read-only, citation-dense) | opus | report `roe-r20-recon.md` | — | **dispatched 2026-07-24 evening** |
+| R20 | §5 scaffolding parameter-boundary recon (read-only, citation-dense) | opus | report `roe-r20-recon.md` | — | **done 2026-07-24** → `roe-r20-recon.md` (e78bdb7). Key: word couples via definitional spine (`wildValue→d1Fun/Z1w/H*w/mixedB`); dévissage states over the FIXED spine — no `mixedB_R` drop-in. Orchestrator decision: **clone route** for `Devissage/`-dependent assembly (~3k ln, proofs port verbatim, new files only; spine-generalization noted as post-campaign cleanup option — no frozen-file edits overnight). `prop_5_16` is word-generic, reused verbatim → R26 scope gains thin `cor_5_17_card_R` instead. `markC_admissible_R` assigned to R4. Q6 decl list drives R21–R26 prompts |
 
 ## Gate G1 (owner → delegated to orchestrator 2026-07-24, see decisions log)
 
