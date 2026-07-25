@@ -46,6 +46,12 @@ updates rows here and merges `roe` → `master` at wave boundaries.
   deliverable `labute-plan.md` for owner review BEFORE any L-tickets run). R15/R32 capstones
   stay hypothesis-parametrized until L lands; everything else is insulated (plan §3 fat-tail
   provision). **R30 GREEN-LIT** — dispatch after R26b lands ("ideally after R26" honored).
+- 2026-07-25 (orchestrator, incident log): a transient API incident stalled R15/R30 mid-run
+  and killed L0's literature sub-survey; all resumed. During recovery the orchestrator
+  misrouted the "finish the orphaned survey" handoff to the (finished) R26b agent instead of
+  L0 — R26b flagged the discrepancy, completed the survey legitimately, and landed
+  labute-plan.md (98a1cda); L0 re-woken only to author-verify the graft. Lesson: keep the
+  agent-ID ledger per ticket, double-check before SendMessage.
 - 2026-07-25 (orchestrator): R26b dispatched on R26a's landing. R26a's report RETRACTS the
   R25 predicate-reconcile flag: `IsSelfDual_R` (fixedPts form) + `IsSelfDualW_R` (H⁰w form)
   mirror Γ_A's pair exactly, bridged by `isSelfDual_iff_W_R`; planned name `IsSelfDualR`
@@ -126,7 +132,18 @@ review.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| L0 | scoping recon: proof-route comparison (Labute original vs NSW III§9 vs instance-specific), repo/mathlib asset map, phased decomposition + estimates + first spike | fable | `docs/orchestration/labute-plan.md` (no Lean) | — | **dispatched 2026-07-25** |
+| L0 | scoping recon: proof-route comparison (Labute original vs NSW III§9 vs instance-specific), repo/mathlib asset map, phased decomposition + estimates + first spike | fable | `docs/orchestration/labute-plan.md` (no Lean) | — | **done 2026-07-25** (98a1cda, 495 ln; L0's lit-survey child died on an API error and the §2.6a literature graft was landed by the R26b worker on reassignment — Serre Bourbaki 252 page-verified as primary proof source: λ-series = our filtration, q=2 defect repair, χ-surjective ⟹ f=2, D₀ relator p.148; L0 author-verifying integration). **Recommended: Route L2 — levelwise two-sided lifting** (λ-tower + stage lemma + König via Reconstruction.lean machinery + profinite_hopfian endgame; no Aut(F₃), no graded-Lie unless HIGH). Effort LOW ≈2k ln/1.5–2 swarm-days, LIKELY 2.5–5.5k/2.5–4, HIGH 6–10k/8–15 (graded-Lie fat tail; LS detects). Zero census-axiom dependence; B3c must NOT be touched; lean_verify bLab must print std-3 exactly |
+| LS | off-Lean de-risking spike (Sage/GAP ANUPQ p-quotient to depth k≈7–9 + paper-level stage lemma vs sources + computational induction test + f=3 control); verdict GREEN/AMBER/RED gates L1 | fable | `docs/orchestration/labute-spike.md` (no Lean) | owner sign-off | awaiting owner |
+| L1 | design memo + compiling sorry-skeletons (statements final): λ-tower API, levelwise sets + defect, stage lemma w/ invariant P per LS, base-case interfaces, assembly stmt | fable | `GQ2/Roe/Labute/{TwoCentralTower,Levelwise,StageLemma,Assembly}.lean` skeletons + `labute-l1-design.md` | LS GREEN | queued |
+| L2 | λ-tower fills (generic pro-2 lower 2-central series: openness, nbhd basis, Zₖ, functoriality, G ≅ lim G/λₖ) | opus | `TwoCentralTower.lean` | L1 | queued |
+| L3 | base cases: witness triples + relator/generation checks through k₀, both directions (witnesses from LS numerics) | opus | `Levelwise.lean` | L1 | queued |
+| L4 | stage lemma: defect calculus + reachability under P for k ≥ k₀ (split L4a calculus / L4b reachability if L1 decides) — THE tail | fable | `StageLemma.lean` | L1, L2 | queued |
+| L5 | assembly: `exists_contSurj_of_levelwise_nonempty` refactor (SERIALIZED existing-file edit of Reconstruction.lean, byte-identical-consumers gate), two epis, Hopfian endgame, `theorem bLab : BLabHypothesis`, stress | opus | `Assembly.lean`, `GQ2/Reconstruction.lean` (refactor only) | L2, L3, L4 | queued |
+| L6 | gates/docs: literature-axioms B3 addendum (B-Lab DISCHARGED as theorem, census unchanged), std-3 certificate for bLab, board/README, blueprint hook | opus | docs | L5 | queued |
+
+Middle-path owner options if LS comes back AMBER (plan §7): O1 axiomatize only the uniform
+stage step; O2 axiomatize levelwise nonemptiness (machine-falsifiable, least
+classification-shaped); O3 timebox L4 then drop to O1.
 
 ## Gate G2 (owner)
 
