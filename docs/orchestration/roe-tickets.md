@@ -40,6 +40,20 @@ updates rows here and merges `roe` → `master` at wave boundaries.
   **GQ2.lean ownership moves to the orchestrator for the rest of the wave**: workers touch it
   only to add an import for a NEW file they create, committed path-limited together with that
   file. All four tickets re-dispatched 2026-07-25.
+- 2026-07-25 (owner, morning gates): **B-Lab DECLINED — no new axiom.** R14 CANCELLED.
+  `BLabHypothesis` stays the interface; it must be DISCHARGED by an actual Lean proof of the
+  Labute classification instance → new **L-campaign** (L0 scoping ticket dispatched, fable;
+  deliverable `labute-plan.md` for owner review BEFORE any L-tickets run). R15/R32 capstones
+  stay hypothesis-parametrized until L lands; everything else is insulated (plan §3 fat-tail
+  provision). **R30 GREEN-LIT** — dispatch after R26b lands ("ideally after R26" honored).
+- 2026-07-25 (orchestrator): R26b dispatched on R26a's landing. R26a's report RETRACTS the
+  R25 predicate-reconcile flag: `IsSelfDual_R` (fixedPts form) + `IsSelfDualW_R` (H⁰w form)
+  mirror Γ_A's pair exactly, bridged by `isSelfDual_iff_W_R`; planned name `IsSelfDualR`
+  exists nowhere. ⚠ MODULE-SYSTEM PITFALL (from R31a, cost the predecessor its whole
+  verification): `module`-style files CANNOT import non-module files (one-directional);
+  anything importing the §2/§8 stack (ScalarCount, Prop89Close, RecursionSplice,
+  PresentationLiteral, Prop23) must be plain-import style — R30's `GQ2/SourceData.lean`
+  included.
 
 ## Wave 1 (parallel: R1→R3→R4→R5 lane; R6 lane; R2 lane; R20 lane)
 
@@ -73,7 +87,7 @@ numerics on file for cross-checks.
 | R11 | chiR + IsLabuteOrientation + surjectivity | opus | `GQ2/Roe/ChiR.lean` | R9 ✓, R10 ✓ | **done 2026-07-24** (ec024cd, 243 ln, 0 sorries, std-3). `chiR` via drLiftHom at (SvalUnit,rootXUnit,YvalUnit); `isLabuteOrientation_chiR`; `chiR_torsion` = −1 on drY·drX⁻²; **surjectivity via Burnside/Frattini + mod8_sq** (index-2 subgroups contain squares; 5,7 mod 8 classes force ⊤ — no zpowZtwo closure needed). **B-Lab hypothesis package now fully proven.** Congruence stress ≡5/≡13 mod 16 |
 | R12+13 | MERGED: DRDemushkin fills | opus | `GQ2/Roe/DRDemushkin.lean` (fills) | R7 ✓ | **partial 2026-07-24** (140033f): H¹ half DONE (`drH1_bijective`, `card_H1_DR=8`, `demushkinRank_DR=3` — std-3). H² half (12 sorries: card_H2, 9 Gram, nondegen, demushkinQ) BLOCKED on missing 3-gen/1-relator word-coh infra (WordCoh2/WordCohBridge hard-wired to Γ_A) → escalated to R13b |
 | R13b | ESCALATION: D_R H² word-coh bridge + discharge DRDemushkin | opus | `GQ2/Roe/DRWordCoh.lean` (+`DRH2.lean`), `GQ2/Roe/DRDemushkin.lean` (fills) | R12+13 partial, R21 ✓, R24 ✓, R8 ✓ | research pass done (no write tools — returned validated plan): **Gram bridge PROVEN GREEN by `decide`** (all 9 entries = [[0,1,0],[1,0,0],[0,0,1]] incl. Bockstein diag); gating CORRECTED (ss/xx NOT R8-gated; only demushkinQ, now dischargeable). Plan committed `roe-r13b-plan.md` (428d413) → exec interrupted 07-24 (weekly limit) at DRWordCoh 924 ln / 1 sorry (injectivity seam), DRDemushkin untouched; salvaged 94091f0 → **re-dispatched 2026-07-25** (target: DRWordCoh 0 sorries + DRDemushkin 13→0) |
-| R14 | B-Lab axiom flip (b9a-T5-style checklist) — **OWNER-GATED, do not dispatch** | fable | `Foundations/Axioms.lean`, `AxiomLedger.lean`, `check_axioms.sh` | R11–R13 + owner sign-off | blocked (owner) |
+| R14 | ~~B-Lab axiom flip~~ | fable | — | — | **CANCELLED 2026-07-25 — owner DECLINED B-Lab** (no new axiom; census stays frozen). Replaced by the L-campaign below: BLabHypothesis to be discharged by a Lean proof of the Labute instance |
 | R15a | maxPro2(GammaR) ≅ DR bridge (⟦lem:pro2word⟧ Γ_R half) | opus | `GQ2/Roe/MaxPro2Bridge.lean` | R3 ✓, R6 ✓, R7 ✓, R8 ✓ | **done 2026-07-24** (823cecf, 504 ln, 0 sorries, std-3, UNCONDITIONAL — no B-Lab). `maxPro2Bridge : ContinuousMulEquiv (maxPro2 (F₄⧸NR)) DR` as direct def; keystone `wildValueR_eq_drWord_of_powOmega2_id` proved first; generator hooks + `maxPro2Bridge_spec` in prop_3_10 shape; raw-carrier spelling throughout. Did NOT import MarkedPro2 (would cycle) — ν-composite left as 1-liners for R15 |
 | R15 | marked matching assembly (prop_1_1 clone; unique b with S = X^b, k-shear, prop_3_8 reuse) | fable | `GQ2/Roe/MarkedPro2.lean` (fills) (+opt `MarkedMatching.lean`) | R7–R11 ✓ (cites in-flight R13b's sorried isDemushkin_DR/demushkinQ_DR — axiom print self-heals when R13b lands) | interrupted 07-24 before any edits → **re-dispatched 2026-07-25** |
 | R21 | r_R Fox spine (`d1FunR`/`Z1wR`/`H*wR` + `mixedB_R` def) + evaluated wild row split/ramified + trivial-module differential (b,b) | fable | `GQ2/Roe/FoxBasic.lean`, `GQ2/Roe/WildRow.lean` | R1 ✓, R20 ✓ | **done 2026-07-24** (633daae, 607 ins, 0 sorries, std-3; ns `GQ2.FoxH`). Rows: split `x1+x2+σ⁻¹•x2` (needs NO hU — weaker than Γ_A!), ramified `σ⁻¹•x2`; swap-vs-Γ_A mechanized (`liftMarking_wildValueR_u_eq_swap`); trivial collapse `d1FunR_of_trivial` (=(x1,x1)); `mixedB_R`+`bridge_wildR` in FoxBasic — later tickets IMPORT bridge_wildR, never re-define. (check_axioms repo-wide currently red on MarkedPro2's in-flight skeleton sorries — expected mid-wave; wave-close gate) |
@@ -81,8 +95,8 @@ numerics on file for cross-checks.
 | R23 | Stokes exponent vector ![0,e,e+1,0] + odd-e (0,1,0,0) endpoint input (RESCOPED: chain-map rows moved to R25) | opus | `GQ2/Roe/Stokes.lean` | R1 ✓ | **done 2026-07-24** (4abf603, +150 ln, std-3, 0 sorries; ns `GQ2.FoxH` beside consumers). R25 endpoint input = `expMod2_wildValueExpR_odd` via `congrFun (… (omega2Exp_exponent_heis_cast))`; sum-zero endpoint `expMod2_tame_add_wildValueExpR_odd`; e=3 `decide` stress |
 | R24 | mixed Hessian z-ledger + 1+U+U⁻¹ pairing (note prop:hessian) | opus | `GQ2/Roe/Hessian.lean` | R21 ✓ | **done 2026-07-24** (d3001c0, 395 ln, 0 sorries, std-3). Ledger + assembled `heisMarking_wildValueR_z(_ramified)`, `mixedB_R_pairing_split/_ramified`, `pairingR_operator_injective` (thin alias — Γ_A's operator lemma verbatim, presentation-independent); htau kept as unused binder for R26 signature parity; ramified diagonal needs NO ω₂-collapse (the h₀-free simplification, confirmed) |
 | R25 | traced chain-map rows (prop_5_8_*_R) + `mixedB_cocycle_R` + trivial-module Gram + trivialSelfDual_R base | opus | `GQ2/Roe/TrivialSelfDual.lean` | R21 ✓, R23 ✓ | **done 2026-07-24** (3f1aa2a, 582 ln, 0 sorries, std-3). prop_5_8_left/right_R via bridge_wildR + R23 endpoint; Gram [[0,1,0],[1,0,0],[0,0,1]] by decide; ω₂-scalar aR.z lands on (2,2) slot (wild-column swap) w/ killer lemmas; Stokes-bridge helpers built here (R23 shipped exponents only). ⚠ defined `IsSelfDual_R` locally — RECONCILE with R26a's planned `IsSelfDualR` in R26b (single predicate must win) |
-| R26a | mechanical dévissage clone onto the r_R spine (`IsSelfDualR`, Devissage/ + DevissageInduction twins, target `prop_5_15_of_simple_R`; ElemDualPack + generic helpers reused not cloned) | opus | `GQ2/Roe/SelfDual.lean`, `GQ2/Roe/Devissage*.lean`, `GQ2/Roe/DevissageInduction.lean` | R21 ✓ (spine only) | interrupted 07-24: ~2.3k ln written (Devissage/ ×9 + Devissage.lean + DevissageInduction.lean, 0 sorries, build unverified; top-level SelfDual.lean dropped in favor of Devissage/SelfDual.lean), salvaged 94091f0 → **re-dispatched 2026-07-25** (verify/complete/commit) |
-| R26b | duality assembly: `selfDual_of_simple_R` + `prop_5_15_R` + thin `cor_5_17_card_R` (prop_5_16 reused verbatim) | fable | `GQ2/Roe/DualityAssembly.lean` | R22 ✓, R24, R25, R26a | queued |
+| R26a | mechanical dévissage clone onto the r_R spine (`IsSelfDualR`, Devissage/ + DevissageInduction twins, target `prop_5_15_of_simple_R`; ElemDualPack + generic helpers reused not cloned) | opus | `GQ2/Roe/SelfDual.lean`, `GQ2/Roe/Devissage*.lean`, `GQ2/Roe/DevissageInduction.lean` | R21 ✓ (spine only) | **done 2026-07-25** (predecessor had actually FINISHED + built green before the limit hit; verifier commit 810b949, doc-fixes only): 11 files, 2287 ln, 65 decls, 0 sorries; `GQ2.FoxH.prop_5_15_of_simple_R` (DevissageInduction.lean:45) + lemma_5_11_R + card_H1w_eq_R + card_Z1w_eq_sq_mul_card_H2w_R all std-3, ZERO census axioms. 96-vs-207 DevissageInduction gap = legitimate `(A)`-generic reuse (imports Γ_A twin). `H0w`/`fixedPts`/`elemDual_separates` word-free → reused UNSUFFIXED in R statements. Permanent note: no shared spine — future Γ_A dévissage edits must be hand-mirrored into Roe/Devissage/ |
+| R26b | duality assembly: `selfDual_of_simple_R` + `prop_5_15_R` + thin `cor_5_17_card_R` (prop_5_16 reused verbatim) | fable | `GQ2/Roe/DualityAssembly.lean` | R22 ✓, R24 ✓, R25 ✓, R26a ✓ | **dispatched 2026-07-25** (prompt carries R26a's consumption list: lemma_5_11_R/card_H1w_eq_R/card_Z1w_eq_sq_mul_card_H2w_R + unsuffixed H0w_eq_fixedPts/elemDual_separates; no MarkedPro2/DR* imports to keep axiom print clean) |
 
 ## Wave 3 — P4 + P5 + P6
 
@@ -92,7 +106,7 @@ families = R31's list, minimal-diff b9a-flip refactor shape (6 files touched, co
 untouched), Γ_R readiness table (tame/ν/ker/epi DONE; pro2 gated on R15a; sourceR → R32),
 top risks (shared-G0 Gauss seam — recommend external-G0 fields; binder/carrier fragility —
 regression-gate capstones). R30 EXECUTION HELD FOR MORNING (pairs with B-Lab sign-off).
-| R31a | R30-independent supply: `gammaR_topologicallyFinitelyGenerated` + `lemma_8_2_R` (#Hom=8) | opus | `GQ2/Roe/Supply.lean` | R3 ✓, R6 ✓, recon | interrupted 07-24: Supply.lean 219 ln, 0 sorries, looks scope-complete but unverified, salvaged 94091f0 → **re-dispatched 2026-07-25** (verify+commit) |
+| R31a | R30-independent supply: `gammaR_topologicallyFinitelyGenerated` + `lemma_8_2_R` (#Hom=8) | opus | `GQ2/Roe/Supply.lean` | R3 ✓, R6 ✓, recon | **done 2026-07-25** (e4b1b9f, 223 ln, 0 sorries; capstones `gammaR_topologicallyFinitelyGenerated` + `lemma_8_2_R` and 4 extras all std-3, zero census axioms). Predecessor's math sound but NEVER CHECKED — illegal `module` header (imports non-module ScalarCount) had blocked all elaboration; converted to plain imports (Prop23 precedent), proofs compiled unchanged. R30 recon rows ii.1/ii.2 → DONE. Carrier answer for SourceData: bundled `GammaR : ProfiniteGrp` works for both rows, but keep each field's spelling as-is (ii.1 `: Type` ascription, ii.2 bare coercion) — normalizing would edit frozen Γ_A capstones |
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
@@ -103,7 +117,19 @@ regression-gate capstones). R30 EXECUTION HELD FOR MORNING (pairs with B-Lab sig
 | R40 | gates: check_axioms extension, ledger, formalization.yaml, comparator pair, README | opus | those files | R32 | — |
 | R41 | docs sweep + blueprint/verso chunk for the note (site repo; non-blocking) | opus | docs | R40 | — |
 
+## L-campaign — Labute classification discharge (created 2026-07-25, owner declined B-Lab)
+
+Goal: prove `BLabHypothesis` as a theorem (Labute 1967 Thm 8+4, instance n=3/q=2/f=2 ⇒
+≅ D₀), eliminating the would-be axiom. R15/R32 capstones carry the hypothesis until this
+lands; no other ticket blocks on it. Ticket board TBD from `labute-plan.md` after owner
+review.
+
+| id | title | model | files owned | depends on | status |
+|---|---|---|---|---|---|
+| L0 | scoping recon: proof-route comparison (Labute original vs NSW III§9 vs instance-specific), repo/mathlib asset map, phased decomposition + estimates + first spike | fable | `docs/orchestration/labute-plan.md` (no Lean) | — | **dispatched 2026-07-25** |
+
 ## Gate G2 (owner)
 
-Final axiom-census sign-off (unchanged on Route N; +B-Lab on Route L); review-packet
-addendum; archive this board per `docs/orchestration/README.md`.
+Final axiom-census sign-off (census UNCHANGED — B-Lab declined; unconditional main
+statement requires the L-campaign to discharge BLabHypothesis); review-packet addendum;
+archive this board per `docs/orchestration/README.md`.
