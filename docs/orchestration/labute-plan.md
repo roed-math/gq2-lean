@@ -433,10 +433,12 @@ deliverable `docs/orchestration/labute-spike.md`:
    (p-quotient algorithm; orders through ~2^15). Record `dim Zₖ` both sides (equal? — a free
    consistency check), and per-level witness triples for L3 (both directions), verified by
    the R2 Hom-count harness.
-2. Write the stage lemma on paper against the sources: extract Labute's inductive step
-   (Théorème 8 proof; NSW III §9 if it covers q=2-odd) with verbatim quotes; transcribe to
-   the hom-lifting form; fix the invariant `P` (exact χ-congruence modulus m(k), any extra
-   normal-form clauses) and the exact shift formula with signs.
+2. Write the stage lemma on paper against the sources, starting from the Serre 252 §6–§7
+   skeleton page-verified in §2.6a: obtain Labute 1967 (paywalled — library access) and
+   extract his refined inductive step (Théorème 8 proof; plus the NSW III §9 proof-status
+   check — both per §2.6a's unobtained-sources checklist) with verbatim quotes; transcribe
+   to the hom-lifting form; fix the invariant `P` (exact χ-congruence modulus m(k), any
+   extra normal-form clauses) and the exact shift formula with signs.
 3. **Test the induction computationally**: at each computed level, enumerate (or sample) the
    defect classes of `S⁰ₖ`-elements and the reachable-shift subspace; verify empirically that
    constrained defects are reachable, that `P` propagates, and that the f = 3 control relator
