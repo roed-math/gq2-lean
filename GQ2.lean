@@ -207,3 +207,4 @@ import GQ2.Roe.DevissageInduction
 import GQ2.Roe.DualityAssembly
 import GQ2.Roe.Supply
 import GQ2.RStage.GammaR
+import GQ2.WordCohBridgeR
