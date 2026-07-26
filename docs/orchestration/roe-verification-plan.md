@@ -1,5 +1,86 @@
 # Roe-candidate verification: formalization plan
 
+> ## STATUS — 2026-07-25
+>
+> **The R-campaign's mathematics is COMPLETE.** Everything below this block is the plan as
+> written on 2026-07-24 and is preserved verbatim as a historical design record; where the
+> campaign deviated from it, this block is the correction, not the text below.
+>
+> **Route.** Gate G1 selected **Route L**. Route N was not merely unsuccessful: the R2 spike
+> returned an **impossibility theorem** (`roe-r2-spike.md`) — any word-epimorphism `D_R → D₀`
+> is automatically an isomorphism by the five-term exact sequence, isomorphisms intertwine the
+> canonical orientations, and a norm obstruction in `ℚ(X)` (discriminant −59; `η` has norm
+> −1/27 while word-values land in `±4^ℤ`) rules the required words out. Route N tickets
+> R7n–R11n were cancelled. The spike also independently re-derived the note's §3.2
+> computation (`X ≡ 5`, `S ≡ 13 mod 16`), which every later ticket cross-checked against.
+>
+> **B-Lab.** The owner **DECLINED** the proposed tenth axiom (2026-07-25 morning), so R14 (the
+> census flip) was cancelled and the census remains frozen at nine literature axioms. The
+> Labute classification instance stays an explicit hypothesis binder,
+> `GQ2.Roe.BLabHypothesis` (`GQ2/Roe/MarkedPro2.lean:137`), threaded through every Γ_R
+> capstone. The plan's §3 fat-tail therefore materialized — but in a milder form than §3
+> feared: the L0 recon found an instance-specific route (levelwise two-sided lifting) rather
+> than an abstract formalization of Labute's classification.
+>
+> **Terminal theorem** (`GQ2/Roe/Main.lean:534`), the note's ⟦thm:main⟧:
+>
+> ```lean
+> GQ2.main_presentation_literal_roe (hBLab : BLabHypothesis) :
+>   Nonempty (ContinuousMulEquiv GammaR AbsGalQ2)
+> ```
+>
+> with `GQ2.eq_154_R`, `GQ2.main_surjection_count_R`, and the bonus
+> `GQ2.admissibleCountR_eq_admissibleCount` alongside. **Sorry-free**; its axiom print is the
+> standard three plus the nine literature axioms — *byte-identical* to the `Γ_A` twin, checked
+> mechanically (`scripts/check_axioms.sh` check 5 and `GQ2/AxiomLedger.lean`), not asserted.
+> The names deviate from the §"End state" sketch above: `main_presentation_literal_roe` and
+> `main_surjection_count_R`, not the unsuffixed forms.
+>
+> **Hypothesis status.** `BLabHypothesis` is neither proved in-repo nor admitted as an axiom;
+> the Γ_R result is **conditional** and the Γ_A result is not. All four of its antecedents
+> *are* theorems (`isDemushkin_DR`, `demushkinRank_DR = 3`, `demushkinQ_DR = 2`, and `chiR`'s
+> surjective Labute orientation) — only the classification implication itself is open.
+>
+> **Actuals vs the §5 estimate.**
+>
+> | | §5 estimate (Route L) | actual |
+> |---|---|---|
+> | new/changed Lean | 7–12 k lines | **≈ 20.5 k lines across 55 files** |
+> | dispatches | ≈ 23–27 | **37** (38 board rows; R14 cancelled) |
+> | wall clock | 6–9 swarm-days ≈ 1–2 calendar weeks | **2 calendar days** (07-24 → 07-25) |
+>
+> The volume overshoot has two identified causes, both recorded decisions rather than
+> surprises: R20 chose the **clone route** for the `Devissage/` tree (proofs port verbatim onto
+> the r_R spine; ~2.3 k lines) over generalizing the frozen Γ_A spine, and R31's supply
+> obligations turned out to be ~5 k lines of well-mapped ports, split after four surveys into
+> R31b–R31g. Difficulty tracked the estimate; only line count did not. The wall-clock
+> undershoot is the compensating surprise.
+>
+> **Definition of done (§7), item by item.** Terminal theorem sorry-free ✓; axiom census
+> unchanged at nine (no B-Lab) ✓ — stronger than §7's "∪ {B-Lab} iff Route L";
+> `check_axioms.sh` green with the new terminal theorem ✓ (R40 *built* the expected-axiom
+> audit it assumed already existed); Γ_A capstones and their certificates byte-identical
+> pre/post the R30 `SourceData` refactor ✓ (statement diffs empty); comparator pair ✓;
+> `formalization.yaml`, `AxiomLedger`, README, this plan ✓; board archived — pending G2.
+> The one unmet clause is implicit: §7 wrote the terminal theorem unqualified, and it carries
+> a hypothesis binder until the L-campaign lands.
+>
+> **L-campaign (discharge `BLabHypothesis`) — IN FLIGHT.** Created 2026-07-25 on the owner's
+> B-Lab refusal. L0 recommended Route L2 (levelwise two-sided lifting through the λ-tower,
+> König, and `profinite_hopfian`); the LS de-risking spike returned **GREEN** after falsifying
+> the naive stage lemma and finding a sharper repair (invariant `P` = χ-congruence mod `2^k`,
+> `k₀ = 3`), reducing the uniform input to a single span theorem. L1 froze the statements as a
+> 1,243-line four-file skeleton at exactly 56 sorries; L2/L3/L4b are dispatched, L4a/L5/L6
+> queued. Those four files under `GQ2/Roe/Labute/` are the **only** `sorry`s in the
+> repository, allowlisted by name in `scripts/check_axioms.sh`; nothing outside that directory
+> depends on them. Live board: `roe-tickets.md`; route: `labute-plan.md`; spike evidence:
+> `labute-spike.md`; statement freeze: `labute-l1-design.md`.
+>
+> **Reader's entry point.** For the mathematical story rather than the ticket history, read
+> [`../roe-campaign-summary.md`](../roe-campaign-summary.md).
+
+---
+
 **Goal.** Formalize `paper/roe-presentation-verification.tex` (GPT 5.6, 2026-07-24): the
 candidate presentation found by Fable in early June —
 
