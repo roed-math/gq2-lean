@@ -42,12 +42,12 @@ the net of the L-campaign's `GQ2/Roe/Labute/` work landing (`TwoCentralTower.lea
 between them) against the cleanup passes, which privatized declarations during the split and
 deleted local restatements, and so remove nodes from the user-visible graph.
 
-No Compass report has yet been generated for the `Γ_R` capstone — now unconditional, and best
-targeted as `GQ2.main_presentation_literal_roe_unconditional` (`GQ2.main_presentation_literal_roe`
-is the same theorem with the discharged `BLabHypothesis` binder) — though the declaration is
-present in the exported graph.
-The generator takes a target argument (see below), so producing one is a single command; until
-then, the review cone described here covers the paper's capstone only.
+A Compass report for the `Γ_R` capstone now exists: **`atlas-audit-roe.md`** (generated
+2026-07-26 from the same graph export, targeting
+`GQ2.main_presentation_literal_roe_unconditional`; `GQ2.main_presentation_literal_roe` is the
+same theorem with the discharged `BLabHypothesis` binder). Its full closure is 2,342 nodes,
+reducing to a **32-declaration review cone** — two nodes more than the paper capstone's cone,
+with the same 9-axiom trust base. Regenerate both reports together after source edits.
 
 ## Why the report uses two data sources
 
