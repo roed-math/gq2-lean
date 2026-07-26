@@ -88,7 +88,7 @@ that the two candidates' admissible-marking counts agree on every finite group.
 as an explicit hypothesis — deliberately a theorem binder rather than a tenth axiom, so that the
 conditionality is visible in the statement itself. It is neither proved in-repo nor admitted as an
 axiom; the proof attempt lives in [`GQ2/Roe/Labute/`](GQ2/Roe/Labute/) and is unfinished, which is
-the sole source of `sorry` in this repository. Everything else in `GQ2/Roe/` is unconditional,
+the sole source of `sorry` in the `GQ2` library. Everything else in `GQ2/Roe/` is unconditional,
 including `GQ2.prop_2_3_R`, which needs no literature axiom at all.
 
 Granting that one hypothesis, $\Gamma_R$ costs nothing further: `main_presentation_literal_roe`
@@ -96,7 +96,10 @@ depends on exactly the same twelve axioms as `main_presentation_literal`, which
 [`scripts/check_axioms.sh`](scripts/check_axioms.sh) and
 [`GQ2/AxiomLedger.lean`](GQ2/AxiomLedger.lean) both check mechanically rather than assert.
 
-The campaign plan is [`docs/orchestration/roe-verification-plan.md`](docs/orchestration/roe-verification-plan.md).
+The two-page mathematical account is
+[`docs/roe-campaign-summary.md`](docs/roe-campaign-summary.md); the campaign plan, with a status
+block recording the outcome against it, is
+[`docs/orchestration/roe-verification-plan.md`](docs/orchestration/roe-verification-plan.md).
 
 ## Trust and validation
 
@@ -159,8 +162,11 @@ pair can be compiled with `lake build Challenge Solution` before running that in
 Lean Compass removes theorem-proof value dependencies—already checked by Lean's type checker—to
 isolate declarations whose *semantic statements or definitions* can affect a selected result.
 
-The post-refactor report is [`atlas-audit.md`](atlas-audit.md). For
-`GQ2.SectionTen.main_surjection_count'`, the current graph has 4,225 project nodes and 35,335 edges.
+The post-refactor report is [`atlas-audit.md`](atlas-audit.md), a committed snapshot last
+regenerated on 2026-07-15 and carrying a staleness notice to that effect: the `GQ2/Roe/` tree has
+since grown the whole-project graph, so regenerate before quoting whole-graph figures. For
+`GQ2.SectionTen.main_surjection_count'` — whose closure `GQ2/Roe/` does not touch — that graph has
+4,225 project nodes and 35,335 edges.
 Its 638-node Atlas closure reduces to a **30-declaration Lean Compass review cone**: according to
 the Lean Compass review model, these are the project declarations that should be checked by a
 human for semantic alignment. The report lists all 30 with source links. It separately obtains the
@@ -199,7 +205,7 @@ on every push to and pull request against `master`.
 
 | Path | Purpose |
 |---|---|
-| `paper/` | Original source PDF retained for reproducibility |
+| `paper/` | Original source PDF retained for reproducibility, plus the $\Gamma_R$ verification note (`roe-presentation-*`) that the Roe campaign formalizes |
 | `GQ2/Words.lean` | Finite-group marking, auxiliary words, and admissibility predicate |
 | `GQ2/GammaA.lean` | Construction of the candidate profinite group $\Gamma_A$ |
 | `GQ2/Foundations/Axioms.lean` | The nine cited literature inputs |
@@ -230,7 +236,9 @@ points for mathematical review are:
 - [`docs/literature-axioms.md`](docs/literature-axioms.md) — exact literature inputs and citations;
 - [`docs/adversarial-axioms-review.md`](docs/adversarial-axioms-review.md) — independent critical
   review of those inputs;
-- [`docs/atlas.md`](docs/atlas.md) — Lean Atlas and Lean Compass methodology and regeneration.
+- [`docs/atlas.md`](docs/atlas.md) — Lean Atlas and Lean Compass methodology and regeneration;
+- [`docs/roe-campaign-summary.md`](docs/roe-campaign-summary.md) — the $\Gamma_R$ campaign's
+  mathematics, and exactly what its conditional theorem rests on.
 
 ## License
 

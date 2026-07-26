@@ -10,14 +10,26 @@ This repository uses Atlas to generate [`../atlas-audit.md`](../atlas-audit.md) 
 
 ## Current result
 
-The graph regenerated after the July 14 module and API refactor contains 4,225 project nodes and
-35,335 edges. The target's 638-node Atlas closure reduces to a **30-declaration Lean Compass
+The graph as regenerated after the July 14 module and API refactor contained 4,225 project nodes
+and 35,335 edges. The target's 638-node Atlas closure reduces to a **30-declaration Lean Compass
 review cone** (95.3% reduction). Those 30 declarations are the project statements and definitions
 that, under Compass's dependency model, should receive human semantic review. The generated report
-links every declaration to its current source location.
+links every declaration to the source location it had when the report was generated.
 
 This number is not an axiom count. The capstone separately depends on all **nine** documented
 literature axioms.
+
+The committed report has not been regenerated since 2026-07-15, and now carries a staleness notice
+saying so. The `GQ2/Roe/` campaign has since added roughly a thousand declarations to the library,
+so the two whole-graph figures above are low, and the report's whole-graph `sorry` count is now
+nonzero. **The target's own numbers are unaffected**: no declaration in `GQ2/Roe/` is reachable
+from `main_surjection_count'`, so its closure, its cone, and its nine-axiom trust base all still
+hold. Regenerate before quoting whole-graph figures.
+
+No Compass report has yet been generated for the conditional `Γ_R` capstone
+`GQ2.main_presentation_literal_roe`. The generator takes a target argument (see below), so
+producing one is a single command; until then, the review cone described here covers the paper's
+capstone only.
 
 ## Why the report uses two data sources
 

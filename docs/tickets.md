@@ -1,8 +1,10 @@
 # Proof development history
 
 This file is retained at its established path because Lean docstrings and historical notes refer to
-it. It is no longer a ticket board. The formalization is complete; current status is determined by
-the Lean sources and the repository's mechanical checks, not by archived task labels.
+it. It is no longer a ticket board. The paper's formalization is complete; current status is
+determined by the Lean sources and the repository's mechanical checks, not by archived task
+labels. The later `Γ_R` campaign is a separate effort with its own live board at
+[`orchestration/roe-tickets.md`](orchestration/roe-tickets.md); nothing below covers it.
 
 The raw agent-orchestration boards, plans, and handoffs are preserved under
 [`orchestration/`](orchestration/). They record useful design decisions and failed approaches, but

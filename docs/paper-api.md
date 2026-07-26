@@ -24,6 +24,18 @@ The audit was rerun after the 2026-07-14 module split: the rendered paper contai
 and 111 links into this Lean formalization. All linked declarations remain public and documented;
 the split changed their source modules where appropriate but not their public names.
 
+## Scope: the paper, and the second source document
+
+This policy governs the paper-to-Lean surface only. The `GQ2/Roe/` tree formalizes a *second*
+source document — [`../paper/roe-presentation-verification.tex`](../paper/roe-presentation-verification.tex),
+the `Γ_R` verification note — which the rendered paper does not link to, so none of its
+declarations is covered by clause 1 below and the audit above neither counts nor checks them.
+Their cross-references to that note are carried in Lean docstrings as `⟦tag⟧` anchors against the
+note's own labels, with a proof-obligation crosswalk in
+[`../paper/roe-presentation-proof-reduction.md`](../paper/roe-presentation-proof-reduction.md);
+their public/private status is governed by clauses 2–4. If the note is ever published alongside
+the paper, extending the audit to it is the natural next step.
+
 ## Visibility policy
 
 A declaration remains public when at least one of the following holds:

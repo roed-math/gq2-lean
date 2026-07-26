@@ -1,8 +1,11 @@
 # Proved paper statements OFF the main-theorem path
 
 Statements from the paper that are **formalized and proved** in this repository but are *not*
-in the dependency cone of any headline deliverable (`main_presentation_literal`,
-`main_surjection_count'`, `thm_4_2`, `prop_8_9`, `lemma_6_17_vanish_final`).  They were kept
+in the dependency cone of any of the paper's headline deliverables (`main_presentation_literal`,
+`main_surjection_count'`, `thm_4_2`, `prop_8_9`, `lemma_6_17_vanish_final`).  This audit predates
+the `Γ_R` campaign and has not been rerun against its capstones, so a statement listed here may
+still be reachable from `GQ2.main_presentation_literal_roe`, which reuses the paper's machinery
+through a generalized source interface.  They were kept
 in the 2026-07-08 dead-code prune precisely because they are paper content — useful when
 rewriting the paper (each is a formally verified claim you can cite), even though the final
 proof route does not consume them.

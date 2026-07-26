@@ -5,11 +5,16 @@ Date: 2026-07-04.  Scope: review of the literature axioms in
 results.  Existing files were not edited.
 
 This is a historical review snapshot, not a current status report. Its two operational findings
-were resolved after the review: unused B2 was deleted, and the repository now has zero `sorry` with
-`scripts/check_axioms.sh` passing. The discussion of encoded/composite interfaces—especially B8,
-B10′, and the dyadic norm inputs—remains relevant. Current names, statements, and citations are in
-[`literature-axioms.md`](literature-axioms.md); the live trust base is generated in
-[`../atlas-audit.md`](../atlas-audit.md).
+were resolved after the review: unused B2 was deleted, and the paper's formalization became
+sorry-free with `scripts/check_axioms.sh` passing. (Since 2026-07-25 that script allowlists the
+four in-flight `GQ2/Roe/Labute/` files of the follow-on `Γ_R` campaign, which are the repository's
+only `sorry`s; a `sorry` anywhere else still fails the check.) The discussion of
+encoded/composite interfaces—especially B8, B10′, and the dyadic norm inputs—remains relevant.
+Current names, statements, and citations are in
+[`literature-axioms.md`](literature-axioms.md) — note in particular that B9 was restated on
+2026-07-24, so the name reviewed below is no longer the census entry. The live trust base is
+`scripts/check_axioms.sh` and [`../GQ2/AxiomLedger.lean`](../GQ2/AxiomLedger.lean), which read the
+kernel; [`../atlas-audit.md`](../atlas-audit.md) is a committed snapshot and currently lags.
 
 ## Executive findings
 
