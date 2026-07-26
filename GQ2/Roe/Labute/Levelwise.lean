@@ -1290,6 +1290,167 @@ private theorem card_levelQuot_three_le : Nat.card (levelQuot (DR : Type) 3) ≤
 
 end TowerSizes
 
+section LevelThreeModel
+
+/-! ## The order-256 model (spike §2.3, plan §2.3)
+
+`Q₃` is realised on the nose by the central extension `M = 𝔽₂³ ×_f 𝔽₂⁵` with the **bilinear**
+cocycle `f a b = (a₀b₀, a₁b₁, a₀b₁ + a₂b₂, a₀b₂, a₁b₂)`.  Bilinearity is the whole design:
+the cocycle identity `f a b + f (a+b) c = f b c + f a (b+c)` is then a polynomial identity,
+so associativity is `ring` on each coordinate rather than a `256³`-case `decide`.
+
+The five `z`-coordinates are the five spanning classes of `Z₂`: `s²`, `x²`, `[s,x]`, `[s,y]`,
+`[x,y]`.  The `a₀b₁ + a₂b₂` entry in the third slot is exactly the relator relation
+`y² = [s,x]` (`levelMk_drY_sq`) built into the model, which is why `drWord` dies at the
+standard basis. -/
+
+/-- Carrier of the order-256 model: `𝔽₂³` (exponents of `s, x, y`) times `𝔽₂⁵` (the
+`Z₂`-coordinates `s², x², [s,x], [s,y], [x,y]`). -/
+private structure MR where
+  /-- `s`-exponent. -/
+  a0 : ZMod 2
+  /-- `x`-exponent. -/
+  a1 : ZMod 2
+  /-- `y`-exponent. -/
+  a2 : ZMod 2
+  /-- `s²`-coordinate. -/
+  z0 : ZMod 2
+  /-- `x²`-coordinate. -/
+  z1 : ZMod 2
+  /-- `[s,x]`-coordinate — also carries `y²`. -/
+  z2 : ZMod 2
+  /-- `[s,y]`-coordinate. -/
+  z3 : ZMod 2
+  /-- `[x,y]`-coordinate. -/
+  z4 : ZMod 2
+deriving DecidableEq
+
+/-- Coordinates of the model, as a plain `𝔽₂⁸`. -/
+private def mrEquiv :
+    MR ≃ ZMod 2 × ZMod 2 × ZMod 2 × ZMod 2 × ZMod 2 × ZMod 2 × ZMod 2 × ZMod 2 where
+  toFun m := (m.a0, m.a1, m.a2, m.z0, m.z1, m.z2, m.z3, m.z4)
+  invFun t := ⟨t.1, t.2.1, t.2.2.1, t.2.2.2.1, t.2.2.2.2.1, t.2.2.2.2.2.1, t.2.2.2.2.2.2.1,
+    t.2.2.2.2.2.2.2⟩
+  left_inv m := by cases m; rfl
+  right_inv t := rfl
+
+private instance : Fintype MR := Fintype.ofEquiv _ mrEquiv.symm
+
+private instance : Mul MR :=
+  ⟨fun m n => ⟨m.a0 + n.a0, m.a1 + n.a1, m.a2 + n.a2, m.z0 + n.z0 + m.a0 * n.a0,
+    m.z1 + n.z1 + m.a1 * n.a1, m.z2 + n.z2 + (m.a0 * n.a1 + m.a2 * n.a2),
+    m.z3 + n.z3 + m.a0 * n.a2, m.z4 + n.z4 + m.a1 * n.a2⟩⟩
+
+private instance : One MR := ⟨⟨0, 0, 0, 0, 0, 0, 0, 0⟩⟩
+
+private instance : Inv MR :=
+  ⟨fun m => ⟨m.a0, m.a1, m.a2, m.z0 + m.a0 * m.a0, m.z1 + m.a1 * m.a1,
+    m.z2 + (m.a0 * m.a1 + m.a2 * m.a2), m.z3 + m.a0 * m.a2, m.z4 + m.a1 * m.a2⟩⟩
+
+@[simp] private theorem mrMul_def (m n : MR) : m * n =
+    ⟨m.a0 + n.a0, m.a1 + n.a1, m.a2 + n.a2, m.z0 + n.z0 + m.a0 * n.a0,
+      m.z1 + n.z1 + m.a1 * n.a1, m.z2 + n.z2 + (m.a0 * n.a1 + m.a2 * n.a2),
+      m.z3 + n.z3 + m.a0 * n.a2, m.z4 + n.z4 + m.a1 * n.a2⟩ := rfl
+
+@[simp] private theorem mrOne_def : (1 : MR) = ⟨0, 0, 0, 0, 0, 0, 0, 0⟩ := rfl
+
+@[simp] private theorem mrInv_def (m : MR) : m⁻¹ =
+    ⟨m.a0, m.a1, m.a2, m.z0 + m.a0 * m.a0, m.z1 + m.a1 * m.a1,
+      m.z2 + (m.a0 * m.a1 + m.a2 * m.a2), m.z3 + m.a0 * m.a2, m.z4 + m.a1 * m.a2⟩ := rfl
+
+private instance : Group MR where
+  mul_assoc a b c := by
+    cases a; cases b; cases c
+    simp only [mrMul_def, MR.mk.injEq]
+    and_intros <;> ring
+  one_mul a := by cases a; simp only [mrMul_def, mrOne_def, MR.mk.injEq]; and_intros <;> ring
+  mul_one a := by cases a; simp only [mrMul_def, mrOne_def, MR.mk.injEq]; and_intros <;> ring
+  inv_mul_cancel a := by
+    obtain ⟨a0, a1, a2, z0, z1, z2, z3, z4⟩ := a
+    revert a0 a1 a2 z0 z1 z2 z3 z4
+    decide
+
+private instance : TopologicalSpace MR := ⊥
+private instance : DiscreteTopology MR := ⟨rfl⟩
+private instance : IsTopologicalGroup MR where
+  continuous_mul := continuous_of_discreteTopology
+  continuous_inv := continuous_of_discreteTopology
+
+private theorem card_MR : Nat.card MR = 256 := by
+  rw [Nat.card_congr mrEquiv, Nat.card_eq_fintype_card]
+  simp [ZMod.card]
+
+private theorem isProP_two_MR : IsProP 2 MR :=
+  isProP_of_isPGroup (IsPGroup.of_card (p := 2) (n := 8) (by rw [card_MR]; norm_num))
+
+/-- `t + t = 0` in `𝔽₂`. -/
+private theorem mr_add_self (t : ZMod 2) : t + t = 0 := by revert t; decide
+
+/-- `a + b + a + b = 0` in `𝔽₂` — the commutator's `𝔽₂³`-coordinate. -/
+private theorem mr_add_four (a b : ZMod 2) : a + b + a + b = 0 := by revert a b; decide
+
+/-- The marked generator `s` of the model. -/
+private def mrS : MR := ⟨1, 0, 0, 0, 0, 0, 0, 0⟩
+/-- The marked generator `x` of the model. -/
+private def mrX : MR := ⟨0, 1, 0, 0, 0, 0, 0, 0⟩
+/-- The marked generator `y` of the model. -/
+private def mrY : MR := ⟨0, 0, 1, 0, 0, 0, 0, 0⟩
+
+/-- **The relator dies at the standard basis.**  The third cocycle slot `a₀b₁ + a₂b₂`
+encodes `y² = [s,x]`, which is precisely what `drWord` asserts modulo `x⁴ = 1`. -/
+private theorem drWord_MR : drWord mrS mrX mrY = 1 := by decide
+
+/-- The `Z₂`-part of the model: the elements with vanishing `𝔽₂³`-coordinate. -/
+private def mrCentral : Subgroup MR where
+  carrier := {m | m.a0 = 0 ∧ m.a1 = 0 ∧ m.a2 = 0}
+  mul_mem' := by
+    rintro a b ⟨ha0, ha1, ha2⟩ ⟨hb0, hb1, hb2⟩
+    exact ⟨by simp [ha0, hb0], by simp [ha1, hb1], by simp [ha2, hb2]⟩
+  one_mem' := ⟨rfl, rfl, rfl⟩
+  inv_mem' := by rintro a ⟨ha0, ha1, ha2⟩; exact ⟨ha0, ha1, ha2⟩
+
+/-- `λ₂` of the model lands in the `Z₂`-part: squares and commutators kill the
+`𝔽₂³`-coordinate, and every subset of a discrete space is closed. -/
+private theorem twoCentralSeries_two_MR_le : twoCentralSeries MR 2 ≤ mrCentral := by
+  show twoCentralSucc (⊤ : Subgroup MR) ≤ mrCentral
+  refine Subgroup.topologicalClosure_minimal _ (sup_le ?_ ?_) (isClosed_discrete _)
+  · rw [Subgroup.closure_le]
+    rintro _ ⟨g, -, rfl⟩
+    exact ⟨show (g ^ 2).a0 = 0 by rw [pow_two]; exact mr_add_self _,
+      show (g ^ 2).a1 = 0 by rw [pow_two]; exact mr_add_self _,
+      show (g ^ 2).a2 = 0 by rw [pow_two]; exact mr_add_self _⟩
+  · rw [Subgroup.commutator_le]
+    intro u _ v _
+    rw [commutatorElement_def]
+    exact ⟨mr_add_four _ _, mr_add_four _ _, mr_add_four _ _⟩
+
+/-- The `Z₂`-part is central: the cocycle vanishes when either argument does. -/
+private theorem mrCentral_le_center : mrCentral ≤ Subgroup.center MR := by
+  rintro ⟨m0, m1, m2, u0, u1, u2, u3, u4⟩ ⟨h0, h1, h2⟩
+  rw [Subgroup.mem_center_iff]
+  rintro ⟨n0, n1, n2, w0, w1, w2, w3, w4⟩
+  simp only at h0 h1 h2
+  subst h0; subst h1; subst h2
+  simp only [mrMul_def, MR.mk.injEq]
+  and_intros <;> ring
+
+/-- The `Z₂`-part has exponent 2. -/
+private theorem mrCentral_sq {m : MR} (hm : m ∈ mrCentral) : m ^ 2 = 1 := by
+  obtain ⟨m0, m1, m2, u0, u1, u2, u3, u4⟩ := m
+  obtain ⟨h0, h1, h2⟩ := hm
+  simp only at h0 h1 h2
+  subst h0; subst h1; subst h2
+  revert u0 u1 u2 u3 u4
+  decide
+
+/-- **`λ₃` of the model is trivial**: `λ₂ ≤ Z₂-part`, which is central of exponent 2. -/
+private theorem twoCentralSeries_three_MR : twoCentralSeries MR 3 = ⊥ :=
+  twoCentralSucc_eq_bot_of_le_center
+    (le_trans twoCentralSeries_two_MR_le mrCentral_le_center)
+    fun _ hx => mrCentral_sq (twoCentralSeries_two_MR_le hx)
+
+end LevelThreeModel
+
 /-- `|Q₃(D_R)| = 256` — the base-case budget (spike §1, `k₀ = 3` lives here).  Fill: L3. -/
 theorem card_levelQuot_three : Nat.card (levelQuot (DR : Type) 3) = 256 := by
   sorry
