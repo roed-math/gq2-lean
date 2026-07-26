@@ -394,6 +394,66 @@ private theorem conj_eq_self_of_commP_eq_one {H : Type*} [Group H] {x u : H}
   calc u⁻¹ * x * u = x * (x⁻¹ * u⁻¹ * x * u) := by group
     _ = x := by rw [h, mul_one]
 
+/-- Commuting elements have trivial `commP` (pure group identity). -/
+private theorem commP_eq_one_of_mul_comm {H : Type*} [Group H] {x y : H} (h : x * y = y * x) :
+    commP x y = 1 := by
+  have hy : y⁻¹ * (x * y) = x := by rw [h]; group
+  calc commP x y = x⁻¹ * (y⁻¹ * (x * y)) := by simp only [commP]; group
+    _ = x⁻¹ * x := by rw [hy]
+    _ = 1 := by group
+
+/-- Conjugation expressed through `commP` (pure group identity). -/
+private theorem conj_eq_mul_commP {H : Type*} [Group H] (v a : H) :
+    v⁻¹ * a * v = a * (commP v a)⁻¹ := by simp only [commP]; group
+
+/-- **The conjugation-shift core**: an abstract two-central-factor rearrangement, stated with
+opaque atoms so that the group-normalizing steps are honest free-group identities. -/
+private theorem conj_shift_core {H : Type*} [Group H] (a v₀ v₁ c₀ c₁ : H)
+    (h₀ : ∀ t : H, c₀ * t = t * c₀) (h₁ : ∀ t : H, c₁ * t = t * c₁)
+    (hvv : v₁ * v₀ = v₀ * v₁) (hconj : v₀⁻¹ * a * v₀ = a * c₀) :
+    v₀⁻¹ * (a * v₁ * c₁) * v₀ = a * v₁ * (c₀ * c₁) := by
+  calc v₀⁻¹ * (a * v₁ * c₁) * v₀ = v₀⁻¹ * (a * (v₁ * (c₁ * v₀))) := by group
+    _ = v₀⁻¹ * (a * (v₁ * (v₀ * c₁))) := by rw [h₁ v₀]
+    _ = v₀⁻¹ * (a * (v₁ * v₀ * c₁)) := by group
+    _ = v₀⁻¹ * (a * (v₀ * v₁ * c₁)) := by rw [hvv]
+    _ = v₀⁻¹ * a * v₀ * (v₁ * c₁) := by group
+    _ = a * c₀ * (v₁ * c₁) := by rw [hconj]
+    _ = a * (c₀ * v₁) * c₁ := by group
+    _ = a * (v₁ * c₀) * c₁ := by rw [h₀ v₁]
+    _ = a * v₁ * (c₀ * c₁) := by group
+
+/-- **The `r₂` two-inverse core**: the `x`-slot modification appears once in the `x^s` block and
+once in the `x³` block, and the two copies cancel against `zB² = 1`. -/
+private theorem dr_inv_core {H : Type*} [Group H] (X A v zA zB c : H)
+    (hA : ∀ t : H, zA * t = t * zA) (hB : ∀ t : H, zB * t = t * zB)
+    (hc : ∀ t : H, c * t = t * c) (hvA : v * A = A * v * c) (hzB : zB = v * v * c)
+    (hzB2 : zB * zB = 1) :
+    X * v * zB * (A * v * zA) = X * A * zA := by
+  calc X * v * zB * (A * v * zA) = X * v * (zB * (A * v * zA)) := by group
+    _ = X * v * ((A * v * zA) * zB) := by rw [hB]
+    _ = X * (v * A) * v * (zA * zB) := by group
+    _ = X * (A * v * c) * v * (zA * zB) := by rw [hvA]
+    _ = X * A * v * (c * v) * (zA * zB) := by group
+    _ = X * A * v * (v * c) * (zA * zB) := by rw [hc]
+    _ = X * A * (v * v * c) * (zA * zB) := by group
+    _ = X * A * zB * (zA * zB) := by rw [← hzB]
+    _ = X * A * (zB * (zA * zB)) := by group
+    _ = X * A * ((zA * zB) * zB) := by rw [hB (zA * zB)]
+    _ = X * A * (zA * (zB * zB)) := by group
+    _ = X * A * zA := by rw [hzB2, mul_one]
+
+/-- Three central factors collected on the right (the `r₂` assembly shape). -/
+private theorem central_reorder₃ {H : Type*} [Group H] {zA zC : H}
+    (hA : ∀ t : H, zA * t = t * zA) (hC : ∀ t : H, zC * t = t * zC) (p q d : H) :
+    p * zA * (q * zC) * d = p * q * d * (zC * zA) := by
+  calc p * zA * (q * zC) * d = p * (zA * (q * zC)) * d := by group
+    _ = p * ((q * zC) * zA) * d := by rw [hA]
+    _ = p * q * (zC * (zA * d)) := by group
+    _ = p * q * ((zA * d) * zC) := by rw [hC]
+    _ = p * q * ((d * zA) * zC) := by rw [hA]
+    _ = p * q * d * (zA * zC) := by group
+    _ = p * q * d * (zC * zA) := by rw [hA zC]
+
 /-- Two central factors can be collected on the right. -/
 private theorem central_reorder₂ {H : Type*} [Group H] {z₀ z₁ : H}
     (h₀ : ∀ t : H, z₀ * t = t * z₀) (h₁ : ∀ t : H, z₁ * t = t * z₁) (p q r : H) :
@@ -504,6 +564,130 @@ private theorem commP_mul_mul_lambdaImage (k : ℕ) (hk : 3 ≤ k) (s y : levelQ
   rw [commP_mul_left, h3, h2, h7, (zLayer_commute hz₂ (commP s y)).eq, mul_assoc,
     ← (zLayer_commute hz₁ (commP v₂ s)).eq]
 
+/-- Two `λ_{k-1}`-modifications commute: `[λ_{k-1}, λ_{k-1}] ⊆ λ_{2k-2} ⊆ λ_{k+1} = 1`
+(this is exactly where `k ≥ 3` enters). -/
+private theorem commP_lambdaImage_eq_one (k : ℕ) (hk : 3 ≤ k) {u v : levelQuot G (k + 1)}
+    (hu : u ∈ lambdaImage G (k - 1) (k + 1)) (hv : v ∈ lambdaImage G (k - 1) (k + 1)) :
+    commP u v = 1 := by
+  have h := lambdaImage_le_of_le (G := G) (m := k + 1)
+    (show k + 1 ≤ k - 1 + (k - 1) by omega) (commP_mem_lambdaImage_add hu hv)
+  rw [lambdaImage_self] at h
+  simpa using h
+
+private theorem mul_comm_lambdaImage (k : ℕ) (hk : 3 ≤ k) {u v : levelQuot G (k + 1)}
+    (hu : u ∈ lambdaImage G (k - 1) (k + 1)) (hv : v ∈ lambdaImage G (k - 1) (k + 1)) :
+    u * v = v * u := by
+  rw [mul_swap_commP u v, commP_lambdaImage_eq_one k hk hu hv, mul_one]
+
+/-- **The conjugation shift** (`r₂`'s `x^s` block): `(x·v₁)^{s·v₀} = x^s · v₁ · ([v₀,x]·[v₁,s])`.
+Both cross terms are central; the `v₀`-conjugation only sees `x` modulo `λ₂`. -/
+private theorem conjP_mul_lambdaImage (k : ℕ) (hk : 3 ≤ k) (s x : levelQuot G (k + 1))
+    {v₀ v₁ : levelQuot G (k + 1)} (hv₀ : v₀ ∈ lambdaImage G (k - 1) (k + 1))
+    (hv₁ : v₁ ∈ lambdaImage G (k - 1) (k + 1)) :
+    conjP (x * v₁) (s * v₀) = conjP x s * v₁ * (commP v₀ x * commP v₁ s) := by
+  have hax : commP v₀ (conjP x s) = commP v₀ x :=
+    commP_congr_slot k hk hv₀ (by
+      have h : (conjP x s)⁻¹ * x = commP s x := by simp only [conjP, commP]; group
+      rw [h]; exact commP_mem_lambdaTwo (k + 1) s x)
+  have hc₀ : commP v₀ x ∈ zLayer G k := hax ▸ commP_mem_zLayer k hk hv₀ (conjP x s)
+  have hc₁ : commP v₁ s ∈ zLayer G k := commP_mem_zLayer k hk hv₁ s
+  have hconj : v₀⁻¹ * conjP x s * v₀ = conjP x s * commP v₀ x := by
+    rw [conj_eq_mul_commP, hax, zLayer_inv_self hc₀]
+  have hstart : conjP (x * v₁) (s * v₀) = v₀⁻¹ * (conjP x s * v₁ * commP v₁ s) * v₀ := by
+    simp only [conjP, commP]; group
+  rw [hstart]
+  exact conj_shift_core _ _ _ _ _ (fun t => (zLayer_commute hc₀ t).eq)
+    (fun t => (zLayer_commute hc₁ t).eq) (mul_comm_lambdaImage k hk hv₁ hv₀) hconj
+
+/-- **The cube shift** (`r₂`'s `x³` block): `(x·v)³ = x³ · v · (v²·[v,x])`. -/
+private theorem pow_three_mul_lambdaImage (k : ℕ) (hk : 3 ≤ k) (x : levelQuot G (k + 1))
+    {v : levelQuot G (k + 1)} (hv : v ∈ lambdaImage G (k - 1) (k + 1)) :
+    (x * v) ^ 3 = x ^ 3 * v * (v ^ 2 * commP v x) := by
+  have hz : v ^ 2 * commP v x ∈ zLayer G k :=
+    Subgroup.mul_mem _ (sq_mem_zLayer k hk hv) (commP_mem_zLayer k hk hv x)
+  calc (x * v) ^ 3 = (x * v) ^ 2 * (x * v) := by rw [← pow_succ]
+    _ = x ^ 2 * (v ^ 2 * commP v x) * (x * v) := by rw [sq_mul_lambdaImage k hk x hv]
+    _ = x ^ 2 * ((v ^ 2 * commP v x) * x) * v := by group
+    _ = x ^ 2 * (x * (v ^ 2 * commP v x)) * v := by rw [(zLayer_commute hz x).eq]
+    _ = x ^ 3 * ((v ^ 2 * commP v x) * v) := by group
+    _ = x ^ 3 * (v * (v ^ 2 * commP v x)) := by rw [(zLayer_commute hz v).eq]
+    _ = x ^ 3 * v * (v ^ 2 * commP v x) := by group
+
+/-- **Full inertness of the `[y, y^s]` block** (spike §2.2): the `y`-slot modification enters
+both arguments of the commutator and cancels, so this block sees no shift at all. -/
+private theorem commP_conjP_mul_lambdaImage (k : ℕ) (hk : 3 ≤ k) (s y : levelQuot G (k + 1))
+    {v₀ v₂ : levelQuot G (k + 1)} (hv₀ : v₀ ∈ lambdaImage G (k - 1) (k + 1))
+    (hv₂ : v₂ ∈ lambdaImage G (k - 1) (k + 1)) :
+    commP (y * v₂) (conjP (y * v₂) (s * v₀)) = commP y (conjP y s) := by
+  rw [conjP_mul_lambdaImage k hk s y hv₀ hv₂]
+  have hz : commP v₀ y * commP v₂ s ∈ zLayer G k :=
+    Subgroup.mul_mem _ (commP_mem_zLayer k hk hv₀ y) (commP_mem_zLayer k hk hv₂ s)
+  have hzy : commP v₂ y ∈ zLayer G k := commP_mem_zLayer k hk hv₂ y
+  have hyb : commP y (conjP y s) ∈ lambdaImage G 2 (k + 1) :=
+    commP_mem_lambdaTwo (k + 1) y (conjP y s)
+  have hby : (conjP y s)⁻¹ * y = commP s y := by simp only [conjP, commP]; group
+  have hv₂z : v₂ * (commP v₀ y * commP v₂ s) ∈ lambdaImage G (k - 1) (k + 1) :=
+    Subgroup.mul_mem _ hv₂ (lambdaImage_le_of_le (by omega) hz)
+  -- the second slot is `y` modulo `λ₂`, so the `v₂`-bracket only sees `y`
+  have h2 : commP v₂ (conjP y s * v₂ * (commP v₀ y * commP v₂ s)) = commP v₂ y :=
+    commP_congr_slot k hk hv₂ (by
+      have h : (conjP y s * v₂ * (commP v₀ y * commP v₂ s))⁻¹ * y =
+          (commP v₀ y * commP v₂ s)⁻¹ * (v₂⁻¹ * ((conjP y s)⁻¹ * y)) := by group
+      rw [h, hby]
+      exact Subgroup.mul_mem _ (Subgroup.inv_mem _ (lambdaImage_le_of_le (by omega) hz))
+        (Subgroup.mul_mem _ (Subgroup.inv_mem _ (lambdaImage_le_of_le (by omega) hv₂))
+          (commP_mem_lambdaTwo (k + 1) s y)))
+  -- the `y`-bracket picks up exactly one central cross term
+  have h3 : commP y (conjP y s * v₂ * (commP v₀ y * commP v₂ s)) =
+      commP v₂ y * commP y (conjP y s) := by
+    have hsplit : conjP y s * v₂ * (commP v₀ y * commP v₂ s) =
+        conjP y s * (v₂ * (commP v₀ y * commP v₂ s)) := by group
+    have hleft : commP y (v₂ * (commP v₀ y * commP v₂ s)) = commP v₂ y := by
+      rw [commP_symm, commP_mul_left,
+        commP_eq_one_of_mul_comm (zLayer_commute hz y).eq, mul_one,
+        conj_eq_self_of_commP_eq_one
+          (commP_eq_one_of_mul_comm (zLayer_commute hz (commP v₂ y)).eq.symm),
+        zLayer_inv_self hzy]
+    rw [hsplit, commP_mul_right, hleft, conj_lambdaTwo_eq_self k hk hyb hv₂z]
+  rw [commP_mul_left, h2, h3, conj_lambdaTwo_eq_self k hk
+    (Subgroup.mul_mem _ (lambdaImage_le_of_le (by omega) hzy) hyb) hv₂,
+    (zLayer_commute hzy (commP y (conjP y s))).eq, mul_assoc, ← pow_two, zLayer_sq G hzy,
+    mul_one]
+
+/-- **The `r₂` shift identity** (spike §2.2): the `x`-block is π-inert but contributes both
+cross terms, the `[y, y^s]` block is fully inert, and the `y²` block gives the diagonal. -/
+private theorem drWord_mul_lambdaImage (k : ℕ) (hk : 3 ≤ k) (s x y : levelQuot G (k + 1))
+    {w : Fin 3 → levelQuot G (k + 1)} (hw : ∀ i, w i ∈ lambdaImage G (k - 1) (k + 1)) :
+    drWord (s * w 0) (x * w 1) (y * w 2) = drWord s x y * dbarWordR2 s x y w := by
+  have hzA : commP (w 0) x * commP (w 1) s ∈ zLayer G k :=
+    Subgroup.mul_mem _ (commP_mem_zLayer k hk (hw 0) x) (commP_mem_zLayer k hk (hw 1) s)
+  have hzB : w 1 ^ 2 * commP (w 1) x ∈ zLayer G k :=
+    Subgroup.mul_mem _ (sq_mem_zLayer k hk (hw 1)) (commP_mem_zLayer k hk (hw 1) x)
+  have hzC : w 2 ^ 2 * commP (w 2) y ∈ zLayer G k :=
+    Subgroup.mul_mem _ (sq_mem_zLayer k hk (hw 2)) (commP_mem_zLayer k hk (hw 2) y)
+  have hcx : commP (w 1) x ∈ zLayer G k := commP_mem_zLayer k hk (hw 1) x
+  have hvx : commP (w 1) (conjP x s) = commP (w 1) x :=
+    commP_congr_slot k hk (hw 1) (by
+      have h : (conjP x s)⁻¹ * x = commP s x := by simp only [conjP, commP]; group
+      rw [h]; exact commP_mem_lambdaTwo (k + 1) s x)
+  have hAB : (conjP x s * w 1 * (commP (w 0) x * commP (w 1) s))⁻¹ *
+      (x ^ 3 * w 1 * (w 1 ^ 2 * commP (w 1) x))⁻¹ =
+      (conjP x s)⁻¹ * (x ^ 3)⁻¹ * (commP (w 0) x * commP (w 1) s) := by
+    rw [← mul_inv_rev, dr_inv_core (x ^ 3) (conjP x s) (w 1) _ _ (commP (w 1) x)
+      (fun t => (zLayer_commute hzA t).eq) (fun t => (zLayer_commute hzB t).eq)
+      (fun t => (zLayer_commute hcx t).eq)
+      (by rw [mul_swap_commP, hvx]) (by rw [pow_two])
+      (by rw [← pow_two, zLayer_sq G hzB]),
+      mul_inv_rev (x ^ 3 * conjP x s) (commP (w 0) x * commP (w 1) s),
+      zLayer_inv_self hzA, mul_inv_rev (x ^ 3) (conjP x s),
+      (zLayer_commute hzA ((conjP x s)⁻¹ * (x ^ 3)⁻¹)).eq]
+  rw [drWord, drWord, dbarWordR2, conjP_mul_lambdaImage k hk s x (hw 0) (hw 1),
+    pow_three_mul_lambdaImage k hk x (hw 1), sq_mul_lambdaImage k hk y (hw 2),
+    commP_conjP_mul_lambdaImage k hk s y (hw 0) (hw 2), hAB,
+    central_reorder₃ (fun t => (zLayer_commute hzA t).eq)
+      (fun t => (zLayer_commute hzC t).eq)]
+  group
+
 /-- **The `r₀` shift identity** (spike §2.2): modifying the triple `(a, s, y)` by
 `λ_{k-1}`-elements multiplies the relator value by `dbarWordR0` — the `S⁴` block is inert,
 the `A²` block contributes the π-diagonal `w₀²·[w₀,a]`, and `[S,Y]` the two cross terms. -/
@@ -548,7 +732,11 @@ theorem defectR2_mul (k : ℕ) (hk : 3 ≤ k) {T : Fin 3 → levelQuot (D0 : Typ
       defectR2 k T *
         dbarWordR2 (canonLift (D0 : Type) k (T 0)) (canonLift (D0 : Type) k (T 1))
           (canonLift (D0 : Type) k (T 2)) w := by
-  sorry
+  have hlift : ∀ i, levelProj (D0 : Type) k (canonLift (D0 : Type) k (T i) * w i) =
+      T i * levelProj (D0 : Type) k (w i) := by
+    intro i; rw [map_mul, levelProj_canonLift]
+  rw [← defectR2_eq_of_lift k _ (fun i => canonLift (D0 : Type) k (T i) * w i) hlift, defectR2]
+  exact drWord_mul_lambdaImage k hk _ _ _ hw
 
 /-- **Modification stability of `S^P_ₖ`, direction 1** (spike §2.1 + §2.4): `λ_{k-1}`-moves
 preserve all three clauses — relator kill (the shift lands in `λₖ`), generation
