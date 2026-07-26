@@ -104,112 +104,6 @@ theorem dbarWordR2_one {G : Type*} [Group G] (s x y : G) :
     dbarWordR2 s x y (fun _ => 1) = 1 := by
   simp [dbarWordR2, commP]
 
-/-! ## The congruence calculus (spike §2.1; generic pro-2 `G`, `k ≥ 3`)
-
-The full profinite instance pack is carried deliberately (the fills run through
-closed-map/compactness arguments on λ-layers); the three instantiations `D_R`, `D₀`,
-`freeProTwo` all satisfy it. -/
-
-section Congruence
-
-variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
-  [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
-
-/-- **Frattini-only dependence on the triple slots** (spike §2.1: `[v, g]` depends only on
-`g mod λ₂` for `v ∈ λ_{k-1}`; §4.3: worth its own lemma — it makes the census-style
-base-case checks small): the `r₀`-shift word is unchanged when the slots move by
-`λ₂`-classes.  Fill: L4a. -/
-theorem dbarWordR0_congr_slots (k : ℕ) (hk : 3 ≤ k)
-    {a s y a' s' y' : levelQuot G (k + 1)}
-    (ha : a⁻¹ * a' ∈ lambdaImage G 2 (k + 1)) (hs : s⁻¹ * s' ∈ lambdaImage G 2 (k + 1))
-    (hy : y⁻¹ * y' ∈ lambdaImage G 2 (k + 1))
-    {w : Fin 3 → levelQuot G (k + 1)} (hw : ∀ i, w i ∈ lambdaImage G (k - 1) (k + 1)) :
-    dbarWordR0 a s y w = dbarWordR0 a' s' y' w := by
-  sorry
-
-/-- Frattini-only dependence, `r₂` side.  Fill: L4a. -/
-theorem dbarWordR2_congr_slots (k : ℕ) (hk : 3 ≤ k)
-    {s x y s' x' y' : levelQuot G (k + 1)}
-    (hs : s⁻¹ * s' ∈ lambdaImage G 2 (k + 1)) (hx : x⁻¹ * x' ∈ lambdaImage G 2 (k + 1))
-    (hy : y⁻¹ * y' ∈ lambdaImage G 2 (k + 1))
-    {w : Fin 3 → levelQuot G (k + 1)} (hw : ∀ i, w i ∈ lambdaImage G (k - 1) (k + 1)) :
-    dbarWordR2 s x y w = dbarWordR2 s' x' y' w := by
-  sorry
-
-/-- **`Z_{k-1}`-class dependence on the modification** (spike §2.1: `v ↦ v²` is
-`𝔽₂`-linear on classes and `[v, g]` depends only on `v mod λₖ`): the `r₀`-shift word is
-unchanged when `w` moves by `λₖ`-classes.  Fill: L4a. -/
-theorem dbarWordR0_congr_mod (k : ℕ) (hk : 3 ≤ k) (a s y : levelQuot G (k + 1))
-    {w w' : Fin 3 → levelQuot G (k + 1)}
-    (hw : ∀ i, w i ∈ lambdaImage G (k - 1) (k + 1))
-    (hww' : ∀ i, (w i)⁻¹ * w' i ∈ lambdaImage G k (k + 1)) :
-    dbarWordR0 a s y w = dbarWordR0 a s y w' := by
-  sorry
-
-/-- `Z_{k-1}`-class dependence on the modification, `r₂` side.  Fill: L4a. -/
-theorem dbarWordR2_congr_mod (k : ℕ) (hk : 3 ≤ k) (s x y : levelQuot G (k + 1))
-    {w w' : Fin 3 → levelQuot G (k + 1)}
-    (hw : ∀ i, w i ∈ lambdaImage G (k - 1) (k + 1))
-    (hww' : ∀ i, (w i)⁻¹ * w' i ∈ lambdaImage G k (k + 1)) :
-    dbarWordR2 s x y w = dbarWordR2 s x y w' := by
-  sorry
-
-end Congruence
-
-/-! ## Shift formula and modification stability (spike §2.1–2.2; concrete towers) -/
-
-/-- **The transported shift formula, direction 1** (spike §2.2, machine-verified 24/24):
-modifying a level-`k` triple by the projection of a `λ_{k-1}`-modification `w` shifts the
-defect by exactly `d̄(w)` at the canonical lift.  No relator hypothesis: the identity is
-pure `k ≥ 3` λ-calculus.  Fill: L4a. -/
-theorem defectR0_mul (k : ℕ) (hk : 3 ≤ k) {T : Fin 3 → levelQuot (DR : Type) k}
-    {w : Fin 3 → levelQuot (DR : Type) (k + 1)}
-    (hw : ∀ i, w i ∈ lambdaImage (DR : Type) (k - 1) (k + 1)) :
-    defectR0 k (fun i => T i * levelProj (DR : Type) k (w i)) =
-      defectR0 k T *
-        dbarWordR0 (canonLift (DR : Type) k (T 0)) (canonLift (DR : Type) k (T 1))
-          (canonLift (DR : Type) k (T 2)) w := by
-  sorry
-
-/-- The transported shift formula, direction 2.  Fill: L4a. -/
-theorem defectR2_mul (k : ℕ) (hk : 3 ≤ k) {T : Fin 3 → levelQuot (D0 : Type) k}
-    {w : Fin 3 → levelQuot (D0 : Type) (k + 1)}
-    (hw : ∀ i, w i ∈ lambdaImage (D0 : Type) (k - 1) (k + 1)) :
-    defectR2 k (fun i => T i * levelProj (D0 : Type) k (w i)) =
-      defectR2 k T *
-        dbarWordR2 (canonLift (D0 : Type) k (T 0)) (canonLift (D0 : Type) k (T 1))
-          (canonLift (D0 : Type) k (T 2)) w := by
-  sorry
-
-/-- **Modification stability of `S^P_ₖ`, direction 1** (spike §2.1 + §2.4): `λ_{k-1}`-moves
-preserve all three clauses — relator kill (the shift lands in `λₖ`), generation
-(Frattini: `λ_{k-1} ⊆ λ₂` for `k ≥ 3`), and the χ-clause (`χ(λ_{k-1}) ⊆ 1 + 2^k ℤ₂` — the
-design reason `P` survives the calculus).  Fill: L4a. -/
-theorem sPR0_mul_mem (k : ℕ) (hk : 3 ≤ k) {T : Fin 3 → levelQuot (DR : Type) k}
-    (hT : T ∈ sPR0 k) {w : Fin 3 → levelQuot (DR : Type) k}
-    (hw : ∀ i, w i ∈ lambdaImage (DR : Type) (k - 1) k) :
-    (fun i => T i * w i) ∈ sPR0 k := by
-  sorry
-
-/-- Modification stability, direction 2.  Fill: L4a. -/
-theorem sPR2_mul_mem (k : ℕ) (hk : 3 ≤ k) {T : Fin 3 → levelQuot (D0 : Type) k}
-    (hT : T ∈ sPR2 k) {w : Fin 3 → levelQuot (D0 : Type) k}
-    (hw : ∀ i, w i ∈ lambdaImage (D0 : Type) (k - 1) k) :
-    (fun i => T i * w i) ∈ sPR2 k := by
-  sorry
-
-/-! ## The span theorem (spike §2.3; L4b) -/
-
-/-- The free pro-2 group `F₃` on three generators — the *only* group in which the span
-theorem is proved (spike §2.3: "The Lean statement only ever needs the free version");
-the towers receive it by descent. -/
-noncomputable def freeProTwo : ProfiniteGrp :=
-  maxProPQuotient 2 (FreeProfiniteGroup (Fin 3))
-
-/-- The marked generators of `F₃`. -/
-noncomputable def freeGen (i : Fin 3) : (freeProTwo : Type) :=
-  maxProPMk 2 (FreeProfiniteGroup (Fin 3)) (FreeProfiniteGroup.of i)
-
 /-! ### The λ-grading lemma (L4b fill helper; Hall–Witt calculus)
 
 `⁅λₐ, λᵦ⁆ ≤ λ_{a+b}` — the graded-bracket bound underlying every depth estimate of the
@@ -340,6 +234,189 @@ theorem commutator_mem_twoCentralSeries_add {a b : ℕ} {v h : G}
   commutator_twoCentralSeries_le G b a (Subgroup.commutator_mem_commutator hv hh)
 
 end Grading
+
+/-! ## The congruence calculus (spike §2.1; generic pro-2 `G`, `k ≥ 3`)
+
+The full profinite instance pack is carried deliberately (the fills run through
+closed-map/compactness arguments on λ-layers); the three instantiations `D_R`, `D₀`,
+`freeProTwo` all satisfy it. -/
+
+section Congruence
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- `λₘ` dies in `Qₘ` (the top layer image is trivial). -/
+private theorem lambdaImage_self (m : ℕ) : lambdaImage G m m = ⊥ := by
+  rw [lambdaImage, Subgroup.map_eq_bot_iff, levelMk, QuotientGroup.ker_mk']
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- `λ₁ = ⊤` survives to every level quotient. -/
+private theorem lambdaImage_one_eq_top (m : ℕ) : lambdaImage G 1 m = ⊤ := by
+  rw [lambdaImage, twoCentralSeries_one]
+  exact Subgroup.map_top_of_surjective _ (levelMk_surjective G m)
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+open scoped commutatorElement in
+/-- The λ-grading lemma, transported to the level quotients and to the repo commutator
+convention: `commP λₐ λᵦ ⊆ λ_{a+b}` in `Qₘ`. -/
+private theorem commP_mem_lambdaImage_add {a b m : ℕ} {v g : levelQuot G m}
+    (hv : v ∈ lambdaImage G a m) (hg : g ∈ lambdaImage G b m) :
+    commP v g ∈ lambdaImage G (a + b) m := by
+  obtain ⟨x, hx, rfl⟩ := hv
+  obtain ⟨y, hy, rfl⟩ := hg
+  refine ⟨commP x y, ?_, by simp only [commP, map_mul, map_inv]⟩
+  have h : commP x y = ⁅x⁻¹, y⁻¹⁆ := by simp only [commP, commutatorElement_def, inv_inv]
+  rw [h]
+  exact commutator_mem_twoCentralSeries_add G ((twoCentralSeries G a).inv_mem hx)
+    ((twoCentralSeries G b).inv_mem hy)
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- A `Zₖ`-congruence is realized by a *left* central factor (centrality moves it across). -/
+private theorem exists_zLayer_mul_left {k : ℕ} {v v' : levelQuot G (k + 1)}
+    (h : v⁻¹ * v' ∈ zLayer G k) : ∃ z ∈ zLayer G k, v' = z * v := by
+  refine ⟨v⁻¹ * v', h, ?_⟩
+  rw [← Subgroup.mem_center_iff.mp (zLayer_le_center G k h) v]
+  group
+
+/-- **The slot-congruence atom** (spike §2.1): for `v ∈ λ_{k-1}`, `commP v g` depends only on
+`g` modulo `λ₂`.  Both error terms die: `commP v (g⁻¹g') ∈ λ_{k+1} = 1`, and the surviving
+`commP v g ∈ λₖ = Zₖ` is central, so the conjugation by `g⁻¹g'` is trivial. -/
+private theorem commP_congr_slot (k : ℕ) (hk : 3 ≤ k) {v g g' : levelQuot G (k + 1)}
+    (hv : v ∈ lambdaImage G (k - 1) (k + 1)) (hg : g⁻¹ * g' ∈ lambdaImage G 2 (k + 1)) :
+    commP v g = commP v g' := by
+  have hg' : g' = g * (g⁻¹ * g') := by group
+  have h1 : commP v (g⁻¹ * g') = 1 := by
+    have h := commP_mem_lambdaImage_add hv hg
+    rw [show k - 1 + 2 = k + 1 by omega, lambdaImage_self] at h
+    simpa using h
+  have h2 : commP v g ∈ zLayer G k := by
+    have hgt : g ∈ lambdaImage G 1 (k + 1) := by rw [lambdaImage_one_eq_top]; trivial
+    have h := commP_mem_lambdaImage_add hv hgt
+    rwa [show k - 1 + 1 = k by omega] at h
+  have key : commP v (g * (g⁻¹ * g')) =
+      commP v (g⁻¹ * g') * ((g⁻¹ * g')⁻¹ * commP v g * (g⁻¹ * g')) := by
+    simp only [commP]; group
+  have hcen := Subgroup.mem_center_iff.mp (zLayer_le_center G k h2) (g⁻¹ * g')
+  rw [hg', key, h1, one_mul, mul_assoc, ← hcen, ← mul_assoc, inv_mul_cancel, one_mul]
+
+/-- **The modification-congruence atoms** (spike §2.1): squaring is `𝔽₂`-linear on `Zₖ`-classes
+and `commP · g` is insensitive to a central left factor. -/
+private theorem sq_congr_mod {k : ℕ} {v v' : levelQuot G (k + 1)}
+    (h : v⁻¹ * v' ∈ zLayer G k) : v ^ 2 = v' ^ 2 := by
+  obtain ⟨z, hz, rfl⟩ := exists_zLayer_mul_left h
+  rw [(zLayer_commute hz v).mul_pow, zLayer_sq G hz, one_mul]
+
+private theorem commP_congr_mod {k : ℕ} {v v' g : levelQuot G (k + 1)}
+    (h : v⁻¹ * v' ∈ zLayer G k) : commP v g = commP v' g := by
+  obtain ⟨z, hz, rfl⟩ := exists_zLayer_mul_left h
+  rw [commP_central_left (zLayer_commute hz)]
+
+/-- **Frattini-only dependence on the triple slots** (spike §2.1: `[v, g]` depends only on
+`g mod λ₂` for `v ∈ λ_{k-1}`; §4.3: worth its own lemma — it makes the census-style
+base-case checks small): the `r₀`-shift word is unchanged when the slots move by
+`λ₂`-classes.  Fill: L4a. -/
+theorem dbarWordR0_congr_slots (k : ℕ) (hk : 3 ≤ k)
+    {a s y a' s' y' : levelQuot G (k + 1)}
+    (ha : a⁻¹ * a' ∈ lambdaImage G 2 (k + 1)) (hs : s⁻¹ * s' ∈ lambdaImage G 2 (k + 1))
+    (hy : y⁻¹ * y' ∈ lambdaImage G 2 (k + 1))
+    {w : Fin 3 → levelQuot G (k + 1)} (hw : ∀ i, w i ∈ lambdaImage G (k - 1) (k + 1)) :
+    dbarWordR0 a s y w = dbarWordR0 a' s' y' w := by
+  simp only [dbarWordR0, commP_congr_slot k hk (hw 0) ha, commP_congr_slot k hk (hw 1) hy,
+    commP_congr_slot k hk (hw 2) hs]
+
+/-- Frattini-only dependence, `r₂` side.  Fill: L4a. -/
+theorem dbarWordR2_congr_slots (k : ℕ) (hk : 3 ≤ k)
+    {s x y s' x' y' : levelQuot G (k + 1)}
+    (hs : s⁻¹ * s' ∈ lambdaImage G 2 (k + 1)) (hx : x⁻¹ * x' ∈ lambdaImage G 2 (k + 1))
+    (hy : y⁻¹ * y' ∈ lambdaImage G 2 (k + 1))
+    {w : Fin 3 → levelQuot G (k + 1)} (hw : ∀ i, w i ∈ lambdaImage G (k - 1) (k + 1)) :
+    dbarWordR2 s x y w = dbarWordR2 s' x' y' w := by
+  simp only [dbarWordR2, commP_congr_slot k hk (hw 2) hy, commP_congr_slot k hk (hw 0) hx,
+    commP_congr_slot k hk (hw 1) hs]
+
+-- `hk` and `hw` are part of the frozen interface; the `Zₖ`-congruence argument below
+-- happens to need neither (it is pure centrality + exponent 2).
+set_option linter.unusedVariables false in
+/-- **`Z_{k-1}`-class dependence on the modification** (spike §2.1: `v ↦ v²` is
+`𝔽₂`-linear on classes and `[v, g]` depends only on `v mod λₖ`): the `r₀`-shift word is
+unchanged when `w` moves by `λₖ`-classes.  Fill: L4a. -/
+theorem dbarWordR0_congr_mod (k : ℕ) (hk : 3 ≤ k) (a s y : levelQuot G (k + 1))
+    {w w' : Fin 3 → levelQuot G (k + 1)}
+    (hw : ∀ i, w i ∈ lambdaImage G (k - 1) (k + 1))
+    (hww' : ∀ i, (w i)⁻¹ * w' i ∈ lambdaImage G k (k + 1)) :
+    dbarWordR0 a s y w = dbarWordR0 a s y w' := by
+  simp only [dbarWordR0, sq_congr_mod (hww' 0), commP_congr_mod (hww' 0),
+    commP_congr_mod (hww' 1), commP_congr_mod (hww' 2)]
+
+-- `hk` and `hw` are part of the frozen interface; the `Zₖ`-congruence argument below
+-- happens to need neither (it is pure centrality + exponent 2).
+set_option linter.unusedVariables false in
+/-- `Z_{k-1}`-class dependence on the modification, `r₂` side.  Fill: L4a. -/
+theorem dbarWordR2_congr_mod (k : ℕ) (hk : 3 ≤ k) (s x y : levelQuot G (k + 1))
+    {w w' : Fin 3 → levelQuot G (k + 1)}
+    (hw : ∀ i, w i ∈ lambdaImage G (k - 1) (k + 1))
+    (hww' : ∀ i, (w i)⁻¹ * w' i ∈ lambdaImage G k (k + 1)) :
+    dbarWordR2 s x y w = dbarWordR2 s x y w' := by
+  simp only [dbarWordR2, sq_congr_mod (hww' 2), commP_congr_mod (hww' 2),
+    commP_congr_mod (hww' 0), commP_congr_mod (hww' 1)]
+
+end Congruence
+
+/-! ## Shift formula and modification stability (spike §2.1–2.2; concrete towers) -/
+
+/-- **The transported shift formula, direction 1** (spike §2.2, machine-verified 24/24):
+modifying a level-`k` triple by the projection of a `λ_{k-1}`-modification `w` shifts the
+defect by exactly `d̄(w)` at the canonical lift.  No relator hypothesis: the identity is
+pure `k ≥ 3` λ-calculus.  Fill: L4a. -/
+theorem defectR0_mul (k : ℕ) (hk : 3 ≤ k) {T : Fin 3 → levelQuot (DR : Type) k}
+    {w : Fin 3 → levelQuot (DR : Type) (k + 1)}
+    (hw : ∀ i, w i ∈ lambdaImage (DR : Type) (k - 1) (k + 1)) :
+    defectR0 k (fun i => T i * levelProj (DR : Type) k (w i)) =
+      defectR0 k T *
+        dbarWordR0 (canonLift (DR : Type) k (T 0)) (canonLift (DR : Type) k (T 1))
+          (canonLift (DR : Type) k (T 2)) w := by
+  sorry
+
+/-- The transported shift formula, direction 2.  Fill: L4a. -/
+theorem defectR2_mul (k : ℕ) (hk : 3 ≤ k) {T : Fin 3 → levelQuot (D0 : Type) k}
+    {w : Fin 3 → levelQuot (D0 : Type) (k + 1)}
+    (hw : ∀ i, w i ∈ lambdaImage (D0 : Type) (k - 1) (k + 1)) :
+    defectR2 k (fun i => T i * levelProj (D0 : Type) k (w i)) =
+      defectR2 k T *
+        dbarWordR2 (canonLift (D0 : Type) k (T 0)) (canonLift (D0 : Type) k (T 1))
+          (canonLift (D0 : Type) k (T 2)) w := by
+  sorry
+
+/-- **Modification stability of `S^P_ₖ`, direction 1** (spike §2.1 + §2.4): `λ_{k-1}`-moves
+preserve all three clauses — relator kill (the shift lands in `λₖ`), generation
+(Frattini: `λ_{k-1} ⊆ λ₂` for `k ≥ 3`), and the χ-clause (`χ(λ_{k-1}) ⊆ 1 + 2^k ℤ₂` — the
+design reason `P` survives the calculus).  Fill: L4a. -/
+theorem sPR0_mul_mem (k : ℕ) (hk : 3 ≤ k) {T : Fin 3 → levelQuot (DR : Type) k}
+    (hT : T ∈ sPR0 k) {w : Fin 3 → levelQuot (DR : Type) k}
+    (hw : ∀ i, w i ∈ lambdaImage (DR : Type) (k - 1) k) :
+    (fun i => T i * w i) ∈ sPR0 k := by
+  sorry
+
+/-- Modification stability, direction 2.  Fill: L4a. -/
+theorem sPR2_mul_mem (k : ℕ) (hk : 3 ≤ k) {T : Fin 3 → levelQuot (D0 : Type) k}
+    (hT : T ∈ sPR2 k) {w : Fin 3 → levelQuot (D0 : Type) k}
+    (hw : ∀ i, w i ∈ lambdaImage (D0 : Type) (k - 1) k) :
+    (fun i => T i * w i) ∈ sPR2 k := by
+  sorry
+
+/-! ## The span theorem (spike §2.3; L4b) -/
+
+/-- The free pro-2 group `F₃` on three generators — the *only* group in which the span
+theorem is proved (spike §2.3: "The Lean statement only ever needs the free version");
+the towers receive it by descent. -/
+noncomputable def freeProTwo : ProfiniteGrp :=
+  maxProPQuotient 2 (FreeProfiniteGroup (Fin 3))
+
+/-- The marked generators of `F₃`. -/
+noncomputable def freeGen (i : Fin 3) : (freeProTwo : Type) :=
+  maxProPMk 2 (FreeProfiniteGroup (Fin 3)) (FreeProfiniteGroup.of i)
 
 /-! ### Descent infrastructure (L4b fill helpers; not part of the frozen interface)
 
