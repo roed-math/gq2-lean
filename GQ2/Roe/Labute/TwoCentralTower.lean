@@ -377,6 +377,175 @@ theorem finite_closure_of_central_sq {K : Subgroup T} (hKc : K ≤ Subgroup.cent
 
 end CentralInvolutions
 
+/-! ## Functoriality -/
+
+section Functorial
+
+variable {G H : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [Group H] [TopologicalSpace H] [IsTopologicalGroup H]
+
+/-- One step of the series is functorial along a continuous homomorphism: if `φ` carries `A`
+into `B`, it carries `cl(A²[A, G])` into `cl(B²[B, H])`. -/
+theorem map_twoCentralSucc_le {A : Subgroup G} {B : Subgroup H} (φ : G →* H) (hφ : Continuous φ)
+    (hAB : A.map φ ≤ B) : (twoCentralSucc A).map φ ≤ twoCentralSucc B := by
+  set S : Subgroup G :=
+    Subgroup.closure ((fun v : G => v ^ 2) '' (A : Set G)) ⊔ ⁅A, (⊤ : Subgroup G)⁆ with hSdef
+  have hS : S.map φ ≤ twoCentralSucc B := by
+    rw [hSdef, Subgroup.map_sup, MonoidHom.map_closure, Subgroup.map_commutator]
+    refine sup_le (Subgroup.closure_le _ |>.2 ?_) ?_
+    · rintro _ ⟨_, ⟨v, hv, rfl⟩, rfl⟩
+      exact (map_pow φ v 2) ▸ sq_mem_twoCentralSucc (hAB ⟨v, hv, rfl⟩)
+    · exact (Subgroup.commutator_mono hAB le_top).trans
+        (le_sup_right.trans (Subgroup.le_topologicalClosure _))
+  rintro _ ⟨x, hx, rfl⟩
+  have hx' : φ x ∈ _root_.closure (φ '' (S : Set G)) :=
+    image_closure_subset_closure_image hφ ⟨x, hx, rfl⟩
+  refine closure_minimal ?_ (Subgroup.isClosed_topologicalClosure _) hx'
+  rintro _ ⟨v, hv, rfl⟩
+  exact hS ⟨v, hv, rfl⟩
+
+/-- The series is verbal, hence functorial: a continuous homomorphism maps `λₖ` into `λₖ`.
+Fill: L2. -/
+theorem map_twoCentralSeries_le (φ : G →* H) (hφ : Continuous φ) (k : ℕ) :
+    (twoCentralSeries G k).map φ ≤ twoCentralSeries H k := by
+  induction k with
+  | zero => exact le_top
+  | succ k ih =>
+    match k, ih with
+    | 0, _ => exact le_top
+    | (k + 1), ih => exact map_twoCentralSucc_le φ hφ ih
+
+omit [IsTopologicalGroup G] [IsTopologicalGroup H] in
+/-- The image of a closed subgroup of a compact group under a continuous homomorphism into a
+Hausdorff group is closed. -/
+theorem isClosed_map_of_isClosed [CompactSpace G] [T2Space H] {A : Subgroup G} (φ : G →* H)
+    (hφ : Continuous φ) (hA : IsClosed (A : Set G)) :
+    IsClosed ((A.map φ : Subgroup H) : Set H) :=
+  (hA.isCompact.image hφ).isClosed
+
+/-- Reverse containment for one step along a continuous epimorphism of a compact group onto a
+Hausdorff group: `cl((φA)²[φA, H]) ≤ φ(cl(A²[A, G]))`. -/
+theorem twoCentralSucc_map_le [CompactSpace G] [T2Space H] {A : Subgroup G} (φ : G →* H)
+    (hφc : Continuous φ) (hφs : Function.Surjective φ) :
+    twoCentralSucc (A.map φ) ≤ (twoCentralSucc A).map φ := by
+  refine Subgroup.topologicalClosure_minimal _ (sup_le ?_ ?_)
+    (isClosed_map_of_isClosed φ hφc (Subgroup.isClosed_topologicalClosure _))
+  · refine Subgroup.closure_le _ |>.2 ?_
+    rintro _ ⟨_, ⟨v, hv, rfl⟩, rfl⟩
+    exact ⟨v ^ 2, sq_mem_twoCentralSucc hv, by rw [map_pow]⟩
+  · rw [Subgroup.commutator_le]
+    rintro _ ⟨v, hv, rfl⟩ w -
+    obtain ⟨g, rfl⟩ := hφs w
+    exact ⟨⁅v, g⁆, commutator_mem_twoCentralSucc hv g, map_commutatorElement φ v g⟩
+
+/-- For a continuous **epimorphism** of a compact group onto a Hausdorff topological
+group, the image of `λₖ` is exactly `λₖ` (verbal + closed map; the descent mechanism of
+the span theorem, spike §2.3).  Fill: L2. -/
+theorem map_twoCentralSeries_eq [CompactSpace G] [T2Space H]
+    (φ : G →* H) (hφc : Continuous φ) (hφs : Function.Surjective φ) (k : ℕ) :
+    (twoCentralSeries G k).map φ = twoCentralSeries H k := by
+  refine le_antisymm (map_twoCentralSeries_le φ hφc k) ?_
+  have htop : (⊤ : Subgroup G).map φ = ⊤ := Subgroup.map_top_of_surjective φ hφs
+  induction k with
+  | zero => exact htop.ge
+  | succ k ih =>
+    match k, ih with
+    | 0, _ => exact htop.ge
+    | (k + 1), ih =>
+      exact (twoCentralSucc_mono ih).trans (twoCentralSucc_map_le φ hφc hφs)
+
+end Functorial
+
+/-! ## Finite 2-groups: the tower reaches the trivial subgroup -/
+
+section FiniteTwoGroup
+
+/-- One step past a central subgroup of exponent 2 is trivial. -/
+theorem twoCentralSucc_eq_bot_of_le_center {Q : Type*} [Group Q] [TopologicalSpace Q]
+    [IsTopologicalGroup Q] [T1Space Q] {N : Subgroup Q} (hNc : N ≤ Subgroup.center Q)
+    (hN2 : ∀ x ∈ N, x ^ 2 = 1) : twoCentralSucc N = ⊥ := by
+  refine le_antisymm (Subgroup.topologicalClosure_minimal _ (sup_le ?_ ?_) ?_) bot_le
+  · refine (Subgroup.closure_le _).2 ?_
+    rintro _ ⟨v, hv, rfl⟩
+    exact (Subgroup.mem_bot).2 (hN2 v hv)
+  · rw [Subgroup.commutator_le]
+    intro a ha b _
+    refine (Subgroup.mem_bot).2 ?_
+    exact commutatorElement_eq_one_iff_mul_comm.2 (Subgroup.mem_center_iff.mp (hNc ha) b).symm
+  · simp only [Subgroup.coe_bot]
+    exact isClosed_singleton
+
+/-- **The tower of a finite discrete 2-group reaches `⊥`.**  Induction on the order: a nontrivial
+finite 2-group has a central involution `w`; the tower of `Q ⧸ ⟨w⟩` reaches `⊥`, so the tower of
+`Q` reaches `⟨w⟩` (central of exponent 2) and one further step kills it. -/
+theorem exists_twoCentralSeries_eq_bot_aux (n : ℕ) : ∀ (Q : Type*) [Group Q] [TopologicalSpace Q]
+    [IsTopologicalGroup Q] [DiscreteTopology Q] [Finite Q], IsPGroup 2 Q → Nat.card Q ≤ n →
+    ∃ k, twoCentralSeries Q k = ⊥ := by
+  induction n with
+  | zero =>
+    intro Q _ _ _ _ _ _ hcard
+    exact absurd hcard (by simp [Nat.card_pos.ne'])
+  | succ n ih =>
+    intro Q _ _ _ _ _ hQ hcard
+    rcases subsingleton_or_nontrivial Q with hs | hs
+    · exact ⟨0, by ext x; simp [Subsingleton.elim x (1 : Q)]⟩
+    -- a central involution
+    classical
+    obtain ⟨z, hzc, hz1⟩ : ∃ z : Q, z ∈ Subgroup.center Q ∧ z ≠ 1 := by
+      haveI := hQ.center_nontrivial
+      obtain ⟨⟨z, hzc⟩, hz1⟩ := exists_ne (1 : Subgroup.center Q)
+      exact ⟨z, hzc, fun h => hz1 (Subtype.ext h)⟩
+    have hex : ∃ m : ℕ, z ^ 2 ^ m = 1 := hQ z
+    set m := Nat.find hex with hm
+    have hmspec : z ^ 2 ^ m = 1 := Nat.find_spec hex
+    have hmpos : 0 < m := Nat.pos_of_ne_zero fun h0 => hz1 (by simpa [h0] using hmspec)
+    set w := z ^ 2 ^ (m - 1) with hw
+    have hw1 : w ≠ 1 := Nat.find_min hex (by omega)
+    have hw2 : w ^ 2 = 1 := by
+      rw [hw, ← pow_mul, ← pow_succ, show m - 1 + 1 = m by omega]; exact hmspec
+    have hwc : w ∈ Subgroup.center Q := pow_mem hzc _
+    set N : Subgroup Q := Subgroup.zpowers w with hN
+    have hNc : N ≤ Subgroup.center Q := Subgroup.zpowers_le.2 hwc
+    have hN2 : ∀ x ∈ N, x ^ 2 = 1 := by
+      rintro _ ⟨j, rfl⟩
+      have hj : (w ^ j) ^ (2 : ℕ) = (w ^ (2 : ℕ)) ^ j := by
+        rw [← zpow_natCast (w ^ j) 2, ← zpow_natCast w 2, ← zpow_mul, ← zpow_mul, mul_comm]
+      rw [hj, hw2, one_zpow]
+    haveI : N.Normal := ⟨fun x hx g => by
+      rw [Subgroup.mem_center_iff.mp (hNc hx) g, mul_inv_cancel_right]; exact hx⟩
+    haveI : DiscreteTopology (Q ⧸ N) := QuotientGroup.discreteTopology (isOpen_discrete _)
+    -- the quotient is strictly smaller
+    have hcard' : Nat.card (Q ⧸ N) ≤ n := by
+      have h1 : Nat.card N * N.index = Nat.card Q := Subgroup.card_mul_index N
+      haveI : Nontrivial N :=
+        ⟨⟨⟨w, Subgroup.mem_zpowers w⟩, 1, fun h => hw1 (Subtype.ext_iff.1 h)⟩⟩
+      have h2 : 2 ≤ Nat.card N := Finite.one_lt_card_iff_nontrivial.2 inferInstance
+      have h3 : 0 < N.index := Nat.pos_of_ne_zero N.index_ne_zero_of_finite
+      have h4 : 2 * N.index ≤ Nat.card N * N.index := Nat.mul_le_mul_right _ h2
+      rw [← Subgroup.index_eq_card]
+      omega
+    obtain ⟨k, hk⟩ := ih (Q ⧸ N) (hQ.to_quotient N) hcard'
+    have hkN : twoCentralSeries Q (k + 1) ≤ N := by
+      have hmap : (twoCentralSeries Q (k + 1)).map (QuotientGroup.mk' N) ≤
+          twoCentralSeries (Q ⧸ N) (k + 1) :=
+        map_twoCentralSeries_le (QuotientGroup.mk' N) QuotientGroup.continuous_mk (k + 1)
+      have hbot : twoCentralSeries (Q ⧸ N) (k + 1) = ⊥ :=
+        le_antisymm (hk ▸ twoCentralSeries_antitone (Q ⧸ N) (Nat.le_succ k)) bot_le
+      rw [hbot, le_bot_iff, Subgroup.map_eq_bot_iff, QuotientGroup.ker_mk'] at hmap
+      exact hmap
+    refine ⟨k + 2, le_antisymm ?_ bot_le⟩
+    rw [twoCentralSeries_succ Q (Nat.le_add_left 1 k)]
+    exact (twoCentralSucc_mono hkN).trans
+      (le_of_eq (twoCentralSucc_eq_bot_of_le_center hNc hN2))
+
+/-- **The tower of a finite discrete 2-group reaches `⊥`.** -/
+theorem exists_twoCentralSeries_eq_bot (Q : Type*) [Group Q] [TopologicalSpace Q]
+    [IsTopologicalGroup Q] [DiscreteTopology Q] [Finite Q] (hQ : IsPGroup 2 Q) :
+    ∃ k, twoCentralSeries Q k = ⊥ :=
+  exists_twoCentralSeries_eq_bot_aux (Nat.card Q) Q hQ le_rfl
+
+end FiniteTwoGroup
+
 /-! ## Openness, finiteness, and the neighborhood basis (topologically f.g. pro-2 `G`) -/
 
 section Profinite
@@ -538,12 +707,16 @@ theorem finite_levelQuot_step
     (((finite_closure_subset_zLayer G (k + 1) hFfin hFZ).subset
       (zLayer_le_of_le_comap G (k + 1) hgen)).to_subtype)
 
-omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
 /-- The level quotients of a topologically f.g. pro-2 group are finite.  Fill: L2. -/
 theorem finite_levelQuot
     (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
     (hpro : IsProP 2 G) (k : ℕ) : Finite (levelQuot G k) := by
   have _ := hpro
+  -- the profinite pack is part of the frozen interface (design memo §3.7): retained even where
+  -- the fill does not need it
+  have _ := ‹CompactSpace G›
+  have _ := ‹T2Space G›
+  have _ := ‹TotallyDisconnectedSpace G›
   match k with
   | 0 =>
     haveI : Subsingleton (levelQuot G 0) := QuotientGroup.subsingleton_quotient_top
@@ -556,13 +729,17 @@ theorem finite_levelQuot
     | zero => exact finite_levelQuot_two G hfg
     | succ k ih => exact finite_levelQuot_step G hfg (Nat.le_add_left 1 k) ih
 
-omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
 /-- For a topologically finitely generated pro-2 group, every `λₖ` is open.  (Openness at
 each step: `λₖ/λ_{k+1}` is generated by finitely many square/commutator classes of
 exponent 2 — plan §2.4.)  Fill: L2. -/
 theorem isOpen_twoCentralSeries
     (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
     (hpro : IsProP 2 G) (k : ℕ) : IsOpen ((twoCentralSeries G k : Subgroup G) : Set G) := by
+  -- the profinite pack is part of the frozen interface (design memo §3.7): retained even where
+  -- the fill does not need it
+  have _ := ‹CompactSpace G›
+  have _ := ‹T2Space G›
+  have _ := ‹TotallyDisconnectedSpace G›
   haveI := finite_levelQuot G hfg hpro k
   haveI : (twoCentralSeries G k).FiniteIndex :=
     ⟨by simpa [Subgroup.index] using Nat.card_pos.ne'⟩
@@ -572,7 +749,13 @@ theorem isOpen_twoCentralSeries
 theorem isPGroup_levelQuot
     (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
     (hpro : IsProP 2 G) (k : ℕ) : IsPGroup 2 (levelQuot G k) := by
-  sorry
+  -- the profinite pack is part of the frozen interface (design memo §3.7): retained even where
+  -- the fill does not need it
+  have _ := ‹CompactSpace G›
+  have _ := ‹T2Space G›
+  have _ := ‹TotallyDisconnectedSpace G›
+  have hopen := isOpen_twoCentralSeries G hfg hpro k
+  exact hpro { toSubgroup := twoCentralSeries G k, isOpen' := hopen }
 
 /-- **Neighborhood-basis / cofinality** (plan §2.1 item 2, §2.4): every open subgroup of a
 topologically f.g. pro-2 group contains some `λₖ` (via: the finite 2-group `G/core` is
@@ -583,94 +766,31 @@ theorem exists_twoCentralSeries_le
     (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
     (hpro : IsProP 2 G) {U : Subgroup G} (hU : IsOpen (U : Set G)) :
     ∃ k, twoCentralSeries G k ≤ U := by
-  sorry
+  have _ := hfg
+  have _ := ‹T2Space G›
+  obtain ⟨V, hVU⟩ := ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one hU (one_mem U)
+  haveI : DiscreteTopology (G ⧸ V.toSubgroup) :=
+    QuotientGroup.discreteTopology V.toOpenSubgroup.isOpen
+  haveI : Finite (G ⧸ V.toSubgroup) := finite_of_compact_of_discrete
+  obtain ⟨k, hk⟩ := exists_twoCentralSeries_eq_bot (G ⧸ V.toSubgroup) (hpro V)
+  refine ⟨k, ?_⟩
+  have hmap : (twoCentralSeries G k).map (QuotientGroup.mk' V.toSubgroup) ≤
+      twoCentralSeries (G ⧸ V.toSubgroup) k :=
+    map_twoCentralSeries_le _ QuotientGroup.continuous_mk k
+  rw [hk, le_bot_iff, Subgroup.map_eq_bot_iff, QuotientGroup.ker_mk'] at hmap
+  exact hmap.trans fun x hx => hVU hx
 
 /-- The tower separates points: `⨅ λₖ = ⊥` (plan §2.4's `⋂ λₖ = 1`).  Fill: L2. -/
 theorem iInf_twoCentralSeries
     (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
     (hpro : IsProP 2 G) : ⨅ k, twoCentralSeries G k = ⊥ := by
-  sorry
+  refine le_antisymm (fun x hx => ?_) bot_le
+  rw [Subgroup.mem_iInf] at hx
+  refine (Subgroup.mem_bot).2 (eq_one_of_forall_mem_openNormalSubgroup fun V => ?_)
+  obtain ⟨k, hk⟩ := exists_twoCentralSeries_le G hfg hpro V.toOpenSubgroup.isOpen
+  exact hk (hx k)
 
 end Profinite
-
-/-! ## Functoriality -/
-
-section Functorial
-
-variable {G H : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
-  [Group H] [TopologicalSpace H] [IsTopologicalGroup H]
-
-/-- One step of the series is functorial along a continuous homomorphism: if `φ` carries `A`
-into `B`, it carries `cl(A²[A, G])` into `cl(B²[B, H])`. -/
-theorem map_twoCentralSucc_le {A : Subgroup G} {B : Subgroup H} (φ : G →* H) (hφ : Continuous φ)
-    (hAB : A.map φ ≤ B) : (twoCentralSucc A).map φ ≤ twoCentralSucc B := by
-  set S : Subgroup G :=
-    Subgroup.closure ((fun v : G => v ^ 2) '' (A : Set G)) ⊔ ⁅A, (⊤ : Subgroup G)⁆ with hSdef
-  have hS : S.map φ ≤ twoCentralSucc B := by
-    rw [hSdef, Subgroup.map_sup, MonoidHom.map_closure, Subgroup.map_commutator]
-    refine sup_le (Subgroup.closure_le _ |>.2 ?_) ?_
-    · rintro _ ⟨_, ⟨v, hv, rfl⟩, rfl⟩
-      exact (map_pow φ v 2) ▸ sq_mem_twoCentralSucc (hAB ⟨v, hv, rfl⟩)
-    · exact (Subgroup.commutator_mono hAB le_top).trans
-        (le_sup_right.trans (Subgroup.le_topologicalClosure _))
-  rintro _ ⟨x, hx, rfl⟩
-  have hx' : φ x ∈ _root_.closure (φ '' (S : Set G)) :=
-    image_closure_subset_closure_image hφ ⟨x, hx, rfl⟩
-  refine closure_minimal ?_ (Subgroup.isClosed_topologicalClosure _) hx'
-  rintro _ ⟨v, hv, rfl⟩
-  exact hS ⟨v, hv, rfl⟩
-
-/-- The series is verbal, hence functorial: a continuous homomorphism maps `λₖ` into `λₖ`.
-Fill: L2. -/
-theorem map_twoCentralSeries_le (φ : G →* H) (hφ : Continuous φ) (k : ℕ) :
-    (twoCentralSeries G k).map φ ≤ twoCentralSeries H k := by
-  induction k with
-  | zero => exact le_top
-  | succ k ih =>
-    match k, ih with
-    | 0, _ => exact le_top
-    | (k + 1), ih => exact map_twoCentralSucc_le φ hφ ih
-
-omit [IsTopologicalGroup G] [IsTopologicalGroup H] in
-/-- The image of a closed subgroup of a compact group under a continuous homomorphism into a
-Hausdorff group is closed. -/
-theorem isClosed_map_of_isClosed [CompactSpace G] [T2Space H] {A : Subgroup G} (φ : G →* H)
-    (hφ : Continuous φ) (hA : IsClosed (A : Set G)) :
-    IsClosed ((A.map φ : Subgroup H) : Set H) :=
-  (hA.isCompact.image hφ).isClosed
-
-/-- Reverse containment for one step along a continuous epimorphism of a compact group onto a
-Hausdorff group: `cl((φA)²[φA, H]) ≤ φ(cl(A²[A, G]))`. -/
-theorem twoCentralSucc_map_le [CompactSpace G] [T2Space H] {A : Subgroup G} (φ : G →* H)
-    (hφc : Continuous φ) (hφs : Function.Surjective φ) :
-    twoCentralSucc (A.map φ) ≤ (twoCentralSucc A).map φ := by
-  refine Subgroup.topologicalClosure_minimal _ (sup_le ?_ ?_)
-    (isClosed_map_of_isClosed φ hφc (Subgroup.isClosed_topologicalClosure _))
-  · refine Subgroup.closure_le _ |>.2 ?_
-    rintro _ ⟨_, ⟨v, hv, rfl⟩, rfl⟩
-    exact ⟨v ^ 2, sq_mem_twoCentralSucc hv, by rw [map_pow]⟩
-  · rw [Subgroup.commutator_le]
-    rintro _ ⟨v, hv, rfl⟩ w -
-    obtain ⟨g, rfl⟩ := hφs w
-    exact ⟨⁅v, g⁆, commutator_mem_twoCentralSucc hv g, map_commutatorElement φ v g⟩
-
-/-- For a continuous **epimorphism** of a compact group onto a Hausdorff topological
-group, the image of `λₖ` is exactly `λₖ` (verbal + closed map; the descent mechanism of
-the span theorem, spike §2.3).  Fill: L2. -/
-theorem map_twoCentralSeries_eq [CompactSpace G] [T2Space H]
-    (φ : G →* H) (hφc : Continuous φ) (hφs : Function.Surjective φ) (k : ℕ) :
-    (twoCentralSeries G k).map φ = twoCentralSeries H k := by
-  refine le_antisymm (map_twoCentralSeries_le φ hφc k) ?_
-  have htop : (⊤ : Subgroup G).map φ = ⊤ := Subgroup.map_top_of_surjective φ hφs
-  induction k with
-  | zero => exact htop.ge
-  | succ k ih =>
-    match k, ih with
-    | 0, _ => exact htop.ge
-    | (k + 1), ih =>
-      exact (twoCentralSucc_mono ih).trans (twoCentralSucc_map_le φ hφc hφs)
-
-end Functorial
 
 /-! ## The χ-shadow layer (spike §2.7.5, §4.1)
 
