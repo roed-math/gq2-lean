@@ -162,26 +162,82 @@ Mod `8` (level `k₀ = 3`, load-bearing for L3's base-case checks) and mod `2^9`
 Independently re-verified during L1: `X ≡ 437`, `S ≡ 253`, `Y ≡ 7`, `η ≡ 341 (mod 512)`;
 mod 8 these are `(5, 5, 7)` and `η ≡ 5` — the `f = 2` content. -/
 
+/-- The defining relation of `η` in any mod-`2^k` shadow: `η · (−3) = 1`.  The shadows of
+`etaUnit` are pinned by this together with a `decide` over `ZMod (2^k)` (the in-tree
+`rootX_toZModPow_*` idiom). -/
+private theorem etaUnit_toZModPow_mul (k : ℕ) :
+    PadicInt.toZModPow k ((etaUnit : ℤ_[2]ˣ) : ℤ_[2]) * (-3) = 1 := by
+  have h : ((etaUnit : ℤ_[2]ˣ) : ℤ_[2]) * ((negThreeUnit : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
+    rw [etaUnit, ← Units.val_mul, inv_mul_cancel, Units.val_one]
+  have h' := congrArg (PadicInt.toZModPow (p := 2) k) h
+  rw [map_mul, map_one, negThreeUnit_val] at h'
+  simpa only [map_neg, map_ofNat] using h'
+
 /-- Direction-1 targets mod `8`: `(−1, 1, η) ≡ (7, 1, 5)`.  Fill: L3. -/
 theorem chiTargetR0_three (i : Fin 3) :
     (chiTargetR0 3 i : ZMod (2 ^ 3)) = ![7, 1, 5] i := by
-  sorry
+  have heta : PadicInt.toZModPow 3 ((etaUnit : ℤ_[2]ˣ) : ℤ_[2]) = 5 :=
+    (by decide : ∀ z : ZMod (2 ^ 3), z * (-3) = 1 → z = 5) _ (etaUnit_toZModPow_mul 3)
+  have hneg : (-1 : ZMod (2 ^ 3)) = 7 := by decide
+  fin_cases i <;> simp [chiTargetR0, chiTargetUnitsR0, heta, hneg]
+
+/-- The mod-`2^k` shadow of the Hensel root `X` is pinned by its defining equation
+`X³ + 2X² + 1 = 0`: the root is unique mod `2^k` (the reduction mod 2 has the simple root
+`1`), so a `decide` over `ZMod (2^k)` identifies it.  In-tree idiom of
+`GQ2/Roe/OrientationRoot.lean`'s `rootX_toZModPow_four`. -/
+private theorem rootX_toZModPow_eq {k : ℕ} {c : ZMod (2 ^ k)}
+    (h : ∀ r : ZMod (2 ^ k), r ^ 3 + 2 * r ^ 2 + 1 = 0 → r = c) :
+    PadicInt.toZModPow k rootX = c := by
+  have h0 := congrArg (PadicInt.toZModPow (p := 2) k) rootX_isRoot
+  simp only [map_add, map_mul, map_pow, map_ofNat, map_one, map_zero] at h0
+  exact h _ h0
+
+/-- The mod-`2^k` shadow of `S` from `Sval_mul_denom` (`S·(X²+X+1) = −X³`) once the shadow
+of `X` is known: the denominator is odd, hence invertible, so a `decide` pins `S`. -/
+private theorem Sval_toZModPow_eq {k : ℕ} {r : ZMod (2 ^ k)} (hr : PadicInt.toZModPow k rootX = r)
+    {c : ZMod (2 ^ k)} (h : ∀ z : ZMod (2 ^ k), z * (r ^ 2 + r + 1) = -r ^ 3 → z = c) :
+    PadicInt.toZModPow k Sval = c := by
+  have h0 := congrArg (PadicInt.toZModPow (p := 2) k) Sval_mul_denom
+  simp only [map_mul, map_add, map_pow, map_one, map_neg, hr] at h0
+  exact h _ h0
+
+/-- The mod-`2^k` shadow of `Y = −X²` from the shadow of `X`. -/
+private theorem Yval_toZModPow_eq {k : ℕ} {r : ZMod (2 ^ k)} (hr : PadicInt.toZModPow k rootX = r) :
+    PadicInt.toZModPow k Yval = -r ^ 2 := by
+  rw [Yval_eq, map_neg, map_pow, hr]
 
 /-- Direction-2 targets mod `8`: `(S, X, Y) ≡ (5, 5, 7)`.  Fill: L3. -/
 theorem chiTargetR2_three (i : Fin 3) :
     (chiTargetR2 3 i : ZMod (2 ^ 3)) = ![5, 5, 7] i := by
-  sorry
+  have hX : PadicInt.toZModPow 3 rootX = 5 := rootX_toZModPow_eq (by decide)
+  have hS : PadicInt.toZModPow 3 Sval = 5 := Sval_toZModPow_eq hX (by decide)
+  have hY : PadicInt.toZModPow 3 Yval = 7 := by rw [Yval_toZModPow_eq hX]; decide
+  fin_cases i <;>
+    simp [chiTargetR2, chiTargetUnitsR2, val_SvalUnit, val_rootXUnit, val_YvalUnit, hS, hX, hY]
 
-/-- Direction-1 targets mod `2^9` (stress): `(−1, 1, η) ≡ (511, 1, 341)`.  Fill: L3. -/
+set_option maxRecDepth 4000 in
+/-- Direction-1 targets mod `2^9` (stress): `(−1, 1, η) ≡ (511, 1, 341)`.  Fill: L3.
+
+The `decide`s below are kernel checks over the 512 residues (plan §2.3's budget question:
+they pass comfortably; `native_decide` is not used anywhere in this file).  Only the
+elaborator's recursion budget needs raising. -/
 theorem chiTargetR0_nine (i : Fin 3) :
     (chiTargetR0 9 i : ZMod (2 ^ 9)) = ![511, 1, 341] i := by
-  sorry
+  have heta : PadicInt.toZModPow 9 ((etaUnit : ℤ_[2]ˣ) : ℤ_[2]) = 341 :=
+    (by decide : ∀ z : ZMod (2 ^ 9), z * (-3) = 1 → z = 341) _ (etaUnit_toZModPow_mul 9)
+  have hneg : (-1 : ZMod (2 ^ 9)) = 511 := by decide
+  fin_cases i <;> simp [chiTargetR0, chiTargetUnitsR0, heta, hneg]
 
+set_option maxRecDepth 4000 in
 /-- Direction-2 targets mod `2^9` (stress): `(S, X, Y) ≡ (253, 437, 7)` — the spike's
 level-9 numerics, re-verified by hand during L1.  Fill: L3. -/
 theorem chiTargetR2_nine (i : Fin 3) :
     (chiTargetR2 9 i : ZMod (2 ^ 9)) = ![253, 437, 7] i := by
-  sorry
+  have hX : PadicInt.toZModPow 9 rootX = 437 := rootX_toZModPow_eq (by decide)
+  have hS : PadicInt.toZModPow 9 Sval = 253 := Sval_toZModPow_eq hX (by decide)
+  have hY : PadicInt.toZModPow 9 Yval = 7 := by rw [Yval_toZModPow_eq hX]; decide
+  fin_cases i <;>
+    simp [chiTargetR2, chiTargetUnitsR2, val_SvalUnit, val_rootXUnit, val_YvalUnit, hS, hX, hY]
 
 /-- Naturality of the direction-1 targets in `k` (consumed by the restriction maps).
 Fill: L3 (from `PadicInt.zmod_cast_comp_toZModPow`-style compatibility). -/
