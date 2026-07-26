@@ -1915,6 +1915,75 @@ private theorem thetaVec_lambdaTwo {N : ℕ} (hN : 1 ≤ N)
   have hz : (2 : ZMod (2 ^ N)) ^ 1 ∣ (Φ (Pi.single j 1) x).u := by rwa [pow_one]
   exact (two_pow_dvd_zmod_iff (N := N) (j := 1) hN).mp hz
 
+/-- The mod-2 reduction of a geometric sum of units counts its terms. -/
+private theorem redTwo_geom {N : ℕ} (hN : 1 ≤ N) (h : (ZMod (2 ^ N))ˣ) (m : ℕ) :
+    redTwo hN (∑ j ∈ Finset.range m, ((h : ZMod (2 ^ N))) ^ j) = (m : ZMod (2 ^ 1)) := by
+  rw [map_sum]
+  simp only [map_pow, redTwo_units hN, one_pow, Finset.sum_const, Finset.card_range, nsmul_eq_mul,
+    mul_one]
+
+/-- **The tail offset**: `(Φ ((x^{2^{k-1}})^α)).u = 2^{k-1}·C·(Φ x).u` with `C ≡ α (mod 2)` —
+the sharpness of the geometric sum at a base `≡ 1 (mod 4)`. -/
+private theorem deriv_tail_u {N k : ℕ} (hN : 1 ≤ N) (Φ : ContinuousMonoidHom G (WL N))
+    {x : G} {u : ℤ_[2]} (hu : (2 : ℤ_[2]) ^ 2 ∣ u - 1)
+    (hg : ((Φ x).g : ZMod (2 ^ N)) = PadicInt.toZModPow N u) (α : ℕ) :
+    ∃ C : ZMod (2 ^ N), redTwo hN C = (α : ZMod (2 ^ 1)) ∧
+      (Φ ((x ^ 2 ^ (k - 1)) ^ α)).u = 2 ^ (k - 1) * (C * (Φ x).u) := by
+  obtain ⟨c, hc, hc2⟩ := geom_sum_two_pow hu (k - 1)
+  have hSxval : (∑ j ∈ Finset.range (2 ^ (k - 1)), ((Φ x).g : ZMod (2 ^ N)) ^ j)
+      = 2 ^ (k - 1) * PadicInt.toZModPow N c := by
+    have hmap : (∑ j ∈ Finset.range (2 ^ (k - 1)), ((Φ x).g : ZMod (2 ^ N)) ^ j)
+        = PadicInt.toZModPow N (∑ j ∈ Finset.range (2 ^ (k - 1)), u ^ j) := by
+      rw [map_sum]
+      exact Finset.sum_congr rfl fun j _ => by rw [map_pow, hg]
+    rw [hmap, hc, map_mul, map_pow, map_ofNat]
+  refine ⟨(∑ j ∈ Finset.range α, ((Φ (x ^ 2 ^ (k - 1))).g : ZMod (2 ^ N)) ^ j) *
+    PadicInt.toZModPow N c, ?_, ?_⟩
+  · rw [map_mul, redTwo_geom hN, redTwo_odd hN hc2, mul_one]
+  · have h1 : (Φ (x ^ 2 ^ (k - 1))).u
+        = (∑ j ∈ Finset.range (2 ^ (k - 1)), ((Φ x).g : ZMod (2 ^ N)) ^ j) * (Φ x).u := by
+      rw [map_pow, wl_pow']
+    have h2 : (Φ ((x ^ 2 ^ (k - 1)) ^ α)).u
+        = (∑ j ∈ Finset.range α, ((Φ (x ^ 2 ^ (k - 1))).g : ZMod (2 ^ N)) ^ j) *
+          (Φ (x ^ 2 ^ (k - 1))).u := by
+      conv_lhs => rw [map_pow, wl_pow']
+    rw [h2, h1, hSxval]
+    ring
+
+/-- **The tail parity relation**: if a tail combination lies in every coordinate derivation's
+kernel, the two coordinate vectors satisfy the corresponding `𝔽₂`-linear relation. -/
+private theorem tail_parity {N k : ℕ} (hk : 3 ≤ k) (hN : 1 ≤ N) (hkN : k ≤ N)
+    (Φ : (Fin 3 → ℤ_[2]) → ContinuousMonoidHom G (WL N))
+    {x y : G} {ux uy : ℤ_[2]}
+    (hux : (2 : ℤ_[2]) ^ 2 ∣ ux - 1) (huy : (2 : ℤ_[2]) ^ 2 ∣ uy - 1)
+    (hgx : ∀ v, ((Φ v x).g : ZMod (2 ^ N)) = PadicInt.toZModPow N ux)
+    (hgy : ∀ v, ((Φ v y).g : ZMod (2 ^ N)) = PadicInt.toZModPow N uy)
+    (α β : ℕ)
+    (hmem : ∀ v, levelMk G (k + 1) ((x ^ 2 ^ (k - 1)) ^ α * (y ^ 2 ^ (k - 1)) ^ β) ∈
+      derivKer (Φ v) k) :
+    (α : ZMod (2 ^ 1)) • thetaVec hN Φ x + (β : ZMod (2 ^ 1)) • thetaVec hN Φ y = 0 := by
+  funext j
+  obtain ⟨Cx, hCx, hxval⟩ := deriv_tail_u (k := k) hN (Φ (Pi.single j 1)) hux (hgx _) α
+  obtain ⟨Cy, hCy, hyval⟩ := deriv_tail_u (k := k) hN (Φ (Pi.single j 1)) huy (hgy _) β
+  have hdvd := derivKer_dvd hN (Φ (Pi.single j 1)) (hmem (Pi.single j 1))
+  rw [map_mul, WordLift.mul_u, Units.smul_def, smul_eq_mul, hxval, hyval] at hdvd
+  set gα : ZMod (2 ^ N) :=
+    ((Φ (Pi.single j 1) ((x ^ 2 ^ (k - 1)) ^ α)).g : ZMod (2 ^ N)) with hgα
+  have hfac : (2 : ZMod (2 ^ N)) ^ (k - 1) * (Cx * (Φ (Pi.single j 1) x).u)
+        + gα * (2 ^ (k - 1) * (Cy * (Φ (Pi.single j 1) y).u))
+      = 2 ^ (k - 1) * (Cx * (Φ (Pi.single j 1) x).u
+        + gα * (Cy * (Φ (Pi.single j 1) y).u)) := by ring
+  rw [hfac] at hdvd
+  have h2 := two_dvd_of_two_pow_dvd_mul (by omega : 1 ≤ k) hkN hdvd
+  have hred : redTwo hN (Cx * (Φ (Pi.single j 1) x).u
+      + gα * (Cy * (Φ (Pi.single j 1) y).u)) = 0 := by
+    have hz : (2 : ZMod (2 ^ N)) ^ 1 ∣ Cx * (Φ (Pi.single j 1) x).u
+        + gα * (Cy * (Φ (Pi.single j 1) y).u) := by rwa [pow_one]
+    exact (two_pow_dvd_zmod_iff (N := N) (j := 1) hN).mp hz
+  rw [map_add, map_mul, map_mul, map_mul, hCx, hCy, hgα, redTwo_units hN, one_mul] at hred
+  show (α : ZMod (2 ^ 1)) * thetaVec hN Φ x j + (β : ZMod (2 ^ 1)) * thetaVec hN Φ y j = 0
+  exact hred
+
 end TailSeparation
 
 /-! ## The stage lemma: SL1, SL2, and the step (spike §2.4) -/
