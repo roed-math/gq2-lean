@@ -1466,7 +1466,162 @@ theorem stageSL2R2 (k : ℕ) (hk : 3 ≤ k) {T : Fin 3 → levelQuot (D0 : Type)
       dbarWordR2 (canonLift (D0 : Type) k (T 0)) (canonLift (D0 : Type) k (T 1))
         (canonLift (D0 : Type) k (T 2)) w = 1 ∧
       (fun i => canonLift (D0 : Type) k (T i) * w i) ∈ sPR2 (k + 1) := by
-  sorry
+  obtain ⟨⟨hrel, hgen⟩, hchi⟩ := hT
+  choose g hg using fun i : Fin 3 =>
+    levelMk_surjective (D0 : Type) (k + 1) (canonLift (D0 : Type) k (T i))
+  -- the pinned targets and the mod-`8` anchors `S ≡ X ≡ 5`
+  have ht0 : chiTargetUnitsR2 0 = SvalUnit := by simp [chiTargetUnitsR2]
+  have ht1 : chiTargetUnitsR2 1 = rootXUnit := by simp [chiTargetUnitsR2]
+  have ht2 : chiTargetUnitsR2 2 = YvalUnit := by simp [chiTargetUnitsR2]
+  have hS : PadicInt.toZModPow 3 ((SvalUnit : ℤ_[2]ˣ) : ℤ_[2]) = 5 := by
+    simpa [chiTargetR2, chiTargetUnitsR2] using chiTargetR2_three 0
+  have hX : PadicInt.toZModPow 3 ((rootXUnit : ℤ_[2]ˣ) : ℤ_[2]) = 5 := by
+    simpa [chiTargetR2, chiTargetUnitsR2] using chiTargetR2_three 1
+  -- the level-`k` deviations of the three slots
+  have hdev : ∀ i, (2 : ℤ_[2]) ^ k ∣
+      ((chiD0pres (g i) * (chiTargetUnitsR2 i)⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+    intro i
+    refine dvd_of_chiLevel_eq (q := T i) chiD0pres (chiTargetUnitsR2 i)
+      (by rw [← levelProj_levelMk, hg i, levelProj_canonLift]) ?_
+    simpa [chiTargetR2] using hchi i
+  -- the two moves: a power of the `x`-slot moves slot `0`, a power of the `s`-slot moves
+  -- slot `1`; each kills its own bracket, and the digits are independent
+  obtain ⟨Ug, hUg⟩ : ∃ Ug : (D0 : Type), Ug = g 1 ^ 2 ^ (k - 2) := ⟨_, rfl⟩
+  obtain ⟨Vg, hVg⟩ : ∃ Vg : (D0 : Type), Vg = g 0 ^ 2 ^ (k - 2) := ⟨_, rfl⟩
+  obtain ⟨du, hdu, hdu2⟩ : ∃ d : ℤ_[2], ((chiD0pres Ug : ℤ_[2]ˣ) : ℤ_[2]) - 1 = 2 ^ k * d ∧
+      ¬ (2 : ℤ_[2]) ∣ d := by
+    rw [hUg, map_pow]
+    exact sharp_move hk hX (by rw [← ht1]; exact hdev 1)
+  obtain ⟨dv, hdv, hdv2⟩ : ∃ d : ℤ_[2], ((chiD0pres Vg : ℤ_[2]ˣ) : ℤ_[2]) - 1 = 2 ^ k * d ∧
+      ¬ (2 : ℤ_[2]) ∣ d := by
+    rw [hVg, map_pow]
+    exact sharp_move hk hS (by rw [← ht0]; exact hdev 0)
+  obtain ⟨a, ha⟩ : ∃ a : ℕ, (2 : ℤ_[2]) ^ (k + 1) ∣
+      ((chiD0pres (g 0) * (chiTargetUnitsR2 0)⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) *
+        ((chiD0pres Ug : ℤ_[2]ˣ) : ℤ_[2]) ^ a - 1 := by
+    rcases dvd_or_dvd_mul (by omega) (hdev 0) hdu hdu2 with h | h
+    · exact ⟨0, by simpa using h⟩
+    · exact ⟨1, by simpa using h⟩
+  obtain ⟨b, hb⟩ : ∃ b : ℕ, (2 : ℤ_[2]) ^ (k + 1) ∣
+      ((chiD0pres (g 1) * (chiTargetUnitsR2 1)⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) *
+        ((chiD0pres Vg : ℤ_[2]ˣ) : ℤ_[2]) ^ b - 1 := by
+    rcases dvd_or_dvd_mul (by omega) (hdev 1) hdv hdv2 with h | h
+    · exact ⟨0, by simpa using h⟩
+    · exact ⟨1, by simpa using h⟩
+  -- the modification in `Q_{k+1}`
+  obtain ⟨p, hpdef⟩ : ∃ p : levelQuot (D0 : Type) (k + 1),
+      p = (canonLift (D0 : Type) k (T 1) ^ 2 ^ (k - 2)) ^ a := ⟨_, rfl⟩
+  obtain ⟨q, hqdef⟩ : ∃ q : levelQuot (D0 : Type) (k + 1),
+      q = (canonLift (D0 : Type) k (T 0) ^ 2 ^ (k - 2)) ^ b := ⟨_, rfl⟩
+  have hpm : p ∈ lambdaImage (D0 : Type) (k - 1) (k + 1) := by
+    rw [hpdef]
+    refine Subgroup.pow_mem _ ?_ a
+    have h := pow_two_pow_mem_lambdaImage (canonLift (D0 : Type) k (T 1)) (k - 2)
+    rwa [show 1 + (k - 2) = k - 1 by omega] at h
+  have hqm : q ∈ lambdaImage (D0 : Type) (k - 1) (k + 1) := by
+    rw [hqdef]
+    refine Subgroup.pow_mem _ ?_ b
+    have h := pow_two_pow_mem_lambdaImage (canonLift (D0 : Type) k (T 0)) (k - 2)
+    rwa [show 1 + (k - 2) = k - 1 by omega] at h
+  have hw : ∀ i, (![p, q, 1] : Fin 3 → levelQuot (D0 : Type) (k + 1)) i ∈
+      lambdaImage (D0 : Type) (k - 1) (k + 1) := by
+    intro i
+    fin_cases i
+    · exact hpm
+    · exact hqm
+    · exact one_mem _
+  have hdbar : dbarWordR2 (canonLift (D0 : Type) k (T 0)) (canonLift (D0 : Type) k (T 1))
+      (canonLift (D0 : Type) k (T 2)) ![p, q, 1] = 1 := by
+    refine dbarWordR2_kernel_witness _ _ _ p q ?_ ?_
+    · rw [hpdef]
+      exact commP_eq_one_of_mul_comm (((Commute.refl _).pow_left _).pow_left a).eq
+    · rw [hqdef]
+      exact commP_eq_one_of_mul_comm (((Commute.refl _).pow_left _).pow_left b).eq
+  -- the corrected triple, presented at the group level
+  have hlift0 : levelMk (D0 : Type) (k + 1) (g 0 * Ug ^ a)
+      = canonLift (D0 : Type) k (T 0) * ![p, q, 1] 0 := by
+    rw [hUg, hpdef]
+    simp only [map_mul, map_pow, hg, Matrix.cons_val_zero]
+  have hlift1 : levelMk (D0 : Type) (k + 1) (g 1 * Vg ^ b)
+      = canonLift (D0 : Type) k (T 1) * ![p, q, 1] 1 := by
+    rw [hVg, hqdef]
+    simp only [map_mul, map_pow, hg, Matrix.cons_val_one, Matrix.head_cons,
+      Matrix.cons_val_zero]
+  have hlift2 : levelMk (D0 : Type) (k + 1) (g 2)
+      = canonLift (D0 : Type) k (T 2) * ![p, q, 1] 2 := by
+    rw [hg 2]; simp
+  -- the relator clause at level `k+1`
+  have hrelQ : drWord (canonLift (D0 : Type) k (T 0) * ![p, q, 1] 0)
+      (canonLift (D0 : Type) k (T 1) * ![p, q, 1] 1)
+      (canonLift (D0 : Type) k (T 2) * ![p, q, 1] 2) = 1 := by
+    rw [drWord_mul_lambdaImage k hk _ _ _ hw, hdbar, mul_one]
+    exact hδ
+  -- the two moved slots, then the squared slot's automatic digit (memo §1.1, `r₂` mirror)
+  have hchi0 : (2 : ℤ_[2]) ^ (k + 1) ∣
+      ((chiD0pres (g 0 * Ug ^ a) * (chiTargetUnitsR2 0)⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+    have hEq : ((chiD0pres (g 0 * Ug ^ a) * (chiTargetUnitsR2 0)⁻¹ : ℤ_[2]ˣ) : ℤ_[2])
+        = ((chiD0pres (g 0) * (chiTargetUnitsR2 0)⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) *
+          ((chiD0pres Ug : ℤ_[2]ˣ) : ℤ_[2]) ^ a := by
+      push_cast [map_mul, map_pow]
+      ring
+    rw [hEq]
+    exact ha
+  have hchi1 : (2 : ℤ_[2]) ^ (k + 1) ∣
+      ((chiD0pres (g 1 * Vg ^ b) * (chiTargetUnitsR2 1)⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+    have hEq : ((chiD0pres (g 1 * Vg ^ b) * (chiTargetUnitsR2 1)⁻¹ : ℤ_[2]ˣ) : ℤ_[2])
+        = ((chiD0pres (g 1) * (chiTargetUnitsR2 1)⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) *
+          ((chiD0pres Vg : ℤ_[2]ˣ) : ℤ_[2]) ^ b := by
+      push_cast [map_mul, map_pow]
+      ring
+    rw [hEq]
+    exact hb
+  have hchi2 : (2 : ℤ_[2]) ^ (k + 1) ∣
+      ((chiD0pres (g 2) * (chiTargetUnitsR2 2)⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+    refine dvd_succ_of_sq (by omega) (hdev 2) ?_
+    have hrelG : drWord (g 0 * Ug ^ a) (g 1 * Vg ^ b) (g 2) ∈
+        twoCentralSeries (D0 : Type) (k + 1) := by
+      have hmk : levelMk (D0 : Type) (k + 1) (drWord (g 0 * Ug ^ a) (g 1 * Vg ^ b) (g 2)) = 1 := by
+        rw [map_drWord, hlift0, hlift1, hlift2]
+        exact hrelQ
+      exact (QuotientGroup.eq_one_iff _).mp hmk
+    have hW := dvd_chi_of_mem_twoCentralSeries chiD0pres (k := k + 1) (by omega) hrelG
+    rw [map_drWord, drWord_comm] at hW
+    -- the `x`-slot enters only at `2^{k+2}`, and `X⁻⁴·Y² = 1` holds on the nose
+    have h4 : (2 : ℤ_[2]) ^ (k + 1 + 1) ∣
+        (((chiD0pres (g 1 * Vg ^ b) * (chiTargetUnitsR2 1)⁻¹) ^ 4 : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+      refine dvd_trans (pow_dvd_pow 2 (by omega : k + 1 + 1 ≤ k + 1 + 2)) ?_
+      have h := dvd_pow_two_pow_sub_one (k := k + 1) (by omega) hchi1 2
+      rw [Units.val_pow_eq_pow_val]
+      simpa using h
+    have hid : (chiD0pres (g 2) * (chiTargetUnitsR2 2)⁻¹) ^ 2
+        = ((chiD0pres (g 1 * Vg ^ b) ^ 4)⁻¹ * chiD0pres (g 2) ^ 2) *
+          (chiD0pres (g 1 * Vg ^ b) * (chiTargetUnitsR2 1)⁻¹) ^ 4 := by
+      have hAB : ∀ A B C : ℤ_[2]ˣ, A⁻¹ * B * (A * C) = B * C := by
+        intro A B C
+        rw [show A⁻¹ * B * (A * C) = A⁻¹ * (B * A) * C by group, mul_comm B A,
+          show A⁻¹ * (A * B) * C = A⁻¹ * A * (B * C) by group, inv_mul_cancel, one_mul]
+      rw [mul_pow, mul_pow, hAB, ht1, ht2, inv_pow, inv_pow, YvalUnit_sq_eq]
+    have hcomb := dvd_mul_sub_one hW h4
+    rw [← Units.val_mul, ← hid, Units.val_pow_eq_pow_val] at hcomb
+    exact hcomb
+  refine ⟨![p, q, 1], hw, hdbar, ⟨hrelQ, ?_⟩, ?_⟩
+  · -- generation
+    have himg : (levelProj (D0 : Type) k) ''
+        (Set.range fun i => canonLift (D0 : Type) k (T i)) = Set.range T := by
+      rw [← Set.range_comp]
+      exact congrArg Set.range (funext fun i => levelProj_canonLift (D0 : Type) k (T i))
+    have hgent : Subgroup.closure (Set.range fun i => canonLift (D0 : Type) k (T i)) = ⊤ := by
+      refine eq_top_of_map_levelProj_eq_top (D0 : Type) d0TopGenFinset SectionThree.d0_isProP
+        (by omega) ?_
+      rw [MonoidHom.map_closure, himg, hgen]
+    exact closure_range_mul_eq_top_of_mem_lambdaImage_two (D0 : Type) d0TopGenFinset
+      SectionThree.d0_isProP _ _ hgent fun i => lambdaImage_le_of_le (by omega) (hw i)
+  · -- the χ-clause at level `k+1`
+    intro i
+    fin_cases i
+    · exact chiLevel_eq_of_dvd chiD0pres (chiTargetUnitsR2 0) hlift0 hchi0
+    · exact chiLevel_eq_of_dvd chiD0pres (chiTargetUnitsR2 1) hlift1 hchi1
+    · exact chiLevel_eq_of_dvd chiD0pres (chiTargetUnitsR2 2) hlift2 hchi2
 
 /-- **The stage step, direction 1** (spike §2.4's conclusion; the exact interface the
 assembly consumes): `S^P_ₖ ≠ ∅ → S^P_{k+1} ≠ ∅` for `k ≥ 3`.
