@@ -182,6 +182,27 @@ mid-wave red on check 2 (R21 precedent); GL-E extends the allowlist at wave clos
 | GL-D | Magnus coefficient algebra (insurance lane; interface NOT frozen — review before use) | opus | `GradedLie/Magnus.lean` | GL0 ✓ | **done 2026-07-26** (987fe0d→3e9200e→77dc9b4→71924cb; 971 ln, ALL FIVE deliverables, 0 sorries, capstones std-3 by #print). Interface: `MagnusA` bespoke full-support convolution ring (mathlib has NO noncomm power series; MonoidAlgebra can't hold `(1+ξ)⁻¹`), prefix-length split indexing; `magnusFil` two-sided filtration + `mul_mem_magnusFil`; `MagnusU := {f | coeff f 1 = 1}` with the full profinite pack + `isProP_two` (pro-2 WITHOUT quotient-finiteness: `u^(2^i) ∈ congrSub (i+1)` + compactness basis); `magnusHom := freeProTwoLift` at `1+ξᵢ`; `twoCentralSeries_le_congrSub` ⇒ `two_pow_dvd_coeff_magnusHom` (the filtration estimate); `digit`/`coord`/`zCoordHom` — the λ_{k+1}-killing additive functionals on `zLayer k`. Worker's GQ2.lean flag was mistaken (import landed in GL0, line 202). Role going forward: SL1-lane infrastructure (ker(ab)-sensitive functionals). **GL-CAMPAIGN FULLY CLOSED — all rows done** |
 | GL-E | wave close: verification + docs (allowlist chore MOOT — all GradedLie files sorry-free) | orchestrator | docs | GL-A..C ✓ | **done 2026-07-26 (orchestrator)**: independent `#print axioms` via `lake env lean` — `span_free_r0/r2`, `span_descent_r0/r2`, `span_free_r0_proof` ALL std-3 exactly (no sorryAx, no census axioms). check_axioms.sh all-green per GL-C's run (no edit needed — chore session keeps ownership). **SPAN THEOREM DISCHARGED — the owner-decision item is closed with census unchanged at 9.** Repo sorries now: StageLemma 4 (SL1/SL2 — the §2A design gap, open) + Assembly 5 (L5, queued). Decision packet annotated RESOLVED. GL-D row closes on its report |
 
+## SL-campaign — SL1/SL2 discharge (owner go-ahead 2026-07-26, post-GL)
+
+Design memo (READ FIRST): `docs/orchestration/sl-campaign-plan.md`; harnesses committed
+at `docs/orchestration/harness-sl1/`. Headlines: (1) **SL2 design COMPLETE** — the
+twisted-slot digit is AUTOMATIC (χ(λ_{k+1}) ⊆ 1+2^{k+2} converts the level-(k+1) relator
+kill into the 2^{k+2}-relation; **corrects L4c's 'vacuous' annotation**, which used the
+wrong modulus), and the two free digits are moved by kernel witnesses that are POWERS OF
+THE CANONICAL LIFTS (they kill their own brackets definitionally; LTE valuations
+v₂(η−1)=v₂(X−1)=v₂(S−1)=2 give digit 1 at exactly position k). (2) **SL1 mechanism
+FOUND at k=3**: the two coker functionals are the z-rooted y-column duals
+{π^{k-1-m}(ad y)^m(z)}, z ∈ {s,x} — ker(ab)-sensitive Magnus/Fox data (GL-D's zCoord
+family); they kill Im d̄ + relator layer AND δ(good seeds); P-dichotomy reproduced in
+the model (towerdims 10/20/44 calibrated). Uniformity validation dispatched (SL1-N).
+
+| id | title | model | files owned | depends on | status |
+|---|---|---|---|---|---|
+| SL0 | design: SL2 mechanism complete + SL1 functionals found + harness + memo | fable (orchestrator) | memo, harness-sl1/ | GL ✓ | **done 2026-07-26** |
+| SL2-L | fill stageSL2R0/R2 (memo §1) | opus | `GQ2/Roe/Labute/StageLemma.lean` (SOLE owner while running) | SL0 ✓ | dispatched 2026-07-26 |
+| SL1-N | numerics: k=4/5 functional pattern, sPR0-sampling regression for the φ(δ)-χ identity, controls | opus | scratchpad, `docs/orchestration/sl1-numerics.md` | SL0 ✓ | dispatched 2026-07-26 |
+| SL1-L | fill stageSL1R0/R2 | opus | StageLemma (after SL2-L) | SL1-N + orchestrator design pass | queued |
+
 ## OWNER DECISION — `span_free_r0/r2` (opened 2026-07-26) — RESOLVED
 
 **Status: RESOLVED 2026-07-26 — owner chose (b)/no-axiom; GL-campaign above executes
