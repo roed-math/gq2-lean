@@ -443,13 +443,75 @@ shadow `Qₖ →* (ZMod 2^k)ˣ`: the invariant `P`'s χ-clause at modulus `2^k =
 
 section ChiShadow
 
+/-- Membership in the mod-`2ⁿ` kernel of `ℤ₂ˣ`, spelled as a divisibility (`u ≡ 1 mod 2ⁿ`). -/
+theorem mem_ker_units_toZModPow_iff {n : ℕ} {u : ℤ_[2]ˣ} :
+    u ∈ (Units.map (PadicInt.toZModPow n).toMonoidHom).ker ↔
+      ((2 : ℕ) : ℤ_[2]) ^ n ∣ (u : ℤ_[2]) - 1 := by
+  rw [MonoidHom.mem_ker, Units.ext_iff, Units.coe_map, Units.val_one]
+  show PadicInt.toZModPow n (u : ℤ_[2]) = 1 ↔ _
+  rw [← sub_eq_zero, ← map_one (PadicInt.toZModPow (p := 2) n), ← map_sub, ← RingHom.mem_ker,
+    PadicInt.ker_toZModPow, Ideal.mem_span_singleton]
+
+/-- The mod-`2ⁿ` kernels of `ℤ₂ˣ` decrease with `n`. -/
+theorem ker_units_toZModPow_antitone {m n : ℕ} (h : m ≤ n) {u : ℤ_[2]ˣ}
+    (hu : u ∈ (Units.map (PadicInt.toZModPow n).toMonoidHom).ker) :
+    u ∈ (Units.map (PadicInt.toZModPow m).toMonoidHom).ker := by
+  rw [mem_ker_units_toZModPow_iff] at hu ⊢
+  exact (pow_dvd_pow _ h).trans hu
+
+/-- The mod-`2ⁿ` kernel of `ℤ₂ˣ` is closed: it is the preimage of a closed ball of `ℤ₂`. -/
+theorem isClosed_ker_units_toZModPow (n : ℕ) :
+    IsClosed (((Units.map (PadicInt.toZModPow n).toMonoidHom).ker : Subgroup ℤ_[2]ˣ) :
+      Set ℤ_[2]ˣ) := by
+  have hset : (((Units.map (PadicInt.toZModPow n).toMonoidHom).ker : Subgroup ℤ_[2]ˣ) :
+      Set ℤ_[2]ˣ) = (Units.val : ℤ_[2]ˣ → ℤ_[2]) ⁻¹'
+        Metric.closedBall (1 : ℤ_[2]) ((2 : ℕ) ^ (-(n : ℤ)) : ℝ) := by
+    ext u
+    simp only [Set.mem_preimage, Metric.mem_closedBall, dist_eq_norm, SetLike.mem_coe,
+      mem_ker_units_toZModPow_iff]
+    rw [PadicInt.norm_le_pow_iff_mem_span_pow, Ideal.mem_span_singleton]
+  rw [hset]
+  exact Metric.isClosed_closedBall.preimage Units.continuous_val
+
 /-- **The modulus lemma** (spike §2.4, "exact, elementary" — only the containment
 direction is frozen): for `k ≥ 2`, `λₖ(ℤ₂ˣ) ⊆ 1 + 2^{k+1}ℤ₂`, encoded as the kernel of
 the unit-group reduction mod `2^{k+1}`.  Fill: L2. -/
 theorem twoCentralSeries_units_le (k : ℕ) (hk : 2 ≤ k) :
     twoCentralSeries ℤ_[2]ˣ k ≤
       (Units.map (PadicInt.toZModPow (k + 1)).toMonoidHom).ker := by
-  sorry
+  have hcomm : ∀ (n : ℕ) (a b : ℤ_[2]ˣ),
+      ⁅a, b⁆ ∈ (Units.map (PadicInt.toZModPow n).toMonoidHom).ker := by
+    intro n a b
+    rw [commutatorElement_eq_one_iff_mul_comm.mpr (mul_comm a b)]
+    exact one_mem _
+  induction k, hk using Nat.le_induction with
+  | base =>
+    refine Subgroup.topologicalClosure_minimal _ (sup_le ?_ ?_) (isClosed_ker_units_toZModPow 3)
+    · refine Subgroup.closure_le _ |>.2 ?_
+      rintro _ ⟨v, -, rfl⟩
+      have hsq : ∀ w : (ZMod (2 ^ 3))ˣ, w ^ 2 = 1 := by decide
+      rw [SetLike.mem_coe, MonoidHom.mem_ker, map_pow]
+      exact hsq _
+    · rw [Subgroup.commutator_le]
+      exact fun a _ b _ => hcomm 3 a b
+  | succ k hk ih =>
+    rw [twoCentralSeries_succ _ (by omega)]
+    refine Subgroup.topologicalClosure_minimal _ (sup_le ?_ ?_)
+      (isClosed_ker_units_toZModPow (k + 2))
+    · refine Subgroup.closure_le _ |>.2 ?_
+      rintro _ ⟨v, hv, rfl⟩
+      have h1 : ((2 : ℕ) : ℤ_[2]) ^ (k + 1) ∣ (v : ℤ_[2]) - 1 :=
+        mem_ker_units_toZModPow_iff.mp (ih hv)
+      rw [SetLike.mem_coe, mem_ker_units_toZModPow_iff]
+      have hfac : ((v ^ 2 : ℤ_[2]ˣ) : ℤ_[2]) - 1 = ((v : ℤ_[2]) - 1) * ((v : ℤ_[2]) + 1) := by
+        push_cast; ring
+      have h2 : ((2 : ℕ) : ℤ_[2]) ∣ (v : ℤ_[2]) + 1 := by
+        obtain ⟨c, hc⟩ := (dvd_pow_self ((2 : ℕ) : ℤ_[2]) (Nat.succ_ne_zero k)).trans h1
+        exact ⟨c + 1, by linear_combination hc⟩
+      rw [hfac, pow_succ]
+      exact mul_dvd_mul h1 h2
+    · rw [Subgroup.commutator_le]
+      exact fun a _ b _ => hcomm (k + 2) a b
 
 variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
 
@@ -460,7 +522,19 @@ Fill: L2. -/
 theorem chiShadow_eq_one_of_mem (χ : ContinuousMonoidHom G ℤ_[2]ˣ) (k : ℕ) {g : G}
     (hg : g ∈ twoCentralSeries G k) :
     Units.map (PadicInt.toZModPow k).toMonoidHom (χ g) = 1 := by
-  sorry
+  match k, hg with
+  | 0, _ =>
+    haveI : Subsingleton ((ZMod (2 ^ 0))ˣ) := ⟨by decide⟩
+    exact Subsingleton.elim _ _
+  | 1, _ =>
+    haveI : Subsingleton ((ZMod (2 ^ 1))ˣ) := ⟨by decide⟩
+    exact Subsingleton.elim _ _
+  | (k + 2), hg =>
+    have h1 : χ g ∈ twoCentralSeries ℤ_[2]ˣ (k + 2) :=
+      map_twoCentralSeries_le χ.toMonoidHom χ.continuous_toFun (k + 2) ⟨g, hg, rfl⟩
+    exact MonoidHom.mem_ker.mp
+      (ker_units_toZModPow_antitone (Nat.le_succ _)
+        (twoCentralSeries_units_le (k + 2) (by omega) h1))
 
 /-- **The level-`k` χ-shadow** `χ̄ₖ : Qₖ →* (ZMod 2^k)ˣ` of a continuous character
 `χ : G → ℤ₂ˣ` — precision `2^k`, the modulus `m(k) = k` of the invariant `P` (spike §2.4).
@@ -485,7 +559,10 @@ theorem chiLevel_levelProj (χ : ContinuousMonoidHom G ℤ_[2]ˣ) (k : ℕ)
     chiLevel χ k (levelProj G k q) =
       Units.map (ZMod.castHom (pow_dvd_pow 2 (Nat.le_succ k)) (ZMod (2 ^ k))).toMonoidHom
         (chiLevel χ (k + 1) q) := by
-  sorry
+  obtain ⟨g, rfl⟩ := levelMk_surjective G (k + 1) q
+  rw [levelProj_levelMk, chiLevel_levelMk, chiLevel_levelMk]
+  ext
+  simp
 
 end ChiShadow
 
