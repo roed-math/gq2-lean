@@ -165,6 +165,44 @@ theorem sPR2_nonempty (k : ℕ) : (sPR2 k).Nonempty :=
 
 /-! ## From levelwise triples to surjections onto all finite quotients -/
 
+section LiftValues
+
+variable {H : Type} [Group H] [TopologicalSpace H] [IsTopologicalGroup H] [CompactSpace H]
+  [T2Space H] [TotallyDisconnectedSpace H]
+
+/-- Value of the `D₀`-lift on the marked generator `A` (binder-for-binder restatement of the
+`private` `SectionThree.d0LiftHom_A`, which is not visible here; same three-line proof, the
+`deriv0_d0A` pattern of `StageLemma.lean`). -/
+private theorem d0LiftHom_d0A (hH : IsProP 2 H) (m : Fin 3 → H)
+    (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
+    SectionThree.d0LiftHom hH m hrel d0A = m 0 := by
+  show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
+    (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 0))) = _
+  rw [maxProPHomEquiv_symm_apply_maxProPMk]
+  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
+
+/-- Value of the `D₀`-lift on the marked generator `S` (restatement of the `private`
+`SectionThree.d0LiftHom_S`). -/
+private theorem d0LiftHom_d0S (hH : IsProP 2 H) (m : Fin 3 → H)
+    (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
+    SectionThree.d0LiftHom hH m hrel d0S = m 1 := by
+  show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
+    (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 1))) = _
+  rw [maxProPHomEquiv_symm_apply_maxProPMk]
+  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
+
+/-- Value of the `D₀`-lift on the marked generator `Y` (restatement of the `private`
+`SectionThree.d0LiftHom_Y`). -/
+private theorem d0LiftHom_d0Y (hH : IsProP 2 H) (m : Fin 3 → H)
+    (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
+    SectionThree.d0LiftHom hH m hrel d0Y = m 2 := by
+  show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
+    (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 2))) = _
+  rw [maxProPHomEquiv_symm_apply_maxProPMk]
+  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
+
+end LiftValues
+
 /-- **The cofinality bridge, direction 1**: `D₀` continuously surjects onto every finite
 quotient of `D_R`.  Route (plan §2.1): `U` contains some `λₖ` (`exists_twoCentralSeries_le`
 with `drFinsetTopGen`, `isProP_DR`), a triple `T ∈ S⁰ₖ` is a continuous hom
@@ -173,14 +211,52 @@ surjective, and composing with `Qₖ(D_R) ↠ D_R/U` finishes.  Fill: L5. -/
 theorem nonempty_contSurj_levelQuot_r0
     (U : OpenNormalSubgroup (ProfiniteGrp.of (DR : Type))) :
     Nonempty (ContSurj (D0 : Type) ((DR : Type) ⧸ U.toSubgroup)) := by
-  sorry
+  classical
+  -- Cofinality: `U` contains a tower level `λₖ`.
+  obtain ⟨k, hk⟩ := exists_twoCentralSeries_le (DR : Type) drFinsetTopGen isProP_DR U.isOpen'
+  -- Instance pack on the finite discrete target `Qₖ(D_R)`.
+  haveI := discreteTopology_levelQuot (DR : Type) drFinsetTopGen isProP_DR k
+  haveI : Finite (levelQuot (DR : Type) k) :=
+    finite_levelQuot (DR : Type) drFinsetTopGen isProP_DR k
+  have hproQ : IsProP 2 (levelQuot (DR : Type) k) :=
+    isProP_of_isPGroup (isPGroup_levelQuot (DR : Type) drFinsetTopGen isProP_DR k)
+  -- A level-`k` triple: relator-killing (⇒ a hom `D₀ → Qₖ`) and generating (⇒ onto).
+  obtain ⟨T, ⟨hrel, hgen⟩, -⟩ := sPR0_nonempty k
+  have hsurj : Function.Surjective (SectionThree.d0LiftHom hproQ T hrel).toMonoidHom := by
+    rw [← MonoidHom.range_eq_top, ← top_le_iff, ← hgen, Subgroup.closure_le]
+    rintro _ ⟨i, rfl⟩
+    fin_cases i
+    · exact ⟨d0A, d0LiftHom_d0A hproQ T hrel⟩
+    · exact ⟨d0S, d0LiftHom_d0S hproQ T hrel⟩
+    · exact ⟨d0Y, d0LiftHom_d0Y hproQ T hrel⟩
+  -- Compose with the tower projection `Qₖ(D_R) ↠ D_R/U`.
+  exact ⟨⟨(projMap hk).comp (SectionThree.d0LiftHom hproQ T hrel),
+    (projMap_surjective hk).comp hsurj⟩⟩
 
 /-- The cofinality bridge, direction 2: `D_R` continuously surjects onto every finite
 quotient of `D₀` (via `drLiftHom` at `S⁰ₖ`-triples of the `D₀`-tower).  Fill: L5. -/
 theorem nonempty_contSurj_levelQuot_r2
     (U : OpenNormalSubgroup (ProfiniteGrp.of (D0 : Type))) :
     Nonempty (ContSurj (DR : Type) ((D0 : Type) ⧸ U.toSubgroup)) := by
-  sorry
+  classical
+  obtain ⟨k, hk⟩ :=
+    exists_twoCentralSeries_le (D0 : Type) d0FinsetTopGen SectionThree.d0_isProP U.isOpen'
+  haveI := discreteTopology_levelQuot (D0 : Type) d0FinsetTopGen SectionThree.d0_isProP k
+  haveI : Finite (levelQuot (D0 : Type) k) :=
+    finite_levelQuot (D0 : Type) d0FinsetTopGen SectionThree.d0_isProP k
+  have hproQ : IsProP 2 (levelQuot (D0 : Type) k) :=
+    isProP_of_isPGroup
+      (isPGroup_levelQuot (D0 : Type) d0FinsetTopGen SectionThree.d0_isProP k)
+  obtain ⟨T, ⟨hrel, hgen⟩, -⟩ := sPR2_nonempty k
+  have hsurj : Function.Surjective (drLiftHom hproQ T hrel).toMonoidHom := by
+    rw [← MonoidHom.range_eq_top, ← top_le_iff, ← hgen, Subgroup.closure_le]
+    rintro _ ⟨i, rfl⟩
+    fin_cases i
+    · exact ⟨drS, drLiftHom_S hproQ T hrel⟩
+    · exact ⟨drX, drLiftHom_X hproQ T hrel⟩
+    · exact ⟨drY, drLiftHom_Y hproQ T hrel⟩
+  exact ⟨⟨(projMap hk).comp (drLiftHom hproQ T hrel),
+    (projMap_surjective hk).comp hsurj⟩⟩
 
 /-! ## The two epis and the Hopfian endgame -/
 
