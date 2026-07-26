@@ -10,26 +10,32 @@ This repository uses Atlas to generate [`../atlas-audit.md`](../atlas-audit.md) 
 
 ## Current result
 
-The graph as regenerated after the July 14 module and API refactor contained 4,225 project nodes
-and 35,335 edges. The target's 638-node Atlas closure reduces to a **30-declaration Lean Compass
-review cone** (95.3% reduction). Those 30 declarations are the project statements and definitions
+The graph as regenerated on 2026-07-26, after the R-campaign, contains 5,351 project nodes and
+47,492 edges. The target's 1,789-node Atlas closure reduces to a **30-declaration Lean Compass
+review cone** (98.3% reduction). Those 30 declarations are the project statements and definitions
 that, under Compass's dependency model, should receive human semantic review. The generated report
 links every declaration to the source location it had when the report was generated.
 
 This number is not an axiom count. The capstone separately depends on all **nine** documented
 literature axioms.
 
-The committed report has not been regenerated since 2026-07-15, and now carries a staleness notice
-saying so. The `GQ2/Roe/` campaign has since added roughly a thousand declarations to the library,
-so the two whole-graph figures above are low, and the report's whole-graph `sorry` count is now
-nonzero. **The target's own numbers are unaffected**: no declaration in `GQ2/Roe/` is reachable
-from `main_surjection_count'`, so its closure, its cone, and its nine-axiom trust base all still
-hold. Regenerate before quoting whole-graph figures.
+The review cone is unchanged at 30 declarations from the previous (2026-07-15) report, and so is
+the nine-axiom trust base — with B9 now appearing under its restated name
+`GQ2.relativeStiefelWhitney_dyadic`, `GQ2.evensKahn_dyadic` having become a derived theorem. The
+full closure grew from 638 nodes for two reasons, both proof-level: `GQ2/Phase140/GammaA/Hsep.lean`
+and `GQ2/AnabelianBridge/Construction.lean` landed in the very commit that last generated the
+report, so the 638 figure never reflected them; and the B9 restatement rerouted part of `thm_4_2`'s
+proof. Both changes travel along theorem-proof value edges, which Compass prunes — which is why the
+closure moved and the review cone did not.
+
+The whole-graph `sorry` count is **11**, all in the allowlisted in-flight `GQ2/Roe/Labute/` files
+(`StageLemma.lean`, `Assembly.lean`); see `scripts/check_axioms.sh`. None of them is reachable from
+`main_surjection_count'`, whose closure remains sorry-free and contains no `GQ2/Roe/` declaration.
 
 No Compass report has yet been generated for the conditional `Γ_R` capstone
-`GQ2.main_presentation_literal_roe`. The generator takes a target argument (see below), so
-producing one is a single command; until then, the review cone described here covers the paper's
-capstone only.
+`GQ2.main_presentation_literal_roe`, though the declaration is now present in the exported graph.
+The generator takes a target argument (see below), so producing one is a single command; until
+then, the review cone described here covers the paper's capstone only.
 
 ## Why the report uses two data sources
 
