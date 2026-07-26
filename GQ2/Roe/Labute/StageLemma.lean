@@ -1765,6 +1765,86 @@ end DerivKer
 
 end CrossedFunctional
 
+/-! ### Additivity of the shift word in the modification (`Im d̄` is a subgroup)
+
+SL1 must produce a *single* modification, so the `d̄`-image has to be closed under products.
+It is: every factor of `d̄` is `𝔽₂`-linear in `w` up to central corrections, and for `k ≥ 3`
+all corrections lie in `Zₖ`, which is central. -/
+
+section DbarAdditive
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+
+/-- Moving a central factor one step to the right. -/
+private theorem central_move {H : Type*} [Group H] {z : H} (hz : ∀ t : H, z * t = t * z)
+    (x y : H) : z * (x * y) = x * (z * y) := by
+  rw [← mul_assoc, hz, mul_assoc]
+
+/-- Interleaving four central pairs (only the primed entries need to be central). -/
+private theorem central_shuffle {H : Type*} [Group H] {A B C D A' B' C' D' : H}
+    (hA' : ∀ t : H, A' * t = t * A') (hB' : ∀ t : H, B' * t = t * B')
+    (hC' : ∀ t : H, C' * t = t * C') :
+    A * A' * (B * B') * (C * C') * (D * D') = A * B * C * D * (A' * B' * C' * D') := by
+  simp only [mul_assoc]
+  rw [central_move hA' B, central_move hB' C, central_move hA' C, central_move hC' D,
+    central_move hB' D, central_move hA' D]
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- `commP · g` is additive on `λ_{k-1}`-modifications (the correction is central). -/
+private theorem commP_mul_lambdaImage_left (k : ℕ) (hk : 3 ≤ k)
+    {u u' : levelQuot G (k + 1)} (hu : u ∈ lambdaImage G (k - 1) (k + 1))
+    (g : levelQuot G (k + 1)) : commP (u * u') g = commP u g * commP u' g := by
+  rw [commP_mul_left, conj_eq_self_of_commP_eq_one
+    (commP_eq_one_of_mul_comm (zLayer_commute (commP_mem_zLayer k hk hu g) u').eq)]
+
+set_option linter.unusedSectionVars false in
+/-- **Additivity of `d̄` in the modification, `r₀`-side.** -/
+private theorem dbarWordR0_mul (k : ℕ) (hk : 3 ≤ k) (a s y : levelQuot G (k + 1))
+    {w w' : Fin 3 → levelQuot G (k + 1)} (hw : ∀ i, w i ∈ lambdaImage G (k - 1) (k + 1))
+    (hw' : ∀ i, w' i ∈ lambdaImage G (k - 1) (k + 1)) :
+    dbarWordR0 a s y (fun i => w i * w' i) = dbarWordR0 a s y w * dbarWordR0 a s y w' := by
+  have hcen : ∀ {z : levelQuot G (k + 1)}, z ∈ zLayer G k → ∀ t, z * t = t * z :=
+    fun hz t => (zLayer_commute hz t).eq
+  have hcomm : Commute (w 0) (w' 0) := mul_comm_lambdaImage k hk (hw 0) (hw' 0)
+  have hsq : (w 0 * w' 0) ^ 2 = w 0 ^ 2 * w' 0 ^ 2 := hcomm.mul_pow 2
+  simp only [dbarWordR0, hsq, commP_mul_lambdaImage_left k hk (hw 0),
+    commP_mul_lambdaImage_left k hk (hw 1), commP_mul_lambdaImage_left k hk (hw 2)]
+  exact central_shuffle (hcen (sq_mem_zLayer k hk (hw' 0)))
+    (hcen (commP_mem_zLayer k hk (hw' 0) a)) (hcen (commP_mem_zLayer k hk (hw' 1) y))
+
+set_option linter.unusedSectionVars false in
+/-- **Additivity of `d̄` in the modification, `r₂`-side.** -/
+private theorem dbarWordR2_mul (k : ℕ) (hk : 3 ≤ k) (s x y : levelQuot G (k + 1))
+    {w w' : Fin 3 → levelQuot G (k + 1)} (hw : ∀ i, w i ∈ lambdaImage G (k - 1) (k + 1))
+    (hw' : ∀ i, w' i ∈ lambdaImage G (k - 1) (k + 1)) :
+    dbarWordR2 s x y (fun i => w i * w' i) = dbarWordR2 s x y w * dbarWordR2 s x y w' := by
+  have hcen : ∀ {z : levelQuot G (k + 1)}, z ∈ zLayer G k → ∀ t, z * t = t * z :=
+    fun hz t => (zLayer_commute hz t).eq
+  have hcomm : Commute (w 2) (w' 2) := mul_comm_lambdaImage k hk (hw 2) (hw' 2)
+  have hsq : (w 2 * w' 2) ^ 2 = w 2 ^ 2 * w' 2 ^ 2 := hcomm.mul_pow 2
+  simp only [dbarWordR2, hsq, commP_mul_lambdaImage_left k hk (hw 2),
+    commP_mul_lambdaImage_left k hk (hw 0), commP_mul_lambdaImage_left k hk (hw 1)]
+  exact central_shuffle (hcen (sq_mem_zLayer k hk (hw' 2)))
+    (hcen (commP_mem_zLayer k hk (hw' 2) y)) (hcen (commP_mem_zLayer k hk (hw' 0) x))
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The shift word lands in the central layer `Zₖ`. -/
+private theorem dbarWordR0_mem_zLayer (k : ℕ) (hk : 3 ≤ k) (a s y : levelQuot G (k + 1))
+    {w : Fin 3 → levelQuot G (k + 1)} (hw : ∀ i, w i ∈ lambdaImage G (k - 1) (k + 1)) :
+    dbarWordR0 a s y w ∈ zLayer G k :=
+  mul_mem (mul_mem (mul_mem (sq_mem_zLayer k hk (hw 0)) (commP_mem_zLayer k hk (hw 0) a))
+    (commP_mem_zLayer k hk (hw 1) y)) (commP_mem_zLayer k hk (hw 2) s)
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+private theorem dbarWordR2_mem_zLayer (k : ℕ) (hk : 3 ≤ k) (s x y : levelQuot G (k + 1))
+    {w : Fin 3 → levelQuot G (k + 1)} (hw : ∀ i, w i ∈ lambdaImage G (k - 1) (k + 1)) :
+    dbarWordR2 s x y w ∈ zLayer G k :=
+  mul_mem (mul_mem (mul_mem (sq_mem_zLayer k hk (hw 2)) (commP_mem_zLayer k hk (hw 2) y))
+    (commP_mem_zLayer k hk (hw 0) x)) (commP_mem_zLayer k hk (hw 1) s)
+
+end DbarAdditive
+
 /-! ## The stage lemma: SL1, SL2, and the step (spike §2.4) -/
 
 /-- **SL1 (reachability), direction 1**: for `T ∈ S^P_ₖ` (`k ≥ 3`), the defect is
