@@ -200,6 +200,12 @@ import GQ2.Roe.Labute.GradedLie.SpanStep
 import GQ2.Roe.Labute.GradedLie.SpanBase
 import GQ2.Roe.Labute.GradedLie.SpanAssembly
 import GQ2.Roe.Labute.GradedLie.Magnus
+import GQ2.Roe.Labute.StageLemma.Congruence
+import GQ2.Roe.Labute.StageLemma.Defect
+import GQ2.Roe.Labute.StageLemma.DigitToolkit
+import GQ2.Roe.Labute.StageLemma.CrossedDerivation
+import GQ2.Roe.Labute.StageLemma.StageOne
+import GQ2.Roe.Labute.StageLemma.StageTwo
 import GQ2.Roe.Labute.StageLemma
 import GQ2.Roe.Labute.Assembly
 import GQ2.Roe.Gauss
