@@ -56,6 +56,29 @@ re-scopes.
   inversion in `ℤ_[2]`: `a := 1 − f` is coefficientwise nilpotent (`aⁿ w = 0` for
   `n > |w|`, `coeff_pow_eq_zero`), so `f⁻¹ w = ∑_{n ≤ |w|} (aⁿ) w`.  The Magnus image
   lands in this smaller group anyway (`1 + ξᵢ` has constant term `1`).
+* **The digit map avoids division.**  `ℤ_[2]` has no total division, so the level-`k`
+  coordinate of a `2^m`-divisible coefficient is defined as `digit m x = 0 ↔ 2^{m+1} ∣ x`
+  rather than as `x / 2^m mod 2`; `digit_two_pow_mul` identifies it with the mod-`2`
+  reduction of the cofactor, which is where additivity comes from.
+
+## Interface (for orchestrator review; nothing here is frozen)
+
+* ring: `MagnusA`, `coeff`, `coeff_mul`, `xi`; `Ring MagnusA`.
+* filtration: `magnusFil j : AddSubgroup MagnusA`, `mul_mem_magnusFil` (the valuation
+  estimate `m^p · m^q ⊆ m^{p+q}`), `add_self_mem_magnusFil`, `mul_mem_magnusFil_left/right`.
+* unit group: `MagnusU`, `Group`/`IsTopologicalGroup`/`CompactSpace`/`T2Space`/
+  `TotallyDisconnectedSpace` instances, `MagnusU.congrSub j : Subgroup MagnusU`,
+  `MagnusU.sq_mem_congrSub_succ`, `MagnusU.commutator_mem_congrSub_succ`,
+  `MagnusU.exists_congrSub_le`, `MagnusU.isProP_two`.
+* Magnus expansion: `magnusGen`, `magnusHom`,
+  `MagnusU.twoCentralSeries_le_congrSub : λⱼ(MagnusU) ≤ congrSub j`, and its corollary
+  `two_pow_dvd_coeff_magnusHom`.
+* functionals: `digit`, `digit_add`, `coord w k`, `coord_mul`, `coord_eq_zero_of_mem_succ`,
+  `coordHom : λₖ(F₃) →* Multiplicative (ZMod 2)`, and the layer versions
+  `zCoord`/`zCoordHom : Zₖ →* Multiplicative (ZMod 2)` (`Zₖ = zLayer freeProTwo k`).
+
+The file is `sorry`-free and uses no axioms beyond `propext`, `Classical.choice`,
+`Quot.sound`.
 -/
 
 namespace GQ2.Roe.Labute.Magnus
@@ -903,5 +926,46 @@ theorem coord_eq_of_levelMk_eq {w : Word} {k : ℕ} (hw : wlen w ≤ k) (hk : 1 
     coord_mul hw hk hz hdk
   rw [show z * (z⁻¹ * y) = y from by group, coord_eq_zero_of_mem_succ hw hd, add_zero] at hsum
   exact hsum
+
+/-! ### The functionals on the graded layer `Zₖ`
+
+The repo encodes `Zₖ = λₖ/λ_{k+1}` as the subgroup `zLayer freeProTwo k ≤ Q_{k+1}`, so a
+functional there is obtained from `coord` by choosing a `λₖ`-representative; the choice is
+immaterial by `coord_eq_of_levelMk_eq`. -/
+
+/-- Every class in `Zₖ` has a `λₖ`-representative (unfolding of `lambdaImage`). -/
+theorem exists_rep_of_mem_zLayer {k : ℕ} (q : zLayer (freeProTwo : Type) k) :
+    ∃ v : (freeProTwo : Type), v ∈ twoCentralSeries (freeProTwo : Type) k ∧
+      levelMk (freeProTwo : Type) (k + 1) v = q.1 := q.2
+
+/-- The `(w, k)` coordinate functional on the graded layer `Zₖ ≤ Q_{k+1}`. -/
+noncomputable def zCoord (w : Word) (k : ℕ) (q : zLayer (freeProTwo : Type) k) : ZMod 2 :=
+  coord w k (exists_rep_of_mem_zLayer q).choose
+
+/-- Evaluation of the layer functional on any representative. -/
+theorem zCoord_eq {w : Word} {k : ℕ} (hw : wlen w ≤ k) (hk : 1 ≤ k)
+    {q : zLayer (freeProTwo : Type) k} {v : (freeProTwo : Type)}
+    (hv : v ∈ twoCentralSeries (freeProTwo : Type) k)
+    (hvq : levelMk (freeProTwo : Type) (k + 1) v = q.1) : zCoord w k q = coord w k v := by
+  obtain ⟨-, hcq⟩ := (exists_rep_of_mem_zLayer q).choose_spec
+  exact coord_eq_of_levelMk_eq hw hk hv (hcq.trans hvq.symm)
+
+/-- The `(w, k)` coordinate functional packaged as a homomorphism `Zₖ → 𝔽₂`. -/
+noncomputable def zCoordHom (w : Word) (k : ℕ) (hw : wlen w ≤ k) (hk : 1 ≤ k) :
+    zLayer (freeProTwo : Type) k →* Multiplicative (ZMod 2) where
+  toFun q := Multiplicative.ofAdd (zCoord w k q)
+  map_one' := by
+    rw [zCoord_eq hw hk (one_mem _) (by simp)]
+    simp
+  map_mul' q r := by
+    obtain ⟨v, hv, hvq⟩ := exists_rep_of_mem_zLayer q
+    obtain ⟨u, hu, huq⟩ := exists_rep_of_mem_zLayer r
+    rw [zCoord_eq hw hk hv hvq, zCoord_eq hw hk hu huq,
+      zCoord_eq hw hk (mul_mem hv hu) (by rw [map_mul, hvq, huq, Subgroup.coe_mul]),
+      coord_mul hw hk hv hu, ofAdd_add]
+
+@[simp] theorem zCoordHom_apply (w : Word) (k : ℕ) (hw : wlen w ≤ k) (hk : 1 ≤ k)
+    (q : zLayer (freeProTwo : Type) k) :
+    zCoordHom w k hw hk q = Multiplicative.ofAdd (zCoord w k q) := rfl
 
 end GQ2.Roe.Labute.Magnus
