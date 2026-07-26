@@ -231,9 +231,9 @@ theorem isProP_two_wordLift : IsProP 2 (WordLift ℤ_[2] ℤ_[2]ˣ) := by
 `private` in their home files (`GQ2/PropOneOneAssembly.lean`, `GQ2/SectionThree.lean`); their
 proofs are one-liners over public definitions, so we re-derive them here rather than widen the
 June API.  The `d0LiftHom` generator values were in the same situation when this file was
-written and are copied below too, but they have since been de-privatized as
-`SectionThree.d0LiftHom_A`/`_S`/`_Y` (L6 cleanup), so those three copies are now redundant and
-could be dropped in a later pass. -/
+written and were copied here too; they have since been de-privatized as
+`SectionThree.d0LiftHom_A`/`_S`/`_Y` (L6 cleanup) and the local copies deleted, so this file
+now uses the public June lemmas directly. -/
 
 private lemma unitNegThree_val' : ((unitNegThree : ℤ_[2]ˣ) : ℤ_[2]) = -3 := by
   rw [unitNegThree, IsUnit.unit_spec]
@@ -263,35 +263,6 @@ private lemma isUnit_of_toZModPow_one_eq_one' {x : ℤ_[2]}
   exact absurd h (by decide)
 
 section Masters
-
-/-! ## The `D₀`-side universal-property value lemmas (local copies) -/
-
-variable {H : Type} [Group H] [TopologicalSpace H] [IsTopologicalGroup H] [CompactSpace H]
-  [T2Space H] [TotallyDisconnectedSpace H]
-
-private lemma d0LiftHom_A' (hH : IsProP 2 H) (m : Fin 3 → H)
-    (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
-    d0LiftHom hH m hrel d0A = m 0 := by
-  show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
-    (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 0))) = m 0
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
-
-private lemma d0LiftHom_S' (hH : IsProP 2 H) (m : Fin 3 → H)
-    (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
-    d0LiftHom hH m hrel d0S = m 1 := by
-  show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
-    (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 1))) = m 1
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
-
-private lemma d0LiftHom_Y' (hH : IsProP 2 H) (m : Fin 3 → H)
-    (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
-    d0LiftHom hH m hrel d0Y = m 2 := by
-  show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
-    (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 2))) = m 2
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
 
 /-! ## The master crossed derivations -/
 
@@ -342,17 +313,17 @@ private noncomputable def masterH (c : Fin 3 → ℤ_[2]) :
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 private lemma masterH_A (c : Fin 3 → ℤ_[2]) : masterH c d0A = ⟨c 0, -1⟩ := by
-  rw [masterH, d0LiftHom_A']
+  rw [masterH, d0LiftHom_A]
   simp
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 private lemma masterH_S (c : Fin 3 → ℤ_[2]) : masterH c d0S = ⟨c 1, 1⟩ := by
-  rw [masterH, d0LiftHom_S']
+  rw [masterH, d0LiftHom_S]
   simp
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 private lemma masterH_Y (c : Fin 3 → ℤ_[2]) : masterH c d0Y = ⟨c 2, unitNegThree⁻¹⟩ := by
-  rw [masterH, d0LiftHom_Y']
+  rw [masterH, d0LiftHom_Y]
   simp
 
 /-- The base component of every master is the canonical orientation (they agree on the three
@@ -644,32 +615,32 @@ private lemma coordRel (a s y : ℤ_[2]) (h : 2 * a + 4 * s = 0) :
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 private lemma sHom_A' : sHom (abMk d0A) = ofAdd (-2 : ℤ_[2]) :=
-  d0LiftHom_A' PropOneOne.isProP_two_multPadicInt
+  d0LiftHom_A PropOneOne.isProP_two_multPadicInt
     ![ofAdd (-2 : ℤ_[2]), ofAdd (1 : ℤ_[2]), ofAdd (0 : ℤ_[2])] (coordRel _ _ _ (by ring))
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 private lemma sHom_S' : sHom (abMk d0S) = ofAdd (1 : ℤ_[2]) :=
-  d0LiftHom_S' PropOneOne.isProP_two_multPadicInt
+  d0LiftHom_S PropOneOne.isProP_two_multPadicInt
     ![ofAdd (-2 : ℤ_[2]), ofAdd (1 : ℤ_[2]), ofAdd (0 : ℤ_[2])] (coordRel _ _ _ (by ring))
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 private lemma sHom_Y' : sHom (abMk d0Y) = ofAdd (0 : ℤ_[2]) :=
-  d0LiftHom_Y' PropOneOne.isProP_two_multPadicInt
+  d0LiftHom_Y PropOneOne.isProP_two_multPadicInt
     ![ofAdd (-2 : ℤ_[2]), ofAdd (1 : ℤ_[2]), ofAdd (0 : ℤ_[2])] (coordRel _ _ _ (by ring))
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 private lemma yHom_A' : yHom (abMk d0A) = ofAdd (0 : ℤ_[2]) :=
-  d0LiftHom_A' PropOneOne.isProP_two_multPadicInt
+  d0LiftHom_A PropOneOne.isProP_two_multPadicInt
     ![ofAdd (0 : ℤ_[2]), ofAdd (0 : ℤ_[2]), ofAdd (1 : ℤ_[2])] (coordRel _ _ _ (by ring))
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 private lemma yHom_S' : yHom (abMk d0S) = ofAdd (0 : ℤ_[2]) :=
-  d0LiftHom_S' PropOneOne.isProP_two_multPadicInt
+  d0LiftHom_S PropOneOne.isProP_two_multPadicInt
     ![ofAdd (0 : ℤ_[2]), ofAdd (0 : ℤ_[2]), ofAdd (1 : ℤ_[2])] (coordRel _ _ _ (by ring))
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 private lemma yHom_Y' : yHom (abMk d0Y) = ofAdd (1 : ℤ_[2]) :=
-  d0LiftHom_Y' PropOneOne.isProP_two_multPadicInt
+  d0LiftHom_Y PropOneOne.isProP_two_multPadicInt
     ![ofAdd (0 : ℤ_[2]), ofAdd (0 : ℤ_[2]), ofAdd (1 : ℤ_[2])] (coordRel _ _ _ (by ring))
 
 /-! ## The identification `χ₀ ∘ f = χ_R` and the `Ȳ₀`-coordinate parity -/
