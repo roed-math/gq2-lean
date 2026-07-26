@@ -232,7 +232,7 @@ Nothing else blocks: L5/L6 can run against either resolution.
 | CU-A | comparator → UNCONDITIONAL pair (challenge_main_presentation_literal_roe_unconditional; MarkedPro2 import dropped from Challenge) + AxiomLedger de-staled, corollary added as 4th terminalPairs row (print-EQUALITY vs Γ_A — stronger than solo) | **done** (0204007, bbe8bfa; ledger 0 violations, gates green) |
 | CU-B | StageLemma split: 3282 ln (post-SL1-L; board said 1653 = pre) → 6 modules under StageLemma/ + 85-ln umbrella; linear import chain; 57 forced private-promotions (earliest-file policy, zero duplication); local-instance re-attach in StageOne | **done** (974ed61; axiom-print diff EMPTY on all 14 capstones; text-move proof; warning parity 16=16) |
 | CU-C | SectionThree.d0LiftHom_A/S/Y de-privatized + Assembly restatements deleted (print-diff empty); R13b/R14 stale prose fixed in MarkedMatching/MarkedPro2 | **done** (dc4ddea, 1bebd3a) |
-| CU-D | stale-prose sweep (comparator/README/yaml/summary/Levelwise/l1-design + optional MarkedMatching primed dupes) + atlas-audit.md regeneration | dispatched |
+| CU-D | stale-prose sweep + atlas regen | **done** (41629fa, 67c7bb4, 1dcabbf; primed dupes deleted print-diff-empty; atlas regenerated: 5571 nodes, 0 sorries, 9-axiom trust base, review cone unchanged; repo-wide re-grep clean; gates green). Wave CLOSED — punch-list (iii)-(viii) all done. Left for G2: owner sign-off + board archive; master ff-only merge (owner); optional: Compass report for the Γ_R capstone (one command, recorded in docs/atlas.md) |
 
 ## Gate G2 (owner)
 
