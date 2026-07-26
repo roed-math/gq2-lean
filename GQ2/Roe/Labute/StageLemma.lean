@@ -1689,6 +1689,80 @@ private theorem deriv0_base (N : ℕ) (hN : 1 ≤ N) (v : Fin 3 → ℤ_[2]) (a 
     · rw [hval, hval', deriv0_d0Y, chiD0pres_d0Y]; rfl
   rw [← hval a, hext, hval' a]
 
+/-! #### The derivation kernel in `Zₖ`, and the tail pairing -/
+
+/-- Powers of a general point of `R ⋊ Rˣ` (structure eta on `wl_pow`). -/
+private theorem wl_pow' {R : Type*} [CommRing R] (p : WordLift R Rˣ) (m : ℕ) :
+    p ^ m = ⟨(∑ j ∈ Finset.range m, (p.g : R) ^ j) * p.u, p.g ^ m⟩ := wl_pow p.u p.g m
+
+/-- **The geometric sum at a base `≡ 1 (mod 4)`** is `2^m · odd`: doubling multiplies it by
+`1 + u^{2^m} ∈ 2·(1 + 2ℤ₂)`.  This is what makes the two tails pair non-degenerately. -/
+private theorem geom_sum_two_pow {u : ℤ_[2]} (hu : (2 : ℤ_[2]) ^ 2 ∣ u - 1) (m : ℕ) :
+    ∃ c : ℤ_[2], (∑ j ∈ Finset.range (2 ^ m), u ^ j) = 2 ^ m * c ∧ ¬ (2 : ℤ_[2]) ∣ c := by
+  induction m with
+  | zero =>
+    refine ⟨1, by simp, ?_⟩
+    simpa using two_not_dvd_one_add_two_mul 0
+  | succ m ih =>
+    obtain ⟨c, hc, hc2⟩ := ih
+    obtain ⟨d, hd⟩ := dvd_pow_sub_one hu (2 ^ m)
+    refine ⟨c * (1 + 2 * d), ?_, two_not_dvd_mul hc2 (two_not_dvd_one_add_two_mul d)⟩
+    have hsplit : (∑ j ∈ Finset.range (2 ^ (m + 1)), u ^ j)
+        = (∑ j ∈ Finset.range (2 ^ m), u ^ j) * (1 + u ^ 2 ^ m) := by
+      rw [show 2 ^ (m + 1) = 2 ^ m + 2 ^ m by ring, Finset.sum_range_add]
+      have hshift : ∀ j : ℕ, u ^ (2 ^ m + j) = u ^ 2 ^ m * u ^ j := fun j => by rw [pow_add]
+      simp only [hshift, ← Finset.mul_sum]
+      ring
+    have hval : 1 + u ^ 2 ^ m = 2 * (1 + 2 * d) := by
+      have hpow : u ^ 2 ^ m = 1 + 2 ^ 2 * d := by linear_combination hd
+      rw [hpow]
+      ring
+    rw [hsplit, hc, hval]
+    ring
+
+section DerivKer
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- Transport of the filtration bound `λ_j(WL N) ⊆ K_j` to the tower along a derivation. -/
+private theorem deriv_mem_wlCong {N : ℕ} (hN : 1 ≤ N) (Φ : ContinuousMonoidHom G (WL N))
+    {j : ℕ} (hj : 1 ≤ j) {a : G} (ha : a ∈ twoCentralSeries G j) : Φ a ∈ wlCong N j :=
+  twoCentralSeries_WL_le hN hj
+    (map_twoCentralSeries_le Φ.toMonoidHom Φ.continuous_toFun j ⟨a, ha, rfl⟩)
+
+/-- **The vanishing subgroup** `𝒜_Φ ⊆ Q_{k+1}`: classes admitting a `λₖ`-representative whose
+derivation offset is divisible by `2^k`.  This is the Lean form of "the coker functional
+`digit_{k-1} ∘ D` vanishes"; `derivKer_dvd` shows the condition does not depend on the
+representative. -/
+private def derivKer {N : ℕ} (Φ : ContinuousMonoidHom G (WL N)) (k : ℕ) :
+    Subgroup (levelQuot G (k + 1)) where
+  carrier := {q | ∃ a, a ∈ twoCentralSeries G k ∧ levelMk G (k + 1) a = q ∧
+    (2 : ZMod (2 ^ N)) ^ k ∣ (Φ a).u}
+  one_mem' := ⟨1, one_mem _, map_one _, by simp⟩
+  mul_mem' := by
+    rintro q q' ⟨a, ha, rfl, hda⟩ ⟨b, hb, rfl, hdb⟩
+    refine ⟨a * b, mul_mem ha hb, map_mul _ _ _, ?_⟩
+    rw [map_mul, WordLift.mul_u, Units.smul_def, smul_eq_mul]
+    exact dvd_add hda (Dvd.dvd.mul_left hdb _)
+  inv_mem' := by
+    rintro q ⟨a, ha, rfl, hda⟩
+    refine ⟨a⁻¹, inv_mem ha, map_inv _ _, ?_⟩
+    rw [map_inv, WordLift.inv_u, Units.smul_def, smul_eq_mul]
+    exact (Dvd.dvd.mul_left hda _).neg_right
+
+/-- Representative-independence: membership of `levelMk b` forces the divisibility at `b`
+itself (the ambiguity `λ_{k+1}` is already killed by the filtration bound). -/
+private theorem derivKer_dvd {N : ℕ} (hN : 1 ≤ N) (Φ : ContinuousMonoidHom G (WL N)) {k : ℕ}
+    {b : G} (hb : levelMk G (k + 1) b ∈ derivKer Φ k) :
+    (2 : ZMod (2 ^ N)) ^ k ∣ (Φ b).u := by
+  obtain ⟨a, ha, hab, hda⟩ := hb
+  have hmem : a⁻¹ * b ∈ twoCentralSeries G (k + 1) := QuotientGroup.eq.mp hab
+  have hcong := (deriv_mem_wlCong hN Φ (by omega) hmem).1
+  rw [show b = a * (a⁻¹ * b) by group, map_mul, WordLift.mul_u, Units.smul_def, smul_eq_mul]
+  exact dvd_add hda (Dvd.dvd.mul_left hcong _)
+
+end DerivKer
+
 end CrossedFunctional
 
 /-! ## The stage lemma: SL1, SL2, and the step (spike §2.4) -/
