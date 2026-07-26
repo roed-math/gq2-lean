@@ -435,6 +435,25 @@ group of order 256; deeper witnesses are stress-test vectors.
    (owner gate), O2 = axiomatize levelwise nonemptiness (§7 of the plan; now
    machine-corroborated to k = 6 and, via dims, k = 8).
 5. **Stage lemma = SL1 + SL2** (§2.4), k ≥ 3, both directions (mirror targets).
+
+   **⚠ CORRECTION 2026-07-26 (L4c) — §2.5(b)'s two-functional separation plan is REFUTED,
+   not merely incomplete.** Write `V = Z_k`, `W = Im d̄`. Both proposed functionals fail
+   to descend to `V/W`, because **both are surjective on `W`**:
+   - *ab-shadow*: `D₀^ab = ℤ₂³/(2A+4S)`, image of `λ_j` is `2^{j-1}G^ab`, so `V`'s shadow
+     is `(ℤ/2)²` in `(c_S, c_Y)`. But `ab(d̄(w)) = 2·ab(w₀)` (commutators die) and
+     `2·ab(λ_{k-1}) = ab(λ_k)`, so **`ab(W) = ab(V)`** — the `w₀`-diagonal alone saturates
+     the entire abelian shadow.
+   - *χ̂-depth*: `χ_R` is abelian-valued, so it factors through `G^ab`. On `V`, since the
+     S-target is 1 and `v₂(η^{2^{k-1}} − 1) = k+1` **exactly**, the depth digit is
+     precisely `c_Y`. So **`f_χ` IS the Y-coordinate of the ab-shadow** — not a second
+     functional at all. *That is the coupling, made explicit.*
+
+   Consequence: the tails have independent shadows `(1,0)`, `(0,1)`, yet `W` already
+   surjects onto the shadow, so modulo `W` the tails are visible only through their
+   `ker(ab)` components. **Any correct separation must live on `ker(ab|_V)` — the purely
+   commutator part of the layer — where χ gives literally nothing.** A successor should
+   not hunt for a second χ-type or abelian functional; there isn't one. SL1 needs a
+   genuinely different ingredient.
 6. **Base case** k₀ = 3: the §3.4 level-3 witnesses, `decide`-checked in Q₃ (order 256);
    χ-clause check mod 8. (Budget: trivial; the plan's 2^9–2^10 worry dissolves.)
 7. **Assembly** (L5): unchanged (`exists_contSurj_of_levelwise_nonempty` refactor +

@@ -258,8 +258,17 @@ L6 (unchanged from the plan): docs/ledger/`lean_verify bLab` = std-3 exactly, bo
    lies in `S^P_{k+1}`", not as the `(ℤ/2)²`-onto digit map.  The spike itself hedges the
    mechanism (§2.5(c): explicit kernel elements *or* dimension count), so freezing the
    role, not the mechanism, is the correct contract.  The `(ℤ/2)²`-ontoness and the
-   automatic π'd-slot digit (re-derived during L1: the relator's χ-shadow forces
-   `d₁² ≡ 1 (mod 2^{k+2})`, hence digit 0 — r₀: A-slot; r₂: y-slot) are L4a-internal.
+   ~~automatic π'd-slot digit (re-derived during L1: the relator's χ-shadow forces
+   `d₁² ≡ 1 (mod 2^{k+2})`, hence digit 0 — r₀: A-slot; r₂: y-slot)~~ are L4a-internal.
+
+   **⚠ FLAGGED 2026-07-26 by L4c — the "automatic π'd-slot digit" claim does not
+   re-derive.** Applying `χ_{k+1}` to `δ(T) = 1` yields `χ(A)²χ(S)⁴ = 1` in
+   `(ZMod 2^{k+1})ˣ`, which is **vacuous**: `χ(A) ≡ −1 (mod 2^k)` already forces
+   `χ(A)² ≡ 1 (mod 2^{k+1})`, and `χ(S)⁴ ≡ 1 (mod 2^{k+2})` regardless.  The parenthetical
+   above runs at `2^{k+2}`, i.e. it needs a relator identity one level higher (in
+   `Q_{k+2}`), which does **not** follow from `δ(T) = 1` in `Q_{k+1}`.  Either the step
+   needs restating or SL2 needs an extra hypothesis.  Statements are unaffected (this was
+   L4a-internal, never frozen), but SL2 has no known proof route until it is resolved.
 6. **Not frozen, deliberately**: the categorical `G ≅ lim G/λₖ` (plan §2.4 lists it; no
    L-consumer needs it — cofinality + `⨅ = ⊥` carry the content; flagged as the one
    omission from the plan's Tier-F list), the reverse span inclusion, the π'd-generator
