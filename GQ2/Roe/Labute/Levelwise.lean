@@ -10,6 +10,8 @@ import GQ2.DyadicPresentation
 import GQ2.SectionThree
 import GQ2.Roe.ChiR
 import GQ2.ZtwoPowering
+import GQ2.Roe.DRAbelianization
+import GQ2.DyadicNielsen
 
 /-!
 # Levelwise triple sets, the invariant `P`, the defect, and the `k₀ = 3` base cases
@@ -351,6 +353,168 @@ theorem sPR2_levelProj {k : ℕ} {T : Fin 3 → levelQuot (D0 : Type) (k + 1)}
     (fun i => levelProj (D0 : Type) k (T i)) ∈ sPR2 k := by
   sorry
 
+/-! ## Base-case calculus (level-2 λ-calculus in `Q₃`, and generation transfer)
+
+The base-case memberships are discharged **structurally** — plan §2.3's sanctioned route
+("the witness's relator value traced through the λ-quotient presentation"), not by
+enumerating a 256-element model, and with no `native_decide`.  Everything reduces to
+inputs frozen upstream:
+
+* `Z₂ = λ₂/λ₃` is central in `Q₃` (`zLayer_le_center`) and has exponent 2 (`zLayer_sq`);
+* squares and `commP`-commutators of `G` land in `Z₂` (`sq_mem_twoCentralSucc`,
+  `commP_mem_twoCentralSucc`, both proven in `TwoCentralTower.lean`);
+* `λₖ` is open (`isOpen_twoCentralSeries`), which converts the presentations'
+  *topological* generation into the plain-closure clause of `S⁰ₖ`.
+
+Consequently the relator clause is exactly the spike's §2.2 first-order bookkeeping:
+fourth powers die, the `S⁴`/`[y,yˢ]` blocks are inert, and the surviving cross term is
+pinned against the source relator one layer down. -/
+
+section BaseCalculus
+
+variable {H : Type*} [Group H]
+
+/-- `conjP` in terms of `commP` (repo convention `conjP x g = g⁻¹xg`, `commP x y =
+x⁻¹y⁻¹xy`). -/
+private theorem conjP_eq_mul_commP (x g : H) : conjP x g = x * commP x g := by
+  simp only [conjP, commP]; group
+
+/-- Left expansion of `commP` over a product. -/
+private theorem commP_mul_left (a b c : H) :
+    commP (a * b) c = conjP (commP a c) b * commP b c := by
+  simp only [conjP, commP]; group
+
+/-- Right expansion of `commP` over a product. -/
+private theorem commP_mul_right (a b c : H) :
+    commP a (b * c) = commP a c * conjP (commP a b) c := by
+  simp only [conjP, commP]; group
+
+/-- `commP` is self-inverse under slot exchange. -/
+private theorem commP_inv (a b : H) : (commP a b)⁻¹ = commP b a := by
+  simp only [commP]; group
+
+@[simp] private theorem commP_self (a : H) : commP a a = 1 := by
+  simp only [commP]; group
+
+@[simp] private theorem conjP_one_left (g : H) : conjP (1 : H) g = 1 := by
+  simp only [conjP]; group
+
+/-- A `commP` against a commuting element is trivial. -/
+private theorem commP_eq_one_of_commute {x y : H} (h : Commute x y) : commP x y = 1 := by
+  have hxy : x * y = y * x := h.eq
+  simp only [commP]
+  calc x⁻¹ * y⁻¹ * x * y = x⁻¹ * (y⁻¹ * (x * y)) := by group
+    _ = x⁻¹ * (y⁻¹ * (y * x)) := by rw [hxy]
+    _ = 1 := by group
+
+end BaseCalculus
+
+section LevelThree
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- Squares of `G`-images land in `Z₂ ≤ Q₃`. -/
+private theorem levelMk_sq_mem_zLayer (g : G) : levelMk G 3 g ^ 2 ∈ zLayer G 2 :=
+  ⟨g ^ 2, sq_mem_twoCentralSucc (Subgroup.mem_top g), map_pow (levelMk G 3) g 2⟩
+
+/-- `commP`-commutators of `G`-images land in `Z₂ ≤ Q₃`. -/
+private theorem levelMk_commP_mem_zLayer (a b : G) :
+    commP (levelMk G 3 a) (levelMk G 3 b) ∈ zLayer G 2 :=
+  ⟨commP a b, commP_mem_twoCentralSucc (Subgroup.mem_top a) b,
+    Marking.map_commP (levelMk G 3) a b⟩
+
+/-- `Z₂`-elements are central in `Q₃`, so conjugation fixes them. -/
+private theorem conjP_of_mem_zLayer {z : levelQuot G 3} (hz : z ∈ zLayer G 2)
+    (g : levelQuot G 3) : conjP z g = z := by
+  have hc := Subgroup.mem_center_iff.mp (zLayer_le_center G 2 hz) g
+  rw [conjP, mul_assoc, ← hc, ← mul_assoc, inv_mul_cancel, one_mul]
+
+/-- A `commP` against a `Z₂`-element is trivial (centrality). -/
+private theorem commP_of_mem_zLayer_right (a : levelQuot G 3) {z : levelQuot G 3}
+    (hz : z ∈ zLayer G 2) : commP a z = 1 :=
+  commP_eq_one_of_commute (Subgroup.mem_center_iff.mp (zLayer_le_center G 2 hz) a)
+
+/-- Fourth powers of `G`-images die in `Q₃` (`λ₂² ⊆ λ₃`). -/
+private theorem levelMk_pow_four (g : G) : levelMk G 3 g ^ 4 = 1 := by
+  rw [show (4 : ℕ) = 2 * 2 from rfl, pow_mul]
+  exact zLayer_sq G (levelMk_sq_mem_zLayer g)
+
+/-- The mod-`2^k` *value* of a level shadow on a residue — the form the χ-clause checks
+reduce to after `Units.ext`. -/
+private theorem chiLevel_levelMk_val (χ : ContinuousMonoidHom G ℤ_[2]ˣ) (k : ℕ) (g : G) :
+    ((chiLevel χ k (levelMk G k g) : (ZMod (2 ^ k))ˣ) : ZMod (2 ^ k))
+      = PadicInt.toZModPow k ((χ g : ℤ_[2]ˣ) : ℤ_[2]) := rfl
+
+/-- **Generation transfer**: if `S` topologically generates `G` and `λₖ` is open, the
+image of `S` generates `Qₖ` as a plain subgroup — the form the `S⁰ₖ`-clause asks for. -/
+private theorem closure_image_levelMk_eq_top {k : ℕ}
+    (hopen : IsOpen ((twoCentralSeries G k : Subgroup G) : Set G))
+    {S : Set G} (hS : (Subgroup.closure S).topologicalClosure = ⊤) :
+    Subgroup.closure (levelMk G k '' S) = ⊤ := by
+  set K : Subgroup (levelQuot G k) := Subgroup.closure (levelMk G k '' S) with hKdef
+  have hlam : twoCentralSeries G k ≤ K.comap (levelMk G k) := by
+    intro g hg
+    have h1 : levelMk G k g = 1 := (QuotientGroup.eq_one_iff g).mpr hg
+    simp only [Subgroup.mem_comap, h1, one_mem]
+  have hPopen : IsOpen ((K.comap (levelMk G k) : Subgroup G) : Set G) :=
+    Subgroup.isOpen_mono hlam hopen
+  have hSP : Subgroup.closure S ≤ K.comap (levelMk G k) := by
+    rw [Subgroup.closure_le]
+    exact fun g hg => Subgroup.subset_closure ⟨g, hg, rfl⟩
+  have hPtop : K.comap (levelMk G k) = ⊤ := by
+    have h := Subgroup.topologicalClosure_minimal _ hSP
+      (Subgroup.isClosed_of_isOpen _ hPopen)
+    rw [hS] at h
+    exact top_le_iff.mp h
+  ext q
+  obtain ⟨g, rfl⟩ := levelMk_surjective G k q
+  simpa using (hPtop ▸ Subgroup.mem_top g : g ∈ K.comap (levelMk G k))
+
+end LevelThree
+
+/-- `D_R` is topologically generated by the finite set `{s, x, y}` (local packaging of
+`dr_topGen`; `Assembly.lean`'s `drFinsetTopGen` is the same statement, replicated here to
+keep this file upstream of the assembly). -/
+private theorem drFg : ∃ s : Finset (DR : Type),
+    (Subgroup.closure (s : Set (DR : Type))).topologicalClosure = ⊤ := by
+  classical
+  refine ⟨{drS, drX, drY}, ?_⟩
+  have h : (({drS, drX, drY} : Finset (DR : Type)) : Set (DR : Type))
+      = ({drS, drX, drY} : Set (DR : Type)) := by simp
+  rw [h]
+  exact dr_topGen
+
+/-- `D₀` is topologically generated by the finite set `{A, S, Y}` (local packaging of
+`SectionThree.topGen_d0`). -/
+private theorem d0Fg : ∃ s : Finset (D0 : Type),
+    (Subgroup.closure (s : Set (D0 : Type))).topologicalClosure = ⊤ := by
+  classical
+  refine ⟨{d0A, d0S, d0Y}, ?_⟩
+  have h : (({d0A, d0S, d0Y} : Finset (D0 : Type)) : Set (D0 : Type))
+      = ({d0A, d0S, d0Y} : Set (D0 : Type)) := by simp
+  rw [h]
+  exact SectionThree.topGen_d0
+
+/-- The `D_R`-tower levels are open. -/
+private theorem isOpen_dr (k : ℕ) :
+    IsOpen ((twoCentralSeries (DR : Type) k : Subgroup (DR : Type)) : Set (DR : Type)) :=
+  isOpen_twoCentralSeries (DR : Type) drFg isProP_DR k
+
+/-- The `D₀`-tower levels are open. -/
+private theorem isOpen_d0 (k : ℕ) :
+    IsOpen ((twoCentralSeries (D0 : Type) k : Subgroup (D0 : Type)) : Set (D0 : Type)) :=
+  isOpen_twoCentralSeries (D0 : Type) d0Fg SectionThree.d0_isProP k
+
+/-- The three marked generators generate every `D_R`-tower level. -/
+private theorem closure_drGens_eq_top (k : ℕ) :
+    Subgroup.closure (levelMk (DR : Type) k '' {drS, drX, drY}) = ⊤ :=
+  closure_image_levelMk_eq_top (isOpen_dr k) dr_topGen
+
+/-- The three marked generators generate every `D₀`-tower level. -/
+private theorem closure_d0Gens_eq_top (k : ℕ) :
+    Subgroup.closure (levelMk (D0 : Type) k '' {d0A, d0S, d0Y}) = ⊤ :=
+  closure_image_levelMk_eq_top (isOpen_d0 k) SectionThree.topGen_d0
+
 /-! ## Base cases at `k₀ = 3` (spike §2.4, §3.1, §3.4)
 
 The level-3 witnesses live in `Q₃` of order `2^8 = 256`; L3 discharges membership by
@@ -369,10 +533,79 @@ triple `(y, s·x, x)` — mod-8 χ-values `(7, 1, 5)`, matching `chiTargetR0_thr
 noncomputable def witnessR0 : Fin 3 → levelQuot (DR : Type) 3 :=
   ![levelMk (DR : Type) 3 drY, levelMk (DR : Type) 3 (drS * drX), levelMk (DR : Type) 3 drX]
 
+/-- The `r₀`-relator dies at the direction-1 witness.  Spike §2.2's bookkeeping, traced
+levelwise: `(s·x)⁴` is a square of a `λ₂`-element hence inert, `[s·x, x] ≡ [s, x]` by
+left-expansion plus centrality, and the source relator `r₂` pins `y² = [x, s]` — the two
+surviving terms are mutually inverse. -/
+private theorem witnessR0_relator :
+    d0Word (witnessR0 0) (witnessR0 1) (witnessR0 2) = 1 := by
+  show d0Word (levelMk (DR : Type) 3 drY) (levelMk (DR : Type) 3 (drS * drX))
+    (levelMk (DR : Type) 3 drX) = 1
+  set s := levelMk (DR : Type) 3 drS with hs
+  set x := levelMk (DR : Type) 3 drX with hx
+  set y := levelMk (DR : Type) 3 drY with hy
+  have hsx : levelMk (DR : Type) 3 (drS * drX) = s * x := map_mul _ _ _
+  rw [hsx]
+  have hrel : drWord s x y = 1 := by
+    rw [hs, hx, hy, ← map_drWord (levelMk (DR : Type) 3), dr_relation, map_one]
+  have hzys : commP y s ∈ zLayer (DR : Type) 2 := levelMk_commP_mem_zLayer drY drS
+  have hzsx : commP s x ∈ zLayer (DR : Type) 2 := levelMk_commP_mem_zLayer drS drX
+  have hx4 : x ^ 4 = 1 := levelMk_pow_four drX
+  have hsx4 : (s * x) ^ 4 = 1 := by rw [← hsx]; exact levelMk_pow_four _
+  -- the `[y, yˢ]` block is inert
+  have hyys : commP y (conjP y s) = 1 := by
+    rw [conjP_eq_mul_commP, commP_mul_right, commP_self, conjP_one_left, mul_one]
+    exact commP_of_mem_zLayer_right y hzys
+  -- the source relator pins `y²` against the surviving cross term
+  have hy2 : y ^ 2 = commP x s := by
+    set c := commP x s with hc
+    have h : (conjP x s)⁻¹ * (x ^ 3)⁻¹ * y ^ 2 * commP y (conjP y s) = 1 := hrel
+    rw [hyys, mul_one, conjP_eq_mul_commP, ← hc] at h
+    have hstep : (x * c)⁻¹ * (x ^ 3)⁻¹ * y ^ 2 = c⁻¹ * ((x ^ 4)⁻¹ * y ^ 2) := by group
+    rw [hstep, hx4, inv_one, one_mul] at h
+    exact (inv_mul_eq_one.mp h).symm
+  rw [d0Word, hsx4, mul_one, commP_mul_left, commP_self, mul_one,
+    conjP_of_mem_zLayer hzsx, hy2, ← commP_inv, inv_mul_cancel]
+
+/-- The direction-1 witness generates `Q₃`: the three entries recover `s`, `x`, `y`, which
+generate every tower level (`closure_drGens_eq_top`). -/
+private theorem witnessR0_gen : Subgroup.closure (Set.range witnessR0) = ⊤ := by
+  set K := Subgroup.closure (Set.range witnessR0) with hK
+  have hy : levelMk (DR : Type) 3 drY ∈ K := Subgroup.subset_closure ⟨0, rfl⟩
+  have hsx : levelMk (DR : Type) 3 (drS * drX) ∈ K := Subgroup.subset_closure ⟨1, rfl⟩
+  have hx : levelMk (DR : Type) 3 drX ∈ K := Subgroup.subset_closure ⟨2, rfl⟩
+  have hs : levelMk (DR : Type) 3 drS ∈ K := by
+    have h := K.mul_mem hsx (K.inv_mem hx)
+    rwa [map_mul, mul_assoc, mul_inv_cancel, mul_one] at h
+  rw [eq_top_iff, ← closure_drGens_eq_top 3, Subgroup.closure_le]
+  rintro q ⟨g, hg, rfl⟩
+  simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hg
+  rcases hg with rfl | rfl | rfl
+  exacts [hs, hx, hy]
+
+/-- The χ-clause at the direction-1 witness: mod-8 values `(Y, S·X, X) ≡ (7, 1, 5)` match
+`chiTargetR0_three`. -/
+private theorem witnessR0_chi (i : Fin 3) :
+    chiLevel chiR 3 (witnessR0 i) = chiTargetR0 3 i := by
+  have hX : PadicInt.toZModPow 3 rootX = 5 := rootX_toZModPow_eq (by decide)
+  have hS : PadicInt.toZModPow 3 Sval = 5 := Sval_toZModPow_eq hX (by decide)
+  have hY : PadicInt.toZModPow 3 Yval = 7 := by rw [Yval_toZModPow_eq hX]; decide
+  refine Units.ext ?_
+  rw [chiTargetR0_three i]
+  fin_cases i
+  · show PadicInt.toZModPow 3 ((chiR drY : ℤ_[2]ˣ) : ℤ_[2]) = 7
+    rw [chiR_drY, val_YvalUnit, hY]
+  · show PadicInt.toZModPow 3 ((chiR (drS * drX) : ℤ_[2]ˣ) : ℤ_[2]) = 1
+    rw [map_mul, Units.val_mul, map_mul, chiR_drS, chiR_drX, val_SvalUnit, val_rootXUnit,
+      hS, hX]
+    decide
+  · show PadicInt.toZModPow 3 ((chiR drX : ℤ_[2]ˣ) : ℤ_[2]) = 5
+    rw [chiR_drX, val_rootXUnit, hX]
+
 /-- **Base case, direction 1** (spike §2.4: `S^P₃ ≠ ∅` by explicit witness).  Fill: L3
 (`decide`/structured verification in a 256-element model of `Q₃`). -/
-theorem witnessR0_mem : witnessR0 ∈ sPR0 3 := by
-  sorry
+theorem witnessR0_mem : witnessR0 ∈ sPR0 3 :=
+  ⟨⟨witnessR0_relator, witnessR0_gen⟩, witnessR0_chi⟩
 
 /-- `S^P₃ ≠ ∅`, direction 1 (packaging; not a fill target). -/
 theorem sPR0_three_nonempty : (sPR0 3).Nonempty := ⟨witnessR0, witnessR0_mem⟩
@@ -382,9 +615,82 @@ theorem sPR0_three_nonempty : (sPR0 3).Nonempty := ⟨witnessR0, witnessR0_mem�
 noncomputable def witnessR2 : Fin 3 → levelQuot (D0 : Type) 3 :=
   ![levelMk (D0 : Type) 3 (d0S * d0Y), levelMk (D0 : Type) 3 d0Y, levelMk (D0 : Type) 3 d0A]
 
+/-- The `r₂`-relator dies at the direction-2 witness.  Mirror of `witnessR0_relator`:
+`Y⁴` is inert, the `x`-block collapses to the single cross term `[Y, S]`, the `[A, A^{SY}]`
+block is inert, and the source relator `r₀` pins `A² = [Y, S]`. -/
+private theorem witnessR2_relator :
+    drWord (witnessR2 0) (witnessR2 1) (witnessR2 2) = 1 := by
+  show drWord (levelMk (D0 : Type) 3 (d0S * d0Y)) (levelMk (D0 : Type) 3 d0Y)
+    (levelMk (D0 : Type) 3 d0A) = 1
+  set a := levelMk (D0 : Type) 3 d0A with ha
+  set sg := levelMk (D0 : Type) 3 d0S with hsg
+  set yv := levelMk (D0 : Type) 3 d0Y with hyv
+  have hsy : levelMk (D0 : Type) 3 (d0S * d0Y) = sg * yv := map_mul _ _ _
+  rw [hsy]
+  have hrel : d0Word a sg yv = 1 := by
+    rw [ha, hsg, hyv, ← map_d0Word (levelMk (D0 : Type) 3), d0Word_eq_one, map_one]
+  have hzys : commP yv sg ∈ zLayer (D0 : Type) 2 := levelMk_commP_mem_zLayer d0Y d0S
+  have hzasy : commP a (sg * yv) ∈ zLayer (D0 : Type) 2 := by
+    rw [← hsy, ha]; exact levelMk_commP_mem_zLayer d0A (d0S * d0Y)
+  have hsg4 : sg ^ 4 = 1 := levelMk_pow_four d0S
+  have hyv4 : yv ^ 4 = 1 := levelMk_pow_four d0Y
+  -- the `[A, A^{SY}]` block is inert
+  have haa : commP a (conjP a (sg * yv)) = 1 := by
+    rw [conjP_eq_mul_commP, commP_mul_right a a (commP a (sg * yv)), commP_self,
+      conjP_one_left, mul_one]
+    exact commP_of_mem_zLayer_right a hzasy
+  -- the conjugation collapses to the single surviving cross term
+  have hcv : conjP yv (sg * yv) = yv * commP yv sg := by
+    rw [conjP_eq_mul_commP, commP_mul_right yv sg yv, commP_self, one_mul,
+      conjP_of_mem_zLayer hzys]
+  -- the source relator pins `A²`
+  have ha2 : a ^ 2 = commP yv sg := by
+    have h : a ^ 2 * sg ^ 4 * commP sg yv = 1 := hrel
+    rw [hsg4, mul_one, ← commP_inv yv sg] at h
+    exact mul_inv_eq_one.mp h
+  rw [drWord, hcv, haa, mul_one]
+  have hstep : (yv * commP yv sg)⁻¹ * (yv ^ 3)⁻¹ * a ^ 2
+      = (commP yv sg)⁻¹ * ((yv ^ 4)⁻¹ * a ^ 2) := by group
+  rw [hstep, hyv4, inv_one, one_mul, ha2, inv_mul_cancel]
+
+/-- The direction-2 witness generates `Q₃`. -/
+private theorem witnessR2_gen : Subgroup.closure (Set.range witnessR2) = ⊤ := by
+  set K := Subgroup.closure (Set.range witnessR2) with hK
+  have hsy : levelMk (D0 : Type) 3 (d0S * d0Y) ∈ K := Subgroup.subset_closure ⟨0, rfl⟩
+  have hy : levelMk (D0 : Type) 3 d0Y ∈ K := Subgroup.subset_closure ⟨1, rfl⟩
+  have ha : levelMk (D0 : Type) 3 d0A ∈ K := Subgroup.subset_closure ⟨2, rfl⟩
+  have hs : levelMk (D0 : Type) 3 d0S ∈ K := by
+    have h := K.mul_mem hsy (K.inv_mem hy)
+    rwa [map_mul, mul_assoc, mul_inv_cancel, mul_one] at h
+  rw [eq_top_iff, ← closure_d0Gens_eq_top 3, Subgroup.closure_le]
+  rintro q ⟨g, hg, rfl⟩
+  simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hg
+  rcases hg with rfl | rfl | rfl
+  exacts [ha, hs, hy]
+
+/-- The χ-clause at the direction-2 witness: mod-8 values `(S·Y, Y, A) ↦ (5, 5, 7)` under
+`χ₀`, matching `chiTargetR2_three`. -/
+private theorem witnessR2_chi (i : Fin 3) :
+    chiLevel chiD0pres 3 (witnessR2 i) = chiTargetR2 3 i := by
+  have heta : PadicInt.toZModPow 3 ((etaUnit : ℤ_[2]ˣ) : ℤ_[2]) = 5 :=
+    (by decide : ∀ z : ZMod (2 ^ 3), z * (-3) = 1 → z = 5) _ (etaUnit_toZModPow_mul 3)
+  refine Units.ext ?_
+  rw [chiTargetR2_three i]
+  fin_cases i
+  · show PadicInt.toZModPow 3 ((chiD0pres (d0S * d0Y) : ℤ_[2]ˣ) : ℤ_[2]) = 5
+    rw [map_mul, Units.val_mul, map_mul, chiD0pres_d0S, chiD0pres_d0Y]
+    simp only [Units.val_one, map_one, one_mul]
+    exact heta
+  · show PadicInt.toZModPow 3 ((chiD0pres d0Y : ℤ_[2]ˣ) : ℤ_[2]) = 5
+    rw [chiD0pres_d0Y, heta]
+  · show PadicInt.toZModPow 3 ((chiD0pres d0A : ℤ_[2]ˣ) : ℤ_[2]) = 7
+    rw [chiD0pres_d0A]
+    simp only [Units.val_neg, Units.val_one, map_neg, map_one]
+    decide
+
 /-- **Base case, direction 2**.  Fill: L3. -/
-theorem witnessR2_mem : witnessR2 ∈ sPR2 3 := by
-  sorry
+theorem witnessR2_mem : witnessR2 ∈ sPR2 3 :=
+  ⟨⟨witnessR2_relator, witnessR2_gen⟩, witnessR2_chi⟩
 
 /-- `S^P₃ ≠ ∅`, direction 2 (packaging; not a fill target). -/
 theorem sPR2_three_nonempty : (sPR2 3).Nonempty := ⟨witnessR2, witnessR2_mem⟩
