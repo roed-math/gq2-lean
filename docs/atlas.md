@@ -28,12 +28,18 @@ report, so the 638 figure never reflected them; and the B9 restatement rerouted 
 proof. Both changes travel along theorem-proof value edges, which Compass prunes — which is why the
 closure moved and the review cone did not.
 
-The whole-graph `sorry` count is **11**, all in the allowlisted in-flight `GQ2/Roe/Labute/` files
-(`StageLemma.lean`, `Assembly.lean`); see `scripts/check_axioms.sh`. None of them is reachable from
-`main_surjection_count'`, whose closure remains sorry-free and contains no `GQ2/Roe/` declaration.
+The whole-graph `sorry` count in the committed snapshot is **11**, all in the then-in-flight
+`GQ2/Roe/Labute/` files (`StageLemma.lean`, `Assembly.lean`). **Stale as of 2026-07-26**: those
+files landed sorry-free that day, so the true library-wide count is now **0** and
+`scripts/check_axioms.sh`'s allowlist is empty; the snapshot figure updates at the next Atlas
+regeneration (the graph itself must be re-exported — see below). None of them was ever reachable
+from `main_surjection_count'`, whose closure remains sorry-free and contains no `GQ2/Roe/`
+declaration.
 
-No Compass report has yet been generated for the conditional `Γ_R` capstone
-`GQ2.main_presentation_literal_roe`, though the declaration is now present in the exported graph.
+No Compass report has yet been generated for the `Γ_R` capstone — now unconditional, and best
+targeted as `GQ2.main_presentation_literal_roe_unconditional` (`GQ2.main_presentation_literal_roe`
+is the same theorem with the discharged `BLabHypothesis` binder) — though the declaration is
+present in the exported graph.
 The generator takes a target argument (see below), so producing one is a single command; until
 then, the review cone described here covers the paper's capstone only.
 

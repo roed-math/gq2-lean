@@ -16,8 +16,9 @@ and the repository gates. The maintained documentation index is [`../README.md`]
 **Two files in this directory are live rather than archival.**
 [`roe-tickets.md`](roe-tickets.md) is the current board, and
 [`roe-verification-plan.md`](roe-verification-plan.md) the current plan, for the Γ_R
-(Roe-candidate) campaign and its follow-on Labute campaign, whose work is still in flight;
-they are kept here so that one campaign lives in one directory. Everything else below is
+(Roe-candidate) campaign and its follow-on Labute campaign; the mathematics of both is complete
+as of 2026-07-26, but the board and plan are retained as live documents through the owner's final
+sign-off. They are kept here so that one campaign lives in one directory. Everything else below is
 historical.
 
 ## Global plans, boards, and review packets
@@ -138,18 +139,23 @@ Design records for the follow-on campaign that verifies a second candidate prese
 | [`roe-r31-survey-ii6.md`](roe-r31-survey-ii6.md) | Survey of the display-(140) residue obligations and the private helpers the port would have to restate. |
 | [`roe-r31-survey-gaussz.md`](roe-r31-survey-gaussz.md) | Survey of the Gauss-`Z` layer and specification of the Γ_R word substrate (cohomology bridge plus correction calculus) that unblocked the whole supply wave. |
 
-## Labute campaign (discharging the Γ_R hypothesis)
+## Labute campaign (discharging the Γ_R hypothesis) — **completed 2026-07-26**
 
-The Γ_R result is conditional on one Labute-classification instance, carried as the explicit
-hypothesis `BLabHypothesis` after the owner declined to admit it as a tenth axiom. These
-records plan and de-risk the in-flight proof of that instance; its tickets live on
-[`roe-tickets.md`](roe-tickets.md).
+The Γ_R result carried one Labute-classification instance as the explicit hypothesis
+`BLabHypothesis`, after the owner declined to admit it as a tenth axiom. These records plan and
+de-risk the proof of that instance, which **landed on 2026-07-26** as `GQ2.Roe.Labute.bLab`
+(standard three axioms, sorry-free), making the Γ_R theorem unconditional with the census
+unchanged at nine. Its tickets live on [`roe-tickets.md`](roe-tickets.md); the reviewer-facing
+summary is the "B3 addendum" of [`../literature-axioms.md`](../literature-axioms.md).
 
 | File | Role |
 |---|---|
 | [`labute-plan.md`](labute-plan.md) | Scoping recon comparing Labute's original argument, NSW III §9, and an instance-specific route; recommends levelwise two-sided lifting, with effort estimates and a page-verified literature survey. |
 | [`labute-spike.md`](labute-spike.md) | Off-Lean de-risking spike: falsifies the naive stage lemma, finds the sharper congruence invariant that repairs it, and returns the GREEN verdict that gated the campaign. |
 | [`labute-l1-design.md`](labute-l1-design.md) | Statement-freeze record for the four-file Lean skeleton, with the per-ticket sorry dispatch specs, proof sketches, and the deviations taken against the spike's memo. |
+| [`span-gradedlie-plan.md`](span-gradedlie-plan.md) | GL-campaign plan: the graded-Lie route that discharged the span theorem after the first attempt hit a termination obstruction — the alternative to axiomatizing it. |
+| [`sl-campaign-plan.md`](sl-campaign-plan.md) | SL-campaign plan: the mechanism for the two stage-lemma halves (SL1 separation, SL2 lifting) after the spike's functional sketch was refuted. |
+| [`sl1-numerics.md`](sl1-numerics.md) | Numerical reconnaissance behind SL1 — the digit/derivation pattern with its sampled and exhaustive checks, and the proof skeleton the Lean fill started from (see the board for the deviation it ultimately took). |
 
 Every Markdown file retained in this directory appears in the tables above. Code comments may link
 directly to an archived design record when it gives the clearest explanation of a statement

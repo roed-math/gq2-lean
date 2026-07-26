@@ -46,8 +46,11 @@ over displayed theorem numbers.
 
 A follow-on campaign, not part of the paper, verifies a *second* 4-generator 2-relator
 candidate presentation `Γ_R` against the same finite-target machinery. Its terminal theorem
-`GQ2.main_presentation_literal_roe` is sorry-free and adds no axiom, but carries one explicit
-hypothesis binder, `BLabHypothesis`, whose in-repo proof is still in flight.
+`GQ2.main_presentation_literal_roe_unconditional` is sorry-free, adds no axiom, and (since
+2026-07-26) carries no hypothesis: the one explicit binder it used to have, `BLabHypothesis`, is
+now the in-repo theorem `GQ2.Roe.Labute.bLab`, proved at the standard three axioms — see the "B3
+addendum" of [`literature-axioms.md`](literature-axioms.md) for the statement, the proof chain,
+and the decision record.
 
 | File | Purpose |
 |---|---|

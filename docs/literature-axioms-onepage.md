@@ -22,7 +22,10 @@ Lemma 2.5's only classical input is *proved* in the formalization (see foot); eq
 
 **Discharged (proved in the Lean formalization, not axioms).**
 **Ribes–Zalesskiĭ Prop. 2.5.2** (a finitely generated profinite group is Hopfian — Lemma 2.5's only
-classical input) and **Schur–Zassenhaus** (§9.1 terminal case).
+classical input) and **Schur–Zassenhaus** (§9.1 terminal case).  Also, off this page because it
+belongs to the later non-paper `Γ_R` campaign: **"B-Lab"**, the B3 classification at the single
+instance `D_R ≅ D₀`, declined as a tenth axiom on 2026-07-25 and proved in-repo on 2026-07-26
+(`GQ2.Roe.Labute.bLab`, standard three axioms) — see the B3 addendum of `literature-axioms.md`.
 
 **Status.** The published ingredients underlying the active leaves are source-audited.  Direct
 leaves have an exact theorem number and checked statement; composite bundles also require the

@@ -5,9 +5,10 @@ entries 2.11/3.5, strengthened 1.3/2.2/2.3) and the census update 15 → 9 · **
 formalization**: complete — the paper's formalization is sorry-free;
 `main_presentation_literal : Nonempty (ContinuousMulEquiv GammaA AbsGalQ2)` is proved modulo the
 9-axiom census of source-verified literature inputs (`docs/literature-axioms.md`,
-`atlas-audit.md`). *(2026-07-25: the later, non-paper `Γ_R` campaign's in-flight
-`GQ2/Roe/Labute/` files are the repository's only `sorry`s; they lie outside every paper
-capstone's dependency closure and change nothing in this document.)*
+`atlas-audit.md`). *(2026-07-26: the later, non-paper `Γ_R` campaign — whose `GQ2/Roe/Labute/`
+files were briefly the repository's only `sorry`s — is itself complete and sorry-free, and its one
+extra input was proved rather than axiomatized, so the census is still 9. It lies outside every
+paper capstone's dependency closure and changes nothing in this document.)*
 
 ## 0. Purpose and method
 
