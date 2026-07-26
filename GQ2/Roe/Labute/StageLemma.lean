@@ -1259,6 +1259,96 @@ private theorem eq_top_of_map_levelProj_eq_top (G : Type) [Group G] [Topological
   rw [show q = x * (x⁻¹ * q) by group]
   exact Subgroup.mul_mem_sup hx (hΦ hker)
 
+/-! ### The χ-twisted crossed derivations (SL1's separating functionals)
+
+SL1 needs functionals on `Zₖ` that kill `Im d̄` and the defect but pair non-degenerately with
+the two tails.  The numerics report (`docs/orchestration/sl1-numerics.md` §6) identifies them
+as digit-`(k−1)` shadows of **θ-crossed derivations**; the repo already carries the exact
+(un-truncated) version of that calculus — Labute's descent condition
+`IsLabuteOrientationDatum` (`GQ2/Roe/CrossedDerivation.lean`), which says that for the
+canonical orientation `χ` **every** crossed derivation `D(gh) = Dg + χ(g)·Dh` kills the
+presenting relator.  So the functionals descend to the towers *on the nose*, with no relation
+module theory: a derivation is just the `.u`-component of a hom into `A ⋊ ℤ₂ˣ`.
+
+Since `ℤ₂ ⋊ ℤ₂ˣ` is not known here to be pro-2 (the universal properties `drLiftHom` /
+`d0LiftHom` demand that), we run the whole calculus at the finite shadow
+`WL N = ℤ/2^N ⋊ (ℤ/2^N)ˣ`, which is a finite 2-group by cardinality.  All the sharp 2-adic
+input (the orientation values, `η⁻¹ = −3`, `v₂(X−1) = v₂(S−1) = 2`, `v₂(Y+1) = 3`) stays in
+`ℤ₂` and is pushed down by the reduction ring hom. -/
+
+section CrossedFunctional
+
+open FoxH
+
+/-- The **finite lift group** `ℤ/2^N ⋊ (ℤ/2^N)ˣ` (`WordLift`, product law
+`(u,g)(v,h) = (u + g·v, gh)`): the mod-`2^N` shadow of Labute's `ℤ₂(χ) ⋊ ℤ₂ˣ`. -/
+private abbrev WL (N : ℕ) : Type := WordLift (ZMod (2 ^ N)) ((ZMod (2 ^ N))ˣ)
+
+local instance instTopologicalSpaceWL (N : ℕ) : TopologicalSpace (WL N) := ⊥
+local instance instDiscreteTopologyWL (N : ℕ) : DiscreteTopology (WL N) := ⟨rfl⟩
+
+/-- `WL N` is a finite 2-group: `|ℤ/2^N| · |(ℤ/2^N)ˣ| = 2^N · 2^{N-1}`. -/
+private theorem isPGroup_WL {N : ℕ} (hN : 1 ≤ N) : IsPGroup 2 (WL N) := by
+  have hcard : Nat.card (WL N) = 2 ^ (N + (N - 1)) := by
+    have h1 : Nat.card (WL N) = Nat.card (ZMod (2 ^ N)) * Nat.card ((ZMod (2 ^ N))ˣ) := by
+      rw [Nat.card_congr (WordLift.equivProd (A := ZMod (2 ^ N)) (C := (ZMod (2 ^ N))ˣ)),
+        Nat.card_prod]
+    have h2 : Nat.card (ZMod (2 ^ N)) = 2 ^ N := by
+      haveI : NeZero (2 ^ N) := ⟨by positivity⟩
+      simp [Nat.card_eq_fintype_card]
+    have h3 : Nat.card ((ZMod (2 ^ N))ˣ) = 2 ^ (N - 1) := by
+      haveI : NeZero (2 ^ N) := ⟨by positivity⟩
+      rw [Nat.card_eq_fintype_card, ZMod.card_units_eq_totient,
+        Nat.totient_prime_pow Nat.prime_two (by omega)]
+      simp
+    rw [h1, h2, h3, ← pow_add]
+  exact IsPGroup.of_card hcard
+
+/-- `WL N` is pro-2, hence a legal target for `drLiftHom` / `d0LiftHom`. -/
+private theorem isProP_WL {N : ℕ} (hN : 1 ≤ N) : IsProP 2 (WL N) :=
+  isProP_of_isPGroup (isPGroup_WL hN)
+
+/-- The reduction `ℤ₂ ⋊ ℤ₂ˣ → ℤ/2^N ⋊ (ℤ/2^N)ˣ` (a group hom: reduction is a ring hom, so it
+intertwines the two product laws). -/
+private noncomputable def redWL (N : ℕ) : WordLift ℤ_[2] ℤ_[2]ˣ →* WL N where
+  toFun p := ⟨PadicInt.toZModPow N p.u, Units.map (PadicInt.toZModPow N).toMonoidHom p.g⟩
+  map_one' := by ext <;> simp
+  map_mul' p q := by
+    ext
+    · show PadicInt.toZModPow N (p.u + (p.g : ℤ_[2]) * q.u)
+        = PadicInt.toZModPow N p.u
+          + ((Units.map (PadicInt.toZModPow N).toMonoidHom p.g : (ZMod (2 ^ N))ˣ) : ZMod (2 ^ N))
+            * PadicInt.toZModPow N q.u
+      simp
+    · exact map_mul _ _ _
+
+@[simp] private theorem redWL_u (N : ℕ) (p : WordLift ℤ_[2] ℤ_[2]ˣ) :
+    (redWL N p).u = PadicInt.toZModPow N p.u := rfl
+
+@[simp] private theorem redWL_g (N : ℕ) (p : WordLift ℤ_[2] ℤ_[2]ˣ) :
+    (redWL N p).g = Units.map (PadicInt.toZModPow N).toMonoidHom p.g := rfl
+
+/-- The `.g`-projection `A ⋊ C → C`, as a monoid hom. -/
+private def wlBase (N : ℕ) : WL N →* (ZMod (2 ^ N))ˣ where
+  toFun p := p.g
+  map_one' := rfl
+  map_mul' _ _ := rfl
+
+/-- Powers in `R ⋊ Rˣ`: the offset picks up the geometric sum of the base. -/
+private theorem wl_pow {R : Type*} [CommRing R] (u : R) (g : Rˣ) (m : ℕ) :
+    ((⟨u, g⟩ : WordLift R Rˣ) ^ m) = ⟨(∑ j ∈ Finset.range m, (g : R) ^ j) * u, g ^ m⟩ := by
+  induction m with
+  | zero => ext <;> simp
+  | succ m ih =>
+    rw [pow_succ, ih]
+    ext
+    · show (∑ j ∈ Finset.range m, (g : R) ^ j) * u + ((g ^ m : Rˣ) : R) * u
+        = (∑ j ∈ Finset.range (m + 1), (g : R) ^ j) * u
+      rw [Finset.sum_range_succ, add_mul, Units.val_pow_eq_pow_val]
+    · simp [pow_succ]
+
+end CrossedFunctional
+
 /-! ## The stage lemma: SL1, SL2, and the step (spike §2.4) -/
 
 /-- **SL1 (reachability), direction 1**: for `T ∈ S^P_ₖ` (`k ≥ 3`), the defect is
