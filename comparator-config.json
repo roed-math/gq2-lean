@@ -1,7 +1,10 @@
 {
     "challenge_module": "Challenge",
     "solution_module": "Solution",
-    "theorem_names": ["challenge_main_presentation_literal"],
+    "theorem_names": [
+        "challenge_main_presentation_literal",
+        "challenge_main_presentation_literal_roe"
+    ],
     "permitted_axioms": [
         "propext",
         "Quot.sound",
