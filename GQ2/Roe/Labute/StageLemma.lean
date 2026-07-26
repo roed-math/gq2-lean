@@ -1984,6 +1984,93 @@ private theorem tail_parity {N k : ℕ} (hk : 3 ≤ k) (hN : 1 ≤ N) (hkN : k �
   show (α : ZMod (2 ^ 1)) * thetaVec hN Φ x j + (β : ZMod (2 ^ 1)) * thetaVec hN Φ y j = 0
   exact hred
 
+/-- The coordinate vectors of the tower generators are the standard basis. -/
+private theorem thetaVec_gen {N : ℕ} (hN : 1 ≤ N)
+    (Φ : (Fin 3 → ℤ_[2]) → ContinuousMonoidHom G (WL N)) (gen : Fin 3 → G)
+    (hgenval : ∀ (v : Fin 3 → ℤ_[2]) (j : Fin 3), (Φ v (gen j)).u = PadicInt.toZModPow N (v j))
+    (j : Fin 3) : thetaVec hN Φ (gen j) = Pi.single j (1 : ZMod (2 ^ 1)) := by
+  funext i
+  show redTwo hN ((Φ (Pi.single i 1) (gen j)).u) = _
+  rw [hgenval, Pi.single_apply, Pi.single_apply]
+  by_cases h : j = i
+  · subst h
+    simp
+  · rw [if_neg h, if_neg (fun hh => h hh.symm)]
+    simp
+
+/-- **Independence of a generating triple's coordinate vectors.**  The coordinate map
+`𝔽₂³ → 𝔽₂³`, `c ↦ ∑ cᵢ·θ(aᵢ)`, hits the standard basis (the classes of the `aᵢ` generate
+`Q_{k+1}`, and `θ` factors through it), hence is onto, hence — same finite type — injective. -/
+private theorem thetaVec_indep {N k : ℕ} (hN : 1 ≤ N) (hk : 1 ≤ k)
+    (Φ : (Fin 3 → ℤ_[2]) → ContinuousMonoidHom G (WL N)) (gen a : Fin 3 → G)
+    (hgenval : ∀ (v : Fin 3 → ℤ_[2]) (j : Fin 3), (Φ v (gen j)).u = PadicInt.toZModPow N (v j))
+    (hgent : Subgroup.closure (Set.range fun i => levelMk G (k + 1) (a i)) = ⊤)
+    {c : Fin 3 → ZMod (2 ^ 1)}
+    (hc : c 0 • thetaVec hN Φ (a 0) + c 1 • thetaVec hN Φ (a 1) + c 2 • thetaVec hN Φ (a 2) = 0) :
+    c = 0 := by
+  classical
+  set L : (Fin 3 → ZMod (2 ^ 1)) → (Fin 3 → ZMod (2 ^ 1)) := fun d =>
+    d 0 • thetaVec hN Φ (a 0) + d 1 • thetaVec hN Φ (a 1) + d 2 • thetaVec hN Φ (a 2) with hLdef
+  have hLadd : ∀ d d' : Fin 3 → ZMod (2 ^ 1), L (d + d') = L d + L d' := by
+    intro d d'
+    funext i
+    simp only [hLdef, Pi.add_apply, Pi.smul_apply, smul_eq_mul]
+    ring
+  have hLsmul : ∀ (z : ZMod (2 ^ 1)) (d : Fin 3 → ZMod (2 ^ 1)), L (z • d) = z • L d := by
+    intro z d
+    funext i
+    simp only [hLdef, Pi.add_apply, Pi.smul_apply, smul_eq_mul]
+    ring
+  have hLzero : L 0 = 0 := by simp [hLdef]
+  have hLbasis : ∀ i : Fin 3, L (Pi.single i 1) = thetaVec hN Φ (a i) := by
+    intro i
+    fin_cases i <;> simp [hLdef]
+  set S : Subgroup (levelQuot G (k + 1)) :=
+    { carrier := {q | ∃ x : G, levelMk G (k + 1) x = q ∧ thetaVec hN Φ x ∈ Set.range L}
+      one_mem' := ⟨1, map_one _, ⟨0, by rw [hLzero, thetaVec_one]⟩⟩
+      mul_mem' := by
+        rintro p q ⟨x, rfl, d, hd⟩ ⟨y, rfl, d', hd'⟩
+        exact ⟨x * y, map_mul _ _ _, ⟨d + d', by rw [hLadd, hd, hd', thetaVec_mul]⟩⟩
+      inv_mem' := by
+        rintro p ⟨x, rfl, d, hd⟩
+        refine ⟨x⁻¹, map_inv _ _, ⟨-d, ?_⟩⟩
+        have hneg : L (-d) = -L d := by
+          have h := hLadd d (-d)
+          rw [add_neg_cancel, hLzero] at h
+          exact eq_neg_of_add_eq_zero_right h.symm
+        rw [hneg, hd, thetaVec_inv] } with hSdef
+  have hStop : S = ⊤ := by
+    refine le_antisymm le_top ?_
+    rw [← hgent, Subgroup.closure_le]
+    rintro _ ⟨i, rfl⟩
+    exact ⟨a i, rfl, ⟨Pi.single i 1, hLbasis i⟩⟩
+  have hbasis : ∀ j : Fin 3, (Pi.single j (1 : ZMod (2 ^ 1))) ∈ Set.range L := by
+    intro j
+    have hmem : levelMk G (k + 1) (gen j) ∈ S := by rw [hStop]; trivial
+    obtain ⟨x, hx, d, hd⟩ := hmem
+    have hdiff : x⁻¹ * gen j ∈ twoCentralSeries G 2 :=
+      twoCentralSeries_antitone G (by omega : 2 ≤ k + 1) (QuotientGroup.eq.mp hx)
+    have hθ : thetaVec hN Φ (gen j) = thetaVec hN Φ x := by
+      have hsplit : thetaVec hN Φ (x * (x⁻¹ * gen j))
+          = thetaVec hN Φ x + thetaVec hN Φ (x⁻¹ * gen j) := thetaVec_mul hN Φ _ _
+      rw [show x * (x⁻¹ * gen j) = gen j by group, thetaVec_lambdaTwo hN Φ hdiff,
+        add_zero] at hsplit
+      exact hsplit
+    rw [← thetaVec_gen hN Φ gen hgenval j, hθ]
+    exact ⟨d, hd⟩
+  have hsurj : Function.Surjective L := by
+    intro z
+    obtain ⟨d0, hd0⟩ := hbasis 0
+    obtain ⟨d1, hd1⟩ := hbasis 1
+    obtain ⟨d2, hd2⟩ := hbasis 2
+    refine ⟨z 0 • d0 + (z 1 • d1 + z 2 • d2), ?_⟩
+    rw [hLadd, hLadd, hLsmul, hLsmul, hLsmul, hd0, hd1, hd2]
+    funext i
+    fin_cases i <;> simp [Pi.single_apply]
+  have hinj : Function.Injective L := Finite.injective_iff_surjective.mpr hsurj
+  have hLc : L c = L 0 := by rw [hLzero]; exact hc
+  exact hinj hLc
+
 end TailSeparation
 
 /-! ## The stage lemma: SL1, SL2, and the step (spike §2.4) -/
