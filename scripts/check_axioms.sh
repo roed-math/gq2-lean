@@ -68,6 +68,7 @@ GQ2.SectionTen.main_surjection_count' GQ2.main_surjection_count_R"
 
 # Strip Lean comments: nested block comments `/- … -/` (incl. docstrings `/-- … -/`) and
 # line comments `-- …`.  Emits one output line per input line (line numbers preserved).
+# Used by check 3; checks 1/2/4 inline the same scan into their single-pass sweep below.
 strip_comments() {
   awk '
     BEGIN { depth = 0 }
@@ -83,12 +84,6 @@ strip_comments() {
       }
       print out
     }' "$1"
-}
-
-# grep_code PATTERN FILE → "FILE:LINE:match" hits in comment-stripped code.
-grep_code() {
-  local pattern="$1" file="$2"
-  strip_comments "$file" | grep -nE "$pattern" | sed "s|^|${file}:|" || true
 }
 
 lean_files=$(find GQ2 -name '*.lean' | sort; echo GQ2.lean)
@@ -119,26 +114,55 @@ stray_sorries=""; warn_sorries=""
 native="";        warn_native=""
 
 allow_re=" $(echo "$SORRY_ALLOWLIST" | sed 's/ / | /g') "
-for f in $lean_files; do
+
+# Checks 1, 2 and 4 in ONE awk pass over the whole library (a pipeline per file per pattern
+# cost minutes).  The comment scan is strip_comments' loop verbatim, with the nesting depth
+# reset at each file's first line so state cannot leak across files; each stripped line is
+# tested against the three patterns and every hit is emitted as "TAG<TAB>FILE:LINE:code" —
+# the payload a per-file `strip_comments | grep -nE | sed` produced.  Paths carry no spaces
+# (as the loop this replaced also assumed), so they can go straight into argv.
+set -- $lean_files
+scan=$(awk '
+  FNR == 1 { depth = 0 }
+  {
+    line = $0; out = ""; i = 1; n = length(line)
+    while (i <= n) {
+      two = substr(line, i, 2)
+      if (depth == 0 && two == "--") break
+      if (two == "/-") { depth++; i += 2; continue }
+      if (two == "-/") { if (depth > 0) depth--; i += 2; continue }
+      if (depth == 0) out = out substr(line, i, 1)
+      i++
+    }
+    hit = FILENAME ":" FNR ":" out
+    if (out ~ /^[[:space:]]*(private[[:space:]]+|protected[[:space:]]+)?axiom[[:space:]]/) print "AX\t" hit
+    if (out ~ /(^|[^[:alnum:]_])sorry([^[:alnum:]_]|$)/) print "SORRY\t" hit
+    if (out ~ /(^|[^[:alnum:]_])native_decide([^[:alnum:]_]|$)/) print "ND\t" hit
+  }' "$@")
+
+# Partition the tagged hits into the FAIL/WARN buckets (P-24 split on git membership).
+while IFS= read -r rec; do
+  if [ -z "$rec" ]; then continue; fi  # no hits at all → the here-doc is a single blank line
+  tag=${rec%%$'\t'*}; hit=${rec#*$'\t'}; f=${hit%%:*}
   if is_tracked "$f"; then tracked=1; else tracked=0; fi
-  hits=$(grep_code '^[[:space:]]*(private[[:space:]]+|protected[[:space:]]+)?axiom[[:space:]]' "$f")
-  if [ -n "$hits" ] && [ "$f" != "$AXIOMS_FILE" ]; then
-    if [ "$tracked" -eq 1 ]; then stray_axioms+="$hits"$'\n'; else warn_axioms+="$hits"$'\n'; fi
-  fi
-  case "$allow_re" in
-    *" $f "*) ;;  # allowlisted (always tracked; intentional gap)
-    *)
-      hits=$(grep_code '(^|[^[:alnum:]_])sorry([^[:alnum:]_]|$)' "$f")
-      if [ -n "$hits" ]; then
-        if [ "$tracked" -eq 1 ]; then stray_sorries+="$hits"$'\n'; else warn_sorries+="$hits"$'\n'; fi
-      fi
+  case "$tag" in
+    AX)
+      if [ "$f" = "$AXIOMS_FILE" ]; then continue; fi
+      if [ "$tracked" -eq 1 ]; then stray_axioms+="$hit"$'\n'; else warn_axioms+="$hit"$'\n'; fi
+      ;;
+    SORRY)
+      case "$allow_re" in
+        *" $f "*) continue ;;  # allowlisted (always tracked; intentional gap)
+      esac
+      if [ "$tracked" -eq 1 ]; then stray_sorries+="$hit"$'\n'; else warn_sorries+="$hit"$'\n'; fi
+      ;;
+    ND)
+      if [ "$tracked" -eq 1 ]; then native+="$hit"$'\n'; else warn_native+="$hit"$'\n'; fi
       ;;
   esac
-  hits=$(grep_code '(^|[^[:alnum:]_])native_decide([^[:alnum:]_]|$)' "$f")
-  if [ -n "$hits" ]; then
-    if [ "$tracked" -eq 1 ]; then native+="$hits"$'\n'; else warn_native+="$hits"$'\n'; fi
-  fi
-done
+done <<EOF
+$scan
+EOF
 
 # -- 1. axiom placement ------------------------------------------------------
 if [ -n "${stray_axioms//$'\n'/}" ]; then
