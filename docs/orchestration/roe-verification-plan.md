@@ -46,7 +46,7 @@
 > | | §5 estimate (Route L) | actual |
 > |---|---|---|
 > | new/changed Lean | 7–12 k lines | **≈ 20.5 k lines across 55 files** |
-> | dispatches | ≈ 23–27 | **37** (38 board rows; R14 cancelled) |
+> | dispatches | ≈ 23–27 | **37** (37 board rows, of which R14 was cancelled, plus the R30a recon recorded in prose) |
 > | wall clock | 6–9 swarm-days ≈ 1–2 calendar weeks | **2 calendar days** (07-24 → 07-25) |
 >
 > The volume overshoot has two identified causes, both recorded decisions rather than
