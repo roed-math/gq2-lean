@@ -1382,13 +1382,11 @@ theorem stageSL2R0 (k : ℕ) (hk : 3 ≤ k) {T : Fin 3 → levelQuot (DR : Type)
   have hlift1 : levelMk (DR : Type) (k + 1) (g 1 * (Ug ^ a * Vg ^ b))
       = canonLift (DR : Type) k (T 1) * ![1, p * q, q] 1 := by
     rw [hUg, hVg, hpdef, hqdef]
-    simp only [map_mul, map_pow, hg, Matrix.cons_val_one, Matrix.head_cons,
-      Matrix.cons_val_zero]
+    simp only [map_mul, map_pow, hg, Matrix.cons_val_one, Matrix.cons_val_zero]
   have hlift2 : levelMk (DR : Type) (k + 1) (g 2 * Vg ^ b)
       = canonLift (DR : Type) k (T 2) * ![1, p * q, q] 2 := by
     rw [hVg, hqdef]
-    simp only [map_mul, map_pow, hg, Matrix.cons_val_two, Matrix.tail_cons, Matrix.head_cons,
-      Matrix.cons_val_zero, Matrix.cons_val_one]
+    simp only [map_mul, map_pow, hg, Matrix.cons_val_two, Matrix.tail_cons, Matrix.head_cons]
   -- the relator clause at level `k+1` (the defect is gone and the move is in `ker d̄`)
   have hrelQ : d0Word (canonLift (DR : Type) k (T 0) * ![1, p * q, q] 0)
       (canonLift (DR : Type) k (T 1) * ![1, p * q, q] 1)
@@ -1545,8 +1543,7 @@ theorem stageSL2R2 (k : ℕ) (hk : 3 ≤ k) {T : Fin 3 → levelQuot (D0 : Type)
   have hlift1 : levelMk (D0 : Type) (k + 1) (g 1 * Vg ^ b)
       = canonLift (D0 : Type) k (T 1) * ![p, q, 1] 1 := by
     rw [hVg, hqdef]
-    simp only [map_mul, map_pow, hg, Matrix.cons_val_one, Matrix.head_cons,
-      Matrix.cons_val_zero]
+    simp only [map_mul, map_pow, hg, Matrix.cons_val_one, Matrix.cons_val_zero]
   have hlift2 : levelMk (D0 : Type) (k + 1) (g 2)
       = canonLift (D0 : Type) k (T 2) * ![p, q, 1] 2 := by
     rw [hg 2]; simp
