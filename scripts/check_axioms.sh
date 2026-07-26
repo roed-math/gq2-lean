@@ -4,7 +4,8 @@
 # Checks 1-4 are textual and comment-aware; check 5 walks the elaborated environment
 # (run from anywhere):
 #   1. `axiom` declarations appear ONLY in GQ2/Foundations/Axioms.lean.
-#   2. `sorry` appears only in SORRY_ALLOWLIST files (deliberate, ticketed gaps).
+#   2. `sorry` appears nowhere (the allowlist is empty — the library is fully proved;
+#      re-add a file to SORRY_ALLOWLIST only for a deliberate, ticketed gap).
 #   3. The axiom census in Axioms.lean matches the expected count (bump EXPECTED_AXIOMS
 #      when a new B-leaf lands, in the same commit).
 #   4. No `native_decide` anywhere (it would add `Lean.ofReduceBool` beyond the standard
@@ -25,15 +26,12 @@ cd "$(dirname "$0")/.."
 
 AXIOMS_FILE='GQ2/Foundations/Axioms.lean'
 EXPECTED_AXIOMS=9  # B1, B3c, B5, B6, B7, B8, B9, B10, B11a — B4 deleted 2026-07-10 (unused; B3c subsumes a marked B4), following B2 (B10: census decision, P-06 escalation; B9 base-generalized + B11 added: census decision, P-15 escalation, 2026-07-03; B11 split into B11a hilbertSymbol_normCriterion_finiteDyadic + B11b unramifiedQuadratic_units_are_norms, census 12→13: P-23 / adversarial review rec 2, user-approved 2026-07-04 — old dyadicNormCriterion re-derived as a same-name theorem, the spectral-norm bridge isolated as a def not an axiom; B12 kummerClassK_surjective + B13 dyadicUnitFiltration added, census 13→15: P-15f1 instantiation, user-approved 2026-07-06, docs/p15f1-axiom-proposal.md; B12 discharged as a same-name theorem over the std-3 proof in GQ2/KummerSurjectivity.lean + GQ2/KummerKrullBridge.lean AND the unused B2 cyclotomicCharacter_two_surjective deleted, census 15→13: B12 board, user-approved 2026-07-09; B7' hilbertSymbol_dyadic discharged as a same-name theorem over the std-3 proof in GQ2/HilbertSymbolDyadicClose.lean, census 13→12: B7' board, user-approved 2026-07-09; B13 dyadicUnitFiltration discharged as a same-name noncomputable def over the std-3 proof in GQ2/UnitFiltrationCounts.lean + GQ2/UnitFiltrationTop.lean, census 12→11: B13 board, user-approved 2026-07-09; B11b unramifiedQuadratic_units_are_norms discharged as a same-name theorem over the std-3 proof in GQ2/UnramifiedQuadraticNorms.lean + GQ2/TeichmullerLift.lean, census 11→10: B11b board, user-approved 2026-07-09 — dyadicNormCriterion now rests on B11a alone; B9 evensKahn_dyadic REPLACED by the relative Stiefel-Whitney identity relativeStiefelWhitney_dyadic with evensKahn_dyadic re-derived as a same-name theorem from it + B11a, census 9→9: B9-A board docs/orchestration/b9a-tickets.md, user-approved 2026-07-24)
-# INTERIM (2026-07-25, R40): the four L-campaign skeleton files below carry the in-flight fills for
-# the Labute classification (B-Lab).  They are scoped to GQ2/Roe/Labute/ ONLY — a `sorry` anywhere
-# else, including elsewhere under GQ2/Roe/, still fails this gate — and they are NOT reachable from
-# any capstone: the Labute input enters `main_presentation_literal_roe` as the explicit hypothesis
-# `BLabHypothesis`, never as a proof dependency, which check 5 below enforces (no `sorryAx`).
-# L-campaign in flight; L6 removes this entry.
 # Emptied 2026-07-08 (library fully sorry-free; last leaves GammaA/FoxHeisenberg/SectionSeven
-# discharged) — per-ticket history in docs/orchestration/tickets.md and the git log of this line.
-SORRY_ALLOWLIST='GQ2/Roe/Labute/TwoCentralTower.lean GQ2/Roe/Labute/Levelwise.lean GQ2/Roe/Labute/StageLemma.lean GQ2/Roe/Labute/Assembly.lean'
+# discharged); held the four GQ2/Roe/Labute/ skeletons while the L-campaign was in flight
+# (R40, 2026-07-25) and RE-EMPTIED at L6 (2026-07-26) when the Labute classification instance
+# landed as the sorry-free theorem `GQ2.Roe.Labute.bLab` — per-ticket history in
+# docs/orchestration/{tickets.md,roe-tickets.md} and the git log of this line.
+SORRY_ALLOWLIST=''
 
 # -- check 5 configuration ---------------------------------------------------
 # The exact axiom set every audited capstone must print: the standard three plus the frozen
@@ -54,7 +52,11 @@ GQ2.hilbertSymbol_normCriterion_finiteDyadic'
 # Declarations whose axiom set must equal AUDIT_EXPECTED_AXIOMS exactly, one per line.
 # The Γ_R capstones (R32) are hypothesis-parametrized by `BLabHypothesis`; a hypothesis binder
 # contributes nothing to an axiom print, so they are audited exactly like the Γ_A capstones.
+# `main_presentation_literal_roe_unconditional` (L6) is that binder *discharged* by the theorem
+# `GQ2.Roe.Labute.bLab` (std-3, no `sorryAx`): auditing it against the same expected set is what
+# certifies that proving the Labute instance — rather than assuming it — widened nothing.
 AUDIT_DECLS='GQ2.main_presentation_literal_roe
+GQ2.main_presentation_literal_roe_unconditional
 GQ2.eq_154_R
 GQ2.main_surjection_count_R
 GQ2.admissibleCountR_eq_admissibleCount'
@@ -174,12 +176,13 @@ else
 fi
 
 # -- 2. sorry allowlist ------------------------------------------------------
+allow_desc=${SORRY_ALLOWLIST:-'empty — the library is fully proved'}
 if [ -n "${stray_sorries//$'\n'/}" ]; then
-  echo "FAIL: sorry outside the allowlist (${SORRY_ALLOWLIST}):"
+  echo "FAIL: sorry outside the allowlist (${allow_desc}):"
   printf '%s' "$stray_sorries"
   fail=1
 else
-  echo "OK:   sorries only in the allowlist (${SORRY_ALLOWLIST})"
+  echo "OK:   sorries only in the allowlist (${allow_desc})"
 fi
 
 # -- 3. axiom census ---------------------------------------------------------
