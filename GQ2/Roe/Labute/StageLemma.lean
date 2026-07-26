@@ -2264,7 +2264,6 @@ end Reference
 
 /-! ## The stage lemma: SL1, SL2, and the step (spike §2.4) -/
 
-set_option maxHeartbeats 400000 in
 /-- **SL1 (reachability), direction 1**: for `T ∈ S^P_ₖ` (`k ≥ 3`), the defect is
 reachable — some `λ_{k-1}`-modification's shift equals `δ(T)⁻¹` (inverse form; in `Zₖ`
 inverses are trivial, so this is the memo's `δₖ(T) ∈ Im d̄ₖ(T)`).  This is where the
@@ -2578,7 +2577,6 @@ theorem stageSL1R0 (k : ℕ) (hk : 3 ≤ k) {T : Fin 3 → levelQuot (DR : Type)
   rw [htriv1, htriv2, mul_one, mul_one] at hdec
   exact ⟨w, hw, by rw [← hdec, zLayer_inv_self (defectR0_mem_zLayer k hrel)]⟩
 
-set_option maxHeartbeats 400000 in
 /-- SL1 (reachability), direction 2.  Fill: L4b. -/
 theorem stageSL1R2 (k : ℕ) (hk : 3 ≤ k) {T : Fin 3 → levelQuot (D0 : Type) k}
     (hT : T ∈ sPR2 k) :
