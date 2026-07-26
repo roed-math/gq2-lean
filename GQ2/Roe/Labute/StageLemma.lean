@@ -1522,6 +1522,173 @@ private theorem twoCentralSeries_WL_le {N : ℕ} (hN : 1 ≤ N) {j : ℕ} (hj : 
         rw [← pow_succ]; congr 1; omega] at hmul
       exact hmul
 
+/-! #### The derivations out of the two towers -/
+
+local instance instTopUnitsZMod (N : ℕ) : TopologicalSpace ((ZMod (2 ^ N))ˣ) := ⊥
+local instance instDiscUnitsZMod (N : ℕ) : DiscreteTopology ((ZMod (2 ^ N))ˣ) := ⟨rfl⟩
+
+/-- Direction 1: the derivation `D_R → WL N` with generator data `(v i, χ_R)`.  It exists
+because `χ_R` is Labute's orientation — **every** crossed derivation kills `r₂`
+(`isLabuteOrientation_chiR`), which is exactly the relator hypothesis `drLiftHom` wants. -/
+private noncomputable def derivR (N : ℕ) (hN : 1 ≤ N) (v : Fin 3 → ℤ_[2]) :
+    ContinuousMonoidHom (DR : Type) (WL N) :=
+  drLiftHom (isProP_WL hN)
+    ![redWL N ⟨v 0, chiR drS⟩, redWL N ⟨v 1, chiR drX⟩, redWL N ⟨v 2, chiR drY⟩]
+    (by
+      simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons, Matrix.cons_val_two,
+        Matrix.tail_cons]
+      rw [← map_drWord, show drWord (⟨v 0, chiR drS⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ⟨v 1, chiR drX⟩
+          ⟨v 2, chiR drY⟩ = 1 from isLabuteOrientation_chiR (v 0) (v 1) (v 2), map_one])
+
+@[simp] private theorem derivR_drS (N : ℕ) (hN : 1 ≤ N) (v : Fin 3 → ℤ_[2]) :
+    derivR N hN v drS = redWL N ⟨v 0, chiR drS⟩ := drLiftHom_S _ _ _
+
+@[simp] private theorem derivR_drX (N : ℕ) (hN : 1 ≤ N) (v : Fin 3 → ℤ_[2]) :
+    derivR N hN v drX = redWL N ⟨v 1, chiR drX⟩ := drLiftHom_X _ _ _
+
+@[simp] private theorem derivR_drY (N : ℕ) (hN : 1 ≤ N) (v : Fin 3 → ℤ_[2]) :
+    derivR N hN v drY = redWL N ⟨v 2, chiR drY⟩ := drLiftHom_Y _ _ _
+
+/-- **The base component is `χ_R`** (mod `2^N`): both sides are continuous homs `D_R → (ℤ/2^N)ˣ`
+agreeing on `s, x, y`, so `dr_hom_ext` applies.  The right-hand side is continuous because it
+factors through the discrete level quotient `Q_N`. -/
+private theorem derivR_base (N : ℕ) (hN : 1 ≤ N) (v : Fin 3 → ℤ_[2]) (a : (DR : Type)) :
+    (derivR N hN v a).g = Units.map (PadicInt.toZModPow N).toMonoidHom (chiR a) := by
+  haveI := discreteTopology_levelQuot (DR : Type) drTopGenFinset isProP_DR N
+  set f : ContinuousMonoidHom (DR : Type) ((ZMod (2 ^ N))ˣ) :=
+    (⟨wlBase N, continuous_of_discreteTopology⟩ :
+        ContinuousMonoidHom (WL N) ((ZMod (2 ^ N))ˣ)).comp (derivR N hN v) with hf
+  set g : ContinuousMonoidHom (DR : Type) ((ZMod (2 ^ N))ˣ) :=
+    ⟨(chiLevel chiR N).comp (levelMk (DR : Type) N),
+      show Continuous ((chiLevel chiR N) ∘ (levelMk (DR : Type) N)) from
+        (continuous_of_discreteTopology (f := ⇑(chiLevel chiR N))).comp
+          (continuous_levelMk (DR : Type) N)⟩ with hg
+  have hval : ∀ b : (DR : Type), f b = (derivR N hN v b).g := fun _ => rfl
+  have hval' : ∀ b : (DR : Type),
+      g b = Units.map (PadicInt.toZModPow N).toMonoidHom (chiR b) := fun b => by
+    show chiLevel chiR N (levelMk (DR : Type) N b) = _
+    rw [chiLevel_levelMk]
+  have hext : f = g := by
+    refine dr_hom_ext f g ?_ ?_ ?_
+    · rw [hval, hval', derivR_drS]; rfl
+    · rw [hval, hval', derivR_drX]; rfl
+    · rw [hval, hval', derivR_drY]; rfl
+  rw [← hval a, hext, hval' a]
+
+/-- **Hom-extensionality for `D₀`** (private clone of `dr_hom_ext`, on `SectionThree.topGen_d0`). -/
+private theorem d0_hom_ext {A : Type} [Group A] [TopologicalSpace A] [IsTopologicalGroup A]
+    [T2Space A] (φ ψ : ContinuousMonoidHom (D0 : Type) A)
+    (hA : φ d0A = ψ d0A) (hS : φ d0S = ψ d0S) (hY : φ d0Y = ψ d0Y) : φ = ψ := by
+  have hgens : Set.EqOn φ ψ ({d0A, d0S, d0Y} : Set (D0 : Type)) := by
+    rintro w (rfl | rfl | rfl)
+    exacts [hA, hS, hY]
+  have hsub : Set.EqOn φ ψ (Subgroup.closure ({d0A, d0S, d0Y} : Set (D0 : Type))) := by
+    intro w hw
+    induction hw using Subgroup.closure_induction with
+    | mem x hx => exact hgens hx
+    | one => simp
+    | mul a b _ _ ha hb => rw [map_mul, map_mul, ha, hb]
+    | inv a _ ha => rw [map_inv, map_inv, ha]
+  have hdense :
+      Dense ((Subgroup.closure ({d0A, d0S, d0Y} : Set (D0 : Type))) : Set (D0 : Type)) := by
+    rw [dense_iff_closure_eq, ← Subgroup.topologicalClosure_coe, SectionThree.topGen_d0,
+      Subgroup.coe_top]
+  refine ContinuousMonoidHom.ext (fun z => ?_)
+  exact (hsub.closure φ.continuous_toFun ψ.continuous_toFun) (hdense z)
+
+/-- **The `r₀`-side Labute datum**: with the orientation values `(−1, 1, η)` every crossed
+derivation kills `r₀ = A²S⁴[S,Y]`.  The computation is the one 2-adic miracle behind SL1:
+the `S⁴`-block contributes `4·Ds` and the commutator `(η⁻¹ − 1)·Ds`, and `η⁻¹ = −3` exactly,
+so the total `(3 + η⁻¹)·Ds` vanishes on the nose. -/
+private theorem d0Word_wordLift_target (Da Ds Dy : ℤ_[2]) :
+    d0Word (⟨Da, -1⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ⟨Ds, 1⟩ ⟨Dy, etaUnit⟩ = 1 := by
+  have hetainv : ((etaUnit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) = -3 := by
+    rw [etaUnit, inv_inv, negThreeUnit_val]
+  have hsq : (⟨Da, -1⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ^ 2 = ⟨0, 1⟩ := by
+    rw [wl_pow]
+    ext
+    · show (∑ j ∈ Finset.range 2, ((-1 : ℤ_[2]ˣ) : ℤ_[2]) ^ j) * Da = (0 : ℤ_[2])
+      rw [Finset.sum_range_succ, Finset.sum_range_one]
+      push_cast
+      ring
+    · show (((-1 : ℤ_[2]ˣ) ^ 2 : ℤ_[2]ˣ) : ℤ_[2]) = ((1 : ℤ_[2]ˣ) : ℤ_[2])
+      push_cast
+      ring
+  have hfour : (⟨Ds, 1⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ^ 4 = ⟨4 * Ds, 1⟩ := by
+    rw [wl_pow]
+    ext
+    · show (∑ j ∈ Finset.range 4, ((1 : ℤ_[2]ˣ) : ℤ_[2]) ^ j) * Ds = 4 * Ds
+      rw [Finset.sum_range_succ, Finset.sum_range_succ, Finset.sum_range_succ,
+        Finset.sum_range_one]
+      push_cast
+      ring
+    · show (((1 : ℤ_[2]ˣ) ^ 4 : ℤ_[2]ˣ) : ℤ_[2]) = ((1 : ℤ_[2]ˣ) : ℤ_[2])
+      push_cast
+      ring
+  rw [d0Word, hsq, hfour, commP_wordLift]
+  ext
+  · simp only [WordLift.mul_u, WordLift.mul_g, WordLift.one_u, Units.smul_def, smul_eq_mul,
+      Units.val_one, Units.val_mul, inv_one]
+    rw [hetainv]
+    ring
+  · simp [commP_eq_one]
+
+/-- Direction 2: the derivation `D₀ → WL N` with generator data `(v i, (−1, 1, η))`. -/
+private noncomputable def deriv0 (N : ℕ) (hN : 1 ≤ N) (v : Fin 3 → ℤ_[2]) :
+    ContinuousMonoidHom (D0 : Type) (WL N) :=
+  SectionThree.d0LiftHom (isProP_WL hN)
+    ![redWL N ⟨v 0, -1⟩, redWL N ⟨v 1, 1⟩, redWL N ⟨v 2, etaUnit⟩]
+    (by
+      simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons, Matrix.cons_val_two,
+        Matrix.tail_cons]
+      show d0Word (redWL N ⟨v 0, -1⟩) (redWL N ⟨v 1, 1⟩) (redWL N ⟨v 2, etaUnit⟩) = 1
+      rw [← map_d0Word, d0Word_wordLift_target, map_one])
+
+@[simp] private theorem deriv0_d0A (N : ℕ) (hN : 1 ≤ N) (v : Fin 3 → ℤ_[2]) :
+    deriv0 N hN v d0A = redWL N ⟨v 0, -1⟩ := by
+  show ((maxProPHomEquiv (isProP_WL hN)).symm _) (maxProPMk 2 D0Full
+    (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 0))) = _
+  rw [maxProPHomEquiv_symm_apply_maxProPMk]
+  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
+
+@[simp] private theorem deriv0_d0S (N : ℕ) (hN : 1 ≤ N) (v : Fin 3 → ℤ_[2]) :
+    deriv0 N hN v d0S = redWL N ⟨v 1, 1⟩ := by
+  show ((maxProPHomEquiv (isProP_WL hN)).symm _) (maxProPMk 2 D0Full
+    (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 1))) = _
+  rw [maxProPHomEquiv_symm_apply_maxProPMk]
+  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
+
+@[simp] private theorem deriv0_d0Y (N : ℕ) (hN : 1 ≤ N) (v : Fin 3 → ℤ_[2]) :
+    deriv0 N hN v d0Y = redWL N ⟨v 2, etaUnit⟩ := by
+  show ((maxProPHomEquiv (isProP_WL hN)).symm _) (maxProPMk 2 D0Full
+    (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 2))) = _
+  rw [maxProPHomEquiv_symm_apply_maxProPMk]
+  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
+
+/-- The base component of the `D₀`-derivation is the mod-`2^N` shadow of `χ₀`. -/
+private theorem deriv0_base (N : ℕ) (hN : 1 ≤ N) (v : Fin 3 → ℤ_[2]) (a : (D0 : Type)) :
+    (deriv0 N hN v a).g = Units.map (PadicInt.toZModPow N).toMonoidHom (chiD0pres a) := by
+  haveI := discreteTopology_levelQuot (D0 : Type) d0TopGenFinset SectionThree.d0_isProP N
+  set f : ContinuousMonoidHom (D0 : Type) ((ZMod (2 ^ N))ˣ) :=
+    (⟨wlBase N, continuous_of_discreteTopology⟩ :
+        ContinuousMonoidHom (WL N) ((ZMod (2 ^ N))ˣ)).comp (deriv0 N hN v) with hf
+  set g : ContinuousMonoidHom (D0 : Type) ((ZMod (2 ^ N))ˣ) :=
+    ⟨(chiLevel chiD0pres N).comp (levelMk (D0 : Type) N),
+      show Continuous ((chiLevel chiD0pres N) ∘ (levelMk (D0 : Type) N)) from
+        (continuous_of_discreteTopology (f := ⇑(chiLevel chiD0pres N))).comp
+          (continuous_levelMk (D0 : Type) N)⟩ with hg
+  have hval : ∀ b : (D0 : Type), f b = (deriv0 N hN v b).g := fun _ => rfl
+  have hval' : ∀ b : (D0 : Type),
+      g b = Units.map (PadicInt.toZModPow N).toMonoidHom (chiD0pres b) := fun b => by
+    show chiLevel chiD0pres N (levelMk (D0 : Type) N b) = _
+    rw [chiLevel_levelMk]
+  have hext : f = g := by
+    refine d0_hom_ext f g ?_ ?_ ?_
+    · rw [hval, hval', deriv0_d0A, chiD0pres_d0A]; rfl
+    · rw [hval, hval', deriv0_d0S, chiD0pres_d0S]; rfl
+    · rw [hval, hval', deriv0_d0Y, chiD0pres_d0Y]; rfl
+  rw [← hval a, hext, hval' a]
+
 end CrossedFunctional
 
 /-! ## The stage lemma: SL1, SL2, and the step (spike §2.4) -/
