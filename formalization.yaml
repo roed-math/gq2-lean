@@ -29,20 +29,21 @@ status:
     not yet contain, each with a precise citation — see GQ2/Foundations/Axioms.lean
     and docs/literature-axioms.md).
 
-    A second, CONDITIONAL main result was added later: the same literal isomorphism for a
-    different candidate group Gamma_R (the "Replacement theorem",
-    GQ2.main_presentation_literal_roe). Its proof is sorry-free and rests on exactly the
-    same 9 literature axioms, but it carries one explicit hypothesis, BLabHypothesis (a
-    Labute-classification instance), which is a theorem binder and NOT an axiom. Work to
-    discharge that hypothesis in-repo is in flight; until it lands, the Gamma_R result is
-    conditional and the Gamma_A result above is not.
-  # Repo-wide count. 0 everywhere except the in-flight skeleton files under GQ2/Roe/Labute/,
-  # which hold the unfinished proof of BLabHypothesis; the number below is a snapshot
-  # (2026-07-25) of active work and moves daily. The stable facts: both entries under
-  # main_results are themselves sorry-free (see their own sorry_count), no declaration
-  # outside GQ2/Roe/Labute/ depends on sorryAx (verified by GQ2/AxiomLedger.lean's gap map),
-  # and scripts/check_axioms.sh allowlists exactly those four files and nothing else.
-  sorry_count: 37
+    A second main result was added later: the same literal isomorphism for a different
+    candidate group Gamma_R (the "Replacement theorem",
+    GQ2.main_presentation_literal_roe_unconditional). It is sorry-free and rests on exactly
+    the same 9 literature axioms -- `#print axioms` returns the same 12 names as for the
+    Gamma_A result. It was conditional for one day, on an explicit hypothesis BLabHypothesis
+    (a Labute-classification instance carried as a theorem binder, NOT as an axiom); that
+    hypothesis was PROVED in-repo on 2026-07-26 (GQ2.Roe.Labute.bLab,
+    GQ2/Roe/Labute/Assembly.lean, at the standard three axioms), so both main results are now
+    unconditional and the axiom census stayed at 9. The hypothesis-parametrized form
+    GQ2.main_presentation_literal_roe is retained as a frozen statement.
+  # Repo-wide count: the library is fully sorry-free (the last gap, the Labute classification
+  # instance under GQ2/Roe/Labute/, closed 2026-07-26). Enforced mechanically by
+  # scripts/check_axioms.sh check 2, whose allowlist is empty, and cross-checked by
+  # GQ2/AxiomLedger.lean's gap map and by check 5 (no capstone depends on sorryAx).
+  sorry_count: 0
   sorry_in_definitions: 0
   axioms:
     - "propext"
@@ -94,14 +95,18 @@ status:
           source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
         - statement: "Hilbert-symbol norm criterion for finite dyadic extensions (B11a)"
           source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
-    # CONDITIONAL second main result. Same statement shape as the entry above with the
-    # candidate group replaced by Gamma_R, and one added hypothesis binder. The axioms list
-    # is identical to the entry above -- not "similar": `#print axioms` returns the same 12
-    # names, which scripts/check_axioms.sh (check 5) and GQ2/AxiomLedger.lean's terminal
-    # certificate both enforce mechanically. BLabHypothesis contributes nothing to that list
-    # precisely because it is a hypothesis and not an axiom; it is recorded as the last
-    # literature_dependency below, where its undischarged status is stated.
-    - declaration: "GQ2.main_presentation_literal_roe"
+    # Second main result: the same statement shape as the entry above with the candidate group
+    # replaced by Gamma_R, and NO added hypothesis. The axioms list is identical to the entry
+    # above -- not "similar": `#print axioms` returns the same 12 names, which
+    # scripts/check_axioms.sh (check 5) and GQ2/AxiomLedger.lean's terminal certificate both
+    # enforce mechanically. Between 2026-07-25 and 2026-07-26 this result was conditional on an
+    # explicit hypothesis BLabHypothesis (a Labute-classification instance, deliberately NOT
+    # admitted as an axiom); the L-campaign proved it as GQ2.Roe.Labute.bLab at the standard
+    # three axioms, so the entry below is the discharged form
+    # (main_presentation_literal_roe bLab) and the literature_dependencies list is again exactly
+    # the 9 census axioms. The hypothesis-parametrized GQ2.main_presentation_literal_roe is kept
+    # in the library (and is what comparator-config.json still names -- see review.notes).
+    - declaration: "GQ2.main_presentation_literal_roe_unconditional"
       file: "GQ2/Roe/Main.lean"
       sorry_count: 0
       axioms:
@@ -137,14 +142,12 @@ status:
           source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
         - statement: "Hilbert-symbol norm criterion for finite dyadic extensions (B11a)"
           source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
-        - statement: >
-            Labute classification instance for the Gamma_R two-central tower (B-Lab), carried
-            as the EXPLICIT HYPOTHESIS BLabHypothesis (GQ2/Roe/MarkedPro2.lean) rather than as
-            an axiom. This is the one respect in which this result is weaker than the Gamma_A
-            result above: it is conditional on a statement that is neither proved in-repo nor
-            admitted as an axiom. A proof is in flight under GQ2/Roe/Labute/; the theorem
-            becomes unconditional only when that proof is sorry-free.
-          source: "Labute, Demushkin-group classification; hypothesis stated in GQ2/Roe/MarkedPro2.lean, proof attempt in GQ2/Roe/Labute/"
+        # NOT a literature dependency (removed 2026-07-26): the Labute classification instance
+        # for the Gamma_R two-central tower (B-Lab) was listed here while it was an undischarged
+        # hypothesis. It is now the in-repo theorem GQ2.Roe.Labute.bLab
+        # (GQ2/Roe/Labute/Assembly.lean, standard three axioms, sorry-free), proved from the
+        # two-central-tower stage lemma rather than cited -- see docs/literature-axioms.md
+        # section B3, addendum "B-Lab".
 
 automation:
   methods:
@@ -191,11 +194,12 @@ fidelity:
     (relativeStiefelWhitney_dyadic), and the previous composite B9 statement is now a
     derived theorem (evensKahn_dyadic) proved from it + B11a; census unchanged at 9;
     (vi) the Gamma_R "Replacement theorem" (GQ2/Roe/) is not part of the paper at all --
-    it verifies a different candidate group proposed after the fact -- and unlike every
-    other main result it is conditional, on the explicit hypothesis BLabHypothesis. The
-    axiom census was deliberately NOT extended to cover it: the Labute input is carried as
-    a theorem binder so that the conditionality is visible in the statement itself rather
-    than hidden in an axiom file.
+    it verifies a different candidate group proposed after the fact. Its one extra input,
+    a Labute classification instance, was deliberately NOT admitted as an axiom but carried
+    as an explicit theorem binder (BLabHypothesis), so that the conditionality was visible
+    in the statement itself rather than hidden in an axiom file; on 2026-07-26 that binder
+    was discharged in-repo (GQ2.Roe.Labute.bLab) and the result became unconditional, with
+    the census still 9.
 
 review:
   status: "agent-reviewed"
@@ -210,9 +214,12 @@ review:
     received external human review. Both main results are independently checkable with
     leanprover/comparator via comparator-config.json (Challenge.lean / Solution.lean), which
     names one challenge theorem per main result. The Gamma_R result has had no external human
-    review either, and its outstanding hypothesis BLabHypothesis has not been independently
-    checked; note that comparator verifies the CONDITIONAL statement, so a passing comparator
-    run says nothing about whether BLabHypothesis is true.
+    review either; its former hypothesis BLabHypothesis is now the in-repo theorem
+    GQ2.Roe.Labute.bLab (2026-07-26), whose proof -- a two-central-tower stage lemma feeding a
+    profinite Hopfian endgame -- has likewise had no external review. Note that the comparator
+    challenge theorem challenge_main_presentation_literal_roe still carries the hBLab binder,
+    i.e. comparator currently certifies the weaker CONDITIONAL statement; restating it against
+    GQ2.main_presentation_literal_roe_unconditional is an open follow-up.
 
 alignment:
   namespace: "GQ2"
@@ -244,18 +251,31 @@ alignment:
     # Roe-candidate verification. Not in the original paper: a later campaign asking whether a
     # DIFFERENT candidate group, Gamma_R, also presents G_Q2. See docs/orchestration/roe-verification-plan.md.
     - source: "Replacement theorem (Roe candidate; not in the original PDF)"
-      lean: "GQ2.main_presentation_literal_roe"
+      lean: "GQ2.main_presentation_literal_roe_unconditional"
       module: "GQ2/Roe/Main.lean"
-      status: "conditional"
+      status: "proved"
       note: >
-        literal form: BLabHypothesis -> Nonempty (ContinuousMulEquiv GammaR AbsGalQ2). Sorry-free
-        and at the same 9 literature axioms as GQ2.main_presentation_literal, but conditional on
-        the explicit hypothesis BLabHypothesis, whose in-repo proof is still in flight.
+        literal form: Nonempty (ContinuousMulEquiv GammaR AbsGalQ2). Sorry-free and at the same
+        9 literature axioms as GQ2.main_presentation_literal. The hypothesis-parametrized form
+        GQ2.main_presentation_literal_roe (BLabHypothesis -> ...) is kept in the same file; the
+        two differ by the argument GQ2.Roe.Labute.bLab, the L-campaign's proof of the Labute
+        classification instance (2026-07-26).
+    - source: "Labute classification instance for Gamma_R (Cor. 3.4 of the Roe note; D_R = D_0)"
+      lean: "GQ2.Roe.Labute.bLab"
+      module: "GQ2/Roe/Labute/Assembly.lean"
+      status: "proved"
+      note: >
+        BLabHypothesis, proved rather than assumed: levelwise nonemptiness along the two-central
+        tower (stage lemma) gives continuous epis both ways between D_R and D_0, and the profinite
+        Hopfian endgame turns them into an isomorphism. Standard three axioms only -- no literature
+        axiom is used.
     - source: "Replacement theorem, surjection-count form (Roe candidate; not in the original PDF)"
       lean: "GQ2.main_surjection_count_R"
       module: "GQ2/Roe/Main.lean"
-      status: "conditional"
-      note: "#{continuous surjections G_Q2 ->> G} = #{admissible Roe-marked quadruples in G^4}; same BLabHypothesis binder"
+      status: "proved"
+      note: >
+        #{continuous surjections G_Q2 ->> G} = #{admissible Roe-marked quadruples in G^4}. Stated
+        with the BLabHypothesis binder, which GQ2.Roe.Labute.bLab discharges unconditionally.
     - source: "Definition of the Roe candidate group Gamma_R (not in the original PDF)"
       lean: "GQ2.GammaR"
       module: "GQ2/Roe/GammaR.lean"
@@ -269,11 +289,13 @@ alignment:
     - source: "Agreement of the two admissible-marking semantics (Roe campaign)"
       lean: "GQ2.admissibleCountR_eq_admissibleCount"
       module: "GQ2/Roe/Main.lean"
-      status: "conditional"
+      status: "proved"
       note: >
         admissibleCountR G = admissibleCount G for every finite G; the bridge tying the Gamma_R
-        word semantics to the Gamma_A one. Independently pinned numerically on C2, C4, V4, D4, Q8
-        by two Python engines and the June LMFDB-verified counts (GQ2/Roe/Sanity.lean).
+        word semantics to the Gamma_A one. Stated with the BLabHypothesis binder, which
+        GQ2.Roe.Labute.bLab discharges unconditionally. Independently pinned numerically on C2,
+        C4, V4, D4, Q8 by two Python engines and the June LMFDB-verified counts
+        (GQ2/Roe/Sanity.lean).
 
 acknowledgements: >
   Built on mathlib4 (pinned at ec410d2, 2026-06-12). Comparator verification uses
