@@ -289,6 +289,117 @@ def sZeroR2 (k : ℕ) : Set (Fin 3 → levelQuot (D0 : Type) k) :=
 def sPR2 (k : ℕ) : Set (Fin 3 → levelQuot (D0 : Type) k) :=
   {T | T ∈ sZeroR2 k ∧ ∀ i, chiLevel chiD0pres k (T i) = chiTargetR2 k i}
 
+/-! ## Central-shift calculus (the mechanism behind lift-independence)
+
+Two lifts of the same level-`k` triple differ coordinatewise by elements of `Zₖ`, which is
+central of exponent 2 in `Q_{k+1}`.  Shifting a slot by a central `z` therefore multiplies
+the relator value by `z` to the slot's *exponent sum*; both relator words have even
+exponent sums (`r₀ = A²S⁴[S,Y]`: `(2, 4, 0)`; `r₂`: `(0, −4, 2)`), so every shift cancels.
+The generic `commP`/`conjP` steps live in `H`; the layer facts specialize them. -/
+
+section CentralShift
+
+variable {H : Type*} [Group H] {z : H}
+
+/-- A central factor in the first slot of a `commP` cancels. -/
+private theorem commP_central_left (hz : ∀ w : H, Commute z w) (a b : H) :
+    commP (z * a) b = commP a b := by
+  have h : z⁻¹ * b⁻¹ = b⁻¹ * z⁻¹ := (hz b).inv_inv.eq
+  calc commP (z * a) b = a⁻¹ * (z⁻¹ * b⁻¹) * (z * a * b) := by simp only [commP]; group
+    _ = a⁻¹ * (b⁻¹ * z⁻¹) * (z * a * b) := by rw [h]
+    _ = commP a b := by simp only [commP]; group
+
+/-- A central factor in the second slot of a `commP` cancels. -/
+private theorem commP_central_right (hz : ∀ w : H, Commute z w) (a b : H) :
+    commP a (z * b) = commP a b := by
+  have h : z⁻¹ * a = a * z⁻¹ := (hz a).inv_left.eq
+  calc commP a (z * b) = a⁻¹ * b⁻¹ * (z⁻¹ * a) * (z * b) := by simp only [commP]; group
+    _ = a⁻¹ * b⁻¹ * (a * z⁻¹) * (z * b) := by rw [h]
+    _ = commP a b := by simp only [commP]; group
+
+/-- A central factor in the conjugated slot passes through the conjugation. -/
+private theorem conjP_central_left (hz : ∀ w : H, Commute z w) (a b : H) :
+    conjP (z * a) b = z * conjP a b := by
+  have h : b⁻¹ * z = z * b⁻¹ := (hz b).inv_right.symm.eq
+  calc conjP (z * a) b = b⁻¹ * z * a * b := by simp only [conjP]; group
+    _ = z * b⁻¹ * a * b := by rw [h]
+    _ = z * conjP a b := by simp only [conjP]; group
+
+/-- A central factor in the conjugator cancels. -/
+private theorem conjP_central_right (hz : ∀ w : H, Commute z w) (a b : H) :
+    conjP a (z * b) = conjP a b := by
+  have h : z⁻¹ * a = a * z⁻¹ := (hz a).inv_left.eq
+  calc conjP a (z * b) = b⁻¹ * (z⁻¹ * a) * (z * b) := by simp only [conjP]; group
+    _ = b⁻¹ * (a * z⁻¹) * (z * b) := by rw [h]
+    _ = conjP a b := by simp only [conjP]; group
+
+/-- Two central involutive factors cancel across a product of inverses (the `r₂` shape
+`(conjP x s)⁻¹ · (x³)⁻¹`, where both slots carry the same shift). -/
+private theorem inv_mul_inv_central (hz : ∀ w : H, Commute z w) (hz2 : z * z = 1) (u v : H) :
+    (z * u)⁻¹ * (z * v)⁻¹ = u⁻¹ * v⁻¹ := by
+  have h : z⁻¹ * v⁻¹ = v⁻¹ * z⁻¹ := (hz v).inv_inv.eq
+  calc (z * u)⁻¹ * (z * v)⁻¹ = u⁻¹ * (z⁻¹ * v⁻¹) * z⁻¹ := by group
+    _ = u⁻¹ * (v⁻¹ * z⁻¹) * z⁻¹ := by rw [h]
+    _ = u⁻¹ * v⁻¹ * (z * z)⁻¹ := by rw [mul_inv_rev]; group
+    _ = u⁻¹ * v⁻¹ := by rw [hz2, inv_one, mul_one]
+
+end CentralShift
+
+section LayerShift
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {k : ℕ}
+
+/-- `Zₖ`-elements commute with everything in `Q_{k+1}` (`zLayer_le_center`). -/
+private theorem zLayer_commute {z : levelQuot G (k + 1)} (hz : z ∈ zLayer G k)
+    (w : levelQuot G (k + 1)) : Commute z w :=
+  (commute_iff_eq z w).mpr (Subgroup.mem_center_iff.mp (zLayer_le_center G k hz) w).symm
+
+/-- `Zₖ` has exponent 2, so its elements are their own inverses. -/
+private theorem zLayer_inv_self {z : levelQuot G (k + 1)} (hz : z ∈ zLayer G k) : z⁻¹ = z :=
+  inv_eq_of_mul_eq_one_right (by rw [← pow_two]; exact zLayer_sq G hz)
+
+/-- Two lifts of the same level-`k` class differ by a left `Zₖ`-factor. -/
+private theorem exists_zLayer_mul {x y : levelQuot G (k + 1)}
+    (h : levelProj G k x = levelProj G k y) : ∃ z ∈ zLayer G k, x = z * y := by
+  refine ⟨x * y⁻¹, ?_, by group⟩
+  rw [zLayer_eq_ker_levelProj, MonoidHom.mem_ker, map_mul, map_inv, h, mul_inv_cancel]
+
+/-- **`r₀` is insensitive to `Zₖ`-shifts**: exponent sums `(2, 4, 0)` are even and the
+commutator absorbs central factors in both slots. -/
+private theorem d0Word_zLayer_shift {z₀ z₁ z₂ : levelQuot G (k + 1)} (h₀ : z₀ ∈ zLayer G k)
+    (h₁ : z₁ ∈ zLayer G k) (h₂ : z₂ ∈ zLayer G k) (a s y : levelQuot G (k + 1)) :
+    d0Word (z₀ * a) (z₁ * s) (z₂ * y) = d0Word a s y := by
+  have e0 : (z₀ * a) ^ 2 = a ^ 2 := by
+    rw [(zLayer_commute h₀ a).mul_pow, zLayer_sq G h₀, one_mul]
+  have e1 : (z₁ * s) ^ 4 = s ^ 4 := by
+    rw [(zLayer_commute h₁ s).mul_pow, show (4 : ℕ) = 2 * 2 from rfl, pow_mul,
+      zLayer_sq G h₁, one_pow, one_mul]
+  simp only [d0Word, e0, e1, commP_central_left (zLayer_commute h₁),
+    commP_central_right (zLayer_commute h₂)]
+
+/-- **`r₂` is insensitive to `Zₖ`-shifts**: exponent sums `(0, −4, 2)` are even; the
+`x`-slot shift survives conjugation and cubing but appears twice, and the `s`- and
+`y`-slot shifts are absorbed by the conjugation and the commutator. -/
+private theorem drWord_zLayer_shift {z₀ z₁ z₂ : levelQuot G (k + 1)} (h₀ : z₀ ∈ zLayer G k)
+    (h₁ : z₁ ∈ zLayer G k) (h₂ : z₂ ∈ zLayer G k) (s x y : levelQuot G (k + 1)) :
+    drWord (z₀ * s) (z₁ * x) (z₂ * y) = drWord s x y := by
+  have hx : conjP (z₁ * x) (z₀ * s) = z₁ * conjP x s := by
+    rw [conjP_central_right (zLayer_commute h₀), conjP_central_left (zLayer_commute h₁)]
+  have hy : conjP (z₂ * y) (z₀ * s) = z₂ * conjP y s := by
+    rw [conjP_central_right (zLayer_commute h₀), conjP_central_left (zLayer_commute h₂)]
+  have hcomm : commP (z₂ * y) (z₂ * conjP y s) = commP y (conjP y s) := by
+    rw [commP_central_left (zLayer_commute h₂), commP_central_right (zLayer_commute h₂)]
+  have h3 : (z₁ * x) ^ 3 = z₁ * x ^ 3 := by
+    rw [(zLayer_commute h₁ x).mul_pow, show (3 : ℕ) = 2 + 1 from rfl, pow_succ,
+      zLayer_sq G h₁, one_mul]
+  have h2 : (z₂ * y) ^ 2 = y ^ 2 := by
+    rw [(zLayer_commute h₂ y).mul_pow, zLayer_sq G h₂, one_mul]
+  have hz2 : z₁ * z₁ = 1 := by rw [← pow_two]; exact zLayer_sq G h₁
+  simp only [drWord, hx, hy, hcomm, h3, h2]
+  rw [inv_mul_inv_central (zLayer_commute h₁) hz2]
+
+end LayerShift
+
 /-! ## The defect (plan §2.2; spike §2.1) -/
 
 /-- **The defect `δ(T) ∈ Q_{k+1}(D_R)`, direction 1**: the `r₀`-relator value of the
