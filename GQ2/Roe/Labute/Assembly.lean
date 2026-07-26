@@ -126,16 +126,42 @@ theorem finite_contSurj_quotient
 
 /-! ## Levelwise nonemptiness at every level -/
 
+/-- Upward from the base level `3` by the stage step (direction 1). -/
+private theorem sPR0_nonempty_of_three {k : ℕ} (hk : 3 ≤ k) : (sPR0 k).Nonempty := by
+  induction k, hk using Nat.le_induction with
+  | base => exact sPR0_three_nonempty
+  | succ k hk ih => exact stageStepR0 k hk ih
+
+/-- Upward from the base level `3` by the stage step (direction 2). -/
+private theorem sPR2_nonempty_of_three {k : ℕ} (hk : 3 ≤ k) : (sPR2 k).Nonempty := by
+  induction k, hk using Nat.le_induction with
+  | base => exact sPR2_three_nonempty
+  | succ k hk ih => exact stageStepR2 k hk ih
+
+/-- Downward along the tower restrictions, `d` levels at a time (direction 1). -/
+private theorem sPR0_nonempty_of_add :
+    ∀ (d k : ℕ), (sPR0 (k + d)).Nonempty → (sPR0 k).Nonempty
+  | 0, _, h => h
+  | (d + 1), k, h =>
+    sPR0_nonempty_of_add d k (h.elim fun _ hT => ⟨_, sPR0_levelProj hT⟩)
+
+/-- Downward along the tower restrictions, `d` levels at a time (direction 2). -/
+private theorem sPR2_nonempty_of_add :
+    ∀ (d k : ℕ), (sPR2 (k + d)).Nonempty → (sPR2 k).Nonempty
+  | 0, _, h => h
+  | (d + 1), k, h =>
+    sPR2_nonempty_of_add d k (h.elim fun _ hT => ⟨_, sPR2_levelProj hT⟩)
+
 /-- **Levelwise nonemptiness, direction 1** (the mathematical core, assembled): `S^P_ₖ` is
 nonempty for every `k` — upward from the base `sPR0_three_nonempty` by `stageStepR0`,
 downward from level 3 by the restrictions `sPR0_levelProj`.  Fill: L5 (pure induction;
 all inputs frozen). -/
-theorem sPR0_nonempty (k : ℕ) : (sPR0 k).Nonempty := by
-  sorry
+theorem sPR0_nonempty (k : ℕ) : (sPR0 k).Nonempty :=
+  sPR0_nonempty_of_add 3 k (sPR0_nonempty_of_three (Nat.le_add_left 3 k))
 
 /-- Levelwise nonemptiness, direction 2.  Fill: L5. -/
-theorem sPR2_nonempty (k : ℕ) : (sPR2 k).Nonempty := by
-  sorry
+theorem sPR2_nonempty (k : ℕ) : (sPR2 k).Nonempty :=
+  sPR2_nonempty_of_add 3 k (sPR2_nonempty_of_three (Nat.le_add_left 3 k))
 
 /-! ## From levelwise triples to surjections onto all finite quotients -/
 
