@@ -2073,6 +2073,164 @@ private theorem thetaVec_indep {N k : ℕ} (hN : 1 ≤ N) (hk : 1 ≤ k)
 
 end TailSeparation
 
+/-! ### The congruence bookkeeping: reference words at the pinned targets
+
+Both "functional vanishes" statements (`φ(δ) = 0` and `φ(Im d̄) = 0`) are proved by *comparison*:
+the actual triple is congruent, modulo the two-sided congruence subgroup `wlKer N k`, to a
+reference triple whose χ-values are the pinned targets exactly.  At the reference the word
+value is computed in closed form — and vanishes, by Labute's descent datum (for `δ`) or by the
+target valuations (for `d̄`). -/
+
+section Reference
+
+open FoxH
+
+/-- Every residue lifts to `ℤ₂`. -/
+private theorem toZModPow_surj {N : ℕ} (z : ZMod (2 ^ N)) :
+    ∃ x : ℤ_[2], PadicInt.toZModPow N x = z := by
+  obtain ⟨m, rfl⟩ := ZMod.intCast_surjective (n := 2 ^ N) z
+  exact ⟨(m : ℤ_[2]), by rw [map_intCast]⟩
+
+/-- The two-sided mod-`2^k` congruence subgroup of `WL N`. -/
+private def wlKer (N k : ℕ) : Subgroup (WL N) where
+  carrier := {p | (2 : ZMod (2 ^ N)) ^ k ∣ p.u ∧
+    (2 : ZMod (2 ^ N)) ^ k ∣ (p.g : ZMod (2 ^ N)) - 1}
+  one_mem' := by
+    refine ⟨by simp, ?_⟩
+    show (2 : ZMod (2 ^ N)) ^ k ∣ ((1 : (ZMod (2 ^ N))ˣ) : ZMod (2 ^ N)) - 1
+    simp
+  mul_mem' := by
+    rintro p q ⟨hpu, hpg⟩ ⟨hqu, hqg⟩
+    refine ⟨?_, ?_⟩
+    · rw [WordLift.mul_u, Units.smul_def, smul_eq_mul]
+      exact dvd_add hpu (Dvd.dvd.mul_left hqu _)
+    · rw [WordLift.mul_g]
+      have hexp : ((p.g * q.g : (ZMod (2 ^ N))ˣ) : ZMod (2 ^ N)) - 1
+          = ((p.g : ZMod (2 ^ N)) - 1) * (q.g : ZMod (2 ^ N)) + ((q.g : ZMod (2 ^ N)) - 1) := by
+        push_cast
+        ring
+      rw [hexp]
+      exact dvd_add (Dvd.dvd.mul_right hpg _) hqg
+  inv_mem' := by
+    rintro p ⟨hpu, hpg⟩
+    refine ⟨?_, ?_⟩
+    · rw [WordLift.inv_u, Units.smul_def, smul_eq_mul]
+      exact (Dvd.dvd.mul_left hpu _).neg_right
+    · rw [WordLift.inv_g]
+      have hpginv : ((p.g : ZMod (2 ^ N))) * ((p.g⁻¹ : (ZMod (2 ^ N))ˣ) : ZMod (2 ^ N)) = 1 := by
+        rw [← Units.val_mul, mul_inv_cancel, Units.val_one]
+      have hexp : ((p.g⁻¹ : (ZMod (2 ^ N))ˣ) : ZMod (2 ^ N)) - 1
+          = -(((p.g : ZMod (2 ^ N)) - 1) * ((p.g⁻¹ : (ZMod (2 ^ N))ˣ) : ZMod (2 ^ N))) := by
+        linear_combination hpginv
+      rw [hexp]
+      exact (Dvd.dvd.mul_right hpg _).neg_right
+
+private instance wlKer_normal (N k : ℕ) : (wlKer N k).Normal := by
+  constructor
+  rintro p ⟨hpu, hpg⟩ q
+  refine ⟨?_, ?_⟩
+  · have hval : (q * p * q⁻¹).u
+        = (q.g : ZMod (2 ^ N)) * p.u + q.u * (1 - (p.g : ZMod (2 ^ N))) := by
+      have hq : ((q.g : ZMod (2 ^ N))) * ((q.g⁻¹ : (ZMod (2 ^ N))ˣ) : ZMod (2 ^ N)) = 1 := by
+        rw [← Units.val_mul, mul_inv_cancel, Units.val_one]
+      simp only [WordLift.mul_u, WordLift.mul_g, WordLift.inv_u, WordLift.inv_g, Units.smul_def,
+        smul_eq_mul, Units.val_mul]
+      linear_combination (-(q.u) * (p.g : ZMod (2 ^ N))) * hq
+    rw [hval]
+    refine dvd_add (Dvd.dvd.mul_left hpu _) (Dvd.dvd.mul_left ?_ _)
+    obtain ⟨c, hc⟩ := hpg
+    exact ⟨-c, by linear_combination -hc⟩
+  · have hval : ((q * p * q⁻¹).g : ZMod (2 ^ N)) = (p.g : ZMod (2 ^ N)) := by
+      have hg : (q * p * q⁻¹).g = p.g := by
+        show q.g * p.g * q.g⁻¹ = p.g
+        rw [mul_comm q.g p.g]
+        group
+      rw [hg]
+    rw [hval]
+    exact hpg
+
+/-- The membership criterion used throughout: equal offsets and congruent base values. -/
+private theorem inv_mul_mem_wlKer {N k : ℕ} {p q : WL N} (hu : p.u = q.u)
+    (hg : (2 : ZMod (2 ^ N)) ^ k ∣ ((p.g⁻¹ * q.g : (ZMod (2 ^ N))ˣ) : ZMod (2 ^ N)) - 1) :
+    p⁻¹ * q ∈ wlKer N k := by
+  refine ⟨?_, ?_⟩
+  · have hval : (p⁻¹ * q).u
+        = ((p.g⁻¹ : (ZMod (2 ^ N))ˣ) : ZMod (2 ^ N)) * (q.u - p.u) := by
+      simp only [WordLift.mul_u, WordLift.inv_u, WordLift.inv_g, Units.smul_def, smul_eq_mul]
+      ring
+    rw [hval, hu, sub_self, mul_zero]
+    exact dvd_zero _
+  · exact hg
+
+/-- Flipping the side of a unit congruence. -/
+private theorem dvd_inv_mul_of_dvd_mul_inv {A B : ℤ_[2]ˣ} {n : ℕ}
+    (h : (2 : ℤ_[2]) ^ n ∣ ((A * B⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) - 1) :
+    (2 : ℤ_[2]) ^ n ∣ ((A⁻¹ * B : ℤ_[2]ˣ) : ℤ_[2]) - 1 := by
+  obtain ⟨c, hc⟩ := h
+  have hunit : ((A * B⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((A⁻¹ * B : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
+    rw [← Units.val_mul, show A * B⁻¹ * (A⁻¹ * B) = 1 by rw [mul_comm A B⁻¹]; group,
+      Units.val_one]
+  exact ⟨-c * ((A⁻¹ * B : ℤ_[2]ˣ) : ℤ_[2]),
+    by linear_combination hunit - ((A⁻¹ * B : ℤ_[2]ˣ) : ℤ_[2]) * hc⟩
+
+/-- `commP` at a base-`1` modification slot. -/
+private theorem commP_wl_one {R : Type*} [CommRing R] (d D : R) (t : Rˣ) :
+    commP (⟨d, 1⟩ : WordLift R Rˣ) ⟨D, t⟩ = ⟨(((t⁻¹ : Rˣ) : R) - 1) * d, 1⟩ := by
+  have ht : ((t⁻¹ : Rˣ) : R) * (t : R) = 1 := by
+    rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
+  ext
+  · simp only [commP, WordLift.mul_u, WordLift.mul_g, WordLift.inv_u, WordLift.inv_g,
+      Units.smul_def, smul_eq_mul, Units.val_mul, inv_one, Units.val_one]
+    ring
+  · simp [commP]
+
+/-- Squaring a base-`1` slot. -/
+private theorem sq_wl_one {R : Type*} [CommRing R] (d : R) :
+    (⟨d, 1⟩ : WordLift R Rˣ) ^ 2 = ⟨2 * d, 1⟩ := by
+  rw [pow_two]
+  ext
+  · show d + ((1 : Rˣ) : R) * d = 2 * d
+    push_cast
+    ring
+  · simp
+
+/-- Product of base-`1` points adds the offsets. -/
+private theorem mul_wl_one {R : Type*} [CommRing R] (d d' : R) :
+    (⟨d, 1⟩ : WordLift R Rˣ) * ⟨d', 1⟩ = ⟨d + d', 1⟩ := by
+  ext
+  · show d + ((1 : Rˣ) : R) * d' = d + d'
+    push_cast
+    ring
+  · simp
+
+/-- **The reference shift word, `r₀`-side**, in closed form. -/
+private theorem dbarWordR0_ref {R : Type*} [CommRing R] (D0 D1 D2 d0 d1 d2 : R) (t0 t1 t2 : Rˣ) :
+    dbarWordR0 (⟨D0, t0⟩ : WordLift R Rˣ) ⟨D1, t1⟩ ⟨D2, t2⟩ ![⟨d0, 1⟩, ⟨d1, 1⟩, ⟨d2, 1⟩]
+      = ⟨(1 + ((t0⁻¹ : Rˣ) : R)) * d0 + (((t2⁻¹ : Rˣ) : R) - 1) * d1
+          + (((t1⁻¹ : Rˣ) : R) - 1) * d2, 1⟩ := by
+  simp only [dbarWordR0, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
+    Matrix.cons_val_two, Matrix.tail_cons, sq_wl_one, commP_wl_one, mul_wl_one]
+  ext
+  · show 2 * d0 + (((t0⁻¹ : Rˣ) : R) - 1) * d0 + ((((t2⁻¹ : Rˣ) : R) - 1) * d1)
+        + (((t1⁻¹ : Rˣ) : R) - 1) * d2 = _
+    ring
+  · rfl
+
+/-- **The reference shift word, `r₂`-side**, in closed form. -/
+private theorem dbarWordR2_ref {R : Type*} [CommRing R] (D0 D1 D2 d0 d1 d2 : R) (t0 t1 t2 : Rˣ) :
+    dbarWordR2 (⟨D0, t0⟩ : WordLift R Rˣ) ⟨D1, t1⟩ ⟨D2, t2⟩ ![⟨d0, 1⟩, ⟨d1, 1⟩, ⟨d2, 1⟩]
+      = ⟨(1 + ((t2⁻¹ : Rˣ) : R)) * d2 + (((t1⁻¹ : Rˣ) : R) - 1) * d0
+          + (((t0⁻¹ : Rˣ) : R) - 1) * d1, 1⟩ := by
+  simp only [dbarWordR2, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
+    Matrix.cons_val_two, Matrix.tail_cons, sq_wl_one, commP_wl_one, mul_wl_one]
+  ext
+  · show 2 * d2 + (((t2⁻¹ : Rˣ) : R) - 1) * d2 + ((((t1⁻¹ : Rˣ) : R) - 1) * d0)
+        + (((t0⁻¹ : Rˣ) : R) - 1) * d1 = _
+    ring
+  · rfl
+
+end Reference
+
 /-! ## The stage lemma: SL1, SL2, and the step (spike §2.4) -/
 
 /-- **SL1 (reachability), direction 1**: for `T ∈ S^P_ₖ` (`k ≥ 3`), the defect is
