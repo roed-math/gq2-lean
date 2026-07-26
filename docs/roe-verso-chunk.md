@@ -7,6 +7,29 @@ This document contains (a) the Verso markup, written to that repository's conven
 
 Prepared 2026-07-25 by ticket R41, from a read-only survey of `~/claude/gq2-paper`.
 
+> **Addendum, 2026-07-26 (ticket L6) — the L-campaign landed; §7 is now live.** Still HANDOFF
+> ONLY: nothing here has been applied and the site repository remains untouched. But the markup
+> below was written for a *conditional* Γ_R theorem, and the theorem is now unconditional
+> (`GQ2.Roe.Labute.bLab : BLabHypothesis` is proved, at the standard three axioms, sorry-free).
+> Whoever integrates this chunk should therefore:
+>
+> * apply **§7's edits at the same time** — they are no longer contingent: delete the two
+>   "Assume {bpref …}" sentences and the "**conditional**" paragraph in `thm-mainR`, keep the
+>   `{uses "prop-labuteclassification"}[]` edges;
+> * consider pointing `thm-mainR`'s `(lean := …)` at
+>   `GQ2.main_presentation_literal_roe_unconditional` (`GQ2/Roe/Main.lean`), the hypothesis-free
+>   form added at L6; `GQ2.main_presentation_literal_roe` still exists and is still the same
+>   theorem with the discharged binder, so either reference renders complete;
+> * ignore **§1 precondition 2** (expect `sorry` warnings from `import GQ2`): the library is
+>   sorry-free repo-wide, so a clean build is now the expected outcome and warnings would mean
+>   something is wrong;
+> * treat §5's "renders in progress until the L-campaign lands" note as satisfied —
+>   `prop-labuteclassification` renders **complete** as of the pinned revision containing
+>   `GQ2/Roe/Labute/Assembly.lean`.
+>
+> The pin precondition (§1 item 1) is unchanged and now needs a revision containing *both*
+> `GQ2/Roe/Main.lean` and `GQ2/Roe/Labute/`.
+
 ---
 
 ## 1. Preconditions — check these before integrating
@@ -238,10 +261,10 @@ entries rather than something pasted in directly.
 
 ---
 
-## 7. When the L-campaign lands
+## 7. When the L-campaign lands — **it landed, 2026-07-26**
 
-`GQ2.Roe.Labute.bLab` becomes sorry-free and every capstone's hypothesis binder discharges.
-At that point:
+`GQ2.Roe.Labute.bLab` is sorry-free (standard three axioms) and every capstone's hypothesis
+binder discharges. So the following are not future conditions but edits to apply on integration:
 
 - `prop-labuteclassification` flips to complete automatically. No markup change.
 - The two "Assume {bpref …}" sentences and the "**conditional**" paragraph in `thm-mainR` must

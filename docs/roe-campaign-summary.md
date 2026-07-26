@@ -7,6 +7,52 @@ the live board at [`orchestration/roe-tickets.md`](orchestration/roe-tickets.md)
 note at [`../paper/roe-presentation-verification.tex`](../paper/roe-presentation-verification.tex).
 Tags in ⟦…⟧ are that note's labels; `file:line` references are to this repository.*
 
+> ### Addendum, 2026-07-26 — the open end closed; the result is UNCONDITIONAL
+>
+> The body below is left as the 2026-07-25 snapshot it was written as. One thing in it is now
+> out of date, and it is the most important thing: **§5's "open end" is closed.** The L-campaign
+> (plus the GL- and SL-campaigns it spawned) proved the hypothesis:
+>
+> ```lean
+> GQ2.Roe.Labute.bLab : BLabHypothesis          -- GQ2/Roe/Labute/Assembly.lean
+> ```
+>
+> at the **standard three axioms exactly**, sorry-free, so the terminal theorem now also exists
+> in hypothesis-free form:
+>
+> ```lean
+> GQ2.main_presentation_literal_roe_unconditional :
+>   Nonempty (ContinuousMulEquiv GammaR AbsGalQ2)   -- GQ2/Roe/Main.lean
+> ```
+>
+> which prints exactly the same twelve axioms as `main_presentation_literal` (pinned by
+> `scripts/check_axioms.sh` check 5, which now audits five capstones). Corrections to the body,
+> point by point:
+>
+> * **§4, "One hypothesis"** — no longer applies. The Γ_R result is unconditional, like the Γ_A
+>   result. What Comparator checks is unchanged and still worth knowing: its challenge theorem
+>   still carries the `hBLab` binder, so it certifies the *conditional* statement; the discharge
+>   is checked by the in-repo gates instead.
+> * **§5** — the residual risk (the span theorem) did **not** need the O1 axiomatization
+>   fallback: the owner declined it, and the GL-campaign proved `span_free_r0/r2` outright after
+>   finding that the termination obstruction dissolves. The stage lemma's two halves were then
+>   proved by the SL-campaign — SL1 not by the spike's functional sketch, which was refuted, nor
+>   by the numerics' ±1-character derivations, which do not descend, but by the repository's own
+>   Labute-orientation machinery (`isLabuteOrientation_chiR`). Plans:
+>   [`orchestration/span-gradedlie-plan.md`](orchestration/span-gradedlie-plan.md),
+>   [`orchestration/sl-campaign-plan.md`](orchestration/sl-campaign-plan.md),
+>   [`orchestration/sl1-numerics.md`](orchestration/sl1-numerics.md).
+> * **§5, last paragraph** — the four `GQ2/Roe/Labute/` files are no longer the repository's
+>   only `sorry`s: there are none. `scripts/check_axioms.sh`'s allowlist is empty again.
+> * **§6, item 2** — still worth checking, but now for a different reason: `BLabHypothesis` is
+>   the statement `bLab` *proves*, so a reviewer should check that it is the right statement of
+>   the note's ⟦cor:abstractD0⟧ (rather than that it is the campaign's one conditionality). Add
+>   item 5: check that the tower argument in `GQ2/Roe/Labute/` proves it — see the "B3 addendum"
+>   of [`literature-axioms.md`](literature-axioms.md) for the chain and the entry points.
+>
+> Everything else below — §§1–3, the interface story, the numerical anchor, the axiom census of
+> nine — stands as written.
+
 ## 1. The question
 
 The paper presents `G_{ℚ₂}` as Γ_A: generators `σ, τ, x₀, x₁`, the normal closure of `x₀, x₁`
