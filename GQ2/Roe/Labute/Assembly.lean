@@ -166,44 +166,6 @@ theorem sPR2_nonempty (k : ℕ) : (sPR2 k).Nonempty :=
 
 /-! ## From levelwise triples to surjections onto all finite quotients -/
 
-section LiftValues
-
-variable {H : Type} [Group H] [TopologicalSpace H] [IsTopologicalGroup H] [CompactSpace H]
-  [T2Space H] [TotallyDisconnectedSpace H]
-
-/-- Value of the `D₀`-lift on the marked generator `A` (binder-for-binder restatement of the
-`private` `SectionThree.d0LiftHom_A`, which is not visible here; same three-line proof, the
-`deriv0_d0A` pattern of `StageLemma.lean`). -/
-private theorem d0LiftHom_d0A (hH : IsProP 2 H) (m : Fin 3 → H)
-    (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
-    SectionThree.d0LiftHom hH m hrel d0A = m 0 := by
-  show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
-    (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 0))) = _
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
-
-/-- Value of the `D₀`-lift on the marked generator `S` (restatement of the `private`
-`SectionThree.d0LiftHom_S`). -/
-private theorem d0LiftHom_d0S (hH : IsProP 2 H) (m : Fin 3 → H)
-    (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
-    SectionThree.d0LiftHom hH m hrel d0S = m 1 := by
-  show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
-    (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 1))) = _
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
-
-/-- Value of the `D₀`-lift on the marked generator `Y` (restatement of the `private`
-`SectionThree.d0LiftHom_Y`). -/
-private theorem d0LiftHom_d0Y (hH : IsProP 2 H) (m : Fin 3 → H)
-    (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
-    SectionThree.d0LiftHom hH m hrel d0Y = m 2 := by
-  show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
-    (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 2))) = _
-  rw [maxProPHomEquiv_symm_apply_maxProPMk]
-  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
-
-end LiftValues
-
 /-- **The cofinality bridge, direction 1**: `D₀` continuously surjects onto every finite
 quotient of `D_R`.  Route (plan §2.1): `U` contains some `λₖ` (`exists_twoCentralSeries_le`
 with `drFinsetTopGen`, `isProP_DR`), a triple `T ∈ S⁰ₖ` is a continuous hom
@@ -227,9 +189,9 @@ theorem nonempty_contSurj_levelQuot_r0
     rw [← MonoidHom.range_eq_top, ← top_le_iff, ← hgen, Subgroup.closure_le]
     rintro _ ⟨i, rfl⟩
     fin_cases i
-    · exact ⟨d0A, d0LiftHom_d0A hproQ T hrel⟩
-    · exact ⟨d0S, d0LiftHom_d0S hproQ T hrel⟩
-    · exact ⟨d0Y, d0LiftHom_d0Y hproQ T hrel⟩
+    · exact ⟨d0A, SectionThree.d0LiftHom_A hproQ T hrel⟩
+    · exact ⟨d0S, SectionThree.d0LiftHom_S hproQ T hrel⟩
+    · exact ⟨d0Y, SectionThree.d0LiftHom_Y hproQ T hrel⟩
   -- Compose with the tower projection `Qₖ(D_R) ↠ D_R/U`.
   exact ⟨⟨(projMap hk).comp (SectionThree.d0LiftHom hproQ T hrel),
     (projMap_surjective hk).comp hsurj⟩⟩

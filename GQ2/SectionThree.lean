@@ -472,7 +472,7 @@ noncomputable def d0LiftHom (hH : IsProP 2 H) (m : Fin 3 → H)
           rw [hker]
           exact isClosed_singleton.preimage f.continuous_toFun))
 
-@[simp] private lemma d0LiftHom_A (hH : IsProP 2 H) (m : Fin 3 → H)
+@[simp] lemma d0LiftHom_A (hH : IsProP 2 H) (m : Fin 3 → H)
     (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
     d0LiftHom hH m hrel d0A = m 0 := by
   show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
@@ -480,7 +480,7 @@ noncomputable def d0LiftHom (hH : IsProP 2 H) (m : Fin 3 → H)
   rw [maxProPHomEquiv_symm_apply_maxProPMk]
   exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
 
-@[simp] private lemma d0LiftHom_S (hH : IsProP 2 H) (m : Fin 3 → H)
+@[simp] lemma d0LiftHom_S (hH : IsProP 2 H) (m : Fin 3 → H)
     (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
     d0LiftHom hH m hrel d0S = m 1 := by
   show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
@@ -488,7 +488,7 @@ noncomputable def d0LiftHom (hH : IsProP 2 H) (m : Fin 3 → H)
   rw [maxProPHomEquiv_symm_apply_maxProPMk]
   exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
 
-@[simp] private lemma d0LiftHom_Y (hH : IsProP 2 H) (m : Fin 3 → H)
+@[simp] lemma d0LiftHom_Y (hH : IsProP 2 H) (m : Fin 3 → H)
     (hrel : m 0 ^ 2 * m 1 ^ 4 * commP (m 1) (m 2) = 1) :
     d0LiftHom hH m hrel d0Y = m 2 := by
   show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 D0Full
