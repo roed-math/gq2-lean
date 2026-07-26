@@ -239,18 +239,29 @@ theorem chiTargetR2_nine (i : Fin 3) :
   fin_cases i <;>
     simp [chiTargetR2, chiTargetUnitsR2, val_SvalUnit, val_rootXUnit, val_YvalUnit, hS, hX, hY]
 
+/-- Naturality of the mod-`2^k` unit reductions of `ℤ₂ˣ` in `k`: reading the mod-`2^{k+1}`
+reduction of a 2-adic unit mod `2^k` gives the mod-`2^k` reduction
+(`PadicInt.cast_toZModPow` at the level of unit groups).  Both target families are
+reductions of fixed units, so their naturality is this lemma. -/
+private theorem units_map_castHom_toZModPow (k : ℕ) (u : ℤ_[2]ˣ) :
+    Units.map (ZMod.castHom (pow_dvd_pow 2 (Nat.le_succ k)) (ZMod (2 ^ k))).toMonoidHom
+        (Units.map (PadicInt.toZModPow (k + 1)).toMonoidHom u) =
+      Units.map (PadicInt.toZModPow k).toMonoidHom u := by
+  ext
+  simp
+
 /-- Naturality of the direction-1 targets in `k` (consumed by the restriction maps).
 Fill: L3 (from `PadicInt.zmod_cast_comp_toZModPow`-style compatibility). -/
 theorem chiTargetR0_castHom (k : ℕ) (i : Fin 3) :
     Units.map (ZMod.castHom (pow_dvd_pow 2 (Nat.le_succ k)) (ZMod (2 ^ k))).toMonoidHom
-      (chiTargetR0 (k + 1) i) = chiTargetR0 k i := by
-  sorry
+      (chiTargetR0 (k + 1) i) = chiTargetR0 k i :=
+  units_map_castHom_toZModPow k (chiTargetUnitsR0 i)
 
 /-- Naturality of the direction-2 targets in `k`.  Fill: L3. -/
 theorem chiTargetR2_castHom (k : ℕ) (i : Fin 3) :
     Units.map (ZMod.castHom (pow_dvd_pow 2 (Nat.le_succ k)) (ZMod (2 ^ k))).toMonoidHom
-      (chiTargetR2 (k + 1) i) = chiTargetR2 k i := by
-  sorry
+      (chiTargetR2 (k + 1) i) = chiTargetR2 k i :=
+  units_map_castHom_toZModPow k (chiTargetUnitsR2 i)
 
 /-! ## The levelwise sets (spike §2.4, FINAL FORM) -/
 
