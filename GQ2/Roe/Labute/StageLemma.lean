@@ -1347,6 +1347,181 @@ private theorem wl_pow {R : Type*} [CommRing R] (u : R) (g : Rˣ) (m : ℕ) :
       rw [Finset.sum_range_succ, add_mul, Units.val_pow_eq_pow_val]
     · simp [pow_succ]
 
+/-! #### `2`-power divisibility in `ℤ/2^N`, read through the reductions -/
+
+private theorem two_pow_zmod_self {j : ℕ} : (2 : ZMod (2 ^ j)) ^ j = 0 := by
+  have h : ((2 ^ j : ℕ) : ZMod (2 ^ j)) = 0 := ZMod.natCast_self _
+  push_cast at h
+  exact h
+
+/-- Divisibility by `2^j` in `ℤ/2^N` (`j ≤ N`) is the vanishing of the mod-`2^j` reduction. -/
+private theorem two_pow_dvd_zmod_iff {N j : ℕ} (hj : j ≤ N) {x : ZMod (2 ^ N)} :
+    (2 : ZMod (2 ^ N)) ^ j ∣ x ↔ ZMod.castHom (pow_dvd_pow 2 hj) (ZMod (2 ^ j)) x = 0 := by
+  constructor
+  · rintro ⟨c, rfl⟩
+    rw [map_mul, map_pow, map_ofNat, two_pow_zmod_self, zero_mul]
+  · intro h
+    obtain ⟨m, rfl⟩ := ZMod.intCast_surjective (n := 2 ^ N) x
+    rw [map_intCast, ZMod.intCast_zmod_eq_zero_iff_dvd] at h
+    obtain ⟨c, hc⟩ := h
+    exact ⟨(c : ZMod (2 ^ N)), by rw [hc]; push_cast; ring⟩
+
+/-- Divisibility by `2^j` in `ℤ/2^N` is read off any `2`-adic lift (`j ≤ N`). -/
+private theorem two_pow_dvd_toZModPow_iff {N j : ℕ} (hj : j ≤ N) {x : ℤ_[2]} :
+    (2 : ZMod (2 ^ N)) ^ j ∣ PadicInt.toZModPow N x ↔ (2 : ℤ_[2]) ^ j ∣ x := by
+  rw [two_pow_dvd_zmod_iff hj, two_pow_dvd_iff, ZMod.castHom_apply, PadicInt.cast_toZModPow j N hj]
+
+/-- Units of `ℤ/2^N` are odd. -/
+private theorem two_dvd_units_sub_one {N : ℕ} (hN : 1 ≤ N) (g : (ZMod (2 ^ N))ˣ) :
+    (2 : ZMod (2 ^ N)) ∣ (g : ZMod (2 ^ N)) - 1 := by
+  have h1 : (1 : ℕ) ≤ N := hN
+  have hcast := two_pow_dvd_zmod_iff (N := N) (j := 1) h1 (x := (g : ZMod (2 ^ N)) - 1)
+  rw [pow_one] at hcast
+  refine hcast.mpr ?_
+  set ρ := ZMod.castHom (pow_dvd_pow 2 h1) (ZMod (2 ^ 1)) with hρ
+  have hu : IsUnit (ρ (g : ZMod (2 ^ N))) := (g.isUnit).map ρ
+  obtain ⟨v, hv⟩ := hu.exists_right_inv
+  have hone : ρ (g : ZMod (2 ^ N)) = 1 :=
+    (by decide : ∀ a b : ZMod (2 ^ 1), a * b = 1 → a = 1) _ _ hv
+  rw [map_sub, hone, map_one, sub_self]
+
+/-- Halving: if `2^k` divides `2^{k-1}·z` in `ℤ/2^N` (`k ≤ N`), then `z` is even. -/
+private theorem two_dvd_of_two_pow_dvd_mul {N k : ℕ} (hk : 1 ≤ k) (hkN : k ≤ N)
+    {z : ZMod (2 ^ N)} (h : (2 : ZMod (2 ^ N)) ^ k ∣ (2 : ZMod (2 ^ N)) ^ (k - 1) * z) :
+    (2 : ZMod (2 ^ N)) ∣ z := by
+  obtain ⟨m, rfl⟩ := ZMod.intCast_surjective (n := 2 ^ N) z
+  rw [two_pow_dvd_zmod_iff hkN] at h
+  rw [show (2 : ZMod (2 ^ N)) = ((2 : ℤ) : ZMod (2 ^ N)) by push_cast; ring, ← Int.cast_pow,
+    ← Int.cast_mul, map_intCast, ZMod.intCast_zmod_eq_zero_iff_dvd] at h
+  have h2 : (2 : ℤ) ∣ m := by
+    have hpow : ((2 ^ k : ℕ) : ℤ) = 2 ^ (k - 1) * 2 := by
+      push_cast
+      rw [← pow_succ]
+      congr 1
+      omega
+    rw [hpow] at h
+    have hne : (2 : ℤ) ^ (k - 1) ≠ 0 := by positivity
+    exact (mul_dvd_mul_iff_left hne).mp (by rw [mul_comm ((2 : ℤ) ^ (k - 1)) 2] at h ⊢; exact h)
+  obtain ⟨c, hc⟩ := h2
+  exact ⟨(c : ZMod (2 ^ N)), by rw [hc]; push_cast; ring⟩
+
+/-! #### The congruence filtration of `WL N` and the `λ`-bound -/
+
+open scoped commutatorElement in
+/-- The repo-convention commutator in `R ⋊ Rˣ` (the base components cancel). -/
+private theorem wl_commutator {R : Type*} [CommRing R] (p q : WordLift R Rˣ) :
+    ⁅p, q⁆ = ⟨p.u * (1 - (q.g : R)) + q.u * ((p.g : R) - 1), 1⟩ := by
+  have hpg : ((p.g : R)) * ((p.g⁻¹ : Rˣ) : R) = 1 := by
+    rw [← Units.val_mul, mul_inv_cancel, Units.val_one]
+  have hqg : ((q.g : R)) * ((q.g⁻¹ : Rˣ) : R) = 1 := by
+    rw [← Units.val_mul, mul_inv_cancel, Units.val_one]
+  have hpq : ((p.g : R)) * ((q.g : R)) * ((p.g⁻¹ : Rˣ) : R) * ((q.g⁻¹ : Rˣ) : R) = 1 := by
+    calc ((p.g : R)) * ((q.g : R)) * ((p.g⁻¹ : Rˣ) : R) * ((q.g⁻¹ : Rˣ) : R)
+        = (((p.g : R)) * ((p.g⁻¹ : Rˣ) : R)) * (((q.g : R)) * ((q.g⁻¹ : Rˣ) : R)) := by ring
+      _ = 1 := by rw [hpg, hqg]; ring
+  rw [commutatorElement_def]
+  ext
+  · simp only [WordLift.mul_u, WordLift.mul_g, WordLift.inv_u, WordLift.inv_g, Units.smul_def,
+      smul_eq_mul, Units.val_mul]
+    linear_combination (-(p.u) * (q.g : R)) * hpg + (-(q.u)) * hpq
+  · have hg : (p * q * p⁻¹ * q⁻¹).g = (1 : Rˣ) := by
+      show p.g * q.g * p.g⁻¹ * q.g⁻¹ = 1
+      rw [mul_comm p.g q.g]
+      group
+    rw [hg]
+
+/-- The **congruence subgroup** `K_j = {(u,g) : 2^{j-1} ∣ u, 2^j ∣ g − 1}` of `WL N`: the
+receptacle of the lower 2-central series (Labute's filtration bound in its finite shadow). -/
+private def wlCong (N j : ℕ) : Subgroup (WL N) where
+  carrier := {p | (2 : ZMod (2 ^ N)) ^ (j - 1) ∣ p.u ∧
+    (2 : ZMod (2 ^ N)) ^ j ∣ (p.g : ZMod (2 ^ N)) - 1}
+  one_mem' := by
+    refine ⟨by simp, ?_⟩
+    show (2 : ZMod (2 ^ N)) ^ j ∣ ((1 : (ZMod (2 ^ N))ˣ) : ZMod (2 ^ N)) - 1
+    simp
+  mul_mem' := by
+    rintro p q ⟨hpu, hpg⟩ ⟨hqu, hqg⟩
+    refine ⟨?_, ?_⟩
+    · rw [WordLift.mul_u, Units.smul_def, smul_eq_mul]
+      exact dvd_add hpu (Dvd.dvd.mul_left hqu _)
+    · rw [WordLift.mul_g]
+      have hexp : ((p.g * q.g : (ZMod (2 ^ N))ˣ) : ZMod (2 ^ N)) - 1
+          = ((p.g : ZMod (2 ^ N)) - 1) * (q.g : ZMod (2 ^ N)) + ((q.g : ZMod (2 ^ N)) - 1) := by
+        push_cast
+        ring
+      rw [hexp]
+      exact dvd_add (Dvd.dvd.mul_right hpg _) hqg
+  inv_mem' := by
+    rintro p ⟨hpu, hpg⟩
+    refine ⟨?_, ?_⟩
+    · rw [WordLift.inv_u, Units.smul_def, smul_eq_mul]
+      exact (Dvd.dvd.mul_left hpu _).neg_right
+    · rw [WordLift.inv_g]
+      have hpginv : ((p.g : ZMod (2 ^ N))) * ((p.g⁻¹ : (ZMod (2 ^ N))ˣ) : ZMod (2 ^ N)) = 1 := by
+        rw [← Units.val_mul, mul_inv_cancel, Units.val_one]
+      have hexp : ((p.g⁻¹ : (ZMod (2 ^ N))ˣ) : ZMod (2 ^ N)) - 1
+          = -(((p.g : ZMod (2 ^ N)) - 1) * ((p.g⁻¹ : (ZMod (2 ^ N))ˣ) : ZMod (2 ^ N))) := by
+        linear_combination hpginv
+      rw [hexp]
+      exact (Dvd.dvd.mul_right hpg _).neg_right
+
+private theorem mem_wlCong {N j : ℕ} {p : WL N} :
+    p ∈ wlCong N j ↔ (2 : ZMod (2 ^ N)) ^ (j - 1) ∣ p.u ∧
+      (2 : ZMod (2 ^ N)) ^ j ∣ (p.g : ZMod (2 ^ N)) - 1 := Iff.rfl
+
+/-- **The filtration bound** (the finite shadow of `D(λ_j) ⊆ 2^{j-1}ℤ₂` and
+`χ(λ_j) ⊆ 1 + 2^jℤ₂`): the lower 2-central series of `WL N` sinks into the congruence
+filtration.  Both halves are needed: the base congruence drives the offset congruence one
+step deeper at each squaring and each commutator. -/
+private theorem twoCentralSeries_WL_le {N : ℕ} (hN : 1 ≤ N) {j : ℕ} (hj : 1 ≤ j) :
+    twoCentralSeries (WL N) j ≤ wlCong N j := by
+  induction j, hj using Nat.le_induction with
+  | base =>
+    intro p _
+    exact ⟨by simp, by rw [pow_one]; exact two_dvd_units_sub_one hN p.g⟩
+  | succ j hj ih =>
+    rw [twoCentralSeries_succ (WL N) hj]
+    refine le_trans (twoCentralSucc_mono ih) ?_
+    refine Subgroup.topologicalClosure_minimal _ (sup_le ?_ ?_) (isClosed_discrete _)
+    · refine (Subgroup.closure_le _).2 ?_
+      rintro _ ⟨p, hp, rfl⟩
+      obtain ⟨hpu, hpg⟩ := hp
+      show p ^ 2 ∈ wlCong N (j + 1)
+      have h2g : (2 : ZMod (2 ^ N)) ∣ (p.g : ZMod (2 ^ N)) - 1 :=
+        dvd_trans (dvd_pow_self 2 (by omega : j ≠ 0)) hpg
+      obtain ⟨c, hc⟩ := h2g
+      have h1 : (2 : ZMod (2 ^ N)) ∣ 1 + (p.g : ZMod (2 ^ N)) := ⟨c + 1, by linear_combination hc⟩
+      have h1' : (2 : ZMod (2 ^ N)) ∣ (p.g : ZMod (2 ^ N)) + 1 := ⟨c + 1, by linear_combination hc⟩
+      refine ⟨?_, ?_⟩
+      · have hval : (p ^ 2).u = (1 + (p.g : ZMod (2 ^ N))) * p.u := by
+          rw [pow_two, WordLift.mul_u, Units.smul_def, smul_eq_mul]
+          ring
+        have hmul := mul_dvd_mul h1 hpu
+        rw [show (2 : ZMod (2 ^ N)) * 2 ^ (j - 1) = 2 ^ j by
+          rw [← pow_succ']; congr 1; omega] at hmul
+        rw [hval, show j + 1 - 1 = j from rfl]
+        exact hmul
+      · have hval : ((p ^ 2).g : ZMod (2 ^ N)) - 1
+            = ((p.g : ZMod (2 ^ N)) - 1) * ((p.g : ZMod (2 ^ N)) + 1) := by
+          rw [pow_two, WordLift.mul_g, Units.val_mul]
+          ring
+        rw [hval, pow_succ]
+        exact mul_dvd_mul hpg h1'
+    · refine Subgroup.commutator_le.2 ?_
+      rintro p ⟨hpu, hpg⟩ q -
+      rw [wl_commutator]
+      refine ⟨?_, by simp⟩
+      show (2 : ZMod (2 ^ N)) ^ (j + 1 - 1) ∣
+        p.u * (1 - (q.g : ZMod (2 ^ N))) + q.u * ((p.g : ZMod (2 ^ N)) - 1)
+      rw [show j + 1 - 1 = j from rfl]
+      refine dvd_add ?_ (Dvd.dvd.mul_left hpg _)
+      obtain ⟨c, hc⟩ := two_dvd_units_sub_one hN q.g
+      have h1 : (2 : ZMod (2 ^ N)) ∣ 1 - (q.g : ZMod (2 ^ N)) := ⟨-c, by linear_combination -hc⟩
+      have hmul := mul_dvd_mul hpu h1
+      rw [show (2 : ZMod (2 ^ N)) ^ (j - 1) * 2 = 2 ^ j by
+        rw [← pow_succ]; congr 1; omega] at hmul
+      exact hmul
+
 end CrossedFunctional
 
 /-! ## The stage lemma: SL1, SL2, and the step (spike §2.4) -/
