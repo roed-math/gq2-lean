@@ -43,6 +43,25 @@ The **lower exponent-2 central series** (Serre, Bourbaki 252, §6–7: `F₁ = F
   is *not* a frozen definition; fills needing the extra digit build it locally from
   `twoCentralSeries_units_le` (design memo §4).
 
+## Commutator conventions (board §10; read before filling)
+
+Two commutator conventions coexist in this development, **deliberately**:
+
+* **Repo convention** (`GQ2/Words.lean`): `commP x y = x⁻¹y⁻¹xy`, `conjP x g = g⁻¹xg`.
+  Every *word-shape* statement of the campaign — the relators `drWord`/`d0Word`, the
+  defect, the shift formulas `dbarWordR0`/`dbarWordR2` (`StageLemma.lean`), and all
+  LS-memo tables — is in `commP` form; L3/L4 consume the spike's data with **no sign
+  translation**.
+* **Mathlib convention**: `⁅g, h⁆ = g*h*g⁻¹*h⁻¹` (scoped instance `commutatorElement`),
+  and the subgroup-level `⁅H, K⁆`.  It appears in exactly one place: the generating set
+  of `twoCentralSucc` uses `⁅H, ⊤⁆`, to inherit mathlib's commutator-subgroup API
+  (`Subgroup.map_commutator` etc.) for the functoriality fills.
+
+The two choices generate the same subgroups: `commP v g = ⁅v⁻¹, g⁻¹⁆`, so with `v` ranging
+over a subgroup both families give the same step — the **translation lemma** is
+`commP_mem_twoCentralSucc` below (proved, not sorried).  λ-series statements are
+convention-independent; only element-level formulas care, and those are all `commP`.
+
 Skeleton discipline: `sorry`s below are the L2 fill contract (exact inventory in the
 design memo); the non-`sorry` lemmas are L1 smoke tests.
 -/
