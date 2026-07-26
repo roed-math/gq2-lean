@@ -13,13 +13,12 @@ when their surrounding project-management prose is historical.
 For current truth use the Lean sources, [`../../formalization.yaml`](../../formalization.yaml),
 and the repository gates. The maintained documentation index is [`../README.md`](../README.md).
 
-**Two files in this directory are live rather than archival.**
-[`roe-tickets.md`](roe-tickets.md) is the current board, and
-[`roe-verification-plan.md`](roe-verification-plan.md) the current plan, for the Γ_R
-(Roe-candidate) campaign and its follow-on Labute campaign; the mathematics of both is complete
-as of 2026-07-26, but the board and plan are retained as live documents through the owner's final
-sign-off. They are kept here so that one campaign lives in one directory. Everything else below is
-historical.
+**As of the owner's G2 sign-off (2026-07-26), everything in this directory is archival.**
+[`roe-tickets.md`](roe-tickets.md) (the Γ_R/Labute campaign board — the ground truth for
+what happened, closed by the G2 entry at its foot) and
+[`roe-verification-plan.md`](roe-verification-plan.md) (the campaign plan with its dated
+status block) were the last two live files; they were archived at G2 with the census
+signed off at nine and the unconditional Γ_R capstone in place.
 
 ## Global plans, boards, and review packets
 
@@ -127,8 +126,8 @@ Design records for the follow-on campaign that verifies a second candidate prese
 
 | File | Role |
 |---|---|
-| [`roe-verification-plan.md`](roe-verification-plan.md) | **Live.** Campaign plan, with a dated status block recording the outcome against it; the plan text below that block is preserved as a design record. |
-| [`roe-tickets.md`](roe-tickets.md) | **Live.** Single-writer ticket board: every R- and L-ticket with its files, dependencies, landing commit, and discoveries. The ground truth for what happened. |
+| [`roe-verification-plan.md`](roe-verification-plan.md) | **Archived at G2 (2026-07-26).** Campaign plan, with a dated status block recording the outcome against it; the plan text below that block is preserved as a design record. |
+| [`roe-tickets.md`](roe-tickets.md) | **Archived at G2 (2026-07-26).** Single-writer ticket board: every R- and L-ticket with its files, dependencies, landing commit, and discoveries. The ground truth for what happened. |
 | [`roe-r2-spike.md`](roe-r2-spike.md) | The Nielsen-search spike, which returned an impossibility theorem rather than a negative result: no explicit word identification `D_R ⇄ D₀` exists. Also re-derives the note's §3.2 numerics independently. |
 | [`roe-r7-design.md`](roe-r7-design.md) | Design memo freezing the Route L statements (`D_R` presentation, Demushkin package, orientation calculus, marked matching) and drafting the B-Lab interface later declined as an axiom. |
 | [`roe-r13b-plan.md`](roe-r13b-plan.md) | Validated plan for the `D_R` degree-2 word-cohomology bridge, including the machine-checked cup–Bockstein Gram matrix and a correction to the assumed dependency gating. |

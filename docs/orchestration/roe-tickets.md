@@ -1,5 +1,11 @@
 # Roe-candidate verification ticket board
 
+**ARCHIVED 2026-07-26 (G2)** — all campaigns complete (R; L with its GL and SL
+sub-campaigns; cleanup wave). The Γ_R main statement is unconditional at census 9
+(`GQ2.main_presentation_literal_roe_unconditional`). This board is now historical per the
+directory README; for current truth use the Lean sources, `formalization.yaml`, and the
+repository gates.
+
 Plan: `docs/orchestration/roe-verification-plan.md`. Branch `roe`, worktree
 `~/claude/gq2-roe` (recon/spike tickets run read-only against the main checkout).
 Model column = subagent tier (fable = design/hard seams, opus = well-specified fills).
@@ -234,8 +240,18 @@ Nothing else blocks: L5/L6 can run against either resolution.
 | CU-C | SectionThree.d0LiftHom_A/S/Y de-privatized + Assembly restatements deleted (print-diff empty); R13b/R14 stale prose fixed in MarkedMatching/MarkedPro2 | **done** (dc4ddea, 1bebd3a) |
 | CU-D | stale-prose sweep + atlas regen | **done** (41629fa, 67c7bb4, 1dcabbf; primed dupes deleted print-diff-empty; atlas regenerated: 5571 nodes, 0 sorries, 9-axiom trust base, review cone unchanged; repo-wide re-grep clean; gates green). Wave CLOSED — punch-list (iii)-(viii) all done. Left for G2: owner sign-off + board archive; master ff-only merge (owner); optional: Compass report for the Γ_R capstone (one command, recorded in docs/atlas.md) |
 
-## Gate G2 (owner)
+## Gate G2 (owner) — CLOSED 2026-07-26
 
-Final axiom-census sign-off (census UNCHANGED — B-Lab declined; unconditional main
-statement requires the L-campaign to discharge BLabHypothesis); review-packet addendum;
-archive this board per `docs/orchestration/README.md`.
+- 2026-07-26 (owner, G2): **Census signed off at 9** — the frozen literature axioms
+  B1–B9 (`docs/literature-axioms.md`), unchanged through the R-, GL-, SL-, L-, and
+  cleanup campaigns. B-Lab was declined as an axiom (2026-07-25) and discharged as the
+  theorem `GQ2.Roe.Labute.bLab` (2026-07-26); the unconditional main statement
+  `GQ2.main_presentation_literal_roe_unconditional` prints exactly std-3 + these nine.
+  Evidence reviewed: `scripts/check_axioms.sh` 5/5 (five capstones pinned at the
+  expected set, three twin pairs identical); `GQ2/AxiomLedger.lean` (four
+  print-identical terminal pairs including Γ_R-unconditional vs Γ_A, 0 violations);
+  `atlas-audit.md` and `atlas-audit-roe.md` (Compass review cones 30/1789 and 32/2342,
+  9-axiom trust base); `docs/literature-axioms.md` §B3 addendum.
+- Board archived with this entry; review-packet addendum on
+  `docs/roe-campaign-summary.md`; `master` fast-forward is the owner's final act:
+  `git -C ~/claude/gq2-lean merge --ff-only roe`.

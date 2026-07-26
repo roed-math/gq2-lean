@@ -258,3 +258,21 @@ fact that neither Comparator statement's import closure reaches that directory.
    unsatisfiable pinning fields really are consumed nowhere.
 4. That `check_axioms.sh` check 5 and `AxiomLedger` are doing what §4 claims, since every
    axiom claim in this document is delegated to them.
+
+---
+
+## Addendum (2026-07-26, G2): owner sign-off and campaign close
+
+Gate G2 is closed. The owner signed off on the final axiom census — **nine frozen
+literature axioms, unchanged from the first R-ticket to the last cleanup commit** — and
+the board (`docs/orchestration/roe-tickets.md`) is archived with the dated sign-off
+entry. The Labute input, declined as an axiom on 2026-07-25, was discharged as the
+theorem `GQ2.Roe.Labute.bLab`, making the capstone unconditional:
+`GQ2.main_presentation_literal_roe_unconditional : Nonempty (ContinuousMulEquiv GammaR
+AbsGalQ2)`, printing exactly std-3 plus the nine census axioms — a print certified
+pair-identical to the Γ_A capstone by `GQ2/AxiomLedger.lean`, pinned by
+`scripts/check_axioms.sh` check 5, certified by the comparator pair, and mapped by
+Lean Compass (`atlas-audit-roe.md`: 32-declaration review cone over a 2,342-node
+closure, 9-axiom trust base). For review purposes this document's §§1–4 snapshot plus
+the dated addenda above remain the narrative; the trust-base claims are delegated, as
+throughout, to the gates.
