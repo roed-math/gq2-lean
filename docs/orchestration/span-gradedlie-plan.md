@@ -199,3 +199,18 @@ certified by coordinate separation).
   chore commits.
 - Workers: path-limited commits; never edit the board; never touch
   `scripts/check_axioms.sh`, `atlas-audit.md`; report per house format.
+
+---
+
+## STATUS (2026-07-26, wave close)
+
+CAMPAIGN COMPLETE, same day as dispatch. GL0 e233153 → GL-A 90dc9a0 (15/15, first
+attempt) → GL-B 31db0dc (both steps, first attempt; liftSq-subgroup upgrade) → GL-C
+02af32b (base; found the §2.2 word-length induction unnecessary — Q₄'s calculus is exact,
+`(commP a b)²` bimultiplicative and `(ab)⁴ = a⁴b⁴(commP b a)²` on the nose; the §2.2
+loop-breaking order stays load-bearing). `span_free_r0/r2` + `span_descent_r0/r2` +
+`span_free_*_proof` all print std-3 exactly (orchestrator-verified via `lake env lean`).
+Census 9, no allowlist change needed (all GradedLie files sorry-free). §6's risks: none
+materialized. GL-D insurance lane: deliverables 1–2 landed at 987fe0d, remainder in
+flight; on completion its row closes on the board — its role is now purely SL1-future
+infrastructure, since the main lane needed no fallback.
