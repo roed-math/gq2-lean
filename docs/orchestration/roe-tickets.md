@@ -153,6 +153,28 @@ Middle-path owner options if LS comes back AMBER (plan §7): O1 axiomatize only 
 stage step; O2 axiomatize levelwise nonemptiness (machine-falsifiable, least
 classification-shaped); O3 timebox L4 then drop to O1.
 
+## OWNER DECISION PENDING — `span_free_r0/r2` (opened 2026-07-26)
+
+**Status: BANKED for later resumption at the owner's direction.** Full decision packet:
+**`~/claude/handoffs/gq2-labute-span-decision-2026-07-26.md`** — read that before acting.
+
+The L-campaign is one statement short. L4b proved `span_descent_r0/r2` and the whole graded
+foundation, then escalated `span_free_r0/r2` with a precise termination obstruction (two
+self-referential atom families, no decreasing measure; char-2 Jacobi vacuous on one). The
+statement is true beyond reasonable doubt (machine-verified k=6 towers / k=5 free, k=3,4
+re-verified, k=3 proved by hand, page-verified Serre Bourbaki 252 §7).
+
+Four priced options: **(b)** formalize the graded-Lie fragment (no axiom, no termination risk,
+~2–4k ln, OPUS-able so no fable cost); **(hyp)** thread `span_free` as an explicit hypothesis
+(zero cost, census stays 9); **(c)/O1** axiomatize exactly `span_free_r0/r2` (census 9→10,
+L4b's recommendation, minimal axiom surface); **(a)** more elementary cycles (needs the
+termination measure L4b could not find; fable-tier; high risk).
+
+Orchestrator recommendation: **(hyp) now, (b) scheduled** — the owner already declined B-Lab
+as an axiom to get a proof, and (b) follows Serre's own route on opus.
+
+Nothing else blocks: L5/L6 can run against either resolution.
+
 ## Gate G2 (owner)
 
 Final axiom-census sign-off (census UNCHANGED — B-Lab declined; unconditional main
