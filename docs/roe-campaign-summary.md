@@ -199,14 +199,16 @@ agreement of the two admissible-marking counts into a theorem for every finite g
   standard three plus nine — and this is checked mechanically by `scripts/check_axioms.sh`
   (check 5 pins four capstones at the exact 12-axiom set and asserts three Γ_A↔Γ_R twin pairs
   print-identical) and by `GQ2/AxiomLedger.lean`, not asserted in prose.
-- **One hypothesis.** `BLabHypothesis` is a theorem binder. The Γ_R result is conditional; the
+- **One hypothesis.** *(Superseded 2026-07-26 — see the addendum at the top; the result is now
+  unconditional and `GQ2.main_presentation_literal_roe_unconditional` is the hypothesis-free
+  form.)* `BLabHypothesis` is a theorem binder. The Γ_R result is conditional; the
   Γ_A result is not. A passing Comparator run on the Γ_R pair checks the *conditional*
   statement and is silent on whether the hypothesis is true.
 - **Numerically anchored.** R5 checked `admissibleCountR` against the June LMFDB-verified
   finite-quotient counts four independent ways before any deep proof consumed the definitions:
   `C₂ : 7`, `C₄ : 24`, `V₄ : 42`, `D₄ : 144`, `Q₈ : 144`.
 
-## 5. The open end: the L-campaign
+## 5. The open end: the L-campaign  *(CLOSED 2026-07-26 — see the addendum at the top; this section is the 07-25 state)*
 
 Discharging `BLabHypothesis` is a live campaign, not a plan. The L0 recon compared Labute's
 original argument, NSW III §9, and an instance-specific route, and recommended **levelwise
@@ -233,7 +235,8 @@ congruence calculus, the span theorem, and an assembly ticket that also refactor
 board ([`orchestration/roe-tickets.md`](orchestration/roe-tickets.md)) and is not mirrored here,
 because it changes by the hour.
 
-Those four files are the **only** `sorry`s in the repository. They are allowlisted by name in
+Those four files are the **only** `sorry`s in the repository *(as of 07-25; they were filled on
+07-26 and the repository now has none)*. They are allowlisted by name in
 `scripts/check_axioms.sh`, so a `sorry` anywhere else still fails the gate, and nothing
 outside `GQ2/Roe/Labute/` depends on them — verified by `AxiomLedger`'s gap map, and by the
 fact that neither Comparator statement's import closure reaches that directory.
@@ -244,7 +247,10 @@ fact that neither Comparator statement's import closure reaches that directory.
    factor order and the two distinct `ω₂` occurrences. The count cross-check (§4) is the
    independent guard here.
 2. That `BLabHypothesis` (`GQ2/Roe/MarkedPro2.lean:137`) states the Labute instance the note's
-   ⟦cor:abstractD0⟧ actually needs, and no more. It is the whole conditionality.
+   ⟦cor:abstractD0⟧ actually needs, and no more. It is the whole conditionality. *(Since
+   2026-07-26 it is also what `GQ2.Roe.Labute.bLab` proves, so this check is now about statement
+   fidelity rather than about what is being assumed — and the tower proof itself joins the list;
+   see the addendum.)*
 3. That `GQ2.SourceData`'s fields are the honest interface — in particular that the eight
    unsatisfiable pinning fields really are consumed nowhere.
 4. That `check_axioms.sh` check 5 and `AxiomLedger` are doing what §4 claims, since every
