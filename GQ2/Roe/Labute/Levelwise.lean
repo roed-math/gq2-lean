@@ -302,7 +302,7 @@ section CentralShift
 variable {H : Type*} [Group H] {z : H}
 
 /-- A central factor in the first slot of a `commP` cancels. -/
-private theorem commP_central_left (hz : ∀ w : H, Commute z w) (a b : H) :
+theorem commP_central_left (hz : ∀ w : H, Commute z w) (a b : H) :
     commP (z * a) b = commP a b := by
   have h : z⁻¹ * b⁻¹ = b⁻¹ * z⁻¹ := (hz b).inv_inv.eq
   calc commP (z * a) b = a⁻¹ * (z⁻¹ * b⁻¹) * (z * a * b) := by simp only [commP]; group
@@ -310,7 +310,7 @@ private theorem commP_central_left (hz : ∀ w : H, Commute z w) (a b : H) :
     _ = commP a b := by simp only [commP]; group
 
 /-- A central factor in the second slot of a `commP` cancels. -/
-private theorem commP_central_right (hz : ∀ w : H, Commute z w) (a b : H) :
+theorem commP_central_right (hz : ∀ w : H, Commute z w) (a b : H) :
     commP a (z * b) = commP a b := by
   have h : z⁻¹ * a = a * z⁻¹ := (hz a).inv_left.eq
   calc commP a (z * b) = a⁻¹ * b⁻¹ * (z⁻¹ * a) * (z * b) := by simp only [commP]; group
@@ -318,7 +318,7 @@ private theorem commP_central_right (hz : ∀ w : H, Commute z w) (a b : H) :
     _ = commP a b := by simp only [commP]; group
 
 /-- A central factor in the conjugated slot passes through the conjugation. -/
-private theorem conjP_central_left (hz : ∀ w : H, Commute z w) (a b : H) :
+theorem conjP_central_left (hz : ∀ w : H, Commute z w) (a b : H) :
     conjP (z * a) b = z * conjP a b := by
   have h : b⁻¹ * z = z * b⁻¹ := (hz b).inv_right.symm.eq
   calc conjP (z * a) b = b⁻¹ * z * a * b := by simp only [conjP]; group
@@ -326,7 +326,7 @@ private theorem conjP_central_left (hz : ∀ w : H, Commute z w) (a b : H) :
     _ = z * conjP a b := by simp only [conjP]; group
 
 /-- A central factor in the conjugator cancels. -/
-private theorem conjP_central_right (hz : ∀ w : H, Commute z w) (a b : H) :
+theorem conjP_central_right (hz : ∀ w : H, Commute z w) (a b : H) :
     conjP a (z * b) = conjP a b := by
   have h : z⁻¹ * a = a * z⁻¹ := (hz a).inv_left.eq
   calc conjP a (z * b) = b⁻¹ * (z⁻¹ * a) * (z * b) := by simp only [conjP]; group
@@ -335,7 +335,7 @@ private theorem conjP_central_right (hz : ∀ w : H, Commute z w) (a b : H) :
 
 /-- Two central involutive factors cancel across a product of inverses (the `r₂` shape
 `(conjP x s)⁻¹ · (x³)⁻¹`, where both slots carry the same shift). -/
-private theorem inv_mul_inv_central (hz : ∀ w : H, Commute z w) (hz2 : z * z = 1) (u v : H) :
+theorem inv_mul_inv_central (hz : ∀ w : H, Commute z w) (hz2 : z * z = 1) (u v : H) :
     (z * u)⁻¹ * (z * v)⁻¹ = u⁻¹ * v⁻¹ := by
   have h : z⁻¹ * v⁻¹ = v⁻¹ * z⁻¹ := (hz v).inv_inv.eq
   calc (z * u)⁻¹ * (z * v)⁻¹ = u⁻¹ * (z⁻¹ * v⁻¹) * z⁻¹ := by group
@@ -350,23 +350,23 @@ section LayerShift
 variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] {k : ℕ}
 
 /-- `Zₖ`-elements commute with everything in `Q_{k+1}` (`zLayer_le_center`). -/
-private theorem zLayer_commute {z : levelQuot G (k + 1)} (hz : z ∈ zLayer G k)
+theorem zLayer_commute {z : levelQuot G (k + 1)} (hz : z ∈ zLayer G k)
     (w : levelQuot G (k + 1)) : Commute z w :=
   (commute_iff_eq z w).mpr (Subgroup.mem_center_iff.mp (zLayer_le_center G k hz) w).symm
 
 /-- `Zₖ` has exponent 2, so its elements are their own inverses. -/
-private theorem zLayer_inv_self {z : levelQuot G (k + 1)} (hz : z ∈ zLayer G k) : z⁻¹ = z :=
+theorem zLayer_inv_self {z : levelQuot G (k + 1)} (hz : z ∈ zLayer G k) : z⁻¹ = z :=
   inv_eq_of_mul_eq_one_right (by rw [← pow_two]; exact zLayer_sq G hz)
 
 /-- Two lifts of the same level-`k` class differ by a left `Zₖ`-factor. -/
-private theorem exists_zLayer_mul {x y : levelQuot G (k + 1)}
+theorem exists_zLayer_mul {x y : levelQuot G (k + 1)}
     (h : levelProj G k x = levelProj G k y) : ∃ z ∈ zLayer G k, x = z * y := by
   refine ⟨x * y⁻¹, ?_, by group⟩
   rw [zLayer_eq_ker_levelProj, MonoidHom.mem_ker, map_mul, map_inv, h, mul_inv_cancel]
 
 /-- Generation is inherited along the tower: `levelProj` is surjective, so it carries a
 generating family of `Q_{k+1}` to a generating family of `Qₖ`. -/
-private theorem closure_range_levelProj {ι : Type*} {T : ι → levelQuot G (k + 1)}
+theorem closure_range_levelProj {ι : Type*} {T : ι → levelQuot G (k + 1)}
     (hgen : Subgroup.closure (Set.range T) = ⊤) :
     Subgroup.closure (Set.range fun i => levelProj G k (T i)) = ⊤ := by
   have h := congrArg (Subgroup.map (levelProj G k)) hgen
@@ -376,7 +376,7 @@ private theorem closure_range_levelProj {ι : Type*} {T : ι → levelQuot G (k 
 
 /-- **`r₀` is insensitive to `Zₖ`-shifts**: exponent sums `(2, 4, 0)` are even and the
 commutator absorbs central factors in both slots. -/
-private theorem d0Word_zLayer_shift {z₀ z₁ z₂ : levelQuot G (k + 1)} (h₀ : z₀ ∈ zLayer G k)
+theorem d0Word_zLayer_shift {z₀ z₁ z₂ : levelQuot G (k + 1)} (h₀ : z₀ ∈ zLayer G k)
     (h₁ : z₁ ∈ zLayer G k) (h₂ : z₂ ∈ zLayer G k) (a s y : levelQuot G (k + 1)) :
     d0Word (z₀ * a) (z₁ * s) (z₂ * y) = d0Word a s y := by
   have e0 : (z₀ * a) ^ 2 = a ^ 2 := by
@@ -390,7 +390,7 @@ private theorem d0Word_zLayer_shift {z₀ z₁ z₂ : levelQuot G (k + 1)} (h₀
 /-- **`r₂` is insensitive to `Zₖ`-shifts**: exponent sums `(0, −4, 2)` are even; the
 `x`-slot shift survives conjugation and cubing but appears twice, and the `s`- and
 `y`-slot shifts are absorbed by the conjugation and the commutator. -/
-private theorem drWord_zLayer_shift {z₀ z₁ z₂ : levelQuot G (k + 1)} (h₀ : z₀ ∈ zLayer G k)
+theorem drWord_zLayer_shift {z₀ z₁ z₂ : levelQuot G (k + 1)} (h₀ : z₀ ∈ zLayer G k)
     (h₁ : z₁ ∈ zLayer G k) (h₂ : z₂ ∈ zLayer G k) (s x y : levelQuot G (k + 1)) :
     drWord (z₀ * s) (z₁ * x) (z₂ * y) = drWord s x y := by
   have hx : conjP (z₁ * x) (z₀ * s) = z₁ * conjP x s := by
