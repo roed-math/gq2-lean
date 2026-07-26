@@ -194,6 +194,12 @@ import GQ2.Roe.Hessian
 import GQ2.Roe.ChiR
 import GQ2.Roe.Labute.TwoCentralTower
 import GQ2.Roe.Labute.Levelwise
+import GQ2.Roe.Labute.SpanFoundation
+import GQ2.Roe.Labute.GradedLie.SpanIdentities
+import GQ2.Roe.Labute.GradedLie.SpanStep
+import GQ2.Roe.Labute.GradedLie.SpanBase
+import GQ2.Roe.Labute.GradedLie.SpanAssembly
+import GQ2.Roe.Labute.GradedLie.Magnus
 import GQ2.Roe.Labute.StageLemma
 import GQ2.Roe.Labute.Assembly
 import GQ2.Roe.Gauss
