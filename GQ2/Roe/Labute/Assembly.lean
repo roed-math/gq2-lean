@@ -30,13 +30,13 @@ in-tree König machinery):
 3. `exists_contSurj_of_levelwise_nonempty`: the generic König/Cantor assembly — **the
    exact statement whose proof is lines 224–309 of `exists_contSurj_of_card_le`**
    (`GQ2/Reconstruction.lean:213`) with the two `haveI`-inputs promoted to hypotheses.
-   L5 protocol (byte-identical-consumers gate): prove this statement *in*
-   `Reconstruction.lean` (module file, mathlib-only imports — the statement is expressible
-   there verbatim), re-derive `exists_contSurj_of_card_le` from it through
-   `contSurj_quotient_nonempty_finite` (line 119) so `reconstruction` /
-   `reconstruction_of_equinum` and every consumer stay byte-identical, then discharge the
-   sorry here by a one-line application of the Reconstruction-side lemma.  The statement
-   below is the frozen consumer-facing form either way.
+   L5 protocol (byte-identical-consumers gate), **executed**: the statement now lives *in*
+   `Reconstruction.lean` as `GQ2.exists_contSurj_of_levelwise_nonempty` (module file,
+   mathlib-only imports), `exists_contSurj_of_card_le` is re-derived from it through
+   `contSurj_quotient_nonempty_finite`, and `reconstruction` / `reconstruction_of_equinum`
+   and every consumer are unchanged — verified byte-identically, statements *and*
+   `#print axioms`.  The Labute-namespaced form below is the frozen consumer-facing
+   statement and is a one-line application of the Reconstruction-side lemma.
 4. `bLab : BLabHypothesis` — **proved below** (not sorried): the two epis + the profinite
    Hopfian endgame, byte-for-byte the endgame of `reconstruction_of_equinum`
    (`GQ2/Reconstruction.lean:319`).  The four antecedents of `BLabHypothesis` are
@@ -46,8 +46,9 @@ in-tree König machinery):
 
 Census note (plan §8): this file imports `GQ2/Roe/MarkedPro2.lean` solely for the
 **statement** `BLabHypothesis`; the proof chain (towers, levelwise sets, Reconstruction,
-`dr_topGen`/`topGen_d0`) is axiom-file-free, and `lean_verify bLab` at L6 must report
-std-3 + the interim sorries only.
+`dr_topGen`/`topGen_d0`) is axiom-file-free, and `#print axioms bLab` reports
+`[propext, Classical.choice, Quot.sound]` — std-3 exactly, zero census axioms, no
+`sorryAx` (measured at L5, with the whole L-campaign fill chain in place).
 
 The χ-intertwining bonus of spike §2.4 (the limit epi can be taken χ-compatible) is
 deliberately **not** frozen — no `bLab`-consumer needs it; the design memo records the
@@ -292,5 +293,27 @@ theorem bLab : BLabHypothesis := by
   have hinj : Function.Injective (⇑φ ∘ ⇑ψ) :=
     profinite_hopfian drFinsetTopGen (φ.comp ψ) hcomp
   exact ⟨continuousMulEquivOfBijective ψ ⟨hinj.of_comp, hψ⟩⟩
+
+/-! ## Stress tests (plan rule 9) -/
+
+/-- **Stress (interface fidelity).**  `bLab` inhabits the frozen `BLabHypothesis` of
+`GQ2/Roe/MarkedPro2.lean` `section Draft` verbatim — no restatement, no weakened
+antecedents, no extra binder. -/
+example : BLabHypothesis := bLab
+
+/-- **Stress (both directions).**  The two continuous epis are available on their own; the
+Hopfian endgame is the only thing that consumes them jointly. -/
+example : Nonempty (ContSurj (D0 : Type) (DR : Type)) ∧
+    Nonempty (ContSurj (DR : Type) (D0 : Type)) :=
+  ⟨nonempty_contSurj_D0_DR, nonempty_contSurj_DR_D0⟩
+
+/-- **Stress (classification instance, unpacked).**  Feeding `bLab` the four antecedents —
+`isDemushkin_DR`, `demushkinRank_DR`, `demushkinQ_DR` (R10/R12/R13) and the surjective
+Labute orientation `χ_R` (R11) — yields the note's Cor. 3.4 isomorphism `D_R ≅ D₀`
+*unconditionally*.  This is the exact call site of `markedPro2_R`
+(`GQ2/Roe/MarkedPro2.lean`), so the L6 corollary is this line with `hBLab := bLab`. -/
+example : Nonempty (ContinuousMulEquiv (DR : Type) (D0 : Type)) :=
+  bLab isDemushkin_DR demushkinRank_DR demushkinQ_DR
+    ⟨chiR.toMonoidHom, chiR.continuous_toFun, isLabuteOrientation_chiR, chiR_surjective⟩
 
 end GQ2.Roe.Labute
