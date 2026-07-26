@@ -680,6 +680,228 @@ theorem isProP_two : IsProP 2 MagnusU := by
   obtain ⟨u, rfl⟩ := QuotientGroup.mk'_surjective V.toSubgroup q
   exact ⟨QuotientGroup.mk' (congrSub j) u, rfl⟩
 
+@[simp] theorem congrSub_zero : congrSub 0 = ⊤ := by
+  ext u
+  simp [mem_congrSub]
+
+open scoped commutatorElement in
+/-- **The commutator estimate**: `⁅1 + m^j, 1 + m⁆ ⊆ 1 + m^{j+1}`.  (Ring form:
+`uv − vu = ab − ba ∈ m^{j+1}` for `a = u − 1 ∈ m^j`, `b = v − 1 ∈ m`, transported to the
+group commutator by `uvu⁻¹v⁻¹ − 1 = (uv − vu)·u⁻¹·v⁻¹`.) -/
+theorem commutator_mem_congrSub_succ {j : ℕ} {u : MagnusU} (hu : u ∈ congrSub j) (g : MagnusU) :
+    ⁅u, g⁆ ∈ congrSub (j + 1) := by
+  have ha : u.val - 1 ∈ magnusFil j := hu
+  have hb : g.val - 1 ∈ magnusFil 1 := sub_one_mem_magnusFil_one g.2
+  have hkey : u.val * g.val - g.val * u.val ∈ magnusFil (j + 1) := by
+    rw [show u.val * g.val - g.val * u.val
+        = (u.val - 1) * (g.val - 1) - (g.val - 1) * (u.val - 1) from by noncomm_ring]
+    refine sub_mem (mul_mem_magnusFil ha hb) ?_
+    have h := mul_mem_magnusFil hb ha
+    rwa [add_comm 1 j] at h
+  have hu1 : u.val * magnusInv u.val = 1 := mul_magnusInv u.2
+  have hg1 : g.val * magnusInv g.val = 1 := mul_magnusInv g.2
+  have hx : (u.val * g.val - g.val * u.val) * magnusInv u.val * magnusInv g.val
+      = u.val * g.val * magnusInv u.val * magnusInv g.val
+        - g.val * (u.val * magnusInv u.val) * magnusInv g.val := by noncomm_ring
+  rw [hu1, mul_one, hg1] at hx
+  rw [mem_congrSub,
+    show (⁅u, g⁆ : MagnusU).val = u.val * g.val * magnusInv u.val * magnusInv g.val from rfl,
+    ← hx]
+  exact mul_mem_magnusFil_right (mul_mem_magnusFil_right hkey _) _
+
+/-- **The λ-filtration estimate** (Serre 252 §6): the lower `2`-central series of the
+congruence unit group is contained in the congruence filtration, `λⱼ(1 + m₀) ≤ 1 + m^j`. -/
+theorem twoCentralSeries_le_congrSub (j : ℕ) : twoCentralSeries MagnusU j ≤ congrSub j := by
+  induction j with
+  | zero => simp
+  | succ j ih =>
+    match j, ih with
+    | 0, _ => simp
+    | (j + 1), ih =>
+      rw [twoCentralSeries_succ MagnusU (Nat.le_add_left 1 j), twoCentralSucc]
+      refine Subgroup.topologicalClosure_minimal _ (sup_le ?_ ?_) (isClosed_congrSub _)
+      · rw [Subgroup.closure_le]
+        rintro _ ⟨v, hv, rfl⟩
+        exact sq_mem_congrSub_succ (by omega) (ih hv)
+      · rw [Subgroup.commutator_le]
+        intro v hv g _
+        exact commutator_mem_congrSub_succ (ih hv) g
+
 end MagnusU
+
+/-! ## The Magnus morphism `μ : F₃ → 1 + m₀` -/
+
+/-- The Magnus image of the `i`-th free generator: `1 + ξᵢ`. -/
+noncomputable def magnusGen (i : Fin 3) : MagnusU := ⟨1 + xi i, by simp⟩
+
+@[simp] theorem val_magnusGen (i : Fin 3) : (magnusGen i).val = 1 + xi i := rfl
+
+/-- **The Magnus morphism** `μ : F₃ → 1 + m₀`, `xᵢ ↦ 1 + ξᵢ` (Serre 252 §6, "la méthode
+de Lazard"; the universal property of `freeProTwo` applied to the pro-2 group
+`MagnusU`). -/
+noncomputable def magnusHom : ContinuousMonoidHom (freeProTwo : Type) MagnusU :=
+  freeProTwoLift MagnusU.isProP_two magnusGen
+
+@[simp] theorem magnusHom_freeGen (i : Fin 3) : magnusHom (freeGen i) = magnusGen i :=
+  freeProTwoLift_freeGen _ _ i
+
+/-- **Filtration compatibility of the Magnus expansion** (memo §5, machine-validated):
+for `z ∈ λⱼ(F₃)` every coefficient of `μ z − 1` at a word `w` is divisible by
+`2^{j − |w|}`. -/
+theorem two_pow_dvd_coeff_magnusHom {j : ℕ} {z : (freeProTwo : Type)}
+    (hz : z ∈ twoCentralSeries (freeProTwo : Type) j) (w : Word) :
+    (2 : ℤ_[2]) ^ (j - wlen w) ∣ coeff ((magnusHom z).val - 1) w := by
+  have h : magnusHom z ∈ twoCentralSeries MagnusU j :=
+    map_twoCentralSeries_le magnusHom.toMonoidHom magnusHom.continuous_toFun j ⟨z, hz, rfl⟩
+  exact MagnusU.twoCentralSeries_le_congrSub j h w
+
+/-- The same estimate for the raw coefficient at a nonempty word (where `μ z` and
+`μ z − 1` agree). -/
+theorem two_pow_dvd_coeff_magnusHom_of_ne_one {j : ℕ} {z : (freeProTwo : Type)}
+    (hz : z ∈ twoCentralSeries (freeProTwo : Type) j) {w : Word} (hw : w ≠ 1) :
+    (2 : ℤ_[2]) ^ (j - wlen w) ∣ coeff (magnusHom z).val w := by
+  have h := two_pow_dvd_coeff_magnusHom hz w
+  rwa [coeff_sub, coeff_one_of_ne hw, sub_zero] at h
+
+/-! ## Coordinate functionals
+
+For a word `w` and a level `k ≥ |w|`, the `2^{k−|w|}`-digit of the `w`-th Magnus
+coefficient is a homomorphism `λₖ(F₃) → 𝔽₂` killing `λ_{k+1}`, hence a functional on the
+graded layer `Zₖ = λₖ/λ_{k+1}`.  No division in `ℤ_[2]` is needed: for `x` divisible by
+`2^m`, the `m`-th digit is `0` exactly when `2^{m+1} ∣ x`. -/
+
+theorem two_ne_zero_padic : (2 : ℤ_[2]) ≠ 0 := by simp
+
+theorem two_dvd_iff_toZModPow {x : ℤ_[2]} :
+    (2 : ℤ_[2]) ∣ x ↔ PadicInt.toZModPow 1 x = 0 := by
+  rw [← RingHom.mem_ker, PadicInt.ker_toZModPow, Ideal.mem_span_singleton]
+  norm_num
+
+/-- `2^{m+1} ∣ 2^m · a` exactly when `a` is even. -/
+theorem two_pow_succ_dvd_mul_iff (m : ℕ) (a : ℤ_[2]) :
+    (2 : ℤ_[2]) ^ (m + 1) ∣ (2 : ℤ_[2]) ^ m * a ↔ (2 : ℤ_[2]) ∣ a := by
+  rw [pow_succ]
+  exact mul_dvd_mul_iff_left (pow_ne_zero m two_ne_zero_padic)
+
+open Classical in
+/-- The `m`-th binary digit of a `2`-adic integer divisible by `2^m` (junk value `1` if
+the divisibility fails to be one step deeper). -/
+noncomputable def digit (m : ℕ) (x : ℤ_[2]) : ZMod 2 :=
+  if (2 : ℤ_[2]) ^ (m + 1) ∣ x then 0 else 1
+
+theorem digit_eq_zero_iff (m : ℕ) (x : ℤ_[2]) :
+    digit m x = 0 ↔ (2 : ℤ_[2]) ^ (m + 1) ∣ x := by
+  classical
+  unfold digit
+  split_ifs with h
+  · simp [h]
+  · exact ⟨fun hc ↦ absurd hc (by decide), fun hc ↦ absurd hc h⟩
+
+theorem digit_eq_zero_of_dvd {m : ℕ} {x : ℤ_[2]} (h : (2 : ℤ_[2]) ^ (m + 1) ∣ x) :
+    digit m x = 0 := (digit_eq_zero_iff m x).mpr h
+
+@[simp] theorem digit_zero (m : ℕ) : digit m 0 = 0 := digit_eq_zero_of_dvd (dvd_zero _)
+
+theorem digit_eq_zero_or_one (m : ℕ) (x : ℤ_[2]) : digit m x = 0 ∨ digit m x = 1 := by
+  classical
+  unfold digit
+  split_ifs
+  · exact Or.inl rfl
+  · exact Or.inr rfl
+
+/-- On the subgroup `2^m ℤ₂` the `m`-th digit *is* the mod-`2` reduction of the cofactor. -/
+theorem digit_two_pow_mul (m : ℕ) (c : ℤ_[2]) :
+    digit m ((2 : ℤ_[2]) ^ m * c) = PadicInt.toZModPow 1 c := by
+  have h0 : digit m ((2 : ℤ_[2]) ^ m * c) = 0 ↔ PadicInt.toZModPow 1 c = 0 := by
+    rw [digit_eq_zero_iff, two_pow_succ_dvd_mul_iff, two_dvd_iff_toZModPow]
+  rcases digit_eq_zero_or_one m ((2 : ℤ_[2]) ^ m * c) with h | h
+  · rw [h]
+    exact (h0.mp h).symm
+  · rw [h]
+    have hne : PadicInt.toZModPow (p := 2) 1 c ≠ 0 := fun hc ↦ by
+      rw [h0.mpr hc] at h
+      exact absurd h (by decide)
+    revert hne
+    generalize PadicInt.toZModPow (p := 2) 1 c = t
+    revert t
+    decide
+
+/-- **Additivity of the digit** on the subgroup `2^m ℤ₂`. -/
+theorem digit_add {m : ℕ} {x y : ℤ_[2]} (hx : (2 : ℤ_[2]) ^ m ∣ x) (hy : (2 : ℤ_[2]) ^ m ∣ y) :
+    digit m (x + y) = digit m x + digit m y := by
+  obtain ⟨a, rfl⟩ := hx
+  obtain ⟨b, rfl⟩ := hy
+  rw [← mul_add, digit_two_pow_mul, digit_two_pow_mul, digit_two_pow_mul, map_add]
+
+/-- The **`(w, k)` Magnus coordinate functional**: the `2^{k−|w|}`-digit of the `w`-th
+coefficient of `μ z − 1`.  A homomorphism on `λₖ(F₃)` (`coord_mul`) killing `λ_{k+1}`
+(`coord_eq_zero_of_mem_succ`), i.e. a functional on `Zₖ`. -/
+noncomputable def coord (w : Word) (k : ℕ) (z : (freeProTwo : Type)) : ZMod 2 :=
+  digit (k - wlen w) (coeff ((magnusHom z).val - 1) w)
+
+@[simp] theorem coord_one (w : Word) (k : ℕ) : coord w k 1 = 0 := by
+  rw [coord, show ((magnusHom 1 : MagnusU)).val - 1 = 0 from by rw [map_one]; simp]
+  simp
+
+/-- The coordinate functionals are additive on `λₖ`: the cross term `A·B` of
+`μ(yz) − 1 = A + B + A·B` lands in `m^{2k} ⊆ m^{k+1}`, one digit deeper. -/
+theorem coord_mul {w : Word} {k : ℕ} (hw : wlen w ≤ k) (hk : 1 ≤ k)
+    {y z : (freeProTwo : Type)} (hy : y ∈ twoCentralSeries (freeProTwo : Type) k)
+    (hz : z ∈ twoCentralSeries (freeProTwo : Type) k) :
+    coord w k (y * z) = coord w k y + coord w k z := by
+  set A : MagnusA := (magnusHom y).val - 1 with hA
+  set B : MagnusA := (magnusHom z).val - 1 with hB
+  have hAm : A ∈ magnusFil k := fun v ↦ two_pow_dvd_coeff_magnusHom hy v
+  have hBm : B ∈ magnusFil k := fun v ↦ two_pow_dvd_coeff_magnusHom hz v
+  have hsplit : (magnusHom (y * z) : MagnusU).val - 1 = A + B + A * B := by
+    rw [map_mul, MagnusU.val_mul, hA, hB]
+    noncomm_ring
+  have hcross : A * B ∈ magnusFil (k + 1) :=
+    magnusFil_antitone (by omega) (mul_mem_magnusFil hAm hBm)
+  have hdeep : (2 : ℤ_[2]) ^ (k - wlen w + 1) ∣ coeff (A * B) w := by
+    have h := hcross w
+    rwa [show k + 1 - wlen w = k - wlen w + 1 from by omega] at h
+  have hdeep' : (2 : ℤ_[2]) ^ (k - wlen w) ∣ coeff (A * B) w :=
+    dvd_trans (pow_dvd_pow _ (Nat.le_succ _)) hdeep
+  rw [coord, coord, coord, hsplit, coeff_add, coeff_add,
+    digit_add (dvd_add (hAm w) (hBm w)) hdeep', digit_eq_zero_of_dvd hdeep, add_zero,
+    digit_add (hAm w) (hBm w)]
+
+/-- The coordinate functionals kill the next layer. -/
+theorem coord_eq_zero_of_mem_succ {w : Word} {k : ℕ} (hw : wlen w ≤ k)
+    {z : (freeProTwo : Type)} (hz : z ∈ twoCentralSeries (freeProTwo : Type) (k + 1)) :
+    coord w k z = 0 := by
+  refine digit_eq_zero_of_dvd ?_
+  have h := two_pow_dvd_coeff_magnusHom hz w
+  rwa [show k + 1 - wlen w = k - wlen w + 1 from by omega] at h
+
+/-- The `(w, k)` coordinate functional packaged as a homomorphism `λₖ(F₃) → 𝔽₂`
+(multiplicatively: into `Multiplicative (ZMod 2)`). -/
+noncomputable def coordHom (w : Word) (k : ℕ) (hw : wlen w ≤ k) (hk : 1 ≤ k) :
+    twoCentralSeries (freeProTwo : Type) k →* Multiplicative (ZMod 2) where
+  toFun z := Multiplicative.ofAdd (coord w k z.1)
+  map_one' := by simp
+  map_mul' y z := by
+    simp only [Subgroup.coe_mul, ← ofAdd_add]
+    exact congrArg Multiplicative.ofAdd (coord_mul hw hk y.2 z.2)
+
+@[simp] theorem coordHom_apply (w : Word) (k : ℕ) (hw : wlen w ≤ k) (hk : 1 ≤ k)
+    (z : twoCentralSeries (freeProTwo : Type) k) :
+    coordHom w k hw hk z = Multiplicative.ofAdd (coord w k z.1) := rfl
+
+/-- The coordinate functionals only depend on the class in `Q_{k+1}`, so they are
+genuinely functionals on the graded layer `Zₖ = λₖ/λ_{k+1} ≤ Q_{k+1}`. -/
+theorem coord_eq_of_levelMk_eq {w : Word} {k : ℕ} (hw : wlen w ≤ k) (hk : 1 ≤ k)
+    {y z : (freeProTwo : Type)} (hz : z ∈ twoCentralSeries (freeProTwo : Type) k)
+    (h : levelMk (freeProTwo : Type) (k + 1) y = levelMk (freeProTwo : Type) (k + 1) z) :
+    coord w k y = coord w k z := by
+  have hd : z⁻¹ * y ∈ twoCentralSeries (freeProTwo : Type) (k + 1) :=
+    (QuotientGroup.eq (s := twoCentralSeries (freeProTwo : Type) (k + 1))).mp h.symm
+  have hdk : z⁻¹ * y ∈ twoCentralSeries (freeProTwo : Type) k :=
+    twoCentralSeries_antitone _ (Nat.le_succ k) hd
+  have hsum : coord w k (z * (z⁻¹ * y)) = coord w k z + coord w k (z⁻¹ * y) :=
+    coord_mul hw hk hz hdk
+  rw [show z * (z⁻¹ * y) = y from by group, coord_eq_zero_of_mem_succ hw hd, add_zero] at hsum
+  exact hsum
 
 end GQ2.Roe.Labute.Magnus
