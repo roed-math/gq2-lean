@@ -14,8 +14,10 @@ import GQ2.Reciprocity
 /-!
 # The marked pro-2 identification `(D_R, ν_R) ≅ (G_{ℚ₂}(2), ν_ur)`  (Roe note §3.3)
 
-**Statements final (ticket R7); fills ticket R15** (through R14's owner-approved B-Lab flip:
-the classification input stays a *hypothesis* `BLabHypothesis` here).
+**Statements final (ticket R7); fills ticket R15.**  The classification input stays a
+*hypothesis* `BLabHypothesis` here; it is **proved** downstream, as the theorem
+`GQ2.Roe.Labute.bLab` (`GQ2/Roe/Labute/Assembly.lean`, L-campaign), which imports this file —
+so nothing that consumes `markedPro2_R` is conditional on it.
 
 **File-infrastructure note (R15).** This file was converted from a `module` file to a plain
 (non-module) file: the R7-designed fill route runs through `prop_1_1`,
@@ -34,12 +36,14 @@ lifts as in `prop_1_1`.
 
 ## The B-Lab hypothesis (`section Draft`)
 
-The one genuinely new literature input of Route L is Labute's odd-rank `q = 2` classification
+The one genuinely new input of Route L is Labute's odd-rank `q = 2` classification
 ([Labute], Théorèmes 4 and 8; note Cor. 3.4 ⟦cor:abstractD0⟧), consumed as the **single
 instance** `G := D_R`.  Per the campaign safeguard (plan §3 Route L step 4; b9a `section Draft`
 precedent), it enters here as an explicit *hypothesis* `BLabHypothesis : Prop` — **not** an
-axiom; the axiom-insertion commit is ticket R14, owner-gated — drafted below for owner review
-with its convention docstring.
+axiom.  The axiom flip (ticket R14) was declined by the owner and cancelled; the L-campaign
+proved the instance in Lean instead, so `BLabHypothesis` is discharged by the sorry-free
+theorem `GQ2.Roe.Labute.bLab` and the census is unchanged.  The section name `Draft` below is
+historical.
 
 ## Proof route for `markedPro2_R` (fill R15; note §3.3)
 
@@ -97,11 +101,11 @@ profinite groups is closed — the `nuTwo_surjective` argument (`GQ2/Prop32.lean
 theorem nuDR_surjective : Function.Surjective nuDR :=
   surjective_of_mem_range_topGen nuDR topGen_ztwo ⟨drS, nuDR_drS⟩
 
-/-! ## The B-Lab classification hypothesis  (draft for owner review — ticket R14 flips) -/
+/-! ## The B-Lab classification hypothesis  (discharged downstream by `GQ2.Roe.Labute.bLab`) -/
 
 section Draft
 
-/-- **B-Lab (DRAFT, hypothesis form — not an axiom until the R14 owner gate).**
+/-- **B-Lab (hypothesis form — never an axiom: proved as `GQ2.Roe.Labute.bLab`).**
 
 Labute's classification of Demushkin groups of odd rank with `q = 2`
 ([Labute], *Classification of Demushkin groups*, Canad. J. Math. **19** (1967), Théorème 4
@@ -131,7 +135,7 @@ Conventions (per the ground rules of `docs/orchestration/formalization-plan.md`)
   concretely available for `D_R` through its presentation.  See the R7 design memo for the
   abstract-`G` alternative and its cost.
 
-All four antecedents will be discharged by R10–R13 (`isDemushkin_DR`, `demushkinRank_DR`,
+All four antecedents are discharged by R10–R13 (`isDemushkin_DR`, `demushkinRank_DR`,
 `demushkinQ_DR`, and R11's `χ_R`), so consuming code applies this to obtain the abstract
 isomorphism of the note's Cor. 3.4. -/
 def BLabHypothesis : Prop :=
@@ -250,7 +254,7 @@ end GQ2
 /-! ### Paper-tag ledger (Roe note `paper/roe-presentation-verification.tex`; hand-maintained)
 
   * Prop 3.6 = ⟦prop:markedpro2⟧
-  * Cor 3.4 = ⟦cor:abstractD0⟧ (`BLabHypothesis` draft)
+  * Cor 3.4 = ⟦cor:abstractD0⟧ (`BLabHypothesis`; proved as `GQ2.Roe.Labute.bLab`)
   * eq. (3.14)–(3.16) = ⟦eq:B0⟧/⟦eq:nu0⟧/⟦eq:chi0⟧ (fill-side inputs, `GQ2/SectionThree.lean`)
   * eq. (3.17) = ⟦eq:desiredab⟧ (fill R15, via `GQ2/Roe/MarkedMatching.lean`)
   * Lemma 2.1 = ⟦lem:tame⟧ (`ν_R` values; `ν`-composite over `maxPro2Bridge`)

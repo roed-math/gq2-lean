@@ -53,8 +53,9 @@ automorphism `Ψ` of `D₀`, and `F := Ψ ∘ f` matches the markings:
 functional, cf. `GQ2/LocalMarked.lean`).
 
 Everything here is `axiom`-free modulo the June-side inputs it cites (B3c/B8 via
-`chiD0`/`prop_3_8_lift`) and the in-flight R13b Demushkin fills cited by `MarkedPro2.lean`;
-no `BLabHypothesis` occurs — the abstract isomorphism is a *hypothesis* of the keystone.
+`chiD0`/`prop_3_8_lift`) and the R13b Demushkin fills cited by `MarkedPro2.lean` (landed
+2026-07-25, sorry-free); no `BLabHypothesis` occurs — the abstract isomorphism is a
+*hypothesis* of the keystone.
 -/
 
 namespace GQ2
@@ -226,10 +227,13 @@ theorem isProP_two_wordLift : IsProP 2 (WordLift ℤ_[2] ℤ_[2]ˣ) := by
 
 /-! ## Small local copies of private June-side value facts
 
-`unitNegThree_val`, `topAbCongr_abMk`, the `d0LiftHom` generator values and (later) the
-`sHom`/`yHom` generator values are `private` in their home files (`GQ2/PropOneOneAssembly.lean`,
-`GQ2/SectionThree.lean`); their proofs are one-liners over public definitions, so we re-derive
-them here rather than widen the June API. -/
+`unitNegThree_val`, `topAbCongr_abMk` and (later) the `sHom`/`yHom` generator values are
+`private` in their home files (`GQ2/PropOneOneAssembly.lean`, `GQ2/SectionThree.lean`); their
+proofs are one-liners over public definitions, so we re-derive them here rather than widen the
+June API.  The `d0LiftHom` generator values were in the same situation when this file was
+written and are copied below too, but they have since been de-privatized as
+`SectionThree.d0LiftHom_A`/`_S`/`_Y` (L6 cleanup), so those three copies are now redundant and
+could be dropped in a later pass. -/
 
 private lemma unitNegThree_val' : ((unitNegThree : ℤ_[2]ˣ) : ℤ_[2]) = -3 := by
   rw [unitNegThree, IsUnit.unit_spec]
