@@ -418,7 +418,52 @@ theorem span_descent_r2 (k : ℕ) (hk : 3 ≤ k)
           {w : Fin 3 → levelQuot (D0 : Type) (k + 1) |
             ∀ i, w i ∈ lambdaImage (D0 : Type) (k - 1) (k + 1)} ∪
         {T' 0 ^ 2 ^ (k - 1), T' 1 ^ 2 ^ (k - 1)}) := by
-  sorry
+  -- Mirror of `span_descent_r0` in the `D₀`-tower with the `r₂`-shape and `(s, x)`-tails.
+  haveI := discreteTopology_levelQuot (D0 : Type) d0TopGenFinset isProP_maxProPQuotient (k + 1)
+  haveI : Finite (levelQuot (D0 : Type) (k + 1)) :=
+    finite_levelQuot (D0 : Type) d0TopGenFinset isProP_maxProPQuotient (k + 1)
+  have hproQ : IsProP 2 (levelQuot (D0 : Type) (k + 1)) :=
+    isProP_of_isPGroup (isPGroup_levelQuot (D0 : Type) d0TopGenFinset isProP_maxProPQuotient (k + 1))
+  set φ := freeProTwoLift hproQ T' with hφ
+  have hφs : Function.Surjective φ.toMonoidHom := by
+    rw [← MonoidHom.range_eq_top, ← top_le_iff, ← hgen, Subgroup.closure_le]
+    rintro _ ⟨i, rfl⟩
+    exact ⟨freeGen i, freeProTwoLift_freeGen hproQ T' i⟩
+  have hkill : twoCentralSeries (freeProTwo : Type) (k + 1) ≤ φ.toMonoidHom.ker := by
+    rw [← Subgroup.map_eq_bot_iff (f := φ.toMonoidHom), ← le_bot_iff,
+      ← twoCentralSeries_levelQuot_self (D0 : Type) d0TopGenFinset isProP_maxProPQuotient (k + 1)]
+    exact map_twoCentralSeries_le φ.toMonoidHom φ.continuous_toFun (k + 1)
+  set ψ : levelQuot (freeProTwo : Type) (k + 1) →* levelQuot (D0 : Type) (k + 1) :=
+    QuotientGroup.lift _ φ.toMonoidHom hkill with hψ
+  have hψmk : ψ.comp (levelMk (freeProTwo : Type) (k + 1)) = φ.toMonoidHom := by
+    ext x
+    exact QuotientGroup.lift_mk' _ hkill x
+  have htrans : ∀ j : ℕ,
+      (lambdaImage (freeProTwo : Type) j (k + 1)).map ψ = lambdaImage (D0 : Type) j (k + 1) := by
+    intro j
+    rw [lambdaImage, Subgroup.map_map, hψmk,
+      map_twoCentralSeries_eq φ.toMonoidHom φ.continuous_toFun hφs j,
+      lambdaImage_eq_twoCentralSeries_levelQuot (D0 : Type) d0TopGenFinset isProP_maxProPQuotient j (k + 1)]
+  have heval : ∀ j : Fin 3, ψ (levelMk (freeProTwo : Type) (k + 1) (freeGen j)) = T' j := by
+    intro j
+    have h1 : ψ (levelMk (freeProTwo : Type) (k + 1) (freeGen j)) = φ (freeGen j) :=
+      QuotientGroup.lift_mk' _ hkill (freeGen j)
+    rw [h1, hφ]
+    exact freeProTwoLift_freeGen hproQ T' j
+  intro z hz
+  rw [show zLayer (D0 : Type) k = lambdaImage (D0 : Type) k (k + 1) from rfl, ← htrans k] at hz
+  obtain ⟨z₀, hz₀, rfl⟩ := hz
+  have hmap := Subgroup.mem_map_of_mem (K := Subgroup.closure _) ψ (span_free_r2 k hk hz₀)
+  rw [MonoidHom.map_closure] at hmap
+  refine Subgroup.closure_mono ?_ hmap
+  rw [Set.image_union]
+  refine Set.union_subset_union ?_ ?_
+  · rintro _ ⟨_, ⟨w, hw, rfl⟩, rfl⟩
+    refine ⟨fun i => ψ (w i), fun i => (htrans (k - 1)) ▸ Subgroup.mem_map_of_mem ψ (hw i), ?_⟩
+    rw [map_dbarWordR2, heval 0, heval 1, heval 2]
+  · rintro _ ⟨x, hx | hx, rfl⟩ <;> subst hx
+    · exact Or.inl (by rw [map_pow, heval 0])
+    · exact Or.inr (show _ = T' 1 ^ 2 ^ (k - 1) by rw [map_pow, heval 1])
 
 /-! ## The stage lemma: SL1, SL2, and the step (spike §2.4) -/
 
