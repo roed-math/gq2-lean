@@ -105,8 +105,8 @@ theorem exists_contSurj_of_levelwise_nonempty
       Nonempty (ContSurj S (R ⧸ U.toSubgroup)))
     (hfin : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of R),
       Finite (ContSurj S (R ⧸ U.toSubgroup))) :
-    Nonempty (ContSurj S R) := by
-  sorry
+    Nonempty (ContSurj S R) :=
+  GQ2.exists_contSurj_of_levelwise_nonempty hne hfin
 
 /-- Finiteness of the level sets from topological finite generation of the *source*
 (the `hfin`-supplier; the `reconstruction_of_equinum` pattern, `Reconstruction.lean:330`;

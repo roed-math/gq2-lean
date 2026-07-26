@@ -191,42 +191,38 @@ noncomputable def konigFunctor : OpenNormalSubgroup (ProfiniteGrp.of R) ⥤ Type
 
 end KonigAssembly
 
-/-- **Surjection assembly from surjection counts** (paper Lemma 2.5, compactness input): if a
-profinite group `S` continuously surjects onto at least as many finite groups (counted with
-multiplicity) as a profinite group `R` **whose surjection sets are all finite** (`hRfin`), then
-`S` continuously surjects onto `R`.  Finiteness of the *target* level sets is essential: without it
-`Nat.card` collapses an infinite level set to `0` and the count hypothesis becomes vacuous (e.g.
-`R = (ℤ/2)^ℕ`, `S = 1`).
+/-- **Surjection assembly from levelwise nonemptiness** (the compactness core of
+`exists_contSurj_of_card_le`, isolated): if `S` continuously surjects onto every finite quotient
+`R ⧸ U` of `R` in at least one (`hne`) and at most finitely many (`hfin`) ways, then `S`
+continuously surjects onto `R`.
 
-This is *standard* profinite group theory (Ribes–Zalesskiĭ, *Profinite Groups*, Ch. 1–2).  Proof:
-* For each `V : OpenNormalSubgroup R`, `contSurj_quotient_nonempty_finite` gives the level set
-  `{S ↠ R/V}` nonempty **and finite** (from `hRfin` + the count hypothesis `h`).  These, with the
-  restriction maps `projMap` for `V' ≤ V`, form `konigFunctor : OpenNormalSubgroup R ⥤ Type`, a
-  cofiltered system of nonempty finite sets; `nonempty_sections_of_finite_cofiltered_system` (König)
-  supplies a **compatible** family of surjections `σ V : S ↠ R/V`.
-* `R` embeds into `Q := ∏_V R/V` via `e = (mk_V)_V` (injective since the open normal subgroups meet
-  in `1`; a closed embedding as `R` is compact and `Q` is Hausdorff).  Cantor's intersection theorem
-  in the compact `R` realizes each compatible family `(σ V s)_V` as `e r`, so `ψ := e⁻¹ ∘ Φ`
-  (`Φ = (σ V)_V : S → Q`) is a well-defined continuous homomorphism with `mk_V ∘ ψ = σ V`.
-* A second Cantor intersection, in the compact `S`, shows `ψ` surjective: for each `r`, the
-  compatible closed sets `{s | σ V s = mk_V r}` meet, giving `s` with `ψ s = r`. -/
-theorem exists_contSurj_of_card_le
+This is `exists_contSurj_of_card_le` with the two `konigFunctor`-level inputs taken as hypotheses
+instead of being derived from surjection counts; that lemma is now the special case in which
+`contSurj_quotient_nonempty_finite` supplies them.  Consumers that produce the level sets by
+other means (the Labute assembly, `GQ2/Roe/Labute/Assembly.lean`) apply this form directly.
+
+Proof: `hne`/`hfin` make `konigFunctor : OpenNormalSubgroup R ⥤ Type` a cofiltered system of
+nonempty finite sets, so `nonempty_sections_of_finite_cofiltered_system` (König) supplies a
+compatible family `σ U : S ↠ R/U`.  `R` embeds into `Q := ∏_U R/U` via `e = (mk_U)_U` (injective
+since the open normal subgroups meet in `1`; a closed embedding as `R` is compact and `Q` is
+Hausdorff).  Cantor's intersection theorem in the compact `R` realizes each compatible family
+`(σ U s)_U` as `e r`, so `ψ := e⁻¹ ∘ Φ` (`Φ = (σ U)_U`) is a continuous homomorphism with
+`mk_U ∘ ψ = σ U`; a second Cantor intersection, in the compact `S`, shows `ψ` surjective. -/
+theorem exists_contSurj_of_levelwise_nonempty
     {S R : Type} [Group S] [TopologicalSpace S] [IsTopologicalGroup S]
       [CompactSpace S] [TotallyDisconnectedSpace S]
     [Group R] [TopologicalSpace R] [IsTopologicalGroup R]
       [CompactSpace R] [TotallyDisconnectedSpace R]
-    (hRfin : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
-        Finite (ContSurj R H))
-    (h : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
-        Nat.card (ContSurj R H) ≤ Nat.card (ContSurj S H)) :
+    (hne : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of R),
+      Nonempty (ContSurj S (R ⧸ U.toSubgroup)))
+    (hfin : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of R),
+      Finite (ContSurj S (R ⧸ U.toSubgroup))) :
     Nonempty (ContSurj S R) := by
   classical
-  haveI hne : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of R),
-      Nonempty ((konigFunctor (S := S) (R := R)).obj U) :=
-    fun U => (contSurj_quotient_nonempty_finite hRfin h U).1
-  haveI hfin : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of R),
-      Finite ((konigFunctor (S := S) (R := R)).obj U) :=
-    fun U => (contSurj_quotient_nonempty_finite hRfin h U).2
+  haveI hne' : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of R),
+      Nonempty ((konigFunctor (S := S) (R := R)).obj U) := hne
+  haveI hfin' : ∀ U : OpenNormalSubgroup (ProfiniteGrp.of R),
+      Finite ((konigFunctor (S := S) (R := R)).obj U) := hfin
   obtain ⟨sec, hsec⟩ :=
     nonempty_sections_of_finite_cofiltered_system (konigFunctor (S := S) (R := R))
   -- `σ U : S ↠ R/U`, with compatibility `projMap ∘ σ U = σ U'` for `U ≤ U'`.
@@ -307,6 +303,39 @@ theorem exists_contSurj_of_card_le
     rw [hψe]
     exact funext fun U => by simpa [e, Φ, MonoidHom.pi] using Set.mem_iInter.mp hs U
   exact ⟨⟨⟨MonoidHom.mk' ψ hψ_hom, hψ_cont⟩, hψ_surj⟩⟩
+
+/-- **Surjection assembly from surjection counts** (paper Lemma 2.5, compactness input): if a
+profinite group `S` continuously surjects onto at least as many finite groups (counted with
+multiplicity) as a profinite group `R` **whose surjection sets are all finite** (`hRfin`), then
+`S` continuously surjects onto `R`.  Finiteness of the *target* level sets is essential: without it
+`Nat.card` collapses an infinite level set to `0` and the count hypothesis becomes vacuous (e.g.
+`R = (ℤ/2)^ℕ`, `S = 1`).
+
+This is *standard* profinite group theory (Ribes–Zalesskiĭ, *Profinite Groups*, Ch. 1–2).  Proof:
+* For each `V : OpenNormalSubgroup R`, `contSurj_quotient_nonempty_finite` gives the level set
+  `{S ↠ R/V}` nonempty **and finite** (from `hRfin` + the count hypothesis `h`).  These, with the
+  restriction maps `projMap` for `V' ≤ V`, form `konigFunctor : OpenNormalSubgroup R ⥤ Type`, a
+  cofiltered system of nonempty finite sets; `nonempty_sections_of_finite_cofiltered_system` (König)
+  supplies a **compatible** family of surjections `σ V : S ↠ R/V`.
+* `R` embeds into `Q := ∏_V R/V` via `e = (mk_V)_V` (injective since the open normal subgroups meet
+  in `1`; a closed embedding as `R` is compact and `Q` is Hausdorff).  Cantor's intersection theorem
+  in the compact `R` realizes each compatible family `(σ V s)_V` as `e r`, so `ψ := e⁻¹ ∘ Φ`
+  (`Φ = (σ V)_V : S → Q`) is a well-defined continuous homomorphism with `mk_V ∘ ψ = σ V`.
+* A second Cantor intersection, in the compact `S`, shows `ψ` surjective: for each `r`, the
+  compatible closed sets `{s | σ V s = mk_V r}` meet, giving `s` with `ψ s = r`. -/
+theorem exists_contSurj_of_card_le
+    {S R : Type} [Group S] [TopologicalSpace S] [IsTopologicalGroup S]
+      [CompactSpace S] [TotallyDisconnectedSpace S]
+    [Group R] [TopologicalSpace R] [IsTopologicalGroup R]
+      [CompactSpace R] [TotallyDisconnectedSpace R]
+    (hRfin : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
+        Finite (ContSurj R H))
+    (h : ∀ (H : Type) [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H],
+        Nat.card (ContSurj R H) ≤ Nat.card (ContSurj S H)) :
+    Nonempty (ContSurj S R) :=
+  exists_contSurj_of_levelwise_nonempty
+    (fun U => (contSurj_quotient_nonempty_finite hRfin h U).1)
+    (fun U => (contSurj_quotient_nonempty_finite hRfin h U).2)
 
 /-- **Lemma 2.5 (equinumerosity form).**  `P` is a topologically finitely generated profinite group,
 `Q` is profinite, and for every finite group `H` the continuous-surjection sets are *equinumerous*
