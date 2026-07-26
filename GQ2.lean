@@ -194,6 +194,7 @@ import GQ2.Roe.Hessian
 import GQ2.Roe.ChiR
 import GQ2.Roe.Labute.TwoCentralTower
 import GQ2.Roe.Labute.Levelwise
+import GQ2.Roe.Labute.StageLemma
 import GQ2.Roe.Gauss
 import GQ2.Roe.TrivialSelfDual
 import GQ2.Roe.Devissage.TracedRows
