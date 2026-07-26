@@ -16,9 +16,15 @@ B-labels, and reports:
 
 * **certificate** — which declarations consume each B-axiom.  Compare this with the App. D rows in
   `docs/literature-axioms.md` §C.
-* **gap map** — declarations still depending on `sorryAx`; this is expected to be empty.
+* **gap map** — declarations still depending on `sorryAx`.  Empty except while a campaign's
+  skeleton files are being filled: during the L-campaign it lists the in-flight
+  `GQ2/Roe/Labute/` declarations (the same interim scope `scripts/check_axioms.sh` allowlists).
+  No capstone may appear here, which the terminal certificate below enforces.
 * **alarm** — any *other* non-standard axiom.  Must be empty: a stray `axiom`, a `native_decide`
   (`Lean.ofReduceBool`), or a miscounted census would surface here.
+* **terminal certificate** — the campaign capstones, *checked* rather than reported: each is free of
+  `sorryAx` and of any axiom outside the census, and each Γ_R capstone depends on exactly the same
+  axioms as its Γ_A twin.  Unlike the three reports above, a violation here fails the command.
 
 Unlike the textual guard `scripts/check_axioms.sh`, this walks the elaborated environment directly,
 so it reports transitive dependencies and covers the whole library, including `private` lemmas.
@@ -99,6 +105,61 @@ run_cmd do
   out := out ++ s!"\n--- ALARM: {alarms.size} unknown non-standard axiom use(s) (must be 0) ---\n"
   for a in alarms.qsort (· < ·) do out := out ++ s!"    {a}\n"
   IO.println out
+
+/-! ### Terminal certificate
+
+The three reports above are informational — they print what the library depends on.  This section
+*checks* the campaign capstones and fails the command on a violation, so the capstones cannot
+silently acquire a dependency between audits.  It is the environment-walking counterpart of check 5
+in `scripts/check_axioms.sh`, and deliberately overlaps it: the script pins the exact expected axiom
+set, this pins the properties that must hold whatever the census currently is.
+-/
+
+/-- The presentation theorem's three layers, each as a `(Γ_A twin, Γ_R twin)` pair: the literal
+profinite isomorphism, eq. (154), and the surjection-count form.  The `Γ_R` twins are
+hypothesis-parametrized by `BLabHypothesis` (the Labute classification enters the Roe capstones as
+an explicit binder, never as an axiom); a binder contributes nothing to an axiom print, so the two
+sides of each pair are directly comparable. -/
+def terminalPairs : List (Name × Name) :=
+  [ (``GQ2.main_presentation_literal,         ``GQ2.main_presentation_literal_roe)
+  , (``GQ2.SectionTen.eq_154,                 ``GQ2.eq_154_R)
+  , (``GQ2.SectionTen.main_surjection_count', ``GQ2.main_surjection_count_R) ]
+
+/-- `Γ_R`-side terminal declarations with no `Γ_A` twin to compare against: the bridge identifying
+the two admissible-marking semantics (`admissibleCountR` vs `admissibleCount`). -/
+def terminalSolo : List Name := [``GQ2.admissibleCountR_eq_admissibleCount]
+
+run_cmd do
+  let env ← getEnv
+  let permitted := stdAxioms ++ bAxioms.map (·.1)
+  let decls := terminalPairs.map (·.1) ++ terminalPairs.map (·.2) ++ terminalSolo
+  let mut prints : Array (Name × Array Name) := #[]
+  for n in decls do
+    unless env.contains n do
+      throwError "terminal certificate: unknown declaration {n} (renamed or removed?)"
+    prints := prints.push (n, (← collectAxioms n).qsort (·.toString < ·.toString))
+  let axiomsOf (n : Name) : Array Name := ((prints.find? (·.1 == n)).map (·.2)).getD #[]
+  -- (i) no capstone may rest on a `sorry` or on anything outside the census …
+  let mut bad : Array String := #[]
+  for (n, axs) in prints do
+    for a in axs do
+      if a == `sorryAx then bad := bad.push s!"{n} depends on sorryAx"
+      else unless permitted.contains a do bad := bad.push s!"{n} uses non-census axiom {a}"
+  -- … and (ii) the Roe campaign may not widen the trust base of the theorem it replaces.
+  for (a, r) in terminalPairs do
+    unless axiomsOf a == axiomsOf r do
+      bad := bad.push s!"{r} does not depend on the same axioms as its twin {a}"
+  let mut out := "\n--- terminal certificate ---\n"
+  for (a, r) in terminalPairs do
+    let verdict := if axiomsOf a == axiomsOf r then "identical to twin" else "DIFFERS FROM TWIN"
+    out := out ++ s!"{r}\n    {verdict} {a} ({(axiomsOf r).size} axioms)\n"
+  for n in terminalSolo do
+    out := out ++ s!"{n}\n    {(axiomsOf n).size} axioms, all in the census\n"
+  out := out ++ s!"\n{bad.size} terminal violation(s) (must be 0)\n"
+  IO.println out
+  unless bad.isEmpty do
+    let badMsg := String.intercalate "\n  " bad.toList
+    throwError "terminal certificate FAILED:\n  {badMsg}"
 
 end GQ2.AxiomLedger
 
