@@ -1449,11 +1449,101 @@ private theorem twoCentralSeries_three_MR : twoCentralSeries MR 3 = ⊥ :=
     (le_trans twoCentralSeries_two_MR_le mrCentral_le_center)
     fun _ hx => mrCentral_sq (twoCentralSeries_two_MR_le hx)
 
+/-- The `s²`-coordinate vector. -/
+private def mrZ0 : MR := ⟨0, 0, 0, 1, 0, 0, 0, 0⟩
+/-- The `x²`-coordinate vector. -/
+private def mrZ1 : MR := ⟨0, 0, 0, 0, 1, 0, 0, 0⟩
+/-- The `[s,x] = y²`-coordinate vector. -/
+private def mrZ2 : MR := ⟨0, 0, 0, 0, 0, 1, 0, 0⟩
+/-- The `[s,y]`-coordinate vector. -/
+private def mrZ3 : MR := ⟨0, 0, 0, 0, 0, 0, 1, 0⟩
+/-- The `[x,y]`-coordinate vector. -/
+private def mrZ4 : MR := ⟨0, 0, 0, 0, 0, 0, 0, 1⟩
+
+private theorem mrZ0_eq : mrS * mrS = mrZ0 := by decide
+private theorem mrZ1_eq : mrX * mrX = mrZ1 := by decide
+private theorem mrZ2_eq : mrY * mrY = mrZ2 := by decide
+private theorem mrZ3_eq : mrS * mrY * mrS⁻¹ * mrY⁻¹ = mrZ3 := by decide
+private theorem mrZ4_eq : mrX * mrY * mrX⁻¹ * mrY⁻¹ = mrZ4 := by decide
+
+/-- The five coordinate vectors span the `Z₂`-part. -/
+private theorem mr_central_word (n : MR) (h0 : n.a0 = 0) (h1 : n.a1 = 0) (h2 : n.a2 = 0) :
+    n = mrZ0 ^ n.z0.val * mrZ1 ^ n.z1.val * mrZ2 ^ n.z2.val * mrZ3 ^ n.z3.val
+      * mrZ4 ^ n.z4.val := by
+  obtain ⟨n0, n1, n2, v0, v1, v2, v3, v4⟩ := n
+  simp only at h0 h1 h2
+  subst h0; subst h1; subst h2
+  revert v0 v1 v2 v3 v4
+  decide
+
+/-- The generator word `s^{t₀} x^{t₁} y^{t₂}` has `𝔽₂³`-coordinate `(t₀, t₁, t₂)`. -/
+private theorem mr_word_a (t0 t1 t2 : ZMod 2) :
+    (mrS ^ t0.val * mrX ^ t1.val * mrY ^ t2.val).a0 = t0 ∧
+      (mrS ^ t0.val * mrX ^ t1.val * mrY ^ t2.val).a1 = t1 ∧
+      (mrS ^ t0.val * mrX ^ t1.val * mrY ^ t2.val).a2 = t2 := by
+  revert t0 t1 t2; decide
+
+/-- The marking of `D_R` at the order-256 model. -/
+private noncomputable def psiM : ContinuousMonoidHom (DR : Type) MR :=
+  drLiftHom isProP_two_MR ![mrS, mrX, mrY] (by show drWord mrS mrX mrY = 1; exact drWord_MR)
+
+@[simp] private theorem psiM_drS : psiM drS = mrS := drLiftHom_S _ _ _
+@[simp] private theorem psiM_drX : psiM drX = mrX := drLiftHom_X _ _ _
+@[simp] private theorem psiM_drY : psiM drY = mrY := drLiftHom_Y _ _ _
+
+/-- **The marking is onto**: the three generators reach every `𝔽₂³`-coordinate, and their
+squares and brackets are the five `Z₂`-coordinate vectors. -/
+private theorem psiM_surjective : Function.Surjective psiM.toMonoidHom := by
+  intro m
+  refine MonoidHom.mem_range.mp ?_
+  obtain ⟨e0, e1, e2⟩ := mr_word_a m.a0 m.a1 m.a2
+  set w := mrS ^ m.a0.val * mrX ^ m.a1.val * mrY ^ m.a2.val with hwdef
+  set R := psiM.toMonoidHom.range with hRdef
+  have hS : mrS ∈ R := ⟨drS, psiM_drS⟩
+  have hX : mrX ∈ R := ⟨drX, psiM_drX⟩
+  have hY : mrY ∈ R := ⟨drY, psiM_drY⟩
+  have hZ0 : mrZ0 ∈ R := mrZ0_eq ▸ R.mul_mem hS hS
+  have hZ1 : mrZ1 ∈ R := mrZ1_eq ▸ R.mul_mem hX hX
+  have hZ2 : mrZ2 ∈ R := mrZ2_eq ▸ R.mul_mem hY hY
+  have hZ3 : mrZ3 ∈ R :=
+    mrZ3_eq ▸ R.mul_mem (R.mul_mem (R.mul_mem hS hY) (R.inv_mem hS)) (R.inv_mem hY)
+  have hZ4 : mrZ4 ∈ R :=
+    mrZ4_eq ▸ R.mul_mem (R.mul_mem (R.mul_mem hX hY) (R.inv_mem hX)) (R.inv_mem hY)
+  have hw : w ∈ R := R.mul_mem (R.mul_mem (R.pow_mem hS _) (R.pow_mem hX _)) (R.pow_mem hY _)
+  have hn0 : (w⁻¹ * m).a0 = 0 := by show w.a0 + m.a0 = 0; rw [e0]; exact mr_add_self _
+  have hn1 : (w⁻¹ * m).a1 = 0 := by show w.a1 + m.a1 = 0; rw [e1]; exact mr_add_self _
+  have hn2 : (w⁻¹ * m).a2 = 0 := by show w.a2 + m.a2 = 0; rw [e2]; exact mr_add_self _
+  have hrem : w⁻¹ * m ∈ R := by
+    rw [mr_central_word _ hn0 hn1 hn2]
+    exact R.mul_mem (R.mul_mem (R.mul_mem (R.mul_mem (R.pow_mem hZ0 _) (R.pow_mem hZ1 _))
+      (R.pow_mem hZ2 _)) (R.pow_mem hZ3 _)) (R.pow_mem hZ4 _)
+  have hm : m = w * (w⁻¹ * m) := by group
+  rw [hm]
+  exact R.mul_mem hw hrem
+
+/-- `|Q₃| ≥ 2⁸`: the marking kills `λ₃` (the model's own `λ₃` is trivial) and is onto. -/
+private theorem card_levelQuot_three_ge : 256 ≤ Nat.card (levelQuot (DR : Type) 3) := by
+  haveI : Finite (levelQuot (DR : Type) 3) := finite_levelQuot (DR : Type) drFg isProP_DR 3
+  have hker : twoCentralSeries (DR : Type) 3 ≤ psiM.toMonoidHom.ker := by
+    intro g hg
+    have h : psiM.toMonoidHom g ∈ twoCentralSeries MR 3 :=
+      map_twoCentralSeries_le psiM.toMonoidHom psiM.continuous_toFun 3 ⟨g, hg, rfl⟩
+    rw [twoCentralSeries_three_MR, Subgroup.mem_bot] at h
+    exact MonoidHom.mem_ker.mpr h
+  have hlift : Function.Surjective
+      (QuotientGroup.lift (twoCentralSeries (DR : Type) 3) psiM.toMonoidHom
+        (fun g hg => hker hg)) := by
+    intro v
+    obtain ⟨g, rfl⟩ := psiM_surjective v
+    exact ⟨levelMk (DR : Type) 3 g, rfl⟩
+  calc (256 : ℕ) = Nat.card MR := card_MR.symm
+    _ ≤ Nat.card (levelQuot (DR : Type) 3) := Nat.card_le_card_of_surjective _ hlift
+
 end LevelThreeModel
 
 /-- `|Q₃(D_R)| = 256` — the base-case budget (spike §1, `k₀ = 3` lives here).  Fill: L3. -/
-theorem card_levelQuot_three : Nat.card (levelQuot (DR : Type) 3) = 256 := by
-  sorry
+theorem card_levelQuot_three : Nat.card (levelQuot (DR : Type) 3) = 256 :=
+  le_antisymm card_levelQuot_three_le card_levelQuot_three_ge
 
 /-- `|Z₁(D_R)| = 2³` (spike §1: `dim Z₁ = 3`).  Fill: L3.
 
