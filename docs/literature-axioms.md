@@ -119,6 +119,68 @@ not yet to hand.
   table (`docs/orchestration/review-packet.md` §2).
 - **Used at.** Lemma 3.4 → Prop 1.1.
 
+#### B3 addendum — "B-Lab", the `Γ_R` classification instance  ✅ **NOT AN AXIOM — proved in-repo 2026-07-26**
+
+*Added at ticket L6.  Reviewers arriving from the README's "exact inputs" pointer: this is the one
+input the `Γ_R` (Roe-candidate) route ever needed beyond the nine census axioms, and it is **not**
+one of them — it is a theorem.  The census is **9 before and after**.*
+
+- **The statement.** `GQ2.BLabHypothesis` (`GQ2/Roe/MarkedPro2.lean`, `section Draft`) is exactly
+  the *uniqueness half of B3, at the single instance `G := D_R`*:
+
+  > if `D_R` is Demushkin at `p = 2` with `demushkinRank = 3` and `demushkinQ = 2`, and carries a
+  > continuous **surjective** Labute orientation `χ : D_R →* ℤ₂ˣ`, then
+  > `Nonempty (ContinuousMulEquiv D_R D₀)`.
+
+  Here `D_R` is the pro-2 quotient of the Roe candidate `Γ_R` (⟦lem:pro2word⟧) and
+  `D₀ = ⟨A,S,Y | A²S⁴[S,Y]⟩` is B3's dyadic normal form.  It is the note's Cor. 3.4
+  ⟦cor:abstractD0⟧.
+- **Decision history.**  Ticket R14 would have added it as a **tenth axiom**.  The owner
+  **declined** (2026-07-25): it was carried instead as an explicit theorem binder
+  `(hBLab : BLabHypothesis)` on the `Γ_R` capstones, so that the conditionality was visible in the
+  statement rather than hidden in `Axioms.lean`.  The L-campaign then **discharged** it
+  (2026-07-26) as
+  ```lean
+  theorem GQ2.Roe.Labute.bLab : BLabHypothesis   -- GQ2/Roe/Labute/Assembly.lean
+  ```
+  `#print axioms GQ2.Roe.Labute.bLab` = `[propext, Classical.choice, Quot.sound]` — **the standard
+  three exactly, zero census axioms, no `sorryAx`**.  In particular the proof does *not* route
+  through B3c: the orientation data it uses comes from the `Γ_R`/`D_R` presentation side (`chiR`,
+  `chiD0pres`), not from `GQ2.dyadicOrientation`.
+- **Why this is a discharge and not a citation.**  The proof does not invoke Labute's Theorem 8
+  uniqueness statement at all.  It re-runs the classification *for this instance* by a
+  two-central-tower argument: continuous surjections are built **in both directions** level by
+  level along the tower `λ_k`, and the profinite Hopfian property upgrades the resulting pair of
+  epis to an isomorphism.  Chain, with the campaign that produced each piece:
+
+  | layer | Lean | campaign / plan |
+  |---|---|---|
+  | λ-tower (two-central series, cofinality, openness) | `GQ2/Roe/Labute/TwoCentralTower.lean` | L2 · [`labute-plan.md`](orchestration/labute-plan.md), [`labute-l1-design.md`](orchestration/labute-l1-design.md) |
+  | levelwise triple sets, defect calculus, base case `k₀ = 3` | `GQ2/Roe/Labute/Levelwise.lean` | L3/L4a |
+  | **span theorem** `Z_k = Im d̄ + two generator-power tails` | `GQ2/Roe/Labute/SpanFoundation.lean`, `GradedLie/{SpanIdentities,SpanStep,SpanBase,SpanAssembly}.lean` | **GL-campaign** · [`span-gradedlie-plan.md`](orchestration/span-gradedlie-plan.md) |
+  | **stage lemma** (SL1 separation + SL2 lifting), both directions | `GQ2/Roe/Labute/StageLemma.lean` | **SL-campaign** · [`sl-campaign-plan.md`](orchestration/sl-campaign-plan.md), [`sl1-numerics.md`](orchestration/sl1-numerics.md) |
+  | assembly: König/Cantor limit + profinite Hopfian endgame | `GQ2/Roe/Labute/Assembly.lean`, `GQ2/Reconstruction.lean` | L5 |
+
+  The off-Lean de-risking spike that shaped the argument — including the **falsification** of the
+  naive stage lemma and its repair by the χ-congruence invariant `P` — is
+  [`labute-spike.md`](orchestration/labute-spike.md); the per-ticket record of the whole campaign
+  (LS, L1–L6, GL-A…E, SL0–SL1-L) is the board `docs/orchestration/roe-tickets.md`.  One deviation
+  worth a reviewer's eye: SL1 was ultimately proved not by the spike's ±1-character derivations
+  (which do **not** descend) but by the repository's own Labute-orientation machinery
+  (`isLabuteOrientation_chiR`, tickets R9/R11) — see the SL1-L row of the board.
+- **The classification instance itself, unconditionally** (stress example, `Assembly.lean`):
+  feeding `bLab` its four antecedents `isDemushkin_DR`, `demushkinRank_DR`, `demushkinQ_DR`
+  (R10/R12/R13) and the surjective Labute orientation `χ_R` (R11) gives
+  `Nonempty (ContinuousMulEquiv D_R D₀)` with **std-3 exactly** (independently re-`#print`ed at L6).
+  So the `D_R ≅ D₀` identification is now a theorem of this repository over Mathlib alone.
+- **Consequence — the unconditional capstone.**  `GQ2.main_presentation_literal_roe_unconditional`
+  (`GQ2/Roe/Main.lean`) is `Nonempty (ContinuousMulEquiv GammaR AbsGalQ2)` with **no hypotheses**,
+  and prints exactly `std-3 + the nine census axioms` — *the same twelve names as the `Γ_A`
+  capstone `GQ2.main_presentation_literal`*.  Mechanically enforced by `scripts/check_axioms.sh`
+  check 5 (the corollary is in `AUDIT_DECLS`) and by `GQ2/AxiomLedger.lean`'s terminal
+  certificate.  Nothing in §B or §D below changes: the `Γ_R` route widened the trust base by
+  nothing at all.
+
 ### B4. `G_ℚ₂(2)` is the rank-3 dyadic Demushkin group  🟡 schematic · **DELETED 2026-07-10 (unused — B3c subsumes a marked B4)**
 - **Statement.** The maximal pro-2 quotient `G_ℚ₂(2)` of the absolute Galois group is a Demushkin
   group of rank `[ℚ₂:ℚ₂]+2 = 3` with `q = 2`; concretely `G_ℚ₂(2) ≅ ⟨A,S,Y | A²S⁴[S,Y]=1⟩_{pro-2}`.
@@ -411,6 +473,7 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 | B10 tame quotient of `G_ℚ₂` (**oriented**, B10′ since 2026-07-06) | **NSW (7.5.3) (Iwasawa)** with (7.5.2); Serre *LF* Ch. IV (wild pro-`p`); orientation clauses: **Serre *LF* XIII §4 Prop. 13 + cor.** (units ↦ inertia, prime ↦ Frobenius) + **Neukirch ANT V (1.2)** / NSW (7.1.2)(i) (units are unramified norms) | ✅ **verified** | ✅ axiom (bundle) |
 | — RZ Hopfian | RZ [4], Prop. 2.5.2 | **confirmed** | ✅ **proved** |
 | — Schur–Zassenhaus | Mathlib | — | ✅ **proved** |
+| — B-Lab (`Γ_R` instance of B3: `D_R ≅ D₀`) | **not cited** — declined as an axiom 2026-07-25, proved in-repo instead (two-central tower + Hopfian) | — | ✅ **proved** (2026-07-26, `GQ2.Roe.Labute.bLab`, std-3; see the B3 addendum) |
 
 (`✅ verified` = checked against the cited source PDF; audit copies are not vendored in this
 repository. `quoted` = taken from the paper's own citation; `confirmed` = checked against a
@@ -428,7 +491,11 @@ user-approved 2026-07-09; **B9 restated in place 2026-07-24 as the relative Stie
 identity `relativeStiefelWhitney_dyadic`, its former composite statement now the derived theorem
 `evensKahn_dyadic` — B9-A board, census-neutral**); of the two
 finite-group inputs that would also have appeared (RZ Hopfian, Schur–Zassenhaus) both are already
-proved.  The active declarations are faithful project interfaces over the repository's encodings;
+proved.  The later `Γ_R` ("Replacement theorem") campaign needed **one** further classical-looking
+input, the B3 classification at the instance `D_R`; it was **declined as a tenth axiom** and
+**proved in-repo** instead (2026-07-26 — see the B3 addendum above), so the census below is the
+whole trust base for *both* candidate groups.  The active declarations are faithful project
+interfaces over the repository's encodings;
 B3c, B5, B8, B9, and B10 are composite interfaces whose cited ingredients require the explicit
 normalization/dictionary steps documented in their sections, rather than verbatim statements of a
 single published theorem.
