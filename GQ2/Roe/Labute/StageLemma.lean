@@ -1276,16 +1276,19 @@ Since `ℤ₂ ⋊ ℤ₂ˣ` is not known here to be pro-2 (the universal propert
 input (the orientation values, `η⁻¹ = −3`, `v₂(X−1) = v₂(S−1) = 2`, `v₂(Y+1) = 3`) stays in
 `ℤ₂` and is pushed down by the reduction ring hom. -/
 
-section CrossedFunctional
-
-open FoxH
-
+open FoxH in
 /-- The **finite lift group** `ℤ/2^N ⋊ (ℤ/2^N)ˣ` (`WordLift`, product law
 `(u,g)(v,h) = (u + g·v, gh)`): the mod-`2^N` shadow of Labute's `ℤ₂(χ) ⋊ ℤ₂ˣ`. -/
-private abbrev WL (N : ℕ) : Type := WordLift (ZMod (2 ^ N)) ((ZMod (2 ^ N))ˣ)
+private abbrev WL (N : ℕ) : Type := FoxH.WordLift (ZMod (2 ^ N)) ((ZMod (2 ^ N))ˣ)
 
 local instance instTopologicalSpaceWL (N : ℕ) : TopologicalSpace (WL N) := ⊥
 local instance instDiscreteTopologyWL (N : ℕ) : DiscreteTopology (WL N) := ⟨rfl⟩
+local instance instTopUnitsZMod (N : ℕ) : TopologicalSpace ((ZMod (2 ^ N))ˣ) := ⊥
+local instance instDiscUnitsZMod (N : ℕ) : DiscreteTopology ((ZMod (2 ^ N))ˣ) := ⟨rfl⟩
+
+section CrossedFunctional
+
+open FoxH
 
 /-- `WL N` is a finite 2-group: `|ℤ/2^N| · |(ℤ/2^N)ˣ| = 2^N · 2^{N-1}`. -/
 private theorem isPGroup_WL {N : ℕ} (hN : 1 ≤ N) : IsPGroup 2 (WL N) := by
@@ -1523,9 +1526,6 @@ private theorem twoCentralSeries_WL_le {N : ℕ} (hN : 1 ≤ N) {j : ℕ} (hj : 
       exact hmul
 
 /-! #### The derivations out of the two towers -/
-
-local instance instTopUnitsZMod (N : ℕ) : TopologicalSpace ((ZMod (2 ^ N))ˣ) := ⊥
-local instance instDiscUnitsZMod (N : ℕ) : DiscreteTopology ((ZMod (2 ^ N))ˣ) := ⟨rfl⟩
 
 /-- Direction 1: the derivation `D_R → WL N` with generator data `(v i, χ_R)`.  It exists
 because `χ_R` is Labute's orientation — **every** crossed derivation kills `r₂`
@@ -1844,6 +1844,78 @@ private theorem dbarWordR2_mem_zLayer (k : ℕ) (hk : 3 ≤ k) (s x y : levelQuo
     (commP_mem_zLayer k hk (hw 0) x)) (commP_mem_zLayer k hk (hw 1) s)
 
 end DbarAdditive
+
+/-! ### The endgame: the coordinate derivations separate the two tails -/
+
+section TailSeparation
+
+open FoxH
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- The mod-2 reduction of `ℤ/2^N`. -/
+private def redTwo {N : ℕ} (hN : 1 ≤ N) : ZMod (2 ^ N) →+* ZMod (2 ^ 1) :=
+  ZMod.castHom (pow_dvd_pow 2 hN) (ZMod (2 ^ 1))
+
+/-- Units reduce to `1` mod `2`. -/
+private theorem redTwo_units {N : ℕ} (hN : 1 ≤ N) (g : (ZMod (2 ^ N))ˣ) :
+    redTwo hN (g : ZMod (2 ^ N)) = 1 := by
+  obtain ⟨v, hv⟩ := (g.isUnit.map (redTwo hN)).exists_right_inv
+  exact (by decide : ∀ a b : ZMod (2 ^ 1), a * b = 1 → a = 1) _ _ hv
+
+/-- Odd `2`-adics reduce to `1` mod `2`. -/
+private theorem redTwo_odd {N : ℕ} (hN : 1 ≤ N) {c : ℤ_[2]} (hc : ¬ (2 : ℤ_[2]) ∣ c) :
+    redTwo hN (PadicInt.toZModPow N c) = 1 := by
+  have h : redTwo hN (PadicInt.toZModPow N c) ≠ 0 := by
+    intro h0
+    refine hc ?_
+    rw [← pow_one (2 : ℤ_[2]), ← two_pow_dvd_toZModPow_iff hN, two_pow_dvd_zmod_iff hN]
+    exact h0
+  revert h
+  generalize redTwo hN (PadicInt.toZModPow N c) = z
+  revert z
+  decide
+
+/-- The mod-2 coordinate vector of the derivations at the three coordinate directions. -/
+private noncomputable def thetaVec {N : ℕ} (hN : 1 ≤ N) (Φ : (Fin 3 → ℤ_[2]) → ContinuousMonoidHom G (WL N))
+    (x : G) : Fin 3 → ZMod (2 ^ 1) :=
+  fun j => redTwo hN ((Φ (Pi.single j 1) x).u)
+
+private theorem thetaVec_mul {N : ℕ} (hN : 1 ≤ N)
+    (Φ : (Fin 3 → ℤ_[2]) → ContinuousMonoidHom G (WL N)) (x y : G) :
+    thetaVec hN Φ (x * y) = thetaVec hN Φ x + thetaVec hN Φ y := by
+  funext j
+  show redTwo hN ((Φ (Pi.single j 1) (x * y)).u) = _
+  rw [map_mul, WordLift.mul_u, Units.smul_def, smul_eq_mul, map_add, map_mul, redTwo_units hN,
+    one_mul]
+  rfl
+
+private theorem thetaVec_one {N : ℕ} (hN : 1 ≤ N)
+    (Φ : (Fin 3 → ℤ_[2]) → ContinuousMonoidHom G (WL N)) : thetaVec hN Φ (1 : G) = 0 := by
+  funext j
+  show redTwo hN ((Φ (Pi.single j 1) 1).u) = 0
+  rw [map_one]
+  simp
+
+private theorem thetaVec_inv {N : ℕ} (hN : 1 ≤ N)
+    (Φ : (Fin 3 → ℤ_[2]) → ContinuousMonoidHom G (WL N)) (x : G) :
+    thetaVec hN Φ x⁻¹ = -thetaVec hN Φ x := by
+  have h := thetaVec_mul hN Φ x x⁻¹
+  rw [mul_inv_cancel, thetaVec_one] at h
+  exact eq_neg_of_add_eq_zero_left (by rw [add_comm]; exact h.symm)
+
+/-- `θ` kills `λ₂` (the offset of a `λ₂`-element is already even). -/
+private theorem thetaVec_lambdaTwo {N : ℕ} (hN : 1 ≤ N)
+    (Φ : (Fin 3 → ℤ_[2]) → ContinuousMonoidHom G (WL N)) {x : G}
+    (hx : x ∈ twoCentralSeries G 2) : thetaVec hN Φ x = 0 := by
+  funext j
+  have h := (deriv_mem_wlCong hN (Φ (Pi.single j 1)) (by omega) hx).1
+  rw [show (2 : ℕ) - 1 = 1 from rfl, pow_one] at h
+  show redTwo hN ((Φ (Pi.single j 1) x).u) = 0
+  have hz : (2 : ZMod (2 ^ N)) ^ 1 ∣ (Φ (Pi.single j 1) x).u := by rwa [pow_one]
+  exact (two_pow_dvd_zmod_iff (N := N) (j := 1) hN).mp hz
+
+end TailSeparation
 
 /-! ## The stage lemma: SL1, SL2, and the step (spike §2.4) -/
 
