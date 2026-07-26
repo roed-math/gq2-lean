@@ -738,6 +738,89 @@ theorem defectR2_mul (k : ℕ) (hk : 3 ≤ k) {T : Fin 3 → levelQuot (D0 : Typ
   rw [← defectR2_eq_of_lift k _ (fun i => canonLift (D0 : Type) k (T i) * w i) hlift, defectR2]
   exact drWord_mul_lambdaImage k hk _ _ _ hw
 
+/-! ### Level-`k` modification facts (L4a fill helpers)
+
+At its *own* level a `λ_{k-1}`-modification is already central of exponent 2 in `Qₖ` — both
+`v²` and `commP v g` land in `λₖ`, which is trivial in `Qₖ`.  So the relator clause of `S⁰ₖ`
+is preserved for the cheapest possible reason, and the χ-clause survives because
+`χ(λ_{k-1}) ⊆ 1 + 2^kℤ₂` — one digit sharper than `chiShadow_eq_one_of_mem` gives, which is
+exactly the design reason the invariant `P` is stated at modulus `2^k`. -/
+
+section LevelShift
+
+variable {H : Type*} [Group H]
+
+/-- The `r₀` word is blind to central involutive shifts of its slots. -/
+private theorem d0Word_central_shift {z₀ z₁ z₂ : H}
+    (h₀ : ∀ t : H, Commute z₀ t) (h₁ : ∀ t : H, Commute z₁ t) (h₂ : ∀ t : H, Commute z₂ t)
+    (e₀ : z₀ ^ 2 = 1) (e₁ : z₁ ^ 2 = 1) (e₂ : z₂ ^ 2 = 1) (a s y : H) :
+    d0Word (a * z₀) (s * z₁) (y * z₂) = d0Word a s y := by
+  have hz4 : z₁ ^ 4 = 1 := by rw [show (4 : ℕ) = 2 * 2 from rfl, pow_mul, e₁, one_pow]
+  rw [d0Word, d0Word, (h₀ a).symm.mul_pow, e₀, mul_one, (h₁ s).symm.mul_pow, hz4, mul_one,
+    ← (h₁ s).eq, ← (h₂ y).eq, commP_central_left h₁, commP_central_right h₂]
+
+/-- The `r₂` word is blind to central involutive shifts of its slots. -/
+private theorem drWord_central_shift {z₀ z₁ z₂ : H}
+    (h₀ : ∀ t : H, Commute z₀ t) (h₁ : ∀ t : H, Commute z₁ t) (h₂ : ∀ t : H, Commute z₂ t)
+    (e₁ : z₁ ^ 2 = 1) (e₂ : z₂ ^ 2 = 1) (s x y : H) :
+    drWord (s * z₀) (x * z₁) (y * z₂) = drWord s x y := by
+  have hconj : ∀ (u : H) (z : H), (∀ t : H, Commute z t) →
+      conjP (u * z) (s * z₀) = conjP u s * z := by
+    intro u z hz
+    rw [← (hz u).eq, ← (h₀ s).eq, conjP_central_left hz, conjP_central_right h₀, (hz _).eq]
+  have hz3 : z₁ ^ 3 = z₁ := by
+    rw [show (3 : ℕ) = 2 + 1 from rfl, pow_add, e₁, one_mul, pow_one]
+  rw [drWord, drWord, hconj x z₁ h₁, hconj y z₂ h₂, (h₁ x).symm.mul_pow, hz3,
+    (h₂ y).symm.mul_pow, e₂, mul_one, ← (h₂ y).eq, commP_central_left h₂,
+    ← (h₂ (conjP y s)).eq, commP_central_right h₂,
+    ← (h₁ (conjP x s)).eq, ← (h₁ (x ^ 3)).eq,
+    inv_mul_inv_central h₁ (by rw [← pow_two]; exact e₁)]
+
+end LevelShift
+
+section LevelFacts
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- At its own level a `λ_{k-1}`-modification squares to `1`. -/
+private theorem lambdaImage_pred_sq (k : ℕ) (hk : 1 ≤ k) {v : levelQuot G k}
+    (hv : v ∈ lambdaImage G (k - 1) k) : v ^ 2 = 1 := by
+  obtain ⟨x, hx, rfl⟩ := hv
+  rw [← map_pow]
+  refine (QuotientGroup.eq_one_iff _).mpr ?_
+  have h := sq_mem_twoCentralSeries_succ G hx
+  rwa [show k - 1 + 1 = k by omega] at h
+
+/-- At its own level a `λ_{k-1}`-modification is central. -/
+private theorem lambdaImage_pred_commute (k : ℕ) (hk : 1 ≤ k) {v : levelQuot G k}
+    (hv : v ∈ lambdaImage G (k - 1) k) (g : levelQuot G k) : Commute v g := by
+  have hgt : g ∈ lambdaImage G 1 k := by rw [lambdaImage_one_eq_top]; trivial
+  have h := commP_mem_lambdaImage_add hv hgt
+  rw [show k - 1 + 1 = k by omega, lambdaImage_self] at h
+  have hc : commP v g = 1 := by simpa using h
+  simp only [commP] at hc
+  refine (commute_iff_eq v g).mpr ?_
+  calc v * g = g * v * (v⁻¹ * g⁻¹ * v * g) := by group
+    _ = g * v := by rw [hc, mul_one]
+
+/-- **The χ-clause survives** (spike §2.1's design reason for the modulus `2^k`): a character
+kills `λ_{k-1}` to precision `2^k`, one digit sharper than the generic layer bound, because
+`λ_{k-1}(ℤ₂ˣ) ⊆ 1 + 2^kℤ₂` (`twoCentralSeries_units_le` at index `k - 1`). -/
+private theorem chiLevel_lambdaImage_pred (χ : ContinuousMonoidHom G ℤ_[2]ˣ) (k : ℕ)
+    (hk : 3 ≤ k) {v : levelQuot G k} (hv : v ∈ lambdaImage G (k - 1) k) :
+    chiLevel χ k v = 1 := by
+  obtain ⟨g, hg, rfl⟩ := hv
+  rw [chiLevel_levelMk]
+  have h1 : χ g ∈ twoCentralSeries ℤ_[2]ˣ (k - 1) :=
+    map_twoCentralSeries_le χ.toMonoidHom χ.continuous_toFun (k - 1) ⟨g, hg, rfl⟩
+  have h2 := twoCentralSeries_units_le (k - 1) (by omega) h1
+  rw [show k - 1 + 1 = k by omega] at h2
+  exact MonoidHom.mem_ker.mp h2
+
+end LevelFacts
+
 /-- **Modification stability of `S^P_ₖ`, direction 1** (spike §2.1 + §2.4): `λ_{k-1}`-moves
 preserve all three clauses — relator kill (the shift lands in `λₖ`), generation
 (Frattini: `λ_{k-1} ⊆ λ₂` for `k ≥ 3`), and the χ-clause (`χ(λ_{k-1}) ⊆ 1 + 2^k ℤ₂` — the
