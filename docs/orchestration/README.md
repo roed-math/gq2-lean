@@ -11,8 +11,14 @@ were decomposed. Mathematical explanations and source references have therefore 
 when their surrounding project-management prose is historical.
 
 For current truth use the Lean sources, [`../../formalization.yaml`](../../formalization.yaml),
-[`../../atlas-audit.md`](../../atlas-audit.md), and the repository gates. The maintained
-documentation index is [`../README.md`](../README.md).
+and the repository gates. The maintained documentation index is [`../README.md`](../README.md).
+
+**Two files in this directory are live rather than archival.**
+[`roe-tickets.md`](roe-tickets.md) is the current board, and
+[`roe-verification-plan.md`](roe-verification-plan.md) the current plan, for the Γ_R
+(Roe-candidate) campaign and its follow-on Labute campaign, whose work is still in flight;
+they are kept here so that one campaign lives in one directory. Everything else below is
+historical.
 
 ## Global plans, boards, and review packets
 
@@ -41,6 +47,10 @@ documentation index is [`../README.md`](../README.md).
 | [`b12-tickets.md`](b12-tickets.md) | Board for the B12 discharge. |
 | [`b13-proof-plan.md`](b13-proof-plan.md) | Plan for constructing the dyadic unit filtration. |
 | [`b13-tickets.md`](b13-tickets.md) | Board for the B13 discharge. |
+| [`b9a-proof-plan.md`](b9a-proof-plan.md) | Plan for restating B9 as the relative dyadic Stiefel–Whitney input and deriving the Evens–Kahn form from it. |
+| [`b9a-t0-recon.md`](b9a-t0-recon.md) | Read-only reconnaissance of the B9 consumers and of what the restated axiom must supply. |
+| [`b9a-t1-design.md`](b9a-t1-design.md) | Design memo fixing the restated statement and the derivation skeleton. |
+| [`b9a-tickets.md`](b9a-tickets.md) | Board for the B9-A restatement, including the census-flip checklist later reused as a template. |
 
 ## §5 and §6 local-arithmetic design
 
@@ -107,6 +117,39 @@ documentation index is [`../README.md`](../README.md).
 | [`p17i-handoff.md`](p17i-handoff.md) | Handoff for the strong-induction proof of Theorem 4.2. |
 | [`p18-plan.md`](p18-plan.md) | Plan for tame-frame exhaustion, equation (154), and the count capstone. |
 | [`p25-tame-reciprocity-plan.md`](p25-tame-reciprocity-plan.md) | Plan for deriving the tame reciprocity interface from the local reciprocity bundle. |
+
+## Γ_R (Roe-candidate) campaign
+
+Design records for the follow-on campaign that verifies a second candidate presentation,
+`Γ_R`, against the same finite-target machinery. The mathematical summary is
+[`../roe-campaign-summary.md`](../roe-campaign-summary.md). The first two rows are **live**.
+
+| File | Role |
+|---|---|
+| [`roe-verification-plan.md`](roe-verification-plan.md) | **Live.** Campaign plan, with a dated status block recording the outcome against it; the plan text below that block is preserved as a design record. |
+| [`roe-tickets.md`](roe-tickets.md) | **Live.** Single-writer ticket board: every R- and L-ticket with its files, dependencies, landing commit, and discoveries. The ground truth for what happened. |
+| [`roe-r2-spike.md`](roe-r2-spike.md) | The Nielsen-search spike, which returned an impossibility theorem rather than a negative result: no explicit word identification `D_R ⇄ D₀` exists. Also re-derives the note's §3.2 numerics independently. |
+| [`roe-r7-design.md`](roe-r7-design.md) | Design memo freezing the Route L statements (`D_R` presentation, Demushkin package, orientation calculus, marked matching) and drafting the B-Lab interface later declined as an axiom. |
+| [`roe-r13b-plan.md`](roe-r13b-plan.md) | Validated plan for the `D_R` degree-2 word-cohomology bridge, including the machine-checked cup–Bockstein Gram matrix and a correction to the assumed dependency gating. |
+| [`roe-r20-recon.md`](roe-r20-recon.md) | Parameter-boundary reconnaissance of the §5 dévissage scaffolding: which layers take the word as data and which bake it into a fixed spine. Source of the clone-rather-than-generalize decision. |
+| [`roe-r30-recon.md`](roe-r30-recon.md) | Reconnaissance fixing the `SourceData` field list from the proof-time uses of Theorem 4.2, plus the minimal-diff refactor shape and its regression gates. |
+| [`roe-r31-survey-ii34.md`](roe-r31-survey-ii34.md) | Survey of the multiplicity and half-torsor supply obligations and the shared obstruction layer beneath them. |
+| [`roe-r31-survey-stage-ii5.md`](roe-r31-survey-stage-ii5.md) | Survey of the display-(136) stage obligation and the cover-lift kernel it needs. |
+| [`roe-r31-survey-ii6.md`](roe-r31-survey-ii6.md) | Survey of the display-(140) residue obligations and the private helpers the port would have to restate. |
+| [`roe-r31-survey-gaussz.md`](roe-r31-survey-gaussz.md) | Survey of the Gauss-`Z` layer and specification of the Γ_R word substrate (cohomology bridge plus correction calculus) that unblocked the whole supply wave. |
+
+## Labute campaign (discharging the Γ_R hypothesis)
+
+The Γ_R result is conditional on one Labute-classification instance, carried as the explicit
+hypothesis `BLabHypothesis` after the owner declined to admit it as a tenth axiom. These
+records plan and de-risk the in-flight proof of that instance; its tickets live on
+[`roe-tickets.md`](roe-tickets.md).
+
+| File | Role |
+|---|---|
+| [`labute-plan.md`](labute-plan.md) | Scoping recon comparing Labute's original argument, NSW III §9, and an instance-specific route; recommends levelwise two-sided lifting, with effort estimates and a page-verified literature survey. |
+| [`labute-spike.md`](labute-spike.md) | Off-Lean de-risking spike: falsifies the naive stage lemma, finds the sharper congruence invariant that repairs it, and returns the GREEN verdict that gated the campaign. |
+| [`labute-l1-design.md`](labute-l1-design.md) | Statement-freeze record for the four-file Lean skeleton, with the per-ticket sorry dispatch specs, proof sketches, and the deviations taken against the spike's memo. |
 
 Every Markdown file retained in this directory appears in the tables above. Code comments may link
 directly to an archived design record when it gives the clearest explanation of a statement
