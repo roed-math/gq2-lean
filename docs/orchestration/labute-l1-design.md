@@ -327,10 +327,14 @@ cannot be import-literal; its own operative clause is the second one:
   specified.
 * `lean_verify GQ2.Roe.Labute.d0Word_eq_one` → std-3 exactly (proven, axiom-free — the
   D₀-relator fact comes from the presentation, as required).
-* `sPR0_one_nonempty` (proven) prints `sorryAx` **through the definitions**: `chiLevel`
+* ~~`sPR0_one_nonempty` (proven) prints `sorryAx` **through the definitions**: `chiLevel`
   embeds `chiShadow_eq_one_of_mem` (L2 #14) in its lift-condition and `levelProj` embeds
   `twoCentralSeries_antitone` (L2 #2).  Every `sorryAx` in the lane's proven decls traces
-  to L2's two definitional sorries — none to axioms.
+  to L2's two definitional sorries — none to axioms.~~
+  **RETIRED 2026-07-26 (orchestrator): L2 landed 15/15 (`5442ef6`), so the two definitional
+  sorries are gone. `sPR0_one_nonempty` now prints std-3 exactly, as do all of L3's and
+  L4a-Levelwise's fills. Do not expect interim `sorryAx` from `chiLevel`/`levelProj`; if a
+  fill shows `sorryAx`, trace it — it is real, not definitional.**
 * Discipline for fills: never cite `chiD0G`, `unitNegThree`, `dyadicOrientation`, or
   anything from `Foundations/Axioms`/`SourceData`/`EvensKahnDerived`/`AxiomLedger`;
   D₀-side facts only from `DyadicPresentation`/`DyadicNielsen`/`SectionThree`'s proven
@@ -356,10 +360,11 @@ No new `axiom`, no `native_decide` anywhere in the four files (source-scanned by
 4. **File-contention**: L3 ∥ L4a both own `Levelwise.lean` sorries — serialize or split
    (see §2/L4a note).  The `Reconstruction.lean` edit stays serialized in L5 (R30
    pattern).
-5. **Definitional sorries** (L2 #2/#14 inside `levelProj`/`chiLevel`): benign but they
+5. ~~**Definitional sorries** (L2 #2/#14 inside `levelProj`/`chiLevel`): benign but they
    make *every* downstream `lean_verify` show `sorryAx` until L2 lands — reviewers should
    not mistake that for a stalled fill.  Dispatch L2 first (it is also the dependency of
-   L4a's χ-clause work).
+   L4a's χ-clause work).~~ **RESOLVED 2026-07-26: L2 landed 15/15; this risk is closed and
+   the `sorryAx` expectation above is retired (see §4).**
 
 ---
 
