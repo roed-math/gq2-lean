@@ -14,6 +14,7 @@ import GQ2.MStageCountGammaR
 import GQ2.HalfTorsorGammaR
 import GQ2.Phase140.GammaR
 import GQ2.GaussZ.GammaRD
+import GQ2.Roe.Labute.Assembly
 
 /-!
 # The `Γ_R` assembly: `sourceR`, eq. (154), and the Replacement theorem  (R32)
@@ -33,13 +34,19 @@ the `Γ_A` capstones:
   surjection-count form at the **Roe** admissible-marking semantics (`prop_2_3_R`, R4).
 * `main_presentation_literal_roe (hBLab) : Nonempty (ContinuousMulEquiv GammaR AbsGalQ2)` —
   the note's ⟦thm:main⟧, by instantiating the `main_presentation` schematic at `Γ_R`.
+* `main_presentation_literal_roe_unconditional : Nonempty (ContinuousMulEquiv GammaR
+  AbsGalQ2)` — the same theorem with the B-Lab hypothesis **discharged** (L6): the campaign's
+  terminal statement, hypothesis-free.
 
-## The B-Lab hypothesis (owner decision 2026-07-25: no new axiom)
+## The B-Lab hypothesis (owner decision 2026-07-25: no new axiom; DISCHARGED 2026-07-26)
 
 Labute's classification instance (note Cor. 3.4 ⟦cor:abstractD0⟧) enters exactly once, as the
 explicit binder `hBLab : BLabHypothesis` threaded from R15's `markedPro2_R`
-(⟦prop:markedpro2⟧) — it is **not** an axiom.  When the L-campaign proves the instance, every
-`hBLab` argument discharges by a one-liner.  Everything else in this file is unconditional.
+(⟦prop:markedpro2⟧) — it is **not** an axiom.  The L-campaign has since **proved** the
+instance (`GQ2.Roe.Labute.bLab`, `GQ2/Roe/Labute/Assembly.lean`, at the standard three axioms),
+so every `hBLab` argument discharges by the one-liner `bLab`; the unconditional corollary at
+the end of this file does exactly that.  The hypothesis-parametrized forms are kept as the
+frozen statements the R-campaign gates audit.  Everything else in this file is unconditional.
 
 ## The pro-2 boundary coordinate (the construction this file adds)
 
@@ -539,6 +546,24 @@ theorem main_presentation_literal_roe (hBLab : BLabHypothesis) :
     (fun G => (eq_154_R hBLab G).trans (SectionTen.main_surjection_count' G))
     (fun G => SectionTen.main_surjection_count' G)
 
+/-- **The Replacement theorem, unconditionally** (note ⟦thm:main⟧; the campaign's terminal
+statement): the Roe candidate `Γ_R` (Definition 1.1 ⟦def:GammaR⟧) is continuously isomorphic
+to `G_{ℚ₂}` — no hypotheses, no instance binders.
+
+The single input of `main_presentation_literal_roe`, the Labute classification instance
+`BLabHypothesis` (note Cor. 3.4 ⟦cor:abstractD0⟧, `D_R ≅ D₀` as marked Demushkin groups), was
+**declined as an axiom** by the owner (2026-07-25) and **discharged as a theorem** by the
+L-campaign (2026-07-26): `GQ2.Roe.Labute.bLab` (`GQ2/Roe/Labute/Assembly.lean`) proves it from
+the λ-tower stage lemma, the levelwise sets and the profinite Hopfian endgame, at the standard
+three axioms and with no `sorry` anywhere in its chain.
+
+Consequently this theorem prints exactly the frozen literature census of the `Γ_A` capstones
+(std-3 + the axioms of `GQ2/Foundations/Axioms.lean`) — the Roe route adds **nothing** to the
+trust base, which `scripts/check_axioms.sh` (check 5) enforces. -/
+theorem main_presentation_literal_roe_unconditional :
+    Nonempty (ContinuousMulEquiv GammaR AbsGalQ2) :=
+  main_presentation_literal_roe Roe.Labute.bLab
+
 /-! ## Stress tests (plan rule 9) -/
 
 /-- **Stress (hypothesis surface).**  The terminal theorem consumes exactly one hypothesis:
@@ -567,10 +592,11 @@ end GQ2
 hand-maintained)
 
   * Theorem 2.1 = ⟦thm:main⟧ (Replacement theorem: `main_presentation_literal_roe`,
-    `eq_154_R`, `main_surjection_count_R`)
+    `main_presentation_literal_roe_unconditional`, `eq_154_R`, `main_surjection_count_R`)
   * Definition 1.1 = ⟦def:GammaR⟧ (`GammaR`, carrier of `sourceR`)
   * Lemma 2.1 = ⟦lem:tame⟧ (tame fields of `sourceR`)
   * Lemma 3.1 = ⟦lem:pro2word⟧ (`maxPro2Bridge` leg of `pro2R`)
-  * Cor 3.4 = ⟦cor:abstractD0⟧ (`BLabHypothesis`, the terminal theorem's binder)
+  * Cor 3.4 = ⟦cor:abstractD0⟧ (`BLabHypothesis`, the binder — discharged by
+    `GQ2.Roe.Labute.bLab`, `GQ2/Roe/Labute/Assembly.lean`)
   * Prop 3.6 = ⟦prop:markedpro2⟧ (`markedPro2_R` leg of `pro2R`)
 -/
