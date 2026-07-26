@@ -364,6 +364,16 @@ private theorem exists_zLayer_mul {x y : levelQuot G (k + 1)}
   refine ⟨x * y⁻¹, ?_, by group⟩
   rw [zLayer_eq_ker_levelProj, MonoidHom.mem_ker, map_mul, map_inv, h, mul_inv_cancel]
 
+/-- Generation is inherited along the tower: `levelProj` is surjective, so it carries a
+generating family of `Q_{k+1}` to a generating family of `Qₖ`. -/
+private theorem closure_range_levelProj {ι : Type*} {T : ι → levelQuot G (k + 1)}
+    (hgen : Subgroup.closure (Set.range T) = ⊤) :
+    Subgroup.closure (Set.range fun i => levelProj G k (T i)) = ⊤ := by
+  have h := congrArg (Subgroup.map (levelProj G k)) hgen
+  rw [MonoidHom.map_closure, Subgroup.map_top_of_surjective _ (levelProj_surjective G k),
+    ← Set.range_comp] at h
+  exact h
+
 /-- **`r₀` is insensitive to `Zₖ`-shifts**: exponent sums `(2, 4, 0)` are even and the
 commutator absorbs central factors in both slots. -/
 private theorem d0Word_zLayer_shift {z₀ z₁ z₂ : levelQuot G (k + 1)} (h₀ : z₀ ∈ zLayer G k)
@@ -470,13 +480,19 @@ of `levelProj`; χ-clause: `chiLevel_levelProj` + `chiTargetR0_castHom`).  Fill:
 theorem sPR0_levelProj {k : ℕ} {T : Fin 3 → levelQuot (DR : Type) (k + 1)}
     (hT : T ∈ sPR0 (k + 1)) :
     (fun i => levelProj (DR : Type) k (T i)) ∈ sPR0 k := by
-  sorry
+  obtain ⟨⟨hrel, hgen⟩, hchi⟩ := hT
+  refine ⟨⟨?_, closure_range_levelProj hgen⟩, fun i => ?_⟩
+  · rw [← map_d0Word, hrel, map_one]
+  · rw [chiLevel_levelProj, hchi i, chiTargetR0_castHom]
 
 /-- Restriction `S^P_{k+1} → S^P_ₖ`, direction 2.  Fill: L4a. -/
 theorem sPR2_levelProj {k : ℕ} {T : Fin 3 → levelQuot (D0 : Type) (k + 1)}
     (hT : T ∈ sPR2 (k + 1)) :
     (fun i => levelProj (D0 : Type) k (T i)) ∈ sPR2 k := by
-  sorry
+  obtain ⟨⟨hrel, hgen⟩, hchi⟩ := hT
+  refine ⟨⟨?_, closure_range_levelProj hgen⟩, fun i => ?_⟩
+  · rw [← map_drWord, hrel, map_one]
+  · rw [chiLevel_levelProj, hchi i, chiTargetR2_castHom]
 
 /-! ## Base-case calculus (level-2 λ-calculus in `Q₃`, and generation transfer)
 
