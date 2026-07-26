@@ -173,7 +173,7 @@ included) prints `sorryAx`.  This is expected and tracked (§5).
 
 | # | sorry | anchor / route |
 |---|---|---|
-| 1–3 | `chiD0pres_d0A/_d0S/_d0Y` | replicate `SectionThree.d0LiftHom_A/S/Y`'s (private) `show`/`maxProPHomEquiv_symm_apply_maxProPMk`/`quotientLift_quotientMk`/`homEquiv_symm_of` pattern |
+| 1–3 | `chiD0pres_d0A/_d0S/_d0Y` | replicate `SectionThree.d0LiftHom_A/S/Y`'s (private when this table was written; public since the L6 cleanup) `show`/`maxProPHomEquiv_symm_apply_maxProPMk`/`quotientLift_quotientMk`/`homEquiv_symm_of` pattern |
 | 4 | `chiTargetR0_three` | `(−1,1,η) ≡ (7,1,5) (mod 8)`: `toZModPow`-numerics; η via `negThreeUnit_val` (`5·5 ≡ 1 (8)`) |
 | 5 | `chiTargetR2_three` | `(S,X,Y) ≡ (5,5,7) (mod 8)`: from R10's mod-16 congruences (`X ≡ 5, S ≡ 13 (16)`) + `Yval_eq` (`Y = −X²`) |
 | 6–7 | `chiTargetR0_nine`, `chiTargetR2_nine` | stress; mod-`2^9` Newton refinement of the root (values re-verified by hand, §1.2); if the Hensel-digging is disproportionate, L3 may propose *deleting* the two `_nine` stress pins via the orchestrator (they are marked stress; deletion ≠ statement change of the load-bearing freeze) — do not weaken them silently |

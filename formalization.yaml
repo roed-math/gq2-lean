@@ -105,7 +105,8 @@ status:
     # three axioms, so the entry below is the discharged form
     # (main_presentation_literal_roe bLab) and the literature_dependencies list is again exactly
     # the 9 census axioms. The hypothesis-parametrized GQ2.main_presentation_literal_roe is kept
-    # in the library (and is what comparator-config.json still names -- see review.notes).
+    # in the library as the general form; comparator-config.json names the unconditional
+    # declaration below, so the Comparator pair certifies the unconditional statement.
     - declaration: "GQ2.main_presentation_literal_roe_unconditional"
       file: "GQ2/Roe/Main.lean"
       sorry_count: 0
@@ -216,10 +217,11 @@ review:
     names one challenge theorem per main result. The Gamma_R result has had no external human
     review either; its former hypothesis BLabHypothesis is now the in-repo theorem
     GQ2.Roe.Labute.bLab (2026-07-26), whose proof -- a two-central-tower stage lemma feeding a
-    profinite Hopfian endgame -- has likewise had no external review. Note that the comparator
-    challenge theorem challenge_main_presentation_literal_roe still carries the hBLab binder,
-    i.e. comparator currently certifies the weaker CONDITIONAL statement; restating it against
-    GQ2.main_presentation_literal_roe_unconditional is an open follow-up.
+    profinite Hopfian endgame -- has likewise had no external review. The comparator challenge
+    theorem for that result is challenge_main_presentation_literal_roe_unconditional, which
+    carries no hBLab binder, so comparator certifies the UNCONDITIONAL statement; the solution's
+    import closure reaches GQ2/Roe/Labute/, where the discharge is proved, while neither
+    challenge statement's closure does.
 
 alignment:
   namespace: "GQ2"

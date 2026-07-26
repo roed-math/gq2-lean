@@ -153,17 +153,20 @@ The main theorem, and the $\Gamma_R$ theorem alongside it, are also packaged for
 - [`Challenge.lean`](Challenge.lean) states both theorems, one intentional `sorry` each, using only
   the imports needed for their statements — neither reaches `GQ2/Roe/Labute/`;
 - [`Solution.lean`](Solution.lean) supplies `GQ2.main_presentation_literal` and
-  `GQ2.main_presentation_literal_roe` as their proofs;
+  `GQ2.main_presentation_literal_roe_unconditional` as their proofs;
 - [`comparator-config.json`](comparator-config.json) names both theorems and permits exactly the
   standard three axioms plus the nine documented literature axioms — one list, shared, because the
   two theorems have the same axiom dependencies.
 
-For the $\Gamma_R$ theorem, note what a passing Comparator run does and does not establish: the
-challenge theorem still carries the `hBLab : BLabHypothesis` binder, so Comparator certifies the
-*conditional* statement. That hypothesis is now discharged in-repo — by
-`GQ2.Roe.Labute.bLab`, whose own proof is checked by the same `lake build` and axiom gates but is
-not itself part of the Comparator pair. Restating the challenge against
-`main_presentation_literal_roe_unconditional` is an open follow-up.
+For the $\Gamma_R$ theorem, the challenge is `challenge_main_presentation_literal_roe_unconditional`
+— `Nonempty (ContinuousMulEquiv GammaR AbsGalQ2)` with no hypothesis and no instance binder — so a
+passing Comparator run certifies the **unconditional** statement. Between 2026-07-25 and 2026-07-26
+the challenge carried an `hBLab : BLabHypothesis` binder and Comparator therefore certified only the
+*conditional* statement; the L-campaign discharged that hypothesis as the in-repo theorem
+`GQ2.Roe.Labute.bLab`, and the pair was restated against
+`GQ2.main_presentation_literal_roe_unconditional`. The solution's import closure consequently now
+reaches `GQ2/Roe/Labute/` — sorry-free, like the rest of the library — while neither challenge
+statement's closure does.
 
 Comparator checks that the challenge and solution statements agree, that the solution uses only
 the permitted axioms, and that the exported solution is accepted by Lean's kernel. Its security
@@ -178,7 +181,7 @@ Lean Compass removes theorem-proof value dependencies—already checked by Lean'
 isolate declarations whose *semantic statements or definitions* can affect a selected result.
 
 The report is [`atlas-audit.md`](atlas-audit.md), a committed snapshot regenerated on 2026-07-26
-after the R-campaign, from a graph of 5,351 project nodes and 47,492 edges. For
+after the L-campaign, from a graph of 5,571 project nodes and 49,304 edges. For
 `GQ2.SectionTen.main_surjection_count'` — whose closure `GQ2/Roe/` does not touch — the 1,789-node
 Atlas closure reduces to a **30-declaration Lean Compass review cone**: according to the Lean
 Compass review model, these are the project declarations that should be checked by a human for
@@ -186,10 +189,10 @@ semantic alignment. The report lists all 30 with source links. It separately obt
 nine-axiom trust base from Lean's `#print axioms`; this avoids undercounting axioms reached through
 private proof helpers, which Atlas intentionally omits from its user-visible graph.
 
-The snapshot's header records a whole-graph `sorry` count of 11, all in the then-in-flight
-`GQ2/Roe/Labute/` files. Those closed on 2026-07-26 and the library-wide count is now **0** (which
-`scripts/check_axioms.sh` enforces on every build); the count in the committed snapshot updates at
-the next Atlas regeneration. The capstone's own closure was sorry-free throughout.
+The snapshot's header records a whole-graph `sorry` count of **0**: the last 11 were in the
+`GQ2/Roe/Labute/` files, which closed on 2026-07-26 before this snapshot was taken, and
+`scripts/check_axioms.sh` enforces the count on every build. The capstone's own closure was
+sorry-free throughout.
 
 Regeneration instructions and the distinction between the Compass cone and the kernel trust base
 are in [`docs/atlas.md`](docs/atlas.md).

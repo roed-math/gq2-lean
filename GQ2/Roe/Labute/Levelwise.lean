@@ -118,7 +118,7 @@ noncomputable def chiD0pres : ContinuousMonoidHom (D0 : Type) ℤ_[2]ˣ :=
     show (-1 : ℤ_[2]ˣ) ^ 2 * (1 : ℤ_[2]ˣ) ^ 4 * commP (1 : ℤ_[2]ˣ) etaUnit = 1
     rw [commP_eq_one, neg_one_sq, one_pow, mul_one, mul_one])
 
-/-- `χ₀(A) = −1`.  Fill: L3 (replicate the private `d0LiftHom_A` evaluation pattern of
+/-- `χ₀(A) = −1`.  Fill: L3 (replicate the `SectionThree.d0LiftHom_A` evaluation pattern of
 `GQ2/SectionThree.lean`). -/
 theorem chiD0pres_d0A : chiD0pres d0A = -1 := by
   show ((maxProPHomEquiv isProP_two_unitsPadicInt).symm _) (maxProPMk 2 D0Full

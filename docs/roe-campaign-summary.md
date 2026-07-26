@@ -30,9 +30,11 @@ Tags in ⟦…⟧ are that note's labels; `file:line` references are to this rep
 > point by point:
 >
 > * **§4, "One hypothesis"** — no longer applies. The Γ_R result is unconditional, like the Γ_A
->   result. What Comparator checks is unchanged and still worth knowing: its challenge theorem
->   still carries the `hBLab` binder, so it certifies the *conditional* statement; the discharge
->   is checked by the in-repo gates instead.
+>   result. Comparator now checks that too: the pair was restated against
+>   `main_presentation_literal_roe_unconditional`, so its challenge theorem
+>   `challenge_main_presentation_literal_roe_unconditional` carries no `hBLab` binder and a
+>   passing run certifies the *unconditional* statement. (The solution's import closure therefore
+>   reaches `GQ2/Roe/Labute/`, where the discharge is proved; neither challenge statement's does.)
 > * **§5** — the residual risk (the span theorem) did **not** need the O1 axiomatization
 >   fallback: the owner declined it, and the GL-campaign proved `span_free_r0/r2` outright after
 >   finding that the termination obstruction dissolves. The stage lemma's two halves were then
@@ -197,13 +199,14 @@ agreement of the two admissible-marking counts into a theorem for every finite g
 - **No new axiom.** The census stays at nine literature axioms. The axiom print of
   `main_presentation_literal_roe` is *byte-identical* to that of `main_presentation_literal` —
   standard three plus nine — and this is checked mechanically by `scripts/check_axioms.sh`
-  (check 5 pins four capstones at the exact 12-axiom set and asserts three Γ_A↔Γ_R twin pairs
+  (check 5 pins five capstones at the exact 12-axiom set and asserts three Γ_A↔Γ_R twin pairs
   print-identical) and by `GQ2/AxiomLedger.lean`, not asserted in prose.
 - **One hypothesis.** *(Superseded 2026-07-26 — see the addendum at the top; the result is now
-  unconditional and `GQ2.main_presentation_literal_roe_unconditional` is the hypothesis-free
-  form.)* `BLabHypothesis` is a theorem binder. The Γ_R result is conditional; the
-  Γ_A result is not. A passing Comparator run on the Γ_R pair checks the *conditional*
-  statement and is silent on whether the hypothesis is true.
+  unconditional, `GQ2.main_presentation_literal_roe_unconditional` is the hypothesis-free form,
+  and the Comparator pair has been restated against it, so a passing Comparator run now
+  certifies the unconditional statement.)* `BLabHypothesis` is a theorem binder. The Γ_R result
+  is conditional; the Γ_A result is not. A passing Comparator run on the Γ_R pair checks the
+  *conditional* statement and is silent on whether the hypothesis is true.
 - **Numerically anchored.** R5 checked `admissibleCountR` against the June LMFDB-verified
   finite-quotient counts four independent ways before any deep proof consumed the definitions:
   `C₂ : 7`, `C₄ : 24`, `V₄ : 42`, `D₄ : 144`, `Q₈ : 144`.
