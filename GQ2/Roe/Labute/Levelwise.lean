@@ -669,6 +669,31 @@ L3, words recorded for reproducibility; repo convention `[s,y] = s⁻¹y⁻¹sy`
 * direction 2, level 4: the spike's `witness_words.txt` triple of lengths `(12, 7, 11)`
   with χ-depths `(4, 5, 6)`. -/
 
+/-- **The `D_R` relator read in `Q₃`**: it collapses to `y² = [x, s]` (repo `commP`).
+The `[y, yˢ]` block is inert (a `commP` against the `Z₂`-element `[y, s]`), `x⁴ = 1` in `Q₃`
+(`λ₂² ⊆ λ₃`), and `conjP x s = x · [x, s]`, so the two surviving terms are `y²` and the
+cross term `[x, s]`.  This is the single linear relation that cuts `dim Z₂` from `6` to
+`5`; it is what makes `|Q₃| = 2⁸` rather than `2⁹`. -/
+theorem levelMk_drY_sq :
+    levelMk (DR : Type) 3 drY ^ 2
+      = commP (levelMk (DR : Type) 3 drX) (levelMk (DR : Type) 3 drS) := by
+  set s := levelMk (DR : Type) 3 drS with hs
+  set x := levelMk (DR : Type) 3 drX with hx
+  set y := levelMk (DR : Type) 3 drY with hy
+  have hrel : drWord s x y = 1 := by
+    rw [hs, hx, hy, ← map_drWord (levelMk (DR : Type) 3), dr_relation, map_one]
+  have hzys : commP y s ∈ zLayer (DR : Type) 2 := levelMk_commP_mem_zLayer drY drS
+  have hx4 : x ^ 4 = 1 := levelMk_pow_four drX
+  have hyys : commP y (conjP y s) = 1 := by
+    rw [conjP_eq_mul_commP, commP_mul_right, commP_self, conjP_one_left, mul_one]
+    exact commP_of_mem_zLayer_right y hzys
+  set c := commP x s with hc
+  have h : (conjP x s)⁻¹ * (x ^ 3)⁻¹ * y ^ 2 * commP y (conjP y s) = 1 := hrel
+  rw [hyys, mul_one, conjP_eq_mul_commP, ← hc] at h
+  have hstep : (x * c)⁻¹ * (x ^ 3)⁻¹ * y ^ 2 = c⁻¹ * ((x ^ 4)⁻¹ * y ^ 2) := by group
+  rw [hstep, hx4, inv_one, one_mul] at h
+  exact (inv_mul_eq_one.mp h).symm
+
 /-- The direction-1 base witness in `Q₃(D_R)` (spike §3.1/§3.4): the `(A,S,Y)`-slot
 triple `(y, s·x, x)` — mod-8 χ-values `(7, 1, 5)`, matching `chiTargetR0_three`. -/
 noncomputable def witnessR0 : Fin 3 → levelQuot (DR : Type) 3 :=
@@ -687,24 +712,10 @@ private theorem witnessR0_relator :
   set y := levelMk (DR : Type) 3 drY with hy
   have hsx : levelMk (DR : Type) 3 (drS * drX) = s * x := map_mul _ _ _
   rw [hsx]
-  have hrel : drWord s x y = 1 := by
-    rw [hs, hx, hy, ← map_drWord (levelMk (DR : Type) 3), dr_relation, map_one]
-  have hzys : commP y s ∈ zLayer (DR : Type) 2 := levelMk_commP_mem_zLayer drY drS
   have hzsx : commP s x ∈ zLayer (DR : Type) 2 := levelMk_commP_mem_zLayer drS drX
-  have hx4 : x ^ 4 = 1 := levelMk_pow_four drX
   have hsx4 : (s * x) ^ 4 = 1 := by rw [← hsx]; exact levelMk_pow_four _
-  -- the `[y, yˢ]` block is inert
-  have hyys : commP y (conjP y s) = 1 := by
-    rw [conjP_eq_mul_commP, commP_mul_right, commP_self, conjP_one_left, mul_one]
-    exact commP_of_mem_zLayer_right y hzys
   -- the source relator pins `y²` against the surviving cross term
-  have hy2 : y ^ 2 = commP x s := by
-    set c := commP x s with hc
-    have h : (conjP x s)⁻¹ * (x ^ 3)⁻¹ * y ^ 2 * commP y (conjP y s) = 1 := hrel
-    rw [hyys, mul_one, conjP_eq_mul_commP, ← hc] at h
-    have hstep : (x * c)⁻¹ * (x ^ 3)⁻¹ * y ^ 2 = c⁻¹ * ((x ^ 4)⁻¹ * y ^ 2) := by group
-    rw [hstep, hx4, inv_one, one_mul] at h
-    exact (inv_mul_eq_one.mp h).symm
+  have hy2 : y ^ 2 = commP x s := levelMk_drY_sq
   rw [d0Word, hsx4, mul_one, commP_mul_left, commP_self, mul_one,
     conjP_of_mem_zLayer hzsx, hy2, ← commP_inv, inv_mul_cancel]
 
