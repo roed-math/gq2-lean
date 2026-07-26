@@ -3,6 +3,7 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
+import Mathlib.Tactic.NoncommRing
 import GQ2.Roe.Labute.SpanFoundation
 
 /-!
@@ -337,5 +338,348 @@ theorem add_self_mem_magnusFil {p : ℕ} {a : MagnusA} (ha : a ∈ magnusFil p) 
 theorem xi_mem_magnusFil_one (i : Fin 3) : xi i ∈ magnusFil 1 := by
   rw [mem_magnusFil_one_iff, coeff_xi_one]
   exact dvd_zero _
+
+/-- `magnusFil j` is a left ideal. -/
+theorem mul_mem_magnusFil_left {j : ℕ} (a : MagnusA) {b : MagnusA} (hb : b ∈ magnusFil j) :
+    a * b ∈ magnusFil j := by
+  have ha : a ∈ magnusFil 0 := by rw [magnusFil_zero]; trivial
+  have h := mul_mem_magnusFil ha hb
+  rwa [zero_add] at h
+
+/-- `magnusFil j` is a right ideal. -/
+theorem mul_mem_magnusFil_right {j : ℕ} {a : MagnusA} (ha : a ∈ magnusFil j) (b : MagnusA) :
+    a * b ∈ magnusFil j := by
+  have hb : b ∈ magnusFil 0 := by rw [magnusFil_zero]; trivial
+  have h := mul_mem_magnusFil ha hb
+  rwa [add_zero] at h
+
+/-! ## Coefficientwise nilpotence, and inverses -/
+
+theorem coeff_sum {ι : Type*} (s : Finset ι) (F : ι → MagnusA) (w : Word) :
+    coeff (∑ i ∈ s, F i) w = ∑ i ∈ s, coeff (F i) w := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simp
+  | insert a s ha ih => rw [Finset.sum_insert ha, Finset.sum_insert ha, coeff_add, ih]
+
+/-- Multiplicativity of the augmentation (constant term). -/
+theorem coeff_mul_at_one (f g : MagnusA) : coeff (f * g) 1 = coeff f 1 * coeff g 1 := by
+  rw [coeff_mul, wlen_one]
+  simp
+
+/-- If `f` has constant term `1` then `f − 1` lies in `m` (so the dispatch spec's second
+clause in `{f // f 1 = 1 ∧ f − 1 ∈ magnusFil 1}` is redundant). -/
+theorem sub_one_mem_magnusFil_one {f : MagnusA} (hf : coeff f 1 = 1) : f - 1 ∈ magnusFil 1 := by
+  rw [mem_magnusFil_one_iff, coeff_sub, coeff_one_self, hf, sub_self]
+  exact dvd_zero _
+
+/-- **Coefficientwise nilpotence of the augmentation ideal**: if `a` has zero constant
+term then `aⁿ` vanishes on every word shorter than `n`. -/
+theorem coeff_pow_eq_zero {a : MagnusA} (ha : coeff a 1 = 0) :
+    ∀ (n : ℕ) (w : Word), wlen w < n → coeff (a ^ n) w = 0 := by
+  intro n
+  induction n with
+  | zero => intro w hw; omega
+  | succ n ih =>
+    intro w hw
+    rw [pow_succ', coeff_mul]
+    refine Finset.sum_eq_zero fun i hi ↦ ?_
+    have hi' : i ≤ wlen w := by have := Finset.mem_range.mp hi; omega
+    rcases eq_or_ne i 0 with rfl | hne
+    · rw [wtake_zero, ha, zero_mul]
+    · rw [ih (wdrop i w) (by rw [wlen_wdrop]; omega), mul_zero]
+
+/-- The inverse of a series with constant term `1`, as the geometric series in `1 − f`
+(coefficientwise a *finite* sum, by `coeff_pow_eq_zero`). -/
+noncomputable def magnusInv (f : MagnusA) : MagnusA :=
+  fun w ↦ ∑ n ∈ Finset.range (wlen w + 1), coeff ((1 - f) ^ n) w
+
+theorem coeff_magnusInv (f : MagnusA) (w : Word) :
+    coeff (magnusInv f) w = ∑ n ∈ Finset.range (wlen w + 1), coeff ((1 - f) ^ n) w := rfl
+
+@[simp] theorem coeff_magnusInv_at_one (f : MagnusA) : coeff (magnusInv f) 1 = 1 := by
+  rw [coeff_magnusInv, wlen_one]
+  simp
+
+/-- The geometric series stabilises: `magnusInv f` agrees with its `N`-th partial sum at
+every word of length at most `N`. -/
+theorem coeff_magnusInv_eq_partial {f : MagnusA} (hf : coeff f 1 = 1) {N : ℕ} {w : Word}
+    (hw : wlen w ≤ N) :
+    coeff (magnusInv f) w = coeff (∑ n ∈ Finset.range (N + 1), (1 - f) ^ n) w := by
+  have h0 : coeff (1 - f) 1 = 0 := by rw [coeff_sub, coeff_one_self, hf, sub_self]
+  rw [coeff_sum, coeff_magnusInv]
+  have hsub : Finset.range (wlen w + 1) ⊆ Finset.range (N + 1) := by
+    intro x hx
+    simp only [Finset.mem_range] at hx ⊢
+    omega
+  refine Finset.sum_subset hsub fun n _ hn' ↦ ?_
+  simp only [Finset.mem_range, not_lt] at hn'
+  exact coeff_pow_eq_zero h0 n w (by omega)
+
+theorem mul_magnusInv {f : MagnusA} (hf : coeff f 1 = 1) : f * magnusInv f = 1 := by
+  have h0 : coeff (1 - f) 1 = 0 := by rw [coeff_sub, coeff_one_self, hf, sub_self]
+  ext w
+  have key : coeff (f * magnusInv f) w =
+      coeff (f * ∑ n ∈ Finset.range (wlen w + 1), (1 - f) ^ n) w := by
+    rw [coeff_mul, coeff_mul]
+    refine Finset.sum_congr rfl fun i hi ↦ ?_
+    have hi' : i ≤ wlen w := by have := Finset.mem_range.mp hi; omega
+    rw [coeff_magnusInv_eq_partial hf (N := wlen w) (by rw [wlen_wdrop]; omega)]
+  have hg : f * ∑ n ∈ Finset.range (wlen w + 1), (1 - f) ^ n = 1 - (1 - f) ^ (wlen w + 1) := by
+    have h := mul_neg_geom_sum (1 - f) (wlen w + 1)
+    rwa [sub_sub_cancel] at h
+  rw [key, hg, coeff_sub, coeff_pow_eq_zero h0 (wlen w + 1) w (by omega), sub_zero]
+
+theorem magnusInv_mul {f : MagnusA} (hf : coeff f 1 = 1) : magnusInv f * f = 1 := by
+  have h1 : f * magnusInv f = 1 := mul_magnusInv hf
+  have h2 : magnusInv f * magnusInv (magnusInv f) = 1 :=
+    mul_magnusInv (coeff_magnusInv_at_one f)
+  have h3 : f = magnusInv (magnusInv f) := left_inv_eq_right_inv h1 h2
+  calc magnusInv f * f = magnusInv f * magnusInv (magnusInv f) := by rw [← h3]
+    _ = 1 := h2
+
+/-! ## The congruence unit group `MagnusU = 1 + m₀` -/
+
+/-- The **congruence unit group** of the Magnus algebra: the series with constant term
+exactly `1`.  (The dispatch spec's `{f // f 1 = 1 ∧ f − 1 ∈ magnusFil 1}` has a redundant
+second clause — `sub_one_mem_magnusFil_one`.) -/
+abbrev MagnusU : Type := {f : MagnusA // coeff f 1 = 1}
+
+namespace MagnusU
+
+@[simp] theorem coeff_val_one (u : MagnusU) : coeff u.val 1 = 1 := u.2
+
+noncomputable instance : One MagnusU := ⟨⟨1, coeff_one_self⟩⟩
+
+noncomputable instance : Mul MagnusU :=
+  ⟨fun u v ↦ ⟨u.val * v.val, by rw [coeff_mul_at_one, u.2, v.2, one_mul]⟩⟩
+
+noncomputable instance : Inv MagnusU := ⟨fun u ↦ ⟨magnusInv u.val, coeff_magnusInv_at_one _⟩⟩
+
+@[simp] theorem val_one : (1 : MagnusU).val = 1 := rfl
+
+@[simp] theorem val_mul (u v : MagnusU) : (u * v).val = u.val * v.val := rfl
+
+@[simp] theorem val_inv (u : MagnusU) : (u⁻¹).val = magnusInv u.val := rfl
+
+noncomputable instance : Group MagnusU where
+  mul_assoc a b c := Subtype.ext (mul_assoc a.val b.val c.val)
+  one_mul a := Subtype.ext (one_mul a.val)
+  mul_one a := Subtype.ext (mul_one a.val)
+  inv_mul_cancel a := Subtype.ext (magnusInv_mul a.2)
+
+/-- The underlying-series homomorphism `MagnusU →* MagnusA`. -/
+def valHom : MagnusU →* MagnusA where
+  toFun u := u.val
+  map_one' := rfl
+  map_mul' _ _ := rfl
+
+@[simp] theorem valHom_apply (u : MagnusU) : valHom u = u.val := rfl
+
+@[simp] theorem val_pow (u : MagnusU) (n : ℕ) : (u ^ n).val = u.val ^ n := map_pow valHom u n
+
+/-! ### The topology -/
+
+noncomputable instance : TopologicalSpace MagnusA :=
+  inferInstanceAs (TopologicalSpace (Word → ℤ_[2]))
+
+noncomputable instance : CompactSpace MagnusA := inferInstanceAs (CompactSpace (Word → ℤ_[2]))
+
+noncomputable instance : T2Space MagnusA := inferInstanceAs (T2Space (Word → ℤ_[2]))
+
+noncomputable instance : TotallyDisconnectedSpace MagnusA :=
+  inferInstanceAs (TotallyDisconnectedSpace (Word → ℤ_[2]))
+
+theorem continuous_coeff (w : Word) : Continuous fun f : MagnusA ↦ coeff f w := continuous_apply w
+
+theorem continuous_iff_coeff {X : Type*} [TopologicalSpace X] {F : X → MagnusA} :
+    Continuous F ↔ ∀ w, Continuous fun x ↦ coeff (F x) w := continuous_pi_iff
+
+theorem continuous_coeff_mul {X : Type*} [TopologicalSpace X] {F G : X → MagnusA}
+    (hF : ∀ w, Continuous fun x ↦ coeff (F x) w) (hG : ∀ w, Continuous fun x ↦ coeff (G x) w)
+    (w : Word) : Continuous fun x ↦ coeff (F x * G x) w := by
+  simp only [coeff_mul]
+  exact continuous_finsetSum _ fun i _ ↦ (hF _).mul (hG _)
+
+theorem continuous_coeff_pow {X : Type*} [TopologicalSpace X] {F : X → MagnusA}
+    (hF : ∀ w, Continuous fun x ↦ coeff (F x) w) :
+    ∀ (n : ℕ) (w : Word), Continuous fun x ↦ coeff (F x ^ n) w := by
+  intro n
+  induction n with
+  | zero => intro w; simpa only [pow_zero] using continuous_const
+  | succ n ih =>
+    intro w
+    simpa only [pow_succ] using continuous_coeff_mul ih hF w
+
+theorem continuous_coeff_val (w : Word) : Continuous fun u : MagnusU ↦ coeff u.val w :=
+  (continuous_coeff w).comp continuous_subtype_val
+
+noncomputable instance : ContinuousMul MagnusU := by
+  constructor
+  refine Continuous.subtype_mk (continuous_iff_coeff.mpr fun w ↦ ?_) _
+  exact continuous_coeff_mul (fun w ↦ (continuous_coeff_val w).comp continuous_fst)
+    (fun w ↦ (continuous_coeff_val w).comp continuous_snd) w
+
+noncomputable instance : ContinuousInv MagnusU := by
+  constructor
+  refine Continuous.subtype_mk (continuous_iff_coeff.mpr fun w ↦ ?_) _
+  simp only [coeff_magnusInv]
+  refine continuous_finsetSum _ fun n _ ↦ ?_
+  exact continuous_coeff_pow
+    (F := fun u : MagnusU ↦ 1 - u.val) (fun w ↦ continuous_const.sub (continuous_coeff_val w)) n w
+
+noncomputable instance : IsTopologicalGroup MagnusU := ⟨⟩
+
+theorem isClosed_magnusU : IsClosed {f : MagnusA | coeff f 1 = 1} :=
+  isClosed_eq (continuous_coeff 1) continuous_const
+
+noncomputable instance : CompactSpace MagnusU :=
+  isCompact_iff_compactSpace.mp isClosed_magnusU.isCompact
+
+/-! ### The congruence filtration -/
+
+/-- The congruence subgroup `1 + m^j` of `MagnusU`. -/
+noncomputable def congrSub (j : ℕ) : Subgroup MagnusU where
+  carrier := {u : MagnusU | u.val - 1 ∈ magnusFil j}
+  mul_mem' {u v} hu hv := by
+    show (u * v).val - 1 ∈ magnusFil j
+    rw [val_mul, show u.val * v.val - 1 = (u.val - 1) * (v.val - 1) + (u.val - 1) + (v.val - 1)
+      from by noncomm_ring]
+    exact add_mem (add_mem (mul_mem_magnusFil_right hu _) hu) hv
+  one_mem' := by
+    show (1 : MagnusU).val - 1 ∈ magnusFil j
+    rw [val_one, sub_self]
+    exact zero_mem _
+  inv_mem' {u} hu := by
+    show (u⁻¹).val - 1 ∈ magnusFil j
+    rw [val_inv, show magnusInv u.val - 1 = -(magnusInv u.val * (u.val - 1)) from by
+      rw [mul_sub, magnusInv_mul u.2, mul_one]; noncomm_ring]
+    exact neg_mem (mul_mem_magnusFil_left _ hu)
+
+@[simp] theorem mem_congrSub {j : ℕ} {u : MagnusU} :
+    u ∈ congrSub j ↔ u.val - 1 ∈ magnusFil j := Iff.rfl
+
+theorem congrSub_antitone {i j : ℕ} (h : i ≤ j) : congrSub j ≤ congrSub i :=
+  fun _ hu ↦ magnusFil_antitone h hu
+
+@[simp] theorem congrSub_one : congrSub 1 = ⊤ := by
+  ext u
+  simpa using sub_one_mem_magnusFil_one u.2
+
+instance (j : ℕ) : (congrSub j).Normal := by
+  constructor
+  intro u hu v
+  show (v * u * v⁻¹).val - 1 ∈ magnusFil j
+  have hvv : v.val * magnusInv v.val = 1 := mul_magnusInv v.2
+  have h : v.val * u.val * magnusInv v.val - 1 = v.val * (u.val - 1) * magnusInv v.val := by
+    have hx : v.val * (u.val - 1) * magnusInv v.val
+        = v.val * u.val * magnusInv v.val - v.val * magnusInv v.val := by noncomm_ring
+    rw [hx, hvv]
+  rw [val_mul, val_mul, val_inv, h]
+  exact mul_mem_magnusFil_right (mul_mem_magnusFil_left _ hu) _
+
+/-- **The square estimate**: squaring deepens the congruence filtration by one. -/
+theorem sq_mem_congrSub_succ {j : ℕ} (hj : 1 ≤ j) {u : MagnusU} (hu : u ∈ congrSub j) :
+    u ^ 2 ∈ congrSub (j + 1) := by
+  have ha : u.val - 1 ∈ magnusFil j := hu
+  show (u ^ 2).val - 1 ∈ magnusFil (j + 1)
+  rw [val_pow, show u.val ^ 2 - 1 = (u.val - 1) * (u.val - 1) + ((u.val - 1) + (u.val - 1))
+    from by noncomm_ring]
+  exact add_mem (magnusFil_antitone (by omega) (mul_mem_magnusFil ha ha))
+    (add_self_mem_magnusFil ha)
+
+theorem pow_two_pow_mem_congrSub (u : MagnusU) : ∀ i : ℕ, u ^ 2 ^ i ∈ congrSub (i + 1) := by
+  intro i
+  induction i with
+  | zero => simp
+  | succ i ih =>
+    have h : u ^ 2 ^ (i + 1) = (u ^ 2 ^ i) ^ 2 := by rw [← pow_mul, pow_succ]
+    rw [h]
+    exact sq_mem_congrSub_succ (by omega) ih
+
+/-- Each congruence quotient is a `2`-group. -/
+theorem isPGroup_quotient_congrSub (j : ℕ) : IsPGroup 2 (MagnusU ⧸ congrSub j) := by
+  intro q
+  obtain ⟨u, rfl⟩ := QuotientGroup.mk'_surjective (congrSub j) q
+  refine ⟨j, ?_⟩
+  rw [← map_pow]
+  exact (QuotientGroup.eq_one_iff _).mpr
+    (congrSub_antitone (Nat.le_succ j) (pow_two_pow_mem_congrSub u j))
+
+/-! ### The congruence filtration is a neighbourhood basis of `1` -/
+
+theorem isClosed_setOf_two_pow_dvd (n : ℕ) : IsClosed {x : ℤ_[2] | (2 : ℤ_[2]) ^ n ∣ x} := by
+  have hset : {x : ℤ_[2] | (2 : ℤ_[2]) ^ n ∣ x}
+      = Metric.closedBall (0 : ℤ_[2]) (((2 : ℕ) : ℝ) ^ (-(n : ℤ))) := by
+    ext x
+    simp only [Set.mem_setOf_eq, Metric.mem_closedBall, dist_zero_right]
+    rw [PadicInt.norm_le_pow_iff_mem_span_pow, Ideal.mem_span_singleton]
+    norm_num
+  rw [hset]
+  exact Metric.isClosed_closedBall
+
+theorem isClosed_congrSub (j : ℕ) :
+    IsClosed ((congrSub j : Subgroup MagnusU) : Set MagnusU) := by
+  have hset : ((congrSub j : Subgroup MagnusU) : Set MagnusU)
+      = ⋂ w : Word, (fun u : MagnusU ↦ coeff (u.val - 1) w) ⁻¹'
+          {x : ℤ_[2] | (2 : ℤ_[2]) ^ (j - wlen w) ∣ x} := by
+    ext u
+    simp only [Set.mem_iInter, Set.mem_preimage, Set.mem_setOf_eq, SetLike.mem_coe,
+      mem_congrSub, mem_magnusFil]
+  rw [hset]
+  exact isClosed_iInter fun w ↦
+    (isClosed_setOf_two_pow_dvd _).preimage ((continuous_coeff_val w).sub continuous_const)
+
+theorem eq_zero_of_forall_two_pow_dvd {x : ℤ_[2]} (h : ∀ n : ℕ, (2 : ℤ_[2]) ^ n ∣ x) : x = 0 := by
+  rw [← PadicInt.ext_of_toZModPow]
+  intro n
+  rw [map_zero, ← RingHom.mem_ker, PadicInt.ker_toZModPow, Ideal.mem_span_singleton]
+  exact_mod_cast h n
+
+/-- The congruence filtration separates points. -/
+theorem iInter_congrSub :
+    (⋂ j : ℕ, ((congrSub j : Subgroup MagnusU) : Set MagnusU)) = {1} := by
+  refine Set.Subset.antisymm (fun u hu ↦ ?_) (fun u hu ↦ ?_)
+  · simp only [Set.mem_iInter, SetLike.mem_coe, mem_congrSub, mem_magnusFil] at hu
+    refine Set.mem_singleton_iff.mpr (Subtype.ext (sub_eq_zero.mp (MagnusA.ext fun w ↦ ?_)))
+    refine eq_zero_of_forall_two_pow_dvd fun n ↦ ?_
+    have h := hu (n + wlen w) w
+    rwa [Nat.add_sub_cancel] at h
+  · rw [Set.mem_singleton_iff] at hu
+    subst hu
+    exact Set.mem_iInter.mpr fun j ↦ (congrSub j).one_mem
+
+/-- **Neighbourhood-basis property**: every open subgroup of `MagnusU` contains a
+congruence subgroup. -/
+theorem exists_congrSub_le {V : Subgroup MagnusU} (hV : IsOpen (V : Set MagnusU)) :
+    ∃ j, congrSub j ≤ V := by
+  classical
+  have hcomp : IsCompact ((V : Set MagnusU)ᶜ) := hV.isClosed_compl.isCompact
+  have hempty : (V : Set MagnusU)ᶜ ∩ ⋂ j : ℕ, ((congrSub j : Subgroup MagnusU) : Set MagnusU)
+      = ∅ := by
+    rw [iInter_congrSub]
+    refine Set.eq_empty_of_forall_notMem fun x hx ↦ ?_
+    rw [Set.mem_singleton_iff.mp hx.2] at hx
+    exact hx.1 V.one_mem
+  obtain ⟨t, ht⟩ := hcomp.elim_finite_subfamily_closed _ isClosed_congrSub hempty
+  refine ⟨t.sup id, fun u hu ↦ ?_⟩
+  by_contra hV'
+  refine Set.eq_empty_iff_forall_notMem.mp ht u ⟨hV', ?_⟩
+  refine Set.mem_iInter₂.mpr fun j hj ↦ ?_
+  exact congrSub_antitone (Finset.le_sup (f := id) hj) hu
+
+/-- **`MagnusU` is a pro-2 group** — the last piece of the instance pack that
+`freeProTwoLift` consumes. -/
+theorem isProP_two : IsProP 2 MagnusU := by
+  intro V
+  obtain ⟨j, hj⟩ := exists_congrSub_le V.toOpenSubgroup.isOpen
+  refine IsPGroup.of_surjective (isPGroup_quotient_congrSub j)
+    (QuotientGroup.lift (congrSub j) (QuotientGroup.mk' V.toSubgroup)
+      fun x hx ↦ (QuotientGroup.eq_one_iff x).mpr (hj hx)) ?_
+  intro q
+  obtain ⟨u, rfl⟩ := QuotientGroup.mk'_surjective V.toSubgroup q
+  exact ⟨QuotientGroup.mk' (congrSub j) u, rfl⟩
+
+end MagnusU
 
 end GQ2.Roe.Labute.Magnus
