@@ -181,9 +181,11 @@ L1 froze the statements as a 1,243-line, four-file compiling skeleton at exactly
 (`GQ2/Roe/Labute/{TwoCentralTower,Levelwise,StageLemma,Assembly}.lean`), with the Hopfian
 endgame, both stage compositions, and both epi assemblies already proved *inside* the
 skeleton; the target is `GQ2.Roe.Labute.bLab : BLabHypothesis`
-(`GQ2/Roe/Labute/Assembly.lean:184`). As of this writing L2 (λ-tower), L3 (base cases), and
-L4b (the span theorem) are in flight; L4a, L5 (assembly, including a serialized refactor of
-`GQ2/Reconstruction.lean`), and L6 (gates and docs) are queued.
+(`GQ2/Roe/Labute/Assembly.lean:184`). The fills are split into the λ-tower, the base cases, the
+congruence calculus, the span theorem, and an assembly ticket that also refactors
+`GQ2/Reconstruction.lean`, followed by a gates-and-docs ticket. Per-ticket status lives on the
+board ([`orchestration/roe-tickets.md`](orchestration/roe-tickets.md)) and is not mirrored here,
+because it changes by the hour.
 
 Those four files are the **only** `sorry`s in the repository. They are allowlisted by name in
 `scripts/check_axioms.sh`, so a `sorry` anywhere else still fails the gate, and nothing

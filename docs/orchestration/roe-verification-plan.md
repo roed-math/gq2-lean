@@ -70,8 +70,9 @@
 > König, and `profinite_hopfian`); the LS de-risking spike returned **GREEN** after falsifying
 > the naive stage lemma and finding a sharper repair (invariant `P` = χ-congruence mod `2^k`,
 > `k₀ = 3`), reducing the uniform input to a single span theorem. L1 froze the statements as a
-> 1,243-line four-file skeleton at exactly 56 sorries; L2/L3/L4b are dispatched, L4a/L5/L6
-> queued. Those four files under `GQ2/Roe/Labute/` are the **only** `sorry`s in the
+> 1,243-line four-file skeleton at exactly 56 sorries; the fill tickets (L2–L5) are running,
+> with L6 to close the gates and docs. Per-ticket status is on the board and nowhere else — it
+> moves too fast to mirror here. Those four files under `GQ2/Roe/Labute/` are the **only** `sorry`s in the
 > repository, allowlisted by name in `scripts/check_axioms.sh`; nothing outside that directory
 > depends on them. Live board: `roe-tickets.md`; route: `labute-plan.md`; spike evidence:
 > `labute-spike.md`; statement freeze: `labute-l1-design.md`.
