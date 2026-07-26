@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2.Roe.Labute.Levelwise
+import GQ2.FrattiniNongen
 
 /-!
 # The defect calculus, the span theorem, and the stage lemma  (L-campaign ticket L1/L4)
@@ -235,6 +236,103 @@ theorem commutator_mem_twoCentralSeries_add {a b : ℕ} {v h : G}
 
 end Grading
 
+/-! ### Descent infrastructure (L4b fill helpers; not part of the frozen interface)
+
+For a topologically f.g. pro-2 `G` the level quotients are finite *discrete* groups, the
+λ-series of `Qₘ` is the image of the λ-series of `G` (`map_twoCentralSeries_eq` along
+`levelMk`), and in particular `λₘ(Qₘ) = ⊥`.  These are the transport facts through which
+the free span statement descends to the towers. -/
+
+section DescentInfra
+
+variable (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+
+/-- The level quotients of a topologically f.g. pro-2 group are discrete (`λₘ` is open). -/
+theorem discreteTopology_levelQuot
+    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
+    (hpro : IsProP 2 G) (m : ℕ) : DiscreteTopology (levelQuot G m) := by
+  rw [discreteTopology_iff_isOpen_singleton]
+  intro q
+  obtain ⟨g, rfl⟩ := levelMk_surjective G m q
+  have hset : (QuotientGroup.mk : G → levelQuot G m) ⁻¹' {levelMk G m g} =
+      (fun x : G => x⁻¹ * g) ⁻¹' (twoCentralSeries G m : Set G) := by
+    ext x
+    simp only [Set.mem_preimage, Set.mem_singleton_iff, SetLike.mem_coe]
+    exact (QuotientGroup.eq (s := twoCentralSeries G m)).trans Iff.rfl
+  have hopen : IsOpen ((QuotientGroup.mk : G → levelQuot G m) ⁻¹' {levelMk G m g}) := by
+    rw [hset]
+    exact (isOpen_twoCentralSeries G hfg hpro m).preimage (by fun_prop)
+  exact ((QuotientGroup.isQuotientMap_mk (twoCentralSeries G m)).isOpen_preimage).mp hopen
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- The canonical projection `levelMk` is continuous. -/
+theorem continuous_levelMk (m : ℕ) : Continuous (levelMk G m) :=
+  QuotientGroup.continuous_mk
+
+/-- **λ-transport along `levelMk`**: the two-index image `λⱼλₘ/λₘ` *is* the `j`-th layer of
+the λ-series of the level quotient `Qₘ` (verbal functoriality for the continuous epi
+`levelMk`, using discreteness of the target). -/
+theorem lambdaImage_eq_twoCentralSeries_levelQuot
+    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
+    (hpro : IsProP 2 G) (j m : ℕ) :
+    lambdaImage G j m = twoCentralSeries (levelQuot G m) j := by
+  haveI := discreteTopology_levelQuot G hfg hpro m
+  exact map_twoCentralSeries_eq (levelMk G m) (continuous_levelMk G m)
+    (levelMk_surjective G m) j
+
+/-- The λ-series of the level-`m` quotient vanishes at level `m`. -/
+theorem twoCentralSeries_levelQuot_self
+    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
+    (hpro : IsProP 2 G) (m : ℕ) : twoCentralSeries (levelQuot G m) m = ⊥ := by
+  rw [← lambdaImage_eq_twoCentralSeries_levelQuot G hfg hpro m m, lambdaImage,
+    Subgroup.map_eq_bot_iff, levelMk, QuotientGroup.ker_mk']
+
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- Mapping into a *discrete* group erases topological closures: the image of `cl K` is
+the image of `K` (the preimage of the image subgroup is clopen). -/
+theorem map_topologicalClosure_eq_of_discrete {H : Type*} [Group H] [TopologicalSpace H]
+    [DiscreteTopology H] (K : Subgroup G) (f : G →* H) (hf : Continuous f) :
+    K.topologicalClosure.map f = K.map f := by
+  refine le_antisymm ?_ (Subgroup.map_mono K.le_topologicalClosure)
+  have hle : K.topologicalClosure ≤ Subgroup.comap f (K.map f) := by
+    refine Subgroup.topologicalClosure_minimal K (Subgroup.le_comap_map f K) ?_
+    exact (isClosed_discrete ((K.map f : Subgroup H) : Set H)).preimage hf
+  exact (Subgroup.map_mono hle).trans (Subgroup.map_comap_le f (K.map f))
+
+omit [T2Space G] [TotallyDisconnectedSpace G] in
+open scoped commutatorElement in
+/-- **Atomization of the layer images** (L4b workhorse): for topologically f.g. pro-2 `G`,
+a property closed under the group operations that holds on the residues of squares `v²`
+and brackets `⁅v, g⁆` (`v ∈ λⱼ`, `g ∈ G`) holds on all of `λ_{j+1}λₘ/λₘ ≤ Qₘ`.  This is
+the mod-`λₘ` shadow of the verbal generation of `λ_{j+1}`, with the topological closure
+erased by discreteness of the finite quotient. -/
+theorem lambdaImage_induction [T2Space G] [TotallyDisconnectedSpace G]
+    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
+    (hpro : IsProP 2 G) {j m : ℕ} (hj : 1 ≤ j) {p : levelQuot G m → Prop}
+    (hsq : ∀ v ∈ twoCentralSeries G j, p (levelMk G m (v ^ 2)))
+    (hbr : ∀ v ∈ twoCentralSeries G j, ∀ g : G, p (levelMk G m ⁅v, g⁆))
+    (hone : p 1) (hmul : ∀ x y, p x → p y → p (x * y)) (hinv : ∀ x, p x → p x⁻¹)
+    {q : levelQuot G m} (hq : q ∈ lambdaImage G (j + 1) m) : p q := by
+  haveI := discreteTopology_levelQuot G hfg hpro m
+  have hsucc : twoCentralSeries G (j + 1) =
+      (Subgroup.closure (((fun v : G => v ^ 2) '' (twoCentralSeries G j : Set G)) ∪
+        {g | ∃ g₁ ∈ twoCentralSeries G j, ∃ g₂ ∈ (⊤ : Subgroup G), ⁅g₁, g₂⁆ = g})
+      ).topologicalClosure := by
+    rw [twoCentralSeries_succ G hj, twoCentralSucc, Subgroup.closure_union,
+      ← Subgroup.commutator_def]
+  rw [lambdaImage, hsucc,
+    map_topologicalClosure_eq_of_discrete G _ _ (continuous_levelMk G m),
+    MonoidHom.map_closure] at hq
+  refine Subgroup.closure_induction ?_ hone (fun x y _ _ => hmul x y) (fun x _ => hinv x) hq
+  rintro _ ⟨x, hx | hx, rfl⟩
+  · obtain ⟨v, hv, rfl⟩ := hx
+    exact hsq v hv
+  · obtain ⟨v, hv, g, -, rfl⟩ := hx
+    exact hbr v hv g
+
+end DescentInfra
+
 /-! ## The congruence calculus (spike §2.1; generic pro-2 `G`, `k ≥ 3`)
 
 The full profinite instance pack is carried deliberately (the fills run through
@@ -280,6 +378,7 @@ private theorem exists_zLayer_mul_left {k : ℕ} {v v' : levelQuot G (k + 1)}
   rw [← Subgroup.mem_center_iff.mp (zLayer_le_center G k h) v]
   group
 
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
 /-- **The slot-congruence atom** (spike §2.1): for `v ∈ λ_{k-1}`, `commP v g` depends only on
 `g` modulo `λ₂`.  Both error terms die: `commP v (g⁻¹g') ∈ λ_{k+1} = 1`, and the surviving
 `commP v g ∈ λₖ = Zₖ` is central, so the conjugation by `g⁻¹g'` is trivial. -/
@@ -301,6 +400,7 @@ private theorem commP_congr_slot (k : ℕ) (hk : 3 ≤ k) {v g g' : levelQuot G 
   have hcen := Subgroup.mem_center_iff.mp (zLayer_le_center G k h2) (g⁻¹ * g')
   rw [hg', key, h1, one_mul, mul_assoc, ← hcen, ← mul_assoc, inv_mul_cancel, one_mul]
 
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
 /-- **The modification-congruence atoms** (spike §2.1): squaring is `𝔽₂`-linear on `Zₖ`-classes
 and `commP · g` is insensitive to a central left factor. -/
 private theorem sq_congr_mod {k : ℕ} {v v' : levelQuot G (k + 1)}
@@ -308,6 +408,7 @@ private theorem sq_congr_mod {k : ℕ} {v v' : levelQuot G (k + 1)}
   obtain ⟨z, hz, rfl⟩ := exists_zLayer_mul_left h
   rw [(zLayer_commute hz v).mul_pow, zLayer_sq G hz, one_mul]
 
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
 private theorem commP_congr_mod {k : ℕ} {v v' g : levelQuot G (k + 1)}
     (h : v⁻¹ * v' ∈ zLayer G k) : commP v g = commP v' g := by
   obtain ⟨z, hz, rfl⟩ := exists_zLayer_mul_left h
@@ -474,6 +575,7 @@ private theorem lambdaImage_le_of_le {j j' m : ℕ} (h : j ≤ j') :
     lambdaImage G j' m ≤ lambdaImage G j m :=
   Subgroup.map_mono (twoCentralSeries_antitone G h)
 
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
 /-- A `λ_{k-1}`-modification squares into the central layer. -/
 private theorem sq_mem_zLayer (k : ℕ) (hk : 3 ≤ k) {v : levelQuot G (k + 1)}
     (hv : v ∈ lambdaImage G (k - 1) (k + 1)) : v ^ 2 ∈ zLayer G k := by
@@ -482,6 +584,7 @@ private theorem sq_mem_zLayer (k : ℕ) (hk : 3 ≤ k) {v : levelQuot G (k + 1)}
   have h := sq_mem_twoCentralSeries_succ G hx
   rwa [show k - 1 + 1 = k by omega] at h
 
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
 /-- Every `commP` of a `λ_{k-1}`-modification is central. -/
 private theorem commP_mem_zLayer (k : ℕ) (hk : 3 ≤ k) {v : levelQuot G (k + 1)}
     (hv : v ∈ lambdaImage G (k - 1) (k + 1)) (g : levelQuot G (k + 1)) :
@@ -490,6 +593,7 @@ private theorem commP_mem_zLayer (k : ℕ) (hk : 3 ≤ k) {v : levelQuot G (k + 
   have h := commP_mem_lambdaImage_add hv hgt
   rwa [show k - 1 + 1 = k by omega] at h
 
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
 /-- `λ₂` and `λ_{k-1}` commute outright in `Q_{k+1}` (`[λ₂, λ_{k-1}] ⊆ λ_{k+1} = 1`). -/
 private theorem commP_lambdaTwo_eq_one (k : ℕ) (hk : 3 ≤ k) {c v : levelQuot G (k + 1)}
     (hc : c ∈ lambdaImage G 2 (k + 1)) (hv : v ∈ lambdaImage G (k - 1) (k + 1)) :
@@ -498,6 +602,7 @@ private theorem commP_lambdaTwo_eq_one (k : ℕ) (hk : 3 ≤ k) {c v : levelQuot
   rw [show 2 + (k - 1) = k + 1 by omega, lambdaImage_self] at h
   simpa using h
 
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
 /-- Any `commP` of two elements of `Q_{k+1}` lies in `λ₂` (`λ₁ = ⊤`). -/
 private theorem commP_mem_lambdaTwo (m : ℕ) (x y : levelQuot G m) :
     commP x y ∈ lambdaImage G 2 m := by
@@ -564,6 +669,7 @@ private theorem commP_mul_mul_lambdaImage (k : ℕ) (hk : 3 ≤ k) (s y : levelQ
   rw [commP_mul_left, h3, h2, h7, (zLayer_commute hz₂ (commP s y)).eq, mul_assoc,
     ← (zLayer_commute hz₁ (commP v₂ s)).eq]
 
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
 /-- Two `λ_{k-1}`-modifications commute: `[λ_{k-1}, λ_{k-1}] ⊆ λ_{2k-2} ⊆ λ_{k+1} = 1`
 (this is exactly where `k ≥ 3` enters). -/
 private theorem commP_lambdaImage_eq_one (k : ℕ) (hk : 3 ≤ k) {u v : levelQuot G (k + 1)}
@@ -753,7 +859,7 @@ variable {H : Type*} [Group H]
 /-- The `r₀` word is blind to central involutive shifts of its slots. -/
 private theorem d0Word_central_shift {z₀ z₁ z₂ : H}
     (h₀ : ∀ t : H, Commute z₀ t) (h₁ : ∀ t : H, Commute z₁ t) (h₂ : ∀ t : H, Commute z₂ t)
-    (e₀ : z₀ ^ 2 = 1) (e₁ : z₁ ^ 2 = 1) (e₂ : z₂ ^ 2 = 1) (a s y : H) :
+    (e₀ : z₀ ^ 2 = 1) (e₁ : z₁ ^ 2 = 1) (_e₂ : z₂ ^ 2 = 1) (a s y : H) :
     d0Word (a * z₀) (s * z₁) (y * z₂) = d0Word a s y := by
   have hz4 : z₁ ^ 4 = 1 := by rw [show (4 : ℕ) = 2 * 2 from rfl, pow_mul, e₁, one_pow]
   rw [d0Word, d0Word, (h₀ a).symm.mul_pow, e₀, mul_one, (h₁ s).symm.mul_pow, hz4, mul_one,
@@ -793,6 +899,7 @@ private theorem lambdaImage_pred_sq (k : ℕ) (hk : 1 ≤ k) {v : levelQuot G k}
   have h := sq_mem_twoCentralSeries_succ G hx
   rwa [show k - 1 + 1 = k by omega] at h
 
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
 /-- At its own level a `λ_{k-1}`-modification is central. -/
 private theorem lambdaImage_pred_commute (k : ℕ) (hk : 1 ≤ k) {v : levelQuot G k}
     (hv : v ∈ lambdaImage G (k - 1) k) (g : levelQuot G k) : Commute v g := by
@@ -805,6 +912,7 @@ private theorem lambdaImage_pred_commute (k : ℕ) (hk : 1 ≤ k) {v : levelQuot
   calc v * g = g * v * (v⁻¹ * g⁻¹ * v * g) := by group
     _ = g * v := by rw [hc, mul_one]
 
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
 /-- **The χ-clause survives** (spike §2.1's design reason for the modulus `2^k`): a character
 kills `λ_{k-1}` to precision `2^k`, one digit sharper than the generic layer bound, because
 `λ_{k-1}(ℤ₂ˣ) ⊆ 1 + 2^kℤ₂` (`twoCentralSeries_units_le` at index `k - 1`). -/
@@ -821,6 +929,89 @@ private theorem chiLevel_lambdaImage_pred (χ : ContinuousMonoidHom G ℤ_[2]ˣ)
 
 end LevelFacts
 
+/-- `D_R` is topologically generated by `{s, x, y}`, `Finset` form (private replica of the
+Assembly-file packaging of `dr_topGen`; needed here for the tower instance pack). -/
+private theorem drTopGenFinset :
+    ∃ s : Finset (DR : Type),
+      (Subgroup.closure (s : Set (DR : Type))).topologicalClosure = ⊤ := by
+  classical
+  refine ⟨{drS, drX, drY}, ?_⟩
+  have h : (({drS, drX, drY} : Finset (DR : Type)) : Set (DR : Type))
+      = ({drS, drX, drY} : Set (DR : Type)) := by simp
+  rw [h]
+  exact dr_topGen
+
+/-- `D₀` is topologically generated by `{A, S, Y}`, `Finset` form (private replica). -/
+private theorem d0TopGenFinset :
+    ∃ s : Finset (D0 : Type),
+      (Subgroup.closure (s : Set (D0 : Type))).topologicalClosure = ⊤ := by
+  classical
+  refine ⟨{d0A, d0S, d0Y}, ?_⟩
+  have h : (({d0A, d0S, d0Y} : Finset (D0 : Type)) : Set (D0 : Type))
+      = ({d0A, d0S, d0Y} : Set (D0 : Type)) := by simp
+  rw [h]
+  exact SectionThree.topGen_d0
+
+/-! ### Frattini generation transfer (the non-generator argument at the level quotients) -/
+
+section FrattiniTransfer
+
+variable (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+  [T2Space G] [TotallyDisconnectedSpace G]
+
+open scoped commutatorElement in
+/-- **`λ₂` is Frattini in every level quotient**: the image `λ₂λₘ/λₘ ≤ Qₘ` lies in the
+Frattini-like subgroup `Φ(Qₘ) = Qₘ²[Qₘ, Qₘ]` (`SectionSeven.frattiniLike ⊤`).  Immediate
+from the atomization principle `lambdaImage_induction` at `j = 1` (`λ₁ = ⊤`): `λ₂` is
+verbally generated by squares and commutators of `λ₁`-elements, and both kinds of residue
+are Frattini generators. -/
+theorem lambdaImage_two_le_frattiniLike
+    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
+    (hpro : IsProP 2 G) (m : ℕ) :
+    lambdaImage G 2 m ≤ SectionSeven.frattiniLike (⊤ : Subgroup (levelQuot G m)) := by
+  intro q hq
+  refine lambdaImage_induction G hfg hpro (j := 1) le_rfl
+    (p := fun x => x ∈ SectionSeven.frattiniLike (⊤ : Subgroup (levelQuot G m)))
+    ?_ ?_ (one_mem _) (fun _ _ hx hy => mul_mem hx hy) (fun _ hx => inv_mem hx) hq
+  · intro v _
+    rw [map_pow, pow_two]
+    exact sq_mem_frattiniLike (Subgroup.mem_top _)
+  · intro v _ g
+    rw [map_commutatorElement, commutatorElement_def]
+    exact comm_mem_frattiniLike (Subgroup.mem_top _) (Subgroup.mem_top _)
+
+/-- **Generation transfer** (Frattini non-generation): a generating family `T` of a level
+quotient `Qₘ` stays generating after each member is multiplied by an element of the
+`λ₂`-image.  Indeed `T i = (T i · u i) · (u i)⁻¹` puts `⟨T⟩ = ⊤` inside `H ⊔ λ₂`, where
+`H = ⟨T · u⟩`; since `Qₘ` is a finite `2`-group and `λ₂ ≤ Φ(Qₘ)`, Frattini non-generation
+(`frattiniLike_nongen`) upgrades `H ⊔ Φ(Qₘ) = ⊤` to `H = ⊤`. -/
+theorem closure_range_mul_eq_top_of_mem_lambdaImage_two
+    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
+    (hpro : IsProP 2 G) {m : ℕ} {ι : Type*} (T u : ι → levelQuot G m)
+    (hgen : Subgroup.closure (Set.range T) = ⊤)
+    (hu : ∀ i, u i ∈ lambdaImage G 2 m) :
+    Subgroup.closure (Set.range fun i => T i * u i) = ⊤ := by
+  haveI := finite_levelQuot G hfg hpro m
+  have h2 : IsPGroup 2 ↥(⊤ : Subgroup (levelQuot G m)) :=
+    (isPGroup_levelQuot G hfg hpro m).of_equiv Subgroup.topEquiv.symm
+  have hΦ := lambdaImage_two_le_frattiniLike G hfg hpro m
+  have hle : Subgroup.closure (Set.range T) ≤
+      Subgroup.closure (Set.range fun i => T i * u i) ⊔
+        SectionSeven.frattiniLike (⊤ : Subgroup (levelQuot G m)) := by
+    refine (Subgroup.closure_le _).mpr ?_
+    rintro _ ⟨i, rfl⟩
+    have h1 : T i * u i ∈ Subgroup.closure (Set.range fun i => T i * u i) :=
+      Subgroup.subset_closure ⟨i, rfl⟩
+    have h3 : (u i)⁻¹ ∈ SectionSeven.frattiniLike (⊤ : Subgroup (levelQuot G m)) :=
+      inv_mem (hΦ (hu i))
+    have h4 : T i = T i * u i * (u i)⁻¹ := by group
+    rw [SetLike.mem_coe, h4]
+    exact Subgroup.mul_mem_sup h1 h3
+  rw [hgen] at hle
+  exact frattiniLike_nongen h2 le_top (le_antisymm le_top hle)
+
+end FrattiniTransfer
+
 /-- **Modification stability of `S^P_ₖ`, direction 1** (spike §2.1 + §2.4): `λ_{k-1}`-moves
 preserve all three clauses — relator kill (the shift lands in `λₖ`), generation
 (Frattini: `λ_{k-1} ⊆ λ₂` for `k ≥ 3`), and the χ-clause (`χ(λ_{k-1}) ⊆ 1 + 2^k ℤ₂` — the
@@ -829,14 +1020,32 @@ theorem sPR0_mul_mem (k : ℕ) (hk : 3 ≤ k) {T : Fin 3 → levelQuot (DR : Typ
     (hT : T ∈ sPR0 k) {w : Fin 3 → levelQuot (DR : Type) k}
     (hw : ∀ i, w i ∈ lambdaImage (DR : Type) (k - 1) k) :
     (fun i => T i * w i) ∈ sPR0 k := by
-  sorry
+  obtain ⟨⟨hrel, hgen⟩, hchi⟩ := hT
+  have hcen : ∀ i, ∀ g, Commute (w i) g :=
+    fun i => lambdaImage_pred_commute k (by omega) (hw i)
+  have hsq : ∀ i, w i ^ 2 = 1 := fun i => lambdaImage_pred_sq k (by omega) (hw i)
+  refine ⟨⟨?_, ?_⟩, fun i => ?_⟩
+  · rw [d0Word_central_shift (hcen 0) (hcen 1) (hcen 2) (hsq 0) (hsq 1) (hsq 2)]
+    exact hrel
+  · exact closure_range_mul_eq_top_of_mem_lambdaImage_two (DR : Type) drTopGenFinset isProP_DR
+      T w hgen fun i => lambdaImage_le_of_le (by omega) (hw i)
+  · rw [map_mul, hchi i, chiLevel_lambdaImage_pred chiR k hk (hw i), mul_one]
 
 /-- Modification stability, direction 2.  Fill: L4a. -/
 theorem sPR2_mul_mem (k : ℕ) (hk : 3 ≤ k) {T : Fin 3 → levelQuot (D0 : Type) k}
     (hT : T ∈ sPR2 k) {w : Fin 3 → levelQuot (D0 : Type) k}
     (hw : ∀ i, w i ∈ lambdaImage (D0 : Type) (k - 1) k) :
     (fun i => T i * w i) ∈ sPR2 k := by
-  sorry
+  obtain ⟨⟨hrel, hgen⟩, hchi⟩ := hT
+  have hcen : ∀ i, ∀ g, Commute (w i) g :=
+    fun i => lambdaImage_pred_commute k (by omega) (hw i)
+  have hsq : ∀ i, w i ^ 2 = 1 := fun i => lambdaImage_pred_sq k (by omega) (hw i)
+  refine ⟨⟨?_, ?_⟩, fun i => ?_⟩
+  · rw [drWord_central_shift (hcen 0) (hcen 1) (hcen 2) (hsq 1) (hsq 2)]
+    exact hrel
+  · exact closure_range_mul_eq_top_of_mem_lambdaImage_two (D0 : Type) d0TopGenFinset
+      SectionThree.d0_isProP T w hgen fun i => lambdaImage_le_of_le (by omega) (hw i)
+  · rw [map_mul, hchi i, chiLevel_lambdaImage_pred chiD0pres k hk (hw i), mul_one]
 
 /-! ## The span theorem (spike §2.3; L4b) -/
 
@@ -849,103 +1058,6 @@ noncomputable def freeProTwo : ProfiniteGrp :=
 /-- The marked generators of `F₃`. -/
 noncomputable def freeGen (i : Fin 3) : (freeProTwo : Type) :=
   maxProPMk 2 (FreeProfiniteGroup (Fin 3)) (FreeProfiniteGroup.of i)
-
-/-! ### Descent infrastructure (L4b fill helpers; not part of the frozen interface)
-
-For a topologically f.g. pro-2 `G` the level quotients are finite *discrete* groups, the
-λ-series of `Qₘ` is the image of the λ-series of `G` (`map_twoCentralSeries_eq` along
-`levelMk`), and in particular `λₘ(Qₘ) = ⊥`.  These are the transport facts through which
-the free span statement descends to the towers. -/
-
-section DescentInfra
-
-variable (G : Type*) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
-  [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
-
-/-- The level quotients of a topologically f.g. pro-2 group are discrete (`λₘ` is open). -/
-theorem discreteTopology_levelQuot
-    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
-    (hpro : IsProP 2 G) (m : ℕ) : DiscreteTopology (levelQuot G m) := by
-  rw [discreteTopology_iff_isOpen_singleton]
-  intro q
-  obtain ⟨g, rfl⟩ := levelMk_surjective G m q
-  have hset : (QuotientGroup.mk : G → levelQuot G m) ⁻¹' {levelMk G m g} =
-      (fun x : G => x⁻¹ * g) ⁻¹' (twoCentralSeries G m : Set G) := by
-    ext x
-    simp only [Set.mem_preimage, Set.mem_singleton_iff, SetLike.mem_coe]
-    exact (QuotientGroup.eq (s := twoCentralSeries G m)).trans Iff.rfl
-  have hopen : IsOpen ((QuotientGroup.mk : G → levelQuot G m) ⁻¹' {levelMk G m g}) := by
-    rw [hset]
-    exact (isOpen_twoCentralSeries G hfg hpro m).preimage (by fun_prop)
-  exact ((QuotientGroup.isQuotientMap_mk (twoCentralSeries G m)).isOpen_preimage).mp hopen
-
-omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
-/-- The canonical projection `levelMk` is continuous. -/
-theorem continuous_levelMk (m : ℕ) : Continuous (levelMk G m) :=
-  QuotientGroup.continuous_mk
-
-/-- **λ-transport along `levelMk`**: the two-index image `λⱼλₘ/λₘ` *is* the `j`-th layer of
-the λ-series of the level quotient `Qₘ` (verbal functoriality for the continuous epi
-`levelMk`, using discreteness of the target). -/
-theorem lambdaImage_eq_twoCentralSeries_levelQuot
-    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
-    (hpro : IsProP 2 G) (j m : ℕ) :
-    lambdaImage G j m = twoCentralSeries (levelQuot G m) j := by
-  haveI := discreteTopology_levelQuot G hfg hpro m
-  exact map_twoCentralSeries_eq (levelMk G m) (continuous_levelMk G m)
-    (levelMk_surjective G m) j
-
-/-- The λ-series of the level-`m` quotient vanishes at level `m`. -/
-theorem twoCentralSeries_levelQuot_self
-    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
-    (hpro : IsProP 2 G) (m : ℕ) : twoCentralSeries (levelQuot G m) m = ⊥ := by
-  rw [← lambdaImage_eq_twoCentralSeries_levelQuot G hfg hpro m m, lambdaImage,
-    Subgroup.map_eq_bot_iff, levelMk, QuotientGroup.ker_mk']
-
-omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
-/-- Mapping into a *discrete* group erases topological closures: the image of `cl K` is
-the image of `K` (the preimage of the image subgroup is clopen). -/
-theorem map_topologicalClosure_eq_of_discrete {H : Type*} [Group H] [TopologicalSpace H]
-    [DiscreteTopology H] (K : Subgroup G) (f : G →* H) (hf : Continuous f) :
-    K.topologicalClosure.map f = K.map f := by
-  refine le_antisymm ?_ (Subgroup.map_mono K.le_topologicalClosure)
-  have hle : K.topologicalClosure ≤ Subgroup.comap f (K.map f) := by
-    refine Subgroup.topologicalClosure_minimal K (Subgroup.le_comap_map f K) ?_
-    exact (isClosed_discrete ((K.map f : Subgroup H) : Set H)).preimage hf
-  exact (Subgroup.map_mono hle).trans (Subgroup.map_comap_le f (K.map f))
-
-omit [T2Space G] [TotallyDisconnectedSpace G] in
-open scoped commutatorElement in
-/-- **Atomization of the layer images** (L4b workhorse): for topologically f.g. pro-2 `G`,
-a property closed under the group operations that holds on the residues of squares `v²`
-and brackets `⁅v, g⁆` (`v ∈ λⱼ`, `g ∈ G`) holds on all of `λ_{j+1}λₘ/λₘ ≤ Qₘ`.  This is
-the mod-`λₘ` shadow of the verbal generation of `λ_{j+1}`, with the topological closure
-erased by discreteness of the finite quotient. -/
-theorem lambdaImage_induction [T2Space G] [TotallyDisconnectedSpace G]
-    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
-    (hpro : IsProP 2 G) {j m : ℕ} (hj : 1 ≤ j) {p : levelQuot G m → Prop}
-    (hsq : ∀ v ∈ twoCentralSeries G j, p (levelMk G m (v ^ 2)))
-    (hbr : ∀ v ∈ twoCentralSeries G j, ∀ g : G, p (levelMk G m ⁅v, g⁆))
-    (hone : p 1) (hmul : ∀ x y, p x → p y → p (x * y)) (hinv : ∀ x, p x → p x⁻¹)
-    {q : levelQuot G m} (hq : q ∈ lambdaImage G (j + 1) m) : p q := by
-  haveI := discreteTopology_levelQuot G hfg hpro m
-  have hsucc : twoCentralSeries G (j + 1) =
-      (Subgroup.closure (((fun v : G => v ^ 2) '' (twoCentralSeries G j : Set G)) ∪
-        {g | ∃ g₁ ∈ twoCentralSeries G j, ∃ g₂ ∈ (⊤ : Subgroup G), ⁅g₁, g₂⁆ = g})
-      ).topologicalClosure := by
-    rw [twoCentralSeries_succ G hj, twoCentralSucc, Subgroup.closure_union,
-      ← Subgroup.commutator_def]
-  rw [lambdaImage, hsucc,
-    map_topologicalClosure_eq_of_discrete G _ _ (continuous_levelMk G m),
-    MonoidHom.map_closure] at hq
-  refine Subgroup.closure_induction ?_ hone (fun x y _ _ => hmul x y) (fun x _ => hinv x) hq
-  rintro _ ⟨x, hx | hx, rfl⟩
-  · obtain ⟨v, hv, rfl⟩ := hx
-    exact hsq v hv
-  · obtain ⟨v, hv, g, -, rfl⟩ := hx
-    exact hbr v hv g
-
-end DescentInfra
 
 section FreeLift
 
@@ -1024,29 +1136,6 @@ private theorem freeTopGenFinset :
       fin_cases i <;> tauto
   rw [h]
   exact topGen_freeProTwo
-
-/-- `D_R` is topologically generated by `{s, x, y}`, `Finset` form (private replica of the
-Assembly-file packaging of `dr_topGen`; needed here for the tower instance pack). -/
-private theorem drTopGenFinset :
-    ∃ s : Finset (DR : Type),
-      (Subgroup.closure (s : Set (DR : Type))).topologicalClosure = ⊤ := by
-  classical
-  refine ⟨{drS, drX, drY}, ?_⟩
-  have h : (({drS, drX, drY} : Finset (DR : Type)) : Set (DR : Type))
-      = ({drS, drX, drY} : Set (DR : Type)) := by simp
-  rw [h]
-  exact dr_topGen
-
-/-- `D₀` is topologically generated by `{A, S, Y}`, `Finset` form (private replica). -/
-private theorem d0TopGenFinset :
-    ∃ s : Finset (D0 : Type),
-      (Subgroup.closure (s : Set (D0 : Type))).topologicalClosure = ⊤ := by
-  classical
-  refine ⟨{d0A, d0S, d0Y}, ?_⟩
-  have h : (({d0A, d0S, d0Y} : Finset (D0 : Type)) : Set (D0 : Type))
-      = ({d0A, d0S, d0Y} : Set (D0 : Type)) := by simp
-  rw [h]
-  exact SectionThree.topGen_d0
 
 /-- **The span theorem, free form, `r₀`-shape** (spike §2.3; Serre 252 §7 p. 151 with the
 `2^{h-1}` erratum): for `k ≥ 3`, the graded layer `Zₖ(F₃)` is contained in the subgroup
