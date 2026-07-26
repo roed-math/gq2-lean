@@ -155,10 +155,37 @@ classification-shaped); O3 timebox L4 then drop to O1.
 
 | L4c | StageLemma remainder: L4a calculus block (10) + SL1 pair (2) | opus | `GQ2/Roe/Labute/StageLemma.lean` | L4b ✓, L3b ✓ | **wound down green 2026-07-26 at owner's direction — 8/12 filled** (5d666a9, 5512a01, c1b6a0b, 5f26e05, 39dba41; ALL 8 std-3 exactly, ZERO span_free citations; tree clean, build green with only sorries+lints). FILLED: dbarWordR0/R2_congr_slots (GRAD kills the error term; surviving [λ_{k-1},G] ≤ Z_k is central), dbarWordR0/R2_congr_mod (**holds UNCONDITIONALLY** — needs neither hk nor hw), defectR0_mul (r₀: S⁴ inert, A² π-diagonal, [S,Y] cross terms), defectR2_mul (conjugation + cube shift + **full inertness of [y,yˢ]**; the x-slot appears in both the xˢ and x³ blocks and the two copies cancel against z_B²=1), sPR0/sPR2_mul_mem. **NOT FILLED: stageSL1R0/R2 + stageSL2R0/R2** — blocked on a DESIGN GAP, not effort (see the two doc corrections landed alongside: spike §2.5(b) REFUTED, memo's 'automatic π'd-slot digit' does not re-derive). New public API: lambdaImage_two_le_frattiniLike, closure_range_mul_eq_top_of_mem_lambdaImage_two (SL2 will want a tower-lifting corollary from the same primitive — not yet stated; drTopGenFinset/d0TopGenFinset still private). Structural: +import GQ2.FrattiniNongen; Grading/DescentInfra sections relocated above consumers (pure moves, statements byte-identical); did NOT `omit` instances on the frozen congr_* theorems despite lints (would break the byte-identical gate) |
 
-## OWNER DECISION PENDING — `span_free_r0/r2` (opened 2026-07-26)
+## GL-campaign — span_free discharge (owner decision TAKEN 2026-07-26: option (b), no axiom)
 
-**Status: BANKED for later resumption at the owner's direction.** Full decision packet:
-**`~/claude/handoffs/gq2-labute-span-decision-2026-07-26.md`** — read that before acting.
+Owner (2026-07-26, in-session): background chores restarted on opus; **no new axiom**;
+**go ahead with the graded-Lie/Lazard work, parallelized on opus**. Design memo (READ
+FIRST for any GL ticket): `docs/orchestration/span-gradedlie-plan.md`. Route pivot
+recorded there §0: Serre §6–7 read from the numdam scan; the full Magnus architecture
+was validated numerically against the honest free group (scratchpad harnesses, results
+in memo §5), and in the process the L4b termination obstruction was found to DISSOLVE
+under whole-atom factoring — `π(d̄_{k-1}(w)) = d̄_k(w²)` (machine-validated k=4,5,6 both
+shapes) + `[v,τ] = (v²)⁻¹·d̄(v,1,1)` (definitional). Main lane = strong induction on k
+(base k=3 + step), all in existing λ-calculus; Magnus lane kept as insurance + future
+SL1 infra. GL0 (orchestrator, e233153): SpanFoundation.lean split out of StageLemma
+(statements byte-identical), GradedLie/ skeletons with frozen statements,
+span_free_r0/r2 rewired to `span_free_*_proof` (self-heal; StageLemma now carries only
+the 4 SL1/SL2 sorries), full build green 3373. Mid-wave note: check_axioms.sh is
+chore-owned and the sorry allowlist doesn't yet list the GradedLie files — repo runs
+mid-wave red on check 2 (R21 precedent); GL-E extends the allowlist at wave close.
+
+| id | title | model | files owned | depends on | status |
+|---|---|---|---|---|---|
+| GL0 | foundation split + skeletons + memo + numerical validation | fable (orchestrator) | `SpanFoundation.lean`, `GradedLie/*`, `StageLemma.lean` surgery, memo | owner ✓ | **done 2026-07-26** (e233153) |
+| GL-A | transport identities (d̄(w)²=d̄(w²) both shapes + support calculus, 15 sorries) | opus | `GradedLie/SpanIdentities.lean` | GL0 ✓ | dispatched 2026-07-26 |
+| GL-B | induction step S(k)⇒S(k+1), both shapes | opus | `GradedLie/SpanStep.lean` | GL0 ✓ (cites GL-A while sorried; self-heals) | dispatched 2026-07-26 |
+| GL-C | base case S(3), both shapes (L4b's hand proof; risk concentration — stop rule in memo §6) | opus | `GradedLie/SpanBase.lean` | GL0 ✓ | dispatched 2026-07-26 |
+| GL-D | Magnus coefficient algebra (insurance lane; interface NOT frozen — review before use) | opus | `GradedLie/Magnus.lean` | GL0 ✓ | dispatched 2026-07-26 |
+| GL-E | wave close: gates (allowlist after chore lands), axiom-print verification, docs, board | opus/orchestrator | scripts + docs | GL-A..C ✓ | queued |
+
+## OWNER DECISION — `span_free_r0/r2` (opened 2026-07-26) — RESOLVED
+
+**Status: RESOLVED 2026-07-26 — owner chose (b)/no-axiom; GL-campaign above executes
+it.** Historical packet: `~/claude/handoffs/gq2-labute-span-decision-2026-07-26.md`.
 
 The L-campaign is one statement short. L4b proved `span_descent_r0/r2` and the whole graded
 foundation, then escalated `span_free_r0/r2` with a precise termination obstruction (two
