@@ -10,8 +10,8 @@ This repository uses Atlas to generate [`../atlas-audit.md`](../atlas-audit.md) 
 
 ## Current result
 
-The graph as regenerated on 2026-07-26, after the R-campaign, contains 5,351 project nodes and
-47,492 edges. The target's 1,789-node Atlas closure reduces to a **30-declaration Lean Compass
+The graph as regenerated on 2026-07-26, after the L-campaign, contains 5,571 project nodes and
+49,304 edges. The target's 1,789-node Atlas closure reduces to a **30-declaration Lean Compass
 review cone** (98.3% reduction). Those 30 declarations are the project statements and definitions
 that, under Compass's dependency model, should receive human semantic review. The generated report
 links every declaration to the source location it had when the report was generated.
@@ -19,22 +19,28 @@ links every declaration to the source location it had when the report was genera
 This number is not an axiom count. The capstone separately depends on all **nine** documented
 literature axioms.
 
-The review cone is unchanged at 30 declarations from the previous (2026-07-15) report, and so is
-the nine-axiom trust base — with B9 now appearing under its restated name
-`GQ2.relativeStiefelWhitney_dyadic`, `GQ2.evensKahn_dyadic` having become a derived theorem. The
-full closure grew from 638 nodes for two reasons, both proof-level: `GQ2/Phase140/GammaA/Hsep.lean`
-and `GQ2/AnabelianBridge/Construction.lean` landed in the very commit that last generated the
-report, so the 638 figure never reflected them; and the B9 restatement rerouted part of `thm_4_2`'s
-proof. Both changes travel along theorem-proof value edges, which Compass prunes — which is why the
-closure moved and the review cone did not.
+The review cone is unchanged at 30 declarations across the last three reports (2026-07-15, the
+post-R-campaign one, and this one), and so is the nine-axiom trust base — with B9 appearing under
+its restated name `GQ2.relativeStiefelWhitney_dyadic` since the R-campaign, `GQ2.evensKahn_dyadic`
+having become a derived theorem. The full closure has likewise not moved from 1,789 nodes since the
+R-campaign: everything the L-campaign added lives in `GQ2/Roe/`, which `main_surjection_count'`
+does not reach. (The earlier growth from 638 nodes had two proof-level causes:
+`GQ2/Phase140/GammaA/Hsep.lean` and `GQ2/AnabelianBridge/Construction.lean` landed in the very
+commit that generated the 2026-07-15 report, so the 638 figure never reflected them, and the B9
+restatement rerouted part of `thm_4_2`'s proof. Both travel along theorem-proof value edges, which
+Compass prunes — which is why the closure moved and the review cone did not.)
 
-The whole-graph `sorry` count in the committed snapshot is **11**, all in the then-in-flight
-`GQ2/Roe/Labute/` files (`StageLemma.lean`, `Assembly.lean`). **Stale as of 2026-07-26**: those
-files landed sorry-free that day, so the true library-wide count is now **0** and
-`scripts/check_axioms.sh`'s allowlist is empty; the snapshot figure updates at the next Atlas
-regeneration (the graph itself must be re-exported — see below). None of them was ever reachable
-from `main_surjection_count'`, whose closure remains sorry-free and contains no `GQ2/Roe/`
-declaration.
+The whole-graph `sorry` count is **0**: the `GQ2/Roe/Labute/` files that held the last 11 landed
+sorry-free on 2026-07-26, and `scripts/check_axioms.sh`'s allowlist is empty. None of them was ever
+reachable from `main_surjection_count'`, whose closure has been sorry-free throughout and contains
+no `GQ2/Roe/` declaration.
+
+The whole-graph totals moved by +220 nodes and +1,812 edges against the post-R-campaign report —
+the net of the L-campaign's `GQ2/Roe/Labute/` work landing (`TwoCentralTower.lean`,
+`Levelwise.lean`, `SpanFoundation.lean`, `Assembly.lean`, the five `GradedLie/` modules and the six
+`StageLemma/` modules of the CU-B split are all present in the regenerated graph, 407 visible nodes
+between them) against the cleanup passes, which privatized declarations during the split and
+deleted local restatements, and so remove nodes from the user-visible graph.
 
 No Compass report has yet been generated for the `Γ_R` capstone — now unconditional, and best
 targeted as `GQ2.main_presentation_literal_roe_unconditional` (`GQ2.main_presentation_literal_roe`
