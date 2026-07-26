@@ -16,10 +16,14 @@ treating displayed theorem numbers as stable; see [`docs/paper-api.md`](docs/pap
 
 ## Result
 
-The `GQ2` library and its exported solution are complete and contain no `sorry`. The separate
-Comparator input [`Challenge.lean`](Challenge.lean) intentionally contains one `sorry`: it is the
-untrusted challenge statement whose proof is supplied by [`Solution.lean`](Solution.lean). The
-literal form of the proved presentation theorem is
+The paper's result is complete and its proof contains no `sorry`. The separate Comparator input
+[`Challenge.lean`](Challenge.lean) intentionally contains one `sorry` per challenge theorem: those
+are the untrusted challenge statements whose proofs are supplied by
+[`Solution.lean`](Solution.lean). A follow-on campaign under
+[`GQ2/Roe/`](GQ2/Roe/) — described in [Roe-candidate verification](#roe-candidate-verification)
+below, and not part of the paper — is still in progress and does contain `sorry`; those are
+confined to `GQ2/Roe/Labute/`, and nothing outside that directory depends on them. The literal
+form of the proved presentation theorem is
 
 ```lean
 GQ2.main_presentation_literal :
@@ -49,6 +53,51 @@ $$
 The definitions of $u_1$, $c_0$, and $h_0$ are in [`GQ2/Words.lean`](GQ2/Words.lean); the current
 writeup gives the mathematical construction and proof in full.
 
+## Roe-candidate verification
+
+A candidate presentation found independently, before the paper's, asks whether a *different*
+4-generator 2-relator group also presents $G_{\mathbf{Q}_2}$. Call it $\Gamma_R$: same generators
+$\sigma,\tau,x_0,x_1$, same pro-2 normal closure of $x_0,x_1$, same tame relation
+$\tau^\sigma=\tau^2$, but a different wild relator,
+
+$$
+(x_0^\sigma)^{-1}\,a\,x_1^2\,c = 1,
+\qquad
+a=(x_0^{-3}\tau)^{\omega_2},
+\qquad
+c=[x_1,\,x_1^{\sigma_2}],
+\qquad
+\sigma_2=\sigma^{\omega_2}.
+$$
+
+Answering it is a *replacement theorem*: the paper's finite-target induction is reused unchanged,
+while the four candidate-specific inputs (tame and marked pro-2 boundary, Fox row, Stokes/duality,
+quadratic Gauss signs) are re-verified for $\Gamma_R$. The terminal theorem is
+
+```lean
+GQ2.main_presentation_literal_roe (hBLab : BLabHypothesis) :
+  Nonempty (ContinuousMulEquiv GammaR AbsGalQ2)
+```
+
+in [`GQ2/Roe/Main.lean`](GQ2/Roe/Main.lean), with the counting form
+`GQ2.main_surjection_count_R` and the bridge `GQ2.admissibleCountR_eq_admissibleCount` proving
+that the two candidates' admissible-marking counts agree on every finite group.
+
+**This result is conditional, and the paper's result is not.** `BLabHypothesis`
+([`GQ2/Roe/MarkedPro2.lean`](GQ2/Roe/MarkedPro2.lean)) is a Labute-classification instance carried
+as an explicit hypothesis — deliberately a theorem binder rather than a tenth axiom, so that the
+conditionality is visible in the statement itself. It is neither proved in-repo nor admitted as an
+axiom; the proof attempt lives in [`GQ2/Roe/Labute/`](GQ2/Roe/Labute/) and is unfinished, which is
+the sole source of `sorry` in this repository. Everything else in `GQ2/Roe/` is unconditional,
+including `GQ2.prop_2_3_R`, which needs no literature axiom at all.
+
+Granting that one hypothesis, $\Gamma_R$ costs nothing further: `main_presentation_literal_roe`
+depends on exactly the same twelve axioms as `main_presentation_literal`, which
+[`scripts/check_axioms.sh`](scripts/check_axioms.sh) and
+[`GQ2/AxiomLedger.lean`](GQ2/AxiomLedger.lean) both check mechanically rather than assert.
+
+The campaign plan is [`docs/orchestration/roe-verification-plan.md`](docs/orchestration/roe-verification-plan.md).
+
 ## Trust and validation
 
 The repository uses several complementary checks. They answer different questions and should not
@@ -65,10 +114,17 @@ their precise statements, citations, and deviations from the cited formulations 
 
 [`scripts/check_axioms.sh`](scripts/check_axioms.sh) enforces the axiom census, rejects `sorry` and
 `native_decide` from the `GQ2` library, and ensures that no other library file declares axioms. It
-deliberately does not treat the single Comparator placeholder in `Challenge.lean` as a library
-proof gap. Building
-[`GQ2/AxiomLedger.lean`](GQ2/AxiomLedger.lean) reports the transitive consumers of every literature
-axiom and detects unknown non-standard axioms.
+deliberately does not treat the Comparator placeholders in `Challenge.lean` as library proof gaps.
+Its `sorry` allowlist currently holds the four unfinished `GQ2/Roe/Labute/` files and nothing else,
+so a `sorry` anywhere outside that directory still fails the check. A final check reads the axioms
+each capstone actually depends on and requires them to be exactly the standard three plus the nine
+literature axioms — which is also how the repository certifies that the conditional $\Gamma_R$
+result introduces no new axiom and rests on no unfinished proof.
+
+Building [`GQ2/AxiomLedger.lean`](GQ2/AxiomLedger.lean) reports the transitive consumers of every
+literature axiom, lists everything still resting on a `sorry`, detects unknown non-standard axioms,
+and fails outright if any capstone acquires a `sorry` or an off-census axiom, or if a $\Gamma_R$
+capstone stops matching its paper counterpart axiom for axiom.
 
 ### `formalization.yaml` and Comparator
 
@@ -77,14 +133,19 @@ the source, scope, provenance, automation, fidelity decisions, review status, pr
 declarations, and permitted axiom set using the
 [`formalization.yaml` standard](https://github.com/mathlib-initiative/formalization.yaml).
 
-The main theorem is also packaged for
+The main theorem, and the conditional $\Gamma_R$ theorem alongside it, are also packaged for
 [`leanprover/comparator`](https://github.com/leanprover/comparator):
 
-- [`Challenge.lean`](Challenge.lean) states the theorem, with one intentional `sorry`, using only
-  the imports needed for its statement;
-- [`Solution.lean`](Solution.lean) supplies `GQ2.main_presentation_literal` as its proof;
-- [`comparator-config.json`](comparator-config.json) names the theorem and permits exactly the
-  standard three axioms plus the nine documented literature axioms.
+- [`Challenge.lean`](Challenge.lean) states both theorems, one intentional `sorry` each, using only
+  the imports needed for their statements — neither reaches `GQ2/Roe/Labute/`;
+- [`Solution.lean`](Solution.lean) supplies `GQ2.main_presentation_literal` and
+  `GQ2.main_presentation_literal_roe` as their proofs;
+- [`comparator-config.json`](comparator-config.json) names both theorems and permits exactly the
+  standard three axioms plus the nine documented literature axioms — one list, shared, because the
+  two theorems have the same axiom dependencies.
+
+For the $\Gamma_R$ theorem, note what a passing Comparator run does and does not establish: it
+checks the *conditional* statement, so it is silent on whether `BLabHypothesis` is true.
 
 Comparator checks that the challenge and solution statements agree, that the solution uses only
 the permitted axioms, and that the exported solution is accepted by Lean's kernel. Its security
@@ -144,6 +205,7 @@ on every push to and pull request against `master`.
 | `GQ2/Foundations/Axioms.lean` | The nine cited literature inputs |
 | `GQ2/SectionTenSources.lean` | Counting capstone and paper equation (154) |
 | `GQ2/PresentationLiteral.lean` | Literal profinite-group isomorphism theorem |
+| `GQ2/Roe/` | Roe-candidate verification: $\Gamma_R$, its capstones (`Roe/Main.lean`), and the unfinished `BLabHypothesis` proof (`Roe/Labute/`) |
 | `GQ2/AxiomLedger.lean` | Generated-style transitive axiom-consumer certificate |
 | `Challenge.lean`, `Solution.lean`, `comparator-config.json` | Comparator validation pair |
 | `formalization.yaml` | Structured provenance, fidelity, and review metadata |
