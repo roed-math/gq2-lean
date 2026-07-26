@@ -393,6 +393,49 @@ theorem twoCentralSeries_levelQuot_self
   rw [← lambdaImage_eq_twoCentralSeries_levelQuot G hfg hpro m m, lambdaImage,
     Subgroup.map_eq_bot_iff, levelMk, QuotientGroup.ker_mk']
 
+omit [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] in
+/-- Mapping into a *discrete* group erases topological closures: the image of `cl K` is
+the image of `K` (the preimage of the image subgroup is clopen). -/
+theorem map_topologicalClosure_eq_of_discrete {H : Type*} [Group H] [TopologicalSpace H]
+    [DiscreteTopology H] (K : Subgroup G) (f : G →* H) (hf : Continuous f) :
+    K.topologicalClosure.map f = K.map f := by
+  refine le_antisymm ?_ (Subgroup.map_mono K.le_topologicalClosure)
+  have hle : K.topologicalClosure ≤ Subgroup.comap f (K.map f) := by
+    refine Subgroup.topologicalClosure_minimal K (Subgroup.le_comap_map f K) ?_
+    exact (isClosed_discrete ((K.map f : Subgroup H) : Set H)).preimage hf
+  exact (Subgroup.map_mono hle).trans (Subgroup.map_comap_le f (K.map f))
+
+omit [T2Space G] [TotallyDisconnectedSpace G] in
+open scoped commutatorElement in
+/-- **Atomization of the layer images** (L4b workhorse): for topologically f.g. pro-2 `G`,
+a property closed under the group operations that holds on the residues of squares `v²`
+and brackets `⁅v, g⁆` (`v ∈ λⱼ`, `g ∈ G`) holds on all of `λ_{j+1}λₘ/λₘ ≤ Qₘ`.  This is
+the mod-`λₘ` shadow of the verbal generation of `λ_{j+1}`, with the topological closure
+erased by discreteness of the finite quotient. -/
+theorem lambdaImage_induction [T2Space G] [TotallyDisconnectedSpace G]
+    (hfg : ∃ s : Finset G, (Subgroup.closure (s : Set G)).topologicalClosure = ⊤)
+    (hpro : IsProP 2 G) {j m : ℕ} (hj : 1 ≤ j) {p : levelQuot G m → Prop}
+    (hsq : ∀ v ∈ twoCentralSeries G j, p (levelMk G m (v ^ 2)))
+    (hbr : ∀ v ∈ twoCentralSeries G j, ∀ g : G, p (levelMk G m ⁅v, g⁆))
+    (hone : p 1) (hmul : ∀ x y, p x → p y → p (x * y)) (hinv : ∀ x, p x → p x⁻¹)
+    {q : levelQuot G m} (hq : q ∈ lambdaImage G (j + 1) m) : p q := by
+  haveI := discreteTopology_levelQuot G hfg hpro m
+  have hsucc : twoCentralSeries G (j + 1) =
+      (Subgroup.closure (((fun v : G => v ^ 2) '' (twoCentralSeries G j : Set G)) ∪
+        {g | ∃ g₁ ∈ twoCentralSeries G j, ∃ g₂ ∈ (⊤ : Subgroup G), ⁅g₁, g₂⁆ = g})
+      ).topologicalClosure := by
+    rw [twoCentralSeries_succ G hj, twoCentralSucc, Subgroup.closure_union,
+      ← Subgroup.commutator_def]
+  rw [lambdaImage, hsucc,
+    map_topologicalClosure_eq_of_discrete G _ _ (continuous_levelMk G m),
+    MonoidHom.map_closure] at hq
+  refine Subgroup.closure_induction ?_ hone (fun x y _ _ => hmul x y) (fun x _ => hinv x) hq
+  rintro _ ⟨x, hx | hx, rfl⟩
+  · obtain ⟨v, hv, rfl⟩ := hx
+    exact hsq v hv
+  · obtain ⟨v, hv, g, -, rfl⟩ := hx
+    exact hbr v hv g
+
 end DescentInfra
 
 section FreeLift
