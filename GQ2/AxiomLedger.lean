@@ -16,15 +16,19 @@ B-labels, and reports:
 
 * **certificate** — which declarations consume each B-axiom.  Compare this with the App. D rows in
   `docs/literature-axioms.md` §C.
-* **gap map** — declarations still depending on `sorryAx`.  Empty except while a campaign's
-  skeleton files are being filled: during the L-campaign it lists the in-flight
-  `GQ2/Roe/Labute/` declarations (the same interim scope `scripts/check_axioms.sh` allowlists).
-  No capstone may appear here, which the terminal certificate below enforces.
+* **gap map** — declarations still depending on `sorryAx`.  **Currently empty, and expected to
+  stay so**: the library is fully proved, and `scripts/check_axioms.sh`'s sorry allowlist is
+  likewise empty (it last held the four `GQ2/Roe/Labute/` skeletons while the L-campaign was in
+  flight, 2026-07-25 to 2026-07-26).  It fills only while a campaign's skeleton files are being
+  filled, and even then no capstone may appear in it, which the terminal certificate below
+  enforces.
 * **alarm** — any *other* non-standard axiom.  Must be empty: a stray `axiom`, a `native_decide`
   (`Lean.ofReduceBool`), or a miscounted census would surface here.
 * **terminal certificate** — the campaign capstones, *checked* rather than reported: each is free of
   `sorryAx` and of any axiom outside the census, and each Γ_R capstone depends on exactly the same
-  axioms as its Γ_A twin.  Unlike the three reports above, a violation here fails the command.
+  axioms as its Γ_A twin — including the hypothesis-free
+  `main_presentation_literal_roe_unconditional`, whose twin-identity is the trust-base claim of the
+  L-campaign.  Unlike the three reports above, a violation here fails the command.
 
 Unlike the textual guard `scripts/check_axioms.sh`, this walks the elaborated environment directly,
 so it reports transitive dependencies and covers the whole library, including `private` lemmas.
@@ -115,15 +119,24 @@ in `scripts/check_axioms.sh`, and deliberately overlaps it: the script pins the 
 set, this pins the properties that must hold whatever the census currently is.
 -/
 
-/-- The presentation theorem's three layers, each as a `(Γ_A twin, Γ_R twin)` pair: the literal
-profinite isomorphism, eq. (154), and the surjection-count form.  The `Γ_R` twins are
-hypothesis-parametrized by `BLabHypothesis` (the Labute classification enters the Roe capstones as
-an explicit binder, never as an axiom); a binder contributes nothing to an axiom print, so the two
-sides of each pair are directly comparable. -/
+/-- The capstones the certificate compares as `(Γ_A twin, Γ_R twin)` pairs: the presentation
+theorem's three layers — the literal profinite isomorphism, eq. (154), and the surjection-count
+form — and then, against the same `Γ_A` theorem as the first row, the campaign's terminal
+statement.
+
+The `Γ_R` sides of the first three rows are hypothesis-parametrized by `BLabHypothesis` (the
+Labute classification enters those capstones as an explicit binder, never as an axiom); a binder
+contributes nothing to an axiom print, so the two sides of each pair are directly comparable.  The
+fourth row carries no binder at all: `main_presentation_literal_roe_unconditional` is that
+hypothesis *discharged*, by the theorem `GQ2.Roe.Labute.bLab` (L6, 2026-07-26).  Auditing it here
+rather than only for census membership is deliberate — that it prints *identically* to
+`main_presentation_literal` is exactly the claim that proving the Labute instance, rather than
+assuming it, widened the trust base by nothing. -/
 def terminalPairs : List (Name × Name) :=
   [ (``GQ2.main_presentation_literal,         ``GQ2.main_presentation_literal_roe)
   , (``GQ2.SectionTen.eq_154,                 ``GQ2.eq_154_R)
-  , (``GQ2.SectionTen.main_surjection_count', ``GQ2.main_surjection_count_R) ]
+  , (``GQ2.SectionTen.main_surjection_count', ``GQ2.main_surjection_count_R)
+  , (``GQ2.main_presentation_literal,         ``GQ2.main_presentation_literal_roe_unconditional) ]
 
 /-- `Γ_R`-side terminal declarations with no `Γ_A` twin to compare against: the bridge identifying
 the two admissible-marking semantics (`admissibleCountR` vs `admissibleCount`). -/
