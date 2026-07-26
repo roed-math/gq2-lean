@@ -1115,6 +1115,68 @@ private theorem card_le_eight_of_three_gens {H : Type*} [Group H] [Finite H]
   calc Nat.card H ≤ Nat.card (Fin 2 × Fin 2 × Fin 2) := Nat.card_le_card_of_surjective _ hsurj
     _ = 8 := by simp
 
+/-- **Transport of a spanning family into a subgroup.**  If `N` is contained in the closure
+of a set `S` of its own elements, then the corresponding subtype elements generate `N`. -/
+private theorem closure_subtype_eq_top {H : Type*} [Group H] {N : Subgroup H} {S : Set H}
+    (hSN : S ⊆ (N : Set H)) (hN : N ≤ Subgroup.closure S) :
+    Subgroup.closure (N.subtype ⁻¹' S) = ⊤ := by
+  rw [eq_top_iff]
+  intro w _
+  have h : Subgroup.closure S ≤
+      Subgroup.map N.subtype (Subgroup.closure (N.subtype ⁻¹' S)) := by
+    rw [Subgroup.closure_le]
+    intro g hg
+    exact ⟨⟨g, hSN hg⟩, Subgroup.subset_closure (by simpa using hg), rfl⟩
+  obtain ⟨v, hv, hveq⟩ := h (hN w.2)
+  exact Subtype.ext hveq ▸ hv
+
+/-- **An abelian group of exponent 2 on five generators has at most `2⁵` elements.**  The
+`Z₂`-side counterpart of `card_le_eight_of_three_gens`, stated abstractly for the same
+reason (the commutative normalisation never meets the quotient's instance stack). -/
+private theorem card_le_thirtytwo_of_five_gens {H : Type*} [Group H] [Finite H]
+    (hc : ∀ u v : H, u * v = v * u) (hsq : ∀ u : H, u ^ 2 = 1) {a b c d e : H} {S : Set H}
+    (hS : S ⊆ ({a, b, c, d, e} : Set H)) (hgen : Subgroup.closure S = ⊤) :
+    Nat.card H ≤ 32 := by
+  letI : CommGroup H := { ‹Group H› with mul_comm := hc }
+  have hword : ∀ q : H, ∃ i j k l m : ℕ, q = a ^ i * b ^ j * c ^ k * d ^ l * e ^ m := by
+    intro q
+    have hq : q ∈ Subgroup.closure S := by rw [hgen]; trivial
+    induction hq using Subgroup.closure_induction with
+    | mem z hz =>
+      have hz := hS hz
+      simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hz
+      rcases hz with rfl | rfl | rfl | rfl | rfl
+      · exact ⟨1, 0, 0, 0, 0, by simp⟩
+      · exact ⟨0, 1, 0, 0, 0, by simp⟩
+      · exact ⟨0, 0, 1, 0, 0, by simp⟩
+      · exact ⟨0, 0, 0, 1, 0, by simp⟩
+      · exact ⟨0, 0, 0, 0, 1, by simp⟩
+    | one => exact ⟨0, 0, 0, 0, 0, by simp⟩
+    | mul u v _ _ hu hv =>
+      obtain ⟨i, j, k, l, m, rfl⟩ := hu
+      obtain ⟨i', j', k', l', m', rfl⟩ := hv
+      refine ⟨i + i', j + j', k + k', l + l', m + m', ?_⟩
+      simp only [pow_add]
+      simp only [mul_assoc, mul_left_comm]
+    | inv u _ hu =>
+      obtain ⟨i, j, k, l, m, rfl⟩ := hu
+      exact ⟨i, j, k, l, m, by rw [inv_eq_iff_mul_eq_one, ← sq]; exact hsq _⟩
+  have hsurj : Function.Surjective
+      (fun t : Fin 2 × Fin 2 × Fin 2 × Fin 2 × Fin 2 =>
+        a ^ (t.1 : ℕ) * b ^ (t.2.1 : ℕ) * c ^ (t.2.2.1 : ℕ) * d ^ (t.2.2.2.1 : ℕ)
+          * e ^ (t.2.2.2.2 : ℕ)) := by
+    intro q
+    obtain ⟨i, j, k, l, m, rfl⟩ := hword q
+    refine ⟨(⟨i % 2, Nat.mod_lt _ (by norm_num)⟩, ⟨j % 2, Nat.mod_lt _ (by norm_num)⟩,
+      ⟨k % 2, Nat.mod_lt _ (by norm_num)⟩, ⟨l % 2, Nat.mod_lt _ (by norm_num)⟩,
+      ⟨m % 2, Nat.mod_lt _ (by norm_num)⟩), ?_⟩
+    simp only
+    rw [← pow_eq_pow_mod_two hsq, ← pow_eq_pow_mod_two hsq, ← pow_eq_pow_mod_two hsq,
+      ← pow_eq_pow_mod_two hsq, ← pow_eq_pow_mod_two hsq]
+  calc Nat.card H ≤ Nat.card (Fin 2 × Fin 2 × Fin 2 × Fin 2 × Fin 2) :=
+        Nat.card_le_card_of_surjective _ hsurj
+    _ = 32 := by simp
+
 /-- `|Q₂| ≤ 8`: abelian of exponent 2 on three generators. -/
 private theorem card_levelQuot_two_le : Nat.card (levelQuot (DR : Type) 2) ≤ 8 := by
   haveI : Finite (levelQuot (DR : Type) 2) := finite_levelQuot (DR : Type) drFg isProP_DR 2
@@ -1153,6 +1215,78 @@ private theorem card_levelQuot_two_ge : 8 ≤ Nat.card (levelQuot (DR : Type) 2)
 /-- `|Q₂(D_R)| = 8` (spike §1, k = 1 row).  Fill: L3. -/
 theorem card_levelQuot_two : Nat.card (levelQuot (DR : Type) 2) = 8 :=
   le_antisymm card_levelQuot_two_le card_levelQuot_two_ge
+
+/-! `Q₃` sits in the extension `1 → Z₂ → Q₃ → Q₂ → 1`.  The layer `Z₂` is spanned by the
+five classes `s², x², [s,x], [s,y], [x,y]`: `zLayer_two_le_of_gens` offers the three
+generator squares and the three generator brackets, and the relator relation
+`y² = [x,s]` (`levelMk_drY_sq`) deletes one of the six.  Hence `|Z₂| ≤ 2⁵`, and
+`|Q₃| = |Q₂| · |Z₂| ≤ 8 · 32 = 256`. -/
+
+/-- `|Z₂(D_R)| ≤ 2⁵` (spike §1: `dim Z₂ = 6 − 1 = 5`). -/
+private theorem card_zLayer_two_le : Nat.card (zLayer (DR : Type) 2) ≤ 32 := by
+  haveI : Finite (levelQuot (DR : Type) 3) := finite_levelQuot (DR : Type) drFg isProP_DR 3
+  have h0 := closure_drGens_eq_top 3
+  rw [show levelMk (DR : Type) 3 '' {drS, drX, drY}
+      = ({levelMk (DR : Type) 3 drS, levelMk (DR : Type) 3 drX,
+          levelMk (DR : Type) 3 drY} : Set (levelQuot (DR : Type) 3)) from by
+        rw [Set.image_insert_eq, Set.image_insert_eq, Set.image_singleton]] at h0
+  have hy2 := levelMk_drY_sq
+  set s := levelMk (DR : Type) 3 drS with hsdef
+  set x := levelMk (DR : Type) 3 drX with hxdef
+  set y := levelMk (DR : Type) 3 drY with hydef
+  set S : Set (levelQuot (DR : Type) 3) := {s ^ 2, x ^ 2, commP s x, commP s y, commP x y}
+    with hSdef
+  have hSZ : S ⊆ (zLayer (DR : Type) 2 : Set (levelQuot (DR : Type) 3)) := by
+    intro w hw
+    rw [hSdef] at hw
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hw
+    rcases hw with rfl | rfl | rfl | rfl | rfl
+    exacts [sq_mem_zLayer_two s, sq_mem_zLayer_two x, commP_mem_zLayer_two s x,
+      commP_mem_zLayer_two s y, commP_mem_zLayer_two x y]
+  have hy2K : y ^ 2 ∈ Subgroup.closure S := by
+    rw [hy2, ← commP_inv]
+    exact (Subgroup.closure S).inv_mem (Subgroup.subset_closure (by rw [hSdef]; simp))
+  have hZK : zLayer (DR : Type) 2 ≤ Subgroup.closure S :=
+    zLayer_two_le_of_gens (isOpen_dr 3) h0
+      (Subgroup.subset_closure (by rw [hSdef]; simp))
+      (Subgroup.subset_closure (by rw [hSdef]; simp)) hy2K
+      (Subgroup.subset_closure (by rw [hSdef]; simp))
+      (Subgroup.subset_closure (by rw [hSdef]; simp))
+      (Subgroup.subset_closure (by rw [hSdef]; simp))
+  -- inside the layer the five classes span an elementary abelian group
+  have hcommZ : ∀ u v : zLayer (DR : Type) 2, u * v = v * u := fun u v =>
+    Subtype.ext (Subgroup.mem_center_iff.mp (zLayer_le_center (DR : Type) 2 u.2) v.1).symm
+  have hsqZ : ∀ u : zLayer (DR : Type) 2, u ^ 2 = 1 := fun u =>
+    Subtype.ext (by simpa using zLayer_sq (DR : Type) u.2)
+  have hSsub : (zLayer (DR : Type) 2).subtype ⁻¹' S ⊆
+      ({⟨s ^ 2, sq_mem_zLayer_two s⟩, ⟨x ^ 2, sq_mem_zLayer_two x⟩,
+        ⟨commP s x, commP_mem_zLayer_two s x⟩, ⟨commP s y, commP_mem_zLayer_two s y⟩,
+        ⟨commP x y, commP_mem_zLayer_two x y⟩} : Set (zLayer (DR : Type) 2)) := by
+    intro v hv
+    simp only [Set.mem_preimage] at hv
+    rw [hSdef] at hv
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hv ⊢
+    rcases hv with h | h | h | h | h
+    exacts [Or.inl (Subtype.ext h), Or.inr (Or.inl (Subtype.ext h)),
+      Or.inr (Or.inr (Or.inl (Subtype.ext h))),
+      Or.inr (Or.inr (Or.inr (Or.inl (Subtype.ext h)))),
+      Or.inr (Or.inr (Or.inr (Or.inr (Subtype.ext h))))]
+  exact card_le_thirtytwo_of_five_gens hcommZ hsqZ hSsub (closure_subtype_eq_top hSZ hZK)
+
+/-- `|Q₃| ≤ 2⁸`: the extension `1 → Z₂ → Q₃ → Q₂ → 1` with `|Q₂| = 8` and `|Z₂| ≤ 32`. -/
+private theorem card_levelQuot_three_le : Nat.card (levelQuot (DR : Type) 3) ≤ 256 := by
+  haveI : Finite (levelQuot (DR : Type) 3) := finite_levelQuot (DR : Type) drFg isProP_DR 3
+  have hindex : (zLayer (DR : Type) 2).index = 8 := by
+    rw [zLayer_eq_ker_levelProj, Subgroup.index,
+      Nat.card_congr (QuotientGroup.quotientKerEquivOfSurjective (levelProj (DR : Type) 2)
+        (levelProj_surjective (DR : Type) 2)).toEquiv]
+    exact card_levelQuot_two
+  have h := Subgroup.card_mul_index (zLayer (DR : Type) 2)
+  rw [hindex] at h
+  rw [← h]
+  calc Nat.card (zLayer (DR : Type) 2) * 8 ≤ 32 * 8 :=
+        Nat.mul_le_mul_right 8 card_zLayer_two_le
+    _ = 256 := by norm_num
 
 end TowerSizes
 
