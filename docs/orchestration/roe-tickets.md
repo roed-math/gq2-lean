@@ -199,7 +199,7 @@ the model (towerdims 10/20/44 calibrated). Uniformity validation dispatched (SL1
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
 | SL0 | design: SL2 mechanism complete + SL1 functionals found + harness + memo | fable (orchestrator) | memo, harness-sl1/ | GL ✓ | **done 2026-07-26** |
-| SL2-L | fill stageSL2R0/R2 (memo §1) | opus | `GQ2/Roe/Labute/StageLemma.lean` (SOLE owner while running) | SL0 ✓ | dispatched 2026-07-26 |
+| SL2-L | fill stageSL2R0/R2 (memo §1) | opus | `GQ2/Roe/Labute/StageLemma.lean` (SOLE owner while running) | SL0 ✓ | **done 2026-07-26** (4826d8b→3873a1f→991a739→e4749bf, +636/−2, both std-3 EXACTLY, no sorryAx; check_axioms all-green, census 9). Memo §1.1 automatic-digit CONFIRMED in Lean (twoCentralSeries_units_le at k+1; no Q_{k+2} input). Upgrades: one uniform witness family ![1,p·q,q] covers all 4 digit cases (no d̄-multiplicativity lemma); all digit bookkeeping in ℤ₂-divisibility (never (ZMod 2^{k+1})ˣ); mod-8 pins sufficed. NEW reusable digit-calculus toolkit (private, above the stage section) + `eq_top_of_map_levelProj_eq_top` (canonical lifts of generating triples generate — checklist omission, SL1-L wants it too). ⚠ StageLemma now 1653 ln (>1500 split threshold) — split AFTER SL1-L lands (post-campaign chore). StageLemma residual: exactly stageSL1R0/R2 |
 | SL1-N | numerics: k=4/5 functional pattern, sPR0-sampling regression for the φ(δ)-χ identity, controls | opus | scratchpad, `docs/orchestration/sl1-numerics.md` | SL0 ✓ | dispatched 2026-07-26 |
 | SL1-L | fill stageSL1R0/R2 | opus | StageLemma (after SL2-L) | SL1-N + orchestrator design pass | queued |
 
