@@ -16,13 +16,13 @@ treating displayed theorem numbers as stable; see [`docs/paper-api.md`](docs/pap
 
 ## Result
 
-The paper's result is complete and its proof contains no `sorry`. The separate Comparator input
+The paper's result is complete and its proof contains no `sorry`; since 2026-07-26 neither does
+anything else in the `GQ2` library, including the follow-on campaign under
+[`GQ2/Roe/`](GQ2/Roe/) described in [Roe-candidate verification](#roe-candidate-verification) below
+(not part of the paper). The separate Comparator input
 [`Challenge.lean`](Challenge.lean) intentionally contains one `sorry` per challenge theorem: those
 are the untrusted challenge statements whose proofs are supplied by
-[`Solution.lean`](Solution.lean). A follow-on campaign under
-[`GQ2/Roe/`](GQ2/Roe/) — described in [Roe-candidate verification](#roe-candidate-verification)
-below, and not part of the paper — is still in progress and does contain `sorry`; those are
-confined to `GQ2/Roe/Labute/`, and nothing outside that directory depends on them. The literal
+[`Solution.lean`](Solution.lean). The literal
 form of the proved presentation theorem is
 
 ```lean
@@ -75,7 +75,7 @@ while the four candidate-specific inputs (tame and marked pro-2 boundary, Fox ro
 quadratic Gauss signs) are re-verified for $\Gamma_R$. The terminal theorem is
 
 ```lean
-GQ2.main_presentation_literal_roe (hBLab : BLabHypothesis) :
+GQ2.main_presentation_literal_roe_unconditional :
   Nonempty (ContinuousMulEquiv GammaR AbsGalQ2)
 ```
 
@@ -83,18 +83,30 @@ in [`GQ2/Roe/Main.lean`](GQ2/Roe/Main.lean), with the counting form
 `GQ2.main_surjection_count_R` and the bridge `GQ2.admissibleCountR_eq_admissibleCount` proving
 that the two candidates' admissible-marking counts agree on every finite group.
 
-**This result is conditional, and the paper's result is not.** `BLabHypothesis`
-([`GQ2/Roe/MarkedPro2.lean`](GQ2/Roe/MarkedPro2.lean)) is a Labute-classification instance carried
-as an explicit hypothesis — deliberately a theorem binder rather than a tenth axiom, so that the
-conditionality is visible in the statement itself. It is neither proved in-repo nor admitted as an
-axiom; the proof attempt lives in [`GQ2/Roe/Labute/`](GQ2/Roe/Labute/) and is unfinished, which is
-the sole source of `sorry` in the `GQ2` library. Everything else in `GQ2/Roe/` is unconditional,
-including `GQ2.prop_2_3_R`, which needs no literature axiom at all.
-
-Granting that one hypothesis, $\Gamma_R$ costs nothing further: `main_presentation_literal_roe`
-depends on exactly the same twelve axioms as `main_presentation_literal`, which
+**This result is unconditional, and costs nothing beyond the paper's own inputs.**
+`main_presentation_literal_roe_unconditional` depends on exactly the same twelve axioms as
+`main_presentation_literal` — the standard three plus the same nine literature axioms — which
 [`scripts/check_axioms.sh`](scripts/check_axioms.sh) and
 [`GQ2/AxiomLedger.lean`](GQ2/AxiomLedger.lean) both check mechanically rather than assert.
+
+It was briefly conditional, and how that was resolved is the campaign's main methodological point.
+The $\Gamma_R$ route needs one input the paper's does not: a Labute-classification instance
+identifying the pro-2 quotient $D_R$ with the dyadic normal form $D_0$. Rather than admit it as a
+tenth axiom, it was carried as an explicit hypothesis `BLabHypothesis`
+([`GQ2/Roe/MarkedPro2.lean`](GQ2/Roe/MarkedPro2.lean)) — a theorem binder, so that the
+conditionality was visible in the statement itself — and then **proved** (2026-07-26):
+
+```lean
+GQ2.Roe.Labute.bLab : BLabHypothesis
+```
+
+in [`GQ2/Roe/Labute/`](GQ2/Roe/Labute/), at the standard three axioms and with no `sorry`, by
+building continuous surjections both ways along the two-central tower of $D_R$ and closing with the
+profinite Hopfian property. So $D_R \cong D_0$ is now itself a theorem of this repository over
+Mathlib, the axiom census stayed at nine, and the hypothesis-parametrized
+`main_presentation_literal_roe` is kept alongside the corollary as the frozen statement the gates
+audit. The exact statement, the proof chain, and the decision record are in the "B3 addendum" of
+[`docs/literature-axioms.md`](docs/literature-axioms.md).
 
 The two-page mathematical account is
 [`docs/roe-campaign-summary.md`](docs/roe-campaign-summary.md); the campaign plan, with a status
@@ -118,11 +130,10 @@ their precise statements, citations, and deviations from the cited formulations 
 [`scripts/check_axioms.sh`](scripts/check_axioms.sh) enforces the axiom census, rejects `sorry` and
 `native_decide` from the `GQ2` library, and ensures that no other library file declares axioms. It
 deliberately does not treat the Comparator placeholders in `Challenge.lean` as library proof gaps.
-Its `sorry` allowlist currently holds the four unfinished `GQ2/Roe/Labute/` files and nothing else,
-so a `sorry` anywhere outside that directory still fails the check. A final check reads the axioms
-each capstone actually depends on and requires them to be exactly the standard three plus the nine
-literature axioms — which is also how the repository certifies that the conditional $\Gamma_R$
-result introduces no new axiom and rests on no unfinished proof.
+Its `sorry` allowlist is empty, so a `sorry` anywhere in the library fails the check. A final check
+reads the axioms each capstone actually depends on and requires them to be exactly the standard
+three plus the nine literature axioms — which is also how the repository certifies that the
+$\Gamma_R$ result introduces no new axiom and rests on no unfinished proof.
 
 Building [`GQ2/AxiomLedger.lean`](GQ2/AxiomLedger.lean) reports the transitive consumers of every
 literature axiom, lists everything still resting on a `sorry`, detects unknown non-standard axioms,
@@ -136,7 +147,7 @@ the source, scope, provenance, automation, fidelity decisions, review status, pr
 declarations, and permitted axiom set using the
 [`formalization.yaml` standard](https://github.com/mathlib-initiative/formalization.yaml).
 
-The main theorem, and the conditional $\Gamma_R$ theorem alongside it, are also packaged for
+The main theorem, and the $\Gamma_R$ theorem alongside it, are also packaged for
 [`leanprover/comparator`](https://github.com/leanprover/comparator):
 
 - [`Challenge.lean`](Challenge.lean) states both theorems, one intentional `sorry` each, using only
@@ -147,8 +158,12 @@ The main theorem, and the conditional $\Gamma_R$ theorem alongside it, are also 
   standard three axioms plus the nine documented literature axioms — one list, shared, because the
   two theorems have the same axiom dependencies.
 
-For the $\Gamma_R$ theorem, note what a passing Comparator run does and does not establish: it
-checks the *conditional* statement, so it is silent on whether `BLabHypothesis` is true.
+For the $\Gamma_R$ theorem, note what a passing Comparator run does and does not establish: the
+challenge theorem still carries the `hBLab : BLabHypothesis` binder, so Comparator certifies the
+*conditional* statement. That hypothesis is now discharged in-repo — by
+`GQ2.Roe.Labute.bLab`, whose own proof is checked by the same `lake build` and axiom gates but is
+not itself part of the Comparator pair. Restating the challenge against
+`main_presentation_literal_roe_unconditional` is an open follow-up.
 
 Comparator checks that the challenge and solution statements agree, that the solution uses only
 the permitted axioms, and that the exported solution is accepted by Lean's kernel. Its security
@@ -171,8 +186,10 @@ semantic alignment. The report lists all 30 with source links. It separately obt
 nine-axiom trust base from Lean's `#print axioms`; this avoids undercounting axioms reached through
 private proof helpers, which Atlas intentionally omits from its user-visible graph.
 
-The whole-graph `sorry` count is 11, all in the allowlisted in-flight `GQ2/Roe/Labute/` files; the
-capstone's own closure is sorry-free.
+The snapshot's header records a whole-graph `sorry` count of 11, all in the then-in-flight
+`GQ2/Roe/Labute/` files. Those closed on 2026-07-26 and the library-wide count is now **0** (which
+`scripts/check_axioms.sh` enforces on every build); the count in the committed snapshot updates at
+the next Atlas regeneration. The capstone's own closure was sorry-free throughout.
 
 Regeneration instructions and the distinction between the Compass cone and the kernel trust base
 are in [`docs/atlas.md`](docs/atlas.md).
@@ -212,7 +229,7 @@ on every push to and pull request against `master`.
 | `GQ2/Foundations/Axioms.lean` | The nine cited literature inputs |
 | `GQ2/SectionTenSources.lean` | Counting capstone and paper equation (154) |
 | `GQ2/PresentationLiteral.lean` | Literal profinite-group isomorphism theorem |
-| `GQ2/Roe/` | Roe-candidate verification: $\Gamma_R$, its capstones (`Roe/Main.lean`), and the unfinished `BLabHypothesis` proof (`Roe/Labute/`) |
+| `GQ2/Roe/` | Roe-candidate verification: $\Gamma_R$, its capstones (`Roe/Main.lean`), and the proof of `BLabHypothesis` (`Roe/Labute/`) |
 | `GQ2/AxiomLedger.lean` | Generated-style transitive axiom-consumer certificate |
 | `Challenge.lean`, `Solution.lean`, `comparator-config.json` | Comparator validation pair |
 | `formalization.yaml` | Structured provenance, fidelity, and review metadata |
@@ -239,7 +256,7 @@ points for mathematical review are:
   review of those inputs;
 - [`docs/atlas.md`](docs/atlas.md) — Lean Atlas and Lean Compass methodology and regeneration;
 - [`docs/roe-campaign-summary.md`](docs/roe-campaign-summary.md) — the $\Gamma_R$ campaign's
-  mathematics, and exactly what its conditional theorem rests on.
+  mathematics, and exactly what its theorem rests on.
 
 ## License
 
