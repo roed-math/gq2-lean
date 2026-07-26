@@ -210,6 +210,137 @@ noncomputable def freeProTwo : ProfiniteGrp :=
 noncomputable def freeGen (i : Fin 3) : (freeProTwo : Type) :=
   maxProPMk 2 (FreeProfiniteGroup (Fin 3)) (FreeProfiniteGroup.of i)
 
+/-! ### The λ-grading lemma (L4b fill helper; Hall–Witt calculus)
+
+`⁅λₐ, λᵦ⁆ ≤ λ_{a+b}` — the graded-bracket bound underlying every depth estimate of the
+span reduction (spike §2.5(a)'s identity list).  Proved by induction on `b` via the three
+subgroups lemma (transported from mathlib's `⊥`-form through the quotient by `λ_{a+b}`)
+and the closed-subgroup trick for the topological closure step. -/
+
+section Grading
+
+variable {G : Type*} [Group G]
+
+open scoped commutatorElement in
+/-- The three subgroups lemma, `≤ N`-form: transport of
+`Subgroup.commutator_commutator_eq_bot_of_rotate` through `G ⧸ N`. -/
+theorem commutator_commutator_le_of_rotate {A B C N : Subgroup G} [N.Normal]
+    (h1 : ⁅⁅B, C⁆, A⁆ ≤ N) (h2 : ⁅⁅C, A⁆, B⁆ ≤ N) : ⁅⁅A, B⁆, C⁆ ≤ N := by
+  have key : ∀ X Y Z : Subgroup G, ⁅⁅X, Y⁆, Z⁆ ≤ N ↔
+      ⁅⁅X.map (QuotientGroup.mk' N), Y.map (QuotientGroup.mk' N)⁆,
+        Z.map (QuotientGroup.mk' N)⁆ = ⊥ := by
+    intro X Y Z
+    rw [← Subgroup.map_commutator, ← Subgroup.map_commutator, Subgroup.map_eq_bot_iff,
+      QuotientGroup.ker_mk']
+  rw [key] at h1 h2 ⊢
+  exact Subgroup.commutator_commutator_eq_bot_of_rotate h1 h2
+
+variable (G) [TopologicalSpace G] [IsTopologicalGroup G]
+
+open scoped commutatorElement in
+/-- One-step bound, subgroup form: `⁅λₐ, ⊤⁆ ≤ λ_{a+1}`. -/
+theorem commutator_twoCentralSeries_top_le (a : ℕ) :
+    ⁅twoCentralSeries G a, (⊤ : Subgroup G)⁆ ≤ twoCentralSeries G (a + 1) := by
+  rw [Subgroup.commutator_le]
+  intro v hv g _
+  exact commutator_mem_twoCentralSeries_succ G hv g
+
+open scoped commutatorElement in
+/-- **The λ-grading lemma** (`GRAD`): `⁅λₐ, λᵦ⁆ ≤ λ_{a+b}`. -/
+theorem commutator_twoCentralSeries_le :
+    ∀ (b a : ℕ), ⁅twoCentralSeries G a, twoCentralSeries G b⁆ ≤ twoCentralSeries G (a + b)
+  | 0, a => by
+    simpa using (commutator_twoCentralSeries_top_le G a).trans
+      (twoCentralSeries_antitone G (Nat.le_succ a))
+  | 1, a => by simpa using commutator_twoCentralSeries_top_le G a
+  | (b + 2), a => by
+    -- Notation: `N = λ_{a+b+2}` is the target, `H = λ_{b+1}` the penultimate layer.
+    set N := twoCentralSeries G (a + (b + 2)) with hN
+    set H := twoCentralSeries G (b + 1) with hH
+    haveI hNn : N.Normal := twoCentralSeries_normal G _
+    rw [Subgroup.commutator_le]
+    intro v hv h hh
+    -- The membership set of `v`-brackets is a closed subgroup; unfold `λ_{b+2}` into it.
+    set S : Subgroup G :=
+      { carrier := {g | ⁅v, g⁆ ∈ N}
+        one_mem' := by simp
+        mul_mem' := by
+          intro g₁ g₂ hg₁ hg₂
+          show ⁅v, g₁ * g₂⁆ ∈ N
+          have hexp : ⁅v, g₁ * g₂⁆ = ⁅v, g₁⁆ * (g₁ * ⁅v, g₂⁆ * g₁⁻¹) := by group
+          rw [hexp]
+          exact N.mul_mem hg₁ (Subgroup.Normal.conj_mem hNn _ hg₂ g₁)
+        inv_mem' := by
+          intro g hg
+          show ⁅v, g⁻¹⁆ ∈ N
+          have hexp : ⁅v, g⁻¹⁆ = g⁻¹ * ⁅v, g⁆⁻¹ * g := by group
+          rw [hexp]
+          exact Subgroup.Normal.conj_mem' hNn _ (N.inv_mem hg) g } with hS
+    have hSclosed : IsClosed (S : Set G) := by
+      have : (S : Set G) = (fun g => ⁅v, g⁆) ⁻¹' (N : Set G) := rfl
+      rw [this]
+      refine (isClosed_twoCentralSeries G _).preimage ?_
+      simp only [commutatorElement_def]
+      fun_prop
+    -- Atom cases over `λ_{b+1}`.
+    have hsq : ∀ u ∈ H, u ^ 2 ∈ S := by
+      intro u hu
+      have hvu : ⁅v, u⁆ ∈ twoCentralSeries G (a + (b + 1)) :=
+        commutator_twoCentralSeries_le (b + 1) a (Subgroup.commutator_mem_commutator hv hu)
+      have hexp : ⁅v, u ^ 2⁆ = ⁅v, u⁆ ^ 2 * ⁅⁅v, u⁆⁻¹, u⁆ := by
+        simp [commutatorElement_def, pow_two, mul_assoc]
+      have h1 : ⁅v, u⁆ ^ 2 ∈ N := by
+        have := sq_mem_twoCentralSeries_succ G hvu
+        rwa [show a + (b + 1) + 1 = a + (b + 2) from rfl] at this
+      have h2 : ⁅⁅v, u⁆⁻¹, u⁆ ∈ N := by
+        have := commutator_mem_twoCentralSeries_succ G
+          ((twoCentralSeries G (a + (b + 1))).inv_mem hvu) u
+        rwa [show a + (b + 1) + 1 = a + (b + 2) from rfl] at this
+      show ⁅v, u ^ 2⁆ ∈ N
+      rw [hexp]
+      exact N.mul_mem h1 h2
+    have hbr : ∀ u ∈ H, ∀ g : G, ⁅u, g⁆ ∈ S := by
+      intro u hu g
+      have hrot : ⁅⁅H, (⊤ : Subgroup G)⁆, twoCentralSeries G a⁆ ≤ N := by
+        refine commutator_commutator_le_of_rotate ?_ ?_
+        · -- `⁅⁅⊤, λₐ⁆, λ_{b+1}⁆ ≤ N` via the induction hypothesis at `(a+1, b+1)`.
+          refine (Subgroup.commutator_mono
+            ((Subgroup.commutator_comm _ _).le.trans
+              (commutator_twoCentralSeries_top_le G a)) le_rfl).trans ?_
+          have := commutator_twoCentralSeries_le (b + 1) (a + 1)
+          rwa [show a + 1 + (b + 1) = a + (b + 2) from by omega] at this
+        · -- `⁅⁅λₐ, λ_{b+1}⁆, ⊤⁆ ≤ N` via the induction hypothesis at `(a, b+1)` + one step.
+          refine (Subgroup.commutator_mono
+            (commutator_twoCentralSeries_le (b + 1) a) le_rfl).trans ?_
+          exact (commutator_twoCentralSeries_top_le G _)
+      show ⁅v, ⁅u, g⁆⁆ ∈ N
+      refine hrot ?_
+      have hw : ⁅u, g⁆ ∈ ⁅H, (⊤ : Subgroup G)⁆ :=
+        Subgroup.commutator_mem_commutator hu (Subgroup.mem_top g)
+      have hflip : ⁅v, ⁅u, g⁆⁆ = ⁅⁅u, g⁆, v⁆⁻¹ := by group
+      rw [hflip]
+      exact Subgroup.inv_mem _ (Subgroup.commutator_mem_commutator hw hv)
+    -- Assemble: `S` contains the generating join and is closed, hence contains `λ_{b+2}`.
+    have hle : twoCentralSeries G (b + 2) ≤ S := by
+      rw [twoCentralSeries_succ G (Nat.le_add_left 1 b), twoCentralSucc]
+      refine Subgroup.topologicalClosure_minimal _ (sup_le ?_ ?_) hSclosed
+      · rw [Subgroup.closure_le]
+        rintro _ ⟨u, hu, rfl⟩
+        exact hsq u hu
+      · rw [Subgroup.commutator_le]
+        intro u hu g _
+        exact hbr u hu g
+    exact hle hh
+
+open scoped commutatorElement in
+/-- Element form of the grading lemma. -/
+theorem commutator_mem_twoCentralSeries_add {a b : ℕ} {v h : G}
+    (hv : v ∈ twoCentralSeries G a) (hh : h ∈ twoCentralSeries G b) :
+    ⁅v, h⁆ ∈ twoCentralSeries G (a + b) :=
+  commutator_twoCentralSeries_le G b a (Subgroup.commutator_mem_commutator hv hh)
+
+end Grading
+
 /-! ### Descent infrastructure (L4b fill helpers; not part of the frozen interface)
 
 For a topologically f.g. pro-2 `G` the level quotients are finite *discrete* groups, the
