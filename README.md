@@ -162,16 +162,17 @@ pair can be compiled with `lake build Challenge Solution` before running that in
 Lean Compass removes theorem-proof value dependencies—already checked by Lean's type checker—to
 isolate declarations whose *semantic statements or definitions* can affect a selected result.
 
-The post-refactor report is [`atlas-audit.md`](atlas-audit.md), a committed snapshot last
-regenerated on 2026-07-15 and carrying a staleness notice to that effect: the `GQ2/Roe/` tree has
-since grown the whole-project graph, so regenerate before quoting whole-graph figures. For
-`GQ2.SectionTen.main_surjection_count'` — whose closure `GQ2/Roe/` does not touch — that graph has
-4,225 project nodes and 35,335 edges.
-Its 638-node Atlas closure reduces to a **30-declaration Lean Compass review cone**: according to
-the Lean Compass review model, these are the project declarations that should be checked by a
-human for semantic alignment. The report lists all 30 with source links. It separately obtains the
-complete nine-axiom trust base from Lean's `#print axioms`; this avoids undercounting axioms reached
-through private proof helpers, which Atlas intentionally omits from its user-visible graph.
+The report is [`atlas-audit.md`](atlas-audit.md), a committed snapshot regenerated on 2026-07-26
+after the R-campaign, from a graph of 5,351 project nodes and 47,492 edges. For
+`GQ2.SectionTen.main_surjection_count'` — whose closure `GQ2/Roe/` does not touch — the 1,789-node
+Atlas closure reduces to a **30-declaration Lean Compass review cone**: according to the Lean
+Compass review model, these are the project declarations that should be checked by a human for
+semantic alignment. The report lists all 30 with source links. It separately obtains the complete
+nine-axiom trust base from Lean's `#print axioms`; this avoids undercounting axioms reached through
+private proof helpers, which Atlas intentionally omits from its user-visible graph.
+
+The whole-graph `sorry` count is 11, all in the allowlisted in-flight `GQ2/Roe/Labute/` files; the
+capstone's own closure is sorry-free.
 
 Regeneration instructions and the distinction between the Compass cone and the kernel trust base
 are in [`docs/atlas.md`](docs/atlas.md).
@@ -194,7 +195,7 @@ python3 scripts/atlas_audit.py atlas-graph.json
 ```
 
 `atlas-graph.json` is generated and ignored by Git. The human-readable
-[`atlas-audit.md`](atlas-audit.md) is committed so reviewers can inspect the exact post-refactor
+[`atlas-audit.md`](atlas-audit.md) is committed so reviewers can inspect the exact current
 review cone without installing the Atlas viewer.
 
 The [GitHub Actions workflow](.github/workflows/ci.yml) performs the full Lean build, including the
