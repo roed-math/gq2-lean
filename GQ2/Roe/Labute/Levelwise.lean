@@ -119,15 +119,24 @@ noncomputable def chiD0pres : ContinuousMonoidHom (D0 : Type) ℤ_[2]ˣ :=
 /-- `χ₀(A) = −1`.  Fill: L3 (replicate the private `d0LiftHom_A` evaluation pattern of
 `GQ2/SectionThree.lean`). -/
 theorem chiD0pres_d0A : chiD0pres d0A = -1 := by
-  sorry
+  show ((maxProPHomEquiv isProP_two_unitsPadicInt).symm _) (maxProPMk 2 D0Full
+    (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 0))) = -1
+  rw [maxProPHomEquiv_symm_apply_maxProPMk]
+  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
 
 /-- `χ₀(S) = 1`.  Fill: L3. -/
 theorem chiD0pres_d0S : chiD0pres d0S = 1 := by
-  sorry
+  show ((maxProPHomEquiv isProP_two_unitsPadicInt).symm _) (maxProPMk 2 D0Full
+    (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 1))) = 1
+  rw [maxProPHomEquiv_symm_apply_maxProPMk]
+  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
 
 /-- `χ₀(Y) = η`.  Fill: L3. -/
 theorem chiD0pres_d0Y : chiD0pres d0Y = etaUnit := by
-  sorry
+  show ((maxProPHomEquiv isProP_two_unitsPadicInt).symm _) (maxProPMk 2 D0Full
+    (quotientMk (relatorSubgroup {d0Relator}) (FreeProfiniteGroup.of 2))) = etaUnit
+  rw [maxProPHomEquiv_symm_apply_maxProPMk]
+  exact (quotientLift_quotientMk _ _ _ _).trans (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
 
 /-- χ-targets, direction 1 (`r₀`-triples in the `D_R`-tower, `(A,S,Y)`-slots):
 `(−1, 1, η)` (spike §2.4). -/
