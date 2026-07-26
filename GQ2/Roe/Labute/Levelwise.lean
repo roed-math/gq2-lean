@@ -418,14 +418,21 @@ theorem defectR0_eq_of_lift (k : ℕ) (T : Fin 3 → levelQuot (DR : Type) k)
     (T' : Fin 3 → levelQuot (DR : Type) (k + 1))
     (hT' : ∀ i, levelProj (DR : Type) k (T' i) = T i) :
     d0Word (T' 0) (T' 1) (T' 2) = defectR0 k T := by
-  sorry
+  have key : ∀ i, ∃ z ∈ zLayer (DR : Type) k, T' i = z * canonLift (DR : Type) k (T i) :=
+    fun i => exists_zLayer_mul (G := (DR : Type)) (by rw [hT', levelProj_canonLift])
+  obtain ⟨z₀, h₀, e₀⟩ := key 0
+  obtain ⟨z₁, h₁, e₁⟩ := key 1
+  obtain ⟨z₂, h₂, e₂⟩ := key 2
+  rw [e₀, e₁, e₂]
+  exact d0Word_zLayer_shift h₀ h₁ h₂ _ _ _
 
 /-- The defect of a relator-killing triple lies in the graded layer `Zₖ`
 (minimal hypothesis: only the relator clause of `S⁰ₖ` is consumed).  Fill: L4a. -/
 theorem defectR0_mem_zLayer (k : ℕ) {T : Fin 3 → levelQuot (DR : Type) k}
     (hrel : d0Word (T 0) (T 1) (T 2) = 1) :
     defectR0 k T ∈ zLayer (DR : Type) k := by
-  sorry
+  rw [zLayer_eq_ker_levelProj, MonoidHom.mem_ker, defectR0, map_d0Word]
+  simpa only [levelProj_canonLift] using hrel
 
 /-- **The defect, direction 2** (`r₂`-relator value of the canonical lift in the
 `D₀`-tower). -/
@@ -440,13 +447,20 @@ theorem defectR2_eq_of_lift (k : ℕ) (T : Fin 3 → levelQuot (D0 : Type) k)
     (T' : Fin 3 → levelQuot (D0 : Type) (k + 1))
     (hT' : ∀ i, levelProj (D0 : Type) k (T' i) = T i) :
     drWord (T' 0) (T' 1) (T' 2) = defectR2 k T := by
-  sorry
+  have key : ∀ i, ∃ z ∈ zLayer (D0 : Type) k, T' i = z * canonLift (D0 : Type) k (T i) :=
+    fun i => exists_zLayer_mul (G := (D0 : Type)) (by rw [hT', levelProj_canonLift])
+  obtain ⟨z₀, h₀, e₀⟩ := key 0
+  obtain ⟨z₁, h₁, e₁⟩ := key 1
+  obtain ⟨z₂, h₂, e₂⟩ := key 2
+  rw [e₀, e₁, e₂]
+  exact drWord_zLayer_shift h₀ h₁ h₂ _ _ _
 
 /-- The direction-2 defect of a relator-killing triple lies in `Zₖ`.  Fill: L4a. -/
 theorem defectR2_mem_zLayer (k : ℕ) {T : Fin 3 → levelQuot (D0 : Type) k}
     (hrel : drWord (T 0) (T 1) (T 2) = 1) :
     defectR2 k T ∈ zLayer (D0 : Type) k := by
-  sorry
+  rw [zLayer_eq_ker_levelProj, MonoidHom.mem_ker, defectR2, map_drWord]
+  simpa only [levelProj_canonLift] using hrel
 
 /-! ## Restriction maps (plan §2.1 item 2: all three clauses weaken) -/
 
