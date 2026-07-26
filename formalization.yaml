@@ -28,7 +28,21 @@ status:
     frozen census of 9 literature axioms (deep local-arithmetic inputs Mathlib does
     not yet contain, each with a precise citation — see GQ2/Foundations/Axioms.lean
     and docs/literature-axioms.md).
-  sorry_count: 0
+
+    A second, CONDITIONAL main result was added later: the same literal isomorphism for a
+    different candidate group Gamma_R (the "Replacement theorem",
+    GQ2.main_presentation_literal_roe). Its proof is sorry-free and rests on exactly the
+    same 9 literature axioms, but it carries one explicit hypothesis, BLabHypothesis (a
+    Labute-classification instance), which is a theorem binder and NOT an axiom. Work to
+    discharge that hypothesis in-repo is in flight; until it lands, the Gamma_R result is
+    conditional and the Gamma_A result above is not.
+  # Repo-wide count. 0 everywhere except the in-flight skeleton files under GQ2/Roe/Labute/,
+  # which hold the unfinished proof of BLabHypothesis; the number below is a snapshot
+  # (2026-07-25) of active work and moves daily. The stable facts: both entries under
+  # main_results are themselves sorry-free (see their own sorry_count), no declaration
+  # outside GQ2/Roe/Labute/ depends on sorryAx (verified by GQ2/AxiomLedger.lean's gap map),
+  # and scripts/check_axioms.sh allowlists exactly those four files and nothing else.
+  sorry_count: 37
   sorry_in_definitions: 0
   axioms:
     - "propext"
@@ -80,6 +94,57 @@ status:
           source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
         - statement: "Hilbert-symbol norm criterion for finite dyadic extensions (B11a)"
           source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+    # CONDITIONAL second main result. Same statement shape as the entry above with the
+    # candidate group replaced by Gamma_R, and one added hypothesis binder. The axioms list
+    # is identical to the entry above -- not "similar": `#print axioms` returns the same 12
+    # names, which scripts/check_axioms.sh (check 5) and GQ2/AxiomLedger.lean's terminal
+    # certificate both enforce mechanically. BLabHypothesis contributes nothing to that list
+    # precisely because it is a hypothesis and not an axiom; it is recorded as the last
+    # literature_dependency below, where its undischarged status is stated.
+    - declaration: "GQ2.main_presentation_literal_roe"
+      file: "GQ2/Roe/Main.lean"
+      sorry_count: 0
+      axioms:
+        - "propext"
+        - "Classical.choice"
+        - "Quot.sound"
+        - "GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated"
+        - "GQ2.Foundations.absGalQ2_localEulerCharacteristic"
+        - "GQ2.dyadicOrientation"
+        - "GQ2.localReciprocity"
+        - "GQ2.tateDualityAt"
+        - "GQ2.peripheralCyclotomicAction"
+        - "GQ2.relativeStiefelWhitney_dyadic"
+        - "GQ2.tameQuotient"
+        - "GQ2.hilbertSymbol_normCriterion_finiteDyadic"
+      comparator_config: "comparator-config.json"
+      literature_dependencies:
+        - statement: "G_Q2 is topologically finitely generated (B1)"
+          source: "standard local-fields literature; citation in GQ2/Foundations/Axioms.lean"
+        - statement: "local Euler characteristic formula at p = 2 (B7)"
+          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+        - statement: "dyadic orientation / cyclotomic normalization (B3c)"
+          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+        - statement: "local reciprocity (local class field theory) for Q_2 (B5)"
+          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+        - statement: "local Tate duality at finite extensions k/Q_2 (B6, base-generalized)"
+          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+        - statement: "peripheral cyclotomic action (B8)"
+          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+        - statement: "relative Stiefel-Whitney identity (Evens-Kahn/Kozlowski), dyadic case (B9)"
+          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+        - statement: "oriented tame quotient structure of G_Q2 (B10)"
+          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+        - statement: "Hilbert-symbol norm criterion for finite dyadic extensions (B11a)"
+          source: "citation in GQ2/Foundations/Axioms.lean and docs/literature-axioms.md"
+        - statement: >
+            Labute classification instance for the Gamma_R two-central tower (B-Lab), carried
+            as the EXPLICIT HYPOTHESIS BLabHypothesis (GQ2/Roe/MarkedPro2.lean) rather than as
+            an axiom. This is the one respect in which this result is weaker than the Gamma_A
+            result above: it is conditional on a statement that is neither proved in-repo nor
+            admitted as an axiom. A proof is in flight under GQ2/Roe/Labute/; the theorem
+            becomes unconditional only when that proof is sorry-free.
+          source: "Labute, Demushkin-group classification; hypothesis stated in GQ2/Roe/MarkedPro2.lean, proof attempt in GQ2/Roe/Labute/"
 
 automation:
   methods:
@@ -124,7 +189,13 @@ fidelity:
     so the axiom set is smaller than the one the paper's appendix assumes; (v) on
     2026-07-24 B9 was restated as the relative Stiefel-Whitney identity
     (relativeStiefelWhitney_dyadic), and the previous composite B9 statement is now a
-    derived theorem (evensKahn_dyadic) proved from it + B11a; census unchanged at 9.
+    derived theorem (evensKahn_dyadic) proved from it + B11a; census unchanged at 9;
+    (vi) the Gamma_R "Replacement theorem" (GQ2/Roe/) is not part of the paper at all --
+    it verifies a different candidate group proposed after the fact -- and unlike every
+    other main result it is conditional, on the explicit hypothesis BLabHypothesis. The
+    axiom census was deliberately NOT extended to cover it: the Labute input is carried as
+    a theorem binder so that the conditionality is visible in the statement itself rather
+    than hidden in an axiom file.
 
 review:
   status: "agent-reviewed"
@@ -136,8 +207,12 @@ review:
     and continuous mechanical gates (kernel-checked builds, axiom census script,
     zero-sorry enforcement). The post-refactor Lean Compass report identifies 30 project
     declarations for human semantic review (atlas-audit.md); those declarations have not yet
-    received external human review. The main result is independently checkable with
-    leanprover/comparator via comparator-config.json (Challenge.lean / Solution.lean).
+    received external human review. Both main results are independently checkable with
+    leanprover/comparator via comparator-config.json (Challenge.lean / Solution.lean), which
+    names one challenge theorem per main result. The Gamma_R result has had no external human
+    review either, and its outstanding hypothesis BLabHypothesis has not been independently
+    checked; note that comparator verifies the CONDITIONAL statement, so a passing comparator
+    run says nothing about whether BLabHypothesis is true.
 
 alignment:
   namespace: "GQ2"
@@ -166,6 +241,39 @@ alignment:
       module: "GQ2/Foundations/Axioms.lean"
       status: "literature-dependency"
       note: "frozen census enforced by scripts/check_axioms.sh; per-axiom citations in docs/literature-axioms.md"
+    # Roe-candidate verification. Not in the original paper: a later campaign asking whether a
+    # DIFFERENT candidate group, Gamma_R, also presents G_Q2. See docs/orchestration/roe-verification-plan.md.
+    - source: "Replacement theorem (Roe candidate; not in the original PDF)"
+      lean: "GQ2.main_presentation_literal_roe"
+      module: "GQ2/Roe/Main.lean"
+      status: "conditional"
+      note: >
+        literal form: BLabHypothesis -> Nonempty (ContinuousMulEquiv GammaR AbsGalQ2). Sorry-free
+        and at the same 9 literature axioms as GQ2.main_presentation_literal, but conditional on
+        the explicit hypothesis BLabHypothesis, whose in-repo proof is still in flight.
+    - source: "Replacement theorem, surjection-count form (Roe candidate; not in the original PDF)"
+      lean: "GQ2.main_surjection_count_R"
+      module: "GQ2/Roe/Main.lean"
+      status: "conditional"
+      note: "#{continuous surjections G_Q2 ->> G} = #{admissible Roe-marked quadruples in G^4}; same BLabHypothesis binder"
+    - source: "Definition of the Roe candidate group Gamma_R (not in the original PDF)"
+      lean: "GQ2.GammaR"
+      module: "GQ2/Roe/GammaR.lean"
+      status: "proved"
+      note: "unconditional: the definition and its basic theory need no hypothesis"
+    - source: "Admissible-marking count for Gamma_R (Roe analogue of Proposition 2.3)"
+      lean: "GQ2.prop_2_3_R"
+      module: "GQ2/Roe/Prop23.lean"
+      status: "proved"
+      note: "unconditional, and at the standard three axioms only -- no literature axiom is used"
+    - source: "Agreement of the two admissible-marking semantics (Roe campaign)"
+      lean: "GQ2.admissibleCountR_eq_admissibleCount"
+      module: "GQ2/Roe/Main.lean"
+      status: "conditional"
+      note: >
+        admissibleCountR G = admissibleCount G for every finite G; the bridge tying the Gamma_R
+        word semantics to the Gamma_A one. Independently pinned numerically on C2, C4, V4, D4, Q8
+        by two Python engines and the June LMFDB-verified counts (GQ2/Roe/Sanity.lean).
 
 acknowledgements: >
   Built on mathlib4 (pinned at ec410d2, 2026-06-12). Comparator verification uses
