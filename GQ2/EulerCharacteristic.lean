@@ -7,7 +7,7 @@ module
 
 public import GQ2.Cohomology
 public import GQ2.Statement
-public import GQ2.Foundations.Axioms
+public import GQ2.Foundations.Interfaces
 
 @[expose] public section
 

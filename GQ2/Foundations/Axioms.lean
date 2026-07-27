@@ -6,24 +6,14 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 module
 
 public import GQ2.Statement
-public import GQ2.ProfinitePresentation
 public import GQ2.Cohomology
-public import GQ2.HilbertSymbol
-public import GQ2.HilbertSymbolDyadicClose
 public import GQ2.Reciprocity
 public import GQ2.TateDuality
 public import GQ2.EvensKahn
-public import GQ2.MaxProP
-public import GQ2.DyadicPresentation
 public import GQ2.PeripheralAction
 public import GQ2.Orientation
 public import GQ2.TameQuotient
-public import GQ2.UnitFiltration
-public import GQ2.UnitFiltrationCounts
-public import GQ2.KummerSurjectivity
-public import GQ2.UnramifiedQuadraticNorms
 public import GQ2.TraceForm
-public import GQ2.EvensKahnDerived
 
 @[expose] public section
 
@@ -31,8 +21,10 @@ public import GQ2.EvensKahnDerived
 # Classical literature inputs for Theorem 1.2
 
 Every `axiom` in the GQ2 library lives in this file, a rule enforced by
-`scripts/check_axioms.sh`.  Each axiom represents a published mathematical input used by the
-paper; the paper-specific propositions and theorems are proved elsewhere in the library.
+`scripts/check_axioms.sh` — and since 2026-07-27 the file contains the nine `axiom`
+declarations and **nothing else**, so that its transitive imports are exactly the statement
+vocabulary an auditor must read.  Each axiom represents a published mathematical input used by
+the paper; the paper-specific propositions and theorems are proved elsewhere in the library.
 
 The current census contains nine axioms:
 
@@ -51,12 +43,14 @@ The current census contains nine axioms:
 * **B11a** `hilbertSymbol_normCriterion_finiteDyadic` — the Hilbert-symbol norm criterion over
   finite dyadic bases.
 
-Five interfaces that were formerly axioms are now constructed in the repository under the same
+Five interfaces that were formerly axioms are constructed in the repository under the same
 names: `HilbertSymbol.hilbertSymbol_dyadic`, `unramifiedQuadratic_units_are_norms`,
 `kummerClassK_surjective`, `dyadicUnitFiltration`, and `evensKahn_dyadic` (since 2026-07-24 a
 theorem derived from the current B9 leaf `relativeStiefelWhitney_dyadic` together with B11a).
-Keeping their public names unchanged lets consumers use the proved implementations without an
-API migration.
+They live in **`GQ2/Foundations/Interfaces.lean`** — together with the B6 base member
+`tateDuality` and the `HasEqualNormValueGroups` convention `def` — because their *proofs* are
+what used to pull the proof layer into this file's transitive imports.  Keeping their public
+names unchanged lets consumers use the proved implementations without an API migration.
 
 For review, the live leaves fall into three citation-faithfulness classes:
 
@@ -128,43 +122,6 @@ axiom absGalQ2_localEulerCharacteristic (M : Type*) [AddCommGroup M] [Topologica
 
 end GQ2.Foundations
 
-namespace GQ2.HilbertSymbol
-
-/-! ## B7′ — the dyadic Hilbert-symbol formula
-
-`hilbertSymbol`, `ε`, `ω`, `unit2`, `unitCoe`, `signOf` and their unconditional theory live in
-`GQ2/HilbertSymbol.lean`. -/
-
-/-- **The dyadic Hilbert symbol formula, formerly interface B7′.**
-Writing `a = 2^α u`, `b = 2^β v` with `u, v ∈ ℤ₂ˣ`, the Hilbert symbol over `ℚ₂` is
-`(a, b)₂ = (-1)^{ε(u) ε(v) + α ω(v) + β ω(u)}`.
-
-Citation: **Serre, *A Course in Arithmetic* [CiA], Ch. III §1.2, Theorem 1** (the `p = 2`
-case), with `ε, ω` the residue characters of Ch. II §3.3.  This is exactly the paper's
-Lemma 3.5 formula for the cup product on `H¹(ℚ₂, μ₂)`.  Convention: `signOf` sends the
-`𝔽₂`-valued exponent to `{±1} = ℤˣ`; every element of `ℚ₂ˣ` has the form `2^α u` (`α ∈ ℤ`,
-`u ∈ ℤ₂ˣ`), so this determines the symbol on all of `ℚ₂ˣ × ℚ₂ˣ`.
-
-The theorem delegates to `hilbertSymbol_dyadic'` in `GQ2/HilbertSymbolDyadicClose.lean`, whose
-proof uses 2-adic Hensel lifting, the norm-form identity `(a,b) = (a,−ab)`, and finite mod-8
-computations. -/
-theorem hilbertSymbol_dyadic (α β : ℤ) (u v : ℤ_[2]ˣ) :
-    hilbertSymbol (unit2 ^ α * unitCoe u) (unit2 ^ β * unitCoe v)
-      = signOf (ε u * ε v + (α : ZMod 2) * ω v + (β : ZMod 2) * ω u) :=
-  hilbertSymbol_dyadic' α β u v
-
-/-- Faithfulness check on B7′: the axiom reproduces the canonical value `(-1, -1)₂ = -1` — the
-one nontrivial diagonal entry, which anchors the paper's initial cup form `α² + βγ + γβ`.
-(Depends on `hilbertSymbol_dyadic`, so this is an `example`, not part of the unconditional
-API.) -/
-example : hilbertSymbol (unitCoe (-1)) (unitCoe (-1)) = -1 := by
-  have h := hilbertSymbol_dyadic 0 0 (-1) (-1)
-  rw [zpow_zero, one_mul] at h
-  rw [h, ε_neg_one, ω_neg_one]
-  decide
-
-end GQ2.HilbertSymbol
-
 namespace GQ2
 
 /-! ## B3c — the canonical dyadic orientation (cyclotomic interface)
@@ -230,7 +187,7 @@ finite discrete `n`-torsion `G`-module `M`, in the three degree pairs `(0,2)`, `
 
 NSW (7.2.6) states Tate duality for arbitrary `p`-adic `k`, so the interface is parametrized by a
 local dualizing group rather than restricted to `ℚ₂`.  The base member `k = ℚ₂` is the
-in-repository definition `GQ2.tateDuality` below.
+in-repository definition `GQ2.tateDuality` in `GQ2/Foundations/Interfaces.lean`.
 
 Citation: **NSW [1], Ch. VII §7.2, Theorem (7.2.6)** (local Tate duality, for any `p`-adic `k`);
 Serre, *Galois Cohomology* II §5.2, Theorem 2; Milne, *ADT* I.2.3.  Induced mod-2 Hilbert-pairing
@@ -240,11 +197,6 @@ ITQF 63:13.  Paper: §§5–8 (the `𝔽₂` dimension counts) and §6.3;
 axiom tateDualityAt (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
     (n : ℕ) [NeZero n] [DistribMulAction G (MuN n)] [ContinuousSMul G (MuN n)]
     (hloc : IsLocalDualizingGroup G n) : TateDualityG G n
-
-/-- **B6 at the base field `ℚ₂`** — the `G = G_ℚ₂` member of `tateDualityAt`, using
-`isLocalDualizingGroup_absGalQ2`. -/
-noncomputable def tateDuality (n : ℕ) [NeZero n] : TateDuality n :=
-  tateDualityAt AbsGalQ2 n (isLocalDualizingGroup_absGalQ2 n)
 
 /-! ## B8 — the cyclotomic action on peripheral generators (Lemma 3.6)
 
@@ -280,9 +232,10 @@ genuine isometry-class invariants (`swOne`/`swTwo`, `GQ2/StiefelWhitney.lean`, w
 well-definedness **proved**, not scoped away), evaluated on the twisted trace forms
 `Tr_{k(δ)/k}⟨a⟩` of `GQ2/TraceForm.lean`.  The previous composite axiom statement — eq. (111)
 at the fixed Lemma 6.16 diagonalizations — is now the same-name **theorem** `evensKahn_dyadic`
-below (placed after B11a, which its proof consumes), derived via `evensKahn_dyadic_of_rsw`
-(`GQ2/EvensKahnDerived.lean`); consumers were untouched.  The cocycle-level ingredients
-(`corH1`, `evensNormH2`, `kummerClassK`) are unchanged from `GQ2/EvensKahn.lean`. -/
+in `GQ2/Foundations/Interfaces.lean` (its proof consumes B11a), derived via
+`evensKahn_dyadic_of_rsw` (`GQ2/EvensKahnDerived.lean`); consumers were untouched.  The
+cocycle-level ingredients (`corH1`, `evensNormH2`, `kummerClassK`) are unchanged from
+`GQ2/EvensKahn.lean`. -/
 
 /-- **The B9 axiom — the relative Stiefel–Whitney identity** (Kahn, Invent. Math. 78 (1984),
 Théorème 2 at the rank-1 form `⟨a⟩`, expanded through Evens Thm 1 / Kozlowski Thm 1.1 at
@@ -371,21 +324,23 @@ Prop. 3.14 / Cor. 3.12 (the "same natural unramified character").
 `docs/literature-axioms.md` B10. -/
 axiom tameQuotient : OrientedTameQuotient localReciprocity
 
-/-! ## B11 — the dyadic norm criterion over finite bases
+/-! ## B11a — the dyadic norm criterion over finite bases
 
 Section 6.3 uses the norm criterion and unit-norm surjectivity over arbitrary finite dyadic bases.
-The interface separates the remaining classical axiom B11a from the spectral-norm convention and
-the in-repository proof of unramified unit-norm surjectivity.  The combined
-`dyadicNormCriterion` theorem below preserves the paired interface for consumers:
+The interface separates the remaining classical axiom B11a (below) from the spectral-norm
+convention and the in-repository proof of unramified unit-norm surjectivity — both of which live
+in `GQ2/Foundations/Interfaces.lean`, together with the combined `dyadicNormCriterion` theorem
+that preserves the paired interface for consumers:
 
-* `hilbertSymbol_normCriterion_finiteDyadic` — the symbol/norm criterion (classical).
+* `hilbertSymbol_normCriterion_finiteDyadic` — the symbol/norm criterion (classical; **this
+  file**, the axiom below).
 * `unramifiedQuadratic_units_are_norms` — units of an unramified quadratic extension are norms
-  (classical).
+  (classical, **proved in-repository**; `GQ2/Foundations/Interfaces.lean`).
 * `HasEqualNormValueGroups` (named `IsUnramifiedQuadraticSpectral` before 2026-07-24) — **not an
   axiom**: the repo's spectral-norm *working criterion* for "`k(δa)/k` is unramified" (equal norm
-  value groups on `ℚ̄₂`, i.e. `e = 1`).  Isolated here as the review's "riskiest piece": it is a
+  value groups on `ℚ̄₂`, i.e. `e = 1`).  Isolated as the review's "riskiest piece": it is a
   project convention, not a Mathlib unramifiedness notion, and is deliberately a `def` (asserting
-  nothing) rather than a bridge axiom.
+  nothing) rather than a bridge axiom (`GQ2/Foundations/Interfaces.lean`).
 
 Encoding conventions carried over from the pre-split axiom: the "`b` is a norm from `k(√a)`"
 condition is the **norm form** `b = x² − a y²` (elementary, no relative field-extension
@@ -400,65 +355,6 @@ Citation: Serre, *Local Fields* [7], Ch. XIV §2, Proposition 4(iii) (the symbol
 over `ℚ_p` also CiA [CiA] Ch. III §1.1 Prop. 1), and Ch. V §2 (norms of unramified extensions
 are the units times the norms of uniformizers).  Paper: §6.3, displays (93)/(94) and Lemma 6.16.
 -/
-
-/-- **Equal norm value groups for `k(δa)/k` — the project's unramifiedness criterion.**  Every
-nonzero `z = x + y·δa` (`x, y ∈ k`) has the same norm as some nonzero element of the base `k`,
-i.e. `k(δa)` and `k` have equal norm value groups.  For a quadratic extension of complete
-discretely valued fields this says `e(k(δa)/k) = 1`, the standard unramifiedness criterion
-(Serre, *Local Fields*, Ch. I §4); the definition is named by what it literally asserts because
-the equivalence with a bona-fide ramification-theoretic notion is *not* proved here (no Mathlib
-ramification theory applies at these types yet — `IsNonarchimedeanLocalField` has no
-extension/ramification layer as of 2026-07-24).  This is **not** a Mathlib unramifiedness notion
-and is asserted by nothing (it is a `def`, not an axiom); it is the convention the §6 ledger
-consumes, named and isolated per adversarial review rec 2 so a human reviewer can see exactly
-where the project departs from a directly citable statement.  Named
-`IsUnramifiedQuadraticSpectral` before 2026-07-24 (deprecated alias below). -/
-def HasEqualNormValueGroups
-    (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
-    (δa : AlgebraicClosure ℚ_[2]) : Prop :=
-  ∀ z : AlgebraicClosure ℚ_[2], z ≠ 0 →
-    (∃ x y : ↥k, z = (x : AlgebraicClosure ℚ_[2]) + (y : AlgebraicClosure ℚ_[2]) * δa) →
-    ∃ w : ↥k, w ≠ 0 ∧ ‖z‖ = ‖(w : AlgebraicClosure ℚ_[2])‖
-
-@[deprecated HasEqualNormValueGroups (since := "2026-07-24")]
-alias IsUnramifiedQuadraticSpectral := HasEqualNormValueGroups
-
-/-- **Negative stress test for `HasEqualNormValueGroups`** (adversarial-review plan U1): the
-*ramified* quadratic extension `ℚ₂(√2)/ℚ₂` **fails** the criterion, so the predicate is not
-vacuously satisfied — it genuinely detects `e = 1`.  Take the base `k = ⊥` (every element is the
-image of a `2`-adic scalar) and `δa` any square root of `2` in `ℚ̄₂`.  The witness `z = δa`
-(`= ↑0 + ↑1·δa`) has `‖δa‖² = ‖δa²‖ = ‖(2 : ℚ̄₂)‖ = ‖(2 : ℚ₂)‖`, while every nonzero `w ∈ ⊥` is
-`algebraMap c` for some `c ∈ ℚ₂` with `‖w‖ = ‖c‖` in the discrete value group `{2ⁿ : n ∈ ℤ}`.
-A match `‖δa‖ = ‖w‖` would give `‖(2 : ℚ₂)‖ = ‖c²‖`, i.e. `v₂(2) = v₂(c²)`, i.e. `1 = 2·v₂(c)`
-in `ℤ` — impossible.  Contrast `unramifiedQuadratic_units_are_norms`, whose conclusion the
-criterion supplies precisely in the unramified case it does hold. -/
-lemma not_hasEqualNormValueGroups_sqrt_two (δa : AlgebraicClosure ℚ_[2])
-    (hδa : δa ^ 2 = (2 : AlgebraicClosure ℚ_[2])) :
-    ¬ HasEqualNormValueGroups ⊥ δa := by
-  intro h
-  have h2q : (2 : ℚ_[2]) ≠ 0 := two_ne_zero
-  have hδa0 : δa ≠ 0 := by
-    intro h0
-    rw [h0, zero_pow two_ne_zero] at hδa
-    exact two_ne_zero hδa.symm
-  obtain ⟨w, hw0, hnorm⟩ := h δa hδa0 ⟨0, 1, by simp⟩
-  obtain ⟨c, hc⟩ := IntermediateField.mem_bot.1 w.2
-  have hwne0 : (w : AlgebraicClosure ℚ_[2]) ≠ 0 := by simpa using hw0
-  have hc0 : c ≠ 0 := fun h0 => hwne0 (by rw [← hc, h0, map_zero])
-  -- `‖δa‖² = ‖2‖`, transported from the algebraic closure down to the `2`-adic base.
-  have hδanorm : ‖δa‖ ^ 2 = ‖(2 : ℚ_[2])‖ := by
-    rw [← norm_pow, hδa, ← map_ofNat (algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2])) 2,
-      norm_algebraMap' (𝕜' := AlgebraicClosure ℚ_[2])]
-  have hcnorm : ‖(w : AlgebraicClosure ℚ_[2])‖ = ‖c‖ := by
-    rw [← hc, norm_algebraMap' (𝕜' := AlgebraicClosure ℚ_[2])]
-  -- Squaring the (hypothetical) equal norm collapses to `‖2‖ = ‖c²‖` inside `ℚ₂`.
-  have key : ‖(2 : ℚ_[2])‖ = ‖c ^ 2‖ := by rw [← hδanorm, hnorm, hcnorm, norm_pow]
-  rw [Padic.norm_eq_zpow_neg_valuation h2q,
-    Padic.norm_eq_zpow_neg_valuation (pow_ne_zero 2 hc0),
-    zpow_right_inj₀ (by norm_num) (by norm_num)] at key
-  have hv2 : (2 : ℚ_[2]).valuation = 1 := by exact_mod_cast Padic.valuation_p (p := 2)
-  have hvp : (c ^ 2).valuation = 2 * c.valuation := by exact_mod_cast Padic.valuation_pow c 2
-  omega
 
 /-- **[Classical — B11a.]**  The dyadic Hilbert-symbol **norm criterion** over a finite base
 `k/ℚ₂`, in Kummer-cup form: for `a, b ∈ kˣ`, `[a] ∪ [b] = 0` in `H²(G_k, 𝔽₂)` iff `b` is a norm
@@ -475,166 +371,6 @@ axiom hilbertSymbol_normCriterion_finiteDyadic
     ∀ a b : (↥k)ˣ,
       kummerClassK k a ⌣[htriv] kummerClassK k b = 0
         ↔ ∃ x y : ↥k, (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2
-
-/-! ### B9, derived form (placed after B11a, which the proof consumes) -/
-
-/-- **Formerly the B9 axiom — since 2026-07-24 a derived theorem** (the B9-A flip; the statement
-is byte-identical to the pre-flip axiom, zero consumer churn — the B7′/B11b/B12/B13 pattern).
-Eq. (111) at the paper's Lemma 6.16 diagonalizations `Tr_{L/k}⟨a⟩ ≃ ⟨2u, 2dn/u⟩`,
-`Tr_{L/k}⟨1⟩ ≃ ⟨2, 2d⟩`, with `w₁⟨x,y⟩ = [x]+[y]` and `w₂⟨x,y⟩ = [x] ⌣ [y]`:
-
-* degree 1: `[2u] + [2dn/u] = [2] + [2d] + cor[a]`;
-* degree 2: `[2u] ⌣ [2dn/u] = [2] ⌣ [2d] + ([2] + [2d]) ⌣ cor[a] + N^{Ev}[a]`.
-
-Proof: `evensKahn_dyadic_of_rsw` (`GQ2/EvensKahnDerived.lean`) applied to the B9 axiom
-`relativeStiefelWhitney_dyadic` and to B11a (the `hnorm` input of the Delzant well-definedness
-layer); the T2 trace-form diagonalizations and the proved `swOne`/`swTwo` invariance do the
-rewriting.  `#print axioms`: `relativeStiefelWhitney_dyadic` and
-`hilbertSymbol_normCriterion_finiteDyadic` (+ the standard three).  Full setting and citations:
-the B9 axiom's docstring above and `docs/literature-axioms.md` §B9. -/
-theorem evensKahn_dyadic
-    (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
-    (u n d : (↥k)ˣ) (v : ↥k)
-    (hn : (n : ↥k) = (u : ↥k) ^ 2 - (d : ↥k) * v ^ 2)
-    (δ β : AlgebraicClosure ℚ_[2])
-    (hδ : δ ^ 2 = ((d : ↥k) : AlgebraicClosure ℚ_[2]))
-    (hβ : β ^ 2 = ((u : ↥k) : AlgebraicClosure ℚ_[2]) + (v : AlgebraicClosure ℚ_[2]) * δ)
-    (hβ0 : β ≠ 0)
-    (hidx : ((MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf
-        k.fixingSubgroup).index = 2)
-    (s : k.fixingSubgroup)
-    (hs : s ∉ (MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf k.fixingSubgroup)
-    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
-    (hUo : IsOpen (((MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf
-        k.fixingSubgroup : Subgroup k.fixingSubgroup) : Set k.fixingSubgroup))
-    (α : ((MulAction.stabilizer (Kummer.GaloisGroup ℚ_[2]) δ).subgroupOf
-        k.fixingSubgroup) → ZMod 2)
-    (hαdef : ∀ g, α g = Kummer.kummerCocycleFun β
-        ((g : k.fixingSubgroup) : Kummer.GaloisGroup ℚ_[2]))
-    (hα : ∀ g h, α (g * h) = α g + α h)
-    (hαc : Continuous α) :
-    (kummerClassK k (twoUnit k * u) + kummerClassK k (twoUnit k * d * n * u⁻¹)
-      = kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d)
-        + corH1 htriv hUo hidx hs α hα hαc)
-    ∧ (kummerClassK k (twoUnit k * u) ⌣[htriv] kummerClassK k (twoUnit k * d * n * u⁻¹)
-      = kummerClassK k (twoUnit k) ⌣[htriv] kummerClassK k (twoUnit k * d)
-        + (kummerClassK k (twoUnit k) + kummerClassK k (twoUnit k * d)) ⌣[htriv]
-            corH1 htriv hUo hidx hs α hα hαc
-        + evensNormH2 htriv hUo hidx hs α hα hαc) :=
-  evensKahn_dyadic_of_rsw relativeStiefelWhitney_dyadic k u n d v hn δ β hδ hβ hβ0 hidx s hs
-    htriv hUo α hαdef hα hαc (hilbertSymbol_normCriterion_finiteDyadic k htriv)
-
-/-- **Unramified unit-norm surjectivity, formerly interface B11b.**  If
-`k(√a)/k` is unramified (the `HasEqualNormValueGroups` convention on a chosen root `δa`,
-`δa² = a`), then every unit of `k` (`‖u‖ = 1`) is a norm from `k(√a)` — i.e. `u = x² − a y²` is
-solvable in `k`.
-
-Citation: Serre, *Local Fields* [7], Ch. V §2 (norms of unramified
-extensions are the units times the norms of uniformizers).  Paper: §6.3 (unramified-norm input to
-the local calculation).
-
-The proof in `GQ2/UnramifiedQuadraticNorms.lean` completes the square using the involution
-`σδ = −δ`, then constructs a depth-by-depth norm-form approximation
-`wₙ₊₁ = wₙ(1 + πⁿ⁺¹z₀)` against the dyadic unit filtration.  Exact trace coverage
-`z ↦ z + σz` supplies each increment. -/
-theorem unramifiedQuadratic_units_are_norms
-    (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
-    (a : (↥k)ˣ) (δa : AlgebraicClosure ℚ_[2])
-    (hδa : δa ^ 2 = ((a : ↥k) : AlgebraicClosure ℚ_[2]))
-    (hunram : HasEqualNormValueGroups k δa) :
-    ∀ u : (↥k)ˣ, ‖((u : ↥k) : AlgebraicClosure ℚ_[2])‖ = 1 →
-      ∃ x y : ↥k, (u : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2 :=
-  UnramifiedQuadraticNorms.unramifiedQuadratic_units_are_norms' k a δa hδa hunram
-
-/-- **The combined dyadic norm criterion.**  This theorem pairs the classical B11a leaf with the
-proved unramified-unit theorem.  The equal-norm-value-groups convention remains isolated in
-`HasEqualNormValueGroups` (named `IsUnramifiedQuadraticSpectral` before 2026-07-24), which is a
-definition rather than an axiom. -/
-theorem dyadicNormCriterion
-    (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] k]
-    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m) :
-    (∀ a b : (↥k)ˣ,
-      kummerClassK k a ⌣[htriv] kummerClassK k b = 0
-        ↔ ∃ x y : ↥k, (b : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2)
-    ∧ ∀ (a : (↥k)ˣ) (δa : AlgebraicClosure ℚ_[2]),
-        δa ^ 2 = ((a : ↥k) : AlgebraicClosure ℚ_[2]) →
-        (∀ z : AlgebraicClosure ℚ_[2], z ≠ 0 →
-          (∃ x y : ↥k, z = (x : AlgebraicClosure ℚ_[2]) + (y : AlgebraicClosure ℚ_[2]) * δa) →
-          ∃ w : ↥k, w ≠ 0 ∧ ‖z‖ = ‖(w : AlgebraicClosure ℚ_[2])‖) →
-        ∀ u : (↥k)ˣ, ‖((u : ↥k) : AlgebraicClosure ℚ_[2])‖ = 1 →
-          ∃ x y : ↥k, (u : ↥k) = x ^ 2 - (a : ↥k) * y ^ 2 :=
-  ⟨hilbertSymbol_normCriterion_finiteDyadic k htriv,
-   fun a δa hδa hunram u hu =>
-     unramifiedQuadratic_units_are_norms k a δa hδa hunram u hu⟩
-
-/-! ## In-repository Kummer and unit-filtration interfaces
-
-Lemma 6.17 uses local Kummer surjectivity and the graded structure of the dyadic unit filtration.
-Both interfaces are constructed below from in-repository proofs.  The surrounding
-`DeepKummerData` assembly is developed in `GQ2/LocalKummer.lean`; its remaining inputs include
-coprime averaging, the Hensel square criterion, graded duality, Lemma 6.10, and Lemma 6.11.
--/
-
-/-- **Local Kummer theory, surjective half, formerly interface B12.**
-
-For a finite extension `k/ℚ₂`, the Kummer class map descends to an isomorphism
-`k^×/(k^×)² ≅ H¹(G_k, ℤ/2)` (continuous cochain cohomology; `μ₂ ≅ ℤ/2`, canonical in
-char 0).  This theorem exposes only surjectivity; injectivity is proved separately by
-`Kummer.kummerClass_eq_zero_iff` (`[a] = 0 ↔ IsSquare a`) via Mathlib's infinite Galois
-correspondence.
-
-Citation: **NSW [1], Ch. VI §2 — Theorem (6.2.1) (Hilbert's Satz 90)
-and the Kummer-sequence isomorphism `H¹(G_K, μ_n) ≅ K^×/K^{×n}` displayed immediately after it
-(electronic ed. p. 344), dual form Theorem (6.2.2)**; at `n = 2`.  Secondary: Serre, *Local
-Fields* [7], Ch. XIV §2 (p. 206).  Both verified verbatim against the cited PDFs; the audit
-copies are not vendored in this repository.
-
-The proof in `GQ2/KummerSurjectivity.lean` combines completing the square with the
-Krull–Galois correspondence from `GQ2/KummerKrullBridge.lean`, where an open index-two subgroup
-produces the required quadratic subextension.
-
-Paper: §6.3 (Lemma 6.17, "By Hochschild–Serre and Kummer theory").
-`docs/literature-axioms.md` B12. -/
-theorem kummerClassK_surjective (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
-    [FiniteDimensional ℚ_[2] k] :
-    Function.Surjective (kummerClassK k) :=
-  KummerSurjectivity.kummerClassK_surjective' k
-
-/-- **The dyadic unit filtration interface, formerly B13.**
-
-Every finite extension `k/ℚ₂` carries a `DyadicUnitFiltration` (`GQ2/UnitFiltration.lean`):
-a uniformizer `π` (an element of maximal spectral norm `< 1` — discreteness of the value
-group), the normalization `‖2‖ = ‖π‖^e` (`e = v_k(2) ≥ 1`), a residue degree `f ≥ 1`, and
-the graded counts of the unit filtration `U^{(i)} = 1 + 𝔭_k^i`:
-`#(U^{(0)}/U^{(1)}) = 2^f − 1` and `#(U^{(i)}/U^{(i+1)}) = 2^f` for `i ≥ 1`.
-
-Citation: **Serre, *Local Fields* [7], Ch. IV §2, Proposition 6** (verified verbatim against
-the cited source, pp. 66–67; the audit copy is not vendored): "(a) `U_L/U_L^{(1)} = L̄^*`;
-(b) for `i ≥ 1`, the group
-`U^{(i)}/U^{(i+1)}` is canonically isomorphic to `𝔭_L^i/𝔭_L^{i+1}`, which is itself
-isomorphic (non-canonically) to the additive group of the residue field `L̄`" — read through
-`#L̄ = 2^f`, `#L̄^× = 2^f − 1`.  Uniformizer existence: Serre LF Ch. I–II (discrete
-valuations, complete fields; standard).
-
-Deviations (flagged, review-packet §3): stated in spectral-norm vocabulary (no valuation
-ring/residue field is constructed — the graded pieces enter through their cardinalities, the
-form the multiplicity count consumes); the proposal's (F2) inertia-twist clause
-(`θ_g = (g•π)/π` acting on `gr_j` by `θ_g^j`) is derivable from the exact `ℚ̄₂`-algebra action
-and the `he` normalization, so it is deliberately not stored as a field.
-
-Paper: §6.3, eq. (93) (the display's own bracket "[7, Ch. XIV §§2–3]" is coarse — the
-filtration is Ch. IV §2).  `docs/literature-axioms.md` B13.
-
-The definition delegates to `dyadicUnitFiltration'` in `GQ2/UnitFiltrationCounts.lean`, built on
-`GQ2/UnitFiltrationTop.lean`; `Classical.choice` selects witnesses from the proved existence
-lemmas.  The uniformizer comes from compactness of the
-unit ball + an `O/2O` pigeonhole (no spectral-norm value formula); the residue field `O/𝔪` is the
-finite quotient of the valuation subring; and the graded counts are the explicit isomorphisms
-`U^{(0)}/U^{(1)} ≅ (O/𝔪)ˣ` and `U^{(i)}/U^{(i+1)} ≅ (O/𝔪)⁺`. -/
-noncomputable def dyadicUnitFiltration (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
-    [FiniteDimensional ℚ_[2] k] :
-    DyadicUnitFiltration k :=
-  dyadicUnitFiltration' k
 
 end GQ2
 
@@ -661,5 +397,4 @@ end GQ2
   * Thm 1.1 = ⟦prop-markedDem⟧ [cited as theorem; paper says proposition]
   * Theorem 1.2 = ⟦thm-main⟧
   * Thm 2.5 = ⟦lem-reconstruction⟧ [cited as theorem; paper says lemma]
-  * Thm 4.2 = ⟦thm-fixedframe⟧
 -/

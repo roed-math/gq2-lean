@@ -5,7 +5,6 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2.GammaA
 import GQ2.Roe.GammaR
-import GQ2.Foundations.Axioms
 
 /-!
 # Comparator challenge: Theorem 1.2 (the presentation theorem) and its `Γ_R` replacement
@@ -29,11 +28,13 @@ hypothesis-free form and `GQ2.Roe.MarkedPro2` — imported only for `BLabHypothe
 longer needed to state it.
 
 The imports provide only what is needed to *state* the two theorems: `GQ2.GammaA` and
-`GQ2.Roe.GammaR` for the two candidate groups, and `GQ2.Foundations.Axioms` (inherited from
-the `Γ_A` pair, and the module through which `GQ2.Statement`'s `AbsGalQ2` arrives).  The proofs
-live in the library (`GQ2.main_presentation_literal`, `GQ2/PresentationLiteral.lean`, and
-`GQ2.main_presentation_literal_roe_unconditional`, `GQ2/Roe/Main.lean`) and are re-attached in
-`Solution.lean`.  No `GQ2/Roe/Labute/` module is in either challenge statement's import
+`GQ2.Roe.GammaR` for the two candidate groups (`GQ2.Statement`'s `AbsGalQ2` arrives through
+`GQ2.GammaA`'s public imports).  In particular `GQ2/Foundations/Axioms.lean` is **not**
+imported: the nine literature axioms belong to the permitted *solution* trust base listed
+below, not to the challenge statements, whose import closure is axiom-free vocabulary.  The
+proofs live in the library (`GQ2.main_presentation_literal`, `GQ2/PresentationLiteral.lean`,
+and `GQ2.main_presentation_literal_roe_unconditional`, `GQ2/Roe/Main.lean`) and are
+re-attached in `Solution.lean`.  No `GQ2/Roe/Labute/` module is in either challenge statement's import
 closure; the *solution*'s closure now reaches nine of them, since that is where the discharged
 hypothesis is proved — sorry-free, like the rest of the library (`scripts/check_axioms.sh`
 checks 2 and 5).

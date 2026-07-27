@@ -9,7 +9,7 @@ public import Mathlib.FieldTheory.Finite.GaloisField
 public import GQ2.FoxHeisenberg
 public import GQ2.TateDuality
 public import GQ2.CupSymmetry
-public import GQ2.Foundations.Axioms
+public import GQ2.Foundations.Interfaces
 public import GQ2.DualityAssembly
 
 @[expose] public section

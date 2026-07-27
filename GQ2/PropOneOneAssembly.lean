@@ -5,7 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2.AnabelianBridge
 import GQ2.Orientation
-import GQ2.Foundations.Axioms
+import GQ2.Foundations.Interfaces
 
 /-!
 # Proposition 1.1 — the assembly

@@ -5,7 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 module
 
-public import GQ2.Foundations.Axioms
+public import GQ2.Foundations.Interfaces
 
 @[expose] public section
 

@@ -122,10 +122,16 @@ be conflated.
 
 The proof uses Lean's standard `propext`, `Classical.choice`, and `Quot.sound`, together with nine
 explicit literature axioms in
-[`GQ2/Foundations/Axioms.lean`](GQ2/Foundations/Axioms.lean). The axioms cover external
+[`GQ2/Foundations/Axioms.lean`](GQ2/Foundations/Axioms.lean) — a file that contains the nine
+`axiom` declarations and nothing else, so its imports are exactly the statement vocabulary (the
+derived same-name interfaces over them live in
+[`GQ2/Foundations/Interfaces.lean`](GQ2/Foundations/Interfaces.lean)). The axioms cover external
 local-arithmetic, cohomological, and peripheral-action inputs not currently supplied by Mathlib;
 their precise statements, citations, and deviations from the cited formulations are documented in
-[`docs/literature-axioms.md`](docs/literature-axioms.md).
+[`docs/literature-axioms.md`](docs/literature-axioms.md), and
+[`docs/axiom-closure.md`](docs/axiom-closure.md) lists, per axiom, every project definition a
+reader must consult to know what the axiom asserts (115 definitions across the whole census;
+regenerate with `scripts/axiom_closure.sh`).
 
 [`scripts/check_axioms.sh`](scripts/check_axioms.sh) enforces the axiom census, rejects `sorry` and
 `native_decide` from the `GQ2` library, and ensures that no other library file declares axioms. It
@@ -229,7 +235,8 @@ on every push to and pull request against `master`.
 | `paper/` | Original source PDF retained for reproducibility, plus the $\Gamma_R$ verification note (`roe-presentation-*`) that the Roe campaign formalizes |
 | `GQ2/Words.lean` | Finite-group marking, auxiliary words, and admissibility predicate |
 | `GQ2/GammaA.lean` | Construction of the candidate profinite group $\Gamma_A$ |
-| `GQ2/Foundations/Axioms.lean` | The nine cited literature inputs |
+| `GQ2/Foundations/Axioms.lean` | The nine cited literature inputs (axioms only) |
+| `GQ2/Foundations/Interfaces.lean` | Derived same-name interfaces over the axioms (discharged B7′/B11b/B12/B13, derived B9 form, …) |
 | `GQ2/SectionTenSources.lean` | Counting capstone and paper equation (154) |
 | `GQ2/PresentationLiteral.lean` | Literal profinite-group isomorphism theorem |
 | `GQ2/Roe/` | Roe-candidate verification: $\Gamma_R$, its capstones (`Roe/Main.lean`), and the proof of `BLabHypothesis` (`Roe/Labute/`) |

@@ -9,7 +9,7 @@ public import Mathlib.GroupTheory.SemidirectProduct
 public import GQ2.AppendixB
 public import GQ2.SectionThree
 public import GQ2.Tame
-public import GQ2.Foundations.Axioms
+public import GQ2.Foundations.Interfaces
 
 @[expose] public section
 

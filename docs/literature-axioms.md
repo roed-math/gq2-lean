@@ -336,8 +336,8 @@ one of them — it is a theorem.  The census is **9 before and after**.*
   - **Derived form (was the pre-flip B9).** The previous composite B9 statement — eq. (111) at the
     fixed Lemma 6.16 diagonalizations `Tr⟨a⟩ ≃ ⟨2u, 2dn/u⟩`, `Tr⟨1⟩ ≃ ⟨2, 2d⟩`, with
     `w₁⟨x,y⟩ = [x]+[y]` and `w₂⟨x,y⟩ = [x] ⌣ [y]` — is now the same-name **theorem**
-    `GQ2.evensKahn_dyadic` (`GQ2/Foundations/Axioms.lean`, placed *after* B11a, which its proof
-    consumes), **byte-identical** to the pre-flip axiom so **no consumer changed** (the
+    `GQ2.evensKahn_dyadic` (`GQ2/Foundations/Interfaces.lean` since the 2026-07-27 axioms/derived
+    split; its proof consumes B11a), **byte-identical** to the pre-flip axiom so **no consumer changed** (the
     B7′/B11b/B12/B13 flip pattern).  It is proved by `evensKahn_dyadic_of_rsw`
     (`GQ2/EvensKahnDerived.lean`) from `relativeStiefelWhitney_dyadic` together with B11a: the
     proved trace-form diagonalizations and `swOne_diag`/`swTwo_diag` rewrite the abstract identity

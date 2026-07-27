@@ -23,6 +23,7 @@ import GQ2.Statement
 import GQ2.GammaA
 import GQ2.Foundations
 import GQ2.Foundations.Axioms
+import GQ2.Foundations.Interfaces
 import GQ2.EulerCharacteristic
 import GQ2.MaxProP
 import GQ2.Demushkin

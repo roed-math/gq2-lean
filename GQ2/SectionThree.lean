@@ -13,7 +13,7 @@ public import GQ2.HilbertSymbol
 public import GQ2.GammaA
 public import GQ2.TameQuotient
 public import GQ2.AdmissibleLimit
-public import GQ2.Foundations.Axioms
+public import GQ2.Foundations.Interfaces
 public import GQ2.ZtwoPowering
 public import GQ2.FinitelyGenerated
 public import GQ2.PropOneOne
