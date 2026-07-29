@@ -310,6 +310,24 @@ to `master` only at owner gate G3.
   InflationVanishesK; q=2-typed LocalKummer lemmas unreferenced). (vi) LG4a's defensive
   `_dp`-suffixed helpers (`h1_add_self_dp` etc.) carry dedup notes — LG4c's retype is the
   permanent home for the `eq_of_H1ofFun_eq` family.
+- 2026-07-29 (orchestrator, LG4c outcomes): audit green 3400, census 9. Adopted for LG5:
+  (i) ⚠ **NEW smul-trap variant at the reducer interface**: `cup11Fun ∘ mul` is
+  definitionally the pointwise product ONLY at G_ℚ₂; the ℚ₂ assembly feeds `innerf` to
+  `cup11_mem_Z2`/`hvanish_cup_ker` by bare `exact`, which BREAKS at general Γ — use LG4c's
+  `hcupval`/`hsqeq`/`hfreeeq` bridges wherever ℚ₂ code identifies `cup11Fun` with a product.
+  (ii) **LG3↔LG4c interface adapter needed** (mechanical, unwritten): LG4c's endpoint takes
+  the abstract tame pair `(sg,t,f,hf,hgen,hrel)`, LG3's takes a marking — adapter via
+  `sg := c (tqSigma q)` etc. + F3's Tq generation; LG5 owns it (endpoint n=1 pin waits on
+  it; deepPartK pins already exist in LG4a §9). (iii) `hancinj` is a genuinely new
+  hypothesis vs LG4a's convention (ancSubgroup-hker is strictly weaker than the Γ-side
+  membership test the involution carrier needs) — bridge `mem_ker_iff_anc_mem`; both
+  campaign instantiations discharge it trivially (`U.subtype`/`id`). (iv) New
+  `regular_isometric_embedding_orbit_pow` (general q_K) on PJ1's leaves; ~20 lines
+  re-proved because RegularIsometry helpers are `private` — DE-PRIVATIZE upstream candidate.
+  (v) `Q0loc_datum_indep_K` docstring pins the tame instantiation to
+  `tame_*_pow` — never the q=2-hardcoded LocalKummer pair. (vi) Three-copy
+  `eq_of_H1ofFun_eq` dedup map recorded in InvolutionSpliceK docstring; LG5 may collapse
+  `_dp` onto `_K` once the import graph allows.
 
 ## Obligation tracker
 
@@ -479,7 +497,7 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 | LG3 | unramified sign `(−1)^n 2^{nd/2}` (Hermitian rank-n) | opus | `GQ2/Dyadic/LocalGauss/Unramified.lean` | LG2, AX2 | **done 2026-07-29** (ba09366 → merged, import registered; 1103 ln plain-import, 0 sorries, 24/27 decls std-3 (3 Euler consumers print exactly the model's std-3+B7); audit green 3395 jobs; **`s := n` route worked with NO obstruction** — freeness by field-linearity, no #H¹ hypothesis (strictly weaker than the ℚ₂ Schur transfer); all five memo deliverables at memo names + packaged `prop_6_18_unramified_K` over FieldParameters; **n=1 pin is a kernel `rfl`** (`example : @prop_6_18_unramified_K_q2 = @UnramifiedModel.prop_6_18_unramified := rfl` — drift becomes a compile error); AX3/AX4 as 3 binders exactly per AX4 memo §0 row; MuTwoPolarDual Γ-clone + lemma_6_14K landed HERE (LG4 consumes, not re-clones — LG4a notified mid-flight); smul trap fired twice, as predicted) |
 | LG4a | deep-unit package + (H3) splice + InflationVanishesK + vanish core | opus (was fable) | `GQ2/Dyadic/LocalGauss/DeepPackage.lean` | LG2 | **done 2026-07-29** (2224565…c0b6536 → merged, import registered; 1488 ln, 66 decls, 0 sorries, prints ⊆ models (§4/§6 = std-3+B11a, strictly smaller than models); audit green 3396; **anchoring convention DISSOLVED the nested-subtype risk** (element-map via `anc : Γ →ₜ* GalQ2`, `kerAnc`/`ancSubgroup`/`hker` — no cohomology transport, LG2's H1anchor unused; anchor types use `GalQ2` NOT `AbsGalQ2`); InflationVanishesK via coprime averaging at general q through F3's TameQ.*; `arf_Q0loc_zero_of_deep` discharges the ENTIRE vanish side of the join; AX3/AX4 not needed here; 2 named seams → LG4b/LG4c) |
 | LG4b | dim lane + join + endpoint `prop_6_18_ramified_K` | opus | `GQ2/Dyadic/LocalGauss/Ramified.lean` | LG4a | **dispatched 2026-07-29** (ww worktree branch `dyadic-lg4b`; owns FamiliesExtendK discharge + ResidueLift decision + join per LG4a §8 signature + endpoint with vanish-final as binder; n=1 pin vs DetRamified:53) |
-| LG4c | vanish-chain retype (memo §7.1 scope block) + `lemma_6_17_vanish_final_K` | opus | new files under `GQ2/Dyadic/LocalGauss/` (OrbitVanishK/ReadPerOrbitK/InvolutionSpliceK/VanishCloseK — final list in report) | LG4a | **dispatched 2026-07-29** (lg worktree branch `dyadic-lg4c`; ~1800-ln retype: OrbitVanish Reducer block, Read §PerOrbit (⚠ degree-2 σ-twist), InvolutionSplice involution branch (AX3 binders, c2c4); output must equal `Q0locVanishesOnDeep` definitionally) |
+| LG4c | vanish-chain retype (memo §7.1 scope block) + `lemma_6_17_vanish_final_K` | opus | `GQ2/Dyadic/LocalGauss/{OrbitVanishK,ReadPerOrbitK,InvolutionSpliceK,VanishCloseK}.lean` | LG4a | **done 2026-07-29** (72cce81+212c656+87f6aae+fa2fdef → merged, 4 imports registered; 1644 ln, 0 sorries, per-decl prints EXACTLY the models' sets (3 non-std-3 decls match B9/B11a patterns); audit green 3400; **endpoint = `Q0locVanishesOnDeep` with ZERO glue** (compiling example plugs into `arf_Q0loc_zero_of_deep`); actual retype ≈35 decls — the chain was far more ambient-free than hit counts implied; σ-twist trap PROVEN inapplicable here (2 documented reasons — belongs to IndMod/sigmaFun territory); smul trap ×5 incl. NEW `cup11Fun`-product variant flagged for LG5; `InvolutionFieldPackage` = the single AX3-interface entry point; findings in log) |
 | LG5 | assemble general local Gauss theorem + n=1/n=2 regressions | opus | `GQ2/Dyadic/LocalGauss/Main.lean` | LG3, LG4 | pending |
 
 - **LG1**: from `recon/lg-survey.md`: fix the clone-vs-retype list for the 13 `AbsGalQ2`-typed
