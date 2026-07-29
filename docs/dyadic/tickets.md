@@ -221,6 +221,25 @@ to `master` only at owner gate G3.
   η/γ signs only; absence of an ε sign test is NOT a gap. (iv) The MarkedRecip field clause
   landed as the `unramified_of_even` binder with the AX3 §2.2 instantiation recorded in the
   module docstring; simulated MC5/boundary consumer composition type-checked in scratch.
+- 2026-07-29 (orchestrator, LG2 outcomes): audit green post-merge (3391 jobs, census 9).
+  Adopted: (i) **(H3) isotropy-splice deferral to LG4 APPROVED** — `DeepDualityK.lean:317-578`
+  is deep-unit content over `IntermediateField ℚ_[2] ℚ̄₂` whose retype needs the N_K-anchoring
+  convention that is `DeepPackage.lean`'s design decision; LG2 supplied `H1anchor`/`H2anchor`
+  instead (memo's own mitigation); LG4a/4b dispatch prompts MUST include this splice in
+  scope. (ii) ⚠ **NEW LANE-WIDE TRAP** (generalizes the LG2a instance trap): at Γ = G_ℚ₂ the
+  𝔽₂/μ₂ actions are trivial DEFINITIONALLY and ℚ₂ proofs silently end in `rfl` on that; at
+  general Γ triviality is a THEOREM — cloning any proof ending in `rfl`/`fun _ _ => rfl`
+  around a `ZMod 2`/`MuN 2` smul requires inserting `smul_zmodTwo`/`smul_muTwo` (provable for
+  ANY group, no binder needed). (iii) `polarBihom_equivariant`/`polar_smul_smul` lose their
+  unused `C` binder in the retype — ℚ₂-style `(C := …)` call sites need adjusting. (iv)
+  `ker_isLocalDualizingGroup` GENERALIZED (not clone): campaign needs `N_K ≤ G_K ≤ G_ℚ₂`, ℚ₂
+  version covered only `ker ρ ≤ G_ℚ₂`; transitivity via `isLocalDualizingGroup_of_openEmbedding`
+  (`Subgroup.index_map`, `ker j = ⊥`). (v) LG3 confirmed unaffected in route (arf_eq_of_free
+  `s := n` stands); LG3 must additionally clone the `cCoeff`/`cActionH1` block against
+  `GQ2.Dyadic.Q0loc` (lives in UnramifiedModel.lean = LG3's file). (vi) Dependency blocks
+  cloned INSIDE the two files (RepIndependence trio, LocalKummer conj block) — not separately
+  assigned by the memo; RepIndependence.kappa0_cocycle/innerConj/etaS + all of OrbitData
+  consumed verbatim (ambient-free already).
 
 ## Obligation tracker
 
@@ -386,7 +405,7 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 |---|---|---|---|---|---|
 | LG1 | design memo: rebase map + Euler-char derivation spike | fable | `docs/dyadic/lg-design.md` | recon/lg-survey | **done 2026-07-29** (5ae7b0b → merged; **AX2 NOT NEEDED — Euler char DERIVABLE from B7** via coinduced module, gap list L0–L6 ≈850 ln → LG2a; 13/13 clone, 0 in-place; retype surface corrected to ≈9.2k ln; parity via arf_eq_of_free s:=n) |
 | LG2a | Euler characteristic over K derived from B7 (memo L0–L6, `EulerShapiro.lean`) | opus | `GQ2/Dyadic/LocalGauss/EulerShapiro.lean` | LG1 ✓ | **done 2026-07-29** (c0b4449 → merged, import registered; 800 ln, std-3 + B7 ONLY; `localEulerCharacteristic_open` (workhorse, U.index = n) + `absGalK_localEulerCharacteristic` + degree-2 Shapiro NEW to repo; L4 was easier than estimated, L1/L5 harder; ⚠ AbsGalQ2-vs-Gal instance trap documented — see report/handoff) |
-| LG2 | group-generic `Q⁰` + polarization over a local dualizing source | opus | `GQ2/Dyadic/LocalGauss/Q0.lean` (+clone-retype list per LG1) | LG1 | pending |
+| LG2 | group-generic `Q⁰` + polarization over a local dualizing source | opus | `GQ2/Dyadic/LocalGauss/{Q0,PairingK}.lean` (per LG1 memo §6) | LG1 | **done 2026-07-29** (d54b270+4acea44+5c6600a → merged, imports registered; 1339 ln, 0 sorries, per-decl prints STRICT SUBSET of models (bundle parameterization made pairingK std-3; sole designed exception tateDualityKer = +tateDualityAt matching its model); audit green 3391 jobs census 9; Prop 6.6 all three clauses (`Q0loc_H1mk`, `polar_Q0loc`, `nonsingular_Q0loc`); n=1 pins `rfl`-equal to SectionSix; **(H3) isotropy splice deferred to LG4 by design** (deep-unit content needing the N_K-anchoring convention — H1anchor/H2anchor supplied as the memo's mitigation); smul trap + notes in log) |
 | LG3 | unramified sign `(−1)^n 2^{nd/2}` (Hermitian rank-n) | opus | `GQ2/Dyadic/LocalGauss/Unramified.lean` | LG2, AX2 | pending |
 | LG4 | **deep-unit package + ramified sign `+2^{nd/2}`** | fable | `GQ2/Dyadic/LocalGauss/DeepPackage.lean`, `…/Ramified.lean` | LG2 | pending |
 | LG5 | assemble general local Gauss theorem + n=1/n=2 regressions | opus | `GQ2/Dyadic/LocalGauss/Main.lean` | LG3, LG4 | pending |
