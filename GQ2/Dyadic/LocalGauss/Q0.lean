@@ -784,4 +784,27 @@ noncomputable def H2congrGroup : H2 G M ≃+ H2 G' M' where
 
 end GroupCongr
 
+/-! ## §8 The `n = 1` regression: the retype is definitionally the ℚ₂ layer
+
+At `Γ := AbsGalQ2` the group-generic declarations reduce **on the nose** (`rfl`) to the ℚ₂
+originals — the retype changed no mathematics, only the ambient binder.  LG5's `n = 1` pins can
+rewrite along these. -/
+
+section Q2Regression
+
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
+
+/-- `ι_F` at `Γ = G_ℚ₂` is `GQ2.SectionSix.iotaF`. -/
+theorem iotaF_absGalQ2 (D : TateDuality 2) : iotaF D = SectionSix.iotaF D := rfl
+
+omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul AbsGalQ2 V] in
+/-- **`n = 1` regression**: `Q⁰` at `Γ = G_ℚ₂` is `GQ2.SectionSix.Q0loc`. -/
+theorem Q0loc_absGalQ2 (D : TateDuality 2) (dat : FactorSet C V)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) :
+    Q0loc D dat ρ (V := V) = SectionSix.Q0loc D dat ρ := rfl
+
+end Q2Regression
+
 end GQ2.Dyadic
