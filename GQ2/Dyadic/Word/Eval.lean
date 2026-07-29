@@ -731,7 +731,11 @@ def zmod8Marking : Marking 1 (Multiplicative (ZMod 8)) :=
   Marking.ofLetters (Multiplicative.ofAdd 5) (Multiplicative.ofAdd 1)
     ![Multiplicative.ofAdd 1, Multiplicative.ofAdd 1]
 
-/-- `omega2Exp 8 = 1`: on a group of exponent `8` the concrete `ω₂`-representative is `1`. -/
+/-- `omega2Exp 8 = 1`: on a group of exponent `8` the concrete `ω₂`-representative is `1`.
+
+(Restated rather than imported: the identical `GQ2.omega2Exp_eight` lives in `GQ2/Roe/Words.lean`,
+which this file deliberately does not import.  A dedup into `GQ2/Omega2.lean` is a mechanical
+follow-up for whichever lane first needs both.) -/
 theorem omega2Exp_eight : omega2Exp 8 = 1 := by
   have hfac : (8 : ℕ).factorization 2 = 3 := by
     rw [show (8 : ℕ) = 2 ^ 3 by norm_num, Nat.Prime.factorization_pow Nat.prime_two,
