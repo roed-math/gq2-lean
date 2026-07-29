@@ -156,6 +156,7 @@ section Endpoint
 
 variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
 
+omit [Finite C] in
 /-- **Packet Prop. 6.18 / eq. (115) over a finite extension `K/ℚ₂`, ramified case** (the LG5
 entry point, ramified half).
 
@@ -169,7 +170,6 @@ Mirrors `GQ2.DetRamified.prop_6_18_ramified` (`GQ2/DetRamified.lean` :53) with `
 two §6.3 Kummer cores enter as the binders `hdim` (dimension clause; §8's
 `lemma_6_17_dim_final_K` discharges it) and `hvanish` (vanishing clause, in LG4a's exported
 shape; LG4c's `lemma_6_17_vanish_final_K` discharges it). -/
-omit [Finite C] in
 theorem prop_6_18_ramified_K (P : FieldParameters) (U : Subgroup AbsGalQ2)
     (hU : IsOpen (U : Set AbsGalQ2)) [Finite (AbsGalQ2 ⧸ U)] (hindex : U.index = P.n)
     [DistribMulAction ↥U (ZMod 2)] [ContinuousSMul ↥U (ZMod 2)]
