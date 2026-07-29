@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2.Dyadic.LocalGauss.DeepPackage
 import GQ2.Dyadic.LocalGauss.Unramified
+import GQ2.Dyadic.LocalGauss.ReadPerOrbitK
 import GQ2.DeepCount
 import GQ2.DetRamified
 
@@ -205,29 +206,6 @@ theorem continuous_shapiroWordK (x : C) :
   exact (continuous_const.mul continuous_id).mul hsec
 
 variable {ρ}
-
-omit [DiscreteTopology C] [Finite C] in
-/-- **`phiResK` is natural in the coefficient module** — `GQ2.ShapiroExtend.phiRes_mapCoeff1`
-retyped: restricting a pushed-forward class is pre-composing the functional. -/
-theorem phiResK_mapCoeff1 {W₁ W₂ : Type}
-    [AddCommGroup W₁] [TopologicalSpace W₁] [DiscreteTopology W₁] [IsTopologicalAddGroup W₁]
-    [DistribMulAction Γ W₁] [ContinuousSMul Γ W₁] [DistribMulAction C W₁]
-    [AddCommGroup W₂] [TopologicalSpace W₂] [DiscreteTopology W₂] [IsTopologicalAddGroup W₂]
-    [DistribMulAction Γ W₂] [ContinuousSMul Γ W₂] [DistribMulAction C W₂]
-    (hρ₁ : ∀ (g : Γ) (w : W₁), g • w = ρ g • w) (hρ₂ : ∀ (g : Γ) (w : W₂), g • w = ρ g • w)
-    (f : W₁ →+ W₂) (hf : Continuous f) (hcompat : ∀ (g : Γ) (w : W₁), f (g • w) = g • f w)
-    (x : H1 Γ W₁) (φ : W₂ →+ ZMod 2) :
-    phiResK ρ (mapCoeff1 f hf hcompat x) φ = phiResK ρ x (φ.comp f) := by
-  have hb : H1mk Γ W₁ (Quotient.out x) = x := Quotient.out_eq x
-  have hmap : H1mk Γ W₂
-      (Z1comap (ContinuousMonoidHom.id Γ) f hf (fun g n => hcompat g n) (Quotient.out x))
-      = mapCoeff1 f hf hcompat x := by
-    conv_rhs => rw [← hb]
-    exact (mapCoeff1_H1mk f hf hcompat (Quotient.out x)).symm
-  have h1 := phiResK_of_rep ρ hρ₂ hmap φ
-  have h2 := phiResK_of_rep ρ hρ₁ hb (φ.comp f)
-  rw [← h1, ← h2]
-  rfl
 
 variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V]
   [DistribMulAction Γ V] [ContinuousSMul Γ V] [DistribMulAction C V]
