@@ -144,6 +144,14 @@ to `master` only at owner gate G3.
   compatibility clause OMITTED (no consumer). PJ1's build makes `gq2-dyadic-pj` the standing
   BUILT worktree — wave-boundary audits (check-5) run there after syncing.
 
+- **2026-07-29 (orchestrator, WAVE INTERRUPTED — HANDOFF WRITTEN):** the Fable 5 monthly spend
+  limit killed four in-flight fable-tier agents (MC1, F2 here; S1.4, S1.5 on the simplification
+  side). Everything landed is merged and verified: full build 3386 jobs, check_axioms check-5
+  RAN clean (5 capstones, 3 twin pairs, census 9), check_dyadic green. **Handoff document:
+  `~/claude/handoffs/gq2-dyadic-campaigns-2026-07-29.md`** — re-dispatch prompts for the four
+  killed tickets (on **opus**), the full decision record, open gates (G-AX, G-Lab, G2, R1), and
+  the trap list. Merged worktrees pruned; lane worktrees retained.
+
 ## Obligation tracker
 
 | obligation | tickets | status |
