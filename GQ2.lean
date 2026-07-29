@@ -247,6 +247,7 @@ import GQ2.Dyadic.Word.Eval
 import GQ2.Dyadic.Branches
 import GQ2.Dyadic.TameQuotientK
 import GQ2.Dyadic.TameBoundary
+import GQ2.Dyadic.MarkedCore.Cores
 import GQ2.Dyadic.Parameters
 import GQ2.Dyadic.FinitelyGeneratedK
 import GQ2.Dyadic.Projectivity
