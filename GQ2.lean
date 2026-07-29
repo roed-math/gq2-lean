@@ -244,3 +244,4 @@ import GQ2.Roe.Main
 import GQ2.Dyadic.Word.Blocks
 import GQ2.Dyadic.Parameters
 import GQ2.Dyadic.FinitelyGeneratedK
+import GQ2.Dyadic.Projectivity
