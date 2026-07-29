@@ -684,6 +684,279 @@ theorem isLabuteOrientationDatumN_unique {α : ℕ} (hα : 1 ≤ α) {Xa Xb Xc X
     exact (onePlusTwoPow α).ne_zero
   exact ⟨h1, Units.ext (mul_right_cancel₀ hne (h2.trans (nUnit_mul hα).symm)), h3, h4⟩
 
+/-! ## §3 The presented cores `D_M`, `D_N`
+
+Built exactly as `GQ2/Roe/DRPresentation.lean` builds `D_R` and `GQ2/DyadicPresentation.lean`
+builds `D₀`: the relator as a word in the free profinite group on `Fin (coreRank h)`, the full
+profinite presentation, then the **maximal pro-2 quotient** (the packet's `D_P` is pro-2, and
+the bare presentation is not — its abelianization carries an odd part).
+
+The presentation-level plumbing (topological generation, hom-extensionality, the universal
+property) is relator-independent and is proved once, generically, in `§3.1`. -/
+
+section Generic
+
+variable {n : ℕ}
+
+/-- The **one-relator pro-2 group** `⟨x₀, …, x_{n−1} | r⟩_{pro-2}` — the encoding used for
+`D₀`, `D_R`, and both marked cores. -/
+noncomputable def presPro2 (r : FreeProfiniteGroup (Fin n)) : ProfiniteGrp :=
+  maxProPQuotient 2 (profinitePresentation {r})
+
+/-- The marked generators of `presPro2 r`. -/
+noncomputable def presGen (r : FreeProfiniteGroup (Fin n)) (i : Fin n) : presPro2 r :=
+  maxProPMk 2 (profinitePresentation {r})
+    (quotientMk (relatorSubgroup {r}) (FreeProfiniteGroup.of i))
+
+/-- `presPro2 r` is pro-2. -/
+theorem isProP_presPro2 (r : FreeProfiniteGroup (Fin n)) : IsProP 2 (presPro2 r : Type) :=
+  isProP_maxProPQuotient
+
+/-- The composite surjection `F_n ↠ presPro2 r`. -/
+private noncomputable def presQ (r : FreeProfiniteGroup (Fin n)) :
+    FreeProfiniteGroup (Fin n) →* (presPro2 r : Type) :=
+  (maxProPMk 2 (profinitePresentation {r})).toMonoidHom.comp
+    (quotientMk (relatorSubgroup {r})).toMonoidHom
+
+private lemma presQ_of (r : FreeProfiniteGroup (Fin n)) (i : Fin n) :
+    presQ r (FreeProfiniteGroup.of i) = presGen r i := rfl
+
+private lemma continuous_presQ (r : FreeProfiniteGroup (Fin n)) : Continuous (presQ r) :=
+  (maxProPMk 2 (profinitePresentation {r})).continuous_toFun.comp
+    (quotientMk (relatorSubgroup {r})).continuous_toFun
+
+private lemma presQ_surjective (r : FreeProfiniteGroup (Fin n)) :
+    Function.Surjective (presQ r) :=
+  (quotientMk_surjective (proPKernel 2 (profinitePresentation {r}))).comp
+    (quotientMk_surjective (relatorSubgroup {r}))
+
+/-- The free generators of a free profinite group on a `Fin n` topologically generate
+(the `GQ2/Roe/DRAbelianization.lean:113` argument, stated at general rank). -/
+theorem freeProfiniteFin_topGen (n : ℕ) :
+    (Subgroup.closure (Set.range (FreeProfiniteGroup.of (X := Fin n)))).topologicalClosure
+      = ⊤ := by
+  set g : FreeGroup (Fin n) →* FreeProfiniteGroup (Fin n) :=
+    (ProfiniteGrp.ProfiniteCompletion.eta (GrpCat.of (FreeGroup (Fin n)))).hom with hg
+  have hrange : Subgroup.closure (Set.range (FreeProfiniteGroup.of (X := Fin n))) = g.range := by
+    have h1 : Set.range (FreeProfiniteGroup.of (X := Fin n))
+        = ⇑g '' Set.range (FreeGroup.of : Fin n → FreeGroup (Fin n)) := by
+      rw [← Set.range_comp]; rfl
+    rw [h1, ← MonoidHom.map_closure, FreeGroup.closure_range_of, ← MonoidHom.range_eq_map]
+  rw [hrange]
+  have hdense : DenseRange g := ProfiniteGrp.ProfiniteCompletion.denseRange _
+  rw [SetLike.ext'_iff]
+  simpa only [Subgroup.topologicalClosure_coe, Subgroup.coe_top, MonoidHom.coe_range]
+    using hdense.closure_range
+
+/-- **Topological generation** (the `dr_topGen` pattern): the marked generators topologically
+generate `presPro2 r`. -/
+theorem presPro2_topGen (r : FreeProfiniteGroup (Fin n)) :
+    (Subgroup.closure (Set.range (presGen r))).topologicalClosure = ⊤ := by
+  have himg : presQ r '' Set.range (FreeProfiniteGroup.of (X := Fin n)) = Set.range (presGen r) := by
+    rw [← Set.range_comp]
+    exact congrArg Set.range (funext fun i => presQ_of r i)
+  have := (presQ_surjective r).denseRange.topologicalClosure_map_subgroup (continuous_presQ r)
+    (freeProfiniteFin_topGen n)
+  rwa [MonoidHom.map_closure, himg] at this
+
+/-- **Hom-extensionality** (the `dr_hom_ext` pattern): two continuous homs into a Hausdorff
+topological group agreeing on the marked generators agree everywhere. -/
+theorem presPro2_hom_ext {A : Type} [Group A] [TopologicalSpace A] [IsTopologicalGroup A]
+    [T2Space A] (r : FreeProfiniteGroup (Fin n))
+    (φ ψ : ContinuousMonoidHom (presPro2 r : Type) A)
+    (hgen : ∀ i, φ (presGen r i) = ψ (presGen r i)) : φ = ψ := by
+  have hsub : Set.EqOn φ ψ (Subgroup.closure (Set.range (presGen r))) := by
+    intro w hw
+    induction hw using Subgroup.closure_induction with
+    | mem x hx => obtain ⟨i, rfl⟩ := hx; exact hgen i
+    | one => simp
+    | mul a b _ _ ha hb => rw [map_mul, map_mul, ha, hb]
+    | inv a _ ha => rw [map_inv, map_inv, ha]
+  have hdense : Dense ((Subgroup.closure (Set.range (presGen r))) : Set (presPro2 r : Type)) := by
+    rw [dense_iff_closure_eq, ← Subgroup.topologicalClosure_coe, presPro2_topGen,
+      Subgroup.coe_top]
+  exact ContinuousMonoidHom.ext fun z =>
+    (hsub.closure φ.continuous_toFun ψ.continuous_toFun) (hdense z)
+
+variable {H : Type} [Group H] [TopologicalSpace H] [IsTopologicalGroup H] [CompactSpace H]
+  [T2Space H] [TotallyDisconnectedSpace H]
+
+/-- The free continuous hom `F_n → H` determined by a marking. -/
+noncomputable def freeHomFin (m : Fin n → H) :
+    ContinuousMonoidHom (FreeProfiniteGroup (Fin n)) H :=
+  ((FreeProfiniteGroup.homEquiv (Fin n) (ProfiniteGrp.of H)).symm m).hom
+
+omit [T2Space H] in
+@[simp] theorem freeHomFin_of (m : Fin n → H) (i : Fin n) :
+    freeHomFin m (FreeProfiniteGroup.of i) = m i :=
+  FreeProfiniteGroup.homEquiv_symm_of _ _ _
+
+/-- **Universal property of `presPro2 r`** (the `d0LiftHom`/`drLiftHom` clone): a marking of a
+pro-2 group killing the relator classifies a continuous hom out of `presPro2 r`. -/
+noncomputable def presLiftHom (r : FreeProfiniteGroup (Fin n)) (hH : IsProP 2 H)
+    (m : Fin n → H) (hrel : freeHomFin m r = 1) :
+    ContinuousMonoidHom (presPro2 r : Type) H :=
+  (maxProPHomEquiv hH).symm
+    (quotientLift (relatorSubgroup {r}) (freeHomFin m)
+      (by
+        refine Subgroup.topologicalClosure_minimal _
+          (Subgroup.normalClosure_le_normal ?_) ?_
+        · intro w hw
+          rw [Set.mem_singleton_iff.mp hw, SetLike.mem_coe, MonoidHom.mem_ker]
+          exact hrel
+        · have hker : ((freeHomFin m).toMonoidHom.ker : Set (FreeProfiniteGroup (Fin n)))
+              = ⇑(freeHomFin m) ⁻¹' {1} := by
+            ext w
+            simp only [SetLike.mem_coe, MonoidHom.mem_ker, Set.mem_preimage,
+              Set.mem_singleton_iff]
+            rfl
+          rw [hker]
+          exact isClosed_singleton.preimage (freeHomFin m).continuous_toFun))
+
+@[simp] theorem presLiftHom_gen (r : FreeProfiniteGroup (Fin n)) (hH : IsProP 2 H)
+    (m : Fin n → H) (hrel : freeHomFin m r = 1) (i : Fin n) :
+    presLiftHom r hH m hrel (presGen r i) = m i := by
+  show ((maxProPHomEquiv hH).symm _) (maxProPMk 2 (profinitePresentation {r})
+    (quotientMk (relatorSubgroup {r}) (FreeProfiniteGroup.of i))) = m i
+  rw [maxProPHomEquiv_symm_apply_maxProPMk]
+  exact (quotientLift_quotientMk _ _ _ _).trans (freeHomFin_of m i)
+
+end Generic
+
+/-! ### §3.2 The two cores -/
+
+/-- The **`M_α` relator** `A²[A,B]C₀^{2^α}[C₀,D]·∏[u_j,v_j]` as a word in
+`FreeProfiniteGroup (Fin (coreRank h))`. -/
+noncomputable def mRelator (α h : ℕ) : FreeProfiniteGroup (Fin (coreRank h)) :=
+  mRelWord α FreeProfiniteGroup.of
+
+/-- The **`N_α` relator** `x₀^{2+2^α}[x₀,x₁][σ,x₂]·∏[u_j,v_j]`. -/
+noncomputable def nRelator (α h : ℕ) : FreeProfiniteGroup (Fin (coreRank h)) :=
+  nRelWord α FreeProfiniteGroup.of
+
+/-- **`D_{M,α,h}`** (memo §6.1 `DM`): the pro-2 group `⟨A, B, C₀, D, u, v | P_M(α)·∏[u_j,v_j]⟩`
+of rank `coreRank h = 4 + 2h` (the memo's `n + 2`). -/
+noncomputable def DM (α h : ℕ) : ProfiniteGrp := presPro2 (mRelator α h)
+
+/-- **`D_{N,α,h}`** (memo §6.1 `DN`). -/
+noncomputable def DN (α h : ℕ) : ProfiniteGrp := presPro2 (nRelator α h)
+
+/-- The marked generators of `D_M` (the memo's `dmGen`). -/
+noncomputable def dmGen (α h : ℕ) (i : Fin (coreRank h)) : DM α h := presGen (mRelator α h) i
+
+/-- The marked generators of `D_N`. -/
+noncomputable def dnGen (α h : ℕ) (i : Fin (coreRank h)) : DN α h := presGen (nRelator α h) i
+
+/-- `A ∈ D_M`. -/
+noncomputable def dmA (α h : ℕ) : DM α h := dmGen α h 0
+/-- `B ∈ D_M`. -/
+noncomputable def dmB (α h : ℕ) : DM α h := dmGen α h 1
+/-- `C₀ ∈ D_M`. -/
+noncomputable def dmC (α h : ℕ) : DM α h := dmGen α h 2
+/-- `D ∈ D_M`. -/
+noncomputable def dmD (α h : ℕ) : DM α h := dmGen α h 3
+
+/-- `x₀ ∈ D_N` — the **marked** torsion generator of the `N`-frame (memo §3.1). -/
+noncomputable def dnX0 (α h : ℕ) : DN α h := dnGen α h 0
+/-- `x₁ ∈ D_N`. -/
+noncomputable def dnX1 (α h : ℕ) : DN α h := dnGen α h 1
+/-- `σ ∈ D_N`. -/
+noncomputable def dnSigma (α h : ℕ) : DN α h := dnGen α h 2
+/-- `x₂ ∈ D_N`. -/
+noncomputable def dnX2 (α h : ℕ) : DN α h := dnGen α h 3
+
+/-- `D_M` is pro-2. -/
+theorem isProP_DM (α h : ℕ) : IsProP 2 (DM α h : Type) := isProP_presPro2 _
+
+/-- `D_N` is pro-2. -/
+theorem isProP_DN (α h : ℕ) : IsProP 2 (DN α h : Type) := isProP_presPro2 _
+
+/-- The `M_α` relation already in the *full* profinite presentation. -/
+private theorem mFull_relation (α h : ℕ) :
+    mRelWord α (fun i => quotientMk (relatorSubgroup {mRelator α h})
+      (FreeProfiniteGroup.of i)) = 1 := by
+  have hr := relator_quotientMk_eq_one {mRelator α h} rfl
+  rw [mRelator, map_mRelWord] at hr
+  exact hr
+
+/-- The `N_α` relation already in the *full* profinite presentation. -/
+private theorem nFull_relation (α h : ℕ) :
+    nRelWord α (fun i => quotientMk (relatorSubgroup {nRelator α h})
+      (FreeProfiniteGroup.of i)) = 1 := by
+  have hr := relator_quotientMk_eq_one {nRelator α h} rfl
+  rw [nRelator, map_nRelWord] at hr
+  exact hr
+
+/-- **The `M_α` relation holds in `D_M`**. -/
+theorem dm_relation (α h : ℕ) : mRelWord α (dmGen α h) = 1 := by
+  have key := map_mRelWord (maxProPMk 2 (profinitePresentation {mRelator α h})) α
+    (fun i => quotientMk (relatorSubgroup {mRelator α h}) (FreeProfiniteGroup.of i))
+  rw [mFull_relation, map_one] at key
+  exact key.symm
+
+/-- **The `N_α` relation holds in `D_N`**. -/
+theorem dn_relation (α h : ℕ) : nRelWord α (dnGen α h) = 1 := by
+  have key := map_nRelWord (maxProPMk 2 (profinitePresentation {nRelator α h})) α
+    (fun i => quotientMk (relatorSubgroup {nRelator α h}) (FreeProfiniteGroup.of i))
+  rw [nFull_relation, map_one] at key
+  exact key.symm
+
+/-- **Topological generation of `D_M`** (memo §6.1 `dm_topGen`; the `dr_topGen` pattern). -/
+theorem dm_topGen (α h : ℕ) :
+    (Subgroup.closure (Set.range (dmGen α h))).topologicalClosure = ⊤ :=
+  presPro2_topGen _
+
+/-- **Topological generation of `D_N`**. -/
+theorem dn_topGen (α h : ℕ) :
+    (Subgroup.closure (Set.range (dnGen α h))).topologicalClosure = ⊤ :=
+  presPro2_topGen _
+
+/-- **Hom-extensionality for `D_M`** (memo §6.1 `dm_hom_ext`). -/
+theorem dm_hom_ext {A : Type} [Group A] [TopologicalSpace A] [IsTopologicalGroup A] [T2Space A]
+    {α h : ℕ} (φ ψ : ContinuousMonoidHom (DM α h : Type) A)
+    (hgen : ∀ i, φ (dmGen α h i) = ψ (dmGen α h i)) : φ = ψ :=
+  presPro2_hom_ext _ φ ψ hgen
+
+/-- **Hom-extensionality for `D_N`**. -/
+theorem dn_hom_ext {A : Type} [Group A] [TopologicalSpace A] [IsTopologicalGroup A] [T2Space A]
+    {α h : ℕ} (φ ψ : ContinuousMonoidHom (DN α h : Type) A)
+    (hgen : ∀ i, φ (dnGen α h i) = ψ (dnGen α h i)) : φ = ψ :=
+  presPro2_hom_ext _ φ ψ hgen
+
+section Lifts
+
+variable {H : Type} [Group H] [TopologicalSpace H] [IsTopologicalGroup H] [CompactSpace H]
+  [T2Space H] [TotallyDisconnectedSpace H]
+
+/-- **Universal property of `D_M`** (memo §6.1 `mLiftHom`): a marking of a pro-2 group killing
+the `M_α` relator word classifies a continuous hom `D_M → H`. -/
+noncomputable def mLiftHom (α h : ℕ) (hH : IsProP 2 H) (m : Fin (coreRank h) → H)
+    (hrel : mRelWord α m = 1) : ContinuousMonoidHom (DM α h : Type) H :=
+  presLiftHom (mRelator α h) hH m (by
+    have hm : (fun i => (freeHomFin m) (FreeProfiniteGroup.of i)) = m :=
+      funext (freeHomFin_of m)
+    rw [mRelator, map_mRelWord, hm]
+    exact hrel)
+
+/-- **Universal property of `D_N`** (memo §6.1 `nLiftHom`). -/
+noncomputable def nLiftHom (α h : ℕ) (hH : IsProP 2 H) (m : Fin (coreRank h) → H)
+    (hrel : nRelWord α m = 1) : ContinuousMonoidHom (DN α h : Type) H :=
+  presLiftHom (nRelator α h) hH m (by
+    have hm : (fun i => (freeHomFin m) (FreeProfiniteGroup.of i)) = m :=
+      funext (freeHomFin_of m)
+    rw [nRelator, map_nRelWord, hm]
+    exact hrel)
+
+@[simp] theorem mLiftHom_gen (α h : ℕ) (hH : IsProP 2 H) (m : Fin (coreRank h) → H)
+    (hrel : mRelWord α m = 1) (i : Fin (coreRank h)) :
+    mLiftHom α h hH m hrel (dmGen α h i) = m i := presLiftHom_gen _ _ _ _ _
+
+@[simp] theorem nLiftHom_gen (α h : ℕ) (hH : IsProP 2 H) (m : Fin (coreRank h) → H)
+    (hrel : nRelWord α m = 1) (i : Fin (coreRank h)) :
+    nLiftHom α h hH m hrel (dnGen α h i) = m i := presLiftHom_gen _ _ _ _ _
+
+end Lifts
+
 end MarkedCore
 
 end Dyadic
