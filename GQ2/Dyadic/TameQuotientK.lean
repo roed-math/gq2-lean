@@ -775,7 +775,8 @@ noncomputable def fermatHomQ : ContinuousMonoidHom (Tq q) (GFermatQ q k) :=
     (FreeProfiniteGroup.of 1)).trans (fermatBaseQ_of_one q k)
 
 private theorem fermatHomQ_surjective : Function.Surjective (fermatHomQ q k) := by
-  have hle : Subgroup.closure {sFermatQ q k, tFermatQ q k} ≤ (fermatHomQ q k).toMonoidHom.range := by
+  have hle : Subgroup.closure {sFermatQ q k, tFermatQ q k}
+      ≤ (fermatHomQ q k).toMonoidHom.range := by
     rw [Subgroup.closure_le]
     rintro z (rfl | rfl)
     · exact ⟨tqSigma q, fermatHomQ_tqSigma q k⟩
@@ -975,7 +976,8 @@ private theorem qMkQ_mem_of_two_images (hqe : Even q) (M : Subgroup (Tq q)) [M.N
   haveI : Finite (QurQ q ⧸ U.toSubgroup) := inferInstance
   set y : QurQ q := qMkQ q x with hy
   set a : ℕ := (Nat.card (QurQ q ⧸ U.toSubgroup)).factorization 2 with ha
-  have hKopen : IsOpen (((psiFermatQQ q a).toMonoidHom.ker : Subgroup (QurQ q)) : Set (QurQ q)) := by
+  have hKopen :
+      IsOpen (((psiFermatQQ q a).toMonoidHom.ker : Subgroup (QurQ q)) : Set (QurQ q)) := by
     rw [MonoidHom.coe_ker]
     exact (isOpen_discrete _).preimage (psiFermatQQ q a).continuous_toFun
   haveI hkerN : ((psiFermatQQ q a).toMonoidHom.ker).Normal := MonoidHom.normal_ker _

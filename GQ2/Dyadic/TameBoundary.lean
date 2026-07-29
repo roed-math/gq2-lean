@@ -39,7 +39,9 @@ stack, so the pure-algebra fibred-product kit (`GQ2.SectionThree.fiberProductExi
 * **§4 — packet Proposition 3.4** (`GammaR`, `KillsWild`, `tameR`, `gammaR_tame_equiv`,
   `prop_3_4_one`, `prop_3_4_two`, `prop_3_4_three`): the two specializations of an admissible
   `Γ_R`, driven by F2's substitution operators `killWild` / `pro2` and their soundness theorems
-  `Marking.eval_killWild` / `Marking.eval_pro2` (never by hand rewrites).
+  `Marking.eval_killWild` / `Marking.eval_pro2` (never by hand rewrites).  §4 closes with
+  `gammaR_boundary_surjective`, §3's theorem instantiated at those two specializations — the
+  packet's Theorem 3.5 for the word side, end to end.
 * **§5 — the mandated `q`-distinguishing regression** (`tqHomEquiv`, `card_hom_tq_zmodThree_*`):
   a kernel-`decide` count of `Hom_cont(T_q, ℤ/3)` separating `q = 2` from `q = 4`.  This is AX4
   memo risk **R2**'s guard: an unpinned residue degree would assert `T_2 ≅ T_4`, and the count
@@ -48,7 +50,7 @@ stack, so the pure-algebra fibred-product kit (`GQ2.SectionThree.fiberProductExi
 
 namespace GQ2.Dyadic
 
-open GQ2 GQ2.SectionThree
+open GQ2.SectionThree
 
 /-! ## §1. Packet Lemma 3.1: tame inertia is pro-odd -/
 
@@ -243,6 +245,487 @@ theorem boundary_jointly_surjective_of_maxProP (hq0 : q ≠ 0) (hqe : Even q)
 
 end ThmThreeFive
 
+/-! ## §4. Packet Proposition 3.4: the two specializations of an admissible `Γ_R`
+
+*"Assume that killing all `x_i` makes the wild word `R` trivial, and that killing `τ` and
+replacing every profinite exponent by its `2`-component changes `R` to a pro-`2` word `P`.
+Then: (1) `W_R = O₂(Γ_R)` and `Γ_R/W_R ≅ T_{q_K}`; (2) the maximal pro-`2` quotient of `Γ_R` is
+`D_P = ⟨σ, x₀, …, x_n ∣ P = 1⟩_{pro-2}`; (3) the induced unramified character has `ν(σ) = 1` and
+`ν(x_i) = 0`."*
+
+The two hypotheses are exactly F2's two substitution operators.  `killWild` drives (1) through
+`Marking.eval_killWild`, and `pro2` drives (2) through `Marking.eval_pro2`; no relator is
+rewritten by hand.  Part (2) is stated in **universal-property form** — continuous homs
+`Γ_R → Q` into a pro-`2` group `Q` are exactly the markings of `{σ, x₀, …, x_n}` in `Q` killing
+`P = pro2 R` — which is what "the maximal pro-`2` quotient is `D_P`" *means*, and avoids
+committing the campaign to a second presented object before the WW lane fixes the words. -/
+
+section PropThreeFour
+
+variable {n q : ℕ} {R : PWord (Generator n)}
+
+/-- The tautological marking of the free profinite group on the general alphabet. -/
+noncomputable def freeMarking (n : ℕ) : Marking n ((FreeProfiniteGroup (Generator n)) : Type) :=
+  ⟨FreeProfiniteGroup.of⟩
+
+@[simp] theorem freeMarking_apply (n : ℕ) (g : Generator n) :
+    freeMarking n g = FreeProfiniteGroup.of g := rfl
+
+/-- The tame relator `τ^σ · (τ^q)⁻¹` on the alphabet `{σ, τ, x₀, …, x_n}`. -/
+noncomputable def tameRelatorGen (n q : ℕ) : FreeProfiniteGroup (Generator n) :=
+  conjP (FreeProfiniteGroup.of (Generator.tau (n := n)))
+      (FreeProfiniteGroup.of (Generator.sigma (n := n)))
+    * ((FreeProfiniteGroup.of (Generator.tau (n := n))) ^ q)⁻¹
+
+/-- The relator set of `Γ_R`: the tame relation at `q` and the wild word `R`. -/
+noncomputable def gammaRelators (n q : ℕ) (R : PWord (Generator n)) :
+    Set (FreeProfiniteGroup (Generator n)) :=
+  {tameRelatorGen n q, (freeMarking n).eval R}
+
+/-- **`Γ_R = ⟨σ, τ, x₀, …, x_n ∣ τ^σ = τ^{q_K}, R = 1⟩_prof`** (draft eq. 1.1, plan §1). -/
+noncomputable def GammaR (n q : ℕ) (R : PWord (Generator n)) : ProfiniteGrp :=
+  profinitePresentation (gammaRelators n q R)
+
+/-- The presentation projection `F(σ, τ, x₀, …, x_n) ↠ Γ_R`, typed at the bundled carrier. -/
+noncomputable def gammaMk (n q : ℕ) (R : PWord (Generator n)) :
+    ContinuousMonoidHom ((FreeProfiniteGroup (Generator n)) : Type) ((GammaR n q R) : Type) :=
+  quotientMk (relatorSubgroup (gammaRelators n q R))
+
+/-- The image of a generator letter in `Γ_R`. -/
+noncomputable def gammaGen (n q : ℕ) (R : PWord (Generator n)) (g : Generator n) : GammaR n q R :=
+  gammaMk n q R (FreeProfiniteGroup.of g)
+
+/-- `Γ_R` marked by its own generators. -/
+noncomputable def gammaMarking (n q : ℕ) (R : PWord (Generator n)) :
+    Marking n ((GammaR n q R) : Type) := ⟨gammaGen n q R⟩
+
+@[simp] theorem gammaMarking_apply (g : Generator n) :
+    gammaMarking n q R g = gammaGen n q R g := rfl
+
+theorem gammaMarking_eq_map : gammaMarking n q R = (freeMarking n).map ⇑(gammaMk n q R) := rfl
+
+/-- The tame relation holds in `Γ_R`. -/
+theorem gammaR_tame_relation :
+    conjP (gammaGen n q R .tau) (gammaGen n q R .sigma) = gammaGen n q R .tau ^ q := by
+  have h := relator_quotientMk_eq_one (gammaRelators n q R)
+    (Set.mem_insert (tameRelatorGen n q) _)
+  simp only [tameRelatorGen, conjP, map_mul, map_inv, map_pow] at h ⊢
+  exact mul_inv_eq_one.mp h
+
+/-- The wild word is a relator of `Γ_R`. -/
+theorem gammaMarking_eval_R : (gammaMarking n q R).eval R = 1 := by
+  rw [gammaMarking_eq_map, ← Marking.map_eval (gammaMk n q R) (freeMarking n) R]
+  exact relator_quotientMk_eq_one (gammaRelators n q R) (Set.mem_insert_of_mem _ rfl)
+
+/-- **`W_R`**: the closed normal subgroup of `Γ_R` generated by the wild letters `x₀, …, x_n`. -/
+noncomputable def wildPartR (n q : ℕ) (R : PWord (Generator n)) :
+    Subgroup ((GammaR n q R) : Type) :=
+  (Subgroup.normalClosure
+    (Set.range fun i : Fin (n + 1) => gammaGen n q R (.wild i))).topologicalClosure
+
+instance wildPartR_normal : (wildPartR n q R).Normal := Subgroup.is_normal_topologicalClosure _
+
+instance wildPartR_isClosed : IsClosed ((wildPartR n q R) : Set ((GammaR n q R) : Type)) :=
+  Subgroup.isClosed_topologicalClosure _
+
+theorem gammaGen_wild_mem_wildPartR (i : Fin (n + 1)) :
+    gammaGen n q R (.wild i) ∈ wildPartR n q R :=
+  Subgroup.le_topologicalClosure _ (Subgroup.subset_normalClosure ⟨i, rfl⟩)
+
+/-! ### Gate B: admissibility -/
+
+/-- **Gate B admissibility** (the first hypothesis of packet Prop. 3.4): *killing all `x_i`
+makes the wild word `R` trivial*.  Stated semantically — the value of `R` at any marking whose
+wild letters are trivial is `1` — which by F2's `Marking.eval_killWild` is equivalent to the
+syntactic statement that `killWild R` evaluates to `1` everywhere (`killsWild_iff_killWild`). -/
+def KillsWild {n : ℕ} (R : PWord (Generator n)) : Prop :=
+  ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    [TotallyDisconnectedSpace G] (t : Marking n G), (Marking.killWildLetters t).eval R = 1
+
+/-- Admissibility through F2's substitution operator: `KillsWild R` says exactly that the
+kill-wild rewrite `killWild R` is a trivial word. -/
+theorem killsWild_iff_killWild (R : PWord (Generator n)) :
+    KillsWild R ↔ ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+      [CompactSpace G] [TotallyDisconnectedSpace G] (t : Marking n G), t.eval (killWild R) = 1 := by
+  constructor
+  · intro h G _ _ _ _ _ t; rw [Marking.eval_killWild]; exact h G t
+  · intro h G _ _ _ _ _ t; rw [← Marking.eval_killWild]; exact h G t
+
+/-! ### Part (1): the tame specialization `Γ_R/W_R ≅ T_q` -/
+
+/-- The tame marking of `T_q`: `σ ↦ σ`, `τ ↦ τ`, `x_i ↦ 1`. -/
+noncomputable def tameMarking (n q : ℕ) : Marking n ((Tq q) : Type) :=
+  Marking.ofLetters (tqSigma q) (tqTau q) (fun _ => 1)
+
+theorem killWildLetters_tameMarking :
+    Marking.killWildLetters (tameMarking n q) = tameMarking n q := by
+  ext g; cases g <;> rfl
+
+/-- The classifying map `F(σ, τ, x₀, …, x_n) ⟶ T_q` of the tame marking. -/
+noncomputable def tameBase (n q : ℕ) : FreeProfiniteGroup (Generator n) ⟶ Tq q :=
+  (FreeProfiniteGroup.homEquiv (Generator n) (Tq q)).symm ⇑(tameMarking n q)
+
+@[simp] theorem tameBase_of (n q : ℕ) (g : Generator n) :
+    (tameBase n q).hom.toMonoidHom (FreeProfiniteGroup.of g) = tameMarking n q g :=
+  FreeProfiniteGroup.homEquiv_symm_of _ _ _
+
+theorem tameBase_tameRelatorGen : (tameBase n q).hom.toMonoidHom (tameRelatorGen n q) = 1 := by
+  simp only [tameRelatorGen, conjP, map_mul, map_inv, map_pow, tameBase_of]
+  have h := tame_relation_q q
+  simp only [conjP] at h
+  show (tqSigma q)⁻¹ * tqTau q * tqSigma q * ((tqTau q) ^ q)⁻¹ = 1
+  rw [h, mul_inv_cancel]
+
+theorem tameBase_eval_R (hadm : KillsWild R) :
+    (tameBase n q).hom.toMonoidHom ((freeMarking n).eval R) = 1 := by
+  have h := Marking.map_eval (tameBase n q).hom (freeMarking n) R
+  have hmark : (freeMarking n).map ⇑(tameBase n q).hom = tameMarking n q := by
+    ext g; exact tameBase_of n q g
+  have h1 : (tameBase n q).hom ((freeMarking n).eval R) = (tameMarking n q).eval R := by
+    rw [h, hmark]
+  show (tameBase n q).hom ((freeMarking n).eval R) = 1
+  rw [h1, ← killWildLetters_tameMarking]
+  exact hadm _ (tameMarking n q)
+
+/-- **The tame specialization** `Γ_R ↠ T_q` (`σ ↦ σ`, `τ ↦ τ`, `x_i ↦ 1`), well defined by
+admissibility. -/
+noncomputable def tameR (n q : ℕ) (R : PWord (Generator n)) (hadm : KillsWild R) :
+    ContinuousMonoidHom (GammaR n q R) (Tq q) :=
+  presentationLift (gammaRelators n q R) (tameBase n q).hom <| by
+    rintro r (rfl | rfl)
+    · exact tameBase_tameRelatorGen
+    · exact tameBase_eval_R hadm
+
+@[simp] theorem tameR_gammaGen (hadm : KillsWild R) (g : Generator n) :
+    tameR n q R hadm (gammaGen n q R g) = tameMarking n q g :=
+  (presentationLift_mk _ _ _ (FreeProfiniteGroup.of g)).trans (tameBase_of n q g)
+
+theorem tameR_surjective (hadm : KillsWild R) : Function.Surjective (tameR n q R hadm) := by
+  have hle : Subgroup.closure {tqSigma q, tqTau q} ≤ (tameR n q R hadm).toMonoidHom.range := by
+    rw [Subgroup.closure_le]
+    rintro z (rfl | rfl)
+    · exact ⟨gammaGen n q R .sigma, tameR_gammaGen hadm .sigma⟩
+    · exact ⟨gammaGen n q R .tau, tameR_gammaGen hadm .tau⟩
+  have hclosed : IsClosed (((tameR n q R hadm).toMonoidHom.range) : Set ((Tq q) : Type)) := by
+    rw [MonoidHom.coe_range]
+    exact (isCompact_range (tameR n q R hadm).continuous_toFun).isClosed
+  have htop : (tameR n q R hadm).toMonoidHom.range = ⊤ := by
+    rw [eq_top_iff, ← topGen_tq q]
+    exact Subgroup.topologicalClosure_minimal _ hle hclosed
+  exact MonoidHom.range_eq_top.mp htop
+
+theorem wildPartR_le_ker_tameR (hadm : KillsWild R) :
+    wildPartR n q R ≤ (tameR n q R hadm).toMonoidHom.ker := by
+  have hker_closed : IsClosed (((tameR n q R hadm).toMonoidHom.ker) : Set (GammaR n q R)) := by
+    rw [MonoidHom.coe_ker]
+    exact IsClosed.preimage (tameR n q R hadm).continuous_toFun isClosed_singleton
+  refine Subgroup.topologicalClosure_minimal _ ?_ hker_closed
+  refine Subgroup.normalClosure_le_normal ?_
+  rintro z ⟨i, rfl⟩
+  exact MonoidHom.mem_ker.mpr (tameR_gammaGen hadm (.wild i))
+
+/-- `Γ_R/W_R` as a profinite group. -/
+noncomputable def TameGammaR (n q : ℕ) (R : PWord (Generator n)) : ProfiniteGrp :=
+  profiniteQuotient (wildPartR n q R)
+
+/-- The projection `Γ_R ↠ Γ_R/W_R`, typed at the bundled carrier. -/
+noncomputable def tameGammaMk (n q : ℕ) (R : PWord (Generator n)) :
+    ContinuousMonoidHom ((GammaR n q R) : Type) ((TameGammaR n q R) : Type) :=
+  quotientMk (wildPartR n q R)
+
+/-- `ψ : Γ_R/W_R → T_q`, the descent of the tame specialization. -/
+noncomputable def psiR (n q : ℕ) (R : PWord (Generator n)) (hadm : KillsWild R) :
+    ContinuousMonoidHom ((TameGammaR n q R) : Type) (Tq q) :=
+  quotientLift (wildPartR n q R) (tameR n q R hadm) (wildPartR_le_ker_tameR hadm)
+
+/-- The base map `F(σ, τ) ⟶ Γ_R/W_R`. -/
+noncomputable def chiBaseR (n q : ℕ) (R : PWord (Generator n)) :
+    FreeProfiniteGroup (Fin 2) ⟶ TameGammaR n q R :=
+  (FreeProfiniteGroup.homEquiv (Fin 2) (TameGammaR n q R)).symm
+    ![tameGammaMk n q R (gammaGen n q R .sigma), tameGammaMk n q R (gammaGen n q R .tau)]
+
+@[simp] private theorem chiBaseR_of_zero : (chiBaseR n q R).hom.toMonoidHom
+    (FreeProfiniteGroup.of 0) = tameGammaMk n q R (gammaGen n q R .sigma) :=
+  FreeProfiniteGroup.homEquiv_symm_of _ _ _
+
+@[simp] private theorem chiBaseR_of_one : (chiBaseR n q R).hom.toMonoidHom
+    (FreeProfiniteGroup.of 1) = tameGammaMk n q R (gammaGen n q R .tau) :=
+  FreeProfiniteGroup.homEquiv_symm_of _ _ _
+
+theorem chiBaseR_tameWordQ : (chiBaseR n q R).hom.toMonoidHom (tameWordQ q) = 1 := by
+  simp only [tameWordQ, conjP, map_mul, map_inv, map_pow, chiBaseR_of_zero, chiBaseR_of_one]
+  have h := congrArg (⇑(tameGammaMk n q R)) (gammaR_tame_relation (n := n) (q := q) (R := R))
+  simp only [conjP, map_mul, map_inv, map_pow] at h
+  rw [h, mul_inv_cancel]
+
+/-- `χ : T_q → Γ_R/W_R`, by the universal property of the presentation of `T_q`. -/
+noncomputable def chiR (n q : ℕ) (R : PWord (Generator n)) :
+    ContinuousMonoidHom (Tq q) (TameGammaR n q R) :=
+  presentationLift {tameWordQ q} (chiBaseR n q R).hom fun r hr => by
+    rcases hr with rfl
+    exact chiBaseR_tameWordQ
+
+@[simp] private theorem chiR_tqSigma :
+    chiR n q R (tqSigma q) = tameGammaMk n q R (gammaGen n q R .sigma) :=
+  (presentationLift_mk _ _ _ _).trans chiBaseR_of_zero
+
+@[simp] private theorem chiR_tqTau :
+    chiR n q R (tqTau q) = tameGammaMk n q R (gammaGen n q R .tau) :=
+  (presentationLift_mk _ _ _ _).trans chiBaseR_of_one
+
+@[simp] private theorem psiR_mk (hadm : KillsWild R) (g : Generator n) :
+    psiR n q R hadm (tameGammaMk n q R (gammaGen n q R g)) = tameMarking n q g :=
+  (quotientLift_quotientMk _ _ _ _).trans (tameR_gammaGen hadm g)
+
+/-- `Γ_R/W_R` is topologically generated by the classes of the marked generators. -/
+theorem topGen_tameGammaR :
+    (Subgroup.closure (Set.range fun g : Generator n =>
+      tameGammaMk n q R (gammaGen n q R g))).topologicalClosure = ⊤ := by
+  have h := TopGen.map
+    (f := ((tameGammaMk n q R).comp (gammaMk n q R)).toMonoidHom)
+    ((tameGammaMk n q R).comp (gammaMk n q R)).continuous_toFun
+    ((quotientMk_surjective _).comp (quotientMk_surjective _))
+    (TopGen.freeProfiniteGroup (Generator n))
+  rwa [← Set.range_comp] at h
+
+theorem psiR_chiR (hadm : KillsWild R) (x : Tq q) : psiR n q R hadm (chiR n q R x) = x := by
+  refine contMonoidHom_eq_of_gens (f := (psiR n q R hadm).comp (chiR n q R))
+    (g := ContinuousMonoidHom.id (Tq q)) ?_ ?_ x
+  · show psiR n q R hadm (chiR n q R (tqSigma q)) = tqSigma q
+    rw [chiR_tqSigma, psiR_mk hadm .sigma]; rfl
+  · show psiR n q R hadm (chiR n q R (tqTau q)) = tqTau q
+    rw [chiR_tqTau, psiR_mk hadm .tau]; rfl
+
+theorem chiR_psiR (hadm : KillsWild R) (x : ((TameGammaR n q R) : Type)) :
+    chiR n q R (psiR n q R hadm x) = x := by
+  have h := TopGen.monoidHom_eq
+    (f := (chiR n q R).toMonoidHom.comp (psiR n q R hadm).toMonoidHom) (g := MonoidHom.id _)
+    (by rw [MonoidHom.coe_comp]
+        exact Continuous.comp (chiR n q R).continuous_toFun (psiR n q R hadm).continuous_toFun)
+    continuous_id topGen_tameGammaR ?_
+  · exact h x
+  · rintro z ⟨g, rfl⟩
+    show chiR n q R (psiR n q R hadm (tameGammaMk n q R (gammaGen n q R g)))
+      = tameGammaMk n q R (gammaGen n q R g)
+    rw [psiR_mk hadm g]
+    cases g with
+    | sigma => exact chiR_tqSigma
+    | tau => exact chiR_tqTau
+    | wild i =>
+        have hx : tameGammaMk n q R (gammaGen n q R (.wild i)) = 1 :=
+          (quotientMk_eq_one_iff _).mpr (gammaGen_wild_mem_wildPartR i)
+        rw [hx]
+        show chiR n q R (tameMarking n q (.wild i)) = 1
+        show chiR n q R 1 = 1
+        exact map_one _
+
+/-- **Packet Prop. 3.4(1), first half**: `Γ_R/W_R ≅ T_{q_K}`, matching the marked generators. -/
+noncomputable def gammaR_tame_equiv (n q : ℕ) (R : PWord (Generator n)) (hadm : KillsWild R) :
+    ContinuousMulEquiv ((TameGammaR n q R) : Type) (Tq q) where
+  toFun := psiR n q R hadm
+  invFun := chiR n q R
+  left_inv := chiR_psiR hadm
+  right_inv := psiR_chiR hadm
+  map_mul' := map_mul (psiR n q R hadm)
+  continuous_toFun := (psiR n q R hadm).continuous_toFun
+  continuous_invFun := (chiR n q R).continuous_toFun
+
+/-- `ker(Γ_R ↠ T_q) = W_R`: the tame specialization has exactly the wild part as kernel. -/
+theorem ker_tameR (hadm : KillsWild R) :
+    (tameR n q R hadm).toMonoidHom.ker = wildPartR n q R := by
+  refine le_antisymm ?_ (wildPartR_le_ker_tameR hadm)
+  intro x hx
+  have h1 : psiR n q R hadm (tameGammaMk n q R x) = 1 := by
+    rw [show psiR n q R hadm (tameGammaMk n q R x) = tameR n q R hadm x from
+      quotientLift_quotientMk _ _ _ _]
+    exact hx
+  have h2 : tameGammaMk n q R x = 1 :=
+    (gammaR_tame_equiv n q R hadm).injective (by rw [map_one]; exact h1)
+  exact (quotientMk_eq_one_iff _).mp h2
+
+/-- **Packet Prop. 3.4(1), second half**: `W_R = O₂(Γ_R)` — every closed normal pro-`2` subgroup
+of `Γ_R` lies in `W_R`.  The proof is the `q = 2` pattern of `GQ2.SectionThree.tameData_maximal`
+run on the general-`q` Lemma 3.3 (`o2_Tq_eq_bot`): the image of a competitor in `T_q` is normal
+with `2`-group finite images, hence trivial. -/
+theorem prop_3_4_one (hq2 : 2 ≤ q) (hqe : Even q) (hadm : KillsWild R)
+    (N : Subgroup ((GammaR n q R) : Type)) (hNn : N.Normal)
+    (hNp : IsProP 2 N) : N ≤ wildPartR n q R := by
+  haveI : Fact (2 ≤ q) := ⟨hq2⟩
+  haveI := hNn
+  set M : Subgroup ((Tq q) : Type) := N.map (tameR n q R hadm).toMonoidHom with hM
+  haveI hMn : M.Normal := Subgroup.Normal.map hNn _ (tameR_surjective hadm)
+  have hMbot : M = ⊥ := by
+    refine o2_Tq_eq_bot hqe M ?_
+    intro G _ _ _ _ f hf
+    rw [hM, Subgroup.map_map]
+    refine isPGroup_map_of_isProP hNp _ ?_
+    rw [MonoidHom.coe_comp]
+    exact hf.comp (tameR n q R hadm).continuous_toFun
+  intro x hxN
+  have h1 : tameR n q R hadm x ∈ M := Subgroup.mem_map.mpr ⟨x, hxN, rfl⟩
+  rw [hMbot, Subgroup.mem_bot] at h1
+  rw [← ker_tameR hadm]
+  exact MonoidHom.mem_ker.mpr h1
+
+/-! ### Part (2): the maximal pro-`2` specialization -/
+
+/-- In a pro-`2` group the `ω₂`-power is the identity — the semantic content of Gate C's
+*"replace every profinite exponent by its `2`-component"*. -/
+theorem zpowHat_omega2_eq_self_of_isProP {Q : Type} [Group Q] [TopologicalSpace Q]
+    [IsTopologicalGroup Q] [CompactSpace Q] [T2Space Q] [TotallyDisconnectedSpace Q]
+    (hQ : IsProP 2 Q) (x : Q) : x ^ᶻ omega2 = x := by
+  have hmul : (x ^ᶻ omega2) * x⁻¹ = 1 → x ^ᶻ omega2 = x := fun h => by
+    rwa [mul_inv_eq_one] at h
+  refine hmul (eq_one_of_forall_mem_openNormalSubgroup fun U => ?_)
+  haveI : Finite (Q ⧸ U.toSubgroup) := inferInstance
+  set mk : ContinuousMonoidHom Q (Q ⧸ U.toSubgroup) :=
+    ⟨QuotientGroup.mk' U.toSubgroup, QuotientGroup.continuous_mk⟩ with hmk
+  have hpush : mk (x ^ᶻ omega2) = (mk x) ^ᶻ omega2 := map_zpowHat _ x omega2
+  have hfin : (mk x) ^ᶻ omega2 = powOmega2 (mk x) := zpowHat_omega2 (mk x)
+  have hself : powOmega2 (mk x) = mk x := by
+    obtain ⟨k, hk⟩ := (IsPGroup.iff_orderOf.mp (hQ U)) (mk x)
+    rcases Nat.eq_zero_or_pos k with rfl | hpos
+    · rw [pow_zero] at hk
+      rw [orderOf_eq_one_iff.mp hk]
+      simp only [powOmega2, one_pow]
+    · have hlt : 1 < 2 ^ k := Nat.one_lt_two_pow_iff.mpr hpos.ne'
+      have hexp : omega2Exp (orderOf (mk x)) = 1 := by
+        rw [hk]
+        show (if ((2 : ℕ) ^ k).factorization 2 = 0 then 0
+          else ((2 : ℕ) ^ k / 2 ^ (((2 : ℕ) ^ k).factorization 2)) ^
+            (2 ^ ((((2 : ℕ) ^ k).factorization 2) - 1)) % 2 ^ k) = 1
+        rw [Nat.Prime.factorization_pow Nat.prime_two, Finsupp.single_eq_same, if_neg hpos.ne',
+          Nat.div_self (pow_pos two_pos k), one_pow, Nat.mod_eq_of_lt hlt]
+      rw [powOmega2, hexp, pow_one]
+  have : mk ((x ^ᶻ omega2) * x⁻¹) = 1 := by
+    rw [map_mul, map_inv, hpush, hfin, hself, mul_inv_cancel]
+  exact (QuotientGroup.eq_one_iff _).mp this
+
+/-- **`τ` dies in every pro-`2` quotient of `Γ_R`** (packet: *"every map to a pro-`2` group kills
+`τ`, because tame inertia is pro-odd"*). -/
+theorem map_gammaGen_tau_eq_one_of_isProP (hq0 : q ≠ 0) (hqe : Even q) {Q : Type} [Group Q]
+    [TopologicalSpace Q] [IsTopologicalGroup Q] [CompactSpace Q] [T2Space Q]
+    [TotallyDisconnectedSpace Q] (hQ : IsProP 2 Q) (φ : ContinuousMonoidHom (GammaR n q R) Q) :
+    φ (gammaGen n q R .tau) = 1 := by
+  refine eq_one_of_forall_mem_openNormalSubgroup fun U => ?_
+  haveI : Finite (Q ⧸ U.toSubgroup) := inferInstance
+  set ψ : (GammaR n q R) →* (Q ⧸ U.toSubgroup) :=
+    (QuotientGroup.mk' U.toSubgroup).comp φ.toMonoidHom with hψ
+  have hrel : (ψ (gammaGen n q R .sigma))⁻¹ * ψ (gammaGen n q R .tau) * ψ (gammaGen n q R .sigma)
+      = (ψ (gammaGen n q R .tau)) ^ q := by
+    have h := congrArg ⇑ψ (gammaR_tame_relation (n := n) (q := q) (R := R))
+    simpa only [conjP, map_mul, map_inv, map_pow] using h
+  have hodd : Odd (orderOf (ψ (gammaGen n q R .tau))) :=
+    TameQ.odd_order (orderOf_pos (ψ (gammaGen n q R .sigma))).ne' hq0 hqe hrel
+  obtain ⟨k, hk⟩ := (IsPGroup.iff_orderOf.mp (hQ U)) (ψ (gammaGen n q R .tau))
+  rw [hk] at hodd
+  have hone : ψ (gammaGen n q R .tau) = 1 := by
+    rcases Nat.eq_zero_or_pos k with rfl | hpos
+    · rw [pow_zero] at hk; exact orderOf_eq_one_iff.mp hk
+    · exact absurd hodd (Nat.not_odd_iff_even.mpr (Nat.even_pow.mpr ⟨even_two, hpos.ne'⟩))
+  exact (QuotientGroup.eq_one_iff _).mp hone
+
+/-- **Packet Prop. 3.4(2)**: *the maximal pro-`2` quotient of `Γ_R` is
+`D_P = ⟨σ, x₀, …, x_n ∣ P = 1⟩_{pro-2}`, `P = pro2 R`* — in universal-property form.
+
+A marking `t` of the alphabet in a pro-`2` group `Q` extends to a continuous homomorphism out of
+`Γ_R` **iff** `t` kills `τ` and kills the pro-`2` specialization `P = pro2 R` of the wild word.
+That is exactly the universal property of `D_P` (whose generators are `σ, x₀, …, x_n` — `τ` is
+absent — and whose single relator is `P`), so the maximal pro-`2` quotients of `Γ_R` and of `D_P`
+have the same continuous homomorphisms into every pro-`2` group, hence agree.
+
+Both hypotheses of the packet's proposition are used exactly once and only through F2:
+`Marking.eval_pro2` converts `t.eval R` into `t.eval (pro2 R)`, and the `τ`-death half comes
+from §1's Lemma 3.1. -/
+theorem prop_3_4_two (hq0 : q ≠ 0) (hqe : Even q) (Q : ProfiniteGrp.{0}) (hQ : IsProP 2 Q)
+    (t : Marking n ((Q : Type))) :
+    (∃ φ : ContinuousMonoidHom (GammaR n q R) Q, ∀ g, φ (gammaGen n q R g) = t g)
+      ↔ (t.τ = 1 ∧ t.eval (pro2 R) = 1) := by
+  have hω : ∀ x : (Q : Type), x ^ᶻ omega2 = x := zpowHat_omega2_eq_self_of_isProP hQ
+  constructor
+  · rintro ⟨φ, hφ⟩
+    have hτ : t.τ = 1 := by
+      rw [show t.τ = t .tau from rfl, ← hφ .tau]
+      exact map_gammaGen_tau_eq_one_of_isProP hq0 hqe hQ φ
+    refine ⟨hτ, ?_⟩
+    have hmark : (gammaMarking n q R).map ⇑φ = t := by ext g; exact hφ g
+    have hR : t.eval R = 1 := by
+      rw [← hmark, ← Marking.map_eval, gammaMarking_eval_R, map_one]
+    rw [Marking.eval_pro2 t hτ hω R, hR]
+  · rintro ⟨hτ, hP⟩
+    have hR : t.eval R = 1 := by rw [← Marking.eval_pro2 t hτ hω R, hP]
+    set base : FreeProfiniteGroup (Generator n) ⟶ Q :=
+      (FreeProfiniteGroup.homEquiv (Generator n) Q).symm ⇑t with hbase
+    have hbase_of : ∀ g, base.hom.toMonoidHom (FreeProfiniteGroup.of g) = t g := fun g =>
+      FreeProfiniteGroup.homEquiv_symm_of _ _ _
+    have hkill : ∀ r ∈ gammaRelators n q R, base.hom.toMonoidHom r = 1 := by
+      rintro r (rfl | rfl)
+      · simp only [tameRelatorGen, conjP, map_mul, map_inv, map_pow, hbase_of]
+        rw [show t .tau = (1 : (Q : Type)) from hτ]
+        group
+      · have h := Marking.map_eval base.hom (freeMarking n) R
+        have hmark : (freeMarking n).map ⇑base.hom = t := by ext g; exact hbase_of g
+        show base.hom ((freeMarking n).eval R) = 1
+        rw [h, hmark, hR]
+    exact ⟨presentationLift (gammaRelators n q R) base.hom hkill,
+      fun g => (presentationLift_mk _ _ _ (FreeProfiniteGroup.of g)).trans (hbase_of g)⟩
+
+/-! ### Part (3): the induced unramified character -/
+
+/-- **Packet Prop. 3.4(3)**: the induced unramified character has `ν(σ) = 1` and `ν(x_i) = 0`
+(and `ν(τ) = 0`), read through the tame specialization. -/
+theorem prop_3_4_three (hadm : KillsWild R) :
+    nuTq q (tameR n q R hadm (gammaGen n q R .sigma)) = ztwoOne ∧
+      nuTq q (tameR n q R hadm (gammaGen n q R .tau)) = 1 ∧
+      ∀ i : Fin (n + 1), nuTq q (tameR n q R hadm (gammaGen n q R (.wild i))) = 1 := by
+  refine ⟨?_, ?_, ?_⟩
+  · rw [tameR_gammaGen]; exact nuTq_tqSigma q
+  · rw [tameR_gammaGen]; exact nuTq_tqTau q
+  · intro i
+    rw [tameR_gammaGen]
+    show nuTq q 1 = 1
+    exact map_one _
+
+/-! ### The `Γ_R` side of Theorem 3.5, assembled -/
+
+/-- The `2`-primary unramified character of the maximal pro-`2` quotient `Γ_R(2)`, obtained by
+descending `ν₂ ∘ tame_R` (legitimate because `ℤ₂` is pro-`2`).  This is packet Prop. 3.4(3)'s
+`ν` on the `D_P` side, and by construction it makes the `ν`-square of Theorem 3.5 commute. -/
+noncomputable def nuTwoR (n q : ℕ) (R : PWord (Generator n)) (hadm : KillsWild R) :
+    ContinuousMonoidHom (maxProPQuotient 2 ((GammaR n q R) : Type)) Ztwo :=
+  quotientLift (proPKernel 2 ((GammaR n q R) : Type)) ((nuTq q).comp (tameR n q R hadm))
+    (proPKernel_le_ker isProP_maxProPQuotient _)
+
+theorem nuTwoR_compat (hadm : KillsWild R) (g : (GammaR n q R : Type)) :
+    nuTq q (tameR n q R hadm g) = nuTwoR n q R hadm (maxProPMk 2 _ g) :=
+  (quotientLift_quotientMk (proPKernel 2 ((GammaR n q R) : Type))
+    ((nuTq q).comp (tameR n q R hadm)) (proPKernel_le_ker isProP_maxProPQuotient _) g).symm
+
+theorem ker_maxProPMk (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] :
+    (maxProPMk 2 G).toMonoidHom.ker = proPKernel 2 G := by
+  ext x
+  rw [MonoidHom.mem_ker]
+  exact quotientMk_eq_one_iff _
+
+/-- **Packet Theorem 3.5, the `Γ_R` side.**  For an admissible `Γ_R` at an even `q ≥ 2`, the
+natural map
+
+  `Γ_R ⟶ ∂ = T_q ×_{ℤ₂} Γ_R(2)`
+
+is **surjective**.  This is §3's relative-Goursat theorem instantiated at the two specializations
+of Prop. 3.4: `tame_R` (part 1) and the maximal pro-`2` quotient map (part 2), whose target is
+`D_P` by `prop_3_4_two`. -/
+theorem gammaR_boundary_surjective (hq2 : 2 ≤ q) (hqe : Even q) (hadm : KillsWild R) :
+    Function.Surjective (fun g : ((GammaR n q R) : Type) =>
+      (⟨(tameR n q R hadm g, maxProPMk 2 _ g), nuTwoR_compat hadm g⟩ :
+        ↥(boundarySubgroupQ q (nuTwoR n q R hadm)))) :=
+  boundary_jointly_surjective_of_maxProP (by omega) hqe (nuTwoR n q R hadm)
+    (tameR n q R hadm) (maxProPMk 2 _) (tameR_surjective hadm) (quotientMk_surjective _)
+    (ker_maxProPMk _) (nuTwoR_compat hadm)
+
+end PropThreeFour
+
 /-! ## §5. The mandated `q`-distinguishing regression
 
 AX4 memo risk **R2**: if the axiom's residue degree `f` were left free, the axiom would assert
@@ -283,7 +766,8 @@ noncomputable def tqClassify (q : ℕ) (P : ProfiniteGrp.{0}) {a b : P} (h : con
     simp only [conjP, map_mul, map_inv, map_pow, e0, e1]
     simpa only [conjP] using mul_inv_eq_one.mpr h
 
-@[simp] theorem tqClassify_tqSigma (q : ℕ) (P : ProfiniteGrp.{0}) {a b : P} (h : conjP b a = b ^ q) :
+@[simp] theorem tqClassify_tqSigma (q : ℕ) (P : ProfiniteGrp.{0}) {a b : P}
+    (h : conjP b a = b ^ q) :
     tqClassify q P h (tqSigma q) = a :=
   (presentationLift_mk _ _ _ (FreeProfiniteGroup.of 0)).trans
     (FreeProfiniteGroup.homEquiv_symm_of _ _ _)
