@@ -7,6 +7,7 @@ states are not current project status. Two files in that directory are the excep
 live: [`orchestration/roe-tickets.md`](orchestration/roe-tickets.md) and
 [`orchestration/roe-verification-plan.md`](orchestration/roe-verification-plan.md), the board and
 plan for the in-flight Γ_R campaign.
+[`dyadic/`](dyadic/) is the live general-2-adic (ramified-i) campaign: plan, board, refs, surveys.
 
 The original submitted paper is retained at
 [`paper/A_Profinite_Presentation_for_G__Q_2.pdf`](../paper/A_Profinite_Presentation_for_G__Q_2.pdf).
