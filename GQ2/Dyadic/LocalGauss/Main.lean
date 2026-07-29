@@ -377,4 +377,264 @@ theorem local_gauss_K (P : FieldParameters) (U : Subgroup AbsGalQ2)
 
 end Theorem
 
+/-! ## §5 The zero-count corollaries
+
+Packet eq. (115) in counting form.  `GQ2.QuadraticFp2.zeroCount` of the base determinant form is
+`2^{2mn−1} ± 2^{mn−1}`, the sign being `+` exactly when the Arf invariant vanishes — i.e. when the
+marking is ramified **or** the degree `n` is even, and `−` in the one remaining case (unramified
+marking, odd degree). -/
+
+section ZeroCount
+
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+
+section Bridge
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+  [DistribMulAction Γ (MuN 2)] [ContinuousSMul Γ (MuN 2)]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [DistribMulAction Γ V] [ContinuousSMul Γ V] [DistribMulAction C V]
+
+omit [Finite C] in
+/-- **From the Arf value to the Gauss count, positive sign** — `zeroCount_of_arf_zero` at the base
+determinant form, with the `H¹` cardinality supplied by the Euler clause. -/
+theorem zeroCount_Q0loc_of_arf_zero (D : TateDualityG Γ 2)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (ρ : ContinuousMonoidHom Γ C) (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v)
+    (hV2 : ∀ v : V, v + v = 0) {M : ℕ} (hM : 1 ≤ M)
+    (hcard : Nat.card (H1 Γ V) = 2 ^ (2 * M))
+    (harf : arf (Q0loc D dat ρ (V := V)) = 0) :
+    Nat.card {x : H1 Γ V // Q0loc D dat ρ x = 0} = 2 ^ (2 * M - 1) + 2 ^ (M - 1) := by
+  haveI : Finite (H1 Γ V) := (Nat.card_ne_zero.mp (by rw [hcard]; positivity)).2
+  haveI : Fintype (H1 Γ V) := Fintype.ofFinite _
+  have hqG : ∀ (g : Γ) (v : V), q (g • v) = q v := fun g v => by rw [hρ]; exact hinv _ v
+  have hquad := isQuadraticFp2_Q0loc D q hq dat hdat ρ hρ hqG
+  have hnons := nonsingular_Q0loc D q hq hns hV2 dat hdat ρ hρ hqG
+  have hcnt := zeroCount_of_arf_zero (Q0loc D dat ρ (V := V)) hquad hnons hM
+    (by rw [← Nat.card_eq_fintype_card]; exact hcard) harf
+  simpa only [zeroCount] using hcnt
+
+omit [Finite C] in
+/-- **From the Arf value to the Gauss count, negative sign** — `zeroCount_of_arf_one` at the base
+determinant form. -/
+theorem zeroCount_Q0loc_of_arf_one (D : TateDualityG Γ 2)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (ρ : ContinuousMonoidHom Γ C) (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v)
+    (hV2 : ∀ v : V, v + v = 0) {M : ℕ} (hM : 1 ≤ M)
+    (hcard : Nat.card (H1 Γ V) = 2 ^ (2 * M))
+    (harf : arf (Q0loc D dat ρ (V := V)) = 1) :
+    Nat.card {x : H1 Γ V // Q0loc D dat ρ x = 0} = 2 ^ (2 * M - 1) - 2 ^ (M - 1) := by
+  haveI : Finite (H1 Γ V) := (Nat.card_ne_zero.mp (by rw [hcard]; positivity)).2
+  haveI : Fintype (H1 Γ V) := Fintype.ofFinite _
+  have hqG : ∀ (g : Γ) (v : V), q (g • v) = q v := fun g v => by rw [hρ]; exact hinv _ v
+  have hquad := isQuadraticFp2_Q0loc D q hq dat hdat ρ hρ hqG
+  have hnons := nonsingular_Q0loc D q hq hns hV2 dat hdat ρ hρ hqG
+  have hcnt := zeroCount_of_arf_one (Q0loc D dat ρ (V := V)) hquad hnons hM
+    (by rw [← Nat.card_eq_fintype_card]; exact hcard) harf
+  simpa only [zeroCount] using hcnt
+
+end Bridge
+
+/-- **Packet eq. (115), positive Gauss sign**: `#(Q⁰)⁻¹(0) = 2^{2mn−1} + 2^{mn−1}` whenever the
+marking is ramified or the degree `n` is even. -/
+theorem local_gauss_K_zeroCount_add (P : FieldParameters) (U : Subgroup AbsGalQ2)
+    (hU : IsOpen (U : Set AbsGalQ2)) [Finite (AbsGalQ2 ⧸ U)] (hn : U.index = P.n)
+    [DistribMulAction ↥U (ZMod 2)] [ContinuousSMul ↥U (ZMod 2)]
+    [DistribMulAction ↥U (MuN 2)] [ContinuousSMul ↥U (MuN 2)]
+    {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+    [DistribMulAction ↥U V] [ContinuousSMul ↥U V] [DistribMulAction C V]
+    (D : TateDualityG ↥U 2)
+    (tameFK : ContinuousMonoidHom ↥U (Tq P.qK)) (htameFK : Function.Surjective ⇑tameFK)
+    (c : ContinuousMonoidHom (Tq P.qK) C) (hc : Function.Surjective ⇑c)
+    (ρ : ContinuousMonoidHom ↥U C) (hfac : ∀ g, ρ g = c (tameFK g))
+    (hρ : ∀ (g : ↥U) (v : V), g • v = ρ g • v)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m))
+    (hcert : (∃ v : V, c (tqTau P.qK) • v ≠ v) → Nonempty (RamifiedCertificate P U V c ρ))
+    (hplus : (∃ v : V, c (tqTau P.qK) • v ≠ v) ∨ Even P.n) :
+    Nat.card {x : H1 ↥U V // Q0loc D dat ρ x = 0}
+      = 2 ^ (2 * m * P.n - 1) + 2 ^ (m * P.n - 1) := by
+  classical
+  have hV2 : ∀ v : V, v + v = 0 := DeepPart.exp_two_of_simple_of_card hsimple m hm hcard
+  obtain ⟨hEuler, hite⟩ := local_gauss_K P U hU hn D tameFK htameFK c hc ρ hfac hρ hfaith hsimple
+    q hq hns hinv dat hdat m hm hcard hcert
+  have harf : arf (Q0loc D dat ρ (V := V)) = 0 := by
+    rcases hplus with hr | hev
+    · rwa [if_pos hr] at hite
+    · have hval : (P.n : ZMod 2) = 0 := by
+        obtain ⟨j, hj⟩ := hev
+        rw [hj, Nat.cast_add, CharTwo.add_self_eq_zero]
+      rw [hval, ite_self] at hite
+      exact hite
+  have hmn : 1 ≤ m * P.n :=
+    Nat.one_le_iff_ne_zero.mpr (Nat.mul_ne_zero (by omega) (by have := P.one_le_n; omega))
+  have h := zeroCount_Q0loc_of_arf_zero D q hq hns hinv dat hdat ρ hρ hV2 hmn
+    (by rw [mul_assoc] at hEuler; exact hEuler) harf
+  rwa [← mul_assoc] at h
+
+/-- **Packet eq. (115), negative Gauss sign**: `#(Q⁰)⁻¹(0) = 2^{2mn−1} − 2^{mn−1}` for an
+unramified marking in odd degree — the only case in which the sign is `−`. -/
+theorem local_gauss_K_zeroCount_sub (P : FieldParameters) (U : Subgroup AbsGalQ2)
+    (hU : IsOpen (U : Set AbsGalQ2)) [Finite (AbsGalQ2 ⧸ U)] (hn : U.index = P.n)
+    [DistribMulAction ↥U (ZMod 2)] [ContinuousSMul ↥U (ZMod 2)]
+    [DistribMulAction ↥U (MuN 2)] [ContinuousSMul ↥U (MuN 2)]
+    {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+    [DistribMulAction ↥U V] [ContinuousSMul ↥U V] [DistribMulAction C V]
+    (D : TateDualityG ↥U 2)
+    (tameFK : ContinuousMonoidHom ↥U (Tq P.qK)) (htameFK : Function.Surjective ⇑tameFK)
+    (c : ContinuousMonoidHom (Tq P.qK) C) (hc : Function.Surjective ⇑c)
+    (ρ : ContinuousMonoidHom ↥U C) (hfac : ∀ g, ρ g = c (tameFK g))
+    (hρ : ∀ (g : ↥U) (v : V), g • v = ρ g • v)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m))
+    (hunram : ∀ v : V, c (tqTau P.qK) • v = v) (hodd : Odd P.n) :
+    Nat.card {x : H1 ↥U V // Q0loc D dat ρ x = 0}
+      = 2 ^ (2 * m * P.n - 1) - 2 ^ (m * P.n - 1) := by
+  classical
+  have hV2 : ∀ v : V, v + v = 0 := DeepPart.exp_two_of_simple_of_card hsimple m hm hcard
+  have hnr : ¬∃ v : V, c (tqTau P.qK) • v ≠ v := fun h => h.elim fun v hv => hv (hunram v)
+  obtain ⟨hEuler, hite⟩ := local_gauss_K P U hU hn D tameFK htameFK c hc ρ hfac hρ hfaith hsimple
+    q hq hns hinv dat hdat m hm hcard (fun h => absurd h hnr)
+  have harf : arf (Q0loc D dat ρ (V := V)) = 1 := by
+    rw [if_neg hnr] at hite
+    obtain ⟨j, hj⟩ := hodd
+    rw [hite, hj]
+    push_cast [CharTwo.two_eq_zero]
+    ring
+  have hmn : 1 ≤ m * P.n :=
+    Nat.one_le_iff_ne_zero.mpr (Nat.mul_ne_zero (by omega) (by have := P.one_le_n; omega))
+  have h := zeroCount_Q0loc_of_arf_one D q hq hns hinv dat hdat ρ hρ hV2 hmn
+    (by rw [mul_assoc] at hEuler; exact hEuler) harf
+  rwa [← mul_assoc] at h
+
+end ZeroCount
+
+/-! ## §6 Regressions
+
+Four checks on the assembled statement.
+
+1. **`n = 1`, both signs** — `local_gauss_q2`: the `ite`-form of `local_gauss_K` at `K = ℚ₂`,
+   whose two branches are discharged by single `exact`s on LG3's and LG4b's `ℚ₂` endpoints; the
+   two `example`s below pin those endpoints, by `rfl`, against the models
+   `GQ2.DetRamified.prop_6_18_ramified` (`GQ2/DetRamified.lean` :53) and
+   `GQ2.UnramifiedModel.prop_6_18_unramified` (`GQ2/UnramifiedModel.lean` :585).  Note that the
+   `ℚ₂` pins necessarily live at the `AbsGalQ2` ambient: `local_gauss_K` is stated over `↥U` for
+   an open `U ≤ G_ℚ₂`, and `↥(⊤ : Subgroup AbsGalQ2)` is not *definitionally* `AbsGalQ2`, so the
+   `↥U`-packaged statement itself admits no `rfl` pin — the pins are at the engines it composes.
+2. **`n = 2`, unramified** — the Gauss sign is `(−1)² = +1`.
+3. **ramified, every `n`** — the Gauss sign is `+1` (`arf = 0`), with no parity condition. -/
+
+section Regression
+
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+
+open scoped Classical in
+/-- **The `n = 1` regression**: `local_gauss_K`'s counting form at `K = ℚ₂`.  Both branches are the
+`ℚ₂` models verbatim — the ramified branch is `GQ2.DetRamified.prop_6_18_ramified` and the
+unramified branch is `GQ2.UnramifiedModel.prop_6_18_unramified`, as the two `rfl` pins below
+certify — so the general assembly restricted to `n = 1` reproduces the packet's `ℚ₂` case with no
+numerical drift. -/
+theorem local_gauss_q2 {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V]
+    [Finite V] [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
+    (D : TateDuality 2) (R : LocalReciprocity) (B : BoundaryMaps)
+    (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
+    (horient : TameUnitOrientation R B.tameF)
+    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
+    Nat.card {x : H1 AbsGalQ2 V // Q0loc D dat ρ x = 0}
+      = if ∃ v : V, c tameTau • v ≠ v then 2 ^ (2 * m - 1) + 2 ^ (m - 1)
+        else 2 ^ (2 * m - 1) - 2 ^ (m - 1) := by
+  by_cases hr : ∃ v : V, c tameTau • v ≠ v
+  · rw [if_pos hr]
+    exact prop_6_18_ramified_K_q2 D R B c hc ρ hfac horient hρ hfaith hsimple hr q hq hns hinv
+      dat hdat m hm hcard
+  · rw [if_neg hr]
+    have hunram : ∀ v : V, c tameTau • v = v := fun v => not_not.mp fun hv => hr ⟨v, hv⟩
+    haveI : Nontrivial V := by
+      rw [← Finite.one_lt_card_iff_nontrivial, hcard]
+      calc (1 : ℕ) < 2 ^ 2 := by norm_num
+        _ ≤ 2 ^ (2 * m) := Nat.pow_le_pow_right (by norm_num) (by omega)
+    exact prop_6_18_unramified_K_q2 D B c hc ρ hfac hρ hfaith hsimple (exists_ne (0 : V)) hunram
+      q hq hns hinv dat hdat m hm hcard
+
+/-- **Branch pin, `n = 1` ramified**: the term discharging `local_gauss_q2`'s `if_pos` branch has
+*definitionally* the type of `GQ2.DetRamified.prop_6_18_ramified` (`GQ2/DetRamified.lean` :53). -/
+example : @prop_6_18_ramified_K_q2 = @GQ2.DetRamified.prop_6_18_ramified := rfl
+
+/-- **Branch pin, `n = 1` unramified**: the term discharging `local_gauss_q2`'s `if_neg` branch has
+*definitionally* the type of `GQ2.UnramifiedModel.prop_6_18_unramified`
+(`GQ2/UnramifiedModel.lean` :585). -/
+example : @prop_6_18_unramified_K_q2 = @GQ2.UnramifiedModel.prop_6_18_unramified := rfl
+
+/-- **The `n = 2` unramified regression**: at a quadratic extension the Gauss sign is
+`(−1)² = +1`, i.e. `#(Q⁰)⁻¹(0) = 2^{4m−1} + 2^{2m−1}` — the *opposite* sign to `n = 1`, which is
+the content of the `(−1)^n` factor of packet eq. (115). -/
+theorem local_gauss_K_n_two_unramified (P : FieldParameters) (U : Subgroup AbsGalQ2)
+    (hU : IsOpen (U : Set AbsGalQ2)) [Finite (AbsGalQ2 ⧸ U)] (hn : U.index = P.n)
+    [DistribMulAction ↥U (ZMod 2)] [ContinuousSMul ↥U (ZMod 2)]
+    [DistribMulAction ↥U (MuN 2)] [ContinuousSMul ↥U (MuN 2)]
+    {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+    [DistribMulAction ↥U V] [ContinuousSMul ↥U V] [DistribMulAction C V]
+    (D : TateDualityG ↥U 2)
+    (tameFK : ContinuousMonoidHom ↥U (Tq P.qK)) (htameFK : Function.Surjective ⇑tameFK)
+    (c : ContinuousMonoidHom (Tq P.qK) C) (hc : Function.Surjective ⇑c)
+    (ρ : ContinuousMonoidHom ↥U C) (hfac : ∀ g, ρ g = c (tameFK g))
+    (hρ : ∀ (g : ↥U) (v : V), g • v = ρ g • v)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m))
+    (hunram : ∀ v : V, c (tqTau P.qK) • v = v) (hn2 : P.n = 2) :
+    Nat.card {x : H1 ↥U V // Q0loc D dat ρ x = 0}
+      = 2 ^ (2 * m * 2 - 1) + 2 ^ (m * 2 - 1) := by
+  have hnr : ¬∃ v : V, c (tqTau P.qK) • v ≠ v := fun h => h.elim fun v hv => hv (hunram v)
+  have heven : Even P.n := by rw [hn2]; exact even_two
+  have h := local_gauss_K_zeroCount_add P U hU hn D tameFK htameFK c hc ρ hfac hρ hfaith hsimple
+    q hq hns hinv dat hdat m hm hcard (fun hx => absurd hx hnr) (Or.inr heven)
+  rwa [hn2] at h
+
+/-- **The ramified regression, every `n`**: a ramified marking has `arf (Q⁰) = 0` and Gauss sign
+`+1` at *every* degree — no parity condition, in contrast with the unramified `(−1)^n`. -/
+theorem local_gauss_K_ramified_sign (P : FieldParameters) (U : Subgroup AbsGalQ2)
+    (hU : IsOpen (U : Set AbsGalQ2)) [Finite (AbsGalQ2 ⧸ U)] (hn : U.index = P.n)
+    [DistribMulAction ↥U (ZMod 2)] [ContinuousSMul ↥U (ZMod 2)]
+    [DistribMulAction ↥U (MuN 2)] [ContinuousSMul ↥U (MuN 2)]
+    {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+    [DistribMulAction ↥U V] [ContinuousSMul ↥U V] [DistribMulAction C V]
+    (D : TateDualityG ↥U 2)
+    (tameFK : ContinuousMonoidHom ↥U (Tq P.qK)) (htameFK : Function.Surjective ⇑tameFK)
+    (c : ContinuousMonoidHom (Tq P.qK) C) (hc : Function.Surjective ⇑c)
+    (ρ : ContinuousMonoidHom ↥U C) (hfac : ∀ g, ρ g = c (tameFK g))
+    (hρ : ∀ (g : ↥U) (v : V), g • v = ρ g • v)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m))
+    (cert : RamifiedCertificate P U V c ρ) :
+    arf (Q0loc D dat ρ (V := V)) = 0 ∧
+      Nat.card {x : H1 ↥U V // Q0loc D dat ρ x = 0}
+        = 2 ^ (2 * m * P.n - 1) + 2 ^ (m * P.n - 1) :=
+  ⟨arf_zero_of_ramified_K P U hU hn D tameFK htameFK c hc ρ hfac hρ hfaith hsimple q hq hns hinv
+      dat hdat m hm hcard cert,
+    local_gauss_K_zeroCount_add P U hU hn D tameFK htameFK c hc ρ hfac hρ hfaith hsimple q hq hns
+      hinv dat hdat m hm hcard (fun _ => ⟨cert⟩) (Or.inl cert.ram)⟩
+
+end Regression
+
 end GQ2.Dyadic
