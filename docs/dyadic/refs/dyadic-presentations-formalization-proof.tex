@@ -1,0 +1,1165 @@
+\documentclass[11pt,reqno]{amsart}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,longtable,array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage[nameinlink,capitalize,noabbrev]{cleveref}
+
+\geometry{margin=1.05in}
+\hypersetup{colorlinks=true,linkcolor=blue!55!black,citecolor=green!35!black,
+  urlcolor=blue!65!black,
+  pdftitle={Formalization-ready proof packet for dyadic Galois presentations},
+  pdfauthor={OpenAI, prepared for David Roe}}
+\setlist{itemsep=0.25em,topsep=0.45em}
+\allowdisplaybreaks
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{construction}[theorem]{Construction}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{warning}[theorem]{Warning}
+
+\numberwithin{equation}{section}
+
+\newcommand{\Q}{\mathbf Q}
+\newcommand{\Z}{\mathbf Z}
+\newcommand{\F}{\mathbf F}
+\newcommand{\ur}{\mathrm{ur}}
+\newcommand{\tame}{\mathrm{t}}
+\newcommand{\pc}{\mathrm{pc}}
+\newcommand{\sgn}{\mathrm{sgn}}
+\newcommand{\prof}{\mathrm{prof}}
+\newcommand{\Gal}{\operatorname{Gal}}
+\newcommand{\Hom}{\operatorname{Hom}}
+\newcommand{\Sur}{\operatorname{Sur}}
+\newcommand{\Aut}{\operatorname{Aut}}
+\newcommand{\im}{\operatorname{im}}
+\newcommand{\coker}{\operatorname{coker}}
+\newcommand{\inv}{\operatorname{inv}}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\Frat}{\operatorname{Frat}}
+\newcommand{\whZ}{\widehat{\Z}}
+\newcommand{\Gsum}{\mathcal G}
+\newcommand{\cU}{\mathcal U}
+\newcommand{\cC}{\mathcal C}
+\newcommand{\cS}{\mathcal S}
+\newcommand{\cW}{\mathcal W}
+\newcommand{\eps}{\varepsilon}
+\DeclareMathOperator{\rad}{rad}
+\DeclareMathOperator{\Otwo}{O_2}
+
+\title[Formalization packet for dyadic presentations]
+{A Formalization-Ready Proof Packet for\\
+Presentations of Dyadic Absolute Galois Groups}
+\author{Prepared for David Roe}
+\date{July 28, 2026}
+
+\begin{document}
+\begin{abstract}
+This supplement audits and restructures the July 2026 draft on explicit
+presentations of absolute Galois groups of dyadic local fields.  It gives
+complete proofs of the boundary, exact-lifting, composition-series,
+Fourier--Gauss, and local determinant reductions; corrects the arithmetic
+branch decomposition; and states the remaining word and marked-Demu\v{s}kin
+obligations as finite, kernel-checkable certificates.  The generic
+finite-target induction is not reproved from scratch: it is already present
+in the accompanying \texttt{gq2-lean} development as a source-generic theorem,
+and this packet specifies the degree-\(n\) interface needed to reuse it.
+
+The resulting theorem is unconditional once two explicit certificate
+families are checked: the marked automorphism-lifting certificate for the
+standard \(q=2\) Demu\v{s}kin cores, and the universal Fox--Stokes--Hessian
+certificate for each displayed relator.  These are exactly the two places
+where the uploaded draft currently asserts calculations that it does not
+show.  No finite testing is promoted to a proof.
+\end{abstract}
+
+\maketitle
+\tableofcontents
+
+\section{Logical status and principal corrections}
+
+Let \(K/\Q_2\) be finite, let \(n=[K:\Q_2]\), let \(q_K=2^f\), and let
+\(D_K=G_K(2)\).  For a proposed wild word \(R\), write
+\[
+ \Gamma_R=\left\langle\sigma,\tau,x_0,\ldots,x_n\ \middle|\
+ \tau^\sigma=\tau^{q_K},\ R=1,\
+ \overline{\langle\!\langle x_0,\ldots,x_n\rangle\!\rangle}
+ \text{ is pro-}2\right\rangle_{\prof}.
+\]
+The compact words must use
+\[
+ x_2^{-\sigma}(x_2\tau)^{\omega_2},
+\]
+not \(x_2^{-\sigma_2}(x_2\tau)^{\omega_2}\).  The uploaded revision has
+made this correction.
+
+There are three further structural corrections.
+
+\begin{enumerate}
+\item The even-\(\eta\) ``sign-Frobenius'' row is incompatible with the
+standing hypothesis that \(K(i)/K\) is ramified; see
+\cref{prop:sign-excluded}.  It should be removed from the new ramified-\(i\)
+part of the theorem and, if retained at all, placed with the
+unramified-\(i\) discussion.
+\item Equality of one unshifted Gauss sum is not by itself the Fourier
+interface needed by the exact-image induction.  The correct interface is
+an affine Gauss/phase-cover interface; see \cref{sec:fourier}.
+\item The two-character Labute statement in the draft is much stronger
+than Labute's classification and its displayed proof is only an outline.
+For formalization it should be replaced by the group-level marked matching
+reduction in \cref{sec:marked}; the only new theorem there is an explicit
+per-core automorphism-lifting certificate.
+\end{enumerate}
+
+\begin{theorem}[Kernel-checkable main theorem]\label{thm:certificate-main}
+Fix a ramified-\(i\) field \(K\), a standard marked core \(P_K\), and a
+wild word \(R_K\).  Suppose:
+\begin{enumerate}
+\item \(P_K\) has a marked-core certificate in the sense of
+\cref{def:core-certificate};
+\item \(R_K\) has a word certificate in the sense of
+\cref{def:word-certificate}; and
+\item the standard local inputs listed in \cref{sec:local-inputs} hold for
+\(K\).
+\end{enumerate}
+Then \(\Gamma_{R_K}\cong G_K\).  The isomorphism identifies the tame
+quotient, the maximal pro-\(2\) quotient, the cyclotomic orientation, and
+the full geometric unramified character.
+\end{theorem}
+
+\begin{proof}
+The marked-core certificate gives the fully marked maximal pro-\(2\)
+identification.  The tame and joint boundary statements follow from
+\cref{thm:boundary}.  The word certificate supplies the source-side
+lifting, Stokes, scalar, and affine determinant obligations.  The local
+inputs and \cref{thm:local-gauss} supply the corresponding field-side
+obligations.  The source-generic exact-image theorem then gives equality of
+all finite epimorphism counts.  Since both groups are topologically finitely
+generated, profinite reconstruction gives the asserted isomorphism.  Each
+step is expanded below.
+\end{proof}
+
+\section{Conventions for profinite words}
+
+\begin{definition}[Profinite exponentiation]
+For an element \(g\) of a profinite group, the canonical continuous map
+\(\Z\to\overline{\langle g\rangle}\), \(a\mapsto g^a\), extends uniquely to
+\(\whZ\).  Its value at \(a\in\whZ\) is denoted \(g^a\).  If \(x,g\) are
+group elements, set
+\[
+ x^g=g^{-1}xg,\qquad [x,y]=x^{-1}y^{-1}xy,
+ \qquad x^{-g}:=(x^{-1})^g.
+\]
+Let \(\omega_2\in\whZ\) have component \(1\) in \(\Z_2\) and component
+\(0\) in every \(\Z_\ell\), \(\ell\ne2\), and put
+\(\sigma_2=\sigma^{\omega_2}\).
+\end{definition}
+
+\begin{lemma}[Finite evaluation of \(\omega_2\)]\label{lem:omega-finite}
+If \(g\) has finite order \(2^a m\) with \(m\) odd, then \(g^{\omega_2}=g^e\),
+where \(e\) is the unique residue modulo \(2^a m\) satisfying
+\[
+ e\equiv1\pmod{2^a},\qquad e\equiv0\pmod m.
+\]
+In particular, \(g^{\omega_2}\) is the \(2\)-primary component of \(g\).
+\end{lemma}
+
+\begin{proof}
+The assertion is the Chinese remainder description of the image of
+\(\omega_2\) in \(\Z/(2^am)\Z\).  Since every continuous map from a
+profinite word group to a finite group factors through a finite quotient,
+this also gives a terminating evaluator for every occurrence of
+\(\omega_2\).
+\end{proof}
+
+\begin{remark}[Lean encoding]
+A word syntax should distinguish integral powers, \(\Z_2\)-powers, and
+\(\whZ\)-powers.  Finite evaluation should reduce the last kind by
+\cref{lem:omega-finite}; this avoids selecting global integer
+representatives.  The expression \(x^{-g}\) should be a defined syntax
+constructor or expanded to \((x^{-1})^g\), never parsed as an exponent
+\(-g\).
+\end{remark}
+
+\section{The tame quotient and the common boundary}
+
+Put
+\[
+ T_q=\langle\sigma,\tau\mid\tau^\sigma=\tau^q\rangle_{\prof},
+ \qquad \nu_2(\sigma)=1,\quad\nu_2(\tau)=0,
+\]
+where \(\nu_2:T_q\to\Z_2\) is the \(2\)-primary component of the
+unramified character.
+
+\begin{lemma}[Tame inertia is pro-odd]\label{lem:tame-odd}
+In every finite quotient of \(T_q\), the order of the image of \(\tau\) is
+prime to \(q\).  Consequently the closed subgroup generated by all
+conjugates of \(\tau\) is pro-prime-to-\(2\) when \(q\) is a power of
+\(2\).
+\end{lemma}
+
+\begin{proof}
+Let the image of \(\tau\) have order \(m\).  The elements \(\tau\) and
+\(\tau^q\) are conjugate, hence have the same order.  But
+\(\operatorname{ord}(\tau^q)=m/\gcd(m,q)\), so \(\gcd(m,q)=1\).  Passing
+over all finite quotients gives the pro-prime-to-\(2\) assertion.
+\end{proof}
+
+\begin{lemma}\label{lem:ker-nu-odd}
+The kernel of \(\nu_2:T_q\to\Z_2\) is pro-odd.
+\end{lemma}
+
+\begin{proof}
+In a finite quotient, the image of the kernel is an extension of a finite
+quotient of tame inertia, which has odd order by \cref{lem:tame-odd}, by a
+finite quotient of the prime-to-\(2\) part of the unramified procyclic
+group.  Both kernel and quotient have odd order.
+\end{proof}
+
+\begin{lemma}[No normal pro-\(2\) subgroup in the tame quotient]
+\label{lem:O2-tame}
+\(\Otwo(T_q)=1\).
+\end{lemma}
+
+\begin{proof}
+Let \(N\triangleleft T_q\) be pro-\(2\).  By \cref{lem:ker-nu-odd},
+\(N\cap\ker\nu_2=1\), so \(\nu_2|_N\) is injective.  If \(z\in N\), then
+for every tame-inertia element \(t\), the commutator \([z,t]\) lies both
+in \(N\) and in \(\ker\nu_2\), hence is trivial.  Thus \(z\) centralizes
+\(\tau\).
+
+Write \(a=\nu_2(z)\in\Z_2\).  For every \(k\ge1\), map \(T_q\) to
+\[
+ C_{q^{2^k}-1}\rtimes C_{2^k},
+\]
+where the generator of \(C_{2^k}\) acts on
+\(C_{q^{2^k}-1}\) by the \(q\)-power map.  This is well-defined, because
+the order of \(q\) modulo \(q^{2^k}-1\) is exactly \(2^k\): if
+\(0<d<2^k\), then \(0<q^d-1<q^{2^k}-1\).  Since the image of \(z\)
+centralizes the inertia generator, \(a\equiv0\pmod{2^k}\).  This holds for
+all \(k\), so \(a=0\).  Injectivity of \(\nu_2|_N\) gives \(z=1\), hence
+\(N=1\).
+\end{proof}
+
+Let \(W_R\) be the closed normal subgroup of \(\Gamma_R\) generated by
+the \(x_i\).
+
+\begin{proposition}[Tame and maximal pro-\(2\) specializations]
+\label{prop:specializations}
+Assume that killing all \(x_i\) makes the wild word \(R\) trivial, and
+that killing \(\tau\) and replacing every profinite exponent by its
+\(2\)-component changes \(R\) to a pro-\(2\) word \(P\).  Then:
+\begin{enumerate}
+\item \(W_R=\Otwo(\Gamma_R)\) and \(\Gamma_R/W_R\cong T_{q_K}\);
+\item the maximal pro-\(2\) quotient of \(\Gamma_R\) is
+\[
+ D_P=\langle\sigma,x_0,\ldots,x_n\mid P=1\rangle_{\mathrm{pro}-2};
+\]
+\item the induced unramified character has
+\(\nu(\sigma)=1\) and \(\nu(x_i)=0\).
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+The admissibility condition makes \(W_R\) pro-\(2\), and the first
+specialization identifies the quotient with \(T_{q_K}\).  Any normal
+pro-\(2\) subgroup of \(\Gamma_R\) maps to a normal pro-\(2\) subgroup of
+\(T_{q_K}\), which is trivial by \cref{lem:O2-tame}; therefore it lies in
+\(W_R\).  This proves (1).
+
+Every map to a pro-\(2\) group kills \(\tau\), because tame inertia is
+pro-odd, and kills every odd-primary component of \(\sigma\).  Hence it
+factors through the displayed specialization.  Conversely that
+specialization is a pro-\(2\) quotient, proving (2).  The generator values
+in (3) are immediate.
+\end{proof}
+
+\begin{theorem}[Joint boundary surjectivity]\label{thm:boundary}
+Suppose \(D_P\cong D_K\) through an isomorphism preserving the full
+unramified character.  Then the natural map
+\[
+ \Gamma_R\longrightarrow
+ \partial_K:=T_{q_K}\times_{\Z_2}D_K
+\]
+is surjective.  The analogous map from \(G_K\) is surjective as well.
+\end{theorem}
+
+\begin{proof}
+The image projects onto both factors.  Apply the relative form of
+Goursat's lemma over \(\Z_2\).  Any failure of surjectivity would give a
+nontrivial common quotient of
+\(\ker(T_{q_K}\to\Z_2)\) and \(\ker(D_K\to\Z_2)\).  The former is pro-odd
+by \cref{lem:ker-nu-odd}; the latter is pro-\(2\), because \(D_K\) is
+pro-\(2\).  Their only common profinite quotient is trivial.  Hence the
+image is the full fibre product.  The field case is identical, using the
+wild inertia and maximal pro-\(2\) quotient of \(G_K\).
+\end{proof}
+
+\section{Exact elementary lifting and the Fox complex}
+
+Let \(C\) be finite, let \(A\) be a finite elementary abelian normal
+subgroup in an extension
+\[
+ 1\longrightarrow A\longrightarrow B\stackrel{\pi}{\longrightarrow}C
+ \longrightarrow1,
+\]
+and let \(\rho:\Gamma_R\to C\) be a continuous homomorphism.  The
+conjugation action through \(\rho\) makes \(A\) an \(\F_2[C]\)-module.
+
+\begin{proposition}[Literal defect formula]\label{prop:defect}
+Choose lifts in \(B\) of the \(n+3\) marked generators of \(\Gamma_R\).
+Evaluation of the tame and wild relators gives a defect
+\(e\in A^2\).  If the generator lifts are changed by
+\(a\in A^{n+3}\), then
+\[
+ e\longmapsto e+d^1_{R,\rho}(a),
+\]
+where \(d^1_{R,\rho}\) is the evaluated Fox Jacobian of the two relators.
+Consequently:
+\begin{enumerate}
+\item a lift \(\widetilde\rho:\Gamma_R\to B\) exists if and only if the
+defect class vanishes in \(\coker d^1_{R,\rho}\);
+\item when nonempty, the set of raw generator lifts satisfying both
+relations is a torsor under \(\ker d^1_{R,\rho}\);
+\item quotienting by simultaneous conjugation by \(A\) gives the complex
+\[
+ 0\longrightarrow A\stackrel{d^0}{\longrightarrow}A^{n+3}
+ \stackrel{d^1_{R,\rho}}{\longrightarrow}A^2\longrightarrow0.
+\]
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+For a finite word, the assertion follows by induction from
+\[
+ D(uv)=D(u)+\bar uD(v),\qquad
+ D(u^{-1})=-\bar u^{-1}D(u),
+\]
+where \(\bar u\) is the lower value in \(C\).  A profinite word is
+evaluated in the finite group \(B\), so its profinite powers may be
+replaced by the finite exponents of \cref{lem:omega-finite}; the same
+induction applies.  The first two conclusions are the elementary facts
+that an affine equation \(d^1(a)=-e\) is solvable exactly when
+\([e]=0\) in the cokernel, and that its solution set is a translate of
+the kernel.  Simultaneous conjugation changes the generator tuple by the
+usual coboundary \(d^0\), giving the complex.
+\end{proof}
+
+\begin{proposition}[No extra linear equation from admissibility]
+\label{prop:no-extra}
+In the situation of \cref{prop:defect}, assume the lower images of the
+\(x_i\) lie in \(\Otwo(C)\).  Every lift of an \(x_i\) lies in a finite
+normal \(2\)-subgroup of \(B\).  Thus the pro-\(2\) admissibility condition
+adds no equation to the elementary lifting problem.
+\end{proposition}
+
+\begin{proof}
+The inverse image \(\pi^{-1}(\Otwo(C))\) is an extension of a finite
+\(2\)-group by the elementary abelian \(2\)-group \(A\), hence is a finite
+\(2\)-group.  It is normal in \(B\) and contains every lift of every
+\(x_i\).
+\end{proof}
+
+\begin{lemma}[Exactness in coefficients]\label{lem:coeff-exact}
+A short exact sequence of finite \(\F_2[C]\)-modules induces a termwise
+short exact sequence of the corresponding Fox complexes.  The defect
+construction, boundary restriction, and connecting maps are natural in
+that sequence.
+\end{lemma}
+
+\begin{proof}
+The three terms are finite direct powers of the coefficient module, and
+the differentials are finite sums of action operators.  Exactness and
+naturality therefore follow coordinatewise.
+\end{proof}
+
+\section{Extending Stokes duality from simple to nonsplit modules}
+
+The draft correctly aims for a natural chain-level Stokes map, rather than
+cardinality identities.  The following lemma is the precise induction it
+needs.
+
+\begin{lemma}[Composition-series extension]\label{lem:composition}
+For every finite \(\F_2[C]\)-module \(A\), let
+\[
+ \eta_A:\cC^\bullet(A)\longrightarrow
+ \Hom_{\F_2}(\cC^\bullet(A^\vee),\F_2)[-2]
+\]
+be a natural chain map.  Assume:
+\begin{enumerate}
+\item short exact coefficient sequences give commuting short exact
+sequences of the source complexes and of the dual target complexes; and
+\item \(\eta_V\) is a quasi-isomorphism for every simple module \(V\).
+\end{enumerate}
+Then \(\eta_A\) is a quasi-isomorphism for every finite-length module
+\(A\), including nonsplit modules.
+\end{lemma}
+
+\begin{proof}
+Induct on the composition length.  Choose a short exact sequence
+\(0\to A'\to A\to V\to0\) with \(V\) simple.  Naturality gives a
+commuting diagram of short exact sequences of complexes.  Passing to
+cohomology gives a morphism between the two long exact sequences.  The
+outer vertical maps are isomorphisms by induction and by the simple case;
+the five lemma gives the result for \(A\).  Equivalently, the mapping
+cones form a short exact sequence and the outer cones are acyclic.
+\end{proof}
+
+\begin{warning}
+It is not enough to know that the three terms have the same dimensions or
+that the simple-module cohomology dimensions agree.  The natural chain map
+and the commuting exact diagrams are indispensable: the finite-target
+induction uses connecting maps and their adjoints.
+\end{warning}
+
+\section{Quadratic phases and the corrected Fourier interface}
+\label{sec:fourier}
+
+Let \(W\) be a finite \(\F_2\)-vector space and let
+\(Q:W\to\F_2\) be quadratic with nonsingular polarization
+\[
+ B_Q(x,y)=Q(x+y)+Q(x)+Q(y).
+\]
+
+\begin{lemma}[Affine Gauss translation]\label{lem:gauss-translate}
+For every linear form \(\ell\in W^\vee\), there is a unique
+\(y\in W\) with \(\ell(x)=B_Q(x,y)\) for all \(x\), and
+\[
+ \sum_{x\in W}(-1)^{Q(x)+\ell(x)}
+ =(-1)^{Q(y)}\sum_{x\in W}(-1)^{Q(x)}.
+\]
+\end{lemma}
+
+\begin{proof}
+Nonsingularity of \(B_Q\) gives the unique \(y\).  Since
+\(Q(x)+B_Q(x,y)=Q(x+y)+Q(y)\), translation by \(y\) gives the formula.
+\end{proof}
+
+\begin{corollary}[Gauss and zero counts]\label{cor:gauss-count}
+If \(\dim W=2m\), then
+\[
+ \Gsum(Q):=\sum_x(-1)^{Q(x)}=\eps(Q)2^m,
+ \qquad \eps(Q)\in\{+1,-1\},
+\]
+and
+\[
+ \#Q^{-1}(0)=2^{2m-1}+\eps(Q)2^{m-1}.
+\]
+The pair \((\dim W,\eps(Q))\) determines the isometry class of \(Q\).
+\end{corollary}
+
+\begin{definition}[Affine determinant interface]\label{def:affine-B4}
+A pair of sources has the \emph{affine determinant interface} if, for
+every boundary-framed lower map, every self-dual simple head, and every
+linear phase produced by a scalar central pushout, the two sources have
+the same affine Gauss sum
+\[
+ \sum_x(-1)^{Q(x)+\ell(x)}.
+\]
+Equivalently, one may supply:
+\begin{enumerate}
+\item equality of the base dimensions and base Gauss signs;
+\item the common polar/edge pairing; and
+\item a source-independent phase-cover theorem that converts the sign
+\((-1)^{Q(y)}\) in \cref{lem:gauss-translate} into exact-image counts for
+strictly smaller marked targets.
+\end{enumerate}
+\end{definition}
+
+\begin{proposition}[Why the draft's B4 is insufficient]
+Equality of the unshifted sums \(\Gsum(Q_1)=\Gsum(Q_2)\) does not, without
+additional phase compatibility, identify all affine fibres used by the
+finite-target induction.
+\end{proposition}
+
+\begin{proof}
+The shifted coefficient at \(\ell=B_Q(-,y)\) differs from the unshifted
+one by \((-1)^{Q(y)}\), by \cref{lem:gauss-translate}.  The unshifted
+sum alone does not identify which target-side phase corresponds to a
+vector with \(Q(y)=0\) or \(1\).  A marked quadratic isometry or the
+phase-cover mechanism of \cref{def:affine-B4} supplies the missing data.
+\end{proof}
+
+\begin{remark}[Existing formal theorem]
+The current \texttt{gq2-lean} development does not make this erroneous
+inference.  Its source interface contains separate half-torsor,
+separation, nondegeneracy, cocycle-cardinality, and ramified/unramified
+Gauss-residue obligations, and the exact-image recursion consumes those
+obligations.  The arbitrary-degree development should parameterize that
+existing record rather than replace it by the four-line B1--B4 record in
+the draft.
+\end{remark}
+
+\section{The local determinant quadratic form}
+
+Let \(V\) be a nontrivial simple finite \(\F_2[G_K]\)-module whose action
+factors through a finite tame group \(H\).  Let
+\(q:V\to\F_2\) be an \(H\)-invariant nonsingular quadratic form, and let
+\(\kappa_q^0\in H^2(V\rtimes H,\F_2)\) be an equivariant extraspecial
+class restricting trivially to the zero section.  For a cocycle \(b\), put
+\[
+ Q^0_{K,V}([b])=\inv_K((b,\rho)^*\kappa_q^0).
+\]
+The existence and normalization of \(\kappa_q^0\) should be packaged as
+part of the determinant datum; it is not automatic from the symbol
+``\(H\)-invariant \(q\)'' unless the orthogonal action has been lifted to
+the chosen extraspecial extension.
+
+\begin{proposition}[Well-definedness and polarization]
+\label{prop:local-polar}
+The function \(Q^0_{K,V}\) is well-defined on \(H^1(K,V)\), and
+\[
+ B_{Q^0}(x,y)=\inv_K(x\smile_{b_q}y),
+\]
+where \(b_q\) is the polarization of \(q\).  In particular,
+\(Q^0_{K,V}\) is nonsingular.
+\end{proposition}
+
+\begin{proof}
+Cohomologous cocycles give graph homomorphisms
+\(G_K\to V\rtimes H\) conjugate by an element of \(V\).  Inner
+automorphisms act trivially on group cohomology, so their pullbacks of
+\(\kappa_q^0\) agree.  This proves well-definedness.
+
+The commutator form of the extraspecial extension is \(b_q\).  Pulling
+back along the graph of \(x+y\) and comparing with the two individual
+graphs gives
+\[
+ Q^0(x+y)+Q^0(x)+Q^0(y)=\inv_K(x\smile_{b_q}y).
+\]
+Since \(b_q:V\simeq V^\vee\) and local Tate duality makes the cup pairing
+perfect, the polarization is nonsingular.
+\end{proof}
+
+\subsection{Unramified simple modules}
+
+\begin{lemma}[One Hermitian line]\label{lem:hermitian-line}
+Let \(E=\F_{2^{2e}}\), \(E_0=\F_{2^e}\), and
+\(x^*=x^{2^e}\).  For \(a\in E_0^\times\), set
+\[
+ Q_a(x)=\Tr_{E_0/\F_2}(a x x^*).
+\]
+Then
+\[
+ \sum_{x\in E}(-1)^{Q_a(x)}=-2^e.
+\]
+\end{lemma}
+
+\begin{proof}
+The norm map \(E^\times\to E_0^\times\), \(x\mapsto xx^*\), is
+surjective with fibres of size \(2^e+1\).  Hence
+\[
+\begin{aligned}
+ \sum_{x\in E}(-1)^{Q_a(x)}
+ &=1+(2^e+1)\sum_{t\in E_0^\times}
+       (-1)^{\Tr_{E_0/\F_2}(at)}\\
+ &=1-(2^e+1)=-2^e,
+\end{aligned}
+\]
+because a nontrivial additive character sums to \(-1\) over
+\(E_0^\times\).
+\end{proof}
+
+\begin{proposition}[Unramified local sign]\label{prop:unramified-sign}
+If \(V\) is nontrivial, simple, self-dual, and unramified, then
+\[
+ \Gsum(Q^0_{K,V})=(-1)^n2^{n\dim(V)/2}.
+\]
+\end{proposition}
+
+\begin{proof}
+The finite image is cyclic of odd order.  Self-duality makes
+\(E=\operatorname{End}_H(V)\) a finite field with a nontrivial adjoint
+involution; write \(E=\F_{2^{2e}}\) and
+\(E_0=E^{*=1}=\F_{2^e}\).  The space \(V\) is one-dimensional over
+\(E\).  Local Euler--Poincar\'e and the vanishing of \(H^0\) and \(H^2\)
+give
+\[
+ \dim_{\F_2}H^1(K,V)=n\dim_{\F_2}V,
+\]
+so \(H^1(K,V)\) has \(E\)-dimension \(n\).
+
+The polar form in \cref{prop:local-polar} is the trace of a nonsingular
+Hermitian form.  Diagonalize that Hermitian form over \(E/E_0\).  The
+restriction of \(Q^0\) to each orthogonal \(E\)-line is invariant under
+the norm-one scalars: such a scalar is an \(H\)-equivariant \(q\)-isometry,
+so functoriality of the normalized extraspecial class preserves \(Q^0\).
+A quadratic refinement of a nonsingular Hermitian line with this
+invariance is \(Q_a\) for some \(a\in E_0^\times\).  By
+\cref{lem:hermitian-line}, every line has Gauss sum \(-2^e\).  Gauss sums
+multiply under orthogonal direct sum, giving
+\[
+ (-2^e)^n=(-1)^n2^{ne}=(-1)^n2^{n\dim(V)/2}.
+\]
+\end{proof}
+
+\subsection{Ramified simple modules}
+
+The ramified proof should be split into the following local input package.
+This package is already the shape used by the existing deep-part
+formalization for \(G_{\Q_2}\); all statements are field-generic.
+
+\begin{definition}[Dyadic deep-unit package]\label{def:deep-package}
+Let \(L/K\) be a finite tame splitting extension for \(V\), let
+\(H=\Gal(L/K)\), and let \(e_L=v_L(2)\).  A dyadic deep-unit package
+consists of:
+\begin{enumerate}
+\item the projective inflation--restriction isomorphism
+\[
+ H^1(K,V)\simeq
+ \Hom_H(V^\vee,L^\times/L^{\times2});
+\]
+\item Hilbert orthogonality for the square-class filtration
+\(\overline U_i\subset L^\times/L^{\times2}\);
+\item the assertion that the ramified \(V\)-isotypic part has no middle
+constituent and that
+\[
+ X_+:=\Hom_H(V^\vee,\overline U_{e_L+1})
+\quad\text{has dimension }\frac{n\dim V}{2};
+\]
+\item vanishing of the normalized graph obstruction on \(X_+\), obtained
+from the Shapiro--Evens orbit formula and the deep-unit Evens-norm lemma
+for unramified quadratic extensions.
+\end{enumerate}
+\end{definition}
+
+\begin{proposition}[Construction of the deep Lagrangian]
+\label{prop:deep-lagrangian}
+Assume the package of \cref{def:deep-package}.  If \(V\) is ramified,
+then \(X_+\) is a totally singular Lagrangian for \(Q^0_{K,V}\).
+\end{proposition}
+
+\begin{proof}
+The projective inflation--restriction isomorphism identifies \(X_+\) with
+a subspace of \(H^1(K,V)\).  Hilbert orthogonality makes the cup-product
+polarization vanish on \(X_+\), and the normalized Shapiro--Evens
+calculation makes the quadratic function itself vanish there.  Thus
+\(X_+\) is totally singular.  Its dimension is half of
+\(\dim H^1(K,V)=n\dim V\), so nonsingularity of the ambient form makes it
+a Lagrangian.
+\end{proof}
+
+\begin{remark}[The parity error in the draft]
+Finite tame inertia in residue characteristic \(2\) always has odd order.
+Thus the sentence ``when the inertia order is even'' must be deleted.
+The middle-layer argument is instead: every nonzero graded unit layer has
+an odd tame-inertia character, while the exceptional middle/valuation
+pieces have trivial inertia; a ramified simple cannot occur in the latter.
+Projectivity makes the isotypic functor exact, and Hilbert orthogonality
+pairs the shallow and deep ramified constituents.
+\end{remark}
+
+\begin{proposition}[Ramified local sign]\label{prop:ramified-sign}
+If \(V\) is ramified and the deep-unit package holds, then
+\[
+ \Gsum(Q^0_{K,V})=2^{n\dim(V)/2}.
+\]
+\end{proposition}
+
+\begin{proof}
+By \cref{prop:deep-lagrangian}, the nonsingular quadratic space contains a
+totally singular Lagrangian.  It is therefore the split quadratic space,
+whose Gauss sign is positive.  Its dimension is \(n\dim V\), giving the
+formula.
+\end{proof}
+
+\begin{theorem}[Arbitrary-dyadic local Gauss theorem]
+\label{thm:local-gauss}
+Under the equivariant extraspecial datum and the standard local inputs of
+\cref{sec:local-inputs},
+\[
+ \dim_{\F_2}H^1(K,V)=n\dim V
+\]
+and
+\[
+ \Gsum(Q^0_{K,V})=
+ \begin{cases}
+ (-1)^n2^{n\dim(V)/2},&V\text{ unramified},\\
+ 2^{n\dim(V)/2},&V\text{ ramified}.
+ \end{cases}
+\]
+\end{theorem}
+
+\begin{proof}
+The dimension and nonsingularity follow from local Euler--Poincar\'e,
+Tate duality, and \cref{prop:local-polar}.  Apply
+\cref{prop:unramified-sign} or \cref{prop:ramified-sign} according to the
+inertia action.
+\end{proof}
+
+\section{Marked Demu\v{s}kin matching without an all-degree free-relator theorem}
+\label{sec:marked}
+
+For a standard core \(P\), write
+\[
+ D_P=\langle\sigma,x_0,\ldots,x_n\mid P=1\rangle_{\mathrm{pro}-2}
+\]
+and let \(\chi_P:D_P\to\Z_2^\times\) and
+\(\nu_P:D_P\to\Z_2\) be the displayed standard characters.
+
+\begin{definition}[Marked-core certificate]\label{def:core-certificate}
+A marked-core certificate for \((K,P)\) consists of:
+\begin{enumerate}
+\item an abstract Demu\v{s}kin isomorphism \(f:D_P\simeq D_K\) supplied by
+Labute's classification;
+\item a proof that the intrinsic orientation satisfies
+\(\chi_K\circ f=\chi_P\);
+\item an automorphism \(u\in\Aut(D_P)\) satisfying
+\[
+ \chi_P\circ u=\chi_P,
+ \qquad \nu_K\circ f\circ u=\nu_P.
+\]
+\end{enumerate}
+\end{definition}
+
+\begin{proposition}[Marked matching reduction]\label{prop:marked-reduction}
+To construct the automorphism \(u\) in
+\cref{def:core-certificate}, it is enough to prove the following
+per-standard-core statement:
+
+\smallskip
+\emph{Every automorphism of \(D_P^{\mathrm{ab}}\) preserving the canonical
+orientation, the torsion relation vector, and the mod-\(2\) cup form that
+occurs in the marked Smith--Witt classification lifts to an automorphism
+of \(D_P\).}
+\end{proposition}
+
+\begin{proof}
+Transport \(\nu_K\) through \(f\) and call the resulting character
+\(\nu'\) on \(D_P\).  Local reciprocity, Smith normal form, and Witt
+cancellation show that the equality of the marked data
+\((C,I,\lambda,\gamma)\) produces an automorphism \(\bar u\) of
+\(D_P^{\mathrm{ab}}\) preserving the orientation, relation vector, and
+cup form, with \(\nu'\circ\bar u=\nu_P\).  Lift \(\bar u\) by the stated
+per-core theorem.  The lift preserves \(\chi_P\) and corrects \(\nu'\), so
+\(f\circ u\) is the required marked isomorphism.
+\end{proof}
+
+\begin{remark}
+This reduction is strictly smaller and cleaner than the draft's proposed
+``degree-\(j\) Nielsen differential plus exceptional three-dimensional
+cokernel'' theorem.  The rank-three \(G_{\Q_2}(2)\) case is already proved
+in the current Lean development by exactly this route: classify the
+orientation-preserving action on the abelianization, lift it, and compose
+with the abstract Labute isomorphism.  For the present paper, one needs the
+same explicit lifting theorem for the rank-four \(M_\alpha\) and
+\(N_\alpha\) cores; hyperbolic handles can then be added by standard
+Nielsen moves preserving their commutator product.
+\end{remark}
+
+\section{Arithmetic branch correction for type \texorpdfstring{\(M_\alpha\)}{M-alpha}}
+
+Let
+\[
+ C=\langle-1\rangle\times\langle u\rangle,
+ \qquad u=(1-2^\alpha)^{-1}\in1+4\Z_2,
+\]
+and let \(\lambda:C\twoheadrightarrow\Z/2^r\Z\) be the marked
+unramified quotient.  Write
+\[
+ \lambda(-1)=\epsilon2^{r-1},\qquad \lambda(u)=\eta.
+\]
+
+\begin{proposition}[The sign row is the unramified-\(i\) branch]
+\label{prop:sign-excluded}
+If \(\eta\) is even, then \(r=1\), \(\epsilon=1\), and \(K(i)/K\) is
+unramified.  Consequently, under the standing hypothesis that
+\(K(i)/K\) is ramified, \(\eta\) is necessarily odd.  The only new
+\(M_\alpha\) rows are therefore the compact row \(r=0\) and the
+procyclic-Frobenius row \(r\ge1\), \(\eta\in\Z_2^\times\).
+\end{proposition}
+
+\begin{proof}
+If \(\eta\) is even, the image of the procyclic factor
+\(\langle u\rangle\) is contained in
+\(2\Z/2^r\Z\).  The element \(-1\) has order two, so its image is either
+zero or \(2^{r-1}\).  Surjectivity of \(\lambda\) is possible only when
+\(r=1\) and \(\lambda(-1)=1\), i.e. \(\epsilon=1\).  Then
+\(\lambda\) vanishes on \(\langle u\rangle\), and
+\[
+ I=\ker\lambda=\langle u\rangle.
+\]
+The fixed field of \(\langle u\rangle\subset\Z_2^\times\) in the
+\(2\)-power cyclotomic tower is obtained by adjoining \(i\): the
+procyclic subgroup \(1+4\Z_2\) fixes \(\mu_4\), whereas \(-1\) acts on
+\(i\) by complex conjugation.  By definition of \(I\), the quotient
+\(C/I\) is the unramified cyclotomic quotient.  Hence \(K(i)/K\) is
+unramified.
+\end{proof}
+
+\begin{corollary}[The \(\Q_2(\sqrt{-10})\) parameters]
+\label{cor:minus10}
+For \(K=\Q_2(\sqrt{-10})\), the type is \(M_2\) with
+\[
+ r=1,\qquad \epsilon=1,\qquad \eta=1.
+\]
+Thus the general procyclic word, not the sign word, is the relevant
+family.
+\end{corollary}
+
+\begin{proof}
+The unique unramified quadratic extension of \(K\) is
+\(K(\sqrt5)\).  Since
+\[
+ \frac{-2}{5}=\frac{-10}{5^2}
+\]
+is a square in \(K\), this is also \(K(\sqrt{-2})\), a quadratic
+subextension of the \(2\)-power cyclotomic tower.  The corresponding
+quadratic character on
+\(\Z_2^\times=\langle-1\rangle\times(1+4\Z_2)\) is nontrivial on both
+\(-1\) and a generator congruent to \(5\pmod8\).  For
+\(u=(-3)^{-1}\), one has \(u\equiv5\pmod8\), so
+\(\lambda(-1)=\lambda(u)=1\).
+\end{proof}
+
+\section{Word certificates}
+
+The remaining word calculations should not be represented in Lean by a
+single opaque theorem for each field.  They should be checked by a generic
+word evaluator and small certificates in a universal finite operator
+algebra.
+
+\begin{definition}[Word certificate]\label{def:word-certificate}
+For a proposed word \(R\) and core \(P\), a word certificate consists of:
+\begin{enumerate}
+\item \textbf{tame specialization:} after setting every \(x_i=1\), the
+word evaluates to \(1\) in \(T_{q_K}\);
+\item \textbf{pro-\(2\) specialization:} after setting \(\tau=1\) and
+\(\sigma_2=\sigma\), it evaluates to \(P\);
+\item \textbf{Fox certificate:} for every simple tame module, explicit
+invertible row and column operations reduce the evaluated two-relator
+Jacobian to the prescribed normal form;
+\item \textbf{Stokes certificate:} the recursively evaluated second-order
+word identity is a natural chain map and is perfect on every simple
+module;
+\item \textbf{scalar certificate:} on \(\F_2\), the cup--Bockstein matrix
+is the marked local Hilbert matrix;
+\item \textbf{quadratic certificate:} on every self-dual simple module,
+the extraspecial Hessian reduces to the claimed nondegenerate quadratic
+normal form, together with the target-side affine phase data needed by
+\cref{def:affine-B4}.
+\end{enumerate}
+\end{definition}
+
+\begin{proposition}[Boundary specializations for the displayed rows]
+\label{prop:word-boundary}
+The tame and pro-\(2\) specialization parts of
+\cref{def:word-certificate} hold for the corrected \(L\), compact
+\(N_\alpha\), noncompact \(N_\alpha\), compact \(M_\alpha\), and
+procyclic \(M_\alpha\) words in the uploaded draft.
+\end{proposition}
+
+\begin{proof}
+Put \(\delta_i=(x_i\tau)^{\omega_2}x_i^{-1}\).
+
+For the tame specialization, all \(x_i\) become \(1\).  Tame inertia is
+pro-odd, so \(\tau^{\omega_2}=1\), whence every \(\delta_i\), every
+correction word, and every hyperbolic handle becomes \(1\).  The remaining
+factors are powers and commutators of powers of \(\sigma\), and the
+balanced exponents cancel.
+
+For the pro-\(2\) specialization, \(\tau=1\),
+\(\sigma_2=\sigma\), and every \(\delta_i=1\).  In type \(L\), this gives
+\[
+ h_0=x_0^{\sigma^2}x_0,
+ \qquad u_1^{-1}x_1^\sigma=x_1^{-1}x_1^\sigma=[x_1,\sigma],
+\]
+which is the marked \(L\)-core.  In compact type \(N\),
+\[
+ x_2^{-\sigma}x_2=[\sigma,x_2].
+\]
+In noncompact type \(N\), with \(g=x_1\sigma^{2^r}\),
+\(x_2^{-g}x_2=[g,x_2]\), and the correction is \(1\).
+
+For compact type \(M\), set \(A_0=x_0^{-1}\sigma^{-m}\).  The specialized
+word is
+\[
+ A_0^2[A_0,x_1]\sigma^{2m}[\sigma,x_2],
+\]
+and \(2m=2^\alpha\), giving the marked core.  In the procyclic row,
+\(R_{\mathrm{lin}}^{\pc}\) becomes the marked core.  In the auxiliary
+copy,
+\[
+ \widehat C=\sigma^{2^r},\qquad
+ \widehat A=\widehat C^{-m},
+\]
+and all four displayed factors commute; its total power is
+\(-2m2^r+2^\alpha2^r=0\).  Hence the auxiliary copy and the final
+\(D_0^2[D_0,D_1]\) specialize to \(1\).
+\end{proof}
+
+\begin{warning}[What is still absent]
+The uploaded TeX says that exact Fox normal forms and ``the nonsingular
+core matrices below'' have been calculated, but it does not display the
+matrices, the row/column operations, or the universal second-order
+identities.  Those are not expository details: they are precisely items
+(3)--(6) of \cref{def:word-certificate}.  Until the expression trees and
+certificates are supplied, the word theorems are not proved.
+\end{warning}
+
+\subsection{Certificate checker design}
+
+The Lean checker should use the following reflected objects.
+\begin{verbatim}
+inductive PWord (Gen : Type)
+  | one | gen (g : Gen) | mul | inv | conj | comm
+  | zpow (a : Int) | z2pow (a : Z2) | profPow (a : ProfiniteInt)
+
+structure FoxCertificate where
+  rowOps : List ElementaryRowOp
+  colOps : List ElementaryColOp
+  target : FoxNormalForm
+  verifies : applyOps rowOps colOps (foxJacobian word) = target.matrix
+
+structure HessianCertificate where
+  change : LinearEquiv ...
+  target : QuadraticNormalForm
+  verifiesPolar : ...
+  verifiesQuadratic : ...
+  affinePhase : PhaseCoverCertificate ...
+\end{verbatim}
+The evaluator should compute in finite semidirect, Heisenberg, and
+extraspecial groups, using \cref{lem:omega-finite}.  The proof object is a
+short list of elementary operations and polynomial/operator identities;
+no external CAS result should be trusted without replay.
+
+\section{The source-generic reconstruction theorem}
+
+The finite-target induction should be imported from the existing
+source-generic formal theorem, with its source record parameterized by
+\(n\).  Its actual hypotheses are more precise than B1--B4: besides the
+boundary, they include topological finite generation, scalar
+\(H^1/H^2\) cardinalities, linear lift multiplicities, half-torsor
+counts, exact-image recurrence, phase separation and nondegeneracy,
+cocycle cardinalities, and the two Gauss-residue leaves.
+
+\begin{theorem}[Abstract exact-image reconstruction]
+\label{thm:source-abstract}
+Let \(S_1,S_2\) be topologically finitely generated profinite groups with
+the same marked boundary.  Suppose the two sources satisfy the same
+source-data record for every boundary-framed finite target, including the
+affine determinant interface of \cref{def:affine-B4}.  Then
+\[
+ \#\Sur(S_1,G)=\#\Sur(S_2,G)
+\]
+for every finite group \(G\), and \(S_1\cong S_2\).
+\end{theorem}
+
+\begin{proof}
+The proof is the boundary-framed exact-image induction already formalized
+for the \(G_{\Q_2}\) presentation.  Its well-founded measure is the wild
+normal \(2\)-subgroup of the marked target together with the proper
+exact-image strata.  The terminal scalar lane uses the boundary and
+scalar cohomology leaves.  A minimal nontrivial module layer is handled by
+the linear lift-torsor and adjoint obstruction data.  For a self-dual
+head, the determinant pushout is converted by finite Fourier inversion
+and the phase-cover identities into central covers with strictly smaller
+measure.  Inclusion--exclusion closes the exact-image strata.  Summing
+boundary frames gives the unframed count.  Equality of finite quotient
+counts and topological finite generation give profinite reconstruction.
+
+For arbitrary \(n\), the recursion is unchanged.  Only source-supplied
+cardinalities such as
+\[
+ \#\Hom_{\mathrm{cont}}(S,\F_2)=2^{n+2},
+ \qquad \#Z^1(S,V)=|V|^{n+1}
+\]
+change, and both sources supply the same values.  Thus the Lean change is
+a parameterization of the leaf record, not a new induction proof.
+\end{proof}
+
+\section{Standard local inputs and formal trust boundary}
+\label{sec:local-inputs}
+
+The following inputs may initially be represented by named literature
+interfaces, provided that every normalization is explicit.
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.24\textwidth}
+                  >{\raggedright\arraybackslash}p{0.47\textwidth}
+                  >{\raggedright\arraybackslash}p{0.20\textwidth}}
+\toprule
+Input & Exact statement used & Formal destination\\
+\midrule
+\endhead
+Local Euler characteristic & For nontrivial simple \(V\),
+\(\dim H^1(K,V)=n\dim V\), after the \(H^0,H^2\) vanishings are shown. &
+\path{DyadicLocalData.eulerChar}\\
+Tate duality & Perfectness and functoriality of the cup pairing, including
+adjoint connecting maps. & \path{TateDualityG K 2}\\
+Local reciprocity & The full \(\Z_2\)-valued geometric unramified
+character and the marked cyclotomic quotient \((C,I,\lambda,\gamma)\). &
+\texttt{MarkedRecip}\\
+Square-class filtration & Exact graded pieces, inertia characters,
+Hilbert orthogonality, and the deep-half dimension. &
+\texttt{SquareClass}\\
+Projectivity & A faithful ramified simple tame \(\F_2[H]\)-module is
+projective, so isotypic functors and inflation--restriction are exact. &
+\path{RamifiedSimple.projective}\\
+Shapiro--Evens & Normalized orbit formula for the extraspecial graph
+class, including involution-stabilized orbits. &
+\texttt{ShapiroEvens}\\
+Deep Evens norm & The degree-two Evens norm of a deep unit in an
+unramified quadratic extension of dyadic fields vanishes. &
+Existing deep-part theorem\\
+Demu\v{s}kin classification & Abstract standard presentation and
+intrinsic canonical orientation. & \texttt{LabuteClass}\\
+Profinite reconstruction & Equality of finite epimorphism counts for
+topologically finitely generated profinite groups implies isomorphism. &
+Existing reconstruction API\\
+\bottomrule
+\end{longtable}
+
+The trust boundary should not contain any assertion that a particular
+explicit candidate word presents \(G_K\).  Those are the conclusions to
+be proved from the reflected word certificates.
+
+\section{Lean module graph and acceptance criteria}
+
+A practical dependency order is:
+\begin{enumerate}
+\item \texttt{Dyadic/Parameters}: \(n,q_K\), semantic generators,
+profinite exponents, and branch data;
+\item \texttt{Dyadic/TameBoundary}: \cref{lem:tame-odd,lem:O2-tame,prop:specializations,thm:boundary};
+\item \texttt{Dyadic/MarkedCore}: the reduction of \cref{sec:marked} and
+per-core automorphism-lifting certificates;
+\item \texttt{Dyadic/WordSyntax}, \texttt{FoxEval},
+\texttt{HeisenbergEval}, and \texttt{ExtraspecialEval};
+\item \texttt{Dyadic/LocalGauss}: the field-generic version of
+\cref{thm:local-gauss}, reusing the current deep-part files;
+\item \texttt{Dyadic/SourceDataN}: parameterized source leaves and an
+adapter to the current source-generic induction;
+\item one branch file for each of \(L\), compact/noncompact \(N\), and
+compact/procyclic \(M\);
+\item the final theorem, which invokes only
+\cref{thm:certificate-main}.
+\end{enumerate}
+
+Every branch merge should satisfy:
+\begin{enumerate}
+\item the TeX word is generated from the same syntax tree used by Lean;
+\item \texttt{\#print axioms} for the branch theorem contains only the
+named local/literature interfaces;
+\item no \texttt{sorryAx}, no field-specific isomorphism axiom, and no
+unchecked CAS equality;
+\item both boundary specializations are theorem-level equalities;
+\item the Fox certificate includes explicit invertible operations;
+\item the Hessian certificate proves nonsingularity and the affine phase
+interface, not only the unshifted Gauss sign;
+\item the \(n=1\) adapter reproduces the existing \(G_{\Q_2}\) source
+record;
+\item the \(\Q_2(\sqrt{-10})\) instance uses the procyclic parameters of
+\cref{cor:minus10}.
+\end{enumerate}
+
+\section{Exact remaining theorem inventory}
+
+After the corrections and reductions above, the proof is complete modulo
+the following explicit leaves.
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.08\textwidth}
+                  >{\raggedright\arraybackslash}p{0.30\textwidth}
+                  >{\raggedright\arraybackslash}p{0.48\textwidth}}
+\toprule
+ID & Theorem/certificate & Completion criterion\\
+\midrule
+\endhead
+MC-M & Marked automorphism lifting for the rank-four \(M_\alpha\) core &
+A finite list of orientation-preserving Nielsen generators lifts the
+Smith--Witt stabilizer on the abelianization; composition gives every
+required marking correction.\\
+MC-N & Marked automorphism lifting for the rank-four \(N_\alpha\) core &
+Same criterion for the \(N\)-relation vector and cup form.\\
+WC-L & Universal word certificate for \(R_L\) &
+Fox, Stokes, scalar, and quadratic certificates, with the existing
+\(n=1\) theorem as base and hyperbolic handle stability.\\
+WC-N0 & Universal word certificate for compact \(N_\alpha\) &
+In particular the unramified block must contain the invertible
+\(1-S^{-1}\) term produced by \(x_2^{-\sigma}\).\\
+WC-Npc & Universal word certificate for noncompact \(N_\alpha\) &
+Replay the correction \(E_{r,\eta}\) symbolically and prove the claimed
+cross operators for all allowed \(r,\eta\).\\
+WC-M0 & Universal word certificate for compact \(M_\alpha\) &
+Replay the reversed correction order and prove both projector normal
+forms.\\
+WC-Mpc & Universal word certificate for procyclic \(M_\alpha\) &
+Replay both the linear and self-replicating copies, including all
+\(T\)-dependent central terms and affine phases.\\
+LG-K & Field-generic deep-unit package &
+Parameterize the already formalized cochain/Evens arguments from
+\(\Q_2\) to arbitrary finite dyadic \(K\), with the square-class
+filtration as a named local input.\\
+SD-n & Degree-\(n\) source-data adapter &
+Replace hard-coded \(8\), \(|V|^2\), and the base Gauss exponent in the
+current source record by the corresponding parameter fields; the
+induction theorem itself remains unchanged.\\
+\bottomrule
+\end{longtable}
+
+\begin{theorem}[Formal completion criterion]
+When the entries in the preceding table are represented by Lean terms and
+the final theorem has no axioms beyond the standard local inputs of
+\cref{sec:local-inputs}, the ramified-\(i\) part of the presentation
+theorem is fully formalized.  No additional mathematical induction or
+finite-target classification remains.
+\end{theorem}
+
+\begin{proof}
+MC-M/MC-N and the already available rank-three result give every
+marked-core certificate.  The WC entries give every word certificate.
+LG-K supplies \cref{thm:local-gauss}; SD-n supplies
+\cref{thm:source-abstract}.  Apply \cref{thm:certificate-main} branch by
+branch.  Proposition \ref{prop:sign-excluded} shows that the listed
+branches exhaust the ramified-\(i\) case.
+\end{proof}
+
+\section{Recommended changes to the uploaded manuscript}
+
+The manuscript should make the following changes before presenting the
+main theorem as proved.
+
+\begin{enumerate}
+\item Replace the current B4 by \cref{def:affine-B4}, or state the exact
+source-data/phase-cover theorem already used by the \(G_{\Q_2}\) proof.
+\item Replace the proof architecture of the source-interface theorem by a
+precise reference to the source-generic exact-image theorem and list all
+fields of the source record.
+\item Replace the all-degree relative Labute proof outline by
+\cref{def:core-certificate,prop:marked-reduction}; prove MC-M and MC-N in
+an appendix or in Lean.
+\item Remove the phrase ``when the inertia order is even'' and split the
+ramified local sign proof into the four components of
+\cref{def:deep-package}.
+\item Remove the sign-Frobenius row from the ramified-\(i\) assembly and
+classify \(\Q_2(\sqrt{-10})\) by \cref{cor:minus10}.
+\item Insert the actual Fox matrices, elementary operations, Hessians, and
+affine phase certificates.  If they are too long for the paper, generate
+an appendix from the Lean expression trees and include hashes linking the
+paper formulas to those trees.
+\item Until MC-M, MC-N, and the WC certificates are present, state the
+explicit all-\(K\) presentation as a certificate theorem rather than an
+unconditional theorem.
+\end{enumerate}
+
+\section*{Conclusion}
+
+The revised compact relators pass the finite \(A_4\) regression that the
+previous formulas failed.  The generic mathematical architecture is also
+sound after replacing the four informal interfaces by the precise source
+record.  The proof is not yet complete at the word level: the uploaded
+draft still omits the universal Fox/Stokes/Hessian identities and the
+rank-four marked automorphism-lifting theorem.  This packet isolates those
+obligations, proves the surrounding reductions, removes an impossible
+branch, and gives a direct route to kernel-checked completion.
+
+\end{document}

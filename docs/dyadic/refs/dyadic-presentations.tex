@@ -1,0 +1,1623 @@
+\documentclass[11pt,reqno]{amsart}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{mathrsfs}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage[nameinlink,capitalize,noabbrev]{cleveref}
+
+\geometry{margin=1.08in}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!55!black,
+  citecolor=green!35!black,
+  urlcolor=blue!65!black,
+  pdftitle={Presentations of absolute Galois groups of dyadic local fields},
+  pdfauthor={David Roe}
+}
+\setlist{itemsep=0.25em,topsep=0.45em}
+\setcounter{tocdepth}{2}
+\allowdisplaybreaks
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{construction}[theorem]{Construction}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{warning}[theorem]{Warning}
+
+\numberwithin{equation}{section}
+
+\newcommand{\Q}{\mathbf Q}
+\newcommand{\Z}{\mathbf Z}
+\newcommand{\F}{\mathbf F}
+\newcommand{\G}{\mathbf G}
+\newcommand{\C}{\mathbf C}
+\newcommand{\A}{\mathbf A}
+\newcommand{\ur}{\mathrm{ur}}
+\newcommand{\tame}{\mathrm{t}}
+\newcommand{\pc}{\mathrm{pc}}
+\newcommand{\sgn}{\mathrm{sgn}}
+\newcommand{\ram}{\mathrm{ram}}
+\newcommand{\unr}{\mathrm{unr}}
+\newcommand{\prof}{\mathrm{prof}}
+\newcommand{\Gal}{\operatorname{Gal}}
+\newcommand{\Hom}{\operatorname{Hom}}
+\newcommand{\Sur}{\operatorname{Sur}}
+\newcommand{\Aut}{\operatorname{Aut}}
+\newcommand{\im}{\operatorname{im}}
+\newcommand{\coker}{\operatorname{coker}}
+\newcommand{\Nm}{\operatorname{Nm}}
+\newcommand{\inv}{\operatorname{inv}}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\rad}{\operatorname{rad}}
+\newcommand{\Frat}{\operatorname{Frat}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\whZ}{\widehat{\Z}}
+\newcommand{\simeqto}{\xrightarrow{\sim}}
+\newcommand{\dd}{\mathop{}\!\mathrm d}
+\newcommand{\Gsum}{\mathcal G}
+\newcommand{\cH}{\mathcal H}
+\newcommand{\cD}{\mathcal D}
+\newcommand{\cY}{\mathcal Y}
+\newcommand{\cJ}{\mathcal J}
+
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\Arf}{Arf}
+
+\title[Dyadic absolute Galois presentations]
+{Presentations of Absolute Galois Groups\\of Dyadic Local Fields}
+\author{David Roe}
+\address{Department of Mathematics, Massachusetts Institute of Technology,
+Cambridge, MA 02139, USA}
+\email{roed@mit.edu}
+\date{\today}
+
+\begin{document}
+
+\begin{abstract}
+Let \(K/\Q_2\) be finite.  We give a uniform family of admissible
+profinite presentations of the absolute Galois group \(G_K\).  Diekert's
+presentation covers the case in which \(K(i)/K\) is unramified.  In the
+ramified case, the presentation has \(n+3\) generators, where
+\(n=[K:\Q_2]\), a tame relation
+\(\tau^\sigma=\tau^{q_K}\), and one explicit wild relation selected from
+three cyclotomic types \(L\), \(M_\alpha\), and \(N_\alpha\).
+
+The proof separates into four interfaces.  First, the tame quotient and
+the fully marked maximal pro-\(2\) quotient are identified over the full
+unramified character.  Second, finite elementary lifting problems are
+controlled by the evaluated two-relator Fox complex.  Third, a
+Fox--Heisenberg Stokes construction gives the candidate the same
+two-dimensional duality package as local Galois cohomology.  Fourth, the
+candidate determinant obstruction has the same Gauss sum as the local
+one.  The local sign for a nontrivial self-dual simple tame module \(V\)
+is \((-1)^n\) when \(V\) is unramified and \(+1\) when \(V\) is ramified.
+Finite Fourier inversion and exact-image induction then identify all
+finite epimorphism counts, and profinite reconstruction gives
+\(G_K\).
+
+This document consolidates a larger collection of component proof notes.
+It is a working mathematical draft, not yet a peer-reviewed or
+machine-checked paper; the remaining bibliographic and formalization
+tasks are recorded explicitly.
+\end{abstract}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+
+For odd primes \(p\), Jannsen and Wingberg gave presentations of the
+absolute Galois groups of \(p\)-adic fields
+\cite{JannsenWingberg1982,NSW}.  Residue characteristic two is exceptional:
+the usual odd-prime formula contains exponents that do not specialize
+integrally at \(p=2\).  Zel'venski\u{\i} described maximal pro-\(2\)
+extensions in odd degree \cite{Zelvenskii1972}, and Diekert treated a
+substantial class of dyadic absolute Galois groups
+\cite{Diekert1984}.  More recently, Roe and Turturean gave an explicit
+four-generator presentation of \(G_{\Q_2}\)
+\cite{RoeTurturean2026}.  The purpose of the present paper is to extend
+their method to every finite extension of \(\Q_2\).
+
+Write
+\[
+ n=[K:\Q_2],\qquad q_K=\#k_K=2^f,\qquad D_K=G_K(2),
+\]
+and normalize the geometric unramified character by
+\[
+ \nu_{\ur}:D_K\twoheadrightarrow\Z_2,\qquad
+ \nu_{\ur}(\Phi_{\mathrm{geom}})=1.
+\]
+Let
+\[
+ \omega_2=(1\text{ in }\Z_2,\;0\text{ in }\Z_\ell
+                    \text{ for every odd }\ell)\in\whZ.
+\]
+Thus \(\omega_2^2=\omega_2\).  Throughout,
+\[
+ x^g=g^{-1}xg,\qquad [x,y]=x^{-1}y^{-1}xy.
+\]
+
+\subsection{Admissible presentations}
+
+The phrase ``presentation'' below always includes a pro-\(2\) condition.
+Given a profinite word \(R\) in
+\(\sigma,\tau,x_0,\ldots,x_n\), define
+\begin{equation}\label{eq:candidate}
+ \Gamma_R=
+ \left\langle
+ \sigma,\tau,x_0,\ldots,x_n
+ \ \middle|\
+ \tau^\sigma=\tau^{q_K},\quad R=1,\quad
+ \overline{\langle\!\langle x_0,\ldots,x_n\rangle\!\rangle}
+ \text{ is pro-}2
+ \right\rangle_{\prof}.
+\end{equation}
+Concretely, \(\Gamma_R\) is the inverse limit of finite quotients in
+which the displayed relations hold and the images of all \(x_i\) lie in
+the \(2\)-core.  A bare two-relator profinite quotient is not an
+equivalent definition.
+
+\begin{theorem}[Main theorem]\label{thm:main}
+Let \(K/\Q_2\) be finite.
+\begin{enumerate}
+\item If \(K(i)/K\) is unramified, \(G_K\) is given by Diekert's
+presentation \cite{Diekert1984}.
+\item If \(K(i)/K\) is ramified, there is an explicit word \(R_K\),
+given in \cref{sec:relators}, such that
+\[
+ \Gamma_{R_K}\cong G_K.
+\]
+The word belongs to exactly one of the families \(L\), \(M_\alpha\), or
+\(N_\alpha\).
+\end{enumerate}
+Consequently every dyadic local field has an explicit admissible
+profinite presentation.
+\end{theorem}
+
+The theorem is not obtained from the abstract Demu\v{s}kin type alone.
+The full unramified marking interacts with the cyclotomic orientation,
+and that interaction splits the product-type \(M_\alpha\) case into
+three word families.
+
+\subsection{Structure of the proof}
+
+The proof has four word-independent interfaces and one word-specific
+calculation.
+\begin{enumerate}
+\item A relative Labute theorem produces the fully marked maximal
+pro-\(2\) boundary, preserving both the cyclotomic orientation
+\(\chi_K\) and the full character \(\nu_{\ur}\).
+\item Evaluating the tame and wild relators in elementary extensions
+gives a functorial three-term Fox complex
+\[
+ 0\longrightarrow A\longrightarrow A^{n+3}
+   \longrightarrow A^2\longrightarrow0.
+\]
+\item Finite-word Stokes identities and scalar normalization make this
+complex naturally self-dual in dimension two, including nonsplit
+coefficient modules.
+\item The normalized determinant obstruction is a nonsingular
+quadratic form.  Its local Gauss sign is computed uniformly for all
+dyadic \(K\).
+\item For each displayed word, exact Fox and Hessian calculations verify
+the preceding interfaces.  Boundary-framed exact-image induction,
+finite Fourier inversion, and profinite reconstruction then finish the
+proof.
+\end{enumerate}
+
+\section{The marked arithmetic datum}\label{sec:marked-data}
+
+Let
+\[
+ \chi=\chi_K:D_K\longrightarrow\Z_2^\times
+\]
+be the cyclotomic orientation.  Put
+\begin{equation}\label{eq:CI}
+ C=\chi(D_K),\qquad I=\chi(\ker\nu_{\ur}),\qquad
+ A=\nu_{\ur}(\ker\chi)=2^r\Z_2.
+\end{equation}
+The characters induce a canonical quotient map
+\begin{equation}\label{eq:lambda}
+ \lambda:C\twoheadrightarrow\Z/2^r\Z,\qquad
+ \lambda(\chi(g))=\nu_{\ur}(g)\pmod{2^r}.
+\end{equation}
+If \(\sigma\) is a geometric Frobenius lift, retain also
+\begin{equation}\label{eq:gamma}
+ \gamma=\chi(\sigma)I\in C/I,\qquad \lambda(\gamma)=1.
+\end{equation}
+
+\begin{warning}
+The abstract image \(C\), or equivalently the abstract Labute type, does
+not determine the marked pair \((D_K,\nu_{\ur})\).  The necessary datum
+is \((C,I,\lambda,\gamma)\).  In particular, the three quadratic fields
+\(\Q_2(\sqrt5)\), \(\Q_2(\sqrt{10})\), and
+\(\Q_2(\sqrt{-10})\) have the same abstract type \(M_2\) but different
+marked Frobenius systems.
+\end{warning}
+
+The residue cardinality \(q_K\) is different from the Demu\v{s}kin
+invariant.  In the branches considered below the latter is \(2\);
+\(q_K\) occurs in the tame relation only.
+
+\subsection{Marked Demu\v{s}kin cores}
+
+For even types, use Labute variables \(a,b,c,d\) and
+\[
+\begin{aligned}
+ r_M&=a^2[a,b]c^{2^\alpha}[c,d]\prod_j[u_j,v_j],\\
+ r_N&=a^{2+2^\alpha}[a,b][c,d]\prod_j[u_j,v_j].
+\end{aligned}
+\]
+Put \(m=2^{\alpha-1}\).
+
+\paragraph{Type \(L\).}
+When \(n\) is odd, \(r=0\), \(I=C\), and the marked core is
+\begin{equation}\label{eq:Lcore}
+ P_{L,n}=x_0^{\sigma^2}x_0[x_1,\sigma]
+ \prod_{j=1}^{(n-1)/2}[x_{2j},x_{2j+1}].
+\end{equation}
+
+\paragraph{Type \(M_\alpha\), procyclic Frobenius.}
+Write
+\[
+ u=(1-2^\alpha)^{-1},\qquad
+ \lambda(-1)=\epsilon2^{r-1},\qquad
+ \lambda(u)=\eta\pmod{2^r}.
+\]
+If \(\eta\) is odd, put \(\rho=\eta^{-1}\) and
+\[
+\begin{aligned}
+ \sigma&=d^\rho,& x_0&=c^{-m}a^{-1},\\
+ x_1&=b\sigma^{-\epsilon2^{r-1}},&
+ x_2&=c\sigma^{-2^r}.
+\end{aligned}
+\]
+Equivalently, with
+\[
+\begin{aligned}
+ A&=x_0^{-1}C_0^{-m},&
+ B&=x_1\sigma^{\epsilon2^{r-1}},\\
+ C_0&=x_2\sigma^{2^r},&
+ D&=\sigma^\eta,
+\end{aligned}
+\]
+the marked rank-four core is
+\begin{equation}\label{eq:Mpc-core}
+ P_{M,\pc}=A^2[A,B]C_0^{2^\alpha}[C_0,D].
+\end{equation}
+
+\paragraph{Type \(M_\alpha\), sign Frobenius.}
+If the procyclic coordinate is even, surjectivity of \(\lambda\) forces
+\[
+ r=1,\qquad \epsilon=1.
+\]
+Use
+\[
+ \sigma=b,\qquad x_0=c^{-m}a^{-1},\qquad
+ x_1=c\sigma^{-2},\qquad x_2=\sigma^{-\eta}d.
+\]
+With
+\[
+ A=x_0^{-1}C_0^{-m},\quad B=\sigma,\quad
+ C_0=x_1\sigma^2,\quad D=\sigma^\eta x_2,
+\]
+the core again has the form
+\begin{equation}\label{eq:Msign-core}
+ P_{M,\sgn}=A^2[A,B]C_0^{2^\alpha}[C_0,D].
+\end{equation}
+
+\paragraph{Type \(N_\alpha\).}
+For \(r=0\), the core is
+\begin{equation}\label{eq:Ncompact-core}
+ P_{N,0}=x_0^{2+2^\alpha}[x_0,x_1][\sigma,x_2].
+\end{equation}
+For \(r\ge1\), let
+\[
+ v=-(1+2^\alpha)^{-1},\qquad
+ \eta=\lambda(v)\in\Z_2^\times,\qquad \rho=\eta^{-1}.
+\]
+Take
+\[
+ \sigma=b^\rho,\qquad x_0=a,\qquad
+ x_1=c\sigma^{-2^r},\qquad x_2=d.
+\]
+Then
+\begin{equation}\label{eq:Npc-core}
+ P_{N,r,\eta}
+ =x_0^{2+2^\alpha}[x_0,\sigma^\eta]
+  [x_1\sigma^{2^r},x_2].
+\end{equation}
+Append \((n-2)/2\) hyperbolic handles to every even core.
+
+\subsection{Uniform relative Labute theorem}
+
+\begin{theorem}[Two-character Labute normalization]\label{thm:labute}
+Let \(F\) be a finitely generated free pro-\(2\) group carrying
+characters \(\chi\) and \(\nu\), and let \(P\) be one of the marked cores
+above, stabilized by hyperbolic handles.  Suppose that \(r_0\in\Frat(F)\)
+is a Demu\v{s}kin relator with
+\begin{enumerate}
+\item the same Labute type as \(P\);
+\item canonical orientation \(\chi\);
+\item the same abelian relation vector and quadratic initial form as
+\(P\); and
+\item \(\nu(r_0)=0\).
+\end{enumerate}
+Then an automorphism \(\Theta\in\Aut(F)\) satisfies
+\[
+ \Theta\!\left(\overline{\langle\!\langle r_0\rangle\!\rangle}\right)
+ =\overline{\langle\!\langle P\rangle\!\rangle},\qquad
+ \chi\Theta=\chi,\qquad \nu\Theta=\nu.
+\]
+\end{theorem}
+
+\begin{proof}[Proof outline]
+Local reciprocity and Smith reduction put the two characters in one of
+the rows above.  The identity \(z\cup z=z\cup\kappa\), followed by Witt
+cancellation, puts the mod-\(2\) cup form into the displayed rank-three
+or rank-four core plus hyperbolic handles.
+
+The remaining issue is integral and all-degree.  In the restricted Lie
+algebra attached to the Zassenhaus filtration, the degree-\(j\)
+difference between \(r_0\) and \(P\) lies in the image of the Nielsen
+differential after adjoining the three canonical orientation
+functionals.  Compatibility with both characters annihilates precisely
+the exceptional three-dimensional cokernel.  Choose each correction in
+\(\ker\chi\cap\ker\nu\), eliminate handle terms first, and iterate in
+degrees \(j=3,4,\ldots\).  The correction degrees tend to infinity, so
+the product converges to a continuous free pro-\(2\) automorphism.  Every
+factor preserves both characters.
+\end{proof}
+
+\begin{corollary}[Marked maximal pro-\(2\) quotient]\label{cor:marked-D}
+If \(K(i)/K\) is ramified, the appropriate stabilized core \(P_K\)
+presents \(D_K\) as an oriented, unramified-marked pro-\(2\) group:
+\[
+ (D_K,\chi_K,\nu_{\ur})\cong
+ \left(F/\overline{\langle\!\langle P_K\rangle\!\rangle},
+       \chi_{K}^{\mathrm{std}},
+       \nu_{K}^{\mathrm{std}}\right),
+\]
+where
+\[
+ \nu_{K}^{\mathrm{std}}(\sigma)=1,\qquad
+ \nu_{K}^{\mathrm{std}}(x_i)=0.
+\]
+\end{corollary}
+
+\section{The field-independent source theorem}\label{sec:source}
+
+Let
+\[
+ T_q=\langle\sigma,\tau\mid\tau^\sigma=\tau^q\rangle_{\prof},
+\qquad
+ \nu_{\tame}(\sigma)=1,\quad \nu_{\tame}(\tau)=0,
+\]
+and define the common boundary
+\begin{equation}\label{eq:boundary}
+ \partial_K=T_{q_K}\times_{\Z_2}D_K.
+\end{equation}
+For \(S=\Gamma_R\) or \(G_K\), write \(W_S=O_2(S)\).
+
+\subsection{The four interfaces}
+
+\begin{definition}[B1: fully marked boundary]\label{def:B1}
+The source \(S\) satisfies \emph{B1} if it has compatible epimorphisms
+\[
+ S\twoheadrightarrow T_{q_K},\qquad S\twoheadrightarrow D_K
+\]
+such that \(S/W_S\cong T_{q_K}\), the second map is the maximal
+pro-\(2\) quotient, the induced characters to \(\Z_2\) agree, the
+resulting map \(S\twoheadrightarrow\partial_K\) is surjective, and the
+candidate marking is
+\[
+ \nu_{\ur}(\sigma)=1,\qquad \nu_{\ur}(x_i)=0.
+\]
+\end{definition}
+
+\begin{definition}[B2: exact finite lifting semantics]\label{def:B2}
+Fix a finite lower exact-image map \(\rho:S\to C\) and an elementary
+\(\F_2[C]\)-module \(A\).  The candidate satisfies \emph{B2} if
+evaluation of the two relators gives a functorial complex
+\begin{equation}\label{eq:fox-complex}
+ C^\bullet_{\Gamma_R,\rho}(A):
+ 0\longrightarrow A\xrightarrow{d^0}A^{n+3}
+  \xrightarrow{d_R^1}A^2\longrightarrow0
+\end{equation}
+with the following literal lifting interpretation:
+\begin{enumerate}
+\item changing generator lifts by \(a\in A^{n+3}\) changes the relation
+defect by \(d_R^1(a)\);
+\item the defect class in \(\coker d_R^1\) vanishes exactly when a lift
+exists;
+\item when nonempty, the raw lift set is a torsor under
+\(\ker d_R^1\); and
+\item the construction is natural, boundary-compatible, and exact for
+short exact coefficient sequences.
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[B3: linear duality]\label{def:B3}
+The candidate satisfies \emph{B3} if there is a natural
+quasi-isomorphism
+\begin{equation}\label{eq:duality-qiso}
+ C^\bullet_{\Gamma_R,\rho}(A)\simeq
+ \Hom_{\F_2}\!\left(
+ C^\bullet_{\Gamma_R,\rho}(A^\vee),\F_2\right)[-2],
+\end{equation}
+whose cohomological pairings agree with local Tate duality.  In
+particular,
+\[
+ H^2_{\Gamma_R,\rho}(A)^\vee\cong(A^\vee)^C,
+\]
+connecting homomorphisms are adjoint, and for \(A=\F_2\) the
+cup--Bockstein form agrees with the local Hilbert form under the marked
+maximal pro-\(2\) identification.
+\end{definition}
+
+\begin{definition}[B4: quadratic determinant]\label{def:B4}
+Let \(V\) be a nontrivial self-dual simple tame
+\(\F_2[C]\)-module with invariant nonsingular quadratic form \(q_V\).
+Let \(Q^0_{S,\rho}\) be the zero-section-normalized determinant
+obstruction on \(H^1_{S,\rho}(V)\).  The candidate satisfies \emph{B4}
+if
+\begin{equation}\label{eq:B4}
+ \sum_{c\in H^1_{\Gamma_R,\rho}(V)}
+  (-1)^{Q^0_{\Gamma_R,\rho}(c)}
+ =
+ \sum_{c\in H^1_{G_K,\rho}(V)}
+  (-1)^{Q^0_{G_K,\rho}(c)}.
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Source-interface theorem]\label{thm:source}
+Suppose that \(\Gamma_R\) and \(G_K\) have the common boundary
+\eqref{eq:boundary} and satisfy B1--B4.  Then every boundary-framed
+finite target and every exact-image stratum has the same number of
+epimorphisms from \(\Gamma_R\) and \(G_K\).  Consequently,
+\[
+ \#\Sur(\Gamma_R,G)=\#\Sur(G_K,G)
+ \quad\text{for every finite group }G,
+\]
+and
+\[
+ \Gamma_R\cong G_K.
+\]
+\end{theorem}
+
+\begin{proof}[Proof architecture]
+Fix a boundary-framed target \(Y\) with normal \(2\)-subgroup \(L\).
+The argument is by strong induction on \(|L|\).
+
+If every simple factor of \(L/\Frat(L)\) is trivial, B1 and the scalar
+part of B3 identify the terminal lift counts.  Otherwise choose a
+minimal non-scalar simple head \(V\).  B2 identifies each nonempty
+linear lift fibre with a \(Z^1(V)\)-torsor.  B3 gives the same
+dimensions, obstruction pairings, and adjoint boundary maps on the two
+sources.  For non-self-dual \(V\), this already equates the required
+fibres.
+
+For self-dual \(V\), scalar central pushouts introduce a quadratic
+determinant obstruction.  B4 identifies its Fourier transform, hence
+the zero and nonzero fibres.  Central Frattini covers and
+inclusion--exclusion over exact image subgroups reduce all remaining
+terms to smaller normal \(2\)-subgroups or proper exact-image strata.
+The induction therefore closes.
+
+Summing boundary frames gives equality of unframed epimorphism counts.
+The candidate is topologically finitely generated; the one-sided
+profinite reconstruction theorem then identifies it with \(G_K\)
+\cite{DixonEtAl1982,RibesZalesskii,FriedJarden}.
+\end{proof}
+
+\subsection{Numerical consequences}
+
+Let \(d=\dim_{\F_2}A\).  The Euler characteristic of
+\eqref{eq:fox-complex} is \(-nd\).  B3 gives
+\[
+ h^0(A)=\dim A^C,\qquad h^2(A)=\dim(A^\vee)^C,
+\]
+and hence
+\begin{align}
+ \dim H^1(A)
+ &=nd+\dim A^C+\dim(A^\vee)^C,\label{eq:h1dim}\\
+ \dim Z^1(A)
+ &=(n+1)d+\dim(A^\vee)^C.\label{eq:z1dim}
+\end{align}
+Thus
+\[
+ \dim H^1(\F_2)=n+2,\qquad \dim H^2(\F_2)=1,
+\]
+whereas for a nontrivial simple \(V\),
+\[
+ \dim H^1(V)=n\dim V,\qquad
+ \dim Z^1(V)=(n+1)\dim V.
+\]
+
+\section{The local determinant sign}\label{sec:local-gauss}
+
+Let \(V\) be a nontrivial finite simple continuous
+\(\F_2[G_K]\)-module.  A normal pro-\(2\) subgroup acts trivially on
+\(V\), so its action factors through a finite tame image \(H\).  Suppose
+\(V\) is self-dual and admits an \(H\)-invariant nonsingular quadratic
+form \(q:V\to\F_2\).  Let
+\[
+ \kappa_q^0\in H^2(V\rtimes H,\F_2)
+\]
+be the equivariant extraspecial class normalized to restrict trivially
+to the zero section.  For a cocycle \(b\), define
+\begin{equation}\label{eq:local-Q}
+ Q^0_{K,V}([b])
+ =\inv_K\!\left((b,\rho)^*\kappa_q^0\right).
+\end{equation}
+
+\begin{theorem}[Arbitrary-dyadic Gauss sign]\label{thm:local-gauss}
+The form \(Q^0_{K,V}\) is well-defined and nonsingular on
+\(H^1(K,V)\), whose dimension is \(n\dim V\).  Moreover,
+\begin{equation}\label{eq:local-gauss}
+ \Gsum(Q^0_{K,V})
+ :=\sum_{x\in H^1(K,V)}(-1)^{Q^0_{K,V}(x)}
+ =\eps_K(V)\,2^{n\dim(V)/2},
+\end{equation}
+where
+\begin{equation}\label{eq:local-sign}
+ \eps_K(V)=
+ \begin{cases}
+ (-1)^n,&V\text{ is unramified},\\
+ +1,&V\text{ is ramified}.
+ \end{cases}
+\end{equation}
+Equivalently,
+\[
+ \#(Q^0_{K,V})^{-1}(0)
+ =2^{n\dim V-1}+\eps_K(V)2^{n\dim V/2-1}.
+\]
+\end{theorem}
+
+\begin{proof}
+Local Euler--Poincar\'e and Tate duality give the dimension and
+nonsingularity \cite[Chapter VII]{NSW}.  It remains to compute the Arf
+invariant.
+
+Suppose first that \(V\) is ramified.  Pass to the faithful tame
+splitting field and use the dyadic square-class filtration.  The middle
+layers are parity-free: when the inertia order is even the relevant
+isotypic layer is zero, while for odd inertia order a nonzero middle
+layer would force trivial inertia.  Exactness of the faithful isotypic
+functor follows from projectivity over a Sylow subgroup.  The deep unit
+part therefore gives a totally singular subspace of dimension
+\(n\dim(V)/2\).  It is a Lagrangian, so the form is split and its Gauss
+sign is \(+1\).  The normalized orbit calculation uses the
+Evens--Kahn formula \cite{Evens1963,Kahn1984,Kozlowski1984}.
+
+If \(V\) is unramified, the coefficient field of its simple endomorphism
+algebra carries the adjoint involution induced by self-duality.
+The local form becomes a nonsingular Hermitian form of rank \(n\).  A
+single Hermitian line has minus Arf sign, and orthogonal sum multiplies
+Gauss signs.  Thus rank \(n\) contributes \((-1)^n\).
+\end{proof}
+
+\begin{remark}
+For even \(n\), both ramified and unramified simples have plus sign.
+For odd \(n\), the unramified sign is negative and the ramified sign is
+positive.  This theorem supplies the target sign; every candidate word
+must still reproduce it by an independent Hessian calculation.
+\end{remark}
+
+\section{Explicit \texorpdfstring{ramified-\(i\)}{ramified-i} relators}
+\label{sec:relators}
+
+All groups in this section are admissible in the sense of
+\eqref{eq:candidate}.  Put
+\[
+ \sigma_2=\sigma^{\omega_2},\qquad
+ \delta_i=(x_i\tau)^{\omega_2}x_i^{-1}.
+\]
+For the even-degree families write
+\[
+ n=2+2h,\qquad
+ H_h=\prod_{j=1}^{h}[x_{2j+1},x_{2j+2}].
+\]
+Every product below is taken in the displayed order.
+
+\subsection{Odd degree: type \texorpdfstring{\(L\)}{L}}
+
+Let \(n=2m+1\).  Put
+\[
+ u_i=(x_i\tau)^{\omega_2}\quad(i=0,1),
+\]
+\[
+\begin{aligned}
+ d_0&=u_0x_0^{-1},&
+ z_0&=x_0^{\sigma_2},&
+ c_0&=[d_0,z_0],\\
+ g_0&=\sigma_2^2,&
+ d_g&=d_0^{g_0},&
+ h_c&=[d_g,d_0],\\
+ h_0&=x_0^{g_0}x_0\,d_gd_0d_0^2h_c.
+\end{aligned}
+\]
+Define
+\begin{equation}\label{eq:Lword}
+ R_{L,K}
+ =h_0u_1^{-1}x_1^\sigma c_0
+  \prod_{j=1}^{m}[x_{2j},x_{2j+1}].
+\end{equation}
+
+\begin{theorem}\label{thm:Lword}
+If \(n\) is odd, then
+\[
+ \Gamma_{R_{L,K}}\cong G_K.
+\]
+\end{theorem}
+
+\begin{remark}
+The cyclotomic core uses \(g_0=\sigma_2^2\), not
+\(\sigma_2^{q_K}\).  The residue cardinality changes the tame relation
+and its Fox norm polynomial, not the cyclotomic depth.
+\end{remark}
+
+\subsection{Type \texorpdfstring{\(N_\alpha\)}{N-alpha}}
+
+Put \(p_\alpha=2+2^\alpha\).
+
+\paragraph{Compact row.}
+If \(r=0\), define
+\begin{equation}\label{eq:Ncompact-word}
+ R_{N,\alpha,0}
+ =x_0^{p_\alpha}[x_0,x_1]\,
+  x_2^{-\sigma}(x_2\tau)^{\omega_2}H_h.
+\end{equation}
+
+\paragraph{Nontrivial Frobenius quotient.}
+Suppose \(r\ge1\).  Let
+\[
+ \eta=\lambda\!\left(-(1+2^\alpha)^{-1}\right)\in\Z_2^\times
+\]
+and let \(\widehat\eta\in\whZ^\times\) have \(2\)-component \(\eta\)
+and odd-primary components \(1\).  Put
+\[
+ g=x_1\sigma^{2^r},\qquad
+ D_{r,\eta}
+ =\delta_0^{\sigma^{\widehat\eta}}\,
+  \delta_0^{\sigma^{-2^r}}\,
+  \delta_0^{\sigma^{\widehat\eta-2^r}},
+\qquad
+ E_{r,\eta}=[D_{r,\eta},x_1].
+\]
+Define
+\begin{equation}\label{eq:Npc-word}
+ R_{N,\alpha,r,\eta}
+ =x_0^{p_\alpha}[x_0,\sigma^{\widehat\eta}]\,
+ x_2^{-g}(x_2\tau)^{\omega_2}E_{r,\eta}H_h.
+\end{equation}
+
+\begin{theorem}\label{thm:Nwords}
+For every ramified-\(i\) field of type \(N_\alpha\),
+\[
+ \Gamma_{R_{N,\alpha,0}}\cong G_K\quad(r=0),
+\qquad
+ \Gamma_{R_{N,\alpha,r,\eta}}\cong G_K\quad(r\ge1).
+\]
+\end{theorem}
+
+The correction \(E_{r,\eta}\) is invisible in the tame quotient, in the
+maximal pro-\(2\) quotient, and at first Fox order.  At second order it is
+essential.  On ramified simples, writing
+\[
+ A=S^{\widehat\eta},\qquad B=S^{2^r},
+\]
+it changes the two cross operators to
+\begin{equation}\label{eq:Ncross}
+ M_c=A,\qquad L_c=A^{-1}.
+\end{equation}
+A two-dimensional \(S_3\)-module already detects the radical in the
+uncorrected word.
+
+\subsection{Type \texorpdfstring{\(M_\alpha\)}{M-alpha}}
+
+Put
+\[
+ m=2^{\alpha-1},\qquad u=(1-2^\alpha)^{-1}.
+\]
+Exactly three families occur.
+
+\subsubsection{Compact row}
+
+If \(r=0\), put
+\[
+ A_0=x_0^{-1}\sigma_2^{-m},\qquad
+ J_2=x_2^{-\sigma}(x_2\tau)^{\omega_2},
+\]
+\[
+ E_m^{\mathrm{rev}}
+ =\delta_1^{\sigma_2^{2m}}
+  \delta_1^{\sigma_2^m}
+  \delta_0^{\sigma_2^m}
+  \delta_0.
+\]
+The word is
+\begin{equation}\label{eq:Mcompact-word}
+ R_{M,0}
+ =A_0^2[A_0,x_1]\sigma_2^{2m}
+ J_2E_m^{\mathrm{rev}}H_h.
+\end{equation}
+The reversal in \(E_m^{\mathrm{rev}}\) is essential; the forward order is
+singular on a fifth-root orbit.
+
+\subsubsection{Procyclic-Frobenius row}
+
+Assume \(r\ge1\) and
+\[
+ \eta=\lambda(u)\in\Z_2^\times.
+\]
+Put
+\[
+ s=2^r,\qquad p=\epsilon2^{r-1},
+\]
+and let \(\widehat\eta\in\whZ^\times\) have \(2\)-component \(\eta\)
+and odd-primary components \(1\).  Define
+\[
+ C_0=x_2\sigma_2^s,\quad
+ A=x_0^{-1}C_0^{-m},\quad
+ B=x_1\sigma_2^p,\quad
+ D=\sigma^{\widehat\eta},
+\]
+\begin{align}
+ E_{01}^{\pc}
+ &=
+ \delta_1^{\sigma_2^{p+2sm}}
+ \delta_1^{\sigma_2^{p+sm}}
+ \delta_0^{\sigma_2^{sm+p}}
+ \delta_0,\label{eq:E01pc}\\
+ E_2^{\pc}
+ &=
+ \delta_2^{\sigma_2^s}
+ \prod_{j=1}^{m}
+ \left(
+ \delta_2^{\sigma_2^{s(m+j)}}
+ \delta_2^{\sigma_2^{p+s(m+j)}}
+ \right).\label{eq:E2pc}
+\end{align}
+The product in \eqref{eq:E2pc} is in increasing \(j\).  Put
+\[
+ R_{\mathrm{lin}}^{\pc}
+ =A^2[A,B]C_0^{2^\alpha}[C_0,D]\,
+ E_{01}^{\pc}E_2^{\pc}.
+\]
+With \(D_i=\delta_i\), define
+\[
+ \widehat C=\sigma_2^s,\quad
+ \widehat A=D_0^{-1}\widehat C^{-m},\quad
+ \widehat B=D_1\sigma_2^p,\quad
+ \widehat D=\sigma^{\widehat\eta},
+\]
+\[
+ \widehat R^{\pc}
+ =
+ \widehat A^2[\widehat A,\widehat B]
+ \widehat C^{2^\alpha}[\widehat C,\widehat D]\,
+ E_{01}^{\pc}.
+\]
+The final word is
+\begin{equation}\label{eq:Mpc-word}
+ R_{M,\pc}
+ =R_{\mathrm{lin}}^{\pc}\widehat R^{\pc}
+ D_0^2[D_0,D_1]H_h.
+\end{equation}
+
+\subsubsection{Sign-Frobenius row}
+
+If \(\eta=\lambda(u)\) is even, then
+\[
+ r=1,\qquad\epsilon=1.
+\]
+Use the left-adapted basis and put
+\[
+ C_0=x_1\sigma_2^2,\quad
+ A=x_0^{-1}C_0^{-m},\quad
+ D=\sigma_2^\eta x_2,\quad
+ F_2=[\sigma,x_2]^{-1}x_2^{-\sigma}
+       (x_2\tau)^{\omega_2}.
+\]
+Define
+\[
+ E_0^{\sgn}=\delta_0^{\,\sigma\sigma_2^{2m}}\delta_0,
+\]
+\begin{equation}\label{eq:E1sign}
+ E_1^{\sgn}
+ =
+ \delta_1^{\sigma_2^{2+\eta}}
+ \delta_1^{\sigma_2^2}
+ \prod_{j=m}^{1}
+ \left(
+ \delta_1^{\,\sigma\sigma_2^{2(m+j)}}
+ \delta_1^{\,\sigma_2^{2(m+j)}}
+ \right),
+\end{equation}
+where the product is in decreasing \(j\), and put
+\[
+ E_{01}^{\sgn}=E_1^{\sgn}E_0^{\sgn},
+\]
+\[
+ R_{\mathrm{lin}}^{\sgn}
+ =A^2[A,\sigma]C_0^{2^\alpha}[C_0,D]\,
+ F_2E_{01}^{\sgn}.
+\]
+With \(D_i=\delta_i\), define
+\[
+ \widehat C=D_1\sigma_2^2,\quad
+ \widehat A=D_0^{-1}\widehat C^{-m},\quad
+ \widehat D=\sigma_2^\eta,
+\]
+\[
+ \widehat R^{\sgn}
+ =\widehat A^2[\widehat A,\sigma]
+ \widehat C^{2^\alpha}[\widehat C,\widehat D]\,
+ E_{01}^{\sgn}.
+\]
+The final word is
+\begin{equation}\label{eq:Msign-word}
+ R_{M,\sgn}
+ =R_{\mathrm{lin}}^{\sgn}\widehat R^{\sgn}
+ D_0^2[D_0,D_1]H_h.
+\end{equation}
+
+\begin{theorem}\label{thm:Mwords}
+For every ramified-\(i\) field of type \(M_\alpha\), exactly one of
+\eqref{eq:Mcompact-word}, \eqref{eq:Mpc-word}, and
+\eqref{eq:Msign-word} applies, and the corresponding admissible group is
+isomorphic to \(G_K\).
+\end{theorem}
+
+\begin{remark}[Self-replication]
+On a ramified simple module, the auxiliary word \(\widehat R\) has zero
+first Fox derivative and exactly reproduces the entire raw extraspecial
+determinant, including the \(T\)-dependent central terms.  The two copies
+cancel in characteristic two, and \(D_0^2[D_0,D_1]\) leaves the canonical
+plus form
+\[
+ Q_+(c_0,c_1)=q(c_0)+b_q(c_0,c_1).
+\]
+This is a word identity, not an interpolation from finite inertia
+orders.
+\end{remark}
+
+\section{Verification of the interfaces}\label{sec:verification}
+
+We now explain why the words in \cref{sec:relators} satisfy B1--B4.
+The calculations are uniform once the rank-three or rank-four core has
+been fixed.
+
+\subsection{Boundary and lifting semantics}
+
+Kill every \(x_i\).  Each \(\delta_i\), auxiliary correction, and handle
+becomes trivial; the wild relation contributes no new tame relation.
+Thus the quotient is \(T_{q_K}\).  Kill \(\tau\) and replace
+\(\sigma_2\) by \(\sigma\).  Each correction becomes trivial and the
+wild word specializes to the marked core of
+\cref{sec:marked-data}.  By \cref{cor:marked-D}, this is \(D_K\) with
+the full unramified marking.  Goursat's lemma, applied over \(\Z_2\),
+gives the surjection to \(\partial_K\).  This proves B1.
+
+For B2, fix an extension
+\[
+ 1\longrightarrow A\longrightarrow B\longrightarrow C\longrightarrow1
+\]
+and chosen lifts of the \(n+3\) generators.  The tame and wild words
+evaluate to a defect in \(A^2\).  Replacing the lifts by
+\(a\in A^{n+3}\) changes that defect by the literal evaluated Fox row
+\(d_R^1(a)\).  Hence a lift exists exactly when the defect dies in
+\(\coker d_R^1\), and all lifts form a torsor under \(\ker d_R^1\).
+Every correction used above is either accounted for in the displayed
+Fox row or has exact zero first derivative.  The pro-\(2\) condition
+adds no linear equation because an elementary kernel already lies in
+the marked normal \(2\)-subgroup.
+
+\subsection{Finite-word Stokes and linear duality}
+
+The first- and second-order calculations are made in finite semidirect,
+Heisenberg, and extraspecial groups.  If \(u,v\) are words with lower
+values \(\bar u,\bar v\), then
+\begin{align}
+ D(uv)&=D(u)+\bar uD(v),&
+ D(u^{-1})&=-\bar u^{-1}D(u),\label{eq:fox-rules}\\
+ \beta(uv)&=\beta(u)+\beta(v)
+  +D^\vee(u)(\bar uD(v)).\label{eq:heis-rule}
+\end{align}
+Conjugates, commutators, and profinite powers follow recursively.
+Because every coefficient calculation factors through a finite group,
+the exponent \(\omega_2\) may be represented by any integer with the
+correct residue modulo the group exponent; the derivatives are
+independent of that representative.
+
+Summing the two relation defects gives a finite-word Stokes pairing
+\[
+ C^\bullet(A)\otimes C^\bullet(A^\vee)
+ \longrightarrow\F_2[-2].
+\]
+The individual tame and wild terms are not separately multiplicative:
+the cross effects cancel only after both relators are included.  For
+each nontrivial simple module, the exact Fox normal form reduces the
+chain map to one of the nonsingular core matrices below, plus standard
+hyperbolic handles.  For \(A=\F_2\), direct evaluation gives the local
+Hilbert cup--Bockstein matrix under the marked isomorphism of B1.
+
+For a short exact coefficient sequence
+\[
+ 0\longrightarrow A'\longrightarrow A\longrightarrow A''\longrightarrow0,
+\]
+the word complexes form a termwise exact sequence, and the finite-word
+Stokes maps give a commuting dual diagram.  The mapping cones are again
+termwise exact.  Induction on a composition series shows that the
+duality map is a quasi-isomorphism for every elementary coefficient
+module, including nonsplit modules.  This proves B3, not merely equality
+of dimensions.
+
+\subsection{Candidate quadratic forms}
+
+Let \(V\) be a nontrivial self-dual simple tame module,
+\(d=\dim_{\F_2}V\), and let \(b_q\) be the polarization of its invariant
+quadratic form.
+
+\paragraph{Odd \(L\).}
+The \(n=1\) core is the Roe--Turturean form
+\cite{RoeTurturean2026}.  Every additional handle contributes a standard
+hyperbolic block.  Thus the unramified sign is multiplied by
+\((-1)^{n-1}=+1\), retaining the required minus sign for odd \(n\),
+whereas the ramified core remains plus.
+
+\paragraph{\(N_\alpha\).}
+For \(r=0\),
+\[
+ Q(c_0,c_1)=q(c_0)+b_q(c_0,c_1).
+\]
+For \(r\ge1\), the correction in \eqref{eq:Npc-word} gives
+\[
+ Q(c_0,c_1)=Q_0(c_0)+b_q(c_1,L_cc_0),
+\qquad L_c\in\Aut(V).
+\]
+The \(c_1\)-subspace is a totally singular Lagrangian.  The rank-four
+core therefore has Gauss sum \(2^d\), and the \(h\) handles yield
+\[
+ \Gsum(Q)=2^{(h+1)d}=2^{nd/2}.
+\]
+
+\paragraph{\(M_\alpha\).}
+For the compact core, the two simple normal forms give
+\[
+\begin{array}{c|c}
+ \text{inertia projector}&\text{determinant core}\\ \hline
+ P=1&q(c_0)+b_q(c_0,c_1)\\
+ P=0&q(c_1)+b_q(c_0,c_1).
+\end{array}
+\]
+Both are plus forms.  For the procyclic and sign rows, the
+self-replication correction gives the plus form on ramified simples.
+The unramified procyclic core is again plus, while the unramified sign
+core is hyperbolic.  Appending handles gives
+\[
+ \Gsum(Q)=2^{nd/2}.
+\]
+
+Since all \(M_\alpha\) and \(N_\alpha\) fields have even degree, these
+values equal the local sign in \cref{thm:local-gauss}.  This proves B4
+for every displayed word.
+
+\begin{corollary}\label{cor:branch-source}
+Every word in \cref{thm:Lword,thm:Nwords,thm:Mwords} satisfies B1--B4.
+Therefore the corresponding candidate is \(G_K\) by
+\cref{thm:source}.
+\end{corollary}
+
+\section{Quadratic fields and the formerly missing cases}
+\label{sec:quadratic}
+
+The ramified-\(i\) quadratic fields provide useful concrete
+specializations.  They also expose errors that are invisible to small
+finite-target tests.
+
+\subsection{\texorpdfstring{\(\Q_2(\sqrt{-2})\)}{Q2(sqrt(-2))}}
+
+This is type \(N_2\), with \(I=C=\langle3\rangle\), \(r=0\), and
+\(q_K=2\).  The relation is
+\[
+ x_0^6[x_0,x_1]x_2^{-\sigma}
+ (x_2\tau)^{\omega_2}=1.
+\]
+Thus
+\[
+\left\langle
+\sigma,\tau,x_0,x_1,x_2
+\ \middle|\
+\tau^\sigma=\tau^2,\quad
+x_0^6[x_0,x_1]x_2^{-\sigma}(x_2\tau)^{\omega_2}=1,\quad
+\overline{\langle\!\langle x_0,x_1,x_2\rangle\!\rangle}
+\text{ pro-}2
+\right\rangle_{\prof}
+\cong G_{\Q_2(\sqrt{-2})}.
+\]
+
+\subsection{\texorpdfstring{\(\Q_2(\sqrt2)\) and
+\(\Q_2(\sqrt5)\)}{Q2(sqrt(2)) and Q2(sqrt(5))}}
+
+These are compact \(M_\alpha\) fields.  In
+\eqref{eq:Mcompact-word}, take
+\[
+ m=4\quad(d=2,\ M_3),\qquad
+ m=2\quad(d=5,\ M_2).
+\]
+The reversed factor order in \(E_m^{\mathrm{rev}}\) is necessary.  The
+forward order has determinant
+\[
+ R^{-2}(1+R+R^2+R^3+R^4)
+\]
+on the ramified mixed operator and is singular on a primitive
+fifth-root orbit.
+
+\subsection{\texorpdfstring{\(\Q_2(\sqrt{10})\)}{Q2(sqrt(10))}}
+
+The correct marking in Labute variables is
+\[
+ \nu(a,b,c,d)=(-4,0,2,1),
+\]
+not \((0,0,0,1)\).  Put
+\[
+ \sigma=d,\qquad x_0=c^{-2}a^{-1},\qquad
+ x_1=b,\qquad x_2=c\sigma^{-2},
+\]
+\[
+ C_0=x_2\sigma_2^2,\qquad A=x_0^{-1}C_0^{-2},
+\]
+\[
+ E_{10}
+ =\delta_1^{\sigma_2^8}
+  \delta_1^{\sigma_2^4}
+  \delta_0^{\sigma_2^4}
+  \delta_0
+  \delta_2^{\sigma_2^2}.
+\]
+The exact specialized word is
+\[
+ R_{10}=A^2[A,x_1]C_0^4[C_0,\sigma]E_{10}.
+\]
+It realizes the required inertia orientation image
+\(\{\pm1\}(1+8\Z_2)\).
+
+\subsection{\texorpdfstring{\(\Q_2(\sqrt{-10})\)}{Q2(sqrt(-10))}}
+
+The general sign-Frobenius word \eqref{eq:Msign-word} applies.  A useful
+field-specific alternative makes the \(T\)-dependent correction
+explicit.  Put
+\[
+ A_-=x_0^{-1}x_1^{-2},
+\]
+\[
+ R_-^{\mathrm{raw}}
+ =A_-^2[A_-,\sigma]x_1^4[x_1,\sigma x_2]\,
+ [\sigma,x_2]^{-1}x_2^{-\sigma}(x_2\tau)^{\omega_2}.
+\]
+With \(D_i=\delta_i\), set
+\[
+ W=D_0D_0^\sigma D_1D_1^\sigma,\qquad
+ \Nm_\tau(Z)=(Z\tau)^{\omega_2}\tau^{-\omega_2},\qquad
+ \widehat A=D_0^{-1}D_1^{-2},
+\]
+\[
+\widehat R_-=
+\widehat A^2[\widehat A,\sigma]D_1^4
+[D_1,\sigma W][\sigma,W]^{-1}
+W^{-\sigma}\Nm_\tau(W),
+\]
+\[
+ \Theta_-^T=\widehat R_-D_0^2[D_0,D_1],\qquad
+ R_-^{\mathrm{new}}=R_-^{\mathrm{raw}}\Theta_-^T.
+\]
+The factor \(\tau^{-\omega_2}\) removes an unwanted first-order term but
+retains the central ramified operator.  The earlier correction
+\(D_0^2[D_0,D_1]\) by itself is false: on
+\[
+ V=\F_{64},\qquad T(x)=\zeta x\ (|\zeta|=9),\qquad S(x)=x^{32},
+\]
+with
+\[
+ q(x)=\Tr_{\F_8/\F_2}(x^9),
+\]
+its mixed Hessian has a two-dimensional radical.  The relative-norm
+word above repairs this exact order-nine obstruction.
+
+\section{Assembly of the main theorem}\label{sec:assembly}
+
+\begin{proof}[Proof of \cref{thm:main}]
+If \(K(i)/K\) is unramified, invoke Diekert
+\cite{Diekert1984}.  Suppose \(K(i)/K\) is ramified.  Labute's
+classification \cite{Labute1967}, refined by the marked datum
+\((C,I,\lambda,\gamma)\), puts \(D_K\) in exactly one of the following
+rows:
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Arithmetic branch & Word & Result\\
+\midrule
+\(n\) odd, type \(L\) & \eqref{eq:Lword} & \cref{thm:Lword}\\
+\(N_\alpha,\ r=0\) & \eqref{eq:Ncompact-word} & \cref{thm:Nwords}\\
+\(N_\alpha,\ r\ge1\) & \eqref{eq:Npc-word} & \cref{thm:Nwords}\\
+\(M_\alpha,\ r=0\) & \eqref{eq:Mcompact-word} & \cref{thm:Mwords}\\
+\(M_\alpha,\ \eta\text{ odd}\) & \eqref{eq:Mpc-word} & \cref{thm:Mwords}\\
+\(M_\alpha,\ \eta\text{ even}\) & \eqref{eq:Msign-word} & \cref{thm:Mwords}\\
+\bottomrule
+\end{tabular}
+\end{center}
+There is no fourth \(\lambda\)-row: in product type, even \(\eta\)
+forces \(r=1,\epsilon=1\).
+
+By \cref{cor:branch-source}, the corresponding candidate satisfies
+B1--B4.  The source-interface theorem gives equality of finite
+epimorphism counts and hence the desired profinite isomorphism.
+\end{proof}
+
+\section{Computational and formal checks}\label{sec:checks}
+
+The proof does not depend on finite testing.  Nevertheless, independent
+regressions are useful because the relators are highly sensitive to
+factor order and conjugation convention.
+
+\begin{longtable}{p{0.31\textwidth}p{0.61\textwidth}}
+\toprule
+Check & Result\\
+\midrule
+\endhead
+\(N_2\) class-three word evaluation&
+All \(31\) assertions passed.  Independent evaluation paths agreed;
+wrong conjugation side, reversed norm order, and even-quotient mutants
+were rejected.\\
+\addlinespace
+Relative Labute restricted Lie algebra&
+Degrees \(3\)--\(8\) reproduced the exceptional three-dimensional
+cokernel and its annihilation by the three orientation functionals.\\
+\addlinespace
+General \(N_\alpha\)&
+Ramified \(S_3\), unramified \(C_3\), and even-residue-degree checks
+gave the predicted corrected ranks and Heisenberg identities.\\
+\addlinespace
+\(d=-10\) operator&
+The old correction fails at inertia order \(9\); the relative-norm
+correction is canonical on every tested self-dual odd inertia orbit
+through order \(197\).\\
+\addlinespace
+General \(M_\alpha\)&
+The new \(r=2,\epsilon=1\), inertia-order-\(17\) procyclic case has
+canonical rank \(16\); ramified sign and unramified sign tests have the
+predicted rank-four canonical and hyperbolic forms.\\
+\addlinespace
+Finite-target oracle&
+Direct relator counts agree with an independent induced-wreath oracle
+for tested abelian targets, \(S_3\), \(D_8\), and \(A_4\).\\
+\addlinespace
+Lean prototype&
+The interface skeleton compiles with no declared axioms.  It checks
+types and imports only; it does not formalize the presentation
+theorems.\\
+\bottomrule
+\end{longtable}
+
+For reference, the validated nonabelian epimorphism counts in the five
+quadratic ramified-\(i\) cases are
+\[
+\begin{array}{c|rrrrr}
+ &-2&2&5&10&-10\\ \hline
+ S_3&6&6&0&6&6\\
+ D_8&1568&1568&1568&1568&1568\\
+ A_4&120&120&480&120&120.
+\end{array}
+\]
+The fresh \(A_4\) direct run was compared with previously completed
+independent oracle artifacts; a duplicate full oracle recomputation was
+stopped after exceeding the allotted runtime without a checkpoint.
+
+\section{Lean formalization plan}\label{sec:lean}
+
+The existing Lean development for \(G_{\Q_2}\) already contains substantial
+parts of the finite-group, cohomological, quadratic, and reconstruction
+engines.  The general project should therefore proceed by extracting
+source-specific leaves into parameterized interfaces, not by rewriting the
+finite-target induction from scratch.  This section fixes the intended API
+and the order in which it should be implemented.
+
+\subsection{The formal target}
+
+Let \(K\) be represented as a finite intermediate field of
+\(\overline{\Q}_2/\Q_2\), and write
+\[
+ G_K=\operatorname{Gal}(\overline{\Q}_2/K).
+\]
+For a selected relator family, the final Lean statement should have the
+shape
+\begin{verbatim}
+theorem dyadicPresentation
+    (K : IntermediateField Q2 Q2bar)
+    [FiniteDimensional Q2 K]
+    (localData : DyadicLocalData K)
+    (branch : BranchArithmetic K)
+    (cert : BranchCertificate localData branch) :
+    Nonempty
+      (ContinuousMulEquiv
+        (candidateGroup localData.params branch.word)
+        K.fixingSubgroup)
+\end{verbatim}
+The proof of this theorem should be the composition of a branch certificate
+with a single generic reconstruction theorem.  It should not introduce an
+isomorphism axiom for any field.
+
+\subsection{Parameter and marking layer}
+
+The first production modules should define:
+\begin{verbatim}
+inductive LabuteType
+  | L
+  | M (alpha : Nat)
+  | N (alpha : Nat)
+
+inductive Generator (n : Nat)
+  | sigma
+  | tau
+  | wild (i : Fin (n + 1))
+
+structure Marking (n : Nat) (G : Type*) where
+  sigma : G
+  tau : G
+  wild : Fin (n + 1) -> G
+
+structure FieldParameters where
+  n : Nat
+  residueDegree : Nat
+  qK : Nat
+  qK_eq : qK = 2 ^ residueDegree
+\end{verbatim}
+The semantic generator type is preferable to a bare
+\(\operatorname{Fin}(n+3)\): it prevents coordinate-order mistakes in the
+Fox complex while retaining the correct cardinality.  The old
+four-generator marking should remain in place initially, with an adapter
+identifying
+\[
+ (\sigma,\tau,x_0,x_1)
+ \quad\longleftrightarrow\quad
+ (\mathtt{sigma},\mathtt{tau},\mathtt{wild}\ 0,
+  \mathtt{wild}\ 1)
+\]
+at \(n=1\).
+
+The cyclotomic Frobenius data should be split into a canonical quotient
+element and a chosen word representative:
+\begin{verbatim}
+structure CyclotomicFrobeniusDatum
+    (C : Type*) [Group C] where
+  r : Nat
+  lambda : C ->* Multiplicative (ZMod (2 ^ r))
+  lambda_surjective : Function.Surjective lambda
+
+def inertiaImage (d : CyclotomicFrobeniusDatum C) : Subgroup C :=
+  d.lambda.ker
+
+def gammaCoset (d : CyclotomicFrobeniusDatum C) :
+    C / d.inertiaImage := ...
+\end{verbatim}
+A representative of \(\mathtt{gammaCoset}\) should be chosen only when a
+concrete word requires a Frobenius lift.  This avoids making the
+presentation depend on a noncanonical representative.
+
+\subsection{The four formal interfaces}
+
+The mathematical B1--B4 split should be reflected literally in the Lean
+API.
+
+\paragraph{B1: \texttt{SourceBoundary} and \texttt{BoundaryPair}.}
+Tame and maximal pro-\(2\) maps, equality of their full
+\(\Z_2\)-characters, quotient identifications, joint surjectivity to the
+fibre product, and the values of \(\nu\) on every marked generator.
+
+\paragraph{B2: \texttt{ExactLiftingSemantics}.}
+The maps
+\[
+ A\longrightarrow(\mathtt{Generator}\ n\to A)
+ \longrightarrow A\times A,
+\]
+the chain identity, literal defect-change formula,
+obstruction-vanishing equivalence, lift-torsor theorem, naturality, and
+exactness in coefficients.
+
+\paragraph{B3: \texttt{LinearDualityInterface}.}
+The finite-word Stokes chain map, perfectness in degrees \(0/2\) and \(1\),
+the \(H^2\)-invariant identification, adjoint connecting maps, and scalar
+Hilbert normalization.  Cardinality formulas alone are insufficient.
+
+\paragraph{B4: \texttt{QuadraticDeterminantInterface}.}
+Candidate and local quadratic forms, nonsingularity, ramification kind,
+the two Gauss formulas, and their equality.
+
+The generic package should then read schematically:
+\begin{verbatim}
+structure SourceInterface
+    (P : DyadicPresentation n)
+    (K : IntermediateField Q2 Q2bar) where
+  boundary : BoundaryPair n P.group K.fixingSubgroup
+  exactSemantics : ExactLiftingSemantics P
+  linear : LinearDualityInterface P
+  quadratic : QuadraticDeterminantInterface P
+
+theorem sourceInterface_contSurjCounts
+    (I : SourceInterface P K) (G : Type*)
+    [Group G] [Finite G] :
+    Nat.card (ContSurj P.group G) =
+      Nat.card (ContSurj K.fixingSubgroup G)
+
+theorem sourceInterface_reconstruction
+    (I : SourceInterface P K) :
+    Nonempty (ContinuousMulEquiv P.group K.fixingSubgroup)
+\end{verbatim}
+The last theorem should call the existing profinite reconstruction API.
+The boundary-framed induction should be generalized by replacing its
+hard-coded source leaves with fields of
+\texttt{Source}\-\texttt{Interface}; the
+finite group recursion itself should remain unchanged.
+
+\subsection{New foundational work}
+
+The marked relative Labute theorem is the part least represented in the
+current codebase.  It requires the following modules, in dependency order:
+\begin{enumerate}
+\item \texttt{FreeProTwo}: the maximal pro-\(2\) quotient of a free
+profinite group, with transported generator and evaluation lemmas;
+\item \texttt{Zassenhaus}: the filtration, commutator and square bounds,
+and the graded pieces actually used by the proof;
+\item \texttt{RestrictedLie}: the bracket, restricted square, and
+degreewise derivations induced by Nielsen corrections;
+\item \texttt{HallBasis}: only the basis elements and rank calculations
+needed by the \(L\), \(M\), and \(N\) rows;
+\item \texttt{LabuteWords}: the marked model relators, their abelian
+vectors, initial forms, orientations, and unramified characters;
+\item \texttt{RelativeLabute}: surjectivity of the compatible correction
+map in the four graded rows \(L\), \(M_{\epsilon=0}\),
+\(M_{\epsilon=1}\), and \(N\); and
+\item \texttt{NielsenLimit}: convergence of corrections that are the
+identity in successively deeper filtration quotients.
+\end{enumerate}
+The output must be an equivalence preserving both the full cyclotomic
+orientation and the full \(\Z_2\)-valued unramified character.  A
+mod-\(2\) compatibility theorem is not sufficient for B1.
+
+\subsection{Local Gauss theorem}
+
+The current local quadratic construction should first be parameterized
+from the concrete source \(G_{\Q_2}\) to an arbitrary profinite group with
+a \texttt{TateDualityG} instance.  The principal target is:
+\begin{verbatim}
+theorem localDeterminantGauss
+    (localData : DyadicLocalData K)
+    (D : TateDualityG K.fixingSubgroup 2)
+    (dat : LocalDeterminantDatum K C V) :
+    GeneralGaussDatum localData.params.n dat.d
+      (H1 K.fixingSubgroup V)
+\end{verbatim}
+The output record contains quadraticity, nonsingularity,
+\(\#H^1=2^{nd}\), evenness of \(nd\), ramification kind, and the formula
+\[
+ \Gsum(Q)=
+ \begin{cases}
+ (-1)^n2^{nd/2},&\text{unramified},\\
+ 2^{nd/2},&\text{ramified}.
+ \end{cases}
+\]
+The unramified proof should expose the rank-\(n\) Hermitian decomposition
+without specializing \(n\) early.  The ramified proof should be divided
+into odd-layer vanishing, projectivity of the faithful image, construction
+of the deep Lagrangian, and the normalized Evens--Kahn calculation.
+
+\subsection{Implementation order and checkpoints}
+
+The recommended merge order is:
+\begin{enumerate}
+\item parameters, semantic marking, and \(n=1\) adapters;
+\item group-generic local cohomology and wrappers recovering the current
+\(G_{\Q_2}\) declarations;
+\item the general local Gauss theorem;
+\item the \(n+3\)-generator Fox complex and exact lifting semantics;
+\item relative Labute infrastructure and the marked pro-\(2\) theorem;
+\item the source-interface records and the parameterized finite-target
+induction;
+\item the \(N_2\) instance as the first five-generator end-to-end test;
+\item the remaining \(L\), \(N_\alpha\), and \(M_\alpha\) instances.
+\end{enumerate}
+At each checkpoint the existing \(G_{\Q_2}\) theorem should continue to
+compile through compatibility wrappers.
+
+\subsection{Axiom boundary and acceptance criteria}
+
+The formalization should distinguish new mathematics from classical local
+inputs.  Initially it is reasonable to bundle local reciprocity, the
+oriented tame quotient, local Euler characteristic, Tate duality, and
+finite-dyadic Hilbert-symbol facts.  The relative Labute project should
+remove the current composite orientation axiom by deriving it from smaller
+arithmetic facts; doing so need not immediately eliminate every
+literature axiom.
+
+Every merge checkpoint should enforce:
+\begin{enumerate}
+\item no \texttt{sorryAx} and no new undocumented axiom;
+\item preservation of existing \(G_{\Q_2}\) theorem names through wrappers;
+\item
+\(\mathtt{generalGaussSign\ 1\ unramified=-1}\) and
+\(\mathtt{generalGaussSign\ 2\ unramified=1}\);
+\item equivalence of the \(n=1\) semantic marking and Fox complex with the
+old \(\operatorname{Fin}4\) versions;
+\item five generator coordinates and two relation coordinates in the
+\(N_2\) complex;
+\item preservation of the full \(\nu:\!-\to\Z_2\) and cyclotomic
+orientation by every marked pro-\(2\) equivalence; and
+\item use of \texttt{sourceInterface\_reconstruction} in the final field
+theorems, with no field-specific presentation-isomorphism axiom.
+\end{enumerate}
+
+\subsection{Current scaffold}
+
+The accompanying file
+\path{work/execution/dyadic_general_skeleton.lean} now compiles against
+the existing GQ2 Lake project.  It contains:
+\begin{itemize}
+\item the parameter, family, generator, and marking types;
+\item functorial mapping of general markings;
+\item the B1 boundary fibre product and two-source boundary pair;
+\item the two-relator complex and explicit B2/B3 obligation records;
+\item the arbitrary-dyadic Gauss-sign record and B4 comparison record;
+\item the combined source-interface input record; and
+\item an ordered milestone enumeration for project tooling.
+\end{itemize}
+It introduces no axiom and no \texttt{sorry}.  It remains a type-level
+scaffold: the substantive relative Labute, local Gauss, Fox, and
+source-interface proofs are the next implementation stages.
+
+\section{Publication status and remaining work}\label{sec:status}
+
+The present consolidation treats the following as standard literature
+inputs:
+\begin{enumerate}
+\item local Euler--Poincar\'e characteristic and Tate duality
+\cite[Chapter VII]{NSW};
+\item the dyadic unit filtration, Hilbert orthogonality, and local
+reciprocity \cite{SerreLocal};
+\item the modular projectivity criterion for a module free over a Sylow
+subgroup;
+\item the normalized Evens--Kahn identity
+\cite{Evens1963,Kahn1984,Kozlowski1984};
+\item Labute's classification of Demu\v{s}kin groups
+\cite{Labute1967}; and
+\item Diekert's theorem in the unramified-\(i\) branch
+\cite{Diekert1984}.
+\end{enumerate}
+
+Before publication, exact proposition numbers should replace the broad
+citations for the square-class filtration and modular projectivity.
+The component calculations should receive independent human review.
+Finally, the existing Lean file is only an interface prototype; a
+machine-checked proof would still need formalizations of the relative
+Labute theorem, the local Gauss-sign theorem, the finite-word Stokes
+construction, and the source-interface induction.
+
+\begin{thebibliography}{99}
+
+\bibitem{Brown1982}
+K.~S. Brown,
+\emph{Cohomology of Groups},
+Graduate Texts in Mathematics 87, Springer, 1982.
+
+\bibitem{Diekert1984}
+V. Diekert,
+\emph{\"Uber die absolute Galoisgruppe dyadischer Zahlk\"orper},
+J. Reine Angew. Math. \textbf{350} (1984), 152--172.
+
+\bibitem{DixonEtAl1982}
+J.~D. Dixon, E.~W. Formanek, J.~C. Poland, and L. Ribes,
+\emph{Profinite completions and isomorphic finite quotients},
+J. Pure Appl. Algebra \textbf{23} (1982), 227--231.
+
+\bibitem{Evens1963}
+L. Evens,
+\emph{A generalization of the transfer map in the cohomology of groups},
+Trans. Amer. Math. Soc. \textbf{108} (1963), 54--65.
+
+\bibitem{FriedJarden}
+M.~D. Fried and M. Jarden,
+\emph{Field Arithmetic}, fourth edition,
+Ergebnisse der Mathematik und ihrer Grenzgebiete (3), vol.~11,
+Springer, 2023.
+
+\bibitem{JannsenWingberg1982}
+U. Jannsen and K. Wingberg,
+\emph{Die Struktur der absoluten Galoisgruppe \(p\)-adischer
+Zahlk\"orper},
+Invent. Math. \textbf{70} (1982), 71--98.
+
+\bibitem{Kahn1984}
+B. Kahn,
+\emph{Classes de Stiefel--Whitney de formes quadratiques et de
+repr\'esentations galoisiennes r\'eelles},
+Invent. Math. \textbf{78} (1984), 223--256.
+
+\bibitem{Koch2002}
+H. Koch,
+\emph{Galois Theory of \(p\)-Extensions},
+Springer Monographs in Mathematics, Springer, 2002.
+
+\bibitem{Kozlowski1984}
+A. Kozlowski,
+\emph{The Evens--Kahn formula for the total Stiefel--Whitney class},
+Proc. Amer. Math. Soc. \textbf{91} (1984), 309--313.
+
+\bibitem{Labute1967}
+J.~P. Labute,
+\emph{Classification of Demushkin groups},
+Canad. J. Math. \textbf{19} (1967), 106--132.
+
+\bibitem{MilneADT}
+J.~S. Milne,
+\emph{Arithmetic Duality Theorems}, second edition,
+BookSurge, 2006.
+
+\bibitem{NSW}
+J. Neukirch, A. Schmidt, and K. Wingberg,
+\emph{Cohomology of Number Fields}, second edition,
+Springer, 2015.
+
+\bibitem{RibesZalesskii}
+L. Ribes and P. Zalesskii,
+\emph{Profinite Groups}, second edition,
+Springer, 2010.
+
+\bibitem{RoeTurturean2026}
+D. Roe and D. Turturean,
+\emph{A presentation of the absolute Galois group of \(\Q_2\)},
+preprint, 2026,
+\url{https://roed314.github.io/gq2/paper/paper.html}.
+
+\bibitem{Schneider2016}
+F. Schneider,
+\emph{On the structure of the absolute Galois group of local fields
+with residue characteristic \(2\)},
+Ph.D. thesis, Universit\"at Regensburg, 2016.
+
+\bibitem{SerreLocal}
+J.-P. Serre,
+\emph{Local Fields},
+Graduate Texts in Mathematics 67, Springer, 1979.
+
+\bibitem{SerreProP}
+J.-P. Serre,
+\emph{Structure de certains pro-\(p\)-groupes},
+S\'eminaire Bourbaki, vol.~8, expos\'e no.~252 (1962--1964), 145--155.
+
+\bibitem{Zelvenskii1972}
+I.~G. Zel'venski\u{\i},
+\emph{The algebraic closure of a local field for \(p=2\)},
+Izv. Akad. Nauk SSSR Ser. Mat. \textbf{36} (1972), 933--946;
+English transl., Math. USSR-Izv. \textbf{6} (1972), 925--937.
+
+\end{thebibliography}
+
+\end{document}
