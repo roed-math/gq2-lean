@@ -1075,6 +1075,20 @@ noncomputable def h1KerFixEquivAt (hancinj : Function.Injective ⇑anc)
   right_inv := h1KerToFixAt_h1FixToKerAt anc ρ k hancinj hker htriv
   map_add' := h1KerToFixAt_add anc ρ k hancinj hker htriv hancind
 
+/-- **Finiteness of `H¹(N_K, 𝔽₂)`**, discharged from the splitting field: `G_k` is open of finite
+index in `G_ℚ₂` for `k/ℚ₂` finite, so LG2a's Euler theorem (`absGalK_localEulerCharacteristic`,
+AX2 — a theorem, not an axiom) gives `Finite (H¹(G_k, 𝔽₂))`, and the transport carries it to the
+splitting group.  This removes the `[Finite (H¹(N_K, 𝔽₂))]` instance that the `ℚ₂` chain threads
+by hand (`GQ2.DimClose.lemma_6_17_dim_of_residueLift`). -/
+theorem finite_H1_ker_of_hker [FiniteDimensional ℚ_[2] k] (hancinj : Function.Injective ⇑anc)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (hancind : Topology.IsInducing ⇑anc) :
+    Finite (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2)) := by
+  haveI : Finite (H1 ↥k.fixingSubgroup (ZMod 2)) :=
+    (absGalK_localEulerCharacteristic k (ZMod 2)).2.1
+  exact Finite.of_equiv _ (h1KerFixEquivAt anc ρ k hancinj hker htriv hancind).symm.toEquiv
+
 /-- `h1KerToFixAt` carries anchored deep classes to `k`-deep classes, and conversely: the
 `(A, β)`-data transports verbatim, memberships move along `hker`. -/
 theorem h1KerToFixAt_mem_deep_iff (hancinj : Function.Injective ⇑anc)
@@ -1358,9 +1372,9 @@ source at every tame parameter `q_K = 2^f`.
 The three `ℚ₂`-specific derivations are threaded, per the module docstring: the splitting-field
 data `(k, htriv, hker)`, the residue-trivial tame lift `(g₀, hg₀, hg₀rt)`, and the anchor's
 injectivity/inducingness `(hancinj, hancind)` — all free at `Γ = ↥U`, `anc = U.subtype`. -/
-theorem lemma_6_17_dim_final_K {f : ℕ} (hf : 1 ≤ f)
+theorem lemma_6_17_dim_final_K {qK f : ℕ} (hqK : qK = 2 ^ f) (hf : 1 ≤ f)
     (anc : ContinuousMonoidHom Γ GalQ2)
-    (c : ContinuousMonoidHom (Tq (2 ^ f)) C) (hc : Function.Surjective ⇑c)
+    (c : ContinuousMonoidHom (Tq qK) C) (hc : Function.Surjective ⇑c)
     (ρ : ContinuousMonoidHom Γ C)
     (D : TateDualityG ↥(ρ.toMonoidHom.ker : Subgroup Γ) 2)
     (hρsurj : Function.Surjective ⇑ρ)
@@ -1368,10 +1382,9 @@ theorem lemma_6_17_dim_final_K {f : ℕ} (hf : 1 ≤ f)
     (hV2 : ∀ v : V, v + v = 0)
     (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
-    (hram : ∃ v : V, c (tqTau (2 ^ f)) • v ≠ v)
+    (hram : ∃ v : V, c (tqTau qK) • v ≠ v)
     (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
-    [Finite (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2))]
-    (g₀ : Γ) (hg₀ : ρ g₀ = c (tqTau (2 ^ f)))
+    (g₀ : Γ) (hg₀ : ρ g₀ = c (tqTau qK))
     (hg₀rt : IsResidueTrivial (ancSubgroup (kerAnc anc ρ)) (anc g₀))
     (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
     (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
@@ -1379,6 +1392,9 @@ theorem lemma_6_17_dim_final_K {f : ℕ} (hf : 1 ≤ f)
     (hancinj : Function.Injective ⇑anc) (hancind : Topology.IsInducing ⇑anc) :
     Nat.card (deepPartK (V := V) anc ρ) ^ 2 = Nat.card (H1 Γ V) := by
   classical
+  subst hqK
+  haveI : Finite (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2)) :=
+    finite_H1_ker_of_hker anc ρ k hancinj hker htriv hancind
   have hgen : Subgroup.closure {c (tqSigma (2 ^ f)), c (tqTau (2 ^ f))} = ⊤ :=
     gen_tq_quotient c.toMonoidHom c.continuous_toFun hc
   have hrel : (c (tqSigma (2 ^ f)))⁻¹ * c (tqTau (2 ^ f)) * c (tqSigma (2 ^ f))
