@@ -89,6 +89,18 @@ to `master` only at owner gate G3.
   mirrors the now-frozen S1.1 grammar + S1.3's specialization semantics). F6 dispatched
   (lane F worktree, sequential). `check_axioms.sh` green on the merged branch (census 9;
   check 5 skipped — library not built here; full build deferred to wave boundary as logged).
+- 2026-07-29 (orchestrator, AX5 outcome): **projectivity needs NO axiom** — verdict PROVABLE
+  (memo `docs/dyadic/ax5-proposal.md`; 922-ln spike typechecks std-3). Decisions: (i) the
+  **in-place hypothesis swap in `RegularSummand/{Trace,Involution}.lean` is APPROVED** per
+  plan A6 (memo §4.2 edit list; name-preserving q=2 wrappers; byte-identical capstone prints
+  verified at the wave-boundary full build) — fallback duplication rejected (~900 dup lines);
+  (ii) ticket **PJ1** dispatched (worktree `gq2-dyadic-pj`) to land it; (iii) leaf ownership:
+  the finite-image tame leaves live with PJ1; F3 keeps the profinite `T_q` side; (iv) **LG
+  lane note**: `LocalKummer.lean:382/409` (`odd_orderOf_tameInertia`, `tameInertia_normal`)
+  hard-code q=2 and need the same two general-q leaves — LG4 should consume PJ1's; (v) packet
+  §12 over-attribution recorded: `InflationVanishes` is coprime-averaging, not projectivity —
+  LG4 scope trimmed accordingly; (vi) memo's literature citations are attribution-only and
+  marked UNVERIFIED (nothing enters the trust boundary).
 
 ## Obligation tracker
 
@@ -347,7 +359,9 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 | AX2 | Euler characteristic over `K` — derivation spike verdict, else proposal | opus | `docs/dyadic/ax2-proposal.md` | LG1 | pending |
 | AX3 | marked local reciprocity over `K` (`MarkedRecip`: full ν_ur + `(C,I,λ,γ)`) | fable | `docs/dyadic/ax3-proposal.md` | — | **dispatched 2026-07-29** |
 | AX4 | oriented tame quotient of `G_K` at `q_K` | opus | `docs/dyadic/ax4-proposal.md` | AX3 | pending |
-| AX5 | ramified-simple projectivity — try-prove-first, else proposal | opus | `docs/dyadic/ax5-proposal.md` (+`GQ2/Dyadic/Projectivity.lean` if proved) | — | **dispatched 2026-07-29** |
+| AX5 | ramified-simple projectivity — try-prove-first, else proposal | opus | `docs/dyadic/ax5-proposal.md` (+`GQ2/Dyadic/Projectivity.lean` if proved) | — | **done 2026-07-29** (a49d1d6 → merged 94f74f6; **VERDICT: PROVABLE, census +0** — general-q theorem verified by 922-ln spike over RegularSummand chain, std-3; consumer finding: InflationVanishes needs averaging NOT projectivity; implementation → PJ1) |
+
+| PJ1 | projectivity implementation: general-q leaves + hypothesis swap (per ax5-proposal §4.2/§6, in-place edits APPROVED) | opus | `GQ2/Dyadic/Projectivity.lean`, `GQ2/RegularSummand/Trace.lean`, `GQ2/RegularSummand/Involution.lean` | AX5 ✓ | **dispatched 2026-07-29** |
 
 Protocol per AX ticket: memo with exact Lean statement + citation + normalization notes +
 consumers → owner sign-off (**G-AX**) → census flip commit (statement into
