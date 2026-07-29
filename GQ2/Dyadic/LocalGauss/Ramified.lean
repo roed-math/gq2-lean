@@ -18,8 +18,9 @@ package and the vanishing lane; this file owns
 * the **join** `card_Q0loc_zero_eq_of_dim_of_vanish_K` (packet Prop. 6.12/6.14: the deep half is
   a Lagrangian, so the Gauss sign is `+`),
 * the **endpoint** `prop_6_18_ramified_K` (packet Prop. 6.18 / eq. (115), ramified case, over a
-  finite extension `K/ℚ₂`), and
-* the **`n = 1` regression** against `GQ2.DetRamified.prop_6_18_ramified`.
+  finite extension `K/ℚ₂`) and its dim-discharged form `prop_6_18_ramified_K_of_data`, and
+* the **`n = 1` regression** `prop_6_18_ramified_K_q2`, pinned by `rfl` against
+  `GQ2.DetRamified.prop_6_18_ramified`.
 
 Everything follows LG4a's **anchoring convention** (its §1): deep units are `AbsGalQ2`-side
 objects reached through an anchor `anc : ContinuousMonoidHom Γ GalQ2`, at the anchored subgroup
@@ -28,54 +29,79 @@ No cohomology transport, no `Subgroup ↥U`-vs-`Subgroup AbsGalQ2` cast.
 
 ## Contents
 
-* §1 **`FamiliesExtendK` discharged** — the retype of `GQ2.ShapiroExtend.familiesExtend_of_package`
-  (`GQ2/Shapiro/Extend.lean` :272): inverse Shapiro at the regular module `RegMod C Nr`, then the
-  retract transfer along `mapCoeff1 r`.  Fed by PJ1's `lemma_6_11_of_tame_pair_pow`.
+* §1 **`FamiliesExtendK` discharged** — `GQ2.ShapiroExtend.familiesExtend_of_package`
+  (`GQ2/Shapiro/Extend.lean` :272) retyped: inverse Shapiro at the regular module `RegMod C Nr`,
+  then the retract transfer along `mapCoeff1 r`.  Fed by PJ1's `lemma_6_11_of_tame_pair_pow`.
+  This turns LG4a's built-but-undischarged `FamiliesExtendK` statement into a theorem.
 * §2 **the conjugation modules** on the deep subgroup and on the quotient
-  (`conjModuleDeepK`/`conjModuleQuotK`) — `GQ2.conjModuleDeep`/`conjModuleQuot` retyped.
+  (`conjModuleDeepK`/`conjModuleQuotK`) — `GQ2.conjModuleDeep`/`conjModuleQuot` retyped,
+  well-defined by LG4a's `conjAct_deepClassesAt`.
 * §3 **the admissible-family ↔ equivariant-Hom bridges** (`GQ2/AdmissibleCount.lean` :250–:455
-  retyped) and the SES count.
+  retyped) and the `U_{e+1}` short-exact-sequence count.
 * §4 **the `hduality`-parametric dimension clause** `card_deepPartK_sq_of_duality` —
-  `GQ2.card_deepPart_sq_of_duality` (:466) retyped.
+  `GQ2.card_deepPart_sq_of_duality` (:466) retyped, chaining LG4a's `card_H1_eq_card_famK` /
+  `card_deepPartK_eq_card_deepFam` with §3.
 * §5 **the middle twist (H5)** — `GQ2.conjAct_mid_sub_mem_deep` /
   `conjAct_surjInv_conj_mid_sub_mem_deep` (`GQ2/DeepDuality.lean` :1134/:1256) retyped at the
   anchor; residue-triviality is taken at `ancSubgroup (kerAnc anc ρ)`, so the `ℚ₂` predicate
   `GQ2.IsResidueTrivial` is consumed verbatim.
 * §6 **the `N_K ↔ G_k` transport and the structural count** (H4 sharpness) —
-  `GQ2/DeepCount/Transport.lean` retyped.  This is where the anchor must be **injective on the
-  splitting group** (`hancinj`): the `ℚ₂` transport is an identity inclusion in both directions,
-  and only the `→` direction is available from `hker` alone.  In the campaign `anc = U.subtype`,
-  so `hancinj` is free.
-* §7 **`hduality_of_data_K`** — `GQ2.hduality_of_data` (`GQ2/DeepCount/Finale.lean` :46) retyped.
-* §8 **the dimension lane** `lemma_6_17_dim_final_K`.
+  `GQ2/DeepCount/Transport.lean` retyped, plus `finite_H1_ker_of_hker`.
+* §7 **`hduality_of_data_K`** — `GQ2.hduality_of_data` (`GQ2/DeepCount/Finale.lean` :46) retyped;
+  the abstract engine `GQ2.card_equivHoms_deep_eq_quot` is used verbatim.
+* §8 **the dimension lane** `lemma_6_17_dim_final_K`, collapsing the `ℚ₂` chain
+  `DimAssembly → DimClose → ResidueLift` into one theorem at every `q_K = 2^f`.
 * §9 **the join** `card_Q0loc_zero_eq_of_dim_of_vanish_K`.
-* §10 **the endpoint** `prop_6_18_ramified_K`, packaged over F1's `FieldParameters` exactly as
-  LG3's `prop_6_18_unramified_K`.
-* §11 the `n = 1` regression.
+* §10 **the endpoint**, packaged over F1's `FieldParameters` exactly as LG3's
+  `prop_6_18_unramified_K`.
+* §11 the `n = 1` regression and its `rfl` statement pin.
 
-## The `ResidueLift` decision (recorded for the orchestrator)
+## Two structural discoveries (recorded for the orchestrator)
 
-The `ℚ₂` dimension lane closes `lemma_6_17_dim` outright by *building* the splitting field
-(`GQ2.ResidueLift.splitField`, `fixingSubgroup_splitField`) and *deriving* the residue-trivial
-tame lift (`exists_residueTrivial_tameLift`).  Both derivations are `ℚ₂`-specific in shape but not
-in content:
+**(a) The transport needs an injective, inducing anchor.**  The `ℚ₂` `H¹(ker ρ) ≃ H¹(G_k)`
+transport (`GQ2/DeepCount/Transport.lean`) is cocycle precomposition along **identity inclusions
+in both directions**.  At a general anchored source only the forward map `kerToFixingAt`
+(`n ↦ anc n`, LG4a §4) is free: its inverse exists exactly when `anc` is injective, and is
+continuous exactly when `anc` is inducing.  Both hold verbatim in the campaign (`Γ = ↥U`,
+`anc = U.subtype`: `Subtype.val_injective` and `Topology.IsInducing.subtypeVal`), so they are
+threaded as `hancinj`/`hancind` rather than assumed globally.  Nothing else in the lane needed a
+new hypothesis.
+
+**(b) The `ResidueLift` decision: threaded, not retyped.**  The `ℚ₂` dimension lane closes
+`lemma_6_17_dim` outright by *building* the splitting field (`GQ2.ResidueLift.splitField`,
+`fixingSubgroup_splitField`) and *deriving* the residue-trivial tame lift
+(`exists_residueTrivial_tameLift`).  Both are `ℚ₂`-specific in shape:
 
 * the splitting field of a general `Γ` is **not** an `IntermediateField ℚ_[2] ℚ̄₂` unless `Γ` is
-  already a subgroup of `G_ℚ₂` — at a general anchored source the correct object is the fixed
-  field of `ancSubgroup (kerAnc anc ρ)`, which needs the anchor's range to be closed.  So the
-  `(k, hker)` pair is **threaded**, exactly as LG4a threaded it in its §4/§6 (memo §2 row 3);
-* the residue-trivial lift is likewise threaded as `(g₀, hg₀, hg₀rt)`.
+  already a subgroup of `G_ℚ₂` — at a general anchored source the right object is the fixed field
+  of `ancSubgroup (kerAnc anc ρ)`, which needs the anchor's range to be closed.  So the
+  `(k, htriv, hker)` triple is **threaded**, exactly as LG4a threaded it in its §4/§6 (memo §2
+  row 3);
+* the residue-trivial lift is likewise threaded as `(g₀, hg₀, hg₀rt)`, with residue-triviality
+  read at the anchored subgroup so `GQ2.IsResidueTrivial` is reused unchanged.
 
-Both are supplied by the caller at `Γ = ↥U` (LG5 / the AS lane) from the Galois correspondence
-for the open subgroup `ancSubgroup (kerAnc U.subtype ρ) ≤ G_ℚ₂`, which is a `ℚ₂`-side statement
-and therefore reuses `GQ2.ResidueLift` verbatim.  Nothing is lost and no axiom is added.
+Both are supplied by the caller at `Γ = ↥U` (LG5 / the AS lane) from the Galois correspondence for
+the open subgroup `ancSubgroup (kerAnc U.subtype ρ) ≤ G_ℚ₂` — a `ℚ₂`-side statement, so
+`GQ2.ResidueLift` is reused verbatim there.  Nothing is lost and no axiom is added.  What is *not*
+threaded is the `[Finite (H¹(N_K, 𝔽₂))]` instance the `ℚ₂` chain carries by hand: §6's
+`finite_H1_ker_of_hker` discharges it from `k` through LG2a's `absGalK_localEulerCharacteristic`
+(AX2 — a theorem, not an axiom).
 
 ## Axiom hygiene
 
-Every declaration here is parametrized over the duality bundle `D` and over the `k`-side data, so
-the prints are the `ℚ₂` models' (std-3 + the B6/B7/B11a/B12/B13 §6.3 budget reached through the
-imported `ℚ₂` leaves).  AX3/AX4 content appears **only** as explicit binders (`tameFK`, `htameFK`,
-`hfac`), following LG3's three-binder pattern.  Census unchanged.
+Everything is parametrized over the duality bundles and over the `k`-side data, so every print is
+a **subset** of its `ℚ₂` model's (measured on this file):
+
+* `lemma_6_17_dim_final_K` — std-3 + B11a + B7, against the model
+  `GQ2.ResidueLift.lemma_6_17_dim_final`'s std-3 + B11a + B6 + B7 (`D` is a parameter here, so
+  `tateDualityAt` does not enter);
+* `card_Q0loc_zero_eq_of_dim_of_vanish_K` — std-3;
+* `prop_6_18_ramified_K` — std-3 + B7, the same set as LG3's `prop_6_18_unramified_K`;
+* `prop_6_18_ramified_K_q2` — std-3 + B11a + B9 + B6 + B7, **exactly** the model
+  `GQ2.DetRamified.prop_6_18_ramified`'s set.
+
+AX3/AX4 content appears **only** as explicit binders (`tameFK`, `htameFK`, `hfac`), following
+LG3's three-binder pattern.  No new axiom, no `sorryAx`; census unchanged.
 -/
 
 namespace GQ2.Dyadic
@@ -206,10 +232,11 @@ theorem phiResK_mapCoeff1 {W₁ W₂ : Type}
 variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V]
   [DistribMulAction Γ V] [ContinuousSMul Γ V] [DistribMulAction C V]
 
-/-- **`FamiliesExtendK` from the Lemma 6.11 package** — `GQ2.ShapiroExtend.familiesExtend_of_package`
-retyped to a general local source.  Given the equivariant split-summand package `(ι, r)`
-embedding `V` into the regular module `𝔽₂[C]^{Nr}` (PJ1's `lemma_6_11_of_tame_pair_pow` output
-shape), every admissible family extends to a class of `H¹(Γ, V)`.
+/-- **`FamiliesExtendK` from the Lemma 6.11 package** —
+`GQ2.ShapiroExtend.familiesExtend_of_package` retyped to a general local source.  Given the
+equivariant split-summand package `(ι, r)` embedding `V` into the regular module `𝔽₂[C]^{Nr}`
+(PJ1's `lemma_6_11_of_tame_pair_pow` output shape), every admissible family extends to a class
+of `H¹(Γ, V)`.
 
 The statement is `V`-side only; the regular module and its actions live inside the proof. -/
 theorem familiesExtendK_of_package
