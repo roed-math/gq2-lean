@@ -260,3 +260,4 @@ import GQ2.Dyadic.LocalGauss.OrbitVanishK
 import GQ2.Dyadic.LocalGauss.ReadPerOrbitK
 import GQ2.Dyadic.LocalGauss.InvolutionSpliceK
 import GQ2.Dyadic.LocalGauss.VanishCloseK
+import GQ2.Dyadic.LocalGauss.Ramified
