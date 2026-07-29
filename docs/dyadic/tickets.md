@@ -157,7 +157,7 @@ to `master` only at owner gate G3.
 | F3 | tame quotient at general q + boundary specializations + relative Goursat | opus | `GQ2/Dyadic/TameBoundary.lean` | F1, F2 | pending |
 | F4 | arithmetic branches: (C,I,λ,γ), sign-row exclusion, √-10 corollary | opus | `GQ2/Dyadic/Branches.lean` | F1 | pending |
 | F5 | finite-target sanity harness (python) | opus | `scripts/dyadic_sanity_counts.py` | — | pending |
-| F6 | gates infra: `check_dyadic.sh`, allowlist workflow, docs index link | opus | `scripts/check_dyadic.sh`, `docs/README.md` (one line) | — | **dispatched 2026-07-29** |
+| F6 | gates infra: `check_dyadic.sh`, allowlist workflow, docs index link | opus | `scripts/check_dyadic.sh`, `docs/README.md` (one line) | — | **done 2026-07-29** (1d6fd7d → merged; check_dyadic.sh 289 ln: D1 delegate + D2 obligation guard (continuation-line-aware, fails on untracked) + D3 sign-row guard (declarations only) + D4/D5 WW5/F5 hooks; all green 2.2s; docs index line added) |
 
 **Ticket specs.**
 - **F1**: `FieldParameters` (`n`, `f`, `qK = 2^f`, `1 ≤ n`), `LabuteType (L | M α | N α)`
