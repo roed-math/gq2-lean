@@ -208,6 +208,19 @@ to `master` only at owner gate G3.
   MC1 §7.2 attached), **LG2** (lane lg per lg-design clone list), **MC2** (lane mc; MC1 memo
   governs incl. corrected frames + not-decide-able cup Gram) — all opus. Lean tickets use the
   F2 build protocol (cache get + `lake build <own modules>` in-worktree).
+- 2026-07-29 (orchestrator, F4 outcomes): audit green post-merge (3389 jobs, census 9,
+  check-5 + check_dyadic incl. D3 sign-row guard). Adopted findings: (i) **packet Prop. 8.1
+  implicitly assumes r ≥ 1** — at r = 0 the target ℤ/2⁰ is trivial ("η even" free, conclusion
+  fails); NOT a defect, it IS the compact row: excluded-branch statements carry `1 ≤ d.r`,
+  dichotomy `level_zero_or_not_even_eta` states the alternative — wave-2 word lanes cite the
+  dichotomy, not raw Prop 8.1. (ii) `MarkedSplitting` deliberately assumes NO algebraic
+  generation (⟨u⟩ is a topological closure in the model; `Subgroup.closure = ⊤` would be
+  FALSE) — AX3's derived layer supplies the two-coset covering from continuity into the
+  finite target, one line; consumers must NOT add a closure hypothesis. (iii) ε is inherently
+  sign-blind at every level (λ(−1) is 2-torsion; 2 = −2 in ℤ/4) — the R2 mock regression pins
+  η/γ signs only; absence of an ε sign test is NOT a gap. (iv) The MarkedRecip field clause
+  landed as the `unramified_of_even` binder with the AX3 §2.2 instantiation recorded in the
+  module docstring; simulated MC5/boundary consumer composition type-checked in scratch.
 
 ## Obligation tracker
 
@@ -231,7 +244,7 @@ to `master` only at owner gate G3.
 | F1 | parameters, semantic generators, markings, branch data | opus | `GQ2/Dyadic/Parameters.lean` | — | **done 2026-07-29** (f7c8d05 → merged; 906 ln, 163 decls, 0 sorries, std-3; module-style; η:ℤ₂ˣ + etaUnit hook, ε:Bool; Marking n FunLike + n=1 equivQ2 adapter; equivFin fixes Fox column order; import registered by orchestrator; independently re-typechecked) |
 | F2 | reflected profinite word syntax + ω₂ finite evaluation | opus (was fable) | `GQ2/Dyadic/Word/Syntax.lean`, `GQ2/Dyadic/Word/Eval.lean` | F1 | **done 2026-07-29** (6882edb → merged 25e0953, imports registered c9da9dd; 684+772 ln, 0 sorries, std-3 on 37 decls; **etaHatZ BUILT** (~110 ln on Zhat — no gap, no hypothesis threading); quadruple generic (`eval_eq_evalFin`, `ResolvedAt`/`_of_dvd`, `map_eval*`, `eval_map_eq_one_iff`) + `eval_subst`/`eval_pro2`/`eval_killWild` soundness + Gate-B T1/T2 as theorems; n=1 Γ_A stress by `rfl` + zmod8 genuine-ω₂ pin; wave-boundary audit green (3388 jobs, census 9, check-5 ran); z2pow ratification + gotchas in log) |
 | F3 | tame quotient at general q + boundary specializations + relative Goursat | opus | `GQ2/Dyadic/TameBoundary.lean` | F1, F2 | pending |
-| F4 | arithmetic branches: (C,I,λ,γ), sign-row exclusion, √-10 corollary | opus | `GQ2/Dyadic/Branches.lean` | F1 | pending |
+| F4 | arithmetic branches: (C,I,λ,γ), sign-row exclusion, √-10 corollary | opus | `GQ2/Dyadic/Branches.lean` | F1 | **done 2026-07-29** (5d4cddf on `dyadic-f4` → merged, import registered 1de39d6; 848 ln, std-3 on all 37 decls (no literature-axiom leaks), audit green 3389 jobs; `CyclotomicFrobeniusDatum`+`MarkedSplitting`, Prop 8.1 via `classification_of_even`, Cor 8.2 √-10 `(r,ε,η)=(1,1,1)` pins, both-directions η adapter, ε-∀-quantified exhaustiveness + `eps_both_occur`; **r=2 mock bundle with u⁻¹ swap discrimination**; MarkedRecip clause = `unramified_of_even` binder (census untouched, pre-G-AX auditable); CoV gap NOT hit; findings in log) |
 | F5 | finite-target sanity harness (python) | opus | `scripts/dyadic_sanity_counts.py` | — | pending |
 | F6 | gates infra: `check_dyadic.sh`, allowlist workflow, docs index link | opus | `scripts/check_dyadic.sh`, `docs/README.md` (one line) | — | **done 2026-07-29** (1d6fd7d → merged; check_dyadic.sh 289 ln: D1 delegate + D2 obligation guard (continuation-line-aware, fails on untracked) + D3 sign-row guard (declarations only) + D4/D5 WW5/F5 hooks; all green 2.2s; docs index line added) |
 
