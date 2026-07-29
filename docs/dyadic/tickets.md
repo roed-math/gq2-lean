@@ -293,6 +293,23 @@ to `master` only at owner gate G3.
   **MC3/MC4/MC5 NOT dispatched** — entangled with open owner questions (MC1 memo Q1–Q3;
   binder acceptance + B8 usage + quantification) and G-Lab; morning items. S1.10 dispatched
   on the simp board simultaneously.
+- 2026-07-29 (orchestrator, LG4a outcomes + lane restructure): audit green 3396, census 9.
+  Adopted: (i) **the LG4a anchoring convention is BINDING for LG4b/LG4c/LG5** (element-map
+  through `anc : Γ →ₜ* GalQ2`; `GalQ2` local notation in anchor types — `AbsGalQ2`'s
+  plain-def instances defeat synthesis; call sites pass AbsGalQ2 data by defeq); the memo's
+  nested-subtype risk (§7 risk 2) is DISSOLVED — LG2's `H1anchor`/`H1congrGroup` remain
+  available but unused by this lane. (ii) **LG4 split into LG4a/LG4b/LG4c by file** (rows
+  above): LG4a's two named seams become LG4b's FamiliesExtendK discharge + dim lane and
+  LG4c's §7.1 scope-block retype; both dispatched in parallel (disjoint files; LG4b takes
+  the vanish-final as a `Q0locVanishesOnDeep`-shaped binder so it does not wait). (iii)
+  σ-twist trap did NOT fire in LG4a's lane (no sigmaFun sections) but the smul trap fired
+  twice more — `simp only` where `rw` under-fires on double smul occurrences
+  (`cupFun_mem_B2_of_kside` precedent). (iv) `hvanish_cup_ker_K` threads `(k, hker)` — the
+  `ResidueLift.splitField` CONSTRUCTION belongs to the dim lane (LG4b decides retype vs
+  thread). (v) AX5's attribution correction fully honored downstream (no projectivity in
+  InflationVanishesK; q=2-typed LocalKummer lemmas unreferenced). (vi) LG4a's defensive
+  `_dp`-suffixed helpers (`h1_add_self_dp` etc.) carry dedup notes — LG4c's retype is the
+  permanent home for the `eq_of_H1ofFun_eq` family.
 
 ## Obligation tracker
 
@@ -460,7 +477,9 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 | LG2a | Euler characteristic over K derived from B7 (memo L0–L6, `EulerShapiro.lean`) | opus | `GQ2/Dyadic/LocalGauss/EulerShapiro.lean` | LG1 ✓ | **done 2026-07-29** (c0b4449 → merged, import registered; 800 ln, std-3 + B7 ONLY; `localEulerCharacteristic_open` (workhorse, U.index = n) + `absGalK_localEulerCharacteristic` + degree-2 Shapiro NEW to repo; L4 was easier than estimated, L1/L5 harder; ⚠ AbsGalQ2-vs-Gal instance trap documented — see report/handoff) |
 | LG2 | group-generic `Q⁰` + polarization over a local dualizing source | opus | `GQ2/Dyadic/LocalGauss/{Q0,PairingK}.lean` (per LG1 memo §6) | LG1 | **done 2026-07-29** (d54b270+4acea44+5c6600a → merged, imports registered; 1339 ln, 0 sorries, per-decl prints STRICT SUBSET of models (bundle parameterization made pairingK std-3; sole designed exception tateDualityKer = +tateDualityAt matching its model); audit green 3391 jobs census 9; Prop 6.6 all three clauses (`Q0loc_H1mk`, `polar_Q0loc`, `nonsingular_Q0loc`); n=1 pins `rfl`-equal to SectionSix; **(H3) isotropy splice deferred to LG4 by design** (deep-unit content needing the N_K-anchoring convention — H1anchor/H2anchor supplied as the memo's mitigation); smul trap + notes in log) |
 | LG3 | unramified sign `(−1)^n 2^{nd/2}` (Hermitian rank-n) | opus | `GQ2/Dyadic/LocalGauss/Unramified.lean` | LG2, AX2 | **done 2026-07-29** (ba09366 → merged, import registered; 1103 ln plain-import, 0 sorries, 24/27 decls std-3 (3 Euler consumers print exactly the model's std-3+B7); audit green 3395 jobs; **`s := n` route worked with NO obstruction** — freeness by field-linearity, no #H¹ hypothesis (strictly weaker than the ℚ₂ Schur transfer); all five memo deliverables at memo names + packaged `prop_6_18_unramified_K` over FieldParameters; **n=1 pin is a kernel `rfl`** (`example : @prop_6_18_unramified_K_q2 = @UnramifiedModel.prop_6_18_unramified := rfl` — drift becomes a compile error); AX3/AX4 as 3 binders exactly per AX4 memo §0 row; MuTwoPolarDual Γ-clone + lemma_6_14K landed HERE (LG4 consumes, not re-clones — LG4a notified mid-flight); smul trap fired twice, as predicted) |
-| LG4 | **deep-unit package + ramified sign `+2^{nd/2}`** | fable | `GQ2/Dyadic/LocalGauss/DeepPackage.lean`, `…/Ramified.lean` | LG2 | pending |
+| LG4a | deep-unit package + (H3) splice + InflationVanishesK + vanish core | opus (was fable) | `GQ2/Dyadic/LocalGauss/DeepPackage.lean` | LG2 | **done 2026-07-29** (2224565…c0b6536 → merged, import registered; 1488 ln, 66 decls, 0 sorries, prints ⊆ models (§4/§6 = std-3+B11a, strictly smaller than models); audit green 3396; **anchoring convention DISSOLVED the nested-subtype risk** (element-map via `anc : Γ →ₜ* GalQ2`, `kerAnc`/`ancSubgroup`/`hker` — no cohomology transport, LG2's H1anchor unused; anchor types use `GalQ2` NOT `AbsGalQ2`); InflationVanishesK via coprime averaging at general q through F3's TameQ.*; `arf_Q0loc_zero_of_deep` discharges the ENTIRE vanish side of the join; AX3/AX4 not needed here; 2 named seams → LG4b/LG4c) |
+| LG4b | dim lane + join + endpoint `prop_6_18_ramified_K` | opus | `GQ2/Dyadic/LocalGauss/Ramified.lean` | LG4a | **dispatched 2026-07-29** (ww worktree branch `dyadic-lg4b`; owns FamiliesExtendK discharge + ResidueLift decision + join per LG4a §8 signature + endpoint with vanish-final as binder; n=1 pin vs DetRamified:53) |
+| LG4c | vanish-chain retype (memo §7.1 scope block) + `lemma_6_17_vanish_final_K` | opus | new files under `GQ2/Dyadic/LocalGauss/` (OrbitVanishK/ReadPerOrbitK/InvolutionSpliceK/VanishCloseK — final list in report) | LG4a | **dispatched 2026-07-29** (lg worktree branch `dyadic-lg4c`; ~1800-ln retype: OrbitVanish Reducer block, Read §PerOrbit (⚠ degree-2 σ-twist), InvolutionSplice involution branch (AX3 binders, c2c4); output must equal `Q0locVanishesOnDeep` definitionally) |
 | LG5 | assemble general local Gauss theorem + n=1/n=2 regressions | opus | `GQ2/Dyadic/LocalGauss/Main.lean` | LG3, LG4 | pending |
 
 - **LG1**: from `recon/lg-survey.md`: fix the clone-vs-retype list for the 13 `AbsGalQ2`-typed
