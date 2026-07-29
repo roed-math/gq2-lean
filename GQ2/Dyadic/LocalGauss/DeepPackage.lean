@@ -66,18 +66,37 @@ regression identities.
 * §4 **the (H3) isotropy splice** retyped (memo §2 row 3, deferred from LG2 by design):
   `pairingK_kummer_eq_zero_K`, `pairingK_deep_deep_K`, `pairingK_mid_deep_K`,
   `deepClassesSubgroup_le_pairPerp_pairingK_K`, `midClassesSubgroup_le_pairPerp_pairingK_K`.
-* §5 **projective inflation–restriction** (packet Def. 6.11(a)): `InflationVanishesK`,
-  `FamiliesExtendK`, `AdmissibleFamK`, `h1EquivFamK`, and the discharges —
-  `inflationVanishes_of_oddNormalK` (**coprime averaging**, not projectivity: packet §12
-  over-attribution correction adopted at AX5) and `inflationVanishes_ramifiedTameQ` at every
-  `q = 2^f` through PJ1's `tame_zpowers_normal_pow`/`tame_odd_order_pow` and F3's
-  `gen_tq_quotient`; `familiesExtend_of_packageK` from PJ1's `lemma_6_11_of_tame_pair_pow`.
+* §5A **projective inflation–restriction, injectivity half** (packet Def. 6.11(a)):
+  `InflationVanishesK` and its discharges — `inflationVanishes_of_oddNormalK` (**coprime
+  averaging**, not projectivity: packet §12 over-attribution correction adopted at AX5) and
+  `inflationVanishes_ramifiedTameQ` at every `q = 2^f` through F3's
+  `TameQ.{odd_order, zpowers_normal}` (equivalently PJ1's `tame_odd_order_pow` /
+  `tame_zpowers_normal_pow`).
+* §5B **the admissible-family interface**: the `phiResK` toolkit (`_of_rep`, `_add`, `_add_phi`,
+  `_conj`, `_eq_zero_iff`, `phiResK_injective`), `AdmissibleFamK`, `toFamK`, `FamiliesExtendK`,
+  `h1EquivFamK`, `card_H1_eq_card_famK`, `card_deepPartK_eq_card_deepFam`.
+  **Open item**: the *discharge* of `FamiliesExtendK` (`GQ2.Shapiro.familiesExtend_of_package`,
+  `GQ2/Shapiro/Extend.lean` :272, retyped, fed by PJ1's `lemma_6_11_of_tame_pair_pow`) is not
+  here — it is a dimension-lane input and is handed to the orchestrator with the vanishing
+  endpoint below.
 * §6 **deep-class cup vanishing** at the splitting group (the `hvanish` core of packet Rem. 6.13's
   square and free layers).
 * §7 conjugation stability of the deep classes (the free-orbit input).
-* §8 **staged exports for LG4b**: the vanishing-side hypothesis bundle
-  `Q0locVanishesOnDeep` in the exact shape the `ℚ₂` join consumes.
-* §9 the `n = 1` regression identities.
+* §8 **staged exports for LG4b**: the vanishing-side hypothesis bundle `Q0locVanishesOnDeep` in
+  the exact shape the `ℚ₂` join consumes, plus `arf_Q0loc_zero_of_deep` (packet Prop. 6.12's
+  Lagrangian conclusion `arf Q⁰ = 0` — the vanishing-side half of the join).
+* §9 the `n = 1` regression identities (`Γ = G_ℚ₂`, `anc = id`).
+
+**Open item (reported to the orchestrator).**  The vanishing *endpoint*
+`lemma_6_17_vanish_final_K` — the retype of `GQ2.VanishClose.lemma_6_17_vanish_final`
+(`GQ2/VanishClose.lean` :205) — is **not** in this file.  It is a pure assembly over the
+`OrbitDecomp → Shapiro/Read(§PerOrbit) → OrbitVanish → InvolutionSplice` chain, of which
+`GQ2/OrbitVanish.lean` (63 `AbsGalQ2` hits / 740 lines), `GQ2/Shapiro/Read.lean` (69/443) and
+`GQ2/InvolutionSplice.lean` (69/634) must be retyped first — the memo's §7.1 scope correction.
+Everything that assembly needs *from the deep-unit package* is here: the deep half and its
+subgroup structure (§3), the square/free `hvanish` core (§6, `hvanish_cup_ker_K`), the free
+orbit's conjugation stability (§7, `conjAct_deepClassesAt`), and the shape its output feeds
+(§8, `Q0locVanishesOnDeep`).
 
 ## Middle-layer argument (packet Rem. 6.13)
 
@@ -1401,5 +1420,69 @@ theorem arf_Q0loc_zero_of_deep (D : TateDualityG Γ 2) (q : V → ZMod 2) (hq : 
     (deepPartSubgroupK anc ρ hρ hV2) hvanish hdim
 
 end JoinExports
+
+/-! ## §9 The `n = 1` regression: at `Γ = G_ℚ₂` with the identity anchor
+
+Instantiating the anchoring convention at `Γ = G_ℚ₂`, `anc = id`, the anchored subgroup is the
+`ℚ₂` splitting group itself and every declaration above reduces to its `ℚ₂` model.  LG5's `n = 1`
+pins rewrite along these. -/
+
+section Q2Regression
+
+variable {C : Type} [Group C] [TopologicalSpace C]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V]
+  [DistribMulAction AbsGalQ2 V] [DistribMulAction C V]
+variable (ρ : ContinuousMonoidHom AbsGalQ2 C)
+
+/-- **The anchored subgroup at the identity anchor is `ker ρ` itself** — the base case of the
+anchoring convention. -/
+theorem ancSubgroup_kerAnc_id :
+    ancSubgroup (kerAnc (ContinuousMonoidHom.id AbsGalQ2) ρ)
+      = (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) := by
+  rw [ancSubgroup_kerAnc]
+  ext x
+  exact ⟨fun ⟨g, hg, hgx⟩ => hgx ▸ hg, fun hx => ⟨x, hx, rfl⟩⟩
+
+omit [DistribMulAction C V] in
+/-- **`n = 1` regression**: the scalar restriction at the identity anchor is
+`GQ2.LocalKummer.phiRes`. -/
+theorem phiResK_absGalQ2 (x : H1 AbsGalQ2 V) (φ : V →+ ZMod 2) :
+    phiResK ρ x φ = LocalKummer.phiRes ρ x φ := rfl
+
+omit [DistribMulAction C V] in
+/-- **`n = 1` regression**: the anchored deep half at the identity anchor is
+`GQ2.SectionSix.deepPart`. -/
+theorem deepPartK_absGalQ2 :
+    deepPartK (V := V) (ContinuousMonoidHom.id AbsGalQ2) ρ = SectionSix.deepPart ρ := by
+  rw [show deepPartK (V := V) (ContinuousMonoidHom.id AbsGalQ2) ρ
+      = {x : H1 AbsGalQ2 V | ∀ φ : V →+ ZMod 2,
+          ∃ (A β : ℚ̄₂)
+            (_ : SectionSix.IsDeepUnit
+              (ancSubgroup (kerAnc (ContinuousMonoidHom.id AbsGalQ2) ρ)) A)
+            (_ : β ^ 2 = A) (_ : β ≠ 0),
+            H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+                (fun n => Kummer.kummerCocycleFun β
+                  (kerAnc (ContinuousMonoidHom.id AbsGalQ2) ρ n))
+              = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+                (fun n => φ ((Quotient.out x).1 (n : AbsGalQ2)))} from rfl,
+    ancSubgroup_kerAnc_id]
+  rfl
+
+/-- **`n = 1` regression**: the anchored deep classes at the identity anchor are
+`GQ2.LocalKummer.deepClasses`. -/
+theorem deepClassesAt_absGalQ2 :
+    deepClassesAt (kerAnc (ContinuousMonoidHom.id AbsGalQ2) ρ)
+      = LocalKummer.deepClasses (ρ.toMonoidHom.ker : Subgroup AbsGalQ2) := by
+  rw [show deepClassesAt (kerAnc (ContinuousMonoidHom.id AbsGalQ2) ρ)
+      = {ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2) (ZMod 2) | ∃ A β : ℚ̄₂,
+          SectionSix.IsDeepUnit
+            (ancSubgroup (kerAnc (ContinuousMonoidHom.id AbsGalQ2) ρ)) A ∧ β ^ 2 = A ∧ β ≠ 0 ∧
+          H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup AbsGalQ2)
+            (fun n => Kummer.kummerCocycleFun β
+              (kerAnc (ContinuousMonoidHom.id AbsGalQ2) ρ n)) = ξ} from rfl,
+    ancSubgroup_kerAnc_id]
+  rfl
+
+end Q2Regression
 
 end GQ2.Dyadic
