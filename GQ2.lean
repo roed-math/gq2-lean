@@ -245,3 +245,4 @@ import GQ2.Dyadic.Word.Blocks
 import GQ2.Dyadic.Parameters
 import GQ2.Dyadic.FinitelyGeneratedK
 import GQ2.Dyadic.Projectivity
+import GQ2.Dyadic.LocalGauss.EulerShapiro
