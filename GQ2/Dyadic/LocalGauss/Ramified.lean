@@ -839,6 +839,388 @@ theorem conjAct_surjInv_conj_mid_sub_mem_deepAt (hρsurj : Function.Surjective �
 
 end MidTwist
 
+/-! ## §6 The `N_K ↔ G_k` transport and the (H4) structural count
+
+`GQ2/DeepCount/Transport.lean` retyped through the anchor.  The `ℚ₂` file transports `H¹` between
+`ker ρ` and `G_k` by cocycle precomposition along the two **identity inclusions**
+`kerToFixing`/`fixingToKer` supplied by the pointwise `hker`.  At a general anchored source only
+the forward map is free (LG4a's `kerToFixingAt`, `n ↦ anc n`); its inverse exists exactly when the
+anchor is **injective** and is continuous exactly when the anchor is **inducing**.  Both hold
+verbatim in the campaign (`Γ = ↥U`, `anc = U.subtype`, where they are `Subtype.val_injective` and
+`Topology.IsInducing.subtypeVal`), so they are threaded as the two hypotheses `hancinj`/`hancind`
+rather than assumed globally.
+
+No subgroup-equality cast is formed anywhere: `hker` stays pointwise, exactly as in LG4a's §4. -/
+
+section KerFixTransport
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+variable {C : Type} [Group C] [TopologicalSpace C]
+
+/-- **The canonical representative of an `H1ofFun`-class is the function itself** (`B¹ = 0` at
+trivial coefficients) — the `out`-form of LG4a's `eq_of_H1ofFun_eq_dp`, factored out of the four
+`ℚ₂` computation rules that re-prove it inline. -/
+theorem out_h1ofFun_eq {Θ : Type} [Group Θ] [TopologicalSpace Θ] [IsTopologicalGroup Θ]
+    [DistribMulAction Θ (ZMod 2)] [ContinuousSMul Θ (ZMod 2)]
+    {f : Θ → ZMod 2} (hf : f ∈ Z1 Θ (ZMod 2)) :
+    (Quotient.out (H1ofFun Θ f) : ↥(Z1 Θ (ZMod 2))).1 = f := by
+  refine eq_of_H1ofFun_eq_dp (Quotient.out (H1ofFun Θ f)).2 hf ?_
+  rw [H1ofFun_of_mem (Quotient.out (H1ofFun Θ f)).2]
+  exact Quotient.out_eq _
+
+variable (anc : ContinuousMonoidHom Γ GalQ2) (ρ : ContinuousMonoidHom Γ C)
+  (k : IntermediateField ℚ_[2] ℚ̄₂)
+
+omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
+/-- **The anchored inclusion `N_K → G_k` is bijective**: surjectivity is `hker` read on the
+anchored subgroup (which *is* the `anc`-image of `ker ρ`), injectivity is the anchor's. -/
+theorem kerToFixingAt_bijective (hancinj : Function.Injective ⇑anc)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup) :
+    Function.Bijective (kerToFixingAt anc ρ k hker) := by
+  constructor
+  · intro n m h
+    exact Subtype.ext (hancinj (congrArg Subtype.val h))
+  · rintro ⟨y, hy⟩
+    obtain ⟨n, hn⟩ := (hker y).mpr hy
+    exact ⟨n, Subtype.ext hn⟩
+
+omit [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
+/-- The inverse inclusion `↥G_k → ↥N_K` — `GQ2.fixingToKer` retyped; it exists because
+`kerToFixingAt` is bijective. -/
+noncomputable def fixingToKerAt (hancinj : Function.Injective ⇑anc)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup) :
+    ↥k.fixingSubgroup → ↥(ρ.toMonoidHom.ker : Subgroup Γ) :=
+  (Equiv.ofBijective _ (kerToFixingAt_bijective anc ρ k hancinj hker)).symm
+
+omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
+theorem kerToFixingAt_fixingToKerAt (hancinj : Function.Injective ⇑anc)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (y : ↥k.fixingSubgroup) :
+    kerToFixingAt anc ρ k hker (fixingToKerAt anc ρ k hancinj hker y) = y :=
+  (Equiv.ofBijective _ (kerToFixingAt_bijective anc ρ k hancinj hker)).apply_symm_apply y
+
+omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
+theorem fixingToKerAt_kerToFixingAt (hancinj : Function.Injective ⇑anc)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (n : ↥(ρ.toMonoidHom.ker : Subgroup Γ)) :
+    fixingToKerAt anc ρ k hancinj hker (kerToFixingAt anc ρ k hker n) = n :=
+  (Equiv.ofBijective _ (kerToFixingAt_bijective anc ρ k hancinj hker)).symm_apply_apply n
+
+omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
+/-- The anchor value of the inverse inclusion is the element itself. -/
+theorem kerAnc_fixingToKerAt (hancinj : Function.Injective ⇑anc)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (y : ↥k.fixingSubgroup) :
+    kerAnc anc ρ (fixingToKerAt anc ρ k hancinj hker y) = (y : GalQ2) :=
+  congrArg Subtype.val (kerToFixingAt_fixingToKerAt anc ρ k hancinj hker y)
+
+omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
+theorem fixingToKerAt_mul (hancinj : Function.Injective ⇑anc)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (y z : ↥k.fixingSubgroup) :
+    fixingToKerAt anc ρ k hancinj hker (y * z)
+      = fixingToKerAt anc ρ k hancinj hker y * fixingToKerAt anc ρ k hancinj hker z := by
+  refine (kerToFixingAt_bijective anc ρ k hancinj hker).1 ?_
+  rw [kerToFixingAt_fixingToKerAt, kerToFixingAt_mul, kerToFixingAt_fixingToKerAt,
+    kerToFixingAt_fixingToKerAt]
+
+omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
+/-- Continuity of the inverse inclusion, from the anchor being **inducing** (in the campaign
+`anc = U.subtype`, where this is `Topology.IsInducing.subtypeVal`). -/
+theorem continuous_fixingToKerAt (hancinj : Function.Injective ⇑anc)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (hancind : Topology.IsInducing ⇑anc) :
+    Continuous (fixingToKerAt anc ρ k hancinj hker) := by
+  have hind : Topology.IsInducing
+      (fun n : ↥(ρ.toMonoidHom.ker : Subgroup Γ) => (kerAnc anc ρ n : GalQ2)) :=
+    hancind.comp Topology.IsInducing.subtypeVal
+  rw [hind.continuous_iff]
+  have hcomp : ((fun n : ↥(ρ.toMonoidHom.ker : Subgroup Γ) => (kerAnc anc ρ n : GalQ2))
+      ∘ fixingToKerAt anc ρ k hancinj hker)
+      = (Subtype.val : ↥k.fixingSubgroup → GalQ2) :=
+    funext fun y => kerAnc_fixingToKerAt anc ρ k hancinj hker y
+  rw [hcomp]
+  exact continuous_subtype_val
+
+omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
+/-- Precomposition with `fixingToKerAt` carries `Z¹(N_K)` to `Z¹(G_k)`. -/
+theorem comp_fixingToKerAt_mem_Z1 (hancinj : Function.Injective ⇑anc)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (hancind : Topology.IsInducing ⇑anc)
+    {f : ↥(ρ.toMonoidHom.ker : Subgroup Γ) → ZMod 2}
+    (hf : f ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2)) :
+    (fun n => f (fixingToKerAt anc ρ k hancinj hker n)) ∈ Z1 k.fixingSubgroup (ZMod 2) := by
+  obtain ⟨hfc, hcoc⟩ := mem_Z1_iff.mp hf
+  refine mem_Z1_iff.mpr
+    ⟨hfc.comp (continuous_fixingToKerAt anc ρ k hancinj hker hancind), fun n m => ?_⟩
+  show f (fixingToKerAt anc ρ k hancinj hker (n * m))
+    = f (fixingToKerAt anc ρ k hancinj hker n) + n • f (fixingToKerAt anc ρ k hancinj hker m)
+  rw [fixingToKerAt_mul, hcoc, htriv, smul_zmodTwo]
+
+omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
+/-- Precomposition with `kerToFixingAt` carries `Z¹(G_k)` to `Z¹(N_K)`. -/
+theorem comp_kerToFixingAt_mem_Z1
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    {f : ↥k.fixingSubgroup → ZMod 2} (hf : f ∈ Z1 k.fixingSubgroup (ZMod 2)) :
+    (fun n => f (kerToFixingAt anc ρ k hker n))
+      ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) := by
+  obtain ⟨hfc, hcoc⟩ := mem_Z1_iff.mp hf
+  refine mem_Z1_iff.mpr ⟨hfc.comp (continuous_kerToFixingAt anc ρ k hker), fun n m => ?_⟩
+  show f (kerToFixingAt anc ρ k hker (n * m))
+    = f (kerToFixingAt anc ρ k hker n) + n • f (kerToFixingAt anc ρ k hker m)
+  rw [kerToFixingAt_mul, hcoc, htriv, smul_zmodTwo]
+
+/-- Transport `H¹(N_K) → H¹(G_k)` (cocycle precomposition with `fixingToKerAt`). -/
+noncomputable def h1KerToFixAt (hancinj : Function.Injective ⇑anc)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2)) : H1 k.fixingSubgroup (ZMod 2) :=
+  H1ofFun k.fixingSubgroup
+    (fun n => (Quotient.out ξ).1 (fixingToKerAt anc ρ k hancinj hker n))
+
+/-- Transport `H¹(G_k) → H¹(N_K)` (cocycle precomposition with `kerToFixingAt`). -/
+noncomputable def h1FixToKerAt
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (η : H1 k.fixingSubgroup (ZMod 2)) : H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) :=
+  H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+    (fun n => (Quotient.out η).1 (kerToFixingAt anc ρ k hker n))
+
+/-- Computation rule for `h1KerToFixAt` (`B¹ = 0`). -/
+theorem h1KerToFixAt_h1ofFun (hancinj : Function.Injective ⇑anc)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    {f : ↥(ρ.toMonoidHom.ker : Subgroup Γ) → ZMod 2}
+    (hf : f ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2)) :
+    h1KerToFixAt anc ρ k hancinj hker (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ) f)
+      = H1ofFun k.fixingSubgroup (fun n => f (fixingToKerAt anc ρ k hancinj hker n)) := by
+  unfold h1KerToFixAt
+  rw [out_h1ofFun_eq hf]
+
+/-- Computation rule for `h1FixToKerAt` (`B¹ = 0`). -/
+theorem h1FixToKerAt_h1ofFun
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    {f : ↥k.fixingSubgroup → ZMod 2} (hf : f ∈ Z1 k.fixingSubgroup (ZMod 2)) :
+    h1FixToKerAt anc ρ k hker (H1ofFun k.fixingSubgroup f)
+      = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+          (fun n => f (kerToFixingAt anc ρ k hker n)) := by
+  unfold h1FixToKerAt
+  rw [out_h1ofFun_eq hf]
+
+/-- The round trip `N_K → G_k → N_K` is the identity. -/
+theorem h1FixToKerAt_h1KerToFixAt (hancinj : Function.Injective ⇑anc)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (hancind : Topology.IsInducing ⇑anc)
+    (ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2)) :
+    h1FixToKerAt anc ρ k hker (h1KerToFixAt anc ρ k hancinj hker ξ) = ξ := by
+  induction ξ using QuotientAddGroup.induction_on with
+  | H a =>
+    rw [show (QuotientAddGroup.mk a : H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2))
+      = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ) a.1 from (H1ofFun_of_mem a.2).symm,
+      h1KerToFixAt_h1ofFun anc ρ k hancinj hker a.2,
+      h1FixToKerAt_h1ofFun anc ρ k hker
+        (comp_fixingToKerAt_mem_Z1 anc ρ k hancinj hker htriv hancind a.2)]
+    exact congrArg _ (funext fun n => congrArg a.1
+      (fixingToKerAt_kerToFixingAt anc ρ k hancinj hker n))
+
+/-- The round trip `G_k → N_K → G_k` is the identity. -/
+theorem h1KerToFixAt_h1FixToKerAt (hancinj : Function.Injective ⇑anc)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (η : H1 k.fixingSubgroup (ZMod 2)) :
+    h1KerToFixAt anc ρ k hancinj hker (h1FixToKerAt anc ρ k hker η) = η := by
+  induction η using QuotientAddGroup.induction_on with
+  | H a =>
+    rw [show (QuotientAddGroup.mk a : H1 k.fixingSubgroup (ZMod 2))
+      = H1ofFun k.fixingSubgroup a.1 from (H1ofFun_of_mem a.2).symm,
+      h1FixToKerAt_h1ofFun anc ρ k hker a.2,
+      h1KerToFixAt_h1ofFun anc ρ k hancinj hker
+        (comp_kerToFixingAt_mem_Z1 anc ρ k hker htriv a.2)]
+    exact congrArg _ (funext fun n => congrArg a.1
+      (kerToFixingAt_fixingToKerAt anc ρ k hancinj hker n))
+
+/-- `h1KerToFixAt` is additive. -/
+theorem h1KerToFixAt_add (hancinj : Function.Injective ⇑anc)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (hancind : Topology.IsInducing ⇑anc)
+    (ξ η : H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2)) :
+    h1KerToFixAt anc ρ k hancinj hker (ξ + η)
+      = h1KerToFixAt anc ρ k hancinj hker ξ + h1KerToFixAt anc ρ k hancinj hker η := by
+  induction ξ using QuotientAddGroup.induction_on with
+  | H a =>
+    induction η using QuotientAddGroup.induction_on with
+    | H b =>
+      show h1KerToFixAt anc ρ k hancinj hker (H1mk _ _ a + H1mk _ _ b)
+        = h1KerToFixAt anc ρ k hancinj hker (H1mk _ _ a)
+          + h1KerToFixAt anc ρ k hancinj hker (H1mk _ _ b)
+      rw [← map_add, ← H1ofFun_of_mem (a + b).2, ← H1ofFun_of_mem a.2, ← H1ofFun_of_mem b.2,
+        h1KerToFixAt_h1ofFun anc ρ k hancinj hker (a + b).2,
+        h1KerToFixAt_h1ofFun anc ρ k hancinj hker a.2,
+        h1KerToFixAt_h1ofFun anc ρ k hancinj hker b.2]
+      exact DeepPart.H1ofFun_add
+        (comp_fixingToKerAt_mem_Z1 anc ρ k hancinj hker htriv hancind a.2)
+        (comp_fixingToKerAt_mem_Z1 anc ρ k hancinj hker htriv hancind b.2)
+
+/-- **The transport equivalence** `H¹(N_K, 𝔽₂) ≃+ H¹(G_k, 𝔽₂)` — `GQ2.h1KerFixEquiv` retyped. -/
+noncomputable def h1KerFixEquivAt (hancinj : Function.Injective ⇑anc)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (hancind : Topology.IsInducing ⇑anc) :
+    H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) ≃+ H1 k.fixingSubgroup (ZMod 2) where
+  toFun := h1KerToFixAt anc ρ k hancinj hker
+  invFun := h1FixToKerAt anc ρ k hker
+  left_inv := h1FixToKerAt_h1KerToFixAt anc ρ k hancinj hker htriv hancind
+  right_inv := h1KerToFixAt_h1FixToKerAt anc ρ k hancinj hker htriv
+  map_add' := h1KerToFixAt_add anc ρ k hancinj hker htriv hancind
+
+/-- `h1KerToFixAt` carries anchored deep classes to `k`-deep classes, and conversely: the
+`(A, β)`-data transports verbatim, memberships move along `hker`. -/
+theorem h1KerToFixAt_mem_deep_iff (hancinj : Function.Injective ⇑anc)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (hancind : Topology.IsInducing ⇑anc)
+    (ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2)) :
+    h1KerToFixAt anc ρ k hancinj hker ξ ∈ LocalKummer.deepClasses k.fixingSubgroup
+      ↔ ξ ∈ deepClassesSubgroupAt (kerAnc anc ρ) := by
+  constructor
+  · rintro ⟨A, β, hd, hsq, hβ0, heq⟩
+    obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hd
+    have hZ1 : (fun n : ↥k.fixingSubgroup => Kummer.kummerCocycleFun β (n : GalQ2))
+        ∈ Z1 k.fixingSubgroup (ZMod 2) := DeepPart.kummerRestrict_mem_Z1 hsq hβ0 hAfix
+    refine ⟨A, β, ⟨hA0, fun g hg => hAfix g ((hker g).mp hg), b,
+      fun g hg => hbfix g ((hker g).mp hg), hAeq, hb⟩, hsq, hβ0, ?_⟩
+    calc H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+          (fun n => Kummer.kummerCocycleFun β (kerAnc anc ρ n))
+        = h1FixToKerAt anc ρ k hker (H1ofFun k.fixingSubgroup
+            (fun n : ↥k.fixingSubgroup => Kummer.kummerCocycleFun β (n : GalQ2))) := by
+          rw [h1FixToKerAt_h1ofFun anc ρ k hker hZ1]
+          rfl
+      _ = h1FixToKerAt anc ρ k hker (h1KerToFixAt anc ρ k hancinj hker ξ) := by rw [heq]
+      _ = ξ := h1FixToKerAt_h1KerToFixAt anc ρ k hancinj hker htriv hancind ξ
+  · rintro ⟨A, β, hd, hsq, hβ0, rfl⟩
+    obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hd
+    have hZ1 := kummerAnc_mem_Z1 (kerAnc anc ρ) hsq hβ0 hAfix
+    refine ⟨A, β, ⟨hA0, fun g hg => hAfix g ((hker g).mpr hg), b,
+      fun g hg => hbfix g ((hker g).mpr hg), hAeq, hb⟩, hsq, hβ0, ?_⟩
+    rw [h1KerToFixAt_h1ofFun anc ρ k hancinj hker hZ1]
+    exact congrArg _ (funext fun n => congrArg (Kummer.kummerCocycleFun β)
+      (kerAnc_fixingToKerAt anc ρ k hancinj hker n).symm)
+
+/-- The mid-classes version of the transport. -/
+theorem h1KerToFixAt_mem_mid_iff (hancinj : Function.Injective ⇑anc)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (hancind : Topology.IsInducing ⇑anc)
+    (ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2)) :
+    h1KerToFixAt anc ρ k hancinj hker ξ ∈ midClassesSubgroup k.fixingSubgroup
+      ↔ ξ ∈ midClassesSubgroupAt (kerAnc anc ρ) := by
+  constructor
+  · rintro ⟨A, β, hd, hsq, hβ0, heq⟩
+    obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hd
+    have hZ1 : (fun n : ↥k.fixingSubgroup => Kummer.kummerCocycleFun β (n : GalQ2))
+        ∈ Z1 k.fixingSubgroup (ZMod 2) := DeepPart.kummerRestrict_mem_Z1 hsq hβ0 hAfix
+    refine ⟨A, β, ⟨hA0, fun g hg => hAfix g ((hker g).mp hg), b,
+      fun g hg => hbfix g ((hker g).mp hg), hAeq, hb⟩, hsq, hβ0, ?_⟩
+    calc H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+          (fun n => Kummer.kummerCocycleFun β (kerAnc anc ρ n))
+        = h1FixToKerAt anc ρ k hker (H1ofFun k.fixingSubgroup
+            (fun n : ↥k.fixingSubgroup => Kummer.kummerCocycleFun β (n : GalQ2))) := by
+          rw [h1FixToKerAt_h1ofFun anc ρ k hker hZ1]
+          rfl
+      _ = h1FixToKerAt anc ρ k hker (h1KerToFixAt anc ρ k hancinj hker ξ) := by rw [heq]
+      _ = ξ := h1FixToKerAt_h1KerToFixAt anc ρ k hancinj hker htriv hancind ξ
+  · rintro ⟨A, β, hd, hsq, hβ0, rfl⟩
+    obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hd
+    have hZ1 := kummerAnc_mem_Z1 (kerAnc anc ρ) hsq hβ0 hAfix
+    refine ⟨A, β, ⟨hA0, fun g hg => hAfix g ((hker g).mpr hg), b,
+      fun g hg => hbfix g ((hker g).mpr hg), hAeq, hb⟩, hsq, hβ0, ?_⟩
+    rw [h1KerToFixAt_h1ofFun anc ρ k hancinj hker hZ1]
+    exact congrArg _ (funext fun n => congrArg (Kummer.kummerCocycleFun β)
+      (kerAnc_fixingToKerAt anc ρ k hancinj hker n).symm)
+
+/-- **The transported structural count** (the (H4) input), in `N_K`-vocabulary:
+`#(H¹(N_K) ⧸ Deep) ≤ #Mid` — `GQ2.card_quot_deep_le_card_mid_ker` retyped.  The `k`-side count
+`GQ2.card_quot_deep_le_card_mid` (the B13 unit filtration) is consumed verbatim. -/
+theorem card_quot_deep_le_card_mid_kerAt [FiniteDimensional ℚ_[2] k]
+    [Finite (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2))]
+    (hancinj : Function.Injective ⇑anc)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (hancind : Topology.IsInducing ⇑anc)
+    (π : ℚ̄₂) (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) (he_pos : 1 ≤ e) {f : ℕ} (hf_pos : 1 ≤ f)
+    (hcard_zero : Nat.card (↥(normUnits k) ⧸
+      (depthUnits k π 1).subgroupOf (normUnits k)) = 2 ^ f - 1)
+    (hcard_gr : ∀ i : ℕ, 1 ≤ i → Nat.card (↥(depthUnits k π i) ⧸
+      (depthUnits k π (i + 1)).subgroupOf (depthUnits k π i)) = 2 ^ f) :
+    Nat.card (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) ⧸
+        deepClassesSubgroupAt (kerAnc anc ρ))
+      ≤ Nat.card ↥(midClassesSubgroupAt (kerAnc anc ρ)) := by
+  haveI hfinFix : Finite (H1 k.fixingSubgroup (ZMod 2)) :=
+    Finite.of_equiv _ (h1KerFixEquivAt anc ρ k hancinj hker htriv hancind).toEquiv
+  have hcount := card_quot_deep_le_card_mid k π hπk hπ0 hπ1 hπmax he he_pos hf_pos
+    hcard_zero hcard_gr
+  -- (a) the ambient cards agree
+  have ha : Nat.card (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2))
+      = Nat.card (H1 k.fixingSubgroup (ZMod 2)) :=
+    Nat.card_congr (h1KerFixEquivAt anc ρ k hancinj hker htriv hancind).toEquiv
+  -- (b) the deep subgroups agree (through `coe_kummerDepth_deep`)
+  have hb : Nat.card ↥(deepClassesSubgroupAt (kerAnc anc ρ))
+      = Nat.card ↥(kummerDepth k π (e + 1)) := by
+    refine Nat.card_congr
+      ((h1KerFixEquivAt anc ρ k hancinj hker htriv hancind).toEquiv.subtypeEquiv (fun ξ => ?_))
+    constructor
+    · intro hξ
+      have hset := Set.ext_iff.mp (coe_kummerDepth_deep k π hπk hπ0 hπ1 hπmax he_pos he)
+        (h1KerToFixAt anc ρ k hancinj hker ξ)
+      exact hset.mpr ((h1KerToFixAt_mem_deep_iff anc ρ k hancinj hker htriv hancind ξ).mpr hξ)
+    · intro hη
+      have hset := Set.ext_iff.mp (coe_kummerDepth_deep k π hπk hπ0 hπ1 hπmax he_pos he)
+        (h1KerToFixAt anc ρ k hancinj hker ξ)
+      exact (h1KerToFixAt_mem_deep_iff anc ρ k hancinj hker htriv hancind ξ).mp (hset.mp hη)
+  -- (c) the mid subgroups agree (through `coe_kummerDepth_mid`)
+  have hc : Nat.card ↥(midClassesSubgroupAt (kerAnc anc ρ))
+      = Nat.card ↥(kummerDepth k π e) := by
+    refine Nat.card_congr
+      ((h1KerFixEquivAt anc ρ k hancinj hker htriv hancind).toEquiv.subtypeEquiv (fun ξ => ?_))
+    constructor
+    · intro hξ
+      have hset := Set.ext_iff.mp (coe_kummerDepth_mid k π he)
+        (h1KerToFixAt anc ρ k hancinj hker ξ)
+      exact hset.mpr ((h1KerToFixAt_mem_mid_iff anc ρ k hancinj hker htriv hancind ξ).mpr hξ)
+    · intro hη
+      have hset := Set.ext_iff.mp (coe_kummerDepth_mid k π he)
+        (h1KerToFixAt anc ρ k hancinj hker ξ)
+      exact (h1KerToFixAt_mem_mid_iff anc ρ k hancinj hker htriv hancind ξ).mp (hset.mp hη)
+  -- the quotient cards agree by Lagrange + cancellation
+  haveI : Nonempty ↥(kummerDepth k π (e + 1)) := ⟨⟨0, zero_mem _⟩⟩
+  have hL1 : Nat.card (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) ⧸
+        deepClassesSubgroupAt (kerAnc anc ρ))
+        * Nat.card ↥(deepClassesSubgroupAt (kerAnc anc ρ))
+      = Nat.card (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2)) :=
+    (AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup _).symm
+  have hL2 : Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e + 1))
+        * Nat.card ↥(kummerDepth k π (e + 1))
+      = Nat.card (H1 k.fixingSubgroup (ZMod 2)) :=
+    (AddSubgroup.card_eq_card_quotient_mul_card_addSubgroup _).symm
+  have hq : Nat.card (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) ⧸
+        deepClassesSubgroupAt (kerAnc anc ρ))
+      = Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e + 1)) := by
+    have hmm : Nat.card (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) ⧸
+          deepClassesSubgroupAt (kerAnc anc ρ))
+          * Nat.card ↥(kummerDepth k π (e + 1))
+        = Nat.card (H1 k.fixingSubgroup (ZMod 2) ⧸ kummerDepth k π (e + 1))
+          * Nat.card ↥(kummerDepth k π (e + 1)) := by
+      rw [← hb, hL1, ha, ← hL2, hb]
+    exact Nat.eq_of_mul_eq_mul_right Nat.card_pos hmm
+  rw [hq, hc]
+  exact hcount
+
+end KerFixTransport
+
 /-! ## §9 The join: the Lagrangian Arf count
 
 `GQ2.DeepPart.card_Q0loc_zero_eq_of_dim_of_vanish` (`GQ2/DeepPart/Q0locLayer.lean` :547) retyped,
