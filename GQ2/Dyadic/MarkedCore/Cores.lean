@@ -55,20 +55,36 @@ with `α ≥ 2` (`GQ2/Dyadic/Parameters.lean` `LabuteType.M/N`, validity `2 ≤ 
   properties `mLiftHom`/`nLiftHom`, topological generation (`dm_topGen`, the `dr_topGen`
   pattern) and hom-extensionality (`dm_hom_ext`).
 * **§4 Characters.**  `chiM`/`chiN : D_P → ℤ₂ˣ` and `nuM`/`nuN : D_P → ℤ₂` in closed form.
-* **§5 Abelianization frames.**  `MDecomposition` / `NDecomposition`: the two 4-frames of memo
-  §2.1/§3.1.  `M`: `ℤ/2·t ⊕ ℤ₂³` with `t = Ā·C̄₀^{2^{α−1}}` and the **forced row**
-  `Ā ↦ (1, 0, −m, 0)`, `m = 2^{α−1}` — a re-index of `BDecomposition`
-  (`GQ2/SectionThree.lean:422`) under `2 ↦ m`.  `N`: the α-free frame whose torsion generator
-  is the *marked* generator `x̄₀`, with **no forced row**.
 * **§6 The exponent / normal-form lemma** (memo §4.1(2), R2): the rank-three `decide` route
   (`drRelZ_drCC`, `GQ2/Roe/DRDemushkin.lean:339`) does **not** survive a relator exponent
   `2^α`.  Replaced by the reusable *mod-4 diagonal exponent rule* `diagCoeff_mod_four`
-  (`C(k,2) mod 2` depends only on `k mod 4`) and its group-level companion
-  `pow_centralExt` — stated at the level of exponents and words, for reuse by the five
-  branch-word tickets.
-* **§7 The two MC2 assets of memo §10.**  `isFreePro2Pair` (the "free pro-2 of rank 2" shape
-  for the peripheral pairs) and the generic **B8 transport lemma** `peripheralTriple_scaling`,
-  which consumes `PeripheralCyclotomicAction` (`GQ2/PeripheralAction.lean:92`) verbatim.
+  (`C(k,2) mod 2` depends only on `k mod 4`) together with its group-level companions
+  `centLift_pow_fib` and `commP_centLift_fib`, assembled into the α-independent cup Gram
+  `mRelWord_centLift_fib` / `nRelWord_centLift_fib`.  Everything is stated at the level of
+  exponents and words — not per core — for reuse by the five branch-word tickets.
+* **§7 The two MC2 assets of memo §10.**  `IsFreePro2Pair` (the "free pro-2 of rank 2" shape
+  for the peripheral pairs, with `deltaHom`, `delta_topGen`, `delta_hom_ext`) and the generic
+  **B8 transport lemma** `peripheralTriple_scaling`, which consumes
+  `PeripheralCyclotomicAction` (`GQ2/PeripheralAction.lean:92`) verbatim — as a *hypothesis*,
+  so no census axiom is invoked and every headline declaration prints at std-3.
+* **§5 Abelianization frames.**  `MDecomposition` / `NDecomposition`: the two 4-frames of memo
+  §2.1/§3.1.  `M`: `ℤ/2·t ⊕ ℤ₂³` with `t = Ā·C̄₀^{2^{α−1}}` and the **forced row**
+  `Ā ↦ (1, 0, −m, 0)`, `m = 2^{α−1}` (`mE_A`) — a re-index of `BDecomposition`
+  (`GQ2/SectionThree.lean:422`) under `2 ↦ m`.  `N`: the α-free frame whose torsion generator
+  is the *marked* generator `x̄₀`, with **no forced row**.  Both give `demushkinQ = 2`.
+
+## Not in this file (recorded scope)
+
+* The **existence** theorems `Nonempty (MDecomposition α)` / `Nonempty (NDecomposition α)` —
+  the `phiEquiv` route of `GQ2/Roe/DRAbelianization.lean` at rank four.  MC3/MC4 consume the
+  frames as hypotheses, exactly as `prop_3_8_classification` consumes `BDecomposition`
+  (`GQ2/AnabelianBridge/Classification.lean:342`); every frame consequence they need (forced
+  row, torsion relation, `q`-invariant) is derived here *from the structure*.
+* The `H¹`/`H²` **bridge** `obsH2_DM`/`obsH2_DN` and hence `IsDemushkin`, `card_H1`,
+  `card_H2`.  `GQ2/Roe/DRWordCoh.lean`'s `relZ`/`obs` layer is hard-wired to `drWord` and
+  `Fin 3` (only its `TwoCocycle`/`CentExt` algebra is generic, and that is what §6 uses); a
+  relator-generic port is a separate ticket.  §6 delivers the *mathematical* content that port
+  would consume — the cup Gram value of both relators, α-uniformly.
 
 ## Rank parameterisation (deviation from the memo's `n`, recorded)
 
@@ -83,7 +99,7 @@ open CategoryTheory Multiplicative
 
 namespace GQ2
 
-open FoxH
+open FoxH SectionThree
 
 namespace Dyadic
 
@@ -1676,6 +1692,213 @@ theorem nInner_scaling (R : PeripheralCyclotomicAction) (α h : ℕ) (u : ℤ_[2
         conjP (zpowZtwo (isProP_DN α h) (conjP (dnX0 α h) (dnX1 α h)) (u : ℤ_[2])) t *
         conjP (zpowZtwo (isProP_DN α h) (nHead α (dnX0 α h) (dnX1 α h))⁻¹ (u : ℤ_[2])) c = 1 :=
   peripheralTriple_scaling R (isProP_DN α h) (nWord_innerTriple α (dnX0 α h) (dnX1 α h)) u
+
+/-! ## §5 The two abelianization 4-frames  (memo §2.1, §3.1, V1/V2)
+
+Both cores have `q = 2` and `D_P^{ab} ≅ ℤ/2 ⊕ ℤ₂³` — the memo's **correction** V2/§7.1 of the
+inherited "different torsion" premise.  What differs is *where the torsion sits*:
+
+* `M_α` (memo §2.1): `ρ_M = 2Ā + 2^αC̄₀ = 2(Ā + mC̄₀)` with `m = 2^{α−1}`, so the torsion
+  generator is the **α-dependent combination** `t = Ā·C̄₀^m` and the `Ā`-row is **forced**,
+  `Ā ↦ (1, 0, −m, 0)`.  This is the rank-four analogue of `BDecomposition`
+  (`GQ2/SectionThree.lean:422`) under the substitution `2 ↦ m`: at `α = 2`, deleting the
+  `B`-coordinate returns the ℚ₂ frame on the nose.
+* `N_α` (memo §3.1): `ρ_N = (2 + 2^α)x̄₀ = 2(1 + 2^{α−1})x̄₀` with `1 + 2^{α−1} ∈ ℤ₂ˣ`, so the
+  relation submodule is exactly `2ℤ₂·x̄₀`, the torsion generator is the **marked** generator
+  `x̄₀`, and there is **no forced row**.  The frame is completely α-free.
+
+Frames are stated at rank four (`h = 0`), exactly as memo §6.1 writes them; the handle
+coordinates are `2h` extra free `ℤ₂` summands (memo §4.2) and belong to MC5, where the handle
+block also enlarges the stabilizer.
+
+**Scope note (recorded).** The two `Nonempty` existence theorems (the `phiEquiv` route of
+`GQ2/Roe/DRAbelianization.lean`, ≈300 lines per core at rank four) are *not* in this file; MC3/MC4
+consume `MDecomposition`/`NDecomposition` as hypotheses exactly as `prop_3_8_classification`
+consumes `BDecomposition` (`GQ2/AnabelianBridge/Classification.lean:342`).  Everything the
+stabilizer classification needs from the frame — the forced row, the torsion relation and the
+`q`-invariant — is derived here *from the structure*. -/
+
+section Frames
+
+/-- `G^{ab}` is commutative (local clone of `GQ2/SectionThree.lean:112–160`, as in
+`GQ2/Roe/DRAbelianization.lean:54`). -/
+noncomputable local instance instCommGroupTopAbMC {G : Type*} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] : CommGroup (topAbelianization G) where
+  __ := (inferInstance : Group (topAbelianization G))
+  mul_comm := by
+    intro x y
+    obtain ⟨a, rfl⟩ := abMk_surjective (G := G) x
+    obtain ⟨b, rfl⟩ := abMk_surjective (G := G) y
+    rw [← map_mul, ← map_mul]
+    show QuotientGroup.mk (a * b) = QuotientGroup.mk (b * a)
+    refine (QuotientGroup.eq).mpr ?_
+    have hcomm : (a * b)⁻¹ * (b * a) = b⁻¹ * a⁻¹ * b * a := by group
+    rw [hcomm]
+    apply Subgroup.le_topologicalClosure
+    have hmem := Subgroup.commutator_mem_commutator (G := G)
+      (Subgroup.mem_top b⁻¹) (Subgroup.mem_top a⁻¹)
+    rw [commutator_def]
+    simpa [commutatorElement_def] using hmem
+
+/-- The `M_α` abelianized relation `Ā² · C̄₀^{2^α} = 1` — the relation vector
+`ρ_M = 2Ā + 2^αC̄₀` (memo §2.1). -/
+theorem dm_abRel (α h : ℕ) :
+    abMk (dmA α h) ^ 2 * abMk (dmC α h) ^ (2 ^ α) = 1 := by
+  have hmap : mRelWord α (fun i => abMk (dmGen α h i)) = 1 := by
+    rw [← map_mRelWord, dm_relation, map_one]
+  rwa [mRelWord_comm] at hmap
+
+/-- The `N_α` abelianized relation `x̄₀^{2+2^α} = 1` — the relation vector
+`ρ_N = (2 + 2^α)x̄₀` (memo §3.1). -/
+theorem dn_abRel (α h : ℕ) : abMk (dnX0 α h) ^ (2 + 2 ^ α) = 1 := by
+  have hmap : nRelWord α (fun i => abMk (dnGen α h i)) = 1 := by
+    rw [← map_nRelWord, dn_relation, map_one]
+  rwa [nRelWord_comm] at hmap
+
+/-- **The `M`-frame torsion generator is 2-torsion** ⟦memo §2.1⟧: `t = Ā·C̄₀^{2^{α−1}}` satisfies
+`t² = Ā²·C̄₀^{2^α} = 1`. -/
+theorem dm_torsionGen_sq {α : ℕ} (hα : 1 ≤ α) (h : ℕ) :
+    (abMk (dmA α h * dmC α h ^ (2 ^ (α - 1)))) ^ 2 = 1 := by
+  obtain ⟨k, rfl⟩ : ∃ k, α = k + 1 := ⟨α - 1, by omega⟩
+  rw [map_mul, map_pow, mul_pow, ← pow_mul, Nat.add_sub_cancel,
+    show 2 ^ k * 2 = 2 ^ (k + 1) by rw [pow_succ]]
+  exact dm_abRel (k + 1) h
+
+/-- **Equation (11) analogue for `M_α`** (memo §2.1/§6.1): a continuous isomorphism
+`D_M^{ab} ≅ ℤ/2 × ℤ₂ × ℤ₂ × ℤ₂` in the coordinates `(t, B̄, C̄₀, D̄)`, with the **α-dependent**
+torsion generator `t = Ā·C̄₀^{2^{α−1}}`.  The `Ā`-row is then forced (`mE_A`). -/
+structure MDecomposition (α : ℕ) where
+  /-- The coordinate isomorphism `D_M^{ab} ≅ ℤ/2 ⊕ ℤ₂ ⊕ ℤ₂ ⊕ ℤ₂`. -/
+  e : ContinuousMulEquiv (topAbelianization (DM α 0 : Type))
+        (Multiplicative (ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]))
+  /-- The torsion coordinate `t = Ā·C̄₀^{2^{α−1}} ↦ (1,0,0,0)`. -/
+  map_t : e (abMk (dmA α 0 * dmC α 0 ^ (2 ^ (α - 1)))) = Multiplicative.ofAdd (1, 0, 0, 0)
+  /-- `B̄ ↦ (0,1,0,0)`. -/
+  map_B : e (abMk (dmB α 0)) = Multiplicative.ofAdd (0, 1, 0, 0)
+  /-- `C̄₀ ↦ (0,0,1,0)`. -/
+  map_C : e (abMk (dmC α 0)) = Multiplicative.ofAdd (0, 0, 1, 0)
+  /-- `D̄ ↦ (0,0,0,1)`. -/
+  map_D : e (abMk (dmD α 0)) = Multiplicative.ofAdd (0, 0, 0, 1)
+
+/-- **The `N_α` frame** (memo §3.1/§6.1): the torsion generator **is** the marked generator
+`x̄₀`, and there is **no forced row** — the structural difference from `M` (memo V1, §7.1(2)).
+The frame is completely α-free. -/
+structure NDecomposition (α : ℕ) where
+  /-- The coordinate isomorphism `D_N^{ab} ≅ ℤ/2 ⊕ ℤ₂ ⊕ ℤ₂ ⊕ ℤ₂`. -/
+  e : ContinuousMulEquiv (topAbelianization (DN α 0 : Type))
+        (Multiplicative (ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]))
+  /-- The torsion coordinate — the *marked* generator `x̄₀ ↦ (1,0,0,0)`. -/
+  map_t : e (abMk (dnX0 α 0)) = Multiplicative.ofAdd (1, 0, 0, 0)
+  /-- `x̄₁ ↦ (0,1,0,0)`. -/
+  map_B : e (abMk (dnX1 α 0)) = Multiplicative.ofAdd (0, 1, 0, 0)
+  /-- `σ̄ ↦ (0,0,1,0)`. -/
+  map_C : e (abMk (dnSigma α 0)) = Multiplicative.ofAdd (0, 0, 1, 0)
+  /-- `x̄₂ ↦ (0,0,0,1)`. -/
+  map_D : e (abMk (dnX2 α 0)) = Multiplicative.ofAdd (0, 0, 0, 1)
+
+/-- **The forced `Ā`-row of the `M`-frame** (memo §2.1, §4.1): `Ā ↦ (1, 0, −2^{α−1}, 0)`.
+This single row carries *all* of the frame's α-dependence — the rank-four analogue of `bE_A`
+(`GQ2/AnabelianBridge/Classification.lean:1014`, `Ā ↦ (1,−2,0)`) under `2 ↦ m = 2^{α−1}`. -/
+theorem mE_A {α : ℕ} (B : MDecomposition α) :
+    B.e (abMk (dmA α 0)) = Multiplicative.ofAdd (1, 0, -(2 : ℤ_[2]) ^ (α - 1), 0) := by
+  have h := B.map_t
+  simp only [map_mul, map_pow, B.map_C] at h
+  rw [eq_mul_inv_of_mul_eq h, ← ofAdd_nsmul, ← ofAdd_neg, ← ofAdd_add]
+  congr 1
+  simp only [Prod.smul_mk, Prod.neg_mk, Prod.mk_add_mk, smul_zero, nsmul_eq_mul, mul_one,
+    neg_zero, add_zero]
+  refine Prod.ext rfl (Prod.ext (by push_cast; ring) (Prod.ext ?_ (by push_cast; ring)))
+  push_cast
+  ring
+
+/-- **The `N`-frame has no forced row**: all four coordinates are marked generators (memo §3.1).
+Stated as the trivial consequence that the torsion coordinate is `x̄₀` itself. -/
+theorem nE_torsion {α : ℕ} (B : NDecomposition α) :
+    B.e (abMk (dnX0 α 0)) = Multiplicative.ofAdd (1, 0, 0, 0) := B.map_t
+
+/-! ### The `q`-invariant from a frame
+
+The torsion subgroup of the model `ℤ/2 × ℤ₂³` is the `ℤ/2` factor (`ℤ₂` is torsion-free), so
+`demushkinQ = 2` for either core once a frame is given — the rank-four
+`demushkinQ_DR_eq_two` (`GQ2/Roe/DRAbelianization.lean:576`). -/
+
+private lemma padicInt_nsmul_eq_zero_mc {n : ℕ} (hn : 0 < n) {b : ℤ_[2]} (h : n • b = 0) :
+    b = 0 := by
+  rw [nsmul_eq_mul] at h
+  rcases mul_eq_zero.mp h with h1 | h1
+  · exact absurd h1 (Nat.cast_ne_zero.mpr hn.ne')
+  · exact h1
+
+/-- A finite-order element of the rank-four model has zero `ℤ₂`-components. -/
+private lemma finOrder_zmod2_prod4 {a : ZMod 2} {b c d : ℤ_[2]}
+    (h : IsOfFinOrder (Multiplicative.ofAdd (a, b, c, d))) : b = 0 ∧ c = 0 ∧ d = 0 := by
+  rw [isOfFinOrder_iff_pow_eq_one] at h
+  obtain ⟨n, hn, hpow⟩ := h
+  rw [← ofAdd_nsmul, ← ofAdd_zero] at hpow
+  have hz := Multiplicative.ofAdd.injective hpow
+  rw [Prod.smul_mk, Prod.smul_mk, Prod.smul_mk, Prod.ext_iff, Prod.ext_iff, Prod.ext_iff] at hz
+  obtain ⟨-, hb, hc, hd⟩ := hz
+  exact ⟨padicInt_nsmul_eq_zero_mc hn hb, padicInt_nsmul_eq_zero_mc hn hc,
+    padicInt_nsmul_eq_zero_mc hn hd⟩
+
+/-- **Torsion of the rank-four model**: the finite-order subtype of `ℤ/2 × ℤ₂³` is `ℤ/2`. -/
+noncomputable def torsionEquivZMod2Four :
+    {z : Multiplicative (ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]) // IsOfFinOrder z} ≃ ZMod 2 where
+  toFun z := z.1.toAdd.1
+  invFun a := ⟨Multiplicative.ofAdd (a, 0, 0, 0), by
+    have hv : (2 : ℕ) • ((a : ZMod 2), (0 : ℤ_[2]), (0 : ℤ_[2]), (0 : ℤ_[2])) = 0 := by
+      refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ ?_))
+      · show (2 : ℕ) • a = 0
+        rw [two_nsmul]
+        exact (by decide : ∀ b : ZMod 2, b + b = 0) a
+      · show (2 : ℕ) • (0 : ℤ_[2]) = 0; exact smul_zero _
+      · show (2 : ℕ) • (0 : ℤ_[2]) = 0; exact smul_zero _
+      · show (2 : ℕ) • (0 : ℤ_[2]) = 0; exact smul_zero _
+    rw [isOfFinOrder_iff_pow_eq_one]
+    exact ⟨2, by norm_num, by rw [← ofAdd_nsmul, hv]; exact ofAdd_zero⟩⟩
+  left_inv := by
+    rintro ⟨z, hz⟩
+    apply Subtype.ext
+    have hz' : IsOfFinOrder (Multiplicative.ofAdd
+        (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2)) := by
+      rw [show (z.toAdd.1, z.toAdd.2.1, z.toAdd.2.2.1, z.toAdd.2.2.2) = z.toAdd from rfl,
+        ofAdd_toAdd]
+      exact hz
+    obtain ⟨hb, hc, hd⟩ := finOrder_zmod2_prod4 hz'
+    show Multiplicative.ofAdd
+      ((z.toAdd.1 : ZMod 2), (0 : ℤ_[2]), (0 : ℤ_[2]), (0 : ℤ_[2])) = z
+    conv_rhs => rw [← ofAdd_toAdd z]
+    exact congrArg Multiplicative.ofAdd
+      (Prod.ext rfl (Prod.ext hb.symm (Prod.ext hc.symm hd.symm)))
+  right_inv a := by
+    show (Multiplicative.ofAdd (a, (0 : ℤ_[2]), (0 : ℤ_[2]), (0 : ℤ_[2]))).toAdd.1 = a
+    rw [toAdd_ofAdd]
+
+/-- The `q`-invariant of a group carrying a rank-four frame is `2`. -/
+private theorem demushkinQ_of_frame {G : Type} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] (e : ContinuousMulEquiv (topAbelianization G)
+      (Multiplicative (ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]))) : demushkinQ G = 2 := by
+  rw [demushkinQ]
+  have eq : {x : topAbelianization G // IsOfFinOrder x}
+      ≃ {z : Multiplicative (ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]) // IsOfFinOrder z} :=
+    Equiv.subtypeEquiv e.toMulEquiv.toEquiv (fun x => by
+      show IsOfFinOrder x ↔ IsOfFinOrder (e.toMulEquiv x)
+      rw [isOfFinOrder_iff_pow_eq_one, isOfFinOrder_iff_pow_eq_one]
+      exact ⟨fun ⟨n, hn, hp⟩ => ⟨n, hn, by rw [← map_pow, hp, map_one]⟩,
+        fun ⟨n, hn, hp⟩ => ⟨n, hn, e.toMulEquiv.injective (by rw [map_pow, map_one]; exact hp)⟩⟩)
+  rw [Nat.card_congr eq, Nat.card_congr torsionEquivZMod2Four, Nat.card_zmod]
+
+/-- **`demushkinQ D_M = 2`** (memo V1/§2.1) — the `q`-invariant feed for the Demushkin package
+and for the `M`/`N` hypothesis `def`s. -/
+theorem demushkinQ_DM {α : ℕ} (B : MDecomposition α) : demushkinQ (DM α 0 : Type) = 2 :=
+  demushkinQ_of_frame B.e
+
+/-- **`demushkinQ D_N = 2`** (memo V1/§3.1).  Both cores have `q = 2`: the memo's correction
+V2/§7.1 of the inherited "different torsion" premise. -/
+theorem demushkinQ_DN {α : ℕ} (B : NDecomposition α) : demushkinQ (DN α 0 : Type) = 2 :=
+  demushkinQ_of_frame B.e
+
+end Frames
 
 end MarkedCore
 
