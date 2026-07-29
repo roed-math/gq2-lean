@@ -99,7 +99,7 @@ a subset of `GQ2.pairingK_deep_deep`'s.  Nothing new; census unchanged.
 
 namespace GQ2.Dyadic
 
-open GQ2 GQ2.ContCoh GQ2.LocalKummer
+open GQ2 GQ2.ContCoh GQ2.LocalKummer GQ2.QuadraticFp2
 
 local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
@@ -1053,5 +1053,143 @@ theorem hvanish_cup_ker_K (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimens
   exact (QuotientAddGroup.eq_zero_iff _).mpr (AddSubgroup.mem_addSubgroupOf.mpr hB2)
 
 end CupVanish
+
+/-! ## §7 Conjugation stability of the deep classes (the free-orbit input)
+
+`GQ2.conjAct_deepClasses` (`GQ2/AdmissibleCount.lean` :131) retyped: the `Γ`-conjugation action
+`conjAct ρ g` (LG2, `GQ2/Dyadic/LocalGauss/PairingK.lean` §1) carries deep classes to deep
+classes.  Concretely `conjAct ρ g [κ_β] = [κ_{anc g • β}]`, and `anc g • A` is again deep for the
+anchored subgroup: normality of `ker ρ` keeps it fixed, and `‖anc g • b‖ = ‖b‖`
+(`GQ2.norm_galois`).  This is the `hvanish`-side input of the **free** orbit branch (packet
+Rem. 6.13) and, for LG4b, the invariance that lets `deepClassesSubgroupAt` carry the restricted
+`conjModule` action. -/
+
+section ConjStability
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+variable {C : Type} [Group C] [TopologicalSpace C]
+variable (anc : ContinuousMonoidHom Γ GalQ2) (ρ : ContinuousMonoidHom Γ C)
+
+omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
+/-- The anchor of the splitting group intertwines `conjMap` with ambient conjugation. -/
+theorem kerAnc_conjMap (g : Γ) (n : ↥(ρ.toMonoidHom.ker : Subgroup Γ)) :
+    kerAnc anc ρ (conjMap ρ g n) = (anc g)⁻¹ * kerAnc anc ρ n * anc g := by
+  show anc (g⁻¹ * (n : Γ) * g) = (anc g)⁻¹ * anc (n : Γ) * anc g
+  rw [map_mul, map_mul, map_inv]
+
+/-- **Conjugation stability of the anchored deep classes** — `GQ2.conjAct_deepClasses` retyped. -/
+theorem conjAct_deepClassesAt (g : Γ)
+    {ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2)}
+    (hξ : ξ ∈ deepClassesAt (kerAnc anc ρ)) :
+    conjAct ρ g ξ ∈ deepClassesAt (kerAnc anc ρ) := by
+  obtain ⟨A, β, hdeep, hsq, hβ0, rfl⟩ := hξ
+  obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hdeep
+  -- the conjugated element of the anchored subgroup: `anc n · anc g = anc g · anc (g⁻¹ n g)`
+  have key : ∀ (n : ↥(ρ.toMonoidHom.ker : Subgroup Γ)) (x : ℚ̄₂),
+      (∀ y ∈ ancSubgroup (kerAnc anc ρ), y • x = x) →
+      (kerAnc anc ρ n) • (anc g • x) = anc g • x := by
+    intro n x hfix
+    rw [← mul_smul, show kerAnc anc ρ n * anc g = anc g * ((anc g)⁻¹ * kerAnc anc ρ n * anc g)
+      from by group, mul_smul,
+      show ((anc g)⁻¹ * kerAnc anc ρ n * anc g) • x = x from
+        hfix _ (by rw [← kerAnc_conjMap anc ρ g n]; exact mem_ancSubgroup _ _)]
+  have hmove : ∀ (m : GalQ2) (_ : m ∈ ancSubgroup (kerAnc anc ρ)) (x : ℚ̄₂),
+      (∀ y ∈ ancSubgroup (kerAnc anc ρ), y • x = x) → m • (anc g • x) = anc g • x := by
+    rintro _ ⟨n, rfl⟩ x hfix
+    exact key n x hfix
+  refine ⟨anc g • A, anc g • β, ⟨?_, ?_, anc g • b, ?_, ?_, ?_⟩, ?_, ?_, ?_⟩
+  · rw [AlgEquiv.smul_def]; simpa using hA0
+  · exact fun m hm => hmove m hm A hAfix
+  · exact fun m hm => hmove m hm b hbfix
+  · rw [hAeq, AlgEquiv.smul_def, map_add, map_one, map_mul, map_ofNat, ← AlgEquiv.smul_def]
+  · rwa [norm_galois]
+  · rw [AlgEquiv.smul_def, AlgEquiv.smul_def, ← map_pow, hsq]
+  · rw [AlgEquiv.smul_def]; simpa using hβ0
+  · symm
+    calc conjAct ρ g (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+            (fun n => Kummer.kummerCocycleFun β (kerAnc anc ρ n)))
+        = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+            (fun n => Kummer.kummerCocycleFun β (kerAnc anc ρ (conjMap ρ g n))) :=
+          conjAct_h1ofFun ρ g (kummerAnc_mem_Z1 (kerAnc anc ρ) hsq hβ0 hAfix)
+      _ = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+            (fun n => Kummer.kummerCocycleFun (anc g • β) (kerAnc anc ρ n)) := by
+          congr 1
+          funext n
+          rw [kerAnc_conjMap anc ρ g n]
+          exact kcf_conj β (anc g) (kerAnc anc ρ n)
+
+end ConjStability
+
+/-! ## §8 Staged exports for LG4b (the vanishing side of the join)
+
+LG4b owns `LocalGauss/Ramified.lean`: the dimension lane, the join
+`card_Q0loc_zero_eq_of_dim_of_vanish_K` and the endpoint `prop_6_18_ramified_K`.  This section
+fixes the shape of the two vanishing-side inputs it consumes, and discharges the half of the join
+that lives on the vanishing side — the **Lagrangian Arf step** (packet Prop. 6.12: `X₊` is a
+totally singular half-dimensional subspace, hence `arf Q⁰ = 0`, which is exactly packet
+Prop. 6.14's `+`-sign input).
+
+**The join LG4b should write** (the `ℚ₂` model is
+`GQ2.DeepPart.card_Q0loc_zero_eq_of_dim_of_vanish`, `GQ2/DeepPart/Q0locLayer.lean` :547; the two
+changes are `2*m ↦ 2*(m*n)` in the count and LG2a's Euler theorem replacing the `B7` calls
+`finite_H1`/`card_H1_eq_card_of_simple`):
+
+```lean
+theorem card_Q0loc_zero_eq_of_dim_of_vanish_K (D : TateDualityG Γ 2)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (anc : ContinuousMonoidHom Γ GalQ2) (ρ : ContinuousMonoidHom Γ C)
+    (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v) …
+    (hV2 : ∀ v : V, v + v = 0)
+    (hdim    : Nat.card (deepPartK (V := V) anc ρ) ^ 2 = Nat.card (H1 Γ V))   -- LG4b's lane
+    (hvanish : Q0locVanishesOnDeep D dat anc ρ)                               -- ← LG4a, below
+    (m n : ℕ) (hmn : 1 ≤ m * n) (hcard : Nat.card (H1 Γ V) = 2 ^ (2 * (m * n))) :
+    Nat.card {x : H1 Γ V // Q0loc D dat ρ x = 0} = 2 ^ (2 * (m * n) - 1) + 2 ^ (m * n - 1)
+```
+
+and its body is `zeroCount_of_arf_zero` applied to `arf_Q0loc_zero_of_deep` below — so the only
+work left in the join is the `hcard` plumbing (Euler collapse) and the dimension lane. -/
+
+section JoinExports
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+  [DistribMulAction Γ (MuN 2)] [ContinuousSMul Γ (MuN 2)]
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [DistribMulAction Γ V] [ContinuousSMul Γ V] [DistribMulAction C V]
+
+/-- **The vanishing clause of Lemma 6.17 as a named proposition** — the exact shape of the
+`hvanish` slot of the `ℚ₂` join (`GQ2.DeepPart.card_Q0loc_zero_eq_of_dim_of_vanish`): `Q⁰_loc`
+vanishes identically on the deep half `X₊`.  LG4b threads this; the vanishing lane's endpoint
+`lemma_6_17_vanish_final_K` produces it. -/
+def Q0locVanishesOnDeep (D : TateDualityG Γ 2) (dat : FactorSet C V)
+    (anc : ContinuousMonoidHom Γ GalQ2) (ρ : ContinuousMonoidHom Γ C) : Prop :=
+  ∀ x ∈ deepPartK (V := V) anc ρ, Q0loc D dat ρ x = 0
+
+/-- **Packet Prop. 6.12 / Prop. 6.14 input: the deep half is a Lagrangian, so `arf Q⁰ = 0`.**
+This is the vanishing-side half of LG4b's join: given the dimension clause `#X₊² = #H¹` and the
+vanishing clause, the Arf invariant of `Q⁰_loc` is `0` — whence the `+` Gauss sign
+(`GQ2.QuadraticFp2.zeroCount_of_arf_zero`, which LG4b applies).  Retype of the inner two steps of
+`GQ2.DeepPart.card_Q0loc_zero_eq_of_dim_of_vanish`; `hfin` is supplied downstream by LG2a's Euler
+finiteness clause (`localEulerCharacteristic_open`), replacing the `ℚ₂` `B7` call. -/
+theorem arf_Q0loc_zero_of_deep (D : TateDualityG Γ 2) (q : V → ZMod 2) (hq : IsQuadraticFp2 q)
+    (hns : Nonsingular q) (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (anc : ContinuousMonoidHom Γ GalQ2) (ρ : ContinuousMonoidHom Γ C)
+    (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v) (hinv : ∀ (c : C) (v : V), q (c • v) = q v)
+    (hV2 : ∀ v : V, v + v = 0) (hfin : Finite (H1 Γ V))
+    (hdim : Nat.card (deepPartK (V := V) anc ρ) ^ 2 = Nat.card (H1 Γ V))
+    (hvanish : Q0locVanishesOnDeep D dat anc ρ) :
+    arf (Q0loc D dat ρ (V := V)) = 0 := by
+  haveI := hfin
+  haveI : Fintype (H1 Γ V) := Fintype.ofFinite _
+  have hqG : ∀ (g : Γ) (v : V), q (g • v) = q v := fun g v => by rw [hρ]; exact hinv _ v
+  have hq' := isQuadraticFp2_Q0loc D q hq dat hdat ρ hρ hqG
+  have hns' := nonsingular_Q0loc D q hq hns hV2 dat hdat ρ hρ hqG
+  exact arf_zero_of_card_sq _ hq' (h1_add_self_dp hV2) hns'
+    (deepPartSubgroupK anc ρ hρ hV2) hvanish hdim
+
+end JoinExports
 
 end GQ2.Dyadic
