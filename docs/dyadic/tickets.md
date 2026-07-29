@@ -395,7 +395,7 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 
 | PJ1 | projectivity implementation: general-q leaves + hypothesis swap (per ax5-proposal §4.2/§6, in-place edits APPROVED) | opus | `GQ2/Dyadic/Projectivity.lean`, `GQ2/RegularSummand/Trace.lean`, `GQ2/RegularSummand/Involution.lean` | AX5 ✓ | **dispatched 2026-07-29** |
 
-| FG1 | G_K finite generation as a THEOREM from B1 (ax1-proposal §3.2, Route D) | opus | `GQ2/Dyadic/FinitelyGeneratedK.lean` | AX1 ✓ | **dispatched 2026-07-29** |
+| FG1 | G_K finite generation as a THEOREM from B1 (ax1-proposal §3.2, Route D) | opus | `GQ2/Dyadic/FinitelyGeneratedK.lean` | AX1 ✓ | **done 2026-07-29** (cb314e1 → merged, import registered; 129 ln, std-3+B1 print verified; memo proof verbatim; ⚠ naming hazard logged: a future k=⊥ regression must NOT reuse the base name absGalQ2_isTopologicallyFinitelyGenerated — census infra substring-pins it; worktree removed) |
 
 Protocol per AX ticket: memo with exact Lean statement + citation + normalization notes +
 consumers → owner sign-off (**G-AX**) → census flip commit (statement into
