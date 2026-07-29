@@ -679,6 +679,14 @@ theorem eval_deltaW_zero_eq_d0Hat (t : _root_.GQ2.Marking G) :
 theorem eval_sigma2W_eq_sigma2Hat (t : _root_.GQ2.Marking G) :
     (Marking.ofQ2 t).eval sigma2W = t.sigma2Hat := rfl
 
+/-- The same two pins spelled through F1's adapter `Marking.equivQ2` itself, rather than through
+its `ofQ2` component. -/
+theorem eval_deltaW_zero_equivQ2 (t : _root_.GQ2.Marking G) :
+    (Marking.equivQ2.symm t).eval (deltaW 0) = t.d0Hat := rfl
+
+theorem eval_sigma2W_equivQ2 (t : _root_.GQ2.Marking G) :
+    (Marking.equivQ2.symm t).eval sigma2W = t.sigma2Hat := rfl
+
 /-- In a finite group the profinite `δ₀`-letter computes the finite ledger letter `d₀` of
 `GQ2/Words.lean`. -/
 theorem eval_deltaW_zero_eq_d0 (s : _root_.GQ2.Marking P) :
