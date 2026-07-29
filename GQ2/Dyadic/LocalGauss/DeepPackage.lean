@@ -274,8 +274,9 @@ theorem kummerAnc_one_eq_zero :
   exact map_zero (H1mk Θ (ZMod 2))
 
 omit [IsTopologicalGroup Θ] [ContinuousSMul Θ (ZMod 2)] in
-/-- `H¹(Θ, 𝔽₂)` is 2-torsion, so negation is the identity on it. -/
-theorem h1_zmodTwo_add_self (x : H1 Θ (ZMod 2)) : x + x = 0 := by
+/-- `H¹(Θ, 𝔽₂)` is 2-torsion, so negation is the identity on it.  (`_dp` suffix: dedup against
+any `GQ2.Dyadic` twin from a sibling LG file at merge.) -/
+theorem h1_zmodTwo_add_self_dp (x : H1 Θ (ZMod 2)) : x + x = 0 := by
   induction x using QuotientAddGroup.induction_on with
   | H z =>
     have hz : z + z = 0 := by
@@ -373,7 +374,7 @@ def deepClassesSubgroupAt : AddSubgroup (H1 Θ (ZMod 2)) where
       kummerAnc_class_mul anc hsq₁ hsq₂ hne₁ hne₂ hd₁.2.1 hd₂.2.1⟩
   neg_mem' := by
     intro x hx
-    rwa [neg_eq_of_add_eq_zero_left (h1_zmodTwo_add_self x)]
+    rwa [neg_eq_of_add_eq_zero_left (h1_zmodTwo_add_self_dp x)]
 
 /-- **The mid classes form an additive subgroup** — `GQ2.midClassesSubgroup` retyped. -/
 def midClassesSubgroupAt : AddSubgroup (H1 Θ (ZMod 2)) where
@@ -389,7 +390,7 @@ def midClassesSubgroupAt : AddSubgroup (H1 Θ (ZMod 2)) where
       kummerAnc_class_mul anc hsq₁ hsq₂ hne₁ hne₂ hd₁.2.1 hd₂.2.1⟩
   neg_mem' := by
     intro x hx
-    rwa [neg_eq_of_add_eq_zero_left (h1_zmodTwo_add_self x)]
+    rwa [neg_eq_of_add_eq_zero_left (h1_zmodTwo_add_self_dp x)]
 
 @[simp] theorem mem_deepClassesSubgroupAt {ξ : H1 Θ (ZMod 2)} :
     ξ ∈ deepClassesSubgroupAt anc ↔ ξ ∈ deepClassesAt anc := Iff.rfl
@@ -494,8 +495,9 @@ theorem mem_deepPartK_iff (anc : ContinuousMonoidHom Γ GalQ2) (ρ : ContinuousM
     exact ⟨A, β, hdeep, hsq, hβ0, heq⟩
 
 omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
-/-- **`H¹` of an exponent-2 module has exponent 2** — `GQ2.DeepPart.h1_add_self` retyped. -/
-theorem h1_add_selfK (hV2 : ∀ v : V, v + v = 0) (x : H1 Γ V) : x + x = 0 := by
+/-- **`H¹` of an exponent-2 module has exponent 2** — `GQ2.DeepPart.h1_add_self` retyped.
+(`_dp` suffix: dedup against any `GQ2.Dyadic` twin from a sibling LG file at merge.) -/
+theorem h1_add_self_dp (hV2 : ∀ v : V, v + v = 0) (x : H1 Γ V) : x + x = 0 := by
   induction x using QuotientAddGroup.induction_on with
   | H z =>
     have hz : z + z = 0 := by
@@ -554,7 +556,7 @@ def deepPartSubgroupK (anc : ContinuousMonoidHom Γ GalQ2) (ρ : ContinuousMonoi
     rw [hRHS, DeepPart.H1ofFun_add (phiRestrict_mem_Z1K ρ hρ _ φ) (phiRestrict_mem_Z1K ρ hρ _ φ)]
   neg_mem' := by
     intro x hx
-    rwa [neg_eq_of_add_eq_zero_left (h1_add_selfK hV2 x)]
+    rwa [neg_eq_of_add_eq_zero_left (h1_add_self_dp hV2 x)]
 
 @[simp] theorem mem_deepPartSubgroupK (anc : ContinuousMonoidHom Γ GalQ2)
     (ρ : ContinuousMonoidHom Γ C) (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v)
@@ -762,5 +764,160 @@ theorem midClassesSubgroupAt_le_pairPerp_pairingK
     pairingK_mid_deep_K anc ρ D k htriv hker hξ hη
 
 end IsotropySplice
+
+/-! ## §5 Projective inflation–restriction (packet Def. 6.11(a))
+
+`GQ2.LocalKummer.InflationVanishes` (`GQ2/LocalKummer.lean` :304) and `FamiliesExtend` (:898)
+retyped, with their discharges.
+
+**Binding attribution correction** (packet §12 over-attributes both clauses to Lemma 6.11
+projectivity; adopted at AX5): `InflationVanishes` is discharged by **coprime averaging** over an
+odd normal subgroup with no fixed vectors — `inflationVanishes_of_oddNormalK`, which is pure
+2-torsion module algebra and mentions no projectivity.  Only `FamiliesExtend` uses Lemma 6.11.
+
+The `ℚ₂` instantiation `GQ2.LocalKummer.inflationVanishes_ramifiedTame` (:587) routes through
+`odd_orderOf_tameInertia` (:382) and `tameInertia_normal` (:409), both of which hard-code `q = 2`
+(they read the relation off `GQ2.Ttame`).  The general-`q` instantiation below routes instead
+through **F3's** `GQ2.Dyadic.TameQ.{odd_order, zpowers_normal}` at `T_q`, `q = q_K = 2^f`
+(packet Lem. 3.1/3.2 in finite-image form) — equivalently **PJ1's** `tame_odd_order_pow` /
+`tame_zpowers_normal_pow`, which are the same statements. -/
+
+section Inflation
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+variable {C : Type} [Group C] [TopologicalSpace C]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V]
+  [DistribMulAction Γ V] [DistribMulAction C V]
+
+variable (ρ : ContinuousMonoidHom Γ C)
+
+/-- **The ambient inflation-vanishing input** at a general local source —
+`GQ2.LocalKummer.InflationVanishes` retyped: every continuous cocycle vanishing pointwise on
+`N_K = ker ρ` is a coboundary. -/
+def InflationVanishesK : Prop :=
+  ∀ b : ↥(Z1 Γ V), (∀ n : ↥(ρ.toMonoidHom.ker : Subgroup Γ), b.1 (n : Γ) = 0) →
+    ∃ w₀ : V, ∀ g : Γ, b.1 g = g • w₀ - w₀
+
+variable {ρ}
+
+variable [Finite C]
+
+omit [IsTopologicalGroup Γ] in
+/-- **`InflationVanishesK` from an odd normal subgroup with no fixed vectors** — the
+**coprime-averaging** discharge (`GQ2.LocalKummer.inflationVanishes_of_oddNormal` retyped).  The
+argument is Hochschild–Serre-free and mentions no projectivity: a cocycle vanishing on `ker ρ`
+descends to the finite image `C`; averaging over the odd-order `I` makes it cohomologous to a
+cocycle killed on `I`; the two-way evaluation forces the residue into `V^I = 0`. -/
+theorem inflationVanishes_of_oddNormalK
+    (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v) (hV2 : ∀ v : V, v + v = 0)
+    (hsurj : Function.Surjective ⇑ρ)
+    (I : Subgroup C) (hInorm : I.Normal) (hIodd : Odd (Nat.card ↥I))
+    (hVI : ∀ v : V, (∀ i ∈ I, i • v = v) → v = 0) :
+    InflationVanishesK (V := V) ρ := by
+  classical
+  haveI : Fintype ↥I := Fintype.ofFinite _
+  intro b hbN
+  obtain ⟨-, hcoc⟩ := mem_Z1_iff.mp b.2
+  -- `b.1` is constant on `ρ`-fibres (its kernel acts trivially, `hρ`)
+  have hdesc : ∀ g₁ g₂ : Γ, ρ g₁ = ρ g₂ → b.1 g₁ = b.1 g₂ := by
+    intro g₁ g₂ hg
+    have hmem : g₁⁻¹ * g₂ ∈ (ρ.toMonoidHom.ker : Subgroup Γ) := by
+      rw [MonoidHom.mem_ker]
+      show ρ (g₁⁻¹ * g₂) = 1
+      rw [map_mul, map_inv, hg, inv_mul_cancel]
+    have h0 : b.1 (g₁⁻¹ * g₂) = 0 := hbN ⟨g₁⁻¹ * g₂, hmem⟩
+    have := hcoc g₁ (g₁⁻¹ * g₂)
+    rw [h0, smul_zero, add_zero, mul_inv_cancel_left] at this
+    exact this.symm
+  -- descend `b` to `b̄ : C → V`
+  set σ := Function.surjInv hsurj with hσdef
+  have hσ : ∀ c : C, ρ (σ c) = c := Function.surjInv_eq hsurj
+  set bbar : C → V := fun c => b.1 (σ c) with hbbar
+  have hbbar_spec : ∀ g : Γ, bbar (ρ g) = b.1 g := fun g => hdesc (σ (ρ g)) g (hσ (ρ g))
+  have hbbar_coc : ∀ c d : C, bbar (c * d) = bbar c + c • bbar d := by
+    intro c d
+    have h1 : b.1 (σ (c * d)) = b.1 (σ c * σ d) := hdesc _ _ (by rw [hσ, map_mul, hσ, hσ])
+    show b.1 (σ (c * d)) = b.1 (σ c) + c • b.1 (σ d)
+    rw [h1, hcoc, hρ, hσ]
+  -- the averaging witness `w₀ = ∑_{i ∈ I} b̄ i`
+  set w₀ : V := ∑ i : ↥I, bbar (i : C) with hw₀def
+  have havg : ∀ g₀ : ↥I, bbar (g₀ : C) = (g₀ : C) • w₀ - w₀ := by
+    intro g₀
+    have hreindex : ∑ i : ↥I, bbar ((g₀ : C) * (i : C)) = w₀ := by
+      rw [hw₀def, ← Equiv.sum_comp (Equiv.mulLeft g₀) (fun j : ↥I => bbar (j : C))]
+      rfl
+    have hexpand : ∑ i : ↥I, bbar ((g₀ : C) * (i : C))
+        = (Nat.card ↥I) • bbar (g₀ : C) + (g₀ : C) • w₀ := by
+      simp_rw [hbbar_coc]
+      rw [Finset.sum_add_distrib, Finset.sum_const, ← Finset.smul_sum, ← hw₀def,
+        Finset.card_univ, ← Nat.card_eq_fintype_card]
+    rw [hreindex] at hexpand
+    rw [odd_nsmul_eq_self hV2 hIodd] at hexpand
+    have hsub : bbar (g₀ : C) = w₀ - (g₀ : C) • w₀ := by
+      rw [eq_sub_iff_add_eq]; exact hexpand.symm
+    rw [hsub]
+    have hna : -w₀ = w₀ := neg_eq_of_add_eq_zero_left (hV2 w₀)
+    have hnb : -((g₀ : C) • w₀) = (g₀ : C) • w₀ := neg_eq_of_add_eq_zero_left (hV2 _)
+    rw [sub_eq_add_neg, sub_eq_add_neg, hna, hnb, add_comm]
+  -- the error cocycle `r c = b̄ c − (c • w₀ − w₀)` is a cocycle killed on `I`
+  set r : C → V := fun c => bbar c - ((c : C) • w₀ - w₀) with hrdef
+  have hr_coc : ∀ c d : C, r (c * d) = r c + c • r d := by
+    intro c d
+    show bbar (c * d) - ((c * d) • w₀ - w₀)
+      = (bbar c - (c • w₀ - w₀)) + c • (bbar d - (d • w₀ - w₀))
+    rw [hbbar_coc, smul_sub, smul_sub, mul_smul]
+    abel
+  have hr_I : ∀ i : C, i ∈ I → r i = 0 := by
+    intro i hi
+    show bbar i - ((i : C) • w₀ - w₀) = 0
+    rw [havg ⟨i, hi⟩, sub_self]
+  -- two-way evaluation forces `r c ∈ V^I = 0`
+  have hr_zero : ∀ c : C, r c = 0 := by
+    intro c
+    refine hVI (r c) fun i hi => ?_
+    have e1 : r (i * c) = i • r c := by rw [hr_coc, hr_I i hi, zero_add]
+    have hconj : c⁻¹ * i * c ∈ I := by
+      have := hInorm.conj_mem i hi c⁻¹
+      rwa [inv_inv] at this
+    have e2 : r (i * c) = r c := by
+      have hic : i * c = c * (c⁻¹ * i * c) := by group
+      rw [hic, hr_coc, hr_I _ hconj, smul_zero, add_zero]
+    rw [← e1, e2]
+  refine ⟨w₀, fun g => ?_⟩
+  have hz := hr_zero (ρ g)
+  rw [hrdef] at hz
+  simp only [hbbar_spec, sub_eq_zero] at hz
+  rw [hz, hρ]
+
+/-- **`InflationVanishesK` for a ramified simple tame module at every `q_K = 2^f`** — the
+general-`q` twin of `GQ2.LocalKummer.inflationVanishes_ramifiedTame`.  The inertia subgroup
+`I = ⟨c τ⟩` is normal by **F3's** `TameQ.zpowers_normal` (packet Lem. 3.2) and has odd order by
+`TameQ.odd_order` (packet Lem. 3.1: `q` even ⟹ `orderOf τ` odd — **the middle-layer split of
+Rem. 6.13 has no "even inertia order" branch**), and `V^I = 0` from ramified simplicity.  The
+`ℚ₂`-only `odd_orderOf_tameInertia`/`tameInertia_normal` are not used. -/
+theorem inflationVanishes_ramifiedTameQ {f : ℕ} (hf : 1 ≤ f)
+    (ρ : ContinuousMonoidHom Γ C) (c : ContinuousMonoidHom (Tq (2 ^ f)) C)
+    (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v) (hV2 : ∀ v : V, v + v = 0)
+    (hsurj : Function.Surjective ⇑ρ)
+    (hgen : Subgroup.closure {c (tqSigma (2 ^ f)), c (tqTau (2 ^ f))} = ⊤)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, c (tqTau (2 ^ f)) • v ≠ v) :
+    InflationVanishesK (V := V) ρ := by
+  set t : C := c (tqTau (2 ^ f)) with ht
+  have hrel : (c (tqSigma (2 ^ f)))⁻¹ * t * c (tqSigma (2 ^ f)) = t ^ 2 ^ f :=
+    tame_rel_map_q c.toMonoidHom
+  have heven : Even (2 ^ f) := by
+    obtain ⟨f', rfl⟩ : ∃ f', f = f' + 1 := ⟨f - 1, by omega⟩
+    exact ⟨2 ^ f', by rw [pow_succ]; ring⟩
+  have hInorm : (Subgroup.zpowers t).Normal := TameQ.zpowers_normal hgen hrel
+  have hIodd : Odd (Nat.card ↥(Subgroup.zpowers t)) := by
+    rw [Nat.card_zpowers]
+    exact TameQ.odd_order (orderOf_pos _).ne' (pow_ne_zero _ two_ne_zero) heven hrel
+  have hVI : ∀ v : V, (∀ i ∈ Subgroup.zpowers t, i • v = v) → v = 0 :=
+    LocalKummer.fixedByNormal_eq_bot (Subgroup.zpowers t) hInorm hsimple
+      (by obtain ⟨v, hv⟩ := hram; exact ⟨t, Subgroup.mem_zpowers _, v, hv⟩)
+  exact inflationVanishes_of_oddNormalK hρ hV2 hsurj (Subgroup.zpowers t) hInorm hIodd hVI
+
+end Inflation
 
 end GQ2.Dyadic
