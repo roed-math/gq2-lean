@@ -164,7 +164,7 @@ to `master` only at owner gate G3.
 |---|---|---|---|---|---|
 | F0 | campaign setup: branch, worktree, refs, surveys, plan, board | — (orchestrator) | `docs/dyadic/**` | — | **done 2026-07-28** |
 | F1 | parameters, semantic generators, markings, branch data | opus | `GQ2/Dyadic/Parameters.lean` | — | **done 2026-07-29** (f7c8d05 → merged; 906 ln, 163 decls, 0 sorries, std-3; module-style; η:ℤ₂ˣ + etaUnit hook, ε:Bool; Marking n FunLike + n=1 equivQ2 adapter; equivFin fixes Fox column order; import registered by orchestrator; independently re-typechecked) |
-| F2 | reflected profinite word syntax + ω₂ finite evaluation | fable | `GQ2/Dyadic/Word/Syntax.lean`, `GQ2/Dyadic/Word/Eval.lean` | F1 | **dispatched 2026-07-29** |
+| F2 | reflected profinite word syntax + ω₂ finite evaluation | fable | `GQ2/Dyadic/Word/Syntax.lean`, `GQ2/Dyadic/Word/Eval.lean` | F1 | **FAILED 2026-07-29 — RE-DISPATCH (fable spend limit)**; nothing written; worktree `gq2-dyadic-ww` clean. Re-dispatch on **opus**, prompt in handoff §5 (add S1.M note: EtaHat pairs are now canonical on the Python side) |
 | F3 | tame quotient at general q + boundary specializations + relative Goursat | opus | `GQ2/Dyadic/TameBoundary.lean` | F1, F2 | pending |
 | F4 | arithmetic branches: (C,I,λ,γ), sign-row exclusion, √-10 corollary | opus | `GQ2/Dyadic/Branches.lean` | F1 | pending |
 | F5 | finite-target sanity harness (python) | opus | `scripts/dyadic_sanity_counts.py` | — | pending |
@@ -263,7 +263,7 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| MC1 | design memo: rank-four frames, Smith–Witt stabilizer generators, lifting strategy | fable | `docs/dyadic/mc-design.md` | recon/mc-survey | **dispatched 2026-07-29** |
+| MC1 | design memo: rank-four frames, Smith–Witt stabilizer generators, lifting strategy | fable | `docs/dyadic/mc-design.md` | recon/mc-survey | **FAILED 2026-07-29 — RE-DISPATCH (fable spend limit)**; nothing written; worktree `gq2-dyadic-mc` clean. Highest-value pending design ticket; re-dispatch on **opus**, prompt in handoff §5 |
 | MC2 | presented cores D_P, characters, abelian 4-frames | opus | `GQ2/Dyadic/MarkedCore/Cores.lean` | MC1, F1 | pending |
 | MC3 | **MC-M**: classification + lifting for `M_α` (uniform in α) | fable | `GQ2/Dyadic/MarkedCore/M.lean` | MC2 | pending |
 | MC4 | **MC-N**: classification + lifting for `N_α` (uniform in α) | fable | `GQ2/Dyadic/MarkedCore/N.lean` | MC2 | pending |
@@ -307,7 +307,7 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
 | LG1 | design memo: rebase map + Euler-char derivation spike | fable | `docs/dyadic/lg-design.md` | recon/lg-survey | **done 2026-07-29** (5ae7b0b → merged; **AX2 NOT NEEDED — Euler char DERIVABLE from B7** via coinduced module, gap list L0–L6 ≈850 ln → LG2a; 13/13 clone, 0 in-place; retype surface corrected to ≈9.2k ln; parity via arf_eq_of_free s:=n) |
-| LG2a | Euler characteristic over K derived from B7 (memo L0–L6, `EulerShapiro.lean`) | opus | `GQ2/Dyadic/LocalGauss/EulerShapiro.lean` | LG1 ✓ | **dispatched 2026-07-29** |
+| LG2a | Euler characteristic over K derived from B7 (memo L0–L6, `EulerShapiro.lean`) | opus | `GQ2/Dyadic/LocalGauss/EulerShapiro.lean` | LG1 ✓ | **done 2026-07-29** (c0b4449 → merged, import registered; 800 ln, std-3 + B7 ONLY; `localEulerCharacteristic_open` (workhorse, U.index = n) + `absGalK_localEulerCharacteristic` + degree-2 Shapiro NEW to repo; L4 was easier than estimated, L1/L5 harder; ⚠ AbsGalQ2-vs-Gal instance trap documented — see report/handoff) |
 | LG2 | group-generic `Q⁰` + polarization over a local dualizing source | opus | `GQ2/Dyadic/LocalGauss/Q0.lean` (+clone-retype list per LG1) | LG1 | pending |
 | LG3 | unramified sign `(−1)^n 2^{nd/2}` (Hermitian rank-n) | opus | `GQ2/Dyadic/LocalGauss/Unramified.lean` | LG2, AX2 | pending |
 | LG4 | **deep-unit package + ramified sign `+2^{nd/2}`** | fable | `GQ2/Dyadic/LocalGauss/DeepPackage.lean`, `…/Ramified.lean` | LG2 | pending |
