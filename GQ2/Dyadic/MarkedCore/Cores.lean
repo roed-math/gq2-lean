@@ -957,6 +957,216 @@ noncomputable def nLiftHom (α h : ℕ) (hH : IsProP 2 H) (m : Fin (coreRank h) 
 
 end Lifts
 
+/-! ## §4 The standard characters `χ_P`, `ν_P`
+
+Both are built by the universal property (`mLiftHom`/`nLiftHom`) out of a **marking** that is
+the four core values followed by `1` on every handle letter (the handle lemma of §2 says that
+is forced for `χ`).  The relator check is the abelian collapse `mRelWord_comm`/`nRelWord_comm`,
+since both targets are commutative. -/
+
+/-! ### Index arithmetic for `Fin (coreRank h)` -/
+
+theorem coreVal_zero (h : ℕ) : ((0 : Fin (coreRank h)) : ℕ) = 0 := by
+  show 0 % coreRank h = 0
+  exact Nat.zero_mod _
+
+theorem coreVal_one (h : ℕ) : ((1 : Fin (coreRank h)) : ℕ) = 1 := by
+  show 1 % coreRank h = 1
+  exact Nat.mod_eq_of_lt (by simp only [coreRank]; omega)
+
+theorem coreVal_two (h : ℕ) : ((2 : Fin (coreRank h)) : ℕ) = 2 := by
+  show 2 % coreRank h = 2
+  exact Nat.mod_eq_of_lt (by simp only [coreRank]; omega)
+
+theorem coreVal_three (h : ℕ) : ((3 : Fin (coreRank h)) : ℕ) = 3 := by
+  show 3 % coreRank h = 3
+  exact Nat.mod_eq_of_lt (by simp only [coreRank]; omega)
+
+theorem handleIdxU_val {h : ℕ} (j : Fin h) : ((handleIdxU j : Fin (coreRank h)) : ℕ)
+    = 4 + 2 * j := rfl
+
+theorem handleIdxV_val {h : ℕ} (j : Fin h) : ((handleIdxV j : Fin (coreRank h)) : ℕ)
+    = 5 + 2 * j := rfl
+
+/-- A handle block all of whose letters are trivial is trivial. -/
+theorem handleWord_of_one {G : Type*} [Group G] {k : ℕ} (u v : Fin k → G)
+    (hu : ∀ j, u j = 1) (hv : ∀ j, v j = 1) : handleWord u v = 1 := by
+  rw [handleWord, List.prod_eq_one]
+  intro x hx
+  obtain ⟨j, _, rfl⟩ := List.mem_map.mp hx
+  rw [hu, hv, commP, inv_one, one_mul, one_mul, one_mul]
+
+/-- **The standard marking shape**: four core values, `1` on every handle letter.  Every
+character of a marked core built in this file has this shape (memo §4.2: the handle lemma
+forces `χ ≡ 1` on the handle letters). -/
+def coreMark {G : Type*} [Group G] {h : ℕ} (a b c d : G) : Fin (coreRank h) → G :=
+  fun i =>
+    if (i : ℕ) = 0 then a else
+    if (i : ℕ) = 1 then b else
+    if (i : ℕ) = 2 then c else
+    if (i : ℕ) = 3 then d else 1
+
+section CoreMark
+
+variable {G : Type*} [Group G] {h : ℕ} (a b c d : G)
+
+@[simp] theorem coreMark_zero : (coreMark (h := h) a b c d) 0 = a := by
+  simp only [coreMark, coreVal_zero]
+  norm_num
+
+@[simp] theorem coreMark_one : (coreMark (h := h) a b c d) 1 = b := by
+  simp only [coreMark, coreVal_one]
+  norm_num
+
+@[simp] theorem coreMark_two : (coreMark (h := h) a b c d) 2 = c := by
+  simp only [coreMark, coreVal_two]
+  norm_num
+
+@[simp] theorem coreMark_three : (coreMark (h := h) a b c d) 3 = d := by
+  simp only [coreMark, coreVal_three]
+  norm_num
+
+@[simp] theorem coreMark_handleU (j : Fin h) : coreMark a b c d (handleIdxU j) = 1 := by
+  simp only [coreMark, handleIdxU_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+
+@[simp] theorem coreMark_handleV (j : Fin h) : coreMark a b c d (handleIdxV j) = 1 := by
+  simp only [coreMark, handleIdxV_val]
+  rw [if_neg (by omega), if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+
+/-- The full relator on a standard marking is the core word: the handles are all trivial. -/
+theorem mRelWord_coreMark (α : ℕ) : mRelWord α (coreMark (h := h) a b c d) = mWord α a b c d := by
+  rw [mRelWord, coreMark_zero, coreMark_one, coreMark_two, coreMark_three,
+    handleWord_of_one _ _ (fun j => coreMark_handleU a b c d j)
+      (fun j => coreMark_handleV a b c d j), mul_one]
+
+/-- The full `N`-relator on a standard marking is the core word. -/
+theorem nRelWord_coreMark (α : ℕ) : nRelWord α (coreMark (h := h) a b c d) = nWord α a b c d := by
+  rw [nRelWord, coreMark_zero, coreMark_one, coreMark_two, coreMark_three,
+    handleWord_of_one _ _ (fun j => coreMark_handleU a b c d j)
+      (fun j => coreMark_handleV a b c d j), mul_one]
+
+end CoreMark
+
+/-! ### The canonical orientations `χ_M`, `χ_N` -/
+
+/-- **`χ_M : D_M → ℤ₂ˣ`** (memo §2.2(i)): the canonical Labute orientation of `M_α`, with the
+closed-form generator values `(A, B, C₀, D) ↦ (1, −1, 1, u)`, `u = (1 − 2^α)⁻¹`, and `1` on
+every handle letter. -/
+noncomputable def chiM (α h : ℕ) : ContinuousMonoidHom (DM α h : Type) ℤ_[2]ˣ :=
+  mLiftHom α h isProP_two_unitsPadicInt (coreMark 1 (-1) 1 (mUnit α)) (by
+    rw [mRelWord_comm, coreMark_zero, coreMark_two, one_pow, one_pow, one_mul])
+
+/-- **`χ_N : D_N → ℤ₂ˣ`** (memo §3.2(i)): generator values `(x₀, x₁, σ, x₂) ↦ (1, v, 1, 1)`,
+`v = −(1 + 2^α)⁻¹`. -/
+noncomputable def chiN (α h : ℕ) : ContinuousMonoidHom (DN α h : Type) ℤ_[2]ˣ :=
+  nLiftHom α h isProP_two_unitsPadicInt (coreMark 1 (nUnit α) 1 1) (by
+    rw [nRelWord_comm, coreMark_zero, one_pow])
+
+@[simp] theorem chiM_dmA (α h : ℕ) : chiM α h (dmA α h) = 1 := by
+  rw [dmA, chiM, mLiftHom_gen, coreMark_zero]
+@[simp] theorem chiM_dmB (α h : ℕ) : chiM α h (dmB α h) = -1 := by
+  rw [dmB, chiM, mLiftHom_gen, coreMark_one]
+@[simp] theorem chiM_dmC (α h : ℕ) : chiM α h (dmC α h) = 1 := by
+  rw [dmC, chiM, mLiftHom_gen, coreMark_two]
+@[simp] theorem chiM_dmD (α h : ℕ) : chiM α h (dmD α h) = mUnit α := by
+  rw [dmD, chiM, mLiftHom_gen, coreMark_three]
+@[simp] theorem chiM_handleU (α h : ℕ) (j : Fin h) : chiM α h (dmGen α h (handleIdxU j)) = 1 := by
+  rw [chiM, mLiftHom_gen, coreMark_handleU]
+@[simp] theorem chiM_handleV (α h : ℕ) (j : Fin h) : chiM α h (dmGen α h (handleIdxV j)) = 1 := by
+  rw [chiM, mLiftHom_gen, coreMark_handleV]
+
+@[simp] theorem chiN_dnX0 (α h : ℕ) : chiN α h (dnX0 α h) = 1 := by
+  rw [dnX0, chiN, nLiftHom_gen, coreMark_zero]
+@[simp] theorem chiN_dnX1 (α h : ℕ) : chiN α h (dnX1 α h) = nUnit α := by
+  rw [dnX1, chiN, nLiftHom_gen, coreMark_one]
+@[simp] theorem chiN_dnSigma (α h : ℕ) : chiN α h (dnSigma α h) = 1 := by
+  rw [dnSigma, chiN, nLiftHom_gen, coreMark_two]
+@[simp] theorem chiN_dnX2 (α h : ℕ) : chiN α h (dnX2 α h) = 1 := by
+  rw [dnX2, chiN, nLiftHom_gen, coreMark_three]
+@[simp] theorem chiN_handleU (α h : ℕ) (j : Fin h) : chiN α h (dnGen α h (handleIdxU j)) = 1 := by
+  rw [chiN, nLiftHom_gen, coreMark_handleU]
+@[simp] theorem chiN_handleV (α h : ℕ) (j : Fin h) : chiN α h (dnGen α h (handleIdxV j)) = 1 := by
+  rw [chiN, nLiftHom_gen, coreMark_handleV]
+
+/-- **`χ_M` is the canonical Labute orientation** of the `M_α` core: its generator values form
+a Labute orientation datum (memo §2.2(i)). -/
+theorem chiM_isLabuteOrientationDatum {α : ℕ} (h : ℕ) (hα : 1 ≤ α) :
+    IsLabuteOrientationDatumM α (chiM α h (dmA α h)) (chiM α h (dmB α h))
+      (chiM α h (dmC α h)) (chiM α h (dmD α h)) := by
+  rw [chiM_dmA, chiM_dmB, chiM_dmC, chiM_dmD]
+  exact isLabuteOrientationDatumM_mUnit hα
+
+/-- **`χ_N` is the canonical Labute orientation** of the `N_α` core (memo §3.2(i)). -/
+theorem chiN_isLabuteOrientationDatum {α : ℕ} (h : ℕ) (hα : 1 ≤ α) :
+    IsLabuteOrientationDatumN α (chiN α h (dnX0 α h)) (chiN α h (dnX1 α h))
+      (chiN α h (dnSigma α h)) (chiN α h (dnX2 α h)) := by
+  rw [chiN_dnX0, chiN_dnX1, chiN_dnSigma, chiN_dnX2]
+  exact isLabuteOrientationDatumN_nUnit hα
+
+/-! ### The unramified markings `ν_M`, `ν_N`
+
+Packet normalisation `ν_P(σ) = 1`, `ν_P(x_i) = 0` (memo §6.1), with `σ` the **third** letter in
+both memo namings (`C₀` for `M`, `σ` itself for `N`).  For `M` the `A`-value is *forced* by the
+abelianized relation `2Ā + 2^αC̄₀ = 0`: `ν_M(A) = −m`, `m = 2^{α−1}` — memo §2.6 at `r = 0`,
+where the free consistency check `ν(t) = ν(A) + mν(C₀) = 0` is exactly this equation.
+
+**Deviation (recorded):** the memo writes the target as `Ztwo = maxProPQuotient 2 ℤ̂`
+(`GQ2/BoundaryFrame.lean:162`, the `nuDR` pattern).  We land in `Multiplicative ℤ_[2]`, to which
+`Ztwo` is continuously isomorphic by `ztwoEquivPadic` (`GQ2/ZtwoPowering.lean:302`); the
+additive `ℤ₂`-form is what the frame computations of memo §2.6/§3.6 consume. -/
+
+/-- **`ν_M : D_M → ℤ₂`** (memo §6.1, §2.6 at the compact row `r = 0`): `A ↦ −2^{α−1}`,
+`B ↦ 0`, `C₀ ↦ 1`, `D ↦ 0`, handles `↦ 0`.  The `A`-value is forced by `2Ā + 2^αC̄₀ = 0`. -/
+noncomputable def nuM (α h : ℕ) (hα : 1 ≤ α) :
+    ContinuousMonoidHom (DM α h : Type) (Multiplicative ℤ_[2]) :=
+  mLiftHom α h PropOneOne.isProP_two_multPadicInt
+    (coreMark (ofAdd (-(2 : ℤ_[2]) ^ (α - 1))) (ofAdd 0) (ofAdd 1) (ofAdd 0)) (by
+      obtain ⟨k, rfl⟩ : ∃ k, α = k + 1 := ⟨α - 1, by omega⟩
+      rw [mRelWord_comm, coreMark_zero, coreMark_two,
+        ← ofAdd_nsmul, ← ofAdd_nsmul, ← ofAdd_add, ← ofAdd_zero]
+      congr 1
+      simp only [Nat.add_sub_cancel, nsmul_eq_mul, mul_one, pow_succ]
+      push_cast
+      ring)
+
+/-- **`ν_N : D_N → ℤ₂`** (memo §3.6, compact row `r = 0`): `x₀ ↦ 0`, `x₁ ↦ 0`, `σ ↦ 1`,
+`x₂ ↦ 0`, handles `↦ 0`.  No forced row. -/
+noncomputable def nuN (α h : ℕ) : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]) :=
+  nLiftHom α h PropOneOne.isProP_two_multPadicInt
+    (coreMark (ofAdd 0) (ofAdd 0) (ofAdd 1) (ofAdd 0)) (by
+      rw [nRelWord_comm, coreMark_zero, ← ofAdd_nsmul, ← ofAdd_zero]
+      congr 1
+      simp)
+
+@[simp] theorem nuM_dmA (α h : ℕ) (hα : 1 ≤ α) : nuM α h hα (dmA α h) = ofAdd (-(2 : ℤ_[2]) ^ (α - 1)) := by
+  rw [dmA, nuM, mLiftHom_gen, coreMark_zero]
+@[simp] theorem nuM_dmB (α h : ℕ) (hα : 1 ≤ α) : nuM α h hα (dmB α h) = ofAdd 0 := by
+  rw [dmB, nuM, mLiftHom_gen, coreMark_one]
+@[simp] theorem nuM_dmC (α h : ℕ) (hα : 1 ≤ α) : nuM α h hα (dmC α h) = ofAdd 1 := by
+  rw [dmC, nuM, mLiftHom_gen, coreMark_two]
+@[simp] theorem nuM_dmD (α h : ℕ) (hα : 1 ≤ α) : nuM α h hα (dmD α h) = ofAdd 0 := by
+  rw [dmD, nuM, mLiftHom_gen, coreMark_three]
+
+@[simp] theorem nuN_dnX0 (α h : ℕ) : nuN α h (dnX0 α h) = ofAdd 0 := by
+  rw [dnX0, nuN, nLiftHom_gen, coreMark_zero]
+@[simp] theorem nuN_dnX1 (α h : ℕ) : nuN α h (dnX1 α h) = ofAdd 0 := by
+  rw [dnX1, nuN, nLiftHom_gen, coreMark_one]
+@[simp] theorem nuN_dnSigma (α h : ℕ) : nuN α h (dnSigma α h) = ofAdd 1 := by
+  rw [dnSigma, nuN, nLiftHom_gen, coreMark_two]
+@[simp] theorem nuN_dnX2 (α h : ℕ) : nuN α h (dnX2 α h) = ofAdd 0 := by
+  rw [dnX2, nuN, nLiftHom_gen, coreMark_three]
+
+/-- **The `ν(t) = 0` consistency check for `M`** (memo §2.6): the torsion generator
+`t = A·C₀^{2^{α−1}}` of the `M`-frame has `ν_M(t) = ν_M(A) + 2^{α−1}·ν_M(C₀) = 0`, as it must
+(`t` is torsion and `ℤ₂` is torsion-free).  This is a free check on the whole change of
+variables, and it passes. -/
+theorem nuM_torsionGen (α h : ℕ) (hα : 1 ≤ α) :
+    nuM α h hα (dmA α h * dmC α h ^ (2 ^ (α - 1))) = 1 := by
+  rw [map_mul, map_pow, nuM_dmA, nuM_dmC, ← ofAdd_nsmul, ← ofAdd_add, ← ofAdd_zero]
+  congr 1
+  simp
+
 end MarkedCore
 
 end Dyadic
