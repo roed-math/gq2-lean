@@ -203,12 +203,13 @@ theorem quotient_zpowers_isCyclic_of_tame {s t : C} [(Subgroup.zpowers t).Normal
 plan): its intersection with the odd inertia `⟨t⟩` is trivial by coprimality, so it embeds in
 the cyclic quotient `C/⟨t⟩`.  In particular the Sylow 2-subgroup in
 `sylow_split_pair_of_ramified` is cyclic. -/
-theorem isCyclic_of_isPGroup_two_of_tame {s t : C}
-    (hgen : Subgroup.closure {s, t} = ⊤) (hrel : s⁻¹ * t * s = t ^ 2)
+theorem isCyclic_of_isPGroup_two_of_odd_normal {s t : C}
+    (hgen : Subgroup.closure {s, t} = ⊤)
+    (hTnorm : (Subgroup.zpowers t).Normal) (hTodd : Odd (orderOf t))
     (Q : Subgroup C) (hQ : IsPGroup 2 Q) : IsCyclic ↥Q := by
-  haveI : (Subgroup.zpowers t).Normal := Tame.zpowers_normal_of_tame hgen hrel
+  haveI : (Subgroup.zpowers t).Normal := hTnorm
   haveI := quotient_zpowers_isCyclic_of_tame hgen
-  have hodd : Odd (orderOf t) := Tame.tame_odd_order (orderOf_pos s).ne' hrel
+  have hodd : Odd (orderOf t) := hTodd
   have hbot : Q ⊓ Subgroup.zpowers t = ⊥ := by
     refine disjoint_iff.mp (Subgroup.disjoint_of_coprime_natCard ?_)
     obtain ⟨k, hk⟩ := hQ.exists_card_eq
@@ -226,17 +227,18 @@ theorem isCyclic_of_isPGroup_two_of_tame {s t : C}
   rw [hbot, Subgroup.mem_bot] at hxQ
   exact Subtype.ext hxQ
 
+omit [Finite C] in
 /-- **The inertia fixed space vanishes on a ramified simple module**: `{v | t • v = v}` is a
 `C`-stable additive subgroup (conjugates of `t` lie in the normal `⟨t⟩`, and the stabilizer of
 a fixed vector contains all of `⟨t⟩`), so simplicity forces it to be `⊥` — it is not `⊤`
 because the module is ramified. -/
-theorem fixedPoints_tame_inertia_eq_zero
+theorem fixedPoints_tame_inertia_eq_zero_of_normal
     {V : Type} [AddCommGroup V] [DistribMulAction C V]
-    {s t : C} (hgen : Subgroup.closure {s, t} = ⊤) (hrel : s⁻¹ * t * s = t ^ 2)
+    {t : C} (hTnorm : (Subgroup.zpowers t).Normal)
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
     (hram : ∃ v : V, t • v ≠ v) :
     ∀ v : V, t • v = v → v = 0 := by
-  haveI hnorm : (Subgroup.zpowers t).Normal := Tame.zpowers_normal_of_tame hgen hrel
+  haveI hnorm : (Subgroup.zpowers t).Normal := hTnorm
   set W : AddSubgroup V :=
     { carrier := {v | t • v = v}
       zero_mem' := smul_zero t
