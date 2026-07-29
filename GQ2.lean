@@ -239,3 +239,6 @@ import GQ2.GaussZ.RelatorGammaR
 import GQ2.GaussZ.CoordGammaR
 import GQ2.GaussZ.GammaRD
 import GQ2.Roe.Main
+
+-- Dyadic campaign (general 2-adic fields) — see docs/dyadic/
+import GQ2.Dyadic.Word.Blocks
