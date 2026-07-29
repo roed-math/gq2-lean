@@ -240,6 +240,45 @@ to `master` only at owner gate G3.
   cloned INSIDE the two files (RepIndependence trio, LocalKummer conj block) — not separately
   assigned by the memo; RepIndependence.kappa0_cocycle/innerConj/etaS + all of OrbitData
   consumed verbatim (ambient-free already).
+- 2026-07-29 (orchestrator, F3 outcomes): audit green (3394 jobs with MC2, census 9). Adopted:
+  (i) ⚠ **general-q center correction (load-bearing)**: Fermat levels have
+  `Z(C_{q^{2^k}−1} ⋊ C_{2^k}) ≅ C_{q−1}` — NOT trivial as in the q = 2 proof; argument
+  survives because q−1 is odd (landed `fermatQ_central_pow_eq_one`); Prop32's
+  `Subsingleton (GFermat 0)` shortcut also vanishes (handled by `uq_pow_val_one`) — anyone
+  transcribing Prop32 hits both. (ii) ⚠ **AX4 memo §4 arithmetic corrected before G-AX**:
+  memo quoted #Hom(T₄,ℤ/3) = 3 vs #Hom(T₂,ℤ/3) = 1 — those are the INERTIA-SLOT counts; true
+  continuous-hom counts are 9 and 3 (free Ẑ-coordinate contributes 3 unconditionally). Both
+  separate q = 2 from 4; F3 landed BOTH forms by kernel decide + `hom_count_distinguishes_tq_two_four`;
+  orchestrator correction note added to `ax4-proposal.md`. (iii) `o2_Tq_eq_bot` needs only
+  `2 ≤ q ∧ Even q` (stated at that generality). (iv) Duplication forced by the split
+  (TameQ.odd_order/zpowers_normal + TopGen.* restate PJ1/SectionThree — import-height forced;
+  distinct names) — DE-DUP CANDIDATE for a later pass: PJ1's two leaves are Mathlib-only and
+  could move into TameQuotientK with Projectivity importing the leaf. (v) Prop 3.4(2) landed
+  in UNIVERSAL-PROPERTY form (iff: a pro-2 marking extends over Γ_R iff it kills τ and
+  pro2 R) — deliberate while words are unfrozen; constructing D_P later is a formality;
+  `KillsWild` is the semantic Gate-B admissibility interface (`killsWild_iff_killWild`
+  bridges to F2's syntactic operator). (vi) For AX-lane/G-AX: **nothing blocks the flip from
+  F3's side**. (vii) For LG3: `gen_tq_quotient` ready; bonus exports
+  `zpowHat_omega2_eq_self_of_isProP`, `map_eq_one_of_nuTq_eq_one`. (viii) For SD1: degree-one
+  type field is `Tq (qOf K FF)`; refl-bridge means the ℚ₂ record instantiation needs no
+  transport.
+- 2026-07-29 (orchestrator, MC2 outcomes): adopted: (i) rank via handle count `h`
+  (`coreRank h = 4 + 2h`) instead of bare n — `Fin (n+2)` literal wrap at n < 2 is real;
+  MC3–MC5 prompts use `h`. (ii) `ν` targets `Multiplicative ℤ_[2]` (memo's Ztwo isomorphic);
+  `nuM` needs `1 ≤ α` (genuinely: at α = 0 the abelianized relation has no solution with
+  ν(C₀) = 1). (iii) Orientation iffs landed UNCONDITIONALLY (stronger than memo skeleton).
+  (iv) Frame-existence `Nonempty` theorems (phiEquiv route, ≈300 ln/core) deferred — MC3/MC4
+  consume frames as hypotheses per the BDecomposition precedent; ACCEPTED. (v) ⚠ **infra gap
+  (new ticket needed before MC5/branch-word cohomology)**: `DRWordCoh`'s `relZ`/`obsH2` layer
+  is hard-wired to `drWord`/`Fin 3` — a relator-generic `obsH2` port (~900 ln) is a separate
+  ticket; §6's `IsCupCocycle` layer already supplies the mathematical content it would
+  consume. Related: `GQ2/WordCoh2.lean` is non-module (why DRWordCoh re-derived it) —
+  hoisting `TwoCocycle`/`CentExt`/`comap`/`projExt` into a module file would let rank-generic
+  `relZ` be written once over the `GQ2/Dyadic/Word/` layer. (vi) ⚠ **stale-comment find,
+  owner-relevant**: `GQ2/Orientation.lean:48` justifies the `chiTwo` axiom by "avoids an
+  `IsProP 2 ℤ₂ˣ` development" — that development NOW EXISTS
+  (`GQ2/ZtwoPowering.lean:559`); a census-9 → 8 elimination spike is plausible; OWNER CALL
+  (G-AX territory), not executed.
 
 ## Obligation tracker
 
@@ -262,7 +301,7 @@ to `master` only at owner gate G3.
 | F0 | campaign setup: branch, worktree, refs, surveys, plan, board | — (orchestrator) | `docs/dyadic/**` | — | **done 2026-07-28** |
 | F1 | parameters, semantic generators, markings, branch data | opus | `GQ2/Dyadic/Parameters.lean` | — | **done 2026-07-29** (f7c8d05 → merged; 906 ln, 163 decls, 0 sorries, std-3; module-style; η:ℤ₂ˣ + etaUnit hook, ε:Bool; Marking n FunLike + n=1 equivQ2 adapter; equivFin fixes Fox column order; import registered by orchestrator; independently re-typechecked) |
 | F2 | reflected profinite word syntax + ω₂ finite evaluation | opus (was fable) | `GQ2/Dyadic/Word/Syntax.lean`, `GQ2/Dyadic/Word/Eval.lean` | F1 | **done 2026-07-29** (6882edb → merged 25e0953, imports registered c9da9dd; 684+772 ln, 0 sorries, std-3 on 37 decls; **etaHatZ BUILT** (~110 ln on Zhat — no gap, no hypothesis threading); quadruple generic (`eval_eq_evalFin`, `ResolvedAt`/`_of_dvd`, `map_eval*`, `eval_map_eq_one_iff`) + `eval_subst`/`eval_pro2`/`eval_killWild` soundness + Gate-B T1/T2 as theorems; n=1 Γ_A stress by `rfl` + zmod8 genuine-ω₂ pin; wave-boundary audit green (3388 jobs, census 9, check-5 ran); z2pow ratification + gotchas in log) |
-| F3 | tame quotient at general q + boundary specializations + relative Goursat | opus | `GQ2/Dyadic/TameBoundary.lean` | F1, F2 | pending |
+| F3 | tame quotient at general q + boundary specializations + relative Goursat | opus | `GQ2/Dyadic/{TameQuotientK,TameBoundary}.lean` (split per AX4 Q4) | F1, F2 | **done 2026-07-29** (d8338ca+2bbce88+e23facd → merged, imports registered 456843a; 2017 ln, 0 sorries, 143 decls swept std-3 (B5/B10 do NOT leak despite BoundaryFrame import); audit green 3394 jobs; leaf closure = STRICT SUBSET of Axioms.lean's 31 modules, mock-AX4 elaboration green — **AX4 R5 discharged**; `tq_two_equiv` is literally `refl` (R7 closed, no second tame copy); mandated exports landed (+`[DiscreteTopology H]` on gen_tq_quotient); Lem 3.1/3.2/3.3 + Prop 3.4 (universal-property form) + Thm 3.5; ⚠ general-q center correction + AX4-memo arithmetic fix in log) |
 | F4 | arithmetic branches: (C,I,λ,γ), sign-row exclusion, √-10 corollary | opus | `GQ2/Dyadic/Branches.lean` | F1 | **done 2026-07-29** (5d4cddf on `dyadic-f4` → merged, import registered 1de39d6; 848 ln, std-3 on all 37 decls (no literature-axiom leaks), audit green 3389 jobs; `CyclotomicFrobeniusDatum`+`MarkedSplitting`, Prop 8.1 via `classification_of_even`, Cor 8.2 √-10 `(r,ε,η)=(1,1,1)` pins, both-directions η adapter, ε-∀-quantified exhaustiveness + `eps_both_occur`; **r=2 mock bundle with u⁻¹ swap discrimination**; MarkedRecip clause = `unramified_of_even` binder (census untouched, pre-G-AX auditable); CoV gap NOT hit; findings in log) |
 | F5 | finite-target sanity harness (python) | opus | `scripts/dyadic_sanity_counts.py` | — | pending |
 | F6 | gates infra: `check_dyadic.sh`, allowlist workflow, docs index link | opus | `scripts/check_dyadic.sh`, `docs/README.md` (one line) | — | **done 2026-07-29** (1d6fd7d → merged; check_dyadic.sh 289 ln: D1 delegate + D2 obligation guard (continuation-line-aware, fails on untracked) + D3 sign-row guard (declarations only) + D4/D5 WW5/F5 hooks; all green 2.2s; docs index line added) |
@@ -361,7 +400,7 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
 | MC1 | design memo: rank-four frames, Smith–Witt stabilizer generators, lifting strategy | opus (was fable) | `docs/dyadic/mc-design.md` | recon/mc-survey | **done 2026-07-29** (a2ed4c5 → merged a296a7a; 876-ln memo: closed-form frames+orientations for both cores (M = ℚ₂ re-index under 2↦m, N = new no-forced-row frame), 7/6 Nielsen families, **three-strata lifting** (S1 Nielsen ✓ / S2 via B8 / S3 mixing = Labute content → `MMixHypothesis`/`NMixHypothesis` binders), G-Lab sheet rec = stay parametrized; ⚠ torsion-premise correction + compact-M CoV gap + packet-§14 criterion flag — see log; owner Qs 1–6 in memo §9) |
-| MC2 | presented cores D_P, characters, abelian 4-frames | opus | `GQ2/Dyadic/MarkedCore/Cores.lean` | MC1, F1 | pending |
+| MC2 | presented cores D_P, characters, abelian 4-frames | opus | `GQ2/Dyadic/MarkedCore/Cores.lean` | MC1, F1 | **done 2026-07-29** (7ccb3b2 → merged, import registered; 1907 ln, 0 sorries, 30 headline decls std-3 — **B8 threaded as explicit `PeripheralCyclotomicAction` hypothesis, census axiom NOT consumed** (enters only at MC3/MC4); audit green 3394 jobs; **memo closed forms verified EXACTLY incl. uniqueness** (no-Hensel confirmed); α-independent cup Gram both cores; mod-4 `diagCoeff` rule + `IsCupCocycle` layer = the reusable exponent asset; both §10 assets landed (`IsFreePro2Pair`, `peripheralTriple_scaling` ×4 instantiations); deviations + 2 infra gaps + stale-comment find in log) |
 | MC3 | **MC-M**: classification + lifting for `M_α` (uniform in α) | fable | `GQ2/Dyadic/MarkedCore/M.lean` | MC2 | pending |
 | MC4 | **MC-N**: classification + lifting for `N_α` (uniform in α) | fable | `GQ2/Dyadic/MarkedCore/N.lean` | MC2 | pending |
 | MC5 | handles + `MarkedCoreCertificate` + marked-matching reduction | opus | `GQ2/Dyadic/MarkedCore/Certificate.lean` | MC3, MC4 | pending |

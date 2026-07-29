@@ -510,6 +510,15 @@ Consequences for the implementation, both of which belong in the acceptance crit
   target is doing work, and it is simultaneously the proof that an unpinned `f` would be
   inconsistent.
 
+  > **Correction (orchestrator, 2026-07-29, at F3 merge — read before G-AX sign-off).** The
+  > counts quoted above are the **inertia-slot** counts `#Hom(ℤ/(q−1), ℤ/3)` (1 and 3). The
+  > full *continuous-hom* counts are `#Hom_cont(T_2, ℤ/3) = 3` and `#Hom_cont(T_4, ℤ/3) = 9`:
+  > `Hom_cont(T_q, ℤ/3) ≃ {(a,b) : b^{q−1} = 1}`, and the free `Ẑ`-coordinate contributes
+  > `Hom_cont(Ẑ, ℤ/3) ≅ ℤ/3` unconditionally. Both forms separate `q = 2` from `q = 4`, so
+  > the R2 guard stands unchanged. F3 landed **both** forms by kernel `decide`:
+  > `card_hom_tq_zmodThree_two/four` (= 3/9) and `card_tqTau_slot_zmodThree_two/four`
+  > (= 1/3), plus `hom_count_distinguishes_tq_two_four` (`GQ2/Dyadic/TameQuotientK.lean`).
+
 ---
 
 ## 5. Interim binder spellings (pre-flip)
