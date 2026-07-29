@@ -70,6 +70,16 @@ to `master` only at owner gate G3.
   G-Lab timing preference (the per-core hypothesis route lets all other lanes proceed
   regardless); flag any model-budget constraints (board defaults fable to the hard seams only).
   **G0 now sits behind G-1** except for any word-independent lanes the owner releases early.
+- **2026-07-29 (owner): word-independent lanes RELEASED** (in parallel with the simplification
+  campaign): F1, MC1, LG1, AX1/AX3/AX5 dispatched. Wave-1 protocol refinements: (a) `GQ2.lean`
+  is orchestrator-only for now — workers do NOT add import lines; the orchestrator adds them at
+  merge (avoids cross-branch conflicts); (b) wave-1 Lean tickets typecheck their new leaf files
+  via `cd ~/claude/gq2-lean && lake env lean <abs-path-to-file>` against the main checkout's
+  built environment — no `lake build` / no `lake exe cache get` in lane worktrees yet; full
+  library builds happen at wave boundaries; (c) AX memo tickets share worktree
+  `~/claude/gq2-dyadic-ax` (branch `dyadic-ax`), committing strictly path-limited single files
+  (retry politely on `index.lock`); MC1/LG1 get their lane worktrees (`dyadic-mc`, `dyadic-lg`);
+  F1 in `dyadic-f`; S1.9 (simplification ticket landing here) in `dyadic-ww`.
 
 ## Obligation tracker
 
@@ -90,7 +100,7 @@ to `master` only at owner gate G3.
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
 | F0 | campaign setup: branch, worktree, refs, surveys, plan, board | — (orchestrator) | `docs/dyadic/**` | — | **done 2026-07-28** |
-| F1 | parameters, semantic generators, markings, branch data | opus | `GQ2/Dyadic/Parameters.lean` | — | pending |
+| F1 | parameters, semantic generators, markings, branch data | opus | `GQ2/Dyadic/Parameters.lean` | — | **dispatched 2026-07-29** |
 | F2 | reflected profinite word syntax + ω₂ finite evaluation | fable | `GQ2/Dyadic/Word/Syntax.lean`, `GQ2/Dyadic/Word/Eval.lean` | F1 | pending |
 | F3 | tame quotient at general q + boundary specializations + relative Goursat | opus | `GQ2/Dyadic/TameBoundary.lean` | F1, F2 | pending |
 | F4 | arithmetic branches: (C,I,λ,γ), sign-row exclusion, √-10 corollary | opus | `GQ2/Dyadic/Branches.lean` | F1 | pending |
@@ -190,7 +200,7 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| MC1 | design memo: rank-four frames, Smith–Witt stabilizer generators, lifting strategy | fable | `docs/dyadic/mc-design.md` | recon/mc-survey | pending |
+| MC1 | design memo: rank-four frames, Smith–Witt stabilizer generators, lifting strategy | fable | `docs/dyadic/mc-design.md` | recon/mc-survey | **dispatched 2026-07-29** |
 | MC2 | presented cores D_P, characters, abelian 4-frames | opus | `GQ2/Dyadic/MarkedCore/Cores.lean` | MC1, F1 | pending |
 | MC3 | **MC-M**: classification + lifting for `M_α` (uniform in α) | fable | `GQ2/Dyadic/MarkedCore/M.lean` | MC2 | pending |
 | MC4 | **MC-N**: classification + lifting for `N_α` (uniform in α) | fable | `GQ2/Dyadic/MarkedCore/N.lean` | MC2 | pending |
@@ -233,7 +243,7 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| LG1 | design memo: rebase map + Euler-char derivation spike | fable | `docs/dyadic/lg-design.md` | recon/lg-survey | pending |
+| LG1 | design memo: rebase map + Euler-char derivation spike | fable | `docs/dyadic/lg-design.md` | recon/lg-survey | **dispatched 2026-07-29** |
 | LG2 | group-generic `Q⁰` + polarization over a local dualizing source | opus | `GQ2/Dyadic/LocalGauss/Q0.lean` (+clone-retype list per LG1) | LG1 | pending |
 | LG3 | unramified sign `(−1)^n 2^{nd/2}` (Hermitian rank-n) | opus | `GQ2/Dyadic/LocalGauss/Unramified.lean` | LG2, AX2 | pending |
 | LG4 | **deep-unit package + ramified sign `+2^{nd/2}`** | fable | `GQ2/Dyadic/LocalGauss/DeepPackage.lean`, `…/Ramified.lean` | LG2 | pending |
@@ -324,11 +334,11 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| AX1 | statement design: `G_K` topological finite generation (NSW 7.4.1) | opus | `docs/dyadic/ax1-proposal.md` | — | pending |
+| AX1 | statement design: `G_K` topological finite generation (NSW 7.4.1) | opus | `docs/dyadic/ax1-proposal.md` | — | **dispatched 2026-07-29** |
 | AX2 | Euler characteristic over `K` — derivation spike verdict, else proposal | opus | `docs/dyadic/ax2-proposal.md` | LG1 | pending |
-| AX3 | marked local reciprocity over `K` (`MarkedRecip`: full ν_ur + `(C,I,λ,γ)`) | fable | `docs/dyadic/ax3-proposal.md` | — | pending |
+| AX3 | marked local reciprocity over `K` (`MarkedRecip`: full ν_ur + `(C,I,λ,γ)`) | fable | `docs/dyadic/ax3-proposal.md` | — | **dispatched 2026-07-29** |
 | AX4 | oriented tame quotient of `G_K` at `q_K` | opus | `docs/dyadic/ax4-proposal.md` | AX3 | pending |
-| AX5 | ramified-simple projectivity — try-prove-first, else proposal | opus | `docs/dyadic/ax5-proposal.md` (+`GQ2/Dyadic/Projectivity.lean` if proved) | — | pending |
+| AX5 | ramified-simple projectivity — try-prove-first, else proposal | opus | `docs/dyadic/ax5-proposal.md` (+`GQ2/Dyadic/Projectivity.lean` if proved) | — | **dispatched 2026-07-29** |
 
 Protocol per AX ticket: memo with exact Lean statement + citation + normalization notes +
 consumers → owner sign-off (**G-AX**) → census flip commit (statement into
