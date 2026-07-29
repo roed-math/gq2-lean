@@ -80,6 +80,15 @@ to `master` only at owner gate G3.
   `~/claude/gq2-dyadic-ax` (branch `dyadic-ax`), committing strictly path-limited single files
   (retry politely on `index.lock`); MC1/LG1 get their lane worktrees (`dyadic-mc`, `dyadic-lg`);
   F1 in `dyadic-f`; S1.9 (simplification ticket landing here) in `dyadic-ww`.
+- 2026-07-29 (orchestrator, F1 merge notes): F1 landed (see row). Two F1 discoveries logged:
+  (i) **draft §7.3's ℚ₂(√10) word has B = x₁, i.e. p = 0, i.e. ε = false** — both ε values
+  occur on the Mpc row (WMP must handle both; the packet's √-10 is ε = true); (ii) η lives as
+  `ℤ_[2]ˣ` with `etaUnit r η : (ZMod (2^r))ˣ` as the λ(u)-comparison hook — F4 needs one
+  Units↔Multiplicative adapter against draft §10.2's `Multiplicative (ZMod (2^r))` spelling.
+  G1 status: F1 half of the API freeze is in; F2 dispatches after simp-S1.3 lands (its PWord
+  mirrors the now-frozen S1.1 grammar + S1.3's specialization semantics). F6 dispatched
+  (lane F worktree, sequential). `check_axioms.sh` green on the merged branch (census 9;
+  check 5 skipped — library not built here; full build deferred to wave boundary as logged).
 
 ## Obligation tracker
 
@@ -100,12 +109,12 @@ to `master` only at owner gate G3.
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
 | F0 | campaign setup: branch, worktree, refs, surveys, plan, board | — (orchestrator) | `docs/dyadic/**` | — | **done 2026-07-28** |
-| F1 | parameters, semantic generators, markings, branch data | opus | `GQ2/Dyadic/Parameters.lean` | — | **dispatched 2026-07-29** |
+| F1 | parameters, semantic generators, markings, branch data | opus | `GQ2/Dyadic/Parameters.lean` | — | **done 2026-07-29** (f7c8d05 → merged; 906 ln, 163 decls, 0 sorries, std-3; module-style; η:ℤ₂ˣ + etaUnit hook, ε:Bool; Marking n FunLike + n=1 equivQ2 adapter; equivFin fixes Fox column order; import registered by orchestrator; independently re-typechecked) |
 | F2 | reflected profinite word syntax + ω₂ finite evaluation | fable | `GQ2/Dyadic/Word/Syntax.lean`, `GQ2/Dyadic/Word/Eval.lean` | F1 | pending |
 | F3 | tame quotient at general q + boundary specializations + relative Goursat | opus | `GQ2/Dyadic/TameBoundary.lean` | F1, F2 | pending |
 | F4 | arithmetic branches: (C,I,λ,γ), sign-row exclusion, √-10 corollary | opus | `GQ2/Dyadic/Branches.lean` | F1 | pending |
 | F5 | finite-target sanity harness (python) | opus | `scripts/dyadic_sanity_counts.py` | — | pending |
-| F6 | gates infra: `check_dyadic.sh`, allowlist workflow, docs index link | opus | `scripts/check_dyadic.sh`, `docs/README.md` (one line) | — | pending |
+| F6 | gates infra: `check_dyadic.sh`, allowlist workflow, docs index link | opus | `scripts/check_dyadic.sh`, `docs/README.md` (one line) | — | **dispatched 2026-07-29** |
 
 **Ticket specs.**
 - **F1**: `FieldParameters` (`n`, `f`, `qK = 2^f`, `1 ≤ n`), `LabuteType (L | M α | N α)`
