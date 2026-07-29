@@ -151,6 +151,12 @@ to `master` only at owner gate G3.
   `~/claude/handoffs/gq2-dyadic-campaigns-2026-07-29.md`** — re-dispatch prompts for the four
   killed tickets (on **opus**), the full decision record, open gates (G-AX, G-Lab, G2, R1), and
   the trap list. Merged worktrees pruned; lane worktrees retained.
+- 2026-07-29 (orchestrator, RESUMED session): **wave A re-dispatched on opus** — MC1
+  (`gq2-dyadic-mc`) and F2 (`gq2-dyadic-ww`), lane branches synced to dyadic (0ed4244) first.
+  F2 protocol adaptation: because Syntax/Eval chain, the leaf-typecheck rule is replaced for
+  this ticket by `lake exe cache get` + `lake build GQ2.Dyadic.Word.{Syntax,Eval}` in the ww
+  worktree (builds only the import closure). pj audit worktree synced + build pre-warmed.
+  S1.4/S1.5/S1.7 re-dispatched on the simplification board simultaneously.
 
 ## Obligation tracker
 
@@ -172,7 +178,7 @@ to `master` only at owner gate G3.
 |---|---|---|---|---|---|
 | F0 | campaign setup: branch, worktree, refs, surveys, plan, board | — (orchestrator) | `docs/dyadic/**` | — | **done 2026-07-28** |
 | F1 | parameters, semantic generators, markings, branch data | opus | `GQ2/Dyadic/Parameters.lean` | — | **done 2026-07-29** (f7c8d05 → merged; 906 ln, 163 decls, 0 sorries, std-3; module-style; η:ℤ₂ˣ + etaUnit hook, ε:Bool; Marking n FunLike + n=1 equivQ2 adapter; equivFin fixes Fox column order; import registered by orchestrator; independently re-typechecked) |
-| F2 | reflected profinite word syntax + ω₂ finite evaluation | fable | `GQ2/Dyadic/Word/Syntax.lean`, `GQ2/Dyadic/Word/Eval.lean` | F1 | **FAILED 2026-07-29 — RE-DISPATCH (fable spend limit)**; nothing written; worktree `gq2-dyadic-ww` clean. Re-dispatch on **opus**, prompt in handoff §5 (add S1.M note: EtaHat pairs are now canonical on the Python side) |
+| F2 | reflected profinite word syntax + ω₂ finite evaluation | opus (was fable) | `GQ2/Dyadic/Word/Syntax.lean`, `GQ2/Dyadic/Word/Eval.lean` | F1 | **re-dispatched 2026-07-29 (opus)** with S1.M EtaHat-canonical note + build-in-worktree protocol adaptation (see log) |
 | F3 | tame quotient at general q + boundary specializations + relative Goursat | opus | `GQ2/Dyadic/TameBoundary.lean` | F1, F2 | pending |
 | F4 | arithmetic branches: (C,I,λ,γ), sign-row exclusion, √-10 corollary | opus | `GQ2/Dyadic/Branches.lean` | F1 | pending |
 | F5 | finite-target sanity harness (python) | opus | `scripts/dyadic_sanity_counts.py` | — | pending |
@@ -271,7 +277,7 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| MC1 | design memo: rank-four frames, Smith–Witt stabilizer generators, lifting strategy | fable | `docs/dyadic/mc-design.md` | recon/mc-survey | **FAILED 2026-07-29 — RE-DISPATCH (fable spend limit)**; nothing written; worktree `gq2-dyadic-mc` clean. Highest-value pending design ticket; re-dispatch on **opus**, prompt in handoff §5 |
+| MC1 | design memo: rank-four frames, Smith–Witt stabilizer generators, lifting strategy | opus (was fable) | `docs/dyadic/mc-design.md` | recon/mc-survey | **re-dispatched 2026-07-29 (opus)**, worktree synced to 0ed4244 |
 | MC2 | presented cores D_P, characters, abelian 4-frames | opus | `GQ2/Dyadic/MarkedCore/Cores.lean` | MC1, F1 | pending |
 | MC3 | **MC-M**: classification + lifting for `M_α` (uniform in α) | fable | `GQ2/Dyadic/MarkedCore/M.lean` | MC2 | pending |
 | MC4 | **MC-N**: classification + lifting for `N_α` (uniform in α) | fable | `GQ2/Dyadic/MarkedCore/N.lean` | MC2 | pending |
