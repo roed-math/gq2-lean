@@ -889,6 +889,7 @@ theorem inflationVanishes_of_oddNormalK
   simp only [hbbar_spec, sub_eq_zero] at hz
   rw [hz, hρ]
 
+omit [IsTopologicalGroup Γ] in
 /-- **`InflationVanishesK` for a ramified simple tame module at every `q_K = 2^f`** — the
 general-`q` twin of `GQ2.LocalKummer.inflationVanishes_ramifiedTame`.  The inertia subgroup
 `I = ⟨c τ⟩` is normal by **F3's** `TameQ.zpowers_normal` (packet Lem. 3.2) and has odd order by
@@ -919,5 +920,138 @@ theorem inflationVanishes_ramifiedTameQ {f : ℕ} (hf : 1 ≤ f)
   exact inflationVanishes_of_oddNormalK hρ hV2 hsurj (Subgroup.zpowers t) hInorm hIodd hVI
 
 end Inflation
+
+/-! ## §6 The deep-class cup vanishing at the splitting group
+
+The `hvanish` core of the square and free orbit layers (packet Rem. 6.13): the cup of two deep
+block coordinates over `N_K = ker ρ` has trivial `H²`-class.  This is the retype of
+`GQ2.InvolutionSplice.hvanish_cup_ker` (`GQ2/InvolutionSplice.lean` :544).
+
+**Deviation of shape (deliberate, and the reason this fits in LG4a).**  The `ℚ₂` proof *builds*
+the splitting field internally (`GQ2.ResidueLift.splitField ρ` and its
+`fixingSubgroup_splitField`), which is the `ResidueLift` machinery the memo rates MEDIUM-HIGH
+(§2 row 10) and which belongs to the dimension lane.  Here the field is threaded as the `(k, hker)`
+parameter pair instead — exactly the pattern the memo prescribes for the retype ("the `(k, hker)`
+parameter pattern survives as `(L, hker′)` for the splitting field `L ⊇ K`", §2 row 3).  The
+consumer supplies `(k, hker)` once and reuses it for the isotropy splice of §4, which needs the
+identical pair. -/
+
+section CupVanish
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+variable {C : Type} [Group C] [TopologicalSpace C]
+variable (anc : ContinuousMonoidHom Γ GalQ2) (ρ : ContinuousMonoidHom Γ C)
+
+section Rigidity
+
+variable {Θ : Type} [Group Θ] [TopologicalSpace Θ] [IsTopologicalGroup Θ]
+  [DistribMulAction Θ (ZMod 2)] [ContinuousSMul Θ (ZMod 2)]
+
+/-- **Trivial-coefficient rigidity** at a general group: two continuous 1-cocycles with the same
+`H1ofFun` class are equal (`B¹(Θ, 𝔽₂) = 0`).  Local copy of `GQ2.eq_of_H1ofFun_eq`
+(`GQ2/InvolutionSplice.lean`, not imported here); `_dp` suffix to dedup at merge. -/
+theorem eq_of_H1ofFun_eq_dp {φ ψ : Θ → ZMod 2} (hφ : φ ∈ Z1 Θ (ZMod 2))
+    (hψ : ψ ∈ Z1 Θ (ZMod 2)) (h : H1ofFun Θ φ = H1ofFun Θ ψ) : φ = ψ := by
+  rw [H1ofFun_of_mem hφ, H1ofFun_of_mem hψ] at h
+  have h0 : H1mk Θ (ZMod 2) (⟨φ, hφ⟩ - ⟨ψ, hψ⟩) = 0 := by rw [map_sub, h, sub_self]
+  have hmem := (QuotientAddGroup.eq_zero_iff _).mp h0
+  rwa [AddSubgroup.mem_addSubgroupOf, AddSubgroup.coe_sub,
+    B1_eq_bot_of_trivial (fun g m => smul_zmodTwo g m), AddSubgroup.mem_bot, sub_eq_zero] at hmem
+
+end Rigidity
+
+omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
+/-- **Cup-cochain pullback of a coboundary along the anchor.**  If two `𝔽₂`-cochains on `ker ρ`
+are pullbacks of `k`-side cochains whose cup is a coboundary, then their own cup is a coboundary.
+Shared tail of the isotropy splice (§4) and the `hvanish` core below; the two `smul`s that are
+`rfl` at `G_ℚ₂` are collapsed by `smul_zmodTwo` (the LG2 `smul` trap). -/
+theorem cupFun_mem_B2_of_kside (k : IntermediateField ℚ_[2] ℚ̄₂)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    {α β : ↥(ρ.toMonoidHom.ker : Subgroup Γ) → ZMod 2} {a b : ↥k.fixingSubgroup → ZMod 2}
+    (hαa : ∀ n, α n = a (kerToFixingAt anc ρ k hker n))
+    (hβb : ∀ n, β n = b (kerToFixingAt anc ρ k hker n))
+    (hB2 : cup11Fun AddMonoidHom.mul a b ∈ B2 ↥k.fixingSubgroup (ZMod 2)) :
+    cup11Fun AddMonoidHom.mul α β ∈ B2 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) := by
+  obtain ⟨ψ, hψc, hψeq⟩ := hB2
+  refine AddSubgroup.mem_map.mpr
+    ⟨fun n => ψ (kerToFixingAt anc ρ k hker n),
+      mem_C1_iff.mpr ((mem_C1_iff.mp hψc).comp (continuous_kerToFixingAt anc ρ k hker)), ?_⟩
+  funext p
+  have hpt := congrFun hψeq (kerToFixingAt anc ρ k hker p.1, kerToFixingAt anc ρ k hker p.2)
+  show p.1 • ψ (kerToFixingAt anc ρ k hker p.2)
+      - ψ (kerToFixingAt anc ρ k hker (p.1 * p.2))
+      + ψ (kerToFixingAt anc ρ k hker p.1)
+    = AddMonoidHom.mul (α p.1) (p.1 • β p.2)
+  rw [smul_zmodTwo, smul_zmodTwo, kerToFixingAt_mul, hαa, hβb]
+  have hexp : (kerToFixingAt anc ρ k hker p.1) • ψ (kerToFixingAt anc ρ k hker p.2)
+      - ψ (kerToFixingAt anc ρ k hker p.1 * kerToFixingAt anc ρ k hker p.2)
+      + ψ (kerToFixingAt anc ρ k hker p.1)
+    = AddMonoidHom.mul (a (kerToFixingAt anc ρ k hker p.1))
+        ((kerToFixingAt anc ρ k hker p.1) • b (kerToFixingAt anc ρ k hker p.2)) := hpt
+  simp only [smul_zmodTwo] at hexp
+  exact hexp
+
+/-- The deep-class witness *is* the cocycle (trivial-coefficient rigidity): a deep class's
+representative cochain equals the anchored Kummer cocycle of its deep unit, on the nose. -/
+theorem exists_deepUnit_eq_of_mem_deepClassesAt {α : ↥(ρ.toMonoidHom.ker : Subgroup Γ) → ZMod 2}
+    (hαZ1 : α ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2))
+    (hαdeep : H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ) α ∈ deepClassesAt (kerAnc anc ρ)) :
+    ∃ A β : ℚ̄₂, SectionSix.IsDeepUnit (ancSubgroup (kerAnc anc ρ)) A ∧ β ^ 2 = A ∧ β ≠ 0 ∧
+      ∀ n, α n = Kummer.kummerCocycleFun β (kerAnc anc ρ n) := by
+  obtain ⟨A, β, hdeep, hsq, hβ0, hclass⟩ := hαdeep
+  refine ⟨A, β, hdeep, hsq, hβ0, fun n => ?_⟩
+  exact congrFun
+    (eq_of_H1ofFun_eq_dp hαZ1 (kummerAnc_mem_Z1 (kerAnc anc ρ) hsq hβ0 hdeep.2.1) hclass.symm) n
+
+/-- **The square/free `hvanish` over `ker ρ`, at a general local source** —
+`GQ2.InvolutionSplice.hvanish_cup_ker` retyped with the splitting field threaded as `(k, hker)`.
+The cup of two deep block coordinates has trivial `H²ofFun` class; the field-side vanishing is
+the Tier-5 eq.-(94) orthogonality `GQ2.LocalKummer.cup_deepClasses`. -/
+theorem hvanish_cup_ker_K (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (α β : ↥(ρ.toMonoidHom.ker : Subgroup Γ) → ZMod 2)
+    (hαZ1 : α ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2))
+    (hβZ1 : β ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2))
+    (hαdeep : H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ) α ∈ deepClassesAt (kerAnc anc ρ))
+    (hβdeep : H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ) β ∈ deepClassesAt (kerAnc anc ρ)) :
+    H2ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ) (cup11Fun AddMonoidHom.mul α β) = 0 := by
+  have htrivK : ∀ (g : ↥k.fixingSubgroup) (m : ZMod 2), g • m = m := fun _ _ => rfl
+  obtain ⟨A, βA, hdA, hsqA, hβA0, hαeq⟩ := exists_deepUnit_eq_of_mem_deepClassesAt anc ρ hαZ1 hαdeep
+  obtain ⟨B, δB, hdB, hsqB, hδB0, hβeq⟩ := exists_deepUnit_eq_of_mem_deepClassesAt anc ρ hβZ1 hβdeep
+  -- the `k`-side cocycles and their eq.-(94) vanishing
+  have hZ1ka : (fun n : ↥k.fixingSubgroup => Kummer.kummerCocycleFun βA (n : GalQ2))
+      ∈ Z1 ↥k.fixingSubgroup (ZMod 2) :=
+    GQ2.DeepPart.kummerRestrict_mem_Z1 hsqA hβA0 (fun g hg => hdA.2.1 g ((hker g).mpr hg))
+  have hZ1kb : (fun n : ↥k.fixingSubgroup => Kummer.kummerCocycleFun δB (n : GalQ2))
+      ∈ Z1 ↥k.fixingSubgroup (ZMod 2) :=
+    GQ2.DeepPart.kummerRestrict_mem_Z1 hsqB hδB0 (fun g hg => hdB.2.1 g ((hker g).mpr hg))
+  have hcup0 := LocalKummer.cup_deepClasses k htrivK
+    (ξ := H1ofFun ↥k.fixingSubgroup fun n => Kummer.kummerCocycleFun βA (n : GalQ2))
+    (η := H1ofFun ↥k.fixingSubgroup fun n => Kummer.kummerCocycleFun δB (n : GalQ2))
+    ⟨A, βA, isDeepUnit_of_le' (fun g hg => (hker g).mpr hg) hdA, hsqA, hβA0, rfl⟩
+    ⟨B, δB, isDeepUnit_of_le' (fun g hg => (hker g).mpr hg) hdB, hsqB, hδB0, rfl⟩
+  rw [H1ofFun_of_mem hZ1ka, H1ofFun_of_mem hZ1kb] at hcup0
+  have hB2k : cup11Fun (AddMonoidHom.mul)
+      (fun n : ↥k.fixingSubgroup => Kummer.kummerCocycleFun βA (n : GalQ2))
+      (fun n : ↥k.fixingSubgroup => Kummer.kummerCocycleFun δB (n : GalQ2))
+      ∈ B2 ↥k.fixingSubgroup (ZMod 2) := by
+    have h0 : H2mk ↥k.fixingSubgroup (ZMod 2)
+        ⟨cup11Fun (AddMonoidHom.mul)
+            (fun n : ↥k.fixingSubgroup => Kummer.kummerCocycleFun βA (n : GalQ2))
+            (fun n : ↥k.fixingSubgroup => Kummer.kummerCocycleFun δB (n : GalQ2)),
+          cup11_mem_Z2 (AddMonoidHom.mul) (fun g m n => by rw [htrivK, htrivK, htrivK])
+            ⟨_, hZ1ka⟩ ⟨_, hZ1kb⟩⟩ = 0 := hcup0
+    exact AddSubgroup.mem_addSubgroupOf.mp ((QuotientAddGroup.eq_zero_iff _).mp h0)
+  -- pull the coboundary back along the anchor
+  have hB2 := cupFun_mem_B2_of_kside anc ρ k hker (α := α) (β := β) hαeq hβeq hB2k
+  have hZ2 : cup11Fun AddMonoidHom.mul α β
+      ∈ Z2 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) :=
+    cup11_mem_Z2 AddMonoidHom.mul (fun g m n => by rw [smul_zmodTwo, smul_zmodTwo, smul_zmodTwo])
+      ⟨_, hαZ1⟩ ⟨_, hβZ1⟩
+  rw [H2ofFun_of_mem hZ2]
+  exact (QuotientAddGroup.eq_zero_iff _).mpr (AddSubgroup.mem_addSubgroupOf.mpr hB2)
+
+end CupVanish
 
 end GQ2.Dyadic
