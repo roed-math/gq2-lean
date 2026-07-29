@@ -5,9 +5,11 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 module
 
+public import GQ2.BoundaryFrame
 public import GQ2.Demushkin
 public import GQ2.PeripheralAction
 public import GQ2.Roe.CrossedDerivation
+public import GQ2.Roe.DRWordCoh
 
 @[expose] public section
 
@@ -291,6 +293,396 @@ theorem commP_eq_inv_mul_conjP (c d : G) : commP c d = c⁻¹ * conjP c d := by
   group
 
 end Triples
+
+/-! ## §2 The orientation calculus
+
+The χ-twisted crossed-derivation calculus of `GQ2/Roe/CrossedDerivation.lean` applied to the two
+rank-four core words.  A pair (character value, derivation value) is a point of
+`WordLift ℤ₂ ℤ₂ˣ` whose multiplication *is* the crossed-derivation product rule
+`D(gh) = Dg + χ(g)Dh`; the two atomic rules are `conjP_wordLift` (:79) and `commP_wordLift`
+(:91), and the power rule is `WordLift.pow_u` (the geometric sum).
+
+The memo's calibration (§1.3) reproduces `chiD0G`'s `(−1, 1, (−3)⁻¹)` from the ℚ₂ relator
+`A²S⁴[S,Y]`; the same calculus applied here gives the two **closed-form** orientations of memo
+V3 — no analogue of `GQ2/Roe/OrientationRoot.lean`'s Hensel root is needed. -/
+
+/-- The **norm (geometric) sum** `N_n(X) = 1 + X + ⋯ + X^{n−1}` — the coefficient the `n`-th
+power of a generator contributes to its own Fox row (`WordLift.pow_u`). -/
+noncomputable def normSum (X : ℤ_[2]) (n : ℕ) : ℤ_[2] := ∑ i ∈ Finset.range n, X ^ i
+
+@[simp] theorem normSum_one_base (n : ℕ) : normSum 1 n = (n : ℤ_[2]) := by
+  simp [normSum]
+
+theorem normSum_two (X : ℤ_[2]) : normSum X 2 = 1 + X := by
+  simp [normSum, Finset.sum_range_succ]
+
+/-- **The power rule at `WordLift ℤ₂ ℤ₂ˣ`-lifts**: `⟨D, X⟩ ^ n = ⟨N_n(X)·D, X^n⟩`
+(`WordLift.pow_u`, the norm projector). -/
+theorem pow_wordLift (X : ℤ_[2]ˣ) (D : ℤ_[2]) (n : ℕ) :
+    (⟨D, X⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ^ n = ⟨normSum (X : ℤ_[2]) n * D, X ^ n⟩ := by
+  ext
+  · rw [WordLift.pow_u, normSum, Finset.sum_mul]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    simp only [Units.smul_def, smul_eq_mul, Units.val_pow_eq_pow_val]
+  · rw [WordLift.pow_g]
+
+/-! ### The handle lemma (memo §4.2)
+
+A hyperbolic handle `[u_j, v_j]` with `χ(u_j) = χ(v_j) = 1` contributes **zero** to every
+derivation coefficient and **one** to the character relation.  Hence appending handles leaves
+the orientation values on the core letters unchanged and forces `χ ≡ 1` on all handle letters. -/
+
+/-- **The handle lemma, atomic form**: `D[u, v] = 0` and `χ([u,v]) = 1` when
+`χ(u) = χ(v) = 1`. -/
+theorem commP_wordLift_one (Du Dv : ℤ_[2]) :
+    commP (⟨Du, 1⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ⟨Dv, 1⟩ = 1 := by
+  rw [commP_wordLift]
+  ext
+  · simp
+  · simp [commP_eq_one]
+
+/-- **The handle lemma** (memo §4.2): the whole handle block is invisible to the crossed
+derivation once every handle letter carries `χ = 1`. -/
+theorem handleWord_wordLift_one {k : ℕ} (Du Dv : Fin k → ℤ_[2]) :
+    handleWord (fun j => (⟨Du j, 1⟩ : WordLift ℤ_[2] ℤ_[2]ˣ)) (fun j => ⟨Dv j, 1⟩) = 1 := by
+  rw [handleWord, List.prod_eq_one]
+  intro x hx
+  obtain ⟨j, _, rfl⟩ := List.mem_map.mp hx
+  exact commP_wordLift_one _ _
+
+/-! ### The `M_α` Fox row -/
+
+/-- The `D_A`-coefficient of `D(P_M)` (memo §2.2(i), row `D_A`), in **raw** (pre-cancellation)
+form — what the word evaluation literally produces. -/
+noncomputable def mCoeffA (Xa Xb : ℤ_[2]ˣ) : ℤ_[2] :=
+  normSum (Xa : ℤ_[2]) 2 + (Xa : ℤ_[2]) ^ 2 * ((Xa⁻¹ : ℤ_[2]ˣ) * ((Xb⁻¹ : ℤ_[2]ˣ) - 1))
+
+/-- The `D_B`-coefficient of `D(P_M)` (memo §2.2(i), row `D_B`). -/
+noncomputable def mCoeffB (Xa Xb : ℤ_[2]ˣ) : ℤ_[2] :=
+  (Xa : ℤ_[2]) ^ 2 * ((Xb⁻¹ : ℤ_[2]ˣ) * (1 - (Xa⁻¹ : ℤ_[2]ˣ)))
+
+/-- The `D_{C₀}`-coefficient of `D(P_M)` (memo §2.2(i), row `D_C`): the geometric sum `N_{2^α}`
+plus the `[C₀, D]`-term. -/
+noncomputable def mCoeffC (α : ℕ) (Xa Xc Xd : ℤ_[2]ˣ) : ℤ_[2] :=
+  (Xa : ℤ_[2]) ^ 2 * normSum (Xc : ℤ_[2]) (2 ^ α)
+    + (Xa : ℤ_[2]) ^ 2 * (Xc : ℤ_[2]) ^ (2 ^ α) * ((Xc⁻¹ : ℤ_[2]ˣ) * ((Xd⁻¹ : ℤ_[2]ˣ) - 1))
+
+/-- The `D_D`-coefficient of `D(P_M)` (memo §2.2(i), row `D_D`). -/
+noncomputable def mCoeffD (α : ℕ) (Xa Xc Xd : ℤ_[2]ˣ) : ℤ_[2] :=
+  (Xa : ℤ_[2]) ^ 2 * (Xc : ℤ_[2]) ^ (2 ^ α) * ((Xd⁻¹ : ℤ_[2]ˣ) * (1 - (Xc⁻¹ : ℤ_[2]ˣ)))
+
+/-- **The `P_M`-evaluation identity** — the master computation of memo §2.2(i).  Evaluating the
+`M_α` core word at the crossed-derivation lifts `A, B, C₀, D ↦ ⟨D_•, X_•⟩` gives derivation
+component `mCoeffA·D_A + mCoeffB·D_B + mCoeffC·D_C + mCoeffD·D_D` and character component
+`X_A²·X_C^{2^α}` (the character relation). -/
+theorem mWord_wordLift (α : ℕ) (Xa Xb Xc Xd : ℤ_[2]ˣ) (Da Db Dc Dd : ℤ_[2]) :
+    mWord α (⟨Da, Xa⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ⟨Db, Xb⟩ ⟨Dc, Xc⟩ ⟨Dd, Xd⟩
+      = ⟨mCoeffA Xa Xb * Da + mCoeffB Xa Xb * Db
+          + mCoeffC α Xa Xc Xd * Dc + mCoeffD α Xa Xc Xd * Dd,
+        Xa ^ 2 * Xc ^ (2 ^ α)⟩ := by
+  rw [mWord, pow_wordLift, pow_wordLift, commP_wordLift, commP_wordLift]
+  ext
+  · simp only [WordLift.mul_u, WordLift.mul_g, Units.smul_def, smul_eq_mul, Units.val_mul,
+      Units.val_pow_eq_pow_val, commP_eq_one, Units.val_one, mCoeffA, mCoeffB, mCoeffC, mCoeffD]
+    ring
+  · simp only [WordLift.mul_g, commP_eq_one, mul_one]
+
+/-! ### The `N_α` Fox row -/
+
+/-- The `D_{x₀}`-coefficient of `D(P_N)` (memo §3.2(i), row `D_{x₀}`). -/
+noncomputable def nCoeffA (α : ℕ) (Xa Xb : ℤ_[2]ˣ) : ℤ_[2] :=
+  normSum (Xa : ℤ_[2]) (2 + 2 ^ α)
+    + (Xa : ℤ_[2]) ^ (2 + 2 ^ α) * ((Xa⁻¹ : ℤ_[2]ˣ) * ((Xb⁻¹ : ℤ_[2]ˣ) - 1))
+
+/-- The `D_{x₁}`-coefficient of `D(P_N)` (memo §3.2(i), row `D_{x₁}`). -/
+noncomputable def nCoeffB (α : ℕ) (Xa Xb : ℤ_[2]ˣ) : ℤ_[2] :=
+  (Xa : ℤ_[2]) ^ (2 + 2 ^ α) * ((Xb⁻¹ : ℤ_[2]ˣ) * (1 - (Xa⁻¹ : ℤ_[2]ˣ)))
+
+/-- The `D_σ`-coefficient of `D(P_N)` (memo §3.2(i), row `D_σ`). -/
+noncomputable def nCoeffC (α : ℕ) (Xa Xc Xd : ℤ_[2]ˣ) : ℤ_[2] :=
+  (Xa : ℤ_[2]) ^ (2 + 2 ^ α) * ((Xc⁻¹ : ℤ_[2]ˣ) * ((Xd⁻¹ : ℤ_[2]ˣ) - 1))
+
+/-- The `D_{x₂}`-coefficient of `D(P_N)` (memo §3.2(i), row `D_{x₂}`). -/
+noncomputable def nCoeffD (α : ℕ) (Xa Xc Xd : ℤ_[2]ˣ) : ℤ_[2] :=
+  (Xa : ℤ_[2]) ^ (2 + 2 ^ α) * ((Xd⁻¹ : ℤ_[2]ˣ) * (1 - (Xc⁻¹ : ℤ_[2]ˣ)))
+
+/-- **The `P_N`-evaluation identity** — the master computation of memo §3.2(i).  Note the third
+row: the `[σ, x₂]` factor contributes zero to every coefficient once `χ(σ) = χ(x₂) = 1`; that is
+the handle lemma (`commP_wordLift_one`) read off this identity. -/
+theorem nWord_wordLift (α : ℕ) (Xa Xb Xc Xd : ℤ_[2]ˣ) (Da Db Dc Dd : ℤ_[2]) :
+    nWord α (⟨Da, Xa⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ⟨Db, Xb⟩ ⟨Dc, Xc⟩ ⟨Dd, Xd⟩
+      = ⟨nCoeffA α Xa Xb * Da + nCoeffB α Xa Xb * Db
+          + nCoeffC α Xa Xc Xd * Dc + nCoeffD α Xa Xc Xd * Dd,
+        Xa ^ (2 + 2 ^ α)⟩ := by
+  rw [nWord, pow_wordLift, commP_wordLift, commP_wordLift]
+  ext
+  · simp only [WordLift.mul_u, WordLift.mul_g, Units.smul_def, smul_eq_mul, Units.val_mul,
+      Units.val_pow_eq_pow_val, commP_eq_one, Units.val_one, nCoeffA, nCoeffB, nCoeffC, nCoeffD]
+    ring
+  · simp only [WordLift.mul_g, commP_eq_one, mul_one]
+
+/-! ### The two orientation units `u`, `v`
+
+`1 ± 2^α` is odd, hence a unit of `ℤ₂` (`isUnit_one_add_two_mul`,
+`GQ2/ZtwoPowering.lean:491`), for every `α ≥ 1`.  These are the packet's `u` (§8 line 765) and
+the draft's `v` (line 333). -/
+
+/-- The unit `1 − 2^α ∈ ℤ₂ˣ` (`α ≥ 1`; at `α = 0` the `ℕ`-subtraction in the definition makes
+the value `−1`, which is never used). -/
+noncomputable def oneSubTwoPow (α : ℕ) : ℤ_[2]ˣ :=
+  (isUnit_one_add_two_mul (-(2 : ℤ_[2]) ^ (α - 1))).unit
+
+/-- The unit `1 + 2^α ∈ ℤ₂ˣ` (`α ≥ 1`). -/
+noncomputable def onePlusTwoPow (α : ℕ) : ℤ_[2]ˣ :=
+  (isUnit_one_add_two_mul ((2 : ℤ_[2]) ^ (α - 1))).unit
+
+theorem oneSubTwoPow_val {α : ℕ} (hα : 1 ≤ α) :
+    (oneSubTwoPow α : ℤ_[2]) = 1 - 2 ^ α := by
+  obtain ⟨k, rfl⟩ : ∃ k, α = k + 1 := ⟨α - 1, by omega⟩
+  rw [oneSubTwoPow, IsUnit.unit_spec, Nat.add_sub_cancel]
+  ring
+
+theorem onePlusTwoPow_val {α : ℕ} (hα : 1 ≤ α) :
+    (onePlusTwoPow α : ℤ_[2]) = 1 + 2 ^ α := by
+  obtain ⟨k, rfl⟩ : ∃ k, α = k + 1 := ⟨α - 1, by omega⟩
+  rw [onePlusTwoPow, IsUnit.unit_spec, Nat.add_sub_cancel]
+  ring
+
+/-- **The `M_α` orientation unit** `u = (1 − 2^α)⁻¹` (memo §2.2(i), V3).  It lies in
+`1 + 2^α ℤ₂` with depth exactly `α`; `im χ_M = ⟨−1⟩ × ⟨u⟩` is packet §8's `C`. -/
+noncomputable def mUnit (α : ℕ) : ℤ_[2]ˣ := (oneSubTwoPow α)⁻¹
+
+/-- **The `N_α` orientation unit** `v = −(1 + 2^α)⁻¹` (memo §3.2(i), V3).  `im χ_N = ⟨v⟩` is
+procyclic — the decisive `M`/`N` separator (memo V2/§3.2(i)). -/
+noncomputable def nUnit (α : ℕ) : ℤ_[2]ˣ := -(onePlusTwoPow α)⁻¹
+
+/-- The defining equation of `u`: `u·(1 − 2^α) = 1`. -/
+theorem mUnit_mul {α : ℕ} (hα : 1 ≤ α) : (mUnit α : ℤ_[2]) * (1 - 2 ^ α) = 1 := by
+  rw [mUnit, ← oneSubTwoPow_val hα, ← Units.val_mul, inv_mul_cancel, Units.val_one]
+
+/-- The defining equation of `v`: `v·(1 + 2^α) = −1`. -/
+theorem nUnit_mul {α : ℕ} (hα : 1 ≤ α) : (nUnit α : ℤ_[2]) * (1 + 2 ^ α) = -1 := by
+  have hinv : ((onePlusTwoPow α)⁻¹ : ℤ_[2]ˣ) * (onePlusTwoPow α : ℤ_[2]ˣ) = 1 := inv_mul_cancel _
+  have hval := congrArg Units.val hinv
+  rw [Units.val_mul, Units.val_one] at hval
+  rw [nUnit, ← onePlusTwoPow_val hα, Units.val_neg]
+  linear_combination -hval
+
+/-! ### The Labute descent conditions and the closed-form orientations
+
+`IsLabuteOrientationDatum` pattern (`GQ2/Roe/CrossedDerivation.lean:183`): a character-value
+tuple is a *Labute orientation datum* when the lifted word dies for **every** choice of
+derivation generator-values — equivalently, the character kills the relator and every crossed
+derivation into `ℤ₂(χ)` kills it. -/
+
+/-- **The Labute descent condition for `P_M`**. -/
+def IsLabuteOrientationDatumM (α : ℕ) (Xa Xb Xc Xd : ℤ_[2]ˣ) : Prop :=
+  ∀ Da Db Dc Dd : ℤ_[2],
+    mWord α (⟨Da, Xa⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ⟨Db, Xb⟩ ⟨Dc, Xc⟩ ⟨Dd, Xd⟩ = 1
+
+/-- **The Labute descent condition for `P_N`**. -/
+def IsLabuteOrientationDatumN (α : ℕ) (Xa Xb Xc Xd : ℤ_[2]ˣ) : Prop :=
+  ∀ Da Db Dc Dd : ℤ_[2],
+    nWord α (⟨Da, Xa⟩ : WordLift ℤ_[2] ℤ_[2]ˣ) ⟨Db, Xb⟩ ⟨Dc, Xc⟩ ⟨Dd, Xd⟩ = 1
+
+/-- **Extraction of the five equations for `P_M`** — the character relation plus the four Fox
+coefficients (the `isLabuteOrientationDatum_iff` clone). -/
+theorem isLabuteOrientationDatumM_iff_coeffs (α : ℕ) (Xa Xb Xc Xd : ℤ_[2]ˣ) :
+    IsLabuteOrientationDatumM α Xa Xb Xc Xd ↔
+      (Xa ^ 2 * Xc ^ (2 ^ α) = 1 ∧ mCoeffA Xa Xb = 0 ∧ mCoeffB Xa Xb = 0 ∧
+        mCoeffC α Xa Xc Xd = 0 ∧ mCoeffD α Xa Xc Xd = 0) := by
+  constructor
+  · intro h
+    refine ⟨?_, ?_, ?_, ?_, ?_⟩
+    · have hg := congrArg WordLift.g (h 0 0 0 0)
+      rw [mWord_wordLift] at hg
+      exact hg
+    · have hu := congrArg WordLift.u (h 1 0 0 0)
+      rw [mWord_wordLift] at hu
+      simpa using hu
+    · have hu := congrArg WordLift.u (h 0 1 0 0)
+      rw [mWord_wordLift] at hu
+      simpa using hu
+    · have hu := congrArg WordLift.u (h 0 0 1 0)
+      rw [mWord_wordLift] at hu
+      simpa using hu
+    · have hu := congrArg WordLift.u (h 0 0 0 1)
+      rw [mWord_wordLift] at hu
+      simpa using hu
+  · rintro ⟨hchar, hA, hB, hC, hD⟩ Da Db Dc Dd
+    rw [mWord_wordLift]
+    ext
+    · simp only [hA, hB, hC, hD, zero_mul, add_zero, WordLift.one_u]
+    · simp only [hchar, WordLift.one_g]
+
+/-- **Extraction of the five equations for `P_N`**. -/
+theorem isLabuteOrientationDatumN_iff_coeffs (α : ℕ) (Xa Xb Xc Xd : ℤ_[2]ˣ) :
+    IsLabuteOrientationDatumN α Xa Xb Xc Xd ↔
+      (Xa ^ (2 + 2 ^ α) = 1 ∧ nCoeffA α Xa Xb = 0 ∧ nCoeffB α Xa Xb = 0 ∧
+        nCoeffC α Xa Xc Xd = 0 ∧ nCoeffD α Xa Xc Xd = 0) := by
+  constructor
+  · intro h
+    refine ⟨?_, ?_, ?_, ?_, ?_⟩
+    · have hg := congrArg WordLift.g (h 0 0 0 0)
+      rw [nWord_wordLift] at hg
+      exact hg
+    · have hu := congrArg WordLift.u (h 1 0 0 0)
+      rw [nWord_wordLift] at hu
+      simpa using hu
+    · have hu := congrArg WordLift.u (h 0 1 0 0)
+      rw [nWord_wordLift] at hu
+      simpa using hu
+    · have hu := congrArg WordLift.u (h 0 0 1 0)
+      rw [nWord_wordLift] at hu
+      simpa using hu
+    · have hu := congrArg WordLift.u (h 0 0 0 1)
+      rw [nWord_wordLift] at hu
+      simpa using hu
+  · rintro ⟨hchar, hA, hB, hC, hD⟩ Da Db Dc Dd
+    rw [nWord_wordLift]
+    ext
+    · simp only [hA, hB, hC, hD, zero_mul, add_zero, WordLift.one_u]
+    · simp only [hchar, WordLift.one_g]
+
+/-! #### Clearing the Fox coefficients -/
+
+private theorem one_sub_inv_val_eq_zero_iff (X : ℤ_[2]ˣ) :
+    (1 : ℤ_[2]) - ((X⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) = 0 ↔ X = 1 := by
+  refine ⟨fun hx => ?_, fun hx => by rw [hx]; simp⟩
+  have hx' : (X⁻¹ : ℤ_[2]ˣ) = 1 := Units.ext (by rw [Units.val_one]; linear_combination -hx)
+  exact inv_eq_one.mp hx'
+
+private theorem mCoeffB_eq (Xa Xb : ℤ_[2]ˣ) :
+    mCoeffB Xa Xb = ((Xa ^ 2 * Xb⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * (1 - ((Xa⁻¹ : ℤ_[2]ˣ) : ℤ_[2])) := by
+  simp only [mCoeffB, Units.val_mul, Units.val_pow_eq_pow_val]
+  ring
+
+private theorem mCoeffD_eq (α : ℕ) (Xa Xc Xd : ℤ_[2]ˣ) :
+    mCoeffD α Xa Xc Xd
+      = ((Xa ^ 2 * Xc ^ (2 ^ α) * Xd⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * (1 - ((Xc⁻¹ : ℤ_[2]ˣ) : ℤ_[2])) := by
+  simp only [mCoeffD, Units.val_mul, Units.val_pow_eq_pow_val]
+  ring
+
+private theorem nCoeffB_eq (α : ℕ) (Xa Xb : ℤ_[2]ˣ) :
+    nCoeffB α Xa Xb
+      = ((Xa ^ (2 + 2 ^ α) * Xb⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * (1 - ((Xa⁻¹ : ℤ_[2]ˣ) : ℤ_[2])) := by
+  simp only [nCoeffB, Units.val_mul, Units.val_pow_eq_pow_val]
+  ring
+
+private theorem nCoeffD_eq (α : ℕ) (Xa Xc Xd : ℤ_[2]ˣ) :
+    nCoeffD α Xa Xc Xd
+      = ((Xa ^ (2 + 2 ^ α) * Xd⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * (1 - ((Xc⁻¹ : ℤ_[2]ˣ) : ℤ_[2])) := by
+  simp only [nCoeffD, Units.val_mul, Units.val_pow_eq_pow_val]
+  ring
+
+/-- **The canonical orientation of `M_α`, in closed form** (memo §2.2(i), V3):
+`χ_M(A, B, C₀, D) = (1, −1, 1, u)` with `u = (1 − 2^α)⁻¹`.  **No Hensel root** — contrast the
+rank-three `GQ2/Roe/OrientationRoot.lean`.
+
+(The `α ≥ 2` validity bound of `GQ2/Dyadic/Parameters.lean` is *not* needed for the equivalence:
+at `α = 0` both sides are false, since `1 − 2^0 = 0` is not a unit.) -/
+theorem isLabuteOrientationDatumM_iff (α : ℕ) (Xa Xb Xc Xd : ℤ_[2]ˣ) :
+    IsLabuteOrientationDatumM α Xa Xb Xc Xd ↔
+      (Xa = 1 ∧ Xb = -1 ∧ Xc = 1 ∧ (Xd : ℤ_[2]) * (1 - 2 ^ α) = 1) := by
+  rw [isLabuteOrientationDatumM_iff_coeffs]
+  constructor
+  · rintro ⟨-, hA, hB, hC, hD⟩
+    have hXa : Xa = 1 := by
+      rw [mCoeffB_eq, Units.mul_right_eq_zero] at hB
+      exact (one_sub_inv_val_eq_zero_iff Xa).mp hB
+    subst hXa
+    have hXc : Xc = 1 := by
+      rw [mCoeffD_eq, Units.mul_right_eq_zero] at hD
+      exact (one_sub_inv_val_eq_zero_iff Xc).mp hD
+    subst hXc
+    refine ⟨rfl, ?_, rfl, ?_⟩
+    · simp only [mCoeffA, normSum_two, Units.val_one, inv_one, one_pow, one_mul] at hA
+      have hb : (Xb⁻¹ : ℤ_[2]ˣ) = -1 := Units.ext (by
+        rw [Units.val_neg, Units.val_one]; linear_combination hA)
+      rw [← inv_inv Xb, hb, inv_neg, inv_one]
+    · simp only [mCoeffC, Units.val_one, inv_one, one_pow, one_mul, normSum_one_base] at hC
+      have hdd := Units.mul_inv Xd
+      push_cast at hC
+      linear_combination hdd - (Xd : ℤ_[2]) * hC
+  · rintro ⟨rfl, rfl, rfl, hd⟩
+    refine ⟨by simp, ?_, ?_, ?_, ?_⟩
+    · simp only [mCoeffA, normSum_two, Units.val_one, inv_one, one_pow, one_mul,
+        Units.val_neg, inv_neg]
+      ring
+    · simp only [mCoeffB, Units.val_one, inv_one, one_pow, sub_self, mul_zero]
+    · simp only [mCoeffC, Units.val_one, inv_one, one_pow, one_mul, normSum_one_base]
+      have hdd := Units.inv_mul Xd
+      push_cast
+      linear_combination (-((Xd⁻¹ : ℤ_[2]ˣ) : ℤ_[2])) * hd + (1 - (2 : ℤ_[2]) ^ α) * hdd
+    · simp only [mCoeffD, Units.val_one, inv_one, one_pow, one_mul, sub_self, mul_zero]
+
+/-- **The canonical orientation of `N_α`, in closed form** (memo §3.2(i), V3):
+`χ_N(x₀, x₁, σ, x₂) = (1, v, 1, 1)` with `v = −(1 + 2^α)⁻¹`. -/
+theorem isLabuteOrientationDatumN_iff (α : ℕ) (Xa Xb Xc Xd : ℤ_[2]ˣ) :
+    IsLabuteOrientationDatumN α Xa Xb Xc Xd ↔
+      (Xa = 1 ∧ (Xb : ℤ_[2]) * (1 + 2 ^ α) = -1 ∧ Xc = 1 ∧ Xd = 1) := by
+  rw [isLabuteOrientationDatumN_iff_coeffs]
+  constructor
+  · rintro ⟨-, hA, hB, hC, hD⟩
+    have hXa : Xa = 1 := by
+      rw [nCoeffB_eq, Units.mul_right_eq_zero] at hB
+      exact (one_sub_inv_val_eq_zero_iff Xa).mp hB
+    subst hXa
+    have hXc : Xc = 1 := by
+      rw [nCoeffD_eq, Units.mul_right_eq_zero] at hD
+      exact (one_sub_inv_val_eq_zero_iff Xc).mp hD
+    subst hXc
+    have hXd : Xd = 1 := by
+      simp only [nCoeffC, Units.val_one, inv_one, one_pow, one_mul] at hC
+      have hc' : (Xd⁻¹ : ℤ_[2]ˣ) = 1 := Units.ext (by
+        rw [Units.val_one]; linear_combination hC)
+      exact inv_eq_one.mp hc'
+    refine ⟨rfl, ?_, rfl, hXd⟩
+    simp only [nCoeffA, Units.val_one, inv_one, one_pow, one_mul, normSum_one_base] at hA
+    have hbb := Units.mul_inv Xb
+    push_cast at hA
+    linear_combination (Xb : ℤ_[2]) * hA - hbb
+  · rintro ⟨rfl, hb, rfl, rfl⟩
+    refine ⟨by simp, ?_, ?_, ?_, ?_⟩
+    · simp only [nCoeffA, Units.val_one, inv_one, one_pow, one_mul, normSum_one_base]
+      have hbb := Units.inv_mul Xb
+      push_cast
+      linear_combination ((Xb⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * hb - (1 + (2 : ℤ_[2]) ^ α) * hbb
+    · simp only [nCoeffB, Units.val_one, inv_one, one_pow, sub_self, mul_zero]
+    · simp only [nCoeffC, Units.val_one, inv_one, one_pow, sub_self, mul_zero]
+    · simp only [nCoeffD, Units.val_one, inv_one, one_pow, sub_self, mul_zero]
+
+/-- **The `M_α` orientation exists**, with the memo's closed-form values `(1, −1, 1, u)`. -/
+theorem isLabuteOrientationDatumM_mUnit {α : ℕ} (hα : 1 ≤ α) :
+    IsLabuteOrientationDatumM α 1 (-1) 1 (mUnit α) :=
+  (isLabuteOrientationDatumM_iff α 1 (-1) 1 (mUnit α)).mpr ⟨rfl, rfl, rfl, mUnit_mul hα⟩
+
+/-- **The `N_α` orientation exists**, with the memo's closed-form values `(1, v, 1, 1)`. -/
+theorem isLabuteOrientationDatumN_nUnit {α : ℕ} (hα : 1 ≤ α) :
+    IsLabuteOrientationDatumN α 1 (nUnit α) 1 1 :=
+  (isLabuteOrientationDatumN_iff α 1 (nUnit α) 1 1).mpr ⟨rfl, nUnit_mul hα, rfl, rfl⟩
+
+/-- **Uniqueness of the `M_α` orientation datum** (memo V3: the descent system is *determined*;
+no branch analysis and no Hensel uniqueness input is needed). -/
+theorem isLabuteOrientationDatumM_unique {α : ℕ} (hα : 1 ≤ α) {Xa Xb Xc Xd : ℤ_[2]ˣ}
+    (h : IsLabuteOrientationDatumM α Xa Xb Xc Xd) :
+    Xa = 1 ∧ Xb = -1 ∧ Xc = 1 ∧ Xd = mUnit α := by
+  obtain ⟨h1, h2, h3, h4⟩ := (isLabuteOrientationDatumM_iff α Xa Xb Xc Xd).mp h
+  refine ⟨h1, h2, h3, Units.ext ?_⟩
+  have hne : ((1 : ℤ_[2]) - 2 ^ α) ≠ 0 := by
+    rw [← oneSubTwoPow_val hα]
+    exact (oneSubTwoPow α).ne_zero
+  exact mul_right_cancel₀ hne (h4.trans (mUnit_mul hα).symm)
+
+/-- **Uniqueness of the `N_α` orientation datum**. -/
+theorem isLabuteOrientationDatumN_unique {α : ℕ} (hα : 1 ≤ α) {Xa Xb Xc Xd : ℤ_[2]ˣ}
+    (h : IsLabuteOrientationDatumN α Xa Xb Xc Xd) :
+    Xa = 1 ∧ Xb = nUnit α ∧ Xc = 1 ∧ Xd = 1 := by
+  obtain ⟨h1, h2, h3, h4⟩ := (isLabuteOrientationDatumN_iff α Xa Xb Xc Xd).mp h
+  have hne : ((1 : ℤ_[2]) + 2 ^ α) ≠ 0 := by
+    rw [← onePlusTwoPow_val hα]
+    exact (onePlusTwoPow α).ne_zero
+  exact ⟨h1, Units.ext (mul_right_cancel₀ hne (h2.trans (nUnit_mul hα).symm)), h3, h4⟩
 
 end MarkedCore
 
