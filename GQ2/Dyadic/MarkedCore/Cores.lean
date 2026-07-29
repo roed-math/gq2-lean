@@ -1167,6 +1167,294 @@ theorem nuM_torsionGen (α h : ℕ) (hα : 1 ≤ α) :
   congr 1
   simp
 
+/-! ## §6 The exponent / normal-form lemma  (memo §4.1(2), risk R2)
+
+The rank-three cup Gram is proved by `revert v w; decide` — a finite evaluation of the relator
+in a 16-element central extension over all 64 coordinate pairs (`drRelZ_drCC`,
+`GQ2/Roe/DRDemushkin.lean:339`).  **With a relator exponent `2^α` that is not a finite check**,
+so the memo budgets an *exponent lemma* instead.  This section supplies it, stated at the level
+of exponents and words — not per core — so that the five branch-word tickets can reuse it:
+
+* `diagCoeff k = C(k,2) mod 2` is the fibre contribution of a `k`-th power, and
+  **`diagCoeff` depends only on `k mod 4`** (`diagCoeff_mod_four`) — the memo's mod-4 diagonal
+  rule.  Hence `diagCoeff (2^α) = 0` for `α ≥ 2` (no `C₀`-diagonal) and
+  `diagCoeff (2 + 2^α) = 1` (an `x₀`-diagonal), exactly memo §2.2(iii)/§3.2(iii);
+* `centLift_pow_fib` is the group-level companion: in a central extension of an elementary
+  abelian group, `x^k` contributes `diagCoeff k · κ(x,x)` to the fibre;
+* `commP_centLift_fib` is the hyperbolic companion: `[x,y]` contributes `κ(x,y) + κ(y,x)`;
+* `mWord_centLift_fib` / `nWord_centLift_fib` / `mRelWord_centLift_fib` assemble them into the
+  **α-independent Gram value** `[[1,1,0,0],[1,0,0,0],[0,0,0,1],[0,0,1,0]]` (⊕ handle
+  hyperbolics), for **both** cores in their own bases (memo V4).
+
+The generic central-extension algebra is `GQ2.DRCoh` (`GQ2/Roe/DRWordCoh.lean:51–140`), which is
+generic in the base group `L`; only its `relZ`/`obsH2` layer is `D_R`-specific. -/
+
+/-! ### The mod-4 diagonal exponent rule -/
+
+/-- **The diagonal exponent coefficient** `C(k,2) mod 2`: the number of "carries" that a `k`-th
+power contributes to the central fibre of a class-two extension. -/
+def diagCoeff (k : ℕ) : ZMod 2 := (k.choose 2 : ℕ)
+
+@[simp] theorem diagCoeff_zero : diagCoeff 0 = 0 := by simp [diagCoeff]
+@[simp] theorem diagCoeff_one : diagCoeff 1 = 0 := by simp [diagCoeff]
+@[simp] theorem diagCoeff_two : diagCoeff 2 = 1 := by simp [diagCoeff]
+
+/-- Pascal's rule for the diagonal coefficient: `C(k+1,2) = C(k,2) + k`. -/
+theorem diagCoeff_succ (k : ℕ) : diagCoeff (k + 1) = diagCoeff k + (k : ZMod 2) := by
+  simp only [diagCoeff, Nat.choose_succ_succ k 1, Nat.choose_one_right, Nat.cast_add]
+  ring
+
+/-- **Period four**: `C(k+4,2) ≡ C(k,2) (mod 2)` (the difference is `4k + 6`). -/
+theorem diagCoeff_add_four (k : ℕ) : diagCoeff (k + 4) = diagCoeff k := by
+  have h : ∀ j : ℕ, diagCoeff (j + 1) = diagCoeff j + (j : ZMod 2) := diagCoeff_succ
+  rw [show k + 4 = k + 1 + 1 + 1 + 1 by ring, h, h, h, h]
+  push_cast
+  ring_nf
+  rw [show (4 : ZMod 2) = 0 by decide, show (6 : ZMod 2) = 0 by decide]
+  ring
+
+private theorem diagCoeff_add_four_mul (k q : ℕ) : diagCoeff (k + 4 * q) = diagCoeff k := by
+  induction q with
+  | zero => simp
+  | succ n ih => rw [show k + 4 * (n + 1) = k + 4 * n + 4 by ring, diagCoeff_add_four, ih]
+
+/-- **The mod-4 diagonal exponent rule** (memo §2.2(iii), §4.1(2)) — the reusable replacement
+for the rank-three `decide`: the diagonal (Bockstein) contribution of an exponent `k` depends
+only on `k mod 4`.  Concretely `k ≡ 0, 1 (mod 4)` contributes `0` and `k ≡ 2, 3 (mod 4)`
+contributes `1`. -/
+theorem diagCoeff_mod_four (k : ℕ) : diagCoeff k = diagCoeff (k % 4) := by
+  conv_lhs => rw [← Nat.mod_add_div k 4]
+  rw [diagCoeff_add_four_mul]
+
+/-- **`2^α` contributes no diagonal entry for `α ≥ 2`** (`2^α ≡ 0 mod 4`) — memo §2.2(iii):
+this is why `G_M` has no `C₀`-diagonal, uniformly in `α`. -/
+theorem diagCoeff_two_pow {α : ℕ} (hα : 2 ≤ α) : diagCoeff (2 ^ α) = 0 := by
+  have h4 : 2 ^ α % 4 = 0 := by
+    obtain ⟨k, rfl⟩ : ∃ k, α = k + 2 := ⟨α - 2, by omega⟩
+    rw [pow_add, show (2 : ℕ) ^ 2 = 4 from rfl]
+    exact Nat.mul_mod_left _ _
+  rw [diagCoeff_mod_four, h4, diagCoeff_zero]
+
+/-- **`2 + 2^α` contributes a diagonal entry for `α ≥ 2`** (`2 + 2^α ≡ 2 mod 4`) — memo
+§3.2(iii): this is the `x₀`-Bockstein of `G_N`, uniformly in `α`. -/
+theorem diagCoeff_two_add_two_pow {α : ℕ} (hα : 2 ≤ α) : diagCoeff (2 + 2 ^ α) = 1 := by
+  have h4 : (2 + 2 ^ α) % 4 = 2 := by
+    obtain ⟨k, rfl⟩ : ∃ k, α = k + 2 := ⟨α - 2, by omega⟩
+    rw [pow_add, show (2 : ℕ) ^ 2 = 4 from rfl, Nat.add_mul_mod_self_right]
+  rw [diagCoeff_mod_four, h4, diagCoeff_two]
+
+/-! ### The central extension: lifts, powers, commutators -/
+
+section CentExt
+
+open DRCoh
+
+variable {L : Type*} [Group L] {c : DRCoh.TwoCocycle L}
+
+/-- The **offset-zero lift** of a group element into the central extension (the `drLift`
+pattern, `GQ2/Roe/DRWordCoh.lean:402`). -/
+def centLift (c : DRCoh.TwoCocycle L) (x : L) : DRCoh.CentExt c := (x, 0)
+
+@[simp] theorem centLift_base (x : L) : (centLift c x).base = x := rfl
+@[simp] theorem centLift_fib (x : L) : (centLift c x).fib = 0 := rfl
+
+theorem centExt_one_base : (1 : DRCoh.CentExt c).base = 1 := rfl
+theorem centExt_one_fib : (1 : DRCoh.CentExt c).fib = 0 := rfl
+theorem centExt_inv_base (p : DRCoh.CentExt c) : p⁻¹.base = p.base⁻¹ := rfl
+theorem centExt_inv_fib (p : DRCoh.CentExt c) :
+    p⁻¹.fib = p.fib + c.κ p.base p.base⁻¹ := rfl
+
+/-- The base coordinate is multiplicative on powers (`proj` is a homomorphism). -/
+theorem centExt_pow_base (p : DRCoh.CentExt c) (k : ℕ) : (p ^ k).base = p.base ^ k :=
+  map_pow (DRCoh.CentExt.proj c) p k
+
+/-- **Fibres add across a factor with trivial base** — the reason the relator's fibre is the
+plain sum of its factors' fibres (every factor of `P_M`, `P_N` has trivial base in the
+elementary abelian quotient). -/
+theorem fib_mul_of_base_one {p q : DRCoh.CentExt c} (hp : p.base = 1) :
+    (p * q).fib = p.fib + q.fib := by
+  rw [DRCoh.CentExt.mul_fib, hp, c.κ_one_left, add_zero]
+
+private theorem base_mul_eq_one {p q : DRCoh.CentExt c} (hp : p.base = 1) (hq : q.base = 1) :
+    (p * q).base = 1 := by rw [DRCoh.CentExt.mul_base, hp, hq, one_mul]
+
+/-- **Fibres add across a list of trivial-base factors.** -/
+theorem prod_fib_of_bases_one (l : List (DRCoh.CentExt c)) (hl : ∀ p ∈ l, p.base = 1) :
+    l.prod.fib = (l.map DRCoh.CentExt.fib).sum := by
+  induction l with
+  | nil => exact centExt_one_fib
+  | cons p t ih =>
+      rw [List.prod_cons, fib_mul_of_base_one (hl p (List.mem_cons_self ..)),
+        ih (fun q hq => hl q (List.mem_cons_of_mem _ hq)), List.map_cons, List.sum_cons]
+
+/-- **The exponent rule** (memo §4.1(2)): in a central extension, the `k`-th power of an
+offset-zero lift contributes exactly `C(k,2)·κ(x,x)` to the fibre, provided `κ(x^i, x)` is
+linear in `i` along `⟨x⟩` (automatic for a cup cocycle, `IsCupCocycle` below).  Combined with
+`diagCoeff_mod_four` this is the **α-uniform** replacement for the rank-three `decide`. -/
+theorem centLift_pow_fib {x : L} (hx : ∀ i : ℕ, c.κ (x ^ i) x = (i : ZMod 2) * c.κ x x)
+    (k : ℕ) : ((centLift c x) ^ k).fib = diagCoeff k * c.κ x x := by
+  induction k with
+  | zero => rw [pow_zero, centExt_one_fib, diagCoeff_zero, zero_mul]
+  | succ n ih =>
+      rw [pow_succ, DRCoh.CentExt.mul_fib, ih, centLift_fib, centExt_pow_base, centLift_base,
+        hx n, diagCoeff_succ]
+      ring
+
+/-- **The commutator rule, raw form**: the fibre of `[x, y]` at offset-zero lifts, in terms of
+five `κ`-values. -/
+theorem commP_centLift_fib (x y : L) :
+    (commP (centLift c x) (centLift c y)).fib
+      = c.κ x x⁻¹ + c.κ y y⁻¹ + c.κ x⁻¹ y⁻¹ + c.κ (x⁻¹ * y⁻¹) x
+        + c.κ (x⁻¹ * y⁻¹ * x) y := by
+  simp only [commP, DRCoh.CentExt.mul_fib, DRCoh.CentExt.mul_base, centExt_inv_base,
+    centExt_inv_fib, centLift_base, centLift_fib, zero_add]
+  ring
+
+end CentExt
+
+/-! ### The cup-cocycle hypotheses and the two Gram computations -/
+
+/-- The hypotheses under which the §6 Gram computation runs: the base group is **elementary
+abelian** (the mod-2 Frattini quotient of the core) and the cocycle is **bi-additive** — the
+shape of a cup cocycle `κ(a, b) = ⟨v, a⟩·⟨w, b⟩` (the rank-three `drCC`,
+`GQ2/Roe/DRDemushkin.lean:272`). -/
+structure IsCupCocycle {L : Type*} [Group L] (c : DRCoh.TwoCocycle L) : Prop where
+  /-- The base group is abelian. -/
+  comm : ∀ z w : L, z * w = w * z
+  /-- The base group has exponent two. -/
+  expTwo : ∀ z : L, z * z = 1
+  /-- `κ` is additive in its first argument. -/
+  addLeft : ∀ z w t : L, c.κ (z * w) t = c.κ z t + c.κ w t
+  /-- `κ` is additive in its second argument. -/
+  addRight : ∀ z w t : L, c.κ z (w * t) = c.κ z w + c.κ z t
+
+namespace IsCupCocycle
+
+open DRCoh
+
+variable {L : Type*} [Group L] {c : DRCoh.TwoCocycle L} (hc : IsCupCocycle c)
+include hc
+
+theorem inv_eq (z : L) : z⁻¹ = z := by
+  rw [inv_eq_iff_mul_eq_one]; exact hc.expTwo z
+
+theorem pow_two_eq_one (z : L) : z ^ 2 = 1 := by rw [pow_two]; exact hc.expTwo z
+
+theorem pow_even_eq_one (z : L) (k : ℕ) : z ^ (2 * k) = 1 := by
+  rw [pow_mul, hc.pow_two_eq_one, one_pow]
+
+/-- Linearity of `κ` along a procyclic subgroup — the hypothesis of `centLift_pow_fib`. -/
+theorem kappa_pow_left (x : L) (i : ℕ) : c.κ (x ^ i) x = (i : ZMod 2) * c.κ x x := by
+  induction i with
+  | zero => rw [pow_zero, c.κ_one_left, Nat.cast_zero, zero_mul]
+  | succ n ih => rw [pow_succ, hc.addLeft, ih, Nat.cast_add, Nat.cast_one]; ring
+
+/-- **The hyperbolic (commutator) contribution**: `[x, y]` contributes `κ(x,y) + κ(y,x)` to the
+fibre — the off-diagonal entries of the cup Gram. -/
+theorem commP_fib (x y : L) :
+    (commP (centLift c x) (centLift c y)).fib = c.κ x y + c.κ y x := by
+  have hxy : x * y * x = y := by rw [hc.comm x y, mul_assoc, hc.expTwo, mul_one]
+  have h2 : ∀ z : ZMod 2, z + z = 0 := by decide
+  rw [commP_centLift_fib, hc.inv_eq, hc.inv_eq, hxy, hc.addLeft]
+  linear_combination h2 (c.κ x x) + h2 (c.κ y y)
+
+theorem commP_base (x y : L) : (commP (centLift c x) (centLift c y)).base = 1 := by
+  have hxy : x * y * x = y := by rw [hc.comm x y, mul_assoc, hc.expTwo, mul_one]
+  show commP x y = 1
+  rw [commP, hc.inv_eq, hc.inv_eq, hxy, hc.expTwo]
+
+theorem pow_even_base (x : L) (k : ℕ) : ((centLift c x) ^ (2 * k)).base = 1 := by
+  rw [centExt_pow_base, centLift_base, hc.pow_even_eq_one]
+
+/-- **The `M_α` Gram value** (memo §2.2(iii)) — the α-independent matrix
+`[[1,1,0,0],[1,0,0,0],[0,0,0,1],[0,0,1,0]]`: the square `a²` gives the diagonal Bockstein,
+`[a,b]` and `[c,d]` the two hyperbolic pairs, and `c^{2^α}` gives **nothing** because
+`2^α ≡ 0 (mod 4)` for `α ≥ 2` (`diagCoeff_two_pow`). -/
+theorem mWord_centLift_fib {α : ℕ} (hα : 2 ≤ α) (a b d e : L) :
+    (mWord α (centLift c a) (centLift c b) (centLift c d) (centLift c e)).fib
+      = c.κ a a + (c.κ a b + c.κ b a) + (c.κ d e + c.κ e d) := by
+  have hsq : ((centLift c a) ^ 2).base = 1 := hc.pow_even_base a 1
+  have hpow : ((centLift c d) ^ (2 ^ α)).base = 1 := by
+    obtain ⟨k, hk⟩ : ∃ k, 2 ^ α = 2 * k := ⟨2 ^ (α - 1), by
+      obtain ⟨j, rfl⟩ : ∃ j, α = j + 1 := ⟨α - 1, by omega⟩
+      rw [Nat.add_sub_cancel, pow_succ]; ring⟩
+    rw [hk]; exact hc.pow_even_base d k
+  rw [mWord, fib_mul_of_base_one (base_mul_eq_one (base_mul_eq_one hsq (hc.commP_base a b)) hpow),
+    fib_mul_of_base_one (base_mul_eq_one hsq (hc.commP_base a b)),
+    fib_mul_of_base_one hsq,
+    centLift_pow_fib (hc.kappa_pow_left a), centLift_pow_fib (hc.kappa_pow_left d),
+    hc.commP_fib, hc.commP_fib, diagCoeff_two, diagCoeff_two_pow hα, one_mul, zero_mul]
+  ring
+
+/-- **The `N_α` Gram value** (memo §3.2(iii)) — the *same* matrix in its own basis: here the
+diagonal comes from `x₀^{2+2^α}` because `2 + 2^α ≡ 2 (mod 4)`
+(`diagCoeff_two_add_two_pow`). -/
+theorem nWord_centLift_fib {α : ℕ} (hα : 2 ≤ α) (a b d e : L) :
+    (nWord α (centLift c a) (centLift c b) (centLift c d) (centLift c e)).fib
+      = c.κ a a + (c.κ a b + c.κ b a) + (c.κ d e + c.κ e d) := by
+  have hpow : ((centLift c a) ^ (2 + 2 ^ α)).base = 1 := by
+    obtain ⟨k, hk⟩ : ∃ k, 2 + 2 ^ α = 2 * k := ⟨1 + 2 ^ (α - 1), by
+      obtain ⟨j, rfl⟩ : ∃ j, α = j + 1 := ⟨α - 1, by omega⟩
+      rw [Nat.add_sub_cancel, pow_succ]; ring⟩
+    rw [hk]; exact hc.pow_even_base a k
+  rw [nWord, fib_mul_of_base_one (base_mul_eq_one hpow (hc.commP_base a b)),
+    fib_mul_of_base_one hpow,
+    centLift_pow_fib (hc.kappa_pow_left a), hc.commP_fib, hc.commP_fib,
+    diagCoeff_two_add_two_pow hα, one_mul]
+
+/-- **The handle contribution**: each hyperbolic handle adds its own off-diagonal pair. -/
+theorem handleWord_centLift_fib {k : ℕ} (u v : Fin k → L) :
+    (handleWord (fun j => centLift c (u j)) (fun j => centLift c (v j))).fib
+      = ∑ j, (c.κ (u j) (v j) + c.κ (v j) (u j)) := by
+  rw [handleWord, prod_fib_of_bases_one, List.map_map, Fin.sum_univ_def]
+  · congr 1
+    refine List.map_congr_left fun j _ => ?_
+    exact hc.commP_fib (u j) (v j)
+  · intro p hp
+    obtain ⟨j, _, rfl⟩ := List.mem_map.mp hp
+    exact hc.commP_base (u j) (v j)
+
+/-- **The full `M_α` relator Gram value**, handles included — the memo's `G_M ⊕ (h hyperbolic
+blocks)`, α-independent. -/
+theorem mRelWord_centLift_fib {α h : ℕ} (hα : 2 ≤ α) (m : Fin (coreRank h) → L) :
+    (mRelWord α (fun i => centLift c (m i))).fib
+      = c.κ (m 0) (m 0) + (c.κ (m 0) (m 1) + c.κ (m 1) (m 0))
+        + (c.κ (m 2) (m 3) + c.κ (m 3) (m 2))
+        + ∑ j, (c.κ (m (handleIdxU j)) (m (handleIdxV j))
+            + c.κ (m (handleIdxV j)) (m (handleIdxU j))) := by
+  have hbase : (mWord α (centLift c (m 0)) (centLift c (m 1)) (centLift c (m 2))
+      (centLift c (m 3))).base = 1 := by
+    have hsq : ((centLift c (m 0)) ^ 2).base = 1 := hc.pow_even_base (m 0) 1
+    have hpow : ((centLift c (m 2)) ^ (2 ^ α)).base = 1 := by
+      obtain ⟨k, hk⟩ : ∃ k, 2 ^ α = 2 * k := ⟨2 ^ (α - 1), by
+        obtain ⟨j, rfl⟩ : ∃ j, α = j + 1 := ⟨α - 1, by omega⟩
+        rw [Nat.add_sub_cancel, pow_succ]; ring⟩
+      rw [hk]; exact hc.pow_even_base (m 2) k
+    exact base_mul_eq_one (base_mul_eq_one (base_mul_eq_one hsq (hc.commP_base _ _)) hpow)
+      (hc.commP_base _ _)
+  rw [mRelWord, fib_mul_of_base_one hbase, hc.mWord_centLift_fib hα,
+    hc.handleWord_centLift_fib]
+
+/-- **The full `N_α` relator Gram value**, handles included. -/
+theorem nRelWord_centLift_fib {α h : ℕ} (hα : 2 ≤ α) (m : Fin (coreRank h) → L) :
+    (nRelWord α (fun i => centLift c (m i))).fib
+      = c.κ (m 0) (m 0) + (c.κ (m 0) (m 1) + c.κ (m 1) (m 0))
+        + (c.κ (m 2) (m 3) + c.κ (m 3) (m 2))
+        + ∑ j, (c.κ (m (handleIdxU j)) (m (handleIdxV j))
+            + c.κ (m (handleIdxV j)) (m (handleIdxU j))) := by
+  have hbase : (nWord α (centLift c (m 0)) (centLift c (m 1)) (centLift c (m 2))
+      (centLift c (m 3))).base = 1 := by
+    have hpow : ((centLift c (m 0)) ^ (2 + 2 ^ α)).base = 1 := by
+      obtain ⟨k, hk⟩ : ∃ k, 2 + 2 ^ α = 2 * k := ⟨1 + 2 ^ (α - 1), by
+        obtain ⟨j, rfl⟩ : ∃ j, α = j + 1 := ⟨α - 1, by omega⟩
+        rw [Nat.add_sub_cancel, pow_succ]; ring⟩
+      rw [hk]; exact hc.pow_even_base (m 0) k
+    exact base_mul_eq_one (base_mul_eq_one hpow (hc.commP_base _ _)) (hc.commP_base _ _)
+  rw [nRelWord, fib_mul_of_base_one hbase, hc.nWord_centLift_fib hα,
+    hc.handleWord_centLift_fib]
+
+end IsCupCocycle
+
 end MarkedCore
 
 end Dyadic
