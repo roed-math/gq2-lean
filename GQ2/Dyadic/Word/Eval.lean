@@ -24,22 +24,27 @@ bridge / `_map` naturality, ~4 hand-written lemmas per word").
 * `PWord.eval μ` — the **profinite denotation**, into any compact totally disconnected
   topological group, with `GQ2.zpowHat` (`^ᶻ`) for `profPow` and `padicOmega2` for `z2pow`.
   This is the honest reading of a word: `ω₂` is the genuine element of `ℤ̂`.
-* `PWord.evalZ μ E E₂` — the **integer-exponent denotation**, into *any* group (no topology at
-  all), where the profinite exponents have been resolved to ordinary integers by `E`, `E₂`.
-  `PWord.evalNat μ e` is the single-exponent case `E = E₂ = e`, which is exactly the
-  `wildValueExp`/`wildValueExpR` pattern of the `ℚ₂` files (`GQ2/FoxHeisenberg/Traced.lean:75`,
-  `GQ2/Roe/Words.lean:165`) — the form that survives into `FreeGroup`, where `ω₂` cannot be
-  applied.
+* `PWord.evalFin μ E E₂` — the **finite denotation** of packet Lem. 2.2, into *any* group (no
+  topology): an `ω₂`-power is the `2`-primary component `GQ2.powOmega2` of its base, so no global
+  integer representative is selected (packet Rem. 2.3: "finite evaluation should reduce the last
+  kind by Lem. 2.2; this avoids selecting global integer representatives").  Over a finite group
+  it agrees with `eval` on every `ω₂`-only word with **no** side condition (`eval_eq_evalFin`).
+* `PWord.evalZ μ E E₂` — the auxiliary **integer-exponent denotation**, where *every* profinite
+  exponent is resolved to an ordinary integer by `E`, `E₂`.  `PWord.evalNat μ e` is the
+  single-exponent case `E = E₂ = e`, which is exactly the `wildValueExp`/`wildValueExpR` pattern
+  of the `ℚ₂` files (`GQ2/FoxHeisenberg/Traced.lean:75`, `GQ2/Roe/Words.lean:165`) — the form
+  that survives into `FreeGroup`, where `ω₂` cannot be applied.
 
 ## The quadruple (`wc-survey` §1c), proved once
 
-1. **profinite/finite agreement** — `PWord.eval_omega2Pow` (`w^{ω₂}` evaluates to the
-   `2`-primary part `powOmega2` in a finite group) and `PWord.map_eval_omega2Pow` (the literal
-   `GQ2.map_zpowHat_omega2` pattern);
+1. **profinite/finite agreement** — `PWord.eval_eq_evalFin`, `PWord.eval_omega2Pow` (`w^{ω₂}`
+   evaluates to the `2`-primary part `powOmega2` in a finite group) and
+   `PWord.map_eval_omega2Pow` (the literal `GQ2.map_zpowHat_omega2` pattern);
 2. **`ℕ`-exponent form and the `_of_dvd` bridge** — `PWord.eval_eq_evalZ`,
-   `PWord.eval_eq_evalNat_of_dvd`, `PWord.eval_eq_evalNat_exponent`;
-3. **naturality** — `PWord.map_eval` (`ContinuousMonoidHom`), `PWord.map_evalZ` (any
-   `MonoidHomClass`, no topology), `Marking.map_eval`;
+   `PWord.eval_eq_evalNat_of_dvd`, `PWord.eval_eq_evalNat_exponent`,
+   `PWord.evalFin_eq_evalNat_of_dvd`;
+3. **naturality** — `PWord.map_eval` (`ContinuousMonoidHom`), `PWord.map_evalFin` and
+   `PWord.map_evalZ` (any `MonoidHomClass`, no topology), `Marking.map_eval`;
 4. **evaluation through a quotient** — `PWord.eval_map_eq_one_iff`,
    `Marking.eval_map_eq_one_iff`: the generic form of `GQ2.map_wildRelator_eq_one_iff`.
 
@@ -76,6 +81,18 @@ namespace GQ2.Dyadic
 /-! ## The integer-exponent denotation -/
 
 namespace PWord
+
+section ConjHelpers
+
+variable {G H : Type*} [Group G] [Group H]
+
+private theorem map_conjR' {F : Type*} [FunLike F G H] [MonoidHomClass F G H] (f : F) (x g : G) :
+    f (conjR x g) = conjR (f x) (f g) := by simp [conjR]
+
+private theorem map_commR' {F : Type*} [FunLike F G H] [MonoidHomClass F G H] (f : F) (x y : G) :
+    f (commR x y) = commR (f x) (f y) := by simp [commR]
+
+end ConjHelpers
 
 section EvalZ
 
@@ -151,19 +168,89 @@ variable (e : ℕ)
 @[simp] theorem evalNat_omega2Pow (u : PWord X) :
     evalNat μ e (omega2Pow u) = evalNat μ e u ^ e := zpow_natCast _ _
 
+/-! ### The finite denotation of packet Lem. 2.2 -/
+
+/-- The **finite denotation** of packet Lem. 2.2: an `ω₂`-power is evaluated as the `2`-primary
+component `GQ2.powOmega2` of its base — *no* global integer representative is selected, which is
+exactly what the packet's "Lean encoding" remark asks for — while any other profinite or `ℤ₂`
+exponent is resolved to an ordinary integer by `E`/`E₂`.
+
+Like `evalZ`, and unlike `eval`, this denotation needs no topology; over a finite group it agrees
+with the profinite denotation on every `ω₂`-only word with **no side condition at all**
+(`eval_eq_evalFin`). -/
+noncomputable def evalFin (μ : X → G) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) : PWord X → G
+  | .one => 1
+  | .gen g => μ g
+  | .mul u v => evalFin μ E E₂ u * evalFin μ E E₂ v
+  | .inv u => (evalFin μ E E₂ u)⁻¹
+  | .conj u g => conjR (evalFin μ E E₂ u) (evalFin μ E E₂ g)
+  | .comm u v => commR (evalFin μ E E₂ u) (evalFin μ E E₂ v)
+  | .zpow u k => evalFin μ E E₂ u ^ k
+  | .z2pow u z => evalFin μ E E₂ u ^ E₂ z
+  | .profPow u γ => @ite _ (γ = omega2) (Classical.propDecidable _)
+      (powOmega2 (evalFin μ E E₂ u)) (evalFin μ E E₂ u ^ E γ)
+
+@[simp] theorem evalFin_one : evalFin μ E E₂ .one = 1 := rfl
+@[simp] theorem evalFin_gen (g : X) : evalFin μ E E₂ (.gen g) = μ g := rfl
+@[simp] theorem evalFin_mul (u v : PWord X) :
+    evalFin μ E E₂ (.mul u v) = evalFin μ E E₂ u * evalFin μ E E₂ v := rfl
+@[simp] theorem evalFin_inv (u : PWord X) :
+    evalFin μ E E₂ (.inv u) = (evalFin μ E E₂ u)⁻¹ := rfl
+@[simp] theorem evalFin_conj (u g : PWord X) :
+    evalFin μ E E₂ (.conj u g) = conjR (evalFin μ E E₂ u) (evalFin μ E E₂ g) := rfl
+@[simp] theorem evalFin_comm (u v : PWord X) :
+    evalFin μ E E₂ (.comm u v) = commR (evalFin μ E E₂ u) (evalFin μ E E₂ v) := rfl
+@[simp] theorem evalFin_zpow (u : PWord X) (k : ℤ) :
+    evalFin μ E E₂ (.zpow u k) = evalFin μ E E₂ u ^ k := rfl
+@[simp] theorem evalFin_z2pow (u : PWord X) (z : ℤ_[2]) :
+    evalFin μ E E₂ (.z2pow u z) = evalFin μ E E₂ u ^ E₂ z := rfl
+
+@[simp] theorem evalFin_profPow_omega2 (u : PWord X) :
+    evalFin μ E E₂ (.profPow u omega2) = powOmega2 (evalFin μ E E₂ u) := by
+  show @ite _ (omega2 = omega2) (Classical.propDecidable _) _ _ = _
+  rw [if_pos rfl]
+
+theorem evalFin_profPow_of_ne (u : PWord X) {γ : Zhat} (h : γ ≠ omega2) :
+    evalFin μ E E₂ (.profPow u γ) = evalFin μ E E₂ u ^ E γ := by
+  show @ite _ (γ = omega2) (Classical.propDecidable _) _ _ = _
+  rw [if_neg h]
+
+@[simp] theorem evalFin_omega2Pow (u : PWord X) :
+    evalFin μ E E₂ (omega2Pow u) = powOmega2 (evalFin μ E E₂ u) :=
+  evalFin_profPow_omega2 μ E E₂ u
+
 end EvalZ
+
+section MapEvalFin
+
+variable {X : Type*} {G H : Type*} [Group G] [Group H] [Finite G]
+
+/-- **Naturality of the finite denotation**: the `powOmega2` calculus is natural
+(`GQ2.powOmega2_map`), so the finite form transports along every group homomorphism. -/
+theorem map_evalFin (f : G →* H) (μ : X → G) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (w : PWord X) :
+    f (evalFin μ E E₂ w) = evalFin (fun g ↦ f (μ g)) E E₂ w := by
+  induction w with
+  | one => exact map_one f
+  | gen g => rfl
+  | mul u v ihu ihv => rw [evalFin_mul, evalFin_mul, map_mul, ihu, ihv]
+  | inv u ih => rw [evalFin_inv, evalFin_inv, map_inv, ih]
+  | conj u g ihu ihg => rw [evalFin_conj, evalFin_conj, map_conjR', ihu, ihg]
+  | comm u v ihu ihv => rw [evalFin_comm, evalFin_comm, map_commR', ihu, ihv]
+  | zpow u k ih => rw [evalFin_zpow, evalFin_zpow, map_zpow, ih]
+  | z2pow u z ih => rw [evalFin_z2pow, evalFin_z2pow, map_zpow, ih]
+  | profPow u γ ih =>
+      by_cases h : γ = omega2
+      · subst h
+        rw [evalFin_profPow_omega2, evalFin_profPow_omega2, powOmega2_map, ih]
+      · rw [evalFin_profPow_of_ne _ _ _ _ h, evalFin_profPow_of_ne _ _ _ _ h, map_zpow, ih]
+
+end MapEvalFin
 
 /-! ### Naturality of the integer-exponent denotation -/
 
 section MapEvalZ
 
 variable {X : Type*} {G H : Type*} [Group G] [Group H]
-
-private theorem map_conjR' {F : Type*} [FunLike F G H] [MonoidHomClass F G H] (f : F) (x g : G) :
-    f (conjR x g) = conjR (f x) (f g) := by simp [conjR]
-
-private theorem map_commR' {F : Type*} [FunLike F G H] [MonoidHomClass F G H] (f : F) (x y : G) :
-    f (commR x y) = commR (f x) (f y) := by simp [commR]
 
 /-- **Naturality of the integer-exponent denotation**, for any monoid homomorphism and with no
 finiteness or topology: `evalZ` uses only `mul`, `inv`, `zpow`, `conjR`, `commR`. -/
@@ -420,6 +507,31 @@ theorem eval_eq_evalNat_exponent (μ : X → P) {w : PWord X} (hw : w.IsOmega2On
     eval μ w = evalNat μ (omega2Exp (Monoid.exponent P)) w :=
   eval_eq_evalNat_of_dvd Monoid.exponent_ne_zero_of_finite
     (fun x ↦ Monoid.order_dvd_exponent x) μ hw
+
+/-- **Quadruple, part 1 in its sharpest form** (packet Lem. 2.2): over a finite group the
+profinite denotation *is* the `powOmega2` denotation, on every `ω₂`-only word, with no exponent
+level, no divisibility hypothesis and no choice of integer representative. -/
+theorem eval_eq_evalFin (μ : X → P) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (w : PWord X)
+    (hw : w.IsOmega2Only) : eval μ w = evalFin μ E E₂ w := by
+  induction w with
+  | one => rfl
+  | gen g => rfl
+  | mul u v ihu ihv => rw [eval_mul, evalFin_mul, ihu hw.1, ihv hw.2]
+  | inv u ih => rw [eval_inv, evalFin_inv, ih hw]
+  | conj u g ihu ihg => rw [eval_conj, evalFin_conj, ihu hw.1, ihg hw.2]
+  | comm u v ihu ihv => rw [eval_comm, evalFin_comm, ihu hw.1, ihv hw.2]
+  | zpow u k ih => rw [eval_zpow, evalFin_zpow, ih hw]
+  | z2pow u z ih => exact hw.elim
+  | profPow u γ ih =>
+      obtain ⟨rfl, hu⟩ := hw
+      rw [eval_profPow, zpowHat_omega2, evalFin_profPow_omega2, ih hu]
+
+/-- The two finite forms agree on the `ω₂`-only fragment: choosing the global representative
+`omega2Exp N` computes the `2`-primary components. -/
+theorem evalFin_eq_evalNat_of_dvd {N : ℕ} (hN : N ≠ 0) (hord : ∀ x : P, orderOf x ∣ N)
+    (μ : X → P) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) {w : PWord X} (hw : w.IsOmega2Only) :
+    evalFin μ E E₂ w = evalNat μ (omega2Exp N) w :=
+  (eval_eq_evalFin μ E E₂ w hw).symm.trans (eval_eq_evalNat_of_dvd hN hord μ hw)
 
 end BridgeFinite
 

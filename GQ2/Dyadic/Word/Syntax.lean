@@ -139,6 +139,17 @@ theorem padicOmega2Exp_modEq {N M : ℕ} (hdvd : N ∣ M) (hM : M ≠ 0) (z : �
   have hcrt := (Nat.modEq_and_modEq_iff_modEq_mul hcop).mp ⟨h2, hodd⟩
   rwa [Nat.ordProj_mul_ordCompl_eq_self N 2] at hcrt
 
+/-- `1 · ω₂ = ω₂`: the embedding is normalized so that the `2`-adic unit `1` recovers the
+idempotent of `GQ2/Zhat.lean`. -/
+theorem padicOmega2Exp_one (N : ℕ) : padicOmega2Exp 1 N = omega2Exp N := by
+  unfold padicOmega2Exp
+  by_cases hα : N.factorization 2 = 0
+  · have : omega2Exp N = 0 := by simp [omega2Exp, hα]
+    simp [this]
+  · have h1 : (1 : ℕ) < 2 ^ N.factorization 2 :=
+      Nat.one_lt_two_pow_iff.mpr hα
+    rw [map_one, ZMod.val_one_eq_one_mod, Nat.mod_eq_of_lt h1, one_mul]
+
 /-- **The canonical splitting `ℤ₂ ↪ ℤ̂`**, `z ↦ z·ω₂`: the element of `ℤ̂` whose `2`-component is
 `z` and whose odd-primary components vanish.  Constructed componentwise from `padicOmega2Exp`,
 exactly as `GQ2.omega2 = padicOmega2 1` is constructed from `GQ2.omega2Exp`; compatibility of the
@@ -184,6 +195,10 @@ theorem zpowHat_padicOmega2 (z : ℤ_[2]) (x : P) :
   rw [zpowHat_ofInt, zpow_natCast,
     pow_eq_pow_iff_modEq.mpr (padicOmega2Exp_modEq (Nat.dvd_lcm_right _ _) hM z)] at hev
   exact hev.symm
+
+/-- The embedding is normalized: at `z = 1` it computes the `ω₂`-power. -/
+theorem zpowHat_padicOmega2_one (x : P) : x ^ᶻ padicOmega2 1 = x ^ᶻ omega2 := by
+  rw [zpowHat_padicOmega2, padicOmega2Exp_one, zpowHat_omega2, powOmega2]
 
 /-- `padicOmega2` kills pro-odd elements: if `orderOf x` is odd then `x ^ᶻ (z·ω₂) = 1`.  This is
 the semantic core of Gate B's rule **T1** for `ℤ₂`-exponents. -/
