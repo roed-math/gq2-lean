@@ -242,3 +242,4 @@ import GQ2.Roe.Main
 
 -- Dyadic campaign (general 2-adic fields) — see docs/dyadic/
 import GQ2.Dyadic.Word.Blocks
+import GQ2.Dyadic.Parameters
