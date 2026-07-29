@@ -244,6 +244,7 @@ import GQ2.Roe.Main
 import GQ2.Dyadic.Word.Blocks
 import GQ2.Dyadic.Word.Syntax
 import GQ2.Dyadic.Word.Eval
+import GQ2.Dyadic.Branches
 import GQ2.Dyadic.Parameters
 import GQ2.Dyadic.FinitelyGeneratedK
 import GQ2.Dyadic.Projectivity
