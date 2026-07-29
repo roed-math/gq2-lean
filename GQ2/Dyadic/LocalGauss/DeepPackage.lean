@@ -238,4 +238,170 @@ theorem kummerAnc_mem_Z1 (anc : ContinuousMonoidHom Θ GalQ2) {A β : ℚ̄₂}
 
 end KummerBricks
 
+/-! ## §2 Deep and mid Kummer classes at an anchor
+
+The `Γ`-side twins of `GQ2.LocalKummer.deepClasses` (`GQ2/LocalKummer.lean`),
+`GQ2.deepClassesSubgroup` (`GQ2/AdmissibleCount.lean`) and `GQ2.midClassesSubgroup`
+(`GQ2/DeepDuality.lean`): the *units* are the `ℚ₂` predicates at the anchored subgroup, only the
+*classes* move to `H¹(Θ, 𝔽₂)`. -/
+
+section DeepClasses
+
+variable {Θ : Type} [Group Θ] [TopologicalSpace Θ] [IsTopologicalGroup Θ]
+  [DistribMulAction Θ (ZMod 2)] [ContinuousSMul Θ (ZMod 2)]
+
+/-- **The deep Kummer classes at an anchor** — `GQ2.LocalKummer.deepClasses` retyped: classes of
+anchored Kummer cocycles of units that are deep for the anchored subgroup. -/
+def deepClassesAt (anc : ContinuousMonoidHom Θ GalQ2) : Set (H1 Θ (ZMod 2)) :=
+  {ξ | ∃ A β : ℚ̄₂, SectionSix.IsDeepUnit (ancSubgroup anc) A ∧ β ^ 2 = A ∧ β ≠ 0 ∧
+    H1ofFun Θ (fun n : Θ => Kummer.kummerCocycleFun β (anc n)) = ξ}
+
+/-- **The mid Kummer classes at an anchor** — the `≤`-relaxation, mirroring
+`GQ2.midClassesSubgroup`'s carrier. -/
+def midClassesAt (anc : ContinuousMonoidHom Θ GalQ2) : Set (H1 Θ (ZMod 2)) :=
+  {ξ | ∃ A β : ℚ̄₂, IsMidUnit (ancSubgroup anc) A ∧ β ^ 2 = A ∧ β ≠ 0 ∧
+    H1ofFun Θ (fun n : Θ => Kummer.kummerCocycleFun β (anc n)) = ξ}
+
+variable (anc : ContinuousMonoidHom Θ GalQ2)
+
+/-- The trivial unit `A = 1` gives the zero class (used for `0 ∈ deepClasses/midClasses`). -/
+theorem kummerAnc_one_eq_zero :
+    H1ofFun Θ (fun n : Θ => Kummer.kummerCocycleFun (1 : ℚ̄₂) (anc n)) = 0 := by
+  have hk1 : (fun n : Θ => Kummer.kummerCocycleFun (1 : ℚ̄₂) (anc n)) = 0 := by
+    funext n
+    exact Kummer.kummerCocycleFun_eq0 (by rw [AlgEquiv.smul_def, map_one])
+  rw [hk1, H1ofFun_of_mem (zero_mem _)]
+  exact map_zero (H1mk Θ (ZMod 2))
+
+omit [IsTopologicalGroup Θ] [ContinuousSMul Θ (ZMod 2)] in
+/-- `H¹(Θ, 𝔽₂)` is 2-torsion, so negation is the identity on it. -/
+theorem h1_zmodTwo_add_self (x : H1 Θ (ZMod 2)) : x + x = 0 := by
+  induction x using QuotientAddGroup.induction_on with
+  | H z =>
+    have hz : z + z = 0 := by
+      apply Subtype.ext
+      funext g
+      show z.1 g + z.1 g = 0
+      have : ∀ a : ZMod 2, a + a = 0 := by decide
+      exact this _
+    show H1mk Θ (ZMod 2) z + H1mk Θ (ZMod 2) z = 0
+    rw [← map_add, hz, map_zero]
+
+/-- Deep units are closed under products (the `ℚ₂` computation of `GQ2.deepClassesSubgroup`,
+restated at an arbitrary subgroup so both `Θ`-side subgroup proofs can share it). -/
+theorem isDeepUnit_mul {N : Subgroup GalQ2} {A₁ A₂ : ℚ̄₂}
+    (h₁ : SectionSix.IsDeepUnit N A₁) (h₂ : SectionSix.IsDeepUnit N A₂) :
+    SectionSix.IsDeepUnit N (A₁ * A₂) := by
+  obtain ⟨hA₁0, hA₁fix, b₁, hb₁fix, hA₁eq, hb₁⟩ := h₁
+  obtain ⟨hA₂0, hA₂fix, b₂, hb₂fix, hA₂eq, hb₂⟩ := h₂
+  have h2le : ‖(2 : ℚ̄₂)‖ ≤ 1 := by simpa using IsUltrametricDist.norm_natCast_le_one ℚ̄₂ 2
+  refine ⟨mul_ne_zero hA₁0 hA₂0, fun g hg => ?_, b₁ + b₂ + 2 * b₁ * b₂, fun g hg => ?_,
+    by rw [hA₁eq, hA₂eq]; ring, ?_⟩
+  · rw [AlgEquiv.smul_def, map_mul, ← AlgEquiv.smul_def, ← AlgEquiv.smul_def,
+      hA₁fix g hg, hA₂fix g hg]
+  · rw [AlgEquiv.smul_def, map_add, map_add, map_mul, map_mul, map_ofNat,
+      ← AlgEquiv.smul_def, ← AlgEquiv.smul_def, hb₁fix g hg, hb₂fix g hg]
+  · have hprod : ‖(2 : ℚ̄₂) * b₁ * b₂‖ < 1 := by
+      rw [norm_mul, norm_mul]
+      calc ‖(2 : ℚ̄₂)‖ * ‖b₁‖ * ‖b₂‖
+          ≤ 1 * ‖b₁‖ * ‖b₂‖ := by gcongr
+        _ = ‖b₁‖ * ‖b₂‖ := by ring
+        _ ≤ ‖b₁‖ * 1 := mul_le_mul_of_nonneg_left hb₂.le (norm_nonneg b₁)
+        _ = ‖b₁‖ := mul_one _
+        _ < 1 := hb₁
+    refine lt_of_le_of_lt (IsUltrametricDist.norm_add_le_max _ _) ?_
+    rw [max_lt_iff]
+    refine ⟨lt_of_le_of_lt (IsUltrametricDist.norm_add_le_max _ _) ?_, hprod⟩
+    rw [max_lt_iff]
+    exact ⟨hb₁, hb₂⟩
+
+/-- Mid units are closed under products (the `≤`-mirror of `isDeepUnit_mul`). -/
+theorem isMidUnit_mul {N : Subgroup GalQ2} {A₁ A₂ : ℚ̄₂}
+    (h₁ : IsMidUnit N A₁) (h₂ : IsMidUnit N A₂) : IsMidUnit N (A₁ * A₂) := by
+  obtain ⟨hA₁0, hA₁fix, b₁, hb₁fix, hA₁eq, hb₁⟩ := h₁
+  obtain ⟨hA₂0, hA₂fix, b₂, hb₂fix, hA₂eq, hb₂⟩ := h₂
+  have h2le : ‖(2 : ℚ̄₂)‖ ≤ 1 := by simpa using IsUltrametricDist.norm_natCast_le_one ℚ̄₂ 2
+  refine ⟨mul_ne_zero hA₁0 hA₂0, fun g hg => ?_, b₁ + b₂ + 2 * b₁ * b₂, fun g hg => ?_,
+    by rw [hA₁eq, hA₂eq]; ring, ?_⟩
+  · rw [AlgEquiv.smul_def, map_mul, ← AlgEquiv.smul_def, ← AlgEquiv.smul_def,
+      hA₁fix g hg, hA₂fix g hg]
+  · rw [AlgEquiv.smul_def, map_add, map_add, map_mul, map_mul, map_ofNat,
+      ← AlgEquiv.smul_def, ← AlgEquiv.smul_def, hb₁fix g hg, hb₂fix g hg]
+  · have hprod : ‖(2 : ℚ̄₂) * b₁ * b₂‖ ≤ 1 := by
+      rw [norm_mul, norm_mul]
+      calc ‖(2 : ℚ̄₂)‖ * ‖b₁‖ * ‖b₂‖
+          ≤ 1 * ‖b₁‖ * ‖b₂‖ := by gcongr
+        _ = ‖b₁‖ * ‖b₂‖ := by ring
+        _ ≤ ‖b₁‖ * 1 := mul_le_mul_of_nonneg_left hb₂ (norm_nonneg b₁)
+        _ = ‖b₁‖ := mul_one _
+        _ ≤ 1 := hb₁
+    refine le_trans (IsUltrametricDist.norm_add_le_max _ _) ?_
+    rw [max_le_iff]
+    refine ⟨le_trans (IsUltrametricDist.norm_add_le_max _ _) ?_, hprod⟩
+    rw [max_le_iff]
+    exact ⟨hb₁, hb₂⟩
+
+/-- The anchored Kummer class of a product of two anchored-fixed units is the sum of the
+classes. -/
+theorem kummerAnc_class_mul {A₁ A₂ β₁ β₂ : ℚ̄₂} (hsq₁ : β₁ ^ 2 = A₁) (hsq₂ : β₂ ^ 2 = A₂)
+    (hβ₁ : β₁ ≠ 0) (hβ₂ : β₂ ≠ 0)
+    (hA₁fix : ∀ g ∈ ancSubgroup anc, g • A₁ = A₁) (hA₂fix : ∀ g ∈ ancSubgroup anc, g • A₂ = A₂) :
+    H1ofFun Θ (fun n : Θ => Kummer.kummerCocycleFun (β₁ * β₂) (anc n))
+      = H1ofFun Θ (fun n : Θ => Kummer.kummerCocycleFun β₁ (anc n))
+        + H1ofFun Θ (fun n : Θ => Kummer.kummerCocycleFun β₂ (anc n)) := by
+  have hsplit : (fun n : Θ => Kummer.kummerCocycleFun (β₁ * β₂) (anc n))
+      = (fun n : Θ => Kummer.kummerCocycleFun β₁ (anc n))
+        + fun n : Θ => Kummer.kummerCocycleFun β₂ (anc n) := by
+    funext n
+    exact kcf_mul_of_fixedAt hsq₁ hsq₂ hβ₁ hβ₂ (hA₁fix _ (mem_ancSubgroup anc n))
+      (hA₂fix _ (mem_ancSubgroup anc n))
+  rw [hsplit]
+  exact DeepPart.H1ofFun_add (kummerAnc_mem_Z1 anc hsq₁ hβ₁ hA₁fix)
+    (kummerAnc_mem_Z1 anc hsq₂ hβ₂ hA₂fix)
+
+/-- **The deep classes form an additive subgroup** — `GQ2.deepClassesSubgroup` retyped. -/
+def deepClassesSubgroupAt : AddSubgroup (H1 Θ (ZMod 2)) where
+  carrier := deepClassesAt anc
+  zero_mem' :=
+    ⟨1, 1, ⟨one_ne_zero, fun g _ => by rw [AlgEquiv.smul_def, map_one], 0,
+      fun g _ => smul_zero g, by ring, by rw [norm_zero]; exact zero_lt_one⟩,
+      one_pow 2, one_ne_zero, kummerAnc_one_eq_zero anc⟩
+  add_mem' := by
+    rintro ξ η ⟨A₁, β₁, hd₁, hsq₁, hne₁, rfl⟩ ⟨A₂, β₂, hd₂, hsq₂, hne₂, rfl⟩
+    exact ⟨A₁ * A₂, β₁ * β₂, isDeepUnit_mul hd₁ hd₂, by rw [mul_pow, hsq₁, hsq₂],
+      mul_ne_zero hne₁ hne₂,
+      kummerAnc_class_mul anc hsq₁ hsq₂ hne₁ hne₂ hd₁.2.1 hd₂.2.1⟩
+  neg_mem' := by
+    intro x hx
+    rwa [neg_eq_of_add_eq_zero_left (h1_zmodTwo_add_self x)]
+
+/-- **The mid classes form an additive subgroup** — `GQ2.midClassesSubgroup` retyped. -/
+def midClassesSubgroupAt : AddSubgroup (H1 Θ (ZMod 2)) where
+  carrier := midClassesAt anc
+  zero_mem' :=
+    ⟨1, 1, ⟨one_ne_zero, fun g _ => by rw [AlgEquiv.smul_def, map_one], 0,
+      fun g _ => smul_zero g, by ring, by rw [norm_zero]; exact zero_le_one⟩,
+      one_pow 2, one_ne_zero, kummerAnc_one_eq_zero anc⟩
+  add_mem' := by
+    rintro ξ η ⟨A₁, β₁, hd₁, hsq₁, hne₁, rfl⟩ ⟨A₂, β₂, hd₂, hsq₂, hne₂, rfl⟩
+    exact ⟨A₁ * A₂, β₁ * β₂, isMidUnit_mul hd₁ hd₂, by rw [mul_pow, hsq₁, hsq₂],
+      mul_ne_zero hne₁ hne₂,
+      kummerAnc_class_mul anc hsq₁ hsq₂ hne₁ hne₂ hd₁.2.1 hd₂.2.1⟩
+  neg_mem' := by
+    intro x hx
+    rwa [neg_eq_of_add_eq_zero_left (h1_zmodTwo_add_self x)]
+
+@[simp] theorem mem_deepClassesSubgroupAt {ξ : H1 Θ (ZMod 2)} :
+    ξ ∈ deepClassesSubgroupAt anc ↔ ξ ∈ deepClassesAt anc := Iff.rfl
+
+@[simp] theorem mem_midClassesSubgroupAt {ξ : H1 Θ (ZMod 2)} :
+    ξ ∈ midClassesSubgroupAt anc ↔ ξ ∈ midClassesAt anc := Iff.rfl
+
+/-- Deep classes are mid classes (`U_{e+1} ⊆ U_e`). -/
+theorem deepClassesAt_subset_midClassesAt : deepClassesAt anc ⊆ midClassesAt anc := by
+  rintro ξ ⟨A, β, ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩, hsq, hβ0, rfl⟩
+  exact ⟨A, β, ⟨hA0, hAfix, b, hbfix, hAeq, hb.le⟩, hsq, hβ0, rfl⟩
+
+end DeepClasses
+
 end GQ2.Dyadic
