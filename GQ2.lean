@@ -254,3 +254,4 @@ import GQ2.Dyadic.Projectivity
 import GQ2.Dyadic.LocalGauss.EulerShapiro
 import GQ2.Dyadic.LocalGauss.Q0
 import GQ2.Dyadic.LocalGauss.PairingK
+import GQ2.Dyadic.LocalGauss.Unramified
