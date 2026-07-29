@@ -132,6 +132,17 @@ to `master` only at owner gate G3.
   ⚠ Risk adopted as a gate: all five quadratic instances have r ≤ 1 (λ-sign-blind) — the
   synthetic r = 2 mock-bundle regression (memo §7 R2) is REQUIRED before any consumer
   merges. AX4 dispatched (ax worktree, now free).
+- 2026-07-29 (orchestrator, AX4 outcomes — `docs/dyadic/ax4-proposal.md`): axiom-lane final
+  shape: **exactly two proposed axioms** (AX3 `markedRecipAt`, AX4 `orientedTameQuotientAt`),
+  both owner-gated at G-AX, flip order AX3 → AX4. Adopted into specs: (i) **F3 must split**
+  (AX4 Q4): `Tq`/`nuTq`/`tame_relation_q` go in a leaf file importable by `Axioms.lean`
+  (`GQ2/Dyadic/TameQuotientK.lean`-style; BoundaryFrame-vs-Prop32 precedent), boundary
+  theorems separate; F3 exports `gen_tq_quotient`, `o2_Tq_eq_bot`, `tq_two_equiv` — F3's
+  dispatch prompt updated accordingly; (ii) the `DyadicUnitFiltration` parametrization is
+  the adopted statement shape (supplies canonical `FF.π`, also kills AX3's R8 vacuity mode);
+  (iii) `ℚ₂(√5)` q_K = 4 regression mandated wherever T_q enters; (iv) W_K = W∩G_K
+  compatibility clause OMITTED (no consumer). PJ1's build makes `gq2-dyadic-pj` the standing
+  BUILT worktree — wave-boundary audits (check-5) run there after syncing.
 
 ## Obligation tracker
 
@@ -390,10 +401,10 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 | AX1 | statement design: `G_K` topological finite generation (NSW 7.4.1) | opus | `docs/dyadic/ax1-proposal.md` | — | **done 2026-07-29** (043c46f; **ALSO NOT AN AXIOM — provable from B1** via profinite Nielsen–Schreier, scratch-verified std-3+B1; Route D adopted: census 9→9, B1 untouched; implementation = FG1) |
 | AX2 | Euler characteristic over `K` — derivation spike verdict, else proposal | opus | `docs/dyadic/ax2-proposal.md` | LG1 ✓ | **closed 2026-07-29 — NOT NEEDED** (derivable from B7; implementation = LG2a; census unchanged) |
 | AX3 | marked local reciprocity over `K` (`MarkedRecip`: full ν_ur + `(C,I,λ,γ)`) | fable | `docs/dyadic/ax3-proposal.md` | — | **done 2026-07-29** (1c6ec04 → merged; ONE axiom proposed: `markedRecipAt`, 12-field `MarkedRecip R K`, census +1→10 **pending owner G-AX**; χ_K/C derivable, ν_ur^K+rec_K axiom-backed, λ/I/γ derived; (r,ε,η) extraction API + 5 instance vectors; ⚠ synthetic r=2 mock test mandated; owner Qs 1–7 in memo) |
-| AX4 | oriented tame quotient of `G_K` at `q_K` | opus | `docs/dyadic/ax4-proposal.md` | AX3 | **dispatched 2026-07-29** |
+| AX4 | oriented tame quotient of `G_K` at `q_K` | opus | `docs/dyadic/ax4-proposal.md` | AX3 | **done 2026-07-29** (56b565c → merged; **genuine axiom, +1 → census 11 with AX3, owner-gated**; 5-clause `OrientedTameQuotientK (markedRecipAt K) FF` parametrized by `DyadicUnitFiltration` — SOUNDNESS-CRITICAL (free f proves False: T₂ᵃᵇ=Ẑ vs T₄ᵃᵇ=Ẑ×ℤ/3); AX3-before-AX4 flip ordering; √5 (q_K=4) is the ONLY q≠2 instance — #Hom(T_q,ℤ/3) regression mandated; owner Qs 1–8) |
 | AX5 | ramified-simple projectivity — try-prove-first, else proposal | opus | `docs/dyadic/ax5-proposal.md` (+`GQ2/Dyadic/Projectivity.lean` if proved) | — | **done 2026-07-29** (a49d1d6 → merged 94f74f6; **VERDICT: PROVABLE, census +0** — general-q theorem verified by 922-ln spike over RegularSummand chain, std-3; consumer finding: InflationVanishes needs averaging NOT projectivity; implementation → PJ1) |
 
-| PJ1 | projectivity implementation: general-q leaves + hypothesis swap (per ax5-proposal §4.2/§6, in-place edits APPROVED) | opus | `GQ2/Dyadic/Projectivity.lean`, `GQ2/RegularSummand/Trace.lean`, `GQ2/RegularSummand/Involution.lean` | AX5 ✓ | **dispatched 2026-07-29** |
+| PJ1 | projectivity implementation: general-q leaves + hypothesis swap (per ax5-proposal §4.2/§6, in-place edits APPROVED) | opus | `GQ2/Dyadic/Projectivity.lean`, `GQ2/RegularSummand/Trace.lean`, `GQ2/RegularSummand/Involution.lean` | AX5 ✓ | **done 2026-07-29** (65c93bc → merged, import registered; headline `GQ2.Dyadic.lemma_6_11_of_tame_pair_pow` + 4 leaves std-3; q=2 wrappers byte-identical (verified vs git show); FULL build 3382 jobs green + check-5 RAN clean (5 capstones, 3 twin pairs, census 9); pj worktree kept as the BUILT audit worktree; deferred: one-line docstring refresh in RegularSummand.lean umbrella (pre-existing drift class)) |
 
 | FG1 | G_K finite generation as a THEOREM from B1 (ax1-proposal §3.2, Route D) | opus | `GQ2/Dyadic/FinitelyGeneratedK.lean` | AX1 ✓ | **done 2026-07-29** (cb314e1 → merged, import registered; 129 ln, std-3+B1 print verified; memo proof verbatim; ⚠ naming hazard logged: a future k=⊥ regression must NOT reuse the base name absGalQ2_isTopologicallyFinitelyGenerated — census infra substring-pins it; worktree removed) |
 
