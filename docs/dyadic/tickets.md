@@ -157,14 +157,38 @@ to `master` only at owner gate G3.
   this ticket by `lake exe cache get` + `lake build GQ2.Dyadic.Word.{Syntax,Eval}` in the ww
   worktree (builds only the import closure). pj audit worktree synced + build pre-warmed.
   S1.4/S1.5/S1.7 re-dispatched on the simplification board simultaneously.
+- 2026-07-29 (orchestrator, MC1 outcomes — `docs/dyadic/mc-design.md`, memo governs MC2–MC5):
+  (i) **correction adopted**: the "M and N have different torsion" premise (this board's MC1
+  spec + recon/mc-survey) is FALSE — all three cores have q = 2, torsion ℤ/2; the real
+  separators are `im χ` (ℤ/2×ℤ₂ vs procyclic) and the torsion generator's position (memo
+  §7.1; spec text left as history, memo governs). (ii) **Lifting is three strata** (memo §5):
+  S1 elementary Nielsen (constructed+verified), S2 unit scalings — dischargeable from
+  existing B8 (`GQ2/PeripheralAction.lean:72-92`, applies on the abstract free pro-2 rank-2
+  group via nested three-term peripheral factorizations), S3 "mixing" transvections — in the
+  stabilizer, needed for ν-correction, degree-≥3 Labute content unreachable by Nielsen/B8 →
+  proposed per-core binders `MMixHypothesis`/`NMixHypothesis` (BLab pattern, NEVER axioms) +
+  an MC3a direct-proof spike. **Owner-gated: binder acceptance + spike authorization (memo
+  Q1), B8-dependence vs binding the scalings (Q2).** (iii) ⚠ **Gap (memo §7.2, owner Q4)**:
+  the compact-M marked change of variables is MISSING from the vendored sources (procyclic
+  recipe degenerates at r = 0) — F4/MC5/WM0 consumers blocked on it; possibly a packet-author
+  question. (iv) **Packet §14 criterion flag (memo §7.3)**: the stated Smith–Witt completion
+  criterion implicitly assumes the S3 stratum — flagged, not silently resolved. (v) G-Lab
+  sheet (memo §8) rec: **stay parametrized** (binders; a rank-four levelwise campaign ≈6–8k
+  ln/core shouldn't start before G-1) — DECISION STAYS WITH OWNER. (vi) MC2 adopted specs:
+  cup Gram is NOT `decide`-able (2^α defeats drRelZ_drCC) — budget an exponent/normal-form
+  lemma (reusable by all five branch words); NO Hensel-root work needed (orientations closed
+  form); add "free pro-2 rank 2" + generic B8-transport lemmas as MC2 assets. (vii) MC5:
+  handles enlarge the stabilizer with new S3-type directions (not a formality). (viii) AX
+  lane: any future "rank-four peripheral action" axiom proposal is CLOSED in favor of B8.
+  (ix) SD confirmation: rank enters only as demushkinRank = n+2, card_H1 = 2^{n+2}.
 
 ## Obligation tracker
 
 | obligation | tickets | status |
 |---|---|---|
 | SD-n | SD1 → SD2 → SD3 | pending |
-| MC-M | MC1 → MC2 → MC3 (+MC5) | pending |
-| MC-N | MC1 → MC2 → MC4 (+MC5) | pending |
+| MC-M | MC1 ✓ → MC2 → MC3 (+MC5) | in progress |
+| MC-N | MC1 ✓ → MC2 → MC4 (+MC5) | in progress |
 | LG-K | LG1 ✓ → LG2a/LG2 → LG3/LG4a/LG4b → LG5 | in progress |
 | WC-N0 | F2, WW1–WW5 → WN0-a/b/c | pending |
 | WC-M0 | F2, WW1–WW5 → WM0-a/b/c | pending |
@@ -277,7 +301,7 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| MC1 | design memo: rank-four frames, Smith–Witt stabilizer generators, lifting strategy | opus (was fable) | `docs/dyadic/mc-design.md` | recon/mc-survey | **re-dispatched 2026-07-29 (opus)**, worktree synced to 0ed4244 |
+| MC1 | design memo: rank-four frames, Smith–Witt stabilizer generators, lifting strategy | opus (was fable) | `docs/dyadic/mc-design.md` | recon/mc-survey | **done 2026-07-29** (a2ed4c5 → merged a296a7a; 876-ln memo: closed-form frames+orientations for both cores (M = ℚ₂ re-index under 2↦m, N = new no-forced-row frame), 7/6 Nielsen families, **three-strata lifting** (S1 Nielsen ✓ / S2 via B8 / S3 mixing = Labute content → `MMixHypothesis`/`NMixHypothesis` binders), G-Lab sheet rec = stay parametrized; ⚠ torsion-premise correction + compact-M CoV gap + packet-§14 criterion flag — see log; owner Qs 1–6 in memo §9) |
 | MC2 | presented cores D_P, characters, abelian 4-frames | opus | `GQ2/Dyadic/MarkedCore/Cores.lean` | MC1, F1 | pending |
 | MC3 | **MC-M**: classification + lifting for `M_α` (uniform in α) | fable | `GQ2/Dyadic/MarkedCore/M.lean` | MC2 | pending |
 | MC4 | **MC-N**: classification + lifting for `N_α` (uniform in α) | fable | `GQ2/Dyadic/MarkedCore/N.lean` | MC2 | pending |
