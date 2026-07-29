@@ -30,21 +30,24 @@ one | gen | mul | inv | conj | comm | zpow (ℤ) | z2pow (ℤ_[2]) | profPow (�
 Correspondence with the Python grammar (`ast.py`, "Constructors (exactly campaign doc
 section 5)"):
 
-| Python | Lean | note |
-|---|---|---|
-| `Identity()` | `PWord.one` | |
-| `Generator(name)` | `PWord.gen g` | names are replaced by the *semantic* alphabet `Generator n` |
-| `Multiply(children)` | `PWord.mul` | binary; the `n`-ary Python product is `PWord.prodList` |
-| `Inverse(w)` | `PWord.inv` | |
-| `IntegerPower(w, e)` | `PWord.zpow w k` | Python's `e` is symbolic, but "concrete finite backends must only ever receive fully evaluated ints" — so the Lean exponent is a plain `ℤ` |
-| `ZhatPower(w, spec)` | `PWord.profPow w γ` | the three Python specs `Int n`/`Omega2`/`EtaHat` are the `ℤ̂`-elements `Zhat.ofInt n`, `omega2`, `etaHatZ` |
-| `Omega2Power(w)` | `PWord.omega2Pow w` | *sugar* for `profPow w omega2`, matching Python's "semantically equal to `ZhatPower(word, Omega2())`" |
-| `Conjugate(w, g)` | `PWord.conj w g` | `w^g = g⁻¹ w g` |
-| `Commutator(x, y)` | `PWord.comm x y` | `[x,y] = x⁻¹y⁻¹xy` |
-| `OrbitNorm`, `HyperbolicHandles` | — | **no constructor**: S1.9 landed these as group-level blocks (`GQ2/Dyadic/Word/Blocks.lean`: `orbitNorm`, `handlesProd`) |
-| `Shadow` | — | **no constructor**: semantics owned by S4.2 |
-| `Auxiliary` | — | **no constructor**: a display/sharing device, not a group operation |
-| — | `PWord.z2pow w z` | Lean-only, per packet Rem. 2.3 ("a word syntax should distinguish integral powers, `ℤ₂`-powers, and `ℤ̂`-powers") |
+* `Identity()` ↦ `PWord.one`; `Inverse(w)` ↦ `PWord.inv`.
+* `Generator(name)` ↦ `PWord.gen g`: Python's generator *names* become the *semantic* alphabet
+  `Generator n` of `GQ2/Dyadic/Parameters.lean`.
+* `Multiply(children)` ↦ `PWord.mul`, binary; the `n`-ary Python product is `PWord.prodList`.
+* `IntegerPower(w, e)` ↦ `PWord.zpow w k`.  Python's `e` may be symbolic, but "concrete finite
+  backends must only ever receive fully evaluated ints", so the Lean exponent is a plain `ℤ`.
+* `ZhatPower(w, spec)` ↦ `PWord.profPow w γ`: the three Python specs `Int n` / `Omega2` /
+  `EtaHat` are the `ℤ̂`-elements `Zhat.ofInt n`, `GQ2.omega2` and `etaHatZ`.
+* `Omega2Power(w)` ↦ `PWord.omega2Pow w`, *sugar* for `profPow w omega2` — matching Python's
+  "semantically equal to `ZhatPower(word, Omega2())`".
+* `Conjugate(w, g)` ↦ `PWord.conj w g` (`w^g = g⁻¹ w g`);
+  `Commutator(x, y)` ↦ `PWord.comm x y` (`[x,y] = x⁻¹y⁻¹xy`).
+* `OrbitNorm`, `HyperbolicHandles`: **no constructor** — S1.9 landed these as group-level blocks
+  (`GQ2/Dyadic/Word/Blocks.lean`: `orbitNorm`, `handlesProd`).
+* `Shadow`: **no constructor**, semantics owned by S4.2.  `Auxiliary`: **no constructor**, a
+  display/sharing device rather than a group operation.
+* `PWord.z2pow w z` is Lean-only, per packet Rem. 2.3 ("a word syntax should distinguish
+  integral powers, `ℤ₂`-powers, and `ℤ̂`-powers").
 
 `x^{-g}` is **sugar** (`PWord.invConj`), never an exponent — packet Rem. 2.3 is explicit that it
 must not be parsed as a `-g` exponent.
