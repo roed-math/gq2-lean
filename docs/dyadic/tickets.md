@@ -123,6 +123,15 @@ to `master` only at owner gate G3.
   `tfg` a record field (the interim binder is the permanent shape under Route D); the LG lane
   never consumes AX1. Axiom-lane scoreboard: **AX1/AX2/AX5 all eliminated as axioms today**;
   the general-K trust-base growth is so far ZERO, pending AX3/AX4.
+- 2026-07-29 (orchestrator, AX3 outcomes — `docs/dyadic/ax3-proposal.md`): the irreducible
+  core is **one axiom** (`markedRecipAt`; extend-don't-replace; B5/B3c untouched; B10's
+  K-analog delegated to AX4 parametrized by `MarkedRecip`). **Census flip is owner-gated
+  (G-AX) and NOT executed** — consumers (F4, MC5, boundary lane) use the memo's interim
+  hypothesis binders until sign-off. Owner questions Q1–Q7 pending, incl. the
+  `HasEqualNormValueGroups` import-cycle fix and who lands `MarkedRecipBundle.lean`.
+  ⚠ Risk adopted as a gate: all five quadratic instances have r ≤ 1 (λ-sign-blind) — the
+  synthetic r = 2 mock-bundle regression (memo §7 R2) is REQUIRED before any consumer
+  merges. AX4 dispatched (ax worktree, now free).
 
 ## Obligation tracker
 
@@ -380,8 +389,8 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 |---|---|---|---|---|---|
 | AX1 | statement design: `G_K` topological finite generation (NSW 7.4.1) | opus | `docs/dyadic/ax1-proposal.md` | — | **done 2026-07-29** (043c46f; **ALSO NOT AN AXIOM — provable from B1** via profinite Nielsen–Schreier, scratch-verified std-3+B1; Route D adopted: census 9→9, B1 untouched; implementation = FG1) |
 | AX2 | Euler characteristic over `K` — derivation spike verdict, else proposal | opus | `docs/dyadic/ax2-proposal.md` | LG1 ✓ | **closed 2026-07-29 — NOT NEEDED** (derivable from B7; implementation = LG2a; census unchanged) |
-| AX3 | marked local reciprocity over `K` (`MarkedRecip`: full ν_ur + `(C,I,λ,γ)`) | fable | `docs/dyadic/ax3-proposal.md` | — | **dispatched 2026-07-29** |
-| AX4 | oriented tame quotient of `G_K` at `q_K` | opus | `docs/dyadic/ax4-proposal.md` | AX3 | pending |
+| AX3 | marked local reciprocity over `K` (`MarkedRecip`: full ν_ur + `(C,I,λ,γ)`) | fable | `docs/dyadic/ax3-proposal.md` | — | **done 2026-07-29** (1c6ec04 → merged; ONE axiom proposed: `markedRecipAt`, 12-field `MarkedRecip R K`, census +1→10 **pending owner G-AX**; χ_K/C derivable, ν_ur^K+rec_K axiom-backed, λ/I/γ derived; (r,ε,η) extraction API + 5 instance vectors; ⚠ synthetic r=2 mock test mandated; owner Qs 1–7 in memo) |
+| AX4 | oriented tame quotient of `G_K` at `q_K` | opus | `docs/dyadic/ax4-proposal.md` | AX3 | **dispatched 2026-07-29** |
 | AX5 | ramified-simple projectivity — try-prove-first, else proposal | opus | `docs/dyadic/ax5-proposal.md` (+`GQ2/Dyadic/Projectivity.lean` if proved) | — | **done 2026-07-29** (a49d1d6 → merged 94f74f6; **VERDICT: PROVABLE, census +0** — general-q theorem verified by 922-ln spike over RegularSummand chain, std-3; consumer finding: InflationVanishes needs averaging NOT projectivity; implementation → PJ1) |
 
 | PJ1 | projectivity implementation: general-q leaves + hypothesis swap (per ax5-proposal §4.2/§6, in-place edits APPROVED) | opus | `GQ2/Dyadic/Projectivity.lean`, `GQ2/RegularSummand/Trace.lean`, `GQ2/RegularSummand/Involution.lean` | AX5 ✓ | **dispatched 2026-07-29** |
