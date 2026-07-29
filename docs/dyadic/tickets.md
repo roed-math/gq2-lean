@@ -181,6 +181,33 @@ to `master` only at owner gate G3.
   handles enlarge the stabilizer with new S3-type directions (not a formality). (viii) AX
   lane: any future "rank-four peripheral action" axiom proposal is CLOSED in favor of B8.
   (ix) SD confirmation: rank enters only as demushkinRank = n+2, card_H1 = 2^{n+2}.
+- **2026-07-29 (orchestrator): GATE G1 OPEN** — API review of F1 (reviewed at its merge,
+  independently re-typechecked) + F2 (report + spot-check of committed decls + full
+  wave-boundary audit green: 3388 jobs, census 9, check-5 with 5 capstones/3 twin pairs,
+  check_dyadic green). F2 outcomes adopted: (i) **z2pow semantics RATIFIED at G1**:
+  `eval (z2pow u z) = eval u ^ᶻ padicOmega2 z` — the ω₂-twisted total extension; on pro-2
+  elements it IS the honest ℤ₂-power; consumers must remember the general case is the
+  2-primary truncation (a bare ℤ₂-power is undefined on non-pro-2 elements). (ii) Both F2
+  files are module-style; module-rule audit done (Parameters/Zhat/Blocks/GammaA all
+  module-style). (iii) Notes for WW lanes: `padicOmega2` additivity is true-but-unproved (add
+  when x^{η̂₁+η̂₂} algebra is needed); there is NO general `Zhat → ZMod N` residue map —
+  `ResolvedAt` takes per-node resolution hypotheses; ω₂-only words (ALL current campaign
+  words) need no hypothesis via `evalFin`. (iv) Toolchain traps recorded: `open scoped
+  Classical in` does not reach structural-recursion equation lemmas (v4.31.0-rc2) — use
+  explicit `@ite _ _ (Classical.propDecidable _)` + expose `_omega2`/`_of_ne` equations;
+  top-level pattern-match proofs over `PWord` get inconsistently pre-reduced goals — use
+  tactic `induction w with`. (v) GammaA's per-letter bridges are `private` — re-derived, not
+  reused (the F2 stress theorems restate them). (vi) `omega2Exp_eight` now exists in two
+  places (F2 + Roe/Words) — flagged for mechanical dedup into `GQ2/Omega2.lean` by whichever
+  lane first needs both. **G1 consequence: MC2/LG2 (and later SD2/WW1 when their gates clear)
+  may start.** F3/F4 dispatched with the AX4-split and mock-bundle mandates (see rows).
+- 2026-07-29 (orchestrator, wave-B dispatch): **S1.6** (simp board), **F3** (lane f;
+  TameQuotientK leaf + TameBoundary split per AX4 Q4; #Hom(T_q,ℤ/3) √5 regression mandated),
+  **F4** (NEW branch `dyadic-f4` in the ww worktree to reuse its built closure; synthetic
+  r = 2 mock-bundle regression mandated as an AX3 consumer; compact-M CoV gap warning from
+  MC1 §7.2 attached), **LG2** (lane lg per lg-design clone list), **MC2** (lane mc; MC1 memo
+  governs incl. corrected frames + not-decide-able cup Gram) — all opus. Lean tickets use the
+  F2 build protocol (cache get + `lake build <own modules>` in-worktree).
 
 ## Obligation tracker
 
@@ -202,7 +229,7 @@ to `master` only at owner gate G3.
 |---|---|---|---|---|---|
 | F0 | campaign setup: branch, worktree, refs, surveys, plan, board | — (orchestrator) | `docs/dyadic/**` | — | **done 2026-07-28** |
 | F1 | parameters, semantic generators, markings, branch data | opus | `GQ2/Dyadic/Parameters.lean` | — | **done 2026-07-29** (f7c8d05 → merged; 906 ln, 163 decls, 0 sorries, std-3; module-style; η:ℤ₂ˣ + etaUnit hook, ε:Bool; Marking n FunLike + n=1 equivQ2 adapter; equivFin fixes Fox column order; import registered by orchestrator; independently re-typechecked) |
-| F2 | reflected profinite word syntax + ω₂ finite evaluation | opus (was fable) | `GQ2/Dyadic/Word/Syntax.lean`, `GQ2/Dyadic/Word/Eval.lean` | F1 | **re-dispatched 2026-07-29 (opus)** with S1.M EtaHat-canonical note + build-in-worktree protocol adaptation (see log) |
+| F2 | reflected profinite word syntax + ω₂ finite evaluation | opus (was fable) | `GQ2/Dyadic/Word/Syntax.lean`, `GQ2/Dyadic/Word/Eval.lean` | F1 | **done 2026-07-29** (6882edb → merged 25e0953, imports registered c9da9dd; 684+772 ln, 0 sorries, std-3 on 37 decls; **etaHatZ BUILT** (~110 ln on Zhat — no gap, no hypothesis threading); quadruple generic (`eval_eq_evalFin`, `ResolvedAt`/`_of_dvd`, `map_eval*`, `eval_map_eq_one_iff`) + `eval_subst`/`eval_pro2`/`eval_killWild` soundness + Gate-B T1/T2 as theorems; n=1 Γ_A stress by `rfl` + zmod8 genuine-ω₂ pin; wave-boundary audit green (3388 jobs, census 9, check-5 ran); z2pow ratification + gotchas in log) |
 | F3 | tame quotient at general q + boundary specializations + relative Goursat | opus | `GQ2/Dyadic/TameBoundary.lean` | F1, F2 | pending |
 | F4 | arithmetic branches: (C,I,λ,γ), sign-row exclusion, √-10 corollary | opus | `GQ2/Dyadic/Branches.lean` | F1 | pending |
 | F5 | finite-target sanity harness (python) | opus | `scripts/dyadic_sanity_counts.py` | — | pending |
