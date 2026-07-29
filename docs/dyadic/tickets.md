@@ -102,6 +102,28 @@ to `master` only at owner gate G3.
   LG4 scope trimmed accordingly; (vi) memo's literature citations are attribution-only and
   marked UNVERIFIED (nothing enters the trust boundary).
 
+- 2026-07-29 (orchestrator, LG1 outcomes — `docs/dyadic/lg-design.md`): **AX2 closed, not
+  needed** (Euler char derivable from B7; LG2a dispatched). Decisions: 13/13 **clone** into
+  `GQ2/Dyadic/LocalGauss/` (in-place is A6-incompatible); retype surface corrected to
+  **≈9.2k lines** (6 files the recon survey missed) — **LG4 splits into 4a/4b at dispatch**;
+  **LG3 proof-route deviation flagged for owner at G2**: `(−1)^n` via the `arf_eq_of_free`
+  engine (`s := n`; field-linearity replaces the ℚ₂ Schur transfer, which is FALSE at n ≥ 2
+  since H¹ ≅ Vⁿ is not simple) — packet Prop 6.8's Hermitian diagonalization kept only as the
+  n = 1 regression; statement (Thm 6.15) unchanged. **F3 acceptance grows**: export
+  `gen_tq_quotient` + packet Lem 3.1 finite-image forms. **AX3 consumers grow**: LG4's
+  involution-`hunram` discharge. **SD1/AS1 note**: drop `eulerChar` from `DyadicLocalInput`
+  (derived, not an input). AX6 re-confirmed unnecessary.
+- 2026-07-29 (orchestrator, AX1 outcomes — `docs/dyadic/ax1-proposal.md`): **AX1 is also not
+  an axiom** — provable from B1 (profinite Nielsen–Schreier via
+  `Subgroup.exists_finset_card_le_mul`), scratch-verified printing std-3 + B1 only.
+  **Route D adopted** (neither replace nor add; census 9→9; B1, comparator-config,
+  formalization.yaml all untouched; G-AX no-op) — fallback REPLACE route recorded in the memo
+  if the owner prefers a citation over a derivation; revisit at G3. Ticket **FG1** dispatched
+  (worktree `gq2-dyadic-fg`). Consumer discoveries: SD-n's two-sided record makes the G_K
+  `tfg` a record field (the interim binder is the permanent shape under Route D); the LG lane
+  never consumes AX1. Axiom-lane scoreboard: **AX1/AX2/AX5 all eliminated as axioms today**;
+  the general-K trust-base growth is so far ZERO, pending AX3/AX4.
+
 ## Obligation tracker
 
 | obligation | tickets | status |
@@ -109,7 +131,7 @@ to `master` only at owner gate G3.
 | SD-n | SD1 → SD2 → SD3 | pending |
 | MC-M | MC1 → MC2 → MC3 (+MC5) | pending |
 | MC-N | MC1 → MC2 → MC4 (+MC5) | pending |
-| LG-K | LG1 → LG2 → LG3/LG4 → LG5 | pending |
+| LG-K | LG1 ✓ → LG2a/LG2 → LG3/LG4a/LG4b → LG5 | in progress |
 | WC-N0 | F2, WW1–WW5 → WN0-a/b/c | pending |
 | WC-M0 | F2, WW1–WW5 → WM0-a/b/c | pending |
 | WC-Npc | F2, WW1–WW5 → WNP-a/b/c | pending |
@@ -264,7 +286,8 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| LG1 | design memo: rebase map + Euler-char derivation spike | fable | `docs/dyadic/lg-design.md` | recon/lg-survey | **dispatched 2026-07-29** |
+| LG1 | design memo: rebase map + Euler-char derivation spike | fable | `docs/dyadic/lg-design.md` | recon/lg-survey | **done 2026-07-29** (5ae7b0b → merged; **AX2 NOT NEEDED — Euler char DERIVABLE from B7** via coinduced module, gap list L0–L6 ≈850 ln → LG2a; 13/13 clone, 0 in-place; retype surface corrected to ≈9.2k ln; parity via arf_eq_of_free s:=n) |
+| LG2a | Euler characteristic over K derived from B7 (memo L0–L6, `EulerShapiro.lean`) | opus | `GQ2/Dyadic/LocalGauss/EulerShapiro.lean` | LG1 ✓ | **dispatched 2026-07-29** |
 | LG2 | group-generic `Q⁰` + polarization over a local dualizing source | opus | `GQ2/Dyadic/LocalGauss/Q0.lean` (+clone-retype list per LG1) | LG1 | pending |
 | LG3 | unramified sign `(−1)^n 2^{nd/2}` (Hermitian rank-n) | opus | `GQ2/Dyadic/LocalGauss/Unramified.lean` | LG2, AX2 | pending |
 | LG4 | **deep-unit package + ramified sign `+2^{nd/2}`** | fable | `GQ2/Dyadic/LocalGauss/DeepPackage.lean`, `…/Ramified.lean` | LG2 | pending |
@@ -355,13 +378,15 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| AX1 | statement design: `G_K` topological finite generation (NSW 7.4.1) | opus | `docs/dyadic/ax1-proposal.md` | — | **dispatched 2026-07-29** |
-| AX2 | Euler characteristic over `K` — derivation spike verdict, else proposal | opus | `docs/dyadic/ax2-proposal.md` | LG1 | pending |
+| AX1 | statement design: `G_K` topological finite generation (NSW 7.4.1) | opus | `docs/dyadic/ax1-proposal.md` | — | **done 2026-07-29** (043c46f; **ALSO NOT AN AXIOM — provable from B1** via profinite Nielsen–Schreier, scratch-verified std-3+B1; Route D adopted: census 9→9, B1 untouched; implementation = FG1) |
+| AX2 | Euler characteristic over `K` — derivation spike verdict, else proposal | opus | `docs/dyadic/ax2-proposal.md` | LG1 ✓ | **closed 2026-07-29 — NOT NEEDED** (derivable from B7; implementation = LG2a; census unchanged) |
 | AX3 | marked local reciprocity over `K` (`MarkedRecip`: full ν_ur + `(C,I,λ,γ)`) | fable | `docs/dyadic/ax3-proposal.md` | — | **dispatched 2026-07-29** |
 | AX4 | oriented tame quotient of `G_K` at `q_K` | opus | `docs/dyadic/ax4-proposal.md` | AX3 | pending |
 | AX5 | ramified-simple projectivity — try-prove-first, else proposal | opus | `docs/dyadic/ax5-proposal.md` (+`GQ2/Dyadic/Projectivity.lean` if proved) | — | **done 2026-07-29** (a49d1d6 → merged 94f74f6; **VERDICT: PROVABLE, census +0** — general-q theorem verified by 922-ln spike over RegularSummand chain, std-3; consumer finding: InflationVanishes needs averaging NOT projectivity; implementation → PJ1) |
 
 | PJ1 | projectivity implementation: general-q leaves + hypothesis swap (per ax5-proposal §4.2/§6, in-place edits APPROVED) | opus | `GQ2/Dyadic/Projectivity.lean`, `GQ2/RegularSummand/Trace.lean`, `GQ2/RegularSummand/Involution.lean` | AX5 ✓ | **dispatched 2026-07-29** |
+
+| FG1 | G_K finite generation as a THEOREM from B1 (ax1-proposal §3.2, Route D) | opus | `GQ2/Dyadic/FinitelyGeneratedK.lean` | AX1 ✓ | **dispatched 2026-07-29** |
 
 Protocol per AX ticket: memo with exact Lean statement + citation + normalization notes +
 consumers → owner sign-off (**G-AX**) → census flip commit (statement into
