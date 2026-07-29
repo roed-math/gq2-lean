@@ -355,6 +355,81 @@ theorem canonicalEtaHat_cross_padic (e : EtaData) :
       = ((canonicalEtaHat e).num : ℤ_[2]) * (e.den : ℤ_[2]) := by
   exact_mod_cast congrArg (fun k : ℤ => (k : ℤ_[2])) (canonicalEtaHat_cross e)
 
+/-! ### Oddness, units, and invariance of the denoted `2`-adic unit -/
+
+private theorem odd_ediv_of_odd {a g : ℤ} (hg : g ∣ a) (ha : Odd a) : Odd (a / g) := by
+  obtain ⟨p, hp⟩ := hg
+  have hg0 : g ≠ 0 := by
+    rintro rfl
+    rw [zero_mul] at hp
+    rw [hp, Int.odd_iff] at ha
+    lia
+  have hpodd : Odd p := by
+    rcases Int.even_or_odd p with he | ho
+    · refine absurd ha ?_
+      rw [Int.not_odd_iff_even, hp]
+      exact he.mul_left g
+    · exact ho
+  rwa [hp, Int.mul_ediv_cancel_left _ hg0]
+
+/-- Canonicalization preserves oddness of the numerator ("negation and division by an odd
+divisor preserve oddness", `ast.py`). -/
+theorem canonicalEtaHat_odd_num {e : EtaData} (hn : Odd e.num) : Odd (canonicalEtaHat e).num := by
+  unfold canonicalEtaHat
+  split
+  · exact odd_ediv_of_odd (Int.gcd_dvd_left _ _) hn.neg
+  · exact odd_ediv_of_odd (Int.gcd_dvd_left _ _) hn
+
+/-- Canonicalization preserves oddness of the denominator, so the canonical denominator is again
+a `2`-adic unit. -/
+theorem canonicalEtaHat_odd_den {e : EtaData} (hd : Odd e.den) : Odd (canonicalEtaHat e).den := by
+  unfold canonicalEtaHat
+  split
+  · exact odd_ediv_of_odd (Int.gcd_dvd_right _ _) hd.neg
+  · exact odd_ediv_of_odd (Int.gcd_dvd_right _ _) hd
+
+/-- An odd integer is a unit in `ℤ₂` — the typing fact behind the `EtaHat` grammar's
+"`den` odd makes it a `2`-adic unit". -/
+theorem isUnit_intCast_of_odd {k : ℤ} (h : Odd k) : IsUnit ((k : ℤ_[2])) := by
+  rw [PadicInt.isUnit_iff]
+  rcases lt_or_eq_of_le (PadicInt.norm_le_one ((k : ℤ_[2]))) with hlt | heq
+  · obtain ⟨c, hc⟩ : ((2 : ℕ) : ℤ) ∣ k := (PadicInt.norm_int_lt_one_iff_dvd k).mp hlt
+    obtain ⟨m, hm⟩ := h
+    exfalso; lia
+  · exact heq
+
+private theorem inv_cancel_of_cross {a b a' b' : ℤ_[2]} (hb : b * PadicInt.inv b = 1)
+    (hb' : b' * PadicInt.inv b' = 1) (h : a * b' = a' * b) :
+    a' * PadicInt.inv b' = a * PadicInt.inv b := by
+  have hbne : b * b' ≠ 0 := by
+    intro hc
+    rcases mul_eq_zero.mp hc with h0 | h0
+    · rw [h0, zero_mul] at hb; exact zero_ne_one hb
+    · rw [h0, zero_mul] at hb'; exact zero_ne_one hb'
+  refine mul_right_cancel₀ hbne ?_
+  calc a' * PadicInt.inv b' * (b * b')
+      = a' * b * (b' * PadicInt.inv b') := by ring
+    _ = a * b' * (b' * PadicInt.inv b') := by rw [← h]
+    _ = a * b' := by rw [hb', mul_one]
+    _ = a * (b * PadicInt.inv b) * b' := by rw [hb, mul_one]
+    _ = a * PadicInt.inv b * (b * b') := by ring
+
+/-- **The canonicalization is a no-op on the denoted `2`-adic unit.**  Together with
+`isCanonical_canonicalEtaHat` and `canonicalEtaHat_idem` this is the Lean side of ticket S1.M's
+conclusion that "content hashes are convention-independent: how a caller spelled the fraction can
+no longer change a word's identity". -/
+theorem canonicalEtaHat_toPadic {e : EtaData} (hd : Odd e.den) :
+    (canonicalEtaHat e).toPadic = e.toPadic :=
+  inv_cancel_of_cross
+    (PadicInt.mul_inv (PadicInt.isUnit_iff.mp (isUnit_intCast_of_odd hd)))
+    (PadicInt.mul_inv (PadicInt.isUnit_iff.mp (isUnit_intCast_of_odd (canonicalEtaHat_odd_den hd))))
+    (canonicalEtaHat_cross_padic e)
+
+/-- Consequently the `ℤ̂`-exponent denoted by an `EtaData` pair is canonicalization-invariant. -/
+theorem canonicalEtaHat_toZhat {e : EtaData} (hd : Odd e.den) :
+    (canonicalEtaHat e).toZhat = e.toZhat := by
+  rw [toZhat, toZhat, canonicalEtaHat_toPadic hd]
+
 end EtaData
 
 /-! ## The reflected word syntax -/
