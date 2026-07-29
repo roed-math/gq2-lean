@@ -7,6 +7,17 @@ Work lives on branch **`dyadic`**; `master` stays focused on `ℚ₂`. Board:
 [`tickets.md`](tickets.md). References + authority order: [`refs/README.md`](refs/README.md).
 Recon surveys (repo state at `d0714a7`): [`recon/`](recon/).
 
+> **⚠ 2026-07-29 — campaign HELD at gate G-1.** The owner has interposed a **presentation
+> simplification campaign** (repo `~/claude/general_2adic`, its `BOARD.md` +
+> `dyadic-presentation-simplification-campaign.md`) that searches for and certifies simpler
+> `L/M_α/N_α` words before anything word-specific is formalized. This plan's word-dependent
+> lanes (F2 in its final form, WW, all W* branch lanes, AS) wait for that campaign's frozen
+> selection (its gate R5 = our G-1); its §12.1 also defers SD-n ("generalize `SourceData` only
+> after word selection"). Word-independent lanes (LG-K, MC rank-four cores, F3 tame boundary,
+> most AX statement memos) remain valid as specified and may be released early by the owner.
+> Lean deliverables of the simplification campaign (generic orbit-norm/𝓔-block/shadow/Tietze
+> lemmas) land on this branch under `GQ2/Dyadic/Word/` and become inputs to WW.
+
 ## 0. Binding constraints (owner directives, 2026-07-28)
 
 1. **The nine obligations MC-M, MC-N, WC-L, WC-N0, WC-Npc, WC-M0, WC-Mpc, LG-K, SD-n are proof
@@ -217,7 +228,8 @@ The roe campaign ran one shared worktree and documented shared-index races; this
 
 | gate | trigger | content |
 |---|---|---|
-| **G0** | now | owner approves plan + board (this document) |
+| **G-1** | simplification campaign R5 (word selection frozen) | releases the word-dependent lanes of this campaign; re-points WW/W*/AS at the frozen words + generated definitions; un-gates SD-n per the simplification doc §12.1 |
+| **G0** | after G-1 (word-independent lanes may be owner-released earlier) | owner approves plan + board (this document) |
 | **G1** | F1+F2 land | API freeze: `Generator n`/`Marking n`/`PWord` signatures reviewed before the four lanes fork (everything downstream consumes them) |
 | **G-Lab** | MC5 statement lands | owner picks the discharge route for the per-core Demushkin-classification hypotheses (levelwise campaign / published axiom / stay parametrized) |
 | **G-AX** | per AX ticket | owner approves each census flip (b9a checklist template) |

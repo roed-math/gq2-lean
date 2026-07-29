@@ -52,9 +52,24 @@ to `master` only at owner gate G3.
   Shapiro before proposing an axiom). Details + rationale in plan §3.
 - 2026-07-28 (orchestrator): recon surveys for all four wave-1 lanes committed under
   `recon/` — SD1/MC1/LG1 design tickets start from these instead of from scratch.
+- **2026-07-29 (owner): CAMPAIGN HELD AT NEW GATE G-1.** A presentation **simplification
+  campaign** now runs first, in the repo `~/claude/general_2adic` (its `BOARD.md`; plan =
+  `dyadic-presentation-simplification-campaign.md`, setup commit `95f5880`): search, compare,
+  and certify simpler `L/M_α/N_α` words (single AST, exact boundary/jet certificate gates,
+  Sage + Magma independent evaluators, Pareto selection) before the words are frozen for Lean.
+  Consequences here: word-dependent lanes (WW, WN0/WM0/WNP/WMP/WL, AS) blocked until that
+  campaign's R5 (= our G-1); SD lane additionally deferred by its §12.1; F2's `PWord` design
+  must stay aligned with that campaign's AST (same constructor set — its §5 list extends ours
+  with `OrbitNorm`/`Shadow`/`HyperbolicHandles`/`Auxiliary` blocks; F2's dispatch prompt must
+  read its `words/ast.py` first). Word-independent lanes (LG, MC, F3, AX memos) remain valid;
+  owner may release them to run in parallel — MC caveat: valid only while candidate words
+  specialize to the standard cores up to certified Nielsen/Tietze moves (that campaign's
+  amendment 6 mirrors this). Its Lean deliverables (orbit-norm/𝓔-block/shadow/Tietze generic
+  lemmas) land on this branch under `GQ2/Dyadic/Word/Blocks.lean` etc. via ticket S1.9 there.
 - **Open at G0 (owner):** approve plan + board; confirm the AX lane list (plan §4); express a
   G-Lab timing preference (the per-core hypothesis route lets all other lanes proceed
   regardless); flag any model-budget constraints (board defaults fable to the hard seams only).
+  **G0 now sits behind G-1** except for any word-independent lanes the owner releases early.
 
 ## Obligation tracker
 
