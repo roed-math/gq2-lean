@@ -57,18 +57,19 @@ section InvolutionKernel
 variable {C : Type} [Group C] [Finite C]
 variable {V : Type} [AddCommGroup V] [DistribMulAction C V]
 
+omit [Finite C] in
 /-- **Every nontrivial element of the inertia `⟨t⟩` has zero fixed space** on a faithful
 simple module — the "all isotypic factors are faithful" content of the weight-orbit plan, in
 operator form.  The fixed space of `n = t^k` is `C`-stable (a conjugate `h⁻¹ n h = (h⁻¹th)^k`
 is again a power of `n` since `h⁻¹th ∈ ⟨t⟩` by normality); simplicity leaves `⊥` or `⊤`, and
 `⊤` makes `n` act trivially, so `n = 1` by faithfulness. -/
-theorem fixedPoints_zpowers_tame_eq_zero {sg t : C}
-    (hgen : Subgroup.closure {sg, t} = ⊤) (hrel : sg⁻¹ * t * sg = t ^ 2)
+theorem fixedPoints_zpowers_tame_eq_zero_of_normal {t : C}
+    (hTnorm : (Subgroup.zpowers t).Normal)
     (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
     {n : C} (hn : n ∈ Subgroup.zpowers t) (hn1 : n ≠ 1) :
     ∀ v : V, n • v = v → v = 0 := by
-  haveI hnorm : (Subgroup.zpowers t).Normal := Tame.zpowers_normal_of_tame hgen hrel
+  haveI hnorm : (Subgroup.zpowers t).Normal := hTnorm
   obtain ⟨k, hk⟩ := Subgroup.mem_zpowers_iff.mp hn
   set W : AddSubgroup V :=
     { carrier := {v | n • v = v}
@@ -159,6 +160,7 @@ private theorem coprime_sub_one_div_gcd {q m : ℕ} (hm : 0 < m) (hmodd : Odd m)
     (Nat.Prime.dvd_iff_one_le_factorization hp hr0.ne').mp hpr
   omega
 
+omit [Finite C] in
 /-- **The `O₂`-linchpin (Remark 6.12)**: on a nonzero faithful simple 2-torsion module, an
 element of order dividing 2 commuting with the inertia generator `t` is trivial.  The
 centralizer `D := C_C(⟨t⟩)` is abelian (`⟨t⟩ ≤ Z(D)` and `D/⟨t⟩` embeds in the cyclic
@@ -168,14 +170,14 @@ cardinality with one fixed point has another
 (`IsPGroup.exists_fixed_point_of_prime_dvd_card_of_fixed_point`), so the `S`-fixed subgroup
 is nonzero and `C`-stable, hence `⊤` by simplicity: `S` acts trivially and faithfulness
 collapses it. -/
-theorem two_torsion_of_centralizer_eq_one [Finite V] {sg t : C}
-    (hgen : Subgroup.closure {sg, t} = ⊤) (hrel : sg⁻¹ * t * sg = t ^ 2)
+theorem two_torsion_of_centralizer_eq_one_of_normal [Finite V] {sg t : C}
+    (hgen : Subgroup.closure {sg, t} = ⊤) (hTnorm : (Subgroup.zpowers t).Normal)
     (hV2 : ∀ v : V, v + v = 0)
     (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
     (hV0 : ∃ v₀ : V, v₀ ≠ (0 : V))
     {x : C} (hx2 : x ^ 2 = 1) (hxt : x * t = t * x) : x = 1 := by
-  haveI hnorm : (Subgroup.zpowers t).Normal := Tame.zpowers_normal_of_tame hgen hrel
+  haveI hnorm : (Subgroup.zpowers t).Normal := hTnorm
   haveI hqcyc : IsCyclic (C ⧸ Subgroup.zpowers t) := quotient_zpowers_isCyclic_of_tame hgen
   set D : Subgroup C := Subgroup.centralizer (Subgroup.zpowers t : Set C) with hD
   have hDn : D.Normal := by rw [hD]; infer_instance
@@ -256,6 +258,19 @@ theorem two_torsion_of_centralizer_eq_one [Finite V] {sg t : C}
   refine hfaith x fun v => ?_
   have hvW : v ∈ W := hWtop ▸ AddSubgroup.mem_top v
   exact hvW x hxS
+
+/-- The `q = 2` form of `two_torsion_of_centralizer_eq_one_of_normal`: the `ℚ₂` statement, with
+the normality of the inertia supplied by `Tame.zpowers_normal_of_tame`.  Statement preserved
+verbatim from before the general-`q` generalization (`GQ2/Dyadic/Projectivity.lean`). -/
+theorem two_torsion_of_centralizer_eq_one [Finite V] {sg t : C}
+    (hgen : Subgroup.closure {sg, t} = ⊤) (hrel : sg⁻¹ * t * sg = t ^ 2)
+    (hV2 : ∀ v : V, v + v = 0)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hV0 : ∃ v₀ : V, v₀ ≠ (0 : V))
+    {x : C} (hx2 : x ^ 2 = 1) (hxt : x * t = t * x) : x = 1 :=
+  two_torsion_of_centralizer_eq_one_of_normal hgen (Tame.zpowers_normal_of_tame hgen hrel)
+    hV2 hfaith hsimple hV0 hx2 hxt
 
 end InvolutionKernel
 
@@ -410,11 +425,12 @@ Proof: `t := c τ` has odd order `m` and `⟨t⟩ ⊴ C`; conjugation gives `ω 
 `w := ∑_{k ∈ Λ} (t^g)^{k.val} • v` over a transversal `Λ` of the fixed-point-free involution
 `k ↦ qk` of `(ZMod (m/g)) ∖ {0}` (`g := gcd(q−1, m)`, unitary by
 `coprime_sub_one_div_gcd`) satisfies `w + ω•w = v` for every `ω`-fixed `v` (geometric-sum
-vanishing `sum_range_orderOf_smul_eq_zero` + `fixedPoints_zpowers_tame_eq_zero`), so
+vanishing `sum_range_orderOf_smul_eq_zero` + `fixedPoints_zpowers_tame_eq_zero_of_normal`), so
 `ker(1+ω) ⊆ range(1+ω)` and first-isomorphism counting gives the bound. -/
-theorem involution_fixedPoints_sq_le_of_tame_pair {C : Type} [Group C]
+theorem involution_fixedPoints_sq_le_of_odd_normal {C : Type} [Group C]
     [Finite C] {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
-    {sg t : C} (hgen : Subgroup.closure {sg, t} = ⊤) (hrel : sg⁻¹ * t * sg = t ^ 2)
+    {sg t : C} (hgen : Subgroup.closure {sg, t} = ⊤)
+    (hTnorm : (Subgroup.zpowers t).Normal) (hTodd : Odd (orderOf t))
     (hV2 : ∀ v : V, v + v = 0)
     (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
@@ -422,8 +438,8 @@ theorem involution_fixedPoints_sq_le_of_tame_pair {C : Type} [Group C]
     (g₀ : ↥(P : Subgroup C)) (hg : ∀ x : ↥(P : Subgroup C), x ∈ Subgroup.zpowers g₀)
     (s : ℕ) (hs1 : 1 ≤ s) (hs : Nat.card ↥(P : Subgroup C) = 2 ^ s) :
     Nat.card {v : V // (g₀ ^ (2 ^ s / 2)) • v = v} ^ 2 ≤ Nat.card V := by
-  haveI hnorm : (Subgroup.zpowers t).Normal := Tame.zpowers_normal_of_tame hgen hrel
-  have hmodd : Odd (orderOf t) := Tame.tame_odd_order (orderOf_pos sg).ne' hrel
+  haveI hnorm : (Subgroup.zpowers t).Normal := hTnorm
+  have hmodd : Odd (orderOf t) := hTodd
   set m : ℕ := orderOf t with hm
   have hm0 : 0 < m := orderOf_pos t
   -- ramification gives `t ≠ 1` and a nonzero vector
@@ -513,7 +529,7 @@ theorem involution_fixedPoints_sq_le_of_tame_pair {C : Type} [Group C]
   -- dichotomy: ω centralizes t (impossible), or the trace element exists
   by_cases hcen : ω * t = t * ω
   · exact absurd
-      (two_torsion_of_centralizer_eq_one hgen hrel hV2 hfaith hsimple hV0
+      (two_torsion_of_centralizer_eq_one_of_normal hgen hTnorm hV2 hfaith hsimple hV0
         (by rw [pow_two]; exact hω2) hcen) hω1
   -- the ramified branch: q ≥ 2 and the unitary-gcd setup
   have hq2 : 2 ≤ q := by
@@ -550,7 +566,7 @@ theorem involution_fixedPoints_sq_le_of_tame_pair {C : Type} [Group C]
     rw [h, orderOf_one] at huord
     omega
   have hufree : ∀ v : V, u • v = v → v = 0 :=
-    fixedPoints_zpowers_tame_eq_zero hgen hrel hfaith hsimple humem hu1
+    fixedPoints_zpowers_tame_eq_zero_of_normal hTnorm hfaith hsimple humem hu1
   have husum : ∀ v : V, ∑ k ∈ Finset.range r, u ^ k • v = 0 := by
     intro v
     have h := sum_range_orderOf_smul_eq_zero hufree v
@@ -621,9 +637,10 @@ which needs `1 ≤ s`); a trivial Sylow-2 subgroup gives the bound by subtype co
 
 Faithfulness is genuinely needed (Remark 6.12: `C₃ ⋊ C₄` acting through `S₃` on `𝔽₄` is
 ramified simple but its central `C₂` fixes everything, so `#V^ω = #V > #V^{1/2}`). -/
-theorem card_fixedPoints_pow_le_of_ramified_of_tame_pair {C : Type} [Group C]
+theorem card_fixedPoints_pow_le_of_ramified_of_odd_normal {C : Type} [Group C]
     [Finite C] {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
-    {sg t : C} (hgen : Subgroup.closure {sg, t} = ⊤) (hrel : sg⁻¹ * t * sg = t ^ 2)
+    {sg t : C} (hgen : Subgroup.closure {sg, t} = ⊤)
+    (hTnorm : (Subgroup.zpowers t).Normal) (hTodd : Odd (orderOf t))
     (hV2 : ∀ v : V, v + v = 0)
     (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
@@ -631,7 +648,7 @@ theorem card_fixedPoints_pow_le_of_ramified_of_tame_pair {C : Type} [Group C]
     Nat.card {v : V // ∀ p : ↥(P : Subgroup C), p • v = v} ^ Nat.card ↥(P : Subgroup C)
       ≤ Nat.card V := by
   have hcyc : IsCyclic ↥(P : Subgroup C) :=
-    isCyclic_of_isPGroup_two_of_tame hgen hrel (P : Subgroup C) P.isPGroup'
+    isCyclic_of_isPGroup_two_of_odd_normal hgen hTnorm hTodd (P : Subgroup C) P.isPGroup'
   obtain ⟨g₀, hg⟩ := hcyc.exists_generator
   obtain ⟨s, hs⟩ := P.isPGroup'.exists_card_eq
   -- trivial Sylow-2 subgroup: the bound is plain subtype counting
@@ -641,18 +658,19 @@ theorem card_fixedPoints_pow_le_of_ramified_of_tame_pair {C : Type} [Group C]
     exact Nat.card_le_card_of_injective Subtype.val Subtype.val_injective
   -- Elementary-abelian reduction: it suffices that the involution `g₀^{2^{s-1}}` acts freely.
   refine card_fixedPoints_pow_le_of_half hV2 g₀ hg s hs ?_
-  exact involution_fixedPoints_sq_le_of_tame_pair hgen hrel hV2 hfaith hsimple hram P g₀ hg
-    s hs1 hs
+  exact involution_fixedPoints_sq_le_of_odd_normal hgen hTnorm hTodd hV2 hfaith hsimple hram P
+    g₀ hg s hs1 hs
 
 /-- **`𝔽₂[P]`-freeness of the restriction to the Sylow 2-subgroup** (Lemma 6.11, steps 1–2):
 a ramified simple faithful module is equivariantly additively isomorphic to a regular module
 `𝔽₂[P]^r`.  **Proved** from the counting criterion `free_of_card_fixedPoints_pow_le` at the
-cyclic Sylow 2-subgroup (`isCyclic_of_isPGroup_two_of_tame`, with the tame relation
+cyclic Sylow 2-subgroup (`isCyclic_of_isPGroup_two_of_odd_normal`, with the tame relation
 transported from `tame_relation` along `c`) and the counting bound
 `card_fixedPoints_pow_le_of_ramified` above.  This argument uses only the standard axioms. -/
-theorem sylow_free_of_ramified_of_tame_pair {C : Type} [Group C] [Finite C]
+theorem sylow_free_of_ramified_of_odd_normal {C : Type} [Group C] [Finite C]
     {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
-    {sg t : C} (hgen : Subgroup.closure {sg, t} = ⊤) (hrel : sg⁻¹ * t * sg = t ^ 2)
+    {sg t : C} (hgen : Subgroup.closure {sg, t} = ⊤)
+    (hTnorm : (Subgroup.zpowers t).Normal) (hTodd : Odd (orderOf t))
     (hV2 : ∀ v : V, v + v = 0)
     (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
@@ -661,9 +679,9 @@ theorem sylow_free_of_ramified_of_tame_pair {C : Type} [Group C] [Finite C]
       ∀ (p : ↥(P : Subgroup C)) (v : V) (n : Fin r) (x : ↥(P : Subgroup C)),
         φ ((p : C) • v) n x = φ v n (p⁻¹ * x) := by
   have hcyc : IsCyclic ↥(P : Subgroup C) :=
-    isCyclic_of_isPGroup_two_of_tame hgen hrel (P : Subgroup C) P.isPGroup'
+    isCyclic_of_isPGroup_two_of_odd_normal hgen hTnorm hTodd (P : Subgroup C) P.isPGroup'
   have hcount :=
-    card_fixedPoints_pow_le_of_ramified_of_tame_pair hgen hrel hV2 hfaith hsimple hram P
+    card_fixedPoints_pow_le_of_ramified_of_odd_normal hgen hTnorm hTodd hV2 hfaith hsimple hram P
   obtain ⟨r, φ, hφ⟩ := free_of_card_fixedPoints_pow_le hV2 hcyc P.isPGroup' hcount
   exact ⟨r, φ, hφ⟩
 
@@ -671,9 +689,10 @@ theorem sylow_free_of_ramified_of_tame_pair {C : Type} [Group C] [Finite C]
 `𝔽₂[P]`-freeness `sylow_free_of_ramified` yields an equivariant split pair — take `j := φ`,
 `q := φ⁻¹`.  Retraction equivariance is `φ`'s equivariance transported across the iso
 (`φ⁻¹`-inject, then `φ`'s equivariance at `φ⁻¹ F`), and `q ∘ j = id` is `φ⁻¹ ∘ φ = id`. -/
-theorem sylow_split_pair_of_ramified_of_tame_pair {C : Type} [Group C] [Finite C]
+theorem sylow_split_pair_of_ramified_of_odd_normal {C : Type} [Group C] [Finite C]
     {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
-    {sg t : C} (hgen : Subgroup.closure {sg, t} = ⊤) (hrel : sg⁻¹ * t * sg = t ^ 2)
+    {sg t : C} (hgen : Subgroup.closure {sg, t} = ⊤)
+    (hTnorm : (Subgroup.zpowers t).Normal) (hTodd : Odd (orderOf t))
     (hV2 : ∀ v : V, v + v = 0)
     (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
     (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
@@ -685,7 +704,8 @@ theorem sylow_split_pair_of_ramified_of_tame_pair {C : Type} [Group C] [Finite C
       (∀ (p : ↥(P : Subgroup C)) (F : Fin r → ↥(P : Subgroup C) → ZMod 2),
         q (fun n x => F n (p⁻¹ * x)) = (p : C) • q F) ∧
       ∀ v : V, q (j v) = v := by
-  obtain ⟨r, φ, hφ⟩ := sylow_free_of_ramified_of_tame_pair hgen hrel hV2 hfaith hsimple hram P
+  obtain ⟨r, φ, hφ⟩ :=
+    sylow_free_of_ramified_of_odd_normal hgen hTnorm hTodd hV2 hfaith hsimple hram P
   refine ⟨r, φ.toAddMonoidHom, φ.symm.toAddMonoidHom, ?_, ?_, ?_⟩
   · exact hφ
   · intro p F
@@ -698,6 +718,34 @@ theorem sylow_split_pair_of_ramified_of_tame_pair {C : Type} [Group C] [Finite C
     exact hpx.symm
   · intro v
     exact φ.symm_apply_apply v
+
+/-- **Lemma 6.11, abstract odd-normal form**: the split-summand package from a generating pair
+`(sg, t)` whose inertia `⟨t⟩` is normal of odd order, rather than a `Ttame`-marking.  This is
+the form the κ⁰ assembly consumes (`ActsThroughTame` supplies exactly such a pair, through the
+`q = 2` wrapper below); the `Ttame` form is a further wrapper.
+
+Nothing below this point knows the relation exponent, which is why the dyadic campaign's
+general-`q_K = 2^f` entry point `GQ2.Dyadic.lemma_6_11_of_tame_pair_pow` is a two-leaf
+corollary of exactly this theorem. -/
+theorem lemma_6_11_of_odd_normal {C : Type} [Group C] [Finite C]
+    {V : Type} [AddCommGroup V] [Finite V] [DistribMulAction C V]
+    {sg t : C} (hgen : Subgroup.closure {sg, t} = ⊤)
+    (hTnorm : (Subgroup.zpowers t).Normal) (hTodd : Odd (orderOf t))
+    (hV2 : ∀ v : V, v + v = 0)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, t • v ≠ v) :
+    ∃ (N : ℕ) (ι : V →+ (Fin N → C → ZMod 2)) (r : (Fin N → C → ZMod 2) →+ V),
+      (∀ (h : C) (v : V) (n : Fin N) (x : C), ι (h • v) n x = ι v n (h⁻¹ * x)) ∧
+      (∀ (h : C) (F : Fin N → C → ZMod 2), r (fun n x => F n (h⁻¹ * x)) = h • r F) ∧
+      ∀ v : V, r (ι v) = v := by
+  obtain ⟨P⟩ : Nonempty (Sylow 2 C) := inferInstance
+  haveI : (P : Subgroup C).FiniteIndex := ⟨Subgroup.index_ne_zero_of_finite⟩
+  have hodd : Odd (P : Subgroup C).index :=
+    Nat.not_even_iff_odd.mp fun he => Sylow.not_dvd_index P he.two_dvd
+  obtain ⟨r, j, q, hj, hq, hqj⟩ :=
+    sylow_split_pair_of_ramified_of_odd_normal hgen hTnorm hTodd hV2 hfaith hsimple hram P
+  exact regular_summand_of_subgroup_summand hV2 (P : Subgroup C) hodd j q hj hq hqj
 
 /-- **Lemma 6.11, abstract tame-pair form**: the split-summand package from a generating pair
 `(sg, t)` with the tame
@@ -713,14 +761,9 @@ theorem lemma_6_11_of_tame_pair {C : Type} [Group C] [Finite C]
     ∃ (N : ℕ) (ι : V →+ (Fin N → C → ZMod 2)) (r : (Fin N → C → ZMod 2) →+ V),
       (∀ (h : C) (v : V) (n : Fin N) (x : C), ι (h • v) n x = ι v n (h⁻¹ * x)) ∧
       (∀ (h : C) (F : Fin N → C → ZMod 2), r (fun n x => F n (h⁻¹ * x)) = h • r F) ∧
-      ∀ v : V, r (ι v) = v := by
-  obtain ⟨P⟩ : Nonempty (Sylow 2 C) := inferInstance
-  haveI : (P : Subgroup C).FiniteIndex := ⟨Subgroup.index_ne_zero_of_finite⟩
-  have hodd : Odd (P : Subgroup C).index :=
-    Nat.not_even_iff_odd.mp fun he => Sylow.not_dvd_index P he.two_dvd
-  obtain ⟨r, j, q, hj, hq, hqj⟩ :=
-    sylow_split_pair_of_ramified_of_tame_pair hgen hrel hV2 hfaith hsimple hram P
-  exact regular_summand_of_subgroup_summand hV2 (P : Subgroup C) hodd j q hj hq hqj
+      ∀ v : V, r (ι v) = v :=
+  lemma_6_11_of_odd_normal hgen (Tame.zpowers_normal_of_tame hgen hrel)
+    (Tame.tame_odd_order (orderOf_pos sg).ne' hrel) hV2 hfaith hsimple hram
 
 /-- **Lemma 6.11 (paper node, §6.3)**: a ramified simple faithful 2-torsion module over the
 tame image is an equivariant split summand of a regular module.  The regular module `𝔽₂[C]^N`
