@@ -404,4 +404,163 @@ theorem deepClassesAt_subset_midClassesAt : deepClassesAt anc ⊆ midClassesAt a
 
 end DeepClasses
 
+/-! ## §3 The deep half `X₊` (packet Def. 6.11(c), Prop. 6.12)
+
+`GQ2.SectionSix.deepPart` (`GQ2/SectionSix.lean`) and `GQ2.DeepPart.deepPartSubgroup`
+(`GQ2/DeepPart/Q0locLayer.lean`) retyped: the classes of `H¹(Γ, V)` all of whose scalar Kummer
+coordinates over the splitting group `N_K = ker ρ` are deep. -/
+
+section DeepPart
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+variable {C : Type} [Group C] [TopologicalSpace C]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V]
+  [DistribMulAction Γ V] [DistribMulAction C V]
+
+/-- **The scalar restriction map** at a general ambient — `GQ2.LocalKummer.phiRes` retyped. -/
+noncomputable def phiResK (ρ : ContinuousMonoidHom Γ C) (x : H1 Γ V) (φ : V →+ ZMod 2) :
+    H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) :=
+  H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+    (fun n : ↥(ρ.toMonoidHom.ker : Subgroup Γ) => φ ((Quotient.out x).1 (n : Γ)))
+
+omit [DistribMulAction C V] in
+theorem phiResK_def (ρ : ContinuousMonoidHom Γ C) (x : H1 Γ V) (φ : V →+ ZMod 2) :
+    phiResK ρ x φ = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+      (fun n : ↥(ρ.toMonoidHom.ker : Subgroup Γ) => φ ((Quotient.out x).1 (n : Γ))) := rfl
+
+omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
+/-- `H1mk` of the canonical representative is the identity (the `Γ`-side `H1mk_out`). -/
+theorem h1mk_outK (y : H1 Γ V) : H1mk Γ V (Quotient.out y) = y := Quotient.out_eq y
+
+omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
+/-- A `Z¹`-cocycle whose class vanishes dies pointwise on `ker ρ` — `GQ2.DeepPart`'s
+`vanish_on_ker_of_H1mk_eq_zero` retyped. -/
+theorem vanish_on_ker_of_H1mk_eq_zeroK (ρ : ContinuousMonoidHom Γ C)
+    (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v)
+    {d : ↥(Z1 Γ V)} (hd : H1mk Γ V d = 0) (n : ↥(ρ.toMonoidHom.ker : Subgroup Γ)) :
+    d.1 (n : Γ) = 0 := by
+  have hmem := (QuotientAddGroup.eq_zero_iff _).mp hd
+  rw [AddSubgroup.mem_addSubgroupOf] at hmem
+  obtain ⟨w₀, hw₀⟩ := hmem
+  have hn := congrFun hw₀ (n : Γ)
+  rw [← hn]
+  show (n : Γ) • w₀ - w₀ = 0
+  rw [hρ, show ρ (n : Γ) = 1 from n.2, one_smul, sub_self]
+
+omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
+/-- The `φ`-coordinate of a cocycle restricted to `ker ρ` lies in `Z¹(ker ρ, 𝔽₂)` —
+`GQ2.DeepPart.phiRestrict_mem_Z1` retyped. -/
+theorem phiRestrict_mem_Z1K (ρ : ContinuousMonoidHom Γ C)
+    (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v) (b : ↥(Z1 Γ V)) (φ : V →+ ZMod 2) :
+    (fun n : ↥(ρ.toMonoidHom.ker : Subgroup Γ) => φ (b.1 (n : Γ)))
+      ∈ Z1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) := by
+  obtain ⟨hbc, hb⟩ := mem_Z1_iff.mp b.2
+  refine mem_Z1_iff.mpr ⟨?_, fun n m => ?_⟩
+  · exact (continuous_of_discreteTopology (f := fun v : V => φ v)).comp
+      (hbc.comp continuous_subtype_val)
+  · show φ (b.1 ((n * m : ↥(ρ.toMonoidHom.ker : Subgroup Γ)) : Γ))
+      = φ (b.1 (n : Γ)) + n • φ (b.1 (m : Γ))
+    rw [smul_zmodTwo, show ((n * m : ↥(ρ.toMonoidHom.ker : Subgroup Γ)) : Γ) = (n : Γ) * (m : Γ)
+      from rfl, hb (n : Γ) (m : Γ), hρ, show ρ (n : Γ) = 1 from n.2, one_smul, map_add]
+
+/-- **The deep half `X₊`** (packet Def. 6.11(c), `GQ2.SectionSix.deepPart` retyped): the classes
+`x ∈ H¹(Γ, V)` all of whose scalar Kummer coordinates over `N_K = ker ρ` are Kummer classes of
+units that are deep for the **anchored** subgroup `ancSubgroup (kerAnc anc ρ)`. -/
+def deepPartK (anc : ContinuousMonoidHom Γ GalQ2) (ρ : ContinuousMonoidHom Γ C) :
+    Set (H1 Γ V) :=
+  {x | ∀ φ : V →+ ZMod 2,
+    ∃ (A β : ℚ̄₂) (_ : SectionSix.IsDeepUnit (ancSubgroup (kerAnc anc ρ)) A) (_ : β ^ 2 = A)
+      (_ : β ≠ 0),
+      H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+          (fun n => Kummer.kummerCocycleFun β (kerAnc anc ρ n))
+        = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+          (fun n => φ ((Quotient.out x).1 (n : Γ)))}
+
+omit [DistribMulAction C V] in
+/-- **The `deepPart` bridge**, definitional half — `GQ2.LocalKummer.mem_deepPart_iff` retyped:
+membership in the deep half is exactly "every scalar restriction is a deep Kummer class at the
+splitting group's anchor". -/
+theorem mem_deepPartK_iff (anc : ContinuousMonoidHom Γ GalQ2) (ρ : ContinuousMonoidHom Γ C)
+    (x : H1 Γ V) :
+    x ∈ deepPartK (V := V) anc ρ ↔ ∀ φ : V →+ ZMod 2,
+      phiResK ρ x φ ∈ deepClassesAt (kerAnc anc ρ) := by
+  constructor
+  · intro hx φ
+    obtain ⟨A, β, hdeep, hsq, hβ0, heq⟩ := hx φ
+    exact ⟨A, β, hdeep, hsq, hβ0, heq⟩
+  · intro hx φ
+    obtain ⟨A, β, hdeep, hsq, hβ0, heq⟩ := hx φ
+    exact ⟨A, β, hdeep, hsq, hβ0, heq⟩
+
+omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
+/-- **`H¹` of an exponent-2 module has exponent 2** — `GQ2.DeepPart.h1_add_self` retyped. -/
+theorem h1_add_selfK (hV2 : ∀ v : V, v + v = 0) (x : H1 Γ V) : x + x = 0 := by
+  induction x using QuotientAddGroup.induction_on with
+  | H z =>
+    have hz : z + z = 0 := by
+      apply Subtype.ext
+      funext g
+      exact hV2 _
+    show H1mk Γ V z + H1mk Γ V z = 0
+    rw [← map_add, hz, map_zero]
+
+/-- **Prop. 6.12, subgroup clause: the deep half `X₊` is an additive subgroup** of `H¹(Γ, V)` —
+`GQ2.DeepPart.deepPartSubgroup` retyped. -/
+def deepPartSubgroupK (anc : ContinuousMonoidHom Γ GalQ2) (ρ : ContinuousMonoidHom Γ C)
+    (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v) (hV2 : ∀ v : V, v + v = 0) :
+    AddSubgroup (H1 Γ V) where
+  carrier := deepPartK (V := V) anc ρ
+  zero_mem' := by
+    intro φ
+    refine ⟨1, 1, ⟨one_ne_zero, fun g _ => by rw [AlgEquiv.smul_def, map_one],
+      0, fun g _ => smul_zero g, by ring, by rw [norm_zero]; exact zero_lt_one⟩,
+      one_pow 2, one_ne_zero, ?_⟩
+    congr 1
+    funext n
+    rw [Kummer.kummerCocycleFun_eq0 (by rw [AlgEquiv.smul_def, map_one])]
+    have hv := vanish_on_ker_of_H1mk_eq_zeroK ρ hρ (h1mk_outK (0 : H1 Γ V)) n
+    rw [hv, map_zero]
+  add_mem' := by
+    intro x y hx hy φ
+    obtain ⟨A₁, β₁, hd₁, hsq₁, hne₁, heq₁⟩ := hx φ
+    obtain ⟨A₂, β₂, hd₂, hsq₂, hne₂, heq₂⟩ := hy φ
+    refine ⟨A₁ * A₂, β₁ * β₂, isDeepUnit_mul hd₁ hd₂, by rw [mul_pow, hsq₁, hsq₂],
+      mul_ne_zero hne₁ hne₂, ?_⟩
+    -- LHS: the Kummer class of the product splits (anchored multiplicativity)
+    rw [kummerAnc_class_mul (kerAnc anc ρ) hsq₁ hsq₂ hne₁ hne₂ hd₁.2.1 hd₂.2.1, heq₁, heq₂]
+    -- RHS: `out(x+y) = out x + out y` on `ker ρ`
+    have hRHS : (fun n : ↥(ρ.toMonoidHom.ker : Subgroup Γ) =>
+        φ ((Quotient.out (x + y)).1 (n : Γ)))
+        = (fun n : ↥(ρ.toMonoidHom.ker : Subgroup Γ) => φ ((Quotient.out x).1 (n : Γ)))
+          + fun n : ↥(ρ.toMonoidHom.ker : Subgroup Γ) => φ ((Quotient.out y).1 (n : Γ)) := by
+      funext n
+      have hd0 : H1mk Γ V (Quotient.out (x + y) - (Quotient.out x + Quotient.out y)) = 0 := by
+        rw [map_sub, map_add, h1mk_outK, h1mk_outK, h1mk_outK, sub_self]
+      have hv := vanish_on_ker_of_H1mk_eq_zeroK ρ hρ hd0 n
+      have hpt : (Quotient.out (x + y)).1 (n : Γ)
+          = (Quotient.out x).1 (n : Γ) + (Quotient.out y).1 (n : Γ) := by
+        have hexp : (Quotient.out (x + y) - (Quotient.out x + Quotient.out y) : ↥(Z1 Γ V)).1 (n : Γ)
+            = (Quotient.out (x + y)).1 (n : Γ)
+              - ((Quotient.out x).1 (n : Γ) + (Quotient.out y).1 (n : Γ)) := by
+          show (Quotient.out (x + y)).1 (n : Γ)
+              - ((Quotient.out x).1 + (Quotient.out y).1) (n : Γ) = _
+          rw [Pi.add_apply]
+        rw [hexp] at hv
+        exact sub_eq_zero.mp hv
+      show φ ((Quotient.out (x + y)).1 (n : Γ)) = _
+      rw [hpt, map_add]
+      rfl
+    rw [hRHS, DeepPart.H1ofFun_add (phiRestrict_mem_Z1K ρ hρ _ φ) (phiRestrict_mem_Z1K ρ hρ _ φ)]
+  neg_mem' := by
+    intro x hx
+    rwa [neg_eq_of_add_eq_zero_left (h1_add_selfK hV2 x)]
+
+@[simp] theorem mem_deepPartSubgroupK (anc : ContinuousMonoidHom Γ GalQ2)
+    (ρ : ContinuousMonoidHom Γ C) (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v)
+    (hV2 : ∀ v : V, v + v = 0) {x : H1 Γ V} :
+    x ∈ deepPartSubgroupK (V := V) anc ρ hρ hV2 ↔ x ∈ deepPartK (V := V) anc ρ := Iff.rfl
+
+end DeepPart
+
 end GQ2.Dyadic
