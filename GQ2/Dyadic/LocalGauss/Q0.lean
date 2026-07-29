@@ -782,6 +782,47 @@ noncomputable def H2congrGroup : H2 G M ≃+ H2 G' M' where
       rw [f.apply_symm_apply, congrHom_congrHomSymm, congrHom_congrHomSymm]
   map_add' := map_add _
 
+section Anchoring
+
+variable {G : Type*} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+variable (U : Subgroup G) (N : Subgroup ↥U)
+
+/-- **The anchoring isomorphism** `↥N ≃ₜ* ↥(N.map U.subtype)` for a subgroup `N` of a subgroup
+`U ≤ G`: the same abstract group, presented once inside `↥U` and once inside `G`.  This is the
+concrete input for `H1congrGroup` at the campaign's `N_K = ker ρ ≤ G_K = ↥U ≤ G_ℚ₂`
+(design memo §7.2, "the nested-subtype friction"). -/
+def anchorEquiv : ContinuousMulEquiv ↥N ↥(N.map U.subtype) where
+  toFun n := ⟨((n : ↥U) : G), (Subgroup.mem_map_iff_mem Subtype.val_injective).mpr n.2⟩
+  invFun m := ⟨⟨(m : G), Subgroup.map_subtype_le N m.2⟩,
+    (Subgroup.mem_map_iff_mem (f := U.subtype) Subtype.val_injective).mp m.2⟩
+  left_inv _ := rfl
+  right_inv _ := rfl
+  map_mul' _ _ := rfl
+  continuous_toFun := Continuous.subtype_mk (continuous_subtype_val.comp continuous_subtype_val) _
+  continuous_invFun :=
+    Continuous.subtype_mk (Continuous.subtype_mk continuous_subtype_val _) _
+
+variable [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
+
+omit [IsTopologicalGroup G] [ContinuousSMul G (ZMod 2)] in
+/-- The `𝔽₂`-coefficient compatibility of `anchorEquiv` (both actions are trivial). -/
+theorem anchorEquiv_compat (n : ↥N) (m : ZMod 2) :
+    (AddEquiv.refl (ZMod 2)) (n • m) = anchorEquiv U N n • (AddEquiv.refl (ZMod 2)) m := by
+  rw [AddEquiv.refl_apply, AddEquiv.refl_apply, smul_zmodTwo, smul_zmodTwo]
+
+/-- **`H¹`-anchoring**: `H¹(N, 𝔽₂) ≃+ H¹(N.map U.subtype, 𝔽₂)` — the ready-made instance of
+`H1congrGroup` that LG4's deep-package plumbing consumes. -/
+noncomputable def H1anchor : H1 ↥N (ZMod 2) ≃+ H1 ↥(N.map U.subtype) (ZMod 2) :=
+  H1congrGroup (anchorEquiv U N) (AddEquiv.refl (ZMod 2)) continuous_id continuous_id
+    (anchorEquiv_compat U N)
+
+/-- **`H²`-anchoring**, same data in degree two. -/
+noncomputable def H2anchor : H2 ↥N (ZMod 2) ≃+ H2 ↥(N.map U.subtype) (ZMod 2) :=
+  H2congrGroup (anchorEquiv U N) (AddEquiv.refl (ZMod 2)) continuous_id continuous_id
+    (anchorEquiv_compat U N)
+
+end Anchoring
+
 end GroupCongr
 
 /-! ## §8 The `n = 1` regression: the retype is definitionally the ℚ₂ layer
