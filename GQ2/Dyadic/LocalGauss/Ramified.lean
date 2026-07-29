@@ -1221,6 +1221,207 @@ theorem card_quot_deep_le_card_mid_kerAt [FiniteDimensional ℚ_[2] k]
 
 end KerFixTransport
 
+/-! ## §7 `hduality` at a general anchored source
+
+`GQ2.hduality_of_data` (`GQ2/DeepCount/Finale.lean` :46) retyped: the instantiation of the
+abstract engine `GQ2.card_equivHoms_deep_eq_quot` (`GQ2/DeepDuality.lean` :874 — abstract in
+`C`, `M`, `U`, used **verbatim**) at `M := H¹(N_K, 𝔽₂)` with LG2's `conjModule`, `U := V^∨` with
+`dualModule`, `Deep := deepClassesSubgroupAt`, `E := midClassesSubgroupAt`, `B := pairingK`.
+
+Every input is a named producer: (H1) LG2's `pairingK_conjModule`, (H2) LG2's `pairingK_nondeg`,
+(H3) LG4a's `deepClassesSubgroupAt_le_pairPerp_pairingK`, (H4) the easy half LG4a's
+`midClassesSubgroupAt_le_pairPerp_pairingK` plus §6's structural count through
+`GQ2.pairPerp_le_of_card_le`, (H5) §5's `conjAct_surjInv_conj_mid_sub_mem_deepAt`. -/
+
+section Duality
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+  [DistribMulAction Γ (MuN 2)] [ContinuousSMul Γ (MuN 2)]
+variable {C : Type} [Group C] [TopologicalSpace C] [Finite C]
+variable {V : Type} [AddCommGroup V] [DistribMulAction C V] [Finite V]
+
+/-- **`hduality` at a general anchored source** — `GQ2.hduality_of_data` retyped.  Inputs: the
+`V^∨` regular-summand package (PJ1's Lemma-6.11 output at `dualModule`), the self-duality
+`eU`/`heU` and the dualized inertia `ht₀U` from the §6.17 invariant form, a residue-trivial lift
+`g₀ : Γ` of `t₀` (residue-triviality read at the anchored subgroup), and the B13 bundle data for
+the splitting field `k` with the pointwise anchored identification `hker`. -/
+theorem hduality_of_data_K (anc : ContinuousMonoidHom Γ GalQ2) (ρ : ContinuousMonoidHom Γ C)
+    (D : TateDualityG ↥(ρ.toMonoidHom.ker : Subgroup Γ) 2) (hρsurj : Function.Surjective ⇑ρ)
+    [Finite (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2))]
+    (hsimple : ∀ S : AddSubgroup (V →+ ZMod 2),
+      (∀ (h : C), ∀ w ∈ S,
+        (dualModule : DistribMulAction C (V →+ ZMod 2)).toSMul.smul h w ∈ S) →
+      S = ⊥ ∨ S = ⊤)
+    (hnt : Nontrivial (V →+ ZMod 2))
+    {Nreg : ℕ} (ι : (V →+ ZMod 2) →+ (Fin Nreg → C → ZMod 2))
+    (r : (Fin Nreg → C → ZMod 2) →+ (V →+ ZMod 2))
+    (hι : ∀ (h : C) (φ : V →+ ZMod 2) (n : Fin Nreg) (x : C),
+      ι ((dualModule : DistribMulAction C (V →+ ZMod 2)).toSMul.smul h φ) n x
+        = ι φ n (h⁻¹ * x))
+    (hr : ∀ (h : C) (F : Fin Nreg → C → ZMod 2),
+      r (fun n x => F n (h⁻¹ * x))
+        = (dualModule : DistribMulAction C (V →+ ZMod 2)).toSMul.smul h (r F))
+    (hri : ∀ φ : V →+ ZMod 2, r (ι φ) = φ)
+    (eU : (V →+ ZMod 2) ≃+ ((V →+ ZMod 2) →+ ZMod 2))
+    (heU : ∀ (c : C) (φ : V →+ ZMod 2),
+      letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+      eU ((dualModule : DistribMulAction C (V →+ ZMod 2)).toSMul.smul c φ)
+        = (dualModule : DistribMulAction C ((V →+ ZMod 2) →+ ZMod 2)).toSMul.smul c (eU φ))
+    (t₀ : C)
+    (ht₀U : ∃ φ : V →+ ZMod 2,
+      (dualModule : DistribMulAction C (V →+ ZMod 2)).toSMul.smul t₀ φ ≠ φ)
+    (g₀ : Γ) (hg₀ : ρ g₀ = t₀)
+    (hg₀rt : IsResidueTrivial (ancSubgroup (kerAnc anc ρ)) (anc g₀))
+    (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (hancinj : Function.Injective ⇑anc) (hancind : Topology.IsInducing ⇑anc)
+    (π : ℚ̄₂) (hπk : π ∈ k) (hπ0 : π ≠ 0) (hπ1 : ‖π‖ < 1)
+    (hπmax : ∀ x : ℚ̄₂, x ∈ k → ‖x‖ < 1 → ‖x‖ ≤ ‖π‖)
+    {e : ℕ} (he : ‖(2 : ℚ̄₂)‖ = ‖π‖ ^ e) (he_pos : 1 ≤ e) {f : ℕ} (hf_pos : 1 ≤ f)
+    (hcard_zero : Nat.card (↥(normUnits k) ⧸
+      (depthUnits k π 1).subgroupOf (normUnits k)) = 2 ^ f - 1)
+    (hcard_gr : ∀ i : ℕ, 1 ≤ i → Nat.card (↥(depthUnits k π i) ⧸
+      (depthUnits k π (i + 1)).subgroupOf (depthUnits k π i)) = 2 ^ f) :
+    letI := conjModuleDeepK anc ρ hρsurj
+    letI := conjModuleQuotK anc ρ hρsurj
+    letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+    Nat.card ↥(equivHoms C (V →+ ZMod 2) ↥(deepClassesSubgroupAt (kerAnc anc ρ)))
+      = Nat.card ↥(equivHoms C (V →+ ZMod 2)
+          (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) ⧸
+            deepClassesSubgroupAt (kerAnc anc ρ))) := by
+  letI := conjModule ρ hρsurj
+  letI instDeepI := conjModuleDeepK anc ρ hρsurj
+  letI instQI := conjModuleQuotK anc ρ hρsurj
+  letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+  haveI : Finite (V →+ ZMod 2) :=
+    Finite.of_injective (DFunLike.coe : (V →+ ZMod 2) → (V → ZMod 2)) DFunLike.coe_injective
+  have h2M : ∀ m : H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2), m + m = 0 :=
+    fun m => h1_zmodTwo_add_self_dp m
+  have h2U : ∀ φ : V →+ ZMod 2, φ + φ = 0 := fun φ => FoxH.ElemDual.add_self_eq_zero φ
+  have hsharp : pairPerp (pairingK ρ D) (deepClassesSubgroupAt (kerAnc anc ρ))
+      ≤ midClassesSubgroupAt (kerAnc anc ρ) :=
+    pairPerp_le_of_card_le (pairingK ρ D) h2M (pairingK_nondeg ρ D)
+      (midClassesSubgroupAt_le_pairPerp_pairingK anc ρ D k htriv hker)
+      (card_quot_deep_le_card_mid_kerAt anc ρ k hancinj hker htriv hancind π hπk hπ0 hπ1 hπmax
+        he he_pos hf_pos hcard_zero hcard_gr)
+  exact card_equivHoms_deep_eq_quot (C := C) h2M h2U hsimple hnt ι r hι hr hri eU heU t₀
+    ht₀U (pairingK ρ D) (fun c x y => pairingK_conjModule ρ D hρsurj c x y) (pairingK_nondeg ρ D)
+    (deepClassesSubgroupAt (kerAnc anc ρ)) (midClassesSubgroupAt (kerAnc anc ρ))
+    (fun c x hx => conjAct_deepClassesAt anc ρ (Function.surjInv hρsurj c) hx)
+    (deepClassesSubgroupAt_le_pairPerp_pairingK anc ρ D k htriv hker)
+    hsharp
+    (fun d x hx => conjAct_surjInv_conj_mid_sub_mem_deepAt anc ρ hρsurj hg₀ hg₀rt d hx)
+    (instDeep := instDeepI)
+    (fun c x => rfl)
+    (instQ := instQI)
+    (fun c m => (conjActQuotHomK_mk anc ρ (Function.surjInv hρsurj c) m).symm)
+
+end Duality
+
+/-! ## §8 The dimension lane: `#X₊² = #H¹` over a general local source
+
+`GQ2.DimAssembly.lemma_6_17_dim_of_hext_hduality` / `lemma_6_17_dim_of_hduality` /
+`GQ2.DimClose.lemma_6_17_dim_of_residueLift` / `GQ2.ResidueLift.lemma_6_17_dim_final`, collapsed
+into one theorem at the general tame parameter `q_K = 2^f`.
+
+Against the `ℚ₂` chain:
+
+* the `ℚ₂` `hext` discharge (`ShapiroExtend.familiesExtend_of_package` at the `V`-side
+  Lemma-6.11 package) is §1's `familiesExtendK_of_package` at PJ1's
+  `lemma_6_11_of_tame_pair_pow`;
+* the `ℚ₂` `hinf` discharge (`inflationVanishes_ramifiedTame`, `q = 2`) is LG4a's
+  `inflationVanishes_ramifiedTameQ` at every `q_K = 2^f`;
+* the `ℚ₂` **splitting-field construction** (`ResidueLift.splitField` +
+  `fixingSubgroup_splitField`) and the **residue-trivial tame lift**
+  (`exists_residueTrivial_tameLift`) are `(k, hker, htriv)` and `(g₀, hg₀, hg₀rt)`, **threaded**
+  — see the module docstring's `ResidueLift` decision;
+* the `V^∨`-side self-duality bricks (`dualSelfDual`, `dualSelfDual_equivariant`,
+  `exists_dualModule_smul_ne`) and the `𝔽₂`-dual transport (`DimAssembly.dual_*`) are
+  ambient-free and are consumed **verbatim**. -/
+
+section DimLane
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+  [DistribMulAction Γ (MuN 2)] [ContinuousSMul Γ (MuN 2)]
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [DistribMulAction Γ V] [ContinuousSMul Γ V] [DistribMulAction C V]
+
+open DimAssembly in
+/-- **The §6.3 deep-half dimension identity at a general local source**:
+`#X₊² = #H¹(Γ, V)` — `GQ2.ResidueLift.lemma_6_17_dim_final` retyped to a general anchored
+source at every tame parameter `q_K = 2^f`.
+
+The three `ℚ₂`-specific derivations are threaded, per the module docstring: the splitting-field
+data `(k, htriv, hker)`, the residue-trivial tame lift `(g₀, hg₀, hg₀rt)`, and the anchor's
+injectivity/inducingness `(hancinj, hancind)` — all free at `Γ = ↥U`, `anc = U.subtype`. -/
+theorem lemma_6_17_dim_final_K {f : ℕ} (hf : 1 ≤ f)
+    (anc : ContinuousMonoidHom Γ GalQ2)
+    (c : ContinuousMonoidHom (Tq (2 ^ f)) C) (hc : Function.Surjective ⇑c)
+    (ρ : ContinuousMonoidHom Γ C)
+    (D : TateDualityG ↥(ρ.toMonoidHom.ker : Subgroup Γ) 2)
+    (hρsurj : Function.Surjective ⇑ρ)
+    (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v)
+    (hV2 : ∀ v : V, v + v = 0)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, c (tqTau (2 ^ f)) • v ≠ v)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
+    [Finite (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2))]
+    (g₀ : Γ) (hg₀ : ρ g₀ = c (tqTau (2 ^ f)))
+    (hg₀rt : IsResidueTrivial (ancSubgroup (kerAnc anc ρ)) (anc g₀))
+    (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (hancinj : Function.Injective ⇑anc) (hancind : Topology.IsInducing ⇑anc) :
+    Nat.card (deepPartK (V := V) anc ρ) ^ 2 = Nat.card (H1 Γ V) := by
+  classical
+  have hgen : Subgroup.closure {c (tqSigma (2 ^ f)), c (tqTau (2 ^ f))} = ⊤ :=
+    gen_tq_quotient c.toMonoidHom c.continuous_toFun hc
+  have hrel : (c (tqSigma (2 ^ f)))⁻¹ * c (tqTau (2 ^ f)) * c (tqSigma (2 ^ f))
+      = c (tqTau (2 ^ f)) ^ 2 ^ f := tame_rel_map_q c.toMonoidHom
+  -- (a) the inflation input, at every `q_K = 2^f` (LG4a §5A, coprime averaging)
+  have hinf : InflationVanishesK (V := V) ρ :=
+    inflationVanishes_ramifiedTameQ hf ρ c hρ hV2 hρsurj hgen hsimple hram
+  -- (b) the extension input: §1 at the `V`-side Lemma-6.11 package (PJ1)
+  obtain ⟨NregV, ιV, rV, hιV, hrV, hriV⟩ :=
+    lemma_6_11_of_tame_pair_pow (V := V) hf hgen hrel hV2 hfaith hsimple hram
+  have hext : FamiliesExtendK (V := V) ρ :=
+    familiesExtendK_of_package hρ hρsurj ιV rV hιV hrV hriV
+  -- (c) the `V^∨` regular-summand package and the self-duality data
+  haveI : Finite (V →+ ZMod 2) := Finite.of_injective _ DFunLike.coe_injective
+  letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+  have hV2D : ∀ φ : V →+ ZMod 2, φ + φ = 0 := fun φ => FoxH.ElemDual.add_self_eq_zero φ
+  have hfaithD : ∀ h : C, (∀ φ : V →+ ZMod 2, h • φ = φ) → h = 1 := fun h hh =>
+    dual_faithful hV2 hfaith h fun φ v => congrArg (fun ψ : V →+ ZMod 2 => ψ v) (hh φ)
+  have hsimpleD : ∀ W : AddSubgroup (V →+ ZMod 2),
+      (∀ (h : C), ∀ φ ∈ W, h • φ ∈ W) → W = ⊥ ∨ W = ⊤ := fun W hW =>
+    dual_simple hV2 hsimple W fun h φ hφ => hW h φ hφ
+  have hramD : ∃ φ : V →+ ZMod 2, c (tqTau (2 ^ f)) • φ ≠ φ := by
+    obtain ⟨φ, v, hφv⟩ := dual_ram hV2 hram
+    exact ⟨φ, fun heq => hφv (congrArg (fun ψ : V →+ ZMod 2 => ψ v) heq)⟩
+  have hnt : Nontrivial (V →+ ZMod 2) := by
+    obtain ⟨φ, hφ⟩ := hramD
+    exact ⟨c (tqTau (2 ^ f)) • φ, φ, hφ⟩
+  obtain ⟨Nreg, ι, r, hι, hr, hri⟩ :=
+    lemma_6_11_of_tame_pair_pow (V := V →+ ZMod 2) hf hgen hrel hV2D hfaithD hsimpleD hramD
+  -- (d) the duality, from §7
+  have hduality := hduality_of_data_K (V := V) anc ρ D hρsurj hsimpleD hnt ι r hι hr hri
+    (dualSelfDual q hq hns hV2) (fun cc φ => dualSelfDual_equivariant q hq hns hV2 hinv cc φ)
+    (c (tqTau (2 ^ f))) (exists_dualModule_smul_ne hV2 (c (tqTau (2 ^ f))) hram)
+    g₀ hg₀ hg₀rt k htriv hker hancinj hancind
+    (dyadicUnitFiltration k).π (dyadicUnitFiltration k).hπ_mem (dyadicUnitFiltration k).hπ_ne
+    (dyadicUnitFiltration k).hπ_lt (dyadicUnitFiltration k).hπ_max
+    (dyadicUnitFiltration k).he (dyadicUnitFiltration k).he_pos (dyadicUnitFiltration k).hf_pos
+    (dyadicUnitFiltration k).card_gr_zero (dyadicUnitFiltration k).card_gr
+  -- (e) the §4 collapse
+  exact card_deepPartK_sq_of_duality anc ρ hρ hV2 hρsurj hinf hext ι r hι hr hri hduality
+
+end DimLane
+
 /-! ## §9 The join: the Lagrangian Arf count
 
 `GQ2.DeepPart.card_Q0loc_zero_eq_of_dim_of_vanish` (`GQ2/DeepPart/Q0locLayer.lean` :547) retyped,
