@@ -1455,6 +1455,228 @@ theorem nRelWord_centLift_fib {α h : ℕ} (hα : 2 ≤ α) (m : Fin (coreRank h
 
 end IsCupCocycle
 
+/-! ## §7 The two MC2 assets of memo §10: free pro-2 pairs and the B8 transport
+
+Memo §5.2's **new finding**: axiom B8 (`GQ2/PeripheralAction.lean:92`
+`PeripheralCyclotomicAction`) is stated on the *abstract* group
+`Δ = maxProPQuotient 2 (FreeProfiniteGroup (Fin 2))` with `P·T·C = 1` — nothing in the bundle
+mentions `D₀`, `ℚ₂`, or rank three.  It therefore applies verbatim to **any** three-term
+factorisation `X·Y·Z = 1` in a pro-2 group, via a transport map `Δ → H`.  Both rank-four cores
+carry two nested such factorisations (§1, memo §1.2), so the unit scalings of stratum S2 cost
+**no new axiom and no census bump**.
+
+`peripheralTriple_scaling` is that transport, stated once and instantiated four times below.
+`lambdaHom`/`pushed_identity` (`GQ2/AnabelianBridge/Construction.lean:486`, :501) is the
+rank-three instance this generalises. -/
+
+section Peripheral
+
+variable {H : Type} [Group H] [TopologicalSpace H] [IsTopologicalGroup H] [CompactSpace H]
+  [T2Space H] [TotallyDisconnectedSpace H]
+
+/-- **The transport map** `Δ → H` sending the peripheral pair `(P, T)` to `(X, Y)` — the
+universal property of the free pro-2 group of rank two, available for *any* pair. -/
+noncomputable def deltaHom (hH : IsProP 2 H) (X Y : H) : ContinuousMonoidHom (Delta : Type) H :=
+  (maxProPHomEquiv hH).symm (freeHomFin ![X, Y])
+
+@[simp] theorem deltaHom_deltaP (hH : IsProP 2 H) (X Y : H) : deltaHom hH X Y deltaP = X := by
+  show ((maxProPHomEquiv hH).symm (freeHomFin ![X, Y]))
+    (maxProPMk 2 (FreeProfiniteGroup (Fin 2)) (FreeProfiniteGroup.of 0)) = X
+  rw [maxProPHomEquiv_symm_apply_maxProPMk, freeHomFin_of]
+  rfl
+
+@[simp] theorem deltaHom_deltaT (hH : IsProP 2 H) (X Y : H) : deltaHom hH X Y deltaT = Y := by
+  show ((maxProPHomEquiv hH).symm (freeHomFin ![X, Y]))
+    (maxProPMk 2 (FreeProfiniteGroup (Fin 2)) (FreeProfiniteGroup.of 1)) = Y
+  rw [maxProPHomEquiv_symm_apply_maxProPMk, freeHomFin_of]
+  rfl
+
+@[simp] theorem deltaHom_deltaC (hH : IsProP 2 H) (X Y : H) :
+    deltaHom hH X Y deltaC = (X * Y)⁻¹ := by
+  rw [deltaC, map_inv, map_mul, deltaHom_deltaP, deltaHom_deltaT]
+
+/-- **"Free pro-2 of rank two"** (memo §10, risk R5), in exactly the form the B8 transport
+consumes: the ordered pair `(X, Y)` is a *free pro-2 basis* of the closed subgroup it
+topologically generates precisely when the transport map `Δ → H` is injective.  This is the
+hypothesis under which the scaling endomorphisms built from `peripheralTriple_scaling` are
+determined by their peripheral data; MC3/MC4 supply it for `⟨A, A^B⟩` and
+`⟨C₀^{2^α−1}, C₀^D⟩`. -/
+def IsFreePro2Pair (hH : IsProP 2 H) (X Y : H) : Prop :=
+  Function.Injective (deltaHom hH X Y)
+
+/-- **Topological generation of `Δ`** by its peripheral pair — the pushforward of
+`freeProfiniteFin_topGen 2` through `maxProPMk`. -/
+theorem delta_topGen :
+    (Subgroup.closure ({deltaP, deltaT} : Set (Delta : Type))).topologicalClosure = ⊤ := by
+  have himg : ⇑(maxProPMk 2 (FreeProfiniteGroup (Fin 2))).toMonoidHom ''
+      Set.range (FreeProfiniteGroup.of (X := Fin 2)) = {deltaP, deltaT} := by
+    rw [← Set.range_comp]
+    ext z
+    simp only [Set.mem_range, Function.comp, Set.mem_insert_iff, Set.mem_singleton_iff]
+    constructor
+    · rintro ⟨i, rfl⟩
+      fin_cases i
+      exacts [Or.inl rfl, Or.inr rfl]
+    · rintro (rfl | rfl)
+      exacts [⟨0, rfl⟩, ⟨1, rfl⟩]
+  have := (quotientMk_surjective
+      (proPKernel 2 (FreeProfiniteGroup (Fin 2)))).denseRange.topologicalClosure_map_subgroup
+    (maxProPMk 2 (FreeProfiniteGroup (Fin 2))).continuous_toFun (freeProfiniteFin_topGen 2)
+  rwa [MonoidHom.map_closure, himg] at this
+
+/-- **Hom-extensionality for `Δ`**: continuous homs out of `Δ` are determined by their values on
+the peripheral pair `(P, T)`. -/
+theorem delta_hom_ext {A : Type} [Group A] [TopologicalSpace A] [IsTopologicalGroup A]
+    [T2Space A] (φ ψ : ContinuousMonoidHom (Delta : Type) A)
+    (hP : φ deltaP = ψ deltaP) (hT : φ deltaT = ψ deltaT) : φ = ψ := by
+  have hsub : Set.EqOn φ ψ (Subgroup.closure ({deltaP, deltaT} : Set (Delta : Type))) := by
+    intro w hw
+    induction hw using Subgroup.closure_induction with
+    | mem x hx => rcases hx with rfl | rfl; exacts [hP, hT]
+    | one => simp
+    | mul a b _ _ ha hb => rw [map_mul, map_mul, ha, hb]
+    | inv a _ ha => rw [map_inv, map_inv, ha]
+  have hdense : Dense ((Subgroup.closure ({deltaP, deltaT} : Set (Delta : Type)))
+      : Set (Delta : Type)) := by
+    rw [dense_iff_closure_eq, ← Subgroup.topologicalClosure_coe, delta_topGen, Subgroup.coe_top]
+  exact ContinuousMonoidHom.ext fun z =>
+    (hsub.closure φ.continuous_toFun ψ.continuous_toFun) (hdense z)
+
+/-- A free pro-2 pair transports along any injective continuous hom of pro-2 groups. -/
+theorem IsFreePro2Pair.comp {K : Type} [Group K] [TopologicalSpace K] [IsTopologicalGroup K]
+    [CompactSpace K] [T2Space K] [TotallyDisconnectedSpace K] (hH : IsProP 2 H)
+    (hK : IsProP 2 K) {X Y : H} (φ : ContinuousMonoidHom H K)
+    (hXY : IsFreePro2Pair hK (φ X) (φ Y)) : IsFreePro2Pair hH X Y := by
+  have hEq : deltaHom hK (φ X) (φ Y) = φ.comp (deltaHom hH X Y) :=
+    delta_hom_ext _ _ (by simp) (by simp)
+  intro a b hab
+  refine hXY ?_
+  have h1 : deltaHom hK (φ X) (φ Y) a = φ (deltaHom hH X Y a) := by rw [hEq]; rfl
+  have h2 : deltaHom hK (φ X) (φ Y) b = φ (deltaHom hH X Y b) := by rw [hEq]; rfl
+  rw [h1, h2, hab]
+
+/-- **The B8 transport lemma** (memo §5.2, §10; the MC2 asset).  Given a three-term
+factorisation `X·Y·Z = 1` in a pro-2 group `H` and a unit `u ∈ ℤ₂ˣ`, the **existing** axiom B8
+supplies conjugators `p, t, c ∈ H` with
+
+```
+(X^u)^p · (Y^u)^t · (Z^u)^c = 1.
+```
+
+No new axiom is introduced: the statement consumes `PeripheralCyclotomicAction`
+(`GQ2/PeripheralAction.lean:92`) verbatim, so the global census is unchanged. -/
+theorem peripheralTriple_scaling (R : PeripheralCyclotomicAction) (hH : IsProP 2 H)
+    {X Y Z : H} (hXYZ : X * Y * Z = 1) (u : ℤ_[2]ˣ) :
+    ∃ p t c : H, conjP (zpowZtwo hH X (u : ℤ_[2])) p * conjP (zpowZtwo hH Y (u : ℤ_[2])) t
+      * conjP (zpowZtwo hH Z (u : ℤ_[2])) c = 1 := by
+  have hZ : (X * Y)⁻¹ = Z := (eq_inv_of_mul_eq_one_right hXYZ).symm
+  set f := deltaHom hH X Y with hf
+  have hDelta : IsProP 2 (Delta : Type) := isProP_maxProPQuotient
+  -- the transported peripheral powers
+  have hpow : ∀ (w : (Delta : Type)) (W : H), f w = W →
+      f (w ^ᶻ R.ι u) = zpowZtwo hH W (u : ℤ_[2]) := by
+    intro w W hw
+    rw [zpowHat_eq_zpowZtwo hDelta, R.hι_proj u, toAdd_ofAdd,
+      map_zpowZtwo hDelta hH f w (u : ℤ_[2]), hw]
+  have hconj : ∀ (w g : (Delta : Type)), f (conjP w g) = conjP (f w) (f g) := by
+    intro w g
+    simp only [conjP, map_mul, map_inv]
+  refine ⟨f (R.cP u), f (R.cT u), f (R.cC u), ?_⟩
+  have hPTC : deltaP * deltaT * deltaC = 1 := by rw [deltaC, mul_inv_cancel]
+  have key : f (R.aut u deltaP) * f (R.aut u deltaT) * f (R.aut u deltaC) = 1 := by
+    rw [← map_mul, ← map_mul, ← map_mul, ← map_mul, hPTC, map_one, map_one]
+  rw [R.hP u, R.hT u, R.hC u, hconj, hconj, hconj,
+    hpow deltaP X (deltaHom_deltaP hH X Y), hpow deltaT Y (deltaHom_deltaT hH X Y),
+    hpow deltaC Z (by rw [deltaHom_deltaC, hZ])] at key
+  exact key
+
+end Peripheral
+
+/-! ### The four peripheral triples of the marked cores (memo §1.2, §5.2) -/
+
+section CoreTriples
+
+variable {G : Type*} [Group G] {h : ℕ}
+
+/-- **The outer three-term factorisation of the full `M_α` relator**: the handle block rides
+with the last factor. -/
+theorem mRelWord_triple (α : ℕ) (m : Fin (coreRank h) → G) :
+    mRelWord α m = mHead (m 0) (m 1) * m 2 ^ (2 ^ α - 1) *
+      (conjP (m 2) (m 3) *
+        handleWord (fun j => m (handleIdxU j)) (fun j => m (handleIdxV j))) := by
+  rw [mRelWord, mWord_triple, mul_assoc]
+
+/-- **The outer three-term factorisation of the full `N_α` relator**. -/
+theorem nRelWord_triple (α : ℕ) (m : Fin (coreRank h) → G) :
+    nRelWord α m = nHead α (m 0) (m 1) * (m 2)⁻¹ *
+      (conjP (m 2) (m 3) *
+        handleWord (fun j => m (handleIdxU j)) (fun j => m (handleIdxV j))) := by
+  rw [nRelWord, nWord_triple, mul_assoc]
+
+end CoreTriples
+
+/-- The **outer peripheral triple of `D_M`** dies: `w_M · C₀^{2^α−1} · (C₀^D·handles) = 1`. -/
+theorem dm_outer_triple (α h : ℕ) :
+    mHead (dmA α h) (dmB α h) * dmC α h ^ (2 ^ α - 1) *
+      (conjP (dmC α h) (dmD α h) *
+        handleWord (fun j => dmGen α h (handleIdxU j))
+          (fun j => dmGen α h (handleIdxV j))) = 1 := by
+  have hrel := dm_relation α h
+  rw [mRelWord_triple] at hrel
+  exact hrel
+
+/-- The **outer peripheral triple of `D_N`** dies: `w_N · σ⁻¹ · (σ^{x₂}·handles) = 1`. -/
+theorem dn_outer_triple (α h : ℕ) :
+    nHead α (dnX0 α h) (dnX1 α h) * (dnSigma α h)⁻¹ *
+      (conjP (dnSigma α h) (dnX2 α h) *
+        handleWord (fun j => dnGen α h (handleIdxU j))
+          (fun j => dnGen α h (handleIdxV j))) = 1 := by
+  have hrel := dn_relation α h
+  rw [nRelWord_triple] at hrel
+  exact hrel
+
+/-- **B8 transport at the outer `M`-triple** (memo §5.2, family `M3 = Σ_γ`): the `u`-scaling of
+`(w_M, C₀^{2^α−1}, C₀^D·handles)`.  Depends on the **existing** census axiom B8 only. -/
+theorem mOuter_scaling (R : PeripheralCyclotomicAction) (α h : ℕ) (u : ℤ_[2]ˣ) :
+    ∃ p t c : (DM α h : Type),
+      conjP (zpowZtwo (isProP_DM α h) (mHead (dmA α h) (dmB α h)) (u : ℤ_[2])) p *
+        conjP (zpowZtwo (isProP_DM α h) (dmC α h ^ (2 ^ α - 1)) (u : ℤ_[2])) t *
+        conjP (zpowZtwo (isProP_DM α h)
+          (conjP (dmC α h) (dmD α h) *
+            handleWord (fun j => dmGen α h (handleIdxU j))
+              (fun j => dmGen α h (handleIdxV j))) (u : ℤ_[2])) c = 1 :=
+  peripheralTriple_scaling R (isProP_DM α h) (dm_outer_triple α h) u
+
+/-- **B8 transport at the inner `M`-triple** (memo §1.2, §5.2): the `u`-scaling of
+`(A, A^B, w_M⁻¹)`. -/
+theorem mInner_scaling (R : PeripheralCyclotomicAction) (α h : ℕ) (u : ℤ_[2]ˣ) :
+    ∃ p t c : (DM α h : Type),
+      conjP (zpowZtwo (isProP_DM α h) (dmA α h) (u : ℤ_[2])) p *
+        conjP (zpowZtwo (isProP_DM α h) (conjP (dmA α h) (dmB α h)) (u : ℤ_[2])) t *
+        conjP (zpowZtwo (isProP_DM α h) (mHead (dmA α h) (dmB α h))⁻¹ (u : ℤ_[2])) c = 1 :=
+  peripheralTriple_scaling R (isProP_DM α h) (mWord_innerTriple (dmA α h) (dmB α h)) u
+
+/-- **B8 transport at the outer `N`-triple** (memo §5.2, family `N4` = the handle
+determinant). -/
+theorem nOuter_scaling (R : PeripheralCyclotomicAction) (α h : ℕ) (u : ℤ_[2]ˣ) :
+    ∃ p t c : (DN α h : Type),
+      conjP (zpowZtwo (isProP_DN α h) (nHead α (dnX0 α h) (dnX1 α h)) (u : ℤ_[2])) p *
+        conjP (zpowZtwo (isProP_DN α h) (dnSigma α h)⁻¹ (u : ℤ_[2])) t *
+        conjP (zpowZtwo (isProP_DN α h)
+          (conjP (dnSigma α h) (dnX2 α h) *
+            handleWord (fun j => dnGen α h (handleIdxU j))
+              (fun j => dnGen α h (handleIdxV j))) (u : ℤ_[2])) c = 1 :=
+  peripheralTriple_scaling R (isProP_DN α h) (dn_outer_triple α h) u
+
+/-- **B8 transport at the inner `N`-triple** (memo §1.2, §5.2): the `u`-scaling of
+`(x₀^{1+2^α}, x₀^{x₁}, w_N⁻¹)`. -/
+theorem nInner_scaling (R : PeripheralCyclotomicAction) (α h : ℕ) (u : ℤ_[2]ˣ) :
+    ∃ p t c : (DN α h : Type),
+      conjP (zpowZtwo (isProP_DN α h) (dnX0 α h ^ (1 + 2 ^ α)) (u : ℤ_[2])) p *
+        conjP (zpowZtwo (isProP_DN α h) (conjP (dnX0 α h) (dnX1 α h)) (u : ℤ_[2])) t *
+        conjP (zpowZtwo (isProP_DN α h) (nHead α (dnX0 α h) (dnX1 α h))⁻¹ (u : ℤ_[2])) c = 1 :=
+  peripheralTriple_scaling R (isProP_DN α h) (nWord_innerTriple α (dnX0 α h) (dnX1 α h)) u
+
 end MarkedCore
 
 end Dyadic
