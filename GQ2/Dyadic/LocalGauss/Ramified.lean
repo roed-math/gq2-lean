@@ -128,7 +128,8 @@ private theorem sec1K_one (ρ : ContinuousMonoidHom Γ C) (hρsurj : Function.Su
 
 variable (ρ : ContinuousMonoidHom Γ C) (hρsurj : Function.Surjective ⇑ρ)
 
-omit [DiscreteTopology C] [Finite C] in
+omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+  [DiscreteTopology C] [Finite C] in
 /-- The Shapiro word `s(x)⁻¹ · g · s(ρ(g)⁻¹x)` lies in `N_K = ker ρ`. -/
 theorem shapiroWordK_mem (g : Γ) (x : C) :
     (sec1K ρ hρsurj x)⁻¹ * g * sec1K ρ hρsurj ((ρ g)⁻¹ * x)
@@ -142,7 +143,8 @@ extension cocycle. -/
 noncomputable def shapiroWordK (g : Γ) (x : C) : ↥(ρ.toMonoidHom.ker : Subgroup Γ) :=
   ⟨(sec1K ρ hρsurj x)⁻¹ * g * sec1K ρ hρsurj ((ρ g)⁻¹ * x), shapiroWordK_mem ρ hρsurj g x⟩
 
-omit [DiscreteTopology C] [Finite C] in
+omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+  [DiscreteTopology C] [Finite C] in
 /-- Middle-insertion factorization — the source of the cocycle identity for the extension. -/
 theorem shapiroWordK_mul (g h : Γ) (x : C) :
     shapiroWordK ρ hρsurj (g * h) x
@@ -156,7 +158,8 @@ theorem shapiroWordK_mul (g h : Γ) (x : C) :
   rw [harg]
   group
 
-omit [DiscreteTopology C] [Finite C] in
+omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+  [DiscreteTopology C] [Finite C] in
 /-- On the kernel, at the base point `x = 1`, the word is the element itself. -/
 theorem shapiroWordK_ker_one (n₀ : ↥(ρ.toMonoidHom.ker : Subgroup Γ)) :
     shapiroWordK ρ hρsurj (n₀ : Γ) 1 = n₀ := by
@@ -165,7 +168,7 @@ theorem shapiroWordK_ker_one (n₀ : ↥(ρ.toMonoidHom.ker : Subgroup Γ)) :
   have h1 : ρ (n₀ : Γ) = 1 := n₀.2
   rw [h1, inv_one, one_mul, sec1K_one, inv_one, one_mul, mul_one]
 
-omit [Finite C] in
+omit [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] [Finite C] in
 /-- Continuity of the word in `g` (the `C`-inputs are discrete, so the section legs are free). -/
 theorem continuous_shapiroWordK (x : C) :
     Continuous fun g : Γ => shapiroWordK ρ hρsurj g x := by
@@ -361,6 +364,299 @@ theorem familiesExtendK_of_package
   rw [hri v]
 
 end FamiliesExtend
+
+/-! ## §2 The conjugation modules on the deep subgroup and on the quotient
+
+`GQ2.conjActHom`/`conjModuleDeep`/`conjActQuotHom`/`conjModuleQuot` (`GQ2/AdmissibleCount.lean`
+:172–:248) retyped: LG4a's `conjAct_deepClassesAt` (its §7) is exactly the invariance that lets
+the `conjModule` conjugation action restrict to `deepClassesSubgroupAt` and descend to the
+quotient. -/
+
+section ConjModules
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+variable {C : Type} [Group C] [TopologicalSpace C]
+variable (anc : ContinuousMonoidHom Γ GalQ2) (ρ : ContinuousMonoidHom Γ C)
+
+/-- `conjAct ρ g` packaged as an additive endomorphism of `H¹(N_K, 𝔽₂)`, so it can feed
+`QuotientAddGroup.map`. -/
+noncomputable def conjActHomK (g : Γ) :
+    H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) →+
+      H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) :=
+  AddMonoidHom.mk' (conjAct ρ g) (conjAct_add ρ g)
+
+/-- **The restricted `conjModule` action on the deep subgroup** — `GQ2.conjModuleDeep` retyped;
+well-defined by LG4a's `conjAct_deepClassesAt`.  A `@[reducible] def`; consumers `letI` it. -/
+@[reducible] noncomputable def conjModuleDeepK (hρsurj : Function.Surjective ⇑ρ) :
+    DistribMulAction C ↥(deepClassesSubgroupAt (kerAnc anc ρ)) where
+  smul c ξ := ⟨conjAct ρ (Function.surjInv hρsurj c) ξ.1,
+    conjAct_deepClassesAt anc ρ (Function.surjInv hρsurj c) ξ.2⟩
+  one_smul ξ := by
+    apply Subtype.ext
+    show conjAct ρ (Function.surjInv hρsurj 1) ξ.1 = ξ.1
+    refine (conjAct_ker ρ _ 1 ?_ ξ.1).trans (conjAct_one ρ ξ.1)
+    rw [Function.surjInv_eq hρsurj, map_one]
+  mul_smul c d ξ := by
+    apply Subtype.ext
+    show conjAct ρ (Function.surjInv hρsurj (c * d)) ξ.1
+      = conjAct ρ (Function.surjInv hρsurj c) (conjAct ρ (Function.surjInv hρsurj d) ξ.1)
+    rw [← conjAct_comp]
+    refine conjAct_ker ρ _ _ ?_ ξ.1
+    rw [map_mul, Function.surjInv_eq hρsurj, Function.surjInv_eq hρsurj,
+      Function.surjInv_eq hρsurj]
+  smul_zero c := Subtype.ext (conjAct_zero ρ (Function.surjInv hρsurj c))
+  smul_add c ξ η := Subtype.ext (conjAct_add ρ (Function.surjInv hρsurj c) ξ.1 η.1)
+
+/-- The descent of `conjAct ρ g` to `H¹(N_K) ⧸ deepClassesSubgroupAt`. -/
+noncomputable def conjActQuotHomK (g : Γ) :
+    (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) ⧸ deepClassesSubgroupAt (kerAnc anc ρ)) →+
+      (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) ⧸ deepClassesSubgroupAt (kerAnc anc ρ)) :=
+  QuotientAddGroup.map (deepClassesSubgroupAt (kerAnc anc ρ))
+    (deepClassesSubgroupAt (kerAnc anc ρ)) (conjActHomK ρ g)
+    (fun _ hx => AddSubgroup.mem_comap.mpr (conjAct_deepClassesAt anc ρ g hx))
+
+/-- Computation rule for `conjActQuotHomK` on a class. -/
+theorem conjActQuotHomK_mk (g : Γ) (a : H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2)) :
+    conjActQuotHomK anc ρ g (QuotientAddGroup.mk a) = QuotientAddGroup.mk (conjAct ρ g a) :=
+  QuotientAddGroup.map_mk _ _ (conjActHomK ρ g) _ a
+
+/-- **The induced `conjModule` action on the quotient** — `GQ2.conjModuleQuot` retyped. -/
+@[reducible] noncomputable def conjModuleQuotK (hρsurj : Function.Surjective ⇑ρ) :
+    DistribMulAction C (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) ⧸
+        deepClassesSubgroupAt (kerAnc anc ρ)) where
+  smul c x := conjActQuotHomK anc ρ (Function.surjInv hρsurj c) x
+  one_smul x := by
+    refine QuotientAddGroup.induction_on x (fun a => ?_)
+    show conjActQuotHomK anc ρ (Function.surjInv hρsurj 1) (QuotientAddGroup.mk a)
+      = QuotientAddGroup.mk a
+    rw [conjActQuotHomK_mk]
+    congr 1
+    refine (conjAct_ker ρ _ 1 ?_ a).trans (conjAct_one ρ a)
+    rw [Function.surjInv_eq hρsurj, map_one]
+  mul_smul c d x := by
+    refine QuotientAddGroup.induction_on x (fun a => ?_)
+    show conjActQuotHomK anc ρ (Function.surjInv hρsurj (c * d)) (QuotientAddGroup.mk a)
+      = conjActQuotHomK anc ρ (Function.surjInv hρsurj c)
+          (conjActQuotHomK anc ρ (Function.surjInv hρsurj d) (QuotientAddGroup.mk a))
+    simp only [conjActQuotHomK_mk]
+    congr 1
+    show conjAct ρ (Function.surjInv hρsurj (c * d)) a
+      = conjAct ρ (Function.surjInv hρsurj c) (conjAct ρ (Function.surjInv hρsurj d) a)
+    rw [← conjAct_comp]
+    refine conjAct_ker ρ _ _ ?_ a
+    rw [map_mul, Function.surjInv_eq hρsurj, Function.surjInv_eq hρsurj,
+      Function.surjInv_eq hρsurj]
+  smul_zero c := map_zero _
+  smul_add c x y := map_add _ x y
+
+end ConjModules
+
+/-! ## §3 Admissible families as equivariant Homs
+
+`GQ2/AdmissibleCount.lean` :250–:455 retyped: the bridge `AdmissibleFamK ≃ equivHoms C V^∨ H¹(N_K)`
+(and its deep-valued restriction), then the `U_{e+1}` short-exact-sequence count.  The abstract
+engine `GQ2.card_equivHoms_quotient_ses` and the dual module `GQ2.dualModule` mention only `C`, so
+they are consumed verbatim. -/
+
+section AdmissibleBridges
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+variable {C : Type} [Group C] [TopologicalSpace C] [Finite C]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [DistribMulAction Γ V] [DistribMulAction C V]
+variable (anc : ContinuousMonoidHom Γ GalQ2) (ρ : ContinuousMonoidHom Γ C)
+
+omit [Finite C] [TopologicalSpace V] [DiscreteTopology V] [Finite V] in
+/-- **The core equivariance of an admissible family** — `GQ2.fam_equivariant` retyped: `ξ.fam`
+intertwines the dual action `dualModule` on `V^∨` with the conjugation action on `H¹(N_K)`. -/
+theorem famK_equivariant (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v)
+    (hρsurj : Function.Surjective ⇑ρ) (ξ : AdmissibleFamK (V := V) ρ) (c : C)
+    (φ : V →+ ZMod 2) :
+    ξ.fam (φ.comp (DistribSMul.toAddMonoidHom V (c⁻¹ : C)))
+      = conjAct ρ (Function.surjInv hρsurj c) (ξ.fam φ) := by
+  rw [ξ.equiv' (Function.surjInv hρsurj c) φ]
+  refine congrArg ξ.fam (AddMonoidHom.ext fun v => ?_)
+  show φ ((c⁻¹ : C) • v) = φ ((Function.surjInv hρsurj c)⁻¹ • v)
+  rw [hρ (Function.surjInv hρsurj c)⁻¹ v, map_inv, Function.surjInv_eq hρsurj]
+
+/-- **The bridge `AdmissibleFamK ≃ equivHoms`** — `GQ2.admissibleFamEquiv` retyped. -/
+noncomputable def admissibleFamKEquiv
+    (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v) (hρsurj : Function.Surjective ⇑ρ) :
+    letI := conjModule ρ hρsurj
+    letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+    AdmissibleFamK (V := V) ρ ≃ equivHoms C (V →+ ZMod 2)
+      (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2)) :=
+  letI := conjModule ρ hρsurj
+  letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+  { toFun := fun ξ => ⟨AddMonoidHom.mk' ξ.fam ξ.add',
+      fun c φ => famK_equivariant ρ hρ hρsurj ξ c φ⟩
+    invFun := fun f =>
+      { fam := f.1
+        add' := map_add f.1
+        equiv' := fun g φ => by
+          calc conjAct ρ g (f.1 φ)
+              = conjAct ρ (Function.surjInv hρsurj (ρ g)) (f.1 φ) :=
+                conjAct_ker ρ g (Function.surjInv hρsurj (ρ g))
+                  (Function.surjInv_eq hρsurj (ρ g)).symm (f.1 φ)
+            _ = (dualModule.toSMul.smul (ρ g) φ |> f.1) := (f.2 (ρ g) φ).symm
+            _ = f.1 (φ.comp (DistribSMul.toAddMonoidHom V g⁻¹)) :=
+                congrArg f.1 (AddMonoidHom.ext fun v => by
+                  show φ ((ρ g)⁻¹ • v) = φ (g⁻¹ • v)
+                  rw [hρ g⁻¹ v, map_inv]) }
+    left_inv := fun ξ => rfl
+    right_inv := fun f => Subtype.ext (AddMonoidHom.ext fun φ => rfl) }
+
+omit [Finite C] [TopologicalSpace V] [DiscreteTopology V] [Finite V] in
+/-- **Count admissible families as equivariant Homs** — `GQ2.card_admissibleFam_eq` retyped. -/
+theorem card_admissibleFamK_eq (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v)
+    (hρsurj : Function.Surjective ⇑ρ) :
+    letI := conjModule ρ hρsurj
+    letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+    Nat.card (AdmissibleFamK (V := V) ρ)
+      = Nat.card ↥(equivHoms C (V →+ ZMod 2)
+          (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2))) :=
+  letI := conjModule ρ hρsurj
+  letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+  Nat.card_congr (admissibleFamKEquiv ρ hρ hρsurj)
+
+/-- **The deep-families bridge** — `GQ2.deepFamEquiv` retyped. -/
+noncomputable def deepFamKEquiv
+    (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v) (hρsurj : Function.Surjective ⇑ρ) :
+    letI := conjModuleDeepK anc ρ hρsurj
+    letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+    {ξ : AdmissibleFamK (V := V) ρ // ∀ φ : V →+ ZMod 2,
+        ξ.fam φ ∈ deepClassesAt (kerAnc anc ρ)}
+      ≃ equivHoms C (V →+ ZMod 2) ↥(deepClassesSubgroupAt (kerAnc anc ρ)) :=
+  letI := conjModuleDeepK anc ρ hρsurj
+  letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+  { toFun := fun ξ => ⟨AddMonoidHom.mk' (fun φ => ⟨ξ.1.fam φ, ξ.2 φ⟩)
+      (fun φ ψ => Subtype.ext (ξ.1.add' φ ψ)),
+      fun c φ => Subtype.ext (famK_equivariant ρ hρ hρsurj ξ.1 c φ)⟩
+    invFun := fun f =>
+      ⟨{ fam := fun φ => (f.1 φ).1
+         add' := fun φ ψ => by rw [map_add]; rfl
+         equiv' := fun g φ => by
+           calc conjAct ρ g ((f.1 φ).1)
+               = conjAct ρ (Function.surjInv hρsurj (ρ g)) (f.1 φ).1 :=
+                 conjAct_ker ρ g (Function.surjInv hρsurj (ρ g))
+                   (Function.surjInv_eq hρsurj (ρ g)).symm (f.1 φ).1
+             _ = ((dualModule.toSMul.smul (ρ g) φ |> f.1)
+                   : ↥(deepClassesSubgroupAt (kerAnc anc ρ))).1 :=
+                 (congrArg Subtype.val (f.2 (ρ g) φ)).symm
+             _ = (f.1 (φ.comp (DistribSMul.toAddMonoidHom V g⁻¹))).1 :=
+                 congrArg (fun ψ => (f.1 ψ).1) (AddMonoidHom.ext fun v => by
+                   show φ ((ρ g)⁻¹ • v) = φ (g⁻¹ • v)
+                   rw [hρ g⁻¹ v, map_inv]) },
+       fun φ => (f.1 φ).2⟩
+    left_inv := fun ξ => rfl
+    right_inv := fun f => Subtype.ext (AddMonoidHom.ext fun φ => Subtype.ext rfl) }
+
+omit [Finite C] [TopologicalSpace V] [DiscreteTopology V] [Finite V] in
+/-- **Count the deep families as equivariant Homs into the deep subgroup** —
+`GQ2.card_deepFam_eq` retyped. -/
+theorem card_deepFamK_eq (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v)
+    (hρsurj : Function.Surjective ⇑ρ) :
+    letI := conjModuleDeepK anc ρ hρsurj
+    letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+    Nat.card {ξ : AdmissibleFamK (V := V) ρ // ∀ φ : V →+ ZMod 2,
+        ξ.fam φ ∈ deepClassesAt (kerAnc anc ρ)}
+      = Nat.card ↥(equivHoms C (V →+ ZMod 2) ↥(deepClassesSubgroupAt (kerAnc anc ρ))) :=
+  letI := conjModuleDeepK anc ρ hρsurj
+  letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+  Nat.card_congr (deepFamKEquiv anc ρ hρ hρsurj)
+
+omit [TopologicalSpace V] [DiscreteTopology V] [DistribMulAction Γ V] in
+/-- **The `U_{e+1}` short exact sequence count** — `GQ2.card_equivHoms_deepSES` retyped; the
+abstract engine `GQ2.card_equivHoms_quotient_ses` is used verbatim. -/
+theorem card_equivHoms_deepSESK (hρsurj : Function.Surjective ⇑ρ)
+    [Finite (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2))]
+    {Nreg : ℕ} (ι : (V →+ ZMod 2) →+ (Fin Nreg → C → ZMod 2))
+    (r : (Fin Nreg → C → ZMod 2) →+ (V →+ ZMod 2))
+    (hι : ∀ (h : C) (φ : V →+ ZMod 2) (n : Fin Nreg) (x : C),
+        ι ((dualModule : DistribMulAction C (V →+ ZMod 2)).toSMul.smul h φ) n x = ι φ n (h⁻¹ * x))
+    (hr : ∀ (h : C) (F : Fin Nreg → C → ZMod 2),
+        r (fun n x => F n (h⁻¹ * x))
+          = (dualModule : DistribMulAction C (V →+ ZMod 2)).toSMul.smul h (r F))
+    (hri : ∀ φ : V →+ ZMod 2, r (ι φ) = φ) :
+    letI := conjModule ρ hρsurj
+    letI := conjModuleDeepK anc ρ hρsurj
+    letI := conjModuleQuotK anc ρ hρsurj
+    letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+    Nat.card ↥(equivHoms C (V →+ ZMod 2) (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2)))
+      = Nat.card ↥(equivHoms C (V →+ ZMod 2) ↥(deepClassesSubgroupAt (kerAnc anc ρ)))
+        * Nat.card ↥(equivHoms C (V →+ ZMod 2)
+            (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) ⧸
+              deepClassesSubgroupAt (kerAnc anc ρ))) := by
+  letI := conjModule ρ hρsurj
+  letI := conjModuleDeepK anc ρ hρsurj
+  letI := conjModuleQuotK anc ρ hρsurj
+  letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+  haveI : Finite (V →+ ZMod 2) :=
+    Finite.of_injective (DFunLike.coe : (V →+ ZMod 2) → (V → ZMod 2)) DFunLike.coe_injective
+  exact card_equivHoms_quotient_ses (C := C) (U := V →+ ZMod 2)
+    (A := H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2))
+    (instA := conjModule ρ hρsurj)
+    (Deep := deepClassesSubgroupAt (kerAnc anc ρ))
+    (instDeep := conjModuleDeepK anc ρ hρsurj) (instQuot := conjModuleQuotK anc ρ hρsurj)
+    (h1_zmodTwo_add_self_dp) ι r hι hr hri
+    (fun c w => rfl)
+    (fun c w => (conjActQuotHomK_mk anc ρ (Function.surjInv hρsurj c) w).symm)
+
+/-! ### §4 The `hduality`-parametric dimension clause -/
+
+/-- **The deep-half dimension clause from the duality** — `GQ2.card_deepPart_sq_of_duality`
+(`GQ2/AdmissibleCount.lean` :466) retyped: chaining LG4a's `card_H1_eq_card_famK` /
+`card_deepPartK_eq_card_deepFam` with §3's Hom-bridges and the SES count, the graded Hilbert
+duality `#Hom_C(V^∨, Deep) = #Hom_C(V^∨, H¹/Deep)` collapses the product to a square. -/
+theorem card_deepPartK_sq_of_duality
+    (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v) (hV2 : ∀ v : V, v + v = 0)
+    (hρsurj : Function.Surjective ⇑ρ)
+    (hinf : InflationVanishesK (V := V) ρ) (hext : FamiliesExtendK (V := V) ρ)
+    [Finite (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2))]
+    {Nreg : ℕ} (ι : (V →+ ZMod 2) →+ (Fin Nreg → C → ZMod 2))
+    (r : (Fin Nreg → C → ZMod 2) →+ (V →+ ZMod 2))
+    (hι : ∀ (h : C) (φ : V →+ ZMod 2) (n : Fin Nreg) (x : C),
+        ι ((dualModule : DistribMulAction C (V →+ ZMod 2)).toSMul.smul h φ) n x = ι φ n (h⁻¹ * x))
+    (hr : ∀ (h : C) (F : Fin Nreg → C → ZMod 2),
+        r (fun n x => F n (h⁻¹ * x))
+          = (dualModule : DistribMulAction C (V →+ ZMod 2)).toSMul.smul h (r F))
+    (hri : ∀ φ : V →+ ZMod 2, r (ι φ) = φ)
+    (hduality :
+      letI := conjModuleDeepK anc ρ hρsurj
+      letI := conjModuleQuotK anc ρ hρsurj
+      letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+      Nat.card ↥(equivHoms C (V →+ ZMod 2) ↥(deepClassesSubgroupAt (kerAnc anc ρ)))
+        = Nat.card ↥(equivHoms C (V →+ ZMod 2)
+            (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) ⧸
+              deepClassesSubgroupAt (kerAnc anc ρ)))) :
+    Nat.card (deepPartK (V := V) anc ρ) ^ 2 = Nat.card (H1 Γ V) := by
+  letI := conjModule ρ hρsurj
+  letI := conjModuleDeepK anc ρ hρsurj
+  letI := conjModuleQuotK anc ρ hρsurj
+  letI : DistribMulAction C (V →+ ZMod 2) := dualModule
+  have hH1 := card_H1_eq_card_famK hρ hV2 hinf hext
+  have hAF := card_admissibleFamK_eq ρ hρ hρsurj
+  have hSES := card_equivHoms_deepSESK anc ρ hρsurj ι r hι hr hri
+  have hDP := card_deepPartK_eq_card_deepFam anc hρ hV2 hinf hext
+  have hDF := card_deepFamK_eq anc ρ hρ hρsurj
+  calc Nat.card (deepPartK (V := V) anc ρ) ^ 2
+      = Nat.card ↥(equivHoms C (V →+ ZMod 2) ↥(deepClassesSubgroupAt (kerAnc anc ρ))) ^ 2 := by
+        rw [hDP, hDF]
+    _ = Nat.card ↥(equivHoms C (V →+ ZMod 2) ↥(deepClassesSubgroupAt (kerAnc anc ρ)))
+          * Nat.card ↥(equivHoms C (V →+ ZMod 2)
+            ↥(deepClassesSubgroupAt (kerAnc anc ρ))) := sq _
+    _ = Nat.card ↥(equivHoms C (V →+ ZMod 2) ↥(deepClassesSubgroupAt (kerAnc anc ρ)))
+          * Nat.card ↥(equivHoms C (V →+ ZMod 2)
+            (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2) ⧸
+              deepClassesSubgroupAt (kerAnc anc ρ))) := by rw [hduality]
+    _ = Nat.card ↥(equivHoms C (V →+ ZMod 2)
+          (H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2))) := hSES.symm
+    _ = Nat.card (AdmissibleFamK (V := V) ρ) := hAF.symm
+    _ = Nat.card (H1 Γ V) := hH1.symm
+
+end AdmissibleBridges
 
 /-! ## §9 The join: the Lagrangian Arf count
 
