@@ -1565,6 +1565,122 @@ theorem prop_6_18_ramified_K (P : FieldParameters) (U : Subgroup AbsGalQ2)
   exact card_Q0loc_zero_eq_of_dim_of_vanish_K D q hq hns dat hdat anc ρ hρ
     (fun cc v => hinv cc v) hV2 hdim hvanish m P.n hmn hEuler
 
+/-- **The endpoint with the dimension clause discharged** — the faithful mirror of
+`GQ2.DetRamified.prop_6_18_ramified` (`GQ2/DetRamified.lean` :53) over a general `K/ℚ₂`: only the
+**vanishing** core is threaded (LG4c's `lemma_6_17_vanish_final_K` produces it in exactly LG4a's
+`Q0locVanishesOnDeep` shape), the dimension core being discharged here by §8.
+
+The three `ℚ₂`-specific derivations that §8 threads reappear as binders: the splitting-field data
+`(k, htriv, hker)`, the residue-trivial tame lift `(g₀, hg₀, hg₀rt)`, and the anchor's
+`(hancinj, hancind)` — all free at `anc = U.subtype`.  `Dker` is the Tate bundle at the splitting
+group; LG2's `tateDualityKer ρ hΓ` produces it from `IsLocalDualizingGroup ↥U 2`. -/
+theorem prop_6_18_ramified_K_of_data (P : FieldParameters) (U : Subgroup AbsGalQ2)
+    (hU : IsOpen (U : Set AbsGalQ2)) [Finite (AbsGalQ2 ⧸ U)] (hindex : U.index = P.n)
+    [DistribMulAction ↥U (ZMod 2)] [ContinuousSMul ↥U (ZMod 2)]
+    [DistribMulAction ↥U (MuN 2)] [ContinuousSMul ↥U (MuN 2)]
+    {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+    [DistribMulAction ↥U V] [ContinuousSMul ↥U V] [DistribMulAction C V]
+    (D : TateDualityG ↥U 2)
+    (tameFK : ContinuousMonoidHom ↥U (Tq P.qK)) (htameFK : Function.Surjective ⇑tameFK)
+    (c : ContinuousMonoidHom (Tq P.qK) C) (hc : Function.Surjective ⇑c)
+    (anc : ContinuousMonoidHom ↥U GalQ2)
+    (hancinj : Function.Injective ⇑anc) (hancind : Topology.IsInducing ⇑anc)
+    (ρ : ContinuousMonoidHom ↥U C) (hfac : ∀ g, ρ g = c (tameFK g))
+    (hρ : ∀ (g : ↥U) (v : V), g • v = ρ g • v)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, c (tqTau P.qK) • v ≠ v)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (Dker : TateDualityG ↥(ρ.toMonoidHom.ker : Subgroup ↥U) 2)
+    (g₀ : ↥U) (hg₀ : ρ g₀ = c (tqTau P.qK))
+    (hg₀rt : IsResidueTrivial (ancSubgroup (kerAnc anc ρ)) (anc g₀))
+    (k : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k]
+    (htriv : ∀ (g : k.fixingSubgroup) (m : ZMod 2), g • m = m)
+    (hker : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc anc ρ) ↔ x ∈ k.fixingSubgroup)
+    (hvanish : Q0locVanishesOnDeep D dat anc ρ)
+    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
+    Nat.card {x : H1 ↥U V // Q0loc D dat ρ x = 0}
+      = 2 ^ (2 * (m * P.n) - 1) + 2 ^ (m * P.n - 1) := by
+  have hV2 : ∀ v : V, v + v = 0 := DeepPart.exp_two_of_simple_of_card hsimple m hm hcard
+  have hρsurj : Function.Surjective ⇑ρ := by
+    intro y
+    obtain ⟨t, ht⟩ := hc y
+    obtain ⟨g, hg⟩ := htameFK t
+    exact ⟨g, by rw [hfac, hg, ht]⟩
+  have hdim := lemma_6_17_dim_final_K (V := V) P.qK_eq P.one_le_f anc c hc ρ Dker hρsurj hρ hV2
+    hfaith hsimple hram q hq hns hinv g₀ hg₀ hg₀rt k htriv hker hancinj hancind
+  exact prop_6_18_ramified_K P U hU hindex D tameFK htameFK c hc anc ρ hfac hρ hsimple
+    q hq hns hinv dat hdat hdim hvanish m hm hcard
+
 end Endpoint
+
+/-! ## §11 The `n = 1` regression
+
+The general engine, run at `Γ := G_ℚ₂` with the identity anchor and `n := 1`, re-derives the `ℚ₂`
+model statement `GQ2.DetRamified.prop_6_18_ramified` **verbatim** — same binders, same conclusion
+(the `example` below is a kernel-level statement pin, through LG2's `Q0loc_absGalQ2` and LG4a's
+`deepPartK_absGalQ2`).  If the general route ever drifted from the model statement, that line
+would stop typechecking. -/
+
+section Q2Regression
+
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [DistribMulAction AbsGalQ2 V] [ContinuousSMul AbsGalQ2 V] [DistribMulAction C V]
+
+/-- **The `n = 1` regression**: `GQ2.DetRamified.prop_6_18_ramified` re-derived from the general-`K`
+join `card_Q0loc_zero_eq_of_dim_of_vanish_K` at `Γ = G_ℚ₂`, `anc = id`, `n = 1`, with the two §6.3
+Kummer cores supplied by the `ℚ₂` leaves (`ResidueLift.lemma_6_17_dim_final`,
+`VanishClose.lemma_6_17_vanish_final`) transported along LG4a's `deepPartK_absGalQ2`, and the
+Euler input by the `ℚ₂` collapse `GQ2.DeepPart.card_H1_eq_card_of_simple`.  Statement identical to
+the model's (pinned below). -/
+theorem prop_6_18_ramified_K_q2 (D : TateDuality 2) (R : LocalReciprocity) (B : BoundaryMaps)
+    (c : ContinuousMonoidHom Ttame C) (hc : Function.Surjective ⇑c)
+    (ρ : ContinuousMonoidHom AbsGalQ2 C) (hfac : ∀ g, ρ g = c (B.tameF g))
+    (horient : TameUnitOrientation R B.tameF)
+    (hρ : ∀ (g : AbsGalQ2) (v : V), g • v = ρ g • v)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, c tameTau • v ≠ v)
+    (q : V → ZMod 2) (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (hinv : IsInvariant C q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m)) :
+    Nat.card {x : H1 AbsGalQ2 V // Q0loc D dat ρ x = 0}
+      = 2 ^ (2 * m - 1) + 2 ^ (m - 1) := by
+  classical
+  have hV2 : ∀ v : V, v + v = 0 := DeepPart.exp_two_of_simple_of_card hsimple m hm hcard
+  have hρsurj : Function.Surjective ⇑ρ := DimAssembly.rho_surjective B c hc ρ hfac
+  have hdp : deepPartK (V := V) (ContinuousMonoidHom.id AbsGalQ2) ρ = SectionSix.deepPart ρ :=
+    deepPartK_absGalQ2 ρ
+  have hdim : Nat.card (deepPartK (V := V) (ContinuousMonoidHom.id AbsGalQ2) ρ) ^ 2
+      = Nat.card (H1 AbsGalQ2 V) := by
+    rw [hdp]
+    exact ResidueLift.lemma_6_17_dim_final B c hc ρ hfac hρ hV2 hfaith hsimple hram q hq hns hinv
+  have hvanish : Q0locVanishesOnDeep D dat (ContinuousMonoidHom.id AbsGalQ2) ρ := by
+    intro x hx
+    rw [hdp] at hx
+    exact VanishClose.lemma_6_17_vanish_final D R B c hc ρ hfac horient hρ hV2 hfaith hsimple
+      hram q hq hinv dat hdat x hx
+  obtain ⟨h₀, hmoves⟩ := exists_smul_neK hsimple (by
+    have : Nontrivial V := by
+      rw [← Finite.one_lt_card_iff_nontrivial, hcard]
+      calc (1 : ℕ) < 2 ^ 2 := by norm_num
+        _ ≤ 2 ^ (2 * m) := Nat.pow_le_pow_right (by norm_num) (by omega)
+    exact exists_ne (0 : V)) hV2 m hm hcard
+  have hEuler : Nat.card (H1 AbsGalQ2 V) = 2 ^ (2 * (m * 1)) := by
+    rw [DeepPart.card_H1_eq_card_of_simple V D ρ.toMonoidHom hρsurj hρ hsimple h₀ hmoves
+      q hq hns hinv hV2, hcard, mul_one]
+  have h := card_Q0loc_zero_eq_of_dim_of_vanish_K D q hq hns dat hdat
+    (ContinuousMonoidHom.id AbsGalQ2) ρ hρ (fun cc v => hinv cc v) hV2 hdim hvanish m 1
+    (by omega) hEuler
+  rwa [mul_one] at h
+
+/-- **Statement pin**: the regression theorem's type is *definitionally* the `ℚ₂` model's
+(`GQ2.Dyadic.Q0loc` at `Γ = G_ℚ₂` is `GQ2.SectionSix.Q0loc` on the nose — LG2's
+`Q0loc_absGalQ2`). -/
+example : @prop_6_18_ramified_K_q2 = @GQ2.DetRamified.prop_6_18_ramified := rfl
+
+end Q2Regression
 
 end GQ2.Dyadic
