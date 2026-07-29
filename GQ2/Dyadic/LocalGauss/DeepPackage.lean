@@ -921,6 +921,234 @@ theorem inflationVanishes_ramifiedTameQ {f : ℕ} (hf : 1 ≤ f)
 
 end Inflation
 
+/-! ## §5B The admissible-family interface (packet Def. 6.11(a), continued)
+
+`GQ2.LocalKummer`'s `phiRes` toolkit (`phiRes_of_rep`/`_add`/`_add_phi`/`_conj`,
+`phiRes_eq_zero_iff`, `phiRes_injective`), `AdmissibleFam` (:878), `FamiliesExtend` (:898) and
+`h1EquivFam` (:906) retyped.  The conjugation action is LG2's `conjAct`
+(`GQ2/Dyadic/LocalGauss/PairingK.lean` §1).
+
+The *discharge* of `FamiliesExtendK` (Lemma 6.11 projectivity through
+`GQ2.Shapiro.familiesExtend_of_package`, `GQ2/Shapiro/Extend.lean` :272, at PJ1's general-`q`
+package `lemma_6_11_of_tame_pair_pow`) is **not** in this file — see the module docstring's
+scope note; it and the vanishing endpoint are the two open items handed to the orchestrator. -/
+
+/-! ### Trivial-coefficient rigidity (shared by §5B and §6) -/
+
+section Rigidity
+
+variable {Θ : Type} [Group Θ] [TopologicalSpace Θ] [IsTopologicalGroup Θ]
+  [DistribMulAction Θ (ZMod 2)] [ContinuousSMul Θ (ZMod 2)]
+
+/-- **Trivial-coefficient rigidity** at a general group: two continuous 1-cocycles with the same
+`H1ofFun` class are equal (`B¹(Θ, 𝔽₂) = 0`).  Local copy of `GQ2.eq_of_H1ofFun_eq`
+(`GQ2/InvolutionSplice.lean`, not imported here); `_dp` suffix to dedup at merge. -/
+theorem eq_of_H1ofFun_eq_dp {φ ψ : Θ → ZMod 2} (hφ : φ ∈ Z1 Θ (ZMod 2))
+    (hψ : ψ ∈ Z1 Θ (ZMod 2)) (h : H1ofFun Θ φ = H1ofFun Θ ψ) : φ = ψ := by
+  rw [H1ofFun_of_mem hφ, H1ofFun_of_mem hψ] at h
+  have h0 : H1mk Θ (ZMod 2) (⟨φ, hφ⟩ - ⟨ψ, hψ⟩) = 0 := by rw [map_sub, h, sub_self]
+  have hmem := (QuotientAddGroup.eq_zero_iff _).mp h0
+  rwa [AddSubgroup.mem_addSubgroupOf, AddSubgroup.coe_sub,
+    B1_eq_bot_of_trivial (fun g m => smul_zmodTwo g m), AddSubgroup.mem_bot, sub_eq_zero] at hmem
+
+end Rigidity
+
+section AdmissibleFamilies
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+variable {C : Type} [Group C] [TopologicalSpace C]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V]
+  [DistribMulAction Γ V] [DistribMulAction C V]
+variable (ρ : ContinuousMonoidHom Γ C)
+
+/-- **Representative independence** of the scalar restriction — `GQ2.LocalKummer.phiRes_of_rep`
+retyped. -/
+theorem phiResK_of_rep (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v)
+    {b : ↥(Z1 Γ V)} {x : H1 Γ V} (hb : H1mk Γ V b = x) (φ : V →+ ZMod 2) :
+    H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+        (fun n : ↥(ρ.toMonoidHom.ker : Subgroup Γ) => φ (b.1 (n : Γ)))
+      = phiResK ρ x φ := by
+  have hd : H1mk Γ V (b - Quotient.out x) = 0 := by rw [map_sub, hb, h1mk_outK, sub_self]
+  unfold phiResK
+  congr 1
+  funext n
+  have h0 : b.1 (n : Γ) - (Quotient.out x).1 (n : Γ) = 0 :=
+    vanish_on_ker_of_H1mk_eq_zeroK ρ hρ hd n
+  rw [sub_eq_zero.mp h0]
+
+/-- `phiResK` is additive in the class. -/
+theorem phiResK_add (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v) (x y : H1 Γ V) (φ : V →+ ZMod 2) :
+    phiResK ρ (x + y) φ = phiResK ρ x φ + phiResK ρ y φ := by
+  have hb : H1mk Γ V (Quotient.out x + Quotient.out y) = x + y := by
+    rw [map_add, h1mk_outK, h1mk_outK]
+  rw [← phiResK_of_rep ρ hρ hb φ]
+  have hfun : (fun n : ↥(ρ.toMonoidHom.ker : Subgroup Γ) =>
+        φ ((Quotient.out x + Quotient.out y).1 (n : Γ)))
+      = (fun n : ↥(ρ.toMonoidHom.ker : Subgroup Γ) => φ ((Quotient.out x).1 (n : Γ)))
+        + fun n : ↥(ρ.toMonoidHom.ker : Subgroup Γ) => φ ((Quotient.out y).1 (n : Γ)) := by
+    funext n
+    show φ ((Quotient.out x).1 (n : Γ) + (Quotient.out y).1 (n : Γ)) = _
+    exact map_add φ _ _
+  rw [hfun, DeepPart.H1ofFun_add (phiRestrict_mem_Z1K ρ hρ _ φ) (phiRestrict_mem_Z1K ρ hρ _ φ)]
+  rfl
+
+/-- `phiResK` is additive in the functional. -/
+theorem phiResK_add_phi (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v) (x : H1 Γ V)
+    (φ ψ : V →+ ZMod 2) :
+    phiResK ρ x (φ + ψ) = phiResK ρ x φ + phiResK ρ x ψ := by
+  unfold phiResK
+  have hfun : (fun n : ↥(ρ.toMonoidHom.ker : Subgroup Γ) =>
+        (φ + ψ) ((Quotient.out x).1 (n : Γ)))
+      = (fun n : ↥(ρ.toMonoidHom.ker : Subgroup Γ) => φ ((Quotient.out x).1 (n : Γ)))
+        + fun n : ↥(ρ.toMonoidHom.ker : Subgroup Γ) => ψ ((Quotient.out x).1 (n : Γ)) := by
+    funext n
+    exact AddMonoidHom.add_apply φ ψ _
+  rw [hfun, DeepPart.H1ofFun_add (phiRestrict_mem_Z1K ρ hρ _ φ) (phiRestrict_mem_Z1K ρ hρ _ ψ)]
+
+omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] in
+/-- **The conjugation identity for cocycles on the kernel** — `GQ2.LocalKummer.cocycle_conj`
+retyped: `b(g⁻¹ n g) = g⁻¹ • b(n)` for `n ∈ ker ρ`. -/
+theorem cocycle_conjK (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v) (b : ↥(Z1 Γ V)) (g : Γ)
+    (n : ↥(ρ.toMonoidHom.ker : Subgroup Γ)) :
+    b.1 (g⁻¹ * (n : Γ) * g) = g⁻¹ • b.1 (n : Γ) := by
+  obtain ⟨-, hcoc⟩ := mem_Z1_iff.mp b.2
+  have hker : ∀ m : Γ, m ∈ (ρ.toMonoidHom.ker : Subgroup Γ) → ∀ v : V, m • v = v :=
+    fun m hm v => by rw [hρ, show ρ m = 1 from hm, one_smul]
+  have h1 : b.1 (g⁻¹ * (n : Γ)) = b.1 g⁻¹ + g⁻¹ • b.1 (n : Γ) := hcoc g⁻¹ n
+  have h2 : b.1 (g⁻¹ * (n : Γ)) = b.1 (g⁻¹ * (n : Γ) * g) + b.1 g⁻¹ := by
+    have hc := hcoc (g⁻¹ * (n : Γ) * g) g⁻¹
+    rw [show g⁻¹ * (n : Γ) * g * g⁻¹ = g⁻¹ * (n : Γ) by group] at hc
+    rw [hc, hker _ (conj_mem_ker ρ g n)]
+  have hcomm : b.1 g⁻¹ + g⁻¹ • b.1 (n : Γ) = g⁻¹ • b.1 (n : Γ) + b.1 g⁻¹ := add_comm _ _
+  exact (add_right_cancel (hcomm.symm.trans (h1.symm.trans h2))).symm
+
+/-- **Equivariance of the scalar restriction family** — `GQ2.LocalKummer.phiRes_conj` retyped:
+`g · (phiResK x φ) = phiResK x (φ ∘ (g⁻¹ • ·))`. -/
+theorem phiResK_conj (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v) (x : H1 Γ V) (φ : V →+ ZMod 2)
+    (g : Γ) :
+    conjAct ρ g (phiResK ρ x φ)
+      = phiResK ρ x (φ.comp (DistribSMul.toAddMonoidHom V g⁻¹)) := by
+  rw [phiResK_def, conjAct_h1ofFun ρ g (phiRestrict_mem_Z1K ρ hρ (Quotient.out x) φ), phiResK_def]
+  congr 1
+  funext n
+  show φ ((Quotient.out x).1 ((conjMap ρ g n : ↥(ρ.toMonoidHom.ker : Subgroup Γ)) : Γ))
+    = φ (g⁻¹ • (Quotient.out x).1 (n : Γ))
+  exact congrArg φ (cocycle_conjK ρ hρ (Quotient.out x) g n)
+
+/-- **Trivial-coefficient rigidity for `phiResK`**: all scalar restrictions of `x` vanish iff the
+canonical representative vanishes pointwise on `ker ρ` — `GQ2.LocalKummer.phiRes_eq_zero_iff`
+retyped. -/
+theorem phiResK_eq_zero_iff (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v) (hV2 : ∀ v : V, v + v = 0)
+    (x : H1 Γ V) :
+    (∀ φ : V →+ ZMod 2, phiResK ρ x φ = 0)
+      ↔ ∀ n : ↥(ρ.toMonoidHom.ker : Subgroup Γ), (Quotient.out x).1 (n : Γ) = 0 := by
+  constructor
+  · intro h n
+    by_contra hne
+    obtain ⟨φ, hφ⟩ := LocalKummer.exists_functional_ne_zero hV2 hne
+    have h0 := h φ
+    rw [phiResK_def] at h0
+    refine hφ (congrFun (eq_of_H1ofFun_eq_dp (phiRestrict_mem_Z1K ρ hρ (Quotient.out x) φ)
+      (zero_mem _) ?_) n)
+    rw [h0, H1ofFun_of_mem (zero_mem (Z1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2)))]
+    exact (map_zero (H1mk ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2))).symm
+  · intro h φ
+    rw [phiResK_def]
+    have hfun : (fun n : ↥(ρ.toMonoidHom.ker : Subgroup Γ) => φ ((Quotient.out x).1 (n : Γ)))
+        = 0 := by
+      funext n
+      rw [h n, map_zero]
+      rfl
+    rw [hfun, H1ofFun_of_mem (zero_mem _)]
+    exact map_zero (H1mk ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2))
+
+/-- **Injectivity of the scalar restriction package** from the inflation input —
+`GQ2.LocalKummer.phiRes_injective` retyped: with `InflationVanishesK` discharged (§5A, coprime
+averaging), two classes with equal scalar restrictions are equal.  This is the injectivity half
+of packet Def. 6.11(a). -/
+theorem phiResK_injective (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v) (hV2 : ∀ v : V, v + v = 0)
+    (hinf : InflationVanishesK (V := V) ρ) {x y : H1 Γ V}
+    (h : ∀ φ : V →+ ZMod 2, phiResK ρ x φ = phiResK ρ y φ) : x = y := by
+  have hz : ∀ φ : V →+ ZMod 2, phiResK ρ (x - y) φ = 0 := by
+    intro φ
+    have hxy : x - y + y = x := sub_add_cancel x y
+    have hsplit := phiResK_add ρ hρ (x - y) y φ
+    rw [hxy, h φ] at hsplit
+    exact add_right_cancel (hsplit.symm.trans (zero_add (phiResK ρ y φ)).symm)
+  obtain ⟨w₀, hw₀⟩ := hinf (Quotient.out (x - y)) ((phiResK_eq_zero_iff ρ hρ hV2 (x - y)).mp hz)
+  have hzero : x - y = 0 := by
+    rw [← h1mk_outK (x - y)]
+    refine (QuotientAddGroup.eq_zero_iff _).mpr ?_
+    rw [AddSubgroup.mem_addSubgroupOf]
+    exact ⟨w₀, funext fun g => (hw₀ g).symm⟩
+  rw [← sub_add_cancel x y, hzero, zero_add]
+
+/-- **An admissible family** at a general local source — `GQ2.LocalKummer.AdmissibleFam`
+retyped: an additive, `conjAct`-equivariant assignment of `H¹(N_K, 𝔽₂)`-classes to `𝔽₂`-functionals
+on `V`. -/
+structure AdmissibleFamK : Type where
+  /-- The underlying assignment `V^∨ → H¹(N_K, 𝔽₂)`. -/
+  fam : (V →+ ZMod 2) → H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2)
+  /-- Additivity in the functional. -/
+  add' : ∀ φ ψ : V →+ ZMod 2, fam (φ + ψ) = fam φ + fam ψ
+  /-- Conjugation equivariance. -/
+  equiv' : ∀ (g : Γ) (φ : V →+ ZMod 2),
+    conjAct ρ g (fam φ) = fam (φ.comp (DistribSMul.toAddMonoidHom V g⁻¹))
+
+/-- The scalar restriction family of a class, as an `AdmissibleFamK`. -/
+noncomputable def toFamK (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v) (x : H1 Γ V) :
+    AdmissibleFamK (V := V) ρ where
+  fam := phiResK ρ x
+  add' := phiResK_add_phi ρ hρ x
+  equiv' g φ := phiResK_conj ρ hρ x φ g
+
+/-- **The extension input** at a general local source — `GQ2.LocalKummer.FamiliesExtend` retyped:
+every admissible family is the scalar restriction family of some class.  (Discharged from Lemma
+6.11 projectivity; see the section header.) -/
+def FamiliesExtendK : Prop :=
+  ∀ ξ : AdmissibleFamK (V := V) ρ, ∃ x : H1 Γ V, ∀ φ : V →+ ZMod 2, phiResK ρ x φ = ξ.fam φ
+
+variable {ρ}
+
+/-- **The identification** `H¹(Γ, V) ≃ AdmissibleFamK` — `GQ2.LocalKummer.h1EquivFam` retyped;
+packet Def. 6.11(a) in full, modulo the two deferred cohomological inputs. -/
+noncomputable def h1EquivFamK (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v)
+    (hV2 : ∀ v : V, v + v = 0) (hinf : InflationVanishesK (V := V) ρ)
+    (hext : FamiliesExtendK (V := V) ρ) : H1 Γ V ≃ AdmissibleFamK (V := V) ρ :=
+  Equiv.ofBijective (toFamK ρ hρ)
+    ⟨fun x y hxy => phiResK_injective ρ hρ hV2 hinf
+        (fun φ => congrFun (congrArg AdmissibleFamK.fam hxy) φ),
+      fun ξ => by
+        obtain ⟨x, hx⟩ := hext ξ
+        refine ⟨x, ?_⟩
+        have hfam : (toFamK ρ hρ x).fam = ξ.fam := funext hx
+        cases ξ
+        cases hfam
+        rfl⟩
+
+/-- **Count `H¹` by families** (modulo the deferred inputs) — the dimension-lane entry point
+LG4b consumes. -/
+theorem card_H1_eq_card_famK (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v)
+    (hV2 : ∀ v : V, v + v = 0) (hinf : InflationVanishesK (V := V) ρ)
+    (hext : FamiliesExtendK (V := V) ρ) :
+    Nat.card (H1 Γ V) = Nat.card (AdmissibleFamK (V := V) ρ) :=
+  Nat.card_congr (h1EquivFamK hρ hV2 hinf hext)
+
+/-- **Count the deep half by deep-valued families** (modulo the deferred inputs): the
+identification carries `X₊` onto the admissible families valued in the anchored deep classes —
+`GQ2.LocalKummer.card_deepPart_eq_card_deepFam` retyped. -/
+theorem card_deepPartK_eq_card_deepFam (anc : ContinuousMonoidHom Γ GalQ2)
+    (hρ : ∀ (g : Γ) (v : V), g • v = ρ g • v) (hV2 : ∀ v : V, v + v = 0)
+    (hinf : InflationVanishesK (V := V) ρ) (hext : FamiliesExtendK (V := V) ρ) :
+    Nat.card (deepPartK (V := V) anc ρ)
+      = Nat.card {ξ : AdmissibleFamK (V := V) ρ // ∀ φ : V →+ ZMod 2,
+          ξ.fam φ ∈ deepClassesAt (kerAnc anc ρ)} :=
+  Nat.card_congr <| (Equiv.subtypeEquiv (h1EquivFamK hρ hV2 hinf hext)
+    (fun x => mem_deepPartK_iff anc ρ x))
+
+end AdmissibleFamilies
+
 /-! ## §6 The deep-class cup vanishing at the splitting group
 
 The `hvanish` core of the square and free orbit layers (packet Rem. 6.13): the cup of two deep
@@ -942,24 +1170,6 @@ variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
   [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
 variable {C : Type} [Group C] [TopologicalSpace C]
 variable (anc : ContinuousMonoidHom Γ GalQ2) (ρ : ContinuousMonoidHom Γ C)
-
-section Rigidity
-
-variable {Θ : Type} [Group Θ] [TopologicalSpace Θ] [IsTopologicalGroup Θ]
-  [DistribMulAction Θ (ZMod 2)] [ContinuousSMul Θ (ZMod 2)]
-
-/-- **Trivial-coefficient rigidity** at a general group: two continuous 1-cocycles with the same
-`H1ofFun` class are equal (`B¹(Θ, 𝔽₂) = 0`).  Local copy of `GQ2.eq_of_H1ofFun_eq`
-(`GQ2/InvolutionSplice.lean`, not imported here); `_dp` suffix to dedup at merge. -/
-theorem eq_of_H1ofFun_eq_dp {φ ψ : Θ → ZMod 2} (hφ : φ ∈ Z1 Θ (ZMod 2))
-    (hψ : ψ ∈ Z1 Θ (ZMod 2)) (h : H1ofFun Θ φ = H1ofFun Θ ψ) : φ = ψ := by
-  rw [H1ofFun_of_mem hφ, H1ofFun_of_mem hψ] at h
-  have h0 : H1mk Θ (ZMod 2) (⟨φ, hφ⟩ - ⟨ψ, hψ⟩) = 0 := by rw [map_sub, h, sub_self]
-  have hmem := (QuotientAddGroup.eq_zero_iff _).mp h0
-  rwa [AddSubgroup.mem_addSubgroupOf, AddSubgroup.coe_sub,
-    B1_eq_bot_of_trivial (fun g m => smul_zmodTwo g m), AddSubgroup.mem_bot, sub_eq_zero] at hmem
-
-end Rigidity
 
 omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
 /-- **Cup-cochain pullback of a coboundary along the anchor.**  If two `𝔽₂`-cochains on `ker ρ`
