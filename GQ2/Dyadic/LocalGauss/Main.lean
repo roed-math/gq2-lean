@@ -38,11 +38,15 @@ i.e. the Gauss sign of the base determinant form is `+2^{mn}` in the ramified ca
   field-package hypothesis surface rather than a bare `Q0locVanishesOnDeep` binder.
 * §4 **the theorem** `local_gauss_K` (packet Thm. 6.15) and its ramification certificate
   `RamifiedCertificate`.
-* §5 **zero-count corollaries** `local_gauss_K_zeroCount_add` / `local_gauss_K_zeroCount_sub`.
+* §5 **zero-count corollaries** `local_gauss_K_zeroCount_add` / `local_gauss_K_zeroCount_sub`,
+  over the Arf-to-count bridges `zeroCount_Q0loc_of_arf_zero` / `zeroCount_Q0loc_of_arf_one`.
 * §6 **regressions**: the `ℚ₂` (`n = 1`) assembled statement `local_gauss_q2` — whose two
   branches are *literally* the two models' conclusions, pinned by `rfl` against
   `GQ2.DetRamified.prop_6_18_ramified` and `GQ2.UnramifiedModel.prop_6_18_unramified` — the
   `n = 2` unramified `+` sign, and the ramified `+` sign at every `n`.
+* §7 **the campaign instantiation** `anc = U.subtype`: `subtypeAnc` and its two anchor conditions,
+  the kernel duality bundle `tateDualityKerU`, and the certificate builder
+  `ramifiedCertificateOfSubtype`, whose binders are exactly the arithmetic input still owed.
 
 ## The AX3/AX4 surface (the G-AX flip will replace exactly these binders)
 
@@ -629,12 +633,84 @@ theorem local_gauss_K_ramified_sign (P : FieldParameters) (U : Subgroup AbsGalQ2
     (cert : RamifiedCertificate P U V c ρ) :
     arf (Q0loc D dat ρ (V := V)) = 0 ∧
       Nat.card {x : H1 ↥U V // Q0loc D dat ρ x = 0}
-        = 2 ^ (2 * m * P.n - 1) + 2 ^ (m * P.n - 1) :=
-  ⟨arf_zero_of_ramified_K P U hU hn D tameFK htameFK c hc ρ hfac hρ hfaith hsimple q hq hns hinv
-      dat hdat m hm hcard cert,
-    local_gauss_K_zeroCount_add P U hU hn D tameFK htameFK c hc ρ hfac hρ hfaith hsimple q hq hns
-      hinv dat hdat m hm hcard (fun _ => ⟨cert⟩) (Or.inl cert.ram)⟩
+        = 2 ^ (2 * m * P.n - 1) + 2 ^ (m * P.n - 1) := by
+  haveI := cert.fd
+  refine ⟨arf_zero_of_ramified_K P U hU hn D tameFK htameFK c hc ρ hfac hρ hfaith hsimple q hq hns
+      hinv dat hdat m hm hcard cert, ?_⟩
+  rw [mul_assoc]
+  exact prop_6_18_ramified_K_of_package P U hU hn D tameFK htameFK c hc cert.anc cert.hancinj
+    cert.hancind ρ hfac hρ hfaith hsimple cert.ram q hq hns hinv dat hdat cert.Dker cert.g₀
+    cert.hg₀ cert.hg₀rt cert.k₀ cert.htriv cert.hker₀ cert.hpkg m hm hcard
 
 end Regression
+
+/-! ## §7 The campaign instantiation `anc = U.subtype`
+
+Four of `RamifiedCertificate`'s fourteen fields are free at the campaign's own anchoring
+(`Γ = G_K = ↥U`, `anc = U.subtype`): `anc` itself, `hancinj`, `hancind` and `Dker`.  They are
+supplied here once and for all, so a consumer (AS1's certificate assembly) only has to produce the
+genuinely arithmetic fields — the tame lift `(g₀, hg₀, hg₀rt)` and the field data
+`(k₀, fd, htriv, hker₀, hpkg)`. -/
+
+section CampaignAnchor
+
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+
+/-- **The campaign anchor** `G_K = ↥U ↪ G_ℚ₂`: the subtype inclusion, in the `GalQ2` spelling the
+anchoring convention uses. -/
+noncomputable def subtypeAnc (U : Subgroup AbsGalQ2) : ContinuousMonoidHom ↥U GalQ2 :=
+  ⟨U.subtype, continuous_subtype_val⟩
+
+@[simp] theorem subtypeAnc_apply (U : Subgroup AbsGalQ2) (g : ↥U) :
+    subtypeAnc U g = (g : AbsGalQ2) := rfl
+
+/-- `RamifiedCertificate.hancinj` at the campaign anchor. -/
+theorem subtypeAnc_injective (U : Subgroup AbsGalQ2) : Function.Injective ⇑(subtypeAnc U) :=
+  Subtype.val_injective
+
+/-- `RamifiedCertificate.hancind` at the campaign anchor. -/
+theorem subtypeAnc_isInducing (U : Subgroup AbsGalQ2) :
+    Topology.IsInducing ⇑(subtypeAnc U) :=
+  Topology.IsInducing.subtypeVal
+
+/-- `RamifiedCertificate.Dker` at the campaign anchor: LG2's `tateDualityKer` at the splitting
+group `N_K = ker ρ ≤ G_K`, whose dualizing hypothesis is LG2's `subgroup_isLocalDualizingGroup`
+for the open finite-index `U ≤ G_ℚ₂`. -/
+noncomputable def tateDualityKerU (U : Subgroup AbsGalQ2) (hU : IsOpen (U : Set AbsGalQ2))
+    [U.FiniteIndex] (ρ : ContinuousMonoidHom ↥U C) :
+    TateDualityG ↥(ρ.toMonoidHom.ker : Subgroup ↥U) 2 :=
+  tateDualityKer ρ (subgroup_isLocalDualizingGroup 2 U hU)
+
+/-- **The campaign certificate builder** — `RamifiedCertificate` at `anc = U.subtype`.  Its binder
+list is *exactly* the arithmetic input a consumer must still produce: the ramification witness,
+the residue-trivial tame lift `(g₀, hg₀, hg₀rt)`, and the field data `(k₀, htriv, hker₀)` with the
+AX3 involution package `hpkg`.  Everything else is discharged by the three lemmas above. -/
+noncomputable def ramifiedCertificateOfSubtype (P : FieldParameters) (U : Subgroup AbsGalQ2)
+    (hU : IsOpen (U : Set AbsGalQ2)) [U.FiniteIndex]
+    (V : Type) [AddCommGroup V] [DistribMulAction C V]
+    (c : ContinuousMonoidHom (Tq P.qK) C) (ρ : ContinuousMonoidHom ↥U C)
+    (hram : ∃ v : V, c (tqTau P.qK) • v ≠ v)
+    (g₀ : ↥U) (hg₀ : ρ g₀ = c (tqTau P.qK))
+    (hg₀rt : IsResidueTrivial (ancSubgroup (kerAnc (subtypeAnc U) ρ)) (subtypeAnc U g₀))
+    (k₀ : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] k₀]
+    (htriv : ∀ (g : k₀.fixingSubgroup) (y : ZMod 2), g • y = y)
+    (hker₀ : ∀ x : GalQ2, x ∈ ancSubgroup (kerAnc (subtypeAnc U) ρ) ↔ x ∈ k₀.fixingSubgroup)
+    (hpkg : InvolutionFieldPackage (subtypeAnc U) ρ k₀) :
+    RamifiedCertificate P U V c ρ where
+  ram := hram
+  anc := subtypeAnc U
+  hancinj := subtypeAnc_injective U
+  hancind := subtypeAnc_isInducing U
+  Dker := tateDualityKerU U hU ρ
+  g₀ := g₀
+  hg₀ := hg₀
+  hg₀rt := hg₀rt
+  k₀ := k₀
+  fd := inferInstance
+  htriv := htriv
+  hker₀ := hker₀
+  hpkg := hpkg
+
+end CampaignAnchor
 
 end GQ2.Dyadic
