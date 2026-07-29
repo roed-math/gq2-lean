@@ -658,6 +658,187 @@ theorem card_deepPartK_sq_of_duality
 
 end AdmissibleBridges
 
+/-! ## §5 The middle twist (H5) at an anchor
+
+`GQ2/DeepDuality.lean` §MidTwist (:1099–:1269) retyped.  Residue-triviality is a **`ℚ₂`-side**
+predicate at a subgroup of `G_ℚ₂` (`GQ2.IsResidueTrivial`), so under LG4a's anchoring convention
+it is taken at `ancSubgroup (kerAnc anc ρ)` and consumed verbatim; only the conjugation
+bookkeeping moves, through `anc`.
+
+Paper Lemma 6.10 / the (H5) core: a residue-trivial `anc g` moves a mid class by a deep class.
+With `ξ = [κ_β]`, `β² = A = 1 + 2b` mid, 2-torsion turns the difference into
+`[κ_{anc g•β}] + [κ_β] = [κ_{(anc g•β)β}]`, and `(anc g•A)·A = 1 + 2(anc g•b + b + 2(anc g•b)b)`
+is a deep unit by residue-triviality at `x := b`. -/
+
+section MidTwist
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+variable {C : Type} [Group C] [TopologicalSpace C]
+variable (anc : ContinuousMonoidHom Γ GalQ2) (ρ : ContinuousMonoidHom Γ C)
+
+omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
+/-- **Anchored-fixedness is stable under the ambient action**: if `x` is fixed by the whole
+anchored splitting subgroup, so is `anc g • x` (normality of `ker ρ` in `Γ`, pushed through the
+anchor).  This is the `key`/`hmove` step of LG4a's `conjAct_deepClassesAt`, named. -/
+theorem smul_anc_fix (g : Γ) {x : ℚ̄₂}
+    (hfix : ∀ y ∈ ancSubgroup (kerAnc anc ρ), y • x = x) :
+    ∀ m ∈ ancSubgroup (kerAnc anc ρ), m • (anc g • x) = anc g • x := by
+  have key : ∀ n : ↥(ρ.toMonoidHom.ker : Subgroup Γ),
+      (kerAnc anc ρ n) • (anc g • x) = anc g • x := by
+    intro n
+    rw [← mul_smul, show kerAnc anc ρ n * anc g = anc g * ((anc g)⁻¹ * kerAnc anc ρ n * anc g)
+      from by group, mul_smul,
+      show ((anc g)⁻¹ * kerAnc anc ρ n * anc g) • x = x from
+        hfix _ (by rw [← kerAnc_conjMap anc ρ g n]; exact mem_ancSubgroup _ _)]
+  rintro _ ⟨n, rfl⟩
+  exact key n
+
+omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
+/-- **Residue-triviality is conjugation-stable at an anchor** — `GQ2.IsResidueTrivial.conj`
+retyped: conjugating the test vector back by `anc h` preserves anchored fixedness
+(`smul_anc_fix`) and the norm (`GQ2.norm_galois`). -/
+theorem isResidueTrivial_anc_conj {g : Γ}
+    (hg : IsResidueTrivial (ancSubgroup (kerAnc anc ρ)) (anc g)) (h : Γ) :
+    IsResidueTrivial (ancSubgroup (kerAnc anc ρ)) (anc h * anc g * (anc h)⁻¹) := by
+  intro x hxfix hx1
+  have hyfix : ∀ m ∈ ancSubgroup (kerAnc anc ρ), m • ((anc h)⁻¹ • x) = (anc h)⁻¹ • x := by
+    have hy := smul_anc_fix anc ρ h⁻¹ hxfix
+    rwa [map_inv] at hy
+  have hy1 : ‖(anc h)⁻¹ • x‖ ≤ 1 := by rw [norm_galois]; exact hx1
+  have hkey : (anc h * anc g * (anc h)⁻¹) • x - x
+      = anc h • (anc g • ((anc h)⁻¹ • x) - (anc h)⁻¹ • x) := by
+    rw [AlgEquiv.smul_def (anc h), map_sub, ← AlgEquiv.smul_def, ← AlgEquiv.smul_def,
+      smul_inv_smul, ← mul_smul, ← mul_smul]
+  rw [hkey, norm_galois]
+  exact hg ((anc h)⁻¹ • x) hyfix hy1
+
+/-- **The middle twist, class level** (paper Lemma 6.10 / the (H5) core) —
+`GQ2.conjAct_mid_sub_mem_deep` retyped at an anchor. -/
+theorem conjAct_mid_sub_mem_deepAt (g : Γ)
+    (hg : IsResidueTrivial (ancSubgroup (kerAnc anc ρ)) (anc g))
+    {ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2)}
+    (hξ : ξ ∈ midClassesSubgroupAt (kerAnc anc ρ)) :
+    conjAct ρ g ξ - ξ ∈ deepClassesSubgroupAt (kerAnc anc ρ) := by
+  obtain ⟨A, β, hmid', hsq, hβ0, rfl⟩ := hξ
+  obtain ⟨hA0, hAfix, b, hbfix, hAeq, hb⟩ := hmid'
+  have h2lt1 : ‖(2 : ℚ̄₂)‖ < 1 := by
+    rw [show (2 : ℚ̄₂) = algebraMap ℚ_[2] ℚ̄₂ 2 from (map_ofNat _ 2).symm,
+      norm_algebraMap' (𝕜' := ℚ̄₂) (2 : ℚ_[2])]
+    exact Padic.norm_p_lt_one
+  -- conjugated data
+  have hgA0 : anc g • A ≠ 0 := by rw [AlgEquiv.smul_def]; simpa using hA0
+  have hgβ0 : anc g • β ≠ 0 := by rw [AlgEquiv.smul_def]; simpa using hβ0
+  have hgsq : (anc g • β) ^ 2 = anc g • A := by
+    rw [AlgEquiv.smul_def, AlgEquiv.smul_def, ← map_pow, hsq]
+  have hgAeq : anc g • A = 1 + 2 * (anc g • b) := by
+    rw [hAeq, AlgEquiv.smul_def, map_add, map_one, map_mul, map_ofNat, ← AlgEquiv.smul_def]
+  have hsqprod : ((anc g • β) * β) ^ 2 = (anc g • A) * A := by rw [mul_pow, hgsq, hsq]
+  have hgAfix := smul_anc_fix anc ρ g hAfix
+  have hgbfix := smul_anc_fix anc ρ g hbfix
+  refine ⟨(anc g • A) * A, (anc g • β) * β, ⟨mul_ne_zero hgA0 hA0, fun m hm => ?_,
+      anc g • b + b + 2 * (anc g • b) * b, fun m hm => ?_, by rw [hgAeq, hAeq]; ring, ?_⟩,
+    hsqprod, mul_ne_zero hgβ0 hβ0, ?_⟩
+  · -- anchored fixedness of the product `(anc g•A)·A`
+    rw [AlgEquiv.smul_def, map_mul, ← AlgEquiv.smul_def, ← AlgEquiv.smul_def,
+      hgAfix m hm, hAfix m hm]
+  · -- anchored fixedness of `b' = anc g•b + b + 2(anc g•b)b`
+    rw [AlgEquiv.smul_def, map_add, map_add, map_mul, map_mul, map_ofNat,
+      ← AlgEquiv.smul_def, ← AlgEquiv.smul_def, hgbfix m hm, hbfix m hm]
+  · -- `‖b'‖ < 1`: the inertia estimate
+    have hgb1 : ‖anc g • b‖ ≤ 1 := by rw [norm_galois]; exact hb
+    have hsum : ‖anc g • b + b‖ < 1 := by
+      have hsplit : anc g • b + b = anc g • b - b + 2 * b := by ring
+      rw [hsplit]
+      refine lt_of_le_of_lt (IsUltrametricDist.norm_add_le_max _ _) ?_
+      rw [max_lt_iff]
+      refine ⟨hg b hbfix hb, ?_⟩
+      calc ‖2 * b‖ = ‖(2 : ℚ̄₂)‖ * ‖b‖ := norm_mul _ _
+        _ ≤ ‖(2 : ℚ̄₂)‖ * 1 := mul_le_mul_of_nonneg_left hb (norm_nonneg _)
+        _ = ‖(2 : ℚ̄₂)‖ := mul_one _
+        _ < 1 := h2lt1
+    have hprod : ‖2 * (anc g • b) * b‖ < 1 := by
+      rw [norm_mul, norm_mul]
+      calc ‖(2 : ℚ̄₂)‖ * ‖anc g • b‖ * ‖b‖
+          ≤ ‖(2 : ℚ̄₂)‖ * 1 * 1 :=
+            mul_le_mul (mul_le_mul_of_nonneg_left hgb1 (norm_nonneg _)) hb (norm_nonneg _)
+              (by positivity)
+        _ = ‖(2 : ℚ̄₂)‖ := by ring
+        _ < 1 := h2lt1
+    refine lt_of_le_of_lt (IsUltrametricDist.norm_add_le_max _ _) ?_
+    rw [max_lt_iff]
+    exact ⟨hsum, hprod⟩
+  · -- the class identity `[κ_{(anc g•β)β}] = conjAct ρ g [κ_β] − [κ_β]`
+    have hZ1g := kummerAnc_mem_Z1 (kerAnc anc ρ) hgsq hgβ0 hgAfix
+    have hZ1 := kummerAnc_mem_Z1 (kerAnc anc ρ) hsq hβ0 hAfix
+    have heq : conjAct ρ g (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+          (fun n => Kummer.kummerCocycleFun β (kerAnc anc ρ n)))
+        = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+          (fun n => Kummer.kummerCocycleFun (anc g • β) (kerAnc anc ρ n)) :=
+      calc conjAct ρ g (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+              (fun n => Kummer.kummerCocycleFun β (kerAnc anc ρ n)))
+          = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+              (fun n => Kummer.kummerCocycleFun β (kerAnc anc ρ (conjMap ρ g n))) :=
+            conjAct_h1ofFun ρ g hZ1
+        _ = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+              (fun n => Kummer.kummerCocycleFun (anc g • β) (kerAnc anc ρ n)) := by
+            congr 1
+            funext n
+            rw [kerAnc_conjMap anc ρ g n]
+            exact kcf_conj β (anc g) (kerAnc anc ρ n)
+    exact calc
+      H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+          (fun n => Kummer.kummerCocycleFun ((anc g • β) * β) (kerAnc anc ρ n))
+          = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+              ((fun n : ↥(ρ.toMonoidHom.ker : Subgroup Γ) =>
+                  Kummer.kummerCocycleFun (anc g • β) (kerAnc anc ρ n))
+                + fun n : ↥(ρ.toMonoidHom.ker : Subgroup Γ) =>
+                  Kummer.kummerCocycleFun β (kerAnc anc ρ n)) := by
+            congr 1
+            funext n
+            exact kcf_mul_of_fixedAt hgsq hsq hgβ0 hβ0
+              (hgAfix _ (mem_ancSubgroup (kerAnc anc ρ) n))
+              (hAfix _ (mem_ancSubgroup (kerAnc anc ρ) n))
+        _ = H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+              (fun n => Kummer.kummerCocycleFun (anc g • β) (kerAnc anc ρ n))
+            + H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+              (fun n => Kummer.kummerCocycleFun β (kerAnc anc ρ n)) :=
+            DeepPart.H1ofFun_add hZ1g hZ1
+        _ = conjAct ρ g (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+              (fun n => Kummer.kummerCocycleFun β (kerAnc anc ρ n)))
+            + H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+              (fun n => Kummer.kummerCocycleFun β (kerAnc anc ρ n)) := by rw [heq]
+        _ = conjAct ρ g (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+              (fun n => Kummer.kummerCocycleFun β (kerAnc anc ρ n)))
+            - H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+              (fun n => Kummer.kummerCocycleFun β (kerAnc anc ρ n)) := by
+            rw [sub_eq_add_neg, neg_eq_of_add_eq_zero_left
+              (h1_zmodTwo_add_self_dp (H1ofFun ↥(ρ.toMonoidHom.ker : Subgroup Γ)
+                (fun n => Kummer.kummerCocycleFun β (kerAnc anc ρ n))))]
+
+/-- **The middle twist, `C`-conjugate form** — the literal `hmid` input of
+`GQ2.card_equivHoms_deep_eq_quot` at the `conjModule` instantiation, retyped at an anchor: if
+SOME lift `g₀ : Γ` of `t₀` is anchored-residue-trivial, then for EVERY `d : C` the `surjInv`-lift
+of `d·t₀·d⁻¹` twists mid classes by deep classes. -/
+theorem conjAct_surjInv_conj_mid_sub_mem_deepAt (hρsurj : Function.Surjective ⇑ρ)
+    {g₀ : Γ} {t₀ : C} (hg₀ : ρ g₀ = t₀)
+    (hg₀rt : IsResidueTrivial (ancSubgroup (kerAnc anc ρ)) (anc g₀)) (d : C)
+    {ξ : H1 ↥(ρ.toMonoidHom.ker : Subgroup Γ) (ZMod 2)}
+    (hξ : ξ ∈ midClassesSubgroupAt (kerAnc anc ρ)) :
+    conjAct ρ (Function.surjInv hρsurj (d * t₀ * d⁻¹)) ξ - ξ
+      ∈ deepClassesSubgroupAt (kerAnc anc ρ) := by
+  have hkey : conjAct ρ (Function.surjInv hρsurj (d * t₀ * d⁻¹)) ξ
+      = conjAct ρ (Function.surjInv hρsurj d * g₀ * (Function.surjInv hρsurj d)⁻¹) ξ :=
+    conjAct_ker ρ _ _ (by
+      rw [Function.surjInv_eq hρsurj, map_mul, map_mul, map_inv,
+        Function.surjInv_eq hρsurj, hg₀]) ξ
+  rw [hkey]
+  refine conjAct_mid_sub_mem_deepAt anc ρ _ ?_ hξ
+  have hrt := isResidueTrivial_anc_conj anc ρ hg₀rt (Function.surjInv hρsurj d)
+  rwa [← map_mul, ← map_inv, ← map_mul] at hrt
+
+end MidTwist
+
 /-! ## §9 The join: the Lagrangian Arf count
 
 `GQ2.DeepPart.card_Q0loc_zero_eq_of_dim_of_vanish` (`GQ2/DeepPart/Q0locLayer.lean` :547) retyped,
