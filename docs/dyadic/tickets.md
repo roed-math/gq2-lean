@@ -279,6 +279,20 @@ to `master` only at owner gate G3.
   `IsProP 2 ℤ₂ˣ` development" — that development NOW EXISTS
   (`GQ2/ZtwoPowering.lean:559`); a census-9 → 8 elimination spike is plausible; OWNER CALL
   (G-AX territory), not executed.
+- 2026-07-29 (orchestrator, wave-C dispatch): **LG3** (opus, lg worktree, plain-import per
+  memo §5; prompt carries σ-twist + smul + instance traps, F3's `[DiscreteTopology H]` note,
+  AX3/AX4 binder rule) and **LG4a** (opus, ww worktree on NEW branch `dyadic-lg4a`).
+  **LG4a/LG4b FILE SPLIT FIXED (orchestrator)**: LG4a owns `LocalGauss/DeepPackage.lean` =
+  deep-unit package + InflationVanishes/FamiliesExtend twins (coprime-averaging discharge,
+  PJ1 general-q leaves for LocalKummer:382/409) + **the (H3) isotropy splice deferred by
+  LG2** (LG4a fixes the N_K-anchoring convention, documented in-file) + vanish lane through
+  `lemma_6_17_vanish_final_K`, exports staged for the join; LG4b (later) owns
+  `Ramified.lean` = dim lane + `card_Q0loc_zero_eq_of_dim_of_vanish_K` + endpoint
+  `prop_6_18_ramified_K`, imports LG4a. LG4a instructed to stop-and-report at any resisting
+  seam rather than grind (fable-tier ticket run on opus per the night's model policy).
+  **MC3/MC4/MC5 NOT dispatched** — entangled with open owner questions (MC1 memo Q1–Q3;
+  binder acceptance + B8 usage + quantification) and G-Lab; morning items. S1.10 dispatched
+  on the simp board simultaneously.
 
 ## Obligation tracker
 
