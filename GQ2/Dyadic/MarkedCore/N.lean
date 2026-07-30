@@ -320,3 +320,313 @@ theorem demushkinQ_DN_nFrame {α h : ℕ} (F : NFrame α h) : demushkinQ (DN α 
   nDemushkinQ_of_frame F.e
 
 end FrameTorsion
+
+/-! ## §2 The exact S1 core transvections  (memo §3.4 families N1/N3, §5.1; deliverable 3)
+
+HM1 proves all three `N`-side core-word transvections exact (`nWord_tau_b`, `nWord_tau_c`,
+`nWord_tau_d` — memo: "`N` is the easy case"), but HM4 promotes only `τ_c(k)` (= family N2,
+`x₂ ↦ σ^k·x₂`, `tauDMark`/`dnTauDEquiv`) to the presented core.  Here the other two rows get
+the same treatment:
+
+* **family N1** `x₁ ↦ x₀^k·x₁` (`nWord_tau_b`) — the τ-shift of the stabilizer, `nTauBMark`;
+* **family N3** `σ ↦ x₂^k·σ` (`nWord_tau_c`) — the lower elementary of the `(σ, x₂)`-block,
+  `nTauCMark`, the row *unavailable* on the `M`-side (memo §6.4's residue).
+
+With HM4's `dnTauDEquiv` these generate the full elementary block `SL₂(ℤ₂)` on the
+`(σ̄, x̄₂)`-plane (elementary matrices generate `SL₂` over a local ring — HM3's
+`mem_closure_planeElemSet_of_det_eq_one` is the frame-side statement).  All axiom-free. -/
+
+section CoreTransvections
+
+variable {G : Type*} [Group G] {h : ℕ}
+
+/-- The core letter `0` is not the letter `1`. -/
+theorem nCoreZero_ne_one : (0 : Fin (coreRank h)) ≠ 1 :=
+  Fin.ne_of_val_ne (by rw [coreVal_zero, coreVal_one]; omega)
+
+/-- The core letter `2` is not the letter `1`. -/
+theorem nCoreTwo_ne_one : (2 : Fin (coreRank h)) ≠ 1 :=
+  Fin.ne_of_val_ne (by rw [coreVal_two, coreVal_one]; omega)
+
+/-- The core letter `3` is not the letter `1`. -/
+theorem nCoreThree_ne_one : (3 : Fin (coreRank h)) ≠ 1 :=
+  Fin.ne_of_val_ne (by rw [coreVal_three, coreVal_one]; omega)
+
+/-- The core letter `0` is not the letter `2`. -/
+theorem nCoreZero_ne_two : (0 : Fin (coreRank h)) ≠ 2 :=
+  Fin.ne_of_val_ne (by rw [coreVal_zero, coreVal_two]; omega)
+
+/-- The core letter `1` is not the letter `2`. -/
+theorem nCoreOne_ne_two : (1 : Fin (coreRank h)) ≠ 2 :=
+  Fin.ne_of_val_ne (by rw [coreVal_one, coreVal_two]; omega)
+
+/-- The core letter `3` is not the letter `2`. -/
+theorem nCoreThree_ne_two : (3 : Fin (coreRank h)) ≠ 2 :=
+  Fin.ne_of_val_ne (by rw [coreVal_three, coreVal_two]; omega)
+
+/-- Handle letters are not the letter `1`. -/
+theorem nHandleIdxU_ne_one (j : Fin h) : (handleIdxU j : Fin (coreRank h)) ≠ 1 :=
+  handleIdxU_ne_of_val_lt j (by rw [coreVal_one]; omega)
+
+theorem nHandleIdxV_ne_one (j : Fin h) : (handleIdxV j : Fin (coreRank h)) ≠ 1 :=
+  handleIdxV_ne_of_val_lt j (by rw [coreVal_one]; omega)
+
+/-- Handle letters are not the letter `2`. -/
+theorem nHandleIdxU_ne_two (j : Fin h) : (handleIdxU j : Fin (coreRank h)) ≠ 2 :=
+  handleIdxU_ne_of_val_lt j (by rw [coreVal_two]; omega)
+
+theorem nHandleIdxV_ne_two (j : Fin h) : (handleIdxV j : Fin (coreRank h)) ≠ 2 :=
+  handleIdxV_ne_of_val_lt j (by rw [coreVal_two]; omega)
+
+/-- **Structure of a one-slot update of the `N_α` relator at the letter `1`** — the
+`nRelWord_update_three` of HM4, moved to the `x₁`-slot. -/
+theorem nRelWord_update_one (α : ℕ) (m : Fin (coreRank h) → G) (w : G) :
+    nRelWord α (Function.update m 1 w)
+      = nWord α (m 0) w (m 2) (m 3)
+        * handleWord (fun i => m (handleIdxU i)) (fun i => m (handleIdxV i)) := by
+  have hU : (fun i => Function.update m 1 w (handleIdxU i)) = fun i => m (handleIdxU i) :=
+    funext fun i => Function.update_of_ne (nHandleIdxU_ne_one i) _ _
+  have hV : (fun i => Function.update m 1 w (handleIdxV i)) = fun i => m (handleIdxV i) :=
+    funext fun i => Function.update_of_ne (nHandleIdxV_ne_one i) _ _
+  rw [nRelWord, Function.update_self, hU, hV,
+    Function.update_of_ne nCoreZero_ne_one, Function.update_of_ne nCoreTwo_ne_one,
+    Function.update_of_ne nCoreThree_ne_one]
+
+/-- **Structure of a one-slot update of the `N_α` relator at the letter `2`**. -/
+theorem nRelWord_update_two (α : ℕ) (m : Fin (coreRank h) → G) (w : G) :
+    nRelWord α (Function.update m 2 w)
+      = nWord α (m 0) (m 1) w (m 3)
+        * handleWord (fun i => m (handleIdxU i)) (fun i => m (handleIdxV i)) := by
+  have hU : (fun i => Function.update m 2 w (handleIdxU i)) = fun i => m (handleIdxU i) :=
+    funext fun i => Function.update_of_ne (nHandleIdxU_ne_two i) _ _
+  have hV : (fun i => Function.update m 2 w (handleIdxV i)) = fun i => m (handleIdxV i) :=
+    funext fun i => Function.update_of_ne (nHandleIdxV_ne_two i) _ _
+  rw [nRelWord, Function.update_self, hU, hV,
+    Function.update_of_ne nCoreZero_ne_two, Function.update_of_ne nCoreOne_ne_two,
+    Function.update_of_ne nCoreThree_ne_two]
+
+end CoreTransvections
+
+section NTauMark
+
+variable {P : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P] [CompactSpace P]
+  [T2Space P] [TotallyDisconnectedSpace P] {h : ℕ}
+
+/-- **Family N1 as a substitution on markings** (memo §3.4): `x₁ ↦ x₀^k·x₁`, exact for every
+2-adic `k` by HM1's `nWord_tau_b`.  Frame action: the pure `τ`-shift `x̄₁ ↦ k·t + x̄₁`
+(`t = x̄₀` is 2-torsion, so only `k mod 2` survives); the ν-frame action is trivial
+(`ν(x̄₀) = 0` for every `ℤ₂`-character — `nChar_dnX0` below). -/
+noncomputable def nTauBMark (hP : IsProP 2 P) (k : ℤ_[2]) (m : Fin (coreRank h) → P) :
+    Fin (coreRank h) → P :=
+  Function.update m 1 (zpowZtwo hP (m 0) k * m 1)
+
+/-- **Family N3 as a substitution on markings** (memo §3.4): `σ ↦ x₂^k·σ`, exact by HM1's
+`nWord_tau_c` — the lower elementary transvection `σ̄ ↦ σ̄ + k·x̄₂` of the `(σ, x₂)`-block. -/
+noncomputable def nTauCMark (hP : IsProP 2 P) (k : ℤ_[2]) (m : Fin (coreRank h) → P) :
+    Fin (coreRank h) → P :=
+  Function.update m 2 (zpowZtwo hP (m 3) k * m 2)
+
+variable (hP : IsProP 2 P) (k l : ℤ_[2]) (m : Fin (coreRank h) → P)
+
+@[simp] theorem nTauBMark_one : nTauBMark hP k m 1 = zpowZtwo hP (m 0) k * m 1 :=
+  Function.update_self _ _ _
+
+theorem nTauBMark_of_ne {i : Fin (coreRank h)} (hi : i ≠ 1) : nTauBMark hP k m i = m i :=
+  Function.update_of_ne hi _ _
+
+@[simp] theorem nTauBMark_zero_slot : nTauBMark hP k m 0 = m 0 :=
+  nTauBMark_of_ne _ _ _ nCoreZero_ne_one
+
+@[simp] theorem nTauCMark_two : nTauCMark hP k m 2 = zpowZtwo hP (m 3) k * m 2 :=
+  Function.update_self _ _ _
+
+theorem nTauCMark_of_ne {i : Fin (coreRank h)} (hi : i ≠ 2) : nTauCMark hP k m i = m i :=
+  Function.update_of_ne hi _ _
+
+@[simp] theorem nTauCMark_three_slot : nTauCMark hP k m 3 = m 3 :=
+  nTauCMark_of_ne _ _ _ nCoreThree_ne_two
+
+/-- N1 is a one-parameter group of substitutions. -/
+theorem nTauBMark_nTauBMark : nTauBMark hP k (nTauBMark hP l m) = nTauBMark hP (k + l) m := by
+  funext i
+  by_cases hi : i = 1
+  · subst hi
+    rw [nTauBMark_one, nTauBMark_zero_slot, nTauBMark_one, nTauBMark_one,
+      zpowZtwo_add, mul_assoc]
+  rw [nTauBMark_of_ne _ _ _ hi, nTauBMark_of_ne _ _ _ hi, nTauBMark_of_ne _ _ _ hi]
+
+theorem nTauCMark_nTauCMark : nTauCMark hP k (nTauCMark hP l m) = nTauCMark hP (k + l) m := by
+  funext i
+  by_cases hi : i = 2
+  · subst hi
+    rw [nTauCMark_two, nTauCMark_three_slot, nTauCMark_two, nTauCMark_two,
+      zpowZtwo_add, mul_assoc]
+  rw [nTauCMark_of_ne _ _ _ hi, nTauCMark_of_ne _ _ _ hi, nTauCMark_of_ne _ _ _ hi]
+
+@[simp] theorem nTauBMark_zero : nTauBMark hP 0 m = m := by
+  funext i
+  by_cases hi : i = 1
+  · subst hi
+    rw [nTauBMark_one, zpowZtwo_zero_exp, one_mul]
+  rw [nTauBMark_of_ne _ _ _ hi]
+
+@[simp] theorem nTauCMark_zero : nTauCMark hP 0 m = m := by
+  funext i
+  by_cases hi : i = 2
+  · subst hi
+    rw [nTauCMark_two, zpowZtwo_zero_exp, one_mul]
+  rw [nTauCMark_of_ne _ _ _ hi]
+
+/-- The N1 substitution fixes the `N_α` relator (HM1's `nWord_tau_b` at the full relator). -/
+theorem nRelWord_nTauBMark (α : ℕ) : nRelWord α (nTauBMark hP k m) = nRelWord α m := by
+  rw [nTauBMark, nRelWord_update_one, nWord_tau_b hP, nRelWord]
+
+/-- The N3 substitution fixes the `N_α` relator (HM1's `nWord_tau_c` at the full relator). -/
+theorem nRelWord_nTauCMark (α : ℕ) : nRelWord α (nTauCMark hP k m) = nRelWord α m := by
+  rw [nTauCMark, nRelWord_update_two, nWord_tau_c hP, nRelWord]
+
+end NTauMark
+
+section NTauMarkNaturality
+
+variable {P Q : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P] [CompactSpace P]
+  [T2Space P] [TotallyDisconnectedSpace P] [Group Q] [TopologicalSpace Q] [IsTopologicalGroup Q]
+  [CompactSpace Q] [T2Space Q] [TotallyDisconnectedSpace Q] {h : ℕ}
+
+variable (hP : IsProP 2 P) (hQ : IsProP 2 Q) (f : ContinuousMonoidHom P Q)
+
+theorem map_nTauBMark (k : ℤ_[2]) (m : Fin (coreRank h) → P) (i : Fin (coreRank h)) :
+    f (nTauBMark hP k m i) = nTauBMark hQ k (fun i => f (m i)) i := by
+  by_cases hi : i = 1
+  · subst hi
+    rw [nTauBMark_one, nTauBMark_one, map_mul, map_zpowZtwo hP hQ]
+  rw [nTauBMark_of_ne _ _ _ hi, nTauBMark_of_ne _ _ _ hi]
+
+theorem map_nTauCMark (k : ℤ_[2]) (m : Fin (coreRank h) → P) (i : Fin (coreRank h)) :
+    f (nTauCMark hP k m i) = nTauCMark hQ k (fun i => f (m i)) i := by
+  by_cases hi : i = 2
+  · subst hi
+    rw [nTauCMark_two, nTauCMark_two, map_mul, map_zpowZtwo hP hQ]
+  rw [nTauCMark_of_ne _ _ _ hi, nTauCMark_of_ne _ _ _ hi]
+
+end NTauMarkNaturality
+
+/-! ### The two families on the presented core `D_N` -/
+
+section NTauEquiv
+
+variable (α h : ℕ)
+
+/-- Family N1 (`x₁ ↦ x₀^k·x₁`) as a continuous endomorphism of `D_N`. -/
+noncomputable def dnTauBHom (k : ℤ_[2]) :
+    ContinuousMonoidHom (DN α h : Type) (DN α h : Type) :=
+  nLiftHom α h (isProP_DN α h) (nTauBMark (isProP_DN α h) k (dnGen α h))
+    (by rw [nRelWord_nTauBMark]; exact dn_relation α h)
+
+/-- Family N3 (`σ ↦ x₂^k·σ`) as a continuous endomorphism of `D_N`. -/
+noncomputable def dnTauCHom (k : ℤ_[2]) :
+    ContinuousMonoidHom (DN α h : Type) (DN α h : Type) :=
+  nLiftHom α h (isProP_DN α h) (nTauCMark (isProP_DN α h) k (dnGen α h))
+    (by rw [nRelWord_nTauCMark]; exact dn_relation α h)
+
+@[simp] theorem dnTauBHom_gen (k : ℤ_[2]) (i : Fin (coreRank h)) :
+    dnTauBHom α h k (dnGen α h i) = nTauBMark (isProP_DN α h) k (dnGen α h) i :=
+  nLiftHom_gen _ _ _ _ _ _
+
+@[simp] theorem dnTauCHom_gen (k : ℤ_[2]) (i : Fin (coreRank h)) :
+    dnTauCHom α h k (dnGen α h i) = nTauCMark (isProP_DN α h) k (dnGen α h) i :=
+  nLiftHom_gen _ _ _ _ _ _
+
+/-- **Family N1 as a continuous automorphism of `D_N`**, for every `k ∈ ℤ₂` — via HM4's
+one-parameter assembly `dnParamEquiv` (the inverse is the member at `−k`). -/
+noncomputable def dnTauBEquiv (k : ℤ_[2]) :
+    ContinuousMulEquiv (DN α h : Type) (DN α h : Type) :=
+  dnParamEquiv α h (dnTauBHom α h) (nTauBMark (isProP_DN α h)) (dnTauBHom_gen α h)
+    (fun k f m i => map_nTauBMark (isProP_DN α h) (isProP_DN α h) f k m i)
+    (fun k l m => nTauBMark_nTauBMark _ k l m) (fun m => nTauBMark_zero _ m) k
+
+/-- **Family N3 as a continuous automorphism of `D_N`**. -/
+noncomputable def dnTauCEquiv (k : ℤ_[2]) :
+    ContinuousMulEquiv (DN α h : Type) (DN α h : Type) :=
+  dnParamEquiv α h (dnTauCHom α h) (nTauCMark (isProP_DN α h)) (dnTauCHom_gen α h)
+    (fun k f m i => map_nTauCMark (isProP_DN α h) (isProP_DN α h) f k m i)
+    (fun k l m => nTauCMark_nTauCMark _ k l m) (fun m => nTauCMark_zero _ m) k
+
+@[simp] theorem dnTauBEquiv_gen (k : ℤ_[2]) (i : Fin (coreRank h)) :
+    dnTauBEquiv α h k (dnGen α h i) = nTauBMark (isProP_DN α h) k (dnGen α h) i :=
+  dnTauBHom_gen α h k i
+
+@[simp] theorem dnTauCEquiv_gen (k : ℤ_[2]) (i : Fin (coreRank h)) :
+    dnTauCEquiv α h k (dnGen α h i) = nTauCMark (isProP_DN α h) k (dnGen α h) i :=
+  dnTauCHom_gen α h k i
+
+/-- The moved N1 row: `x₁ ↦ x₀^k·x₁`. -/
+theorem dnTauBEquiv_dnX1 (k : ℤ_[2]) :
+    dnTauBEquiv α h k (dnX1 α h) = zpowZtwo (isProP_DN α h) (dnX0 α h) k * dnX1 α h := by
+  rw [dnX1, dnTauBEquiv_gen, nTauBMark_one]
+  rfl
+
+/-- The moved N3 row: `σ ↦ x₂^k·σ`. -/
+theorem dnTauCEquiv_dnSigma (k : ℤ_[2]) :
+    dnTauCEquiv α h k (dnSigma α h) = zpowZtwo (isProP_DN α h) (dnX2 α h) k * dnSigma α h := by
+  rw [dnSigma, dnTauCEquiv_gen, nTauCMark_two]
+  rfl
+
+/-- N1 fixes every other marked generator. -/
+theorem dnTauBEquiv_of_ne (k : ℤ_[2]) {i : Fin (coreRank h)} (hi : i ≠ 1) :
+    dnTauBEquiv α h k (dnGen α h i) = dnGen α h i := by
+  rw [dnTauBEquiv_gen, nTauBMark_of_ne _ _ _ hi]
+
+/-- N3 fixes every other marked generator. -/
+theorem dnTauCEquiv_of_ne (k : ℤ_[2]) {i : Fin (coreRank h)} (hi : i ≠ 2) :
+    dnTauCEquiv α h k (dnGen α h i) = dnGen α h i := by
+  rw [dnTauCEquiv_gen, nTauCMark_of_ne _ _ _ hi]
+
+/-- **N1 preserves the canonical orientation**: `χ_N(x₀) = 1`, so the moved row is
+χ-invisible. -/
+theorem chiN_dnTauBEquiv (k : ℤ_[2]) (x : (DN α h : Type)) :
+    chiN α h (dnTauBEquiv α h k x) = chiN α h x := by
+  refine dn_char_fixed (chiN α h) _ (fun i => ?_) x
+  by_cases hi : i = 1
+  · subst hi
+    show chiN α h (dnTauBEquiv α h k (dnX1 α h)) = chiN α h (dnX1 α h)
+    rw [dnTauBEquiv_dnX1, map_mul,
+      map_zpowZtwo (isProP_DN α h) isProP_two_unitsPadicInt (chiN α h)]
+    show zpowZtwo isProP_two_unitsPadicInt (chiN α h (dnX0 α h)) k * _ = _
+    rw [chiN_dnX0, zpowZtwo_one_base, one_mul]
+  · rw [dnTauBEquiv_of_ne α h k hi]
+
+/-- **N3 preserves the canonical orientation**: `χ_N(x₂) = 1`. -/
+theorem chiN_dnTauCEquiv (k : ℤ_[2]) (x : (DN α h : Type)) :
+    chiN α h (dnTauCEquiv α h k x) = chiN α h x := by
+  refine dn_char_fixed (chiN α h) _ (fun i => ?_) x
+  by_cases hi : i = 2
+  · subst hi
+    show chiN α h (dnTauCEquiv α h k (dnSigma α h)) = chiN α h (dnSigma α h)
+    rw [dnTauCEquiv_dnSigma, map_mul,
+      map_zpowZtwo (isProP_DN α h) isProP_two_unitsPadicInt (chiN α h)]
+    show zpowZtwo isProP_two_unitsPadicInt (chiN α h (dnX2 α h)) k * _ = _
+    rw [chiN_dnX2, zpowZtwo_one_base, one_mul]
+  · rw [dnTauCEquiv_of_ne α h k hi]
+
+/-- **Every `ℤ₂`-character of `D_N` kills `x₀`** (memo §3.6's `ν(t) = 0` consistency, as a
+theorem about *all* characters): the abelianized relation `x̄₀^{2+2^α} = 1` lands in the
+torsion-free `ℤ₂`, so the `x₀`-value dies.  This is why family N1 is ν-frame-invisible and why
+the `x₀`-slot never appears in the marked correction. -/
+theorem nChar_dnX0 (f : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2])) :
+    f (dnX0 α h) = 1 := by
+  have hrel : nRelWord α (fun i => f (dnGen α h i)) = 1 := by
+    rw [← map_nRelWord, dn_relation, map_one]
+  rw [nRelWord_comm] at hrel
+  have htor : (2 + 2 ^ α) • toAdd (f (dnX0 α h)) = 0 := by
+    have := congrArg toAdd hrel
+    rwa [toAdd_pow, toAdd_one] at this
+  rw [nsmul_eq_mul] at htor
+  rcases mul_eq_zero.mp htor with hc | hc
+  · exfalso
+    have h2 : ((2 + 2 ^ α : ℕ) : ℤ_[2]) ≠ 0 :=
+      Nat.cast_ne_zero.mpr (Nat.add_pos_left two_pos _).ne'
+    exact h2 hc
+  · rw [← ofAdd_toAdd (f (dnX0 α h)), hc, ofAdd_zero]
+
+end NTauEquiv
