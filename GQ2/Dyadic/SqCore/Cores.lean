@@ -83,10 +83,11 @@ therefore false here, and the χ-trivial subspace of the `L_sq` frame is a rank-
 
 ## Axiom hygiene
 
-Everything in this file prints at **std-3** (`propext`, `Classical.choice`, `Quot.sound`): no
-census axiom is reachable from the h-generic layer, so MC5 can consume `chiSq`/`nuSq` without
-dragging B3c/B8 into the rank-four lane (memo §5.3).  The census axioms enter only in SQ3's
-discharge chain.
+Everything in this file prints within **std-3** (`propext`, `Classical.choice`, `Quot.sound`) —
+`sqWord_eq_drWord` needs only `propext`.  No census axiom is reachable from the h-generic layer,
+so MC5 can consume `chiSq`/`nuSq` without dragging B3c/B8 into the rank-four lane (memo §5.3,
+measured).  The census axioms enter only in SQ3's discharge chain
+(`GQ2/Dyadic/SqCore/Rank3.lean`).
 -/
 
 open Multiplicative
