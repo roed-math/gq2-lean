@@ -54,14 +54,24 @@ are `1 − 2^r ≠ 1`), so both the AST and the Lean word conjugate by the *prod
 `zpowHat_mul` computation), so all commutation between the `A`- and `B`-conjugators is
 `Commute.pow_pow`.  `nc3_prodConj_etaHat_inv` is the spelling NC5's assembly consumes: the
 inverse of the third conjugator `â·b⁻¹` is `b·â⁻¹`, i.e. the operator `B·A⁻¹` — the third
-summand of the corrected `L_c = A⁻¹ + B + B·A⁻¹`.
+summand of the corrected `L_c = A⁻¹ + B + B·A⁻¹`.  `nc3_lcOp_spelling` packages all three
+inverse-conjugators into the single rewrite that turns the `D`-block's evaluated `V`-part into
+`L_c`, and makes the S3.2 refutation visible: draft eq:Ncross kept only the first summand.
 
 ## The `κ`-free `C`-line and the power law
 
 Memo §3.0(a)/§3.1: `nc3CLine` is the homomorphism `c ↦ ((0,c),0)` into the `κ⁰`-extension (the
-cocycle vanishes on it, so σ/τ-words evaluate with fibre `0` and with `orderOf` transported on
-the nose), and `nc3_Sd_mk_pow` is the semidirect power law `((v,c))^k = ((N_k v, c^k))` whose
-`V`-part is exactly the partial norm rule 2 kills.
+cocycle vanishes on it, so σ/τ-words evaluate with fibre `0`, `orderOf` transports on the nose,
+and profinite exponents are computed downstairs — `nc3CLine_zpowHat`), and `nc3_Sd_mk_pow` is the
+semidirect power law `((v,c))^k = ((N_k v, c^k))` whose `V`-part is exactly the partial norm
+rule 2 kills.
+
+## Scope
+
+Nothing here imports the lane's definition file (NC2): every statement is over the underlying
+`Sd`/`CentExt`/`ℤ̂` vocabulary, so `lcOp`, `npcWord` and the Gate-E marking are referred to only
+in prose.  No census axiom is cited and none is needed (memo §9); every declaration below is
+`std-3`.
 -/
 
 namespace GQ2.Dyadic
@@ -381,6 +391,8 @@ theorem nc3_exists_zpowHat_omega2_eq_incl [Finite C] [Finite V] {u : C} (hu : Od
   ⟨(y ^ orderOf u).fib, by
     rw [nc3_zpowHat_omega2_eq_pow_orderOf dat hdat hu hVu hy]
     exact nc3_pow_eq_incl dat hdat (by rw [hy]; exact nc3_Sd_mk_pow_orderOf_eq_one hVu v)⟩
+
+/-! ### The three inverse-conjugators, on the module  (memo §3.2) -/
 
 /-- **The product conjugator's operator, on the module** (memo §3.2): the `V`-slot operator of the
 third `D`-block conjugator is `B·A⁻¹`, the third summand of the corrected
