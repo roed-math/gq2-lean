@@ -348,7 +348,25 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
-- 2026-07-29 (orchestrator, LG4b merge + integration fix): the LG4b×LG4c parallel pair (the
+- 2026-07-29 (orchestrator, AX3-b + AX3 FLIP): AX3-b landed (full build 3403 green pre-flip,
+  census 9 unchanged by the bundle, 0 new axioms; §3/§4 quantify over arbitrary
+  `LocalReciprocity` — MANDATORY, the file sits below Axioms.lean; auxiliary axiom-free
+  `MarkedPair` hosts the §1.5 derivation and IS the R2 mock's home; `epsilonOf : Bool` per
+  F1's convention; R6 instance pin `GalKsub` confirmed real; **Q7 side-answer found**:
+  mathlib's rank-one norm identification = `Algebra.norm_algebraMap` +
+  `IntermediateField.finrank_bot`, recorded in the §4 docstring). Consumer probes: F4
+  instantiation elaborates as REAL theorems (Branches' import closure has no Foundations —
+  importable); LG4c/LG5's `InvolutionFieldPackage` norm clause is a per-tower-step statement
+  served by `norm_partner_of_hasEqualNormValueGroups` — NO change needed in their files.
+  Then the **atomic AX3 census flip (6320493)**: B5-K `markedRecipAt` into Axioms.lean;
+  EXPECTED_AXIOMS 9→10 with the capstone census FROZEN at the nine ℚ₂-side axioms (audit
+  message decoupled — K-side axioms must never appear in ℚ₂ capstone prints);
+  ledger/probe/closure-script/yaml/comparator rows; literature-axioms B5-K row (⏳ PDFs
+  unverified per owner Q7); memo postscript. **Post-flip audit green: census 10, capstones
+  at the frozen 9-set, twins identical, check_dyadic green.** AX4-b dispatched (ww worktree,
+  branch dyadic-ax4b): the `OrientedTameQuotientK` structure + derived layer per ax4-proposal
+  §2/§5 + owner answers, quantified over an arbitrary bundle (same below-Axioms discipline);
+  AX4 flip (census 10 → 11, B10-K) follows its landing.
   only pair never co-built pre-merge) collided on exactly ONE duplicate declaration,
   `phiResK_mapCoeff1` (both retyped the same ℚ₂ lemma with identical statements) — pj build
   caught it at import time; **orchestrator integration fix on `dyadic`**: deleted Ramified's
@@ -619,7 +637,7 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 |---|---|---|---|---|---|
 | AX1 | statement design: `G_K` topological finite generation (NSW 7.4.1) | opus | `docs/dyadic/ax1-proposal.md` | — | **done 2026-07-29** (043c46f; **ALSO NOT AN AXIOM — provable from B1** via profinite Nielsen–Schreier, scratch-verified std-3+B1; Route D adopted: census 9→9, B1 untouched; implementation = FG1) |
 | AX2 | Euler characteristic over `K` — derivation spike verdict, else proposal | opus | `docs/dyadic/ax2-proposal.md` | LG1 ✓ | **closed 2026-07-29 — NOT NEEDED** (derivable from B7; implementation = LG2a; census unchanged) |
-| AX3 | marked local reciprocity over `K` (`MarkedRecip`: full ν_ur + `(C,I,λ,γ)`) | fable | `docs/dyadic/ax3-proposal.md` | — | **done 2026-07-29** (1c6ec04 → merged; ONE axiom proposed: `markedRecipAt`, 12-field `MarkedRecip R K`, census +1→10 **pending owner G-AX**; χ_K/C derivable, ν_ur^K+rec_K axiom-backed, λ/I/γ derived; (r,ε,η) extraction API + 5 instance vectors; ⚠ synthetic r=2 mock test mandated; owner Qs 1–7 in memo) |
+| AX3 | marked local reciprocity over `K` (`MarkedRecip`: full ν_ur + `(C,I,λ,γ)`) | fable | `docs/dyadic/ax3-proposal.md` | — | **FLIPPED 2026-07-29** — owner G-AX sign-off (Q1–Q7, see log); AX3-b bundle (d964e02 → merged, 1568 ln, all 12 fields elaborate as written, F4-compat proven, `norm_partner` bridge serves LG binders, def-move with byte-identical consumers) then atomic census commit 6320493: **B5-K `markedRecipAt` live, census 9 → 10**; post-flip audit green (3403 jobs; ℚ₂ capstones print the FROZEN 9-set — no leak; twins identical); citations owner-approved as targets, **PDFs unverified** (annotations retained) |
 | AX4 | oriented tame quotient of `G_K` at `q_K` | opus | `docs/dyadic/ax4-proposal.md` | AX3 | **done 2026-07-29** (56b565c → merged; **genuine axiom, +1 → census 11 with AX3, owner-gated**; 5-clause `OrientedTameQuotientK (markedRecipAt K) FF` parametrized by `DyadicUnitFiltration` — SOUNDNESS-CRITICAL (free f proves False: T₂ᵃᵇ=Ẑ vs T₄ᵃᵇ=Ẑ×ℤ/3); AX3-before-AX4 flip ordering; √5 (q_K=4) is the ONLY q≠2 instance — #Hom(T_q,ℤ/3) regression mandated; owner Qs 1–8) |
 | AX5 | ramified-simple projectivity — try-prove-first, else proposal | opus | `docs/dyadic/ax5-proposal.md` (+`GQ2/Dyadic/Projectivity.lean` if proved) | — | **done 2026-07-29** (a49d1d6 → merged 94f74f6; **VERDICT: PROVABLE, census +0** — general-q theorem verified by 922-ln spike over RegularSummand chain, std-3; consumer finding: InflationVanishes needs averaging NOT projectivity; implementation → PJ1) |
 
