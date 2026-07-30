@@ -60,7 +60,7 @@ degree n = 2h+1, generators  σ, x₀, x₁, x₂, …, x_{2h+1}   (rank n+2 = 3
 Conventions (campaign §3, and identical in Lean): `x^g = g⁻¹xg`, `[x,y] = x⁻¹y⁻¹xy`,
 `x⁻³ = (x³)⁻¹`. The full relator this core specializes from is
 `R^sq_{L,n} = (x₀^σ)⁻¹ · (x₀⁻³τ)^{ω₂} · x₁² · [x₁, x₁^{σ₂}] · ∏[x_{2j},x_{2j+1}]`
-(`L.py:1236`, `q2.square_commutator_word` at `q2.py:186`); gate C kills `τ` and sends
+(`L.py:1238`, `q2.square_commutator_word` at `q2.py:186`); gate C kills `τ` and sends
 `g^{ω₂} ↦ g`, so `σ₂ ↦ σ` and `(x₀⁻³τ)^{ω₂} ↦ x₀⁻³`.
 
 ### 1.2 The identification: this core **is** `D_R`
@@ -478,7 +478,7 @@ theorem dsq_zero : DSq 0 = DR
 noncomputable def dsqEquivDR : ContinuousMulEquiv (DSq 0 : Type) (DR : Type)
 
 /-- The standard marking: three core values, `1` on every handle letter (MC2's `coreMark`
-pattern, `Cores.lean:1016`). -/
+pattern, `Cores.lean:1018`). -/
 def sqMark {H} [Group H] {h : ℕ} (a b c : H) : Fin (sqRank h) → H
 theorem sqRelWord_sqMark (a b c : H) : sqRelWord (sqMark (h := h) a b c) = sqWord a b c
 
@@ -716,7 +716,7 @@ decisively, because one of the two is already in the repository. No recommendati
    analysis in the `L_sq` frame.
 2. **S2.4 memo §8.1 inventory**, row "the rank-3 inputs": change `L_sq: does not exist` to
    `L_sq: available — the core IS D_R (GQ2/Roe/DRPresentation.lean:83); markedPro2_R + bLab`.
-3. **`L.py` `sq_marking_table`** (`:1495`): the three gate-C records
+3. **`L.py` `sq_marking_table`** (`:1493`): the three gate-C records
    (`abstract_demuskin_identification`, `cyclotomic_orientation`, `unramified_z2_marking`) are
    all `PARKED`/`RECORDED AS OPEN`; all three now have Lean citations. A `L.py` owner should flip
    them, and `SQ_GATE_C_PARK_REASON` should record the selection-semantics resolution.
