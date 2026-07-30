@@ -22,16 +22,16 @@ the `L_sq` rank-3 pro-2 core **is** the frozen Roe core `D_R`, letter for letter
 Every rank-3 datum the certificate needs is therefore already a sorry-free theorem of the frozen
 ℚ₂ development, and this file *cites* it:
 
-| datum | value | frozen source |
+| datum | value | frozen source (under `GQ2/Roe/`) |
 |---|---|---|
-| Demushkin type | `IsDemushkin 2`, rank `3`, `q = 2` | `GQ2/Roe/DRDemushkin.lean` |
-| orientation | Hensel root of `Z³+2Z²+1`; `X ≡ 5`, `S ≡ 13`, `Y ≡ 7 (16)` | `GQ2/Roe/OrientationRoot.lean`, `ChiR.lean` |
-| `im χ` | `ℤ₂ˣ` (Labute `f = 2`) | `GQ2/Roe/ChiR.lean` (`chiR_surjective`) |
-| frame | `ℤ/2·t ⊕ ℤ₂·σ̄ ⊕ ℤ₂·x̄₀`, `t = x̄₁ − 2x̄₀`, forced row on `x̄₁` | `GQ2/Roe/DRAbelianization.lean` |
-| cup Gram | `[[0,1,0],[1,0,0],[0,0,1]]`, `det = 1` over `𝔽₂` | `GQ2/Roe/DRDemushkin.lean` |
-| unramified marking | full `ℤ₂`-valued, `ν(σ) = 1`, `ν(x_i) = 0` | `GQ2/Roe/MarkedPro2.lean` (`nuDR`) |
-| Labute classification | `GQ2.Roe.Labute.bLab`, **a theorem** | `GQ2/Roe/Labute/Assembly.lean` |
-| matching correction | `markedPro2_R` | `GQ2/Roe/MarkedPro2.lean` |
+| Demushkin type | `IsDemushkin 2`, rank `3`, `q = 2` | `DRDemushkin.lean` |
+| orientation | Hensel root of `Z³+2Z²+1`; `X ≡ 5, S ≡ 13, Y ≡ 7 (16)` | `OrientationRoot.lean` |
+| `im χ` | `ℤ₂ˣ` (Labute `f = 2`) | `ChiR.lean` (`chiR_surjective`) |
+| frame | `ℤ/2·t ⊕ ℤ₂·σ̄ ⊕ ℤ₂·x̄₀`, `t = x̄₁ − 2x̄₀`, `x̄₁`-row forced | `DRAbelianization.lean` |
+| cup Gram | `[[0,1,0],[1,0,0],[0,0,1]]`, `det = 1` over `𝔽₂` | `DRDemushkin.lean` |
+| unramified marking | full `ℤ₂`-valued, `ν(σ) = 1`, `ν(x_i) = 0` | `MarkedPro2.lean` (`nuDR`) |
+| Labute classification | `GQ2.Roe.Labute.bLab`, **a theorem** | `Labute/Assembly.lean` |
+| matching correction | `markedPro2_R` | `MarkedPro2.lean` |
 
 `BLabHypothesis` (`GQ2/Roe/MarkedPro2.lean:141`) is *deliberately specialized to `D_R`* — i.e.
 to this very core — and `bLab` proves it sorry-free at std-3, so the anticipated single biggest
