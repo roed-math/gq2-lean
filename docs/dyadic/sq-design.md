@@ -412,9 +412,14 @@ are all `module`); **`Rank3.lean` must be plain-import**, because `GQ2/Roe/Marke
 | — | SQ2 | one import line each in `GQ2.lean` | 4 | — |
 | **total** | | | **≈ 810** | |
 
-Line estimates are calibrated against MC2 (`Cores.lean`, 1907 lines for *two* rank-four cores
-with new closed-form orientation proofs) and the D_R files. The SQ lane is ~40 % of one MC2 core
-because the orientation, the frame, the Gram and the matching are all *cited*, not proved.
+Line estimates are calibrated against MC2 (`Cores.lean`, 1907 lines covering *two* rank-four
+cores with new closed-form orientation proofs, i.e. ≈ 950 lines/core) and against the `D_R` files
+(`MarkedMatching` 1193 + `DRAbelianization` 595 + `DRDemushkin` 522 + `DRWordCoh` 936 = **3246**
+lines, which is what building this core's frame, Demushkin data, `H²` and matching *from scratch*
+actually cost). At ≈ 810 lines the SQ lane is ≈ 85 % of one MC2 core and ≈ 25 % of the
+from-scratch `D_R` build: the saving is that the orientation, the frame, the Gram, the Demushkin
+invariants, the Labute instance and the matching are all *cited*, not proved. What remains
+genuinely new is the h-generic layer (SQ2) plus the certificate shaping (SQ3/SQ4).
 
 ### 3.4 Interfaces this lane must not break
 
