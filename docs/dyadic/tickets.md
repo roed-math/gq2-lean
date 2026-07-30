@@ -348,6 +348,26 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- 2026-07-30 (orchestrator, MC-HM outcomes — **SPIKE GREEN**): `HandleMixLift` is **PROVED
+  mathematically** (memo `handlemixlift-spike.md`, merged): the [[σ,v₁],u₁] obstruction kills
+  only the naive ansatz; the UNIQUE |A| ≤ 6 mixing solution fixes x₀/σ/v literally with
+  Φ(P) = P on the nose (Nielsen-reduction two-sided inverse); 2-adic exponents via integer
+  powers × diag(w,w⁻¹) conjugation — NO Aut-compactness, NO B8; verified uniformly (L
+  collector/tw h ≤ 4; N and M h ≤ 3, α ≤ 4 incl. the second Eichler family). S2.4 §6.6's
+  residual gap is EMPTY. **Lean discharge = HM1–HM5 (~900–1400 ln, no new machinery, no
+  axiom)** vs 2–4k/core for the levelwise alternative. Rulings (blanket-adopted, flagged):
+  (i) memo Q3 = YES — replace the binder by the consumed statement `ν_P ∈ ν'·A(P,h)` and
+  DISCHARGE via HM1–HM5 (the §1 binder def stays as fallback until HM4 lands); **HM1
+  dispatched** (new file `GQ2/Dyadic/MarkedCore/HandleMix.lean` — Cores.lean stays closed);
+  (ii) memo Q4 (HM6, the rank-four core↔core mixing bonus that would remove one G-Lab
+  obligation — M-variant fails 24 ansatz forms, N-variant only q-direction verified) —
+  **HELD for owner** (new research direction beyond the charter); (iii) memo Q5 = errata
+  draft item 1 rewritten CONSTRUCTIVELY (amendment offer, not gap report); (iv) memo Q1
+  (is L_sq still live given its shared-letter residue) — DEFERRED to SQ1's landing (the two
+  memos together give the owner the full L_sq picture); (v) memo Q2 (ν'(c̄) unit for M) —
+  recorded, ties to MC1 Q4 / errata item 3. Consequences adopted: MC5's `hLift` splits three
+  ways; `marked_L_core_stabilize` + collector/tw analogues lose `hMix`; S2.5 Flip A
+  unaffected (condition is `HandlesFresh`), Flip B still refused.
 - **2026-07-30 (owner, via R2 blanket adoption — flagged for override): G-Lab ADOPTED per
   the MC1 memo recommendation** — stay parametrized: `MLabHypothesis`/`NLabHypothesis` +
   `MMixHypothesis`/`NMixHypothesis` remain hypothesis binders (never axioms); the MC3a

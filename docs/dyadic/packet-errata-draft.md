@@ -6,15 +6,19 @@ are places where the written text understates an obligation the formal developme
 meet. Line numbers refer to the July 28 packet.
 
 1. **proof.tex:757 — "hyperbolic handles can then be added by standard Nielsen moves
-   preserving their commutator product" is incomplete for the *marked* statement.** The
-   word-certificate transfer is fine, but the marked-core transfer is not: if a stabilizer
-   element preserves the handle plane and corrects ν, then ν′ already vanished on the handle
-   plane (ν kills every xᵢ and the restriction is surjective), so the 2h new ν-values
-   require a handle↔core *mixing* element. The obstruction is the triple commutator
-   [[σ,v₁],u₁] — degree 3 in the Zassenhaus filtration, i.e. genuinely beyond Nielsen moves
-   and the peripheral action. (S2.4 memo, Lemma 6.3 + Cor 6.3.1, in
-   `general_2adic/artifacts/reports/marked-stabilization-memo.md`.) Is a mixing construction
-   known to you, or is the remark intended only for the unmarked statement?
+   preserving their commutator product" is incomplete for the *marked* statement — and we can
+   offer the constructive fix.** The word-certificate transfer is fine, but for the marked
+   transfer the 2h new ν-values require a handle↔core *mixing* element that Nielsen moves and
+   the peripheral action cannot supply (the naive candidate is obstructed by the triple
+   commutator [[σ,v₁],u₁]). However, a corrected mixing element EXISTS: an exhaustive
+   small-word search found the unique solution of `[A,σ][U,v] = [a,σ][u,v]` fixing x₀, σ, v
+   literally with Φ(P) = P on the nose, verified uniformly for the L (collector/twisted), N
+   and M families, with 2-adic exponents handled by integer powers × diag(w,w⁻¹) conjugation.
+   Suggested amendment: "standard Nielsen moves **plus one twist-type move per handle**".
+   (Details: `general_2adic/artifacts/reports/marked-stabilization-memo.md` Lemma 6.3 +
+   `gq2-dyadic/docs/dyadic/handlemixlift-spike.md` §4–§5.) Note the construction does NOT
+   directly cover the square-commutator word's handle block (its prefix shares both
+   commutator letters) — that case needs a change of variables first.
 
 2. **§14 (line ~1077) — the Smith–Witt completion criterion implicitly assumes the same
    mixing stratum at rank four.** A finite Nielsen-generator list exists, but the
