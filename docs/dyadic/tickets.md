@@ -348,6 +348,21 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- 2026-07-30 (orchestrator, SQ23 outcomes): **`marked_square_core_rank3` is a COMMITTED
+  sorry-free theorem** (`GQ2/Dyadic/SqCore/{Cores,Rank3}.lean`, 853 ln, merged, imports
+  registered; audit green 3406 jobs, census 11, capstones byte-identical). Prints exactly as
+  the memo predicted (headline std-3+B3c+B8; the STRUCTURE carries B3c only — consumers
+  mentioning the type inherit no B8; sqWord_eq_drWord is [propext] alone). Adopted: memo
+  governs the file-map swap (frame+Gram in Rank3 on DR — the R3 mitigation; bridge in
+  Cores); named-generator keying (sqGen/dsqSigma/dsqX0/dsqX1) + bundled `sqCore_cupGram`/
+  `sqCore_nu` single-handle theorems; docstring-recorded prints + StressTests-section idiom
+  (no #print in committed files); the two local instances restated (local instance doesn't
+  export — flagged upstream-de-privatize candidate). n=1 word identification realized at
+  pro-2 level (`gammaRPro2EquivDSqZero` via maxPro2Bridge); the FULL word-theorem
+  restatement in SQ vocabulary deferred to SQ5/WL-recon (needs the heavy `Roe.Main` import —
+  deliberate). **The R2-commissioned obligation is DISCHARGED; L_sq's gate-C park is
+  dissolvable pending the S2.7 record flip (after S2.6 lands).** Remaining SQ lane:
+  SQ4 Certificate.lean (blocked on MC5), SQ5 Sanity.lean.
 - 2026-07-30 (orchestrator, SQ1 outcomes — **THE COMMISSIONED THEOREM ALREADY EXISTS**):
   memo `sq-design.md` merged. **`L_sq`'s rank-3 core IS `GQ2.drWord`** (Roe's `D_R` core;
   the full n=1 word is Roe's `Γ_R` incl. the tame relation) — the two campaigns indexed the
