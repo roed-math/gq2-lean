@@ -543,6 +543,209 @@ end MarkedPair
 
 end MarkedPairSection
 
+/-! ## §3 The bundle
+
+Memo §2.2 verbatim: twelve fields.  The finite-layer norm-residue clause `(a_K)`
+(`Gal(L/K) ≅ Kˣ/N(Lˣ)`) is **omitted** — no dyadic-campaign lane consumes it (memo §1.3, owner
+answer Q2); `ν_ur` surjectivity, `C`, `I`, `λ` and `γ` are **not** fields, being derived in §2 and
+below (memo §1.4, §1.5).  The `R : LocalReciprocity` parameter is B5, exactly as B10′'s
+`OrientedTameQuotient (R : LocalReciprocity)`; B5 is *extended, not replaced* (memo §6, owner
+answer Q6), so nothing about `localReciprocity` changes. -/
+
+/-- **Marked local reciprocity for a finite dyadic `K` (the packet's `MarkedRecip`).**
+The arithmetic reciprocity map `rec_K` and the geometric full `ℤ₂`-valued unramified
+coordinate `ν_ur^K`, pinned against the ℚ₂ bundle `R` by norm functoriality, together with the
+marked cyclotomic quotient datum `(r, A = 2^r ℤ₂)` of draft eq. 2.1 and the `K(i)`
+fixed-field bridge (packet Prop. 8.1's input).  `C`, `I`, `λ`, `γ` are *derived* from these
+fields (see `MarkedRecip.toMarkedPair` and §2), not carried.  Conventions inherited verbatim
+from B5 (`GQ2/Reciprocity.lean` module docstring): `rec` arithmetic, `ν` geometric
+(`ν(rec π) = −1` for a uniformizer `π`), `ν`-target the profinite `Multiplicative ℤ₂`
+(soundness: a discrete target would be inconsistent).
+
+The axiom `GQ2.markedRecipAt : ∀ K, MarkedRecip localReciprocity K` is **not** declared in this
+file; it lands in `GQ2/Foundations/Axioms.lean` at the census flip (memo §2.3, §6).  Everything
+here and below is bundle-parametrized, hence axiom-free. -/
+structure MarkedRecip (R : LocalReciprocity)
+    (K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] K] where
+  /-- The arithmetic local reciprocity map `rec_K : Kˣ →* G_K^{ab}`. -/
+  recip : (↥K)ˣ →* GalKab K
+  /-- `rec_K` is continuous. -/
+  continuous_recip : Continuous recip
+  /-- `rec_K` has dense image (`G_K^{ab}` is the profinite completion of `Kˣ`). -/
+  denseRange_recip : DenseRange recip
+  /-- The full unramified coordinate `ν_ur^K : G_K^{ab} →* Multiplicative ℤ₂` (target
+  profinite — B5 soundness note). -/
+  nu_ur : GalKab K →* Multiplicative ℤ_[2]
+  /-- `ν_ur^K` is continuous. -/
+  continuous_nu_ur : Continuous nu_ur
+  /-- **(c1) Norm functoriality against the ℚ₂ bundle**: `incl_* ∘ rec_K = rec ∘ N_{K/ℚ₂}`.
+  [Serre LF Ch. XI §3; NSW class-formation functoriality — this is the inclusion↔norm
+  diagram, *not* the transfer↔field-inclusion diagram.] -/
+  norm_compat : ∀ x : (↥K)ˣ, inclAbK K (recip x) = R.recip (normUnitsK K x)
+  /-- **(b_K) units.** `ν_ur^K(rec_K u) = 1` for every unit (`‖u‖ = 1`, the B11b idiom).
+  [Serre LF Ch. XIII §4, Prop. 13: reciprocity maps units into (onto) inertia.] -/
+  nu_ur_recip_unit : ∀ u : (↥K)ˣ, ‖((u : ↥K) : AlgebraicClosure ℚ_[2])‖ = 1 →
+      nu_ur (recip u) = 1
+  /-- **(b_K) uniformizers.** `ν_ur^K(rec_K π) = ofAdd (−1)` for `π` of maximal norm `< 1`
+  (the B13 uniformizer idiom): `rec_K π` is arithmetic Frobenius mod inertia; geometric
+  coordinate `−1`.  [Serre LF XIII §4 Prop. 13 corollary; B10′ orientation pattern.] -/
+  nu_ur_recip_uniformizer : ∀ π : (↥K)ˣ,
+      ‖((π : ↥K) : AlgebraicClosure ℚ_[2])‖ < 1 →
+      (∀ z : ↥K, z ≠ 0 → ‖(z : AlgebraicClosure ℚ_[2])‖ < 1 →
+        ‖(z : AlgebraicClosure ℚ_[2])‖ ≤ ‖((π : ↥K) : AlgebraicClosure ℚ_[2])‖) →
+      nu_ur (recip π) = Multiplicative.ofAdd ((-1 : ℤ) : ℤ_[2])
+  /-- The marked level `r`: `ν_ur^K(ker χ_K) = 2^r ℤ₂` (draft eq. 2.1's `A`).  Finiteness of
+  `r` = finiteness of the unramified part of `K(μ_{2^∞})/K`. -/
+  r : ℕ
+  /-- `A ⊆ 2^r ℤ₂` (λ well-definedness direction). -/
+  nu_ker_chi_le : ∀ g : GalKab K, chiCycKAb K g = 1 →
+      ∃ y : ℤ_[2], (nu_ur g).toAdd = 2 ^ r * y
+  /-- `A ⊇ 2^r ℤ₂` (exactness of the level; `I = ker λ` direction). -/
+  nu_ker_chi_ge : ∀ y : ℤ_[2], ∃ g : GalKab K,
+      chiCycKAb K g = 1 ∧ (nu_ur g).toAdd = 2 ^ r * y
+  /-- **The `K(i)` fixed-field bridge** (packet Prop. 8.1's input, one direction): if the
+  inertia image `I = χ(ker ν)` lies in `1 + 4ℤ₂` (trivial action on `μ₄`), then `K(i)/K` is
+  unramified in the repo's equal-norm-value-groups convention.  [Composite: Galois
+  correspondence for the inertia fixed field + the `e = 1` criterion; the convention is the
+  isolated `def` `HasEqualNormValueGroups`, B11b precedent.] -/
+  ki_unramified : (∀ g : GalKab K, nu_ur g = 1 →
+        (PadicInt.toZModPow 2 ((chiCycKAb K g : ℤ_[2]ˣ) : ℤ_[2])) = 1) →
+      ∀ δi : AlgebraicClosure ℚ_[2], δi ^ 2 = -1 → HasEqualNormValueGroups K δi
+
+namespace MarkedRecip
+
+variable {R : LocalReciprocity} {K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])}
+  [FiniteDimensional ℚ_[2] K] (B : MarkedRecip R K)
+
+/-! ### `ν_ur` surjectivity (memo §1.5, third bullet)
+
+B5 carries surjectivity of `ν_ur` as a *field*; here it is a theorem, and the uniformizer is the
+input.  Two independent routes, both in the memo:
+
+* `surjective_nu_ur_of_uniformizer` — the uniformizer clause plus `nu_ker_chi_ge`.  Because it
+  *needs* a `π` meeting the spectral spec, it is simultaneously the guard of memo §7 R8: a
+  vacuously-stated uniformizer clause fails to produce surjectivity, so the bundle cannot
+  silently lose its Frobenius pin.
+* `surjective_nu_ur_of_level_zero` — at `r = 0` (`ν(ker χ) = ℤ₂`, the type-`L` case)
+  `nu_ker_chi_ge` alone suffices.
+
+The uniformizer is threaded as a hypothesis rather than taken from `dyadicUnitFiltration K`: that
+interface lives in `GQ2/Foundations/Interfaces.lean`, *above* the axiom file this one must sit
+below (memo §7 R9).  Every consumer that has a filtration in scope discharges it in one line. -/
+
+/-- `ν_ur` hits every `2^r`-multiple, straight from `nu_ker_chi_ge`. -/
+theorem exists_nu_ur_eq_two_pow_mul (y : ℤ_[2]) :
+    ∃ g : GalKab K, (B.nu_ur g).toAdd = 2 ^ B.r * y :=
+  (B.nu_ker_chi_ge y).imp fun _ h => h.2
+
+/-- **`ν_ur` is surjective**, given a uniformizer.  Any `z : ℤ₂` is `2^r·y + m` for an ordinary
+integer `m` (`MarkedPair.exists_intCast_congr`); the `2^r·y` part comes from `nu_ker_chi_ge` and
+the `m` part from `rec_K(π)^{−m}`, whose `ν`-value is `ofAdd m` by the geometric normalization. -/
+theorem surjective_nu_ur_of_uniformizer (π : (↥K)ˣ)
+    (hπ : ‖((π : ↥K) : AlgebraicClosure ℚ_[2])‖ < 1)
+    (hmax : ∀ z : ↥K, z ≠ 0 → ‖(z : AlgebraicClosure ℚ_[2])‖ < 1 →
+      ‖(z : AlgebraicClosure ℚ_[2])‖ ≤ ‖((π : ↥K) : AlgebraicClosure ℚ_[2])‖) :
+    Function.Surjective B.nu_ur := by
+  intro w
+  obtain ⟨m, y, hmy⟩ := MarkedPair.exists_intCast_congr B.r w.toAdd
+  obtain ⟨g, hg⟩ := B.exists_nu_ur_eq_two_pow_mul y
+  refine ⟨g * B.recip (π ^ (-m)), Multiplicative.toAdd.injective ?_⟩
+  have hπval : (B.nu_ur (B.recip (π ^ (-m)))).toAdd = ((-m : ℤ) : ℤ_[2]) * (-1 : ℤ_[2]) := by
+    rw [map_zpow, map_zpow, B.nu_ur_recip_uniformizer π hπ hmax]
+    show ((-m : ℤ) • ((-1 : ℤ) : ℤ_[2])) = _
+    rw [zsmul_eq_mul]
+    norm_num
+  show (B.nu_ur (g * B.recip (π ^ (-m)))).toAdd = w.toAdd
+  rw [map_mul]
+  show (B.nu_ur g).toAdd + (B.nu_ur (B.recip (π ^ (-m)))).toAdd = w.toAdd
+  rw [hg, hπval]
+  have : w.toAdd - (m : ℤ_[2]) = 2 ^ B.r * y := hmy
+  push_cast
+  linear_combination -this
+
+/-- At level `r = 0` surjectivity of `ν_ur` needs no uniformizer. -/
+theorem surjective_nu_ur_of_level_zero (hr : B.r = 0) : Function.Surjective B.nu_ur := by
+  intro w
+  obtain ⟨g, hg⟩ := B.exists_nu_ur_eq_two_pow_mul w.toAdd
+  exact ⟨g, Multiplicative.toAdd.injective (by rw [hg, hr]; ring)⟩
+
+/-! ### The derived marked pair, and the `(C, I, λ, γ)` block -/
+
+/-- **The bundle's marked pair** `(χ_K, ν_ur^K, r)` — the object §2's whole derivation applies to.
+`hsurj` is `surjective_nu_ur_of_uniformizer` (or `_of_level_zero`) at the call site. -/
+def toMarkedPair (hsurj : Function.Surjective B.nu_ur) : MarkedPair (GalKab K) where
+  chi := chiCycKAb K
+  nu := B.nu_ur
+  surjective_nu := hsurj
+  r := B.r
+  nu_ker_chi_le := B.nu_ker_chi_le
+  nu_ker_chi_ge := B.nu_ker_chi_ge
+
+@[simp] theorem toMarkedPair_r (hsurj : Function.Surjective B.nu_ur) :
+    (B.toMarkedPair hsurj).r = B.r := rfl
+
+@[simp] theorem toMarkedPair_chi (hsurj : Function.Surjective B.nu_ur) :
+    (B.toMarkedPair hsurj).chi = chiCycKAb K := rfl
+
+@[simp] theorem toMarkedPair_nu (hsurj : Function.Surjective B.nu_ur) :
+    (B.toMarkedPair hsurj).nu = B.nu_ur := rfl
+
+/-- **`C = χ(G_K^{ab}) = χ(D_K)`** (memo §1.4): a definition, not a clause.  This is exactly the
+instantiation `C := (chiCycKAb K).range` that F4's `unramified_of_even` docstring names. -/
+abbrev CK : Subgroup ℤ_[2]ˣ := (chiCycKAb K).range
+
+/-- **`I = χ(ker ν_ur)`**, draft eq. 2.1's inertia image. -/
+abbrev IK : Subgroup ℤ_[2]ˣ := B.nu_ur.ker.map (chiCycKAb K)
+
+theorem toMarkedPair_C (hsurj : Function.Surjective B.nu_ur) :
+    (B.toMarkedPair hsurj).C = CK (K := K) := rfl
+
+theorem toMarkedPair_I (hsurj : Function.Surjective B.nu_ur) :
+    (B.toMarkedPair hsurj).I = B.IK := rfl
+
+/-! ### The `K(i)` field bridge, in both directions of use (memo §1.6, owner answer Q4)
+
+Only the data ⇒ field direction is asserted.  Owner answer Q4 fixes the *field-language*
+spelling for the final theorem's standing hypothesis, so the shape AS5 needs is the
+contrapositive `not_forall_mem_IK_...` below: an instance discharges "K(i)/K is ramified" by an
+explicit norm-value mismatch in the `not_hasEqualNormValueGroups_sqrt_two` pattern
+(`GQ2/Foundations/Interfaces.lean`), and this lemma turns that into the marked-data fact
+`¬ (I ≤ 1 + 4ℤ₂)` that the branch rows consume. -/
+
+/-- **The bridge in `I`-language** (memo §1.6): if every element of the inertia image `I` is
+`≡ 1 (mod 4)` then `K(i)/K` is unramified.  The clause is stated on `ker ν`; this is the same
+statement transported through `I = χ(ker ν)`, which is the form F4's `bridge` binder takes. -/
+theorem hasEqualNormValueGroups_of_mem_IK
+    (h : ∀ c ∈ B.IK, PadicInt.toZModPow 2 ((c : ℤ_[2]ˣ) : ℤ_[2]) = 1)
+    (δi : AlgebraicClosure ℚ_[2]) (hδi : δi ^ 2 = -1) : HasEqualNormValueGroups K δi :=
+  B.ki_unramified (fun g hg => h _ ⟨g, MonoidHom.mem_ker.2 hg, rfl⟩) δi hδi
+
+/-- **The contrapositive AS5 uses** (owner answer Q4): a field-language ramification witness for
+`K(i)/K` forces some element of the inertia image to move `μ₄`, i.e. `¬ (I ≤ 1 + 4ℤ₂)`. -/
+theorem exists_mem_IK_of_not_hasEqualNormValueGroups
+    (δi : AlgebraicClosure ℚ_[2]) (hδi : δi ^ 2 = -1)
+    (hram : ¬ HasEqualNormValueGroups K δi) :
+    ∃ c ∈ B.IK, PadicInt.toZModPow 2 ((c : ℤ_[2]ˣ) : ℤ_[2]) ≠ 1 := by
+  by_contra hcon
+  refine hram (B.hasEqualNormValueGroups_of_mem_IK (fun c hc => ?_) δi hδi)
+  by_contra hne
+  exact hcon ⟨c, hc, hne⟩
+
+/-- The bridge in the shape F4's `MarkedSplitting.unramified_of_even` binder wants: `chi` the
+inclusion `C ↪ ℤ₂ˣ`, `Unramified` the field-side conclusion, and the premise quantified over
+`ker λ = I` (the identification is `MarkedPair.mem_inertiaImage_iff`). -/
+theorem bridge_of_inertiaImage (hsurj : Function.Surjective B.nu_ur) :
+    (∀ c ∈ (B.toMarkedPair hsurj).datum.inertiaImage,
+        PadicInt.toZModPow 2 ((((CK (K := K)).subtype c : ℤ_[2]ˣ)) : ℤ_[2]) = 1) →
+      ∀ δi : AlgebraicClosure ℚ_[2], δi ^ 2 = -1 → HasEqualNormValueGroups K δi := by
+  intro h
+  refine B.hasEqualNormValueGroups_of_mem_IK fun c hc => ?_
+  obtain ⟨g, hg, rfl⟩ := hc
+  exact h ⟨chiCycKAb K g, ⟨g, rfl⟩⟩
+    (((B.toMarkedPair hsurj).mem_inertiaImage_iff _).2 ⟨g, hg, rfl⟩)
+
+end MarkedRecip
+
 end
 
 end GQ2.Dyadic
