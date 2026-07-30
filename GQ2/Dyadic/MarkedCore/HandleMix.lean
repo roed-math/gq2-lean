@@ -381,7 +381,12 @@ theorem handleWord_tau_v (hP : IsProP 2 P) (u v : Fin h → P) (j : Fin h) (k : 
 
 /-! ### The `τ` family at the two rank-four core words (memo §5.1's `τ_σ`)
 
-Which letters admit an exact transvection is decided by which letters carry a *non*-commutator
+**Naming convention for the whole `τ` family.**  A Lean name's suffix is the letter that
+*moves*, whereas the memo's subscript is the letter whose power is *used*: `handleWord_tau_u`
+moves `u_j` by a power of `v_j` and so is the memo's `τ_{v_j}(k)`; `mWord_tau_d` moves `d` by a
+power of `c` and so is its `τ_c(k)`.
+
+Which letters admit an exact transvection depends on which letters carry a *non*-commutator
 factor of the relator, and this is memo §6.1's hypothesis in `Cores.lean`'s letters:
 
 * `mWord α a b c d = a²·[a,b]·c^{2^α}·[c,d]` — `a` is blocked by `a²` and `c` by `c^{2^α}`, so
@@ -454,14 +459,14 @@ theorem handleIdxU_ne_handleIdxV (i j : Fin h) :
   rw [hij, h2] at h1
   omega
 
-/-- Handle letters are never core letters: their index is `≥ 4`. -/
+/-- Handle letters are never core letters: `handleIdxU j` has index `4 + 2j ≥ 4`. -/
 theorem handleIdxU_ne_of_val_lt (j : Fin h) {i : Fin (coreRank h)} (hi : (i : ℕ) < 4) :
     (handleIdxU j : Fin (coreRank h)) ≠ i := by
   intro hij
   rw [← hij, handleIdxU_val] at hi
   omega
 
-/-- Handle letters are never core letters: their index is `≥ 4`. -/
+/-- Handle letters are never core letters: `handleIdxV j` has index `5 + 2j ≥ 4`. -/
 theorem handleIdxV_ne_of_val_lt (j : Fin h) {i : Fin (coreRank h)} (hi : (i : ℕ) < 4) :
     (handleIdxV j : Fin (coreRank h)) ≠ i := by
   intro hij
@@ -596,7 +601,8 @@ theorem mRelWord_tau_handleV (hP : IsProP 2 P) (α : ℕ) (m : Fin (coreRank h) 
     (k : ℤ_[2]) :
     mRelWord α (Function.update m (handleIdxV j)
         (zpowZtwo hP (m (handleIdxU j)) k * m (handleIdxV j))) = mRelWord α m := by
-  rw [mRelWord_update_handleIdxV, handleWord_tau_v, mRelWord]
+  rw [mRelWord_update_handleIdxV,
+    handleWord_tau_v hP (fun i => m (handleIdxU i)) (fun i => m (handleIdxV i)) j k, mRelWord]
 
 /-- **`τ_{v_j}(k)` on the full `N_α` relator**. -/
 theorem nRelWord_tau_handleU (hP : IsProP 2 P) (α : ℕ) (m : Fin (coreRank h) → P) (j : Fin h)
@@ -611,7 +617,8 @@ theorem nRelWord_tau_handleV (hP : IsProP 2 P) (α : ℕ) (m : Fin (coreRank h) 
     (k : ℤ_[2]) :
     nRelWord α (Function.update m (handleIdxV j)
         (zpowZtwo hP (m (handleIdxU j)) k * m (handleIdxV j))) = nRelWord α m := by
-  rw [nRelWord_update_handleIdxV, handleWord_tau_v, nRelWord]
+  rw [nRelWord_update_handleIdxV,
+    handleWord_tau_v hP (fun i => m (handleIdxU i)) (fun i => m (handleIdxV i)) j k, nRelWord]
 
 end MarkingTransvections
 
