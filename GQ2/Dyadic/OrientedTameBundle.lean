@@ -518,6 +518,239 @@ theorem tameUnitOrientationK_tameFK (T : OrientedTameQuotientK B FF) :
 
 end Derived
 
+/-! ## §4 `f` is an invariant of `K`, not of the filtration  (memo §1.4, and the R3 guard)
+
+The obligation memo §1.4 attaches to the `DyadicUnitFiltration` parametrization: the residue degree
+in the axiom's target does not depend on *which* filtration a consumer hands in.  Two uniformizers
+have equal norm by `hπ_max` in both directions, so the whole depth filtration — and hence every
+graded count — coincides; `e` then falls out of the `he` normalization and `f` out of
+`card_gr_zero`.
+
+**R3 (memo §7).**  This is the *only* pin available.  No `ν`-based test can see the odd part of
+`f`: AX3's marked coordinate is `ℤ₂`-valued by design (plan §7.6), so a relation of the form
+`ν_{ℚ₂} ∘ incl = f · ν_K` constrains only `v₂(f)` — for `f = 3` and `f = 1` the `ℤ₂`-images
+coincide.  Any such test is therefore a *regression*, never a pin, and must not be presented as
+one; the unit-filtration counts below are the witness.
+
+**R2 (memo §7).**  The `q`-distinguishing guard lives in F3's file, kernel-`decide` proved and in
+both of its forms: `card_hom_tq_zmodThree_two` / `card_hom_tq_zmodThree_four` (continuous-hom
+counts `3` and `9`) and `card_tqTau_slot_zmodThree_two` / `card_tqTau_slot_zmodThree_four`
+(inertia-slot counts `1` and `3`), assembled as `hom_count_distinguishes_tq_two_four`
+(`GQ2/Dyadic/TameBoundary.lean`; the memo §4 correction block records that the memo's original
+numbers were the inertia-slot ones).  They witness that the `q` in `Tq (qOf K FF)` is doing work,
+hence that an unpinned `f` would be inconsistent.  They are not restated here: `TameBoundary.lean`
+sits above the axiom layer and cannot be imported by this file. -/
+
+section Uniqueness
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂}
+
+/-- Two B13 uniformizers of the same field have the same norm — `hπ_max` in both directions. -/
+theorem norm_uniformizer_eq (FF FF' : DyadicUnitFiltration K) : ‖FF.π‖ = ‖FF'.π‖ :=
+  le_antisymm (FF'.hπ_max _ FF.hπ_mem FF.hπ_lt) (FF.hπ_max _ FF'.hπ_mem FF'.hπ_lt)
+
+/-- Hence the depth filtration itself does not depend on the chosen uniformizer. -/
+theorem depthUnits_congr (FF FF' : DyadicUnitFiltration K) (i : ℕ) :
+    depthUnits K FF.π i = depthUnits K FF'.π i := by
+  ext u
+  rw [mem_depthUnits, mem_depthUnits, norm_uniformizer_eq FF FF']
+
+private theorem nat_eq_of_pow_eq_of_lt_one {t : ℝ} (h0 : 0 < t) (h1 : t < 1) {m n : ℕ}
+    (h : t ^ m = t ^ n) : m = n :=
+  (pow_right_strictAnti₀ h0 h1).injective h
+
+/-- The absolute ramification index is an invariant of `K`. -/
+theorem e_eq_of_filtration (FF FF' : DyadicUnitFiltration K) : FF.e = FF'.e := by
+  have h : ‖FF.π‖ ^ FF.e = ‖FF.π‖ ^ FF'.e := by
+    rw [← FF.he, FF'.he, norm_uniformizer_eq FF FF']
+  exact nat_eq_of_pow_eq_of_lt_one (norm_pos_iff.mpr FF.hπ_ne) FF.hπ_lt h
+
+/-- **The residue degree is an invariant of `K`** — the memo §1.4 obligation.  Both filtrations read
+`2^f − 1` off the *same* graded piece `U⁰/U¹`, by `depthUnits_congr`. -/
+theorem f_eq_of_filtration (FF FF' : DyadicUnitFiltration K) : FF.f = FF'.f := by
+  have hcard : (2 : ℕ) ^ FF.f - 1 = 2 ^ FF'.f - 1 := by
+    rw [← FF.card_gr_zero, ← FF'.card_gr_zero, depthUnits_congr FF FF' 1]
+  have h1 : (2 : ℕ) ≤ 2 ^ FF.f := by
+    calc (2 : ℕ) = 2 ^ 1 := (pow_one 2).symm
+      _ ≤ 2 ^ FF.f := Nat.pow_le_pow_right (by norm_num) FF.hf_pos
+  have h2 : (2 : ℕ) ≤ 2 ^ FF'.f := by
+    calc (2 : ℕ) = 2 ^ 1 := (pow_one 2).symm
+      _ ≤ 2 ^ FF'.f := Nat.pow_le_pow_right (by norm_num) FF'.hf_pos
+  have hpow : (2 : ℕ) ^ FF.f = 2 ^ FF'.f := by omega
+  exact Nat.pow_right_injective (le_refl 2) hpow
+
+/-- Hence the axiom's target group is an invariant of `K`. -/
+theorem qOf_eq_of_filtration (FF FF' : DyadicUnitFiltration K) : qOf K FF = qOf K FF' := by
+  rw [qOf_eq, qOf_eq, f_eq_of_filtration FF FF']
+
+end Uniqueness
+
+/-! ## §5 The `K = ⊥` regression  (memo §3)
+
+The merge-gate-8-style check that the general-`K` interface reproduces B10 at `ℚ₂`.  Steps 1–3 of
+memo §3, all bundle-level: `e = 1`, `f = 1` (hence `q_⊥ = 2` and `T_{q_⊥} = Ttame` on the nose,
+F3's `tq_two_equiv` being the identity — memo §7 R7), and `W_⊥ = W` from the two maximality
+theorems.
+
+**Step 1 is the R2 guard**: it is the only place in the campaign where `f` is *computed* from B13's
+clauses rather than assumed, and what it computes is the arithmetic residue degree of `ℚ₂`.  The
+computation runs through `card_gr_zero`: at `⊥` every norm-one unit is `≡ 1` modulo the maximal
+ideal (residue field `𝔽₂`), so `U⁰ = U¹` and `2^f − 1 = 1`.
+
+**Step 2's ⊥-transport is the consumer's.**  `W₂` below is B10's `GQ2.tameQuotient.W` pulled back
+along `botGalEquiv`; its three hypotheses are B10's own clauses and `hmax₂` is
+`GQ2.SectionThree.tameData_maximal` — all available exactly where the axioms are in scope, and none
+of them nameable here (this file sits below `GQ2/Foundations/Axioms.lean`).  Memo §3 step 4 (the
+orientation transport) and memo §6 point 2 record that plumbing as a separate project; the
+statement below is the part that is bundle-level. -/
+
+section Bot
+
+/-- **The residue fact at `ℚ₂`**: a `2`-adic number of norm one is `≡ 1` modulo `2`.  Its image in
+`ℤ_[2]` is a unit, hence nonzero in the residue field `ZMod 2`, hence `1`; so `z − 1` lies in the
+maximal ideal.  (This is the `𝔽₂`-specific input: the ultrametric structure alone cannot see it —
+in `ℚ₃`, `‖−1‖ = ‖−1 − 1‖ = 1`.) -/
+private theorem padic_norm_sub_one_le_norm_two {c : ℚ_[2]} (hc : ‖c‖ = 1) :
+    ‖c - 1‖ ≤ ‖(2 : ℚ_[2])‖ := by
+  rcases eq_or_ne c 1 with rfl | hne
+  · rw [sub_self, norm_zero]
+    exact norm_nonneg _
+  set z : ℤ_[2] := ⟨c, le_of_eq hc⟩ with hz
+  have hzn : ‖z‖ = 1 := hc
+  have hz0 : PadicInt.toZMod z ≠ 0 := by
+    intro h0
+    have hmem : z ∈ RingHom.ker (PadicInt.toZMod (p := 2)) := h0
+    rw [PadicInt.ker_toZMod, IsLocalRing.mem_maximalIdeal, mem_nonunits_iff] at hmem
+    exact hmem (PadicInt.isUnit_iff.mpr hzn)
+  have hz1 : PadicInt.toZMod z = 1 := (show ∀ x : ZMod 2, x ≠ 0 → x = 1 by decide) _ hz0
+  have hltz : ‖(z - 1 : ℤ_[2])‖ < 1 := by
+    have hmem : z - 1 ∈ RingHom.ker (PadicInt.toZMod (p := 2)) := by
+      rw [RingHom.mem_ker, map_sub, hz1, map_one, sub_self]
+    rw [PadicInt.ker_toZMod, IsLocalRing.mem_maximalIdeal, mem_nonunits_iff,
+      PadicInt.isUnit_iff] at hmem
+    exact lt_of_le_of_ne (PadicInt.norm_le_one _) hmem
+  have hlt : ‖c - 1‖ < 1 := by
+    have hcoe : ((z - 1 : ℤ_[2]) : ℚ_[2]) = c - 1 := by push_cast; rfl
+    rw [← hcoe, ← PadicInt.norm_def]
+    exact hltz
+  exact norm_le_norm_two_of_lt_one (sub_ne_zero_of_ne hne) hlt
+
+/-- The `⊥`-form of the residue fact, in the spectral-norm vocabulary the B13 filtration uses. -/
+theorem bot_norm_sub_one_le_norm_two {z : ↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂)}
+    (hz : ‖(z : ℚ̄₂)‖ = 1) : ‖(z : ℚ̄₂) - 1‖ ≤ ‖(2 : ℚ̄₂)‖ := by
+  have hz' : ‖(IntermediateField.botEquiv ℚ_[2] ℚ̄₂ z : ℚ_[2])‖ = 1 := by
+    rw [← norm_coe_bot z]; exact hz
+  have hsub : ((z - 1 : ↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂)) : ℚ̄₂) = (z : ℚ̄₂) - 1 := by
+    push_cast; ring
+  have h := padic_norm_sub_one_le_norm_two hz'
+  rw [← hsub, norm_coe_bot (z - 1), norm_two_alg]
+  refine le_of_le_of_eq ?_ rfl
+  rw [show IntermediateField.botEquiv ℚ_[2] ℚ̄₂ (z - 1)
+      = IntermediateField.botEquiv ℚ_[2] ℚ̄₂ z - 1 by rw [map_sub, map_one]]
+  exact h
+
+/-- **`‖π‖ = ‖2‖` at `⊥`**: `2` is a uniformizer of `ℚ₂` (AX3's `twoBot_max`), so `hπ_max` pins the
+two norms against each other. -/
+theorem bot_norm_uniformizer (FF : DyadicUnitFiltration (⊥ : IntermediateField ℚ_[2] ℚ̄₂)) :
+    ‖FF.π‖ = ‖(2 : ℚ̄₂)‖ := by
+  have h2mem : (2 : ℚ̄₂) ∈ (⊥ : IntermediateField ℚ_[2] ℚ̄₂) := by
+    rw [← twoBot_coe]; exact SetLike.coe_mem _
+  have h2lt : ‖(2 : ℚ̄₂)‖ < 1 := by rw [norm_two_alg]; exact norm_two_padic_lt_one
+  refine le_antisymm ?_ (FF.hπ_max _ h2mem h2lt)
+  have hπ0 : (⟨FF.π, FF.hπ_mem⟩ : ↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂)) ≠ 0 :=
+    fun h => FF.hπ_ne (congrArg Subtype.val h)
+  have h := twoBot_max ⟨FF.π, FF.hπ_mem⟩ hπ0 FF.hπ_lt
+  rwa [twoBot_coe] at h
+
+/-- **Memo §3 step 1, the `e` half**: `e = 1` at `⊥`.  `‖2‖ = ‖π‖^e` with `‖π‖ = ‖2‖` forces
+`e = 1`, since `0 < ‖π‖ < 1`. -/
+theorem bot_e_eq_one (FF : DyadicUnitFiltration (⊥ : IntermediateField ℚ_[2] ℚ̄₂)) : FF.e = 1 := by
+  have h : ‖FF.π‖ ^ FF.e = ‖FF.π‖ ^ 1 := by rw [← FF.he, pow_one, bot_norm_uniformizer FF]
+  exact nat_eq_of_pow_eq_of_lt_one (norm_pos_iff.mpr FF.hπ_ne) FF.hπ_lt h
+
+/-- At `⊥` the depth filtration collapses at level one: the residue field is `𝔽₂`, so *every*
+norm-one unit is a principal unit.  This is the computation memo §3 step 1 rests on. -/
+theorem bot_depthUnits_one (FF : DyadicUnitFiltration (⊥ : IntermediateField ℚ_[2] ℚ̄₂)) :
+    depthUnits (⊥ : IntermediateField ℚ_[2] ℚ̄₂) FF.π 1 = normUnits ⊥ := by
+  ext u
+  rw [mem_depthUnits, mem_normUnits]
+  refine ⟨fun h => h.1, fun h => ⟨h, ?_⟩⟩
+  rw [pow_one, bot_norm_uniformizer FF]
+  exact bot_norm_sub_one_le_norm_two h
+
+/-- **Memo §3 step 1, the `f` half — the R2 guard.**  `f = 1` at `⊥`, *computed* from B13's
+`card_gr_zero`: the graded piece `U⁰/U¹` is trivial by `bot_depthUnits_one`, so `2^f − 1 = 1`. -/
+theorem bot_f_eq_one (FF : DyadicUnitFiltration (⊥ : IntermediateField ℚ_[2] ℚ̄₂)) : FF.f = 1 := by
+  have hcard : Nat.card (↥(normUnits (⊥ : IntermediateField ℚ_[2] ℚ̄₂)) ⧸
+      (depthUnits (⊥ : IntermediateField ℚ_[2] ℚ̄₂) FF.π 1).subgroupOf (normUnits ⊥)) = 1 := by
+    rw [bot_depthUnits_one FF, Subgroup.subgroupOf_self]
+    exact Subgroup.index_top
+  have h := FF.card_gr_zero
+  rw [hcard] at h
+  have h1 : (2 : ℕ) ≤ 2 ^ FF.f := by
+    calc (2 : ℕ) = 2 ^ 1 := (pow_one 2).symm
+      _ ≤ 2 ^ FF.f := Nat.pow_le_pow_right (by norm_num) FF.hf_pos
+  have hpow : (2 : ℕ) ^ FF.f = 2 ^ 1 := by rw [pow_one]; omega
+  exact Nat.pow_right_injective (le_refl 2) hpow
+
+/-- **Memo §3 step 3**: `q_⊥ = 2`. -/
+theorem bot_qOf_eq_two (FF : DyadicUnitFiltration (⊥ : IntermediateField ℚ_[2] ℚ̄₂)) :
+    qOf ⊥ FF = 2 := by rw [qOf_eq, bot_f_eq_one FF, pow_one]
+
+/-- **Memo §3 step 3, the target identification**: `T_{q_⊥}` *is* the frozen `ℚ₂` tame group
+`Ttame`, on the nose.  No transport is involved: `Tq 2` and `Ttame` are the same definition (F3's
+`Tq_two` is `rfl`, and `tq_two_equiv` is `ContinuousMulEquiv.refl`), which is exactly what memo §7
+R7 asks for — no second copy of `T_2` enters the library, so no `ℚ₂` capstone's axiom print can
+change. -/
+theorem bot_tq_eq_ttame (FF : DyadicUnitFiltration (⊥ : IntermediateField ℚ_[2] ℚ̄₂)) :
+    Tq (qOf ⊥ FF) = Ttame := by rw [bot_qOf_eq_two FF]; exact Tq_two
+
+/-- `G_⊥ = G_{ℚ₂}`: the transport handle for the `⊥` regression, `⊥.fixingSubgroup = ⊤`. -/
+def botGalEquiv : GalK (⊥ : IntermediateField ℚ_[2] ℚ̄₂) ≃* AbsGalQ2 :=
+  (MulEquiv.subgroupCongr (IntermediateField.fixingSubgroup_bot (F := ℚ_[2]) (E := ℚ̄₂))).trans
+    Subgroup.topEquiv
+
+@[simp] theorem botGalEquiv_apply (g : GalK (⊥ : IntermediateField ℚ_[2] ℚ̄₂)) :
+    botGalEquiv g = (g : AbsGalQ2) := rfl
+
+theorem continuous_botGalEquiv : Continuous botGalEquiv := continuous_subtype_val
+
+variable {R : LocalReciprocity} {B : MarkedRecip R (⊥ : IntermediateField ℚ_[2] ℚ̄₂)}
+  {FF : DyadicUnitFiltration (⊥ : IntermediateField ℚ_[2] ℚ̄₂)}
+
+/-- **Memo §3 step 2: `W_⊥ = W`.**  Both wild subgroups are maximal closed normal pro-`2`, so they
+coincide — the compatibility of memo §1.10, delivered as a theorem where it can be.  `W₂` is B10's
+`W` pulled back along `botGalEquiv`; its clauses and `hmax₂` are B10's own data plus
+`GQ2.SectionThree.tameData_maximal`, discharged by the consumer (this file cannot name the
+axioms). -/
+theorem bot_W_eq (T : OrientedTameQuotientK B FF)
+    (W₂ : Subgroup (GalK (⊥ : IntermediateField ℚ_[2] ℚ̄₂))) (hnormal₂ : W₂.Normal)
+    (hclosed₂ : IsClosed (W₂ : Set (GalK (⊥ : IntermediateField ℚ_[2] ℚ̄₂))))
+    (hproP₂ : IsProP 2 W₂)
+    (hmax₂ : ∀ N : Subgroup (GalK (⊥ : IntermediateField ℚ_[2] ℚ̄₂)), N.Normal →
+      IsClosed (N : Set (GalK (⊥ : IntermediateField ℚ_[2] ℚ̄₂))) → IsProP 2 N → N ≤ W₂) :
+    T.W = W₂ :=
+  le_antisymm (hmax₂ T.W T.normal T.isClosed T.isProP)
+    (T.tameDataK_maximal W₂ hnormal₂ hclosed₂ hproP₂)
+
+/-- **The memo §3 regression, assembled.**  At `K = ⊥` an AX4 bundle reproduces B10: the
+filtration invariants are the arithmetic ones (`e = f = 1`), the target is `q_⊥ = 2` and hence
+literally `Ttame`, and the wild subgroup is B10's.  Read at `R := GQ2.localReciprocity`,
+`B := markedRecipAt ⊥`, `T := orientedTameQuotientAt ⊥ FF` and `W₂ := GQ2.tameQuotient.W` pulled
+back along `botGalEquiv`, this is the merge-gate-8 check that AX4 *extends* B10 rather than forking
+it (memo §6: extend, do not replace). -/
+theorem tameQuotientK_bot_reduces (T : OrientedTameQuotientK B FF)
+    (W₂ : Subgroup (GalK (⊥ : IntermediateField ℚ_[2] ℚ̄₂))) (hnormal₂ : W₂.Normal)
+    (hclosed₂ : IsClosed (W₂ : Set (GalK (⊥ : IntermediateField ℚ_[2] ℚ̄₂))))
+    (hproP₂ : IsProP 2 W₂)
+    (hmax₂ : ∀ N : Subgroup (GalK (⊥ : IntermediateField ℚ_[2] ℚ̄₂)), N.Normal →
+      IsClosed (N : Set (GalK (⊥ : IntermediateField ℚ_[2] ℚ̄₂))) → IsProP 2 N → N ≤ W₂) :
+    FF.e = 1 ∧ FF.f = 1 ∧ qOf ⊥ FF = 2 ∧ Tq (qOf ⊥ FF) = Ttame ∧ T.W = W₂ :=
+  ⟨bot_e_eq_one FF, bot_f_eq_one FF, bot_qOf_eq_two FF, bot_tq_eq_ttame FF,
+    bot_W_eq T W₂ hnormal₂ hclosed₂ hproP₂ hmax₂⟩
+
+end Bot
+
 end
 
 end GQ2.Dyadic
