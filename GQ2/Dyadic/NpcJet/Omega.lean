@@ -304,6 +304,15 @@ theorem nc3CLine_injective : Function.Injective (nc3CLine dat hdat) := by
 theorem orderOf_nc3CLine (c : C) : orderOf (nc3CLine dat hdat c) = orderOf c :=
   orderOf_injective _ (nc3CLine_injective dat hdat) c
 
+/-- **The `C`-line is natural for profinite exponentiation** (memo §3.2): a σ-conjugator of the
+word evaluates to `((0, s), 0)` and its `ℤ̂`-powers are computed *downstairs*, in `C`.  This is
+what lets the `A`-conjugator `σ^{η̂}` of the `D`-block be read as the element `ŝ = s ^ᶻ η̂ ∈ C`
+whose inverse is the first summand of `L_c`.  (`GQ2.map_zpowHat` at the — automatically
+continuous — `C`-line.) -/
+theorem nc3CLine_zpowHat [Finite C] [Finite V] [TopologicalSpace C] [DiscreteTopology C] (c : C)
+    (γ : Zhat) : nc3CLine dat hdat c ^ᶻ γ = nc3CLine dat hdat (c ^ᶻ γ) :=
+  (map_zpowHat ⟨nc3CLine dat hdat, continuous_of_discreteTopology⟩ c γ).symm
+
 /-- **Rule 1 in the extension** (memo §3.5, the boundary block): the `ω₂`-power of a `C`-line
 element of odd order is the identity — so `(x₂τ)^{ω₂}` dies exactly.
 
@@ -383,6 +392,25 @@ theorem nc3_prodConj_etaHat_smul [Finite C] [TopologicalSpace C] [DiscreteTopolo
     ((s ^ᶻ etaHatZ η) * s ^ (-(2 ^ r : ℤ)))⁻¹ • v
       = (s ^ (2 ^ r : ℕ) * (s ^ᶻ etaHatZ η)⁻¹) • v := by
   rw [nc3_prodConj_etaHat_inv]
+
+/-- **`L_c` is the sum of the three inverse-conjugators** (memo §3.2) — the one rewrite the
+assembly needs to turn the `D`-block's evaluated `V`-part into the cross operator.
+
+On the left, the conjugators in the **word's own spelling** (memo §2.2's compressed `D`-block:
+`â = σ^{η̂}`, then `σ^{−2^r}`, then their product), each contributing the action of its *inverse*
+because `conjR x g = g⁻¹ x g`.  On the right, the operator `A⁻¹ + B + B·A⁻¹` in the spelling of
+the lane's `lcOp` (NC2's definition file, which this file deliberately does not import): the
+right-hand side is definitionally `lcOp s η r v`.
+
+This is where the S3.2 correction becomes visible: draft eq:Ncross claimed `L_c = A⁻¹`, i.e. the
+first summand alone; the second and third summands are the two conjugators the draft dropped. -/
+theorem nc3_lcOp_spelling [Finite C] [TopologicalSpace C] [DiscreteTopology C] (s : C) (η : ℤ_[2])
+    (r : ℕ) (v : V) :
+    (s ^ᶻ etaHatZ η)⁻¹ • v + (s ^ (-(2 ^ r : ℤ)))⁻¹ • v
+        + ((s ^ᶻ etaHatZ η) * s ^ (-(2 ^ r : ℤ)))⁻¹ • v
+      = (s ^ᶻ etaHatZ η)⁻¹ • v + s ^ (2 ^ r : ℕ) • v
+        + (s ^ (2 ^ r : ℕ) * (s ^ᶻ etaHatZ η)⁻¹) • v := by
+  rw [nc3_inv_zpow_neg_two_pow, nc3_prodConj_etaHat_inv]
 
 end Extension
 
