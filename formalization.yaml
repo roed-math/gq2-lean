@@ -53,6 +53,7 @@ status:
     - "GQ2.Foundations.absGalQ2_localEulerCharacteristic"           # B7
     - "GQ2.dyadicOrientation"                                       # B3c
     - "GQ2.localReciprocity"                                        # B5
+    - "GQ2.markedRecipAt"                                           # B5-K (AX3)
     - "GQ2.tateDualityAt"                                           # B6
     - "GQ2.peripheralCyclotomicAction"                              # B8
     - "GQ2.relativeStiefelWhitney_dyadic"                                        # B9

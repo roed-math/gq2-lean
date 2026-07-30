@@ -465,6 +465,7 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 | B3  Demushkin classification | **Labute [2] Thm 8** (`D₀` at `d=1`) & **Thm 4 case (2)** | ✅ **verified** | 🟡 |
 | B4  `G_ℚ₂(2)` is rank-3 Demushkin | **NSW (7.5.11)(ii)** (rank `N+2=3`); Serre [3]; Labute [2] | ✅ **verified** | ❌ **deleted 2026-07-10** (unused; B3c subsumes a marked B4) |
 | B5  local reciprocity for `ℚ₂` | **NSW (7.1.1)/(7.1.5)** (class formation); Serre *LF* XI–XII | ✅ **verified** | 🟡 |
+| B5-K  marked local reciprocity over finite `K/ℚ₂` (AX3) | **NSW Ch. I §5, Ch. VII §7.1** (functoriality); Serre *LF* **XI §3** | ⏳ **targets owner-approved 2026-07-29; PDFs unverified** | 🟡 **added 2026-07-29** (census 9→10, gate G-AX) |
 | B6  local Tate duality (all finite `k/ℚ₂`) | **NSW (7.2.6) "Tate Duality"**; Serre *GC* II §5.2; Milne I.2.1; induced Hilbert nondeg.: **FV IV §5 (5.1)(6)/(5.2)**, O'Meara **63:13** | ✅ **verified** | 🟡 |
 | B7  local Euler characteristic | **NSW (7.3.1) (Tate)** `χ=‖a‖`; Serre *GC* II §5.7; Milne I.2.8 | ✅ **verified** | 🟡 |
 | B7′ dyadic Hilbert symbol | **Serre *Course in Arithmetic* Ch. III §1.2 Thm 1** (`ε,ω`: Ch. II §3.3) | ✅ **verified** | ✅ **proved** (2026-07-09) |

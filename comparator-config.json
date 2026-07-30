@@ -13,6 +13,7 @@
         "GQ2.Foundations.absGalQ2_localEulerCharacteristic",
         "GQ2.dyadicOrientation",
         "GQ2.localReciprocity",
+        "GQ2.markedRecipAt",
         "GQ2.tateDualityAt",
         "GQ2.peripheralCyclotomicAction",
         "GQ2.relativeStiefelWhitney_dyadic",

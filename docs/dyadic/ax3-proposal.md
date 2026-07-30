@@ -644,3 +644,13 @@ Census-flip checklist, instantiated from the b9a template
   (norm functoriality of the reciprocity map) and the NSW Ch. I §5 / Ch. VII §7.1 functoriality
   statement; also the mathlib name for the rank-one `Algebra.norm` identification used in §3(i).
   This memo deliberately does not claim "verified against the cited PDFs".
+
+---
+
+**Postscript (orchestrator, 2026-07-29): LANDED.** Owner sign-off at gate G-AX (answers Q1–Q7
+recorded on the board): one axiom; a_K clause omitted; def moved with alias; field-language
+spelling for AS5; bundle file via ticket AX3-b (`GQ2/Dyadic/MarkedRecipBundle.lean`, merged);
+extend-not-replace for B5 confirmed; citation targets approved with **PDF verification
+pending** (UNVERIFIED annotations retained). Census flip 9 → 10 committed as **B5-K**
+`GQ2.markedRecipAt` in `GQ2/Foundations/Axioms.lean`; ledger/probe/yaml/comparator rows
+updated; ℚ₂ capstone prints unchanged (check-5 frozen census).

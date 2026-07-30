@@ -25,7 +25,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 AXIOMS_FILE='GQ2/Foundations/Axioms.lean'
-EXPECTED_AXIOMS=9  # B1, B3c, B5, B6, B7, B8, B9, B10, B11a — B4 deleted 2026-07-10 (unused; B3c subsumes a marked B4), following B2 (B10: census decision, P-06 escalation; B9 base-generalized + B11 added: census decision, P-15 escalation, 2026-07-03; B11 split into B11a hilbertSymbol_normCriterion_finiteDyadic + B11b unramifiedQuadratic_units_are_norms, census 12→13: P-23 / adversarial review rec 2, user-approved 2026-07-04 — old dyadicNormCriterion re-derived as a same-name theorem, the spectral-norm bridge isolated as a def not an axiom; B12 kummerClassK_surjective + B13 dyadicUnitFiltration added, census 13→15: P-15f1 instantiation, user-approved 2026-07-06, docs/p15f1-axiom-proposal.md; B12 discharged as a same-name theorem over the std-3 proof in GQ2/KummerSurjectivity.lean + GQ2/KummerKrullBridge.lean AND the unused B2 cyclotomicCharacter_two_surjective deleted, census 15→13: B12 board, user-approved 2026-07-09; B7' hilbertSymbol_dyadic discharged as a same-name theorem over the std-3 proof in GQ2/HilbertSymbolDyadicClose.lean, census 13→12: B7' board, user-approved 2026-07-09; B13 dyadicUnitFiltration discharged as a same-name noncomputable def over the std-3 proof in GQ2/UnitFiltrationCounts.lean + GQ2/UnitFiltrationTop.lean, census 12→11: B13 board, user-approved 2026-07-09; B11b unramifiedQuadratic_units_are_norms discharged as a same-name theorem over the std-3 proof in GQ2/UnramifiedQuadraticNorms.lean + GQ2/TeichmullerLift.lean, census 11→10: B11b board, user-approved 2026-07-09 — dyadicNormCriterion now rests on B11a alone; B9 evensKahn_dyadic REPLACED by the relative Stiefel-Whitney identity relativeStiefelWhitney_dyadic with evensKahn_dyadic re-derived as a same-name theorem from it + B11a, census 9→9: B9-A board docs/orchestration/b9a-tickets.md, user-approved 2026-07-24)
+EXPECTED_AXIOMS=10  # B1, B3c, B5, B5-K, B6, B7, B8, B9, B10, B11a — B4 deleted 2026-07-10 (unused; B3c subsumes a marked B4), following B2 (B10: census decision, P-06 escalation; B9 base-generalized + B11 added: census decision, P-15 escalation, 2026-07-03; B11 split into B11a hilbertSymbol_normCriterion_finiteDyadic + B11b unramifiedQuadratic_units_are_norms, census 12→13: P-23 / adversarial review rec 2, user-approved 2026-07-04 — old dyadicNormCriterion re-derived as a same-name theorem, the spectral-norm bridge isolated as a def not an axiom; B12 kummerClassK_surjective + B13 dyadicUnitFiltration added, census 13→15: P-15f1 instantiation, user-approved 2026-07-06, docs/p15f1-axiom-proposal.md; B12 discharged as a same-name theorem over the std-3 proof in GQ2/KummerSurjectivity.lean + GQ2/KummerKrullBridge.lean AND the unused B2 cyclotomicCharacter_two_surjective deleted, census 15→13: B12 board, user-approved 2026-07-09; B7' hilbertSymbol_dyadic discharged as a same-name theorem over the std-3 proof in GQ2/HilbertSymbolDyadicClose.lean, census 13→12: B7' board, user-approved 2026-07-09; B13 dyadicUnitFiltration discharged as a same-name noncomputable def over the std-3 proof in GQ2/UnitFiltrationCounts.lean + GQ2/UnitFiltrationTop.lean, census 12→11: B13 board, user-approved 2026-07-09; B11b unramifiedQuadratic_units_are_norms discharged as a same-name theorem over the std-3 proof in GQ2/UnramifiedQuadraticNorms.lean + GQ2/TeichmullerLift.lean, census 11→10: B11b board, user-approved 2026-07-09 — dyadicNormCriterion now rests on B11a alone; B9 evensKahn_dyadic REPLACED by the relative Stiefel-Whitney identity relativeStiefelWhitney_dyadic with evensKahn_dyadic re-derived as a same-name theorem from it + B11a, census 9→9: B9-A board docs/orchestration/b9a-tickets.md, user-approved 2026-07-24; B5-K markedRecipAt added — AX3 marked local reciprocity over finite K/Q2, census 9→10: gate G-AX, owner-approved 2026-07-29, docs/dyadic/ax3-proposal.md)
 # Emptied 2026-07-08 (library fully sorry-free; last leaves GammaA/FoxHeisenberg/SectionSeven
 # discharged); held the four GQ2/Roe/Labute/ skeletons while the L-campaign was in flight
 # (R40, 2026-07-25) and RE-EMPTIED at L6 (2026-07-26) when the Labute classification instance
@@ -34,8 +34,9 @@ EXPECTED_AXIOMS=9  # B1, B3c, B5, B6, B7, B8, B9, B10, B11a — B4 deleted 2026-
 SORRY_ALLOWLIST=''
 
 # -- check 5 configuration ---------------------------------------------------
-# The exact axiom set every audited capstone must print: the standard three plus the frozen
-# census of EXPECTED_AXIOMS literature axioms (GQ2/Foundations/Axioms.lean).  Order is
+# The exact axiom set every audited capstone must print: the standard three plus the FROZEN
+# Q2 capstone census (the nine Q2-side axioms).  K-side axioms (B5-K, ...) must NEVER appear
+# here — the audited Q2 capstones may not cite them (AX3 checklist gate).  Order is
 # irrelevant — both sides are sorted before comparison — but membership is exact, so a
 # `sorryAx`, a stray axiom, or a dropped B-leaf all show up as a diff.
 AUDIT_EXPECTED_AXIOMS='propext Classical.choice Quot.sound
@@ -286,7 +287,7 @@ EOF
 
   if [ "$audit_ok" -eq 1 ]; then
     echo "OK:   terminal-theorem axiom audit: ${audited} capstone(s) at the expected census set"
-    echo "      (std-3 + ${EXPECTED_AXIOMS} literature axioms, no sorryAx), ${paired} twin pair(s) identical"
+    echo "      (std-3 + the frozen Q2 capstone census, no sorryAx), ${paired} twin pair(s) identical"
   else
     fail=1
   fi

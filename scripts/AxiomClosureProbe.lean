@@ -19,12 +19,13 @@ import GQ2.Foundations.Axioms
 
 open Lean
 
-/-- The nine census axioms, in `GQ2/Foundations/Axioms.lean` order. -/
+/-- The ten census axioms, in `GQ2/Foundations/Axioms.lean` order. -/
 def censusAxioms : List Name := [
   `GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated,
   `GQ2.Foundations.absGalQ2_localEulerCharacteristic,
   `GQ2.dyadicOrientation,
   `GQ2.localReciprocity,
+  `GQ2.markedRecipAt,
   `GQ2.tateDualityAt,
   `GQ2.peripheralCyclotomicAction,
   `GQ2.relativeStiefelWhitney_dyadic,

@@ -38,7 +38,7 @@ so it reports transitive dependencies and covers the whole library, including `p
     lake build GQ2 && lake env lean GQ2/AxiomLedger.lean
 
 Prints the ledger to stdout.  This file is intentionally **not** imported by `GQ2.lean`, so it never
-runs during `lake build GQ2`.  If the axiom census (currently nine) ever changes, update `bAxioms`
+runs during `lake build GQ2`.  If the axiom census (currently ten) ever changes, update `bAxioms`
 below (and `scripts/check_axioms.sh`'s `EXPECTED_AXIOMS`, same commit).
 -/
 
@@ -53,6 +53,7 @@ def bAxioms : List (Name × String) :=
   [ (``GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated, "B1")
   , (``GQ2.dyadicOrientation,                                     "B3c")
   , (``GQ2.localReciprocity,                                      "B5")
+  , (``GQ2.markedRecipAt,                                         "B5-K")
   , (``GQ2.tateDualityAt,                                         "B6")
   , (``GQ2.Foundations.absGalQ2_localEulerCharacteristic,         "B7")
   , (``GQ2.peripheralCyclotomicAction,                            "B8")

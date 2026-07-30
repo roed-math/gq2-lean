@@ -14,6 +14,7 @@ public import GQ2.PeripheralAction
 public import GQ2.Orientation
 public import GQ2.TameQuotient
 public import GQ2.TraceForm
+public import GQ2.Dyadic.MarkedRecipBundle
 
 @[expose] public section
 
@@ -26,13 +27,15 @@ declarations and **nothing else**, so that its transitive imports are exactly th
 vocabulary an auditor must read.  Each axiom represents a published mathematical input used by
 the paper; the paper-specific propositions and theorems are proved elsewhere in the library.
 
-The current census contains nine axioms:
+The current census contains ten axioms:
 
 * **B1** `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` — topological finite generation
   of `G_ℚ₂`.
 * **B3c** `dyadicOrientation` — the canonical dyadic orientation in the marked cyclotomic
   interface used by Proposition 1.1.
 * **B5** `localReciprocity` — local reciprocity for `ℚ₂` with the paper normalization.
+* **B5-K** `markedRecipAt` — marked local reciprocity over every finite `K/ℚ₂` (AX3;
+  owner-approved 2026-07-29).
 * **B6** `tateDualityAt` — local Tate duality over every finite extension of `ℚ₂`.
 * **B7** `Foundations.absGalQ2_localEulerCharacteristic` — the local Euler characteristic.
 * **B8** `peripheralCyclotomicAction` — the cyclotomic action on the peripheral generators of
@@ -55,7 +58,7 @@ names unchanged lets consumers use the proved implementations without an API mig
 For review, the live leaves fall into three citation-faithfulness classes:
 
 * **direct classical theorems:** B1, B6, and B7;
-* **classical theorems with encoding choices:** B5, B9, and B10;
+* **classical theorems with encoding choices:** B5, B5-K, B9, and B10;
 * **composite project interfaces:** B3c, B8, and B11a.
 
 The declaration docstrings below give the precise statement, source citation, paper
@@ -169,6 +172,33 @@ parametrized over an arbitrary bundle and are therefore axiom-free. -/
 Citation: NSW [1] (7.1.1)/(7.1.5); Serre *Local Fields* [7] Ch. XI–XIII.  Paper: Lemma 3.5,
 eq. (13); Prop. 1.1. -/
 axiom localReciprocity : LocalReciprocity
+
+/-! ## B5-K — marked local reciprocity over finite `K/ℚ₂` (AX3)
+
+The twelve-field bundle structure `Dyadic.MarkedRecip R K` (reciprocity map into `GalKab K`,
+the unramified quotient `ν_ur^K` with its normalization clauses, the level datum `r`, and the
+`K(i)`-unramifiedness clause) is defined in `GQ2/Dyadic/MarkedRecipBundle.lean`, together with
+its axiom-free derived layer (`χ_K`, `C`, `λ`/`I`/`γ`, the `(r, ε, η)` extraction API and the
+field-language bridge), the `K = ⊥` reduction regression `markedRecip_bot_reduces`
+(merge-gate-8 evidence: the bottom instance reproduces B5's data), and the synthetic `r = 2`
+mock pair mandated by the proposal's §7 R2.  That file quantifies over an arbitrary
+`LocalReciprocity`; this axiom instantiates it at B5. -/
+
+/-- **The B5-K axiom (AX3).** Marked local reciprocity for every finite extension `K/ℚ₂`:
+local class field theory provides the marked reciprocity bundle over `K`, normalized
+compatibly with B5 (`localReciprocity`) through norm functoriality.
+
+Proposal and sign-off: `docs/dyadic/ax3-proposal.md` (statement §2.3); owner-approved at gate
+G-AX 2026-07-29 — one axiom, the finite-layer norm-residue clause omitted, extend-not-replace
+for B5.  Consumers bind the statement through the derived layer of
+`GQ2/Dyadic/MarkedRecipBundle.lean` (F4's branch corollary, MC5, the boundary lane).
+
+Citation (targets owner-approved 2026-07-29; **not yet verified against the cited PDFs**):
+NSW [1] Ch. I §5 and Ch. VII §7.1 (functoriality); Serre *Local Fields* [7] Ch. XI §3 (norm
+functoriality of the reciprocity map).  Paper: the general-`K` analogue of Lemma 3.5;
+`docs/literature-axioms.md` B5-K. -/
+axiom markedRecipAt (K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+    [FiniteDimensional ℚ_[2] K] : Dyadic.MarkedRecip localReciprocity K
 
 /-! ## B6 — local Tate duality (per-`n` bundle, at every finite `k/ℚ₂`)
 

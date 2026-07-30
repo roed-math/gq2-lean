@@ -20,6 +20,7 @@ BTAG = {
     "GQ2.Foundations.absGalQ2_localEulerCharacteristic": "B7",
     "GQ2.dyadicOrientation": "B3c",
     "GQ2.localReciprocity": "B5",
+    "GQ2.markedRecipAt": "B5-K",
     "GQ2.tateDualityAt": "B6",
     "GQ2.peripheralCyclotomicAction": "B8",
     "GQ2.relativeStiefelWhitney_dyadic": "B9",
@@ -79,7 +80,7 @@ def main() -> None:
             )
             v["tags"].add(tag)
 
-    tag_order = ["B1", "B3c", "B5", "B6", "B7", "B8", "B9", "B10", "B11a"]
+    tag_order = ["B1", "B3c", "B5", "B5-K", "B6", "B7", "B8", "B9", "B10", "B11a"]
 
     def tags_str(tags):
         return ", ".join(t for t in tag_order if t in tags)
