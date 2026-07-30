@@ -13,7 +13,132 @@ public import GQ2.Dyadic.MarkedCore.HandleMixClear
 # Handle mixing, step 5: the χ-side, and the packaged per-family headline
 
 **Ticket HM5** of the dyadic campaign (lane MC) — the closing ticket of the `HandleMixLift`
-discharge.
+discharge, implementing `docs/dyadic/handlemixlift-spike.md` §7's fifth row as **reduced** by HM4's
+finding.  The memo budgeted HM5 as "the `M`/`N` instantiations (`Φ^M_j`, the `N` variant) —
+mechanical re-instantiation of HM2/HM3"; HM2's family swap made one definition serve both rank-four
+cores, so HM2, HM3 and HM4 are already `M`- *and* `N`-uniform at general `(α, h)` and there is
+nothing to re-instantiate.  What was actually left, and is what this file lands, is the **χ-side**:
+HM4 clears `ν` but says nothing about the orientation, and MC3's `IsMStabilizer` is a *χ-preserving*
+cup isometry — so the corrections HM4 produces have to be shown to lie inside the χ-stabilizer
+before MC5 may use them.  They do, on the nose.
+
+Repo conventions as upstream: `x ^ g = g⁻¹xg` (`GQ2.conjP`), `[x,y] = x⁻¹y⁻¹xy` (`GQ2.commP`), and
+HM1's naming rule for the `τ` family (a Lean name's suffix is the letter that MOVES).
+
+## The χ-truth, in one paragraph
+
+Every generator of `A(P,h)` moves at most two slots of the frame, and it moves them by the value at
+the **pivot** slot — index `2`, the letter `c = C₀` for `M` and `σ` for `N` — or by the partner
+handle value:
+
+```
+τ_{v_j}(k) : ū_j ↦ ū_j + k·v̄_j        τ_c(k) : d̄ ↦ d̄ + k·c̄
+τ_{u_j}(k) : v̄_j ↦ v̄_j + k·ū_j        Φ_j    : d̄ ↦ d̄ + (c̄ − v̄_j),  ū_j ↦ ū_j + (c̄ − v̄_j)
+```
+
+Read against `ν` this is HM4: the pivot value `ν'(c̄)` is a **unit**, so the handle slots are fully
+steerable and the plane can be annihilated.  Read against `χ` it is this file: the pivot value
+`χ_P(c̄)` is **trivial** and `χ_P ≡ 1` on the handle plane, so every one of the moves is the
+identity on `χ_P`.  **One slot, read additively and multiplicatively** — that complementarity is
+why the handle stratum lands inside the χ-preserving stabilizer for free, and it is the finding of
+this ticket.
+
+The rows are stated **honestly**, for an arbitrary character `f` rather than only for MC2's
+standard `χ_M`/`χ_N`: `IsClearBlind` isolates the hypothesis (`f` trivial at the pivot and on the
+handle plane) and §3 records the *exact* action in each case, so the failure mode is visible.  It
+is a real failure mode: for a general character `Φ_j` multiplies **both** `f(d̄)` and `f(ū_j)` by
+the single factor `f(c̄)·f(v̄_j)⁻¹`, and `τ_c(k)` multiplies `f(d̄)` by `f(c̄)^k`, so a character
+with `f(c̄) ≠ f(v̄_j)` is genuinely *moved* by the mixing element.  Nothing here is forced by the
+relator; it is a property of MC2's closed forms `(A,B,C₀,D) ↦ (1,−1,1,u)` and
+`(x₀,x₁,σ,x₂) ↦ (1,v,1,1)`, both of which put `1` at the pivot (`isClearBlind_chiM`,
+`isClearBlind_chiN`).  A *transported* orientation `χ' = χ_K∘f` must therefore be checked, not
+assumed — the χ-side twin of memo §6.4's residue 2.
+
+## Contents
+
+* **§1 Precomposition stabilizers.**  `endStabilizer g` — the self-maps of `X` that `g` cannot
+  see — as a *submonoid* of `Function.End X`, plus `closure_le_endStabilizer`.  This is what
+  replaces a closure induction: HM4 needed `Submonoid.closure_induction` for the realization
+  bridge because the conclusion there was existential, whereas χ-invariance is a submonoid
+  membership and `Submonoid.closure_le` closes it in one line.
+
+* **§2 `autHom`** (a continuous automorphism read as a continuous endomorphism, HM4 §4's
+  `⟨Ψ.toMonoidHom, …⟩` idiom named once) and `dm_char_fixed`/`dn_char_fixed`: a character fixed on
+  the marked generators is fixed everywhere (MC2's `dm_hom_ext`/`dn_hom_ext`).
+
+* **§3 The exact character rows.**  `IsClearBlind`, the six untouched-slot rows (no hypothesis, no
+  pro-2 structure on the target), the six moved-slot rows (`char_dmTauU_handleU`, …, needing
+  `map_zpowZtwo`, hence a pro-2 target), the eight `_fixed` rows, and then
+  `dmClearAuts_closure_le`/`dnClearAuts_closure_le`: **all of `A(P,h)` at once**.  `Φ_j`'s two
+  moved rows are not restated — HM3's `frame_dmMixEquiv_dmD`/`_handleU` and the `N`-mirrors already
+  hold for an arbitrary character into a commutative group.
+
+* **§4 The standard-marking rows.**  `isClearBlind_chiM`, `isClearBlind_chiN`, and the marked
+  condition `χ_P ∘ Ψ = χ_P` for every `Ψ ∈ A(P,h)` in pointwise
+  (`chiM_of_mem_dmClearAuts`, `chiN_of_mem_dnClearAuts`) and hom form
+  (`chiM_comp_of_mem_dmClearAuts`, `chiN_comp_of_mem_dnClearAuts`).
+
+* **§5 The headline, per family.**  `mHandleMixLift` and `nHandleMixLift` bundle HM4's
+  `exists_dmClear_nu`/`exists_dnClear_nu` **with** the χ-row: one existential carrying membership in
+  `A(P,h)`, `χ_P ∘ Ψ = χ_P`, `ν'∘Ψ = 1` on the whole handle plane, and `ν'(Ψ c) = ν'(c)`.  These
+  are the statements MC5's certificate cites for the handle stratum.  `*_eq_nuM`/`*_eq_nuN` restate
+  the ν-rows in memo V5's phrasing (`ν'∘Ψ` **is** `ν_P` there), and `*_nuM`/`*_nuN` instantiate the
+  unit row at MC2's standard markings, so the hypothesis set is visibly non-empty at every
+  `(α, h)`.
+
+* **§6 Small-instance pins.**  A `StressTests` section of `example`s at `(α, h) = (2, 1)` — the
+  smallest instance with both a non-trivial orientation unit and a non-empty handle plane.
+
+## The lane, closed: HM1 → HM5
+
+* **HM1** `HandleMix.lean` — handle-block splitting, the two commutator expansions, the exact
+  transvections for **2-adic** exponents.
+* **HM2** `HandleMixEquiv.lean` — `Φ_j` as an honest `ContinuousMulEquiv` of both cores, with
+  `Φ_j(P) = P` on the nose and an explicit inverse.
+* **HM3** `HandleMixFrame.lean` — the frame calculus: the Eichler elements, `N² = 0`, the
+  `θ_w`-conjugation reaching every 2-adic coefficient, `SL₂ = E₂` over `ℤ₂`, the ν-frame
+  dictionary.
+* **HM4** `HandleMixClear.lean` — `A(P,h)` at both levels, the ν-clearing, the realization
+  bridge, **the restated obligation as a theorem**, MC5's `hLift` split three ways.
+* **HM5** this file — the χ-side: `A(P,h)` sits inside the χ-stabilizer, and the two packaged
+  headlines.
+
+**THEOREM (not a binder):** the handle stratum of `HandleMixLift` for the `M_α` and `N_α`
+families — memo §1's `MHandleMixHypothesis`/`NHandleMixHypothesis` in memo V5's consumed form,
+`ν_P ∈ ν'·A(P,h)` on the handle plane, **together with** the χ-preservation the marked stabilizer
+condition requires.  At general `α`, general handle count `h`, with no new axiom, **no B8**
+(`peripheralCyclotomicAction`), **no B3c** (`dyadicOrientation` — MC2's `χ_M`/`χ_N` are
+combinatorial closed forms, not the arithmetic orientation), and no appeal to compactness of
+`Aut(D_P)`.  Every declaration in this file prints at the standard three axioms.
+
+**Still a binder:** MC1 §5.3's S3 core↔core mixing at rank four (`MCoreMixHypothesis`,
+`NCoreMixHypothesis` — MC1 §8 Decision 2, G-Lab territory; memo §6.5's HM6 spike, owner-held, would
+turn the `N` instance into a theorem), and MC1 §5.1–§5.2's S1 ∪ S2 Nielsen-and-scaling stratum
+(`MNielsenScalingHypothesis`, `NNielsenScalingHypothesis` — MC3/MC4's to construct, the scalings
+through the *existing* axiom B8).  Both are HM4 §6's fields, untouched here.
+
+## The two items this ticket defers
+
+1. **The L-family instantiation.**  Memo §1.2 lists the L collector/`L_tw` and `L_sq` alongside
+   `M`/`N`, and memo §6.2 marks the collector as covered by the same construction.  Its core is
+   **not** `DM`/`DN` — it lives in `GQ2/Dyadic/SqCore/` — so the instantiation is not a
+   re-parametrisation of this file but a fresh application of HM1–HM3 in that frame, and it is
+   blocked on a *correction*: SQ1 sharpened memo §6.3's residue 1 into `docs/dyadic/sq-design.md`
+   §7 **R1**, which shows S2.4 §1.1's "`χ(σ) = 1` for type L" is **false** for `L_sq`
+   (`χ_sq(σ) = S`, of infinite order).  In this file's vocabulary that says exactly that the `L_sq`
+   pivot is **not clear-blind**: the χ-trivial subspace of the `L_sq` frame is a rank-1 free
+   `ℤ₂`-module transverse to `σ̄`, not `⟨σ̄⟩ ⊕ P_han`, so §3's blindness hypothesis fails at the
+   pivot and the reachable-block identification of memo §6.4 has to be redone there.  The R1 verdict
+   assigns that redo to MC5; nothing in this file speaks to `L_sq`.
+
+2. **The `M`-side transported ν-row.**  Memo §6.4's residue 2 (owner question Q2): is `ν'(c̄)` a
+   unit for the `M_α` marked data?  HM4 settled the *standard* marking (`isUnit_nuM_dmC`) and §5
+   here re-exports it (`mHandleMixLift_nuM`), so the headline is never vacuous; but the `ν'` MC5
+   actually feeds it is the **transported** `ν_K∘f`, and whether its pivot value is a unit is a
+   property of the marked data `(C,I,λ,γ)`, decided once F4/MC5 have the `M` ν-row.  If the unit
+   sits on `d̄` and not on `c̄`, the clearing would need elements moving `c`, which the `c^{2^α}`
+   factor forbids, and `M` falls back to memo §1's binder — `N` is unaffected, its pivot being `σ`.
+   One line to check, not a proof obligation, and it is the *only* hypothesis either headline takes.
 -/
 
 open Multiplicative
@@ -78,7 +203,7 @@ theorem dn_char_fixed (f : ContinuousMonoidHom (DN α h : Type) A)
 
 end AutHom
 
-/-! ## §3 The exact χ-action of the four clearing generators -/
+/-! ## §3 The exact character action of the four clearing generator families -/
 
 section ClearBlind
 
@@ -178,16 +303,15 @@ theorem char_dnTauD_three (f : ContinuousMonoidHom (DN α h : Type) A) (k : ℤ_
     f (dnTauDEquiv α h k (dnX2 α h)) = zpowZtwo hA (f (dnSigma α h)) k * f (dnX2 α h) := by
   rw [dnSigma, dnX2, dnTauDEquiv_gen, map_tauDMark (isProP_DN α h) hA f, tauDMark_three]
 
-/-! ### The `Φ_j` rows, in blind form
-
-HM3 states `Φ_j`'s two moved rows for an arbitrary character (`frame_dmMixEquiv_dmD`,
-`frame_dmMixEquiv_handleU`, and the `N`-mirrors): both pick up the **same** factor
-`f(c̄)·f(v̄_j)⁻¹`.  So `Φ_j` is invisible to `f` exactly when that factor is `1` — which is what
-`IsClearBlind` gives, and which a general character need **not** satisfy. -/
-
 /-! ### Every generator of `A(P,h)` is invisible to a clear-blind character
 
-The pattern is the same eight times: `dm_char_fixed`/`dn_char_fixed` reduce to the marked
+`Φ_j`'s two moved rows need no restating: HM3's `frame_dmMixEquiv_dmD`, `frame_dmMixEquiv_handleU`
+and their `N`-mirrors already hold for an arbitrary character into a commutative group, and they say
+that both moved slots pick up the **same** factor `f(c̄)·f(v̄_j)⁻¹`.  So `Φ_j` is invisible to `f`
+exactly when that factor is `1` — which `IsClearBlind` gives, and which a general character need
+**not** satisfy.
+
+The pattern is then the same eight times: `dm_char_fixed`/`dn_char_fixed` reduce to the marked
 generators, one `by_cases` isolates the moved slot, and the blindness rows kill the correction. -/
 
 include hA in
