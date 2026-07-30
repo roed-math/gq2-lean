@@ -1313,6 +1313,172 @@ end MockValues
 
 end MockPair
 
+/-! ## §6 The five quadratic test vectors (memo §5)
+
+Memo §5 tabulates the marked data of the five ramified-`i` quadratic fields
+`K = ℚ₂(√d)`, `d ∈ {−2, 2, 5, 10, −10}`.  Its `C` and `I` columns are *arithmetic*, computed per
+field from norm/Hilbert-symbol data, and belong to the AS-instance lane; the remaining columns —
+`r`, `ε`, `η`, `γ` — each follow from a single piece of arithmetic input, and that reading is what
+this section provides once and for all, as theorems over the structure:
+
+| memo row | field | input this section consumes | output |
+|---|---|---|---|
+| 1 | `ℚ₂(√−2)`, `N₂` | `N(√−2) = 2`: a `ker χ` class of **odd** `ν`-value | `r = 0`, `I = C`, `γ = 1` |
+| 2 | `ℚ₂(√2)`, `M₃` | `N(2 + √2) = 2`: idem | idem |
+| 3 | `ℚ₂(√5)`, `M₂` | unramified, `N(O_Kˣ) = ℤ₂ˣ`: idem | idem |
+| 4 | `ℚ₂(√10)`, `M₂` | `N(3 + √10) = −1` is a *unit* norm, so `−1 ∈ I` | `ε = 0` |
+| 5 | `ℚ₂(√−10)`, `M₂` | `N(x) = −2` solvable at odd `v`, so `−1 ∉ I` | `ε = 1` |
+
+Rows 1–3 are `compact_row`; rows 4–5 are `epsilonOf_eq_false_of_mem_I` and
+`epsilonOf_eq_true_of_notMem_I`, which differ **only** in that input — the draft's Warning ("same
+abstract type `M₂`, different marked Frobenius systems").  `η` is odd on both procyclic rows, memo
+§5 cross-check (ii) "`η` odd ⇔ ramified `i`": that is
+`MarkedRecip.level_zero_or_not_even_eta_of_ramified` at the end of the section, the composite of
+packet Prop. 8.1 with the `K(i)` bridge.
+
+Nothing here computes a field-specific `C` or `I`: those need the B7′/B11a norm layer, which lives
+*above* the axiom file (memo §7 R9).  Each lemma therefore takes its arithmetic input as a
+hypothesis, in the shape the AS lane will discharge. -/
+
+section Instances
+
+namespace MarkedPair
+
+variable {A : Type*} [CommGroup A] (P : MarkedPair A)
+
+theorem not_isUnit_two_padic : ¬ IsUnit ((2 : ℤ_[2])) := by
+  intro h
+  have h2 := h.map (PadicInt.toZMod (p := 2))
+  rw [map_ofNat, show ((2 : ZMod 2)) = 0 from by decide] at h2
+  exact not_isUnit_zero h2
+
+/-- **The compact criterion** (memo §5 rows 1–3): if some class in `ker χ` has a `ν`-value that is
+a *unit* of `ℤ₂` — the shape "`N(π) = 2`, unit part `1`, `v` odd" takes — then the marked level is
+`0`.  This is the one arithmetic input the three compact rows need. -/
+theorem level_eq_zero_of_isUnit_nu (g : A) (hg : P.chi g = 1) (hu : IsUnit ((P.nu g).toAdd)) :
+    P.r = 0 := by
+  by_contra hr
+  obtain ⟨y, hy⟩ := P.nu_ker_chi_le g hg
+  rw [hy] at hu
+  refine not_isUnit_two_padic (isUnit_of_mul_isUnit_left (y := (2 : ℤ_[2]) ^ (P.r - 1) * y) ?_)
+  rw [← mul_assoc, ← pow_succ', show P.r - 1 + 1 = P.r from by omega]
+  exact hu
+
+/-- At level `0` the inertia image is everything: `I = C` (the compact / type-`L` rows). -/
+theorem I_eq_C_of_level_zero (hr : P.r = 0) : P.I = P.C := by
+  refine le_antisymm ?_ ?_
+  · rintro c ⟨g, -, rfl⟩
+    exact ⟨g, rfl⟩
+  · intro c hc
+    refine (P.mem_I_iff ⟨c, hc⟩).2 ?_
+    have : Subsingleton (ZMod (2 ^ P.r)) := by simp only [hr, pow_zero]; infer_instance
+    exact Subsingleton.elim _ _
+
+/-- At level `0` the Frobenius coset is trivial (`C/I` is the trivial group). -/
+theorem gammaCoset_eq_one_of_level_zero (hr : P.r = 0) : P.datum.gammaCoset = 1 := by
+  have hsub : Subsingleton (Multiplicative (ZMod (2 ^ P.datum.r))) := by
+    simp only [datum_r, hr, pow_zero]
+    infer_instance
+  rw [CyclotomicFrobeniusDatum.gammaCoset,
+    Subsingleton.elim (Multiplicative.ofAdd (1 : ZMod (2 ^ P.datum.r))) 1, map_one]
+
+/-- **Memo §5 rows 1–3, assembled** (`ℚ₂(√−2)`, `ℚ₂(√2)`, `ℚ₂(√5)`): a `ker χ` class of odd
+`ν`-value puts the field on the compact row, with `I = C` and trivial `γ`. -/
+theorem compact_row (g : A) (hg : P.chi g = 1) (hu : IsUnit ((P.nu g).toAdd)) :
+    P.r = 0 ∧ P.I = P.C ∧ P.datum.gammaCoset = 1 :=
+  ⟨P.level_eq_zero_of_isUnit_nu g hg hu,
+   P.I_eq_C_of_level_zero (P.level_eq_zero_of_isUnit_nu g hg hu),
+   P.gammaCoset_eq_one_of_level_zero (P.level_eq_zero_of_isUnit_nu g hg hu)⟩
+
+/-- `2^{r−1} ≠ 0` in `ℤ/2^r` for `r ≥ 1` — what makes `ε` *detectable* (memo §7 R4's positive
+side). -/
+theorem two_pow_pred_ne_zero (hr : 1 ≤ P.r) :
+    ((2 ^ (P.r - 1) : ℕ) : ZMod (2 ^ P.r)) ≠ 0 := by
+  intro h
+  have hdvd : (2 : ℕ) ^ P.r ∣ 2 ^ (P.r - 1) := (ZMod.natCast_eq_zero_iff _ _).1 h
+  have := (Nat.pow_dvd_pow_iff_le_right (by norm_num : 1 < 2)).1 hdvd
+  omega
+
+/-- **Memo §5 row 4** (`ℚ₂(√10)`): `−1` is a unit norm, so `−1 ∈ I`, so `ε = 0`. -/
+theorem epsilonOf_eq_false_of_mem_I (hr : 1 ≤ P.r) (h₁ : (-1 : ℤ_[2]ˣ) ∈ P.C)
+    (hI : (-1 : ℤ_[2]ˣ) ∈ P.I) : P.epsilonOf hr h₁ = false := by
+  have hs := P.epsilonOf_spec hr h₁
+  rw [(P.lambdaAt_eq_zero_iff_mem_I (-1) h₁).2 hI] at hs
+  cases hb : P.epsilonOf hr h₁ with
+  | false => rfl
+  | true =>
+      rw [hb, show (epsVal true) = 1 from rfl, one_mul] at hs
+      exact absurd hs.symm (P.two_pow_pred_ne_zero hr)
+
+/-- **Memo §5 row 5** (`ℚ₂(√−10)`): `−1` is *not* a unit norm, so `−1 ∉ I`, so `ε = 1`.  Rows 4
+and 5 differ only in this input. -/
+theorem epsilonOf_eq_true_of_notMem_I (hr : 1 ≤ P.r) (h₁ : (-1 : ℤ_[2]ˣ) ∈ P.C)
+    (hI : (-1 : ℤ_[2]ˣ) ∉ P.I) : P.epsilonOf hr h₁ = true := by
+  cases hb : P.epsilonOf hr h₁ with
+  | true => rfl
+  | false =>
+      have hs := P.epsilonOf_spec hr h₁
+      rw [hb, show (epsVal false) = 0 from rfl, zero_mul, Nat.cast_zero] at hs
+      exact absurd ((P.lambdaAt_eq_zero_iff_mem_I (-1) h₁).1 hs) hI
+
+/-- **F4's `MarkedSplitting` from a marked pair.**  The packet §8 splitting `C = ⟨−1⟩ × ⟨u⟩` in the
+weakest form Prop. 8.1's proof consumes (`GQ2/Dyadic/Branches.lean`): in the arithmetic model
+`procyclic` is the *topological* closure of `u ^ ℤ` inside `ℤ₂ˣ`, so neither
+`procyclic = Subgroup.closure {u}` nor `⟨−1, u⟩ = ⊤` may be assumed, and only the two surviving
+facts are asked for.  `negOne_sq` is free here: `(−1)² = 1` in `ℤ₂ˣ`. -/
+def toMarkedSplitting (u : ℤ_[2]ˣ) (hu : u ∈ P.C) (h₁ : (-1 : ℤ_[2]ˣ) ∈ P.C)
+    (proc : Subgroup ↥P.C) (hproc : (⟨u, hu⟩ : ↥P.C) ∈ proc)
+    (hlam : ∀ w ∈ proc, ∃ j : ℤ, P.lambdaAdd w = j • P.lambdaAdd ⟨u, hu⟩)
+    (hdecomp : ∀ c : ↥P.C, ∃ w ∈ proc, c = w ∨ c = (⟨-1, h₁⟩ : ↥P.C) * w) :
+    MarkedSplitting P.datum where
+  negOne := ⟨-1, h₁⟩
+  u := ⟨u, hu⟩
+  procyclic := proc
+  negOne_sq := Subtype.ext (by
+    show ((-1 : ℤ_[2]ˣ)) ^ 2 = 1
+    rw [Units.ext_iff]
+    push_cast
+    ring)
+  u_mem := hproc
+  lambdaAdd_procyclic := hlam
+  exists_decomp := hdecomp
+
+@[simp] theorem toMarkedSplitting_eta (u : ℤ_[2]ˣ) (hu : u ∈ P.C) (h₁ : (-1 : ℤ_[2]ˣ) ∈ P.C)
+    (proc : Subgroup ↥P.C) (hproc : (⟨u, hu⟩ : ↥P.C) ∈ proc)
+    (hlam : ∀ w ∈ proc, ∃ j : ℤ, P.lambdaAdd w = j • P.lambdaAdd ⟨u, hu⟩)
+    (hdecomp : ∀ c : ↥P.C, ∃ w ∈ proc, c = w ∨ c = (⟨-1, h₁⟩ : ↥P.C) * w) :
+    (P.toMarkedSplitting u hu h₁ proc hproc hlam hdecomp).eta = P.lambdaAt u hu := rfl
+
+end MarkedPair
+
+namespace MarkedRecip
+
+variable {R : LocalReciprocity} {K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])}
+  [FiniteDimensional ℚ_[2] K] (B : MarkedRecip R K)
+
+/-- **Packet Prop. 8.1 over a bundle** (memo §5 cross-check (ii); the exhaustiveness input for F1's
+five rows): under the standing *ramified-`i`* hypothesis — spelled in field language, owner answer
+Q4 — a marked field is on the compact row `r = 0`, or on the procyclic row `r ≥ 1` with
+`η = λ(u)` **odd**.  There is no third possibility, which is exactly the row packet §8 removed from
+the draft's assembly.
+
+The composite is `bridge_of_inertiaImage` (the `K(i)` clause in `ker λ` coordinates) feeding F4's
+`MarkedSplitting.level_zero_or_not_even_eta`.  `hproc` is the per-field fact `u ∈ 1 + 4ℤ₂` on the
+procyclic factor, which the AS lane discharges. -/
+theorem level_zero_or_not_even_eta_of_ramified (hsurj : Function.Surjective B.nu_ur)
+    (S : MarkedSplitting (B.toMarkedPair hsurj).datum)
+    (hproc : ∀ w ∈ S.procyclic,
+      PadicInt.toZModPow 2 (((CK (K := K)).subtype w : ℤ_[2]ˣ) : ℤ_[2]) = 1)
+    (δi : AlgebraicClosure ℚ_[2]) (hδi : δi ^ 2 = -1)
+    (hram : ¬ HasEqualNormValueGroups K δi) :
+    B.r = 0 ∨ (1 ≤ B.r ∧ ¬ Even S.eta) :=
+  S.level_zero_or_not_even_eta (fun hr => S.exists_eps hr) ((CK (K := K)).subtype) hproc
+    (fun h => B.bridge_of_inertiaImage hsurj h δi hδi) hram
+
+end MarkedRecip
+
+end Instances
+
 end
 
 end GQ2.Dyadic
