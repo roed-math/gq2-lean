@@ -20,7 +20,10 @@ Lean (symbolic in `r ≥ 1`, `η ∈ ℤ₂ˣ`, on ramified simples), replacing 
 diagnostic status. This memo designs that theorem: statement, proof route, missing machinery,
 ticket plan, feasibility spike, timing.
 
-*(Sections are committed incrementally; this header commit fixes scope.)*
+**Status: complete.** Statement designed and spike-elaborated verbatim (§5, zero errors, one
+intentional `sorry`); two of the four structural sub-lemmas plus the slice mechanism's two
+atomic laws proved in scratch at std-3; tickets NC2–NC6 sized (§4); recommendation: prove now
+(§6).
 
 ---
 
@@ -163,8 +166,8 @@ noncomputable def npcQ0 (dat : FactorSet C V) (s : C) (η : ℤ_[2]) (c₀ : V) 
 
 -- the Gate-E marking: σ ↦ s, τ ↦ u free; wild letters trivial-lower (N.py:891),
 -- offsets c₀, c₁ on x₀, x₁, none on the boundary letter x₂ (primal_names, N.py:270)
-noncomputable def npcMarking (s u : C) (c₀ c₁ : V) :
-    Marking 2 (CentExt (kappa0Cocycle dat hdat)) :=
+noncomputable def npcMarking (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (s u : C) (c₀ c₁ : V) : Marking 2 (CentExt (kappa0Cocycle dat hdat)) :=
   Marking.ofLetters ((Sd.mk 0 s, 0)) ((Sd.mk 0 u, 0))
     ![((Sd.mk c₀ 1, 0)), ((Sd.mk c₁ 1, 0)), ((Sd.mk 0 1, 0))]
 ```
@@ -240,7 +243,7 @@ Throughout: `E = CentExt (kappa0Cocycle dat hdat)`, elements written `((v, c), z
 All facts below were verified by hand against these definitional rewrites; each is a
 `simp`/`rw` computation over the listed simp set.
 
-### 3.0 The three structural sub-lemmas (new, small)
+### 3.0 The four structural sub-lemmas (new, small)
 
 * **(a) The κ-free `C`-line**: `c ↦ ((0,c),0)` is an injective hom `C →* E`
   (κ vanishes: `f_zero_left` + `m_zero`), so σ/τ-words evaluate with fiber 0 and
@@ -396,7 +399,7 @@ Scratch file (uncommitted, per constraints): `NCSpike.lean`, reproduced in full 
 Appendix. Checked with `lake env lean` against this worktree's built cache
 (toolchain v4.31.0-rc2, `dyadic` head `337647f`).
 
-### 5.1 Result: everything elaborates; three of the four sub-lemmas are proved
+### 5.1 Result: everything elaborates; (c), (d) and (b)'s atomic laws are proved
 
 | item | status |
 |---|---|
@@ -408,9 +411,11 @@ Appendix. Checked with `lake env lean` against this worktree's built cache
 | slice product law + slice inversion law — the §3.0(b) mechanism's two atomic ingredients | **PROVED** (4 ln each, on a typed `sliceElt`) |
 | axiom check on the proved lemmas | **exactly `[propext, Classical.choice, Quot.sound]`** (std-3) |
 
-Final run: zero errors, one `sorry` warning (the headline body). The §3.7
-missing-machinery list therefore shrinks to: the slice kit as named lemmas, the `y^k`
-power-law induction, and assembly.
+Final run: zero errors, one `sorry` warning (the headline body). Not probed: sub-lemma (a)
+(the κ-free `C`-line hom — a 5-line `MonoidHom` construction) and (b)'s commutator/
+conjugation composites (their two atomic ingredients are proved; the composites are NC2's
+named-lemma kit). The §3.7 missing-machinery list therefore shrinks to: the slice kit as
+named lemmas, the `y^k` power-law induction, and assembly.
 
 ### 5.2 What the spike settles
 
