@@ -820,12 +820,28 @@ theorem normUnitsK_bot (x : (↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂))ˣ) :
   rw [hx, Algebra.norm_algebraMap, IntermediateField.finrank_bot, pow_one]
   rfl
 
-/-- Norms of elements of `⊥` are norms of `2`-adic scalars (the `⊥`-transport step, verbatim the
-opening of `not_hasEqualNormValueGroups_sqrt_two`). -/
+/-- **The `⊥`-transport of spectral norms**: an element of `⊥` has the norm of the `2`-adic scalar
+it comes from (the step that opens `not_hasEqualNormValueGroups_sqrt_two`, here with the scalar
+named). -/
+theorem norm_coe_bot (z : ↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂)) :
+    ‖(z : ℚ̄₂)‖ = ‖(IntermediateField.botEquiv ℚ_[2] ℚ̄₂ z : ℚ_[2])‖ := by
+  set c := IntermediateField.botEquiv ℚ_[2] ℚ̄₂ z with hc
+  have hz : z = algebraMap ℚ_[2] (↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂)) c := by
+    rw [hc, ← IntermediateField.botEquiv_symm, AlgEquiv.symm_apply_apply]
+  rw [hz]
+  show ‖(algebraMap ℚ_[2] ℚ̄₂ c)‖ = ‖c‖
+  rw [norm_algebraMap' (𝕜' := ℚ̄₂)]
+
+/-- Norms of elements of `⊥` are norms of `2`-adic scalars. -/
 theorem exists_base_norm (z : ↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂)) :
-    ∃ c : ℚ_[2], ‖(z : ℚ̄₂)‖ = ‖c‖ := by
-  obtain ⟨c, hc⟩ := IntermediateField.mem_bot.1 z.2
-  exact ⟨c, by rw [← hc, norm_algebraMap' (𝕜' := ℚ̄₂)]⟩
+    ∃ c : ℚ_[2], ‖(z : ℚ̄₂)‖ = ‖c‖ :=
+  ⟨_, norm_coe_bot z⟩
+
+/-- Unit form of `norm_coe_bot`: the spectral norm of a unit of `⊥` is the `2`-adic norm of its
+`botUnitsEquiv`-image. -/
+theorem norm_coe_botUnits (x : (↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂))ˣ) :
+    ‖((x : ↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂)) : ℚ̄₂)‖ = ‖((botUnitsEquiv x : ℚ_[2]ˣ) : ℚ_[2])‖ :=
+  norm_coe_bot _
 
 theorem norm_two_alg : ‖(2 : ℚ̄₂)‖ = ‖(2 : ℚ_[2])‖ := by
   rw [← map_ofNat (algebraMap ℚ_[2] ℚ̄₂) 2, norm_algebraMap' (𝕜' := ℚ̄₂)]
@@ -885,6 +901,30 @@ theorem twoBot_max (z : ↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂)) (hz : z �
   rw [twoBot_coe, norm_two_alg, hc]
   exact norm_le_norm_two_of_lt_one hc0 (hc ▸ h)
 
+/-- **The `ℚ₂ˣ = ⟨2⟩ × ℤ₂ˣ` decomposition, transported to `⊥`**: every unit of `⊥` is a
+spectral-norm-one unit times a power of the uniformizer `2`, with the exponent read off by `v₂`.
+This is what makes the `ν`-agreement clause (iii) of memo §3 provable rather than hypothesized:
+clause `(b_K)` pins `ν ∘ rec_K` exactly on units and uniformizers, and at `⊥` that is all of
+`Kˣ`. -/
+theorem exists_bot_decomp (x : (↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂))ˣ) :
+    ∃ u : (↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂))ˣ,
+      x = u * twoBot ^ (v2 (botUnitsEquiv x)) ∧
+        ‖((u : ↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂)) : ℚ̄₂)‖ = 1 := by
+  set q := botUnitsEquiv x with hq
+  refine ⟨botUnitsEquiv.symm (q * uniformizer ^ (-(v2 q))), ?_, ?_⟩
+  · refine botUnitsEquiv.injective ?_
+    rw [map_mul, map_zpow, MulEquiv.apply_symm_apply, botUnitsEquiv_twoBot, mul_assoc,
+      ← zpow_add, neg_add_cancel, zpow_zero, mul_one]
+  · rw [norm_coe_botUnits, MulEquiv.apply_symm_apply]
+    have hq0 : ((q : ℚ_[2])) ≠ 0 := q.ne_zero
+    rw [Units.val_mul, norm_mul, Units.val_zpow_eq_zpow_val, uniformizer_val,
+      Padic.norm_eq_zpow_neg_valuation hq0, norm_zpow,
+      Padic.norm_eq_zpow_neg_valuation (two_ne_zero : (2 : ℚ_[2]) ≠ 0)]
+    have hv2 : (2 : ℚ_[2]).valuation = 1 := by exact_mod_cast Padic.valuation_p (p := 2)
+    rw [hv2, ← zpow_mul, show (v2 q) = (q : ℚ_[2]).valuation from rfl,
+      ← zpow_add₀ (by norm_num : ((2 : ℕ) : ℝ) ≠ 0)]
+    norm_num
+
 namespace MarkedRecip
 
 variable {R : LocalReciprocity} (B : MarkedRecip R (⊥ : IntermediateField ℚ_[2] ℚ̄₂))
@@ -923,6 +963,32 @@ theorem bot_level_eq_zero : B.r = 0 := by
 /-- `ν_ur` is surjective at `⊥` — no uniformizer hypothesis needed, since the level is `0`. -/
 theorem bot_surjective_nu_ur : Function.Surjective B.nu_ur :=
   B.surjective_nu_ur_of_level_zero B.bot_level_eq_zero
+
+/-- `ν_ur(rec_K x) = ofAdd(−v₂ x)` at `⊥`: B5's clause (b) recovered from the `K`-side clause
+`(b_K)` plus the `⊥`-decomposition. -/
+theorem bot_nu_ur_recip (x : (↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂))ˣ) :
+    B.nu_ur (B.recip x) = Multiplicative.ofAdd ((-(v2 (botUnitsEquiv x)) : ℤ) : ℤ_[2]) := by
+  obtain ⟨u, hx, hu⟩ := exists_bot_decomp x
+  exact B.nu_ur_recip_of_decomp x u twoBot _ hx hu twoBot_norm_lt_one twoBot_max
+
+/-- **§3 clause (iii)**: the `K`-side unramified coordinate at `⊥` *is* B5's, through the
+abelianized inclusion.  Both are continuous homs agreeing on the dense `rec`-image
+(`bot_nu_ur_recip` versus B5's `nu_ur_recip`, matched by clause (i)). -/
+theorem bot_nu_ur_eq (g : GalKab (⊥ : IntermediateField ℚ_[2] ℚ̄₂)) :
+    B.nu_ur g = R.nu_ur (inclAbK ⊥ g) := by
+  refine B.nu_ur_eq_of_agree_on_recip (fun x => ?_) g
+  rw [B.bot_nu_ur_recip x, B.bot_recip x, R.nu_ur_recip]
+
+/-- **The memo §3 regression, assembled.**  At `K = ⊥` a marked bundle over `R` reproduces `R`:
+the reciprocity map through the rank-one norm identification, the marked level `r = 0` (type `L`:
+`I = C`, draft §2), and the unramified coordinate.  Read at `R := GQ2.localReciprocity` this is
+the merge-gate-8 check that AX3 *extends* B5 rather than forking it (memo §6, owner answer Q6). -/
+theorem markedRecip_bot_reduces :
+    (∀ x : (↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂))ˣ,
+        inclAbK ⊥ (B.recip x) = R.recip (botUnitsEquiv x)) ∧
+      B.r = 0 ∧
+      ∀ g : GalKab (⊥ : IntermediateField ℚ_[2] ℚ̄₂), B.nu_ur g = R.nu_ur (inclAbK ⊥ g) :=
+  ⟨B.bot_recip, B.bot_level_eq_zero, B.bot_nu_ur_eq⟩
 
 end MarkedRecip
 
