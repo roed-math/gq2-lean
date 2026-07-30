@@ -348,6 +348,21 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-30 (owner): R3(a) + dispatch authorizations EXECUTED.** Model policy per the
+  owner's request: **fable** for the hard seams (MC3, MC4, NC1 now; HM6 + S4.4 queued),
+  **opus** for well-specified fills (S4.3, WL-recon) — the boards' original model-column
+  philosophy restored now that fable capacity is available; commit-early discipline
+  mandatory in every fable prompt. Dispatched HERE: **MC3** (fable, mc worktree
+  dyadic-mc — MC-M: Smith–Witt classification + S1/S2 lifting + binder-consuming assembly;
+  owns MarkedCore/M.lean; reserved names `m*`/`_m`), **MC4** (fable, ww worktree NEW branch
+  dyadic-mc4 — MC-N mirror; owns MarkedCore/N.lean; reserved names `n*`/`_n`; the
+  (ℤ/2×ℤ₂²)⋊GL₂(ℤ₂) stabilizer per MC1 §3), **NC1** (fable, lg worktree NEW branch
+  dyadic-nc1 — the R3(a) commission: design memo + spike for the corrected-L_c
+  universal-second-jet theorem; owns docs/dyadic/nc-design.md), **WL-recon** (opus, NEW
+  worktree gq2-dyadic-wl — owns docs/dyadic/wl-recon.md). **HM6** (fable) queued for the
+  first freed slot: the rank-four core↔core mixing spike (memo §V7; N-side q-direction
+  verified, M-side 24 ansatz failures — the genuinely open seam; a green result removes one
+  G-Lab obligation and would discharge the MCoreMix/NCoreMix binders MC3/MC4 are consuming).
 - 2026-07-30 (orchestrator, HM5 outcomes — **HM LANE CLOSED**): merged, import registered;
   audit green (3411 jobs, census 11). 814 ln / 52 decls + 18 stress examples, ALL ≤ std-3 —
   measured: NO B3c (chiM/chiN are combinatorial closed forms; dyadicOrientation never
@@ -677,8 +692,8 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 |---|---|---|---|---|---|
 | MC1 | design memo: rank-four frames, Smith–Witt stabilizer generators, lifting strategy | opus (was fable) | `docs/dyadic/mc-design.md` | recon/mc-survey | **done 2026-07-29** (a2ed4c5 → merged a296a7a; 876-ln memo: closed-form frames+orientations for both cores (M = ℚ₂ re-index under 2↦m, N = new no-forced-row frame), 7/6 Nielsen families, **three-strata lifting** (S1 Nielsen ✓ / S2 via B8 / S3 mixing = Labute content → `MMixHypothesis`/`NMixHypothesis` binders), G-Lab sheet rec = stay parametrized; ⚠ torsion-premise correction + compact-M CoV gap + packet-§14 criterion flag — see log; owner Qs 1–6 in memo §9) |
 | MC2 | presented cores D_P, characters, abelian 4-frames | opus | `GQ2/Dyadic/MarkedCore/Cores.lean` | MC1, F1 | **done 2026-07-29** (7ccb3b2 → merged, import registered; 1907 ln, 0 sorries, 30 headline decls std-3 — **B8 threaded as explicit `PeripheralCyclotomicAction` hypothesis, census axiom NOT consumed** (enters only at MC3/MC4); audit green 3394 jobs; **memo closed forms verified EXACTLY incl. uniqueness** (no-Hensel confirmed); α-independent cup Gram both cores; mod-4 `diagCoeff` rule + `IsCupCocycle` layer = the reusable exponent asset; both §10 assets landed (`IsFreePro2Pair`, `peripheralTriple_scaling` ×4 instantiations); deviations + 2 infra gaps + stale-comment find in log) |
-| MC3 | **MC-M**: classification + lifting for `M_α` (uniform in α) | fable | `GQ2/Dyadic/MarkedCore/M.lean` | MC2 | pending |
-| MC4 | **MC-N**: classification + lifting for `N_α` (uniform in α) | fable | `GQ2/Dyadic/MarkedCore/N.lean` | MC2 | pending |
+| MC3 | **MC-M**: classification + lifting for `M_α` (uniform in α) | fable | `GQ2/Dyadic/MarkedCore/M.lean` | MC2 | **dispatched 2026-07-30 (FABLE)** |
+| MC4 | **MC-N**: classification + lifting for `N_α` (uniform in α) | fable | `GQ2/Dyadic/MarkedCore/N.lean` | MC2 | **dispatched 2026-07-30 (FABLE)** |
 | MC5 | handles + `MarkedCoreCertificate` + marked-matching reduction | opus | `GQ2/Dyadic/MarkedCore/Certificate.lean` | MC3, MC4 | pending |
 
 - **MC1**: starting from `recon/mc-survey.md`, write per-core: the abelianization
