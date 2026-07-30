@@ -744,7 +744,189 @@ theorem bridge_of_inertiaImage (hsurj : Function.Surjective B.nu_ur) :
   exact h ⟨chiCycKAb K g, ⟨g, rfl⟩⟩
     (((B.toMarkedPair hsurj).mem_inertiaImage_iff _).2 ⟨g, hg, rfl⟩)
 
+/-! ### `ν_ur` from a uniformizer decomposition, and the density principle -/
+
+/-- `ν_ur(rec_K(u · π^n)) = ofAdd(−n)` for `u` a unit and `π` a uniformizer: the geometric
+normalization, on the part of `Kˣ` where clause `(b_K)` pins it. -/
+theorem nu_ur_recip_of_decomp (x u π : (↥K)ˣ) (n : ℤ) (hx : x = u * π ^ n)
+    (hu : ‖((u : ↥K) : AlgebraicClosure ℚ_[2])‖ = 1)
+    (hπ : ‖((π : ↥K) : AlgebraicClosure ℚ_[2])‖ < 1)
+    (hmax : ∀ z : ↥K, z ≠ 0 → ‖(z : AlgebraicClosure ℚ_[2])‖ < 1 →
+      ‖(z : AlgebraicClosure ℚ_[2])‖ ≤ ‖((π : ↥K) : AlgebraicClosure ℚ_[2])‖) :
+    B.nu_ur (B.recip x) = Multiplicative.ofAdd ((-n : ℤ) : ℤ_[2]) := by
+  rw [hx, map_mul, map_mul, B.nu_ur_recip_unit u hu, one_mul, map_zpow, map_zpow,
+    B.nu_ur_recip_uniformizer π hπ hmax]
+  refine Multiplicative.toAdd.injective ?_
+  show (n • ((-1 : ℤ) : ℤ_[2])) = ((-n : ℤ) : ℤ_[2])
+  rw [zsmul_eq_mul]
+  push_cast
+  ring
+
+/-- **The density principle for `ν`-agreement** (memo §3, step (iii)): two continuous homs out of
+`G_K^{ab}` that agree on the `rec_K`-image agree everywhere, because `rec_K` has dense image and
+`Multiplicative ℤ₂` is Hausdorff.  This is the reusable half of the §3 clause (iii); the
+`K = ⊥`-specific input is `bot_nu_ur_recip` below. -/
+theorem nu_ur_eq_of_agree_on_recip
+    (h : ∀ x : (↥K)ˣ, B.nu_ur (B.recip x) = R.nu_ur (inclAbK K (B.recip x)))
+    (g : GalKab K) : B.nu_ur g = R.nu_ur (inclAbK K g) := by
+  have hext : ⇑B.nu_ur = fun g => R.nu_ur (inclAbK K g) :=
+    Continuous.ext_on B.denseRange_recip B.continuous_nu_ur
+      (R.continuous_nu_ur.comp (continuous_inclAbK K)) (by rintro _ ⟨x, rfl⟩; exact h x)
+  exact congrFun hext g
+
 end MarkedRecip
+
+/-! ## §4 The `ℚ₂` compatibility regression (memo §3)
+
+Merge-gate-8-style check that the general-`K` interface *reproduces B5 at `K = ⊥`*.  Following
+the B5 stress-test discipline, every statement is over an **arbitrary** `R : LocalReciprocity`,
+so this file stays axiom-free (`#print axioms` = the standard three); a consumer that has the
+census axiom in scope reads the results at `R := GQ2.localReciprocity` with no change of
+statement.  That is also why the axiom cannot be *mentioned* here: `GQ2/Foundations/Axioms.lean`
+imports this file at the flip.
+
+What is checked (memo §3):
+
+* **(i)** `norm_compat` *is* B5's reciprocity clause at `⊥`, because `Algebra.norm ℚ_[2]` on the
+  rank-one `⊥` is the canonical identification `botUnitsEquiv` (`normUnitsK_bot`).  Memo §8 Q7
+  asked for the Mathlib name of that identification: it is `Algebra.norm_algebraMap` together
+  with `IntermediateField.finrank_bot`.
+* **(ii)** the marked level is forced: `B.r = 0`.  `2 ∈ ⊥` satisfies the spectral uniformizer
+  spec (`twoBot_norm_lt_one`, `twoBot_max`), so `ν(rec 2̄) = −1` — a *unit* value — while
+  `χ(rec 2̄) = 1` by B5 clause (c) at the uniformizer, so `nu_ker_chi_le` forces `2^r ∣ −1`.
+  This is the marked-data statement that `ℚ₂` is of type `L` (`r = 0`, `I = C`, draft §2), and it
+  is simultaneously the memo §7 R8 guard: a vacuously-stated uniformizer clause cannot prove it.
+* **(iii)** `ν`-agreement `B.nu_ur = R.nu_ur ∘ inclAbK ⊥`, from (i)+(ii) plus the density
+  principle `MarkedRecip.nu_ur_eq_of_agree_on_recip`. -/
+
+section Bot
+
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
+
+/-- The canonical identification `(↥⊥)ˣ ≃* ℚ₂ˣ` — the `botUnitsEquiv` of memo §3. -/
+def botUnitsEquiv : (↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂))ˣ ≃* ℚ_[2]ˣ :=
+  Units.mapEquiv (IntermediateField.botEquiv ℚ_[2] ℚ̄₂).toRingEquiv.toMulEquiv
+
+/-- **The rank-one norm identification** (memo §3(i), Q7's Mathlib-name question): on `⊥` the
+field norm `N_{⊥/ℚ₂}` *is* `botUnitsEquiv`, since `[⊥ : ℚ₂] = 1`. -/
+theorem normUnitsK_bot (x : (↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂))ˣ) :
+    normUnitsK ⊥ x = botUnitsEquiv x := by
+  refine Units.ext ?_
+  have hx : ((x : ↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂)))
+      = algebraMap ℚ_[2] (↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂))
+        (IntermediateField.botEquiv ℚ_[2] ℚ̄₂ (x : ↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂))) := by
+    rw [← IntermediateField.botEquiv_symm, AlgEquiv.symm_apply_apply]
+  show Algebra.norm ℚ_[2] ((x : ↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂))) = _
+  rw [hx, Algebra.norm_algebraMap, IntermediateField.finrank_bot, pow_one]
+  rfl
+
+/-- Norms of elements of `⊥` are norms of `2`-adic scalars (the `⊥`-transport step, verbatim the
+opening of `not_hasEqualNormValueGroups_sqrt_two`). -/
+theorem exists_base_norm (z : ↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂)) :
+    ∃ c : ℚ_[2], ‖(z : ℚ̄₂)‖ = ‖c‖ := by
+  obtain ⟨c, hc⟩ := IntermediateField.mem_bot.1 z.2
+  exact ⟨c, by rw [← hc, norm_algebraMap' (𝕜' := ℚ̄₂)]⟩
+
+theorem norm_two_alg : ‖(2 : ℚ̄₂)‖ = ‖(2 : ℚ_[2])‖ := by
+  rw [← map_ofNat (algebraMap ℚ_[2] ℚ̄₂) 2, norm_algebraMap' (𝕜' := ℚ̄₂)]
+
+theorem norm_two_padic_lt_one : ‖(2 : ℚ_[2])‖ < 1 := by
+  rw [show ((2 : ℚ_[2])) = ((2 : ℕ) : ℚ_[2]) by push_cast; ring]
+  rw [show ((2 : ℕ) : ℚ_[2]) = ((2 : ℕ) : ℚ_[2]) from rfl]
+  have := Padic.norm_p (p := 2)
+  rw [show ((2 : ℕ) : ℚ_[2]) = ((2 : ℚ_[2])) by push_cast; ring] at this ⊢
+  rw [this]
+  norm_num
+
+/-- Discreteness of the `2`-adic value group: a scalar of norm `< 1` has norm at most `‖2‖`. -/
+theorem norm_le_norm_two_of_lt_one {c : ℚ_[2]} (hc : c ≠ 0) (h : ‖c‖ < 1) :
+    ‖c‖ ≤ ‖(2 : ℚ_[2])‖ := by
+  rw [Padic.norm_eq_zpow_neg_valuation hc] at h ⊢
+  rw [Padic.norm_eq_zpow_neg_valuation (two_ne_zero : (2 : ℚ_[2]) ≠ 0)]
+  have hv2 : (2 : ℚ_[2]).valuation = 1 := by exact_mod_cast Padic.valuation_p (p := 2)
+  rw [hv2]
+  have h0 : ((2 : ℕ) : ℝ) ^ (-c.valuation) < ((2 : ℕ) : ℝ) ^ (0 : ℤ) := by simpa using h
+  have hlt := (zpow_lt_zpow_iff_right₀ (by norm_num : (1 : ℝ) < ((2 : ℕ) : ℝ))).1 h0
+  refine zpow_le_zpow_right₀ (by norm_num : (1 : ℝ) ≤ ((2 : ℕ) : ℝ)) ?_
+  omega
+
+/-- The uniformizer `2` of `⊥`, i.e. B5's `GQ2.uniformizer` transported through
+`botUnitsEquiv`. -/
+def twoBot : (↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂))ˣ := botUnitsEquiv.symm uniformizer
+
+@[simp] theorem botUnitsEquiv_twoBot : botUnitsEquiv twoBot = uniformizer :=
+  botUnitsEquiv.apply_symm_apply _
+
+theorem twoBot_val : ((twoBot : ↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂)))
+    = (2 : ↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂)) := by
+  show (IntermediateField.botEquiv ℚ_[2] ℚ̄₂).symm (uniformizer : ℚ_[2]) = _
+  rw [IntermediateField.botEquiv_symm]
+  rfl
+
+@[simp] theorem twoBot_coe :
+    ((twoBot : ↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂)) : ℚ̄₂) = (2 : ℚ̄₂) := by
+  rw [twoBot_val]; rfl
+
+theorem twoBot_norm_lt_one :
+    ‖((twoBot : ↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂)) : ℚ̄₂)‖ < 1 := by
+  rw [twoBot_coe, norm_two_alg]
+  exact norm_two_padic_lt_one
+
+/-- `2` has **maximal** norm among the elements of `⊥` of norm `< 1` — the second half of the B13
+uniformizer spec, so `MarkedRecip.nu_ur_recip_uniformizer` is *not* vacuous at `⊥` (memo §7 R8). -/
+theorem twoBot_max (z : ↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂)) (hz : z ≠ 0) (h : ‖(z : ℚ̄₂)‖ < 1) :
+    ‖(z : ℚ̄₂)‖ ≤ ‖((twoBot : ↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂)) : ℚ̄₂)‖ := by
+  obtain ⟨c, hc⟩ := exists_base_norm z
+  have hz0 : (z : ℚ̄₂) ≠ 0 := fun h0 => hz (Subtype.ext h0)
+  have hc0 : c ≠ 0 := by
+    intro h0
+    rw [h0, norm_zero] at hc
+    exact hz0 (norm_eq_zero.1 hc)
+  rw [twoBot_coe, norm_two_alg, hc]
+  exact norm_le_norm_two_of_lt_one hc0 (hc ▸ h)
+
+namespace MarkedRecip
+
+variable {R : LocalReciprocity} (B : MarkedRecip R (⊥ : IntermediateField ℚ_[2] ℚ̄₂))
+
+/-- **§3 clause (i)**: at `K = ⊥`, `norm_compat` reads as B5's reciprocity map under the canonical
+identification `(↥⊥)ˣ ≃* ℚ₂ˣ`.  Nothing is proved beyond `normUnitsK_bot`; that is the point of
+the check. -/
+theorem bot_recip (x : (↥(⊥ : IntermediateField ℚ_[2] ℚ̄₂))ˣ) :
+    inclAbK ⊥ (B.recip x) = R.recip (botUnitsEquiv x) := by
+  rw [B.norm_compat x, normUnitsK_bot]
+
+/-- `ν(rec 2̄) = −1` at `⊥`: the uniformizer clause, applied to the *exhibited* uniformizer. -/
+theorem bot_nu_ur_recip_twoBot :
+    B.nu_ur (B.recip twoBot) = Multiplicative.ofAdd ((-1 : ℤ) : ℤ_[2]) :=
+  B.nu_ur_recip_uniformizer twoBot twoBot_norm_lt_one twoBot_max
+
+/-- `χ(rec 2̄) = 1` at `⊥`: B5 clause (c) at the uniformizer, transported by clause (i). -/
+theorem bot_chiCycKAb_recip_twoBot : chiCycKAb ⊥ (B.recip twoBot) = 1 := by
+  rw [← chiCycAb_inclAbK, B.bot_recip, botUnitsEquiv_twoBot, R.chiCyc_recip_uniformizer]
+
+/-- **§3 clause (ii): `ℚ₂` is of type `L`.**  `rec 2̄` lies in `ker χ` and has `ν`-value the *unit*
+`−1`, so `nu_ker_chi_le` gives `2^r ∣ −1` in `ℤ₂` and the marked level collapses.  Reducing mod 2
+is the whole argument. -/
+theorem bot_level_eq_zero : B.r = 0 := by
+  by_contra hr
+  obtain ⟨y, hy⟩ := B.nu_ker_chi_le (B.recip twoBot) B.bot_chiCycKAb_recip_twoBot
+  rw [B.bot_nu_ur_recip_twoBot] at hy
+  have hy' : ((-1 : ℤ) : ℤ_[2]) = 2 ^ B.r * y := hy
+  have h2 : ((-1 : ℤ) : ZMod 2) = (2 : ZMod 2) ^ B.r * PadicInt.toZMod y := by
+    have h := congrArg PadicInt.toZMod hy'
+    rwa [map_intCast, map_mul, map_pow, map_ofNat] at h
+  rw [show ((2 : ZMod 2)) = 0 from by decide, zero_pow hr, zero_mul] at h2
+  push_cast at h2
+  exact absurd h2 (by decide)
+
+/-- `ν_ur` is surjective at `⊥` — no uniformizer hypothesis needed, since the level is `0`. -/
+theorem bot_surjective_nu_ur : Function.Surjective B.nu_ur :=
+  B.surjective_nu_ur_of_level_zero B.bot_level_eq_zero
+
+end MarkedRecip
+
+end Bot
 
 end
 
