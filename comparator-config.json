@@ -18,6 +18,7 @@
         "GQ2.peripheralCyclotomicAction",
         "GQ2.relativeStiefelWhitney_dyadic",
         "GQ2.tameQuotient",
+        "GQ2.orientedTameQuotientAt",
         "GQ2.hilbertSymbol_normCriterion_finiteDyadic"
     ],
     "enable_nanoda": false

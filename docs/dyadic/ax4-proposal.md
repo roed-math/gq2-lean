@@ -725,3 +725,14 @@ literature. **Recommendation: keep them separate (+1 → 11).**  Recorded as **Q
   every K-side boundary statement; it is *not* recommended (the input is published and the
   campaign's headline theorem should be unconditional), but it is the same option the owner took
   for the rank-four Demushkin classification.
+
+---
+
+**Postscript (orchestrator, 2026-07-29/30): LANDED.** Owner sign-off at gate G-AX (answers
+Q1–Q7 on the board; Q8 moot): one separate axiom; DyadicUnitFiltration parametrization;
+self-contained W, compatibility clause omitted; F3 split ratified; bundle file via ticket
+AX4-b (`GQ2/Dyadic/OrientedTameBundle.lean`, merged — K = ⊥ regression computes f); no
+Ẑ-valued tame character (owner: revisit only if an issue). Census flip 10 → 11 committed as
+**B10-K** `GQ2.orientedTameQuotientAt`; citation targets approved with **PDF verification
+pending**. Note: consumers of this axiom also print B5 + B5-K (the type mentions
+`markedRecipAt` — inherent to §2.3's parametrization).

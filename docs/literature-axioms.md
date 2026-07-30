@@ -472,6 +472,7 @@ half-torsor count; 8.9 (closed recursion (136)–(142)) → Thm 4.2.
 | B8  Galois action on `π₁(ℙ¹∖{0,1,∞})` | **Stix [8] §3.3 + Def 37** (Deligne MSRI 16: classical origin) | ✅ **verified** | ✅ axiom (bundle) |
 | B9  relative Stiefel–Whitney (`relativeStiefelWhitney_dyadic`; **restated 2026-07-24**, `evensKahn_dyadic` now the derived theorem) | **Evens [9] §§4–5 Thm 1**; **Kahn [10] Thm 1–3**; **Kozlowski [11] Thm 1.1** (Guillot [6]: background only) | ✅ **verified** | 🟡 axiom (SW classes in-repo) |
 | B10 tame quotient of `G_ℚ₂` (**oriented**, B10′ since 2026-07-06) | **NSW (7.5.3) (Iwasawa)** with (7.5.2); Serre *LF* Ch. IV (wild pro-`p`); orientation clauses: **Serre *LF* XIII §4 Prop. 13 + cor.** (units ↦ inertia, prime ↦ Frobenius) + **Neukirch ANT V (1.2)** / NSW (7.1.2)(i) (units are unramified norms) | ✅ **verified** | ✅ axiom (bundle) |
+| B10-K oriented tame quotient of `G_K` at `q_K` (AX4) | **NSW Ch. VII §7.5 (7.5.3)/(7.5.2)** (Iwasawa); Serre *LF* **Ch. IV**; **Ch. XIII §4 Prop. 13 + cor.** | ⏳ **targets owner-approved 2026-07-29; PDFs unverified** | ✅ axiom (bundle; **added 2026-07-29**, census 10→11, gate G-AX) |
 | — RZ Hopfian | RZ [4], Prop. 2.5.2 | **confirmed** | ✅ **proved** |
 | — Schur–Zassenhaus | Mathlib | — | ✅ **proved** |
 | — B-Lab (`Γ_R` instance of B3: `D_R ≅ D₀`) | **not cited** — declined as an axiom 2026-07-25, proved in-repo instead (two-central tower + Hopfian) | — | ✅ **proved** (2026-07-26, `GQ2.Roe.Labute.bLab`, std-3; see the B3 addendum) |

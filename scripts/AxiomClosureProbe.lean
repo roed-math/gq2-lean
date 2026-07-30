@@ -19,7 +19,7 @@ import GQ2.Foundations.Axioms
 
 open Lean
 
-/-- The ten census axioms, in `GQ2/Foundations/Axioms.lean` order. -/
+/-- The eleven census axioms, in `GQ2/Foundations/Axioms.lean` order. -/
 def censusAxioms : List Name := [
   `GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated,
   `GQ2.Foundations.absGalQ2_localEulerCharacteristic,
@@ -30,6 +30,7 @@ def censusAxioms : List Name := [
   `GQ2.peripheralCyclotomicAction,
   `GQ2.relativeStiefelWhitney_dyadic,
   `GQ2.tameQuotient,
+  `GQ2.orientedTameQuotientAt,
   `GQ2.hilbertSymbol_normCriterion_finiteDyadic]
 
 def moduleOf (env : Environment) (c : Name) : Name :=

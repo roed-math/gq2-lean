@@ -58,6 +58,7 @@ status:
     - "GQ2.peripheralCyclotomicAction"                              # B8
     - "GQ2.relativeStiefelWhitney_dyadic"                                        # B9
     - "GQ2.tameQuotient"                                            # B10
+    - "GQ2.orientedTameQuotientAt"                                  # B10-K (AX4)
     - "GQ2.hilbertSymbol_normCriterion_finiteDyadic"                # B11a
   main_results:
     - declaration: "GQ2.main_presentation_literal"

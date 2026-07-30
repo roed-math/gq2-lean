@@ -38,7 +38,7 @@ so it reports transitive dependencies and covers the whole library, including `p
     lake build GQ2 && lake env lean GQ2/AxiomLedger.lean
 
 Prints the ledger to stdout.  This file is intentionally **not** imported by `GQ2.lean`, so it never
-runs during `lake build GQ2`.  If the axiom census (currently ten) ever changes, update `bAxioms`
+runs during `lake build GQ2`.  If the axiom census (currently eleven) ever changes, update `bAxioms`
 below (and `scripts/check_axioms.sh`'s `EXPECTED_AXIOMS`, same commit).
 -/
 
@@ -59,6 +59,7 @@ def bAxioms : List (Name × String) :=
   , (``GQ2.peripheralCyclotomicAction,                            "B8")
   , (``GQ2.relativeStiefelWhitney_dyadic,                         "B9")
   , (``GQ2.tameQuotient,                                          "B10")
+  , (``GQ2.orientedTameQuotientAt,                                "B10-K")
   , (``GQ2.hilbertSymbol_normCriterion_finiteDyadic,              "B11a") ]
 
 /-- The three axioms every classical theorem is allowed to use. -/

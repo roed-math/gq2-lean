@@ -15,6 +15,8 @@ public import GQ2.Orientation
 public import GQ2.TameQuotient
 public import GQ2.TraceForm
 public import GQ2.Dyadic.MarkedRecipBundle
+public import GQ2.UnitFiltration
+public import GQ2.Dyadic.OrientedTameBundle
 
 @[expose] public section
 
@@ -27,7 +29,7 @@ declarations and **nothing else**, so that its transitive imports are exactly th
 vocabulary an auditor must read.  Each axiom represents a published mathematical input used by
 the paper; the paper-specific propositions and theorems are proved elsewhere in the library.
 
-The current census contains ten axioms:
+The current census contains eleven axioms:
 
 * **B1** `Foundations.absGalQ2_isTopologicallyFinitelyGenerated` — topological finite generation
   of `G_ℚ₂`.
@@ -43,6 +45,8 @@ The current census contains ten axioms:
 * **B9** `relativeStiefelWhitney_dyadic` — the degree-at-most-two relative Stiefel–Whitney
   (Evens–Kahn) identity over finite dyadic bases.
 * **B10** `tameQuotient` — the oriented tame quotient of `G_ℚ₂`.
+* **B10-K** `orientedTameQuotientAt` — the oriented tame quotient of `G_K` at `q_K` for every
+  finite `K/ℚ₂` (AX4; owner-approved 2026-07-29).
 * **B11a** `hilbertSymbol_normCriterion_finiteDyadic` — the Hilbert-symbol norm criterion over
   finite dyadic bases.
 
@@ -58,7 +62,7 @@ names unchanged lets consumers use the proved implementations without an API mig
 For review, the live leaves fall into three citation-faithfulness classes:
 
 * **direct classical theorems:** B1, B6, and B7;
-* **classical theorems with encoding choices:** B5, B5-K, B9, and B10;
+* **classical theorems with encoding choices:** B5, B5-K, B9, B10, and B10-K;
 * **composite project interfaces:** B3c, B8, and B11a.
 
 The declaration docstrings below give the precise statement, source citation, paper
@@ -353,6 +357,37 @@ Prop. 3.2 local side +
 Prop. 3.14 / Cor. 3.12 (the "same natural unramified character").
 `docs/literature-axioms.md` B10. -/
 axiom tameQuotient : OrientedTameQuotient localReciprocity
+
+/-! ## B10-K — the oriented tame quotient of `G_K` at `q_K` (AX4)
+
+The five-clause structure `Dyadic.OrientedTameQuotientK B FF` (normal closed pro-2 wild
+subgroup `W`, the quotient identification with `T_{q_K}`, and the two reciprocity
+normalization clauses), its derived layer (`tameFK`, maximality via `o2_Tq_eq_bot`,
+`W`-uniqueness, `tameCharK` descent, `compatF_K`, the §5 interim binder spellings), and the
+`K = ⊥` reduction regression `tameQuotientK_bot_reduces` (with the residue degree `f`
+genuinely computed from the filtration — the R2 soundness guard) are defined in
+`GQ2/Dyadic/OrientedTameBundle.lean`, quantified over an arbitrary bundle.  This axiom
+instantiates it at B5-K's `markedRecipAt` and the unit filtration — the parametrization that
+pins the residue degree (a free `f` is inconsistent: `T₂ᵃᵇ = Ẑ` vs `T₄ᵃᵇ = Ẑ × ℤ/3`). -/
+
+/-- **The B10-K axiom (AX4).** The oriented tame quotient of `G_K` at `q_K = 2^{f_K}` for
+every finite extension `K/ℚ₂`, marked compatibly with B5-K's reciprocity bundle and
+parametrized by the canonical unit filtration (which supplies the residue degree and a
+uniformizer).
+
+Proposal and sign-off: `docs/dyadic/ax4-proposal.md` (statement §2.3); owner-approved at gate
+G-AX 2026-07-29 — one separate axiom, `DyadicUnitFiltration` parametrization, self-contained
+`W` with the compatibility clause omitted, no `Ẑ`-valued tame character.  Note: this axiom's
+type mentions `markedRecipAt`, so its consumers also print B5 and B5-K (inherent to the
+parametrization).
+
+Citation (targets owner-approved 2026-07-29; **not yet verified against the cited PDFs**):
+NSW [1] Ch. VII §7.5, (7.5.3) (Iwasawa) with (7.5.2); Serre *Local Fields* [7] Ch. IV (wild
+inertia pro-`p`); Ch. XIII §4 Prop. 13 + corollary.  Paper: the general-`K` analogue of the
+B10 interface; `docs/literature-axioms.md` B10-K. -/
+axiom orientedTameQuotientAt (K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
+    [FiniteDimensional ℚ_[2] K] (FF : DyadicUnitFiltration K) :
+    Dyadic.OrientedTameQuotientK (markedRecipAt K) FF
 
 /-! ## B11a — the dyadic norm criterion over finite bases
 
