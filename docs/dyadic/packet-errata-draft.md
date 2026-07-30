@@ -45,3 +45,15 @@ meet. Line numbers refer to the July 28 packet.
    vanishes iff `A = 1`. The conclusion (L_c invertible on every ramified simple, hence the
    restored `c₀–c₁` pairing) survives with the corrected operator. (S3.2,
    `general_2adic/dyadic_search/families/N.py` §16 records; exact replacement supplied.)
+
+6. **Draft compact-M forward-order rejection — right conclusion, wrong reason and wrong
+   witness.** The draft says the forward `E_m` order "has determinant `R⁻²(1+R+R²+R³+R⁴)` …
+   singular on a primitive fifth-root orbit". Measured: the forward-order form is
+   NONSINGULAR (radical 0, same Gauss as reversed); what refutes it is that it is the WRONG
+   form — it differs from the required one by a linear form (failure class second-order, not
+   a rank drop), with the proof-grade difference `Q(fwd)+Q(rev) = b_q(Wd₀,d₀)+b_q(Wd₁,d₁)
+   +b_q((1+W²)d₁,d₀)`, `dᵢ = (1+P)cᵢ`, `W = σ₂^m`. Moreover the fifth-root orbit separates
+   the orders only at (α, q_K) = (2, 2) — NEITHER displayed instance (√2 is (3,2), √5 is
+   (2,4)); the seventeenth-root orbit covers both. General criterion (proved): a separating
+   orbit needs `2^{α−1} < ord₂(q_K mod ord T)`, hence dimension ≥ 2^α. (S4.1,
+   `general_2adic/artifacts/rejected/M-compact-forward-order/`.)

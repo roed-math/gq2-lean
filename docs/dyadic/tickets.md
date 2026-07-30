@@ -348,6 +348,24 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- 2026-07-30 (orchestrator, HM5 outcomes — **HM LANE CLOSED**): merged, import registered;
+  audit green (3411 jobs, census 11). 814 ln / 52 decls + 18 stress examples, ALL ≤ std-3 —
+  measured: NO B3c (chiM/chiN are combinatorial closed forms; dyadicOrientation never
+  enters), NO B8. **Headlines `mHandleMixLift`/`nHandleMixLift`**: clearing + χ-preservation
+  in one existential, general (α,h), with the standard-marking instantiations non-vacuous.
+  **Structural finding**: one pivot slot read two ways — ν'(pivot) unit steers the clearing,
+  χ_P(pivot) trivial makes χ-preservation free; the negative rows PROVE Φ_j moves any
+  character with a different pivot value ⇒ TRANSPORTED orientations must be checked, not
+  assumed (the χ-twin of memo §6.4's residue). Lane inventory: HM1–HM5 = 4839 ln, handle
+  stratum = THEOREM for M/N; binders remaining = exactly MC1's S1∪S2 + S3-core-mix (the
+  MC5 two-of-three). Deferred with precise framing: the L-family instantiation is BLOCKED
+  by SQ1-R1 (the L_sq pivot χ_sq(σ) = S is NOT clear-blind — the reachable-block
+  identification must be redone; assigned to MC5); the M-side transported ν'(c̄) unit row is
+  a one-line F4/MC5 data check. New repo constructs: `include hA in` (first use, verified on
+  rc2); the `endStabilizer` submonoid pattern replacing closure_induction (one-line
+  discharge). **MC3/MC4 are now maximally set up** (MC1 skeletons + MC2 + HM1–5 assets +
+  adopted G-Lab binders + the MC5 three-way split + the SQ1-R1 correction) — NOT dispatched
+  this session (dispatch decision = owner/next session).
 - 2026-07-30 (orchestrator, HM4 outcomes — **THE HANDLE STRATUM IS A THEOREM**): merged,
   import registered; audit green (3411 jobs, census 11). 1259 ln / 121 decls, 117 exactly
   std-3, rest ⊆ {Quot.sound}; NO B8, no new axioms. Landed: `exists_frameClear` (the §5.3
