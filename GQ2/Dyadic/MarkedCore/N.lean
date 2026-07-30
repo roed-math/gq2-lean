@@ -630,3 +630,118 @@ theorem nChar_dnX0 (f : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ
   · rw [← ofAdd_toAdd (f (dnX0 α h)), hc, ofAdd_zero]
 
 end NTauEquiv
+
+/-! ## §3 Row extraction: the infinite-order pinning of the `x̄₁`-row  (memo §3.3)
+
+The χ-condition pins the `x̄₁`-row *integrally* because `v = −(1+2^α)⁻¹` has infinite order —
+the memo's decisive simplification versus `M` (where `−1` gives only a mod-2 pin).  The engine
+is the `ℤ₂`-powering injectivity of `v`, proved through the exact level of `v² = (1+2^α)⁻²`
+(depth `α+1`), by the same unit-coefficient factorization as `ZtwoPowering`'s
+`zpowZtwo_injective_of_exact_level` — which is hard-coded to level 2 (`η − 1 = 4a`) and does
+not apply to `v ≡ 3 (mod 4)`; the level-general clone below is the dedup restatement. -/
+
+section UnitInjectivity
+
+/-- **Exact-level iteration at an arbitrary level `s ≥ 2`** (dedup: level-2 original
+`exists_unit_pow_two_pow_sub_one`, `GQ2/ZtwoPowering.lean:520`): if `η − 1 = 2^s·b` with
+`b ∈ ℤ₂ˣ`, then `η^{2^k} − 1 = 2^{k+s}·(unit)` — one exact level per squaring. -/
+theorem nExists_unit_pow_two_pow_sub_one (η b : ℤ_[2]ˣ) (s : ℕ) (hs : 2 ≤ s)
+    (hη : ((η : ℤ_[2])) - 1 = 2 ^ s * b) (k : ℕ) :
+    ∃ c : ℤ_[2]ˣ, ((η ^ 2 ^ k : ℤ_[2]ˣ) : ℤ_[2]) - 1 = 2 ^ (k + s) * c := by
+  obtain ⟨t, rfl⟩ : ∃ t, s = t + 2 := ⟨s - 2, by omega⟩
+  induction k with
+  | zero =>
+    exact ⟨b, by rw [pow_zero, pow_one, hη, zero_add]⟩
+  | succ j ih =>
+    obtain ⟨c, hc⟩ := ih
+    have hval : ((η ^ 2 ^ (j + 1) : ℤ_[2]ˣ) : ℤ_[2]) = ((η ^ 2 ^ j : ℤ_[2]ˣ) : ℤ_[2]) ^ 2 := by
+      rw [← Units.val_pow_eq_pow_val, ← pow_mul, pow_succ]
+    have hu : IsUnit ((c : ℤ_[2]) * (1 + 2 * ((2 : ℤ_[2]) ^ (j + t) * c))) :=
+      c.isUnit.mul (isUnit_one_add_two_mul _)
+    refine ⟨hu.unit, ?_⟩
+    rw [hval, sub_eq_iff_eq_add.mp hc, IsUnit.unit_spec]
+    ring
+
+/-- `v² = (1+2^α)⁻²` in `ℤ₂ˣ` (the sign squares away). -/
+theorem nUnit_sq (α : ℕ) : (nUnit α) ^ 2 = ((onePlusTwoPow α) ^ 2)⁻¹ := by
+  rw [nUnit, ← inv_pow, neg_sq]
+
+/-- **The exact level of `v²` is `α + 1`**: `v² − 1 = 2^{α+1}·(unit)` for `α ≥ 2`
+(`(1+2^α)² = 1 + 2^{α+1}(1 + 2^{α−1})` and `1 + 2^{α−1}` is odd). -/
+theorem nUnit_sq_sub_one {α : ℕ} (hα : 2 ≤ α) :
+    ∃ b : ℤ_[2]ˣ, ((nUnit α ^ 2 : ℤ_[2]ˣ) : ℤ_[2]) - 1 = 2 ^ (α + 1) * b := by
+  obtain ⟨a, rfl⟩ : ∃ a, α = a + 2 := ⟨α - 2, by omega⟩
+  have hodd : IsUnit (1 + 2 * (2 : ℤ_[2]) ^ a) := isUnit_one_add_two_mul _
+  have hw : ((onePlusTwoPow (a + 2) : ℤ_[2]ˣ) : ℤ_[2]) = 1 + 2 ^ (a + 2) :=
+    onePlusTwoPow_val (by omega)
+  refine ⟨-(((onePlusTwoPow (a + 2)) ^ 2)⁻¹ * hodd.unit), ?_⟩
+  have hinv : ((nUnit (a + 2) ^ 2 : ℤ_[2]ˣ) : ℤ_[2])
+      * (((onePlusTwoPow (a + 2) : ℤ_[2]ˣ) : ℤ_[2]) ^ 2) = 1 := by
+    rw [nUnit_sq]
+    push_cast
+    rw [← mul_pow, ← Units.val_mul, inv_mul_cancel, Units.val_one, one_pow]
+  have hsq : (((onePlusTwoPow (a + 2) : ℤ_[2]ˣ) : ℤ_[2]) ^ 2)
+      = 1 + 2 ^ (a + 3) * (1 + 2 * 2 ^ a) := by
+    rw [hw]
+    ring
+  -- η² − 1 = η²·(1 − w²) with w² = 1 + 2^{α+1}·odd
+  have hkey : ((nUnit (a + 2) ^ 2 : ℤ_[2]ˣ) : ℤ_[2]) - 1
+      = ((nUnit (a + 2) ^ 2 : ℤ_[2]ˣ) : ℤ_[2])
+        * (1 - (((onePlusTwoPow (a + 2) : ℤ_[2]ˣ) : ℤ_[2]) ^ 2)) := by
+    rw [mul_sub, mul_one, hinv]
+  rw [hkey, hsq, nUnit_sq]
+  push_cast
+  rw [IsUnit.unit_spec]
+  ring
+
+/-- **`ℤ₂`-powering by the `N`-orientation unit is injective** (memo §3.3: "`v` has infinite
+order, so the `x₁`-row is pinned *integrally*").  A nonzero kernel exponent factors as
+`w·2^m` (`w ∈ ℤ₂ˣ`), forcing `v^{2^m} = 1`; at `m = 0` this contradicts `v(1+2^α) = −1`, and
+at `m ≥ 1` it contradicts the exact level `α+1` of `v²`. -/
+theorem nUnit_zpowZtwo_injective {α : ℕ} (hα : 2 ≤ α) :
+    Function.Injective (zpowZtwo isProP_two_unitsPadicInt (nUnit α)) := by
+  intro c₁ c₂ hc
+  by_contra hne
+  have hc0 : c₁ - c₂ ≠ 0 := sub_ne_zero.mpr hne
+  have hker : zpowZtwo isProP_two_unitsPadicInt (nUnit α) (c₁ - c₂) = 1 := by
+    have hadd := zpowZtwo_add isProP_two_unitsPadicInt (nUnit α) (c₁ - c₂) c₂
+    rw [sub_add_cancel, hc] at hadd
+    exact right_eq_mul.mp hadd
+  set m := (c₁ - c₂).valuation with hm
+  set w := PadicInt.unitCoeff hc0 with hwdef
+  have hspec : c₁ - c₂ = (w : ℤ_[2]) * 2 ^ m := PadicInt.unitCoeff_spec hc0
+  have hfactor : zpowZtwo isProP_two_unitsPadicInt ((nUnit α) ^ 2 ^ m) ((w : ℤ_[2]))
+      = zpowZtwo isProP_two_unitsPadicInt (nUnit α) (c₁ - c₂) := by
+    rw [← zpowZtwo_natCast isProP_two_unitsPadicInt (nUnit α) (2 ^ m), zpowZtwo_zpowZtwo]
+    congr 1
+    rw [hspec]
+    push_cast
+    ring
+  have hbase : ((nUnit α) ^ 2 ^ m : ℤ_[2]ˣ) = 1 := by
+    refine (zpowZtwo_bijective isProP_two_unitsPadicInt w).injective ?_
+    show zpowZtwo _ ((nUnit α) ^ 2 ^ m) ((w : ℤ_[2])) = zpowZtwo _ 1 ((w : ℤ_[2]))
+    rw [hfactor, hker, zpowZtwo_one_base]
+  rcases Nat.eq_zero_or_pos m with hm0 | hmpos
+  · -- `m = 0`: `v = 1`, contradicting `v·(1+2^α) = −1`
+    rw [hm0, pow_zero, pow_one] at hbase
+    have hval := nUnit_mul (α := α) (by omega)
+    rw [hbase, Units.val_one, one_mul] at hval
+    have h20 : (2 + 2 ^ α : ℤ_[2]) = 0 := by linear_combination hval
+    have hnat : ((2 + 2 ^ α : ℕ) : ℤ_[2]) = 0 := by push_cast; linear_combination h20
+    exact Nat.cast_ne_zero.mpr (Nat.add_pos_left two_pos _).ne' hnat
+  · -- `m ≥ 1`: `(v²)^{2^{m−1}} = 1` against the exact level `α+1`
+    obtain ⟨j, hj⟩ : ∃ j, m = j + 1 := ⟨m - 1, by omega⟩
+    rw [hj] at hbase
+    have hsq : ((nUnit α ^ 2) ^ 2 ^ j : ℤ_[2]ˣ) = 1 := by
+      rw [← pow_mul, mul_comm 2 (2 ^ j), ← pow_succ]
+      exact hbase
+    obtain ⟨b, hb⟩ := nUnit_sq_sub_one hα
+    obtain ⟨c, hcl⟩ := nExists_unit_pow_two_pow_sub_one (nUnit α ^ 2) b (α + 1)
+      (by omega) hb j
+    rw [hsq] at hcl
+    have hzero : (2 : ℤ_[2]) ^ (j + (α + 1)) * (c : ℤ_[2]) = 0 := by
+      rw [← hcl]
+      simp
+    exact mul_ne_zero (pow_ne_zero _ (by norm_num : (2 : ℤ_[2]) ≠ 0)) c.ne_zero hzero
+
+end UnitInjectivity
