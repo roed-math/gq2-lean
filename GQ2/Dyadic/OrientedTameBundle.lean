@@ -152,6 +152,17 @@ theorem exists_norm_eq_zpow {k : IntermediateField ℚ_[2] ℚ̄₂} (F : Dyadic
 
 end Aux
 
+/-- **The seam `ι : Z₂ ≃ₜ* Multiplicative ℤ₂`** — `GQ2.ztwoEquivPadic` (`GQ2/ZtwoPowering.lean`)
+re-typed at the `Ztwo` spelling.  `Ztwo` is *definitionally* `maxProPQuotient 2 Zhat`, but it is a
+`def` into `ProfiniteGrp`, so the coercions only agree at `default` transparency; giving the seam a
+name at the `Ztwo` type keeps every statement below elaborating at `instances` transparency.  This
+is the same `ι` as `GQ2.SectionThree.prop_3_10_local_marked`'s. -/
+def ztwoIota : ContinuousMulEquiv Ztwo (Multiplicative ℤ_[2]) := ztwoEquivPadic
+
+/-- The generator pin of the seam: `ι(1) = ofAdd 1` (`GQ2.ztwoEquivPadic_ofInt_one`). -/
+@[simp] theorem ztwoIota_ztwoOne : ztwoIota ztwoOne = Multiplicative.ofAdd (1 : ℤ_[2]) :=
+  ztwoEquivPadic_ofInt_one
+
 /-! ## §1 The residue cardinality and B13's uniformizer  (memo §2.2)
 
 `q_K` is named through B13's unit filtration, not through a free `f` and not through F1's
@@ -281,6 +292,231 @@ structure OrientedTameQuotientK {K : IntermediateField ℚ_[2] ℚ̄₂} [Finite
   nuT_recip_uniformizer : ∀ g : GalK K,
       toAbK K g = B.recip (uniformizerK K FF) →
       nuTq (qOf K FF) (equiv (QuotientGroup.mk g)) = ztwoOne⁻¹
+
+/-! ## §3 The derived layer  (memo §2.5)
+
+Everything below takes `(B) (FF) (T : OrientedTameQuotientK B FF)`, so the file's axiom print stays
+at the standard three.  The `ℚ₂` templates are `GQ2/BoundaryMapsWitness.lean` (`tameFHom`,
+`ker_tameFHom`, `tameChar`, `tame_reciprocity`, `compatF_proved`), `GQ2/Prop32.lean`
+(`tameData_maximal`), `GQ2/SectionThree.lean` (`LocalTameQuotient`) and
+`GQ2/TameTwoQuotient.lean` (`TameUnitOrientation`). -/
+
+section Derived
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K] {R : LocalReciprocity}
+  {B : MarkedRecip R K} {FF : DyadicUnitFiltration K}
+
+namespace OrientedTameQuotientK
+
+/-- **`tameF_K : G_K ↠ T_{q_K}`**, the tame quotient map (`equiv ∘ mk`; the
+`GQ2/BoundaryMapsWitness.lean` `tameFHom` template). -/
+def tameFK (T : OrientedTameQuotientK B FF) : ContinuousMonoidHom (GalK K) (Tq (qOf K FF)) :=
+  haveI := T.normal
+  (⟨T.equiv.toMulEquiv.toMonoidHom, T.equiv.continuous_toFun⟩ :
+    ContinuousMonoidHom (GalK K ⧸ T.W) (Tq (qOf K FF))).comp (quotientMk T.W)
+
+@[simp] theorem tameFK_apply (T : OrientedTameQuotientK B FF) (g : GalK K) :
+    T.tameFK g = T.equiv (QuotientGroup.mk g) := rfl
+
+theorem tameFK_surjective (T : OrientedTameQuotientK B FF) : Function.Surjective T.tameFK :=
+  haveI := T.normal
+  T.equiv.surjective.comp (quotientMk_surjective T.W)
+
+/-- `ker tameF_K = W_K`. -/
+theorem ker_tameFK (T : OrientedTameQuotientK B FF) : T.tameFK.toMonoidHom.ker = T.W := by
+  haveI := T.normal
+  ext x
+  rw [MonoidHom.mem_ker]
+  constructor
+  · intro h
+    exact (QuotientGroup.eq_one_iff x).mp (T.equiv.injective (by rw [map_one]; exact h))
+  · intro h
+    show T.equiv (QuotientGroup.mk x) = 1
+    rw [(QuotientGroup.eq_one_iff x).mpr h, map_one]
+
+/-! ### `O₂`-maximality (memo §1.6): packet Lemma 3.3 at general `q`, **derived, never a clause** -/
+
+/-- **`W_K = O₂(G_K)`, the containment half** — every closed normal pro-`2` subgroup of `G_K` lies
+in `W_K`.  Its image in `T_{q_K}` is normal (surjectivity) and has `2`-group finite images
+(`Aux.isPGroup_map_of_isProP`), hence is trivial by F3's `o2_Tq_eq_bot` = packet Lemma 3.3 at
+general `q`; `q_K` is even because `f ≥ 1`.  The `q = 2` precedent is
+`GQ2.SectionThree.tameData_maximal` (`GQ2/Prop32.lean`).
+
+This is why maximality is **not** a field of the bundle (memo §7 R8): it is proved paper content,
+and putting it in the axiom would enlarge the trust boundary for nothing. -/
+theorem tameDataK_maximal (T : OrientedTameQuotientK B FF) :
+    ∀ N : Subgroup (GalK K), N.Normal → IsClosed (N : Set (GalK K)) → IsProP 2 N → N ≤ T.W := by
+  intro N hNn _ hNp
+  haveI := T.normal
+  set e : (GalK K ⧸ T.W) →* Tq (qOf K FF) := T.equiv.toMonoidHom with he
+  set q : GalK K →* GalK K ⧸ T.W := QuotientGroup.mk' T.W with hq
+  set M : Subgroup (Tq (qOf K FF)) := N.map (e.comp q) with hM
+  have hesurj : Function.Surjective (e.comp q) := by
+    rw [MonoidHom.coe_comp]
+    exact T.equiv.surjective.comp (QuotientGroup.mk'_surjective _)
+  haveI hMn : M.Normal := Subgroup.Normal.map hNn _ hesurj
+  have hMbot : M = ⊥ := by
+    refine o2_Tq_eq_bot (even_qOf K FF) M ?_
+    intro G _ _ _ _ f hf
+    rw [hM, Subgroup.map_map]
+    refine Aux.isPGroup_map_of_isProP hNp _ ?_
+    rw [MonoidHom.coe_comp, MonoidHom.coe_comp]
+    exact (hf.comp T.equiv.continuous_toFun).comp continuous_quot_mk
+  intro x hxN
+  have h1 : e (q x) ∈ M := Subgroup.mem_map.mpr ⟨x, hxN, rfl⟩
+  rw [hMbot, Subgroup.mem_bot] at h1
+  exact (QuotientGroup.eq_one_iff x).mp (T.equiv.injective (by rw [map_one]; exact h1))
+
+/-- **`W_K` is pinned uniquely by maximality**: any two AX4 bundles at `K` — over any marked
+reciprocity data and any unit filtrations — have the same wild subgroup.  This is the intrinsic
+form of the "canonical" of packet Prop. 3.4(1) on the field side, and it is what makes the
+`K = ⊥` regression's `W_⊥ = W` a theorem (memo §1.10, §3 step 2). -/
+theorem W_eq {R' : LocalReciprocity} {B' : MarkedRecip R' K} {FF' : DyadicUnitFiltration K}
+    (T : OrientedTameQuotientK B FF) (T' : OrientedTameQuotientK B' FF') : T.W = T'.W :=
+  le_antisymm (T'.tameDataK_maximal T.W T.normal T.isClosed T.isProP)
+    (T.tameDataK_maximal T'.W T'.normal T'.isClosed T'.isProP)
+
+end OrientedTameQuotientK
+
+/-- **Packet Prop. 3.4(1), field side, bundled** — the AX4 bundle together with Lemma 3.3's
+maximality, which pins `W_K` uniquely.  The `GQ2/SectionThree.lean` `LocalTameQuotient` template at
+general `K`; the `maximal` field is *proved* (`OrientedTameQuotientK.tameDataK_maximal`), never
+asserted, exactly as at `ℚ₂`. -/
+structure LocalTameQuotientK {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {R : LocalReciprocity} (B : MarkedRecip R K) (FF : DyadicUnitFiltration K)
+    extends OrientedTameQuotientK B FF where
+  /-- `W_K` is the **maximal** closed normal pro-`2` subgroup — packet Lemma 3.3's `O₂(G_K) = W_K`
+  at general `q`. -/
+  maximal : ∀ N : Subgroup (GalK K), N.Normal → IsClosed (N : Set (GalK K)) → IsProP 2 N → N ≤ W
+
+/-- The packaging map: every AX4 bundle *is* a `LocalTameQuotientK`, maximality supplied by
+`tameDataK_maximal`. -/
+def OrientedTameQuotientK.toLocalTameQuotientK (T : OrientedTameQuotientK B FF) :
+    LocalTameQuotientK B FF :=
+  { toOrientedTameQuotientK := T, maximal := T.tameDataK_maximal }
+
+/-! ### Tame reciprocity and the boundary compatibility (memo §1.9)
+
+Both are **theorems over the two bundles**, not clauses.  The `ℚ₂` template is
+`GQ2.SectionThree.tame_reciprocity` / `compatF_proved`; the one ingredient that changes is the
+generator lemma: `padic_hom_eq_of_gens` (`ℚ₂ˣ = ⟨2⟩ × ⟨−3⟩`) is replaced by
+`exists_unit_zpow_decomp` (`Kˣ = π^ℤ · O_K^×`), which is where `Aux.exists_norm_eq_zpow` enters. -/
+
+namespace OrientedTameQuotientK
+
+/-- `ι ∘ ν_t ∘ tameF_K : G_K →* Multiplicative ℤ₂`, before the descent through `G_K^{ab}`.  The
+seam `ι` is `ztwoIota` = `GQ2.ztwoEquivPadic`, the `ι` of `prop_3_10_local_marked`. -/
+def tameCharKRaw (T : OrientedTameQuotientK B FF) : GalK K →* Multiplicative ℤ_[2] :=
+  (ztwoIota.toMulEquiv.toMonoidHom).comp
+    ((nuTq (qOf K FF)).toMonoidHom.comp T.tameFK.toMonoidHom)
+
+@[simp] theorem tameCharKRaw_apply (T : OrientedTameQuotientK B FF) (g : GalK K) :
+    T.tameCharKRaw g = ztwoIota (nuTq (qOf K FF) (T.tameFK g)) := rfl
+
+theorem continuous_tameCharKRaw (T : OrientedTameQuotientK B FF) : Continuous T.tameCharKRaw :=
+  ztwoIota.continuous_toFun.comp
+    ((nuTq (qOf K FF)).continuous_toFun.comp T.tameFK.continuous_toFun)
+
+theorem commClosureK_le_ker_tameCharKRaw (T : OrientedTameQuotientK B FF) :
+    commClosureK K ≤ T.tameCharKRaw.ker := by
+  refine Subgroup.topologicalClosure_minimal _
+    (Abelianization.commutator_subset_ker T.tameCharKRaw) ?_
+  rw [MonoidHom.coe_ker]
+  exact isClosed_singleton.preimage T.continuous_tameCharKRaw
+
+/-- **The tame unramified character on `G_K^{ab}`** — `ι ∘ ν_t ∘ tameF_K` descended (well-posed:
+the target is abelian and Hausdorff, so the closed commutator subgroup dies). -/
+def tameCharK (T : OrientedTameQuotientK B FF) : GalKab K →* Multiplicative ℤ_[2] :=
+  QuotientGroup.lift (commClosureK K) T.tameCharKRaw
+    (fun _ hx => MonoidHom.mem_ker.mp (T.commClosureK_le_ker_tameCharKRaw hx))
+
+@[simp] theorem tameCharK_toAbK (T : OrientedTameQuotientK B FF) (g : GalK K) :
+    T.tameCharK (toAbK K g) = ztwoIota (nuTq (qOf K FF) (T.tameFK g)) := rfl
+
+theorem continuous_tameCharK (T : OrientedTameQuotientK B FF) : Continuous T.tameCharK :=
+  continuous_quot_lift _ T.continuous_tameCharKRaw
+
+/-- **Atom (U)** — units: `f₁(rec_K u) = 1` for `‖u‖ = 1`, from the bundle's unit clause read at
+any lift. -/
+theorem tameCharK_recip_unit (T : OrientedTameQuotientK B FF) (u : (↥K)ˣ)
+    (hu : ‖((u : ↥K) : ℚ̄₂)‖ = 1) : T.tameCharK (B.recip u) = 1 := by
+  obtain ⟨g, hg⟩ := surjective_toAbK K (B.recip u)
+  have hval : nuTq (qOf K FF) (T.tameFK g) = 1 := T.nuT_recip_unit u g hu hg
+  rw [← hg, tameCharK_toAbK, hval, map_one]
+
+/-- **Atom (F)** — B13's uniformizer: `f₁(rec_K π) = ofAdd(−1)` (arithmetic Frobenius, geometric
+coordinate `−1`), from the bundle's uniformizer clause. -/
+theorem tameCharK_recip_uniformizer (T : OrientedTameQuotientK B FF) :
+    T.tameCharK (B.recip (uniformizerK K FF)) = Multiplicative.ofAdd ((-1 : ℤ) : ℤ_[2]) := by
+  obtain ⟨g, hg⟩ := surjective_toAbK K (B.recip (uniformizerK K FF))
+  have hval : nuTq (qOf K FF) (T.tameFK g) = ztwoOne⁻¹ := T.nuT_recip_uniformizer g hg
+  rw [← hg, tameCharK_toAbK, hval, map_inv, ztwoIota_ztwoOne, ← ofAdd_neg]
+  norm_num
+
+/-- `f₁(rec_K x) = ofAdd(−n)` for `x = u·π^n` — the two atoms plus multiplicativity. -/
+theorem tameCharK_recip (T : OrientedTameQuotientK B FF) (x : (↥K)ˣ) :
+    T.tameCharK (B.recip x) = B.nu_ur (B.recip x) := by
+  obtain ⟨u, n, hx, hu⟩ := exists_unit_zpow_decomp K FF x
+  have hleft : T.tameCharK (B.recip x) = Multiplicative.ofAdd ((-n : ℤ) : ℤ_[2]) := by
+    rw [hx, map_mul, map_mul, map_zpow, map_zpow, T.tameCharK_recip_unit u hu,
+      T.tameCharK_recip_uniformizer, one_mul]
+    refine Multiplicative.toAdd.injective ?_
+    show (n • ((-1 : ℤ) : ℤ_[2])) = ((-n : ℤ) : ℤ_[2])
+    rw [zsmul_eq_mul]
+    push_cast
+    ring
+  rw [hleft, B.nu_ur_recip_of_decomp x u (uniformizerK K FF) n hx hu
+    (norm_uniformizerK_lt_one K FF) (uniformizerK_max K FF)]
+
+/-- **Tame reciprocity at `K`** (memo §1.9): `ι(ν_t(tameF_K g)) = ν_ur^K(g^{ab})`.  Both sides are
+continuous homs out of `G_K^{ab}`; they agree on the dense image of `rec_K` (AX3's
+`denseRange_recip`) because they agree on units and on B13's uniformizer — the two orientation
+clauses of AX4 matched against AX3's `nu_ur_recip_unit` / `nu_ur_recip_uniformizer`.  **This clause
+is derived, not asserted**: it is what the B1 boundary lane consumes. -/
+theorem tame_reciprocity_K (T : OrientedTameQuotientK B FF) (g : GalK K) :
+    ztwoIota (nuTq (qOf K FF) (T.tameFK g)) = B.nu_ur (toAbK K g) := by
+  have key : ⇑T.tameCharK = ⇑B.nu_ur :=
+    Continuous.ext_on B.denseRange_recip T.continuous_tameCharK B.continuous_nu_ur
+      (by rintro _ ⟨x, rfl⟩; exact T.tameCharK_recip x)
+  have h := congrFun key (toAbK K g)
+  rwa [tameCharK_toAbK] at h
+
+/-- **The boundary compatibility `ν_t ∘ tameF_K = ν₂ ∘ pro2F_K`** (memo §1.9, §0.1's F3 clause
+(ii)), in the shape the B1 boundary lane instantiates it: for *any* pro-`2`-side coordinate
+`(pro2F, ν₂)` whose composite is AX3's `ν_ur^K` through the seam `ι`, the tame and pro-`2`
+unramified coordinates agree on the nose.  At `ℚ₂` the hypothesis `hpro` is
+`prop_3_10_local_marked`'s `ν`-clause and the conclusion is `compatF_proved`. -/
+theorem compatF_K {Pi : Type*} [Group Pi] [TopologicalSpace Pi] (T : OrientedTameQuotientK B FF)
+    (pro2F : ContinuousMonoidHom (GalK K) Pi) (nuTwoK : ContinuousMonoidHom Pi Ztwo)
+    (hpro : ∀ g : GalK K, ztwoIota (nuTwoK (pro2F g)) = B.nu_ur (toAbK K g))
+    (g : GalK K) : nuTq (qOf K FF) (T.tameFK g) = nuTwoK (pro2F g) :=
+  ztwoIota.injective (by rw [T.tame_reciprocity_K g, hpro g])
+
+end OrientedTameQuotientK
+
+/-! ### The orientation clause in the `DetRamified` packaging
+
+`GQ2/DetRamified.lean`'s `prop_6_18_ramified` binds `horient : TameUnitOrientation R B.tameF`
+(`GQ2/TameTwoQuotient.lean`), discharged at `ℚ₂` by `tameQuotient.nuT_recip_unit`
+(`GQ2/TameOrientationWitness.lean`).  This is the general-`K` form of that `Prop`, and the AX4
+bundle discharges it verbatim — the memo §0.1 entry that says DetRamified is the one LG-lane
+consumer touching AX4's *orientation*, not just its existence. -/
+
+/-- **`TameUnitOrientationK`** — the AX4 unit-orientation clause for an arbitrary tame coordinate
+at `K`, the `GQ2.TameUnitOrientation` shape (`GQ2/TameTwoQuotient.lean`) at general `K`/`q`. -/
+def TameUnitOrientationK {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    {R : LocalReciprocity} (B : MarkedRecip R K) (FF : DyadicUnitFiltration K)
+    (tameF : ContinuousMonoidHom (GalK K) (Tq (qOf K FF))) : Prop :=
+  ∀ (u : (↥K)ˣ) (g : GalK K), ‖((u : ↥K) : ℚ̄₂)‖ = 1 → toAbK K g = B.recip u →
+    nuTq (qOf K FF) (tameF g) = 1
+
+/-- The bundle discharges its own orientation clause at `tameF_K` — verbatim `nuT_recip_unit`, the
+`GQ2.tameUnitOrientation_tameFHom` pattern. -/
+theorem tameUnitOrientationK_tameFK (T : OrientedTameQuotientK B FF) :
+    TameUnitOrientationK B FF T.tameFK :=
+  T.nuT_recip_unit
+
+end Derived
 
 end
 
