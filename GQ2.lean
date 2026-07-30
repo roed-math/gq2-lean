@@ -252,6 +252,7 @@ import GQ2.Dyadic.MarkedCore.HandleMix
 import GQ2.Dyadic.MarkedCore.HandleMixEquiv
 import GQ2.Dyadic.MarkedCore.HandleMixFrame
 import GQ2.Dyadic.MarkedCore.HandleMixClear
+import GQ2.Dyadic.MarkedCore.HandleMixInst
 import GQ2.Dyadic.MarkedRecipBundle
 import GQ2.Dyadic.OrientedTameBundle
 import GQ2.Dyadic.Parameters
