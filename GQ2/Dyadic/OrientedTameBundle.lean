@@ -751,6 +751,111 @@ theorem tameQuotientK_bot_reduces (T : OrientedTameQuotientK B FF)
 
 end Bot
 
+/-! ## §6 Interim binder spellings and consumer-compatibility checks  (memo §5)
+
+The **structure** — not the axiom — is what consumers name, so every spelling below keeps compiling
+unchanged across the census flip; the flip merely supplies the canonical instance
+(`orientedTameQuotientAt K FF`, and `dyadicUnitFiltration K` for `FF`).  Memo §5's binder block is
+
+    variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+    variable (B : MarkedRecip localReciprocity K)   -- AX3 (post-flip: `markedRecipAt K`)
+    variable (FF : DyadicUnitFiltration K)          -- B13 (post-flip: `dyadicUnitFiltration K`)
+    variable (T : OrientedTameQuotientK B FF)      -- AX4 (post-flip: `orientedTameQuotientAt K FF`)
+
+and the reviewer's rule of thumb is: *if a statement mentions `T_q` only, it is F3 (axiom-free); if
+it mentions `G_K` and `T_q` together, it is AX4.*
+
+The `example`s at the end elaborate the instantiations the lanes' own docstrings prescribe, so that
+a change to this file which broke them fails here rather than in a lane.  The consumer files
+(`GQ2/Dyadic/LocalGauss/*.lean`, `GQ2/Dyadic/TameBoundary.lean`) sit far above the axiom layer and
+cannot be imported here, so their binder shapes are written out. -/
+
+section Binders
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K] {R : LocalReciprocity}
+  {B : MarkedRecip R K} {FF : DyadicUnitFiltration K}
+
+/-- **The tame target at `K`**, `T_{q_K}` — the spelling LG3/LG4/LG5 use as `Tq P.qK` and the
+boundary lane uses as the first factor of `∂_K`. -/
+abbrev TqK (K : IntermediateField ℚ_[2] ℚ̄₂) (FF : DyadicUnitFiltration K) : ProfiniteGrp :=
+  Tq (qOf K FF)
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- **The bridge to F1's `FieldParameters`** (`GQ2/Dyadic/Parameters.lean`): the LG lane's `P.qK`
+*is* `qOf K FF` as soon as the residue degrees agree.  This is the one line every LG call site
+needs, and by §4's `f_eq_of_filtration` the right-hand side does not depend on the filtration. -/
+theorem qOf_eq_qK (P : FieldParameters) (FF : DyadicUnitFiltration K) (hf : P.f = FF.f) :
+    P.qK = qOf K FF := by rw [P.qK_eq, qOf_eq, hf]
+
+omit [FiniteDimensional ℚ_[2] K] in
+/-- The transport handle for a consumer that has already fixed an `F1` parameter record: the two
+spellings of the tame target agree as objects, so a `Tq P.qK`-typed hom is an `Eq.mpr` away from a
+`TqK K FF`-typed one. -/
+theorem tq_qK_eq_TqK (P : FieldParameters) (FF : DyadicUnitFiltration K) (hf : P.f = FF.f) :
+    Tq P.qK = TqK K FF :=
+  congrArg Tq (qOf_eq_qK P FF hf)
+
+/-- **The marking `ρ = c ∘ tameF_K`** that `prop_6_18_unramified_K` / `prop_6_18_ramified_K` bind as
+the pair `(ρ, hfac)` (`GQ2/Dyadic/LocalGauss/Main.lean`). -/
+def markingK {C : Type} [Group C] [TopologicalSpace C] (T : OrientedTameQuotientK B FF)
+    (c : ContinuousMonoidHom (Tq (qOf K FF)) C) : ContinuousMonoidHom (GalK K) C :=
+  c.comp T.tameFK
+
+@[simp] theorem markingK_fac {C : Type} [Group C] [TopologicalSpace C]
+    (T : OrientedTameQuotientK B FF) (c : ContinuousMonoidHom (Tq (qOf K FF)) C) (g : GalK K) :
+    markingK T c g = c (T.tameFK g) := rfl
+
+/-- `ρ` is surjective when `c` is — the `hρsurj` the LG lane derives from `htameFK`. -/
+theorem markingK_surjective {C : Type} [Group C] [TopologicalSpace C]
+    (T : OrientedTameQuotientK B FF) {c : ContinuousMonoidHom (Tq (qOf K FF)) C}
+    (hc : Function.Surjective ⇑c) : Function.Surjective ⇑(markingK T c) :=
+  hc.comp T.tameFK_surjective
+
+section Checks
+
+variable (T : OrientedTameQuotientK B FF)
+
+/-- **LG-lane consumer check** (`GQ2/Dyadic/LocalGauss/Main.lean`'s `card_H1_eq_of_markingK`,
+`prop_6_18_unramified_K`, `prop_6_18_ramified_K_of_package`).  Those theorems bind
+`(tameFK : ContinuousMonoidHom ↥U (Tq P.qK)) (htameFK : Function.Surjective ⇑tameFK)` at
+`U = K.fixingSubgroup = GalKsub K`, together with `(ρ, hfac, hρsurj)`; the AX4 bundle supplies all
+five.  Written at the `TqK K FF` spelling — `Tq P.qK` is the same object by `tq_qK_eq_TqK`, which
+is the consumer's one-line bridge. -/
+example {C : Type} [Group C] [TopologicalSpace C] (c : ContinuousMonoidHom (TqK K FF) C)
+    (hc : Function.Surjective ⇑c) :
+    ∃ (tameF : ContinuousMonoidHom (GalK K) (TqK K FF)) (ρ : ContinuousMonoidHom (GalK K) C),
+      Function.Surjective ⇑tameF ∧ (∀ g, ρ g = c (tameF g)) ∧ Function.Surjective ⇑ρ :=
+  ⟨T.tameFK, markingK T c, T.tameFK_surjective, markingK_fac T c, markingK_surjective T hc⟩
+
+/-- **DetRamified consumer check** (`GQ2/DetRamified.lean`'s `prop_6_18_ramified`, whose K-side
+retype binds `horient : TameUnitOrientationK B FF tameFK`).  This is the one LG-lane hypothesis that
+touches AX4's *orientation* rather than only its existence, and the bundle discharges it. -/
+example : TameUnitOrientationK B FF T.tameFK := tameUnitOrientationK_tameFK T
+
+/-- **Boundary-lane consumer check** (F3's Thm. 3.5 field side,
+`GQ2/Dyadic/TameBoundary.lean`).  What lands `g` in the fibre product
+`∂_K = T_{q_K} ×_{ℤ₂} D_K` is the equalizer condition on the pair `(tameF_K g, pro2F_K g)`; AX4
+enters through `tameFK` and `compatF_K` only, and `compatF_K` is *derived*. -/
+example {Pi : Type} [Group Pi] [TopologicalSpace Pi] (pro2F : ContinuousMonoidHom (GalK K) Pi)
+    (nuTwoK : ContinuousMonoidHom Pi Ztwo)
+    (hpro : ∀ g : GalK K, ztwoIota (nuTwoK (pro2F g)) = B.nu_ur (toAbK K g)) :
+    ∀ g : GalK K, (T.tameFK g, pro2F g) ∈
+      {p : Tq (qOf K FF) × Pi | nuTq (qOf K FF) p.1 = nuTwoK p.2} :=
+  fun g => T.compatF_K pro2F nuTwoK hpro g
+
+/-- **B1 boundary-package consumer check**: the `BoundaryMaps`-analogue fields the MC5 lane
+assembles at `K` — `tameF_K` surjective with pro-`2` kernel `W_K` (`ker_tameFK` + the bundle's
+`isProP`), `W_K` maximal (derived), and the tame-reciprocity identity.  All four are theorems over
+the bundle; none is a clause. -/
+example : Function.Surjective ⇑T.tameFK ∧ T.tameFK.toMonoidHom.ker = T.W ∧ IsProP 2 T.W ∧
+    (∀ N : Subgroup (GalK K), N.Normal → IsClosed (N : Set (GalK K)) → IsProP 2 N → N ≤ T.W) ∧
+    (∀ g : GalK K, ztwoIota (nuTq (qOf K FF) (T.tameFK g)) = B.nu_ur (toAbK K g)) :=
+  ⟨T.tameFK_surjective, T.ker_tameFK, T.isProP, T.tameDataK_maximal, T.tame_reciprocity_K⟩
+
+end Checks
+
+end Binders
+
 end
 
 end GQ2.Dyadic
