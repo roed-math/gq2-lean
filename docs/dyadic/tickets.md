@@ -348,6 +348,21 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- 2026-07-30 (orchestrator, HM4 outcomes — **THE HANDLE STRATUM IS A THEOREM**): merged,
+  import registered; audit green (3411 jobs, census 11). 1259 ln / 121 decls, 117 exactly
+  std-3, rest ⊆ {Quot.sound}; NO B8, no new axioms. Landed: `exists_frameClear` (the §5.3
+  ν-clearing, two-step-per-handle + induction), **`exists_dmClear_nu`/`exists_dnClear_nu`
+  (the restated obligation as a THEOREM, both cores, general (α,h))** + the nuM/nuN
+  corollaries, and the MC5 split shape (`MLiftSplit`/`NLiftSplit` with
+  handle = THEOREM (`mLiftSplit_handle`/`nLiftSplit_handle`), S1∪S2 + S3-core-mix = the two
+  BLab-style `def` binders — MC5 supplies two of three via `mLiftSplit_iff`). Adopted:
+  Submonoid-not-Subgroup A(P,h) (inverses are generators); the honest scope note (the
+  handle BLOCK is proved, the core block stays MC5's); schematic stratum parameters
+  (MC3/MC4's frames don't exist yet); the `frameEnd`/`autEnd` Pi-instance barriers
+  (engineering note for the lane). Non-vacuity pinned (ν_M(C₀) = ν_N(σ) = 1 — memo §6.4
+  residue 2 is a transported-data question only). **HM5 dispatched** (thinner than
+  budgeted per HM4's finding: unit rows + polish; the L-family instantiation belongs to
+  SqCore and is deferred to the SQ lane with the SQ1-R1 frame caveat).
 - 2026-07-30 (orchestrator, HM3 outcomes): merged, import registered; audit green (3409
   jobs incl. the new file, census 11). 1302 ln / 155 decls, ALL exactly std-3 — no B8. The
   complete §5 dictionary landed: frame action + bridges, transvection matrices, Eichler
