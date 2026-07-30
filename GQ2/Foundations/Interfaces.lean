@@ -13,6 +13,7 @@ public import GQ2.UnramifiedQuadraticNorms
 public import GQ2.UnitFiltration
 public import GQ2.UnitFiltrationCounts
 public import GQ2.EvensKahnDerived
+public import GQ2.Dyadic.MarkedRecipBundle
 
 @[expose] public section
 
@@ -94,24 +95,11 @@ noncomputable def tateDuality (n : ℕ) [NeZero n] : TateDuality n :=
 The full B11 conventions and citations are with the B11a axiom in
 `GQ2/Foundations/Axioms.lean`; this section holds the pieces that are not axioms. -/
 
-/-- **Equal norm value groups for `k(δa)/k` — the project's unramifiedness criterion.**  Every
-nonzero `z = x + y·δa` (`x, y ∈ k`) has the same norm as some nonzero element of the base `k`,
-i.e. `k(δa)` and `k` have equal norm value groups.  For a quadratic extension of complete
-discretely valued fields this says `e(k(δa)/k) = 1`, the standard unramifiedness criterion
-(Serre, *Local Fields*, Ch. I §4); the definition is named by what it literally asserts because
-the equivalence with a bona-fide ramification-theoretic notion is *not* proved here (no Mathlib
-ramification theory applies at these types yet — `IsNonarchimedeanLocalField` has no
-extension/ramification layer as of 2026-07-24).  This is **not** a Mathlib unramifiedness notion
-and is asserted by nothing (it is a `def`, not an axiom); it is the convention the §6 ledger
-consumes, named and isolated per adversarial review rec 2 so a human reviewer can see exactly
-where the project departs from a directly citable statement.  Named
-`IsUnramifiedQuadraticSpectral` before 2026-07-24 (deprecated alias below). -/
-def HasEqualNormValueGroups
-    (k : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2]))
-    (δa : AlgebraicClosure ℚ_[2]) : Prop :=
-  ∀ z : AlgebraicClosure ℚ_[2], z ≠ 0 →
-    (∃ x y : ↥k, z = (x : AlgebraicClosure ℚ_[2]) + (y : AlgebraicClosure ℚ_[2]) * δa) →
-    ∃ w : ↥k, w ≠ 0 ∧ ‖z‖ = ‖(w : AlgebraicClosure ℚ_[2])‖
+/- The convention `def GQ2.HasEqualNormValueGroups` itself now lives in
+`GQ2/Dyadic/MarkedRecipBundle.lean` (moved 2026-07-29, AX3 memo §7 R7 / owner answer Q3: the AX3
+`ki_unramified` clause needs it, and `Axioms.lean` — which this file imports — must import the
+bundle file at the census flip).  Name, statement, namespace and docstring are unchanged, so the
+alias and the two consumers below are byte-identical to before the move. -/
 
 @[deprecated HasEqualNormValueGroups (since := "2026-07-24")]
 alias IsUnramifiedQuadraticSpectral := HasEqualNormValueGroups
