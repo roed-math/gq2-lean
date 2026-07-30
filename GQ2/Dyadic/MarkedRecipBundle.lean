@@ -994,6 +994,325 @@ end MarkedRecip
 
 end Bot
 
+/-! ## §5 The synthetic level-`2` marked pair (memo §7 R2, and R8's non-vacuity witness)
+
+**Mandated by AX3 memo §7 R2.**  Every one of the five quadratic test vectors (§6) has `r ≤ 1`,
+where the λ-sign is invisible: `ℤ/2` has no signs, and `λ(−1) = ε·2^{r−1}` is two-torsion, hence
+sign-blind at *every* level (`2 = −2` in `ℤ/4`).  The λ-value that carries a sign is `η = λ(u)`,
+and the smallest level where `1 ≠ −1` is `r = 2`.  No field instance can catch a global `ν`-sign
+flip; this section does.
+
+F4's `Branches.lean` carries the *datum*-level version of this regression (`mockDatum`,
+`mockSplitting`, and its `mock_*` pins).  This is the **bundle**-level one: it exercises the
+`MarkedPair` clause set of §2 and the `λ`/`ε`/`η` extraction built on it, i.e. the code path a
+bundle actually goes through.  All names carry the `mockPair` prefix so the two regressions never
+collide.
+
+The carrier is `ℤ × ℤ × ℤ₂` written multiplicatively, with coordinates `(m, n, t)`:
+
+* `m` — the exponent of `−1`, of `ν`-value `2`, giving `λ(−1) = 2 = ε·2^{r−1}` with `ε = 1`;
+* `n` — the exponent of `u = (1 − 2²)⁻¹`, of `ν`-value `1`, giving `η = λ(u) = 1`.  **This is the
+  sign-bearing value**: a `ν`-sign flip reads `3 = −1` here, and `mockPair_not_isEtaFor_neg_one`
+  rejects it;
+* `t` — the `ker χ` direction, of `ν`-value `4t`, which realizes `A = ν(ker χ) = 4ℤ₂`, i.e.
+  exactly `r = 2`.
+
+`χ(m, n, t) = (−1)^m · u^n`, so `C = ⟨−1⟩ · ⟨u⟩` and `ker χ = {(m, 0, t) : m even}` — the second
+fact is where `u`'s infinite order enters (`mockPair_zpow_eq_zero`, from injectivity of
+`ℤ ↪ ℤ₂` and `3^k = 1 ⇒ k = 0`; no `ZtwoPowering` machinery needed).
+
+Because the section **constructs** a `MarkedPair` outright, it is also the non-vacuity witness of
+memo §7 R8 for §2's clause set: neither `nu_ker_chi_le` nor `nu_ker_chi_ge` can be silently
+unsatisfiable, and `surjective_nu` is realized rather than assumed.  The bundle's own
+`nu_ur_recip_uniformizer` gets its non-vacuity guard from §4 instead (`twoBot_max`). -/
+
+section MockPair
+
+/-- The mock carrier `ℤ × ℤ × ℤ₂`, written multiplicatively. -/
+abbrev MockPairA : Type := Multiplicative (ℤ × ℤ × ℤ_[2])
+
+/-- The `−1`-exponent coordinate. -/
+def mockPairFst : MockPairA →* Multiplicative ℤ :=
+  AddMonoidHom.toMultiplicative (AddMonoidHom.fst ℤ (ℤ × ℤ_[2]))
+
+/-- The `u`-exponent coordinate. -/
+def mockPairSnd : MockPairA →* Multiplicative ℤ :=
+  AddMonoidHom.toMultiplicative ((AddMonoidHom.fst ℤ ℤ_[2]).comp (AddMonoidHom.snd ℤ (ℤ × ℤ_[2])))
+
+/-- The mock cyclotomic coordinate `χ(m, n, t) = (−1)^m · (w⁻¹)^n`, where `w = −3` so that
+`u := w⁻¹` is the type-`M₂` unit `(1 − 2²)⁻¹`. -/
+def mockPairChi (w : ℤ_[2]ˣ) : MockPairA →* ℤ_[2]ˣ :=
+  ((zpowersHom ℤ_[2]ˣ (-1)).comp mockPairFst) * ((zpowersHom ℤ_[2]ˣ w⁻¹).comp mockPairSnd)
+
+/-- A mock class from its three coordinates.  Everything below is stated through this, so that no
+proof ever has to unify against `Multiplicative.toAdd`. -/
+def mockPairMk (m n : ℤ) (t : ℤ_[2]) : MockPairA := Multiplicative.ofAdd (m, n, t)
+
+theorem mockPairMk_surjective (g : MockPairA) : ∃ (m n : ℤ) (t : ℤ_[2]), g = mockPairMk m n t :=
+  ⟨(Multiplicative.toAdd g).1, (Multiplicative.toAdd g).2.1, (Multiplicative.toAdd g).2.2, rfl⟩
+
+@[simp] theorem mockPairChi_apply (w : ℤ_[2]ˣ) (m n : ℤ) (t : ℤ_[2]) :
+    mockPairChi w (mockPairMk m n t) = (-1 : ℤ_[2]ˣ) ^ m * w⁻¹ ^ n := by
+  simp [mockPairChi, mockPairFst, mockPairSnd, mockPairMk]
+
+/-- The mock unramified coordinate `ν(m, n, t) = 2m + n + 4t`, additively. -/
+def mockPairNuAdd : (ℤ × ℤ × ℤ_[2]) →+ ℤ_[2] where
+  toFun a := 2 * (a.1 : ℤ_[2]) + (a.2.1 : ℤ_[2]) + 4 * a.2.2
+  map_zero' := by simp
+  map_add' a b := by simp only [Prod.fst_add, Prod.snd_add]; push_cast; ring
+
+/-- The mock unramified coordinate, as a hom into `Multiplicative ℤ₂`. -/
+def mockPairNu : MockPairA →* Multiplicative ℤ_[2] :=
+  AddMonoidHom.toMultiplicative mockPairNuAdd
+
+@[simp] theorem mockPairNu_apply (m n : ℤ) (t : ℤ_[2]) :
+    (mockPairNu (mockPairMk m n t)).toAdd = 2 * (m : ℤ_[2]) + (n : ℤ_[2]) + 4 * t := rfl
+
+/-! ### The two arithmetic inputs -/
+
+/-- `u = (1 − 2²)⁻¹ ≡ 1 (mod 4)`, so `u` is invisible to the mod-4 reduction and the `−1`-exponent
+can be read off from it. -/
+theorem mockPair_toZModPow_inv (w : ℤ_[2]ˣ) (hw : (w : ℤ_[2]) = -3) :
+    PadicInt.toZModPow 2 ((w⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
+  have h : ((w⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * (w : ℤ_[2]) = 1 := by
+    rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
+  have h2 := congrArg (PadicInt.toZModPow 2) h
+  rw [map_mul, map_one, hw, show ((PadicInt.toZModPow 2) (-3 : ℤ_[2])) = 1 from by
+    rw [show ((-3 : ℤ_[2])) = ((-3 : ℤ) : ℤ_[2]) by push_cast; ring, map_intCast]; decide,
+    mul_one] at h2
+  exact h2
+
+/-- `u = (1 − 2²)⁻¹` has infinite order in `ℤ₂ˣ`.  Proof: `w = −3` is an ordinary integer, `ℤ ↪ ℤ₂`
+is injective (`CharZero`), and `3^k = 1` forces `k = 0` in `ℕ`.  (This is the `1 + 4ℤ₂` torsion-
+freeness fact, in the only instance the regression needs — no `ZtwoPowering` import.) -/
+theorem mockPair_zpow_eq_zero (w : ℤ_[2]ˣ) (hw : (w : ℤ_[2]) = -3) {n : ℤ} (h : w⁻¹ ^ n = 1) :
+    n = 0 := by
+  have hwn : w ^ n = 1 := by
+    rw [← inv_inv w, inv_zpow, h, inv_one]
+  have hk : w ^ (n.natAbs) = 1 := by
+    rcases Int.natAbs_eq n with he | he
+    · rw [← zpow_natCast, ← he]; exact hwn
+    · rw [he, zpow_neg, inv_eq_one, zpow_natCast] at hwn; exact hwn
+  have hval : ((-3 : ℤ) ^ (n.natAbs) : ℤ) = 1 := by
+    have hc := congrArg (fun v : ℤ_[2]ˣ => (v : ℤ_[2])) hk
+    simp only [Units.val_pow_eq_pow_val, hw, Units.val_one] at hc
+    rw [show ((-3 : ℤ_[2])) = ((-3 : ℤ) : ℤ_[2]) by push_cast; ring, ← Int.cast_pow] at hc
+    exact_mod_cast hc
+  have h3 : (3 : ℕ) ^ (n.natAbs) = 1 := by
+    have := congrArg Int.natAbs hval
+    simpa [Int.natAbs_pow] using this
+  have := Nat.pow_eq_one.1 h3
+  omega
+
+theorem mockPair_neg_one_zpow_even {m : ℤ} (hm : Even m) : ((-1 : ℤ_[2]ˣ)) ^ m = 1 := by
+  obtain ⟨k, rfl⟩ := hm
+  rw [zpow_add, ← mul_zpow, show ((-1 : ℤ_[2]ˣ)) * (-1) = 1 from by
+    rw [Units.ext_iff]; push_cast; ring, one_zpow]
+
+/-- The `−1`-exponent is even whenever `χ` kills the class: the mod-4 reduction sees only
+`(−1)^m`, and `−1 ≠ 1` in `(ℤ/4)ˣ`. -/
+theorem mockPair_even_of_chi_eq_one (w : ℤ_[2]ˣ) (hw : (w : ℤ_[2]) = -3) {m n : ℤ} {t : ℤ_[2]}
+    (h : mockPairChi w (mockPairMk m n t) = 1) : Even m := by
+  set f := Units.map (PadicInt.toZModPow 2 : ℤ_[2] →+* ZMod (2 ^ 2)).toMonoidHom with hf
+  have hu1 : f w⁻¹ = 1 := Units.ext (mockPair_toZModPow_inv w hw)
+  have hneg : f (-1) = -1 := by
+    refine Units.ext ?_
+    show PadicInt.toZModPow 2 (((-1 : ℤ_[2]ˣ)) : ℤ_[2]) = (((-1 : (ZMod (2 ^ 2))ˣ)) : ZMod (2 ^ 2))
+    rw [Units.val_neg, Units.val_one, map_neg, map_one, Units.val_neg, Units.val_one]
+  have hmap := congrArg f h
+  rw [mockPairChi_apply, map_mul, map_zpow, map_zpow, map_one, hu1, one_zpow, mul_one,
+    hneg] at hmap
+  rcases Int.even_or_odd m with he | ho
+  · exact he
+  · obtain ⟨k, rfl⟩ := ho
+    rw [zpow_add, zpow_mul, zpow_one,
+      show ((-1 : (ZMod (2 ^ 2))ˣ)) ^ (2 : ℤ) = 1 from by decide, one_zpow, one_mul] at hmap
+    exact absurd hmap (by decide)
+
+/-! ### The synthetic pair -/
+
+/-- **The synthetic level-`2` marked pair**, for any unit `w` of value `−3`.  `r = 2`,
+`λ(−1) = 2` (so `ε = 1`) and `η = λ(u) = 1` where `u = w⁻¹`; see the section docstring for the
+coordinates.  The pins below are stated for the *closed* instance `mockMarkedPair`, so that
+`decide` can see through the dependent `ZMod (2 ^ r)`. -/
+def mockMarkedPairOf (w : ℤ_[2]ˣ) (hw : (w : ℤ_[2]) = -3) : MarkedPair MockPairA where
+  chi := mockPairChi w
+  nu := mockPairNu
+  surjective_nu := by
+    intro z
+    obtain ⟨n, t, hnt⟩ := MarkedPair.exists_intCast_congr 2 z.toAdd
+    refine ⟨mockPairMk 0 n t, Multiplicative.toAdd.injective ?_⟩
+    rw [mockPairNu_apply]
+    have hz : z.toAdd - (n : ℤ_[2]) = 2 ^ 2 * t := hnt
+    push_cast
+    linear_combination -hz
+  r := 2
+  nu_ker_chi_le := by
+    intro g hg
+    obtain ⟨m, n, t, rfl⟩ := mockPairMk_surjective g
+    have hm : Even m := mockPair_even_of_chi_eq_one w hw hg
+    have hn : n = 0 := by
+      refine mockPair_zpow_eq_zero w hw (n := n) ?_
+      rw [mockPairChi_apply, mockPair_neg_one_zpow_even hm, one_mul] at hg
+      exact hg
+    obtain ⟨k, hk⟩ := hm
+    refine ⟨(k : ℤ_[2]) + t, ?_⟩
+    rw [mockPairNu_apply, hn, hk]
+    push_cast
+    ring
+  nu_ker_chi_ge := by
+    intro y
+    refine ⟨mockPairMk 0 0 y, ?_, ?_⟩
+    · rw [mockPairChi_apply, zpow_zero, zpow_zero, one_mul]
+    · rw [mockPairNu_apply]
+      push_cast
+      ring
+
+section MockValues
+
+/-- `−3` is a `2`-adic unit (it is odd), so the mock pair has a closed instance. -/
+theorem isUnit_neg_three : IsUnit ((-3 : ℤ_[2])) := by
+  rw [PadicInt.isUnit_iff]
+  rcases eq_or_lt_of_le (PadicInt.norm_le_one ((-3 : ℤ_[2]))) with h | h
+  · exact h
+  · rw [show ((-3 : ℤ_[2])) = (((-3 : ℤ)) : ℤ_[2]) by push_cast; ring,
+      PadicInt.norm_int_lt_one_iff_dvd] at h
+    omega
+
+/-- `w = −3` as a unit; `u := w⁻¹` is the type-`M₂` unit `(1 − 2²)⁻¹`. -/
+def mockPairW : ℤ_[2]ˣ := isUnit_neg_three.unit
+
+@[simp] theorem mockPairW_val : ((mockPairW : ℤ_[2]ˣ) : ℤ_[2]) = -3 := rfl
+
+/-- **The synthetic level-`2` marked pair, closed instance.**  This is the object the regression
+pins below are about; it also witnesses that §2's clause set is satisfiable (memo §7 R8). -/
+def mockMarkedPair : MarkedPair MockPairA := mockMarkedPairOf mockPairW mockPairW_val
+
+@[simp] theorem mockMarkedPair_r : mockMarkedPair.r = 2 := rfl
+
+@[simp] theorem mockMarkedPair_chi : mockMarkedPair.chi = mockPairChi mockPairW := rfl
+
+@[simp] theorem mockMarkedPair_nu : mockMarkedPair.nu = mockPairNu := rfl
+
+/-- `u = w⁻¹ ∈ C`. -/
+theorem mockPair_u_mem : mockPairW⁻¹ ∈ mockMarkedPair.C := ⟨mockPairMk 0 1 0, by simp⟩
+
+/-- `−1 ∈ C`, so `ε` is defined for the mock row. -/
+theorem mockPair_neg_one_mem : (-1 : ℤ_[2]ˣ) ∈ mockMarkedPair.C := ⟨mockPairMk 1 0 0, by simp⟩
+
+/-- `u⁻¹ = w ∈ C`. -/
+theorem mockPair_u_inv_mem : mockPairW ∈ mockMarkedPair.C := ⟨mockPairMk 0 (-1) 0, by simp⟩
+
+/-- `u` really is the type-`M₂` unit `(1 − 2²)⁻¹`, so `etaM` applies to it. -/
+theorem mockPair_u_spec : ((mockPairW⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * (1 - 2 ^ 2) = 1 := by
+  rw [show ((1 : ℤ_[2]) - 2 ^ 2) = ((mockPairW : ℤ_[2]ˣ) : ℤ_[2]) by rw [mockPairW_val]; ring,
+    ← Units.val_mul, inv_mul_cancel, Units.val_one]
+
+/-- `λ(−1) = 2 = ε·2^{r−1}` with `ε = 1`, `r = 2`. -/
+theorem mockPair_lambdaAt_neg_one :
+    mockMarkedPair.lambdaAt (-1) mockPair_neg_one_mem = 2 := by
+  rw [mockMarkedPair.lambdaAt_spec (-1) mockPair_neg_one_mem (mockPairMk 1 0 0) (by simp),
+    mockMarkedPair_nu, mockPairNu_apply]
+  norm_num
+  exact map_ofNat _ 2
+
+/-- The sign parameter of the mock row is `ε = 1` — the value that separates `ℚ₂(√−10)` from
+`ℚ₂(√10)` in the packet's table, pinned here through the `epsilonOf` extraction itself. -/
+theorem mockPair_epsilonOf :
+    mockMarkedPair.epsilonOf (by norm_num) mockPair_neg_one_mem = true := by
+  have h := mockMarkedPair.epsilonOf_spec (by norm_num) mockPair_neg_one_mem
+  rw [mockPair_lambdaAt_neg_one] at h
+  revert h
+  cases mockMarkedPair.epsilonOf (by norm_num) mockPair_neg_one_mem with
+  | false => intro h; revert h; decide
+  | true => intro _; rfl
+
+/-- **`η = λ(u) = 1`, the sign-bearing value.**  At `r = 2` the wrong sign would be `3 = −1`, and
+`mockPair_not_isEtaFor_neg_one` rejects it. -/
+theorem mockPair_etaM :
+    mockMarkedPair.etaM 2 (le_refl 2) mockPairW⁻¹ mockPair_u_spec mockPair_u_mem = 1 := by
+  rw [mockMarkedPair.etaM_spec 2 (le_refl 2) mockPairW⁻¹ mockPair_u_spec mockPair_u_mem
+    (mockPairMk 0 1 0) (by simp), mockMarkedPair_nu, mockPairNu_apply]
+  norm_num
+
+theorem mockPair_lambdaAt_u : mockMarkedPair.lambdaAt mockPairW⁻¹ mockPair_u_mem = 1 :=
+  mockPair_etaM
+
+/-- `λ(u⁻¹) = 3 = −1`: the inverse class is where `η = −1` *is* the representative. -/
+theorem mockPair_lambdaAt_u_inv : mockMarkedPair.lambdaAt mockPairW mockPair_u_inv_mem = 3 := by
+  rw [mockMarkedPair.lambdaAt_spec mockPairW mockPair_u_inv_mem (mockPairMk 0 (-1) 0) (by simp),
+    mockMarkedPair_nu, mockPairNu_apply]
+  norm_num
+  decide
+
+/-- `η = 1` represents `λ(u)` — the `η` adapter of `GQ2/Dyadic/Branches.lean`, correct sign. -/
+theorem mockPair_isEtaFor_one :
+    IsEtaFor mockMarkedPair.datum ⟨mockPairW⁻¹, mockPair_u_mem⟩ 1 := by
+  rw [mockMarkedPair.isEtaFor_datum_iff mockPairW⁻¹ mockPair_u_mem 1, mockPair_lambdaAt_u,
+    Units.val_one, map_one]
+
+/-- **`η = −1` does *not* represent `λ(u)`**: `1 ≠ 3` in `ℤ/4`.  A sign flip anywhere between `ν`
+and the branch row fails here — and at `r ≤ 1`, i.e. at every quadratic instance, it would not. -/
+theorem mockPair_not_isEtaFor_neg_one :
+    ¬ IsEtaFor mockMarkedPair.datum ⟨mockPairW⁻¹, mockPair_u_mem⟩ (-1) := by
+  rw [mockMarkedPair.isEtaFor_datum_iff mockPairW⁻¹ mockPair_u_mem (-1), mockPair_lambdaAt_u,
+    Units.val_neg, Units.val_one, map_neg, map_one]
+  decide
+
+/-- The two `η` pins are a genuine **discriminator**, not a pair of vacuous failures: on `u⁻¹` the
+verdicts swap.  A pipeline that inverted `u`, or flipped the `ν`-sign feeding `λ`, is caught. -/
+theorem mockPair_isEtaFor_inv_neg_one :
+    IsEtaFor mockMarkedPair.datum ⟨mockPairW, mockPair_u_inv_mem⟩ (-1) := by
+  rw [mockMarkedPair.isEtaFor_datum_iff mockPairW mockPair_u_inv_mem (-1),
+    mockPair_lambdaAt_u_inv, Units.val_neg, Units.val_one, map_neg, map_one]
+  decide
+
+theorem mockPair_not_isEtaFor_inv_one :
+    ¬ IsEtaFor mockMarkedPair.datum ⟨mockPairW, mockPair_u_inv_mem⟩ 1 := by
+  rw [mockMarkedPair.isEtaFor_datum_iff mockPairW mockPair_u_inv_mem 1, mockPair_lambdaAt_u_inv,
+    Units.val_one, map_one]
+  decide
+
+/-- `η` is odd, so the mock row is a genuine *procyclic* row (packet Prop. 8.1's surviving `M_α`
+case), not the excluded branch. -/
+theorem mockPair_not_even_etaM : ¬ Even
+    (mockMarkedPair.etaM 2 (le_refl 2) mockPairW⁻¹ mockPair_u_spec mockPair_u_mem) := by
+  rw [mockPair_etaM]
+  rintro ⟨y, hy⟩
+  revert y
+  decide
+
+/-- **The Frobenius coset is the coset of `u`**, whose λ-value is `+1`: the *geometric*
+normalization.  At `r = 2` the arithmetic convention would give `−1 = 3` and this pin would fail
+(memo §7 R1). -/
+theorem mockPair_gammaCoset :
+    (QuotientGroup.mk ⟨mockPairW⁻¹, mockPair_u_mem⟩ :
+        ↥mockMarkedPair.C ⧸ mockMarkedPair.datum.inertiaImage)
+      = mockMarkedPair.datum.gammaCoset := by
+  refine mockMarkedPair.datum.mk_eq_gammaCoset_iff.2 ?_
+  rw [MarkedPair.datum_lambdaAdd]
+  exact mockPair_lambdaAt_u
+
+/-- `u ∉ I`: the inertia image is a *proper* subgroup of `C` here, so `I = ker λ` has content. -/
+theorem mockPair_u_notMem_I : mockPairW⁻¹ ∉ mockMarkedPair.I := by
+  rw [← mockMarkedPair.lambdaAt_eq_zero_iff_mem_I mockPairW⁻¹ mockPair_u_mem,
+    mockPair_lambdaAt_u]
+  decide
+
+/-- …and `u⁴ ∈ I`, exhibited by an explicit `ker ν`-representative: the `I = ker λ` equivalence is
+exercised in both directions (`λ(u⁴) = 4 = 0` in `ℤ/4`). -/
+theorem mockPair_u_pow_four_mem_I : mockPairW⁻¹ ^ (4 : ℤ) ∈ mockMarkedPair.I := by
+  refine ⟨mockPairMk 0 4 (-1), MonoidHom.mem_ker.2 (Multiplicative.toAdd.injective ?_), ?_⟩
+  · rw [mockMarkedPair_nu, mockPairNu_apply]
+    show (2 * ((0 : ℤ) : ℤ_[2]) + ((4 : ℤ) : ℤ_[2]) + 4 * (-1 : ℤ_[2])) = (0 : ℤ_[2])
+    push_cast
+    ring
+  · rw [mockMarkedPair_chi, mockPairChi_apply, zpow_zero, one_mul]
+
+end MockValues
+
+end MockPair
+
 end
 
 end GQ2.Dyadic
