@@ -348,6 +348,24 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-30 (owner, via R2 blanket adoption — flagged for override): G-Lab ADOPTED per
+  the MC1 memo recommendation** — stay parametrized: `MLabHypothesis`/`NLabHypothesis` +
+  `MMixHypothesis`/`NMixHypothesis` remain hypothesis binders (never axioms); the MC3a
+  direct-proof spike is AUTHORIZED (MC1 Q1); B8-dependence for the S2 scalings accepted
+  (Q2, memo rec); abstract-G quantification confirmed (Q3). **MC5 scope WIDENED to the odd
+  (L) family** (S2.4's mapping; = MC1 §9 Q6). Owner's R2 decision on the simp board selects
+  **L_sq** as the primary word — SQ1 (rank-3 sq-comm marked-core/orientation theorem,
+  design-memo-first) is the commissioned cross-campaign work and lands HERE (simp-campaign
+  Lean deliverables rule). Dispatched: **SQ1** (ww worktree, branch `dyadic-sq1`, owns
+  `docs/dyadic/sq-design.md`), **MC-HM** (mc worktree, branch `dyadic-mc`, owns
+  `docs/dyadic/handlemixlift-spike.md` — the S2.4 Q1 bounded Dehn–Nielsen/Sp-realization
+  spike; would settle L/N/M stabilization at once; binder shape `HandleMixLiftHypothesis`
+  BLab-pattern). MC3/MC4 queue behind capacity (per MC1: stabilizer classification is
+  unconditional linear algebra and can land first; lifting consumes the binders).
+  **Packet errata draft** written at `docs/dyadic/packet-errata-draft.md` (owner sends):
+  proof.tex:757 Nielsen remark incomplete (S2.4 Cor 6.3.1); §14 completion criterion
+  implicitly assumes the S3 stratum (MC1 §7.3); compact-M marked CoV missing from vendored
+  sources (MC1 §7.2); Prop 8.1's implicit r ≥ 1 (F4).
 - 2026-07-29/30 (orchestrator, AX4-b + AX4 FLIP — **AXIOM LANE CLOSED**): AX4-b landed (all
   60 decls std-3; structure per memo §2.3 verbatim, K/R implicit so §2.4 text elaborates;
   `card_gr_zero` route for the ⊥ f-computation — cheaper than the memo's step 1; W₂
