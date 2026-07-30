@@ -71,12 +71,16 @@ assumed — the χ-side twin of memo §6.4's residue 2.
   `map_zpowZtwo`, hence a pro-2 target), the eight `_fixed` rows, and then
   `dmClearAuts_closure_le`/`dnClearAuts_closure_le`: **all of `A(P,h)` at once**.  `Φ_j`'s two
   moved rows are not restated — HM3's `frame_dmMixEquiv_dmD`/`_handleU` and the `N`-mirrors already
-  hold for an arbitrary character into a commutative group.
+  hold for an arbitrary character into a commutative group.  The section closes with the *negative*
+  rows `char_dmMixEquiv_ne`/`char_dnMixEquiv_ne`: blindness is a genuine hypothesis, and `Φ_j` moves
+  every character whose pivot value differs from `f(v̄_j)`.
 
-* **§4 The standard-marking rows.**  `isClearBlind_chiM`, `isClearBlind_chiN`, and the marked
-  condition `χ_P ∘ Ψ = χ_P` for every `Ψ ∈ A(P,h)` in pointwise
-  (`chiM_of_mem_dmClearAuts`, `chiN_of_mem_dnClearAuts`) and hom form
-  (`chiM_comp_of_mem_dmClearAuts`, `chiN_comp_of_mem_dnClearAuts`).
+* **§4 The standard-marking rows.**  `isClearBlind_chiM`, `isClearBlind_chiN`; the eight
+  generator-by-generator rows (`chiM_dmMixEquiv`, `chiM_dmTauUEquiv`, … and the `N`-mirrors) —
+  the memo's per-family instantiations, evaluated at MC2's closed forms; and the marked condition
+  `χ_P ∘ Ψ = χ_P` for every `Ψ ∈ A(P,h)` in pointwise (`chiM_of_mem_dmClearAuts`,
+  `chiN_of_mem_dnClearAuts`) and hom form (`chiM_comp_of_mem_dmClearAuts`,
+  `chiN_comp_of_mem_dnClearAuts`).
 
 * **§5 The headline, per family.**  `mHandleMixLift` and `nHandleMixLift` bundle HM4's
   `exists_dmClear_nu`/`exists_dnClear_nu` **with** the χ-row: one existential carrying membership in
@@ -87,7 +91,8 @@ assumed — the χ-side twin of memo §6.4's residue 2.
   `(α, h)`.
 
 * **§6 Small-instance pins.**  A `StressTests` section of `example`s at `(α, h) = (2, 1)` — the
-  smallest instance with both a non-trivial orientation unit and a non-empty handle plane.
+  smallest instance with both a non-trivial orientation unit and a non-empty handle plane.  It pins
+  both directions: `Φ_j` fixes `χ_M`, and `Φ_j` **moves** `ν_M` on the `d̄`-slot.
 
 ## The lane, closed: HM1 → HM5
 
@@ -477,6 +482,31 @@ theorem char_fixed_of_mem_dnClearAuts (f : ContinuousMonoidHom (DN α h : Type) 
 
 end MovedSlots
 
+/-! ### The rows are not automatic
+
+The converse direction, stated so that nothing above is over-read: `Φ_j` moves the `d̄`-slot of
+*any* character whose pivot value differs from the partner handle value.  Blindness is a genuine
+hypothesis, not a formality — for the ν-side characters HM4 steers, it is exactly false, which is
+why the clearing works at all (`nuM 2 1 _ (dmC 2 1) = ofAdd 1 ≠ ofAdd 0`; §6 pins it). -/
+
+/-- **`Φ_j` genuinely moves a character whose pivot value differs from `f(v̄_j)`.** -/
+theorem char_dmMixEquiv_ne (f : ContinuousMonoidHom (DM α h : Type) A) (j : Fin h)
+    (hne : f (dmC α h) ≠ f (dmGen α h (handleIdxV j))) :
+    f (dmMixEquiv α h j (dmD α h)) ≠ f (dmD α h) := by
+  rw [frame_dmMixEquiv_dmD α h j f]
+  intro hcontra
+  rw [mul_inv_eq_iff_eq_mul, mul_comm (f (dmD α h))] at hcontra
+  exact hne (mul_right_cancel hcontra)
+
+/-- The `N`-mirror of `char_dmMixEquiv_ne`. -/
+theorem char_dnMixEquiv_ne (f : ContinuousMonoidHom (DN α h : Type) A) (j : Fin h)
+    (hne : f (dnSigma α h) ≠ f (dnGen α h (handleIdxV j))) :
+    f (dnMixEquiv α h j (dnX2 α h)) ≠ f (dnX2 α h) := by
+  rw [frame_dnMixEquiv_dnX2 α h j f]
+  intro hcontra
+  rw [mul_inv_eq_iff_eq_mul, mul_comm (f (dnX2 α h))] at hcontra
+  exact hne (mul_right_cancel hcontra)
+
 end ClearBlind
 
 /-! ## §4 The standard-marking rows -/
@@ -494,6 +524,48 @@ theorem isClearBlind_chiM : IsClearBlind fun i => chiM α h (dmGen α h i) :=
 pivot letter is `σ` and `χ_N(σ) = 1`. -/
 theorem isClearBlind_chiN : IsClearBlind fun i => chiN α h (dnGen α h i) :=
   ⟨chiN_dnSigma α h, fun j => chiN_handleU α h j, fun j => chiN_handleV α h j⟩
+
+/-! ### Generator by generator
+
+The memo's per-family instantiation rows, evaluated at MC2's standard orientations: what HM2's
+`dmMixEquiv`/`dnMixEquiv` and HM4 §3's three `τ` families do to `χ_P` is **nothing**. -/
+
+theorem chiM_dmTauUEquiv (j : Fin h) (k : ℤ_[2]) (x : (DM α h : Type)) :
+    chiM α h (dmTauUEquiv α h j k x) = chiM α h x :=
+  char_dmTauUEquiv_fixed α h isProP_two_unitsPadicInt _ (isClearBlind_chiM α h) j k x
+
+theorem chiM_dmTauVEquiv (j : Fin h) (k : ℤ_[2]) (x : (DM α h : Type)) :
+    chiM α h (dmTauVEquiv α h j k x) = chiM α h x :=
+  char_dmTauVEquiv_fixed α h isProP_two_unitsPadicInt _ (isClearBlind_chiM α h) j k x
+
+theorem chiM_dmTauDEquiv (k : ℤ_[2]) (x : (DM α h : Type)) :
+    chiM α h (dmTauDEquiv α h k x) = chiM α h x :=
+  char_dmTauDEquiv_fixed α h isProP_two_unitsPadicInt _ (isClearBlind_chiM α h) k x
+
+/-- **`χ_M ∘ Φ_j = χ_M`** — memo §4's mixing automorphism, the generator outside the elementary
+strata, preserves the canonical orientation of the `M_α` core. -/
+theorem chiM_dmMixEquiv (j : Fin h) (x : (DM α h : Type)) :
+    chiM α h (dmMixEquiv α h j x) = chiM α h x :=
+  char_dmMixEquiv_fixed α h _ (isClearBlind_chiM α h) j x
+
+theorem chiN_dnTauUEquiv (j : Fin h) (k : ℤ_[2]) (x : (DN α h : Type)) :
+    chiN α h (dnTauUEquiv α h j k x) = chiN α h x :=
+  char_dnTauUEquiv_fixed α h isProP_two_unitsPadicInt _ (isClearBlind_chiN α h) j k x
+
+theorem chiN_dnTauVEquiv (j : Fin h) (k : ℤ_[2]) (x : (DN α h : Type)) :
+    chiN α h (dnTauVEquiv α h j k x) = chiN α h x :=
+  char_dnTauVEquiv_fixed α h isProP_two_unitsPadicInt _ (isClearBlind_chiN α h) j k x
+
+theorem chiN_dnTauDEquiv (k : ℤ_[2]) (x : (DN α h : Type)) :
+    chiN α h (dnTauDEquiv α h k x) = chiN α h x :=
+  char_dnTauDEquiv_fixed α h isProP_two_unitsPadicInt _ (isClearBlind_chiN α h) k x
+
+/-- **`χ_N ∘ Φ_j = χ_N`.** -/
+theorem chiN_dnMixEquiv (j : Fin h) (x : (DN α h : Type)) :
+    chiN α h (dnMixEquiv α h j x) = chiN α h x :=
+  char_dnMixEquiv_fixed α h _ (isClearBlind_chiN α h) j x
+
+/-! ### And all of `A(P,h)` -/
 
 /-- **The marked condition `χ_M ∘ Ψ = χ_M`, for every `Ψ ∈ A(P,h)`.**  This is the χ-half of MC3's
 `IsMStabilizer`, discharged for the whole handle stratum. -/
@@ -670,11 +742,25 @@ example : autEnd (dmMixEquiv 2 1 0) ∈ Submonoid.closure (dmClearAuts 2 1) :=
 /-- **The χ-truth at a concrete instance**: HM2's mixing automorphism — the one generator that is
 *not* an elementary Nielsen lift — fixes `χ_M` pointwise. -/
 example (x : (DM 2 1 : Type)) : chiM 2 1 (dmMixEquiv 2 1 0 x) = chiM 2 1 x :=
-  char_dmMixEquiv_fixed 2 1 (chiM 2 1) (isClearBlind_chiM 2 1) 0 x
+  chiM_dmMixEquiv 2 1 0 x
 
 /-- The `N`-side mirror. -/
 example (x : (DN 2 1 : Type)) : chiN 2 1 (dnMixEquiv 2 1 0 x) = chiN 2 1 x :=
-  char_dnMixEquiv_fixed 2 1 (chiN 2 1) (isClearBlind_chiN 2 1) 0 x
+  chiN_dnMixEquiv 2 1 0 x
+
+/-- **The other side of the χ-truth, concretely**: the same mixing automorphism *does* move the
+standard ν-marking, whose pivot value is the unit `1` rather than `0`.  So `char_dmMixEquiv_ne`'s
+hypothesis is satisfiable, blindness is a genuine condition, and the ν-clearing of HM4 has
+something to clear. -/
+example : nuM 2 1 (by omega) (dmMixEquiv 2 1 0 (dmD 2 1)) ≠ nuM 2 1 (by omega) (dmD 2 1) := by
+  refine char_dmMixEquiv_ne 2 1 _ 0 ?_
+  rw [nuM_dmC, nuM_handleV]
+  exact fun hcontra => absurd (ofAdd_eq_one.mp hcontra) one_ne_zero
+
+example : nuN 2 1 (dnMixEquiv 2 1 0 (dnX2 2 1)) ≠ nuN 2 1 (dnX2 2 1) := by
+  refine char_dnMixEquiv_ne 2 1 _ 0 ?_
+  rw [nuN_dnSigma, nuN_handleV]
+  exact fun hcontra => absurd (ofAdd_eq_one.mp hcontra) one_ne_zero
 
 /-- The ν-side unit row holds for the standard `M` marking at `(2, 1)`. -/
 example : IsUnit (toAdd (nuM 2 1 (by omega) (dmC 2 1))) := isUnit_nuM_dmC 2 1 (by omega)
