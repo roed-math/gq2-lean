@@ -229,6 +229,320 @@ def normUnitsK [FiniteDimensional ℚ_[2] K] : (↥K)ˣ →* ℚ_[2]ˣ :=
 
 end Vocabulary
 
+/-! ## §2 The abstract marked pair, and the `(C, I, λ, γ)` derivation
+
+Memo §1.5: the only genuinely new finiteness fact in the marked block is the draft's eq. 2.1
+`A = ν(ker χ) = 2^r ℤ₂`; *everything* else — `λ` well-defined, `I = ker λ`, surjectivity of `λ`,
+the Frobenius coset `γ` with `λ(γ) = 1` — is formal.  This section isolates that formal content
+on an abstract commutative group carrying only `(χ, ν, r)` and the two `2^r ℤ₂` clauses, for three
+reasons:
+
+* the bundle's own derived layer (§3) is then two lines per item;
+* the synthetic level-`2` regression of memo §7 R2 (§6 below) can exercise the *same* code — a
+  `MarkedRecip` cannot be hand-built (its `recip` is a genuine local-CFT object), but a marked
+  pair with prescribed `(χ, ν)` can, which is exactly what R2 asks for;
+* the clause set gets a non-vacuity witness (memo §7 R8): `mockMarkedPair` constructs one
+  outright, so the two `nu_ker_chi_*` clauses cannot be silently unsatisfiable.
+
+`ν` surjectivity is a *field* here rather than a derivation: over a bundle it comes from the
+uniformizer clause (`MarkedRecip.surjective_nu_ur`), which an abstract pair has no access to.
+Memo §1.5's derivation of `λ`-surjectivity from `ν`-surjectivity is `surjective_lambda` below. -/
+
+section MarkedPairSection
+
+/-- **The abstract marked pair** `(χ, ν, r)` of draft eq. 2.1: a cyclotomic coordinate
+`χ : A →* ℤ₂ˣ`, a surjective unramified coordinate `ν : A ↠ ℤ₂` (written multiplicatively — the
+profinite target of memo §7 R5), and the marked level `r` with `ν(ker χ) = 2^r ℤ₂` stated as its
+two inclusions.
+
+This is the *derived-layer* interface, **not** the axiom's: it carries no reciprocity map and no
+field, so it is satisfiable by hand (§6) and adds no strength.  `MarkedRecip.toMarkedPair`
+produces the arithmetic one. -/
+structure MarkedPair (A : Type*) [CommGroup A] where
+  /-- The cyclotomic coordinate `χ : A →* ℤ₂ˣ` (over a bundle: `chiCycKAb K`). -/
+  chi : A →* ℤ_[2]ˣ
+  /-- The unramified coordinate `ν : A →* Multiplicative ℤ₂` (over a bundle: `nu_ur`). -/
+  nu : A →* Multiplicative ℤ_[2]
+  /-- `ν` is surjective (over a bundle: derived from the uniformizer clause). -/
+  surjective_nu : Function.Surjective nu
+  /-- The marked level `r`: `ν(ker χ) = 2^r ℤ₂` (draft eq. 2.1's `A`). -/
+  r : ℕ
+  /-- `ν(ker χ) ⊆ 2^r ℤ₂` — the direction that makes `λ` well defined. -/
+  nu_ker_chi_le : ∀ g : A, chi g = 1 → ∃ y : ℤ_[2], (nu g).toAdd = 2 ^ r * y
+  /-- `ν(ker χ) ⊇ 2^r ℤ₂` — exactness of the level, the direction that gives `I = ker λ`. -/
+  nu_ker_chi_ge : ∀ y : ℤ_[2], ∃ g : A, chi g = 1 ∧ (nu g).toAdd = 2 ^ r * y
+
+namespace MarkedPair
+
+variable {A : Type*} [CommGroup A] (P : MarkedPair A)
+
+/-! ### The `2^r ℤ₂` ideal, in `toZModPow` form
+
+Both `nu_ker_chi_*` clauses are stated with an explicit factorization `2^r · y`; the `λ`
+machinery wants the equivalent `PadicInt.toZModPow r` form.  These two lemmas are the (unique)
+translation, and they are where `ZMod (2 ^ r)` meets `ℤ₂`. -/
+
+/-- `2^n · y` dies mod `2^n`. -/
+theorem toZModPow_two_pow_mul (n : ℕ) (y : ℤ_[2]) :
+    PadicInt.toZModPow n ((2 : ℤ_[2]) ^ n * y) = 0 := by
+  rw [map_mul, map_pow, map_ofNat]
+  have h : ((2 : ZMod (2 ^ n))) ^ n = 0 := by
+    rw [show ((2 : ZMod (2 ^ n))) = ((2 : ℕ) : ZMod (2 ^ n)) by push_cast; ring, ← Nat.cast_pow,
+      ZMod.natCast_self]
+  rw [h, zero_mul]
+
+/-- Conversely, an element killed mod `2^n` is `2^n` times something. -/
+theorem exists_eq_two_pow_mul {n : ℕ} {z : ℤ_[2]} (hz : PadicInt.toZModPow n z = 0) :
+    ∃ y : ℤ_[2], z = 2 ^ n * y := by
+  have hmem : z ∈ Ideal.span {((2 : ℕ) : ℤ_[2]) ^ n} := by
+    rw [← PadicInt.ker_toZModPow n]
+    exact hz
+  obtain ⟨y, hy⟩ := Ideal.mem_span_singleton'.1 hmem
+  exact ⟨y, by rw [← hy, mul_comm]; norm_num⟩
+
+/-- Every 2-adic integer is an ordinary integer modulo `2^n`.  (Used for `ν`-surjectivity over a
+bundle and for `λ`-surjectivity here.) -/
+theorem exists_intCast_congr (n : ℕ) (z : ℤ_[2]) :
+    ∃ (m : ℤ) (y : ℤ_[2]), z - (m : ℤ_[2]) = 2 ^ n * y := by
+  refine ⟨((PadicInt.toZModPow n z).cast : ℤ), ?_⟩
+  refine exists_eq_two_pow_mul ?_
+  rw [map_sub, map_intCast, ZMod.intCast_zmod_cast, sub_self]
+
+/-! ### `C`, `λ` and the quotient `C/I ≅ ℤ/2^r` -/
+
+/-- The cyclotomic image `C = χ(A)` of draft eq. 2.1.  Over a bundle this is
+`(chiCycKAb K).range` — the instantiation F4's `unramified_of_even` docstring names. -/
+abbrev C : Subgroup ℤ_[2]ˣ := P.chi.range
+
+/-- `ν` reduced mod `2^r`, as a hom on all of `A`.  `λ` is its descent along `χ`. -/
+def nuMod : A →* Multiplicative (ZMod (2 ^ P.r)) :=
+  (AddMonoidHom.toMultiplicative (PadicInt.toZModPow P.r).toAddMonoidHom).comp P.nu
+
+@[simp] theorem toAdd_nuMod (g : A) :
+    (P.nuMod g).toAdd = PadicInt.toZModPow P.r (P.nu g).toAdd := rfl
+
+theorem surjective_nuMod : Function.Surjective P.nuMod := fun z => by
+  obtain ⟨g, hg⟩ := P.surjective_nu (Multiplicative.ofAdd (((z.toAdd.cast : ℤ) : ℤ_[2])))
+  refine ⟨g, Multiplicative.toAdd.injective ?_⟩
+  rw [toAdd_nuMod, hg]
+  show PadicInt.toZModPow P.r (((z.toAdd.cast : ℤ) : ℤ_[2])) = z.toAdd
+  rw [map_intCast, ZMod.intCast_zmod_cast]
+
+/-- **`λ` is well defined** (memo §1.5, first bullet): `χ g = χ g'` forces
+`ν g ≡ ν g' (mod 2^r)`, i.e. `ker χ ≤ ker (ν mod 2^r)`. -/
+theorem ker_chi_le_ker_nuMod : P.chi.ker ≤ P.nuMod.ker := by
+  intro g hg
+  obtain ⟨y, hy⟩ := P.nu_ker_chi_le g (MonoidHom.mem_ker.1 hg)
+  refine MonoidHom.mem_ker.2 (Multiplicative.toAdd.injective ?_)
+  rw [toAdd_nuMod, hy, toZModPow_two_pow_mul]
+  rfl
+
+/-- `A/ker χ ≅ C`, the first isomorphism theorem for `χ`. -/
+def quotEquivC : A ⧸ P.chi.ker ≃* ↥P.C := QuotientGroup.quotientKerEquivRange P.chi
+
+@[simp] theorem quotEquivC_mk (g : A) :
+    P.quotEquivC (QuotientGroup.mk g) = ⟨P.chi g, ⟨g, rfl⟩⟩ := rfl
+
+/-- `ν mod 2^r` descended to `A/ker χ` — the intermediate step in the construction of `λ`, and
+the place `ker_chi_le_ker_nuMod` (well-definedness) is spent. -/
+def lambdaQuot : A ⧸ P.chi.ker →* Multiplicative (ZMod (2 ^ P.r)) :=
+  QuotientGroup.lift P.chi.ker P.nuMod fun _ hg =>
+    MonoidHom.mem_ker.1 (P.ker_chi_le_ker_nuMod hg)
+
+@[simp] theorem lambdaQuot_mk (g : A) : P.lambdaQuot (QuotientGroup.mk g) = P.nuMod g := rfl
+
+/-- **The marked quotient `λ : C ↠ ℤ/2^r`** of draft eq. 2.2, written multiplicatively as draft
+§10.2 does: `λ(χ g) = ν(g) mod 2^r`.  Constructed as the descent of `ν mod 2^r` along
+`A ↠ A/ker χ ≅ C`, so `map_mul` is free. -/
+def lambda : ↥P.C →* Multiplicative (ZMod (2 ^ P.r)) :=
+  P.lambdaQuot.comp P.quotEquivC.symm.toMonoidHom
+
+/-- The additive spelling of `λ` (memo §7 R3: every branch equation is additive). -/
+def lambdaAdd (c : ↥P.C) : ZMod (2 ^ P.r) := (P.lambda c).toAdd
+
+/-- **The defining property of `λ`** (memo §4.2 `lambdaOf_spec`): on the `χ`-image of `g`, `λ` is
+`ν g` reduced mod `2^r`.  Its `∀ g`-shape *is* the well-definedness statement. -/
+theorem lambda_chi (g : A) : P.lambda ⟨P.chi g, ⟨g, rfl⟩⟩ = P.nuMod g := by
+  show P.lambdaQuot (P.quotEquivC.symm ⟨P.chi g, ⟨g, rfl⟩⟩) = P.nuMod g
+  rw [P.quotEquivC.symm_apply_eq.2 (P.quotEquivC_mk g).symm, lambdaQuot_mk]
+
+theorem lambdaAdd_eq (c : ↥P.C) (g : A) (hg : P.chi g = (c : ℤ_[2]ˣ)) :
+    P.lambdaAdd c = PadicInt.toZModPow P.r (P.nu g).toAdd := by
+  have hc : (⟨P.chi g, ⟨g, rfl⟩⟩ : ↥P.C) = c := Subtype.ext hg
+  rw [lambdaAdd, ← hc, lambda_chi, toAdd_nuMod]
+
+@[simp] theorem lambdaAdd_mul (c c' : ↥P.C) :
+    P.lambdaAdd (c * c') = P.lambdaAdd c + P.lambdaAdd c' := by
+  simp [lambdaAdd]
+
+@[simp] theorem lambdaAdd_one : P.lambdaAdd 1 = 0 := by simp [lambdaAdd]
+
+@[simp] theorem lambdaAdd_inv (c : ↥P.C) : P.lambdaAdd c⁻¹ = -P.lambdaAdd c := by
+  simp [lambdaAdd]
+
+/-- **`λ` is surjective** (memo §1.5, third bullet), from surjectivity of `ν`. -/
+theorem surjective_lambda : Function.Surjective P.lambda := fun z => by
+  obtain ⟨g, hg⟩ := P.surjective_nuMod z
+  exact ⟨⟨P.chi g, ⟨g, rfl⟩⟩, by rw [lambda_chi, hg]⟩
+
+theorem surjective_lambdaAdd : Function.Surjective P.lambdaAdd := fun z => by
+  obtain ⟨c, hc⟩ := P.surjective_lambda (Multiplicative.ofAdd z)
+  exact ⟨c, by rw [lambdaAdd, hc]; rfl⟩
+
+/-- **F4's abstract datum** (`GQ2/Dyadic/Branches.lean`, draft §10.2): the marked pair's
+`(r, λ)` is a `CyclotomicFrobeniusDatum` on `C`.  This is the bridge memo §4.2 asks for; F4's
+`inertiaImage`/`gammaCoset` then agree with `I`/`γ` by `mem_I_iff` and `mk_eq_gammaCoset_iff`
+below. -/
+def datum : CyclotomicFrobeniusDatum ↥P.C where
+  r := P.r
+  lambda := P.lambda
+  lambda_surjective := P.surjective_lambda
+
+@[simp] theorem datum_r : P.datum.r = P.r := rfl
+
+@[simp] theorem datum_lambdaAdd (c : ↥P.C) : P.datum.lambdaAdd c = P.lambdaAdd c := rfl
+
+/-! ### `I`, and `I = ker λ` -/
+
+/-- The inertia image `I = χ(ker ν)` of draft eq. 2.1.  Memo §1.5's last bullet records why the
+name is honest (`ker ν ⊇ inertia` with pro-odd quotient, and `χ` kills pro-odd images inside the
+pro-2 group `ℤ₂ˣ`); that identification is *not* a Lean obligation and is not claimed here. -/
+abbrev I : Subgroup ℤ_[2]ˣ := P.nu.ker.map P.chi
+
+/-- **`I = ker λ`** (memo §1.5, second bullet) — the theorem that lets F4 use "`I`" and "`ker λ`"
+interchangeably.  `⊆` is immediate; `⊇` is where clause `nu_ker_chi_ge` (exactness of the level)
+is spent: an element of `ker λ` is `χ g` with `ν g ∈ 2^r ℤ₂ = ν(ker χ)`, and correcting `g` by the
+`ker χ`-element of the same `ν`-value lands in `ker ν`. -/
+theorem mem_I_iff (c : ↥P.C) : (c : ℤ_[2]ˣ) ∈ P.I ↔ P.lambdaAdd c = 0 := by
+  constructor
+  · rintro ⟨g, hg, hgc⟩
+    rw [P.lambdaAdd_eq c g hgc, MonoidHom.mem_ker.1 hg]
+    show PadicInt.toZModPow P.r (0 : ℤ_[2]) = 0
+    exact map_zero _
+  · intro hc
+    obtain ⟨g, hg⟩ := c.2
+    obtain ⟨y, hy⟩ := exists_eq_two_pow_mul (P.lambdaAdd_eq c g hg ▸ hc)
+    obtain ⟨h, hh1, hh2⟩ := P.nu_ker_chi_ge y
+    refine ⟨g * h⁻¹, MonoidHom.mem_ker.2 (Multiplicative.toAdd.injective ?_), ?_⟩
+    · rw [map_mul, map_inv]
+      show (P.nu g).toAdd + (-(P.nu h).toAdd) = (1 : Multiplicative ℤ_[2]).toAdd
+      rw [hy, hh2, add_neg_cancel]
+      rfl
+    · rw [map_mul, map_inv, MonoidHom.mem_ker.1 hh1, inv_one, mul_one, hg]
+
+/-- `I = ker λ` in F4's `inertiaImage` spelling. -/
+theorem mem_inertiaImage_iff (c : ↥P.C) :
+    c ∈ P.datum.inertiaImage ↔ (c : ℤ_[2]ˣ) ∈ P.I :=
+  (P.datum.mem_inertiaImage_iff).trans (P.mem_I_iff c).symm
+
+/-! ### `γ`, the Frobenius coset -/
+
+/-- **A geometric Frobenius lift exists** (memo §1.5, fourth bullet): some `g` has `ν g = 1`. -/
+theorem exists_frobenius : ∃ g : A, (P.nu g).toAdd = 1 := by
+  obtain ⟨g, hg⟩ := P.surjective_nu (Multiplicative.ofAdd (1 : ℤ_[2]))
+  exact ⟨g, by rw [hg]; rfl⟩
+
+/-- **`γ` is well defined, with `λ(γ) = 1`** (draft eq. 2.3): the `χ`-image of any `ν`-value-`1`
+element represents F4's `gammaCoset`, and two such differ by `I`.  ⚠ The `1` is the *additive*
+one of `ℤ/2^r`; it is `λ(γ) = 1`, not `γ ∈ I`. -/
+theorem mk_eq_gammaCoset_of_nu_eq_one {g : A} (hg : (P.nu g).toAdd = 1) :
+    (QuotientGroup.mk ⟨P.chi g, ⟨g, rfl⟩⟩ : ↥P.C ⧸ P.datum.inertiaImage) = P.datum.gammaCoset := by
+  refine P.datum.mk_eq_gammaCoset_iff.2 ?_
+  rw [datum_lambdaAdd, P.lambdaAdd_eq _ g rfl, hg]
+  exact map_one _
+
+theorem exists_gamma_rep :
+    ∃ (g : A) (hc : P.chi g ∈ P.C), (P.nu g).toAdd = 1 ∧
+      (QuotientGroup.mk ⟨P.chi g, hc⟩ : ↥P.C ⧸ P.datum.inertiaImage) = P.datum.gammaCoset := by
+  obtain ⟨g, hg⟩ := P.exists_frobenius
+  exact ⟨g, ⟨g, rfl⟩, hg, P.mk_eq_gammaCoset_of_nu_eq_one hg⟩
+
+/-! ### The `(r, ε, η)` extraction API (memo §4.2)
+
+Value spelling, recorded once (memo §4.2, and the risk R2 this section's regression guards):
+`λ(unit-part(N_{K/ℚ₂} x)) = + v_K(x) mod 2^r`, because `χ(rec x) = unit-part(N x)⁻¹` and
+`ν(rec x) = −v_K(x)` — the two inversions cancel. -/
+
+/-- **`λ` at a `C`-member** — memo §4.2's `lambdaOf`, the form instances call. -/
+def lambdaAt (c : ℤ_[2]ˣ) (hc : c ∈ P.C) : ZMod (2 ^ P.r) := P.lambdaAdd ⟨c, hc⟩
+
+theorem lambdaAt_spec (c : ℤ_[2]ˣ) (hc : c ∈ P.C) (g : A) (hg : P.chi g = c) :
+    P.lambdaAt c hc = PadicInt.toZModPow P.r (P.nu g).toAdd :=
+  P.lambdaAdd_eq ⟨c, hc⟩ g hg
+
+theorem lambdaAt_eq_zero_iff_mem_I (c : ℤ_[2]ˣ) (hc : c ∈ P.C) :
+    P.lambdaAt c hc = 0 ↔ c ∈ P.I :=
+  (P.mem_I_iff ⟨c, hc⟩).symm
+
+/-- `λ(−1)` is two-torsion, so it is `ε·2^{r−1}` for a **unique Boolean** `ε` when `r ≥ 1` — F1's
+`epsVal` design decision (`ε : Bool`) as a theorem.  At `r = 0` the statement is meaningless
+(`ℕ`-subtraction truncates and `ZMod 1` is trivial), which is memo §7 R4. -/
+theorem exists_eps (hr : 1 ≤ P.r) (h₁ : (-1 : ℤ_[2]ˣ) ∈ P.C) :
+    ∃ ε : Bool, P.lambdaAt (-1) h₁ = ((epsVal ε * 2 ^ (P.r - 1) : ℕ) : ZMod (2 ^ P.r)) := by
+  haveI : NeZero (2 ^ P.r) := ⟨by positivity⟩
+  have hsq : ((⟨-1, h₁⟩ : ↥P.C) * ⟨-1, h₁⟩) = 1 := by
+    refine Subtype.ext ?_
+    show (-1 : ℤ_[2]ˣ) * (-1 : ℤ_[2]ˣ) = 1
+    simp
+  have h2 : (2 : ℕ) • P.lambdaAt (-1) h₁ = 0 := by
+    have h := P.lambdaAdd_mul ⟨-1, h₁⟩ ⟨-1, h₁⟩
+    rw [hsq, lambdaAdd_one, ← two_nsmul] at h
+    exact h.symm
+  have hval : ((2 * (P.lambdaAt (-1) h₁).val : ℕ) : ZMod (2 ^ P.r)) = 0 := by
+    push_cast
+    rw [ZMod.natCast_zmod_val, two_mul, ← two_nsmul]
+    exact h2
+  have hdvd : (2 : ℕ) ^ P.r ∣ 2 * (P.lambdaAt (-1) h₁).val :=
+    (ZMod.natCast_eq_zero_iff _ _).1 hval
+  rcases eq_zero_or_eq_two_pow_pred hr hdvd (ZMod.val_lt _) with h | h
+  · refine ⟨false, ?_⟩
+    rw [← ZMod.natCast_zmod_val (P.lambdaAt (-1) h₁), h]
+    simp [epsVal]
+  · refine ⟨true, ?_⟩
+    rw [← ZMod.natCast_zmod_val (P.lambdaAt (-1) h₁), h]
+    simp [epsVal]
+
+/-- The sign parameter `ε ∈ Bool` of packet §8, extracted from `λ(−1) = ε·2^{r−1}` (`r ≥ 1`). -/
+def epsilonOf (hr : 1 ≤ P.r) (h₁ : (-1 : ℤ_[2]ˣ) ∈ P.C) : Bool :=
+  (P.exists_eps hr h₁).choose
+
+theorem epsilonOf_spec (hr : 1 ≤ P.r) (h₁ : (-1 : ℤ_[2]ˣ) ∈ P.C) :
+    P.lambdaAt (-1) h₁
+      = ((epsVal (P.epsilonOf hr h₁) * 2 ^ (P.r - 1) : ℕ) : ZMod (2 ^ P.r)) :=
+  (P.exists_eps hr h₁).choose_spec
+
+/-- **`η` for the `M_α` rows** (packet §8): `η = λ(u)` with `u = (1 − 2^α)⁻¹ ∈ 1 + 4ℤ₂`.  The
+`α`-pinning travels as a hypothesis in the house style (B5's `chiCyc_recip_neg3`, F4's
+`toZModPow_three_eq_five_of_uM_two`), so a caller cannot feed the wrong unit. -/
+def etaM (α : ℕ) (_hα : 2 ≤ α) (u : ℤ_[2]ˣ) (_hu : (u : ℤ_[2]) * (1 - 2 ^ α) = 1)
+    (hmem : u ∈ P.C) : ZMod (2 ^ P.r) := P.lambdaAt u hmem
+
+/-- **`η` for the `N_α` procyclic rows** (draft §2, type-`N` paragraph): `η = λ(v)` with
+`v = −(1 + 2^α)⁻¹`. -/
+def etaN (α : ℕ) (_hα : 2 ≤ α) (v : ℤ_[2]ˣ) (_hv : (v : ℤ_[2]) * (-(1 + 2 ^ α)) = 1)
+    (hmem : v ∈ P.C) : ZMod (2 ^ P.r) := P.lambdaAt v hmem
+
+theorem etaM_spec (α : ℕ) (hα : 2 ≤ α) (u : ℤ_[2]ˣ) (hu : (u : ℤ_[2]) * (1 - 2 ^ α) = 1)
+    (hmem : u ∈ P.C) (g : A) (hg : P.chi g = u) :
+    P.etaM α hα u hu hmem = PadicInt.toZModPow P.r (P.nu g).toAdd :=
+  P.lambdaAt_spec u hmem g hg
+
+theorem etaN_spec (α : ℕ) (hα : 2 ≤ α) (v : ℤ_[2]ˣ) (hv : (v : ℤ_[2]) * (-(1 + 2 ^ α)) = 1)
+    (hmem : v ∈ P.C) (g : A) (hg : P.chi g = v) :
+    P.etaN α hα v hv hmem = PadicInt.toZModPow P.r (P.nu g).toAdd :=
+  P.lambdaAt_spec v hmem g hg
+
+/-- The `η`-adapter bridge to F1/F4: `η : ℤ₂ˣ` represents `λ(u)` exactly when its `mod 2^r`
+reduction is `λ(u)` (`IsEtaFor` of `GQ2/Dyadic/Branches.lean`). -/
+theorem isEtaFor_datum_iff (u : ℤ_[2]ˣ) (hmem : u ∈ P.C) (η : ℤ_[2]ˣ) :
+    IsEtaFor P.datum ⟨u, hmem⟩ η ↔ P.lambdaAt u hmem = PadicInt.toZModPow P.r (η : ℤ_[2]) := by
+  rw [isEtaFor_iff]
+  rfl
+
+end MarkedPair
+
+end MarkedPairSection
+
 end
 
 end GQ2.Dyadic
