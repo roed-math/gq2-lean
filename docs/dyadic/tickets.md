@@ -348,6 +348,19 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- 2026-07-30 (orchestrator, HM3 outcomes): merged, import registered; audit green (3409
+  jobs incl. the new file, census 11). 1302 ln / 155 decls, ALL exactly std-3 — no B8. The
+  complete §5 dictionary landed: frame action + bridges, transvection matrices, Eichler
+  elements with N² = 0 and E^n = 1+nN, θ_w-conjugation reaching every 2-adic parameter
+  ({n·w⁻¹} = ℤ₂), and **the 2×2 local-ring SL₂ = E₂ argument (mathlib has no elementary-
+  generation theorem — proved directly, 5-factor planeDiag decomposition)**; end-to-end
+  probe: the group-level τ_c(−1)∘τ_{v_j}(1)∘Φ_j IS frameEichlerU j 1 on the ν-frame, one
+  `rw`. Adopted deltas: frames stated against CHARACTERS (MDecomposition/NDecomposition are
+  MC3/MC4 items and don't exist yet — the e-row form is a coordinate composition; no memo
+  identity failed); the family swap inherited from HM2 (E_j's c̄-coefficient +1 — immaterial,
+  §4 realizes every coefficient); E'_j simplified (plain conjugate suffices); ℕ-exponents in
+  the θ-conj headlines (valuation split). **HM4 dispatched** (mc, sequential — the
+  ν-clearing theorem + the restated obligation + the MC5 hLift split shape).
 - 2026-07-30 (orchestrator, HM2 outcomes): merged, import registered; audit green 3408
   jobs, census 11. 830 ln / 94 decls, ALL ≤ std-3 — **no B8, no B3c** (memo V4 now
   measured). `dmMixEquiv`/`dnMixEquiv` assembled as ContinuousMulEquivs (continuity free via
