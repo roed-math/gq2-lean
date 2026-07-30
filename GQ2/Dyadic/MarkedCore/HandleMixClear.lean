@@ -650,6 +650,305 @@ noncomputable def dnTauDEquiv (k : ℤ_[2]) :
 
 end Assembly
 
+/-! ## §4 `A(P,h)` on the cores, and the realization of every frame move -/
+
+section Realization
+
+/-- The underlying self-map of a continuous automorphism, entered into the endomorphism monoid
+(the `frameEnd` barrier of §1, on the core side). -/
+def autEnd {X : Type} [Group X] [TopologicalSpace X] (Ψ : ContinuousMulEquiv X X) :
+    Function.End X := fun x => Ψ x
+
+@[simp] theorem autEnd_apply {X : Type} [Group X] [TopologicalSpace X]
+    (Ψ : ContinuousMulEquiv X X) (x : X) : autEnd Ψ x = Ψ x := rfl
+
+/-- Composition of automorphisms multiplies their self-maps **in the opposite order** — the
+`Function.End` product is `f * g = f ∘ g`. -/
+theorem autEnd_trans {X : Type} [Group X] [TopologicalSpace X] (Ψ Ψ' : ContinuousMulEquiv X X) :
+    autEnd (Ψ.trans Ψ') = autEnd Ψ' * autEnd Ψ := rfl
+
+@[simp] theorem autEnd_refl {X : Type} [Group X] [TopologicalSpace X] :
+    autEnd (ContinuousMulEquiv.refl X) = 1 := rfl
+
+variable (α h : ℕ)
+
+/-- **Memo §5.3's `A(P,h)` on `D_M`**: the realized automorphisms, as a generating set inside
+`Function.End (D_M)` — HM2's mixing automorphism `Φ_j` at every handle, and §3's three `τ`
+families at every 2-adic exponent.  Its frame image is `frameClearGens h`, generator for
+generator (`exists_dmRealizes`). -/
+noncomputable def dmClearAuts (α h : ℕ) : Set (Function.End (DM α h : Type)) :=
+  (⋃ j : Fin h, Set.range fun k : ℤ_[2] => autEnd (dmTauUEquiv α h j k))
+    ∪ (⋃ j : Fin h, Set.range fun k : ℤ_[2] => autEnd (dmTauVEquiv α h j k))
+    ∪ Set.range (fun k : ℤ_[2] => autEnd (dmTauDEquiv α h k))
+    ∪ Set.range (fun j : Fin h => autEnd (dmMixEquiv α h j))
+
+/-- **Memo §5.3's `A(P,h)` on `D_N`**. -/
+noncomputable def dnClearAuts (α h : ℕ) : Set (Function.End (DN α h : Type)) :=
+  (⋃ j : Fin h, Set.range fun k : ℤ_[2] => autEnd (dnTauUEquiv α h j k))
+    ∪ (⋃ j : Fin h, Set.range fun k : ℤ_[2] => autEnd (dnTauVEquiv α h j k))
+    ∪ Set.range (fun k : ℤ_[2] => autEnd (dnTauDEquiv α h k))
+    ∪ Set.range (fun j : Fin h => autEnd (dnMixEquiv α h j))
+
+/-- **`Ψ` realizes the frame move `F` on `D_M`**: `Ψ` lies in `A(P,h)` and precomposition with `Ψ`
+acts on the ν-frame of *every* `Multiplicative ℤ_[2]`-character as `F`.  This is HM3's §6
+dictionary turned into a relation, and it is what composes: `Ψ₁.trans Ψ₂` realizes `F₁ * F₂`
+(substitutions compose innermost-first, so the assignment is an anti-homomorphism — HM3's
+recorded convention). -/
+def DmRealizes (α h : ℕ) (Ψ : ContinuousMulEquiv (DM α h : Type) (DM α h : Type))
+    (F : Function.End (Fin (coreRank h) → ℤ_[2])) : Prop :=
+  autEnd Ψ ∈ Submonoid.closure (dmClearAuts α h)
+    ∧ ∀ f : ContinuousMonoidHom (DM α h : Type) (Multiplicative ℤ_[2]),
+      nuFrame f (fun i => Ψ (dmGen α h i)) = F (nuFrame f (dmGen α h))
+
+/-- The `N`-mirror of `DmRealizes`. -/
+def DnRealizes (α h : ℕ) (Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type))
+    (F : Function.End (Fin (coreRank h) → ℤ_[2])) : Prop :=
+  autEnd Ψ ∈ Submonoid.closure (dnClearAuts α h)
+    ∧ ∀ f : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]),
+      nuFrame f (fun i => Ψ (dnGen α h i)) = F (nuFrame f (dnGen α h))
+
+/-! ### The four generator rows, per core -/
+
+theorem dmRealizes_tauU (j : Fin h) (k : ℤ_[2]) :
+    DmRealizes α h (dmTauUEquiv α h j k) (frameEnd (frameTauU j k)) := by
+  refine ⟨Submonoid.subset_closure (Set.mem_union_left _ (Set.mem_union_left _
+    (Set.mem_union_left _ (Set.mem_iUnion.mpr ⟨j, ⟨k, rfl⟩⟩)))), fun f => ?_⟩
+  have hgen : (fun i => dmTauUEquiv α h j k (dmGen α h i))
+      = tauUMark (isProP_DM α h) j k (dmGen α h) := funext (dmTauUEquiv_gen α h j k)
+  rw [hgen]
+  exact nuFrame_tau_handleU (isProP_DM α h) f (dmGen α h) j k
+
+theorem dmRealizes_tauV (j : Fin h) (k : ℤ_[2]) :
+    DmRealizes α h (dmTauVEquiv α h j k) (frameEnd (frameTauV j k)) := by
+  refine ⟨Submonoid.subset_closure (Set.mem_union_left _ (Set.mem_union_left _
+    (Set.mem_union_right _ (Set.mem_iUnion.mpr ⟨j, ⟨k, rfl⟩⟩)))), fun f => ?_⟩
+  have hgen : (fun i => dmTauVEquiv α h j k (dmGen α h i))
+      = tauVMark (isProP_DM α h) j k (dmGen α h) := funext (dmTauVEquiv_gen α h j k)
+  rw [hgen]
+  exact nuFrame_tau_handleV (isProP_DM α h) f (dmGen α h) j k
+
+theorem dmRealizes_tauD (k : ℤ_[2]) :
+    DmRealizes α h (dmTauDEquiv α h k) (frameEnd (frameTauD k)) := by
+  refine ⟨Submonoid.subset_closure (Set.mem_union_left _ (Set.mem_union_right _ ⟨k, rfl⟩)),
+    fun f => ?_⟩
+  have hgen : (fun i => dmTauDEquiv α h k (dmGen α h i))
+      = tauDMark (isProP_DM α h) k (dmGen α h) := funext (dmTauDEquiv_gen α h k)
+  rw [hgen]
+  exact nuFrame_tau_three (isProP_DM α h) f (dmGen α h) k
+
+theorem dmRealizes_mix (j : Fin h) :
+    DmRealizes α h (dmMixEquiv α h j) (frameEnd (frameMixAdd j)) :=
+  ⟨Submonoid.subset_closure (Set.mem_union_right _ ⟨j, rfl⟩),
+    fun f => nuFrame_dmMixEquiv α h j f⟩
+
+theorem dnRealizes_tauU (j : Fin h) (k : ℤ_[2]) :
+    DnRealizes α h (dnTauUEquiv α h j k) (frameEnd (frameTauU j k)) := by
+  refine ⟨Submonoid.subset_closure (Set.mem_union_left _ (Set.mem_union_left _
+    (Set.mem_union_left _ (Set.mem_iUnion.mpr ⟨j, ⟨k, rfl⟩⟩)))), fun f => ?_⟩
+  have hgen : (fun i => dnTauUEquiv α h j k (dnGen α h i))
+      = tauUMark (isProP_DN α h) j k (dnGen α h) := funext (dnTauUEquiv_gen α h j k)
+  rw [hgen]
+  exact nuFrame_tau_handleU (isProP_DN α h) f (dnGen α h) j k
+
+theorem dnRealizes_tauV (j : Fin h) (k : ℤ_[2]) :
+    DnRealizes α h (dnTauVEquiv α h j k) (frameEnd (frameTauV j k)) := by
+  refine ⟨Submonoid.subset_closure (Set.mem_union_left _ (Set.mem_union_left _
+    (Set.mem_union_right _ (Set.mem_iUnion.mpr ⟨j, ⟨k, rfl⟩⟩)))), fun f => ?_⟩
+  have hgen : (fun i => dnTauVEquiv α h j k (dnGen α h i))
+      = tauVMark (isProP_DN α h) j k (dnGen α h) := funext (dnTauVEquiv_gen α h j k)
+  rw [hgen]
+  exact nuFrame_tau_handleV (isProP_DN α h) f (dnGen α h) j k
+
+theorem dnRealizes_tauD (k : ℤ_[2]) :
+    DnRealizes α h (dnTauDEquiv α h k) (frameEnd (frameTauD k)) := by
+  refine ⟨Submonoid.subset_closure (Set.mem_union_left _ (Set.mem_union_right _ ⟨k, rfl⟩)),
+    fun f => ?_⟩
+  have hgen : (fun i => dnTauDEquiv α h k (dnGen α h i))
+      = tauDMark (isProP_DN α h) k (dnGen α h) := funext (dnTauDEquiv_gen α h k)
+  rw [hgen]
+  exact nuFrame_tau_three (isProP_DN α h) f (dnGen α h) k
+
+theorem dnRealizes_mix (j : Fin h) :
+    DnRealizes α h (dnMixEquiv α h j) (frameEnd (frameMixAdd j)) :=
+  ⟨Submonoid.subset_closure (Set.mem_union_right _ ⟨j, rfl⟩),
+    fun f => nuFrame_dnMixEquiv α h j f⟩
+
+/-! ### Realization of an arbitrary element of `A(P,h)` -/
+
+/-- **Every frame move in `A(P,h)` is realized by a continuous automorphism of `D_M`** — §1–§2's
+frame calculus lifted to the presented core.  The `one` case is `ContinuousMulEquiv.refl`, and the
+`mul` case is `Ψ₁.trans Ψ₂` with the ν-frame identity read through the character `ν'∘Ψ₂`. -/
+theorem exists_dmRealizes {F : Function.End (Fin (coreRank h) → ℤ_[2])}
+    (hF : F ∈ Submonoid.closure (frameClearGens h)) :
+    ∃ Ψ : ContinuousMulEquiv (DM α h : Type) (DM α h : Type), DmRealizes α h Ψ F := by
+  induction hF using Submonoid.closure_induction with
+  | mem F hF =>
+    simp only [frameClearGens, Set.mem_union, Set.mem_iUnion, Set.mem_range] at hF
+    rcases hF with ((⟨j, k, rfl⟩ | ⟨j, k, rfl⟩) | ⟨k, rfl⟩) | ⟨j, rfl⟩
+    · exact ⟨_, dmRealizes_tauU α h j k⟩
+    · exact ⟨_, dmRealizes_tauV α h j k⟩
+    · exact ⟨_, dmRealizes_tauD α h k⟩
+    · exact ⟨_, dmRealizes_mix α h j⟩
+  | one => exact ⟨ContinuousMulEquiv.refl _, by rw [autEnd_refl]; exact one_mem _, fun f => rfl⟩
+  | mul F₁ F₂ _ _ ih₁ ih₂ =>
+    obtain ⟨Ψ₁, hm₁, hb₁⟩ := ih₁
+    obtain ⟨Ψ₂, hm₂, hb₂⟩ := ih₂
+    refine ⟨Ψ₁.trans Ψ₂, by rw [autEnd_trans]; exact mul_mem hm₂ hm₁, fun f => ?_⟩
+    have hstep : nuFrame f (fun i => (Ψ₁.trans Ψ₂) (dmGen α h i))
+        = nuFrame (f.comp ⟨Ψ₂.toMonoidHom, Ψ₂.continuous_toFun⟩) (fun i => Ψ₁ (dmGen α h i)) :=
+      rfl
+    have hbase : nuFrame (f.comp ⟨Ψ₂.toMonoidHom, Ψ₂.continuous_toFun⟩) (dmGen α h)
+        = nuFrame f (fun i => Ψ₂ (dmGen α h i)) := rfl
+    rw [hstep, hb₁, hbase, hb₂]
+    rfl
+
+/-- The `N`-mirror of `exists_dmRealizes`. -/
+theorem exists_dnRealizes {F : Function.End (Fin (coreRank h) → ℤ_[2])}
+    (hF : F ∈ Submonoid.closure (frameClearGens h)) :
+    ∃ Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type), DnRealizes α h Ψ F := by
+  induction hF using Submonoid.closure_induction with
+  | mem F hF =>
+    simp only [frameClearGens, Set.mem_union, Set.mem_iUnion, Set.mem_range] at hF
+    rcases hF with ((⟨j, k, rfl⟩ | ⟨j, k, rfl⟩) | ⟨k, rfl⟩) | ⟨j, rfl⟩
+    · exact ⟨_, dnRealizes_tauU α h j k⟩
+    · exact ⟨_, dnRealizes_tauV α h j k⟩
+    · exact ⟨_, dnRealizes_tauD α h k⟩
+    · exact ⟨_, dnRealizes_mix α h j⟩
+  | one => exact ⟨ContinuousMulEquiv.refl _, by rw [autEnd_refl]; exact one_mem _, fun f => rfl⟩
+  | mul F₁ F₂ _ _ ih₁ ih₂ =>
+    obtain ⟨Ψ₁, hm₁, hb₁⟩ := ih₁
+    obtain ⟨Ψ₂, hm₂, hb₂⟩ := ih₂
+    refine ⟨Ψ₁.trans Ψ₂, by rw [autEnd_trans]; exact mul_mem hm₂ hm₁, fun f => ?_⟩
+    have hstep : nuFrame f (fun i => (Ψ₁.trans Ψ₂) (dnGen α h i))
+        = nuFrame (f.comp ⟨Ψ₂.toMonoidHom, Ψ₂.continuous_toFun⟩) (fun i => Ψ₁ (dnGen α h i)) :=
+      rfl
+    have hbase : nuFrame (f.comp ⟨Ψ₂.toMonoidHom, Ψ₂.continuous_toFun⟩) (dnGen α h)
+        = nuFrame f (fun i => Ψ₂ (dnGen α h i)) := rfl
+    rw [hstep, hb₁, hbase, hb₂]
+    rfl
+
+end Realization
+
+/-! ## §5 The restated obligation  (memo V5, §5.3) -/
+
+section Obligation
+
+variable (α h : ℕ)
+
+/-- **The restated obligation for `D_M`, as a THEOREM** — memo V5's `ν_P ∈ ν'·A(P,h)` on the
+handle plane.  Given any `Multiplicative ℤ_[2]`-character `ν'` of the core whose value on the
+letter `c = C₀` is a 2-adic **unit**, there is a continuous automorphism `Ψ` *in `A(P,h)`* — a
+composite of HM2's mixing automorphisms and §3's exact transvections, nothing else — such that
+`ν'∘Ψ` kills every handle letter while keeping `ν'(c̄)`.
+
+This is exactly the statement MC5's proof consumes, and it replaces the
+`HandleMixLiftHypothesis` binder for the `M` family: what remains after it is the rank-four
+**core** block (memo §5.3's "block (a) finishes on `P_core`"), which is MC3/MC4/G-Lab territory
+and is *not* touched here.  The unit hypothesis is memo §6.4's residue 2 on the `M` side. -/
+theorem exists_dmClear_nu (nu' : ContinuousMonoidHom (DM α h : Type) (Multiplicative ℤ_[2]))
+    (hc : IsUnit (toAdd (nu' (dmC α h)))) :
+    ∃ Ψ : ContinuousMulEquiv (DM α h : Type) (DM α h : Type),
+      autEnd Ψ ∈ Submonoid.closure (dmClearAuts α h)
+        ∧ (∀ j : Fin h, nu' (Ψ (dmGen α h (handleIdxU j))) = 1)
+        ∧ (∀ j : Fin h, nu' (Ψ (dmGen α h (handleIdxV j))) = 1)
+        ∧ nu' (Ψ (dmC α h)) = nu' (dmC α h) := by
+  obtain ⟨F, hF, hU, hV, h2⟩ := exists_frameClear (nuFrame nu' (dmGen α h)) hc
+  obtain ⟨Ψ, hmem, hbridge⟩ := exists_dmRealizes α h hF
+  refine ⟨Ψ, hmem, fun j => ?_, fun j => ?_, ?_⟩
+  · have hb : toAdd (nu' (Ψ (dmGen α h (handleIdxU j)))) = 0 := by
+      have hbb := congrFun (hbridge nu') (handleIdxU j)
+      rw [hU j] at hbb
+      exact hbb
+    rw [← ofAdd_toAdd (nu' (Ψ (dmGen α h (handleIdxU j)))), hb, ofAdd_zero]
+  · have hb : toAdd (nu' (Ψ (dmGen α h (handleIdxV j)))) = 0 := by
+      have hbb := congrFun (hbridge nu') (handleIdxV j)
+      rw [hV j] at hbb
+      exact hbb
+    rw [← ofAdd_toAdd (nu' (Ψ (dmGen α h (handleIdxV j)))), hb, ofAdd_zero]
+  · have hb : toAdd (nu' (Ψ (dmC α h))) = toAdd (nu' (dmC α h)) := by
+      have hbb := congrFun (hbridge nu') 2
+      rw [h2] at hbb
+      exact hbb
+    rw [← ofAdd_toAdd (nu' (Ψ (dmC α h))), hb, ofAdd_toAdd]
+
+/-- **The restated obligation for `D_N`, as a THEOREM** — the `N`-mirror.  For `N` the letter at
+index `2` is `σ` itself, so the unit hypothesis is memo §5.3's `ν'(σ̄) ∈ ℤ₂ˣ` verbatim (and for
+`N`, memo §4.4 notes, the prefix shares no letter with `[σ,x₂]`: `N` is the easy case). -/
+theorem exists_dnClear_nu (nu' : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]))
+    (hc : IsUnit (toAdd (nu' (dnSigma α h)))) :
+    ∃ Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
+      autEnd Ψ ∈ Submonoid.closure (dnClearAuts α h)
+        ∧ (∀ j : Fin h, nu' (Ψ (dnGen α h (handleIdxU j))) = 1)
+        ∧ (∀ j : Fin h, nu' (Ψ (dnGen α h (handleIdxV j))) = 1)
+        ∧ nu' (Ψ (dnSigma α h)) = nu' (dnSigma α h) := by
+  obtain ⟨F, hF, hU, hV, h2⟩ := exists_frameClear (nuFrame nu' (dnGen α h)) hc
+  obtain ⟨Ψ, hmem, hbridge⟩ := exists_dnRealizes α h hF
+  refine ⟨Ψ, hmem, fun j => ?_, fun j => ?_, ?_⟩
+  · have hb : toAdd (nu' (Ψ (dnGen α h (handleIdxU j)))) = 0 := by
+      have hbb := congrFun (hbridge nu') (handleIdxU j)
+      rw [hU j] at hbb
+      exact hbb
+    rw [← ofAdd_toAdd (nu' (Ψ (dnGen α h (handleIdxU j)))), hb, ofAdd_zero]
+  · have hb : toAdd (nu' (Ψ (dnGen α h (handleIdxV j)))) = 0 := by
+      have hbb := congrFun (hbridge nu') (handleIdxV j)
+      rw [hV j] at hbb
+      exact hbb
+    rw [← ofAdd_toAdd (nu' (Ψ (dnGen α h (handleIdxV j)))), hb, ofAdd_zero]
+  · have hb : toAdd (nu' (Ψ (dnSigma α h))) = toAdd (nu' (dnSigma α h)) := by
+      have hbb := congrFun (hbridge nu') 2
+      rw [h2] at hbb
+      exact hbb
+    rw [← ofAdd_toAdd (nu' (Ψ (dnSigma α h))), hb, ofAdd_toAdd]
+
+/-! ### The memo's phrasing: `ν'∘Ψ` and `ν_P` agree on the handle plane
+
+MC2's standard markings `ν_M`, `ν_N` are `0` on every handle letter (`coreMark_handleU`,
+`coreMark_handleV`), so the two theorems above say literally that `ν'∘Ψ` **is** `ν_P` there. -/
+
+theorem nuM_handleU (hα : 1 ≤ α) (j : Fin h) : nuM α h hα (dmGen α h (handleIdxU j)) = 1 := by
+  rw [nuM, mLiftHom_gen, coreMark_handleU]
+
+theorem nuM_handleV (hα : 1 ≤ α) (j : Fin h) : nuM α h hα (dmGen α h (handleIdxV j)) = 1 := by
+  rw [nuM, mLiftHom_gen, coreMark_handleV]
+
+theorem nuN_handleU (j : Fin h) : nuN α h (dnGen α h (handleIdxU j)) = 1 := by
+  rw [nuN, nLiftHom_gen, coreMark_handleU]
+
+theorem nuN_handleV (j : Fin h) : nuN α h (dnGen α h (handleIdxV j)) = 1 := by
+  rw [nuN, nLiftHom_gen, coreMark_handleV]
+
+/-- **`ν_M ∈ ν'·A(P,h)` on the handle plane** — the restated obligation in the memo's own
+phrasing: the correction `Ψ` can be chosen inside `A(P,h)` so that `ν'∘Ψ` agrees with the standard
+marking `ν_M` on every handle letter, and does not move `ν'(c̄)`. -/
+theorem exists_dmClear_nu_eq_nuM (hα : 1 ≤ α)
+    (nu' : ContinuousMonoidHom (DM α h : Type) (Multiplicative ℤ_[2]))
+    (hc : IsUnit (toAdd (nu' (dmC α h)))) :
+    ∃ Ψ : ContinuousMulEquiv (DM α h : Type) (DM α h : Type),
+      autEnd Ψ ∈ Submonoid.closure (dmClearAuts α h)
+        ∧ (∀ j : Fin h, nu' (Ψ (dmGen α h (handleIdxU j)))
+            = nuM α h hα (dmGen α h (handleIdxU j)))
+        ∧ (∀ j : Fin h, nu' (Ψ (dmGen α h (handleIdxV j)))
+            = nuM α h hα (dmGen α h (handleIdxV j)))
+        ∧ nu' (Ψ (dmC α h)) = nu' (dmC α h) := by
+  obtain ⟨Ψ, hmem, hU, hV, h2⟩ := exists_dmClear_nu α h nu' hc
+  exact ⟨Ψ, hmem, fun j => (hU j).trans (nuM_handleU α h hα j).symm,
+    fun j => (hV j).trans (nuM_handleV α h hα j).symm, h2⟩
+
+/-- **`ν_N ∈ ν'·A(P,h)` on the handle plane** — the `N`-mirror. -/
+theorem exists_dnClear_nu_eq_nuN
+    (nu' : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]))
+    (hc : IsUnit (toAdd (nu' (dnSigma α h)))) :
+    ∃ Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
+      autEnd Ψ ∈ Submonoid.closure (dnClearAuts α h)
+        ∧ (∀ j : Fin h, nu' (Ψ (dnGen α h (handleIdxU j))) = nuN α h (dnGen α h (handleIdxU j)))
+        ∧ (∀ j : Fin h, nu' (Ψ (dnGen α h (handleIdxV j))) = nuN α h (dnGen α h (handleIdxV j)))
+        ∧ nu' (Ψ (dnSigma α h)) = nu' (dnSigma α h) := by
+  obtain ⟨Ψ, hmem, hU, hV, h2⟩ := exists_dnClear_nu α h nu' hc
+  exact ⟨Ψ, hmem, fun j => (hU j).trans (nuN_handleU α h j).symm,
+    fun j => (hV j).trans (nuN_handleV α h j).symm, h2⟩
+
+end Obligation
+
 end MarkedCore
 
 end Dyadic
