@@ -55,7 +55,7 @@ NC4's, in `NpcJet/Delta.lean`.  Nothing here is sorried and nothing here cites a
    `Marking.eval` multiplies through the `[Group G]` instance, so evaluation itself is safe.
 2. **`CentExt.fib` needs its cocycle.**  On a term whose type is an expression rather than a
    binder type, dot-notation `x.fib` can fail to elaborate; pass the cocycle explicitly as
-   `CentExt.fib (c := kappa0Cocycle dat hdat) x` — see `elt_injective` for the pattern.
+   `CentExt.fib (c := kappa0Cocycle dat hdat) x` — see `elt_inj_iff` for the pattern.
    Inside this file the `elt`-typed terms otherwise make dot-notation safe; downstream
    (NC4/NC5) the ascription is occasionally needed.
 
@@ -149,15 +149,16 @@ def elt (v : V) (c : C) (z : ZMod 2) : CentExt (kappa0Cocycle dat hdat) := (Sd.m
 
 @[simp] theorem elt_fib (v : V) (c : C) (z : ZMod 2) : (elt dat hdat v c z).fib = z := rfl
 
-/-- Components of an `elt` are recoverable — the injectivity that lets a block value be read off
-coordinatewise.  The proof also exhibits friction 2's mitigation: on a term whose type is the
+/-- Two `elt`s are equal exactly when their three components are — the coordinatewise reading of
+a block value.  The proof also exhibits friction 2's mitigation: on a term whose type is the
 expression `CentExt (kappa0Cocycle dat hdat)`, the projections take the cocycle explicitly, as
 `CentExt.fib (c := kappa0Cocycle dat hdat)`. -/
-theorem elt_injective {v w : V} {c d : C} {z z' : ZMod 2}
-    (h : elt dat hdat v c z = elt dat hdat w d z') : v = w ∧ c = d ∧ z = z' :=
-  ⟨congrArg (fun x => (CentExt.base (c := kappa0Cocycle dat hdat) x).v) h,
-    congrArg (fun x => (CentExt.base (c := kappa0Cocycle dat hdat) x).cc) h,
-    congrArg (CentExt.fib (c := kappa0Cocycle dat hdat)) h⟩
+theorem elt_inj_iff {v w : V} {c d : C} {z z' : ZMod 2} :
+    elt dat hdat v c z = elt dat hdat w d z' ↔ v = w ∧ c = d ∧ z = z' := by
+  refine ⟨fun h => ⟨?_, ?_, ?_⟩, fun ⟨hv, hc, hz⟩ => by rw [hv, hc, hz]⟩
+  · exact congrArg (fun x => (CentExt.base (c := kappa0Cocycle dat hdat) x).v) h
+  · exact congrArg (fun x => (CentExt.base (c := kappa0Cocycle dat hdat) x).cc) h
+  · exact congrArg (CentExt.fib (c := kappa0Cocycle dat hdat)) h
 
 /-- The identity of the extension in `elt`-form. -/
 theorem elt_one : elt dat hdat 0 1 0 = 1 := rfl
