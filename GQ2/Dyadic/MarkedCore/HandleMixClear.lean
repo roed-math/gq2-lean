@@ -1057,6 +1057,20 @@ theorem exists_dnClear_nu (nu' : ContinuousMonoidHom (DN α h : Type) (Multiplic
       exact hbb
     rw [← ofAdd_toAdd (nu' (Ψ (dnSigma α h))), hb, ofAdd_toAdd]
 
+/-! ### The unit hypothesis is not vacuous
+
+MC2's *standard* markings satisfy it on the nose — `ν_M(C₀) = ν_N(σ) = 1` — so memo §6.4's
+residue 2 is a question about the **transported** `ν' = ν_K∘f`, not about `ν_P`, and it is a data
+question (memo §6.4: "one line to check once F4/MC5 have the `M` ν-row"), not a proof question. -/
+
+theorem isUnit_nuM_dmC (hα : 1 ≤ α) : IsUnit (toAdd (nuM α h hα (dmC α h))) := by
+  rw [nuM_dmC, toAdd_ofAdd]
+  exact isUnit_one
+
+theorem isUnit_nuN_dnSigma : IsUnit (toAdd (nuN α h (dnSigma α h))) := by
+  rw [nuN_dnSigma, toAdd_ofAdd]
+  exact isUnit_one
+
 /-! ### The memo's phrasing: `ν'∘Ψ` and `ν_P` agree on the handle plane
 
 MC2's standard markings `ν_M`, `ν_N` are `0` on every handle letter (`coreMark_handleU`,
