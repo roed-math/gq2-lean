@@ -147,6 +147,15 @@ The ν-clearing of memo §5.3 needs, per handle `j` and per 2-adic coefficient, 
   the assembly recipe) is HM4's first step, and this file's §6 is what turns each assembled
   automorphism into its frame row.
 
+  *Recorded acceptance result (HM3's probe, verified in scratch, not committed):* the composite
+  is a one-line `rw`.  Applying the group-level substitutions of `τ_c(−1) ∘ τ_{v_j}(1) ∘ Φ_j` to
+  a marking `m` — i.e. two `Function.update`s with `zpowZtwo` values on top of
+  `handleMixMark j m` — and reading the result on the ν-frame gives
+  `frameEichlerU j 1 (nuFrame f m)` by
+  `rw [nuFrame_tau_three hP, nuFrame_tau_handleU hP, nuFrame_handleMixMark,
+  ← frameEichlerU_one_eq]`.  So HM4 needs no further frame calculus: once the composite is
+  assembled as a `ContinuousMulEquiv`, its ν-row is this file's `frameEichlerU`.
+
 ## Axiom hygiene
 
 Every declaration prints within **std-3** (`propext`, `Classical.choice`, `Quot.sound`), and the
