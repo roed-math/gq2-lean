@@ -16,6 +16,8 @@ public import GQ2.Dyadic.MarkedCore.HandleMixClear
 discharge.
 -/
 
+open Multiplicative
+
 namespace GQ2
 
 namespace Dyadic
@@ -352,6 +354,156 @@ theorem char_fixed_of_mem_dnClearAuts (f : ContinuousMonoidHom (DN α h : Type) 
 end MovedSlots
 
 end ClearBlind
+
+/-! ## §4 The standard-marking rows -/
+
+section StandardRows
+
+variable (α h : ℕ)
+
+/-- **`χ_M` is clear-blind** — MC2's closed form `(A, B, C₀, D) ↦ (1, −1, 1, u)` puts `1` at the
+pivot slot and `1` on every handle letter (`chiM_dmC`, `chiM_handleU`, `chiM_handleV`). -/
+theorem isClearBlind_chiM : IsClearBlind fun i => chiM α h (dmGen α h i) :=
+  ⟨chiM_dmC α h, fun j => chiM_handleU α h j, fun j => chiM_handleV α h j⟩
+
+/-- **`χ_N` is clear-blind** — MC2's closed form `(x₀, x₁, σ, x₂) ↦ (1, v, 1, 1)`; for `N` the
+pivot letter is `σ` and `χ_N(σ) = 1`. -/
+theorem isClearBlind_chiN : IsClearBlind fun i => chiN α h (dnGen α h i) :=
+  ⟨chiN_dnSigma α h, fun j => chiN_handleU α h j, fun j => chiN_handleV α h j⟩
+
+/-- **The marked condition `χ_M ∘ Ψ = χ_M`, for every `Ψ ∈ A(P,h)`.**  This is the χ-half of MC3's
+`IsMStabilizer`, discharged for the whole handle stratum. -/
+theorem chiM_of_mem_dmClearAuts {Ψ : ContinuousMulEquiv (DM α h : Type) (DM α h : Type)}
+    (hΨ : autEnd Ψ ∈ Submonoid.closure (dmClearAuts α h)) (x : (DM α h : Type)) :
+    chiM α h (Ψ x) = chiM α h x :=
+  char_fixed_of_mem_dmClearAuts α h isProP_two_unitsPadicInt (chiM α h) (isClearBlind_chiM α h)
+    hΨ x
+
+/-- **The marked condition `χ_N ∘ Ψ = χ_N`, for every `Ψ ∈ A(P,h)`.** -/
+theorem chiN_of_mem_dnClearAuts {Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type)}
+    (hΨ : autEnd Ψ ∈ Submonoid.closure (dnClearAuts α h)) (x : (DN α h : Type)) :
+    chiN α h (Ψ x) = chiN α h x :=
+  char_fixed_of_mem_dnClearAuts α h isProP_two_unitsPadicInt (chiN α h) (isClearBlind_chiN α h)
+    hΨ x
+
+/-- The hom-level form on `D_M`: `χ_M ∘ Ψ` **is** `χ_M`, as continuous homs. -/
+theorem chiM_comp_of_mem_dmClearAuts {Ψ : ContinuousMulEquiv (DM α h : Type) (DM α h : Type)}
+    (hΨ : autEnd Ψ ∈ Submonoid.closure (dmClearAuts α h)) :
+    (chiM α h).comp (autHom Ψ) = chiM α h :=
+  dm_hom_ext _ _ fun i => chiM_of_mem_dmClearAuts α h hΨ (dmGen α h i)
+
+/-- The hom-level form on `D_N`. -/
+theorem chiN_comp_of_mem_dnClearAuts {Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type)}
+    (hΨ : autEnd Ψ ∈ Submonoid.closure (dnClearAuts α h)) :
+    (chiN α h).comp (autHom Ψ) = chiN α h :=
+  dn_hom_ext _ _ fun i => chiN_of_mem_dnClearAuts α h hΨ (dnGen α h i)
+
+end StandardRows
+
+/-! ## §5 The packaged per-family headline
+
+One theorem per rank-four core, bundling HM4's ν-clearing with §4's χ-preservation: **this** is the
+statement MC5's certificate cites for the handle stratum.  Both are unconditional in `α` and in the
+handle count `h`; the only hypothesis is the ν-side unit row at the pivot, which is memo §5.3's
+`ν'(σ̄) ∈ ℤ₂ˣ` for `N` and memo §6.4's residue 2 for `M`. -/
+
+section Headline
+
+variable (α h : ℕ)
+
+/-- **`mHandleMixLift` — the handle stratum for the `M_α` family, as a THEOREM with its marked
+condition.**  Memo §1's `MHandleMixHypothesis` binder, restated in memo V5's consumed form
+(`ν_P ∈ ν'·A(P,h)` on the handle plane) and *proved*, now carrying the χ-row that MC3's
+`IsMStabilizer` demands: for every `Multiplicative ℤ_[2]`-character `ν'` of the core whose value at
+the pivot letter `c = C₀` is a 2-adic **unit** there is a continuous automorphism `Ψ` with
+
+* `Ψ ∈ A(P,h)` — a composite of HM2's mixing automorphisms and HM4 §3's exact transvections;
+* `χ_M ∘ Ψ = χ_M` — `Ψ` is inside the χ-preserving stabilizer, on the nose;
+* `ν'∘Ψ = 1` on every handle letter — the handle plane is cleared;
+* `ν'(Ψ c) = ν'(c)` — the pivot is untouched, so the rank-four core solve still sees the same row.
+
+No new axiom, no `B8`, no compactness of `Aut(D_P)`.  What remains after it is the rank-four
+**core** block (MC1 §5.1–§5.3, MC3/MC4/G-Lab territory), not the handles. -/
+theorem mHandleMixLift (nu' : ContinuousMonoidHom (DM α h : Type) (Multiplicative ℤ_[2]))
+    (hc : IsUnit (toAdd (nu' (dmC α h)))) :
+    ∃ Ψ : ContinuousMulEquiv (DM α h : Type) (DM α h : Type),
+      autEnd Ψ ∈ Submonoid.closure (dmClearAuts α h)
+        ∧ (∀ x, chiM α h (Ψ x) = chiM α h x)
+        ∧ (∀ j : Fin h, nu' (Ψ (dmGen α h (handleIdxU j))) = 1)
+        ∧ (∀ j : Fin h, nu' (Ψ (dmGen α h (handleIdxV j))) = 1)
+        ∧ nu' (Ψ (dmC α h)) = nu' (dmC α h) := by
+  obtain ⟨Ψ, hmem, hU, hV, h2⟩ := exists_dmClear_nu α h nu' hc
+  exact ⟨Ψ, hmem, fun x => chiM_of_mem_dmClearAuts α h hmem x, hU, hV, h2⟩
+
+/-- **`nHandleMixLift` — the handle stratum for the `N_α` family**, the mirror of
+`mHandleMixLift`.  For `N` the pivot letter at index `2` is `σ` itself, so the unit row is memo
+§5.3's `ν'(σ̄) ∈ ℤ₂ˣ` verbatim. -/
+theorem nHandleMixLift (nu' : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]))
+    (hc : IsUnit (toAdd (nu' (dnSigma α h)))) :
+    ∃ Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
+      autEnd Ψ ∈ Submonoid.closure (dnClearAuts α h)
+        ∧ (∀ x, chiN α h (Ψ x) = chiN α h x)
+        ∧ (∀ j : Fin h, nu' (Ψ (dnGen α h (handleIdxU j))) = 1)
+        ∧ (∀ j : Fin h, nu' (Ψ (dnGen α h (handleIdxV j))) = 1)
+        ∧ nu' (Ψ (dnSigma α h)) = nu' (dnSigma α h) := by
+  obtain ⟨Ψ, hmem, hU, hV, h2⟩ := exists_dnClear_nu α h nu' hc
+  exact ⟨Ψ, hmem, fun x => chiN_of_mem_dnClearAuts α h hmem x, hU, hV, h2⟩
+
+/-- **`mHandleMixLift` in the memo's own phrasing**: `ν'∘Ψ` **is** the standard marking `ν_M` on
+every handle letter (`ν_M` is `0` there — HM4's `nuM_handleU`/`nuM_handleV`). -/
+theorem mHandleMixLift_eq_nuM (hα : 1 ≤ α)
+    (nu' : ContinuousMonoidHom (DM α h : Type) (Multiplicative ℤ_[2]))
+    (hc : IsUnit (toAdd (nu' (dmC α h)))) :
+    ∃ Ψ : ContinuousMulEquiv (DM α h : Type) (DM α h : Type),
+      autEnd Ψ ∈ Submonoid.closure (dmClearAuts α h)
+        ∧ (∀ x, chiM α h (Ψ x) = chiM α h x)
+        ∧ (∀ j : Fin h, nu' (Ψ (dmGen α h (handleIdxU j)))
+            = nuM α h hα (dmGen α h (handleIdxU j)))
+        ∧ (∀ j : Fin h, nu' (Ψ (dmGen α h (handleIdxV j)))
+            = nuM α h hα (dmGen α h (handleIdxV j)))
+        ∧ nu' (Ψ (dmC α h)) = nu' (dmC α h) := by
+  obtain ⟨Ψ, hmem, hchi, hU, hV, h2⟩ := mHandleMixLift α h nu' hc
+  exact ⟨Ψ, hmem, hchi, fun j => (hU j).trans (nuM_handleU α h hα j).symm,
+    fun j => (hV j).trans (nuM_handleV α h hα j).symm, h2⟩
+
+/-- **`nHandleMixLift` in the memo's own phrasing.** -/
+theorem nHandleMixLift_eq_nuN (nu' : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]))
+    (hc : IsUnit (toAdd (nu' (dnSigma α h)))) :
+    ∃ Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
+      autEnd Ψ ∈ Submonoid.closure (dnClearAuts α h)
+        ∧ (∀ x, chiN α h (Ψ x) = chiN α h x)
+        ∧ (∀ j : Fin h, nu' (Ψ (dnGen α h (handleIdxU j))) = nuN α h (dnGen α h (handleIdxU j)))
+        ∧ (∀ j : Fin h, nu' (Ψ (dnGen α h (handleIdxV j))) = nuN α h (dnGen α h (handleIdxV j)))
+        ∧ nu' (Ψ (dnSigma α h)) = nu' (dnSigma α h) := by
+  obtain ⟨Ψ, hmem, hchi, hU, hV, h2⟩ := nHandleMixLift α h nu' hc
+  exact ⟨Ψ, hmem, hchi, fun j => (hU j).trans (nuN_handleU α h j).symm,
+    fun j => (hV j).trans (nuN_handleV α h j).symm, h2⟩
+
+/-! ### The unit row is satisfiable
+
+HM4 records `isUnit_nuM_dmC`/`isUnit_nuN_dnSigma`: the *standard* markings sit at `1` on the pivot.
+Feeding them to the headline shows the hypothesis set is non-empty at every `(α, h)` — memo §6.4's
+residue 2 is therefore a question about a **transported** `ν' = ν_K∘f`, not about `ν_P`. -/
+
+theorem mHandleMixLift_nuM (hα : 1 ≤ α) :
+    ∃ Ψ : ContinuousMulEquiv (DM α h : Type) (DM α h : Type),
+      autEnd Ψ ∈ Submonoid.closure (dmClearAuts α h)
+        ∧ (∀ x, chiM α h (Ψ x) = chiM α h x)
+        ∧ (∀ j : Fin h, nuM α h hα (Ψ (dmGen α h (handleIdxU j))) = 1)
+        ∧ (∀ j : Fin h, nuM α h hα (Ψ (dmGen α h (handleIdxV j))) = 1)
+        ∧ nuM α h hα (Ψ (dmC α h)) = nuM α h hα (dmC α h) :=
+  mHandleMixLift α h (nuM α h hα) (isUnit_nuM_dmC α h hα)
+
+theorem nHandleMixLift_nuN :
+    ∃ Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
+      autEnd Ψ ∈ Submonoid.closure (dnClearAuts α h)
+        ∧ (∀ x, chiN α h (Ψ x) = chiN α h x)
+        ∧ (∀ j : Fin h, nuN α h (Ψ (dnGen α h (handleIdxU j))) = 1)
+        ∧ (∀ j : Fin h, nuN α h (Ψ (dnGen α h (handleIdxV j))) = 1)
+        ∧ nuN α h (Ψ (dnSigma α h)) = nuN α h (dnSigma α h) :=
+  nHandleMixLift α h (nuN α h) (isUnit_nuN_dnSigma α h)
+
+end Headline
 
 end MarkedCore
 
