@@ -32,17 +32,20 @@ unchanged across the flip.
   restriction* of Mathlib's cyclotomic character, so this layer adds no content).
 * **§2 the abstract marked pair** — `MarkedPair`, carrying only `(χ, ν, r)` and the two
   `ν(ker χ) = 2^r ℤ₂` clauses; the whole `(C, I, λ, γ)` derivation of memo §1.5 lives here, so
-  it can be exercised by a synthetic pair (§6) as well as by a bundle.
+  it can be exercised by a synthetic pair (§5) as well as by a bundle.
 * **§3 the bundle** — `MarkedRecip` (memo §2.2, twelve fields) and its derived layer (memo §2.4):
   `surjective_nu_ur`, `toMarkedPair`, the `(r, ε, η)` extraction API, and the `K(i)` field
   bridge in both directions of use (memo §1.6, owner answer Q4).
-* **§4 the `ℚ₂` compatibility regression** — memo §3, at `K = ⊥`: `norm_compat` *is* B5's
-  reciprocity clause there, and the marked level is forced to `r = 0` (type `L`).
-* **§5 the five quadratic test vectors** — memo §5, as hypothesis-shaped lemmas.
-* **§6 the synthetic `r = 2` marked pair** — memo §7 R2, the mandated λ-sign regression, and the
+* **§4 the `ℚ₂` compatibility regression** — memo §3, at `K = ⊥`, all three clauses:
+  `norm_compat` *is* B5's reciprocity clause there, the marked level is forced to `r = 0`
+  (type `L`), and the two unramified coordinates agree.
+* **§5 the synthetic `r = 2` marked pair** — memo §7 R2, the mandated λ-sign regression, and the
   non-vacuity witness (memo §7 R8) for §2's clause set.
+* **§6 the five quadratic test vectors** — memo §5, as hypothesis-shaped lemmas, plus packet
+  Prop. 8.1 over a bundle.
 * **§7 the norm-matching adapter** — `HasEqualNormValueGroups` in the tower shape that
-  `GQ2/Dyadic/LocalGauss/VanishCloseK.lean`'s `InvolutionFieldPackage` consumes.
+  `GQ2/Dyadic/LocalGauss/VanishCloseK.lean`'s `InvolutionFieldPackage` consumes — and the two
+  consumer-compatibility `example`s (F4, LG4c/LG5).
 
 ## Conventions (inherited verbatim from B5; the #1 human-review target)
 
@@ -1323,7 +1326,7 @@ this section provides once and for all, as theorems over the structure:
 
 | memo row | field | input this section consumes | output |
 |---|---|---|---|
-| 1 | `ℚ₂(√−2)`, `N₂` | `N(√−2) = 2`: a `ker χ` class of **odd** `ν`-value | `r = 0`, `I = C`, `γ = 1` |
+| 1 | `ℚ₂(√−2)`, `N₂` | `N(√−2) = 2`: a `ker χ` class of **odd** `ν` | `r = 0`, `I = C`, `γ = 1` |
 | 2 | `ℚ₂(√2)`, `M₃` | `N(2 + √2) = 2`: idem | idem |
 | 3 | `ℚ₂(√5)`, `M₂` | unramified, `N(O_Kˣ) = ℤ₂ˣ`: idem | idem |
 | 4 | `ℚ₂(√10)`, `M₂` | `N(3 + √10) = −1` is a *unit* norm, so `−1 ∈ I` | `ε = 0` |
@@ -1478,6 +1481,87 @@ theorem level_zero_or_not_even_eta_of_ramified (hsurj : Function.Surjective B.nu
 end MarkedRecip
 
 end Instances
+
+/-! ## §7 The norm-matching adapter, and the consumer-compatibility checks
+
+### The `InvolutionFieldPackage` shape
+
+LG4c's `GQ2.Dyadic.InvolutionFieldPackage` (`GQ2/Dyadic/LocalGauss/VanishCloseK.lean`), threaded by
+LG5's `RamifiedCertificate.hpkg`, ends in a norm-matching clause written **unfolded**:
+
+    ∀ y : ℚ̄₂, y ≠ 0 → y ∈ k₀ → ∃ z : ℚ̄₂, z ≠ 0 ∧ z ∈ k ∧ ‖y‖ = ‖z‖
+
+That is `HasEqualNormValueGroups` for the *tower step* `k ≤ k₀` of a per-involution splitting
+field, with `k₀`-membership in place of the `x + y·δa` shape.
+`norm_partner_of_hasEqualNormValueGroups` below is the bridge, for a `k₀` generated over `k` by a
+square root.
+
+**Reported mismatch, not adapted here.**  LG4c/LG5 do *not* consume AX3's `ki_unramified`: their
+clause concerns a per-involution tower, whereas AX3's bridge concerns `K(i)/K` specifically, and
+their package additionally demands the *production* of `k` with `[k₀ : k] = 2` and the
+fixing-subgroup identity.  That production is the AX4/field-side interface their own docstrings
+name ("the AX3/AX4 field-side interface … so it is threaded"); AX3 as specified supplies only the
+norm-matching half, through the lemma below.  Nothing in their files needs changing.
+
+### Consumer-compatibility checks
+
+The two `example`s at the end elaborate the instantiations F4's and LG4c's docstrings prescribe, so
+that a change to this file which broke them fails here rather than in a lane. -/
+
+section Adapters
+
+/-- **The tower form of `HasEqualNormValueGroups`**, i.e. the norm-matching clause of LG4c's
+`InvolutionFieldPackage` / LG5's `RamifiedCertificate.hpkg`: if `k₀` is generated over `k` by a
+square root `δa` and `k(δa)/k` has equal norm value groups, then every nonzero element of `k₀` has
+a norm-matching partner in `k`. -/
+theorem norm_partner_of_hasEqualNormValueGroups
+    (k k₀ : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) (δa : AlgebraicClosure ℚ_[2])
+    (hgen : ∀ y : AlgebraicClosure ℚ_[2], y ∈ k₀ →
+      ∃ a b : ↥k, y = (a : AlgebraicClosure ℚ_[2]) + (b : AlgebraicClosure ℚ_[2]) * δa)
+    (hunram : HasEqualNormValueGroups k δa) :
+    ∀ y : AlgebraicClosure ℚ_[2], y ≠ 0 → y ∈ k₀ →
+      ∃ z : AlgebraicClosure ℚ_[2], z ≠ 0 ∧ z ∈ k ∧ ‖y‖ = ‖z‖ := by
+  intro y hy0 hyk
+  obtain ⟨w, hw0, hnorm⟩ := hunram y hy0 (hgen y hyk)
+  exact ⟨(w : AlgebraicClosure ℚ_[2]), fun h => hw0 (Subtype.ext h), w.2, hnorm⟩
+
+section Checks
+
+variable {R : LocalReciprocity} {K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])}
+  [FiniteDimensional ℚ_[2] K] (B : MarkedRecip R K) (hsurj : Function.Surjective B.nu_ur)
+
+/-- **F4 consumer check.**  `GQ2/Dyadic/Branches.lean`'s `unramified_of_even` docstring prescribes
+the instantiation `C := (chiCycKAb K).range`, `chi := C.subtype`,
+`Unramified := ∀ δi, δi ^ 2 = -1 → HasEqualNormValueGroups K δi`, with `bridge` obtained from
+`B.ki_unramified` through `ker λ = I = χ(ker ν)`.  This elaborates it verbatim. -/
+example (S : MarkedSplitting (B.toMarkedPair hsurj).datum)
+    (hr : 1 ≤ (B.toMarkedPair hsurj).datum.r) (ε : Bool)
+    (hε : S.negOneVal = ((epsVal ε * 2 ^ ((B.toMarkedPair hsurj).datum.r - 1) : ℕ)
+      : ZMod (2 ^ (B.toMarkedPair hsurj).datum.r)))
+    (hη : Even S.eta)
+    (hproc : ∀ w ∈ S.procyclic,
+      PadicInt.toZModPow 2 (((MarkedRecip.CK (K := K)).subtype w : ℤ_[2]ˣ) : ℤ_[2]) = 1) :
+    ∀ δi : AlgebraicClosure ℚ_[2], δi ^ 2 = -1 → HasEqualNormValueGroups K δi :=
+  S.unramified_of_even hr ε hε hη ((MarkedRecip.CK (K := K)).subtype) hproc
+    (B.bridge_of_inertiaImage hsurj)
+
+/-- **LG4c/LG5 consumer check.**  The norm-matching clause of `InvolutionFieldPackage` (written out,
+since that file sits far above this one and cannot be imported here) is produced from the
+`HasEqualNormValueGroups` the bundle's `K(i)` bridge yields, once the tower is generated by a
+square root. -/
+example (k₀ : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) (δi : AlgebraicClosure ℚ_[2])
+    (hδi : δi ^ 2 = -1)
+    (hgen : ∀ y : AlgebraicClosure ℚ_[2], y ∈ k₀ →
+      ∃ a b : ↥K, y = (a : AlgebraicClosure ℚ_[2]) + (b : AlgebraicClosure ℚ_[2]) * δi)
+    (hI : ∀ c ∈ B.IK, PadicInt.toZModPow 2 ((c : ℤ_[2]ˣ) : ℤ_[2]) = 1) :
+    ∀ y : AlgebraicClosure ℚ_[2], y ≠ 0 → y ∈ k₀ →
+      ∃ z : AlgebraicClosure ℚ_[2], z ≠ 0 ∧ z ∈ K ∧ ‖y‖ = ‖z‖ :=
+  norm_partner_of_hasEqualNormValueGroups K k₀ δi hgen
+    (B.hasEqualNormValueGroups_of_mem_IK hI δi hδi)
+
+end Checks
+
+end Adapters
 
 end
 
