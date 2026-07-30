@@ -348,6 +348,24 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- 2026-07-30 (orchestrator, NC1 outcomes — **BETTER THAN COMMISSIONED**): memo merged
+  (`docs/dyadic/nc-design.md`). The corrected-L_c headline ELABORATES VERBATIM (spike: zero
+  errors, one intentional sorry at the assembly); quantification STRICTLY STRONGER than
+  commissioned (all r : ℕ, all η : ℤ_[2] — neither r ≥ 1 nor IsUnit η consumed; 2 ≤ α =
+  LabuteType.Valid); the refutation is visible in the proof shape (E_{r,η} evaluates to the
+  central element with b_q(L_c c₀, c₁)); **both feared gaps are NON-GAPS** (padicOmega2
+  additivity unneeded — product-conjugator spelling + zpowHat_mul; reduction rules 1+2
+  ALREADY PROVED in the spike at std-3 — norm vanishing needs no semisimplicity). Plan:
+  NC2 (defs+kit, opus) ∥ NC3 (ω₂/norm, opus) → NC4 (δ/D/E seams, fable) → NC5 (assembly,
+  fable) → NC6 (handles+companion+pin, opus); new plain-import dir `GQ2/Dyadic/NpcJet/`
+  (module-rule-forced, avoids WNP reserved paths). Adopted under the blanket (flagged):
+  Q1 file map approved; Q2 hypothesis-minimal headline + `hVu_of_simple` companion; Q3
+  WNP-a pre-agrees `npcWord`; Q4 the stale WNP spec bullet corrected inline (dated); Q6
+  M_c docstring-only. Q5 (timing): **NC2+NC3 dispatched now (opus — parallel, disjoint
+  files; lg→dyadic-nc2, wl→dyadic-nc3)**; NC4/NC5 (fable) queue behind MC3/MC4/HM6 slots.
+  Timing rec adopted: prove now — no G-1/WW/AX dependence; WNP-c's centerpiece pulled
+  forward, not WW duplication. Elaboration frictions recorded for NC2+ (Prod-literal Mul
+  shadowing → typed constructors; `CentExt.fib` needs `(c := …)`).
 - 2026-07-30 (orchestrator, WL-recon outcomes): memo merged (`docs/dyadic/wl-recon.md`).
   Measured corrections to SQ1's framing: the frozen Γ_R chain is **8615 ln** (not 1855);
   n=1 coverage = mathematics ~100%, Lean text ~25% (WW's structural recursion REPLACES the
@@ -917,7 +935,10 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
   `D_{r,η} = δ₀^{σ^{η̂}}δ₀^{σ^{−2^r}}δ₀^{σ^{η̂−2^r}}`, `E_{r,η} = [D_{r,η}, x₁]` (draft
   eq:Npc-word; `η̂ ∈ Ẑˣ` = 2-component η, odd components 1). `E_{r,η}` is invisible at
   tame/pro-2/first Fox order, essential at second order: cross operators become `M_c = A`,
-  `L_c = A^{-1}` with `A = S^{η̂}`, `B = S^{2^r}` (draft eq:Ncross) — certificates must cover
+  `L_c = A^{-1}` with `A = S^{η̂}`, `B = S^{2^r}` (draft eq:Ncross) **[CORRECTION 2026-07-30:
+  eq:Ncross is REFUTED as displayed — the true operators are `L_c = A⁻¹+B+BA⁻¹`,
+  `M_c = adj(L_c)` (S3.2 machine-verified; errata item 5; NC1's Lean design governs;
+  WNP-a pre-agrees `npcWord` with `GQ2/Dyadic/NpcJet/`)]** — certificates must cover
   **all** `r ≥ 1`, `η ∈ ℤ₂ˣ` symbolically. Sanity: the 2-dim `S₃`-module radical detection for
   the uncorrected word (mutant row).
 
