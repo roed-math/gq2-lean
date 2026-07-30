@@ -348,6 +348,23 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- 2026-07-29/30 (orchestrator, AX4-b + AX4 FLIP — **AXIOM LANE CLOSED**): AX4-b landed (all
+  60 decls std-3; structure per memo §2.3 verbatim, K/R implicit so §2.4 text elaborates;
+  `card_gr_zero` route for the ⊥ f-computation — cheaper than the memo's step 1; W₂
+  threaded as hypotheses at ⊥ (naming the axiom is forbidden below the layer; "closed
+  subgroup of pro-p is pro-p" absent from repo — memo-sanctioned follow-up); memo §2.5's
+  f-consistency stress NOT landed (needs the norm-power identity, absent — R3 caveat
+  recorded); 3 name-distinct Aux restatements with dedup notes). Then atomic flip 890a960
+  (amended once: the literature-axioms B10 row's real spelling differed from the step-8
+  regex — row added, commit amended pre-audit): **B10-K live, census 10 → 11**, same eight
+  surfaces as AX3's flip + the TWO new Axioms.lean imports (UnitFiltration +
+  OrientedTameBundle; closure grows by exactly 3 files, no cycle — AX4-b verified).
+  Post-flip audit green: census 11, capstones frozen 9-set, twins identical, 3404 jobs.
+  ⚠ recorded: every B10-K consumer also prints B5+B5-K (type mentions markedRecipAt —
+  inherent to the owner-approved parametrization; check-5 unaffected, ℚ₂ capstones consume
+  neither). **The axiom lane's endstate is reached: exactly two new axioms (B5-K, B10-K),
+  both owner-approved at G-AX, census 9 → 11. Consumers may now migrate binders → axioms;
+  the interim binder spellings in LG5/F4/MC-lane remain valid (satisfied by the axioms).**
 - 2026-07-29 (orchestrator, AX3-b + AX3 FLIP): AX3-b landed (full build 3403 green pre-flip,
   census 9 unchanged by the bundle, 0 new axioms; §3/§4 quantify over arbitrary
   `LocalReciprocity` — MANDATORY, the file sits below Axioms.lean; auxiliary axiom-free
@@ -638,7 +655,7 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 | AX1 | statement design: `G_K` topological finite generation (NSW 7.4.1) | opus | `docs/dyadic/ax1-proposal.md` | — | **done 2026-07-29** (043c46f; **ALSO NOT AN AXIOM — provable from B1** via profinite Nielsen–Schreier, scratch-verified std-3+B1; Route D adopted: census 9→9, B1 untouched; implementation = FG1) |
 | AX2 | Euler characteristic over `K` — derivation spike verdict, else proposal | opus | `docs/dyadic/ax2-proposal.md` | LG1 ✓ | **closed 2026-07-29 — NOT NEEDED** (derivable from B7; implementation = LG2a; census unchanged) |
 | AX3 | marked local reciprocity over `K` (`MarkedRecip`: full ν_ur + `(C,I,λ,γ)`) | fable | `docs/dyadic/ax3-proposal.md` | — | **FLIPPED 2026-07-29** — owner G-AX sign-off (Q1–Q7, see log); AX3-b bundle (d964e02 → merged, 1568 ln, all 12 fields elaborate as written, F4-compat proven, `norm_partner` bridge serves LG binders, def-move with byte-identical consumers) then atomic census commit 6320493: **B5-K `markedRecipAt` live, census 9 → 10**; post-flip audit green (3403 jobs; ℚ₂ capstones print the FROZEN 9-set — no leak; twins identical); citations owner-approved as targets, **PDFs unverified** (annotations retained) |
-| AX4 | oriented tame quotient of `G_K` at `q_K` | opus | `docs/dyadic/ax4-proposal.md` | AX3 | **done 2026-07-29** (56b565c → merged; **genuine axiom, +1 → census 11 with AX3, owner-gated**; 5-clause `OrientedTameQuotientK (markedRecipAt K) FF` parametrized by `DyadicUnitFiltration` — SOUNDNESS-CRITICAL (free f proves False: T₂ᵃᵇ=Ẑ vs T₄ᵃᵇ=Ẑ×ℤ/3); AX3-before-AX4 flip ordering; √5 (q_K=4) is the ONLY q≠2 instance — #Hom(T_q,ℤ/3) regression mandated; owner Qs 1–8) |
+| AX4 | oriented tame quotient of `G_K` at `q_K` | opus | `docs/dyadic/ax4-proposal.md` | AX3 | **FLIPPED 2026-07-29/30** — owner G-AX sign-off (Q1–Q7; Q8 moot); AX4-b bundle (dedf9c7 → merged: `OrientedTameBundle.lean` 866 ln, 60 decls std-3, memo §2.3 verbatim with Q3/Q6 baked in, K=⊥ regression COMPUTES f — the R2 guard) then atomic flip 890a960: **B10-K `orientedTameQuotientAt` live, census 10 → 11**; post-flip audit green (3404 jobs; capstones at the frozen 9-set; twins identical); ⚠ consumers of B10-K also print B5+B5-K (type mentions `markedRecipAt` — inherent); citations owner-approved as targets, PDFs unverified |
 | AX5 | ramified-simple projectivity — try-prove-first, else proposal | opus | `docs/dyadic/ax5-proposal.md` (+`GQ2/Dyadic/Projectivity.lean` if proved) | — | **done 2026-07-29** (a49d1d6 → merged 94f74f6; **VERDICT: PROVABLE, census +0** — general-q theorem verified by 922-ln spike over RegularSummand chain, std-3; consumer finding: InflationVanishes needs averaging NOT projectivity; implementation → PJ1) |
 
 | PJ1 | projectivity implementation: general-q leaves + hypothesis swap (per ax5-proposal §4.2/§6, in-place edits APPROVED) | opus | `GQ2/Dyadic/Projectivity.lean`, `GQ2/RegularSummand/Trace.lean`, `GQ2/RegularSummand/Involution.lean` | AX5 ✓ | **done 2026-07-29** (65c93bc → merged, import registered; headline `GQ2.Dyadic.lemma_6_11_of_tame_pair_pow` + 4 leaves std-3; q=2 wrappers byte-identical (verified vs git show); FULL build 3382 jobs green + check-5 RAN clean (5 capstones, 3 twin pairs, census 9); pj worktree kept as the BUILT audit worktree; deferred: one-line docstring refresh in RegularSummand.lean umbrella (pre-existing drift class)) |
