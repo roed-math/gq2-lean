@@ -505,6 +505,98 @@ theorem nHandleMixLift_nuN :
 
 end Headline
 
+/-! ## §6 Small-instance pins
+
+`(α, h) = (2, 1)`: the smallest instance with a genuine unit (`α ≥ 1`, so `u = (1 − 2^α)⁻¹ ≠ 1`)
+*and* a genuine handle (`h ≥ 1`, so the handle plane is not empty and `Φ_j` has somewhere to mix
+to).  Everything below is an instantiation of a general theorem above — the pins exist so that a
+reader can see the statements at concrete numerals, and so that a later reshaping of the general
+statements cannot silently become vacuous. -/
+
+section StressTests
+
+/-- The rank of the `(α, 1)` cores is `6`: four core letters and one handle pair. -/
+example : coreRank 1 = 6 := by decide
+
+/-- The single handle pair sits at slots `4`, `5`. -/
+example : handleIdxU (0 : Fin 1) = (4 : Fin (coreRank 1)) := by decide
+
+example : handleIdxV (0 : Fin 1) = (5 : Fin (coreRank 1)) := by decide
+
+/-- `χ_M` is **not** the trivial character at `α = 2`: it takes the value `u = (1 − 4)⁻¹ ≠ 1` on
+`D`.  So the χ-preservation rows above are not preserving nothing. -/
+example : chiM 2 1 (dmD 2 1) = mUnit 2 := chiM_dmD 2 1
+
+example : (mUnit 2 : ℤ_[2]ˣ) ≠ 1 := by
+  intro hu
+  have h1 : (mUnit 2 : ℤ_[2]) * (1 - 2 ^ 2) = 1 := mUnit_mul (by omega)
+  rw [hu, Units.val_one, one_mul] at h1
+  norm_num at h1
+
+/-- `χ_M` is clear-blind at `(2, 1)`. -/
+example : IsClearBlind fun i => chiM 2 1 (dmGen 2 1 i) := isClearBlind_chiM 2 1
+
+/-- `χ_N` is clear-blind at `(2, 1)`. -/
+example : IsClearBlind fun i => chiN 2 1 (dnGen 2 1 i) := isClearBlind_chiN 2 1
+
+/-- The mixing automorphism at the single handle is in `A(P,1)`. -/
+example : autEnd (dmMixEquiv 2 1 0) ∈ Submonoid.closure (dmClearAuts 2 1) :=
+  (dmRealizes_mix 2 1 0).1
+
+/-- **The χ-truth at a concrete instance**: HM2's mixing automorphism — the one generator that is
+*not* an elementary Nielsen lift — fixes `χ_M` pointwise. -/
+example (x : (DM 2 1 : Type)) : chiM 2 1 (dmMixEquiv 2 1 0 x) = chiM 2 1 x :=
+  char_dmMixEquiv_fixed 2 1 (chiM 2 1) (isClearBlind_chiM 2 1) 0 x
+
+/-- The `N`-side mirror. -/
+example (x : (DN 2 1 : Type)) : chiN 2 1 (dnMixEquiv 2 1 0 x) = chiN 2 1 x :=
+  char_dnMixEquiv_fixed 2 1 (chiN 2 1) (isClearBlind_chiN 2 1) 0 x
+
+/-- The ν-side unit row holds for the standard `M` marking at `(2, 1)`. -/
+example : IsUnit (toAdd (nuM 2 1 (by omega) (dmC 2 1))) := isUnit_nuM_dmC 2 1 (by omega)
+
+/-- The ν-side unit row holds for the standard `N` marking at `(2, 1)`. -/
+example : IsUnit (toAdd (nuN 2 1 (dnSigma 2 1))) := isUnit_nuN_dnSigma 2 1
+
+/-- **The `M`-headline at `(α, h) = (2, 1)`**, written out. -/
+example (nu' : ContinuousMonoidHom (DM 2 1 : Type) (Multiplicative ℤ_[2]))
+    (hc : IsUnit (toAdd (nu' (dmC 2 1)))) :
+    ∃ Ψ : ContinuousMulEquiv (DM 2 1 : Type) (DM 2 1 : Type),
+      autEnd Ψ ∈ Submonoid.closure (dmClearAuts 2 1)
+        ∧ (∀ x, chiM 2 1 (Ψ x) = chiM 2 1 x)
+        ∧ (∀ j : Fin 1, nu' (Ψ (dmGen 2 1 (handleIdxU j))) = 1)
+        ∧ (∀ j : Fin 1, nu' (Ψ (dmGen 2 1 (handleIdxV j))) = 1)
+        ∧ nu' (Ψ (dmC 2 1)) = nu' (dmC 2 1) := mHandleMixLift 2 1 nu' hc
+
+/-- **The `N`-headline at `(α, h) = (2, 1)`**, written out. -/
+example (nu' : ContinuousMonoidHom (DN 2 1 : Type) (Multiplicative ℤ_[2]))
+    (hc : IsUnit (toAdd (nu' (dnSigma 2 1)))) :
+    ∃ Ψ : ContinuousMulEquiv (DN 2 1 : Type) (DN 2 1 : Type),
+      autEnd Ψ ∈ Submonoid.closure (dnClearAuts 2 1)
+        ∧ (∀ x, chiN 2 1 (Ψ x) = chiN 2 1 x)
+        ∧ (∀ j : Fin 1, nu' (Ψ (dnGen 2 1 (handleIdxU j))) = 1)
+        ∧ (∀ j : Fin 1, nu' (Ψ (dnGen 2 1 (handleIdxV j))) = 1)
+        ∧ nu' (Ψ (dnSigma 2 1)) = nu' (dnSigma 2 1) := nHandleMixLift 2 1 nu' hc
+
+/-- Both headlines are inhabited at `(2, 1)` by the standard markings. -/
+example : ∃ Ψ : ContinuousMulEquiv (DM 2 1 : Type) (DM 2 1 : Type),
+    autEnd Ψ ∈ Submonoid.closure (dmClearAuts 2 1)
+      ∧ (∀ x, chiM 2 1 (Ψ x) = chiM 2 1 x)
+      ∧ (∀ j : Fin 1, nuM 2 1 (by omega) (Ψ (dmGen 2 1 (handleIdxU j))) = 1)
+      ∧ (∀ j : Fin 1, nuM 2 1 (by omega) (Ψ (dmGen 2 1 (handleIdxV j))) = 1)
+      ∧ nuM 2 1 (by omega) (Ψ (dmC 2 1)) = nuM 2 1 (by omega) (dmC 2 1) :=
+  mHandleMixLift_nuM 2 1 (by omega)
+
+example : ∃ Ψ : ContinuousMulEquiv (DN 2 1 : Type) (DN 2 1 : Type),
+    autEnd Ψ ∈ Submonoid.closure (dnClearAuts 2 1)
+      ∧ (∀ x, chiN 2 1 (Ψ x) = chiN 2 1 x)
+      ∧ (∀ j : Fin 1, nuN 2 1 (Ψ (dnGen 2 1 (handleIdxU j))) = 1)
+      ∧ (∀ j : Fin 1, nuN 2 1 (Ψ (dnGen 2 1 (handleIdxV j))) = 1)
+      ∧ nuN 2 1 (Ψ (dnSigma 2 1)) = nuN 2 1 (dnSigma 2 1) :=
+  nHandleMixLift_nuN 2 1
+
+end StressTests
+
 end MarkedCore
 
 end Dyadic
