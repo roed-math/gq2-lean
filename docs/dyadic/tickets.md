@@ -348,6 +348,28 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- 2026-07-30 (orchestrator, SQ1 outcomes — **THE COMMISSIONED THEOREM ALREADY EXISTS**):
+  memo `sq-design.md` merged. **`L_sq`'s rank-3 core IS `GQ2.drWord`** (Roe's `D_R` core;
+  the full n=1 word is Roe's `Γ_R` incl. the tame relation) — the two campaigns indexed the
+  same core under different names; `main_presentation_literal_roe_unconditional` is the
+  hypothesis-free terminal theorem. Orientation = HENSEL (unique ℤ₂-root of `Z³+2Z²+1`,
+  already complete in `OrientationRoot.lean`/`ChiR.lean` — this IS the page's C_mark = 3);
+  **`bLab` applies DIRECTLY** (BLabHypothesis is specialized to this very core — no new
+  instance, no G-Lab item); **spike DISCHARGED `marked_square_core_rank3` in 4 lines**
+  (263-ln scratch, 0 errors; prints std-3+B3c+B8, census stays 11). SQ2+ = 4 tickets ≈810
+  ln, NO matching-engine port. Rulings (blanket-adopted, flagged): (i) Q1 YES — **SQ23
+  dispatched** (one agent, `SqCore/Cores.lean` + `Rank3.lean`, ww worktree branch
+  dyadic-sq1); Certificate.lean waits on MC5, Sanity.lean follows; (ii) Q2 ACCEPT B8 in the
+  rank-3 discharge (MC2's hypothesis-threading remains the general-K pattern; documented
+  asymmetry); (iii) Q3 BOTH — dated correction appended to S2.4's memo (⚠ its §1.1
+  "χ(σ)=1 for type L" is FALSE for L_sq — χ_sq(σ) = S, infinite order; MC5 must redo the
+  §6.4 mixing analysis in the L_sq frame; compounds MC-HM's L_sq residue) + travels with the
+  errata bundle; (iv) Q4 WL-recon ticket AUTHORIZED (Γ_R's frozen word-certificate base
+  ≈1855 ln plausibly halves WL-b/WL-c) — QUEUED behind capacity; (v) Q5 (flip L.py gate-C
+  records — the park dissolves by the "selected core" clause) DEFERRED until S2.6 lands
+  (file contention), then a small ticket. **R2 re-read recorded: nothing favours reverting
+  to L_tw** — L_sq's rank-3 word is a THEOREM while L_tw's is verifier-only; the one
+  L_sq-only cost is the bounded R1 mixing-frame redo.
 - 2026-07-30 (orchestrator, MC-HM outcomes — **SPIKE GREEN**): `HandleMixLift` is **PROVED
   mathematically** (memo `handlemixlift-spike.md`, merged): the [[σ,v₁],u₁] obstruction kills
   only the naive ansatz; the UNIQUE |A| ≤ 6 mixing solution fixes x₀/σ/v literally with
