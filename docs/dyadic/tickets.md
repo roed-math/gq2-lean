@@ -348,6 +348,20 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- 2026-07-30 (orchestrator, HM1 outcomes): merged, import registered; audit green 3407
+  jobs, census 11. 634 ln / 55 decls, ALL std-3-or-subset — **NO B8** (memo V4 confirmed:
+  the mixing construction needs no peripheral action). Inventory = the three families
+  (handle splitting w/ congr lemmas; the two commP expansions non-simp; exact ℤ₂
+  transvections incl. the assembled `{m,n}RelWord_tau_handle{U,V}` rows). **Acceptance
+  probe STRONGER than asked: the full HM2-shape obligation is `group`-provable at general
+  (h, j) from the committed API** — HM2 reduces to the ContinuousMulEquiv assembly; the
+  4-step recipe is in the module docstring. Adopted: the naming convention (Lean suffix =
+  the letter that MOVES; memo τ-subscript = the letter whose power is USED — documented
+  in-file); the deliberate negative-row absences (no mWord_tau_a/c, no nWord_tau_a — memo
+  §5.1 ✗ rows; the M-side ν'(c̄) residue stays live); 634-vs-250 line overage accepted
+  (relator-level assembly belongs here so HM3/HM4 consume shapes, not fragments);
+  `mem_take/drop_finRange` flagged as mathlib-upstream candidates. **HM2 dispatched**
+  (mc worktree, sequential).
 - 2026-07-30 (orchestrator, SQ23 outcomes): **`marked_square_core_rank3` is a COMMITTED
   sorry-free theorem** (`GQ2/Dyadic/SqCore/{Cores,Rank3}.lean`, 853 ln, merged, imports
   registered; audit green 3406 jobs, census 11, capstones byte-identical). Prints exactly as
