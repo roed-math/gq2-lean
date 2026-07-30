@@ -305,6 +305,7 @@ noncomputable def nc3CLine : C →* CentExt (kappa0Cocycle dat hdat) where
 
 @[simp] theorem nc3CLine_fib (c : C) : (nc3CLine dat hdat c).fib = 0 := rfl
 
+/-- The `C`-line is injective (it is a section of the base projection over `V = 0`). -/
 theorem nc3CLine_injective : Function.Injective (nc3CLine dat hdat) := by
   intro c d h
   have : (nc3CLine dat hdat c).base = (nc3CLine dat hdat d).base := by rw [h]
