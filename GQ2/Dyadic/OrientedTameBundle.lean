@@ -177,7 +177,10 @@ variable (K : IntermediateField ℚ_[2] ℚ̄₂)
 /-- **`q_K = 2^f`**, the residue cardinality read off B13's unit filtration (memo §1.4). -/
 def qOf (FF : DyadicUnitFiltration K) : ℕ := 2 ^ FF.f
 
-@[simp] theorem qOf_eq (FF : DyadicUnitFiltration K) : qOf K FF = 2 ^ FF.f := rfl
+/-- `q_K` unfolded.  Deliberately **not** `@[simp]`: `qOf K FF` occurs as a type index in
+`Tq (qOf K FF)`, and unfolding it inside a consumer's goal would force a transport where none is
+needed. -/
+theorem qOf_eq (FF : DyadicUnitFiltration K) : qOf K FF = 2 ^ FF.f := rfl
 
 theorem two_le_qOf (FF : DyadicUnitFiltration K) : 2 ≤ qOf K FF := by
   calc (2 : ℕ) = 2 ^ 1 := (pow_one 2).symm
@@ -315,7 +318,9 @@ def tameFK (T : OrientedTameQuotientK B FF) : ContinuousMonoidHom (GalK K) (Tq (
   (⟨T.equiv.toMulEquiv.toMonoidHom, T.equiv.continuous_toFun⟩ :
     ContinuousMonoidHom (GalK K ⧸ T.W) (Tq (qOf K FF))).comp (quotientMk T.W)
 
-@[simp] theorem tameFK_apply (T : OrientedTameQuotientK B FF) (g : GalK K) :
+/-- `tameF_K` computed on an element (`rfl`).  Not `@[simp]`: consumers name `tameFK`, and the
+bundle's `equiv`/`mk` spelling is an implementation detail. -/
+theorem tameFK_apply (T : OrientedTameQuotientK B FF) (g : GalK K) :
     T.tameFK g = T.equiv (QuotientGroup.mk g) := rfl
 
 theorem tameFK_surjective (T : OrientedTameQuotientK B FF) : Function.Surjective T.tameFK :=
