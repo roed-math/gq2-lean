@@ -118,10 +118,11 @@ only fixes which order the displays are written in.
   `frameTheta_mem_closure` is the `θ_w` instance in that form.
 
 * **§6 The ν-frame** (what HM4 reads).  `nuFrame f m = fun i => toAdd (f (m i))` for a
-  `Multiplicative ℤ_[2]`-valued character `f`, together with the three theorems that identify the
+  `Multiplicative ℤ_[2]`-valued character `f`, together with the four theorems that identify the
   frame action of the *group-level* moves with §2–§3's linear maps:
-  `nuFrame_tau_handleU`/`nuFrame_tau_handleV` (HM1's `mRelWord_tau_handleU`-style updates, with
-  `k : ℤ_[2]`) and `nuFrame_handleMixMark` (HM2's `Φ_j`), plus the two per-core corollaries
+  `nuFrame_tau_handleU`, `nuFrame_tau_handleV` and `nuFrame_tau_three` (HM1's
+  `mRelWord_tau_handleU`- and `mWord_tau_d`-style updates, with `k : ℤ_[2]`) and
+  `nuFrame_handleMixMark` (HM2's `Φ_j`), plus the two per-core corollaries
   `nuFrame_dmMixEquiv`, `nuFrame_dnMixEquiv`.
 
 ## What HM4 consumes from here
@@ -138,8 +139,10 @@ The ν-clearing of memo §5.3 needs, per handle `j` and per 2-adic coefficient, 
   memo §6.4's residue 2 is exactly that unit hypothesis on the `M` side).
 * the **`v̄_j`-clearing family**: `exists_frameEichlerV_theta_conj` and the `frameEichlerV` rows,
   which fix `ū_j` — so memo §5.3's step 2 does not undo step 1.
-* the **group-level realization**: `nuFrame_tau_handleU`/`_handleV`/`_handleMixMark` are the
-  dictionary between HM1/HM2's automorphisms and these linear maps; assembling the `τ`'s into
+* the **group-level realization**: `nuFrame_tau_handleU`/`_handleV`/`_three` and
+  `nuFrame_handleMixMark` are the dictionary between HM1/HM2's automorphisms and these linear
+  maps — the three `τ` rows are exactly the ones `frameEichlerU_one_eq`, `frameS_eq_tau` and
+  `planeDiag_eq` compose, so every element of the §4 family is covered; assembling the `τ`'s into
   `ContinuousMulEquiv`s (HM1 gives their relator invariance, HM2's `thetaEquiv` pattern gives
   the assembly recipe) is HM4's first step, and this file's §6 is what turns each assembled
   automorphism into its frame row.
@@ -1241,6 +1244,21 @@ theorem nuFrame_tau_handleV (hP : IsProP 2 P)
   · subst hU
     rw [nuFrame_apply, Function.update_of_ne hV, frameTauV_handleU_self, nuFrame_apply]
   rw [nuFrame_apply, Function.update_of_ne hV, frameTauV_of_ne _ _ _ hU hV, nuFrame_apply]
+
+/-- **The frame action of HM1's `τ_c(k)`** (`mWord_tau_d`, `nWord_tau_d`): the group-level update
+`d ↦ c^k·d` induces `frameTauD k`, the row `d̄ ↦ d̄ + k·c̄`.  This is the core-side transvection the
+Eichler normalisation `frameEichlerU_one_eq` uses, so HM4 needs it next to the two handle rows. -/
+theorem nuFrame_tau_three (hP : IsProP 2 P)
+    (f : ContinuousMonoidHom P (Multiplicative ℤ_[2])) (m : Fin (coreRank h) → P) (k : ℤ_[2]) :
+    nuFrame f (Function.update m 3 (zpowZtwo hP (m 2) k * m 3)) = frameTauD k (nuFrame f m) := by
+  funext i
+  by_cases h3 : i = 3
+  · subst h3
+    rw [nuFrame_apply, Function.update_self, frameTauD_three, map_mul, toAdd_mul,
+      toAdd_map_zpowZtwo hP]
+    show _ = toAdd (f (m 3)) + k • toAdd (f (m 2))
+    rw [smul_eq_mul, add_comm]
+  rw [nuFrame_apply, Function.update_of_ne h3, frameTauD_of_ne _ _ h3, nuFrame_apply]
 
 end NuFrame
 
