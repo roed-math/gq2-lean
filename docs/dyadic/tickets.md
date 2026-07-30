@@ -348,6 +348,26 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- 2026-07-30 (orchestrator, WL-recon outcomes): memo merged (`docs/dyadic/wl-recon.md`).
+  Measured corrections to SQ1's framing: the frozen Γ_R chain is **8615 ln** (not 1855);
+  n=1 coverage = mathematics ~100%, Lean text ~25% (WW's structural recursion REPLACES the
+  per-factor ledgers); handles ~85% from MC2+HM; the 2287-ln dévissage is **WW3's to do
+  ONCE** (the Roe/Devissage clone experiment: 5 branch words ≈ 11k avoidable lines —
+  regression-target-not-source, decisively; exception: WW4 CONSUMES the
+  presentation-independent Gauss endgame, 1932 ln citable). Spike facts: type-L n=1 forces
+  K = ℚ₂ (`by decide`); BOTH candidate L words identify letter-for-letter at n=1
+  (wildRelator / wildRelatorR; sole bridge = one norm_cast on IntegerPower). Adopted under
+  the standing blanket (flagged): (i) Q2 — **SQ5's full word-theorem restatement MOVES to
+  AS4** (module-rule impossibility: Roe/Main is plain, Sanity spec'd module; AS4 is cheaper
+  than budgeted since the terminal theorem is hypothesis-free); (ii) Q3 — **WL-c SPLITS
+  into c1 (Stokes/Hessian/det/phase, opus, ~420) + c2 (scalar/Hilbert hHilb, FABLE, ~220,
+  SCHEDULED FIRST — the only can-fail item)**; revised WL sizing ≈1360 ln across 4 tickets
+  with the measured 1.52× overrun factor; (iii) Q5 — WL-a carries a q_K > 2 pin (the n=1
+  base is structurally blind to q_K-vs-2 slips); (iv) Q1 — the S2.4 §8.1-inventory
+  correction rides with the errata bundle's cover note. **Q4 (fold the target tables into
+  WW1/WW3/WW4 and dispatch them early as G-1-independent) = OWNER QUESTION** — the G-1 gate
+  text lists WW as held; early release is the owner's call (WL-recon recommends yes; it
+  would parallelize wave 2 ahead of R5).
 - **2026-07-30 (owner): R3(a) + dispatch authorizations EXECUTED.** Model policy per the
   owner's request: **fable** for the hard seams (MC3, MC4, NC1 now; HM6 + S4.4 queued),
   **opus** for well-specified fills (S4.3, WL-recon) — the boards' original model-column
