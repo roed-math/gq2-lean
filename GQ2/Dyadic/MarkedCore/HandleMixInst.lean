@@ -176,6 +176,179 @@ theorem char_dnTauD_three (f : ContinuousMonoidHom (DN α h : Type) A) (k : ℤ_
     f (dnTauDEquiv α h k (dnX2 α h)) = zpowZtwo hA (f (dnSigma α h)) k * f (dnX2 α h) := by
   rw [dnSigma, dnX2, dnTauDEquiv_gen, map_tauDMark (isProP_DN α h) hA f, tauDMark_three]
 
+/-! ### The `Φ_j` rows, in blind form
+
+HM3 states `Φ_j`'s two moved rows for an arbitrary character (`frame_dmMixEquiv_dmD`,
+`frame_dmMixEquiv_handleU`, and the `N`-mirrors): both pick up the **same** factor
+`f(c̄)·f(v̄_j)⁻¹`.  So `Φ_j` is invisible to `f` exactly when that factor is `1` — which is what
+`IsClearBlind` gives, and which a general character need **not** satisfy. -/
+
+/-! ### Every generator of `A(P,h)` is invisible to a clear-blind character
+
+The pattern is the same eight times: `dm_char_fixed`/`dn_char_fixed` reduce to the marked
+generators, one `by_cases` isolates the moved slot, and the blindness rows kill the correction. -/
+
+include hA in
+/-- **`τ_{v_j}(k)` is invisible to a clear-blind character of `D_M`.** -/
+theorem char_dmTauUEquiv_fixed (f : ContinuousMonoidHom (DM α h : Type) A)
+    (hv : IsClearBlind fun i => f (dmGen α h i)) (j : Fin h) (k : ℤ_[2]) (x : (DM α h : Type)) :
+    f (dmTauUEquiv α h j k x) = f x := by
+  have hV : f (dmGen α h (handleIdxV j)) = 1 := hv.2.2 j
+  refine dm_char_fixed f _ (fun i => ?_) x
+  by_cases hi : i = handleIdxU j
+  · subst hi
+    rw [char_dmTauU_handleU α h hA f j k, hV, zpowZtwo_one_base, one_mul]
+  · exact char_dmTauU_of_ne α h f j k hi
+
+include hA in
+/-- **`τ_{u_j}(k)` is invisible to a clear-blind character of `D_M`.** -/
+theorem char_dmTauVEquiv_fixed (f : ContinuousMonoidHom (DM α h : Type) A)
+    (hv : IsClearBlind fun i => f (dmGen α h i)) (j : Fin h) (k : ℤ_[2]) (x : (DM α h : Type)) :
+    f (dmTauVEquiv α h j k x) = f x := by
+  have hU : f (dmGen α h (handleIdxU j)) = 1 := hv.2.1 j
+  refine dm_char_fixed f _ (fun i => ?_) x
+  by_cases hi : i = handleIdxV j
+  · subst hi
+    rw [char_dmTauV_handleV α h hA f j k, hU, zpowZtwo_one_base, one_mul]
+  · exact char_dmTauV_of_ne α h f j k hi
+
+include hA in
+/-- **`τ_c(k)` is invisible to a clear-blind character of `D_M`** — the row that consumes
+`f(c̄) = 1` (memo §5.1's `τ_σ` pattern, here with the pivot in the exponent). -/
+theorem char_dmTauDEquiv_fixed (f : ContinuousMonoidHom (DM α h : Type) A)
+    (hv : IsClearBlind fun i => f (dmGen α h i)) (k : ℤ_[2]) (x : (DM α h : Type)) :
+    f (dmTauDEquiv α h k x) = f x := by
+  have hC : f (dmC α h) = 1 := hv.1
+  refine dm_char_fixed f _ (fun i => ?_) x
+  by_cases hi : i = 3
+  · subst hi
+    rw [show dmGen α h 3 = dmD α h from rfl, char_dmTauD_three α h hA f k, hC,
+      zpowZtwo_one_base, one_mul]
+  · exact char_dmTauD_of_ne α h f k hi
+
+omit [CompactSpace A] [TotallyDisconnectedSpace A] in
+/-- **`Φ_j` is invisible to a clear-blind character of `D_M`** — memo §4's mixing automorphism,
+the one generator outside the elementary strata, inside the χ-preserving stabilizer. -/
+theorem char_dmMixEquiv_fixed (f : ContinuousMonoidHom (DM α h : Type) A)
+    (hv : IsClearBlind fun i => f (dmGen α h i)) (j : Fin h) (x : (DM α h : Type)) :
+    f (dmMixEquiv α h j x) = f x := by
+  have hC : f (dmGen α h 2) = 1 := hv.1
+  have hV : f (dmGen α h (handleIdxV j)) = 1 := hv.2.2 j
+  refine dm_char_fixed f _ (fun i => ?_) x
+  rw [frame_dmMixEquiv α h j f i]
+  by_cases hi : i = handleIdxU j
+  · subst hi
+    rw [frameMix_handleU_self, hC, hV, mul_one, inv_one, mul_one]
+  by_cases h3 : i = 3
+  · subst h3
+    rw [frameMix_three, hC, hV, one_mul, inv_one, mul_one]
+  · rw [frameMix_of_ne _ _ hi h3]
+
+include hA in
+/-- **`τ_{v_j}(k)` is invisible to a clear-blind character of `D_N`.** -/
+theorem char_dnTauUEquiv_fixed (f : ContinuousMonoidHom (DN α h : Type) A)
+    (hv : IsClearBlind fun i => f (dnGen α h i)) (j : Fin h) (k : ℤ_[2]) (x : (DN α h : Type)) :
+    f (dnTauUEquiv α h j k x) = f x := by
+  have hV : f (dnGen α h (handleIdxV j)) = 1 := hv.2.2 j
+  refine dn_char_fixed f _ (fun i => ?_) x
+  by_cases hi : i = handleIdxU j
+  · subst hi
+    rw [char_dnTauU_handleU α h hA f j k, hV, zpowZtwo_one_base, one_mul]
+  · exact char_dnTauU_of_ne α h f j k hi
+
+include hA in
+/-- **`τ_{u_j}(k)` is invisible to a clear-blind character of `D_N`.** -/
+theorem char_dnTauVEquiv_fixed (f : ContinuousMonoidHom (DN α h : Type) A)
+    (hv : IsClearBlind fun i => f (dnGen α h i)) (j : Fin h) (k : ℤ_[2]) (x : (DN α h : Type)) :
+    f (dnTauVEquiv α h j k x) = f x := by
+  have hU : f (dnGen α h (handleIdxU j)) = 1 := hv.2.1 j
+  refine dn_char_fixed f _ (fun i => ?_) x
+  by_cases hi : i = handleIdxV j
+  · subst hi
+    rw [char_dnTauV_handleV α h hA f j k, hU, zpowZtwo_one_base, one_mul]
+  · exact char_dnTauV_of_ne α h f j k hi
+
+include hA in
+/-- **`τ_σ(k)` is invisible to a clear-blind character of `D_N`** — for `N` the pivot letter *is*
+`σ`, so this is memo §5.1's `τ_σ` row verbatim. -/
+theorem char_dnTauDEquiv_fixed (f : ContinuousMonoidHom (DN α h : Type) A)
+    (hv : IsClearBlind fun i => f (dnGen α h i)) (k : ℤ_[2]) (x : (DN α h : Type)) :
+    f (dnTauDEquiv α h k x) = f x := by
+  have hS : f (dnSigma α h) = 1 := hv.1
+  refine dn_char_fixed f _ (fun i => ?_) x
+  by_cases hi : i = 3
+  · subst hi
+    rw [show dnGen α h 3 = dnX2 α h from rfl, char_dnTauD_three α h hA f k, hS,
+      zpowZtwo_one_base, one_mul]
+  · exact char_dnTauD_of_ne α h f k hi
+
+omit [CompactSpace A] [TotallyDisconnectedSpace A] in
+/-- **`Φ_j` is invisible to a clear-blind character of `D_N`.** -/
+theorem char_dnMixEquiv_fixed (f : ContinuousMonoidHom (DN α h : Type) A)
+    (hv : IsClearBlind fun i => f (dnGen α h i)) (j : Fin h) (x : (DN α h : Type)) :
+    f (dnMixEquiv α h j x) = f x := by
+  have hS : f (dnGen α h 2) = 1 := hv.1
+  have hV : f (dnGen α h (handleIdxV j)) = 1 := hv.2.2 j
+  refine dn_char_fixed f _ (fun i => ?_) x
+  rw [frame_dnMixEquiv α h j f i]
+  by_cases hi : i = handleIdxU j
+  · subst hi
+    rw [frameMix_handleU_self, hS, hV, mul_one, inv_one, mul_one]
+  by_cases h3 : i = 3
+  · subst h3
+    rw [frameMix_three, hS, hV, one_mul, inv_one, mul_one]
+  · rw [frameMix_of_ne _ _ hi h3]
+
+/-! ### The whole of `A(P,h)` at once
+
+`endStabilizer` turns the eight generator rows into a statement about every composite, with no
+induction: the blind self-maps form a submonoid, and `Submonoid.closure_le` does the rest. -/
+
+include hA in
+/-- **Every element of `A(P,h)` on `D_M` is invisible to a clear-blind character.** -/
+theorem dmClearAuts_closure_le (f : ContinuousMonoidHom (DM α h : Type) A)
+    (hv : IsClearBlind fun i => f (dmGen α h i)) :
+    Submonoid.closure (dmClearAuts α h) ≤ endStabilizer (⇑f) := by
+  refine closure_le_endStabilizer _ ?_
+  intro E hE
+  simp only [dmClearAuts, Set.mem_union, Set.mem_iUnion, Set.mem_range] at hE
+  rcases hE with ((⟨j, k, rfl⟩ | ⟨j, k, rfl⟩) | ⟨k, rfl⟩) | ⟨j, rfl⟩
+  · exact char_dmTauUEquiv_fixed α h hA f hv j k
+  · exact char_dmTauVEquiv_fixed α h hA f hv j k
+  · exact char_dmTauDEquiv_fixed α h hA f hv k
+  · exact char_dmMixEquiv_fixed α h f hv j
+
+include hA in
+/-- **Every element of `A(P,h)` on `D_N` is invisible to a clear-blind character.** -/
+theorem dnClearAuts_closure_le (f : ContinuousMonoidHom (DN α h : Type) A)
+    (hv : IsClearBlind fun i => f (dnGen α h i)) :
+    Submonoid.closure (dnClearAuts α h) ≤ endStabilizer (⇑f) := by
+  refine closure_le_endStabilizer _ ?_
+  intro E hE
+  simp only [dnClearAuts, Set.mem_union, Set.mem_iUnion, Set.mem_range] at hE
+  rcases hE with ((⟨j, k, rfl⟩ | ⟨j, k, rfl⟩) | ⟨k, rfl⟩) | ⟨j, rfl⟩
+  · exact char_dnTauUEquiv_fixed α h hA f hv j k
+  · exact char_dnTauVEquiv_fixed α h hA f hv j k
+  · exact char_dnTauDEquiv_fixed α h hA f hv k
+  · exact char_dnMixEquiv_fixed α h f hv j
+
+include hA in
+/-- The pointwise form on `D_M`: a clear-blind character is fixed by *every* correction the
+ν-clearing can produce. -/
+theorem char_fixed_of_mem_dmClearAuts (f : ContinuousMonoidHom (DM α h : Type) A)
+    (hv : IsClearBlind fun i => f (dmGen α h i))
+    {Ψ : ContinuousMulEquiv (DM α h : Type) (DM α h : Type)}
+    (hΨ : autEnd Ψ ∈ Submonoid.closure (dmClearAuts α h)) (x : (DM α h : Type)) :
+    f (Ψ x) = f x := dmClearAuts_closure_le α h hA f hv hΨ x
+
+include hA in
+/-- The pointwise form on `D_N`. -/
+theorem char_fixed_of_mem_dnClearAuts (f : ContinuousMonoidHom (DN α h : Type) A)
+    (hv : IsClearBlind fun i => f (dnGen α h i))
+    {Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type)}
+    (hΨ : autEnd Ψ ∈ Submonoid.closure (dnClearAuts α h)) (x : (DN α h : Type)) :
+    f (Ψ x) = f x := dnClearAuts_closure_le α h hA f hv hΨ x
+
 end MovedSlots
 
 end ClearBlind
