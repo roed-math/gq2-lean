@@ -77,11 +77,16 @@ tickets HM2–HM5 consume.  Repo conventions throughout, as in `Cores.lean`: `x 
   `handleWord_split` to reduce `Φ_j(P) = P` to memo §4.1's local identity at handle `j`;
   `handlePrefix_congr` / `handleSuffix_congr` to see that `Φ_j` fixes `ζ_j` and the trailing
   block; `commP_mul_left` / `commP_mul_right` for the reduced-word bookkeeping.
-  *Recorded spike result (HM1's acceptance test, verified in scratch, not committed):* with
-  `handleWord_split` in hand, memo §4.1's identity in the form
-  `[Φ(a),σ]·ζ·[Φ(u),v] = [a,σ]·ζ·[u,v]` — `ζ` an arbitrary group element — is closed by
-  `simp only [commP, conjP]; group` in one line, as are memo §4.4's `Φ^M_j` and memo §6.5's
-  `N` core-mixing element.  So HM2's word-level obligation needs no search.
+  *Recorded spike result (HM1's acceptance test, verified in scratch, not committed):* memo
+  §4.1's identity is `group`-provable from this file's API alone, at general handle count `h`
+  **and** general handle index `j` — i.e. `Φ_j` fixes the surface part `[a,σ]·∏_j[u_j,v_j]`.
+  The proof is: `handleWord_split` at `j` on both sides, `handlePrefix_congr` /
+  `handleSuffix_congr` to discharge the two untouched blocks (the update at `j` is invisible to
+  them), `Function.update_self`, then `simp only [commP, conjP]; group`.  The same one-liner
+  closes memo §4.4's `Φ^M_j` and memo §6.5's `N` core-mixing element in the reduced form
+  `[c,Φ(d)]·ζ·[Φ(u),v] = [c,d]·ζ·[u,v]` with `ζ` an arbitrary group element.  So HM2's
+  word-level obligation needs no search — only the assembly of the substitution into a
+  `ContinuousMulEquiv`.
 * **HM3** (frame action of `Φ_j`, `E_j`, `E'_j`; `N² = 0`; `θ_w`-conjugation; `SL₂ = E₂` over
   `ℤ₂`): the whole `τ` family of §3 — `E_j := τ_{v_j}(1) ∘ τ_σ(1) ∘ Φ_j` and
   `S_j := τ_{v_j}(1) ∘ τ_{u_j}(−1) ∘ τ_{v_j}(1)` are built from it, and memo §5.2's
