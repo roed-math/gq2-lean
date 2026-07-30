@@ -36,3 +36,12 @@ meet. Line numbers refer to the July 28 packet.
    holds vacuously while the conclusion r = 1 fails; the formalization states the r = 0
    alternative as an explicit dichotomy. Worth a parenthetical in the packet. (F4,
    `GQ2/Dyadic/Branches.lean`, `level_zero_or_not_even_eta`.)
+
+5. **Draft eq:Ncross — the displayed cross operators are incorrect (conclusion unaffected).**
+   Machine-verified through the exact class-two engine (symbolically in r and η, validated
+   end-to-end on both twisted ramified simples at six instances): the corrected noncompact-N
+   word's second-order cross operators are `L_c = A⁻¹ + B + BA⁻¹ = 1 + (1+A⁻¹)(1+B)` and
+   `M_c = adj(L_c)`, not the displayed `M_c = A, L_c = A⁻¹`; the discrepancy `B(1+A⁻¹)`
+   vanishes iff `A = 1`. The conclusion (L_c invertible on every ramified simple, hence the
+   restored `c₀–c₁` pairing) survives with the corrected operator. (S3.2,
+   `general_2adic/dyadic_search/families/N.py` §16 records; exact replacement supplied.)

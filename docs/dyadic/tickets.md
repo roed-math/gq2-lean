@@ -348,6 +348,29 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- 2026-07-30 (orchestrator, HM2 outcomes): merged, import registered; audit green 3408
+  jobs, census 11. 830 ln / 94 decls, ALL ≤ std-3 — **no B8, no B3c** (memo V4 now
+  measured). `dmMixEquiv`/`dnMixEquiv` assembled as ContinuousMulEquivs (continuity free via
+  m/nLiftHom; no pro-2 bookkeeping); the 4-step recipe worked verbatim (packaged as
+  `handleWord_update_split` + `commP_handleMixD_mul`); the realized element is the memo's
+  §4.4 M-family form (one definition serves both cores — L-family display is its h=1,j=0
+  shadow); M-family inverse at general (h,j) DERIVED (`group`-verified two-sided in the
+  free group). **Lean-confirmed: the abelian collapse sends both moved letters to c̄−v̄_j —
+  memo §5.2's k ≡ k′ cup condition holds identically** (Φ_j is already E_j-like; HM3's
+  τ-normalization pins the pure Eichler form). Two rw-frictions recorded for HM3 (the
+  higher-order `key n` pattern; unfold named generators up front). **HM3 dispatched** (mc,
+  sequential).
+- 2026-07-30 (orchestrator, cross-campaign from S3.2): ⚠ **the draft's eq:Ncross is refuted
+  as displayed** — machine-verified: `L_c = A⁻¹+B+BA⁻¹ = 1+(1+A⁻¹)(1+B)` and `M_c =
+  adj(L_c)`, NOT the draft's `M_c = A, L_c = A⁻¹` (discrepancy `B(1+A⁻¹)`, vanishing iff
+  A = 1); the draft's CONCLUSION (L_c invertible on ramified simples) SURVIVES; symbolic in
+  r and η. Consequences here: **WNP-b/c's deliverable is now precise** (prove the corrected
+  L_c; decide which L_c the field's determinant form demands — that decision also disposes
+  of S3.2's four cheaper parked survivors); errata bundle gains item 5. Also: gate G is
+  BLIND to E_{r,η} (raw = corrected on every finite target, both evaluators) — the S₃
+  twisted-path module is the ONLY separating gate; WC-Npc stays open (second jet exact but
+  twisted-path-only; freeze blocked pending an invariant-refinement ramified simple or a
+  Fox/norm replacement argument).
 - 2026-07-30 (orchestrator, HM1 outcomes): merged, import registered; audit green 3407
   jobs, census 11. 634 ln / 55 decls, ALL std-3-or-subset — **NO B8** (memo V4 confirmed:
   the mixing construction needs no peripheral action). Inventory = the three families
