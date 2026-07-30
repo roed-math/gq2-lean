@@ -626,6 +626,7 @@ to `master` only at owner gate G3.
   possible), n=2 unramified +1, ramified +1 at every n.
 
 **Owner decision sheet (2026-07-30):** `~/claude/handoffs/gq2-dyadic-owner-decisions-2026-07-30.md`.
+**Session handoff (2026-07-30, Fable-credit interruption):** `~/claude/handoffs/gq2-dyadic-campaigns-2026-07-30.md`.
 
 ## Obligation tracker
 
