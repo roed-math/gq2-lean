@@ -328,6 +328,26 @@ to `master` only at owner gate G3.
   `tame_*_pow` — never the q=2-hardcoded LocalKummer pair. (vi) Three-copy
   `eq_of_H1ofFun_eq` dedup map recorded in InvolutionSpliceK docstring; LG5 may collapse
   `_dp` onto `_K` once the import graph allows.
+- **2026-07-29 (owner, in session): GATE G-AX ANSWERED — both axioms APPROVED.** AX3 answers:
+  Q1 one axiom (§6 shape); Q2 omit the a_K norm-residue clause; Q3 move the
+  `HasEqualNormValueGroups` def (alias kept — the one approved edit to frozen Interfaces);
+  Q4 field-language spelling (`¬ HasEqualNormValueGroups`) for AS5; Q5 small ticket AX3-b for
+  `MarkedRecipBundle.lean`; Q6 "No second axiom sounds good" — read as CONFIRMING §6's
+  extend-not-replace (B5 untouched; §6's own "no second axiom is warranted" phrasing; flagged
+  to owner for correction if misread); Q7 citation targets approved (Serre LF XI §3, NSW I §5
+  + VII §7.1) — **PDF verification NOT performed; UNVERIFIED annotations stay** (house
+  "verified against PDFs" line must not be written). AX4 answers: Q1 one separate axiom
+  (census → 11); Q2 DyadicUnitFiltration parametrization confirmed (the soundness-critical
+  choice); Q3 self-contained W (3 clauses) + omit the W∩G_K compatibility — fine for now;
+  Q4 F3 split ratified (already executed); Q5 new ticket AX4-b (the OrientedTameQuotientK
+  structure home; F3 already landed the Tq leaf + q-regressions, so AX4-b = structure +
+  derived layer only); Q6 NO Ẑ-valued tame character clause for now (owner: "fix it later if
+  there is an issue" — recorded as a potential future statement change under G-AX rules);
+  Q7 citations accepted without detail-check (same UNVERIFIED discipline); Q8 moot (axiom
+  route chosen). **Execution order (memo §6 checklist): AX3-b bundle file (dispatched, ww
+  worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
+  row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
+  byte-identical ℚ₂ capstone prints is a gate at each flip.**
 - 2026-07-29 (orchestrator, LG4b merge + integration fix): the LG4b×LG4c parallel pair (the
   only pair never co-built pre-merge) collided on exactly ONE duplicate declaration,
   `phiResK_mapCoeff1` (both retyped the same ℚ₂ lemma with identical statements) — pj build
