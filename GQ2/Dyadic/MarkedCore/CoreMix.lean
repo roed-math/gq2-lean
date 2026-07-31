@@ -466,6 +466,265 @@ theorem nRelWord_hm6MarkNq : nRelWord α (hm6MarkNq hP k m) = nRelWord α m := b
 
 end CoreMarks
 
+/-! ### The inverse substitution is the `−k` member
+
+Each family is a one-parameter group (memo §3.4), so the inverse of `T_k` is `T_{−k}` on the nose,
+in the free group and before descending to the presented core — the property HM2's assembly
+pattern consumes. -/
+
+section CoreMarksInverse
+
+variable {P : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P] [CompactSpace P]
+  [T2Space P] [TotallyDisconnectedSpace P] {h : ℕ}
+
+/-- `x^k · x^{−k} = 1`, from `zpowZtwo_add` and `zpowZtwo_zero_exp`. -/
+theorem zpowZtwo_mul_neg (hP : IsProP 2 P) (x : P) (k : ℤ_[2]) :
+    zpowZtwo hP x k * zpowZtwo hP x (-k) = 1 := by
+  rw [← zpowZtwo_add, add_neg_cancel, zpowZtwo_zero_exp]
+
+/-- `conjP` is multiplicative in its first argument. -/
+theorem conjP_mul_conjP {G : Type*} [Group G] (x y g : G) :
+    conjP x g * conjP y g = conjP (x * y) g := by
+  simp only [conjP]
+  group
+
+variable (hP : IsProP 2 P) (α : ℕ) (k : ℤ_[2]) (m : Fin (coreRank h) → P)
+
+private theorem hm6UpdateBD_hm6UpdateBD {G : Type*} (n : Fin (coreRank h) → G)
+    (wb wd wb' wd' : G) :
+    hm6UpdateBD (hm6UpdateBD n wb wd) wb' wd' = hm6UpdateBD n wb' wd' := by
+  simp only [hm6UpdateBD]
+  rw [Function.update_comm (Ne.symm one_ne_three), Function.update_idem, Function.update_idem]
+
+private theorem hm6UpdateBC_hm6UpdateBC {G : Type*} (n : Fin (coreRank h) → G)
+    (wb wc wb' wc' : G) :
+    hm6UpdateBC (hm6UpdateBC n wb wc) wb' wc' = hm6UpdateBC n wb' wc' := by
+  simp only [hm6UpdateBC]
+  rw [Function.update_comm (Ne.symm one_ne_two), Function.update_idem, Function.update_idem]
+
+private theorem hm6UpdateBD_self {G : Type*} (n : Fin (coreRank h) → G) :
+    hm6UpdateBD n (n 1) (n 3) = n := by
+  simp only [hm6UpdateBD, Function.update_eq_self]
+
+private theorem hm6UpdateBC_self {G : Type*} (n : Fin (coreRank h) → G) :
+    hm6UpdateBC n (n 1) (n 2) = n := by
+  simp only [hm6UpdateBC, Function.update_eq_self]
+
+/-- **`Φ^{M5}_{−k} ∘ Φ^{M5}_k = id`** on markings. -/
+theorem hm6MarkM_neg : hm6MarkM hP α (-k) (hm6MarkM hP α k m) = m := by
+  simp only [hm6MarkM, hm6UpdateBD_zero, hm6UpdateBD_one, hm6UpdateBD_two, hm6UpdateBD_three]
+  rw [hm6CurveM_curveM hP α (m 0) (m 1) (m 2) (m 3) k, hm6UpdateBD_hm6UpdateBD,
+    mul_assoc (m 1), zpowZtwo_mul_neg, mul_one, mul_assoc (m 3), conjP_mul_conjP,
+    zpowZtwo_mul_neg]
+  simp only [conjP, inv_mul_cancel, mul_one, hm6UpdateBD_self]
+
+/-- **`Φ^{M5}_k ∘ Φ^{M5}_{−k} = id`** — the other composite. -/
+theorem hm6MarkM_neg' : hm6MarkM hP α k (hm6MarkM hP α (-k) m) = m := by
+  simpa using hm6MarkM_neg hP α (-k) m
+
+/-- **`Φ^{N5}_{−k} ∘ Φ^{N5}_k = id`** on markings. -/
+theorem hm6MarkNp_neg : hm6MarkNp hP (-k) (hm6MarkNp hP k m) = m := by
+  simp only [hm6MarkNp, hm6UpdateBD_zero, hm6UpdateBD_one, hm6UpdateBD_two, hm6UpdateBD_three]
+  have hc := hm6CurveNp_curveNp hP (m 0) (m 1) (m 2) (m 3) k
+  rw [one_mul] at hc
+  rw [hc, hm6UpdateBD_hm6UpdateBD, mul_assoc (m 1), zpowZtwo_mul_neg, mul_one,
+    mul_assoc (m 3), conjP_mul_conjP, zpowZtwo_mul_neg]
+  simp only [conjP, inv_mul_cancel, mul_one, hm6UpdateBD_self]
+
+theorem hm6MarkNp_neg' : hm6MarkNp hP k (hm6MarkNp hP (-k) m) = m := by
+  simpa using hm6MarkNp_neg hP (-k) m
+
+/-- **`Φ^{N6}_{−k} ∘ Φ^{N6}_k = id`** on markings. -/
+theorem hm6MarkNq_neg : hm6MarkNq hP (-k) (hm6MarkNq hP k m) = m := by
+  simp only [hm6MarkNq, hm6UpdateBC_zero, hm6UpdateBC_one, hm6UpdateBC_two, hm6UpdateBC_three]
+  rw [hm6CurveNq_curveNq hP (m 0) (m 1) (m 2) (m 3) k, hm6UpdateBC_hm6UpdateBC,
+    mul_assoc (m 1), zpowZtwo_mul_neg, mul_one, mul_assoc (m 2), zpowZtwo_mul_neg, mul_one,
+    hm6UpdateBC_self]
+
+theorem hm6MarkNq_neg' : hm6MarkNq hP k (hm6MarkNq hP (-k) m) = m := by
+  simpa using hm6MarkNq_neg hP (-k) m
+
+end CoreMarksInverse
+
+section CoreMarksNaturality
+
+variable {P Q : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P] [CompactSpace P]
+  [T2Space P] [TotallyDisconnectedSpace P] [Group Q] [TopologicalSpace Q] [IsTopologicalGroup Q]
+  [CompactSpace Q] [T2Space Q] [TotallyDisconnectedSpace Q] {h : ℕ}
+
+variable (hP : IsProP 2 P) (hQ : IsProP 2 Q) (f : ContinuousMonoidHom P Q)
+
+theorem map_hm6MarkM (α : ℕ) (k : ℤ_[2]) (m : Fin (coreRank h) → P) (i : Fin (coreRank h)) :
+    f (hm6MarkM hP α k m i) = hm6MarkM hQ α k (fun i => f (m i)) i := by
+  simp only [hm6MarkM, map_hm6UpdateBD f, map_mul, map_zpowZtwo hP hQ, hm6CurveM, map_hm6MixBD,
+    conjP, map_inv, map_pow]
+
+theorem map_hm6MarkNp (k : ℤ_[2]) (m : Fin (coreRank h) → P) (i : Fin (coreRank h)) :
+    f (hm6MarkNp hP k m i) = hm6MarkNp hQ k (fun i => f (m i)) i := by
+  simp only [hm6MarkNp, map_hm6UpdateBD f, map_mul, map_zpowZtwo hP hQ, hm6CurveNp, map_hm6MixBD,
+    conjP, map_inv, map_one]
+
+theorem map_hm6MarkNq (k : ℤ_[2]) (m : Fin (coreRank h) → P) (i : Fin (coreRank h)) :
+    f (hm6MarkNq hP k m i) = hm6MarkNq hQ k (fun i => f (m i)) i := by
+  simp only [hm6MarkNq, map_hm6UpdateBC f, map_mul, map_zpowZtwo hP hQ, hm6CurveNq,
+    map_hm6MixBC]
+
+end CoreMarksNaturality
+
+/-! ## §4 The assembly into `ContinuousMulEquiv` (the `thetaEquiv` pattern)
+
+Exactly HM2's §3: a lift out of a relator-respecting marking, the `−k` member as inverse, the two
+composites by hom-extensionality, and `continuousMulEquivOfBijective`. Continuity is free because
+the inverse exists **in the free group**, before descending (memo §3.5). -/
+
+section Assembly
+
+variable (α h : ℕ) (k : ℤ_[2])
+
+/-- **MC1 §2.4's family `M5` on `D_{M,α,h}`**, at 2-adic parameter `k`. -/
+noncomputable def dmCoreMixHom : ContinuousMonoidHom (DM α h : Type) (DM α h : Type) :=
+  mLiftHom α h (isProP_DM α h) (hm6MarkM (isProP_DM α h) α k (dmGen α h))
+    (by rw [mRelWord_hm6MarkM]; exact dm_relation α h)
+
+/-- **MC1 §3.4's family `N5` (the `p`-direction) on `D_{N,α,h}`.** -/
+noncomputable def dnCoreMixPHom : ContinuousMonoidHom (DN α h : Type) (DN α h : Type) :=
+  nLiftHom α h (isProP_DN α h) (hm6MarkNp (isProP_DN α h) k (dnGen α h))
+    (by rw [nRelWord_hm6MarkNp]; exact dn_relation α h)
+
+/-- **MC1 §3.4's family `N6` (the `q`-direction) on `D_{N,α,h}`** — HM memo §6.5's element. -/
+noncomputable def dnCoreMixQHom : ContinuousMonoidHom (DN α h : Type) (DN α h : Type) :=
+  nLiftHom α h (isProP_DN α h) (hm6MarkNq (isProP_DN α h) k (dnGen α h))
+    (by rw [nRelWord_hm6MarkNq]; exact dn_relation α h)
+
+@[simp] theorem dmCoreMixHom_gen (i : Fin (coreRank h)) :
+    dmCoreMixHom α h k (dmGen α h i) = hm6MarkM (isProP_DM α h) α k (dmGen α h) i :=
+  mLiftHom_gen _ _ _ _ _ _
+
+@[simp] theorem dnCoreMixPHom_gen (i : Fin (coreRank h)) :
+    dnCoreMixPHom α h k (dnGen α h i) = hm6MarkNp (isProP_DN α h) k (dnGen α h) i :=
+  nLiftHom_gen _ _ _ _ _ _
+
+@[simp] theorem dnCoreMixQHom_gen (i : Fin (coreRank h)) :
+    dnCoreMixQHom α h k (dnGen α h i) = hm6MarkNq (isProP_DN α h) k (dnGen α h) i :=
+  nLiftHom_gen _ _ _ _ _ _
+
+theorem dmCoreMixHom_neg (x : (DM α h : Type)) :
+    dmCoreMixHom α h (-k) (dmCoreMixHom α h k x) = x := by
+  have hgen : (fun i => dmCoreMixHom α h (-k) (dmGen α h i))
+      = hm6MarkM (isProP_DM α h) α (-k) (dmGen α h) :=
+    funext fun i => dmCoreMixHom_gen α h (-k) i
+  have hext : (dmCoreMixHom α h (-k)).comp (dmCoreMixHom α h k)
+      = (⟨MonoidHom.id _, continuous_id⟩ :
+          ContinuousMonoidHom (DM α h : Type) (DM α h : Type)) := by
+    refine dm_hom_ext _ _ fun i => ?_
+    show dmCoreMixHom α h (-k) (dmCoreMixHom α h k (dmGen α h i)) = dmGen α h i
+    rw [dmCoreMixHom_gen, map_hm6MarkM _ (isProP_DM α h), hgen, hm6MarkM_neg']
+  exact DFunLike.congr_fun hext x
+
+theorem dnCoreMixPHom_neg (x : (DN α h : Type)) :
+    dnCoreMixPHom α h (-k) (dnCoreMixPHom α h k x) = x := by
+  have hgen : (fun i => dnCoreMixPHom α h (-k) (dnGen α h i))
+      = hm6MarkNp (isProP_DN α h) (-k) (dnGen α h) :=
+    funext fun i => dnCoreMixPHom_gen α h (-k) i
+  have hext : (dnCoreMixPHom α h (-k)).comp (dnCoreMixPHom α h k)
+      = (⟨MonoidHom.id _, continuous_id⟩ :
+          ContinuousMonoidHom (DN α h : Type) (DN α h : Type)) := by
+    refine dn_hom_ext _ _ fun i => ?_
+    show dnCoreMixPHom α h (-k) (dnCoreMixPHom α h k (dnGen α h i)) = dnGen α h i
+    rw [dnCoreMixPHom_gen, map_hm6MarkNp _ (isProP_DN α h), hgen, hm6MarkNp_neg']
+  exact DFunLike.congr_fun hext x
+
+theorem dnCoreMixQHom_neg (x : (DN α h : Type)) :
+    dnCoreMixQHom α h (-k) (dnCoreMixQHom α h k x) = x := by
+  have hgen : (fun i => dnCoreMixQHom α h (-k) (dnGen α h i))
+      = hm6MarkNq (isProP_DN α h) (-k) (dnGen α h) :=
+    funext fun i => dnCoreMixQHom_gen α h (-k) i
+  have hext : (dnCoreMixQHom α h (-k)).comp (dnCoreMixQHom α h k)
+      = (⟨MonoidHom.id _, continuous_id⟩ :
+          ContinuousMonoidHom (DN α h : Type) (DN α h : Type)) := by
+    refine dn_hom_ext _ _ fun i => ?_
+    show dnCoreMixQHom α h (-k) (dnCoreMixQHom α h k (dnGen α h i)) = dnGen α h i
+    rw [dnCoreMixQHom_gen, map_hm6MarkNq _ (isProP_DN α h), hgen, hm6MarkNq_neg']
+  exact DFunLike.congr_fun hext x
+
+/-- **The `M5` core-mixing automorphism of `D_{M,α,h}`** (memo §5.2): a *continuous* automorphism
+realizing MC1 §2.4's family M5 at every 2-adic `B_c`, fixing the relator on the nose, with no new
+axiom. This is the generator MC1 §5.3 says the `M`-side marked correction needs. -/
+noncomputable def dmCoreMixEquiv : ContinuousMulEquiv (DM α h : Type) (DM α h : Type) :=
+  continuousMulEquivOfBijective (dmCoreMixHom α h k)
+    (Function.bijective_iff_has_inverse.mpr
+      ⟨dmCoreMixHom α h (-k), dmCoreMixHom_neg α h k,
+        fun x => by simpa using dmCoreMixHom_neg α h (-k) x⟩)
+
+/-- **The `N5` core-mixing automorphism of `D_{N,α,h}`** (the `p`-direction). -/
+noncomputable def dnCoreMixPEquiv : ContinuousMulEquiv (DN α h : Type) (DN α h : Type) :=
+  continuousMulEquivOfBijective (dnCoreMixPHom α h k)
+    (Function.bijective_iff_has_inverse.mpr
+      ⟨dnCoreMixPHom α h (-k), dnCoreMixPHom_neg α h k,
+        fun x => by simpa using dnCoreMixPHom_neg α h (-k) x⟩)
+
+/-- **The `N6` core-mixing automorphism of `D_{N,α,h}`** (the `q`-direction) — HM memo §6.5's
+element, now a theorem-backed automorphism at every 2-adic `q`. -/
+noncomputable def dnCoreMixQEquiv : ContinuousMulEquiv (DN α h : Type) (DN α h : Type) :=
+  continuousMulEquivOfBijective (dnCoreMixQHom α h k)
+    (Function.bijective_iff_has_inverse.mpr
+      ⟨dnCoreMixQHom α h (-k), dnCoreMixQHom_neg α h k,
+        fun x => by simpa using dnCoreMixQHom_neg α h (-k) x⟩)
+
+@[simp] theorem dmCoreMixEquiv_gen (i : Fin (coreRank h)) :
+    dmCoreMixEquiv α h k (dmGen α h i) = hm6MarkM (isProP_DM α h) α k (dmGen α h) i :=
+  dmCoreMixHom_gen α h k i
+
+@[simp] theorem dnCoreMixPEquiv_gen (i : Fin (coreRank h)) :
+    dnCoreMixPEquiv α h k (dnGen α h i) = hm6MarkNp (isProP_DN α h) k (dnGen α h) i :=
+  dnCoreMixPHom_gen α h k i
+
+@[simp] theorem dnCoreMixQEquiv_gen (i : Fin (coreRank h)) :
+    dnCoreMixQEquiv α h k (dnGen α h i) = hm6MarkNq (isProP_DN α h) k (dnGen α h) i :=
+  dnCoreMixQHom_gen α h k i
+
+/-! ### The generator rows: which letters move
+
+The two fixed letters are the ones carrying the relator's non-commutator factors — `A` and `C₀`
+for `M_α`, `x₀` and (for the `p`-direction) `σ`. That is the content of memo §2.2. -/
+
+@[simp] theorem dmCoreMixEquiv_dmA : dmCoreMixEquiv α h k (dmA α h) = dmA α h := by
+  rw [dmA, dmCoreMixEquiv_gen, hm6MarkM, hm6UpdateBD_zero]
+
+@[simp] theorem dmCoreMixEquiv_dmC : dmCoreMixEquiv α h k (dmC α h) = dmC α h := by
+  rw [dmC, dmCoreMixEquiv_gen, hm6MarkM, hm6UpdateBD_two]
+
+@[simp] theorem dmCoreMixEquiv_handleU (j : Fin h) :
+    dmCoreMixEquiv α h k (dmGen α h (handleIdxU j)) = dmGen α h (handleIdxU j) := by
+  rw [dmCoreMixEquiv_gen, hm6MarkM, hm6UpdateBD_handleU]
+
+@[simp] theorem dmCoreMixEquiv_handleV (j : Fin h) :
+    dmCoreMixEquiv α h k (dmGen α h (handleIdxV j)) = dmGen α h (handleIdxV j) := by
+  rw [dmCoreMixEquiv_gen, hm6MarkM, hm6UpdateBD_handleV]
+
+@[simp] theorem dnCoreMixPEquiv_dnX0 : dnCoreMixPEquiv α h k (dnX0 α h) = dnX0 α h := by
+  rw [dnX0, dnCoreMixPEquiv_gen, hm6MarkNp, hm6UpdateBD_zero]
+
+@[simp] theorem dnCoreMixPEquiv_dnSigma :
+    dnCoreMixPEquiv α h k (dnSigma α h) = dnSigma α h := by
+  rw [dnSigma, dnCoreMixPEquiv_gen, hm6MarkNp, hm6UpdateBD_two]
+
+@[simp] theorem dnCoreMixQEquiv_dnX0 : dnCoreMixQEquiv α h k (dnX0 α h) = dnX0 α h := by
+  rw [dnX0, dnCoreMixQEquiv_gen, hm6MarkNq, hm6UpdateBC_zero]
+
+@[simp] theorem dnCoreMixQEquiv_dnX2 : dnCoreMixQEquiv α h k (dnX2 α h) = dnX2 α h := by
+  rw [dnX2, dnCoreMixQEquiv_gen, hm6MarkNq, hm6UpdateBC_three]
+
+@[simp] theorem dnCoreMixQEquiv_handleU (j : Fin h) :
+    dnCoreMixQEquiv α h k (dnGen α h (handleIdxU j)) = dnGen α h (handleIdxU j) := by
+  rw [dnCoreMixQEquiv_gen, hm6MarkNq, hm6UpdateBC_handleU]
+
+@[simp] theorem dnCoreMixQEquiv_handleV (j : Fin h) :
+    dnCoreMixQEquiv α h k (dnGen α h (handleIdxV j)) = dnGen α h (handleIdxV j) := by
+  rw [dnCoreMixQEquiv_gen, hm6MarkNq, hm6UpdateBC_handleV]
+
+end Assembly
+
 end MarkedCore
 
 end Dyadic
