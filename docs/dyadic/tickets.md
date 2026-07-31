@@ -348,6 +348,31 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-31 (orchestrator, WN0-a outcomes — THE WAVE-2 TEMPLATE EXISTS):** merged,
+  import registered, audit green. This file is what the G2 review judges and what the
+  other four branch lanes copy. Adopted: (i) ⚠ **`KillsWild` RULING (binding on all
+  branch lanes)**: F3's bare `KillsWild` quantifies over every marking with no τ
+  condition, and the tame kill of ANY δ-letter branch word is exactly `τ^{ω₂}` — so bare
+  `KillsWild` is UNSATISFIABLE for every wave-2 word (WN0-a proved `not_killsWild` in
+  `Multiplicative (ZMod 8)`); the admissibility routes are `killsWild_of_tau` /
+  `killsWild_of_odd` (τ pro-odd inside Γ_R via `TameQuotientK.odd_order`) — branch lanes
+  use those, NEVER the bare form. Micro-row **F3b queued** (docstring warning + a
+  τ-pro-odd-conditioned variant on the bare def; cleanup-pass tier, not blocking).
+  (ii) **Words/ + Certificates/ are non-module** (forced by the TameBoundary import;
+  module rule is one-directional) — lane convention ratified. (iii) the certificate's
+  association `(x₂^σ)⁻¹` (`.inv (.conj …)`) is the hashed spelling — NOT F2's `invConj`
+  sugar (other association); packet Rem. 2.3 is silent on association and the
+  certificate chose. (iv) **template rules distilled for the four remaining lanes**
+  (full list in WN0-a's report): every `Multiply` is `prodList` (expect the trailing
+  `.one`; five-element instance pins); generator names by literal `match` table (never
+  `String.toNat?` — not kernel-reducible); `denote` bridges per-instance never
+  h-generic; handles by `Fin h`/`List.finRange` (matches Export AND MC2 orderings);
+  the pro-2 comparison needs the ℤ→ℕ zpow realign + `Marking.apply_sigma` and `group`
+  cannot close it; reuse WW5's kernel pins by `rfl`-equating to `Export.frozenX`; state
+  tame boundaries as VALUES not `= 1`; F5 counts in docstrings only (A₄ is the only
+  σ-vs-σ₂-sighted target of the three, and no 2-group can see it); explicit witnesses
+  over `∃ … by decide` (kernel recursion budget). **WN0-b queued behind WW2** (its
+  FoxCert consumer).
 - **2026-07-31 (orchestrator, MC5 outcomes — THE MARKEDCORE LANE'S CERTIFICATE LAYER IS
   COMPLETE):** merged, import registered, audit green. Adopted: (i) the abstract-slot
   certificate shape (SD1 Q4 pattern; the ledger's `DyadicField`/`chiK`/`nuK` names do not
@@ -1357,7 +1382,7 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| WN0-a | word + boundary specializations + sanity pins | opus | `GQ2/Dyadic/Words/N0.lean` | F1–F4 ✓, WW5 ✓, MC2 ✓, S5.G artifacts ✓ | **dispatched 2026-07-31** (fresh worktree `gq2-dyadic-wn0`, branch `dyadic-wn0a`; the wave-2 TEMPLATE file — G2 judges this lane; hash-pins against `general_2adic/generated/MANIFEST.json` by candidate_id) |
+| WN0-a | word + boundary specializations + sanity pins | opus | `GQ2/Dyadic/Words/N0.lean` | F1–F4 ✓, WW5 ✓, MC2 ✓, S5.G artifacts ✓ | **done 2026-07-31** (03fe115+8c17c7e+097b1f6 → merged, import registered; 641 ln, 54 decls, 0 sorries, 27/27 headlines std-3-or-smaller, census 11 untouched; **all four frozen N_compact digests reproduced in-kernel** via WW5's pins (no second string literal — `rawNCompact 2 0 = Export.frozenNCompactAlpha2H0` is `rfl`) + `denote_rawNCompact_*` certifying the SEMANTIC word is the certificate's word; pro-2 boundary = MC2's `nWord` core via ONE certified move (`invConj_mul_self`) + associativity — exact AST equality is false and honestly said so; tame boundary stated as the VALUE `τ^{ω₂}` (which surfaced the KillsWild finding); √−2 instance + zmod8 genuine-ω₂ pin + S₃ stress with explicit witnesses; ⚠ `KillsWild` finding + template rules → log; **the file is non-module (FORCED — TameBoundary is non-module) ⇒ Words/ + Certificates/ layers are non-module, lane convention RATIFIED**) |
 | WN0-b | Fox certificate (invertible `1−S^{-1}` unramified block) | opus | `GQ2/Dyadic/Certificates/N0Fox.lean` | WN0-a, WW1, WW2 | pending |
 | WN0-c | Stokes + scalar + Hessian + phase certificates | fable | `GQ2/Dyadic/Certificates/N0.lean` | WN0-b, WW3, WW4 | pending |
 

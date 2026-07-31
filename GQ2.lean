@@ -250,6 +250,7 @@ import GQ2.Dyadic.Word.Stokes
 import GQ2.Dyadic.Word.StokesDual
 import GQ2.Dyadic.Word.Export
 import GQ2.Dyadic.Branches
+import GQ2.Dyadic.Words.N0
 import GQ2.Dyadic.TameQuotientK
 import GQ2.Dyadic.TameBoundary
 import GQ2.Dyadic.MarkedCore.Cores
