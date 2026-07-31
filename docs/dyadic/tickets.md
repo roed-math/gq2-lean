@@ -348,6 +348,32 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-30 (orchestrator, MC3 done + ⚠ AN OPEN DISCREPANCY, ticket MC-VAR):** MC3 merged
+  (audit green 3418, census 11, everything ≤ std-3 with zero census-axiom citers). Its
+  classification is `∃!` over an explicit 7-parameter stabilizer with a full Nielsen
+  factorization. Findings adopted: β is a unit by χ and γ by Witt, so the rank-four
+  classification never needs `ξ⁻¹` (unlike `prop_3_8_classification`); the 7-family
+  factorization CANNOT avoid parameter adjustments (Y_c reads C̄₀/writes B̄ while X_b reads
+  B̄/writes C̄₀ — no ordering works verbatim; all adjustments are even, which is why β₄ stays
+  a unit); the S2 unit-scaling lift is NOT built (MC2's scaling lemmas give the scaled TRIPLE
+  identity, not a marking whose relator dies — the two conjugators of `w_M = A·A^B` need an
+  inner twist to match; left to MC5/G-Lab, `mFamM3` records the frame row it must realize);
+  best pin `mPin_mUnit_two` — **the M₂ orientation unit IS the ℚ₂ `η = (−3)⁻¹`**, so the
+  rank-four χ-row engine specializes to the rank-three one exactly.
+  ⚠ **THE DISCREPANCY (do not let MC5 consume either side until it is settled):** MC3 states
+  the cup-isometry as `M̄ᵀ·G·M̄ = G` and reports the other variance "forces τ = 0 and destroys
+  family M1"; MC4 states it as `M̄·G·M̄ᵀ = G` and reports the transpose convention "kills
+  family N1". Both files are green, both share the SAME Gram
+  (`!![1,1,0,0; 1,0,0,0; 0,0,0,1; 0,0,1,0]`), and MC4's `nCupForm` is verified to BE that
+  Gram's bilinear form (`nCupForm_eq_gram`), so the two matrix equations are genuinely
+  different equations — over this G they are `M ∈ O(G)` vs `Mᵀ ∈ O(G)`, and `G⁻¹ ≠ G` here,
+  so the two groups need not coincide. **Orchestrator hypothesis (NOT adopted, to be
+  machine-checked):** the two are the same statement in DUAL encodings — MC3's matrix is
+  ξ's action on the abelianization (group side), MC4's `nMatOf` is the action on ν-frame /
+  character vectors (H¹ side), where a substitution acts by transpose (MC4's own note on
+  `nCoreMat`), so each is correct in its own encoding. **MC-VAR dispatched** to settle it
+  from the repo's cup-form definition, read-only vs both files. No downstream ticket may
+  assume an answer meanwhile.
 - **2026-07-30 (orchestrator, MC4 done — and it RECONCILES with HM6):** merged, import
   registered, audit green 3417 jobs / census 11. **MC-N's classification is a theorem**
   (iff, unconditional, uniform in α ≥ 2), everything std-3 with NO census axiom anywhere.
@@ -846,7 +872,7 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 |---|---|---|---|---|---|
 | MC1 | design memo: rank-four frames, Smith–Witt stabilizer generators, lifting strategy | opus (was fable) | `docs/dyadic/mc-design.md` | recon/mc-survey | **done 2026-07-29** (a2ed4c5 → merged a296a7a; 876-ln memo: closed-form frames+orientations for both cores (M = ℚ₂ re-index under 2↦m, N = new no-forced-row frame), 7/6 Nielsen families, **three-strata lifting** (S1 Nielsen ✓ / S2 via B8 / S3 mixing = Labute content → `MMixHypothesis`/`NMixHypothesis` binders), G-Lab sheet rec = stay parametrized; ⚠ torsion-premise correction + compact-M CoV gap + packet-§14 criterion flag — see log; owner Qs 1–6 in memo §9) |
 | MC2 | presented cores D_P, characters, abelian 4-frames | opus | `GQ2/Dyadic/MarkedCore/Cores.lean` | MC1, F1 | **done 2026-07-29** (7ccb3b2 → merged, import registered; 1907 ln, 0 sorries, 30 headline decls std-3 — **B8 threaded as explicit `PeripheralCyclotomicAction` hypothesis, census axiom NOT consumed** (enters only at MC3/MC4); audit green 3394 jobs; **memo closed forms verified EXACTLY incl. uniqueness** (no-Hensel confirmed); α-independent cup Gram both cores; mod-4 `diagCoeff` rule + `IsCupCocycle` layer = the reusable exponent asset; both §10 assets landed (`IsFreePro2Pair`, `peripheralTriple_scaling` ×4 instantiations); deviations + 2 infra gaps + stale-comment find in log) |
-| MC3 | **MC-M**: classification + lifting for `M_α` (uniform in α) | fable→**opus** (credits) | `GQ2/Dyadic/MarkedCore/M.lean` | MC2 | **INTERRUPTED 2026-07-30 (Fable-5 usage credits exhausted)** — SALVAGE `a2c004e` on `dyadic-mc`: 489 ln, **DOES NOT BUILD** (5+ errors listed in the commit msg), review-or-rewrite; re-dispatch on opus |
+| MC3 | **MC-M**: classification + lifting for `M_α` (uniform in α) | fable→opus | `GQ2/Dyadic/MarkedCore/M.lean` | MC2 | **done 2026-07-30** (a059a6d → merged, import registered; 1748 ln, 0 sorries, **all 150 decls ≤ std-3, ZERO B8/B3c citers**; audit green 3418 jobs; salvage triaged (all 489 ln kept, ~35 rewritten — the file had **10** errors, not the 5 reported; the stale docstring advertised four decls that never existed and was rewritten); `mStabilizer_classification` = ∃! over `MStabParam` + `mNielsen_factorization` (explicit 7-family witnesses with the even parameter adjustments); MC2 DID land `MDecomposition` (dispatch note was wrong) — consumed, so the classification is at rank four; S2 lift NOT built (see log) — hence no B8 consumer; ⚠ **variance discrepancy vs MC4 — ADJUDICATION ticket MC-VAR dispatched**) |
 | MC4 | **MC-N**: classification + lifting for `N_α` (uniform in α) | fable→opus | `GQ2/Dyadic/MarkedCore/N.lean` | MC2 | **done 2026-07-30** (2f28429 → merged, import registered; 1822 ln, 0 sorries, **EVERY decl std-3 — no B8, no B3c**; audit green 3417 jobs; **`nStabilizer_classification` is an IFF**, unconditional, uniform in α ≥ 2, with `St_N ≅ (ℤ/2 × ℤ₂²) ⋊ GL₂(ℤ₂)` in closed form (`nStabParam_tauSolve_unique`); Witt half = ONE kernel `decide` over 2⁹; **the six-family list is COMPLETE at the frame level** (memo §3.3 re-derived independently — and the ROW convention is the right one, the transpose convention kills N1); SL₂ block realized unconditionally; S2 threaded as binders (B8 route cited not executed — the deliberate deviation, see log); ⚠ **`nCoreMixHypothesis_not_of_mix`: HM4's schematic S3 binder is UNSATISFIABLE** — see log) |
 | MC5 | handles + `MarkedCoreCertificate` + marked-matching reduction | opus | `GQ2/Dyadic/MarkedCore/Certificate.lean` | MC3, MC4 | pending |
 
