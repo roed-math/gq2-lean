@@ -57,3 +57,18 @@ meet. Line numbers refer to the July 28 packet.
    (2,4)); the seventeenth-root orbit covers both. General criterion (proved): a separating
    orbit needs `2^{α−1} < ord₂(q_K mod ord T)`, hence dimension ≥ 2^α. (S4.1,
    `general_2adic/artifacts/rejected/M-compact-forward-order/`.)
+
+7. **The √−10 relative-norm word does not repair the order-nine obstruction (as measured).**
+   The draft presents the field-specific relative-norm word as repairing exactly the
+   order-nine obstruction at `V = 𝔽₆₄`, `|ζ| = 9`. Measured through the exact class-two
+   engine on the twisted route: plus-only gives radical 2, the relative-norm route ALSO gives
+   radical 2, and only the procyclic **shadow** route reaches the plus form `Q₊` (radical 0)
+   — the general shadow construction supersedes the field-specific word entirely. This is a
+   *diagnostic* discrepancy on the twisted path (labelled as such; never used to reject a
+   word), reported because the draft's claim is what motivates keeping `rel_minus10`.
+   (S4.3, `general_2adic/artifacts/rejected/M-procyclic-order-nine/`.)
+
+8. **Draft §7.3's `R₁₀` omits `𝒩_{U,m}(δ₂²)^{U^m}`.** The omitted factor is nontrivial (an
+   S₃ witness separates the two relators as words), though no oracle in the compact/procyclic
+   lane distinguishes them by jets, D₈ counts, or epimorphism rows. Likely a transcription
+   slip in the displayed √10 specialization rather than a mathematical claim. (S4.3.)
