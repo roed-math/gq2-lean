@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 module
 
+public import GQ2.Dyadic.Word.Phase
 public import GQ2.Dyadic.Word.Stokes
 public import GQ2.Dyadic.Word.WordCoh
 public import GQ2.SectionSix
@@ -62,6 +63,24 @@ baseline; packet §§6–7 and `lem:extraspecialconnecting`):
    contributes no primal or dual offset when P3 holds, so it contributes no affine shift")
    notes "nobody has written down".
 
+6. **`HessianCertificate`** (milestone 3): change of variables (`LinearEquiv`, inverse
+   witness built in) + quadratic normal-form target + polar/quadratic verification +
+   `affinePhase : PhaseCoverCertificate` **as a certificate input** (the row-5
+   satisfiability constraint — see `Phase.lean`).  Endpoint transports
+   (`endpoint_isQuadratic`/`endpoint_nonsingular`/`endpoint_gaussSum`/`endpoint_card`/
+   `endpoint_zeroCount`) carry the certified normal-form data back to the frozen row's
+   endpoint polynomial along the CoV.
+
+7. **Worked-example regressions** (mandatory, from the freeze): the compact-`N` endpoint
+   `q(c₀) + b_q(c₀, c₁)` (`compactN_certificate` — identity CoV, twist-immune), the
+   compact-`M` `P = 1` projector form (`compactM_P1_certificate` — the same plus form,
+   identity CoV: S4.1's "the correction is invisible exactly when the projector is 1"), the
+   compact-`M` `P = 0` projector form (`compactM_P0_certificate` — the `(c₀,c₁)` block-swap
+   CoV), and the corrected-Npc endpoint **shape** `Q₀(c₀) + b_q(c₁, L_c c₀)`
+   (`npcShape_certificate`, abstract invertible cross operator).  The literal identification
+   with the NC lane's `npc_cross_operators` is a **wave-2 bridge item** — see that
+   docstring.
+
 ## Design notes
 
 * **Dedup ledger**: `kappa0Cocycle` is the `WordCoh`-typed sibling of
@@ -75,9 +94,9 @@ baseline; packet §§6–7 and `lem:extraspecialconnecting`):
 * Only the fibre coordinate of `hessEvalZ` is new information: the base coordinate is the
   plain `PWord.evalZ` denotation (`hessEvalZ_base`, one `map_evalZ` line — the recorded
   WW1↔WW3 bridge pattern).
-* Milestone plan (commit-early): this file lands in two milestones — (M1) the evaluation
-  route + κ⁰ laws above; (M3, after `Phase.lean`) the `HessianCertificate` layer and the
-  frozen-row worked examples.
+* All four non-`L_sq` frozen rows' worked examples run through the single `plusFormD`
+  engine of `Phase.lean`; the `L_sq` row's endpoint is the rank-3 square-commutator core
+  (MC lane frame, `marked_square_core_rank3`), not a plus form — deliberately absent here.
 
 ## Axiom prints (recorded at commit time)
 
@@ -85,11 +104,15 @@ Every headline prints **exactly the standard three** (`propext`, `Classical.choi
 `Quot.sound`) — verified via `#print axioms` for `hessEvalZ_eq_lift`, `hessRelZ_eq_relZ`,
 `kappa0Cocycle`, `kappa0Cocycle_diag_fibre`, `hessSq_of_fibre`,
 `centExt_pow_eq_one_of_base_pow`, `kappa0_pow_eq_one_of_snd_pow`,
-`heisJetZero_mul_right_jet`, `stress_lift_level_four_sharp`.  No sorries, no new axioms;
-the only `decide`s are kernel `decide`s in `𝔽₂` case splits and the stress pins.  The
-`local instance`s live in the stress section only (WW3's doesn't-export idiom).
+`heisJetZero_mul_right_jet`, `HessianCertificate.endpoint_gaussSum`,
+`HessianCertificate.endpoint_isQuadratic`, `HessianCertificate.endpoint_nonsingular`,
+`compactN_certificate`, `compactM_P1_certificate`, `compactM_P0_certificate`,
+`npcShape_certificate`, `stress_lift_level_four_sharp`, `stress_plusForm_gauss`.  No
+sorries, no new axioms; the only `decide`s are kernel `decide`s in `𝔽₂` case splits and
+the stress pins.  The `local instance`s live in the stress section only (WW3's
+doesn't-export idiom).
 
-Module-style: all four imports are module-style.
+Module-style: all five imports are module-style.
 -/
 
 namespace GQ2.Dyadic
@@ -345,6 +368,251 @@ theorem heisJetZero_mul_right_jet (p r : HeisLift A C) (hr : r ∈ heisJetZero A
 
 end ShadowJet
 
+/-! ## The Hessian certificate
+
+The per-row change-of-variables datum (board WW4 spec): CoV (`LinearEquiv` — the inverse
+witness is built into the structure), quadratic normal-form target, polar and quadratic
+verification, and the affine-phase certificate **as data** (`affinePhase` — the row-5
+constraint of SD1 §6.3: for every procyclic row this field is recorded as not-yet-produced
+until the WMP-c worker constructs it; it is never derived here). -/
+
+section Certificate
+
+variable {C V : Type*} [AddCommGroup V]
+variable {W : Type*} [AddCommGroup W] [Module (ZMod 2) W] [Fintype W]
+variable {W' : Type*} [AddCommGroup W'] [Module (ZMod 2) W'] [Fintype W']
+
+open GQ2.QuadraticFp2
+
+/-- **The Hessian certificate** of a frozen-row endpoint: `Q` (on `W`) is the row's
+endpoint polynomial — the evaluated Hessian of the word at the graph-type κ⁰-marking, per
+the evaluation route above — and the certificate exhibits it as a change of variables of
+the quadratic normal-form target `Qnf` (on `W'`), verified quadratic and nonsingular, with
+the affine-phase datum attached as input. -/
+structure HessianCertificate (dat : FactorSet C V) (diag : V → ZMod 2)
+    (Q : W → ZMod 2) (Qnf : W' → ZMod 2) (j₀ j₁ : V →+ W') where
+  /-- The change of variables, with inverse witness (`LinearEquiv` carries it). -/
+  cov : W ≃ₗ[ZMod 2] W'
+  /-- Quadratic verification: the endpoint **is** the normal form in the new variables. -/
+  cov_eq : ∀ x, Q x = Qnf (cov x)
+  /-- The normal form is a quadratic map. -/
+  hq : IsQuadraticFp2 Qnf
+  /-- The normal form is nonsingular (polar nondegeneracy). -/
+  hns : Nonsingular Qnf
+  /-- The affine-phase certificate — **a certificate input**, never derived (SD1 §6.3,
+  row-5 satisfiability constraint). -/
+  affinePhase : PhaseCoverCertificate dat diag Qnf j₀ j₁
+
+namespace HessianCertificate
+
+variable {dat : FactorSet C V} {diag : V → ZMod 2} {Q : W → ZMod 2} {Qnf : W' → ZMod 2}
+  {j₀ j₁ : V →+ W'}
+variable (H : HessianCertificate dat diag Q Qnf j₀ j₁)
+
+omit [Fintype W] in
+theorem endpoint_eq : Q = fun x ↦ Qnf (H.cov x) := funext H.cov_eq
+
+omit [Fintype W] in
+include H in
+/-- The endpoint polynomial is quadratic (transport along the CoV). -/
+theorem endpoint_isQuadratic : IsQuadraticFp2 Q := by
+  obtain ⟨cov, cov_eq, hq, -, -⟩ := H
+  rw [show Q = fun x ↦ Qnf (cov x) from funext cov_eq]
+  exact isQuadraticFp2_comp Qnf hq _ (fun a b ↦ map_add cov a b) (map_zero cov)
+
+omit [Fintype W] in
+include H in
+/-- The endpoint polynomial is nonsingular (transport along the CoV). -/
+theorem endpoint_nonsingular : Nonsingular Q := by
+  obtain ⟨cov, cov_eq, -, hns, -⟩ := H
+  rw [show Q = fun x ↦ Qnf (cov x) from funext cov_eq]
+  exact nonsingular_comp_addEquiv Qnf cov.toAddEquiv hns
+
+/-- The endpoint Gauss sum is the certificate's residue `G0 = ε·2^m`. -/
+theorem endpoint_gaussSum : gaussSum Q = H.affinePhase.G0 := by
+  obtain ⟨cov, cov_eq, -, -, aff⟩ := H
+  show gaussSum Q = aff.G0
+  rw [show Q = fun x ↦ Qnf (cov x) from funext cov_eq]
+  exact (gaussSum_comp_equiv Qnf cov.toEquiv).trans aff.gaussSum_eq_G0
+
+/-- The endpoint module carries `2^{2m}` points — the record leaves' externally-given
+`hcard`, at the endpoint. -/
+theorem endpoint_card : Fintype.card W = 2 ^ (2 * H.affinePhase.baseDim) := by
+  obtain ⟨cov, -, -, -, aff⟩ := H
+  rw [Fintype.card_congr cov.toEquiv]
+  exact aff.card_eq
+
+omit [Fintype W] in
+include H in
+/-- The endpoint zero count equals the normal form's (feeding
+`PhaseCoverCertificate.zeroCount_int_eq`). -/
+theorem endpoint_zeroCount : zeroCount Q = zeroCount Qnf := by
+  obtain ⟨cov, cov_eq, -, -, -⟩ := H
+  rw [show Q = fun x ↦ Qnf (cov x) from funext cov_eq]
+  exact zeroCount_comp_equiv Qnf cov.toEquiv
+
+end HessianCertificate
+
+end Certificate
+
+/-! ## Worked-example regressions: the frozen rows
+
+Mandatory per the WW4 spec, bound by `selection-freeze.md`.  All four instantiations run
+through `Phase.lean`'s `plusFormD` engine; the `q`-block data is abstract (any equivariant
+factor-set datum), which is exactly the twist-immunity claim of freeze row 2 — nothing
+below uses more of `hdat` than `f_diag`/`f_polar`. -/
+
+section WorkedExamples
+
+open GQ2.QuadraticFp2
+
+variable {C V : Type*} [Group C] [AddCommGroup V] [DistribMulAction C V]
+variable [Module (ZMod 2) V] [Fintype V]
+variable {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+
+/-- The plus-form phase certificate at an arbitrary κ⁰-normalized diagonal datum `d₀`
+(the generic constructor: `baseSign = 1`, `baseDim = dim V`, Gauss value `#V` by the
+`c₁`-Lagrangian computation). -/
+noncomputable def plusFormDPhaseCover {d₀ : V → ZMod 2} (hd : IsQuadraticFp2 d₀)
+    (hq : IsQuadraticFp2 q) (hns : Nonsingular q) {d : ℕ}
+    (hcard : Fintype.card V = 2 ^ d) :
+    PhaseCoverCertificate dat d₀ (plusFormD d₀ q) (AddMonoidHom.inl V V)
+      (AddMonoidHom.inr V V) where
+  baseDim := d
+  baseSign := 1
+  card_eq := by rw [Fintype.card_prod, hcard, ← pow_add, two_mul]
+  gauss_eq := by
+    rw [gaussSum_plusFormD hd hq hns, hcard, one_mul]
+    push_cast
+    ring
+  polar_id := fun v w ↦ by
+    have h := polar_plusFormD d₀ q hq ((v, 0) : V × V) ((0, w) : V × V)
+    rw [polar_zero_right d₀ hd, polar_zero_left q hq, zero_add, add_zero] at h
+    exact h.trans (hdat.f_polar v w).symm
+  kappa_id := fun v ↦ by
+    show plusFormD d₀ q (v, 0) = d₀ v
+    rw [plusFormD_apply, polar_zero_right q hq, add_zero]
+
+/-- The compact-row plus-form phase certificate, with the diagonal in its κ⁰-spelling
+`diag v = dat.f v v` (identified with `q` by `f_diag`). -/
+noncomputable def plusFormPhaseCover (hq : IsQuadraticFp2 q) (hns : Nonsingular q) {d : ℕ}
+    (hcard : Fintype.card V = 2 ^ d) :
+    PhaseCoverCertificate dat (fun v ↦ dat.f v v) (plusFormD q q) (AddMonoidHom.inl V V)
+      (AddMonoidHom.inr V V) where
+  baseDim := d
+  baseSign := 1
+  card_eq := by rw [Fintype.card_prod, hcard, ← pow_add, two_mul]
+  gauss_eq := by
+    rw [gaussSum_plusFormD hq hq hns, hcard, one_mul]
+    push_cast
+    ring
+  polar_id := fun v w ↦ by
+    have h := polar_plusFormD q q hq ((v, 0) : V × V) ((0, w) : V × V)
+    rw [polar_zero_right q hq, polar_zero_left q hq, zero_add, add_zero] at h
+    exact h.trans (hdat.f_polar v w).symm
+  kappa_id := fun v ↦ by
+    show plusFormD q q (v, 0) = dat.f v v
+    rw [plusFormD_apply, polar_zero_right q hq, add_zero, hdat.f_diag]
+
+/-- **Worked example, freeze row 2 (compact `N`)**: the endpoint `q(c₀) + b_q(c₀, c₁)`
+with identity operators — identity CoV, endpoint = normal form.  Twist-immune: the
+certificate consumes `hdat` only through `f_diag`/`f_polar`, so it instantiates for any
+equivariant datum, including twisted rows (S3.1 criterion). -/
+noncomputable def compactN_certificate (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
+    {d : ℕ} (hcard : Fintype.card V = 2 ^ d) :
+    HessianCertificate dat (fun v ↦ dat.f v v) (plusFormD q q) (plusFormD q q)
+      (AddMonoidHom.inl V V) (AddMonoidHom.inr V V) where
+  cov := LinearEquiv.refl (ZMod 2) (V × V)
+  cov_eq := fun _ ↦ rfl
+  hq := isQuadraticFp2_plusFormD hq hq
+  hns := nonsingular_plusFormD hq hq hns
+  affinePhase := plusFormPhaseCover dat hdat hq hns hcard
+
+/-- **Worked example, freeze row 4 (compact `M`, projector `P = 1`)**: the `P = 1`
+projector normal form is `Q = q(c₀) + b_q(c₀, c₁)` (`families/M.py`, `PLUS_FORM_TEXT`) —
+the **same** plus form as compact `N`, with the identity CoV.  That the construction is
+literally `compactN_certificate` is the mathematical point: S4.1's module finding (i),
+"the correction is invisible exactly when the projector is 1". -/
+noncomputable def compactM_P1_certificate (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
+    {d : ℕ} (hcard : Fintype.card V = 2 ^ d) :
+    HessianCertificate dat (fun v ↦ dat.f v v) (plusFormD q q) (plusFormD q q)
+      (AddMonoidHom.inl V V) (AddMonoidHom.inr V V) :=
+  compactN_certificate dat hdat hq hns hcard
+
+/-- **Worked example, freeze row 4 (compact `M`, projector `P = 0`)**: the `P = 0`
+projector form `Q = q(c₁) + b_q(c₀, c₁)` reaches the normal form by the `(c₀, c₁)`
+block-swap CoV (`families/M.py`: "P = 0 the (c₀,c₁) block swap") — the shadow-replication
+side of S4.1's finding (P4's two outcomes). -/
+noncomputable def compactM_P0_certificate (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
+    {d : ℕ} (hcard : Fintype.card V = 2 ^ d) :
+    HessianCertificate dat (fun v ↦ dat.f v v)
+      (fun p : V × V ↦ q p.2 + polar q p.1 p.2) (plusFormD q q)
+      (AddMonoidHom.inl V V) (AddMonoidHom.inr V V) where
+  cov := LinearEquiv.prodComm (ZMod 2) V V
+  cov_eq := fun p ↦ by
+    show q p.2 + polar q p.1 p.2 = plusFormD q q (p.2, p.1)
+    rw [plusFormD_apply, polar_comm]
+  hq := isQuadraticFp2_plusFormD hq hq
+  hns := nonsingular_plusFormD hq hq hns
+  affinePhase := plusFormPhaseCover dat hdat hq hns hcard
+
+/-- Additive maps of `ZMod 2`-modules are automatically linear. -/
+theorem addMonoidHom_map_zmod2_smul {M N : Type*} [AddCommGroup M] [AddCommGroup N]
+    [Module (ZMod 2) M] [Module (ZMod 2) N] (f : M →+ N) (r : ZMod 2) (x : M) :
+    f (r • x) = r • f x := by
+  rcases ZMod.eq_zero_or_eq_one r with h | h <;> subst h
+  · rw [zero_smul, zero_smul, map_zero]
+  · rw [one_smul, one_smul]
+
+/-- The corrected-Npc change of variables `(c₀, c₁) ↦ (L_c c₀, c₁)`, from an additive
+cross operator with a two-sided inverse witness (WNP-c's per-module `decide` supplies
+`hML`/`hLM`). -/
+noncomputable def npcCov (Lc Mc : V →+ V) (hML : ∀ v, Mc (Lc v) = v)
+    (hLM : ∀ v, Lc (Mc v) = v) : (V × V) ≃ₗ[ZMod 2] V × V where
+  toFun p := (Lc p.1, p.2)
+  invFun p := (Mc p.1, p.2)
+  left_inv p := Prod.ext (hML p.1) rfl
+  right_inv p := Prod.ext (hLM p.1) rfl
+  map_add' p r := by
+    show (Lc (p.1 + r.1), p.2 + r.2) = (Lc p.1 + Lc r.1, p.2 + r.2)
+    rw [map_add]
+  map_smul' c p := by
+    show (Lc (c • p.1), c • p.2) = (c • Lc p.1, c • p.2)
+    rw [addMonoidHom_map_zmod2_smul Lc]
+
+/-- **Worked example, freeze row 3 (corrected noncompact/procyclic `N`) — the SHAPE**: the
+endpoint `Q₀(c₀) + b_q(c₁, L_c c₀)` with an invertible cross operator `L_c` and a
+κ⁰-normalized diagonal datum `Q₀`, brought to the plus form with diagonal `Q₀ ∘ L_c⁻¹` by
+the CoV `(c₀, c₁) ↦ (L_c c₀, c₁)`.
+
+**Wave-2 bridge item (recorded, not imported)**: the NC lane's `npc_cross_operators`
+(`GQ2/Dyadic/NpcJet/Main.lean:172`) evaluates the frozen word to exactly this endpoint —
+`((npcMarking dat hdat s u c₀ c₁).eval (npcWord α r η)).fib = npcQ0 dat s η c₀ +
+polar q c₁ (lcOp s η r c₀)` — i.e. `Q₀ := npcQ0 dat s η`, `Lc := lcOp s η r`.  `NpcJet` is
+a plain-import file (it imports `GQ2.GaussZ.RelatorGammaA`), so the module rule blocks the
+literal identification here; WNP-c owns it, together with the per-module invertibility
+`decide` that discharges `hML`/`hLM` (freeze row 3: "Per-module invertibility of `L_c` is
+WNP-c's").  The diagonal datum passes to `diag := Q₀ ∘ Mc` — a κ⁰-composite, per the
+`PhaseCoverCertificate` docstring. -/
+noncomputable def npcShape_certificate (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
+    (Q₀ : V → ZMod 2) (hQ₀ : IsQuadraticFp2 Q₀) (Lc Mc : V →+ V)
+    (hML : ∀ v, Mc (Lc v) = v) (hLM : ∀ v, Lc (Mc v) = v) {d : ℕ}
+    (hcard : Fintype.card V = 2 ^ d) :
+    HessianCertificate dat (fun v ↦ Q₀ (Mc v))
+      (fun p : V × V ↦ Q₀ p.1 + polar q p.2 (Lc p.1))
+      (plusFormD (fun v ↦ Q₀ (Mc v)) q) (AddMonoidHom.inl V V) (AddMonoidHom.inr V V) :=
+  have hd : IsQuadraticFp2 fun v ↦ Q₀ (Mc v) :=
+    isQuadraticFp2_comp Q₀ hQ₀ (⇑Mc) (fun a b ↦ map_add Mc a b) (map_zero Mc)
+  { cov := npcCov Lc Mc hML hLM
+    cov_eq := fun p ↦ by
+      show Q₀ p.1 + polar q p.2 (Lc p.1) = Q₀ (Mc (Lc p.1)) + polar q (Lc p.1) p.2
+      rw [hML, polar_comm]
+    hq := isQuadraticFp2_plusFormD hd hq
+    hns := nonsingular_plusFormD hd hq hns
+    affinePhase := plusFormDPhaseCover dat hdat hd hq hns hcard }
+
+end WorkedExamples
+
 /-! ## Stress tests
 
 Regression pins in the sense of plan §3 A1; nothing below is cited by a proof.  The `local`
@@ -395,6 +663,24 @@ fibre `κ((1,1),(1,1)) = 1·1 = 1`. -/
 theorem stress_hessEvalZ_mul_fib :
     (hessEvalZ stressMark (kappa0Cocycle stressDat stressDat_equivariant)
         (fun _ ↦ 0) (fun _ ↦ 0) (.mul (.gen 0) (.gen 1))).fib = 1 := by
+  decide
+
+/-- The hyperbolic form on `𝔽₂²` — the smallest nonsingular quadratic module. -/
+def stressQh : ZMod 2 × ZMod 2 → ZMod 2 := fun p ↦ p.1 * p.2
+
+theorem stressQh_quadratic : GQ2.QuadraticFp2.IsQuadraticFp2 stressQh := by
+  constructor <;> decide
+
+theorem stressQh_nonsingular : GQ2.QuadraticFp2.Nonsingular stressQh := by
+  show ∀ v : ZMod 2 × ZMod 2, v ≠ 0 → ∃ w, GQ2.QuadraticFp2.polar stressQh v w ≠ 0
+  decide
+
+/-- **Plus-form Gauss regression** (the `c₁`-Lagrangian value, recomputed by kernel
+`decide` over all 256 points): `Σ (−1)^{q_h(c₀)+b(c₀,c₁)} = #V = 4 = +2^{2·1}` — the
+compact-`N` / compact-`M`(P=1) endpoint Gauss value at the hyperbolic plane, independently
+confirming `gaussSum_plusFormD` (`baseSign = 1`, `baseDim = 2` at `d = 2`). -/
+theorem stress_plusForm_gauss :
+    GQ2.QuadraticFp2.gaussSum (plusFormD stressQh stressQh) = 4 := by
   decide
 
 end StressTests
