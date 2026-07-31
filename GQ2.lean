@@ -273,3 +273,4 @@ import GQ2.Dyadic.SqCore.Cores
 import GQ2.Dyadic.SqCore.Rank3
 import GQ2.Dyadic.NpcJet.Defs
 import GQ2.Dyadic.NpcJet.Omega
+import GQ2.Dyadic.NpcJet.Seams
