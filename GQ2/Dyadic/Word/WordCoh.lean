@@ -1189,4 +1189,221 @@ theorem obsH2_eq_of_factor {L : Type} [Group L] [Finite L] (W : NatWord X) (μ :
 
 end Obstruction
 
+/-! ## Checking the Frattini condition
+
+`IsFrattini` is a statement about markings in `Multiplicative (ZMod 2)`, a group of exponent `2`,
+so it depends on the exponent resolvers `E`, `E₂` only through the **parities** of their values.
+That is what makes it `decide`-able for a real branch word: the honest resolvers send `ω₂` and `η̂`
+to noncomputable integers, but `isFrattini_ofPWord_of_parity` replaces them by any computable
+resolver of the same parity — typically the constant `1`, since `ω₂` and `η̂` act as odd exponents
+on a pro-`2` element. -/
+
+section FrattiniCheck
+
+variable {X : Type*} {G : Type} [Group G]
+
+/-- In a group of exponent `2` a `ℤ`-power depends only on the parity of the exponent. -/
+private theorem zpow_eq_of_sq_eq_one (hG : ∀ g : G, g ^ (2 : ℤ) = 1) (g : G) {k l : ℤ}
+    (h : k % 2 = l % 2) : g ^ k = g ^ l := by
+  have hmod : k ≡ l [ZMOD 2] := h
+  obtain ⟨m, hm⟩ := hmod.dvd
+  have hkl : k = l + 2 * (-m) := by omega
+  rw [hkl, zpow_add, zpow_mul, hG, one_zpow, mul_one]
+
+/-- **The parity reduction.**  Two exponent resolvers with the same parities give the same
+denotation in a group of exponent `2`. -/
+theorem evalZ_congr_of_parity (hG : ∀ g : G, g ^ (2 : ℤ) = 1) (μ : X → G)
+    {E E' : Zhat → ℤ} {E₂ E₂' : ℤ_[2] → ℤ} (hE : ∀ γ, E γ % 2 = E' γ % 2)
+    (hE₂ : ∀ z, E₂ z % 2 = E₂' z % 2) (w : PWord X) :
+    PWord.evalZ μ E E₂ w = PWord.evalZ μ E' E₂' w := by
+  induction w with
+  | one => rfl
+  | gen g => rfl
+  | mul u v ihu ihv => rw [PWord.evalZ_mul, PWord.evalZ_mul, ihu, ihv]
+  | inv u ih => rw [PWord.evalZ_inv, PWord.evalZ_inv, ih]
+  | conj u g ihu ihg => rw [PWord.evalZ_conj, PWord.evalZ_conj, ihu, ihg]
+  | comm u v ihu ihv => rw [PWord.evalZ_comm, PWord.evalZ_comm, ihu, ihv]
+  | zpow u k ih => rw [PWord.evalZ_zpow, PWord.evalZ_zpow, ih]
+  | z2pow u z ih =>
+      rw [PWord.evalZ_z2pow, PWord.evalZ_z2pow, ih, zpow_eq_of_sq_eq_one hG _ (hE₂ z)]
+  | profPow u γ ih =>
+      rw [PWord.evalZ_profPow, PWord.evalZ_profPow, ih, zpow_eq_of_sq_eq_one hG _ (hE γ)]
+
+/-- Every element of `Multiplicative (ZMod 2)` has exponent `2`. -/
+theorem sq_eq_one_multZMod2 (g : Multiplicative (ZMod 2)) : g ^ (2 : ℤ) = 1 := by
+  revert g; decide
+
+/-- **The Frattini condition may be checked with any resolvers of the right parity.**  Combined
+with the `Decidable` instance on `NatWord.IsFrattini` this closes the condition by kernel
+`decide` for a concrete word, at computable resolvers such as `fun _ => 1`. -/
+theorem isFrattini_ofPWord_of_parity {E E' : Zhat → ℤ} {E₂ E₂' : ℤ_[2] → ℤ}
+    (hE : ∀ γ, E γ % 2 = E' γ % 2) (hE₂ : ∀ z, E₂ z % 2 = E₂' z % 2) (w : PWord X)
+    (h : (NatWord.ofPWord w E' E₂').IsFrattini) : (NatWord.ofPWord w E E₂).IsFrattini := by
+  intro ν
+  rw [NatWord.ofPWord_ev,
+    evalZ_congr_of_parity sq_eq_one_multZMod2 ν hE hE₂ w, ← NatWord.ofPWord_ev w E' E₂']
+  exact h ν
+
+end FrattiniCheck
+
+/-! ## The `Marking` interface
+
+Thin wrappers presenting the layer over `Marking n G` and `Generator n`, the vocabulary the
+branch-word lanes and the marked-core lanes are written in.  `Marking n G` is `FunLike`, so these
+are pure notation — `relZ W ⇑t c` already typechecks — but naming them keeps consumer statements
+readable. -/
+
+namespace Marking
+
+variable {n : ℕ}
+
+/-- The relator obstruction of a cocycle against a `Marking`. -/
+def relZ {L : Type} [Group L] (W : NatWord (Generator n)) (t : GQ2.Dyadic.Marking n L)
+    (c : TwoCocycle L) : ZMod 2 :=
+  WordCoh.relZ W ⇑t c
+
+@[simp] theorem relZ_def {L : Type} [Group L] (W : NatWord (Generator n))
+    (t : GQ2.Dyadic.Marking n L) (c : TwoCocycle L) : relZ W t c = WordCoh.relZ W ⇑t c := rfl
+
+/-- Pushing a marking forward along a group hom is a level change of the obstruction — the
+`Marking.map` form of `relZ_comap`. -/
+theorem relZ_map {L L' : Type} [Group L] [Group L'] (W : NatWord (Generator n))
+    (t : GQ2.Dyadic.Marking n L') (c : TwoCocycle L) (φ : L' →* L) :
+    relZ W (t.map φ) c = relZ W t (c.comap φ) :=
+  WordCoh.relZ_comap W ⇑t c φ
+
+end Marking
+
+/-! ## Regression pins against `GQ2/Roe/DRWordCoh.lean`
+
+The `drWord`/`Fin 3` instantiation of this file reproduces the `ℚ₂` development's values.  These
+are the ticket's acceptance pins; each names the exact `DRWordCoh` declaration it is pinned
+against.  Nothing above depends on this section — it is the only place `GQ2.Roe.DRWordCoh` is
+used, and it exists so that a future edit to the generic layer cannot silently drift from the
+`D_R` values that `GQ2/Roe/DRH2.lean` and `GQ2/Roe/DRDemushkin.lean` consume. -/
+
+section Pins
+
+/-! ### Translating a `GQ2.DRCoh` cocycle
+
+`GQ2.DRCoh.TwoCocycle` and the local `TwoCocycle` have identical fields, so the translation is
+definitional in both directions and `CentExt` agrees on the nose.  This is also the bridge MC2's
+`IsCupCocycle` layer crosses: its cup-Gram theorems (`mRelWord_centLift_fib`,
+`nRelWord_centLift_fib`, `handleWord_centLift_fib`) compute fibres in `GQ2.DRCoh.CentExt`, and
+`relZ_ofDRCoh` says those fibres *are* this file's `relZ`. -/
+
+variable {L : Type} [Group L]
+
+/-- Read a `GQ2.DRCoh` 2-cocycle as a local one. -/
+def ofDRCoh (c : GQ2.DRCoh.TwoCocycle L) : TwoCocycle L := ⟨c.κ, c.norm, c.cocyc⟩
+
+/-- Read a local 2-cocycle as a `GQ2.DRCoh` one. -/
+def toDRCoh (c : TwoCocycle L) : GQ2.DRCoh.TwoCocycle L := ⟨c.κ, c.norm, c.cocyc⟩
+
+@[simp] theorem ofDRCoh_κ (c : GQ2.DRCoh.TwoCocycle L) : (ofDRCoh c).κ = c.κ := rfl
+@[simp] theorem toDRCoh_κ (c : TwoCocycle L) : (toDRCoh c).κ = c.κ := rfl
+@[simp] theorem ofDRCoh_toDRCoh (c : TwoCocycle L) : ofDRCoh (toDRCoh c) = c := rfl
+@[simp] theorem toDRCoh_ofDRCoh (c : GQ2.DRCoh.TwoCocycle L) : toDRCoh (ofDRCoh c) = c := rfl
+
+/-- **The packaging statement.**  `relZ` against a translated cocycle is the fibre of the relator
+at the zero-offset lift in `GQ2.DRCoh.CentExt` — the shape MC2's cup-Gram theorems compute.  So
+this file's job really is only to *name* the number those theorems produce. -/
+theorem relZ_ofDRCoh {X : Type*} (W : NatWord X) (μ : X → L) (c : GQ2.DRCoh.TwoCocycle L) :
+    relZ W μ (ofDRCoh c)
+      = GQ2.DRCoh.CentExt.fib
+          (W.ev (G := GQ2.DRCoh.CentExt c) fun k => ((μ k, 0) : L × ZMod 2)) := rfl
+
+/-! ### The `D_R` relator as a natural word and as a `PWord` -/
+
+/-- `GQ2.drWord` packaged as a `NatWord (Fin 3)`, via `GQ2.map_drWord`. -/
+def drNatWord : NatWord (Fin 3) where
+  ev := fun {_} _ μ => GQ2.drWord (μ 0) (μ 1) (μ 2)
+  nat := fun f μ => GQ2.map_drWord f (μ 0) (μ 1) (μ 2)
+
+@[simp] theorem drNatWord_ev {G : Type} [Group G] (μ : Fin 3 → G) :
+    drNatWord.ev μ = GQ2.drWord (μ 0) (μ 1) (μ 2) := rfl
+
+/-- The Roe relator `r₂ = (x^s)⁻¹ x⁻³ y² [y, y^s]` written in the **F2 reflected syntax**
+(`GQ2/Dyadic/Word/Syntax.lean`), with `s = gen 0`, `x = gen 1`, `y = gen 2`.  This is the object
+that makes the `D_R` pin a pin *over the dyadic word vocabulary* rather than over the bare word
+shape. -/
+def drWordP : PWord (Fin 3) :=
+  .mul (.mul (.mul (.inv (.conj (.gen 1) (.gen 0))) (.inv (.zpow (.gen 1) 3))) (.zpow (.gen 2) 2))
+    (.comm (.gen 2) (.conj (.gen 2) (.gen 0)))
+
+/-- **`drWordP` denotes `GQ2.drWord`.**  `PWord.conj`/`PWord.comm` denote `conjR`/`commR`, which
+are `GQ2.conjP`/`GQ2.commP` on the nose; the only gap is `ℕ`- versus `ℤ`-powers, closed by
+`zpow_natCast`.  Pinned against `GQ2.drWord` (`GQ2/Roe/DRPresentation.lean`). -/
+theorem evalZ_drWordP {G : Type*} [Group G] (μ : Fin 3 → G) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    PWord.evalZ μ E E₂ drWordP = GQ2.drWord (μ 0) (μ 1) (μ 2) := by
+  rw [GQ2.drWord, ← zpow_natCast (μ 1) 3, ← zpow_natCast (μ 2) 2]
+  rfl
+
+/-- The reflected `D_R` relator and the bare word shape give the same natural word. -/
+theorem ofPWord_drWordP (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    NatWord.ofPWord drWordP E E₂ = drNatWord := by
+  have h : ∀ {G : Type} [Group G] (μ : Fin 3 → G),
+      (NatWord.ofPWord drWordP E E₂).ev μ = drNatWord.ev μ := fun μ => evalZ_drWordP μ E E₂
+  cases hW : NatWord.ofPWord drWordP E E₂ with | mk ev nat =>
+  cases hD : drNatWord with | mk ev' nat' =>
+  have hev : @ev = @ev' := by
+    funext G inst μ
+    have := h (G := G) μ
+    rw [hW, hD] at this
+    exact this
+  subst hev
+  rfl
+
+/-! ### The pins -/
+
+/-- **Pin 1 — the finite-level obstruction.**  `relZ` at `drNatWord` is `GQ2.drRelZ`
+(`GQ2/Roe/DRWordCoh.lean`, `drRelZ`).  Definitional: the two zero-fibre lifts `lift` and
+`GQ2.drLift` are the same term, and the two `CentExt` group structures have identical fields. -/
+theorem relZ_drNatWord_eq_drRelZ (μ : Fin 3 → L) (c : GQ2.DRCoh.TwoCocycle L) :
+    relZ drNatWord μ (ofDRCoh c) = GQ2.drRelZ μ c := rfl
+
+/-- **Pin 1' — the same, over the reflected syntax.**  The `PWord` form of the relator reproduces
+`GQ2.drRelZ` for every choice of exponent resolvers (the word has no profinite exponent, so the
+resolvers are irrelevant). -/
+theorem relZ_ofPWord_drWordP_eq_drRelZ (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (μ : Fin 3 → L)
+    (c : GQ2.DRCoh.TwoCocycle L) :
+    relZ (NatWord.ofPWord drWordP E E₂) μ (ofDRCoh c) = GQ2.drRelZ μ c := by
+  rw [ofPWord_drWordP, relZ_drNatWord_eq_drRelZ]
+
+/-- **Pin 2 — the base value.**  `relZ_base` at `drNatWord` is `GQ2.drRelZ_base`. -/
+theorem relZ_base_drNatWord (μ : Fin 3 → L) (c : GQ2.DRCoh.TwoCocycle L) :
+    (drNatWord.ev (lift μ (ofDRCoh c))).base = GQ2.drWord (μ 0) (μ 1) (μ 2) :=
+  relZ_base drNatWord μ (ofDRCoh c)
+
+/-- **Pin 3 — the Frattini condition.**  `GQ2.drWord` lies in the Frattini subgroup: this is
+`DRWordCoh`'s (private) `drWord_multZMod2_eq_one`, the abelian collapse `−4x + 2y ≡ 0 (mod 2)`,
+re-derived here by the same kernel `decide` over the `2³` markings of `Multiplicative (ZMod 2)`. -/
+theorem isFrattini_drNatWord : drNatWord.IsFrattini := by decide
+
+/-- The reflected form is Frattini too, for any resolvers. -/
+theorem isFrattini_ofPWord_drWordP (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    (NatWord.ofPWord drWordP E E₂).IsFrattini := by
+  rw [ofPWord_drWordP]; exact isFrattini_drNatWord
+
+/-- **Pin 4 — the marked relator.**  `D_R` with its marked generators satisfies both hypotheses of
+`MarkedRelator`: Frattini by `decide`, and `holds` is `GQ2.dr_relation`. -/
+theorem markedRelator_DR : MarkedRelator GQ2.DRT drNatWord GQ2.drGens where
+  frattini := isFrattini_drNatWord
+  holds := GQ2.dr_relation
+
+/-- **Pin 5 — the universal property.**  `D_R` instantiates `PresentedBy` from `GQ2.drLiftHom`,
+`GQ2.drLiftHom_S/X/Y` and `GQ2.dr_hom_ext`, confirming that the hypothesis bundle asks for exactly
+what a real profinite presentation supplies. -/
+noncomputable def presentedBy_DR : PresentedBy GQ2.DRT drNatWord GQ2.drGens where
+  liftHom := fun hP ν hν => GQ2.drLiftHom hP ν hν
+  liftHom_mark := by
+    intro P _ _ _ _ _ _ hP ν hν k
+    fin_cases k
+    · exact GQ2.drLiftHom_S hP ν hν
+    · exact GQ2.drLiftHom_X hP ν hν
+    · exact GQ2.drLiftHom_Y hP ν hν
+  hom_ext := fun φ ψ h => GQ2.dr_hom_ext φ ψ (h 0) (h 1) (h 2)
+
+end Pins
+
 end GQ2.Dyadic.WordCoh
