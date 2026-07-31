@@ -28,17 +28,28 @@ The universal first-order rows, in the notation `S = σ`, `T = τ`, `P` = the `�
 
 | relator | `σ` | `τ` | `x₀` | `x₁` | `x₂` | handles |
 |---|---|---|---|---|---|---|
-| tame `τ^σ(τ^q)⁻¹` | `S⁻¹(T−1)` | `S⁻¹ − (1+T+⋯+T^{q−1})` | `0` | `0` | `0` | `0` |
+| tame `τ^σ(τ^q)⁻¹` | `S⁻¹(T−1)` | `S⁻¹ − N_q(T)` | `0` | `0` | `0` | `0` |
 | wild `R_{N,α,0}` | `0` | `P` | `0` | `0` | `S⁻¹ + P` | `0` |
 
-and the three module classes, obtained by *assigning* `P` (never computing it — the binding
-`ω₂`-discipline of WW2):
+(`foxD_tameRelW_of_tameRel` and `nCompactWildRow` respectively)
+
+with `N_q(T) = 1 + T + ⋯ + T^{q−1}` (`normCoeff`).  The tame row is the one place the tame
+relation `τ^σ = τ^q` is *used* (packet rule T1) — it identifies the prefix `ev(τ^σ)` with `T^q`,
+which then cancels the `(T^q)⁻¹` of the second factor.
+
+The three module classes are obtained by *assigning* `P`, never computing it — the binding
+`ω₂`-discipline of WW2:
 
 | class | `P` | tame row | wild row |
 |---|---|---|---|
 | unramified (`T = 1`, `S` free) | `1` | `(0, S⁻¹, 0, 0, 0)` | `(0, 1, 0, 0, 1 − S⁻¹)` |
-| split/scalar (`T = 1`, `S = 1`) | `1` | `(0, 1, 0, 0, 0)` | `(0, 1, 0, 0, 0)` |
-| ramified (`V^T = 0`) | `0` | `(S⁻¹(T−1), S⁻¹−1−T, 0, 0, 0)` | `(0, 0, 0, 0, −S⁻¹)` |
+| split/scalar (`T = 1`, `S = 1`) | `1` | the `S = 1` reading | `(0, 1, 0, 0, 0)` |
+| ramified (`V^T = 0`) | `0` | `(S⁻¹(T−1), S⁻¹ − N_q(T), 0, 0, 0)` | `(0, 0, 0, 0, −S⁻¹)` |
+
+The `T = 1` tame row `(0, S⁻¹, 0, …)` needs **no** tame-relation hypothesis
+(`foxD_tameRelW_unram`, `q` even): with `τ` acting trivially the conjugated prefix acts trivially
+by itself.  Signs are as computed; over the char-`2` modules of the campaign `−S⁻¹ = S⁻¹` and
+`1 − S⁻¹ = 1 + S⁻¹`, which is how the frozen certificates print them.
 
 **The `1 − S⁻¹` block is the point** (packet §14, board WN0-b): it is produced by the conjugated
 letter `x₂^{-σ}` — and by nothing else — and `isUnit_oneSubSInvEnd_iff` proves it is invertible
@@ -84,6 +95,30 @@ class, in WW2's `FoxRowCertificate` shape, and `nCompactWildRow` is *one* piece 
   `WordLift.powOmega2_u_of_oddFixedPointFree` (`P = 0`), and `powOmega2` is **never unfolded**
   in an offset computation anywhere below.
 
+## The `ℚ₂(√−2)` instance
+
+`(α, q_K) = (2, 2)`, `h = 0` (board WN0-b item (4)): the five-letter alphabet `Generator 2`, the
+word `nCompactW 2 0` whose tree is the frozen `N-compact-alpha2-h0-v001`
+(digest `a940b6ad06d9728a…`, pinned by WN0-a), and the tame relator `τ^σ(τ²)⁻¹`.  Both branch
+certificates are instantiated explicitly (`sqrtNegTwoJacobianCertUnram`,
+`sqrtNegTwoJacobianCertRam`), as are the four rows in the packet's column order.
+
+## Axiom state (recorded per WN0-b instructions; `#print axioms` run in a scratch file, not
+committed)
+
+**Audited 2026-07-31, all 91 named declarations of this file** (85 top-level `def`/`theorem`
+plus the six `@[simp]` component lemmas): every one depends on a subset of the standard axioms
+`[propext, Classical.choice, Quot.sound]` — **62 print exactly std-3, 29 print strictly less**
+(`[propext]`, `[propext, Quot.sound]`, or none).  Zero `sorryAx`, zero `native_decide`, and **no
+`GQ2.AbsGalQ2` B-axiom leaks** through the `Words.N0 → TameBoundary → MarkedCore` import chain.
+In particular the headlines `foxD_nCompact_unram`, `foxD_nCompact_ram`, `foxD_nCompact_split`,
+`foxD_tameRelW_of_tameRel`, `foxD_tameRelW_unram`, `foxDHom_nCompact_handleU_column`,
+`foxDHom_nCompact_handleV_column`, `isUnit_oneSubSInvEnd_iff`, `freeMarking_eval_tameRelW`,
+`nCompactWildRowCertUnram`, `nCompactWildRowCertRam`, `nCompactWildRowCertSplit`,
+`tameRowCertUnram`, `nCompactJacobianCertUnram`, `nCompactJacobianCertRam`,
+`sqrtNegTwoJacobianCertUnram` and `sqrtNegTwoJacobianCertRam` all print exactly std-3.  The
+census stays at eleven.
+
 ## Implementation notes
 
 **Not `module`-style, and forced**: `GQ2.Dyadic.Words.N0` is not `module`-style (it imports F3's
@@ -91,10 +126,20 @@ class, in WW2's `FoxRowCertificate` shape, and `nCompactWildRow` is *one* piece 
 `Words/` and `Certificates/` are plain-import layers.  The other import,
 `GQ2.Dyadic.Word.FoxCert`, is `module`-style, which is fine in this direction.
 
-Three small generic lemmas about `foxD` live here rather than in `Fox.lean`
-(`foxD_prodList_of_trivial`, `foxD_comm_of_trivial`, and the `trivAct` subgroup): they are
-needed by every wave-2 branch lane, and a hoist into `GQ2/Dyadic/Word/Fox.lean` is a mechanical
-follow-up for the orchestrator — see the dedup notes on each.
+**Dedup / hoist candidates for the orchestrator** (all lane-generic, all used by every wave-2
+branch lane, none of them compact-`N`-specific):
+
+* `trivAct` + `mem_trivAct` + `trivAct_conjR`/`trivAct_commR`/`trivAct_powOmega2` — "acts
+  trivially" as a *subgroup*, which is what makes the propagation through the word constructors
+  free.  Natural home: `GQ2/Dyadic/Word/Fox.lean`.
+* `foxD_prodList_of_trivial` and `evalFin_prodList` — the `prodList` product rule.  Every branch
+  word is a `prodList` (WN0-a authoring rule 5), so every lane needs these.
+* `foxD_comm_of_trivial` — the commutator rule, i.e. the general form of "handle columns
+  vanish".
+* `even_nsmul_eq_zero`, `neg_eq_self`, `injective_of_isUnit` — mathlib-shaped micro-lemmas.
+* `sum_generator_pair`/`_wild`/`_boundary` — the `Generator n` support lemmas that make
+  normal-form replays work at **general `h`**; `sum_generator_two` is the `n = 2` twin of WW2's
+  `sum_generator_one`, and each lane will want its own `n`-specific twin.
 -/
 
 namespace GQ2.Dyadic.Certificates
