@@ -348,6 +348,35 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-30 (orchestrator, MC4 done — and it RECONCILES with HM6):** merged, import
+  registered, audit green 3417 jobs / census 11. **MC-N's classification is a theorem**
+  (iff, unconditional, uniform in α ≥ 2), everything std-3 with NO census axiom anywhere.
+  ⚠ **The load-bearing reconciliation**: MC4 proved `dnClearAuts_fixes_core` (no generator of
+  `A(P,h)` touches a slot of index < 3) and hence **`nCoreMixHypothesis_not_of_mix`: HM4's
+  SCHEMATIC S3 binder is UNSATISFIABLE for any genuinely mixing stratum** (with a stress pin
+  at (2,1)). This does NOT contradict HM6 — HM6 proved the core-mixing AUTOMORPHISMS exist;
+  MC4 proved they cannot live inside `A(P,h)`, the handle generating set HM4's binder
+  quantifies through. **Consequence: HM6f (widen `d?ClearAuts`) is NECESSARY, not cosmetic —
+  the N-side discharge cannot be wired until the binder's shape is fixed.** MC4 routed around
+  it (its core families use `NPlaneRealizes` — χ-preservation + ν-frame action, no `A(P,h)`
+  clause), so nothing is blocked meanwhile. **HM6ef dispatched** with both results as input.
+  Other adopted findings: (i) MC4's **deliberate deviation** — the S2 stratum's B8 route is
+  CITED but not EXECUTED (the conjugator matching + Frattini surjectivity that assemble two
+  scaled triples into one automorphism is the missing step); threaded as
+  `NScalingHypothesis`/`NPlaneScalingHypothesis`; discharging them is what will introduce the
+  (census-neutral, owner-accepted) B8 print — **a follow-up ticket, sized small**;
+  (ii) ⚠ `NLabHypothesis` deviates from `BLabHypothesis` twice — abstract-`G` forced (memo
+  R6) and the descent orientation clause DROPPED in favour of `imChiN` (the repo's
+  `IsLabuteOrientation` is D_R-specific); **dropping a clause makes the binder STRONGER,
+  i.e. asks the owner for more — G-Lab-visible, flagged not resolved**; (iii) `nChar_dnX0` is
+  load-bearing: every ℤ₂-character kills x₀, so N1 is ν-invisible and memo §3.6's ν(t) = 0 is
+  a check that passes, never an equation; (iv) for MC3: the M-side will NOT transpose cleanly
+  (N leans on `nUnit_zpowZtwo_injective` = infinite order ⇒ integral x̄₁ pin; on M, χ(B) = −1
+  gives only a mod-2 pin ⇒ the B-scaling the memo warns about), but `nMatOf`+`decide`,
+  `nCoreMat`, `nGL_factor` are core-agnostic and **`dmClearAuts` has the same four generator
+  families, so MCoreMixHypothesis is unsatisfiable for the same reason — MC3 should expect
+  it**; (v) for MC5: `nMarkedCorrection` (+ `_of_liftSplit`, `_nuN`) is the Prop 7.2 input,
+  and `nCoreIdx_cases` (the rank-(4+2h) letter case split) is new and needed.
 - **2026-07-30 (orchestrator, HM6 — G-LAB MOVES: ONE OBLIGATION DISCHARGED):** merged,
   import registered; audit green **3416 jobs**, census 11. `CoreMix.lean` (732 ln, 0 sorries,
   all 11 headlines std-3) + memo `handlemix-core-spike.md`. **Both cores went green,
@@ -818,7 +847,7 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 | MC1 | design memo: rank-four frames, Smith–Witt stabilizer generators, lifting strategy | opus (was fable) | `docs/dyadic/mc-design.md` | recon/mc-survey | **done 2026-07-29** (a2ed4c5 → merged a296a7a; 876-ln memo: closed-form frames+orientations for both cores (M = ℚ₂ re-index under 2↦m, N = new no-forced-row frame), 7/6 Nielsen families, **three-strata lifting** (S1 Nielsen ✓ / S2 via B8 / S3 mixing = Labute content → `MMixHypothesis`/`NMixHypothesis` binders), G-Lab sheet rec = stay parametrized; ⚠ torsion-premise correction + compact-M CoV gap + packet-§14 criterion flag — see log; owner Qs 1–6 in memo §9) |
 | MC2 | presented cores D_P, characters, abelian 4-frames | opus | `GQ2/Dyadic/MarkedCore/Cores.lean` | MC1, F1 | **done 2026-07-29** (7ccb3b2 → merged, import registered; 1907 ln, 0 sorries, 30 headline decls std-3 — **B8 threaded as explicit `PeripheralCyclotomicAction` hypothesis, census axiom NOT consumed** (enters only at MC3/MC4); audit green 3394 jobs; **memo closed forms verified EXACTLY incl. uniqueness** (no-Hensel confirmed); α-independent cup Gram both cores; mod-4 `diagCoeff` rule + `IsCupCocycle` layer = the reusable exponent asset; both §10 assets landed (`IsFreePro2Pair`, `peripheralTriple_scaling` ×4 instantiations); deviations + 2 infra gaps + stale-comment find in log) |
 | MC3 | **MC-M**: classification + lifting for `M_α` (uniform in α) | fable→**opus** (credits) | `GQ2/Dyadic/MarkedCore/M.lean` | MC2 | **INTERRUPTED 2026-07-30 (Fable-5 usage credits exhausted)** — SALVAGE `a2c004e` on `dyadic-mc`: 489 ln, **DOES NOT BUILD** (5+ errors listed in the commit msg), review-or-rewrite; re-dispatch on opus |
-| MC4 | **MC-N**: classification + lifting for `N_α` (uniform in α) | fable→**opus** (credits) | `GQ2/Dyadic/MarkedCore/N.lean` | MC2 | **INTERRUPTED 2026-07-30 (Fable-5 usage credits exhausted)** — SALVAGE `1ad94bb` on `dyadic-mc4` (ww worktree): 747 ln in 3 WIP commits, **BUILDS GREEN** (verified by orchestrator, 3001 jobs); has NFrame + h=0 bridge + q=2 at all h + S1 transvections (dnTauBEquiv/dnTauCEquiv) + χ-preservation + the integral x₁-row pin; resume on opus from there |
+| MC4 | **MC-N**: classification + lifting for `N_α` (uniform in α) | fable→opus | `GQ2/Dyadic/MarkedCore/N.lean` | MC2 | **done 2026-07-30** (2f28429 → merged, import registered; 1822 ln, 0 sorries, **EVERY decl std-3 — no B8, no B3c**; audit green 3417 jobs; **`nStabilizer_classification` is an IFF**, unconditional, uniform in α ≥ 2, with `St_N ≅ (ℤ/2 × ℤ₂²) ⋊ GL₂(ℤ₂)` in closed form (`nStabParam_tauSolve_unique`); Witt half = ONE kernel `decide` over 2⁹; **the six-family list is COMPLETE at the frame level** (memo §3.3 re-derived independently — and the ROW convention is the right one, the transpose convention kills N1); SL₂ block realized unconditionally; S2 threaded as binders (B8 route cited not executed — the deliberate deviation, see log); ⚠ **`nCoreMixHypothesis_not_of_mix`: HM4's schematic S3 binder is UNSATISFIABLE** — see log) |
 | MC5 | handles + `MarkedCoreCertificate` + marked-matching reduction | opus | `GQ2/Dyadic/MarkedCore/Certificate.lean` | MC3, MC4 | pending |
 
 - **MC1**: starting from `recon/mc-survey.md`, write per-core: the abelianization
