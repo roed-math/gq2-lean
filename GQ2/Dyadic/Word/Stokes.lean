@@ -466,4 +466,263 @@ theorem heisWord_lemma_5_7_right (c : ι → C) (r : FreeGroup ι)
 
 end EpsTransport
 
+/-! ## Coordinate identification, naturality, and the adjunction
+
+Three inductions tying the two Heisenberg evaluations over a coefficient map together; they are
+the naturality engine of the dévissage ladder. -/
+
+section Naturality
+
+variable {ι : Type*} {C : Type*} [Group C] {A A' : Type*} [AddCommGroup A]
+  [DistribMulAction C A] [AddCommGroup A'] [DistribMulAction C A']
+
+/-- **Coordinate identification**: the dual coordinate of the `A`-evaluation *is* the primal
+coordinate of the `A^∨`-evaluation — both compute the Fox derivative with coefficients in
+`A^∨` under the contragredient action. -/
+theorem heisWord_l_eq_dual_a (c : ι → C) (x : ι → A) (y : ι → ElemDual A) (r : FreeGroup ι) :
+    (FreeGroup.lift (heisGen c x y) r).l
+      = (FreeGroup.lift (heisGen (A := ElemDual A) c y 0) r).a := by
+  refine FreeGroup.induction_on r rfl (fun i => rfl) (fun i ih => ?_) (fun r₁ r₂ ih₁ ih₂ => ?_)
+  · rw [map_inv, map_inv, HeisLift.inv_l, HeisLift.inv_a, heisWord_g, heisWord_g, ih]
+  · rw [map_mul, map_mul, HeisLift.mul_l, HeisLift.mul_a, heisWord_g, heisWord_g, ih₁, ih₂]
+
+/-- **Naturality of the primal coordinate** in the coefficient module, along a `C`-equivariant
+map (`GQ2.FoxH.WordLift.map`-functoriality, read on the Heisenberg `.a`-coordinate). -/
+theorem heisWord_a_map (c : ι → C) (f : A' →+ A)
+    (hf : ∀ (g : C) (a : A'), f (g • a) = g • f a) (x : ι → A') (y : ι → ElemDual A')
+    (y' : ι → ElemDual A) (r : FreeGroup ι) :
+    (FreeGroup.lift (heisGen c (fun i => f (x i)) y') r).a
+      = f ((FreeGroup.lift (heisGen c x y) r).a) := by
+  refine FreeGroup.induction_on r (by simp) (fun i => by simp [FreeGroup.lift_apply_of])
+    (fun i ih => ?_) (fun r₁ r₂ ih₁ ih₂ => ?_)
+  · rw [map_inv, map_inv, HeisLift.inv_a, HeisLift.inv_a, heisWord_g, heisWord_g, ih,
+      ← hf, map_neg]
+  · rw [map_mul, map_mul, HeisLift.mul_a, HeisLift.mul_a, heisWord_g, heisWord_g, ih₁, ih₂,
+      map_add, hf]
+
+/-- **The adjunction aux**: over a `C`-equivariant `f : A' →+ A`, the evaluation at primal
+offsets `f∘x` with dual offsets `y` (in `H(A) ⋊ C`) and the evaluation at primal offsets `x`
+with dual offsets `f^∨∘y` (in `H(A') ⋊ C`) correspond coordinatewise: primal coordinates match
+through `f`, dual coordinates through `f^∨ = dualMap f`, and the central coordinates are
+**equal**. -/
+private theorem heisWord_adjoint_aux (c : ι → C) (f : A' →+ A)
+    (hf : ∀ (g : C) (a : A'), f (g • a) = g • f a) (x : ι → A') (y : ι → ElemDual A)
+    (r : FreeGroup ι) :
+    (FreeGroup.lift (heisGen c (fun i => f (x i)) y) r).a
+        = f ((FreeGroup.lift (heisGen c x (fun i => dualMap f (y i))) r).a)
+    ∧ (FreeGroup.lift (heisGen c x (fun i => dualMap f (y i))) r).l
+        = dualMap f ((FreeGroup.lift (heisGen c (fun i => f (x i)) y) r).l)
+    ∧ (FreeGroup.lift (heisGen c (fun i => f (x i)) y) r).z
+        = (FreeGroup.lift (heisGen c x (fun i => dualMap f (y i))) r).z := by
+  have hfd := dualMap_equivariant (C := C) f hf
+  refine FreeGroup.induction_on r ⟨by simp, by simp, rfl⟩
+    (fun i => ⟨by simp [FreeGroup.lift_apply_of], by simp [FreeGroup.lift_apply_of],
+      by simp [FreeGroup.lift_apply_of]⟩)
+    (fun i ih => ?_) (fun r₁ r₂ ih₁ ih₂ => ?_)
+  · obtain ⟨iha, ihl, ihz⟩ := ih
+    refine ⟨?_, ?_, ?_⟩
+    · rw [map_inv, map_inv, HeisLift.inv_a, HeisLift.inv_a, heisWord_g, heisWord_g, iha,
+        ← hf, map_neg]
+    · rw [map_inv, map_inv, HeisLift.inv_l, HeisLift.inv_l, heisWord_g, heisWord_g, ihl,
+        ← hfd, map_neg]
+    · rw [map_inv, map_inv, HeisLift.inv_z, HeisLift.inv_z, ihz, iha, ihl, dualMap_apply]
+  · obtain ⟨iha₁, ihl₁, ihz₁⟩ := ih₁
+    obtain ⟨iha₂, ihl₂, ihz₂⟩ := ih₂
+    refine ⟨?_, ?_, ?_⟩
+    · rw [map_mul, map_mul, HeisLift.mul_a, HeisLift.mul_a, heisWord_g, heisWord_g, iha₁,
+        iha₂, map_add, hf]
+    · rw [map_mul, map_mul, HeisLift.mul_l, HeisLift.mul_l, heisWord_g, heisWord_g, ihl₁,
+        ihl₂, map_add, hfd]
+    · rw [map_mul, map_mul, HeisLift.mul_z, HeisLift.mul_z, ihz₁, ihz₂, heisWord_g,
+        heisWord_g, iha₂, ihl₁, ← hf, dualMap_apply]
+
+/-- **The Stokes adjunction**: moving the coefficient map from the primal to the dual offsets
+does not change the central coordinate — `β_r(f∘x, y) = β_r(x, f^∨∘y)`.  This is the
+naturality square of the middle chain-map component. -/
+theorem heisWord_z_adjoint (c : ι → C) (f : A' →+ A)
+    (hf : ∀ (g : C) (a : A'), f (g • a) = g • f a) (x : ι → A') (y : ι → ElemDual A)
+    (r : FreeGroup ι) :
+    (FreeGroup.lift (heisGen c (fun i => f (x i)) y) r).z
+      = (FreeGroup.lift (heisGen c x (fun i => dualMap f (y i))) r).z :=
+  (heisWord_adjoint_aux c f hf x y r).2.2
+
+end Naturality
+
+/-! ## The generic word complex and the chain map `η`
+
+For a lower marking `c : ι → C` satisfying a relator family `w : ρ → FreeGroup ι`, the word
+complex `C•(A)` is the three-term complex
+
+  `A --heisD0--> (ι → A) --heisD1--> (ρ → A)`
+
+(packet displays (30)/(31), degree-generic), and the chain map of packet Lem. 5.1
+
+  `η_A : C•(A) → Hom(C•(A^∨), 𝔽₂)[−2]`
+
+has components `heisEta0/1/2` — evaluation pairings at the ends, the **traced Stokes pairing**
+`Σ_k β_{w k}(x, y)` in the middle.  The chain conditions are the two Lemma 5.7 forms summed
+over the family; the ε-corrections cancel exactly under the **endpoint condition**
+(`IsStokesEndpoint`), the degree-`n` form of the `ℚ₂` chain's
+`expMod2_tame_add_wildValueExpR_odd`. -/
+
+section WordComplex
+
+variable {ι ρ : Type*} {C : Type*} [Group C] {A : Type*} [AddCommGroup A]
+  [DistribMulAction C A]
+
+/-- **`d⁰`**: simultaneous infinitesimal conjugation `v ↦ ((cᵢ − 1)v)ᵢ`. -/
+def heisD0 (c : ι → C) : A →+ (ι → A) :=
+  AddMonoidHom.mk' (fun v i => c i • v - v) (by
+    intro v v'
+    funext i
+    simp only [smul_add, Pi.add_apply]
+    abel)
+
+@[simp] theorem heisD0_apply (c : ι → C) (v : A) (i : ι) :
+    heisD0 c v i = c i • v - v := rfl
+
+/-- **`d¹`**: the evaluated first-derivative (Fox) row of the relator family — the
+`.a`-coordinate of the Heisenberg evaluation at primal offsets `x`. -/
+noncomputable def heisD1 (c : ι → C) (w : ρ → FreeGroup ι) : (ι → A) →+ (ρ → A) :=
+  AddMonoidHom.mk'
+    (fun x k => (FreeGroup.lift (heisGen c x (0 : ι → ElemDual A)) (w k)).a)
+    (by
+      intro x x'
+      funext k
+      exact heisWord_a_add c x x' (0 : ι → ElemDual A) (w k))
+
+@[simp] theorem heisD1_apply (c : ι → C) (w : ρ → FreeGroup ι) (x : ι → A) (k : ρ) :
+    heisD1 c w x k = (FreeGroup.lift (heisGen c x (0 : ι → ElemDual A)) (w k)).a := rfl
+
+/-- The zero-offset evaluation of a dying relator is the identity of the Heisenberg lift. -/
+private theorem lift_heisGen_zero_zero (c : ι → C) {r : FreeGroup ι}
+    (hr : FreeGroup.lift c r = 1) :
+    FreeGroup.lift (heisGen c (0 : ι → A) (0 : ι → ElemDual A)) r = 1 := by
+  refine HeisLift.ext ?_ ?_ ?_ ?_
+  · exact (heisWord_zero_prim c (0 : ι → ElemDual A) r).1
+  · exact (heisWord_zero_dual c (0 : ι → A) r).1
+  · exact (heisWord_zero_prim c (0 : ι → ElemDual A) r).2
+  · rw [heisWord_g]; exact hr
+
+/-- **The word complex is a complex**: `d¹ ∘ d⁰ = 0` at a marking killing the relator family.
+Proof by the conjugation model: the coboundary-offset marking is the `conjPa`-conjugate of the
+zero-offset marking, whose evaluation is `1`. -/
+theorem heisD1_comp_heisD0 (c : ι → C) (w : ρ → FreeGroup ι)
+    (hr : ∀ k, FreeGroup.lift c (w k) = 1) (v : A) :
+    heisD1 (A := A) c w (heisD0 c v) = 0 := by
+  have hconj : FreeGroup.lift (heisGen c (fun i => c i • v - v) (0 : ι → ElemDual A))
+      = (conjPa v).comp (FreeGroup.lift (heisGen c (0 : ι → A) (0 : ι → ElemDual A))) := by
+    apply FreeGroup.ext_hom
+    intro i
+    rw [MonoidHom.comp_apply, FreeGroup.lift_apply_of, FreeGroup.lift_apply_of]
+    show (⟨c i • v - v, 0, 0, c i⟩ : HeisLift A C)
+      = (⟨v, 0, 0, 1⟩ : HeisLift A C)⁻¹ * ⟨0, 0, 0, c i⟩ * ⟨v, 0, 0, 1⟩
+    rw [HeisLift.conj_gen]
+    ext <;> simp
+  funext k
+  show (FreeGroup.lift (heisGen c (fun i => c i • v - v) (0 : ι → ElemDual A)) (w k)).a = 0
+  rw [hconj, MonoidHom.comp_apply, lift_heisGen_zero_zero c (hr k), map_one, HeisLift.one_a]
+
+variable [Fintype ι] [DecidableEq ι] [Fintype ρ]
+
+/-- **The endpoint condition** (display (40), degree-generic): the traced mod-2 exponent
+vector of the relator family vanishes in every generator slot.  For the `ℚ₂` pair
+`(r_t, r_R)` this is the frozen `GQ2.FoxH.expMod2_tame_add_wildValueExpR_odd`; each branch
+family discharges it by `decide` on the resolved words. -/
+def IsStokesEndpoint (w : ρ → FreeGroup ι) : Prop :=
+  ∀ i : ι, ∑ k, Multiplicative.toAdd (heisEps i (w k)) = 0
+
+/-- **`η⁰`**: the evaluation pairing `a ↦ (ξ ↦ Σ_k ξ_k(a))` into the dual of the top dual
+term. -/
+noncomputable def heisEta0 : A →+ ElemDual (ρ → ElemDual A) :=
+  AddMonoidHom.mk'
+    (fun a => (AddMonoidHom.mk' (fun ξ : ρ → ElemDual A => ∑ k, ξ k a)
+      (fun ξ ξ' => by
+        simp only [Pi.add_apply, ElemDual.add_apply]
+        exact Finset.sum_add_distrib) : ElemDual (ρ → ElemDual A)))
+    (fun a a' => by
+      ext ξ
+      show (∑ k, ξ k (a + a')) = (∑ k, ξ k a) + ∑ k, ξ k a'
+      simp only [map_add]
+      exact Finset.sum_add_distrib)
+
+@[simp] theorem heisEta0_apply (a : A) (ξ : ρ → ElemDual A) :
+    heisEta0 a ξ = ∑ k, ξ k a := rfl
+
+/-- **`η¹`, the traced Stokes pairing**: `x ↦ (y ↦ Σ_k β_{w k}(x, y))` — the degree-generic
+form of the `ℚ₂` traced mixed coordinate `GQ2.FoxH.mixedB`. -/
+noncomputable def heisEta1 (c : ι → C) (w : ρ → FreeGroup ι) :
+    (ι → A) →+ ElemDual (ι → ElemDual A) :=
+  AddMonoidHom.mk'
+    (fun x => (AddMonoidHom.mk'
+      (fun y : ι → ElemDual A => ∑ k, (FreeGroup.lift (heisGen c x y) (w k)).z)
+      (fun y y' => by
+        rw [← Finset.sum_add_distrib]
+        exact Finset.sum_congr rfl fun k _ => heisWord_z_add_right c x y y' (w k)) :
+        ElemDual (ι → ElemDual A)))
+    (fun x x' => by
+      ext y
+      show (∑ k, (FreeGroup.lift (heisGen c (x + x') y) (w k)).z)
+        = (∑ k, (FreeGroup.lift (heisGen c x y) (w k)).z)
+          + ∑ k, (FreeGroup.lift (heisGen c x' y) (w k)).z
+      rw [← Finset.sum_add_distrib]
+      exact Finset.sum_congr rfl fun k _ => heisWord_z_add_left c x x' y (w k))
+
+omit [Fintype ι] [DecidableEq ι] in
+@[simp] theorem heisEta1_apply (c : ι → C) (w : ρ → FreeGroup ι) (x : ι → A)
+    (y : ι → ElemDual A) :
+    heisEta1 c w x y = ∑ k, (FreeGroup.lift (heisGen c x y) (w k)).z := rfl
+
+/-- **`η²`**: the traced biduality pairing `v ↦ (λ ↦ λ(Σ_k v_k))`. -/
+noncomputable def heisEta2 : (ρ → A) →+ ElemDual (ElemDual A) :=
+  AddMonoidHom.mk'
+    (fun v => (AddMonoidHom.mk' (fun lam : ElemDual A => lam (∑ k, v k))
+      (fun lam mu => rfl) : ElemDual (ElemDual A)))
+    (fun v v' => by
+      ext lam
+      show lam (∑ k, (v + v') k) = lam (∑ k, v k) + lam (∑ k, v' k)
+      simp only [Pi.add_apply]
+      rw [Finset.sum_add_distrib, map_add])
+
+@[simp] theorem heisEta2_apply (v : ρ → A) (lam : ElemDual A) :
+    heisEta2 v lam = lam (∑ k, v k) := rfl
+
+/-- **The first chain condition** (Lemma 5.7 left, traced): under the endpoint condition,
+`η¹(d⁰a) = η⁰(a) ∘ d¹_{A^∨}` — the ε-corrections of the family cancel. -/
+theorem heisEta1_comp_d0 (c : ι → C) (w : ρ → FreeGroup ι)
+    (hr : ∀ k, FreeGroup.lift c (w k) = 1) (hend : IsStokesEndpoint w) (a : A)
+    (y : ι → ElemDual A) :
+    heisEta1 c w (heisD0 c a) y = heisEta0 a (heisD1 (A := ElemDual A) c w y) := by
+  show (∑ k, (FreeGroup.lift (heisGen c (fun i => c i • a - a) y) (w k)).z)
+    = ∑ k, (FreeGroup.lift (heisGen (A := ElemDual A) c y 0) (w k)).a a
+  have h57 : ∀ k, (FreeGroup.lift (heisGen c (fun i => c i • a - a) y) (w k)).z
+      = (FreeGroup.lift (heisGen (A := ElemDual A) c y 0) (w k)).a a
+        + ∑ i, Multiplicative.toAdd (heisEps i (w k)) * (y i (c i • a)) := fun k => by
+    rw [heisWord_lemma_5_7_left c (w k) (hr k) a y, heisWord_l_eq_dual_a]
+  rw [Finset.sum_congr rfl fun k _ => h57 k, Finset.sum_add_distrib, Finset.sum_comm]
+  have hzero : ∀ i : ι,
+      (∑ k, Multiplicative.toAdd (heisEps i (w k)) * (y i (c i • a))) = 0 := fun i => by
+    rw [← Finset.sum_mul, hend i, zero_mul]
+  rw [Finset.sum_congr rfl fun i _ => hzero i, Finset.sum_const_zero, add_zero]
+
+/-- **The second chain condition** (Lemma 5.7 right, traced): under the endpoint condition,
+`η²(d¹x) = η¹(x) ∘ d⁰_{A^∨}`. -/
+theorem heisEta2_comp_d1 (c : ι → C) (w : ρ → FreeGroup ι)
+    (hr : ∀ k, FreeGroup.lift c (w k) = 1) (hend : IsStokesEndpoint w) (x : ι → A)
+    (lam : ElemDual A) :
+    heisEta2 (heisD1 c w x) lam = heisEta1 c w x (heisD0 (A := ElemDual A) c lam) := by
+  show lam (∑ k, (FreeGroup.lift (heisGen c x (0 : ι → ElemDual A)) (w k)).a)
+    = ∑ k, (FreeGroup.lift (heisGen c x (fun i => c i • lam - lam)) (w k)).z
+  have h57 : ∀ k, (FreeGroup.lift (heisGen c x (fun i => c i • lam - lam)) (w k)).z
+      = lam ((FreeGroup.lift (heisGen c x (0 : ι → ElemDual A)) (w k)).a)
+        + ∑ i, Multiplicative.toAdd (heisEps i (w k)) * (lam (x i)) := fun k =>
+    heisWord_lemma_5_7_right c (w k) (hr k) x lam
+  rw [Finset.sum_congr rfl fun k _ => h57 k, Finset.sum_add_distrib, Finset.sum_comm, map_sum]
+  have hzero : ∀ i : ι,
+      (∑ k, Multiplicative.toAdd (heisEps i (w k)) * (lam (x i))) = 0 := fun i => by
+    rw [← Finset.sum_mul, hend i, zero_mul]
+  rw [Finset.sum_congr rfl fun i _ => hzero i, Finset.sum_const_zero, add_zero]
+
+end WordComplex
+
 end GQ2.Dyadic
