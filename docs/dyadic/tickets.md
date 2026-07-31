@@ -348,6 +348,62 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-30 (orchestrator, CREDIT INTERRUPTION + NC2/NC3 landings): the Fable-5 usage
+  credits ran out** mid-flight, killing MC3 and MC4 (the two fable obligation tickets); the
+  owner switched the session model to opus-5. **The commit-early discipline worked**: MC4
+  banked 747 green lines in 3 WIP commits (orchestrator-verified: `lake build
+  GQ2.Dyadic.MarkedCore.N` = 3001 jobs green) — resumable; MC3 died mid-write with 489
+  uncommitted lines that do NOT build, banked as an explicitly-marked UNVERIFIED salvage
+  commit (the S1.5 precedent). **NC2 + NC3 landed and merged** (imports registered; audit
+  green 3413 jobs, census 11): NC2 = `NpcJet/Defs.lean` 427 ln, all 47 decls std-3, memo
+  names confirmed verbatim, **the NC5 headline elaborates against them** (scratch-verified);
+  NC3 = `NpcJet/Omega.lean` 414 ln, 29 decls std-3-or-less, **rules 1+2 committed**, with
+  rule 2 proved by REUSE (found `GQ2.FoxH.WordLift.sum_pow_smul_eq_zero` already in closure
+  — memo risk 6's search paid off). Deltas recorded: NC2 nests the namespace one deeper
+  (`GQ2.Dyadic.NpcJet`) to avoid clashing with NC3's generic lemmas; the `y^k` law landed in
+  NC2 (memo's map said Omega) — NC3's scope shrank accordingly; `IsEquivariantFactorSet.m_zero`
+  is a THEOREM not a field (spell `IsEquivariantFactorSet.m_zero dat hdat` — NC4/NC5 will
+  hit this); NC2 left no sorried skeleton (SORRY_ALLOWLIST is orchestrator-owned) — NC5
+  states the headline. **Remaining NC lane: NC4 (δ/D/E seams), NC5 (assembly), NC6
+  (handles+companion+pin)** — all unblocked.
+- 2026-07-30 (orchestrator, NC1 outcomes — **BETTER THAN COMMISSIONED**): memo merged
+  (`docs/dyadic/nc-design.md`). The corrected-L_c headline ELABORATES VERBATIM (spike: zero
+  errors, one intentional sorry at the assembly); quantification STRICTLY STRONGER than
+  commissioned (all r : ℕ, all η : ℤ_[2] — neither r ≥ 1 nor IsUnit η consumed; 2 ≤ α =
+  LabuteType.Valid); the refutation is visible in the proof shape (E_{r,η} evaluates to the
+  central element with b_q(L_c c₀, c₁)); **both feared gaps are NON-GAPS** (padicOmega2
+  additivity unneeded — product-conjugator spelling + zpowHat_mul; reduction rules 1+2
+  ALREADY PROVED in the spike at std-3 — norm vanishing needs no semisimplicity). Plan:
+  NC2 (defs+kit, opus) ∥ NC3 (ω₂/norm, opus) → NC4 (δ/D/E seams, fable) → NC5 (assembly,
+  fable) → NC6 (handles+companion+pin, opus); new plain-import dir `GQ2/Dyadic/NpcJet/`
+  (module-rule-forced, avoids WNP reserved paths). Adopted under the blanket (flagged):
+  Q1 file map approved; Q2 hypothesis-minimal headline + `hVu_of_simple` companion; Q3
+  WNP-a pre-agrees `npcWord`; Q4 the stale WNP spec bullet corrected inline (dated); Q6
+  M_c docstring-only. Q5 (timing): **NC2+NC3 dispatched now (opus — parallel, disjoint
+  files; lg→dyadic-nc2, wl→dyadic-nc3)**; NC4/NC5 (fable) queue behind MC3/MC4/HM6 slots.
+  Timing rec adopted: prove now — no G-1/WW/AX dependence; WNP-c's centerpiece pulled
+  forward, not WW duplication. Elaboration frictions recorded for NC2+ (Prod-literal Mul
+  shadowing → typed constructors; `CentExt.fib` needs `(c := …)`).
+- 2026-07-30 (orchestrator, WL-recon outcomes): memo merged (`docs/dyadic/wl-recon.md`).
+  Measured corrections to SQ1's framing: the frozen Γ_R chain is **8615 ln** (not 1855);
+  n=1 coverage = mathematics ~100%, Lean text ~25% (WW's structural recursion REPLACES the
+  per-factor ledgers); handles ~85% from MC2+HM; the 2287-ln dévissage is **WW3's to do
+  ONCE** (the Roe/Devissage clone experiment: 5 branch words ≈ 11k avoidable lines —
+  regression-target-not-source, decisively; exception: WW4 CONSUMES the
+  presentation-independent Gauss endgame, 1932 ln citable). Spike facts: type-L n=1 forces
+  K = ℚ₂ (`by decide`); BOTH candidate L words identify letter-for-letter at n=1
+  (wildRelator / wildRelatorR; sole bridge = one norm_cast on IntegerPower). Adopted under
+  the standing blanket (flagged): (i) Q2 — **SQ5's full word-theorem restatement MOVES to
+  AS4** (module-rule impossibility: Roe/Main is plain, Sanity spec'd module; AS4 is cheaper
+  than budgeted since the terminal theorem is hypothesis-free); (ii) Q3 — **WL-c SPLITS
+  into c1 (Stokes/Hessian/det/phase, opus, ~420) + c2 (scalar/Hilbert hHilb, FABLE, ~220,
+  SCHEDULED FIRST — the only can-fail item)**; revised WL sizing ≈1360 ln across 4 tickets
+  with the measured 1.52× overrun factor; (iii) Q5 — WL-a carries a q_K > 2 pin (the n=1
+  base is structurally blind to q_K-vs-2 slips); (iv) Q1 — the S2.4 §8.1-inventory
+  correction rides with the errata bundle's cover note. **Q4 (fold the target tables into
+  WW1/WW3/WW4 and dispatch them early as G-1-independent) = OWNER QUESTION** — the G-1 gate
+  text lists WW as held; early release is the owner's call (WL-recon recommends yes; it
+  would parallelize wave 2 ahead of R5).
 - **2026-07-30 (owner): R3(a) + dispatch authorizations EXECUTED.** Model policy per the
   owner's request: **fable** for the hard seams (MC3, MC4, NC1 now; HM6 + S4.4 queued),
   **opus** for well-specified fills (S4.3, WL-recon) — the boards' original model-column
@@ -570,6 +626,7 @@ to `master` only at owner gate G3.
   possible), n=2 unramified +1, ramified +1 at every n.
 
 **Owner decision sheet (2026-07-30):** `~/claude/handoffs/gq2-dyadic-owner-decisions-2026-07-30.md`.
+**Session handoff (2026-07-30, Fable-credit interruption):** `~/claude/handoffs/gq2-dyadic-campaigns-2026-07-30.md`.
 
 ## Obligation tracker
 
@@ -692,8 +749,8 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 |---|---|---|---|---|---|
 | MC1 | design memo: rank-four frames, Smith–Witt stabilizer generators, lifting strategy | opus (was fable) | `docs/dyadic/mc-design.md` | recon/mc-survey | **done 2026-07-29** (a2ed4c5 → merged a296a7a; 876-ln memo: closed-form frames+orientations for both cores (M = ℚ₂ re-index under 2↦m, N = new no-forced-row frame), 7/6 Nielsen families, **three-strata lifting** (S1 Nielsen ✓ / S2 via B8 / S3 mixing = Labute content → `MMixHypothesis`/`NMixHypothesis` binders), G-Lab sheet rec = stay parametrized; ⚠ torsion-premise correction + compact-M CoV gap + packet-§14 criterion flag — see log; owner Qs 1–6 in memo §9) |
 | MC2 | presented cores D_P, characters, abelian 4-frames | opus | `GQ2/Dyadic/MarkedCore/Cores.lean` | MC1, F1 | **done 2026-07-29** (7ccb3b2 → merged, import registered; 1907 ln, 0 sorries, 30 headline decls std-3 — **B8 threaded as explicit `PeripheralCyclotomicAction` hypothesis, census axiom NOT consumed** (enters only at MC3/MC4); audit green 3394 jobs; **memo closed forms verified EXACTLY incl. uniqueness** (no-Hensel confirmed); α-independent cup Gram both cores; mod-4 `diagCoeff` rule + `IsCupCocycle` layer = the reusable exponent asset; both §10 assets landed (`IsFreePro2Pair`, `peripheralTriple_scaling` ×4 instantiations); deviations + 2 infra gaps + stale-comment find in log) |
-| MC3 | **MC-M**: classification + lifting for `M_α` (uniform in α) | fable | `GQ2/Dyadic/MarkedCore/M.lean` | MC2 | **dispatched 2026-07-30 (FABLE)** |
-| MC4 | **MC-N**: classification + lifting for `N_α` (uniform in α) | fable | `GQ2/Dyadic/MarkedCore/N.lean` | MC2 | **dispatched 2026-07-30 (FABLE)** |
+| MC3 | **MC-M**: classification + lifting for `M_α` (uniform in α) | fable→**opus** (credits) | `GQ2/Dyadic/MarkedCore/M.lean` | MC2 | **INTERRUPTED 2026-07-30 (Fable-5 usage credits exhausted)** — SALVAGE `a2c004e` on `dyadic-mc`: 489 ln, **DOES NOT BUILD** (5+ errors listed in the commit msg), review-or-rewrite; re-dispatch on opus |
+| MC4 | **MC-N**: classification + lifting for `N_α` (uniform in α) | fable→**opus** (credits) | `GQ2/Dyadic/MarkedCore/N.lean` | MC2 | **INTERRUPTED 2026-07-30 (Fable-5 usage credits exhausted)** — SALVAGE `1ad94bb` on `dyadic-mc4` (ww worktree): 747 ln in 3 WIP commits, **BUILDS GREEN** (verified by orchestrator, 3001 jobs); has NFrame + h=0 bridge + q=2 at all h + S1 transvections (dnTauBEquiv/dnTauCEquiv) + χ-preservation + the integral x₁-row pin; resume on opus from there |
 | MC5 | handles + `MarkedCoreCertificate` + marked-matching reduction | opus | `GQ2/Dyadic/MarkedCore/Certificate.lean` | MC3, MC4 | pending |
 
 - **MC1**: starting from `recon/mc-survey.md`, write per-core: the abelianization
@@ -897,7 +954,10 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
   `D_{r,η} = δ₀^{σ^{η̂}}δ₀^{σ^{−2^r}}δ₀^{σ^{η̂−2^r}}`, `E_{r,η} = [D_{r,η}, x₁]` (draft
   eq:Npc-word; `η̂ ∈ Ẑˣ` = 2-component η, odd components 1). `E_{r,η}` is invisible at
   tame/pro-2/first Fox order, essential at second order: cross operators become `M_c = A`,
-  `L_c = A^{-1}` with `A = S^{η̂}`, `B = S^{2^r}` (draft eq:Ncross) — certificates must cover
+  `L_c = A^{-1}` with `A = S^{η̂}`, `B = S^{2^r}` (draft eq:Ncross) **[CORRECTION 2026-07-30:
+  eq:Ncross is REFUTED as displayed — the true operators are `L_c = A⁻¹+B+BA⁻¹`,
+  `M_c = adj(L_c)` (S3.2 machine-verified; errata item 5; NC1's Lean design governs;
+  WNP-a pre-agrees `npcWord` with `GQ2/Dyadic/NpcJet/`)]** — certificates must cover
   **all** `r ≥ 1`, `η ∈ ℤ₂ˣ` symbolically. Sanity: the 2-dim `S₃`-module radical detection for
   the uncorrected word (mutant row).
 
