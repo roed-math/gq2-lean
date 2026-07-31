@@ -799,6 +799,7 @@ noncomputable def nMod2 (v : NVec) : Fin 4 → ZMod 2 :=
 /-- **A frame endomorphism of the rank-four `N`-model in coordinates**: the images of the three
 non-torsion basis vectors `x̄₁, σ̄, x̄₂`.  The image of `t` is *not* data — it is `t`
 (`nFrameModel_map_t`). -/
+@[ext]
 structure NRows where
   /-- The image of `x̄₁`. -/
   x1 : NVec
@@ -825,11 +826,15 @@ noncomputable def NRows.mat (R : NRows) (i j : Fin 4) : ZMod 2 := nMod2 (R.col j
 def nGram : Fin 4 → Fin 4 → ZMod 2 :=
   ![![1, 1, 0, 0], ![1, 0, 0, 0], ![0, 0, 0, 1], ![0, 0, 1, 0]]
 
-/-- The mod-2 cup pairing on `H¹(D_N; 𝔽₂)` in the dual basis, with Gram matrix `nGram`. -/
-noncomputable def nCupForm (u w : Fin 4 → ZMod 2) : ZMod 2 := ∑ i, ∑ j, u i * nGram i j * w j
+/-- The mod-2 cup pairing on `H¹(D_N; 𝔽₂)` in the dual basis, in closed form (the Gram matrix it
+belongs to is `nGram` — `nCupForm_eq_gram`). -/
+def nCupForm (u w : Fin 4 → ZMod 2) : ZMod 2 :=
+  u 0 * w 0 + u 0 * w 1 + u 1 * w 0 + u 2 * w 3 + u 3 * w 2
 
-theorem nCupForm_apply (u w : Fin 4 → ZMod 2) :
-    nCupForm u w = u 0 * w 0 + u 0 * w 1 + u 1 * w 0 + u 2 * w 3 + u 3 * w 2 := by
+/-- `nCupForm` **is** the bilinear form of the Gram matrix `nGram` — the closed form above is only
+a computational convenience (it keeps the `𝔽₂` decision procedure of `nCup_iff_mod2` cheap). -/
+theorem nCupForm_eq_gram (u w : Fin 4 → ZMod 2) :
+    nCupForm u w = ∑ i, ∑ j, u i * nGram i j * w j := by
   simp [nCupForm, Fin.sum_univ_four, nGram]
 
 /-- **The cup-isometry clause**: `M̄·G_N·M̄ᵀ = G_N`, entrywise (memo §2.3's convention, dualized to
@@ -878,6 +883,7 @@ theorem IsNStab.x1_coord {α : ℕ} (hα : 2 ≤ α) {R : NRows} (hR : IsNStab �
 ```
 
 with `g = [[g₁, g₂], [h₁, h₂]]`. -/
+@[ext]
 structure NStabParam where
   /-- The `t`-shift of the `x̄₁`-row (family N1). -/
   tau : ZMod 2
@@ -915,13 +921,200 @@ structure NStabParam.Admissible (P : NStabParam) : Prop where
 @[simp] theorem NStabParam.rows_x2 (P : NStabParam) :
     P.rows.x2 = (P.tauX2, 0, P.g 0 1, P.g 1 1) := rfl
 
-/-- The mod-2 matrix of a parameter tuple's rows, entry by entry — the `M̄` of memo §3.3. -/
+/-- `g ∈ GL₂(ℤ₂)`, read on the residue field: `ℤ₂` is local, so `det g` is a unit exactly when
+`det ḡ = ḡ₁h̄₂ + ḡ₂h̄₁ = 1` in `𝔽₂` (signs are invisible in characteristic 2). -/
+theorem nIsUnit_det_iff (g : Matrix (Fin 2) (Fin 2) ℤ_[2]) :
+    IsUnit g.det ↔ nRed (g 0 0) * nRed (g 1 1) + nRed (g 0 1) * nRed (g 1 0) = 1 := by
+  rw [nIsUnit_iff_nRed, Matrix.det_fin_two, map_sub, map_mul, map_mul, CharTwo.sub_eq_add]
+
+/-! ### The `𝔽₂` decision procedure
+
+The whole Witt half of memo §3.3 is a statement about **nine** `𝔽₂`-parameters, hence a finite
+check: `nCup_iff_mod2` settles all sixteen entries of `M̄·G_N·M̄ᵀ = G_N` at once, by kernel
+evaluation over the `2⁹` assignments.  Everything `ℤ₂`-valued (the integral `x̄₁`-pin, the unit
+`det g`) is handled separately, outside the decidable core. -/
+
+/-- The mod-2 matrix `M̄` of memo §3.3 in terms of its nine free `𝔽₂` entries — rows indexed by
+`(t, x̄₁, σ̄, x̄₂)`, and the `t`- and `x̄₁`-rows already rigid. -/
+def nMatOf (τ τσ τx p q g₁ g₂ h₁ h₂ : ZMod 2) : Fin 4 → Fin 4 → ZMod 2 :=
+  ![![1, τ, τσ, τx], ![0, 1, 0, 0], ![0, p, g₁, g₂], ![0, q, h₁, h₂]]
+
+/-- **The `𝔽₂`-content of the Smith–Witt conditions** (memo §3.3, the Witt/cup half): with the
+`x̄₁`-row already pinned by the orientation datum, the isometry `M̄·G_N·M̄ᵀ = G_N` holds **exactly**
+when `det ḡ = 1` and the two mod-2 couplings hold.  Kernel check over the `2⁹` assignments. -/
+theorem nCup_iff_mod2 (τ τσ τx p q g₁ g₂ h₁ h₂ : ZMod 2) :
+    (∀ i j, nCupForm (nMatOf τ τσ τx p q g₁ g₂ h₁ h₂ i) (nMatOf τ τσ τx p q g₁ g₂ h₁ h₂ j)
+        = nGram i j)
+      ↔ g₁ * h₂ + g₂ * h₁ = 1 ∧ p = τx * g₁ + τσ * g₂ ∧ q = τx * h₁ + τσ * h₂ := by
+  revert τ τσ τx p q g₁ g₂ h₁ h₂
+  decide
+
+/-- The mod-2 matrix of a parameter tuple's rows is `nMatOf` at the reduced parameters — the `M̄`
+of memo §3.3. -/
 theorem NStabParam.mat_eq (P : NStabParam) :
-    P.rows.mat = ![![1, P.tau, P.tauSigma, P.tauX2], ![0, 1, 0, 0],
-      ![0, nRed P.p, nRed (P.g 0 0), nRed (P.g 0 1)],
-      ![0, nRed P.q, nRed (P.g 1 0), nRed (P.g 1 1)]] := by
+    P.rows.mat = nMatOf P.tau P.tauSigma P.tauX2 (nRed P.p) (nRed P.q)
+      (nRed (P.g 0 0)) (nRed (P.g 0 1)) (nRed (P.g 1 0)) (nRed (P.g 1 1)) := by
   funext i j
   fin_cases i <;> fin_cases j <;>
-    simp [NRows.mat, NStabParam.rows, nMod2, nRed]
+    simp [NRows.mat, NStabParam.rows, nMatOf, nMod2, nRed]
+
+/-- **Soundness of the parameter tuple**: an admissible tuple satisfies the cup-isometry clause —
+its three fields are exactly the three non-vacuous entries of `M̄·G_N·M̄ᵀ = G_N`. -/
+theorem NStabParam.rows_isCupIsometry {P : NStabParam} (hP : P.Admissible) :
+    P.rows.IsCupIsometry := by
+  rw [NRows.IsCupIsometry, P.mat_eq]
+  exact (nCup_iff_mod2 _ _ _ _ _ _ _ _ _).mpr
+    ⟨(nIsUnit_det_iff P.g).mp hP.det, hP.couple_p, hP.couple_q⟩
+
+/-- Distinct parameter tuples give distinct rows — the uniqueness half of the classification. -/
+theorem NStabParam.rows_injective : Function.Injective NStabParam.rows := by
+  intro P Q hEq
+  have h1 : P.rows.x1 = Q.rows.x1 := by rw [hEq]
+  have h2 : P.rows.sigma = Q.rows.sigma := by rw [hEq]
+  have h3 : P.rows.x2 = Q.rows.x2 := by rw [hEq]
+  simp only [NStabParam.rows_x1, NStabParam.rows_sigma, NStabParam.rows_x2,
+    Prod.mk.injEq] at h1 h2 h3
+  refine NStabParam.ext h1.1 h1.2.2.1 h1.2.2.2 h2.1 h3.1 (Matrix.ext fun i k => ?_)
+  fin_cases i <;> fin_cases k
+  exacts [h2.2.2.1, h3.2.2.1, h2.2.2.2, h3.2.2.2]
+
+/-- **The rank-four Smith–Witt classification** (memo §3.3; MC4 deliverable 1).  A frame
+endomorphism of `D_N^{ab}` preserves the marked invariant triple — the relation vector `ρ_N = 2t`
+(built into `NRows.col`, automatic by `nFrameModel_map_t`), the orientation datum `χ̄`, and the
+mod-2 cup Gram `G_N` — **if and only if** it is given by a parameter tuple
+`(τ, p, q, τ_σ, τ_{x₂}, g)` with `g ∈ GL₂(ℤ₂)` and the two mod-2 couplings; and the tuple is then
+**unique**.  Unconditional, and uniform in `α ≥ 2`. -/
+theorem nStabilizer_classification {α : ℕ} (hα : 2 ≤ α) {R : NRows} :
+    IsNStab α R ↔ ∃! P : NStabParam, P.Admissible ∧ P.rows = R := by
+  constructor
+  · intro hR
+    obtain ⟨h1, h2, h3⟩ := hR.x1_coord hα
+    set P : NStabParam := ⟨R.x1.1, R.x1.2.2.1, R.x1.2.2.2, R.sigma.1, R.x2.1,
+      !![R.sigma.2.2.1, R.x2.2.2.1; R.sigma.2.2.2, R.x2.2.2.2]⟩ with hPdef
+    have hrows : P.rows = R := by
+      refine NRows.ext ?_ ?_ ?_
+      · rw [hPdef, NStabParam.rows_x1, ← h1]
+      · rw [hPdef, NStabParam.rows_sigma, ← h2]; rfl
+      · rw [hPdef, NStabParam.rows_x2, ← h3]; rfl
+    have hcup : ∀ i j, nCupForm (P.rows.mat i) (P.rows.mat j) = nGram i j := by
+      rw [hrows]; exact hR.cup
+    rw [P.mat_eq] at hcup
+    obtain ⟨hdet, hp, hq⟩ := (nCup_iff_mod2 _ _ _ _ _ _ _ _ _).mp hcup
+    exact ⟨P, ⟨⟨(nIsUnit_det_iff P.g).mpr hdet, hp, hq⟩, hrows⟩,
+      fun Q hQ => NStabParam.rows_injective (hQ.2.trans hrows.symm)⟩
+  · rintro ⟨P, ⟨hP, rfl⟩, -⟩
+    exact ⟨by rw [NStabParam.rows_x1, nChiVec, zpowZtwo_one_exp],
+      by rw [NStabParam.rows_sigma, nChiVec, zpowZtwo_zero_exp],
+      by rw [NStabParam.rows_x2, nChiVec, zpowZtwo_zero_exp],
+      NStabParam.rows_isCupIsometry hP⟩
+
+/-! ### The semidirect-product shape `St_N ≅ (ℤ/2 × ℤ₂²) ⋊ GL₂(ℤ₂)` (memo §3.3) -/
+
+/-- The two `t`-components solved from `(p, q, g)`: over `𝔽₂` the coupling reads
+`(p̄, q̄) = ḡ·(τ_{x₂}, τ_σ)ᵀ`, and `ḡ` is invertible with `ḡ⁻¹ = [[h̄₂, ḡ₂], [h̄₁, ḡ₁]]` (the
+adjugate; in characteristic 2 the signs vanish and `det ḡ = 1`). -/
+noncomputable def nTauSolve (p q : ℤ_[2]) (g : Matrix (Fin 2) (Fin 2) ℤ_[2]) : ZMod 2 × ZMod 2 :=
+  (nRed (g 1 0) * nRed p + nRed (g 0 0) * nRed q,
+    nRed (g 1 1) * nRed p + nRed (g 0 1) * nRed q)
+
+/-- **The closed form `St_N ≅ (ℤ/2 × ℤ₂²) ⋊ GL₂(ℤ₂)`** (memo §3.3): the free parameters are
+`τ ∈ ℤ/2`, `p, q ∈ ℤ₂` and `g ∈ GL₂(ℤ₂)`; for each such choice there is **exactly one** pair
+`(τ_σ, τ_{x₂})` of `t`-components making the tuple admissible, namely `nTauSolve p q g`.  So the
+`(σ, x₂)`-plane behaves exactly like a handle, with the torsion coordinate riding along. -/
+theorem nStabParam_tauSolve_unique (τ : ZMod 2) (p q : ℤ_[2]) {g : Matrix (Fin 2) (Fin 2) ℤ_[2]}
+    (hg : IsUnit g.det) :
+    ∃! st : ZMod 2 × ZMod 2, NStabParam.Admissible ⟨τ, p, q, st.1, st.2, g⟩ := by
+  have hdet := (nIsUnit_det_iff g).mp hg
+  have hkey : ∀ pb qb g₁ g₂ h₁ h₂ : ZMod 2, g₁ * h₂ + g₂ * h₁ = 1 →
+      ∀ st : ZMod 2 × ZMod 2,
+        (pb = st.2 * g₁ + st.1 * g₂ ∧ qb = st.2 * h₁ + st.1 * h₂)
+          ↔ st = (h₁ * pb + g₁ * qb, h₂ * pb + g₂ * qb) := by decide
+  refine ⟨nTauSolve p q g, ⟨hg, ?_, ?_⟩, fun st hst => ?_⟩
+  · exact ((hkey _ _ _ _ _ _ hdet _).mpr rfl).1
+  · exact ((hkey _ _ _ _ _ _ hdet _).mpr rfl).2
+  · exact (hkey _ _ _ _ _ _ hdet st).mp ⟨hst.couple_p, hst.couple_q⟩
+
+/-! ### The relation-vector clause is automatic -/
+
+/-- **Every frame automorphism fixes the torsion generator** (memo §3.2(ii)): `t = x̄₀` is the
+unique element of order 2 of `D_N^{ab}`, so the relation-vector clause `φ(ρ_N) = ρ_N` costs
+nothing and is legitimately built into the `t`-column of `NRows.col`.  (The rank-three precedent
+is `xi_fixes_t`, `GQ2/AnabelianBridge/Classification.lean:161`.) -/
+theorem nFrameModel_map_t {h : ℕ} (φ : NFrameModel h ≃* NFrameModel h) :
+    φ (ofAdd ((1 : ZMod 2), (0 : ℤ_[2]), (0 : ℤ_[2]), (0 : ℤ_[2]),
+      (0 : Fin (2 * h) → ℤ_[2]))) = ofAdd (1, 0, 0, 0, 0) := by
+  set t : NFrameModel h := ofAdd (1, 0, 0, 0, 0) with ht
+  have htsq : t ^ 2 = 1 := by
+    rw [ht, ← ofAdd_nsmul, ← ofAdd_zero]
+    congr 1
+    refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ ?_)))
+    · show (2 : ℕ) • (1 : ZMod 2) = 0
+      decide
+    all_goals simp
+  have htne : t ≠ 1 := by
+    intro hc
+    have h0 : ((1 : ZMod 2), (0 : ℤ_[2]), (0 : ℤ_[2]), (0 : ℤ_[2]),
+        (0 : Fin (2 * h) → ℤ_[2])) = 0 :=
+      Multiplicative.ofAdd.injective (by rw [← ht, hc, ← ofAdd_zero])
+    have h1 : (1 : ZMod 2) = 0 := congrArg (fun z => z.1) h0
+    exact absurd h1 (by decide)
+  have hfinφ : IsOfFinOrder (φ t) := by
+    rw [isOfFinOrder_iff_pow_eq_one]
+    exact ⟨2, by norm_num, by rw [← map_pow, htsq, map_one]⟩
+  have hfin' : IsOfFinOrder (ofAdd ((φ t).toAdd.1, (φ t).toAdd.2.1, (φ t).toAdd.2.2.1,
+      (φ t).toAdd.2.2.2.1, (φ t).toAdd.2.2.2.2) : NFrameModel h) := by
+    rw [show ((φ t).toAdd.1, (φ t).toAdd.2.1, (φ t).toAdd.2.2.1, (φ t).toAdd.2.2.2.1,
+      (φ t).toAdd.2.2.2.2) = (φ t).toAdd from rfl, ofAdd_toAdd]
+    exact hfinφ
+  obtain ⟨hb, hc, hd, hf⟩ := nFinOrder_model hfin'
+  have hφne : (φ t).toAdd.1 ≠ 0 := by
+    intro h0
+    refine htne (φ.injective ?_)
+    rw [map_one]
+    conv_lhs => rw [← ofAdd_toAdd (φ t)]
+    rw [← ofAdd_zero]
+    exact congrArg ofAdd (Prod.ext h0 (Prod.ext hb (Prod.ext hc (Prod.ext hd hf))))
+  have hone : (φ t).toAdd.1 = 1 := by
+    revert hφne
+    generalize (φ t).toAdd.1 = a
+    revert a
+    decide
+  refine Multiplicative.toAdd.injective ?_
+  show (φ t).toAdd = ((1 : ZMod 2), (0 : ℤ_[2]), (0 : ℤ_[2]), (0 : ℤ_[2]),
+    (0 : Fin (2 * h) → ℤ_[2]))
+  exact Prod.ext hone (Prod.ext hb (Prod.ext hc (Prod.ext hd hf)))
+
+/-! ### The `(σ, x₂)`-block: `GL₂(ℤ₂) = E₂(ℤ₂)·{diag(κ, 1)}` -/
+
+/-- The `N4` frame move on the `(σ, x₂)`-plane (memo §3.4): the determinant `diag(κ, 1)`,
+`σ̄ ↦ κσ̄`. -/
+noncomputable def nPlaneDet (κ : ℤ_[2]ˣ) : Matrix (Fin 2) (Fin 2) ℤ_[2] := !![(κ : ℤ_[2]), 0; 0, 1]
+
+@[simp] theorem nPlaneDet_det (κ : ℤ_[2]ˣ) : (nPlaneDet κ).det = (κ : ℤ_[2]) := by
+  rw [nPlaneDet, Matrix.det_fin_two_of]; ring
+
+theorem nPlaneDet_mul (κ κ' : ℤ_[2]ˣ) : nPlaneDet κ * nPlaneDet κ' = nPlaneDet (κ * κ') := by
+  rw [nPlaneDet, nPlaneDet, nPlaneDet, Matrix.mul_fin_two]
+  refine Matrix.ext fun i k => ?_
+  fin_cases i <;> fin_cases k <;> simp
+
+@[simp] theorem nPlaneDet_one : nPlaneDet 1 = 1 := by
+  rw [nPlaneDet, Matrix.one_fin_two, Units.val_one]
+
+/-- **`GL₂(ℤ₂) = E₂(ℤ₂)·{diag(κ, 1)}`** — memo §3.4's "N2/N3 generate `SL₂(ℤ₂)` on the block
+(elementary matrices generate `SL₂` over a local ring); N4 supplies the determinant, so N2–N4 give
+all of `GL₂(ℤ₂)`", as a theorem.  The `SL₂` factor is HM3's `mem_closure_planeElemSet_of_det_eq_one`
+(the memo's "SL₂ part lifts by one-line commutator identities"); the determinant factor is the
+single `S2` family. -/
+theorem nGL_factor {g : Matrix (Fin 2) (Fin 2) ℤ_[2]} (hg : IsUnit g.det) :
+    ∃ s : Matrix (Fin 2) (Fin 2) ℤ_[2],
+      s ∈ Submonoid.closure planeElemSet ∧ g = s * nPlaneDet hg.unit := by
+  have hspec : ((hg.unit : ℤ_[2]ˣ) : ℤ_[2]) = g.det := hg.unit_spec
+  refine ⟨g * nPlaneDet hg.unit⁻¹, mem_closure_planeElemSet_of_det_eq_one ?_, ?_⟩
+  · rw [Matrix.det_mul, nPlaneDet_det]
+    calc g.det * ((hg.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2])
+        = ((hg.unit : ℤ_[2]ˣ) : ℤ_[2]) * ((hg.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) := by rw [hspec]
+      _ = 1 := by rw [← Units.val_mul, mul_inv_cancel, Units.val_one]
+  · rw [Matrix.mul_assoc, nPlaneDet_mul, inv_mul_cancel, nPlaneDet_one, Matrix.mul_one]
 
 end Stabilizer
