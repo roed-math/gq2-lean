@@ -535,4 +535,107 @@ theorem eval_pro2_nCompact_eq_nRelWord (α : ℕ) (t : Marking 2 G) :
 
 end Pro2
 
+/-! ## The `ℚ₂(√−2)` instance
+
+`α = 2`, `h = 0`, `q_K = 2` — the branch row `BranchData.N0 2`, certificate
+`N-compact-alpha2-h0-v001`, and the instance whose digest the selection freeze quotes for
+row 2.  This is the word AS2 will take end-to-end. -/
+
+/-- **The √−2 relation**, spelled out: `R_{N,2,0} = x₀⁶ [x₀,x₁] · x₂^{-σ} (x₂τ)^{ω₂}`.
+
+The leading exponent is `2 + 2² = 6`.  The trailing `PWord.one` is the empty handle block
+`H_0` — it is a genuine factor of the tree (the certificate carries `HyperbolicHandles 3 0`,
+which denotes to the empty product), not an artefact, and it is why this is stated as a
+five-element `prodList`. -/
+theorem nCompactW_two_zero :
+    nCompactW 2 0 = PWord.prodList
+      [.zpow (.gen (coreLetter 0 0)) 6,
+       .comm (.gen (coreLetter 0 0)) (.gen (coreLetter 0 1)),
+       .inv (.conj (.gen (coreLetter 0 2)) (.gen .sigma)),
+       PWord.omega2Pow (PWord.prodList [.gen (coreLetter 0 2), .gen .tau]),
+       .one] := rfl
+
+/-- The `ℚ₂(√−2)` branch row is a valid compact-`N` row (F1/F4: `2 ≤ α`), at level `r = 0`. -/
+theorem branchData_sqrtNegTwo :
+    (BranchData.N0 2).Valid ∧ (BranchData.N0 2).level = 0 :=
+  ⟨BranchData.valid_N0_iff.mpr (by norm_num), rfl⟩
+
+/-! ## Numerical stress pins
+
+Nothing below is cited by a proof; these are regression pins in the sense of plan §3 A1.
+
+**The python twins are F5's rows** (`scripts/dyadic_sanity_counts.py`).  F5 measures the frozen
+row `d=-2  N(alpha=2, r=0)` by its epimorphism-count vector over `(S₃, D₈, A₄)`, obtaining
+`(6, 1568, 120)`, and its row **C4** re-runs the *same code* with the conjugator flipped to `σ₂`,
+obtaining `(6, 1568, 504)`.  So `A₄` is what sees the σ-versus-σ₂ choice — `120` against `504` —
+while `S₃` and `D₈` are blind to it.
+
+Those counts are **cited, never proved here**: reproducing them in Lean needs genuine `ω₂` on a
+group with a nontrivial odd part (`A₄`), i.e. an epimorphism enumeration, which is F5's job and
+not a `decide`.  Note in particular that no *`2`-group* can witness the difference — on a group
+of `2`-power exponent `ω₂` acts as the identity, so `σ₂ = σ` there identically. -/
+
+section StressZMod8
+
+local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
+local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
+
+private theorem orderOf_dvd_eight (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
+  orderOf_dvd_of_pow_eq_one (by revert x; decide)
+
+/-- A concrete marking of the compact-`N` alphabet at `h = 0`, written additively:
+`(σ, τ, x₀, x₁, x₂) = (5, 1, 1, 1, 1)` in `Multiplicative (ZMod 8)`. -/
+def zmod8Marking : Marking (2 + 2 * 0) (Multiplicative (ZMod 8)) :=
+  Marking.ofLetters (Multiplicative.ofAdd 5) (Multiplicative.ofAdd 1)
+    ![Multiplicative.ofAdd 1, Multiplicative.ofAdd 1, Multiplicative.ofAdd 1]
+
+/-- **Stress (genuine `ω₂`)**: the *profinite* denotation of the √−2 word — real `x ^ᶻ ω₂`
+powers, not a hand-chosen integer exponent — is `ofAdd 7`.
+
+Additively, and abelian so the commutator drops: `x₀⁶ = 6`, `[x₀,x₁] = 0`, `x₂^{-σ} = −1`,
+`(x₂τ)^{ω₂} = 1·(1+1) = 2`, total `6 − 1 + 2 = 7`.  Pins three things at once: the leading
+exponent `2 + 2² = 6`, the *inverse* on the `x₂^{-σ}` factor (dropping it would give `9 = 1`),
+and the `ω₂` sitting on the whole `(x₂τ)` subword rather than on `x₂` alone (that would give
+`6`). -/
+theorem eval_zmod8_nCompact :
+    zmod8Marking.eval (nCompactW 2 0) = Multiplicative.ofAdd (7 : ZMod 8) := by
+  rw [Marking.eval_def, PWord.eval_eq_evalNat_of_dvd (by norm_num) orderOf_dvd_eight,
+    omega2Exp_eight]
+  · decide
+  · exact isOmega2Only_nCompact 2 0
+
+/-- **Stress (`ω₂` is not vacuous)**: the same evaluation with the profinite exponent forced to
+`3` — an odd non-`ω₂` representative — gives `6 − 1 + 3·2 = 11 = 3`, a different value.  So the
+`ω₂`-slot genuinely carries information at this marking, and `eval_zmod8_nCompact` is not an
+accident of the exponent happening to be `1`. -/
+theorem evalNat_zmod8_nCompact_three :
+    PWord.evalNat ⇑zmod8Marking 3 (nCompactW 2 0) = Multiplicative.ofAdd (3 : ZMod 8) := by
+  decide
+
+/-- **Stress (the tame boundary is not vacuous either)**: at this marking the `τ`-letter has
+even order, so the Gate-B value `τ^{ω₂}` is *not* trivial — which is `not_killsWild` again,
+read numerically.  Inside `Γ_R`, where `τ` is pro-odd, this value is `1`. -/
+theorem eval_killWildLetters_zmod8 :
+    (Marking.killWildLetters zmod8Marking).eval (nCompactW 2 0)
+      = Multiplicative.ofAdd (1 : ZMod 8) := by
+  rw [eval_killWildLetters_nCompact,
+    PWord.zpowHat_omega2_zpow (by norm_num) (orderOf_dvd_eight _), omega2Exp_eight]
+  decide
+
+end StressZMod8
+
+/-- **Stress (nonabelian: the core is not a vacuous relator)**: MC2's compact-`N` core word is
+nontrivial at an explicit marking of `S₃`, so the two commutators do real work.
+
+In `S₃` every element satisfies `a⁶ = 1`, so the leading power `a^{2+2²}` drops out entirely and
+everything that survives comes from `[a,b]·[c,d]`.  At two distinct transpositions each
+commutator is the *same* `3`-cycle `g`, so the core word is `g² ≠ 1`.
+
+An explicit witness rather than `∃ … by decide`: the search over `S₃⁴` exhausts the kernel's
+recursion budget, and a witness costs nothing.  F5's row for this group reports the
+epimorphism count `6`; that number is *not* what is proved here (see the section note). -/
+theorem nWord_ne_one_perm :
+    MarkedCore.nWord 2 (Equiv.swap 0 1) (Equiv.swap 0 2) (Equiv.swap 0 1) (Equiv.swap 0 2)
+      ≠ (1 : Equiv.Perm (Fin 3)) := by decide
+
 end GQ2.Dyadic.Words
