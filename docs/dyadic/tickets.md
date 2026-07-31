@@ -348,6 +348,33 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-30 (orchestrator, HM6ef — THE N LANE'S S3 RESIDUE IS GONE):** merged, import
+  registered; audit green **3420 jobs**, census 11; all 37 new headlines std-3. **The
+  additive route was not a preference but a necessity**: widening `dnClearAuts` IN PLACE
+  would have kept `dnClearAuts_fixes_core`'s statement while DESTROYING its truth (HM6's
+  `dnCoreMixPEquiv` moves slot 1), and MC4's `nCoreMixHypothesis_not_of_mix`, HM5's
+  `chiN_of_mem_dnClearAuts` and HM4's `exists_dnClear_nu` all read that set — the
+  in-place edit would have silently broken three landed results. Recorded in both file
+  headers. Landed: HM6e's ν-frame rows (ONE frame move serves both M5 and N5 — the interior
+  factor is frame-invisible), and HM6f's `ClearWide.lean` (800 ln) with
+  `d?ClearAutsWide` + `D?RealizesWide` + the transport lemmas (one line each via
+  `Submonoid.closure_mono`), plus `dnClearAutsWide_fixes_x0` — after widening EXACTLY ONE of
+  MC4's three rigid slots survives, so `A⁺` is wider by precisely what the core stratum
+  needs. **The payoff composed on both halves**: `nCoreMixHypothesisWide_mixX1` is a theorem
+  **on the identical stratum set MC4 refuted for the narrow form** (with a kernel-checked
+  (2,1) pin placing the negative and the positive side by side), and
+  **`nMixPairHypothesis_coreMix` makes MC4's OWN binder a theorem** ⇒ `nMixHypothesis_coreMix`
+  and `nStabParam_lift_of_scaling` — **the N lane now has NO S3 residue; its only remaining
+  binder is the S2 unit scaling.** Both collapses rest on `nChar_dnX0` (the x̄₀-row kills the
+  raw twists' extra components). Deviation documented: `dnClearAutsWide` also absorbs N3
+  (MC4's exact `dnTauCEquiv`), which is what cancels N6's σ̄-shear. M side: memo §5.2's
+  `⟨M5⟩` factor landed (`mCoreMixHypothesisWide_m5`). **Remaining binder-shaped on M**:
+  (i) the last shear for MC1's displayed pure M5 — `τ_a(−k)` is exact and axiom-free but
+  lives in MC3's `M.lean`, which HM6ef could not import; `hm6FrameBDc_of_zero` names the
+  exact hypothesis (`Ā = 0`, true on `D_N`, false on `D_M` whose relation is
+  `2Ā + 2^α C̄₀ = 0`) — **now a ONE-`.trans` follow-up since both files are merged**;
+  (ii) `⟨M4,M6,M7⟩`, structurally obstructed — no widening reaches it, MC1 §8 Decision 2(A)'s
+  price and risk label stand.
 - **2026-07-30 (orchestrator, NC6 — THE NC LANE IS CLOSED):** merged, import registered;
   audit green **3419 jobs**, census 11. `Handles.lean` 504 ln, all 25 decls std-3.
   `npc_cross_operators_handles`: the handled headline gains exactly
