@@ -348,6 +348,30 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-31 (orchestrator, MC5 outcomes — THE MARKEDCORE LANE'S CERTIFICATE LAYER IS
+  COMPLETE):** merged, import registered, audit green. Adopted: (i) the abstract-slot
+  certificate shape (SD1 Q4 pattern; the ledger's `DyadicField`/`chiK`/`nuK` names do not
+  exist — plain MonoidHoms + continuity in production hypotheses) RATIFIED; (ii)
+  `evalMatrix`-invertibility non-duplication RATIFIED (the rank-3 role is carried by the
+  MC3/MC4 parameter classifications); (iii) **the final binder inventory is the SQ4/AS1
+  supply list of record** — N-core: `NScalingHypothesis` + iso/orientation +
+  pair-unimodularity `IsUnit ν'(σ̄) ∨ IsUnit ν'(x̄₂)`; M-core: `MMixHypothesis` + the
+  compact-M CoV pivot datum `IsUnit ν'(C̄₀)` (errata item 3 — packet-author input);
+  K-layer: the `(G, π, Continuous π)` slot + `MarkedRecip` bundle (satisfied by
+  `markedRecipAt` at the flip-free call site); (iv) ⚠ **NEW SQ4 input gap identified**:
+  the `SqMixPivot` exponent datum `∃ c ∈ ℤ₂ˣ, X^c = S` is a `zpowZtwo`-surjectivity
+  statement about the procyclic `1 + 4ℤ₂` that is **not in the repo** (ZtwoPowering.lean
+  is the natural home for the lemma; SQ4's dispatch carries it) — and
+  `SqHandleMixHypothesis` needs the errata-item-1 change of variables (the L_sq core has
+  no literal `[y,z]` on the ⟨σ̄,x̄₀⟩ plane, so `HandleMixLift` does not transfer; the
+  binder may STAY a binder at SQ4); (v) micro-ticket candidate recorded: a module-side
+  `IsProP 2 (WordLift ℤ₂ ℤ₂ˣ)` hoist (~90 ln) if a module consumer ever appears —
+  NOT opened; (vi) obligation tracker updated: **MC-M and MC-N are now
+  theorem-complete-modulo-binders** (classifications = theorems; matching = theorems;
+  residual surface = exactly the recorded binders, discharged at G-Lab/AS1 or by the
+  packet author's CoV answer). **SQ4 dispatched** (opus, mc worktree freed →
+  `dyadic-sq4`): SqCore/Certificate.lean consuming MC5's certificate + the pivot lemma;
+  SQ5 stays deferred to AS4 per WL-recon Q2.
 - **2026-07-31 (orchestrator, SESSION-LIMIT INTERRUPTION + RESUME — all six in-flight
   agents killed, all seven resumed):** the Fable session usage limit killed WW2/WW4/MC5/
   SD-R1/WN0-a (here) and S4.5 (simp side) mid-flight; reset at 4:20pm ET; every agent
@@ -1047,8 +1071,8 @@ to `master` only at owner gate G3.
 | obligation | tickets | status |
 |---|---|---|
 | SD-n | SD1 → SD2 → SD3 | pending |
-| MC-M | MC1 ✓ → MC2 → MC3 (+MC5) | in progress |
-| MC-N | MC1 ✓ → MC2 → MC4 (+MC5) | in progress |
+| MC-M | MC1 ✓ → MC2 ✓ → MC3 ✓ → MC5 ✓ | **theorem-complete-modulo-binders 2026-07-31**: classification + matching + certificate all theorems, all std-3, zero census citers; residual = `MMixHypothesis` + S2 scaling + the compact-M CoV datum `IsUnit ν'(C̄₀)` (errata item 3) |
+| MC-N | MC1 ✓ → MC2 ✓ → MC4 ✓ → MC5 ✓ | **theorem-complete-modulo-binders 2026-07-31**: residual = EXACTLY `NScalingHypothesis` (S2 unit scaling; S3 discharged by HM6ef) + pair-unimodularity marked datum |
 | LG-K | LG1 ✓ → LG2a ✓ → LG2 ✓ → LG3 ✓ → LG4a/b/c ✓ → LG5 ✓ | **CLOSED at Lean level 2026-07-29** — `GQ2.Dyadic.local_gauss_K` (packet Thm 6.15) sorry-free at census 9; residual surface = EXACTLY the AX3/AX4 binders (AX4 → `tameFK`/`htameFK`/`hfac`; AX3 → `InvolutionFieldPackage` + `(k₀,htriv,hker₀)` + `(g₀,hg₀,hg₀rt)`), replaced at G-AX; AS1 consumes `local_gauss_K` + `ramifiedCertificateOfSubtype` and drops `DyadicLocalInput.eulerChar` for `card_H1_eq_of_markingK` |
 | WC-N0 | F2, WW1–WW5 → WN0-a/b/c | pending |
 | WC-M0 | F2, WW1–WW5 → WM0-a/b/c | pending |
@@ -1169,7 +1193,7 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 | MC2 | presented cores D_P, characters, abelian 4-frames | opus | `GQ2/Dyadic/MarkedCore/Cores.lean` | MC1, F1 | **done 2026-07-29** (7ccb3b2 → merged, import registered; 1907 ln, 0 sorries, 30 headline decls std-3 — **B8 threaded as explicit `PeripheralCyclotomicAction` hypothesis, census axiom NOT consumed** (enters only at MC3/MC4); audit green 3394 jobs; **memo closed forms verified EXACTLY incl. uniqueness** (no-Hensel confirmed); α-independent cup Gram both cores; mod-4 `diagCoeff` rule + `IsCupCocycle` layer = the reusable exponent asset; both §10 assets landed (`IsFreePro2Pair`, `peripheralTriple_scaling` ×4 instantiations); deviations + 2 infra gaps + stale-comment find in log) |
 | MC3 | **MC-M**: classification + lifting for `M_α` (uniform in α) | fable→opus | `GQ2/Dyadic/MarkedCore/M.lean` | MC2 | **done 2026-07-30** (a059a6d → merged, import registered; 1748 ln, 0 sorries, **all 150 decls ≤ std-3, ZERO B8/B3c citers**; audit green 3418 jobs; salvage triaged (all 489 ln kept, ~35 rewritten — the file had **10** errors, not the 5 reported; the stale docstring advertised four decls that never existed and was rewritten); `mStabilizer_classification` = ∃! over `MStabParam` + `mNielsen_factorization` (explicit 7-family witnesses with the even parameter adjustments); MC2 DID land `MDecomposition` (dispatch note was wrong) — consumed, so the classification is at rank four; S2 lift NOT built (see log) — hence no B8 consumer; ⚠ **variance discrepancy vs MC4 — ADJUDICATION ticket MC-VAR dispatched**) |
 | MC4 | **MC-N**: classification + lifting for `N_α` (uniform in α) | fable→opus | `GQ2/Dyadic/MarkedCore/N.lean` | MC2 | **done 2026-07-30** (2f28429 → merged, import registered; 1822 ln, 0 sorries, **EVERY decl std-3 — no B8, no B3c**; audit green 3417 jobs; **`nStabilizer_classification` is an IFF**, unconditional, uniform in α ≥ 2, with `St_N ≅ (ℤ/2 × ℤ₂²) ⋊ GL₂(ℤ₂)` in closed form (`nStabParam_tauSolve_unique`); Witt half = ONE kernel `decide` over 2⁹; **the six-family list is COMPLETE at the frame level** (memo §3.3 re-derived independently — and the ROW convention is the right one, the transpose convention kills N1); SL₂ block realized unconditionally; S2 threaded as binders (B8 route cited not executed — the deliberate deviation, see log); ⚠ **`nCoreMixHypothesis_not_of_mix`: HM4's schematic S3 binder is UNSATISFIABLE** — see log) |
-| MC5 | handles + `MarkedCoreCertificate` + marked-matching reduction | **fable** (upgraded from opus 2026-07-31: convergence point of MC3/MC4 frames + HM4's `MLiftSplit`/`NLiftSplit` + HM6/6ef/6g binder states + MC-VAR's transpose rule + the SQ1-R1 L_sq mixing-frame redo + the widened odd-L scope) | `GQ2/Dyadic/MarkedCore/Certificate.lean` | MC3 ✓, MC4 ✓, MC-OB | queued (behind MC-OB, first freed fable slot) |
+| MC5 | handles + `MarkedCoreCertificate` + marked-matching reduction | **fable** (upgraded 2026-07-31) | `GQ2/Dyadic/MarkedCore/Certificate.lean` | MC3 ✓, MC4 ✓, MC-OB ✓ | **done 2026-07-31** (d55c0be+491976d → merged, import registered; 1051 ln, 54 decls + 10 stress, 0 sorries, **43/43 headlines exactly std-3 — zero B8/B3c/B5-K anywhere** (SqCore consumed via the std-3 h-generic values, K-layer MarkedRecip-bundle-parametrized); certificates on the abstract `(G, χ_G, ν_G)` slot (SD1 Q4 pattern); **Prop 7.2 landed: N-core needs ONLY the S2 `NScalingHypothesis`** (S3 = HM6ef's theorem), M-core = `MMixHypothesis` + the explicit `IsUnit ν'(C̄₀)` CoV datum (errata item 3, never invented); engine port at pure-algebra level (masters/Nakayama-span/N3-pivot-solve/χ-contract via `nCoreIdx_cases`; `evalMatrix` deliberately not duplicated — carried by the MC3/MC4 classifications, RATIFIED); MC-OB instantiation: the `?RelWord_centLift_fib` fibres ARE `relZ` (rfl via `relZ_ofDRCoh`) + `MarkedRelator`/`PresentedBy` bundles at rank 4+2h; **L_sq redo DONE**: collector pivot σ̄ is χ-obstructed (S ≡ 13 (16) pin), corrected pivot `w = σ·x₀^{−c}` (S = X^c) with **unit row ν_sq(w) = 1 exact** + `SqHandleMixHypothesis` in pivot-w form; survived the session-limit kill (1045-ln salvage committed on resume); binder inventory + SQ4 inputs in log) |
 
 - **MC1**: starting from `recon/mc-survey.md`, write per-core: the abelianization
   decomposition (rank-4 analogue of `BDecomposition` `GQ2/SectionThree.lean:422` — `M_α`:
