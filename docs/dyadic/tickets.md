@@ -348,6 +348,23 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-30 (orchestrator, NC5 — THE R3(a) COMMISSION IS DELIVERED):** merged, import
+  registered; audit green **3415 jobs**, census 11, capstones frozen. **`npc_cross_operators`
+  is a committed sorry-free theorem printing exactly std-3** — the corrected
+  `L_c = A⁻¹+B+BA⁻¹` universal-second-jet identity, quantified over ALL `r : ℕ` and ALL
+  `η : ℤ_[2]` (strictly stronger than commissioned; only `2 ≤ α`, `hV2`, `Odd (orderOf u)`,
+  `hVu` are consumed). NC4's recipe closed **verbatim, first try, zero errors**. Also landed:
+  `hVu_of_simple` (the companion — needed NOTHING outside the closure; prints
+  `[propext, Quot.sound]`), `npc_cross_operators_of_simple`, the (α,r,η) = (2,1,1) stress pin
+  at the ℚ₂(√−10) procyclic row (merge gate 9), and **two errata-item-5 pins**:
+  `lcOp_eq_draft_add_discrepancy` (L_c = the draft's A⁻¹ PLUS B(1+A⁻¹)) and
+  `lcOp_eq_draft_of_eq_one` (the discrepancy dies exactly at A = 1) — the refutation is now
+  machine-checked in Lean, not just in the search engine. Per memo Q6, `M_c` stays a
+  docstring reading (no adjoint corollary). NOTE: NC5's report flags the WNP board note as
+  stale — **it was already corrected inline** at the NC1 merge (the dated CORRECTION block
+  is present); NC5 was reading a pre-merge view. **NC6 dispatched** (the handle tail + a
+  fully concrete-carrier instantiation of the pin). Residual for WNP-c (unchanged): per-module
+  invertibility of L_c.
 - 2026-07-30 (orchestrator, NC4 outcomes): merged, import registered; audit green **3414
   jobs**, census 11. 451 ln / 30 decls, ALL std-3. **The memo's route held with NO
   deviation** — every hand-computed block value was correct as written, sign and side
