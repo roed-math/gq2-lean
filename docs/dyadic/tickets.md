@@ -348,6 +348,16 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- 2026-07-30 (orchestrator, post-credit re-dispatch on OPUS): the authorized work continues
+  on opus (the fable model column is now aspirational — read it as "hard seam"). Running:
+  **MC4** (RESUME from the green 747-ln salvage — the classification, the GL₂(ℤ₂) block via
+  HM3's SL₂ = E₂, the lifting layer, the NLiftSplit assembly), **MC3** (RESTART — the 489-ln
+  salvage is a review-or-rewrite draft; get green early), **NC4** (`NpcJet/Seams.lean` — the
+  δ/D/E seams; NC2's typed constructors + NC3's rules compose with no bridge), **HM6** (the
+  bounded core↔core mixing spike — N-side completion + M-side ansatz/obstruction
+  characterization; would discharge a G-Lab binder). Still running from before: **S4.3**
+  (simp side). Queued: NC5 (assembly headline) after NC4, NC6 after NC5, MC5 after MC3+MC4,
+  S4.4 after S4.3.
 - **2026-07-30 (orchestrator, CREDIT INTERRUPTION + NC2/NC3 landings): the Fable-5 usage
   credits ran out** mid-flight, killing MC3 and MC4 (the two fable obligation tickets); the
   owner switched the session model to opus-5. **The commit-early discipline worked**: MC4
