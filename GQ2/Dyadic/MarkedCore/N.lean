@@ -50,7 +50,8 @@ Everything is uniform in `α ≥ 2`; the `N`-frame is completely α-free (memo V
   `nCoreMixHypothesis_not_of_mix`: HM4's schematic `NCoreMixHypothesis` is *false* for any
   genuinely mixing stratum set, because membership in `A(P,h)` forces `x₀`, `x₁` and `σ` to be
   rigid (`dnClearAuts_fixes_core`).  The sound binders are therefore stated at the marked
-  generators, not through `DnRealizes`.
+  generators, not through `DnRealizes` — independently confirmed by HM6, which reports the same
+  scoping trap and whose N5/N6 discharge lives in this marked-generator vocabulary.
 * **§6 The composition theorem** — `nMarkedCorrection` (packet Prop. 7.2 at the `N`-core):
   given any `ν'` with unimodular pivot `ν'(σ̄) ∈ ℤ₂ˣ`, an automorphism `u` with
   `χ_N ∘ u = χ_N` and `ν' ∘ u = ν_N`, assembled from the S2 binder, HM5's handle stratum
@@ -76,6 +77,11 @@ executed: the conjugator matching and the Frattini surjectivity that would assem
 scaled triples into a single automorphism are not carried out here, so the stratum is threaded
 as the `def` `NScalingHypothesis`/`NPlaneScalingHypothesis` instead.  Discharging that binder is
 what will introduce the (already owner-accepted, census-neutral) B8 dependency.
+
+The **S3** binders `NMixHypothesis`/`NMixPairHypothesis` are in a different position: HM6
+(`GQ2/Dyadic/MarkedCore/CoreMix.lean`, landed on `dyadic` after this branch forked) proves both
+`N`-side core-mixing families as std-3 theorems, so they are wiring placeholders rather than
+permanent conditionals.  Wiring them is not MC4's job and MC4 does not merge that file.
 
 ## Dedup notes (reserved-name rule)
 
@@ -1245,7 +1251,13 @@ move is `x₁ ↦ x₁σ^p` with its coupled `x₂ ↦ x₀^p·x₂`, and the co
 every `ℤ₂`-character killing `x₀` (`nChar_dnX0`).
 
 Stated at the **marked generators**, not through `DnRealizes` — see
-`nCoreMixHypothesis_not_of_mix` for why HM4's schematic form cannot be used. -/
+`nCoreMixHypothesis_not_of_mix` for why HM4's schematic form cannot be used.
+
+**Status (orchestrator note, HM6).**  Ticket HM6 has since landed
+`GQ2/Dyadic/MarkedCore/CoreMix.lean` on `dyadic`, proving **both** `N`-side core-mixing families
+(N5 and N6) as theorems at std-3 — no B8, no compactness.  So on the `N` side this binder is a
+*wiring placeholder*, not a permanent conditional: the discharge composes afterwards.  MC4's
+branch predates that file and must not merge it, so the binder is threaded here as specified. -/
 def NMixHypothesis (α h : ℕ) : Prop :=
   ∀ p : ℤ_[2], ∃ Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
     (∀ x, chiN α h (Ψ x) = chiN α h x)
@@ -1435,8 +1447,8 @@ the matrix half; this section is the group half, on the `(σ, x₂)`-plane.
 
 `nCoreMat` is the core-side mirror of HM3's `frameMat`, at slots `2` and `3` instead of a handle
 pair.  Under it, `planeElemU k` is family **N3** (`σ ↦ x₂^k·σ`, §2's `dnTauCEquiv`) and
-`planeElemV k` is family **N2** (`x₂ ↦ σ^k·x₂`, HM4's `dnTauDEquiv`).  Both are *exact* — no
-axiom, no binder — so `nCorePlane_sl2_lift` is **unconditional**: HM3's
+`planeElemV k` is family **N2** (`x₂ ↦ σ^k·x₂`, HM4's `dnTauDEquiv`).  Both are *exact* —
+no axiom, no binder — so `nCorePlane_sl2_lift` is **unconditional**: HM3's
 `mem_closure_planeElemSet_of_det_eq_one` turns any determinant-one block into a finite word in the
 two families.  Only the determinant needs the S2 stratum, and it enters through the plane form
 `NPlaneScalingHypothesis` of memo §3.4's family N4. -/
@@ -1587,8 +1599,9 @@ theorem nCorePlane_sl2_lift {T : Matrix (Fin 2) (Fin 2) ℤ_[2]} (hT : T.det = 1
 `def`, **never an axiom**.  The whole `(σ, x₂)`-plane move `diag(κ, 1)`, realized by a
 χ-preserving continuous automorphism.  This is `NScalingHypothesis` sharpened to pin the
 `x̄₂`-row as well: memo §5.2's scaling shifts that row uncontrollably, and the plane form is the
-scaling *after* the S1 shears of §7 have absorbed the shift.  Same discharge route (the existing
-axiom B8 through `peripheralTriple_scaling`), same "no new axiom, no census bump" verdict. -/
+scaling *after* the S1 shears of §7 have absorbed the shift.  Same discharge route (the
+existing axiom B8 through `peripheralTriple_scaling`), same "no new axiom, no census bump"
+verdict. -/
 def NPlaneScalingHypothesis (α h : ℕ) : Prop :=
   ∀ κ : ℤ_[2]ˣ, ∃ Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
     NPlaneRealizes α h Ψ (nPlaneDet κ)
@@ -1676,7 +1689,9 @@ noncomputable def nFrameMix {h : ℕ} (p q : ℤ_[2]) (m : Fin (coreRank h) → 
 
 /-- **The S3 binder for the pair N5/N6** — a `def`, **never an axiom**; `NMixHypothesis` is its
 `q = 0` slice (`nMixHypothesis_of_pair`).  Stated at the marked generators for the reason recorded
-in `nCoreMixHypothesis_not_of_mix`. -/
+in `nCoreMixHypothesis_not_of_mix`.  Both families are theorems as of HM6
+(`GQ2/Dyadic/MarkedCore/CoreMix.lean`, on `dyadic`, std-3) — see `NMixHypothesis`'s status
+note. -/
 def NMixPairHypothesis (α h : ℕ) : Prop :=
   ∀ p q : ℤ_[2], ∃ Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
     (∀ x, chiN α h (Ψ x) = chiN α h x)
