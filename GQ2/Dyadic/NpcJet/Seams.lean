@@ -65,6 +65,14 @@ straight into `Marking.eval_mul` and NC2's `sliceElt_mul`.  Every statement is i
 so no raw `Prod` literal is ever exposed (NC2 friction 1) and `CentExt.fib` is read only through
 NC2's `sliceElt_fib`.
 
+Concretely, the memo §3.6 assembly is one `rw` chain over
+`Marking.eval_mul` (×4) → `npcHeadPow_eval`, `npcHeadComm_eval`,
+`npcBoundary_invConj_eval`, `npcBoundary_omega2_eval`, `npcEBlock_eval` → `one_mul` (×2),
+`sliceElt_mul` (×2), `sliceElt_fib`, `f_zero_right`, `f_zero_left`, `polar_comm`, followed by the
+`𝔽₂` cancellation `a + (a + b + c + 0) + 0 = b + c`.  That route was checked end to end against
+the memo §2.3 statement while NC4 was in flight (scratch only — `NpcJet/Main.lean` is NC5's file):
+it closes, and prints `[propext, Classical.choice, Quot.sound]`.
+
 ## Scope notes for NC5/NC6
 
 * **§0 completes `Eval.lean`'s `Marking`-level API.**  `GQ2/Dyadic/Word/Eval.lean` exports
@@ -197,11 +205,12 @@ theorem sliceElt_comm_cLine (hV2 : ∀ v : V, v + v = 0) (v : V) (z : ZMod 2) (g
 
 section Profinite
 
-variable [Finite C] [Finite V] [TopologicalSpace C] [DiscreteTopology C]
+variable [Finite C] [Finite V]
 
 /-- The `C`-line is natural for profinite exponentiation (NC3's `nc3CLine_zpowHat`, in NC2's
 vocabulary): the `D`-block's `A`-conjugator `σ^{η̂}` is the `C`-line element of `s ^ᶻ η̂`. -/
-theorem cLine_zpowHat (c : C) (γ : Zhat) : cLine dat hdat c ^ᶻ γ = cLine dat hdat (c ^ᶻ γ) :=
+theorem cLine_zpowHat [TopologicalSpace C] [DiscreteTopology C] (c : C) (γ : Zhat) :
+    cLine dat hdat c ^ᶻ γ = cLine dat hdat (c ^ᶻ γ) :=
   nc3CLine_zpowHat dat hdat c γ
 
 /-- **Reduction rule 1 on the `C`-line** (NC3's `nc3CLine_zpowHat_omega2_eq_one`, in NC2's
@@ -216,7 +225,7 @@ end Profinite
 
 section Seams
 
-variable [Finite C] [Finite V] [TopologicalSpace C] [DiscreteTopology C] (s u : C) (c₀ c₁ : V)
+variable [Finite C] [Finite V] (s u : C) (c₀ c₁ : V)
 
 /-! ## §2. The letters of the Gate-E marking
 
@@ -286,6 +295,7 @@ A⁻¹  (from δ₀^â),        B  (from (δ₀ ⋯)^{σ^{−2^r}}),        B·A
 
 — the corrected `L_c = A⁻¹ + B + B·A⁻¹`.  The draft's `L_c = A⁻¹` is the first summand alone. -/
 
+omit [Finite V] in
 /-- **`L_c` from the compressed spelling** (memo §3.2): the `V`-part the `D`-block's two
 conjugations produce *is* `lcOp`.
 
@@ -296,7 +306,8 @@ and the resulting three-term sum is NC3's `nc3_lcOp_spelling` — whose own left
 *expanded* word's three inverse-conjugators `A⁻¹`, `B`, `(A·B⁻¹)⁻¹`.  Compressed and expanded
 spellings therefore agree operator by operator, which is the memo's "`L_c` is literally the sum of
 the three inverse-conjugators" reading. -/
-theorem lcOp_compressed_spelling (η : ℤ_[2]) (r : ℕ) (v : V) :
+theorem lcOp_compressed_spelling [TopologicalSpace C] [DiscreteTopology C] (η : ℤ_[2]) (r : ℕ)
+    (v : V) :
     (s ^ᶻ etaHatZ η)⁻¹ • v + (s ^ (-(2 ^ r : ℤ)))⁻¹ • (v + (s ^ᶻ etaHatZ η)⁻¹ • v)
       = lcOp s η r v := by
   rw [smul_add, ← add_assoc, ← mul_smul, ← mul_inv_rev]
@@ -308,7 +319,8 @@ theorem lcOp_compressed_spelling (η : ℤ_[2]) (r : ℕ) (v : V) :
 Taking the `δ₀` charge as a hypothesis and returning the `D` charge existentially is memo risk 2's
 quarantine, made structural: the three γ's, the `m`-corrections and the one `f`-cross-term that
 make up `ζ_D` are never assembled, because `npcEBlock_eval` cancels them. -/
-theorem npcDBlock_eval_of_deltaW (η : ℤ_[2]) (r : ℕ) {γ₀ : ZMod 2}
+theorem npcDBlock_eval_of_deltaW [TopologicalSpace C] [DiscreteTopology C] (η : ℤ_[2]) (r : ℕ)
+    {γ₀ : ZMod 2}
     (hδ : (npcMarking dat hdat s u c₀ c₁).eval (deltaW 0) = sliceElt dat hdat c₀ γ₀) :
     ∃ ζ : ZMod 2, (npcMarking dat hdat s u c₀ c₁).eval (npcDBlock η r)
       = sliceElt dat hdat (lcOp s η r c₀) ζ := by
@@ -323,8 +335,8 @@ element with `V`-part `L_c c₀`, `L_c = A⁻¹ + B + B·A⁻¹` the S3.2-correc
 
 *Hypotheses carried*: `hV2`, `hu` and `hVu`, all three inherited from the `δ₀` seam; the `D`-block
 itself needs no hypothesis at all beyond `δ₀`'s value. -/
-theorem npcDBlock_eval (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
-    (hVu : ∀ v : V, u • v = v → v = 0) (η : ℤ_[2]) (r : ℕ) :
+theorem npcDBlock_eval [TopologicalSpace C] [DiscreteTopology C] (hV2 : ∀ v : V, v + v = 0)
+    (hu : Odd (orderOf u)) (hVu : ∀ v : V, u • v = v → v = 0) (η : ℤ_[2]) (r : ℕ) :
     ∃ ζ : ZMod 2, (npcMarking dat hdat s u c₀ c₁).eval (npcDBlock η r)
       = sliceElt dat hdat (lcOp s η r c₀) ζ :=
   npcDBlock_eval_of_deltaW dat hdat s u c₀ c₁ η r (npcDeltaW_eval dat hdat s u c₀ c₁ hV2 hu hVu)
@@ -344,8 +356,8 @@ is `b_q(L_c c₀, c₁)` with the corrected three-summand `L_c`. -/
 *Hypotheses carried*: `hV2`, `hu`, `hVu` — all three only through the `D`-block's `V`-part.  The
 commutator step itself is charge-independent, which is why this is an equation.  `polar` is
 symmetric, so the fibre *is* the pairing `b_q(c₁, L_c c₀)` of the headline statement. -/
-theorem npcEBlock_eval (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
-    (hVu : ∀ v : V, u • v = v → v = 0) (η : ℤ_[2]) (r : ℕ) :
+theorem npcEBlock_eval [TopologicalSpace C] [DiscreteTopology C] (hV2 : ∀ v : V, v + v = 0)
+    (hu : Odd (orderOf u)) (hVu : ∀ v : V, u • v = v → v = 0) (η : ℤ_[2]) (r : ℕ) :
     (npcMarking dat hdat s u c₀ c₁).eval (npcEBlock η r)
       = sliceElt dat hdat 0 (polar q (lcOp s η r c₀) c₁) := by
   obtain ⟨ζ, hζ⟩ := npcDBlock_eval dat hdat s u c₀ c₁ hV2 hu hVu η r
@@ -392,7 +404,8 @@ landing as the factor-set correction `dat.m`. -/
 theorem npcHeadPow_eval (hV2 : ∀ v : V, v + v = 0) {α : ℕ} (hα : 2 ≤ α) :
     (npcMarking dat hdat s u c₀ c₁).eval (.zpow (.gen (.wild 0)) ((2 : ℤ) + 2 ^ α))
       = sliceElt dat hdat 0 (q c₀) := by
-  rw [Marking.eval_zpow, npcMarking_eval_x_zero dat hdat s u c₀ c₁, sliceElt_pow_head dat hdat hV2 hα]
+  rw [Marking.eval_zpow, npcMarking_eval_x_zero dat hdat s u c₀ c₁,
+    sliceElt_pow_head dat hdat hV2 hα]
 
 /-- **The commutator factor of the head** (memo §3.4): `[x₀, σ^{η̂}]` evaluates to
 `(((1+A⁻¹)c₀, 1), q c₀ + Q₀(c₀))`.
@@ -401,7 +414,8 @@ The second argument lives on the `C`-line, not in the slice, so this is `sliceEl
 rather than NC2's `sliceElt_comm`; the surviving `q(c₀)` is what the `p_α`-factor cancels.
 
 *Hypothesis carried*: `hV2` only. -/
-theorem npcHeadComm_eval (hV2 : ∀ v : V, v + v = 0) (η : ℤ_[2]) :
+theorem npcHeadComm_eval [TopologicalSpace C] [DiscreteTopology C] (hV2 : ∀ v : V, v + v = 0)
+    (η : ℤ_[2]) :
     (npcMarking dat hdat s u c₀ c₁).eval (.comm (.gen (.wild 0)) ((PWord.gen .sigma).etaPow η))
       = sliceElt dat hdat (c₀ + (s ^ᶻ etaHatZ η)⁻¹ • c₀) (q c₀ + npcQ0 dat s η c₀) := by
   rw [Marking.eval_comm, npcMarking_eval_x_zero dat hdat s u c₀ c₁, Marking.eval_etaPow,
@@ -415,7 +429,8 @@ diagonal part free of a diagonal `q`-term, which is exactly what `npcQ0` records
 
 Supplied for readability; `npcWord` is right-nested, so NC5 may equally compose the two factor
 lemmas directly through `Marking.eval_mul`. -/
-theorem npcHead_eval (hV2 : ∀ v : V, v + v = 0) {α : ℕ} (hα : 2 ≤ α) (η : ℤ_[2]) :
+theorem npcHead_eval [TopologicalSpace C] [DiscreteTopology C] (hV2 : ∀ v : V, v + v = 0) {α : ℕ}
+    (hα : 2 ≤ α) (η : ℤ_[2]) :
     (npcMarking dat hdat s u c₀ c₁).eval
         (.mul (.zpow (.gen (.wild 0)) ((2 : ℤ) + 2 ^ α))
           (.comm (.gen (.wild 0)) ((PWord.gen .sigma).etaPow η)))
