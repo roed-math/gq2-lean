@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2.Dyadic.Recursion.BlockFormFields
 import GQ2.Dyadic.Recursion.Block
+import GQ2.Dyadic.Recursion.Kappa
 import GQ2.Block.Enrichment
 
 /-!
@@ -21,43 +22,12 @@ Everything in the model that never touches the frame is consumed by import, unch
 `RecursionFrame.Enrichment` are likewise the model's, so `blockEnrichmentK` inhabits **the same
 type** as `blockEnrichment` — no transport is ever needed between the two spines.
 
-## ⚠ SEAM B, threaded — an SD-R2 obligation (dated 2026-07-31)
+## SEAM B — discharged (SD-R2, `GQ2/Dyadic/Recursion/Kappa.lean`)
 
-`GQ2.SectionNine.ActsThroughTame` (`GQ2/SectionNine/Induction.lean:155`) embeds the exponent-2
-tame relation `s⁻¹ * t * s = t ^ 2` **in its definition** (:160), and `kappa0_exists` (:196)
-forwards it to `GQ2.kappa0_exists_tame` (`GQ2/KappaNormalForm.lean:1150`), whose signature
-demands the same.  At a general residue cardinality the head's tame pair satisfies `= t ^ q`
-(proved: `GQ2.Dyadic.hv_relK`, `GQ2/Dyadic/Recursion/Block.lean`), so the exponent-2 clause is
-**not available** and is threaded here as the explicit hypothesis
-
-```
-hrel2 : (F.alpha (tqSigma q))⁻¹ * F.alpha (tqTau q) * F.alpha (tqSigma q)
-          = (F.alpha (tqTau q)) ^ 2
-```
-
-on `blockHtameK`, `blockKappa0K` and `blockEnrichmentK`.
-
-**SD-R2 owns the fix** (`Induction.lean` is in its scope): generalize `ActsThroughTame`'s
-relation clause to `t ^ q` under `q ≠ 0`/`Even q` — and correspondingly `kappa0_exists` and
-`GQ2.kappa0_exists_tame`.  When that lands, `hrel2` is discharged by `tame_rel_map_q` (and, at
-the `H_V` level, by `hv_relK`) and the binder disappears from all three declarations below; no
-other change is needed here.
-
-At `q = 2` the binder is **free**: `GQ2.Dyadic.tame_rel_map_q F.alpha.toMonoidHom` has exactly
-this type, since `^ q` *is* `^ 2` there.  Verified in-session:
-
-```lean
-noncomputable example (F : BoundaryFrameK 2 P H E) : (blockFrame T Blk hE2).Enrichment :=
-  blockEnrichmentK T Blk hE2 (by norm_num) (by decide) F (tame_rel_map_q F.alpha.toMonoidHom)
-```
-
-so the `n = 1` regression is unaffected by this seam.
-
-⚠ Note for whoever discharges it (from the adopted depth assessment):
-`GQ2.Dyadic.lemma_6_11_of_tame_pair_pow` is stated at `q = 2^f` with `1 ≤ f`, **not** at
-`Even q ∧ q ≠ 0`.  If the §6.11 entry point is needed, use the two general-`q` leaves
-`tame_odd_order_pow` / `tame_zpowers_normal_pow` (`GQ2/Dyadic/Projectivity.lean`) with
-`lemma_6_11_of_odd_normal` directly.
+The exponent-2 clause SD-R1 threaded here as `hrel2` is gone: `blockHtameK` now concludes at
+the general-`q` predicate `GQ2.Dyadic.ActsThroughTameQ q` and proves its relation clause from
+`GQ2.Dyadic.tame_rel_map_q`, and `blockKappa0K` routes through `GQ2.Dyadic.kappa0_existsK`.
+At `q = 2` the predicate **is** the model's `ActsThroughTame` (`actsThroughTameQ_two`, `rfl`).
 
 Axioms: none beyond std-3; each clone's print equals its model's.
 -/
@@ -77,14 +47,12 @@ variable {q : ℕ} {P : ProfiniteGrp}
 
 omit [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal] in
 /-- `htame` at a general residue cardinality.  Clone of `GQ2.SectionNine.blockHtame`
-(`GQ2/Block/Enrichment.lean:229`) with `α : T_q ↠ H`; the exponent-2 tame clause is the
-threaded `hrel2` (SEAM B — see the module docstring). -/
-theorem blockHtameK (F : BoundaryFrameK q P H E)
-    (hrel2 : (F.alpha (tqSigma q))⁻¹ * F.alpha (tqTau q) * F.alpha (tqSigma q)
-      = (F.alpha (tqTau q)) ^ 2) :
+(`GQ2/Block/Enrichment.lean:229`) with `α : T_q ↠ H`, concluding at the general-`q` predicate
+`ActsThroughTameQ q` (SEAM B, discharged — see the module docstring). -/
+theorem blockHtameK (F : BoundaryFrameK q P H E) :
     letI := blockPS_commGroup Blk
     letI := blockActV Blk
-    ActsThroughTame (Y ⧸ Blk.K) (Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)) := by
+    ActsThroughTameQ q (Y ⧸ Blk.K) (Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)) := by
   letI := blockPS_commGroup Blk
   letI := blockActVY Blk
   letI := blockActV Blk
@@ -128,32 +96,27 @@ theorem blockHtameK (F : BoundaryFrameK q P H E)
   · -- generation
     exact GQ2.Dyadic.gen_tq_quotient F.alpha.toMonoidHom F.alpha.continuous_toFun
       F.alpha_surjective
-  · -- tame relation: SEAM B.  `ActsThroughTame` demands the exponent-2 shape, which the
-    -- `K`-side head does not satisfy at `q ≠ 2`; threaded as `hrel2` until SD-R2 generalizes
-    -- the definition.  `hv_relK` (GQ2/Dyadic/Recursion/Block.lean) proves the `^ q` producer.
-    exact hrel2
+  · -- tame relation at the general residue cardinality (SEAM B, discharged): `ActsThroughTameQ`
+    -- asks for the `^ q` shape, which is exactly F3's `tame_rel_map_q` at `F.alpha`.
+    exact tame_rel_map_q F.alpha.toMonoidHom
 
 /-- The κ⁰ base-class datum at a general residue cardinality.  Clone of
 `GQ2.SectionNine.blockKappa0` (`GQ2/Block/Enrichment.lean:284`). -/
 noncomputable def blockKappa0K (hq0 : q ≠ 0) (hqe : Even q) (F : BoundaryFrameK q P H E)
-    (hrel2 : (F.alpha (tqSigma q))⁻¹ * F.alpha (tqTau q) * F.alpha (tqSigma q)
-      = (F.alpha (tqTau q)) ^ 2)
     (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :=
   letI := blockPS_commGroup Blk
   letI := blockActVY Blk
   letI := blockActV Blk
-  kappa0_exists (blockQbarK T Blk hq0 hqe F.alpha F.alpha_surjective l hlne)
+  kappa0_existsK hq0 hqe (blockQbarK T Blk hq0 hqe F.alpha F.alpha_surjective l hlne)
     (blockHquadK T Blk hq0 hqe F.alpha F.alpha_surjective l hlne)
     (blockHnsK T Blk hq0 hqe F.alpha F.alpha_surjective l hlne)
     (blockHinvK T Blk hq0 hqe F.alpha F.alpha_surjective l hlne)
-    (blockHsimple T Blk) (blockHtameK T Blk F hrel2)
+    (blockHsimple T Blk) (blockHtameK T Blk F)
 
 /-- **The concrete block enrichment at a general residue cardinality**.  Clone of
 `GQ2.SectionNine.blockEnrichment` (`GQ2/Block/Enrichment.lean:300`).  Inhabits **the same type**
 as the model, since `blockFrame` and `Enrichment` are boundary-free and reused. -/
-noncomputable def blockEnrichmentK (hq0 : q ≠ 0) (hqe : Even q) (F : BoundaryFrameK q P H E)
-    (hrel2 : (F.alpha (tqSigma q))⁻¹ * F.alpha (tqTau q) * F.alpha (tqSigma q)
-      = (F.alpha (tqTau q)) ^ 2) :
+noncomputable def blockEnrichmentK (hq0 : q ≠ 0) (hqe : Even q) (F : BoundaryFrameK q P H E) :
     (blockFrame T Blk hE2).Enrichment := by
   letI := blockPS_commGroup Blk
   letI := blockActVY Blk
@@ -184,7 +147,7 @@ noncomputable def blockEnrichmentK (hq0 : q ≠ 0) (hqe : Even q) (F : BoundaryF
       hns := fun l h => blockHnsK T Blk hq0 hqe F.alpha F.alpha_surjective l (fun heq => h (Subtype.ext heq))
       hinv := fun l h =>
         blockHinvK T Blk hq0 hqe F.alpha F.alpha_surjective l (fun heq => h (Subtype.ext heq))
-      dat := fun l h => (blockKappa0K T Blk hq0 hqe F hrel2 l (fun heq => h (Subtype.ext heq))).choose
-      hdat := fun l h => (blockKappa0K T Blk hq0 hqe F hrel2 l (fun heq => h (Subtype.ext heq))).choose_spec }
+      dat := fun l h => (blockKappa0K T Blk hq0 hqe F l (fun heq => h (Subtype.ext heq))).choose
+      hdat := fun l h => (blockKappa0K T Blk hq0 hqe F l (fun heq => h (Subtype.ext heq))).choose_spec }
 
 end GQ2.Dyadic

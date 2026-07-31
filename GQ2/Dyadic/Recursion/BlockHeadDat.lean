@@ -26,14 +26,12 @@ The entire head-quotient apparatus is boundary-free and consumed by import: `hea
 they are the `Γ_A`/`G_ℚ₂` instantiations.  Their `K`-analogue is the generic one-liner
 `boundaryLift_headK` below, which serves any source.
 
-## ⚠ SEAM B, threaded (dated 2026-07-31) — SD-R2 obligation
+## SEAM B — discharged (SD-R2, `GQ2/Dyadic/Recursion/Kappa.lean`)
 
-As in `GQ2/Dyadic/Recursion/BlockEnrichment.lean`: `GQ2.kappa0_exists_tame`
-(`GQ2/KappaNormalForm.lean:1150`) demands `hrel : s⁻¹ * t * s = t ^ 2`, while `hv_relK` proves
-the true general-`q` statement `= t ^ q`.  The exponent-2 clause is threaded here as `hrel2HV`
-(the `H_V`-level binder) alongside `hrel2` (the head-level binder inherited from
-`blockEnrichmentK`).  SD-R2 removes both when it generalizes `ActsThroughTame`/`kappa0_exists`/
-`kappa0_exists_tame` to `t ^ q`; at `q = 2` both are free (`hv_relK` resp. `tame_rel_map_q`).
+Both threaded binders are gone: the `H_V`-level κ⁰ existential now calls
+`GQ2.Dyadic.kappa0_exists_tameK`, whose relation clause is the general-`q` one and is supplied
+by `hv_relK` (`GQ2/Dyadic/Recursion/Block.lean`) on the nose; the head-level `hrel2` vanished
+with `blockEnrichmentK`'s.
 
 Axioms: none beyond std-3; each clone's print equals its model's.
 -/
@@ -90,13 +88,13 @@ theorem hv_invK (hq0 : q ≠ 0) (hqe : Even q) (F : BoundaryFrameK q P H E)
   exact blockHinvK T Blk hq0 hqe F.alpha F.alpha_surjective l hlne c v
 
 /-- The `H_V`-level κ⁰ existential.  Clone of `GQ2.SectionNine.blockKappa0HV`
-(`GQ2/Block/HeadDat.lean:286`); `hrel2HV` is the threaded SEAM-B clause. -/
+(`GQ2/Block/HeadDat.lean:286`), at the general-`q` κ⁰ entry point `kappa0_exists_tameK`; its
+relation clause is `hv_relK`, the `q`-th power relation of the head's tame pair. -/
 noncomputable def blockKappa0HVK (hq0 : q ≠ 0) (hqe : Even q) (F : BoundaryFrameK q P H E)
-    (hrel2HV : (hvSigmaK T Blk F)⁻¹ * hvTauK T Blk F * hvSigmaK T Blk F = hvTauK T Blk F ^ 2)
     (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :=
   letI := blockPS_commGroup Blk
   letI := hvAct T Blk
-  kappa0_exists_tame (hv_genK T Blk F) (hrel2HV)
+  kappa0_exists_tameK hq0 hqe (hv_genK T Blk F) (hv_relK T Blk F)
     (blockQbarK T Blk hq0 hqe F.alpha F.alpha_surjective l hlne)
     (blockHquadK T Blk hq0 hqe F.alpha F.alpha_surjective l hlne)
     (blockHnsK T Blk hq0 hqe F.alpha F.alpha_surjective l hlne)
@@ -105,44 +103,39 @@ noncomputable def blockKappa0HVK (hq0 : q ≠ 0) (hqe : Even q) (F : BoundaryFra
 /-- The chosen `H_V`-level base-class datum.  Clone of `GQ2.SectionNine.blockDatHV`
 (`GQ2/Block/HeadDat.lean:296`). -/
 noncomputable def blockDatHVK (hq0 : q ≠ 0) (hqe : Even q) (F : BoundaryFrameK q P H E)
-    (hrel2HV : (hvSigmaK T Blk F)⁻¹ * hvTauK T Blk F * hvSigmaK T Blk F = hvTauK T Blk F ^ 2)
     (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     letI := blockPS_commGroup Blk
     FactorSet (HVq T Blk) (Additive (↥Blk.P ⧸ Blk.S.subgroupOf Blk.P)) :=
-  (blockKappa0HVK T Blk hq0 hqe F hrel2HV l hlne).choose
+  (blockKappa0HVK T Blk hq0 hqe F l hlne).choose
 
 omit [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal] in
 /-- Clone of `GQ2.SectionNine.blockDatHV_spec` (`GQ2/Block/HeadDat.lean:302`). -/
 theorem blockDatHV_specK (hq0 : q ≠ 0) (hqe : Even q) (F : BoundaryFrameK q P H E)
-    (hrel2HV : (hvSigmaK T Blk F)⁻¹ * hvTauK T Blk F * hvSigmaK T Blk F = hvTauK T Blk F ^ 2)
     (l : BlockDR T Blk) (hlne : l.1 ≠ Blk.frattiniK) :
     letI := blockPS_commGroup Blk
     letI := hvAct T Blk
     IsEquivariantFactorSet
       (blockQbarK T Blk hq0 hqe F.alpha F.alpha_surjective l hlne)
-      (blockDatHVK T Blk hq0 hqe F hrel2HV l hlne) :=
-  (blockKappa0HVK T Blk hq0 hqe F hrel2HV l hlne).choose_spec
+      (blockDatHVK T Blk hq0 hqe F l hlne) :=
+  (blockKappa0HVK T Blk hq0 hqe F l hlne).choose_spec
 
 /-- **The head-inflated block enrichment** at a general residue cardinality.  Clone of
 `GQ2.SectionNine.blockEnrichmentD` (`GQ2/Block/HeadDat.lean:318`).  Inhabits the same type as
 the model. -/
 noncomputable def blockEnrichmentDK (hE2 : ∀ e : E, e ^ 2 = 1) (hq0 : q ≠ 0) (hqe : Even q)
-    (F : BoundaryFrameK q P H E)
-    (hrel2 : (F.alpha (tqSigma q))⁻¹ * F.alpha (tqTau q) * F.alpha (tqSigma q)
-      = (F.alpha (tqTau q)) ^ 2)
-    (hrel2HV : (hvSigmaK T Blk F)⁻¹ * hvTauK T Blk F * hvSigmaK T Blk F = hvTauK T Blk F ^ 2) :
+    (F : BoundaryFrameK q P H E) :
     (blockFrame T Blk hE2).Enrichment :=
   letI := blockPS_commGroup Blk
   letI := blockActVY Blk
   letI := blockActV Blk
   letI := hvAct T Blk
-  { blockEnrichmentK T Blk hE2 hq0 hqe F hrel2 with
+  { blockEnrichmentK T Blk hE2 hq0 hqe F with
     dat := fun l h =>
-      (blockDatHVK T Blk hq0 hqe F hrel2HV l (fun heq => h (Subtype.ext heq))).reindexHom
+      (blockDatHVK T Blk hq0 hqe F l (fun heq => h (Subtype.ext heq))).reindexHom
         ⇑(blockProjF T Blk)
     hdat := fun l h =>
       IsEquivariantFactorSet.comapHom
-        (blockDatHV_specK T Blk hq0 hqe F hrel2HV l (fun heq => h (Subtype.ext heq)))
+        (blockDatHV_specK T Blk hq0 hqe F l (fun heq => h (Subtype.ext heq)))
         (blockProjF T Blk) (blockProjF_compat T Blk) }
 
 omit [Blk.frattiniK.Normal] [(Blk.S.subgroupOf Blk.P).Normal] [Blk.K.Normal] in

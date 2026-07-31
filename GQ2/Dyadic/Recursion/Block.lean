@@ -39,9 +39,9 @@ The tame pair in the faithful head quotient `H_V`, re-typed at `Tq q`: `hvSigmaK
 `hv_genK`, `hv_relK`.  These are the exact inputs the κ⁰ existential wants, so landing them now
 pins the interface for whoever discharges the seams below.
 
-Note `hv_relK` proves the **`q`-th power** relation `s⁻¹ t s = t ^ q` — that is the true
-statement at a general residue cardinality, and it is *not* what the current §6 entry point
-accepts (seam B).
+Note `hv_relK` proves the **`q`-th power** relation `s⁻¹ t s = t ^ q` — the true statement at a
+general residue cardinality, and (since SD-R2) exactly what the §6 entry point
+`GQ2.Dyadic.kappa0_exists_tameK` accepts.
 
 ## ⚠ SEAM A — §7 `prop_7_4` is typed at `Ttame`  (blocks `blockEnrichment`)
 
@@ -67,21 +67,16 @@ Inside `prop_7_4` the `Ttame` typing is used at `Prop74.lean:101-108` for genera
 (`gen_tq_quotient`, `tame_relation_q`, `TameQ.odd_order` — the last under `q ≠ 0`, `Even q`),
 so the obstruction is a *typing and hypothesis-threading* obstruction, not an absent theorem.
 
-## ⚠ SEAM B — §6 `kappa0_exists` hard-codes the exponent 2  (blocks `blockEnrichmentD`)
+## SEAM B — DISCHARGED by SD-R2 (`GQ2/Dyadic/Recursion/Kappa.lean`)
 
-`GQ2.SectionNine.ActsThroughTame` (`GQ2/SectionNine/Induction.lean:155`) has
-`s⁻¹ * t * s = t ^ 2` **literally in its definition** (:160), and `kappa0_exists` (:196) feeds
-it to `GQ2.kappa0_exists_tame` (`GQ2/KappaNormalForm.lean:1150`), whose signature likewise
-demands `hrel : s⁻¹ * t * s = t ^ 2`.  At a general residue cardinality the head's tame pair
-satisfies `= t ^ q`.  Verbatim goal mismatch:
-
-```
-h : (alpha (tqSigma q))⁻¹ * alpha (tqTau q) * alpha (tqSigma q) = alpha (tqTau q) ^ q
-⊢ (alpha (tqSigma q))⁻¹ * alpha (tqTau q) * alpha (tqSigma q) = alpha (tqTau q) ^ 2
-```
-
-so `blockHtame`, `blockKappa0`, `blockEnrichment`, `hv_inv`, `blockKappa0HV`, `blockDatHV` and
-`blockEnrichmentD` have no `K`-analogue until §6's Lemma 6.3 route is stated at `t ^ q`.
+SD-R1 reported that `GQ2.SectionNine.ActsThroughTame` (`GQ2/SectionNine/Induction.lean:155`)
+carries `s⁻¹ * t * s = t ^ 2` **literally in its definition** (:160) and forwards it to
+`GQ2.kappa0_exists_tame` (`GQ2/KappaNormalForm.lean:1150`), so no `K`-side head could meet it
+at `q ≠ 2`.  SD-R2 supplied the general-`q` predicate `ActsThroughTameQ q` and the clones
+`kappa0_exists_tameK` / `kappa0_existsK` (the frozen `ℚ₂` definitions untouched), and the six
+threaded binders are gone from `blockHtameK`, `blockKappa0K`, `blockEnrichmentK`,
+`blockKappa0HVK`, `blockDatHVK` and `blockEnrichmentDK`.  `hv_relK` below is the `H_V`-level
+producer they consume.
 
 ## ⏸ `Block/RStage.lean`'s three `b`-typed theorems are an SD-R3 dependency, not a seam
 
@@ -141,9 +136,10 @@ omit [TopologicalSpace Y] [DiscreteTopology Y] [Blk.frattiniK.Normal] in
 Clone of `GQ2.SectionNine.hv_rel` (`GQ2/Block/HeadDat.lean:242`) — verbatim, with F3's
 `tame_relation_q` in place of `tame_relation`.
 
-⚠ This is the statement seam B turns on: the model's conclusion is `t ^ 2`, and every §6
-consumer (`ActsThroughTame`, `kappa0_exists`, `kappa0_exists_tame`) is written against that
-exponent.  See the module docstring. -/
+This is the statement SEAM B turned on: the model's conclusion is `t ^ 2`.  Since SD-R2 the
+`K`-side §6 consumers (`ActsThroughTameQ`, `kappa0_existsK`, `kappa0_exists_tameK`) are written
+against `t ^ q`, and this theorem is the `H_V`-level producer they take.  See the module
+docstring. -/
 theorem hv_relK :
     (hvSigmaK T Blk F)⁻¹ * hvTauK T Blk F * hvSigmaK T Blk F = hvTauK T Blk F ^ q := by
   have h := congrArg (⇑F.alpha) (tame_relation_q q)
