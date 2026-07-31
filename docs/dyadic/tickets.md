@@ -348,6 +348,33 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-31 (orchestrator, SQ4 outcomes — THE L_sq CERTIFICATE + THE PIVOT THEOREM):**
+  merged, imports registered, audit green. Adopted: (i) **the SqMixPivot datum is now an
+  UNCONDITIONAL THEOREM** — `exists_isUnit_zpowZtwo_eq` (surjectivity companion to
+  `zpowZtwo_injective_of_exact_level`, digit-induction + compactness; `1 + 4ℤ₂` is
+  procyclic) + the `X^c = S` instance; nothing in the campaign carries it as a hypothesis
+  any more; the general half is spelled for a pure file-move hoist to `ZtwoPowering.lean`
+  (cleanup-pass candidate, recorded). (ii) **finding: MC5's `SqHandleMixHypothesis`
+  preserves only the pivot row** — the χ/pivot-preserving moves shear the two core rows
+  by one parameter; SQ4 threaded `SqCoreShearHypothesis` (def, non-vacuous, discharged
+  outright when ν'(x₀) = 0) AND landed the checked repair: **`SqHandleMixFixesCore`
+  (MC-HM's construction "fixes x₀/σ literally") IMPLIES MC5's binder and gives the full
+  reduction alone** (`sqMarkedMatching_of_fixesCore` etc.) — whether MC5's binder gets
+  RESTATED in fixesCore form is bundled into the errata-item-1 CoV ticket (it owns the
+  change-of-variables this rides on; MC5's file untouched meanwhile). (iii) shape ruling:
+  MC5's M/N certificate records are source-hardwired — the L core needed its OWN record
+  in the same pattern; future core families budget a record each. (iv) **binding
+  discipline for AS1/WL**: the satisfiable marked-data clause is `ν'(w) = ofAdd 1`
+  EXACTLY, not `IsUnit` (the shear cannot move the pivot value); and the L_sq marked
+  data is a PAIR (ν(x₁) = 2ν(x₀) is forced for every marking; σ̄ carries no forced row).
+  (v) prints: 39 headlines std-3; exactly 2 isolated B3c+B8 decls = the rank-3-discharge
+  consumers (SQ23 precedent honored) — **`marked_square_core_rank3_certificate` is
+  UNCONDITIONAL over ℚ₂** with its ν-slot pinned to `R.nu_ur`; census 11 unchanged.
+  (vi) SQ2's `dsqEquivDR` cast blows the heartbeat budget at isDefEq — consumers use
+  SQ4's `sqEquivDRMarked` (generator-value theorems included; WL-b/c note). (vii)
+  **SQ5/AS4 is smaller than feared**: the missing L_sq core stratum is ONE shear family,
+  not an MC3/MC4-scale classification. SQ lane remaining: nothing until AS4 (SQ5 folded
+  there per WL-recon Q2). mc worktree freed.
 - **2026-07-31 (orchestrator, WN0-a outcomes — THE WAVE-2 TEMPLATE EXISTS):** merged,
   import registered, audit green. This file is what the G2 review judges and what the
   other four branch lanes copy. Adopted: (i) ⚠ **`KillsWild` RULING (binding on all
