@@ -29,11 +29,14 @@ be made.
 ## What the composition actually needs
 
 `τ_a` is **not** the shear that finishes the job, and no shear of that shape could be: the
-residue `hm6FrameBDc` leaves sits on **two** rows, `k·Ā` on `B̄` *and* `k·Ā` on `D̄`, and a
-`B`-slot substitution reaches only the first.  A `D`-slot substitution `D ↦ A^{−k}·D` would
-reach the second, but it does not exist — the `M_α` relator's second half is `c^{2^α}[c, d]`, and
-`[c, a^{−k}d] ≠ [c, d]` because `a` and `c` do not commute (this is the same obstruction that
-`frameTauD`'s docstring records for `c`).
+residue `hm6FrameBDc` leaves sits on **two** rows, `k·Ā` on `B̄` *and* `k·Ā` on `D̄`
+(`hm6FrameBDc_mFrameLambda`), and a `B`-slot substitution reaches only the first.  A `D`-slot
+substitution `D ↦ A^{−k}·D` would reach the second, but MC3's construction does not extend to it:
+`Λ_k` preserves the relator by `mCommP_zpow_left`, `[a, a^k·b] = [a, b]`, where the inserted power
+is a power of the commutator's **own** left letter; the `D`-slot sits in the relator's other half
+`c^{2^α}[c, d]`, so the insertion there would be a power of `a` inside `[c, −]`, and `a` does not
+commute with `c`.  (Compare `frameTauD`'s docstring, which records the neighbouring obstruction:
+there is no `frameTauC`, because `c^{2^α}` blocks every transvection moving `c`.)
 
 What finishes the job instead is an **arithmetic** fact about `D_M`, the exact `M`-side analogue
 of MC4's `nChar_dnX0`.  On `D_N` the relator abelianizes to `(2 + 2^α)x̄₀ = 0`, so `ν(x₀) = 0` for
