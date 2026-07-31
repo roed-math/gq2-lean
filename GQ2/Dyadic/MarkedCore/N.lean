@@ -26,54 +26,66 @@ Everything is uniform in `α ≥ 2`; the `N`-frame is completely α-free (memo V
   `D_N^{ab} ≅ ℤ/2 ⊕ ℤ₂^{3+2h}` with the torsion coordinate at the **marked** generator `x̄₀`
   and no forced row (memo §3.1); the bridge `NFrame.toNDecomposition` to MC2's rank-four
   `NDecomposition`, and `demushkinQ_DN_nFrame : q = 2` at every `h`.
-* **§2 Row extraction** — the ℚ₂ engine of `GQ2/Roe/MarkedMatching.lean:307–1112` /
-  `prop_3_8_classification` ported to rank four: coordinate monomials, the χ-value on
-  coordinates, and the **integral pinning of the `x̄₁`-row by the infinite-order unit
-  `v = −(1+2^α)⁻¹`** (`nUnit_zpowZtwo_injective`) — the memo's decisive simplification over the
-  `M`-side (no `B`-scaling).
-* **§3 The Smith–Witt stabilizer** — the mod-2 cup Gram `nGram` (memo §3.2(iii)), the isometry
+* **§2 The exact S1 core transvections** — `dnTauBEquiv` (family N1, `x₁ ↦ x₀^k·x₁`) and
+  `dnTauCEquiv` (family N3, `σ ↦ x₂^k·σ`), completing HM4's `dnTauDEquiv` (family N2) to the
+  full elementary block, with their χ-preservation rows; and `nChar_dnX0`, the fact that
+  **every** `ℤ₂`-character kills `x₀` (why N1 is ν-invisible and why memo §3.6's `ν(t) = 0` is
+  a check rather than an equation).
+* **§3 Row extraction** — the **integral pinning of the `x̄₁`-row by the infinite-order unit
+  `v = −(1+2^α)⁻¹`** (`nUnit_zpowZtwo_injective`), through the level-general clone
+  `nExists_unit_pow_two_pow_sub_one` of `ZtwoPowering`'s level-2 iteration.  This is the memo's
+  decisive simplification over the `M`-side: no `B`-scaling is needed.
+* **§4 The Smith–Witt stabilizer** — the mod-2 cup Gram `nGram` (memo §3.2(iii)), the isometry
   condition `M̄·G_N·M̄ᵀ = G_N` (memo §2.3's convention, dualized to `H¹`), and
-  **`nStabilizer_classification`**: every frame automorphism preserving the marked invariant
-  triple is given by a *unique* parameter tuple `(τ, p, q, τ_σ, τ_{x₂}, g)` with
-  `g ∈ GL₂(ℤ₂)` and the two mod-2 couplings — the closed form
-  `St_N ≅ (ℤ/2 × ℤ₂²) ⋊ GL₂(ℤ₂)` of memo §3.3.
-* **§4 The S1 lifts** — the exact core transvections `dnTauBEquiv` (family N1) and
-  `dnTauCEquiv` (family N3), completing HM4's `dnTauDEquiv` (family N2) to the full elementary
-  block; χ-preservation and the ν-frame and abelianized rows of each.
-* **§5 The S2 lift (axiom B8)** — `nPsiEquiv`: the `u`-scaling of the `(σ, x₂)`-block built
-  from **two nested applications of the existing axiom B8** through MC2's
-  `peripheralTriple_scaling` transport (memo §5.2) — family N4, with its shears, and the
-  sheared-clean version `nScaling_lift`.  No new axiom; B8 enters as the explicit argument
-  `R : PeripheralCyclotomicAction` exactly as in MC2's `nOuter_scaling`.
-* **§6 The S3 binder and the hypothesis `def`s** — `NMixHypothesis` (memo §8 Decision 2(B), a
-  `def`, **never an axiom**), the Labute classification hypothesis `NLabHypothesis` with its
-  image invariant `imChiN` (memo §6.4), and the **vocabulary finding**
-  `nCoreMixHypothesis_not_of_mix`: HM5's schematic `NCoreMixHypothesis` is *unsatisfiable* for
-  any genuinely mixing stratum set, because membership in `A(P,h)` forces the `x₁`-row to be
-  rigid (`dnClearAuts_fixes_dnX1`).  The sound binder is therefore stated at the marked
+  **`nStabilizer_classification`**: a frame endomorphism preserves the marked invariant triple
+  **iff** it is given by a *unique* parameter tuple `(τ, p, q, τ_σ, τ_{x₂}, g)` with
+  `g ∈ GL₂(ℤ₂)` and the two mod-2 couplings.  The Witt half is one kernel `decide` over the
+  `2⁹` mod-2 assignments (`nCup_iff_mod2`); `nStabParam_tauSolve_unique` reads off the closed
+  form `St_N ≅ (ℤ/2 × ℤ₂²) ⋊ GL₂(ℤ₂)` of memo §3.3, `nFrameModel_map_t` shows the
+  relation-vector clause is automatic, and `nGL_factor` splits `GL₂(ℤ₂) = E₂(ℤ₂)·{diag(κ,1)}`.
+* **§5 The lifting strata and the hypothesis `def`s** — `NScalingHypothesis` (memo §3.4's N4,
+  the S2 stratum), `NMixHypothesis` (memo §8 Decision 2(B), the S3 stratum), and the Labute
+  classification hypothesis `NLabHypothesis` with its image invariant `imChiN` (memo §6.4) —
+  all `def`s, **never axioms**.  Plus the **vocabulary finding**
+  `nCoreMixHypothesis_not_of_mix`: HM4's schematic `NCoreMixHypothesis` is *false* for any
+  genuinely mixing stratum set, because membership in `A(P,h)` forces `x₀`, `x₁` and `σ` to be
+  rigid (`dnClearAuts_fixes_core`).  The sound binders are therefore stated at the marked
   generators, not through `DnRealizes`.
-* **§7 The composition theorem** — `nMarkedCorrection` (packet Prop. 7.2 at the `N`-core):
-  given any `ν'` with unimodular `(ν'(σ̄), ν'(x̄₂))`, an automorphism `u` with
-  `χ_N ∘ u = χ_N` and `ν' ∘ u = ν_N`, assembled from HM5's handle stratum
-  (`NLiftSplit.handle` / `nHandleMixLift`), the exact `SL₂`-solve on the `(σ, x₂)`-plane, and
-  the `NMixHypothesis` binder for the `x̄₁`-slot — memo §5.3's three strata, composed.
+* **§6 The composition theorem** — `nMarkedCorrection` (packet Prop. 7.2 at the `N`-core):
+  given any `ν'` with unimodular pivot `ν'(σ̄) ∈ ℤ₂ˣ`, an automorphism `u` with
+  `χ_N ∘ u = χ_N` and `ν' ∘ u = ν_N`, assembled from the S2 binder, HM5's handle stratum
+  (`nHandleMixLift`, a **theorem**), HM4's exact `dnTauDEquiv`, and the S3 binder — memo §5.3's
+  strata, composed in the order forced by what each move disturbs.
+* **§7 The `(σ, x₂)`-block, lifted** — `nCoreMat`, HM3's `frameMat` moved to slots `2`/`3`;
+  `NPlaneRealizes` and its composition law; **`nCorePlane_sl2_lift`**, the `SL₂(ℤ₂)` block by
+  the two *exact* families alone (unconditional, through HM3's
+  `mem_closure_planeElemSet_of_det_eq_one`); and `nCorePlane_gl2_lift`, the whole `GL₂(ℤ₂)`
+  block with only the determinant on the S2 binder `NPlaneScalingHypothesis`.
 * **§8 The parametrized lift** — `nStabParam_lift`: every admissible stabilizer parameter tuple
-  is realized by a continuous automorphism of `D_N`, via the six families (N1–N3 exact, N4
-  through B8, N5/N6 through the binder); with `nStabilizer_classification` this is the
-  memo §6.2 obligation `prop_MC_N_lift`.
+  is realized on the ν-frame by a χ-preserving continuous automorphism of `D_N`, via the six
+  families (N1–N3 exact, N4 the S2 binder, N5/N6 the S3 binder `NMixPairHypothesis`); with
+  `nStabilizer_classification` this is the memo §6.2 obligation `prop_MC_N_lift`.
 * **§9 Stress pins** at `(α, h) = (2, 0)` and `(2, 1)`.
+
+## Axiom scope (measured)
+
+**Every declaration in this file prints `[propext, Classical.choice, Quot.sound]` only** — no
+census axiom, in particular neither B8 nor B3c.  Memo §5.2's B8 route for the S2 stratum is
+*cited* (`Cores.lean`'s `nOuter_scaling`/`nInner_scaling` are the available B8 inputs) but not
+executed: the conjugator matching and the Frattini surjectivity that would assemble those two
+scaled triples into a single automorphism are not carried out here, so the stratum is threaded
+as the `def` `NScalingHypothesis`/`NPlaneScalingHypothesis` instead.  Discharging that binder is
+what will introduce the (already owner-accepted, census-neutral) B8 dependency.
 
 ## Dedup notes (reserved-name rule)
 
-MC3 (`M.lean`) works in parallel; every declaration here is `n`- or `dn`-prefixed.  Three
-generic helpers are restated name-distinct because their originals live in **non-module**
-files that a module file cannot import: the `conjP` algebra (`nConjP_mul` … — private in
-`GQ2/AnabelianBridge/Construction.lean`), the index-2 quotient lemmas (`nQuotient_mul_comm` … —
-`GQ2/AnabelianBridge/Construction.lean` §IndexTwo), and the closed-generation lemmas
-(`nTopClosure_le_ker`/`nTopClosure_le_comap` — ibid. §PinnedGeneration).  The
-`topAbelianization` profinite instances are re-registered **section-locally** exactly as in
-`GQ2/SectionThree.lean` (see the caution there: a file-global instance perturbs `K ⧸ M`
-resolution, and §5 works with such quotients).
+MC3 (`M.lean`) works in parallel; every declaration here is `n`-, `N`- or `dn`-prefixed.  Two
+groups of generic helpers are restated name-distinct in §0 because their originals live in
+**non-module** files that a module file cannot import: the `conjP` algebra (`nConjP_mul` … —
+private in `GQ2/AnabelianBridge/Construction.lean`) and the closed-generation lemmas
+(`nTopClosure_le_ker`/`nTopClosure_le_comap` — ibid. §PinnedGeneration).  They are kept because
+they are what a later discharge of `NPlaneScalingHypothesis` through B8 will consume; nothing in
+§§1–9 uses them.
 -/
 
 open Multiplicative
