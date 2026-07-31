@@ -1017,6 +1017,278 @@ theorem mStabilizer_A_row {α : ℕ} (hα : 1 ≤ α) (B : MDecomposition α) {p
 
 end Gram
 
+/-! ## §5 The seven Nielsen families and the factorization
+
+Memo §2.4's table, as elements of `MStabParam`, together with the completeness statement:
+*every* stabilizer parameter's frame action is a composite of the seven.  The order used is
+`Σ_γ, Λ_k, X_b, E_e, Σ_β, Y_c, Z_d` (leftmost applied first) — the `C̄₀`-writing families first,
+then the `B̄`-writing ones, so that the `C̄₀`-writers still read the untouched `B̄`-coordinate.
+The parameter *adjustments* (`b₅ = B_c + k·2^{α−1}`, `c₆ = c₁·γ⁻¹`, `β₄ = β − 2c₆B_c`,
+`d₇ = d₁ − c₆e`) are exactly the memo's "each step kills one parameter and perturbs only
+parameters killed later"; the corrections are all even, so `β₄` is still a unit.
+
+`MStabParam.act` is the closed form as a map on frame coordinate vectors, and
+`act_t`/`act_B`/`act_C`/`act_D` check that it reproduces the four rows of
+`MStabParam.Realizes` on the nose — so the factorization below really is a statement about the
+frame action of the classified automorphism. -/
+
+section Nielsen
+
+open Multiplicative
+
+theorem mParityZ_neg (x : ℤ_[2]) : mParityZ (-x) = mParityZ x := by
+  have h := mParityZ_add x (-x)
+  rw [add_neg_cancel, mParityZ_zero] at h
+  exact (by decide : ∀ a b : ZMod 2, 0 = a + b → b = a) _ _ h
+
+theorem mParityZ_sub (x y : ℤ_[2]) : mParityZ (x - y) = mParityZ x + mParityZ y := by
+  rw [sub_eq_add_neg, mParityZ_add, mParityZ_neg]
+
+theorem mParityZ_natCast_val (ε : ZMod 2) : mParityZ ((ε.val : ℤ_[2])) = ε := by
+  rcases (by decide : ∀ z : ZMod 2, z = 0 ∨ z = 1) ε with rfl | rfl
+  · rw [show ((0 : ZMod 2).val : ℤ_[2]) = 0 by rw [show ((0 : ZMod 2).val) = 0 from rfl,
+      Nat.cast_zero], mParityZ_zero]
+  · rw [show ((1 : ZMod 2).val : ℤ_[2]) = 1 by rw [show ((1 : ZMod 2).val) = 1 from rfl,
+      Nat.cast_one], mParityZ_one]
+
+/-- `2^{α−1}` is even for `α ≥ 2` — the reason `Λ_k`'s `C̄₀`-shift is invisible mod 2, and hence
+the reason the `M1` family does not disturb the Witt coupling. -/
+theorem mParityZ_mul_two_pow {α : ℕ} (hα : 2 ≤ α) (k : ℤ_[2]) :
+    mParityZ (k * 2 ^ (α - 1)) = 0 := by
+  obtain ⟨j, hj⟩ : ∃ j, α - 1 = j + 1 := ⟨α - 2, by omega⟩
+  rw [hj, pow_succ, show k * (2 ^ j * 2) = 2 * (k * 2 ^ j) by ring, mParityZ_two_mul]
+
+/-- **The frame action of a stabilizer parameter** — the memo §2.3 closed form as a map on
+coordinate vectors `(τ_v, b, c, d)` in the basis `(t, B̄, C̄₀, D̄)`.  The `t`-slot is `ZMod 2`, so
+the `B̄`- and `D̄`-coefficients enter it only through their parities. -/
+noncomputable def MStabParam.act (p : MStabParam) (v : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]) :
+    ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2] :=
+  (v.1 + mParityZ v.2.1 * p.tau + mParityZ v.2.2.2 * mParityZ p.bc,
+   v.2.1 * (p.beta : ℤ_[2]) + v.2.2.1 * (2 * p.c1) + v.2.2.2 * (2 * p.d1),
+   v.2.1 * p.bc + v.2.2.1 * (p.gamma : ℤ_[2]) + v.2.2.2 * p.e,
+   v.2.2.2)
+
+theorem MStabParam.act_apply (p : MStabParam) (v1 : ZMod 2) (b c d : ℤ_[2]) :
+    p.act (v1, b, c, d)
+      = (v1 + mParityZ b * p.tau + mParityZ d * mParityZ p.bc,
+         b * (p.beta : ℤ_[2]) + c * (2 * p.c1) + d * (2 * p.d1),
+         b * p.bc + c * (p.gamma : ℤ_[2]) + d * p.e, d) := rfl
+
+theorem MStabParam.act_t (p : MStabParam) :
+    p.act ((1 : ZMod 2), 0, 0, 0) = ((1 : ZMod 2), 0, 0, 0) := by
+  rw [MStabParam.act_apply]
+  refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ rfl))
+  · show (1 : ZMod 2) + mParityZ 0 * p.tau + mParityZ 0 * mParityZ p.bc = 1
+    rw [mParityZ_zero]
+    ring
+  · show (0 : ℤ_[2]) * _ + 0 * _ + 0 * _ = 0
+    ring
+  · show (0 : ℤ_[2]) * _ + 0 * _ + 0 * _ = 0
+    ring
+
+theorem MStabParam.act_B (p : MStabParam) :
+    p.act ((0 : ZMod 2), 1, 0, 0) = (p.tau, (p.beta : ℤ_[2]), p.bc, 0) := by
+  rw [MStabParam.act_apply]
+  refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ rfl))
+  · show (0 : ZMod 2) + mParityZ 1 * p.tau + mParityZ 0 * mParityZ p.bc = p.tau
+    rw [mParityZ_zero, mParityZ_one]
+    ring
+  · show (1 : ℤ_[2]) * _ + 0 * _ + 0 * _ = _
+    ring
+  · show (1 : ℤ_[2]) * _ + 0 * _ + 0 * _ = _
+    ring
+
+theorem MStabParam.act_C (p : MStabParam) :
+    p.act ((0 : ZMod 2), 0, 1, 0) = (0, 2 * p.c1, (p.gamma : ℤ_[2]), 0) := by
+  rw [MStabParam.act_apply]
+  refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ rfl))
+  · show (0 : ZMod 2) + mParityZ 0 * p.tau + mParityZ 0 * mParityZ p.bc = 0
+    rw [mParityZ_zero]
+    ring
+  · show (0 : ℤ_[2]) * _ + 1 * _ + 0 * _ = _
+    ring
+  · show (0 : ℤ_[2]) * _ + 1 * _ + 0 * _ = _
+    ring
+
+theorem MStabParam.act_D (p : MStabParam) :
+    p.act ((0 : ZMod 2), 0, 0, 1) = (mParityZ p.bc, 2 * p.d1, p.e, 1) := by
+  rw [MStabParam.act_apply]
+  refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ rfl))
+  · show (0 : ZMod 2) + mParityZ 0 * p.tau + mParityZ 1 * mParityZ p.bc = mParityZ p.bc
+    rw [mParityZ_zero, mParityZ_one]
+    ring
+  · show (0 : ℤ_[2]) * _ + 0 * _ + 1 * _ = _
+    ring
+  · show (0 : ℤ_[2]) * _ + 0 * _ + 1 * _ = _
+    ring
+
+/-- Family **M1**, `Λ_k : B ↦ A^k·B` (memo §2.4, stratum **S1**): frame action `τ = k mod 2`,
+`B_c = −k·2^{α−1}`. -/
+noncomputable def mFamM1 (α : ℕ) (k : ℤ_[2]) : MStabParam :=
+  ⟨mParityZ k, 1, -(k * 2 ^ (α - 1)), 0, 1, 0, 0⟩
+
+/-- Family **M2**, `E_e : D ↦ C₀^e·D` (memo §2.4, stratum **S1**; this is HM4's
+`dmTauDEquiv`). -/
+noncomputable def mFamM2 (e : ℤ_[2]) : MStabParam := ⟨0, 1, 0, 0, 1, 0, e⟩
+
+/-- Family **M3**, `Σ_γ : C₀ ↦ C₀^γ`, `A ↦ A·C₀^{m(1−γ)}` (memo §2.4, stratum **S2**, B8). -/
+noncomputable def mFamM3 (γ : ℤ_[2]ˣ) : MStabParam := ⟨0, 1, 0, 0, γ, 0, 0⟩
+
+/-- Family **M4**, `Σ_β : B ↦ B^β` (memo §2.4, stratum **S3**). -/
+noncomputable def mFamM4 (β : ℤ_[2]ˣ) : MStabParam := ⟨0, β, 0, 0, 1, 0, 0⟩
+
+/-- Family **M5**, `X_b : B ↦ B·C₀^{B_c}`, `D ↦ t^{B_c}·D` (memo §2.4, stratum **S3**) — the
+family that carries the Witt coupling. -/
+noncomputable def mFamM5 (bc : ℤ_[2]) : MStabParam := ⟨0, 1, bc, 0, 1, 0, 0⟩
+
+/-- Family **M6**, `Y_c : C₀ ↦ B^{2c₁}·C₀` (memo §2.4, stratum **S3**). -/
+noncomputable def mFamM6 (c1 : ℤ_[2]) : MStabParam := ⟨0, 1, 0, c1, 1, 0, 0⟩
+
+/-- Family **M7**, `Z_d : D ↦ B^{2d₁}·D` (memo §2.4, stratum **S3**). -/
+noncomputable def mFamM7 (d1 : ℤ_[2]) : MStabParam := ⟨0, 1, 0, 0, 1, d1, 0⟩
+
+theorem mFamM1_act {α : ℕ} (hα : 2 ≤ α) (k : ℤ_[2]) (v1 : ZMod 2) (b c d : ℤ_[2]) :
+    (mFamM1 α k).act (v1, b, c, d)
+      = (v1 + mParityZ b * mParityZ k, b, c - k * 2 ^ (α - 1) * b, d) := by
+  rw [mFamM1, MStabParam.act_apply]
+  refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ rfl))
+  · show v1 + mParityZ b * mParityZ k + mParityZ d * mParityZ (-(k * 2 ^ (α - 1))) = _
+    rw [mParityZ_neg, mParityZ_mul_two_pow hα]
+    ring
+  · show b * ((1 : ℤ_[2]ˣ) : ℤ_[2]) + c * (2 * 0) + d * (2 * 0) = b
+    rw [Units.val_one]
+    ring
+  · show b * -(k * 2 ^ (α - 1)) + c * ((1 : ℤ_[2]ˣ) : ℤ_[2]) + d * 0 = _
+    rw [Units.val_one]
+    ring
+
+theorem mFamM2_act (e : ℤ_[2]) (v1 : ZMod 2) (b c d : ℤ_[2]) :
+    (mFamM2 e).act (v1, b, c, d) = (v1, b, c + d * e, d) := by
+  rw [mFamM2, MStabParam.act_apply]
+  refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ rfl))
+  · show v1 + mParityZ b * 0 + mParityZ d * mParityZ 0 = v1
+    rw [mParityZ_zero]
+    ring
+  · show b * ((1 : ℤ_[2]ˣ) : ℤ_[2]) + c * (2 * 0) + d * (2 * 0) = b
+    rw [Units.val_one]
+    ring
+  · show b * 0 + c * ((1 : ℤ_[2]ˣ) : ℤ_[2]) + d * e = _
+    rw [Units.val_one]
+    ring
+
+theorem mFamM3_act (γ : ℤ_[2]ˣ) (v1 : ZMod 2) (b c d : ℤ_[2]) :
+    (mFamM3 γ).act (v1, b, c, d) = (v1, b, c * (γ : ℤ_[2]), d) := by
+  rw [mFamM3, MStabParam.act_apply]
+  refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ rfl))
+  · show v1 + mParityZ b * 0 + mParityZ d * mParityZ 0 = v1
+    rw [mParityZ_zero]
+    ring
+  · show b * ((1 : ℤ_[2]ˣ) : ℤ_[2]) + c * (2 * 0) + d * (2 * 0) = b
+    rw [Units.val_one]
+    ring
+  · show b * 0 + c * (γ : ℤ_[2]) + d * 0 = _
+    ring
+
+theorem mFamM4_act (β : ℤ_[2]ˣ) (v1 : ZMod 2) (b c d : ℤ_[2]) :
+    (mFamM4 β).act (v1, b, c, d) = (v1, b * (β : ℤ_[2]), c, d) := by
+  rw [mFamM4, MStabParam.act_apply]
+  refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ rfl))
+  · show v1 + mParityZ b * 0 + mParityZ d * mParityZ 0 = v1
+    rw [mParityZ_zero]
+    ring
+  · show b * (β : ℤ_[2]) + c * (2 * 0) + d * (2 * 0) = _
+    ring
+  · show b * 0 + c * ((1 : ℤ_[2]ˣ) : ℤ_[2]) + d * 0 = c
+    rw [Units.val_one]
+    ring
+
+theorem mFamM5_act (bc : ℤ_[2]) (v1 : ZMod 2) (b c d : ℤ_[2]) :
+    (mFamM5 bc).act (v1, b, c, d) = (v1 + mParityZ d * mParityZ bc, b, b * bc + c, d) := by
+  rw [mFamM5, MStabParam.act_apply]
+  refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ rfl))
+  · show v1 + mParityZ b * 0 + mParityZ d * mParityZ bc = _
+    ring
+  · show b * ((1 : ℤ_[2]ˣ) : ℤ_[2]) + c * (2 * 0) + d * (2 * 0) = b
+    rw [Units.val_one]
+    ring
+  · show b * bc + c * ((1 : ℤ_[2]ˣ) : ℤ_[2]) + d * 0 = _
+    rw [Units.val_one]
+    ring
+
+theorem mFamM6_act (c1 : ℤ_[2]) (v1 : ZMod 2) (b c d : ℤ_[2]) :
+    (mFamM6 c1).act (v1, b, c, d) = (v1, b + c * (2 * c1), c, d) := by
+  rw [mFamM6, MStabParam.act_apply]
+  refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ rfl))
+  · show v1 + mParityZ b * 0 + mParityZ d * mParityZ 0 = v1
+    rw [mParityZ_zero]
+    ring
+  · show b * ((1 : ℤ_[2]ˣ) : ℤ_[2]) + c * (2 * c1) + d * (2 * 0) = _
+    rw [Units.val_one]
+    ring
+  · show b * 0 + c * ((1 : ℤ_[2]ˣ) : ℤ_[2]) + d * 0 = c
+    rw [Units.val_one]
+    ring
+
+theorem mFamM7_act (d1 : ℤ_[2]) (v1 : ZMod 2) (b c d : ℤ_[2]) :
+    (mFamM7 d1).act (v1, b, c, d) = (v1, b + d * (2 * d1), c, d) := by
+  rw [mFamM7, MStabParam.act_apply]
+  refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ rfl))
+  · show v1 + mParityZ b * 0 + mParityZ d * mParityZ 0 = v1
+    rw [mParityZ_zero]
+    ring
+  · show b * ((1 : ℤ_[2]ˣ) : ℤ_[2]) + c * (2 * 0) + d * (2 * d1) = _
+    rw [Units.val_one]
+    ring
+  · show b * 0 + c * ((1 : ℤ_[2]ˣ) : ℤ_[2]) + d * 0 = c
+    rw [Units.val_one]
+    ring
+
+/-- **Completeness of the seven Nielsen families** (memo §2.4, packet §14).  Every element of
+the Smith–Witt stabilizer — equivalently, by `mStabilizer_classification`, every parameter
+`p : MStabParam` — has its frame action equal to a composite of the seven families
+`Σ_γ, Λ_k, X_b, E_e, Σ_β, Y_c, Z_d`, applied in that order.  The witnesses are
+
+```
+γ₃ = γ,  k = τ.val,  b₅ = B_c + k·2^{α−1},  e₅ = e,
+c₆ = c₁·γ⁻¹,  β₄ = β − 2c₆B_c,  d₇ = d₁ − c₆·e.
+```
+
+The order puts the `C̄₀`-writing families first so that they still read the untouched
+`B̄`-coordinate; the adjustments are the memo's "each step perturbs only parameters killed
+later", and all of them are even, so `β₄` is still a unit.  Unconditional and axiom-free;
+`α ≥ 2` is used exactly once, to know `2^{α−1}` is even so that `Λ_k` does not disturb the
+Witt coupling. -/
+theorem mNielsen_factorization {α : ℕ} (hα : 2 ≤ α) (p : MStabParam) :
+    ∃ (k b₅ e₅ c₆ d₇ : ℤ_[2]) (β₄ : ℤ_[2]ˣ),
+      p.act = (mFamM7 d₇).act ∘ (mFamM6 c₆).act ∘ (mFamM4 β₄).act ∘ (mFamM2 e₅).act ∘
+        (mFamM5 b₅).act ∘ (mFamM1 α k).act ∘ (mFamM3 p.gamma).act := by
+  set k : ℤ_[2] := (p.tau.val : ℤ_[2]) with hkdef
+  set c₆ : ℤ_[2] := p.c1 * ((p.gamma⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) with hc6def
+  have hβ4 : mParityZ ((p.beta : ℤ_[2]) - 2 * (c₆ * p.bc)) = 1 := by
+    rw [mParityZ_sub, mParityZ_two_mul, mParityZ_of_isUnit p.beta.isUnit, add_zero]
+  have hγinv : (p.gamma : ℤ_[2]) * ((p.gamma⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) = 1 := by
+    rw [← Units.val_mul, mul_inv_cancel, Units.val_one]
+  have hβ4val : (((mIsUnit_of_parity_one hβ4).unit : ℤ_[2]ˣ) : ℤ_[2])
+      = (p.beta : ℤ_[2]) - 2 * (c₆ * p.bc) := IsUnit.unit_spec _
+  refine ⟨k, p.bc + k * 2 ^ (α - 1), p.e, c₆, p.d1 - c₆ * p.e,
+    (mIsUnit_of_parity_one hβ4).unit, ?_⟩
+  funext v
+  obtain ⟨v1, b, c, d⟩ := v
+  rw [Function.comp_apply, Function.comp_apply, Function.comp_apply, Function.comp_apply,
+    Function.comp_apply, Function.comp_apply, mFamM3_act, mFamM1_act hα, mFamM5_act,
+    mFamM2_act, mFamM4_act, mFamM6_act, mFamM7_act, MStabParam.act_apply, hβ4val]
+  refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ rfl))
+  · show v1 + mParityZ b * p.tau + mParityZ d * mParityZ p.bc = _
+    rw [mParityZ_add, mParityZ_mul_two_pow hα, hkdef, mParityZ_natCast_val]
+    ring
+  · show b * (p.beta : ℤ_[2]) + c * (2 * p.c1) + d * (2 * p.d1) = _
+    rw [hc6def]
+    linear_combination (-(2 * c * p.c1)) * hγinv
+  · show b * p.bc + c * (p.gamma : ℤ_[2]) + d * p.e = _
+    ring
+
+end Nielsen
+
 end MarkedCore
 
 end Dyadic
