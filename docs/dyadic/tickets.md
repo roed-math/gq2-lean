@@ -348,6 +348,34 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-31 (orchestrator, SESSION-LIMIT INTERRUPTION + RESUME — all six in-flight
+  agents killed, all seven resumed):** the Fable session usage limit killed WW2/WW4/MC5/
+  SD-R1/WN0-a (here) and S4.5 (simp side) mid-flight; reset at 4:20pm ET; every agent
+  RESUMED from its transcript with salvage instructions. Salvage state at resume: **SD-R1
+  had SIX FILES COMMITTED** (Frame/Numerics/Covers/Partition/Recursion/Block — the
+  commit-per-file discipline worked exactly as designed) and **S4.5's verdict chain was
+  committed** (through 8a54c9e; only its final suite runs died); WW2 (1069 ln), MC5
+  (1045 ln), WW3b (611 ln) had uncommitted files on disk — resume orders lead with
+  commit-the-green-subset-first; WW4 and WN0-a lost nothing (died pre-write). **SD-R1's
+  stop-and-report fired correctly on two seams** (documented in Recursion/Block.lean),
+  and a depth assessment completed during the outage; verdicts ADOPTED: **SEAM A**
+  (§7/prop_7_4 is typed at the ℚ₂ boundary) is MECHANICAL and CHEAPER than the memo
+  implied — SectionSeven/{Basic,ModuleCore,Prop74Step1} have zero boundary mentions
+  (import as-is; do NOT clone); only Decorations' lemma_7_2 (decorative cH binder, zero
+  body uses) + Prop74's four decls clone, threading {q ≠ 0, Even q} and swapping exactly
+  four lemma names (gen_tq_quotient / tame_rel_map_q / TameQ.zpowers_normal /
+  TameQ.odd_order — all already exist general-q); scope-added to SD-R1 with the ~330-ln
+  Block-file cH-variable ripple it already owned. **SEAM B** (§6/kappa0_exists through
+  `ActsThroughTame`'s literal `t^2` clause) is mechanical-with-one-def-change and
+  belongs to **SD-R2** (Induction.lean is its scope; row updated): PJ1 already de-fanged
+  the deep half (both consumers are thin wrappers over exponent-free `_of_odd_normal`
+  lemmas; the general-q leaves exist in Projectivity.lean), the producer side exists
+  (SD-R1's hv_relK), and the ~710-ln Block-file consumer retype rides the def change.
+  ⚠ assessment caution recorded for both: `lemma_6_11_of_tame_pair_pow` is stated at
+  q = 2^f (1 ≤ f), NOT Even q ∧ q ≠ 0 — route through the leaves + `_of_odd_normal`,
+  not that wrapper. (The seam assessment itself was run as a read-only sub-analysis
+  during the outage; its full table is in the transcript and the actionable content is
+  this entry + the resume orders.)
 - **2026-07-31 (orchestrator, WW1+WW3+WW5 outcomes — THE WW SPINE IS IN):** all three merged
   in one train, imports registered, D4 ACTIVATED with WW5's worker-tested line
   (orchestrator-applied; SKIP text now says "arrives with wave 2"). Combined audit at the
@@ -1104,7 +1132,7 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 |---|---|---|---|---|---|
 | SD1 | design memo: two-sided degree-n source record | fable | `docs/dyadic/sd-design.md` | recon/sd-survey, G-1 ✓ | **done 2026-07-31** (3c1a74b+c978cb2 → merged; 766-ln memo; **structural discovery: the §4–§9 generic machinery is typed at the concrete ℚ₂ boundary** — SD-n is a boundary-abstracted CLONE of the b-typed recursion spine (≈9.1k ln, LG1 "in-place is A6-incompatible" precedent), frozen-file edit list **EMPTY**; n=1 bridge DEFINITIONAL (probe P1: `boundarySubgroupQ 2 nuTwo = boundarySubgroup := rfl`); deep layer (VLiftCount master count, descent/keystone/Fourier, §§5–7, Reconstruction) reused untouched; §6 = the WW4 phase-interface baseline (RATIFIED, Q7); Q1–Q7 adoption calls in log; ⚠ packet-citation off-by-one nit → errata cover note) |
 | SD-R1 | spine clone I: frame layer + Covers/Fourier/Partition/Recursion + Block trio (≈3.2k, mechanical, stop-and-report) | opus | `GQ2/Dyadic/Recursion/` (part I per memo §4.3) | SD1 ✓ | queued (first freed opus slot) |
-| SD-R2 | spine clone II: §9 Terminal/Induction + MStageCount (≈2.2k) | opus | `GQ2/Dyadic/Recursion/` (part II) | SD-R1 | queued |
+| SD-R2 | spine clone II: §9 Terminal/Induction + MStageCount (≈2.2k) **+ SEAM B** (the `ActsThroughTame` q-parametrization — the literal `t^2` clause becomes `t^q` with `Even q ∧ q ≠ 0`; consumers via the general-q leaves + `_of_odd_normal` wrappers per the 2026-07-31 seam entry, NOT via `lemma_6_11_of_tame_pair_pow` which is pinned at q = 2^f) | opus | `GQ2/Dyadic/Recursion/` (part II) | SD-R1 | queued |
 | SD-R3 | spine clone III: Phase140 + RStage + bridges + generic-Prop89 (≈2.3k) | opus | `GQ2/Dyadic/Recursion/` (part III) | SD-R1 | queued |
 | ASK | K-side `*Local` supply package (the G_K record instantiation leaf pack, ≈2.6k at n=1 scale; base = LG5's `local_gauss_K` + `ramifiedCertificateOfSubtype`) | opus | `GQ2/Dyadic/Instances/KSupply.lean` (name provisional) | SD1 ✓, LG5 ✓ | queued — **lane assignment (AS vs LG-revival) flagged for owner**; memo §3.3 |
 | SD2 | `SourceNumerics n` + parameterized record + n=1 adapters (RESCOPED ≈0.5k per memo §8; + `sourceF_N` from the verified `*_local` leaf pack) | fable | `GQ2/Dyadic/SourceDataN.lean` | SD1 ✓, SD-R1–3 | pending |
