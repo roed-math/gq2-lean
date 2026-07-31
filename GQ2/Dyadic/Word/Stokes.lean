@@ -66,6 +66,17 @@ matrix comparison shape (`GQ2/Roe/TrivialSelfDual.lean`'s `scalarGramR`-by-`deci
 * `HeisLift` has a `ZMod 2` centre; nothing here speaks about `ℤ/4`-centre lifts (the twisted
   path and the `κ_q⁰` normalization are WW4's, per S1.T).
 
+## Axiom prints (recorded at commit time)
+
+Every headline prints **exactly the standard three** (`propext`, `Classical.choice`,
+`Quot.sound`) — verified via `#print axioms` for `stokesDuality_of_simple`,
+`stokesDuality_of_ses`, `stokesConeAcyclic_of_ses`, `stokesQuasiIso_iff_coneAcyclic`,
+`heisWord_lemma_5_7_left`, `heisWord_lemma_5_7_right`, `heisEta1_comp_d0`,
+`heisEta2_comp_d1`, `StokesDuality.pairing_vanish_left`, `stress_endpoint_gammaA`,
+`stress_jetZero_nonvacuous`.  No sorries, no new axioms, kernel `decide` only (the one
+`decide` sits in a stress pin).  The one `local instance` is the trivial action of the
+stress section (the known doesn't-export idiom; nothing consumes it).
+
 Module-style: all three imports are module-style.
 -/
 
