@@ -1118,3 +1118,171 @@ theorem nGL_factor {g : Matrix (Fin 2) (Fin 2) ℤ_[2]} (hg : IsUnit g.det) :
   · rw [Matrix.mul_assoc, nPlaneDet_mul, inv_mul_cancel, nPlaneDet_one, Matrix.mul_one]
 
 end Stabilizer
+
+/-! ## §5 The lifting strata: binders, and a vocabulary finding  (memo §5.1–§5.3, §6.4, §8)
+
+Memo §5 splits the lift into three strata.  Two are already theorems in this lane: **S1** (the
+exact Nielsen lifts — §2's `dnTauBEquiv`/`dnTauCEquiv` and HM4's `dnTauDEquiv`) and the **handle**
+stratum (HM5's `nHandleMixLift`).  The other two enter as `def`s — **never axioms** (memo §8, the
+`BLabHypothesis` convention):
+
+* `NScalingHypothesis` — memo §3.4's family N4, the unit scaling of the `(σ, x₂)`-block.  Memo
+  §5.2's verdict is that this is discharged by the **existing** axiom B8: `Cores.lean`'s
+  `nOuter_scaling` and `nInner_scaling` are already theorems, obtained from B8 through
+  `peripheralTriple_scaling`, so no new axiom and no census bump.  What is *not* done here is the
+  conjugator matching that assembles the two scaled triples into one automorphism.
+* `NMixHypothesis` — memo §3.4's families N5/N6, memo §8 Decision 2(B)'s `NMixHypothesis`.
+
+**Vocabulary finding (reported, not patched).**  HM4's schematic S3 binder
+`NCoreMixHypothesis α h S3` cannot be used for these families: it asks for a realizing
+automorphism *inside* `A(P,h)`, and no generator of `dnClearAuts` touches a slot of index `< 3`,
+so every element of `A(P,h)` fixes `x₀`, `x₁` and `σ` on the nose (`dnClearAuts_fixes_core`).  A
+genuinely `x̄₁`-mixing frame move is therefore **unrealizable** in `A(P,h)`, and
+`NCoreMixHypothesis α h {frameEnd (nFrameMixX1 p)}` is *false* for every `p ≠ 0`
+(`nCoreMixHypothesis_not_of_mix`).  The sound binder is stated at the marked generators, through
+the ν-frame, without the `A(P,h)` clause — that is `NMixHypothesis` below.  HM4's `nLiftSplit_iff`
+is unaffected: it is a statement *about* the two binders, and the handle field it discharges is
+exactly the stratum that does live in `A(P,h)`. -/
+
+section Strata
+
+/-- **Index case analysis for a rank-`(4+2h)` core**: a letter is one of the four core letters or
+one of the `2h` handle letters.  (MC5 wants this too.) -/
+theorem nCoreIdx_cases {h : ℕ} (i : Fin (coreRank h)) :
+    i = 0 ∨ i = 1 ∨ i = 2 ∨ i = 3 ∨ (∃ j : Fin h, i = handleIdxU j) ∨
+      ∃ j : Fin h, i = handleIdxV j := by
+  have hlt : (i : ℕ) < 4 + 2 * h := i.isLt
+  by_cases h0 : (i : ℕ) = 0
+  · exact Or.inl (Fin.val_injective (by rw [h0, coreVal_zero]))
+  by_cases h1 : (i : ℕ) = 1
+  · exact Or.inr (Or.inl (Fin.val_injective (by rw [h1, coreVal_one])))
+  by_cases h2 : (i : ℕ) = 2
+  · exact Or.inr (Or.inr (Or.inl (Fin.val_injective (by rw [h2, coreVal_two]))))
+  by_cases h3 : (i : ℕ) = 3
+  · exact Or.inr (Or.inr (Or.inr (Or.inl (Fin.val_injective (by rw [h3, coreVal_three])))))
+  have hj : ((i : ℕ) - 4) / 2 < h := by omega
+  by_cases hpar : (i : ℕ) % 2 = 0
+  · refine Or.inr (Or.inr (Or.inr (Or.inr (Or.inl ⟨⟨((i : ℕ) - 4) / 2, hj⟩,
+      Fin.val_injective ?_⟩))))
+    rw [handleIdxU_val]
+    show (i : ℕ) = 4 + 2 * (((i : ℕ) - 4) / 2)
+    omega
+  · refine Or.inr (Or.inr (Or.inr (Or.inr (Or.inr ⟨⟨((i : ℕ) - 4) / 2, hj⟩,
+      Fin.val_injective ?_⟩))))
+    rw [handleIdxV_val]
+    show (i : ℕ) = 5 + 2 * (((i : ℕ) - 4) / 2)
+    omega
+
+/-- **Every automorphism in `A(P,h)` fixes the three leading marked generators.**  No generator of
+`dnClearAuts` touches a slot of index `< 3` — the two handle transvections move a handle letter,
+`τ_c(k)` moves `x₂`, and HM2's `Φ_j` moves a handle letter and `x₂` — so `x₀`, `x₁` and `σ` are
+rigid throughout the whole monoid.  This is the structural fact behind
+`nCoreMixHypothesis_not_of_mix`. -/
+theorem dnClearAuts_fixes_core (α h : ℕ) {i : Fin (coreRank h)} (hi : (i : ℕ) < 3)
+    {F : Function.End (DN α h : Type)} (hF : F ∈ Submonoid.closure (dnClearAuts α h)) :
+    F (dnGen α h i) = dnGen α h i := by
+  have hne3 : i ≠ 3 := coreVal_lt_three_ne hi
+  induction hF using Submonoid.closure_induction with
+  | mem G hG =>
+    simp only [dnClearAuts, Set.mem_union, Set.mem_iUnion, Set.mem_range] at hG
+    rcases hG with ((⟨j, k, rfl⟩ | ⟨j, k, rfl⟩) | ⟨k, rfl⟩) | ⟨j, rfl⟩
+    · show dnTauUEquiv α h j k (dnGen α h i) = dnGen α h i
+      rw [dnTauUEquiv_gen,
+        tauUMark_of_ne _ _ _ _ (handleIdxU_ne_of_val_lt j (by omega)).symm]
+    · show dnTauVEquiv α h j k (dnGen α h i) = dnGen α h i
+      rw [dnTauVEquiv_gen,
+        tauVMark_of_ne _ _ _ _ (handleIdxV_ne_of_val_lt j (by omega)).symm]
+    · show dnTauDEquiv α h k (dnGen α h i) = dnGen α h i
+      rw [dnTauDEquiv_gen, tauDMark_of_ne _ _ _ hne3]
+    · show dnMixEquiv α h j (dnGen α h i) = dnGen α h i
+      rw [dnMixEquiv_gen]
+      exact handleMixUpdate_of_ne j _ _ _ (handleIdxU_ne_of_val_lt j (by omega)).symm hne3
+  | one => rfl
+  | mul a b _ _ ha hb =>
+    show a (b (dnGen α h i)) = dnGen α h i
+    rw [show b (dnGen α h i) = dnGen α h i from hb]
+    exact ha
+
+/-- The ν-frame move of family **N5** (memo §3.4): `x̄₁ ↦ x̄₁ + p·σ̄`. -/
+noncomputable def nFrameMixX1 {h : ℕ} (p : ℤ_[2]) (m : Fin (coreRank h) → ℤ_[2]) :
+    Fin (coreRank h) → ℤ_[2] := Function.update m 1 (m 1 + p * m 2)
+
+/-- **HM4's schematic S3 binder is unsatisfiable for a genuinely mixing stratum.**  A frame move
+that shifts the `x̄₁`-row by a nonzero multiple of the `σ̄`-row cannot be realized by an
+automorphism of `A(P,h)`: such an automorphism fixes `x₁` (`dnClearAuts_fixes_core`), while the
+standard marking `ν_N` has `ν_N(σ̄) = 1`.  So `NCoreMixHypothesis` — which quantifies
+`DnRealizes`, whose first clause is membership in `A(P,h)` — is **false** for every stratum set
+containing such a move.  The sound binder is `NMixHypothesis`. -/
+theorem nCoreMixHypothesis_not_of_mix (α h : ℕ) {p : ℤ_[2]} (hp : p ≠ 0)
+    {S3 : Set (Function.End (Fin (coreRank h) → ℤ_[2]))}
+    (hmem : frameEnd (nFrameMixX1 p) ∈ S3) : ¬ NCoreMixHypothesis α h S3 := by
+  intro hS
+  obtain ⟨Ψ, hclear, hframe⟩ := hS _ hmem
+  have hx1 : Ψ (dnGen α h 1) = dnGen α h 1 :=
+    dnClearAuts_fixes_core α h (by rw [coreVal_one]; omega) hclear
+  have hval := congrFun (hframe (nuN α h)) 1
+  rw [nuFrame_apply, hx1, frameEnd_apply, nFrameMixX1, Function.update_self, nuFrame_apply,
+    nuFrame_apply, show dnGen α h 1 = dnX1 α h from rfl, show dnGen α h 2 = dnSigma α h from rfl,
+    nuN_dnX1, nuN_dnSigma, toAdd_ofAdd, toAdd_ofAdd, mul_one, zero_add] at hval
+  exact hp hval.symm
+
+/-- **The S3 core-mixing binder for `N`** (memo §3.4's family N5, memo §8 Decision 2(B)'s
+`NMixHypothesis`) — a `def`, **never an axiom**.  For every `p ∈ ℤ₂` a χ-preserving continuous
+automorphism of `D_N` whose ν-frame action is the pure transvection `x̄₁ ↦ x̄₁ + p·σ̄`: the group
+move is `x₁ ↦ x₁σ^p` with its coupled `x₂ ↦ x₀^p·x₂`, and the coupled factor is ν-invisible,
+every `ℤ₂`-character killing `x₀` (`nChar_dnX0`).
+
+Stated at the **marked generators**, not through `DnRealizes` — see
+`nCoreMixHypothesis_not_of_mix` for why HM4's schematic form cannot be used. -/
+def NMixHypothesis (α h : ℕ) : Prop :=
+  ∀ p : ℤ_[2], ∃ Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
+    (∀ x, chiN α h (Ψ x) = chiN α h x)
+      ∧ ∀ f : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]),
+        nuFrame f (fun i => Ψ (dnGen α h i)) = nFrameMixX1 p (nuFrame f (dnGen α h))
+
+/-- **The S2 unit-scaling binder for `N`** (memo §3.4's family N4, memo §5.2) — a `def`, **never
+an axiom**.  For every `γ ∈ ℤ₂ˣ` a χ-preserving continuous automorphism of `D_N` scaling the
+`σ̄`-row of the ν-frame by `γ`.  The other rows are left completely unconstrained: memo §5.2 says
+the scaling shifts them uncontrollably and that the shifts are absorbed afterwards by the S1
+shears — which is exactly what `nMarkedCorrection` does.
+
+Memo §5.2's verdict: this stratum is **discharged by the existing axiom B8** — `nOuter_scaling`
+and `nInner_scaling` (`Cores.lean`) are already theorems obtained from `peripheralTriple_scaling`,
+so no new axiom and no census bump.  What MC4 does not carry out is the conjugator matching (and
+the Frattini surjectivity) that assembles the two scaled triples into a single automorphism; hence
+the family is threaded here rather than constructed. -/
+def NScalingHypothesis (α h : ℕ) : Prop :=
+  ∀ γ : ℤ_[2]ˣ, ∃ Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
+    (∀ x, chiN α h (Ψ x) = chiN α h x)
+      ∧ ∀ f : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]),
+        toAdd (f (Ψ (dnSigma α h))) = (γ : ℤ_[2]) * toAdd (f (dnSigma α h))
+
+/-- **The `N_α` image invariant** (memo §6.4): `im χ_N = ⟨v⟩` with `v = −(1+2^α)⁻¹`, procyclic.
+The decisive `M`/`N` separator (memo §3.2(i), V2): `im χ_M = ⟨−1⟩ × ⟨u⟩` is not procyclic,
+`im χ_N` is. -/
+noncomputable def imChiN (α : ℕ) : Subgroup ℤ_[2]ˣ :=
+  (Subgroup.closure {(nUnit α : ℤ_[2]ˣ)}).topologicalClosure
+
+/-- **N-Lab (hypothesis form — never an axiom)** (memo §6.4, §8 Decision 1(c)): Labute's
+classification of Demushkin groups of even rank with `q = 2` (Labute 1967, Thm 8), specialised to
+the `N_α` core — a pro-2 group with the `N_α` invariants (Demushkin, rank `4 + 2h`, `q = 2`, image
+invariant `imChiN α`) is continuously isomorphic to `D_N`.
+
+**Two recorded deviations from `BLabHypothesis`** (`GQ2/Roe/MarkedPro2.lean:141`).  (i) The
+abstract-`G` form is forced, not chosen: MC5's other side is `G_K(2)`, not a presented group
+(memo §6.4, risk R6) — this widens what the owner is asked to accept.  (ii) The orientation clause
+is carried by the **image invariant** alone.  The repo's descent-characterized orientation
+predicate (`IsLabuteOrientation`) is stated for the presented `D_R` and has no abstract-`G`
+counterpart (the dualizing-module route is deferred, `GQ2/Orientation.lean`); the image invariant
+is what Labute's even-rank `q = 2` classification keys on, and it is the M/N separator.  Dropping
+the descent clause makes this binder *stronger* than the memo's sketch — flagged for G-Lab, not
+silently resolved. -/
+def NLabHypothesis (α h : ℕ) : Prop :=
+  ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    [T2Space G] [TotallyDisconnectedSpace G] [DistribMulAction G (ZMod 2)]
+    [ContinuousSMul G (ZMod 2)],
+    IsDemushkin 2 G → demushkinRank 2 G = coreRank h → demushkinQ G = 2 →
+      (∃ χ : G →* ℤ_[2]ˣ, Continuous χ ∧ MonoidHom.range χ = imChiN α) →
+        Nonempty (ContinuousMulEquiv G (DN α h : Type))
+
+end Strata
