@@ -254,6 +254,7 @@ import GQ2.Dyadic.MarkedCore.HandleMixFrame
 import GQ2.Dyadic.MarkedCore.HandleMixClear
 import GQ2.Dyadic.MarkedCore.HandleMixInst
 import GQ2.Dyadic.MarkedCore.CoreMix
+import GQ2.Dyadic.MarkedCore.ClearWide
 import GQ2.Dyadic.MarkedCore.M
 import GQ2.Dyadic.MarkedCore.N
 import GQ2.Dyadic.MarkedRecipBundle
