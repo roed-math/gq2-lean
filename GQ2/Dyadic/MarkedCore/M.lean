@@ -474,7 +474,273 @@ theorem mChi_row_extract {α : ℕ} (hα : 2 ≤ α) {b d w : ℤ_[2]} {ε : ZMo
     rw [hsign] at h
     exact mUnit_zpow_injective hα (mul_left_cancel h)
 
+/-! ### Parity as a divisibility statement -/
+
+theorem mParityZ_eq_zero_iff (x : ℤ_[2]) : mParityZ x = 0 ↔ ∃ y : ℤ_[2], x = 2 * y := by
+  constructor
+  · intro h
+    have hval : (PadicInt.toZModPow (p := 2) 1 x).val = 0 := by
+      have hlt : (PadicInt.toZModPow (p := 2) 1 x).val < 2 := by
+        simpa using ZMod.val_lt (PadicInt.toZModPow (p := 2) 1 x)
+      rcases (by omega : (PadicInt.toZModPow (p := 2) 1 x).val = 0
+          ∨ (PadicInt.toZModPow (p := 2) 1 x).val = 1) with h0 | h1
+      · exact h0
+      · rw [mParityZ, h1] at h
+        exact absurd h (by decide)
+    have hzero : PadicInt.toZModPow (p := 2) 1 x = 0 := by
+      haveI : NeZero (2 ^ 1) := ⟨by norm_num⟩
+      exact (ZMod.val_eq_zero _).mp hval
+    have hker : x ∈ RingHom.ker (PadicInt.toZModPow (p := 2) 1) := hzero
+    rw [PadicInt.ker_toZModPow, pow_one, Ideal.mem_span_singleton] at hker
+    obtain ⟨y, hy⟩ := hker
+    exact ⟨y, hy⟩
+  · rintro ⟨y, rfl⟩
+    exact mParityZ_two_mul y
+
+theorem mParityZ_eq_one_iff (x : ℤ_[2]) : mParityZ x = 1 ↔ ∃ y : ℤ_[2], x = 1 + 2 * y := by
+  constructor
+  · intro h
+    have hsub : mParityZ (x - 1) = 0 := by
+      have hadd := mParityZ_add (x - 1) 1
+      rw [sub_add_cancel, h, mParityZ_one] at hadd
+      have : mParityZ (x - 1) + 1 - 1 = (1 : ZMod 2) - 1 := by rw [← hadd]
+      simpa using this
+    obtain ⟨y, hy⟩ := (mParityZ_eq_zero_iff _).mp hsub
+    exact ⟨y, by linear_combination hy⟩
+  · rintro ⟨y, rfl⟩
+    rw [mParityZ_add, mParityZ_one, mParityZ_two_mul, add_zero]
+
+/-- An odd 2-adic integer is a unit — the `β`/`γ` half of the classification's parameter
+extraction (memo §2.3). -/
+theorem mIsUnit_of_parity_one {x : ℤ_[2]} (h : mParityZ x = 1) : IsUnit x := by
+  obtain ⟨y, rfl⟩ := (mParityZ_eq_one_iff x).mp h
+  exact isUnit_one_add_two_mul y
+
+theorem mParityZ_mul (a b : ℤ_[2]) : mParityZ (a * b) = mParityZ a * mParityZ b := by
+  unfold mParityZ
+  rw [map_mul]
+  exact (by decide : ∀ x y : ZMod (2 ^ 1),
+    (((x * y).val : ℕ) : ZMod 2) = ((x.val : ℕ) : ZMod 2) * ((y.val : ℕ) : ZMod 2)) _ _
+
+/-- A 2-adic unit is odd — the converse of `mIsUnit_of_parity_one`, used to check that the
+Nielsen families really lie in the stabilizer. -/
+theorem mParityZ_of_isUnit {x : ℤ_[2]} (h : IsUnit x) : mParityZ x = 1 := by
+  obtain ⟨u, rfl⟩ := h
+  have h1 : mParityZ ((u : ℤ_[2]) * ((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2])) = 1 := by
+    rw [← Units.val_mul, mul_inv_cancel, Units.val_one, mParityZ_one]
+  rw [mParityZ_mul] at h1
+  exact (by decide : ∀ z w : ZMod 2, z * w = 1 → z = 1) _ _ h1
+
+@[simp] theorem mSign_zero : mSign 0 = 1 := by
+  have h := mSign_two_mul 0
+  rwa [mul_zero] at h
+
+theorem mSign_add (a b : ℤ_[2]) : mSign (a + b) = mSign a * mSign b := by
+  rw [← mNegOne_zpow, ← mNegOne_zpow, ← mNegOne_zpow, zpowZtwo_add]
+
+theorem mSign_continuous : Continuous mSign := by
+  have h : mSign = zpowZtwo isProP_two_unitsPadicInt (-1 : ℤ_[2]ˣ) :=
+    funext fun b => (mNegOne_zpow b).symm
+  rw [h]
+  exact continuous_zpowZtwo _ _
+
 end Extract
+
+/-! ## §3 The `M`-frame in coordinates: hom-extensionality, χ, and the torsion row
+
+MC3 consumes a frame `B : MDecomposition α` as a hypothesis, exactly as
+`prop_3_8_classification` consumes `BDecomposition`
+(`GQ2/AnabelianBridge/Classification.lean:342`); MC2's scope note (`Cores.lean`, §7 preamble)
+records the same split.  The frame is the rank-four (`h = 0`) one: the `2h` handle coordinates
+are extra free `ℤ₂` summands and belong to MC5 (memo §4.2).
+
+Three things live here.
+
+* `mAb_hom_ext` — two continuous homs out of `D_M^{ab}` that agree on the marked generators are
+  equal.
+* `mChiModel` / `mChi_frame` — the canonical orientation read in the frame is
+  `(τ, b, c, d) ↦ (−1)^b · u^d` (memo §2.2(i): `χ̄(t) = 1`, `χ̄(B̄) = −1`, `χ̄(C̄₀) = 1`,
+  `χ̄(D̄) = u`), so *every* continuous character with the pinned generator values is that
+  formula composed with `B.e`.
+* `mSqEqOne_iff` / `mXi_fixes_t` — `t = Ā·C̄₀^{2^{α−1}}` is the unique nontrivial 2-torsion
+  class, hence fixed by every continuous automorphism: the rank-four `xi_fixes_t`
+  (`GQ2/AnabelianBridge/Classification.lean:161`). -/
+
+section Frame
+
+open Multiplicative
+
+/-- The frame model `ℤ/2 ⊕ ℤ₂³` of the rank-four `M`-core, multiplicatively. -/
+abbrev MModel : Type := Multiplicative (ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2])
+
+/-- Coordinate extensionality in the model. -/
+theorem mCoord_ext {ε : ZMod 2} {b c d : ℤ_[2]} {z : MModel} (h1 : (toAdd z).1 = ε)
+    (h2 : (toAdd z).2.1 = b) (h3 : (toAdd z).2.2.1 = c) (h4 : (toAdd z).2.2.2 = d) :
+    z = ofAdd (ε, b, c, d) := by
+  conv_lhs => rw [← ofAdd_toAdd z]
+  exact congrArg ofAdd (Prod.ext h1 (Prod.ext h2 (Prod.ext h3 h4)))
+
+/-- The four core indices of the rank-four marking. -/
+theorem mCoreIdx_cases (i : Fin (coreRank 0)) : i = 0 ∨ i = 1 ∨ i = 2 ∨ i = 3 := by
+  have h4 : (i : ℕ) < 4 := by
+    have := i.isLt
+    simpa only [coreRank] using this
+  have h0 := coreVal_zero 0
+  have h1 := coreVal_one 0
+  have h2 := coreVal_two 0
+  have h3 := coreVal_three 0
+  rcases (by omega : (i : ℕ) = 0 ∨ (i : ℕ) = 1 ∨ (i : ℕ) = 2 ∨ (i : ℕ) = 3) with h | h | h | h
+  · exact Or.inl (Fin.val_injective (by rw [h, h0]))
+  · exact Or.inr (Or.inl (Fin.val_injective (by rw [h, h1])))
+  · exact Or.inr (Or.inr (Or.inl (Fin.val_injective (by rw [h, h2]))))
+  · exact Or.inr (Or.inr (Or.inr (Fin.val_injective (by rw [h, h3]))))
+
+/-- `abMk` as a continuous monoid hom. -/
+noncomputable def mAbMkHom (α h : ℕ) :
+    ContinuousMonoidHom (DM α h : Type) (topAbelianization (DM α h : Type)) :=
+  ⟨abMk, continuous_abMk⟩
+
+@[simp] theorem mAbMkHom_apply (α h : ℕ) (x : (DM α h : Type)) : mAbMkHom α h x = abMk x := rfl
+
+/-- **Hom-extensionality on `D_M^{ab}`**: two continuous homs out of the abelianization that
+agree on the images of the marked generators are equal (the `dm_hom_ext` pattern, pushed through
+the surjection `abMk`). -/
+theorem mAb_hom_ext {A : Type} [Group A] [TopologicalSpace A] [IsTopologicalGroup A] [T2Space A]
+    {α h : ℕ} (f g : ContinuousMonoidHom (topAbelianization (DM α h : Type)) A)
+    (hgen : ∀ i, f (abMk (dmGen α h i)) = g (abMk (dmGen α h i))) (x) : f x = g x := by
+  obtain ⟨y, rfl⟩ := abMk_surjective (G := (DM α h : Type)) x
+  have hcomp : f.comp (mAbMkHom α h) = g.comp (mAbMkHom α h) :=
+    dm_hom_ext _ _ fun i => hgen i
+  exact DFunLike.congr_fun hcomp y
+
+/-- **χ in the frame** (memo §2.2(i)): the model character `(τ, b, c, d) ↦ (−1)^b · u^d`. -/
+noncomputable def mChiModel (α : ℕ) : MModel →* ℤ_[2]ˣ where
+  toFun z := mSign (toAdd z).2.1 * zpowZtwo isProP_two_unitsPadicInt (mUnit α) (toAdd z).2.2.2
+  map_one' := by
+    show mSign 0 * zpowZtwo isProP_two_unitsPadicInt (mUnit α) 0 = 1
+    rw [mSign_zero, zpowZtwo_zero, mul_one]
+  map_mul' x y := by
+    show mSign ((toAdd x).2.1 + (toAdd y).2.1)
+        * zpowZtwo isProP_two_unitsPadicInt (mUnit α) ((toAdd x).2.2.2 + (toAdd y).2.2.2)
+      = (mSign (toAdd x).2.1 * zpowZtwo isProP_two_unitsPadicInt (mUnit α) (toAdd x).2.2.2)
+        * (mSign (toAdd y).2.1 * zpowZtwo isProP_two_unitsPadicInt (mUnit α) (toAdd y).2.2.2)
+    rw [mSign_add, zpowZtwo_add]
+    exact mul_mul_mul_comm _ _ _ _
+
+@[simp] theorem mChiModel_ofAdd (α : ℕ) (ε : ZMod 2) (b c d : ℤ_[2]) :
+    mChiModel α (ofAdd (ε, b, c, d))
+      = mSign b * zpowZtwo isProP_two_unitsPadicInt (mUnit α) d := rfl
+
+theorem mChiModel_continuous (α : ℕ) : Continuous (mChiModel α) := by
+  have hb : Continuous fun z : MModel => (toAdd z).2.1 :=
+    continuous_fst.comp (continuous_snd.comp continuous_toAdd)
+  have hd : Continuous fun z : MModel => (toAdd z).2.2.2 :=
+    continuous_snd.comp (continuous_snd.comp (continuous_snd.comp continuous_toAdd))
+  exact (mSign_continuous.comp hb).mul
+    ((continuous_zpowZtwo isProP_two_unitsPadicInt (mUnit α)).comp hd)
+
+/-- The model character bundled with its continuity. -/
+noncomputable def mChiModelHom (α : ℕ) : ContinuousMonoidHom MModel ℤ_[2]ˣ :=
+  ⟨mChiModel α, mChiModel_continuous α⟩
+
+/-- The frame coordinate isomorphism as a continuous monoid hom. -/
+noncomputable def mFrameHom {α : ℕ} (B : MDecomposition α) :
+    ContinuousMonoidHom (topAbelianization (DM α 0 : Type)) MModel :=
+  ⟨B.e.toMulEquiv.toMonoidHom, B.e.continuous_toFun⟩
+
+@[simp] theorem mFrameHom_apply {α : ℕ} (B : MDecomposition α)
+    (x : topAbelianization (DM α 0 : Type)) : mFrameHom B x = B.e x := rfl
+
+/-- **The canonical orientation is the frame character** (memo §2.2(i), V3).  Every continuous
+character of `D_M^{ab}` taking the pinned values `(1, −1, 1, u)` on the marked generators is
+`mChiModel α` read through the frame.  (The classification therefore never needs a descended
+`chiMab`: it works with an abstract `χ` and the four pins, exactly like
+`prop_3_8_classification`.) -/
+theorem mChi_frame {α : ℕ} (B : MDecomposition α)
+    (χ : ContinuousMonoidHom (topAbelianization (DM α 0 : Type)) ℤ_[2]ˣ)
+    (hχA : χ (abMk (dmA α 0)) = 1) (hχB : χ (abMk (dmB α 0)) = -1)
+    (hχC : χ (abMk (dmC α 0)) = 1) (hχD : χ (abMk (dmD α 0)) = mUnit α)
+    (x : topAbelianization (DM α 0 : Type)) : χ x = mChiModel α (B.e x) := by
+  refine mAb_hom_ext χ ((mChiModelHom α).comp (mFrameHom B)) (fun i => ?_) x
+  have hval : ∀ z : topAbelianization (DM α 0 : Type),
+      ((mChiModelHom α).comp (mFrameHom B)) z = mChiModel α (B.e z) := fun _ => rfl
+  rcases mCoreIdx_cases i with rfl | rfl | rfl | rfl
+  · rw [hval, show dmGen α 0 0 = dmA α 0 from rfl, hχA, mE_A B, mChiModel_ofAdd, mSign_zero,
+      zpowZtwo_zero, mul_one]
+  · rw [hval, show dmGen α 0 1 = dmB α 0 from rfl, hχB, B.map_B, mChiModel_ofAdd,
+      zpowZtwo_zero, mul_one]
+    show (-1 : ℤ_[2]ˣ) = mSign 1
+    rw [← mNegOne_zpow, zpowZtwo_one_exp]
+  · rw [hval, show dmGen α 0 2 = dmC α 0 from rfl, hχC, B.map_C, mChiModel_ofAdd, mSign_zero,
+      zpowZtwo_zero, mul_one]
+  · rw [hval, show dmGen α 0 3 = dmD α 0 from rfl, hχD, B.map_D, mChiModel_ofAdd, mSign_zero,
+      zpowZtwo_one_exp, one_mul]
+
+/-! ### The torsion row -/
+
+/-- **The 2-torsion of `D_M^{ab}` is `{1, t}`** (memo §2.2(ii)): the rank-four `sq_eq_one_iff`. -/
+theorem mSqEqOne_iff {α : ℕ} (hα : 1 ≤ α) (B : MDecomposition α)
+    (z : topAbelianization (DM α 0 : Type)) :
+    z ^ 2 = 1 ↔ z = 1 ∨ z = abMk (dmA α 0 * dmC α 0 ^ (2 ^ (α - 1))) := by
+  constructor
+  · intro h
+    have hBe : (B.e z) ^ 2 = 1 := by rw [← map_pow, h, map_one]
+    have hcomp : (2 : ℕ) • (toAdd (B.e z)) = 0 := by
+      have h' := congrArg toAdd hBe
+      rwa [show toAdd ((B.e z) ^ 2) = (2 : ℕ) • (toAdd (B.e z)) from rfl] at h'
+    have hkill : ∀ w : ℤ_[2], (2 : ℕ) • w = 0 → w = 0 := by
+      intro w hw
+      have hw' : (2 : ℤ_[2]) * w = 0 := by rw [← hw, nsmul_eq_mul]; norm_num
+      exact (mul_eq_zero.mp hw').resolve_left (by norm_num)
+    have hb : (toAdd (B.e z)).2.1 = 0 := by
+      have := congrArg (fun p : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2] => p.2.1) hcomp
+      simp only [Prod.smul_snd, Prod.smul_fst, Prod.snd_zero, Prod.fst_zero] at this
+      exact hkill _ this
+    have hc : (toAdd (B.e z)).2.2.1 = 0 := by
+      have := congrArg (fun p : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2] => p.2.2.1) hcomp
+      simp only [Prod.smul_snd, Prod.smul_fst, Prod.snd_zero, Prod.fst_zero] at this
+      exact hkill _ this
+    have hd : (toAdd (B.e z)).2.2.2 = 0 := by
+      have := congrArg (fun p : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2] => p.2.2.2) hcomp
+      simp only [Prod.smul_snd, Prod.snd_zero] at this
+      exact hkill _ this
+    rcases (by decide : ∀ e : ZMod 2, e = 0 ∨ e = 1) (toAdd (B.e z)).1 with hε | hε
+    · left
+      refine EquivLike.injective B.e ?_
+      rw [map_one]
+      exact (mCoord_ext hε hb hc hd).trans rfl
+    · right
+      refine EquivLike.injective B.e ?_
+      rw [B.map_t]
+      exact mCoord_ext hε hb hc hd
+  · rintro (rfl | rfl)
+    · exact one_pow 2
+    · exact dm_torsionGen_sq hα 0
+
+/-- **Every continuous automorphism of `D_M^{ab}` fixes `t`** (memo §2.2(ii)) — the rank-four
+`xi_fixes_t`.  `t` is the unique element of order two, so the relation-vector clause of the
+stabilizer is automatic on `L_M`. -/
+theorem mXi_fixes_t {α : ℕ} (hα : 1 ≤ α) (B : MDecomposition α)
+    (ξ : ContinuousMulEquiv (topAbelianization (DM α 0 : Type))
+      (topAbelianization (DM α 0 : Type))) :
+    ξ (abMk (dmA α 0 * dmC α 0 ^ (2 ^ (α - 1))))
+      = abMk (dmA α 0 * dmC α 0 ^ (2 ^ (α - 1))) := by
+  have ht2 : (abMk (dmA α 0 * dmC α 0 ^ (2 ^ (α - 1))) :
+      topAbelianization (DM α 0 : Type)) ^ 2 = 1 := dm_torsionGen_sq hα 0
+  have hξ2 : (ξ (abMk (dmA α 0 * dmC α 0 ^ (2 ^ (α - 1))))) ^ 2 = 1 := by
+    rw [← map_pow, ht2, map_one]
+  rcases (mSqEqOne_iff hα B _).mp hξ2 with h1 | ht
+  · exfalso
+    have hteq : (abMk (dmA α 0 * dmC α 0 ^ (2 ^ (α - 1))) :
+        topAbelianization (DM α 0 : Type)) = 1 := by
+      have hs := congrArg ξ.symm h1
+      rwa [ContinuousMulEquiv.symm_apply_apply, map_one] at hs
+    have hBet := congrArg B.e hteq
+    rw [B.map_t, map_one] at hBet
+    exact absurd (congrArg (fun z : MModel => (toAdd z).1) hBet) (by decide)
+  · exact ht
+
+end Frame
 
 end MarkedCore
 
