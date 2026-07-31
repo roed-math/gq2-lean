@@ -15,84 +15,97 @@ public import GQ2.FrattiniCriterion
 
 **Ticket MC3** of the dyadic campaign (lane MC) — the **MC-M obligation** (plan §2, board
 "Obligation tracker"), implementing the MC1 design memo `docs/dyadic/mc-design.md` §2.3–§2.5,
-§5, §6.2 and §8 on the `M`-side.  The parallel ticket MC4 owns `N.lean`; per the reserved-name
-rule every declaration here is `m`-prefixed or `M`-headed, and the two generic-looking helpers
-(`mPeripheralTriple_scaling_delta`, `mZpowZtwo_injective_of_level`) carry dedup notes.
+§5, §6.2, §6.4 and §8 on the `M`-side.  The parallel ticket MC4 owns `N.lean`; per the
+reserved-name rule every declaration here is `m`-prefixed or `M`-headed, and the two
+generic-looking helpers (`mZpowZtwo_injective_of_level`, `mExists_unit_pow_two_pow_sub_one`)
+carry dedup notes for the `N`-side.
 
-The file consumes MC2 (`Cores.lean`: the presented core `DM α h`, the canonical orientation
-`chiM` with its closed-form unit `mUnit α = (1−2^α)⁻¹`, the standard marking `nuM`, the h = 0
+The file consumes MC2 (`Cores.lean`: the presented core `DM α h`, the closed-form orientation
+unit `mUnit α = (1−2^α)⁻¹`, the standard character `chiM` and marking `nuM`, the rank-four
 frame `MDecomposition`, and the B8 transport `peripheralTriple_scaling`) and the HM lane
-(`HandleMix*.lean`: the handle stratum as a *theorem*, the `A(P,h)`-machinery, the
-`MLiftSplit`/`MCoreMixHypothesis` split shapes).
+(`HandleMix*.lean`: the handle stratum as a *theorem*, `dmParamEquiv`, `dmTauDEquiv`,
+`mHandleMixLift`, and the `MLiftSplit`/`MCoreMixHypothesis` split shapes).
 
 ## Contents
 
 * **§1–§2** the powering/parity toolkit and the χ-row extraction engine: the rank-four analogue
-  of the ℚ₂ mod-4 argument (`GQ2/AnabelianBridge/Classification.lean`, `chi_row_extract`), at
-  the general depth-`α` unit `mUnit α` (memo §2.2(i)).  `mZpowZtwo_injective_of_level` extends
-  `zpowZtwo_injective_of_exact_level` from exact level 2 to exact level `s ≥ 2`.
-* **§3** coordinates through a frame `B : MDecomposition α` and the torsion row: every
-  continuous automorphism of `D_M^{ab}` fixes `t = Ā·C̄₀^{2^{α−1}}` (`mXi_fixes_t`), the
-  rank-four `xi_fixes_t`.
-* **§4** the mod-2 cup Gram `mGramTwo` (memo §2.2(iii), V4) and the stabilizer predicate
-  `IsMStabilizer`: χ-preservation plus the contragredient isometry condition
-  `Mᵀ·G·M = G` on the mod-2 frame matrix.  (H¹ carries the cup form and automorphisms act by
-  *pre*composition, so the matrix condition is on the transpose side; §4's docstrings record
-  the variance computation.)
-* **§5** **the classification** (`mStabilizer_classification`): every χ-preserving Gram-isometric
-  continuous automorphism of `D_M^{ab}` is given in the frame by the memo §2.3 closed form —
-  seven parameters `(τ, β, B_c, c₁, γ, d₁, e)` with the single Witt coupling
-  `τ_D = B_c mod 2` — **uniquely**.  Pure `ℤ₂`/`𝔽₂` linear algebra, unconditional, uniform in
-  `α ≥ 2` (memo §10: "it can and should land first, unconditionally").
-* **§6** the S1 lifts (memo §2.5, stratum S1): `mLambdaEquiv` (family M1, `B ↦ A^k·B`) as an
-  honest continuous automorphism at general `(α, h)`; family M2 (`D ↦ C₀^e·D`) **is** HM4's
-  `dmTauDEquiv` — recorded, not duplicated.
-* **§7** the S2 lift (memo §5.2, stratum S2): the `γ`-scaling `mPsiHom`/`mScaling_exists`
-  at `h = 0` from **two nested applications of the existing axiom B8** through MC2's
-  `deltaHom` transport — no new axiom, census unchanged.
-* **§8** the binders (never axioms): `MMixHypothesis` (memo §8 Decision 2(B), the S3 residue),
-  the pinned stratum sets `mTauDMoves`/`mSolveMoves` for HM4's `MLiftSplit`, and
-  `MLabHypothesis`/`imChiM` (memo §6.4) with the orientation-canonicity clause as an explicit
-  parameter (memo §9 Q3/R6 — see the docstring there).
-* **§9** **the correction assembly** (packet Prop. 7.2 shape, memo §6.3's `hLift`):
-  `prop_MC_M_correction` — under the S3 binder and B8, every transported marking `ν'` with
+  of the ℚ₂ mod-4 argument (`GQ2/AnabelianBridge/Classification.lean`, `chi_row_extract`) at the
+  general depth-`α` unit `mUnit α` (memo §2.2(i)).  `mZpowZtwo_injective_of_level` extends
+  `zpowZtwo_injective_of_exact_level` from exact level 2 to exact level `s ≥ 2`;
+  `mChi_row_extract` is the resulting row extraction.  Also the ℤ₂ parity API
+  (`mParityZ`, `mSign`) with "odd ⟺ unit" in both directions.
+* **§3** coordinates through a frame `B : MDecomposition α`: hom-extensionality on `D_M^{ab}`
+  (`mAb_hom_ext`), the frame character `mChiModel`/`mChi_frame`, and the torsion row —
+  every continuous automorphism fixes `t = Ā·C̄₀^{2^{α−1}}` (`mXi_fixes_t`), the rank-four
+  `xi_fixes_t`, so the relation-vector clause of the stabilizer is automatic.
+* **§4** the mod-2 cup Gram `mGram` (memo §2.2(iii), V4), the stabilizer predicate
+  `IsMStabilizer` (χ-preservation plus the isometry `M̄ᵀ·G_M·M̄ = G_M`), and **the
+  classification** `mStabilizer_classification`: every χ-preserving Gram-isometric continuous
+  automorphism of `D_M^{ab}` is given in the frame by the memo §2.3 closed form — seven
+  parameters `(τ, β, B_c, c₁, γ, d₁, e)` with the single Witt coupling `τ_D = B_c mod 2` —
+  **uniquely**.  Pure `ℤ₂`/`𝔽₂` linear algebra: unconditional, axiom-free, uniform in `α ≥ 2`.
+  `mStabilizer_A_row` is the forced `Ā`-row, the only place `α` appears.
+* **§5** the seven Nielsen families (memo §2.4) as `MStabParam` values, the closed form as a
+  coordinate map `MStabParam.act` with its four basis rows, and **completeness**
+  `mNielsen_factorization`: every parameter's frame action is a composite of the seven.
+* **§6** the S1 lift (memo §2.5): `mLambdaEquiv` (family M1, `B ↦ A^k·B`) as an honest
+  continuous automorphism of `D_M` at general `(α, h)`, with its ν-frame row
+  (`nuFrame_mLambdaEquiv`) and χ-preservation (`chiM_mLambdaEquiv`).  Family M2
+  (`D ↦ C₀^e·D`) **is** HM4's `dmTauDEquiv` — recorded (`mFamM2_eq_frameTauD`), not duplicated.
+* **§7** the binders, never axioms: `MLabHypothesis`/`imChiM` (memo §6.4, G-Lab Decision 1) and
+  `MMixHypothesis` (memo §8 Decision 2(B), the S3 residue), plus `mLiftSplit_of_handle` /
+  `mLiftSplit_empty` measuring how much of HM4's `MLiftSplit` contract is free.
+* **§8** **the correction assembly** (packet Prop. 7.2 at the `M`-core, memo §6.3's `hLift`):
+  `prop_MC_M_correction` — under the S3 binder, every transported marking `ν'` with
   `ν'(C̄₀) ∈ ℤ₂ˣ` admits a correction `Ψ ∈ Aut(D_M)` with `χ_M∘Ψ = χ_M` and `ν'∘Ψ = ν_M` —
-  plus the general-`h` `MLiftSplit`-consuming form `prop_MC_M_correction_split`.
-* **§10** stress pins at `(α, h) = (2, 0)` and `(2, 1)`.
+  plus `prop_MC_M_correction_zero` (`h = 0`) and `prop_MC_M_correction_split` (HM4's
+  `MLiftSplit`-threading shape, for MC5).
+* **§9** stress pins at `(α, h) = (2, 0)` and `(2, 1)`.
 
 ## Recorded findings (deviations and gaps surfaced by this ticket)
 
-1. **`DmRealizes`' membership clause makes the schematic S3/S12 binders undischargeable as
-   stated.**  HM4's `MCoreMixHypothesis α h S3 = DmRealizesAll α h S3` requires the realizing
-   automorphism to lie in `Submonoid.closure (dmClearAuts α h)`; every generator of that monoid
-   fixes the letters `B` and `C₀` *pointwise*, so for any move in `S3` that changes the
-   `B̄`- or `C̄₀`-row on a reachable ν-frame vector (all of M3–M7 with nontrivial parameter) no
-   such automorphism exists.  The clause was the χ-preservation certificate; the honest reshape
-   is to demand χ-preservation itself, which is what `MMixHypothesis` (§8) does.  This file
-   therefore proves the assembly twice: from the honest binder (`prop_MC_M_correction`), and in
-   HM4's shape (`prop_MC_M_correction_split`, threading `MCoreMixHypothesis` literally per the
-   MLiftSplit contract).  G-Lab should adopt the reshape; nothing here discharges either binder.
-2. **The B8 transport does not cross the handle block** (memo §4.2 R3, sharpened): at `h > 0`
-   the outer peripheral triple's third slot is `C₀^D·∏[u_j,v_j]`, and the scaled word
-   `(C₀^D·H)^u` is not a product of a conjugate of `(C₀^D)^u` with a handle word in new letters,
-   so the §7 construction is stated at `h = 0`.  At `h > 0` the `γ`-scaling move rides the S3
-   stratum set (`mSolveMoves`) of the split form.  This is MC5/G-Lab news, not a patchable
-   defect.
-3. **`MLabHypothesis` carries its orientation-canonicity predicate as a parameter** — the
-   abstract-`G` form is forced (memo R6), the repo has no abstract dualizing-module
-   characterization (`GQ2/Orientation.lean` deferral), and quantifying over *all* characters
-   with the stated image is false (`N_α` admits characters of `M`-shaped image).  See §8.
-4. The classification takes the orientation as an abstract character with pinned generator
-   values (`hχA`–`hχD`), exactly as `prop_3_8_classification` does on the ℚ₂ side — no
-   descended `chiMab` is constructed.
+1. **The cup-isometry variance is the transpose side.**  The memo §2.3 closed form is the
+   solution set of `M̄ᵀ·G_M·M̄ = G_M`, *not* of `M̄·G_M·M̄ᵀ`.  (An automorphism acts on `H¹` by
+   precomposition, so the induced map on the cup form is the transpose.)  The two conditions are
+   genuinely different here: the other variance forces `τ = 0`, losing family M1 entirely.  MC4
+   should use the same side on the `N`-core.  See §4's preamble.
+2. **β is a unit by χ, γ is a unit by Witt.**  Unlike the rank-three `prop_3_8_classification`,
+   which obtains unit-ness of its `S̄`-exponent from a second row analysis applied to `ξ⁻¹`, the
+   rank-four classification never needs the inverse automorphism: the χ-condition forces `β`
+   odd and the Gram entry `(2,3)` forces `γ` odd.  The Gram condition also rules out `ξ(t) = 1`
+   on its own, so bijectivity of `ξ` is never used in the classification.
+3. **The seven-family factorization needs parameter adjustments, and cannot avoid them.**  No
+   ordering of the seven families composes to the closed form with `p`'s own coordinates
+   verbatim: `Y_c` reads the `C̄₀`-coordinate and writes the `B̄` one while `X_b` reads `B̄` and
+   writes `C̄₀`, so one of the two always sees a modified input.  This is exactly the memo §2.4
+   remark "each step perturbs only parameters killed later"; the perturbations are all **even**,
+   which is why the adjusted `β₄` is still a unit.  See §5.
+4. **`DmRealizes` is scoped to the handle stratum**, so no core-stratum piece is routed through
+   it here; `MMixHypothesis` demands χ-preservation directly, and `MCoreMixHypothesis` /
+   `MLiftSplit` are threaded *literally* in `prop_MC_M_correction_split`.  See §7's preamble.
+5. **The S2 (unit-scaling) lift is NOT built here.**  Memo §5.2's construction — `Σ_γ` from two
+   nested applications of B8 through MC2's `deltaHom` transport — needs the two conjugators of
+   `w_M = A·A^B` matched by an inner twist, and MC2's `mOuter_scaling`/`mInner_scaling` supply
+   only the scaled *triple identity*, not a marking whose relator dies.  Turning that into a
+   `ContinuousMulEquiv` is a self-contained piece of work and is left to MC5/G-Lab; §5's family
+   `mFamM3` records the frame row it must realise.  Consequence for the axiom ledger: this file
+   has **no B8 consumer at all** (see below).
+6. The classification takes the orientation as an abstract character with pinned generator
+   values (`hχA`–`hχD`), exactly as `prop_3_8_classification` does on the ℚ₂ side — no descended
+   `chiMab` is constructed, and `mChi_frame` shows none is needed.
+7. **`MLabHypothesis` carries its orientation-canonicity predicate as a parameter** — the
+   abstract-`G` form is forced (memo R6: the other side is `G_K(2)`, not a presented group), the
+   repo has no abstract dualizing-module characterisation (`GQ2/Orientation.lean` deferral), and
+   quantifying over *all* characters with the stated image would be false.  See §7.
 
 ## Axiom hygiene
 
-The classification (§3–§5), the S1 lift (§6) and the assembly glue are axiom-free (std-3).
-§7 and everything consuming it cite the **existing** axiom **B8**
-(`PeripheralCyclotomicAction`, `GQ2/Foundations/Axioms.lean`) through MC2's `deltaHom`
-transport — owner-accepted for the MC lane (memo §5.2, board R3(a) wave), census unchanged
-at 11.  No new axiom; the obligation headline is a `theorem`.
+**Every declaration in this file is axiom-free (std-3: `propext`, `Classical.choice`,
+`Quot.sound`)** — including the obligation headline `prop_MC_M_correction`, whose handle
+stratum comes from the HM lane's axiom-free theorem `mHandleMixLift`.  In particular there are
+**zero B8 and zero B3c citers**: the memo §5.2 B8 route would enter only through the S2 lift,
+which is finding 5's deferral.  Census unchanged at 11; no new axiom; the obligation headline
+is a `theorem` whose only assumption is a `def`.
 -/
 
 open Multiplicative
@@ -1289,7 +1302,192 @@ theorem mNielsen_factorization {α : ℕ} (hα : 2 ≤ α) (p : MStabParam) :
 
 end Nielsen
 
-/-! ## §6 The hypothesis binders (never axioms)
+/-! ## §6 The S1 lift: family M1 as an honest automorphism of `D_M`
+
+Memo §2.5's `Λ_k : B ↦ A^k·B`, all other letters fixed.  The relator is preserved **exactly**,
+for every 2-adic `k`: the peripheral head `w_M = A·A^B` has `A^{A^kB} = A^B` because `A`
+commutes with its own 2-adic powers (`mCommute_zpowZtwo`, §1), and the `(C₀, D)`-half and the
+handle block are untouched.  Axiom-free, at general `(α, h)`.
+
+Family **M2** (`E_e : D ↦ C₀^e·D`) is *already* in the repo — it is HM4's `dmTauDEquiv`, with
+frame action `dmRealizes_tauD` and χ-preservation `chiM_dmTauDEquiv` — so it is recorded here
+(`mFamM2_eq_frameTauD`), not duplicated.  Families M3–M7 are strata S2/S3; see §7. -/
+
+section Lambda
+
+open Multiplicative
+
+private theorem mCoreIdx_ne_one {h : ℕ} {i : Fin (coreRank h)} (hi : (i : ℕ) ≠ 1) :
+    i ≠ (1 : Fin (coreRank h)) := by
+  intro hc
+  rw [hc, coreVal_one] at hi
+  exact hi rfl
+
+/-- **Structure of a one-slot update of the `M_α` relator at the letter `1`** — the `B`-slot
+analogue of HM4's `mRelWord_update_three`. -/
+theorem mRelWord_update_one {G : Type*} [Group G] {h : ℕ} (α : ℕ)
+    (m : Fin (coreRank h) → G) (w : G) :
+    mRelWord α (Function.update m 1 w)
+      = mWord α (m 0) w (m 2) (m 3)
+        * handleWord (fun i => m (handleIdxU i)) (fun i => m (handleIdxV i)) := by
+  have hU : (fun i => Function.update m 1 w (handleIdxU i)) = fun i => m (handleIdxU i) :=
+    funext fun i =>
+      Function.update_of_ne (handleIdxU_ne_of_val_lt i (by rw [coreVal_one]; omega)) _ _
+  have hV : (fun i => Function.update m 1 w (handleIdxV i)) = fun i => m (handleIdxV i) :=
+    funext fun i =>
+      Function.update_of_ne (handleIdxV_ne_of_val_lt i (by rw [coreVal_one]; omega)) _ _
+  rw [mRelWord, Function.update_self, hU, hV,
+    Function.update_of_ne (mCoreIdx_ne_one (by rw [coreVal_zero]; omega)),
+    Function.update_of_ne (mCoreIdx_ne_one (by rw [coreVal_two]; omega)),
+    Function.update_of_ne (mCoreIdx_ne_one (by rw [coreVal_three]; omega))]
+
+section Mark
+
+variable {P : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P] [CompactSpace P]
+  [T2Space P] [TotallyDisconnectedSpace P] {h : ℕ}
+
+/-- `[a, a^k·b] = [a, b]`: the one-line identity behind family M1 (memo §2.5, "`A^{A^k} = A`"). -/
+theorem mCommP_zpow_left (hP : IsProP 2 P) (a b : P) (k : ℤ_[2]) :
+    commP a (zpowZtwo hP a k * b) = commP a b := by
+  have hc : Commute a (zpowZtwo hP a k) := mCommute_zpowZtwo hP a k
+  have hza : (zpowZtwo hP a k)⁻¹ * a * zpowZtwo hP a k = a := by
+    rw [hc.symm.inv_left.eq, inv_mul_cancel_right]
+  show a⁻¹ * (zpowZtwo hP a k * b)⁻¹ * a * (zpowZtwo hP a k * b) = a⁻¹ * b⁻¹ * a * b
+  rw [mul_inv_rev]
+  calc a⁻¹ * (b⁻¹ * (zpowZtwo hP a k)⁻¹) * a * (zpowZtwo hP a k * b)
+      = a⁻¹ * b⁻¹ * ((zpowZtwo hP a k)⁻¹ * a * zpowZtwo hP a k) * b := by group
+    _ = a⁻¹ * b⁻¹ * a * b := by rw [hza]
+
+/-- **Family M1 fixes the `M_α` core word**: `mWord α a (a^k·b) c d = mWord α a b c d`. -/
+theorem mWord_lambda (hP : IsProP 2 P) (α : ℕ) (a b c d : P) (k : ℤ_[2]) :
+    mWord α a (zpowZtwo hP a k * b) c d = mWord α a b c d := by
+  rw [mWord, mWord, mCommP_zpow_left]
+
+/-- **Memo §2.5's `Λ_k`** as a substitution on markings: `B ↦ A^k·B`, exact for every 2-adic
+`k`.  The `B`-slot analogue of HM4's `tauDMark`. -/
+noncomputable def mLambdaMark (hP : IsProP 2 P) (k : ℤ_[2]) (m : Fin (coreRank h) → P) :
+    Fin (coreRank h) → P :=
+  Function.update m 1 (zpowZtwo hP (m 0) k * m 1)
+
+variable (hP : IsProP 2 P) (k l : ℤ_[2]) (m : Fin (coreRank h) → P)
+
+@[simp] theorem mLambdaMark_one : mLambdaMark hP k m 1 = zpowZtwo hP (m 0) k * m 1 :=
+  Function.update_self _ _ _
+
+theorem mLambdaMark_of_ne {i : Fin (coreRank h)} (hi : i ≠ 1) : mLambdaMark hP k m i = m i :=
+  Function.update_of_ne hi _ _
+
+@[simp] theorem mLambdaMark_zero_idx : mLambdaMark hP k m 0 = m 0 :=
+  mLambdaMark_of_ne _ _ _ (mCoreIdx_ne_one (by rw [coreVal_zero]; omega))
+
+theorem mLambdaMark_mLambdaMark :
+    mLambdaMark hP k (mLambdaMark hP l m) = mLambdaMark hP (k + l) m := by
+  funext i
+  by_cases hi : i = 1
+  · subst hi
+    rw [mLambdaMark_one, mLambdaMark_zero_idx, mLambdaMark_one, mLambdaMark_one, zpowZtwo_add,
+      mul_assoc]
+  rw [mLambdaMark_of_ne _ _ _ hi, mLambdaMark_of_ne _ _ _ hi, mLambdaMark_of_ne _ _ _ hi]
+
+@[simp] theorem mLambdaMark_zero : mLambdaMark hP (0 : ℤ_[2]) m = m := by
+  funext i
+  by_cases hi : i = 1
+  · subst hi
+    rw [mLambdaMark_one, zpowZtwo_zero_exp, one_mul]
+  rw [mLambdaMark_of_ne _ _ _ hi]
+
+/-- **`Λ_k` fixes the full `M_α` relator** — the handle block and the `(C₀, D)`-half are
+untouched, and `mWord_lambda` handles the `(A, B)`-half. -/
+theorem mRelWord_mLambdaMark (α : ℕ) : mRelWord α (mLambdaMark hP k m) = mRelWord α m := by
+  rw [mLambdaMark, mRelWord_update_one, mWord_lambda hP, mRelWord]
+
+/-- The ν-frame row of family **M1**: `B̄ ↦ B̄ + k·Ā` (memo §2.4's `Λ_k` row, additively). -/
+noncomputable def mFrameLambda {n : ℕ} (c : ℤ_[2]) (v : Fin (coreRank n) → ℤ_[2]) :
+    Fin (coreRank n) → ℤ_[2] :=
+  Function.update v 1 (v 1 + c * v 0)
+
+theorem nuFrame_mLambdaMark (f : ContinuousMonoidHom P (Multiplicative ℤ_[2])) :
+    nuFrame f (mLambdaMark hP k m) = mFrameLambda k (nuFrame f m) := by
+  funext i
+  by_cases hi : i = 1
+  · subst hi
+    rw [nuFrame_apply, mLambdaMark_one, mFrameLambda, Function.update_self, map_mul, toAdd_mul,
+      toAdd_map_zpowZtwo hP]
+    show k • toAdd (f (m 0)) + toAdd (f (m 1)) = toAdd (f (m 1)) + k * toAdd (f (m 0))
+    rw [smul_eq_mul, add_comm]
+  rw [nuFrame_apply, mLambdaMark_of_ne _ _ _ hi, mFrameLambda, Function.update_of_ne hi,
+    nuFrame_apply]
+
+end Mark
+
+section Natural
+
+variable {P Q : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P] [CompactSpace P]
+  [T2Space P] [TotallyDisconnectedSpace P] [Group Q] [TopologicalSpace Q] [IsTopologicalGroup Q]
+  [CompactSpace Q] [T2Space Q] [TotallyDisconnectedSpace Q] {h : ℕ}
+
+theorem map_mLambdaMark (hP : IsProP 2 P) (hQ : IsProP 2 Q) (f : ContinuousMonoidHom P Q)
+    (k : ℤ_[2]) (m : Fin (coreRank h) → P) (i : Fin (coreRank h)) :
+    f (mLambdaMark hP k m i) = mLambdaMark hQ k (fun i => f (m i)) i := by
+  by_cases hi : i = 1
+  · subst hi
+    rw [mLambdaMark_one, mLambdaMark_one, map_mul, map_zpowZtwo hP hQ]
+  rw [mLambdaMark_of_ne _ _ _ hi, mLambdaMark_of_ne _ _ _ hi]
+
+end Natural
+
+/-- `Λ_k` on `D_M`, as a continuous endomorphism. -/
+noncomputable def mLambdaHom (α h : ℕ) (k : ℤ_[2]) :
+    ContinuousMonoidHom (DM α h : Type) (DM α h : Type) :=
+  mLiftHom α h (isProP_DM α h) (mLambdaMark (isProP_DM α h) k (dmGen α h))
+    (by rw [mRelWord_mLambdaMark]; exact dm_relation α h)
+
+@[simp] theorem mLambdaHom_gen (α h : ℕ) (k : ℤ_[2]) (i : Fin (coreRank h)) :
+    mLambdaHom α h k (dmGen α h i) = mLambdaMark (isProP_DM α h) k (dmGen α h) i :=
+  mLiftHom_gen _ _ _ _ _ _
+
+/-- **Family M1 as a continuous automorphism of `D_M`** (memo §2.5, stratum S1; axiom-free, at
+general `(α, h)`).  The inverse is the member at `−k`. -/
+noncomputable def mLambdaEquiv (α h : ℕ) (k : ℤ_[2]) :
+    ContinuousMulEquiv (DM α h : Type) (DM α h : Type) :=
+  dmParamEquiv α h (mLambdaHom α h) (mLambdaMark (isProP_DM α h)) (mLambdaHom_gen α h)
+    (fun k f m i => map_mLambdaMark (isProP_DM α h) (isProP_DM α h) f k m i)
+    (fun k l m => mLambdaMark_mLambdaMark _ k l m) (fun m => mLambdaMark_zero _ m) k
+
+@[simp] theorem mLambdaEquiv_gen (α h : ℕ) (k : ℤ_[2]) (i : Fin (coreRank h)) :
+    mLambdaEquiv α h k (dmGen α h i) = mLambdaMark (isProP_DM α h) k (dmGen α h) i :=
+  mLambdaHom_gen α h k i
+
+/-- **`Λ_k` preserves the canonical orientation** — `χ_M(A) = 1`, so the inserted `A^k` is
+invisible.  Axiom-free; the M1 row of memo §2.4 therefore really does land in the stabilizer. -/
+theorem chiM_mLambdaEquiv (α h : ℕ) (k : ℤ_[2]) (x : (DM α h : Type)) :
+    chiM α h (mLambdaEquiv α h k x) = chiM α h x := by
+  refine dm_char_fixed (chiM α h) (mLambdaEquiv α h k) (fun i => ?_) x
+  rw [mLambdaEquiv_gen]
+  by_cases hi : i = 1
+  · subst hi
+    rw [mLambdaMark_one, map_mul, map_zpowZtwo (isProP_DM α h) isProP_two_unitsPadicInt,
+      show dmGen α h 0 = dmA α h from rfl, chiM_dmA, zpowZtwo_one_base, one_mul]
+  rw [mLambdaMark_of_ne _ _ _ hi]
+
+/-- **The ν-frame action of `Λ_k`**: `B̄ ↦ B̄ + k·Ā` (memo §2.4's M1 row). -/
+theorem nuFrame_mLambdaEquiv (α h : ℕ) (k : ℤ_[2])
+    (f : ContinuousMonoidHom (DM α h : Type) (Multiplicative ℤ_[2])) :
+    nuFrame f (fun i => mLambdaEquiv α h k (dmGen α h i))
+      = mFrameLambda k (nuFrame f (dmGen α h)) := by
+  rw [← nuFrame_mLambdaMark (isProP_DM α h)]
+  exact congrArg (nuFrame f) (funext fun i => mLambdaEquiv_gen α h k i)
+
+/-- **Family M2 is HM4's `dmTauDEquiv`** — recorded, not duplicated: `E_e : D ↦ C₀^e·D` is the
+`τ_c(e)` transvection, its ν-frame row is `frameTauD e`, and it preserves `χ_M`. -/
+theorem mFamM2_eq_frameTauD (α h : ℕ) (e : ℤ_[2]) :
+    DmRealizes α h (dmTauDEquiv α h e) (frameEnd (frameTauD e))
+      ∧ ∀ x : (DM α h : Type), chiM α h (dmTauDEquiv α h e x) = chiM α h x :=
+  ⟨dmRealizes_tauD α h e, chiM_dmTauDEquiv α h e⟩
+
+end Lambda
+
+/-! ## §7 The hypothesis binders (never axioms)
 
 Two binders, both `def`s and both listed in `check_dyadic.sh`'s D2 obligation guard so that
 they can never silently become axioms.
@@ -1306,17 +1504,24 @@ they can never silently become axioms.
   instantiate the parameter with whatever descent characterisation their `G` supports.
 * `MMixHypothesis` (memo §5.3/§8 Decision 2(B)) — the S3 core-mixing residue.
 
-**Recorded finding (G-Lab news), sharpening MC1 §8.**  HM4's `MCoreMixHypothesis α h S3` is
-`DmRealizesAll α h S3`, whose first clause demands that the realizing automorphism lie in
-`Submonoid.closure (dmClearAuts α h)`.  Every generator of that monoid — `dmTauUEquiv`,
-`dmTauVEquiv`, `dmTauDEquiv`, `dmMixEquiv` — fixes the letters `B` and `C₀` *pointwise*, so no
-element of the monoid can move the `B̄`- or `C̄₀`-row of a ν-frame vector; that is, for every
-move in families M3–M7 with a non-trivial parameter, the clause is unsatisfiable.  The clause
-was standing in as a χ-preservation certificate (that is what
-`chiM_of_mem_dmClearAuts` extracts from it), so the honest reshape is to demand χ-preservation
-itself.  `MMixHypothesis` does exactly that.  `mLiftSplit_of_handle` below measures what is
-left of the `MLiftSplit` contract once this is taken into account: everything inside the handle
-monoid is a *theorem*, and nothing outside it is reachable. -/
+**Recorded finding: `DmRealizes` is scoped to the handle stratum.**  HM4's
+`MCoreMixHypothesis α h S3` is `DmRealizesAll α h S3`, whose first clause demands that the
+realizing automorphism lie in `Submonoid.closure (dmClearAuts α h)` — the **handle** generating
+set.  Every generator of that monoid (`dmTauUEquiv`, `dmTauVEquiv`, `dmTauDEquiv`,
+`dmMixEquiv`) fixes the letters `B` and `C₀` *pointwise*, so no element of it moves the `B̄`- or
+`C̄₀`-row of a ν-frame vector: a core-stratum move is never realizable *through `DmRealizes` as
+currently stated*, because such a move's realizing automorphism is a **new generator** rather
+than a word in the handle ones.  (Ticket HM6 reports the same scoping trap and queues the
+mechanical widenings HM6e/HM6f; ticket HM6 has since proved family **M5** outright, leaving
+`⟨M4, M6, M7⟩` — the non-symplectic directions — as the structural residue.)
+
+Consequently this file does **not** route any core-stratum piece through `DmRealizes`.
+`MMixHypothesis` below demands χ-preservation directly — which is what the membership clause
+was standing in for, since `chiM_of_mem_dmClearAuts` is exactly what consumers extract from it
+— and `MCoreMixHypothesis`/`MLiftSplit` are threaded *literally*, unchanged, in
+`prop_MC_M_correction_split`, so the downstream discharge composes with no reshaping here.
+`mLiftSplit_of_handle` measures what the `MLiftSplit` contract gives for free: everything
+inside the handle monoid is a *theorem* (`mLiftSplit_handle`). -/
 
 section Binders
 
@@ -1378,7 +1583,7 @@ theorem mLiftSplit_empty (α h : ℕ) : MLiftSplit α h ∅ ∅ :=
 
 end Binders
 
-/-! ## §7 The correction assembly — the MC-M obligation
+/-! ## §8 The correction assembly — the MC-M obligation
 
 Packet Prop. 7.2 at the `M`-core, in the shape memo §6.3 calls `hLift`.  The proof is the
 two-stratum composition:
@@ -1442,7 +1647,7 @@ theorem prop_MC_M_correction_split {α h : ℕ} (hα : 1 ≤ α)
 
 end Assembly
 
-/-! ## §8 Stress pins at `(α, h) = (2, 0)` and `(2, 1)` -/
+/-! ## §9 Stress pins at `(α, h) = (2, 0)` and `(2, 1)` -/
 
 section Pins
 
