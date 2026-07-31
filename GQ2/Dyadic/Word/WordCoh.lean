@@ -35,26 +35,29 @@ This file is that port.  Where `GQ2/Roe/DRWordCoh.lean` fixes one word (`drWord`
 
 The three entry points, in the order a consumer meets them.
 
-1. **`relZ w μ E E₂ c : ZMod 2`** — the *relator obstruction at a finite level*.  Given a
+1. **`relZ W μ c : ZMod 2`** — the *relator obstruction at a finite level*.  Given a natural
+   word `W` (see `NatWord`, which carries the relator and its exponent resolvers), a
    `ZMod 2`-valued 2-cocycle `c` on a group `L` and a marking `μ : X → L`, lift each letter to
    the central extension `CentExt c` with **zero fibre** and read off the fibre coordinate of the
    relator.  This is the number a Gram-matrix computation actually evaluates.  Its laws:
    `relZ_comap` (level change), `relZ_add` (additivity in `c`), `relZ_zero` (the split cocycle),
    `relZ_coboundary` (a coboundary sees only the base relator value).
-   Multi-relator form: `relZFam R μ E E₂ c : ρ → ZMod 2`, with the same four laws pointwise.
+   Multi-relator form: `relZFam R μ c : ρ → ZMod 2`, with the same four laws pointwise.
 
-2. **`obsH2 htriv hpres hw : H2 G (ZMod 2) →+ ZMod 2`** — the *`H²` obstruction class* of a
+2. **`obsH2 htriv W μ hW : H2 G (ZMod 2) →+ ZMod 2`** — the *`H²` obstruction class* of a
    marking against a relator, and `obsH2_injective`, the `#H² ≤ 2` half.  This is the generic
-   analogue of `GQ2.obsH2_DR`.  It needs three inputs beyond the marking and the word:
+   analogue of `GQ2.obsH2_DR`.  Beyond the marking `μ` and the word `W` it needs:
    * `htriv` — the `G`-action on `ZMod 2` is trivial (as everywhere in this development);
-   * `hw : MarkedRelator` — the word lies in the Frattini subgroup (`IsFrattini`) *and* dies at
-     the marking (`holds`).  Both are `decide`-checkable for a concrete word (see
-     `IsFrattiniOne` and `isFrattini_of_isFrattiniOne`);
-   * `hpres : PresentedBy` — the universal property of the marking: every marking of a pro-`2`
-     group killing the relator extends to a continuous hom out of `G`, and homs out of `G` are
-     determined by the marking.  This is the *only* place the presentation enters, and it is
-     threaded as an explicit hypothesis bundle rather than an axiom or a typeclass — MC2's
-     documented general-`K` hypothesis-threading pattern.
+   * `hW : MarkedRelator` — the word lies in the Frattini subgroup (`NatWord.IsFrattini`) *and*
+     dies at the marking (`holds`).  `IsFrattini` has a `Decidable` instance, so for a concrete
+     word on a `Fintype` alphabet it falls to kernel `decide` — at computable exponent resolvers,
+     which `isFrattini_ofPWord_of_parity` supplies from the honest (noncomputable) ones;
+   * `hpres : PresentedBy` — required by `obsH2_injective`, not by `obsH2` itself: the universal
+     property of the marking, saying that every marking of a pro-`2` group killing the relator
+     extends to a continuous hom out of `G`, and that homs out of `G` are determined by the
+     marking.  This is the *only* place the presentation enters, and it is threaded as an
+     explicit hypothesis bundle rather than an axiom or a typeclass — MC2's documented
+     general-`K` hypothesis-threading pattern.
 
    The form the Demushkin lane actually consumes is the corollary `card_H2_le_two`:
    `#H²(G, 𝔽₂) ≤ 2`.  Paired with a nonzero cup value from MC2's Gram (through (3) below) it
@@ -62,7 +65,7 @@ The three entry points, in the order a consumer meets them.
 
 3. **`obsH2_eq_of_factor`** — the bridge a Gram computation consumes: for a continuous 2-cocycle
    `φ` that factors through a *finite* quotient `ρ : G →* L` as `φ (g, h) = c.κ (ρ g) (ρ h)`,
-   the class of `φ` has obstruction exactly `relZ w (ρ ∘ μ) E E₂ c`.  Together with (1) this
+   the class of `φ` has obstruction exactly `relZ W (ρ ∘ μ) c`.  Together with (1) this
    reduces an `H²` question to a finite computation in `CentExt c`.
 
 **Division of labour with MC2.**  This file *packages*; it does not re-prove.  The mathematical
