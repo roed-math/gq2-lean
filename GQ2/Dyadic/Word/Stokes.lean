@@ -725,4 +725,408 @@ theorem heisEta2_comp_d1 (c : ι → C) (w : ρ → FreeGroup ι)
 
 end WordComplex
 
+/-! ## The mapping-cone engine (packet Lem. 5.1, `lem:composition`)
+
+Pure additive homological algebra for **three-term complexes** `X₀ → X₁ → X₂`, done once and
+generically: the frozen `ℚ₂` development hand-rolled this against the fixed word complex
+(`GQ2/Devissage/*`, cloned per word); the branch lanes instantiate this engine instead.
+
+* `StokesQuasiIso` — quasi-isomorphism of a ladder in **relative (quotient-free) form**: six
+  clauses, equivalent to bijectivity of `H⁰(φ), H¹(φ), H²(φ)` but phrased without quotient
+  types.
+* `stokesConeDm/D0/D1` — the mapping cone of the ladder, a four-term complex
+  `X₀ → X₁ × Y₀ → X₂ × Y₁ → Y₂` (cochain convention `d(x, y) = (−dx, φx + dy)`).
+* `StokesConeAcyclic` and the equivalence `stokesQuasiIso_iff_coneAcyclic` — the packet's
+  "equivalently, the mapping cones" clause.
+* `stokes_chase`/`stokes_chase_left`/`stokes_chase_right` — the exactness chases, and
+  `stokes_coneAcyclic_of_ses` — acyclicity propagates along a degreewise short exact sequence
+  of four-term complexes.  **No dimension count appears anywhere** (packet warning). -/
+
+section ConeEngine
+
+variable {X₀ X₁ X₂ Y₀ Y₁ Y₂ : Type*}
+  [AddCommGroup X₀] [AddCommGroup X₁] [AddCommGroup X₂]
+  [AddCommGroup Y₀] [AddCommGroup Y₁] [AddCommGroup Y₂]
+
+/-- **Relative (quotient-free) quasi-isomorphism** of a ladder
+`(φ₀, φ₁, φ₂) : (X₀ → X₁ → X₂) ⟶ (Y₀ → Y₁ → Y₂)` of three-term complexes: injectivity and
+surjectivity of the three induced cohomology maps, phrased on representatives.  (`h0_inj` says
+`H⁰(φ)` is injective, `h1_surj` that every `Y`-1-cocycle is a `φ`-image of an `X`-1-cocycle up
+to a coboundary, and so on.) -/
+structure StokesQuasiIso (dX₀ : X₀ →+ X₁) (dX₁ : X₁ →+ X₂) (dY₀ : Y₀ →+ Y₁) (dY₁ : Y₁ →+ Y₂)
+    (φ₀ : X₀ →+ Y₀) (φ₁ : X₁ →+ Y₁) (φ₂ : X₂ →+ Y₂) : Prop where
+  h0_inj : ∀ x₀, dX₀ x₀ = 0 → φ₀ x₀ = 0 → x₀ = 0
+  h0_surj : ∀ y₀, dY₀ y₀ = 0 → ∃ x₀, dX₀ x₀ = 0 ∧ φ₀ x₀ = y₀
+  h1_inj : ∀ x₁, dX₁ x₁ = 0 → (∃ y₀, dY₀ y₀ = φ₁ x₁) → ∃ x₀, dX₀ x₀ = x₁
+  h1_surj : ∀ y₁, dY₁ y₁ = 0 → ∃ x₁ y₀, dX₁ x₁ = 0 ∧ φ₁ x₁ + dY₀ y₀ = y₁
+  h2_inj : ∀ x₂, (∃ y₁, dY₁ y₁ = φ₂ x₂) → ∃ x₁, dX₁ x₁ = x₂
+  h2_surj : ∀ y₂, ∃ x₂ y₁, φ₂ x₂ + dY₁ y₁ = y₂
+
+/-- The cone differential in degree `−1`: `v ↦ (−d v, φ v)`. -/
+def stokesConeDm (dX₀ : X₀ →+ X₁) (φ₀ : X₀ →+ Y₀) : X₀ →+ X₁ × Y₀ :=
+  (-dX₀).prod φ₀
+
+@[simp] theorem stokesConeDm_apply (dX₀ : X₀ →+ X₁) (φ₀ : X₀ →+ Y₀) (v : X₀) :
+    stokesConeDm dX₀ φ₀ v = (-dX₀ v, φ₀ v) := rfl
+
+/-- The cone differential in degree `0`: `(x, y) ↦ (−d x, φ x + d y)`. -/
+def stokesConeD0 (dX₁ : X₁ →+ X₂) (dY₀ : Y₀ →+ Y₁) (φ₁ : X₁ →+ Y₁) : X₁ × Y₀ →+ X₂ × Y₁ :=
+  ((-dX₁).comp (AddMonoidHom.fst X₁ Y₀)).prod
+    ((φ₁.comp (AddMonoidHom.fst X₁ Y₀)) + (dY₀.comp (AddMonoidHom.snd X₁ Y₀)))
+
+@[simp] theorem stokesConeD0_apply (dX₁ : X₁ →+ X₂) (dY₀ : Y₀ →+ Y₁) (φ₁ : X₁ →+ Y₁)
+    (p : X₁ × Y₀) : stokesConeD0 dX₁ dY₀ φ₁ p = (-dX₁ p.1, φ₁ p.1 + dY₀ p.2) := rfl
+
+/-- The cone differential in degree `1`: `(x, y) ↦ φ x + d y`. -/
+def stokesConeD1 (dY₁ : Y₁ →+ Y₂) (φ₂ : X₂ →+ Y₂) : X₂ × Y₁ →+ Y₂ :=
+  (φ₂.comp (AddMonoidHom.fst X₂ Y₁)) + (dY₁.comp (AddMonoidHom.snd X₂ Y₁))
+
+@[simp] theorem stokesConeD1_apply (dY₁ : Y₁ →+ Y₂) (φ₂ : X₂ →+ Y₂) (q : X₂ × Y₁) :
+    stokesConeD1 dY₁ φ₂ q = φ₂ q.1 + dY₁ q.2 := rfl
+
+/-- The cone is a complex in low degree (from the first ladder square). -/
+theorem stokesConeD0_comp_Dm (dX₀ : X₀ →+ X₁) (dX₁ : X₁ →+ X₂) (dY₀ : Y₀ →+ Y₁)
+    (φ₀ : X₀ →+ Y₀) (φ₁ : X₁ →+ Y₁) (hdX : ∀ v, dX₁ (dX₀ v) = 0)
+    (hφ₀ : ∀ v, dY₀ (φ₀ v) = φ₁ (dX₀ v)) (v : X₀) :
+    stokesConeD0 dX₁ dY₀ φ₁ (stokesConeDm dX₀ φ₀ v) = 0 := by
+  show (-dX₁ (-dX₀ v), φ₁ (-dX₀ v) + dY₀ (φ₀ v)) = 0
+  rw [Prod.mk_eq_zero]
+  constructor
+  · rw [map_neg, hdX, neg_zero, neg_zero]
+  · rw [map_neg, hφ₀, neg_add_cancel]
+
+/-- The cone is a complex in top degree (from the second ladder square). -/
+theorem stokesConeD1_comp_D0 (dX₁ : X₁ →+ X₂) (dY₀ : Y₀ →+ Y₁) (dY₁ : Y₁ →+ Y₂)
+    (φ₁ : X₁ →+ Y₁) (φ₂ : X₂ →+ Y₂) (hdY : ∀ y, dY₁ (dY₀ y) = 0)
+    (hφ₁ : ∀ x, dY₁ (φ₁ x) = φ₂ (dX₁ x)) (p : X₁ × Y₀) :
+    stokesConeD1 dY₁ φ₂ (stokesConeD0 dX₁ dY₀ φ₁ p) = 0 := by
+  show φ₂ (-dX₁ p.1) + dY₁ (φ₁ p.1 + dY₀ p.2) = 0
+  rw [map_neg, map_add, hdY, hφ₁, add_zero, neg_add_cancel]
+
+/-- **Acyclicity of the mapping cone**: exactness at all four spots of
+`0 → X₀ → X₁ × Y₀ → X₂ × Y₁ → Y₂ → 0`. -/
+structure StokesConeAcyclic (dX₀ : X₀ →+ X₁) (dX₁ : X₁ →+ X₂) (dY₀ : Y₀ →+ Y₁)
+    (dY₁ : Y₁ →+ Y₂) (φ₀ : X₀ →+ Y₀) (φ₁ : X₁ →+ Y₁) (φ₂ : X₂ →+ Y₂) : Prop where
+  inj : ∀ v, stokesConeDm dX₀ φ₀ v = 0 → v = 0
+  ex0 : ∀ p, stokesConeD0 dX₁ dY₀ φ₁ p = 0 → ∃ v, stokesConeDm dX₀ φ₀ v = p
+  ex1 : ∀ q, stokesConeD1 dY₁ φ₂ q = 0 → ∃ p, stokesConeD0 dX₁ dY₀ φ₁ p = q
+  surj : ∀ y₂, ∃ q, stokesConeD1 dY₁ φ₂ q = y₂
+
+variable {dX₀ : X₀ →+ X₁} {dX₁ : X₁ →+ X₂} {dY₀ : Y₀ →+ Y₁} {dY₁ : Y₁ →+ Y₂}
+  {φ₀ : X₀ →+ Y₀} {φ₁ : X₁ →+ Y₁} {φ₂ : X₂ →+ Y₂}
+
+/-- Quasi-isomorphism implies cone acyclicity (needs the ladder squares). -/
+theorem StokesQuasiIso.coneAcyclic (hφ₀ : ∀ v, dY₀ (φ₀ v) = φ₁ (dX₀ v))
+    (hφ₁ : ∀ x, dY₁ (φ₁ x) = φ₂ (dX₁ x))
+    (h : StokesQuasiIso dX₀ dX₁ dY₀ dY₁ φ₀ φ₁ φ₂) :
+    StokesConeAcyclic dX₀ dX₁ dY₀ dY₁ φ₀ φ₁ φ₂ := by
+  constructor
+  · intro v hv
+    rw [stokesConeDm_apply, Prod.mk_eq_zero, neg_eq_zero] at hv
+    exact h.h0_inj v hv.1 hv.2
+  · rintro ⟨x₁, y₀⟩ hp
+    rw [stokesConeD0_apply, Prod.mk_eq_zero, neg_eq_zero] at hp
+    obtain ⟨hx₁, hsum⟩ := hp
+    have hy : dY₀ (-y₀) = φ₁ x₁ := by
+      rw [map_neg, neg_eq_iff_add_eq_zero, add_comm]
+      exact hsum
+    obtain ⟨v, hv⟩ := h.h1_inj x₁ hx₁ ⟨-y₀, hy⟩
+    -- correct the `Y₀`-slot inside the `d⁰`-fibre
+    have hw : dY₀ (y₀ + φ₀ v) = 0 := by
+      rw [map_add, hφ₀, hv, ← hy, map_neg]
+      abel
+    obtain ⟨u, hu0, huw⟩ := h.h0_surj (y₀ + φ₀ v) hw
+    refine ⟨u - v, ?_⟩
+    show (-dX₀ (u - v), φ₀ (u - v)) = (x₁, y₀)
+    rw [Prod.mk.injEq]
+    constructor
+    · rw [map_sub, hu0, hv, zero_sub, neg_neg]
+    · rw [map_sub, huw]
+      abel
+  · rintro ⟨x₂, y₁⟩ hq
+    rw [stokesConeD1_apply] at hq
+    have hy : dY₁ (-y₁) = φ₂ x₂ := by
+      rw [map_neg, neg_eq_iff_add_eq_zero, add_comm]
+      exact hq
+    obtain ⟨x₁, hx₁⟩ := h.h2_inj x₂ ⟨-y₁, hy⟩
+    have hker : dY₁ (y₁ + φ₁ x₁) = 0 := by
+      rw [map_add, hφ₁, hx₁, ← hy, map_neg]
+      abel
+    obtain ⟨x₁', y₀, hx₁', hsum⟩ := h.h1_surj (y₁ + φ₁ x₁) hker
+    refine ⟨(x₁' - x₁, y₀), ?_⟩
+    show (-dX₁ (x₁' - x₁), φ₁ (x₁' - x₁) + dY₀ y₀) = (x₂, y₁)
+    rw [Prod.mk.injEq]
+    constructor
+    · rw [map_sub, hx₁', hx₁, zero_sub, neg_neg]
+    · rw [map_sub, sub_add_eq_add_sub, hsum]
+      abel
+  · intro y₂
+    obtain ⟨x₂, y₁, hq⟩ := h.h2_surj y₂
+    exact ⟨(x₂, y₁), hq⟩
+
+/-- Cone acyclicity implies quasi-isomorphism (no hypotheses needed). -/
+theorem StokesConeAcyclic.quasiIso (h : StokesConeAcyclic dX₀ dX₁ dY₀ dY₁ φ₀ φ₁ φ₂) :
+    StokesQuasiIso dX₀ dX₁ dY₀ dY₁ φ₀ φ₁ φ₂ := by
+  constructor
+  · intro x₀ hd hφ
+    refine h.inj x₀ ?_
+    show (-dX₀ x₀, φ₀ x₀) = 0
+    rw [hd, hφ, neg_zero]
+    rfl
+  · intro y₀ hy
+    obtain ⟨v, hv⟩ := h.ex0 (0, y₀) (by
+      show (-dX₁ 0, φ₁ 0 + dY₀ y₀) = 0
+      rw [map_zero, map_zero, neg_zero, zero_add, hy]
+      rfl)
+    have hv1 : -dX₀ v = 0 := congrArg Prod.fst hv
+    have hv2 : φ₀ v = y₀ := congrArg Prod.snd hv
+    exact ⟨v, by rw [← neg_eq_zero]; exact hv1, hv2⟩
+  · rintro x₁ hx ⟨y₀, hy⟩
+    obtain ⟨v, hv⟩ := h.ex0 (x₁, -y₀) (by
+      show (-dX₁ x₁, φ₁ x₁ + dY₀ (-y₀)) = 0
+      rw [hx, neg_zero, map_neg, ← hy, add_neg_cancel]
+      rfl)
+    have hv1 : -dX₀ v = x₁ := congrArg Prod.fst hv
+    exact ⟨-v, by rw [map_neg]; exact hv1⟩
+  · intro y₁ hy
+    obtain ⟨p, hp⟩ := h.ex1 (0, y₁) (by
+      show φ₂ 0 + dY₁ y₁ = 0
+      rw [map_zero, zero_add, hy])
+    have hp1 : -dX₁ p.1 = 0 := congrArg Prod.fst hp
+    have hp2 : φ₁ p.1 + dY₀ p.2 = y₁ := congrArg Prod.snd hp
+    exact ⟨p.1, p.2, by rw [← neg_eq_zero]; exact hp1, hp2⟩
+  · rintro x₂ ⟨y₁, hy⟩
+    obtain ⟨p, hp⟩ := h.ex1 (x₂, -y₁) (by
+      show φ₂ x₂ + dY₁ (-y₁) = 0
+      rw [map_neg, ← hy, add_neg_cancel])
+    have hp1 : -dX₁ p.1 = x₂ := congrArg Prod.fst hp
+    exact ⟨-p.1, by rw [map_neg]; exact hp1⟩
+  · intro y₂
+    obtain ⟨q, hq⟩ := h.surj y₂
+    exact ⟨q.1, q.2, hq⟩
+
+/-- **Quasi-isomorphism = cone acyclicity** — the packet's "equivalently, the mapping cones"
+clause, for three-term complexes. -/
+theorem stokesQuasiIso_iff_coneAcyclic (hφ₀ : ∀ v, dY₀ (φ₀ v) = φ₁ (dX₀ v))
+    (hφ₁ : ∀ x, dY₁ (φ₁ x) = φ₂ (dX₁ x)) :
+    StokesQuasiIso dX₀ dX₁ dY₀ dY₁ φ₀ φ₁ φ₂ ↔
+      StokesConeAcyclic dX₀ dX₁ dY₀ dY₁ φ₀ φ₁ φ₂ :=
+  ⟨fun h => h.coneAcyclic hφ₀ hφ₁, fun h => h.quasiIso⟩
+
+end ConeEngine
+
+/-! ### The exactness chases -/
+
+section Chase
+
+/-- **The dévissage chase** (interior spot): in a commuting ladder of short exact columns over
+three consecutive degrees, exactness of the two outer rows at the middle degree forces
+exactness of the middle row.  Only the `ker ⊆ im` half of column exactness enters. -/
+theorem stokes_chase
+    {K₀ K₁ K₂ L₀ L₁ L₂ M₀ M₁ M₂ : Type*}
+    [AddCommGroup K₀] [AddCommGroup K₁] [AddCommGroup K₂]
+    [AddCommGroup L₀] [AddCommGroup L₁] [AddCommGroup L₂]
+    [AddCommGroup M₀] [AddCommGroup M₁] [AddCommGroup M₂]
+    (dK : K₀ →+ K₁) (dK' : K₁ →+ K₂) (dL : L₀ →+ L₁) (dL' : L₁ →+ L₂)
+    (dM : M₀ →+ M₁) (dM' : M₁ →+ M₂)
+    (f₀ : K₀ →+ L₀) (f₁ : K₁ →+ L₁) (f₂ : K₂ →+ L₂)
+    (g₀ : L₀ →+ M₀) (g₁ : L₁ →+ M₁) (g₂ : L₂ →+ M₂)
+    (hf₀ : ∀ v, dL (f₀ v) = f₁ (dK v)) (hf₁ : ∀ v, dL' (f₁ v) = f₂ (dK' v))
+    (hg₀ : ∀ y, dM (g₀ y) = g₁ (dL y)) (hg₁ : ∀ y, dM' (g₁ y) = g₂ (dL' y))
+    (hf₂inj : Function.Injective f₂) (hg₀surj : Function.Surjective g₀)
+    (hcol : ∀ y : L₁, g₁ y = 0 → ∃ x, f₁ x = y)
+    (hdL : ∀ y, dL' (dL y) = 0)
+    (hK : ∀ x : K₁, dK' x = 0 → ∃ v, dK v = x)
+    (hM : ∀ z : M₁, dM' z = 0 → ∃ u, dM u = z) :
+    ∀ y : L₁, dL' y = 0 → ∃ p, dL p = y := by
+  intro y hy
+  obtain ⟨u, hu⟩ := hM (g₁ y) (by rw [hg₁, hy, map_zero])
+  obtain ⟨p₀, hp₀⟩ := hg₀surj u
+  obtain ⟨x, hx⟩ := hcol (y - dL p₀) (by rw [map_sub, ← hg₀, hp₀, hu, sub_self])
+  have hdx : dK' x = 0 :=
+    hf₂inj (by rw [← hf₁, hx, map_sub, hy, hdL, zero_sub, neg_zero, map_zero])
+  obtain ⟨v, hv⟩ := hK x hdx
+  refine ⟨p₀ + f₀ v, ?_⟩
+  rw [map_add, hf₀, hv, hx]
+  abel
+
+/-- The left-end chase: injectivity of the first differential propagates. -/
+theorem stokes_chase_left
+    {K₀ K₁ L₀ L₁ M₀ M₁ : Type*}
+    [AddCommGroup K₀] [AddCommGroup K₁] [AddCommGroup L₀] [AddCommGroup L₁]
+    [AddCommGroup M₀] [AddCommGroup M₁]
+    (dK : K₀ →+ K₁) (dL : L₀ →+ L₁) (dM : M₀ →+ M₁)
+    (f₀ : K₀ →+ L₀) (f₁ : K₁ →+ L₁) (g₀ : L₀ →+ M₀) (g₁ : L₁ →+ M₁)
+    (hf₀ : ∀ v, dL (f₀ v) = f₁ (dK v)) (hg₀ : ∀ y, dM (g₀ y) = g₁ (dL y))
+    (hf₁inj : Function.Injective f₁)
+    (hcol : ∀ y : L₀, g₀ y = 0 → ∃ x, f₀ x = y)
+    (hK : ∀ x : K₀, dK x = 0 → x = 0) (hM : ∀ z : M₀, dM z = 0 → z = 0) :
+    ∀ y : L₀, dL y = 0 → y = 0 := by
+  intro y hy
+  obtain ⟨x, hx⟩ := hcol y (hM (g₀ y) (by rw [hg₀, hy, map_zero]))
+  have hdk : dK x = 0 := hf₁inj (by rw [← hf₀, hx, hy, map_zero])
+  rw [← hx, hK x hdk, map_zero]
+
+/-- The right-end chase: surjectivity of the last differential propagates. -/
+theorem stokes_chase_right
+    {K₁ K₂ L₁ L₂ M₁ M₂ : Type*}
+    [AddCommGroup K₁] [AddCommGroup K₂] [AddCommGroup L₁] [AddCommGroup L₂]
+    [AddCommGroup M₁] [AddCommGroup M₂]
+    (dK' : K₁ →+ K₂) (dL' : L₁ →+ L₂) (dM' : M₁ →+ M₂)
+    (f₁ : K₁ →+ L₁) (f₂ : K₂ →+ L₂) (g₁ : L₁ →+ M₁) (g₂ : L₂ →+ M₂)
+    (hf₁ : ∀ v, dL' (f₁ v) = f₂ (dK' v)) (hg₁ : ∀ y, dM' (g₁ y) = g₂ (dL' y))
+    (hg₁surj : Function.Surjective g₁)
+    (hcol : ∀ z : L₂, g₂ z = 0 → ∃ x, f₂ x = z)
+    (hK : Function.Surjective dK') (hM : Function.Surjective dM') :
+    Function.Surjective dL' := by
+  intro z
+  obtain ⟨m, hm⟩ := hM (g₂ z)
+  obtain ⟨l, hl⟩ := hg₁surj m
+  obtain ⟨x, hx⟩ := hcol (z - dL' l) (by rw [map_sub, ← hg₁, hl, hm, sub_self])
+  obtain ⟨k, hk⟩ := hK x
+  refine ⟨l + f₁ k, ?_⟩
+  rw [map_add, hf₁, hk, hx]
+  abel
+
+end Chase
+
+/-! ### Short exact columns, and the cone dévissage -/
+
+section ConeSES
+
+/-- A **short exact column**: the data actually consumed by the chases — injectivity of the
+sub-map, surjectivity of the quotient map, and the `ker ⊆ im` half of exactness. -/
+structure StokesSES {A B C : Type*} [AddCommGroup A] [AddCommGroup B] [AddCommGroup C]
+    (f : A →+ B) (g : B →+ C) : Prop where
+  inj : Function.Injective f
+  surj : Function.Surjective g
+  exact : ∀ b : B, g b = 0 → ∃ a, f a = b
+
+/-- Short exact columns are closed under (independent) products. -/
+theorem StokesSES.prod {A B C A' B' C' : Type*}
+    [AddCommGroup A] [AddCommGroup B] [AddCommGroup C]
+    [AddCommGroup A'] [AddCommGroup B'] [AddCommGroup C']
+    {f : A →+ B} {g : B →+ C} {f' : A' →+ B'} {g' : B' →+ C'}
+    (h : StokesSES f g) (h' : StokesSES f' g') :
+    StokesSES (f.prodMap f') (g.prodMap g') := by
+  refine ⟨fun p q hpq => ?_, fun c => ?_, fun b hb => ?_⟩
+  · have h1 : f p.1 = f q.1 := congrArg Prod.fst hpq
+    have h2 : f' p.2 = f' q.2 := congrArg Prod.snd hpq
+    exact Prod.ext (h.inj h1) (h'.inj h2)
+  · obtain ⟨b, hb⟩ := h.surj c.1
+    obtain ⟨b', hb'⟩ := h'.surj c.2
+    exact ⟨(b, b'), Prod.ext hb hb'⟩
+  · obtain ⟨a, ha⟩ := h.exact b.1 (congrArg Prod.fst hb)
+    obtain ⟨a', ha'⟩ := h'.exact b.2 (congrArg Prod.snd hb)
+    exact ⟨(a, a'), Prod.ext ha ha'⟩
+
+variable {U₀ U₁ U₂ V₀ V₁ V₂ X₀ X₁ X₂ Y₀ Y₁ Y₂ S₀ S₁ S₂ T₀ T₁ T₂ : Type*}
+  [AddCommGroup U₀] [AddCommGroup U₁] [AddCommGroup U₂]
+  [AddCommGroup V₀] [AddCommGroup V₁] [AddCommGroup V₂]
+  [AddCommGroup X₀] [AddCommGroup X₁] [AddCommGroup X₂]
+  [AddCommGroup Y₀] [AddCommGroup Y₁] [AddCommGroup Y₂]
+  [AddCommGroup S₀] [AddCommGroup S₁] [AddCommGroup S₂]
+  [AddCommGroup T₀] [AddCommGroup T₁] [AddCommGroup T₂]
+
+/-- Cone-map square in degree `−1`, from the component squares. -/
+private theorem stokesCone_comm_Dm {dU₀ : U₀ →+ U₁} {dX₀ : X₀ →+ X₁} {ψ₀ : U₀ →+ V₀}
+    {φ₀ : X₀ →+ Y₀} {p₀ : U₀ →+ X₀} {p₁ : U₁ →+ X₁} {r₀ : V₀ →+ Y₀}
+    (hp₀ : ∀ u, dX₀ (p₀ u) = p₁ (dU₀ u)) (hn₀ : ∀ u, φ₀ (p₀ u) = r₀ (ψ₀ u)) (u : U₀) :
+    stokesConeDm dX₀ φ₀ (p₀ u) = (p₁.prodMap r₀) (stokesConeDm dU₀ ψ₀ u) := by
+  show (-dX₀ (p₀ u), φ₀ (p₀ u)) = (p₁ (-dU₀ u), r₀ (ψ₀ u))
+  rw [Prod.mk.injEq, map_neg, hp₀, hn₀]
+  exact ⟨rfl, rfl⟩
+
+/-- Cone-map square in degree `0`. -/
+private theorem stokesCone_comm_D0 {dU₁ : U₁ →+ U₂} {dV₀ : V₀ →+ V₁} {dX₁ : X₁ →+ X₂}
+    {dY₀ : Y₀ →+ Y₁} {ψ₁ : U₁ →+ V₁} {φ₁ : X₁ →+ Y₁} {p₁ : U₁ →+ X₁} {p₂ : U₂ →+ X₂}
+    {r₀ : V₀ →+ Y₀} {r₁ : V₁ →+ Y₁}
+    (hp₁ : ∀ u, dX₁ (p₁ u) = p₂ (dU₁ u)) (hr₀ : ∀ v, dY₀ (r₀ v) = r₁ (dV₀ v))
+    (hn₁ : ∀ u, φ₁ (p₁ u) = r₁ (ψ₁ u)) (pu : U₁ × V₀) :
+    stokesConeD0 dX₁ dY₀ φ₁ ((p₁.prodMap r₀) pu)
+      = (p₂.prodMap r₁) (stokesConeD0 dU₁ dV₀ ψ₁ pu) := by
+  show (-dX₁ (p₁ pu.1), φ₁ (p₁ pu.1) + dY₀ (r₀ pu.2))
+    = (p₂ (-dU₁ pu.1), r₁ (ψ₁ pu.1 + dV₀ pu.2))
+  rw [Prod.mk.injEq, map_neg, hp₁, hn₁, hr₀, map_add]
+  exact ⟨rfl, rfl⟩
+
+/-- Cone-map square in degree `1`. -/
+private theorem stokesCone_comm_D1 {dV₁ : V₁ →+ V₂} {dY₁ : Y₁ →+ Y₂} {ψ₂ : U₂ →+ V₂}
+    {φ₂ : X₂ →+ Y₂} {p₂ : U₂ →+ X₂} {r₁ : V₁ →+ Y₁} {r₂ : V₂ →+ Y₂}
+    (hr₁ : ∀ v, dY₁ (r₁ v) = r₂ (dV₁ v)) (hn₂ : ∀ u, φ₂ (p₂ u) = r₂ (ψ₂ u)) (qu : U₂ × V₁) :
+    stokesConeD1 dY₁ φ₂ ((p₂.prodMap r₁) qu) = r₂ (stokesConeD1 dV₁ ψ₂ qu) := by
+  show φ₂ (p₂ qu.1) + dY₁ (r₁ qu.2) = r₂ (ψ₂ qu.1 + dV₁ qu.2)
+  rw [hn₂, hr₁, map_add]
+
+/-- **The cone dévissage** (packet Lem. 5.1, induction step): given a commuting short exact
+sequence of ladders — sub-ladder `(ψ)` on `(U, V)`, middle ladder `(φ)` on `(X, Y)`, quotient
+ladder `(χ)` on `(S, T)` — with the two outer cones acyclic, the middle cone is acyclic.
+Four applications of the exactness chases to the degreewise short exact sequence of mapping
+cones; no dimension count. -/
+theorem stokesConeAcyclic_of_ses
+    -- the three ladders
+    {dU₀ : U₀ →+ U₁} {dU₁ : U₁ →+ U₂} {dV₀ : V₀ →+ V₁} {dV₁ : V₁ →+ V₂}
+    {ψ₀ : U₀ →+ V₀} {ψ₁ : U₁ →+ V₁} {ψ₂ : U₂ →+ V₂}
+    {dX₀ : X₀ →+ X₁} {dX₁ : X₁ →+ X₂} {dY₀ : Y₀ →+ Y₁} {dY₁ : Y₁ →+ Y₂}
+    {φ₀ : X₀ →+ Y₀} {φ₁ : X₁ →+ Y₁} {φ₂ : X₂ →+ Y₂}
+    {dS₀ : S₀ →+ S₁} {dS₁ : S₁ →+ S₂} {dT₀ : T₀ →+ T₁} {dT₁ : T₁ →+ T₂}
+    {χ₀ : S₀ →+ T₀} {χ₁ : S₁ →+ T₁} {χ₂ : S₂ →+ T₂}
+    -- the middle ladder's squares and complex laws
+    (hφ₀ : ∀ v, dY₀ (φ₀ v) = φ₁ (dX₀ v)) (hφ₁ : ∀ x, dY₁ (φ₁ x) = φ₂ (dX₁ x))
+    (hdX : ∀ v, dX₁ (dX₀ v) = 0) (hdY : ∀ y, dY₁ (dY₀ y) = 0)
+    -- the columns
+    {p₀ : U₀ →+ X₀} {p₁ : U₁ →+ X₁} {p₂ : U₂ →+ X₂}
+    {q₀ : X₀ →+ S₀} {q₁ : X₁ →+ S₁} {q₂ : X₂ →+ S₂}
+    {r₀ : V₀ →+ Y₀} {r₁ : V₁ →+ Y₁} {r₂ : V₂ →+ Y₂}
+    {s₀ : Y₀ →+ T₀} {s₁ : Y₁ →+ T₁} {s₂ : Y₂ →+ T₂}
+    (hS₀ : StokesSES p₀ q₀) (hS₁ : StokesSES p₁ q₁) (hS₂ : StokesSES p₂ q₂)
+    (hT₀ : StokesSES r₀ s₀) (hT₁ : StokesSES r₁ s₁) (hT₂ : StokesSES r₂ s₂)
+    -- commutation of columns with the differentials
+    (hp₀ : ∀ u, dX₀ (p₀ u) = p₁ (dU₀ u)) (hp₁ : ∀ u, dX₁ (p₁ u) = p₂ (dU₁ u))
+    (hq₀ : ∀ x, dS₀ (q₀ x) = q₁ (dX₀ x)) (hq₁ : ∀ x, dS₁ (q₁ x) = q₂ (dX₁ x))
+    (hr₀ : ∀ v, dY₀ (r₀ v) = r₁ (dV₀ v)) (hr₁ : ∀ v, dY₁ (r₁ v) = r₂ (dV₁ v))
+    (hs₀ : ∀ y, dT₀ (s₀ y) = s₁ (dY₀ y)) (hs₁ : ∀ y, dT₁ (s₁ y) = s₂ (dY₁ y))
+    -- naturality of the ladders in the columns
+    (hn₀ : ∀ u, φ₀ (p₀ u) = r₀ (ψ₀ u)) (hn₁ : ∀ u, φ₁ (p₁ u) = r₁ (ψ₁ u))
+    (hn₂ : ∀ u, φ₂ (p₂ u) = r₂ (ψ₂ u))
+    (hm₀ : ∀ x, χ₀ (q₀ x) = s₀ (φ₀ x)) (hm₁ : ∀ x, χ₁ (q₁ x) = s₁ (φ₁ x))
+    (hm₂ : ∀ x, χ₂ (q₂ x) = s₂ (φ₂ x))
+    -- the outer cones are acyclic
+    (hA' : StokesConeAcyclic dU₀ dU₁ dV₀ dV₁ ψ₀ ψ₁ ψ₂)
+    (hA'' : StokesConeAcyclic dS₀ dS₁ dT₀ dT₁ χ₀ χ₁ χ₂) :
+    StokesConeAcyclic dX₀ dX₁ dY₀ dY₁ φ₀ φ₁ φ₂ := by
+  constructor
+  · -- exactness at degree `−1`: the left-end chase
+    exact stokes_chase_left (stokesConeDm dU₀ ψ₀) (stokesConeDm dX₀ φ₀)
+      (stokesConeDm dS₀ χ₀) p₀ (p₁.prodMap r₀) q₀ (q₁.prodMap s₀)
+      (stokesCone_comm_Dm hp₀ hn₀) (stokesCone_comm_Dm hq₀ hm₀)
+      ((hS₁.prod hT₀).inj) hS₀.exact hA'.inj hA''.inj
+  · -- exactness at degree `0`: the interior chase
+    exact stokes_chase (stokesConeDm dU₀ ψ₀) (stokesConeD0 dU₁ dV₀ ψ₁)
+      (stokesConeDm dX₀ φ₀) (stokesConeD0 dX₁ dY₀ φ₁)
+      (stokesConeDm dS₀ χ₀) (stokesConeD0 dS₁ dT₀ χ₁)
+      p₀ (p₁.prodMap r₀) (p₂.prodMap r₁) q₀ (q₁.prodMap s₀) (q₂.prodMap s₁)
+      (stokesCone_comm_Dm hp₀ hn₀) (stokesCone_comm_D0 hp₁ hr₀ hn₁)
+      (stokesCone_comm_Dm hq₀ hm₀) (stokesCone_comm_D0 hq₁ hs₀ hm₁)
+      ((hS₂.prod hT₁).inj) hS₀.surj (hS₁.prod hT₀).exact
+      (stokesConeD0_comp_Dm dX₀ dX₁ dY₀ φ₀ φ₁ hdX hφ₀)
+      hA'.ex0 hA''.ex0
+  · -- exactness at degree `1`: the interior chase, one degree up
+    exact stokes_chase (stokesConeD0 dU₁ dV₀ ψ₁) (stokesConeD1 dV₁ ψ₂)
+      (stokesConeD0 dX₁ dY₀ φ₁) (stokesConeD1 dY₁ φ₂)
+      (stokesConeD0 dS₁ dT₀ χ₁) (stokesConeD1 dT₁ χ₂)
+      (p₁.prodMap r₀) (p₂.prodMap r₁) r₂ (q₁.prodMap s₀) (q₂.prodMap s₁) s₂
+      (stokesCone_comm_D0 hp₁ hr₀ hn₁) (stokesCone_comm_D1 hr₁ hn₂)
+      (stokesCone_comm_D0 hq₁ hs₀ hm₁) (stokesCone_comm_D1 hs₁ hm₂)
+      hT₂.inj (hS₁.prod hT₀).surj (hS₂.prod hT₁).exact
+      (stokesConeD1_comp_D0 dX₁ dY₀ dY₁ φ₁ φ₂ hdY hφ₁)
+      hA'.ex1 hA''.ex1
+  · -- surjectivity at the top: the right-end chase
+    exact stokes_chase_right (stokesConeD1 dV₁ ψ₂) (stokesConeD1 dY₁ φ₂)
+      (stokesConeD1 dT₁ χ₂) (p₂.prodMap r₁) r₂ (q₂.prodMap s₁) s₂
+      (stokesCone_comm_D1 hr₁ hn₂) (stokesCone_comm_D1 hs₁ hm₂)
+      (hS₂.prod hT₁).surj hT₂.exact hA'.surj hA''.surj
+
+end ConeSES
+
 end GQ2.Dyadic
