@@ -98,18 +98,21 @@ the binding rules).
 ## Axiom state (recorded per WW2 instructions; `#print axioms` run in a scratch file, not
 committed)
 
-**Audited 2026-07-31, all 68 public declarations of this file**: every one depends on a
-subset of the standard axioms `[propext, Classical.choice, Quot.sound]` (std-3).  In
-particular the headlines `foxApplyOps`, `foxRowApplyOps`, `FoxCertificate`,
-`FoxRowCertificate`, `FoxCertificate.mem_range_iff`, `FoxCertificate.mem_ker_iff`,
+**Audited 2026-07-31, all 95 named public `def`/`theorem` declarations of this file** (the
+8 `inductive`/`structure` type declarations carry no proof content): every one depends on a
+subset of the standard axioms `[propext, Classical.choice, Quot.sound]` (std-3), with zero
+`sorryAx` and zero `native_decide` axioms.  In particular the headlines `foxApplyOps`,
+`foxRowApplyOps`, `FoxCertificate.mem_range_iff`, `FoxCertificate.mem_ker_iff`,
 `FoxCertificate.coker_defect_iff`, `FoxCertificate.card_ker`, `FoxRowCertificate.range_eq`,
 `FoxRowCertificate.mem_ker_iff`, `FoxRowCertificate.card_ker`,
+`FoxColOp.bijective_listHom`, `FoxRowOp.bijective_listHom`, `TameSym.toEnd`,
 `PWord.evalFin_congr_of_orderOf_dvd`, `WordLift.orderOf_dvd_two_mul`,
 `foxEval_resolver_congr`, `foxD_resolver_congr`, `foxJacobian_resolver_congr`,
 `foxD_gammaRWildWord_split_apply`, `foxD_gammaRWildWord_ramified_apply`,
 `gammaRWildRowCert`, `gammaRWildRowPivotCert`, `gammaRWildRowRamifiedCert` and `demoCert`
-all print exactly `[propext, Classical.choice, Quot.sound]` (several helpers print strictly
-less).  No sorries; no new axioms; kernel `decide` only (no `native_decide`).
+all print exactly `[propext, Classical.choice, Quot.sound]` (45 of the 95 print strictly
+less: `[propext]`, `[propext, Quot.sound]`, or none).  No sorries; no new axioms; kernel
+`decide` only (no `native_decide`).
 
 ## Implementation notes
 
