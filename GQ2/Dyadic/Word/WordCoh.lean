@@ -737,4 +737,456 @@ theorem relZFam_coboundary (R : ρ → NatWord X) (hR : IsFrattiniFam R) (μ : X
 
 end RelZFam
 
+/-! ## Factoring a continuous cochain through a finite quotient
+
+Generic in the profinite group `G`: `GQ2.exists_twoCocycle_factor_DR` and
+`GQ2.exists_oneCochain_factor_DR` with `D_R` replaced by an arbitrary profinite group. -/
+
+section Factoring
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [TotallyDisconnectedSpace G]
+
+/-- Every open normal subgroup of a profinite group has finite quotient. -/
+instance quotient_finite_openNormal (V : OpenNormalSubgroup G) : Finite (G ⧸ V.toSubgroup) :=
+  Subgroup.quotient_finite_of_isOpen V.toSubgroup V.isOpen'
+
+/-- **Factoring a normalized continuous 2-cocycle** through a finite quotient. -/
+theorem exists_twoCocycle_factor (κ : G × G → ZMod 2)
+    (hκc : Continuous κ) (hκ1 : κ (1, 1) = 0)
+    (hκcoc : ∀ a b c : G, κ (a, b) + κ (a * b, c) = κ (a, b * c) + κ (b, c)) :
+    ∃ (V : OpenNormalSubgroup G) (c : TwoCocycle (G ⧸ V.toSubgroup)),
+      ∀ x y : G,
+        κ (x, y) = c.κ (QuotientGroup.mk' V.toSubgroup x) (QuotientGroup.mk' V.toSubgroup y) := by
+  obtain ⟨V, hV⟩ := exists_openNormalSubgroup_factor_two κ hκc
+  refine ⟨V, ?_, ?_⟩
+  · refine { κ := fun p q => Quotient.liftOn₂ p q (fun x y => κ (x, y)) ?_, norm := ?_, cocyc := ?_ }
+    · intro x₁ y₁ x₂ y₂ hx hy
+      have hxv : x₁⁻¹ * x₂ ∈ V.toSubgroup := QuotientGroup.leftRel_apply.mp hx
+      have hyv : y₁⁻¹ * y₂ ∈ V.toSubgroup := QuotientGroup.leftRel_apply.mp hy
+      have h := hV x₁ y₁ _ hxv _ hyv
+      rw [mul_inv_cancel_left, mul_inv_cancel_left] at h
+      exact h.symm
+    · show κ (1, 1) = 0; exact hκ1
+    · intro a b c
+      induction a using QuotientGroup.induction_on with | H x =>
+      induction b using QuotientGroup.induction_on with | H y =>
+      induction c using QuotientGroup.induction_on with | H z =>
+      show κ (x, y) + κ (x * y, z) = κ (x, y * z) + κ (y, z)
+      exact hκcoc x y z
+  · intro x y; rfl
+
+/-- **Factoring a continuous 1-cochain** through a finite quotient. -/
+theorem exists_oneCochain_factor (ψ : G → ZMod 2) (hψc : Continuous ψ) :
+    ∃ (V : OpenNormalSubgroup G) (lam : G ⧸ V.toSubgroup → ZMod 2),
+      ∀ x : G, ψ x = lam (QuotientGroup.mk' V.toSubgroup x) := by
+  obtain ⟨V, hV⟩ := exists_openNormalSubgroup_factor_two (fun p => ψ p.1)
+    (hψc.comp continuous_fst)
+  refine ⟨V, fun p => Quotient.liftOn p (fun x => ψ x) ?_, ?_⟩
+  · intro x₁ x₂ hx
+    have hxv : x₁⁻¹ * x₂ ∈ V.toSubgroup := QuotientGroup.leftRel_apply.mp hx
+    have h := hV x₁ x₁ _ hxv 1 (one_mem _)
+    rw [mul_inv_cancel_left, mul_one] at h
+    exact h.symm
+  · intro x; rfl
+
+end Factoring
+
+/-! ## The level-independent obstruction
+
+Port of `GQ2.DRLevelFactor` / `.obs` / `.obs_eq_comap` / `.obs_congr`. -/
+
+section LevelFactor
+
+variable {X : Type*} {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [TotallyDisconnectedSpace G]
+
+/-- A factorization of a `G`-2-cochain `κ` through a finite quotient `G ⧸ V`. -/
+structure LevelFactor (κ : G × G → ZMod 2) where
+  /-- The finite level `G ⧸ V`. -/
+  V : OpenNormalSubgroup G
+  /-- The finite-level 2-cocycle whose inflation is `κ`. -/
+  c : TwoCocycle (G ⧸ V.toSubgroup)
+  /-- `κ` is the inflation of `c`. -/
+  hfact : ∀ x y : G,
+    κ (x, y) = c.κ (QuotientGroup.mk' V.toSubgroup x) (QuotientGroup.mk' V.toSubgroup y)
+
+/-- The relator obstruction of a factorization: the obstruction of the finite-level cocycle at the
+projected marking. -/
+noncomputable def LevelFactor.obs (W : NatWord X) (μ : X → G) {κ : G × G → ZMod 2}
+    (F : LevelFactor κ) : ZMod 2 :=
+  relZ W (fun k => QuotientGroup.mk' F.V.toSubgroup (μ k)) F.c
+
+omit [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+/-- **Level-independence.**  `F.obs` may be computed at any finer level `W'` through the
+pulled-back cocycle. -/
+theorem LevelFactor.obs_eq_comap (W : NatWord X) (μ : X → G) {κ : G × G → ZMod 2}
+    (F : LevelFactor κ) (W' : OpenNormalSubgroup G)
+    (proj : (G ⧸ W'.toSubgroup) →* (G ⧸ F.V.toSubgroup))
+    (hproj : proj.comp (QuotientGroup.mk' W'.toSubgroup) = QuotientGroup.mk' F.V.toSubgroup) :
+    F.obs W μ = relZ W (fun k => QuotientGroup.mk' W'.toSubgroup (μ k)) (F.c.comap proj) := by
+  rw [← relZ_comap W (fun k => QuotientGroup.mk' W'.toSubgroup (μ k)) F.c proj]
+  show relZ W (fun k => QuotientGroup.mk' F.V.toSubgroup (μ k)) F.c
+    = relZ W (fun k => proj (QuotientGroup.mk' W'.toSubgroup (μ k))) F.c
+  congr 1
+  funext k
+  rw [← MonoidHom.comp_apply, hproj]
+
+/-- The canonical projection between two finite levels, one refining the other. -/
+private noncomputable def levelProj {V W' : OpenNormalSubgroup G} (h : W'.toSubgroup ≤ V.toSubgroup) :
+    (G ⧸ W'.toSubgroup) →* (G ⧸ V.toSubgroup) :=
+  QuotientGroup.map W'.toSubgroup V.toSubgroup (MonoidHom.id _) (by rw [Subgroup.comap_id]; exact h)
+
+omit [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+private theorem levelProj_comp {V W' : OpenNormalSubgroup G} (h : W'.toSubgroup ≤ V.toSubgroup) :
+    (levelProj h).comp (QuotientGroup.mk' W'.toSubgroup) = QuotientGroup.mk' V.toSubgroup := by
+  ext g; rw [levelProj, MonoidHom.comp_apply, QuotientGroup.map_mk']; rfl
+
+omit [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+private theorem levelProj_mk {V W' : OpenNormalSubgroup G} (h : W'.toSubgroup ≤ V.toSubgroup)
+    (g : G) : levelProj h (QuotientGroup.mk' W'.toSubgroup g) = QuotientGroup.mk' V.toSubgroup g := by
+  rw [← MonoidHom.comp_apply, levelProj_comp]
+
+omit [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+/-- **Well-definedness.**  `F.obs` depends only on `κ`, not on the chosen factorization. -/
+theorem LevelFactor.obs_congr (W : NatWord X) (μ : X → G) {κ : G × G → ZMod 2}
+    (F₁ F₂ : LevelFactor κ) : F₁.obs W μ = F₂.obs W μ := by
+  set W' : OpenNormalSubgroup G := F₁.V ⊓ F₂.V with hWdef
+  have hW1 : W'.toSubgroup ≤ F₁.V.toSubgroup := fun x hx => SetLike.le_def.mp inf_le_left hx
+  have hW2 : W'.toSubgroup ≤ F₂.V.toSubgroup := fun x hx => SetLike.le_def.mp inf_le_right hx
+  rw [F₁.obs_eq_comap W μ W' (levelProj hW1) (levelProj_comp hW1),
+    F₂.obs_eq_comap W μ W' (levelProj hW2) (levelProj_comp hW2)]
+  have hcc : F₁.c.comap (levelProj hW1) = F₂.c.comap (levelProj hW2) := by
+    apply TwoCocycle.ext'
+    funext a b
+    obtain ⟨g, rfl⟩ := QuotientGroup.mk'_surjective W'.toSubgroup a
+    obtain ⟨h, rfl⟩ := QuotientGroup.mk'_surjective W'.toSubgroup b
+    rw [TwoCocycle.comap_κ, TwoCocycle.comap_κ, levelProj_mk, levelProj_mk, levelProj_mk,
+      levelProj_mk, ← F₁.hfact g h, ← F₂.hfact g h]
+  rw [hcc]
+
+end LevelFactor
+
+/-! ## `CentExt` over a finite pro-`2` level is pro-`2` -/
+
+/-- `CentExt c` over a finite `2`-group is a finite `2`-group, hence pro-`2` — the target
+hypothesis of a presentation lift.  Port of `GQ2.isProP_CentExt`. -/
+theorem isProP_CentExt {L : Type} [Group L] [Finite L] (hL : IsPGroup 2 L) (c : TwoCocycle L) :
+    IsProP 2 (CentExt c) := by
+  haveI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  obtain ⟨k, hk⟩ := (IsPGroup.iff_card (p := 2)).mp hL
+  refine isProP_of_isPGroup ((IsPGroup.iff_card (p := 2)).mpr ⟨k + 1, ?_⟩)
+  have hcard : Nat.card (CentExt c) = Nat.card L * Nat.card (ZMod 2) := Nat.card_prod _ _
+  rw [hcard, hk, Nat.card_zmod, pow_succ]
+
+/-! ## Marked relators and marked presentations
+
+The two hypothesis bundles the `H²` layer consumes.  Neither is an axiom and neither is a
+typeclass: both are ordinary structures, threaded explicitly at every use — MC2's documented
+general-`K` pattern, and the reason this file introduces no new census entries. -/
+
+section Bundles
+
+variable {X : Type*} (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- A **marked relator**: a natural word that lies in the Frattini subgroup and dies at the
+marking.  These are exactly the two facts the obstruction needs about the relator itself, and both
+are checkable — `IsFrattini` by `decide` for a concrete word on a `Fintype` alphabet, `holds` from
+the presentation. -/
+structure MarkedRelator (W : NatWord X) (μ : X → G) : Prop where
+  /-- The relator lies in the Frattini subgroup: it dies under every `𝔽₂`-marking. -/
+  frattini : W.IsFrattini
+  /-- The relation holds at the marking. -/
+  holds : W.ev μ = 1
+
+/-- The **universal property of a marked presentation**, as an explicit hypothesis bundle: every
+marking of a pro-`2` group that kills the relator extends over `G`, and a continuous hom out of
+`G` is determined by its values on the marking.
+
+Instantiated for `D_R` by `GQ2.drLiftHom` + `GQ2.drLiftHom_S/X/Y` + `GQ2.dr_hom_ext` (see
+`presentedBy_DR` in the regression-pin section), and for MC2's marked cores by
+`GQ2.presLiftHom` + `GQ2.presLiftHom_gen` + `GQ2.presPro2_hom_ext`
+(`GQ2/Dyadic/MarkedCore/Cores.lean` §3.1) — which is why this file does *not* import the
+`MarkedCore` layer: `Word/` sits below `MarkedCore/`, and threading the property keeps it that
+way. -/
+structure PresentedBy (W : NatWord X) (μ : X → G) where
+  /-- Extend a relator-killing marking of a pro-`2` group over `G`. -/
+  liftHom : ∀ {P : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P] [CompactSpace P]
+    [T2Space P] [TotallyDisconnectedSpace P], IsProP 2 P → ∀ ν : X → P, W.ev ν = 1 →
+    ContinuousMonoidHom G P
+  /-- The extension restricts to the given marking. -/
+  liftHom_mark : ∀ {P : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P]
+    [CompactSpace P] [T2Space P] [TotallyDisconnectedSpace P] (hP : IsProP 2 P) (ν : X → P)
+    (hν : W.ev ν = 1) (k : X), liftHom hP ν hν (μ k) = ν k
+  /-- Continuous homs out of `G` are determined by the marking. -/
+  hom_ext : ∀ {A : Type} [Group A] [TopologicalSpace A] [IsTopologicalGroup A] [T2Space A]
+    (φ ψ : ContinuousMonoidHom G A), (∀ k, φ (μ k) = ψ (μ k)) → φ = ψ
+
+end Bundles
+
+/-! ## The `H²` obstruction homomorphism and its injectivity
+
+Port of `GQ2.normalizeCochain` / `obsFun_DR` / `obs_DR` / `obs_DR_B2_eq_zero` / `obs_DR_ker_le` /
+`obsH2_DR` / `obsH2_DR_injective` / `obsH2_DR_eq_of_factor`, with `D_R` replaced by an arbitrary
+profinite group carrying a marked presentation. -/
+
+open ContCoh
+
+section Normalize
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- Normalize a 2-cochain at `(1,1)` by subtracting the constant `κ (1,1)`. -/
+noncomputable def normalizeCochain (κ : G × G → ZMod 2) : G × G → ZMod 2 :=
+  κ - fun _ => κ (1, 1)
+
+omit [TopologicalSpace G] [IsTopologicalGroup G] in
+private theorem normalizeCochain_add (κ κ' : G × G → ZMod 2) :
+    normalizeCochain (κ + κ') = normalizeCochain κ + normalizeCochain κ' := by
+  funext p; simp only [normalizeCochain, Pi.add_apply, Pi.sub_apply]; abel
+
+end Normalize
+
+section Obstruction
+
+variable {X : Type*} {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [TotallyDisconnectedSpace G]
+  [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)]
+
+variable (htriv : ∀ (x : G) (m : ZMod 2), x • m = m)
+include htriv
+
+omit [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G]
+  [ContinuousSMul G (ZMod 2)] in
+/-- A constant 2-cochain is a continuous coboundary. -/
+theorem const2_mem_B2 (v : ZMod 2) : (fun _ : G × G => v) ∈ B2 G (ZMod 2) := by
+  rw [B2, AddSubgroup.mem_map]
+  refine ⟨fun _ => v, continuous_const, ?_⟩
+  funext p
+  simp only [dOne, AddMonoidHom.coe_mk, ZeroHom.coe_mk, htriv]
+  abel
+
+omit [ContinuousSMul G (ZMod 2)] in
+/-- The normalization of a continuous 2-cocycle factors through a finite quotient. -/
+theorem nonempty_levelFactor_normalize (φ : Z2 G (ZMod 2)) :
+    Nonempty (LevelFactor (normalizeCochain φ.1)) := by
+  have hφcont : Continuous φ.1 := (mem_Z2_iff.mp φ.2).1
+  have hφcoc := (mem_Z2_iff.mp φ.2).2
+  have hcont : Continuous (normalizeCochain φ.1) := hφcont.sub continuous_const
+  have hnorm : normalizeCochain φ.1 (1, 1) = 0 := by
+    simp only [normalizeCochain, Pi.sub_apply, sub_self]
+  have hcoc : ∀ a b c, normalizeCochain φ.1 (a, b) + normalizeCochain φ.1 (a * b, c)
+      = normalizeCochain φ.1 (a, b * c) + normalizeCochain φ.1 (b, c) := by
+    intro a b c
+    have hz := hφcoc a b c
+    rw [htriv] at hz
+    simp only [normalizeCochain, Pi.sub_apply]
+    linear_combination -hz
+  obtain ⟨V, c, hfact⟩ := exists_twoCocycle_factor (normalizeCochain φ.1) hcont hnorm hcoc
+  exact ⟨V, c, hfact⟩
+
+/-- The per-cocycle obstruction of a marking against a relator. -/
+noncomputable def obsFun (W : NatWord X) (μ : X → G) (φ : Z2 G (ZMod 2)) : ZMod 2 :=
+  (nonempty_levelFactor_normalize htriv φ).some.obs W μ
+
+omit [ContinuousSMul G (ZMod 2)] in
+/-- `obsFun` may be computed at *any* factorization of the normalization. -/
+theorem obsFun_eq (W : NatWord X) (μ : X → G) (φ : Z2 G (ZMod 2))
+    (F : LevelFactor (normalizeCochain φ.1)) : obsFun htriv W μ φ = F.obs W μ :=
+  LevelFactor.obs_congr W μ _ F
+
+omit [ContinuousSMul G (ZMod 2)] in
+/-- **Additivity of the obstruction.** -/
+theorem obsFun_add (W : NatWord X) (μ : X → G) (φ ψ : Z2 G (ZMod 2)) :
+    obsFun htriv W μ (φ + ψ) = obsFun htriv W μ φ + obsFun htriv W μ ψ := by
+  set Fφ := (nonempty_levelFactor_normalize htriv φ).some with hFφ
+  set Fψ := (nonempty_levelFactor_normalize htriv ψ).some with hFψ
+  set W' : OpenNormalSubgroup G := Fφ.V ⊓ Fψ.V with hWdef
+  have hW1 : W'.toSubgroup ≤ Fφ.V.toSubgroup := fun x hx => SetLike.le_def.mp inf_le_left hx
+  have hW2 : W'.toSubgroup ≤ Fψ.V.toSubgroup := fun x hx => SetLike.le_def.mp inf_le_right hx
+  have hFsum : obsFun htriv W μ (φ + ψ)
+      = relZ W (fun k => QuotientGroup.mk' W'.toSubgroup (μ k))
+          (Fφ.c.comap (levelProj hW1) + Fψ.c.comap (levelProj hW2)) := by
+    refine obsFun_eq htriv W μ (φ + ψ)
+      ⟨W', Fφ.c.comap (levelProj hW1) + Fψ.c.comap (levelProj hW2), ?_⟩
+    intro x y
+    rw [TwoCocycle.add_κ, TwoCocycle.comap_κ, TwoCocycle.comap_κ, levelProj_mk, levelProj_mk,
+      levelProj_mk, levelProj_mk, ← Fφ.hfact x y, ← Fψ.hfact x y]
+    show normalizeCochain (φ.1 + ψ.1) (x, y)
+      = normalizeCochain φ.1 (x, y) + normalizeCochain ψ.1 (x, y)
+    rw [normalizeCochain_add, Pi.add_apply]
+  rw [obsFun_eq htriv W μ φ Fφ, obsFun_eq htriv W μ ψ Fψ, hFsum,
+    Fφ.obs_eq_comap W μ W' (levelProj hW1) (levelProj_comp hW1),
+    Fψ.obs_eq_comap W μ W' (levelProj hW2) (levelProj_comp hW2), relZ_add]
+
+/-- The **obstruction homomorphism** `Z²_cont(G, 𝔽₂) →+ 𝔽₂`. -/
+noncomputable def obs (W : NatWord X) (μ : X → G) : Z2 G (ZMod 2) →+ ZMod 2 :=
+  AddMonoidHom.mk' (obsFun htriv W μ) (obsFun_add htriv W μ)
+
+omit [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G]
+  [DistribMulAction G (ZMod 2)] [ContinuousSMul G (ZMod 2)] htriv in
+/-- The relation is inherited by every finite quotient. -/
+theorem ev_mk_eq_one (W : NatWord X) (μ : X → G) (hrel : W.ev μ = 1) (V : OpenNormalSubgroup G) :
+    W.ev (fun k => QuotientGroup.mk' V.toSubgroup (μ k)) = 1 := by
+  have h := W.nat (QuotientGroup.mk' V.toSubgroup) μ
+  rw [hrel, map_one] at h
+  exact h.symm
+
+omit [ContinuousSMul G (ZMod 2)] in
+/-- **`obs` kills `B²`.**  A continuous coboundary normalizes to `δ¹ψ'` (`ψ' 1 = 0`), which factors
+as `coboundaryCocycle λ`; its obstruction is `λ (relator) = λ 1 = 0`, the relation dying at the
+level.  This is the step that consumes the Frattini hypothesis (through `relZ_coboundary`). -/
+theorem obs_B2_eq_zero (W : NatWord X) (μ : X → G) (hW : MarkedRelator G W μ) :
+    (B2 G (ZMod 2)).addSubgroupOf (Z2 G (ZMod 2)) ≤ (obs htriv W μ).ker := by
+  intro x hx
+  rw [AddMonoidHom.mem_ker]
+  rw [AddSubgroup.mem_addSubgroupOf, B2, AddSubgroup.mem_map] at hx
+  obtain ⟨ψ, hψc, hψeq⟩ := hx
+  have hψcont : Continuous ψ := mem_C1_iff.mp hψc
+  have hx1 : x.1 = dOne G (ZMod 2) ψ := hψeq.symm
+  set ψ' : G → ZMod 2 := ψ - fun _ => ψ 1 with hψ'def
+  obtain ⟨V, lam, hlamfact⟩ := exists_oneCochain_factor ψ' (hψcont.sub continuous_const)
+  have hlam1 : lam 1 = 0 := by
+    have h := hlamfact 1
+    rw [show QuotientGroup.mk' V.toSubgroup (1 : G) = 1 from map_one _] at h
+    rw [← h]; simp [hψ'def]
+  have hfact : ∀ p q : G, normalizeCochain x.1 (p, q)
+      = (coboundaryCocycle lam hlam1).κ (QuotientGroup.mk' V.toSubgroup p)
+          (QuotientGroup.mk' V.toSubgroup q) := by
+    intro p q
+    show normalizeCochain x.1 (p, q)
+      = lam (QuotientGroup.mk' V.toSubgroup p) + lam (QuotientGroup.mk' V.toSubgroup q)
+        + lam (QuotientGroup.mk' V.toSubgroup p * QuotientGroup.mk' V.toSubgroup q)
+    rw [← map_mul (QuotientGroup.mk' V.toSubgroup) p q, ← hlamfact p, ← hlamfact q,
+      ← hlamfact (p * q), hx1]
+    simp only [normalizeCochain, Pi.sub_apply, hψ'def, dOne, AddMonoidHom.coe_mk,
+      ZeroHom.coe_mk, htriv, mul_one, CharTwo.sub_eq_add]
+    abel
+  show obsFun htriv W μ x = 0
+  rw [obsFun_eq htriv W μ x ⟨V, coboundaryCocycle lam hlam1, hfact⟩]
+  show relZ W (fun k => QuotientGroup.mk' V.toSubgroup (μ k)) (coboundaryCocycle lam hlam1) = 0
+  rw [relZ_coboundary W hW.frattini, ev_mk_eq_one W μ hW.holds V, hlam1]
+
+omit [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G]
+  [ContinuousSMul G (ZMod 2)] in
+/-- **Coboundary extraction.**  A continuous hom `sect : G → CentExt c` splitting the level
+projection makes the level cocycle a continuous coboundary `δ¹ (fib ∘ sect)`. -/
+theorem cocycle_mem_B2 {V : OpenNormalSubgroup G} {c : TwoCocycle (G ⧸ V.toSubgroup)}
+    (sect : ContinuousMonoidHom G (CentExt c)) :
+    (fun p : G × G => c.κ (sect p.1).base (sect p.2).base) ∈ B2 G (ZMod 2) := by
+  have key : ∀ x y z : ZMod 2, y - (x + y + z) + x = z := by decide
+  refine ⟨fun g => (sect g).fib, ?_, ?_⟩
+  · rw [SetLike.mem_coe, mem_C1_iff]
+    exact (continuous_of_discreteTopology (f := CentExt.fib)).comp sect.continuous_toFun
+  · funext p
+    obtain ⟨g, h⟩ := p
+    show g • (sect h).fib - (sect (g * h)).fib + (sect g).fib = c.κ (sect g).base (sect h).base
+    rw [htriv, map_mul sect, CentExt.mul_fib]
+    exact key (sect g).fib (sect h).fib (c.κ (sect g).base (sect h).base)
+
+omit [ContinuousSMul G (ZMod 2)] in
+/-- **Injectivity keystone.**  A continuous 2-cocycle with `obs = 0` is a continuous coboundary:
+the relator dies exactly at the factoring level, so the presentation's universal property builds a
+splitting section and the level cocycle is `δ¹ (fib ∘ section)`.
+
+This is the only statement of the file that consumes `PresentedBy`. -/
+theorem obs_ker_le (W : NatWord X) (μ : X → G) (hW : MarkedRelator G W μ)
+    (hpres : PresentedBy G W μ) (hG : IsProP 2 G) :
+    (obs htriv W μ).ker ≤ (B2 G (ZMod 2)).addSubgroupOf (Z2 G (ZMod 2)) := by
+  intro φ hφ
+  rw [AddMonoidHom.mem_ker] at hφ
+  rw [AddSubgroup.mem_addSubgroupOf]
+  set F := (nonempty_levelFactor_normalize htriv φ).some with hF
+  have hobs0 : F.obs W μ = 0 := by rw [← obsFun_eq htriv W μ φ F]; exact hφ
+  set V := F.V with hV
+  set c := F.c with hc
+  haveI : DiscreteTopology (G ⧸ V.toSubgroup) :=
+    Subgroup.instDiscreteTopologyQuotientOfSeparatelyContinuousMul V.toOpenSubgroup
+  -- the zero-fibre lift of the projected marking kills the relator, by `hobs0`
+  set m : X → CentExt c := lift (fun k => QuotientGroup.mk' V.toSubgroup (μ k)) c with hm
+  have hrel : W.ev m = 1 := by
+    refine CentExt.ext ?_ ?_
+    · rw [relZ_base]; exact ev_mk_eq_one W μ hW.holds V
+    · exact hobs0
+  set sect : ContinuousMonoidHom G (CentExt c) :=
+    hpres.liftHom (isProP_CentExt (hG V) c) m hrel with hsect
+  -- `sect` splits the level projection
+  have hbase : ∀ g : G, (sect g).base = QuotientGroup.mk' V.toSubgroup g := by
+    have hcomp : (⟨CentExt.proj c, continuous_of_discreteTopology⟩ :
+        ContinuousMonoidHom (CentExt c) (G ⧸ V.toSubgroup)).comp sect
+          = quotientMk V.toSubgroup := by
+      refine hpres.hom_ext _ _ fun k => ?_
+      show CentExt.proj c (sect (μ k)) = quotientMk V.toSubgroup (μ k)
+      rw [hsect, hpres.liftHom_mark]
+      rfl
+    intro g
+    exact DFunLike.congr_fun hcomp g
+  -- the normalization is the level cocycle pulled back through the section
+  have hnB2 : normalizeCochain φ.1 ∈ B2 G (ZMod 2) := by
+    have heq : normalizeCochain φ.1 = fun p : G × G => c.κ (sect p.1).base (sect p.2).base := by
+      funext p
+      rw [hbase, hbase]
+      exact F.hfact p.1 p.2
+    rw [heq]
+    exact cocycle_mem_B2 htriv sect
+  have hconst : φ.1 = normalizeCochain φ.1 + fun _ => φ.1 (1, 1) := by
+    funext p; simp only [normalizeCochain, Pi.sub_apply, Pi.add_apply]; abel
+  rw [hconst]
+  exact AddSubgroup.add_mem _ hnB2 (const2_mem_B2 htriv (φ.1 (1, 1)))
+
+/-! ### Assembly -/
+
+/-- The **descended obstruction** `H²(G, 𝔽₂) →+ 𝔽₂` of a marking against a relator.
+
+The headline of this file: `GQ2.obsH2_DR` with `D_R`/`drWord`/`Fin 3` replaced by an arbitrary
+profinite group, natural word and alphabet. -/
+noncomputable def obsH2 (W : NatWord X) (μ : X → G) (hW : MarkedRelator G W μ) :
+    H2 G (ZMod 2) →+ ZMod 2 :=
+  QuotientAddGroup.lift _ (obs htriv W μ) (fun _ h => obs_B2_eq_zero htriv W μ hW h)
+
+omit [ContinuousSMul G (ZMod 2)] in
+@[simp] theorem obsH2_mk (W : NatWord X) (μ : X → G) (hW : MarkedRelator G W μ)
+    (φ : Z2 G (ZMod 2)) : obsH2 htriv W μ hW (H2mk G (ZMod 2) φ) = obsFun htriv W μ φ := rfl
+
+omit [ContinuousSMul G (ZMod 2)] in
+/-- **`obsH2` is injective** — the `#H² ≤ 2` half. -/
+theorem obsH2_injective (W : NatWord X) (μ : X → G) (hW : MarkedRelator G W μ)
+    (hpres : PresentedBy G W μ) (hG : IsProP 2 G) :
+    Function.Injective (obsH2 htriv W μ hW) := by
+  rw [injective_iff_map_eq_zero]
+  intro a
+  induction a using QuotientAddGroup.induction_on with | H φ =>
+  intro ha
+  exact (QuotientAddGroup.eq_zero_iff φ).mpr
+    (obs_ker_le htriv W μ hW hpres hG (AddMonoidHom.mem_ker.mpr ha))
+
+omit [ContinuousSMul G (ZMod 2)] in
+/-- **The obstruction at an explicit factoring** — the hook a Gram-matrix computation consumes.
+
+For a continuous 2-cocycle `φ` factoring through a *finite* quotient `L` as
+`φ (g, h) = c.κ (ρ g) (ρ h)`, the obstruction of its class is the finite-level relator obstruction
+`relZ W (ρ ∘ μ) c`.  This is where MC2's `IsCupCocycle` values (`mRelWord_centLift_fib`,
+`nRelWord_centLift_fib`, `handleWord_centLift_fib` of `GQ2/Dyadic/MarkedCore/Cores.lean` §6) enter:
+they compute the right-hand side, and this theorem says that number *is* the `H²` obstruction.
+Note that no continuity of `ρ` is needed — the two factorizations agree pointwise through
+`hfact`. -/
+theorem obsH2_eq_of_factor {L : Type} [Group L] [Finite L] (W : NatWord X) (μ : X → G)
+    (hW : MarkedRelator G W μ) (φ : Z2 G (ZMod 2)) (ρ : G →* L) (c : TwoCocycle L)
+    (hfact : ∀ g h : G, φ.1 (g, h) = c.κ (ρ g) (ρ h)) :
+    obsH2 htriv W μ hW (H2mk G (ZMod 2) φ) = relZ W (fun k => ρ (μ k)) c := by
+  have hone : φ.1 (1, 1) = 0 := by rw [hfact, map_one, c.norm]
+  have hnorm : normalizeCochain φ.1 = φ.1 := by
+    funext p; simp only [normalizeCochain, Pi.sub_apply, hone, sub_zero]
+  set F := (nonempty_levelFactor_normalize htriv φ).some with hF
+  have h1 : obsH2 htriv W μ hW (H2mk G (ZMod 2) φ) = F.obs W μ := rfl
+  have hcc : F.c.comap (QuotientGroup.mk' F.V.toSubgroup) = c.comap ρ := by
+    refine TwoCocycle.ext' ?_
+    funext g h
+    rw [TwoCocycle.comap_κ, TwoCocycle.comap_κ, ← F.hfact g h, hnorm, hfact]
+  rw [h1]
+  show relZ W (fun k => QuotientGroup.mk' F.V.toSubgroup (μ k)) F.c = _
+  rw [relZ_comap W μ F.c (QuotientGroup.mk' F.V.toSubgroup), relZ_comap W μ c ρ, hcc]
+
+end Obstruction
+
 end GQ2.Dyadic.WordCoh
