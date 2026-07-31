@@ -348,6 +348,29 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-31 (orchestrator, F5 outcomes — the wave's first landing):** merged (script-only;
+  check_dyadic green end-to-end in the integration worktree, D5 now OK; full-build re-run not
+  information-bearing — no Lean touched). Adopted: (i) ⚠ **the forward-E_m mutant is
+  F5-UNREJECTABLE, structurally** — forward and reversed 𝓔-blocks agree pointwise on every
+  marking of S₃/D₈/A₄ AND of S₄/SL(2,3)/GL(2,3) (the last two with nonabelian O₂ = Q₈);
+  this is the freeze's own coverage criterion biting (separating orbit needs dim ≥ 2^α;
+  these wild layers have 𝔽₂-dim ≤ 2). The WM0 spec's "F5 mutant row must reject it" was
+  therefore IMPOSSIBLE as written — dated correction block added to the WM0 spec; the
+  rejection of record stays S4.1's §9.4 proof-grade difference formula; F5 pins the row
+  NOT-SEPARATED so any future separating target fails loudly. (ii) **counts are too weak
+  for 3 of 4 mutants** (sign-row and wrong-conj-side reproduce 6/1568/120 exactly — the
+  conj-side mutant's admissible SETS coincide too; only wrong-σ₂ moves a count, 504 ≠ 120
+  as predicted) — F5 uses pointwise word values (C1) and a pinned admissible witness (C3)
+  instead; any lane adding "python-harness rows" must copy that discipline, not counts.
+  (iii) the reference script's d = 10 word was the DRAFT §7.3 field-specific word, not the
+  frozen procyclic row — re-pointed count-neutrally (row A4 = frozen spelling; row B2 keeps
+  the draft word + pins pointwise 0/0/0 agreement on all three targets). Reconciliation
+  note: errata item 8's "S₃ witness separates the two relators as words" refers to the
+  S4.3 module-oracle level, NOT marking-values on S₃ the group (F5 measured those at 0
+  pointwise) — consistent, but worth one line when the errata bundle is sent. (iv) banked:
+  frozen-Npc (α,r,η) = (2,1,1) pin 6/1568/120 for WL-a/WNP-a's harness rows. (v) D5
+  placeholder comments in check_dyadic.sh refreshed (orchestrator, comment-only).
+  f5 worktree pruned.
 - **2026-07-31 (orchestrator, G-1 RELEASED — PHASE 5 OPENS; wave dispatched):** the
   simplification campaign signed R4 (owner-delegated in session: "review the report and
   start the next phase"; verification record on that board) and flipped R5. **The frozen
@@ -921,7 +944,7 @@ to `master` only at owner gate G3.
 | F2 | reflected profinite word syntax + ω₂ finite evaluation | opus (was fable) | `GQ2/Dyadic/Word/Syntax.lean`, `GQ2/Dyadic/Word/Eval.lean` | F1 | **done 2026-07-29** (6882edb → merged 25e0953, imports registered c9da9dd; 684+772 ln, 0 sorries, std-3 on 37 decls; **etaHatZ BUILT** (~110 ln on Zhat — no gap, no hypothesis threading); quadruple generic (`eval_eq_evalFin`, `ResolvedAt`/`_of_dvd`, `map_eval*`, `eval_map_eq_one_iff`) + `eval_subst`/`eval_pro2`/`eval_killWild` soundness + Gate-B T1/T2 as theorems; n=1 Γ_A stress by `rfl` + zmod8 genuine-ω₂ pin; wave-boundary audit green (3388 jobs, census 9, check-5 ran); z2pow ratification + gotchas in log) |
 | F3 | tame quotient at general q + boundary specializations + relative Goursat | opus | `GQ2/Dyadic/{TameQuotientK,TameBoundary}.lean` (split per AX4 Q4) | F1, F2 | **done 2026-07-29** (d8338ca+2bbce88+e23facd → merged, imports registered 456843a; 2017 ln, 0 sorries, 143 decls swept std-3 (B5/B10 do NOT leak despite BoundaryFrame import); audit green 3394 jobs; leaf closure = STRICT SUBSET of Axioms.lean's 31 modules, mock-AX4 elaboration green — **AX4 R5 discharged**; `tq_two_equiv` is literally `refl` (R7 closed, no second tame copy); mandated exports landed (+`[DiscreteTopology H]` on gen_tq_quotient); Lem 3.1/3.2/3.3 + Prop 3.4 (universal-property form) + Thm 3.5; ⚠ general-q center correction + AX4-memo arithmetic fix in log) |
 | F4 | arithmetic branches: (C,I,λ,γ), sign-row exclusion, √-10 corollary | opus | `GQ2/Dyadic/Branches.lean` | F1 | **done 2026-07-29** (5d4cddf on `dyadic-f4` → merged, import registered 1de39d6; 848 ln, std-3 on all 37 decls (no literature-axiom leaks), audit green 3389 jobs; `CyclotomicFrobeniusDatum`+`MarkedSplitting`, Prop 8.1 via `classification_of_even`, Cor 8.2 √-10 `(r,ε,η)=(1,1,1)` pins, both-directions η adapter, ε-∀-quantified exhaustiveness + `eps_both_occur`; **r=2 mock bundle with u⁻¹ swap discrimination**; MarkedRecip clause = `unramified_of_even` binder (census untouched, pre-G-AX auditable); CoV gap NOT hit; findings in log) |
-| F5 | finite-target sanity harness (python; incl. the retired `rel_minus10` regression row + mutant rows) | opus | `scripts/dyadic_sanity_counts.py` | — | **dispatched 2026-07-31** (fresh worktree `gq2-dyadic-f5`, branch `dyadic-f5`) |
+| F5 | finite-target sanity harness (python; incl. the retired `rel_minus10` regression row + mutant rows) | opus | `scripts/dyadic_sanity_counts.py` | — | **done 2026-07-31** (74fdd22 → merged; 593 ln, 16 rows green in 3.4 s, deterministic (3 runs byte-identical, hash-seed-proof); D5 hook auto-activated (F6 pre-wired the path — no script edit); 5 frozen quadratic rows + retired-√−10 regression row + draft-§7.3-√10 pointwise-agreement row + 8 mutant rows, mutation-tested with teeth; ⚠ THREE FINDINGS adopted — forward-E_m is F5-UNREJECTABLE (see log + WM0 spec correction), the ref script's d = 10 word was the draft word not the frozen row (re-pointed count-neutrally), counts are blind to 3 of 4 mutants (pointwise/witness modes used instead); Npc (2,1,1) pin 6/1568/120 banked for WL-a/WNP-a) |
 | F6 | gates infra: `check_dyadic.sh`, allowlist workflow, docs index link | opus | `scripts/check_dyadic.sh`, `docs/README.md` (one line) | — | **done 2026-07-29** (1d6fd7d → merged; check_dyadic.sh 289 ln: D1 delegate + D2 obligation guard (continuation-line-aware, fails on untracked) + D3 sign-row guard (declarations only) + D4/D5 WW5/F5 hooks; all green 2.2s; docs index line added) |
 
 **Ticket specs.**
@@ -1208,8 +1231,17 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
 - `R_{M,0} = A₀²[A₀,x₁]σ₂^{2m}·J₂·E_m^rev·H_h` with `A₀ = x₀^{-1}σ₂^{-m}`,
   `J₂ = x₂^{-σ}(x₂τ)^{ω₂}`, `E_m^rev = δ₁^{σ₂^{2m}}δ₁^{σ₂^m}δ₀^{σ₂^m}δ₀` (draft
   eq:Mcompact-word); pro-2 core `A₀²[A₀,x₁]σ^{2m}[σ,x₂]` with `2m = 2^α` (packet Prop. 9.2).
-  Forward `E_m` order is **singular** on a primitive-5th-root orbit (det
-  `R^{-2}(1+R+R²+R³+R⁴)`) — F5 mutant row must reject it. Projector cases `P=1`:
+  **[CORRECTED 2026-07-31, twice-over]** The draft's forward-order rejection story is wrong
+  in reason AND witness (S4.1/errata item 6: the forward form is NONSINGULAR — the failure
+  is second-order via a linear form, with a proof-grade difference formula in (q,b_q,P,W);
+  the fifth-root orbit covers neither displayed instance, the seventeenth-root covers both),
+  AND the mutant is **F5-unrejectable**: forward and reversed 𝓔-blocks agree pointwise on
+  EVERY marking of S₃/D₈/A₄ (and S₄, SL(2,3), GL(2,3)) — structural, by the freeze's
+  coverage criterion (a separating orbit needs dim ≥ 2^α; these wild layers have 𝔽₂-dim
+  ≤ 2). F5's row is pinned NOT-SEPARATED so it fails loudly if a target ever separates.
+  **WM0-a must NOT promise a finite-target rejection of the forward order** — the rejection
+  of record is S4.1's §9.4 difference formula, and the Lean-side mutant rejection belongs at
+  the WM0-c second-order certificate level. Projector cases `P=1`:
   `q(c₀)+b_q(c₀,c₁)`, `P=0`: `q(c₁)+b_q(c₀,c₁)`, each with explicit change of variables
   (ledger §7). Instances √2 (`m=4`) and √5 (`m=2`) pinned in AS3.
 

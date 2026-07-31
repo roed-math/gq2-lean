@@ -47,7 +47,7 @@
 #       or definition.  → packet Prop. 8.1 / docs/dyadic/refs/README.md override 1.
 #   D4  One-tree hash hook: placeholder until WW5 lands the generated artifacts.
 #       → merge gate 7 (its hash half).
-#   D5  Python sanity harness hook: placeholder until F5 ports the regression harness.
+#   D5  Python sanity harness (scripts/dyadic_sanity_counts.py, F5 — live since 2026-07-31).
 #       → evidence for merge gates 5 and 9 (regressions only, never cited by a proof).
 #
 # NOT mechanized here, and still reviewed by hand at every merge: gate 5 (no field-specific
