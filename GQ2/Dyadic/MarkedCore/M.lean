@@ -150,8 +150,8 @@ theorem mCommute_zpowZtwo (hP : IsProP 2 P) (x : P) (u : ℤ_[2]) :
     rw [zpowZtwo_add, zpowZtwo_one_exp]
   have h2 : zpowZtwo hP x (u + 1) = zpowZtwo hP x u * x := by
     rw [zpowZtwo_add, zpowZtwo_one_exp]
-  have := h1.symm.trans (by rw [add_comm] : zpowZtwo hP x (1 + u) = zpowZtwo hP x u * x)
-  exact this
+  show x * zpowZtwo hP x u = zpowZtwo hP x u * x
+  rw [← h1, ← h2, add_comm]
 
 /-- 2-adic powering commutes with conjugation. -/
 theorem mConjP_zpowZtwo (hP : IsProP 2 P) (x g : P) (u : ℤ_[2]) :
@@ -161,13 +161,13 @@ theorem mConjP_zpowZtwo (hP : IsProP 2 P) (x g : P) (u : ℤ_[2]) :
         (fun a b => by simp [mul_assoc])).toMonoidHom,
       by
         show Continuous fun a => g⁻¹ * (a * g)
-        exact (continuous_mul_left g⁻¹).comp (continuous_mul_right g)⟩ with hφ
+        exact (continuous_const_mul g⁻¹).comp (continuous_mul_const g)⟩ with hφ
   have hφx : ∀ y : P, φ y = conjP y g := fun y => by
     show g⁻¹ * (y * g) = g⁻¹ * y * g
     group
   have h := map_zpowZtwo hP hP φ x u
   rw [hφx, hφx] at h
-  exact h.symm
+  exact h
 
 /-- 2-adic powering of an inverse is the inverse of the power. -/
 theorem mZpowZtwo_inv (hP : IsProP 2 P) (x : P) (u : ℤ_[2]) :
@@ -177,11 +177,9 @@ theorem mZpowZtwo_inv (hP : IsProP 2 P) (x : P) (u : ℤ_[2]) :
       map_one' := by simp
       map_mul' := fun a b => by
         simp only [map_mul, mul_inv_rev]
-        have hc : Commute (zpowZtwoHom hP x a) (zpowZtwoHom hP x b) := by
-          show zpowZtwo hP x a.toAdd * _ = _
-          rw [← zpowZtwo_add, add_comm, zpowZtwo_add]
-          rfl
-        rw [hc.inv_inv.eq] } with hφ
+        have hc : Commute (zpowZtwoHom hP x a) (zpowZtwoHom hP x b) :=
+          (Commute.all a b).map (zpowZtwoHom hP x)
+        exact hc.inv_inv.eq.symm } with hφ
   have hφc : Continuous φ := (zpowZtwoHom hP x).continuous_toFun.inv
   have h := zpowZtwoHom_unique hP hφc u
   have h1 : φ (ofAdd (1 : ℤ_[2])) = x⁻¹ := by
@@ -226,7 +224,8 @@ section Parity
 
 /-- **Mod-2 parity of a 2-adic integer**, valued in `ZMod 2` (the coefficient ring of the mod-2
 frame).  Routed through `PadicInt.toZModPow 1` so that every fact reduces to a finite check. -/
-def mParityZ (b : ℤ_[2]) : ZMod 2 := ((PadicInt.toZModPow (p := 2) 1 b).val : ZMod 2)
+noncomputable def mParityZ (b : ℤ_[2]) : ZMod 2 :=
+  ((PadicInt.toZModPow (p := 2) 1 b).val : ZMod 2)
 
 theorem mParityZ_add (a b : ℤ_[2]) : mParityZ (a + b) = mParityZ a + mParityZ b := by
   unfold mParityZ
@@ -254,7 +253,7 @@ theorem mToZModPow_one_two : PadicInt.toZModPow (p := 2) 1 (2 : ℤ_[2]) = 0 := 
   decide
 
 /-- **The sign of a 2-adic exponent**: `(−1)^b` read through the parity. -/
-def mSign (b : ℤ_[2]) : ℤ_[2]ˣ := (-1) ^ (PadicInt.toZModPow (p := 2) 1 b).val
+noncomputable def mSign (b : ℤ_[2]) : ℤ_[2]ˣ := (-1) ^ (PadicInt.toZModPow (p := 2) 1 b).val
 
 /-- `(−1)²  = 1` in `ℤ₂ˣ`. -/
 theorem mNegOne_sq : ((-1 : ℤ_[2]ˣ)) ^ 2 = 1 := by
@@ -268,8 +267,7 @@ theorem mNegOne_zpow (b : ℤ_[2]) :
 
 @[simp] theorem mSign_two_mul (x : ℤ_[2]) : mSign (2 * x) = 1 := by
   unfold mSign
-  rw [map_mul, mToZModPow_one_two, zero_mul]
-  decide +kernel
+  rw [map_mul, mToZModPow_one_two, zero_mul, ZMod.val_zero, pow_zero]
 
 /-- The sign at parity `ε ∈ ZMod 2`, in the exponent normal form `(−1)^{ε.val}`. -/
 theorem mSign_eq_pow_val (b : ℤ_[2]) :
@@ -292,7 +290,7 @@ section Depth
 theorem mUnit_sub_one {α : ℕ} (hα : 1 ≤ α) :
     ((mUnit α : ℤ_[2]ˣ) : ℤ_[2]) - 1 = 2 ^ α * ((mUnit α : ℤ_[2]ˣ) : ℤ_[2]) := by
   have h := mUnit_mul hα
-  linear_combination -h
+  linear_combination h
 
 /-- Level telescoping: from `η − 1 = 2^s·a` (`a` a unit, `s ≥ 2`) the `2^m`-th power has
 `η^{2^m} − 1 = 2^{m+s}·(unit)`.  Generalizes `exists_unit_pow_two_pow_sub_one` (level 2);
@@ -319,21 +317,19 @@ theorem mExists_unit_pow_two_pow_sub_one (η a : ℤ_[2]ˣ) (s : ℕ) (hs : 2 �
     have hplus : ((η ^ 2 ^ m : ℤ_[2]ˣ) : ℤ_[2]) + 1
         = 2 * (1 + 2 ^ (m + s - 1) * (b : ℤ_[2])) := by
       have h2pow : (2 : ℤ_[2]) ^ (m + s) = 2 * 2 ^ (m + s - 1) := by
-        rw [show m + s = m + s - 1 + 1 by omega, pow_succ]
+        obtain ⟨k, hk⟩ : ∃ k, m + s = k + 1 := ⟨m + s - 1, by omega⟩
+        rw [hk, Nat.add_sub_cancel, pow_succ]
         ring
       have hx : ((η ^ 2 ^ m : ℤ_[2]ˣ) : ℤ_[2]) = 1 + 2 ^ (m + s) * (b : ℤ_[2]) := by
         linear_combination hb
       rw [hx, h2pow]
       ring
-    rw [hpow]
-    push_cast
     have hfact : (((η ^ 2 ^ m : ℤ_[2]ˣ) : ℤ_[2])) ^ 2 - 1
         = (((η ^ 2 ^ m : ℤ_[2]ˣ) : ℤ_[2]) - 1) * (((η ^ 2 ^ m : ℤ_[2]ˣ) : ℤ_[2]) + 1) := by
       ring
-    rw [hfact, hb, hplus, IsUnit.unit_spec]
     have hexp : (2 : ℤ_[2]) ^ (m + 1 + s) = 2 ^ (m + s) * 2 := by
       rw [show m + 1 + s = m + s + 1 by omega, pow_succ]
-    rw [hexp]
+    rw [hpow, Units.val_pow_eq_pow_val, hfact, hb, hplus, Units.val_mul, IsUnit.unit_spec, hexp]
     ring
 
 /-- **Level-`s` injectivity of unit powering**: if `η − 1 = 2^s·a` with `a ∈ ℤ₂ˣ` and `s ≥ 2`
@@ -467,10 +463,8 @@ theorem mChi_row_extract {α : ℕ} (hα : 2 ≤ α) {b d w : ℤ_[2]} {ε : ZMo
     have hb01 : (PadicInt.toZModPow (p := 2) 1 b).val = 0
         ∨ (PadicInt.toZModPow (p := 2) 1 b).val = 1 := by omega
     have hε01 : ε.val = 0 ∨ ε.val = 1 := by omega
-    rcases hb01 with hb0 | hb1 <;> rcases hε01 with hε0 | hε1 <;>
-      simp only [hb0, hb1, hε0, hε1] at h4 ⊢ <;> first
-      | rfl
-      | exact absurd h4 (by decide)
+    rcases hb01 with hb | hb <;> rcases hε01 with hε | hε <;> rw [hb, hε] at h4 ⊢ <;>
+      revert h4 <;> decide
   refine ⟨?_, ?_⟩
   · unfold mParityZ
     rw [hvals]
