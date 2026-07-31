@@ -348,6 +348,20 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- 2026-07-30 (orchestrator, NC4 outcomes): merged, import registered; audit green **3414
+  jobs**, census 11. 451 ln / 30 decls, ALL std-3. **The memo's route held with NO
+  deviation** — every hand-computed block value was correct as written, sign and side
+  conventions included. Two confirmations: (a) the D-block's evaluated V-part comes out
+  literally `A⁻¹•c₀ + B•(c₀ + A⁻¹•c₀)`, and compressed↔expanded agree operator-by-operator
+  via `smul_add`/`mul_smul`/`mul_inv_rev` alone — **the S3.2 correction is visibly the two
+  conjugators the draft dropped**; (b) the charge quarantine works as designed (`ζ_D` never
+  assembled). `npcEBlock_eval` landed as an EQUATION (not an existential). ⚠ **Upstream
+  note**: NC4's §0 `Marking.eval_{conj,comm,zpow,profPow,etaPow,omega2Pow,invConj}` belong in
+  `GQ2/Dyadic/Word/Eval.lean` (F2's file, which NC4 could not edit) — they live in
+  Seams.lean under their natural names; if a later ticket adds them upstream it is a hard
+  duplicate-name error, not silent breakage — **orchestrator call at that merge**.
+  **NC4 smoke-tested NC5's assembly in scratch (12-line rw chain, std-3) and recorded the
+  recipe in Seams.lean's docstring; NC5 dispatched** with it.
 - 2026-07-30 (orchestrator, post-credit re-dispatch on OPUS): the authorized work continues
   on opus (the fable model column is now aspirational — read it as "hard seam"). Running:
   **MC4** (RESUME from the green 747-ln salvage — the classification, the GL₂(ℤ₂) block via
