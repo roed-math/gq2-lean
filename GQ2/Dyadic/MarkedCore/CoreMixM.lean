@@ -45,9 +45,9 @@ apply — but it does pin the `Ā`-row:
 Ā = −2^{α−1}·C̄₀        (`mChar_frameZero`, α ≥ 1).
 ```
 
-So the leftovers are not invisible; they are **`C̄₀`-multiples**, and `C̄₀`-multiples on the `D̄`-row
-are exactly what HM4's exact transvection `τ_c` writes.  One further `τ_c` therefore clears the
-`D̄`-row, and the `B̄`-row's `k·Ā` merges into the `C̄₀`-coefficient:
+So the leftovers are not invisible; they are **`C̄₀`-multiples**, and a `C̄₀`-multiple on the
+`D̄`-row is exactly what HM4's exact transvection `τ_c` writes.  One further `τ_c` therefore clears
+the `D̄`-row, and the `B̄`-row's `k·Ā` merges into the `C̄₀`-coefficient:
 
 ```
 hm6FrameBDc k ∘ frameTauD (k·2^{α−1})  =  ( B̄ ↦ B̄ + k(1 − 2^{α−1})·C̄₀ ) .
@@ -140,10 +140,10 @@ end CharRel
 
 /-! ## §2 The last shear, at the frame level
 
-Two identities, both on an arbitrary frame vector `m` subject only to the pinning
-`m 0 = −(e · m 2)` — `e = 2^{α−1}` at the ν-frames of `D_M`, and the general `e` keeps the
-arithmetic visible.  The first is the route this file takes; the second records what HM6ef's
-literal `τ_a` composite gives, and why it is neither necessary nor sufficient on its own. -/
+Three identities, all on an arbitrary frame vector `m` subject only to the pinning
+`m 0 = −(e · m 2)` — `e = 2^{α−1}` at the ν-frames of `D_M`, and carrying the general `e` keeps
+the arithmetic visible.  The first is the route this file takes; the second and third are the
+`τ_a` route, and say why it is neither necessary nor sufficient on its own. -/
 
 section PureFrame
 
@@ -180,9 +180,9 @@ theorem hm6FrameBDc_frameTauD (k e : ℤ_[2]) (m : Fin (coreRank h) → ℤ_[2])
     Function.update_of_ne h1]
 
 /-- **MC3's `τ_a` row is itself a pure `M5` row.**  Once the `Ā`-row is pinned, `Λ_k`'s frame
-action `B̄ ↦ B̄ + k·Ā` *is* `B̄ ↦ B̄ − k·e·C̄₀`, i.e. `nFrameMixX1 (−k·e)`.  At `e = 2^{α−1}` this is
-the `B_c = −k·2^{α−1}` entry MC3's Nielsen table records for `mFamM1`, and it shows `τ_a` reaches
-only the parameter ideal `2^{α−1}ℤ₂`. -/
+action `B̄ ↦ B̄ + k·Ā` *is* `B̄ ↦ B̄ − k·e·C̄₀`, i.e. `nFrameMixX1 (−k·e)`.  At `e = 2^{α−1}` that
+is the `B_c = −k·2^{α−1}` entry MC3's Nielsen table records for `mFamM1`, and it shows `τ_a`
+reaches only the parameter ideal `2^{α−1}ℤ₂`. -/
 theorem mFrameLambda_eq_nFrameMixX1 (k e : ℤ_[2]) (m : Fin (coreRank h) → ℤ_[2])
     (h0 : m 0 = -(e * m 2)) : mFrameLambda k m = nFrameMixX1 (-(k * e)) m := by
   funext i
@@ -237,8 +237,8 @@ noncomputable def dmPureM5 (α h : ℕ) (k : ℤ_[2]) :
   (dmPureMix α h k).trans (dmTauDEquiv α h (k * 2 ^ (α - 1)))
 
 /-- **The displayed pure `M5` row, realized inside `A⁺(P,h)`** — the `M` mirror of HM6ef's
-`dnRealizesWide_frameMixX1`.  The parameter is twisted by `1 − 2^{α−1}`; §3's reparametrization
-untwists it. -/
+`dnRealizesWide_frameMixX1`.  The parameter is twisted by `1 − 2^{α−1}`, which
+`exists_dmRealizesWide_frameMixX1` untwists. -/
 theorem dmRealizesWide_pureM5 (hα : 1 ≤ α) (k : ℤ_[2]) :
     DmRealizesWide α h (dmPureM5 α h k) (frameEnd (nFrameMixX1 (k * (1 - 2 ^ (α - 1))))) := by
   rw [dmPureM5]
@@ -264,10 +264,9 @@ valid exponent, `Parameters.lean`'s `Valid`).  Reparametrization by the unit of
 theorem exists_dmRealizesWide_frameMixX1 (hα : 2 ≤ α) (b : ℤ_[2]) :
     ∃ Ψ : ContinuousMulEquiv (DM α h : Type) (DM α h : Type),
       DmRealizesWide α h Ψ (frameEnd (nFrameMixX1 b)) := by
-  set u := (mIsUnit_one_sub_two_pow hα).unit with hu
-  have huval : ((u : ℤ_[2]ˣ) : ℤ_[2]) = 1 - 2 ^ (α - 1) := IsUnit.unit_spec _
+  obtain ⟨u, hu⟩ := mIsUnit_one_sub_two_pow (α := α) hα
   have hkey : b * ((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * (1 - 2 ^ (α - 1)) = b := by
-    rw [← huval, mul_assoc, ← Units.val_mul, inv_mul_cancel, Units.val_one, mul_one]
+    rw [← hu, mul_assoc, ← Units.val_mul, inv_mul_cancel, Units.val_one, mul_one]
   exact ⟨_, hkey ▸ dmRealizesWide_pureM5 α h (by omega) (b * ((u⁻¹ : ℤ_[2]ˣ) : ℤ_[2]))⟩
 
 end PureLift
@@ -330,8 +329,13 @@ section StressPin
 /-- The rank-four core with one handle has six letters. -/
 example : coreRank 1 = 6 := by decide
 
-/-- The `α = 2` twist exponent is `2^{α−1} = 2` — a kernel `decide` on the `ℕ`-side arithmetic
-that feeds the pins below. -/
+/-- The four core slots stay pairwise distinct at `h = 1` — the index separation every case
+split in §2 runs on, checked by the kernel at the concrete rank. -/
+example : (0 : Fin (coreRank 1)) ≠ 1 ∧ (0 : Fin (coreRank 1)) ≠ 3 ∧ (1 : Fin (coreRank 1)) ≠ 2
+    ∧ (1 : Fin (coreRank 1)) ≠ 3 := by decide
+
+/-- The `α = 2` twist exponent is `2^{α−1} = 2`, which is what makes the coefficient below
+`1 − 2 = −1`. -/
 example : (2 : ℕ) ^ (2 - 1) = 2 := by decide
 
 /-- Pin: at `α = 2` the twist coefficient is the unit `−1`. -/
@@ -368,7 +372,8 @@ remains is:
   by any relator-preserving word automorphism), so no widening of the generating set produces
   them.  `MCoreMixHypothesisWide α h ⟨M4, M6, M7⟩` therefore stays a binder, with MC1 §8
   Decision 2(A)'s levelwise/graded-Lie price and its "unknown risk" label intact.
-* **MC3's S2 unit-scaling binder** — family `M3` (`Σ_γ : C₀ ↦ C₀^γ`), which runs through the
+* **The S2 unit-scaling binder** — the S2 half of `MNielsenScalingHypothesis`
+  (`HandleMixClear.lean:1154`), i.e. MC3's family `M3` (`Σ_γ : C₀ ↦ C₀^γ`), which runs through the
   *existing* axiom B8 exactly as its `N`-side counterpart does.  Untouched here.
 
 Two scoping notes, so that the boundary of this file is not mistaken for a mathematical one.
