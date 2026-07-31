@@ -1289,6 +1289,253 @@ theorem mNielsen_factorization {α : ℕ} (hα : 2 ≤ α) (p : MStabParam) :
 
 end Nielsen
 
+/-! ## §6 The hypothesis binders (never axioms)
+
+Two binders, both `def`s and both listed in `check_dyadic.sh`'s D2 obligation guard so that
+they can never silently become axioms.
+
+* `MLabHypothesis` (memo §6.4, G-Lab Decision 1) — Labute's classification of Demushkin groups
+  of even rank with `q = 2`, specialised to the `M_α` core.  **Deviation from the rank-three
+  `BLabHypothesis`** (`GQ2/Roe/MarkedPro2.lean:141`): there the hypothesis is specialised to
+  the concrete presented group `D_R`; here the other side is `G_K(2)`, which is not presented,
+  so the abstract-`G` form is forced (the memo's R6).  The orientation-canonicity clause is a
+  **parameter** `mIsCanonical`, for two reasons — the repo has no abstract dualizing-module
+  characterisation of the canonical orientation (`GQ2/Orientation.lean` deferral), and
+  quantifying over *all* continuous characters with the stated image would be false, since
+  `N_α` also admits characters whose image is `imChiM α` when `α` is small.  Consumers (MC5)
+  instantiate the parameter with whatever descent characterisation their `G` supports.
+* `MMixHypothesis` (memo §5.3/§8 Decision 2(B)) — the S3 core-mixing residue.
+
+**Recorded finding (G-Lab news), sharpening MC1 §8.**  HM4's `MCoreMixHypothesis α h S3` is
+`DmRealizesAll α h S3`, whose first clause demands that the realizing automorphism lie in
+`Submonoid.closure (dmClearAuts α h)`.  Every generator of that monoid — `dmTauUEquiv`,
+`dmTauVEquiv`, `dmTauDEquiv`, `dmMixEquiv` — fixes the letters `B` and `C₀` *pointwise*, so no
+element of the monoid can move the `B̄`- or `C̄₀`-row of a ν-frame vector; that is, for every
+move in families M3–M7 with a non-trivial parameter, the clause is unsatisfiable.  The clause
+was standing in as a χ-preservation certificate (that is what
+`chiM_of_mem_dmClearAuts` extracts from it), so the honest reshape is to demand χ-preservation
+itself.  `MMixHypothesis` does exactly that.  `mLiftSplit_of_handle` below measures what is
+left of the `MLiftSplit` contract once this is taken into account: everything inside the handle
+monoid is a *theorem*, and nothing outside it is reachable. -/
+
+section Binders
+
+open Multiplicative
+
+/-- **The `M_α` orientation image** `im χ_M = ⟨−1⟩ × ⟨(1−2^α)⁻¹⟩ = {±1}·(1 + 2^αℤ₂)` (memo
+§2.2(i), packet §8 line 765's `C`).  This is the `M`/`N` separator: `im χ_N` is procyclic. -/
+noncomputable def imChiM (α : ℕ) : Subgroup ℤ_[2]ˣ :=
+  (Subgroup.closure ({-1, mUnit α} : Set ℤ_[2]ˣ)).topologicalClosure
+
+theorem neg_one_mem_imChiM (α : ℕ) : (-1 : ℤ_[2]ˣ) ∈ imChiM α :=
+  Subgroup.le_topologicalClosure _ (Subgroup.subset_closure (by simp))
+
+theorem mUnit_mem_imChiM (α : ℕ) : mUnit α ∈ imChiM α :=
+  Subgroup.le_topologicalClosure _ (Subgroup.subset_closure (by simp))
+
+/-- **M-Lab (hypothesis form — never an axiom).**  Labute's classification of Demushkin groups
+of even rank with `q = 2` (Labute 1967, Thm 8: such groups are separated by `(rank, q, im χ)`),
+specialised to the `M_α` core of rank `coreRank h = 4 + 2h`.  See the §6 preamble for the two
+deviations from `BLabHypothesis`. -/
+def MLabHypothesis (α h : ℕ)
+    (mIsCanonical : ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G],
+      (G →* ℤ_[2]ˣ) → Prop) : Prop :=
+  ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    [T2Space G] [TotallyDisconnectedSpace G] [DistribMulAction G (ZMod 2)]
+    [ContinuousSMul G (ZMod 2)],
+    IsDemushkin 2 G → demushkinRank 2 G = coreRank h → demushkinQ G = 2 →
+      (∃ χ : G →* ℤ_[2]ˣ, Continuous χ ∧ mIsCanonical G χ ∧ MonoidHom.range χ = imChiM α) →
+        Nonempty (ContinuousMulEquiv G (DM α h : Type))
+
+/-- **The S3 core-mixing residue as a hypothesis binder** (memo §5.3, §8 Decision 2(B);
+a `def`, never an axiom).  Given a transported marking `ν'` that is already cleared on the
+handle letters and unimodular on `C₀`, a χ-preserving automorphism of `D_M` carries `ν'` to the
+standard marking `ν_M`.  This is the honest reshape of HM4's `MCoreMixHypothesis` — see the §6
+preamble for why the literal form is unsatisfiable for every non-trivial core move. -/
+def MMixHypothesis (α h : ℕ) (hα : 1 ≤ α) : Prop :=
+  ∀ nu' : ContinuousMonoidHom (DM α h : Type) (Multiplicative ℤ_[2]),
+    IsUnit (toAdd (nu' (dmC α h))) →
+    (∀ j : Fin h, nu' (dmGen α h (handleIdxU j)) = 1) →
+    (∀ j : Fin h, nu' (dmGen α h (handleIdxV j)) = 1) →
+      ∃ Ψ : ContinuousMulEquiv (DM α h : Type) (DM α h : Type),
+        (∀ x, chiM α h (Ψ x) = chiM α h x)
+          ∧ ∀ i, nu' (Ψ (dmGen α h i)) = nuM α h hα (dmGen α h i)
+
+/-- **How much of the `MLiftSplit` contract is free.**  Both stratum sets, as long as they lie
+inside the handle monoid `Submonoid.closure (frameClearGens h)`, are covered by the HM lane's
+theorem `mLiftSplit_handle` — no hypothesis at all.  In particular `MLiftSplit α h ∅ ∅` holds
+unconditionally, and at `h = 0` the handle monoid is trivial, so this is the whole of it. -/
+theorem mLiftSplit_of_handle (α h : ℕ)
+    {S12 S3 : Set (Function.End (Fin (coreRank h) → ℤ_[2]))}
+    (h12 : S12 ⊆ (Submonoid.closure (frameClearGens h) : Set _))
+    (h3 : S3 ⊆ (Submonoid.closure (frameClearGens h) : Set _)) :
+    MLiftSplit α h S12 S3 :=
+  (mLiftSplit_iff α h S12 S3).mpr
+    ⟨fun F hF => mLiftSplit_handle α h F (h12 hF), fun F hF => mLiftSplit_handle α h F (h3 hF)⟩
+
+theorem mLiftSplit_empty (α h : ℕ) : MLiftSplit α h ∅ ∅ :=
+  mLiftSplit_of_handle α h (Set.empty_subset _) (Set.empty_subset _)
+
+end Binders
+
+/-! ## §7 The correction assembly — the MC-M obligation
+
+Packet Prop. 7.2 at the `M`-core, in the shape memo §6.3 calls `hLift`.  The proof is the
+two-stratum composition:
+
+1. **handles — a THEOREM.**  `mHandleMixLift` (HM lane, HM1–HM5) produces a χ-preserving
+   `Ψ₁ ∈ ⟨dmClearAuts⟩` killing `ν'` on every handle letter and fixing `ν'(C₀)`.
+2. **core — the binder.**  `MMixHypothesis` applied to the transported marking `ν'∘Ψ₁`.
+
+The composite `Ψ₂.trans Ψ₁` is the correction: it preserves `χ_M` (both factors do) and carries
+`ν'` to `ν_M` on every marked generator.  Nothing here discharges the binder; the obligation
+headline is a `theorem` whose only assumption is a `def`. -/
+
+section Assembly
+
+open Multiplicative
+
+/-- **MC-M (correction form)** — packet Prop. 7.2 at the `M`-core.  Under the S3 binder
+`MMixHypothesis`, every transported marking `ν'` with `ν'(C̄₀) ∈ ℤ₂ˣ` admits a correction
+`Ψ ∈ Aut(D_M)` with `χ_M ∘ Ψ = χ_M` and `ν' ∘ Ψ = ν_M` on the marked generators.  The handle
+stratum is discharged, not assumed. -/
+theorem prop_MC_M_correction {α h : ℕ} (hα : 1 ≤ α) (hMix : MMixHypothesis α h hα)
+    (nu' : ContinuousMonoidHom (DM α h : Type) (Multiplicative ℤ_[2]))
+    (hc : IsUnit (toAdd (nu' (dmC α h)))) :
+    ∃ Ψ : ContinuousMulEquiv (DM α h : Type) (DM α h : Type),
+      (∀ x, chiM α h (Ψ x) = chiM α h x)
+        ∧ ∀ i, nu' (Ψ (dmGen α h i)) = nuM α h hα (dmGen α h i) := by
+  obtain ⟨Ψ₁, -, hΨ₁chi, hU, hV, hC⟩ := mHandleMixLift α h nu' hc
+  have hc₁ : IsUnit (toAdd ((nu'.comp (autHom Ψ₁)) (dmC α h))) := by
+    show IsUnit (toAdd (nu' (Ψ₁ (dmC α h))))
+    rw [hC]
+    exact hc
+  obtain ⟨Ψ₂, hΨ₂chi, hΨ₂nu⟩ := hMix (nu'.comp (autHom Ψ₁)) hc₁ hU hV
+  refine ⟨Ψ₂.trans Ψ₁, fun x => ?_, fun i => ?_⟩
+  · show chiM α h (Ψ₁ (Ψ₂ x)) = chiM α h x
+    rw [hΨ₁chi, hΨ₂chi]
+  · exact hΨ₂nu i
+
+/-- **MC-M at rank four** (`h = 0`, no handles): the same statement with the handle stratum
+absent, so the S3 binder is the *only* input. -/
+theorem prop_MC_M_correction_zero {α : ℕ} (hα : 1 ≤ α) (hMix : MMixHypothesis α 0 hα)
+    (nu' : ContinuousMonoidHom (DM α 0 : Type) (Multiplicative ℤ_[2]))
+    (hc : IsUnit (toAdd (nu' (dmC α 0)))) :
+    ∃ Ψ : ContinuousMulEquiv (DM α 0 : Type) (DM α 0 : Type),
+      (∀ x, chiM α 0 (Ψ x) = chiM α 0 x)
+        ∧ ∀ i, nu' (Ψ (dmGen α 0 i)) = nuM α 0 hα (dmGen α 0 i) :=
+  prop_MC_M_correction hα hMix nu' hc
+
+/-- **MC-M in the `MLiftSplit` shape** (HM4's contract, threaded literally): the same
+correction, with the handle stratum certified by an `MLiftSplit` record.  The record's `handle`
+field is the HM lane's theorem, so this adds no assumption beyond `MMixHypothesis`; it exists
+so that MC5 can consume the obligation in the shape the split API advertises. -/
+theorem prop_MC_M_correction_split {α h : ℕ} (hα : 1 ≤ α)
+    {S12 S3 : Set (Function.End (Fin (coreRank h) → ℤ_[2]))}
+    (_hs : MLiftSplit α h S12 S3) (hMix : MMixHypothesis α h hα)
+    (nu' : ContinuousMonoidHom (DM α h : Type) (Multiplicative ℤ_[2]))
+    (hc : IsUnit (toAdd (nu' (dmC α h)))) :
+    ∃ Ψ : ContinuousMulEquiv (DM α h : Type) (DM α h : Type),
+      (∀ x, chiM α h (Ψ x) = chiM α h x)
+        ∧ ∀ i, nu' (Ψ (dmGen α h i)) = nuM α h hα (dmGen α h i) :=
+  prop_MC_M_correction hα hMix nu' hc
+
+end Assembly
+
+/-! ## §8 Stress pins at `(α, h) = (2, 0)` and `(2, 1)` -/
+
+section Pins
+
+open Multiplicative
+
+/-- Pin: the rank-four core has four letters. -/
+theorem mPin_coreRank_zero : coreRank 0 = 4 := rfl
+
+/-- Pin: one handle adds two letters. -/
+theorem mPin_coreRank_one : coreRank 1 = 6 := rfl
+
+/-- Pin `(α, h) = (2, 1)`: the handle letters of the first (only) handle are the indices
+`4` and `5`. -/
+theorem mPin_handleIdx_one :
+    ((handleIdxU (0 : Fin 1) : Fin (coreRank 1)) : ℕ) = 4
+      ∧ ((handleIdxV (0 : Fin 1) : Fin (coreRank 1)) : ℕ) = 5 :=
+  ⟨by simp [handleIdxU_val], by simp [handleIdxV_val]⟩
+
+/-- **Pin `(α, h) = (2, 0)`: the `M₂` orientation unit is the ℚ₂ unit `η = (−3)⁻¹`.**  Setting
+`α = 2` in `u = (1 − 2^α)⁻¹` gives `(1 − 4)⁻¹ = (−3)⁻¹`, which is exactly the `y₀⁻¹` of
+`GQ2/AnabelianBridge/Classification.lean`'s `chi_row_extract` and of `chiD0G`'s generator
+values.  The rank-four χ-row engine therefore specialises to the rank-three one on the nose. -/
+theorem mPin_mUnit_two : ((mUnit 2 : ℤ_[2]ˣ) : ℤ_[2]) * (-3) = 1 := by
+  have h := mUnit_mul (α := 2) (by norm_num)
+  rw [show ((2 : ℤ_[2]) ^ 2) = 4 by norm_num] at h
+  linear_combination h
+
+/-- Pin: the mod-2 cup Gram is symmetric (it is a cup form). -/
+theorem mPin_mGram_symm : mGram.transpose = mGram := by decide
+
+/-- Pin: the mod-2 cup Gram is nondegenerate (`det = 1` over `𝔽₂`) — the Witt-cancellation
+input of memo §2.3. -/
+theorem mPin_mGram_det : mGram.det = 1 := by decide
+
+/-- Pin: the identity parameter acts trivially on the frame. -/
+theorem mPin_act_id (v : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]) :
+    (⟨0, 1, 0, 0, 1, 0, 0⟩ : MStabParam).act v = v := by
+  obtain ⟨v1, b, c, d⟩ := v
+  rw [MStabParam.act_apply]
+  refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ rfl))
+  · show v1 + mParityZ b * 0 + mParityZ d * mParityZ 0 = v1
+    rw [mParityZ_zero]
+    ring
+  · show b * ((1 : ℤ_[2]ˣ) : ℤ_[2]) + c * (2 * 0) + d * (2 * 0) = b
+    rw [Units.val_one]
+    ring
+  · show b * 0 + c * ((1 : ℤ_[2]ˣ) : ℤ_[2]) + d * 0 = c
+    rw [Units.val_one]
+    ring
+
+/-- **Pin: the Witt coupling is not vacuous.**  `X_b` at `B_c = 1` really does move the torsion
+coordinate of `φ(D̄)` — the `t`-component of `φ(D̄)` is `B_c mod 2` — while at `B_c = 2` it does
+not.  (This is the relation the memo verifies by hand: `B ↦ B+C` alone breaks `⟨A*,C*⟩ = 0`,
+and adding `D ↦ D+A` restores it.) -/
+theorem mPin_witt_coupling :
+    (mFamM5 1).act ((0 : ZMod 2), 0, 0, 1) = ((1 : ZMod 2), 0, 0, 1)
+      ∧ (mFamM5 2).act ((0 : ZMod 2), 0, 0, 1) = ((0 : ZMod 2), 0, 0, 1) := by
+  constructor
+  · rw [mFamM5_act]
+    refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ rfl))
+    · show (0 : ZMod 2) + mParityZ 1 * mParityZ 1 = 1
+      rw [mParityZ_one]
+      ring
+    · show (0 : ℤ_[2]) = 0
+      rfl
+    · show (0 : ℤ_[2]) * 1 + 0 = 0
+      ring
+  · rw [mFamM5_act]
+    refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ rfl))
+    · show (0 : ZMod 2) + mParityZ 1 * mParityZ 2 = 0
+      rw [show (2 : ℤ_[2]) = 2 * 1 by ring, mParityZ_two_mul]
+      ring
+    · show (0 : ℤ_[2]) = 0
+      rfl
+    · show (0 : ℤ_[2]) * 2 + 0 = 0
+      ring
+
+/-- **Pin `(α, h) = (2, 0)`: family M1's frame row.**  `Λ_k` at `α = 2` sends
+`B̄ ↦ (k mod 2)·t + B̄ − 2k·C̄₀`; at `k = 1` the `C̄₀`-shift is `−2`, which is even — the reason
+`Λ_k` never disturbs the Witt coupling. -/
+theorem mPin_famM1_two :
+    (mFamM1 2 1).act ((0 : ZMod 2), 1, 0, 0) = ((1 : ZMod 2), 1, -2, 0) := by
+  rw [MStabParam.act_B, mFamM1]
+  refine Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ rfl))
+  · show mParityZ 1 = 1
+    exact mParityZ_one
+  · show ((1 : ℤ_[2]ˣ) : ℤ_[2]) = 1
+    exact Units.val_one
+  · show -((1 : ℤ_[2]) * 2 ^ (2 - 1)) = -2
+    norm_num
+
+end Pins
+
 end MarkedCore
 
 end Dyadic
