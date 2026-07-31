@@ -68,8 +68,9 @@ Its `M`-side analogue does not exist and is not wanted — `τ_d` moves the lett
 * **§4** `D?RealizesAllWide`, the widened hypothesis names, and the transported HM4/HM5 payoffs
   (`exists_d?Clear_nu_wide`, `chi?_of_mem_d?ClearAutsWide`), plus the residual rigidity
   `dnClearAutsWide_fixes_x0`;
-* **§5** **the payoff**: MC1's pure `N5`/`N6`, the widened S3 binder as a THEOREM, and MC4's
-  `NMixPairHypothesis`/`NMixHypothesis` discharged;
+* **§5** **the payoff**: MC1's pure `N5`/`N6`, the widened S3 binder as a THEOREM, MC4's
+  `NMixPairHypothesis`/`NMixHypothesis` discharged, the `⟨M5⟩` factor on the `M` side, and a
+  stress pin at `(α, h) = (2, 1)` putting MC4's refutation beside its repair;
 * **§6** what stays binder-shaped on the `M` side.
 -/
 
@@ -528,24 +529,50 @@ private theorem cwOne_ne_three : (1 : Fin (coreRank h)) ≠ 3 :=
 private theorem cwZero_ne_three : (0 : Fin (coreRank h)) ≠ 3 :=
   coreVal_lt_three_ne (by rw [coreVal_zero]; omega)
 
-/-- **The `N5` collapse, at the frame level**: `hm6FrameBD p ∘ frameTauD (−p)` is MC4's pure
-mixing move `nFrameMixX1 p` on any frame whose `x̄₀`-row vanishes.  The `τ_c(−p)` factor cancels
-the `σ̄`-shear the raw twist puts on the `x̄₂`-row; the leftover `p·x̄₀` is the invisible one. -/
-theorem hm6FrameBD_frameTauD (p : ℤ_[2]) (m : Fin (coreRank h) → ℤ_[2]) (h0 : m 0 = 0) :
-    hm6FrameBD p (frameTauD (-p) m) = nFrameMixX1 p m := by
+/-- **The `τ_c`-corrected `b,d` move** — memo §3.2's `M5`/`N5` composite before the last shear:
+`b̄ ↦ b̄ + k(ā + c̄)`, `d̄ ↦ d̄ + k·ā`.  The raw twist's `c̄`-shear on the `d̄`-row is gone; what is
+left on that row is a multiple of `ā`, which on `D_N` is invisible and on `D_M` is not. -/
+noncomputable def hm6FrameBDc (k : ℤ_[2]) (m : Fin (coreRank h) → ℤ_[2]) :
+    Fin (coreRank h) → ℤ_[2] :=
+  hm6UpdateBD m (m 1 + k * (m 0 + m 2)) (m 3 + k * m 0)
+
+/-- **The `b,d` collapse, at the frame level, on any core**: composing HM6's raw twist with
+HM4's exact transvection `τ_c(−k)` cancels the `c̄`-shear on the `d̄`-row. -/
+theorem hm6FrameBD_frameTauD_eq (k : ℤ_[2]) (m : Fin (coreRank h) → ℤ_[2]) :
+    hm6FrameBD k (frameTauD (-k) m) = hm6FrameBDc k m := by
   funext i
   by_cases h1 : i = 1
   · subst h1
     rw [hm6FrameBD_one, frameTauD_of_ne _ _ cwOne_ne_three, frameTauD_of_ne _ _ cwZero_ne_three,
-      frameTauD_of_ne _ _ coreTwo_ne_three, nFrameMixX1, Function.update_self, h0, zero_add,
-      smul_eq_mul]
+      frameTauD_of_ne _ _ coreTwo_ne_three, hm6FrameBDc, hm6UpdateBD_one, smul_eq_mul]
   by_cases h3 : i = 3
   · subst h3
     rw [hm6FrameBD_three, frameTauD_three, frameTauD_of_ne _ _ cwZero_ne_three,
-      frameTauD_of_ne _ _ coreTwo_ne_three, nFrameMixX1,
-      Function.update_of_ne (Ne.symm cwOne_ne_three), h0, zero_add, neg_smul]
-    abel
-  rw [hm6FrameBD_of_ne _ _ h1 h3, frameTauD_of_ne _ _ h3, nFrameMixX1, Function.update_of_ne h1]
+      frameTauD_of_ne _ _ coreTwo_ne_three, hm6FrameBDc, hm6UpdateBD_three, smul_eq_mul,
+      smul_eq_mul]
+    ring
+  rw [hm6FrameBD_of_ne _ _ h1 h3, frameTauD_of_ne _ _ h3, hm6FrameBDc,
+    hm6UpdateBD_of_ne _ _ _ h1 h3]
+
+/-- On a frame whose `ā`-row vanishes the corrected move **is** MC4's pure mixing move. -/
+theorem hm6FrameBDc_of_zero (k : ℤ_[2]) (m : Fin (coreRank h) → ℤ_[2]) (h0 : m 0 = 0) :
+    hm6FrameBDc k m = nFrameMixX1 k m := by
+  funext i
+  by_cases h1 : i = 1
+  · subst h1
+    rw [hm6FrameBDc, hm6UpdateBD_one, nFrameMixX1, Function.update_self, h0, zero_add]
+  by_cases h3 : i = 3
+  · subst h3
+    rw [hm6FrameBDc, hm6UpdateBD_three, nFrameMixX1,
+      Function.update_of_ne (Ne.symm cwOne_ne_three), h0, mul_zero, add_zero]
+  rw [hm6FrameBDc, hm6UpdateBD_of_ne _ _ _ h1 h3, nFrameMixX1, Function.update_of_ne h1]
+
+/-- **The `N5` collapse, at the frame level**: `hm6FrameBD p ∘ frameTauD (−p)` is MC4's pure
+mixing move `nFrameMixX1 p` on any frame whose `x̄₀`-row vanishes.  The `τ_c(−p)` factor cancels
+the `σ̄`-shear the raw twist puts on the `x̄₂`-row; the leftover `p·x̄₀` is the invisible one. -/
+theorem hm6FrameBD_frameTauD (p : ℤ_[2]) (m : Fin (coreRank h) → ℤ_[2]) (h0 : m 0 = 0) :
+    hm6FrameBD p (frameTauD (-p) m) = nFrameMixX1 p m :=
+  (hm6FrameBD_frameTauD_eq p m).trans (hm6FrameBDc_of_zero p m h0)
 
 /-- **The `N6` collapse, at the frame level**: `hm6FrameBC (−q) ∘ nCoreMat (planeElemU (−q))` is
 `nFrameMix 0 q` on any frame whose `x̄₀`-row vanishes.  The `N3(−q)` factor cancels the `x̄₂`-shear
@@ -689,6 +716,37 @@ theorem nStabParam_lift_of_scaling (hScal : NPlaneScalingHypothesis α h) {P : N
           nuFrame f (fun i => Ψ (dnGen α h i)) = P.nuAction (nuFrame f (dnGen α h)) :=
   nStabParam_lift α h hScal (nMixPairHypothesis_coreMix α h) hP
 
+/-! ### The `M` side, as far as it goes without `M.lean`
+
+The same two-step composite runs on `D_M` — HM6's `M5` twist followed by HM4's exact `τ_c(−k)` —
+and lands the corrected move `hm6FrameBDc k` as a theorem over `A⁺(P,h)`.  It is *not* MC1's
+displayed pure `M5`: the leftover `D̄ ↦ D̄ + k·Ā` is invisible on `D_N` (`nChar_dnX0`) but not on
+`D_M`, whose abelianized relation is `2Ā + 2^α·C̄₀ = 0` rather than `Ā = 0`.  §6 records what the
+last shear is and where it lives. -/
+
+/-- **MC1 §2.4's family `M5`, `C̄₀`-shear cleared**: HM6's raw twist followed by HM4's exact
+transvection `τ_c(−k)`. -/
+noncomputable def dmPureMix (α h : ℕ) (k : ℤ_[2]) :
+    ContinuousMulEquiv (DM α h : Type) (DM α h : Type) :=
+  (dmCoreMixEquiv α h k).trans (dmTauDEquiv α h (-k))
+
+/-- **The corrected `M5` row, realized inside `A⁺(P,h)`.** -/
+theorem dmRealizesWide_frameBDc (k : ℤ_[2]) :
+    DmRealizesWide α h (dmPureMix α h k) (frameEnd (hm6FrameBDc k)) := by
+  rw [dmPureMix]
+  obtain ⟨hmem, hfr⟩ := (dmRealizesWide_coreMix α h k).trans α h (dmRealizesWide_tauD α h (-k))
+  refine ⟨hmem, fun f => ?_⟩
+  rw [hfr f, frameEnd_mul_apply, frameEnd_apply]
+  exact hm6FrameBD_frameTauD_eq k _
+
+/-- **The `M5` half of MC1 §5.3's S3 stratum is a THEOREM over `A⁺(P,h)`** (memo §5.2's
+"`S3_M = ⟨M5⟩ ⊔ ⟨M4, M6, M7⟩`, and the first factor is a theorem").  The residual binder is the
+second factor, and §6 records why no widening reaches it. -/
+theorem mCoreMixHypothesisWide_m5 :
+    MCoreMixHypothesisWide α h (Set.range fun k : ℤ_[2] => frameEnd (hm6FrameBDc k)) := by
+  rintro F ⟨k, rfl⟩
+  exact ⟨_, dmRealizesWide_frameBDc α h k⟩
+
 end PureLift
 
 /-! ### Stress pin: narrow FALSE, wide TRUE, on the same stratum
@@ -716,14 +774,15 @@ end StressPin
 
 Two residues, both on the `M` side, and neither of them repairable by widening.
 
-* **The `M5` isolation.**  `dmRealizesWide_coreMix` realizes the *raw* twist
-  `hm6FrameBD k`, and `(dmCoreMixEquiv α h k).trans (dmTauDEquiv α h (-k))` clears its `C̄₀`-shear
-  exactly as on the `N` side.  What is left over is `D̄ ↦ D̄ + k·Ā`, and unlike `x̄₀` on `D_N` the
-  row `Ā` is *not* killed by every character of `D_M` — the abelianized relation is
-  `2Ā + 2^α·C̄₀ = 0`, not `Ā = 0`.  Isolating MC1's pure `M5` therefore needs one more shear,
-  `τ_a(−k) : B ↦ A^{−k}·B`, which is an **exact** family (memo §3.2) but lives on the `M` side
-  in MC3's `M.lean`; this file does not import it.  Nothing mathematical is missing — the
-  composite is one `.trans` away once the two files meet.
+* **The `M5` isolation's last shear.**  `mCoreMixHypothesisWide_m5` lands the `⟨M5⟩` factor over
+  `A⁺(P,h)` at the corrected move `hm6FrameBDc k` — the raw twist with its `C̄₀`-shear cleared by
+  `τ_c(−k)`, exactly as on the `N` side.  What is left over on the `D̄`-row is `k·Ā`, and unlike
+  `x̄₀` on `D_N` the row `Ā` is *not* killed by every character of `D_M`: the abelianized
+  relation is `2Ā + 2^α·C̄₀ = 0`, not `Ā = 0` (`hm6FrameBDc_of_zero` is the exact hypothesis that
+  fails).  Reaching MC1's *displayed* pure `M5` therefore needs one more shear,
+  `τ_a(−k) : B ↦ A^{−k}·B` — an **exact**, axiom-free family (memo §3.2), but one that lives on
+  the `M` side in MC3's `M.lean`, which this file does not import.  Nothing mathematical is
+  missing: the composite is one `.trans` away once the two files meet.
 * **The `⟨M4, M6, M7⟩` residual** (memo §4.2, §4.3).  These are *structurally obstructed*, not
   merely unbuilt: they are not symplectic, hence not reachable by any relator-preserving word
   automorphism, so no widening of the generating set — this one or any other — can produce them.
