@@ -764,3 +764,31 @@ non-opaquely, which this survey found none of beyond the tabulated `Ttame`-relat
   campaign's citation convention and the vendored compile for sections 7–10; labels are
   unambiguous, so nothing here depends on it. Worth one line in the errata bundle's
   clarification note.
+
+---
+
+## §6.3 amendment (orchestrator, 2026-07-31 — the AS-LANDED field shapes)
+
+WW4 landed `PhaseCoverCertificate`/`HessianCertificate` in `GQ2/Dyadic/Word/{Phase,Hessian}.lean`
+with five deviations from the proposed shapes above, all ADOPTED (this block is the record;
+the landed Lean is authoritative):
+
+1. `[Fintype W]` replaces `[Finite W]` in `affine_gauss_translate` (module-side
+   `QuadraticFp2.gaussSum` target; the `[Finite]` Fourier lives in a non-module file).
+2. `card_eq : Fintype.card W = 2 ^ (2 * baseDim)` is an explicit FIELD (the prose
+   "#V = 2^{2m}" made binding; without it `baseDim` is unconstrained; consumed verbatim as
+   the `gaussZ_*` leaves' `hcard`).
+3. `polar_id` is stated through block inclusions `j₀ j₁ : V →+ W` against the
+   f-antisymmetrization `dat.f v w + dat.f w v` — normalization-independent, twisted-row-safe.
+4. `kappa_id` pins the diagonal to an ABSTRACT κ⁰-datum parameter `diag : V → ZMod 2`, not to
+   `q` — NECESSARY: the corrected-Npc endpoint's diagonal is `npcQ0`(∘L_c⁻¹), which is not
+   `q`; compact rows instantiate `diag := fun v ↦ dat.f v v`.
+5. Certificate parameters are explicit `(dat, diag, Qnf, j₀, j₁)`; no `Group C` /
+   `DistribMulAction` instances bound on the records.
+
+Worked rows landed: compact-N, compact-M P=1, compact-M P=0, corrected-Npc SHAPE (the literal
+`npc_cross_operators` identification is WNP-c's — module rule blocks the plain-import bridge
+here). `L_sq` deliberately absent (its endpoint is the rank-3 core, not a plus form). The
+six-item WMP-c `affinePhase` gap list is in WW4's report (board row pointer) — item 5 (the
+`hessRelZ`-at-graph-marking word-side equation) plus the σ-column lemma are the WMP-c
+dispatch's spine.
