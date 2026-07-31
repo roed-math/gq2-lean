@@ -1,9 +1,11 @@
 # Draft errata/queries for the packet author (orchestrator, 2026-07-30 — owner reviews & sends)
 
-Four items found while formalizing / machine-checking the packet
-(`dyadic-presentations-formalization-proof.tex`). None threatens the main results; all four
+Items found while formalizing / machine-checking the packet
+(`dyadic-presentations-formalization-proof.tex`). None threatens the main results; they
 are places where the written text understates an obligation the formal development had to
-meet. Line numbers refer to the July 28 packet.
+meet. Line numbers refer to the July 28 packet. (Cover note: our own section-number
+citations for packet §§7–10 drifted off by one against the vendored compile at one point —
+items below cite by label wherever one exists; when replying, labels are authoritative.)
 
 1. **proof.tex:757 — "hyperbolic handles can then be added by standard Nielsen moves
    preserving their commutator product" is incomplete for the *marked* statement — and we can

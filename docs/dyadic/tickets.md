@@ -348,6 +348,99 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-31 (orchestrator, WW1+WW3+WW5 outcomes — THE WW SPINE IS IN):** all three merged
+  in one train, imports registered, D4 ACTIVATED with WW5's worker-tested line
+  (orchestrator-applied; SKIP text now says "arrives with wave 2"). Combined audit at the
+  train's head. Adopted per ticket: **WW1** — the evaluator is `evalFin` at the semidirect
+  `foxLift` (exact identity, not first-order), Prop 4.1/4.2/Lem 4.3 complete, both n=1
+  hand-row regressions proved; the defect interface is hypothesis-style (no frozen
+  structure) with descent via `foxD_comp_hom` — RATIFIED (strictly more general than the
+  spec's ρ-hardwired shape); Lem 4.3's δ-functor naturality beyond chain-map + coordinatewise
+  transfer DEFERRED to WW3's machinery (docstring says so) — accepted; WW2 must state
+  resolver-correctness at the lift level (`pow_eq_pow_of_modEq_two_mul`) and route
+  ω₂-collapse through the three engine lemmas, never unfold `powOmega2`; new pitfall for all
+  lanes: equating two `foxJacobian`s needs `(A := …)` pinned. **WW3** — second-order rule
+  DEFINITIONAL via `evalZ` (deviation ratified: strictly stronger reuse than a fresh
+  recursion); frozen `lemma_5_7_*` transported via `freeGroupCongr`, not re-proved; Lem 5.1
+  landed as mapping cones + `StokesSES` calculus with the six-clause quotient-free
+  quasi-iso interface (ratified — consumers get witnesses directly); `stokesDuality_of_simple`
+  = the once-only dévissage (wl-recon V6/R5 discharged); the WMP "copies cancel" step is now
+  the `heisJetZero` family — **the σ-column coincidence lemma must be stated against it**;
+  ⚠ flagged gap → **WW3b row created** (universal-coefficient step, ~150 ln, queued opus;
+  fold-into-WL-c1 rejected — it gates the `StokesDualityCertificate` record, whose field
+  shapes ride SD1 §6); WW1↔WW3 bridge = one `map_evalZ` line under the HeisLift→WordLift
+  projection (recorded for WW2/WW4); 3 mathlib-upstream candidates noted. **WW5** — NO
+  second tree encoding (an S1.8 certificate IS an interchange file); hash mirrors ast.py
+  byte-for-byte (schema version outside the hashed bytes); 4 frozen-row digest pins python
+  + 2 in-kernel Lean byte-pins (own `natToString` — `toString`/`Char.ofNat` don't
+  kernel-reduce; `maxRecDepth 8000`); mandate correction accepted (search.json carries no
+  word_ast — pin lives in the certificate twin); **six wave-2 gating mismatches RECORDED
+  as the wave-2 authoring rules**: (1) ⚠ Shadow parses/hashes but does NOT denote —
+  **WMP-a is blocked on a Lean-side `Sh_M` substitution operator** (S4.2's frozen
+  substitution is the spec; dated note added to the WMP spec block); (2) OrbitNorm/handles
+  denote at concrete lengths only (hash unaffected — it is of the unexpanded tree);
+  (3) symbolic exponents denote after assignment; (4) `z2pow` has NO S1.1 counterpart —
+  using it in a hashed word needs an S1.1 migration note first; (5) Shadow param sorting
+  is a checked precondition Lean-side (`paramsWf`); (6) NEITHER side normalizes before
+  hashing — wave-2 Lean trees must be authored in the certificate's spelling (e.g.
+  `integerPower`, never `zhatPower … (.int n)`). Export.lean's `<decl>_astHash` +
+  `#eval assertAstHash` guard is the wave-2 convention. **Dispatched: WW2 (fable, ww,
+  `dyadic-ww2`), WW4 (fable, lg, `dyadic-ww4` — SD1 §6 is its ratified baseline), MC5
+  (fable, mc, `dyadic-mc5`), SD-R1 (opus, wl worktree re-pointed, `dyadic-sdr1`)**;
+  WW3b + WN0-a queued behind the next freed opus slots.
+- **2026-07-31 (orchestrator, SD1 outcomes — THE SD LANE IS RESTRUCTURED):** memo merged
+  (`sd-design.md`, docs-only). **The headline is a structural discovery the recon survey
+  understated**: every generic count in §§4–9 is typed at the concrete ℚ₂ boundary
+  (`b : … ↥boundarySubgroup`, `Ttame`/`PiBd` frames, `tameTau` by name), so a two-sided
+  degree-n theorem cannot be stated against the frozen spine at all — SD-n is a
+  **boundary-abstracted clone** (≈9.1k ln into `GQ2/Dyadic/Recursion/`), with the
+  frozen-file edit list EMPTY (plan A6 holds by construction; LG1's clone ruling is the
+  precedent) and the deep mathematics (VLiftCount's `two_mul_card_centralImage`,
+  descent/keystone/Fourier, Reconstruction — zero boundary mentions, checked) reused as-is.
+  The n = 1 story is STRONGER than wrappers: F3's refl-bridge extends to the subgroup level
+  (`boundarySubgroupQ 2 nuTwo = boundarySubgroup := rfl`, probe-verified), so the cloned
+  stack's n = 1 instances are stated at literally the old boundary. **Adoption calls
+  (flagged blanket — owner may override)**: Q1 = (a) clone-retype, incl. the sub-question's
+  clone-side `VLiftCount` wrapper (edit list stays zero); Q2 = DROP the 4 marked-generator
+  + 8 pinning fields (consumed nowhere; MC1 §(ix); docs move to instantiations; the
+  optional `SourceMarking` companion available if an instance wants it); Q3 = opaque
+  `SourceNumerics` constants, formulas confined to `standardNumerics n` (the solver only
+  cancels shared coefficients — verified line-by-line; `pow_one` is not `rfl`); Q4 =
+  abstract marked pro-2 slot `(P, IsProP 2, nuP)` — SD never waits on MC5; AS1
+  instantiates at `D_P` via the certificate (the `sourceR` transport recipe); Q5 =
+  SN-valued Gauss leaves (`gaussUnram/gaussRam : ℕ → ℤ` of the half-dimension); Q6 =
+  ADOPT the SD-R1–3 wave + one K-supply ticket (rows added; SD2/SD3 rescoped ≈0.5k/≈0.9k;
+  SD2 gains `sourceF_N` from the verified `*_local` leaf pack incl. `hsep_local`/
+  `hpartial_local`) — **K-supply lane assignment (AS vs LG-revival) is the one item left
+  genuinely with the owner**; Q7 = **§6 RATIFIED as WW4's baseline** (maps def:affine-B4
+  onto the five REAL record families per the ledger-§3.4 warning; `affinePhase` is a
+  certificate INPUT the WMP-c worker constructs — the row-5 satisfiability constraint is
+  binding; WW4 deviations go through an SD1-memo amendment, never silent). Degree-analysis
+  correction adopted: eq. (140)'s inner `|M|/|T|` factor is #H¹ = |V|ⁿ and MOVES; the
+  `GaussZResidue` outer `|V|` is #B¹ and is degree-independent. ⚠ errata cover note
+  queued: the campaign's packet citations for §§7–10 are off by one against the vendored
+  compile — cite by label (memo does). SD-R1 queued for the first freed opus slot; sd
+  worktree pruned.
+- **2026-07-31 (orchestrator, MC-OB outcomes — MC5 UNBLOCKED):** merged, import registered;
+  integration audit green (build + check_dyadic; census 11; job count grows by the one new
+  module). Adopted: (i) **`NatWord` deviation RATIFIED** — the layer is built on an abstract
+  word bundle with `NatWord.ofPWord` making F2's reflected syntax an instance, because MC2's
+  `mRelWord`/`nRelWord`/`handleWord` and `drWord` are function-shaped; this is the right
+  altitude, not a dodge. (ii) **layer-order rule recorded**: `Word/` must never import
+  `MarkedCore/` — the MC2 instantiation goes the other way via `relZ_ofDRCoh` (the
+  `?RelWord_centLift_fib` fibres ARE this file's `relZ`; one-line anonymous constructor at
+  the MarkedCore layer — that line belongs to MC5). (iii) `relZ_zero` needs NO Frattini
+  hypothesis (`NatWord.ev_one` unconditional) — cheaper than DRWordCoh's spelling, noted for
+  consumers. (iv) the Frattini parity-reduction (`evalZ_congr_of_parity`) is what makes
+  kernel `decide` usable where the honest ω₂/η̂ resolvers are noncomputable — WW1/WW2 should
+  reuse it rather than re-derive. (v) 1504-vs-900 line overage accepted (multi-relator
+  family + parity reduction + Marking wrappers + pins 6–8 — all consumer-facing).
+  (vi) dedup map (ofDRCoh/toDRCoh + the WordCoh2 shadow list) recorded in-file; WordCoh2
+  itself stays frozen and unimported. **MC5 (fable) dispatched** (mc worktree, branch
+  `dyadic-mc5`): the full brief incl. MC3/MC4 frames, HM4's `MLiftSplit`/`NLiftSplit` +
+  HM6/6ef/6g binder endstates, MC-VAR's transpose rule, the SQ1-R1 L_sq mixing-frame redo,
+  MC-OB's API, the widened odd-L scope, and the compact-M CoV gap (errata item 3) held as an
+  explicit datum. ob worktree pruned.
 - **2026-07-31 (orchestrator, F5 outcomes — the wave's first landing):** merged (script-only;
   check_dyadic green end-to-end in the integration worktree, D5 now OK; full-build re-run not
   information-bearing — no Lean touched). Adopted: (i) ⚠ **the forward-E_m mutant is
@@ -1009,9 +1102,13 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| SD1 | design memo: two-sided degree-n source record | fable | `docs/dyadic/sd-design.md` | recon/sd-survey, G-1 ✓ | **dispatched 2026-07-31** (fresh worktree `gq2-dyadic-sd`, branch `dyadic-sd1`; carries LG1's drop-eulerChar note, F3's `Tq (qOf K FF)` type-field note, FG1's tfg-as-record-field shape, MC1 §(ix); coordinates WW4's phase-interface field shapes) |
-| SD2 | `SourceNumerics n` + parameterized record + n=1 adapters | fable | `GQ2/Dyadic/SourceDataN.lean` (+approved edits per SD1) | SD1, F1 | pending |
-| SD3 | two-sided degree-n induction + ℚ₂ regression | opus | `GQ2/Dyadic/ThmFourTwoN.lean` (+approved edits per SD1) | SD2 | pending |
+| SD1 | design memo: two-sided degree-n source record | fable | `docs/dyadic/sd-design.md` | recon/sd-survey, G-1 ✓ | **done 2026-07-31** (3c1a74b+c978cb2 → merged; 766-ln memo; **structural discovery: the §4–§9 generic machinery is typed at the concrete ℚ₂ boundary** — SD-n is a boundary-abstracted CLONE of the b-typed recursion spine (≈9.1k ln, LG1 "in-place is A6-incompatible" precedent), frozen-file edit list **EMPTY**; n=1 bridge DEFINITIONAL (probe P1: `boundarySubgroupQ 2 nuTwo = boundarySubgroup := rfl`); deep layer (VLiftCount master count, descent/keystone/Fourier, §§5–7, Reconstruction) reused untouched; §6 = the WW4 phase-interface baseline (RATIFIED, Q7); Q1–Q7 adoption calls in log; ⚠ packet-citation off-by-one nit → errata cover note) |
+| SD-R1 | spine clone I: frame layer + Covers/Fourier/Partition/Recursion + Block trio (≈3.2k, mechanical, stop-and-report) | opus | `GQ2/Dyadic/Recursion/` (part I per memo §4.3) | SD1 ✓ | queued (first freed opus slot) |
+| SD-R2 | spine clone II: §9 Terminal/Induction + MStageCount (≈2.2k) | opus | `GQ2/Dyadic/Recursion/` (part II) | SD-R1 | queued |
+| SD-R3 | spine clone III: Phase140 + RStage + bridges + generic-Prop89 (≈2.3k) | opus | `GQ2/Dyadic/Recursion/` (part III) | SD-R1 | queued |
+| ASK | K-side `*Local` supply package (the G_K record instantiation leaf pack, ≈2.6k at n=1 scale; base = LG5's `local_gauss_K` + `ramifiedCertificateOfSubtype`) | opus | `GQ2/Dyadic/Instances/KSupply.lean` (name provisional) | SD1 ✓, LG5 ✓ | queued — **lane assignment (AS vs LG-revival) flagged for owner**; memo §3.3 |
+| SD2 | `SourceNumerics n` + parameterized record + n=1 adapters (RESCOPED ≈0.5k per memo §8; + `sourceF_N` from the verified `*_local` leaf pack) | fable | `GQ2/Dyadic/SourceDataN.lean` | SD1 ✓, SD-R1–3 | pending |
+| SD3 | two-sided degree-n induction + ℚ₂ regression (RESCOPED ≈0.9k incl. the §10-clone corollary layer) | opus | `GQ2/Dyadic/ThmFourTwoN.lean` | SD2 | pending |
 
 - **SD1**: starting from `recon/sd-survey.md`, fix the exact parameterization: (i) the
   `SourceNumerics n` field list (packet §11: `homScalar = 2^(n+2)` replacing `hom8 = 8`
@@ -1129,12 +1226,13 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| WW1 | generic Fox evaluator + literal defect formula | fable | `GQ2/Dyadic/Word/Fox.lean` | F2 ✓, G-1 ✓ | **dispatched 2026-07-31** (ww worktree, branch `dyadic-ww1`) |
-| WW2 | Fox certificates: row/col ops + replay + normal forms | fable | `GQ2/Dyadic/Word/FoxCert.lean` | WW1 | queued (behind WW1) |
-| WW3 | Stokes chain map + composition-series extension | fable | `GQ2/Dyadic/Word/Stokes.lean` | F2 ✓, G-1 ✓ | **dispatched 2026-07-31** (lg worktree, branch `dyadic-ww3`) |
-| WW4 | Hessian certificates + affine phase interface | fable | `GQ2/Dyadic/Word/Hessian.lean`, `GQ2/Dyadic/Word/Phase.lean` | WW3, SD1 field-shape coordination | queued (behind WW3) |
-| WW5 | one-expression-tree TeX generator + hash gate (S1.8/S5.G canonical hashes — read `general_2adic/dyadic_search/{words/pretty_lean.py,certificates/emit.py}` first) | opus | `scripts/dyadic_word_tex.py`, `GQ2/Dyadic/Word/Export.lean` | F2 ✓, G-1 ✓ | **dispatched 2026-07-31** (wl worktree, branch `dyadic-ww5`) |
-| MC-OB | relator-generic `obsH2`/`relZ` port (MC2 log item (v): hoist `TwoCocycle`/`CentExt`/`comap`/`projExt` from non-module `GQ2/WordCoh2.lean`; rank-generic over the `GQ2/Dyadic/Word/` layer; MC2's `IsCupCocycle` supplies the math content) | opus | `GQ2/Dyadic/Word/WordCoh.lean` | MC2 ✓, F2 ✓ | **dispatched 2026-07-31** (fresh worktree `gq2-dyadic-ob`, branch `dyadic-ob`) — **MC5 + branch-word cohomology consume it** |
+| WW1 | generic Fox evaluator + literal defect formula | fable | `GQ2/Dyadic/Word/Fox.lean` | F2 ✓, G-1 ✓ | **done 2026-07-31** (6b45797+69c0719 → merged, import registered; 1161 ln, 106 decls, 0 sorries, 66/66 std-3, no B-axiom leaks through the WildRow imports; evaluator = `evalFin` at the semidirect `foxLift` (the exact identity, not first-order); rfl-level per-constructor rules; Prop 4.1 complete (defect formula/shift/coker iff/ker-torsor/three-term complex) + Prop 4.2 + Lem 4.3 chain-map naturality; **both mandated n=1 hand-row regressions PROVED** (`foxD_gammaAWildWord_split` = `liftMarking_wildValue_u`'s row, `foxD_gammaRWildWord_split` = `liftMarking_wildValueR_u`'s row, + bonus ramified pin); lift-level engine (2·ord, η̂-on-pro-odd, augmentation-1) mirrored from the Sage semantics; WW2 interface notes + `(A := …)` pitfall in log) |
+| WW2 | Fox certificates: row/col ops + replay + normal forms | fable | `GQ2/Dyadic/Word/FoxCert.lean` | WW1 ✓ | **dispatched 2026-07-31** (ww worktree, branch `dyadic-ww2`) |
+| WW3 | Stokes chain map + composition-series extension | fable | `GQ2/Dyadic/Word/Stokes.lean` | F2 ✓, G-1 ✓ | **done 2026-07-31** (aad2e25…b50c6b4 → merged, import registered; 1580 ln, 98 decls, 0 sorries, 11/11 headline prints exactly std-3; second-order rule DEFINITIONAL via `evalZ` at the lifted marking (F2 naturality applies verbatim); frozen `lemma_5_7_*` TRANSPORTED not re-proved (freeGroupCongr); chain map η under the `IsStokesEndpoint` condition (per-word `decide`); **packet Lem 5.1 landed as the once-only dévissage engine** — `stokesDuality_of_simple` extends quasi-iso to ALL finite elementary modules incl. nonsplit, via mapping cones + `StokesSES` calculus (wl-recon V6/R5 satisfied: 5 branch words ≈ 11k avoidable lines saved); WMP consumables landed (`heisJetZero` no-cross-term family = the "copies cancel" step); Γ_A endpoint stress pin; ⚠ ONE follow-up gap flagged → WW3b row (universal-coefficient step, ~150 ln); WW4 interface + 3 mathlib-upstream candidates in log) |
+| WW3b | H¹ perfect-pairing extraction: finite-elementary universal-coefficient step `H^k(Hom(K•,𝔽₂)) ≅ Hom(H^{2−k}(K•),𝔽₂)` + right-side/cardinality clauses over the same ElemDualPack (WW3's flagged gap; ~100–150 ln) | opus | `GQ2/Dyadic/Word/StokesDual.lean` (new leaf; Stokes.lean stays closed) | WW3 ✓ | queued (first freed opus slot; alternative = fold into WL-c1, rejected to keep the certificate record unblocked) |
+| WW4 | Hessian certificates + affine phase interface (**SD1 memo §6 = the RATIFIED baseline**; deviations only via SD1-memo amendment) | fable | `GQ2/Dyadic/Word/Hessian.lean`, `GQ2/Dyadic/Word/Phase.lean` | WW3 ✓, SD1 §6 ✓ | **dispatched 2026-07-31** (lg worktree, branch `dyadic-ww4`) |
+| WW5 | one-expression-tree TeX generator + hash gate | opus | `scripts/dyadic_word_tex.py`, `GQ2/Dyadic/Word/Export.lean` | F2 ✓, G-1 ✓ | **done 2026-07-31** (2ba8166 → merged, import registered, D4 ACTIVATED (worker-tested line, orchestrator-applied); 1466+805 ln; **NO second tree encoding** — an S1.8 certificate IS a valid interchange file, hash = sha256 over the same canonical JSON (`AST_SCHEMA_VERSION` outside the hashed bytes, matching ast.py); python self-test 25/25 with FOUR frozen-row cross-repo digest pins + byte-identical LaTeX vs `pretty_latex`; Lean kernel byte-pins reproduce two digests in-kernel (own `natToString` — `toString`/`Char.ofNat` don't kernel-reduce), all std-3; ⚠ SIX wave-2 gating mismatches recorded in log — **Shadow denotation is the WMP-a blocker**; mandate correction: `search.json` carries no word_ast — the 55b24a4b… tree lives in the certificate twin, pinned there) |
+| MC-OB | relator-generic `obsH2`/`relZ` port (MC2 log item (v)) | opus | `GQ2/Dyadic/Word/WordCoh.lean` | MC2 ✓, F2 ✓ | **done 2026-07-31** (8feffa8…d51167d → merged, import registered; 1504 ln, 145 decls, 0 sorries, **module-style ACHIEVED** (DRWordCoh is already a module — imported for pins only; WordCoh2 untouched, not imported); all 33 headlines std-3, census 11 unchanged; **8 regression pins incl. `rfl`-level `relZ_*_eq_drRelZ` and `obsH2_eq_obsH2_DR`** — the generic obsH2 at D_R IS `GQ2.obsH2_DR`; consumer API = `relZ`/`relZFam` + `obsH2_injective` + **`card_H2_le_two`** (the Demushkin #H² ≤ 2 half) + `obsH2_eq_of_factor` (MC2's Gram-value slot) + `MarkedRelator`/`PresentedBy` bundles; deviations + layer-order note in log) | |
 
 - **WW1**: structural-recursion Fox evaluator on `PWord` into `WordLift A C`
   (`GQ2/FoxHeisenberg/Basic.lean:76` reused): rules `D(uv) = D(u) + ū·D(v)`,
@@ -1272,6 +1370,12 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
 | WMP-b | Fox certificate (linear copy; hat copy has zero first derivative) | fable | `GQ2/Dyadic/Certificates/MpcFox.lean` | WMP-a | pending |
 | WMP-c | Stokes/scalar/Hessian/phase: **self-replication cancellation incl. every `T`-dependent central term** | fable | `GQ2/Dyadic/Certificates/Mpc.lean` | WMP-b | pending |
 
+- **[NOTE 2026-07-31, from WW5's gap list]** `Shadow` parses/serializes/hashes on both
+  sides but has NO Lean denotation: **before WMP-a states `R_{M,pc}`, a Lean-side `Sh_M`
+  substitution operator must land** (the frozen substitution of S4.2's memo — x₀↦δ₀,
+  x₁↦δ₁, x₂↦1, δ₂↦1, τ↦1, σ↦σ, δ-letters atomic — as a `PWord → PWord` transform whose
+  hash-relevant spelling matches the certificate); scope it into WMP-a's first commit or a
+  small WW follow-on at dispatch time.
 - `R_{M,pc} = R_lin^pc·R̂^pc·D₀²[D₀,D₁]·H_h` (draft eq:Mpc-word) with
   `C₀ = x₂σ₂^s, A = x₀^{-1}C₀^{-m}, B = x₁σ₂^p, D = σ^{η̂}`; `E₀₁^pc`, `E₂^pc` (increasing
   `j`); hat copy on `D_i = δ_i` with `Ĉ = σ₂^s`. Packet Prop. 9.2: hat-copy total power
