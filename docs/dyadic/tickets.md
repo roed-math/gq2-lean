@@ -1370,12 +1370,18 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
 | WMP-b | Fox certificate (linear copy; hat copy has zero first derivative) | fable | `GQ2/Dyadic/Certificates/MpcFox.lean` | WMP-a | pending |
 | WMP-c | Stokes/scalar/Hessian/phase: **self-replication cancellation incl. every `T`-dependent central term** | fable | `GQ2/Dyadic/Certificates/Mpc.lean` | WMP-b | pending |
 
-- **[NOTE 2026-07-31, from WW5's gap list]** `Shadow` parses/serializes/hashes on both
-  sides but has NO Lean denotation: **before WMP-a states `R_{M,pc}`, a Lean-side `Sh_M`
-  substitution operator must land** (the frozen substitution of S4.2's memo — x₀↦δ₀,
-  x₁↦δ₁, x₂↦1, δ₂↦1, τ↦1, σ↦σ, δ-letters atomic — as a `PWord → PWord` transform whose
-  hash-relevant spelling matches the certificate); scope it into WMP-a's first commit or a
-  small WW follow-on at dispatch time.
+- **[NOTE 2026-07-31, from WW5's gap list; NUANCED same day by S5.G]** `Shadow`
+  parses/serializes/hashes on both sides but has NO Lean denotation. S5.G measured the
+  frozen artifacts: **no frozen word carries a `.shadow` node** — the hat copy is
+  materialized as explicit `Auxiliary` nodes (`Ahat`/`Bhat`/`C0hat`), and no symbolic
+  exponent survives either (all literal `Int`; spec always `.etahat`; ω₂ always
+  `.omega2Power`). So **WMP-a's word statement is UNBLOCKED** (state the tree as emitted,
+  hash-pinned via `general_2adic/generated/MANIFEST.json`, keyed by `candidate_id` — NOT
+  `word_hash`, which q2/q4 twins share). The Lean-side `Sh_M` substitution operator
+  (S4.2's frozen substitution — x₀↦δ₀, x₁↦δ₁, x₂↦1, δ₂↦1, τ↦1, σ↦σ, δ-letters atomic —
+  as a `PWord → PWord` transform) is owed where **WMP-b/c prove the hat copy IS the
+  substitution's image** (the S4.2 certificate-shrink route); scope it there, or as a
+  small WW follow-on, at dispatch time.
 - `R_{M,pc} = R_lin^pc·R̂^pc·D₀²[D₀,D₁]·H_h` (draft eq:Mpc-word) with
   `C₀ = x₂σ₂^s, A = x₀^{-1}C₀^{-m}, B = x₁σ₂^p, D = σ^{η̂}`; `E₀₁^pc`, `E₂^pc` (increasing
   `j`); hat copy on `D_i = δ_i` with `Ĉ = σ₂^s`. Packet Prop. 9.2: hat-copy total power
