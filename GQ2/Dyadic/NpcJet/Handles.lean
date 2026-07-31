@@ -6,19 +6,23 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 import GQ2.Dyadic.NpcJet.Main
 
 /-!
-# The handle tail of the corrected noncompact-`N` jet
+# The handle tail of the corrected noncompact-`N` jet, and a concrete carrier for it
 
 **Ticket NC6** of the NC lane (R3(a) commission) — the lane's last file.  Binding design memo:
 `docs/dyadic/nc-design.md` **§2.5** (the handle tail) and its NC6 row (§4.1/§4.2), plus the
-"what NC6 still owes" list in `NpcJet/Main.lean`'s docstring.  The first of NC6's two deliverables:
+"what NC6 still owes" list in `NpcJet/Main.lean`'s docstring.  Two deliverables:
 
 1. **The handle tail `H_h`** (memo §2.5).  The genus-`h` noncompact relator is the `h = 0` core
    times the hyperbolic-handle block `H_h = ∏_{j<h} [x_{a j}, x_{b j}]`, and its jet is the
    headline's value plus `∑_{j<h} b_q(e_{a j}, e_{b j})` — the `plus_form_noncompact` tail
    (`N.py:3429`).  This is an induction on `h` that is **independent of the core**: NC5's
    `npc_cross_operators` is cited, never re-proved.
-
-(Deliverable 2, the concrete carrier, lands in the next commit on this file.)
+2. **A fully concrete-carrier instantiation.**  NC5's stress pin `npc_cross_operators_pin` fixes
+   `(α, r, η) = (2, 1, 1)` but quantifies over an arbitrary module.  §3 below exhibits an explicit
+   one — the cyclic group of order `3` acting freely on `𝔽₂²` by the companion matrix of
+   `x² + x + 1`, with the anisotropic form `q(x,y) = x + xy + y` — verifies every hypothesis by
+   kernel `decide`, and instantiates both the headline and the handled headline at it, with both
+   sides **computed to numerals**.
 
 ## §1. The genus-`h` word (memo §2.5)
 
@@ -75,31 +79,69 @@ charge-cancellation again (memo §3.3, risk 2), now at the handles rather than a
 `npc_cross_operators_handles_std` puts the memo's literal indexing (`n = 2 + 2h`, handle letters
 `x_{3+2j}`, `x_{4+2j}`) on the tail.
 
+## §3. The concrete carrier
+
+`PinC = ℤ/3` (written multiplicatively) acting on `PinV = 𝔽₂²` by `g·(x,y) = (y, x+y)`, with
+
+```
+q(x,y) = x + xy + y,      f((x,y),(x',y')) = xx' + xy' + yy',      m = 0.
+```
+
+`g` has order `3` and **no nonzero fixed vector** (its characteristic polynomial `x² + x + 1` is
+irreducible over `𝔽₂`), `q` is the anisotropic form with `f(v,v) = q(v)`, and `f` is `g`-invariant
+— which is exactly what lets `m = 0` satisfy eq. (59).  Discharged **by kernel `decide`**: all
+eight `IsEquivariantFactorSet` fields, `hV2`, `hVu` (fixed-point-freeness), and `x ^ 3 = 1`.
+Discharged **by construction**: the `DistribMulAction` (four `decide`d axioms), the topology
+(`⊥` + `DiscreteTopology`), `Finite`, and `hu` (`orderOf g ∣ 3` and `3` is prime, so the order is
+`1` or `3` — both odd).
+
+Because `|PinC|` is odd, `zpowHat_etaHatZ_of_odd` makes the profinite conjugator concrete:
+`A = g ^ᶻ η̂ = g` for **every** `η : ℤ_[2]`, so at `r = 1`
+
+```
+L_c v = g⁻¹v + g²v + (g²g⁻¹)v = g²v + g²v + gv = g·v         (characteristic 2),
+Q₀(c₀) = f(c₀, g⁻¹c₀).
+```
+
+Both sides are then numerals: at `c₀ = c₁ = (1,0)` the jet is `1` (`npc_cross_operators_pin_value`)
+— so the identity is **not vacuous at a concrete carrier** — and adding one handle with offsets
+`(1,0)`, `(0,1)` flips it to `0` (`npc_cross_operators_pin_handles_value`), which is the handle
+tail being observed rather than assumed.
+
 ## The NC lane, closed
 
-| ticket | file | contents |
-|---|---|---|
-| NC1 | `docs/dyadic/nc-design.md` | the design memo + feasibility spike: the S3.2 refutation of draft eq:Ncross, the corrected `L_c = A⁻¹ + B + B·A⁻¹`, the frozen statement (§2), the block-by-block route (§3) |
-| NC2 | `NpcJet/Defs.lean` | the word `npcWord`, the Gate-E marking, `lcOp`/`npcQ0`, and the Heisenberg-slice calculus (`sliceElt_mul/inv/sq/conj/comm`, the `y^k` power law) |
-| NC3 | `NpcJet/Omega.lean` | the two reduction rules: `ω₂` on pro-odd elements (rule 1) and the vanishing orbit norm on `V^u = 0` (rule 2), plus the `η̂`-power vocabulary |
-| NC4 | `NpcJet/Seams.lean` | the per-block evaluation theorems `δ₀`/`D`/`E`/boundary/head — where the three inverse conjugators of the corrected `L_c` become visible |
-| NC5 | `NpcJet/Main.lean` | the `h = 0` headline `npc_cross_operators`, the packet bridge `hVu_of_simple`, the discrepancy display (errata item 5) and the `(α, r, η)` pin |
-| NC6 | this file | the handle tail `H_h` and the `handlesProd` reading (the concrete carrier follows) |
+* **NC1** — `docs/dyadic/nc-design.md`: the design memo and feasibility spike.  The S3.2
+  refutation of draft display eq:Ncross, the corrected `L_c = A⁻¹ + B + B·A⁻¹`, the frozen
+  statement (§2), the block-by-block route (§3).
+* **NC2** — `NpcJet/Defs.lean`: the word `npcWord`, the Gate-E marking, `lcOp`/`npcQ0`, and the
+  Heisenberg-slice calculus (`sliceElt_mul/inv/sq/conj/comm`, the `y^k` power law).
+* **NC3** — `NpcJet/Omega.lean`: the two reduction rules — `ω₂` on pro-odd elements (rule 1) and
+  the vanishing orbit norm on `V^u = 0` (rule 2) — plus the `η̂`-power vocabulary.
+* **NC4** — `NpcJet/Seams.lean`: the per-block evaluation theorems `δ₀`/`D`/`E`/boundary/head,
+  where the three inverse conjugators of the corrected `L_c` become visible.
+* **NC5** — `NpcJet/Main.lean`: the `h = 0` headline `npc_cross_operators`, the packet bridge
+  `hVu_of_simple`, the discrepancy display (errata item 5) and the `(α, r, η)` pin.
+* **NC6** — this file: the handle tail `H_h`, the `handlesProd` reading, and the concrete carrier
+  with computed values.
 
 ## What WNP-c still owes (memo risk 5)
 
 `npc_cross_operators` and its handled form say the jet **is** `Q₀ + b_q(c₁, L_c c₀) + tail`.  They
 do **not** say the `c₀`–`c₁` pairing is nondegenerate: that needs `L_c = 1 + (1 + A⁻¹)(1 + B)` to
-be **invertible on the module at hand**, which genuinely varies with the module (on a module
-with `A = B = 1` it is the identity; in general it can degenerate) and belongs with WNP-c's Fox/normal-form clauses, not with the jet identity.  On a
+be **invertible on the module at hand**, which genuinely varies with the module (on the carrier of
+§3 it is `L_c = g`, invertible; on a module with `A = B = 1` it is the identity; in general it can
+degenerate) and belongs with WNP-c's Fox/normal-form clauses, not with the jet identity.  On a
 concrete battery module it is a `decide`.  Also still out of scope by design: the three-variable
 Gate-D diagnostic form (an offset on the boundary letter `x₂`).
 
 ## Axioms
 
 Measured on the built module, **every** declaration in this file prints
-`[propext, Classical.choice, Quot.sound]` — std-3.  No census axiom is cited and none is needed
-(memo §9); census stays at 11.
+`[propext, Classical.choice, Quot.sound]` — std-3 — including the `decide`-discharged ones
+(`pinHdat`, `pinV2`, `pinVu`, `pinPow3`, the `DistribMulAction` instance), whose `Decidable`
+instances reach mathlib's classical layer even though the reductions themselves are kernel
+evaluations.  `decide` is used only in the kernel sense: there is no `native_decide` anywhere.  No
+census axiom is cited and none is needed (memo §9); census stays at 11.
 -/
 
 namespace GQ2.Dyadic.NpcJet
@@ -306,5 +348,157 @@ end Headline
 end Finite
 
 end Module
+
+/-! ## §3. A concrete carrier
+
+Everything below is one explicit example, built so that every hypothesis of the headline is
+discharged by kernel `decide` or by a two-line construction.  The point is non-vacuity: the
+identity is not merely true of some hypothetical module class. -/
+
+/-- **The concrete group**: the cyclic group of order `3`, written multiplicatively.  A `def`
+rather than an abbreviation, so the discrete topology below does not leak onto
+`Multiplicative (ZMod 3)` anywhere else. -/
+def PinC : Type := Multiplicative (ZMod 3)
+
+instance : Group PinC := inferInstanceAs (Group (Multiplicative (ZMod 3)))
+instance : Fintype PinC := inferInstanceAs (Fintype (Multiplicative (ZMod 3)))
+instance : DecidableEq PinC := inferInstanceAs (DecidableEq (Multiplicative (ZMod 3)))
+instance : TopologicalSpace PinC := ⊥
+instance : DiscreteTopology PinC := ⟨rfl⟩
+
+/-- **The concrete module**: `𝔽₂²`. -/
+def PinV : Type := ZMod 2 × ZMod 2
+
+instance : AddCommGroup PinV := inferInstanceAs (AddCommGroup (ZMod 2 × ZMod 2))
+instance : Fintype PinV := inferInstanceAs (Fintype (ZMod 2 × ZMod 2))
+instance : DecidableEq PinV := inferInstanceAs (DecidableEq (ZMod 2 × ZMod 2))
+
+/-- The order-`3` rotation of `𝔽₂²` — the companion matrix of `x² + x + 1`, which is irreducible
+over `𝔽₂`, so the rotation has no nonzero fixed vector. -/
+def pinRot (v : PinV) : PinV := (v.2, v.1 + v.2)
+
+/-- The `ℤ/3`-action on `𝔽₂²` by powers of `pinRot`. -/
+def pinAct (c : ZMod 3) (v : PinV) : PinV :=
+  match c.val with
+  | 0 => v
+  | 1 => pinRot v
+  | _ => pinRot (pinRot v)
+
+instance : SMul PinC PinV := ⟨fun c v ↦ pinAct (Multiplicative.toAdd c) v⟩
+
+instance : DistribMulAction PinC PinV where
+  one_smul v := by revert v; decide
+  mul_smul c d v := by revert c d v; decide
+  smul_zero c := by revert c; decide
+  smul_add c v w := by revert c v w; decide
+
+/-- The generator of `PinC`. -/
+def pinG : PinC := Multiplicative.ofAdd (1 : ZMod 3)
+
+/-- The **anisotropic** quadratic form `q(x,y) = x + xy + y` on `𝔽₂²`: it vanishes only at `0`, and
+it is `pinG`-invariant. -/
+def pinQ (v : PinV) : ZMod 2 := v.1 + v.1 * v.2 + v.2
+
+/-- A factor set for `pinQ`: the (non-symmetric) bilinear `f((x,y),(x',y')) = xx' + xy' + yy'`,
+whose diagonal is `pinQ` and whose symmetrization is the polar form.  It is `pinG`-invariant, which
+is exactly what lets the equivariant-lift corrections be taken to be `m = 0`. -/
+def pinF (v w : PinV) : ZMod 2 := v.1 * w.1 + v.1 * w.2 + v.2 * w.2
+
+/-- The concrete factor-set datum: `f = pinF`, `m = 0`. -/
+def pinDat : FactorSet PinC PinV where
+  f := pinF
+  m := fun _ _ ↦ 0
+
+/-- All eight equivariant-factor-set identities, by kernel `decide` (`4³ = 64` cases for the
+cocycle identity, `3 · 4² = 48` for eq. (59)). -/
+theorem pinHdat : IsEquivariantFactorSet pinQ pinDat where
+  f_cocycle := by decide
+  f_diag := by decide
+  f_polar := by decide
+  f_zero_left := by decide
+  f_zero_right := by decide
+  m_quad := by decide
+  m_mul := by decide
+  m_one := by decide
+
+/-- Characteristic `2`. -/
+theorem pinV2 : ∀ v : PinV, v + v = 0 := by decide
+
+/-- **Fixed-point freeness** — the headline's `hVu`, i.e. rule 2's `V^u = 0`, at `u = pinG`. -/
+theorem pinVu : ∀ v : PinV, pinG • v = v → v = 0 := by decide
+
+theorem pinPow3 (x : PinC) : x ^ 3 = 1 := by revert x; decide
+
+/-- **Rule 1's hypothesis**: every element of `PinC` has odd order, since its order divides the
+prime `3`. -/
+theorem pinOddOrder (x : PinC) : Odd (orderOf x) := by
+  have h : orderOf x ∣ 3 := orderOf_dvd_of_pow_eq_one (pinPow3 x)
+  rcases (Nat.dvd_prime Nat.prime_three).mp h with h1 | h1 <;> rw [h1] <;> decide
+
+/-- **The profinite conjugator is concrete here**: `PinC` is pro-odd, so `η̂` acts as the identity
+(`zpowHat_etaHatZ_of_odd`, Gate B's rule T2) and `A = g ^ᶻ η̂ = g` for *every* `η : ℤ_[2]`. -/
+theorem pinA (η : ℤ_[2]) : pinG ^ᶻ etaHatZ η = pinG :=
+  zpowHat_etaHatZ_of_odd (pinOddOrder pinG)
+
+/-- **The corrected cross operator at the concrete carrier**, `r = 1`: `A = B⁻¹ = g` gives
+`L_c v = g⁻¹v + g²v + gv = g·v` in characteristic `2`.  (The draft's `L_c = A⁻¹ = g²` is a
+*different* operator — the discrepancy `B(1 + A⁻¹)` is `g² + g ≠ 0` here.) -/
+theorem pin_lcOp (η : ℤ_[2]) (v : PinV) : lcOp pinG η 1 v = pinG • v := by
+  rw [lcOp, pinA]
+  revert v
+  decide
+
+/-- **The diagonal part at the concrete carrier**: `Q₀(c₀) = f(c₀, g⁻¹c₀)`, the correction `m`
+being `0`. -/
+theorem pin_npcQ0 (η : ℤ_[2]) (v : PinV) : npcQ0 pinDat pinG η v = pinF v (pinG⁻¹ • v) := by
+  rw [npcQ0, pinA]
+  exact add_zero _
+
+/-- **The headline at a fully concrete carrier**: `npc_cross_operators` with the module, the group,
+the form, the factor set, `s`, `u` and every hypothesis pinned.  Nothing is quantified here except
+the word parameters `(α, r, η)` and the two offsets. -/
+theorem npc_cross_operators_pin_module (α : ℕ) (hα : 2 ≤ α) (r : ℕ) (η : ℤ_[2]) (c₀ c₁ : PinV) :
+    ((npcMarking pinDat pinHdat pinG pinG c₀ c₁).eval (npcWord α r η)).fib
+      = npcQ0 pinDat pinG η c₀ + polar pinQ c₁ (lcOp pinG η r c₀) :=
+  npc_cross_operators pinDat pinHdat pinV2 pinG pinG (pinOddOrder pinG) pinVu α hα r η c₀ c₁
+
+/-- **Both sides are numerals**: at `(α, r, η) = (2, 1, 1)` and `c₀ = c₁ = (1,0)` the jet of the
+noncompact relator is `1`.  The identity is therefore **not vacuous** — there is a module, a group
+and a marking at which its two sides are computed and nonzero. -/
+theorem npc_cross_operators_pin_value :
+    ((npcMarking pinDat pinHdat pinG pinG ((1, 0) : PinV) ((1, 0) : PinV)).eval
+      (npcWord 2 1 1)).fib = 1 := by
+  rw [npc_cross_operators_pin_module 2 le_rfl 1 1, pin_lcOp, pin_npcQ0]
+  decide
+
+/-- The genus-`1` offsets used by the handled pin: `c₀ = c₁ = (1,0)`, boundary `0`, and one handle
+with offsets `(1,0)`, `(0,1)`. -/
+def pinE : ℕ → PinV
+  | 0 => (1, 0)
+  | 1 => (1, 0)
+  | 2 => 0
+  | 3 => (1, 0)
+  | _ => (0, 1)
+
+/-- **The handled headline at the concrete carrier**, `h = 1`, in the memo's indexing. -/
+theorem npc_cross_operators_pin_handles (α : ℕ) (hα : 2 ≤ α) (r : ℕ) (η : ℤ_[2]) :
+    ((npcMarkingH pinDat pinHdat (2 * 1) pinG pinG pinE).eval
+        (npcWordH (2 * 1) α r η (fun j ↦ ⟨(3 + 2 * j) % (2 * 1 + 3), Nat.mod_lt _ (by omega)⟩)
+          (fun j ↦ ⟨(4 + 2 * j) % (2 * 1 + 3), Nat.mod_lt _ (by omega)⟩) 1)).fib
+      = npcQ0 pinDat pinG η (pinE 0) + polar pinQ (pinE 1) (lcOp pinG η r (pinE 0))
+        + ∑ j ∈ Finset.range 1, polar pinQ (pinE (3 + 2 * j)) (pinE (4 + 2 * j)) :=
+  npc_cross_operators_handles_std pinDat pinHdat pinV2 pinG pinG (pinOddOrder pinG) pinVu α hα r η
+    1 pinE rfl
+
+/-- **The handle tail is observed, not assumed**: the same carrier, the same `(α, r, η) = (2,1,1)`
+and the same `c₀ = c₁ = (1,0)` as `npc_cross_operators_pin_value`, but with one handle carrying
+offsets `(1,0)`, `(0,1)` — and the jet is `0` instead of `1`.  The tail
+`b_q((1,0), (0,1)) = 1` is what flipped it. -/
+theorem npc_cross_operators_pin_handles_value (η : ℤ_[2]) :
+    ((npcMarkingH pinDat pinHdat (2 * 1) pinG pinG pinE).eval
+        (npcWordH (2 * 1) 2 1 η (fun j ↦ ⟨(3 + 2 * j) % (2 * 1 + 3), Nat.mod_lt _ (by omega)⟩)
+          (fun j ↦ ⟨(4 + 2 * j) % (2 * 1 + 3), Nat.mod_lt _ (by omega)⟩) 1)).fib = 0 := by
+  rw [npc_cross_operators_pin_handles 2 le_rfl 1, pin_lcOp, pin_npcQ0, Finset.sum_range_one]
+  decide
 
 end GQ2.Dyadic.NpcJet
