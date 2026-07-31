@@ -67,8 +67,12 @@ frame `MDecomposition`, and the B8 transport `peripheralTriple_scaling`) and the
 1. **The cup-isometry variance is the transpose side.**  The memo §2.3 closed form is the
    solution set of `M̄ᵀ·G_M·M̄ = G_M`, *not* of `M̄·G_M·M̄ᵀ`.  (An automorphism acts on `H¹` by
    precomposition, so the induced map on the cup form is the transpose.)  The two conditions are
-   genuinely different here: the other variance forces `τ = 0`, losing family M1 entirely.  MC4
-   should use the same side on the `N`-core.  See §4's preamble.
+   genuinely different here: the other variance forces `τ = 0`, losing family M1 entirely.
+   **Layout matters and is the whole story**: this file's `M̄` (`mFrameMatrix`) has the images
+   of the frame basis in its **rows**.  MC4's `N.lean` uses the transposed layout (images in
+   **columns**) and therefore states the *same* condition as `M̄·G_N·M̄ᵀ = G_N` — "the same
+   side" means the same condition, not the same formula.  Machine-checked dictionary:
+   `GQ2/Dyadic/MarkedCore/Variance.lean`.  See §4's preamble.
 2. **β is a unit by χ, γ is a unit by Witt.**  Unlike the rank-three `prop_3_8_classification`,
    which obtains unit-ness of its `S̄`-exponent from a second row analysis applied to `ξ⁻¹`, the
    rank-four classification never needs the inverse automorphism: the χ-condition forces `β`

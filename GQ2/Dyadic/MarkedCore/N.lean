@@ -857,7 +857,9 @@ theorem nCupForm_eq_gram (u w : Fin 4 → ZMod 2) :
 
 /-- **The cup-isometry clause**: `M̄·G_N·M̄ᵀ = G_N`, entrywise (memo §2.3's convention, dualized to
 `H¹` — the pullback of a covector along `φ̄` is `M̄ᵀ`, so the isometry condition is on the rows of
-`M̄`). -/
+`M̄`).  **`M̄ = NRows.mat` has the images in its columns**, so this is exactly `M.lean`'s
+`M̄ᵀ·G·M̄ = G` read on the transposed matrix — the two files state one condition in two layouts;
+machine-checked dictionary in `GQ2/Dyadic/MarkedCore/Variance.lean`. -/
 def NRows.IsCupIsometry (R : NRows) : Prop := ∀ i j, nCupForm (R.mat i) (R.mat j) = nGram i j
 
 /-- The canonical orientation read on the frame (memo §3.2(i)): `χ̄(v) = v^{v_{x̄₁}}` with
