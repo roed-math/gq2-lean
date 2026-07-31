@@ -117,17 +117,22 @@ as the hand row.  Per the frozen selection (`selection-freeze.md` row 1, SQ1), t
 specialization of the primary `L_sq` word *is* `Γ_R`'s relator, so the `Γ_R` pin is also the
 `L_sq` base-case pin for lane WL.
 
-## Axiom state (recorded per WW1 instructions; `#print axioms` run in a scratch section, not
+## Axiom state (recorded per WW1 instructions; `#print axioms` run in a scratch file, not
 committed)
 
-All headline declarations of this file print exactly the standard axioms
-`[propext, Classical.choice, Quot.sound]` (std-3): checked for `foxD`, `foxJacobian`,
-`foxDefect_eq`, `foxLifts_iff`, `foxLifts_iff_coker`, `foxSolution_sub_mem_ker`,
-`foxSolution_add_ker`, `foxJacobian_comp_foxD0`, `comap_isPGroup_of_elementaryKer`,
+**Audited 2026-07-31, 66/66 public declarations of this file**: every one depends on a subset
+of the standard axioms `[propext, Classical.choice, Quot.sound]` (std-3).  In particular the
+headlines `foxD`, `foxDHom`, `foxJacobian`, `foxDefect_eq`, `foxLifts_iff`,
+`foxLifts_iff_coker`, `foxSolution_sub_mem_ker`, `foxSolution_add_ker`, `foxD_coboundary`,
+`foxJacobian_comp_foxD0`, `foxD_comp_hom`, `comap_isPGroup_of_elementaryKer`,
 `foxD_map_coeff`, `foxJacobian_map_coeff`, `WordLift.orderOf_dvd_two_mul_orderOf_base`,
-`WordLift.zpowHat_etaHatZ_of_odd_orderOf_base`, `foxD_gammaAWildWord_split`,
-`foxD_gammaRWildWord_split`, `foxD_gammaRWildWord_ramified`.  No sorries; no new axioms;
-kernel `decide` only (no `native_decide`).
+`WordLift.zpowHat_etaHatZ_of_odd_orderOf_base`, `WordLift.sum_pow_smul_of_trivial_odd`,
+`evalFin_gammaAWildWord`, `evalFin_gammaRWildWord`, `foxD_gammaAWildWord_split`,
+`foxD_gammaRWildWord_split`, `foxD_gammaRWildWord_ramified` all print exactly
+`[propext, Classical.choice, Quot.sound]` (several helpers print strictly less).  **No
+`GQ2.AbsGalQ2` B-axiom leaks through the `WildRow` imports** — the hand rows are axiom-clean
+and stay so through the regression pins.  No sorries; no new axioms; kernel `decide` only (no
+`native_decide`).
 
 ## Implementation notes
 
