@@ -56,6 +56,10 @@ The three entry points, in the order a consumer meets them.
      threaded as an explicit hypothesis bundle rather than an axiom or a typeclass — MC2's
      documented general-`K` hypothesis-threading pattern.
 
+   The form the Demushkin lane actually consumes is the corollary `card_H2_le_two`:
+   `#H²(G, 𝔽₂) ≤ 2`.  Paired with a nonzero cup value from MC2's Gram (through (3) below) it
+   pins `#H² = 2`, the Demushkin condition behind MC5's `MarkedCoreCertificate`.
+
 3. **`obsH2_eq_of_factor`** — the bridge a Gram computation consumes: for a continuous 2-cocycle
    `φ` that factors through a *finite* quotient `ρ : G →* L` as `φ (g, h) = c.κ (ρ g) (ρ h)`,
    the class of `φ` has obstruction exactly `relZ w (ρ ∘ μ) E E₂ c`.  Together with (1) this
@@ -99,7 +103,7 @@ under `relZFam`.
 
 `lake build GQ2.Dyadic.Word.WordCoh` is green with **no warnings**.  The file contains no `sorry`,
 no `axiom`, and no `native_decide`; its single `decide` (`isFrattini_drNatWord`) is a kernel
-decision over the `2³` markings of `Multiplicative (ZMod 2)`.  143 declarations.
+decision over the `2³` markings of `Multiplicative (ZMod 2)`.  145 declarations.
 
 Every headline prints **std-3** — `[propext, Classical.choice, Quot.sound]` — so the file adds
 nothing to the census:
@@ -109,7 +113,7 @@ nothing to the census:
 * profinite layer: `exists_openNormalSubgroup_factor_two`, `exists_twoCocycle_factor`,
   `LevelFactor.obs_congr`, `isProP_CentExt`;
 * `H²` layer: `obs`, `obs_B2_eq_zero`, `obs_ker_le`, `obsH2`, `obsH2_injective`,
-  `obsH2_eq_of_factor`;
+  `finite_H2`, `card_H2_le_two`, `obsH2_eq_of_factor`;
 * Frattini checkability: `evalZ_congr_of_parity`, `isFrattini_ofPWord_of_parity`;
 * `Marking` interface: `Marking.relZ_map`;
 * pins 1–8: `evalZ_drWordP`, `ofPWord_drWordP`, `relZ_ofDRCoh`, `relZ_drNatWord_eq_drRelZ`,
@@ -1184,6 +1188,24 @@ theorem obsH2_injective (W : NatWord X) (μ : X → G) (hW : MarkedRelator G W �
   intro ha
   exact (QuotientAddGroup.eq_zero_iff φ).mpr
     (obs_ker_le htriv W μ hW hpres hG (AddMonoidHom.mem_ker.mpr ha))
+
+omit [ContinuousSMul G (ZMod 2)] in
+/-- **`H²(G, 𝔽₂)` is finite**, being embedded in `𝔽₂`. -/
+theorem finite_H2 (W : NatWord X) (μ : X → G) (hW : MarkedRelator G W μ)
+    (hpres : PresentedBy G W μ) (hG : IsProP 2 G) : Finite (H2 G (ZMod 2)) :=
+  Finite.of_injective _ (obsH2_injective htriv W μ hW hpres hG)
+
+omit [ContinuousSMul G (ZMod 2)] in
+/-- **`#H²(G, 𝔽₂) ≤ 2`** — the form in which the Demushkin lane consumes this file.
+
+A pro-`2` group with a *single* Frattini relator has at most a two-element `H²`; combined with the
+matching lower bound (a nonzero cup value, which is what MC2's `IsCupCocycle` Gram supplies via
+`obsH2_eq_of_factor`) this pins `#H² = 2`, the Demushkin condition.  Compare
+`GQ2.card_H2_DR` (`GQ2/Roe/DRDemushkin.lean`), which is this argument run by hand for `D_R`. -/
+theorem card_H2_le_two (W : NatWord X) (μ : X → G) (hW : MarkedRelator G W μ)
+    (hpres : PresentedBy G W μ) (hG : IsProP 2 G) : Nat.card (H2 G (ZMod 2)) ≤ 2 := by
+  have h := Nat.card_le_card_of_injective _ (obsH2_injective htriv W μ hW hpres hG)
+  rwa [Nat.card_zmod] at h
 
 omit [ContinuousSMul G (ZMod 2)] in
 /-- **The obstruction at an explicit factoring** — the hook a Gram-matrix computation consumes.
