@@ -523,7 +523,8 @@ Both shapes are *exactly* a function `(X → G) → G` natural in `G`, and natur
 property the obstruction proofs use: the relator has to be pushed through `CentExt.proj`,
 `projExt`, the three `FiberProd` projections and `fibHom0`.  Bundling that is what lets this file
 be written once and consumed by both the `PWord` branch-word lanes and MC2's existing core words —
-`NatWord.ofPWord` for the former, `⟨_, map_mRelWord⟩`-style anonymous constructors for the latter.
+`NatWord.ofPWord` for the former, `drNatWord`-style anonymous constructors (shape paired with its
+`map_…` lemma) for the latter.
 
 Universe note: `ev` quantifies over `G : Type`.  Every group the layer needs is there — finite
 quotients `G ⧸ V`, `CentExt c`, `FiberProd c₁ c₂`, `Multiplicative (ZMod 2)` — and pinning the
@@ -534,8 +535,8 @@ statable.  The central-extension algebra above stays `Type*`-generic. -/
 every group and commuting with every group hom.
 
 This is the interface the relator obstruction consumes.  `NatWord.ofPWord` builds one from the
-reflected syntax; `⟨fun μ => drWord (μ 0) (μ 1) (μ 2), fun f μ => map_drWord f _ _ _⟩` builds one
-from a bare word shape. -/
+reflected syntax; `drNatWord` below is the template for a bare word shape — an anonymous
+constructor pairing the shape with its naturality lemma. -/
 structure NatWord (X : Type*) where
   /-- Evaluate the word at a marking of an arbitrary group. -/
   ev : ∀ {G : Type} [Group G], (X → G) → G
