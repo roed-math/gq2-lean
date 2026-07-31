@@ -66,7 +66,7 @@ The three lifting strata (MC1 §5):
 * **S3** (core mixing): **N-side a THEOREM** (`nMixHypothesis_coreMix`, via HM6ef's widened
   `A⁺(P,h)`); **M-side** the marking-transport binder `MMixHypothesis` (NOT restated in family
   form — owner call pending per the HM6g ruling; `mMixFamily_coreMix` is consumed as-is where
-  a family-shaped M5 row is wanted, see the §4 pins).
+  a family-shaped M5 row is wanted, see the §7 pins).
 
 Net binder inventory for the N-core: `NScalingHypothesis` **alone**.  For the M-core:
 `MMixHypothesis` (which subsumes the M-side S2/S3 residual `⟨M4,M6,M7⟩` +
@@ -1020,6 +1020,27 @@ example (c : ℤ_[2]) : nuSq 1 (sqMixPivotElem 1 c) = ofAdd (1 : ℤ_[2]) :=
 
 /-- The SQ1-R1 refutation at one handle: the collector's pivot premise fails for `L_sq`. -/
 example : chiSq 1 (dsqSigma 1) ≠ 1 := chiSq_sigma_ne_one 1
+
+/-- **HM6g's family-shaped `M5` row, consumed as-is** (no restatement of `MMixHypothesis` —
+the family-form owner call stays pending): the displayed pure `M5` move at `b = 1`,
+χ-preserving, at `(2, 1)`. -/
+example : ∃ Ψ : ContinuousMulEquiv (DM 2 1 : Type) (DM 2 1 : Type),
+    (∀ x, chiM 2 1 (Ψ x) = chiM 2 1 x)
+      ∧ ∀ f : ContinuousMonoidHom (DM 2 1 : Type) (Multiplicative ℤ_[2]),
+        nuFrame f (fun i => Ψ (dmGen 2 1 i)) = nFrameMixX1 1 (nuFrame f (dmGen 2 1)) :=
+  mMixFamily_coreMix 2 1 le_rfl 1
+
+/-- **MC4's parametrized lift with S3 discharged**, consumed through the MC-VAR-correct
+`NStabParam.nuAction` (its `nCoreMat P.g.transpose` is right as written — the H¹ layout):
+the identity parameter tuple at `(2, 1)`, conditional on the plane-scaling binder alone. -/
+example (hScal : NPlaneScalingHypothesis 2 1) :
+    ∃ Ψ : ContinuousMulEquiv (DN 2 1 : Type) (DN 2 1 : Type),
+      (∀ x, chiN 2 1 (Ψ x) = chiN 2 1 x)
+        ∧ ∀ f : ContinuousMonoidHom (DN 2 1 : Type) (Multiplicative ℤ_[2]),
+          nuFrame f (fun i => Ψ (dnGen 2 1 i))
+            = NStabParam.nuAction ⟨0, 0, 0, 0, 0, 1⟩ (nuFrame f (dnGen 2 1)) :=
+  nStabParam_lift_of_scaling 2 1 hScal
+    ⟨by rw [Matrix.det_one]; exact isUnit_one, by simp, by simp⟩
 
 end StressTests
 
