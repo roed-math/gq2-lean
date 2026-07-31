@@ -37,7 +37,7 @@ main structural discovery is its resolution:
 > pro-2 slot a different rank.
 
 Consequently SD-n is **not** two new files atop the frozen stack; it is a
-**boundary-abstracted clone of the b-typed recursion spine** (≈9.3k lines over ~22 files,
+**boundary-abstracted clone of the b-typed recursion spine** (≈9.1k lines over ~20 files,
 sized in §4.3 — the same order and the same mechanical character as the LG lane's 9.2k-line
 retype, which is the campaign's precedent for exactly this decision: LG1 ruled "in-place is
 A6-incompatible; clone"). The payoff of the clone architecture is decisive for plan A6:
@@ -341,7 +341,7 @@ compact/t.d. instances flow from openness — the `RamifiedCertificate` pattern,
 | `tfg` | FG1's theorem (`Dyadic/FinitelyGeneratedK.lean`, from B1 — Route D: field, not binder) |
 | `homCard`, `cardH2` | LG2a's Euler-char route (`card_H1_eq_of_markingK` — the **drop-eulerChar** note: derived from B7 via Shapiro, never an input) + the K-duality `#H² = 2` |
 | `liftsOver_card`, `tcocycle_card`, `hZcard` | K-clones of the `MStageCount`/`Phase140/Local` count lemmas (Euler-char based; the n = 1 sources are `liftsOver_card_local`, `tcocycle_card_local` `Prop89Close.lean:349-360`, `hZcard`-local `Phase140/Local.lean:332`) |
-| `lem86`, `hsep`, `hpartial` | K-clones of `lemma_8_6_local`, `hsep_local` (`Phase140/Local.lean:537`), `hpartial_local` (ibid.) — leaf-shaped locals exist at n = 1, so the record's leaf granularity is instantiable (checked; this was the one plausible gap) |
+| `lem86`, `hsep`, `hpartial` | K-clones of `lemma_8_6_local` (`SectionEight/Partition.lean:304`), `hsep_local` (`Phase140/Local.lean:537`), `hpartial_local` (`Phase140/Local.lean:864`) — leaf-shaped locals exist at n = 1, so the record's leaf granularity is instantiable (checked; this was the one plausible gap) |
 | `stageR136` | K-clone of `RStageLocal.stageR136_local` |
 | `gaussZ_unramified/ramified` | **LG5's `local_gauss_K`** (`LocalGauss/Main.lean:348`) + the zero-count corollaries (:447,:487) through the (83)-evaluation bridge (the K-analogue of the n = 1 `gaussZResidueD_local_*` twins); the ramified case consumes `Nonempty (RamifiedCertificate …)` with `ramifiedCertificateOfSubtype` (:688) discharging 4/13 fields — **its binder list is AS1's arithmetic input** (LG5 board row), and `hpkg`/`hker₀` are the AX3 field-side entry points |
 
@@ -365,7 +365,12 @@ is satisfied vacuously; what remains is the *reproduction* obligation, per site:
 * **`G_ℚ₂` as a record** (new at n = 1): `sourceF_N B : SourceDataN 1 2 PiBd _ nuTwo _`
   assembled from the `*_local` pack (§3.1's removal list — every leaf exists, incl.
   leaf-shaped `hsep_local`/`hpartial_local`). This is the two-sided flip's genuinely new
-  n = 1 object.
+  n = 1 object. One packaging note: the record's carrier is a bundled `ProfiniteGrp`
+  (the R31a decision, kept), so `sourceF_N` is defined under the same
+  `[CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]` binders that `thm_4_2`
+  carries today (`ThmFourTwo.lean:432-437` documents the discipline) and bundles
+  `ProfiniteGrp.of AbsGalQ2` — i.e. the old theorem-level instance binders migrate into
+  the `S₂`-instantiation, which is exactly where §3.1 said they go.
 * **`thm_4_2` (`ThmFourTwo.lean:443`)**: untouched (still proved via the old
   `thm_4_2_of_sources` at `B.sourceA`). SD3 adds the **regression theorem**
   `thm_4_2_via_N : exactImageCount B.bA F T = exactImageCount B.bF F T := thm_source_generic
@@ -484,8 +489,8 @@ along. Measured surface (lines at 9efff9f):
 | `Prop89Close.lean` (generic part: `phaseFamily`/`muZero`/`half139_of_leaves`/`prop_8_9_of_source`-analogue) | ~300 | |
 | `SourceData.lean`-analogue (= SD2's `SourceDataN.lean`) | ~500 | |
 | `ThmFourTwo.lean`-analogue (= SD3's `ThmFourTwoN.lean`) | ~470 | |
-| `SectionTen.lean` + `SectionTenSources.lean`-analogue | ~400 | frame summation, unframed counts |
-| **total** | **≈9.3k** | vs LG-K's 9.2k retype — same class of mechanical work |
+| `SectionTen.lean` + `SectionTenSources.lean`-analogue | ~400 | frame summation, unframed counts (budgeted with SD3, which owns the corollary layer) |
+| **total** | **≈9.1k** | vs LG-K's 9.2k retype — same class of mechanical work |
 
 **Reused untouched (below the boundary; the hard mathematics):** `VLiftCount.lean` (with
 its Plan-A vH-parameterization *inside the clone tree* as a thin generic wrapper — or, if
@@ -572,7 +577,7 @@ WW4's certificates must let a branch lane discharge, for the candidate `Γ = Γ_
    enrichment, with externally given `m` (`#V = 2^{2m}`),
    `GaussZResidue … (SN.gaussUnram m)` resp. `(SN.gaussRam m)` — i.e. in expanded form
    (`Phase140/Assembly.lean:145-149`):
-   `Σ_{c ∈ Z¹} (−1)^{Q⁰(c)} = |V| · ε·2^{nm}` with `ε = (−1)^n` (unramified head:
+   `Σ_{c ∈ Z¹} (−1)^{Q⁰(c)} = |V| · (ε·2^{nm})` with `ε = (−1)^n` (unramified head:
    `F.alpha (tqTau q)` acts trivially on `P/S`) or `ε = +1` (ramified head).
    *Word-side source*: the **Hessian certificate** — change of variables to the frozen
    row's quadratic endpoint + `cor:gauss-count` — this is where WW4's `Phase.lean` does
@@ -581,29 +586,30 @@ WW4's certificates must let a branch lane discharge, for the candidate `Γ = Γ_
 ### 6.3 What `Phase.lean` must therefore provide (proposed field shapes)
 
 ```lean
-/-- Packet Lem 6.1: unique polar representative + translation identity. -/
+/-- Packet Lem 6.1 (`lem:gauss-translate`): unique polar representative + translation. -/
 theorem affine_gauss_translate {W : Type} [AddCommGroup W] [Module (ZMod 2) W] [Finite W]
-    (Q : W → ZMod 2) (hq : IsQuadraticFp2 Q) (hns : Nonsingular Q) (ℓ : W →ₗ[ZMod 2] W → …) :
-    ∃! y, (∀ x, ℓ x = polar Q x y) ∧
-      gaussSum (fun x => Q x + ℓ x) = (-1 : ℤ)^(Q y).val * gaussSum Q
+    (Q : W → ZMod 2) (hq : IsQuadraticFp2 Q) (hns : Nonsingular Q)
+    (ℓ : W →ₗ[ZMod 2] ZMod 2) :
+    ∃! y : W, (∀ x, ℓ x = polar Q x y) ∧
+      gaussSum (fun x => Q x + ℓ x) = (-1 : ℤ) ^ (Q y).val * gaussSum Q
 
-/-- Packet Cor 6.2 in the shape the record leaves consume: `(dim, ε)`-classification +
-`Gsum = ε·2^m` + zero counts `2^{2m-1} + ε·2^{m-1}`.  (The ℚ₂ templates:
-`GQ2.QuadraticFp2.zeroCount_of_arf_zero/one`, reused by LG5 at
-`LocalGauss/Main.lean:406-439`.) -/
+-- Packet Cor 6.2 (`cor:gauss-count`) in the shape the record leaves consume:
+-- `(dim, ε)`-classification, `Gsum = ε·2^m`, zero counts `2^{2m−1} + ε·2^{m−1}`.
+-- (ℚ₂ templates: `GQ2.QuadraticFp2.zeroCount_of_arf_zero/one`, reused by LG5 at
+-- `LocalGauss/Main.lean:406-439`.)
 
-/-- The per-branch certificate datum (Def 6.3's three items, targeted at §6.2): -/
+/-- The per-branch certificate datum (Def 6.3's three items, targeted at §6.2). -/
 structure PhaseCoverCertificate (…branch/module parameters…) where
-  baseDim   : ℕ                    -- 2m; must match the enrichment's #V = 2^{2m}
-  baseSign  : ℤ                    -- ε(Q) of the *normal form* (row's endpoint)
-  gauss_eq  : gaussSum Qnf = baseSign * 2 ^ baseDim/2-shape…   -- via Cor 6.2
-  polar_id  : …                    -- item (2): the endpoint's polar block is the cup/edge
-                                   --   pairing (the b_q-block of the frozen row)
-  covers    : …                    -- item (3) is NOT a field: the phase-cover conversion
-                                   --   is the generic layer's; the certificate only pins
-                                   --   the κ⁰-normalization (`CentExt κ⁰` route,
-                                   --   `GQ2/GaussZ/RelatorGammaA.lean:223` pattern) so the
-                                   --   evaluated Hessian IS `Q⁰` of the record's leaves
+  baseDim   : ℕ                 -- the half-dimension m; the module carries #V = 2^{2·baseDim}
+  baseSign  : ℤ                 -- ε(Q) ∈ {±1} of the *normal form* (the frozen row's endpoint)
+  gauss_eq  : gaussSum Qnf = baseSign * 2 ^ baseDim        -- via Cor 6.2
+  polar_id  : …                 -- item (2): the endpoint's polar block IS the cup/edge
+                                --   pairing (the b_q-block of the frozen row)
+  kappa_id  : …                 -- item (3) is NOT a field: the phase-cover conversion is
+                                --   the generic layer's (§6.1); the certificate only pins
+                                --   the κ⁰-normalization (`CentExt κ⁰` route,
+                                --   `GQ2/GaussZ/RelatorGammaA.lean:223` pattern) so the
+                                --   evaluated Hessian IS `Q⁰` of the record's leaves
 ```
 
 Binding constraints for WW4's freeze:
@@ -643,7 +649,7 @@ Binding constraints for WW4's freeze:
 
 **Q1 — Architecture: clone-retype vs in-place (BINDING; blocks SD-R/SD2/SD3 dispatch).**
 The b-typed spine cannot serve degree n without abstracting the boundary type (§0). Options:
-(a) **clone-retype ≈9.3k lines into `GQ2/Dyadic/Recursion/`** (frozen-file edit list
+(a) **clone-retype ≈9.1k lines into `GQ2/Dyadic/Recursion/`** (frozen-file edit list
 EMPTY; LG1 precedent "in-place is A6-incompatible; clone"; mechanical, parallelizable
 like LG4a/b/c); (b) in-place variable-ization of ~20 frozen files with abbrev-wrappers
 (P2 shows the wrapper mechanics work; saves the clone lines but edits the frozen spine's
@@ -679,12 +685,13 @@ matches the source-independent `m`-obtain at `SourceData.lean:416-420`), vs inli
 
 **Q6 — Budget: insert wave SD-R (the §4.3 clone) between SD1 and SD2** — the board's
 current SD2/SD3 scoping (two files) cannot absorb the spine. Proposed split: SD-R1
-frames+§8 (Covers/Fourier/Partition/Recursion + Block trio, ≈3.0k), SD-R2 §9
-(Terminal/Induction + MStageCount, ≈2.2k), SD-R3 Phase140+RStage+bridges (≈2.3k), each
-opus-tier mechanical with stop-and-report; SD2/SD3 (fable) then land on top at roughly
-their original sizes. The K-side `*Local` supply package (§3.3; ≈2.6k at n = 1 scale) is
-a *further* line item, most naturally an LG-lane or AS-lane ticket ("LG6"/"ASK") — owner
-assigns. **Recommendation: adopt SD-R1–3 + one K-supply ticket.**
+frames+§8 (frame layer + Covers/Fourier/Partition/Recursion + Block trio, ≈3.2k), SD-R2
+§9 (Terminal/Induction + MStageCount, ≈2.2k), SD-R3 Phase140+RStage+bridges+generic-Prop89
+(≈2.3k), each opus-tier mechanical with stop-and-report; SD2 (fable, ≈0.5k) and SD3
+(≈0.9k incl. the §10-clone corollary layer) then land on top. The K-side `*Local` supply
+package (§3.3; the n = 1 scale of that pack is ≈2.6k) is a *further* line item, most
+naturally an LG-lane or AS-lane ticket ("LG6"/"ASK") — owner assigns.
+**Recommendation: adopt SD-R1–3 + one K-supply ticket.**
 
 **Q7 — Ratify §6 as the WW4 coordination baseline** (field shapes + the four binding
 constraints), unblocking WW4's queue position behind WW3.
