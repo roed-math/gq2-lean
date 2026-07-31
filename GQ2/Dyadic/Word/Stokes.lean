@@ -1452,4 +1452,118 @@ theorem stokesDuality_of_simple [Finite C] (c : ι → C) (w : ρ → FreeGroup 
 
 end CompositionSeries
 
+/-! ## Scalar-lane hooks: cup–Bockstein extraction
+
+The scalar (`𝔽₂`-trivial-module) clause of the word certificate compares the traced Stokes
+pairing against the field-side Hilbert Gram matrix in coordinates
+(`GQ2/Roe/TrivialSelfDual.lean`'s `scalarGramR`-by-`decide` pattern).  The hooks: the
+comparison matrix `stokesGram` of two representative families (entries are `heisEta1`-values,
+`decide`-able on concrete modules), the relator-triviality bridge for discharging `hr` from
+resolved reflected words, and the pairing-vanishing extraction that converts the relative
+quasi-isomorphism clause into the "vanishing against all dual cocycles ⇒ coboundary" reading.
+
+The **Bockstein diagonal** caveat travels with the matrix: a diagonal entry
+`stokesGram p p` carries the quadratic refinement of the polar form (the `β(u⁻¹)`-rule
+`heisEvalZ_inv_z` and the ω₂-scalar slots of the frozen chain), so comparisons must match
+diagonals through the extraspecial normalization `κ_q⁰` — WW4's `Hessian.lean` interface, per
+`class2.py`'s "the polarization alone cannot see the Bockstein diagonal". -/
+
+section ScalarHooks
+
+variable {ι ρ : Type*} [Fintype ρ] {C : Type*} [Group C] {A : Type*} [AddCommGroup A]
+  [DistribMulAction C A]
+
+/-- The **cup–Bockstein comparison matrix** of two families of offset vectors: the traced
+Stokes pairing evaluated entrywise — the shape in which the marked local Hilbert matrix
+comparison is performed (and `decide`-able on concrete finite modules). -/
+noncomputable def stokesGram (c : ι → C) (w : ρ → FreeGroup ι) {m m' : ℕ}
+    (xs : Fin m → ι → A) (ys : Fin m' → ι → ElemDual A) :
+    Matrix (Fin m) (Fin m') (ZMod 2) :=
+  Matrix.of fun p q => heisEta1 c w (xs p) (ys q)
+
+@[simp] theorem stokesGram_apply (c : ι → C) (w : ρ → FreeGroup ι) {m m' : ℕ}
+    (xs : Fin m → ι → A) (ys : Fin m' → ι → ElemDual A) (p : Fin m) (q : Fin m') :
+    stokesGram c w xs ys p q = heisEta1 c w (xs p) (ys q) := rfl
+
+omit [Fintype ρ] in
+/-- Relator triviality transfers between the resolved free word and the reflected word — the
+bridge for discharging the `hr` hypotheses of the chain map from Gate-level facts about the
+branch words. -/
+theorem lift_heisToFree_eq_one_iff {X G : Type*} [Group G] (μ : X → G) (E : Zhat → ℤ)
+    (E₂ : ℤ_[2] → ℤ) (w : PWord X) :
+    FreeGroup.lift μ (heisToFree E E₂ w) = 1 ↔ PWord.evalZ μ E E₂ w = 1 := by
+  rw [evalZ_eq_lift_heisToFree]
+
+/-- **Pairing-vanishing extraction** (left): under Stokes duality, a `1`-cocycle whose traced
+pairing vanishes against **every** dual `1`-cocycle is a coboundary.  (The factorization
+through the dual complex is the elementary-dual pack's extension lemma applied to the kernel
+inclusion.) -/
+theorem StokesDuality.pairing_vanish_left [Fintype ι] {c : ι → C} {w : ρ → FreeGroup ι}
+    [Finite A] (hd : StokesDuality c w A) (x : ι → A) (hx : heisD1 c w x = 0)
+    (hvan : ∀ y : ι → ElemDual A, heisD1 (A := ElemDual A) c w y = 0 → heisEta1 c w x y = 0) :
+    ∃ v, heisD0 c v = x := by
+  refine hd.h1_inj x hx ?_
+  -- `η¹ x` kills the kernel of `d¹_{A^∨}`, hence factors through it by dual exactness.
+  set v₁ : (ι → ElemDual A) →+ (ρ → ElemDual A) := heisD1 (A := ElemDual A) c w
+  have hker : dualMap v₁.ker.subtype (heisEta1 c w x) = 0 := by
+    ext y
+    exact hvan y.1 (AddMonoidHom.mem_ker.mp y.2)
+  have hfac := (dual_exact_pair (stokes_pi_dual_torsion (B := A) ρ) v₁.ker.subtype v₁
+    (AddSubgroup.range_subtype _) (heisEta1 c w x)).mp hker
+  obtain ⟨t, ht⟩ := AddMonoidHom.mem_range.mp hfac
+  exact ⟨t, ht⟩
+
+end ScalarHooks
+
+/-! ## Stress tests
+
+Regression pins in the sense of plan §3 A1; nothing below is cited by a proof. -/
+
+section StressTests
+
+open GQ2.FoxH
+
+/-- Over a `Fin`-alphabet the generic exponent vector **is** the frozen one, definitionally. -/
+theorem stress_heisEps_eq_expMod2 {m : ℕ} (i : Fin m) :
+    heisEps (ι := Fin m) i = expMod2 i := rfl
+
+/-- **The `Γ_A` endpoint pin** (Roe note Lem 5.1 / display (40) at `n = 1`): the relator pair
+`(r_t, r_w)` of the frozen `Γ_A` chain — the tame word and the wild word at the odd
+`ω₂`-representative `e = 3` — satisfies the generic endpoint condition: the traced mod-2
+exponent vector vanishes.  Pins `IsStokesEndpoint` against `expMod2_fgTame` and
+`expMod2_wildValueExp`. -/
+theorem stress_endpoint_gammaA :
+    IsStokesEndpoint ![fgTame, wildValueExp freeMarking 3] := by
+  intro i
+  rw [Fin.sum_univ_two]
+  show Multiplicative.toAdd (expMod2 i fgTame)
+      + Multiplicative.toAdd (expMod2 i (wildValueExp freeMarking 3)) = 0
+  rw [congrFun expMod2_fgTame i, congrFun (expMod2_wildValueExp 3) i]
+  fin_cases i <;> decide
+
+/-- The trivial action of `Multiplicative (ZMod 2)` on `ZMod 2`, for the pin below only. -/
+local instance : DistribMulAction (Multiplicative (ZMod 2)) (ZMod 2) where
+  smul _ a := a
+  one_smul _ := rfl
+  mul_smul _ _ _ := rfl
+  smul_zero _ := rfl
+  smul_add _ _ _ := rfl
+
+/-- **Second-order rule pin**: the no-cross-term lemma is not vacuous — over
+`A = ZMod 2` with `C = Multiplicative (ZMod 2)` acting trivially, a jet-carrying pair
+produces a genuine cross term, and zeroing the left factor's dual jet kills exactly it. -/
+theorem stress_jetZero_nonvacuous :
+    ∃ p q : HeisLift (ZMod 2) (Multiplicative (ZMod 2)),
+      (p * q).z ≠ p.z + q.z ∧
+        ∀ p' q' : HeisLift (ZMod 2) (Multiplicative (ZMod 2)),
+          p'.l = 0 → (p' * q').z = p'.z + q'.z := by
+  refine ⟨⟨0, (AddMonoidHom.id (ZMod 2) : ElemDual (ZMod 2)), 0, 1⟩, ⟨1, 0, 0, 1⟩, ?_,
+    fun p' q' h => ?_⟩
+  · show (0 : ZMod 2) + 0 + (AddMonoidHom.id (ZMod 2))
+        ((1 : Multiplicative (ZMod 2)) • (1 : ZMod 2)) ≠ 0 + 0
+    decide +kernel
+  · exact heisMul_z_of_l_eq_zero p' q' h
+
+end StressTests
+
 end GQ2.Dyadic
