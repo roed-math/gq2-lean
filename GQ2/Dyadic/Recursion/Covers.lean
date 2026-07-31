@@ -67,11 +67,13 @@ noncomputable def liftableCountK (b : ContinuousMonoidHom Γ ↥(boundarySubgrou
 
 /-! ## The `n = 1` refl-bridges -/
 
+omit [DiscreteTopology Y] in
 /-- At `n = 1` the totalized stratum count **is** the model's — `rfl`. -/
 theorem exactImageCountOnK_eq (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ 2 nuTwo))
     (F : BoundaryFrameK 2 PiBd H E) (T : MarkedTarget H E Y) (J : Subgroup Y) :
     exactImageCountOnK b F T J = exactImageCountOn b F.toBoundaryFrame T J := rfl
 
+omit [DiscreteTopology Y] in
 /-- At `n = 1` the liftable count **is** the model's — `rfl`. -/
 theorem liftableCountK_eq (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ 2 nuTwo))
     (F : BoundaryFrameK 2 PiBd H E) (T : MarkedTarget H E Y) (C : CentralCover Y)
