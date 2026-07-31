@@ -227,7 +227,7 @@ theorem hVu_of_simple {u : C}
     { carrier := {v : V | u • v = v}
       add_mem' := fun {a b} ha hb => show u • (a + b) = a + b by rw [smul_add, ha, hb]
       zero_mem' := smul_zero u
-      neg_mem' := fun {a} ha => show u • (-a) = -a by rw [smul_neg, ha] } with hW
+      neg_mem' := fun {a} ha => show u • (-a) = -a by rw [smul_neg, ha] }
   have hmem : ∀ v : V, v ∈ W ↔ u • v = v := fun _ => Iff.rfl
   -- `W` is `C`-stable: `h⁻¹ u h = u ^ k`, and `u ^ k` fixes every `u`-fixed vector.
   have hstable : ∀ h : C, ∀ w ∈ W, h • w ∈ W := by
