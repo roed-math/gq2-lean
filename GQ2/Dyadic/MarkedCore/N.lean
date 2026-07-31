@@ -1414,3 +1414,197 @@ theorem nMarkedCorrection_nuN (hMix : NMixHypothesis α h) (hScal : NScalingHypo
   nMarkedCorrection α h hMix hScal (nuN α h) (isUnit_nuN_dnSigma α h)
 
 end Composition
+
+/-! ## §7 The `(σ, x₂)`-block, lifted  (memo §3.4's N2/N3/N4, §5.1–§5.2)
+
+Memo §3.4: "N2/N3 generate `SL₂(ℤ₂)` on the handle block (elementary matrices generate `SL₂` over
+a local ring); N4 supplies the determinant, so N2–N4 give all of `GL₂(ℤ₂)`."  §4's `nGL_factor` is
+the matrix half; this section is the group half, on the `(σ, x₂)`-plane.
+
+`nCoreMat` is the core-side mirror of HM3's `frameMat`, at slots `2` and `3` instead of a handle
+pair.  Under it, `planeElemU k` is family **N3** (`σ ↦ x₂^k·σ`, §2's `dnTauCEquiv`) and
+`planeElemV k` is family **N2** (`x₂ ↦ σ^k·x₂`, HM4's `dnTauDEquiv`).  Both are *exact* — no
+axiom, no binder — so `nCorePlane_sl2_lift` is **unconditional**: HM3's
+`mem_closure_planeElemSet_of_det_eq_one` turns any determinant-one block into a finite word in the
+two families.  Only the determinant needs the S2 stratum, and it enters through the plane form
+`NPlaneScalingHypothesis` of memo §3.4's family N4. -/
+
+section CorePlane
+
+variable {M : Type*} [AddCommGroup M] [Module ℤ_[2] M] {h : ℕ}
+
+/-- **The action of a 2×2 matrix on the `(σ, x₂)`-plane** of an additive frame — HM3's `frameMat`
+moved from a handle pair to slots `2` and `3`. -/
+noncomputable def nCoreMat (T : Matrix (Fin 2) (Fin 2) ℤ_[2]) (m : Fin (coreRank h) → M) :
+    Fin (coreRank h) → M :=
+  Function.update (Function.update m 2 (T 0 0 • m 2 + T 0 1 • m 3)) 3
+    (T 1 0 • m 2 + T 1 1 • m 3)
+
+variable (T : Matrix (Fin 2) (Fin 2) ℤ_[2]) (m : Fin (coreRank h) → M)
+
+@[simp] theorem nCoreMat_two : nCoreMat T m 2 = T 0 0 • m 2 + T 0 1 • m 3 := by
+  rw [nCoreMat, Function.update_of_ne coreTwo_ne_three, Function.update_self]
+
+@[simp] theorem nCoreMat_three : nCoreMat T m 3 = T 1 0 • m 2 + T 1 1 • m 3 := by
+  rw [nCoreMat, Function.update_self]
+
+theorem nCoreMat_of_ne {i : Fin (coreRank h)} (h2 : i ≠ 2) (h3 : i ≠ 3) : nCoreMat T m i = m i := by
+  rw [nCoreMat, Function.update_of_ne h3, Function.update_of_ne h2]
+
+@[simp] theorem nCoreMat_one : nCoreMat (1 : Matrix (Fin 2) (Fin 2) ℤ_[2]) m = m := by
+  funext i
+  by_cases h2 : i = 2
+  · subst h2; simp
+  by_cases h3 : i = 3
+  · subst h3; simp
+  exact nCoreMat_of_ne _ _ h2 h3
+
+/-- **The plane action is multiplicative** — the `SL₂` dictionary at the core plane (HM3's
+`frameMat_mul`, moved). -/
+theorem nCoreMat_mul (T₁ T₂ : Matrix (Fin 2) (Fin 2) ℤ_[2]) :
+    nCoreMat (T₁ * T₂) m = nCoreMat T₁ (nCoreMat T₂ m) := by
+  funext i
+  by_cases h2 : i = 2
+  · subst h2
+    simp only [nCoreMat_two, nCoreMat_three, Matrix.mul_apply, Fin.sum_univ_two]
+    module
+  by_cases h3 : i = 3
+  · subst h3
+    simp only [nCoreMat_two, nCoreMat_three, Matrix.mul_apply, Fin.sum_univ_two]
+    module
+  rw [nCoreMat_of_ne _ _ h2 h3, nCoreMat_of_ne _ _ h2 h3, nCoreMat_of_ne _ _ h2 h3]
+
+/-- Family **N2**'s frame move `x̄₂ ↦ x̄₂ + k·σ̄` is the plane matrix `planeElemV k`. -/
+theorem frameTauD_eq_nCoreMat (k : ℤ_[2]) :
+    frameTauD (M := M) (h := h) k m = nCoreMat (planeElemV k) m := by
+  funext i
+  by_cases h2 : i = 2
+  · subst h2; simp [planeElemV]
+  by_cases h3 : i = 3
+  · subst h3; simp [planeElemV, add_comm]
+  rw [frameTauD_of_ne _ _ h3, nCoreMat_of_ne _ _ h2 h3]
+
+end CorePlane
+
+section CorePlaneGroup
+
+variable {P : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P] [CompactSpace P]
+  [T2Space P] [TotallyDisconnectedSpace P] {h : ℕ}
+
+/-- Family **N3**'s frame move `σ̄ ↦ σ̄ + k·x̄₂` is the plane matrix `planeElemU k` — the ν-frame
+reading of §2's exact transvection `nTauCMark`. -/
+theorem nuFrame_nTauCMark (hP : IsProP 2 P)
+    (f : ContinuousMonoidHom P (Multiplicative ℤ_[2])) (m : Fin (coreRank h) → P) (k : ℤ_[2]) :
+    nuFrame f (nTauCMark hP k m) = nCoreMat (planeElemU k) (nuFrame f m) := by
+  funext i
+  by_cases h2 : i = 2
+  · subst h2
+    rw [nuFrame_apply, nTauCMark_two, map_mul, toAdd_mul, toAdd_map_zpowZtwo hP, nCoreMat_two]
+    simp [planeElemU, add_comm]
+  by_cases h3 : i = 3
+  · subst h3
+    rw [nuFrame_apply, nTauCMark_of_ne _ _ _ h2, nCoreMat_three]
+    simp [planeElemU]
+  rw [nuFrame_apply, nTauCMark_of_ne _ _ _ h2, nCoreMat_of_ne _ _ h2 h3, nuFrame_apply]
+
+end CorePlaneGroup
+
+section PlaneLift
+
+variable (α h : ℕ)
+
+/-- **`Ψ` realizes the plane move `T`**: a χ-preserving continuous automorphism of `D_N` whose
+ν-frame action is `nCoreMat T`.  (Deliberately *not* HM4's `DnRealizes`: the `A(P,h)` clause of
+that predicate excludes every move outside the handle stratum — `nCoreMixHypothesis_not_of_mix`.) -/
+def NPlaneRealizes (Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type))
+    (T : Matrix (Fin 2) (Fin 2) ℤ_[2]) : Prop :=
+  (∀ x, chiN α h (Ψ x) = chiN α h x)
+    ∧ ∀ f : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]),
+      nuFrame f (fun i => Ψ (dnGen α h i)) = nCoreMat T (nuFrame f (dnGen α h))
+
+/-- Family **N3** realizes `planeElemU k`, exactly (§2's `dnTauCEquiv`, axiom-free). -/
+theorem nPlaneRealizes_planeElemU (k : ℤ_[2]) :
+    NPlaneRealizes α h (dnTauCEquiv α h k) (planeElemU k) :=
+  ⟨chiN_dnTauCEquiv α h k, fun f => by
+    rw [show (fun i => dnTauCEquiv α h k (dnGen α h i))
+        = nTauCMark (isProP_DN α h) k (dnGen α h) from funext (dnTauCEquiv_gen α h k)]
+    exact nuFrame_nTauCMark (isProP_DN α h) f (dnGen α h) k⟩
+
+/-- Family **N2** realizes `planeElemV k`, exactly (HM4's `dnTauDEquiv`, axiom-free). -/
+theorem nPlaneRealizes_planeElemV (k : ℤ_[2]) :
+    NPlaneRealizes α h (dnTauDEquiv α h k) (planeElemV k) :=
+  ⟨chiN_dnTauDEquiv α h k, fun f => by
+    rw [show (fun i => dnTauDEquiv α h k (dnGen α h i))
+        = tauDMark (isProP_DN α h) k (dnGen α h) from funext (dnTauDEquiv_gen α h k),
+      ← frameTauD_eq_nCoreMat]
+    exact nuFrame_tau_three (isProP_DN α h) f (dnGen α h) k⟩
+
+/-- Realized plane moves compose: `Ψ₁.trans Ψ₂` realizes `T₁ * T₂` (substitutions compose
+innermost-first — HM3's recorded convention). -/
+theorem NPlaneRealizes.trans {Ψ₁ Ψ₂ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type)}
+    {T₁ T₂ : Matrix (Fin 2) (Fin 2) ℤ_[2]} (h₁ : NPlaneRealizes α h Ψ₁ T₁)
+    (h₂ : NPlaneRealizes α h Ψ₂ T₂) : NPlaneRealizes α h (Ψ₁.trans Ψ₂) (T₁ * T₂) := by
+  refine ⟨fun x => by rw [show (Ψ₁.trans Ψ₂) x = Ψ₂ (Ψ₁ x) from rfl, h₂.1, h₁.1], fun f => ?_⟩
+  have hstep : nuFrame f (fun i => (Ψ₁.trans Ψ₂) (dnGen α h i))
+      = nuFrame (f.comp (autHom Ψ₂)) (fun i => Ψ₁ (dnGen α h i)) := rfl
+  have hbase : nuFrame (f.comp (autHom Ψ₂)) (dnGen α h)
+      = nuFrame f (fun i => Ψ₂ (dnGen α h i)) := rfl
+  rw [hstep, h₁.2, hbase, h₂.2, nCoreMat_mul]
+
+/-- **The `SL₂(ℤ₂)` block lifts unconditionally** (memo §3.4, §5.1): every determinant-one plane
+move is realized by a finite composite of the two *exact* families N2 and N3 — no axiom, no
+binder.  The matrix input is HM3's `mem_closure_planeElemSet_of_det_eq_one`, the local-ring
+`SL₂ = E₂` theorem; the memo's "the `SL₂` part lifts by one-line commutator identities". -/
+theorem nCorePlane_sl2_lift {T : Matrix (Fin 2) (Fin 2) ℤ_[2]} (hT : T.det = 1) :
+    ∃ Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type), NPlaneRealizes α h Ψ T := by
+  have hmem : T ∈ Submonoid.closure planeElemSet := mem_closure_planeElemSet_of_det_eq_one hT
+  clear hT
+  induction hmem using Submonoid.closure_induction with
+  | mem T hT =>
+    rcases hT with ⟨k, rfl⟩ | ⟨k, rfl⟩
+    · exact ⟨_, nPlaneRealizes_planeElemU α h k⟩
+    · exact ⟨_, nPlaneRealizes_planeElemV α h k⟩
+  | one =>
+    exact ⟨ContinuousMulEquiv.refl _, fun _ => rfl, fun f => by rw [nCoreMat_one]; rfl⟩
+  | mul T₁ T₂ _ _ ih₁ ih₂ =>
+    obtain ⟨Ψ₁, hΨ₁⟩ := ih₁
+    obtain ⟨Ψ₂, hΨ₂⟩ := ih₂
+    exact ⟨Ψ₁.trans Ψ₂, hΨ₁.trans α h hΨ₂⟩
+
+/-- **The S2 unit-scaling binder in plane form** (memo §3.4's family N4 "with its shears") — a
+`def`, **never an axiom**.  The whole `(σ, x₂)`-plane move `diag(κ, 1)`, realized by a
+χ-preserving continuous automorphism.  This is `NScalingHypothesis` sharpened to pin the
+`x̄₂`-row as well: memo §5.2's scaling shifts that row uncontrollably, and the plane form is the
+scaling *after* the S1 shears of §7 have absorbed the shift.  Same discharge route (the existing
+axiom B8 through `peripheralTriple_scaling`), same "no new axiom, no census bump" verdict. -/
+def NPlaneScalingHypothesis (α h : ℕ) : Prop :=
+  ∀ κ : ℤ_[2]ˣ, ∃ Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
+    NPlaneRealizes α h Ψ (nPlaneDet κ)
+
+/-- The plane form of the S2 binder implies §5's row form. -/
+theorem nScalingHypothesis_of_plane (hP : NPlaneScalingHypothesis α h) :
+    NScalingHypothesis α h := by
+  intro γ
+  obtain ⟨Ψ, hchi, hframe⟩ := hP γ
+  refine ⟨Ψ, hchi, fun f => ?_⟩
+  have hrow := congrFun (hframe f) 2
+  rw [nuFrame_apply, nCoreMat_two, nPlaneDet] at hrow
+  rw [show dnSigma α h = dnGen α h 2 from rfl, hrow]
+  simp [nuFrame_apply]
+
+/-- **The `GL₂(ℤ₂)` block lifts** (memo §3.4: "N2–N4 give all of `GL₂(ℤ₂)`"; MC4 deliverable 2).
+The `SL₂` factor is unconditional — the two exact families — and only the determinant consumes the
+S2 binder.  `nGL_factor` is the matrix-level split. -/
+theorem nCorePlane_gl2_lift (hScal : NPlaneScalingHypothesis α h)
+    {T : Matrix (Fin 2) (Fin 2) ℤ_[2]} (hT : IsUnit T.det) :
+    ∃ Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type), NPlaneRealizes α h Ψ T := by
+  obtain ⟨s, -, hfac⟩ := nGL_factor hT
+  have hsdet : s.det = 1 := by
+    have hd := congrArg Matrix.det hfac
+    rw [Matrix.det_mul, nPlaneDet_det, hT.unit_spec] at hd
+    exact mul_right_cancel₀ hT.ne_zero (by rw [one_mul]; exact hd.symm)
+  obtain ⟨Ψs, hΨs⟩ := nCorePlane_sl2_lift α h hsdet
+  obtain ⟨Ψd, hΨd⟩ := hScal hT.unit
+  exact ⟨Ψs.trans Ψd, hfac ▸ hΨs.trans α h hΨd⟩
+
+end PlaneLift
