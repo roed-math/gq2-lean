@@ -269,6 +269,16 @@ import GQ2.Dyadic.MarkedCore.N
 import GQ2.Dyadic.MarkedCore.Certificate
 import GQ2.Dyadic.MarkedRecipBundle
 import GQ2.Dyadic.OrientedTameBundle
+import GQ2.Dyadic.Recursion.Frame
+import GQ2.Dyadic.Recursion.Numerics
+import GQ2.Dyadic.Recursion.Covers
+import GQ2.Dyadic.Recursion.Partition
+import GQ2.Dyadic.Recursion.Recursion
+import GQ2.Dyadic.Recursion.Block
+import GQ2.Dyadic.Recursion.PropSevenFour
+import GQ2.Dyadic.Recursion.BlockFormFields
+import GQ2.Dyadic.Recursion.BlockEnrichment
+import GQ2.Dyadic.Recursion.BlockHeadDat
 import GQ2.Dyadic.Parameters
 import GQ2.Dyadic.FinitelyGeneratedK
 import GQ2.Dyadic.Projectivity
