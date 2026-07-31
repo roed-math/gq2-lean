@@ -348,6 +348,35 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-30 (orchestrator, HM6g — the M/N mirror is now EXACT):** merged, import
+  registered; audit green **3422 jobs**, census 11; all 12 decls std-3 (no B8, no B3c).
+  ⚠ **The prescribed route was wrong and the ticket said so**: HM6ef §6 (which the dispatch
+  repeated) is internally inconsistent — it correctly identifies the leftover as
+  `D̄ ↦ D̄ + k·Ā` but then prescribes a **B-slot** shear (MC3's `mLambdaEquiv`/τ_a) to remove
+  it; in fact `hm6FrameBDc k` leaves `k·Ā` on TWO rows (B̄ and D̄) and τ_a reaches only the
+  first, the D-slot analogue is unavailable (the insertion would be a power of `a` inside
+  `[c,−]`, where `mCommP_zpow_left` does not apply), and τ_a is **not in `A⁺(P,h)`** anyway,
+  so the composite would have left the widened monoid and forced a SECOND widening.
+  **The route that works uses the M relation itself**: the M-side analogue of `nChar_dnX0` is
+  not `Ā = 0` but `2Ā + 2^αC̄₀ = 0`, which PINS `Ā = −2^{α−1}C̄₀`, so both residues are
+  C̄₀-multiples — exactly what HM4's exact τ_c writes. One `.trans` of HM6ef's
+  `dmRealizesWide_frameBDc` with `dmRealizesWide_tauD` (both already generators), then
+  reparametrize by the unit `1 − 2^{α−1}`. **No second widening, no new generating set.**
+  Landed: `mCoreMixHypothesisWide_pureM5` on **literally the N-side stratum set** (so the M/N
+  mirror is exact) and `mMixFamily_coreMix`, the true mirror of `nMixPairHypothesis_coreMix`.
+  Bonus cross-check: `nuFrame_mLambdaEquiv_eq` shows **MC3's τ_a row IS a pure M5 row** at
+  parameter `−k·2^{α−1}` = exactly `mFamM1`'s recorded `B_c` entry — an independent
+  confirmation of MC3's Nielsen table, and the reason adding τ_a to the generating set would
+  buy nothing (it reaches only the ideal `2^{α−1}ℤ₂` where `dmPureM5` reaches all of ℤ₂).
+  HM6ef's `mCoreMixHypothesisWide_m5` is NOT superseded (it holds at general α; HM6g needs
+  α ≥ 2). **Remaining on M, unchanged in kind**: `⟨M4,M6,M7⟩` (structural) + the S2
+  unit-scaling binder (through the existing B8). **Two owner-visible items**: (i) no part of
+  `MMixHypothesis` is discharged and no corollary lands, because MC3's binder is
+  **marking-transport shaped**, not family shaped, and the M lane has no
+  `mMixHypothesis_of_pair` analogue — **restating `MMixHypothesis` in family form is an owner
+  call**; (ii) there is no M-side `dmClearAuts_fixes_core`, so the "narrow FALSE / wide TRUE"
+  pin pair exists only in its wide half on M — landing the refutation needs a new rigidity
+  lemma (follow-up, not opened).
 - **2026-07-30 (orchestrator, MC-VAR — VERDICT (a) DUAL ENCODINGS; the discrepancy is
   CLOSED):** merged, `Variance.lean` import registered; audit green **3421 jobs**, census 11;
   all 15 decls std-3. **Both files were correct all along and their two clauses are literally
