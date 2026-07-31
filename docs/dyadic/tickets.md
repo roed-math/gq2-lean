@@ -348,6 +348,27 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-30 (orchestrator, NC6 — THE NC LANE IS CLOSED):** merged, import registered;
+  audit green **3419 jobs**, census 11. `Handles.lean` 504 ln, all 25 decls std-3.
+  `npc_cross_operators_handles`: the handled headline gains exactly
+  `∑ j, b_q(e_{a j}, e_{b j})`, proved in FOUR rewrites citing NC5 — nothing below the seams
+  re-entered; hypothesis surface is NC5's verbatim plus one bookkeeping equation
+  (`e 2 = 0`). Generalized beyond the memo: arbitrary handle index functions, with the
+  memo's literal `x_{3+2j}/x_{4+2j}` indexing as the corollary
+  `npc_cross_operators_handles_std`. **The concrete carrier lands the non-vacuity**:
+  `PinC` = C₃ acting on 𝔽₂² by the companion matrix of `x²+x+1`, anisotropic `pinQ`,
+  invariant `pinF` — all eight `IsEquivariantFactorSet` fields + `hV2` + `hVu` + the action
+  axioms by **kernel `decide`**; because the group is pro-odd, `A = g` for EVERY `η`, so
+  **both sides become numerals**: the jet is `1` at `(α,r,η) = (2,1,1)`, and `0` with one
+  handle (the tail `b_q((1,0),(0,1)) = 1` OBSERVED, not assumed). Also landed
+  `npcHandles_eval_eq_handlesProd` (the block IS `Blocks.lean`'s `handlesProd` at the
+  marking — S1.9's Lean identity meeting the NC lane). **Lane inventory: NC1 memo → NC2 Defs
+  → NC3 Omega → NC4 Seams → NC5 Main → NC6 Handles; the R3(a) commission is delivered end to
+  end, everything std-3.** Residual for WNP-c (unchanged, and correctly scoped): per-module
+  invertibility of `L_c` — the identity says the jet IS `Q₀ + b_q(c₁, L_c c₀) + tail`, not
+  that the pairing is nondegenerate; that varies with the module (on NC6's carrier
+  `L_c = g` is invertible; with `A = B = 1` it is the identity) and belongs to WNP-c's
+  Fox/normal-form clauses, where it is a `decide` on a battery module.
 - **2026-07-30 (orchestrator, MC3 done + ⚠ AN OPEN DISCREPANCY, ticket MC-VAR):** MC3 merged
   (audit green 3418, census 11, everything ≤ std-3 with zero census-axiom citers). Its
   classification is `∃!` over an explicit 7-parameter stabilizer with a full Nielsen
