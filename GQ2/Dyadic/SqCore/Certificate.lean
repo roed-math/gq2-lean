@@ -43,6 +43,11 @@ Per core, what the production theorems consume:
 | core stratum `SqCoreShearHypothesis h c` | *new*, see below | **binder** |
 | exponent datum `∃ c ∈ ℤ₂ˣ, X^c = S` | `SqCore/PivotLemma.lean` | **theorem** |
 
+and, on the alternative one-binder route (§4, and item 1 below), `SqHandleMixFixesCore h c`
+alone replaces both strata, at the cost of the stronger marked-data clause `ν'(σ) = 1`,
+`ν'(x₀) = 0`.  At `h = 0` every binder in either column is a theorem, which is why §5 is
+unconditional.
+
 ### Why a second binder — the `w`-shear stratum (SQ4 finding)
 
 MC5's `SqHandleMixHypothesis` clears the handle plane and preserves the **pivot row**
@@ -66,13 +71,16 @@ handle move happens to fix the `x₀`-row (`sqCoreShear_of_nu_x0`).
 
 Two consequences worth recording for the CoV/WL tickets:
 
-1. **The recommended strengthening.**  MC-HM's construction (board log 2026-07-30: *"the unique
-   `|A| ≤ 6` mixing solution fixes `x₀/σ/v` literally"*) delivers handle moves that fix the core
-   letters on the nose.  If the eventual discharge of `SqHandleMixHypothesis` is stated in that
-   stronger form — `ν'(Ψ σ) = ν'(σ)` and `ν'(Ψ x₀) = ν'(x₀)` in place of the pivot-row clause —
-   then `sqCoreShear_of_nu_x0` makes the shear binder unnecessary and the `L_sq` certificate
-   needs **one** binder, matching the `N`-core's inventory.  That is a statement change in
-   MC5's file, which SQ4 does not own.
+1. **The recommended strengthening — landed as a checked route, not a claim.**  MC-HM's
+   construction (board log 2026-07-30: *"the unique `|A| ≤ 6` mixing solution fixes `x₀/σ/v`
+   literally"*) delivers handle moves that fix the core letters on the nose.  That form is
+   spelled here as `SqHandleMixFixesCore`, and three theorems price it: it **implies** MC5's
+   binder (`sqHandleMixHypothesis_of_fixesCore`, so nothing downstream is lost by aiming at
+   it); with it the shear disappears and the reduction goes through on the packet's
+   `markedDataEq` clause alone (`sqMarkedMatching_of_fixesCore`,
+   `marked_matching_certificate_sq_of_fixesCore`); and at `h = 0` it is a theorem
+   (`sqHandleMixFixesCore_zero`).  Restating MC5's binder is a change to a file SQ4 does not
+   own, so both routes are carried here and the choice is the CoV ticket's.
 2. `d = 1` **exactly**, not `IsUnit d`, is the right marked-data clause here: the shear cannot
    change `d`, so a unit-but-not-one pivot row is unreachable from `ν_sq`.  MC5's
    `nuSq_sqMixPivotElem` (the exact unit row `ν_sq(w) = 1`) is what makes the clause
@@ -347,6 +355,75 @@ never vacuously quantified (the `L_sq` mirror of MC5's `sqHandleMix_hypothesis_n
 theorem sqCoreShearHypothesis_nonvacuous (h : ℕ) (c : ℤ_[2]) :
     nuSq h (sqMixPivotElem h c) = ofAdd (1 : ℤ_[2]) := nuSq_sqMixPivotElem h c
 
+/-- **The strengthened handle-mixing statement** MC-HM's construction actually delivers (board
+log 2026-07-30: *"the unique `|A| ≤ 6` mixing solution fixes `x₀/σ/v` literally"*): the clearing
+automorphism fixes the two **core rows**, not merely the pivot row.
+
+This is *not* a new obligation: it is a candidate restatement of MC5's `SqHandleMixHypothesis`
+for the errata-item-1 change-of-variables ticket to aim at, recorded here so that its payoff is
+a checked theorem (`sqMarkedMatching_of_fixesCore`) rather than a claim — with it the `L_sq`
+certificate needs **no shear binder** and its inventory matches the `N`-core's. -/
+def SqHandleMixFixesCore (h : ℕ) (c : ℤ_[2]) : Prop :=
+  ∀ nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]),
+    IsUnit (toAdd (nu' (sqMixPivotElem h c))) →
+      ∃ Ψ : ContinuousMulEquiv (DSq h : Type) (DSq h : Type),
+        (∀ x, chiSq h (Ψ x) = chiSq h x)
+          ∧ (∀ j : Fin h, nu' (Ψ (sqGen h (sqHandleIdxU j))) = 1)
+          ∧ (∀ j : Fin h, nu' (Ψ (sqGen h (sqHandleIdxV j))) = 1)
+          ∧ nu' (Ψ (dsqSigma h)) = nu' (dsqSigma h)
+          ∧ nu' (Ψ (dsqX0 h)) = nu' (dsqX0 h)
+
+/-- **The strengthened statement implies MC5's**: fixing the two core rows fixes the pivot row,
+because `w = σ·x₀^{−c}` and `ν'` is a hom (`map_zpowZtwo`).  So nothing downstream of
+`SqHandleMixHypothesis` is lost by aiming at the stronger form. -/
+theorem sqHandleMixHypothesis_of_fixesCore {h : ℕ} {c : ℤ_[2]}
+    (H : SqHandleMixFixesCore h c) : SqHandleMixHypothesis h c := by
+  intro nu' hpiv
+  obtain ⟨Ψ, hchi, hU, hV, hσ, hx0⟩ := H nu' hpiv
+  refine ⟨Ψ, hchi, hU, hV, ?_⟩
+  refine Multiplicative.toAdd.injective ?_
+  have hcomp : toAdd ((nu'.comp (autHom Ψ)) (sqMixPivotElem h c))
+      = toAdd ((nu'.comp (autHom Ψ)) (dsqSigma h))
+        - c * toAdd ((nu'.comp (autHom Ψ)) (dsqX0 h)) :=
+    toAdd_nu_sqMixPivotElem (nu'.comp (autHom Ψ)) c
+  have hbase : toAdd (nu' (sqMixPivotElem h c))
+      = toAdd (nu' (dsqSigma h)) - c * toAdd (nu' (dsqX0 h)) :=
+    toAdd_nu_sqMixPivotElem nu' c
+  show toAdd (nu' (Ψ (sqMixPivotElem h c))) = toAdd (nu' (sqMixPivotElem h c))
+  rw [show toAdd (nu' (Ψ (sqMixPivotElem h c)))
+    = toAdd ((nu'.comp (autHom Ψ)) (sqMixPivotElem h c)) from rfl, hcomp, hbase]
+  rw [show (nu'.comp (autHom Ψ)) (dsqSigma h) = nu' (Ψ (dsqSigma h)) from rfl, hσ,
+    show (nu'.comp (autHom Ψ)) (dsqX0 h) = nu' (Ψ (dsqX0 h)) from rfl, hx0]
+
+/-- **The one-binder route** (the payoff of the strengthening): under the strengthened handle
+binder alone — no shear — a transported marking whose *core data* is standard admits the
+χ-preserving correction with `ν' ∘ u = ν_sq`.  The marked-data clause here is the packet's
+`markedDataEq` on the nose: `ν'(σ) = 1`, `ν'(x₀) = 0` (and `ν'(x₁) = 0` is forced, not
+assumed). -/
+theorem sqMarkedMatching_of_fixesCore {h : ℕ} {c : ℤ_[2]} (H : SqHandleMixFixesCore h c)
+    (nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]))
+    (hσ : nu' (dsqSigma h) = ofAdd (1 : ℤ_[2])) (hx0 : nu' (dsqX0 h) = ofAdd (0 : ℤ_[2])) :
+    ∃ u : ContinuousMulEquiv (DSq h : Type) (DSq h : Type),
+      (∀ x, chiSq h (u x) = chiSq h x) ∧ ∀ x, nu' (u x) = nuSq h x := by
+  have hpiv : toAdd (nu' (sqMixPivotElem h c)) = 1 := by
+    rw [toAdd_nu_sqMixPivotElem nu' c, hσ, hx0, toAdd_ofAdd, toAdd_ofAdd, mul_zero, sub_zero]
+  obtain ⟨Ψ, hchi, hU, hV, hσΨ, hx0Ψ⟩ := H nu' (by rw [hpiv]; exact isUnit_one)
+  refine ⟨Ψ, hchi, ?_⟩
+  have hcore : ∀ x, (nu'.comp (autHom Ψ)) x = nuSq h x := by
+    refine nu_eq_nuSq_of_core _ ?_ ?_ hU hV
+    · show nu' (Ψ (dsqSigma h)) = ofAdd (1 : ℤ_[2])
+      rw [hσΨ, hσ]
+    · show nu' (Ψ (dsqX0 h)) = ofAdd (0 : ℤ_[2])
+      rw [hx0Ψ, hx0]
+  exact fun x => hcore x
+
+/-- At `h = 0` the strengthened binder is a theorem too (nothing to clear), so the *whole*
+binder surface of the `L_sq` certificate vanishes at rank three — cf. §5. -/
+theorem sqHandleMixFixesCore_zero (c : ℤ_[2]) : SqHandleMixFixesCore 0 c := by
+  intro nu' _
+  exact ⟨ContinuousMulEquiv.refl _, fun _ => rfl, fun j => absurd j.2 (by omega),
+    fun j => absurd j.2 (by omega), rfl, rfl⟩
+
 /-- At `h = 0` **and** at the standard marking the shear binder's conclusion is a theorem: the
 identity already normalizes both core rows. -/
 theorem sqCoreShear_nuSq (h : ℕ) (c : ℤ_[2]) :
@@ -442,6 +519,27 @@ theorem marked_matching_certificate_sq (h : ℕ) (c : ℤ_[2])
       map_mul' := fun x y => by rw [map_mul, map_mul]
       continuous_toFun := hcont } with hnu'
   obtain ⟨u, huchi, hunu⟩ := sqMarkedMatching hMix hShear nu' hpiv
+  exact ⟨⟨f, horient, u, huchi, fun x => hunu x⟩⟩
+
+/-- **Certificate production, one-binder route**: with the handle stratum in its strengthened
+(core-fixing) form, the only residual assumptions are the abstract slot and the packet's
+`markedDataEq` clause `ν'(σ) = 1`, `ν'(x₀) = 0`.  This is the shape the errata-item-1 ticket
+should aim to deliver. -/
+theorem marked_matching_certificate_sq_of_fixesCore (h : ℕ) (c : ℤ_[2])
+    (chiG : G →* ℤ_[2]ˣ) (nuG : G →* Multiplicative ℤ_[2])
+    (f : ContinuousMulEquiv (DSq h : Type) G)
+    (horient : ∀ x, chiG (f x) = chiSq h x)
+    (hcont : Continuous fun x : (DSq h : Type) => nuG (f x))
+    (H : SqHandleMixFixesCore h c)
+    (hσ : nuG (f (dsqSigma h)) = ofAdd (1 : ℤ_[2]))
+    (hx0 : nuG (f (dsqX0 h)) = ofAdd (0 : ℤ_[2])) :
+    Nonempty (MarkedCoreCertificateSq h chiG nuG) := by
+  set nu' : ContinuousMonoidHom (DSq h : Type) (Multiplicative ℤ_[2]) :=
+    { toFun := fun x => nuG (f x)
+      map_one' := by rw [map_one, map_one]
+      map_mul' := fun x y => by rw [map_mul, map_mul]
+      continuous_toFun := hcont } with hnu'
+  obtain ⟨u, huchi, hunu⟩ := sqMarkedMatching_of_fixesCore (c := c) H nu' hσ hx0
   exact ⟨⟨f, horient, u, huchi, fun x => hunu x⟩⟩
 
 /-- Certificate production with the orientation supplied in **generator-value form** (the shape
@@ -717,6 +815,23 @@ example (hMix : SqHandleMixHypothesis 1 sqPivotExp)
 /-- At `h = 0` MC5's handle binder is a theorem, so the certificate's only residual binder there
 is the shear — which the standard marking also satisfies. -/
 example : SqHandleMixHypothesis 0 sqPivotExp := sqHandleMixHypothesis_zero sqPivotExp
+
+/-- At `h = 0` the strengthened handle binder is a theorem as well, so the one-binder route's
+whole surface is empty at rank three. -/
+example : SqHandleMixFixesCore 0 sqPivotExp := sqHandleMixFixesCore_zero sqPivotExp
+
+/-- The one-binder route at one handle: the strengthened handle binder alone, with the packet's
+`markedDataEq` clause, gives the full correction. -/
+example (H : SqHandleMixFixesCore 1 sqPivotExp)
+    (nu' : ContinuousMonoidHom (DSq 1 : Type) (Multiplicative ℤ_[2]))
+    (hσ : nu' (dsqSigma 1) = ofAdd (1 : ℤ_[2])) (hx0 : nu' (dsqX0 1) = ofAdd (0 : ℤ_[2])) :
+    ∃ u : ContinuousMulEquiv (DSq 1 : Type) (DSq 1 : Type),
+      (∀ x, chiSq 1 (u x) = chiSq 1 x) ∧ ∀ x, nu' (u x) = nuSq 1 x :=
+  sqMarkedMatching_of_fixesCore H nu' hσ hx0
+
+/-- The strengthening is a *strengthening*: it implies MC5's binder verbatim. -/
+example (H : SqHandleMixFixesCore 1 sqPivotExp) : SqHandleMixHypothesis 1 sqPivotExp :=
+  sqHandleMixHypothesis_of_fixesCore H
 
 /-- The `h = 0` identification is marked: it carries the three generators across. -/
 example : sqEquivDRMarked (dsqSigma 0) = drS ∧ sqEquivDRMarked (dsqX0 0) = drX ∧
