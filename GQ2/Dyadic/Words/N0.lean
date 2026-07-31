@@ -286,4 +286,253 @@ theorem denote_rawNCompact_three_zero :
 theorem denote_rawNCompact_four_zero :
     Export.denote (denoteCtx 0) (rawNCompact 4 0) = some (nCompactW 4 0) := by rfl
 
+/-! ## The `ω₂`-only fragment
+
+The compact-`N` word uses no `ℤ₂`-power and no profinite exponent other than `ω₂`, so the whole
+`ℕ`-exponent calculus of packet Lem. 2.2 applies to it with a single global exponent.  This is
+what lets the numerical pins below evaluate the *genuine* `ω₂`, and what WN0-b will need to
+transport the word into `FreeGroup`, where `ω₂` cannot be applied at all. -/
+
+theorem isOmega2Only_prodList {Gen : Type*} :
+    ∀ {l : List (PWord Gen)}, (∀ w ∈ l, w.IsOmega2Only) → (PWord.prodList l).IsOmega2Only
+  | [], _ => trivial
+  | w :: _ws, hw =>
+      ⟨hw w (List.mem_cons_self ..),
+       isOmega2Only_prodList fun u hu => hw u (List.mem_cons_of_mem _ hu)⟩
+
+@[simp] theorem isOmega2Only_handlesW (h : ℕ) : (handlesW h).IsOmega2Only := by
+  unfold handlesW
+  refine isOmega2Only_prodList ?_
+  intro w hw
+  obtain ⟨j, -, rfl⟩ := List.mem_map.mp hw
+  exact ⟨trivial, trivial⟩
+
+@[simp] theorem isOmega2Only_nCompact (α h : ℕ) : (nCompactW α h).IsOmega2Only := by
+  unfold nCompactW
+  refine isOmega2Only_prodList ?_
+  intro w hw
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at hw
+  rcases hw with rfl | rfl | rfl | rfl | rfl
+  · exact trivial
+  · exact ⟨trivial, trivial⟩
+  · exact ⟨trivial, trivial⟩
+  · exact ⟨rfl, trivial, trivial, trivial⟩
+  · exact isOmega2Only_handlesW h
+
+/-! ## Gate B: the tame boundary
+
+Packet Prop. 9.2's proof shape.  Killing the wild letters annihilates the leading power, the
+commutator, the `x₂^{-σ}` factor and every handle; what survives is the `ω₂`-tail of the
+`δ₂`-letter, `δ₂ = (x₂τ)^{ω₂}x₂⁻¹ ↦ τ^{ω₂}`.  That tail then dies by **Gate B rule T1** — `ω₂`
+kills pro-odd elements — and *only* by T1: it is not a syntactic cancellation. -/
+
+section Tame
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+  [TotallyDisconnectedSpace G] {α h : ℕ}
+
+omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+@[simp] theorem killWildLetters_coreLetter (t : Marking (2 + 2 * h) G) (i : Fin 3) :
+    Marking.killWildLetters t (coreLetter h i) = 1 := rfl
+
+omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+@[simp] theorem killWildLetters_handleU (t : Marking (2 + 2 * h) G) (j : Fin h) :
+    Marking.killWildLetters t (handleU j) = 1 := rfl
+
+omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+@[simp] theorem killWildLetters_handleV (t : Marking (2 + 2 * h) G) (j : Fin h) :
+    Marking.killWildLetters t (handleV j) = 1 := rfl
+
+/-- Evaluating the handle block is MC2's `handleWord` on the handle letters — the same
+`List.finRange h` order on both sides, so this is a rewrite and not a reindexing. -/
+theorem eval_handlesW (t : Marking (2 + 2 * h) G) :
+    t.eval (handlesW h) =
+      MarkedCore.handleWord (fun j => t (handleU j)) (fun j => t (handleV j)) := by
+  rw [Marking.eval_def, handlesW, PWord.eval_prodList, List.map_map]
+  rfl
+
+/-- **The tame boundary value of the compact-`N` word.**
+
+Killing the wild letters leaves exactly `τ^{ω₂}`: every other factor is a word in the killed
+letters alone.  Stating the *value* rather than "` = 1`" is deliberate — it is what makes the
+T1 step below visible, and what shows that the death of this word at the tame boundary is a
+fact about `τ`, not about the word's shape. -/
+theorem eval_killWildLetters_nCompact (α h : ℕ) (t : Marking (2 + 2 * h) G) :
+    (Marking.killWildLetters t).eval (nCompactW α h) = t.τ ^ᶻ omega2 := by
+  have hH : PWord.eval ⇑(Marking.killWildLetters t) (handlesW h) = 1 := by
+    rw [show PWord.eval ⇑(Marking.killWildLetters t) (handlesW h)
+          = (Marking.killWildLetters t).eval (handlesW h) from rfl, eval_handlesW]
+    exact MarkedCore.handleWord_of_one _ _ (fun _ => rfl) (fun _ => rfl)
+  rw [Marking.eval_def, nCompactW, PWord.eval_prodList]
+  simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, PWord.eval_zpow,
+    PWord.eval_comm, PWord.eval_inv, PWord.eval_conj, PWord.eval_gen,
+    PWord.eval_omega2PowHat, PWord.eval_prodList, killWildLetters_coreLetter,
+    one_zpow, commR_self, one_conjR, inv_one, one_mul, mul_one, hH]
+  rfl
+
+/-- The same statement through F2's **substitution operator**: the syntactic kill-wild rewrite
+`killWild` evaluated at `t` (`Marking.eval_killWild`). -/
+theorem eval_killWild_nCompact (α h : ℕ) (t : Marking (2 + 2 * h) G) :
+    t.eval (killWild (nCompactW α h)) = t.τ ^ᶻ omega2 := by
+  rw [Marking.eval_killWild, eval_killWildLetters_nCompact]
+
+/-- **Gate-B admissibility, relativized to a tame `τ`** — packet Prop. 9.2.
+
+The compact-`N` word dies at the tame boundary of every marking whose `τ`-letter is killed by
+`ω₂`.  Inside `Γ_R` that hypothesis is *supplied*, by packet Lem. 3.1: the tame relation
+`τ^σ = τ^{q}` with `q` even forces `τ` to be pro-odd (`GQ2.Dyadic.odd_order`), and `ω₂` kills
+pro-odd elements. -/
+theorem killsWild_of_tau (hτ : ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+      [CompactSpace G] [TotallyDisconnectedSpace G] (t : Marking (2 + 2 * h) G),
+      t.τ ^ᶻ omega2 = 1) :
+    KillsWild (nCompactW α h) := by
+  intro G _ _ _ _ _ t
+  rw [eval_killWildLetters_nCompact]
+  exact hτ G t
+
+/-- **Gate B rule T1, at a finite marking**: if the `τ`-letter has odd order, the tame boundary
+value is trivial.  This is the form the finite-target harnesses (F5) test. -/
+theorem eval_killWildLetters_nCompact_eq_one_of_odd {P : Type} [Group P] [TopologicalSpace P]
+    [DiscreteTopology P] [Finite P] (α h : ℕ) (t : Marking (2 + 2 * h) P)
+    (hτ : Odd (orderOf t.τ)) : (Marking.killWildLetters t).eval (nCompactW α h) = 1 := by
+  rw [eval_killWildLetters_nCompact]
+  simpa using PWord.eval_omega2Pow_eq_one_of_odd (⇑t) (.gen .tau) hτ
+
+end Tame
+
+/-! ### ⚠ F3's `KillsWild` is *not* satisfiable by this word
+
+A finding of the pilot lane, and the one statement in this file that the other four branch lanes
+should read before writing theirs.
+
+`GQ2.Dyadic.KillsWild R` quantifies over **every** profinite group and **every** marking, with no
+relation imposed on the `τ`-letter.  By `eval_killWildLetters_nCompact` the tame boundary value
+of the compact-`N` word is `τ^{ω₂}`, so `KillsWild` would force `τ^{ω₂} = 1` universally — false
+already in `Multiplicative (ZMod 8)`.
+
+This is not a defect in the *word*: the packet's hypothesis is about the tame quotient, where
+`τ` is pro-odd by Lem. 3.1, and there the word is admissible (`killsWild_of_tau`,
+`eval_killWildLetters_nCompact_eq_one_of_odd`).  It is a mismatch between F3's `∀`-form and the
+packet's hypothesis, and every branch word with a `δ`-letter will hit it, because a `δ`-letter's
+whole point is to carry `(x_iτ)^{ω₂}`.  **Recommended F3 amendment**: give `KillsWild` a
+`τ`-pro-odd side condition, or quantify only over markings factoring through `Γ_R`.  Recorded
+rather than acted on: `TameBoundary.lean` is not this ticket's file. -/
+
+section Refutation
+
+local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
+local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
+
+private theorem zmod8_orderOf_dvd (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
+  orderOf_dvd_of_pow_eq_one (by revert x; decide)
+
+/-- The refuting marking: `τ` a generator of `ZMod 8` (so `τ^{ω₂} = τ ≠ 1`), everything else
+trivial.  The wild letters are irrelevant — `killWildLetters` overwrites them. -/
+def refuteMarking (h : ℕ) : Marking (2 + 2 * h) (Multiplicative (ZMod 8)) :=
+  Marking.ofLetters 1 (Multiplicative.ofAdd 1) (fun _ => 1)
+
+/-- **The frozen compact-`N` word is not Gate-B admissible in F3's unrelativized sense.** -/
+theorem not_killsWild (α h : ℕ) : ¬ KillsWild (nCompactW α h) := by
+  intro hR
+  have hval := hR (Multiplicative (ZMod 8)) (refuteMarking h)
+  rw [eval_killWildLetters_nCompact,
+    PWord.zpowHat_omega2_zpow (by norm_num) (zmod8_orderOf_dvd _), omega2Exp_eight,
+    show (refuteMarking h).τ = Multiplicative.ofAdd (1 : ZMod 8) from rfl, Nat.cast_one,
+    zpow_one] at hval
+  exact absurd hval (by decide)
+
+end Refutation
+
+/-! ## Gate C: the marked pro-`2` boundary
+
+The headline of the ticket.  `pro2` sends `τ ↦ 1` and collapses every `ω₂`-power, so the third
+and fourth factors become `(x₂^σ)⁻¹ · x₂`, and *that is the commutator* `[σ, x₂]`:
+
+```
+(x₂^σ)⁻¹ · x₂ = (σ⁻¹x₂σ)⁻¹ · x₂ = σ⁻¹x₂⁻¹σ · x₂ = [σ, x₂].
+```
+
+So the pro-`2` specialization is `x₀^{2+2^α}[x₀,x₁][σ,x₂] · H_h` = MC2's `nWord α x₀ x₁ σ x₂`
+times MC2's `handleWord`.  This is where the `σ`-versus-`σ₂` choice pays: with `σ₂` the third
+factor would not pair with the fourth. -/
+
+section Pro2
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+  [TotallyDisconnectedSpace G] {α h : ℕ}
+
+theorem pro2_prodList :
+    ∀ l : List (PWord (Generator (2 + 2 * h))),
+      pro2 (PWord.prodList l) = PWord.prodList (l.map pro2)
+  | [] => rfl
+  | w :: ws => by
+      rw [PWord.prodList_cons, pro2_mul, pro2_prodList ws, List.map_cons, PWord.prodList_cons]
+
+@[simp] theorem pro2_handlesW (h : ℕ) : pro2 (handlesW h) = handlesW h := by
+  rw [handlesW, pro2_prodList, List.map_map]
+  rfl
+
+/-- **Gate C, syntactically**: the `τ`-letter is gone and the `ω₂`-power is collapsed; nothing
+else moves.  The fourth factor is `x₂ · 1`, whose trailing `1` is the collapsed `τ`. -/
+theorem pro2_nCompact (α h : ℕ) :
+    pro2 (nCompactW α h) = PWord.prodList
+      [.zpow (.gen (coreLetter h 0)) (2 + 2 ^ α),
+       .comm (.gen (coreLetter h 0)) (.gen (coreLetter h 1)),
+       .inv (.conj (.gen (coreLetter h 2)) (.gen .sigma)),
+       PWord.prodList [.gen (coreLetter h 2), .one],
+       handlesW h] := by
+  rw [nCompactW, pro2_prodList]
+  simp only [List.map_cons, List.map_nil, pro2_omega2Pow, pro2_handlesW, pro2_prodList,
+    pro2_zpow, pro2_comm, pro2_inv, pro2_conj, pro2_gen_wild, pro2_gen_sigma, pro2_gen_tau,
+    coreLetter]
+
+omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+/-- The one group-theoretic move of this file: `x^{-g} · x = [g, x]`.  Everything else in the
+pro-`2` comparison is associativity. -/
+theorem invConj_mul_self (x g : G) : (conjR x g)⁻¹ * x = commP g x := by
+  simp only [conjR, commP, mul_inv_rev, inv_inv]
+  group
+
+/-- **The pro-`2` boundary value of the compact-`N` word is MC2's compact-`N` core.**
+
+`pro2 R_{N,α,0}` evaluates, at *every* marking, to `nWord α x₀ x₁ σ x₂ · handleWord`.  No
+hypothesis on the marking is needed: `pro2` has already removed `τ` and every `ω₂`, so the
+identity is one of plain group words. -/
+theorem eval_pro2_nCompact (α h : ℕ) (t : Marking (2 + 2 * h) G) :
+    t.eval (pro2 (nCompactW α h)) =
+      MarkedCore.nWord α (t (coreLetter h 0)) (t (coreLetter h 1)) t.σ (t (coreLetter h 2)) *
+        MarkedCore.handleWord (fun j => t (handleU j)) (fun j => t (handleV j)) := by
+  have hH : PWord.eval ⇑t (handlesW h)
+      = MarkedCore.handleWord (fun j => t (handleU j)) (fun j => t (handleV j)) := eval_handlesW t
+  rw [pro2_nCompact, Marking.eval_def, PWord.eval_prodList]
+  simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, PWord.eval_zpow,
+    PWord.eval_comm, PWord.eval_inv, PWord.eval_conj, PWord.eval_gen, PWord.eval_one,
+    PWord.eval_prodList, mul_one, hH]
+  -- The word's leading exponent is a genuine `ℤ`-power (`PWord.zpow`), MC2's core word's is an
+  -- `ℕ`-power; align them before the group normalisation, or `group` cannot match `2 ^ α`
+  -- against `↑(2 ^ α)`.
+  rw [show ((2 : ℤ) + 2 ^ α) = ((2 + 2 ^ α : ℕ) : ℤ) by push_cast; ring, zpow_natCast,
+    MarkedCore.nWord, ← invConj_mul_self (t (coreLetter h 2)) t.σ]
+  -- Both sides are now the same sequence of atoms; only the bracketing differs (`prodList` is
+  -- right-nested, `nWord` left-nested).
+  simp only [commR, commP, conjR, mul_assoc, Marking.apply_sigma]
+
+/-- At `h = 0` the handle tail is the empty product and the pro-`2` value is MC2's core word on
+the nose — the statement the ticket asks for, and the one MC2's rank-four theory consumes. -/
+theorem eval_pro2_nCompact_zero (α : ℕ) (t : Marking 2 G) :
+    t.eval (pro2 (nCompactW α 0)) = MarkedCore.nWord α (t.x 0) (t.x 1) t.σ (t.x 2) := by
+  rw [eval_pro2_nCompact (α := α) (h := 0) (t := t),
+    show MarkedCore.handleWord (fun j : Fin 0 => t (handleU j)) (fun j : Fin 0 => t (handleV j))
+      = 1 from rfl, mul_one]
+  rfl
+
+/-- The same value read as MC2's **full relator shape** `nRelWord` at the standard marking
+(`coreMark`: the four Labute letters, `1` on every handle letter). -/
+theorem eval_pro2_nCompact_eq_nRelWord (α : ℕ) (t : Marking 2 G) :
+    t.eval (pro2 (nCompactW α 0)) =
+      MarkedCore.nRelWord (h := 0) α (MarkedCore.coreMark (t.x 0) (t.x 1) t.σ (t.x 2)) := by
+  rw [eval_pro2_nCompact_zero, MarkedCore.nRelWord_coreMark]
+
+end Pro2
+
 end GQ2.Dyadic.Words
