@@ -742,6 +742,281 @@ theorem mXi_fixes_t {α : ℕ} (hα : 1 ≤ α) (B : MDecomposition α)
 
 end Frame
 
+/-! ## §4 The mod-2 cup Gram, the stabilizer predicate, and the classification
+
+The Gram matrix is memo §2.2(iii)/V4: reading the initial form of `P_M = A²[A,B]C₀^{2^α}[C₀,D]`,
+the square `A²` gives the diagonal Bockstein entry, `[A,B]` and `[C₀,D]` give the two hyperbolic
+pairs, and `C₀^{2^α}` gives **nothing** because `2^α ≡ 0 (mod 4)` for `α ≥ 2` (the mod-4 rule
+that MC2's `diagCoeff_mod_four` isolates).  In the frame basis `(t, B̄, C̄₀, D̄)` — which reduces
+mod 2 to the generator basis `(Ā, B̄, C̄₀, D̄)`, since `m = 2^{α−1}` is even — this is
+
+```
+G_M = [[1,1,0,0],[1,0,0,0],[0,0,0,1],[0,0,1,0]],   α-independent.
+```
+
+**Variance.**  The cup form lives on `H¹`, on which an automorphism of `D_M` acts by
+*pre*composition, i.e. by the transpose of its action on `H₁ = L_M/2L_M`.  The isometry
+condition is therefore `M̄ᵀ·G_M·M̄ = G_M` on the mod-2 frame matrix `M̄` (rows = images of the
+frame basis), not `M̄·G_M·M̄ᵀ`.  The two differ: the `τ`-parameter of memo §2.3 is free for the
+transpose-side condition and would be forced to `0` by the other, so this variance choice is
+what makes the memo's seven-parameter closed form come out.  `mCupIsometry_entry` writes the
+`(i,j)` entry of `M̄ᵀ·G_M·M̄` in terms of the four rows, which is how the three Witt relations
+are read off. -/
+
+section Gram
+
+open Multiplicative
+
+/-- The frame basis of the rank-four `M`-frame, in the order `(t, B̄, C̄₀, D̄)`. -/
+noncomputable def mFrameBasis (α : ℕ) : Fin 4 → topAbelianization (DM α 0 : Type) :=
+  ![abMk (dmA α 0 * dmC α 0 ^ (2 ^ (α - 1))), abMk (dmB α 0), abMk (dmC α 0), abMk (dmD α 0)]
+
+@[simp] theorem mFrameBasis_zero (α : ℕ) :
+    mFrameBasis α 0 = abMk (dmA α 0 * dmC α 0 ^ (2 ^ (α - 1))) := rfl
+@[simp] theorem mFrameBasis_one (α : ℕ) : mFrameBasis α 1 = abMk (dmB α 0) := rfl
+@[simp] theorem mFrameBasis_two (α : ℕ) : mFrameBasis α 2 = abMk (dmC α 0) := rfl
+@[simp] theorem mFrameBasis_three (α : ℕ) : mFrameBasis α 3 = abMk (dmD α 0) := rfl
+
+/-- The mod-2 reduction of a frame coordinate vector: `L_M/2L_M = 𝔽₂⁴`. -/
+noncomputable def mRedTwo (v : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]) : Fin 4 → ZMod 2 :=
+  ![v.1, mParityZ v.2.1, mParityZ v.2.2.1, mParityZ v.2.2.2]
+
+@[simp] theorem mRedTwo_zero (v : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]) : mRedTwo v 0 = v.1 := rfl
+@[simp] theorem mRedTwo_one (v : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]) :
+    mRedTwo v 1 = mParityZ v.2.1 := rfl
+@[simp] theorem mRedTwo_two (v : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]) :
+    mRedTwo v 2 = mParityZ v.2.2.1 := rfl
+@[simp] theorem mRedTwo_three (v : ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]) :
+    mRedTwo v 3 = mParityZ v.2.2.2 := rfl
+
+/-- **The mod-2 cup Gram of the `M`-core** (memo §2.2(iii), V4) — α-independent for `α ≥ 2`. -/
+def mGram : Matrix (Fin 4) (Fin 4) (ZMod 2) := !![1, 1, 0, 0; 1, 0, 0, 0; 0, 0, 0, 1; 0, 0, 1, 0]
+
+@[simp] theorem mGram_00 : mGram 0 0 = 1 := rfl
+@[simp] theorem mGram_01 : mGram 0 1 = 1 := rfl
+@[simp] theorem mGram_02 : mGram 0 2 = 0 := rfl
+@[simp] theorem mGram_03 : mGram 0 3 = 0 := rfl
+@[simp] theorem mGram_10 : mGram 1 0 = 1 := rfl
+@[simp] theorem mGram_11 : mGram 1 1 = 0 := rfl
+@[simp] theorem mGram_12 : mGram 1 2 = 0 := rfl
+@[simp] theorem mGram_13 : mGram 1 3 = 0 := rfl
+@[simp] theorem mGram_20 : mGram 2 0 = 0 := rfl
+@[simp] theorem mGram_21 : mGram 2 1 = 0 := rfl
+@[simp] theorem mGram_22 : mGram 2 2 = 0 := rfl
+@[simp] theorem mGram_23 : mGram 2 3 = 1 := rfl
+@[simp] theorem mGram_30 : mGram 3 0 = 0 := rfl
+@[simp] theorem mGram_31 : mGram 3 1 = 0 := rfl
+@[simp] theorem mGram_32 : mGram 3 2 = 1 := rfl
+@[simp] theorem mGram_33 : mGram 3 3 = 0 := rfl
+
+/-- The mod-2 frame matrix of `ξ`: row `i` is the mod-2 reduction of the frame coordinates of
+the image of the `i`-th frame basis vector. -/
+noncomputable def mFrameMatrix {α : ℕ} (B : MDecomposition α)
+    (ξ : ContinuousMulEquiv (topAbelianization (DM α 0 : Type))
+      (topAbelianization (DM α 0 : Type))) : Matrix (Fin 4) (Fin 4) (ZMod 2) :=
+  Matrix.of fun i j => mRedTwo (toAdd (B.e (ξ (mFrameBasis α i)))) j
+
+@[simp] theorem mFrameMatrix_apply {α : ℕ} (B : MDecomposition α)
+    (ξ : ContinuousMulEquiv (topAbelianization (DM α 0 : Type))
+      (topAbelianization (DM α 0 : Type))) (i j : Fin 4) :
+    mFrameMatrix B ξ i j = mRedTwo (toAdd (B.e (ξ (mFrameBasis α i)))) j := rfl
+
+/-- **The `(i,j)` entry of `M̄ᵀ·G_M·M̄` in terms of the four rows of `M̄`.**  This is where the
+`H¹`-variance is cashed out: the entry pairs the `i`-th and `j`-th **columns** of the frame
+matrix under `G_M`. -/
+theorem mCupIsometry_entry {α : ℕ} (B : MDecomposition α)
+    (ξ : ContinuousMulEquiv (topAbelianization (DM α 0 : Type))
+      (topAbelianization (DM α 0 : Type))) (i j : Fin 4) :
+    ((mFrameMatrix B ξ).transpose * mGram * mFrameMatrix B ξ) i j
+      = mFrameMatrix B ξ 0 i * mFrameMatrix B ξ 0 j
+        + mFrameMatrix B ξ 0 i * mFrameMatrix B ξ 1 j
+        + mFrameMatrix B ξ 1 i * mFrameMatrix B ξ 0 j
+        + mFrameMatrix B ξ 2 i * mFrameMatrix B ξ 3 j
+        + mFrameMatrix B ξ 3 i * mFrameMatrix B ξ 2 j := by
+  simp only [Matrix.mul_apply, Matrix.transpose_apply, Fin.sum_univ_four, mGram_00, mGram_01,
+    mGram_02, mGram_03, mGram_10, mGram_11, mGram_12, mGram_13, mGram_20, mGram_21, mGram_22,
+    mGram_23, mGram_30, mGram_31, mGram_32, mGram_33]
+  ring
+
+/-- **The Smith–Witt stabilizer condition** (memo §2.3): χ-preservation plus the mod-2 cup
+isometry.  The relation-vector clause is *automatic* on `L_M` — `mXi_fixes_t` — so it is not a
+field here. -/
+def IsMStabilizer {α : ℕ} (B : MDecomposition α)
+    (χ : ContinuousMonoidHom (topAbelianization (DM α 0 : Type)) ℤ_[2]ˣ)
+    (ξ : ContinuousMulEquiv (topAbelianization (DM α 0 : Type))
+      (topAbelianization (DM α 0 : Type))) : Prop :=
+  (∀ x, χ (ξ x) = χ x)
+    ∧ (mFrameMatrix B ξ).transpose * mGram * mFrameMatrix B ξ = mGram
+
+/-- **The seven parameters of `St_M`** (memo §2.3): `(τ, β, B_c, c₁, γ, d₁, e)`.  The
+`t`-component of `φ(D̄)` is **not** an eighth parameter — the Witt coupling pins it to
+`B_c mod 2`, and the `t`-component of `φ(C̄₀)` is pinned to `0`. -/
+@[ext] structure MStabParam where
+  /-- `τ`: the `t`-component of `φ(B̄)`. -/
+  tau : ZMod 2
+  /-- `β`: the `B̄`-component of `φ(B̄)`; a **unit**, forced by the χ-condition. -/
+  beta : ℤ_[2]ˣ
+  /-- `B_c`: the `C̄₀`-component of `φ(B̄)`; its parity is the coupled `t`-component of `φ(D̄)`. -/
+  bc : ℤ_[2]
+  /-- `c₁`: half the `B̄`-component of `φ(C̄₀)` (that component is even, forced by χ). -/
+  c1 : ℤ_[2]
+  /-- `γ`: the `C̄₀`-component of `φ(C̄₀)`; a **unit**, forced by the Witt condition. -/
+  gamma : ℤ_[2]ˣ
+  /-- `d₁`: half the `B̄`-component of `φ(D̄)` (even, forced by χ). -/
+  d1 : ℤ_[2]
+  /-- `e`: the `C̄₀`-component of `φ(D̄)`. -/
+  e : ℤ_[2]
+
+/-- `ξ` acts on the frame by the memo §2.3 closed form with parameter `p`. -/
+def MStabParam.Realizes {α : ℕ} (p : MStabParam) (B : MDecomposition α)
+    (ξ : ContinuousMulEquiv (topAbelianization (DM α 0 : Type))
+      (topAbelianization (DM α 0 : Type))) : Prop :=
+  B.e (ξ (abMk (dmB α 0))) = ofAdd (p.tau, (p.beta : ℤ_[2]), p.bc, 0)
+    ∧ B.e (ξ (abMk (dmC α 0))) = ofAdd (0, 2 * p.c1, (p.gamma : ℤ_[2]), 0)
+    ∧ B.e (ξ (abMk (dmD α 0))) = ofAdd (mParityZ p.bc, 2 * p.d1, p.e, 1)
+
+/-- **The χ-row extraction in the frame** (memo §2.3): a χ-preserving automorphism has, on every
+frame vector, its `B̄`-parity and its `D̄`-component pinned by the χ-value of the source. -/
+theorem mChi_row {α : ℕ} (hα : 2 ≤ α) (B : MDecomposition α)
+    (χ : ContinuousMonoidHom (topAbelianization (DM α 0 : Type)) ℤ_[2]ˣ)
+    (hχA : χ (abMk (dmA α 0)) = 1) (hχB : χ (abMk (dmB α 0)) = -1)
+    (hχC : χ (abMk (dmC α 0)) = 1) (hχD : χ (abMk (dmD α 0)) = mUnit α)
+    (ξ : ContinuousMulEquiv (topAbelianization (DM α 0 : Type))
+      (topAbelianization (DM α 0 : Type))) (hpres : ∀ x, χ (ξ x) = χ x)
+    (x : topAbelianization (DM α 0 : Type)) (ε : ZMod 2) (w : ℤ_[2])
+    (hx : χ x = (-1 : ℤ_[2]ˣ) ^ ε.val * zpowZtwo isProP_two_unitsPadicInt (mUnit α) w) :
+    mParityZ (toAdd (B.e (ξ x))).2.1 = ε ∧ (toAdd (B.e (ξ x))).2.2.2 = w := by
+  refine mChi_row_extract hα ?_
+  show mChiModel α (B.e (ξ x))
+    = (-1 : ℤ_[2]ˣ) ^ ε.val * zpowZtwo isProP_two_unitsPadicInt (mUnit α) w
+  rw [← hx, ← hpres x]
+  exact (mChi_frame B χ hχA hχB hχC hχD (ξ x)).symm
+
+/-- **The classification of `St_M`** (memo §2.3, packet §14).  Every continuous automorphism of
+`D_M^{ab}` that preserves the canonical orientation and the mod-2 cup Gram is given in the frame
+by the memo's closed form, with a **unique** seven-tuple `(τ, β, B_c, c₁, γ, d₁, e)`; the
+`t`-row is `t ↦ t`, the `t`-component of `φ(C̄₀)` vanishes, and the `t`-component of `φ(D̄)` is
+the **Witt coupling** `B_c mod 2`.  Pure `ℤ₂`/`𝔽₂` linear algebra: unconditional, axiom-free,
+and uniform in `α ≥ 2` (α enters only through the forced `Ā`-row `Ā = t − 2^{α−1}C̄₀`). -/
+theorem mStabilizer_classification {α : ℕ} (hα : 2 ≤ α) (B : MDecomposition α)
+    (χ : ContinuousMonoidHom (topAbelianization (DM α 0 : Type)) ℤ_[2]ˣ)
+    (hχA : χ (abMk (dmA α 0)) = 1) (hχB : χ (abMk (dmB α 0)) = -1)
+    (hχC : χ (abMk (dmC α 0)) = 1) (hχD : χ (abMk (dmD α 0)) = mUnit α)
+    (ξ : ContinuousMulEquiv (topAbelianization (DM α 0 : Type))
+      (topAbelianization (DM α 0 : Type)))
+    (hξ : IsMStabilizer B χ ξ) : ∃! p : MStabParam, p.Realizes B ξ := by
+  obtain ⟨hpres, hcup⟩ := hξ
+  have hα1 : 1 ≤ α := le_trans (by norm_num) hα
+  -- the three χ-rows
+  obtain ⟨hBb, hBd⟩ := mChi_row hα B χ hχA hχB hχC hχD ξ hpres (abMk (dmB α 0)) 1 0 (by
+    rw [hχB, zpowZtwo_zero, mul_one, show ((1 : ZMod 2)).val = 1 from rfl, pow_one])
+  obtain ⟨hCb, hCd⟩ := mChi_row hα B χ hχA hχB hχC hχD ξ hpres (abMk (dmC α 0)) 0 0 (by
+    rw [hχC, zpowZtwo_zero, mul_one, show ((0 : ZMod 2)).val = 0 from rfl, pow_zero])
+  obtain ⟨hDb, hDd⟩ := mChi_row hα B χ hχA hχB hχC hχD ξ hpres (abMk (dmD α 0)) 0 1 (by
+    rw [hχD, zpowZtwo_one_exp, show ((0 : ZMod 2)).val = 0 from rfl, pow_zero, one_mul])
+  -- the `t`-row
+  have hT : B.e (ξ (mFrameBasis α 0)) = ofAdd ((1 : ZMod 2), (0 : ℤ_[2]), 0, 0) := by
+    rw [mFrameBasis_zero, mXi_fixes_t hα1 B ξ, B.map_t]
+  -- the mod-2 frame matrix, row by row
+  have hM0 : ∀ j, mFrameMatrix B ξ 0 j = ![(1 : ZMod 2), 0, 0, 0] j := by
+    intro j
+    rw [mFrameMatrix_apply, hT]
+    fin_cases j <;> simp [mRedTwo]
+  have hM1 : ∀ j, mFrameMatrix B ξ 1 j
+      = ![(toAdd (B.e (ξ (abMk (dmB α 0))))).1, 1,
+          mParityZ (toAdd (B.e (ξ (abMk (dmB α 0))))).2.2.1, 0] j := by
+    intro j
+    rw [mFrameMatrix_apply, mFrameBasis_one]
+    fin_cases j <;> simp [mRedTwo, hBb, hBd]
+  have hM2 : ∀ j, mFrameMatrix B ξ 2 j
+      = ![(toAdd (B.e (ξ (abMk (dmC α 0))))).1, 0,
+          mParityZ (toAdd (B.e (ξ (abMk (dmC α 0))))).2.2.1, 0] j := by
+    intro j
+    rw [mFrameMatrix_apply, mFrameBasis_two]
+    fin_cases j <;> simp [mRedTwo, hCb, hCd]
+  have hM3 : ∀ j, mFrameMatrix B ξ 3 j
+      = ![(toAdd (B.e (ξ (abMk (dmD α 0))))).1, 0,
+          mParityZ (toAdd (B.e (ξ (abMk (dmD α 0))))).2.2.1, 1] j := by
+    intro j
+    rw [mFrameMatrix_apply, mFrameBasis_three]
+    fin_cases j <;> simp [mRedTwo, hDb, hDd]
+  -- the three Witt relations
+  have hentry : ∀ i j : Fin 4,
+      mFrameMatrix B ξ 0 i * mFrameMatrix B ξ 0 j + mFrameMatrix B ξ 0 i * mFrameMatrix B ξ 1 j
+        + mFrameMatrix B ξ 1 i * mFrameMatrix B ξ 0 j
+        + mFrameMatrix B ξ 2 i * mFrameMatrix B ξ 3 j
+        + mFrameMatrix B ξ 3 i * mFrameMatrix B ξ 2 j = mGram i j := fun i j => by
+    rw [← mCupIsometry_entry B ξ i j, hcup]
+  have hC0 : (toAdd (B.e (ξ (abMk (dmC α 0))))).1 = 0 := by
+    have h := hentry 0 3
+    rw [hM0 0, hM0 3, hM1 3, hM1 0, hM2 0, hM2 3, hM3 0, hM3 3] at h
+    simpa [mGram] using h
+  have hGamma : mParityZ (toAdd (B.e (ξ (abMk (dmC α 0))))).2.2.1 = 1 := by
+    have h := hentry 2 3
+    rw [hM0 2, hM0 3, hM1 3, hM1 2, hM2 2, hM2 3, hM3 2, hM3 3] at h
+    simpa [mGram] using h
+  have hCouple : (toAdd (B.e (ξ (abMk (dmD α 0))))).1
+      = mParityZ (toAdd (B.e (ξ (abMk (dmB α 0))))).2.2.1 := by
+    have h := hentry 0 2
+    rw [hM0 0, hM0 2, hM1 2, hM1 0, hM2 0, hM2 2, hM3 0, hM3 2] at h
+    rw [hC0, hGamma] at h
+    exact (by decide : ∀ x y : ZMod 2, x + y = 0 → y = x) _ _ (by simpa [mGram] using h)
+  -- the parameters
+  obtain ⟨βu, hβu⟩ : ∃ u : ℤ_[2]ˣ, (u : ℤ_[2]) = (toAdd (B.e (ξ (abMk (dmB α 0))))).2.1 :=
+    ⟨(mIsUnit_of_parity_one hBb).unit, IsUnit.unit_spec _⟩
+  obtain ⟨γu, hγu⟩ : ∃ u : ℤ_[2]ˣ, (u : ℤ_[2]) = (toAdd (B.e (ξ (abMk (dmC α 0))))).2.2.1 :=
+    ⟨(mIsUnit_of_parity_one hGamma).unit, IsUnit.unit_spec _⟩
+  obtain ⟨c1, hc1⟩ := (mParityZ_eq_zero_iff _).mp hCb
+  obtain ⟨d1, hd1⟩ := (mParityZ_eq_zero_iff _).mp hDb
+  refine ⟨⟨(toAdd (B.e (ξ (abMk (dmB α 0))))).1, βu,
+      (toAdd (B.e (ξ (abMk (dmB α 0))))).2.2.1, c1, γu, d1,
+      (toAdd (B.e (ξ (abMk (dmD α 0))))).2.2.1⟩, ⟨?_, ?_, ?_⟩, ?_⟩
+  · exact mCoord_ext rfl hβu.symm rfl hBd
+  · exact mCoord_ext hC0 hc1 hγu.symm hCd
+  · exact mCoord_ext hCouple hd1 rfl hDd
+  · rintro q ⟨hq1, hq2, hq3⟩
+    have e1 := hq1.symm.trans (mCoord_ext (z := B.e (ξ (abMk (dmB α 0)))) rfl hβu.symm rfl hBd)
+    have e2 := hq2.symm.trans (mCoord_ext (z := B.e (ξ (abMk (dmC α 0)))) hC0 hc1 hγu.symm hCd)
+    have e3 := hq3.symm.trans (mCoord_ext (z := B.e (ξ (abMk (dmD α 0)))) hCouple hd1 rfl hDd)
+    have htwo : (2 : ℤ_[2]) ≠ 0 := by norm_num
+    refine MStabParam.ext (congrArg (fun z : MModel => (toAdd z).1) e1)
+      (Units.ext (congrArg (fun z : MModel => (toAdd z).2.1) e1))
+      (congrArg (fun z : MModel => (toAdd z).2.2.1) e1)
+      (mul_left_cancel₀ htwo (congrArg (fun z : MModel => (toAdd z).2.1) e2))
+      (Units.ext (congrArg (fun z : MModel => (toAdd z).2.2.1) e2))
+      (mul_left_cancel₀ htwo (congrArg (fun z : MModel => (toAdd z).2.1) e3))
+      (congrArg (fun z : MModel => (toAdd z).2.2.1) e3)
+
+/-- **The forced `Ā`-row of a stabilizer element** (memo §2.3, "α enters only through the
+dictionary `Ā = t − mC̄₀`"): `Ā ↦ (1, −2^α c₁, −2^{α−1}γ, 0)`. -/
+theorem mStabilizer_A_row {α : ℕ} (hα : 1 ≤ α) (B : MDecomposition α) {p : MStabParam}
+    (ξ : ContinuousMulEquiv (topAbelianization (DM α 0 : Type))
+      (topAbelianization (DM α 0 : Type))) (hp : p.Realizes B ξ) :
+    B.e (ξ (abMk (dmA α 0)))
+      = ofAdd ((1 : ZMod 2), -(2 : ℤ_[2]) ^ (α - 1) * (2 * p.c1),
+          -(2 : ℤ_[2]) ^ (α - 1) * (p.gamma : ℤ_[2]), 0) := by
+  have hAdec : (abMk (dmA α 0) : topAbelianization (DM α 0 : Type))
+      = abMk (dmA α 0 * dmC α 0 ^ (2 ^ (α - 1))) * ((abMk (dmC α 0)) ^ (2 ^ (α - 1)))⁻¹ := by
+    rw [map_mul, map_pow, mul_inv_cancel_right]
+  rw [hAdec, map_mul, map_inv, map_pow, mXi_fixes_t hα B ξ, map_mul, map_inv, map_pow,
+    B.map_t, hp.2.1, ← ofAdd_nsmul, ← ofAdd_neg, ← ofAdd_add]
+  refine congrArg ofAdd (Prod.ext ?_ (Prod.ext ?_ (Prod.ext ?_ ?_)))
+  · show (1 : ZMod 2) + -((2 ^ (α - 1) : ℕ) • (0 : ZMod 2)) = 1
+    rw [smul_zero, neg_zero, add_zero]
+  · show (0 : ℤ_[2]) + -((2 ^ (α - 1) : ℕ) • (2 * p.c1)) = -(2 : ℤ_[2]) ^ (α - 1) * (2 * p.c1)
+    rw [nsmul_eq_mul]
+    push_cast
+    ring
+  · show (0 : ℤ_[2]) + -((2 ^ (α - 1) : ℕ) • (p.gamma : ℤ_[2]))
+      = -(2 : ℤ_[2]) ^ (α - 1) * (p.gamma : ℤ_[2])
+    rw [nsmul_eq_mul]
+    push_cast
+    ring
+  · show (0 : ℤ_[2]) + -((2 ^ (α - 1) : ℕ) • (0 : ℤ_[2])) = 0
+    rw [smul_zero, neg_zero, add_zero]
+
+end Gram
+
 end MarkedCore
 
 end Dyadic
