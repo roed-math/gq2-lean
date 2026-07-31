@@ -31,7 +31,7 @@ nWord α a b c d = a^{2+2^α} · [a,b] · [c,d]             (Cores.lean:123)
 | **W4** | **The 2-adic parameter is free here, unlike the handle case.** Each family is a genuine **one-parameter group** `k ↦ T_k` with `T_k T_l = T_{k+l}`, `T_0 = id`, `T_k⁻¹ = T_{−k}`, given by inserting `γ^k` for a *fixed* word `γ` that the family fixes. So `k ∈ ℤ₂` is `zpowZtwo` verbatim (HM1's landed pattern) — **no `θ_w` conjugation, no `SL₂ = E₂`, no B8** (§3.4). |
 | **W5** | **The `M` residue is characterised exactly, and it is not what HM guessed.** The three families the twist construction does *not* reach — **M4 (`β`), M6 (`c₁`), M7 (`d₁`)** — are precisely the ones that are **not symplectic over `ℤ₂`**; they satisfy only the mod-2 Witt condition (§4.2). No word-level twist can reach them, because every relator-preserving automorphism of a surface-type word lands in `Sp₄`. This is a structural statement, not a search result, and it is a *sharper* obstruction than the `c^{2^α}` adjacency story. |
 | **W6** | **Verdict: `N` = PROVED; `M` = PROVED for the family MC5 consumes, GENUINELY-OPEN for the three non-symplectic families.** `NCoreMixHypothesis` is discharged; `MCoreMixHypothesis` is **weakened**, not discharged — with the residual stated exactly (§5.2). MC5's `ν`-correction on the `M` side needs only M5 (MC1 §5.3's own reading), so **MC5 is unaffected by the residue** given the unit hypothesis that `isUnit_nuM_dmC` already proves for the standard marking. |
-| **W7** | **Lean cost: small.** The word identities are one-line `group` calls after the right definitions; the assembly is HM2's `dnMixEquiv`/`dmMixEquiv` pattern with a different marking update. Sized at ≈550–800 lines in §6. |
+| **W7** | **Lean: LANDED, 732 lines, `GQ2/Dyadic/MarkedCore/CoreMix.lean`.** All three automorphisms are in the repo as `ContinuousMulEquiv`s at arbitrary 2-adic parameter, relator-exact, with the `−k` member as a two-sided inverse in the free group. Zero sorries, `check_dyadic.sh` green, census 11, every declaration prints **std-3**. §6 records what remains (the `nuFrame` rows and the `A(P,h)` widening) and why. |
 
 ---
 
@@ -310,32 +310,21 @@ not the lift. Worth flagging when the packet feedback of HM §7 goes out.
 
 ## 5. G-Lab consequence, per binder
 
-### 5.1 `NCoreMixHypothesis` — **DISCHARGED**
+### 5.1 `NCoreMixHypothesis` — **DISCHARGED** (mathematically; one mechanical Lean step left)
 
-`S3_N = ⟨N5, N6⟩` and both are theorems, for every `α ≥ 1`, every `h`, and every 2-adic parameter.
-Concretely the landing statement is
-
-```lean
-theorem hm6_nCoreMix (α h : ℕ) :
-    NCoreMixHypothesis α h (Submonoid.closure (hm6CoreMixGensN h) : Set _)
-```
-
-with `hm6CoreMixGensN h` the two frame families of §3.2, i.e. MC1 §3.4's N5 and N6. MC1 §8
-**Decision 2 moves from "(B) binder now" to "(A) proved" for `N`** — at spike cost, not at the
-2–4 k-line levelwise cost the sheet prices. `NLiftSplit` loses a field: with `nLiftSplit_handle`
-(HM5, landed) and this, only `NNielsenScalingHypothesis` (S1 ∪ S2, of which S1 is axiom-free and
-S2 is B8) remains, and MC4's own S1 lemmas discharge most of that too.
+`S3_N = ⟨N5, N6⟩` and both are theorems, for every `α`, every `h`, and every 2-adic parameter. The
+automorphisms are landed (`dnCoreMixPEquiv`, `dnCoreMixQEquiv`, §6.1); what remains between them
+and the literal binder is HM6e/HM6f of §6.2 — the ν-frame rows and the `A(P,h)` widening, both
+mechanical. MC1 §8 **Decision 2 moves from "(B) binder now" to "(A) proved" for `N`** — at spike
+cost, not at the 2–4 k-line levelwise cost the sheet prices. `NLiftSplit` then loses a field: with
+`nLiftSplit_handle` (HM5, landed) and this, only `NNielsenScalingHypothesis` (S1 ∪ S2, of which S1
+is axiom-free and S2 is B8) remains, and MC4's own S1 lemmas discharge most of that too.
 
 ### 5.2 `MCoreMixHypothesis` — **WEAKENED**, residual stated exactly
 
-Split `S3_M = ⟨M5⟩ ⊔ ⟨M4, M6, M7⟩`. The first factor is a theorem:
-
-```lean
-theorem hm6_mCoreMix_M5 (α h : ℕ) :
-    MCoreMixHypothesis α h (Submonoid.closure (hm6CoreMixGensM h) : Set _)
-```
-
-The residual binder is `MCoreMixHypothesis α h ⟨M4, M6, M7⟩` — **the non-symplectic directions**.
+Split `S3_M = ⟨M5⟩ ⊔ ⟨M4, M6, M7⟩`. The first factor is a theorem (`dmCoreMixEquiv`, §6.1, plus
+HM6e/HM6f). The residual binder is `MCoreMixHypothesis α h ⟨M4, M6, M7⟩` — **the non-symplectic
+directions**.
 Two things travel with it:
 
 1. it is **not consumed by MC5's `ν`-correction** (§4.4), so MC5 can be stated against the M5
@@ -353,37 +342,61 @@ where S2 needs it).
 
 ---
 
-## 6. Lean plan
+## 6. Lean: what landed, and what remains
+
+### 6.1 Landed — `GQ2/Dyadic/MarkedCore/CoreMix.lean` (732 lines, 0 sorries, std-3)
 
 The construction re-uses HM2's assembly shape (`dmMixEquiv`/`dnMixEquiv`,
-`HandleMixEquiv.lean:688,780`) with a different marking update: HM2 updates core slot `3` and
-handle slot `handleIdxU j`; HM6 updates two **core** slots (`1`,`3` for the M5/N5 shape; `1`,`2`
-for the N6 shape). All the `Function.update` bookkeeping lemmas needed
-(`coreVal_*`, `handleIdxU_ne_of_val_lt`, `update_handleIdx*_core`) are landed.
+`HandleMixEquiv.lean:688,780`) with a different marking update: HM2 updates core slot `3` and a
+handle slot; HM6 updates two **core** slots (`1,3` for the M5/N5 shape, `1,2` for N6). The handle
+block is therefore never touched, and every statement is `h`-uniform for free.
+
+| § | content |
+|---|---|
+| **§1** | `hm6MixBD`, `hm6MixBC` and the two relator identities `hm6_relator_mixBD`, `hm6_relator_mixBC` — stated for an **arbitrary** inserted `g` commuting with the twisting curve, with **no hypothesis** on the prefix `w` or the interior factor `z`. Proof: one `Commute` cancellation plus `simp only [commP, conjP]; group`. Naturality and abelian collapse alongside; `hm6Mix*_mix*` are the "curve fixed by its own family" lemmas. |
+| **§2** | the three `zpowZtwo` families — `hm6CurveM` (M5), `hm6CurveNp` (N5), `hm6CurveNq` (N6) — with `hm6_mWord_curveM`, `hm6_nWord_curveNp`, `hm6_nWord_curveNq` at arbitrary `k : ℤ_[2]`, and the one-parameter-group laws. |
+| **§3** | `hm6UpdateBD`/`hm6UpdateBC` (two-slot core updates, with the six value lemmas each) and the three markings, giving `mRelWord_hm6MarkM`, `nRelWord_hm6MarkNp`, `nRelWord_hm6MarkNq` — **`Φ(P) = P` on the full relator, handles included**. Inverses (`hm6Mark*_neg`, `hm6Mark*_neg'`) and naturality. |
+| **§4** | `dmCoreMixEquiv α h k`, `dnCoreMixPEquiv α h k`, `dnCoreMixQEquiv α h k` : `ContinuousMulEquiv` on the presented cores, with the generator rows recording which letters are fixed. |
+
+Gates: `bash scripts/check_dyadic.sh` green (census 11, zero sorries, all axioms in place);
+`lake build GQ2.Dyadic.MarkedCore.CoreMix` green; `#print axioms` on all eleven headline
+declarations gives `[propext, Classical.choice, Quot.sound]` — **no `sorryAx`, no campaign axiom,
+no B8**.
+
+**Not** added to `GQ2.lean`: MC3/MC4 are editing that file in parallel and HM6 does not own it, so
+the one-line `import GQ2.Dyadic.MarkedCore.CoreMix` is the integrator's. Until it is added the
+module is outside the default `lake build` target (it is built explicitly, as above).
+
+### 6.2 Remaining — the two steps to the binder itself
 
 | id | content | size |
 |---|---|---|
-| **HM6a** | `CoreMix.lean` §1: the two twist words `hm6TwistB/D` (move `b,d`) and `hm6TwistBC` (move `b,c`), the two relator identities (`group`), abelian collapse, naturality, and the `k`-additivity + inverse lemmas | ~200 ln |
-| **HM6b** | §2: `zpowZtwo` version of both (`Commute` + HM1's `zpowZtwo` API), the two-slot marking update, `nRelWord`/`mRelWord` transport | ~200 ln |
-| **HM6c** | §3: `ContinuousMulEquiv` assembly for both cores (`presLiftHom` + `thetaEquiv` pattern), the frame action, and `hm6_nCoreMix` / `hm6_mCoreMix_M5` | ~250 ln |
-| **HM6d** *(optional)* | the S1 lemmas `τ_a, τ_c, τ_d` on the rank-four cores, so the *pure* MC1 families (not just the twists) are stated | ~150 ln |
+| **HM6e** | the `nuFrame` rows: `nuFrame f (fun i => dnCoreMixQEquiv α h k (dnGen α h i)) = F (nuFrame f (dnGen α h))` for the three families, with `F` the frame endomorphisms of §3.1. This is HM3's `nuFrame_tau_*` pattern (`HandleMixClear.lean:869 ff.`) re-run on two core slots; the abelian-collapse lemmas §1 already lands are the input. | ~200 ln |
+| **HM6f** | widen `dmClearAuts`/`dnClearAuts` (`HandleMixClear.lean:836,843`) by the three new generator families, re-prove the four landed handle rows against the widened set (`Submonoid.closure` is monotone, so this is `Submonoid.closure_mono` plus reindexing the four `Set.mem_union` witnesses), and conclude `NCoreMixHypothesis α h ⟨N5,N6⟩` and `MCoreMixHypothesis α h ⟨M5⟩`. **This edits a file HM6 does not own**; it is a small, mechanical, owner-schedulable change. | ~150 ln |
 
-Total ≈ 550–800 lines, no new machinery, no new imports beyond `HandleMixInst`. All identities are
-`simp only [commP, conjP]; group`; the lane's measured print is std-3 and nothing here is heavier
-than HM2's `commP_handleMixD_mul`.
+The reason HM6f is needed at all is worth recording: `DmRealizes`/`DnRealizes`
+(`HandleMixClear.lean:854,861`) bundle "acts as `F` on the ν-frame" **with** "lies in
+`Submonoid.closure (d?ClearAuts α h)`", and `d?ClearAuts` is the *handle* generating set. That was
+the right packaging for HM4/HM5, whose whole point was that the clearing correction stays inside
+`A(P,h)`; it is too narrow for the core stratum, where the realizing automorphism is by
+construction a new generator. Either widen the set (HM6f) or split the two conjuncts. **Flagging
+this is itself a deliverable of the spike** — MC3/MC4 would have hit it.
 
 **Ordering note.** MC3/MC4 are editing `M.lean`/`N.lean` in the same namespace in parallel;
-`CoreMix.lean` is a fresh file and touches nothing they own. The frame-move sets
-`hm6CoreMixGensM/N` are HM6's own definitions; when MC3/MC4 pin down `S3`, the two should be shown
-equal (a one-line `Set` extensionality, MC3/MC4's to write).
+`CoreMix.lean` is a fresh file and touches nothing they own. The frame-move sets are HM6's own
+definitions; when MC3/MC4 pin down `S3`, the two should be shown equal (a one-line `Set`
+extensionality, MC3/MC4's to write).
 
 ---
 
 ## 7. Owner questions
 
-1. **Land the Lean now, or leave the memo?** The spike's mathematical content is complete and
-   checked. HM6a–HM6c is a bounded, low-risk ≈650-line job that converts MC1 §8 Decision 2 for `N`
-   into a theorem in the repo, rather than in a memo. Authorise?
+1. **Schedule HM6e/HM6f (§6.2)?** The three automorphisms are landed and axiom-clean; the two
+   remaining steps are the ν-frame rows (~200 ln, in `CoreMix.lean`, HM6 could own it) and the
+   `A(P,h)` widening (~150 ln, in `HandleMixClear.lean`, which HM6 does **not** own — see §6.2 for
+   why the landed `DnRealizes` packaging is too narrow for the core stratum). Also: the one-line
+   `import GQ2.Dyadic.MarkedCore.CoreMix` in `GQ2.lean`, deliberately not made here because MC3/MC4
+   are editing that file.
 2. **Restate `hLift` for `M`?** §5.2(2): if MC3 states the `M` obligation in the form MC5 actually
    consumes (M5 + S1 + S2, not `∀ φ ∈ St_M`), then `MCoreMixHypothesis` disappears as well and the
    `M` lane has no S3 residue at all. This is the exact analogue of HM's V5, which the owner has
