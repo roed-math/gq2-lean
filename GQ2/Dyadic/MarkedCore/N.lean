@@ -1286,3 +1286,131 @@ def NLabHypothesis (α h : ℕ) : Prop :=
         Nonempty (ContinuousMulEquiv G (DN α h : Type))
 
 end Strata
+
+/-! ## §6 The composition theorem: the marked correction at the `N`-core  (packet Prop. 7.2)
+
+Memo §5.3's three strata, composed.  Given any `Multiplicative ℤ₂`-character `ν'` of `D_N` whose
+value at the pivot letter `σ` is a **unit** — packet §7's unimodularity clause `I = C`, which is
+all the marked data pins — there is a continuous automorphism `u` of `D_N` with
+
+```
+χ_N ∘ u = χ_N        and        ν' ∘ u = ν_N.
+```
+
+Four moves, in the order forced by what each one disturbs:
+
+1. **S2** (`NScalingHypothesis` at `γ = ν'(σ̄)⁻¹`) normalizes the pivot row to `1`; memo §5.2 says
+   it shifts the other rows uncontrollably, and the binder accordingly promises nothing about them;
+2. **the handle stratum** (HM5's `nHandleMixLift`, a *theorem*) clears the `2h` handle rows,
+   keeping the pivot;
+3. **S1** (HM4's exact `dnTauDEquiv`, family N2) clears the `x̄₂`-row against the pivot;
+4. **S3** (`NMixHypothesis`, family N5) clears the `x̄₁`-row against the pivot.
+
+The `x̄₀`-row needs no move at all: `nChar_dnX0` kills it for *every* `ℤ₂`-character, which is why
+`ν_N(t) = 0` is a consistency check that passes rather than an equation to solve (memo §3.6). -/
+
+section Composition
+
+variable (α h : ℕ)
+
+/-- **The marked correction at the `N`-core** (packet Prop. 7.2; MC4 deliverable 3).  Under the
+two S2/S3 binders, every `ν'` with unimodular pivot admits a χ-preserving continuous automorphism
+`u` of `D_N` transporting it to the standard marking `ν_N`.  The handle stratum is *not* a
+hypothesis — HM5 proved it. -/
+theorem nMarkedCorrection (hMix : NMixHypothesis α h) (hScal : NScalingHypothesis α h)
+    (nu' : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]))
+    (hw : IsUnit (toAdd (nu' (dnSigma α h)))) :
+    ∃ u : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
+      (∀ x, chiN α h (u x) = chiN α h x) ∧ ∀ x, nu' (u x) = nuN α h x := by
+  classical
+  -- Step 1 (S2): normalize the pivot row.
+  obtain ⟨Ψs, hsChi, hsFrame⟩ := hScal hw.unit⁻¹
+  set nu2 : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]) :=
+    nu'.comp (autHom Ψs) with hnu2
+  have hsig2 : toAdd (nu2 (dnSigma α h)) = 1 := by
+    show toAdd (nu' (Ψs (dnSigma α h))) = 1
+    rw [hsFrame nu']
+    calc ((hw.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * toAdd (nu' (dnSigma α h))
+        = ((hw.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * ((hw.unit : ℤ_[2]ˣ) : ℤ_[2]) := by rw [hw.unit_spec]
+      _ = 1 := by rw [← Units.val_mul, inv_mul_cancel, Units.val_one]
+  -- Step 2 (handles): HM5's theorem.
+  obtain ⟨Ψh, -, hhChi, hU, hV, hpiv⟩ :=
+    nHandleMixLift α h nu2 (by rw [hsig2]; exact isUnit_one)
+  set nu3 : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]) :=
+    nu2.comp (autHom Ψh) with hnu3
+  have hsig3 : toAdd (nu3 (dnSigma α h)) = 1 := by
+    show toAdd (nu2 (Ψh (dnSigma α h))) = 1
+    rw [hpiv]; exact hsig2
+  have hU3 : ∀ j : Fin h, nu3 (dnGen α h (handleIdxU j)) = 1 := hU
+  have hV3 : ∀ j : Fin h, nu3 (dnGen α h (handleIdxV j)) = 1 := hV
+  -- Step 3 (S1, family N2): clear the `x̄₂`-row.
+  set k : ℤ_[2] := -(toAdd (nu3 (dnX2 α h))) with hk
+  set nu4 : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]) :=
+    nu3.comp (autHom (dnTauDEquiv α h k)) with hnu4
+  have hgen4 : ∀ i : Fin (coreRank h),
+      nu4 (dnGen α h i) = nu3 (tauDMark (isProP_DN α h) k (dnGen α h) i) := fun i => by
+    show nu3 (dnTauDEquiv α h k (dnGen α h i)) = _
+    rw [dnTauDEquiv_gen]
+  have hsig4 : toAdd (nu4 (dnSigma α h)) = 1 := by
+    rw [show dnSigma α h = dnGen α h 2 from rfl, hgen4, tauDMark_two]; exact hsig3
+  have hx24 : toAdd (nu4 (dnX2 α h)) = 0 := by
+    rw [show dnX2 α h = dnGen α h 3 from rfl, hgen4, tauDMark_three, map_mul, toAdd_mul,
+      toAdd_map_zpowZtwo (isProP_DN α h) nu3, show dnGen α h 2 = dnSigma α h from rfl, hsig3,
+      show dnGen α h 3 = dnX2 α h from rfl, hk, mul_one, neg_add_cancel]
+  have hU4 : ∀ j : Fin h, nu4 (dnGen α h (handleIdxU j)) = 1 := fun j => by
+    rw [hgen4, tauDMark_of_ne _ _ _ (handleIdxU_ne_three j)]; exact hU3 j
+  have hV4 : ∀ j : Fin h, nu4 (dnGen α h (handleIdxV j)) = 1 := fun j => by
+    rw [hgen4, tauDMark_of_ne _ _ _ (handleIdxV_ne_three j)]; exact hV3 j
+  -- Step 4 (S3, family N5): clear the `x̄₁`-row.
+  set p : ℤ_[2] := -(toAdd (nu4 (dnX1 α h))) with hp
+  obtain ⟨Ψ5, h5Chi, h5Frame⟩ := hMix p
+  refine ⟨Ψ5.trans ((dnTauDEquiv α h k).trans (Ψh.trans Ψs)), fun x => ?_, ?_⟩
+  · show chiN α h (Ψs (Ψh (dnTauDEquiv α h k (Ψ5 x)))) = chiN α h x
+    rw [hsChi, hhChi, chiN_dnTauDEquiv, h5Chi]
+  · -- generator-wise agreement, then `dn_hom_ext`
+    have hgen : ∀ i : Fin (coreRank h), nu4 (Ψ5 (dnGen α h i)) = nuN α h (dnGen α h i) := by
+      intro i
+      have hrow := congrFun (h5Frame nu4) i
+      rw [nuFrame_apply, nFrameMixX1] at hrow
+      refine Multiplicative.toAdd.injective ?_
+      rcases nCoreIdx_cases i with rfl | rfl | rfl | rfl | ⟨j, rfl⟩ | ⟨j, rfl⟩
+      · rw [hrow, Function.update_of_ne nCoreZero_ne_one, nuFrame_apply,
+          show dnGen α h 0 = dnX0 α h from rfl, nChar_dnX0, nuN_dnX0, toAdd_one, toAdd_ofAdd]
+      · rw [hrow, Function.update_self, nuFrame_apply, nuFrame_apply,
+          show dnGen α h 1 = dnX1 α h from rfl, show dnGen α h 2 = dnSigma α h from rfl,
+          hsig4, mul_one, hp, nuN_dnX1, toAdd_ofAdd, add_neg_cancel]
+      · rw [hrow, Function.update_of_ne nCoreTwo_ne_one, nuFrame_apply,
+          show dnGen α h 2 = dnSigma α h from rfl, hsig4, nuN_dnSigma, toAdd_ofAdd]
+      · rw [hrow, Function.update_of_ne nCoreThree_ne_one, nuFrame_apply,
+          show dnGen α h 3 = dnX2 α h from rfl, hx24, nuN_dnX2, toAdd_ofAdd]
+      · rw [hrow, Function.update_of_ne (nHandleIdxU_ne_one j), nuFrame_apply, hU4 j,
+          nuN_handleU, toAdd_one]
+      · rw [hrow, Function.update_of_ne (nHandleIdxV_ne_one j), nuFrame_apply, hV4 j,
+          nuN_handleV, toAdd_one]
+    have hEq : nu4.comp (autHom Ψ5) = nuN α h := dn_hom_ext _ _ hgen
+    intro x
+    show nu' (Ψs (Ψh (dnTauDEquiv α h k (Ψ5 x)))) = nuN α h x
+    exact DFunLike.congr_fun hEq x
+
+/-- **The composition theorem in `NLiftSplit` clothing** (HM4's `nLiftSplit_iff`): MC5 supplies
+only the two binder fields — the handle field is `nLiftSplit_handle`, a theorem — and gets the
+marked correction.  The S12/S3 stratum sets are carried but unused, which is the point: what the
+correction consumes is the *marked-generator* form of the two strata (`NScalingHypothesis`,
+`NMixHypothesis`), not HM4's schematic `A(P,h)` form (`nCoreMixHypothesis_not_of_mix`). -/
+theorem nMarkedCorrection_of_liftSplit
+    {S12 S3 : Set (Function.End (Fin (coreRank h) → ℤ_[2]))}
+    (_hs : NLiftSplit α h S12 S3) (hMix : NMixHypothesis α h) (hScal : NScalingHypothesis α h)
+    (nu' : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]))
+    (hw : IsUnit (toAdd (nu' (dnSigma α h)))) :
+    ∃ u : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
+      (∀ x, chiN α h (u x) = chiN α h x) ∧ ∀ x, nu' (u x) = nuN α h x :=
+  nMarkedCorrection α h hMix hScal nu' hw
+
+/-- The hypothesis set of `nMarkedCorrection` is non-empty at every `(α, h)`: the standard marking
+`ν_N` itself has a unit pivot, so the correction is not vacuously quantified. -/
+theorem nMarkedCorrection_nuN (hMix : NMixHypothesis α h) (hScal : NScalingHypothesis α h) :
+    ∃ u : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
+      (∀ x, chiN α h (u x) = chiN α h x) ∧ ∀ x, nuN α h (u x) = nuN α h x :=
+  nMarkedCorrection α h hMix hScal (nuN α h) (isUnit_nuN_dnSigma α h)
+
+end Composition
