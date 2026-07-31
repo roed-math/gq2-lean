@@ -994,13 +994,34 @@ end Chase
 
 section ConeSES
 
-/-- A **short exact column**: the data actually consumed by the chases — injectivity of the
-sub-map, surjectivity of the quotient map, and the `ker ⊆ im` half of exactness. -/
+/-- A **short exact column**: the data consumed by the chases (injectivity, surjectivity, the
+`ker ⊆ im` half of exactness) together with `im ⊆ ker` (`comp_zero`), which dualization
+needs. -/
 structure StokesSES {A B C : Type*} [AddCommGroup A] [AddCommGroup B] [AddCommGroup C]
     (f : A →+ B) (g : B →+ C) : Prop where
   inj : Function.Injective f
   surj : Function.Surjective g
   exact : ∀ b : B, g b = 0 → ∃ a, f a = b
+  comp_zero : ∀ a : A, g (f a) = 0
+
+/-- The subgroup form of exactness, recovered from the two halves. -/
+theorem StokesSES.range_eq_ker {A B C : Type*} [AddCommGroup A] [AddCommGroup B]
+    [AddCommGroup C] {f : A →+ B} {g : B →+ C} (h : StokesSES f g) : f.range = g.ker := by
+  ext b
+  constructor
+  · rintro ⟨a, rfl⟩
+    exact AddMonoidHom.mem_ker.mpr (h.comp_zero a)
+  · intro hb
+    obtain ⟨a, ha⟩ := h.exact b (AddMonoidHom.mem_ker.mp hb)
+    exact ⟨a, ha⟩
+
+/-- A short exact column from the subgroup form. -/
+theorem stokesSES_of_range_eq_ker {A B C : Type*} [AddCommGroup A] [AddCommGroup B]
+    [AddCommGroup C] {f : A →+ B} {g : B →+ C} (hinj : Function.Injective f)
+    (hsurj : Function.Surjective g) (hexact : f.range = g.ker) : StokesSES f g := by
+  refine ⟨hinj, hsurj, fun b hb => ?_, fun a => ?_⟩
+  · exact AddMonoidHom.mem_range.mp (hexact ▸ AddMonoidHom.mem_ker.mpr hb)
+  · exact AddMonoidHom.mem_ker.mp (hexact ▸ AddMonoidHom.mem_range.mpr ⟨a, rfl⟩)
 
 /-- Short exact columns are closed under (independent) products. -/
 theorem StokesSES.prod {A B C A' B' C' : Type*}
@@ -1009,7 +1030,7 @@ theorem StokesSES.prod {A B C A' B' C' : Type*}
     {f : A →+ B} {g : B →+ C} {f' : A' →+ B'} {g' : B' →+ C'}
     (h : StokesSES f g) (h' : StokesSES f' g') :
     StokesSES (f.prodMap f') (g.prodMap g') := by
-  refine ⟨fun p q hpq => ?_, fun c => ?_, fun b hb => ?_⟩
+  refine ⟨fun p q hpq => ?_, fun c => ?_, fun b hb => ?_, fun a => ?_⟩
   · have h1 : f p.1 = f q.1 := congrArg Prod.fst hpq
     have h2 : f' p.2 = f' q.2 := congrArg Prod.snd hpq
     exact Prod.ext (h.inj h1) (h'.inj h2)
@@ -1019,6 +1040,47 @@ theorem StokesSES.prod {A B C A' B' C' : Type*}
   · obtain ⟨a, ha⟩ := h.exact b.1 (congrArg Prod.fst hb)
     obtain ⟨a', ha'⟩ := h'.exact b.2 (congrArg Prod.snd hb)
     exact ⟨(a, a'), Prod.ext ha ha'⟩
+  · exact Prod.ext (h.comp_zero a.1) (h'.comp_zero a.2)
+
+/-- The componentwise extension of a coefficient map to `κ`-tuples. -/
+def stokesPi {A B : Type*} [AddCommGroup A] [AddCommGroup B] (κ : Type*) (f : A →+ B) :
+    (κ → A) →+ (κ → B) :=
+  AddMonoidHom.mk' (fun x k => f (x k)) (by
+    intro x x'
+    funext k
+    simp [map_add])
+
+@[simp] theorem stokesPi_apply {A B : Type*} [AddCommGroup A] [AddCommGroup B] (κ : Type*)
+    (f : A →+ B) (x : κ → A) (k : κ) : stokesPi κ f x k = f (x k) := rfl
+
+/-- Short exact columns are closed under `κ`-tuples. -/
+theorem StokesSES.pi {A B C : Type*} [AddCommGroup A] [AddCommGroup B] [AddCommGroup C]
+    {f : A →+ B} {g : B →+ C} (h : StokesSES f g) (κ : Type*) :
+    StokesSES (stokesPi κ f) (stokesPi κ g) := by
+  refine ⟨fun x x' hx => ?_, fun z => ?_, fun y hy => ?_, fun x => ?_⟩
+  · funext k
+    exact h.inj (congrFun hx k)
+  · choose y hy using fun k => h.surj (z k)
+    exact ⟨y, funext hy⟩
+  · choose x hx using fun k => h.exact (y k) (congrFun hy k)
+    exact ⟨x, funext hx⟩
+  · funext k
+    exact h.comp_zero (x k)
+
+/-- **Dualization of a short exact column** (the elementary-dual pack, packaged): for finite
+elementary modules, `A' ↪ A ↠ A''` dualizes to `A''^∨ ↪ A^∨ ↠ A'^∨`. -/
+theorem StokesSES.dual {A' A A'' : Type*} [AddCommGroup A'] [AddCommGroup A]
+    [AddCommGroup A''] [Finite A] [Finite A'']
+    (hA₂ : ∀ a : A, a + a = 0) (hA''₂ : ∀ a : A'', a + a = 0)
+    {f : A' →+ A} {g : A →+ A''} (h : StokesSES f g) :
+    StokesSES (dualMap g) (dualMap f) := by
+  refine ⟨dualMap_injective g h.surj, dualMap_surjective hA₂ f h.inj, fun lam h0 => ?_,
+    fun mu => ?_⟩
+  · exact AddMonoidHom.mem_range.mp
+      ((dual_exact_pair hA''₂ f g h.range_eq_ker lam).mp h0)
+  · ext a'
+    show mu (g (f a')) = 0
+    rw [h.comp_zero, map_zero]
 
 variable {U₀ U₁ U₂ V₀ V₁ V₂ X₀ X₁ X₂ Y₀ Y₁ Y₂ S₀ S₁ S₂ T₀ T₁ T₂ : Type*}
   [AddCommGroup U₀] [AddCommGroup U₁] [AddCommGroup U₂]
@@ -1128,5 +1190,266 @@ theorem stokesConeAcyclic_of_ses
       (hS₂.prod hT₁).surj hT₂.exact hA'.surj hA''.surj
 
 end ConeSES
+
+/-! ## The Stokes duality ladder and packet Lem. 5.1
+
+The chain map `η_A` assembles into a ladder from the word complex `C•(A)` to the shifted dual
+complex `Hom(C•(A^∨), 𝔽₂)[−2]`, whose differentials are the `dualMap`s of the word complex
+over `A^∨`.  `StokesDuality c w A` says the ladder is a quasi-isomorphism — the conclusion of
+packet Lem. 5.1, and the generic content of the `StokesDualityCertificate` clause.
+
+`stokesDuality_of_simple` is **packet Lem. 5.1**: quasi-isomorphism for every simple module
+(plus the zero module, automatic) extends to every finite elementary module — including
+nonsplit ones — by strong induction on the cardinality along the composition series, the
+induction step being the cone dévissage `stokesConeAcyclic_of_ses`. -/
+
+section DualityLadder
+
+variable {ι ρ : Type*} {C : Type*} [Group C] {A A' : Type*} [AddCommGroup A]
+  [DistribMulAction C A] [AddCommGroup A'] [DistribMulAction C A']
+
+/-- Naturality of `d⁰` in the coefficient module. -/
+theorem heisD0_map (c : ι → C) (f : A' →+ A)
+    (hf : ∀ (g : C) (a : A'), f (g • a) = g • f a) (v : A') :
+    heisD0 c (f v) = stokesPi ι f (heisD0 c v) := by
+  funext i
+  show c i • f v - f v = f (c i • v - v)
+  rw [map_sub, hf]
+
+/-- Naturality of `d¹` in the coefficient module. -/
+theorem heisD1_map (c : ι → C) (w : ρ → FreeGroup ι) (f : A' →+ A)
+    (hf : ∀ (g : C) (a : A'), f (g • a) = g • f a) (x : ι → A') :
+    heisD1 c w (stokesPi ι f x) = stokesPi ρ f (heisD1 c w x) := by
+  funext k
+  show (FreeGroup.lift (heisGen c (fun i => f (x i)) (0 : ι → ElemDual A)) (w k)).a
+    = f ((FreeGroup.lift (heisGen c x (0 : ι → ElemDual A')) (w k)).a)
+  exact heisWord_a_map c f hf x 0 0 (w k)
+
+variable [Fintype ρ]
+
+/-- **The Stokes duality ladder is a quasi-isomorphism** — the conclusion of packet Lem. 5.1
+for the module `A`, and the generic content of the `StokesDualityCertificate` clause.  The
+source is the word complex `A → (ι → A) → (ρ → A)`; the target is the `𝔽₂`-dual of the word
+complex of `A^∨`, read backwards; the ladder is `η = (heisEta0, heisEta1, heisEta2)`. -/
+def StokesDuality (c : ι → C) (w : ρ → FreeGroup ι) (A : Type*) [AddCommGroup A]
+    [DistribMulAction C A] : Prop :=
+  StokesQuasiIso (heisD0 (A := A) c) (heisD1 c w)
+    (dualMap (heisD1 (A := ElemDual A) c w)) (dualMap (heisD0 (A := ElemDual A) c))
+    heisEta0 (heisEta1 c w) heisEta2
+
+variable [Fintype ι] [DecidableEq ι]
+
+/-- The first ladder square, bundled: `η` commutes with the degree-`0` differentials. -/
+theorem stokes_square₀ (c : ι → C) (w : ρ → FreeGroup ι)
+    (hr : ∀ k, FreeGroup.lift c (w k) = 1) (hend : IsStokesEndpoint w) (a : A) :
+    dualMap (heisD1 (A := ElemDual A) c w) (heisEta0 a) = heisEta1 c w (heisD0 c a) :=
+  ElemDual.ext fun y => (heisEta1_comp_d0 c w hr hend a y).symm
+
+/-- The second ladder square, bundled: `η` commutes with the degree-`1` differentials. -/
+theorem stokes_square₁ (c : ι → C) (w : ρ → FreeGroup ι)
+    (hr : ∀ k, FreeGroup.lift c (w k) = 1) (hend : IsStokesEndpoint w) (x : ι → A) :
+    dualMap (heisD0 (A := ElemDual A) c) (heisEta1 c w x) = heisEta2 (heisD1 c w x) :=
+  ElemDual.ext fun lam => (heisEta2_comp_d1 c w hr hend x lam).symm
+
+omit [Fintype ι] [DecidableEq ι] [Fintype ρ] in
+/-- The target complex is a complex (the dual of `d¹ ∘ d⁰ = 0` over `A^∨`). -/
+theorem stokes_dual_comp (c : ι → C) (w : ρ → FreeGroup ι)
+    (hr : ∀ k, FreeGroup.lift c (w k) = 1) (yc : ElemDual (ρ → ElemDual A)) :
+    dualMap (heisD0 (A := ElemDual A) c) (dualMap (heisD1 (A := ElemDual A) c w) yc) = 0 :=
+  ElemDual.ext fun lam => by
+    show yc (heisD1 (A := ElemDual A) c w (heisD0 c lam)) = 0
+    rw [heisD1_comp_heisD0 c w hr lam, map_zero]
+
+omit [Fintype ι] [DecidableEq ι] in
+/-- The zero module satisfies Stokes duality (both complexes collapse). -/
+theorem stokesDuality_of_subsingleton (c : ι → C) (w : ρ → FreeGroup ι) [Subsingleton A] :
+    StokesDuality c w A := by
+  have hd : Subsingleton (ElemDual A) :=
+    ⟨fun lam mu => ElemDual.ext fun a => by rw [Subsingleton.elim a 0, map_zero, map_zero]⟩
+  have hd0 : Subsingleton (ElemDual (ρ → ElemDual A)) :=
+    ⟨fun lam mu => ElemDual.ext fun ξ => by
+      rw [Subsingleton.elim ξ 0, map_zero, map_zero]⟩
+  have hd1 : Subsingleton (ElemDual (ι → ElemDual A)) :=
+    ⟨fun lam mu => ElemDual.ext fun y => by
+      rw [Subsingleton.elim y 0, map_zero, map_zero]⟩
+  have hd2 : Subsingleton (ElemDual (ElemDual A)) :=
+    ⟨fun lam mu => ElemDual.ext fun l => by rw [Subsingleton.elim l 0, map_zero, map_zero]⟩
+  constructor
+  · intro x₀ _ _
+    exact Subsingleton.elim x₀ 0
+  · intro y₀ _
+    exact ⟨0, map_zero _, Subsingleton.elim _ y₀⟩
+  · intro x₁ _ _
+    exact ⟨0, Subsingleton.elim _ x₁⟩
+  · intro y₁ _
+    exact ⟨0, 0, map_zero _, Subsingleton.elim _ y₁⟩
+  · intro x₂ _
+    exact ⟨0, Subsingleton.elim _ x₂⟩
+  · intro y₂
+    exact ⟨0, 0, Subsingleton.elim _ y₂⟩
+
+end DualityLadder
+
+/-! ### The induction step and the composition-series theorem -/
+
+section CompositionSeries
+
+variable {ι ρ : Type*} [Fintype ι] [DecidableEq ι] [Fintype ρ] {C : Type*} [Group C]
+
+private theorem stokes_pi_dual_torsion {B : Type*} [AddCommGroup B] (κ : Type*)
+    (v : κ → ElemDual B) : v + v = 0 :=
+  funext fun k => ElemDual.add_self_eq_zero (v k)
+
+/-- **The dévissage step of packet Lem. 5.1**: along a short exact sequence
+`0 → A' → A → A'' → 0` of finite elementary `𝔽₂[C]`-modules, Stokes duality for the two ends
+gives Stokes duality for the middle.  Cone dévissage: the source short exact sequence is
+componentwise, the target one is the elementary-dual pack applied twice, the naturality
+squares are the Stokes adjunction. -/
+theorem stokesDuality_of_ses {A' A A'' : Type*}
+    [AddCommGroup A'] [DistribMulAction C A'] [Finite A']
+    [AddCommGroup A] [DistribMulAction C A] [Finite A]
+    [AddCommGroup A''] [DistribMulAction C A''] [Finite A'']
+    (c : ι → C) (w : ρ → FreeGroup ι)
+    (hr : ∀ k, FreeGroup.lift c (w k) = 1) (hend : IsStokesEndpoint w)
+    (f : A' →+ A) (g : A →+ A'')
+    (hf : ∀ (co : C) (a : A'), f (co • a) = co • f a)
+    (hg : ∀ (co : C) (a : A), g (co • a) = co • g a)
+    (hinj : Function.Injective f) (hsurj : Function.Surjective g)
+    (hexact : f.range = g.ker)
+    (hA₂ : ∀ a : A, a + a = 0) (hA''₂ : ∀ a : A'', a + a = 0)
+    (hd' : StokesDuality c w A') (hd'' : StokesDuality c w A'') :
+    StokesDuality c w A := by
+  -- the source columns
+  have hS₀ : StokesSES f g := stokesSES_of_range_eq_ker hinj hsurj hexact
+  have hdual : StokesSES (dualMap g) (dualMap f) := hS₀.dual hA₂ hA''₂
+  -- the target columns: the dual pack, once at the module level and once at the term level
+  have hT₀ : StokesSES (dualMap (stokesPi ρ (dualMap f))) (dualMap (stokesPi ρ (dualMap g))) :=
+    (hdual.pi ρ).dual (stokes_pi_dual_torsion ρ) (stokes_pi_dual_torsion ρ)
+  have hT₁ : StokesSES (dualMap (stokesPi ι (dualMap f))) (dualMap (stokesPi ι (dualMap g))) :=
+    (hdual.pi ι).dual (stokes_pi_dual_torsion ι) (stokes_pi_dual_torsion ι)
+  have hT₂ : StokesSES (dualMap (dualMap f)) (dualMap (dualMap g)) :=
+    hdual.dual ElemDual.add_self_eq_zero ElemDual.add_self_eq_zero
+  -- differential/column commutations on the dual side
+  have hfd := dualMap_equivariant (C := C) f hf
+  have hgd := dualMap_equivariant (C := C) g hg
+  have hr₀ : ∀ v : ElemDual (ρ → ElemDual A'),
+      dualMap (heisD1 (A := ElemDual A) c w) (dualMap (stokesPi ρ (dualMap f)) v)
+        = dualMap (stokesPi ι (dualMap f))
+            (dualMap (heisD1 (A := ElemDual A') c w) v) := fun v =>
+    ElemDual.ext fun y => by
+      show v (stokesPi ρ (dualMap f) (heisD1 (A := ElemDual A) c w y))
+        = v (heisD1 (A := ElemDual A') c w (stokesPi ι (dualMap f) y))
+      rw [heisD1_map c w (dualMap f) hfd y]
+  have hr₁ : ∀ v : ElemDual (ι → ElemDual A'),
+      dualMap (heisD0 (A := ElemDual A) c) (dualMap (stokesPi ι (dualMap f)) v)
+        = dualMap (dualMap f) (dualMap (heisD0 (A := ElemDual A') c) v) := fun v =>
+    ElemDual.ext fun lam => by
+      show v (stokesPi ι (dualMap f) (heisD0 (A := ElemDual A) c lam))
+        = v (heisD0 (A := ElemDual A') c (dualMap f lam))
+      rw [heisD0_map c (dualMap f) hfd lam]
+  have hs₀ : ∀ y : ElemDual (ρ → ElemDual A),
+      dualMap (heisD1 (A := ElemDual A'') c w) (dualMap (stokesPi ρ (dualMap g)) y)
+        = dualMap (stokesPi ι (dualMap g))
+            (dualMap (heisD1 (A := ElemDual A) c w) y) := fun y =>
+    ElemDual.ext fun t => by
+      show y (stokesPi ρ (dualMap g) (heisD1 (A := ElemDual A'') c w t))
+        = y (heisD1 (A := ElemDual A) c w (stokesPi ι (dualMap g) t))
+      rw [heisD1_map c w (dualMap g) hgd t]
+  have hs₁ : ∀ y : ElemDual (ι → ElemDual A),
+      dualMap (heisD0 (A := ElemDual A'') c) (dualMap (stokesPi ι (dualMap g)) y)
+        = dualMap (dualMap g) (dualMap (heisD0 (A := ElemDual A) c) y) := fun y =>
+    ElemDual.ext fun lam => by
+      show y (stokesPi ι (dualMap g) (heisD0 (A := ElemDual A'') c lam))
+        = y (heisD0 (A := ElemDual A) c (dualMap g lam))
+      rw [heisD0_map c (dualMap g) hgd lam]
+  -- naturality of `η` in the columns
+  have hn₀ : ∀ u : A', heisEta0 (f u)
+      = dualMap (stokesPi ρ (dualMap f)) (heisEta0 (A := A') (ρ := ρ) u) := fun u =>
+    ElemDual.ext fun ξ => rfl
+  have hn₁ : ∀ x : ι → A', heisEta1 (A := A) c w (stokesPi ι f x)
+      = dualMap (stokesPi ι (dualMap f)) (heisEta1 (A := A') c w x) := fun x =>
+    ElemDual.ext fun y => by
+      show (∑ k, (FreeGroup.lift (heisGen c (fun i => f (x i)) y) (w k)).z)
+        = ∑ k, (FreeGroup.lift (heisGen c x (fun i => dualMap f (y i))) (w k)).z
+      exact Finset.sum_congr rfl fun k _ => heisWord_z_adjoint c f hf x y (w k)
+  have hn₂ : ∀ v : ρ → A', heisEta2 (stokesPi ρ f v)
+      = dualMap (dualMap f) (heisEta2 (A := A') v) := fun v =>
+    ElemDual.ext fun lam => by
+      show lam (∑ k, f (v k)) = lam (f (∑ k, v k))
+      rw [map_sum f v]
+  have hm₀ : ∀ x : A, heisEta0 (g x)
+      = dualMap (stokesPi ρ (dualMap g)) (heisEta0 (A := A) (ρ := ρ) x) := fun x =>
+    ElemDual.ext fun ξ => rfl
+  have hm₁ : ∀ x : ι → A, heisEta1 (A := A'') c w (stokesPi ι g x)
+      = dualMap (stokesPi ι (dualMap g)) (heisEta1 (A := A) c w x) := fun x =>
+    ElemDual.ext fun y => by
+      show (∑ k, (FreeGroup.lift (heisGen c (fun i => g (x i)) y) (w k)).z)
+        = ∑ k, (FreeGroup.lift (heisGen c x (fun i => dualMap g (y i))) (w k)).z
+      exact Finset.sum_congr rfl fun k _ => heisWord_z_adjoint c g hg x y (w k)
+  have hm₂ : ∀ v : ρ → A, heisEta2 (stokesPi ρ g v)
+      = dualMap (dualMap g) (heisEta2 (A := A) v) := fun v =>
+    ElemDual.ext fun lam => by
+      show lam (∑ k, g (v k)) = lam (g (∑ k, v k))
+      rw [map_sum g v]
+  -- assemble: outer cones acyclic, cone dévissage, back to the ladder
+  exact (stokesConeAcyclic_of_ses
+    (fun a => stokes_square₀ c w hr hend a) (fun x => stokes_square₁ c w hr hend x)
+    (heisD1_comp_heisD0 c w hr) (stokes_dual_comp c w hr)
+    hS₀ (hS₀.pi ι) (hS₀.pi ρ) hT₀ hT₁ hT₂
+    (heisD0_map c f hf) (heisD1_map c w f hf) (heisD0_map c g hg) (heisD1_map c w g hg)
+    hr₀ hr₁ hs₀ hs₁ hn₀ hn₁ hn₂ hm₀ hm₁ hm₂
+    (hd'.coneAcyclic (fun a => stokes_square₀ c w hr hend a)
+      (fun x => stokes_square₁ c w hr hend x))
+    (hd''.coneAcyclic (fun a => stokes_square₀ c w hr hend a)
+      (fun x => stokes_square₁ c w hr hend x))).quasiIso
+
+universe u
+
+open GQ2.FoxH in
+/-- **Packet Lem. 5.1 (`lem:composition`), the composition-series extension**: if the Stokes
+duality ladder is a quasi-isomorphism for every *simple* finite elementary `𝔽₂[C]`-module, it
+is one for **every** finite elementary module — including nonsplit coefficients.  Strong
+induction on `Nat.card`, the induction step being the mapping-cone dévissage
+`stokesDuality_of_ses`; the natural chain map and the commuting exact ladders are used
+throughout, dimension equalities never (packet warning).  The `ℚ₂` chain proves this per word
+by cloning a dévissage (`GQ2/Devissage` → `GQ2/Roe/Devissage`); the branch lanes instantiate
+this theorem instead. -/
+theorem stokesDuality_of_simple [Finite C] (c : ι → C) (w : ρ → FreeGroup ι)
+    (hr : ∀ k, FreeGroup.lift c (w k) = 1) (hend : IsStokesEndpoint w)
+    (hsimp : ∀ (V : Type u) [AddCommGroup V] [DistribMulAction C V] [Finite V],
+      (∀ v : V, v + v = 0) → IsSimpleModTwo C V → StokesDuality c w V)
+    (A : Type u) [AddCommGroup A] [DistribMulAction C A] [Finite A]
+    (hA₂ : ∀ a : A, a + a = 0) : StokesDuality c w A := by
+  suffices h : ∀ (n : ℕ) (B : Type u) [AddCommGroup B] [DistribMulAction C B] [Finite B],
+      Nat.card B = n → (∀ b : B, b + b = 0) → StokesDuality c w B by
+    exact h (Nat.card A) A rfl hA₂
+  intro n
+  induction n using Nat.strong_induction_on with
+  | _ n IH =>
+    intro B instAdd instAct instFin hcard hB₂
+    rcases subsingleton_or_nontrivial B with hsub | hnt
+    · exact stokesDuality_of_subsingleton c w
+    · by_cases hsimple : IsSimpleModTwo C B
+      · exact hsimp B hB₂ hsimple
+      · -- extract a proper nonzero `C`-stable subgroup and dévisse along it
+        rw [IsSimpleModTwo] at hsimple
+        push Not at hsimple
+        obtain ⟨W, hWstable, hWbot, hWtop⟩ := hsimple hnt
+        letI := stableSubAction W hWstable
+        letI := stableQuotAction W hWstable
+        have hW₂ : ∀ x : ↥W, x + x = 0 := two_torsion_sub W hB₂
+        have hQ₂ : ∀ q : B ⧸ W, q + q = 0 := two_torsion_quot W hB₂
+        have hltW : Nat.card ↥W < n := hcard ▸ card_lt_of_ne_top W hWtop
+        have hltQ : Nat.card (B ⧸ W) < n := hcard ▸ card_quot_lt_of_ne_bot W hWbot
+        have ihW : StokesDuality c w ↥W := IH _ hltW ↥W rfl hW₂
+        have ihQ : StokesDuality c w (B ⧸ W) := IH _ hltQ (B ⧸ W) rfl hQ₂
+        exact stokesDuality_of_ses c w hr hend W.subtype (QuotientAddGroup.mk' W)
+          (stableSubAction_subtype_equivariant W hWstable)
+          (stableQuotAction_mk'_equivariant W hWstable)
+          (AddSubgroup.subtype_injective W)
+          (QuotientAddGroup.mk'_surjective W)
+          (subtype_range_eq_mk'_ker W) hB₂ hQ₂ ihW ihQ
+
+end CompositionSeries
 
 end GQ2.Dyadic
