@@ -745,3 +745,183 @@ theorem nUnit_zpowZtwo_injective {α : ℕ} (hα : 2 ≤ α) :
     exact mul_ne_zero (pow_ne_zero _ (by norm_num : (2 : ℤ_[2]) ≠ 0)) c.ne_zero hzero
 
 end UnitInjectivity
+
+/-! ## §4 The Smith–Witt stabilizer of the rank-four `N`-frame  (memo §3.2(iii), §3.3)
+
+The classification is **unconditional `ℤ₂`/`𝔽₂` linear algebra**, uniform in `α ≥ 2` and completely
+independent of the lifting question — memo §10's "the stabilizer classification … can and should
+land first, unconditionally".  Coordinates are the frame's: `(t, x̄₁, σ̄, x̄₂)` with `t = x̄₀` the
+2-torsion coordinate (memo §3.1).
+
+Three clauses define the stabilizer (memo §3.3):
+
+* **relation vector** `ρ_N = 2t`, i.e. `φ(t) = t`.  For an *automorphism* this is not a hypothesis
+  at all — `nFrameModel_map_t` proves it, `t` being the unique element of order 2 — so it is built
+  into the `t`-column of `NRows.col`;
+* **orientation datum** `χ̄∘φ = χ̄`, where `χ̄(v) = v^{v_{x̄₁}}` with `v = nUnit α` of **infinite**
+  order (§3): the `x̄₁`-row is therefore pinned *integrally*, `IsNStab.x1_coord`;
+* **mod-2 cup Gram** `M̄·G_N·M̄ᵀ = G_N`, entrywise (memo §2.3's convention, dualized to `H¹`).
+
+`nStabilizer_classification` shows the three clauses hold for exactly the parameter tuples
+`(τ, p, q, τ_σ, τ_{x₂}, g)` of memo §3.3, and for a *unique* one; `nStabParam_tauSolve_unique`
+then reads off the closed form `St_N ≅ (ℤ/2 × ℤ₂²) ⋊ GL₂(ℤ₂)` — under the two mod-2 couplings the
+pair `(τ_σ, τ_{x₂})` is determined by `(p, q, g)`, so the `(σ, x₂)`-plane behaves exactly like a
+handle with the torsion coordinate riding along. -/
+
+section Stabilizer
+
+/-- **Mod-2 reduction** `ℤ₂ ↠ 𝔽₂` — the coefficient reduction taking the frame to the `𝔽₂`-space
+that carries the cup form (memo §3.2(iii)). -/
+noncomputable def nRed : ℤ_[2] →+* ZMod 2 := PadicInt.toZMod
+
+/-- `ℤ₂` is local with residue field `𝔽₂`: a 2-adic integer is a unit exactly when its mod-2
+reduction is `1`.  This is what turns the cup-form entry `⟨σ*, x₂*⟩ = 1` into `g ∈ GL₂(ℤ₂)`. -/
+theorem nIsUnit_iff_nRed {x : ℤ_[2]} : IsUnit x ↔ nRed x = 1 := by
+  have hker : nRed x = 0 ↔ ¬ IsUnit x := by
+    rw [nRed, ← RingHom.mem_ker, PadicInt.ker_toZMod, IsLocalRing.mem_maximalIdeal,
+      mem_nonunits_iff]
+  have hzo : ∀ a : ZMod 2, a = 1 ↔ ¬ a = 0 := by decide
+  rw [hzo, hker, not_not]
+
+/-- The coordinate vector of the rank-four `N`-frame: `(t, x̄₁, σ̄, x̄₂)`, the additive model of
+`NDecomposition` (memo §3.1). -/
+abbrev NVec : Type := ZMod 2 × ℤ_[2] × ℤ_[2] × ℤ_[2]
+
+/-- The mod-2 reduction of a frame coordinate vector, as an `𝔽₂`-vector on the four slots. -/
+noncomputable def nMod2 (v : NVec) : Fin 4 → ZMod 2 :=
+  ![v.1, nRed v.2.1, nRed v.2.2.1, nRed v.2.2.2]
+
+@[simp] theorem nMod2_zero (v : NVec) : nMod2 v 0 = v.1 := rfl
+@[simp] theorem nMod2_one (v : NVec) : nMod2 v 1 = nRed v.2.1 := rfl
+@[simp] theorem nMod2_two (v : NVec) : nMod2 v 2 = nRed v.2.2.1 := rfl
+@[simp] theorem nMod2_three (v : NVec) : nMod2 v 3 = nRed v.2.2.2 := rfl
+
+/-- **A frame endomorphism of the rank-four `N`-model in coordinates**: the images of the three
+non-torsion basis vectors `x̄₁, σ̄, x̄₂`.  The image of `t` is *not* data — it is `t`
+(`nFrameModel_map_t`). -/
+structure NRows where
+  /-- The image of `x̄₁`. -/
+  x1 : NVec
+  /-- The image of `σ̄`. -/
+  sigma : NVec
+  /-- The image of `x̄₂`. -/
+  x2 : NVec
+
+/-- The four columns of the frame endomorphism — the images of `t, x̄₁, σ̄, x̄₂` in that order. -/
+noncomputable def NRows.col (R : NRows) : Fin 4 → NVec := ![(1, 0, 0, 0), R.x1, R.sigma, R.x2]
+
+@[simp] theorem NRows.col_zero (R : NRows) : R.col 0 = ((1 : ZMod 2), 0, 0, 0) := rfl
+@[simp] theorem NRows.col_one (R : NRows) : R.col 1 = R.x1 := rfl
+@[simp] theorem NRows.col_two (R : NRows) : R.col 2 = R.sigma := rfl
+@[simp] theorem NRows.col_three (R : NRows) : R.col 3 = R.x2 := rfl
+
+/-- **The mod-2 matrix `M̄` of a frame endomorphism**: `R.mat i j` is the `i`-th coordinate of the
+image of the `j`-th basis vector, so `R.mat i` is the `i`-th **row**. -/
+noncomputable def NRows.mat (R : NRows) (i j : Fin 4) : ZMod 2 := nMod2 (R.col j) i
+
+/-- **The mod-2 cup Gram of the `N`-core** (memo §3.2(iii)), in the dual basis of `(x₀,x₁,σ,x₂)`:
+`x₀^{2+2^α}` has exponent `≡ 2 (mod 4)` so the diagonal Bockstein entry is `1`, and `[x₀,x₁]`,
+`[σ,x₂]` contribute the two hyperbolic pairs.  α-independent for `α ≥ 2`. -/
+def nGram : Fin 4 → Fin 4 → ZMod 2 :=
+  ![![1, 1, 0, 0], ![1, 0, 0, 0], ![0, 0, 0, 1], ![0, 0, 1, 0]]
+
+/-- The mod-2 cup pairing on `H¹(D_N; 𝔽₂)` in the dual basis, with Gram matrix `nGram`. -/
+noncomputable def nCupForm (u w : Fin 4 → ZMod 2) : ZMod 2 := ∑ i, ∑ j, u i * nGram i j * w j
+
+theorem nCupForm_apply (u w : Fin 4 → ZMod 2) :
+    nCupForm u w = u 0 * w 0 + u 0 * w 1 + u 1 * w 0 + u 2 * w 3 + u 3 * w 2 := by
+  simp [nCupForm, Fin.sum_univ_four, nGram]
+
+/-- **The cup-isometry clause**: `M̄·G_N·M̄ᵀ = G_N`, entrywise (memo §2.3's convention, dualized to
+`H¹` — the pullback of a covector along `φ̄` is `M̄ᵀ`, so the isometry condition is on the rows of
+`M̄`). -/
+def NRows.IsCupIsometry (R : NRows) : Prop := ∀ i j, nCupForm (R.mat i) (R.mat j) = nGram i j
+
+/-- The canonical orientation read on the frame (memo §3.2(i)): `χ̄(v) = v^{v_{x̄₁}}` with
+`v = nUnit α = −(1+2^α)⁻¹`, since `χ_N` is `1` on `x₀`, `σ` and `x₂`. -/
+noncomputable def nChiVec (α : ℕ) (v : NVec) : ℤ_[2]ˣ :=
+  zpowZtwo isProP_two_unitsPadicInt (nUnit α) v.2.1
+
+/-- **The Smith–Witt stabilizer of the marked invariant triple** (memo §3.3), on the rows of a
+rank-four `N`-frame endomorphism.  The relation-vector clause is the `t`-column of `NRows.col`
+and is automatic for automorphisms (`nFrameModel_map_t`). -/
+structure IsNStab (α : ℕ) (R : NRows) : Prop where
+  /-- `χ̄(φ(x̄₁)) = χ̄(x̄₁) = v`. -/
+  chi_x1 : nChiVec α R.x1 = nUnit α
+  /-- `χ̄(φ(σ̄)) = χ̄(σ̄) = 1`. -/
+  chi_sigma : nChiVec α R.sigma = 1
+  /-- `χ̄(φ(x̄₂)) = χ̄(x̄₂) = 1`. -/
+  chi_x2 : nChiVec α R.x2 = 1
+  /-- `M̄·G_N·M̄ᵀ = G_N`. -/
+  cup : R.IsCupIsometry
+
+/-- **The `x̄₁`-row is pinned integrally** (memo §3.3, the decisive `N`-side simplification): the
+χ-clause forces the three `x̄₁`-coordinates *exactly*, not merely mod 2, because
+`v = −(1+2^α)⁻¹` has infinite order (`nUnit_zpowZtwo_injective`). -/
+theorem IsNStab.x1_coord {α : ℕ} (hα : 2 ≤ α) {R : NRows} (hR : IsNStab α R) :
+    R.x1.2.1 = 1 ∧ R.sigma.2.1 = 0 ∧ R.x2.2.1 = 0 := by
+  refine ⟨nUnit_zpowZtwo_injective hα ?_, nUnit_zpowZtwo_injective hα ?_,
+    nUnit_zpowZtwo_injective hα ?_⟩
+  · rw [zpowZtwo_one_exp]; exact hR.chi_x1
+  · rw [zpowZtwo_zero_exp]; exact hR.chi_sigma
+  · rw [zpowZtwo_zero_exp]; exact hR.chi_x2
+
+/-! ### The parameter tuple of memo §3.3 -/
+
+/-- **The stabilizer parameter tuple** `(τ, p, q, τ_σ, τ_{x₂}, g)` of memo §3.3:
+
+```
+φ(t)   = t
+φ(x̄₁) = τ·t + x̄₁ + p·σ̄ + q·x̄₂
+φ(σ̄)  = τ_σ·t + g₁·σ̄ + h₁·x̄₂
+φ(x̄₂) = τ_{x₂}·t + g₂·σ̄ + h₂·x̄₂
+```
+
+with `g = [[g₁, g₂], [h₁, h₂]]`. -/
+structure NStabParam where
+  /-- The `t`-shift of the `x̄₁`-row (family N1). -/
+  tau : ZMod 2
+  /-- The `σ̄`-component of `φ(x̄₁)` (family N5). -/
+  p : ℤ_[2]
+  /-- The `x̄₂`-component of `φ(x̄₁)` (family N6). -/
+  q : ℤ_[2]
+  /-- The `t`-component of `φ(σ̄)` — coupled to `(p, q, g)`. -/
+  tauSigma : ZMod 2
+  /-- The `t`-component of `φ(x̄₂)` — coupled to `(p, q, g)`. -/
+  tauX2 : ZMod 2
+  /-- The `(σ̄, x̄₂)`-block (families N2, N3, N4). -/
+  g : Matrix (Fin 2) (Fin 2) ℤ_[2]
+
+/-- The rows determined by a parameter tuple. -/
+noncomputable def NStabParam.rows (P : NStabParam) : NRows where
+  x1 := (P.tau, 1, P.p, P.q)
+  sigma := (P.tauSigma, 0, P.g 0 0, P.g 1 0)
+  x2 := (P.tauX2, 0, P.g 0 1, P.g 1 1)
+
+/-- **Admissibility** (memo §3.3): the `(σ̄, x̄₂)`-block is invertible and the two mod-2 couplings
+link `(p, q)` to the `t`-components `(τ_σ, τ_{x₂})`.  These are exactly the three non-vacuous
+entries of `M̄·G_N·M̄ᵀ = G_N` (`nStabParam_rows_isCupIsometry`). -/
+structure NStabParam.Admissible (P : NStabParam) : Prop where
+  /-- `g ∈ GL₂(ℤ₂)` — the cup entry `⟨σ*, x₂*⟩ = 1`. -/
+  det : IsUnit P.g.det
+  /-- `p̄ = τ_{x₂}·ḡ₁ + τ_σ·ḡ₂` — the cup entry `⟨t*, σ*⟩ = 0`. -/
+  couple_p : nRed P.p = P.tauX2 * nRed (P.g 0 0) + P.tauSigma * nRed (P.g 0 1)
+  /-- `q̄ = τ_{x₂}·h̄₁ + τ_σ·h̄₂` — the cup entry `⟨t*, x₂*⟩ = 0`. -/
+  couple_q : nRed P.q = P.tauX2 * nRed (P.g 1 0) + P.tauSigma * nRed (P.g 1 1)
+
+@[simp] theorem NStabParam.rows_x1 (P : NStabParam) : P.rows.x1 = (P.tau, 1, P.p, P.q) := rfl
+@[simp] theorem NStabParam.rows_sigma (P : NStabParam) :
+    P.rows.sigma = (P.tauSigma, 0, P.g 0 0, P.g 1 0) := rfl
+@[simp] theorem NStabParam.rows_x2 (P : NStabParam) :
+    P.rows.x2 = (P.tauX2, 0, P.g 0 1, P.g 1 1) := rfl
+
+/-- The mod-2 matrix of a parameter tuple's rows, entry by entry — the `M̄` of memo §3.3. -/
+theorem NStabParam.mat_eq (P : NStabParam) :
+    P.rows.mat = ![![1, P.tau, P.tauSigma, P.tauX2], ![0, 1, 0, 0],
+      ![0, nRed P.p, nRed (P.g 0 0), nRed (P.g 0 1)],
+      ![0, nRed P.q, nRed (P.g 1 0), nRed (P.g 1 1)]] := by
+  funext i j
+  fin_cases i <;> fin_cases j <;>
+    simp [NRows.mat, NStabParam.rows, nMod2, nRed]
+
+end Stabilizer
