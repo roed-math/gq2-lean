@@ -95,6 +95,31 @@ shadows `GQ2.drLift`/`drRelZ`/`DRLevelFactor`/`obsFun_DR`/`obs_DR`/`obsH2_DR` un
 un-prefixed names `lift`/`relZ`/`LevelFactor`/`obsFun`/`obs`/`obsH2`, and `GQ2.WordCoh2.relZPair`
 under `relZFam`.
 
+## Verification record (MC-OB)
+
+`lake build GQ2.Dyadic.Word.WordCoh` is green with **no warnings**.  The file contains no `sorry`,
+no `axiom`, and no `native_decide`; its single `decide` (`isFrattini_drNatWord`) is a kernel
+decision over the `2³` markings of `Multiplicative (ZMod 2)`.  143 declarations.
+
+Every headline prints **std-3** — `[propext, Classical.choice, Quot.sound]` — so the file adds
+nothing to the census:
+
+* relator layer: `relZ`, `relZ_base`, `relZ_comap`, `relZ_add`, `relZ_zero`, `relZ_coboundary`,
+  `relZFam_add`, `relZFam_coboundary`;
+* profinite layer: `exists_openNormalSubgroup_factor_two`, `exists_twoCocycle_factor`,
+  `LevelFactor.obs_congr`, `isProP_CentExt`;
+* `H²` layer: `obs`, `obs_B2_eq_zero`, `obs_ker_le`, `obsH2`, `obsH2_injective`,
+  `obsH2_eq_of_factor`;
+* Frattini checkability: `evalZ_congr_of_parity`, `isFrattini_ofPWord_of_parity`;
+* `Marking` interface: `Marking.relZ_map`;
+* pins 1–8: `evalZ_drWordP`, `ofPWord_drWordP`, `relZ_ofDRCoh`, `relZ_drNatWord_eq_drRelZ`,
+  `relZ_ofPWord_drWordP_eq_drRelZ`, `relZ_base_drNatWord`, `isFrattini_drNatWord`,
+  `markedRelator_DR`, `presentedBy_DR`, `obsFun_eq_obsFun_DR`, `obsH2_eq_obsH2_DR`,
+  `obsH2_DR_injective_via_generic`.
+
+`PresentedBy` and `MarkedRelator` are ordinary structures threaded at every use, never axioms and
+never instances, so no consumer can acquire them silently.
+
 ## Implementation notes
 
 All three in-repo imports (`GQ2.Dyadic.Word.Eval`, `GQ2.Cohomology`, `GQ2.Roe.DRWordCoh`) are
@@ -1403,6 +1428,50 @@ noncomputable def presentedBy_DR : PresentedBy GQ2.DRT drNatWord GQ2.drGens wher
     · exact GQ2.drLiftHom_X hP ν hν
     · exact GQ2.drLiftHom_Y hP ν hν
   hom_ext := fun φ ψ h => GQ2.dr_hom_ext φ ψ (h 0) (h 1) (h 2)
+
+/-! ### The end-to-end pin
+
+The strongest regression pin available: the *generic* `H²` obstruction of this file, instantiated
+at `D_R` with its marked generators, is literally `GQ2.obsH2_DR`.  Everything the `ℚ₂` development
+proves about `obsH2_DR` — injectivity (`GQ2.obsH2_DR_injective`), the factoring bridge
+(`GQ2.obsH2_DR_eq_of_factor`), and the `#H²(D_R) ≤ 2` conclusion that `GQ2/Roe/DRH2.lean` and
+`GQ2/Roe/DRDemushkin.lean` consume — therefore transfers, and a drift in the generic layer cannot
+go unnoticed. -/
+
+section DRPin
+
+variable [DistribMulAction GQ2.DRT (ZMod 2)] [ContinuousSMul GQ2.DRT (ZMod 2)]
+variable (htriv : ∀ (x : GQ2.DRT) (m : ZMod 2), x • m = m)
+include htriv
+
+omit [ContinuousSMul GQ2.DRT (ZMod 2)] in
+/-- **Pin 6 (cocycle level).**  The generic per-cocycle obstruction at `D_R` is `GQ2.obsFun_DR`.
+Both sides are computed at some choice of factoring level; `GQ2.obsFun_DR_eq` moves the `ℚ₂` side
+onto *this* file's choice, after which the two agree by `relZ_drNatWord_eq_drRelZ`. -/
+theorem obsFun_eq_obsFun_DR (φ : ContCoh.Z2 GQ2.DRT (ZMod 2)) :
+    obsFun htriv drNatWord GQ2.drGens φ = GQ2.obsFun_DR htriv φ := by
+  set F := (nonempty_levelFactor_normalize htriv φ).some with hF
+  rw [GQ2.obsFun_DR_eq htriv φ ⟨F.V, toDRCoh F.c, F.hfact⟩]
+  rfl
+
+omit [ContinuousSMul GQ2.DRT (ZMod 2)] in
+/-- **Pin 7 (`H²` level).**  `obsH2` at `D_R` is `GQ2.obsH2_DR`
+(`GQ2/Roe/DRWordCoh.lean`, `obsH2_DR`). -/
+theorem obsH2_eq_obsH2_DR (x : ContCoh.H2 GQ2.DRT (ZMod 2)) :
+    obsH2 htriv drNatWord GQ2.drGens markedRelator_DR x = GQ2.obsH2_DR htriv x := by
+  induction x using QuotientAddGroup.induction_on with | H φ => exact obsFun_eq_obsFun_DR htriv φ
+
+omit [ContinuousSMul GQ2.DRT (ZMod 2)] in
+/-- **Pin 8 (the consequence).**  Injectivity of the generic obstruction, proved from the generic
+`PresentedBy` bundle, reproduces `GQ2.obsH2_DR_injective`. -/
+theorem obsH2_DR_injective_via_generic : Function.Injective (GQ2.obsH2_DR htriv) := by
+  have h : (GQ2.obsH2_DR htriv : ContCoh.H2 GQ2.DRT (ZMod 2) → ZMod 2)
+      = obsH2 htriv drNatWord GQ2.drGens markedRelator_DR :=
+    funext fun x => (obsH2_eq_obsH2_DR htriv x).symm
+  rw [h]
+  exact obsH2_injective htriv drNatWord GQ2.drGens markedRelator_DR presentedBy_DR GQ2.isProP_DR
+
+end DRPin
 
 end Pins
 
