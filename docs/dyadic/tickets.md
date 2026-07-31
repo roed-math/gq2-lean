@@ -348,6 +348,33 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-30 (orchestrator, HM6 — G-LAB MOVES: ONE OBLIGATION DISCHARGED):** merged,
+  import registered; audit green **3416 jobs**, census 11. `CoreMix.lean` (732 ln, 0 sorries,
+  all 11 headlines std-3) + memo `handlemix-core-spike.md`. **Both cores went green,
+  including the M side the MC-HM memo had written off.** Verdicts: **N5 + N6 PROVED ⇒
+  `NCoreMixHypothesis` is DISCHARGED** (MC1 §8 Decision 2 moves "(B) binder" → "(A) proved"
+  for N, at spike cost instead of the sheet's 2–4k lines); **M5 PROVED ⇒
+  `MCoreMixHypothesis` WEAKENED** to `⟨M4,M6,M7⟩`, and that residual is **NOT consumed by
+  MC5's ν-correction** (MC1 §5.3 needs only M4 *or* M5's free `B_c`, which HM6 supplies over
+  ℤ₂) — so MC5 is unaffected. The M-side reversal: MC-HM's 24 failures were all of the *N6
+  shape* (move b,c — genuinely dies on `c^{2^α}`); the family M actually needs is **M5**
+  (move b,d), which fixes `a` and `c` AS LETTERS, so `a²`/`c^{2^α}` survive literally
+  (MC-HM's own V2 lesson one level down). **One lemma covers everything**: for
+  `P(m,K) = a^m[a,b]c^K[c,d]` the move-b,d twist is exact for EVERY (m,K), the move-b,c twist
+  for K = 0; `M_α = P(2,2^α)`, `N_α = P(2+2^α,0)`; **no B8, no compactness, no θ_w/SL₂** —
+  the 2-adic parameter is `zpowZtwo` alone (strictly cheaper than the handle case).
+  **The M residual is a STRUCTURAL obstruction, not a failed search**: M4/M6/M7 are exactly
+  the non-symplectic directions (mod-2 Witt only), and any relator-preserving free-group
+  automorphism is symplectic on H₁ — so they are outside the reach of ANY word-level
+  construction. ⚠ **Scoping finding propagated to MC3/MC4 mid-flight**: `Dm/DnRealizes`
+  (`HandleMixClear.lean:854,861`) bundle "acts as F" with membership in the HANDLE generating
+  set — too narrow for the core stratum; **HM6e** (ν-frame rows, ~200 ln, in CoreMix.lean)
+  + **HM6f** (widen `d?ClearAuts`, ~150 ln, in HandleMixClear.lean) are the mechanical fix,
+  queued. Owner questions in memo §7: restate M's `hLift` in consumed form (would remove
+  `MCoreMixHypothesis` entirely)? — and **HM Q2 is now THE binding M-side question**: the
+  transported `ν'(C̄₀) ∈ ℤ₂ˣ`, which needs the compact-M change of variables still missing
+  from the vendored sources (errata item 3). Memo §4.3 also corrects a claim this campaign
+  made one ticket ago — rides with the errata bundle.
 - **2026-07-30 (orchestrator, NC5 — THE R3(a) COMMISSION IS DELIVERED):** merged, import
   registered; audit green **3415 jobs**, census 11, capstones frozen. **`npc_cross_operators`
   is a committed sorry-free theorem printing exactly std-3** — the corrected
