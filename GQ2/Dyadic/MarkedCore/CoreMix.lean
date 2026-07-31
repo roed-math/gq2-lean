@@ -290,6 +290,182 @@ theorem hm6CurveNq_curveNq :
 
 end CoreFamilies
 
+/-! ## §3 The two-slot marking updates, and the relator transport
+
+HM2's `handleMixUpdate` moves core slot `3` and a handle slot; HM6's families move **two core
+slots** — `1, 3` (the letters `b, d`) for the `M5`/`N5` shape and `1, 2` (the letters `b, c`) for
+the `N6` shape. The handle slots are never touched, so `handleWord` is invariant and every
+statement below is `h`-uniform for free. -/
+
+section MarkUpdate
+
+variable {G : Type*} {h : ℕ}
+
+/-- Distinct `Fin (coreRank h)` values from distinct `ℕ` values. -/
+private theorem core_ne {i j : Fin (coreRank h)} (hij : (i : ℕ) ≠ (j : ℕ)) : i ≠ j :=
+  fun hc => hij (by rw [hc])
+
+private theorem one_ne_two : (1 : Fin (coreRank h)) ≠ 2 :=
+  core_ne (by rw [coreVal_one, coreVal_two]; omega)
+
+private theorem one_ne_three : (1 : Fin (coreRank h)) ≠ 3 :=
+  core_ne (by rw [coreVal_one, coreVal_three]; omega)
+
+private theorem zero_ne_one : (0 : Fin (coreRank h)) ≠ 1 :=
+  core_ne (by rw [coreVal_zero, coreVal_one]; omega)
+
+private theorem zero_ne_two : (0 : Fin (coreRank h)) ≠ 2 :=
+  core_ne (by rw [coreVal_zero, coreVal_two]; omega)
+
+private theorem zero_ne_three : (0 : Fin (coreRank h)) ≠ 3 :=
+  core_ne (by rw [coreVal_zero, coreVal_three]; omega)
+
+private theorem two_ne_three : (2 : Fin (coreRank h)) ≠ 3 :=
+  core_ne (by rw [coreVal_two, coreVal_three]; omega)
+
+private theorem handleU_ne_one (j : Fin h) : (handleIdxU j : Fin (coreRank h)) ≠ 1 :=
+  handleIdxU_ne_of_val_lt j (by rw [coreVal_one]; omega)
+
+private theorem handleU_ne_two (j : Fin h) : (handleIdxU j : Fin (coreRank h)) ≠ 2 :=
+  handleIdxU_ne_of_val_lt j (by rw [coreVal_two]; omega)
+
+private theorem handleU_ne_three (j : Fin h) : (handleIdxU j : Fin (coreRank h)) ≠ 3 :=
+  handleIdxU_ne_of_val_lt j (by rw [coreVal_three]; omega)
+
+private theorem handleV_ne_one (j : Fin h) : (handleIdxV j : Fin (coreRank h)) ≠ 1 :=
+  handleIdxV_ne_of_val_lt j (by rw [coreVal_one]; omega)
+
+private theorem handleV_ne_two (j : Fin h) : (handleIdxV j : Fin (coreRank h)) ≠ 2 :=
+  handleIdxV_ne_of_val_lt j (by rw [coreVal_two]; omega)
+
+private theorem handleV_ne_three (j : Fin h) : (handleIdxV j : Fin (coreRank h)) ≠ 3 :=
+  handleIdxV_ne_of_val_lt j (by rw [coreVal_three]; omega)
+
+/-- **The `b,d` two-slot update**: replace core letters `1` and `3`, leave the other
+`coreRank h − 2` alone. -/
+def hm6UpdateBD (m : Fin (coreRank h) → G) (wb wd : G) : Fin (coreRank h) → G :=
+  Function.update (Function.update m 1 wb) 3 wd
+
+/-- **The `b,c` two-slot update**: replace core letters `1` and `2`. -/
+def hm6UpdateBC (m : Fin (coreRank h) → G) (wb wc : G) : Fin (coreRank h) → G :=
+  Function.update (Function.update m 1 wb) 2 wc
+
+variable (m : Fin (coreRank h) → G) (wb wx : G)
+
+@[simp] theorem hm6UpdateBD_zero : hm6UpdateBD m wb wx 0 = m 0 := by
+  rw [hm6UpdateBD, Function.update_of_ne zero_ne_three, Function.update_of_ne zero_ne_one]
+
+@[simp] theorem hm6UpdateBD_one : hm6UpdateBD m wb wx 1 = wb := by
+  rw [hm6UpdateBD, Function.update_of_ne one_ne_three, Function.update_self]
+
+@[simp] theorem hm6UpdateBD_two : hm6UpdateBD m wb wx 2 = m 2 := by
+  rw [hm6UpdateBD, Function.update_of_ne two_ne_three, Function.update_of_ne (Ne.symm one_ne_two)]
+
+@[simp] theorem hm6UpdateBD_three : hm6UpdateBD m wb wx 3 = wx := by
+  rw [hm6UpdateBD, Function.update_self]
+
+@[simp] theorem hm6UpdateBD_handleU (j : Fin h) :
+    hm6UpdateBD m wb wx (handleIdxU j) = m (handleIdxU j) := by
+  rw [hm6UpdateBD, Function.update_of_ne (handleU_ne_three j),
+    Function.update_of_ne (handleU_ne_one j)]
+
+@[simp] theorem hm6UpdateBD_handleV (j : Fin h) :
+    hm6UpdateBD m wb wx (handleIdxV j) = m (handleIdxV j) := by
+  rw [hm6UpdateBD, Function.update_of_ne (handleV_ne_three j),
+    Function.update_of_ne (handleV_ne_one j)]
+
+@[simp] theorem hm6UpdateBC_zero : hm6UpdateBC m wb wx 0 = m 0 := by
+  rw [hm6UpdateBC, Function.update_of_ne zero_ne_two, Function.update_of_ne zero_ne_one]
+
+@[simp] theorem hm6UpdateBC_one : hm6UpdateBC m wb wx 1 = wb := by
+  rw [hm6UpdateBC, Function.update_of_ne one_ne_two, Function.update_self]
+
+@[simp] theorem hm6UpdateBC_two : hm6UpdateBC m wb wx 2 = wx := by
+  rw [hm6UpdateBC, Function.update_self]
+
+@[simp] theorem hm6UpdateBC_three : hm6UpdateBC m wb wx 3 = m 3 := by
+  rw [hm6UpdateBC, Function.update_of_ne (Ne.symm two_ne_three),
+    Function.update_of_ne (Ne.symm one_ne_three)]
+
+@[simp] theorem hm6UpdateBC_handleU (j : Fin h) :
+    hm6UpdateBC m wb wx (handleIdxU j) = m (handleIdxU j) := by
+  rw [hm6UpdateBC, Function.update_of_ne (handleU_ne_two j),
+    Function.update_of_ne (handleU_ne_one j)]
+
+@[simp] theorem hm6UpdateBC_handleV (j : Fin h) :
+    hm6UpdateBC m wb wx (handleIdxV j) = m (handleIdxV j) := by
+  rw [hm6UpdateBC, Function.update_of_ne (handleV_ne_two j),
+    Function.update_of_ne (handleV_ne_one j)]
+
+end MarkUpdate
+
+section MarkUpdateNaturality
+
+variable {F G H : Type*} [FunLike F G H] {h : ℕ}
+
+theorem map_hm6UpdateBD (φ : F) (m : Fin (coreRank h) → G) (wb wd : G)
+    (i : Fin (coreRank h)) :
+    φ (hm6UpdateBD m wb wd i) = hm6UpdateBD (fun i => φ (m i)) (φ wb) (φ wd) i := by
+  simp only [hm6UpdateBD, Function.apply_update fun _ => φ]
+
+theorem map_hm6UpdateBC (φ : F) (m : Fin (coreRank h) → G) (wb wc : G)
+    (i : Fin (coreRank h)) :
+    φ (hm6UpdateBC m wb wc i) = hm6UpdateBC (fun i => φ (m i)) (φ wb) (φ wc) i := by
+  simp only [hm6UpdateBC, Function.apply_update fun _ => φ]
+
+end MarkUpdateNaturality
+
+/-! ### The three markings, and `Φ(P) = P` on the full relator -/
+
+section CoreMarks
+
+variable {P : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P] [CompactSpace P]
+  [T2Space P] [TotallyDisconnectedSpace P] {h : ℕ}
+
+/-- **MC1 §2.4's family `M5` as a marking substitution**, at 2-adic parameter `k`. -/
+noncomputable def hm6MarkM (hP : IsProP 2 P) (α : ℕ) (k : ℤ_[2]) (m : Fin (coreRank h) → P) :
+    Fin (coreRank h) → P :=
+  hm6UpdateBD m (m 1 * zpowZtwo hP (hm6CurveM α (m 0) (m 1) (m 2) (m 3)) k)
+    (m 3 * conjP (zpowZtwo hP (hm6CurveM α (m 0) (m 1) (m 2) (m 3)) k) (m 2 ^ 2 ^ α * (m 2)⁻¹))
+
+/-- **MC1 §3.4's family `N5` (the `p`-direction) as a marking substitution.** -/
+noncomputable def hm6MarkNp (hP : IsProP 2 P) (k : ℤ_[2]) (m : Fin (coreRank h) → P) :
+    Fin (coreRank h) → P :=
+  hm6UpdateBD m (m 1 * zpowZtwo hP (hm6CurveNp (m 0) (m 1) (m 2) (m 3)) k)
+    (m 3 * conjP (zpowZtwo hP (hm6CurveNp (m 0) (m 1) (m 2) (m 3)) k) ((m 2)⁻¹))
+
+/-- **MC1 §3.4's family `N6` (the `q`-direction) as a marking substitution** — HM memo §6.5's
+element at 2-adic parameter. -/
+noncomputable def hm6MarkNq (hP : IsProP 2 P) (k : ℤ_[2]) (m : Fin (coreRank h) → P) :
+    Fin (coreRank h) → P :=
+  hm6UpdateBC m (m 1 * zpowZtwo hP (hm6CurveNq (m 0) (m 1) (m 2) (m 3)) k)
+    (m 2 * zpowZtwo hP (hm6CurveNq (m 0) (m 1) (m 2) (m 3)) k)
+
+variable (hP : IsProP 2 P) (α : ℕ) (k : ℤ_[2]) (m : Fin (coreRank h) → P)
+
+/-- **`Φ^{M5}_k(P_M) = P_M`** on the full relator, handles included. -/
+theorem mRelWord_hm6MarkM : mRelWord α (hm6MarkM hP α k m) = mRelWord α m := by
+  rw [mRelWord, mRelWord, hm6MarkM]
+  simp only [hm6UpdateBD_zero, hm6UpdateBD_one, hm6UpdateBD_two, hm6UpdateBD_three,
+    hm6UpdateBD_handleU, hm6UpdateBD_handleV]
+  rw [hm6_mWord_curveM hP α (m 0) (m 1) (m 2) (m 3) k]
+
+/-- **`Φ^{N5}_k(P_N) = P_N`** on the full relator. -/
+theorem nRelWord_hm6MarkNp : nRelWord α (hm6MarkNp hP k m) = nRelWord α m := by
+  rw [nRelWord, nRelWord, hm6MarkNp]
+  simp only [hm6UpdateBD_zero, hm6UpdateBD_one, hm6UpdateBD_two, hm6UpdateBD_three,
+    hm6UpdateBD_handleU, hm6UpdateBD_handleV]
+  rw [hm6_nWord_curveNp hP α (m 0) (m 1) (m 2) (m 3) k]
+
+/-- **`Φ^{N6}_k(P_N) = P_N`** on the full relator. -/
+theorem nRelWord_hm6MarkNq : nRelWord α (hm6MarkNq hP k m) = nRelWord α m := by
+  rw [nRelWord, nRelWord, hm6MarkNq]
+  simp only [hm6UpdateBC_zero, hm6UpdateBC_one, hm6UpdateBC_two, hm6UpdateBC_three,
+    hm6UpdateBC_handleU, hm6UpdateBC_handleV]
+  rw [hm6_nWord_curveNq hP α (m 0) (m 1) (m 2) (m 3) k]
+
+end CoreMarks
+
 end MarkedCore
 
 end Dyadic
