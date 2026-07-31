@@ -348,6 +348,33 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-30 (orchestrator, MC-VAR — VERDICT (a) DUAL ENCODINGS; the discrepancy is
+  CLOSED):** merged, `Variance.lean` import registered; audit green **3421 jobs**, census 11;
+  all 15 decls std-3. **Both files were correct all along and their two clauses are literally
+  the same equation** — `M.lean` stores the frame endomorphism with images in the **rows**
+  (`mFrameMatrix = Aᵀ`), `N.lean` with images in the **columns** (`NRows.mat = A`), so each
+  pairs its own layout with the transpose that yields `A·G·Aᵀ = G`. ⚠ **The orchestrator's
+  dispatch premise was WRONG and the ticket caught it**: I asserted `nMatOf`'s rows hold the
+  images; they do not — column 1 is `NStabParam.rows.x1` reduced. (My dual-encoding
+  hypothesis was right in shape, wrong in mechanism: it is rows-vs-columns, not
+  group-side-vs-character-side.) The repo's cup semantics decides it: `Cores.lean:1333-1336`
+  fixes `κ(a,b) = ⟨v,a⟩⟨w,b⟩` for COVECTORS and the `?RelWord_centLift_fib` evaluations are
+  literally `nCupForm`, so preservation is `A·G·Aᵀ = G`. **Both counterexample claims are
+  TRUE and are the same counterexample stated twice** (the flipped condition's (0,1) entry
+  forces τ = 0, killing M1 resp. N1 — Lean-checked three ways); the distinction is
+  nonetheless real (`G⁻¹ ≠ G`; `nMatOf_famN1_variance_differs` exhibits a matrix satisfying
+  one variance and refuting the other). Dictionary landed: `mCupIsometry_iff_nCupForm`,
+  `nCupForm_iff_mul_transpose`, `nRows_isCupIsometry_iff{,_mStyle}`, and the sharpest
+  instance **`mFrameMatrix_transpose_eq_nMatOf`** — at a classified M-parameter, **M's Witt
+  coupling IS N's `couple_p` and M's unit γ IS N's `det ḡ = 1`**; as a by-product
+  `mFrameMatrix_cupIsometry` gives the converse of MC3's Witt half (which M.lean never
+  states) for free via MC4's `nCup_iff_mod2`. **MC5 rule: treat the two `Prop`s as
+  interchangeable via `Variance.lean`; NEVER move a matrix between the files without
+  transposing; the remaining trap is pairing an H₁ matrix with an H¹ one** (`MStabParam.act`
+  vs `NStabParam.nuAction` — the latter's `nCoreMat P.g.transpose` is correct as written).
+  **Root cause fixed by the orchestrator** (docs-only, memo §6's exact clauses): both
+  variance notes now NAME their layout — that omission, not the mathematics, is what made
+  the two reports read as contradictory.
 - **2026-07-30 (orchestrator, HM6ef — THE N LANE'S S3 RESIDUE IS GONE):** merged, import
   registered; audit green **3420 jobs**, census 11; all 37 new headlines std-3. **The
   additive route was not a preference but a necessity**: widening `dnClearAuts` IN PLACE
