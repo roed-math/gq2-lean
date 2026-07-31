@@ -1608,3 +1608,195 @@ theorem nCorePlane_gl2_lift (hScal : NPlaneScalingHypothesis α h)
   exact ⟨Ψs.trans Ψd, hfac ▸ hΨs.trans α h hΨd⟩
 
 end PlaneLift
+
+/-! ## §8 The parametrized lift  (memo §6.2's `prop_MC_N_lift`)
+
+§4 classifies the stabilizer; §7 lifts its `GL₂`-block.  This section closes the loop: every
+admissible parameter tuple's action on the ν-frame is realized by a χ-preserving continuous
+automorphism of `D_N`, through the six families —
+
+| family | parameter | route |
+|---|---|---|
+| N1 | `τ` | §2's `dnTauBEquiv`, **exact**; ν-invisible (`nuFrame_dnTauBEquiv`) |
+| N2 | `planeElemV` | HM4's `dnTauDEquiv`, **exact** |
+| N3 | `planeElemU` | §2's `dnTauCEquiv`, **exact** |
+| N4 | `det g` | `NPlaneScalingHypothesis` — memo §5.2's B8 stratum |
+| N5 | `p` | `NMixPairHypothesis` — memo §8 Decision 2(B) |
+| N6 | `q` | `NMixPairHypothesis` |
+
+The three `ℤ/2`-components `(τ, τ_σ, τ_{x₂})` are invisible to every `ℤ₂`-character, because
+`nChar_dnX0` kills `x₀`; that is exactly why memo §3.6's `ν(t) = 0` is a check that passes rather
+than an equation to solve. -/
+
+section ParamLift
+
+variable (α h : ℕ)
+
+/-- **Family N1 is ν-invisible**: `x₁ ↦ x₀^k·x₁` leaves the whole ν-frame fixed, every
+`ℤ₂`-character killing `x₀` (`nChar_dnX0`).  So the `τ`-parameter of the stabilizer costs nothing
+in the marked correction — memo §3.4's row for N1. -/
+theorem nuFrame_dnTauBEquiv (k : ℤ_[2])
+    (f : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2])) :
+    nuFrame f (fun i => dnTauBEquiv α h k (dnGen α h i)) = nuFrame f (dnGen α h) := by
+  funext i
+  by_cases hi : i = 1
+  · subst hi
+    rw [nuFrame_apply, nuFrame_apply, show dnGen α h 1 = dnX1 α h from rfl, dnTauBEquiv_dnX1,
+      map_mul, toAdd_mul, toAdd_map_zpowZtwo (isProP_DN α h), nChar_dnX0, toAdd_one, mul_zero,
+      zero_add]
+  · rw [nuFrame_apply, nuFrame_apply, dnTauBEquiv_of_ne α h k hi]
+
+end ParamLift
+
+section MixPair
+
+variable (α h : ℕ)
+
+/-- The ν-frame move of the S3 pair (families **N5** and **N6** together):
+`x̄₁ ↦ x̄₁ + p·σ̄ + q·x̄₂` (memo §3.4). -/
+noncomputable def nFrameMix {h : ℕ} (p q : ℤ_[2]) (m : Fin (coreRank h) → ℤ_[2]) :
+    Fin (coreRank h) → ℤ_[2] := Function.update m 1 (m 1 + p * m 2 + q * m 3)
+
+@[simp] theorem nFrameMix_zero_right {h : ℕ} (p : ℤ_[2]) :
+    nFrameMix (h := h) p 0 = nFrameMixX1 p := by
+  funext m i
+  rw [nFrameMix, nFrameMixX1, zero_mul, add_zero]
+
+/-- **The S3 binder for the pair N5/N6** — a `def`, **never an axiom**; `NMixHypothesis` is its
+`q = 0` slice (`nMixHypothesis_of_pair`).  Stated at the marked generators for the reason recorded
+in `nCoreMixHypothesis_not_of_mix`. -/
+def NMixPairHypothesis (α h : ℕ) : Prop :=
+  ∀ p q : ℤ_[2], ∃ Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
+    (∀ x, chiN α h (Ψ x) = chiN α h x)
+      ∧ ∀ f : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]),
+        nuFrame f (fun i => Ψ (dnGen α h i)) = nFrameMix p q (nuFrame f (dnGen α h))
+
+theorem nMixHypothesis_of_pair (hPair : NMixPairHypothesis α h) : NMixHypothesis α h := by
+  intro p
+  obtain ⟨Ψ, hchi, hframe⟩ := hPair p 0
+  exact ⟨Ψ, hchi, by simpa using hframe⟩
+
+/-- The ν-frame action of a stabilizer parameter tuple (memo §3.3), as a substitution: the
+`(σ̄, x̄₂)`-block acts by the **transpose** of `g` — a frame *vector* is the tuple of a character's
+values on the marked letters, so a substitution `σ ↦ σ^{g₁}x₂^{h₁}` reads as the row
+`(g₁, h₁)` — and the `x̄₁`-row picks up `(p, q)`.  The three `ℤ/2`-components are invisible. -/
+noncomputable def NStabParam.nuAction (P : NStabParam) {h : ℕ}
+    (m : Fin (coreRank h) → ℤ_[2]) : Fin (coreRank h) → ℤ_[2] :=
+  nCoreMat P.g.transpose (nFrameMix P.p P.q m)
+
+/-- **The parametrized lift** (memo §6.2's `prop_MC_N_lift`, at the ν-frame; MC4 deliverable 4).
+Every admissible stabilizer parameter tuple is realized by a χ-preserving continuous automorphism
+of `D_N`, through the six families: the `GL₂`-block by N2/N3 (exact) and N4 (the S2 binder), the
+`(p, q)`-rows by N5/N6 (the S3 binder), and `τ` by N1 (exact, and ν-invisible).  With
+`nStabilizer_classification` this is memo §6.2's obligation. -/
+theorem nStabParam_lift (hScal : NPlaneScalingHypothesis α h) (hMix : NMixPairHypothesis α h)
+    {P : NStabParam} (hP : P.Admissible) :
+    ∃ Ψ : ContinuousMulEquiv (DN α h : Type) (DN α h : Type),
+      (∀ x, chiN α h (Ψ x) = chiN α h x)
+        ∧ ∀ f : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2]),
+          nuFrame f (fun i => Ψ (dnGen α h i)) = P.nuAction (nuFrame f (dnGen α h)) := by
+  obtain ⟨Ψg, hgChi, hgFrame⟩ := nCorePlane_gl2_lift α h hScal
+    (T := P.g.transpose) (by rw [Matrix.det_transpose]; exact hP.det)
+  obtain ⟨Ψm, hmChi, hmFrame⟩ := hMix P.p P.q
+  refine ⟨Ψg.trans Ψm, fun x => ?_, fun f => ?_⟩
+  · rw [show (Ψg.trans Ψm) x = Ψm (Ψg x) from rfl, hmChi, hgChi]
+  · have hstep : nuFrame f (fun i => (Ψg.trans Ψm) (dnGen α h i))
+        = nuFrame (f.comp (autHom Ψm)) (fun i => Ψg (dnGen α h i)) := rfl
+    have hbase : nuFrame (f.comp (autHom Ψm)) (dnGen α h)
+        = nuFrame f (fun i => Ψm (dnGen α h i)) := rfl
+    rw [hstep, hgFrame, hbase, hmFrame, NStabParam.nuAction]
+
+end MixPair
+
+/-! ## §9 Stress pins at `(α, h) = (2, 0)` and `(2, 1)`
+
+`α = 2` is the smallest valid exponent (`Parameters.lean`'s `Valid (.N α) ↔ 2 ≤ α`), `h = 0` the
+rank-four core of memo §6.1 and `h = 1` the smallest instance with a genuine handle.  Every pin
+below is an instantiation of a general statement above; they exist so that a reader can see the
+statements at concrete numerals, and so that a later reshaping cannot silently become vacuous. -/
+
+section StressTests
+
+/-- The rank-four core has four letters; one handle adds two. -/
+example : coreRank 0 = 4 := by decide
+
+example : coreRank 1 = 6 := by decide
+
+/-- `χ_N` is **not** trivial at `α = 2`: `v = −(1+4)⁻¹ ≠ 1`, so the orientation clause of
+`IsNStab` is not preserving nothing. -/
+example : (nUnit 2 : ℤ_[2]ˣ) ≠ 1 := by
+  intro hu
+  have h1 : (nUnit 2 : ℤ_[2]) * (1 + 2 ^ 2) = -1 := nUnit_mul (by omega)
+  rw [hu, Units.val_one, one_mul] at h1
+  norm_num at h1
+
+/-- **The decisive `N`-side pin at `α = 2`**: `v` has infinite order, so the `x̄₁`-row is pinned
+*integrally* — no `B`-scaling is needed, unlike the `M`-side (memo §3.3). -/
+example : Function.Injective (zpowZtwo isProP_two_unitsPadicInt (nUnit 2)) :=
+  nUnit_zpowZtwo_injective (by omega)
+
+/-- **The classification at `(α, h) = (2, 0)`**, written out. -/
+example {R : NRows} : IsNStab 2 R ↔ ∃! P : NStabParam, P.Admissible ∧ P.rows = R :=
+  nStabilizer_classification (by omega)
+
+/-- **The closed form `St_N ≅ (ℤ/2 × ℤ₂²) ⋊ GL₂(ℤ₂)` at the identity block**: the two coupled
+`t`-components are `(0, 0)` when `p = q = 0` and `g = 1`. -/
+example : ∃! st : ZMod 2 × ZMod 2,
+    NStabParam.Admissible ⟨0, 0, 0, st.1, st.2, (1 : Matrix (Fin 2) (Fin 2) ℤ_[2])⟩ :=
+  nStabParam_tauSolve_unique 0 0 0 (by rw [Matrix.det_one]; exact isUnit_one)
+
+/-- The identity tuple is admissible, so the parameter space is inhabited. -/
+example : NStabParam.Admissible ⟨0, 0, 0, 0, 0, (1 : Matrix (Fin 2) (Fin 2) ℤ_[2])⟩ where
+  det := by rw [Matrix.det_one]; exact isUnit_one
+  couple_p := by simp
+  couple_q := by simp
+
+/-- **The `A(P,h)` vocabulary finding at a concrete instance**: HM4's schematic S3 binder is false
+at `(α, h) = (2, 1)` already for the frame move `x̄₁ ↦ x̄₁ + σ̄`. -/
+example : ¬ NCoreMixHypothesis 2 1 {frameEnd (nFrameMixX1 1)} :=
+  nCoreMixHypothesis_not_of_mix 2 1 one_ne_zero rfl
+
+/-- **The `SL₂` block is unconditional** at `(2, 1)`: `planeS` is a product of the two exact
+families. -/
+example : ∃ Ψ : ContinuousMulEquiv (DN 2 1 : Type) (DN 2 1 : Type),
+    NPlaneRealizes 2 1 Ψ planeS :=
+  nCorePlane_sl2_lift 2 1 (by rw [planeS, Matrix.det_fin_two_of]; ring)
+
+/-- **The marked correction at `(α, h) = (2, 0)`**, written out. -/
+example (hMix : NMixHypothesis 2 0) (hScal : NScalingHypothesis 2 0)
+    (nu' : ContinuousMonoidHom (DN 2 0 : Type) (Multiplicative ℤ_[2]))
+    (hw : IsUnit (toAdd (nu' (dnSigma 2 0)))) :
+    ∃ u : ContinuousMulEquiv (DN 2 0 : Type) (DN 2 0 : Type),
+      (∀ x, chiN 2 0 (u x) = chiN 2 0 x) ∧ ∀ x, nu' (u x) = nuN 2 0 x :=
+  nMarkedCorrection 2 0 hMix hScal nu' hw
+
+/-- **The marked correction at `(α, h) = (2, 1)`** — the smallest instance with a real handle,
+where the handle stratum of HM5 does actual work. -/
+example (hMix : NMixHypothesis 2 1) (hScal : NScalingHypothesis 2 1)
+    (nu' : ContinuousMonoidHom (DN 2 1 : Type) (Multiplicative ℤ_[2]))
+    (hw : IsUnit (toAdd (nu' (dnSigma 2 1)))) :
+    ∃ u : ContinuousMulEquiv (DN 2 1 : Type) (DN 2 1 : Type),
+      (∀ x, chiN 2 1 (u x) = chiN 2 1 x) ∧ ∀ x, nu' (u x) = nuN 2 1 x :=
+  nMarkedCorrection 2 1 hMix hScal nu' hw
+
+/-- The correction is inhabited at `(2, 1)` by the standard marking. -/
+example (hMix : NMixHypothesis 2 1) (hScal : NScalingHypothesis 2 1) :
+    ∃ u : ContinuousMulEquiv (DN 2 1 : Type) (DN 2 1 : Type),
+      (∀ x, chiN 2 1 (u x) = chiN 2 1 x) ∧ ∀ x, nuN 2 1 (u x) = nuN 2 1 x :=
+  nMarkedCorrection_nuN 2 1 hMix hScal
+
+/-- **The parametrized lift at `(2, 1)`**, written out. -/
+example (hScal : NPlaneScalingHypothesis 2 1) (hMix : NMixPairHypothesis 2 1)
+    {P : NStabParam} (hP : P.Admissible) :
+    ∃ Ψ : ContinuousMulEquiv (DN 2 1 : Type) (DN 2 1 : Type),
+      (∀ x, chiN 2 1 (Ψ x) = chiN 2 1 x)
+        ∧ ∀ f : ContinuousMonoidHom (DN 2 1 : Type) (Multiplicative ℤ_[2]),
+          nuFrame f (fun i => Ψ (dnGen 2 1 i)) = P.nuAction (nuFrame f (dnGen 2 1)) :=
+  nStabParam_lift 2 1 hScal hMix hP
+
+/-- Family N1 is ν-invisible at `(2, 1)` — the `τ`-parameter is free. -/
+example (k : ℤ_[2]) (f : ContinuousMonoidHom (DN 2 1 : Type) (Multiplicative ℤ_[2])) :
+    nuFrame f (fun i => dnTauBEquiv 2 1 k (dnGen 2 1 i)) = nuFrame f (dnGen 2 1) :=
+  nuFrame_dnTauBEquiv 2 1 k f
+
+end StressTests
