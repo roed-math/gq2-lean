@@ -473,6 +473,227 @@ theorem foxD_nCompact_split (hV₂ : ∀ v : V, v + v = 0)
   rw [foxD_nCompact_unram t E E₂ hV₂ hwild hτ hα, hσinv]
   abel
 
+/-! ### The zero columns, and the `2h` handle columns in particular
+
+A *column* of the evaluated row is its value on a single-slot offset vector `Pi.single g v`.
+The wild row has exactly two nonzero columns at every handle count, so the `2h` handle columns
+— the whole `h`-dependence of the first jet — vanish identically. -/
+
+omit [Finite C] [Finite V] in
+theorem handleU_ne_coreLetter (j : Fin h) (i : Fin 3) : handleU j ≠ coreLetter h i := by
+  simp only [handleU, coreLetter, ne_eq, Generator.wild.injEq, Fin.mk.injEq]
+  have := i.isLt
+  omega
+
+omit [Finite C] [Finite V] in
+theorem handleV_ne_coreLetter (j : Fin h) (i : Fin 3) : handleV j ≠ coreLetter h i := by
+  simp only [handleV, coreLetter, ne_eq, Generator.wild.injEq, Fin.mk.injEq]
+  have := i.isLt
+  omega
+
+omit [Finite C] [Finite V] in
+theorem handleU_ne_tau (j : Fin h) : handleU j ≠ (Generator.tau : Generator (2 + 2 * h)) := by
+  simp [handleU]
+
+omit [Finite C] [Finite V] in
+theorem handleV_ne_tau (j : Fin h) : handleV j ≠ (Generator.tau : Generator (2 + 2 * h)) := by
+  simp [handleV]
+
+/-- **Every column of the wild row other than `τ` and `x₂` is zero** (unramified class): the
+`σ`, `x₀`, `x₁` columns and — the point — all `2h` handle columns.
+
+This is the Lean form of the Sage-side fact that the handle block has zero first jet: hyperbolic
+stabilization contributes nothing at first order, uniformly in `h`. -/
+theorem foxDHom_nCompact_unram_column_eq_zero (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hα : 1 ≤ α) {g : Generator (2 + 2 * h)} (hgτ : g ≠ .tau) (hgx : g ≠ coreLetter h 2)
+    (v : V) : foxDHom ⇑t E E₂ (nCompactW α h) (Pi.single g v) = 0 := by
+  rw [foxDHom_apply, foxD_nCompact_unram t E E₂ hV₂ hwild hτ hα,
+    Pi.single_eq_of_ne (Ne.symm hgτ), Pi.single_eq_of_ne (Ne.symm hgx)]
+  simp
+
+/-- The `2h` handle columns of the wild row are zero — the `u`-half. -/
+theorem foxDHom_nCompact_handleU_column (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hα : 1 ≤ α) (j : Fin h) (v : V) :
+    foxDHom ⇑t E E₂ (nCompactW α h) (Pi.single (handleU j) v) = 0 :=
+  foxDHom_nCompact_unram_column_eq_zero t E E₂ hV₂ hwild hτ hα (handleU_ne_tau j)
+    (handleU_ne_coreLetter (h := h) j 2) v
+
+/-- The `2h` handle columns of the wild row are zero — the `v`-half. -/
+theorem foxDHom_nCompact_handleV_column (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hα : 1 ≤ α) (j : Fin h) (v : V) :
+    foxDHom ⇑t E E₂ (nCompactW α h) (Pi.single (handleV j) v) = 0 :=
+  foxDHom_nCompact_unram_column_eq_zero t E E₂ hV₂ hwild hτ hα (handleV_ne_tau j)
+    (handleV_ne_coreLetter (h := h) j 2) v
+
+/-- The same, ramified class: there the row has a *single* nonzero column, so every column but
+`x₂` — handles included — dies. -/
+theorem foxDHom_nCompact_ram_column_eq_zero (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hτfpf : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (hα : 1 ≤ α)
+    {g : Generator (2 + 2 * h)} (hgx : g ≠ coreLetter h 2) (v : V) :
+    foxDHom ⇑t E E₂ (nCompactW α h) (Pi.single g v) = 0 := by
+  rw [foxDHom_apply, foxD_nCompact_ram t E E₂ hV₂ hwild hτfpf hTodd hα,
+    Pi.single_eq_of_ne (Ne.symm hgx)]
+  simp
+
 end Rows
+
+/-! ## The tame relator and its row
+
+The second relator of `Γ_R = ⟨σ, τ, x₀, …, x_n ∣ τ^σ = τ^{q_K}, R = 1⟩` (F3's `gammaRelators`),
+reflected into the word syntax so that WW1's evaluator differentiates it. -/
+
+/-- **The tame relator** `τ^σ · (τ^q)⁻¹` of `T_q` (packet §3), as a `PWord`. -/
+def tameRelW (n q : ℕ) : PWord (Generator n) :=
+  .mul (.conj (.gen .tau) (.gen .sigma)) (.inv (.zpow (.gen .tau) (q : ℤ)))
+
+/-- The tame relator word evaluates to the tame relator value at every marking. -/
+theorem eval_tameRelW {n q : ℕ} {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [TotallyDisconnectedSpace G] (t : Marking n G) :
+    t.eval (tameRelW n q) = conjR t.τ t.σ * (t.τ ^ q)⁻¹ := by
+  rw [Marking.eval_def, tameRelW, PWord.eval_mul, PWord.eval_inv, PWord.eval_conj,
+    PWord.eval_zpow]
+  simp [zpow_natCast]
+
+/-- **The reflected tame relator is F3's**: at the free marking it is literally
+`GQ2.Dyadic.tameRelatorGen`, the first element of `gammaRelators` — so the row computed below is
+the row of the presentation's tame relation, not of a lookalike. -/
+theorem freeMarking_eval_tameRelW (n q : ℕ) :
+    (freeMarking n).eval (tameRelW n q) = tameRelatorGen n q := by
+  rw [eval_tameRelW, tameRelatorGen]
+  rfl
+
+section TameRow
+
+variable {n q : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking n C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- **The universal tame row** — packet rule T1, at any marking satisfying the tame relation
+`τ^σ = τ^q`:
+
+```
+D(τ^σ (τ^q)⁻¹) = S⁻¹(a(τ) + (T−1)·a(σ)) − (1 + T + ⋯ + T^{q−1})·a(τ).
+```
+
+The wild columns are zero outright (no wild letter occurs), and the tame relation is used
+exactly once — to identify the prefix `ev(τ^σ)` with `T^q` so that it cancels the `(T^q)⁻¹` of
+the second factor.  Sage's `rules` entry `T1` is this step. -/
+theorem foxD_tameRelW_of_tameRel (hrel : conjR t.τ t.σ = t.τ ^ q)
+    (a : Generator n → V) :
+    foxD ⇑t a E E₂ (tameRelW n q)
+      = t.σ⁻¹ • (a .tau + t.τ • a .sigma - a .sigma)
+        - ∑ i ∈ Finset.range q, t.τ ^ i • a .tau := by
+  rw [tameRelW, foxD_mul, foxD_conj, foxD_inv, foxD_zpow_natCast, PWord.evalFin_conj,
+    PWord.evalFin_zpow, PWord.evalFin_gen, PWord.evalFin_gen, foxD_gen, foxD_gen]
+  simp only [Marking.apply_sigma, Marking.apply_tau]
+  rw [hrel, zpow_natCast, smul_neg, smul_inv_smul]
+  exact (sub_eq_add_neg _ _).symm
+
+/-- **The tame row on a split or unramified module** (`T = 1`, `q` even): the single entry
+`S⁻¹` on the `τ`-column.  *No* tame-relation hypothesis is needed here — with `τ` acting
+trivially the conjugated prefix acts trivially by itself. -/
+theorem foxD_tameRelW_unram (hV₂ : ∀ v : V, v + v = 0) (hτ : ∀ v : V, t.τ • v = v)
+    (hq : Even q) (a : Generator n → V) :
+    foxD ⇑t a E E₂ (tameRelW n q) = t.σ⁻¹ • a .tau := by
+  have hτmem : t.τ ∈ trivAct C V := mem_trivAct.mpr hτ
+  have hconj : PWord.evalFin ⇑t E E₂ ((PWord.gen (Generator.tau (n := n))).conj (.gen .sigma))
+      ∈ trivAct C V := by
+    rw [PWord.evalFin_conj, PWord.evalFin_gen, PWord.evalFin_gen]
+    exact trivAct_conjR hτmem _
+  rw [tameRelW, foxD_mul, mem_trivAct.mp hconj, foxD_conj, foxD_inv, foxD_zpow_natCast,
+    PWord.evalFin_zpow, PWord.evalFin_gen, PWord.evalFin_gen, foxD_gen, foxD_gen]
+  simp only [Marking.apply_sigma, Marking.apply_tau]
+  rw [WordLift.sum_pow_smul_of_trivial (fun v => hτ v), even_nsmul_eq_zero hV₂ hq, smul_zero,
+    neg_zero, add_zero, hτ]
+  simp
+
+end TameRow
+
+/-! ## The unramified block `1 − S⁻¹` and its invertibility
+
+Packet §14 / board WN0-b: the `x₂`-column of the unramified wild row.  It is invertible on `V`
+**exactly** when `V^S = 0`, so on every nontrivial simple unramified module (`V^S` is a
+submodule) and on no scalar module — which is why the scalar module separates nothing. -/
+
+section Block
+
+/-- A unit of the endomorphism ring is injective. -/
+theorem injective_of_isUnit {W : Type*} [AddCommGroup W] {f : AddMonoid.End W} (hf : IsUnit f) :
+    Function.Injective f := by
+  obtain ⟨u, rfl⟩ := hf
+  intro x y hxy
+  have h : ((↑u⁻¹ * ↑u : AddMonoid.End W)) x = ((↑u⁻¹ * ↑u : AddMonoid.End W)) y := by
+    show (↑u⁻¹ : AddMonoid.End W) (((↑u : AddMonoid.End W)) x)
+        = (↑u⁻¹ : AddMonoid.End W) (((↑u : AddMonoid.End W)) y)
+    rw [hxy]
+  rw [u.inv_mul] at h
+  exact h
+
+variable {n : ℕ} {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
+  (t : Marking n C)
+
+/-- **The formal coefficient `1 − S⁻¹`** — the unramified `x₂`-column of the compact-`N` wild
+row, over WW2's standard atom alphabet.  Over a char-`2` module this is the `1 + S⁻¹` the
+frozen certificate prints. -/
+def oneSubSInv (n : ℕ) : FoxCoeff (TameSym n) := .add .one (.neg (.atom (.gen .sigma (-1))))
+
+/-- The block as an operator on `V`. -/
+noncomputable def oneSubSInvEnd : AddMonoid.End V :=
+  1 - DistribMulAction.toAddMonoidEnd C V t.σ⁻¹
+
+@[simp] theorem oneSubSInvEnd_apply (v : V) : oneSubSInvEnd t v = v - t.σ⁻¹ • v := rfl
+
+/-- The formal coefficient's action, under **every** projector assignment (`P` does not occur
+in it). -/
+@[simp] theorem eval_oneSubSInv_apply (π : AddMonoid.End V) (v : V) :
+    (oneSubSInv n).eval (TameSym.toEnd t π) v = v - t.σ⁻¹ • v := by
+  rw [oneSubSInv, FoxCoeff.eval_add_apply, FoxCoeff.eval_one_apply, FoxCoeff.eval_neg_apply,
+    FoxCoeff.eval_atom_apply, TameSym.toEnd_gen_apply, Marking.apply_sigma, zpow_neg, zpow_one,
+    sub_eq_add_neg]
+
+/-- The formal coefficient evaluates to the operator. -/
+theorem eval_oneSubSInv (π : AddMonoid.End V) :
+    (oneSubSInv n).eval (TameSym.toEnd t π) = oneSubSInvEnd t :=
+  DFunLike.ext _ _ fun v => by rw [eval_oneSubSInv_apply, oneSubSInvEnd_apply]
+
+/-- `1 − S⁻¹` kills exactly the `σ`-fixed vectors. -/
+theorem oneSubSInvEnd_eq_zero_iff (v : V) : oneSubSInvEnd t v = 0 ↔ t.σ • v = v := by
+  rw [oneSubSInvEnd_apply, sub_eq_zero]
+  exact ⟨fun hv => (inv_smul_eq_iff.mp hv.symm).symm,
+    fun hv => (inv_smul_eq_iff.mpr hv.symm).symm⟩
+
+/-- **The invertibility criterion for the unramified block** (packet §14; the frozen
+certificate's note *"`1 − S⁻¹ = S⁻¹(S − 1)` is invertible on `V` iff `V^S = 0`"*).
+
+Hence: invertible on every nontrivial **simple** unramified module (`V^S` is a submodule, so it
+is `0` or `V`, and `V` would force `S = 1`), and **not** invertible on a scalar module — the
+dichotomy the split row `foxD_nCompact_split` displays. -/
+theorem isUnit_oneSubSInvEnd_iff [Finite V] :
+    IsUnit (oneSubSInvEnd t (V := V)) ↔ ∀ v : V, t.σ • v = v → v = 0 := by
+  constructor
+  · intro hu v hv
+    have hinj : Function.Injective (oneSubSInvEnd t (V := V)) :=
+      injective_of_isUnit hu
+    refine hinj ?_
+    rw [(oneSubSInvEnd_eq_zero_iff t v).mpr hv, map_zero]
+  · intro hfpf
+    have hinj : Function.Injective (oneSubSInvEnd t (V := V)) := by
+      intro x y hxy
+      have h0 : oneSubSInvEnd t (x - y) = 0 := by rw [map_sub, hxy, sub_self]
+      have := hfpf _ ((oneSubSInvEnd_eq_zero_iff t (x - y)).mp h0)
+      exact sub_eq_zero.mp this
+    have hbij : Function.Bijective (oneSubSInvEnd t (V := V)) :=
+      Finite.injective_iff_bijective.mp hinj
+    refine isUnit_iff_exists.mpr
+      ⟨(AddEquiv.ofBijective (oneSubSInvEnd t (V := V)) hbij).symm.toAddMonoidHom, ?_, ?_⟩
+    · exact AddMonoidHom.ext fun v =>
+        (AddEquiv.ofBijective (oneSubSInvEnd t (V := V)) hbij).apply_symm_apply v
+    · exact AddMonoidHom.ext fun v =>
+        (AddEquiv.ofBijective (oneSubSInvEnd t (V := V)) hbij).symm_apply_apply v
+
+end Block
 
 end GQ2.Dyadic.Certificates
