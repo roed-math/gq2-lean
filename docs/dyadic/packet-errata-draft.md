@@ -72,3 +72,13 @@ meet. Line numbers refer to the July 28 packet.
    S₃ witness separates the two relators as words), though no oracle in the compact/procyclic
    lane distinguishes them by jets, D₈ counts, or epimorphism rows. Likely a transcription
    slip in the displayed √10 specialization rather than a mathematical claim. (S4.3.)
+
+**Closing clarification (not an erratum — a task-list trap worth a sentence).** The
+simplification-campaign §8.5 task list says "prove their zero first jets" for the two
+procyclic-M correction blocks. Measured through the exact first-jet engine: **neither
+`E₀₁^pc` nor `E₂^pc` has a zero first jet** — the statement that is true (and certified) is
+that the *hat copy's whole row* vanishes (via the shadow transport theorem), while at first
+order the shadow copy reproduces `E₀₁^pc`'s entire contribution operator-for-operator, so
+`E₀₁^pc`'s justification is second-order only (exact fifth-root-module refutation). Anyone
+following the task list as written would try to prove something false. (S4.3, S4.4;
+`general_2adic/artifacts/reports/{report-phase4,m-alternative-search}.md`.)

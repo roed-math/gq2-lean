@@ -348,6 +348,49 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-31 (orchestrator, G-1 RELEASED — PHASE 5 OPENS; wave dispatched):** the
+  simplification campaign signed R4 (owner-delegated in session: "review the report and
+  start the next phase"; verification record on that board) and flipped R5. **The frozen
+  selection is `general_2adic/artifacts/reports/selection-freeze.md`** — authoritative for
+  every word-dependent lane; suite at freeze 1759 tests both interpreters. **Lane
+  re-points** (binding; dated blocks added in the specs where the text disagreed):
+  (i) ⚠ **WL is `L_sq`**, the stabilized square-commutator — the lane spec below was
+  written against the collector and now carries a re-point block; n = 1 word IS Roe's `Γ_R`
+  (SQ1), so WL-a's cross-identification target is `wildRelatorR`/`Γ_R` and the collector
+  display survives only as the safety-net regression; χ_sq(σ) = S ≠ 1 (SQ1-R1) — MC5 redoes
+  the §6.4 mixing analysis in the L_sq frame; (ii) WNP already re-pointed (corrected `L_c`,
+  NC lane governs); the 4 cheaper parked S3.2 survivors are disposed of by WNP-b/c;
+  (iii) WMP additions from phase 4: `E₀₁^pc` is justified at SECOND order only (gate D
+  cannot justify it; not independently choosable from the shadow substitution — the finding
+  is paper-relevant and changes WMP-c's statement); the Lean side needs the **σ-column
+  coincidence lemma**, not the geometric-sum identity; the hat copy = ONE frozen
+  substitution's image (S4.2 `Sh_M`, four properties in the shadow-theorem memo);
+  **the WC-Mpc affine phase data exists in NO ticket yet** — it is WW4/WMP-c work; the
+  √−10 relative-norm word is RETIRED to regression-only (F5 keeps its row as a regression
+  alternative, per the WMP spec's existing language); `E₂^pc` rides on S1.9's `orbitNorm_eq`;
+  (iv) WM0 unchanged in shape; the compact-M marked CoV gap (errata item 3) stays an
+  explicit-datum binder until the packet author answers. **Cross-repo artifacts**: simp
+  ticket S5.G emits `generated/{lean,latex}` for the five rows (currently EMPTY — WW5's
+  one-tree hash gate must consume S1.8's canonical hashes; WW5's prompt reads
+  `words/pretty_lean.py` + `certificates/emit.py` first); simp addendum S4.5
+  (`swap[E2.E01]` geom comparison) is non-blocking and can only confirm the freeze or
+  surface an owner amendment. **Dispatch (this wave)**: **WW1** (fable, ww worktree branch
+  `dyadic-ww1`), **WW3** (fable, lg worktree branch `dyadic-ww3`), **SD1** (fable, memo-only,
+  fresh worktree `gq2-dyadic-sd` — reads LG1's drop-eulerChar note, F3's Tq-field note,
+  AX1/FG1's tfg-as-record-field shape, MC1 §(ix), and coordinates the phase-interface field
+  shapes with WW4 per its spec), **WW5** (opus, wl worktree branch `dyadic-ww5`), **F5**
+  (opus, fresh worktree `gq2-dyadic-f5` — regression-only python; **includes the retired
+  `rel_minus10` row + the mutant rows**), **MC-OB** (opus, NEW ticket, pj-adjacent fresh
+  worktree `gq2-dyadic-ob` branch `dyadic-ob`: the relator-generic `obsH2` port MC2 flagged
+  (~900 ln — `TwoCocycle`/`CentExt`/`comap`/`projExt` hoist per MC2 log item (v), file
+  `GQ2/Dyadic/Word/WordCoh.lean`) — **MC5 and the branch-word cohomology consume it**).
+  **Queued**: WW2 (fable) behind WW1; WW4 (fable) behind WW3 + SD1's field-shape
+  coordination; **MC5 (fable — upgraded from opus: it is the convergence point of MC3/MC4 +
+  HM assets + MC-VAR's transpose rule + the SQ1-R1 L_sq-frame redo)** behind MC-OB; SD2
+  behind SD1 review. Fable concurrency held at 3 (the 07-29 spend incident); commit-early
+  discipline mandatory in every fable prompt. **Owner queue**: send the errata bundle (8
+  items + clarification, appended today); chiTwo census-9→8 spike (G-AX); packet-PDF
+  verification; MMixHypothesis family-form restatement (HM6g); G2 at AS2.
 - **2026-07-30 (orchestrator, HM6g — the M/N mirror is now EXACT):** merged, import
   registered; audit green **3422 jobs**, census 11; all 12 decls std-3 (no B8, no B3c).
   ⚠ **The prescribed route was wrong and the ticket said so**: HM6ef §6 (which the dispatch
@@ -878,7 +921,7 @@ to `master` only at owner gate G3.
 | F2 | reflected profinite word syntax + ω₂ finite evaluation | opus (was fable) | `GQ2/Dyadic/Word/Syntax.lean`, `GQ2/Dyadic/Word/Eval.lean` | F1 | **done 2026-07-29** (6882edb → merged 25e0953, imports registered c9da9dd; 684+772 ln, 0 sorries, std-3 on 37 decls; **etaHatZ BUILT** (~110 ln on Zhat — no gap, no hypothesis threading); quadruple generic (`eval_eq_evalFin`, `ResolvedAt`/`_of_dvd`, `map_eval*`, `eval_map_eq_one_iff`) + `eval_subst`/`eval_pro2`/`eval_killWild` soundness + Gate-B T1/T2 as theorems; n=1 Γ_A stress by `rfl` + zmod8 genuine-ω₂ pin; wave-boundary audit green (3388 jobs, census 9, check-5 ran); z2pow ratification + gotchas in log) |
 | F3 | tame quotient at general q + boundary specializations + relative Goursat | opus | `GQ2/Dyadic/{TameQuotientK,TameBoundary}.lean` (split per AX4 Q4) | F1, F2 | **done 2026-07-29** (d8338ca+2bbce88+e23facd → merged, imports registered 456843a; 2017 ln, 0 sorries, 143 decls swept std-3 (B5/B10 do NOT leak despite BoundaryFrame import); audit green 3394 jobs; leaf closure = STRICT SUBSET of Axioms.lean's 31 modules, mock-AX4 elaboration green — **AX4 R5 discharged**; `tq_two_equiv` is literally `refl` (R7 closed, no second tame copy); mandated exports landed (+`[DiscreteTopology H]` on gen_tq_quotient); Lem 3.1/3.2/3.3 + Prop 3.4 (universal-property form) + Thm 3.5; ⚠ general-q center correction + AX4-memo arithmetic fix in log) |
 | F4 | arithmetic branches: (C,I,λ,γ), sign-row exclusion, √-10 corollary | opus | `GQ2/Dyadic/Branches.lean` | F1 | **done 2026-07-29** (5d4cddf on `dyadic-f4` → merged, import registered 1de39d6; 848 ln, std-3 on all 37 decls (no literature-axiom leaks), audit green 3389 jobs; `CyclotomicFrobeniusDatum`+`MarkedSplitting`, Prop 8.1 via `classification_of_even`, Cor 8.2 √-10 `(r,ε,η)=(1,1,1)` pins, both-directions η adapter, ε-∀-quantified exhaustiveness + `eps_both_occur`; **r=2 mock bundle with u⁻¹ swap discrimination**; MarkedRecip clause = `unramified_of_even` binder (census untouched, pre-G-AX auditable); CoV gap NOT hit; findings in log) |
-| F5 | finite-target sanity harness (python) | opus | `scripts/dyadic_sanity_counts.py` | — | pending |
+| F5 | finite-target sanity harness (python; incl. the retired `rel_minus10` regression row + mutant rows) | opus | `scripts/dyadic_sanity_counts.py` | — | **dispatched 2026-07-31** (fresh worktree `gq2-dyadic-f5`, branch `dyadic-f5`) |
 | F6 | gates infra: `check_dyadic.sh`, allowlist workflow, docs index link | opus | `scripts/check_dyadic.sh`, `docs/README.md` (one line) | — | **done 2026-07-29** (1d6fd7d → merged; check_dyadic.sh 289 ln: D1 delegate + D2 obligation guard (continuation-line-aware, fails on untracked) + D3 sign-row guard (declarations only) + D4/D5 WW5/F5 hooks; all green 2.2s; docs index line added) |
 
 **Ticket specs.**
@@ -943,7 +986,7 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| SD1 | design memo: two-sided degree-n source record | fable | `docs/dyadic/sd-design.md` | recon/sd-survey | pending |
+| SD1 | design memo: two-sided degree-n source record | fable | `docs/dyadic/sd-design.md` | recon/sd-survey, G-1 ✓ | **dispatched 2026-07-31** (fresh worktree `gq2-dyadic-sd`, branch `dyadic-sd1`; carries LG1's drop-eulerChar note, F3's `Tq (qOf K FF)` type-field note, FG1's tfg-as-record-field shape, MC1 §(ix); coordinates WW4's phase-interface field shapes) |
 | SD2 | `SourceNumerics n` + parameterized record + n=1 adapters | fable | `GQ2/Dyadic/SourceDataN.lean` (+approved edits per SD1) | SD1, F1 | pending |
 | SD3 | two-sided degree-n induction + ℚ₂ regression | opus | `GQ2/Dyadic/ThmFourTwoN.lean` (+approved edits per SD1) | SD2 | pending |
 
@@ -978,7 +1021,7 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 | MC2 | presented cores D_P, characters, abelian 4-frames | opus | `GQ2/Dyadic/MarkedCore/Cores.lean` | MC1, F1 | **done 2026-07-29** (7ccb3b2 → merged, import registered; 1907 ln, 0 sorries, 30 headline decls std-3 — **B8 threaded as explicit `PeripheralCyclotomicAction` hypothesis, census axiom NOT consumed** (enters only at MC3/MC4); audit green 3394 jobs; **memo closed forms verified EXACTLY incl. uniqueness** (no-Hensel confirmed); α-independent cup Gram both cores; mod-4 `diagCoeff` rule + `IsCupCocycle` layer = the reusable exponent asset; both §10 assets landed (`IsFreePro2Pair`, `peripheralTriple_scaling` ×4 instantiations); deviations + 2 infra gaps + stale-comment find in log) |
 | MC3 | **MC-M**: classification + lifting for `M_α` (uniform in α) | fable→opus | `GQ2/Dyadic/MarkedCore/M.lean` | MC2 | **done 2026-07-30** (a059a6d → merged, import registered; 1748 ln, 0 sorries, **all 150 decls ≤ std-3, ZERO B8/B3c citers**; audit green 3418 jobs; salvage triaged (all 489 ln kept, ~35 rewritten — the file had **10** errors, not the 5 reported; the stale docstring advertised four decls that never existed and was rewritten); `mStabilizer_classification` = ∃! over `MStabParam` + `mNielsen_factorization` (explicit 7-family witnesses with the even parameter adjustments); MC2 DID land `MDecomposition` (dispatch note was wrong) — consumed, so the classification is at rank four; S2 lift NOT built (see log) — hence no B8 consumer; ⚠ **variance discrepancy vs MC4 — ADJUDICATION ticket MC-VAR dispatched**) |
 | MC4 | **MC-N**: classification + lifting for `N_α` (uniform in α) | fable→opus | `GQ2/Dyadic/MarkedCore/N.lean` | MC2 | **done 2026-07-30** (2f28429 → merged, import registered; 1822 ln, 0 sorries, **EVERY decl std-3 — no B8, no B3c**; audit green 3417 jobs; **`nStabilizer_classification` is an IFF**, unconditional, uniform in α ≥ 2, with `St_N ≅ (ℤ/2 × ℤ₂²) ⋊ GL₂(ℤ₂)` in closed form (`nStabParam_tauSolve_unique`); Witt half = ONE kernel `decide` over 2⁹; **the six-family list is COMPLETE at the frame level** (memo §3.3 re-derived independently — and the ROW convention is the right one, the transpose convention kills N1); SL₂ block realized unconditionally; S2 threaded as binders (B8 route cited not executed — the deliberate deviation, see log); ⚠ **`nCoreMixHypothesis_not_of_mix`: HM4's schematic S3 binder is UNSATISFIABLE** — see log) |
-| MC5 | handles + `MarkedCoreCertificate` + marked-matching reduction | opus | `GQ2/Dyadic/MarkedCore/Certificate.lean` | MC3, MC4 | pending |
+| MC5 | handles + `MarkedCoreCertificate` + marked-matching reduction | **fable** (upgraded from opus 2026-07-31: convergence point of MC3/MC4 frames + HM4's `MLiftSplit`/`NLiftSplit` + HM6/6ef/6g binder states + MC-VAR's transpose rule + the SQ1-R1 L_sq mixing-frame redo + the widened odd-L scope) | `GQ2/Dyadic/MarkedCore/Certificate.lean` | MC3 ✓, MC4 ✓, MC-OB | queued (behind MC-OB, first freed fable slot) |
 
 - **MC1**: starting from `recon/mc-survey.md`, write per-core: the abelianization
   decomposition (rank-4 analogue of `BDecomposition` `GQ2/SectionThree.lean:422` — `M_α`:
@@ -1063,11 +1106,12 @@ SD1/MC1/LG1 (design memos, read-only vs Lean) may run immediately.
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| WW1 | generic Fox evaluator + literal defect formula | fable | `GQ2/Dyadic/Word/Fox.lean` | F2 | pending |
-| WW2 | Fox certificates: row/col ops + replay + normal forms | fable | `GQ2/Dyadic/Word/FoxCert.lean` | WW1 | pending |
-| WW3 | Stokes chain map + composition-series extension | fable | `GQ2/Dyadic/Word/Stokes.lean` | F2 | pending |
-| WW4 | Hessian certificates + affine phase interface | fable | `GQ2/Dyadic/Word/Hessian.lean`, `GQ2/Dyadic/Word/Phase.lean` | WW3 | pending |
-| WW5 | one-expression-tree TeX generator + hash gate | opus | `scripts/dyadic_word_tex.py`, `GQ2/Dyadic/Word/Export.lean` | F2 | pending |
+| WW1 | generic Fox evaluator + literal defect formula | fable | `GQ2/Dyadic/Word/Fox.lean` | F2 ✓, G-1 ✓ | **dispatched 2026-07-31** (ww worktree, branch `dyadic-ww1`) |
+| WW2 | Fox certificates: row/col ops + replay + normal forms | fable | `GQ2/Dyadic/Word/FoxCert.lean` | WW1 | queued (behind WW1) |
+| WW3 | Stokes chain map + composition-series extension | fable | `GQ2/Dyadic/Word/Stokes.lean` | F2 ✓, G-1 ✓ | **dispatched 2026-07-31** (lg worktree, branch `dyadic-ww3`) |
+| WW4 | Hessian certificates + affine phase interface | fable | `GQ2/Dyadic/Word/Hessian.lean`, `GQ2/Dyadic/Word/Phase.lean` | WW3, SD1 field-shape coordination | queued (behind WW3) |
+| WW5 | one-expression-tree TeX generator + hash gate (S1.8/S5.G canonical hashes — read `general_2adic/dyadic_search/{words/pretty_lean.py,certificates/emit.py}` first) | opus | `scripts/dyadic_word_tex.py`, `GQ2/Dyadic/Word/Export.lean` | F2 ✓, G-1 ✓ | **dispatched 2026-07-31** (wl worktree, branch `dyadic-ww5`) |
+| MC-OB | relator-generic `obsH2`/`relZ` port (MC2 log item (v): hoist `TwoCocycle`/`CentExt`/`comap`/`projExt` from non-module `GQ2/WordCoh2.lean`; rank-generic over the `GQ2/Dyadic/Word/` layer; MC2's `IsCupCocycle` supplies the math content) | opus | `GQ2/Dyadic/Word/WordCoh.lean` | MC2 ✓, F2 ✓ | **dispatched 2026-07-31** (fresh worktree `gq2-dyadic-ob`, branch `dyadic-ob`) — **MC5 + branch-word cohomology consume it** |
 
 - **WW1**: structural-recursion Fox evaluator on `PWord` into `WordLift A C`
   (`GQ2/FoxHeisenberg/Basic.lean:76` reused): rules `D(uv) = D(u) + ū·D(v)`,
@@ -1218,6 +1262,17 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
 | WL-b | Fox certificate (`n=1` base + handle stability) | opus | `GQ2/Dyadic/Certificates/LFox.lean` | WL-a | pending |
 | WL-c | Stokes/scalar/Hessian/phase (`n=1` core + hyperbolic handles) | fable | `GQ2/Dyadic/Certificates/L.lean` | WL-b | pending |
 
+- **[RE-POINTED 2026-07-31 at G-1 — the selected type-L word is `L_sq`, NOT the collector.]**
+  The frozen word (selection-freeze.md row 1, R2 decision) is
+  `R^{sq}_{L,n} = (x₀^σ)⁻¹(x₀⁻³τ)^{ω₂}x₁²[x₁,x₁^{σ₂}]·∏_{j=1}^{(n−1)/2}[x_{2j},x_{2j+1}]`,
+  L = 11+n. Pro-2 core = rank-3 sq-comm core ⊕ handles; the orientation theorem is the
+  committed `marked_square_core_rank3` (SqCore lane); at n = 1 the word IS Roe's `Γ_R`, so
+  WL-a cross-identifies against `wildRelatorR` (`GQ2/Roe/GammaR.lean:77`) and AS4 wraps the
+  `Γ_R` capstone. ⚠ χ_sq(σ) = S (infinite order — SQ1-R1): the mixing-frame analysis is
+  MC5's redo; the HandleMixLift construction needs a change of variables on this word's
+  handle block (shared commutator letters — errata item 1 note). The collector text below
+  is retained as the SAFETY-NET regression row (it stays proved at n = 1) and as the L_tw
+  fallback's shared-core reference; do not build WL-b/c against it.
 - `R_{L,K} = h₀·u₁^{-1}x₁^σ·c₀·∏_{j=1}^{m}[x_{2j},x_{2j+1}]` (draft eq:Lword; letters
   `u_i = (x_iτ)^{ω₂}`, `d₀ = u₀x₀^{-1}`, `z₀ = x₀^{σ₂}`, `c₀ = [d₀,z₀]`, `g₀ = σ₂²` — **not**
   `σ₂^{q_K}`; `d_g = d₀^{g₀}`, `h_c = [d_g,d₀]`, `h₀ = x₀^{g₀}x₀·d_g d₀ d₀² h_c`). Pro-2 core

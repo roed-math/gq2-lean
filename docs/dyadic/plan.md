@@ -7,16 +7,19 @@ Work lives on branch **`dyadic`**; `master` stays focused on `ℚ₂`. Board:
 [`tickets.md`](tickets.md). References + authority order: [`refs/README.md`](refs/README.md).
 Recon surveys (repo state at `d0714a7`): [`recon/`](recon/).
 
-> **⚠ 2026-07-29 — campaign HELD at gate G-1.** The owner has interposed a **presentation
-> simplification campaign** (repo `~/claude/general_2adic`, its `BOARD.md` +
-> `dyadic-presentation-simplification-campaign.md`) that searches for and certifies simpler
-> `L/M_α/N_α` words before anything word-specific is formalized. This plan's word-dependent
-> lanes (F2 in its final form, WW, all W* branch lanes, AS) wait for that campaign's frozen
-> selection (its gate R5 = our G-1); its §12.1 also defers SD-n ("generalize `SourceData` only
-> after word selection"). Word-independent lanes (LG-K, MC rank-four cores, F3 tame boundary,
-> most AX statement memos) remain valid as specified and may be released early by the owner.
-> Lean deliverables of the simplification campaign (generic orbit-norm/𝓔-block/shadow/Tietze
-> lemmas) land on this branch under `GQ2/Dyadic/Word/` and become inputs to WW.
+> **✅ 2026-07-31 — GATE G-1 RELEASED.** The simplification campaign signed R0–R5; the word
+> selection is **FROZEN** at `general_2adic/artifacts/reports/selection-freeze.md` (the five
+> rows + certificate hashes + per-row Lean-facing obligations). Headlines: type L = **`L_sq`**
+> (stabilized square-commutator; rank-3 core = `GQ2.drWord`, orientation theorem
+> `marked_square_core_rank3` already committed); compact N unchanged; noncompact N with the
+> **corrected `L_c = A⁻¹+B+BA⁻¹`** (NC lane theorem); compact M with `E_m^rev`; procyclic M
+> at **L = 67** with the `E₂^pc` orbit-norm block and the shadow copy (√−10 = procyclic
+> `(1,1,1)`; the relative-norm word retired to regression-only). Word-dependent lanes
+> (WW, W*, AS) and SD-n are released; the board log's 2026-07-31 entry carries the lane
+> re-points (⚠ WL's spec was written against the collector — re-pointed at `L_sq`).
+>
+> *(Historical: campaign held at G-1 2026-07-29 → 31 while the simplification campaign ran;
+> word-independent lanes were owner-released early and largely completed in that window.)*
 
 ## 0. Binding constraints (owner directives, 2026-07-28)
 
@@ -228,8 +231,8 @@ The roe campaign ran one shared worktree and documented shared-index races; this
 
 | gate | trigger | content |
 |---|---|---|
-| **G-1** | simplification campaign R5 (word selection frozen) | releases the word-dependent lanes of this campaign; re-points WW/W*/AS at the frozen words + generated definitions; un-gates SD-n per the simplification doc §12.1 |
-| **G0** | after G-1 (word-independent lanes may be owner-released earlier) | owner approves plan + board (this document) |
+| **G-1** | simplification campaign R5 (word selection frozen) | **RELEASED 2026-07-31** (R5 flipped; freeze doc = `selection-freeze.md`): word-dependent lanes released; WW/W*/AS re-pointed at the frozen words + generated definitions (S5.G emits them); SD-n un-gated per the simplification doc §12.1 |
+| **G0** | after G-1 (word-independent lanes may be owner-released earlier) | **satisfied 2026-07-31** (owner-delegated with the R4/R5 instruction, flagged for override — the plan+board have been operating under progressive owner releases since R0) |
 | **G1** | F1+F2 land | API freeze: `Generator n`/`Marking n`/`PWord` signatures reviewed before the four lanes fork (everything downstream consumes them) |
 | **G-Lab** | MC5 statement lands | owner picks the discharge route for the per-core Demushkin-classification hypotheses (levelwise campaign / published axiom / stay parametrized) |
 | **G-AX** | per AX ticket | owner approves each census flip (b9a checklist template) |
