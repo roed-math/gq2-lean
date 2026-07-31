@@ -243,24 +243,16 @@ else
   fi
 fi
 
-# -- D4. one-tree hash check (merge gate 7, WW5 placeholder) -----------------
+# -- D4. one-tree hash check (merge gate 7, WW5 — live since 2026-07-31) -----
 # Merge gate 7: the branch words' TeX and Lean must be generated from ONE expression tree, the
-# tree's content hash being emitted into both and compared here.  WW5 (`scripts/dyadic_word_tex.py`
-# + `GQ2/Dyadic/Word/Export.lean`) produces those artifacts and defines the manifest format; it
-# has not landed (it is gated behind G-1, the word freeze), so there is nothing to compare yet.
-# Failing loudly the moment artifacts appear is deliberate: it prevents a wave from shipping
-# generated words with the gate silently skipped.
-#
-# WW5: extension point — replace the failure branch below with the real comparison (read
-# WW5:     ${HASH_MANIFEST}, recompute each tree's content hash from the Lean-side constant,
-# WW5:     and diff against the hash embedded in the corresponding ${GENERATED_LATEX} file).
+# tree's content hash being emitted into both and compared here.  `scripts/dyadic_word_tex.py
+# check` reads ${HASH_MANIFEST}, recomputes each tree's content hash, and diffs it against the
+# hash embedded in the generated LaTeX and the Lean-side `<decl>_astHash` constant.  It also
+# fails when generated LaTeX exists without a manifest (a wave shipped with the gate off).
 if [ -d "$GENERATED_LATEX" ] || [ -f "$HASH_MANIFEST" ]; then
-  echo "FAIL: one-tree hash check — NOT IMPLEMENTED — WW5 must extend this check"
-  echo "      Generated artifacts are present (${GENERATED_LATEX}/ or ${HASH_MANIFEST}) but"
-  echo "      this script cannot verify them yet; see the WW5 extension point in its source."
-  fail=1
+  if hash_out=$(python3 scripts/dyadic_word_tex.py check 2>&1); then echo "OK:   one-tree hash check (merge gate 7)"; else echo "FAIL: one-tree hash check (merge gate 7):"; printf '%s\n' "$hash_out" | sed 's/^/          /'; fail=1; fi
 else
-  echo "SKIP: one-tree hash check — no generated artifacts yet (arrives with WW5)"
+  echo "SKIP: one-tree hash check — no generated artifacts yet (arrives with wave 2)"
 fi
 
 # -- D5. finite-target sanity harness (F5 placeholder) -----------------------
