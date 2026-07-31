@@ -1109,4 +1109,112 @@ noncomputable def nCompactJacobianCertRam (hV₂ : ∀ v : V, v + v = 0)
 
 end Certificates
 
+/-! ## The `ℚ₂(√−2)` instance: `(α, q_K) = (2, 2)`, `h = 0`
+
+The pilot's gate (board WN0-b item (4)).  Here the alphabet is `Generator 2` — five letters
+`σ, τ, x₀, x₁, x₂` — the word is WN0-a's `nCompactW 2 0`, whose tree is pinned to the frozen
+certificate `N-compact-alpha2-h0-v001` (digest `a940b6ad06d9728a…`) by
+`Words.denote_rawNCompact_two_zero` and `Words.rawNCompact_alpha2_h0_astHash`, and the tame
+relator is `τ^σ(τ²)⁻¹` (`q_K = 2`, the residue degree of `ℚ₂(√−2)/ℚ₂`).
+
+`p_α = 2 + 2² = 6`, and `6` is even — which is all the first-order row sees of `α`. -/
+
+section SqrtNegTwo
+
+variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking 2 C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- Expand a sum over the five `n = 2` generators in the packet's column order
+`σ, τ, x₀, x₁, x₂` (the `Generator 2` twin of WW2's `sum_generator_one`). -/
+theorem sum_generator_two {M : Type*} [AddCommMonoid M] (f : Generator 2 → M) :
+    ∑ g : Generator 2, f g
+      = f .sigma + f .tau + f (.wild 0) + f (.wild 1) + f (.wild 2) := by
+  rw [← Equiv.sum_comp (Generator.equivFin 2).symm f, Fin.sum_univ_five]
+  rfl
+
+/-- **The √−2 wild row on an unramified simple module**: `(0, 1, 0, 0, 1 − S⁻¹)` in the column
+order `σ, τ, x₀, x₁, x₂`. -/
+theorem foxD_sqrtNegTwo_unram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (nCompactW 2 0)
+      = a .tau + (a (.wild 2) - t.σ⁻¹ • a (.wild 2)) :=
+  foxD_nCompact_unram (h := 0) t E E₂ hV₂ hwild hτ (by norm_num) a
+
+/-- **The √−2 wild row on a ramified simple module**: `(0, 0, 0, 0, −S⁻¹)`. -/
+theorem foxD_sqrtNegTwo_ram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτfpf : ∀ v : V, t.τ • v = v → v = 0)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (nCompactW 2 0) = -(t.σ⁻¹ • a (.wild 2)) :=
+  foxD_nCompact_ram (h := 0) t E E₂ hV₂ hwild hτfpf hTodd (by norm_num) a
+
+/-- **The √−2 wild row on the scalar module**: `(0, 1, 0, 0, 0)` — the `1 − S⁻¹` block vanishes
+with `S = 1`. -/
+theorem foxD_sqrtNegTwo_split (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hσ : ∀ v : V, t.σ • v = v) (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (nCompactW 2 0) = a .tau :=
+  foxD_nCompact_split (h := 0) t E E₂ hV₂ hwild hτ hσ (by norm_num) a
+
+/-- **The √−2 tame row on an unramified simple module** (`q_K = 2` is even): `(0, S⁻¹, 0, 0, 0)`.
+-/
+theorem foxD_sqrtNegTwo_tame_unram (hV₂ : ∀ v : V, v + v = 0) (hτ : ∀ v : V, t.τ • v = v)
+    (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (tameRelW 2 2) = t.σ⁻¹ • a .tau :=
+  foxD_tameRelW_unram t E E₂ hV₂ hτ (by decide) a
+
+/-- **The √−2 tame row on a ramified simple module**, spelled out at `q = 2`:
+
+```
+(S⁻¹(T−1),  S⁻¹ − 1 − T,  0, 0, 0)
+```
+
+— the frozen certificate's printed entries `sigma: S^-1T + S^-1`, `tau: S^-1 + T + 1` (equal
+in characteristic `2`). -/
+theorem foxD_sqrtNegTwo_tame_ram (hrel : conjR t.τ t.σ = t.τ ^ 2) (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (tameRelW 2 2)
+      = t.σ⁻¹ • (t.τ • a .sigma - a .sigma)
+        + (t.σ⁻¹ • a .tau - (a .tau + t.τ • a .tau)) := by
+  rw [foxD_tameRelW_of_tameRel t E E₂ hrel a, Finset.sum_range_succ, Finset.sum_range_one,
+    pow_zero, pow_one, one_smul]
+  simp only [smul_add, smul_sub]
+  abel
+
+/-- **The √−2 published wild-row certificate, unramified**: empty ops, target the universal row
+`(0, P, 0, 0, S⁻¹ + P)` at `P ↦ 1`. -/
+noncomputable def sqrtNegTwoWildRowCertUnram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v) :
+    FoxRowCertificate (TameSym.splitEnd (A := V) t) (foxDHom ⇑t E E₂ (nCompactW 2 0)) :=
+  nCompactWildRowCertUnram (h := 0) t E E₂ hV₂ hwild hτ (by norm_num)
+
+/-- **The √−2 published wild-row certificate, ramified**: the same formal row at `P ↦ 0`. -/
+noncomputable def sqrtNegTwoWildRowCertRam (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτfpf : ∀ v : V, t.τ • v = v → v = 0)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) :
+    FoxRowCertificate (TameSym.ramifiedEnd (A := V) t) (foxDHom ⇑t E E₂ (nCompactW 2 0)) :=
+  nCompactWildRowCertRam (h := 0) t E E₂ hV₂ hwild hτfpf hTodd (by norm_num)
+
+/-- **The √−2 Jacobian certificate, unramified branch** — the pilot's headline.
+
+One row operation (`row_wild += S · row_tame`) puts the evaluated Jacobian of
+`⟨σ, τ, x₀, x₁, x₂ ∣ τ^σ = τ², R_{N,2,0} = 1⟩` into the diagonal normal form
+`(τ ↦ S⁻¹ ; x₂ ↦ 1 − S⁻¹)`; on a nontrivial simple unramified module both entries are units
+(`isUnit_oneSubSInvEnd_iff`), so `d¹` is onto. -/
+noncomputable def sqrtNegTwoJacobianCertUnram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v) :
+    FoxCertificate (TameSym.splitEnd (A := V) t)
+      (foxJacobian ⇑t E E₂ (tameRelW 2 2) (nCompactW 2 0)) :=
+  nCompactJacobianCertUnram (h := 0) t E E₂ hV₂ hwild hτ (by decide) (by norm_num)
+
+/-- **The √−2 Jacobian certificate, ramified branch**: one column scaling `col_{x₂} *= S`,
+carrying `S⁻¹` as its invertibility witness, splits `x₂` off outright. -/
+noncomputable def sqrtNegTwoJacobianCertRam (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτfpf : ∀ v : V, t.τ • v = v → v = 0)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (hrel : conjR t.τ t.σ = t.τ ^ 2) :
+    FoxCertificate (TameSym.ramifiedEnd (A := V) t)
+      (foxJacobian ⇑t E E₂ (tameRelW 2 2) (nCompactW 2 0)) :=
+  nCompactJacobianCertRam (h := 0) t E E₂ hV₂ hwild hτfpf hTodd hrel (by norm_num)
+
+end SqrtNegTwo
+
 end GQ2.Dyadic.Certificates
