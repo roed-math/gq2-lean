@@ -1409,7 +1409,13 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
   (S4.2's frozen substitution — x₀↦δ₀, x₁↦δ₁, x₂↦1, δ₂↦1, τ↦1, σ↦σ, δ-letters atomic —
   as a `PWord → PWord` transform) is owed where **WMP-b/c prove the hat copy IS the
   substitution's image** (the S4.2 certificate-shrink route); scope it there, or as a
-  small WW follow-on, at dispatch time.
+  small WW follow-on, at dispatch time. **[S4.5 riders, 2026-07-31]** the procyclic block
+  swap is DECIDED EQUAL proof-grade (freeze row 5 updated; frozen spelling stands):
+  (i) `E₂^pc`'s second-order content is EMPTY on the gate-E marking — any block-order
+  statement WMP-c makes is a gate-D statement, not a Hessian one; (ii) the equality rests
+  on the x₂-has-no-primal-letter convention — if the Lean marking ever gives the boundary
+  generator a primal coordinate, block order becomes load-bearing again
+  (`general_2adic/artifacts/reports/s45-swap-decision.md` §3.2 formula applies).
 - `R_{M,pc} = R_lin^pc·R̂^pc·D₀²[D₀,D₁]·H_h` (draft eq:Mpc-word) with
   `C₀ = x₂σ₂^s, A = x₀^{-1}C₀^{-m}, B = x₁σ₂^p, D = σ^{η̂}`; `E₀₁^pc`, `E₂^pc` (increasing
   `j`); hat copy on `D_i = δ_i` with `Ĉ = σ₂^s`. Packet Prop. 9.2: hat-copy total power
