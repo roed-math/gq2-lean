@@ -19,6 +19,17 @@ fib (eval R_{N,α,r,η}) = Q₀(c₀) + b_q(c₁, L_c c₀),      L_c = A⁻¹ +
 — `npc_cross_operators` — together with the packet-facing companion `hVu_of_simple` and a
 concrete `(α, r, η)` stress pin.
 
+## Contents
+
+* **§1 the headline** — `npc_cross_operators` (memo §2.3), in the hypothesis-minimal form of
+  memo §2.4.
+* **§2 the companion** — `hVu_of_simple`, the bridge from the packet's ramified-simple bundle to
+  the headline's `hVu`, and `npc_cross_operators_of_simple`, the headline repackaged over that
+  bundle.
+* **§3 stress tests** — the discrepancy display `lcOp_eq_draft_add_discrepancy` and its
+  degeneration `lcOp_eq_draft_of_eq_one` (errata item 5 in two lines), and the headline pinned at
+  `(α, r, η) = (2, 1, 1)`.
+
 ## What the theorem says, and why it exists
 
 The draft's display eq:Ncross claims `L_c = A⁻¹` (and `M_c = A`) for the second jet of the
@@ -112,10 +123,13 @@ owes that, and on a concrete battery module it is a `decide`.
   the row asks for, with "claimed" now meaning the S3.2-corrected operators.
 * **NC6** owes the handle tail `H_h` (memo §2.5: the conclusion gains
   `∑ j, b_q(e_{2j}, e_{2j+1})`, an induction on `h` independent of this core) and, if wanted, a
-  fully concrete module instantiation of the stress pin below.
-* No census axiom is cited and none is needed (memo §9).  Measured:
+  fully concrete module instantiation of the stress pin of §3 (a `FactorSet` on a small
+  fixed-point-free `C`-module — the pin here is at concrete `(α, r, η)`, over an arbitrary
+  module).
+* No census axiom is cited and none is needed (memo §9).  Measured on the built module:
   `#print axioms GQ2.Dyadic.NpcJet.npc_cross_operators` prints
-  `[propext, Classical.choice, Quot.sound]` — std-3, as does every declaration in this file.
+  `[propext, Classical.choice, Quot.sound]` — std-3.  Every declaration in this file prints
+  std-3 or a subset of it (`hVu_of_simple` prints `[propext, Quot.sound]`).
 -/
 
 namespace GQ2.Dyadic.NpcJet
@@ -174,6 +188,127 @@ theorem npc_cross_operators (hV2 : ∀ v : V, v + v = 0)
   exact key (q c₀) (npcQ0 dat s η c₀) (polar q c₁ (lcOp s η r c₀))
 
 end Headline
+
+/-! ## §2. The packet-facing companion (memo §2.4)
+
+The headline's `hVu` is rule 2's hypothesis, `V^u = 0`, stated directly.  The packet phrases the
+same condition as "on every ramified simple", and the repo's canonical spelling of that bundle is
+`DetRamified.prop_6_18_ramified`'s `hsimple`/`hram` pair.  `hVu_of_simple` is the bridge: for a
+`u` whose powers are normal in `C`, the fixed submodule `V^u` is a `C`-submodule, so simplicity
+forces it to be `⊥` or `⊤` — and ramification rules out `⊤`.
+
+The normality hypothesis is genuinely needed and genuinely available: `V^u` is only `C`-stable
+when conjugates of `u` act on `V^u` trivially, and in the intended application `C = ⟨s, u⟩` with
+the oriented tame relation `s u s⁻¹ = u^{q_K}`, which puts every conjugate of `u` in
+`Subgroup.zpowers u`.  It is stated as the plain `∀ g, g * u * g⁻¹ ∈ Subgroup.zpowers u` rather
+than as `(Subgroup.zpowers u).Normal` so that a consumer holding only the tame relation can
+discharge it without instance plumbing (`Subgroup.Normal.conj_mem` supplies it in one step from
+the class form). -/
+
+section Companion
+
+/-- **The ramified-simple bridge** (memo §2.4): on a simple `C`-module on which `u` acts
+nontrivially and whose powers are normal in `C`, the fixed submodule `V^u` vanishes — which is
+exactly the headline's `hVu`.
+
+The proof is the memo's: `V^u` is `C`-stable because for `h : C` the normality hypothesis writes
+`h⁻¹ u h = u^k`, and `u^k` fixes whatever `u` fixes (the stabilizer is a subgroup, closed under
+`zpow`); `hsimple` then leaves `⊥` or `⊤`, and `hram` kills `⊤`.
+
+No semisimplicity, no character theory, and no hypothesis on `q`, `dat` or the topology: this is
+a statement about the `C`-module `V` alone.  Consumers holding the `prop_6_18_ramified` bundle
+(`hsimple`, `hram : ∃ v, c tameTau • v ≠ v`) instantiate at `u := c tameTau`. -/
+theorem hVu_of_simple {u : C}
+    (hsimple : ∀ W : AddSubgroup V, (∀ h : C, ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, u • v ≠ v) (hnorm : ∀ g : C, g * u * g⁻¹ ∈ Subgroup.zpowers u) :
+    ∀ v : V, u • v = v → v = 0 := by
+  -- `W = V^u`, the fixed submodule.
+  set W : AddSubgroup V :=
+    { carrier := {v : V | u • v = v}
+      add_mem' := fun {a b} ha hb => show u • (a + b) = a + b by rw [smul_add, ha, hb]
+      zero_mem' := smul_zero u
+      neg_mem' := fun {a} ha => show u • (-a) = -a by rw [smul_neg, ha] } with hW
+  have hmem : ∀ v : V, v ∈ W ↔ u • v = v := fun _ => Iff.rfl
+  -- `W` is `C`-stable: `h⁻¹ u h = u ^ k`, and `u ^ k` fixes every `u`-fixed vector.
+  have hstable : ∀ h : C, ∀ w ∈ W, h • w ∈ W := by
+    intro h w hw
+    obtain ⟨k, hk⟩ := Subgroup.mem_zpowers_iff.mp (hnorm h⁻¹)
+    have hfix : u ^ k • w = w := zpow_mem (show u ∈ MulAction.stabilizer C w from hw) k
+    have hconj : u * h = h * u ^ k := by
+      rw [hk, inv_inv]
+      group
+    exact (hmem _).mpr <| by rw [smul_smul, hconj, mul_smul, hfix]
+  -- Simplicity leaves `⊥` or `⊤`; ramification rules out `⊤`.
+  rcases hsimple W hstable with hbot | htop
+  · exact fun v hv => AddSubgroup.mem_bot.mp (hbot ▸ (hmem v).mpr hv)
+  · obtain ⟨v, hv⟩ := hram
+    exact absurd ((hmem v).mp (htop ▸ AddSubgroup.mem_top v)) hv
+
+end Companion
+
+section Instantiation
+
+variable [Finite C] [Finite V] [TopologicalSpace C] [DiscreteTopology C]
+
+/-- **The headline at the packet's module class** (memo §2.4): `npc_cross_operators` with `hVu`
+discharged by `hVu_of_simple`, so that a consumer holding the `prop_6_18_ramified` bundle
+(`hsimple`, `hram`) plus the tame normality can cite the identity directly.
+
+Note what is *still* absent even in this packaging: faithfulness, nonsingularity of `q`,
+invariance of `q`, `1 ≤ r` and `IsUnit η`.  The jet identity does not see them. -/
+theorem npc_cross_operators_of_simple (hV2 : ∀ v : V, v + v = 0) (s u : C) (hu : Odd (orderOf u))
+    (hsimple : ∀ W : AddSubgroup V, (∀ h : C, ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hram : ∃ v : V, u • v ≠ v) (hnorm : ∀ g : C, g * u * g⁻¹ ∈ Subgroup.zpowers u)
+    (α : ℕ) (hα : 2 ≤ α) (r : ℕ) (η : ℤ_[2]) (c₀ c₁ : V) :
+    ((npcMarking dat hdat s u c₀ c₁).eval (npcWord α r η)).fib
+      = npcQ0 dat s η c₀ + polar q c₁ (lcOp s η r c₀) :=
+  npc_cross_operators dat hdat hV2 s u hu (hVu_of_simple hsimple hram hnorm) α hα r η c₀ c₁
+
+end Instantiation
+
+/-! ## §3. Stress tests
+
+The repo idiom: pin the general statement at concrete data and check that the specialization is
+the expected display.  Two pins here — the headline at the packet's procyclic row, and the
+corrected operator against the refuted draft display. -/
+
+section StressTests
+
+variable [Finite C] [TopologicalSpace C] [DiscreteTopology C]
+
+/-- **The discrepancy display** (memo §1.2): `L_c` is the draft's `A⁻¹` plus `B·(1 + A⁻¹)`.  This
+is the errata item 5 claim in one line — the draft kept the first summand and dropped the
+factored remainder. -/
+theorem lcOp_eq_draft_add_discrepancy (s : C) (η : ℤ_[2]) (r : ℕ) (v : V) :
+    lcOp s η r v = (s ^ᶻ etaHatZ η)⁻¹ • v + s ^ (2 ^ r) • (v + (s ^ᶻ etaHatZ η)⁻¹ • v) := by
+  rw [lcOp, smul_add, ← mul_smul, add_assoc]
+
+/-- **The discrepancy vanishes at `A = 1`** (memo §1.2: "the discrepancy `B(1 + A⁻¹)` vanishes iff
+`A = 1`"): there, and only in char 2 for free, the corrected `L_c` agrees with the draft's `A⁻¹`.
+Away from `A = 1` the two operators differ, which is what the six-instance battery detected. -/
+theorem lcOp_eq_draft_of_eq_one (hV2 : ∀ v : V, v + v = 0) (s : C) (η : ℤ_[2]) (r : ℕ)
+    (hA : s ^ᶻ etaHatZ η = 1) (v : V) : lcOp s η r v = (s ^ᶻ etaHatZ η)⁻¹ • v := by
+  rw [lcOp_eq_draft_add_discrepancy, hA, inv_one, one_smul, hV2, smul_zero, add_zero]
+
+/-- The pinned cross operator in closed form: at `r = 1` the `B`-element is `s²`, so the pin's
+`L_c` is `A⁻¹ + s² + s²A⁻¹` with `A = s ^ᶻ η̂(1)`. -/
+theorem lcOp_pin (s : C) (η : ℤ_[2]) (v : V) :
+    lcOp s η 1 v = (s ^ᶻ etaHatZ η)⁻¹ • v + s ^ 2 • v + (s ^ 2 * (s ^ᶻ etaHatZ η)⁻¹) • v := by
+  rw [lcOp, pow_one]
+
+variable [Finite V]
+
+/-- **The headline pinned at `(α, r, η) = (2, 1, 1)`** — the smallest valid Labute exponent
+(`hα` discharged by `le_rfl`) together with the procyclic row `(r, ε, η) = (1, 1, 1)` that the
+campaign's `ℚ₂(√-10)` instance uses (dyadic merge gate 9).  The `2 ≤ α` side condition is the only
+one there is, so the pin needs no arithmetic side goal. -/
+theorem npc_cross_operators_pin (hV2 : ∀ v : V, v + v = 0)
+    (s u : C) (hu : Odd (orderOf u)) (hVu : ∀ v : V, u • v = v → v = 0) (c₀ c₁ : V) :
+    ((npcMarking dat hdat s u c₀ c₁).eval (npcWord 2 1 1)).fib
+      = npcQ0 dat s 1 c₀ + polar q c₁ (lcOp s 1 1 c₀) :=
+  npc_cross_operators dat hdat hV2 s u hu hVu 2 le_rfl 1 1 c₀ c₁
+
+end StressTests
 
 end Module
 
