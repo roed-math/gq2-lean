@@ -51,12 +51,14 @@ nose. **No new axiom, no B8, no compactness of `Aut`, no Labute input; census un
 `MCoreMixHypothesis`/`NCoreMixHypothesis` (`HandleMixClear.lean:1162,1171`) are phrased through
 `DmRealizes`/`DnRealizes`, whose first conjunct is membership in
 `Submonoid.closure (dmClearAuts α h)` — the **handle** generating set. The automorphisms below are
-new generators and are not in that closure, so discharging those binders *verbatim* additionally
-requires widening `dmClearAuts`/`dnClearAuts`, a one-line edit in `HandleMixClear.lean` which this
-ticket does not own. What is landed here is the mathematical content: the automorphisms, their
-exactness, their inverses, their one-parameter-group laws and their frame action, plus
-`hm6DmRealizes`/`hm6DnRealizes` against the **widened** generating set and the monotonicity lemma
-that turns the landed handle rows into rows for it. See memo §5 and §6.
+new generators and are not in that closure, so those binders cannot be discharged *verbatim*.
+MC4 has since made that failure precise and unrepairable in place: `dnClearAuts_fixes_core`
+(`N.lean`) shows that no generator of `A(P,h)` touches a slot of index `< 3`, whence
+`nCoreMixHypothesis_not_of_mix` — **`NCoreMixHypothesis` is FALSE for any genuinely mixing
+stratum**, not merely unproved. The repair is a *wider* generating set `A⁺(P,h)`, built as an
+additive layer in `GQ2/Dyadic/MarkedCore/ClearWide.lean` (ticket HM6f) rather than by editing
+`HandleMixClear.lean`: widening `dnClearAuts` in place would falsify `dnClearAuts_fixes_core`.
+See memo §5, §6 and `ClearWide.lean`'s header.
 
 ## Contents
 
@@ -64,8 +66,11 @@ that turns the landed handle rows into rows for it. See memo §5 and §6.
 * **§2** the `zpowZtwo` families, their one-parameter-group laws and inverses;
 * **§3** the two-slot marking updates and the `mRelWord`/`nRelWord` transport;
 * **§4** the `ContinuousMulEquiv` assembly on `D_M` and `D_N`, with the generator rows;
-* **§5** the widened `A(P,h)` and the `hm6*Realizes` statements.
+* **§5** the ν-frame rows (ticket HM6e), in HM3's `nuFrame` vocabulary — the interface every
+  consumer meets (HM4's `D?Realizes`, MC4's `NMixHypothesis`, HM6f's widened forms).
 -/
+
+open Multiplicative
 
 namespace GQ2
 
@@ -182,6 +187,28 @@ variable {G : Type*} [CommGroup G]
   simp [hm6MixBC, conjP, mul_comm, mul_left_comm]
 
 end TwistAbelian
+
+/-! ### The abelian class of the two curves, through a character
+
+`map_hm6Mix*` followed by `hm6Mix*_comm`: a hom into a **commutative** group cannot see the two
+conjugations, so it reads `γ` as `ā + c̄` and `δ` as `ā − d̄` — memo §3.1's two rows, and the only
+input §5's ν-frame identities need. -/
+
+section TwistChar
+
+variable {F G A : Type*} [Group G] [CommGroup A] [FunLike F G A] [MonoidHomClass F G A]
+
+theorem map_hm6MixBD_comm (φ : F) (a b c d z : G) : φ (hm6MixBD a b c d z) = φ a * φ c := by
+  rw [map_hm6MixBD, hm6MixBD_comm]
+
+theorem map_hm6MixBC_comm (φ : F) (a b c d : G) : φ (hm6MixBC a b c d) = φ a * (φ d)⁻¹ := by
+  rw [map_hm6MixBC, hm6MixBC_comm]
+
+/-- A commutative target sees no conjugation. -/
+theorem map_conjP_comm (φ : F) (x g : G) : φ (conjP x g) = φ x := by
+  rw [conjP, map_mul, map_mul, map_inv, mul_comm (φ g)⁻¹ (φ x), mul_assoc, inv_mul_cancel, mul_one]
+
+end TwistChar
 
 /-! ### The twisting curve is fixed by its own family
 
@@ -374,6 +401,12 @@ variable (m : Fin (coreRank h) → G) (wb wx : G)
   rw [hm6UpdateBD, Function.update_of_ne (handleV_ne_three j),
     Function.update_of_ne (handleV_ne_one j)]
 
+/-- The two moved slots are `1` and `3`; everything else is untouched.  (The uniform statement
+§5's `funext` case split runs on, in place of enumerating the `coreRank h` indices.) -/
+theorem hm6UpdateBD_of_ne {i : Fin (coreRank h)} (h1 : i ≠ 1) (h3 : i ≠ 3) :
+    hm6UpdateBD m wb wx i = m i := by
+  rw [hm6UpdateBD, Function.update_of_ne h3, Function.update_of_ne h1]
+
 @[simp] theorem hm6UpdateBC_zero : hm6UpdateBC m wb wx 0 = m 0 := by
   rw [hm6UpdateBC, Function.update_of_ne zero_ne_two, Function.update_of_ne zero_ne_one]
 
@@ -396,6 +429,11 @@ variable (m : Fin (coreRank h) → G) (wb wx : G)
     hm6UpdateBC m wb wx (handleIdxV j) = m (handleIdxV j) := by
   rw [hm6UpdateBC, Function.update_of_ne (handleV_ne_two j),
     Function.update_of_ne (handleV_ne_one j)]
+
+/-- The two moved slots are `1` and `2`; everything else is untouched. -/
+theorem hm6UpdateBC_of_ne {i : Fin (coreRank h)} (h1 : i ≠ 1) (h2 : i ≠ 2) :
+    hm6UpdateBC m wb wx i = m i := by
+  rw [hm6UpdateBC, Function.update_of_ne h2, Function.update_of_ne h1]
 
 end MarkUpdate
 
@@ -724,6 +762,199 @@ for `M_α`, `x₀` and (for the `p`-direction) `σ`. That is the content of memo
   rw [dnCoreMixQEquiv_gen, hm6MarkNq, hm6UpdateBC_handleV]
 
 end Assembly
+
+/-! ## §5 The ν-frame rows  (ticket HM6e; memo §3.1 and §6.2's first row)
+
+HM3's dictionary reads an automorphism of a marked core through the **ν-frame** of a
+`Multiplicative ℤ_[2]`-character, `nuFrame f m i = toAdd (f (m i))`
+(`HandleMixFrame.lean` §6).  HM4's `DmRealizes`/`DnRealizes` are phrased through it, and so are
+MC4's `NMixHypothesis`/`NMixPairHypothesis`, so this is the vocabulary in which every consumer
+meets the three families of §4.
+
+Abelianising collapses both conjugations (`map_hm6MixBD_comm`, `map_hm6MixBC_comm`):
+
+```
+γ̄ = ā + c̄        δ̄ = ā − d̄
+```
+
+so the "move `b` and `d`" family adds `k·γ̄` to the rows `b̄` and `d̄`, and the "move `b` and `c`"
+family adds `k·δ̄` to `b̄` and `c̄`.  Two consequences worth stating up front.
+
+* The interior factor `z` is **invisible**: `hm6MixBD_comm` does not mention it, so **one** frame
+  move `hm6FrameBD` serves both `M5` (`z = c^{2^α}`) and `N5` (`z = 1`).
+* Each nilpotent part lands in `⟨ā, c̄⟩` (resp. `⟨ā, d̄⟩`), where the family acts trivially — memo
+  §3.1's `N² = 0`, the same shape HM3 formalises for the handle case (`frameNilpU`). -/
+
+section NuFrameMove
+
+variable {M : Type*} [AddCommGroup M] [Module ℤ_[2] M] {h : ℕ}
+
+/-- **The frame move of the "move `b` and `d`" family** (memo §3.1's first row):
+`b̄ ↦ b̄ + k(ā + c̄)`, `d̄ ↦ d̄ + k(ā + c̄)`, every other row fixed.  Shared by `M5` and `N5`. -/
+noncomputable def hm6FrameBD (k : ℤ_[2]) (m : Fin (coreRank h) → M) : Fin (coreRank h) → M :=
+  hm6UpdateBD m (m 1 + k • (m 0 + m 2)) (m 3 + k • (m 0 + m 2))
+
+/-- **The frame move of the "move `b` and `c`" family** (memo §3.1's second row):
+`b̄ ↦ b̄ + k(ā − d̄)`, `c̄ ↦ c̄ + k(ā − d̄)`.  `N6` only — the `M` relator has no such family
+(§1, memo §2.3). -/
+noncomputable def hm6FrameBC (k : ℤ_[2]) (m : Fin (coreRank h) → M) : Fin (coreRank h) → M :=
+  hm6UpdateBC m (m 1 + k • (m 0 - m 3)) (m 2 + k • (m 0 - m 3))
+
+variable (k : ℤ_[2]) (m : Fin (coreRank h) → M)
+
+@[simp] theorem hm6FrameBD_zero : hm6FrameBD k m 0 = m 0 := hm6UpdateBD_zero _ _ _
+
+@[simp] theorem hm6FrameBD_one : hm6FrameBD k m 1 = m 1 + k • (m 0 + m 2) :=
+  hm6UpdateBD_one _ _ _
+
+@[simp] theorem hm6FrameBD_two : hm6FrameBD k m 2 = m 2 := hm6UpdateBD_two _ _ _
+
+@[simp] theorem hm6FrameBD_three : hm6FrameBD k m 3 = m 3 + k • (m 0 + m 2) :=
+  hm6UpdateBD_three _ _ _
+
+theorem hm6FrameBD_of_ne {i : Fin (coreRank h)} (h1 : i ≠ 1) (h3 : i ≠ 3) :
+    hm6FrameBD k m i = m i := hm6UpdateBD_of_ne _ _ _ h1 h3
+
+@[simp] theorem hm6FrameBC_zero : hm6FrameBC k m 0 = m 0 := hm6UpdateBC_zero _ _ _
+
+@[simp] theorem hm6FrameBC_one : hm6FrameBC k m 1 = m 1 + k • (m 0 - m 3) :=
+  hm6UpdateBC_one _ _ _
+
+@[simp] theorem hm6FrameBC_two : hm6FrameBC k m 2 = m 2 + k • (m 0 - m 3) :=
+  hm6UpdateBC_two _ _ _
+
+@[simp] theorem hm6FrameBC_three : hm6FrameBC k m 3 = m 3 := hm6UpdateBC_three _ _ _
+
+theorem hm6FrameBC_of_ne {i : Fin (coreRank h)} (h1 : i ≠ 1) (h2 : i ≠ 2) :
+    hm6FrameBC k m i = m i := hm6UpdateBC_of_ne _ _ _ h1 h2
+
+/-- `k = 0` is the identity move — the frame shadow of `zpowZtwo_zero_exp`. -/
+@[simp] theorem hm6FrameBD_zero_exp : hm6FrameBD (0 : ℤ_[2]) m = m := by
+  funext i
+  by_cases h1 : i = 1
+  · subst h1; rw [hm6FrameBD_one, zero_smul, add_zero]
+  by_cases h3 : i = 3
+  · subst h3; rw [hm6FrameBD_three, zero_smul, add_zero]
+  rw [hm6FrameBD_of_ne _ _ h1 h3]
+
+@[simp] theorem hm6FrameBC_zero_exp : hm6FrameBC (0 : ℤ_[2]) m = m := by
+  funext i
+  by_cases h1 : i = 1
+  · subst h1; rw [hm6FrameBC_one, zero_smul, add_zero]
+  by_cases h2 : i = 2
+  · subst h2; rw [hm6FrameBC_two, zero_smul, add_zero]
+  rw [hm6FrameBC_of_ne _ _ h1 h2]
+
+end NuFrameMove
+
+/-! ### The three rows
+
+`nuFrame_hm6MarkM`, `nuFrame_hm6MarkNp`, `nuFrame_hm6MarkNq` are the HM6 analogues of HM3's
+`nuFrame_tau_handleU`/`nuFrame_tau_handleV`/`nuFrame_tau_three` and `nuFrame_handleMixMark`:
+each identifies the frame action of a §3 marking substitution with a §5 frame move, for an
+arbitrary pro-2 group and an arbitrary `Multiplicative ℤ_[2]`-character. -/
+
+section NuFrameRows
+
+variable {P : Type} [Group P] [TopologicalSpace P] [IsTopologicalGroup P] [CompactSpace P]
+  [T2Space P] [TotallyDisconnectedSpace P] {h : ℕ}
+
+/-- The `b,d`-shaped rows, stated once for an arbitrary twisting curve of abelian class `ā + c̄`
+and an arbitrary conjugator — the two instantiations `M5` (`z = c^{2^α}`) and `N5` (`z = 1`)
+differ only in data the ν-frame cannot see. -/
+private theorem nuFrame_hm6UpdateBD_gen (hP : IsProP 2 P)
+    (f : ContinuousMonoidHom P (Multiplicative ℤ_[2])) (m : Fin (coreRank h) → P) (k : ℤ_[2])
+    (γ w : P) (hγ : toAdd (f γ) = toAdd (f (m 0)) + toAdd (f (m 2))) :
+    nuFrame f (hm6UpdateBD m (m 1 * zpowZtwo hP γ k)
+        (m 3 * conjP (zpowZtwo hP γ k) w)) = hm6FrameBD k (nuFrame f m) := by
+  funext i
+  by_cases h1 : i = 1
+  · subst h1
+    rw [nuFrame_apply, hm6UpdateBD_one, hm6FrameBD_one, map_mul, toAdd_mul,
+      toAdd_map_zpowZtwo hP, hγ, smul_eq_mul]
+    rfl
+  by_cases h3 : i = 3
+  · subst h3
+    rw [nuFrame_apply, hm6UpdateBD_three, hm6FrameBD_three, map_mul, toAdd_mul,
+      map_conjP_comm, toAdd_map_zpowZtwo hP, hγ, smul_eq_mul]
+    rfl
+  rw [nuFrame_apply, hm6UpdateBD_of_ne _ _ _ h1 h3, hm6FrameBD_of_ne _ _ h1 h3, nuFrame_apply]
+
+/-- **The frame row of `M5`** (memo §3.1): `B̄ ↦ B̄ + k(Ā + C̄₀)`, `D̄ ↦ D̄ + k(Ā + C̄₀)`.  The
+interior factor `C₀^{2^α}` occurs only inside a conjugator, so it leaves no trace. -/
+theorem nuFrame_hm6MarkM (hP : IsProP 2 P)
+    (f : ContinuousMonoidHom P (Multiplicative ℤ_[2])) (α : ℕ) (k : ℤ_[2])
+    (m : Fin (coreRank h) → P) :
+    nuFrame f (hm6MarkM hP α k m) = hm6FrameBD k (nuFrame f m) :=
+  nuFrame_hm6UpdateBD_gen hP f m k _ _ (by rw [hm6CurveM, map_hm6MixBD_comm, toAdd_mul])
+
+/-- **The frame row of `N5`** (memo §3.1): `x̄₁ ↦ x̄₁ + k(x̄₀ + σ̄)`, `x̄₂ ↦ x̄₂ + k(x̄₀ + σ̄)`. -/
+theorem nuFrame_hm6MarkNp (hP : IsProP 2 P)
+    (f : ContinuousMonoidHom P (Multiplicative ℤ_[2])) (k : ℤ_[2]) (m : Fin (coreRank h) → P) :
+    nuFrame f (hm6MarkNp hP k m) = hm6FrameBD k (nuFrame f m) :=
+  nuFrame_hm6UpdateBD_gen hP f m k _ _ (by rw [hm6CurveNp, map_hm6MixBD_comm, toAdd_mul])
+
+/-- **The frame row of `N6`** (memo §3.1): `x̄₁ ↦ x̄₁ + k(x̄₀ − x̄₂)`, `σ̄ ↦ σ̄ + k(x̄₀ − x̄₂)`. -/
+theorem nuFrame_hm6MarkNq (hP : IsProP 2 P)
+    (f : ContinuousMonoidHom P (Multiplicative ℤ_[2])) (k : ℤ_[2]) (m : Fin (coreRank h) → P) :
+    nuFrame f (hm6MarkNq hP k m) = hm6FrameBC k (nuFrame f m) := by
+  have hδ : toAdd (f (hm6CurveNq (m 0) (m 1) (m 2) (m 3)))
+      = toAdd (f (m 0)) - toAdd (f (m 3)) := by
+    rw [hm6CurveNq, map_hm6MixBC_comm, toAdd_mul, toAdd_inv, sub_eq_add_neg]
+  funext i
+  by_cases h1 : i = 1
+  · subst h1
+    rw [nuFrame_apply, hm6MarkNq, hm6UpdateBC_one, hm6FrameBC_one, map_mul, toAdd_mul,
+      toAdd_map_zpowZtwo hP, hδ, smul_eq_mul]
+    rfl
+  by_cases h2 : i = 2
+  · subst h2
+    rw [nuFrame_apply, hm6MarkNq, hm6UpdateBC_two, hm6FrameBC_two, map_mul, toAdd_mul,
+      toAdd_map_zpowZtwo hP, hδ, smul_eq_mul]
+    rfl
+  rw [nuFrame_apply, hm6MarkNq, hm6UpdateBC_of_ne _ _ _ h1 h2, hm6FrameBC_of_ne _ _ h1 h2,
+    nuFrame_apply]
+
+end NuFrameRows
+
+/-! ### What the consumers read: the per-core rows
+
+The exact analogues of HM3's `nuFrame_dmMixEquiv`/`nuFrame_dnMixEquiv` — the three §4
+automorphisms, read on the ν-frame of the marked generators.  These are the statements HM6f's
+widened realization predicate is built on. -/
+
+section NuFrameCores
+
+variable (α h : ℕ) (k : ℤ_[2])
+
+/-- **What a ν-character sees of `M5` on `D_M`.** -/
+theorem nuFrame_dmCoreMixEquiv
+    (f : ContinuousMonoidHom (DM α h : Type) (Multiplicative ℤ_[2])) :
+    nuFrame f (fun i => dmCoreMixEquiv α h k (dmGen α h i))
+      = hm6FrameBD k (nuFrame f (dmGen α h)) := by
+  rw [show (fun i => dmCoreMixEquiv α h k (dmGen α h i))
+      = hm6MarkM (isProP_DM α h) α k (dmGen α h) from funext (dmCoreMixEquiv_gen α h k)]
+  exact nuFrame_hm6MarkM (isProP_DM α h) f α k (dmGen α h)
+
+/-- **What a ν-character sees of `N5` on `D_N`.** -/
+theorem nuFrame_dnCoreMixPEquiv
+    (f : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2])) :
+    nuFrame f (fun i => dnCoreMixPEquiv α h k (dnGen α h i))
+      = hm6FrameBD k (nuFrame f (dnGen α h)) := by
+  rw [show (fun i => dnCoreMixPEquiv α h k (dnGen α h i))
+      = hm6MarkNp (isProP_DN α h) k (dnGen α h) from funext (dnCoreMixPEquiv_gen α h k)]
+  exact nuFrame_hm6MarkNp (isProP_DN α h) f k (dnGen α h)
+
+/-- **What a ν-character sees of `N6` on `D_N`.** -/
+theorem nuFrame_dnCoreMixQEquiv
+    (f : ContinuousMonoidHom (DN α h : Type) (Multiplicative ℤ_[2])) :
+    nuFrame f (fun i => dnCoreMixQEquiv α h k (dnGen α h i))
+      = hm6FrameBC k (nuFrame f (dnGen α h)) := by
+  rw [show (fun i => dnCoreMixQEquiv α h k (dnGen α h i))
+      = hm6MarkNq (isProP_DN α h) k (dnGen α h) from funext (dnCoreMixQEquiv_gen α h k)]
+  exact nuFrame_hm6MarkNq (isProP_DN α h) f k (dnGen α h)
+
+end NuFrameCores
 
 end MarkedCore
 
