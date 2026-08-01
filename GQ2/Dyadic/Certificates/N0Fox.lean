@@ -633,54 +633,6 @@ theorem isUnit_oneSubSInvEnd_iff [Finite V] :
 
 end Block
 
-/-! ## Sums over the generator alphabet
-
-A normal form denotes `a ↦ ∑_g coeff_g (a g)` over the whole `(2h+5)`-letter alphabet.  Every
-row below is supported on at most two letters, so these three lemmas are what every replay
-needs — at **general `h`**, without expanding the handle letters. -/
-
-section Sums
-
-variable {M : Type*} [AddCommMonoid M] {n : ℕ}
-
-/-- A sum over `Generator n` supported on `{τ, x_i}`. -/
-theorem sum_generator_pair (f : Generator n → M) (i : Fin (n + 1)) (hσ : f .sigma = 0)
-    (hw : ∀ j, j ≠ i → f (.wild j) = 0) : ∑ g, f g = f .tau + f (.wild i) := by
-  rw [← Finset.sum_subset (Finset.subset_univ {Generator.tau, Generator.wild i})]
-  · exact Finset.sum_pair (by simp)
-  · intro x _ hx
-    simp only [Finset.mem_insert, Finset.mem_singleton, not_or] at hx
-    cases x with
-    | sigma => exact hσ
-    | tau => exact absurd rfl hx.1
-    | wild j => exact hw j fun hj => hx.2 (by rw [hj])
-
-/-- A sum over `Generator n` supported on `{x_i}`. -/
-theorem sum_generator_wild (f : Generator n → M) (i : Fin (n + 1)) (hσ : f .sigma = 0)
-    (hτ : f .tau = 0) (hw : ∀ j, j ≠ i → f (.wild j) = 0) : ∑ g, f g = f (.wild i) := by
-  rw [← Finset.sum_subset (Finset.subset_univ {Generator.wild i}), Finset.sum_singleton]
-  intro x _ hx
-  simp only [Finset.mem_singleton] at hx
-  cases x with
-  | sigma => exact hσ
-  | tau => exact hτ
-  | wild j => exact hw j fun hj => hx (by rw [hj])
-
-/-- A sum over `Generator n` supported on the two boundary letters `{σ, τ}` — the shape of every
-tame row. -/
-theorem sum_generator_boundary (f : Generator n → M) (hw : ∀ j, f (.wild j) = 0) :
-    ∑ g, f g = f .sigma + f .tau := by
-  rw [← Finset.sum_subset (Finset.subset_univ {Generator.sigma, Generator.tau})]
-  · exact Finset.sum_pair (by simp)
-  · intro x _ hx
-    simp only [Finset.mem_insert, Finset.mem_singleton, not_or] at hx
-    cases x with
-    | sigma => exact absurd rfl hx.1
-    | tau => exact absurd rfl hx.2
-    | wild j => exact hw j
-
-end Sums
-
 /-! ## The formal rows and normal forms
 
 The certificate data — pure `FoxCoeff` expressions, the same at every module of a class.  These
@@ -1060,14 +1012,6 @@ section SqrtNegTwo
 
 variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
   [DistribMulAction C V] (t : Marking 2 C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
-
-/-- Expand a sum over the five `n = 2` generators in the packet's column order
-`σ, τ, x₀, x₁, x₂` (the `Generator 2` twin of WW2's `sum_generator_one`). -/
-theorem sum_generator_two {M : Type*} [AddCommMonoid M] (f : Generator 2 → M) :
-    ∑ g : Generator 2, f g
-      = f .sigma + f .tau + f (.wild 0) + f (.wild 1) + f (.wild 2) := by
-  rw [← Equiv.sum_comp (Generator.equivFin 2).symm f, Fin.sum_univ_five]
-  rfl
 
 /-- **The √−2 wild row on an unramified simple module**: `(0, 1, 0, 0, 1 − S⁻¹)` in the column
 order `σ, τ, x₀, x₁, x₂`. -/

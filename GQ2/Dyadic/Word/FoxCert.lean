@@ -872,13 +872,6 @@ Nothing below is cited by a proof. -/
 
 section Regression
 
-/-- Expand a sum over the four `n = 1` generators in the packet's column order
-`σ, τ, x₀, x₁`. -/
-theorem sum_generator_one {M : Type*} [AddCommMonoid M] (f : Generator 1 → M) :
-    ∑ g : Generator 1, f g = f .sigma + f .tau + f (.wild 0) + f (.wild 1) := by
-  rw [← Equiv.sum_comp (Generator.equivFin 1).symm f, Fin.sum_univ_four]
-  rfl
-
 /-- Repackage arbitrary `Generator 1` offsets as a `Fin 4` vector in the slot order
 `(σ, τ, x₀, x₁)` — the (two-sided) inverse of the `q2Offsets` adapter. -/
 def q2OffsetsInv {V : Type*} (a : Generator 1 → V) : Fin 4 → V
