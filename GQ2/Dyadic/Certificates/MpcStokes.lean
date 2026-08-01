@@ -372,4 +372,93 @@ theorem heisEta1_mpcFam_apply {α r pp h q e : ℕ} {η : EtaDisplay} {A : Type*
 
 end Duality
 
+/-! ## §5 The scalar certificate: the `√−10` Gram matrices, by kernel `decide`
+
+The cup–Bockstein comparison matrix (`stokesGram`) of the procyclic family on the scalar module
+`A = 𝔽₂` (trivial action), at the standard letter basis in the packet column order
+`σ, τ, x₀, x₁, x₂`; rows index the primal basis vector, columns the dual one.  Three pins, and
+they separate **two** independent sensitivities:
+
+* `√−10` at `e = 1` — the honest resolver class for a 2-group target.  Bockstein diagonals at
+  `τ` and `x₀`; cup blocks `(σ,x₀)`, `(σ,x₂)`, `(τ,x₂)`, `(x₀,x₁)`.  Symmetric, as it must be.
+* `√−10` at `e = 3` — the other odd class.  Exactly the `{τ,x₂}²` block moves, from
+  `[[1,1],[1,0]]` to `[[0,0],[0,1]]`: ticket S1.T's "the lift level is 4, not 2" as a
+  kernel-checked matrix pair, on this row as on all four siblings.
+* `√10` at `e = 1` — the `ε = 0` twin of the same `(α, r) = (2, 1)` family.
+
+⚠ **Finding — this row is *not* the pilot's, and `ε` is why.**  WM0-c recorded that the compact
+`M` scalar Gram reproduces the pilot's entry for entry, because every `σ₂`-power in that word is
+even and therefore carries no jet.  Here `p = ε·2^{r−1}` is **odd** at the packet's `√−10`
+instance, so `B = x₁σ₂` and the `E₀₁^pc` outer conjugator `σ₂^{p+sm}` are odd `σ₂`-powers and do
+carry one.  Comparing the two pins isolates the effect exactly: the `√10` (`ε = 0`) matrix is
+the pilot's plus the symmetric `(τ,x₂)` block, and turning `ε` on moves precisely the σ-row's
+`{τ, x₀}` entries — `(σ,τ)` off, `(σ,x₀)` on.  So `ε` is visible at second order on the scalar
+module, where at first order the pair's σ-column is *zero* (WMP-c's
+`foxColumn_sigma_mpcProductW_eq_zero`).  The two statements are about different orders and do
+not conflict; recording both is the point.
+
+The kernel budget: three `decide +kernel` calls on a one-dimensional module over a two-element
+group — WMP-c drew on the budget not at all, and the dimension here is `1`, far below the
+dim-8 orbits that are uncomfortable. -/
+
+section ScalarGram
+
+/-- The trivial action for the scalar pins (WW3's non-exporting `local instance` idiom). -/
+local instance : DistribMulAction (Multiplicative (ZMod 2)) (ZMod 2) where
+  smul _ a := a
+  one_smul _ := rfl
+  mul_smul _ _ _ := rfl
+  smul_zero _ := rfl
+  smul_add _ _ _ := rfl
+
+/-- The all-trivial (scalar/split) marking of the procyclic-`M` alphabet at `h = 0`. -/
+def scalarMarkP : Marking (2 + 2 * 0) (Multiplicative (ZMod 2)) := Marking.ofLetters 1 1 ![1, 1, 1]
+
+/-- The packet column order `σ, τ, x₀, x₁, x₂`. -/
+def scalarLetterP : Fin 5 → Generator (2 + 2 * 0) := ![.sigma, .tau, .wild 0, .wild 1, .wild 2]
+
+/-- The standard primal basis: a unit offset on one letter. -/
+def scalarXP (p : Fin 5) : Generator (2 + 2 * 0) → ZMod 2 :=
+  fun g => if g = scalarLetterP p then 1 else 0
+
+/-- The standard dual basis: the identity functional on one letter. -/
+noncomputable def scalarYP (p : Fin 5) : Generator (2 + 2 * 0) → ElemDual (ZMod 2) :=
+  fun g => if g = scalarLetterP p then (AddMonoidHom.id (ZMod 2) : ElemDual (ZMod 2)) else 0
+
+/-- **The `√−10` scalar Gram at the honest resolver class** (`e = 1`) — merge gate 9's row on
+the scalar module.  Bockstein diagonals at `τ` and `x₀`; cup blocks `(σ,x₀)`, `(σ,x₂)`,
+`(τ,x₂)`, `(x₀,x₁)`. -/
+theorem sqrtNeg10_scalarGram :
+    stokesGram ⇑scalarMarkP (mpcFam 2 1 1 0 2 1 .one) scalarXP scalarYP
+      = !![0,0,1,0,1; 0,1,0,0,1; 1,0,1,1,0; 0,0,1,0,0; 1,1,0,0,0] := by
+  decide +kernel
+
+/-- **The `e = 3` twin**: exactly the `{τ,x₂}²`-block moves with the resolver class — the mod-4
+(ℤ/4-lift-level) sensitivity, kernel-checked, and the reason the certificate class is pinned at
+`e ≡ 1 (mod 4)`. -/
+theorem sqrtNeg10_scalarGram_three :
+    stokesGram ⇑scalarMarkP (mpcFam 2 1 1 0 2 3 .one) scalarXP scalarYP
+      = !![0,0,1,0,1; 0,0,0,0,0; 1,0,1,1,0; 0,0,1,0,0; 1,0,0,0,1] := by
+  decide +kernel
+
+/-- **The `√10` (`ε = 0`) twin at `e = 1`** — the pilot's matrix plus the `(τ,x₂)` block.  The
+difference from `sqrtNeg10_scalarGram` is exactly the σ-row's `{τ, x₀}` entries, which is the
+`ε`-signature of the row at second order. -/
+theorem sqrt10_scalarGram :
+    stokesGram ⇑scalarMarkP (mpcFam 2 1 0 0 2 1 .one) scalarXP scalarYP
+      = !![0,1,0,0,1; 1,1,0,0,1; 0,0,1,1,0; 0,0,1,0,0; 1,1,0,0,0] := by
+  decide +kernel
+
+/-- **The `ε`-difference, isolated**: the two `e = 1` Gram matrices differ in exactly the four
+entries of the symmetric `{σ}×{τ,x₀}` block.  Stated as an equation between the *difference* and
+the block, so the claim is checkable without reading either matrix. -/
+theorem scalarGram_eps_difference :
+    stokesGram ⇑scalarMarkP (mpcFam 2 1 1 0 2 1 .one) scalarXP scalarYP
+        - stokesGram ⇑scalarMarkP (mpcFam 2 1 0 0 2 1 .one) scalarXP scalarYP
+      = !![0,1,1,0,0; 1,0,0,0,0; 1,0,0,0,0; 0,0,0,0,0; 0,0,0,0,0] := by
+  rw [sqrtNeg10_scalarGram, sqrt10_scalarGram]
+  decide
+
+end ScalarGram
+
 end GQ2.Dyadic.Certificates.MProcyclic
