@@ -562,6 +562,7 @@ variable {ι ρ : Type*} {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopolog
   [TopologicalSpace (WordLift (ZMod 2) C)] [DiscreteTopology (WordLift (ZMod 2) C)]
   {gen : ι → Γ} {W : ρ → PWord ι} {w : ρ → FreeGroup ι} {c : ι → C} {J : Set ι}
 
+omit [TopologicalSpace C] [DiscreteTopology C] in
 /-- **A continuous coboundary has its obstruction in `im d¹`.**
 
 MC-OB's `obs_B2_eq_zero` proves the obstruction is *zero*, and needs `IsFrattini` to do it.  Delete
@@ -607,6 +608,7 @@ theorem pObsFam_B2_mem_range (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
     hpres.rel (GQ2.quotientMk V.toSubgroup) k
   rw [pRelZ_coboundary, hrelk, hlam1, zero_add]
 
+omit [TopologicalSpace C] [DiscreteTopology C] in
 /-- **The splitting: nothing but a coboundary has its obstruction in `im d¹`.**
 
 The degree-`2` twin of CB-1's `toZ1w_surjective`, and the **only** consumer of clause (iii).  If
@@ -690,10 +692,12 @@ noncomputable def h2Word (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
     (QuotientAddGroup.eq_zero_iff _).mpr
       (pObsFam_B2_mem_range hpres hres c (AddSubgroup.mem_addSubgroupOf.mp hx))
 
+omit [TopologicalSpace C] [DiscreteTopology C] [Fintype ι] [Fintype ρ] [DecidableEq ι] in
 @[simp] theorem h2Word_mk (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
     (hres : ResolvesAt W w (WordLift (ZMod 2) C)) (c : ι → C) (φ : Z2 Γ (ZMod 2)) :
     h2Word hpres hres c (H2mk Γ (ZMod 2) φ) = wordH2Obs W gen c w φ := rfl
 
+omit [TopologicalSpace C] [DiscreteTopology C] [Fintype ι] [Fintype ρ] [DecidableEq ι] in
 /-- **The rung is injective.** -/
 theorem h2Word_injective (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
     (hwildLevel : ∀ V : OpenNormalSubgroup Γ,
@@ -708,6 +712,7 @@ theorem h2Word_injective (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
   exact mem_B2_of_pObsFam_mem_range hpres hwildLevel hres c
     ((QuotientAddGroup.eq_zero_iff _).mp hy)
 
+omit [TopologicalSpace C] [DiscreteTopology C] [Fintype ι] [DecidableEq ι] in
 /-- `H²(Γ, 𝔽₂)` is finite, being embedded in the finite `WordH²`. -/
 theorem finite_H2 (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
     (hwildLevel : ∀ V : OpenNormalSubgroup Γ,
@@ -715,6 +720,7 @@ theorem finite_H2 (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
     (hres : ResolvesAt W w (WordLift (ZMod 2) C)) (c : ι → C) : Finite (H2 Γ (ZMod 2)) :=
   Finite.of_injective _ (h2Word_injective (w := w) hpres hwildLevel hres c)
 
+omit [TopologicalSpace C] [DiscreteTopology C] [Fintype ι] [DecidableEq ι] in
 /-- **The cardinality form of the rung** — the inequality half of CB-2's `hcomp`. -/
 theorem card_H2_le_card_wordH2 (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
     (hwildLevel : ∀ V : OpenNormalSubgroup Γ,
@@ -726,5 +732,95 @@ theorem card_H2_le_card_wordH2 (hpres : IsAdmissibleMarkedPresentation Γ gen W 
 end Rung
 
 end Assembly
+
+/-! ## §7. `hcomp` discharged, and the `SourceDataN` field goal closed
+
+The rung gives `≤`; `#WordH²(𝔽₂) = 2` (CB-2 §4) and nontriviality give `=`.
+
+**On the nontriviality input.**  It is not an artefact of taking the injection instead of an
+isomorphism — no comparison theorem can avoid it, because `H²(Γ, 𝔽₂) = 0` is *consistent* with
+every other hypothesis in sight (a free profinite `Γ` satisfies all of them).  What pins it down is
+a source-side witness, and the campaign already has to produce exactly one: `SourceDataN.lem86`'s
+`hvar`, a nonzero variation class (CB-2 §9, `lem86N`).  `nontrivial_H2_of_ne_zero` turns that
+witness into this hypothesis, so **`cardH2` and `lem86` share their one non-generic input** — which
+sharpens CB-2's scheduling note: `lem86` is not merely downstream of `cardH2`, the two consume the
+same witness. -/
+
+section FieldGoal
+
+variable {ι ρ : Type*} {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [DistribMulAction Γ (ZMod 2)]
+  {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+  [DistribMulAction C (ZMod 2)]
+  [TopologicalSpace (WordLift (ZMod 2) C)] [DiscreteTopology (WordLift (ZMod 2) C)]
+  {gen : ι → Γ} {W : ρ → PWord ι} {w : ρ → FreeGroup ι} {c : ι → C} {J : Set ι}
+
+omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [TopologicalSpace C]
+  [DiscreteTopology C] [Finite C] [DistribMulAction C (ZMod 2)]
+  [TopologicalSpace (WordLift (ZMod 2) C)] [DiscreteTopology (WordLift (ZMod 2) C)] in
+/-- **A nonzero class makes `H²` nontrivial** — the bridge from `lem86`'s `hvar` to `cardH2`'s
+missing half. -/
+theorem nontrivial_H2_of_ne_zero {φ : Z2 Γ (ZMod 2)} (h : H2mk Γ (ZMod 2) φ ≠ 0) :
+    Nontrivial (H2 Γ (ZMod 2)) :=
+  ⟨⟨H2mk Γ (ZMod 2) φ, 0, h⟩⟩
+
+variable [Fintype ι] [Fintype ρ] [DecidableEq ι]
+
+omit [TopologicalSpace C] [DiscreteTopology C] in
+/-- **CB-2's `hcomp`, discharged.**
+
+`Count/Scalar.lean` §8 left `cardH2` one argument short and named it: the degree-`2` comparison
+`#H²(Γ, 𝔽₂) = #WordH²(𝔽₂)`.  This is that argument. -/
+theorem cardH2_comp (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hwildLevel : ∀ V : OpenNormalSubgroup Γ,
+      IsWildTwo J (fun i => QuotientGroup.mk' V.toSubgroup (gen i)))
+    (hres : ResolvesAt W w (WordLift (ZMod 2) C)) (c : ι → C)
+    (hnt : Nontrivial (H2 Γ (ZMod 2))) (hd : StokesDuality c w (ZMod 2))
+    (hr : ∀ k, FreeGroup.lift c (w k) = 1) (hend : IsStokesEndpoint w) :
+    Nat.card (H2 Γ (ZMod 2)) = Nat.card (WordH2 c w (ZMod 2)) := by
+  haveI := finite_H2 (w := w) hpres hwildLevel hres c
+  have hw2 : Nat.card (WordH2 c w (ZMod 2)) = 2 := card_wordH2_zmod2 hd hr hend
+  have hle : Nat.card (H2 Γ (ZMod 2)) ≤ 2 :=
+    le_of_le_of_eq (card_H2_le_card_wordH2 hpres hwildLevel hres c) hw2
+  exact (cardH2_of_le_two hle hnt).trans hw2.symm
+
+/-- **`SourceDataN.cardH2`, over the abstract carrier, with no open argument.**  CB-2's `cardH2N`
+with its `hcomp` supplied. -/
+theorem cardH2N_closed (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hwildLevel : ∀ V : OpenNormalSubgroup Γ,
+      IsWildTwo J (fun i => QuotientGroup.mk' V.toSubgroup (gen i)))
+    (hres : ResolvesAt W w (WordLift (ZMod 2) C)) (c : ι → C)
+    (hnt : Nontrivial (H2 Γ (ZMod 2))) (hd : StokesDuality c w (ZMod 2))
+    (hr : ∀ k, FreeGroup.lift c (w k) = 1) (hend : IsStokesEndpoint w) :
+    Nat.card (H2 Γ (ZMod 2)) = 2 :=
+  cardH2N (cardH2_comp hpres hwildLevel hres c hnt hd hr hend) hd hr hend
+
+end FieldGoal
+
+/-- **`SourceDataN.cardH2`, verbatim** (`GQ2/Dyadic/SourceDataN.lean:184`), including the record's
+own `letI := smulZmod2` — **closed**, with no `hcomp` argument.
+
+This is CB-2's `cardH2_field_goal` with its single open argument discharged; the recipe for CB-4 is
+this theorem, and the inputs beyond CB-2's are exactly two: `hwildLevel` (the wild part of the
+carrier is pro-`2` — part of `GammaR`'s definition) and `hnt` (the nonzero class that `lem86`
+already needs). -/
+theorem cardH2_field_goal_closed {Gam : ProfiniteGrp} {ι ρ : Type*} [Fintype ι] [Fintype ρ]
+    [DecidableEq ι] {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+    [DistribMulAction C (ZMod 2)]
+    [TopologicalSpace (WordLift (ZMod 2) C)] [DiscreteTopology (WordLift (ZMod 2) C)]
+    {gen : ι → (Gam : Type)} {W : ρ → PWord ι} {w : ρ → FreeGroup ι} {c : ι → C} {J : Set ι}
+    (smulZmod2 : DistribMulAction (Gam : Type) (ZMod 2))
+    (hpres : IsAdmissibleMarkedPresentation (Gam : Type) gen W J)
+    (hwildLevel : ∀ V : OpenNormalSubgroup (Gam : Type),
+      IsWildTwo J (fun i => QuotientGroup.mk' V.toSubgroup (gen i)))
+    (hres : ResolvesAt W w (WordLift (ZMod 2) C))
+    (hnt : letI := smulZmod2; Nontrivial (H2 (Gam : Type) (ZMod 2)))
+    (hd : StokesDuality c w (ZMod 2)) (hr : ∀ k, FreeGroup.lift c (w k) = 1)
+    (hend : IsStokesEndpoint w) :
+    letI := smulZmod2
+    Nat.card (H2 Gam (ZMod 2)) = 2 := by
+  letI := smulZmod2
+  exact cardH2_field_goal smulZmod2
+    (cardH2_comp hpres hwildLevel hres c hnt hd hr hend) hd hr hend
 
 end GQ2.Dyadic.Count
