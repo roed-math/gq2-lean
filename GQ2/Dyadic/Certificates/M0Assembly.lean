@@ -89,8 +89,13 @@ The projector branch enters exactly where WM0-b and WM0-c put it: as a hypothesi
 evaluated `ω₂`-block, per `δ`-letter.  At `P = 1` that hypothesis is *discharged* by WM0-c's
 `hessDeltaBlock_P1` (at `u = 1` and the honest class `e ≡ 1 mod 4`), so
 `hessRelZ_mCompact_P1_res` and everything downstream of it is hypothesis-free apart from the
-resolver pin.  At `P = 0` it stays a hypothesis — it is the ramified reading, and nothing in
-this lane discharges it.
+resolver pin.  At `P = 0` it stays a hypothesis — it is the ramified reading (WM0-b's
+`hTodd`/`hτfpf` class), and nothing in this lane discharges it.  What *is* proved, so that the
+branch is demonstrably not empty, is a satisfiability witness on the other side of the mod-4
+split: at `u = 1` and `e ≡ 0 (mod 4)` the block is trivial on every module, because the slice
+letter has order dividing `4` (`hessDeltaBlock_P0_of_four_dvd`,
+`hessRelZ_mCompact_P0_of_four_dvd`).  That witness class is *not* the honest ramified class and
+does not claim to be; it is the same standard WM0-c's `hessDeltaBlock_P1` sets for `P = 1`.
 
 ⚠ **No unconditional profinite twin of the pilot's `sqrtNegTwo_hess_eval`.**  The pilot's
 honest `Marking.eval` row needs no `ω₂`-representative pin because its boundary block dies on
@@ -117,15 +122,19 @@ race).  WM0-c's `mk` marking abbreviation is `private`, so the lifted marking is
 ## Axiom state (audited; `#print axioms` run in a scratch file, not committed)
 
 Zero `sorryAx`, zero `native_decide`, no `GQ2.AbsGalQ2` B-axiom leaks.  All headlines —
-`commR_mul_right_of_commute`, `hessLineZ_mul`, `hessM_a0W`, `hessM_leadingSquare`,
-`hessM_leadingComm`, `hessM_j2W`, `hessM_eRevW_P1`, `hessM_eRevW_P0`, `hessM_handleTailW`,
-`hessRelZ_mCompact_P1`, `hessRelZ_mCompact_P0`, `hessRelZ_mCompact_P1_res`,
+`commR_mul_right_of_commute`, `conjR_eq_self_of_commute`, `hessLineZ_mul`,
+`incl_mul_hessLine`, `hessM_a0W`, `hessM_leadingSquare`, `hessM_leadingComm`,
+`hessM_sigma2Pow_line`, `hessM_j2W`, `hessM_deltaInner`, `hessDeltaBlock_P0_of_four_dvd`,
+`hessM_eRevW_P1`, `hessM_eRevW_P0`, `hessM_handleTailW`, `hessRelZ_mCompact_P1`,
+`hessRelZ_mCompact_P0`, `hessRelZ_mCompact_P1_res`, `hessRelZ_mCompact_P0_of_four_dvd`,
 `hessRelZ_mCompact_P1_plusForm`, `hessRelZ_mCompact_P0_swapForm`,
-`mCompact_P1_word_gaussSum`, `mCompact_P0_word_gaussSum`, `mCompact_hess_eval_P1`,
-`mCompact_hess_eval_P0`, `sqrtTwo_hessRelZ_P1`, `sqrtTwo_hessRelZ_P0`,
-`sqrtFive_hessRelZ_P1`, `sqrtFive_hessRelZ_P0`, `sqrtTwo_hess_gaussSum`,
-`sqrtFive_hess_gaussSum` — print exactly the standard three
-`[propext, Classical.choice, Quot.sound]`.  The census stays at eleven.
+`mCompact_P1_word_eq_certQ`, `mCompact_P0_word_eq_certQ`, `mCompact_P1_word_gaussSum`,
+`mCompact_P0_word_gaussSum`, `mCompact_hess_eval_P1`, `mCompact_hess_eval_P0`,
+`sqrtTwo_hessRelZ_P1`, `sqrtTwo_hessRelZ_P0`, `sqrtFive_hessRelZ_P1`,
+`sqrtFive_hessRelZ_P0`, `sqrtTwo_hess_gaussSum`, `sqrtFive_hess_gaussSum` — print at most the
+standard three `[propext, Classical.choice, Quot.sound]`; the two transport lemmas of §1 print
+only `[propext]`, which is strictly cheaper (they are plain group theory and touch neither the
+extension nor the module).  The census stays at eleven.
 -/
 
 namespace GQ2.Dyadic.Certificates.MCompact
@@ -330,6 +339,42 @@ theorem hessM_j2W (hv2 : vv (xIdx h 2) = 0) :
       = hessLineHom dat hdat u from rfl, ← map_zpow]
   rfl
 
+/-- The inner word `x_iτ` of the `δ`-letter with `τ` on the trivial line: the slice letter,
+uncharged.  WM0-c computes this inline inside `hessDeltaBlock_P1`; stated separately here
+because the `P = 0` satisfiability witness needs the same value at a different exponent. -/
+theorem hessM_deltaInner (i : Fin 3) :
+    PWord.evalZ (WordCoh.lift (Certificates.hessMark s (1 : C) vv) (kappa0Cocycle dat hdat))
+        E E₂ (PWord.prodList [.gen (Words.coreLetter h i), .gen .tau])
+      = hessSlice dat hdat (vv (xIdx h i)) 0 := by
+  rw [PWord.prodList_cons, PWord.prodList_cons, PWord.prodList_nil, PWord.evalZ_mul,
+    PWord.evalZ_mul, PWord.evalZ_gen, PWord.evalZ_gen, PWord.evalZ_one, mul_one,
+    show WordCoh.lift (Certificates.hessMark s (1 : C) vv) (kappa0Cocycle dat hdat)
+      Generator.tau = hessLine dat hdat 1 from rfl,
+    show hessLine dat hdat (1 : C) = 1 from rfl, mul_one]
+  rfl
+
+/-- **The `P = 0` branch is not vacuous.**  At `u = 1` and a resolver value divisible by `4`
+the `ω₂`-block of every `δ`-letter is trivial on **every** module, because the slice letter has
+order dividing `4`: `s² = ι(q c)` and `ι(q c)² = 1`.
+
+⚠ This is a *satisfiability* witness, and nothing more.  It is **not** the honest ramified
+class: on a finite 2-group target the honest `ω₂` representative has `e ≡ 1 (mod 4)` (WM0-c §1),
+which is precisely the `P = 1` class, and the genuine `P = 0` reading is WM0-b's
+`hTodd`/`hτfpf` class, which belongs with the ramified instances and not in this file.  What is
+established here is only that `hessRelZ_mCompact_P0` has models — the same standard WM0-c's
+`hessDeltaBlock_P1` sets for the other branch. -/
+theorem hessDeltaBlock_P0_of_four_dvd (hV2 : ∀ v : V, v + v = 0) (i : Fin 3) {e : ℕ}
+    (hE : E omega2 = (e : ℤ)) (he : e % 4 = 0) :
+    PWord.evalZ (WordCoh.lift (Certificates.hessMark s (1 : C) vv) (kappa0Cocycle dat hdat))
+        E E₂ (PWord.omega2Pow (PWord.prodList [.gen (Words.coreLetter h i), .gen .tau]))
+      = 1 := by
+  obtain ⟨t, ht⟩ : ∃ t, e = 4 * t := ⟨e / 4, by omega⟩
+  have h4 : hessSlice dat hdat (vv (xIdx h i)) 0 ^ (4 : ℕ) = 1 := by
+    rw [show (4 : ℕ) = 2 * 2 from rfl, pow_mul, sq, sq, hessSlice_sq dat hdat hV2]
+    exact centExt_incl_mul_self _
+  rw [PWord.omega2Pow, PWord.evalZ_profPow, hessM_deltaInner dat hdat s vv E E₂ i, hE,
+    zpow_natCast, ht, pow_mul, h4, one_pow]
+
 /-- **Factor 5 at `P = 1` — the correction block is trivial.**  Every `δ`-letter is `1`
 (`hessDeltaCert_P1`: `d_i = (1+P)c_i = 0`), so all four conjugated factors are, and the
 compact-`M` word's Hessian row **is** the compact-`N` word's — S4.1's finding (i) at the
@@ -505,6 +550,24 @@ theorem hessRelZ_mCompact_P1_res {h α : ℕ} (hV2 : ∀ v : V, v + v = 0) (hα 
         + ∑ j, polar q (vv (Certificates.hIdxU j)) (vv (Certificates.hIdxV j)) :=
   hessRelZ_mCompact_P1 dat hdat hV2 hα s 1 vv hv2 E E₂ hS₂
     (hessDeltaBlock_P1 dat hdat hV2 s vv E E₂ hE he)
+
+/-- **The `P = 0` branch is inhabited**: at `u = 1` and a resolver value divisible by `4` the
+projector hypothesis is discharged by `hessDeltaBlock_P0_of_four_dvd`, so the block-swapped row
+holds outright on every module.
+
+⚠ Read the caveat on `hessDeltaBlock_P0_of_four_dvd`: `e ≡ 0 (mod 4)` is a *witness class*, not
+the honest ramified class.  This theorem exists to show `hessRelZ_mCompact_P0` is not an empty
+statement — the genuine ramified reading is WM0-b's `hTodd`/`hτfpf` class and belongs with the
+instances. -/
+theorem hessRelZ_mCompact_P0_of_four_dvd {h α : ℕ} (hV2 : ∀ v : V, v + v = 0) (hα : 2 ≤ α)
+    (s : C) (vv : Fin (2 + 2 * h + 1) → V) (hv2 : vv (xIdx h 2) = 0) (E : Zhat → ℤ)
+    (E₂ : ℤ_[2] → ℤ) (hS₂ : ∀ w : V, (s ^ E omega2) • w = w) {e : ℕ}
+    (hE : E omega2 = (e : ℤ)) (he : e % 4 = 0) :
+    hessRelZ (Certificates.hessMark s (1 : C) vv) (kappa0Cocycle dat hdat) E E₂ (mCompactW α h)
+      = q (vv (xIdx h 1)) + polar q (vv (xIdx h 0)) (vv (xIdx h 1))
+        + ∑ j, polar q (vv (Certificates.hIdxU j)) (vv (Certificates.hIdxV j)) :=
+  hessRelZ_mCompact_P0 dat hdat hV2 hα s 1 vv hv2 E E₂ hS₂
+    (fun i => hessDeltaBlock_P0_of_four_dvd dat hdat s vv E E₂ hV2 i hE he)
 
 /-! ### The endpoint connection: WW4's two certificates consumed at the word -/
 
