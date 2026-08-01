@@ -953,4 +953,121 @@ end Factors
 
 end LinRow
 
+/-! ## §7 The formal row, and merge gate 9
+
+`mpcProductRowCert`'s last open input was `hlinrow`.  §6 computed it, so the formal row is now
+one entry of `TameSym` data and the `√−10` certificate is unconditional (in the ramified class:
+`hwild`, `hτfpf`, `hTodd`, `hV₂` — the same four hypotheses every sibling row carries).
+
+⚠ The row's σ-entry is `.zero`, which is exactly `mpcProductRowCert`'s `hσzero`: WMP-c observed
+that both sibling frozen rows have that shape and that neither copy of *this* row has an
+available σ-entry; §6 shows the linear copy's σ-entry is not merely unavailable but **zero**, so
+the transport's hypothesis is discharged rather than assumed. -/
+
+section FormalRow
+
+/-- **The procyclic-`M` linear row**, as pure `FoxCoeff` data over WW2's standard atom alphabet:
+
+```
+(σ, τ, x₀, x₁, x₂) = (0, 0, 0, 0, S₂^{−s}·σ^{−n})
+```
+
+— one entry, in the `x₂`-column, at every `(α ≥ 1, r, p, η, h)`.  `n` is the integer power the
+`η̂`-letter acts by; the row is parametrized by it, exactly as the compact rows are parametrized
+by the projector assignment. -/
+def mpcLinRow (r : ℕ) (nη : ℤ) (h : ℕ) :
+    FoxRowNormalForm (Generator (2 + 2 * h)) (TameSym (2 + 2 * h)) :=
+  ⟨fun g => match g with
+    | .sigma => .zero
+    | .tau => .zero
+    | .wild i =>
+        if (i : ℕ) = 2 then
+          .comp (.atom (.sigma2 (-(s r : ℤ)))) (.atom (.gen Generator.sigma (-nη)))
+        else .zero⟩
+
+variable {h : ℕ} {r : ℕ} {nη : ℤ}
+
+@[simp] theorem mpcLinRow_sigma : (mpcLinRow r nη h).row .sigma = .zero := rfl
+
+@[simp] theorem mpcLinRow_tau : (mpcLinRow r nη h).row .tau = .zero := rfl
+
+@[simp] theorem mpcLinRow_x2 :
+    (mpcLinRow r nη h).row (coreLetter h 2)
+      = .comp (.atom (.sigma2 (-(s r : ℤ)))) (.atom (.gen Generator.sigma (-nη))) := rfl
+
+/-- **The row's denotation** at the standard interpretation: `a ↦ S₂^{−s}·σ^{−n}·a(x₂)`.  Note
+that the projector assignment `π` is irrelevant — this row uses no `P` atom, which is the
+formal-data face of "the procyclic linear row is a *ramified* row". -/
+theorem mpcLinRow_toHom {C : Type*} [Group C] {V : Type*} [AddCommGroup V]
+    [DistribMulAction C V] (t : Marking (2 + 2 * h) C) (π : AddMonoid.End V)
+    (a : Generator (2 + 2 * h) → V) :
+    (mpcLinRow r nη h).toHom (TameSym.toEnd t π) a
+      = ((powOmega2 t.σ) ^ (-(s r : ℤ))) • ((t.σ ^ (-nη)) • a (coreLetter h 2)) := by
+  rw [FoxRowNormalForm.toHom_apply,
+    sum_generator_wild _ (⟨2, by omega⟩ : Fin (2 + 2 * h + 1)) rfl rfl (fun j hj => by
+      show ((if (j : ℕ) = 2 then
+          FoxCoeff.comp (.atom (.sigma2 (-(s r : ℤ)))) (.atom (.gen Generator.sigma (-nη)))
+        else .zero)).eval (TameSym.toEnd t π) (a (.wild j)) = 0
+      rw [if_neg fun hc => hj (Fin.ext hc)]
+      rfl)]
+  rfl
+
+end FormalRow
+
+/-! ### Merge gate 9 — the `ℚ₂(√−10)` procyclic row -/
+
+section Gate9
+
+variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking 2 C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- The `η = 1` display acts as the first power of `σ` — the `hη` datum at the packet's
+`√−10` instance, where it is definitional rather than a hypothesis. -/
+theorem actsAsPow_etaOne :
+    ActsAsPow t.σ 1 (PWord.evalFin ⇑t E E₂ (EtaDisplay.one.toPWord (n := 2 + 2 * 0))) V := by
+  intro v
+  rw [zpow_one]
+  rfl
+
+/-- **`hlinrow` at the `√−10` instance** — the input `sqrtNeg10ProductRowCert` was waiting on. -/
+theorem sqrtNeg10_hlinrow (π : AddMonoid.End V) (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin 3) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w)
+    (a : Generator 2 → V) (hσ : a Generator.sigma = 0) :
+    foxD ⇑t a E E₂ (mpcLinW 2 1 1 .one 0)
+      = (mpcLinRow 1 1 0).toHom (TameSym.toEnd t π) a := by
+  rw [mpcLinRow_toHom (h := 0) (r := 1) (nη := 1) t π a,
+    foxD_mpcLinW_x2 (h := 0) t E E₂ a hσ hwild hτfpf hTodd (α := 2) (by norm_num) 1 1
+      (actsAsPow_etaOne t E E₂) hV₂]
+
+/-- **Merge gate 9, closed.**
+
+WMP-c built `sqrtNeg10ProductRowCert` with `hlinrow` as its one remaining input and named that
+input as what AS3 still owed.  Here it is discharged, so the `√−10` procyclic row's WW2
+certificate is a **term**, not a transport waiting on a hypothesis: at every finite ramified
+elementary module the pair `R_lin^pc·R̂^pc` has the normal form `mpcLinRow 1 1 0`, whose only
+entry is `S₂^{−2}σ^{−1}` in the `x₂`-column.
+
+The remaining hypotheses are the ramified class conditions (`hwild`, `hτfpf`, `hTodd`, `hV₂`),
+which every sibling row carries and which AS1 supplies per module; nothing about the row itself
+is left open. -/
+noncomputable def sqrtNeg10ProductCert (π : AddMonoid.End V) (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin 3) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w) :
+    FoxRowCertificate (TameSym.toEnd t π)
+      (foxDHom (A := V) ⇑t E E₂ sqrtNeg10ProductW) :=
+  sqrtNeg10ProductRowCert t E E₂ (TameSym.toEnd t π) hV₂ hwild hτfpf hTodd
+    (mpcLinRow 1 1 0) rfl (sqrtNeg10_hlinrow t E E₂ π hV₂ hwild hτfpf hTodd)
+
+/-- The gate-9 certificate's target is the single-entry row — stated so that a consumer can read
+the normal form off the certificate without unfolding the construction. -/
+theorem sqrtNeg10ProductCert_target (π : AddMonoid.End V) (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin 3) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w) :
+    (sqrtNeg10ProductCert t E E₂ π hV₂ hwild hτfpf hTodd).target = mpcLinRow 1 1 0 ∧
+      (sqrtNeg10ProductCert t E E₂ π hV₂ hwild hτfpf hTodd).colOps = [] :=
+  ⟨rfl, rfl⟩
+
+end Gate9
+
 end GQ2.Dyadic.Certificates.MProcyclic
