@@ -1607,7 +1607,14 @@ open Multiplicative
 /-- **MC-M (correction form)** — packet Prop. 7.2 at the `M`-core.  Under the S3 binder
 `MMixHypothesis`, every transported marking `ν'` with `ν'(C̄₀) ∈ ℤ₂ˣ` admits a correction
 `Ψ ∈ Aut(D_M)` with `χ_M ∘ Ψ = χ_M` and `ν' ∘ Ψ = ν_M` on the marked generators.  The handle
-stratum is discharged, not assumed. -/
+stratum is discharged, not assumed.
+
+The pivot datum `hc` stays a hypothesis here so the statement remains uniform in `h`.  At rank
+four it is not an extra assumption at all: `MarkedCore/CompactCoV.lean` (ticket MC-CoV) proves
+it **equivalent** to the compact row's own branch condition `r = 0`, and
+`prop_MC_M_correction_of_chiKer` is this theorem with `hc` replaced by that clause.  So the
+`M`-core's residual binder list is `MMixHypothesis` alone, matching the `N`-core's
+`NScalingHypothesis` alone. -/
 theorem prop_MC_M_correction {α h : ℕ} (hα : 1 ≤ α) (hMix : MMixHypothesis α h hα)
     (nu' : ContinuousMonoidHom (DM α h : Type) (Multiplicative ℤ_[2]))
     (hc : IsUnit (toAdd (nu' (dmC α h)))) :
@@ -1626,7 +1633,9 @@ theorem prop_MC_M_correction {α h : ℕ} (hα : 1 ≤ α) (hMix : MMixHypothesi
   · exact hΨ₂nu i
 
 /-- **MC-M at rank four** (`h = 0`, no handles): the same statement with the handle stratum
-absent, so the S3 binder is the *only* input. -/
+absent, so the S3 binder is the *only* input.  This is the shape MC-CoV's discharge applies
+to — see `CompactCoV.prop_MC_M_correction_of_chiKer`, which drops `hc` for the χ-kernel
+clause at the cost of a frame `B : MDecomposition α` that MC3 already consumes throughout. -/
 theorem prop_MC_M_correction_zero {α : ℕ} (hα : 1 ≤ α) (hMix : MMixHypothesis α 0 hα)
     (nu' : ContinuousMonoidHom (DM α 0 : Type) (Multiplicative ℤ_[2]))
     (hc : IsUnit (toAdd (nu' (dmC α 0)))) :
