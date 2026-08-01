@@ -348,6 +348,19 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-31 (owner, in session): G2 SIGNED — "Go ahead and dispatch."** The four
+  branch-word lanes are RELEASED on the pilot's word-certificate review (the AS2
+  √−2 instance review folds into the AS lane/G3 as wave 3 lands). Dispatched (all four
+  `-a` tickets, parallel, disjoint files): **WM0-a** (opus, wn0 worktree, `dyadic-wm0a`),
+  **WNP-a** (opus, mc worktree, `dyadic-wnpa`), **WL-a** (opus, lg worktree,
+  `dyadic-wla`), **WMP-a** (fable per the model column — the hardest word, ob worktree,
+  `dyadic-wmpa`). `-b` tickets queue behind their `-a` + WWH's hoist landing; `-c`
+  tickets behind `-b` (WL-c per WL-recon's c2-first split). Standing rules for all four:
+  the WN0-a template + the wave-2 authoring rules (board log), hash pins by candidate_id
+  from `general_2adic/generated/MANIFEST.json`, the KillsWild ruling, F5 counts
+  docstring-only, and the per-lane re-point/correction blocks in the specs (WL = L_sq;
+  WM0's forward-order correction; WNP's corrected L_c; WMP's S4.5 riders + no-.shadow
+  statement route).
 - **2026-07-31 (orchestrator, WN0-c outcomes — THE PILOT IS END-TO-END; G2 IS NOW THE
   OWNER'S GATE):** merged, import registered, audit green. The ℚ₂(√−2) pilot lane
   (WN0-a word → WN0-b Fox → WN0-c Stokes/scalar/Hessian/phase) is complete at the
@@ -1450,7 +1463,7 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| WM0-a | word + boundary + sanity (incl. reversed-`E_m` mutant rejection) | opus | `GQ2/Dyadic/Words/M0.lean` | G2 | pending |
+| WM0-a | word + boundary + sanity (mutant rejection re-scoped to WM0-c per the 2026-07-31 correction) | opus | `GQ2/Dyadic/Words/M0.lean` | G2 ✓ | **dispatched 2026-07-31** (wn0 worktree, `dyadic-wm0a`) |
 | WM0-b | Fox certificate (reversed correction order) | opus | `GQ2/Dyadic/Certificates/M0Fox.lean` | WM0-a | pending |
 | WM0-c | Stokes/scalar/Hessian/phase: **both projector normal forms** | fable | `GQ2/Dyadic/Certificates/M0.lean` | WM0-b | pending |
 
@@ -1475,7 +1488,7 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| WNP-a | word + boundary + sanity | opus | `GQ2/Dyadic/Words/Npc.lean` | G2 | pending |
+| WNP-a | word + boundary + sanity | opus | `GQ2/Dyadic/Words/Npc.lean` | G2 ✓ | **dispatched 2026-07-31** (mc worktree, `dyadic-wnpa`) |
 | WNP-b | Fox certificate: replay `E_{r,η}`, cross operators for ALL allowed `(r,η)` | fable | `GQ2/Dyadic/Certificates/NpcFox.lean` | WNP-a | pending |
 | WNP-c | Stokes/scalar/Hessian/phase (`Q₀(c₀)+b_q(c₁,L_c c₀)`, explicit invertible `L_c`) | fable | `GQ2/Dyadic/Certificates/Npc.lean` | WNP-b | pending |
 
@@ -1494,7 +1507,7 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| WMP-a | word (both copies) + boundary + sanity (√-10 procyclic + relative-norm alternative + order-9 negative test) | fable | `GQ2/Dyadic/Words/Mpc.lean` | G2 | pending |
+| WMP-a | word (both copies) + boundary + sanity (√−10 procyclic; relative-norm + order-9 material docstring-only per the freeze) | fable | `GQ2/Dyadic/Words/Mpc.lean` | G2 ✓ | **dispatched 2026-07-31** (ob worktree, `dyadic-wmpa`) |
 | WMP-b | Fox certificate (linear copy; hat copy has zero first derivative) | fable | `GQ2/Dyadic/Certificates/MpcFox.lean` | WMP-a | pending |
 | WMP-c | Stokes/scalar/Hessian/phase: **self-replication cancellation incl. every `T`-dependent central term** | fable | `GQ2/Dyadic/Certificates/Mpc.lean` | WMP-b | pending |
 
@@ -1534,7 +1547,7 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| WL-a | word + boundary + sanity | opus | `GQ2/Dyadic/Words/L.lean` | G2 | pending |
+| WL-a | word + boundary + sanity (L_sq per the re-point; n=1 = Γ_R cross-identification; q_K>2 pin) | opus | `GQ2/Dyadic/Words/L.lean` | G2 ✓ | **dispatched 2026-07-31** (lg worktree, `dyadic-wla`) |
 | WL-b | Fox certificate (`n=1` base + handle stability) | opus | `GQ2/Dyadic/Certificates/LFox.lean` | WL-a | pending |
 | WL-c | Stokes/scalar/Hessian/phase (`n=1` core + hyperbolic handles) | fable | `GQ2/Dyadic/Certificates/L.lean` | WL-b | pending |
 
