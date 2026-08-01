@@ -1503,7 +1503,7 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| WNP-a | word + boundary + sanity | opus | `GQ2/Dyadic/Words/Npc.lean` | G2 ✓ | **dispatched 2026-07-31** (mc worktree, `dyadic-wnpa`) |
+| WNP-a | word + boundary + sanity | opus | `GQ2/Dyadic/Words/Npc.lean` | G2 ✓ | **done 2026-07-31** (af4c600…60b5297 → merged, import registered; 1038 ln, 84 decls, 0 sorries, 84/84 std-3-or-less; ONE family `rawNpc α r h num den` covers all 7 frozen instances — 7/7 hash pins green, denote bridges all rfl FIRST TRY; `wf_rawNpc` conditional on η-oddness (an improvement — WF here IS η being a 2-adic unit); **npcWord pre-agreement = value-level bridge `eval_npcW_eq_eval_npcWord`** (literal cross-identification impossible for 4 machine-checked syntactic reasons D1–D4; D5 NON-divergence: `EtaData.toZhat` IS `etaHatZ` definitionally — no η̂ bridge owed); pro-2 = MC2's `nWord` at twisted Labute letters (x₁↦σ^{η̂}, σ↦g), E_{r,η} invisible at BOTH boundaries for OPPOSITE reasons (proved); ⚠ findings: **η̂-words are NOT IsOmega2Only** (numeric-pin route unavailable — forwarded to WMP-a mid-flight), abelian targets are blind to η/r/corrections (proved — the S₃-MODULE gate is forced), h-general route = NC6's `_handles_std` + `eval_handlesW` NOT a cast; ⚠ alphabet toolkit now duplicated 2× heading to 5× → **WAH hoist queued post-wave**) |
 | WNP-b | Fox certificate: replay `E_{r,η}`, cross operators for ALL allowed `(r,η)` | fable | `GQ2/Dyadic/Certificates/NpcFox.lean` | WNP-a | pending |
 | WNP-c | Stokes/scalar/Hessian/phase (`Q₀(c₀)+b_q(c₁,L_c c₀)`, explicit invertible `L_c`) | fable | `GQ2/Dyadic/Certificates/Npc.lean` | WNP-b | pending |
 
