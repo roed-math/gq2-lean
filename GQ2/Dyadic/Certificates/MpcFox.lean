@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Fable-5
 -/
 import GQ2.Dyadic.Words.Mpc
 import GQ2.Dyadic.Certificates.M0Fox
+import GQ2.Dyadic.Word.Stokes
 
 /-!
 # Dyadic campaign, ticket WMP-b: the Fox certificate of the procyclic `M_α` branch word
@@ -223,32 +224,41 @@ noncomputable def foxColumn [DecidableEq X] [Finite A] [Finite C] (t : X → C) 
     (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (w : PWord X) (g : X) (v : A) :
     foxColumn t E E₂ w g v = foxD t (Pi.single g v) E E₂ w := rfl
 
-/-- **The profinite-power-free fragment.**
+/-- **The displayed fragment over a letter set `P`**: `w` uses only letters satisfying `P`, and
+no profinite or `ℤ₂`-power node.
 
-Every displayed factor of the procyclic row is in it, because `σ₂` and `D = σ^{η̂}` are
-displayed *definitions* — `Auxiliary` nodes — hence atoms of the displayed alphabet.  It is the
-fragment on which §3's transport theorem is a plain structural induction: a `profPow` node
-reads its finite representative at `2·ord(lower value)`, so two words with *equally acting*
+Both restrictions are load-bearing in §3.
+
+*No `profPow`*: every displayed factor of the procyclic row avoids it, because `σ₂` and
+`D = σ^{η̂}` are displayed *definitions* — `Auxiliary` nodes — hence atoms of the displayed
+alphabet.  This is what makes the transport theorem a plain structural induction: a `profPow`
+node reads its finite representative at `2·ord(lower value)`, so two words with *equally acting*
 evaluations need not have equally acting `ω₂`-powers.  That is the same phenomenon the shadow
-memo's refutation of the naive chain rule turns on, and `NoProf` is where the discipline is
-visible rather than assumed away. -/
-def _root_.GQ2.Dyadic.PWord.NoProf {Gen : Type*} : PWord Gen → Prop
+memo's refutation of the naive chain rule turns on, and this predicate is where the discipline
+is visible rather than assumed away.
+
+*Only `P`-letters*: transport compares two inlinings, and they need only agree on the letters
+that actually occur.  On this row that matters concretely — `τ` occurs in **no** displayed
+factor (it lives inside the `δ`-atoms), and it is the one letter where the two inlinings
+disagree beyond first order: `Sh_M` sends `τ ↦ 1` while `τ` itself acts nontrivially on every
+ramified module.  Without the restriction the transport hypothesis would be false. -/
+def _root_.GQ2.Dyadic.PWord.Displayed {Gen : Type*} (P : Gen → Prop) : PWord Gen → Prop
   | .one => True
-  | .gen _ => True
-  | .mul u v => u.NoProf ∧ v.NoProf
-  | .inv u => u.NoProf
-  | .conj u g => u.NoProf ∧ g.NoProf
-  | .comm u v => u.NoProf ∧ v.NoProf
-  | .zpow u _ => u.NoProf
+  | .gen g => P g
+  | .mul u v => u.Displayed P ∧ v.Displayed P
+  | .inv u => u.Displayed P
+  | .conj u g => u.Displayed P ∧ g.Displayed P
+  | .comm u v => u.Displayed P ∧ v.Displayed P
+  | .zpow u _ => u.Displayed P
   | .z2pow _ _ => False
   | .profPow _ _ => False
 
-open PWord in
-theorem noProf_prodList {Gen : Type*} :
-    ∀ {l : List (PWord Gen)}, (∀ w ∈ l, w.NoProf) → (PWord.prodList l).NoProf
+theorem displayed_prodList {Gen : Type*} {P : Gen → Prop} :
+    ∀ {l : List (PWord Gen)}, (∀ w ∈ l, w.Displayed P) → (PWord.prodList l).Displayed P
   | [], _ => trivial
   | w :: _ws, hw =>
-      ⟨hw w (List.mem_cons_self ..), noProf_prodList fun u hu => hw u (List.mem_cons_of_mem _ hu)⟩
+      ⟨hw w (List.mem_cons_self ..),
+       displayed_prodList fun u hu => hw u (List.mem_cons_of_mem _ hu)⟩
 
 /-- Substitution commutes with evaluation: evaluating a substituted word is evaluating the
 original at the substituted marking.  ("`Sh_M` is **a substitution**, so it commutes with
@@ -352,23 +362,23 @@ variable [Finite A] [Finite C] (t : X → C) (a : X → A) (E : Zhat → ℤ) (E
 /-- **The transport theorem** (S4.2 P3, Lean shape), at the `foxEval` layer.
 
 If two letter maps `f`, `f'` agree to first order — equal Fox derivatives, equally acting
-evaluations — then the two substituted words agree to first order too, throughout the `NoProf`
-fragment.  Because `foxEval` carries the Fox derivative in `.u` and the base value in `.g`, one
+evaluations — then the two substituted words agree to first order too, throughout the
+displayed fragment.  Because `foxEval` carries the Fox derivative in `.u` and the base value in `.g`, one
 statement transports **both** the certificate's `d¹` and its gate-B/C values.
 
 This is *not* the naive chain rule, and deliberately so: it never pushes an operator through a
 power node.  The shadow memo refutes the naive rule (a Fox derivative of a profinite power is
 not a fixed group-ring element — its finite representative is read at `2·ord(lower value)`, so
-pushing `ρ` through the substitution turns `P` into `1`), and `NoProf` is the fence around that
+pushing `ρ` through the substitution turns `P` into `1`), and `Displayed` is the fence around that
 refutation, not a convenience. -/
-theorem liftActEq_foxEval_subst {Y : Type*} (f f' : Y → PWord X)
-    (hf : ∀ ℓ, LiftActEq (foxEval t a E E₂ (f ℓ)) (foxEval t a E E₂ (f' ℓ))) :
-    ∀ w : PWord Y, w.NoProf →
+theorem liftActEq_foxEval_subst {Y : Type*} {P : Y → Prop} (f f' : Y → PWord X)
+    (hf : ∀ ℓ, P ℓ → LiftActEq (foxEval t a E E₂ (f ℓ)) (foxEval t a E E₂ (f' ℓ))) :
+    ∀ w : PWord Y, w.Displayed P →
       LiftActEq (foxEval t a E E₂ (PWord.subst f w)) (foxEval t a E E₂ (PWord.subst f' w)) := by
   intro w
   induction w with
   | one => intro _; exact LiftActEq.one
-  | gen ℓ => intro _; exact hf ℓ
+  | gen ℓ => intro hw; exact hf ℓ hw
   | mul u v ihu ihv =>
       intro hw
       simpa only [PWord.subst_mul, foxEval_mul] using LiftActEq.mul (ihu hw.1) (ihv hw.2)
@@ -387,17 +397,17 @@ theorem liftActEq_foxEval_subst {Y : Type*} (f f' : Y → PWord X)
 
 /-- **The Fox half of transport**: the substituted words have the same Fox derivative.  This is
 the operator identity the σ-column coincidence lemma runs on. -/
-theorem foxD_subst_congr {Y : Type*} (f f' : Y → PWord X)
-    (hf : ∀ ℓ, LiftActEq (foxEval t a E E₂ (f ℓ)) (foxEval t a E E₂ (f' ℓ)))
-    (w : PWord Y) (hw : w.NoProf) :
+theorem foxD_subst_congr {Y : Type*} {P : Y → Prop} (f f' : Y → PWord X)
+    (hf : ∀ ℓ, P ℓ → LiftActEq (foxEval t a E E₂ (f ℓ)) (foxEval t a E E₂ (f' ℓ)))
+    (w : PWord Y) (hw : w.Displayed P) :
     foxD t a E E₂ (PWord.subst f w) = foxD t a E E₂ (PWord.subst f' w) :=
   (liftActEq_foxEval_subst t a E E₂ f f' hf w hw).1
 
 /-- **The value half of transport**: the substituted words' base values act equally.  This is
 what makes the hat copy's gates B and C WMP-a's balance pair rather than a second ledger. -/
-theorem evalFin_subst_act_congr {Y : Type*} (f f' : Y → PWord X)
-    (hf : ∀ ℓ, LiftActEq (foxEval t a E E₂ (f ℓ)) (foxEval t a E E₂ (f' ℓ)))
-    (w : PWord Y) (hw : w.NoProf) (v : A) :
+theorem evalFin_subst_act_congr {Y : Type*} {P : Y → Prop} (f f' : Y → PWord X)
+    (hf : ∀ ℓ, P ℓ → LiftActEq (foxEval t a E E₂ (f ℓ)) (foxEval t a E E₂ (f' ℓ)))
+    (w : PWord Y) (hw : w.Displayed P) (v : A) :
     PWord.evalFin t E E₂ (PWord.subst f w) • v = PWord.evalFin t E E₂ (PWord.subst f' w) • v := by
   have h := (liftActEq_foxEval_subst t a E E₂ f f' hf w hw).2 v
   rwa [foxEval_g, foxEval_g] at h
@@ -922,5 +932,241 @@ theorem foxD_shM_mpcLinM (α r p : ℕ) :
   congrArg WordLift.u (foxEval_inlineM_shM_mpcLinM t a E E₂ η α r p)
 
 end Shrink
+
+/-! ## §4 The σ-column coincidence lemma
+
+Freeze row 5, binding on this ticket: *"The Lean side needs the **σ-column coincidence lemma**
+(the two copies' σ entries are the same operator, so the product's column vanishes without
+either factor vanishing) — **NOT** the geometric-sum identity."*  Both halves are delivered
+here, and the geometric-sum identity `(1+S^a)[b] = (1+S^b)[a]` is never used or stated. -/
+
+section SigmaColumn
+
+theorem subst_subst {G₀ G₁ G₂ : Type*} (g : G₁ → PWord G₂) (f : G₀ → PWord G₁) :
+    ∀ w : PWord G₀,
+      PWord.subst g (PWord.subst f w) = PWord.subst (fun x => PWord.subst g (f x)) w
+  | .one => rfl
+  | .gen _ => rfl
+  | .mul u v => by
+      simp only [PWord.subst_mul, subst_subst g f u, subst_subst g f v]
+  | .inv u => by simp only [PWord.subst_inv, subst_subst g f u]
+  | .conj u x => by simp only [PWord.subst_conj, subst_subst g f u, subst_subst g f x]
+  | .comm u v => by simp only [PWord.subst_comm, subst_subst g f u, subst_subst g f v]
+  | .zpow u k => by simp only [PWord.subst_zpow, subst_subst g f u]
+  | .z2pow u z => by simp only [PWord.subst_z2pow, subst_subst g f u]
+  | .profPow u γ => by simp only [PWord.subst_profPow, subst_subst g f u]
+
+/-- **The shadow-inlining**: inlining the `Sh_M`-image is substituting the composed letter map.
+This is what puts the two copies side by side as two inlinings of *one* displayed word — the
+form the transport theorem consumes. -/
+theorem inlineM_shM (h : ℕ) (η : EtaDisplay) (w : PWord MLetter) :
+    inlineM h η (shM w) = PWord.subst (fun ℓ => inlineM h η (MLetter.shLetter ℓ)) w :=
+  subst_subst _ _ w
+
+/-! ### The displayed row uses no bare `τ`
+
+`τ` occurs in the frozen procyclic word **only inside the `δ`-atoms**.  That is not a
+convenience: `τ` is the one letter at which the two inlinings disagree beyond first order
+(`Sh_M` sends it to `1`, and it acts nontrivially on every ramified module), so the transport
+hypothesis would be false without this. -/
+
+theorem displayed_sig2PowM : ∀ k : ℕ, (sig2PowM k).Displayed (fun ℓ => ℓ ≠ MLetter.tau)
+  | 0 => by simp [sig2PowM, PWord.Displayed]
+  | 1 => by simp [sig2PowM, PWord.Displayed]
+  | _ + 2 => by simp [sig2PowM, PWord.Displayed]
+
+theorem displayed_c0M (s' : ℕ) : (c0M s').Displayed (fun ℓ => ℓ ≠ MLetter.tau) := by
+  simp [c0M, PWord.Displayed]
+
+theorem displayed_aM (s' mm : ℕ) : (aM s' mm).Displayed (fun ℓ => ℓ ≠ MLetter.tau) := by
+  refine ⟨?_, ?_, trivial⟩
+  · simp [PWord.Displayed]
+  · exact displayed_c0M s'
+
+theorem displayed_bM : ∀ pp : ℕ, (bM pp).Displayed (fun ℓ => ℓ ≠ MLetter.tau)
+  | 0 => by simp [bM, PWord.Displayed]
+  | q + 1 => by
+      rw [show bM (q + 1) = PWord.prodList [.gen (.x 1), sig2PowM (q + 1)] from rfl]
+      exact ⟨by simp [PWord.Displayed], displayed_sig2PowM (q + 1), trivial⟩
+
+theorem displayed_e01M (a b : ℕ) : (e01M a b).Displayed (fun ℓ => ℓ ≠ MLetter.tau) := by
+  simp [e01M, PWord.Displayed]
+
+theorem displayed_zM : ∀ pp : ℕ, (zM pp).Displayed (fun ℓ => ℓ ≠ MLetter.tau)
+  | 0 => by simp [zM, PWord.Displayed]
+  | q + 1 => by
+      rw [show zM (q + 1)
+            = PWord.prodList [.gen (.delta 2), .conj (.gen (.delta 2)) (sig2PowM (q + 1))]
+          from rfl]
+      exact ⟨by simp [PWord.Displayed],
+        ⟨by simp [PWord.Displayed], displayed_sig2PowM (q + 1)⟩, trivial⟩
+
+theorem displayed_e2M (s' mm pp : ℕ) : (e2M s' mm pp).Displayed (fun ℓ => ℓ ≠ MLetter.tau) := by
+  refine ⟨⟨by simp [PWord.Displayed], by simp [PWord.Displayed]⟩, ⟨?_, by simp [PWord.Displayed]⟩,
+    trivial⟩
+  refine displayed_prodList fun w hw => ?_
+  rw [Export.orbitNormFactors] at hw
+  obtain ⟨j, -, rfl⟩ := List.mem_map.mp hw
+  exact ⟨displayed_zM pp, by simp [PWord.Displayed]⟩
+
+/-- **No displayed factor of the procyclic row carries a bare `τ`.** -/
+theorem displayed_mpcLinM (α r p : ℕ) :
+    (mpcLinM α r p).Displayed (fun ℓ => ℓ ≠ MLetter.tau) := by
+  refine displayed_prodList fun w hw => ?_
+  simp only [linFactorsM, List.mem_cons, List.not_mem_nil, or_false] at hw
+  rcases hw with rfl | rfl | rfl | rfl | rfl | rfl
+  · exact displayed_aM _ _
+  · exact ⟨displayed_aM _ _, displayed_bM p⟩
+  · exact displayed_c0M _
+  · exact ⟨displayed_c0M _, by simp [PWord.Displayed]⟩
+  · exact displayed_e01M _ _
+  · exact displayed_e2M _ _ _
+
+/-! ### The coincidence -/
+
+variable {h : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- `x_i` is not the `σ`-letter (so the σ-column offsets vanish on it). -/
+theorem coreLetter_ne_sigma (hh : ℕ) (i : Fin 3) :
+    coreLetter hh i ≠ (Generator.sigma : Generator (2 + 2 * hh)) := by
+  intro hc
+  simp [coreLetter] at hc
+
+/-- The two inlinings agree to first order at every letter but `τ`.
+
+Letter by letter this is exactly what the shadow substitution is: `σ`, `σ₂` and `D` are fixed
+(*equal*, not merely equally acting), `δ₀` and `δ₁` are fixed, and the four letters that move —
+`x₀ ↦ δ₀`, `x₁ ↦ δ₁`, `x₂ ↦ 1`, `δ₂ ↦ 1` — carry **no `σ`** (so both Fox derivatives vanish on
+the σ-column) and act trivially (so no prefix weight can tell the copies apart).  The `x₂` and
+`δ₂` clauses are the reason `E₂^pc` has no shadow at all. -/
+theorem liftActEq_shInline_inline (η : EtaDisplay) (v : V)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hδtriv : ∀ i : Fin 3, PWord.evalFin ⇑t E E₂ (dW h i) ∈ trivAct C V)
+    (hδD : ∀ i : Fin 3, foxD ⇑t (Pi.single Generator.sigma v) E E₂ (dW h i) = 0) :
+    ∀ ℓ : MLetter, ℓ ≠ MLetter.tau →
+      LiftActEq (foxEval ⇑t (Pi.single Generator.sigma v) E E₂ (inlineM h η (MLetter.shLetter ℓ)))
+        (foxEval ⇑t (Pi.single Generator.sigma v) E E₂ (inlineLetter h η ℓ)) := by
+  have hxa : ∀ i : Fin 3, (Pi.single Generator.sigma v : Generator (2 + 2 * h) → V)
+      (coreLetter h i) = 0 := fun i => Pi.single_eq_of_ne (coreLetter_ne_sigma h i) v
+  have hxact : ∀ (i : Fin 3) (w : V), t (coreLetter h i) • w = w := fun i w => hwild _ w
+  have hone : ∀ i : Fin 3,
+      LiftActEq (foxEval ⇑t (Pi.single Generator.sigma v) E E₂
+          (PWord.one : PWord (Generator (2 + 2 * h))))
+        (foxEval ⇑t (Pi.single Generator.sigma v) E E₂ (.gen (coreLetter h i))) :=
+    fun i => ⟨(hxa i).symm, fun w => by simpa using (hxact i w).symm⟩
+  have hδ : ∀ i : Fin 3,
+      LiftActEq (foxEval ⇑t (Pi.single Generator.sigma v) E E₂ (dW h i))
+        (foxEval ⇑t (Pi.single Generator.sigma v) E E₂ (.gen (coreLetter h i))) := by
+    refine fun i => ⟨?_, fun w => ?_⟩
+    · rw [show (foxEval ⇑t (Pi.single Generator.sigma v) E E₂ (dW h i)).u
+          = foxD ⇑t (Pi.single Generator.sigma v) E E₂ (dW h i) from rfl, hδD i]
+      simpa using (hxa i).symm
+    · simp only [foxEval_g]
+      rw [mem_trivAct.mp (hδtriv i)]
+      simpa using (hxact i w).symm
+  have hδone : ∀ i : Fin 3,
+      LiftActEq (foxEval ⇑t (Pi.single Generator.sigma v) E E₂
+          (PWord.one : PWord (Generator (2 + 2 * h))))
+        (foxEval ⇑t (Pi.single Generator.sigma v) E E₂ (dW h i)) := by
+    refine fun i => ⟨?_, fun w => ?_⟩
+    · rw [show (foxEval ⇑t (Pi.single Generator.sigma v) E E₂ (dW h i)).u
+          = foxD ⇑t (Pi.single Generator.sigma v) E E₂ (dW h i) from rfl, hδD i]
+      rfl
+    · simp only [foxEval_g]
+      rw [mem_trivAct.mp (hδtriv i)]
+      simp
+  rintro (- | - | - | - | ⟨i, hi⟩ | ⟨i, hi⟩) hτ
+  · exact LiftActEq.refl _
+  · exact LiftActEq.refl _
+  · exact LiftActEq.refl _
+  · exact absurd rfl hτ
+  · interval_cases i
+    · exact hδ 0
+    · exact hδ 1
+    · exact hone 2
+  · interval_cases i
+    · exact LiftActEq.refl _
+    · exact LiftActEq.refl _
+    · exact hδone 2
+
+/-- **The σ-column coincidence lemma** (freeze row 5).
+
+> The two copies' σ-column entries are the **same operator**.
+
+The proof is §3's transport theorem applied to the two inlinings of the *one* displayed word
+`mpcLinM`.  `D(σ₂)` — the Sage engine's opaque atom `G[S;ω₂]` — is never computed; it does not
+have to be, because nothing in the argument evaluates it.  Neither copy's σ-column is claimed
+to vanish, and neither does: `[Â,B̂]` has a `σ₂`-carrying right entry, so it contributes to the
+column on both sides.
+
+⚠ **Contrast with WM0-b's compact-`M` analogue**, which is a genuinely different mechanism:
+there the σ-column cancels **over `ℤ`**, because the balancing `σ₂^{2m}` sits behind the
+`A₀`-prefix and the differentiated Prop. 9.2 balance does the work with no characteristic
+hypothesis (`MCompact.foxD_mWordWith_core`, via `MCompact.sigmaGeom_two_mul`).  There it works
+because the compact `B`-letter is the *bare* `x₁`, which acts trivially; here `B = x₁σ₂^p` does
+not.  Conflating the two would be an error. -/
+theorem foxColumn_sigma_mpcHatW_eq_mpcLinW (α r p : ℕ) (η : EtaDisplay)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hδtriv : ∀ i : Fin 3, PWord.evalFin ⇑t E E₂ (dW h i) ∈ trivAct C V)
+    (hδD : ∀ (v : V) (i : Fin 3), foxD ⇑t (Pi.single Generator.sigma v) E E₂ (dW h i) = 0) :
+    foxColumn (A := V) ⇑t E E₂ (mpcHatW α r p η h) Generator.sigma
+      = foxColumn (A := V) ⇑t E E₂ (mpcLinW α r p η h) Generator.sigma := by
+  refine AddMonoidHom.ext fun v => ?_
+  rw [foxColumn_apply, foxColumn_apply, ← foxD_shM_mpcLinM, inlineM_shM, ← inlineM_mpcLinM h η,
+    inlineM]
+  exact foxD_subst_congr (P := fun ℓ => ℓ ≠ MLetter.tau) _ _ _ _ _ _
+    (liftActEq_shInline_inline t E E₂ η v hwild hδtriv (hδD v)) _ (displayed_mpcLinM α r p)
+
+/-- **The product's σ-column vanishes without either factor vanishing** — the second half of the
+freeze's mandate, and the reason the coincidence lemma is the right statement.
+
+`D(uv) = D(u) + ū·D(v)`; the linear copy's value acts trivially (`hlin` — the Prop. 9.2 balance
+read at the value level: `A²` contributes `S₂^{−2sm}`, `C₀^{2^α}` contributes `S₂^{s·2^α}`, and
+those cancel), so the two σ-entries add rather than compose, and by the coincidence they are the
+*same* entry.  Over a characteristic-`2` module `Φ + Φ = 0`.
+
+This is where characteristic `2` genuinely enters, and it enters **here and not earlier**. -/
+theorem foxColumn_sigma_mul_eq_zero (α r p : ℕ) (η : EtaDisplay) (hV₂ : ∀ w : V, w + w = 0)
+    (hlin : PWord.evalFin ⇑t E E₂ (mpcLinW α r p η h) ∈ trivAct C V)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hδtriv : ∀ i : Fin 3, PWord.evalFin ⇑t E E₂ (dW h i) ∈ trivAct C V)
+    (hδD : ∀ (v : V) (i : Fin 3), foxD ⇑t (Pi.single Generator.sigma v) E E₂ (dW h i) = 0) :
+    foxColumn (A := V) ⇑t E E₂ (.mul (mpcLinW α r p η h) (mpcHatW α r p η h)) Generator.sigma
+      = 0 := by
+  refine AddMonoidHom.ext fun v => ?_
+  have hcol := congrArg (fun f : V →+ V => f v)
+    (foxColumn_sigma_mpcHatW_eq_mpcLinW t E E₂ α r p η hwild hδtriv hδD)
+  simp only [foxColumn_apply] at hcol ⊢
+  rw [foxD_mul, mem_trivAct.mp hlin, hcol]
+  exact hV₂ _
+
+end SigmaColumn
+
+/-! ### The WW3 form: where the second-order shadow enters
+
+The mandate is to state the coincidence *against* WW3's `heisJetZero` family, which is the
+"copies cancel" consumable.  `heisJetZero` is the subgroup of lift values with **both** first
+derivatives zero (`p.a = 0` and `p.l = 0`), and `heisEvalZ_mul_z` is the second-order product
+rule `β(uv) = β(u) + β(v) + D^∨(u)(ū·D(v))`.  Once the hat copy's first jet vanishes — §5's
+headline, of which the σ-column is the last entry — the cross term dies and the two copies'
+central values simply add, which is the step WMP-c turns into the char-`2` cancellation. -/
+
+section HeisForm
+
+variable {X : Type*} {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+  (μ : X → C) (x : X → A) (y : X → ElemDual A) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- **The copies-cancel step, at the second order** (WW3's `heisMul_z_of_jetZero`, wired to this
+lane).  If the hat copy's first jet vanishes then the pair's central value is the sum of the two
+copies' central values — no cross term.  This needs *only* the vanishing first derivative
+(S1.5's banked lemma (iii)(a)); no module, no lift, no characteristic hypothesis. -/
+theorem heisEvalZ_pair_z_of_hat_jetZero (lin hat : PWord X)
+    (hjet : heisEvalZ μ x y E E₂ hat ∈ heisJetZero A C) :
+    (heisEvalZ μ x y E E₂ (.mul lin hat)).z
+      = (heisEvalZ μ x y E E₂ lin).z + (heisEvalZ μ x y E E₂ hat).z := by
+  rw [heisEvalZ_mul_z, hjet.1, smul_zero, map_zero, add_zero]
+
+end HeisForm
 
 end GQ2.Dyadic.Certificates.MProcyclic
