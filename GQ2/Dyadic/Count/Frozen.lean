@@ -63,6 +63,10 @@ CB-4 consumes it.  Everything here is a corollary, so it pays the import cost in
 * **§9** (CB-FR2) closes §5.4: the mpc-side `ResolvedAt` walk, so the procyclic-`M` `.hat` display
   resolves at the *same* `npcResolver`, and its endpoint comes free from
   `Certificates.MProcyclic.epsZ_mpcW`, which was already resolver- and display-generic.
+* **§10** (CB-FR2) **all five rows** as matched `(hres, hend)` pairs at one arbitrary nonzero even
+  level — the other four needed no new work, only `odd_omega2Exp` in place of the literal `Odd 3`,
+  because their `resolvesAt_*` were already level-generic and only §3.1's *pins* were not.  With
+  §8.2's split level this leaves the count lane owing nothing about the target.
 
 ## Axiom posture
 
@@ -1166,6 +1170,80 @@ theorem resolvesAt_and_endpoint_mpcFamOf_hat {N : ℕ} (hN : N ≠ 0) (hv : N.fa
    mpcOf_isStokesEndpoint hα hq (odd_npcResolver_omega2 hN hv _) _⟩
 
 end MpcHat
+
+/-! ## §10 All five rows at one level, and what that leaves owed
+
+§7 and §9 close the two rows that were outside the `ω₂`-only fragment.  What §8 changes for the
+*other* four is smaller but just as decisive: their `resolvesAt_*` were **already generic in the
+level `N`** (`Count.resolvesAt_nCompactFam`, and §3's three), and it was only the *pins* of §3.1
+that fixed `N = 6` or `N = 2 ^ a`.  With `∣ 3` refuted, those pins have no source — but nothing
+needs re-proving, because `odd_omega2Exp` supplies the endpoint's `Odd e` at the level-chosen
+`e = omega2Exp N` just as it did at the literal `3`.
+
+So the whole count lane runs at one level, and §8.2 says which: `2 · exp(Bg ⧸ D.M)`, nonzero and
+even for free.  Below, each of the five rows as a matched `(hres, hend)` pair at an arbitrary
+nonzero even level, then the split-target instantiation on the pilot row as the template. -/
+
+section AllFive
+
+open GQ2.FoxH GQ2.SectionEight GQ2.SectionEight.AffineTLift GQ2.Dyadic.Certificates
+
+variable {Q : Type} [Group Q] [TopologicalSpace Q] [DiscreteTopology Q] [Finite Q]
+variable {N : ℕ} (hN : N ≠ 0) (hv : N.factorization 2 ≠ 0) (hord : ∀ x : Q, orderOf x ∣ N)
+
+include hN hv hord
+
+/-- **Row 1, compact `N`.** -/
+theorem resolvesAt_and_endpoint_nCompactFam {α h q : ℕ} (hα : 1 ≤ α) (hq : Even q) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.nCompactW α h))
+        (nCompactFam α h q (omega2Exp N)) Q
+      ∧ IsStokesEndpoint (nCompactFam α h q (omega2Exp N)) :=
+  ⟨resolvesAt_nCompactFam hN hord α h q, nCompact_isStokesEndpoint hα hq (odd_omega2Exp hN hv)⟩
+
+/-- **Row 2, compact `M`.** -/
+theorem resolvesAt_and_endpoint_mCompactFam {α h q : ℕ} (hq : Even q) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.MCompact.mCompactW α h))
+        (MCompact.mCompactFam α h q (omega2Exp N)) Q
+      ∧ IsStokesEndpoint (MCompact.mCompactFam α h q (omega2Exp N)) :=
+  ⟨resolvesAt_mCompactFam hN hord α h q,
+   MCompact.mCompact_isStokesEndpoint hq (odd_omega2Exp hN hv)⟩
+
+/-- **Row 3, `L_sq`.** -/
+theorem resolvesAt_and_endpoint_lSqFam {h q : ℕ} (hq : Even q) :
+    ResolvesAt (gammaFam (2 * h + 1) q (Words.LSq.lSqW h))
+        (LSqStokes.lSqFam h q (omega2Exp N)) Q
+      ∧ IsStokesEndpoint (LSqStokes.lSqFam h q (omega2Exp N)) :=
+  ⟨resolvesAt_lSqFam hN hord h q, LSqStokes.lSq_isStokesEndpoint hq (odd_omega2Exp hN hv)⟩
+
+/-- **Row 4, procyclic `M`, at an `ω₂`-only display.**  The `.hat` display is
+`resolvesAt_and_endpoint_mpcFamOf_hat` of §9.3. -/
+theorem resolvesAt_and_endpoint_mpcFam {α r pp h q : ℕ} (hα : 1 ≤ α) (hq : Even q)
+    {η : Words.Mpc.EtaDisplay} (hη : η.IsOmega2Only) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.Mpc.mpcW α r pp η h))
+        (MProcyclic.mpcFam α r pp h q (omega2Exp N) η) Q
+      ∧ IsStokesEndpoint (MProcyclic.mpcFam α r pp h q (omega2Exp N) η) :=
+  ⟨resolvesAt_mpcFam hN hord α r pp h q hη,
+   MProcyclic.mpc_isStokesEndpoint hα hq (odd_omega2Exp hN hv)⟩
+
+omit hN hv hord in
+/-- **The pilot row at the split target, with no hypothesis about the target** — the compact-`N`
+twin of §8.2's `resolvesAt_and_endpoint_npcFamOf_split`, and the shape
+`Count/Presentation.lean`'s `sqrtNegTwo_*_gammaR_nCompact` want in place of their `orderOf x ∣ 6`.
+
+The `√−2` pilot itself is the `(α, h, q) = (2, 0, 2)` instance. -/
+theorem resolvesAt_and_endpoint_nCompactFam_split {Bg : Type} [Group Bg] [Finite Bg]
+    (D : RadicalCoverData Bg)
+    [TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    [DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    {α h q : ℕ} (hα : 1 ≤ α) (hq : Even q) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.nCompactW α h))
+        (nCompactFam α h q (omega2Exp (2 * Monoid.exponent (Bg ⧸ D.M))))
+        (WordLift (Additive ↥D.T) (Bg ⧸ D.M))
+      ∧ IsStokesEndpoint (nCompactFam α h q (omega2Exp (2 * Monoid.exponent (Bg ⧸ D.M)))) :=
+  resolvesAt_and_endpoint_nCompactFam (splitLevel_ne_zero_and_even D).1
+    (splitLevel_ne_zero_and_even D).2 (orderOf_wordLift_radT_dvd_exponent D) hα hq
+
+end AllFive
 
 end Count
 
