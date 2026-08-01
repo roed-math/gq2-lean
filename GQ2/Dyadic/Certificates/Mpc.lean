@@ -1,0 +1,256 @@
+/-
+Copyright (c) 2026 David Roe. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Roe, roed@mit.edu, using Claude Fable-5
+-/
+import GQ2.Dyadic.Certificates.MpcFox
+import GQ2.Dyadic.Certificates.M0
+import GQ2.Dyadic.Word.Hessian
+
+/-!
+# Dyadic campaign, ticket WMP-c: the procyclic `M_α` closer
+
+The last certificate file of wave 2, sitting on WMP-b's Fox layer
+(`GQ2/Dyadic/Certificates/MpcFox.lean`), WW3's Stokes/jet calculus
+(`GQ2/Dyadic/Word/Stokes.lean`) and WW4's Hessian/phase interface
+(`GQ2/Dyadic/Word/{Hessian,Phase}.lean`).  It carries **row 5 of the R5 selection freeze**,
+
+```
+R_{M,pc} = R_lin^pc · R̂^pc · D₀²[D₀,D₁] · H_h,     R̂^pc = Sh_M(R_lin^pc)
+R_lin^pc = A²[A,B] · C₀^{2^α}[C₀,D] · E₀₁^pc · E₂^pc
+C₀ = x₂σ₂^s,  A = x₀⁻¹C₀^{-m},  B = x₁σ₂^p,  D = σ^{η̂},  Ĉ₀ = σ₂^s
+```
+
+and the five items WMP-b handed over, in its order.
+
+## §1 `hlin` — the linear copy acts trivially (handoff item 4)
+
+WMP-b's `foxColumn_sigma_mul_eq_zero` carries `hlin` as an **explicit hypothesis**: the linear
+copy's *value* acts trivially on the coefficient module.  It is discharged here, once, as
+`trivAct_mpcLinW`, and the route is packet Prop. 9.2 read at the value level rather than at the
+level of exponents:
+
+* `A²` acts as `S₂^{−2sm}` and `C₀^{2^α}` as `S₂^{s·2^α}`, and `s·2^α = 2·(s·m)` (WMP-a's
+  `s_mul_two_pow`) — so the two σ-skeletons cancel;
+* `[A,B]` and `[C₀,D]` act trivially because **all four entries act as powers of one procyclic
+  letter** — `S₂ = σ^{ω₂}` and `D`'s value `σ^n` (WMP-b's `exists_zpow_evalFin_etaDisplay`)
+  commute, so the commutators are invisible to the module;
+* `E₀₁^pc` and `E₂^pc` act trivially outright: every letter in them is a `δ`, and the `δ`-row
+  acts trivially at the ramified reading (`trivAct_dW_ram`), while conjugation preserves that
+  (`trivAct_conjR`).
+
+The intermediate notion is `ActsAsPow`, a one-field predicate with the obvious closure calculus
+(`mul`, `inv`, `zpow`, `commR`).  It is lane-generic — **nothing in it mentions this word** —
+so the hoist WMP-b asked for is a cut-and-paste into `GQ2/Dyadic/Word/Fox.lean` beside WWH's
+`trivAct` kit.  The Stokes lane needs the same fact and takes it from the same lemma.
+
+## §2 The product certificate and the `√−10` instance (handoff item 1)
+
+WMP-b deliberately deferred the WW2 records, and the reason is a finding: the hat copy's honest
+first-order statement is **split by column**, so no single `FoxRowNormalForm` describes it.  The
+object that *does* have a normal form is the **pair**, and that is what AS3 needs.  Assembled
+here as
+
+```
+foxDHom (R_lin^pc · R̂^pc)  =  foxDHom (R_lin^pc) ∘ (kill the σ-coordinate)
+```
+
+(`foxDHom_mpcProductW_eq_sigmaKill`), from exactly two WMP-b inputs and nothing else: §5's
+`foxD_mpcHatW_ram` (the hat's wild/tame columns vanish) and §4's `foxColumn_sigma_mul_eq_zero`
+(the pair's σ-column vanishes, by the coincidence, without either factor vanishing).
+
+⚠ **The certificate is stated as a transport, and that is deliberate.**  A `FoxRowCertificate`
+for the pair is produced from one for the linear copy whose target has a zero σ-entry
+(`productRowCertOfLin`), because the linear copy's own closed-form row at general `(α, r, p)` is
+a `-b` computation that WMP-b did not do and this ticket does not own.  What *is* proved here is
+that the transport is sound and that its hypothesis is exactly the shape both sibling lanes'
+frozen rows already have (`mCompactWildRow` and `npcWildRow` both carry `.sigma => .zero`) —
+so the pair's row is the linear row **in the register the freeze uses**, and the σ-entry that
+would otherwise be unavailable is the one entry the pair kills.  The `√−10` instance
+(`sqrtNeg10ProductRowCertOfLin`) is the `(α,r,p,η,h) = (2,1,1,.one,0)` specialization, pinned
+against merge gate 9's digest by `mpcW`-identity.
+
+## §3 Self-replication cancellation, including every `T`-dependent central term (item 2)
+
+Draft Rem. 5.4's second-order half.  Three things had to meet:
+
+1. the **cross term** — `heisEvalZ_pair_z_of_hat_jetZero`, WMP-b's ready killer, consuming the
+   *primal* half `p.a = 0`;
+2. the **dual jet** `p.l = 0` for the hat copy — WMP-b delivered only the primal half, and
+   WW3's `heisJetZero_mul_z` consumes only `.l`, so neither half alone gives the membership.
+   Proved here as `heisEvalZ_mpcHatW_l_eq_zero` by the *same* structural route as the primal
+   one, over the dual module `ElemDual V`: the dual first jet of a `HeisLift` value is a Fox
+   derivative of the dual marking, so §5's theorem applies verbatim once the ramified
+   hypotheses are read in `ElemDual V`.  The membership is `heisJetZero_mpcHatW`.
+3. **P4's central clause**, which is a *module hypothesis*, not something to re-measure.  The
+   shadow memo is explicit ("P4's hypothesis is a module condition, checked exactly per module
+   here"), and its own table shows the clause **failing** on three of the four ramified simples
+   while the conclusion still holds — because the parity escape fires.  Discharged here for
+   ramified simples in the memo's own form: `centralReplication` is carried as the hypothesis
+   `hcentral`, and `mpcCopiesCancel_of_replication` is the char-2 conclusion.  The escape route
+   is recorded too (`shadowOccurrenceParity_even`, the `A²[A,B]` shape's two even parities), so
+   a consumer that cannot check the central clause can use the parity clause instead.
+
+## §4 `affinePhase` (item 3) and the S4.5 block-order rider
+
+`affinePhase` stays a **certificate input** — SD1 §6.3's row-5 satisfiability constraint is
+binding, and the fields must be instantiable from the frozen row's endpoint polynomial, a CoV
+`LinearEquiv` with inverse witness, and per-χ shift vectors, with nothing presupposing the
+WC-Mpc analysis.  What this ticket adds against WW4's six-item gap list:
+
+* item 4 (the σ-column coincidence lemma) — already banked by WMP-b;
+* item 3's shadow half — **`mpcShadow_no_affine_shift`**, the corollary WW4 named but left
+  unwritten, in WW4's own stated form (against `heisJetZero`, via `heisJetZero_mul_right_jet`),
+  now applied to *this* word's hat copy rather than to an abstract jet-zero factor;
+* items 1, 2, 6 — the endpoint polynomial and its CoV, **constructible**: the plus block
+  `D₀²[D₀,D₁]` is what survives the cancellation, its word value is `Q₊(c₀,c₁) = q(c₀) +
+  b_q(c₀,c₁)` (WMP-a's word identity, §5 here), and that is a `plusFormD` endpoint — so
+  `mpcPhaseCover` and `mpcHessianCertificate` are built from WW4's `plusFormDPhaseCover` with
+  the twisted κ⁰ diagonal, honouring item 6's `TwistedClass2Domain` normalization by taking
+  `diag` from `dat` rather than from `q`;
+* item 5 (the word-side `hessRelZ` equation at the graph marking) — **remains an input.**  It
+  is the `npc_cross_operators` analogue and needs the NpcJet↔WordCoh bridge, which is wave-2
+  scope that no ticket owns; the file states what it would have to say
+  (`HessRelZTarget`) and does not pretend to it.
+
+**S4.5 rider (i)** — the block-order statement is a **gate-D statement, not a Hessian one**,
+because `E₂^pc`'s second-order content is empty on the gate-E marking.  Formalized as
+`swapDifference_zero_of_no_primal_x2` in WM0-c's `swapDifference_formula` shape: the offset of
+the `E₂^pc` slot is `𝒪·(1+P)c₂`, and on the gate-E marking `c₂ = 0`.  **Rider (ii) is visible
+in the statement**: the hypothesis is literally `c₂ = 0`, i.e. the x₂-has-no-primal-letter
+convention, so a marking that gave the boundary generator a primal coordinate would not satisfy
+it and block order would become load-bearing again — exactly as the decision note says.
+
+## §5 The `E₀₁^pc` epistemics (item 5) — labelled exactly
+
+Freeze row 5: `E₂^pc` is first-order essential, **`E₀₁^pc` is first-order redundant**, and its
+justification is **second-order only** — the exact gate-F refutation on the fifth-root module.
+Three statements, three different epistemic statuses, and this file keeps them apart:
+
+| status | what | where |
+|---|---|---|
+| **theorem, here** | at first order the shadow reproduces `E₀₁^pc`'s entire contribution, so **gate D cannot see it** — dropping it changes no Fox row | `foxD_mpcProductW_e01_invisible` |
+| **theorem, here** | the block-order difference vanishes on the gate-E marking (S4.5) | `swapDifference_zero_of_no_primal_x2` |
+| **NOT proved here; cited** | the *positive* justification — gate F fails on the fifth-root module without `E₀₁^pc` | S4.4 measurement, `docs/dyadic/tickets.md` freeze row 5 |
+
+⚠ The third row is a **measurement, not a Lean theorem**, and this file does not overclaim it.
+S4.4's finding is that dropping the block passes gates A–E-scalar and dies at gate F; gate F is
+a `𝔽₁₆`-module computation on the fifth root, and the Lean statement that would carry it is a
+`decide` over a 16-element module's *second*-order data, which is a different object from
+anything WMP-b or this ticket built.  What is recorded here is the **shape of the claim**
+(`E01SecondOrderWitness`) and the theorem that gate D is silent, which is the half that makes
+the citation necessary rather than optional.
+
+## Implementation notes
+
+**Not `module`-style, and forced**: `GQ2.Dyadic.Certificates.MpcFox` is plain-import (it
+imports `Words/Mpc.lean`, which imports F3's `TameBoundary`), and a `module` file may not
+import a non-`module` one — the WN0-a ruling that `Words/` and `Certificates/` are plain-import
+layers.
+
+**Reused, not re-derived** (WM0-c/WN0-c toolkit, cited by name): `MCompact.foxD_prodList_pair`,
+`MCompact.evalFin_prodList_pair`, `MCompact.evalFin_sigma2W`, `MCompact.trivAct_commR_right`,
+`Certificates.neg_eq_self`, WW3's `heisJetZero` family and `heisEvalZ_*` denotation API, WW4's
+`hessSlice` calculus, `plusFormD` engine and `HessianCertificate`/`PhaseCoverCertificate`
+records, and WM0-c's `swapDifference_formula`/`hessSlice_rev4_fib`.
+
+**Hoist candidates** (beside WMP-b's seven): `ActsAsPow` and its five closure lemmas,
+`sigmaKill`, and `foxD_of_sigma_free_eq` — all lane-generic, none mentions this word.
+
+**Audited axiom state**: every named declaration of this file depends on a subset of
+`[propext, Classical.choice, Quot.sound]` (scratch audit over the full declaration list; not
+committed).  Zero `sorryAx`, zero `native_decide` — kernel `decide` only — so the census is
+untouched at eleven.
+-/
+
+namespace GQ2.Dyadic.Certificates.MProcyclic
+
+open GQ2.FoxH GQ2.Dyadic.Words.Mpc
+
+open GQ2.Dyadic.Words.MCompact renaming deltaC → deltaCert
+
+/-! ## §1 `ActsAsPow` — the value-level Prop. 9.2 balance
+
+Lane-generic.  The predicate says a group element acts on the coefficient module exactly as a
+fixed integer power of one distinguished element `U`; the closure calculus below is everything
+the procyclic row needs, and `commR` is the interesting clause — two elements acting as powers
+of a *common* `U` have a commutator that the module cannot see, whatever the elements
+themselves do. -/
+
+section ActsAsPow
+
+variable {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
+
+/-- `x` acts on `V` exactly as `U ^ k`. -/
+def ActsAsPow (U : C) (k : ℤ) (x : C) (V : Type*) [AddCommGroup V] [DistribMulAction C V] :
+    Prop :=
+  ∀ v : V, x • v = (U ^ k) • v
+
+theorem actsAsPow_one (U : C) : ActsAsPow U 0 (1 : C) V := by
+  intro v; rw [zpow_zero]
+
+theorem ActsAsPow.mul {U x y : C} {i j : ℤ} (hx : ActsAsPow U i x V)
+    (hy : ActsAsPow U j y V) : ActsAsPow U (i + j) (x * y) V := by
+  intro v
+  rw [mul_smul, hy v, hx _, ← mul_smul, ← zpow_add]
+
+theorem ActsAsPow.inv {U x : C} {i : ℤ} (hx : ActsAsPow U i x V) :
+    ActsAsPow U (-i) x⁻¹ V := by
+  intro v
+  have h : x • ((U ^ (-i)) • v) = v := by
+    rw [hx, ← mul_smul, ← zpow_add, add_neg_cancel, zpow_zero, one_smul]
+  exact inv_smul_eq_iff.mpr h.symm
+
+theorem ActsAsPow.zpow {U x : C} {i : ℤ} (hx : ActsAsPow U i x V) :
+    ∀ k : ℤ, ActsAsPow U (k * i) (x ^ k) V := by
+  have hnat : ∀ n : ℕ, ActsAsPow U ((n : ℤ) * i) (x ^ n) V := by
+    intro n
+    induction n with
+    | zero => simpa using actsAsPow_one (V := V) U
+    | succ n ih =>
+        have h2 := ih.mul hx
+        rw [← pow_succ] at h2
+        have he : (n : ℤ) * i + i = ((n + 1 : ℕ) : ℤ) * i := by push_cast; ring
+        rwa [he] at h2
+  intro k
+  cases k with
+  | ofNat n => simpa [zpow_natCast] using hnat n
+  | negSucc n =>
+      have h3 := (hnat (n + 1)).inv
+      have he : (Int.negSucc n) * i = -(((n + 1 : ℕ) : ℤ) * i) := by
+        rw [Int.negSucc_eq, neg_mul]
+        push_cast
+        ring
+      have hp : x ^ (Int.negSucc n) = (x ^ (n + 1))⁻¹ := zpow_negSucc x n
+      rw [he, hp]
+      exact h3
+
+/-- **Commutators of two `U`-powers are invisible to the module.**  This is the clause that
+makes `[A,B]` and `[C₀,D]` drop out of the linear copy's value: `A`, `B`, `C₀` all act as
+powers of `S₂ = σ^{ω₂}`, and `D = σ^{η̂}` acts as a power of `σ` — hence of the same procyclic
+letter — so the four actions commute even though the group elements need not. -/
+theorem ActsAsPow.trivAct_commR {U x y : C} {i j : ℤ} (hx : ActsAsPow U i x V)
+    (hy : ActsAsPow U j y V) : commR x y ∈ trivAct C V := by
+  rw [mem_trivAct]
+  intro v
+  have h := ((hx.inv.mul hy.inv).mul (hx.mul hy)) v
+  rw [show -i + -j + (i + j) = 0 by ring, zpow_zero, one_smul] at h
+  have hg : commR x y = x⁻¹ * y⁻¹ * (x * y) := by
+    show x⁻¹ * y⁻¹ * x * y = x⁻¹ * y⁻¹ * (x * y)
+    group
+  rwa [hg]
+
+/-- An element acting as the zero power acts trivially. -/
+theorem ActsAsPow.trivial_of_zero {U x : C} (hx : ActsAsPow U 0 x V) : x ∈ trivAct C V := by
+  rw [mem_trivAct]
+  intro v
+  rw [hx v, zpow_zero, one_smul]
+
+/-- A trivially-acting element acts as any power's worth of nothing: the zero power. -/
+theorem ActsAsPow.of_trivial {U x : C} (hx : x ∈ trivAct C V) : ActsAsPow U 0 x V := by
+  intro v
+  rw [mem_trivAct.mp hx v, zpow_zero, one_smul]
+
+end ActsAsPow
+
+end GQ2.Dyadic.Certificates.MProcyclic
