@@ -282,6 +282,9 @@ instance (m : ℕ) : DiscreteTopology (CycTest m) := ⟨rfl⟩
 instance (m : ℕ) [NeZero m] : Finite (CycTest m) :=
   inferInstanceAs (Finite (Multiplicative (ZMod m)))
 
+instance (m : ℕ) : DecidableEq (CycTest m) :=
+  inferInstanceAs (DecidableEq (Multiplicative (ZMod m)))
+
 /-- The chosen generator `1 ∈ ℤ/m`. -/
 def gen (m : ℕ) : CycTest m := Multiplicative.ofAdd 1
 
@@ -420,6 +423,188 @@ theorem zpowHat_omega2_ne_zpow {g₀ : Generator n}
   exact absurd h3.symm (by decide)
 
 end Obstruction
+
+/-! ## §6 The refutation template
+
+A cyclic character that kills **both** relators but not the resolved family member witnesses
+`freeToProf (v 1) ∉ relatorSubgroup (gammaRelators n q R)` — i.e. the failure of
+`ResolvesGammaRelators.fam_mem` itself, not merely of the `of_two` route.
+
+The character used below is `degHom n m g₀` at a *wild* letter `g₀`, so `τ ↦ 1` and the tame
+relator dies for free, at every `q`. -/
+
+section Refute
+
+variable {n : ℕ}
+
+/-- Every element of `ℤ/m` is killed by `m`. -/
+theorem CycTest.pow_self (m : ℕ) (x : CycTest m) : x ^ m = 1 := by
+  have h : ∀ a : ZMod m, (Multiplicative.ofAdd a : Multiplicative (ZMod m)) ^ m = 1 := by
+    intro a
+    rw [← ofAdd_nsmul, nsmul_eq_mul, ZMod.natCast_self, zero_mul]
+    rfl
+  exact h (Multiplicative.toAdd (x : Multiplicative (ZMod m)))
+
+theorem CycTest.orderOf_dvd (m : ℕ) (x : CycTest m) : orderOf x ∣ m :=
+  orderOf_dvd_of_pow_eq_one (CycTest.pow_self m x)
+
+/-- The degree character at a letter other than `τ` kills the tame relator, at every `q`. -/
+theorem degHom_tameRelatorGen (m : ℕ) [NeZero m] {g₀ : Generator n}
+    (hg : Generator.tau ≠ g₀) (q : ℕ) : degHom n m g₀ (tameRelatorGen n q) = 1 := by
+  simp only [tameRelatorGen, conjP, map_mul, map_inv, map_pow, degHom_of, degMark_of_ne hg]
+  group
+
+/-- The degree character of the **intrinsic** wild relator, on the `ω₂`-only fragment: packet
+Lem. 2.2 turns `^ᶻ ω₂` into the `ℕ`-power at `omega2Exp m`. -/
+theorem degHom_freeMarking_eval (m : ℕ) [NeZero m] (g₀ : Generator n) {w : PWord (Generator n)}
+    (hw : w.IsOmega2Only) :
+    degHom n m g₀ ((freeMarking n).eval w)
+      = PWord.evalNat (degMark n m g₀) (omega2Exp m) w := by
+  rw [Marking.map_eval (degHom n m g₀) (freeMarking n) w, freeMarking_map_degHom]
+  exact PWord.eval_eq_evalNat_of_dvd (NeZero.ne m) (CycTest.orderOf_dvd m) _ hw
+
+/-- The degree character of the **resolved** relator: the integer-exponent denotation, with no
+hypothesis at all. -/
+theorem degHom_freeToProf_heisToFree (m : ℕ) [NeZero m] (g₀ : Generator n)
+    (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (w : PWord (Generator n)) :
+    degHom n m g₀ (freeToProf (Generator n) (heisToFree E E₂ w))
+      = PWord.evalZ (degMark n m g₀) E E₂ w := by
+  have hfun : (fun x => (degHom n m g₀).toMonoidHom (FreeProfiniteGroup.of x)) = degMark n m g₀ :=
+    funext fun x => degHom_of m g₀ x
+  have h := comp_freeToProf (degHom n m g₀).toMonoidHom (heisToFree E E₂ w)
+  rw [hfun] at h
+  rw [evalZ_eq_lift_heisToFree (degMark n m g₀) E E₂ w]
+  exact h
+
+/-- **The refutation template.**  Both relators die at the character and the resolved family
+member does not, so it is outside the closed normal closure of the relators. -/
+theorem not_resolvesGammaRelators {m : ℕ} [NeZero m] {g₀ : Generator n}
+    (hg : Generator.tau ≠ g₀) (q : ℕ) {R : PWord (Generator n)}
+    {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ} {v : Fin 2 → FreeGroup (Generator n)}
+    (hv : v 1 = heisToFree E E₂ R)
+    (hkill : degHom n m g₀ ((freeMarking n).eval R) = 1)
+    (hlive : PWord.evalZ (degMark n m g₀) E E₂ R ≠ 1) :
+    ¬ ResolvesGammaRelators n q R v := by
+  intro hres
+  have hker : relatorSubgroup (gammaRelators n q R) ≤ (degHom n m g₀).toMonoidHom.ker := by
+    refine Subgroup.topologicalClosure_minimal _ (Subgroup.normalClosure_le_normal ?_)
+      (IsClosed.preimage (degHom n m g₀).continuous_toFun isClosed_singleton)
+    intro r hr
+    simp only [gammaRelators, Set.mem_insert_iff, Set.mem_singleton_iff] at hr
+    rcases hr with rfl | rfl
+    · exact MonoidHom.mem_ker.mpr (degHom_tameRelatorGen m hg q)
+    · exact MonoidHom.mem_ker.mpr hkill
+  have h1 := hker (hres.fam_mem 1)
+  rw [hv] at h1
+  refine hlive ?_
+  rw [← degHom_freeToProf_heisToFree m g₀ E E₂ R]
+  exact MonoidHom.mem_ker.mp h1
+
+/-- The `ω₂`-only form: `hkill` becomes a computation at the resolver `omega2Exp m`. -/
+theorem not_resolvesGammaRelators_of_isOmega2Only {m : ℕ} [NeZero m] {g₀ : Generator n}
+    (hg : Generator.tau ≠ g₀) (q : ℕ) {R : PWord (Generator n)} (hR : R.IsOmega2Only)
+    {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ} {v : Fin 2 → FreeGroup (Generator n)}
+    (hv : v 1 = heisToFree E E₂ R)
+    (hkill : PWord.evalNat (degMark n m g₀) (omega2Exp m) R = 1)
+    (hlive : PWord.evalZ (degMark n m g₀) E E₂ R ≠ 1) :
+    ¬ ResolvesGammaRelators n q R v :=
+  not_resolvesGammaRelators hg q hv
+    ((degHom_freeMarking_eval m g₀ hR).trans hkill) hlive
+
+end Refute
+
+/-! ## §7 The five frozen families, refuted at the intrinsic branch word
+
+Each theorem below says: at the frozen instance, the family does **not** resolve the relators of
+`Γ_R` when `R` is the branch word itself.  The witness is one cyclic character in the letter `x₂`
+(`x₀` for `L_sq`) into `ℤ/8` (`ℤ/4` for `L_sq`) — a **`2`-group**, so CB-MP's admissibility
+restriction does not exclude it.  All of `q` is covered: the tame relator dies at the character
+for every `q`, because the character kills `τ`.
+
+The arithmetic in every case is `omega2Exp (2 ^ a) = 1` against the frozen resolver `e = 3`: the
+intrinsic relator's traced exponent is `ω₂ − 1 ↦ 0`, the resolved one's is `e − 1 ↦ 2 ≠ 0`. -/
+
+section Frozen
+
+/-- `omega2Exp 4 = 1`, the `L_sq` modulus (companion of `omega2Exp_eight`). -/
+theorem omega2Exp_four : omega2Exp 4 = 1 := by
+  have hfac : (4 : ℕ).factorization 2 = 2 := by
+    rw [show (4 : ℕ) = 2 ^ 2 by norm_num, Nat.Prime.factorization_pow Nat.prime_two,
+      Finsupp.single_eq_same]
+  norm_num [omega2Exp, hfac]
+
+/-- **Compact `N` (the `√−2` pilot) does not resolve the relators of the intrinsic branch
+word**, at any `q`. -/
+theorem not_resolves_nCompactFam (q : ℕ) :
+    ¬ ResolvesGammaRelators (2 + 2 * 0) q (Words.nCompactW 2 0)
+      (Certificates.nCompactFam 2 0 q 3) :=
+  not_resolvesGammaRelators_of_isOmega2Only (m := 8) (g₀ := Words.coreLetter 0 2)
+    (by decide) q (Words.isOmega2Only_nCompact 2 0) rfl
+    (by rw [omega2Exp_eight]; decide) (by decide)
+
+/-- **Compact `M` (the `√2` pilot).** -/
+theorem not_resolves_mCompactFam (q : ℕ) :
+    ¬ ResolvesGammaRelators (2 + 2 * 0) q (Words.MCompact.mCompactW 3 0)
+      (Certificates.MCompact.mCompactFam 3 0 q 3) :=
+  not_resolvesGammaRelators_of_isOmega2Only (m := 8) (g₀ := Words.coreLetter 0 2)
+    (by decide) q (Words.MCompact.isOmega2Only_mCompact 3 0) rfl
+    (by rw [omega2Exp_eight]; decide) (by decide)
+
+/-- **Compact `M` (the `√5` pilot).** -/
+theorem not_resolves_mCompactFam_five (q : ℕ) :
+    ¬ ResolvesGammaRelators (2 + 2 * 0) q (Words.MCompact.mCompactW 2 0)
+      (Certificates.MCompact.mCompactFam 2 0 q 3) :=
+  not_resolvesGammaRelators_of_isOmega2Only (m := 8) (g₀ := Words.coreLetter 0 2)
+    (by decide) q (Words.MCompact.isOmega2Only_mCompact 2 0) rfl
+    (by rw [omega2Exp_eight]; decide) (by decide)
+
+/-- **Procyclic `M` (the `√−10` pilot).**  `η̂ = .one` is an `ω₂`-only display, so the packet
+Lem. 2.2 route is available (`Words.Mpc.isOmega2Only_mpcW`). -/
+theorem not_resolves_mpcFam (q : ℕ) :
+    ¬ ResolvesGammaRelators (2 + 2 * 0) q (Words.Mpc.mpcW 2 1 1 .one 0)
+      (Certificates.MProcyclic.mpcFam 2 1 1 0 q 3 .one) :=
+  not_resolvesGammaRelators_of_isOmega2Only (m := 8) (g₀ := Words.coreLetter 0 2)
+    (by decide) q (Words.Mpc.isOmega2Only_mpcW 2 1 1 (η := .one) trivial 0) rfl
+    (by rw [omega2Exp_eight]; decide) (by decide)
+
+/-- **Procyclic `M` (the `√10` pilot).** -/
+theorem not_resolves_mpcFam_ten (q : ℕ) :
+    ¬ ResolvesGammaRelators (2 + 2 * 0) q (Words.Mpc.mpcW 2 1 0 .one 0)
+      (Certificates.MProcyclic.mpcFam 2 1 0 0 q 3 .one) :=
+  not_resolvesGammaRelators_of_isOmega2Only (m := 8) (g₀ := Words.coreLetter 0 2)
+    (by decide) q (Words.Mpc.isOmega2Only_mpcW 2 1 0 (η := .one) trivial 0) rfl
+    (by rw [omega2Exp_eight]; decide) (by decide)
+
+/-- **`L_sq` (the `q = 2` pilot).**  The `L_sq` character is in `x₀` and lands in `ℤ/4`: the
+traced `x₀`-exponent is `−1 − 3ω₂`, which is `−4 ↦ 0` intrinsically and `−10 ↦ 2` at `e = 3`. -/
+theorem not_resolves_lSqFam (q : ℕ) :
+    ¬ ResolvesGammaRelators (2 * 0 + 1) q (Words.LSq.lSqW 0)
+      (Certificates.LSqStokes.lSqFam 0 q 3) :=
+  not_resolvesGammaRelators_of_isOmega2Only (m := 4) (g₀ := Words.LSq.coreLetter 0 0)
+    (by decide) q (Words.LSq.isOmega2Only_lSq 0) rfl
+    (by rw [omega2Exp_four]; decide) (by decide)
+
+/-- **Procyclic `N` (the `npcPin` instance).**  This word is *not* `ω₂`-only (WNP-a's
+`not_isOmega2Only_npcW`), so the intrinsic side goes through WNP-a's abelian normal form
+`eval_npcW_of_comm` instead: on a commutative target the `η̂`-twist, the correction block and the
+handles are all invisible, and what survives is exactly the compact row's `x₂⁻¹ (x₂τ)^{ω₂}`. -/
+theorem not_resolves_npcFam (q : ℕ) :
+    ¬ ResolvesGammaRelators (2 + 2 * 0) q (Words.Npc.npcW 2 1 0 ⟨1, 1⟩)
+      (Certificates.Npc.npcFam 2 1 0 q 3 ⟨1, 1⟩) := by
+  refine not_resolvesGammaRelators (m := 8) (g₀ := Words.coreLetter 0 2) (by decide) q rfl ?_
+    (by decide)
+  rw [Marking.map_eval (degHom (2 + 2 * 0) 8 (Words.coreLetter 0 2)) (freeMarking _) _,
+    freeMarking_map_degHom, Words.Npc.eval_npcW_of_comm]
+  show (degMark (2 + 2 * 0) 8 (Words.coreLetter 0 2) (Words.coreLetter 0 0)) ^ ((2 : ℤ) + 2 ^ 2) *
+      (degMark (2 + 2 * 0) 8 (Words.coreLetter 0 2) (Words.coreLetter 0 2))⁻¹ *
+      (degMark (2 + 2 * 0) 8 (Words.coreLetter 0 2) (Words.coreLetter 0 2) *
+        degMark (2 + 2 * 0) 8 (Words.coreLetter 0 2) Generator.tau) ^ᶻ omega2 = 1
+  rw [degMark_of_ne (by decide), degMark_self, degMark_of_ne (by decide), one_zpow, one_mul,
+    mul_one]
+  rw [PWord.zpowHat_omega2_zpow (N := 8) (by norm_num) (CycTest.orderOf_dvd 8 _),
+    omega2Exp_eight, Nat.cast_one, zpow_one, inv_mul_cancel]
+
+end Frozen
 
 end Count
 
