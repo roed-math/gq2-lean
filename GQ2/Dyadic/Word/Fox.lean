@@ -120,8 +120,16 @@ specialization of the primary `L_sq` word *is* `Γ_R`'s relator, so the `Γ_R` p
 ## Axiom state (recorded per WW1 instructions; `#print axioms` run in a scratch file, not
 committed)
 
-**Audited 2026-07-31, 66/66 public declarations of this file**: every one depends on a subset
-of the standard axioms `[propext, Classical.choice, Quot.sound]` (std-3).  In particular the
+**Audited 2026-07-31, every public declaration of this file** (re-audited after ticket WWH's
+hoists): each depends on a subset of the standard axioms
+`[propext, Classical.choice, Quot.sound]` (std-3).  The nineteen declarations hoisted in by
+WWH — `trivAct`/`mem_trivAct`/`trivAct_conjR`/`trivAct_commR`/`trivAct_powOmega2`,
+`evalFin_prodList`, `trivAct_evalFin_prodList`, `foxD_prodList_of_trivial`,
+`foxD_comm_of_trivial`, `sum_generator_pair`/`_wild`/`_boundary`/`_one`/`_two`,
+`WordLift.orderOf_dvd_two_mul`, `q2OffsetsInv`, `q2Offsets_q2OffsetsInv`,
+`foxD_gammaRWildWord_split_apply`, `foxD_gammaRWildWord_ramified_apply` — print exactly what
+they printed in their previous homes (std-3, except `q2OffsetsInv` = `[propext]` and
+`q2Offsets_q2OffsetsInv` = `[propext, Quot.sound]`).  In particular the
 headlines `foxD`, `foxDHom`, `foxJacobian`, `foxDefect_eq`, `foxLifts_iff`,
 `foxLifts_iff_coker`, `foxSolution_sub_mem_ker`, `foxSolution_add_ker`, `foxD_coboundary`,
 `foxJacobian_comp_foxD0`, `foxD_comp_hom`, `comap_isPGroup_of_elementaryKer`,
@@ -216,6 +224,14 @@ theorem orderOf_dvd_two_mul_orderOf_base (hA₂ : ∀ a : A, a + a = 0) (p : Wor
   calc p ^ (2 * orderOf p.g) = (p ^ orderOf p.g) * (p ^ orderOf p.g) := by
         rw [two_mul, pow_add]
     _ = 1 := hsq
+
+/-- **Uniform lift-level order bound**: over elementary coefficients, if every base order
+divides `N` then every lift order divides `2 · N` — the list form of
+`orderOf_dvd_two_mul_orderOf_base`, feeding the resolver-congruence hypothesis `hG` at
+modulus `2 · N`. -/
+theorem orderOf_dvd_two_mul (hA₂ : ∀ a : A, a + a = 0) {N : ℕ}
+    (hbase : ∀ g : C, orderOf g ∣ N) (p : WordLift A C) : orderOf p ∣ 2 * N :=
+  (orderOf_dvd_two_mul_orderOf_base hA₂ p).trans (mul_dvd_mul_left 2 (hbase p.g))
 
 /-- Powers of a lift see exponents only modulo `2·ord(base)`: the exponent-level consequence of
 the lift-level lemma — the form WW2's resolver-correctness conditions quote. -/
@@ -467,6 +483,179 @@ theorem foxD_conj (u g : PWord X) :
   rw [foxD_conj', foxEval_g, foxEval_g]
 
 end FoxBase
+
+/-! ## The trivially-acting subgroup, and the Fox rules it makes free
+
+Every "simple tame module" hypothesis says that some marked letter acts trivially on the
+coefficient module, and every step of a row computation needs that property to *propagate*
+through the word constructors.  Packaging "acts trivially" as membership in the kernel of the
+permutation representation makes the propagation free: products, inverses, powers and
+conjugates are subgroup operations.
+
+Over such letters the two Fox rules that every branch-word row assembly runs on — the
+`prodList` product rule and the vanishing of commutator rows — hold with no freshness
+hypothesis and with `powOmega2` never unfolded. -/
+
+section TrivAct
+
+variable (C : Type*) [Group C] (V : Type*) [AddCommGroup V] [DistribMulAction C V]
+
+/-- **The elements of `C` acting trivially on `V`**: the kernel of the permutation
+representation, so a genuine subgroup (and normal). -/
+def trivAct : Subgroup C := MonoidHom.ker (MulAction.toPermHom C V)
+
+variable {C V}
+
+theorem mem_trivAct {g : C} : g ∈ trivAct C V ↔ ∀ v : V, g • v = v := by
+  constructor
+  · intro hg v
+    have h := MonoidHom.mem_ker.mp hg
+    simpa using congrArg (fun e : Equiv.Perm V => e v) h
+  · intro hg
+    exact MonoidHom.mem_ker.mpr (Equiv.ext fun v => by simpa using hg v)
+
+/-- A conjugate of a trivially-acting element acts trivially, **for any conjugator** — the
+normality of the kernel, in the `conjR` spelling the word syntax uses. -/
+theorem trivAct_conjR {x : C} (hx : x ∈ trivAct C V) (g : C) : conjR x g ∈ trivAct C V := by
+  rw [mem_trivAct] at hx ⊢
+  intro v
+  rw [conjR, mul_smul, mul_smul, hx, inv_smul_smul]
+
+/-- A commutator of two trivially-acting elements acts trivially. -/
+theorem trivAct_commR {x y : C} (hx : x ∈ trivAct C V) (hy : y ∈ trivAct C V) :
+    commR x y ∈ trivAct C V := by
+  rw [commR]
+  exact mul_mem (mul_mem (mul_mem (inv_mem hx) (inv_mem hy)) hx) hy
+
+/-- The `2`-primary part of a trivially-acting element acts trivially: `powOmega2` is a natural
+number power (`GQ2.powOmega2`), so this is `Subgroup.pow_mem`.
+
+This is the *base-group* twin of the engine lemma `WordLift.powOmega2_g_smul_of_trivial`, whose
+proof is the same one line.  It touches only the `.g`-coordinate: **no offset (`.u`) computation
+unfolds `powOmega2`** — those all route through the engine lemmas above, per the binding
+`ω₂`-discipline. -/
+theorem trivAct_powOmega2 {x : C} (hx : x ∈ trivAct C V) : powOmega2 x ∈ trivAct C V := by
+  rw [powOmega2]
+  exact pow_mem hx _
+
+end TrivAct
+
+section TrivFox
+
+variable {X : Type*} {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+
+/-- `evalFin` of an `n`-ary product is the product of the `evalFin`s — the `evalFin` twin of
+`PWord.eval_prodList`. -/
+theorem evalFin_prodList (μ : X → C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    ∀ l : List (PWord X),
+      PWord.evalFin μ E E₂ (PWord.prodList l) = (l.map (PWord.evalFin μ E E₂)).prod
+  | [] => rfl
+  | w :: ws => by
+      rw [PWord.prodList_cons, PWord.evalFin_mul, evalFin_prodList μ E E₂ ws, List.map_cons,
+        List.prod_cons]
+
+/-- An `n`-ary product of trivially-evaluating words evaluates trivially. -/
+theorem trivAct_evalFin_prodList {μ : X → C} {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ}
+    {l : List (PWord X)} (hl : ∀ w ∈ l, PWord.evalFin μ E E₂ w ∈ trivAct C A) :
+    PWord.evalFin μ E E₂ (PWord.prodList l) ∈ trivAct C A := by
+  rw [evalFin_prodList]
+  refine Subgroup.list_prod_mem _ fun x hx => ?_
+  obtain ⟨w, hw, rfl⟩ := List.mem_map.mp hx
+  exact hl w hw
+
+variable [Finite A] [Finite C] (t : X → C) (a : X → A) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- **The Fox derivative of an `n`-ary product of trivially-evaluating factors is the plain sum
+of the factors' derivatives**: each prefix acts trivially, so every `ū·` in the Fox product rule
+`D(uv) = D(u) + ū·D(v)` disappears.  The workhorse of every branch-word row computation. -/
+theorem foxD_prodList_of_trivial : ∀ (l : List (PWord X)),
+    (∀ w ∈ l, PWord.evalFin t E E₂ w ∈ trivAct C A) →
+      foxD t a E E₂ (PWord.prodList l) = (l.map (foxD t a E E₂)).sum
+  | [], _ => rfl
+  | w :: ws, hl => by
+      rw [PWord.prodList_cons, foxD_mul,
+        foxD_prodList_of_trivial ws fun u hu => hl u (List.mem_cons_of_mem _ hu),
+        mem_trivAct.mp (hl w List.mem_cons_self), List.map_cons, List.sum_cons]
+
+/-- **The Fox derivative of a commutator of two trivially-evaluating words vanishes.**
+
+`D([u,v]) = ū⁻¹(v̄⁻¹−1)D(u) + ū⁻¹v̄⁻¹(ū−1)D(v)`, and both operator factors die when the two
+bases act trivially — *whatever* the offsets are.  This is the general form of "handle letters
+appear only in commutators, whose Fox rows cancel": no freshness of the letters is used, only
+the triviality of their action. -/
+theorem foxD_comm_of_trivial {u v : PWord X} (hu : PWord.evalFin t E E₂ u ∈ trivAct C A)
+    (hv : PWord.evalFin t E E₂ v ∈ trivAct C A) : foxD t a E E₂ (.comm u v) = 0 := by
+  rw [foxD_def, foxEval_comm]
+  exact WordLift.commP_u_of_trivial _ _
+    (fun w => by rw [foxEval_g]; exact mem_trivAct.mp hu w)
+    (fun w => by rw [foxEval_g]; exact mem_trivAct.mp hv w)
+
+end TrivFox
+
+/-! ## Sums over the generator alphabet
+
+A row normal form denotes `a ↦ ∑_g coeff_g (a g)` over the whole `(n+3)`-letter alphabet
+`Generator n`, while every certified row is supported on at most two letters.  These are the
+support lemmas every replay needs, at **general `n`** (so, in the branch words, at general
+handle count `h`, without ever expanding the handle letters), plus the two fully-expanded
+instance twins for the alphabets the frozen certificates use. -/
+
+section GeneratorSums
+
+variable {M : Type*} [AddCommMonoid M] {n : ℕ}
+
+/-- A sum over `Generator n` supported on `{τ, x_i}`. -/
+theorem sum_generator_pair (f : Generator n → M) (i : Fin (n + 1)) (hσ : f .sigma = 0)
+    (hw : ∀ j, j ≠ i → f (.wild j) = 0) : ∑ g, f g = f .tau + f (.wild i) := by
+  rw [← Finset.sum_subset (Finset.subset_univ {Generator.tau, Generator.wild i})]
+  · exact Finset.sum_pair (by simp)
+  · intro x _ hx
+    simp only [Finset.mem_insert, Finset.mem_singleton, not_or] at hx
+    cases x with
+    | sigma => exact hσ
+    | tau => exact absurd rfl hx.1
+    | wild j => exact hw j fun hj => hx.2 (by rw [hj])
+
+/-- A sum over `Generator n` supported on `{x_i}`. -/
+theorem sum_generator_wild (f : Generator n → M) (i : Fin (n + 1)) (hσ : f .sigma = 0)
+    (hτ : f .tau = 0) (hw : ∀ j, j ≠ i → f (.wild j) = 0) : ∑ g, f g = f (.wild i) := by
+  rw [← Finset.sum_subset (Finset.subset_univ {Generator.wild i}), Finset.sum_singleton]
+  intro x _ hx
+  simp only [Finset.mem_singleton] at hx
+  cases x with
+  | sigma => exact hσ
+  | tau => exact hτ
+  | wild j => exact hw j fun hj => hx (by rw [hj])
+
+/-- A sum over `Generator n` supported on the two boundary letters `{σ, τ}` — the shape of every
+tame row. -/
+theorem sum_generator_boundary (f : Generator n → M) (hw : ∀ j, f (.wild j) = 0) :
+    ∑ g, f g = f .sigma + f .tau := by
+  rw [← Finset.sum_subset (Finset.subset_univ {Generator.sigma, Generator.tau})]
+  · exact Finset.sum_pair (by simp)
+  · intro x _ hx
+    simp only [Finset.mem_insert, Finset.mem_singleton, not_or] at hx
+    cases x with
+    | sigma => exact absurd rfl hx.1
+    | tau => exact absurd rfl hx.2
+    | wild j => exact hw j
+
+/-- Expand a sum over the four `n = 1` generators in the packet's column order
+`σ, τ, x₀, x₁`. -/
+theorem sum_generator_one (f : Generator 1 → M) :
+    ∑ g : Generator 1, f g = f .sigma + f .tau + f (.wild 0) + f (.wild 1) := by
+  rw [← Equiv.sum_comp (Generator.equivFin 1).symm f, Fin.sum_univ_four]
+  rfl
+
+/-- Expand a sum over the five `n = 2` generators in the packet's column order
+`σ, τ, x₀, x₁, x₂`. -/
+theorem sum_generator_two (f : Generator 2 → M) :
+    ∑ g : Generator 2, f g
+      = f .sigma + f .tau + f (.wild 0) + f (.wild 1) + f (.wild 2) := by
+  rw [← Equiv.sum_comp (Generator.equivFin 2).symm f, Fin.sum_univ_five]
+  rfl
+
+end GeneratorSums
 
 /-! ## Additivity in the offsets and the two-relator Jacobian -/
 
@@ -1082,6 +1271,28 @@ theorem evalFin_gammaRWildWord (s : _root_.GQ2.Marking G) (E : Zhat → ℤ) (E�
 def q2Offsets {V : Type*} (x : Fin 4 → V) : Generator 1 → V :=
   ⇑(Marking.ofQ2 (G := V) ⟨x 0, x 1, x 2, x 3⟩)
 
+/-- Repackage arbitrary `Generator 1` offsets as a `Fin 4` vector in the slot order
+`(σ, τ, x₀, x₁)` — the (two-sided) inverse of the `q2Offsets` adapter. -/
+def q2OffsetsInv {V : Type*} (a : Generator 1 → V) : Fin 4 → V
+  | ⟨0, _⟩ => a .sigma
+  | ⟨1, _⟩ => a .tau
+  | ⟨2, _⟩ => a (.wild 0)
+  | ⟨3, _⟩ => a (.wild 1)
+
+/-- Every `Generator 1` offset family is a `q2Offsets` instance. -/
+theorem q2Offsets_q2OffsetsInv {V : Type*} (a : Generator 1 → V) :
+    q2Offsets (q2OffsetsInv a) = a := by
+  funext g
+  cases g with
+  | sigma => rfl
+  | tau => rfl
+  | wild i =>
+      obtain ⟨v, hv⟩ := i
+      match v, hv with
+      | 0, _ => rfl
+      | 1, _ => rfl
+      | k + 2, h => exact absurd h (by omega)
+
 variable {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
 
 omit [Group C] [AddCommGroup V] [DistribMulAction C V] in
@@ -1155,6 +1366,29 @@ theorem foxD_gammaRWildWord_ramified (t : _root_.GQ2.Marking C) (x : Fin 4 → V
     foxD (⇑(Marking.ofQ2 t)) (q2Offsets x) E E₂ gammaRWildWord = t.σ⁻¹ • x 2 := by
   rw [foxD_def, foxEval_gammaRWildWord]
   exact FoxH.liftMarking_wildValueR_u_ramified t x hV₂ hx0 hx1 htau hTodd
+
+/-- **The `Γ_R` split row at arbitrary `Generator 1` offsets**: the regression row
+`foxD_gammaRWildWord_split` re-expressed on the generic domain — the shape the WW2
+certificates replay.  (`ω₂`-collapse happens once, inside the hand-row lemma, via the engine
+lemmas; `powOmega2` is never unfolded here.) -/
+theorem foxD_gammaRWildWord_split_apply (t : _root_.GQ2.Marking C)
+    (hV₂ : ∀ v : V, v + v = 0) (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v)
+    (htau : ∀ v : V, t.τ • v = v) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (a : Generator 1 → V) :
+    foxD (⇑(Marking.ofQ2 t)) a E E₂ gammaRWildWord
+      = a .tau + a (.wild 0) + t.σ⁻¹ • a (.wild 0) := by
+  conv_lhs => rw [← q2Offsets_q2OffsetsInv a]
+  rw [foxD_gammaRWildWord_split t (q2OffsetsInv a) hV₂ hx0 hx1 htau E E₂]
+  rfl
+
+/-- **The `Γ_R` ramified row at arbitrary `Generator 1` offsets** (`S⁻¹x₂`). -/
+theorem foxD_gammaRWildWord_ramified_apply (t : _root_.GQ2.Marking C)
+    (hV₂ : ∀ v : V, v + v = 0) (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v)
+    (htau : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v)
+    (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (a : Generator 1 → V) :
+    foxD (⇑(Marking.ofQ2 t)) a E E₂ gammaRWildWord = t.σ⁻¹ • a (.wild 0) := by
+  conv_lhs => rw [← q2Offsets_q2OffsetsInv a]
+  rw [foxD_gammaRWildWord_ramified t (q2OffsetsInv a) hV₂ hx0 hx1 htau hTodd E E₂]
+  rfl
 
 end Regression
 

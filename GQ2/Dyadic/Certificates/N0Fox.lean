@@ -106,11 +106,13 @@ certificates are instantiated explicitly (`sqrtNegTwoJacobianCertUnram`,
 ## Axiom state (recorded per WN0-b instructions; `#print axioms` run in a scratch file, not
 committed)
 
-**Audited 2026-07-31, all 91 named declarations of this file** (85 top-level `def`/`theorem`
-plus the six `@[simp]` component lemmas): every one depends on a subset of the standard axioms
-`[propext, Classical.choice, Quot.sound]` — **62 print exactly std-3, 29 print strictly less**
+**Audited 2026-07-31, re-audited after ticket WWH's hoists, all named declarations of this
+file**: every one depends on a subset of the standard axioms
+`[propext, Classical.choice, Quot.sound]` — most print exactly std-3, the rest strictly less
 (`[propext]`, `[propext, Quot.sound]`, or none).  Zero `sorryAx`, zero `native_decide`, and **no
 `GQ2.AbsGalQ2` B-axiom leaks** through the `Words.N0 → TameBoundary → MarkedCore` import chain.
+The declarations that moved to `GQ2/Dyadic/Word/Fox.lean` keep their prints there; no print in
+this file grew.
 In particular the headlines `foxD_nCompact_unram`, `foxD_nCompact_ram`, `foxD_nCompact_split`,
 `foxD_tameRelW_of_tameRel`, `foxD_tameRelW_unram`, `foxDHom_nCompact_handleU_column`,
 `foxDHom_nCompact_handleV_column`, `isUnit_oneSubSInvEnd_iff`, `freeMarking_eval_tameRelW`,
@@ -126,135 +128,27 @@ census stays at eleven.
 `Words/` and `Certificates/` are plain-import layers.  The other import,
 `GQ2.Dyadic.Word.FoxCert`, is `module`-style, which is fine in this direction.
 
-**Dedup / hoist candidates for the orchestrator** (all lane-generic, all used by every wave-2
-branch lane, none of them compact-`N`-specific):
+**Dedup / hoist (ticket WWH, executed 2026-07-31).**  The lane-generic toolkit this file
+introduced now lives one layer down and is used from there, so nothing below is defined twice:
 
-* `trivAct` + `mem_trivAct` + `trivAct_conjR`/`trivAct_commR`/`trivAct_powOmega2` — "acts
+* `trivAct` + `mem_trivAct` + `trivAct_conjR`/`trivAct_commR`/`trivAct_powOmega2` ("acts
   trivially" as a *subgroup*, which is what makes the propagation through the word constructors
-  free.  Natural home: `GQ2/Dyadic/Word/Fox.lean`.
-* `foxD_prodList_of_trivial` and `evalFin_prodList` — the `prodList` product rule.  Every branch
-  word is a `prodList` (WN0-a authoring rule 5), so every lane needs these.
-* `foxD_comm_of_trivial` — the commutator rule, i.e. the general form of "handle columns
-  vanish".
-* `even_nsmul_eq_zero`, `neg_eq_self`, `injective_of_isUnit` — mathlib-shaped micro-lemmas.
-* `sum_generator_pair`/`_wild`/`_boundary` — the `Generator n` support lemmas that make
-  normal-form replays work at **general `h`**; `sum_generator_two` is the `n = 2` twin of WW2's
-  `sum_generator_one`, and each lane will want its own `n`-specific twin.
+  free), together with `evalFin_prodList`, `trivAct_evalFin_prodList`,
+  `foxD_prodList_of_trivial` (the `prodList` product rule — every branch word is a `prodList`,
+  WN0-a authoring rule 5) and `foxD_comm_of_trivial` (the general form of "handle columns
+  vanish") → `GQ2/Dyadic/Word/Fox.lean`.
+* `sum_generator_pair`/`_wild`/`_boundary`/`_two` — the `Generator n` support lemmas that make
+  normal-form replays work at **general `h`** → `GQ2/Dyadic/Word/Fox.lean`, next to WW2's
+  `sum_generator_one`.
+
+Still local, deliberately: `even_nsmul_eq_zero`, `even_two_add_two_pow`, `neg_eq_self`,
+`injective_of_isUnit` (mathlib-shaped micro-lemmas; `even_two_add_two_pow` reads off the
+plain-import `Words.two_add_two_pow`, so the group cannot move into a `module` file wholesale).
 -/
 
 namespace GQ2.Dyadic.Certificates
 
 open GQ2.FoxH GQ2.Dyadic.Words
-
-/-! ## The trivially-acting subgroup
-
-Every hypothesis of a "simple tame module" class says that some marked letter acts trivially on
-the coefficient module, and every step of a row computation needs that property to *propagate*
-through the word constructors.  Packaging "acts trivially" as membership in the kernel of the
-permutation representation makes the propagation free: products, inverses, powers and
-conjugates are subgroup operations.
-
-**Dedup note.** This subgroup and the two `foxD` lemmas below are lane-generic; a hoist into
-`GQ2/Dyadic/Word/Fox.lean` is mechanical.  They are stated here because WN0 is the pilot and
-`Fox.lean` is closed. -/
-
-section TrivAct
-
-variable (C : Type*) [Group C] (V : Type*) [AddCommGroup V] [DistribMulAction C V]
-
-/-- **The elements of `C` acting trivially on `V`**: the kernel of the permutation
-representation, so a genuine subgroup (and normal). -/
-def trivAct : Subgroup C := MonoidHom.ker (MulAction.toPermHom C V)
-
-variable {C V}
-
-theorem mem_trivAct {g : C} : g ∈ trivAct C V ↔ ∀ v : V, g • v = v := by
-  constructor
-  · intro hg v
-    have h := MonoidHom.mem_ker.mp hg
-    simpa using congrArg (fun e : Equiv.Perm V => e v) h
-  · intro hg
-    exact MonoidHom.mem_ker.mpr (Equiv.ext fun v => by simpa using hg v)
-
-/-- A conjugate of a trivially-acting element acts trivially, **for any conjugator** — the
-normality of the kernel, in the `conjR` spelling the word syntax uses. -/
-theorem trivAct_conjR {x : C} (hx : x ∈ trivAct C V) (g : C) : conjR x g ∈ trivAct C V := by
-  rw [mem_trivAct] at hx ⊢
-  intro v
-  rw [conjR, mul_smul, mul_smul, hx, inv_smul_smul]
-
-/-- A commutator of two trivially-acting elements acts trivially. -/
-theorem trivAct_commR {x y : C} (hx : x ∈ trivAct C V) (hy : y ∈ trivAct C V) :
-    commR x y ∈ trivAct C V := by
-  rw [commR]
-  exact mul_mem (mul_mem (mul_mem (inv_mem hx) (inv_mem hy)) hx) hy
-
-/-- The `2`-primary part of a trivially-acting element acts trivially: `powOmega2` is a natural
-number power (`GQ2.powOmega2`), so this is `Subgroup.pow_mem`.
-
-This is the *base-group* twin of the engine lemma `WordLift.powOmega2_g_smul_of_trivial`, whose
-proof is the same one line.  It touches only the `.g`-coordinate: **no offset (`.u`) computation
-in this file unfolds `powOmega2`** — those all route through WW1's engine lemmas, per the
-binding `ω₂`-discipline. -/
-theorem trivAct_powOmega2 {x : C} (hx : x ∈ trivAct C V) : powOmega2 x ∈ trivAct C V := by
-  rw [powOmega2]
-  exact pow_mem hx _
-
-end TrivAct
-
-/-! ## Generic Fox lemmas: products and commutators over trivially-acting letters -/
-
-section FoxHelpers
-
-variable {X : Type*} {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
-
-/-- `evalFin` of an `n`-ary product is the product of the `evalFin`s — the `evalFin` twin of
-`PWord.eval_prodList`. -/
-theorem evalFin_prodList (μ : X → C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
-    ∀ l : List (PWord X),
-      PWord.evalFin μ E E₂ (PWord.prodList l) = (l.map (PWord.evalFin μ E E₂)).prod
-  | [] => rfl
-  | w :: ws => by
-      rw [PWord.prodList_cons, PWord.evalFin_mul, evalFin_prodList μ E E₂ ws, List.map_cons,
-        List.prod_cons]
-
-/-- An `n`-ary product of trivially-evaluating words evaluates trivially. -/
-theorem trivAct_evalFin_prodList {μ : X → C} {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ}
-    {l : List (PWord X)} (hl : ∀ w ∈ l, PWord.evalFin μ E E₂ w ∈ trivAct C A) :
-    PWord.evalFin μ E E₂ (PWord.prodList l) ∈ trivAct C A := by
-  rw [evalFin_prodList]
-  refine Subgroup.list_prod_mem _ fun x hx => ?_
-  obtain ⟨w, hw, rfl⟩ := List.mem_map.mp hx
-  exact hl w hw
-
-variable [Finite A] [Finite C] (t : X → C) (a : X → A) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
-
-/-- **The Fox derivative of an `n`-ary product of trivially-evaluating factors is the plain sum
-of the factors' derivatives**: each prefix acts trivially, so every `ū·` in the Fox product rule
-`D(uv) = D(u) + ū·D(v)` disappears.  The workhorse of every branch-word row computation. -/
-theorem foxD_prodList_of_trivial : ∀ (l : List (PWord X)),
-    (∀ w ∈ l, PWord.evalFin t E E₂ w ∈ trivAct C A) →
-      foxD t a E E₂ (PWord.prodList l) = (l.map (foxD t a E E₂)).sum
-  | [], _ => rfl
-  | w :: ws, hl => by
-      rw [PWord.prodList_cons, foxD_mul,
-        foxD_prodList_of_trivial ws fun u hu => hl u (List.mem_cons_of_mem _ hu),
-        mem_trivAct.mp (hl w List.mem_cons_self), List.map_cons, List.sum_cons]
-
-/-- **The Fox derivative of a commutator of two trivially-evaluating words vanishes.**
-
-`D([u,v]) = ū⁻¹(v̄⁻¹−1)D(u) + ū⁻¹v̄⁻¹(ū−1)D(v)`, and both operator factors die when the two
-bases act trivially — *whatever* the offsets are.  This is the general form of "handle letters
-appear only in commutators, whose Fox rows cancel": no freshness of the letters is used, only
-the triviality of their action. -/
-theorem foxD_comm_of_trivial {u v : PWord X} (hu : PWord.evalFin t E E₂ u ∈ trivAct C A)
-    (hv : PWord.evalFin t E E₂ v ∈ trivAct C A) : foxD t a E E₂ (.comm u v) = 0 := by
-  rw [foxD_def, foxEval_comm]
-  exact WordLift.commP_u_of_trivial _ _
-    (fun w => by rw [foxEval_g]; exact mem_trivAct.mp hu w)
-    (fun w => by rw [foxEval_g]; exact mem_trivAct.mp hv w)
-
-end FoxHelpers
 
 /-- An even multiple of a `2`-torsion element vanishes. -/
 theorem even_nsmul_eq_zero {V : Type*} [AddCommGroup V] (hV₂ : ∀ v : V, v + v = 0) {k : ℕ}
@@ -741,54 +635,6 @@ theorem isUnit_oneSubSInvEnd_iff [Finite V] :
 
 end Block
 
-/-! ## Sums over the generator alphabet
-
-A normal form denotes `a ↦ ∑_g coeff_g (a g)` over the whole `(2h+5)`-letter alphabet.  Every
-row below is supported on at most two letters, so these three lemmas are what every replay
-needs — at **general `h`**, without expanding the handle letters. -/
-
-section Sums
-
-variable {M : Type*} [AddCommMonoid M] {n : ℕ}
-
-/-- A sum over `Generator n` supported on `{τ, x_i}`. -/
-theorem sum_generator_pair (f : Generator n → M) (i : Fin (n + 1)) (hσ : f .sigma = 0)
-    (hw : ∀ j, j ≠ i → f (.wild j) = 0) : ∑ g, f g = f .tau + f (.wild i) := by
-  rw [← Finset.sum_subset (Finset.subset_univ {Generator.tau, Generator.wild i})]
-  · exact Finset.sum_pair (by simp)
-  · intro x _ hx
-    simp only [Finset.mem_insert, Finset.mem_singleton, not_or] at hx
-    cases x with
-    | sigma => exact hσ
-    | tau => exact absurd rfl hx.1
-    | wild j => exact hw j fun hj => hx.2 (by rw [hj])
-
-/-- A sum over `Generator n` supported on `{x_i}`. -/
-theorem sum_generator_wild (f : Generator n → M) (i : Fin (n + 1)) (hσ : f .sigma = 0)
-    (hτ : f .tau = 0) (hw : ∀ j, j ≠ i → f (.wild j) = 0) : ∑ g, f g = f (.wild i) := by
-  rw [← Finset.sum_subset (Finset.subset_univ {Generator.wild i}), Finset.sum_singleton]
-  intro x _ hx
-  simp only [Finset.mem_singleton] at hx
-  cases x with
-  | sigma => exact hσ
-  | tau => exact hτ
-  | wild j => exact hw j fun hj => hx (by rw [hj])
-
-/-- A sum over `Generator n` supported on the two boundary letters `{σ, τ}` — the shape of every
-tame row. -/
-theorem sum_generator_boundary (f : Generator n → M) (hw : ∀ j, f (.wild j) = 0) :
-    ∑ g, f g = f .sigma + f .tau := by
-  rw [← Finset.sum_subset (Finset.subset_univ {Generator.sigma, Generator.tau})]
-  · exact Finset.sum_pair (by simp)
-  · intro x _ hx
-    simp only [Finset.mem_insert, Finset.mem_singleton, not_or] at hx
-    cases x with
-    | sigma => exact absurd rfl hx.1
-    | tau => exact absurd rfl hx.2
-    | wild j => exact hw j
-
-end Sums
-
 /-! ## The formal rows and normal forms
 
 The certificate data — pure `FoxCoeff` expressions, the same at every module of a class.  These
@@ -1168,14 +1014,6 @@ section SqrtNegTwo
 
 variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
   [DistribMulAction C V] (t : Marking 2 C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
-
-/-- Expand a sum over the five `n = 2` generators in the packet's column order
-`σ, τ, x₀, x₁, x₂` (the `Generator 2` twin of WW2's `sum_generator_one`). -/
-theorem sum_generator_two {M : Type*} [AddCommMonoid M] (f : Generator 2 → M) :
-    ∑ g : Generator 2, f g
-      = f .sigma + f .tau + f (.wild 0) + f (.wild 1) + f (.wild 2) := by
-  rw [← Equiv.sum_comp (Generator.equivFin 2).symm f, Fin.sum_univ_five]
-  rfl
 
 /-- **The √−2 wild row on an unramified simple module**: `(0, 1, 0, 0, 1 − S⁻¹)` in the column
 order `σ, τ, x₀, x₁, x₂`. -/

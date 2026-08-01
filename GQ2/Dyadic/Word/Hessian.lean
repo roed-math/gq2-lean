@@ -112,6 +112,15 @@ sorries, no new axioms; the only `decide`s are kernel `decide`s in `𝔽₂` cas
 the stress pins.  The `local instance`s live in the stress section only (WW3's
 doesn't-export idiom).
 
+**Ticket WWH (2026-07-31) hoisted the κ⁰ slice calculus in here** from the pilot certificate
+file `GQ2/Dyadic/Certificates/N0.lean`, so that no `-c` lane re-derives it: `factorSet_m_zero`,
+`centExt_incl_mul`/`_pow`/`_list_prod` (joining `centExt_incl_mul_self`), the Heisenberg slice
+and κ-free `C`-line `hessSlice`/`hessLine` with their fibre, product, inversion and commutator
+laws, and `hessLineHom`.  Statements unchanged; all print within the standard three,
+re-audited on arrival.  This remains the module-side twin of the NC lane's copy
+(`GQ2/Dyadic/NpcJet/Defs.lean` §2, against the non-`module` `WordCoh2.CentExt`) — the module
+rule keeps those two apart, and de-duplicating them is not a `module`-file job.
+
 Module-style: all five imports are module-style.
 -/
 
@@ -305,6 +314,31 @@ theorem centExt_incl_mul_self {L : Type*} [Group L] {c : WordCoh.TwoCocycle L} (
   · show z + z + c.κ 1 1 = 0
     rw [c.norm, add_zero, CharTwo.add_self_eq_zero]
 
+/-- Central inclusions multiply additively, in any `CentExt`. -/
+theorem centExt_incl_mul {L : Type} [Group L] {c : WordCoh.TwoCocycle L} (z z' : ZMod 2) :
+    WordCoh.CentExt.incl c z * WordCoh.CentExt.incl c z'
+      = WordCoh.CentExt.incl c (z + z') := by
+  refine WordCoh.CentExt.ext ?_ ?_
+  · exact one_mul 1
+  · show z + z' + c.κ 1 1 = z + z'
+    rw [c.norm, add_zero]
+
+/-- Central inclusions power by `ℕ`-scalars. -/
+theorem centExt_incl_pow {L : Type} [Group L] {c : WordCoh.TwoCocycle L} (z : ZMod 2)
+    (n : ℕ) : WordCoh.CentExt.incl c z ^ n = WordCoh.CentExt.incl c (n • z) := by
+  induction n with
+  | zero => rw [pow_zero, zero_smul]; rfl
+  | succ n ih => rw [pow_succ, ih, centExt_incl_mul, succ_nsmul]
+
+/-- Products of central inclusions sum the fibres. -/
+theorem centExt_incl_list_prod {L : Type} [Group L] {c : WordCoh.TwoCocycle L}
+    (l : List (ZMod 2)) :
+    (l.map (WordCoh.CentExt.incl c)).prod = WordCoh.CentExt.incl c l.sum := by
+  induction l with
+  | nil => rw [List.map_nil, List.prod_nil, List.sum_nil]; rfl
+  | cons z zs ih =>
+      rw [List.map_cons, List.prod_cons, ih, centExt_incl_mul, List.sum_cons]
+
 /-- **The untwisted lift-level constant is 2** (S1.4's board rule): one central `𝔽₂`-step
 doubles the lift level — `x̄ⁿ = 1` forces `x^{2n} = 1` in any `CentExt`. -/
 theorem centExt_pow_eq_one_of_base_pow {L : Type*} [Group L] {c : WordCoh.TwoCocycle L}
@@ -340,6 +374,113 @@ theorem kappa0_pow_eq_one_of_snd_pow (hV2 : ∀ v : V, v + v = 0)
     exact centExt_incl_mul_self _
   calc p ^ (4 * n) = (p ^ n) ^ 4 := by rw [mul_comm, pow_mul]
     _ = 1 := h4
+
+/-! ### The slice calculus of the κ⁰-extension
+
+The Heisenberg slice `((v,1),z)` and the κ-free `C`-line `((0,c),0)` of `V ⋊ C`, with their
+product, inversion and commutator laws — the calculus every graph-type marking of a branch
+word is evaluated through.  It is the module-side twin of the NC lane's
+(`GQ2/Dyadic/NpcJet/Defs.lean` §2, stated against the non-`module` `WordCoh2.CentExt`); the
+module rule forces the two copies to coexist, per MC-OB's ratified discipline.
+
+κ⁰-consumption ledger: the *endpoint* values use only `f_diag` (the slice square law, via
+`hessSq_of_fibre`) and `f_polar` (the slice commutator law) — the twist-immune budget.  The
+*calculus* additionally uses the `q`-blind normalization clauses `f_zero_left`/`_right`,
+`m_one`, the derived `m_zero` (`factorSet_m_zero`) and, inside the commutator law only,
+`f_cocycle`. -/
+
+include hdat in
+/-- `m_c(0) = 0` — derived from `m_quad` at `(c, 0, 0)`; the module-side twin of
+`GQ2.SectionEight.AffineTLift.IsEquivariantFactorSet.m_zero`. -/
+theorem factorSet_m_zero (c : C) : dat.m c 0 = 0 := by
+  have h := hdat.m_quad c 0 0
+  simp only [add_zero, smul_zero, hdat.f_zero_left] at h
+  rw [CharTwo.add_self_eq_zero, zero_add] at h
+  exact h
+
+/-- **Heisenberg-slice elements** `((v,1),z)` of the κ⁰-extension. -/
+def hessSlice (v : V) (z : ZMod 2) : WordCoh.CentExt (kappa0Cocycle dat hdat) :=
+  ((v, (1 : C)), z)
+
+/-- **κ-free `C`-line elements** `((0,c),0)`. -/
+def hessLine (c : C) : WordCoh.CentExt (kappa0Cocycle dat hdat) := (((0 : V), c), 0)
+
+@[simp] theorem hessSlice_fib (v : V) (z : ZMod 2) :
+    WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat) (hessSlice dat hdat v z) = z := rfl
+
+@[simp] theorem hessLine_fib (c : C) :
+    WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat) (hessLine dat hdat c) = 0 := rfl
+
+theorem hessSlice_zero_zero : hessSlice dat hdat 0 0 = 1 := rfl
+
+/-- The slice product law: the κ-correction degenerates to `f(v,w)`. -/
+theorem hessSlice_mul (v w : V) (z z' : ZMod 2) :
+    hessSlice dat hdat v z * hessSlice dat hdat w z'
+      = hessSlice dat hdat (v + w) (z + z' + dat.f v w) := by
+  refine WordCoh.CentExt.ext (Prod.ext ?_ ?_) ?_
+  · show v + (1 : C) • w = v + w
+    rw [one_smul]
+  · exact one_mul 1
+  · show z + z' + (dat.f v ((1 : C) • w) + dat.m 1 w) = z + z' + dat.f v w
+    rw [one_smul, hdat.m_one, add_zero]
+
+/-- The slice inversion law: the `q`-charge of inversion (char 2). -/
+theorem hessSlice_inv (hV2 : ∀ v : V, v + v = 0) (v : V) (z : ZMod 2) :
+    (hessSlice dat hdat v z)⁻¹ = hessSlice dat hdat v (z + q v) := by
+  have hneg : ∀ w : V, -w = w := fun w => neg_eq_of_add_eq_zero_left (hV2 w)
+  refine WordCoh.CentExt.ext (Prod.ext ?_ ?_) ?_
+  · show -((1 : C)⁻¹ • v) = v
+    rw [inv_one, one_smul, hneg]
+  · exact inv_one
+  · show z + (kappa0Cocycle dat hdat).κ (v, (1 : C)) (-((1 : C)⁻¹ • v), (1 : C)⁻¹)
+      = z + q v
+    rw [inv_one, one_smul, hneg, kappa0Cocycle_κ, one_smul, hdat.m_one, add_zero, hdat.f_diag]
+
+open GQ2.QuadraticFp2 in
+/-- **The slice commutator law** — the cross-term mechanism, charge-independent:
+`[((d,1),ζ), ((w,1),ξ)]` is central with fibre `b_q(d,w)`.  Module-side port of the NC
+lane's `sliceElt_comm`. -/
+theorem hessSlice_commR (hV2 : ∀ v : V, v + v = 0) (d w : V) (ζ ξ : ZMod 2) :
+    commR (hessSlice dat hdat d ζ) (hessSlice dat hdat w ξ)
+      = WordCoh.CentExt.incl _ (polar q d w) := by
+  have hcross : dat.f d (d + w) = q d + dat.f d w := by
+    have hc := hdat.f_cocycle d d w
+    rw [hV2, hdat.f_zero_left, hdat.f_diag, zero_add] at hc
+    rw [hc, add_assoc, CharTwo.add_self_eq_zero, add_zero]
+  have hkey : dat.f (d + w) d = q d + dat.f w d := by
+    have hc := hdat.f_cocycle d w d
+    rw [add_comm w d, hcross] at hc
+    linear_combination hc
+  have hV2' : d + w + d = w := by
+    rw [add_comm d w, add_assoc, hV2, add_zero]
+  rw [commR, hessSlice_inv dat hdat hV2, hessSlice_inv dat hdat hV2,
+    hessSlice_mul dat hdat, hessSlice_mul dat hdat, hessSlice_mul dat hdat, hV2', hV2,
+    hkey, hdat.f_diag]
+  show hessSlice dat hdat 0 _ = _
+  rw [show WordCoh.CentExt.incl (kappa0Cocycle dat hdat) (polar q d w)
+      = hessSlice dat hdat 0 (polar q d w) from rfl]
+  congr 1
+  linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hdat.f_polar d w
+
+/-- The `C`-line product law: the κ-corrections vanish on it. -/
+theorem hessLine_mul (c d : C) :
+    hessLine dat hdat c * hessLine dat hdat d = hessLine dat hdat (c * d) := by
+  refine WordCoh.CentExt.ext (Prod.ext ?_ ?_) ?_
+  · show (0 : V) + c • (0 : V) = 0
+    rw [smul_zero, add_zero]
+  · rfl
+  · show (0 : ZMod 2) + 0 + (dat.f 0 (c • (0 : V)) + dat.m c 0) = 0
+    rw [smul_zero, hdat.f_zero_left, factorSet_m_zero dat hdat]
+    simp only [add_zero]
+
+/-- The `C`-line as a hom — what pushes arbitrary `ω₂`-resolver powers along it. -/
+noncomputable def hessLineHom : C →* WordCoh.CentExt (kappa0Cocycle dat hdat) where
+  toFun := hessLine dat hdat
+  map_one' := rfl
+  map_mul' c d := (hessLine_mul dat hdat c d).symm
+
+@[simp] theorem hessLineHom_apply (c : C) : hessLineHom dat hdat c = hessLine dat hdat c :=
+  rfl
 
 end Kappa0
 

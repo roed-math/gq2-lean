@@ -146,14 +146,30 @@ WN0-a ruling that `Words/` and `Certificates/` are plain-import layers); the
 axioms; kernel `decide` only (the Gram pins and stress pins); no `Marking.eval` outside
 the finite-discrete instances WW5/WN0-a already use.
 
-## Axiom state (audited 2026-07-31; `#print axioms` run in a scratch file, not committed)
+**Toolkit hoists (ticket WWH, 2026-07-31).**  The four lane-generic sections this file
+originally re-derived now live in the `module`-style files that own them, and are used from
+there: the `𝔽₂` parity kit and the trivial-base `HeisLift` closed forms
+(`heisPow_of_trivial`, `heisCommR_of_trivial`, `heisConjR_of_trivial`,
+`smul_elemDual_of_trivial`) plus the remaining `heisEvalZ` constructor rules →
+`GQ2/Dyadic/Word/Stokes.lean`; the κ⁰ slice calculus (`hessSlice`, `hessLine`,
+`hessLineHom`, `factorSet_m_zero`, `centExt_incl_*`) → `GQ2/Dyadic/Word/Hessian.lean`; the
+`commR`/`conjR` group-level twins (`conjR_eq_self_of_comm`, `monoidHom_commR_eq_one`, and
+`map_commR'`, which was a verbatim duplicate of `map_commR`) → `GQ2/Dyadic/Word/Blocks.lean`.
+Only two items could not follow, both because they read off the plain-import
+`GQ2.Dyadic.Words` spelling-discipline lemmas (`two_add_two_pow`, `odd_one_add_two_pow`),
+which a `module` file may not import: `choose_two_add_two_pow_odd` and
+`hessSlice_pow_leading`.  Future `-c` lanes import the toolkit rather than re-deriving it.
 
-All 94 named declarations of this file print a **subset of the standard three**: 81
-exactly `[propext, Classical.choice, Quot.sound]`, 9 `[propext, Quot.sound]`, 4
-`[propext]`.  Zero `sorryAx`, zero `native_decide`, and **no `GQ2.AbsGalQ2` B-axiom
-leaks** (`markedRecipAt`/`orientedTameQuotientAt` appear in no print) through either
-import chain — the plain-import `Words.N0 → N0Fox` side or the `module`-style
-`Stokes`/`Hessian` side.  In particular the headlines `heisZ_nCompact_unram`,
+## Axiom state (audited 2026-07-31, re-audited after the WWH hoists; `#print axioms` run in
+a scratch file, not committed)
+
+All named declarations of this file print a **subset of the standard three**
+`[propext, Classical.choice, Quot.sound]`, most of them exactly, the rest
+`[propext, Quot.sound]` or `[propext]`.  Zero `sorryAx`, zero `native_decide`, and **no
+`GQ2.AbsGalQ2` B-axiom leaks** (`markedRecipAt`/`orientedTameQuotientAt` appear in no print)
+through either import chain — the plain-import `Words.N0 → N0Fox` side or the `module`-style
+`Stokes`/`Hessian` side.  The hoisted declarations keep their prints in their new homes (no
+print grew).  In particular the headlines `heisZ_nCompact_unram`,
 `heisZ_nCompact_res_one`, `heisZ_nCompact_wild_block`, `isUnit_onePlusSEnd_iff`,
 `heisZ_tameRelW_unram`, `nCompact_isStokesEndpoint`, `nCompact_stokesDuality`,
 `sqrtNegTwo_scalarGram`, `sqrtNegTwo_scalarGram_three`, `hessRelZ_nCompact`,
@@ -166,31 +182,16 @@ namespace GQ2.Dyadic.Certificates
 
 open GQ2.FoxH GQ2.Dyadic.Words
 
-/-! ## `𝔽₂` parity helpers
+/-! ## The row's binomial parity
 
-The two cast lemmas that make every parity step below uniform, plus the two binomial
-parities of the row: `C(2+2^α, 2)` is odd for `α ≥ 2` (the Hessian condition of freeze
-row 2, at the Stokes level), and `C(e, 2)` is even on the honest resolver class
-`e ≡ 1 (mod 4)` (ticket S1.T's modulus). -/
+The generic `𝔽₂` parity kit (`natCast_zmod2_even`/`_odd`, `nsmul_zmod2_even`/`_odd`,
+`zsmul_natCast_zmod2_even`/`_odd`, `choose_two_even_of_mod_four`, `odd_of_mod_four_eq_one`)
+lives in `GQ2/Dyadic/Word/Stokes.lean` since ticket WWH.  What stays here is the one parity
+that is about *this* row and cannot follow: it reads off the plain-import spelling-discipline
+lemmas `Words.two_add_two_pow`/`Words.odd_one_add_two_pow`, which a `module` file may not
+import. -/
 
 section Parity
-
-theorem natCast_zmod2_even {n : ℕ} (hn : Even n) : (n : ZMod 2) = 0 := by
-  obtain ⟨m, rfl⟩ := hn
-  push_cast
-  ring_nf
-  simp [CharTwo.two_eq_zero]
-
-theorem natCast_zmod2_odd {n : ℕ} (hn : Odd n) : (n : ZMod 2) = 1 := by
-  obtain ⟨m, rfl⟩ := hn
-  push_cast
-  simp [CharTwo.two_eq_zero]
-
-theorem nsmul_zmod2_even {n : ℕ} (hn : Even n) (z : ZMod 2) : n • z = 0 := by
-  rw [nsmul_eq_mul, natCast_zmod2_even hn, zero_mul]
-
-theorem nsmul_zmod2_odd {n : ℕ} (hn : Odd n) (z : ZMod 2) : n • z = z := by
-  rw [nsmul_eq_mul, natCast_zmod2_odd hn, one_mul]
 
 /-- `C(2+2^α, 2)` is odd exactly on the branch condition `α ≥ 2`: with
 `2 + 2^α = 2m`, `C(2m, 2) = m(2m−1)` and `m = 1 + 2^{α−1}` is odd iff `α ≥ 2`
@@ -206,173 +207,7 @@ theorem choose_two_add_two_pow_odd {α : ℕ} (hα : 2 ≤ α) : Odd ((2 + 2 ^ �
   have hm1 : 1 ≤ m := Nat.le_add_right 1 _
   exact (Words.odd_one_add_two_pow hα).mul ⟨m - 1, by omega⟩
 
-/-- `C(e, 2)` is even on the resolver class `e ≡ 1 (mod 4)` — the class the honest `ω₂`
-representative for a `2`-group target lives in (`omega2Exp` of a `2`-power is `1`).
-On `e ≡ 3 (mod 4)` it is odd; the pair of scalar Gram pins below keeps the difference
-visible (ticket S1.T: the lift level is `4`, not `2`). -/
-theorem choose_two_even_of_mod_four {e : ℕ} (he : e % 4 = 1) : Even (e.choose 2) := by
-  obtain ⟨k, rfl⟩ : ∃ k, e = 4 * k + 1 := ⟨e / 4, by omega⟩
-  rw [Nat.choose_two_right, show 4 * k + 1 - 1 = 4 * k by omega,
-    show (4 * k + 1) * (4 * k) = (4 * k + 1) * k * 2 * 2 by ring,
-    Nat.mul_div_cancel _ (by norm_num)]
-  exact ⟨(4 * k + 1) * k, by ring⟩
-
-theorem odd_of_mod_four_eq_one {e : ℕ} (he : e % 4 = 1) : Odd e := by
-  obtain ⟨k, rfl⟩ : ∃ k, e = 4 * k + 1 := ⟨e / 4, by omega⟩
-  exact ⟨2 * k, by ring⟩
-
 end Parity
-
-/-! ## The Heisenberg toolkit: powers, commutators and conjugates of trivial-base lifts
-
-Three closed forms for `HeisLift`-values whose base acts trivially — the per-factor
-engine of the second-order row, mirroring WN0-b's `trivAct` toolkit one degree up.
-The commutator form needs **no** 2-torsion (the offsets cancel exactly); only the power
-form's simplifications do. -/
-
-section HeisToolkit
-
-variable {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
-
-/-- A trivially-acting base acts trivially on the elementary dual as well
-(the contragredient of the identity). -/
-theorem smul_elemDual_of_trivial {g : C} (hg : ∀ a : A, g • a = a) (lam : ElemDual A) :
-    g • lam = lam := by
-  refine ElemDual.ext fun a => ?_
-  rw [ElemDual.smul_apply]
-  exact congrArg lam (inv_smul_eq_iff.mpr (hg a).symm)
-
-private theorem elemDual_nsmul_apply (k : ℕ) (f : ElemDual A) (a : A) :
-    (k • f) a = k • f a := by
-  induction k with
-  | zero => rfl
-  | succ k ih => rw [succ_nsmul, succ_nsmul, ElemDual.add_apply, ih]
-
-/-- **The power law for a trivial-base Heisenberg lift**:
-`p^n = (n·a, n·λ, n·z + C(n,2)·λ(a); gⁿ)`.  The binomial coefficient is the whole
-second-order content of a power — the `q(c₀)`-production mechanism of the leading
-`x₀^{2+2^α}`. -/
-theorem heisPow_of_trivial (p : HeisLift A C) (hp : ∀ a : A, p.g • a = a) (n : ℕ) :
-    p ^ n = ⟨n • p.a, n • p.l, n • p.z + (n.choose 2) • p.l p.a, p.g ^ n⟩ := by
-  induction n with
-  | zero =>
-      refine HeisLift.ext ?_ ?_ ?_ ?_ <;> simp
-  | succ n ih =>
-      have hgn : ∀ a : A, (p.g ^ n) • a = a := fun a =>
-        mem_trivAct.mp (pow_mem (mem_trivAct (V := A).mpr hp) n) a
-      rw [pow_succ, ih]
-      refine HeisLift.ext ?_ ?_ ?_ ?_
-      · show n • p.a + (p.g ^ n) • p.a = (n + 1) • p.a
-        rw [hgn, succ_nsmul]
-      · show n • p.l + (p.g ^ n) • p.l = (n + 1) • p.l
-        rw [smul_elemDual_of_trivial hgn, succ_nsmul]
-      · show n • p.z + (n.choose 2) • p.l p.a + p.z + (n • p.l) ((p.g ^ n) • p.a)
-          = (n + 1) • p.z + ((n + 1).choose 2) • p.l p.a
-        rw [hgn, elemDual_nsmul_apply, Nat.choose_succ_succ n 1, Nat.choose_one_right]
-        simp only [add_nsmul, succ_nsmul]
-        abel
-      · show p.g ^ n * p.g = p.g ^ (n + 1)
-        rw [pow_succ]
-
-/-- **The commutator of two trivial-base Heisenberg lifts is jet-zero central** with
-value the mixed pairing `λ_p(a_q) + λ_q(a_p)` — an identity-operator hyperbolic plane.
-No 2-torsion hypothesis: the offsets cancel exactly, only the `ZMod 2` centre folds
-signs.  This is each handle pair's entire second-order content. -/
-theorem heisCommR_of_trivial (p r : HeisLift A C) (hp : ∀ a : A, p.g • a = a)
-    (hr : ∀ a : A, r.g • a = a) :
-    commR p r = ⟨0, 0, p.l r.a + r.l p.a, commR p.g r.g⟩ := by
-  have hpi : ∀ a : A, p.g⁻¹ • a = a := fun a => inv_smul_eq_iff.mpr (hp a).symm
-  have hri : ∀ a : A, r.g⁻¹ • a = a := fun a => inv_smul_eq_iff.mpr (hr a).symm
-  rw [commR]
-  refine HeisLift.ext ?_ ?_ ?_ ?_
-  · simp only [HeisLift.mul_a, HeisLift.inv_a, HeisLift.mul_g, HeisLift.inv_g, mul_smul,
-      hp, hpi, hri]
-    abel
-  · simp only [HeisLift.mul_l, HeisLift.inv_l, HeisLift.mul_g, HeisLift.inv_g, mul_smul,
-      smul_elemDual_of_trivial hp, smul_elemDual_of_trivial hpi, smul_elemDual_of_trivial hri]
-    abel
-  · simp only [HeisLift.mul_z, HeisLift.mul_l, HeisLift.inv_z,
-      HeisLift.inv_a, HeisLift.inv_l, HeisLift.mul_g, HeisLift.inv_g, mul_smul,
-      hp, hpi, hri, smul_elemDual_of_trivial hpi, smul_elemDual_of_trivial hri]
-    simp only [ElemDual.add_apply, ElemDual.neg_apply, map_neg]
-    ring_nf
-    simp only [CharTwo.two_eq_zero, mul_zero, zero_add, add_zero]
-    rw [sub_eq_add_neg, CharTwo.neg_eq]
-  · simp only [HeisLift.mul_g, HeisLift.inv_g]
-    rfl
-
-/-- **The conjugate of a trivial-base lift by an arbitrary lift**:
-`p^s = (s⁻¹·a_p, s⁻¹·λ_p, z_p + λ_s(a_p) + λ_p(a_s); p.g^{s.g})`.  Both `s`-offsets
-survive only through the symmetric mixed pairing; the base operator `s.g⁻¹` twists the
-jet — the second-order source of the `S`-operators in the boundary block. -/
-theorem heisConjR_of_trivial (p s : HeisLift A C) (hp : ∀ a : A, p.g • a = a) :
-    conjR p s = ⟨s.g⁻¹ • p.a, s.g⁻¹ • p.l, p.z + s.l p.a + p.l s.a, conjR p.g s.g⟩ := by
-  rw [conjR]
-  refine HeisLift.ext ?_ ?_ ?_ ?_
-  · simp only [HeisLift.mul_a, HeisLift.inv_a, HeisLift.mul_g, HeisLift.inv_g, mul_smul, hp]
-    abel
-  · simp only [HeisLift.mul_l, HeisLift.inv_l, HeisLift.mul_g, HeisLift.inv_g, mul_smul,
-      smul_elemDual_of_trivial hp]
-    abel
-  · simp only [HeisLift.mul_z, HeisLift.mul_l, HeisLift.inv_z,
-      HeisLift.inv_l, HeisLift.mul_g, HeisLift.inv_g, mul_smul, hp]
-    simp only [ElemDual.add_apply, ElemDual.neg_apply, ElemDual.smul_apply,
-      inv_inv, smul_inv_smul]
-    ring_nf
-    simp only [CharTwo.two_eq_zero, mul_zero, zero_add]
-    rw [sub_eq_add_neg, CharTwo.neg_eq]
-  · simp only [HeisLift.mul_g, HeisLift.inv_g]
-    rfl
-
-end HeisToolkit
-
-/-! ### `heisEvalZ` constructor rules
-
-WW3 exports `heisEvalZ_gen/mul/inv`; the remaining constructor rules are the same
-definitional facts, recorded here so the factor computations below stay `rw`-driven. -/
-
-section HeisEvalRules
-
-variable {X : Type*} {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
-variable (μ : X → C) (x : X → A) (y : X → ElemDual A) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
-
-theorem heisEvalZ_one : heisEvalZ μ x y E E₂ .one = 1 := rfl
-
-theorem heisEvalZ_conj (u g : PWord X) :
-    heisEvalZ μ x y E E₂ (.conj u g)
-      = conjR (heisEvalZ μ x y E E₂ u) (heisEvalZ μ x y E E₂ g) := rfl
-
-theorem heisEvalZ_comm (u v : PWord X) :
-    heisEvalZ μ x y E E₂ (.comm u v)
-      = commR (heisEvalZ μ x y E E₂ u) (heisEvalZ μ x y E E₂ v) := rfl
-
-theorem heisEvalZ_zpow (u : PWord X) (k : ℤ) :
-    heisEvalZ μ x y E E₂ (.zpow u k) = heisEvalZ μ x y E E₂ u ^ k := rfl
-
-theorem heisEvalZ_profPow (u : PWord X) (γ : Zhat) :
-    heisEvalZ μ x y E E₂ (.profPow u γ) = heisEvalZ μ x y E E₂ u ^ E γ := rfl
-
-theorem heisEvalZ_prodList (l : List (PWord X)) :
-    heisEvalZ μ x y E E₂ (PWord.prodList l) = (l.map (heisEvalZ μ x y E E₂)).prod :=
-  PWord.evalZ_prodList _ _ _ l
-
-/-- Products of jet-zero denotations are jet-zero with **additive** central coordinate —
-the "⊕" of the block structure, at the list level. -/
-theorem heisEvalZ_prodList_jetZero {l : List (PWord X)}
-    (hl : ∀ w ∈ l, heisEvalZ μ x y E E₂ w ∈ heisJetZero A C) :
-    heisEvalZ μ x y E E₂ (PWord.prodList l) ∈ heisJetZero A C ∧
-      (heisEvalZ μ x y E E₂ (PWord.prodList l)).z
-        = (l.map fun w => (heisEvalZ μ x y E E₂ w).z).sum := by
-  induction l with
-  | nil => exact ⟨one_mem _, rfl⟩
-  | cons w ws ih =>
-      have hw := hl w List.mem_cons_self
-      have ihs := ih fun u hu => hl u (List.mem_cons_of_mem _ hu)
-      rw [PWord.prodList_cons]
-      refine ⟨mul_mem hw ihs.1, ?_⟩
-      rw [heisEvalZ_mul, heisJetZero_mul_z hw, ihs.2, List.map_cons, List.sum_cons]
-
-end HeisEvalRules
 
 /-! ## The second-order (Stokes) forms of the compact-`N` word
 
@@ -735,21 +570,6 @@ vector vanishes because every per-letter coefficient — `1−q+e` on `τ`, `2+2
 
 section Family
 
-/-- Collapse of `conjR` in a commutative group. -/
-theorem conjR_eq_self_of_comm {H : Type*} [CommGroup H] (x g : H) : conjR x g = x := by
-  rw [conjR, mul_comm g⁻¹ x, mul_assoc, inv_mul_cancel, mul_one]
-
-/-- `commR` maps to `commR` under any group hom. -/
-theorem map_commR' {G H : Type*} [Group G] [Group H] (f : G →* H) (a b : G) :
-    f (commR a b) = commR (f a) (f b) := by
-  rw [commR, commR, map_mul, map_mul, map_mul, map_inv, map_inv]
-
-/-- Commutators die under any hom into a commutative group. -/
-theorem monoidHom_commR_eq_one {G H : Type*} [Group G] [CommGroup H] (f : G →* H)
-    (a b : G) : f (commR a b) = 1 := by
-  rw [map_commR', commR_eq_one_iff]
-  exact Commute.all _ _
-
 variable {α h q e : ℕ}
 
 /-- **The resolved compact-`N` relator family**: the tame relator and the frozen branch
@@ -772,14 +592,6 @@ theorem heisEps_of {ι : Type*} [DecidableEq ι] (i j : ι) :
     heisEps i (FreeGroup.of j) = Multiplicative.ofAdd (if j = i then (1 : ZMod 2) else 0) := by
   rw [heisEps]
   exact FreeGroup.lift_apply_of
-
-/-- An even natural `ℤ`-scalar kills every `ZMod 2` value. -/
-theorem zsmul_natCast_zmod2_even {n : ℕ} (hn : Even n) (z : ZMod 2) : (n : ℤ) • z = 0 := by
-  rw [zsmul_eq_mul, Int.cast_natCast, natCast_zmod2_even hn, zero_mul]
-
-/-- An odd natural `ℤ`-scalar is the identity on `ZMod 2` values. -/
-theorem zsmul_natCast_zmod2_odd {n : ℕ} (hn : Odd n) (z : ZMod 2) : (n : ℤ) • z = z := by
-  rw [zsmul_eq_mul, Int.cast_natCast, natCast_zmod2_odd hn, one_mul]
 
 /-- The handle block's resolved word has trivial mod-2 exponent vector (commutators). -/
 theorem heisEps_handlesW (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (i : Generator (2 + 2 * h)) :
@@ -959,16 +771,16 @@ CoV, `diag := fun v ↦ dat.f v v`).  This section supplies the missing word-sid
 equation, through WW4's own evaluation route: `hessRelZ` at the κ⁰-cocycle
 `kappa0Cocycle dat hdat` on `V ⋊ C`, at the graph-type marking `hessMark` (σ, τ on the
 κ-free `C`-line, wild letters on the Heisenberg slice, **`x₂` with no primal letter** —
-the ratified boundary convention).  The slice calculus below is the module-side twin of
-the NC lane's (`GQ2/Dyadic/NpcJet/Defs.lean` §2, stated against the non-`module`
-`WordCoh2.CentExt`); the module rule forces the third copy, per MC-OB's ratified
-discipline.
+the ratified boundary convention).  The slice calculus itself (`hessSlice`, `hessLine`,
+`hessLineHom`, `factorSet_m_zero`, the `centExt_incl_*` family) lives in
+`GQ2/Dyadic/Word/Hessian.lean` since ticket WWH, with its κ⁰-consumption ledger; it is
+still the module-side twin of the NC lane's copy (`GQ2/Dyadic/NpcJet/Defs.lean` §2, stated
+against the non-`module` `WordCoh2.CentExt`), which the module rule keeps separate, per
+MC-OB's ratified discipline.
 
-κ⁰-consumption ledger: the endpoint values use `f_diag` (the slice square law, via WW4's
-`hessSq_of_fibre`) and `f_polar` (the slice commutator law) — exactly WW4's twist-immune
-budget; the *calculus* additionally uses the `q`-blind normalization clauses
-`f_zero_left/right`, `m_one`, the derived `m_zero` (`factorSet_m_zero`) and, inside the
-commutator law only, `f_cocycle`. -/
+The one slice law that stays here is `hessSlice_pow_leading`: it reads off the plain-import
+spelling-discipline lemmas `Words.two_add_two_pow`/`Words.odd_one_add_two_pow`, so it cannot
+follow the rest into a `module` file. -/
 
 section Hessian
 
@@ -978,123 +790,6 @@ variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
   {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
 
 open GQ2.QuadraticFp2
-
-include hdat in
-/-- `m_c(0) = 0` — derived from `m_quad` at `(c, 0, 0)`; the module-side twin of
-`GQ2.SectionEight.AffineTLift.IsEquivariantFactorSet.m_zero`. -/
-theorem factorSet_m_zero (c : C) : dat.m c 0 = 0 := by
-  have h := hdat.m_quad c 0 0
-  simp only [add_zero, smul_zero, hdat.f_zero_left] at h
-  rw [CharTwo.add_self_eq_zero, zero_add] at h
-  exact h
-
-/-- Central inclusions multiply additively, in any `CentExt`. -/
-theorem centExt_incl_mul {L : Type} [Group L] {c : WordCoh.TwoCocycle L} (z z' : ZMod 2) :
-    WordCoh.CentExt.incl c z * WordCoh.CentExt.incl c z'
-      = WordCoh.CentExt.incl c (z + z') := by
-  refine WordCoh.CentExt.ext ?_ ?_
-  · exact one_mul 1
-  · show z + z' + c.κ 1 1 = z + z'
-    rw [c.norm, add_zero]
-
-/-- Central inclusions power by `ℕ`-scalars. -/
-theorem centExt_incl_pow {L : Type} [Group L] {c : WordCoh.TwoCocycle L} (z : ZMod 2)
-    (n : ℕ) : WordCoh.CentExt.incl c z ^ n = WordCoh.CentExt.incl c (n • z) := by
-  induction n with
-  | zero => rw [pow_zero, zero_smul]; rfl
-  | succ n ih => rw [pow_succ, ih, centExt_incl_mul, succ_nsmul]
-
-/-- Products of central inclusions sum the fibres. -/
-theorem centExt_incl_list_prod {L : Type} [Group L] {c : WordCoh.TwoCocycle L}
-    (l : List (ZMod 2)) :
-    (l.map (WordCoh.CentExt.incl c)).prod = WordCoh.CentExt.incl c l.sum := by
-  induction l with
-  | nil => rw [List.map_nil, List.prod_nil, List.sum_nil]; rfl
-  | cons z zs ih =>
-      rw [List.map_cons, List.prod_cons, ih, centExt_incl_mul, List.sum_cons]
-
-/-- **Heisenberg-slice elements** `((v,1),z)` of the κ⁰-extension. -/
-def hessSlice (v : V) (z : ZMod 2) : WordCoh.CentExt (kappa0Cocycle dat hdat) :=
-  ((v, (1 : C)), z)
-
-/-- **κ-free `C`-line elements** `((0,c),0)`. -/
-def hessLine (c : C) : WordCoh.CentExt (kappa0Cocycle dat hdat) := (((0 : V), c), 0)
-
-@[simp] theorem hessSlice_fib (v : V) (z : ZMod 2) :
-    WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat) (hessSlice dat hdat v z) = z := rfl
-
-@[simp] theorem hessLine_fib (c : C) :
-    WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat) (hessLine dat hdat c) = 0 := rfl
-
-theorem hessSlice_zero_zero : hessSlice dat hdat 0 0 = 1 := rfl
-
-/-- The slice product law: the κ-correction degenerates to `f(v,w)`. -/
-theorem hessSlice_mul (v w : V) (z z' : ZMod 2) :
-    hessSlice dat hdat v z * hessSlice dat hdat w z'
-      = hessSlice dat hdat (v + w) (z + z' + dat.f v w) := by
-  refine WordCoh.CentExt.ext (Prod.ext ?_ ?_) ?_
-  · show v + (1 : C) • w = v + w
-    rw [one_smul]
-  · exact one_mul 1
-  · show z + z' + (dat.f v ((1 : C) • w) + dat.m 1 w) = z + z' + dat.f v w
-    rw [one_smul, hdat.m_one, add_zero]
-
-/-- The slice inversion law: the `q`-charge of inversion (char 2). -/
-theorem hessSlice_inv (hV2 : ∀ v : V, v + v = 0) (v : V) (z : ZMod 2) :
-    (hessSlice dat hdat v z)⁻¹ = hessSlice dat hdat v (z + q v) := by
-  have hneg : ∀ w : V, -w = w := fun w => neg_eq_self hV2 w
-  refine WordCoh.CentExt.ext (Prod.ext ?_ ?_) ?_
-  · show -((1 : C)⁻¹ • v) = v
-    rw [inv_one, one_smul, hneg]
-  · exact inv_one
-  · show z + (kappa0Cocycle dat hdat).κ (v, (1 : C)) (-((1 : C)⁻¹ • v), (1 : C)⁻¹)
-      = z + q v
-    rw [inv_one, one_smul, hneg, kappa0Cocycle_κ, one_smul, hdat.m_one, add_zero, hdat.f_diag]
-
-/-- **The slice commutator law** — the cross-term mechanism, charge-independent:
-`[((d,1),ζ), ((w,1),ξ)]` is central with fibre `b_q(d,w)`.  Module-side port of the NC
-lane's `sliceElt_comm`. -/
-theorem hessSlice_commR (hV2 : ∀ v : V, v + v = 0) (d w : V) (ζ ξ : ZMod 2) :
-    commR (hessSlice dat hdat d ζ) (hessSlice dat hdat w ξ)
-      = WordCoh.CentExt.incl _ (polar q d w) := by
-  have hcross : dat.f d (d + w) = q d + dat.f d w := by
-    have hc := hdat.f_cocycle d d w
-    rw [hV2, hdat.f_zero_left, hdat.f_diag, zero_add] at hc
-    rw [hc, add_assoc, CharTwo.add_self_eq_zero, add_zero]
-  have hkey : dat.f (d + w) d = q d + dat.f w d := by
-    have hc := hdat.f_cocycle d w d
-    rw [add_comm w d, hcross] at hc
-    linear_combination hc
-  have hV2' : d + w + d = w := by
-    rw [add_comm d w, add_assoc, hV2, add_zero]
-  rw [commR, hessSlice_inv dat hdat hV2, hessSlice_inv dat hdat hV2,
-    hessSlice_mul dat hdat, hessSlice_mul dat hdat, hessSlice_mul dat hdat, hV2', hV2,
-    hkey, hdat.f_diag]
-  show hessSlice dat hdat 0 _ = _
-  rw [show WordCoh.CentExt.incl (kappa0Cocycle dat hdat) (polar q d w)
-      = hessSlice dat hdat 0 (polar q d w) from rfl]
-  congr 1
-  linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hdat.f_polar d w
-
-/-- The `C`-line product law: the κ-corrections vanish on it. -/
-theorem hessLine_mul (c d : C) :
-    hessLine dat hdat c * hessLine dat hdat d = hessLine dat hdat (c * d) := by
-  refine WordCoh.CentExt.ext (Prod.ext ?_ ?_) ?_
-  · show (0 : V) + c • (0 : V) = 0
-    rw [smul_zero, add_zero]
-  · rfl
-  · show (0 : ZMod 2) + 0 + (dat.f 0 (c • (0 : V)) + dat.m c 0) = 0
-    rw [smul_zero, hdat.f_zero_left, factorSet_m_zero dat hdat]
-    simp only [add_zero]
-
-/-- The `C`-line as a hom — what pushes arbitrary `ω₂`-resolver powers along it. -/
-noncomputable def hessLineHom : C →* WordCoh.CentExt (kappa0Cocycle dat hdat) where
-  toFun := hessLine dat hdat
-  map_one' := rfl
-  map_mul' c d := (hessLine_mul dat hdat c d).symm
-
-@[simp] theorem hessLineHom_apply (c : C) : hessLineHom dat hdat c = hessLine dat hdat c :=
-  rfl
 
 /-- **The leading-power law**: `((v,1),0)^{2+2^α} = ι(q v)` for `α ≥ 2` — WW4's
 extraspecial square law `hessSq_of_fibre` iterated through the spelling discipline

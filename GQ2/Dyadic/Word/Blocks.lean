@@ -53,6 +53,11 @@ conventions.  The bridge to mathlib's bracket is `commR_eq_commutatorElement`:
 itself a Mathlib-only leaf; this file re-states them only to stay import-independent of the
 `ℚ₂` stack (it imports nothing but Mathlib).  Deduplicating by importing `GQ2.Words` is a
 mechanical follow-up if the dyadic branch ever wants it.
+
+Ticket WWH (2026-07-31) hoisted the two group-level `conjR`/`commR` twins the pilot
+certificate lane had re-derived — `conjR_eq_self_of_comm` and `monoidHom_commR_eq_one` —
+in here, and deleted that lane's `map_commR'`, which was a verbatim duplicate of `map_commR`.
+Both print `[propext]` only.
 -/
 
 namespace GQ2.Dyadic
@@ -99,6 +104,10 @@ theorem conjR_comm {g h : G} (x : G) (hgh : Commute g h) : conjR x (h * g) = con
 theorem map_conjR (f : G →* H) (x g : G) : f (conjR x g) = conjR (f x) (f g) := by
   simp [conjR]
 
+/-- Collapse of `conjR` in a commutative group. -/
+theorem conjR_eq_self_of_comm {K : Type*} [CommGroup K] (x g : K) : conjR x g = x := by
+  rw [conjR, mul_comm g⁻¹ x, mul_assoc, inv_mul_cancel, mul_one]
+
 /-! ### The paper's commutator `[x, y] = x⁻¹ y⁻¹ x y` -/
 
 /-- Commutator `[x, y] = x⁻¹ * y⁻¹ * x * y` (campaign §3 / paper convention).  Mathlib's
@@ -127,6 +136,12 @@ theorem commR_eq_inv_mul_conjR (x y : G) : commR x y = x⁻¹ * conjR x y := by
 
 theorem map_commR (f : G →* H) (x y : G) : f (commR x y) = commR (f x) (f y) := by
   simp [commR]
+
+/-- Commutators die under any hom into a commutative group. -/
+theorem monoidHom_commR_eq_one {G' K : Type*} [Group G'] [CommGroup K] (f : G' →* K)
+    (a b : G') : f (commR a b) = 1 := by
+  rw [map_commR, commR_eq_one_iff]
+  exact Commute.all _ _
 
 /-! ### Orbit norms (campaign §7.2) -/
 
