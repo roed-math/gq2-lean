@@ -128,11 +128,20 @@ the wild row.
 ## Axiom state (recorded per WL-b instructions; `#print axioms` run in a scratch file, not
 committed)
 
-**Audited 2026-07-31, all named declarations of this file**: every one depends on a subset of
-the standard axioms `[propext, Classical.choice, Quot.sound]` — the headlines print exactly
-std-3, the remainder strictly less.  Zero `sorryAx`, zero `native_decide`, and **zero `B3c`/`B8`
-leaks**: WL-a imports `SqCore.Certificate` but never applies the rank-3 discharge, and nothing
-here touches it either.  The census stays at eleven.
+**Audited 2026-07-31, all 91 named declarations of this file**: every one depends on a subset of
+the standard axioms `[propext, Classical.choice, Quot.sound]` — 51 print exactly std-3, 32 print
+`[propext, Quot.sound]`, 2 print `[propext]` and 6 depend on no axioms at all.  Zero `sorryAx`,
+zero `native_decide`, and **zero `B3c`/`B8` leaks**: WL-a imports `SqCore.Certificate` but never
+applies the rank-3 discharge, and nothing here touches it either.  The census stays at eleven.
+
+In particular the headlines `foxD_lSq_unram`, `foxD_lSq_ram`, `foxD_lSq_split`,
+`foxD_lSqSigmaSlip_eq_lSq` (with its two class corollaries), `foxDHom_lSq_handleU_column`,
+`foxDHom_lSq_handleV_column`, `foxDHom_lSq_coreLetter_one_column`,
+`foxDHom_lSq_eq_base_comp_unram`, `foxDHom_lSq_eq_base_comp_ram`,
+`lSqWildRow_toHom_comp_coreRestrict`, `lSqWildRowCertUnram`, `lSqWildRowCertRam`,
+`lSqWildRowCertSplit`, `lSqWildRowPivotCert`, `foxDHom_lSqW_zero`, `lSqWildRowCertQ2Unram`,
+`lSqWildRowCertQ2Pivot`, `lSqWildRowCertQ2Ram` and `foxD_lSq_unram_zero_eq_hand` all print exactly
+std-3; `lSqWildRow_row_coreEmbed` prints strictly less (`[propext, Quot.sound]`).
 
 ## Implementation notes
 
@@ -400,6 +409,31 @@ theorem trivAct_lSq_factors (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : V), t.x 
         rw [PWord.evalFin_comm, PWord.evalFin_gen, PWord.evalFin_gen]
         exact trivAct_commR (trivAct_handleU t hwild j) (trivAct_handleV t hwild j)
 
+omit [Finite C] [Finite V] in
+/-- The `a`-letter evaluates trivially on a split/unramified module. -/
+theorem trivAct_aBlock_unram (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : V), t.x i • v = v)
+    (hτ : ∀ v : V, t.τ • v = v) :
+    PWord.evalFin ⇑t E E₂
+      (PWord.omega2Pow (PWord.prodList [.zpow (.gen (coreLetter h 0)) (-3), .gen .tau]))
+        ∈ trivAct C V := by
+  rw [PWord.evalFin_omega2Pow]
+  refine trivAct_powOmega2 (mem_trivAct.mpr fun v => ?_)
+  exact (evalFin_aInner_smul t E E₂ hwild v).trans (hτ v)
+
+omit [Finite V] in
+/-- The `a`-letter evaluates trivially on a ramified module too — there its `ω₂`-part is trivial
+for a different reason (`WordLift.powOmega2_smul_of_trivial_mul`). -/
+theorem trivAct_aBlock_ram (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : V), t.x i • v = v)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) :
+    PWord.evalFin ⇑t E E₂
+      (PWord.omega2Pow (PWord.prodList [.zpow (.gen (coreLetter h 0)) (-3), .gen .tau]))
+        ∈ trivAct C V := by
+  rw [PWord.evalFin_omega2Pow]
+  refine mem_trivAct.mpr fun v => ?_
+  rw [evalFin_aInner t E E₂]
+  exact WordLift.powOmega2_smul_of_trivial_mul _ _
+    (mem_trivAct.mp (zpow_mem (trivAct_coreLetter t hwild 0) (-3))) hTodd v
+
 /-! ### The wild rows -/
 
 /-- **The `L_sq` wild row on an unramified simple module** (packet Def. 9.1(3); freeze row 1): at
@@ -417,12 +451,7 @@ theorem foxD_lSq_unram (hV₂ : ∀ v : V, v + v = 0)
     (a : Generator (2 * h + 1) → V) :
     foxD ⇑t a E E₂ (lSqW h)
       = a .tau + a (coreLetter h 0) + t.σ⁻¹ • a (coreLetter h 0) := by
-  have ha : PWord.evalFin ⇑t E E₂
-      (PWord.omega2Pow (PWord.prodList [.zpow (.gen (coreLetter h 0)) (-3), .gen .tau]))
-        ∈ trivAct C V := by
-    rw [PWord.evalFin_omega2Pow]
-    refine trivAct_powOmega2 (mem_trivAct.mpr fun v => ?_)
-    exact (evalFin_aInner_smul t E E₂ hwild v).trans (hτ v)
+  have ha := trivAct_aBlock_unram t E E₂ hwild hτ
   rw [lSqW, foxD_prodList_of_trivial _ _ _ _ _ (trivAct_lSq_factors t E E₂ hwild ha),
     List.map_append, List.sum_append, foxD_handleTail_eq_zero t E E₂ hwild, add_zero]
   simp only [lSqCore, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil]
@@ -444,14 +473,7 @@ theorem foxD_lSq_ram (hV₂ : ∀ v : V, v + v = 0)
     (hτfpf : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v)
     (a : Generator (2 * h + 1) → V) :
     foxD ⇑t a E E₂ (lSqW h) = t.σ⁻¹ • a (coreLetter h 0) := by
-  have ha : PWord.evalFin ⇑t E E₂
-      (PWord.omega2Pow (PWord.prodList [.zpow (.gen (coreLetter h 0)) (-3), .gen .tau]))
-        ∈ trivAct C V := by
-    rw [PWord.evalFin_omega2Pow]
-    refine mem_trivAct.mpr fun v => ?_
-    rw [evalFin_aInner t E E₂]
-    exact WordLift.powOmega2_smul_of_trivial_mul _ _
-      (mem_trivAct.mp (zpow_mem (trivAct_coreLetter t hwild 0) (-3))) hTodd v
+  have ha := trivAct_aBlock_ram t E E₂ hwild hTodd
   rw [lSqW, foxD_prodList_of_trivial _ _ _ _ _ (trivAct_lSq_factors t E E₂ hwild ha),
     List.map_append, List.sum_append, foxD_handleTail_eq_zero t E E₂ hwild, add_zero]
   simp only [lSqCore, List.map_cons, List.map_nil, List.sum_cons, List.sum_nil]
@@ -529,6 +551,21 @@ theorem foxD_lSqSigmaSlip_eq_lSq (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : V),
         rw [PWord.evalFin_conj, PWord.evalFin_gen, PWord.evalFin_gen]
         exact trivAct_conjR (trivAct_coreLetter t hwild 1) _),
     foxD_cBlock t E E₂ hwild]
+
+/-- **The `q_K` pin, unramified class** — the general statement with its side condition
+discharged, so it is directly consumable. -/
+theorem foxD_lSqSigmaSlip_eq_lSq_unram
+    (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (a : Generator (2 * h + 1) → V) :
+    foxD ⇑t a E E₂ (lSqSigmaSlipW h) = foxD ⇑t a E E₂ (lSqW h) :=
+  foxD_lSqSigmaSlip_eq_lSq t E E₂ hwild (trivAct_aBlock_unram t E E₂ hwild hτ) a
+
+/-- **The `q_K` pin, ramified class.** -/
+theorem foxD_lSqSigmaSlip_eq_lSq_ram
+    (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : V), t.x i • v = v)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (a : Generator (2 * h + 1) → V) :
+    foxD ⇑t a E E₂ (lSqSigmaSlipW h) = foxD ⇑t a E E₂ (lSqW h) :=
+  foxD_lSqSigmaSlip_eq_lSq t E E₂ hwild (trivAct_aBlock_ram t E E₂ hwild hTodd) a
 
 /-- **`q_K`-insensitivity, hypothesis form**: the certified row is the same expression at every
 `q`, so a tame relation `τ^σ = τ^q` among the hypotheses is *discardable*.  Contrast the tame row,
@@ -832,31 +869,36 @@ end FormalRow
 
 To say "the degree-`n` formal row *is* the `n = 1` formal row" one needs the two rows' coefficient
 alphabets identified, since `TameSym (2h+1) ≠ TameSym 1`.  `coreSym h` is the relabelling induced
-by `coreEmbed h`, `FoxCoeff.map` its functorial lift, and `eval_map` the compatibility that makes
+by `coreEmbed h`, `mapSym` its functorial lift, and `eval_mapSym` the compatibility that makes
 the identification denotationally sound. -/
 
-/-- Functorial relabelling of a formal coefficient along a map of atom alphabets. -/
-def FoxCoeff.map {S S' : Type*} (f : S → S') : FoxCoeff S → FoxCoeff S'
+/-- Functorial relabelling of a formal coefficient along a map of atom alphabets.
+
+**Hoist candidate**: this and `eval_mapSym` are branch-independent and belong in
+`GQ2/Dyadic/Word/FoxCert.lean` as `FoxCoeff.map`/`FoxCoeff.eval_map`, next to `FoxCoeff.eval`.
+They are named `mapSym`/`eval_mapSym` here precisely so that such a hoist cannot collide with
+them. -/
+def mapSym {S S' : Type*} (f : S → S') : FoxCoeff S → FoxCoeff S'
   | .zero => .zero
   | .one => .one
   | .atom s => .atom (f s)
-  | .add p q => .add (map f p) (map f q)
-  | .comp p q => .comp (map f p) (map f q)
-  | .neg p => .neg (map f p)
+  | .add p q => .add (mapSym f p) (mapSym f q)
+  | .comp p q => .comp (mapSym f p) (mapSym f q)
+  | .neg p => .neg (mapSym f p)
 
 /-- Relabelling is denotationally transparent: evaluating the relabelled coefficient is
 evaluating the original under the precomposed interpretation. -/
-theorem FoxCoeff.eval_map {S S' : Type*} {A : Type*} [AddCommGroup A] (f : S → S')
+theorem eval_mapSym {S S' : Type*} {A : Type*} [AddCommGroup A] (f : S → S')
     (ρ : S' → AddMonoid.End A) : ∀ p : FoxCoeff S,
-    (FoxCoeff.map f p).eval ρ = p.eval (ρ ∘ f)
+    (mapSym f p).eval ρ = p.eval (ρ ∘ f)
   | .zero => rfl
   | .one => rfl
   | .atom _ => rfl
-  | .add p q => by rw [FoxCoeff.map, FoxCoeff.eval_add, FoxCoeff.eval_add, eval_map f ρ p,
-      eval_map f ρ q]
-  | .comp p q => by rw [FoxCoeff.map, FoxCoeff.eval_comp, FoxCoeff.eval_comp, eval_map f ρ p,
-      eval_map f ρ q]
-  | .neg p => by rw [FoxCoeff.map, FoxCoeff.eval_neg, FoxCoeff.eval_neg, eval_map f ρ p]
+  | .add p q => by rw [mapSym, FoxCoeff.eval_add, FoxCoeff.eval_add, eval_mapSym f ρ p,
+      eval_mapSym f ρ q]
+  | .comp p q => by rw [mapSym, FoxCoeff.eval_comp, FoxCoeff.eval_comp, eval_mapSym f ρ p,
+      eval_mapSym f ρ q]
+  | .neg p => by rw [mapSym, FoxCoeff.eval_neg, FoxCoeff.eval_neg, eval_mapSym f ρ p]
 
 /-- The atom relabelling induced by the core embedding: marked-letter atoms move along
 `coreEmbed h`, the `σ₂`-atoms and the opaque projector are untouched. -/
@@ -883,7 +925,7 @@ theorem toEnd_comp_coreSym {h : ℕ} {C : Type*} [Group C] {V : Type*} [AddCommG
 twin of `foxDHom_lSq_eq_base_comp_unram`: **the degree-`n` certificate data = the `n = 1`
 certificate data ⊕ `2h` zero columns.** -/
 theorem lSqWildRow_row_coreEmbed (h : ℕ) (g : Generator 1) :
-    (lSqWildRow h).row (coreEmbed h g) = FoxCoeff.map (coreSym h) ((lSqWildRow 0).row g) := by
+    (lSqWildRow h).row (coreEmbed h g) = mapSym (coreSym h) ((lSqWildRow 0).row g) := by
   cases g with
   | sigma => rfl
   | tau => rfl
