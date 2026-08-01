@@ -964,4 +964,129 @@ end Certificate
 
 end Hessian
 
+/-! ## §4. The `L_c` battery: per-module invertibility, decided
+
+NC6's concrete carrier — `C = ℤ/3` acting on `𝔽₂²` by the companion matrix of `x² + x + 1`,
+with the anisotropic form `pinQ` and the factor set `pinDat` — is the battery module.  On it
+every hypothesis of the NC headline is discharged by `decide`, and so is the question NC5 left
+open.  The answer is a genuine dichotomy, and the parameter it turns on is the one the *jet*
+identity never consumes:
+
+* at **`r = 1`** (and every odd `r`) `L_c = A⁻¹ + B + B·A⁻¹ = g` is the group action itself —
+  invertible (`isUnit_lcOpEnd_pin_one`);
+* at **`r = 0`** `A = B = g` and `L_c = g² + g + 1 = 0` — the **zero** operator, by the minimal
+  polynomial of the companion matrix.  So `L_c` is not merely non-invertible there, it is
+  identically zero (`pin_lcOp_zero`), and the certificate's change of variables does not exist.
+
+`r = 0` is exactly the excluded case: `r ≥ 1` is the *word row's* noncompact side condition,
+which NC5 deliberately does not consume (`npc_cross_operators` holds for all `r : ℕ`).  This
+battery is where that side condition becomes load-bearing again — it is what per-module
+invertibility needs, and the honest statement is that invertibility is a property of the pair
+(module, `r`), not of the operator alone. -/
+
+section Battery
+
+open GQ2.QuadraticFp2 NpcJet
+
+/-- The `ZMod 2`-module structure on the battery carrier (local — WW3's non-exporting idiom;
+NC6 declares the additive and finiteness instances, this is the one the phase interface adds). -/
+local instance : Module (ZMod 2) PinV := inferInstanceAs (Module (ZMod 2) (ZMod 2 × ZMod 2))
+
+/-- **`L_c` is the zero operator at `r = 0`** on the battery module: `A = B = g` there, and
+`g² + g + 1 = 0` is the minimal polynomial of the order-3 companion matrix.  The corrected
+operator degenerates completely — the draft's `L_c = A⁻¹ = g²` does not. -/
+theorem pin_lcOp_zero (η : ℤ_[2]) (v : PinV) : lcOp pinG η 0 v = 0 := by
+  rw [lcOp, pinA]
+  revert v
+  decide
+
+/-- **`L_c` is invertible on the battery module at `r = 1`** — the kernel criterion discharged by
+kernel `decide` through NC6's closed form `pin_lcOp` (`L_c = g`). -/
+theorem isUnit_lcOpEnd_pin_one (η : ℤ_[2]) : IsUnit (lcOpEnd (V := PinV) pinG η 1) := by
+  refine (isUnit_lcOpEnd_iff pinG η 1).mpr fun v hv => ?_
+  rw [pin_lcOp] at hv
+  revert v
+  decide
+
+/-- **`L_c` is *not* invertible on the battery module at `r = 0`** — the negative half of the
+dichotomy, and the reason the word row carries `r ≥ 1`. -/
+theorem not_isUnit_lcOpEnd_pin_zero (η : ℤ_[2]) : ¬ IsUnit (lcOpEnd (V := PinV) pinG η 0) := by
+  intro hu
+  have h := (isUnit_lcOpEnd_iff pinG η 0).mp hu ((1, 0) : PinV) (pin_lcOp_zero η _)
+  exact absurd h (by decide)
+
+/-- The two-sided inverse of `L_c` on the battery at `r = 1`, in the shape the certificate's
+change of variables consumes. -/
+theorem exists_lcOp_inverse_pin_one (η : ℤ_[2]) :
+    ∃ Mc : PinV →+ PinV, (∀ v, Mc (lcOpHom pinG η 1 v) = v) ∧
+      (∀ v, lcOpHom pinG η 1 (Mc v) = v) := by
+  refine exists_lcOp_inverse pinG η 1 fun v hv => ?_
+  rw [pin_lcOp] at hv
+  revert v
+  decide
+
+/-! ### The battery's quadratic data
+
+The three inputs `npcHessianCertificate` cannot derive from the word — quadraticity of the
+twisted diagonal `Q₀`, quadraticity and nonsingularity of `q` — are decided here.  `Q₀` is the
+one that matters: `Q₀(v) = f(v, A⁻¹v) + m_{A⁻¹}(v)` is a statement about the *factor set*, and
+WW4's shape takes it as an input for exactly that reason. -/
+
+/-- The battery form is quadratic. -/
+theorem pin_isQuadratic_pinQ : IsQuadraticFp2 pinQ := by
+  constructor <;> decide
+
+/-- The battery form is nonsingular (it is anisotropic). -/
+theorem pin_nonsingular_pinQ : Nonsingular pinQ := by
+  show ∀ v : PinV, v ≠ 0 → ∃ w, polar pinQ v w ≠ 0
+  decide
+
+/-- **The twisted diagonal is quadratic on the battery** — `Q₀(v) = f(v, g⁻¹v)` there
+(`pin_npcQ0`, the correction `m` being zero), decided over the four points.  This discharges the
+one certificate input that is about the factor-set datum rather than the word. -/
+theorem pin_isQuadratic_npcQ0 (η : ℤ_[2]) : IsQuadraticFp2 (npcQ0 pinDat pinG η) := by
+  rw [show npcQ0 pinDat pinG η = fun v : PinV => pinF v (pinG⁻¹ • v) from funext (pin_npcQ0 η)]
+  constructor <;> decide
+
+/-- The battery module has `2²` points. -/
+theorem pin_card : Fintype.card PinV = 2 ^ 2 := by decide
+
+/-! ### The `(α, r, η) = (2, 1, 1)` instance, end to end
+
+The frozen harness row (`N-noncompact-alpha2-r1-eta1_1-h0-v001`, digest `08b7742caf3a34f8…`,
+`F5` counts `6/1568/120` over `(S₃, D₈, A₄)`) at the battery module: word value, Hessian
+certificate, and the Gauss residue, with **every** hypothesis discharged. -/
+
+/-- **The Hessian certificate of the corrected noncompact-`N` row, fully concrete.**  Every input
+is discharged: `hq`/`hns` by `decide`, `hQ₀` by `decide`, the change of variables by the battery's
+`L_c = g`.  This is packet Def. 9.1 item (6) for freeze row 3 at a module where nothing is
+hypothetical. -/
+noncomputable def pinNpcHessianCertificate (η : ℤ_[2]) :
+    HessianCertificate pinDat
+      (fun v ↦ npcQ0 pinDat pinG η ((exists_lcOp_inverse_pin_one η).choose v))
+      (fun p : PinV × PinV ↦ npcQ0 pinDat pinG η p.1 + polar pinQ p.2 (lcOp pinG η 1 p.1))
+      (plusFormD (fun v ↦ npcQ0 pinDat pinG η ((exists_lcOp_inverse_pin_one η).choose v)) pinQ)
+      (AddMonoidHom.inl PinV PinV) (AddMonoidHom.inr PinV PinV) :=
+  npcHessianCertificate pinDat pinHdat pin_isQuadratic_pinQ pin_nonsingular_pinQ pinG η 1
+    (pin_isQuadratic_npcQ0 η) _ (exists_lcOp_inverse_pin_one η).choose_spec.1
+    (exists_lcOp_inverse_pin_one η).choose_spec.2 pin_card
+
+/-- **The pinned word lands on the pinned certificate's endpoint** — `npc_word_eq_certQ` at the
+battery, `(α, r) = (2, 1)`.  Both sides are now concrete functions of `(c₀, c₁) ∈ 𝔽₂² × 𝔽₂²`. -/
+theorem pin_npc_word_eq_certQ (e : EtaData) :
+    (fun p : PinV × PinV ↦
+        ((npcMarking pinDat pinHdat pinG pinG p.1 p.2).eval (npcW 2 1 0 e)).fib)
+      = fun p : PinV × PinV ↦ npcQ0 pinDat pinG e.toPadic p.1
+          + polar pinQ p.2 (lcOp pinG e.toPadic 1 p.1) :=
+  npc_word_eq_certQ pinDat pinHdat pinV2 pinG pinG (pinOddOrder pinG) pinVu 2 le_rfl 1 e
+
+/-- **The pinned Gauss residue**: the Gauss sum of the *word's* evaluated Hessian is the
+certificate's `G0 = 2²`.  End of the chain — word ⟶ jet identity ⟶ change of variables ⟶ plus
+form ⟶ Gauss residue — with no hypothesis left standing. -/
+theorem pin_npc_word_gaussSum (η : ℤ_[2]) :
+    (pinNpcHessianCertificate η).affinePhase.G0 = 2 ^ 2 :=
+  one_mul _
+
+end Battery
+
 end GQ2.Dyadic.Certificates.Npc
