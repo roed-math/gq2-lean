@@ -24,6 +24,61 @@ R^{sq}_{L,n} = (x₀^σ)⁻¹ (x₀⁻³τ)^{ω₂} x₁² [x₁, x₁^{σ₂}] 
 scalar/Hilbert layer first (it was the lane's only can-fail item), then Stokes/Hessian/
 determinant/phase.
 
+## The two headline outcomes
+
+1. **`hHilb` is discharged, and it never needed Witt cancellation** (§1).  WL-recon V8/R4 priced
+   it as the lane's only can-fail item on the strength of "mathlib does not supply `𝔽₂`-quadratic
+   -form classification / Witt cancellation".  The survey is right about mathlib — the pinned
+   mathlib's diagonalization chain is gated on `Invertible (2 : K)` and there is no hyperbolic
+   plane, no Witt decomposition and no Arf invariant anywhere under
+   `Mathlib/LinearAlgebra/QuadraticForm/` — but the *inference* does not follow: the
+   cup–Bockstein object is a **symmetric bilinear** form over `𝔽₂` whose diagonal is
+   automatically additive (`IsCupFormFp2.diag_add`), so the classification is `⟨1⟩ ⊥ (alternating
+   part)` and the residue is a **symplectic** normal form.  `exists_symplectic_equiv` proves that
+   from scratch by plane-splitting induction, and `exists_cupForm_normalForm` is `hHilb`.
+2. **The `L_sq` Hessian endpoint is the Wall doubling `qDouble q U`** (§6), `U = σ₂⁻¹`.  WW4
+   deliberately left `L_sq` out of its worked rows ("rank-3 core, not a plus form"), so the
+   word-side connection is built here; landing on `qDouble` is what makes the 1932-line
+   presentation-independent Gauss layer (`QuadraticFp2` + `SectionSix` + `GaussSigns`) apply to
+   this row **by citation** — `lSq_endpoint_wall` is `lemma_6_6` applied, with its `q`-invariance
+   hypothesis *proved* from `IsEquivariantFactorSet` rather than assumed.
+
+Along the way, all three of WL-b's "invisible at first order" items become visible and are
+measured: the `x₁`-column (`C(2,2)` odd — the `⟨1⟩` of the normal form), the `σ₂`-slot
+(`[x₁,x₁^{σ₂}]` contributes `y₁((S₂+S₂⁻¹)a₁)`, the letter-level Wall operator; the `σ₂` *offsets*
+stay invisible, only the operator enters), and `q_K` (through the tame row's `C(q_K,2)`, odd iff
+`q_K = 2` — `lSq_scalarGram` vs `lSq_scalarGram_qFour`).
+
+## Implementation notes
+
+Not `module`-style, and forced: `GQ2.Dyadic.Certificates.{LFox, N0}` are plain-import (the WN0-a
+ruling that `Words/` and `Certificates/` are plain-import layers); the `module`-style import
+`Word.StokesDual` is fine in this direction.  No new axioms; kernel `decide` only (the three Gram
+pins and the handle-witness pin); no `Marking.eval` outside what WL-a already uses.
+
+Namespace `GQ2.Dyadic.Certificates.LSqStokes`, a sub-namespace: `N0.lean` occupies the bare
+`GQ2.Dyadic.Certificates`, and this file imports it (the orchestrator's 2026-08-01 re-namespacing
+of `Words/L.lean` to `Words.LSq` made that possible, so WN0-c's ~305-line toolkit is **reused**
+rather than re-derived — see the report's inventory).  WL-b's names come through
+`open … Certificates.LSq`; where a name exists in both (`trivAct_coreLetter`, `trivAct_handleU`,
+`trivAct_handleV`) it is qualified `LSq.…`.
+
+## Axiom state (audited; `#print axioms` on all 100 named declarations, run in a scratch file,
+not committed)
+
+Every declaration depends on a **subset of the standard three** `[propext, Classical.choice,
+Quot.sound]` — 81 print exactly std-3, the rest `[propext, Quot.sound]` or `[propext]`.  Zero
+`sorryAx`, zero `native_decide`, and **zero `B3c`/`B8`** (no rank-3-discharge consumer is needed
+anywhere in this file; `SqCore.marked_square_core_rank3` and its two certificate consumers are
+cited in prose only, as in WL-a and WL-b).  No `GQ2.AbsGalQ2` B-axiom appears in any print
+through either import chain.  The census stays at eleven.
+
+In particular the headlines `exists_symplectic_equiv`, `exists_cupForm_normalForm`,
+`sqRelWord_centLift_fib`, `heisZ_lSq_unram`, `heisZ_lSq_res_one`, `heisZ_lSq_scalar`,
+`heisZ_lSq_handle_stable`, `lSq_isStokesEndpoint`, `lSq_stokesDuality`, `lSq_scalarGram`,
+`lSq_scalarGram_three`, `lSq_scalarGram_qFour`, `hessRelZ_lSq`, `hessRelZ_lSq_qDouble`,
+`lSq_endpoint_wall`, `lSq_word_endpoint_nonsingular`, `lSq_handle_form_gaussSum` and
+`lSq_stress_handle_visible` all print exactly std-3.
 -/
 
 namespace GQ2.Dyadic.Certificates.LSqStokes
@@ -269,7 +324,7 @@ theorem hypSplit_gram {b : W → W → ZMod 2} (hb : IsSymplecticFp2 b) {v w : W
   rw [hb.add_left, hb.add_left, hb.add_right, hb.add_right, hb.add_right, hb.add_right,
     hb.add_right, hb.add_right]
   simp only [hb.smul_left, hb.smul_right, hb.alt, hvw, hwv, hxv, hxw, mul_zero, mul_one,
-    add_zero, zero_add]
+    add_zero]
   ring_nf
   simp [show (4 : ZMod 2) = 0 from by decide]
 
@@ -370,11 +425,11 @@ theorem exists_symplectic_equiv_aux :
       · intro x y
         rw [hzero x, hb.zero_left]
         simp [hypGram]
-    · push_neg at hzero
+    · push Not at hzero
       obtain ⟨v, hv⟩ := hzero
       have hex : ∃ w, b v w ≠ 0 := by
         by_contra hcon
-        push_neg at hcon
+        push Not at hcon
         exact hv (hb.nondeg v hcon)
       obtain ⟨w, hw⟩ := hex
       have hvw : b v w = 1 := by
@@ -991,7 +1046,7 @@ theorem heisZ_lSq_scalar (hA₂ : ∀ a : A, a + a = 0)
   have hσz : ∀ (k : ℤ) (v : A), (t.σ ^ k) • v = v := by
     intro k v
     cases k with
-    | ofNat n => rw [Int.ofNat_eq_coe, zpow_natCast]; exact hσn n v
+    | ofNat n => rw [Int.ofNat_eq_natCast, zpow_natCast]; exact hσn n v
     | negSucc n => rw [zpow_negSucc, inv_smul_eq_iff]; exact (hσn (n + 1) v).symm
   rw [heisZ_lSq_res_one t x y E E₂ hA₂ hwild hτ hE he, hσ, hσz, ← zpow_neg, hσz,
     show (x (coreLetter h 0) + x .tau) + (x (coreLetter h 0) + x .tau) = 0 from hA₂ _,
