@@ -128,8 +128,8 @@ the wild row.
 ## Axiom state (recorded per WL-b instructions; `#print axioms` run in a scratch file, not
 committed)
 
-**Audited 2026-07-31, all 91 named declarations of this file**: every one depends on a subset of
-the standard axioms `[propext, Classical.choice, Quot.sound]` — 51 print exactly std-3, 32 print
+**Re-audited 2026-08-01, all 89 named declarations of this file**: every one depends on a subset of
+the standard axioms `[propext, Classical.choice, Quot.sound]` — 49 print exactly std-3, 32 print
 `[propext, Quot.sound]`, 2 print `[propext]` and 6 depend on no axioms at all.  Zero `sorryAx`,
 zero `native_decide`, and **zero `B3c`/`B8` leaks**: WL-a imports `SqCore.Certificate` but never
 applies the rank-3 discharge, and nothing here touches it either.  The census stays at eleven.
@@ -1082,34 +1082,13 @@ reused verbatim. -/
 
 section BaseTransport
 
-/-- **WL-a's `n = 1` identification, universe-generalized.**
+/- The universe twin `evalFin_lSqW_zero'` that stood here (WL-a's lemma restated at `Type*`,
+with its `rfl` sanity pin) is GONE as of 2026-08-01: `Words/L.lean`'s own
+`evalFin_lSqW_zero` and `evalFin_lSqW_zero_eq_wildValueR` are now stated at `{P : Type*}`,
+so the transport cites WL-a directly and the dedup ticket recorded here is discharged.
+Its neighbour `eval_lSqW_zero_eq_one_iff` deliberately stays at `{P : Type}` — it cites
+`GQ2.Marking.map_wildRelatorR_eq_one_iff`, whose `Bridge` section fixes that universe. -/
 
-⚠ `Words.evalFin_lSqW_zero` is stated at `{P : Type}` — universe `0` — while the lift group
-`WordLift V C` of the Fox evaluator lives in `Type (max u v)`, so the transport below cannot cite
-it directly.  Nothing in the statement is `Type`-specific, so this is WL-a's lemma with `Type`
-relaxed to `Type*`, carrying **WL-a's proof verbatim**; it is a universe fix, not a second
-derivation, and `evalFin_lSqW_zero'_eq` pins that the two agree where both apply.
-
-**Dedup ticket**: relax `{P : Type}` to `{P : Type*}` in `GQ2/Dyadic/Words/L.lean`
-(`evalFin_lSqW_zero`, and check its neighbours `evalFin_lSqW_zero_eq_wildValueR` and
-`eval_lSqW_zero_eq_one_iff`), after which this twin deletes and its consumers cite WL-a. -/
-theorem evalFin_lSqW_zero' {P : Type*} [Group P] (s : _root_.GQ2.Marking P) (E : Zhat → ℤ)
-    (E₂ : ℤ_[2] → ℤ) :
-    PWord.evalFin (⇑(Marking.ofQ2 s)) E E₂ (lSqW 0)
-      = PWord.evalFin (⇑(Marking.ofQ2 s)) E E₂ gammaRWildWord := by
-  rw [gammaRWildWord, aRWordQ2, cRWordQ2, y1RWordQ2, lSqW]
-  simp only [handleTail, List.append_nil, lSqCore, PWord.prodList_cons, PWord.prodList_nil,
-    sigma2W, PWord.evalFin_mul, PWord.evalFin_inv, PWord.evalFin_conj,
-    PWord.evalFin_comm, PWord.evalFin_zpow, PWord.evalFin_omega2Pow, PWord.evalFin_gen,
-    PWord.evalFin_one, mul_one, mul_assoc,
-    show coreLetter 0 0 = (Generator.wild 0 : Generator 1) from rfl,
-    show coreLetter 0 1 = (Generator.wild 1 : Generator 1) from rfl]
-  rw [zpow_neg_three_int]
-
-/-- Sanity pin: at universe `0`, where both apply, the twin above **is** WL-a's lemma. -/
-theorem evalFin_lSqW_zero'_eq {P : Type} [Group P] (s : _root_.GQ2.Marking P) (E : Zhat → ℤ)
-    (E₂ : ℤ_[2] → ℤ) :
-    evalFin_lSqW_zero' s E E₂ = Words.LSq.evalFin_lSqW_zero s E E₂ := rfl
 
 variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
   [DistribMulAction C V]
@@ -1127,7 +1106,7 @@ theorem foxEval_lSqW_zero (t : _root_.GQ2.Marking C) (x : Fin 4 → V) (E : Zhat
     (E₂ : ℤ_[2] → ℤ) :
     foxEval (⇑(Marking.ofQ2 t)) (q2Offsets x) E E₂ (lSqW 0)
       = foxEval (⇑(Marking.ofQ2 t)) (q2Offsets x) E E₂ gammaRWildWord := by
-  rw [foxEval_def, foxEval_def, foxLift_ofQ2, evalFin_lSqW_zero']
+  rw [foxEval_def, foxEval_def, foxLift_ofQ2, evalFin_lSqW_zero]
 
 omit [Finite C] [Finite V] in
 /-- The `n = 1` transport, derivative level, at `q2Offsets`-shaped offsets. -/

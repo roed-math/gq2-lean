@@ -780,7 +780,11 @@ theorem eval_lSqW_zero (s : _root_.GQ2.Marking G) :
 
 /-- **Relator for relator**: the `L_sq` word at `n = 1` dies in a finite quotient exactly when the
 pushed marking satisfies the Roe wild relation `WildRelR` — so `Γ_R`'s `R`-admissibility may be
-read off this word.  This is the hook AS4 wraps. -/
+read off this word.  This is the hook AS4 wraps.
+
+`P` stays at `Type` here, unlike its two `evalFin` neighbours: the proof cites
+`GQ2.Marking.map_wildRelatorR_eq_one_iff`, whose `Bridge` section in `GQ2/Roe/GammaR.lean` fixes
+`{P : Type}`.  Relaxing this one means relaxing that section first. -/
 theorem eval_lSqW_zero_eq_one_iff {P : Type} [Group P] [TopologicalSpace P] [DiscreteTopology P]
     [Finite P] (f : ContinuousMonoidHom G P) (s : _root_.GQ2.Marking G) :
     f.toMonoidHom ((Marking.ofQ2 s).eval (lSqW 0)) = 1
@@ -793,7 +797,7 @@ theorem eval_lSqW_zero_eq_one_iff {P : Type} [Group P] [TopologicalSpace P] [Dis
 *not* equal — WW1 mirrors the ledger's `(x₀³)⁻¹` and left association, this file mirrors the
 certificate's `x₀^{-3}` and `n`-ary `Multiply` — so this is the statement that the certificate's
 spelling and the ledger's spelling are one word. -/
-theorem evalFin_lSqW_zero {P : Type} [Group P] (s : _root_.GQ2.Marking P) (E : Zhat → ℤ)
+theorem evalFin_lSqW_zero {P : Type*} [Group P] (s : _root_.GQ2.Marking P) (E : Zhat → ℤ)
     (E₂ : ℤ_[2] → ℤ) :
     PWord.evalFin (⇑(Marking.ofQ2 s)) E E₂ (lSqW 0)
       = PWord.evalFin (⇑(Marking.ofQ2 s)) E E₂ gammaRWildWord := by
@@ -808,7 +812,7 @@ theorem evalFin_lSqW_zero {P : Type} [Group P] (s : _root_.GQ2.Marking P) (E : Z
 
 /-- Chained with WW1's `evalFin_gammaRWildWord`: the `L_sq` word at `n = 1` computes the finite
 `ℚ₂` ledger value `wildValueR` of `GQ2/Roe/Words.lean`. -/
-theorem evalFin_lSqW_zero_eq_wildValueR {P : Type} [Group P] (s : _root_.GQ2.Marking P)
+theorem evalFin_lSqW_zero_eq_wildValueR {P : Type*} [Group P] (s : _root_.GQ2.Marking P)
     (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
     PWord.evalFin (⇑(Marking.ofQ2 s)) E E₂ (lSqW 0) = s.wildValueR := by
   rw [evalFin_lSqW_zero, evalFin_gammaRWildWord]
