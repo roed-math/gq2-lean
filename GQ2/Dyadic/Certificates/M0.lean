@@ -833,6 +833,38 @@ def scalarXM (p : Fin 5) : Generator 2 → ZMod 2 :=
 noncomputable def scalarYM (p : Fin 5) : Generator 2 → ElemDual (ZMod 2) :=
   fun g => if g = scalarLetterM p then (AddMonoidHom.id (ZMod 2) : ElemDual (ZMod 2)) else 0
 
+/-- **The `√2` scalar Gram at the honest resolver class** (`α = 3`, `q_K = 2`, `e = 1`):
+Bockstein diagonals at `τ` and `x₀`, cup blocks `(σ,τ)`, `(σ,x₂)`, `(x₀,x₁)`.
+
+⚠ **Finding — this is the pilot's matrix, entry for entry** (`sqrtNegTwo_scalarGram`).  The
+scalar module is blind to everything that distinguishes compact `M` from compact `N`: the
+`σ₂`-powers act trivially *and carry no jet* (`m` is even), so the `𝓔`-block's four factors are
+four equal lifts whose six pair terms cancel, and `A₀²` produces the same `y₀(a₀)` that
+`x₀^{2+2^α}` does.  The Gram-level twin of WM0-b's "the normal forms are literally the pilot's",
+and the Lean shard of the archive's gate-G blindness row. -/
+theorem sqrtTwo_scalarGram :
+    stokesGram ⇑scalarMarkM (mCompactFam 3 0 2 1) scalarXM scalarYM
+      = !![0,1,0,0,1; 1,1,0,0,0; 0,0,1,1,0; 0,0,1,0,0; 1,0,0,0,0] := by
+  decide +kernel
+
+/-- **The `e = 3` twin**: exactly the `{τ,x₂}²`-block moves with the resolver class — S1.T's
+"the lift level is 4, not 2" as a kernel-checked matrix pair, and the reason the certificate
+form `heisZ_mCompact_res_one` pins `e ≡ 1 (mod 4)`. -/
+theorem sqrtTwo_scalarGram_three :
+    stokesGram ⇑scalarMarkM (mCompactFam 3 0 2 3) scalarXM scalarYM
+      = !![0,1,0,0,1; 1,0,0,0,1; 0,0,1,1,0; 0,0,1,0,0; 1,1,0,0,1] := by
+  decide +kernel
+
+/-- **The `√5` scalar Gram** (`α = 2`, `q_K = 4`, `e = 1`).  The `τ`-Bockstein diagonal is
+**absent** here — `C(4,2) = 6` is even where the `√2` row's `C(2,2) = 1` is odd.  That single
+entry is the entire `q_K`-sensitivity of the scalar comparison, and it lives in the *tame*
+relator, not in the branch word: WM0-a's `astHash_q2_eq_q4` says `q_K` never reaches the word,
+and this is that theorem's Gram-level shadow. -/
+theorem sqrtFive_scalarGram :
+    stokesGram ⇑scalarMarkM (mCompactFam 2 0 4 1) scalarXM scalarYM
+      = !![0,1,0,0,1; 1,0,0,0,0; 0,0,1,1,0; 0,0,1,0,0; 1,0,0,0,0] := by
+  decide +kernel
+
 end ScalarGram
 
 end GQ2.Dyadic.Certificates.MCompact
