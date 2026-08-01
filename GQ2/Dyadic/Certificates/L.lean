@@ -891,6 +891,112 @@ theorem heisEvalZ_lSqHandleTail :
   | zero => rw [handleTail, List.map_nil, List.prod_nil, handlesW_zero, heisEvalZ_one]
   | succ k => rw [handleTail, List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one]
 
+/-- **The `L_sq` second-order (Stokes) row, unramified class, exact in the resolver**: the
+central coordinate of the word's `heisEvalZ`-denotation at any marking whose wild letters and
+`τ` act trivially, with `E ω₂ = e`.
+
+Block reading: the `x₀`-block `(σ,x₀)`-cross ⊕ `x₀`-diagonal ⊕ the `ω₂`-boundary with its `e`-
+and `C(e,2)`-sensitivities ⊕ the **`x₁`-diagonal** ⊕ the **`σ₂`-operator block** ⊕ the `h`
+identity-operator hyperbolic planes.  The last two are new relative to the compact-`N` row and
+are exactly the pieces WL-b's first-order Fox row provably cannot see. -/
+theorem heisZ_lSq_unram (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : A), t.x i • v = v) (hτ : ∀ v : A, t.τ • v = v)
+    {e : ℕ} (hE : E omega2 = (e : ℤ)) :
+    (heisEvalZ ⇑t x y E E₂ (lSqW h)).z
+      = (y .sigma (x (coreLetter h 0)) + y (coreLetter h 0) (x .sigma)
+          + y (coreLetter h 0) (x (coreLetter h 0)))
+        + (e • y (coreLetter h 0) (x .tau)
+            + (e.choose 2) • ((y (coreLetter h 0) + y .tau)
+                (x (coreLetter h 0) + x .tau))
+            + e • y (coreLetter h 0) (t.σ • (x (coreLetter h 0) + x .tau)))
+        + y (coreLetter h 1) (x (coreLetter h 1))
+        + (y (coreLetter h 1) ((t.σ ^ E omega2)⁻¹ • x (coreLetter h 1))
+            + y (coreLetter h 1) ((t.σ ^ E omega2) • x (coreLetter h 1)))
+        + ∑ j, (y (handleU j) (x (handleV j)) + y (handleV j) (x (handleU j))) := by
+  have hHmem := heisF_lSqHandles_mem t x y E E₂ hwild
+  have hHz := heisF_lSqHandles_z t x y E E₂ hwild
+  rw [lSqW, heisEvalZ_prodList, List.map_append, List.prod_append,
+    heisEvalZ_lSqHandleTail t x y E E₂]
+  simp only [lSqCore, List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one]
+  set Q1 := heisEvalZ ⇑t x y E E₂
+    (.inv (.conj (.gen (coreLetter h 0)) (.gen .sigma))) with hQ1
+  set Q2 := heisEvalZ ⇑t x y E E₂
+    (PWord.omega2Pow (PWord.prodList [.zpow (.gen (coreLetter h 0)) (-3), .gen .tau]))
+    with hQ2
+  set Q3 := heisEvalZ ⇑t x y E E₂ (.zpow (.gen (coreLetter h 1)) 2) with hQ3
+  set Q4 := heisEvalZ ⇑t x y E E₂
+    (.comm (.gen (coreLetter h 1)) (.conj (.gen (coreLetter h 1)) sigma2W)) with hQ4
+  set Q5 := heisEvalZ ⇑t x y E E₂ (handlesW h) with hQ5
+  have e1 := heisF_lSqInvConj t x y E E₂ hwild
+  have e2 := heisF_lSqOmegaBlock t x y E E₂ hA₂ hwild hτ hE
+  have e3 := heisF_lSqSquare t x y E E₂ hA₂ hwild
+  have e4 := heisF_lSqComm t x y E E₂ hwild
+  have h3jz : Q3 ∈ heisJetZero A C := by rw [hQ3, e3]; exact ⟨rfl, rfl⟩
+  have h4jz : Q4 ∈ heisJetZero A C := by rw [hQ4, e4]; exact ⟨rfl, rfl⟩
+  have h34jz : Q3 * Q4 ∈ heisJetZero A C := mul_mem h3jz h4jz
+  have h234a : (Q2 * (Q3 * Q4)).a = Q2.a := by
+    rw [HeisLift.mul_a, h34jz.1, smul_zero, add_zero]
+  have h234z : (Q2 * (Q3 * Q4)).z = Q2.z + (Q3.z + Q4.z) := by
+    rw [heisMul_z_of_a_eq_zero _ _ h34jz.1, heisJetZero_mul_z h3jz]
+  have h1g : ∀ v : A, Q1.g • v = v := by
+    rw [hQ1, e1]
+    exact fun v =>
+      mem_trivAct.mp (inv_mem (trivAct_conjR (LSq.trivAct_coreLetter t hwild 0) t.σ)) v
+  have hcore : (Q1 * (Q2 * (Q3 * Q4))).z
+      = Q1.z + (Q2.z + (Q3.z + Q4.z)) + Q1.l Q2.a := by
+    rw [HeisLift.mul_z, h234z, h234a, h1g]
+  rw [heisMul_z_of_a_eq_zero _ _ hHmem.1, hcore, hQ1, hQ2, hQ3, hQ4, hQ5, e1, e2, e3, e4,
+    hHz]
+  dsimp only
+  rw [ElemDual.neg_apply, ElemDual.smul_apply, inv_inv, CharTwo.neg_eq, smul_comm, map_nsmul]
+  abel
+
+/-- **The certificate form at the honest resolver class** `e ≡ 1 (mod 4)` — the class the genuine
+`ω₂` inhabits on every finite `2`-group target.  The `x₀`-block collapses to
+`y_σ(a₀) + y₀(a_σ + (1+S)(a₀ + a_τ))` — the second-order shadow of WL-b's `S⁻¹ + P` block on
+the `x₀` column — and the `x₁`-block keeps its diagonal and its `σ₂`-operator term. -/
+theorem heisZ_lSq_res_one (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : A), t.x i • v = v) (hτ : ∀ v : A, t.τ • v = v)
+    {e : ℕ} (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1) :
+    (heisEvalZ ⇑t x y E E₂ (lSqW h)).z
+      = y .sigma (x (coreLetter h 0))
+        + y (coreLetter h 0)
+            (x .sigma + ((x (coreLetter h 0) + x .tau) + t.σ • (x (coreLetter h 0) + x .tau)))
+        + y (coreLetter h 1) (x (coreLetter h 1))
+        + (y (coreLetter h 1) ((t.σ ^ E omega2)⁻¹ • x (coreLetter h 1))
+            + y (coreLetter h 1) ((t.σ ^ E omega2) • x (coreLetter h 1)))
+        + ∑ j, (y (handleU j) (x (handleV j)) + y (handleV j) (x (handleU j))) := by
+  rw [heisZ_lSq_unram t x y E E₂ hA₂ hwild hτ hE,
+    nsmul_zmod2_odd (odd_of_mod_four_eq_one he), nsmul_zmod2_odd (odd_of_mod_four_eq_one he),
+    nsmul_zmod2_even (choose_two_even_of_mod_four he)]
+  simp only [map_add]
+  abel
+
+/-- **The scalar (split) collapse**: with `σ` acting trivially too, the `(1+S)`-block dies and the
+`σ₂`-block dies as well (`S₂ = 1`, so `S₂ + S₂⁻¹ = 0` in characteristic two).  What is left is the
+`(σ,x₀)` cross, the `x₁` diagonal and the `h` planes — **the `⟨1⟩ ⊥ H^{⊥(h+1)}` Gram of §2, read
+off the word instead of off the relator fibre.** -/
+theorem heisZ_lSq_scalar (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : A), t.x i • v = v) (hτ : ∀ v : A, t.τ • v = v)
+    (hσ : ∀ v : A, t.σ • v = v) {e : ℕ} (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1) :
+    (heisEvalZ ⇑t x y E E₂ (lSqW h)).z
+      = y .sigma (x (coreLetter h 0)) + y (coreLetter h 0) (x .sigma)
+        + y (coreLetter h 1) (x (coreLetter h 1))
+        + ∑ j, (y (handleU j) (x (handleV j)) + y (handleV j) (x (handleU j))) := by
+  have hσn : ∀ (n : ℕ) (v : A), (t.σ ^ n) • v = v := by
+    intro n
+    induction n with
+    | zero => intro v; rw [pow_zero, one_smul]
+    | succ n ih => intro v; rw [pow_succ, mul_smul, hσ, ih]
+  have hσz : ∀ (k : ℤ) (v : A), (t.σ ^ k) • v = v := by
+    intro k v
+    cases k with
+    | ofNat n => rw [Int.ofNat_eq_coe, zpow_natCast]; exact hσn n v
+    | negSucc n => rw [zpow_negSucc, inv_smul_eq_iff]; exact (hσn (n + 1) v).symm
+  rw [heisZ_lSq_res_one t x y E E₂ hA₂ hwild hτ hE he, hσ, hσz, ← zpow_neg, hσz,
+    show (x (coreLetter h 0) + x .tau) + (x (coreLetter h 0) + x .tau) = 0 from hA₂ _,
+    add_zero, CharTwo.add_self_eq_zero, add_zero]
+
 end StokesRows
 
 end GQ2.Dyadic.Certificates.LSqStokes
