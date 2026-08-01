@@ -112,6 +112,15 @@ sorries, no new axioms; the only `decide`s are kernel `decide`s in `𝔽₂` cas
 the stress pins.  The `local instance`s live in the stress section only (WW3's
 doesn't-export idiom).
 
+**Ticket WWH (2026-07-31) hoisted the κ⁰ slice calculus in here** from the pilot certificate
+file `GQ2/Dyadic/Certificates/N0.lean`, so that no `-c` lane re-derives it: `factorSet_m_zero`,
+`centExt_incl_mul`/`_pow`/`_list_prod` (joining `centExt_incl_mul_self`), the Heisenberg slice
+and κ-free `C`-line `hessSlice`/`hessLine` with their fibre, product, inversion and commutator
+laws, and `hessLineHom`.  Statements unchanged; all print within the standard three,
+re-audited on arrival.  This remains the module-side twin of the NC lane's copy
+(`GQ2/Dyadic/NpcJet/Defs.lean` §2, against the non-`module` `WordCoh2.CentExt`) — the module
+rule keeps those two apart, and de-duplicating them is not a `module`-file job.
+
 Module-style: all five imports are module-style.
 -/
 

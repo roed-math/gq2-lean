@@ -53,6 +53,11 @@ conventions.  The bridge to mathlib's bracket is `commR_eq_commutatorElement`:
 itself a Mathlib-only leaf; this file re-states them only to stay import-independent of the
 `ℚ₂` stack (it imports nothing but Mathlib).  Deduplicating by importing `GQ2.Words` is a
 mechanical follow-up if the dyadic branch ever wants it.
+
+Ticket WWH (2026-07-31) hoisted the two group-level `conjR`/`commR` twins the pilot
+certificate lane had re-derived — `conjR_eq_self_of_comm` and `monoidHom_commR_eq_one` —
+in here, and deleted that lane's `map_commR'`, which was a verbatim duplicate of `map_commR`.
+Both print `[propext]` only.
 -/
 
 namespace GQ2.Dyadic

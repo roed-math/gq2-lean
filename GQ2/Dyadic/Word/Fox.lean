@@ -120,8 +120,16 @@ specialization of the primary `L_sq` word *is* `Γ_R`'s relator, so the `Γ_R` p
 ## Axiom state (recorded per WW1 instructions; `#print axioms` run in a scratch file, not
 committed)
 
-**Audited 2026-07-31, 66/66 public declarations of this file**: every one depends on a subset
-of the standard axioms `[propext, Classical.choice, Quot.sound]` (std-3).  In particular the
+**Audited 2026-07-31, every public declaration of this file** (re-audited after ticket WWH's
+hoists): each depends on a subset of the standard axioms
+`[propext, Classical.choice, Quot.sound]` (std-3).  The nineteen declarations hoisted in by
+WWH — `trivAct`/`mem_trivAct`/`trivAct_conjR`/`trivAct_commR`/`trivAct_powOmega2`,
+`evalFin_prodList`, `trivAct_evalFin_prodList`, `foxD_prodList_of_trivial`,
+`foxD_comm_of_trivial`, `sum_generator_pair`/`_wild`/`_boundary`/`_one`/`_two`,
+`WordLift.orderOf_dvd_two_mul`, `q2OffsetsInv`, `q2Offsets_q2OffsetsInv`,
+`foxD_gammaRWildWord_split_apply`, `foxD_gammaRWildWord_ramified_apply` — print exactly what
+they printed in their previous homes (std-3, except `q2OffsetsInv` = `[propext]` and
+`q2Offsets_q2OffsetsInv` = `[propext, Quot.sound]`).  In particular the
 headlines `foxD`, `foxDHom`, `foxJacobian`, `foxDefect_eq`, `foxLifts_iff`,
 `foxLifts_iff_coker`, `foxSolution_sub_mem_ker`, `foxSolution_add_ker`, `foxD_coboundary`,
 `foxJacobian_comp_foxD0`, `foxD_comp_hom`, `comap_isPGroup_of_elementaryKer`,

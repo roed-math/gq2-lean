@@ -106,11 +106,13 @@ certificates are instantiated explicitly (`sqrtNegTwoJacobianCertUnram`,
 ## Axiom state (recorded per WN0-b instructions; `#print axioms` run in a scratch file, not
 committed)
 
-**Audited 2026-07-31, all 91 named declarations of this file** (85 top-level `def`/`theorem`
-plus the six `@[simp]` component lemmas): every one depends on a subset of the standard axioms
-`[propext, Classical.choice, Quot.sound]` — **62 print exactly std-3, 29 print strictly less**
+**Audited 2026-07-31, re-audited after ticket WWH's hoists, all named declarations of this
+file**: every one depends on a subset of the standard axioms
+`[propext, Classical.choice, Quot.sound]` — most print exactly std-3, the rest strictly less
 (`[propext]`, `[propext, Quot.sound]`, or none).  Zero `sorryAx`, zero `native_decide`, and **no
 `GQ2.AbsGalQ2` B-axiom leaks** through the `Words.N0 → TameBoundary → MarkedCore` import chain.
+The declarations that moved to `GQ2/Dyadic/Word/Fox.lean` keep their prints there; no print in
+this file grew.
 In particular the headlines `foxD_nCompact_unram`, `foxD_nCompact_ram`, `foxD_nCompact_split`,
 `foxD_tameRelW_of_tameRel`, `foxD_tameRelW_unram`, `foxDHom_nCompact_handleU_column`,
 `foxDHom_nCompact_handleV_column`, `isUnit_oneSubSInvEnd_iff`, `freeMarking_eval_tameRelW`,

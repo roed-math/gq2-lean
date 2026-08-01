@@ -77,6 +77,15 @@ Every headline prints **exactly the standard three** (`propext`, `Classical.choi
 `decide` sits in a stress pin).  The one `local instance` is the trivial action of the
 stress section (the known doesn't-export idiom; nothing consumes it).
 
+**Ticket WWH (2026-07-31) hoisted the lane-generic second-order toolkit in here** from the
+pilot certificate file `GQ2/Dyadic/Certificates/N0.lean`, so that no `-c` lane re-derives it:
+the `𝔽₂` parity kit (`natCast_zmod2_even`/`_odd`, `nsmul_zmod2_even`/`_odd`,
+`zsmul_natCast_zmod2_even`/`_odd`, `choose_two_even_of_mod_four`, `odd_of_mod_four_eq_one`),
+the trivial-base closed forms (`smul_elemDual_of_trivial`, `heisPow_of_trivial`,
+`heisCommR_of_trivial`, `heisConjR_of_trivial`) and the remaining `heisEvalZ` constructor
+rules (`_one`, `_conj`, `_comm`, `_zpow`, `_profPow`, `_prodList`, `_prodList_jetZero`).  All
+statements are unchanged and all print within the standard three, re-audited on arrival.
+
 Module-style: all three imports are module-style.
 -/
 

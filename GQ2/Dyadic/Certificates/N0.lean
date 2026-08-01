@@ -146,14 +146,30 @@ WN0-a ruling that `Words/` and `Certificates/` are plain-import layers); the
 axioms; kernel `decide` only (the Gram pins and stress pins); no `Marking.eval` outside
 the finite-discrete instances WW5/WN0-a already use.
 
-## Axiom state (audited 2026-07-31; `#print axioms` run in a scratch file, not committed)
+**Toolkit hoists (ticket WWH, 2026-07-31).**  The four lane-generic sections this file
+originally re-derived now live in the `module`-style files that own them, and are used from
+there: the `𝔽₂` parity kit and the trivial-base `HeisLift` closed forms
+(`heisPow_of_trivial`, `heisCommR_of_trivial`, `heisConjR_of_trivial`,
+`smul_elemDual_of_trivial`) plus the remaining `heisEvalZ` constructor rules →
+`GQ2/Dyadic/Word/Stokes.lean`; the κ⁰ slice calculus (`hessSlice`, `hessLine`,
+`hessLineHom`, `factorSet_m_zero`, `centExt_incl_*`) → `GQ2/Dyadic/Word/Hessian.lean`; the
+`commR`/`conjR` group-level twins (`conjR_eq_self_of_comm`, `monoidHom_commR_eq_one`, and
+`map_commR'`, which was a verbatim duplicate of `map_commR`) → `GQ2/Dyadic/Word/Blocks.lean`.
+Only two items could not follow, both because they read off the plain-import
+`GQ2.Dyadic.Words` spelling-discipline lemmas (`two_add_two_pow`, `odd_one_add_two_pow`),
+which a `module` file may not import: `choose_two_add_two_pow_odd` and
+`hessSlice_pow_leading`.  Future `-c` lanes import the toolkit rather than re-deriving it.
 
-All 94 named declarations of this file print a **subset of the standard three**: 81
-exactly `[propext, Classical.choice, Quot.sound]`, 9 `[propext, Quot.sound]`, 4
-`[propext]`.  Zero `sorryAx`, zero `native_decide`, and **no `GQ2.AbsGalQ2` B-axiom
-leaks** (`markedRecipAt`/`orientedTameQuotientAt` appear in no print) through either
-import chain — the plain-import `Words.N0 → N0Fox` side or the `module`-style
-`Stokes`/`Hessian` side.  In particular the headlines `heisZ_nCompact_unram`,
+## Axiom state (audited 2026-07-31, re-audited after the WWH hoists; `#print axioms` run in
+a scratch file, not committed)
+
+All named declarations of this file print a **subset of the standard three**
+`[propext, Classical.choice, Quot.sound]`, most of them exactly, the rest
+`[propext, Quot.sound]` or `[propext]`.  Zero `sorryAx`, zero `native_decide`, and **no
+`GQ2.AbsGalQ2` B-axiom leaks** (`markedRecipAt`/`orientedTameQuotientAt` appear in no print)
+through either import chain — the plain-import `Words.N0 → N0Fox` side or the `module`-style
+`Stokes`/`Hessian` side.  The hoisted declarations keep their prints in their new homes (no
+print grew).  In particular the headlines `heisZ_nCompact_unram`,
 `heisZ_nCompact_res_one`, `heisZ_nCompact_wild_block`, `isUnit_onePlusSEnd_iff`,
 `heisZ_tameRelW_unram`, `nCompact_isStokesEndpoint`, `nCompact_stokesDuality`,
 `sqrtNegTwo_scalarGram`, `sqrtNegTwo_scalarGram_three`, `hessRelZ_nCompact`,
