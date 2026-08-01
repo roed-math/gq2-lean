@@ -84,3 +84,26 @@ order the shadow copy reproduces `E₀₁^pc`'s entire contribution operator-for
 `E₀₁^pc`'s justification is second-order only (exact fifth-root-module refutation). Anyone
 following the task list as written would try to prove something false. (S4.3, S4.4;
 `general_2adic/artifacts/reports/{report-phase4,m-alternative-search}.md`.)
+
+---
+
+## Status change, 2026-08-01 (owner, in session): this is a RECORD, not a message
+
+The source document's author is a model run by the owner, and **the paper will adapt to
+whatever the formalization proves** — so this bundle is no longer something to "send". It
+stands as the campaign's record of every place the written sources and the machine-checked
+development diverged, with the corrected statement in each case.
+
+Two consequences:
+
+1. **Items 1, 2, 4–8 and the closing clarification need no action.** Each is already
+   worked around in Lean with the corrected statement proved; the source text will follow
+   the formalization rather than the other way round. Keeping them here is worthwhile as
+   provenance — several are now backed by sorry-free theorems that did not exist when the
+   item was written (the corrected `L_c` is `npc_cross_operators`; the forward-order
+   difference formula is `swapDifference_formula` with a kernel-checked 𝔽₁₆ pin).
+2. **Item 3 was never an erratum** — it is content the sources do not contain and the
+   formalization needs. It is now **ticket MC-CoV**: derive the compact-`M` marked change
+   of variables ourselves and discharge MC5's `IsUnit ν'(C̄₀)` binder with it. Whatever
+   MC-CoV proves is what the paper should say; its report states the substitution in
+   mathematical notation for exactly that purpose.
