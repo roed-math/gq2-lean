@@ -651,6 +651,7 @@ theorem hasEqualNormValueGroups_of_exists_sqrt {δi : ℚ̄₂} (hδ : δi ^ 2 =
   · exact key (x + y * w) (by rw [hxy, h]; push_cast; ring)
   · exact key (x - y * w) (by rw [hxy, h]; push_cast; ring)
 
+omit [FiniteDimensional ℚ_[2] ↥K] in
 /-- **The ramified-`i` branch condition gives `κ_K ≠ 0`** (FD2's remaining one-liner).
 
 `κ_K = 0` iff `K` contains a square root of `−1` (`kappaK_eq_zero_iff`); and if it does, `K(i)/K`
