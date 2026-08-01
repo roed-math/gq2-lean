@@ -712,4 +712,166 @@ theorem heisZ_tameRelW_unram (hA₂ : ∀ a : A, a + a = 0) (hτ : ∀ v : A, t.
 
 end TameStokes
 
+/-! ## The resolved relator family and the endpoint condition
+
+The two-relator family of the presentation `⟨σ, τ, x₀, …, x_{2h+2} ∣ τ^σ(τ^q)⁻¹, R_{N,α,0}⟩`
+resolved at the constant integer representative `e` of `ω₂` — WW2's Jacobian row order
+(tame first, wild second).  `nCompact_isStokesEndpoint` proves display (40)'s endpoint
+condition for **all** `α ≥ 1, h` and every even `q`, odd `e`: the traced mod-2 exponent
+vector vanishes because every per-letter coefficient — `1−q+e` on `τ`, `2+2^α` on `x₀`,
+`e−1` on `x₂` — is even; no case analysis on the letter is needed. -/
+
+section Family
+
+/-- Collapse of `conjR` in a commutative group. -/
+theorem conjR_eq_self_of_comm {H : Type*} [CommGroup H] (x g : H) : conjR x g = x := by
+  rw [conjR, mul_comm g⁻¹ x, mul_assoc, inv_mul_cancel, mul_one]
+
+/-- `commR` maps to `commR` under any group hom. -/
+theorem map_commR' {G H : Type*} [Group G] [Group H] (f : G →* H) (a b : G) :
+    f (commR a b) = commR (f a) (f b) := by
+  rw [commR, commR, map_mul, map_mul, map_mul, map_inv, map_inv]
+
+/-- Commutators die under any hom into a commutative group. -/
+theorem monoidHom_commR_eq_one {G H : Type*} [Group G] [CommGroup H] (f : G →* H)
+    (a b : G) : f (commR a b) = 1 := by
+  rw [map_commR', commR_eq_one_iff]
+  exact Commute.all _ _
+
+variable {α h q e : ℕ}
+
+/-- **The resolved compact-`N` relator family**: the tame relator and the frozen branch
+word, `heisToFree`-resolved at the constant representative `e` — the `ρ = Fin 2` family
+the WW3 machinery consumes, in the Jacobian row order of WN0-b's `foxJacobian`. -/
+noncomputable def nCompactFam (α h q e : ℕ) : Fin 2 → FreeGroup (Generator (2 + 2 * h)) :=
+  ![heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (tameRelW (2 + 2 * h) q),
+    heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (nCompactW α h)]
+
+@[simp] theorem nCompactFam_zero :
+    nCompactFam α h q e 0
+      = heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (tameRelW (2 + 2 * h) q) := rfl
+
+@[simp] theorem nCompactFam_one :
+    nCompactFam α h q e 1
+      = heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (nCompactW α h) := rfl
+
+/-- `heisEps` on a letter is the indicator. -/
+theorem heisEps_of {ι : Type*} [DecidableEq ι] (i j : ι) :
+    heisEps i (FreeGroup.of j) = Multiplicative.ofAdd (if j = i then (1 : ZMod 2) else 0) := by
+  rw [heisEps]
+  exact FreeGroup.lift_apply_of
+
+/-- An even natural `ℤ`-scalar kills every `ZMod 2` value. -/
+theorem zsmul_natCast_zmod2_even {n : ℕ} (hn : Even n) (z : ZMod 2) : (n : ℤ) • z = 0 := by
+  rw [zsmul_eq_mul, Int.cast_natCast, natCast_zmod2_even hn, zero_mul]
+
+/-- An odd natural `ℤ`-scalar is the identity on `ZMod 2` values. -/
+theorem zsmul_natCast_zmod2_odd {n : ℕ} (hn : Odd n) (z : ZMod 2) : (n : ℤ) • z = z := by
+  rw [zsmul_eq_mul, Int.cast_natCast, natCast_zmod2_odd hn, one_mul]
+
+/-- The handle block's resolved word has trivial mod-2 exponent vector (commutators). -/
+theorem heisEps_handlesW (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (i : Generator (2 + 2 * h)) :
+    heisEps i (PWord.evalZ FreeGroup.of E E₂ (handlesW h)) = 1 := by
+  rw [handlesW, PWord.evalZ_prodList, map_list_prod]
+  refine List.prod_eq_one ?_
+  intro m hm
+  simp only [List.map_map, List.mem_map] at hm
+  obtain ⟨j, -, rfl⟩ := hm
+  show heisEps i (PWord.evalZ FreeGroup.of _ _
+    (.comm (.gen (handleU j)) (.gen (handleV j)))) = 1
+  rw [PWord.evalZ_comm]
+  exact monoidHom_commR_eq_one _ _ _
+
+/-- **The endpoint condition holds at every compact-`N` instance** (`α ≥ 1`, any `h`,
+`q` even, `e` odd): the traced per-letter exponents are `1−q+e` (τ), `2+2^α` (x₀),
+`e−1` (x₂), `0` elsewhere — all even.  This is what WW3's chain conditions consume;
+the per-word `decide` route of `stress_endpoint_gammaA` is subsumed. -/
+theorem nCompact_isStokesEndpoint (hα : 1 ≤ α) (hq : Even q) (he : Odd e) :
+    IsStokesEndpoint (nCompactFam α h q e) := by
+  intro i
+  rw [Fin.sum_univ_two, nCompactFam_zero, nCompactFam_one]
+  have htame : heisEps i (heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ))
+      (tameRelW (2 + 2 * h) q))
+      = heisEps i (FreeGroup.of Generator.tau)
+        * (heisEps i (FreeGroup.of Generator.tau) ^ (q : ℤ))⁻¹ := by
+    rw [tameRelW, heisToFree, PWord.evalZ_mul, PWord.evalZ_conj, PWord.evalZ_inv,
+      PWord.evalZ_zpow, PWord.evalZ_gen, PWord.evalZ_gen, map_mul, map_conjR,
+      conjR_eq_self_of_comm, map_inv, map_zpow]
+  have hwild : heisEps i (heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (nCompactW α h))
+      = heisEps i (FreeGroup.of (coreLetter h 0)) ^ ((2 : ℤ) + 2 ^ α)
+        * ((heisEps i (FreeGroup.of (coreLetter h 2)))⁻¹
+            * (heisEps i (FreeGroup.of (coreLetter h 2))
+                * heisEps i (FreeGroup.of Generator.tau)) ^ (e : ℤ)) := by
+    rw [nCompactW, heisToFree, PWord.evalZ_prodList]
+    simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one]
+    rw [map_mul, map_mul, map_mul, map_mul, PWord.evalZ_zpow, PWord.evalZ_gen, map_zpow,
+      PWord.evalZ_comm, monoidHom_commR_eq_one, PWord.evalZ_inv, PWord.evalZ_conj,
+      PWord.evalZ_gen, PWord.evalZ_gen, map_inv, map_conjR, conjR_eq_self_of_comm,
+      PWord.omega2Pow, PWord.evalZ_profPow, map_zpow, PWord.prodList_cons,
+      PWord.prodList_cons, PWord.prodList_nil, PWord.evalZ_mul, PWord.evalZ_mul,
+      PWord.evalZ_gen, PWord.evalZ_gen, PWord.evalZ_one, mul_one, map_mul, one_mul,
+      heisEps_handlesW, mul_one]
+  rw [htame, hwild]
+  simp only [heisEps_of, toAdd_mul, toAdd_inv, toAdd_zpow, toAdd_ofAdd]
+  rw [zsmul_natCast_zmod2_even hq, zsmul_natCast_zmod2_odd he,
+    show ((2 : ℤ) + 2 ^ α) • (if coreLetter h 0 = i then (1 : ZMod 2) else 0) = 0 by
+      rw [show ((2 : ℤ) + 2 ^ α) = ((2 + 2 ^ α : ℕ) : ℤ) by push_cast; ring]
+      exact zsmul_natCast_zmod2_even (even_two_add_two_pow hα) _]
+  rw [CharTwo.neg_eq, CharTwo.neg_eq]
+  abel_nf
+  simp [CharTwo.two_eq_zero]
+
+/-- The `√−2` instance pin: `(α, h, q, e) = (2, 0, 2, 3)` satisfies the endpoint
+condition — the odd representative `e = 3` matching the frozen `Γ_A` stress pin. -/
+theorem sqrtNegTwo_isStokesEndpoint : IsStokesEndpoint (nCompactFam 2 0 2 3) :=
+  nCompact_isStokesEndpoint (by norm_num) (by decide) (by decide)
+
+end Family
+
+/-! ## The Stokes duality payload
+
+WW3's packet-Lem-5.1 engine, instantiated at the compact-`N` family.  The relator
+hypotheses are Gate-level `evalZ = 1` facts, converted through
+`lift_heisToFree_eq_one_iff`; the endpoint condition is discharged by the theorem above;
+per-simple-module duality remains the hypothesis slot it is in the frozen `ℚ₂` chain
+(gate-F / AS-lane discharge).  Downstream, WW3b's `stokesChi1_bijective` turns the
+conclusion into the perfect pairing on `H¹` with no further row-specific input. -/
+
+section Duality
+
+universe u
+
+variable {C : Type*} [Group C]
+
+theorem nCompact_stokesDuality {α h q e : ℕ} [Finite C] (t : Marking (2 + 2 * h) C)
+    (hα : 1 ≤ α) (hq : Even q) (he : Odd e)
+    (hrt : PWord.evalZ ⇑t (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (tameRelW (2 + 2 * h) q) = 1)
+    (hrw : PWord.evalZ ⇑t (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (nCompactW α h) = 1)
+    (hsimp : ∀ (V : Type u) [AddCommGroup V] [DistribMulAction C V] [Finite V],
+      (∀ v : V, v + v = 0) → IsSimpleModTwo C V →
+        StokesDuality ⇑t (nCompactFam α h q e) V)
+    (A : Type u) [AddCommGroup A] [DistribMulAction C A] [Finite A]
+    (hA₂ : ∀ a : A, a + a = 0) : StokesDuality ⇑t (nCompactFam α h q e) A := by
+  refine stokesDuality_of_simple ⇑t (nCompactFam α h q e) ?_
+    (nCompact_isStokesEndpoint hα hq he) hsimp A hA₂
+  intro k
+  fin_cases k
+  · exact (lift_heisToFree_eq_one_iff ⇑t _ _ _).mpr hrt
+  · exact (lift_heisToFree_eq_one_iff ⇑t _ _ _).mpr hrw
+
+/-- **The traced Stokes pairing of the family** is the sum of the two second-order
+values computed above — the bridge between `heisEta1`/`stokesGram` entries and the
+per-word closed forms `heisZ_tameRelW_unram`/`heisZ_nCompact_unram`. -/
+theorem heisEta1_nCompactFam_apply {α h q e : ℕ} {A : Type*} [AddCommGroup A]
+    [DistribMulAction C A] (t : Marking (2 + 2 * h) C) (x : Generator (2 + 2 * h) → A)
+    (y : Generator (2 + 2 * h) → ElemDual A) :
+    heisEta1 ⇑t (nCompactFam α h q e) x y
+      = (heisEvalZ ⇑t x y (fun _ => (e : ℤ)) (fun _ => (e : ℤ))
+          (tameRelW (2 + 2 * h) q)).z
+        + (heisEvalZ ⇑t x y (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (nCompactW α h)).z := by
+  rw [heisEta1_apply, Fin.sum_univ_two, nCompactFam_zero, nCompactFam_one,
+    ← heisEvalZ_eq_lift, ← heisEvalZ_eq_lift]
+
+end Duality
+
 end GQ2.Dyadic.Certificates
