@@ -14,7 +14,8 @@ import GQ2.Dyadic.Certificates.MpcStokes
 import GQ2.Dyadic.Certificates.Npc
 
 /-!
-# The five frozen branch families, presented at their intrinsic words (ticket CB-TR)
+# The five frozen branch families, presented and resolved at their intrinsic words
+(tickets CB-TR, CB-FR)
 
 `Count/Presentation.lean` proves `Count.isAdmissibleMarkedPresentation_gammaR`, which is generic
 in the branch word `R` and carries **no hypotheses**.  The five frozen rows of the count lane are
@@ -28,9 +29,28 @@ modules the other four rows need (measured delta: `148 → 216` `GQ2` modules, d
 `Roe.Labute` span stack behind `Words.Mpc`), because that file is the count lane's interface and
 CB-4 consumes it.  Everything here is a corollary, so it pays the import cost instead.
 
+## Contents (CB-FR)
+
+* **§1/§2** (CB-TR) the five hypothesis-free presentation instances and the `ω₂`-only inventory.
+* **§3** `ResolvesAt` for the three remaining `ω₂`-only certificate families — `mCompactFam`,
+  `lSqFam`, `mpcFam` — at the target-chosen resolver `omega2Exp N`; **§3.1** both pins per row
+  (`e = 3` at exponent dividing `6`, `e = 1` at every `2`-group).
+* **§4** the `IsStokesEndpoint` twins at `e = 1`.  Audit result: every one of the five generic
+  endpoint theorems is already generic in `e` under `Odd e` alone, so **no branch's frozen Stokes
+  payload is pinned at an unusable `e`** — the `e = 1` forms are corollaries, not re-pins.
+* **§5** the procyclic-`N` row.  Its `η̂`-node is a `.profPow` at `etaHatZ η`, not a `z2pow`, so
+  what it needs is a *second value of the `ℤ̂`-resolver*: `zpowHat_etaHatZ_zpow` supplies it, and
+  `resolvedAt_npcW` walks the word.  **§5.3** is the sharp negative — `ω₂` kills pro-odd elements
+  while `η̂` fixes them, so no *constant* resolver survives odd torsion, and at exponent level `6`
+  this row has no honest `e` at all.  **§5.4** records that the same node occurs in the
+  procyclic-`M` row's `.hat` display.
+* **§6** discharges the count lane's standing `orderOf x ∣ 6` from the lower group: the `6` is
+  `2` (lift level, `WordLift.orderOf_dvd_two_mul`) times `3` (the tame head's `τ`-order).
+
 ## Axiom posture
 
-`sorry`-free, no new axiom, no `decide`; every declaration prints the standard three.
+`sorry`-free, no new axiom, no `decide`; every declaration prints the standard three, except
+`not_isOmega2Only_hatDisplay`, which prints the strict subset `[propext]`.
 -/
 
 namespace GQ2.Dyadic
