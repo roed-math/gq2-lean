@@ -314,19 +314,19 @@ finite level — is about the cochain and not about the word, so it is **reused 
 it `exists_twoCocycle_factor` and `nonempty_levelFactor_normalize`.  Only the obstruction attached
 to a factorization has to be rebuilt. -/
 
+/-- The quotient by an open subgroup of a profinite group is discrete.  MC-OB establishes this by a
+`haveI` at each use; making it an instance is what lets `pRelZ` be applied at a level without
+threading it.  Declared at namespace level so that §4–§7 all see it. -/
+local instance quotientDiscreteTopology {G : Type} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] (V : OpenNormalSubgroup G) : DiscreteTopology (G ⧸ V.toSubgroup) :=
+  Subgroup.instDiscreteTopologyQuotientOfSeparatelyContinuousMul V.toOpenSubgroup
+
 section Obstruction
 
 open GQ2.Dyadic.WordCoh
 
 variable {ι ρ : Type*} {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
   [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [DistribMulAction Γ (ZMod 2)]
-
-/-- The quotient by an open subgroup of a profinite group is discrete.  MC-OB establishes this by a
-`haveI` at each use; making it an instance is what lets `pRelZ` be applied at a level without
-threading it. -/
-local instance quotientDiscreteTopology (V : OpenNormalSubgroup Γ) :
-    DiscreteTopology (Γ ⧸ V.toSubgroup) :=
-  Subgroup.instDiscreteTopologyQuotientOfSeparatelyContinuousMul V.toOpenSubgroup
 
 /-- The canonical projection between two levels, one refining the other.  (MC-OB's `levelProj` is
 `private`.) -/
@@ -547,5 +547,184 @@ theorem pWord_eval_shift {L : Type} [Group L] [TopologicalSpace L] [DiscreteTopo
   rfl
 
 end Splitting
+
+/-! ## §6. The rung
+
+`pObsFam` composed with the quotient by `im d¹`, descended through `B²`.  The two halves of
+injectivity are §5b (coboundaries hit `im d¹`) and §5c (nothing else does). -/
+
+section Assembly
+
+variable {ι ρ : Type*} {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [DistribMulAction Γ (ZMod 2)]
+  {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+  [DistribMulAction C (ZMod 2)]
+  [TopologicalSpace (WordLift (ZMod 2) C)] [DiscreteTopology (WordLift (ZMod 2) C)]
+  {gen : ι → Γ} {W : ρ → PWord ι} {w : ρ → FreeGroup ι} {c : ι → C} {J : Set ι}
+
+/-- **A continuous coboundary has its obstruction in `im d¹`.**
+
+MC-OB's `obs_B2_eq_zero` proves the obstruction is *zero*, and needs `IsFrattini` to do it.  Delete
+the hypothesis and §3's `pRelZ_coboundary` leaves the exponent-sum term, which §2 identifies with
+`d¹` — so the conclusion weakens from `= 0` to `∈ im d¹`, and that is exactly the weakening
+`WordH²` absorbs.  The relator term still vanishes, by clause (ii) of the presentation read at the
+factoring level. -/
+theorem pObsFam_B2_mem_range (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W w (WordLift (ZMod 2) C)) (c : ι → C) {x : Z2 Γ (ZMod 2)}
+    (hx : x.1 ∈ B2 Γ (ZMod 2)) :
+    pObsFam W gen x ∈ (heisD1 (A := ZMod 2) c w).range := by
+  rw [B2, AddSubgroup.mem_map] at hx
+  obtain ⟨ψ, hψc, hψeq⟩ := hx
+  have hψcont : Continuous ψ := mem_C1_iff.mp hψc
+  have hx1 : x.1 = dOne Γ (ZMod 2) ψ := hψeq.symm
+  obtain ⟨V, lam, hlamfact⟩ := WordCoh.exists_oneCochain_factor (ψ - fun _ => ψ 1)
+    (hψcont.sub continuous_const)
+  have hlam1 : lam 1 = 0 := by
+    have h := hlamfact 1
+    rw [show QuotientGroup.mk' V.toSubgroup (1 : Γ) = 1 from map_one _] at h
+    rw [← h]
+    simp
+  have hfact : ∀ p q : Γ, WordCoh.normalizeCochain x.1 (p, q)
+      = (WordCoh.coboundaryCocycle lam hlam1).κ (QuotientGroup.mk' V.toSubgroup p)
+          (QuotientGroup.mk' V.toSubgroup q) := by
+    intro p q
+    show WordCoh.normalizeCochain x.1 (p, q)
+      = lam (QuotientGroup.mk' V.toSubgroup p) + lam (QuotientGroup.mk' V.toSubgroup q)
+        + lam (QuotientGroup.mk' V.toSubgroup p * QuotientGroup.mk' V.toSubgroup q)
+    rw [← map_mul (QuotientGroup.mk' V.toSubgroup) p q, ← hlamfact p, ← hlamfact q,
+      ← hlamfact (p * q), hx1]
+    simp only [WordCoh.normalizeCochain, Pi.sub_apply, dOne, AddMonoidHom.coe_mk,
+      ZeroHom.coe_mk, smulTrivZmod2, mul_one, CharTwo.sub_eq_add]
+    abel
+  refine ⟨fun i => lam (QuotientGroup.mk' V.toSubgroup (gen i)), ?_⟩
+  rw [← wordEps_eq_heisD1 c hres]
+  funext k
+  show pEps (W k) _ = pObsFun W gen x k
+  rw [pObsFun_eq W gen x ⟨V, WordCoh.coboundaryCocycle lam hlam1, hfact⟩]
+  show _ = pRelZ (W k) (fun i => QuotientGroup.mk' V.toSubgroup (gen i))
+    (WordCoh.coboundaryCocycle lam hlam1)
+  have hrelk : PWord.eval (fun i => QuotientGroup.mk' V.toSubgroup (gen i)) (W k) = 1 :=
+    hpres.rel (GQ2.quotientMk V.toSubgroup) k
+  rw [pRelZ_coboundary, hrelk, hlam1, zero_add]
+
+/-- **The splitting: nothing but a coboundary has its obstruction in `im d¹`.**
+
+The degree-`2` twin of CB-1's `toZ1w_surjective`, and the **only** consumer of clause (iii).  If
+the obstruction is `d¹a`, then shifting the lifts by `a` kills every relator in the central
+extension (the shift law plus `z + z = 0`), so clause (iii) — whose admissibility side condition is
+§5's `isWildTwo_centLift` — produces a continuous section of the extension, and MC-OB's
+`cocycle_mem_B2` reads the cocycle off it as a coboundary.
+
+⚠ `hwildLevel` is the one hypothesis this file adds beyond CB-1's, and it is CB-1's own `hwild2` at
+*every* finite level rather than at the single marking target `C`: the wild letters generate a
+pro-`2` normal subgroup of `Γ`.  For `GQ2.Dyadic.GammaR` that is part of the definition
+(`AdmissibleR` §3).  It is what replaces MC-OB's `IsProP 2 G`, which asked the *whole* group to be
+pro-`2` and is false here. -/
+theorem mem_B2_of_pObsFam_mem_range (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hwildLevel : ∀ V : OpenNormalSubgroup Γ,
+      IsWildTwo J (fun i => QuotientGroup.mk' V.toSubgroup (gen i)))
+    (hres : ResolvesAt W w (WordLift (ZMod 2) C)) (c : ι → C) {φ : Z2 Γ (ZMod 2)}
+    (hφ : pObsFam W gen φ ∈ (heisD1 (A := ZMod 2) c w).range) : φ.1 ∈ B2 Γ (ZMod 2) := by
+  obtain ⟨a, ha⟩ := hφ
+  set F := (WordCoh.nonempty_levelFactor_normalize smulTrivZmod2 φ).some with hF
+  have hobs : ∀ k, pRelZ (W k) (fun i => QuotientGroup.mk' F.V.toSubgroup (gen i)) F.c
+      = pEps (W k) a := by
+    intro k
+    have h := congrFun (ha.trans (pObsFun_eq W gen φ F)) k
+    rw [← wordEps_eq_heisD1 c hres a] at h
+    exact h.symm
+  set m : ι → WordCoh.CentExt F.c := fun i => WordCoh.CentExt.incl F.c (a i)
+    * WordCoh.lift (fun j => QuotientGroup.mk' F.V.toSubgroup (gen j)) F.c i with hm
+  have hrel : ∀ k, PWord.eval m (W k) = 1 := by
+    intro k
+    have hrelk : PWord.eval (fun j => QuotientGroup.mk' F.V.toSubgroup (gen j)) (W k) = 1 :=
+      hpres.rel (GQ2.quotientMk F.V.toSubgroup) k
+    rw [hm, pWord_eval_shift, pWord_eval_lift_eq_incl (W k) _ F.c hrelk, hobs k, ← pow_two]
+    exact centExt_sq_eq_one rfl
+  obtain ⟨sect, hsect⟩ := hpres.extend m hrel (isWildTwo_centLift (hwildLevel F.V) F.c a)
+  have hbase : ∀ g : Γ, (sect g).base = QuotientGroup.mk' F.V.toSubgroup g := by
+    have hcomp : (⟨WordCoh.CentExt.proj F.c, continuous_of_discreteTopology⟩ :
+        ContinuousMonoidHom (WordCoh.CentExt F.c) (Γ ⧸ F.V.toSubgroup)).comp sect
+          = GQ2.quotientMk F.V.toSubgroup := by
+      refine eq_of_eqOn_gen hpres.gen_top fun i => ?_
+      show WordCoh.CentExt.proj F.c (sect (gen i)) = _
+      rw [hsect i, hm]
+      show (WordCoh.CentExt.incl F.c (a i) * WordCoh.lift _ F.c i).base = _
+      rw [WordCoh.CentExt.mul_base, WordCoh.CentExt.incl_base, one_mul]
+      rfl
+    exact fun g => DFunLike.congr_fun hcomp g
+  have hnB2 : WordCoh.normalizeCochain φ.1 ∈ B2 Γ (ZMod 2) := by
+    have heq : WordCoh.normalizeCochain φ.1
+        = fun p : Γ × Γ => F.c.κ (sect p.1).base (sect p.2).base := by
+      funext p
+      rw [hbase, hbase]
+      exact F.hfact p.1 p.2
+    rw [heq]
+    exact WordCoh.cocycle_mem_B2 smulTrivZmod2 sect
+  have hconst : φ.1 = WordCoh.normalizeCochain φ.1 + fun _ => φ.1 (1, 1) := by
+    funext p
+    simp only [WordCoh.normalizeCochain, Pi.sub_apply, Pi.add_apply]
+    abel
+  rw [hconst]
+  exact AddSubgroup.add_mem _ hnB2 (WordCoh.const2_mem_B2 smulTrivZmod2 (φ.1 (1, 1)))
+
+section Rung
+
+variable [Fintype ι] [Fintype ρ] [DecidableEq ι]
+
+/-- **The rung, before descent**: the obstruction vector read modulo `im d¹`. -/
+noncomputable def wordH2Obs (W : ρ → PWord ι) (gen : ι → Γ) (c : ι → C) (w : ρ → FreeGroup ι) :
+    Z2 Γ (ZMod 2) →+ WordH2 c w (ZMod 2) :=
+  (QuotientAddGroup.mk' (heisD1 (A := ZMod 2) c w).range).comp (pObsFam W gen)
+
+/-- **THE RUNG.**  The degree-`2` analogue of CB-1's `h1Equiv`: for a presented profinite `Γ`,
+continuous `2`-cohomology with scalar coefficients embeds in the word complex's `H²`.
+
+⚠ Unlike degree `1` this is an **injection and not an isomorphism**, and that is not a defect of
+the proof: the cokernel is the module of identities among the relators, which is nonzero for a
+presentation that is not aspherical.  §7 shows the injection is all the count clause needs. -/
+noncomputable def h2Word (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W w (WordLift (ZMod 2) C)) (c : ι → C) :
+    H2 Γ (ZMod 2) →+ WordH2 c w (ZMod 2) :=
+  QuotientAddGroup.lift _ (wordH2Obs W gen c w) fun _ hx =>
+    (QuotientAddGroup.eq_zero_iff _).mpr
+      (pObsFam_B2_mem_range hpres hres c (AddSubgroup.mem_addSubgroupOf.mp hx))
+
+@[simp] theorem h2Word_mk (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W w (WordLift (ZMod 2) C)) (c : ι → C) (φ : Z2 Γ (ZMod 2)) :
+    h2Word hpres hres c (H2mk Γ (ZMod 2) φ) = wordH2Obs W gen c w φ := rfl
+
+/-- **The rung is injective.** -/
+theorem h2Word_injective (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hwildLevel : ∀ V : OpenNormalSubgroup Γ,
+      IsWildTwo J (fun i => QuotientGroup.mk' V.toSubgroup (gen i)))
+    (hres : ResolvesAt W w (WordLift (ZMod 2) C)) (c : ι → C) :
+    Function.Injective (h2Word (w := w) hpres hres c) := by
+  rw [injective_iff_map_eq_zero]
+  intro y
+  induction y using QuotientAddGroup.induction_on with | H φ =>
+  intro hy
+  refine (QuotientAddGroup.eq_zero_iff φ).mpr (AddSubgroup.mem_addSubgroupOf.mpr ?_)
+  exact mem_B2_of_pObsFam_mem_range hpres hwildLevel hres c
+    ((QuotientAddGroup.eq_zero_iff _).mp hy)
+
+/-- `H²(Γ, 𝔽₂)` is finite, being embedded in the finite `WordH²`. -/
+theorem finite_H2 (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hwildLevel : ∀ V : OpenNormalSubgroup Γ,
+      IsWildTwo J (fun i => QuotientGroup.mk' V.toSubgroup (gen i)))
+    (hres : ResolvesAt W w (WordLift (ZMod 2) C)) (c : ι → C) : Finite (H2 Γ (ZMod 2)) :=
+  Finite.of_injective _ (h2Word_injective (w := w) hpres hwildLevel hres c)
+
+/-- **The cardinality form of the rung** — the inequality half of CB-2's `hcomp`. -/
+theorem card_H2_le_card_wordH2 (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hwildLevel : ∀ V : OpenNormalSubgroup Γ,
+      IsWildTwo J (fun i => QuotientGroup.mk' V.toSubgroup (gen i)))
+    (hres : ResolvesAt W w (WordLift (ZMod 2) C)) (c : ι → C) :
+    Nat.card (H2 Γ (ZMod 2)) ≤ Nat.card (WordH2 c w (ZMod 2)) :=
+  Nat.card_le_card_of_injective _ (h2Word_injective (w := w) hpres hwildLevel hres c)
+
+end Rung
+
+end Assembly
 
 end GQ2.Dyadic.Count
