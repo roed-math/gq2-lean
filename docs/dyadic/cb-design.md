@@ -305,7 +305,9 @@ module** (assumed — the parity escape is not expressible at the `PWord` layer)
 
 *Method:* per file pair (Γ_R vs Γ_A), normalize source names, strip comments/blanks, compare
 sorted line multisets. `shared/R` = fraction of the Γ_R file's code lines that also occur in
-its Γ_A twin.
+its Γ_A twin. **The file set is §1.4's layers A3 + A4** — the unbuilt part of the bridge —
+because that is what the dyadic campaign would have to write five times, and because A1/A2 have
+no Γ_A/Γ_R twin pair to compare (they are already generic on the dyadic side).
 
 | layer | file pair | Γ_R code ln | shared/R |
 |---|---|---|---|
@@ -510,6 +512,24 @@ eA ∘ e⁻¹ ∘ maxPro2Bridge ∘ maxProPMk
 pro-2 boundary object of the **one-sided** ℚ₂ record — so `pro2R` was forced to land on the
 arithmetic side, and the chain had to pass through `G_ℚ₂(2)`, which is where Labute lives.
 
+**How narrow the Labute leg is.** `BLabHypothesis` (`Roe/MarkedPro2.lean:141`) is
+rank-and-`q`-pinned to the ℚ₂ core:
+
+```lean
+def BLabHypothesis : Prop :=
+  IsDemushkin 2 (DR : Type) → demushkinRank 2 (DR : Type) = 3 → demushkinQ (DR : Type) = 2 →
+    (∃ χ : (DR : Type) →* ℤ_[2]ˣ, Continuous χ ∧ IsLabuteOrientation χ ∧ Function.Surjective χ) →
+      Nonempty (ContinuousMulEquiv (DR : Type) (D0 : Type))
+```
+
+It enters `exists_pro2R` at **exactly one line** (`Roe/Main.lean:232`), through
+`markedPro2_R localReciprocity hBLab` — itself only 48 lines
+(`Roe/MarkedPro2.lean:163-210`), and hardcoded to the ℚ₂ numerics (Hensel root `X ≡ 5 mod 16`,
+`b ≡ 3 mod 4`, `u ≡ 1 mod 4`, `η = (−3)⁻¹`). It is **rank 3, q = 2** — it could not be reused at
+rank four even if the architecture wanted it. Supporting measurement: the whole Labute subtree
+that discharges it is 15 files / 7,982 lines, and the `D_R`-side pro-2 identification is a
+further 10 files / 5,278 lines. **Neither multiplies by five under the two-sided design.**
+
 **The dyadic setting removed that.** SD-n went two-sided (architecture decision A2). In
 `SourceDataN` the pro-2 slot `P` is the **presented standard core** `D_P` (MC2's `DM`/`DN`,
 SqCore's `DSq`) — AS1's own docstring: "the two sides meet at `D_P`". The candidate side
@@ -524,6 +544,11 @@ ContinuousMulEquiv (DM α h) G` (`MarkedCore/Certificate.lean:629,645`), fed by
 > `Roe.exists_pro2R` does **not** generalize — it is the wrong composite, three-quarters
 > arithmetic — but its candidate leg `maxPro2Bridge` does, and that is the only leg the
 > two-sided architecture needs.
+
+*Independently corroborated:* a separate survey of the whole `GQ2/Roe/` stack, run without
+sight of this section, reached the same conclusion from the other direction — "the dyadic
+design already routes around `BLabHypothesis` by carrying `MarkedCoreCertificate*` records
+instead."
 
 ### 4.4 What the generic bridge needs, and what already exists
 
@@ -573,7 +598,7 @@ expectation.
 | **CB-S** | **spike**: one clause (`hZcard`) proved once over the abstract `SourceDataN` carrier + instantiated at N0 — **gates the whole lane** | fable | `GQ2/Dyadic/Bridge/Spike.lean` (throwaway) | AS1 ✓ | **300** |
 | CB-P | generic pro-2 bridge `Γ_R(2) ≅ D_P` (§4) + the four `SourceDataN` pro-2 fields | fable | `GQ2/Dyadic/Word/MaxProTwo.lean` | AS1 ✓, WW1 ✓ | 700 |
 | CB-0 | the four routine fields (`tfg`, `smulZmod2`, `contSMulZmod2`, `htriv`) for `GammaR n q R` | opus | `GQ2/Dyadic/Bridge/Routine.lean` | AS1 ✓ | 350 |
-| CB-1 | **the degree-≤1 comparison** `Z1 Γ A ≃+ Z1w(marking)` + `h1Equiv`, generic in alphabet/word/marking (§3.4) | fable | `GQ2/Dyadic/Word/CohBridge.lean` | CB-S | 1,400 |
+| CB-1 | **the spine**: the degree-≤1 comparison `Z1 Γ A ≃+ Z1w(marking)` + `h1Equiv` (§3.4), **and the `SN`-parameterized `IsSelfDual` clause 2** it carries (§1.5) | fable | `GQ2/Dyadic/Word/CohBridge.lean` | CB-S | 1,400 |
 | CB-2 | `scalar` bundle: `homCard` + `cardH2` over the abstract carrier (uses `card_H2_le_two`) | opus | `GQ2/Dyadic/Bridge/Scalar.lean` | CB-1 | 900 |
 | CB-3 | `exactLifting` bundle: `liftsOver_card`, `lem86`, `stageR136` | opus | `GQ2/Dyadic/Bridge/Lifting.lean` | CB-1, CB-2 | 1,600 |
 | CB-4 | `stokes` bundle: `tcocycle_card`, `hsep`, `hpartial`, `hZcard` — **carries the `hsimp` decision (Q3)** | fable | `GQ2/Dyadic/Bridge/Stokes.lean` | CB-1, CB-2 | 1,800 |
@@ -590,6 +615,14 @@ counted. **Call it 9 dispatchable tickets plus the spike plus five thin instanti
 **Dependency shape.** CB-S gates everything. CB-P and CB-0 are independent of CB-S and can run
 immediately in parallel (they touch no count clause). CB-1 is the spine; CB-2…CB-5 fan out from
 it; CB-6 is five parallel thin tickets at the end.
+
+**⚠ The board's single design instruction, from §1.5.** CB-2…CB-4 must be written as
+*consumers of one `IsSelfDual`-shaped theorem*, not as four independent transports. At ℚ₂ all
+eleven clauses factor through `prop_5_15_R`; CB-1 owns the dyadic analogue, `SN`-parameterized,
+and CB-2…CB-4 should each be a short derivation from it. If a CB-2…CB-4 ticket finds itself
+re-deriving cohomological content rather than reading it off CB-1's theorem, that is the signal
+that CB-1 under-delivered — **stop and re-scope CB-1 rather than absorbing the work downstream.**
+This is the failure mode that produced the ℚ₂ triplication.
 
 **Two tickets are not startable today:** CB-5M needs WW4 gap item 5 (the unowned
 `NpcJet ↔ WordCoh` bridge — **this bridge has no ticket anywhere on the board and should get
@@ -714,6 +747,12 @@ second reason to run the spike.*
 6. **If the §3.3 spike is green, ASK shrinks too** (Q7) — the generic clause theorems would
    serve both sides of the two-sided comparison. This is upside the board does not currently
    price.
+7. **A closed ticket's warning is now load-bearing.** WW3b's "not degree-generic" caution
+   (§3.2) is the largest single risk to the lane's sizing and lives only in a closed board row.
+   It should be promoted to the obligation tracker so it cannot be lost again.
+8. **The eleven clauses are one theorem, not eleven** (§1.5). This is the memo's main design
+   instruction and the thing most likely to be got wrong by a lane that reads only the field
+   list.
 
 ---
 
@@ -721,10 +760,16 @@ second reason to run the spike.*
 
 Every number in this memo is reproducible from the worktree at `dyadic-cb1` (a103283).
 
-* **Stack sizes (§0.1, §1.3).** For each of `sourceA_N`/`sourceR_N`/`sourceF_N`
+* **Stack sizes (§0.1, §1.3, §1.4).** For each of `sourceA_N`/`sourceR_N`/`sourceF_N`
   (`SourceDataN.lean:371,421,476`), each field's supplied term was read and its declaration
   located by `grep -rn --include='*.lean' -E "(theorem|lemma|def|abbrev)[[:space:]]+<name>\b"`.
-  The file set per source was then summed with `wc -l`.
+  The file set per source was then summed with `wc -l`. §1.4's six-layer partition is over the
+  transitive `GQ2.*` import closure of `GQ2/Roe/Main.lean` (304 files / 124,867 lines), split
+  into Γ_R-specific (69 files / 28,324) and shared (235 / 96,543), the former partitioned by
+  role. **Two figures are in play and should not be confused:** §3.1's 6,834/10,408/4,038 are
+  the *direct* supplier files per source (used for the overlap comparison, where like must be
+  compared with like); §1.4's 15,064 is the *transitive* per-word bridge including the
+  certificate and dévissage layers. The sizing in §5 uses §1.4's A3 + A4 = 7,189.
 * **Textual overlap (§3.1).** Per file pair: `sed -E 's/[Gg]amma[RA]//g; s/gammaR|gammaA//g;
   s/_local//g; s/GammaR|GammaA//g; s/AbsGalQ2//g; s/[[:space:]]+/ /g'`, then drop comment and
   blank lines, then `comm -12` on the sorted line multisets. `shared/R` is
@@ -759,3 +804,16 @@ Recorded per board protocol; the landed code wins over earlier prose in every ca
    obligation table lists `scalar`'s `cardH2` as owing "the Gram ⇒ `#Hom` bridge" without noting
    that the `#H² ≤ 2` half is landed and rank-generic. The remaining half is a nonzero Gram
    value, which every branch has.
+6. **§2.2 — L has no `FoxCertificate` either.** AS1's inventory records L's missing
+   `HessianCertificate`; it does not record that `LFox.lean` builds no Jacobian certificate at
+   all (4 row-certificates, 0 Jacobian). CB-3 must not assume one exists per branch.
+7. **§3.2 — WW3b's non-degree-generic caution was never carried onto the board.** WW3b's report
+   warned the `StokesDualityCertificate` author that `IsSelfDual`'s count clause is not
+   degree-generic. That warning is in a closed ticket's row and appears in no design memo, no
+   obligation-tracker row, and no lane brief. It is the single largest risk to the generic
+   route and it is now §3.3's spike target.
+8. **§1.5 — the eleven clauses are not eleven problems.** Both the ledger and AS1's inventory
+   present the four bundles as independent obligations. At ℚ₂ all eleven route through the
+   single theorem `prop_5_15_R`/`IsSelfDual_R`, whose clause 2 is the count and clause 3 the
+   Hessian. A design that transports eleven clauses separately would be building the ℚ₂ stack's
+   *shape* rather than its *content*, and would be substantially larger than it needs to be.
