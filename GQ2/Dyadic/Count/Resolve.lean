@@ -256,6 +256,171 @@ theorem resolves_lSqFam (h q e : ℕ) :
 
 end FrozenResolved
 
+/-! ## §4 Cyclic characters of the free profinite group
+
+`degHom n m g₀` is the classifying map of the marking "`g₀ ↦ 1`, every other letter `↦ 0`" into
+`ℤ/m` written multiplicatively.  It is the only external device §5 needs: `zpowHat` is natural for
+continuous homomorphisms (`GQ2.map_zpowHat`) and computable in a finite group
+(`PWord.zpowHat_omega2_zpow`), so a `ℤ̂`-exponent upstairs becomes an ordinary residue
+downstairs. -/
+
+section Characters
+
+/-- The cyclic test target `ℤ/m`, multiplicatively and discretely — a finite discrete group, so
+`ProfiniteGrp.of` accepts it and `PWord.eval` is available. -/
+def CycTest (m : ℕ) : Type := Multiplicative (ZMod m)
+
+namespace CycTest
+
+instance (m : ℕ) : CommGroup (CycTest m) :=
+  inferInstanceAs (CommGroup (Multiplicative (ZMod m)))
+
+instance (m : ℕ) : TopologicalSpace (CycTest m) := ⊥
+
+instance (m : ℕ) : DiscreteTopology (CycTest m) := ⟨rfl⟩
+
+instance (m : ℕ) [NeZero m] : Finite (CycTest m) :=
+  inferInstanceAs (Finite (Multiplicative (ZMod m)))
+
+/-- The chosen generator `1 ∈ ℤ/m`. -/
+def gen (m : ℕ) : CycTest m := Multiplicative.ofAdd 1
+
+/-- Integer powers of the generator are the residues. -/
+theorem gen_zpow (m : ℕ) (j : ℤ) :
+    gen m ^ j = (Multiplicative.ofAdd (j : ZMod m) : CycTest m) := by
+  show (Multiplicative.ofAdd (1 : ZMod m)) ^ j = _
+  rw [← ofAdd_zsmul, zsmul_eq_mul, mul_one]
+
+/-- Two integer powers of the generator agree exactly on residues. -/
+theorem gen_zpow_inj {m : ℕ} {j l : ℤ} (h : gen m ^ j = gen m ^ l) :
+    (j : ZMod m) = (l : ZMod m) := by
+  rw [gen_zpow, gen_zpow] at h
+  exact Multiplicative.ofAdd.injective h
+
+/-- The generator is killed by `m`, so its order divides `m`. -/
+theorem orderOf_gen_dvd (m : ℕ) : orderOf (gen m) ∣ m := by
+  refine orderOf_dvd_of_pow_eq_one ?_
+  have h : gen m ^ (m : ℤ) = (Multiplicative.ofAdd ((m : ℕ) : ZMod m) : CycTest m) := by
+    rw [gen_zpow]; norm_cast
+  rw [← zpow_natCast, h, ZMod.natCast_self]
+  rfl
+
+end CycTest
+
+variable {n : ℕ}
+
+/-- The **degree marking** in the letter `g₀`: `g₀ ↦ 1`, every other letter `↦ 0`. -/
+def degMark (n m : ℕ) (g₀ : Generator n) : Generator n → CycTest m :=
+  fun g => if g = g₀ then CycTest.gen m else 1
+
+@[simp] theorem degMark_self (m : ℕ) (g₀ : Generator n) :
+    degMark n m g₀ g₀ = CycTest.gen m := if_pos rfl
+
+@[simp] theorem degMark_of_ne {m : ℕ} {g g₀ : Generator n} (h : g ≠ g₀) :
+    degMark n m g₀ g = 1 := if_neg h
+
+/-- The classifying continuous hom of the degree marking, at the plain carrier instances (the
+type ascription is load-bearing, exactly as for `Count.testBaseHom`). -/
+noncomputable def degHom (n m : ℕ) [NeZero m] (g₀ : Generator n) :
+    ContinuousMonoidHom ((FreeProfiniteGroup (Generator n)) : Type) (CycTest m) :=
+  ((FreeProfiniteGroup.homEquiv (Generator n) (ProfiniteGrp.of (CycTest m))).symm
+    (degMark n m g₀)).hom
+
+@[simp] theorem degHom_of (m : ℕ) [NeZero m] (g₀ g : Generator n) :
+    degHom n m g₀ (FreeProfiniteGroup.of g) = degMark n m g₀ g :=
+  FreeProfiniteGroup.homEquiv_symm_of _ _ _
+
+theorem freeMarking_map_degHom (m : ℕ) [NeZero m] (g₀ : Generator n) :
+    (freeMarking n).map ⇑(degHom n m g₀) = ⟨degMark n m g₀⟩ := by
+  ext g
+  exact degHom_of m g₀ g
+
+end Characters
+
+/-! ## §5 The obstruction: no integer resolves `ω₂` in the free profinite group
+
+`ω₂ ∈ ℤ̂` is the idempotent that is `1` on the `2`-part and `0` on the odd part.  An integer that
+agreed with it would have to be `≡ 1` modulo every power of `2` — hence be `1` — and `≡ 0` modulo
+`3`.  Both halves are read off `omega2Exp` through the characters of §4, and the conclusion holds
+for **every** integer, so no choice of resolver `e` can repair it. -/
+
+section Obstruction
+
+variable {n : ℕ}
+
+/-- An element of `F` is **degree one in `g₀`** if every cyclic character in `g₀` sends it to the
+generator.  The value of an `ω₂`-node base of every frozen branch word is of this shape. -/
+def IsDegOne (g₀ : Generator n) (Y : ((FreeProfiniteGroup (Generator n)) : Type)) : Prop :=
+  ∀ (m : ℕ) [NeZero m], degHom n m g₀ Y = CycTest.gen m
+
+/-- `ω₂` is `≡ 1` on every power of `2`. -/
+theorem omega2Exp_two_pow_modEq_one {a : ℕ} (ha : a ≠ 0) :
+    omega2Exp (2 ^ a) ≡ 1 [MOD 2 ^ a] := by
+  have hfac : (2 ^ a).factorization 2 = a := by
+    rw [Nat.Prime.factorization_pow Nat.prime_two, Finsupp.single_eq_same]
+  have h := omega2Exp_modEq_one (n := 2 ^ a) (by positivity) (by rw [hfac]; exact ha)
+  rwa [hfac] at h
+
+/-- `ω₂` is `≡ 0` on the odd part — at the modulus `3`, `3 ∣ omega2Exp 3`. -/
+theorem three_dvd_omega2Exp_three : 3 ∣ omega2Exp 3 := by
+  have hfac : (3 : ℕ).factorization 2 = 0 :=
+    Nat.factorization_eq_zero_of_not_dvd (by norm_num)
+  have h := oddPart_dvd_omega2Exp 3
+  rwa [hfac, pow_zero, Nat.div_one] at h
+
+/-- The residue of `ω₂` at a character, read off the character's own modulus. -/
+theorem degHom_zpowHat_omega2 (m : ℕ) [NeZero m] (g₀ : Generator n)
+    {Y : ((FreeProfiniteGroup (Generator n)) : Type)} (hY : IsDegOne g₀ Y) :
+    degHom n m g₀ (Y ^ᶻ omega2) = CycTest.gen m ^ (omega2Exp m : ℤ) := by
+  rw [map_zpowHat, hY m,
+    PWord.zpowHat_omega2_zpow (NeZero.ne m) (CycTest.orderOf_gen_dvd m)]
+
+/-- **No integer resolves `ω₂`.**  For a degree-one element of the free profinite group,
+`Y ^ᶻ ω₂ ≠ Y ^ k` for every integer `k` — so `PWord.ResolvedAt` can never hold at an `ω₂`-node
+whose base is degree one, at *any* resolver.
+
+The two congruences are `omega2Exp (2 ^ a) ≡ 1` and `3 ∣ omega2Exp 3`; nothing else enters. -/
+theorem zpowHat_omega2_ne_zpow {g₀ : Generator n}
+    {Y : ((FreeProfiniteGroup (Generator n)) : Type)} (hY : IsDegOne g₀ Y) (k : ℤ) :
+    Y ^ᶻ omega2 ≠ Y ^ k := by
+  intro hres
+  -- every character equates the residue of `ω₂` with that of `k`
+  have key : ∀ (m : ℕ) [NeZero m], ((omega2Exp m : ℤ) : ZMod m) = (k : ZMod m) := by
+    intro m _
+    have h1 : degHom n m g₀ (Y ^ᶻ omega2) = degHom n m g₀ (Y ^ k) := congrArg _ hres
+    rw [degHom_zpowHat_omega2 m g₀ hY, map_zpow, hY m] at h1
+    exact CycTest.gen_zpow_inj h1
+  -- the `2`-part: `k ≡ 1` modulo every power of `2`, so `k = 1`
+  have h2 : ∀ a : ℕ, a ≠ 0 → (2 ^ a : ℤ) ∣ k - 1 := by
+    intro a ha
+    haveI : NeZero (2 ^ a) := ⟨by positivity⟩
+    have h := key (2 ^ a)
+    have hone : ((omega2Exp (2 ^ a) : ℤ) : ZMod (2 ^ a)) = ((1 : ℤ) : ZMod (2 ^ a)) := by
+      have := omega2Exp_two_pow_modEq_one ha
+      exact_mod_cast (ZMod.natCast_eq_natCast_iff _ _ _).mpr this
+    rw [hone] at h
+    exact Int.modEq_iff_dvd.mp ((ZMod.intCast_eq_intCast_iff _ _ _).mp h)
+  have hk1 : k = 1 := by
+    have hdvd := h2 ((k - 1).natAbs + 1) (Nat.succ_ne_zero _)
+    have hlt : |k - 1| < (2 : ℤ) ^ ((k - 1).natAbs + 1) := by
+      have h1 : |k - 1| = ((k - 1).natAbs : ℤ) := (Int.abs_eq_natAbs _)
+      have h2' : (k - 1).natAbs < 2 ^ ((k - 1).natAbs + 1) :=
+        lt_of_lt_of_le (Nat.lt_two_pow_self) (Nat.pow_le_pow_right (by norm_num) (by omega))
+      rw [h1]
+      exact_mod_cast h2'
+    have := Int.eq_zero_of_abs_lt_dvd hdvd hlt
+    omega
+  -- the odd part: `k ≡ 0` modulo `3`, contradicting `k = 1`
+  have h3 := key 3
+  rw [hk1] at h3
+  have hzero : ((omega2Exp 3 : ℤ) : ZMod 3) = 0 :=
+    (ZMod.intCast_zmod_eq_zero_iff_dvd _ 3).mpr
+      (Int.natCast_dvd_natCast.mpr three_dvd_omega2Exp_three)
+  rw [hzero] at h3
+  exact absurd h3.symm (by decide)
+
+end Obstruction
+
 end Count
 
 end GQ2.Dyadic
