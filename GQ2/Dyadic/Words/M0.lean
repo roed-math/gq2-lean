@@ -797,4 +797,302 @@ theorem eval_pro2_mCompact_eq_mRelWord (hα : 1 ≤ α) (t : Marking 2 G) :
 
 end Pro2
 
+/-! ## The two field instances
+
+`ℚ₂(√2)` is `(α, q_K) = (3, 2)`, so `m = 2^{α−1} = 4` and `2m = 8`; `ℚ₂(√5)` is
+`(α, q_K) = (2, 4)`, so `m = 2` and `2m = 4`.  Both are `h = 0` and both are branch rows
+`BranchData.M0 α`.  The two words below are the frozen certificates
+`M-compact-alpha3-h0-q2-v001` and `M-compact-alpha2-h0-q4-v001` spelled out with their
+exponents evaluated — the shape AS3 takes end-to-end. -/
+
+/-- **The `ℚ₂(√2)` relation** (`α = 3`, `m = 4`, certificate `M-compact-alpha3-h0-q2-v001`):
+
+```
+R_{M,0} = (x₀⁻¹σ₂⁻⁴)² [x₀⁻¹σ₂⁻⁴, x₁] σ₂⁸ · x₂^{-σ}(x₂τ)^{ω₂} · δ₁^{σ₂⁸}δ₁^{σ₂⁴}δ₀^{σ₂⁴}δ₀
+```
+
+Note the **absence** of a trailing `PWord.one`: at `h = 0` the compact-`M` certificate has no
+handle child (module docstring, deviation 1), so this is a five-element `prodList`. -/
+theorem mCompactW_three_zero :
+    mCompactW 3 0 = PWord.prodList
+      [.zpow (PWord.prodList [.inv (.gen (coreLetter 0 0)), .zpow sigma2W (-4)]) 2,
+       .comm (PWord.prodList [.inv (.gen (coreLetter 0 0)), .zpow sigma2W (-4)])
+         (.gen (coreLetter 0 1)),
+       .zpow sigma2W 8,
+       PWord.prodList [.inv (.conj (.gen (coreLetter 0 2)) (.gen .sigma)),
+         PWord.omega2Pow (PWord.prodList [.gen (coreLetter 0 2), .gen .tau])],
+       PWord.prodList
+         [.conj (deltaC 0 1) (.zpow sigma2W 8),
+          .conj (deltaC 0 1) (.zpow sigma2W 4),
+          .conj (deltaC 0 0) (.zpow sigma2W 4),
+          deltaC 0 0]] := rfl
+
+/-- **The `ℚ₂(√5)` relation** (`α = 2`, `m = 2`, certificate `M-compact-alpha2-h0-q4-v001`).
+
+The tree is the `q_K = 2` engine instance's tree — `q_K` is not a letter — so this same
+statement pins both `α = 2, h = 0` candidates. -/
+theorem mCompactW_two_zero :
+    mCompactW 2 0 = PWord.prodList
+      [.zpow (PWord.prodList [.inv (.gen (coreLetter 0 0)), .zpow sigma2W (-2)]) 2,
+       .comm (PWord.prodList [.inv (.gen (coreLetter 0 0)), .zpow sigma2W (-2)])
+         (.gen (coreLetter 0 1)),
+       .zpow sigma2W 4,
+       PWord.prodList [.inv (.conj (.gen (coreLetter 0 2)) (.gen .sigma)),
+         PWord.omega2Pow (PWord.prodList [.gen (coreLetter 0 2), .gen .tau])],
+       PWord.prodList
+         [.conj (deltaC 0 1) (.zpow sigma2W 4),
+          .conj (deltaC 0 1) (.zpow sigma2W 2),
+          .conj (deltaC 0 0) (.zpow sigma2W 2),
+          deltaC 0 0]] := rfl
+
+/-- The `ℚ₂(√2)` branch row is a valid compact-`M` row (F1/F4: `2 ≤ α`), at level `r = 0`. -/
+theorem branchData_sqrtTwo :
+    (BranchData.M0 3).Valid ∧ (BranchData.M0 3).level = 0 :=
+  ⟨BranchData.valid_M0_iff.mpr (by norm_num), rfl⟩
+
+/-- The `ℚ₂(√5)` branch row is a valid compact-`M` row, at level `r = 0`.  `q_K = 4` does not
+appear: it is not branch data. -/
+theorem branchData_sqrtFive :
+    (BranchData.M0 2).Valid ∧ (BranchData.M0 2).level = 0 :=
+  ⟨BranchData.valid_M0_iff.mpr (by norm_num), rfl⟩
+
+/-! ## Numerical stress pins
+
+Nothing below is cited by a proof; these are regression pins in the sense of plan §3 A1.
+
+**The python twins are F5's rows** (`scripts/dyadic_sanity_counts.py`).  F5 measures the two
+field instances of this row by their epimorphism-count vectors over `(S₃, D₈, A₄)`:
+
+| F5 row | `(α, m, q_K)` | `(S₃, D₈, A₄)` |
+|---|---|---|
+| `d=2  M(alpha=3, r=0)` | `(3, 4, 2)` | `(6, 1568, 120)` |
+| `d=5  M(alpha=2, r=0)` | `(2, 2, 4)` | `(0, 1568, 480)` |
+
+and its mutant row **C4** re-runs the *same code* on `d = 2` with the conjugator of `J₂` flipped
+to `σ₂`, obtaining `(6, 1568, 504)` — so `A₄` is what sees the `σ`-versus-`σ₂` choice, `120`
+against `120`… `504`, exactly as on the compact-`N` row.  Two further readings of the table:
+the two rows differ because `q_K` differs (the same word tree, a different tame relation — the
+arithmetic visibility of `q_K` that the shared word hash cannot express), and **no `2`-group can
+witness any of this**, because on a group of `2`-power exponent `ω₂` acts as the identity and
+`σ₂ = σ` identically.
+
+Those counts are **cited, never proved here**: reproducing them needs an epimorphism
+enumeration over a group with nontrivial odd part, which is F5's job and not a `decide`. -/
+
+section StressZMod8
+
+local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
+local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
+
+private theorem orderOf_dvd_eight (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
+  orderOf_dvd_of_pow_eq_one (by revert x; decide)
+
+/-- A concrete marking of the compact-`M` alphabet at `h = 0`, written additively:
+`(σ, τ, x₀, x₁, x₂) = (5, 1, 1, 1, 1)` in `Multiplicative (ZMod 8)`. -/
+def zmod8Marking : Marking (2 + 2 * 0) (Multiplicative (ZMod 8)) :=
+  Marking.ofLetters (Multiplicative.ofAdd 5) (Multiplicative.ofAdd 1)
+    ![Multiplicative.ofAdd 1, Multiplicative.ofAdd 1, Multiplicative.ofAdd 1]
+
+/-- **Stress (genuine `ω₂`)**: the *profinite* denotation of the `ℚ₂(√5)` word — real `x ^ᶻ ω₂`
+powers, not a hand-chosen integer exponent — is `ofAdd 3`.
+
+Additively, and abelian so the commutator drops and conjugation is trivial:
+`A₀² = 2(−x₀ − 2σ) = −2 − 20`, `σ₂^{2m} = 4σ = 20`, `J₂ = −x₂ + (x₂+τ) = 1`, and the four
+`δ`-letters of `E_m^rev` contribute `4τ = 4`, for `−2 + 5 = 3`.  Pins three things at once: the
+exponent `2` on `A₀`, the *four* `δ`-letters of the correction block (dropping one would give
+`2`), and the `ω₂` sitting on the whole `(x_iτ)` subword rather than on `x_i` alone. -/
+theorem eval_zmod8_mCompact :
+    zmod8Marking.eval (mCompactW 2 0) = Multiplicative.ofAdd (3 : ZMod 8) := by
+  rw [Marking.eval_def, PWord.eval_eq_evalNat_of_dvd (by norm_num) orderOf_dvd_eight,
+    omega2Exp_eight]
+  · decide
+  · exact isOmega2Only_mCompact 2 0
+
+/-- **Stress (the `σ₂`-powers really are balanced)**: `α` is invisible at an abelian marking.
+
+`A₀²` contributes `−2m·σ₂` and the third factor contributes `+2m·σ₂`, so every trace of `m` —
+hence of `α` — cancels once the group is commutative.  This is the *point* of the `σ₂^{2m}`
+factor, read numerically, and it is also why the `ZMod 8` pins above cannot be used to
+distinguish the instances: that job belongs to `A₄` in F5's table. -/
+theorem eval_zmod8_mCompact_alpha_indep :
+    zmod8Marking.eval (mCompactW 2 0) = zmod8Marking.eval (mCompactW 3 0) := by
+  rw [Marking.eval_def, Marking.eval_def,
+    PWord.eval_eq_evalNat_of_dvd (by norm_num) orderOf_dvd_eight _ (isOmega2Only_mCompact 2 0),
+    PWord.eval_eq_evalNat_of_dvd (by norm_num) orderOf_dvd_eight _ (isOmega2Only_mCompact 3 0),
+    omega2Exp_eight]
+  decide
+
+/-- **Stress (`ω₂` is not vacuous)**: the same evaluation with the profinite exponent forced to
+`3` — an odd non-`ω₂` representative — gives `ofAdd 7`, a different value.  So the `ω₂`-slot
+genuinely carries information at this marking. -/
+theorem evalNat_zmod8_mCompact_three :
+    PWord.evalNat ⇑zmod8Marking 3 (mCompactW 2 0) = Multiplicative.ofAdd (7 : ZMod 8) := by
+  decide
+
+/-- **Stress (the tame boundary is not vacuous either)**: at this marking the `τ`-letter has
+even order, so the Gate-B value `τ^{ω₂}·𝓔(…; τ^{ω₂}, τ^{ω₂})` is `5τ = 5`, not trivial — which
+is `not_killsWild` again, read numerically.  Inside `Γ_R`, where `τ` is pro-odd, this value
+is `1`. -/
+theorem eval_killWildLetters_zmod8 :
+    (Marking.killWildLetters zmod8Marking).eval (mCompactW 2 0)
+      = Multiplicative.ofAdd (5 : ZMod 8) := by
+  rw [Marking.eval_def,
+    PWord.eval_eq_evalNat_of_dvd (by norm_num) orderOf_dvd_eight _ (isOmega2Only_mCompact 2 0),
+    omega2Exp_eight]
+  decide
+
+end StressZMod8
+
+/-- **Stress (nonabelian: the core is not a vacuous relator)**: MC2's compact-`M` core word is
+nontrivial at an explicit marking of `S₃`, so the two commutators do real work.
+
+In `S₃` a transposition `a` has `a² = 1` and `c^{2^α} = c⁴ = 1`, so both power factors of
+`mWord` drop out and everything that survives comes from `[a,b]·[c,d]`.  At two distinct
+transpositions each commutator is the *same* `3`-cycle `g`, so the core word is `g² ≠ 1`.
+
+An explicit witness rather than `∃ … by decide`: the search over `S₃⁴` exhausts the kernel's
+recursion budget, and a witness costs nothing.  F5's `d = 2` row for this group reports the
+epimorphism count `6`; that number is *not* what is proved here (see the section note). -/
+theorem mWord_ne_one_perm :
+    MarkedCore.mWord 2 (Equiv.swap 0 1) (Equiv.swap 0 2) (Equiv.swap 0 1) (Equiv.swap 0 2)
+      ≠ (1 : Equiv.Perm (Fin 3)) := by decide
+
+/-! ## ⚠ The forward-order mutant, and what this ticket does *not* claim
+
+The R4 decision is that the correction block is the **reversed** `𝓔`-block
+`E_m^rev = δ₁^{σ₂^{2m}}δ₁^{σ₂^{m}}δ₀^{σ₂^{m}}δ₀`; the draft's forward order `E_m^fwd` is the
+same four factors read backwards (F5 builds it literally as `factors.reverse()`).  What this
+file proves about that choice is exactly this:
+
+* **Gate C cannot see it.**  Every `δ`-letter dies at the pro-`2` boundary, so *both* blocks
+  specialize to `1` and both words specialize to the same MC2 core
+  (`eval_pro2_mFwdW_eq_mCompact`).
+* **Gate B cannot see it either.**  Under the packet's tame hypothesis `τ^{ω₂} = 1` both blocks
+  are trivial and both words are admissible under the identical hypothesis
+  (`eval_killWildLetters_mFwdW_of_tau`).  Without that hypothesis the two tame *values* are
+  the same four conjugates of `τ^{ω₂}` in opposite orders — which is a difference no boundary
+  gate is asked about.
+
+And what this file must **not** claim, per the dated 2026-07-31 correction to the WM0 spec:
+
+* **There is no finite-target rejection of the forward order, and this ticket does not promise
+  one.**  F5's row C2 measures the two orders *pointwise* on every marking of `S₃`, `D₈` and
+  `A₄` at both displayed instances and finds them **identical** (`diffs 0/0/0`, pinned
+  `NOT-SEPARATED` so that it fails loudly if a target ever separates).  That blindness is
+  structural, by the freeze's own coverage criterion: a separating orbit needs `𝔽₂`-dimension
+  `≥ 2^α`, and these wild layers have dimension `≤ 2` against `2^α = 8` (√2) and `4` (√5).
+* **The order is invisible at first Fox order too** (S4.1).  It is a *second*-order phenomenon.
+* **The rejection of record is S4.1 §9.4's difference formula** in `(q, b_q, P, W)` — the
+  draft's stated reason (a rank drop) and its stated witness (the fifth-root orbit) are both
+  wrong, errata item 6; the seventeenth-root orbit is what covers both displayed instances.
+  The Lean-side rejection is **WM0-c's second-order certificate**, not this file. -/
+
+section Mutant
+
+/-- The compact-`M` word with an arbitrary correction block in the fifth slot: the word depends
+on the block only here, which is what makes the two mutant statements below one-liners. -/
+noncomputable def mWordWith (α h : ℕ) (E : PWord (Generator (2 + 2 * h))) :
+    PWord (Generator (2 + 2 * h)) :=
+  PWord.prodList
+    ([.zpow (a0W α h) 2,
+      .comm (a0W α h) (.gen (coreLetter h 1)),
+      .zpow sigma2W (2 * (mOf α : ℤ)),
+      j2W h,
+      E] ++ handleTailW h)
+
+@[simp] theorem mWordWith_eRevW (α h : ℕ) : mWordWith α h (eRevW α h) = mCompactW α h := rfl
+
+/-- **The forward-order `𝓔`-block**, the draft's rejected order: `E_m^rev` read backwards.  This
+is F5's row-C2 mutant, built the same way (one flag, never a second transcription). -/
+noncomputable def eFwdW (α h : ℕ) : PWord (Generator (2 + 2 * h)) :=
+  PWord.prodList
+    [deltaC h 0,
+     .conj (deltaC h 0) (.zpow sigma2W (mOf α : ℤ)),
+     .conj (deltaC h 1) (.zpow sigma2W (mOf α : ℤ)),
+     .conj (deltaC h 1) (.zpow sigma2W (2 * (mOf α : ℤ)))]
+
+/-- The forward-order **word**: the frozen word with `E_m^rev` replaced by `E_m^fwd`. -/
+noncomputable def mFwdW (α h : ℕ) : PWord (Generator (2 + 2 * h)) :=
+  mWordWith α h (eFwdW α h)
+
+section
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+  [TotallyDisconnectedSpace G] {α h : ℕ}
+
+/-- The word depends on its correction block only through that block's value. -/
+theorem eval_mWordWith_congr (t : Marking (2 + 2 * h) G)
+    {E E' : PWord (Generator (2 + 2 * h))} (hE : t.eval E = t.eval E') :
+    t.eval (mWordWith α h E) = t.eval (mWordWith α h E') := by
+  have hE' : PWord.eval ⇑t E = PWord.eval ⇑t E' := hE
+  rw [mWordWith, mWordWith, Marking.eval_def, Marking.eval_def, eval_prodList_append,
+    eval_prodList_append]
+  simp only [PWord.eval_prodList, List.map_cons, List.map_nil, List.prod_cons, List.prod_nil,
+    hE']
+
+/-- `pro2` acts on the correction block slot and leaves the shape alone. -/
+theorem pro2_mWordWith (α h : ℕ) (E : PWord (Generator (2 + 2 * h))) :
+    pro2 (mWordWith α h E) =
+      PWord.prodList
+        ([pro2 (.zpow (a0W α h) 2),
+          pro2 (.comm (a0W α h) (.gen (coreLetter h 1))),
+          pro2 (.zpow sigma2W (2 * (mOf α : ℤ))),
+          pro2 (j2W h),
+          pro2 E] ++ handleTailW h) := by
+  rw [mWordWith, pro2_prodList, List.map_append, pro2_handleTailW]
+  rfl
+
+/-- The same congruence after the pro-`2` rewrite. -/
+theorem eval_pro2_mWordWith_congr (t : Marking (2 + 2 * h) G)
+    {E E' : PWord (Generator (2 + 2 * h))} (hE : t.eval (pro2 E) = t.eval (pro2 E')) :
+    t.eval (pro2 (mWordWith α h E)) = t.eval (pro2 (mWordWith α h E')) := by
+  have hE' : PWord.eval ⇑t (pro2 E) = PWord.eval ⇑t (pro2 E') := hE
+  rw [pro2_mWordWith, pro2_mWordWith, Marking.eval_def, Marking.eval_def, eval_prodList_append,
+    eval_prodList_append]
+  simp only [PWord.eval_prodList, List.map_cons, List.map_nil, List.prod_cons, List.prod_nil,
+    hE']
+
+@[simp] theorem eval_pro2_eFwdW (t : Marking (2 + 2 * h) G) :
+    t.eval (pro2 (eFwdW α h)) = 1 := by
+  have h0 := eval_pro2_deltaC (h := h) t 0
+  have h1 := eval_pro2_deltaC (h := h) t 1
+  rw [eFwdW, pro2_prodList, Marking.eval_def, PWord.eval_prodList]
+  simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, pro2_conj,
+    PWord.eval_conj, ← Marking.eval_def, h0, h1, one_conjR, mul_one]
+
+/-- **Gate C is blind to the block order**: both words have the same pro-`2` specialization at
+every marking, because both correction blocks die there. -/
+theorem eval_pro2_mFwdW_eq_mCompact (t : Marking (2 + 2 * h) G) :
+    t.eval (pro2 (mFwdW α h)) = t.eval (pro2 (mCompactW α h)) := by
+  rw [mFwdW, ← mWordWith_eRevW α h]
+  exact eval_pro2_mWordWith_congr t (by rw [eval_pro2_eFwdW, eval_pro2_eRevW])
+
+theorem eval_killWildLetters_eFwdW_of_tau (t : Marking (2 + 2 * h) G)
+    (hτ : t.τ ^ᶻ omega2 = 1) : (Marking.killWildLetters t).eval (eFwdW α h) = 1 := by
+  rw [eFwdW, Marking.eval_def, PWord.eval_prodList]
+  simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, PWord.eval_conj,
+    ← Marking.eval_def, eval_killWildLetters_deltaC, hτ, one_conjR, mul_one]
+
+theorem eval_killWildLetters_eRevW_of_tau (t : Marking (2 + 2 * h) G)
+    (hτ : t.τ ^ᶻ omega2 = 1) : (Marking.killWildLetters t).eval (eRevW α h) = 1 := by
+  rw [eval_eRevW_eq_eBlock, eval_killWildLetters_deltaC, eval_killWildLetters_deltaC, hτ]
+  simp [eBlock]
+
+/-- **Gate B is blind to the block order**: the forward-order word dies at the tame boundary
+under exactly the hypothesis that kills the frozen one (`eval_killWildLetters_mCompact_of_tau`),
+so no admissibility statement at this layer can separate them. -/
+theorem eval_killWildLetters_mFwdW_of_tau (t : Marking (2 + 2 * h) G)
+    (hτ : t.τ ^ᶻ omega2 = 1) : (Marking.killWildLetters t).eval (mFwdW α h) = 1 := by
+  rw [mFwdW,
+    eval_mWordWith_congr (α := α) (Marking.killWildLetters t)
+      (E' := eRevW α h)
+      ((eval_killWildLetters_eFwdW_of_tau t hτ).trans
+        (eval_killWildLetters_eRevW_of_tau t hτ).symm),
+    mWordWith_eRevW]
+  exact eval_killWildLetters_mCompact_of_tau α h t hτ
+
+end
+
+end Mutant
+
 end GQ2.Dyadic.Words.MCompact
