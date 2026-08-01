@@ -286,46 +286,17 @@ def IsOmega2Only : EtaDisplay → Prop
 
 end EtaDisplay
 
-/-! ## The procyclic-`M` alphabet
+/-! ## The alphabet — procyclic-`M`
 
-Identical to the compact-`N` alphabet (`x₀, x₁, x₂, σ, τ` plus `h` handle pairs) but declared
-afresh: the WN0-a template rule is that each branch lane names its own letters, and the two
-lanes' declarations live in different namespaces so both can be imported together. -/
+The word uses `x₀, x₁, x₂` and `σ, τ`; the `h` handle pairs use `x₃, …, x_{2h+2}`, so the
+alphabet is `Generator (2 + 2h)`, whose wild letters are `Fin (2h + 3)`.
 
-/-- The core wild letters `x₀, x₁, x₂`. -/
-def coreLetter (h : ℕ) (i : Fin 3) : Generator (2 + 2 * h) :=
-  .wild ⟨(i : ℕ), by have := i.isLt; omega⟩
-
-/-- The first letter `x_{3+2j}` of the `j`-th handle pair. -/
-def handleU {h : ℕ} (j : Fin h) : Generator (2 + 2 * h) :=
-  .wild ⟨3 + 2 * (j : ℕ), by have := j.isLt; omega⟩
-
-/-- The second letter `x_{4+2j}` of the `j`-th handle pair. -/
-def handleV {h : ℕ} (j : Fin h) : Generator (2 + 2 * h) :=
-  .wild ⟨4 + 2 * (j : ℕ), by have := j.isLt; omega⟩
-
-/-- The wild letter `x_i`, or `none` past the alphabet (the `handleGen` field of the
-denotation context). -/
-def wildGen (h : ℕ) (i : ℕ) : Option (Generator (2 + 2 * h)) :=
-  if hi : i < 2 * h + 3 then some (.wild ⟨i, by omega⟩) else none
-
-/-- The generator names the procyclic-`M` certificates use — a literal table, never a decimal
-parser (`String.toNat?` does not reduce in the kernel, WN0-a rule). -/
-def genOfName (h : ℕ) (s : String) : Option (Generator (2 + 2 * h)) :=
-  match s with
-  | "sigma" => some .sigma
-  | "tau" => some .tau
-  | "x0" => wildGen h 0
-  | "x1" => wildGen h 1
-  | "x2" => wildGen h 2
-  | _ => none
-
-/-- The denotation context of the procyclic-`M` row.  `param` is `none` everywhere: **no
-symbolic exponent survives in any frozen tree** (S5.G) — every exponent is a literal `Int`. -/
-def denoteCtx (h : ℕ) : Export.DenoteCtx (Generator (2 + 2 * h)) where
-  gen := genOfName h
-  handleGen := wildGen h
-  param := fun _ => none
+`coreLetter`, `handleU`, `handleV`, `wildGen`, `genOfName`, `denoteCtx`, `handlesW` and the
+handle/kill-wild companions live once, in `GQ2.Dyadic.Words` (`Words/Alphabet.lean`), and are
+reached from this sub-namespace without an `open`.  This row is on the **no-node-at-`h = 0`** handle
+shape — the measured procyclic display, which the compact-`N` emitter does not share — so the
+word goes through the list device `handleTailW`, also hoisted.
+-/
 
 /-! ## The semantic word
 
@@ -409,19 +380,7 @@ noncomputable def bHatW : ℕ → PWord (Generator (2 + 2 * h))
   | 0 => dW h 1
   | p => PWord.prodList [dW h 1, sig2PowW h p]
 
-/-- `H_h = ∏_{j<h} [x_{3+2j}, x_{4+2j}]`, ordered by `List.finRange` (matches both the
-`Export.handleFactors` expansion and MC2's `handleWord`). -/
-noncomputable def handlesW : PWord (Generator (2 + 2 * h)) :=
-  PWord.prodList ((List.finRange h).map fun j => .comm (.gen (handleU j)) (.gen (handleV j)))
-
 end Word
-
-/-- The handle tail of the factor list: **empty at `h = 0`** — the emitted `h = 0` procyclic
-trees carry no handles node at all (measured; the compact-`N` emitter differs) — and the single
-expanded handle block at `h ≥ 1`. -/
-noncomputable def handleTailW : (h : ℕ) → List (PWord (Generator (2 + 2 * h)))
-  | 0 => []
-  | h + 1 => [handlesW (h + 1)]
 
 /-- The linear-copy factors `R_lin^pc = A²[A,B]·C₀^{2^α}[C₀,D]·E₀₁^pc·E₂^pc`.
 
@@ -810,21 +769,6 @@ balance** `−2m·2^r + 2^α·2^r = 0` and whose `w`-part dies exactly under Gat
 (`τ^{ω₂} = 1` — supplied inside `Γ_R` by packet Lem. 3.1, `τ` pro-odd).  Stating the *values*
 is the template rule; the vanishing statements are separate. -/
 
-section TamePlain
-
-variable {G : Type*} [Group G] {h : ℕ}
-
-@[simp] theorem killWildLetters_coreLetter (t : Marking (2 + 2 * h) G) (i : Fin 3) :
-    Marking.killWildLetters t (coreLetter h i) = 1 := rfl
-
-@[simp] theorem killWildLetters_handleU (t : Marking (2 + 2 * h) G) (j : Fin h) :
-    Marking.killWildLetters t (handleU j) = 1 := rfl
-
-@[simp] theorem killWildLetters_handleV (t : Marking (2 + 2 * h) G) (j : Fin h) :
-    Marking.killWildLetters t (handleV j) = 1 := rfl
-
-end TamePlain
-
 /-! ### The Prop. 9.2 power balance
 
 `s = 2^r`, `m = 2^{α−1}`: the hat copy's σ-skeleton exponent is `−2m·s + 2^α·s`, and it
@@ -981,13 +925,6 @@ theorem eval_killWild_bHatW (t : Marking (2 + 2 * h) G) (p : ℕ) :
       rw [show bHatW h (p + 1)
           = PWord.prodList [dW h 1, sig2PowW h (p + 1)] from rfl]
       simp [eval_sig2PowW]
-
-/-- Evaluating the handle block is MC2's `handleWord` on the handle letters. -/
-theorem eval_handlesW (t : Marking (2 + 2 * h) G) :
-    t.eval (handlesW h)
-      = MarkedCore.handleWord (fun j => t (handleU j)) (fun j => t (handleV j)) := by
-  rw [Marking.eval_def, handlesW, PWord.eval_prodList, List.map_map]
-  rfl
 
 theorem eval_killWild_handlesW (t : Marking (2 + 2 * h) G) :
     (Marking.killWildLetters t).eval (handlesW h) = 1 := by
@@ -1175,16 +1112,11 @@ theorem isOmega2Only_bHatW (p : ℕ) : (bHatW h p).IsOmega2Only := by
       rw [show bHatW h (p + 1) = PWord.prodList [dW h 1, sig2PowW h (p + 1)] from rfl]
       simp [isOmega2Only_dW, isOmega2Only_sig2PowW]
 
-theorem isOmega2Only_handlesW : (handlesW h).IsOmega2Only := by
-  refine isOmega2Only_prodList fun w hw => ?_
-  obtain ⟨j, -, rfl⟩ := List.mem_map.mp hw
-  exact ⟨trivial, trivial⟩
-
 theorem isOmega2Only_prodList_handleTail :
     (PWord.prodList (handleTailW h)).IsOmega2Only := by
   match h with
   | 0 => trivial
-  | h + 1 => exact ⟨isOmega2Only_handlesW, trivial⟩
+  | h + 1 => exact ⟨isOmega2Only_handlesW _, trivial⟩
 
 /-- The handle tail contains at most the handle block: its sole member (when `h ≥ 1`) is
 `handlesW h`. -/
@@ -1224,7 +1156,7 @@ theorem isOmega2Only_mpcW (α r p : ℕ) {η : EtaDisplay} (hη : η.IsOmega2Onl
   · exact isOmega2Only_dW 0
   · exact ⟨isOmega2Only_dW 0, isOmega2Only_dW 1⟩
   · obtain rfl := eq_handlesW_of_mem_handleTail htail
-    exact isOmega2Only_handlesW
+    exact isOmega2Only_handlesW _
 
 /-- ⚠ **The `η̂`-displayed instance is *not* `ω₂`-only** (WNP-a's finding, inherited): the
 `D`-letter is a profinite power with `γ = η̂ ≠ ω₂`, so `PWord.eval_eq_evalNat_of_dvd` is
@@ -1434,10 +1366,6 @@ theorem eval_pro2_bHatW (t : Marking (2 + 2 * h) G) (p : ℕ) :
       rw [show bHatW h (p + 1) = PWord.prodList [dW h 1, sig2PowW h (p + 1)] from rfl,
         pro2_prodList]
       simp [eval_pro2_dW, eval_pro2_sig2PowW]
-
-@[simp] theorem pro2_handlesW : pro2 (handlesW h) = handlesW h := by
-  rw [handlesW, pro2_prodList, List.map_map]
-  rfl
 
 /-- **The hat copy dies at the pro-2 boundary** — its δ-letters vanish and its σ-skeleton is
 killed by the *same* Prop. 9.2 balance as at Gate B.  The `[Ĉ₀,D]`-commutator dies at every

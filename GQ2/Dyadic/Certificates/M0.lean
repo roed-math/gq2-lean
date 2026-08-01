@@ -214,7 +214,7 @@ import chain.  All twenty headlines — `heisZ_mCompact_res_one`, `heisZ_mCompac
 
 namespace GQ2.Dyadic.Certificates.MCompact
 
-open GQ2.FoxH GQ2.Dyadic.Words.MCompact
+open GQ2.FoxH GQ2.Dyadic.Words GQ2.Dyadic.Words.MCompact
 
 open GQ2.Dyadic.Words.MCompact renaming deltaC → deltaCert
 
@@ -459,12 +459,10 @@ theorem heisF_j2W (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = 
         + e • y (coreLetter h 2) (t.σ • (x (coreLetter h 2) + x .tau)) := by
   have e3 := Certificates.heisF_invConjX2 t x y E E₂ hwild
   have e4 := Certificates.heisF_deltaBlock t x y E E₂ hwild hτ hE
-  simp only [coreLetter_eq]
   rw [show j2W h = PWord.mul (.inv (.conj (.gen (coreLetter h 2)) (.gen .sigma)))
       (PWord.mul (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h 2), .gen .tau]))
         PWord.one) from rfl,
     heisEvalZ_mul, heisEvalZ_mul, heisEvalZ_one, mul_one]
-  simp only [coreLetter_eq] at e3 e4 ⊢
   rw [HeisLift.mul_z, e3, e4]
   dsimp only
   rw [mem_trivAct.mp

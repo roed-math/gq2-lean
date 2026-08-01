@@ -125,4 +125,158 @@ theorem invConj_mul_self {G : Type*} [Group G] (x g : G) : (conjR x g)⁻¹ * x 
   simp only [conjR, commP, mul_inv_rev, inv_inv]
   group
 
+/-! ## §2. The `Generator (2 + 2h)` alphabet
+
+Four of the five lanes — `N0` (WN0-a, the pilot), `MCompact` (WM0-a), `Npc` (WNP-a) and `Mpc`
+(WMP-a) — spell the same alphabet: the core wild letters `x₀, x₁, x₂`, the letters `σ` and `τ`,
+and `h` handle pairs `x₃, …, x_{2h+2}`.  So the alphabet is `Generator (2 + 2h)`, whose wild
+letters are `Fin (2h + 3)`; MC2's core has rank `coreRank h = 4 + 2h`, the same letters plus
+`σ`, which is not wild.  All four lanes declared these six verbatim.
+
+⚠ `genOfName` is the **certificate's name table**, and it is shared only because all four
+emitters happened to name their letters the same way.  A lane whose certificate uses different
+names must declare its own table and its own `denoteCtx` — as `Words.LSq` does — rather than
+silently inheriting this one.  The failure mode is benign but confusing: the `denote` bridges
+are `rfl`, so a wrong table shows up as a bridge that will not close, never as a wrong theorem.
+
+The table is a literal `match` and not a decimal parser on purpose: `String.toNat?` is
+well-founded recursion and does **not** reduce in the kernel, so a parsing `gen` field would put
+every lane's `denote` bridge out of reach of `rfl`.  Handle letters never come through here —
+they come through `wildGen` — which is why the table stops at `x₂`.
+-/
+
+/-- The core wild letters `x₀, x₁, x₂`, present at every handle count. -/
+def coreLetter (h : ℕ) (i : Fin 3) : Generator (2 + 2 * h) :=
+  .wild ⟨(i : ℕ), by have := i.isLt; omega⟩
+
+/-- The first letter `x_{3+2j}` of the `j`-th handle pair. -/
+def handleU {h : ℕ} (j : Fin h) : Generator (2 + 2 * h) :=
+  .wild ⟨3 + 2 * (j : ℕ), by have := j.isLt; omega⟩
+
+/-- The second letter `x_{4+2j}` of the `j`-th handle pair. -/
+def handleV {h : ℕ} (j : Fin h) : Generator (2 + 2 * h) :=
+  .wild ⟨4 + 2 * (j : ℕ), by have := j.isLt; omega⟩
+
+/-- The wild letter `x_i`, or `none` when `i` is past the alphabet.  This is the `handleGen`
+field of the denotation context: `Export.handleFactors` indexes handle letters by a plain `ℕ`,
+so the range check has to live here. -/
+def wildGen (h : ℕ) (i : ℕ) : Option (Generator (2 + 2 * h)) :=
+  if hi : i < 2 * h + 3 then some (.wild ⟨i, by omega⟩) else none
+
+/-- The generator names the compact-`N`, compact-`M`, noncompact-`N` and procyclic-`M`
+certificates use — one literal table, because all four emitters agree.  See the ⚠ above. -/
+def genOfName (h : ℕ) (s : String) : Option (Generator (2 + 2 * h)) :=
+  match s with
+  | "sigma" => some .sigma
+  | "tau" => some .tau
+  | "x0" => wildGen h 0
+  | "x1" => wildGen h 1
+  | "x2" => wildGen h 2
+  | _ => none
+
+/-- The denotation context of the `Generator (2 + 2h)` rows: the certificates' names, the handle
+letters, and **no** symbolic parameters — every frozen exponent in all four rows is a literal
+`Int` (S5.G), so `param` is nowhere consulted and returning `none` is honest rather than
+lossy. -/
+def denoteCtx (h : ℕ) : Export.DenoteCtx (Generator (2 + 2 * h)) where
+  gen := genOfName h
+  handleGen := wildGen h
+  param := fun _ => none
+
+/-! ## §3. The handle block
+
+`handlesW` is the expanded hyperbolic block; `handleTailW` is the *list* device the two no-node
+lanes need (see the three handle shapes in the module docstring).  Both orders are
+`List.finRange h`, which is simultaneously what `Export.handleFactors` expands the
+`HyperbolicHandles` node to and how MC2's `handleWord` orders its factors — so every bridge
+below is structural rather than a reindexing argument.
+-/
+
+/-- `H_h = ∏_{j<h} [x_{3+2j}, x_{4+2j}]`, the block the certificates write as
+`HyperbolicHandles 3 h`. -/
+def handlesW (h : ℕ) : PWord (Generator (2 + 2 * h)) :=
+  PWord.prodList ((List.finRange h).map fun j => .comm (.gen (handleU j)) (.gen (handleV j)))
+
+@[simp] theorem handlesW_zero : handlesW 0 = .one := rfl
+
+/-- The handle **tail** of the factor list: empty at `h = 0`, a one-element list otherwise —
+the shape the `MCompact` and `Mpc` certificate trees need, which carry no `HyperbolicHandles`
+child at all at `h = 0`. -/
+noncomputable def handleTailW : (h : ℕ) → List (PWord (Generator (2 + 2 * h)))
+  | 0 => []
+  | h + 1 => [handlesW (h + 1)]
+
+@[simp] theorem isOmega2Only_handlesW (h : ℕ) : (handlesW h).IsOmega2Only := by
+  unfold handlesW
+  refine isOmega2Only_prodList ?_
+  intro w hw
+  obtain ⟨j, -, rfl⟩ := List.mem_map.mp hw
+  exact ⟨trivial, trivial⟩
+
+@[simp] theorem pro2_handlesW (h : ℕ) : pro2 (handlesW h) = handlesW h := by
+  rw [handlesW, pro2_prodList, List.map_map]
+  rfl
+
+/-! ## §4. The boundary companions
+
+The kill-wild values of the letters and the evaluation of the handle block.  `Marking.eval`
+forces `{G : Type}` with the four profinite instances (it is `PWord.eval`); `killWildLetters`
+does not, and the `Mpc` lane had generalized its copy of the trio to `{G : Type*}`.
+
+⚠ **That generalization is not taken here, deliberately.**  The trio is `@[simp]`, and at
+`Type*` it fires on module-lift goals in `Certificates/M0Fox.lean` where the `Type`-restricted
+form did not — four proofs there change behaviour (two `simp`s that then make no progress, one
+that closes its goal early).  A hoist that repairs consumer proofs is not a hoist, so this file
+carries the form three of the four copies had; `Mpc` uses the trio only at `Type` groups and is
+unaffected.
+-/
+
+section KillWild
+
+variable {G : Type} [Group G] {h : ℕ}
+
+@[simp] theorem killWildLetters_coreLetter (t : Marking (2 + 2 * h) G) (i : Fin 3) :
+    Marking.killWildLetters t (coreLetter h i) = 1 := rfl
+
+@[simp] theorem killWildLetters_handleU (t : Marking (2 + 2 * h) G) (j : Fin h) :
+    Marking.killWildLetters t (handleU j) = 1 := rfl
+
+@[simp] theorem killWildLetters_handleV (t : Marking (2 + 2 * h) G) (j : Fin h) :
+    Marking.killWildLetters t (handleV j) = 1 := rfl
+
+end KillWild
+
+/-- Evaluating the handle block is MC2's `handleWord` on the handle letters — the same
+`List.finRange h` order on both sides, so this is a rewrite and not a reindexing. -/
+theorem eval_handlesW {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [TotallyDisconnectedSpace G] {h : ℕ} (t : Marking (2 + 2 * h) G) :
+    t.eval (handlesW h) =
+      MarkedCore.handleWord (fun j => t (handleU j)) (fun j => t (handleV j)) := by
+  rw [Marking.eval_def, handlesW, PWord.eval_prodList, List.map_map]
+  rfl
+
+/-! ## §5. The leading exponent `p_α = 2 + 2^α`
+
+Two facts about the compact/noncompact-`N` leading exponent, shared verbatim by `N0` and `Npc`
+and cited (not re-derived) by `Certificates/{N0,N0Fox,Npc,NpcFox}.lean`.  Pure `ℕ` arithmetic;
+they sit here because they are the only part of those two rows' vocabulary that four certificate
+files need and no lane owns.
+-/
+
+/-- The freeze's **spelling discipline** for the leading exponent: `2 + 2^α` is opaque, while
+`2(1 + 2^{α−1})` displays the Hessian content — `1 + 2^{α−1}` is odd exactly when `α ≥ 2`, and
+that oddness is what produces the `q(c₀)` term of the plus form.  The *words* keep the
+certificates' `2 + 2^α`. -/
+theorem two_add_two_pow (α : ℕ) (hα : 1 ≤ α) : 2 + 2 ^ α = 2 * (1 + 2 ^ (α - 1)) := by
+  obtain ⟨β, rfl⟩ : ∃ β, α = β + 1 := ⟨α - 1, by omega⟩
+  simp [pow_succ]
+  ring
+
+/-- `1 + 2^{α−1}` is odd for `α ≥ 2` — the Hessian side condition behind `BranchData.Valid`. -/
+theorem odd_one_add_two_pow {α : ℕ} (hα : 2 ≤ α) : Odd (1 + 2 ^ (α - 1)) := by
+  obtain ⟨β, rfl⟩ : ∃ β, α = β + 2 := ⟨α - 2, by omega⟩
+  have h : (2 : ℕ) ^ (β + 2 - 1) = 2 * 2 ^ β := by
+    rw [show β + 2 - 1 = β + 1 by omega, pow_succ]; ring
+  exact ⟨2 ^ β, by rw [h]; ring⟩
+
 end GQ2.Dyadic.Words

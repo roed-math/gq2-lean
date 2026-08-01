@@ -139,7 +139,7 @@ extension nor the module).  The census stays at eleven.
 
 namespace GQ2.Dyadic.Certificates.MCompact
 
-open GQ2.FoxH GQ2.Dyadic.Words.MCompact
+open GQ2.FoxH GQ2.Dyadic.Words GQ2.Dyadic.Words.MCompact
 
 open GQ2.Dyadic.Words.MCompact renaming deltaC → deltaCert
 

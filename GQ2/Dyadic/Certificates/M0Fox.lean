@@ -194,7 +194,7 @@ alphabet sum `sum_generator_quad`.  All of them belong beside WWH's
 
 namespace GQ2.Dyadic.Certificates.MCompact
 
-open GQ2.FoxH GQ2.Dyadic.Words.MCompact
+open GQ2.FoxH GQ2.Dyadic.Words GQ2.Dyadic.Words.MCompact
 
 /-! WM0-a's certificate `δ`-letter is renamed to `deltaCert` here, because the enclosing `GQ2`
 namespace already declares a *peripheral* `GQ2.deltaC` (`GQ2/PeripheralAction.lean`) which wins
@@ -325,8 +325,15 @@ section Rows
 variable {h α : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
   [DistribMulAction C V] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
 
-/-- `MCompact`'s alphabet helpers are WN0-a's, on the nose — the two `Words` namespaces exist
-only because the letters would otherwise be declared twice (WM0-a deviation 2, ticket WAH). -/
+/-- `MCompact`'s alphabet helpers are WN0-a's, on the nose.
+
+⚠ **Vacuous since ticket WAH.**  The two copies of the letters were hoisted into one, in
+`GQ2.Dyadic.Words` (`Words/Alphabet.lean`), so both sides of this equation are now literally the
+same constant and the three bridges below state `x = x`.  They are kept only so that the call
+sites that still name them keep building; a `simp only [coreLetter_eq]` step is now a no-op and
+four of them were removed when WAH landed.  Deleting the three lemmas and their five remaining
+uses is a one-ticket follow-up for this file's owner — it was left undone deliberately, because
+WAH's remit is the `Words/*` duplication and not this file's proofs. -/
 theorem coreLetter_eq (i : Fin 3) : coreLetter h i = Words.coreLetter h i := rfl
 
 @[inherit_doc coreLetter_eq]
@@ -490,7 +497,6 @@ theorem foxD_j2W_unram (hV₂ : ∀ v : V, v + v = 0)
     foxD ⇑t a E E₂ (j2W h)
       = -(t.σ⁻¹ • a (coreLetter h 2)) + (a (coreLetter h 2) + a .tau) := by
   rw [j2W, foxD_prodList_pair]
-  simp only [coreLetter_eq]
   rw [foxD_invConjX2 t E E₂ hwild, foxD_deltaBlock_unram t E E₂ hV₂ hwild hτ,
     PWord.evalFin_inv, PWord.evalFin_conj, PWord.evalFin_gen, PWord.evalFin_gen,
     mem_trivAct.mp (inv_mem (trivAct_conjR (Certificates.trivAct_coreLetter t hwild 2) _))]
@@ -501,7 +507,6 @@ theorem foxD_j2W_ram (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v
     (a : Generator (2 + 2 * h) → V) :
     foxD ⇑t a E E₂ (j2W h) = -(t.σ⁻¹ • a (coreLetter h 2)) := by
   rw [j2W, foxD_prodList_pair]
-  simp only [coreLetter_eq]
   rw [foxD_invConjX2 t E E₂ hwild, foxD_deltaBlock_ram t E E₂ hwild hτfpf hTodd, smul_zero,
     add_zero]
 
@@ -853,7 +858,6 @@ theorem foxD_mCompact_eq_nCompact_unram_simple (hV₂ : ∀ v : V, v + v = 0)
     foxD ⇑t a E E₂ (mCompactW α h) = foxD ⇑t a E E₂ (Words.nCompactW α h) := by
   rw [foxD_mCompact_unram_simple t E E₂ hV₂ hwild hτ hS₂,
     foxD_nCompact_unram t E E₂ hV₂ hwild hτ hα]
-  rfl
 
 /-- **The compact-`M` wild row on a ramified module** (`P ↦ 0`, `V^T = 0`):
 
@@ -1227,7 +1231,6 @@ noncomputable def mCompactWildRowCertUnramSimple (hV₂ : ∀ v : V, v + v = 0)
       TameSym.splitEnd, Certificates.nCompactWildRow_toHom_apply]
     show a .tau + (a (coreLetter h 2) - t.σ⁻¹ • a (coreLetter h 2))
         = a .tau + (t.σ⁻¹ • a (Words.coreLetter h 2) + a (Words.coreLetter h 2))
-    simp only [← coreLetter_eq]
     rw [sub_eq_add_neg, Certificates.neg_eq_self hV₂]
     abel
 

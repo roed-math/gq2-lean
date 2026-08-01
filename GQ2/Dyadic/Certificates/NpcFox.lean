@@ -281,7 +281,7 @@ was not available):
 
 * §0's four mathlib-shaped micro-lemmas `even_nsmul_eq_zero`, `even_two_add_two_pow`,
   `neg_eq_self`, `injective_of_isUnit` (`even_two_add_two_pow` reads off the plain-import
-  `Words.Npc.two_add_two_pow`, so the group cannot move into a `module` file wholesale);
+  `Words.two_add_two_pow`, so the group cannot move into a `module` file wholesale);
 * §4's tame toolkit `tameRelW`, `eval_tameRelW`, `freeMarking_eval_tameRelW`,
   `foxD_tameRelW_of_tameRel`, `foxD_tameRelW_unram` — the *same* relator as the compact lane's;
   only the alphabet of the formal rows changes;
@@ -308,7 +308,7 @@ and push the `smul`s in before calling it.
 
 namespace GQ2.Dyadic.Certificates.Npc
 
-open GQ2.FoxH GQ2.Dyadic.Words.Npc
+open GQ2.FoxH GQ2.Dyadic.Words GQ2.Dyadic.Words.Npc
 
 /-! ## §0. Micro-toolkit (duplicated from WN0-b's `N0Fox.lean`, dedup ledger in the module
 docstring)
@@ -327,7 +327,7 @@ theorem even_nsmul_eq_zero {V : Type*} [AddCommGroup V] (hV₂ : ∀ v : V, v + 
   exact hV₂ _
 
 /-- `p_α = 2 + 2^α` is even for `α ≥ 1` — read off WNP-a's spelling-discipline lemma
-`Words.Npc.two_add_two_pow`.  Same device as the compact row: the displayed spelling `2 + 2^α`
+`Words.two_add_two_pow`.  Same device as the compact row: the displayed spelling `2 + 2^α`
 is opaque, `2(1 + 2^{α−1})` displays the parity. -/
 theorem even_two_add_two_pow {α : ℕ} (hα : 1 ≤ α) : Even (2 + 2 ^ α) :=
   ⟨1 + 2 ^ (α - 1), by rw [two_add_two_pow α hα]; ring⟩

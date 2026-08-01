@@ -115,7 +115,7 @@ matrix difference.  The census is untouched at eleven.
 
 namespace GQ2.Dyadic.Certificates.MProcyclic
 
-open GQ2.FoxH GQ2.Dyadic.Words.Mpc
+open GQ2.FoxH GQ2.Dyadic.Words GQ2.Dyadic.Words.Mpc
 
 open GQ2.Dyadic.Words.MCompact renaming deltaC → deltaCert
 

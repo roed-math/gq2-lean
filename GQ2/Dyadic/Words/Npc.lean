@@ -127,63 +127,22 @@ namespace Npc
 
 open Export (RawWord)
 
-/-! ## §0. The noncompact-`N` alphabet
+/-! ## The alphabet — noncompact-`N` (§0)
 
-The word uses `x₀, x₁, x₂` and `σ, τ`; the `h` handle pairs use `x₃, …, x_{2h+2}`.  So the
-alphabet is `Generator (2 + 2h)`, whose wild letters are `Fin (2h + 3)` — the same shape as the
-compact row, since `E_{r,η}` introduces no new letters (`δ₀` is built from `x₀` and `τ`).
+The word uses `x₀, x₁, x₂` and `σ, τ`; the `h` handle pairs use `x₃, …, x_{2h+2}`, so the
+alphabet is `Generator (2 + 2h)`, whose wild letters are `Fin (2h + 3)`.
+
+`coreLetter`, `handleU`, `handleV`, `wildGen`, `genOfName`, `denoteCtx`, `handlesW` and the
+handle/kill-wild companions live once, in `GQ2.Dyadic.Words` (`Words/Alphabet.lean`), and are
+reached from this sub-namespace without an `open`.  `E_{r,η}` introduces no new letters (`δ₀` is built
+from `x₀` and `τ`), so this row is on the pilot's alphabet and on its **count-`0` handle
+shape**: `HyperbolicHandles 3 0` at `h = 0`, and `handlesW 0 = .one` in the word.
 -/
-
-/-- The core wild letters `x₀, x₁, x₂`, present at every handle count. -/
-def coreLetter (h : ℕ) (i : Fin 3) : Generator (2 + 2 * h) :=
-  .wild ⟨(i : ℕ), by have := i.isLt; omega⟩
-
-/-- The first letter `x_{3+2j}` of the `j`-th handle pair. -/
-def handleU {h : ℕ} (j : Fin h) : Generator (2 + 2 * h) :=
-  .wild ⟨3 + 2 * (j : ℕ), by have := j.isLt; omega⟩
-
-/-- The second letter `x_{4+2j}` of the `j`-th handle pair. -/
-def handleV {h : ℕ} (j : Fin h) : Generator (2 + 2 * h) :=
-  .wild ⟨4 + 2 * (j : ℕ), by have := j.isLt; omega⟩
-
-/-- The wild letter `x_i`, or `none` when `i` is past the alphabet — the `handleGen` field of the
-denotation context, whose index is a plain `ℕ`. -/
-def wildGen (h : ℕ) (i : ℕ) : Option (Generator (2 + 2 * h)) :=
-  if hi : i < 2 * h + 3 then some (.wild ⟨i, by omega⟩) else none
-
-/-- The generator names the noncompact-`N` certificate uses.  A literal table, not a decimal
-parser: `String.toNat?` does not reduce in the kernel.  Handle letters come through `wildGen`,
-which is why the table stops at `x₂`. -/
-def genOfName (h : ℕ) (s : String) : Option (Generator (2 + 2 * h)) :=
-  match s with
-  | "sigma" => some .sigma
-  | "tau" => some .tau
-  | "x0" => wildGen h 0
-  | "x1" => wildGen h 1
-  | "x2" => wildGen h 2
-  | _ => none
-
-/-- The denotation context of the noncompact-`N` row: the certificate's names, the handle letters,
-and **no** symbolic parameters.  Every frozen exponent in this row is a literal `Int` and the only
-profinite specs are `omega2` and `etahat` (S5.G), so `param` is nowhere consulted and returning
-`none` is honest rather than lossy. -/
-def denoteCtx (h : ℕ) : Export.DenoteCtx (Generator (2 + 2 * h)) where
-  gen := genOfName h
-  handleGen := wildGen h
-  param := fun _ => none
 
 /-! ## §1. The word
 
 Built bottom-up in the certificate's order: `δ₀`, the two conjugators `A` and `B`, the compressed
 `D`-block, the correction `E`, the handle block, and the relator. -/
-
-/-- `H_h = ∏_{j<h} [x_{3+2j}, x_{4+2j}]`, the block the certificate writes as
-`HyperbolicHandles 3 h`, as a `prodList` over `List.finRange h` — simultaneously what
-`Export.handleFactors` expands the node to and how MC2's `handleWord` orders its factors. -/
-def handlesW (h : ℕ) : PWord (Generator (2 + 2 * h)) :=
-  PWord.prodList ((List.finRange h).map fun j => .comm (.gen (handleU j)) (.gen (handleV j)))
-
-@[simp] theorem handlesW_zero : handlesW 0 = .one := rfl
 
 /-- **The `δ`-letter `δ₀ = (x₀τ)^{ω₂} x₀⁻¹`** in the certificate's spelling.
 
@@ -252,22 +211,6 @@ noncomputable def npcW (α r h : ℕ) (e : EtaData) : PWord (Generator (2 + 2 * 
      PWord.omega2Pow (PWord.prodList [.gen (coreLetter h 2), .gen .tau]),
      eBlockW h r e,
      handlesW h]
-
-/-- The freeze's **spelling discipline** for the leading exponent, shared with the compact row:
-`2 + 2^α` is opaque, while `2(1 + 2^{α−1})` displays the Hessian content — `1 + 2^{α−1}` is odd
-exactly when `α ≥ 2`, and that oddness is what produces the `Q₀(c₀)` term of the plus form
-`Q(c₀,c₁) = Q₀(c₀) + b_q(c₁, L_c c₀)`.  The *word* keeps the certificate's `2 + 2^α`. -/
-theorem two_add_two_pow (α : ℕ) (hα : 1 ≤ α) : 2 + 2 ^ α = 2 * (1 + 2 ^ (α - 1)) := by
-  obtain ⟨β, rfl⟩ : ∃ β, α = β + 1 := ⟨α - 1, by omega⟩
-  simp [pow_succ]
-  ring
-
-/-- `1 + 2^{α−1}` is odd for `α ≥ 2` — the Hessian side condition behind `BranchData.Valid`. -/
-theorem odd_one_add_two_pow {α : ℕ} (hα : 2 ≤ α) : Odd (1 + 2 ^ (α - 1)) := by
-  obtain ⟨β, rfl⟩ : ∃ β, α = β + 2 := ⟨α - 2, by omega⟩
-  have h : (2 : ℕ) ^ (β + 2 - 1) = 2 * 2 ^ β := by
-    rw [show β + 2 - 1 = β + 1 by omega, pow_succ]; ring
-  exact ⟨2 ^ β, by rw [h]; ring⟩
 
 /-! ## §2. The certificate tree and the WW5 hash pins -/
 
@@ -534,27 +477,6 @@ section Tame
 variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
   [TotallyDisconnectedSpace G] {α r h : ℕ}
 
-omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
-@[simp] theorem killWildLetters_coreLetter (t : Marking (2 + 2 * h) G) (i : Fin 3) :
-    Marking.killWildLetters t (coreLetter h i) = 1 := rfl
-
-omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
-@[simp] theorem killWildLetters_handleU (t : Marking (2 + 2 * h) G) (j : Fin h) :
-    Marking.killWildLetters t (handleU j) = 1 := rfl
-
-omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
-@[simp] theorem killWildLetters_handleV (t : Marking (2 + 2 * h) G) (j : Fin h) :
-    Marking.killWildLetters t (handleV j) = 1 := rfl
-
-/-- Evaluating the handle block is MC2's `handleWord` on the handle letters — the same
-`List.finRange h` order on both sides, so this is a rewrite and not a reindexing.  Also the
-handle-side half of what WNP-b/c need to reach NC6's `npc_cross_operators_handles_std` (§4). -/
-theorem eval_handlesW (t : Marking (2 + 2 * h) G) :
-    t.eval (handlesW h) =
-      MarkedCore.handleWord (fun j => t (handleU j)) (fun j => t (handleV j)) := by
-  rw [Marking.eval_def, handlesW, PWord.eval_prodList, List.map_map]
-  rfl
-
 /-- **The tame boundary value of the corrected noncompact-`N` word.**
 
 Killing the wild letters leaves exactly `τ^{ω₂}` — the same value as the compact row, and in
@@ -715,10 +637,6 @@ section Pro2
 
 variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
   [TotallyDisconnectedSpace G] {α r h : ℕ}
-
-@[simp] theorem pro2_handlesW (h : ℕ) : pro2 (handlesW h) = handlesW h := by
-  rw [handlesW, pro2_prodList, List.map_map]
-  rfl
 
 /-- Gate C **keeps** the `η̂`-conjugator, by the pinned `η̂`-contract. -/
 @[simp] theorem pro2_aW (h : ℕ) (e : EtaData) : pro2 (aW h e) = aW h e := by
