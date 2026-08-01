@@ -84,6 +84,57 @@ namespace GQ2.Dyadic
 
 open GQ2.FoxH
 
+/-! ## `𝔽₂` parity helpers
+
+The central coordinate of the second-order layer is `ZMod 2`, so every step of every row
+computation ends in a parity of a `ℕ`- or `ℤ`-scalar.  These are the casts that make those
+steps uniform, plus the binomial parity of the resolver class `e ≡ 1 (mod 4)` (ticket S1.T:
+the lift level is `4`, not `2`). -/
+
+section Parity
+
+theorem natCast_zmod2_even {n : ℕ} (hn : Even n) : (n : ZMod 2) = 0 := by
+  obtain ⟨m, rfl⟩ := hn
+  push_cast
+  ring_nf
+  simp [CharTwo.two_eq_zero]
+
+theorem natCast_zmod2_odd {n : ℕ} (hn : Odd n) : (n : ZMod 2) = 1 := by
+  obtain ⟨m, rfl⟩ := hn
+  push_cast
+  simp [CharTwo.two_eq_zero]
+
+theorem nsmul_zmod2_even {n : ℕ} (hn : Even n) (z : ZMod 2) : n • z = 0 := by
+  rw [nsmul_eq_mul, natCast_zmod2_even hn, zero_mul]
+
+theorem nsmul_zmod2_odd {n : ℕ} (hn : Odd n) (z : ZMod 2) : n • z = z := by
+  rw [nsmul_eq_mul, natCast_zmod2_odd hn, one_mul]
+
+/-- An even natural `ℤ`-scalar kills every `ZMod 2` value. -/
+theorem zsmul_natCast_zmod2_even {n : ℕ} (hn : Even n) (z : ZMod 2) : (n : ℤ) • z = 0 := by
+  rw [zsmul_eq_mul, Int.cast_natCast, natCast_zmod2_even hn, zero_mul]
+
+/-- An odd natural `ℤ`-scalar is the identity on `ZMod 2` values. -/
+theorem zsmul_natCast_zmod2_odd {n : ℕ} (hn : Odd n) (z : ZMod 2) : (n : ℤ) • z = z := by
+  rw [zsmul_eq_mul, Int.cast_natCast, natCast_zmod2_odd hn, one_mul]
+
+/-- `C(e, 2)` is even on the resolver class `e ≡ 1 (mod 4)` — the class the honest `ω₂`
+representative for a `2`-group target lives in (`omega2Exp` of a `2`-power is `1`).
+On `e ≡ 3 (mod 4)` it is odd, which is what makes the traced Stokes Gram sensitive to the
+resolver class modulo `4` (ticket S1.T: the lift level is `4`, not `2`). -/
+theorem choose_two_even_of_mod_four {e : ℕ} (he : e % 4 = 1) : Even (e.choose 2) := by
+  obtain ⟨k, rfl⟩ : ∃ k, e = 4 * k + 1 := ⟨e / 4, by omega⟩
+  rw [Nat.choose_two_right, show 4 * k + 1 - 1 = 4 * k by omega,
+    show (4 * k + 1) * (4 * k) = (4 * k + 1) * k * 2 * 2 by ring,
+    Nat.mul_div_cancel _ (by norm_num)]
+  exact ⟨(4 * k + 1) * k, by ring⟩
+
+theorem odd_of_mod_four_eq_one {e : ℕ} (he : e % 4 = 1) : Odd e := by
+  obtain ⟨k, rfl⟩ : ∃ k, e = 4 * k + 1 := ⟨e / 4, by omega⟩
+  exact ⟨2 * k, by ring⟩
+
+end Parity
+
 /-! ## The no-cross-term (shadow-cancellation) toolkit
 
 `class2.py`'s bilinear-λ argument, at the `HeisLift` level: the central cocycle
