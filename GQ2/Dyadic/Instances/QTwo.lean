@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
 import GQ2.Dyadic.CertificateMain
 import GQ2.Dyadic.Words.L
+import GQ2.Dyadic.Count.WildDischarge
 import GQ2.Roe.Main
 
 /-!
@@ -291,5 +292,83 @@ noncomputable def gammaR_lSq_equiv_roe :
   map_mul' := map_mul toRoe
   continuous_toFun := toRoe.continuous_toFun
   continuous_invFun := fromRoe.continuous_toFun
+
+/-! ## §5 The recovery theorem -/
+
+/-- **AS4's headline — the L-word machinery at `n = 1` recovers the `ℚ₂` theorem.**
+
+`candidateGroup 1 2 (L_sq)`, F3's admissible candidate group on the frozen odd-degree branch
+word at its smallest degree, is the absolute Galois group of `ℚ₂`:
+
+`⟨σ, τ, x₀, x₁ ∣ τ^σ = τ², (x₀^σ)⁻¹(x₀⁻³τ)^{ω₂}x₁²[x₁, x₁^{σ₂}] = 1, ⟪x₀,x₁⟫ pro-2⟩_prof ≅ G_ℚ₂`.
+
+**Unconditional**: no hypothesis binder, no `sorry`.  Two named inputs, both cited:
+`gammaR_lSq_equiv_roe` (§4, this file's mathematics) and Roe's terminal
+`GQ2.main_presentation_literal_roe_unconditional`, whose `BLabHypothesis` the L-campaign
+discharged (`GQ2.Roe.Labute.bLab`). -/
+theorem candidateGroup_lSq_equiv_absGalQ2 :
+    Nonempty (ContinuousMulEquiv ((candidateGroup 1 2 (lSqW 0)) : Type) AbsGalQ2) :=
+  ⟨gammaR_lSq_equiv_roe.trans GQ2.main_presentation_literal_roe_unconditional.some⟩
+
+/-- The `hBLab`-parametrized form, kept because it is the statement the R-campaign gates audit
+(`GQ2.main_presentation_literal_roe`); `candidateGroup_lSq_equiv_absGalQ2` is this at
+`GQ2.Roe.Labute.bLab`. -/
+theorem candidateGroup_lSq_equiv_absGalQ2_of_bLab (hBLab : GQ2.BLabHypothesis) :
+    Nonempty (ContinuousMulEquiv ((candidateGroup 1 2 (lSqW 0)) : Type) AbsGalQ2) :=
+  ⟨gammaR_lSq_equiv_roe.trans (GQ2.main_presentation_literal_roe hBLab).some⟩
+
+/-- **Merge gate 8, regression half.**  The two frozen `ℚ₂` capstones still typecheck at their
+own statements, side by side with the `n = 1` route: `Γ_A ≅ G_ℚ₂` (the paper's Theorem 1.2,
+`GQ2.main_presentation_literal`), `Γ_R ≅ G_ℚ₂` (the note's ⟦thm:main⟧), and now
+`Γ_{L_sq,1} ≅ G_ℚ₂`.  The three left-hand sides are *three different presentations*: `Γ_A` is
+the collector-cored `Γ_A`, `Γ_R` the Roe candidate, and `Γ_{L_sq,1}` the R2-frozen square word
+read through F3's degree-`n` machinery — and §4 identifies the last two. -/
+theorem q2_capstones_agree :
+    Nonempty (ContinuousMulEquiv (GammaA : Type) AbsGalQ2)
+      ∧ Nonempty (ContinuousMulEquiv (GQ2.GammaR : Type) AbsGalQ2)
+      ∧ Nonempty (ContinuousMulEquiv ((candidateGroup 1 2 (lSqW 0)) : Type) AbsGalQ2) :=
+  ⟨GQ2.main_presentation_literal, GQ2.main_presentation_literal_roe_unconditional,
+    candidateGroup_lSq_equiv_absGalQ2⟩
+
+/-! ## §6 AS1's `WordCertificate` at `n = 1`: the fields that are discharged
+
+The fields below are the ones the landed stack proves at `(n, q, R) = (1, 2, L_sq)`.  What is
+*not* here is exactly AS1's divergences 3 and 4 — see the module docstring. -/
+
+/-- **Field 1 (`tameSpecialization`).**  One line, WL-a's tame boundary value fed to F3b's
+`tameSpecializes_of_tau_pow`. -/
+theorem tameSpecializes_lSq : TameSpec.TameSpecializes 1 2 (lSqW 0) :=
+  TameSpec.tameSpecializes_of_tau_pow two_ne_zero even_two (eval_killWildLetters_lSq 0 _)
+
+/-- **Field 2 (`coreRel`).**  The pro-`2` core relator of the `n = 1` branch: SqCore's rank-3
+square-commutator word at `h = 0`. -/
+noncomputable def coreRelLSq (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [TotallyDisconnectedSpace G] (t : Marking 1 G) : G :=
+  SqCore.sqRelWord (sqIdxMark (h := 0) t)
+
+/-- **Field 2 (`proTwoWord`).**  Verbatim WL-a's Gate-C headline at `h = 0`. -/
+theorem proTwoWord_lSq (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [TotallyDisconnectedSpace G] (t : Marking 1 G) :
+    t.eval (pro2 (lSqW 0)) = coreRelLSq G t :=
+  eval_pro2_lSqW_eq_sqRelWord 0 t
+
+/-- **Field `tfg`.**  Generic in `n, q, R`, and not owed to any lane: `Γ_R` is a continuous
+quotient of a free profinite group on a `Fintype` alphabet. -/
+theorem gammaR_tfg (n q : ℕ) (R : PWord (Generator n)) :
+    ∃ s : Finset ((GammaR n q R) : Type),
+      (Subgroup.closure (s : Set ((GammaR n q R) : Type))).topologicalClosure = ⊤ :=
+  IsTopologicallyFinGen.of_surjective (gammaMk n q R).toMonoidHom
+    (gammaMk n q R).continuous_toFun (gammaMk_surjective n q R)
+    isTopologicallyFinGen_freeProfiniteGroup
+
+/-- **Field `htame`** (§10 instantiation-side condition 1) at `n = 1`. -/
+theorem htame_lSq : Function.Surjective (TameSpec.tameOfSpec 1 2 (lSqW 0) tameSpecializes_lSq) :=
+  TameSpec.tameOfSpec_surjective _
+
+/-- **Field `hwild`** (§10 instantiation-side condition 2) at `n = 1` — GR1's discharge, which
+is generic; `Count.hwild_lSq` is its `L_sq` row. -/
+theorem hwild_lSq_one :
+    IsProP 2 (TameSpec.tameOfSpec 1 2 (lSqW 0) tameSpecializes_lSq).toMonoidHom.ker :=
+  Count.hwild_lSq (h := 0) (q := 2) tameSpecializes_lSq
 
 end GQ2.Dyadic.QTwo
