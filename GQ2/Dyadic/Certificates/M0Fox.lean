@@ -605,6 +605,226 @@ theorem foxD_eRevW (hd0 : PWord.evalFin ⇑t E E₂ (deltaCert h 0) ∈ trivAct 
     hconj 1 _ hd1, hconj 1 _ hd1, hconj 0 _ hd0]
   abel
 
+/-! ### The handle block
+
+`D(H_h) = 0` at every `h` — WWH's `foxD_comm_of_trivial`, exactly as on the compact-`N` row.
+⚠ Here the *tail* is what the word actually contains, and at `h = 0` it is **empty** (WM0-a
+deviation 1: the compact-`M` certificate emits no `HyperbolicHandles` child), so the statement
+splits by cases and only `h ≥ 1` has content. -/
+
+theorem foxD_handlesW (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (a : Generator (2 + 2 * h) → V) : foxD ⇑t a E E₂ (handlesW h) = 0 :=
+  Certificates.foxD_handlesW t E E₂ hwild a
+
+/-- **The handle tail is first-order invisible, uniformly in `h`** — vacuously at `h = 0`
+(no factor at all) and by `foxD_handlesW` at `h ≥ 1`. -/
+theorem foxD_handleTailW (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (PWord.prodList (handleTailW h)) = 0 := by
+  cases h with
+  | zero => rfl
+  | succ k =>
+      rw [handleTailW, PWord.prodList_cons, PWord.prodList_nil, foxD_mul, foxD_one, smul_zero,
+        add_zero]
+      exact foxD_handlesW t E E₂ hwild a
+
+/-! ### The assembled row
+
+Everything above, plugged into the iterated product rule.  The `σ`-column cancellation happens
+here and it happens **over `ℤ`**: no characteristic-`2` hypothesis is used by
+`foxD_mCompact_core`. -/
+
+/-- **The compact-`M` row with its two class-dependent factors left abstract.**
+
+```
+D(R_{M,0}) = −(1 + S₂^{−m})·a(x₀) + (S₂^{−2m} − S₂^{−m})·a(x₁) + D(J₂) + D(E_m^rev).
+```
+
+The `𝒢`-terms of `A₀²` and of `σ₂^{2m}` have cancelled: the balancing factor `σ₂^{2m}` sits
+behind the prefix `S₂^{−2m}` of `A₀²[A₀,x₁]`, so its contribution `S₂^{−2m}·𝒢_{2m}` is
+*literally* the `A₀²` contribution `(S₂^{−m} + S₂^{−2m})·𝒢_m` (`sigmaGeom_two_mul`).  That is
+packet Prop. 9.2's power balance `−2·2^{α−1} + 2^α = 0`, one derivative up, and it is why the
+opaque atom `D(σ₂)` never reaches a certificate.
+
+No hypothesis on `α`, none on `S`, none on the characteristic. -/
+theorem foxD_mCompact_core
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hj2 : ∀ v : V, PWord.evalFin ⇑t E E₂ (j2W h) • v = v)
+    (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (mCompactW α h)
+      = (-a (coreLetter h 0) - ((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 0))
+        + (((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a (coreLetter h 1)
+            - ((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 1))
+        + (foxD ⇑t a E E₂ (j2W h) + foxD ⇑t a E E₂ (eRevW α h)) := by
+  have hsplit : (powOmega2 t.σ) ^ (2 * mOf α)
+      = (powOmega2 t.σ) ^ mOf α * (powOmega2 t.σ) ^ mOf α := by
+    rw [← pow_add]; congr 1; omega
+  rw [mCompactW, mFactors]
+  simp only [List.cons_append, List.nil_append, PWord.prodList_cons]
+  rw [foxD_mul, foxD_mul, foxD_mul, foxD_mul, foxD_mul, foxD_handleTailW t E E₂ hwild,
+    smul_zero, add_zero, hj2, evalFin_sigma2Block_smul, evalFin_leadingComm_smul t E E₂ hwild,
+    evalFin_leadingSquare_smul t E E₂ hwild, foxD_leadingSquare t E E₂ hwild,
+    foxD_leadingComm t E E₂ hwild, foxD_sigma2Block, sigmaGeom_two_mul]
+  simp only [smul_add, smul_sub, smul_neg, hsplit, mul_inv_rev, mul_smul, inv_smul_smul]
+  abel
+
+/-! ### The four published rows -/
+
+/-- **The compact-`M` wild row on a general unramified module** (`P ↦ 1`, `T = 1`):
+
+```
+D(R_{M,0}) = S₂^{−2m}·a(τ) + (1 + S₂^{−m})·a(x₀) + (S₂^{−m} + S₂^{−2m})·a(x₁)
+             + (1 − S⁻¹)·a(x₂).
+```
+
+Read against the frozen row `(0, P·S₂^{−2m}, P·S₂^{−m}+P, P·S₂^{−m}+P·S₂^{−2m}, S⁻¹+P)` at
+`P = 1`.  The `x₀`- and `x₁`-entries survive here precisely because `S₂` has *not* been
+collapsed; see `foxD_mCompact_unram_simple` for the simple-module reading. -/
+theorem foxD_mCompact_unram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (mCompactW α h)
+      = ((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a .tau
+        + (a (coreLetter h 0) + ((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 0))
+        + (((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 1)
+            + ((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a (coreLetter h 1))
+        + (a (coreLetter h 2) - t.σ⁻¹ • a (coreLetter h 2)) := by
+  have hneg : ∀ v : V, -v = v := Certificates.neg_eq_self hV₂
+  have hδ : ∀ i : Fin 3, PWord.evalFin ⇑t E E₂
+      (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h i), .gen .tau])) ∈ trivAct C V := by
+    intro i
+    rw [PWord.evalFin_omega2Pow]
+    refine trivAct_powOmega2 (mem_trivAct.mpr fun v => ?_)
+    rw [evalFin_prodList_pair, PWord.evalFin_gen, PWord.evalFin_gen, mul_smul, Marking.apply_tau,
+      hτ, mem_trivAct.mp (trivAct_coreLetter t hwild i)]
+  rw [foxD_mCompact_core t E E₂ hwild (evalFin_j2W_smul t E E₂ hwild (hδ 2)),
+    foxD_j2W_unram t E E₂ hV₂ hwild hτ,
+    foxD_eRevW t E E₂ (trivAct_deltaC t E E₂ hwild 0 (hδ 0))
+      (trivAct_deltaC t E E₂ hwild 1 (hδ 1)),
+    foxD_deltaC_unram t E E₂ hV₂ hwild hτ, foxD_deltaC_unram t E E₂ hV₂ hwild hτ]
+  simp only [sub_eq_add_neg, hneg]
+  rw [show
+      (a (coreLetter h 0) + ((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 0)
+        + (((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a (coreLetter h 1)
+          + ((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 1))
+        + (t.σ⁻¹ • a (coreLetter h 2) + (a (coreLetter h 2) + a .tau)
+          + (((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a .tau
+            + ((powOmega2 t.σ) ^ mOf α)⁻¹ • a .tau
+            + (((powOmega2 t.σ) ^ mOf α)⁻¹ • a .tau + a .tau))) : V)
+      = (((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a .tau
+          + (a (coreLetter h 0) + ((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 0))
+          + (((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 1)
+            + ((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a (coreLetter h 1))
+          + (a (coreLetter h 2) + t.σ⁻¹ • a (coreLetter h 2)))
+        + (a .tau + a .tau)
+        + (((powOmega2 t.σ) ^ mOf α)⁻¹ • a .tau + ((powOmega2 t.σ) ^ mOf α)⁻¹ • a .tau) from
+      by abel, hV₂, hV₂, add_zero, add_zero]
+
+/-- **The compact-`M` wild row on a *simple* unramified module** — the frozen certificate's
+printed unramified specialization `(0, 1, 0, 0, S⁻¹+1)`:
+
+```
+D(R_{M,0}) = a(τ) + (1 − S⁻¹)·a(x₂).
+```
+
+The extra hypothesis is `S₂ = 1`, the Sage side's `specialize_unramified(simple=True)` clause
+(module docstring): on a simple unramified module the `2`-part of `S` acts trivially, and
+`S₂ = S^{ω₂}` *is* that `2`-part.  With it the whole correction block — and with it every trace
+of `α` — leaves the row. -/
+theorem foxD_mCompact_unram_simple (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hS₂ : ∀ v : V, powOmega2 t.σ • v = v) (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (mCompactW α h)
+      = a .tau + (a (coreLetter h 2) - t.σ⁻¹ • a (coreLetter h 2)) := by
+  have hS : ∀ (k : ℕ) (v : V), ((powOmega2 t.σ) ^ k)⁻¹ • v = v := fun k v =>
+    mem_trivAct.mp (inv_mem (pow_mem (mem_trivAct.mpr hS₂) k)) v
+  rw [foxD_mCompact_unram t E E₂ hV₂ hwild hτ]
+  simp only [hS]
+  rw [show (a .tau + (a (coreLetter h 0) + a (coreLetter h 0))
+        + (a (coreLetter h 1) + a (coreLetter h 1))
+        + (a (coreLetter h 2) - t.σ⁻¹ • a (coreLetter h 2)) : V)
+      = (a .tau + (a (coreLetter h 2) - t.σ⁻¹ • a (coreLetter h 2)))
+        + (a (coreLetter h 0) + a (coreLetter h 0))
+        + (a (coreLetter h 1) + a (coreLetter h 1)) from by abel, hV₂, hV₂, add_zero, add_zero]
+
+/-- **On a simple unramified module the compact-`M` and compact-`N` words have the same first
+Fox row.**  Both are `a(τ) + (1 − S⁻¹)·a(x₂)`: the `J₂` block is literally shared (the frozen
+note), everything else on either row has left.  This is the strongest form of "the two
+one-operation normal forms are shared with packet row WC-N0" — the *rows* already agree, so a
+fortiori their normal forms do. -/
+theorem foxD_mCompact_eq_nCompact_unram_simple (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hS₂ : ∀ v : V, powOmega2 t.σ • v = v) (hα : 1 ≤ α) (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (mCompactW α h) = foxD ⇑t a E E₂ (Words.nCompactW α h) := by
+  rw [foxD_mCompact_unram_simple t E E₂ hV₂ hwild hτ hS₂,
+    foxD_nCompact_unram t E E₂ hV₂ hwild hτ hα]
+  rfl
+
+/-- **The compact-`M` wild row on a ramified module** (`P ↦ 0`, `V^T = 0`):
+
+```
+D(R_{M,0}) = −S⁻¹·a(x₂),
+```
+
+a single **unit** entry — the same row the compact-`N` word has, and for the same reason (the
+`x₂^{-σ}` letter of the shared `J₂` block).  Here **no `S₂`-hypothesis is needed**: every other
+entry of the universal row carries the projector, and `P ↦ 0` erases it.  What the block
+contributes at `P = 0` is not zero — it is `−(S₂^{−2m}+S₂^{−m})·a(x₁) − (S₂^{−m}+1)·a(x₀)`,
+which cancels the `A₀²[A₀,x₁]` contribution over `𝔽₂`. -/
+theorem foxD_mCompact_ram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hτfpf : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v)
+    (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (mCompactW α h) = -(t.σ⁻¹ • a (coreLetter h 2)) := by
+  have hneg : ∀ v : V, -v = v := Certificates.neg_eq_self hV₂
+  have hδ : ∀ i : Fin 3, PWord.evalFin ⇑t E E₂
+      (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h i), .gen .tau])) ∈ trivAct C V := by
+    intro i
+    rw [PWord.evalFin_omega2Pow, evalFin_prodList_pair, PWord.evalFin_gen, PWord.evalFin_gen,
+      Marking.apply_tau]
+    exact mem_trivAct.mpr fun v => WordLift.powOmega2_smul_of_trivial_mul _ _
+      (mem_trivAct.mp (trivAct_coreLetter t hwild i)) hTodd v
+  rw [foxD_mCompact_core t E E₂ hwild (evalFin_j2W_smul t E E₂ hwild (hδ 2)),
+    foxD_j2W_ram t E E₂ hwild hτfpf hTodd,
+    foxD_eRevW t E E₂ (trivAct_deltaC t E E₂ hwild 0 (hδ 0))
+      (trivAct_deltaC t E E₂ hwild 1 (hδ 1)),
+    foxD_deltaC_ram t E E₂ hwild hτfpf hTodd, foxD_deltaC_ram t E E₂ hwild hτfpf hTodd]
+  simp only [sub_eq_add_neg, hneg]
+  rw [show
+      (a (coreLetter h 0) + ((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 0)
+        + (((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a (coreLetter h 1)
+          + ((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 1))
+        + (t.σ⁻¹ • a (coreLetter h 2)
+          + (((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a (coreLetter h 1)
+            + ((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 1)
+            + (((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 0)
+              + a (coreLetter h 0)))) : V)
+      = t.σ⁻¹ • a (coreLetter h 2)
+        + (a (coreLetter h 0) + a (coreLetter h 0))
+        + (((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 0)
+          + ((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 0))
+        + (((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a (coreLetter h 1)
+          + ((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a (coreLetter h 1))
+        + (((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 1)
+          + ((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 1)) from by abel,
+    hV₂, hV₂, hV₂, hV₂, add_zero, add_zero, add_zero, add_zero]
+
+/-- **The compact-`M` wild row on a split (scalar) module**: with the whole tame quotient acting
+trivially the row degenerates to the `τ`-pivot `a(τ)` — the frozen `scalar` column `(0,1,0,0,0)`.
+
+`S = 1` forces `S₂ = 1` (it is a power of `S`), so this is a corollary of the simple-unramified
+row with the `1 − S⁻¹` block collapsing.  As on the compact-`N` row, this is the honest content
+of "the scalar module separates nothing". -/
+theorem foxD_mCompact_split (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hσ : ∀ v : V, t.σ • v = v) (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (mCompactW α h) = a .tau := by
+  have hσinv : ∀ v : V, t.σ⁻¹ • v = v := fun v =>
+    mem_trivAct.mp (inv_mem (mem_trivAct.mpr hσ)) v
+  rw [foxD_mCompact_unram_simple t E E₂ hV₂ hwild hτ
+      (fun v => mem_trivAct.mp (trivAct_powOmega2 (mem_trivAct.mpr hσ)) v),
+    hσinv, sub_self, add_zero]
+
 end Rows
 
 end GQ2.Dyadic.Certificates.MCompact
