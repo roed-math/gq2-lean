@@ -8,14 +8,190 @@ import GQ2.Dyadic.Word.Stokes
 import GQ2.Dyadic.Word.Hessian
 
 /-!
-# Dyadic campaign, ticket WNP-c: Stokes, scalar, Hessian and phase certificates for the
-corrected noncompact-`N` word
+# Dyadic campaign, ticket WNP-c: Stokes, scalar, Hessian and phase certificates for the corrected
+noncompact-`N` word
 
-Closing file of the procyclic-`N` lane (packet Def. 9.1 items (5)–(6) for row 3 of the R5
-selection freeze), on WNP-a's word, WNP-b's Fox certificate, the NC lane's second-jet theorem
-and WW3/WW4's toolkits.
+The closing file of the procyclic-`N` lane (packet Def. 9.1 items (5)-(6) for row 3 of the R5
+selection freeze), on WNP-a's word (`GQ2/Dyadic/Words/Npc.lean`), WNP-b's Fox certificate
+(`GQ2/Dyadic/Certificates/NpcFox.lean`), the NC lane's second-jet theorem
+(`GQ2/Dyadic/NpcJet/`), WW3's second-order layer (`GQ2/Dyadic/Word/Stokes.lean`) and WW4's
+Hessian/phase interface (`GQ2/Dyadic/Word/{Hessian,Phase}.lean`):
 
-Placeholder docstring; the final one is written at the end of the ticket.
+```
+R_{N,α,r,η} = x₀^{2+2^α} [x₀,A] · x₂^{-g} (x₂τ)^{ω₂} · E_{r,η} · H_h,
+A = σ^{η̂},  B = σ^{2^r},  g = x₁σ^{2^r},  E_{r,η} = [D_{r,η}, x₁],
+D_{r,η} = δ₀^A (δ₀ δ₀^A)^{B⁻¹},           α ≥ 2,  r ≥ 1,  η ∈ ℤ₂ˣ
+```
+
+with the **corrected** cross operator `L_c = A⁻¹ + B + B·A⁻¹ = 1 + (1+A⁻¹)(1+B)` — the draft's
+eq:Ncross (`L_c = A⁻¹`) is the first summand alone (S3.2, errata item 5).
+
+## 1. The Stokes certificate
+
+`heisZ_npc_unram` evaluates the word's central (Stokes) coordinate at the Heisenberg lift of any
+unramified-class marking (`hwild` + `hτ`), at an arbitrary resolver value `E ω₂ = e`, **exactly**
+in `e`.  The block reading:
+
+* the **twisted `x₀`-diagonal** `y₀(A⁻¹a₀)`.  It is twisted, not plain: the leading power's
+  diagonal `y₀(a₀)` **cancels** against the front commutator's, and what survives carries `A⁻¹`.
+  This is the Stokes-level twin of NC5's `q(c₀)`-cancellation — i.e. of the hypothesis `α ≥ 2`,
+  which is why the endpoint's diagonal is `Q₀` and not `q`;
+* the **boundary block** on `(x₁, x₂, τ)` with the `e`- and `C(e,2)`-sensitivities displayed and
+  the operator `B = S^{2^r}` where the compact row has `S`;
+* the **front-block cross term** `y₀((A+1)·bnd)` against `npcBoundaryJet` — the second-order
+  shadow of WNP-b's new `x₀`-column `A⁻¹ + 1`;
+* the **correction block** `L_c(λ_{δ₀})(a₁) + y₁(L_c a_{δ₀})` (`heisF_eBlockW`), see §5 below;
+* the `h` **identity-operator hyperbolic planes** (`heisF_handlesW_z`), untouched by any operator
+  at any handle count.
+
+`heisZ_npc_res_one` is the certificate form at the honest class `e ≡ 1 (mod 4)`; there the
+`δ₀`-jet collapses to the `τ`-letter's offsets and the correction reads
+`(L_c y_τ)(a₁) + y₁(L_c a_τ)`.  `heisZ_npc_scalar` is the split collapse: `A = B = 1`, `L_c`
+degenerates to the **identity**, and the row is the compact row's scalar reading plus one extra
+`(τ, x₁)` plane.
+
+**The σ-offset convention, and why it is forced (a finding, not a convenience).**  Every row
+assumes `x .sigma = 0` and `y .sigma = 0`.  On the compact row `σ` occurs only as a bare
+conjugator and its offsets enter linearly; here it occurs inside `A = σ^{η̂}` and `B = σ^{2^r}`,
+whose jets are **geometric sums** `(1 + S + ⋯ + S^{k−1})·x_σ`.  Carrying those would force the
+resolver value `E(η̂)` to be expanded — precisely what WNP-b's `.etaA`-opacity forbids, and what
+WNP-a's "the word is not `IsOmega2Only`" makes unavailable anyway.  Under the convention `A` and
+`B` are pure-base lifts (`heisF_aW`, `heisF_bW` — the single places `E(η̂)` and `2^r` are
+evaluated) and appear only as operators.  The scalar Gram below therefore has no `σ`-row.
+
+**Endpoint and duality.**  `npc_isStokesEndpoint` proves display (40)'s condition for **all**
+`α ≥ 1`, `r`, `h`, `η` and every even `q`, odd `e` — and both η̂-flavored factors are commutators,
+so the abelianized data is *identical* to the compact row's (the abelian-level shard of WNP-a's
+blindness finding).  `npc_stokesDuality` instantiates WW3's `stokesDuality_of_simple`;
+per-simple-module duality stays the hypothesis slot it is in the frozen `ℚ₂` chain.
+
+## 2. The scalar certificate
+
+`npcPin_scalarGram` / `npcPin_scalarGram_three`: the traced Stokes Gram of the `(α,r,η) = (2,1,1)`
+family on the scalar module at the four-letter basis `τ, x₀, x₁, x₂`, by kernel `decide`.  The
+`e`-twins differ in exactly the `{τ, x₂}²`-block (which also flips `(τ,τ)` by cancelling the tame
+Bockstein) — ticket S1.T's "the lift level is 4, not 2" as a matrix pair, on this row as on the
+compact one.  **New on this row**: the `(τ, x₁)` cup block, contributed by the *correction block*
+— the scalar-module shadow of `b_q(c₁, L_c c₀)` with `L_c` degenerate to the identity.  Both
+matrices were derived from the closed forms first and then confirmed by the kernel.
+
+## 3. The Hessian certificate: assembly, not new mathematics
+
+WW4's `npcShape_certificate` certifies the **shape** `Q₀(c₀) + b_q(c₁, L_c c₀)` with an abstract
+invertible cross operator and names the literal identification as WNP-c's (module-rule-blocked
+there).  §3 performs it:
+
+* `lcOpHom` packages NC2's `lcOp` as the `V →+ V` datum WW4's change of variables
+  `(c₀,c₁) ↦ (L_c c₀, c₁)` consumes — the only step between the NC lane's operator and the
+  certificate interface;
+* `npcHessianCertificate` is `npcShape_certificate` with `Q₀ := npcQ0 dat s η`, `Lc := lcOp s η r`;
+* `npc_word_eq_certQ` proves the certificate's endpoint polynomial **is** the evaluated word, by
+  citing WNP-b's `npc_cross_operators_npcW` (itself NC5's `npc_cross_operators` transported onto
+  the hash-pinned tree).  `npc_word_handles_eq_certQ` is the general-`h` form through NC6's
+  `npc_cross_operators_handles_std` — never a cast on `npcWordH`;
+* `npc_word_gaussSum` closes the loop through `HessianCertificate.endpoint_gaussSum`.
+
+**No jet content is re-derived here.**  The NC lane's transport worked exactly as designed: the
+word-side Hessian is three citations and a `funext`.  The only genuinely new second-order work in
+this file is the *Stokes* layer, which is a different pairing and was not covered by the NC lane.
+
+`hQ₀` — quadraticity of the twisted diagonal `Q₀(v) = f(v, A⁻¹v) + m_{A⁻¹}(v)` — is a certificate
+**input**, as it already is in WW4's shape: it is a statement about the factor-set datum, not
+about the word.  It is discharged concretely on the battery (`pin_isQuadratic_npcQ0`).
+
+## 4. The per-module invertibility of `L_c` — the NC lane's standing residual
+
+NC5 scoped this to WNP-c ("genuinely varies with the module … on a concrete battery module it is
+a `decide`").  Delivered as:
+
+* `isUnit_lcOpEnd_iff` — the **general** criterion on a finite module: `L_c` is invertible iff its
+  kernel is trivial.  This is the honest general statement.  Unlike the compact lane's
+  `isUnit_oneSubSInvEnd_iff` and WNP-b's `isUnit_oneSubInvEnd_iff`, whose right-hand sides are the
+  *geometric* condition `V^c = 0`, the corrected `L_c = 1 + (1+A⁻¹)(1+B)` admits **no** uniform
+  fixed-point description — it is a sum of three group actions and which of them cancel depends on
+  the module.  `exists_lcOp_inverse` turns the criterion into the two-sided witness the CoV wants;
+* two free degenerations: `lcOp_eq_draft_of_eq_one` (NC5's, `A = 1`) and `lcOp_of_B_eq_one`
+  (`B = 1`), in both of which `L_c` is the identity;
+* the **battery** on NC6's carrier (`C = ℤ/3` on `𝔽₂²` by the companion matrix of `x²+x+1`):
+  invertible at `r = 1` (`isUnit_lcOpEnd_pin_one`, `L_c = g`), and at `r = 0` the operator is
+  **identically zero** (`pin_lcOp_zero`: `A = B = g` and `g² + g + 1 = 0`), hence not invertible
+  (`not_isUnit_lcOpEnd_pin_zero`).  ⚠ The parameter the dichotomy turns on is `r`, and `r ≥ 1` is
+  exactly the word row's noncompact side condition that NC5 deliberately does **not** consume
+  (`npc_cross_operators` holds for all `r : ℕ`).  This is where that side condition becomes
+  load-bearing again: invertibility is a property of the pair (module, `r`), not of the operator
+  alone.
+
+## 5. The `S₃` separating gate, and exactly what it licenses
+
+* `heisZ_npcW_eq_uncorrected_add_eBlock` — the corrected word and WNP-b's `npcUncorrectedW`
+  differ at second order by **exactly** `β(E_{r,η})` and by nothing else (the correction block is
+  jet-zero and trivially-acting, so its insertion shifts only the central coordinate);
+* `stress_s3_correction_visible` — on the two-dimensional twisted module that difference is `1`,
+  by kernel `decide`, while WNP-b's `foxD_npcW_eq_uncorrected` shows the two words' first-order
+  rows are *equal* at every marking, resolver and offset.
+
+**Epistemic status, stated as part of the claim.**  This makes **REJECT sound**: a gate that
+separates the two words has genuinely detected the correction.  It says nothing whatsoever in the
+other direction.  The twisted gate-E is diagnostic by construction (one-way soundness, freeze
+row 3): a **PASS is never evidence** — not for the corrected word's exactness, not for the
+uncorrected word's, and not for their equality.  The exactness content of this row lives in
+`npc_cross_operators` and in the certificate of §3, and nowhere else; `stress_s3_correction_visible`
+must not be cited as a verification of the word.
+
+## 6. Phase consumables and the `(α, r, η) = (2, 1, 1)` instance
+
+`npc_G0 = 2^d`, `npc_gauss_translate` (packet Lem 6.1's output at raw shift vectors) and
+`npc_gauss_pow` (`2^{n·d}` = `standardNumerics n |>.gaussRam d`, positive sign) — the
+`c₁`-Lagrangian ⇒ Gauss `2^{nd/2}` clause on this row, at the **twisted** diagonal `Q₀ ∘ L_c⁻¹`
+rather than `q`: `baseSign = 1` all the same, because `gaussSum_plusFormD` is blind to which
+quadratic form sits in the `c₀`-slot.
+
+The frozen harness row `(α,r,η) = (2,1,1)`, `h = 0` (`N-noncompact-alpha2-r1-eta1_1-h0-v001`,
+digest `08b7742caf3a34f8…`, `F5` counts `6/1568/120`) is pinned end to end at the battery module:
+`pinNpcHessianCertificate` (every input discharged by `decide`), `pin_npc_word_eq_certQ`,
+`pin_npc_word_gaussSum` (`G0 = 2²`), `npcPin_isStokesEndpoint` and both scalar Grams.
+
+## Implementation notes
+
+Not `module`-style, and forced: `GQ2.Dyadic.Certificates.NpcFox` is plain-import (the WN0-a ruling
+that `Words/` and `Certificates/` are plain-import layers); the `module`-style imports `Stokes`
+and `Hessian` are fine in this direction.  Nested namespace `…Certificates.Npc`, continuing
+WNP-b's file.  No new axioms; kernel `decide` only; no `native_decide`.
+
+**Hoist candidates introduced here** (lane-generic, for the cleanup queue): `heisPureBase` with
+`heisPureBase_zpow` and `heisPureBase_of_eq` (the opacity device — every η̂-lane needs it),
+`heisCommR_of_left_trivial` (WW3's `heisCommR_of_trivial` needs *both* arguments inert; this word
+forces the one-sided law, exactly as WNP-b's `trivAct_commR_left` does at first order),
+`heisMul_jetZero_insert` / `heisMul_shift` / `heisMul_jetZero_insert_depth3` (the shadow-insertion
+calculus — WMP-c will want these for its hat copy), `elemDual_nsmul_apply` (a verbatim copy of
+WW3's private lemma), `lcSmul`/`lcHom` over an arbitrary module, and the `𝔽₂` `abel_nf` residues
+`two_nsmul_zmod2` / `two_zsmul_zmod2` / `neg_one_zsmul_zmod2`.
+
+**Gotchas met** (for WMP-c and WL-c): `set` bodies delta-reduce inside later `have` statements, so
+`rw [hP]` on a `set`-abbreviation fails there — state the `have`s against the unfolded term;
+`abel_nf` normalizes to `ℤ`-smul, so the `𝔽₂` residues are `(2 : ℤ) • w` and `(-1 : ℤ) • w`, not
+their `ℕ` twins; `PWord.prodList_cons` rewrites the *innermost* `prodList` of a nested word — use
+`prodList_pair`; `omit … in` must precede the docstring, not follow it; and `2 + 2*0` does not
+unify with `2` in `Marking`/`Generator` indices, so the concrete witnesses are typed at
+`2 + 2 * 0` throughout.
+
+## Axiom state (audited 2026-08-01, all 87 named declarations; `#print axioms` run in a scratch
+file, not committed)
+
+Every declaration depends on a subset of the standard three
+`[propext, Classical.choice, Quot.sound]`: **77 print exactly std-3**, 8 print `[propext]` (the
+`lcSmul` family) and 2 print `[propext, Quot.sound]`.  Zero `sorryAx`, zero `Lean.ofReduceBool`,
+and **no axiom of the dyadic census in any declaration** — not merely no leak through the
+plain-import `Words.Npc → NpcFox` chain, but no campaign axiom at all.  The census stays at
+**eleven**.  In particular the headlines `heisF_aW`, `heisF_commX0A`, `heisF_invConjX2G`,
+`heisF_omega2Block`, `heisF_deltaZeroW`, `heisJet_dBlockW`, `heisF_eBlockW`, `heisF_handlesW_z`,
+`heisZ_npc_unram`, `heisZ_npc_res_one`, `heisZ_npc_scalar`, `npc_isStokesEndpoint`,
+`npc_stokesDuality`, `npcPin_scalarGram`, `npcPin_scalarGram_three`, `npcHessianCertificate`,
+`npc_word_eq_certQ`, `npc_word_gaussSum`, `npc_word_handles_eq_certQ`, `isUnit_lcOpEnd_iff`,
+`exists_lcOp_inverse`, `pin_lcOp_zero`, `isUnit_lcOpEnd_pin_one`, `not_isUnit_lcOpEnd_pin_zero`,
+`pinNpcHessianCertificate`, `pin_npc_word_eq_certQ`, `heisZ_npcW_eq_uncorrected_add_eBlock`,
+`stress_s3_correction_visible`, `npc_G0`, `npc_gauss_pow` and `npc_gauss_translate` all print
+exactly std-3.
 -/
 
 namespace GQ2.Dyadic.Certificates.Npc
