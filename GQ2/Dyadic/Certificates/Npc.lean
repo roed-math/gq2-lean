@@ -196,7 +196,7 @@ exactly std-3.
 
 namespace GQ2.Dyadic.Certificates.Npc
 
-open GQ2.FoxH GQ2.Dyadic.Words.Npc
+open GQ2.FoxH GQ2.Dyadic.Words GQ2.Dyadic.Words.Npc
 
 /-! ## §0. The row's binomial parity
 

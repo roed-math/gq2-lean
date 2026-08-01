@@ -8,6 +8,7 @@ import GQ2.Dyadic.Word.Fox
 import GQ2.Dyadic.TameBoundary
 import GQ2.Dyadic.SqCore.Certificate
 import GQ2.Roe.GammaR
+import GQ2.Dyadic.Words.Alphabet
 import Mathlib.GroupTheory.SpecificGroups.Dihedral
 
 /-!
@@ -366,13 +367,6 @@ with a single global exponent.  This is what lets the numerical pins below evalu
 `ω₂`, and what WL-b will need to transport the word into `FreeGroup`, where `ω₂` cannot be applied
 at all. -/
 
-theorem isOmega2Only_prodList {Gen : Type*} :
-    ∀ {l : List (PWord Gen)}, (∀ w ∈ l, w.IsOmega2Only) → (PWord.prodList l).IsOmega2Only
-  | [], _ => trivial
-  | w :: _ws, hw =>
-      ⟨hw w (List.mem_cons_self ..),
-       isOmega2Only_prodList fun u hu => hw u (List.mem_cons_of_mem _ hu)⟩
-
 @[simp] theorem isOmega2Only_handlesW (h : ℕ) : (handlesW h).IsOmega2Only := by
   unfold handlesW
   refine isOmega2Only_prodList ?_
@@ -402,13 +396,6 @@ section Eval
 
 variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
   [TotallyDisconnectedSpace G]
-
-/-- `prodList` of a concatenation evaluates factorwise. -/
-theorem eval_prodList_append {Gen : Type*} (μ : Gen → G) (l₁ l₂ : List (PWord Gen)) :
-    PWord.eval μ (PWord.prodList (l₁ ++ l₂))
-      = PWord.eval μ (PWord.prodList l₁) * PWord.eval μ (PWord.prodList l₂) := by
-  rw [PWord.eval_prodList, PWord.eval_prodList, PWord.eval_prodList, List.map_append,
-    List.prod_append]
 
 /-- Evaluating the handle block is MC2's `handleWord` on the handle letters — the same
 `List.finRange h` order on both sides, so this is a rewrite and not a reindexing. -/
@@ -547,9 +534,6 @@ section Refutation
 local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
 local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
 
-private theorem zmod8_orderOf_dvd (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
-  orderOf_dvd_of_pow_eq_one (by revert x; decide)
-
 /-- The refuting marking: `τ` a generator of `ZMod 8` (so `τ^{ω₂} = τ ≠ 1`), everything else
 trivial.  The wild letters are irrelevant — `killWildLetters` overwrites them. -/
 def refuteMarking (h : ℕ) : Marking (2 * h + 1) (Multiplicative (ZMod 8)) :=
@@ -587,13 +571,6 @@ section Pro2
 
 variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
   [TotallyDisconnectedSpace G]
-
-theorem pro2_prodList :
-    ∀ l : List (PWord (Generator (2 * h + 1))),
-      pro2 (PWord.prodList l) = PWord.prodList (l.map pro2)
-  | [] => rfl
-  | w :: ws => by
-      rw [PWord.prodList_cons, pro2_mul, pro2_prodList ws, List.map_cons, PWord.prodList_cons]
 
 @[simp] theorem pro2_handlesW (h : ℕ) : pro2 (handlesW h) = handlesW h := by
   rw [handlesW, pro2_prodList, List.map_map]
@@ -998,9 +975,6 @@ section StressZMod8
 
 local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
 local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
-
-private theorem orderOf_dvd_eight (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
-  orderOf_dvd_of_pow_eq_one (by revert x; decide)
 
 /-- A concrete marking of the `L_sq` alphabet at `h = 0`, written additively:
 `(σ, τ, x₀, x₁) = (5, 1, 1, 1)` in `Multiplicative (ZMod 8)`. -/

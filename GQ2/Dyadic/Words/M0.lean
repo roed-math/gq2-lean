@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 import GQ2.Dyadic.Word.Export
 import GQ2.Dyadic.TameBoundary
 import GQ2.Dyadic.MarkedCore.Cores
+import GQ2.Dyadic.Words.Alphabet
 
 /-!
 # Dyadic campaign, ticket WM0-a: the compact `M_α` branch word
@@ -123,48 +124,17 @@ namespace GQ2.Dyadic.Words.MCompact
 
 open Export (RawWord)
 
-/-! ## The compact-`M` alphabet
+/-! ## The alphabet — compact-`M`
 
-The word uses `x₀, x₁, x₂` and `σ, τ`; the `h` handle pairs use `x₃, …, x_{2h+2}`.  So the
-alphabet is `Generator (2 + 2h)` — the same alphabet as the compact-`N` row, and these seven
-declarations are verbatim WN0-a's (see deviation 2 above: they want hoisting, not copying). -/
+The word uses `x₀, x₁, x₂` and `σ, τ`; the `h` handle pairs use `x₃, …, x_{2h+2}`, so the
+alphabet is `Generator (2 + 2h)`, whose wild letters are `Fin (2h + 3)`.
 
-/-- The core wild letters `x₀, x₁, x₂`, present at every handle count. -/
-def coreLetter (h : ℕ) (i : Fin 3) : Generator (2 + 2 * h) :=
-  .wild ⟨(i : ℕ), by have := i.isLt; omega⟩
-
-/-- The first letter `x_{3+2j}` of the `j`-th handle pair. -/
-def handleU {h : ℕ} (j : Fin h) : Generator (2 + 2 * h) :=
-  .wild ⟨3 + 2 * (j : ℕ), by have := j.isLt; omega⟩
-
-/-- The second letter `x_{4+2j}` of the `j`-th handle pair. -/
-def handleV {h : ℕ} (j : Fin h) : Generator (2 + 2 * h) :=
-  .wild ⟨4 + 2 * (j : ℕ), by have := j.isLt; omega⟩
-
-/-- The wild letter `x_i`, or `none` when `i` is past the alphabet.  This is the `handleGen`
-field of the denotation context: `Export.handleFactors` indexes handle letters by a plain `ℕ`,
-so the range check has to live here. -/
-def wildGen (h : ℕ) (i : ℕ) : Option (Generator (2 + 2 * h)) :=
-  if hi : i < 2 * h + 3 then some (.wild ⟨i, by omega⟩) else none
-
-/-- The generator names the compact-`M` certificate uses: a literal table, because
-`String.toNat?` does not reduce in the kernel and the `denote` bridges below are `rfl`. -/
-def genOfName (h : ℕ) (s : String) : Option (Generator (2 + 2 * h)) :=
-  match s with
-  | "sigma" => some .sigma
-  | "tau" => some .tau
-  | "x0" => wildGen h 0
-  | "x1" => wildGen h 1
-  | "x2" => wildGen h 2
-  | _ => none
-
-/-- The denotation context of the compact-`M` row: the certificate's names, the handle letters,
-and **no** symbolic parameters — every frozen exponent in this row is a literal `Int` (S5.G:
-`α` and `m` are baked into each emitted instance), so `param` is nowhere consulted. -/
-def denoteCtx (h : ℕ) : Export.DenoteCtx (Generator (2 + 2 * h)) where
-  gen := genOfName h
-  handleGen := wildGen h
-  param := fun _ => none
+`coreLetter`, `handleU`, `handleV`, `wildGen`, `genOfName`, `denoteCtx`, `handlesW` and the
+handle/kill-wild companions live once, in `GQ2.Dyadic.Words` (`Words/Alphabet.lean`), and are
+reached from this sub-namespace without an `open`.  This row is on the **no-node-at-`h = 0`** handle
+shape: the emitted tree carries no `HyperbolicHandles` child at `h = 0`, so the word goes
+through the list device `handleTailW`, also hoisted.
+-/
 
 /-! ## The exponent `m = 2^{α−1}` -/
 
@@ -198,21 +168,6 @@ theorem even_mOf {α : ℕ} (hα : 2 ≤ α) : Even (mOf α) := by
 Five blocks, in the certificate's order: `A₀²`, `[A₀,x₁]`, `σ₂^{2m}`, `J₂`, `E_m^rev`, then the
 handle tail.  Each block is its own definition, both because the certificate wraps each in an
 `auxiliary` node and because WM0-b's Fox rows are computed block by block. -/
-
-/-- `H_h = ∏_{j<h} [x_{3+2j}, x_{4+2j}]`, the block the certificate writes as
-`HyperbolicHandles 3 h`, spelled over `List.finRange h` — simultaneously what
-`Export.handleFactors` expands the node to and how MC2's `handleWord` orders its factors. -/
-def handlesW (h : ℕ) : PWord (Generator (2 + 2 * h)) :=
-  PWord.prodList ((List.finRange h).map fun j => .comm (.gen (handleU j)) (.gen (handleV j)))
-
-@[simp] theorem handlesW_zero : handlesW 0 = .one := rfl
-
-/-- The handle **tail** of the factor list: empty at `h = 0`, a one-element list otherwise.
-This mirrors the certificate exactly (deviation 1): the compact-`M` tree has no
-`HyperbolicHandles` child at all when `h = 0`. -/
-noncomputable def handleTailW : (h : ℕ) → List (PWord (Generator (2 + 2 * h)))
-  | 0 => []
-  | h + 1 => [handlesW (h + 1)]
 
 /-- The **`δ`-letter `δ_i = (x_iτ)^{ω₂} x_i⁻¹`** in the certificate's spelling: two nested
 `Multiply` nodes, hence two `prodList`s with their trailing `PWord.one`s.  `GQ2.Dyadic.deltaW`
@@ -268,10 +223,6 @@ noncomputable def mCompactW (α h : ℕ) : PWord (Generator (2 + 2 * h)) :=
   PWord.prodList (mFactors α h ++ handleTailW h)
 
 /-! ## The certificate tree and the WW5 hash pins -/
-
-/-- `σ₂ = σ^{ω₂}` as the certificate spells it: an `auxiliary` wrapper on an `Omega2Power`.
-The wrapper is hashed, so it cannot be dropped. -/
-def rawSigma2 : RawWord := .auxiliary "sigma2" (.omega2Power (.generator "sigma"))
 
 /-- `σ₂^k`, the certificate's `IntegerPower` on `rawSigma2`. -/
 def rawSigma2Pow (k : ℤ) : RawWord := .integerPower rawSigma2 (.int k)
@@ -427,20 +378,6 @@ The compact-`M` word uses no `ℤ₂`-power and no profinite exponent other than
 `ℕ`-exponent calculus of packet Lem. 2.2 applies with a single global exponent.  This is what
 lets the numerical pins below evaluate the *genuine* `ω₂`. -/
 
-theorem isOmega2Only_prodList {Gen : Type*} :
-    ∀ {l : List (PWord Gen)}, (∀ w ∈ l, w.IsOmega2Only) → (PWord.prodList l).IsOmega2Only
-  | [], _ => trivial
-  | w :: _ws, hw =>
-      ⟨hw w (List.mem_cons_self ..),
-       isOmega2Only_prodList fun u hu => hw u (List.mem_cons_of_mem _ hu)⟩
-
-@[simp] theorem isOmega2Only_handlesW (h : ℕ) : (handlesW h).IsOmega2Only := by
-  unfold handlesW
-  refine isOmega2Only_prodList ?_
-  intro w hw
-  obtain ⟨j, -, rfl⟩ := List.mem_map.mp hw
-  exact ⟨trivial, trivial⟩
-
 @[simp] theorem isOmega2Only_deltaC (h : ℕ) (i : Fin 3) : (deltaC h i).IsOmega2Only := by
   simp [deltaC]
 
@@ -464,20 +401,6 @@ section Eval
 
 variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
   [TotallyDisconnectedSpace G] {α h : ℕ}
-
-theorem eval_prodList_append {X : Type*} (μ : X → G) (l₁ l₂ : List (PWord X)) :
-    PWord.eval μ (PWord.prodList (l₁ ++ l₂)) =
-      PWord.eval μ (PWord.prodList l₁) * PWord.eval μ (PWord.prodList l₂) := by
-  rw [PWord.eval_prodList, List.map_append, List.prod_append, PWord.eval_prodList,
-    PWord.eval_prodList]
-
-/-- Evaluating the handle block is MC2's `handleWord` on the handle letters — the same
-`List.finRange h` order on both sides, so this is a rewrite and not a reindexing. -/
-theorem eval_handlesW (t : Marking (2 + 2 * h) G) :
-    t.eval (handlesW h) =
-      MarkedCore.handleWord (fun j => t (handleU j)) (fun j => t (handleV j)) := by
-  rw [Marking.eval_def, handlesW, PWord.eval_prodList, List.map_map]
-  rfl
 
 /-- The handle *tail* evaluates to the handle *block*, uniformly in `h`: the empty tail of the
 `h = 0` certificate and the singleton tail of the `h ≥ 1` certificates both land on
@@ -555,18 +478,6 @@ section Tame
 
 variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
   [TotallyDisconnectedSpace G] {α h : ℕ}
-
-omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
-@[simp] theorem killWildLetters_coreLetter (t : Marking (2 + 2 * h) G) (i : Fin 3) :
-    Marking.killWildLetters t (coreLetter h i) = 1 := rfl
-
-omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
-@[simp] theorem killWildLetters_handleU (t : Marking (2 + 2 * h) G) (j : Fin h) :
-    Marking.killWildLetters t (handleU j) = 1 := rfl
-
-omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
-@[simp] theorem killWildLetters_handleV (t : Marking (2 + 2 * h) G) (j : Fin h) :
-    Marking.killWildLetters t (handleV j) = 1 := rfl
 
 /-- Every `δ`-letter dies down to `τ^{ω₂}` at the tame boundary. -/
 theorem eval_killWildLetters_deltaC (t : Marking (2 + 2 * h) G) (i : Fin 3) :
@@ -662,15 +573,6 @@ section Refutation
 local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
 local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
 
-private theorem zmod8_orderOf_dvd (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
-  orderOf_dvd_of_pow_eq_one (by revert x; decide)
-
-/-- The refuting marking: `τ` a generator of `ZMod 8` (so `τ^{ω₂} = τ ≠ 1`), `σ` trivial so that
-the `𝓔`-block's conjugators drop out, everything else trivial.  The wild letters are irrelevant
-— `killWildLetters` overwrites them. -/
-def refuteMarking (h : ℕ) : Marking (2 + 2 * h) (Multiplicative (ZMod 8)) :=
-  Marking.ofLetters 1 (Multiplicative.ofAdd 1) (fun _ => 1)
-
 /-- **The frozen compact-`M` word is not Gate-B admissible in F3's unrelativized sense.** -/
 theorem not_killsWild (α h : ℕ) : ¬ KillsWild (mCompactW α h) := by
   intro hR
@@ -705,17 +607,6 @@ section Pro2
 variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
   [TotallyDisconnectedSpace G] {α h : ℕ}
 
-theorem pro2_prodList :
-    ∀ l : List (PWord (Generator (2 + 2 * h))),
-      pro2 (PWord.prodList l) = PWord.prodList (l.map pro2)
-  | [] => rfl
-  | w :: ws => by
-      rw [PWord.prodList_cons, pro2_mul, pro2_prodList ws, List.map_cons, PWord.prodList_cons]
-
-@[simp] theorem pro2_handlesW (h : ℕ) : pro2 (handlesW h) = handlesW h := by
-  rw [handlesW, pro2_prodList, List.map_map]
-  rfl
-
 @[simp] theorem pro2_handleTailW (h : ℕ) : (handleTailW h).map pro2 = handleTailW h := by
   cases h <;> simp [handleTailW]
 
@@ -746,13 +637,6 @@ theorem pro2_mCompact (α h : ℕ) :
   rw [eRevW, pro2_prodList, Marking.eval_def, PWord.eval_prodList]
   simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, pro2_conj,
     PWord.eval_conj, ← Marking.eval_def, h0, h1, one_conjR, mul_one]
-
-omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
-/-- The one group-theoretic move of this file: `x^{-g} · x = [g, x]`.  Everything else in the
-pro-`2` comparison is associativity and the `ℤ`-to-`ℕ` exponent realignment. -/
-theorem invConj_mul_self (x g : G) : (conjR x g)⁻¹ * x = commP g x := by
-  simp only [conjR, commP, mul_inv_rev, inv_inv]
-  group
 
 /-- **The pro-`2` boundary value of the compact-`M` word is MC2's compact-`M` core.**
 
@@ -891,15 +775,6 @@ section StressZMod8
 
 local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
 local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
-
-private theorem orderOf_dvd_eight (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
-  orderOf_dvd_of_pow_eq_one (by revert x; decide)
-
-/-- A concrete marking of the compact-`M` alphabet at `h = 0`, written additively:
-`(σ, τ, x₀, x₁, x₂) = (5, 1, 1, 1, 1)` in `Multiplicative (ZMod 8)`. -/
-def zmod8Marking : Marking (2 + 2 * 0) (Multiplicative (ZMod 8)) :=
-  Marking.ofLetters (Multiplicative.ofAdd 5) (Multiplicative.ofAdd 1)
-    ![Multiplicative.ofAdd 1, Multiplicative.ofAdd 1, Multiplicative.ofAdd 1]
 
 /-- **Stress (genuine `ω₂`)**: the *profinite* denotation of the `ℚ₂(√5)` word — real `x ^ᶻ ω₂`
 powers, not a hand-chosen integer exponent — is `ofAdd 3`.
