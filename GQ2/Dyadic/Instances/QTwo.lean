@@ -9,9 +9,109 @@ import GQ2.Dyadic.Count.WildDischarge
 import GQ2.Roe.Main
 
 /-!
-# The `n = 1` wrapper: the L-word machinery recovers the `ℚ₂` theorem (ticket AS4)
+# The `n = 1` wrapper: the L-word machinery recovers the `ℚ₂` theorem  (ticket AS4)
 
-Work in progress.
+**Merge gate 8.**  The dyadic campaign's degree-`n` apparatus, instantiated at the smallest
+degree of the frozen odd-degree branch word `L_sq` (`GQ2/Dyadic/Words/L.lean`, selection-freeze
+row 1), reproduces the frozen `ℚ₂` theorem — and the frozen `ℚ₂` capstones still typecheck at
+their own statements alongside it.
+
+## What is proved
+
+1. **§1–§2 the alphabet transport.**  `Generator 1 = {σ, τ, x₀, x₁}` is `Fin 4` in the order of
+   `GQ2.univMarking`, and the induced maps `F(σ, τ, x₀, x₁) ⇄ F₄` are mutually inverse
+   (`toQ2F`/`ofQ2F`).  There is no `FreeProfiniteGroup` functoriality in the repo, so both maps
+   are classified by hand through `FreeProfiniteGroup.homEquiv`.
+2. **§3 the two admissibility conditions are one condition** (`isAdmissibleU_iff_isAdmissibleUR`).
+   GR1's `GQ2.Dyadic.IsAdmissibleU 1 2 (lSqW 0)` and Roe's `GQ2.IsAdmissibleUR` match clause for
+   clause: generation is automatic on both sides (`GQ2.generates_univMarking_map`), the two
+   relators transport (`toQ2F_tameRelatorGen`, `toQ2F_eval_lSqW`), and the `2`-core clauses
+   transfer through AdmissibleR's kernel lemma `isPGroup_map_of_ker_le`.
+3. **§4 the groups are the same group.**  `NR_eq_comap` (the two intersections correspond) and
+   `gammaR_lSq_equiv_roe : ContinuousMulEquiv (GammaR 1 2 (lSqW 0)) GQ2.GammaR`, **marked**:
+   `toRoe` sends the four dyadic letters to `gammaSigmaR`, `gammaTauR`, `gammaX0R`, `gammaX1R`.
+4. **§5 the recovery theorem.**  `candidateGroup_lSq_equiv_absGalQ2`:
+   `Nonempty (ContinuousMulEquiv (candidateGroup 1 2 (lSqW 0)) AbsGalQ2)`, **unconditional** —
+   no hypothesis binder, no `sorry`.  Composing §4 with Roe's terminal
+   `GQ2.main_presentation_literal_roe_unconditional` (whose `BLabHypothesis` the L-campaign
+   discharged as `GQ2.Roe.Labute.bLab`).  `q2_capstones_agree` is the merge-gate-8 regression:
+   `Γ_A ≅ G_ℚ₂`, `Γ_R ≅ G_ℚ₂` and `Γ_{L_sq,1} ≅ G_ℚ₂` side by side.
+5. **§6 AS1's `WordCertificate` fields, at `(n, q, R) = (1, 2, L_sq)`,** for the ones the landed
+   stack proves — see the inventory below.
+
+The only mathematics beyond bookkeeping is §3, and its one non-formal input is WL-a's
+`eval_lSqW_zero`: the certificate's tree for `L_sq` at `n = 1` denotes `Marking.wildRelatorR`,
+the word `GQ2.GammaR` is defined by.  Everything else is cited.
+
+## Why the group-level identification had to be proved and not merely stated
+
+`GQ2.Dyadic.GammaR n q R` (GR1, `GQ2/Dyadic/AdmissibleR.lean:230`) and `GQ2.GammaR`
+(`GQ2/Roe/GammaR.lean:196`) are **two independent constructions**: both are admissible limits
+`F ⧸ N_R`, but over different alphabets, with different `IsAdmissibleU` predicates (the dyadic
+one drops the `Generates` clause and phrases the pro-`2` clause with `Subgroup.map`), and with
+the wild relator given by two *different trees* — the certificate's `x₀^{-3}` with an `n`-ary
+`Multiply` versus the `ℚ₂` ledger's `(x₀³)⁻¹` with left association.  Nothing was definitional.
+
+## Inventory: AS1's `WordCertificate 1 2 (lSqW 0) P hP nuP SN`
+
+| field | status here |
+|---|---|
+| `tameSpecialization` | **done** (`tameSpecializes_lSq`) |
+| `coreRel`, `proTwoWord` | **done** (`coreRelLSq`, `proTwoWord_lSq` = WL-a's Gate-C headline) |
+| `tfg` | **done, and generic in `n, q, R`** (`gammaR_tfg`) |
+| `htame` | **done** (`htame_lSq`, F3b's `tameOfSpec_surjective`) |
+| `hwild` | **done** (`hwild_lSq_one`, GR1's generic discharge) |
+| `pro2`, `ker_pro2`, `hpro2`, `compat` | ⚠ **not built** — see below |
+| `smulZmod2`, `contSMulZmod2`, `htriv` | ⚠ not built (routine; unwritten for `GammaR`) |
+| `exactLifting`, `stokes`, `scalar`, `determinant` | ⚠ **not built; not citable** |
+
+### ⚠ What blocks the last two rows, precisely
+
+* **`pro2` and friends.**  AS1's divergence 3 is *not* closed at `n = 1` by this file, and the
+  reason is a missing generic transport, not missing mathematics.  `GQ2.Roe.exists_pro2R`
+  (`GQ2/Roe/Main.lean:226`) supplies a `pro2R : Γ_R → Π` with `ν`-compatibility, surjectivity
+  and `ker = proPKernel 2 Γ_R`; composing with `toRoe` gives the map, and surjectivity is free.
+  What is missing is `Subgroup.comap e (proPKernel p B) = proPKernel p A` for a
+  `ContinuousMulEquiv e : A ≃ₜ* B` (needed for `ker_pro2`) and a "two continuous homs out of
+  `GammaR n q R` agreeing on `gammaGen` are equal" ext lemma (needed to identify F3b's
+  `tameOfSpec` with `phiR ∘ toRoe`, hence for `compat`).  Both are short, generic and belong in
+  `GQ2/MaxProP.lean` and `GQ2/Dyadic/AdmissibleR.lean` respectively — **owed by:** nobody
+  currently; they are the natural follow-on.
+* **The four analytic clauses.**  These are AS1's divergence 4 and they are *not* AS4-shaped.
+  `WordCertificate`'s `exactLifting`/`stokes`/`scalar`/`determinant` are stated at
+  `Γ := GammaR n q R`, in the `K`-layer vocabulary (`LiftsOverK`, `BoundaryFrameK`,
+  `GaussZResidueK`).  The `ℚ₂` proofs of the corresponding counts exist — SD-R1 already packaged
+  them as `GQ2.Dyadic.sourceR_N` (`GQ2/Dyadic/SourceDataN.lean:421`), a full
+  `SourceDataN 1 2 PiBd _ nuTwo (standardNumerics 1)` whose carrier is `GQ2.GammaR` — but every
+  one of them is a statement *about that carrier*, quantified over `BoundaryLiftsK`,
+  `RecursionFrame`, `TCocycle`, `VCocycle` and `GaussZResidueK` data all of which depend on `Γ`
+  through its boundary map.  Moving them across `gammaR_lSq_equiv_roe` is a `SourceDataN`
+  transport lemma, i.e. an equivalence of all of those dependent families — a ticket of its own,
+  and one nobody owns.  **This file therefore does not construct a `WordCertificate`, and the
+  recovery theorem deliberately does not go through `candidate_equiv_absoluteGalois`.**
+
+  ⚠ The consequence is worth stating plainly for AS5 and the G3 sign-off: at `n = 1` the dyadic
+  recursion *does* reach `Γ_R ≅ G_ℚ₂` — `nonempty_continuousMulEquiv_of_sourcesN` applied to
+  `sourceR_N` and `sourceF_N` would give it — but it reaches it with `Γ` spelled `GQ2.GammaR`,
+  not `GammaR 1 2 (lSqW 0)`.  §4 is exactly the bridge between those two spellings, so the
+  dyadic route and the word route agree; what is missing is only the record-level plumbing.
+
+## Axiom posture
+
+`sorry`-free; **no new axiom, and no `decide` outside the two four-element alphabet tables**.
+Every declaration prints the standard three or a strict subset, with exactly three exceptions —
+`candidateGroup_lSq_equiv_absGalQ2`, its `hBLab` twin, and `q2_capstones_agree` — which print
+**exactly** the axiom list of `GQ2.main_presentation_literal_roe_unconditional`, i.e. the frozen
+`ℚ₂` literature census of `GQ2/Foundations/Axioms.lean`.  Nothing is added, and in particular the
+dyadic census axioms `B5-K`/`B10-K` (`markedRecipAt`, `orientedTameQuotientAt`) are **not**
+consumed anywhere in this file: the `n = 1` route never enters the `K`-layer.
+
+## Sources
+
+Board `docs/dyadic/tickets.md` lane AS row AS4 and the merge-gate-8 line; `docs/dyadic/plan.md`
+§7; `docs/dyadic/wl-recon.md` §4.2 (which re-scoped this ticket, moved SQ5's word-theorem
+restatement here, and correctly predicted that the target is the hypothesis-free
+`main_presentation_literal_roe_unconditional`).
 -/
 
 namespace GQ2.Dyadic.QTwo
@@ -183,10 +283,10 @@ theorem isAdmissibleU_iff_isAdmissibleUR
         = (Subgroup.normalClosure ({univMarking.x₀, univMarking.x₁} : Set _)).map qV := by
       rw [← Subgroup.map_map, Subgroup.map_normalClosure _ _ toQ2F_surjective,
         image_wildFree_toQ2F]
-    have hR : (univMarking.map qV).Pro2Core
-        ↔ IsPGroup 2 ((Subgroup.normalClosure ({univMarking.x₀, univMarking.x₁} : Set _)).map qV) := by
-      rw [_root_.GQ2.Marking.Pro2Core, Subgroup.map_normalClosure _ _ (QuotientGroup.mk'_surjective _),
-        Set.image_pair]
+    have hR : (univMarking.map qV).Pro2Core ↔ IsPGroup 2
+        ((Subgroup.normalClosure ({univMarking.x₀, univMarking.x₁} : Set _)).map qV) := by
+      rw [_root_.GQ2.Marking.Pro2Core,
+        Subgroup.map_normalClosure _ _ (QuotientGroup.mk'_surjective _), Set.image_pair]
       rfl
     rw [hR, ← hmid]
     exact ⟨fun h => isPGroup_map_of_ker_le qU _ (by rw [hkerU, hker]) h,
@@ -292,6 +392,24 @@ noncomputable def gammaR_lSq_equiv_roe :
   map_mul' := map_mul toRoe
   continuous_toFun := toRoe.continuous_toFun
   continuous_invFun := fromRoe.continuous_toFun
+
+/-! ### The identification is *marked*
+
+`toRoe` carries the four dyadic generator letters to Roe's four marked generators
+(`GQ2/Roe/Tame.lean`), on the nose.  This is what downstream consumers (AS5, and any `n = 1`
+regression against the frozen chain) need: the isomorphism is not merely abstract. -/
+
+@[simp] theorem toRoe_gammaGen (g : Generator 1) :
+    toRoe (gammaGen 1 2 (lSqW 0) g) = quotientMk GQ2.NR (FreeProfiniteGroup.of (genToFin g)) := by
+  rw [gammaGen, toRoe_gammaMk, toQ2F_of]
+
+@[simp] theorem toRoe_sigma : toRoe (gammaGen 1 2 (lSqW 0) .sigma) = gammaSigmaR := toRoe_gammaGen _
+
+@[simp] theorem toRoe_tau : toRoe (gammaGen 1 2 (lSqW 0) .tau) = gammaTauR := toRoe_gammaGen _
+
+@[simp] theorem toRoe_x0 : toRoe (gammaGen 1 2 (lSqW 0) (.wild 0)) = gammaX0R := toRoe_gammaGen _
+
+@[simp] theorem toRoe_x1 : toRoe (gammaGen 1 2 (lSqW 0) (.wild 1)) = gammaX1R := toRoe_gammaGen _
 
 /-! ## §5 The recovery theorem -/
 
