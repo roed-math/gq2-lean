@@ -65,7 +65,11 @@ all act trivially — `A₀²` acts as
 `foxD_prodList_of_trivial` is unavailable and each factor enters weighted by the **lower value
 of its prefix** (`D(uv) = D(u) + ū·D(v)`, iterated).  That weighting is the whole story:
 
-* **`A₀² `** (prefix `1`): `−(1 + S₂^{−m})·a(x₀) − (1 + S₂^{−m})S₂^{−m}·𝒢_m` where
+* **`A₀² `** (prefix `1`): the leading power contributes the operator **`1 + S₂^{−m}`** — the
+  compact-`M` shape of a leading factor `2`, and literally `2` once `S₂ = 1`.  That is where
+  the row's balanced pairs come from: `x₀` reads `P·(1 + S₂^{−m})` and `x₁` reads the twisted
+  twin `P·(S₂^{−m} + S₂^{−2m})`.  In full,
+  `−(1 + S₂^{−m})·a(x₀) − (1 + S₂^{−m})S₂^{−m}·𝒢_m` where
   `𝒢_k = (1 + S₂ + ⋯ + S₂^{k−1})·D(σ₂)` (`foxD_leadingSquare`).  `D(σ₂)` is **never computed**:
   it is the Sage engine's opaque atom `G[S;ω₂]` (`omega_proj`'s last branch — `σ` is
   unramified, so its `ω₂`-power is *not* a projector), and it cancels before the row is reached.
