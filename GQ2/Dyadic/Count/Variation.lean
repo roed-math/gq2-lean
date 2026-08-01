@@ -236,4 +236,134 @@ theorem heisLevel_ne_zero_and_even :
 
 end HeisLevel
 
+/-- `HeisLift` carries no topology anywhere in the repository, and the profinite denotation
+`PWord.eval` needs one.  `⊥` is the only candidate on a finite group and no diamond is possible.
+(The same device as `Count/HTwo.lean` §3's `fiberProdTopologicalSpace`.) -/
+local instance heisTopologicalSpace {C : Type} [Group C] {A : Type} [AddCommGroup A] :
+    TopologicalSpace (HeisLift A C) := ⊥
+
+local instance heisDiscreteTopology {C : Type} [Group C] {A : Type} [AddCommGroup A] :
+    DiscreteTopology (HeisLift A C) := ⟨rfl⟩
+
+-- CB-H2 §4's discreteness of a finite level.  Its instance attribute is `local`, so it is
+-- re-enabled here rather than redeclared (the declaration itself is already in this namespace).
+attribute [local instance] GQ2.Dyadic.Count.quotientDiscreteTopology
+
+/-! ## §3. The Heisenberg `2`-cocycle, and `pRelZ` at it
+
+`GQ2/MixedBObs.lean`'s two definitions, restated over the dyadic `WordCoh.TwoCocycle` (the `ℚ₂`
+copy is a different structure — `Word/WordCoh.lean`'s own dedup note lists all three) and with the
+`Fin 4` marking replaced by an arbitrary alphabet.
+
+The content is one observation: `κ((a,λ),g)((a',λ'),g') = λ(g • a')` **is** the central defect of
+the Heisenberg multiplication, so `CentExt kappaHeisN` and `H(A) ⋊ C` are the same group, and the
+`WordCoh` fibre coordinate is the Stokes central coordinate `.z`. -/
+
+section Kappa
+
+open GQ2.Dyadic.WordCoh
+
+variable {ι : Type*} {C : Type} [Group C] {A : Type} [AddCommGroup A] [DistribMulAction C A]
+
+/-- **The Heisenberg `2`-cocycle** on the base semidirect product `(A × A^∨) ⋊ C`:
+`κ(p, q) = p.λ(p.g • q.a)`. -/
+noncomputable def kappaHeisN : WordCoh.TwoCocycle (WordLift (A × ElemDual A) C) where
+  κ p q := p.u.2 (p.g • q.u.1)
+  norm := by simp [WordLift.one_u]
+  cocyc a b c := by
+    show a.u.2 (a.g • b.u.1) + (a * b).u.2 ((a * b).g • c.u.1)
+        = a.u.2 (a.g • (b * c).u.1) + b.u.2 (b.g • c.u.1)
+    simp only [WordLift.mul_u, WordLift.mul_g, Prod.fst_add, Prod.snd_add, Prod.smul_fst,
+      Prod.smul_snd, map_add, ElemDual.add_apply, smul_add, mul_smul, ElemDual.smul_apply,
+      inv_smul_smul]
+    abel
+
+/-- **The structural isomorphism** `CentExt kappaHeisN →* H(A) ⋊ C`, `((a,λ),g; z) ↦ (a,λ,z,g)`.
+A homomorphism *precisely* because `kappaHeisN`'s defect is the Heisenberg central term. -/
+noncomputable def PhiHeisN : WordCoh.CentExt (kappaHeisN (A := A) (C := C)) →* HeisLift A C where
+  toFun p := ⟨p.base.u.1, p.base.u.2, p.fib, p.base.g⟩
+  map_one' := rfl
+  map_mul' _ _ := rfl
+
+/-- The paired base marking of `(A × A^∨) ⋊ C`: the letters carry the offsets `(x i, y i)` over
+`c`.  `MixedBObs.mBaseMarking` at an arbitrary alphabet. -/
+def heisBase (c : ι → C) (x : ι → A) (y : ι → ElemDual A) : ι → WordLift (A × ElemDual A) C :=
+  fun i => ⟨(x i, y i), c i⟩
+
+theorem phiHeisN_lift (c : ι → C) (x : ι → A) (y : ι → ElemDual A) (i : ι) :
+    PhiHeisN (WordCoh.lift (heisBase c x y) kappaHeisN i) = heisGen c x y i := rfl
+
+variable [Finite A] [Finite C]
+
+/-- **`pRelZ` at the Heisenberg cocycle is the Stokes central coordinate.**  The degree-generic,
+alphabet-generic, `PWord`-valued `MixedBObs.mixedB_eq_relZPair`: instead of matching two traced
+sums by naturality of `Marking.map_{tame,wild}Value`, one application of `PWord.map_eval` along
+`PhiHeisN` does it for an arbitrary intrinsic word. -/
+theorem pRelZ_kappaHeisN (Wk : PWord ι) (c : ι → C) (x : ι → A) (y : ι → ElemDual A) :
+    pRelZ Wk (heisBase c x y) kappaHeisN = (PWord.eval (heisGen c x y) Wk).z := by
+  have h := PWord.map_eval (discreteCMH (PhiHeisN (A := A) (C := C)))
+    (WordCoh.lift (heisBase c x y) kappaHeisN) Wk
+  have hgen : (fun i => discreteCMH (PhiHeisN (A := A) (C := C))
+      (WordCoh.lift (heisBase c x y) kappaHeisN i)) = heisGen c x y := rfl
+  rw [hgen] at h
+  show (PWord.eval (WordCoh.lift (heisBase c x y) kappaHeisN) Wk).fib = _
+  rw [← h]
+  rfl
+
+end Kappa
+
+/-! ## §4. The obstruction of an inflated cocycle
+
+`MixedBObs.obs_inflation` for CB-H2's family obstruction: if a continuous `2`-cocycle on `Γ` is
+*pointwise* pulled back from a finite group along a continuous hom, its obstruction vector is the
+relator obstruction of the pushed marking.
+
+This packages the whole `LevelFactor` computation once, so §5's ledger identity is a rewrite.  The
+level used is the hom's own kernel, so no factorization has to be chosen or compared. -/
+
+section Inflation
+
+open GQ2.Dyadic.WordCoh
+
+variable {ι ρ : Type*} {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [DistribMulAction Γ (ZMod 2)]
+  {L : Type} [Group L] [TopologicalSpace L] [DiscreteTopology L] [Finite L]
+
+/-- The kernel of a continuous hom into a finite discrete group, as an open normal subgroup. -/
+def kerON (H : ContinuousMonoidHom Γ L) : OpenNormalSubgroup Γ where
+  toSubgroup := H.toMonoidHom.ker
+  isOpen' := by
+    have hset : (H.toMonoidHom.ker : Subgroup Γ).carrier = H ⁻¹' {1} := by
+      ext g; simp
+    show IsOpen (H.toMonoidHom.ker : Subgroup Γ).carrier
+    rw [hset]
+    exact (isOpen_discrete ({1} : Set L)).preimage H.continuous_toFun
+
+/-- **The obstruction of an inflated cocycle.**  If `φ(a, b) = κ(H a, H b)` for a continuous
+`H : Γ → L` into a finite discrete group and a `2`-cocycle `κ` on `L`, then the family obstruction
+is the relator obstruction of the pushed marking `H ∘ gen`. -/
+theorem pObsFam_inflation (W : ρ → PWord ι) (gen : ι → Γ) (H : ContinuousMonoidHom Γ L)
+    (κ : WordCoh.TwoCocycle L) (φ : Z2 Γ (ZMod 2))
+    (hφ : ∀ a b, φ.1 (a, b) = κ.κ (H a) (H b)) :
+    pObsFam W gen φ = fun k => pRelZ (W k) (fun i => H (gen i)) κ := by
+  set V := kerON H with hV
+  set Hbar := QuotientGroup.kerLift H.toMonoidHom with hHbar
+  have hHbarmk : ∀ g : Γ, Hbar (QuotientGroup.mk' V.toSubgroup g) = H g := fun g =>
+    QuotientGroup.kerLift_mk H.toMonoidHom g
+  have hnorm : φ.1 (1, 1) = 0 := by rw [hφ, map_one, κ.norm]
+  have hfact : ∀ x y : Γ, WordCoh.normalizeCochain φ.1 (x, y)
+      = (κ.comap Hbar).κ (QuotientGroup.mk' V.toSubgroup x) (QuotientGroup.mk' V.toSubgroup y) := by
+    intro x y
+    rw [WordCoh.TwoCocycle.comap_κ, hHbarmk, hHbarmk, ← hφ]
+    show φ.1 (x, y) - φ.1 (1, 1) = φ.1 (x, y)
+    rw [hnorm, sub_zero]
+  show pObsFun W gen φ = _
+  rw [pObsFun_eq W gen φ ⟨V, κ.comap Hbar, hfact⟩]
+  show (fun k => pRelZ (W k) (fun i => QuotientGroup.mk' V.toSubgroup (gen i)) (κ.comap Hbar)) = _
+  funext k
+  rw [← pRelZ_comap (W k) (fun i => QuotientGroup.mk' V.toSubgroup (gen i)) κ Hbar]
+  exact congrArg (fun μ : ι → L => pRelZ (W k) μ κ) (funext fun i => hHbarmk (gen i))
+
+end Inflation
+
 end GQ2.Dyadic.Count
