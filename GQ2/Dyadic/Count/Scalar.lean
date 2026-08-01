@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2.Dyadic.Count.Compare
+import GQ2.Dyadic.Count.Presentation
 
 /-!
 # Dyadic campaign, ticket CB-2: the scalar block
@@ -460,5 +461,146 @@ theorem lem86N (tfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topolog
   exact half_count D ρ S smul_zmod2 u hvar hcardH2
 
 end Lem86
+
+/-! ## §10. The N0 / `√−2` pilot
+
+CB-S's degree bookkeeping (`nCompact_degree`: the compact-`N` family has deficiency `2h + 2`) and
+N0's own endpoint certificate, at the scalar coefficient module.  At `h = 0` the degree is
+`n = 2 = [ℚ₂(√−2) : ℚ₂]`, so the pilot's character count is `2^4 = 16` — the degree-`2`
+replacement for the frozen `ℚ₂` `8`.  Nothing is fudged: `standardNumerics 2`'s
+`homScalar = 2^{2+2}` **is** `2^{|ι| − |ρ| + 1} = 2^{5 − 2 + 1}` for the two-relator compact-`N`
+presentation on `Generator 2`. -/
+
+section N0
+
+open GQ2.Dyadic.Certificates
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+  [DistribMulAction C (ZMod 2)]
+  [TopologicalSpace (WordLift (ZMod 2) C)] [DiscreteTopology (WordLift (ZMod 2) C)]
+
+/-- **The character count at branch N0**: `#Hom_c(Γ, 𝔽₂) = SN.homScalar` for
+`SN = standardNumerics (2h + 2)`. -/
+theorem nCompact_homCard {α h q e : ℕ} {gen : Generator (2 + 2 * h) → Γ}
+    {W : Fin 2 → PWord (Generator (2 + 2 * h))} {J : Set (Generator (2 + 2 * h))}
+    {t : Marking (2 + 2 * h) C} (rho : ContinuousMonoidHom Γ C)
+    (hc : ∀ i, rho (gen i) = t i) (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W (nCompactFam α h q e) (WordLift (ZMod 2) C))
+    (hwild2 : IsWildTwo J (⇑t)) (hd : StokesDuality (⇑t) (nCompactFam α h q e) (ZMod 2))
+    (hend : IsStokesEndpoint (nCompactFam α h q e)) :
+    Nat.card (ContinuousMonoidHom Γ (Multiplicative (ZMod 2)))
+      = (standardNumerics (2 * h + 2)).homScalar :=
+  homCardN_of_stokes rho hc hpres hres hwild2 (nCompact_degree h) hd hend
+
+/-- **The `√−2` pilot** (`(α, h, q, e) = (2, 0, 2, 3)`, `n = 2`): the `SourceDataN.homCard` field
+value for AS2's branch, with N0's own `sqrtNegTwo_isStokesEndpoint` composed in — the scalar twin
+of CB-1's `sqrtNegTwo_tcocycle_card`/`sqrtNegTwo_hZcard`. -/
+theorem sqrtNegTwo_homCard {gen : Generator 2 → Γ} {W : Fin 2 → PWord (Generator 2)}
+    {J : Set (Generator 2)} {t : Marking 2 C} (rho : ContinuousMonoidHom Γ C)
+    (hc : ∀ i, rho (gen i) = t i) (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W (nCompactFam 2 0 2 3) (WordLift (ZMod 2) C))
+    (hwild2 : IsWildTwo J (⇑t)) (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 3) (ZMod 2)) :
+    Nat.card (ContinuousMonoidHom Γ (Multiplicative (ZMod 2)))
+      = (standardNumerics 2).homScalar :=
+  nCompact_homCard (h := 0) rho hc hpres hres hwild2 hd sqrtNegTwo_isStokesEndpoint
+
+end N0
+
+/-! ## §11. The pilot over `Γ_R` itself
+
+CB-P's §8 shape, at the scalar clause: the presentation is `isAdmissibleMarkedPresentation_gammaR`,
+the admissibility of the lower marking is `isWildTwo_of_gammaGen`, the module's `2`-torsion is
+`zmod2_add_self` (§1), and — in the `_nCompact` form — the resolution is discharged by CB-FR's
+`resolvesAt_nCompactFam_three` from the single condition that the counting target has exponent
+dividing `6`.
+
+Note what is **not** needed here and is needed by CB-1's twins: no `hcomp`/`hround`/`hact`
+compatibility, because §1 makes every scalar action the same one. -/
+
+section PilotGammaR
+
+open GQ2.Dyadic.Certificates
+
+variable {q : ℕ} {R : PWord (Generator 2)}
+  {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+  [DistribMulAction C (ZMod 2)]
+  [TopologicalSpace (WordLift (ZMod 2) C)] [DiscreteTopology (WordLift (ZMod 2) C)]
+
+/-- **The `√−2` pilot's `homCard` field value, over `Γ_R`.** -/
+theorem sqrtNegTwo_homCard_gammaR {t : Marking 2 C}
+    (rho : ContinuousMonoidHom ((GammaR 2 q R) : Type) C)
+    (hc : ∀ g, rho (gammaGen 2 q R g) = t g)
+    (hres : ResolvesAt (gammaFam 2 q R) (nCompactFam 2 0 2 3) (WordLift (ZMod 2) C))
+    (hsurj : Function.Surjective rho)
+    (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 3) (ZMod 2)) :
+    Nat.card (ContinuousMonoidHom ((GammaR 2 q R) : Type) (Multiplicative (ZMod 2)))
+      = (standardNumerics 2).homScalar :=
+  sqrtNegTwo_homCard rho hc (isAdmissibleMarkedPresentation_gammaR 2 q R) hres
+    (isWildTwo_of_gammaGen rho hsurj hc) hd
+
+/-- **The `√−2` pilot's `homCard` field value at the intrinsic branch word**, with no resolution
+hypothesis: `e = 3` is `omega2Exp 6`, so a scalar counting target of exponent dividing `6`
+resolves itself (CB-FR/CB-P's `resolvesAt_nCompactFam_three`). -/
+theorem sqrtNegTwo_homCard_gammaR_nCompact {t : Marking 2 C}
+    (rho : ContinuousMonoidHom ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) C)
+    (hc : ∀ g, rho (gammaGen 2 2 (Words.nCompactW 2 0) g) = t g)
+    (hord : ∀ x : WordLift (ZMod 2) C, orderOf x ∣ 6)
+    (hsurj : Function.Surjective rho)
+    (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 3) (ZMod 2)) :
+    Nat.card (ContinuousMonoidHom ((GammaR 2 2 (Words.nCompactW 2 0)) : Type)
+        (Multiplicative (ZMod 2)))
+      = (standardNumerics 2).homScalar :=
+  sqrtNegTwo_homCard_gammaR rho hc (resolvesAt_nCompactFam_three hord 2 0 2) hsurj hd
+
+end PilotGammaR
+
+/-! ## §12. The verbatim `SourceDataN` field goals
+
+CB-1's standard of evidence: state the goal **in the record's own vocabulary** — `Γ : ProfiniteGrp`,
+`SN := standardNumerics n`, and for `cardH2` the record's `letI := smulZmod2` shape — and close it.
+
+`homCard` closes.  `cardH2` closes only against the missing rung (§8), which is exactly the point
+of stating it: the residue is one argument, and it is named. -/
+
+section FieldGoals
+
+variable {n : ℕ} {Gam : ProfiniteGrp} {ι κ : Type*} [Fintype ι] [Fintype κ] [DecidableEq ι]
+  {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+  [DistribMulAction C (ZMod 2)]
+  [TopologicalSpace (WordLift (ZMod 2) C)] [DiscreteTopology (WordLift (ZMod 2) C)]
+  {gen : ι → (Gam : Type)} {W : κ → PWord ι} {w : κ → FreeGroup ι} {c : ι → C} {J : Set ι}
+
+/-- **`SourceDataN.homCard`, verbatim** (`GQ2/Dyadic/SourceDataN.lean:181`), at
+`SN := standardNumerics n`.  No `letI` is needed at the call site: the field goal mentions no
+action, and §7 supplies the one its proof needs. -/
+theorem homCard_field_goal (rho : ContinuousMonoidHom (Gam : Type) C)
+    (hc : ∀ i, rho (gen i) = c i) (hpres : IsAdmissibleMarkedPresentation (Gam : Type) gen W J)
+    (hres : ResolvesAt W w (WordLift (ZMod 2) C)) (hwild2 : IsWildTwo J c)
+    (hdeg : Nat.card ι = Nat.card κ + (n + 1)) (hd : StokesDuality c w (ZMod 2))
+    (hend : IsStokesEndpoint w) :
+    Nat.card (ContinuousMonoidHom Gam (Multiplicative (ZMod 2)))
+      = (standardNumerics n).homScalar :=
+  homCardN_of_stokes rho hc hpres hres hwild2 hdeg hd hend
+
+omit [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+  [TopologicalSpace (WordLift (ZMod 2) C)] [DiscreteTopology (WordLift (ZMod 2) C)] in
+/-- **`SourceDataN.cardH2`, verbatim** (`GQ2/Dyadic/SourceDataN.lean:184`), including the record's
+`letI := smulZmod2` — with the missing rung `hcomp` as the single open argument (§8).
+
+`smulZmod2` is the record's own field, passed positionally.  Two of the record's neighbouring
+fields are *not* needed: `contSMulZmod2`, because `ContCoh.H2` does not consume `ContinuousSMul`
+(only `Z2`'s differential does, through `DistribMulAction`), and `htriv`, because §1 proves it. -/
+theorem cardH2_field_goal (smulZmod2 : DistribMulAction (Gam : Type) (ZMod 2))
+    (hcomp : letI := smulZmod2
+      Nat.card (H2 (Gam : Type) (ZMod 2)) = Nat.card (WordH2 c w (ZMod 2)))
+    (hd : StokesDuality c w (ZMod 2)) (hr : ∀ k, FreeGroup.lift c (w k) = 1)
+    (hend : IsStokesEndpoint w) :
+    letI := smulZmod2
+    Nat.card (H2 Gam (ZMod 2)) = 2 := by
+  letI := smulZmod2
+  exact cardH2N hcomp hd hr hend
+
+end FieldGoals
 
 end GQ2.Dyadic.Count
