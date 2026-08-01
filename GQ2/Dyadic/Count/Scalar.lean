@@ -18,7 +18,7 @@ CB-S's sizing note said the lane's real content moved here.  It was right about 
 content is and wrong about *which clause*: the scalar block has exactly **one** mathematical
 input, the word-level `#H²w(𝔽₂) = 2` (§4), and both clauses are consumers of it.  `homCard`
 consumes it and closes; `cardH2` consumes it and is left one *structural* theorem short — see
-§7, which is this ticket's API finding.
+§8, which is this ticket's API finding.
 
 ## The one input, and why the block is one theorem
 
@@ -57,7 +57,30 @@ New: §1 (scalars carry no action), §2–§3 (the trivial-action evaluation of 
 `homEquivZ1` — the `Hom_c(Γ, 𝔽₂) ≃ Z¹(Γ, 𝔽₂)` bridge, which is the scalar analogue of CB-1's
 `tcocycleEquivZ1`/`vcocycleEquivZ1` and did not exist in any form (the `ℚ₂` `lemma_8_2_*` count
 characters by hand off a `FreeProfiniteGroup` presentation, `GQ2/SectionEight/ScalarCount.lean`,
-and never meet `Z¹`).
+and never meet `Z¹`).  `GQ2/Dyadic/CertificateMain.lean:264-272` records the consequence of that
+absence in so many words — the candidate side's scalar rows "are not yet a `#Hom` count" — and
+`homEquivZ1` is what closes it.
+
+## Section map
+
+| § | content | status |
+|---|---|---|
+| 1 | every action on `𝔽₂` (and on `(𝔽₂)^∨`) is trivial | new, free |
+| 2–3 | `H⁰w` at a trivial action; both scalar `H⁰`s are `2` | new, free |
+| 4 | **`#H²w(𝔽₂) = 2`** — the block's single input | one line off WW3b |
+| 5 | `#Z¹w(𝔽₂) = 2^{n+2}` (duality-free route + `IsSelfDualN` route) | closed |
+| 6 | `Hom_c(Γ, 𝔽₂) ≃ Z¹(Γ, 𝔽₂)` | new bridge |
+| 7 | **`SourceDataN.homCard` over the abstract carrier** | **CLOSED** |
+| 8 | `SourceDataN.cardH2`, reduced to the missing H² rung | **OPEN** (one named argument) |
+| 9 | `SourceDataN.lem86` is a scalar-block consumer, not an `exactLifting` one | reduction landed |
+| 10–11 | the N0 / `√−2` pilot, and the pilot over `Γ_R` itself | closed |
+| 12 | the two verbatim `SourceDataN` field goals | `homCard` closed |
+
+`hsep` and `hpartial` are **not** here and do not belong here: neither factors through the scalar
+block.  `hsep` has two disjoint `ℚ₂` proofs (the `Γ_A` marking route and the local `cup20` route,
+with no common generic core), and `hpartial` is generic except for one stage — the right-slot
+separation, which forks `prop_5_15` against B6's `bijective_cup11/02_dualEval`.  Both stay with
+CB-4's `stokes` bundle, where CB1's memo already puts them.
 
 ## Import discipline
 
