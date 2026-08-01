@@ -1602,4 +1602,63 @@ noncomputable def npcEtaM15JacobianCertRam (hV₂ : ∀ v : V, v + v = 0)
 
 end Instances
 
+/-! ## §11. The `x₀`-block has teeth: the S₃-adjacent operator witness
+
+The lane's sanity gate is the two-dimensional `S₃`-module (the mutant row's radical detection
+— a *second*-order test, so it belongs to WNP-c; a REJECT is sound, a PASS is never
+evidence).  What first order can and does pin is the **operator-algebra half**: on the
+2-dimensional `𝔽₂`-module where the η̂-conjugator acts with order 3 (the `S₃`-module
+restricted to `A₃`), the new `x₀`-block `A⁻¹ + 1` is *nonzero* — the noncompact gate-D row
+genuinely differs from the compact row's zero `x₀`-column — and in fact a *unit*, by the
+`x²+x+1` minimal polynomial: `A⁻¹ + 1 = A` there.  All four pins are kernel `decide` over a
+computable interpretation (WW2's `demoCert` precedent: the ops/target algebra is exercised on
+a raw operator, no marking needed). -/
+
+/-- The order-3 operator `U(v₁, v₂) = (v₂, v₁ + v₂)` on `(ℤ/2)²` — a 3-cycle's action on the
+standard 2-dimensional `𝔽₂`-module of `S₃`. -/
+def uEnd : AddMonoid.End (ZMod 2 × ZMod 2) :=
+  AddMonoidHom.mk' (fun p => (p.2, p.1 + p.2)) (by decide)
+
+/-- Its inverse `U⁻¹ = U²`: `(v₁, v₂) ↦ (v₁ + v₂, v₁)`. -/
+def uInvEnd : AddMonoid.End (ZMod 2 × ZMod 2) :=
+  AddMonoidHom.mk' (fun p => (p.1 + p.2, p.1)) (by decide)
+
+theorem uEnd_mul_uInvEnd : uEnd * uInvEnd = 1 :=
+  AddMonoidHom.ext fun p => by revert p; decide
+
+theorem uInvEnd_mul_uEnd : uInvEnd * uEnd = 1 :=
+  AddMonoidHom.ext fun p => by revert p; decide
+
+/-- `U` has order three — the module really is the `A₃`-restriction. -/
+theorem uEnd_pow_three : uEnd ^ 3 = 1 :=
+  AddMonoidHom.ext fun p => by revert p; decide
+
+/-- **The minimal-polynomial collapse** `A⁻¹ + 1 = A`: on the 2-dimensional module the
+`x₀`-block *is* the conjugator itself (`x² + x + 1 = 0` in disguise). -/
+theorem uInvEnd_add_one : uInvEnd + 1 = uEnd :=
+  AddMonoidHom.ext fun p => by revert p; decide
+
+/-- **The `x₀`-block is nonzero** on the S₃-adjacent module — the formal difference between
+the noncompact and compact reference rows is not decoration. -/
+theorem uInvEnd_add_one_ne_zero : uInvEnd + 1 ≠ 0 := fun hz =>
+  absurd (DFunLike.congr_fun hz ((1 : ZMod 2), (0 : ZMod 2))) (by decide)
+
+/-- **The `x₀`-block is a unit** there — the first-order shadow of "`L_c` is invertible on the
+battery's twisted modules" (`V^A = 0` on this module, `isUnit_x0Block_iff`'s criterion, here
+witnessed by an explicit two-sided inverse). -/
+theorem isUnit_uInvEnd_add_one : IsUnit (uInvEnd + 1) :=
+  isUnit_iff_exists.mpr ⟨uInvEnd,
+    by rw [uInvEnd_add_one]; exact uEnd_mul_uInvEnd,
+    by rw [uInvEnd_add_one]; exact uInvEnd_mul_uEnd⟩
+
+/-- The tie to the certificate data: under **any** interpretation of the η̂-alphabet sending
+the atom `A⁻¹` to `U⁻¹`, the universal row's formal `x₀`-entry evaluates to the unit `U` —
+`npcWildRow`'s deviation from the compact row is machine-checkably visible on the S₃-adjacent
+module.  (The full radical detection on the genuine `S₃`-module is second-order and is
+WNP-c's.) -/
+theorem eval_x0BlockCoeff_s3 (ρ : NpcSym 2 → AddMonoid.End (ZMod 2 × ZMod 2))
+    (hρ : ρ (.etaA (-1)) = uInvEnd) : (x0BlockCoeff 2).eval ρ = uEnd := by
+  rw [x0BlockCoeff, FoxCoeff.eval_add, FoxCoeff.eval_atom, FoxCoeff.eval_one, hρ,
+    uInvEnd_add_one]
+
 end GQ2.Dyadic.Certificates.Npc
