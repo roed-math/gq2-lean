@@ -348,6 +348,21 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-31 (orchestrator, WWH outcomes — the toolkit is consolidated):** merged (7
+  files, +674/−609; no new files, no import changes; integration audit green). 56
+  lane-generic decls hoisted into their owning Word/{Fox,Stokes,Hessian,Blocks} layers,
+  **zero statement changes, zero renames** (two bound type-variables freshened,
+  alpha-equivalent; one verbatim duplicate deleted); certificate files shed 534 ln —
+  future `-b` lanes inherit ~162 and `-c` lanes ~305 instead of re-deriving; all 55
+  hoisted prints subset-of-std-3 in their new homes, 15 consumer headlines re-audited
+  unchanged. **The repo-wide remaining-duplicates ledger is in WWH's report** (7 items):
+  the NpcJet slice kit is now the SECOND copy not the third (unmergeable while NpcJet is
+  plain and Word/ is module); the `evalFin_congr_of_orderOf_dvd`↔`evalZ_congr_of_parity`
+  joint hoist's natural home is Eval.lean (siblings problem — queued for Eval's next
+  owner); ⚠ one-line ticket queued for Eval's next owner: its private `map_commR'` is a
+  MonoidHomClass near-twin of `Blocks.map_commR` — de-dup requires generalizing the
+  Blocks statement (out of WWH's no-statement-change remit). Three items left in place by
+  the module rule, documented in-file. `-b` tickets' WWH prerequisite is now met.
 - **2026-07-31 (owner, in session): G2 SIGNED — "Go ahead and dispatch."** The four
   branch-word lanes are RELEASED on the pilot's word-certificate review (the AS2
   √−2 instance review folds into the AS lane/G3 as wave 3 lands). Dispatched (all four
