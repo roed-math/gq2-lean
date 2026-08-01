@@ -698,6 +698,26 @@ theorem foxDHom_npc_ram_column_eq_zero (hV₂ : ∀ v : V, v + v = 0)
     Pi.single_eq_of_ne (Ne.symm hg0), Pi.single_eq_of_ne (Ne.symm hg2)]
   simp
 
+/-- The `2h` handle columns of the **ramified** wild row are zero — the `u`-half.  Together with
+the unramified twins this makes "hyperbolic stabilization has zero first jet" a theorem on
+*both* module classes, at every `h`. -/
+theorem foxDHom_npc_ram_handleU_column (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hτfpf : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v)
+    (hα : 1 ≤ α) (e : EtaData) (j : Fin h) (v : V) :
+    foxDHom ⇑t E E₂ (npcW α r h e) (Pi.single (handleU j) v) = 0 :=
+  foxDHom_npc_ram_column_eq_zero t E E₂ hV₂ hwild hτfpf hTodd hα e
+    (handleU_ne_coreLetter j 0) (handleU_ne_coreLetter j 2) v
+
+/-- The `2h` handle columns of the **ramified** wild row are zero — the `v`-half. -/
+theorem foxDHom_npc_ram_handleV_column (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hτfpf : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v)
+    (hα : 1 ≤ α) (e : EtaData) (j : Fin h) (v : V) :
+    foxDHom ⇑t E E₂ (npcW α r h e) (Pi.single (handleV j) v) = 0 :=
+  foxDHom_npc_ram_column_eq_zero t E E₂ hV₂ hwild hτfpf hTodd hα e
+    (handleV_ne_coreLetter j 0) (handleV_ne_coreLetter j 2) v
+
 end Rows
 
 /-! ## §4. The tame relator and its row
