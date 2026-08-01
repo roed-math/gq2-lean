@@ -1313,6 +1313,109 @@ theorem trivAct_dW_ram (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i •
     PWord.evalFin ⇑t E E₂ (dW h i) ∈ trivAct C V :=
   MCompact.trivAct_deltaC t E E₂ hwild i (MCompact.trivAct_deltaBlock_ram t E E₂ hwild hTodd i)
 
+/-! ### The factor rows
+
+Standing hypotheses of this block, the ramified reading (`P = 0`) at σ-free offsets.  `U` below
+is `powOmega2 t.σ = S₂`; every prefix weight on this row is a power of it, which is the whole
+reason the balance is visible at first order. -/
+
+section Factors
+
+variable (hσ : a Generator.sigma = 0)
+  (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+  (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w)
+
+include hσ hwild hτfpf hTodd
+
+/-- `D(Â) = a(x₀)`: the `Ĉ₀⁻ᵐ` tail is σ-only, so the whole first-order content of `Â` is its
+`δ₀`-head — and at the ramified reading `D(δ₀⁻¹) = a(x₀)` on the nose. -/
+theorem foxD_aHatW (s' mm : ℕ) : foxD ⇑t a E E₂ (aHatW h s' mm) = a (coreLetter h 0) := by
+  rw [aHatW, MCompact.foxD_prodList_pair, foxD_inv,
+    mem_trivAct.mp (inv_mem (trivAct_dW_ram t E E₂ hwild hTodd 0)),
+    foxD_dW_ram t E E₂ a hwild hτfpf hTodd 0]
+  have hz : foxD ⇑t a E E₂ (.zpow (c0HatW h s') (-(mm : ℤ))) = 0 := by
+    rw [foxD_zpow_neg', foxD_zpow_natCast,
+      Finset.sum_eq_zero fun i _ => by
+        rw [foxD_c0HatW_of_sigma_free t E E₂ a hσ s', smul_zero], smul_zero, neg_zero]
+  rw [hz, smul_zero, add_zero, neg_neg]
+
+/-- `D(B̂) = −a(x₁)`: the `σ₂^p` tail is σ-only. -/
+theorem foxD_bHatW : ∀ pp : ℕ, foxD ⇑t a E E₂ (bHatW h pp) = -a (coreLetter h 1)
+  | 0 => foxD_dW_ram t E E₂ a hwild hτfpf hTodd 1
+  | q + 1 => by
+      rw [show bHatW h (q + 1) = PWord.prodList [dW h 1, sig2PowW h (q + 1)] from rfl,
+        MCompact.foxD_prodList_pair, foxD_dW_ram t E E₂ a hwild hτfpf hTodd 1]
+      have hs : foxD ⇑t a E E₂ (sig2PowW h (q + 1)) = 0 := by
+        match q with
+        | 0 => exact foxD_sigma2W_of_sigma_free t E E₂ a hσ
+        | j + 1 =>
+            rw [show sig2PowW h (j + 2) = .zpow sigma2W ((j + 2 : ℕ) : ℤ) from rfl]
+            exact foxD_sigma2Pow_of_sigma_free t E E₂ a hσ _
+      rw [hs, smul_zero, add_zero]
+
+/-- **`E₀₁^pc`'s first-order contribution — stated, not hidden.**
+
+```
+D(E₀₁^pc) = −S₂^{−a−b}·a(x₁) − S₂^{−a}·a(x₁) − S₂^{−a}·a(x₀) − a(x₀)
+```
+
+a genuinely **nonzero** row: the block's four `δ`-occurrences each contribute, weighted by their
+`σ₂`-conjugators.
+
+⚠ Freeze row 5 (binding, paper-relevant): `E₂^pc` is first-order *essential* while `E₀₁^pc` is
+first-order *redundant* — the shadow copy reproduces this entire contribution
+operator-for-operator, so **gate D cannot justify `E₀₁^pc`**, and `E₀₁^pc` and the shadow
+substitution are *not independently choosable*.  The justification of `E₀₁^pc` is second-order
+only (the exact gate-F refutation on the fifth-root module), which is WMP-c's business, not
+this file's.  This row and `foxD_e01_reproduced_by_shadow` below are the two halves of that
+finding; **either one alone misrepresents the row**. -/
+theorem foxD_e01W_ram (aa bb : ℕ) :
+    foxD ⇑t a E E₂ (e01W h aa bb)
+      = -((((powOmega2 t.σ) ^ aa)⁻¹ * ((powOmega2 t.σ) ^ bb)⁻¹) • a (coreLetter h 1))
+        - (((powOmega2 t.σ) ^ aa)⁻¹) • a (coreLetter h 1)
+        - (((powOmega2 t.σ) ^ aa)⁻¹) • a (coreLetter h 0)
+        - a (coreLetter h 0) := by
+  have hd0 := foxD_dW_ram t E E₂ a hwild hτfpf hTodd 0
+  have hd1 := foxD_dW_ram t E E₂ a hwild hτfpf hTodd 1
+  have ht0 := trivAct_dW_ram t E E₂ hwild hTodd 0
+  have ht1 := trivAct_dW_ram t E E₂ hwild hTodd 1
+  have hpow : ∀ k : ℕ, foxD ⇑t a E E₂
+      (.zpow (sigma2W : PWord (Generator (2 + 2 * h))) (k : ℤ)) = 0 := fun k =>
+    foxD_sigma2Pow_of_sigma_free t E E₂ a hσ _
+  have hev : ∀ k : ℕ, PWord.evalFin ⇑t E E₂
+      (.zpow (sigma2W : PWord (Generator (2 + 2 * h))) (k : ℤ)) = (powOmega2 t.σ) ^ k := by
+    intro k
+    rw [PWord.evalFin_zpow, MCompact.evalFin_sigma2W, zpow_natCast]
+  -- the inner conjugate `δ₁^{σ₂^b}`
+  have hconj : foxD ⇑t a E E₂ (.conj (dW h 1) (.zpow sigma2W (bb : ℤ)))
+      = (((powOmega2 t.σ) ^ bb)⁻¹) • (-a (coreLetter h 1)) := by
+    rw [foxD_conj, hd1, hpow, smul_zero, add_zero, sub_zero, hev]
+  have htconj : PWord.evalFin ⇑t E E₂ (.conj (dW h 1) (.zpow sigma2W (bb : ℤ))) ∈ trivAct C V := by
+    rw [PWord.evalFin_conj]
+    exact trivAct_conjR ht1 _
+  -- the inner three-factor product
+  have hinner : foxD ⇑t a E E₂
+      (PWord.prodList [.conj (dW h 1) (.zpow sigma2W (bb : ℤ)), dW h 1, dW h 0])
+      = (((powOmega2 t.σ) ^ bb)⁻¹) • (-a (coreLetter h 1)) + -a (coreLetter h 1)
+          + -a (coreLetter h 0) := by
+    rw [PWord.prodList_cons, foxD_mul, MCompact.foxD_prodList_pair, hconj, hd0, hd1,
+      mem_trivAct.mp ht1, mem_trivAct.mp htconj, add_assoc]
+  have htinner : PWord.evalFin ⇑t E E₂
+      (PWord.prodList [.conj (dW h 1) (.zpow sigma2W (bb : ℤ)), dW h 1, dW h 0])
+      ∈ trivAct C V := by
+    refine trivAct_evalFin_prodList fun w hw => ?_
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at hw
+    rcases hw with rfl | rfl | rfl
+    · exact htconj
+    · exact ht1
+    · exact ht0
+  rw [e01W, MCompact.foxD_prodList_pair, foxD_conj, hinner, hpow, smul_zero, add_zero, sub_zero,
+    hev, hd0, PWord.evalFin_conj, mem_trivAct.mp (trivAct_conjR htinner _)]
+  simp only [smul_add, smul_neg, mul_smul]
+  abel
+
+end Factors
+
 end HatRow
 
 end GQ2.Dyadic.Certificates.MProcyclic
