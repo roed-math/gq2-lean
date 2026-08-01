@@ -780,4 +780,188 @@ theorem heisZ_npc_scalar (hA₂ : ∀ a : A, a + a = 0)
 
 end StokesRows
 
+/-! ## §3. The Hessian certificate: the corrected endpoint, literally
+
+WW4's `npcShape_certificate` certifies the **shape** `Q₀(c₀) + b_q(c₁, L_c c₀)` with an abstract
+invertible cross operator, and its docstring names the literal identification as WNP-c's, blocked
+there by the module rule (`NpcJet` is a plain-import file).  This section performs it: the
+abstract `Lc` is replaced by NC2's `lcOp`, the abstract `Q₀` by NC2's `npcQ0`, and the endpoint
+polynomial is proved to be the **evaluated word** through WNP-b's bridge
+`npc_cross_operators_npcW` (and NC6's `_handles_std` at general `h`).
+
+Nothing here re-derives jet content: `npc_cross_operators` is cited, never re-proved. -/
+
+section Hessian
+
+open GQ2.QuadraticFp2 NpcJet
+
+section LcOpHom
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+
+/-- **NC2's `lcOp` as an additive map** — the `V →+ V` datum WW4's change of variables
+`(c₀, c₁) ↦ (L_c c₀, c₁)` consumes.  `lcOp` is a sum of three module actions, so additivity is
+immediate; this is the only packaging step between the NC lane's operator and the certificate
+interface. -/
+noncomputable def lcOpHom (s : C) (η : ℤ_[2]) (r : ℕ) : V →+ V where
+  toFun := lcOp s η r
+  map_zero' := by simp only [lcOp, smul_zero, add_zero]
+  map_add' v w := by
+    simp only [lcOp, smul_add]
+    abel
+
+@[simp] theorem lcOpHom_apply (s : C) (η : ℤ_[2]) (r : ℕ) (v : V) :
+    lcOpHom s η r v = lcOp s η r v := rfl
+
+/-- The same map as an endomorphism-monoid element, so that `IsUnit` is available (WNP-b's
+`oneSubInvEnd` idiom). -/
+noncomputable def lcOpEnd (s : C) (η : ℤ_[2]) (r : ℕ) : AddMonoid.End V := lcOpHom s η r
+
+@[simp] theorem lcOpEnd_apply (s : C) (η : ℤ_[2]) (r : ℕ) (v : V) :
+    lcOpEnd s η r v = lcOp s η r v := rfl
+
+/-- **`L_c` degenerates to the identity when the `B`-element is trivial** (`σ^{2^r} = 1` on the
+module): `L_c = A⁻¹ + 1 + A⁻¹ = 1`.  Together with NC5's `lcOp_eq_draft_of_eq_one` (the `A = 1`
+degeneration, where `L_c = A⁻¹ = 1` as well) this is the pair of *free* invertibility cases. -/
+theorem lcOp_of_B_eq_one (hV2 : ∀ v : V, v + v = 0) (s : C) (η : ℤ_[2]) (r : ℕ)
+    (hB : s ^ (2 ^ r) = 1) (v : V) : lcOp s η r v = v := by
+  rw [lcOp, hB, one_smul, one_mul,
+    show (s ^ᶻ etaHatZ η)⁻¹ • v + v + (s ^ᶻ etaHatZ η)⁻¹ • v
+      = ((s ^ᶻ etaHatZ η)⁻¹ • v + (s ^ᶻ etaHatZ η)⁻¹ • v) + v by abel, hV2, zero_add]
+
+/-! ### The per-module invertibility of `L_c` — the NC lane's standing residual
+
+NC5's scope note: *"invertibility of `L_c` per module class genuinely varies with the module and
+belongs with WNP-c's Fox/normal-form clauses; on a concrete battery module it is a `decide`."*
+Here is the general criterion; the battery is §7. -/
+
+/-- **The general per-module criterion**: on a finite module, `L_c` is invertible exactly when it
+has trivial kernel.  This is the honest general statement — unlike the compact lane's
+`isUnit_oneSubSInvEnd_iff` (and WNP-b's first-order `isUnit_oneSubInvEnd_iff`, whose right-hand
+side is the *geometric* condition `V^c = 0`), the corrected `L_c = 1 + (1+A⁻¹)(1+B)` admits no
+uniform fixed-point description: it is a sum of three group actions and which of them cancel
+depends on the module.  The battery shows the dependence is real. -/
+theorem isUnit_lcOpEnd_iff [Finite V] (s : C) (η : ℤ_[2]) (r : ℕ) :
+    IsUnit (lcOpEnd (V := V) s η r) ↔ ∀ v : V, lcOp s η r v = 0 → v = 0 := by
+  have hinj_of : (∀ v : V, lcOp s η r v = 0 → v = 0) →
+      Function.Injective (lcOpEnd (V := V) s η r) := by
+    intro hker a b hab
+    have h0 : (lcOpEnd (V := V) s η r) (a - b) = 0 := by rw [map_sub, hab, sub_self]
+    exact sub_eq_zero.mp (hker _ h0)
+  constructor
+  · intro hu v hv
+    have hinj : Function.Injective (lcOpEnd (V := V) s η r) := injective_of_isUnit hu
+    refine hinj ?_
+    show lcOp s η r v = lcOp s η r 0
+    rw [hv]
+    exact ((lcOpHom s η r).map_zero (M := V)).symm
+  · intro hker
+    have hbij : Function.Bijective (lcOpEnd (V := V) s η r) :=
+      Finite.injective_iff_bijective.mp (hinj_of hker)
+    refine isUnit_iff_exists.mpr
+      ⟨(AddEquiv.ofBijective (lcOpEnd (V := V) s η r) hbij).symm.toAddMonoidHom, ?_, ?_⟩
+    · exact AddMonoidHom.ext fun v =>
+        (AddEquiv.ofBijective (lcOpEnd (V := V) s η r) hbij).apply_symm_apply v
+    · exact AddMonoidHom.ext fun v =>
+        (AddEquiv.ofBijective (lcOpEnd (V := V) s η r) hbij).symm_apply_apply v
+
+/-- **The two-sided inverse witness**, extracted from the kernel criterion: this is what
+discharges `npcShape_certificate`'s `hML`/`hLM`, so a consumer only ever has to check
+`ker L_c = 0` — on a battery module, one `decide`. -/
+theorem exists_lcOp_inverse [Finite V] (s : C) (η : ℤ_[2]) (r : ℕ)
+    (hker : ∀ v : V, lcOp s η r v = 0 → v = 0) :
+    ∃ Mc : V →+ V, (∀ v, Mc (lcOpHom s η r v) = v) ∧ (∀ v, lcOpHom s η r (Mc v) = v) := by
+  have hinj : Function.Injective (lcOpHom s η r : V →+ V) := by
+    intro a b hab
+    have h0 : (lcOpHom s η r : V →+ V) (a - b) = 0 := by rw [map_sub, hab, sub_self]
+    exact sub_eq_zero.mp (hker _ h0)
+  have hbij : Function.Bijective (lcOpHom s η r : V →+ V) :=
+    Finite.injective_iff_bijective.mp hinj
+  exact ⟨(AddEquiv.ofBijective (lcOpHom s η r : V →+ V) hbij).symm.toAddMonoidHom,
+    fun v => (AddEquiv.ofBijective (lcOpHom s η r : V →+ V) hbij).symm_apply_apply v,
+    fun v => (AddEquiv.ofBijective (lcOpHom s η r : V →+ V) hbij).apply_symm_apply v⟩
+
+end LcOpHom
+
+section Certificate
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  [Module (ZMod 2) V] [Fintype V] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+
+/-- **The corrected noncompact-`N` Hessian certificate — the literal identification.**
+
+WW4's `npcShape_certificate` with its two abstract parameters replaced by the NC lane's objects:
+`Q₀ := npcQ0 dat s η` and `Lc := lcOp s η r`.  The change of variables is
+`(c₀, c₁) ↦ (L_c c₀, c₁)` with the two-sided inverse witness supplied by the caller (in practice
+by `exists_lcOp_inverse` from a one-line kernel `decide`, §7's battery), and the endpoint
+polynomial is `fun (c₀,c₁) ↦ Q₀(c₀) + b_q(c₁, L_c c₀)` — the value of the frozen word, by
+`npc_word_eq_certQ` below.
+
+`hQ₀` (quadraticity of the twisted diagonal `Q₀(v) = f(v, A⁻¹v) + m_{A⁻¹}(v)`) is a certificate
+**input**, exactly as in WW4's shape: it is a statement about the factor-set datum, not about the
+word, and it is discharged concretely on the battery module (`pin_isQuadratic_npcQ0`). -/
+noncomputable def npcHessianCertificate (hq : IsQuadraticFp2 q) (hns : Nonsingular q)
+    (s : C) (η : ℤ_[2]) (r : ℕ) (hQ₀ : IsQuadraticFp2 (npcQ0 dat s η))
+    (Mc : V →+ V) (hML : ∀ v, Mc (lcOpHom s η r v) = v)
+    (hLM : ∀ v, lcOpHom s η r (Mc v) = v) {d : ℕ} (hcard : Fintype.card V = 2 ^ d) :
+    HessianCertificate dat (fun v ↦ npcQ0 dat s η (Mc v))
+      (fun p : V × V ↦ npcQ0 dat s η p.1 + polar q p.2 (lcOp s η r p.1))
+      (plusFormD (fun v ↦ npcQ0 dat s η (Mc v)) q)
+      (AddMonoidHom.inl V V) (AddMonoidHom.inr V V) :=
+  npcShape_certificate dat hdat hq hns (npcQ0 dat s η) hQ₀ (lcOpHom s η r) Mc hML hLM hcard
+
+omit [Module (ZMod 2) V] in
+/-- **The word-side equation, `h = 0`**: the evaluated class-two value of the frozen corrected
+word, as a function of the Gate-E offsets, **is** the certificate's endpoint polynomial.
+
+This is pure assembly: the content is NC5's `npc_cross_operators`, transported onto the
+hash-pinned tree by WNP-b's `npc_cross_operators_npcW`, and all that is added here is the
+`funext` turning the pointwise identity into the equality of functions the certificate interface
+wants. -/
+theorem npc_word_eq_certQ (hV2 : ∀ v : V, v + v = 0) (s u : C) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (α : ℕ) (hα : 2 ≤ α) (r : ℕ) (e : EtaData) :
+    (fun p : V × V ↦ ((npcMarking dat hdat s u p.1 p.2).eval (npcW α r 0 e)).fib)
+      = fun p : V × V ↦ npcQ0 dat s e.toPadic p.1
+          + polar q p.2 (lcOp s e.toPadic r p.1) :=
+  funext fun p => npc_cross_operators_npcW dat hdat hV2 s u hu hVu α hα r e p.1 p.2
+
+/-- **The Gauss residue of the *word's* evaluated Hessian is the certificate's `G0`** — WW4's
+`endpoint_gaussSum` consumed at the corrected word.  The compact lane's `nCompact_word_gaussSum`,
+one freeze row over, with the identity CoV replaced by the `L_c` CoV. -/
+theorem npc_word_gaussSum (hV2 : ∀ v : V, v + v = 0) (hq : IsQuadraticFp2 q)
+    (hns : Nonsingular q) (s u : C) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (α : ℕ) (hα : 2 ≤ α) (r : ℕ) (e : EtaData)
+    (hQ₀ : IsQuadraticFp2 (npcQ0 dat s e.toPadic)) (Mc : V →+ V)
+    (hML : ∀ v, Mc (lcOpHom s e.toPadic r v) = v)
+    (hLM : ∀ v, lcOpHom s e.toPadic r (Mc v) = v) {d : ℕ}
+    (hcard : Fintype.card V = 2 ^ d) :
+    gaussSum (fun p : V × V ↦ ((npcMarking dat hdat s u p.1 p.2).eval (npcW α r 0 e)).fib)
+      = (npcHessianCertificate dat hdat hq hns s e.toPadic r hQ₀ Mc hML hLM
+          hcard).affinePhase.G0 := by
+  rw [npc_word_eq_certQ dat hdat hV2 s u hu hVu α hα r e]
+  exact (npcHessianCertificate dat hdat hq hns s e.toPadic r hQ₀ Mc hML hLM
+    hcard).endpoint_gaussSum
+
+omit [Module (ZMod 2) V] in
+/-- **The handle tail, general `h`**: NC6's `npc_cross_operators_handles_std` says the genus-`h`
+word adds `Σ_{j<h} b_q(e_{3+2j}, e_{4+2j})` to the same core.  Stated here as the certificate
+lane's consumption of it — the core is `npcHessianCertificate`'s endpoint at `(e 0, e 1)` and the
+tail is a sum of hyperbolic planes, so the `h`-handle endpoint is `Q_core ⊕ (h hyperbolic
+planes)`, exactly as on the compact row.  The route is NC6's, never a cast on `npcWordH`. -/
+theorem npc_word_handles_eq_certQ (hV2 : ∀ v : V, v + v = 0) (s u : C) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (α : ℕ) (hα : 2 ≤ α) (r : ℕ) (η : ℤ_[2]) (h : ℕ)
+    (ev : ℕ → V) (he2 : ev 2 = 0) :
+    ((npcMarkingH dat hdat (2 * h) s u ev).eval
+        (npcWordH (2 * h) α r η (fun j ↦ ⟨(3 + 2 * j) % (2 * h + 3), Nat.mod_lt _ (by omega)⟩)
+          (fun j ↦ ⟨(4 + 2 * j) % (2 * h + 3), Nat.mod_lt _ (by omega)⟩) h)).fib
+      = (fun p : V × V ↦ npcQ0 dat s η p.1 + polar q p.2 (lcOp s η r p.1)) (ev 0, ev 1)
+        + ∑ j ∈ Finset.range h, polar q (ev (3 + 2 * j)) (ev (4 + 2 * j)) :=
+  npc_cross_operators_handles_std dat hdat hV2 s u hu hVu α hα r η h ev he2
+
+end Certificate
+
+end Hessian
+
 end GQ2.Dyadic.Certificates.Npc
