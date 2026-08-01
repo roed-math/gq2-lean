@@ -609,7 +609,143 @@ theorem sqrtNegTwo_hZcard_gammaR {DD : DescData D}
   sqrtNegTwo_hZcard theta hround hact hc (isAdmissibleMarkedPresentation_gammaR 2 q R) hres
     (vmod_add_self DD) (isWildTwo_of_gammaGen theta hsurj hc) hsurj hd hsimple hnt
 
+/-! ### The pilot, with the resolution discharged
+
+At the *intrinsic* compact-`N` branch word — `R = Words.nCompactW 2 0`, so the group really is the
+`Γ_R` of the `√−2` branch and not a lookalike — the resolution hypothesis is a theorem, given only
+that the counting target has exponent dividing `6`.  That is the one condition the frozen resolver
+`e = 3` encodes, and it is now visible in the statement instead of hidden in a family. -/
+
+/-- **The `√−2` pilot's `tcocycle_card` field value at the intrinsic branch word**, with no
+resolution hypothesis: `e = 3` is `omega2Exp 6`, so a target of exponent dividing `6` resolves
+itself. -/
+theorem sqrtNegTwo_tcocycle_card_gammaR_nCompact
+    [TopologicalSpace (Additive ↥D.T)] [DiscreteTopology (Additive ↥D.T)]
+    [DistribMulAction ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) (Additive ↥D.T)]
+    [ContinuousSMul ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) (Additive ↥D.T)]
+    [TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    [DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    {t : Marking 2 (Bg ⧸ D.M)}
+    (rho : ContinuousMonoidHom ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) (Bg ⧸ D.M))
+    (hcomp : ∀ (γ : ((GammaR 2 2 (Words.nCompactW 2 0)) : Type)) (a : Additive ↥D.T),
+      γ • a = rho γ • a)
+    (hc : ∀ g, rho (gammaGen 2 2 (Words.nCompactW 2 0) g) = t g)
+    (hord : ∀ x : WordLift (Additive ↥D.T) (Bg ⧸ D.M), orderOf x ∣ 6)
+    (hsurj : Function.Surjective rho)
+    (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 3) (Additive ↥D.T)) :
+    Nat.card (TCocycle D rho)
+      = (standardNumerics 2).tMult (Nat.card (Additive ↥D.T))
+        * Nat.card (fixedPts (Bg ⧸ D.M) (ElemDual (Additive ↥D.T))) :=
+  sqrtNegTwo_tcocycle_card_gammaR rho hcomp hc (resolvesAt_nCompactFam_three hord 2 0 2) hsurj hd
+
+/-- **The `√−2` pilot's `hZcard` field value at the intrinsic branch word**, with no resolution
+hypothesis — the `V`-side twin. -/
+theorem sqrtNegTwo_hZcard_gammaR_nCompact {DD : DescData D}
+    {E : Type} [Group E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod]
+    [DistribMulAction E DD.Vmod]
+    [DistribMulAction ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) DD.Vmod]
+    [TopologicalSpace (WordLift DD.Vmod E)] [DiscreteTopology (WordLift DD.Vmod E)]
+    {t : Marking 2 E}
+    {rho : ContinuousMonoidHom ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) (Bg ⧸ D.M)}
+    (theta : ContinuousMonoidHom ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) E)
+    (hround : ∀ (γ : ((GammaR 2 2 (Words.nCompactW 2 0)) : Type)) (v : DD.Vmod),
+      rho0 DD rho γ • v = theta γ • v)
+    (hact : ∀ (γ : ((GammaR 2 2 (Words.nCompactW 2 0)) : Type)) (v : DD.Vmod),
+      γ • v = theta γ • v)
+    (hc : ∀ g, theta (gammaGen 2 2 (Words.nCompactW 2 0) g) = t g)
+    (hord : ∀ x : WordLift DD.Vmod E, orderOf x ∣ 6)
+    (hsurj : Function.Surjective theta)
+    (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 3) DD.Vmod)
+    (hsimple : IsSimpleModTwo E DD.Vmod) (hnt : ∃ (g : E) (v : DD.Vmod), g • v ≠ v) :
+    Nat.card (VCocycle DD rho)
+      = Nat.card DD.Vmod * (standardNumerics 2).h1Mult (Nat.card DD.Vmod) :=
+  sqrtNegTwo_hZcard_gammaR theta hround hact hc (resolvesAt_nCompactFam_three hord 2 0 2)
+    hsurj hd hsimple hnt
+
 end PilotComposition
+
+/-! ## §9 The five frozen branch families
+
+The presentation instance is generic in `R` and hypothesis-free, so each frozen branch's instance
+is a *specialization and nothing more* — which is the point: with the relators read at the target
+there is no per-branch reconciliation left to do.  The five below are the count lane's five rows,
+each at its own **intrinsic** branch word, hence at the genuine `Γ_R` of that branch.
+
+⚠ Read against `Count/Resolve.lean`'s `isAdmissible_gammaR_*`, which are the same five statements
+at `resolvedRelator e R` — the word with its `ω₂`-nodes replaced by `e`.  Those are presentations
+of a **different group** (CB-RES §7/§8 prove `Γ_{resolveWord e R} ≠ Γ_R` by exhibiting an element
+nontrivial in one and trivial in the other), and that is exactly why they were the wrong object to
+compute at. -/
+
+section Frozen
+
+/-- **Compact `N`** (the `√−2`, `√−1` rows). -/
+theorem isAdmissible_gammaR_nCompactW (α h q : ℕ) :
+    IsAdmissibleMarkedPresentation
+      ((GammaR (2 + 2 * h) q (Words.nCompactW α h)) : Type)
+      (gammaGen (2 + 2 * h) q (Words.nCompactW α h))
+      (gammaFam (2 + 2 * h) q (Words.nCompactW α h)) (wildAlphabet (2 + 2 * h)) :=
+  isAdmissibleMarkedPresentation_gammaR _ _ _
+
+/-- **Procyclic `N`.** -/
+theorem isAdmissible_gammaR_npcW (α r h q : ℕ) (d : EtaData) :
+    IsAdmissibleMarkedPresentation
+      ((GammaR (2 + 2 * h) q (Words.Npc.npcW α r h d)) : Type)
+      (gammaGen (2 + 2 * h) q (Words.Npc.npcW α r h d))
+      (gammaFam (2 + 2 * h) q (Words.Npc.npcW α r h d)) (wildAlphabet (2 + 2 * h)) :=
+  isAdmissibleMarkedPresentation_gammaR _ _ _
+
+/-- **Compact `M`** (the `√2`, `√5` rows). -/
+theorem isAdmissible_gammaR_mCompactW (α h q : ℕ) :
+    IsAdmissibleMarkedPresentation
+      ((GammaR (2 + 2 * h) q (Words.MCompact.mCompactW α h)) : Type)
+      (gammaGen (2 + 2 * h) q (Words.MCompact.mCompactW α h))
+      (gammaFam (2 + 2 * h) q (Words.MCompact.mCompactW α h)) (wildAlphabet (2 + 2 * h)) :=
+  isAdmissibleMarkedPresentation_gammaR _ _ _
+
+/-- **Procyclic `M`** (the `√−10`, `√10` rows). -/
+theorem isAdmissible_gammaR_mpcW (α r pp h q : ℕ) (η : Words.Mpc.EtaDisplay) :
+    IsAdmissibleMarkedPresentation
+      ((GammaR (2 + 2 * h) q (Words.Mpc.mpcW α r pp η h)) : Type)
+      (gammaGen (2 + 2 * h) q (Words.Mpc.mpcW α r pp η h))
+      (gammaFam (2 + 2 * h) q (Words.Mpc.mpcW α r pp η h)) (wildAlphabet (2 + 2 * h)) :=
+  isAdmissibleMarkedPresentation_gammaR _ _ _
+
+/-- **`L_sq`.** -/
+theorem isAdmissible_gammaR_lSqW (h q : ℕ) :
+    IsAdmissibleMarkedPresentation
+      ((GammaR (2 * h + 1) q (Words.LSq.lSqW h)) : Type)
+      (gammaGen (2 * h + 1) q (Words.LSq.lSqW h))
+      (gammaFam (2 * h + 1) q (Words.LSq.lSqW h)) (wildAlphabet (2 * h + 1)) :=
+  isAdmissibleMarkedPresentation_gammaR _ _ _
+
+/-! ### The `ω₂`-only status of the five, i.e. which rows `resolvesAt_gammaFam` covers
+
+`Count.resolvesAt_heisToFree` needs the branch word to be `ω₂`-only.  Four of the five rows are;
+the procyclic-`N` word is **not** (`Words.Npc.not_isOmega2Only_npcW`), because its `η̂`-twist is a
+genuine `ℤ₂`-exponent.  Nothing about the presentation changes there — the instance above is
+unconditional — but the target-resolution of its *word-lane* family needs a `ℤ₂`-resolver at the
+target as well as the `ω₂` one, which is the count lane's remaining word-side item. -/
+
+theorem isOmega2Only_gammaFam_nCompactW (α h q : ℕ) :
+    ∀ k, (gammaFam (2 + 2 * h) q (Words.nCompactW α h) k).IsOmega2Only :=
+  isOmega2Only_gammaFam _ _ (Words.isOmega2Only_nCompact α h)
+
+theorem isOmega2Only_gammaFam_mCompactW (α h q : ℕ) :
+    ∀ k, (gammaFam (2 + 2 * h) q (Words.MCompact.mCompactW α h) k).IsOmega2Only :=
+  isOmega2Only_gammaFam _ _ (Words.MCompact.isOmega2Only_mCompact α h)
+
+theorem isOmega2Only_gammaFam_mpcW (α r pp h q : ℕ) {η : Words.Mpc.EtaDisplay}
+    (hη : η.IsOmega2Only) :
+    ∀ k, (gammaFam (2 + 2 * h) q (Words.Mpc.mpcW α r pp η h) k).IsOmega2Only :=
+  isOmega2Only_gammaFam _ _ (Words.Mpc.isOmega2Only_mpcW α r pp hη h)
+
+theorem isOmega2Only_gammaFam_lSqW (h q : ℕ) :
+    ∀ k, (gammaFam (2 * h + 1) q (Words.LSq.lSqW h) k).IsOmega2Only :=
+  isOmega2Only_gammaFam _ _ (Words.LSq.isOmega2Only_lSq h)
+
+end Frozen
 
 end Count
 
