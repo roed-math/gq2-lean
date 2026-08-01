@@ -72,6 +72,7 @@ report.
 namespace GQ2.Dyadic.Count
 
 open GQ2.FoxH GQ2.Dyadic ContCoh
+open GQ2.SectionEight GQ2.SectionEight.CentralObstruction
 
 /-! ## §1. Scalars carry no action
 
@@ -104,7 +105,14 @@ theorem smul_zmod2 [DistribMulAction C (ZMod 2)] (g : C) (m : ZMod 2) : g • m 
 
 /-- **The trivial action on the scalars**, as a bundled instance for the places that need one
 (the comparison isomorphism is stated over a `DistribMulAction Γ A`).  By `smul_zmod2` it is the
-*only* one, so no diamond can arise: any other instance is propositionally equal on values. -/
+*only* one, so no diamond can arise: any other instance is propositionally equal on values.
+
+⚠ **Duplicate, deliberately not merged.**  `Count/Routine.lean` §Scalar already has this def as
+`trivialSMulZmodTwo` (over `Monoid`, with `trivialContSMulZmodTwo`/`trivialHtrivZmodTwo`), and
+`HalfTorsorGammaA.lean:151` / `HalfTorsorGammaR.lean:173` each inline a third and fourth copy.
+Reusing CB-R's would cost this file an import of `Count/Routine.lean`, hence of
+`GQ2.Dyadic.CertificateMain` and the five `Words/` files — a large closure for six lines.  The
+merge belongs to whichever ticket first has both in scope; recorded here so it is not lost. -/
 @[reducible] def scalarAction (Γ : Type*) [Group Γ] : DistribMulAction Γ (ZMod 2) where
   smul _ m := m
   one_smul _ := rfl
@@ -358,5 +366,99 @@ theorem homCardN_of_stokes {n : ℕ} (hpres : IsAdmissibleMarkedPresentation Γ 
     (card_wordH2_zmod2 hd (lower_rel (A := ZMod 2) rho hc hpres hres) hend)
 
 end HomCard
+
+/-! ## §8. `SourceDataN.cardH2` — the reduction, and the rung that is missing
+
+**This clause does not close here, and the reason is structural, not arithmetic.**
+
+The scalar block's single input already gives the *word-level* value: `#H²w(𝔽₂) = 2` (§4). What
+`SourceDataN.cardH2` asks for is the *group-level* `#H²(Γ, 𝔽₂) = 2`, and the two are joined by a
+theorem that does not exist anywhere in the repository:
+
+> **The H² rung of the comparison ladder.**  CB-1's `Count/Compare.lean` builds `z1Equiv` (degree
+> `1` cocycles) and `h1Equiv` (degree `1` cohomology) and stops there — its own section map lists
+> no H² item.  Nothing in `GQ2/` relates `ContCoh.H2 Γ _` to `WordH2`/`StokesH2`: the only two
+> files naming `WordH2`/`StokesH2` are `Word/StokesDual.lean` and `Count/Spike.lean`, and neither
+> mentions group cohomology.  The `ℚ₂` ancestors do the comparison *numerically* and only at
+> `AbsGalQ2` — `cor_5_17_card` (`GQ2/LocalLiftingDuality.lean:571`) and `cor_5_17_card_R`
+> (`GQ2/Roe/DualityAssembly.lean:509`) get `#H²w = #H²(G_ℚ₂)` by routing **both** sides through
+> `#fixedPts C (ElemDual A)`, i.e. through B6 on the local side.  There is no `Γ`-generic form.
+
+So `cardH2N` below takes that comparison as its hypothesis.  That is the honest statement of
+where the clause stands: the scalar arithmetic is discharged, and exactly one structural theorem
+— the degree-`2` analogue of `h1Equiv` — is owed.  Its expected shape is the injection
+`H²(Γ, A) ↪ WordH²(A)` coming from the five-term sequence of `1 → R → F → Γ → 1` (the relators
+span `R/[R,F]R²`, so `Hom(R/[R,F]R², A) ↪ (ρ → A)`, and cokernels of a composite with an
+injective second factor inject); with `#H²w = 2` that gives `≤ 2`, and `cardH2_of_le_two` closes
+from nontriviality.
+
+Neither `WordCoh.card_H2_le_two` nor the `ℚ₂` `obsH2` route substitutes for it: the former needs
+`IsProP 2 G` (the source group is not pro-`2`) and a **single** relator, and the latter is
+hard-wired to `Fin 4` with exactly two relators inside `F₄ ⧸ N_A`. -/
+
+section CardH2
+
+variable {Γ : Type*} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+
+omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
+/-- **The sandwich.**  `#H² ≤ 2` plus nontriviality pins the value; finiteness is what rules out
+the `Nat.card = 0` reading of the bound. -/
+theorem cardH2_of_le_two [Finite (H2 Γ (ZMod 2))] (hle : Nat.card (H2 Γ (ZMod 2)) ≤ 2)
+    (hnt : Nontrivial (H2 Γ (ZMod 2))) : Nat.card (H2 Γ (ZMod 2)) = 2 := by
+  have h1 : 1 < Nat.card (H2 Γ (ZMod 2)) := Finite.one_lt_card_iff_nontrivial.mpr hnt
+  omega
+
+omit [IsTopologicalGroup Γ] [ContinuousSMul Γ (ZMod 2)] in
+/-- **`SourceDataN.cardH2`, reduced to the missing rung.**  Everything but `hcomp` is discharged:
+`hcomp` is the degree-`2` comparison, and the `2` on its right is §4's `#H²w(𝔽₂) = 2`.
+
+Stated so that a future H²-rung ticket closes the clause by supplying one argument. -/
+theorem cardH2N {ι ρ' : Type*} [Fintype ι] [Fintype ρ'] [DecidableEq ι] {C : Type*} [Group C]
+    [DistribMulAction C (ZMod 2)] {c : ι → C} {w : ρ' → FreeGroup ι}
+    (hcomp : Nat.card (H2 Γ (ZMod 2)) = Nat.card (WordH2 c w (ZMod 2)))
+    (hd : StokesDuality c w (ZMod 2)) (hr : ∀ k, FreeGroup.lift c (w k) = 1)
+    (hend : IsStokesEndpoint w) : Nat.card (H2 Γ (ZMod 2)) = 2 :=
+  hcomp.trans (card_wordH2_zmod2 hd hr hend)
+
+end CardH2
+
+/-! ## §9. `SourceDataN.lem86` is a **scalar-block consumer**, not an `exactLifting` one
+
+CB1's memo groups `lem86` with `liftsOver_card`/`stageR136` in the `exactLifting` bundle
+(`docs/dyadic/cb-design.md:113`).  The mathematics puts it here: the half-torsor count is already
+`Γ`-generic in the repository — `CentralObstruction.half_count` (`GQ2/CentralObstruction.lean:1074`)
+takes an abstract `Γ` and consumes **`Nat.card (H2 Γ (ZMod 2)) = 2` directly as a hypothesis**.
+So `lem86` needs no new counting at all; it needs `cardH2`, `tfg`, and a nonzero variation class.
+
+The ticket said to follow the mathematics rather than the memo's grouping where they diverge.
+They diverge here, and the consequence is concrete: **`lem86` cannot be closed before `cardH2`
+is**, so CB-3 should not be scheduled as if it were independent of the scalar block.
+
+`hvar` is the one genuinely per-source residue (at `ℚ₂` it is `exists_nonzero_varCoc_gammaA`,
+which routes through `prop_5_15`; on the local side `RadicalEdgeLocal.exists_good_twist`, which
+routes through B6).  The `NoDescent` witness is already source-free — `RadicalCoverData Bg` binds
+no `Γ`, which is why `Γ_R` reuses `Γ_A`'s `D₈` datum verbatim. -/
+
+section Lem86
+
+variable {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ] [CompactSpace Γ]
+  [TotallyDisconnectedSpace Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+
+omit [ContinuousSMul Γ (ZMod 2)] in
+/-- **The `SourceDataN.lem86` value, over the abstract carrier**, from `cardH2` plus the record's
+own `tfg` plus a nonzero variation class.  The `htriv` input of `half_count` is not a hypothesis:
+by §1 it is a theorem. -/
+theorem lem86N (tfg : ∃ s : Finset Γ, (Subgroup.closure (s : Set Γ)).topologicalClosure = ⊤)
+    (hcardH2 : Nat.card (H2 Γ (ZMod 2)) = 2) (D : RadicalCoverData Bg)
+    (ρ : ContinuousMonoidHom Γ (Bg ⧸ D.M)) (S : TComplement D) (u : TCocycle D ρ)
+    (hvar : H2mk Γ (ZMod 2) ⟨varCoc D ρ S u, varCoc_mem_Z2 D ρ S smul_zmod2 u⟩ ≠ 0) :
+    2 * Nat.card {f : MLifts D ρ // f.Central} = Nat.card (MLifts D ρ) := by
+  haveI : Finite (ContinuousMonoidHom Γ Bg) := finite_continuousMonoidHom tfg Bg
+  haveI : Finite (MLifts D ρ) := by unfold MLifts; exact Subtype.finite
+  exact half_count D ρ S smul_zmod2 u hvar hcardH2
+
+end Lem86
 
 end GQ2.Dyadic.Count
