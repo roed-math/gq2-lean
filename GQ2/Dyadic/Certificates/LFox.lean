@@ -166,7 +166,9 @@ The mathlib-shaped micro-lemmas `even_nsmul_eq_zero` and `neg_eq_self` are resta
 
 namespace GQ2.Dyadic.Certificates.LSq
 
-open GQ2.FoxH GQ2.Dyadic.Words
+-- ORCHESTRATOR 2026-08-01: `Words/L.lean` re-namespaced to `Words.LSq` (integration fix);
+-- this is the anticipated one-line touch.
+open GQ2.FoxH GQ2.Dyadic.Words.LSq
 
 /-! ## Micro-lemmas over an elementary coefficient module -/
 
@@ -1107,7 +1109,7 @@ theorem evalFin_lSqW_zero' {P : Type*} [Group P] (s : _root_.GQ2.Marking P) (E :
 /-- Sanity pin: at universe `0`, where both apply, the twin above **is** WL-a's lemma. -/
 theorem evalFin_lSqW_zero'_eq {P : Type} [Group P] (s : _root_.GQ2.Marking P) (E : Zhat → ℤ)
     (E₂ : ℤ_[2] → ℤ) :
-    evalFin_lSqW_zero' s E E₂ = Words.evalFin_lSqW_zero s E E₂ := rfl
+    evalFin_lSqW_zero' s E E₂ = Words.LSq.evalFin_lSqW_zero s E E₂ := rfl
 
 variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
   [DistribMulAction C V]

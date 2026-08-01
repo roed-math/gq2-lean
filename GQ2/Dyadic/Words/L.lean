@@ -126,7 +126,13 @@ non-`module` one.  This matches the lane convention WN0-a ratified for `Words/` 
 `Certificates/`.
 -/
 
-namespace GQ2.Dyadic.Words
+/- ORCHESTRATOR INTEGRATION FIX 2026-08-01: this file originally declared its shared-alphabet
+toolkit in the bare `GQ2.Dyadic.Words` namespace, colliding with 20 identical names from
+`Words/N0.lean` the moment `GQ2.lean` imported both (the root build broke; the WL-a audit's
+build step was pipe-masked and the break surfaced via WL-b). Re-namespaced to
+`GQ2.Dyadic.Words.LSq`, matching the `Words.MCompact`/`Words.Npc` pattern. The real de-dup is
+the queued WAH alphabet hoist. -/
+namespace GQ2.Dyadic.Words.LSq
 
 open Export (RawWord)
 open MarkedCore (handleWord)
@@ -1051,4 +1057,4 @@ theorem commutator_block_ne_one_perm :
     GQ2.commP (Equiv.swap 1 2) (GQ2.conjP (Equiv.swap 1 2) (Equiv.swap 0 1))
       ≠ (1 : Equiv.Perm (Fin 3)) := by decide
 
-end GQ2.Dyadic.Words
+end GQ2.Dyadic.Words.LSq
