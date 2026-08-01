@@ -1133,4 +1133,249 @@ theorem heisEta1_lSqFam_apply {h q e : ℕ} {A : Type*} [AddCommGroup A]
 
 end Duality
 
+/-! ## §5 The scalar certificate: the `n = 1` Gram matrices, by kernel `decide`
+
+The cup–Bockstein comparison matrix (`stokesGram`) of the `L_sq` family at `h = 0`, `q_K = 2`, on
+the scalar module `A = 𝔽₂` (trivial action), at the standard letter basis in the packet column
+order `σ, τ, x₀, x₁`; rows index the primal basis vector, columns the dual one.
+
+Two pins, differing **only** in the resolver class of `ω₂`:
+
+* `e = 1` — the honest class for a `2`-group target.  Bockstein diagonals at `τ` (tame,
+  `C(q_K,2)` odd at `q_K = 2`) and at **`x₁`** (wild, `C(2,2) = 1`); cup blocks `(σ,τ)` and
+  `(σ,x₀)`.  Restricted to the wild-plus-`σ` letters this is `SqCore.sqCore_cupGram`'s
+  `[[0,1,0],[1,0,0],[0,0,1]]` — `⟨1⟩ ⊥ H`, §2's normal form at `h = 0`.
+* `e = 3` — exactly the `{τ, x₀}²`-block moves, the `C(e,2)`-block of `heisZ_lSq_unram` switching
+  on.  The pair makes ticket S1.T's "the lift level is 4, not 2" a kernel-checked matrix
+  statement on `L_sq`'s own column (WN0-c's twin moves `{τ, x₂}²`).
+
+Note where the `q_K`-sensitivity sits: the `τ`-diagonal is `C(q_K,2) mod 2`, odd **iff**
+`q_K ≡ 2 (mod 4)`, i.e. iff `q_K = 2`.  At `q_K = 4` that entry vanishes.  WL-b proved the *wild*
+Fox row cannot see `q_K` at all; at second order the sensitivity reappears, but still only
+through the (word-independent) tame row. -/
+
+section ScalarGram
+
+/-- The trivial action for the scalar pins (WW3's `local instance` idiom — not exported). -/
+local instance : DistribMulAction (Multiplicative (ZMod 2)) (ZMod 2) where
+  smul _ a := a
+  one_smul _ := rfl
+  mul_smul _ _ _ := rfl
+  smul_zero _ := rfl
+  smul_add _ _ _ := rfl
+
+/-- The all-trivial (scalar/split) marking of the `n = 1` `L_sq` alphabet. -/
+def lSqScalarMark : Marking 1 (Multiplicative (ZMod 2)) := Marking.ofLetters 1 1 ![1, 1]
+
+/-- The packet column order `σ, τ, x₀, x₁`. -/
+def lSqScalarLetter : Fin 4 → Generator 1 := ![.sigma, .tau, .wild 0, .wild 1]
+
+/-- The standard primal basis: a unit offset on one letter. -/
+def lSqScalarX (p : Fin 4) : Generator 1 → ZMod 2 :=
+  fun g => if g = lSqScalarLetter p then 1 else 0
+
+/-- The standard dual basis: the identity functional on one letter. -/
+noncomputable def lSqScalarY (p : Fin 4) : Generator 1 → ElemDual (ZMod 2) :=
+  fun g => if g = lSqScalarLetter p then (AddMonoidHom.id (ZMod 2) : ElemDual (ZMod 2)) else 0
+
+/-- **The `L_sq` scalar Gram at the honest resolver class** (`e = 1`, `q_K = 2`). -/
+theorem lSq_scalarGram :
+    stokesGram ⇑lSqScalarMark (lSqFam 0 2 1) lSqScalarX lSqScalarY
+      = !![0,1,1,0; 1,1,0,0; 1,0,0,0; 0,0,0,1] := by
+  decide +kernel
+
+/-- **The `e = 3` twin**: the `{τ, x₀}²`-block moves with the resolver class. -/
+theorem lSq_scalarGram_three :
+    stokesGram ⇑lSqScalarMark (lSqFam 0 2 3) lSqScalarX lSqScalarY
+      = !![0,1,1,0; 1,0,1,0; 1,1,1,0; 0,0,0,1] := by
+  decide +kernel
+
+end ScalarGram
+
+/-! ## §6 The Hessian certificate: the word connected to the rank-3 core's endpoint
+
+WW4 deliberately left `L_sq` out of its worked rows ("rank-3 core, not a plus form"), so this
+section builds the connection.  The route is WW4's own: `hessRelZ`/`hessEvalZ` at the κ⁰-cocycle
+`kappa0Cocycle dat hdat` on `V ⋊ C`, at a graph-type marking (`σ, τ` on the κ-free `C`-line, wild
+letters on the Heisenberg slice).
+
+**The endpoint is the Wall doubling, not a plus form.**  At the `x₁`-supported normal form
+(`v (lSqIdx0 h) = 0` — the shape WL-b's Fox certificate reaches, and the frozen
+`lemma_5_13_ramified_R`'s `(0,0,0,d)`) the evaluated Hessian of the whole degree-`n` word is
+
+```
+q(c₁) + b_q(c₁, S₂⁻¹ c₁) + Σ_j b_q(d_j, e_j),        S₂ = s^{E ω₂},
+```
+
+and at `h = 0` this is **`qDouble q U`** on the nose (`GQ2/QuadraticFp2.lean:96`, the paper's
+eq. (83)) with `U = S₂⁻¹`.  That identification is the whole point: `qDouble` is the
+presentation-independent object the frozen `Γ_R` endgame is written against (`QZeroR = q(d) +
+b_q(d, U⁻¹d)`, `GQ2/Roe/Gauss.lean:71`, whose polar operator is `1 + U + U⁻¹`), so the
+`QuadraticFp2` + `SectionSix` + `GaussSigns` layer applies to this row **by citation** — see
+`lSq_endpoint_nonsingular`/`lSq_endpoint_arf`, which are one-line consequences of `lemma_6_6`.
+This is wl-recon §4.1's "consume, don't re-derive", executed.
+
+Unlike the compact-`N` row the conjugated wild letter here carries a **live** slot, so the
+κ⁰-consumption is larger: the slice-conjugation law `hessSlice_conj_line` uses `m`, the
+equivariant-lift correction, not only `f_diag`/`f_polar`.  All of `m`'s clauses are `q`-blind, so
+the endpoint value is still twist-immune; the *calculus* is not. -/
+
+section Hessian
+
+open GQ2.SectionSix GQ2.QuadraticFp2
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+
+/-- The wild-letter slot `x₀` of the `L_sq` alphabet. -/
+def lSqIdx0 (h : ℕ) : Fin (2 * h + 1 + 1) := ⟨0, by omega⟩
+
+/-- The wild-letter slot `x₁` of the `L_sq` alphabet — the one the normal form is supported on. -/
+def lSqIdx1 (h : ℕ) : Fin (2 * h + 1 + 1) := ⟨1, by omega⟩
+
+/-- The first handle-letter slot, matching `Words.LSq.handleU`. -/
+def lSqIdxU {h : ℕ} (j : Fin h) : Fin (2 * h + 1 + 1) :=
+  ⟨2 + 2 * (j : ℕ), by have := j.isLt; omega⟩
+
+/-- The second handle-letter slot, matching `Words.LSq.handleV`. -/
+def lSqIdxV {h : ℕ} (j : Fin h) : Fin (2 * h + 1 + 1) :=
+  ⟨3 + 2 * (j : ℕ), by have := j.isLt; omega⟩
+
+/-- **The graph-type κ⁰-marking of the `L_sq` alphabet**: `σ ↦ ((0,s))`, `τ ↦ ((0,u))` on the
+`C`-line, wild letter `x_i` on the Heisenberg slice at offset `v i`. -/
+def lSqHessMark {h : ℕ} (s u : C) (v : Fin (2 * h + 1 + 1) → V) :
+    Generator (2 * h + 1) → SemiProd C V
+  | .sigma => ((0 : V), s)
+  | .tau => ((0 : V), u)
+  | .wild i => (v i, (1 : C))
+
+/-- **The slice-conjugation law**: conjugating a Heisenberg slice by a `C`-line element twists the
+offset by the inverse and charges the fibre by the equivariant-lift correction `m`.  This is the
+`L_sq`-specific piece of κ⁰-calculus that the compact-`N` row never needed (there the conjugated
+letter's slot was zero). -/
+theorem hessSlice_conj_line (d : V) (g : C) :
+    conjR (hessSlice dat hdat d 0) (hessLine dat hdat g)
+      = hessSlice dat hdat (g⁻¹ • d) (dat.m g⁻¹ d) := by
+  have hinv : (hessLine dat hdat g)⁻¹ = hessLine dat hdat g⁻¹ := by
+    rw [show hessLine dat hdat g = hessLineHom dat hdat g from rfl,
+      show hessLine dat hdat g⁻¹ = hessLineHom dat hdat g⁻¹ from rfl, ← map_inv]
+  rw [conjR, hinv]
+  refine WordCoh.CentExt.ext (Prod.ext ?_ ?_) ?_
+  · show (0 : V) + g⁻¹ • d + (g⁻¹ * 1) • (0 : V) = g⁻¹ • d
+    rw [smul_zero, add_zero, zero_add]
+  · show g⁻¹ * 1 * g = 1
+    rw [mul_one, inv_mul_cancel]
+  · show (0 : ZMod 2) + 0 + (dat.f 0 (g⁻¹ • d) + dat.m g⁻¹ d) + 0
+        + (dat.f ((0 : V) + g⁻¹ • d) ((g⁻¹ * 1) • (0 : V)) + dat.m (g⁻¹ * 1) 0)
+      = dat.m g⁻¹ d
+    rw [hdat.f_zero_left, smul_zero, hdat.f_zero_right, factorSet_m_zero dat hdat]
+    simp only [zero_add, add_zero]
+
+/-- The handle tail evaluates to the central inclusion of `Σ_j b_q(d_j, e_j)`. -/
+theorem hess_lSqHandles_eval {h : ℕ} (hV2 : ∀ v : V, v + v = 0) (s u : C)
+    (v : Fin (2 * h + 1 + 1) → V) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    PWord.evalZ (WordCoh.lift (lSqHessMark s u v) (kappa0Cocycle dat hdat)) E E₂ (handlesW h)
+      = WordCoh.CentExt.incl _ (∑ j, polar q (v (lSqIdxU j)) (v (lSqIdxV j))) := by
+  rw [handlesW, PWord.evalZ_prodList, List.map_map]
+  have hcong : (List.finRange h).map
+        (PWord.evalZ (WordCoh.lift (lSqHessMark s u v) (kappa0Cocycle dat hdat)) E E₂
+          ∘ fun j => PWord.comm (.gen (handleU j)) (.gen (handleV j)))
+      = (List.finRange h).map fun j =>
+          WordCoh.CentExt.incl (kappa0Cocycle dat hdat)
+            (polar q (v (lSqIdxU j)) (v (lSqIdxV j))) := by
+    refine List.map_congr_left fun j _ => ?_
+    show PWord.evalZ (WordCoh.lift (lSqHessMark s u v) (kappa0Cocycle dat hdat)) E E₂
+        (.comm (.gen (handleU j)) (.gen (handleV j))) = _
+    rw [PWord.evalZ_comm, PWord.evalZ_gen, PWord.evalZ_gen,
+      show WordCoh.lift (lSqHessMark s u v) (kappa0Cocycle dat hdat) (handleU j)
+        = hessSlice dat hdat (v (lSqIdxU j)) 0 from rfl,
+      show WordCoh.lift (lSqHessMark s u v) (kappa0Cocycle dat hdat) (handleV j)
+        = hessSlice dat hdat (v (lSqIdxV j)) 0 from rfl,
+      hessSlice_commR dat hdat hV2]
+  rw [hcong,
+    show ((List.finRange h).map fun j => WordCoh.CentExt.incl (kappa0Cocycle dat hdat)
+        (polar q (v (lSqIdxU j)) (v (lSqIdxV j))))
+      = ((List.finRange h).map fun j => polar q (v (lSqIdxU j)) (v (lSqIdxV j))).map
+          (WordCoh.CentExt.incl (kappa0Cocycle dat hdat)) from List.map_map.symm,
+    centExt_incl_list_prod, ← Fin.sum_univ_def]
+
+/-- **The word-side Hessian equation, general `h`, every resolver** (packet Def. 9.1(6) at freeze
+row 1): at the `x₁`-supported normal form the evaluated class-two value of the frozen `L_sq` word
+is the **Wall doubling** of `q` by the `σ₂`-operator, plus the handle planes. -/
+theorem hessRelZ_lSq {h : ℕ} (hV2 : ∀ v : V, v + v = 0) (s u : C)
+    (v : Fin (2 * h + 1 + 1) → V) (hv0 : v (lSqIdx0 h) = 0) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    hessRelZ (lSqHessMark s u v) (kappa0Cocycle dat hdat) E E₂ (lSqW h)
+      = q (v (lSqIdx1 h))
+        + polar q (v (lSqIdx1 h)) ((s ^ E omega2)⁻¹ • v (lSqIdx1 h))
+        + ∑ j, polar q (v (lSqIdxU j)) (v (lSqIdxV j)) := by
+  have hx0 : WordCoh.lift (lSqHessMark s u v) (kappa0Cocycle dat hdat) (coreLetter h 0) = 1 := by
+    show hessSlice dat hdat (v (lSqIdx0 h)) 0 = 1
+    rw [hv0]; rfl
+  have hx1 : WordCoh.lift (lSqHessMark s u v) (kappa0Cocycle dat hdat) (coreLetter h 1)
+      = hessSlice dat hdat (v (lSqIdx1 h)) 0 := rfl
+  have hsig : WordCoh.lift (lSqHessMark s u v) (kappa0Cocycle dat hdat) Generator.sigma
+      = hessLineHom dat hdat s := rfl
+  rw [hessRelZ, hessEvalZ, evalZ_lSqW]
+  simp only [lSqCore, List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one]
+  have e1 : PWord.evalZ (WordCoh.lift (lSqHessMark s u v) (kappa0Cocycle dat hdat)) E E₂
+      (.inv (.conj (.gen (coreLetter h 0)) (.gen .sigma))) = 1 := by
+    rw [PWord.evalZ_inv, PWord.evalZ_conj, PWord.evalZ_gen, PWord.evalZ_gen, hx0, one_conjR,
+      inv_one]
+  have e2 : PWord.evalZ (WordCoh.lift (lSqHessMark s u v) (kappa0Cocycle dat hdat)) E E₂
+      (PWord.omega2Pow (PWord.prodList [.zpow (.gen (coreLetter h 0)) (-3), .gen .tau]))
+      = hessLine dat hdat (u ^ E omega2) := by
+    rw [PWord.omega2Pow, PWord.evalZ_profPow, PWord.prodList_cons, PWord.prodList_cons,
+      PWord.prodList_nil, PWord.evalZ_mul, PWord.evalZ_mul, PWord.evalZ_zpow,
+      PWord.evalZ_gen, PWord.evalZ_gen, PWord.evalZ_one, mul_one, hx0, one_zpow, one_mul,
+      show WordCoh.lift (lSqHessMark s u v) (kappa0Cocycle dat hdat) Generator.tau
+        = hessLineHom dat hdat u from rfl, ← map_zpow]
+    rfl
+  have e3 : PWord.evalZ (WordCoh.lift (lSqHessMark s u v) (kappa0Cocycle dat hdat)) E E₂
+      (.zpow (.gen (coreLetter h 1)) 2)
+      = WordCoh.CentExt.incl _ (q (v (lSqIdx1 h))) := by
+    rw [PWord.evalZ_zpow, PWord.evalZ_gen, hx1, Words.LSq.zpow_two, sq]
+    exact hessSq_of_fibre dat hdat hV2 _ rfl
+  have e4 : PWord.evalZ (WordCoh.lift (lSqHessMark s u v) (kappa0Cocycle dat hdat)) E E₂
+      (.comm (.gen (coreLetter h 1)) (.conj (.gen (coreLetter h 1)) sigma2W))
+      = WordCoh.CentExt.incl _
+          (polar q (v (lSqIdx1 h)) ((s ^ E omega2)⁻¹ • v (lSqIdx1 h))) := by
+    rw [PWord.evalZ_comm, PWord.evalZ_conj, PWord.evalZ_gen, hx1,
+      show PWord.evalZ (WordCoh.lift (lSqHessMark s u v) (kappa0Cocycle dat hdat)) E E₂ sigma2W
+        = hessLine dat hdat (s ^ E omega2) from by
+          rw [sigma2W, PWord.omega2Pow, PWord.evalZ_profPow, PWord.evalZ_gen, hsig,
+            ← map_zpow]
+          rfl,
+      hessSlice_conj_line dat hdat, hessSlice_commR dat hdat hV2]
+  rw [e1, e2, e3, e4, hess_lSqHandles_eval dat hdat hV2 s u v E E₂, one_mul,
+    centExt_incl_mul, mul_assoc, centExt_incl_mul, WordCoh.CentExt.mul_fib, hessLine_fib,
+    WordCoh.CentExt.incl_fib,
+    show (kappa0Cocycle dat hdat).κ
+        (WordCoh.CentExt.base (hessLine dat hdat (u ^ E omega2)))
+        (WordCoh.CentExt.base (WordCoh.CentExt.incl (kappa0Cocycle dat hdat)
+          (q (v (lSqIdx1 h))
+            + polar q (v (lSqIdx1 h)) ((s ^ E omega2)⁻¹ • v (lSqIdx1 h))
+            + ∑ j, polar q (v (lSqIdxU j)) (v (lSqIdxV j))))) = 0 from
+      (kappa0Cocycle dat hdat).κ_one_right _,
+    zero_add, add_zero]
+
+/-- **The `h = 0` word-side equation IS the Wall doubling** `qDouble q U` at `U = S₂⁻¹` — the
+frozen `Γ_R` endpoint `QZeroR` (`GQ2/Roe/Gauss.lean:71`) in campaign vocabulary.  This is the
+identification that lets the presentation-independent `SectionSix`/`GaussSigns` layer be *cited*
+for this row rather than rebuilt. -/
+theorem hessRelZ_lSq_qDouble (hV2 : ∀ v : V, v + v = 0) (s u : C) (c₁ : V)
+    (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    hessRelZ (lSqHessMark s u ![0, c₁]) (kappa0Cocycle dat hdat) E E₂ (lSqW 0)
+      = qDouble q (fun w => (s ^ E omega2)⁻¹ • w) c₁ := by
+  rw [hessRelZ_lSq (h := 0) dat hdat hV2 s u ![0, c₁] rfl E E₂, Fin.sum_univ_zero, add_zero]
+  rfl
+
+/-- The word's evaluated Hessian, as a function of the `x₁`-offset, **is** `qDouble q U`. -/
+theorem lSq_word_eq_qDouble (hV2 : ∀ v : V, v + v = 0) (s u : C) (E : Zhat → ℤ)
+    (E₂ : ℤ_[2] → ℤ) :
+    (fun c₁ : V => hessRelZ (lSqHessMark s u ![0, c₁]) (kappa0Cocycle dat hdat) E E₂ (lSqW 0))
+      = qDouble q (fun w => (s ^ E omega2)⁻¹ • w) :=
+  funext fun c₁ => hessRelZ_lSq_qDouble dat hdat hV2 s u c₁ E E₂
+
+end Hessian
+
 end GQ2.Dyadic.Certificates.LSqStokes
