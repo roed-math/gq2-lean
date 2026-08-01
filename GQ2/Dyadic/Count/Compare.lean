@@ -544,7 +544,11 @@ theorem foxLift_evalGen (z : Z1 Γ A) :
 omit [IsTopologicalGroup Γ] [Finite C] [Finite A] [ContinuousSMul Γ A]
   [DiscreteTopology (WordLift A C)] in
 include hc in
-/-- The split word evaluation at `evalGen z` is `wordHom z` of the word's value in `Γ`. -/
+/-- The split word evaluation at `evalGen z` is `wordHom z` of the word's value in `Γ`.
+
+⚠ No longer consumed: `evalGen_mem_ker` used to route through the word's value *in `Γ`*, which is
+meaningless once the relators are `PWord`s (`Γ` is not finite, so it has no resolved relators).
+Kept as API — it is the honest statement about the `FreeGroup` family. -/
 theorem lift_foxLift_evalGen (z : Z1 Γ A) (r : FreeGroup ι) :
     FreeGroup.lift (foxLift c (evalGen gen z)) r
       = wordHom rho hcompat z (FreeGroup.lift gen r) := by
@@ -558,7 +562,10 @@ theorem lift_foxLift_evalGen (z : Z1 Γ A) (r : FreeGroup ι) :
 
 omit [IsTopologicalGroup Γ] [DiscreteTopology C] [Finite C] in
 include hc in
-/-- The lower marking is the pushforward of the presented marking along `ρ`. -/
+/-- The lower marking is the pushforward of the presented marking along `ρ`.
+
+⚠ No longer consumed, for the same reason as `lift_foxLift_evalGen`: `lower_rel` now goes through
+clause (ii) at the target and `ResolvesAt.pushforward`, not through a relator value in `Γ`. -/
 theorem lift_lower (r : FreeGroup ι) : FreeGroup.lift c r = rho (FreeGroup.lift gen r) := by
   have h : FreeGroup.lift c = rho.toMonoidHom.comp (FreeGroup.lift gen) := by
     apply FreeGroup.ext_hom
