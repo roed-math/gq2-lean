@@ -278,6 +278,7 @@ import GQ2.Dyadic.Count.Spike
 import GQ2.Dyadic.Count.Routine
 import GQ2.Dyadic.Count.ProTwo
 import GQ2.Dyadic.Count.Wild
+import GQ2.Dyadic.Count.WildDischarge
 import GQ2.Dyadic.Count.Compare
 import GQ2.Dyadic.TameQuotientK
 import GQ2.Dyadic.TameBoundary
