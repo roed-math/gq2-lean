@@ -348,6 +348,23 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-08-01 (orchestrator, INTEGRATION FIX + AUDIT-PROCEDURE CORRECTION — the root build
+  was broken for one merge window):** WL-b found that `lake build GQ2` failed at head:
+  WL-a's `Words/L.lean` declared its 20-name alphabet toolkit in the bare
+  `GQ2.Dyadic.Words` namespace, colliding with `Words/N0.lean` the moment GQ2.lean
+  imported both (M0/Npc had chosen sub-namespaces; L had not). **The WL-a integration
+  audit's build step was a FALSE GREEN** — the audit chain piped `lake build` through
+  `tail`, and the pipeline's exit status is tail's, so the failure was masked and
+  check_dyadic (which does not build) then passed; the board's WL-a row claimed "audit
+  green" on that basis and the claim was WRONG for the build half (the WNP-a/WM0-a/WWH
+  audits were re-verified genuinely green — the break entered exactly at WL-a's merge and
+  lasted until this fix). **Fixes**: (i) `Words/L.lean` re-namespaced to
+  `GQ2.Dyadic.Words.LSq` (orchestrator integration fix, the M0/Npc pattern; header note
+  in-file; WL-b's anticipated one-line adaptation applied to LFox.lean + one qualified
+  rfl-pin); root build re-verified green WITH exit-status checking; (ii) **audit
+  procedure corrected going forward: `set -o pipefail` + explicit exit echoes in every
+  build/audit chain** — a silent-failure class is closed; (iii) the real de-dup remains
+  the WAH alphabet hoist (queued; now FIVE files carry variants of the toolkit).
 - **2026-07-31 (orchestrator, WWH outcomes — the toolkit is consolidated):** merged (7
   files, +674/−609; no new files, no import changes; integration audit green). 56
   lane-generic decls hoisted into their owning Word/{Fox,Stokes,Hessian,Blocks} layers,
@@ -1522,7 +1539,7 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| WMP-a | word (both copies) + boundary + sanity (√−10 procyclic; relative-norm + order-9 material docstring-only per the freeze) | fable | `GQ2/Dyadic/Words/Mpc.lean` | G2 ✓ | **dispatched 2026-07-31** (ob worktree, `dyadic-wmpa`) |
+| WMP-a | word (both copies) + boundary + sanity | fable | `GQ2/Dyadic/Words/Mpc.lean` | G2 ✓ | **done 2026-08-01** (8bcf650…f50a781 → merged, import registered; 1714 ln, 160 decls, 0 sorries, 160/160 std-3-or-smaller; **6/6 hash pins incl. merge-gate-9's √−10 55b24a4b…** + the rfl registry pin + two constructor-level kernel pins (OrbitNorm, ZhatPower/etahat — the constructors no WW5 row exercised); ONE builder `rawMpc α r p η h` reduces byte-identically to all six emitted trees; **Prop 9.2 landed as the value-then-vanishing pair** (`prop_9_2_balance` = the ℤ-display −2m·2^r + 2^α·2^r = 0; the hat copy dies at BOTH boundaries by the balance and nothing else); pro-2 = eq:Mpc-core via `mWord` + coreMark form (the MC-M interface); ε-collapse visible in the √−10/√10 instance forms; OrbitNorm bridges rfl at concrete m (rule-2 friction was one level down — the monadic List.range coercion, split lemma provided); reused WNP-a's `toZhat_ne_omega2` per the mid-flight relay; ⚠ display finding: the h=0 Mpc trees carry NO HyperbolicHandles node (third handle-shape variant); new ℤ̂-commutation helpers close the shadow memo's σ-power gap Lean-side → WW-hoist candidates; the WMP-b handoff list (Sh_M operator + σ-column lemma + hat-vanishing row) and the WMP-c spine are in the module docstring) |
 | WMP-b | Fox certificate (linear copy; hat copy has zero first derivative) | fable | `GQ2/Dyadic/Certificates/MpcFox.lean` | WMP-a | pending |
 | WMP-c | Stokes/scalar/Hessian/phase: **self-replication cancellation incl. every `T`-dependent central term** | fable | `GQ2/Dyadic/Certificates/Mpc.lean` | WMP-b | pending |
 
@@ -1563,7 +1580,7 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
 | WL-a | word + boundary + sanity (L_sq; Γ_R cross-identification; q_K>2 pin) | opus | `GQ2/Dyadic/Words/L.lean` | G2 ✓ | **done 2026-07-31** (1cf0acf+b011204 → merged, import registered; 1054 ln, 90 decls, 0 sorries, 90/90 exactly std-3 — **zero B3c/B8** (SqCore/Certificate imported but the rank-3 discharge never applied); 4/4 hash pins + WW5 kernel-pin inheritance by rfl; **`eval_lSqW_zero` = Roe's `wildRelatorR` LITERALLY** — gap = the zpow realignment (TWO forms needed: ℕ-exponent for sqWord, ℤ-exponent for WW1's tree — the one surprise) + prodList associativity; pro-2 = `SqCore.sqRelWord` at every odd degree, h=0 carried onto D_R via SQ4's `sqEquivDRMarked`, letter map uniform (no reindexing); **q_K=4 pin on D₅×D₃**: genuine τ^σ=τ⁴-not-τ² pair, frozen word dies, the σ₂→σ slip mutant does NOT (invisible on all 2-groups — ω₂ = id there); tame VALUE = τ^{ω₂}; `not_killsWild` reproduces — **the KillsWild finding is LANE-WIDE, not a compact-N accident**; ⚠ emitter drops the handle node entirely at n=1 (four children — third handle-shape variant across rows!); collector = docstring-only safety net, no tree needed) |
-| WL-b | Fox certificate (`n=1` base + handle stability) | opus | `GQ2/Dyadic/Certificates/LFox.lean` | WL-a | pending |
+| WL-b | Fox certificate (n=1 base + handle stability) | opus | `GQ2/Dyadic/Certificates/LFox.lean` | WL-a ✓ | **done 2026-08-01** (984045c+880a469 → merged with the orchestrator's one-line namespace adaptation; 1216 ln, 91 decls, 0 sorries, all headlines std-3, zero B3c/B8; **⚠ FOUND THE ROOT-BUILD BREAK** (the WL-a/WN0-a 20-name collision — see the integration-fix log entry); universal row `(0,P,S⁻¹+P,0,…)` — **the SAME formal row as compact-N's on a different column** (L_sq's odd −3 power contributes the whole a(x₀) where N's even p_α gives 0 — augmentation-1 mechanism, errata-pile note); the square-commutator block is INVISIBLE at first order (no σ₂/hU hypothesis anywhere — matches the Γ_R hand row); n=1 transport: the two Fox carriers are the SAME AddMonoidHom (`foxDHom_lSqW_zero`), WW2's targets/ops/verifies reused VERBATIM (one universe twin `{P : Type*}` restatement, rfl-pinned to WL-a's); **handle stability = an AddMonoidHom factorization through `coreRestrict h`** (degree n = n=1 ⊕ 2h zero columns, as an identity); q_K pin = a THEOREM (the wild row cannot see the σ₂ slot, a fortiori q_K — the sensitivity lives at word level); ⚠ tame-relator row items are word-independent and belong in a FoxCert hoist (recorded), `isUnit_oneSubSInvEnd_iff` cited-not-copied (same ticket)) |
 | WL-c | Stokes/scalar/Hessian/phase (`n=1` core + hyperbolic handles) | fable | `GQ2/Dyadic/Certificates/L.lean` | WL-b | pending |
 
 - **[RE-POINTED 2026-07-31 at G-1 — the selected type-L word is `L_sq`, NOT the collector.]**
