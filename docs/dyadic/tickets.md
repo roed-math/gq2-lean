@@ -348,6 +348,25 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-07-31 (orchestrator, WN0-c outcomes — THE PILOT IS END-TO-END; G2 IS NOW THE
+  OWNER'S GATE):** merged, import registered, audit green. The ℚ₂(√−2) pilot lane
+  (WN0-a word → WN0-b Fox → WN0-c Stokes/scalar/Hessian/phase) is complete at the
+  Def 9.1 word-certificate level; WC-N0's tracker row flipped to layer-complete. Adopted:
+  (i) the honest-eval finding (this row needs NO ω₂-representative pin under the
+  x₂-no-primal convention — S4.5's rider bites in the pleasant direction); (ii) the
+  endpoint condition proved GENERALLY (stronger than the per-word decide the WW3 design
+  anticipated — future lanes may inherit `nCompact_isStokesEndpoint`'s pattern); (iii) the
+  e = 1/e = 3 scalar-Gram twins are the Lean shard of S1.T's mod-4 sensitivity; (iv) ⚠
+  **WWH dispatched** (opus, ww worktree, `dyadic-wwh`): the pre-G2 toolkit hoist — WN0-c's
+  four re-derived sections (HeisLift trivial-base closed forms; heisEvalZ constructor
+  rules; the module-side slice calculus, THIRD copy of the NpcJet kit; commR twins) +
+  WN0-b's hoist candidates (trivAct-as-subgroup, `foxD_prodList_of_trivial`,
+  `foxD_comm_of_trivial`, sum_generator_* supports) + WW2's fold-into-Fox items, hoisted
+  into the owning Word/* files with all existing consumers kept compiling — saves ≈350 ln
+  × 4 in the post-G2 lanes and de-triplicates the slice kit. **The four branch lanes
+  (WM0/WNP/WMP/WL) are NOT dispatched — G2 is the owner's review**; the G2 packet is in
+  the session summary (read-first order: WN0-c inventory item 1, then the WN0-a template
+  rules, then the per-lane route notes in WN0-c's report).
 - 2026-07-31 (orchestrator): **second session-limit interruption** (reset 9:30pm ET) killed
   SD-R3 (on its FINAL file — seven per-file commits already banked; `Prop89Close.lean`
   untracked on disk) and WN0-c (reading pass, nothing lost). Both RESUMED on their original
@@ -1131,7 +1150,7 @@ to `master` only at owner gate G3.
 | MC-M | MC1 ✓ → MC2 ✓ → MC3 ✓ → MC5 ✓ | **theorem-complete-modulo-binders 2026-07-31**: classification + matching + certificate all theorems, all std-3, zero census citers; residual = `MMixHypothesis` + S2 scaling + the compact-M CoV datum `IsUnit ν'(C̄₀)` (errata item 3) |
 | MC-N | MC1 ✓ → MC2 ✓ → MC4 ✓ → MC5 ✓ | **theorem-complete-modulo-binders 2026-07-31**: residual = EXACTLY `NScalingHypothesis` (S2 unit scaling; S3 discharged by HM6ef) + pair-unimodularity marked datum |
 | LG-K | LG1 ✓ → LG2a ✓ → LG2 ✓ → LG3 ✓ → LG4a/b/c ✓ → LG5 ✓ | **CLOSED at Lean level 2026-07-29** — `GQ2.Dyadic.local_gauss_K` (packet Thm 6.15) sorry-free at census 9; residual surface = EXACTLY the AX3/AX4 binders (AX4 → `tameFK`/`htameFK`/`hfac`; AX3 → `InvolutionFieldPackage` + `(k₀,htriv,hker₀)` + `(g₀,hg₀,hg₀rt)`), replaced at G-AX; AS1 consumes `local_gauss_K` + `ramifiedCertificateOfSubtype` and drops `DyadicLocalInput.eulerChar` for `card_H1_eq_of_markingK` |
-| WC-N0 | F2, WW1–WW5 → WN0-a/b/c | pending |
+| WC-N0 | F2 ✓, WW1–WW5 ✓ → WN0-a ✓ / b ✓ / c ✓ | **word-certificate layer COMPLETE 2026-07-31** (the pilot lane, end-to-end at Def 9.1 items (1)–(6); remaining = AS1 assembly + the AS2 √−2 instance) |
 | WC-M0 | F2, WW1–WW5 → WM0-a/b/c | pending |
 | WC-Npc | F2, WW1–WW5 → WNP-a/b/c | pending |
 | WC-Mpc | F2, WW1–WW5 → WMP-a/b/c | pending |
@@ -1416,7 +1435,7 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
 |---|---|---|---|---|---|
 | WN0-a | word + boundary specializations + sanity pins | opus | `GQ2/Dyadic/Words/N0.lean` | F1–F4 ✓, WW5 ✓, MC2 ✓, S5.G artifacts ✓ | **done 2026-07-31** (03fe115+8c17c7e+097b1f6 → merged, import registered; 641 ln, 54 decls, 0 sorries, 27/27 headlines std-3-or-smaller, census 11 untouched; **all four frozen N_compact digests reproduced in-kernel** via WW5's pins (no second string literal — `rawNCompact 2 0 = Export.frozenNCompactAlpha2H0` is `rfl`) + `denote_rawNCompact_*` certifying the SEMANTIC word is the certificate's word; pro-2 boundary = MC2's `nWord` core via ONE certified move (`invConj_mul_self`) + associativity — exact AST equality is false and honestly said so; tame boundary stated as the VALUE `τ^{ω₂}` (which surfaced the KillsWild finding); √−2 instance + zmod8 genuine-ω₂ pin + S₃ stress with explicit witnesses; ⚠ `KillsWild` finding + template rules → log; **the file is non-module (FORCED — TameBoundary is non-module) ⇒ Words/ + Certificates/ layers are non-module, lane convention RATIFIED**) |
 | WN0-b | Fox certificate (invertible `1−S^{-1}` unramified block) | opus | `GQ2/Dyadic/Certificates/N0Fox.lean` | WN0-a ✓, WW1 ✓, WW2 ✓ | **done 2026-07-31** (7e5019c…8490635 → merged, import registered; 1265 ln, 91 decls, 0 sorries, 62 exactly-std-3 + 29 strictly-less, census 11; universal wild row `(0,P,0,0,S⁻¹+P)` + tame row matching the frozen Sage certificate ENTRY-FOR-ENTRY; **both frozen one-op normal forms certified op-for-op** (unram `FoxRowOp.addSnd S` = Sage `AddRow(1,0,S)`; ram `FoxColOp.scale x₂ S S⁻¹` = Sage `ScaleCol(x2,S)` with the carried inverse AS the witness); **the `1−S⁻¹` exhibit is an IFF** (`isUnit_oneSubSInvEnd_iff`: invertible iff `V^S = 0` — nontrivial simple unram yes, scalar no, exactly the frozen note); handle columns zero at EVERY h via `foxD_comm_of_trivial` (no freshness needed); √−2 instance pinned; finding: α ≥ 1 suffices at first order — α ≥ 2 is Hessian-only, matching S3.1's Sage measurement; hoist candidates (trivAct-as-subgroup, `foxD_prodList_of_trivial`, …) + gotcha list in-file → cleanup queue) |
-| WN0-c | Stokes + scalar + Hessian + phase certificates | fable | `GQ2/Dyadic/Certificates/N0.lean` | WN0-b ✓, WW3 ✓, WW4 ✓ | **dispatched 2026-07-31** (wn0 worktree, branch `dyadic-wn0c` — the pilot's LAST ticket; G2 review follows its landing) |
+| WN0-c | Stokes + scalar + Hessian + phase certificates | fable | `GQ2/Dyadic/Certificates/N0.lean` | WN0-b ✓, WW3 ✓, WW4 ✓ | **done 2026-07-31** (3afe535…d49961e, 8 commits → merged, import registered; 1456 ln, 94 decls, 0 sorries, 94/94 std-3-or-smaller, census 11; **THE PILOT LANE IS END-TO-END**: Hessian word-side equation `hessRelZ_nCompact` = `q(c₀)+b_q(c₀,c₁)+Σb_q(dⱼ,eⱼ)` at general h + EVERY resolver, landing on WW4's `compactN_certificate` endpoint (identity CoV) with the word-level Gauss consumption; Stokes rows exact-in-resolver + the honest e ≡ 1 (4) class; `IsStokesEndpoint` proved GENERALLY (α ≥ 1, all h, even q, odd e — stronger than per-word decide); duality via `stokesDuality_of_simple`; two scalar Grams by kernel decide (e=1/e=3 twins = S1.T's mod-4 sensitivity as a matrix pair); phase = the c₁-Lagrangian Gauss `2^{nd}` clause in SN shape; **√−2 honest eval carries NO boundary hypotheses** (the x₂-no-primal finding: this row needs no ω₂-representative pin); handles: planes invisible on rank-one + VISIBLE on the extraspecial witness by decide; ⚠ ~350-ln toolkit re-derivation per future -c lane unless hoisted → WWH dispatched; -c pattern notes + WM0/WNP/WMP one-line route notes in report) |
 
 - **WN0-a**: `R_{N,α,0} = x₀^{p_α}[x₀,x₁]·x₂^{-σ}(x₂τ)^{ω₂}·H_h` (draft eq:Ncompact-word;
   `p_α = 2+2^α`, handles `H_h`, **conjugator is σ not σ₂**); tame specialization → 1 (δ-letters

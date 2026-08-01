@@ -255,6 +255,7 @@ import GQ2.Dyadic.Word.Export
 import GQ2.Dyadic.Branches
 import GQ2.Dyadic.Words.N0
 import GQ2.Dyadic.Certificates.N0Fox
+import GQ2.Dyadic.Certificates.N0
 import GQ2.Dyadic.TameQuotientK
 import GQ2.Dyadic.TameBoundary
 import GQ2.Dyadic.MarkedCore.Cores
