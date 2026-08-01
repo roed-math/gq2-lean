@@ -12,6 +12,7 @@ import GQ2.Dyadic.Certificates.M0
 import GQ2.Dyadic.Certificates.L
 import GQ2.Dyadic.Certificates.MpcStokes
 import GQ2.Dyadic.Certificates.Npc
+import GQ2.CardH2GammaA
 
 /-!
 # The five frozen branch families, presented and resolved at their intrinsic words
@@ -27,9 +28,10 @@ to do.  This file records the five, plus the `ω₂`-only status that decides wh
 It is a **leaf**: `Count/Presentation.lean` deliberately does not import the four `Words.*`
 modules the other four rows need (measured delta: `148 → 216` `GQ2` modules, driven by the
 `Roe.Labute` span stack behind `Words.Mpc`), because that file is the count lane's interface and
-CB-4 consumes it.  Everything here is a corollary, so it pays the import cost instead.
+CB-4 consumes it.  Everything here is a corollary, so it pays the import cost instead.  §8.1 adds
+`GQ2.CardH2GammaA` for the refutation witness, a further `+6` `GQ2` modules.
 
-## Contents (CB-FR)
+## Contents (CB-FR, CB-FR2)
 
 * **§1/§2** (CB-TR) the five hypothesis-free presentation instances and the `ω₂`-only inventory.
 * **§3** `ResolvesAt` for the three remaining `ω₂`-only certificate families — `mCompactFam`,
@@ -44,13 +46,49 @@ CB-4 consumes it.  Everything here is a corollary, so it pays the import cost in
   while `η̂` fixes them, so no *constant* resolver survives odd torsion, and at exponent level `6`
   this row has no honest `e` at all.  **§5.4** records that the same node occurs in the
   procyclic-`M` row's `.hat` display.
-* **§6** discharges the count lane's standing `orderOf x ∣ 6` from the lower group: the `6` is
+* **§6** reduces the count lane's standing `orderOf x ∣ 6` to the lower group: the `6` is
   `2` (lift level, `WordLift.orderOf_dvd_two_mul`) times `3` (the tame head's `τ`-order).
+* **§7** (CB-FR2) takes the decision §5.3 forces: `npcResolver N d` is the **two-valued** resolver,
+  `omega2Exp N` at `ω₂` and `1 + padicOmega2Exp (η − 1) N` at `η̂`, and with it
+  `resolvesAt_npcFamOf` carries **exactly** `hN` and `hord` — the same two hypotheses the four
+  `ω₂`-only rows carry, with no `2`-group restriction and no congruence on `η`.  **§7.3** carries
+  the Stokes payload across (only `Odd (E ω₂)` is visible to it, so `npc_isStokesEndpoint` is the
+  *constant instance* of `npcOf_isStokesEndpoint`), and **§7.4** assembles the matched
+  `(hres, hend)` pair, including at level `6` where §5.3 says the constant family has no pin.
+* **§8** (CB-FR2) §6's residue, both ways.  **§8.1**: `∀ g : Bg ⧸ D.M, orderOf g ∣ 3` is **not a
+  theorem** — `GQ2.Dyadic.TameQ.odd_order` concludes `Odd`, not `∣ 3`, and the campaign's own
+  witness `GQ2.CardH2GammaA.datum` refutes the statement at §6's generality.  **§8.2**: it is also
+  not needed — once the resolver is target-chosen the level is `Monoid.exponent`, and the
+  lift-level bound and the resolution are both hypothesis-free.
+* **§9** (CB-FR2) closes §5.4: the mpc-side `ResolvedAt` walk, so the procyclic-`M` `.hat` display
+  resolves at the *same* `npcResolver`, and its endpoint comes free from
+  `Certificates.MProcyclic.epsZ_mpcW`, which was already resolver- and display-generic.
+* **§10** (CB-FR2) **all five rows** as matched `(hres, hend)` pairs at one arbitrary nonzero even
+  level — the other four needed no new work, only `odd_omega2Exp` in place of the literal `Odd 3`,
+  because their `resolvesAt_*` were already level-generic and only §3.1's *pins* were not.  With
+  §8.2's split level this leaves the count lane owing nothing about the target.
 
 ## Axiom posture
 
-`sorry`-free, no new axiom, no `decide`; every declaration prints the standard three, except
-`not_isOmega2Only_hatDisplay`, which prints the strict subset `[propext]`.
+`sorry`-free, no new axiom; every declaration prints the standard three, except
+`not_isOmega2Only_hatDisplay`, which prints the strict subset `[propext]`.  `decide` occurs twice,
+in §8.1's witness computations (`cardH2GammaA_sq_eq_one`, `cardH2GammaA_ne_one`) — kernel
+`decide` on `DihedralGroup 2` and `DihedralGroup 4`, no `native_decide`, no axiom change.
+
+## ⚠ Hoist candidates (here for file-ownership reasons only)
+
+None of these is about the frozen rows; each belongs next to its own machinery and should move
+when its file is next open.  Recorded so the duplication is deliberate rather than lost:
+
+* `resolvesAt_of_resolvedAt` (§5.2) → `Count/Compare.lean`, beside `resolvesAt_heisToFree`;
+* `resolvedAt_prodList` (§5.1) → `Words/Alphabet.lean`, beside `isOmega2Only_prodList`;
+* `zpowHat_padicOmega2_zpow`, `zpowHat_etaHatZ_zpow` (§5.1) → `Word/Syntax.lean`, beside
+  `zpowHat_padicOmega2` and `zpowHat_etaHatZ`;
+* `zsmul_zmod2_odd` (§7.3) → `Word/Stokes.lean`, beside `zsmul_natCast_zmod2_odd`;
+* `odd_omega2Exp` (§7.4) → `GQ2/Omega2.lean`, beside `omega2Exp_modEq_one` (it is the one-line
+  corollary `GQ2/FoxHeisenberg/Basic.lean` already inlines);
+* `resolvedAt_etaDisplay`, `resolvedAt_mpcW` (§9.1) → `Words/Mpc.lean`, beside
+  `isOmega2Only_etaDisplay` and `isOmega2Only_mpcW`, whose proofs they mirror bullet for bullet.
 -/
 
 namespace GQ2.Dyadic
@@ -648,6 +686,564 @@ theorem orderOf_wordLift_vmod_dvd {D : RadicalCoverData Bg} (DD : DescData D)
   WordLift.orderOf_dvd_two_mul (vmod_add_self DD) hbase x
 
 end LiftLevel
+
+/-! ## §7 The two-valued resolver, and the procyclic-`N` row without side conditions
+
+§5.3 leaves the procyclic-`N` row with two options and shows the first one — "move the row to a
+`2`-group target" — is unavailable to the count lane, because §6 shows the counting target is
+`2 · 3`-torsion and not a `2`-group.  This section takes the second: **give the row a resolver
+with two values**, one per profinite exponent node of `npcW`.
+
+The point is that `Certificates.Npc.npcFam`'s `E = fun _ ↦ e` is the only thing that was ever
+constrained.  `npcW` has exactly two `ℤ̂`-exponents, `ω₂` and `η̂`, and *no* `ℤ₂`-exponent node at
+all; §5.1's `resolvedAt_npcW` already asks for nothing but a resolver correct at those two.  So
+the honest object is `E = npcResolver N d`, and with it §5.2's two arithmetic hypotheses **both
+disappear**: `resolvesAt_npcFamOf` carries exactly `hN` and `hord`, the same two hypotheses
+`Count.resolvesAt_gammaFam` carries for the four `ω₂`-only rows, and no more.  In particular
+there is no `2`-group restriction and no `η ≡ 1 (mod 2^a)` congruence.
+
+§5.3's two negatives are untouched and still bound what may be claimed: they are statements about
+*constant* resolvers, and `npcResolver N d` is not constant — `npcResolver_ne_const` records that
+this is exactly how the row escapes them, at the very targets where `not_constant_resolver_of_odd`
+bites. -/
+
+section TwoValued
+
+open GQ2.Dyadic.Certificates Words.Npc
+
+/-! ### §7.1 The resolver
+
+Two values, and the `ℤ̂`-elements they sit at are distinct for every `η`
+(`Words.Npc.toZhat_ne_omega2`), so the definition by cases is well posed and both projections are
+`rfl`-level. -/
+
+/-- **The procyclic-`N` row's `ℤ̂`-resolver at level `N`** — CB-FR's two values, assembled:
+`omega2Exp N` at `ω₂` and `1 + padicOmega2Exp (η − 1) N` at `η̂`.  Both are functions of the target
+level `N` and the branch datum alone, which is CB-TR's target-dependence principle applied twice
+rather than once.
+
+The value away from the two nodes is irrelevant — `npcW` has no other profinite exponent — and is
+taken to be the `η̂` one so that the definition needs a single decision. -/
+noncomputable def npcResolver (N : ℕ) (d : EtaData) (γ : Zhat) : ℤ :=
+  @ite _ (γ = omega2) (Classical.propDecidable _) (omega2Exp N : ℤ)
+    ((1 + padicOmega2Exp (d.toPadic - 1) N : ℕ) : ℤ)
+
+@[simp] theorem npcResolver_omega2 (N : ℕ) (d : EtaData) :
+    npcResolver N d omega2 = (omega2Exp N : ℤ) := if_pos rfl
+
+@[simp] theorem npcResolver_toZhat (N : ℕ) (d : EtaData) :
+    npcResolver N d d.toZhat = ((1 + padicOmega2Exp (d.toPadic - 1) N : ℕ) : ℤ) :=
+  if_neg (Words.Npc.toZhat_ne_omega2 d)
+
+/-- **The resolver is genuinely two-valued at the count lane's own level**: `3` at `ω₂` and `1` at
+`η̂`, for every `1`-unit `η`.
+
+This is exactly how §7 escapes §5.3, and it escapes it without weakening it:
+`not_constant_resolver_of_odd` and `no_constant_pin_npcFam_at_six` are statements about *constant*
+resolvers and both remain true — the row's obstruction was never to resolution as such, only to
+resolving two different profinite exponents with one integer. -/
+theorem npcResolver_ne_const (d : EtaData) (z : ℤ_[2]) (hd : d.toPadic = 1 + 2 * z) :
+    npcResolver 6 d omega2 ≠ npcResolver 6 d d.toZhat := by
+  rw [npcResolver_omega2, npcResolver_toZhat, Ne, Nat.cast_inj]
+  exact npc_levels_ne_at_six z hd
+
+/-! ### §7.2 The family at a general resolver, and the resolution with no side condition -/
+
+variable {Q : Type} [Group Q] [TopologicalSpace Q] [DiscreteTopology Q] [Finite Q]
+
+/-- **The procyclic-`N` family at an arbitrary resolver pair.**  `Certificates.Npc.npcFam` is the
+constant instance (`npcFamOf_const`, by `rfl`), so this is a generalization of the frozen family
+and not a competitor to it: everything below specializes back. -/
+noncomputable def npcFamOf (α r h q : ℕ) (d : EtaData) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    Fin 2 → FreeGroup (Generator (2 + 2 * h)) :=
+  fun k => heisToFree E E₂ (gammaFam (2 + 2 * h) q (Words.Npc.npcW α r h d) k)
+
+@[simp] theorem npcFamOf_zero (α r h q : ℕ) (d : EtaData) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    npcFamOf α r h q d E E₂ 0 = heisToFree E E₂ (tameRelW (2 + 2 * h) q) := rfl
+
+@[simp] theorem npcFamOf_one (α r h q : ℕ) (d : EtaData) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    npcFamOf α r h q d E E₂ 1 = heisToFree E E₂ (Words.Npc.npcW α r h d) := rfl
+
+/-- The frozen family is the constant instance. -/
+theorem npcFamOf_const (α r h q e : ℕ) (d : EtaData) :
+    npcFamOf α r h q d (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) = Npc.npcFam α r h q e d :=
+  (npcFam_eq_gammaFam α r h q e d).symm
+
+/-- **The procyclic-`N` row resolves at every target killed by `N`, with no side condition.**
+
+This is the row's ticket into the count lane, and the exact analogue of
+`Count.resolvesAt_gammaFam` for a word that is not `ω₂`-only: same two hypotheses (`N ≠ 0` and
+`hord`), same shape of conclusion, nothing extra.  Compare `resolvesAt_npcFam`, which needs `e` to
+be simultaneously both levels of the target — a demand §5.3 shows is unsatisfiable at the count
+lane's own level `6`. -/
+theorem resolvesAt_npcFamOf {N : ℕ} (hN : N ≠ 0) (hord : ∀ x : Q, orderOf x ∣ N)
+    (α r h q : ℕ) (d : EtaData) (E₂ : ℤ_[2] → ℤ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.Npc.npcW α r h d))
+      (npcFamOf α r h q d (npcResolver N d) E₂) Q := by
+  refine resolvesAt_of_resolvedAt ?_
+  have hωx : ∀ x : Q, x ^ᶻ omega2 = x ^ npcResolver N d omega2 := by
+    intro x
+    rw [npcResolver_omega2, PWord.zpowHat_omega2_zpow hN (hord x), zpow_natCast]
+  have hηx : ∀ x : Q, x ^ᶻ d.toZhat = x ^ npcResolver N d d.toZhat := by
+    intro x
+    rw [npcResolver_toZhat, EtaData.toZhat, zpowHat_etaHatZ_zpow hN (hord x), zpow_natCast]
+  intro f k
+  match k with
+  | 0 => exact PWord.resolvedAt_of_isOmega2Only f _ _ hωx _ (isOmega2Only_tameRelW _ q)
+  | 1 => exact resolvedAt_npcW f hωx hηx α r
+
+/-! ### §7.3 The Stokes payload at the two-valued resolver
+
+A branch's `hres`, `hd` and `hend` must be read at *one* family (§4's audit item), so moving the
+row to `npcFamOf` obliges us to carry the Stokes endpoint across.  It carries for free, and the
+reason is the one §4 already identified for the `e = 1` twins: the endpoint condition sees only
+the mod-`2` **abelianized** exponent vector, and `npcW`'s two `η̂`-flavoured factors — the front
+block `[x₀, A]` and the correction `E_{r,η} = [D_{r,η}, x₁]` — are commutators.  So `E`'s value at
+`η̂` is invisible to it, and `E₂` is never consulted at all because `npcW` has no `z2pow` node.
+
+Only `E ω₂` survives, through the single visible `ω₂`-node `(x₂τ)^{ω₂}`, and all it has to be is
+odd.  `npc_isStokesEndpoint` is therefore the constant instance of `npcOf_isStokesEndpoint`, not
+the other way round. -/
+
+/-- An odd **integer** scalar is the identity on `ZMod 2` values — the `ℤ`-native twin of
+`zsmul_natCast_zmod2_odd`, needed because a general resolver's `ω₂`-value is an integer and not
+the cast of a natural. -/
+theorem zsmul_zmod2_odd {k : ℤ} (hk : Odd k) (z : ZMod 2) : k • z = z := by
+  obtain ⟨m, rfl⟩ := hk
+  have h : ((2 * m + 1 : ℤ) : ZMod 2) = 1 := by push_cast [CharTwo.two_eq_zero]; ring
+  rw [zsmul_eq_mul, h, one_mul]
+
+/-- **The endpoint condition at an arbitrary resolver.**  Only `Odd (E ω₂)` is used; the resolver
+is unconstrained at `η̂` and `E₂` is unconstrained everywhere. -/
+theorem npcOf_isStokesEndpoint {α r h q : ℕ} {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ} (hα : 1 ≤ α)
+    (hq : Even q) (he : Odd (E omega2)) (d : EtaData) :
+    IsStokesEndpoint (npcFamOf α r h q d E E₂) := by
+  intro i
+  rw [Fin.sum_univ_two, npcFamOf_zero, npcFamOf_one]
+  have htame : heisEps i (heisToFree E E₂ (tameRelW (2 + 2 * h) q))
+      = heisEps i (FreeGroup.of Generator.tau)
+        * (heisEps i (FreeGroup.of Generator.tau) ^ (q : ℤ))⁻¹ := by
+    rw [tameRelW, heisToFree, PWord.evalZ_mul, PWord.evalZ_conj, PWord.evalZ_inv,
+      PWord.evalZ_zpow, PWord.evalZ_gen, PWord.evalZ_gen, map_mul, map_conjR,
+      conjR_eq_self_of_comm, map_inv, map_zpow]
+  have hwild : heisEps i (heisToFree E E₂ (npcW α r h d))
+      = heisEps i (FreeGroup.of (Words.coreLetter h 0)) ^ ((2 : ℤ) + 2 ^ α)
+        * ((heisEps i (FreeGroup.of (Words.coreLetter h 2)))⁻¹
+            * (heisEps i (FreeGroup.of (Words.coreLetter h 2))
+                * heisEps i (FreeGroup.of Generator.tau)) ^ E omega2) := by
+    rw [npcW, heisToFree, PWord.evalZ_prodList]
+    simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one]
+    rw [map_mul, map_mul, map_mul, map_mul, map_mul, PWord.evalZ_zpow, PWord.evalZ_gen, map_zpow,
+      PWord.evalZ_comm, monoidHom_commR_eq_one, PWord.evalZ_inv, PWord.evalZ_conj,
+      PWord.evalZ_gen, PWord.evalZ_prodList, map_inv, map_conjR, conjR_eq_self_of_comm,
+      PWord.omega2Pow, PWord.evalZ_profPow, map_zpow, PWord.prodList_cons,
+      PWord.prodList_cons, PWord.prodList_nil, PWord.evalZ_mul, PWord.evalZ_mul,
+      PWord.evalZ_gen, PWord.evalZ_gen, PWord.evalZ_one, mul_one, map_mul, one_mul,
+      eBlockW, PWord.evalZ_comm, monoidHom_commR_eq_one, Npc.heisEps_handlesW]
+    simp only [mul_one]
+  rw [htame, hwild]
+  simp only [Npc.heisEps_of, toAdd_mul, toAdd_inv, toAdd_zpow, toAdd_ofAdd]
+  rw [zsmul_natCast_zmod2_even hq, zsmul_zmod2_odd he,
+    show ((2 : ℤ) + 2 ^ α) • (if Words.coreLetter h 0 = i then (1 : ZMod 2) else 0) = 0 by
+      rw [show ((2 : ℤ) + 2 ^ α) = ((2 + 2 ^ α : ℕ) : ℤ) by push_cast; ring]
+      exact zsmul_natCast_zmod2_even (Npc.even_two_add_two_pow hα) _]
+  rw [CharTwo.neg_eq, CharTwo.neg_eq]
+  abel_nf
+  simp [CharTwo.two_eq_zero]
+
+/-! ### §7.4 The matched pair
+
+§4's audit item asks for `hres` and `hend` at **one** family.  For the procyclic-`N` row that
+family is `npcFamOf α r h q d (npcResolver N d) E₂`, and the pair is available at every level `N`
+that kills the target and has a nontrivial `2`-part — the second condition only because
+`IsStokesEndpoint` needs the `ω₂`-value odd, which `omega2Exp` delivers exactly when `2 ∣ N`.
+
+The count lane's own level `6` satisfies both, and so does every `2 ^ a` with `a ≥ 1`; note that
+this is the row's *first* pin of any kind at level `6`, since §5.3 shows the constant-resolver
+family has none there. -/
+
+/-- `omega2Exp N` is odd whenever `N` has a nontrivial `2`-part — it is `≡ 1` modulo `2^{v₂ N}`
+(`GQ2.omega2Exp_modEq_one`), hence modulo `2`. -/
+theorem odd_omega2Exp {N : ℕ} (hN : N ≠ 0) (hv : N.factorization 2 ≠ 0) : Odd (omega2Exp N) :=
+  Nat.odd_iff.mpr ((omega2Exp_modEq_one hN hv).of_dvd (dvd_pow_self 2 hv))
+
+/-- The two-valued resolver's `ω₂`-value is odd, as an integer. -/
+theorem odd_npcResolver_omega2 {N : ℕ} (hN : N ≠ 0) (hv : N.factorization 2 ≠ 0) (d : EtaData) :
+    Odd (npcResolver N d omega2) := by
+  obtain ⟨m, hm⟩ := odd_omega2Exp hN hv
+  exact ⟨m, by rw [npcResolver_omega2, hm]; push_cast; ring⟩
+
+/-- **The endpoint condition at the two-valued resolver**, at every even level. -/
+theorem npcResolver_isStokesEndpoint {α r h q N : ℕ} (hα : 1 ≤ α) (hq : Even q) (hN : N ≠ 0)
+    (hv : N.factorization 2 ≠ 0) (d : EtaData) (E₂ : ℤ_[2] → ℤ) :
+    IsStokesEndpoint (npcFamOf α r h q d (npcResolver N d) E₂) :=
+  npcOf_isStokesEndpoint hα hq (odd_npcResolver_omega2 hN hv d) d
+
+/-- **The procyclic-`N` row's matched `(hres, hend)` pair at one family** — the object CB-2…CB-6
+consume.  No `2`-group restriction, no congruence on `η`, no constraint relating the branch datum
+to the target: the only hypotheses are that the level kills the target and is even. -/
+theorem resolvesAt_and_endpoint_npcFamOf {N : ℕ} (hN : N ≠ 0) (hv : N.factorization 2 ≠ 0)
+    (hord : ∀ x : Q, orderOf x ∣ N) {α r h q : ℕ} (hα : 1 ≤ α) (hq : Even q) (d : EtaData)
+    (E₂ : ℤ_[2] → ℤ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (npcW α r h d))
+        (npcFamOf α r h q d (npcResolver N d) E₂) Q
+      ∧ IsStokesEndpoint (npcFamOf α r h q d (npcResolver N d) E₂) :=
+  ⟨resolvesAt_npcFamOf hN hord α r h q d E₂, npcResolver_isStokesEndpoint hα hq hN hv d E₂⟩
+
+/-- **The pair at the count lane's own level `6`.**  Contrast `no_constant_pin_npcFam_at_six`:
+the constant-resolver family has no `e` at all here. -/
+theorem resolvesAt_and_endpoint_npcFamOf_six (hord : ∀ x : Q, orderOf x ∣ 6) {α r h q : ℕ}
+    (hα : 1 ≤ α) (hq : Even q) (d : EtaData) (E₂ : ℤ_[2] → ℤ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (npcW α r h d))
+        (npcFamOf α r h q d (npcResolver 6 d) E₂) Q
+      ∧ IsStokesEndpoint (npcFamOf α r h q d (npcResolver 6 d) E₂) := by
+  refine resolvesAt_and_endpoint_npcFamOf (by norm_num) ?_ hord hα hq d E₂
+  rw [show (6 : ℕ) = 2 ^ 1 * 3 by norm_num, Nat.factorization_mul (by norm_num) (by norm_num),
+    Finsupp.add_apply, Nat.Prime.factorization_pow Nat.prime_two, Finsupp.single_eq_same,
+    Nat.factorization_eq_zero_of_not_dvd (by norm_num)]
+  norm_num
+
+/-- **The resolution at the target's own exponent: no hypotheses at all.**
+
+This is CB-TR's target-dependence principle taken to its conclusion for this row, and it is the
+`ω₂`+`η̂` twin of `Count.resolvesAt_heisToFree_exponent`.  Every finite discrete target has a
+nonzero exponent that kills it, so the level is never something the count lane has to *assume* —
+see §8 for what that does to the standing `orderOf x ∣ 6`. -/
+theorem resolvesAt_npcFamOf_exponent (α r h q : ℕ) (d : EtaData) (E₂ : ℤ_[2] → ℤ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (npcW α r h d))
+      (npcFamOf α r h q d (npcResolver (Monoid.exponent Q) d) E₂) Q :=
+  resolvesAt_npcFamOf Monoid.exponent_ne_zero_of_finite
+    (fun x => Monoid.order_dvd_exponent x) α r h q d E₂
+
+end TwoValued
+
+/-! ## §8 The standing exponent hypothesis: `∣ 3` is not available, and is not needed
+
+§6 reduces `Count/Presentation.lean`'s standing `orderOf x ∣ 6` at the split target to
+`∀ g : Bg ⧸ D.M, orderOf g ∣ 3` at the lower group, and names the tame head's `τ`-order as the
+input.  That reduction is arithmetically correct but the residue is **not a theorem**, and §7
+makes it unnecessary.  Both halves are recorded below, because the pair is what actually settles
+the count lane's level question.
+
+**§8.1 (negative).**  `GQ2.Dyadic.TameQ.odd_order` concludes `Odd (orderOf t)` — not `orderOf t ∣ 3`
+— and only for the `τ`-image, so the `3` never had a formal source.  Worse, at the generality of
+§6's `orderOf_wordLift_radT_dvd_six`, which quantifies over every finite `Bg` and every
+`RadicalCoverData Bg`, the residue is **false**: the campaign's own witness datum
+`GQ2.CardH2GammaA.datum` (the `𝔽₂ → D₈ → 𝔽₂²` cover) has `Bg ⧸ D.M` of order `2`, and `2 ∤ 3`.
+So `orderOf_wordLift_radT_dvd_six`'s `hbase` cannot be discharged from `D` alone, at all.
+
+**§8.2 (positive).**  It does not need to be.  The `6` was never a fact about the target — it was
+the arithmetic needed to make a *constant* resolver honest (`omega2Exp 6 = 3`).  Once the resolver
+is chosen at the target, as CB-TR's redesign intends and as §7 completes for the last row, the
+level is `Monoid.exponent Q`, which every finite target supplies for free.  So the honest lift-level
+statement is hypothesis-free, and so is the resolution that consumes it.
+
+⚠ What does *not* become free is the Stokes endpoint: it needs the `ω₂`-value odd, i.e. `2 ∣ N`
+(`odd_omega2Exp`).  On the split target that is the statement that the `2`-torsion coefficient
+module `Additive ↥D.T` is nontrivial, which is a condition on the branch data — a real one, but a
+much weaker and much more clearly-sourced one than `∣ 3`. -/
+
+section ExponentHypothesis
+
+open GQ2.FoxH GQ2.SectionEight GQ2.SectionEight.AffineTLift
+
+/-! ### §8.1 The `∣ 3` residue is refuted by the campaign's own witness -/
+
+/-- The witness datum's lower group `Bg ⧸ D.M` has an element of order `2`: the class of the
+rotation `r 1`, which is outside `M = ker φ₀ = {r 0, sr 0}`. -/
+theorem cardH2GammaA_sq_eq_one :
+    (QuotientGroup.mk (DihedralGroup.r 1) : CardH2GammaA.Base ⧸ CardH2GammaA.datum.M) ^ 2 = 1 := by
+  rw [← QuotientGroup.mk'_apply, ← map_pow, show (DihedralGroup.r 1 : CardH2GammaA.Base) ^ 2 = 1 by
+    decide, map_one]
+
+theorem cardH2GammaA_ne_one :
+    (QuotientGroup.mk (DihedralGroup.r 1) : CardH2GammaA.Base ⧸ CardH2GammaA.datum.M) ≠ 1 := by
+  rw [Ne, QuotientGroup.eq_one_iff]
+  show (DihedralGroup.r 1 : CardH2GammaA.Base) ∉ CardH2GammaA.Mlayer
+  rw [CardH2GammaA.Mlayer, MonoidHom.mem_ker]
+  decide
+
+/-- **§6's residue is not a theorem.**  `∀ g : Bg ⧸ D.M, orderOf g ∣ 3` fails at the campaign's own
+`RadicalCoverData` witness, so no proof of it from `(D : RadicalCoverData Bg)` alone can exist —
+and `orderOf_wordLift_radT_dvd_six` is stated at exactly that generality.
+
+The reason is visible in the statement of the input: `GQ2.Dyadic.TameQ.odd_order` gives `Odd`, and
+`Odd` does not give `∣ 3`.  Nothing is wrong with §6's arithmetic — `6 = 2 · 3` is right — but the
+`3` is a branch-data assumption, not a consequence of the tame boundary. -/
+theorem not_forall_orderOf_dvd_three_datum :
+    ¬ ∀ g : CardH2GammaA.Base ⧸ CardH2GammaA.datum.M, orderOf g ∣ 3 := by
+  intro h
+  refine cardH2GammaA_ne_one (orderOf_eq_one_iff.mp (Nat.dvd_one.mp ?_))
+  simpa using Nat.dvd_gcd (h _) (orderOf_dvd_of_pow_eq_one cardH2GammaA_sq_eq_one)
+
+/-! ### §8.2 The hypothesis-free replacement -/
+
+variable {Bg : Type} [Group Bg] [Finite Bg]
+
+/-- **The lift-level bound with no hypothesis at all** — §6's `orderOf_wordLift_radT_dvd` at the
+lower group's own exponent, which always exists.  This is the honest form of the `6`: not a
+number, a function of the target. -/
+theorem orderOf_wordLift_radT_dvd_exponent (D : RadicalCoverData Bg)
+    (x : WordLift (Additive ↥D.T) (Bg ⧸ D.M)) :
+    orderOf x ∣ 2 * Monoid.exponent (Bg ⧸ D.M) :=
+  orderOf_wordLift_radT_dvd D (fun g => Monoid.order_dvd_exponent g) x
+
+/-- The `V`-side twin. -/
+theorem orderOf_wordLift_vmod_dvd_exponent {D : RadicalCoverData Bg} (DD : DescData D)
+    {E : Type} [Group E] [DistribMulAction E DD.Vmod] (x : WordLift DD.Vmod E) :
+    orderOf x ∣ 2 * Monoid.exponent E :=
+  orderOf_wordLift_vmod_dvd DD (fun g => Monoid.order_dvd_exponent g) x
+
+/-- The split target's level `2 · exp(Bg ⧸ D.M)` is nonzero and even — the two facts §7.4's
+matched pair asks of a level, both automatic here.  The evenness is the lift level itself, so it
+costs nothing: it is the `2`-torsion of `Additive ↥D.T` showing up as a factor of `N`. -/
+theorem splitLevel_ne_zero_and_even (D : RadicalCoverData Bg) :
+    2 * Monoid.exponent (Bg ⧸ D.M) ≠ 0
+      ∧ (2 * Monoid.exponent (Bg ⧸ D.M)).factorization 2 ≠ 0 := by
+  have he : Monoid.exponent (Bg ⧸ D.M) ≠ 0 := Monoid.exponent_ne_zero_of_finite
+  refine ⟨Nat.mul_ne_zero two_ne_zero he, ?_⟩
+  rw [Nat.factorization_mul two_ne_zero he, Finsupp.add_apply,
+    Nat.Prime.factorization_self Nat.prime_two]
+  simp
+
+/-- **The procyclic-`N` row's matched pair at the count lane's own split target, with no
+hypothesis about the target at all.**
+
+This is the end of the level question for this row.  `hord` comes from §8.2's exponent bound and
+the evenness from the lift level, so what §6 tried to obtain from the tame head — and could not —
+is simply not needed: `2 · exp(Bg ⧸ D.M)` is a level, it kills the target, and it is even because
+`Additive ↥D.T` is `2`-torsion.  The only remaining hypotheses are the branch-word conditions
+`1 ≤ α` and `Even q`, which are conditions on the *word*, not the target. -/
+theorem resolvesAt_and_endpoint_npcFamOf_split (D : RadicalCoverData Bg)
+    [TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    [DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    {α r h q : ℕ} (hα : 1 ≤ α) (hq : Even q) (d : EtaData) (E₂ : ℤ_[2] → ℤ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.Npc.npcW α r h d))
+        (npcFamOf α r h q d (npcResolver (2 * Monoid.exponent (Bg ⧸ D.M)) d) E₂)
+        (WordLift (Additive ↥D.T) (Bg ⧸ D.M))
+      ∧ IsStokesEndpoint
+          (npcFamOf α r h q d (npcResolver (2 * Monoid.exponent (Bg ⧸ D.M)) d) E₂) :=
+  resolvesAt_and_endpoint_npcFamOf (splitLevel_ne_zero_and_even D).1
+    (splitLevel_ne_zero_and_even D).2 (orderOf_wordLift_radT_dvd_exponent D) hα hq d E₂
+
+end ExponentHypothesis
+
+/-! ## §9 The procyclic-`M` row's `.hat` display
+
+§5.4 flags this as uncovered: `Words.Mpc.EtaDisplay.hat` denotes the **same** `η̂` node as the
+procyclic-`N` conjugator (`mpc_hatDisplay_zhat`, by `rfl`), so §3's `resolvesAt_mpcFam` excludes
+it exactly as §3 excludes the procyclic-`N` row, and the fix is the mpc-side twin of §5.1's walk.
+
+It is mechanical, and for the reason CB-FR predicted: `Words.Mpc.isOmega2Only_mpcW`'s proof is a
+walk over the same thirteen factors, and the display enters at exactly two of them — the two
+commutators `[C₀, D]` and `[Ĉ₀, D]`.  Replacing each `ω₂`-only leaf by `resolvedAt_of_isOmega2Only`
+and those two by `resolvedAt_etaDisplay` is the whole content.
+
+The payoff is that **one resolver serves both rows**: the `.hat` display's exponent is
+`EtaData.toZhat ⟨num, den⟩`, so `npcResolver N ⟨num, den⟩` of §7.1 is already correct there, with
+no new definition and no new arithmetic. -/
+
+section MpcHat
+
+open Words Words.Mpc
+
+/-! ### §9.1 The walk -/
+
+section Walk
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+  [TotallyDisconnectedSpace G] {h : ℕ} {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ}
+  (μ : Generator (2 + 2 * h) → G)
+
+/-- The `D`-display is resolved as soon as `E` is correct at the `ℤ̂`-exponent it denotes.  On the
+`.one` and `.lit` displays there is no profinite node and the hypothesis is unused; on `.hat` it
+is the whole content. -/
+theorem resolvedAt_etaDisplay {η : EtaDisplay} (hη : ∀ x : G, x ^ᶻ η.zhat = x ^ E η.zhat) :
+    PWord.ResolvedAt μ E E₂ (η.toPWord (n := 2 + 2 * h)) := by
+  cases η with
+  | one => exact trivial
+  | lit k => exact trivial
+  | hat num den => exact ⟨trivial, hη _⟩
+
+/-- **The `ResolvedAt` walk over `mpcW`** — the mpc-side twin of §5.1's `resolvedAt_npcW`, valid
+at every display.  Like `npcW`, `mpcW` has no `ℤ₂`-exponent node, so `E₂` is unconstrained. -/
+theorem resolvedAt_mpcW (hω : ∀ x : G, x ^ᶻ omega2 = x ^ E omega2) {η : EtaDisplay}
+    (hη : ∀ x : G, x ^ᶻ η.zhat = x ^ E η.zhat) (α r pp : ℕ) :
+    PWord.ResolvedAt μ E E₂ (mpcW α r pp η h) := by
+  have hres : ∀ w : PWord (Generator (2 + 2 * h)), w.IsOmega2Only → PWord.ResolvedAt μ E E₂ w :=
+    fun w => PWord.resolvedAt_of_isOmega2Only μ E E₂ hω w
+  refine resolvedAt_prodList μ E E₂ fun w hw => ?_
+  simp only [linFactors, hatFactors, List.mem_append, List.mem_cons,
+    List.not_mem_nil, or_false] at hw
+  rcases hw with (((rfl | rfl | rfl | rfl | rfl | rfl) | (rfl | rfl | rfl | rfl | rfl)) |
+    (rfl | rfl)) | htail
+  · exact hres _ (isOmega2Only_aW (s r) (m α))
+  · exact ⟨hres _ (isOmega2Only_aW (s r) (m α)), hres _ (isOmega2Only_bW pp)⟩
+  · exact hres _ (isOmega2Only_c0W (s r))
+  · exact ⟨hres _ (isOmega2Only_c0W (s r)), resolvedAt_etaDisplay μ hη⟩
+  · exact hres _ (isOmega2Only_e01W (pp + s r * m α) (s r * m α))
+  · exact hres _ (isOmega2Only_e2W (s r) (m α) pp)
+  · exact hres _ (isOmega2Only_aHatW (s r) (m α))
+  · exact ⟨hres _ (isOmega2Only_aHatW (s r) (m α)), hres _ (isOmega2Only_bHatW pp)⟩
+  · exact hres _ (isOmega2Only_c0HatW (s r))
+  · exact ⟨hres _ (isOmega2Only_c0HatW (s r)), resolvedAt_etaDisplay μ hη⟩
+  · exact hres _ (isOmega2Only_e01W (pp + s r * m α) (s r * m α))
+  · exact hres _ (isOmega2Only_dW 0)
+  · exact ⟨hres _ (isOmega2Only_dW 0), hres _ (isOmega2Only_dW 1)⟩
+  · obtain rfl := eq_handlesW_of_mem_handleTail htail
+    exact hres _ (isOmega2Only_handlesW _)
+
+end Walk
+
+/-! ### §9.2 The family at a general resolver, and the `.hat` row's resolution -/
+
+variable {Q : Type} [Group Q] [TopologicalSpace Q] [DiscreteTopology Q] [Finite Q]
+
+/-- **The procyclic-`M` family at an arbitrary resolver pair.** -/
+noncomputable def mpcFamOf (α r pp h q : ℕ) (η : EtaDisplay) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    Fin 2 → FreeGroup (Generator (2 + 2 * h)) :=
+  fun k => heisToFree E E₂ (gammaFam (2 + 2 * h) q (mpcW α r pp η h) k)
+
+/-- The frozen family is the constant instance. -/
+theorem mpcFamOf_const (α r pp h q e : ℕ) (η : EtaDisplay) :
+    mpcFamOf α r pp h q η (fun _ => (e : ℤ)) (fun _ => (e : ℤ))
+      = Certificates.MProcyclic.mpcFam α r pp h q e η :=
+  (mpcFam_eq_gammaFam α r pp h q e η).symm
+
+/-- **The procyclic-`M` row's `η̂`-display resolves, at every target killed by `N`, with no side
+condition** — §5.4's uncovered case, closed at the same resolver the procyclic-`N` row uses.
+
+The two rows share the node, so they share the resolver: `npcResolver N ⟨num, den⟩` is correct at
+`ω₂` by construction and at `(EtaDisplay.hat num den).zhat` because that exponent *is*
+`EtaData.toZhat ⟨num, den⟩` (`mpc_hatDisplay_zhat`). -/
+theorem resolvesAt_mpcFamOf_hat {N : ℕ} (hN : N ≠ 0) (hord : ∀ x : Q, orderOf x ∣ N)
+    (α r pp h q : ℕ) (num den : ℤ) (E₂ : ℤ_[2] → ℤ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (mpcW α r pp (.hat num den) h))
+      (mpcFamOf α r pp h q (.hat num den) (npcResolver N ⟨num, den⟩) E₂) Q := by
+  refine resolvesAt_of_resolvedAt ?_
+  have hωx : ∀ x : Q, x ^ᶻ omega2 = x ^ npcResolver N (⟨num, den⟩ : EtaData) omega2 := by
+    intro x
+    rw [npcResolver_omega2, PWord.zpowHat_omega2_zpow hN (hord x), zpow_natCast]
+  have hηx : ∀ x : Q, x ^ᶻ (EtaDisplay.hat num den).zhat
+      = x ^ npcResolver N (⟨num, den⟩ : EtaData) ((EtaDisplay.hat num den).zhat) := by
+    intro x
+    rw [show (EtaDisplay.hat num den).zhat = EtaData.toZhat ⟨num, den⟩ from rfl,
+      npcResolver_toZhat, EtaData.toZhat, zpowHat_etaHatZ_zpow hN (hord x), zpow_natCast]
+  intro f k
+  match k with
+  | 0 => exact PWord.resolvedAt_of_isOmega2Only f _ _ hωx _ (isOmega2Only_tameRelW _ q)
+  | 1 => exact resolvedAt_mpcW f hωx hηx α r pp
+
+/-! ### §9.3 The Stokes payload, and the `.hat` row's matched pair
+
+The mpc lane's endpoint computation was already written resolver-generically —
+`Certificates.MProcyclic.epsZ_mpcW` quantifies over `E`, `E₂` **and** the display, because the
+display sits inside the two commutators `[C₀, D]`, `[Ĉ₀, D]` and `epsZ_comm` kills it there.  So
+unlike the procyclic-`N` row (§7.3), nothing has to be re-walked: supplying `Odd (E ω₂)` in place
+of `Odd e` is the entire change. -/
+
+/-- **The procyclic-`M` endpoint condition at an arbitrary resolver**, at every display. -/
+theorem mpcOf_isStokesEndpoint {α r pp h q : ℕ} {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ} (hα : 1 ≤ α)
+    (hq : Even q) (he : Odd (E omega2)) (η : EtaDisplay) :
+    IsStokesEndpoint (mpcFamOf α r pp h q η E E₂) := by
+  intro i
+  rw [Fin.sum_univ_two]
+  show Multiplicative.toAdd
+        (Certificates.MProcyclic.epsZ E E₂ i (Certificates.tameRelW (2 + 2 * h) q))
+      + Multiplicative.toAdd (Certificates.MProcyclic.epsZ E E₂ i (mpcW α r pp η h)) = 0
+  rw [Certificates.MProcyclic.epsZ_tameRelW, Certificates.MProcyclic.epsZ_mpcW _ _ _ hα,
+    Certificates.MProcyclic.epsZ_dW]
+  simp only [Certificates.MProcyclic.epsZ_gen, toAdd_mul, toAdd_inv, toAdd_zpow, toAdd_ofAdd]
+  rw [zsmul_natCast_zmod2_even hq, zsmul_zmod2_odd he, CharTwo.neg_eq, CharTwo.neg_eq]
+  abel_nf
+  simp [CharTwo.two_eq_zero]
+
+/-- **The `.hat` row's matched `(hres, hend)` pair at one family** — the procyclic-`M` twin of
+`resolvesAt_and_endpoint_npcFamOf`, and the statement §5.4 said the row was missing. -/
+theorem resolvesAt_and_endpoint_mpcFamOf_hat {N : ℕ} (hN : N ≠ 0) (hv : N.factorization 2 ≠ 0)
+    (hord : ∀ x : Q, orderOf x ∣ N) {α r pp h q : ℕ} (hα : 1 ≤ α) (hq : Even q) (num den : ℤ)
+    (E₂ : ℤ_[2] → ℤ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (mpcW α r pp (.hat num den) h))
+        (mpcFamOf α r pp h q (.hat num den) (npcResolver N ⟨num, den⟩) E₂) Q
+      ∧ IsStokesEndpoint (mpcFamOf α r pp h q (.hat num den) (npcResolver N ⟨num, den⟩) E₂) :=
+  ⟨resolvesAt_mpcFamOf_hat hN hord α r pp h q num den E₂,
+   mpcOf_isStokesEndpoint hα hq (odd_npcResolver_omega2 hN hv _) _⟩
+
+end MpcHat
+
+/-! ## §10 All five rows at one level, and what that leaves owed
+
+§7 and §9 close the two rows that were outside the `ω₂`-only fragment.  What §8 changes for the
+*other* four is smaller but just as decisive: their `resolvesAt_*` were **already generic in the
+level `N`** (`Count.resolvesAt_nCompactFam`, and §3's three), and it was only the *pins* of §3.1
+that fixed `N = 6` or `N = 2 ^ a`.  With `∣ 3` refuted, those pins have no source — but nothing
+needs re-proving, because `odd_omega2Exp` supplies the endpoint's `Odd e` at the level-chosen
+`e = omega2Exp N` just as it did at the literal `3`.
+
+So the whole count lane runs at one level, and §8.2 says which: `2 · exp(Bg ⧸ D.M)`, nonzero and
+even for free.  Below, each of the five rows as a matched `(hres, hend)` pair at an arbitrary
+nonzero even level, then the split-target instantiation on the pilot row as the template. -/
+
+section AllFive
+
+open GQ2.FoxH GQ2.SectionEight GQ2.SectionEight.AffineTLift GQ2.Dyadic.Certificates
+
+variable {Q : Type} [Group Q] [TopologicalSpace Q] [DiscreteTopology Q] [Finite Q]
+variable {N : ℕ} (hN : N ≠ 0) (hv : N.factorization 2 ≠ 0) (hord : ∀ x : Q, orderOf x ∣ N)
+
+include hN hv hord
+
+/-- **Row 1, compact `N`.** -/
+theorem resolvesAt_and_endpoint_nCompactFam {α h q : ℕ} (hα : 1 ≤ α) (hq : Even q) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.nCompactW α h))
+        (nCompactFam α h q (omega2Exp N)) Q
+      ∧ IsStokesEndpoint (nCompactFam α h q (omega2Exp N)) :=
+  ⟨resolvesAt_nCompactFam hN hord α h q, nCompact_isStokesEndpoint hα hq (odd_omega2Exp hN hv)⟩
+
+/-- **Row 2, compact `M`.** -/
+theorem resolvesAt_and_endpoint_mCompactFam {α h q : ℕ} (hq : Even q) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.MCompact.mCompactW α h))
+        (MCompact.mCompactFam α h q (omega2Exp N)) Q
+      ∧ IsStokesEndpoint (MCompact.mCompactFam α h q (omega2Exp N)) :=
+  ⟨resolvesAt_mCompactFam hN hord α h q,
+   MCompact.mCompact_isStokesEndpoint hq (odd_omega2Exp hN hv)⟩
+
+/-- **Row 3, `L_sq`.** -/
+theorem resolvesAt_and_endpoint_lSqFam {h q : ℕ} (hq : Even q) :
+    ResolvesAt (gammaFam (2 * h + 1) q (Words.LSq.lSqW h))
+        (LSqStokes.lSqFam h q (omega2Exp N)) Q
+      ∧ IsStokesEndpoint (LSqStokes.lSqFam h q (omega2Exp N)) :=
+  ⟨resolvesAt_lSqFam hN hord h q, LSqStokes.lSq_isStokesEndpoint hq (odd_omega2Exp hN hv)⟩
+
+/-- **Row 4, procyclic `M`, at an `ω₂`-only display.**  The `.hat` display is
+`resolvesAt_and_endpoint_mpcFamOf_hat` of §9.3. -/
+theorem resolvesAt_and_endpoint_mpcFam {α r pp h q : ℕ} (hα : 1 ≤ α) (hq : Even q)
+    {η : Words.Mpc.EtaDisplay} (hη : η.IsOmega2Only) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.Mpc.mpcW α r pp η h))
+        (MProcyclic.mpcFam α r pp h q (omega2Exp N) η) Q
+      ∧ IsStokesEndpoint (MProcyclic.mpcFam α r pp h q (omega2Exp N) η) :=
+  ⟨resolvesAt_mpcFam hN hord α r pp h q hη,
+   MProcyclic.mpc_isStokesEndpoint hα hq (odd_omega2Exp hN hv)⟩
+
+omit hN hv hord in
+/-- **The pilot row at the split target, with no hypothesis about the target** — the compact-`N`
+twin of §8.2's `resolvesAt_and_endpoint_npcFamOf_split`, and the shape
+`Count/Presentation.lean`'s `sqrtNegTwo_*_gammaR_nCompact` want in place of their `orderOf x ∣ 6`.
+
+The `√−2` pilot itself is the `(α, h, q) = (2, 0, 2)` instance. -/
+theorem resolvesAt_and_endpoint_nCompactFam_split {Bg : Type} [Group Bg] [Finite Bg]
+    (D : RadicalCoverData Bg)
+    [TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    [DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    {α h q : ℕ} (hα : 1 ≤ α) (hq : Even q) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.nCompactW α h))
+        (nCompactFam α h q (omega2Exp (2 * Monoid.exponent (Bg ⧸ D.M))))
+        (WordLift (Additive ↥D.T) (Bg ⧸ D.M))
+      ∧ IsStokesEndpoint (nCompactFam α h q (omega2Exp (2 * Monoid.exponent (Bg ⧸ D.M)))) :=
+  resolvesAt_and_endpoint_nCompactFam (splitLevel_ne_zero_and_even D).1
+    (splitLevel_ne_zero_and_even D).2 (orderOf_wordLift_radT_dvd_exponent D) hα hq
+
+end AllFive
 
 end Count
 
