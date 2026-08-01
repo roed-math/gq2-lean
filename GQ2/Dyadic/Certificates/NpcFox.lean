@@ -1084,4 +1084,273 @@ theorem tameRow_toHom_apply {n : ℕ} {D : Type*} [Group D] [DistribMulAction D 
 
 end RowDenote
 
+/-! ## §7. The certificates
+
+WW2's records, instantiated at the η̂-alphabet with the interpretation's `A`-element pinned to
+the resolver value `t.σ ^ E(η̂)` — so every certificate is one fixed piece of formal data,
+quantified over the whole module class, over every `η` (through `e`), every resolver, and
+symbolic in `r`.
+
+The freeze's normal-form inventory for this row is **asymmetric**, and the certificates
+reproduce the asymmetry exactly:
+
+* **ramified**: *two* operations (`C_Fox = 2`) — scale the `x₂`-column by `B` (carried inverse
+  `B⁻¹`), then clear the `x₀`-entry against the now-unit `x₂`-entry by a transvection, which
+  needs **no** invertibility of the `x₀`-block at all (that is why the scaling comes first);
+  target the standard `x₂`-pivot.
+* **unramified**: *one* row operation (`row_wild += S·row_tame`) clearing the `τ`-entry, and
+  then the symbolic reduction **stops** at the two-entry block row — no elementary operation
+  is available uniformly in `(r, η)`, and the per-module criteria of §5 take over.  This is a
+  genuine finding about the operator algebra, inherited from the Sage side and reproduced
+  here: the compact lane's diagonal endpoint does not exist for this row. -/
+
+/-- The one row operation of the unramified branch: `row_wild += S · row_tame`
+(Sage `AddRow(1, 0, S)`). -/
+def npcUnramOps (n : ℕ) : List (FoxRowOp (NpcSym n)) := [.addSnd (.atom (.std (.gen .sigma 1)))]
+
+/-- The two column operations of the ramified branch (Sage `ScaleCol(x₂, S^{2^r})` then
+`AddCol(x₀, x₂, A⁻¹+1)`): the scale carries its formal inverse `S^{−2^r}` as data, and the
+transvection clears the `x₀`-entry against the scaled unit `x₂`-entry with no invertibility
+assumption on the `x₀`-block. -/
+def npcRamOps (h r : ℕ) : List (FoxColOp (Generator (2 + 2 * h)) (NpcSym (2 + 2 * h))) :=
+  [.scale (coreLetter h 2) (.atom (.std (.gen .sigma ((2 : ℤ) ^ r))))
+      (.atom (.std (.gen .sigma (-(2 ^ r : ℤ))))),
+   .transvect (coreLetter h 2) (coreLetter h 0) (.neg (x0BlockCoeff (2 + 2 * h)))]
+
+section Certificates
+
+variable {h α r q : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+omit [Finite C] [Finite V] in
+/-- Two `σ`-power atoms with opposite exponents are two-sided inverses in `AddMonoid.End V` —
+the invertibility witness the ramified column scaling carries (symbolic in `r`: instantiated
+at `k = 2^r`, `l = −2^r`). -/
+theorem sigmaAtom_mul (A : C) (π : AddMonoid.End V) {k l : ℤ} (hkl : k + l = 0) :
+    (FoxCoeff.atom (NpcSym.std (TameSym.gen (Generator.sigma (n := 2 + 2 * h)) k))).eval
+        (NpcSym.toEnd t A π)
+      * (FoxCoeff.atom (NpcSym.std (TameSym.gen (Generator.sigma (n := 2 + 2 * h)) l))).eval
+        (NpcSym.toEnd t A π) = 1 := by
+  rw [← FoxCoeff.eval_comp]
+  refine DFunLike.ext _ _ fun v => ?_
+  rw [FoxCoeff.eval_comp_apply, FoxCoeff.eval_atom_apply, FoxCoeff.eval_atom_apply,
+    NpcSym.toEnd_std, NpcSym.toEnd_std, TameSym.toEnd_gen_apply, TameSym.toEnd_gen_apply,
+    ← mul_smul, ← zpow_add, hkl, zpow_zero, one_smul]
+  rfl
+
+/-! ### The published-row certificates (empty ops)
+
+One formal row, `npcWildRow`, certified at both projector interpretations — the "one universal
+row + per-branch specializations" structure, as in the compact lane, now with the η̂-atoms
+interpreted at the resolver value. -/
+
+/-- **The published noncompact-`N` wild row at every unramified simple tame module**: empty
+ops, target the universal row `(0, P, A⁻¹+1, 0, S^{−2^r}+P, 0, …)` read with `P ↦ 1` and
+`A ↦ t.σ ^ E(η̂)`. -/
+noncomputable def npcWildRowCertUnram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hα : 1 ≤ α) (e : EtaData) :
+    FoxRowCertificate (NpcSym.splitEnd (V := V) t (t.σ ^ E e.toZhat))
+      (foxDHom ⇑t E E₂ (npcW α r h e)) where
+  colOps := []
+  target := npcWildRow h r
+  colOps_invertible := by simp
+  verifies := by
+    refine AddMonoidHom.ext fun a => ?_
+    rw [foxRowApplyOps_nil, foxDHom_apply, foxD_npc_unram t E E₂ hV₂ hwild hτ hα e,
+      NpcSym.splitEnd, npcWildRow_toHom_apply]
+    show (t.σ ^ E e.toZhat)⁻¹ • a (coreLetter h 0) - a (coreLetter h 0)
+        + (a .tau + (a (coreLetter h 2) - (t.σ ^ ((2 : ℤ) ^ r))⁻¹ • a (coreLetter h 2)))
+      = a .tau + (((t.σ ^ E e.toZhat)⁻¹ • a (coreLetter h 0) + a (coreLetter h 0))
+          + ((t.σ ^ ((2 : ℤ) ^ r))⁻¹ • a (coreLetter h 2) + a (coreLetter h 2)))
+    simp only [sub_eq_add_neg, neg_eq_self hV₂]
+    abel
+
+/-- **The published noncompact-`N` wild row at every ramified simple tame module**: the *same*
+formal row read with `P ↦ 0`, i.e. `(0, 0, A⁻¹+1, 0, S^{−2^r}, 0, …)` — two surviving entries
+where the compact row had one. -/
+noncomputable def npcWildRowCertRam (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hτfpf : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v)
+    (hα : 1 ≤ α) (e : EtaData) :
+    FoxRowCertificate (NpcSym.ramifiedEnd (V := V) t (t.σ ^ E e.toZhat))
+      (foxDHom ⇑t E E₂ (npcW α r h e)) where
+  colOps := []
+  target := npcWildRow h r
+  colOps_invertible := by simp
+  verifies := by
+    refine AddMonoidHom.ext fun a => ?_
+    rw [foxRowApplyOps_nil, foxDHom_apply, foxD_npc_ram t E E₂ hV₂ hwild hτfpf hTodd hα e,
+      NpcSym.ramifiedEnd, npcWildRow_toHom_apply]
+    show (t.σ ^ E e.toZhat)⁻¹ • a (coreLetter h 0) - a (coreLetter h 0)
+        - (t.σ ^ ((2 : ℤ) ^ r))⁻¹ • a (coreLetter h 2)
+      = (0 : V) + (((t.σ ^ E e.toZhat)⁻¹ • a (coreLetter h 0) + a (coreLetter h 0))
+          + ((t.σ ^ ((2 : ℤ) ^ r))⁻¹ • a (coreLetter h 2) + (0 : V)))
+    simp only [sub_eq_add_neg, neg_eq_self hV₂]
+    abel
+
+/-- **The split (scalar) module certificate**: with `σ` acting trivially both η̂- and
+`B`-blocks die and the row *is already* the standard `τ`-pivot — zero operations, target
+`FoxRowNormalForm.single .tau`.  The scalar module separates nothing, corrected word or
+not. -/
+noncomputable def npcWildRowCertSplit (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hσ : ∀ v : V, t.σ • v = v) (hα : 1 ≤ α) (e : EtaData) :
+    FoxRowCertificate (NpcSym.splitEnd (V := V) t (t.σ ^ E e.toZhat))
+      (foxDHom ⇑t E E₂ (npcW α r h e)) where
+  colOps := []
+  target := .single .tau
+  colOps_invertible := by simp
+  verifies := by
+    refine AddMonoidHom.ext fun a => ?_
+    rw [foxRowApplyOps_nil, foxDHom_apply, foxD_npc_split t E E₂ hV₂ hwild hτ hσ hα e,
+      FoxRowNormalForm.single_toHom_apply]
+
+/-- **The tame row certificate** at every split or unramified module: empty ops, target
+`(0, S⁻¹, 0, …)`. -/
+noncomputable def npcTameRowCertUnram (hV₂ : ∀ v : V, v + v = 0) (hτ : ∀ v : V, t.τ • v = v)
+    (hq : Even q) (e : EtaData) :
+    FoxRowCertificate (NpcSym.splitEnd (V := V) t (t.σ ^ E e.toZhat))
+      (foxDHom ⇑t E E₂ (tameRelW (2 + 2 * h) q)) where
+  colOps := []
+  target := tameUnramRow _
+  colOps_invertible := by simp
+  verifies := by
+    refine AddMonoidHom.ext fun a => ?_
+    rw [foxRowApplyOps_nil, foxDHom_apply, foxD_tameRelW_unram t E E₂ hV₂ hτ hq,
+      NpcSym.splitEnd, tameUnramRow_toHom_apply]
+
+/-! ### The branch normal forms -/
+
+/-- **The unramified branch's normal form — one operation, then the honest stop.**
+
+The single row operation `row_wild += S · row_tame` (`npcUnramOps`) clears the wild row's
+`τ`-entry against the tame pivot, and the Jacobian lands on
+
+```
+( tame ↦ (0, S⁻¹, 0, 0, 0) ;  wild ↦ (0, 0, A⁻¹+1, 0, 1+S^{−2^r}) ).
+```
+
+There the symbolic reduction **stops** (the freeze's honest-stop note, reproduced): the block
+row has *two* surviving entries and neither is a unit of the operator algebra uniformly in
+`(r, η)`.  On any unramified **simple** module the per-entry criteria `isUnit_x0Block_iff` /
+`isUnit_x2Block_iff` decide invertibility (`V^A = 0`, resp. `V^{σ^{2^r}} = 0`); both entries
+vanish simultaneously only on the scalar module (`npcWildRowCertSplit`). -/
+noncomputable def npcJacobianCertUnram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hq : Even q) (hα : 1 ≤ α) (e : EtaData) :
+    FoxCertificate (NpcSym.splitEnd (V := V) t (t.σ ^ E e.toZhat))
+      (foxJacobian ⇑t E E₂ (tameRelW (2 + 2 * h) q) (npcW α r h e)) where
+  rowOps := npcUnramOps _
+  colOps := []
+  target := ⟨tameUnramRow _, npcBlockRow h r⟩
+  rowOps_invertible := by
+    intro rop hrop
+    rw [npcUnramOps, List.mem_singleton] at hrop
+    subst hrop
+    trivial
+  colOps_invertible := by simp
+  verifies := by
+    refine AddMonoidHom.ext fun a => ?_
+    rw [foxApplyOps_apply, FoxColOp.listHom_nil, AddMonoidHom.id_apply, npcUnramOps,
+      FoxRowOp.listHom_cons, FoxRowOp.listHom_nil, AddMonoidHom.comp_apply,
+      AddMonoidHom.id_apply, foxJacobian_apply, FoxRowOp.toHom_addSnd_apply,
+      FoxNormalForm.toHom_apply]
+    refine Prod.ext ?_ ?_
+    · show foxD ⇑t a E E₂ (tameRelW (2 + 2 * h) q) = _
+      rw [foxD_tameRelW_unram t E E₂ hV₂ hτ hq, NpcSym.splitEnd, tameUnramRow_toHom_apply]
+    · show foxD ⇑t a E E₂ (npcW α r h e)
+          + (FoxCoeff.atom (NpcSym.std (TameSym.gen Generator.sigma 1))).eval _
+            (foxD ⇑t a E E₂ (tameRelW (2 + 2 * h) q)) = _
+      rw [foxD_npc_unram t E E₂ hV₂ hwild hτ hα e, foxD_tameRelW_unram t E E₂ hV₂ hτ hq,
+        NpcSym.splitEnd, FoxCoeff.eval_atom_apply, NpcSym.toEnd_std, TameSym.toEnd_gen_apply,
+        Marking.apply_sigma, zpow_one, smul_inv_smul, npcBlockRow_toHom_apply]
+      rw [show (t.σ ^ E e.toZhat)⁻¹ • a (coreLetter h 0) - a (coreLetter h 0)
+            + (a .tau + (a (coreLetter h 2) - (t.σ ^ ((2 : ℤ) ^ r))⁻¹ • a (coreLetter h 2)))
+            + a .tau
+          = (a .tau + a .tau)
+            + ((t.σ ^ E e.toZhat)⁻¹ • a (coreLetter h 0) - a (coreLetter h 0)
+              + (a (coreLetter h 2) - (t.σ ^ ((2 : ℤ) ^ r))⁻¹ • a (coreLetter h 2))) by abel,
+        hV₂, zero_add]
+      simp only [sub_eq_add_neg, neg_eq_self hV₂]
+
+/-- **The ramified branch's two-operation normal form** (`C_Fox = 2`, the freeze's charge).
+
+The scale `col_{x₂} *= S^{2^r}` (carried inverse `S^{−2^r}` — the invertibility witness
+travels with the operation, symbolic in `r`) turns the single unit entry `−B⁻¹` into `1`; the
+transvection then clears the leftover `x₀`-entry `A⁻¹−1` against it, with **no** invertibility
+assumption on the `x₀`-block — which is exactly why the scaling must come first.  The wild
+relator still splits `x₂` off outright, as in the compact row, at the cost of one extra
+operation; the tame row (whose `x₀`- and `x₂`-entries are zero) is untouched and stays the
+universal `(S⁻¹(T−1), S⁻¹ − N_q(T), 0, …)`. -/
+noncomputable def npcJacobianCertRam (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hτfpf : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v)
+    (hrel : conjR t.τ t.σ = t.τ ^ q) (hα : 1 ≤ α) (e : EtaData) :
+    FoxCertificate (NpcSym.ramifiedEnd (V := V) t (t.σ ^ E e.toZhat))
+      (foxJacobian ⇑t E E₂ (tameRelW (2 + 2 * h) q) (npcW α r h e)) where
+  rowOps := []
+  colOps := npcRamOps h r
+  target := ⟨tameRow _ q, .single (coreLetter h 2)⟩
+  rowOps_invertible := by simp
+  colOps_invertible := by
+    intro c hc
+    rw [npcRamOps] at hc
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at hc
+    rcases hc with rfl | rfl
+    · exact ⟨sigmaAtom_mul t _ _ (by ring), sigmaAtom_mul t _ _ (by ring)⟩
+    · exact coreLetter_two_ne_zero h
+  verifies := by
+    refine AddMonoidHom.ext fun a => ?_
+    rw [foxApplyOps_apply, FoxRowOp.listHom_nil, AddMonoidHom.id_apply, npcRamOps,
+      FoxColOp.listHom_cons, FoxColOp.listHom_cons, FoxColOp.listHom_nil,
+      AddMonoidHom.comp_apply, AddMonoidHom.comp_apply, AddMonoidHom.id_apply,
+      foxJacobian_apply, FoxNormalForm.toHom_apply]
+    set b := FoxColOp.toHom (NpcSym.ramifiedEnd (V := V) t (t.σ ^ E e.toZhat))
+        (FoxColOp.scale (coreLetter h 2) (.atom (.std (.gen .sigma ((2 : ℤ) ^ r))))
+          (.atom (.std (.gen .sigma (-(2 ^ r : ℤ))))))
+        (FoxColOp.toHom (NpcSym.ramifiedEnd (V := V) t (t.σ ^ E e.toZhat))
+          (FoxColOp.transvect (coreLetter h 2) (coreLetter h 0)
+            (.neg (x0BlockCoeff (2 + 2 * h)))) a) with hb
+    have hbσ : b .sigma = a .sigma := by
+      rw [hb]
+      simp only [FoxColOp.toHom_scale_apply, FoxColOp.toHom_transvect_apply,
+        if_neg (sigma_ne_coreLetter_two h), add_zero]
+    have hbτ : b .tau = a .tau := by
+      rw [hb]
+      simp only [FoxColOp.toHom_scale_apply, FoxColOp.toHom_transvect_apply,
+        if_neg (tau_ne_coreLetter_two h), add_zero]
+    have hbx0 : b (coreLetter h 0) = a (coreLetter h 0) := by
+      rw [hb]
+      simp only [FoxColOp.toHom_scale_apply, FoxColOp.toHom_transvect_apply,
+        if_neg (coreLetter_zero_ne_two h), add_zero]
+    have hbx2 : b (coreLetter h 2)
+        = t.σ ^ ((2 : ℤ) ^ r) • (a (coreLetter h 2)
+            + -((t.σ ^ E e.toZhat)⁻¹ • a (coreLetter h 0) + a (coreLetter h 0))) := by
+      rw [hb]
+      simp only [FoxColOp.toHom_scale_apply, FoxColOp.toHom_transvect_apply, reduceIte]
+      simp only [NpcSym.ramifiedEnd, NpcSym.toEnd_std, NpcSym.toEnd_etaA_apply, x0BlockCoeff,
+        FoxCoeff.eval_neg_apply, FoxCoeff.eval_add_apply, FoxCoeff.eval_atom_apply,
+        FoxCoeff.eval_one_apply, TameSym.toEnd_gen_apply, Marking.apply_sigma, zpow_neg,
+        zpow_one]
+    refine Prod.ext ?_ ?_
+    · show foxD ⇑t b E E₂ (tameRelW (2 + 2 * h) q) = _
+      rw [foxD_tameRelW_of_tameRel t E E₂ hrel, hbτ, hbσ, NpcSym.ramifiedEnd,
+        tameRow_toHom_apply]
+      simp only [smul_add, smul_sub]
+      abel
+    · show foxD ⇑t b E E₂ (npcW α r h e)
+          = (FoxRowNormalForm.single (coreLetter h 2)).toHom
+              (NpcSym.ramifiedEnd t (t.σ ^ E e.toZhat)) a
+      rw [foxD_npc_ram t E E₂ hV₂ hwild hτfpf hTodd hα e, hbx0, hbx2, inv_smul_smul,
+        FoxRowNormalForm.single_toHom_apply]
+      rw [show (t.σ ^ E e.toZhat)⁻¹ • a (coreLetter h 0) - a (coreLetter h 0)
+            - (a (coreLetter h 2)
+              + -((t.σ ^ E e.toZhat)⁻¹ • a (coreLetter h 0) + a (coreLetter h 0)))
+          = ((t.σ ^ E e.toZhat)⁻¹ • a (coreLetter h 0)
+              + (t.σ ^ E e.toZhat)⁻¹ • a (coreLetter h 0)) - a (coreLetter h 2) by abel,
+        hV₂, zero_sub, neg_eq_self hV₂]
+
+end Certificates
+
 end GQ2.Dyadic.Certificates.Npc
