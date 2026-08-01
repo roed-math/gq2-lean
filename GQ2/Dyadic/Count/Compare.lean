@@ -78,8 +78,37 @@ every headline below is still std-3.
 
 `GQ2.CentralObstruction` and `GQ2.VCocycle` supply `TCocycle`/`VCocycle`.
 
+## Verified against the consumer (for CB-4)
+
+Both field values were checked by stating the **verbatim `SourceDataN` field goal** — in the
+recursion's own vocabulary (`RF.YB`, `En.radData l h`, `En.descData l h`, `rhoPrimeK`,
+`BoundaryLiftsK`) — and closing it with the theorem below.  Both close.  The recipes:
+
+* `tcocycle_card` ← `tcocycle_cardN`, with three `letI`s and **nothing else**:
+  ```
+  letI : TopologicalSpace (Additive ↥(En.radData l h).T) := ⊥
+  haveI : DiscreteTopology (Additive ↥(En.radData l h).T) := ⟨rfl⟩
+  letI : DistribMulAction Γ (Additive ↥(En.radData l h).T) :=
+    DistribMulAction.compHom _ (rhoPrimeK RF b F (En.radData l h) rfl ρ).toMonoidHom
+  exact tcocycle_cardN (rhoPrimeK RF b F (En.radData l h) rfl ρ) (fun _ _ => rfl) hc …
+  ```
+  The `hcomp` argument is `rfl` — the `cActT` instance imported here **is** the one the field is
+  stated against, so no transport is needed.
+* `hZcard` ← `hZcardN` at `E := RF.YC`, `theta := ρ.1.1`, with `hround` discharged for free by the
+  already-landed `rho0_descData_rhoPrimeK` (`GQ2/Dyadic/Recursion/Phase140Assembly.lean:77`):
+  ```
+  fun γ v => congrArg (fun g : RF.YC => g • v) (rho0_descData_rhoPrimeK b F En l h ρ γ)
+  ```
+  ⚠ **One extra `letI` is needed**, and it is a pre-existing seam of the recursion's vocabulary,
+  not one this file introduces: `En.Vmod` and `(En.descData l h).Vmod` are definitionally equal but
+  not syntactically so, so instance search does not find `DistribMulAction RF.YC` on the latter.
+  Add `letI : DistribMulAction RF.YC (En.descData l h).Vmod := (inferInstance : DistribMulAction
+  RF.YC En.Vmod)`.  (The `ℚ₂` proofs lean on the same defeq, but implicitly, through `rw`.)
+  `hsimple` is the record's own binder plus `hVne`: `⟨nontrivial_of_ne 0 v hv.symm, hsimple⟩`.
+
 Axioms: no new axioms, no `sorry`, no `decide`.  Every headline prints exactly the standard three
-(`propext`, `Classical.choice`, `Quot.sound`).
+(`propext`, `Classical.choice`, `Quot.sound`) — two (`lift_foxLift_g`, `lift_lower`) print a
+strict subset.
 -/
 
 namespace GQ2.Dyadic.Count
