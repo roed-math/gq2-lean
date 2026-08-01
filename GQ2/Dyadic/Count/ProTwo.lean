@@ -100,7 +100,10 @@ Lemma 3.1 ⟦lem:pro2word⟧ (the `ℚ₂` instance); CB1's memo `docs/dyadic/cb
 
 namespace GQ2.Dyadic.Count
 
-open GQ2 GQ2.Dyadic
+-- ORCHESTRATOR MERGE FIX 2026-08-01: branch predated AS1-b's deletion of AS1's §2b
+-- top-level `TameSpecializes`/`tameOfSpec` in favour of F3b's `TameSpec` namespace;
+-- `open TameSpec` re-resolves the bare identifiers (same adaptation as AS1-b and CB-0).
+open GQ2 GQ2.Dyadic GQ2.Dyadic.TameSpec
 
 /-! ## §1 The core, in alphabet coordinates
 
