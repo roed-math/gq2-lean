@@ -168,7 +168,7 @@ quotient surjections. -/
 theorem topGen_gammaR (n q : ℕ) (R : PWord (Generator n)) :
     (Subgroup.closure (Set.range (gammaGen n q R))).topologicalClosure = ⊤ := by
   have h := TopGen.map (gammaMk n q R).toMonoidHom (gammaMk n q R).continuous_toFun
-    (quotientMk_surjective (relatorSubgroup (gammaRelators n q R)))
+    (gammaMk_surjective n q R)
     (TopGen.freeProfiniteGroup (Generator n))
   rwa [← Set.range_comp] at h
 
