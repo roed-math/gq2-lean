@@ -119,4 +119,85 @@ theorem freeMarking_map_toQ2F :
   | .wild ⟨1, _⟩ => exact toQ2F_of _
   | .wild ⟨k + 2, hk⟩ => exact absurd hk (by omega)
 
+/-! ## §3 The two relators, and the two admissibility conditions -/
+
+/-- The dyadic tame relator at `(n, q) = (1, 2)` transports to `GQ2.Marking.tameRelator`. -/
+theorem toQ2F_tameRelatorGen : toQ2F (tameRelatorGen 1 2) = univMarking.tameRelator := by
+  simp only [tameRelatorGen, _root_.GQ2.Marking.tameRelator, univMarking, conjP,
+    map_mul, map_inv, map_pow, toQ2F_of, genToFin]
+
+/-- **The frozen `L_sq` word at `n = 1` transports to Roe's wild relator `r_R`** — WL-a's
+`eval_lSqW_zero`, moved upstairs into the free profinite group.  This is the identification the
+whole file turns on. -/
+theorem toQ2F_eval_lSqW :
+    toQ2F ((freeMarking 1).eval (lSqW 0)) = univMarking.wildRelatorR := by
+  rw [Marking.map_eval, freeMarking_map_toQ2F, eval_lSqW_zero]
+
+/-- The wild letters `x₀, x₁` transport to the `ℚ₂` wild pair. -/
+theorem image_wildFree_toQ2F :
+    ⇑toQ2F.toMonoidHom '' wildFree 1 = {univMarking.x₀, univMarking.x₁} := by
+  rw [image_wildFree]
+  ext y
+  simp only [Set.mem_range, Set.mem_insert_iff, Set.mem_singleton_iff, univMarking]
+  constructor
+  · rintro ⟨i, rfl⟩
+    fin_cases i
+    · exact Or.inl (toQ2F_of _)
+    · exact Or.inr (toQ2F_of _)
+  · rintro (rfl | rfl)
+    exacts [⟨0, toQ2F_of _⟩, ⟨1, toQ2F_of _⟩]
+
+/-- **The `n = 1` admissibility criteria agree.**  An open normal `U ≤ F(σ, τ, x₀, x₁)` is
+`L_sq`-admissible in the dyadic sense (`GQ2/Dyadic/AdmissibleR.lean`) exactly when the
+corresponding `V ≤ F₄` is `R`-admissible in Roe's sense (`GQ2/Roe/GammaR.lean`).
+
+All four clauses are *cited*, not reproved: `GQ2.generates_univMarking_map` for the generation
+clause `IsAdmissibleU` drops, `GQ2.Marking.map_tameRelator_eq_one_iff` and
+`GQ2.Marking.map_wildRelatorR_eq_one_iff` for the two relations, and AdmissibleR's own §0
+kernel-transfer `isPGroup_map_of_ker_le` for the `2`-core clause. -/
+theorem isAdmissibleU_iff_isAdmissibleUR
+    (U : OpenNormalSubgroup ((FreeProfiniteGroup (Generator 1)) : Type))
+    (V : OpenNormalSubgroup ((FreeProfiniteGroup (Fin 4)) : Type))
+    (hUV : ∀ w, w ∈ U.toSubgroup ↔ toQ2F w ∈ V.toSubgroup) :
+    IsAdmissibleU 1 2 (lSqW 0) U ↔ GQ2.IsAdmissibleUR V := by
+  haveI : U.toSubgroup.Normal := U.isNormal'
+  haveI : V.toSubgroup.Normal := V.isNormal'
+  set qU := QuotientGroup.mk' U.toSubgroup with hqU
+  set qV := QuotientGroup.mk' V.toSubgroup with hqV
+  -- the composite `F(σ,τ,x₀,x₁) → F₄ → F₄ ⧸ V` has kernel exactly `U`
+  have hker : (qV.comp toQ2F.toMonoidHom).ker = U.toSubgroup := by
+    ext w
+    simp only [MonoidHom.mem_ker, MonoidHom.comp_apply, hqV, QuotientGroup.mk'_apply,
+      QuotientGroup.eq_one_iff]
+    exact (hUV w).symm
+  have hkerU : qU.ker = U.toSubgroup := QuotientGroup.ker_mk' _
+  -- ### the `2`-core clause
+  have hcore : IsPGroup 2 ((Subgroup.normalClosure (wildFree 1)).map qU)
+      ↔ (univMarking.map qV).Pro2Core := by
+    have hmid : (Subgroup.normalClosure (wildFree 1)).map (qV.comp toQ2F.toMonoidHom)
+        = (Subgroup.normalClosure ({univMarking.x₀, univMarking.x₁} : Set _)).map qV := by
+      rw [← Subgroup.map_map, Subgroup.map_normalClosure _ _ toQ2F_surjective,
+        image_wildFree_toQ2F]
+    have hR : (univMarking.map qV).Pro2Core
+        ↔ IsPGroup 2 ((Subgroup.normalClosure ({univMarking.x₀, univMarking.x₁} : Set _)).map qV) := by
+      rw [_root_.GQ2.Marking.Pro2Core, Subgroup.map_normalClosure _ _ (QuotientGroup.mk'_surjective _),
+        Set.image_pair]
+      rfl
+    rw [hR, ← hmid]
+    exact ⟨fun h => isPGroup_map_of_ker_le qU _ (by rw [hkerU, hker]) h,
+      fun h => isPGroup_map_of_ker_le _ qU (by rw [hkerU, hker]) h⟩
+  -- ### the two relations
+  have htame : tameRelatorGen 1 2 ∈ U.toSubgroup ↔ (univMarking.map qV).TameRel := by
+    rw [hUV, toQ2F_tameRelatorGen, ← QuotientGroup.eq_one_iff]
+    exact _root_.GQ2.Marking.map_tameRelator_eq_one_iff (quotientMk V.toSubgroup) univMarking
+  have hwild : (freeMarking 1).eval (lSqW 0) ∈ U.toSubgroup ↔ (univMarking.map qV).WildRelR := by
+    rw [hUV, toQ2F_eval_lSqW, ← QuotientGroup.eq_one_iff]
+    exact _root_.GQ2.Marking.map_wildRelatorR_eq_one_iff (quotientMk V.toSubgroup) univMarking
+  -- ### assembly
+  rw [IsAdmissibleU, _root_.GQ2.IsAdmissibleUR, _root_.GQ2.Marking.AdmissibleR, gammaRelators]
+  simp only [Set.mem_insert_iff, Set.mem_singleton_iff, forall_eq_or_imp, forall_eq]
+  rw [htame, hwild, hcore]
+  exact ⟨fun h => ⟨generates_univMarking_map V, h.1.1, h.1.2, h.2⟩,
+    fun h => ⟨⟨h.2.1, h.2.2.1⟩, h.2.2.2⟩⟩
+
 end GQ2.Dyadic.QTwo
