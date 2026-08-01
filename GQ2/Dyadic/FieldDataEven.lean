@@ -73,27 +73,31 @@ the branch-free disjunction for assemblers that do not want to case on `κ_K`.
 
 A leaf: nothing imports this file, and `GQ2/Dyadic/FieldData.lean` is untouched.  Not
 `module`-style (it imports the plain-import `FieldData`).  No new instances.  No
-`native_decide`; the only `decide`s are four-element `𝔽₂ × 𝔽₂` checks on `headGram`.
+`native_decide`; every `decide` is a kernel `decide` over `𝔽₂ × 𝔽₂` or `𝔽₂ × 𝔽₂ × 𝔽₂` (at most
+64 cases) — the `headGram` pins of §1.1 and the six `headDiagEquiv` field obligations.
 
 ## Axiom state
 
-Audited by `#print axioms` on all named declarations.  **No new axioms**: every declaration
-prints a subset of std-3 ∪ {B6, B7, B11a} — the same set FD1 used — and the census stays at
-eleven.  Zero `sorryAx`, zero `native_decide`.  Per headline:
+Audited by `#print axioms` on all 28 named declarations, run in a scratch file, not committed.
+**No new axioms**: every declaration prints a subset of std-3 ∪ {B6, B7, B11a} — exactly the set
+FD1 used, and no more — so the census stays at eleven.  Zero `sorryAx`, zero `native_decide`,
+zero `Lean.ofReduceBool`.  The split is 24 / 4:
 
-* exactly `[propext, Classical.choice, Quot.sound]` — the whole general linear-algebra layer
-  (§§1–2): `headGram`, `headGram_comm`, `headGram_self`, `headDiagEquiv`, `headGram_eq_diag`,
+* exactly `[propext, Classical.choice, Quot.sound]` — **all** of §§1–3, i.e. the entire general
+  linear-algebra layer (`headGram` and its five pins, `headDiagEquiv`, `headGram_eq_diag`,
   `exists_diag_eq_one`, `headPerp`, `headProj_mem`, `isSymplectic_headPerp`, `headSplitEquiv`,
-  `headSplit_gram`, **`exists_cupForm_normalForm_even`**,
-  `isSymplecticFp2_of_labute_eq_zero`, `exists_cupForm_normalForm_alternating`;
-* std-3 + **B6** + **B7** + **B11a** — `cupFormK_kappa_self_zero`,
-  **`exists_cupFormK_normalForm_even`**, `exists_cupFormK_normalForm_even_alternating`,
-  `exists_cupFormK_normalForm_of_even`;
-* `kappaK_eq_zero_iff` — std-3 only (the Kummer kernel `exists_sq_of_kummerClassK_eq_zero` and
-  its converse are theorems, not axioms).
+  `headSplit_gram`, **`exists_cupForm_normalForm_even`**, `isSymplecticFp2_of_labute_eq_zero`,
+  `exists_cupForm_normalForm_alternating`) together with `kappaK_eq_zero_iff` — the Kummer
+  kernel `exists_sq_of_kummerClassK_eq_zero` and its converse are theorems, not axioms;
+* std-3 + **B6** `tateDualityAt` + **B7** `absGalQ2_localEulerCharacteristic` + **B11a**
+  `hilbertSymbol_normCriterion_finiteDyadic` — the four `H¹` declarations of §4 that consume
+  FD1's facts: `cupFormK_kappa_self_zero`, **`exists_cupFormK_normalForm_even`**,
+  `exists_cupFormK_normalForm_even_alternating`, `exists_cupFormK_normalForm_of_even`.
 
-Note in particular that the *splitting theorem itself* is axiom-free beyond std-3, exactly as
-WL-c's odd-case twin is: the even case needs **no arithmetic input the odd case did not have**.
+No B3c/B5-K/B8/B9/B10-K enters through any import chain.  Note in particular that the *splitting
+theorem itself* is axiom-free beyond std-3, exactly as WL-c's odd-case twin is: **the even case
+needs no arithmetic input the odd case did not have** — only the opposite value of the same `𝔽₂`
+equation on `e`, plus `e ≠ 0`.
 -/
 
 namespace GQ2.Dyadic.FieldDataEven
@@ -135,6 +139,34 @@ as it must be. -/
 theorem headGram_labute (p : ZMod 2 × ZMod 2) : headGram (0, 1) p = headGram p p := by
   revert p; decide
 
+/-! ### §1.1 The head, pinned
+
+Four kernel `decide`s that identify `headGram` as an *object* rather than as a formula: it is a
+cup–Bockstein form, it is nondegenerate, it is **not** alternating (hence not a hyperbolic
+plane), and its Gram is `[[1,1],[1,0]]` — the upper-left block of MC2's published `G_M = G_N`. -/
+
+/-- **The head's Gram matrix**, pinned against MC2's `G_M`/`G_N` (`docs/dyadic/mc-design.md`:
+`[[1,1,0,0],[1,0,0,0],[0,0,0,1],[0,0,1,0]]`, whose upper-left `2×2` block this is). -/
+theorem headGram_matrix :
+    headGram (1, 0) (1, 0) = 1 ∧ headGram (1, 0) (0, 1) = 1
+      ∧ headGram (0, 1) (1, 0) = 1 ∧ headGram (0, 1) (0, 1) = 0 := by decide
+
+/-- The head is a cup–Bockstein form. -/
+theorem isCupFormFp2_headGram : IsCupFormFp2 headGram where
+  symm := by decide
+  add_left := by decide
+
+/-- The head is nondegenerate. -/
+theorem nondegFp2_headGram : NondegFp2 headGram := by
+  show ∀ v : ZMod 2 × ZMod 2, (∀ w, headGram v w = 0) → v = 0
+  decide
+
+/-- **The head is not alternating**, hence not a hyperbolic plane.  This is why the even case is
+a genuine dichotomy: `[[1,1],[1,0]] ⊥ H^{⊥(h+1)}` and `H^{⊥(h+2)}` have the same rank `n + 2`
+and are *not* isometric, so no single normal form covers even degree the way `⟨1⟩ ⊥ H^{⊥m}`
+covers odd degree. -/
+theorem headGram_not_alternating : ¬ ∀ p : ZMod 2 × ZMod 2, headGram p p = 0 := by decide
+
 /-- The change of basis `(a, c) ↦ (a + c, c)`, i.e. `(f, e) ↦ (f, e + f)`, an involution over
 `𝔽₂`. -/
 def headDiagEquiv : (ZMod 2 × ZMod 2) ≃ₗ[ZMod 2] ZMod 2 × ZMod 2 where
@@ -154,8 +186,7 @@ the diagonal presentation; the `[[1,1],[1,0]]` one is what the relator side uses
 theorem headGram_eq_diag (p r : ZMod 2 × ZMod 2) :
     headGram p r = (headDiagEquiv p).1 * (headDiagEquiv r).1
       + (headDiagEquiv p).2 * (headDiagEquiv r).2 := by
-  simp only [headDiagEquiv_apply, headGram]
-  ring_nf
+  simp only [headDiagEquiv_apply]
   revert p r; decide
 
 end Head
