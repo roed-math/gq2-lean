@@ -671,4 +671,31 @@ example (α h q : ℕ) (hq0 : q ≠ 0) (hqe : Even q) :
 
 end PilotN
 
+
+/-! ### The field-fit check
+
+`WordCertificate` (`GQ2/Dyadic/CertificateMain.lean:450`) takes `P : ProfiniteGrp.{0}`, and its
+four pro-2 fields have exactly the types below.  This `example` is the proof that §5's outputs
+plug into those slots verbatim — it is the ticket's acceptance test, and it is deliberately
+stated at the *abstract* `CorePresentation`, so it certifies the fit for all five branches at
+once, not just the pilot. -/
+noncomputable example {n q : ℕ} {R : PWord (Generator n)} {P : ProfiniteGrp.{0}}
+    (CP : CorePresentation n R P) (hq0 : q ≠ 0) (hqe : Even q)
+    (hspec : TameSpecializes n q R) (nuP : ContinuousMonoidHom (P : Type) Ztwo)
+    (h1 : nuP (CP.mark .sigma) = ztwoOne) (h2 : ∀ i, nuP (CP.mark (.wild i)) = 1) :
+    -- `WordCertificate.pro2`
+    (ContinuousMonoidHom ((GammaR n q R) : Type) P)
+    -- `WordCertificate.ker_pro2`
+    × PLift ((CorePresentation.coreHom CP hq0 hqe).toMonoidHom.ker
+        = proPKernel 2 ((GammaR n q R) : Type))
+    -- `WordCertificate.hpro2`
+    × PLift (Function.Surjective (CorePresentation.coreHom CP hq0 hqe))
+    -- `WordCertificate.compat`
+    × PLift (∀ g : ((GammaR n q R) : Type),
+        nuTq q (tameOfSpec n q R hspec g) = nuP (CorePresentation.coreHom CP hq0 hqe g)) :=
+  ⟨CorePresentation.coreHom CP hq0 hqe,
+   ⟨CorePresentation.ker_coreHom CP hq0 hqe⟩,
+   ⟨CorePresentation.coreHom_surjective CP hq0 hqe⟩,
+   ⟨CorePresentation.nu_compat_coreHom CP hq0 hqe hspec nuP h1 h2⟩⟩
+
 end GQ2.Dyadic.Count
