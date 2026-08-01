@@ -306,6 +306,120 @@ theorem npc_isStokesEndpoint_one {α r h q : ℕ} (hα : 1 ≤ α) (hq : Even q)
 
 end StokesAtOne
 
+/-! ## §5 The procyclic-`N` row: the second resolver
+
+`Words.Npc.not_isOmega2Only_npcW` puts this row outside §3's route.  The obstruction is a single
+node — the conjugator `A = σ^{η̂}` of `Words.Npc.aW`, a `.profPow` at `d.toZhat = etaHatZ η`,
+which `Words.Npc.etaHatZ_ne_omega2` separates from `ω₂` for **every** `η`.  There is no `z2pow`
+node anywhere in `npcW`; the `ℤ₂`-exponent enters `ℤ̂` through the splitting
+`padicOmega2 : ℤ₂ ↪ ℤ̂`, so what the row needs is a **second value of the `ℤ̂`-resolver `E`**, not
+a value of `E₂`.  Otherwise CB-TR's principle applies verbatim: at a target of exponent level `N`,
+
+* `E ω₂ = omega2Exp N` (`GQ2.zpowHat_omega2_zpow`), and
+* `E η̂ = 1 + padicOmega2Exp (η − 1) N` (`zpowHat_etaHatZ_zpow` below),
+
+both functions of the target alone.  §5.1 records the walk, §5.2 the consequence for the
+**frozen** family, and §5.3 the sharp negative: `Certificates.Npc.npcFam` resolves the two nodes
+with the *same constant* `e`, so it is honest only where those two levels coincide. -/
+
+section Procyclic
+
+open GQ2.Dyadic.Certificates Words.Npc
+
+/-! ### §5.1 The `η̂`-resolver at a level, and the walk over `npcW` -/
+
+variable {P : Type} [Group P] [TopologicalSpace P] [DiscreteTopology P] [Finite P]
+
+/-- **The `ℤ₂`-exponent resolver at a level** — the `padicOmega2` analogue of
+`GQ2.zpowHat_omega2_zpow`: on a target killed by `N`, `x ^ᶻ (z·ω₂)` is the honest integer power
+`x ^ padicOmega2Exp z N`, an exponent depending on the target and not on `x`. -/
+theorem zpowHat_padicOmega2_zpow {N : ℕ} (hN : N ≠ 0) {x : P} (hx : orderOf x ∣ N) (z : ℤ_[2]) :
+    x ^ᶻ padicOmega2 z = x ^ padicOmega2Exp z N := by
+  rw [zpowHat_padicOmega2]
+  exact (pow_eq_pow_iff_modEq.mpr (padicOmega2Exp_modEq hx hN z)).symm
+
+/-- **The `η̂`-resolver at a level**: `x ^ᶻ η̂ = x ^ (1 + padicOmega2Exp (η − 1) N)`.  This is the
+procyclic-`N` row's second resolver value, and it is what CB-TR's target-dependent principle
+produces at an `η̂`-node. -/
+theorem zpowHat_etaHatZ_zpow {N : ℕ} (hN : N ≠ 0) {x : P} (hx : orderOf x ∣ N) (η : ℤ_[2]) :
+    x ^ᶻ etaHatZ η = x ^ (1 + padicOmega2Exp (η - 1) N) := by
+  rw [etaHatZ, zpowHat_mul, zpowHat_ofInt, zpow_one, zpowHat_padicOmega2_zpow hN hx,
+    pow_add, pow_one]
+
+section Walk
+
+variable {X : Type*} {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [CompactSpace G] [TotallyDisconnectedSpace G]
+
+/-- `PWord.prodList` of resolved words is resolved — the `ResolvedAt` twin of
+`Words.isOmega2Only_prodList`. -/
+theorem resolvedAt_prodList (μ : X → G) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    ∀ {l : List (PWord X)}, (∀ w ∈ l, PWord.ResolvedAt μ E E₂ w) →
+      PWord.ResolvedAt μ E E₂ (PWord.prodList l)
+  | [], _ => trivial
+  | w :: _ws, hw =>
+      ⟨hw w (List.mem_cons_self ..),
+       resolvedAt_prodList μ E E₂ fun u hu => hw u (List.mem_cons_of_mem _ hu)⟩
+
+variable {h : ℕ} {d : EtaData} {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ}
+  (μ : Generator (2 + 2 * h) → G)
+  (hω : ∀ x : G, x ^ᶻ omega2 = x ^ E omega2)
+  (hη : ∀ x : G, x ^ᶻ d.toZhat = x ^ E d.toZhat)
+
+include hη in
+/-- The conjugator `A = σ^{η̂}` is resolved exactly when `E` is correct at `η̂`. -/
+theorem resolvedAt_aW : PWord.ResolvedAt μ E E₂ (aW h d) := ⟨trivial, hη _⟩
+
+include hω in
+/-- `δ₀` is `ω₂`-only, so `E ω₂` alone resolves it. -/
+theorem resolvedAt_deltaZeroW : PWord.ResolvedAt μ E E₂ (deltaZeroW h) := by
+  refine resolvedAt_prodList μ E E₂ ?_
+  intro w hw
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at hw
+  rcases hw with rfl | rfl
+  · exact ⟨resolvedAt_prodList μ E E₂ (by intro u hu; fin_cases hu <;> exact trivial), hω _⟩
+  · exact trivial
+
+include hω hη in
+/-- The compressed `D`-block: `δ₀`-copies at `ω₂`, conjugators at `η̂` and at a `ℤ`-power. -/
+theorem resolvedAt_dBlockW (r : ℕ) : PWord.ResolvedAt μ E E₂ (dBlockW h r d) := by
+  have hδ : PWord.ResolvedAt μ E E₂ (deltaZeroW h) := resolvedAt_deltaZeroW μ hω
+  have hA : PWord.ResolvedAt μ E E₂ (aW h d) := resolvedAt_aW μ hη
+  refine resolvedAt_prodList μ E E₂ ?_
+  intro w hw
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at hw
+  rcases hw with rfl | rfl
+  · exact ⟨hδ, hA⟩
+  · exact ⟨resolvedAt_prodList μ E E₂ (by
+      intro u hu
+      simp only [List.mem_cons, List.not_mem_nil, or_false] at hu
+      rcases hu with rfl | rfl
+      · exact hδ
+      · exact ⟨hδ, hA⟩), trivial⟩
+
+include hω hη in
+/-- **The procyclic-`N` word is resolved by a resolver correct at `ω₂` and at `η̂`.**
+
+This is the row's whole word-side content: `npcW`'s six factors use exactly two profinite
+exponents, and no `ℤ₂`-exponent node at all, so two values of `E` suffice.  Compare
+`Count/Resolve.lean`'s `not_resolvedAt_npcW`, which is the *same word at the free profinite
+marking*, where no pair of values works — the difference is entirely that `P` here is finite. -/
+theorem resolvedAt_npcW (α r : ℕ) : PWord.ResolvedAt μ E E₂ (npcW α r h d) := by
+  refine resolvedAt_prodList μ E E₂ ?_
+  intro w hw
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at hw
+  rcases hw with rfl | rfl | rfl | rfl | rfl | rfl
+  · exact trivial
+  · exact ⟨trivial, resolvedAt_aW μ hη⟩
+  · exact ⟨trivial, resolvedAt_prodList μ E E₂ (by intro u hu; fin_cases hu <;> exact trivial)⟩
+  · exact ⟨resolvedAt_prodList μ E E₂ (by intro u hu; fin_cases hu <;> exact trivial), hω _⟩
+  · exact ⟨resolvedAt_dBlockW μ hω hη r, trivial⟩
+  · exact PWord.resolvedAt_of_isOmega2Only μ E E₂ hω _ (Words.isOmega2Only_handlesW h)
+
+end Walk
+
+end Procyclic
+
 end Count
 
 end GQ2.Dyadic
