@@ -19,22 +19,22 @@ Three deliverables (board WW3 spec; plan §3 A1; packet §5 and Lem. `lem:compos
 1. **The `PWord` denotation into `HeisLift A C`** (`heisGen`, `heisEvalZ`): the reflected word
    evaluated in the Heisenberg lift, whose central coordinate obeys the packet's second-order
    rule `β(uv) = β(u) + β(v) + D^∨(u)(ū·D(v))` — literally `HeisLift.mul_z` read through the
-   evaluation (`heisEvalZ_mul_z`).  The **no-cross-term headline** (`HeisLift.mul_z_of_jetZero`):
+   evaluation (`heisEvalZ_mul_z`).  The **no-cross-term headline** (`heisMul_z_of_jetZero`):
    a factor with zero first jet contributes no cross term on either side — the entire
    "shadow copies cancel in char 2" step that the WMP lane consumes.
 
 2. **The natural chain map** `η_A : C•(A) → Hom(C•(A^∨), 𝔽₂)[−2]` (`heisEta0/1/2`) over the
    generic word complex `heisD0`/`heisD1` of an arbitrary relator family, with the chain
-   conditions (`heisEta_comm₀₁`, `heisEta_comm₁₂`) proved from the frozen `n`-generic Stokes
+   conditions (`heisEta1_comp_d0`, `heisEta2_comp_d1`) proved from the frozen `n`-generic Stokes
    layer `GQ2.FoxH.lemma_5_7_left/right` under the **endpoint condition** `IsStokesEndpoint`
    (the traced mod-2 exponent vector of the relator family vanishes — the degree-`n` form of
    `GQ2.FoxH.expMod2_tame_add_wildValueExpR_odd`).
 
 3. **Packet Lem. 5.1** (`lem:composition`), the composition-series extension
-   (`stokes_quasiIso_of_simple`): if `η_V` is a quasi-isomorphism for every simple module `V`,
+   (`stokesDuality_of_simple`): if `η_V` is a quasi-isomorphism for every simple module `V`,
    it is one for every finite elementary module — including **nonsplit** coefficients.  Proved
    by **mapping cones** (the packet's "equivalently" clause): the cone of the ladder is a
-   four-term complex, quasi-isomorphism = cone acyclicity (`stokesQuasiIso_iff_cone`), and
+   four-term complex, quasi-isomorphism = cone acyclicity (`stokesQuasiIso_iff_coneAcyclic`), and
    acyclicity propagates along a short exact sequence of cones by one generic exactness chase
    (`stokes_chase`) — dimension equalities are never used, exactly as the packet's warning
    demands.  This file does the dévissage **once, generically**: the frozen `ℚ₂` chain cloned a
