@@ -45,6 +45,15 @@ theorem choose_two_add_two_pow_odd {α : ℕ} (hα : 2 ≤ α) : Odd ((2 + 2 ^ �
   have hm1 : 1 ≤ m := Nat.le_add_right 1 _
   exact (odd_one_add_two_pow hα).mul ⟨m - 1, by omega⟩
 
+/-- `2·w = 0` in `𝔽₂` — the `abel_nf` residue on every assembled row. -/
+theorem two_nsmul_zmod2 : ∀ w : ZMod 2, (2 : ℕ) • w = 0 := by decide
+
+/-- `2·w = 0` in `𝔽₂`, `ℤ`-smul form (the shape `abel_nf` actually produces). -/
+theorem two_zsmul_zmod2 : ∀ w : ZMod 2, (2 : ℤ) • w = 0 := by decide
+
+/-- `(−1)·w = w` in `𝔽₂` — the other `abel_nf` residue. -/
+theorem neg_one_zsmul_zmod2 : ∀ w : ZMod 2, (-1 : ℤ) • w = w := by decide
+
 end Parity
 
 /-! ## §1. Second-order toolkit: pure-base lifts and the one-sided commutator
@@ -604,6 +613,170 @@ theorem heisF_handlesW_z (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i �
   rw [heisEvalZ_comm, heisEvalZ_gen, heisEvalZ_gen,
     heisCommR_of_trivial _ _ (mem_trivAct.mp (trivAct_handleU t hwild j))
       (mem_trivAct.mp (trivAct_handleV t hwild j))]
+
+/-! ### The assembled row
+
+Three of the six factors have **nonzero first jet** on this row (the compact row has one), so
+the assembly carries genuine cross terms: the front block's operator `A⁻¹ + 1` sees the whole
+boundary jet.  `npcBoundaryJet` names that offset. -/
+
+/-- **The boundary block's total primal jet** `a(x₂^{-g}) + a((x₂τ)^{ω₂})` — the offset the front
+block's operator `A⁻¹ + 1` is paired against in the assembled row. -/
+noncomputable def npcBoundaryJet (t : Marking (2 + 2 * h) C) (x : Generator (2 + 2 * h) → A)
+    (r e : ℕ) : A :=
+  -((t.σ ^ ((2 : ℤ) ^ r))⁻¹ • x (coreLetter h 2)) + e • (x (coreLetter h 2) + x .tau)
+
+/-- **The corrected noncompact-`N` second-order (Stokes) row, unramified class, exact in the
+resolver.**
+
+Block reading, in the order the factors occur:
+
+* the **`x₀`-diagonal** `y₀(A⁻¹a₀)` — and it is a *twisted* diagonal, not `y₀(a₀)`: the leading
+  power's diagonal `y₀(a₀)` cancels against the front commutator's, leaving only the
+  `A⁻¹`-twisted one.  This is the Stokes-level twin of NC5's `q(c₀)`-cancellation, i.e. of the
+  hypothesis `α ≥ 2`, and it is why the endpoint's diagonal is `Q₀` and not `q`;
+* the **boundary block** on `(x₁, x₂, τ)` with the `e`- and `C(e,2)`-sensitivities displayed and
+  the operator `B = S^{2^r}` where the compact row has `S`;
+* the **front-block cross term** `y₀((A + 1)·bnd)` — the second-order shadow of WNP-b's new
+  `x₀`-column `A⁻¹ + 1`, paired against the boundary jet;
+* the **correction block** `L_c(λ_{δ₀})(a₁) + y₁(L_c a_{δ₀})` — invisible at first order, and
+  the only place the S3.2 correction appears;
+* the `h` **identity-operator hyperbolic planes**, untouched by any operator, as on every row of
+  the campaign. -/
+theorem heisZ_npc_unram (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v) (hτ : ∀ v : A, t.τ • v = v)
+    (hxσ : x .sigma = 0) (hyσ : y .sigma = 0) (hα : 2 ≤ α)
+    {e : ℕ} (hE : E omega2 = (e : ℤ)) (d : EtaData) :
+    (heisEvalZ ⇑t x y E E₂ (npcW α r h d)).z
+      = y (coreLetter h 0) ((t.σ ^ E d.toZhat)⁻¹ • x (coreLetter h 0))
+        + (y (coreLetter h 1) (x (coreLetter h 2)) + y (coreLetter h 2) (x (coreLetter h 1))
+            + y (coreLetter h 2) (x (coreLetter h 2)))
+        + (e • y (coreLetter h 2) (x .tau)
+            + (e.choose 2) • ((y (coreLetter h 2) + y .tau) (x (coreLetter h 2) + x .tau)))
+        + y (coreLetter h 2)
+            (t.σ ^ ((2 : ℤ) ^ r) • (e • (x (coreLetter h 2) + x .tau)))
+        + (y (coreLetter h 0) ((t.σ ^ E d.toZhat) • npcBoundaryJet t x r e)
+            + y (coreLetter h 0) (npcBoundaryJet t x r e))
+        + (lcSmul t.σ (E d.toZhat) r (heisEvalZ ⇑t x y E E₂ (deltaZeroW h)).l
+              (x (coreLetter h 1))
+            + y (coreLetter h 1)
+                (lcSmul t.σ (E d.toZhat) r (heisEvalZ ⇑t x y E E₂ (deltaZeroW h)).a))
+        + ∑ j, (y (handleU j) (x (handleV j)) + y (handleV j) (x (handleU j))) := by
+  have e1 := heisF_leadingPow t x y E E₂ hA₂ hwild hα (α := α)
+  have e2 := heisF_commX0A t x y E E₂ hwild hxσ hyσ d
+  have e3 := heisF_invConjX2G t x y E E₂ hwild hxσ hyσ (r := r)
+  have e4 := heisF_omega2Block t x y E E₂ 2 hwild hτ hE
+  have e5 := heisF_eBlockW t x y E E₂ hwild hτ hxσ hyσ hE d (r := r)
+  have h6mem := heisF_handlesW_mem t x y E E₂ hwild
+  have h6z := heisF_handlesW_z t x y E E₂ hwild
+  rw [npcW, heisEvalZ_prodList]
+  simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one]
+  set P1 := heisEvalZ ⇑t x y E E₂
+    (.zpow (.gen (coreLetter h 0)) (2 + 2 ^ α)) with hP1
+  set P2 := heisEvalZ ⇑t x y E E₂ (.comm (.gen (coreLetter h 0)) (aW h d)) with hP2
+  set P3 := heisEvalZ ⇑t x y E E₂ (.inv (.conj (.gen (coreLetter h 2))
+    (PWord.prodList [.gen (coreLetter h 1), bW h r]))) with hP3
+  set P4 := heisEvalZ ⇑t x y E E₂
+    (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h 2), .gen .tau])) with hP4
+  set P5 := heisEvalZ ⇑t x y E E₂ (eBlockW h r d) with hP5
+  set P6 := heisEvalZ ⇑t x y E E₂ (handlesW h) with hP6
+  have h1jz : P1 ∈ heisJetZero A C := by rw [e1]; exact ⟨rfl, rfl⟩
+  have h5jz : P5 ∈ heisJetZero A C := by rw [e5]; exact ⟨rfl, rfl⟩
+  have h2g : ∀ v : A, P2.g • v = v := by
+    rw [e2]
+    exact fun v => mem_trivAct.mp
+      (trivAct_commR_left (trivAct_coreLetter t hwild 0) (t.σ ^ E d.toZhat)) v
+  have h3g : ∀ v : A, P3.g • v = v := by
+    rw [e3]
+    exact fun v => mem_trivAct.mp
+      (inv_mem (trivAct_conjR (trivAct_coreLetter t hwild 2) _)) v
+  have h56a : (P5 * P6).a = 0 := by
+    rw [HeisLift.mul_a, h5jz.1, h6mem.1, smul_zero, add_zero]
+  have h56z : (P5 * P6).z = P5.z + P6.z := heisJetZero_mul_z h5jz
+  have h456a : (P4 * (P5 * P6)).a = P4.a := by
+    rw [HeisLift.mul_a, h56a, smul_zero, add_zero]
+  have h456z : (P4 * (P5 * P6)).z = P4.z + (P5.z + P6.z) := by
+    rw [heisMul_z_of_a_eq_zero _ _ h56a, h56z]
+  have h3456a : (P3 * (P4 * (P5 * P6))).a = P3.a + P4.a := by
+    rw [HeisLift.mul_a, h456a, h3g]
+  have h3456z : (P3 * (P4 * (P5 * P6))).z = P3.z + (P4.z + (P5.z + P6.z)) + P3.l P4.a := by
+    rw [HeisLift.mul_z, h456z, h456a, h3g]
+  have h23456z : (P2 * (P3 * (P4 * (P5 * P6)))).z
+      = P2.z + (P3.z + (P4.z + (P5.z + P6.z)) + P3.l P4.a) + P2.l (P3.a + P4.a) := by
+    rw [HeisLift.mul_z, h3456z, h3456a, h2g]
+  rw [heisJetZero_mul_z h1jz, h23456z, e1, e2, e3, e4, e5, hP6, h6z]
+  dsimp only
+  rw [npcBoundaryJet, ElemDual.neg_apply, ElemDual.smul_apply, inv_inv, CharTwo.neg_eq,
+    ElemDual.sub_apply, ElemDual.smul_apply, inv_inv]
+  simp only [ElemDual.add_apply, map_add, map_neg, CharTwo.neg_eq]
+  abel_nf
+  simp only [two_zsmul_zmod2, neg_one_zsmul_zmod2, zero_add]
+
+/-- **The certificate form at the honest resolver class** `e ≡ 1 (mod 4)` — the class the genuine
+`ω₂` inhabits on every finite `2`-group target.  The `C(e,2)`-block dies and every `e •`
+disappears; in particular the `δ₀`-jet collapses to the `τ`-letter's offsets, so the correction
+block reads
+
+```
+(L_c·y_τ)(a₁) + y₁(L_c·a_τ)
+```
+
+— the whole S3.2 correction, at second order, as a pairing of the `τ`-offsets through `L_c`. -/
+theorem heisZ_npc_res_one (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v) (hτ : ∀ v : A, t.τ • v = v)
+    (hxσ : x .sigma = 0) (hyσ : y .sigma = 0) (hα : 2 ≤ α)
+    {e : ℕ} (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1) (d : EtaData) :
+    (heisEvalZ ⇑t x y E E₂ (npcW α r h d)).z
+      = y (coreLetter h 0) ((t.σ ^ E d.toZhat)⁻¹ • x (coreLetter h 0))
+        + (y (coreLetter h 1) (x (coreLetter h 2)) + y (coreLetter h 2) (x (coreLetter h 1))
+            + y (coreLetter h 2) (x (coreLetter h 2)))
+        + y (coreLetter h 2) (x .tau)
+        + y (coreLetter h 2) (t.σ ^ ((2 : ℤ) ^ r) • (x (coreLetter h 2) + x .tau))
+        + (y (coreLetter h 0) ((t.σ ^ E d.toZhat) • npcBoundaryJet t x r 1)
+            + y (coreLetter h 0) (npcBoundaryJet t x r 1))
+        + (lcSmul t.σ (E d.toZhat) r (y .tau) (x (coreLetter h 1))
+            + y (coreLetter h 1) (lcSmul t.σ (E d.toZhat) r (x .tau)))
+        + ∑ j, (y (handleU j) (x (handleV j)) + y (handleV j) (x (handleU j))) := by
+  have hodd := odd_of_mod_four_eq_one he
+  have hone : e • (x (coreLetter h 2) + x .tau) = x (coreLetter h 2) + x .tau := by
+    obtain ⟨m, hm⟩ := hodd
+    rw [hm, add_nsmul, mul_nsmul', two_nsmul, hA₂, zero_add, one_nsmul]
+  have hbnd : npcBoundaryJet t x r e = npcBoundaryJet t x r 1 := by
+    rw [npcBoundaryJet, npcBoundaryJet, one_nsmul, hone]
+  rw [heisZ_npc_unram t x y E E₂ hA₂ hwild hτ hxσ hyσ hα hE d,
+    heisJetA_deltaZeroW_odd t x y E E₂ hA₂ hwild hτ hE hodd,
+    heisJetL_deltaZeroW_odd t x y E E₂ hwild hτ hE hodd, hbnd,
+    nsmul_zmod2_odd hodd, nsmul_zmod2_even (choose_two_even_of_mod_four he), hone]
+  abel_nf
+
+/-- **The scalar (split) collapse**: with `σ` also acting trivially, `A = B = 1` and `L_c`
+degenerates to the **identity** (`lcSmul_of_trivial`), so the row is the compact row's scalar
+reading plus one extra hyperbolic plane — the `(τ, x₁)` pairing contributed by the correction
+block.  "The scalar module separates nothing" survives the correction in the strong sense that
+the *operator* disappears; what does **not** disappear is the correction block's pairing, which
+is exactly why the separating gate has to be a **twisted** module (§8). -/
+theorem heisZ_npc_scalar (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v) (hτ : ∀ v : A, t.τ • v = v)
+    (hσ : ∀ v : A, t.σ • v = v) (hxσ : x .sigma = 0) (hyσ : y .sigma = 0) (hα : 2 ≤ α)
+    {e : ℕ} (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1) (d : EtaData) :
+    (heisEvalZ ⇑t x y E E₂ (npcW α r h d)).z
+      = y (coreLetter h 0) (x (coreLetter h 0))
+        + (y (coreLetter h 1) (x (coreLetter h 2)) + y (coreLetter h 2) (x (coreLetter h 1)))
+        + (y .tau (x (coreLetter h 1)) + y (coreLetter h 1) (x .tau))
+        + ∑ j, (y (handleU j) (x (handleV j)) + y (handleV j) (x (handleU j))) := by
+  have hzp : ∀ (m : ℤ) (v : A), (t.σ ^ m) • v = v := fun m v =>
+    MulAction.mem_stabilizer_iff.mp (zpow_mem (MulAction.mem_stabilizer_iff.mpr (hσ v)) m)
+  have hzpi : ∀ (m : ℤ) (v : A), (t.σ ^ m)⁻¹ • v = v := fun m v =>
+    inv_smul_eq_iff.mpr (hzp m v).symm
+  have hL₂ : ∀ f : ElemDual A, f + f = 0 := ElemDual.add_self_eq_zero
+  have hbnd : npcBoundaryJet t x r 1 = x .tau := by
+    rw [npcBoundaryJet, one_nsmul, hzpi,
+      show -x (coreLetter h 2) + (x (coreLetter h 2) + x .tau) = x .tau by abel]
+  rw [heisZ_npc_res_one t x y E E₂ hA₂ hwild hτ hxσ hyσ hα hE he d, hzpi, hzp, hbnd,
+    lcSmul_of_trivial hA₂ hσ, lcSmul_of_trivial hL₂ (fun f => smul_elemDual_of_trivial hσ f),
+    hzp, map_add]
+  abel_nf
+  simp only [two_zsmul_zmod2, zero_add]
 
 end StokesRows
 
