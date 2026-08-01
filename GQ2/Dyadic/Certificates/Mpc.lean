@@ -884,6 +884,207 @@ theorem mpcCopiesCancel {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDispla
       = (heisEvalZ ⇑t x y E E₂ (mpcLinW α r pp η h)).z from hcentral,
     CharTwo.add_self_eq_zero]
 
+/-! ### WW4 gap item 3, shadow half: the shadow contributes no affine shift
+
+WW4 named the stated form and left the corollary unwritten ("the shadow contributes no primal or
+dual offset when P3 holds, so it contributes no affine shift — but that is a corollary nobody
+has written down").  Here it is, at *this* word rather than at an abstract jet-zero factor: the
+whole first jet of the pair is the linear copy's, so the shift vector of packet Lem. 6.1 — which
+is computed from the first jet — is unchanged, and only the central values move. -/
+
+/-- **No affine shift from the shadow copy** (WW4's stated form, `heisJetZero_mul_right_jet`,
+applied to `R̂^pc`). -/
+theorem mpcShadow_no_affine_shift {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDisplay)
+    (x : Generator (2 + 2 * h) → V) (y : Generator (2 + 2 * h) → ElemDual V)
+    (hσx : x Generator.sigma = 0) (hσy : y Generator.sigma = 0)
+    (hWp : ResolverLifts E (WordLift V C)) (hWd : ResolverLifts E (WordLift (ElemDual V) C))
+    (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w) :
+    (heisEvalZ ⇑t x y E E₂ (.mul (mpcLinW α r pp η h) (mpcHatW α r pp η h))).a
+        = (heisEvalZ ⇑t x y E E₂ (mpcLinW α r pp η h)).a ∧
+      (heisEvalZ ⇑t x y E E₂ (.mul (mpcLinW α r pp η h) (mpcHatW α r pp η h))).l
+        = (heisEvalZ ⇑t x y E E₂ (mpcLinW α r pp η h)).l ∧
+      (heisEvalZ ⇑t x y E E₂ (.mul (mpcLinW α r pp η h) (mpcHatW α r pp η h))).z
+        = (heisEvalZ ⇑t x y E E₂ (mpcLinW α r pp η h)).z
+          + (heisEvalZ ⇑t x y E E₂ (mpcHatW α r pp η h)).z :=
+  heisJetZero_mul_right_jet _ _
+    (heisJetZero_mpcHatW t E E₂ hα r pp η x y hσx hσy hWp hWd hV₂ hwild hτfpf hTodd)
+
 end Replication
+
+/-! ## §4 The Hessian/phase layer
+
+`affinePhase` stays a **certificate input** (SD1 §6.3's row-5 satisfiability constraint), and
+the constraint is honoured literally: every field below is instantiated from the frozen row's
+endpoint polynomial plus a CoV `LinearEquiv` with its inverse witness, and nothing presupposes
+the WC-Mpc analysis. -/
+
+section Hessian
+
+open GQ2.SectionSix GQ2.QuadraticFp2
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  [Module (ZMod 2) V] [Fintype V] {q : V → ZMod 2} (dat : FactorSet C V)
+  (hdat : IsEquivariantFactorSet q dat)
+
+include hdat in
+/-- **The procyclic-`M` phase cover**, WW4 gap items 1+2+6.
+
+The endpoint is the plus block's: `D₀²[D₀,D₁]` is what survives the copies' cancellation and its
+word value is `Q₊(c₀,c₁) = q(c₀) + b_q(c₀,c₁)` — a **plus form**, so `plusFormD` is the frozen
+row's endpoint polynomial (item 1) and the identity map is its CoV (item 2).
+
+⚠ Item 6 is honoured by *shape*, not by assertion: the diagonal is the abstract datum `d₀`, not
+`q`.  On the four refinement-free `P = 0` modules the κ⁰-datum is `TwistedClass2Domain`-
+normalized, so a certificate that hard-wired `diag := fun v ↦ dat.f v v` (the compact rows'
+spelling) would be wrong here; taking `d₀` from the normalization is exactly S1.T's discipline,
+and `nonsingular_plusFormD` is independent of `d₀`, so the twist cannot break nonsingularity. -/
+noncomputable def mpcPhaseCover {d₀ : V → ZMod 2} (hd : IsQuadraticFp2 d₀)
+    (hq : IsQuadraticFp2 q) (hns : Nonsingular q) {d : ℕ}
+    (hcard : Fintype.card V = 2 ^ d) :
+    PhaseCoverCertificate dat d₀ (plusFormD d₀ q) (AddMonoidHom.inl V V)
+      (AddMonoidHom.inr V V) :=
+  plusFormDPhaseCover dat hdat hd hq hns hcard
+
+include hdat in
+/-- **The procyclic-`M` Hessian certificate.**  The CoV is the identity (`LinearEquiv.refl`, its
+inverse witness built into the structure, per SD1 §6.3), and `affinePhase` is `mpcPhaseCover` —
+a certificate *input*, constructed, never derived. -/
+noncomputable def mpcHessianCertificate {d₀ : V → ZMod 2} (hd : IsQuadraticFp2 d₀)
+    (hq : IsQuadraticFp2 q) (hns : Nonsingular q) {d : ℕ}
+    (hcard : Fintype.card V = 2 ^ d) :
+    HessianCertificate dat d₀ (plusFormD d₀ q) (plusFormD d₀ q)
+      (AddMonoidHom.inl V V) (AddMonoidHom.inr V V) where
+  cov := LinearEquiv.refl (ZMod 2) (V × V)
+  cov_eq := fun _ => rfl
+  hq := isQuadraticFp2_plusFormD hd hq
+  hns := nonsingular_plusFormD hd hq hns
+  affinePhase := mpcPhaseCover dat hdat hd hq hns hcard
+
+include hdat in
+/-- The row's Gauss datum, read **through the certificate**: the endpoint's Gauss sum is the
+phase cover's `G0`, and it is `+#V` — the `plusFormD` family's "one-op normal forms both
+branches" behaviour, unchanged by the twist (`nonsingular_plusFormD` does not see `d₀`). -/
+theorem mpcHessianCertificate_gaussSum {d₀ : V → ZMod 2} (hd : IsQuadraticFp2 d₀)
+    (hq : IsQuadraticFp2 q) (hns : Nonsingular q) {d : ℕ}
+    (hcard : Fintype.card V = 2 ^ d) :
+    gaussSum (plusFormD d₀ q)
+        = (mpcHessianCertificate dat hdat hd hq hns hcard).affinePhase.G0 ∧
+      gaussSum (plusFormD d₀ q) = Fintype.card V :=
+  ⟨(mpcHessianCertificate dat hdat hd hq hns hcard).endpoint_gaussSum,
+    gaussSum_plusFormD hd hq hns⟩
+
+end Hessian
+
+/-! ### The S4.5 block-order rider — a gate-D statement
+
+`swap[E₂^pc.E₀₁^pc]` is DECIDED EQUAL, proof-grade (freeze row 5, addendum S4.5), and rider (i)
+says any block-order statement WMP-c makes is a **gate-D statement, not a Hessian one**, because
+`E₂^pc`'s second-order content is empty on the gate-E marking.  The decision note's §3.2
+difference formula is
+
+```
+central(… E₀₁^pc E₂^pc …) + central(… E₂^pc E₀₁^pc …) = b(m_{E01}, m_{E2}),
+    m_{E2} = 𝒪·(1 + P)c₂,   P = N_T
+```
+
+and on the gate-E marking `c₂ = 0`, so `m_{E2} = 0` and the difference vanishes.  Formalized in
+WM0-c's `swapDifference_formula` discipline: the general two-slot formula with **opaque
+offsets**, then the vanishing corollary as the syntactic instantiation at offset `0`, with the
+operator `𝒪` a **bare function** carrying only `𝒪 0 = 0`.
+
+⚠ **Rider (ii) is visible in the statement.**  The corollary's offset is `𝒪 0` because `x₂`
+carries no primal letter; a formalization that gave the boundary generator a primal coordinate
+would supply a nonzero `c₂`, `swapDifference_two_formula` would return a nonzero polar term, and
+block order would become load-bearing again — exactly what the decision note says. -/
+
+section OrderRider
+
+open GQ2.QuadraticFp2
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+
+include hdat in
+/-- **The two-slot swap-difference formula.**  Charges are irrelevant — the four `z`'s cancel in
+pairs — so only the `κ`-symmetrization survives, which is why the *difference* is proof-grade
+where neither individual value is. -/
+theorem swapDifference_two_formula (b₁ b₂ : V) (z₁ z₂ : ZMod 2) :
+    WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
+        (hessSlice dat hdat b₁ z₁ * hessSlice dat hdat b₂ z₂)
+      + WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
+        (hessSlice dat hdat b₂ z₂ * hessSlice dat hdat b₁ z₁)
+      = polar q b₁ b₂ := by
+  simp only [hessSlice_mul dat hdat, hessSlice_fib]
+  linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) (hdat.f_polar b₁ b₂)
+
+include hdat in
+/-- **S4.5: the block-order difference is zero on the gate-E marking** — because `x₂` carries no
+primal letter, so the `E₂^pc` slot's offset `𝒪·(1+P)c₂` is `𝒪 0 = 0`.
+
+This is a **gate-D statement**: `E₂^pc`'s second-order content is empty here, so nothing about
+the Hessian endpoint is being claimed.  `𝒪` is a bare function (the orbit-norm operator), which
+is why `hO0` has to be asked for — it has no `map_zero`. -/
+theorem swapDifference_zero_of_no_primal_x2 (O : V → V) (hO0 : O 0 = 0)
+    (hq : IsQuadraticFp2 q) (b₁ : V) (z₁ z₂ : ZMod 2) :
+    WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
+        (hessSlice dat hdat b₁ z₁ * hessSlice dat hdat (O 0) z₂)
+      + WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
+        (hessSlice dat hdat (O 0) z₂ * hessSlice dat hdat b₁ z₁)
+      = 0 := by
+  rw [swapDifference_two_formula dat hdat b₁ (O 0) z₁ z₂, hO0]
+  simp [polar_zero_right q hq]
+
+end OrderRider
+
+/-! ## §5 The `E₀₁^pc` epistemics
+
+Three statements, three statuses.  The two theorems are below; the third row of the module
+docstring's table is a **citation**, and this section does not turn it into a Lean claim. -/
+
+section E01
+
+variable {h : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+  (a : Generator (2 + 2 * h) → V)
+
+/-- **Gate D cannot see `E₀₁^pc`** — the pair-level form, and the operative half of the freeze's
+finding.
+
+`Sh_M` fixes `E₀₁^pc` verbatim (it is a word in `δ₀, δ₁, σ₂` alone), so the block occurs
+*identically* in both copies; the linear copy's value acts trivially on the block's row, so the
+two contributions add rather than compose, and over `𝔽₂` they cancel.  A first-order argument
+therefore cannot distinguish the word that contains the block from the word that does not: the
+shadow puts the identical contribution back.
+
+⚠ This says gate D is **silent**, not that `E₀₁^pc` is superfluous — see the module docstring's
+table.  The positive justification is second-order and is cited, not proved. -/
+theorem foxD_e01_pair_eq_zero (η : EtaDisplay) (aa bb : ℕ) (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hTodd : ∀ w : V, powOmega2 t.τ • w = w) :
+    foxD ⇑t a E E₂ (.mul (e01W h aa bb) (inlineM h η (shM (e01M aa bb)))) = 0 := by
+  rw [foxD_mul, foxD_e01_reproduced_by_shadow t E E₂ a η aa bb,
+    mem_trivAct.mp (trivAct_e01W t E E₂ hwild hTodd aa bb)]
+  exact hV₂ _
+
+/-- **The shape of the `E₀₁^pc` second-order justification** — recorded, deliberately *not*
+proved.
+
+Freeze row 5: `E₀₁^pc`'s justification is second-order only, and specifically the **exact gate-F
+refutation on the fifth-root module**.  S4.4's finding is that dropping the block passes gates
+A–E-scalar and dies at gate F.  Gate F is an `𝔽₁₆`-module computation on the *second*-order
+data, which is a different object from anything WMP-b or this ticket built; the witness a Lean
+proof would need is a module together with a second-order discriminator separating the two
+words.  This definition names that shape so a future ticket has a target, and so that nobody
+mistakes `foxD_e01_pair_eq_zero` (gate D is silent) for a justification.
+
+⚠ **Epistemic status: measurement, cited (S4.4 / freeze row 5), not a theorem of this file.** -/
+def E01SecondOrderWitness {α : ℕ} (r pp : ℕ) (η : EtaDisplay)
+    (x : Generator (2 + 2 * h) → V) (y : Generator (2 + 2 * h) → ElemDual V)
+    (wNoE01 : PWord (Generator (2 + 2 * h))) : Prop :=
+  (heisEvalZ ⇑t x y E E₂ (mpcW α r pp η h)).z ≠ (heisEvalZ ⇑t x y E E₂ wNoE01).z
+
+end E01
 
 end GQ2.Dyadic.Certificates.MProcyclic
