@@ -700,4 +700,388 @@ theorem foxDHom_npc_ram_column_eq_zero (hV₂ : ∀ v : V, v + v = 0)
 
 end Rows
 
+/-! ## §4. The tame relator and its row
+
+Lane-local duplicates of the compact lane's tame toolkit (`Certificates/N0Fox.lean`) — the
+WNP-a decoupling convention again: certificates lanes do not import each other, and the price
+is this block (dedup ledger in the module docstring).  The tame relator is the *same* relator;
+only the alphabet of the formal rows changes. -/
+
+/-- **The tame relator** `τ^σ · (τ^q)⁻¹` of `T_q` (packet §3), as a `PWord`. -/
+def tameRelW (n q : ℕ) : PWord (Generator n) :=
+  .mul (.conj (.gen .tau) (.gen .sigma)) (.inv (.zpow (.gen .tau) (q : ℤ)))
+
+/-- The tame relator word evaluates to the tame relator value at every marking. -/
+theorem eval_tameRelW {n q : ℕ} {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [TotallyDisconnectedSpace G] (t : Marking n G) :
+    t.eval (tameRelW n q) = conjR t.τ t.σ * (t.τ ^ q)⁻¹ := by
+  rw [Marking.eval_def, tameRelW, PWord.eval_mul, PWord.eval_inv, PWord.eval_conj,
+    PWord.eval_zpow]
+  simp [zpow_natCast]
+
+/-- **The reflected tame relator is F3's**: at the free marking it is literally
+`GQ2.Dyadic.tameRelatorGen`, so the rows below belong to the presentation's tame relation and
+not to a lookalike. -/
+theorem freeMarking_eval_tameRelW (n q : ℕ) :
+    (freeMarking n).eval (tameRelW n q) = tameRelatorGen n q := by
+  rw [eval_tameRelW, tameRelatorGen]
+  rfl
+
+section TameRow
+
+variable {n q : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking n C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- **The universal tame row** — packet rule T1, at any marking satisfying the tame relation
+`τ^σ = τ^q`:
+
+```
+D(τ^σ (τ^q)⁻¹) = S⁻¹(a(τ) + (T−1)·a(σ)) − (1 + T + ⋯ + T^{q−1})·a(τ).
+```
+
+The tame relation is used exactly once — to identify the prefix `ev(τ^σ)` with `T^q`. -/
+theorem foxD_tameRelW_of_tameRel (hrel : conjR t.τ t.σ = t.τ ^ q)
+    (a : Generator n → V) :
+    foxD ⇑t a E E₂ (tameRelW n q)
+      = t.σ⁻¹ • (a .tau + t.τ • a .sigma - a .sigma)
+        - ∑ i ∈ Finset.range q, t.τ ^ i • a .tau := by
+  rw [tameRelW, foxD_mul, foxD_conj, foxD_inv, foxD_zpow_natCast, PWord.evalFin_conj,
+    PWord.evalFin_zpow, PWord.evalFin_gen, PWord.evalFin_gen, foxD_gen, foxD_gen]
+  simp only [Marking.apply_sigma, Marking.apply_tau]
+  rw [hrel, zpow_natCast, smul_neg, smul_inv_smul]
+  exact (sub_eq_add_neg _ _).symm
+
+/-- **The tame row on a split or unramified module** (`T = 1`, `q` even): the single entry
+`S⁻¹` on the `τ`-column, with no tame-relation hypothesis. -/
+theorem foxD_tameRelW_unram (hV₂ : ∀ v : V, v + v = 0) (hτ : ∀ v : V, t.τ • v = v)
+    (hq : Even q) (a : Generator n → V) :
+    foxD ⇑t a E E₂ (tameRelW n q) = t.σ⁻¹ • a .tau := by
+  have hτmem : t.τ ∈ trivAct C V := mem_trivAct.mpr hτ
+  have hconj : PWord.evalFin ⇑t E E₂ ((PWord.gen (Generator.tau (n := n))).conj (.gen .sigma))
+      ∈ trivAct C V := by
+    rw [PWord.evalFin_conj, PWord.evalFin_gen, PWord.evalFin_gen]
+    exact trivAct_conjR hτmem _
+  rw [tameRelW, foxD_mul, mem_trivAct.mp hconj, foxD_conj, foxD_inv, foxD_zpow_natCast,
+    PWord.evalFin_zpow, PWord.evalFin_gen, PWord.evalFin_gen, foxD_gen, foxD_gen]
+  simp only [Marking.apply_sigma, Marking.apply_tau]
+  rw [WordLift.sum_pow_smul_of_trivial (fun v => hτ v), even_nsmul_eq_zero hV₂ hq, smul_zero,
+    neg_zero, add_zero, hτ]
+  simp
+
+end TameRow
+
+/-! ## §5. The two wild blocks and their per-module invertibility
+
+The unramified reduction of the noncompact row **stops** at the two-entry block row
+`(0, 0, A⁻¹+1, 0, 1+B⁻¹)`: unlike the compact lane's single `1 − S⁻¹`, *neither* entry is a
+unit of the symbolic operator algebra, so no elementary operation is available uniformly in
+`(r, η)` — the honest-stop finding of the Sage reference
+(`unramified_normal_form_noncompact`).  What replaces the missing operation is a per-module
+dichotomy, and this section proves its two halves as iff-criteria, both instances of one
+generic block lemma: on a finite module, `1 − c⁻¹` is invertible exactly when `c` has no
+nonzero fixed vector. -/
+
+section Block
+
+variable {n : ℕ} {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
+
+/-- **The generic block operator** `1 − c⁻¹` of a group element `c` acting on `V` — the shape
+of both surviving entries of the unramified block row (`c = A` for the `x₀`-block,
+`c = σ^{2^r}` for the boundary block; over char 2 the frozen prints are `A⁻¹ + 1` and
+`1 + S^{−2^r}`). -/
+noncomputable def oneSubInvEnd (c : C) : AddMonoid.End V :=
+  1 - DistribMulAction.toAddMonoidEnd C V c⁻¹
+
+@[simp] theorem oneSubInvEnd_apply (c : C) (v : V) :
+    oneSubInvEnd (V := V) c v = v - c⁻¹ • v := rfl
+
+/-- `1 − c⁻¹` kills exactly the `c`-fixed vectors. -/
+theorem oneSubInvEnd_eq_zero_iff (c : C) (v : V) :
+    oneSubInvEnd (V := V) c v = 0 ↔ c • v = v := by
+  rw [oneSubInvEnd_apply, sub_eq_zero]
+  exact ⟨fun hv => (inv_smul_eq_iff.mp hv.symm).symm,
+    fun hv => (inv_smul_eq_iff.mpr hv.symm).symm⟩
+
+/-- **The generic invertibility criterion**: on a finite module, `1 − c⁻¹` is invertible
+exactly when `c` has no nonzero fixed vector (`V^c = 0`).  The compact lane's
+`isUnit_oneSubSInvEnd_iff` at an arbitrary element — both noncompact blocks read off it. -/
+theorem isUnit_oneSubInvEnd_iff [Finite V] (c : C) :
+    IsUnit (oneSubInvEnd (V := V) c) ↔ ∀ v : V, c • v = v → v = 0 := by
+  constructor
+  · intro hu v hv
+    have hinj : Function.Injective (oneSubInvEnd (V := V) c) :=
+      injective_of_isUnit hu
+    refine hinj ?_
+    rw [(oneSubInvEnd_eq_zero_iff c v).mpr hv, map_zero]
+  · intro hfpf
+    have hinj : Function.Injective (oneSubInvEnd (V := V) c) := by
+      intro x y hxy
+      have h0 : oneSubInvEnd (V := V) c (x - y) = 0 := by rw [map_sub, hxy, sub_self]
+      have := hfpf _ ((oneSubInvEnd_eq_zero_iff c (x - y)).mp h0)
+      exact sub_eq_zero.mp this
+    have hbij : Function.Bijective (oneSubInvEnd (V := V) c) :=
+      Finite.injective_iff_bijective.mp hinj
+    refine isUnit_iff_exists.mpr
+      ⟨(AddEquiv.ofBijective (oneSubInvEnd (V := V) c) hbij).symm.toAddMonoidHom, ?_, ?_⟩
+    · exact AddMonoidHom.ext fun v =>
+        (AddEquiv.ofBijective (oneSubInvEnd (V := V) c) hbij).apply_symm_apply v
+    · exact AddMonoidHom.ext fun v =>
+        (AddEquiv.ofBijective (oneSubInvEnd (V := V) c) hbij).symm_apply_apply v
+
+/-- **The `x₀`-block criterion**: `1 − A⁻¹` (the frozen `A⁻¹ + 1`, char 2) is invertible on a
+finite module exactly when the η̂-conjugator has no nonzero fixed vector — `V^A = 0`, i.e.
+`σ^{η̂}` acts nontrivially on every simple summand.  This is the noncompact half of the Sage
+dichotomy note: on an unramified simple, `𝔽₂[⟨S⟩]` acts through a field, so the entry is `0`
+or invertible, and this criterion decides which. -/
+theorem isUnit_x0Block_iff [Finite V] (t : Marking n C) (E : Zhat → ℤ) (e : EtaData) :
+    IsUnit (oneSubInvEnd (V := V) (t.σ ^ E e.toZhat))
+      ↔ ∀ v : V, (t.σ ^ E e.toZhat) • v = v → v = 0 :=
+  isUnit_oneSubInvEnd_iff _
+
+/-- **The boundary-block criterion**: `1 − B⁻¹` (the frozen `1 + S^{−2^r}`) is invertible
+exactly when `V^{σ^{2^r}} = 0` — the exact analogue of the compact row's WC-N0 criterion with
+`S` replaced by `S^{2^r}`; equivalently, `ord(S)` does not divide `2^r` on any simple
+summand. -/
+theorem isUnit_x2Block_iff [Finite V] (t : Marking n C) (r : ℕ) :
+    IsUnit (oneSubInvEnd (V := V) (t.σ ^ ((2 : ℤ) ^ r)))
+      ↔ ∀ v : V, t.σ ^ ((2 : ℤ) ^ r) • v = v → v = 0 :=
+  isUnit_oneSubInvEnd_iff _
+
+end Block
+
+/-! ## §6. The formal rows over the η̂-alphabet
+
+The certificate data — pure `FoxCoeff (NpcSym _)` expressions, the same at every module of a
+class and at every `η` (the `η`-dependence lives in the interpretation's `A`-element, the
+`r`-dependence in the `σ`-exponents of the data).  These are the Lean twins of the Sage
+reference row `fox_reference_row_noncompact` and the two branch normal forms. -/
+
+/-- The formal **`x₀`-block** `A⁻¹ + 1` — the reference row's `x₀`-entry, the char-2 print of
+`A⁻¹ − 1` produced by `[x₀, A]`. -/
+def x0BlockCoeff (n : ℕ) : FoxCoeff (NpcSym n) := .add (.atom (.etaA (-1))) .one
+
+/-- The formal **boundary block** `1 + S^{−2^r}` — the unramified normal form's `x₂`-entry,
+the char-2 print of `1 − B⁻¹`. -/
+def x2BlockCoeff (n r : ℕ) : FoxCoeff (NpcSym n) :=
+  .add .one (.atom (.std (.gen .sigma (-(2 ^ r : ℤ)))))
+
+/-- The **norm coefficient** `N_q(T) = 1 + T + ⋯ + T^{q−1}` over the η̂-alphabet (lane-local
+copy of the compact lane's). -/
+def normCoeff (n : ℕ) : ℕ → FoxCoeff (NpcSym n)
+  | 0 => .zero
+  | k + 1 => .add (normCoeff n k) (.atom (.std (.gen .tau (k : ℤ))))
+
+/-- The `x₀`-slot of the noncompact-`N` alphabet. -/
+def x0Idx (h : ℕ) : Fin (2 + 2 * h + 1) := ⟨0, by omega⟩
+
+/-- The `x₂`-slot of the noncompact-`N` alphabet. -/
+def x2Idx (h : ℕ) : Fin (2 + 2 * h + 1) := ⟨2, by omega⟩
+
+theorem coreLetter_zero (h : ℕ) : coreLetter h 0 = Generator.wild (x0Idx h) := rfl
+
+theorem coreLetter_two (h : ℕ) : coreLetter h 2 = Generator.wild (x2Idx h) := rfl
+
+theorem tau_ne_coreLetter_zero (h : ℕ) :
+    (Generator.tau : Generator (2 + 2 * h)) ≠ coreLetter h 0 := by
+  rw [coreLetter_zero]; simp
+
+theorem tau_ne_coreLetter_two (h : ℕ) :
+    (Generator.tau : Generator (2 + 2 * h)) ≠ coreLetter h 2 := by
+  rw [coreLetter_two]; simp
+
+theorem sigma_ne_coreLetter_zero (h : ℕ) :
+    (Generator.sigma : Generator (2 + 2 * h)) ≠ coreLetter h 0 := by
+  rw [coreLetter_zero]; simp
+
+theorem sigma_ne_coreLetter_two (h : ℕ) :
+    (Generator.sigma : Generator (2 + 2 * h)) ≠ coreLetter h 2 := by
+  rw [coreLetter_two]; simp
+
+theorem coreLetter_zero_ne_two (h : ℕ) : coreLetter h 0 ≠ coreLetter h 2 := by
+  simp only [coreLetter, ne_eq, Generator.wild.injEq, Fin.mk.injEq]
+  omega
+
+theorem coreLetter_two_ne_zero (h : ℕ) : coreLetter h 2 ≠ coreLetter h 0 :=
+  (coreLetter_zero_ne_two h).symm
+
+section GeneratorSums
+
+variable {M : Type*} [AddCommMonoid M] {n : ℕ}
+
+/-- A sum over `Generator n` supported on `{τ, x_{i₀}, x_{i₂}}` — the three-column support of
+the noncompact wild row (one column more than the compact row's `sum_generator_pair`). -/
+theorem sum_generator_tau_wild_pair (f : Generator n → M) (i₀ i₂ : Fin (n + 1)) (hne : i₀ ≠ i₂)
+    (hσ : f .sigma = 0) (hw : ∀ j, j ≠ i₀ → j ≠ i₂ → f (.wild j) = 0) :
+    ∑ g, f g = f .tau + (f (.wild i₀) + f (.wild i₂)) := by
+  rw [← Finset.sum_subset
+    (Finset.subset_univ {Generator.tau, Generator.wild i₀, Generator.wild i₂})]
+  · rw [Finset.sum_insert (by simp), Finset.sum_insert (by simp [hne]), Finset.sum_singleton]
+  · intro x _ hx
+    simp only [Finset.mem_insert, Finset.mem_singleton, not_or] at hx
+    cases x with
+    | sigma => exact hσ
+    | tau => exact absurd rfl hx.1
+    | wild j => exact hw j (fun hj => hx.2.1 (by rw [hj])) (fun hj => hx.2.2 (by rw [hj]))
+
+/-- A sum over `Generator n` supported on `{x_{i₀}, x_{i₂}}` — the block row's support. -/
+theorem sum_generator_wild_pair (f : Generator n → M) (i₀ i₂ : Fin (n + 1)) (hne : i₀ ≠ i₂)
+    (hσ : f .sigma = 0) (hτ : f .tau = 0) (hw : ∀ j, j ≠ i₀ → j ≠ i₂ → f (.wild j) = 0) :
+    ∑ g, f g = f (.wild i₀) + f (.wild i₂) := by
+  rw [← Finset.sum_subset (Finset.subset_univ {Generator.wild i₀, Generator.wild i₂})]
+  · rw [Finset.sum_insert (by simp [hne]), Finset.sum_singleton]
+  · intro x _ hx
+    simp only [Finset.mem_insert, Finset.mem_singleton, not_or] at hx
+    cases x with
+    | sigma => exact hσ
+    | tau => exact hτ
+    | wild j => exact hw j (fun hj => hx.1 (by rw [hj])) (fun hj => hx.2 (by rw [hj]))
+
+end GeneratorSums
+
+/-- **The universal noncompact-`N` wild row** `(0, P, A⁻¹ + 1, 0, S^{−2^r} + P, 0, …, 0)` —
+one piece of formal data over the η̂-alphabet, certified below at *both* projector
+interpretations and at every `η` (through the interpretation's `A`-element).  This is the Sage
+`fox_reference_row_noncompact`, entry for entry — and it differs from the compact
+`nCompactWildRow` `(0, P, 0, 0, S⁻¹ + P, 0, …)` in exactly the `x₀`- and `x₂`-entries, which
+is why the noncompact word carries its own reference row. -/
+def npcWildRow (h r : ℕ) : FoxRowNormalForm (Generator (2 + 2 * h)) (NpcSym (2 + 2 * h)) :=
+  ⟨fun g => match g with
+    | .sigma => .zero
+    | .tau => .atom (.std .proj)
+    | .wild i =>
+        if (i : ℕ) = 0 then x0BlockCoeff (2 + 2 * h)
+        else if (i : ℕ) = 2 then
+          .add (.atom (.std (.gen .sigma (-(2 ^ r : ℤ))))) (.atom (.std .proj))
+        else .zero⟩
+
+/-- **The unramified block row** `(0, 0, A⁻¹ + 1, 0, 1 + S^{−2^r})`: the wild row after the one
+row operation — and the point where the symbolic reduction **stops** (module docstring of §5).
+Its two entries are the two blocks of the per-module criteria `isUnit_x0Block_iff` /
+`isUnit_x2Block_iff`. -/
+def npcBlockRow (h r : ℕ) : FoxRowNormalForm (Generator (2 + 2 * h)) (NpcSym (2 + 2 * h)) :=
+  ⟨fun g => match g with
+    | .sigma => .zero
+    | .tau => .zero
+    | .wild i =>
+        if (i : ℕ) = 0 then x0BlockCoeff (2 + 2 * h)
+        else if (i : ℕ) = 2 then x2BlockCoeff (2 + 2 * h) r
+        else .zero⟩
+
+/-- The **tame row on a split or unramified module**: `(0, S⁻¹, 0, …)`. -/
+def tameUnramRow (n : ℕ) : FoxRowNormalForm (Generator n) (NpcSym n) :=
+  ⟨fun g => match g with
+    | .sigma => .zero
+    | .tau => .atom (.std (.gen .sigma (-1)))
+    | .wild _ => .zero⟩
+
+/-- The **universal tame row** `(S⁻¹(T−1), S⁻¹ − N_q(T), 0, …)` (packet rule T1), over the
+η̂-alphabet. -/
+def tameRow (n q : ℕ) : FoxRowNormalForm (Generator n) (NpcSym n) :=
+  ⟨fun g => match g with
+    | .sigma => .comp (.atom (.std (.gen .sigma (-1))))
+        (.add (.atom (.std (.gen .tau 1))) (.neg .one))
+    | .tau => .add (.atom (.std (.gen .sigma (-1)))) (.neg (normCoeff n q))
+    | .wild _ => .zero⟩
+
+/-! ### The rows' closed-form denotations, at general `h` -/
+
+section RowDenote
+
+variable {h r q : ℕ} {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
+  (t : Marking (2 + 2 * h) C) (A : C) (π : AddMonoid.End V)
+
+@[simp] theorem npcWildRow_tau : (npcWildRow h r).row .tau = .atom (.std .proj) := rfl
+
+@[simp] theorem npcWildRow_x0 :
+    (npcWildRow h r).row (.wild (x0Idx h)) = x0BlockCoeff (2 + 2 * h) := rfl
+
+@[simp] theorem npcWildRow_x2 :
+    (npcWildRow h r).row (.wild (x2Idx h))
+      = .add (.atom (.std (.gen .sigma (-(2 ^ r : ℤ))))) (.atom (.std .proj)) := rfl
+
+theorem npcWildRow_wild_ne {j : Fin (2 + 2 * h + 1)} (hj0 : (j : ℕ) ≠ 0) (hj2 : (j : ℕ) ≠ 2) :
+    (npcWildRow h r).row (.wild j) = .zero :=
+  (if_neg hj0).trans (if_neg hj2)
+
+@[simp] theorem npcBlockRow_x0 :
+    (npcBlockRow h r).row (.wild (x0Idx h)) = x0BlockCoeff (2 + 2 * h) := rfl
+
+@[simp] theorem npcBlockRow_x2 :
+    (npcBlockRow h r).row (.wild (x2Idx h)) = x2BlockCoeff (2 + 2 * h) r := rfl
+
+theorem npcBlockRow_wild_ne {j : Fin (2 + 2 * h + 1)} (hj0 : (j : ℕ) ≠ 0) (hj2 : (j : ℕ) ≠ 2) :
+    (npcBlockRow h r).row (.wild j) = .zero :=
+  (if_neg hj0).trans (if_neg hj2)
+
+/-- **The universal wild row's denotation**:
+`P·a(τ) + ((A⁻¹ + 1)·a(x₀) + (B⁻¹ + P)·a(x₂))`. -/
+theorem npcWildRow_toHom_apply (a : Generator (2 + 2 * h) → V) :
+    (npcWildRow h r).toHom (NpcSym.toEnd t A π) a
+      = π (a .tau) + ((A⁻¹ • a (coreLetter h 0) + a (coreLetter h 0))
+          + ((t.σ ^ ((2 : ℤ) ^ r))⁻¹ • a (coreLetter h 2) + π (a (coreLetter h 2)))) := by
+  rw [FoxRowNormalForm.toHom_apply,
+    sum_generator_tau_wild_pair _ (x0Idx h) (x2Idx h) (by simp [x0Idx, x2Idx]) rfl
+      fun j hj0 hj2 => by
+        rw [npcWildRow_wild_ne (h := h) (fun hjv => hj0 (Fin.ext hjv))
+          (fun hjv => hj2 (Fin.ext hjv))]
+        rfl]
+  rw [npcWildRow_tau, npcWildRow_x0, npcWildRow_x2, x0BlockCoeff]
+  simp only [FoxCoeff.eval_add_apply, FoxCoeff.eval_atom_apply, FoxCoeff.eval_one_apply,
+    NpcSym.toEnd_std, NpcSym.toEnd_etaA_apply, TameSym.toEnd_proj, TameSym.toEnd_gen_apply,
+    Marking.apply_sigma, zpow_neg, zpow_one, ← coreLetter_zero, ← coreLetter_two]
+
+/-- **The unramified block row's denotation**:
+`(A⁻¹ + 1)·a(x₀) + (1 + B⁻¹)·a(x₂)`. -/
+theorem npcBlockRow_toHom_apply (a : Generator (2 + 2 * h) → V) :
+    (npcBlockRow h r).toHom (NpcSym.toEnd t A π) a
+      = (A⁻¹ • a (coreLetter h 0) + a (coreLetter h 0))
+        + (a (coreLetter h 2) + (t.σ ^ ((2 : ℤ) ^ r))⁻¹ • a (coreLetter h 2)) := by
+  rw [FoxRowNormalForm.toHom_apply,
+    sum_generator_wild_pair _ (x0Idx h) (x2Idx h) (by simp [x0Idx, x2Idx]) rfl rfl
+      fun j hj0 hj2 => by
+        rw [npcBlockRow_wild_ne (h := h) (fun hjv => hj0 (Fin.ext hjv))
+          (fun hjv => hj2 (Fin.ext hjv))]
+        rfl]
+  rw [npcBlockRow_x0, npcBlockRow_x2, x0BlockCoeff, x2BlockCoeff]
+  simp only [FoxCoeff.eval_add_apply, FoxCoeff.eval_atom_apply, FoxCoeff.eval_one_apply,
+    NpcSym.toEnd_std, NpcSym.toEnd_etaA_apply, TameSym.toEnd_gen_apply,
+    Marking.apply_sigma, zpow_neg, zpow_one, ← coreLetter_zero, ← coreLetter_two]
+
+@[simp] theorem eval_normCoeff_apply {n : ℕ} {D : Type*} [Group D] [DistribMulAction D V]
+    (t : Marking n D) (A : D) (π : AddMonoid.End V) (q : ℕ) (v : V) :
+    (normCoeff n q).eval (NpcSym.toEnd t A π) v = ∑ i ∈ Finset.range q, t.τ ^ i • v := by
+  induction q with
+  | zero => rfl
+  | succ k ih =>
+      rw [normCoeff, FoxCoeff.eval_add_apply, ih, FoxCoeff.eval_atom_apply, NpcSym.toEnd_std,
+        TameSym.toEnd_gen_apply, Finset.sum_range_succ, Marking.apply_tau, zpow_natCast]
+
+/-- **The split/unramified tame row's denotation**: `S⁻¹·a(τ)`. -/
+theorem tameUnramRow_toHom_apply {n : ℕ} {D : Type*} [Group D] [DistribMulAction D V]
+    (t : Marking n D) (A : D) (π : AddMonoid.End V) (a : Generator n → V) :
+    (tameUnramRow n).toHom (NpcSym.toEnd t A π) a = t.σ⁻¹ • a .tau := by
+  rw [FoxRowNormalForm.toHom_apply, sum_generator_boundary _ fun _ => rfl]
+  show (0 : V) + (FoxCoeff.atom (NpcSym.std (TameSym.gen Generator.sigma (-1)))).eval _ (a .tau)
+      = _
+  rw [FoxCoeff.eval_atom_apply, NpcSym.toEnd_std, TameSym.toEnd_gen_apply, Marking.apply_sigma,
+    zpow_neg, zpow_one, zero_add]
+
+/-- **The universal tame row's denotation**: `S⁻¹(T−1)·a(σ) + (S⁻¹ − N_q(T))·a(τ)`. -/
+theorem tameRow_toHom_apply {n : ℕ} {D : Type*} [Group D] [DistribMulAction D V]
+    (t : Marking n D) (A : D) (π : AddMonoid.End V) (a : Generator n → V) :
+    (tameRow n q).toHom (NpcSym.toEnd t A π) a
+      = t.σ⁻¹ • (t.τ • a .sigma - a .sigma)
+        + (t.σ⁻¹ • a .tau - ∑ i ∈ Finset.range q, t.τ ^ i • a .tau) := by
+  rw [FoxRowNormalForm.toHom_apply, sum_generator_boundary _ fun _ => rfl]
+  show (FoxCoeff.comp (.atom (NpcSym.std (TameSym.gen .sigma (-1))))
+        (.add (.atom (.std (TameSym.gen .tau 1))) (.neg .one))).eval _ (a .sigma)
+      + (FoxCoeff.add (.atom (NpcSym.std (TameSym.gen .sigma (-1))))
+          (.neg (normCoeff n q))).eval _ (a .tau) = _
+  simp only [FoxCoeff.eval_comp_apply, FoxCoeff.eval_add_apply, FoxCoeff.eval_neg_apply,
+    FoxCoeff.eval_one_apply, FoxCoeff.eval_atom_apply, eval_normCoeff_apply, NpcSym.toEnd_std,
+    TameSym.toEnd_gen_apply, Marking.apply_sigma, Marking.apply_tau, zpow_neg, zpow_one,
+    sub_eq_add_neg]
+
+end RowDenote
+
 end GQ2.Dyadic.Certificates.Npc
