@@ -28,9 +28,10 @@ to do.  This file records the five, plus the `ω₂`-only status that decides wh
 It is a **leaf**: `Count/Presentation.lean` deliberately does not import the four `Words.*`
 modules the other four rows need (measured delta: `148 → 216` `GQ2` modules, driven by the
 `Roe.Labute` span stack behind `Words.Mpc`), because that file is the count lane's interface and
-CB-4 consumes it.  Everything here is a corollary, so it pays the import cost instead.
+CB-4 consumes it.  Everything here is a corollary, so it pays the import cost instead.  §8.1 adds
+`GQ2.CardH2GammaA` for the refutation witness, a further `+6` `GQ2` modules.
 
-## Contents (CB-FR)
+## Contents (CB-FR, CB-FR2)
 
 * **§1/§2** (CB-TR) the five hypothesis-free presentation instances and the `ω₂`-only inventory.
 * **§3** `ResolvesAt` for the three remaining `ω₂`-only certificate families — `mCompactFam`,
@@ -45,13 +46,45 @@ CB-4 consumes it.  Everything here is a corollary, so it pays the import cost in
   while `η̂` fixes them, so no *constant* resolver survives odd torsion, and at exponent level `6`
   this row has no honest `e` at all.  **§5.4** records that the same node occurs in the
   procyclic-`M` row's `.hat` display.
-* **§6** discharges the count lane's standing `orderOf x ∣ 6` from the lower group: the `6` is
+* **§6** reduces the count lane's standing `orderOf x ∣ 6` to the lower group: the `6` is
   `2` (lift level, `WordLift.orderOf_dvd_two_mul`) times `3` (the tame head's `τ`-order).
+* **§7** (CB-FR2) takes the decision §5.3 forces: `npcResolver N d` is the **two-valued** resolver,
+  `omega2Exp N` at `ω₂` and `1 + padicOmega2Exp (η − 1) N` at `η̂`, and with it
+  `resolvesAt_npcFamOf` carries **exactly** `hN` and `hord` — the same two hypotheses the four
+  `ω₂`-only rows carry, with no `2`-group restriction and no congruence on `η`.  **§7.3** carries
+  the Stokes payload across (only `Odd (E ω₂)` is visible to it, so `npc_isStokesEndpoint` is the
+  *constant instance* of `npcOf_isStokesEndpoint`), and **§7.4** assembles the matched
+  `(hres, hend)` pair, including at level `6` where §5.3 says the constant family has no pin.
+* **§8** (CB-FR2) §6's residue, both ways.  **§8.1**: `∀ g : Bg ⧸ D.M, orderOf g ∣ 3` is **not a
+  theorem** — `GQ2.Dyadic.TameQ.odd_order` concludes `Odd`, not `∣ 3`, and the campaign's own
+  witness `GQ2.CardH2GammaA.datum` refutes the statement at §6's generality.  **§8.2**: it is also
+  not needed — once the resolver is target-chosen the level is `Monoid.exponent`, and the
+  lift-level bound and the resolution are both hypothesis-free.
+* **§9** (CB-FR2) closes §5.4: the mpc-side `ResolvedAt` walk, so the procyclic-`M` `.hat` display
+  resolves at the *same* `npcResolver`, and its endpoint comes free from
+  `Certificates.MProcyclic.epsZ_mpcW`, which was already resolver- and display-generic.
 
 ## Axiom posture
 
-`sorry`-free, no new axiom, no `decide`; every declaration prints the standard three, except
-`not_isOmega2Only_hatDisplay`, which prints the strict subset `[propext]`.
+`sorry`-free, no new axiom; every declaration prints the standard three, except
+`not_isOmega2Only_hatDisplay`, which prints the strict subset `[propext]`.  `decide` occurs twice,
+in §8.1's witness computations (`cardH2GammaA_sq_eq_one`, `cardH2GammaA_ne_one`) — kernel
+`decide` on `DihedralGroup 2` and `DihedralGroup 4`, no `native_decide`, no axiom change.
+
+## ⚠ Hoist candidates (here for file-ownership reasons only)
+
+None of these is about the frozen rows; each belongs next to its own machinery and should move
+when its file is next open.  Recorded so the duplication is deliberate rather than lost:
+
+* `resolvesAt_of_resolvedAt` (§5.2) → `Count/Compare.lean`, beside `resolvesAt_heisToFree`;
+* `resolvedAt_prodList` (§5.1) → `Words/Alphabet.lean`, beside `isOmega2Only_prodList`;
+* `zpowHat_padicOmega2_zpow`, `zpowHat_etaHatZ_zpow` (§5.1) → `Word/Syntax.lean`, beside
+  `zpowHat_padicOmega2` and `zpowHat_etaHatZ`;
+* `zsmul_zmod2_odd` (§7.3) → `Word/Stokes.lean`, beside `zsmul_natCast_zmod2_odd`;
+* `odd_omega2Exp` (§7.4) → `GQ2/Omega2.lean`, beside `omega2Exp_modEq_one` (it is the one-line
+  corollary `GQ2/FoxHeisenberg/Basic.lean` already inlines);
+* `resolvedAt_etaDisplay`, `resolvedAt_mpcW` (§9.1) → `Words/Mpc.lean`, beside
+  `isOmega2Only_etaDisplay` and `isOmega2Only_mpcW`, whose proofs they mirror bullet for bullet.
 -/
 
 namespace GQ2.Dyadic
@@ -697,6 +730,18 @@ noncomputable def npcResolver (N : ℕ) (d : EtaData) (γ : Zhat) : ℤ :=
 @[simp] theorem npcResolver_toZhat (N : ℕ) (d : EtaData) :
     npcResolver N d d.toZhat = ((1 + padicOmega2Exp (d.toPadic - 1) N : ℕ) : ℤ) :=
   if_neg (Words.Npc.toZhat_ne_omega2 d)
+
+/-- **The resolver is genuinely two-valued at the count lane's own level**: `3` at `ω₂` and `1` at
+`η̂`, for every `1`-unit `η`.
+
+This is exactly how §7 escapes §5.3, and it escapes it without weakening it:
+`not_constant_resolver_of_odd` and `no_constant_pin_npcFam_at_six` are statements about *constant*
+resolvers and both remain true — the row's obstruction was never to resolution as such, only to
+resolving two different profinite exponents with one integer. -/
+theorem npcResolver_ne_const (d : EtaData) (z : ℤ_[2]) (hd : d.toPadic = 1 + 2 * z) :
+    npcResolver 6 d omega2 ≠ npcResolver 6 d d.toZhat := by
+  rw [npcResolver_omega2, npcResolver_toZhat, Ne, Nat.cast_inj]
+  exact npc_levels_ne_at_six z hd
 
 /-! ### §7.2 The family at a general resolver, and the resolution with no side condition -/
 
