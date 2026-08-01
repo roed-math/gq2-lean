@@ -284,6 +284,7 @@ import GQ2.Dyadic.Count.Compare
 import GQ2.Dyadic.Count.Presentation
 import GQ2.Dyadic.Count.Resolve
 import GQ2.Dyadic.Count.Frozen
+import GQ2.Dyadic.Count.Scalar
 import GQ2.Dyadic.TameQuotientK
 import GQ2.Dyadic.TameBoundary
 import GQ2.Dyadic.MarkedCore.Cores
