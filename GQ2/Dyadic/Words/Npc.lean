@@ -624,6 +624,399 @@ theorem not_killsWild (α r h : ℕ) (e : EtaData) : ¬ KillsWild (npcW α r h e
 
 end Refutation
 
+/-! ## §6. Gate C: the marked pro-`2` boundary
+
+`pro2` sends `τ ↦ 1` and collapses every `ω₂`-power, but — per the pinned `η̂`-contract of
+`specialization.py`, transcribed in `GQ2/Dyadic/Word/Syntax.lean` — it **keeps** the `η̂`-power,
+because in the maximal pro-`2` quotient `η̂` becomes the genuine `ℤ₂`-power `η`.  So the surviving
+word is
+
+```
+x₀^{2+2^α} · [x₀, σ^{η̂}] · (x₂^g)⁻¹ · x₂ · 1 · H_h,      g = x₁σ^{2^r},
+```
+
+and `(x₂^g)⁻¹ · x₂ = [g, x₂]` exactly as in the compact row — with the boundary conjugator `g`
+in place of `σ`.  Hence the pro-`2` value is **MC2's `N`-core at twisted Labute letters**
+
+```
+nWord α  x₀  σ^{η̂}  (x₁σ^{2^r})  x₂   ·   handleWord,
+```
+
+the certified-move comparison this ticket owes: same core *shape* as the compact row, with `x₁`
+replaced by the `η̂`-conjugator and `σ` replaced by `g`.  That substitution is the whole
+difference between the compact and procyclic `N` rows at pro-`2` order.
+
+⚠ **`E_{r,η}` is invisible here, and that is the design.**  `δ₀ = (x₀τ)^{ω₂}x₀⁻¹` becomes
+`x₀·x₀⁻¹ = 1` (Gate C kills the `δ`-letters), so `D_{r,η} ↦ 1` and `E_{r,η} = [D_{r,η},x₁] ↦ 1`.
+The correction is *second-order* content: it must not perturb the pro-`2` core, or the branch row
+would no longer match MC2's rank-four theory.  Contrast §5, where `E_{r,η}` also dies but for the
+opposite reason — there `D_{r,η}` survives and the *commutator's other argument* vanishes. -/
+
+section EtaHatNeOmega2
+
+local instance : TopologicalSpace (Multiplicative (ZMod 3)) := ⊥
+local instance : DiscreteTopology (Multiplicative (ZMod 3)) := ⟨rfl⟩
+
+private theorem zmod3_orderOf_odd (x : Multiplicative (ZMod 3)) : Odd (orderOf x) := by
+  have hdvd : orderOf x ∣ 3 := orderOf_dvd_of_pow_eq_one (by revert x; decide)
+  rcases (Nat.Prime.eq_one_or_self_of_dvd Nat.prime_three _ hdvd) with h | h <;> rw [h] <;> decide
+
+/-- **`η̂` is never `ω₂`** — the side condition Gate C's `η̂`-contract needs, and the reason the
+`pro2` rewrite keeps the `A`-conjugator instead of collapsing it.
+
+Proved by playing the two Gate-B rules against each other on a group of order `3`: rule **T2**
+(`zpowHat_etaHatZ_of_odd`) says `η̂` *fixes* pro-odd elements, rule **T1**
+(`zpowHat_padicOmega2_eq_one_of_odd`) says `ω₂` *kills* them, and a generator of `ZMod 3` is not
+trivial.  So the two exponents are separated by their action on the odd part, which is exactly the
+mathematical content of "`η̂` has odd components `1`" versus "`ω₂` has odd components `0`". -/
+theorem etaHatZ_ne_omega2 (η : ℤ_[2]) : etaHatZ η ≠ omega2 := by
+  intro hEq
+  have hodd : Odd (orderOf (Multiplicative.ofAdd (1 : ZMod 3))) := zmod3_orderOf_odd _
+  have h1 : (Multiplicative.ofAdd (1 : ZMod 3)) ^ᶻ etaHatZ η = Multiplicative.ofAdd (1 : ZMod 3) :=
+    zpowHat_etaHatZ_of_odd hodd
+  have h2 : (Multiplicative.ofAdd (1 : ZMod 3)) ^ᶻ omega2 = 1 := by
+    rw [← zpowHat_padicOmega2_one]
+    exact zpowHat_padicOmega2_eq_one_of_odd hodd
+  rw [hEq, h2] at h1
+  exact absurd h1 (by decide)
+
+end EtaHatNeOmega2
+
+/-- The `η̂`-datum of any `EtaData` is not `ω₂` — the form the `pro2` rewrites below use. -/
+theorem toZhat_ne_omega2 (e : EtaData) : e.toZhat ≠ omega2 := etaHatZ_ne_omega2 e.toPadic
+
+/-- ⚠ **The corrected noncompact word is not in the `ω₂`-only fragment.**
+
+`A = σ^{η̂}` is a profinite power with `γ ≠ ω₂`, so `PWord.IsOmega2Only` fails — and with it the
+`ℕ`-exponent route of packet Lem. 2.2 (`PWord.eval_eq_evalNat_of_dvd`) that WN0-a used for its
+numerical pins.  §8 therefore evaluates through the two honest resolvers instead.  Every branch
+word carrying an `η̂`-conjugator inherits this; WMP-a should expect it. -/
+theorem not_isOmega2Only_npcW (α r h : ℕ) (e : EtaData) : ¬ (npcW α r h e).IsOmega2Only :=
+  fun hw => toZhat_ne_omega2 e hw.2.1.2.1
+
+section Pro2
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+  [TotallyDisconnectedSpace G] {α r h : ℕ}
+
+theorem pro2_prodList :
+    ∀ l : List (PWord (Generator (2 + 2 * h))),
+      pro2 (PWord.prodList l) = PWord.prodList (l.map pro2)
+  | [] => rfl
+  | w :: ws => by
+      rw [PWord.prodList_cons, pro2_mul, pro2_prodList ws, List.map_cons, PWord.prodList_cons]
+
+@[simp] theorem pro2_handlesW (h : ℕ) : pro2 (handlesW h) = handlesW h := by
+  rw [handlesW, pro2_prodList, List.map_map]
+  rfl
+
+/-- Gate C **keeps** the `η̂`-conjugator, by the pinned `η̂`-contract. -/
+@[simp] theorem pro2_aW (h : ℕ) (e : EtaData) : pro2 (aW h e) = aW h e := by
+  rw [aW, pro2_profPow_of_ne _ (toZhat_ne_omega2 e)]
+  rfl
+
+/-- Gate C keeps the `ℤ`-power conjugator `B = σ^{2^r}` untouched. -/
+@[simp] theorem pro2_bW (h r : ℕ) : pro2 (bW h r) = bW h r := by
+  rw [bW, pro2_zpow, pro2_gen_sigma]
+
+/-- Gate C kills the `δ`-letter: `δ₀ ↦ x₀ x₀⁻¹`, whose value is `1`. -/
+theorem eval_pro2_deltaZeroW (t : Marking (2 + 2 * h) G) :
+    t.eval (pro2 (deltaZeroW h)) = 1 := by
+  rw [deltaZeroW, pro2_prodList, Marking.eval_def]
+  simp [PWord.omega2Pow]
+
+/-- Hence the whole `D`-block dies at Gate C — a product of conjugates of `1`. -/
+theorem eval_pro2_dBlockW (t : Marking (2 + 2 * h) G) (r : ℕ) (e : EtaData) :
+    t.eval (pro2 (dBlockW h r e)) = 1 := by
+  have hδ : PWord.eval ⇑t (pro2 (deltaZeroW h)) = 1 := eval_pro2_deltaZeroW t
+  rw [dBlockW, pro2_prodList, Marking.eval_def]
+  simp [hδ]
+
+/-- **And so the correction block is invisible at the marked pro-`2` boundary.**  This is the
+design constraint that makes the corrected word a legal replacement for the draft's: whatever
+`E_{r,η}` does at second order, it must not move the pro-`2` core. -/
+theorem eval_pro2_eBlockW (t : Marking (2 + 2 * h) G) (r : ℕ) (e : EtaData) :
+    t.eval (pro2 (eBlockW h r e)) = 1 := by
+  rw [eBlockW, pro2_comm, Marking.eval_def, PWord.eval_comm,
+    show PWord.eval ⇑t (pro2 (dBlockW h r e)) = 1 from eval_pro2_dBlockW t r e, commR_one_left]
+
+/-- **Gate C, syntactically**: the `τ`-letter is gone and the `ω₂`-power is collapsed; the
+`η̂`-power and the `ℤ`-power conjugator are kept, and nothing else moves.  The fourth factor is
+`x₂ · 1`, whose trailing `1` is the collapsed `τ`; the fifth is the correction block, left folded
+because what matters about it is its *value* (`eval_pro2_eBlockW`), not its pro-`2` syntax. -/
+theorem pro2_npcW (α r h : ℕ) (e : EtaData) :
+    pro2 (npcW α r h e) = PWord.prodList
+      [.zpow (.gen (coreLetter h 0)) (2 + 2 ^ α),
+       .comm (.gen (coreLetter h 0)) (aW h e),
+       .inv (.conj (.gen (coreLetter h 2)) (PWord.prodList [.gen (coreLetter h 1), bW h r])),
+       PWord.prodList [.gen (coreLetter h 2), .one],
+       pro2 (eBlockW h r e),
+       handlesW h] := by
+  rw [npcW, pro2_prodList]
+  simp only [List.map_cons, List.map_nil, pro2_omega2Pow, pro2_handlesW, pro2_prodList,
+    pro2_zpow, pro2_comm, pro2_inv, pro2_conj, pro2_gen_wild, pro2_gen_tau, pro2_aW, pro2_bW,
+    coreLetter]
+
+omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+/-- The one group-theoretic move of this file: `x^{-g} · x = [g, x]`. -/
+theorem invConj_mul_self (x g : G) : (conjR x g)⁻¹ * x = commP g x := by
+  simp only [conjR, commP, mul_inv_rev, inv_inv]
+  group
+
+/-- **The pro-`2` boundary value of the corrected noncompact-`N` word is MC2's `N`-core at the
+twisted Labute letters `(x₀, σ^{η̂}, x₁σ^{2^r}, x₂)`.**
+
+No hypothesis on the marking is needed: `pro2` has already removed `τ` and every `ω₂`, so the
+identity is one of plain group words — except that the second Labute letter is a genuine profinite
+power `σ^{η̂}`, which Gate C deliberately does not collapse. -/
+theorem eval_pro2_npcW (α r h : ℕ) (e : EtaData) (t : Marking (2 + 2 * h) G) :
+    t.eval (pro2 (npcW α r h e)) =
+      MarkedCore.nWord α (t (coreLetter h 0)) (t.σ ^ᶻ e.toZhat)
+          (t (coreLetter h 1) * t.σ ^ (2 ^ r : ℤ)) (t (coreLetter h 2)) *
+        MarkedCore.handleWord (fun j => t (handleU j)) (fun j => t (handleV j)) := by
+  have hH : PWord.eval ⇑t (handlesW h)
+      = MarkedCore.handleWord (fun j => t (handleU j)) (fun j => t (handleV j)) := eval_handlesW t
+  have hE : PWord.eval ⇑t (pro2 (eBlockW h r e)) = 1 := eval_pro2_eBlockW t r e
+  rw [pro2_npcW, Marking.eval_def, PWord.eval_prodList]
+  simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, PWord.eval_zpow,
+    PWord.eval_comm, PWord.eval_inv, PWord.eval_conj, PWord.eval_gen, PWord.eval_one,
+    PWord.eval_prodList, PWord.eval_profPow, aW, bW, Marking.apply_sigma, mul_one, one_mul,
+    hE, hH]
+  -- The word's leading exponent is a genuine `ℤ`-power, MC2's core word's is an `ℕ`-power;
+  -- align them before the group normalisation.
+  rw [show ((2 : ℤ) + 2 ^ α) = ((2 + 2 ^ α : ℕ) : ℤ) by push_cast; ring, zpow_natCast,
+    MarkedCore.nWord, ← invConj_mul_self (t (coreLetter h 2))
+      (t (coreLetter h 1) * t.σ ^ (2 ^ r : ℤ))]
+  simp only [commR, commP, conjR, mul_assoc]
+
+/-- At `h = 0` the handle tail is the empty product and the pro-`2` value is MC2's core word on
+the nose. -/
+theorem eval_pro2_npcW_zero (α r : ℕ) (e : EtaData) (t : Marking 2 G) :
+    t.eval (pro2 (npcW α r 0 e)) =
+      MarkedCore.nWord α (t.x 0) (t.σ ^ᶻ e.toZhat) (t.x 1 * t.σ ^ (2 ^ r : ℤ)) (t.x 2) := by
+  rw [eval_pro2_npcW (α := α) (r := r) (h := 0) (e := e) (t := t),
+    show MarkedCore.handleWord (fun j : Fin 0 => t (handleU j)) (fun j : Fin 0 => t (handleV j))
+      = 1 from rfl, mul_one]
+  rfl
+
+/-- The same value read as MC2's **full relator shape** `nRelWord` at the standard marking. -/
+theorem eval_pro2_npcW_eq_nRelWord (α r : ℕ) (e : EtaData) (t : Marking 2 G) :
+    t.eval (pro2 (npcW α r 0 e)) =
+      MarkedCore.nRelWord (h := 0) α
+        (MarkedCore.coreMark (t.x 0) (t.σ ^ᶻ e.toZhat) (t.x 1 * t.σ ^ (2 ^ r : ℤ)) (t.x 2)) := by
+  rw [eval_pro2_npcW_zero, MarkedCore.nRelWord_coreMark]
+
+end Pro2
+
+/-! ## §7. The instance pins
+
+Three of the seven rows are singled out because they exercise independent directions of the
+parameter space; the rest are covered by the hash pins and `denote` bridges of §2. -/
+
+/-- **The frozen-`Npc` harness instance** `(α, r, η) = (2, 1, 1)`, `h = 0`: a valid procyclic
+branch row at level `r = 1`.
+
+This is the row `F5`'s finite-target harness measures.  Its epimorphism-count vector over
+`(S₃, D₈, A₄)` is **`6 / 1568 / 120`** (`scripts/dyadic_sanity_counts.py`, banked 2026-07-31).
+That triple is **cited, never proved here**: reproducing it in Lean means an epimorphism
+enumeration, not a `decide`, and it is F5's job.  Note the `S₃` and `D₈` entries coincide with the
+compact row's — the sanity counts do *not* separate the compact and procyclic families, which is
+precisely why the separating gate is the `S₃`-**module** test and not a count (see below). -/
+theorem branchData_npc_pin :
+    (BranchData.Npc 2 1 1).Valid ∧ (BranchData.Npc 2 1 1).level = 1 :=
+  ⟨BranchData.valid_Npc_iff.mpr ⟨by norm_num, by norm_num⟩, rfl⟩
+
+/-- The `η = −1` row is a valid branch row too — `BranchData.Valid` constrains only `α` and `r`,
+so every `η ∈ ℤ₂ˣ` is admissible and the certificates must (and do) cover `η ≠ 1`. -/
+theorem branchData_npc_etam1 :
+    (BranchData.Npc 2 1 (-1)).Valid ∧ (BranchData.Npc 2 1 (-1)).level = 1 :=
+  ⟨BranchData.valid_Npc_iff.mpr ⟨by norm_num, by norm_num⟩, rfl⟩
+
+/-- The `r = 2` row, where `B = σ⁴`: level `2`, still valid. -/
+theorem branchData_npc_r2 :
+    (BranchData.Npc 2 2 1).Valid ∧ (BranchData.Npc 2 2 1).level = 2 :=
+  ⟨BranchData.valid_Npc_iff.mpr ⟨by norm_num, by norm_num⟩, rfl⟩
+
+/-- **The `(2,1,1)` word**, spelled out: `R_{N,2,1,1} = x₀⁶ [x₀,σ^{η̂}] · x₂^{-g} (x₂τ)^{ω₂} ·
+[D_{1,1}, x₁]` with `g = x₁σ²` and `B = σ²`.  The leading exponent is `2 + 2² = 6` and the
+trailing `PWord.one` is the empty handle block `H_0`. -/
+theorem npcW_pin_unfold :
+    npcW 2 1 0 ⟨1, 1⟩ = PWord.prodList
+      [.zpow (.gen (coreLetter 0 0)) 6,
+       .comm (.gen (coreLetter 0 0)) (aW 0 ⟨1, 1⟩),
+       .inv (.conj (.gen (coreLetter 0 2))
+         (PWord.prodList [.gen (coreLetter 0 1), .zpow (.gen .sigma) 2])),
+       PWord.omega2Pow (PWord.prodList [.gen (coreLetter 0 2), .gen .tau]),
+       eBlockW 0 1 ⟨1, 1⟩,
+       .one] := rfl
+
+/-! ## §8. Sanity: what is and is not visible
+
+Nothing below is cited by a proof; these are regression pins in the sense of plan §3 A1.
+
+### ⚠ The `S₃`-module early rejection is a *rejection* test only — docstring here
+
+The lane's separating gate is the two-dimensional `S₃`-module radical detection for the
+**uncorrected** word (the mutant row): a candidate whose mixed Hessian has a `2`-dimensional
+radical on the relevant module is rejected early.  It belongs to **WNP-b/c**, which replay
+`E_{r,η}` symbolically and can therefore see the second-order content this file's word only
+carries.  The discipline that governs it, quoted from the campaign's harness rules:
+
+> a **REJECT is sound, a PASS is never evidence.**
+
+That is: the module test can only ever *refute* a candidate.  A candidate that survives it has
+learned nothing — no PASS from this or any finite-target harness may be reported as support for
+the corrected word.  The support for the correction is S3.2's machine verification plus the NC
+lane's `npc_cross_operators`, and nothing else.
+
+### The counts
+
+F5 measures the frozen `(α,r,η) = (2,1,1)` row at `6 / 1568 / 120` over `(S₃, D₈, A₄)` — cited in
+§7, proved nowhere here.  No `2`-group can see the `σ`-versus-`σ₂` distinction (on a group of
+`2`-power exponent `ω₂` acts as the identity), and by the abelian result below no abelian group of
+any order can see the `η̂`-twist or the correction block. -/
+
+section AbelianInvisibility
+
+variable {A : Type} [CommGroup A] [TopologicalSpace A] [IsTopologicalGroup A] [CompactSpace A]
+  [TotallyDisconnectedSpace A]
+
+/-- **On any abelian target the `η̂`-twist, the correction block and the handles are all
+invisible**: the word collapses to `x₀^{2+2^α} · x₂⁻¹ · (x₂τ)^{ω₂}`, in which neither `η` nor `r`
+nor `h` appears.
+
+This is the Lean form of "the counts are blind": an abelian finite-target harness cannot
+distinguish the corrected word from the uncorrected one, cannot see `η`, and cannot see the level
+`r`.  Any sanity row with teeth must be nonabelian — which is what makes `A₄` the interesting
+column of F5's triple and the `S₃`-*module* test, not the `S₃` *count*, the separating gate. -/
+theorem eval_npcW_of_comm (α r h : ℕ) (e : EtaData) (t : Marking (2 + 2 * h) A) :
+    t.eval (npcW α r h e) =
+      t (coreLetter h 0) ^ ((2 : ℤ) + 2 ^ α) * (t (coreLetter h 2))⁻¹ *
+        (t (coreLetter h 2) * t.τ) ^ᶻ omega2 := by
+  have hH : PWord.eval ⇑t (handlesW h) = 1 := by
+    rw [show PWord.eval ⇑t (handlesW h) = t.eval (handlesW h) from rfl, eval_handlesW]
+    rw [MarkedCore.handleWord]
+    refine List.prod_eq_one ?_
+    intro y hy
+    obtain ⟨j, -, rfl⟩ := List.mem_map.mp hy
+    simp [commP, mul_comm]
+  rw [npcW, Marking.eval_def, PWord.eval_prodList]
+  simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, PWord.eval_zpow,
+    PWord.eval_comm, PWord.eval_inv, PWord.eval_conj, PWord.eval_gen, PWord.eval_prodList,
+    PWord.eval_omega2PowHat, eBlockW, commR, conjR, hH, mul_one, Marking.apply_tau]
+  simp only [mul_comm, mul_left_comm, mul_inv_cancel, one_mul, mul_inv_cancel_left]
+
+end AbelianInvisibility
+
+section StressZMod8
+
+local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
+local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
+
+private theorem orderOf_dvd_eight (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
+  orderOf_dvd_of_pow_eq_one (by revert x; decide)
+
+/-- A concrete marking of the noncompact-`N` alphabet at `h = 0`, written additively:
+`(σ, τ, x₀, x₁, x₂) = (5, 1, 1, 1, 1)` in `Multiplicative (ZMod 8)` — the *same* marking WN0-a
+uses, so the two rows' values are directly comparable. -/
+def zmod8Marking : Marking (2 + 2 * 0) (Multiplicative (ZMod 8)) :=
+  Marking.ofLetters (Multiplicative.ofAdd 5) (Multiplicative.ofAdd 1)
+    ![Multiplicative.ofAdd 1, Multiplicative.ofAdd 1, Multiplicative.ofAdd 1]
+
+/-- **Stress (genuine `ω₂`, and the compact/procyclic rows agree here)**: the profinite denotation
+of the `(2,1,1)` word at the `ZMod 8` marking is `ofAdd 7` — *the same value WN0-a computes for
+the compact row*, since the two differ only in the twisted conjugators and the correction block,
+all of which are abelian-invisible.
+
+Additively: `x₀⁶ = 6`, `x₂⁻¹ = −1`, `(x₂τ)^{ω₂} = 1·(1+1) = 2`, total `6 − 1 + 2 = 7`.  Pins the
+leading exponent `2 + 2² = 6`, the *inverse* on the `x₂^{-g}` factor, and the `ω₂` sitting on the
+whole `(x₂τ)` subword rather than on `x₂` alone. -/
+theorem eval_zmod8_npcW :
+    zmod8Marking.eval (npcW 2 1 0 ⟨1, 1⟩) = Multiplicative.ofAdd (7 : ZMod 8) := by
+  rw [eval_npcW_of_comm, PWord.zpowHat_omega2_zpow (by norm_num) (orderOf_dvd_eight _),
+    omega2Exp_eight, Nat.cast_one, zpow_one]
+  decide
+
+/-- **Stress (the whole `η`-and-`r` family is constant at this marking)**: changing `η` to `−1/5`
+and `r` to `2` does not move the value, because the marking is abelian.  A pin on the *negative*
+result of `eval_npcW_of_comm` — if a future edit made `η` or `r` visible abelian, this breaks. -/
+theorem eval_zmod8_npcW_etam1_5_r2 :
+    zmod8Marking.eval (npcW 2 2 0 ⟨-1, 5⟩) = zmod8Marking.eval (npcW 2 1 0 ⟨1, 1⟩) := by
+  rw [eval_npcW_of_comm, eval_npcW_of_comm]
+
+/-- **Stress (the tame boundary is not vacuous)**: at this marking the `τ`-letter has even order,
+so the Gate-B value `τ^{ω₂}` is *not* trivial — `not_killsWild` read numerically. -/
+theorem eval_killWildLetters_zmod8 :
+    (Marking.killWildLetters zmod8Marking).eval (npcW 2 1 0 ⟨1, 1⟩)
+      = Multiplicative.ofAdd (1 : ZMod 8) := by
+  rw [eval_killWildLetters_npcW,
+    PWord.zpowHat_omega2_zpow (by norm_num) (orderOf_dvd_eight _), omega2Exp_eight]
+  decide
+
+end StressZMod8
+
+/-! ### The `D`-block is not vacuous
+
+The `ZMod 8` pins above are abelian, so by `eval_npcW_of_comm` they say nothing about the
+correction.  These two are the nonabelian counterweight, at the group level: the compressed
+`D`-block and the correction block are genuinely nontrivial words.
+
+Group-level rather than marking-level on purpose — that keeps them free of any profinite content,
+so they are plain `decide`s, and it is the form WNP-b will replay symbolically over WW2's
+certificate grammar with its own `η̂`-operator alphabet. -/
+
+/-- **The compressed `D`-block at the group level**: `D = d^A (d · d^A)^{B⁻¹}` with `d` standing
+for `δ₀`.  `eval_dBlockW` says this is what `dBlockW` evaluates to. -/
+def dBlockG {G : Type*} [Group G] (d A B : G) : G := conjR d A * conjR (d * conjR d A) B⁻¹
+
+section DBlockEval
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+  [TotallyDisconnectedSpace G] {h r : ℕ}
+
+/-- The word-level `D`-block evaluates to the group-level one, at `d = δ₀`, `A = σ^{η̂}`,
+`B = σ^{2^r}`.  The `mul_one`s absorbed here are the (D1) `prodList` tails. -/
+theorem eval_dBlockW (e : EtaData) (t : Marking (2 + 2 * h) G) :
+    t.eval (dBlockW h r e) =
+      dBlockG (t.eval (deltaZeroW h)) (t.σ ^ᶻ e.toZhat) (t.σ ^ (2 ^ r : ℤ)) := by
+  rw [dBlockW, dBlockG, Marking.eval_def, PWord.eval_prodList]
+  simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, PWord.eval_conj,
+    PWord.eval_prodList, PWord.eval_inv, PWord.eval_gen, PWord.eval_profPow, aW, bW,
+    PWord.eval_zpow, Marking.apply_sigma, mul_one]
+  rfl
+
+/-- The correction block evaluates to the commutator of the group-level `D`-block with `x₁`. -/
+theorem eval_eBlockW (e : EtaData) (t : Marking (2 + 2 * h) G) :
+    t.eval (eBlockW h r e) =
+      commR (dBlockG (t.eval (deltaZeroW h)) (t.σ ^ᶻ e.toZhat) (t.σ ^ (2 ^ r : ℤ)))
+        (t (coreLetter h 1)) := by
+  rw [eBlockW, Marking.eval_def, PWord.eval_comm,
+    show PWord.eval ⇑t (dBlockW h r e) = t.eval (dBlockW h r e) from rfl, eval_dBlockW]
+  rfl
+
+end DBlockEval
+
+/-- **The compressed `D`-block is nontrivial**, at an explicit triple in `S₃`.
+
+An explicit witness rather than `∃ … by decide`: the search over `S₃³` exhausts the kernel's
+recursion budget, and a witness costs nothing.  With `B = 1` the block reduces to `d^A · d · d^A`,
+which at `d = (0 1)`, `A = (0 2)` is `(1 2)(0 1)(1 2) = (0 2) ≠ 1`. -/
+theorem dBlockG_ne_one_perm :
+    dBlockG (Equiv.swap 0 1) (Equiv.swap 0 2) (1 : Equiv.Perm (Fin 3)) ≠ 1 := by decide
+
+/-- **The correction block is nontrivial**: the `D`-block above does not commute with `x₁ = (0 1)`.
+So `E_{r,η}` is not a decorative factor — it dies at both boundaries (§5, §6) while being a
+nontrivial word, which is exactly the profile a second-order correction must have. -/
+theorem eBlockG_ne_one_perm :
+    commR (dBlockG (Equiv.swap 0 1) (Equiv.swap 0 2) (1 : Equiv.Perm (Fin 3)))
+        (Equiv.swap 0 1) ≠ 1 := by decide
+
+/-- **Stress (nonabelian: the pro-`2` core is not a vacuous relator)**: MC2's `N` core word is
+nontrivial at an explicit marking of `S₃`, so the two commutators of §6's core do real work. -/
+theorem nWord_ne_one_perm :
+    MarkedCore.nWord 2 (Equiv.swap 0 1) (Equiv.swap 0 2) (Equiv.swap 0 1) (Equiv.swap 0 2)
+      ≠ (1 : Equiv.Perm (Fin 3)) := by decide
+
 end Npc
 
 end GQ2.Dyadic.Words
