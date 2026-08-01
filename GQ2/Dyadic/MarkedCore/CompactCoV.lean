@@ -322,6 +322,267 @@ theorem isUnit_nu_dmC_iff_chiKer {α : ℕ} (hα : 2 ≤ α) (B : MDecomposition
 
 end Discharge
 
+/-! ## §4 `St_M`-invariance, and the substitution itself
+
+MC3's classification pins the `C̄₀`-row of every χ-preserving cup isometry to
+`φ(C̄₀) = 2c₁·B̄ + γ·C̄₀` with `γ ∈ ℤ₂ˣ` (memo §2.3's closed form).  Two consequences:
+
+* the unit-ness of the pivot is **invariant** — a substitution can rescale the pivot but never
+  make an even value odd (`isUnit_nu_stab_iff`);
+* when the pivot *is* a unit, the substitution `C̄₀ ↦ B̄^{2c₁}·C̄₀^{γ}` with `γ = ν'(C̄₀)⁻¹`
+  normalizes it to `1` (`nu_mCoV_dmC_normalized`) — the packet normalisation `ν_P(σ) = 1`.
+
+`mCoVParam c1 γ` is MC3's `mFamM6 c1` composed with `mFamM3 γ` (families `Y_c` and `Σ_γ`). -/
+
+section Substitution
+
+/-- The abelianized ν-frame: the rank-four marking read on `D_M^{ab}`. -/
+theorem mNu_frame_ab {α : ℕ} (hα : 1 ≤ α) (B : MDecomposition α)
+    (nu : ContinuousMonoidHom (topAbelianization (DM α 0 : Type)) (Multiplicative ℤ_[2]))
+    (z : topAbelianization (DM α 0 : Type)) :
+    nu z = mNuModel (toAdd (nu (abMk (dmB α 0)))) (toAdd (nu (abMk (dmC α 0))))
+      (toAdd (nu (abMk (dmD α 0)))) (B.e z) := by
+  have hg := mNu_frame hα B (nu.comp (mAbMkHom α 0))
+  exact mAb_hom_ext nu ((mNuModelHom _ _ _).comp (mFrameHom B)) (fun i => hg (dmGen α 0 i)) z
+
+/-- **The `C̄₀`-row of a classified substitution**: `ν(ξ(C̄₀)) = 2c₁·ν(B̄) + γ·ν(C̄₀)`. -/
+theorem nu_stab_dmC {α : ℕ} (hα : 1 ≤ α) (B : MDecomposition α)
+    (nu : ContinuousMonoidHom (topAbelianization (DM α 0 : Type)) (Multiplicative ℤ_[2]))
+    (ξ : ContinuousMulEquiv (topAbelianization (DM α 0 : Type))
+      (topAbelianization (DM α 0 : Type))) (p : MStabParam) (hp : p.Realizes B ξ) :
+    toAdd (nu (ξ (abMk (dmC α 0))))
+      = 2 * p.c1 * toAdd (nu (abMk (dmB α 0)))
+        + (p.gamma : ℤ_[2]) * toAdd (nu (abMk (dmC α 0))) := by
+  rw [mNu_frame_ab hα B nu (ξ (abMk (dmC α 0))), hp.2.1, mNuModel_ofAdd, toAdd_ofAdd]
+  ring
+
+/-- **The pivot datum is a `St_M`-invariant.**  No χ-preserving change of variables can turn an
+even pivot odd: `γ` is a unit and the shear enters doubled.  This is why the compact-`M` datum
+had to be *replaced* by an equivalent hypothesis rather than substituted away. -/
+theorem isUnit_nu_stab_iff {α : ℕ} (hα : 1 ≤ α) (B : MDecomposition α)
+    (nu : ContinuousMonoidHom (topAbelianization (DM α 0 : Type)) (Multiplicative ℤ_[2]))
+    (ξ : ContinuousMulEquiv (topAbelianization (DM α 0 : Type))
+      (topAbelianization (DM α 0 : Type))) (p : MStabParam) (hp : p.Realizes B ξ) :
+    IsUnit (toAdd (nu (ξ (abMk (dmC α 0))))) ↔ IsUnit (toAdd (nu (abMk (dmC α 0)))) := by
+  have hrow := nu_stab_dmC hα B nu ξ p hp
+  have hγ : mParityZ (p.gamma : ℤ_[2]) = 1 := mParityZ_of_isUnit p.gamma.isUnit
+  have hpar : mParityZ (toAdd (nu (ξ (abMk (dmC α 0)))))
+      = mParityZ (toAdd (nu (abMk (dmC α 0)))) := by
+    rw [hrow, show 2 * p.c1 * toAdd (nu (abMk (dmB α 0)))
+        = 2 * (p.c1 * toAdd (nu (abMk (dmB α 0)))) by ring,
+      mParityZ_add, mParityZ_two_mul, zero_add, mParityZ_mul, hγ, one_mul]
+  constructor
+  · intro hu
+    exact mIsUnit_of_parity_one (by rw [← hpar]; exact mParityZ_of_isUnit hu)
+  · intro hu
+    exact mIsUnit_of_parity_one (by rw [hpar]; exact mParityZ_of_isUnit hu)
+
+/-- **The compact-`M` marked change of variables, frame form.**  In the frame `(t, B̄, C̄₀, D̄)`
+this is the substitution
+
+```
+Ā ↦ Ā·C̄₀^{m(1−γ)},   B̄ ↦ B̄,   C̄₀ ↦ B̄^{2c₁}·C̄₀^{γ},   D̄ ↦ D̄        (m = 2^{α−1}, γ ∈ ℤ₂ˣ)
+```
+
+— MC3's families `Y_c` (`mFamM6`) and `Σ_γ` (`mFamM3`) composed.  It is the *whole* freedom the
+compact row has at the pivot: `mStabilizer_classification` says every χ-preserving cup isometry
+has this `C̄₀`-row. -/
+noncomputable def mCoVParam (c1 : ℤ_[2]) (γ : ℤ_[2]ˣ) : MStabParam := ⟨0, 1, 0, c1, γ, 0, 0⟩
+
+@[simp] theorem mCoVParam_c1 (c1 : ℤ_[2]) (γ : ℤ_[2]ˣ) : (mCoVParam c1 γ).c1 = c1 := rfl
+
+@[simp] theorem mCoVParam_gamma (c1 : ℤ_[2]) (γ : ℤ_[2]ˣ) : (mCoVParam c1 γ).gamma = γ := rfl
+
+/-- The pure rescaling `Σ_γ` is the `c₁ = 0` member. -/
+theorem mCoVParam_zero_eq_mFamM3 (γ : ℤ_[2]ˣ) : mCoVParam 0 γ = mFamM3 γ := rfl
+
+/-- The pure shear `Y_c` is the `γ = 1` member. -/
+theorem mCoVParam_one_eq_mFamM6 (c1 : ℤ_[2]) : mCoVParam c1 1 = mFamM6 c1 := rfl
+
+/-- **The substitution normalizes the pivot**: with `γ = ν(C̄₀)⁻¹` and no shear, the transported
+marking takes the packet value `ν_P(σ) = 1` at the pivot.  This is the compact-row analogue of
+the procyclic recipe's `ρ = η⁻¹`. -/
+theorem nu_mCoV_dmC_normalized {α : ℕ} (hα : 1 ≤ α) (B : MDecomposition α)
+    (nu : ContinuousMonoidHom (topAbelianization (DM α 0 : Type)) (Multiplicative ℤ_[2]))
+    (ξ : ContinuousMulEquiv (topAbelianization (DM α 0 : Type))
+      (topAbelianization (DM α 0 : Type)))
+    (hc : IsUnit (toAdd (nu (abMk (dmC α 0)))))
+    (hp : (mCoVParam 0 hc.unit⁻¹).Realizes B ξ) :
+    toAdd (nu (ξ (abMk (dmC α 0)))) = 1 := by
+  rw [nu_stab_dmC hα B nu ξ _ hp, mCoVParam_c1, mCoVParam_gamma, mul_zero, zero_mul, zero_add]
+  have hval : ((hc.unit⁻¹ : ℤ_[2]ˣ) : ℤ_[2]) * toAdd (nu (abMk (dmC α 0)))
+      = ((hc.unit⁻¹ * hc.unit : ℤ_[2]ˣ) : ℤ_[2]) := by
+    rw [Units.val_mul, hc.unit_spec]
+  rw [hval, inv_mul_cancel, Units.val_one]
+
+end Substitution
+
+/-! ## §5 Comparison with the displayed procyclic substitution
+
+The vendored draft displays, for `r ≥ 1` and `η = λ(u)` odd with `ρ = η⁻¹`,
+
+```
+σ = d^ρ,   x₀ = c^{-m}a^{-1},   x₁ = b·σ^{-ε2^{r−1}},   x₂ = c·σ^{-2^r}
+```
+
+equivalently `A = x₀^{-1}C₀^{-m}`, `B = x₁σ^{ε2^{r−1}}`, `C₀ = x₂σ^{2^r}`, `D = σ^η`, giving the
+marked vector (memo §2.6)
+
+```
+ν_M = (ν(Ā), ν(B̄), ν(C̄₀), ν(D̄)) = (−m·2^r, ε2^{r−1}, 2^r, η).
+```
+
+**Two independent failures at `r = 0`, and only the second is the one MC1 named.**
+
+1. *The coefficient.*  `ν(B̄) = ε2^{r−1}` reads `ε/2` at `r = 0`, and `ε` is odd, so no `ℤ₂`
+   value satisfies `2·ν(B̄) = ε` (`two_mul_ne_one`).  **Verified: this is a genuine failure, not
+   a removable singularity.**
+2. *The shape.*  More seriously, the substitution's combinatorics change.  At `r = 0` the
+   modulus is `ℤ/2^0 = 0`, so `λ` is the zero map and **both `ε` and `η` cease to exist**; the
+   procyclic recipe is parametrized by data that is empty on the compact row.  Concretely the
+   Frobenius `σ` moves slot: procyclic puts it in the `D`-slot (`D = σ^η`) with `x₂` in the
+   `C₀`-slot, whereas the compact row must put `σ` in the `C₀`-slot.  **So the compact row is
+   not a limit of the procyclic formula in any sense.**
+
+**The compact substitution** (derived here; it reproduces the specialization the packet's own
+proof file already performs, `A₀ = x₀^{-1}σ^{-m}` with word `A₀²[A₀,x₁]σ^{2m}[σ,x₂]`):
+
+```
+A = x₀^{-1}·σ^{-m},    B = x₁,    C₀ = σ,    D = x₂          (m = 2^{α−1})
+```
+
+with inverse `σ = C₀`, `x₀ = A^{-1}C₀^{-m}`, `x₁ = B`, `x₂ = D`, marked vector
+
+```
+ν_M = (−m, 0, 1, 0)          χ_M = (1, −1, 1, u)
+```
+
+which is exactly MC2's `nuM`/`chiM`.  Note `ν(Ā) = −m` is *not* an `r`-exponent: §1 shows it is
+forced by the abelianized relation at **every** marking. -/
+
+section Procyclic
+
+/-- **The `ε/2` degeneration is real**: `ε2^{r−1}` at `r = 0` would need `2x = ε` with `ε` odd,
+and `2` is not invertible in `ℤ₂`.  (Stated at `ε = 1`; any unit is the same statement.) -/
+theorem two_mul_ne_one (x : ℤ_[2]) : 2 * x ≠ 1 := by
+  intro hx
+  have hpar : mParityZ (2 * x) = mParityZ 1 := by rw [hx]
+  rw [mParityZ_two_mul, mParityZ_one] at hpar
+  exact absurd hpar (by decide)
+
+/-- **The pivot datum *is* compactness.**  The packet defines the row parameter by
+`ν_ur(ker χ) = 2^rℤ₂` and computes `ν_M(C̄₀) = 2^r`; so a unit pivot is exactly `r = 0`.
+Together with `isUnit_nu_dmC_iff_chiKer` this identifies MC5's threaded datum with the branch
+condition that *selects* the compact row in the first place. -/
+theorem isUnit_two_pow_iff (r : ℕ) : IsUnit ((2 : ℤ_[2]) ^ r) ↔ r = 0 := by
+  constructor
+  · intro hu
+    by_contra hr
+    obtain ⟨k, rfl⟩ : ∃ k, r = k + 1 := ⟨r - 1, by omega⟩
+    have := mParityZ_of_isUnit hu
+    rw [pow_succ, mul_comm, mParityZ_two_mul] at this
+    exact absurd this (by decide)
+  · rintro rfl
+    simp
+
+/-- The compact row's marked vector, as MC2 landed it: `ν_M = (−m, 0, 1, 0)`, `m = 2^{α−1}`. -/
+theorem nuM_compact_vector (α h : ℕ) (hα : 1 ≤ α) :
+    nuM α h hα (dmA α h) = ofAdd (-(2 : ℤ_[2]) ^ (α - 1))
+      ∧ nuM α h hα (dmB α h) = ofAdd 0
+      ∧ nuM α h hα (dmC α h) = ofAdd 1
+      ∧ nuM α h hα (dmD α h) = ofAdd 0 :=
+  ⟨nuM_dmA α h hα, nuM_dmB α h hα, nuM_dmC α h hα, nuM_dmD α h hα⟩
+
+end Procyclic
+
+/-! ## §6 The MC5-facing reductions, with the binder replaced
+
+Each theorem here is the `Certificate.lean` statement with `hpivot : IsUnit (ν'(C̄₀))` replaced
+by `MChiKerUnimodular` — the compact-row condition `ν'(ker χ_M) = ℤ₂`.  The replacement is an
+*equivalence* at rank four (`isUnit_nu_dmC_iff_chiKer`), so no strength is lost, and it costs a
+frame `B : MDecomposition α`, which MC3 already consumes as a hypothesis throughout. -/
+
+section MC5
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+
+/-- **MC5's `mMarkedMatching`, with the compact-`M` datum discharged.** -/
+theorem mMarkedMatching_of_chiKer {α : ℕ} (hα : 2 ≤ α) (hα1 : 1 ≤ α) (B : MDecomposition α)
+    (hMix : MMixHypothesis α 0 hα1)
+    (nu' : ContinuousMonoidHom (DM α 0 : Type) (Multiplicative ℤ_[2]))
+    (hker : MChiKerUnimodular α 0 nu') :
+    ∃ u : ContinuousMulEquiv (DM α 0 : Type) (DM α 0 : Type),
+      (∀ x, chiM α 0 (u x) = chiM α 0 x) ∧ ∀ x, nu' (u x) = nuM α 0 hα1 x :=
+  mMarkedMatching hα1 hMix nu' (isUnit_nu_dmC_of_chiKer hα B nu' hker)
+
+/-- **MC-M (correction form), with the compact-`M` datum discharged.** -/
+theorem prop_MC_M_correction_of_chiKer {α : ℕ} (hα : 2 ≤ α) (hα1 : 1 ≤ α)
+    (B : MDecomposition α) (hMix : MMixHypothesis α 0 hα1)
+    (nu' : ContinuousMonoidHom (DM α 0 : Type) (Multiplicative ℤ_[2]))
+    (hker : MChiKerUnimodular α 0 nu') :
+    ∃ Ψ : ContinuousMulEquiv (DM α 0 : Type) (DM α 0 : Type),
+      (∀ x, chiM α 0 (Ψ x) = chiM α 0 x)
+        ∧ ∀ i, nu' (Ψ (dmGen α 0 i)) = nuM α 0 hα1 (dmGen α 0 i) :=
+  prop_MC_M_correction hα1 hMix nu' (isUnit_nu_dmC_of_chiKer hα B nu' hker)
+
+/-- **Certificate production, `M`-side, with the compact-`M` datum discharged.**  The pivot row
+of `marked_matching_certificate_M` is now the compact-row condition on the transported marking,
+which is what the packet's `(C, I, λ, γ)` data supplies directly. -/
+theorem marked_matching_certificate_M_of_chiKer {α : ℕ} (hα : 2 ≤ α) (hα1 : 1 ≤ α)
+    (B : MDecomposition α) (chiG : G →* ℤ_[2]ˣ) (nuG : G →* Multiplicative ℤ_[2])
+    (f : ContinuousMulEquiv (DM α 0 : Type) G)
+    (horient : ∀ x, chiG (f x) = chiM α 0 x)
+    (hcont : Continuous fun x : (DM α 0 : Type) => nuG (f x))
+    (hMix : MMixHypothesis α 0 hα1)
+    (hker : ∃ x : (DM α 0 : Type), chiM α 0 x = 1 ∧ IsUnit (toAdd (nuG (f x)))) :
+    Nonempty (MarkedCoreCertificateM α 0 hα1 chiG nuG) := by
+  set nu' : ContinuousMonoidHom (DM α 0 : Type) (Multiplicative ℤ_[2]) :=
+    { toFun := fun x => nuG (f x)
+      map_one' := by rw [map_one, map_one]
+      map_mul' := fun x y => by rw [map_mul, map_mul]
+      continuous_toFun := hcont } with hnu'
+  exact marked_matching_certificate_M α 0 hα1 chiG nuG f horient hcont hMix
+    (isUnit_nu_dmC_of_chiKer hα B nu' hker)
+
+end MC5
+
+/-! ## §7 Instance pins at the campaign's two compact-`M` fields
+
+`ℚ₂(√2)` is `α = 3` (`m = 4`) and `ℚ₂(√5)` is `α = 2`, `q_K = 4` (`m = 2`).  Both are quadratic,
+so the Demushkin rank is `[K:ℚ₂] + 2 = 4` and `h = 0` — the case §3/§4 cover. -/
+
+section Pins
+
+/-- Pin `√2` (`α = 3`): the compact substitution's `Ā`-value is `−m = −4`. -/
+theorem mCoVPin_sqrt_two (h : ℕ) :
+    nuM 3 h (by norm_num) (dmA 3 h) = ofAdd (-(4 : ℤ_[2])) := by
+  rw [nuM_dmA]
+  norm_num
+
+/-- Pin `√5` (`α = 2`, `q_K = 4`): the compact substitution's `Ā`-value is `−m = −2`. -/
+theorem mCoVPin_sqrt_five (h : ℕ) :
+    nuM 2 h (by norm_num) (dmA 2 h) = ofAdd (-(2 : ℤ_[2])) := by
+  rw [nuM_dmA]
+  norm_num
+
+/-- Pin `√2` (`α = 3`): the discharge holds. -/
+theorem mCoVPin_discharge_sqrt_two (B : MDecomposition 3)
+    (nu' : ContinuousMonoidHom (DM 3 0 : Type) (Multiplicative ℤ_[2])) :
+    IsUnit (toAdd (nu' (dmC 3 0))) ↔ MChiKerUnimodular 3 0 nu' :=
+  isUnit_nu_dmC_iff_chiKer (by norm_num) B nu'
+
+/-- Pin `√5` (`α = 2`): the discharge holds. -/
+theorem mCoVPin_discharge_sqrt_five (B : MDecomposition 2)
+    (nu' : ContinuousMonoidHom (DM 2 0 : Type) (Multiplicative ℤ_[2])) :
+    IsUnit (toAdd (nu' (dmC 2 0))) ↔ MChiKerUnimodular 2 0 nu' :=
+  isUnit_nu_dmC_iff_chiKer (by norm_num) B nu'
+
+/-- Pin: the pivot datum is unit at both instances for the *standard* marking (non-vacuity). -/
+theorem mCoVPin_nuM_chiKer (α h : ℕ) (hα : 1 ≤ α) : MChiKerUnimodular α h (nuM α h hα) :=
+  mChiKerUnimodular_of_isUnit (nuM α h hα) (isUnit_nuM_dmC α h hα)
+
+end Pins
+
 end MarkedCore
 
 end Dyadic
