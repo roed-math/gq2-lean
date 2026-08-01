@@ -109,6 +109,14 @@ This file is **not** `module`-style, and that is forced: it imports `GQ2.Dyadic.
 (F3), which is itself not `module`-style, and a `module` file may not import a non-`module` one.
 The `Words/` + `Certificates/` layers being non-`module` is the lane convention ratified at
 WN0-a.
+
+**Audited axiom state** (scratch `#print axioms` pass over every non-`private` declaration,
+2026-07-31): 103 declarations, 101 auditable by name, and **all are std-3 or smaller** — 12
+depend on no axiom at all (the raw trees and the gate-A constants), 8 on `[propext]`, 12 on
+`[propext, Quot.sound]`, the remaining 69 on the full `[propext, Classical.choice, Quot.sound]`.
+No `sorryAx`, no `Lean.ofReduceBool` (i.e. no `native_decide`), and **no `B`-axiom of the dyadic
+census** anywhere: the census stays at eleven.  Every `decide` here is a kernel `decide` on a
+finite `ZMod 8` or `Equiv.Perm (Fin 3)` computation.
 -/
 
 namespace GQ2.Dyadic.Words.MCompact
