@@ -1457,4 +1457,149 @@ theorem npc_cross_operators_npcW (hV2 : ∀ v : V, v + v = 0) (s u : C)
 
 end NcSeamWord
 
+/-! ## §9. The η̂-augmentation pin: `η̂` differentiates to `1`
+
+WW1's lift-level engine lemma `WordLift.zpowHat_etaHatZ_of_odd_orderOf_base` says the honest
+η̂-power of a lift over a pro-odd base is the lift itself; its row-level shadow is that
+`D(σ^{η̂}) = a(σ)` — the η̂-power contributes the *identity* operator coefficient, never a
+geometric sum.  The rows of §2 never consume this (every `D(A)` is multiplied by a vanishing
+operator — the deeper reason the correction is first-order-invisible), so it is recorded here
+as a pin, in resolver form: any resolver honest at the lift level takes an **odd** value at
+`η̂` (the η̂-residue at level `2^k·odd` is `≡ η ≡ 1 mod 2`), and an odd power of a
+trivially-acting base differentiates to the identity (`WordLift.sum_pow_smul_of_trivial_odd`'s
+`ℤ`-power form). -/
+
+section EtaRow
+
+variable {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
+
+/-- An **odd `ℤ`-power of a lift over a trivially-acting base keeps its offset**: the even part
+lands in the base-embedded copy of `C` (zero offset), and the leftover single factor
+contributes `p.u`.  The `ℤ`-power form of WW1's augmentation-1 corollary. -/
+theorem zpow_u_of_trivial_odd (hV₂ : ∀ v : V, v + v = 0) {p : WordLift V C}
+    (hp : ∀ v : V, p.g • v = v) {k : ℤ} (hk : Odd k) : (p ^ k).u = p.u := by
+  obtain ⟨m, rfl⟩ := hk
+  have h2 : p ^ (2 : ℤ) ∈ (WordLift.baseEmbed (A := V) (C := C)).range := by
+    refine ⟨p.g ^ 2, ?_⟩
+    ext
+    · show (0 : V) = (p ^ (2 : ℤ)).u
+      rw [zpow_two, WordLift.mul_u, hp p.u, hV₂ p.u]
+    · show p.g ^ 2 = (p ^ (2 : ℤ)).g
+      rw [WordLift.zpow_g, zpow_two, sq]
+  have hmem : p ^ (2 * m) ∈ (WordLift.baseEmbed (A := V) (C := C)).range := by
+    rw [zpow_mul]
+    exact zpow_mem h2 m
+  obtain ⟨c, hc⟩ := hmem
+  have hu0 : (p ^ (2 * m)).u = 0 := by rw [← hc]; rfl
+  have hg : (p ^ (2 * m)).g • p.u = p.u := by
+    rw [WordLift.zpow_g]
+    exact MulAction.mem_stabilizer_iff.mp
+      ((MulAction.stabilizer C p.u).zpow_mem (MulAction.mem_stabilizer_iff.mpr (hp p.u)) _)
+  rw [zpow_add, zpow_one, WordLift.mul_u, hu0, zero_add, hg]
+
+/-- **`η̂` differentiates to `1`** (row form): at any marking whose `σ` acts trivially — the
+split class, where a geometric sum *would* be visible as a scalar — the η̂-conjugator's Fox
+row is exactly `a(σ)`, for every resolver taking an odd value at `η̂`.  Every lift-correct
+resolver does (`WordLift.zpowHat_etaHatZ_of_odd_orderOf_base`: the η̂-residue at the lift
+level is odd), so the η̂-power never contributes an even-length sum: its augmentation is `1`,
+never `0`. -/
+theorem foxD_aW_split {h : ℕ} (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+    (hV₂ : ∀ v : V, v + v = 0) (hσ : ∀ v : V, t.σ • v = v) (e : EtaData)
+    (hE : Odd (E e.toZhat)) (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (aW h e) = a .sigma := by
+  rw [foxD_def, aW, foxEval_profPow_of_ne _ _ _ _ _ (toZhat_ne_omega2 e),
+    zpow_u_of_trivial_odd hV₂ (fun v => hσ v) hE]
+  rfl
+
+end EtaRow
+
+/-! ## §10. The instances
+
+Packet Def. 9.1 item (4): the `(α, r, η) = (2, 1, 1)` frozen-Npc harness instance — the row
+`F5` measures at `6/1568/120` over `(S₃, D₈, A₄)`, certificate
+`N-noncompact-alpha2-r1-eta1_1-h0-v001` (digest `08b7742caf3a34f8…`, hash-pinned by WNP-a,
+whose `denote_rawNpc_a2_r1_eta1_1_h0` ties `npcW 2 1 0 ⟨1,1⟩` to that tree) — plus the
+`η = −1/5` instance (certificate `N-noncompact-alpha2-r1-etam1_5-h0-v001`, digest
+`552fd470fd82b3e6…`), where the η̂-denominator is a nontrivial `2`-adic unit.
+
+Everything here is a specialization of the symbolic-(r, η) certificates; the only instance
+content is the arithmetic side conditions (`α ≥ 1`, `q = 2` even) and the concrete five-letter
+alphabet `Generator 2`. -/
+
+section Instances
+
+variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking 2 C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- **The `(2,1,1)` wild row, unramified**: `(0, 1, A⁻¹+1, 0, 1+S⁻²)` in the packet's column
+order `σ, τ, x₀, x₁, x₂` — with `B = σ²` at level `r = 1`. -/
+theorem foxD_npcPin_unram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (npcW 2 1 0 ⟨1, 1⟩)
+      = ((t.σ ^ E (EtaData.mk 1 1).toZhat)⁻¹ • a (.wild 0) - a (.wild 0))
+        + (a .tau + (a (.wild 2) - (t.σ ^ (2 : ℤ))⁻¹ • a (.wild 2))) := by
+  have h := foxD_npc_unram (h := 0) (α := 2) (r := 1) t E E₂ hV₂ hwild hτ (by norm_num) ⟨1, 1⟩ a
+  rwa [pow_one] at h
+
+/-- **The `(2,1,1)` wild row, ramified**: `(0, 0, A⁻¹+1, 0, S⁻²)`. -/
+theorem foxD_npcPin_ram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτfpf : ∀ v : V, t.τ • v = v → v = 0)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (npcW 2 1 0 ⟨1, 1⟩)
+      = ((t.σ ^ E (EtaData.mk 1 1).toZhat)⁻¹ • a (.wild 0) - a (.wild 0))
+        - (t.σ ^ (2 : ℤ))⁻¹ • a (.wild 2) := by
+  have h := foxD_npc_ram (h := 0) (α := 2) (r := 1) t E E₂ hV₂ hwild hτfpf hTodd (by norm_num)
+    ⟨1, 1⟩ a
+  rwa [pow_one] at h
+
+/-- **The `(2,1,1)` wild row on the scalar module**: `(0, 1, 0, 0, 0)` — same τ-pivot as the
+compact row's scalar reading. -/
+theorem foxD_npcPin_split (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hσ : ∀ v : V, t.σ • v = v) (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (npcW 2 1 0 ⟨1, 1⟩) = a .tau :=
+  foxD_npc_split (h := 0) (α := 2) (r := 1) t E E₂ hV₂ hwild hτ hσ (by norm_num) ⟨1, 1⟩ a
+
+/-- **The `(2,1,1)` unramified Jacobian certificate** at `q_K = 2`: one row operation, then the
+honest stop at `(0, 0, A⁻¹+1, 0, 1+S⁻²)`. -/
+noncomputable def npcPinJacobianCertUnram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v) :
+    FoxCertificate (NpcSym.splitEnd (V := V) t (t.σ ^ E (EtaData.mk 1 1).toZhat))
+      (foxJacobian ⇑t E E₂ (tameRelW 2 2) (npcW 2 1 0 ⟨1, 1⟩)) :=
+  npcJacobianCertUnram (h := 0) (α := 2) (r := 1) t E E₂ hV₂ hwild hτ (by decide)
+    (by norm_num) ⟨1, 1⟩
+
+/-- **The `(2,1,1)` ramified Jacobian certificate**: the two operations
+`ScaleCol(x₂, S²)` (carried inverse `S⁻²`) then `AddCol(x₀, x₂, A⁻¹+1)`, landing on the
+standard `x₂`-pivot with the universal tame row. -/
+noncomputable def npcPinJacobianCertRam (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτfpf : ∀ v : V, t.τ • v = v → v = 0)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (hrel : conjR t.τ t.σ = t.τ ^ 2) :
+    FoxCertificate (NpcSym.ramifiedEnd (V := V) t (t.σ ^ E (EtaData.mk 1 1).toZhat))
+      (foxJacobian ⇑t E E₂ (tameRelW 2 2) (npcW 2 1 0 ⟨1, 1⟩)) :=
+  npcJacobianCertRam (h := 0) (α := 2) (r := 1) t E E₂ hV₂ hwild hτfpf hTodd hrel
+    (by norm_num) ⟨1, 1⟩
+
+/-- **The `η = −1/5` published wild row, unramified** — the η̂-atoms interpreted at the
+resolver value of a genuinely fractional `2`-adic unit; the formal data is the *same*
+universal row as the `η = 1` instance's, which is the whole point of putting `η` in the
+interpretation. -/
+noncomputable def npcEtaM15WildRowCertUnram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v) :
+    FoxRowCertificate (NpcSym.splitEnd (V := V) t (t.σ ^ E (EtaData.mk (-1) 5).toZhat))
+      (foxDHom ⇑t E E₂ (npcW 2 1 0 ⟨-1, 5⟩)) :=
+  npcWildRowCertUnram (h := 0) (α := 2) (r := 1) t E E₂ hV₂ hwild hτ (by norm_num) ⟨-1, 5⟩
+
+/-- **The `η = −1/5` ramified Jacobian certificate** — the same two-op replay, `η ≠ 1`. -/
+noncomputable def npcEtaM15JacobianCertRam (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτfpf : ∀ v : V, t.τ • v = v → v = 0)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (hrel : conjR t.τ t.σ = t.τ ^ 2) :
+    FoxCertificate (NpcSym.ramifiedEnd (V := V) t (t.σ ^ E (EtaData.mk (-1) 5).toZhat))
+      (foxJacobian ⇑t E E₂ (tameRelW 2 2) (npcW 2 1 0 ⟨-1, 5⟩)) :=
+  npcJacobianCertRam (h := 0) (α := 2) (r := 1) t E E₂ hV₂ hwild hτfpf hTodd hrel
+    (by norm_num) ⟨-1, 5⟩
+
+end Instances
+
 end GQ2.Dyadic.Certificates.Npc
