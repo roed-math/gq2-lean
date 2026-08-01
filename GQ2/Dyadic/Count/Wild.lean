@@ -374,6 +374,86 @@ theorem isEmpty_wordCertificate (hn : 1 ≤ n) {q : ℕ} {R : PWord (Generator n
 
 end Refutation
 
+/-! ## §5 The five frozen branch families
+
+Every frozen family lives on an alphabet with at least two wild letters — `N`, `Npc`, `M` and
+`Mpc` on `Generator (2 + 2h)` and `L` on `Generator (2h + 1)`, and `Generator m` carries `m + 1`
+wild letters — so §4 applies verbatim to all five.  Each discharge is `by omega`: there is no
+per-family content, because the obstruction does not see the word. -/
+
+section Branches
+
+/-- **Compact `N`** (the `√−2` branch). -/
+theorem not_hwild_nCompact {q α h : ℕ}
+    (hspec : TameSpec.TameSpecializes (2 + 2 * h) q (nCompactW α h)) :
+    ¬ IsProP 2 (TameSpec.tameOfSpec (2 + 2 * h) q (nCompactW α h) hspec).toMonoidHom.ker :=
+  not_hwild (by omega) hspec
+
+/-- **`L`** (the square branch) — the tightest alphabet, and still two wild letters at `h = 0`. -/
+theorem not_hwild_lSq {q h : ℕ}
+    (hspec : TameSpec.TameSpecializes (2 * h + 1) q (LSq.lSqW h)) :
+    ¬ IsProP 2 (TameSpec.tameOfSpec (2 * h + 1) q (LSq.lSqW h) hspec).toMonoidHom.ker :=
+  not_hwild (by omega) hspec
+
+/-- **Non-compact `N`**. -/
+theorem not_hwild_npcW {q α r h : ℕ} {e : EtaData}
+    (hspec : TameSpec.TameSpecializes (2 + 2 * h) q (Npc.npcW α r h e)) :
+    ¬ IsProP 2 (TameSpec.tameOfSpec (2 + 2 * h) q (Npc.npcW α r h e) hspec).toMonoidHom.ker :=
+  not_hwild (by omega) hspec
+
+/-- **Compact `M`**. -/
+theorem not_hwild_mCompact {q α h : ℕ}
+    (hspec : TameSpec.TameSpecializes (2 + 2 * h) q (MCompact.mCompactW α h)) :
+    ¬ IsProP 2
+      (TameSpec.tameOfSpec (2 + 2 * h) q (MCompact.mCompactW α h) hspec).toMonoidHom.ker :=
+  not_hwild (by omega) hspec
+
+/-- **Non-compact `M`**.  Note that no `1 ≤ α` hypothesis is needed: unlike `tameSpecialization`,
+the obstruction is insensitive to the word's parameters. -/
+theorem not_hwild_mpcW {q α r p h : ℕ} {η : Mpc.EtaDisplay}
+    (hspec : TameSpec.TameSpecializes (2 + 2 * h) q (Mpc.mpcW α r p η h)) :
+    ¬ IsProP 2
+      (TameSpec.tameOfSpec (2 + 2 * h) q (Mpc.mpcW α r p η h) hspec).toMonoidHom.ker :=
+  not_hwild (by omega) hspec
+
+end Branches
+
+/-! ## §6 The pilot: compact `N` at `√−2`
+
+`K = ℚ₂(√−2)`, `α = 2`, `h = 0`, `q_K = 2` — the frozen row of `Words/N0.lean`.
+
+⚠ CB-0's `pilot_tameSpecialization` could not be reused: `Count/Routine.lean` does not currently
+compile (see this file's report — the `dyadic` merge left it calling `TameSpecializes` and
+`tameOfSpec` at top level, where F3b has since moved them into `namespace TameSpec`).  The pilot
+witness is therefore rebuilt here from F3b's `tameSpecializes_of_tau_pow` and N0's own boundary
+theorem, which is the same one-liner CB-0's §7 used. -/
+
+section Pilot
+
+/-- The pilot word. -/
+noncomputable abbrev pilotW : PWord (Generator (2 + 2 * 0)) := nCompactW 2 0
+
+/-- Gate B at the pilot — CB-0's `pilot_tameSpecialization`, rebuilt against `TameSpec`. -/
+theorem pilot_tameSpecialization : TameSpec.TameSpecializes (2 + 2 * 0) 2 pilotW :=
+  TameSpec.tameSpecializes_of_tau_pow (by omega) (by decide)
+    (eval_killWildLetters_nCompact 2 0 (tameMarking (2 + 2 * 0) 2))
+
+/-- **`hwild` fails at the pilot**, end-to-end: the tame kernel of the `√−2` candidate is not
+pro-`2`. -/
+theorem pilot_not_hwild :
+    ¬ IsProP 2
+      (TameSpec.tameOfSpec (2 + 2 * 0) 2 pilotW pilot_tameSpecialization).toMonoidHom.ker :=
+  not_hwild_nCompact pilot_tameSpecialization
+
+/-- **No word certificate exists at the pilot.**  The `√−2` row cannot be completed as
+`CertificateMain` currently states it. -/
+theorem pilot_isEmpty_wordCertificate {P : ProfiniteGrp} {hP : IsProP 2 P}
+    {nuP : ContinuousMonoidHom P Ztwo} {SN : SourceNumerics (2 + 2 * 0)} :
+    IsEmpty (WordCertificate (2 + 2 * 0) 2 pilotW P hP nuP SN) :=
+  isEmpty_wordCertificate (by omega)
+
+end Pilot
+
 end Count
 
 end GQ2.Dyadic
