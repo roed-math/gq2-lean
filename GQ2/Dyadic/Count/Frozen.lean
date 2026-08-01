@@ -990,6 +990,38 @@ theorem orderOf_wordLift_vmod_dvd_exponent {D : RadicalCoverData Bg} (DD : DescD
     orderOf x ∣ 2 * Monoid.exponent E :=
   orderOf_wordLift_vmod_dvd DD (fun g => Monoid.order_dvd_exponent g) x
 
+/-- The split target's level `2 · exp(Bg ⧸ D.M)` is nonzero and even — the two facts §7.4's
+matched pair asks of a level, both automatic here.  The evenness is the lift level itself, so it
+costs nothing: it is the `2`-torsion of `Additive ↥D.T` showing up as a factor of `N`. -/
+theorem splitLevel_ne_zero_and_even (D : RadicalCoverData Bg) :
+    2 * Monoid.exponent (Bg ⧸ D.M) ≠ 0
+      ∧ (2 * Monoid.exponent (Bg ⧸ D.M)).factorization 2 ≠ 0 := by
+  have he : Monoid.exponent (Bg ⧸ D.M) ≠ 0 := Monoid.exponent_ne_zero_of_finite
+  refine ⟨Nat.mul_ne_zero two_ne_zero he, ?_⟩
+  rw [Nat.factorization_mul two_ne_zero he, Finsupp.add_apply,
+    Nat.Prime.factorization_self Nat.prime_two]
+  simp
+
+/-- **The procyclic-`N` row's matched pair at the count lane's own split target, with no
+hypothesis about the target at all.**
+
+This is the end of the level question for this row.  `hord` comes from §8.2's exponent bound and
+the evenness from the lift level, so what §6 tried to obtain from the tame head — and could not —
+is simply not needed: `2 · exp(Bg ⧸ D.M)` is a level, it kills the target, and it is even because
+`Additive ↥D.T` is `2`-torsion.  The only remaining hypotheses are the branch-word conditions
+`1 ≤ α` and `Even q`, which are conditions on the *word*, not the target. -/
+theorem resolvesAt_and_endpoint_npcFamOf_split (D : RadicalCoverData Bg)
+    [TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    [DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    {α r h q : ℕ} (hα : 1 ≤ α) (hq : Even q) (d : EtaData) (E₂ : ℤ_[2] → ℤ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.Npc.npcW α r h d))
+        (npcFamOf α r h q d (npcResolver (2 * Monoid.exponent (Bg ⧸ D.M)) d) E₂)
+        (WordLift (Additive ↥D.T) (Bg ⧸ D.M))
+      ∧ IsStokesEndpoint
+          (npcFamOf α r h q d (npcResolver (2 * Monoid.exponent (Bg ⧸ D.M)) d) E₂) :=
+  resolvesAt_and_endpoint_npcFamOf (splitLevel_ne_zero_and_even D).1
+    (splitLevel_ne_zero_and_even D).2 (orderOf_wordLift_radT_dvd_exponent D) hα hq d E₂
+
 end ExponentHypothesis
 
 /-! ## §9 The procyclic-`M` row's `.hat` display
