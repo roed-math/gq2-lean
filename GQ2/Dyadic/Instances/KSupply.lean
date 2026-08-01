@@ -18,7 +18,7 @@ prove**, and `KSupply.toSourceN` / `KSupply.toLocalInput` close the loop into AS
 
 ## What is proved here, and what is carried
 
-Nineteen `SourceDataN` fields.  Ten are discharged, nine are carried.
+Twenty-one `SourceDataN` fields.  **Ten are discharged, eleven are carried.**
 
 | field | status | supplier |
 |---|---|---|
@@ -75,10 +75,11 @@ reasons** (see the ticket report):
 
 ## What this file does **not** do
 
-No `sorry`, no new axiom, and none of the nine obligations as an axiom.  The nine carried leaves
-are hypothesis binders (structure fields), which is the campaign's permitted interim state.  The
-K-clones of the `ℚ₂` `*Local` counting pack (`GQ2/Phase140/Local.lean`, `GQ2/RStage/Local.lean`,
-`GQ2/MStageCount.lean`'s `liftsOver_card_local`, `GQ2/SectionEight/Partition.lean`'s
+No `sorry`, no new axiom, and none of the nine obligations as an axiom.  The eleven carried
+leaves are hypothesis binders (structure fields), which is the campaign's permitted interim
+state.  The K-clones of the `ℚ₂` `*Local` counting pack (`GQ2/Phase140/Local.lean`,
+`GQ2/RStage/Local.lean`, `GQ2/MStageCount.lean`'s `liftsOver_card_local`,
+`GQ2/SectionEight/Partition.lean`'s
 `lemma_8_6_local`) and the LG5 ⇒ `GaussZResidueK` bridge are still owed; §6 records who owes
 what.  In particular this file does **not** consume LG5's `local_gauss_K` — it cannot, because
 the missing rung is the (83)-evaluation bridge from an Arf/zero-count statement to
@@ -413,12 +414,37 @@ theorem qOf_hyps (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ
     (FF : DyadicUnitFiltration K) : 2 ≤ qOf K FF ∧ Even (qOf K FF) :=
   ⟨two_le_qOf K FF, even_qOf K FF⟩
 
+/-- **Packet Thm. 1.1 at a supplied `K`** — the ticket's acceptance criterion, and the reason
+`toLocalInput` exists.  A word certificate over the *same* slot plus a `KSupply` gives
+`Γ_{R_K} ≅ G_K`; the two `q`-side hypotheses of AS1's theorem are discharged from B13's residue
+degree, so the only hypothesis left over the two packages is `νP`'s surjectivity, which is
+automatic at every standard core (the marking sends `σ ↦ 1`).
+
+Nothing new is proved here: this is `candidate_equiv_absoluteGalois` with its second argument
+built rather than assumed.  That *is* the deliverable — before this file the arithmetic argument
+had no producer at all. -/
+theorem candidate_equiv_galK_of_supply {R : PWord (Generator n)}
+    (W : WordCertificate n (qOf K FF) R P hP nuP SN) (KS : KSupply T n P hP nuP SN)
+    (params : FieldParameters) (params_n : params.n = n) (params_qK : params.qK = qOf K FF)
+    (ramified : ∀ δi : ℚ̄₂, δi ^ 2 = -1 → ¬ HasEqualNormValueGroups K δi)
+    (ramifiedData : ∀ {D : Type} [Group D] [TopologicalSpace D] [DiscreteTopology D] [Finite D]
+      (V : Type) [AddCommGroup V] [DistribMulAction D V]
+      (c : ContinuousMonoidHom (Tq params.qK) D)
+      (rho : ContinuousMonoidHom ↥(GalKsub K) D),
+      (∃ v : V, c (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) V c rho))
+    (hnuP : Function.Surjective nuP) :
+    Nonempty (ContinuousMulEquiv ((candidateGroup n (qOf K FF) R : Type)) (GalK K)) :=
+  candidate_equiv_absoluteGalois W
+    (toLocalInput KS params params_n params_qK ramified ramifiedData)
+    (two_le_qOf K FF) (even_qOf K FF) hnuP
+
 end IntoAS1
 
 /-! ## §6 What is still owed, and by whom
 
-The nine carried leaves, grouped by the `ℚ₂` object whose `K`-clone would discharge them.  This
-list is the residue of the ASK ticket and should be read as its handover.
+The eleven carried leaves, grouped by the `ℚ₂` object whose `K`-clone would discharge them.
+This list is the residue of the ASK ticket and should be read as its handover.
 
 1. **`pro2` / `hpro2` / `ker_pro2` / `nu_compat`** (4 data fields) — the marked-core certificate
    composite `G_K ↠ G_K(2) ≅ D_P`.  *Owed by:* AS2–AS5, per branch, via
