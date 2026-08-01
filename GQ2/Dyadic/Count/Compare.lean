@@ -37,6 +37,9 @@ VCocycle DD ρ ≃  Z¹(Γ, DD.Vmod)     ≃+  ↥(heisD1 c w).ker
   by the marking modulo the relator family, witnessed at finite discrete targets.  Three fields,
   all of them things a branch supplies about its own `Γ_R`; §2 also proves the rigidity lemma
   (`eq_of_eqOn_gen`) that makes the presented hom unique.
+* **§2.1** `ResolvesAt` — the bridge from the `PWord` relators of §2 to the `FreeGroup` family the
+  word complex is built on, **at one target**, and `resolvesAt_heisToFree`, which proves it for the
+  family resolved at that target's own exponent level.
 * **§3** `z1Equiv : Z¹(Γ, A) ≃+ ↥(heisD1 c w).ker`, and `h1Equiv` descending it to `H¹`.
 * **§4/§6** the two recursion-vocabulary bridges, generic in `Γ` (the `ℚ₂` copies are inline and
   `AbsGalQ2`-specific: `Phase140/{GammaA,GammaR}/Foundation.lean`, `Phase140/Local.lean:195`).
@@ -45,6 +48,23 @@ VCocycle DD ρ ≃  Z¹(Γ, DD.Vmod)     ≃+  ↥(heisD1 c w).ker
 * **§8** the N0 / `√−2` instantiation, at CB-S's degree bookkeeping (`nCompact_degree`, deficiency
   `2h + 2`) and N0's own `sqrtNegTwo_isStokesEndpoint` — the recursion-vocabulary counterpart of
   CB-S's `sqrtNegTwo_cardZ1`, which is the same value read on the word side.
+
+## The relators are read at the target (ticket CB-TR)
+
+The presentation class was originally stated against a `FreeGroup ι`-family — the same family the
+word complex uses.  That is **wrong**, and CB-RES proved it wrong: `ω₂` is a profinite exponent,
+it acts as a different integer in each finite quotient, and `Count.zpowHat_omega2_ne_zpow` shows
+no integer represents it in the free profinite group.  A `FreeGroup`-stated clause therefore talks
+about elements that are not the relators of `Γ_R`, and its relator clause is *false* at the
+intrinsic branch words (`Count.lift_gammaGen_nCompactFam_ne_one`).
+
+So clauses (ii) and (iii) now carry the intrinsic family `W : ρ → PWord ι` and evaluate it with
+`PWord.eval` **inside each finite discrete target**, where `PWord.eval_eq_evalNat_of_dvd` resolves
+`ω₂` at `omega2Exp N` for that target's own level `N`.  The word lane's `FreeGroup` family enters
+through exactly one extra hypothesis, `ResolvesAt W w Q` at the single target `Q` the count is
+taken in, and that hypothesis is a **theorem** for the family resolved there
+(`resolvesAt_heisToFree`).  Nothing else in the file changes: the `hA₂`/`hwild2` analysis of
+clause (iii) survives verbatim, and so does every count.
 
 ## What is *not* re-proved here
 
@@ -93,7 +113,8 @@ recursion's own vocabulary (`RF.YB`, `En.radData l h`, `En.descData l h`, `rhoPr
   exact tcocycle_cardN (rhoPrimeK RF b F (En.radData l h) rfl ρ) (fun _ _ => rfl) hc …
   ```
   The `hcomp` argument is `rfl` — the `cActT` instance imported here **is** the one the field is
-  stated against, so no transport is needed.
+  stated against, so no transport is needed.  ⚠ CB-TR inserted one argument, `hres`, immediately
+  after `hpres`; the recipe is otherwise unchanged.
 * `hZcard` ← `hZcardN` at `E := RF.YC`, `theta := ρ.1.1`, with `hround` discharged for free by the
   already-landed `rho0_descData_rhoPrimeK` (`GQ2/Dyadic/Recursion/Phase140Assembly.lean:77`):
   ```
