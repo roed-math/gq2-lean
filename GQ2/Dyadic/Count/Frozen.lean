@@ -195,7 +195,116 @@ theorem resolvesAt_mpcFam {N : ℕ} (hN : N ≠ 0) (hord : ∀ x : Q, orderOf x 
   rw [mpcFam_eq_gammaFam]
   exact resolvesAt_gammaFam hN hord _ _ (Words.Mpc.isOmega2Only_mpcW α r pp hη h)
 
+/-! ### §3.1 The two pins, per row
+
+`Count/Presentation.lean` §7.5 pins the compact-`N` row twice — at `omega2Exp 6 = 3` and at
+`omega2Exp (2 ^ a) = 1` — and flags that **which one the count lane may use is decided by the
+counting target, not by the branch**.  The same two pins for the other three `ω₂`-only rows are
+below, so that the choice is available uniformly and no row has to be re-derived when the target
+is settled.
+
+Read `Count/Resolve.lean` §7 alongside: its refutations of the *global* statement at the frozen
+`e = 3` land in `ℤ/8` and `ℤ/4`, i.e. at `2`-groups, which is exactly the regime where
+`omega2Exp = 1 ≠ 3`.  Nothing here contradicts them — these are statements at one target. -/
+
+/-- Compact `M` at `e = 3`: honest at every target of exponent dividing `6`. -/
+theorem resolvesAt_mCompactFam_three (hord : ∀ x : Q, orderOf x ∣ 6) (α h q : ℕ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.MCompact.mCompactW α h))
+      (Certificates.MCompact.mCompactFam α h q 3) Q := by
+  have h := resolvesAt_mCompactFam (N := 6) (by norm_num) hord α h q
+  rwa [omega2Exp_six] at h
+
+/-- **Compact `M` at `e = 1`: honest at every `2`-group target.** -/
+theorem resolvesAt_mCompactFam_one {a : ℕ} (ha : a ≠ 0) (hord : ∀ x : Q, orderOf x ∣ 2 ^ a)
+    (α h q : ℕ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.MCompact.mCompactW α h))
+      (Certificates.MCompact.mCompactFam α h q 1) Q := by
+  have h := resolvesAt_mCompactFam (N := 2 ^ a) (Nat.two_pow_pos a).ne' hord α h q
+  rwa [omega2Exp_two_pow ha] at h
+
+/-- `L_sq` at `e = 3`. -/
+theorem resolvesAt_lSqFam_three (hord : ∀ x : Q, orderOf x ∣ 6) (h q : ℕ) :
+    ResolvesAt (gammaFam (2 * h + 1) q (Words.LSq.lSqW h))
+      (Certificates.LSqStokes.lSqFam h q 3) Q := by
+  have hr := resolvesAt_lSqFam (N := 6) (by norm_num) hord h q
+  rwa [omega2Exp_six] at hr
+
+/-- **`L_sq` at `e = 1`.**  This is the row whose frozen Stokes pin already sits at `e = 1`
+(`Certificates.LSqStokes.qFour_isStokesEndpoint` is `IsStokesEndpoint (lSqFam 0 4 1)`), so for
+`L_sq` the resolver pin and the Stokes pin already agree at the `2`-group value. -/
+theorem resolvesAt_lSqFam_one {a : ℕ} (ha : a ≠ 0) (hord : ∀ x : Q, orderOf x ∣ 2 ^ a) (h q : ℕ) :
+    ResolvesAt (gammaFam (2 * h + 1) q (Words.LSq.lSqW h))
+      (Certificates.LSqStokes.lSqFam h q 1) Q := by
+  have hr := resolvesAt_lSqFam (N := 2 ^ a) (Nat.two_pow_pos a).ne' hord h q
+  rwa [omega2Exp_two_pow ha] at hr
+
+/-- Procyclic `M` at `e = 3`. -/
+theorem resolvesAt_mpcFam_three (hord : ∀ x : Q, orderOf x ∣ 6) (α r pp h q : ℕ)
+    {η : Words.Mpc.EtaDisplay} (hη : η.IsOmega2Only) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.Mpc.mpcW α r pp η h))
+      (Certificates.MProcyclic.mpcFam α r pp h q 3 η) Q := by
+  have hr := resolvesAt_mpcFam (N := 6) (by norm_num) hord α r pp h q hη
+  rwa [omega2Exp_six] at hr
+
+/-- **Procyclic `M` at `e = 1`.** -/
+theorem resolvesAt_mpcFam_one {a : ℕ} (ha : a ≠ 0) (hord : ∀ x : Q, orderOf x ∣ 2 ^ a)
+    (α r pp h q : ℕ) {η : Words.Mpc.EtaDisplay} (hη : η.IsOmega2Only) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.Mpc.mpcW α r pp η h))
+      (Certificates.MProcyclic.mpcFam α r pp h q 1 η) Q := by
+  have hr := resolvesAt_mpcFam (N := 2 ^ a) (Nat.two_pow_pos a).ne' hord α r pp h q hη
+  rwa [omega2Exp_two_pow ha] at hr
+
 end TargetResolution
+
+/-! ## §4 The Stokes payload at the `e = 1` pin
+
+⚠ **Audit item.**  A branch's `hres`, `hd` and `hend` must all be read at *one* `e`: `hZcardN`
+and `tcocycle_cardN` take `ResolvesAt W w Q`, `StokesDuality c w V` and `IsStokesEndpoint w` at
+the same family `w`.  Eight of the campaign's nine frozen Stokes pins sit at `e = 3`
+(`sqrtNegTwo_`, `sqrtTwo_`, `sqrtFive_`, `sqrtNeg10_`, `sqrt10_`, `npcPin_`, `qTwo_`), and one at
+`e = 1` (`qFour_isStokesEndpoint`, `lSqFam 0 4 1`).  So if the counting target is a `2`-group,
+where §3.1's `e = 1` pins are the honest ones, the `e = 3` Stokes pins are stated at a family the
+resolver cannot use.
+
+That is **not** a defect in the Stokes lane: every one of the five generic endpoint theorems is
+already generic in `e` under `Odd e` alone, and `1` is odd.  So the `e = 1` twins below are
+*corollaries of the frozen generic theorems*, obtained by supplying `Odd 1` in place of `Odd 3` —
+nothing is re-proved and no frozen declaration is re-pinned.  They are recorded here so that the
+count lane can take a matched `(hres, hend)` pair at either pin without touching a `Certificates`
+file. -/
+
+section StokesAtOne
+
+open GQ2.Dyadic.Certificates
+
+/-- Compact `N` at `e = 1` — the `e = 1` twin of `sqrtNegTwo_isStokesEndpoint`. -/
+theorem nCompact_isStokesEndpoint_one {α h q : ℕ} (hα : 1 ≤ α) (hq : Even q) :
+    IsStokesEndpoint (nCompactFam α h q 1) :=
+  nCompact_isStokesEndpoint hα hq odd_one
+
+/-- Compact `M` at `e = 1` — the twin of `sqrtTwo_`/`sqrtFive_isStokesEndpoint`. -/
+theorem mCompact_isStokesEndpoint_one {α h q : ℕ} (hq : Even q) :
+    IsStokesEndpoint (MCompact.mCompactFam α h q 1) :=
+  MCompact.mCompact_isStokesEndpoint hq odd_one
+
+/-- `L_sq` at `e = 1` — this one the campaign already froze, at `lSqFam 0 4 1`. -/
+theorem lSq_isStokesEndpoint_one {h q : ℕ} (hq : Even q) :
+    IsStokesEndpoint (LSqStokes.lSqFam h q 1) :=
+  LSqStokes.lSq_isStokesEndpoint hq odd_one
+
+/-- Procyclic `M` at `e = 1` — the twin of `sqrtNeg10_`/`sqrt10_isStokesEndpoint`. -/
+theorem mpc_isStokesEndpoint_one {α r pp h q : ℕ} {η : Words.Mpc.EtaDisplay} (hα : 1 ≤ α)
+    (hq : Even q) : IsStokesEndpoint (MProcyclic.mpcFam α r pp h q 1 η) :=
+  MProcyclic.mpc_isStokesEndpoint hα hq odd_one
+
+/-- Procyclic `N` at `e = 1` — the twin of `npcPin_isStokesEndpoint`.  The Stokes payload of this
+row is available at `e = 1` exactly as the other four are; §5 is about the *resolver*, which is
+where this row genuinely differs. -/
+theorem npc_isStokesEndpoint_one {α r h q : ℕ} (hα : 1 ≤ α) (hq : Even q) (d : EtaData) :
+    IsStokesEndpoint (Npc.npcFam α r h q 1 d) :=
+  Npc.npc_isStokesEndpoint hα hq odd_one d
+
+end StokesAtOne
 
 end Count
 
