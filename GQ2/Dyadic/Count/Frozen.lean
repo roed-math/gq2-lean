@@ -649,6 +649,101 @@ theorem orderOf_wordLift_vmod_dvd {D : RadicalCoverData Bg} (DD : DescData D)
 
 end LiftLevel
 
+/-! ## §7 The two-valued resolver, and the procyclic-`N` row without side conditions
+
+§5.3 leaves the procyclic-`N` row with two options and shows the first one — "move the row to a
+`2`-group target" — is unavailable to the count lane, because §6 shows the counting target is
+`2 · 3`-torsion and not a `2`-group.  This section takes the second: **give the row a resolver
+with two values**, one per profinite exponent node of `npcW`.
+
+The point is that `Certificates.Npc.npcFam`'s `E = fun _ ↦ e` is the only thing that was ever
+constrained.  `npcW` has exactly two `ℤ̂`-exponents, `ω₂` and `η̂`, and *no* `ℤ₂`-exponent node at
+all; §5.1's `resolvedAt_npcW` already asks for nothing but a resolver correct at those two.  So
+the honest object is `E = npcResolver N d`, and with it §5.2's two arithmetic hypotheses **both
+disappear**: `resolvesAt_npcFamOf` carries exactly `hN` and `hord`, the same two hypotheses
+`Count.resolvesAt_gammaFam` carries for the four `ω₂`-only rows, and no more.  In particular
+there is no `2`-group restriction and no `η ≡ 1 (mod 2^a)` congruence.
+
+§5.3's two negatives are untouched and still bound what may be claimed: they are statements about
+*constant* resolvers, and `npcResolver N d` is not constant — `npcResolver_ne_const` records that
+this is exactly how the row escapes them, at the very targets where `not_constant_resolver_of_odd`
+bites. -/
+
+section TwoValued
+
+open GQ2.Dyadic.Certificates Words.Npc
+
+/-! ### §7.1 The resolver
+
+Two values, and the `ℤ̂`-elements they sit at are distinct for every `η`
+(`Words.Npc.toZhat_ne_omega2`), so the definition by cases is well posed and both projections are
+`rfl`-level. -/
+
+/-- **The procyclic-`N` row's `ℤ̂`-resolver at level `N`** — CB-FR's two values, assembled:
+`omega2Exp N` at `ω₂` and `1 + padicOmega2Exp (η − 1) N` at `η̂`.  Both are functions of the target
+level `N` and the branch datum alone, which is CB-TR's target-dependence principle applied twice
+rather than once.
+
+The value away from the two nodes is irrelevant — `npcW` has no other profinite exponent — and is
+taken to be the `η̂` one so that the definition needs a single decision. -/
+noncomputable def npcResolver (N : ℕ) (d : EtaData) (γ : Zhat) : ℤ :=
+  @ite _ (γ = omega2) (Classical.propDecidable _) (omega2Exp N : ℤ)
+    ((1 + padicOmega2Exp (d.toPadic - 1) N : ℕ) : ℤ)
+
+@[simp] theorem npcResolver_omega2 (N : ℕ) (d : EtaData) :
+    npcResolver N d omega2 = (omega2Exp N : ℤ) := if_pos rfl
+
+@[simp] theorem npcResolver_toZhat (N : ℕ) (d : EtaData) :
+    npcResolver N d d.toZhat = ((1 + padicOmega2Exp (d.toPadic - 1) N : ℕ) : ℤ) :=
+  if_neg (Words.Npc.toZhat_ne_omega2 d)
+
+/-! ### §7.2 The family at a general resolver, and the resolution with no side condition -/
+
+variable {Q : Type} [Group Q] [TopologicalSpace Q] [DiscreteTopology Q] [Finite Q]
+
+/-- **The procyclic-`N` family at an arbitrary resolver pair.**  `Certificates.Npc.npcFam` is the
+constant instance (`npcFamOf_const`, by `rfl`), so this is a generalization of the frozen family
+and not a competitor to it: everything below specializes back. -/
+noncomputable def npcFamOf (α r h q : ℕ) (d : EtaData) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    Fin 2 → FreeGroup (Generator (2 + 2 * h)) :=
+  fun k => heisToFree E E₂ (gammaFam (2 + 2 * h) q (Words.Npc.npcW α r h d) k)
+
+@[simp] theorem npcFamOf_zero (α r h q : ℕ) (d : EtaData) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    npcFamOf α r h q d E E₂ 0 = heisToFree E E₂ (tameRelW (2 + 2 * h) q) := rfl
+
+@[simp] theorem npcFamOf_one (α r h q : ℕ) (d : EtaData) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    npcFamOf α r h q d E E₂ 1 = heisToFree E E₂ (Words.Npc.npcW α r h d) := rfl
+
+/-- The frozen family is the constant instance. -/
+theorem npcFamOf_const (α r h q e : ℕ) (d : EtaData) :
+    npcFamOf α r h q d (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) = Npc.npcFam α r h q e d :=
+  (npcFam_eq_gammaFam α r h q e d).symm
+
+/-- **The procyclic-`N` row resolves at every target killed by `N`, with no side condition.**
+
+This is the row's ticket into the count lane, and the exact analogue of
+`Count.resolvesAt_gammaFam` for a word that is not `ω₂`-only: same two hypotheses (`N ≠ 0` and
+`hord`), same shape of conclusion, nothing extra.  Compare `resolvesAt_npcFam`, which needs `e` to
+be simultaneously both levels of the target — a demand §5.3 shows is unsatisfiable at the count
+lane's own level `6`. -/
+theorem resolvesAt_npcFamOf {N : ℕ} (hN : N ≠ 0) (hord : ∀ x : Q, orderOf x ∣ N)
+    (α r h q : ℕ) (d : EtaData) (E₂ : ℤ_[2] → ℤ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.Npc.npcW α r h d))
+      (npcFamOf α r h q d (npcResolver N d) E₂) Q := by
+  refine resolvesAt_of_resolvedAt ?_
+  have hωx : ∀ x : Q, x ^ᶻ omega2 = x ^ npcResolver N d omega2 := by
+    intro x
+    rw [npcResolver_omega2, PWord.zpowHat_omega2_zpow hN (hord x), zpow_natCast]
+  have hηx : ∀ x : Q, x ^ᶻ d.toZhat = x ^ npcResolver N d d.toZhat := by
+    intro x
+    rw [npcResolver_toZhat, EtaData.toZhat, zpowHat_etaHatZ_zpow hN (hord x), zpow_natCast]
+  intro f k
+  match k with
+  | 0 => exact PWord.resolvedAt_of_isOmega2Only f _ _ hωx _ (isOmega2Only_tameRelW _ q)
+  | 1 => exact resolvedAt_npcW f hωx hηx α r
+
+end TwoValued
+
 end Count
 
 end GQ2.Dyadic
