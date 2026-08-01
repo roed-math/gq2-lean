@@ -867,4 +867,157 @@ theorem sqrtFive_scalarGram :
 
 end ScalarGram
 
+/-! ## The Hessian certificate: both projector normal forms
+
+WW4's `compactM_P1_certificate` and `compactM_P0_certificate` already certify the two frozen
+**endpoints**.  What this section supplies is the **word side**: the evaluated class-two value
+of `R_{M,0}` at the graph-type κ⁰-marking, in each projector branch, landing on those endpoints
+with the changes of variables the freeze mandates.
+
+The marking is the pilot's `hessMark` (reused, not restated): `σ ↦ ((0,s))`, `τ ↦ ((0,u))` on
+the κ-free `C`-line, wild letters on the Heisenberg slice, `x₂` carrying no primal letter.
+
+**Why no `m`-charge survives** — the lane's cleanest structural gift.  Commuting a slice past
+the `C`-line element `σ₂^k` costs the factor-set correction `m_{σ₂^k}`.  Under `hS₂` (σ₂ acts
+trivially on `V`) eq. (60) gives `m_{g·g}(w) = m_g(g·w) + m_g(w) = 2·m_g(w) = 0`, so **every
+even** σ₂-power is `m`-free; and every σ₂-power occurring in the word — `σ₂^{−m}` inside `A₀`
+and `σ₂^{2m}` — is even, because `m = 2^{α−1}` with `α ≥ 2`.  So no untwisted-refinement
+hypothesis is needed here: the same evenness that killed the σ₂-jets at Stokes level kills the
+σ₂-charges at Hessian level, and the C-line factors then cancel by the packet's power balance
+`−2·2^{α−1} + 2^α = 0`. -/
+
+section Hessian
+
+open GQ2.SectionSix GQ2.QuadraticFp2
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+
+include hdat in
+/-- **Even σ₂-powers carry no factor-set correction**, given that σ₂ acts trivially: eq. (60)
+at `g^j · g^j` folds to `2 · m_{g^j}` — zero in `ZMod 2`.  Stated for `ℤ`-powers because the
+word spells `σ₂^{−m}` as well as `σ₂^{2m}`. -/
+theorem factorSet_m_zpow_even {g : C} (hg : ∀ w : V, g • w = w) {k : ℤ} (hk : Even k)
+    (w : V) : dat.m (g ^ k) w = 0 := by
+  obtain ⟨j, rfl⟩ := hk
+  have hj : ∀ w : V, (g ^ j) • w = w := fun w =>
+    mem_trivAct.mp (zpow_mem (mem_trivAct.mpr hg) j) w
+  rw [zpow_add g j j, hdat.m_mul, hj, CharTwo.add_self_eq_zero]
+
+/-- **The `C`-line element of a trivially-acting, `m`-free base is central against the
+slice.**  This is the gate-E commutation the compact-`M` word needs and the compact-`N` word
+never did. -/
+theorem hessLine_slice_comm {g : C} (hg : ∀ w : V, g • w = w) (hm : ∀ w : V, dat.m g w = 0)
+    (v : V) (z : ZMod 2) :
+    hessLine dat hdat g * hessSlice dat hdat v z
+      = hessSlice dat hdat v z * hessLine dat hdat g := by
+  refine WordCoh.CentExt.ext (Prod.ext ?_ ?_) ?_
+  · show (0 : V) + g • v = v + (1 : C) • (0 : V)
+    rw [hg, smul_zero, add_zero, zero_add]
+  · show g * (1 : C) = (1 : C) * g
+    rw [mul_one, one_mul]
+  · show (0 : ZMod 2) + z + (dat.f 0 (g • v) + dat.m g v)
+      = z + 0 + (dat.f v ((1 : C) • (0 : V)) + dat.m 1 (0 : V))
+    rw [hdat.f_zero_left, hm, smul_zero, hdat.f_zero_right, hdat.m_one]
+    simp only [add_zero, zero_add]
+
+/-- A central factor just adds its charge to a slice. -/
+theorem hessSlice_mul_incl (v : V) (z c : ZMod 2) :
+    hessSlice dat hdat v z * WordCoh.CentExt.incl (kappa0Cocycle dat hdat) c
+      = hessSlice dat hdat v (z + c) := by
+  rw [show WordCoh.CentExt.incl (kappa0Cocycle dat hdat) c = hessSlice dat hdat 0 c from rfl,
+    hessSlice_mul dat hdat, add_zero, hdat.f_zero_right, add_zero]
+
+/-- **The slice square law**, charge-independent: `((v,1),z)² = ι(q v)`. -/
+theorem hessSlice_sq (hV2 : ∀ v : V, v + v = 0) (v : V) (z : ZMod 2) :
+    hessSlice dat hdat v z * hessSlice dat hdat v z
+      = WordCoh.CentExt.incl (kappa0Cocycle dat hdat) (q v) := by
+  rw [hessSlice_mul dat hdat, hV2, hdat.f_diag]
+  show hessSlice dat hdat 0 (z + z + q v) = _
+  rw [CharTwo.add_self_eq_zero, zero_add]
+  rfl
+
+/-- **The odd slice power law**: `s^{2k+1} = ((v,1), z + k·q v)` — the `ω₂`-resolver form.
+The `C(e,2)`-parity of the pilot's `heisF_deltaBlock`, in the κ⁰-extension. -/
+theorem hessSlice_odd_pow (hV2 : ∀ v : V, v + v = 0) (v : V) (z : ZMod 2) (k : ℕ) :
+    hessSlice dat hdat v z ^ (2 * k + 1) = hessSlice dat hdat v (z + k • q v) := by
+  induction k with
+  | zero => rw [Nat.mul_zero, Nat.zero_add, pow_one, zero_nsmul, add_zero]
+  | succ j ih =>
+      rw [show 2 * (j + 1) + 1 = (2 * j + 1) + 1 + 1 by ring, pow_succ, pow_succ, ih,
+        mul_assoc, hessSlice_sq dat hdat hV2, hessSlice_mul_incl dat hdat, succ_nsmul,
+        ← add_assoc]
+
+/-! ### The `δ`-letter in each projector branch
+
+`P` is the `ω₂`-norm projector `N_T`, and the two branches are exactly its two values, stated
+where WM0-b states them — as a hypothesis on the evaluated `ω₂`-block:
+
+* `P = 1`: the block returns the slice letter, so `δ_i = x_i x_i⁻¹ = 1` and `d_i = 0`;
+* `P = 0`: the block is trivial, so `δ_i = x_i⁻¹` and `d_i = c_i`.
+
+Together these are the freeze's `d_i = (1 + P) c_i`, branch by branch.  `hessDeltaBlock_P1`
+shows the `P = 1` hypothesis is *satisfied* (at `u = 1` and the honest class `e ≡ 1 (mod 4)`),
+so the branch is not vacuous. -/
+
+variable {h : ℕ}
+
+/-- The `ω₂`-block of the `δ`-letter **returns the letter** when `τ` sits on the trivial line
+and the resolver is in the honest class — the `P = 1` hypothesis, discharged. -/
+theorem hessDeltaBlock_P1 (hV2 : ∀ v : V, v + v = 0) (s : C)
+    (vv : Fin (2 + 2 * h + 1) → V) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) {e : ℕ}
+    (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1) (i : Fin 3) :
+    PWord.evalZ (WordCoh.lift (Certificates.hessMark s (1 : C) vv) (kappa0Cocycle dat hdat))
+        E E₂ (PWord.omega2Pow (PWord.prodList [.gen (Words.coreLetter h i), .gen .tau]))
+      = hessSlice dat hdat (vv (xIdx h i)) 0 := by
+  obtain ⟨t, ht⟩ : ∃ t, e = 4 * t + 1 := ⟨e / 4, by omega⟩
+  have hinner : PWord.evalZ (WordCoh.lift (Certificates.hessMark s (1 : C) vv)
+      (kappa0Cocycle dat hdat)) E E₂ (PWord.prodList [.gen (Words.coreLetter h i), .gen .tau])
+      = hessSlice dat hdat (vv (xIdx h i)) 0 := by
+    rw [PWord.prodList_cons, PWord.prodList_cons, PWord.prodList_nil, PWord.evalZ_mul,
+      PWord.evalZ_mul, PWord.evalZ_gen, PWord.evalZ_gen, PWord.evalZ_one, mul_one,
+      show WordCoh.lift (Certificates.hessMark s (1 : C) vv) (kappa0Cocycle dat hdat)
+        Generator.tau = hessLine dat hdat 1 from rfl,
+      show hessLine dat hdat (1 : C) = 1 from rfl, mul_one]
+    rfl
+  rw [PWord.omega2Pow, PWord.evalZ_profPow, hinner, hE, zpow_natCast, ht,
+    show 4 * t + 1 = 2 * (2 * t) + 1 by ring, hessSlice_odd_pow dat hdat hV2,
+    even_nsmul_eq_zero (fun a : ZMod 2 => CharTwo.add_self_eq_zero a) ⟨t, by ring⟩, add_zero]
+
+/-- **`P = 1` ⇒ the `δ`-letter is trivial**: `d_i = (1 + P) c_i = 0`. -/
+theorem hessDeltaCert_P1 (s u : C) (vv : Fin (2 + 2 * h + 1) → V) (E : Zhat → ℤ)
+    (E₂ : ℤ_[2] → ℤ) (i : Fin 3)
+    (hP1 : PWord.evalZ (WordCoh.lift (Certificates.hessMark s u vv) (kappa0Cocycle dat hdat))
+      E E₂ (PWord.omega2Pow (PWord.prodList [.gen (Words.coreLetter h i), .gen .tau]))
+      = hessSlice dat hdat (vv (xIdx h i)) 0) :
+    PWord.evalZ (WordCoh.lift (Certificates.hessMark s u vv) (kappa0Cocycle dat hdat)) E E₂
+        (deltaCert h i) = 1 := by
+  rw [show deltaCert h i
+      = PWord.mul (PWord.omega2Pow (PWord.prodList [.gen (Words.coreLetter h i), .gen .tau]))
+          (PWord.mul (.inv (.gen (Words.coreLetter h i))) PWord.one) from rfl,
+    PWord.evalZ_mul, PWord.evalZ_mul, PWord.evalZ_one, mul_one, hP1, PWord.evalZ_inv,
+    PWord.evalZ_gen,
+    show WordCoh.lift (Certificates.hessMark s u vv) (kappa0Cocycle dat hdat)
+      (Words.coreLetter h i) = hessSlice dat hdat (vv (xIdx h i)) 0 from rfl,
+    mul_inv_cancel]
+
+/-- **`P = 0` ⇒ the `δ`-letter is the inverse slice letter**: `d_i = (1 + P) c_i = c_i`, with
+the `q`-charge of inversion. -/
+theorem hessDeltaCert_P0 (hV2 : ∀ v : V, v + v = 0) (s u : C)
+    (vv : Fin (2 + 2 * h + 1) → V) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (i : Fin 3)
+    (hP0 : PWord.evalZ (WordCoh.lift (Certificates.hessMark s u vv) (kappa0Cocycle dat hdat))
+      E E₂ (PWord.omega2Pow (PWord.prodList [.gen (Words.coreLetter h i), .gen .tau])) = 1) :
+    PWord.evalZ (WordCoh.lift (Certificates.hessMark s u vv) (kappa0Cocycle dat hdat)) E E₂
+        (deltaCert h i) = hessSlice dat hdat (vv (xIdx h i)) (q (vv (xIdx h i))) := by
+  rw [show deltaCert h i
+      = PWord.mul (PWord.omega2Pow (PWord.prodList [.gen (Words.coreLetter h i), .gen .tau]))
+          (PWord.mul (.inv (.gen (Words.coreLetter h i))) PWord.one) from rfl,
+    PWord.evalZ_mul, PWord.evalZ_mul, PWord.evalZ_one, mul_one, hP0, one_mul, PWord.evalZ_inv,
+    PWord.evalZ_gen,
+    show WordCoh.lift (Certificates.hessMark s u vv) (kappa0Cocycle dat hdat)
+      (Words.coreLetter h i) = hessSlice dat hdat (vv (xIdx h i)) 0 from rfl,
+    hessSlice_inv dat hdat hV2, zero_add]
+
+end Hessian
+
 end GQ2.Dyadic.Certificates.MCompact
