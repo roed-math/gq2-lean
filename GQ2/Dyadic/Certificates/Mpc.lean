@@ -569,6 +569,89 @@ theorem foxDHom_mpcProductW_eq {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : Et
   rw [foxDHom_apply, AddMonoidHom.mk'_apply]
   exact foxD_mpcProductW_eq_lin t E E₂ hα r pp η hV₂ hwild hτfpf hTodd a
 
+/-! ### The WW2 row certificate
+
+A `FoxRowNormalForm` whose σ-entry is `.zero` cannot see the σ-killing projection, so the pair's
+certificate is the linear copy's σ-free row verbatim.  **Both sibling lanes' frozen rows already
+have that shape** (`MCompact.mCompactWildRow` and `Npc.npcWildRow` both match `.sigma => .zero`),
+which is what makes this the right transport rather than a convenience. -/
+
+theorem foxRowNormalForm_toHom_sigmaKill {S : Type*} (ρ : S → AddMonoid.End V)
+    (nf : FoxRowNormalForm (Generator (2 + 2 * h)) S)
+    (hσ : nf.row Generator.sigma = .zero) (a : Generator (2 + 2 * h) → V) :
+    nf.toHom ρ (sigmaKill a) = nf.toHom ρ a := by
+  rw [FoxRowNormalForm.toHom_apply, FoxRowNormalForm.toHom_apply]
+  refine Finset.sum_congr rfl fun g _ => ?_
+  rcases eq_or_ne g Generator.sigma with rfl | hg
+  · rw [hσ]
+    simp
+  · rw [sigmaKill_of_ne a hg]
+
+/-- **The WW2 row certificate of the pair `R_lin^pc · R̂^pc`** — handoff item 1.
+
+The input `hlinrow` is the linear copy's row **at σ-free offsets only**, which is exactly the
+honest `-b` object: WMP-b never claimed a σ-entry for either copy, and the freeze's whole point
+is that no such assertion is available.  What the pair buys is precisely the σ-entry: the
+coincidence kills it, so a target with `.sigma => .zero` verifies.
+
+⚠ This is a transport and says so.  The closed form of `hlinrow` at general `(α, r, p)` — in
+particular the Fox row of the orbit-norm block `E₂^pc` — is a `-b`-shaped computation that
+WMP-b did not do and this ticket does not own; it is named in the report as what AS3 still
+owes.  Everything *around* it is unconditional. -/
+noncomputable def mpcProductRowCert {S : Type*} (ρ : S → AddMonoid.End V)
+    {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDisplay) (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w)
+    (target : FoxRowNormalForm (Generator (2 + 2 * h)) S)
+    (hσzero : target.row Generator.sigma = .zero)
+    (hlinrow : ∀ a : Generator (2 + 2 * h) → V, a Generator.sigma = 0 →
+      foxD ⇑t a E E₂ (mpcLinW α r pp η h) = target.toHom ρ a) :
+    FoxRowCertificate ρ
+      (foxDHom (A := V) ⇑t E E₂ (.mul (mpcLinW α r pp η h) (mpcHatW α r pp η h))) where
+  colOps := []
+  target := target
+  colOps_invertible := by simp
+  verifies := by
+    refine AddMonoidHom.ext fun a => ?_
+    rw [foxRowApplyOps_nil, foxDHom_apply,
+      foxD_mpcProductW_eq_lin t E E₂ hα r pp η hV₂ hwild hτfpf hTodd a,
+      hlinrow _ (sigmaKill_sigma a), foxRowNormalForm_toHom_sigmaKill ρ target hσzero a]
+
 end Product
+
+/-! ### The `ℚ₂(√−10)` instance — merge gate 9
+
+`(r, ε, η) = (1, 1, 1)` (packet Cor. 8.2; the sign row does not exist), i.e.
+`(α, r, p, η, h) = (2, 1, 1, .one, 0)`: `s = 2`, `m = 2`, `p = 1`, `2^α = 4`. -/
+
+section SqrtNeg10
+
+/-- The `√−10` **pair** word.  Not a syntactic slice of `mpcW` — `prodList` does not split over
+`++` (WMP-a) — so the tie to the gate-9 tree is the value identity below. -/
+noncomputable def sqrtNeg10ProductW : PWord (Generator 2) :=
+  .mul (mpcLinW 2 1 1 .one 0) (mpcHatW 2 1 1 .one 0)
+
+/-- **Merge gate 9, restated in the certificate layer**: the digest this lane's `√−10` row
+carries is WMP-a's, which is WW5's `frozenRowHashes` entry, which is the selection freeze's. -/
+theorem sqrtNeg10_gate9_hash :
+    rawMpcSqrtNeg10_astHash
+      = "55b24a4b141274bc30d09468096f4fa021184c5dc22c17823e423457928a26cf" := rfl
+
+/-- The gate-9 tree denotes to the word this section factors. -/
+theorem sqrtNeg10_denote :
+    Export.denote (denoteCtx 0) rawMpcSqrtNeg10 = some (mpcW 2 1 1 .one 0) :=
+  denote_rawMpc_sqrtNeg10
+
+/-- **The `√−10` factorization**: the gate-9 word is the pair times the plus block times the
+(empty, at `h = 0`) handle tail.  This is the value-level statement AS3 consumes — the pair is
+where the certificate lives, and the plus block is what survives the cancellation. -/
+theorem eval_sqrtNeg10_factored {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [TotallyDisconnectedSpace G] (t : Marking (2 + 2 * 0) G) :
+    t.eval (mpcW 2 1 1 .one 0)
+      = t.eval sqrtNeg10ProductW * t.eval (plusW 0) * t.eval (handlesW 0) := by
+  rw [show sqrtNeg10ProductW = .mul (mpcLinW 2 1 1 .one 0) (mpcHatW 2 1 1 .one 0) from rfl,
+    Marking.eval_mul, eval_mpcW_factored]
+
+end SqrtNeg10
 
 end GQ2.Dyadic.Certificates.MProcyclic
