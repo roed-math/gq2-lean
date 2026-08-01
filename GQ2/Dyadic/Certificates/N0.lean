@@ -940,4 +940,282 @@ theorem sqrtNegTwo_scalarGram_three :
 
 end ScalarGram
 
+/-! ## The Hessian certificate: the word connected to WW4's endpoint
+
+WW4's `compactN_certificate` certifies the frozen endpoint `plusFormD q q` (identity
+CoV, `diag := fun v ↦ dat.f v v`).  This section supplies the missing word-side
+equation, through WW4's own evaluation route: `hessRelZ` at the κ⁰-cocycle
+`kappa0Cocycle dat hdat` on `V ⋊ C`, at the graph-type marking `hessMark` (σ, τ on the
+κ-free `C`-line, wild letters on the Heisenberg slice, **`x₂` with no primal letter** —
+the ratified boundary convention).  The slice calculus below is the module-side twin of
+the NC lane's (`GQ2/Dyadic/NpcJet/Defs.lean` §2, stated against the non-`module`
+`WordCoh2.CentExt`); the module rule forces the third copy, per MC-OB's ratified
+discipline.
+
+κ⁰-consumption ledger: the endpoint values use `f_diag` (the slice square law, via WW4's
+`hessSq_of_fibre`) and `f_polar` (the slice commutator law) — exactly WW4's twist-immune
+budget; the *calculus* additionally uses the `q`-blind normalization clauses
+`f_zero_left/right`, `m_one`, the derived `m_zero` (`factorSet_m_zero`) and, inside the
+commutator law only, `f_cocycle`. -/
+
+section Hessian
+
+open GQ2.SectionSix
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+
+open GQ2.QuadraticFp2
+
+include hdat in
+/-- `m_c(0) = 0` — derived from `m_quad` at `(c, 0, 0)`; the module-side twin of
+`GQ2.SectionEight.AffineTLift.IsEquivariantFactorSet.m_zero`. -/
+theorem factorSet_m_zero (c : C) : dat.m c 0 = 0 := by
+  have h := hdat.m_quad c 0 0
+  simp only [add_zero, smul_zero, hdat.f_zero_left] at h
+  rw [CharTwo.add_self_eq_zero, zero_add] at h
+  exact h
+
+/-- Central inclusions multiply additively, in any `CentExt`. -/
+theorem centExt_incl_mul {L : Type} [Group L] {c : WordCoh.TwoCocycle L} (z z' : ZMod 2) :
+    WordCoh.CentExt.incl c z * WordCoh.CentExt.incl c z'
+      = WordCoh.CentExt.incl c (z + z') := by
+  refine WordCoh.CentExt.ext ?_ ?_
+  · exact one_mul 1
+  · show z + z' + c.κ 1 1 = z + z'
+    rw [c.norm, add_zero]
+
+/-- Central inclusions power by `ℕ`-scalars. -/
+theorem centExt_incl_pow {L : Type} [Group L] {c : WordCoh.TwoCocycle L} (z : ZMod 2)
+    (n : ℕ) : WordCoh.CentExt.incl c z ^ n = WordCoh.CentExt.incl c (n • z) := by
+  induction n with
+  | zero => rw [pow_zero, zero_smul]; rfl
+  | succ n ih => rw [pow_succ, ih, centExt_incl_mul, succ_nsmul]
+
+/-- Products of central inclusions sum the fibres. -/
+theorem centExt_incl_list_prod {L : Type} [Group L] {c : WordCoh.TwoCocycle L}
+    (l : List (ZMod 2)) :
+    (l.map (WordCoh.CentExt.incl c)).prod = WordCoh.CentExt.incl c l.sum := by
+  induction l with
+  | nil => rw [List.map_nil, List.prod_nil, List.sum_nil]; rfl
+  | cons z zs ih =>
+      rw [List.map_cons, List.prod_cons, ih, centExt_incl_mul, List.sum_cons]
+
+/-- **Heisenberg-slice elements** `((v,1),z)` of the κ⁰-extension. -/
+def hessSlice (v : V) (z : ZMod 2) : WordCoh.CentExt (kappa0Cocycle dat hdat) :=
+  ((v, (1 : C)), z)
+
+/-- **κ-free `C`-line elements** `((0,c),0)`. -/
+def hessLine (c : C) : WordCoh.CentExt (kappa0Cocycle dat hdat) := (((0 : V), c), 0)
+
+@[simp] theorem hessSlice_fib (v : V) (z : ZMod 2) :
+    WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat) (hessSlice dat hdat v z) = z := rfl
+
+@[simp] theorem hessLine_fib (c : C) :
+    WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat) (hessLine dat hdat c) = 0 := rfl
+
+theorem hessSlice_zero_zero : hessSlice dat hdat 0 0 = 1 := rfl
+
+/-- The slice product law: the κ-correction degenerates to `f(v,w)`. -/
+theorem hessSlice_mul (v w : V) (z z' : ZMod 2) :
+    hessSlice dat hdat v z * hessSlice dat hdat w z'
+      = hessSlice dat hdat (v + w) (z + z' + dat.f v w) := by
+  refine WordCoh.CentExt.ext (Prod.ext ?_ ?_) ?_
+  · show v + (1 : C) • w = v + w
+    rw [one_smul]
+  · exact one_mul 1
+  · show z + z' + (dat.f v ((1 : C) • w) + dat.m 1 w) = z + z' + dat.f v w
+    rw [one_smul, hdat.m_one, add_zero]
+
+/-- The slice inversion law: the `q`-charge of inversion (char 2). -/
+theorem hessSlice_inv (hV2 : ∀ v : V, v + v = 0) (v : V) (z : ZMod 2) :
+    (hessSlice dat hdat v z)⁻¹ = hessSlice dat hdat v (z + q v) := by
+  have hneg : ∀ w : V, -w = w := fun w => neg_eq_self hV2 w
+  refine WordCoh.CentExt.ext (Prod.ext ?_ ?_) ?_
+  · show -((1 : C)⁻¹ • v) = v
+    rw [inv_one, one_smul, hneg]
+  · exact inv_one
+  · show z + (kappa0Cocycle dat hdat).κ (v, (1 : C)) (-((1 : C)⁻¹ • v), (1 : C)⁻¹)
+      = z + q v
+    rw [inv_one, one_smul, hneg, kappa0Cocycle_κ, one_smul, hdat.m_one, add_zero, hdat.f_diag]
+
+/-- **The slice commutator law** — the cross-term mechanism, charge-independent:
+`[((d,1),ζ), ((w,1),ξ)]` is central with fibre `b_q(d,w)`.  Module-side port of the NC
+lane's `sliceElt_comm`. -/
+theorem hessSlice_commR (hV2 : ∀ v : V, v + v = 0) (d w : V) (ζ ξ : ZMod 2) :
+    commR (hessSlice dat hdat d ζ) (hessSlice dat hdat w ξ)
+      = WordCoh.CentExt.incl _ (polar q d w) := by
+  have hcross : dat.f d (d + w) = q d + dat.f d w := by
+    have hc := hdat.f_cocycle d d w
+    rw [hV2, hdat.f_zero_left, hdat.f_diag, zero_add] at hc
+    rw [hc, add_assoc, CharTwo.add_self_eq_zero, add_zero]
+  have hkey : dat.f (d + w) d = q d + dat.f w d := by
+    have hc := hdat.f_cocycle d w d
+    rw [add_comm w d, hcross] at hc
+    linear_combination hc
+  have hV2' : d + w + d = w := by
+    rw [add_comm d w, add_assoc, hV2, add_zero]
+  rw [commR, hessSlice_inv dat hdat hV2, hessSlice_inv dat hdat hV2,
+    hessSlice_mul dat hdat, hessSlice_mul dat hdat, hessSlice_mul dat hdat, hV2', hV2,
+    hkey, hdat.f_diag]
+  show hessSlice dat hdat 0 _ = _
+  rw [show WordCoh.CentExt.incl (kappa0Cocycle dat hdat) (polar q d w)
+      = hessSlice dat hdat 0 (polar q d w) from rfl]
+  congr 1
+  linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hdat.f_polar d w
+
+/-- The `C`-line product law: the κ-corrections vanish on it. -/
+theorem hessLine_mul (c d : C) :
+    hessLine dat hdat c * hessLine dat hdat d = hessLine dat hdat (c * d) := by
+  refine WordCoh.CentExt.ext (Prod.ext ?_ ?_) ?_
+  · show (0 : V) + c • (0 : V) = 0
+    rw [smul_zero, add_zero]
+  · rfl
+  · show (0 : ZMod 2) + 0 + (dat.f 0 (c • (0 : V)) + dat.m c 0) = 0
+    rw [smul_zero, hdat.f_zero_left, factorSet_m_zero dat hdat]
+    simp only [add_zero]
+
+/-- The `C`-line as a hom — what pushes arbitrary `ω₂`-resolver powers along it. -/
+noncomputable def hessLineHom : C →* WordCoh.CentExt (kappa0Cocycle dat hdat) where
+  toFun := hessLine dat hdat
+  map_one' := rfl
+  map_mul' c d := (hessLine_mul dat hdat c d).symm
+
+@[simp] theorem hessLineHom_apply (c : C) : hessLineHom dat hdat c = hessLine dat hdat c :=
+  rfl
+
+/-- **The leading-power law**: `((v,1),0)^{2+2^α} = ι(q v)` for `α ≥ 2` — WW4's
+extraspecial square law `hessSq_of_fibre` iterated through the spelling discipline
+`2 + 2^α = 2(1 + 2^{α−1})`, with `1 + 2^{α−1}` odd exactly on the branch condition. -/
+theorem hessSlice_pow_leading (hV2 : ∀ v : V, v + v = 0) {α : ℕ} (hα : 2 ≤ α) (v : V) :
+    hessSlice dat hdat v 0 ^ (2 + 2 ^ α)
+      = WordCoh.CentExt.incl _ (q v) := by
+  rw [Words.two_add_two_pow α (by omega), pow_mul,
+    show hessSlice dat hdat v 0 ^ 2 = WordCoh.CentExt.incl _ (q v) by
+      rw [sq]
+      exact hessSq_of_fibre dat hdat hV2 (hessSlice dat hdat v 0) rfl,
+    centExt_incl_pow, nsmul_zmod2_odd (Words.odd_one_add_two_pow hα)]
+
+/-! ### The graph-type marking and the word-side equation -/
+
+/-- The wild-letter slots `x₀`, `x₁` of the compact-`N` alphabet (`x2Idx` is WN0-b's). -/
+def x0Idx (h : ℕ) : Fin (2 + 2 * h + 1) := ⟨0, by omega⟩
+
+@[inherit_doc x0Idx]
+def x1Idx (h : ℕ) : Fin (2 + 2 * h + 1) := ⟨1, by omega⟩
+
+/-- The handle-letter slots, matching `handleU`/`handleV`. -/
+def hIdxU {h : ℕ} (j : Fin h) : Fin (2 + 2 * h + 1) := ⟨3 + 2 * (j : ℕ), by omega⟩
+
+@[inherit_doc hIdxU]
+def hIdxV {h : ℕ} (j : Fin h) : Fin (2 + 2 * h + 1) := ⟨4 + 2 * (j : ℕ), by omega⟩
+
+/-- **The graph-type κ⁰-marking of the compact-`N` alphabet**: `σ ↦ ((0,s))`,
+`τ ↦ ((0,u))` on the `C`-line, wild letter `x_i` on the Heisenberg slice at offset
+`v i`.  The endpoint hypothesis `v (x2Idx h) = 0` (the boundary generator carries no
+primal letter) is taken at the theorems, not baked into the marking. -/
+def hessMark {h : ℕ} (s u : C) (v : Fin (2 + 2 * h + 1) → V) :
+    Generator (2 + 2 * h) → SemiProd C V
+  | .sigma => ((0 : V), s)
+  | .tau => ((0 : V), u)
+  | .wild i => (v i, (1 : C))
+
+/-- The handle tail evaluates to the central inclusion of the hyperbolic sum
+`Σ_j b_q(d_j, e_j)` — the Hessian-side twin of `heisF_handlesW_z`. -/
+theorem hess_handlesW_eval {h : ℕ} (hV2 : ∀ v : V, v + v = 0) (s u : C)
+    (v : Fin (2 + 2 * h + 1) → V) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    PWord.evalZ (WordCoh.lift (hessMark s u v) (kappa0Cocycle dat hdat)) E E₂
+        (handlesW h)
+      = WordCoh.CentExt.incl _ (∑ j, polar q (v (hIdxU j)) (v (hIdxV j))) := by
+  rw [handlesW, PWord.evalZ_prodList, List.map_map]
+  have hcong : (List.finRange h).map
+        (PWord.evalZ (WordCoh.lift (hessMark s u v) (kappa0Cocycle dat hdat)) E E₂
+          ∘ fun j => PWord.comm (.gen (handleU j)) (.gen (handleV j)))
+      = (List.finRange h).map fun j =>
+          WordCoh.CentExt.incl (kappa0Cocycle dat hdat)
+            (polar q (v (hIdxU j)) (v (hIdxV j))) := by
+    refine List.map_congr_left fun j _ => ?_
+    show PWord.evalZ (WordCoh.lift (hessMark s u v) (kappa0Cocycle dat hdat)) E E₂
+        (.comm (.gen (handleU j)) (.gen (handleV j))) = _
+    rw [PWord.evalZ_comm, PWord.evalZ_gen, PWord.evalZ_gen,
+      show WordCoh.lift (hessMark s u v) (kappa0Cocycle dat hdat) (handleU j)
+        = hessSlice dat hdat (v (hIdxU j)) 0 from rfl,
+      show WordCoh.lift (hessMark s u v) (kappa0Cocycle dat hdat) (handleV j)
+        = hessSlice dat hdat (v (hIdxV j)) 0 from rfl,
+      hessSlice_commR dat hdat hV2]
+  rw [hcong,
+    show ((List.finRange h).map fun j => WordCoh.CentExt.incl (kappa0Cocycle dat hdat)
+        (polar q (v (hIdxU j)) (v (hIdxV j))))
+      = ((List.finRange h).map fun j => polar q (v (hIdxU j)) (v (hIdxV j))).map
+          (WordCoh.CentExt.incl (kappa0Cocycle dat hdat)) from List.map_map.symm,
+    centExt_incl_list_prod, ← Fin.sum_univ_def]
+
+/-- **The word-side Hessian equation, general `h`, every resolver** (packet Def. 9.1(5)
+at freeze row 2): the evaluated class-two value of the frozen compact-`N` word at the
+graph-type κ⁰-marking with `x₂`-slot zero is
+
+```
+q(c₀) + b_q(c₀, c₁) + Σ_j b_q(d_j, e_j).
+```
+
+Resolver-immunity is exact, not approximate: at this marking the boundary block
+`x₂^{-σ}(x₂τ)^{ω₂}` evaluates on the κ-free `C`-line for **every** value of `E ω₂`, so
+no `ω₂`-representative pin is needed — the honest profinite instance is
+`sqrtNegTwo_hess_eval`.  The `α ≥ 2` hypothesis enters exactly once, through
+`hessSlice_pow_leading`. -/
+theorem hessRelZ_nCompact {h α : ℕ} (hV2 : ∀ v : V, v + v = 0) (hα : 2 ≤ α) (s u : C)
+    (v : Fin (2 + 2 * h + 1) → V) (hv2 : v (x2Idx h) = 0) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    hessRelZ (hessMark s u v) (kappa0Cocycle dat hdat) E E₂ (nCompactW α h)
+      = q (v (x0Idx h)) + polar q (v (x0Idx h)) (v (x1Idx h))
+        + ∑ j, polar q (v (hIdxU j)) (v (hIdxV j)) := by
+  have hx2 : WordCoh.lift (hessMark s u v) (kappa0Cocycle dat hdat)
+      (coreLetter h 2) = 1 := by
+    show hessSlice dat hdat (v (x2Idx h)) 0 = 1
+    rw [hv2]
+    rfl
+  rw [hessRelZ, hessEvalZ, nCompactW, PWord.evalZ_prodList]
+  simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one]
+  have e1 : PWord.evalZ (WordCoh.lift (hessMark s u v) (kappa0Cocycle dat hdat))
+      E E₂ (.zpow (.gen (coreLetter h 0)) (2 + 2 ^ α))
+      = WordCoh.CentExt.incl _ (q (v (x0Idx h))) := by
+    rw [PWord.evalZ_zpow, PWord.evalZ_gen,
+      show WordCoh.lift (hessMark s u v) (kappa0Cocycle dat hdat) (coreLetter h 0)
+        = hessSlice dat hdat (v (x0Idx h)) 0 from rfl,
+      show ((2 : ℤ) + 2 ^ α) = ((2 + 2 ^ α : ℕ) : ℤ) by push_cast; ring, zpow_natCast,
+      hessSlice_pow_leading dat hdat hV2 hα]
+  have e2 : PWord.evalZ (WordCoh.lift (hessMark s u v) (kappa0Cocycle dat hdat))
+      E E₂ (.comm (.gen (coreLetter h 0)) (.gen (coreLetter h 1)))
+      = WordCoh.CentExt.incl _ (polar q (v (x0Idx h)) (v (x1Idx h))) := by
+    rw [PWord.evalZ_comm, PWord.evalZ_gen, PWord.evalZ_gen,
+      show WordCoh.lift (hessMark s u v) (kappa0Cocycle dat hdat) (coreLetter h 0)
+        = hessSlice dat hdat (v (x0Idx h)) 0 from rfl,
+      show WordCoh.lift (hessMark s u v) (kappa0Cocycle dat hdat) (coreLetter h 1)
+        = hessSlice dat hdat (v (x1Idx h)) 0 from rfl,
+      hessSlice_commR dat hdat hV2]
+  have e3 : PWord.evalZ (WordCoh.lift (hessMark s u v) (kappa0Cocycle dat hdat))
+      E E₂ (.inv (.conj (.gen (coreLetter h 2)) (.gen .sigma))) = 1 := by
+    rw [PWord.evalZ_inv, PWord.evalZ_conj, PWord.evalZ_gen, PWord.evalZ_gen, hx2, one_conjR,
+      inv_one]
+  have e4 : PWord.evalZ (WordCoh.lift (hessMark s u v) (kappa0Cocycle dat hdat))
+      E E₂ (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h 2), .gen .tau]))
+      = hessLine dat hdat (u ^ E omega2) := by
+    rw [PWord.omega2Pow, PWord.evalZ_profPow, PWord.prodList_cons, PWord.prodList_cons,
+      PWord.prodList_nil, PWord.evalZ_mul, PWord.evalZ_mul, PWord.evalZ_gen,
+      PWord.evalZ_gen, PWord.evalZ_one, mul_one, hx2, one_mul,
+      show WordCoh.lift (hessMark s u v) (kappa0Cocycle dat hdat) Generator.tau
+        = hessLineHom dat hdat u from rfl,
+      ← map_zpow]
+    rfl
+  rw [e1, e2, e3, e4, hess_handlesW_eval dat hdat hV2 s u v E E₂, one_mul,
+    WordCoh.CentExt.incl_mul_fib, WordCoh.CentExt.incl_mul_fib, WordCoh.CentExt.mul_fib,
+    hessLine_fib, WordCoh.CentExt.incl_fib,
+    show (kappa0Cocycle dat hdat).κ
+        (WordCoh.CentExt.base (hessLine dat hdat (u ^ E omega2)))
+        (WordCoh.CentExt.base (WordCoh.CentExt.incl _
+          (∑ j, polar q (v (hIdxU j)) (v (hIdxV j))))) = 0 from
+      (kappa0Cocycle dat hdat).κ_one_right _,
+    zero_add, add_zero, add_assoc]
+
+end Hessian
+
 end GQ2.Dyadic.Certificates
