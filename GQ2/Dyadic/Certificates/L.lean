@@ -1378,4 +1378,218 @@ theorem lSq_word_eq_qDouble (hV2 : ∀ v : V, v + v = 0) (s u : C) (E : Zhat →
 
 end Hessian
 
+/-! ## §7 Handle stability at second order
+
+WL-b stated first-order handle stability three ways, the sharpest being an `AddMonoidHom`
+factorization through `coreRestrict h`.  At second order the statement cannot be a factorization —
+the handle planes are a genuine new summand — so it is an **exact decomposition**: the degree-`n`
+row is the `n = 1` row, read at the core-restricted data, **plus** `h` identity-operator
+hyperbolic planes.  WL-b's `coreEmbed`/`coreMarking`/`coreRestrict` kit carries the statement
+unchanged; `coreRestrict h (ElemDual A)` transports the dual offsets. -/
+
+section HandleStability
+
+variable {h : ℕ} {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+  (t : Marking (2 * h + 1) C) (x : Generator (2 * h + 1) → A)
+  (y : Generator (2 * h + 1) → ElemDual A) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+@[simp] theorem coreRestrict_coreLetter {V : Type*} [AddCommGroup V]
+    (v : Generator (2 * h + 1) → V) (i : Fin 2) :
+    LSq.coreRestrict h V v (coreLetter 0 i) = v (coreLetter h i) := rfl
+
+@[simp] theorem coreRestrict_sigma {V : Type*} [AddCommGroup V]
+    (v : Generator (2 * h + 1) → V) : LSq.coreRestrict h V v .sigma = v .sigma := rfl
+
+@[simp] theorem coreRestrict_tau {V : Type*} [AddCommGroup V]
+    (v : Generator (2 * h + 1) → V) : LSq.coreRestrict h V v .tau = v .tau := rfl
+
+/-- **Handle stability at second order**: the degree-`n` Stokes row is the `n = 1` row at the
+core-restricted data ⊕ the `h` identity-operator hyperbolic planes, as an identity — the
+second-order form of WL-b's "`n = 1` certificate ⊕ `2h` zero columns". -/
+theorem heisZ_lSq_handle_stable (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : A), t.x i • v = v) (hτ : ∀ v : A, t.τ • v = v)
+    {e : ℕ} (hE : E omega2 = (e : ℤ)) :
+    (heisEvalZ ⇑t x y E E₂ (lSqW h)).z
+      = (heisEvalZ ⇑(LSq.coreMarking t) (LSq.coreRestrict h A x)
+            (LSq.coreRestrict h (ElemDual A) y) E E₂ (lSqW 0)).z
+        + ∑ j, (y (handleU j) (x (handleV j)) + y (handleV j) (x (handleU j))) := by
+  rw [heisZ_lSq_unram t x y E E₂ hA₂ hwild hτ hE,
+    heisZ_lSq_unram (h := 0) (LSq.coreMarking t) (LSq.coreRestrict h A x)
+      (LSq.coreRestrict h (ElemDual A) y) E E₂ hA₂ (LSq.coreMarking_hwild t hwild) hτ hE,
+    Fin.sum_univ_zero]
+  simp only [coreRestrict_coreLetter, coreRestrict_sigma, coreRestrict_tau,
+    LSq.coreMarking_σ, ElemDual.add_apply, map_add, smul_add]
+  abel
+
+end HandleStability
+
+/-! ## §8 The determinant/phase consumables — **cited**, not rebuilt
+
+The endpoint of this row is `qDouble q U`, so wl-recon §2.5's "largest genuinely reusable block"
+applies verbatim: `GQ2/QuadraticFp2.lean` + `GQ2/SectionSix.lean` + `GQ2/GaussSigns.lean` are
+stated over an abstract `q` with no relator and no `Γ`, and `lemma_6_6` is *exactly* the Wall
+doubling theorem this row needs.  The three theorems below are the citations, plus the handle
+factor, which is a `Phase.lean` computation and is **independent of the head form** — that is the
+sense in which `ε(hyp) = +1` and "the handles do not move the sign". -/
+
+section Phase
+
+open GQ2.SectionSix GQ2.QuadraticFp2
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+
+include hdat in
+/-- `q` is `C`-invariant — a *derived* clause of `IsEquivariantFactorSet` (`m_quad` at `v = w`),
+not a hypothesis.  This is what feeds `lemma_6_6`'s `hUq`. -/
+theorem factorSet_q_invariant (hV2 : ∀ v : V, v + v = 0) (c : C) (v : V) : q (c • v) = q v := by
+  have hm := hdat.m_quad c v v
+  rw [hV2, factorSet_m_zero dat hdat, hdat.f_diag, hdat.f_diag, zero_add,
+    CharTwo.add_self_eq_zero] at hm
+  have h2 := CharTwo.add_eq_iff_eq_add.mp hm.symm
+  rw [zero_add] at h2
+  exact h2
+
+/-- The action of a group element as an additive equivalence — the `U` of the Wall doubling. -/
+def smulAddEquiv (g : C) : V ≃+ V where
+  toFun v := g • v
+  invFun v := g⁻¹ • v
+  left_inv v := inv_smul_smul g v
+  right_inv v := smul_inv_smul g v
+  map_add' u v := smul_add g u v
+
+@[simp] theorem smulAddEquiv_apply (g : C) (v : V) : smulAddEquiv g v = g • v := rfl
+
+include hdat in
+/-- **The endpoint is nonsingular and its Arf shifts by the `1 + U` rank** — `lemma_6_6` cited at
+`U = σ₂⁻¹`, with `hUq` discharged by `factorSet_q_invariant`.  Nothing about the `L_sq` word is
+re-derived here; the whole `SectionSix` layer is presentation-independent. -/
+theorem lSq_endpoint_wall [Finite V] (hV2 : ∀ v : V, v + v = 0) (hq2 : IsQuadraticFp2 q)
+    (hns : Nonsingular q) (g : C) (hg2 : ∃ n : ℕ, (fun v : V => g • v)^[2 ^ n] = id) :
+    Nonsingular (qDouble q (fun w : V => g • w)) ∧
+      ∃ k : ℕ, Nat.card (onePlusU (smulAddEquiv (V := V) g)).range = 2 ^ k ∧
+        arf (qDouble q (fun w : V => g • w)) = arf q + (k : ZMod 2) :=
+  lemma_6_6 q hq2 hV2 hns (smulAddEquiv g) (fun v => factorSet_q_invariant dat hdat hV2 g v) hg2
+
+include hdat in
+/-- **The word's evaluated endpoint is nonsingular** — the previous theorem transported along
+`lSq_word_eq_qDouble`, i.e. read at the *word* rather than at an abstract form. -/
+theorem lSq_word_endpoint_nonsingular [Finite V] (hV2 : ∀ v : V, v + v = 0)
+    (hq2 : IsQuadraticFp2 q) (hns : Nonsingular q) (s u : C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+    (hg2 : ∃ n : ℕ, (fun v : V => (s ^ E omega2)⁻¹ • v)^[2 ^ n] = id) :
+    Nonsingular (fun c₁ : V =>
+      hessRelZ (lSqHessMark s u ![0, c₁]) (kappa0Cocycle dat hdat) E E₂ (lSqW 0)) := by
+  rw [lSq_word_eq_qDouble dat hdat hV2 s u E E₂]
+  exact (lSq_endpoint_wall dat hdat hV2 hq2 hns _ hg2).1
+
+/-- The zero form is quadratic (the handle-plane head). -/
+theorem isQuadraticFp2_zero' : IsQuadraticFp2 (fun _ : V => (0 : ZMod 2)) := by
+  refine ⟨rfl, fun u v w => ?_, fun u v w => ?_⟩ <;>
+    · show (0 : ZMod 2) + 0 + 0 = (0 + 0 + 0) + (0 + 0 + 0)
+      decide
+
+/-- **The handle factor is `2^{d·h}` whatever the head is** — so `h` hyperbolic planes multiply
+the Gauss residue by a positive power of two and move neither the sign nor the radical.  This is
+S2.4 §5.6's `ε(hyp) = +1` at the level the `L_sq` row needs it, and it is *head-agnostic*: the
+`qDouble` head of this row is never unfolded. -/
+theorem lSq_handle_form_gaussSum [Module (ZMod 2) V] [Fintype V] (hq2 : IsQuadraticFp2 q)
+    (hns : Nonsingular q) {d : ℕ} (hcard : Fintype.card V = 2 ^ d) (Q₀ : V → ZMod 2) (h : ℕ) :
+    gaussSum (fun p : V × (Fin h → V × V) =>
+        Q₀ p.1 + ∑ j, polar q (p.2 j).1 (p.2 j).2)
+      = gaussSum Q₀ * 2 ^ (d * h) := by
+  have hsplit : (fun p : V × (Fin h → V × V) => Q₀ p.1 + ∑ j, polar q (p.2 j).1 (p.2 j).2)
+      = fun p => Q₀ p.1 + ∑ j, plusFormD (fun _ => 0) q (p.2 j) := by
+    funext p
+    refine congrArg (HAdd.hAdd (Q₀ p.1)) (Finset.sum_congr rfl fun j _ => ?_)
+    show polar q (p.2 j).1 (p.2 j).2 = 0 + polar q (p.2 j).1 (p.2 j).2
+    rw [zero_add]
+  rw [hsplit, gaussSum_prod_add Q₀ (fun w : Fin h → V × V =>
+      ∑ j, plusFormD (fun _ => 0) q (w j)), gaussSum_pi_sum,
+    gaussSum_plusFormD (isQuadraticFp2_zero' (V := V)) hq2 hns, hcard]
+  push_cast
+  ring
+
+/-- On a rank-one (`𝔽₂`) coefficient module the handle planes are **invisible**, at every `h` —
+WN0-c's `polar_zmod2_eq_zero`, cited: the statement is word-independent. -/
+theorem lSq_scalar_handle_term_zero {h : ℕ} (Q : ZMod 2 → ZMod 2) (hQ : IsQuadraticFp2 Q)
+    (dvec evec : Fin h → ZMod 2) : ∑ j, polar Q (dvec j) (evec j) = 0 :=
+  Finset.sum_eq_zero fun _ _ => GQ2.Dyadic.Certificates.polar_zmod2_eq_zero Q hQ _ _
+
+end Phase
+
+/-! ## §9 Instance pins: `n = 1`, the handle witness, and `q_K = 4` -/
+
+section Pins
+
+open GQ2.QuadraticFp2
+
+/-- The `n = 1` (`h = 0`, `q_K = 2`) endpoint-condition pin at the odd representative `e = 3`,
+matching the frozen `Γ_A`/`Γ_R` stress pin. -/
+theorem qTwo_isStokesEndpoint : IsStokesEndpoint (lSqFam 0 2 3) :=
+  lSq_isStokesEndpoint (by decide) (by decide)
+
+/-- The endpoint condition is **blind to `q_K`**: it holds at `q_K = 4` too.  WL-b proved the
+first-order wild row cannot see `q_K`; at second order the `L_sq` word's own contribution is
+still `q_K`-blind, and the sensitivity lives entirely in the (word-independent) tame row —
+`lSq_scalarGram_qFour` is where it becomes visible. -/
+theorem qFour_isStokesEndpoint : IsStokesEndpoint (lSqFam 0 4 1) :=
+  lSq_isStokesEndpoint (by decide) (by decide)
+
+section QFourGram
+
+local instance : DistribMulAction (Multiplicative (ZMod 2)) (ZMod 2) where
+  smul _ a := a
+  one_smul _ := rfl
+  mul_smul _ _ _ := rfl
+  smul_zero _ := rfl
+  smul_add _ _ _ := rfl
+
+/-- **The `q_K = 4` scalar Gram**: exactly the `τ`-diagonal dies, because `C(4,2) = 6` is even
+while `C(2,2) = 1` is odd — `diagCoeff` is `mod 4`-periodic (MC2's rule).  Together with
+`lSq_scalarGram` this is the second-order `q_K` discriminator of the lane, and it confirms WL-b's
+finding from the other side: the difference is one *tame* entry, and no wild entry moves. -/
+theorem lSq_scalarGram_qFour :
+    stokesGram ⇑lSqScalarMark (lSqFam 0 4 1) lSqScalarX lSqScalarY
+      = !![0,1,1,0; 1,0,0,0; 1,0,0,0; 0,0,0,1] := by
+  decide +kernel
+
+end QFourGram
+
+section HandleWitness
+
+/-- The trivial action for the witness (local, non-exporting — WN0-c's `handleDat` cannot be
+cited across the file boundary because its own instance is `local`; the datum is restated, not
+re-derived). -/
+local instance : DistribMulAction (Multiplicative (ZMod 2)) (ZMod 2 × ZMod 2) where
+  smul _ a := a
+  one_smul _ := rfl
+  mul_smul _ _ _ := rfl
+  smul_zero _ := rfl
+  smul_add _ _ _ := rfl
+
+/-- The bilinear refinement `f((a,b),(c,d)) = a·d` of the hyperbolic plane `stressQh`. -/
+def lSqHandleDat : FactorSet (Multiplicative (ZMod 2)) (ZMod 2 × ZMod 2) where
+  f v w := v.1 * w.2
+  m _ _ := 0
+
+theorem lSqHandleDat_equivariant : IsEquivariantFactorSet stressQh lSqHandleDat := by
+  constructor <;> decide
+
+/-- **The handle plane is visible to the extraspecial evaluation**: at the `h = 1` `L_sq` word,
+zero core offsets and the hyperbolic handle pair `((1,0), (0,1))`, the evaluated Hessian is
+`b_{q_h}((1,0),(0,1)) = 1 ≠ 0` — while the same tail is invisible at first order (WL-b's zero
+handle Fox columns) and on rank-one modules (`lSq_scalar_handle_term_zero`). -/
+theorem lSq_stress_handle_visible :
+    hessRelZ (lSqHessMark (h := 1) 1 1 ![0, 0, (1, 0), (0, 1)])
+        (kappa0Cocycle lSqHandleDat lSqHandleDat_equivariant) (fun _ => 1) (fun _ => 1)
+        (lSqW 1)
+      = 1 := by
+  rw [hessRelZ_lSq (h := 1) lSqHandleDat lSqHandleDat_equivariant (by decide) 1 1
+    ![0, 0, (1, 0), (0, 1)] rfl (fun _ => 1) (fun _ => 1)]
+  decide
+
+end HandleWitness
+
+end Pins
+
 end GQ2.Dyadic.Certificates.LSqStokes
