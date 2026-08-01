@@ -485,6 +485,219 @@ theorem foxD_handlesW (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • 
   obtain ⟨j, -, rfl⟩ := List.mem_map.mp hw
   exact foxD_comm_of_trivial _ _ _ _ (trivAct_handleU t hwild j) (trivAct_handleV t hwild j)
 
+omit [Finite V] in
+/-- Every factor of the corrected noncompact-`N` word evaluates trivially, under the uniform
+hypotheses `hwild` + `hTodd` — **no class split**, unlike the compact lane's factor lemma: the
+`δ`-flavored factors are covered by `hTodd` alone, and the two η̂-flavored commutators by
+one-sided normality (`trivAct_commR_left`), never by evaluating their conjugators. -/
+theorem trivAct_npc_factors (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (e : EtaData) :
+    ∀ w ∈ [(PWord.zpow (.gen (coreLetter h 0)) (2 + 2 ^ α) : PWord (Generator (2 + 2 * h))),
+        .comm (.gen (coreLetter h 0)) (aW h e),
+        .inv (.conj (.gen (coreLetter h 2)) (PWord.prodList [.gen (coreLetter h 1), bW h r])),
+        PWord.omega2Pow (PWord.prodList [.gen (coreLetter h 2), .gen .tau]),
+        eBlockW h r e,
+        handlesW h],
+      PWord.evalFin ⇑t E E₂ w ∈ trivAct C V := by
+  intro w hw
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at hw
+  rcases hw with rfl | rfl | rfl | rfl | rfl | rfl
+  · rw [PWord.evalFin_zpow, PWord.evalFin_gen]
+    exact zpow_mem (trivAct_coreLetter t hwild 0) _
+  · rw [PWord.evalFin_comm, PWord.evalFin_gen]
+    exact trivAct_commR_left (trivAct_coreLetter t hwild 0) _
+  · rw [PWord.evalFin_inv, PWord.evalFin_conj, PWord.evalFin_gen]
+    exact inv_mem (trivAct_conjR (trivAct_coreLetter t hwild 2) _)
+  · exact trivAct_evalFin_omega2Block t E E₂ 2 hwild hTodd
+  · rw [eBlockW, PWord.evalFin_comm, PWord.evalFin_gen]
+    exact trivAct_commR (trivAct_evalFin_dBlockW t E E₂ hwild hTodd e)
+      (trivAct_coreLetter t hwild 1)
+  · rw [handlesW]
+    refine trivAct_evalFin_prodList ?_
+    intro w hw
+    obtain ⟨j, -, rfl⟩ := List.mem_map.mp hw
+    rw [PWord.evalFin_comm, PWord.evalFin_gen, PWord.evalFin_gen]
+    exact trivAct_commR (trivAct_handleU t hwild j) (trivAct_handleV t hwild j)
+
+/-! ### The wild rows
+
+The evaluated first-order row of `R_{N,α,r,η}`, per module class — the Lean twins of the Sage
+reference row `fox_reference_row_noncompact`,
+
+```
+(σ, τ, x₀, x₁, x₂, handles) = (0, P, A⁻¹ + 1, 0, S^{−2^r} + P, 0, …, 0),
+```
+
+which **differs from the compact row** `(0, P, 0, 0, S⁻¹ + P, 0, …, 0)` in exactly the two
+predicted places: the `x₀`-column gained the block `A⁻¹ − 1` (factor 2's conjugator now acts)
+and the boundary operator is `S^{−2^r}` where the compact row had `S⁻¹` (the conjugator is
+`g = x₁σ^{2^r}`, not `σ`).  The noncompact word therefore needs — and here gets — **its own
+reference row**; the freeze records the same fact for the Sage side. -/
+
+/-- **The noncompact-`N` wild row on an unramified simple module** (`P = 1`; packet
+Def. 9.1(3), freeze row 3):
+
+```
+D(R_{N,α,r,η}) = (A⁻¹ − 1)·a(x₀) + a(τ) + (1 − B⁻¹)·a(x₂),   A = S^{E(η̂)},  B = S^{2^r}.
+```
+
+Exactly three of the `2h + 5` columns are nonzero; the whole statement is symbolic in `r` (the
+operator data) and in `η` (through the resolver value), and exact for every resolver. -/
+theorem foxD_npc_unram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hα : 1 ≤ α) (e : EtaData) (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (npcW α r h e)
+      = ((t.σ ^ E e.toZhat)⁻¹ • a (coreLetter h 0) - a (coreLetter h 0))
+        + (a .tau + (a (coreLetter h 2) - (t.σ ^ ((2 : ℤ) ^ r))⁻¹ • a (coreLetter h 2))) := by
+  have hTodd : ∀ v : V, powOmega2 t.τ • v = v := fun v =>
+    mem_trivAct.mp (trivAct_powOmega2 (mem_trivAct.mpr hτ)) v
+  rw [npcW, foxD_prodList_of_trivial _ _ _ _ _ (trivAct_npc_factors t E E₂ hwild hTodd e)]
+  simp only [List.map_cons, List.map_nil, List.sum_cons, List.sum_nil]
+  rw [foxD_leadingPow t E E₂ hV₂ hwild hα, foxD_commX0A t E E₂ hwild e,
+    foxD_invConjX2G t E E₂ hwild, foxD_omega2Block_unram t E E₂ 2 hV₂ hwild hτ,
+    foxD_eBlockW t E E₂ hwild hTodd e, foxD_handlesW t E E₂ hwild]
+  abel
+
+/-- **The noncompact-`N` wild row on a ramified simple module** (`P = 0`): the `τ`- and
+`x₂`-halves of the `ω₂`-block die and
+
+```
+D(R_{N,α,r,η}) = (A⁻¹ − 1)·a(x₀) − B⁻¹·a(x₂)
+```
+
+— unlike the compact row, a **two**-entry ramified row: the single unit entry `B⁻¹` on `x₂`
+plus the leftover `x₀`-block, which is why the ramified normal form costs two operations
+(`C_Fox = 2`). -/
+theorem foxD_npc_ram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hτfpf : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v)
+    (hα : 1 ≤ α) (e : EtaData) (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (npcW α r h e)
+      = ((t.σ ^ E e.toZhat)⁻¹ • a (coreLetter h 0) - a (coreLetter h 0))
+        - (t.σ ^ ((2 : ℤ) ^ r))⁻¹ • a (coreLetter h 2) := by
+  rw [npcW, foxD_prodList_of_trivial _ _ _ _ _ (trivAct_npc_factors t E E₂ hwild hTodd e)]
+  simp only [List.map_cons, List.map_nil, List.sum_cons, List.sum_nil]
+  rw [foxD_leadingPow t E E₂ hV₂ hwild hα, foxD_commX0A t E E₂ hwild e,
+    foxD_invConjX2G t E E₂ hwild, foxD_omega2Block_ram t E E₂ 2 hwild hτfpf hTodd,
+    foxD_eBlockW t E E₂ hwild hTodd e, foxD_handlesW t E E₂ hwild]
+  abel
+
+/-- **The noncompact-`N` wild row on a split (scalar) module**: with `σ` acting trivially both
+σ-power blocks die — `A` *is* a power of `σ` — and the row degenerates to the `τ`-pivot
+`a(τ)`, exactly as the compact row does: both blocks vanish simultaneously only on the scalar
+module, and "the scalar module separates nothing" survives the correction. -/
+theorem foxD_npc_split (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hσ : ∀ v : V, t.σ • v = v) (hα : 1 ≤ α) (e : EtaData) (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (npcW α r h e) = a .tau := by
+  have hσmem : t.σ ∈ trivAct C V := mem_trivAct.mpr hσ
+  rw [foxD_npc_unram t E E₂ hV₂ hwild hτ hα e a,
+    mem_trivAct.mp (inv_mem (zpow_mem hσmem (E e.toZhat))),
+    mem_trivAct.mp (inv_mem (zpow_mem hσmem ((2 : ℤ) ^ r)))]
+  abel
+
+/-! ### Gate-D blindness: the raw and the corrected word have the same first-order row -/
+
+/-- The **uncorrected** noncompact word — eq:Npc-word *without* its correction factor
+`E_{r,η}`.  Local to this file and deliberately so: the frozen word is the corrected one, and
+this five-factor product exists only to make gate-D blindness a theorem rather than a
+docstring claim. -/
+noncomputable def npcUncorrectedW (α r h : ℕ) (e : EtaData) : PWord (Generator (2 + 2 * h)) :=
+  PWord.prodList
+    [.zpow (.gen (coreLetter h 0)) (2 + 2 ^ α),
+     .comm (.gen (coreLetter h 0)) (aW h e),
+     .inv (.conj (.gen (coreLetter h 2)) (PWord.prodList [.gen (coreLetter h 1), bW h r])),
+     PWord.omega2Pow (PWord.prodList [.gen (coreLetter h 2), .gen .tau]),
+     handlesW h]
+
+/-- **Gate D is blind to `E_{r,η}`**: the corrected and the uncorrected words have the *same*
+Fox row — at every marking of both module classes (the uniform `hTodd` again), every resolver,
+every `(α, r, η, h)` and every offset vector.  The Lean form of the Sage reference-row fact
+*"the reference row is the same for the raw and the corrected word, and a test pins that"*
+(`fox_reference_row_noncompact`), and the first-order member of the blindness family
+`EPI_BLIND_TO_E` (tame, pro-2, first Fox order, gate G) — only the second jet separates, and
+that is NC5's theorem. -/
+theorem foxD_npcW_eq_uncorrected
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (e : EtaData) (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (npcW α r h e) = foxD ⇑t a E E₂ (npcUncorrectedW α r h e) := by
+  rw [npcW, npcUncorrectedW,
+    foxD_prodList_of_trivial _ _ _ _ _ (trivAct_npc_factors t E E₂ hwild hTodd e),
+    foxD_prodList_of_trivial _ _ _ _ _ (fun w hw =>
+      trivAct_npc_factors t E E₂ hwild hTodd e w (by
+        simp only [List.mem_cons] at hw ⊢
+        tauto))]
+  simp only [List.map_cons, List.map_nil, List.sum_cons, List.sum_nil]
+  rw [foxD_eBlockW t E E₂ hwild hTodd e]
+  abel
+
+/-! ### The zero columns — the `2h` handle columns in particular
+
+A *column* of the evaluated row is its value on a single-slot offset vector `Pi.single g v`.
+The wild row has at most three nonzero columns at every handle count, so the `2h` handle
+columns — the whole `h`-dependence of the first jet — vanish identically (packet item (4)'s
+handle clause, at **every** `h`). -/
+
+omit [Finite C] [Finite V] in
+theorem handleU_ne_coreLetter (j : Fin h) (i : Fin 3) : handleU j ≠ coreLetter h i := by
+  simp only [handleU, coreLetter, ne_eq, Generator.wild.injEq, Fin.mk.injEq]
+  have := i.isLt
+  omega
+
+omit [Finite C] [Finite V] in
+theorem handleV_ne_coreLetter (j : Fin h) (i : Fin 3) : handleV j ≠ coreLetter h i := by
+  simp only [handleV, coreLetter, ne_eq, Generator.wild.injEq, Fin.mk.injEq]
+  have := i.isLt
+  omega
+
+omit [Finite C] [Finite V] in
+theorem handleU_ne_tau (j : Fin h) : handleU j ≠ (Generator.tau : Generator (2 + 2 * h)) := by
+  simp [handleU]
+
+omit [Finite C] [Finite V] in
+theorem handleV_ne_tau (j : Fin h) : handleV j ≠ (Generator.tau : Generator (2 + 2 * h)) := by
+  simp [handleV]
+
+/-- **Every column of the unramified wild row other than `τ`, `x₀`, `x₂` is zero** — the `σ`-
+and `x₁`-columns and, the point, all `2h` handle columns. -/
+theorem foxDHom_npc_unram_column_eq_zero (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hα : 1 ≤ α) (e : EtaData) {g : Generator (2 + 2 * h)} (hgτ : g ≠ .tau)
+    (hg0 : g ≠ coreLetter h 0) (hg2 : g ≠ coreLetter h 2) (v : V) :
+    foxDHom ⇑t E E₂ (npcW α r h e) (Pi.single g v) = 0 := by
+  rw [foxDHom_apply, foxD_npc_unram t E E₂ hV₂ hwild hτ hα e,
+    Pi.single_eq_of_ne (Ne.symm hgτ), Pi.single_eq_of_ne (Ne.symm hg0),
+    Pi.single_eq_of_ne (Ne.symm hg2)]
+  simp
+
+/-- The `2h` handle columns of the unramified wild row are zero — the `u`-half. -/
+theorem foxDHom_npc_handleU_column (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hα : 1 ≤ α) (e : EtaData) (j : Fin h) (v : V) :
+    foxDHom ⇑t E E₂ (npcW α r h e) (Pi.single (handleU j) v) = 0 :=
+  foxDHom_npc_unram_column_eq_zero t E E₂ hV₂ hwild hτ hα e (handleU_ne_tau j)
+    (handleU_ne_coreLetter j 0) (handleU_ne_coreLetter j 2) v
+
+/-- The `2h` handle columns of the unramified wild row are zero — the `v`-half. -/
+theorem foxDHom_npc_handleV_column (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hα : 1 ≤ α) (e : EtaData) (j : Fin h) (v : V) :
+    foxDHom ⇑t E E₂ (npcW α r h e) (Pi.single (handleV j) v) = 0 :=
+  foxDHom_npc_unram_column_eq_zero t E E₂ hV₂ hwild hτ hα e (handleV_ne_tau j)
+    (handleV_ne_coreLetter j 0) (handleV_ne_coreLetter j 2) v
+
+/-- The same on the ramified class: everything but the `x₀`- and `x₂`-columns dies, handles
+included. -/
+theorem foxDHom_npc_ram_column_eq_zero (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hτfpf : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v)
+    (hα : 1 ≤ α) (e : EtaData) {g : Generator (2 + 2 * h)} (hg0 : g ≠ coreLetter h 0)
+    (hg2 : g ≠ coreLetter h 2) (v : V) :
+    foxDHom ⇑t E E₂ (npcW α r h e) (Pi.single g v) = 0 := by
+  rw [foxDHom_apply, foxD_npc_ram t E E₂ hV₂ hwild hτfpf hTodd hα e,
+    Pi.single_eq_of_ne (Ne.symm hg0), Pi.single_eq_of_ne (Ne.symm hg2)]
+  simp
+
 end Rows
 
 end GQ2.Dyadic.Certificates.Npc
