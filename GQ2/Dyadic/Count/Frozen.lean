@@ -947,6 +947,149 @@ theorem orderOf_wordLift_vmod_dvd_exponent {D : RadicalCoverData Bg} (DD : DescD
 
 end ExponentHypothesis
 
+/-! ## §9 The procyclic-`M` row's `.hat` display
+
+§5.4 flags this as uncovered: `Words.Mpc.EtaDisplay.hat` denotes the **same** `η̂` node as the
+procyclic-`N` conjugator (`mpc_hatDisplay_zhat`, by `rfl`), so §3's `resolvesAt_mpcFam` excludes
+it exactly as §3 excludes the procyclic-`N` row, and the fix is the mpc-side twin of §5.1's walk.
+
+It is mechanical, and for the reason CB-FR predicted: `Words.Mpc.isOmega2Only_mpcW`'s proof is a
+walk over the same thirteen factors, and the display enters at exactly two of them — the two
+commutators `[C₀, D]` and `[Ĉ₀, D]`.  Replacing each `ω₂`-only leaf by `resolvedAt_of_isOmega2Only`
+and those two by `resolvedAt_etaDisplay` is the whole content.
+
+The payoff is that **one resolver serves both rows**: the `.hat` display's exponent is
+`EtaData.toZhat ⟨num, den⟩`, so `npcResolver N ⟨num, den⟩` of §7.1 is already correct there, with
+no new definition and no new arithmetic. -/
+
+section MpcHat
+
+open Words Words.Mpc
+
+/-! ### §9.1 The walk -/
+
+section Walk
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+  [TotallyDisconnectedSpace G] {h : ℕ} {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ}
+  (μ : Generator (2 + 2 * h) → G)
+
+/-- The `D`-display is resolved as soon as `E` is correct at the `ℤ̂`-exponent it denotes.  On the
+`.one` and `.lit` displays there is no profinite node and the hypothesis is unused; on `.hat` it
+is the whole content. -/
+theorem resolvedAt_etaDisplay {η : EtaDisplay} (hη : ∀ x : G, x ^ᶻ η.zhat = x ^ E η.zhat) :
+    PWord.ResolvedAt μ E E₂ (η.toPWord (n := 2 + 2 * h)) := by
+  cases η with
+  | one => exact trivial
+  | lit k => exact trivial
+  | hat num den => exact ⟨trivial, hη _⟩
+
+/-- **The `ResolvedAt` walk over `mpcW`** — the mpc-side twin of §5.1's `resolvedAt_npcW`, valid
+at every display.  Like `npcW`, `mpcW` has no `ℤ₂`-exponent node, so `E₂` is unconstrained. -/
+theorem resolvedAt_mpcW (hω : ∀ x : G, x ^ᶻ omega2 = x ^ E omega2) {η : EtaDisplay}
+    (hη : ∀ x : G, x ^ᶻ η.zhat = x ^ E η.zhat) (α r pp : ℕ) :
+    PWord.ResolvedAt μ E E₂ (mpcW α r pp η h) := by
+  have hres : ∀ w : PWord (Generator (2 + 2 * h)), w.IsOmega2Only → PWord.ResolvedAt μ E E₂ w :=
+    fun w => PWord.resolvedAt_of_isOmega2Only μ E E₂ hω w
+  refine resolvedAt_prodList μ E E₂ fun w hw => ?_
+  simp only [linFactors, hatFactors, List.mem_append, List.mem_cons,
+    List.not_mem_nil, or_false] at hw
+  rcases hw with (((rfl | rfl | rfl | rfl | rfl | rfl) | (rfl | rfl | rfl | rfl | rfl)) |
+    (rfl | rfl)) | htail
+  · exact hres _ (isOmega2Only_aW (s r) (m α))
+  · exact ⟨hres _ (isOmega2Only_aW (s r) (m α)), hres _ (isOmega2Only_bW pp)⟩
+  · exact hres _ (isOmega2Only_c0W (s r))
+  · exact ⟨hres _ (isOmega2Only_c0W (s r)), resolvedAt_etaDisplay μ hη⟩
+  · exact hres _ (isOmega2Only_e01W (pp + s r * m α) (s r * m α))
+  · exact hres _ (isOmega2Only_e2W (s r) (m α) pp)
+  · exact hres _ (isOmega2Only_aHatW (s r) (m α))
+  · exact ⟨hres _ (isOmega2Only_aHatW (s r) (m α)), hres _ (isOmega2Only_bHatW pp)⟩
+  · exact hres _ (isOmega2Only_c0HatW (s r))
+  · exact ⟨hres _ (isOmega2Only_c0HatW (s r)), resolvedAt_etaDisplay μ hη⟩
+  · exact hres _ (isOmega2Only_e01W (pp + s r * m α) (s r * m α))
+  · exact hres _ (isOmega2Only_dW 0)
+  · exact ⟨hres _ (isOmega2Only_dW 0), hres _ (isOmega2Only_dW 1)⟩
+  · obtain rfl := eq_handlesW_of_mem_handleTail htail
+    exact hres _ (isOmega2Only_handlesW _)
+
+end Walk
+
+/-! ### §9.2 The family at a general resolver, and the `.hat` row's resolution -/
+
+variable {Q : Type} [Group Q] [TopologicalSpace Q] [DiscreteTopology Q] [Finite Q]
+
+/-- **The procyclic-`M` family at an arbitrary resolver pair.** -/
+noncomputable def mpcFamOf (α r pp h q : ℕ) (η : EtaDisplay) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    Fin 2 → FreeGroup (Generator (2 + 2 * h)) :=
+  fun k => heisToFree E E₂ (gammaFam (2 + 2 * h) q (mpcW α r pp η h) k)
+
+/-- The frozen family is the constant instance. -/
+theorem mpcFamOf_const (α r pp h q e : ℕ) (η : EtaDisplay) :
+    mpcFamOf α r pp h q η (fun _ => (e : ℤ)) (fun _ => (e : ℤ))
+      = Certificates.MProcyclic.mpcFam α r pp h q e η :=
+  (mpcFam_eq_gammaFam α r pp h q e η).symm
+
+/-- **The procyclic-`M` row's `η̂`-display resolves, at every target killed by `N`, with no side
+condition** — §5.4's uncovered case, closed at the same resolver the procyclic-`N` row uses.
+
+The two rows share the node, so they share the resolver: `npcResolver N ⟨num, den⟩` is correct at
+`ω₂` by construction and at `(EtaDisplay.hat num den).zhat` because that exponent *is*
+`EtaData.toZhat ⟨num, den⟩` (`mpc_hatDisplay_zhat`). -/
+theorem resolvesAt_mpcFamOf_hat {N : ℕ} (hN : N ≠ 0) (hord : ∀ x : Q, orderOf x ∣ N)
+    (α r pp h q : ℕ) (num den : ℤ) (E₂ : ℤ_[2] → ℤ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (mpcW α r pp (.hat num den) h))
+      (mpcFamOf α r pp h q (.hat num den) (npcResolver N ⟨num, den⟩) E₂) Q := by
+  refine resolvesAt_of_resolvedAt ?_
+  have hωx : ∀ x : Q, x ^ᶻ omega2 = x ^ npcResolver N (⟨num, den⟩ : EtaData) omega2 := by
+    intro x
+    rw [npcResolver_omega2, PWord.zpowHat_omega2_zpow hN (hord x), zpow_natCast]
+  have hηx : ∀ x : Q, x ^ᶻ (EtaDisplay.hat num den).zhat
+      = x ^ npcResolver N (⟨num, den⟩ : EtaData) ((EtaDisplay.hat num den).zhat) := by
+    intro x
+    rw [show (EtaDisplay.hat num den).zhat = EtaData.toZhat ⟨num, den⟩ from rfl,
+      npcResolver_toZhat, EtaData.toZhat, zpowHat_etaHatZ_zpow hN (hord x), zpow_natCast]
+  intro f k
+  match k with
+  | 0 => exact PWord.resolvedAt_of_isOmega2Only f _ _ hωx _ (isOmega2Only_tameRelW _ q)
+  | 1 => exact resolvedAt_mpcW f hωx hηx α r pp
+
+/-! ### §9.3 The Stokes payload, and the `.hat` row's matched pair
+
+The mpc lane's endpoint computation was already written resolver-generically —
+`Certificates.MProcyclic.epsZ_mpcW` quantifies over `E`, `E₂` **and** the display, because the
+display sits inside the two commutators `[C₀, D]`, `[Ĉ₀, D]` and `epsZ_comm` kills it there.  So
+unlike the procyclic-`N` row (§7.3), nothing has to be re-walked: supplying `Odd (E ω₂)` in place
+of `Odd e` is the entire change. -/
+
+/-- **The procyclic-`M` endpoint condition at an arbitrary resolver**, at every display. -/
+theorem mpcOf_isStokesEndpoint {α r pp h q : ℕ} {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ} (hα : 1 ≤ α)
+    (hq : Even q) (he : Odd (E omega2)) (η : EtaDisplay) :
+    IsStokesEndpoint (mpcFamOf α r pp h q η E E₂) := by
+  intro i
+  rw [Fin.sum_univ_two]
+  show Multiplicative.toAdd
+        (Certificates.MProcyclic.epsZ E E₂ i (Certificates.tameRelW (2 + 2 * h) q))
+      + Multiplicative.toAdd (Certificates.MProcyclic.epsZ E E₂ i (mpcW α r pp η h)) = 0
+  rw [Certificates.MProcyclic.epsZ_tameRelW, Certificates.MProcyclic.epsZ_mpcW _ _ _ hα,
+    Certificates.MProcyclic.epsZ_dW]
+  simp only [Certificates.MProcyclic.epsZ_gen, toAdd_mul, toAdd_inv, toAdd_zpow, toAdd_ofAdd]
+  rw [zsmul_natCast_zmod2_even hq, zsmul_zmod2_odd he, CharTwo.neg_eq, CharTwo.neg_eq]
+  abel_nf
+  simp [CharTwo.two_eq_zero]
+
+/-- **The `.hat` row's matched `(hres, hend)` pair at one family** — the procyclic-`M` twin of
+`resolvesAt_and_endpoint_npcFamOf`, and the statement §5.4 said the row was missing. -/
+theorem resolvesAt_and_endpoint_mpcFamOf_hat {N : ℕ} (hN : N ≠ 0) (hv : N.factorization 2 ≠ 0)
+    (hord : ∀ x : Q, orderOf x ∣ N) {α r pp h q : ℕ} (hα : 1 ≤ α) (hq : Even q) (num den : ℤ)
+    (E₂ : ℤ_[2] → ℤ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (mpcW α r pp (.hat num den) h))
+        (mpcFamOf α r pp h q (.hat num den) (npcResolver N ⟨num, den⟩) E₂) Q
+      ∧ IsStokesEndpoint (mpcFamOf α r pp h q (.hat num den) (npcResolver N ⟨num, den⟩) E₂) :=
+  ⟨resolvesAt_mpcFamOf_hat hN hord α r pp h q num den E₂,
+   mpcOf_isStokesEndpoint hα hq (odd_npcResolver_omega2 hN hv _) _⟩
+
+end MpcHat
+
 end Count
 
 end GQ2.Dyadic
