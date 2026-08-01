@@ -286,6 +286,14 @@ import GQ2.Dyadic.Recursion.Kappa
 import GQ2.Dyadic.Recursion.Terminal
 import GQ2.Dyadic.Recursion.Induction
 import GQ2.Dyadic.Recursion.MStageCount
+import GQ2.Dyadic.Recursion.MasterCount
+import GQ2.Dyadic.Recursion.Bridge
+import GQ2.Dyadic.Recursion.RStage
+import GQ2.Dyadic.Recursion.BlockRStage
+import GQ2.Dyadic.Recursion.Splice
+import GQ2.Dyadic.Recursion.Phase140
+import GQ2.Dyadic.Recursion.Phase140Assembly
+import GQ2.Dyadic.Recursion.Prop89Close
 import GQ2.Dyadic.Parameters
 import GQ2.Dyadic.FinitelyGeneratedK
 import GQ2.Dyadic.Projectivity
