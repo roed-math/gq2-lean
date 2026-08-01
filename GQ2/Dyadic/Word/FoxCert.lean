@@ -67,7 +67,8 @@ Jacobian, `(X → A) →+ A × A`) in the ledger §3/§7 shape **ops list + targ
   it is evaluated intrinsically — so the hypotheses quantify over `γ ≠ ω₂` only.  This is the
   module-level analogue of the parity reduction `evalZ_congr_of_parity`
   (`GQ2/Dyadic/Word/WordCoh.lean`, exponent-2 case); a joint hoist is a mechanical dedup for
-  the orchestrator.
+  the orchestrator (still open after ticket WWH — the two live in files neither of which
+  imports the other).
 * **The `(A := …)` pitfall** (WW1 log): statements equating two `foxJacobian`s pin the
   coefficient module explicitly (`foxJacobian_resolver_congr` below does), else `Finite ?A`
   sticks.
@@ -75,7 +76,8 @@ Jacobian, `(X → A) →+ A × A`) in the ledger §3/§7 shape **ops list + targ
 ## Regression (mandatory, board WW2): the `Γ_R` row end-to-end
 
 `foxD_gammaRWildWord_split_apply` restates WW1's split row at arbitrary `Generator 1` offsets
-(`a τ + (1 + S⁻¹)(a x₀)`), and the row is then run through full certificates at **every**
+(`a τ + (1 + S⁻¹)(a x₀)`) — since ticket WWH it lives with the hand rows it restates, in
+`GQ2/Dyadic/Word/Fox.lean` — and the row is then run through full certificates at **every**
 split simple tame module:
 
 * `gammaRWildRowCert` — the published-row certificate: empty ops, target = the frozen row
@@ -98,7 +100,7 @@ the binding rules).
 ## Axiom state (recorded per WW2 instructions; `#print axioms` run in a scratch file, not
 committed)
 
-**Audited 2026-07-31, all 95 named public `def`/`theorem` declarations of this file** (the
+**Audited 2026-07-31, all named public `def`/`theorem` declarations of this file** (the
 8 `inductive`/`structure` type declarations carry no proof content): every one depends on a
 subset of the standard axioms `[propext, Classical.choice, Quot.sound]` (std-3), with zero
 `sorryAx` and zero `native_decide` axioms.  In particular the headlines `foxApplyOps`,
@@ -106,13 +108,15 @@ subset of the standard axioms `[propext, Classical.choice, Quot.sound]` (std-3),
 `FoxCertificate.coker_defect_iff`, `FoxCertificate.card_ker`, `FoxRowCertificate.range_eq`,
 `FoxRowCertificate.mem_ker_iff`, `FoxRowCertificate.card_ker`,
 `FoxColOp.bijective_listHom`, `FoxRowOp.bijective_listHom`, `TameSym.toEnd`,
-`PWord.evalFin_congr_of_orderOf_dvd`, `WordLift.orderOf_dvd_two_mul`,
-`foxEval_resolver_congr`, `foxD_resolver_congr`, `foxJacobian_resolver_congr`,
-`foxD_gammaRWildWord_split_apply`, `foxD_gammaRWildWord_ramified_apply`,
-`gammaRWildRowCert`, `gammaRWildRowPivotCert`, `gammaRWildRowRamifiedCert` and `demoCert`
-all print exactly `[propext, Classical.choice, Quot.sound]` (45 of the 95 print strictly
-less: `[propext]`, `[propext, Quot.sound]`, or none).  No sorries; no new axioms; kernel
-`decide` only (no `native_decide`).
+`PWord.evalFin_congr_of_orderOf_dvd`, `foxEval_resolver_congr`, `foxD_resolver_congr`,
+`foxJacobian_resolver_congr`, `gammaRWildRowCert`, `gammaRWildRowPivotCert`,
+`gammaRWildRowRamifiedCert` and `demoCert` all print exactly
+`[propext, Classical.choice, Quot.sound]` (the remainder print strictly less: `[propext]`,
+`[propext, Quot.sound]`, or none).  No sorries; no new axioms; kernel `decide` only (no
+`native_decide`).  Re-audited after ticket WWH's hoists: the six declarations that moved to
+`GQ2/Dyadic/Word/Fox.lean` (`WordLift.orderOf_dvd_two_mul`, `sum_generator_one`,
+`q2OffsetsInv`, `q2Offsets_q2OffsetsInv`, `foxD_gammaRWildWord_split_apply`,
+`foxD_gammaRWildWord_ramified_apply`) keep their prints there, and no print in this file grew.
 
 ## Implementation notes
 
@@ -803,25 +807,6 @@ theorem PWord.evalFin_congr_of_orderOf_dvd {X : Type*} {G : Type*} [Group G] {M 
 
 end Resolver
 
-end GQ2.Dyadic
-
-namespace GQ2.FoxH.WordLift
-
-/-- **Uniform lift-level order bound**: over elementary coefficients, if every base order
-divides `N` then every lift order divides `2 · N` — the list form of
-`orderOf_dvd_two_mul_orderOf_base`, feeding the resolver-congruence hypothesis `hG` at
-modulus `2 · N`. -/
-theorem orderOf_dvd_two_mul {C : Type*} [Group C] {A : Type*} [AddCommGroup A]
-    [DistribMulAction C A] (hA₂ : ∀ a : A, a + a = 0) {N : ℕ}
-    (hbase : ∀ g : C, orderOf g ∣ N) (p : WordLift A C) : orderOf p ∣ 2 * N :=
-  (orderOf_dvd_two_mul_orderOf_base hA₂ p).trans (mul_dvd_mul_left 2 (hbase p.g))
-
-end GQ2.FoxH.WordLift
-
-namespace GQ2.Dyadic
-
-open GQ2.FoxH
-
 section ResolverFox
 
 variable {X : Type*} {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
@@ -872,53 +857,8 @@ Nothing below is cited by a proof. -/
 
 section Regression
 
-/-- Repackage arbitrary `Generator 1` offsets as a `Fin 4` vector in the slot order
-`(σ, τ, x₀, x₁)` — the (two-sided) inverse of the `q2Offsets` adapter. -/
-def q2OffsetsInv {V : Type*} (a : Generator 1 → V) : Fin 4 → V
-  | ⟨0, _⟩ => a .sigma
-  | ⟨1, _⟩ => a .tau
-  | ⟨2, _⟩ => a (.wild 0)
-  | ⟨3, _⟩ => a (.wild 1)
-
-/-- Every `Generator 1` offset family is a `q2Offsets` instance. -/
-theorem q2Offsets_q2OffsetsInv {V : Type*} (a : Generator 1 → V) :
-    q2Offsets (q2OffsetsInv a) = a := by
-  funext g
-  cases g with
-  | sigma => rfl
-  | tau => rfl
-  | wild i =>
-      obtain ⟨v, hv⟩ := i
-      match v, hv with
-      | 0, _ => rfl
-      | 1, _ => rfl
-      | k + 2, h => exact absurd h (by omega)
-
 variable {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
 variable [Finite C] [Finite V]
-
-/-- **The `Γ_R` split row at arbitrary `Generator 1` offsets**: WW1's regression row
-`foxD_gammaRWildWord_split` re-expressed on the generic domain — the shape the certificates
-below replay.  (`ω₂`-collapse happens once, inside the hand-row lemma, via the engine
-lemmas; `powOmega2` is never unfolded here.) -/
-theorem foxD_gammaRWildWord_split_apply (t : _root_.GQ2.Marking C)
-    (hV₂ : ∀ v : V, v + v = 0) (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v)
-    (htau : ∀ v : V, t.τ • v = v) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (a : Generator 1 → V) :
-    foxD (⇑(Marking.ofQ2 t)) a E E₂ gammaRWildWord
-      = a .tau + a (.wild 0) + t.σ⁻¹ • a (.wild 0) := by
-  conv_lhs => rw [← q2Offsets_q2OffsetsInv a]
-  rw [foxD_gammaRWildWord_split t (q2OffsetsInv a) hV₂ hx0 hx1 htau E E₂]
-  rfl
-
-/-- **The `Γ_R` ramified row at arbitrary `Generator 1` offsets** (`S⁻¹x₂`). -/
-theorem foxD_gammaRWildWord_ramified_apply (t : _root_.GQ2.Marking C)
-    (hV₂ : ∀ v : V, v + v = 0) (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v)
-    (htau : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v)
-    (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (a : Generator 1 → V) :
-    foxD (⇑(Marking.ofQ2 t)) a E E₂ gammaRWildWord = t.σ⁻¹ • a (.wild 0) := by
-  conv_lhs => rw [← q2Offsets_q2OffsetsInv a]
-  rw [foxD_gammaRWildWord_ramified t (q2OffsetsInv a) hV₂ hx0 hx1 htau hTodd E E₂]
-  rfl
 
 /-- The formal coefficient `1 + S⁻¹` of the published `Γ_R` row. -/
 def oneAddSInv : FoxCoeff (TameSym 1) := .add .one (.atom (.gen .sigma (-1)))

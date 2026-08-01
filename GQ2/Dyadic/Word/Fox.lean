@@ -217,6 +217,14 @@ theorem orderOf_dvd_two_mul_orderOf_base (hA₂ : ∀ a : A, a + a = 0) (p : Wor
         rw [two_mul, pow_add]
     _ = 1 := hsq
 
+/-- **Uniform lift-level order bound**: over elementary coefficients, if every base order
+divides `N` then every lift order divides `2 · N` — the list form of
+`orderOf_dvd_two_mul_orderOf_base`, feeding the resolver-congruence hypothesis `hG` at
+modulus `2 · N`. -/
+theorem orderOf_dvd_two_mul (hA₂ : ∀ a : A, a + a = 0) {N : ℕ}
+    (hbase : ∀ g : C, orderOf g ∣ N) (p : WordLift A C) : orderOf p ∣ 2 * N :=
+  (orderOf_dvd_two_mul_orderOf_base hA₂ p).trans (mul_dvd_mul_left 2 (hbase p.g))
+
 /-- Powers of a lift see exponents only modulo `2·ord(base)`: the exponent-level consequence of
 the lift-level lemma — the form WW2's resolver-correctness conditions quote. -/
 theorem pow_eq_pow_of_modEq_two_mul (hA₂ : ∀ a : A, a + a = 0) (p : WordLift A C) {k l : ℕ}
@@ -1255,6 +1263,28 @@ theorem evalFin_gammaRWildWord (s : _root_.GQ2.Marking G) (E : Zhat → ℤ) (E�
 def q2Offsets {V : Type*} (x : Fin 4 → V) : Generator 1 → V :=
   ⇑(Marking.ofQ2 (G := V) ⟨x 0, x 1, x 2, x 3⟩)
 
+/-- Repackage arbitrary `Generator 1` offsets as a `Fin 4` vector in the slot order
+`(σ, τ, x₀, x₁)` — the (two-sided) inverse of the `q2Offsets` adapter. -/
+def q2OffsetsInv {V : Type*} (a : Generator 1 → V) : Fin 4 → V
+  | ⟨0, _⟩ => a .sigma
+  | ⟨1, _⟩ => a .tau
+  | ⟨2, _⟩ => a (.wild 0)
+  | ⟨3, _⟩ => a (.wild 1)
+
+/-- Every `Generator 1` offset family is a `q2Offsets` instance. -/
+theorem q2Offsets_q2OffsetsInv {V : Type*} (a : Generator 1 → V) :
+    q2Offsets (q2OffsetsInv a) = a := by
+  funext g
+  cases g with
+  | sigma => rfl
+  | tau => rfl
+  | wild i =>
+      obtain ⟨v, hv⟩ := i
+      match v, hv with
+      | 0, _ => rfl
+      | 1, _ => rfl
+      | k + 2, h => exact absurd h (by omega)
+
 variable {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
 
 omit [Group C] [AddCommGroup V] [DistribMulAction C V] in
@@ -1328,6 +1358,29 @@ theorem foxD_gammaRWildWord_ramified (t : _root_.GQ2.Marking C) (x : Fin 4 → V
     foxD (⇑(Marking.ofQ2 t)) (q2Offsets x) E E₂ gammaRWildWord = t.σ⁻¹ • x 2 := by
   rw [foxD_def, foxEval_gammaRWildWord]
   exact FoxH.liftMarking_wildValueR_u_ramified t x hV₂ hx0 hx1 htau hTodd
+
+/-- **The `Γ_R` split row at arbitrary `Generator 1` offsets**: the regression row
+`foxD_gammaRWildWord_split` re-expressed on the generic domain — the shape the WW2
+certificates replay.  (`ω₂`-collapse happens once, inside the hand-row lemma, via the engine
+lemmas; `powOmega2` is never unfolded here.) -/
+theorem foxD_gammaRWildWord_split_apply (t : _root_.GQ2.Marking C)
+    (hV₂ : ∀ v : V, v + v = 0) (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v)
+    (htau : ∀ v : V, t.τ • v = v) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (a : Generator 1 → V) :
+    foxD (⇑(Marking.ofQ2 t)) a E E₂ gammaRWildWord
+      = a .tau + a (.wild 0) + t.σ⁻¹ • a (.wild 0) := by
+  conv_lhs => rw [← q2Offsets_q2OffsetsInv a]
+  rw [foxD_gammaRWildWord_split t (q2OffsetsInv a) hV₂ hx0 hx1 htau E E₂]
+  rfl
+
+/-- **The `Γ_R` ramified row at arbitrary `Generator 1` offsets** (`S⁻¹x₂`). -/
+theorem foxD_gammaRWildWord_ramified_apply (t : _root_.GQ2.Marking C)
+    (hV₂ : ∀ v : V, v + v = 0) (hx0 : ∀ v : V, t.x₀ • v = v) (hx1 : ∀ v : V, t.x₁ • v = v)
+    (htau : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v)
+    (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (a : Generator 1 → V) :
+    foxD (⇑(Marking.ofQ2 t)) a E E₂ gammaRWildWord = t.σ⁻¹ • a (.wild 0) := by
+  conv_lhs => rw [← q2Offsets_q2OffsetsInv a]
+  rw [foxD_gammaRWildWord_ramified t (q2OffsetsInv a) hV₂ hx0 hx1 htau hTodd E E₂]
+  rfl
 
 end Regression
 
