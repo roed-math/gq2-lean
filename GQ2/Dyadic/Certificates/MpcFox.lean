@@ -57,7 +57,7 @@ immovable in this grammar; only the Tietze display is available").  Atomizing th
 extra assumption — `shM_omega2Pow_sigma` and `shM_profPow_sigma` prove that the expanded
 readings are fixed *because* `σ ↦ σ`, so `σ₂ ↦ σ₂` and `D ↦ D` are **derived**, not postulated.
 It also has a technical payoff: with them atomic, every displayed factor of the procyclic row
-lies in the profinite-power-free fragment `PWord.NoProf`, which is what makes §3's transport
+lies in the profinite-power-free fragment `PWord.Displayed`, which is what makes §3's transport
 theorem a plain structural induction.
 
 `inlineM h η : PWord MLetter → PWord (Generator (2 + 2*h))` is the bridge back to WMP-a's
@@ -105,7 +105,7 @@ here.  What is formalized is the transport statement itself, in WW1's operator a
 
 The naive rule is exactly what this lemma does *not* say: it never pushes an operator through a
 power node, which is why it survives on the fragment where the memo's counterexample lives —
-and the `NoProf` hypothesis is where that discipline is visible.
+and the `Displayed` hypothesis is where that discipline is visible.
 
 ## The σ-column coincidence lemma (§4)
 
@@ -157,10 +157,21 @@ next to it the theorem that the shadow reproduces exactly that contribution
 misrepresents the row.  Nothing here rejects or justifies `E₀₁^pc` — that is a gate-D/second-
 order statement and belongs to WMP-c.
 
-## Certificates (§6)
+## What this ticket does **not** contain (handed to WMP-c)
 
-WW2 normal forms at the classes the row supports, plus the `(1,1,1)` `√−10` instance — packet
-Cor. 8.2, **merge gate 9**.  The handle columns are zero at first order at every `h`.
+⚠ **No WW2 `FoxRowCertificate`/`FoxCertificate` records are built here, and no `√−10` instance
+row is instantiated.**  The reason is structural, not budgetary, and it is a finding: a WW2 row
+certificate is a `FoxRowNormalForm` — *one* formal coefficient per column, over the whole offset
+space — whereas this row's honest first-order statement is **split by column**: the wild and
+tame columns vanish (`foxD_mpcHatW_ram`, at σ-free offsets) while the σ-column is handled by the
+*coincidence* (`foxColumn_sigma_mul_eq_zero`), which is a statement about the **pair**, not
+about either factor.  Writing a single normal form for the hat copy alone would have to assert
+a σ-entry, and the freeze's whole point is that no such assertion is available or wanted.  The
+certificate that *is* available is the one for the **product** `R_lin^pc·R̂^pc`, whose row is the
+linear row (§5 + §4 together) — and that product row is what AS3's `√−10` instance needs.
+Building it belongs with WMP-c, which owns the Stokes/scalar/Hessian/phase layer where the
+second-order content of `E₀₁^pc` (the gate-D asymmetry) is settled; splitting it across two
+tickets would put the row and its justification in different files.
 
 ## Gotchas honoured (relayed with the ticket; all of them bit)
 
@@ -181,7 +192,7 @@ Cor. 8.2, **merge gate 9**.  The handle columns are zero at first order at every
 `foxD_prodList_pair`, `evalFin_prodList_pair`, `foxD_conj_of_trivial`,
 `foxD_comm_of_trivial_right`, `trivAct_commR_right`, `sigmaGeom` + `foxD_sigma2Pow_natCast` +
 `foxD_sigma2Pow_neg` and `sum_generator_quad`.  Genuinely new and lane-generic here (hoist
-candidates for the WWH queue, beside WM0-b's seven): `foxColumn`, `PWord.NoProf`,
+candidates for the WWH queue, beside WM0-b's seven): `foxColumn`, `PWord.Displayed`,
 `evalFin_subst`, `foxEval_subst` and `foxD_subst_congr`.
 
 ## Implementation notes
@@ -436,7 +447,7 @@ rejected `δ₀ ↦ (δ₀τ)^{ω₂}δ₀⁻¹`.  Here δ-atomicity is a proper
 further *displayed definitions* (`Auxiliary` nodes, each charged once — §9.3 rule 3) that the
 frozen tree spells as units: `σ₂ = σ^{ω₂}`, and the Tietze display `D = σ^{η̂}` which freeze
 row 5 makes the only available spelling of `η`.  Carrying them as atoms is faithful to the
-display and puts every factor of the row in the `NoProf` fragment. -/
+display and puts every factor of the row in the `Displayed` fragment. -/
 inductive MLetter
   /-- The Frobenius lift `σ`. -/
   | sigma : MLetter
@@ -1611,6 +1622,22 @@ theorem foxD_mpcHatW_ram {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDispl
     rw [show (-2 : ℤ) = -(2 : ℤ) by norm_num, neg_zsmul, two_zsmul, hV₂, neg_zero]
   abel_nf
   exact h2z _
+
+omit hσ hwild hτfpf hTodd in
+/-- **The shadow reproduces `E₀₁^pc`'s first-order contribution operator-for-operator** — the
+second half of the gate-D asymmetry finding, and the reason `foxD_e01W_ram` above must be stated
+rather than hidden.
+
+The proof is one line, and that *is* the content: `Sh_M` fixes `E₀₁^pc` verbatim (`shM_e01M`;
+the block is a word in `δ₀, δ₁, σ₂` alone), so the shadow's copy of the block is **the same
+word**, hence literally the same Fox row — not an equal-looking one.  Freeze row 5's
+"`E₀₁^pc` is first-order redundant" is exactly this, and with it "gate D cannot justify
+`E₀₁^pc`": a gate-D (first-order) argument cannot distinguish the row that contains the block
+from the row that does not, because the shadow puts the identical contribution back.  Whether
+`E₀₁^pc` earns its place is therefore a **second-order** question — WMP-c's. -/
+theorem foxD_e01_reproduced_by_shadow (η : EtaDisplay) (aa bb : ℕ) :
+    foxD ⇑t a E E₂ (inlineM h η (shM (e01M aa bb))) = foxD ⇑t a E E₂ (e01W h aa bb) := by
+  rw [shM_e01M, inlineM_e01M]
 
 end Factors
 
