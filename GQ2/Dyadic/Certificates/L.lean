@@ -406,6 +406,122 @@ theorem exists_symplectic_equiv [Finite W] (b : W → W → ZMod 2) (hb : IsSymp
       ∀ x y, b x y = hypGram (φ x) (φ y) :=
   exists_symplectic_equiv_aux (Nat.card W) b hb le_rfl
 
+/-! ### §1.3 `hHilb` itself
+
+The cup-form normal form `⟨1⟩ ⊥ H^{⊥m}`.  The vector `e` is *the arithmetic datum*: on
+`H¹(G_K,𝔽₂) = K^×/(K^×)²` it is the class `κ` of the cyclotomic character (equivalently of `−1`),
+`he` is the draft's Labute identity `z ∪ z = z ∪ κ` (`draft.tex:372–375`), and `he1` is
+`(−1,−1)_K = −1`, i.e. **`q_K = 2`** — which for type `L` follows from `n` odd (`i ∉ K`).
+Nothing else about the field is used. -/
+
+/-- The kernel of the Bockstein diagonal, as an `𝔽₂`-subspace. -/
+def cupKer {b : W → W → ZMod 2} (hb : IsCupFormFp2 b) : Submodule (ZMod 2) W where
+  carrier := {u | b u u = 0}
+  add_mem' := fun hx hy => by
+    show b _ _ = 0
+    rw [hb.diag_add, hx, hy, add_zero]
+  zero_mem' := hb.zero_left 0
+  smul_mem' := fun c u hu => by
+    show b _ _ = 0
+    rw [hb.smul_left, hb.smul_right, hu, mul_zero, mul_zero]
+
+@[simp] theorem mem_cupKer {b : W → W → ZMod 2} {hb : IsCupFormFp2 b} {u : W} :
+    u ∈ cupKer hb ↔ b u u = 0 := Iff.rfl
+
+/-- On the diagonal kernel the form is symplectic — alternating by construction, nondegenerate
+by the `e`-splitting. -/
+theorem isSymplectic_cupKer {b : W → W → ZMod 2} (hb : IsCupFormFp2 b) (hnd : NondegFp2 b)
+    {e : W} (he : ∀ w, b e w = b w w) (he1 : b e e = 1) :
+    IsSymplecticFp2 (fun x y : cupKer hb => b (x : W) (y : W)) where
+  add_left u v w := hb.add_left _ _ _
+  add_right u v w := hb.add_right _ _ _
+  alt u := u.2
+  nondeg := by
+    intro u hu
+    have hsq : ∀ c : ZMod 2, c * c = c := by decide
+    have hu0 : (u : W) = 0 := by
+      refine hnd _ fun y => ?_
+      have hmem : (y + (b y y) • e : W) ∈ cupKer hb := by
+        show b _ _ = 0
+        rw [hb.diag_add, hb.smul_left, hb.smul_right, he1, mul_one, hsq,
+          CharTwo.add_self_eq_zero]
+      have hval : b (u : W) (y + (b y y) • e) = 0 := hu ⟨_, hmem⟩
+      rw [hb.add_right, hb.smul_right, hb.symm (u : W) e, he, u.2, mul_zero,
+        add_zero] at hval
+      exact hval
+    exact Subtype.ext hu0
+
+/-- The `⟨1⟩ ⊥ (symplectic)` splitting `W ≃ₗ 𝔽₂ × ker d` along the anisotropic vector `e`. -/
+noncomputable def cupSplitEquiv {b : W → W → ZMod 2} (hb : IsCupFormFp2 b) {e : W}
+    (he : ∀ w, b e w = b w w) (he1 : b e e = 1) : W ≃ₗ[ZMod 2] ZMod 2 × cupKer hb where
+  toFun u := (b e u, ⟨u + (b e u) • e, by
+    show b _ _ = 0
+    have hsq : ∀ c : ZMod 2, c * c = c := by decide
+    rw [hb.diag_add, hb.smul_left, hb.smul_right, he1, mul_one, hsq, he,
+      CharTwo.add_self_eq_zero]⟩)
+  map_add' u u' := by
+    refine Prod.ext (hb.add_right _ _ _) (Subtype.ext ?_)
+    show u + u' + (b e (u + u')) • e = (u + (b e u) • e) + (u' + (b e u') • e)
+    rw [hb.add_right, add_smul]
+    abel
+  map_smul' c u := by
+    refine Prod.ext (hb.smul_right _ _ _) (Subtype.ext ?_)
+    show c • u + (b e (c • u)) • e = c • (u + (b e u) • e)
+    rw [hb.smul_right, smul_add, mul_smul]
+  invFun p := p.1 • e + (p.2 : W)
+  left_inv u := by
+    have h2 : ∀ x : W, x + x = 0 := GQ2.Dyadic.Certificates.module_zmod2_two_torsion
+    show (b e u) • e + (u + (b e u) • e) = u
+    calc (b e u) • e + (u + (b e u) • e) = u + ((b e u) • e + (b e u) • e) := by abel
+      _ = u := by rw [h2, add_zero]
+  right_inv p := by
+    have h2 : ∀ x : W, x + x = 0 := GQ2.Dyadic.Certificates.module_zmod2_two_torsion
+    have hke : b e (p.2 : W) = 0 := by rw [he]; exact p.2.2
+    have hbe : b e (p.1 • e + (p.2 : W)) = p.1 := by
+      rw [hb.add_right, hb.smul_right, he1, mul_one, hke, add_zero]
+    refine Prod.ext hbe (Subtype.ext ?_)
+    show p.1 • e + (p.2 : W) + (b e (p.1 • e + (p.2 : W))) • e = (p.2 : W)
+    rw [hbe]
+    calc p.1 • e + (p.2 : W) + p.1 • e = (p.2 : W) + (p.1 • e + p.1 • e) := by abel
+      _ = (p.2 : W) := by rw [h2, add_zero]
+
+/-- The `⟨1⟩ ⊥ (rest)` Gram identity along the splitting. -/
+theorem cupSplit_gram {b : W → W → ZMod 2} (hb : IsCupFormFp2 b) {e : W}
+    (he : ∀ w, b e w = b w w) (he1 : b e e = 1) (a a' : ZMod 2) (k k' : cupKer hb) :
+    b (a • e + (k : W)) (a' • e + (k' : W)) = a * a' + b (k : W) (k' : W) := by
+  have hk : b (k : W) (k : W) = 0 := k.2
+  have hk' : b (k' : W) (k' : W) = 0 := k'.2
+  rw [hb.add_left, hb.add_right, hb.add_right, hb.smul_left, hb.smul_left,
+    hb.smul_right, hb.smul_right, he1, mul_one, he, hk', mul_zero, add_zero,
+    hb.symm (k : W) e, he, hk, mul_zero, zero_add]
+
+/-- **`hHilb`, as a theorem.**  A nondegenerate `𝔽₂` cup–Bockstein form carrying an anisotropic
+Labute vector `e` (`b e w = b w w`, `b e e = 1`) is isometric to `⟨1⟩ ⊥ H^{⊥m}` — the
+`⟨1⟩ ⊥ (h+1) hyperbolic planes` of S2.4 §5.5, with `m` read off as `(dim W − 1)/2`.
+
+This is the statement wl-recon V8/R4 priced as the lane's only can-fail item, on the strength of
+"mathlib does not supply `𝔽₂`-quadratic-form classification / Witt cancellation".  The survey is
+correct about mathlib; the *inference* was not, because the object is a symmetric bilinear form
+whose diagonal is automatically linear (`IsCupFormFp2.diag_add`), so no quadratic-form
+classification and no cancellation theorem is involved — only `exists_symplectic_equiv`. -/
+theorem exists_cupForm_normalForm [Finite W] {b : W → W → ZMod 2} (hb : IsCupFormFp2 b)
+    (hnd : NondegFp2 b) {e : W} (he : ∀ w, b e w = b w w) (he1 : b e e = 1) :
+    ∃ (m : ℕ) (φ : W ≃ₗ[ZMod 2] ZMod 2 × (Fin m → ZMod 2 × ZMod 2)),
+      ∀ x y, b x y = (φ x).1 * (φ y).1 + hypGram (φ x).2 (φ y).2 := by
+  obtain ⟨m, ψ, hψ⟩ :=
+    exists_symplectic_equiv (fun x y : cupKer hb => b (x : W) (y : W))
+      (isSymplectic_cupKer hb hnd he he1)
+  set φ₀ := cupSplitEquiv hb he he1 with hφ₀
+  refine ⟨m, φ₀.trans ((LinearEquiv.refl (ZMod 2) (ZMod 2)).prodCongr ψ), fun x y => ?_⟩
+  have hx : (φ₀ x).1 • e + ((φ₀ x).2 : W) = x := φ₀.left_inv x
+  have hy : (φ₀ y).1 • e + ((φ₀ y).2 : W) = y := φ₀.left_inv y
+  show b x y = (φ₀ x).1 * (φ₀ y).1 + hypGram (ψ (φ₀ x).2) (ψ (φ₀ y).2)
+  rw [← hψ]
+  calc b x y = b ((φ₀ x).1 • e + ((φ₀ x).2 : W)) ((φ₀ y).1 • e + ((φ₀ y).2 : W)) := by
+        rw [hx, hy]
+    _ = (φ₀ x).1 * (φ₀ y).1 + b ((φ₀ x).2 : W) ((φ₀ y).2 : W) :=
+        cupSplit_gram hb he he1 _ _ _ _
+
 end SymplecticNormalForm
 
 end GQ2.Dyadic.Certificates.LSqStokes
