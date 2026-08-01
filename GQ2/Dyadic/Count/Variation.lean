@@ -123,4 +123,117 @@ theorem hwildLevel_gammaR (V : OpenNormalSubgroup ((GammaR n q R) : Type)) :
 
 end WildLevel
 
+/-! ## §2. One level for all three targets
+
+The comparison `z1Equiv` is read at the split group `A ⋊ C`; its dual twin at `A^∨ ⋊ C`; §5's
+ledger identity at the Heisenberg lift `H(A) ⋊ C`.  Three targets, and the word lane's family has
+to resolve the intrinsic relators at each of them — a resolution being *target-local* and, at a
+badly chosen target, false (CB-RES).
+
+They are the same question, because the first two groups are **subgroups of the third**: the
+zero-dual, zero-centre slice and the zero-primal, zero-centre slice are both closed under the
+Heisenberg product (the central defect `λ(g • a')` needs a primal *and* a dual coordinate to be
+nonzero, and each slice kills one of them).  So a single level `N = exp(H(A) ⋊ C)` kills all
+three, and `Count/Frozen.lean` §10 — whose rows are already generic in the level — supplies each
+branch's matched `(hres, hend)` pair there.
+
+Evenness, which the Stokes endpoint needs (`odd_omega2Exp`), is free for a different reason than
+at CB-FR's split target: there it was the `2`-torsion of `Additive ↥D.T`; here it is the
+Heisenberg **centre**, which is a copy of `ZMod 2` in every `H(A) ⋊ C` whatsoever. -/
+
+section HeisLevel
+
+open GQ2.Dyadic.WordCoh
+
+variable {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+
+/-- **The primal slice** `A ⋊ C ↪ H(A) ⋊ C`, `(a, g) ↦ (a, 0, 0, g)`.  A homomorphism because
+the Heisenberg central defect `λ(g • a')` vanishes when the left dual coordinate does. -/
+noncomputable def heisPrim : WordLift A C →* HeisLift A C where
+  toFun p := ⟨p.u, 0, 0, p.g⟩
+  map_one' := rfl
+  map_mul' p q := by
+    refine HeisLift.ext rfl ?_ ?_ rfl
+    · show (0 : ElemDual A) = 0 + p.g • (0 : ElemDual A)
+      rw [smul_zero, add_zero]
+    · show (0 : ZMod 2) = 0 + 0 + (0 : ElemDual A) (p.g • q.u)
+      rw [ElemDual.zero_apply, add_zero, add_zero]
+
+/-- **The dual slice** `A^∨ ⋊ C ↪ H(A) ⋊ C`, `(λ, g) ↦ (0, λ, 0, g)`.  A homomorphism because the
+central defect vanishes when the right primal coordinate does. -/
+noncomputable def heisDual : WordLift (ElemDual A) C →* HeisLift A C where
+  toFun p := ⟨0, p.u, 0, p.g⟩
+  map_one' := rfl
+  map_mul' p q := by
+    refine HeisLift.ext ?_ rfl ?_ rfl
+    · show (0 : A) = 0 + p.g • (0 : A)
+      rw [smul_zero, add_zero]
+    · show (0 : ZMod 2) = 0 + 0 + p.u (p.g • (0 : A))
+      rw [smul_zero, map_zero, add_zero, add_zero]
+
+theorem heisPrim_injective : Function.Injective (heisPrim (A := A) (C := C)) :=
+  fun _ _ h => WordLift.ext (congrArg HeisLift.a h) (congrArg HeisLift.g h)
+
+theorem heisDual_injective : Function.Injective (heisDual (A := A) (C := C)) :=
+  fun _ _ h => WordLift.ext (congrArg HeisLift.l h) (congrArg HeisLift.g h)
+
+/-- **The Heisenberg centre**, `(0, 0, 1, 1)`: an element of order exactly `2` in every
+`H(A) ⋊ C`.  This is what makes the common level even at no cost. -/
+theorem orderOf_heisCentre : orderOf (⟨0, 0, 1, 1⟩ : HeisLift A C) = 2 := by
+  have hsq : (⟨0, 0, 1, 1⟩ : HeisLift A C) ^ 2 = 1 := by
+    rw [pow_two]
+    refine HeisLift.ext ?_ ?_ ?_ (one_mul 1)
+    · show (0 : A) + (1 : C) • (0 : A) = 0
+      rw [smul_zero, add_zero]
+    · show (0 : ElemDual A) + (1 : C) • (0 : ElemDual A) = 0
+      rw [smul_zero, add_zero]
+    · show (1 : ZMod 2) + 1 + (0 : ElemDual A) ((1 : C) • (0 : A)) = 0
+      rw [ElemDual.zero_apply, add_zero]
+      decide
+  have hne : (⟨0, 0, 1, 1⟩ : HeisLift A C) ≠ 1 := by
+    intro h
+    have hz : (1 : ZMod 2) = 0 := congrArg HeisLift.z h
+    exact absurd hz (by decide)
+  rcases (Nat.Prime.eq_one_or_self_of_dvd Nat.prime_two _
+    (orderOf_dvd_of_pow_eq_one hsq)) with h | h
+  · exact absurd (orderOf_eq_one_iff.mp h) hne
+  · exact h
+
+/-- Every element of the Heisenberg lift is killed by the level (definitionally). -/
+theorem orderOf_heisLift_dvd (x : HeisLift A C) :
+    orderOf x ∣ Monoid.exponent (HeisLift A C) := Monoid.order_dvd_exponent x
+
+/-- **The split group is killed by the Heisenberg level** — the primal slice is a subgroup. -/
+theorem orderOf_wordLift_dvd_heisExponent (x : WordLift A C) :
+    orderOf x ∣ Monoid.exponent (HeisLift A C) := by
+  rw [← orderOf_injective (heisPrim (A := A) (C := C)) heisPrim_injective x]
+  exact Monoid.order_dvd_exponent _
+
+/-- **The dual split group is killed by the same level** — the dual slice is a subgroup. -/
+theorem orderOf_wordLiftDual_dvd_heisExponent (x : WordLift (ElemDual A) C) :
+    orderOf x ∣ Monoid.exponent (HeisLift A C) := by
+  rw [← orderOf_injective (heisDual (A := A) (C := C)) heisDual_injective x]
+  exact Monoid.order_dvd_exponent _
+
+variable [Finite A] [Finite C]
+
+/-- The common level: the Heisenberg lift's own exponent. -/
+theorem heisExponent_ne_zero : Monoid.exponent (HeisLift A C) ≠ 0 :=
+  Monoid.exponent_ne_zero_of_finite
+
+/-- **The Heisenberg level is nonzero and even** — CB-FR §8.2's `splitLevel_ne_zero_and_even` for
+this ticket's target, and with a *better* source for the evenness: the Heisenberg centre, which
+needs no hypothesis on `A` at all. -/
+theorem heisLevel_ne_zero_and_even :
+    Monoid.exponent (HeisLift A C) ≠ 0
+      ∧ (Monoid.exponent (HeisLift A C)).factorization 2 ≠ 0 := by
+  refine ⟨heisExponent_ne_zero, ?_⟩
+  have hdvd : 2 ∣ Monoid.exponent (HeisLift A C) := by
+    rw [← orderOf_heisCentre (A := A) (C := C)]
+    exact Monoid.order_dvd_exponent _
+  have := Nat.Prime.factorization_pos_of_dvd Nat.prime_two heisExponent_ne_zero hdvd
+  omega
+
+end HeisLevel
+
 end GQ2.Dyadic.Count
