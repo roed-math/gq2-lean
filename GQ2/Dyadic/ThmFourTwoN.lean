@@ -68,7 +68,8 @@ Axioms: **no new axioms; none of the nine obligations as axioms.**  SD-n *is* on
 and `thm_4_2_of_sourcesN` is its discharge at the generic level — so the headline theorem is
 sorry-free and axiom-clean.  Print check performed per declaration (measured, not budgeted):
 
-* **all 23 generic declarations** — the Gauss obtain, `prop_8_9_of_sourcesN`, the four lanes,
+* **all 24 declarations other than the two regression theorems** — the Gauss obtain,
+  `prop_8_9_of_sourcesN`, the four lanes,
   `thm_4_2_of_sourcesN`, the whole §10-K block, `contSurj_card_eq_of_sourcesN`,
   `nonempty_continuousMulEquiv_of_sourcesN`, `boundaryFrameK` — print **exactly std-3**
   `[propext, Classical.choice, Quot.sound]`.  Not one B-axiom in the generic layer: measured
