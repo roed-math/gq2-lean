@@ -1517,4 +1517,171 @@ theorem eval_pro2_mpcW_eq_mRelWord {α : ℕ} (hα : 1 ≤ α) (r p : ℕ) (η :
 
 end Pro2
 
+/-! ## The six frozen instances
+
+The branch rows, in F1's vocabulary.  The word arguments `(α, r, p, η-display, h)` and the
+`BranchData` fields are related by `p = B.pVal = GQ2.Dyadic.p ε r` and `s = B.sVal = 2^r`;
+the pins below tie each instance's word parameters to those fields so the display data
+cannot drift from the branch datum. -/
+
+section Instances
+
+/-- **`ℚ₂(√−10)` is procyclic** `(r, ε, η) = (1, 1, 1)` — packet Cor. 8.2.  The sign row does
+not exist (packet Prop. 8.1: under ramified `i`, an even `η` is impossible), which is why
+this instance is **merge gate 9**: the field the draft treated by a field-specific sign-row
+word is carried by the frozen procyclic row. -/
+theorem branchData_sqrtNeg10 :
+    (BranchData.Mpc 2 1 true 1).Valid ∧ (BranchData.Mpc 2 1 true 1).level = 1 ∧
+      (BranchData.Mpc 2 1 true 1).sVal = 2 ∧ (BranchData.Mpc 2 1 true 1).pVal = 1 :=
+  ⟨⟨by norm_num, by norm_num⟩, rfl, rfl, rfl⟩
+
+/-- `ℚ₂(√10)` is the `ε = 0` row (draft §7.3 has `B = x₁`, i.e. `p = 0` — the F1 discovery
+that both `ε` values occur).  Draft §7.3's field-specific word `R₁₀` (marking
+`ν(a,b,c,d) = (−4,0,2,1)`) is F5's regression row B2, pointwise-equal to this row on every
+harness target but NOT the frozen spelling. -/
+theorem branchData_sqrt10 :
+    (BranchData.Mpc 2 1 false 1).Valid ∧ (BranchData.Mpc 2 1 false 1).pVal = 0 :=
+  ⟨⟨by norm_num, by norm_num⟩, rfl⟩
+
+/-- The `r = 2` row: `s = 4`, `p = 2` (for any Frobenius unit `η` — the word's `η`-display
+is separate certificate data, `σ⁵` on the frozen instance). -/
+theorem branchData_levelTwo (η : ℤ_[2]ˣ) :
+    (BranchData.Mpc 2 2 true η).Valid ∧ (BranchData.Mpc 2 2 true η).sVal = 4 ∧
+      (BranchData.Mpc 2 2 true η).pVal = 2 :=
+  ⟨⟨by norm_num, by norm_num⟩, rfl, rfl⟩
+
+/-- The `α = 3` row: the orbit-norm length is `m 3 = 4` while the word length is flat
+(L = 67 at every `α` — the phase-4 exit criterion). -/
+theorem branchData_alphaThree (η : ℤ_[2]ˣ) :
+    (BranchData.Mpc 3 1 true η).Valid ∧ m 3 = 4 :=
+  ⟨⟨by norm_num, by norm_num⟩, rfl⟩
+
+/-- The word-parameter dictionary at the six instances, in F1's vocabulary: `s r`, `m α` and
+`GQ2.Dyadic.p ε r` evaluate to exactly the literals the emitted trees display. -/
+example : s 1 = 2 ∧ s 2 = 4 ∧ m 2 = 2 ∧ m 3 = 4 ∧ GQ2.Dyadic.p true 1 = 1 ∧
+    GQ2.Dyadic.p true 2 = 2 ∧ GQ2.Dyadic.p false 1 = 0 := by
+  refine ⟨rfl, rfl, rfl, rfl, ?_, ?_, ?_⟩ <;> simp [GQ2.Dyadic.p, epsVal]
+
+/-- The `η̂`-display pair `(−1, 3)` is already S1.M-canonical, so WW5's constructor-level
+canonicalization is a no-op on the frozen tree and the hash is of the displayed pair. -/
+example : Export.RawSpec.canon (.etahat (-1) 3) = .etahat (-1) 3 := rfl
+
+/-- The `√−10` letters, spelled out at the instance (`s = 2`, `m = 2`, `p = 1`):
+`C₀ = x₂σ₂²`, `A = x₀⁻¹C₀⁻²`, `B = x₁σ₂`, and the hat letters `Ĉ₀ = σ₂²`, `Â = δ₀⁻¹Ĉ₀⁻²`,
+`B̂ = δ₁σ₂`. -/
+example :
+    c0W 0 2 = PWord.prodList [.gen (coreLetter 0 2), .zpow sigma2W 2] ∧
+    aW 0 2 2 = PWord.prodList [.inv (.gen (coreLetter 0 0)), .zpow (c0W 0 2) (-2)] ∧
+    bW 0 1 = PWord.prodList [.gen (coreLetter 0 1), sigma2W] ∧
+    c0HatW 0 2 = PWord.zpow sigma2W 2 ∧
+    aHatW 0 2 2 = PWord.prodList [.inv (dW 0 0), .zpow (c0HatW 0 2) (-2)] ∧
+    bHatW 0 1 = PWord.prodList [dW 0 1, sigma2W] := by
+  exact ⟨rfl, rfl, rfl, rfl, rfl, rfl⟩
+
+section InstanceBoundaries
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+  [TotallyDisconnectedSpace G]
+
+/-- **The `√−10` pro-2 boundary, end-to-end**: the frozen word's Gate-C value at the gate-9
+instance is eq. `Mpc-core` at the instance letters `A = x₀⁻¹(x₂σ²)⁻²`, `B = x₁σ`,
+`C₀ = x₂σ²`, `D = σ` (`η = 1`). -/
+theorem eval_pro2_sqrtNeg10 (t : Marking 2 G) :
+    t.eval (pro2 (mpcW 2 1 1 .one 0))
+      = MarkedCore.mWord 2 ((t.x 0)⁻¹ * ((t.x 2 * t.σ ^ 2) ^ 2)⁻¹) (t.x 1 * t.σ)
+          (t.x 2 * t.σ ^ 2) t.σ := by
+  rw [eval_pro2_mpcW_zero (by norm_num) 1 1 .one t]
+  norm_num [s, EtaDisplay.zhat]
+
+/-- **The `√10` pro-2 boundary**: at `ε = 0` the `B`-letter collapses to the bare `x₁` — the
+`p = 0` display is invisible at the value level but the letter is genuinely different. -/
+theorem eval_pro2_sqrt10 (t : Marking 2 G) :
+    t.eval (pro2 (mpcW 2 1 0 .one 0))
+      = MarkedCore.mWord 2 ((t.x 0)⁻¹ * ((t.x 2 * t.σ ^ 2) ^ 2)⁻¹) (t.x 1)
+          (t.x 2 * t.σ ^ 2) t.σ := by
+  rw [eval_pro2_mpcW_zero (by norm_num) 1 0 .one t]
+  norm_num [s, EtaDisplay.zhat]
+
+end InstanceBoundaries
+
+end Instances
+
+/-! ## Numerical stress pins
+
+Nothing below is cited by a proof; these are regression pins in the sense of plan §3 A1.
+
+**The python twins are F5's rows** (`scripts/dyadic_sanity_counts.py`): its A-rows measure
+the frozen `√10`/`√−10` spellings by epimorphism-count vectors over `(S₃, D₈, A₄)`, both
+`(6, 1568, 120)`; row B1 keeps the retired `√−10` relative-norm word as the regression
+alternative, row B2 pins the draft-§7.3 `√10` word pointwise-equal to the frozen row.  Those
+counts are **cited, never proved here** (they need genuine epimorphism enumeration on groups
+with odd part).  Per WNP-a's abelian-invisibility finding, no abelian pin can see `η` or the
+correction blocks — the pins below test the exponent skeleton, the `ω₂`-placement, and the
+balance instead, and the nonabelian core content is the S₃ witness. -/
+
+section StressZMod8
+
+local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
+local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
+
+private theorem orderOf_dvd_eight (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
+  orderOf_dvd_of_pow_eq_one (by revert x; decide)
+
+/-- A concrete marking of the `h = 0` alphabet, written additively:
+`(σ, τ, x₀, x₁, x₂) = (5, 1, 1, 1, 1)` in `Multiplicative (ZMod 8)`. -/
+def zmod8Marking : Marking 2 (Multiplicative (ZMod 8)) :=
+  Marking.ofLetters (Multiplicative.ofAdd 5) (Multiplicative.ofAdd 1)
+    ![Multiplicative.ofAdd 1, Multiplicative.ofAdd 1, Multiplicative.ofAdd 1]
+
+/-- **Stress (genuine `ω₂`)**: the *profinite* denotation of the `√−10` word — real
+`x ^ᶻ ω₂` powers — is `ofAdd 3`.
+
+Additively (`σ₂ = 5`, `δᵢ = 1`, `C₀ = 3`, `A = 1`, `Ĉ₀ = 2`, `Â = 3`):
+`2 + 0 + 4 + 0 + 4 + 5` (linear copy) `+ 6 + 0 + 0 + 0 + 4` (hat copy) `+ 2 + 0` (plus
+block) `= 27 ≡ 3`.  This pins the exponent skeleton (`C₀⁴`, `A²`, `m = 2`), the `ω₂`-placement
+on the `(xᵢτ)`-subwords, and the two `E`-block arities at once. -/
+theorem eval_zmod8_sqrtNeg10 :
+    zmod8Marking.eval (mpcW 2 1 1 .one 0) = Multiplicative.ofAdd (3 : ZMod 8) := by
+  rw [Marking.eval_def,
+    PWord.eval_eq_evalNat_of_dvd (by norm_num) orderOf_dvd_eight _
+      (isOmega2Only_mpcW 2 1 1 (show EtaDisplay.IsOmega2Only .one from trivial) 0),
+    omega2Exp_eight]
+  decide
+
+/-- **Stress (`ω₂` is not vacuous)**: forcing the profinite exponent to `3` — an odd non-`ω₂`
+representative — gives `ofAdd 7 ≠ ofAdd 3`, so the `ω₂`-slots genuinely carry information at
+this marking. -/
+theorem evalNat_zmod8_sqrtNeg10_three :
+    PWord.evalNat ⇑zmod8Marking 3 (mpcW 2 1 1 .one 0) = Multiplicative.ofAdd (7 : ZMod 8) := by
+  decide
+
+/-- **Stress (the tame boundary is not vacuous, and the balance is visible)**: at this marking
+the `τ`-letter has even order, so the Gate-B value is *not* trivial — `not_killsWild` read
+numerically — while the σ-skeleton part has already cancelled: the value `ofAdd 5` is exactly
+the `w`-count `13·w = 13 ≡ 5` (`w = τ^{ω₂} = 1` additively), the σ-contribution being `0` by
+the Prop. 9.2 balance even though `σ₂ = 5 ≠ 0` here. -/
+theorem eval_killWildLetters_zmod8_sqrtNeg10 :
+    (Marking.killWildLetters zmod8Marking).eval (mpcW 2 1 1 .one 0)
+      = Multiplicative.ofAdd (5 : ZMod 8) := by
+  rw [Marking.eval_def,
+    PWord.eval_eq_evalNat_of_dvd (by norm_num) orderOf_dvd_eight _
+      (isOmega2Only_mpcW 2 1 1 (show EtaDisplay.IsOmega2Only .one from trivial) 0),
+    omega2Exp_eight]
+  decide
+
+end StressZMod8
+
+/-- **Stress (nonabelian: the core is not a vacuous relator)**: eq. `Mpc-core` is nontrivial
+at an explicit marking of `S₃`, so the two commutators do real work.  In `S₃` both `a²` and
+`c⁴` drop out (`a² = c⁴ = 1` for transpositions) and each commutator of the two distinct
+transpositions is the same `3`-cycle `g`, so the core value is `g² ≠ 1`.
+
+An explicit witness rather than `∃ … by decide` (kernel recursion budget); the abelian pins
+above cannot see this content (WNP-a's invisibility finding), which is exactly why this
+witness is the one that matters for the core.  F5's A-rows report the epimorphism count
+`120` on `A₄` for this row; that number is cited, never proved here. -/
+theorem mWord_ne_one_perm :
+    MarkedCore.mWord 2 (Equiv.swap 0 1) (Equiv.swap 0 2) (Equiv.swap 0 1) (Equiv.swap 0 2)
+      ≠ (1 : Equiv.Perm (Fin 3)) := by decide
+
 end GQ2.Dyadic.Words.Mpc
