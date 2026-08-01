@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
 import GQ2.Dyadic.CertificateMain
+import GQ2.Dyadic.Count.Routine
 import GQ2.Dyadic.Words.N0
 import GQ2.Dyadic.Words.L
 import GQ2.Dyadic.Words.Npc
@@ -422,22 +423,18 @@ end Branches
 
 `K = ℚ₂(√−2)`, `α = 2`, `h = 0`, `q_K = 2` — the frozen row of `Words/N0.lean`.
 
-⚠ CB-0's `pilot_tameSpecialization` could not be reused: `Count/Routine.lean` does not currently
-compile (see this file's report — the `dyadic` merge left it calling `TameSpecializes` and
-`tameOfSpec` at top level, where F3b has since moved them into `namespace TameSpec`).  The pilot
-witness is therefore rebuilt here from F3b's `tameSpecializes_of_tau_pow` and N0's own boundary
-theorem, which is the same one-liner CB-0's §7 used. -/
+CB-0's `pilot_tameSpecialization` **is** reused: this file imports `Count/Routine.lean`.
+(Historical note: on CB-W's branch that file did not compile — the branch predated the
+orchestrator's `open TameSpec` merge fix — so CB-W rebuilt the witness locally from F3b's
+`tameSpecializes_of_tau_pow`, the same one-liner CB-0's §7 used.  At head the original is
+available and the local copy has been removed.) -/
 
 section Pilot
 
-/-- The pilot word. -/
-noncomputable abbrev pilotW : PWord (Generator (2 + 2 * 0)) := nCompactW 2 0
-
-/-- Gate B at the pilot — CB-0's `pilot_tameSpecialization`, rebuilt against `TameSpec`. -/
-theorem pilot_tameSpecialization : TameSpec.TameSpecializes (2 + 2 * 0) 2 pilotW :=
-  TameSpec.tameSpecializes_of_tau_pow (by omega) (by decide)
-    (eval_killWildLetters_nCompact 2 0 (tameMarking (2 + 2 * 0) 2))
-
+/- `pilotW` and `pilot_tameSpecialization` are NOT redeclared here.  CB-W built local copies
+because `Count/Routine.lean` did not compile on its branch (that branch predated the
+orchestrator's `open TameSpec` merge fix); at head it does, so this file imports CB-0's
+originals instead — they are the same terms (`nCompactW 2 0`, and CB-0's field-1 discharge). -/
 /-- **`hwild` fails at the pilot**, end-to-end: the tame kernel of the `√−2` candidate is not
 pro-`2`. -/
 theorem pilot_not_hwild :
