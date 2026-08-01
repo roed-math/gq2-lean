@@ -9,7 +9,118 @@ import GQ2.Dyadic.Certificates.MpcStokes
 /-!
 # Dyadic campaign, ticket WMP-J: the procyclic-`M` jet theorem
 
-The `npc_cross_operators` analogue for `mpcW`, and WW4 gap item 5 on the procyclic-`M` row.
+The `npc_cross_operators` analogue for `mpcW`, and **WW4 gap item 5 discharged** on the
+procyclic-`M` row.  WW6's `Word/NpcBridge.lean` closed the carrier half of that gap and named
+what was left: "an `mpcW` **jet theorem** — the `npc_cross_operators` analogue for `mpcW` — and
+it exists nowhere".  This file is that theorem, and the consequences WW6 listed.
+
+## The headline
+
+`mpc_cross_operators` — at general `(α ≥ 1, r, p, η, h)`, at every graph-type κ⁰-marking whose
+`x₂`-slot is zero:
+
+```
+fib( val(R_lin^pc) · val(R̂^pc) · val(D₀²[D₀,D₁]) )  =  q(c₀) + b_q(c₀, c₁)
+```
+
+and at the frozen word (`evalFin_fib_mpcW`, `h = 0`, where `H_h = 1`) this is
+`plusFormD q q (c₀, c₁)`.  Both are `evalFin` statements; `hessRelZ_mpcW` is the `hessRelZ`
+form and `mpc_hess_eval` the honest profinite `Marking.eval` form.
+
+## The three mechanisms, all consumed rather than re-derived
+
+1. **The δ-letters are Heisenberg-slice elements** (§3).  `u_i = (x_iτ)^{ω₂}` is *central*:
+   NC3's rules 1 and 2 meet at the mixed base `(c_i, u)` — the order bound is WW6's transported
+   `orderOf_hessElt_dvd_two_mul`, the norm vanishing is NC3's `sum_pow_smul_orderOf_eq_zero`
+   (from `hVu`), the `ω₂`-reduction is NC3's `zpowHat_omega2_eq_pow_of_dvd_two_mul` (from `hu`),
+   and the value is WW6's transported `hessElt_pow_eq_hessSlice`.  Hence
+   `δ_i ↦ ((c_i,1), z_i + q(c_i))`, and at the boundary slot `δ₂ ↦ 1`.
+2. **The two copies coincide** (§6).  `Sh_M`'s replacements `x₀ ↦ δ₀`, `x₁ ↦ δ₁` change the
+   value by a *central* factor only, `x₂ ↦ 1` leaves `Ĉ₀ = C₀` on the nose, and `E₂^pc` dies
+   outright because `δ₂ = 1`.  §4's three laws (squares and commutators are blind to the
+   centre) then give `val(R̂^pc) = val(R_lin^pc)` — so the pair is a **square**.
+3. **The square is trivial** (§7).  `fib(L·L) = κ(L̄, L̄)`, and `κ` at a zero primal offset is
+   `0`.  The offset *is* zero: that is WMP-d's row collapse
+   `D(R_lin^pc)(a) = S₂^{−s}σ^{−n}a(x₂)` (`foxD_mpcLinW_x2`), read at `a(x₂) = 0`.
+
+What survives is the plus block, whose value is `Q₊(c₀,c₁) = q(c₀) + b_q(c₀,c₁)` (§5) — a word
+identity, not a finite-order interpolation, exactly as WMP-c recorded.
+
+## Two findings about the API
+
+**(i) The registers do not meet, and `mpcCopiesCancel` is not consumable here.**  WMP-c's
+cancellation lives in the **Heisenberg** register (`heisEvalZ : PWord X → HeisLift A C`, fields
+`.a/.l/.z`); `hessRelZ` lives in the **κ⁰ central extension**
+(`WordCoh.CentExt (kappa0Cocycle dat hdat)`, field `.fib`).  A repo-wide survey finds **no
+lemma anywhere connecting them**, and none can be produced by a carrier identification: the two
+central rules are `(p*q).z = p.z + q.z + p.l (p.g • q.a)` and
+`(p*q).fib = p.fib + q.fib + κ(p̄, q̄)`, which agree only for a cocycle of Heisenberg shape
+(`GQ2/MixedBObs.lean`'s `kappaHeis`), whereas `kappa0Cocycle` is `dat.f`/`dat.m`-shaped.  So §6
+is the κ⁰-register **analogue** of `mpcCopiesCancel`, proved independently.
+
+The compensation is real: on this carrier P4's central clause is **not needed**.  WMP-c had to
+carry `CentralReplication` as a module hypothesis (the shadow memo's own table shows it failing
+on three of the four ramified simples); here the two values are *literally equal*, so §6 is
+hypothesis-free and the ⚠ around P4 does not apply to this row's Hessian.
+
+**(ii) `foxD` and the κ⁰ base are the same object, and nobody had said so.**  §1 supplies the
+missing identification `WordLift V C ≃* SemiProd C V` and
+`evalFin_hessMark_fst`, which says
+`(evalFin (hessMark s u vv) E E₂ w).1 = foxD ⇑(lowerMark s u) (hessOffsets vv) E E₂ w`
+— the reason WMP-d's Fox-level row is usable at second order at all.  Both sides are `evalFin`,
+so **no resolver hypothesis is spent** on it.  This is a hoist candidate (`Word/Fox.lean` or
+`Word/Hessian.lean`), and it is what every future "gate-D row consumed at gate E" argument needs.
+
+## What `d₀` is pinned to
+
+WW6 asked the successor to "pin `d₀` from the `TwistedClass2Domain` normalization rather than
+take it abstract".  **`d₀ = q`** — equivalently `fun v ↦ dat.f v v`, by `f_diag`; the compact
+rows' spelling after all (`mpc_hessRelZTarget`).  This is not an assumption: it is forced, and
+the reason is charge-independence.  The δ-letters *do* carry the twisted normalization's charge
+(`NpcJet.powCharge dat u c_i (orderOf u)`, memo §3.3's "some element of `𝔽₂` depending on `c₀`
+alone"), but the only two laws the plus block uses — `hessSlice_sq` and `hessSlice_commR` — are
+both independent of the slice charge, so the twist cancels out of the endpoint.  No
+`TwistedClass2Domain` input is needed, and none is available to change the answer.
+
+## Hypotheses, and what they are
+
+`hV2` (characteristic 2), `hu : Odd (orderOf u)` (Gate-B rule T1 / NC5's rule 1), `hVu`
+(`V^u = 0`, NC5's rule 2), `hv2` (the `x₂`-has-no-primal-letter convention — S4.5's rider (ii),
+here load-bearing), `hα : 1 ≤ α` (Prop. 9.2's balance, WMP-b/c/d's own threshold — *not* the
+compact rows' `2 ≤ α`), and `hη` (the `η̂`-display acts as an integer power of `σ`, WMP-d's
+`ActsAsPow` datum, definitional at the `√−10` instance via `actsAsPow_etaOne`).  The `hessRelZ`
+and profinite forms add WMP-c's `ResolverLifts`, which is the *only* thing separating `evalZ`
+from `evalFin`.  ⚠ **No `ResolvedAt`** — WW6's resolver-immunity finding for this row holds.
+
+## Scope, honestly
+
+The handle tail is not evaluated: §7's `evalFin_mpcW_factored` splits it off at general `h` and
+the frozen-word statements take `h = 0`, where `handlesW 0 = 1`.  Extending to `h > 0` needs the
+`evalFin` twin of WN0-c's `hess_handlesW_eval` and adds `∑_j b_q(e_{3+2j}, e_{4+2j})`; nothing
+else changes.  `E₀₁^pc`'s second-order justification is untouched — freeze row 5's status (gate-F
+measurement, cited not proved) stands, and nothing below weakens or strengthens it.  The S4.5
+block-order rider stays a gate-D statement (`swapDifference_zero_of_no_primal_x2`); §6's
+`evalFin_e2W_one` is its value-level face on this marking and claims nothing more.
+
+## Axiom prints (recorded at commit time)
+
+`#print axioms` gives **the standard three** (`propext`, `Classical.choice`, `Quot.sound`) or a
+strict subset, for every one of the 46 declarations — measured on the built module.  Strict
+subsets: `wlEquiv` (none), `hessOffsets`/`lowerMark`/`conjR_mul_central`/
+`commR_mul_central_left`/`commR_mul_central_right` (`[propext]`), and
+`coreIdx`/`coreIdx_zero`/`coreIdx_one`/`coreIdx_two`/`hessMark_eq_foxLift`
+(`[propext, Quot.sound]`).  Headlines: `evalFin_hessMark_fst`, `evalFin_uW`, `evalFin_dW`,
+`evalFin_plusW`, `evalFin_mpcHatW_eq_mpcLinW`, `base_fst_mpcLinW`, `fib_mpcLinW_mul_mpcHatW`,
+`mpc_cross_operators`, `evalFin_fib_mpcW`, `hessRelZ_mpcW`, `mpc_hessRelZTarget`,
+`mpc_hess_eval`, `sqrtNeg10_hessRelZ`, `sqrtNeg10_hessRelZTarget`, `sqrtNeg10_word_eq_certQ`.
+
+No sorries, no new axioms, **no `decide` at all**, and none of the nine obligations is touched.
+
+## Module rule
+
+Plain-import, and forced: `Word/NpcBridge.lean` (WW6) is plain and
+`Certificates/MpcStokes.lean` (WMP-d) is plain, so this leaf is plain.  It is **not** registered
+in `GQ2.lean`; build it with `lake build GQ2.Dyadic.Certificates.MpcJet`.
 -/
 
 namespace GQ2.Dyadic.Certificates.MpcJet
@@ -62,24 +173,24 @@ omit [Finite C] [Finite V] in
     (i : Fin (2 + 2 * h + 1)) : hessOffsets vv (Generator.wild i) = vv i := rfl
 
 /-- The lower marking of a graph-type marking: `σ ↦ s`, `τ ↦ u`, every wild letter trivial. -/
-noncomputable def coreMark {h : ℕ} (s u : C) : Marking (2 + 2 * h) C :=
+noncomputable def lowerMark {h : ℕ} (s u : C) : Marking (2 + 2 * h) C :=
   Marking.ofLetters s u (fun _ => 1)
 
 omit [Finite C] [Finite V] in
-@[simp] theorem coreMark_sigma {h : ℕ} (s u : C) : (coreMark (h := h) s u).σ = s := rfl
+@[simp] theorem coreMark_sigma {h : ℕ} (s u : C) : (lowerMark (h := h) s u).σ = s := rfl
 
 omit [Finite C] [Finite V] in
-@[simp] theorem coreMark_tau {h : ℕ} (s u : C) : (coreMark (h := h) s u).τ = u := rfl
+@[simp] theorem coreMark_tau {h : ℕ} (s u : C) : (lowerMark (h := h) s u).τ = u := rfl
 
 omit [Finite C] [Finite V] in
 @[simp] theorem coreMark_x {h : ℕ} (s u : C) (i : Fin (2 + 2 * h + 1)) :
-    (coreMark (h := h) s u).x i = 1 := rfl
+    (lowerMark (h := h) s u).x i = 1 := rfl
 
 omit [Finite C] [Finite V] in
 /-- **The graph-type marking is the Fox lift of its two halves.** -/
 theorem hessMark_eq_foxLift {h : ℕ} (s u : C) (vv : Fin (2 + 2 * h + 1) → V) :
     Certificates.hessMark s u vv
-      = fun g => wlEquiv (foxLift (⇑(coreMark (h := h) s u)) (hessOffsets vv) g) := by
+      = fun g => wlEquiv (foxLift (⇑(lowerMark (h := h) s u)) (hessOffsets vv) g) := by
   funext g
   cases g with
   | sigma => rfl
@@ -91,11 +202,11 @@ theorem hessMark_eq_foxLift {h : ℕ} (s u : C) (vv : Fin (2 + 2 * h + 1) → V)
 theorem evalFin_hessMark_fst {h : ℕ} (s u : C) (vv : Fin (2 + 2 * h + 1) → V)
     (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (w : PWord (Generator (2 + 2 * h))) :
     (PWord.evalFin (Certificates.hessMark s u vv) E E₂ w).1
-      = foxD (⇑(coreMark (h := h) s u)) (hessOffsets vv) E E₂ w := by
+      = foxD (⇑(lowerMark (h := h) s u)) (hessOffsets vv) E E₂ w := by
   rw [hessMark_eq_foxLift s u vv, foxD_def, foxEval_def]
   exact congrArg Prod.fst
     (PWord.map_evalFin (wlEquiv : WordLift V C ≃* SemiProd C V).toMonoidHom
-      (foxLift (⇑(coreMark (h := h) s u)) (hessOffsets vv)) E E₂ w).symm
+      (foxLift (⇑(lowerMark (h := h) s u)) (hessOffsets vv)) E E₂ w).symm
 
 end Register
 
@@ -366,7 +477,7 @@ variable {h : ℕ} (s u : C) (vv : Fin (2 + 2 * h + 1) → V) (E : Zhat → ℤ)
 
 omit [Finite C] [Finite V] in
 /-- `Ĉ₀ = σ₂^s` and `C₀ = x₂σ₂^s` have the **same** value: the boundary letter is trivial. -/
-theorem evalFin_c0HatW_eq (hv2 : vv (coreIdx h 2) = 0) (s' : ℕ) :
+theorem evalFin_c0HatW_eq_c0W (hv2 : vv (coreIdx h 2) = 0) (s' : ℕ) :
     PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (c0HatW h s')
       = PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (c0W h s') := by
   rw [c0W, MCompact.evalFin_prodList_pair, PWord.evalFin_gen, hessLift_coreLetter, hv2,
@@ -385,7 +496,7 @@ theorem evalFin_aHatW_eq (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
     PWord.evalFin_inv, PWord.evalFin_inv, PWord.evalFin_zpow, PWord.evalFin_zpow,
     PWord.evalFin_gen, hessLift_coreLetter,
     evalFin_dW dat hdat hV2 s u hu hVu vv E E₂ 0,
-    evalFin_c0HatW_eq dat hdat s u vv E E₂ hv2 s',
+    evalFin_c0HatW_eq_c0W dat hdat s u vv E E₂ hv2 s',
     hessSlice_inv dat hdat hV2, hessSlice_inv dat hdat hV2, zero_add,
     show NpcJet.powCharge dat u (vv (coreIdx h 0)) (orderOf u)
         + q (vv (coreIdx h 0)) + q (vv (coreIdx h 0))
@@ -466,7 +577,7 @@ theorem evalFin_mpcHatW_eq_mpcLinW (hV2 : ∀ v : V, v + v = 0) (hu : Odd (order
   rw [evalFin_e2W_one dat hdat s u vv E E₂ hV2 hu hVu hv2, mul_one,
     evalFin_aHatW_eq dat hdat s u vv E E₂ hV2 hu hVu hv2,
     evalFin_bHatW_eq dat hdat s u vv E E₂ hV2 hu hVu,
-    evalFin_c0HatW_eq dat hdat s u vv E E₂ hv2,
+    evalFin_c0HatW_eq_c0W dat hdat s u vv E E₂ hv2,
     zpow_natCast, zpow_natCast, sq_mul_incl, ← zpow_natCast, ← zpow_natCast,
     commR_mul_central_left _ _ _ (fun z => incl_commute _ z),
     commR_mul_central_right _ _ _ (fun z => incl_commute _ z)]
@@ -530,11 +641,11 @@ register bridge: the row is supported on the `x₂`-column alone, and the gate-E
 theorem base_fst_mpcLinW (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
     (hVu : ∀ v : V, u • v = v → v = 0) (hv2 : vv (coreIdx h 2) = 0)
     {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay} {nη : ℤ}
-    (hη : ActsAsPow (coreMark (h := h) s u).σ nη
-      (PWord.evalFin ⇑(coreMark (h := h) s u) E E₂ (η.toPWord (n := 2 + 2 * h))) V) :
+    (hη : ActsAsPow (lowerMark (h := h) s u).σ nη
+      (PWord.evalFin ⇑(lowerMark (h := h) s u) E E₂ (η.toPWord (n := 2 + 2 * h))) V) :
     (PWord.evalFin (Certificates.hessMark s u vv) E E₂ (mpcLinW α r pp η h)).1 = 0 := by
   rw [evalFin_hessMark_fst s u vv E E₂,
-    foxD_mpcLinW_x2 (coreMark (h := h) s u) E E₂ (hessOffsets vv) rfl
+    foxD_mpcLinW_x2 (lowerMark (h := h) s u) E E₂ (hessOffsets vv) rfl
       (fun i w => by rw [coreMark_x]; exact one_smul _ _) hVu
       (fun w => by rw [coreMark_tau, powOmega2_eq_one_of_odd hu]; exact one_smul _ _)
       hα r pp hη hV2,
@@ -549,8 +660,8 @@ is §6's literal equality. -/
 theorem fib_mpcLinW_mul_mpcHatW (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
     (hVu : ∀ v : V, u • v = v → v = 0) (hv2 : vv (coreIdx h 2) = 0)
     {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay} {nη : ℤ}
-    (hη : ActsAsPow (coreMark (h := h) s u).σ nη
-      (PWord.evalFin ⇑(coreMark (h := h) s u) E E₂ (η.toPWord (n := 2 + 2 * h))) V) :
+    (hη : ActsAsPow (lowerMark (h := h) s u).σ nη
+      (PWord.evalFin ⇑(lowerMark (h := h) s u) E E₂ (η.toPWord (n := 2 + 2 * h))) V) :
     WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
         (PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (mpcLinW α r pp η h)
           * PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (mpcHatW α r pp η h))
@@ -572,8 +683,8 @@ plus block survives (§5). -/
 theorem mpc_cross_operators (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
     (hVu : ∀ v : V, u • v = v → v = 0) (hv2 : vv (coreIdx h 2) = 0)
     {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay} {nη : ℤ}
-    (hη : ActsAsPow (coreMark (h := h) s u).σ nη
-      (PWord.evalFin ⇑(coreMark (h := h) s u) E E₂ (η.toPWord (n := 2 + 2 * h))) V) :
+    (hη : ActsAsPow (lowerMark (h := h) s u).σ nη
+      (PWord.evalFin ⇑(lowerMark (h := h) s u) E E₂ (η.toPWord (n := 2 + 2 * h))) V) :
     WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
         (PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (mpcLinW α r pp η h)
             * PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (mpcHatW α r pp η h)
@@ -591,8 +702,8 @@ theorem mpc_cross_operators (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
 theorem evalFin_fib_mpcW (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
     (hVu : ∀ v : V, u • v = v → v = 0) (c₀ c₁ : V)
     {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay} {nη : ℤ}
-    (hη : ActsAsPow (coreMark (h := 0) s u).σ nη
-      (PWord.evalFin ⇑(coreMark (h := 0) s u) E E₂ (η.toPWord (n := 2 + 2 * 0))) V) :
+    (hη : ActsAsPow (lowerMark (h := 0) s u).σ nη
+      (PWord.evalFin ⇑(lowerMark (h := 0) s u) E E₂ (η.toPWord (n := 2 + 2 * 0))) V) :
     WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
         (PWord.evalFin (hessLift dat hdat (h := 0) s u ![c₀, c₁, 0]) E E₂ (mpcW α r pp η 0))
       = plusFormD q q (c₀, c₁) := by
@@ -602,5 +713,102 @@ theorem evalFin_fib_mpcW (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
   rfl
 
 end Jet
+
+
+/-! ## §8. `hessRelZ`, WW4 gap item 5, and the `√−10` instance (merge gate 9) -/
+
+section Target
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+  [Finite C] [Finite V] (s u : C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- **The word-side Hessian equation for the procyclic-`M` row.**
+
+The `hessRelZ` (resolver-driven) form of the jet theorem.  The single hypothesis separating the
+two registers is WMP-c's own `ResolverLifts` — the standing "resolvers correct at the lift level"
+discipline — and nothing else: unlike the procyclic-`N` row this row needs no `ResolvedAt`. -/
+theorem hessRelZ_mpcW (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (c₀ c₁ : V)
+    {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay} {nη : ℤ}
+    (hη : ActsAsPow (lowerMark (h := 0) s u).σ nη
+      (PWord.evalFin ⇑(lowerMark (h := 0) s u) E E₂ (η.toPWord (n := 2 + 2 * 0))) V)
+    (hres : ResolverLifts E (WordCoh.CentExt (kappa0Cocycle dat hdat))) :
+    hessRelZ (Certificates.hessMark (h := 0) s u ![c₀, c₁, 0]) (kappa0Cocycle dat hdat) E E₂
+        (mpcW α r pp η 0)
+      = plusFormD q q (c₀, c₁) := by
+  rw [hessRelZ, hessEvalZ, evalZ_eq_evalFin_of_resolverLifts hres]
+  exact evalFin_fib_mpcW dat hdat s u E E₂ hV2 hu hVu c₀ c₁ hα r pp hη
+
+/-- **WW4 gap item 5, DISCHARGED on the procyclic-`M` row** — WW6's `mpcHessRelZTarget`, at the
+diagonal `d₀` **pinned to `q`**.
+
+The pinning is a *consequence* of the jet computation, not an input: the plus block's two laws
+(the slice square law and the slice commutator law) are both charge-free, so the δ-letters'
+`TwistedClass2Domain` charges cancel and the surviving diagonal is `q = fun v ↦ dat.f v v`
+(`f_diag`) — the compact rows' spelling after all. -/
+theorem mpc_hessRelZTarget (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (c₀ c₁ : V)
+    {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay} {nη : ℤ}
+    (hη : ActsAsPow (lowerMark (h := 0) s u).σ nη
+      (PWord.evalFin ⇑(lowerMark (h := 0) s u) E E₂ (η.toPWord (n := 2 + 2 * 0))) V)
+    (hres : ResolverLifts E (WordCoh.CentExt (kappa0Cocycle dat hdat))) :
+    NpcBridge.mpcHessRelZTarget dat hdat q s u c₀ c₁ α r pp η E E₂ := by
+  rw [NpcBridge.mpcHessRelZTarget_iff,
+    hessRelZ_mpcW dat hdat s u E E₂ hV2 hu hVu c₀ c₁ hα r pp hη hres, plusFormD_apply]
+
+/-- **The honest profinite reading.**  At an `ω₂`-only `η`-display the genuine `Marking.eval`
+value has the same fibre — WW6's resolver-immunity (`mpc_eval_eq_hessRelZ`) consumed at the
+jet theorem. -/
+theorem mpc_hess_eval (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (c₀ c₁ : V)
+    {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay} {nη : ℤ} (hη2 : η.IsOmega2Only)
+    (hη : ActsAsPow (lowerMark (h := 0) s u).σ nη
+      (PWord.evalFin ⇑(lowerMark (h := 0) s u) E E₂ (η.toPWord (n := 2 + 2 * 0))) V)
+    (hres : ResolverLifts E (WordCoh.CentExt (kappa0Cocycle dat hdat))) :
+    WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
+        ((Marking.mk (WordCoh.lift (Certificates.hessMark (h := 0) s u ![c₀, c₁, 0])
+          (kappa0Cocycle dat hdat))).eval (mpcW α r pp η 0))
+      = plusFormD q q (c₀, c₁) := by
+  rw [NpcBridge.mpc_eval_eq_hessRelZ dat hdat s u c₀ c₁ α r pp hη2 E E₂
+      (fun x => by rw [zpowHat_omega2, hres x])]
+  exact hessRelZ_mpcW dat hdat s u E E₂ hV2 hu hVu c₀ c₁ hα r pp hη hres
+
+/-! ### Merge gate 9 — the `ℚ₂(√−10)` row at second order
+
+`(α, r, p, η, h) = (2, 1, 1, .one, 0)`.  WMP-d closed the gate at the Fox level
+(`sqrtNeg10ProductRowCert`'s last input); this is the second-order counterpart, with the
+`η`-datum definitional rather than hypothetical (`actsAsPow_etaOne`). -/
+
+/-- **The `√−10` jet value**: the gate-9 word's evaluated Hessian is the plus form. -/
+theorem sqrtNeg10_hessRelZ (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (c₀ c₁ : V)
+    (hres : ResolverLifts E (WordCoh.CentExt (kappa0Cocycle dat hdat))) :
+    hessRelZ (Certificates.hessMark (h := 0) s u ![c₀, c₁, 0]) (kappa0Cocycle dat hdat) E E₂
+        (mpcW 2 1 1 .one 0)
+      = plusFormD q q (c₀, c₁) :=
+  hessRelZ_mpcW dat hdat s u E E₂ hV2 hu hVu c₀ c₁ (by norm_num) 1 1
+    (actsAsPow_etaOne (lowerMark (h := 0) s u) E E₂) hres
+
+/-- **Merge gate 9's second-order row, discharged.** -/
+theorem sqrtNeg10_hessRelZTarget (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (c₀ c₁ : V)
+    (hres : ResolverLifts E (WordCoh.CentExt (kappa0Cocycle dat hdat))) :
+    NpcBridge.mpcHessRelZTarget dat hdat q s u c₀ c₁ 2 1 1 .one E E₂ :=
+  mpc_hessRelZTarget dat hdat s u E E₂ hV2 hu hVu c₀ c₁ (by norm_num) 1 1
+    (actsAsPow_etaOne (lowerMark (h := 0) s u) E E₂) hres
+
+/-- **The `√−10` word's evaluated Hessian, as a function of the offsets, IS the endpoint
+polynomial** of `mpcHessianCertificate` at `d₀ = q` — the identity-CoV connection, functionally.
+This is the shape `nCompact_word_eq_certQ` has on the compact-`N` row. -/
+theorem sqrtNeg10_word_eq_certQ (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0)
+    (hres : ResolverLifts E (WordCoh.CentExt (kappa0Cocycle dat hdat))) :
+    (fun p : V × V => hessRelZ (Certificates.hessMark (h := 0) s u ![p.1, p.2, 0])
+        (kappa0Cocycle dat hdat) E E₂ (mpcW 2 1 1 .one 0))
+      = plusFormD q q :=
+  funext fun p => sqrtNeg10_hessRelZ dat hdat s u E E₂ hV2 hu hVu p.1 p.2 hres
+
+end Target
 
 end GQ2.Dyadic.Certificates.MpcJet
