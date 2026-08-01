@@ -89,6 +89,10 @@ noncomputable def ofQ2F : ContinuousMonoidHom ((FreeProfiniteGroup (Fin 4)) : Ty
     ofQ2F (FreeProfiniteGroup.of i) = FreeProfiniteGroup.of (finToGen i) :=
   FreeProfiniteGroup.homEquiv_symm_of _ _ _
 
+@[simp] theorem coe_toQ2F_toMonoidHom : ⇑toQ2F.toMonoidHom = ⇑toQ2F := rfl
+
+@[simp] theorem coe_ofQ2F_toMonoidHom : ⇑ofQ2F.toMonoidHom = ⇑ofQ2F := rfl
+
 @[simp] theorem ofQ2F_toQ2F (w : ((FreeProfiniteGroup (Generator 1)) : Type)) :
     ofQ2F (toQ2F w) = w := by
   rw [show ofQ2F (toQ2F w) = (toQ2Free ≫ ofQ2Free) w from rfl, ofQ2Free_comp_toQ2Free,
@@ -199,5 +203,93 @@ theorem isAdmissibleU_iff_isAdmissibleUR
   rw [htame, hwild, hcore]
   exact ⟨fun h => ⟨generates_univMarking_map V, h.1.1, h.1.2, h.2⟩,
     fun h => ⟨⟨h.2.1, h.2.2.1⟩, h.2.2.2⟩⟩
+
+/-! ## §4 `N_R` at `n = 1` is Roe's `N_R`, and `Γ_R` at `n = 1` is Roe's `Γ_R` -/
+
+/-- Pull an open normal subgroup of `F₄` back along the alphabet transport. -/
+noncomputable def comapON (V : OpenNormalSubgroup ((FreeProfiniteGroup (Fin 4)) : Type)) :
+    OpenNormalSubgroup ((FreeProfiniteGroup (Generator 1)) : Type) where
+  toSubgroup := Subgroup.comap toQ2F.toMonoidHom V.toSubgroup
+  isOpen' := V.toOpenSubgroup.isOpen.preimage toQ2F.continuous_toFun
+  isNormal' := V.isNormal'.comap _
+
+/-- …and push one forward, i.e. pull back along the inverse transport. -/
+noncomputable def comapON' (U : OpenNormalSubgroup ((FreeProfiniteGroup (Generator 1)) : Type)) :
+    OpenNormalSubgroup ((FreeProfiniteGroup (Fin 4)) : Type) where
+  toSubgroup := Subgroup.comap ofQ2F.toMonoidHom U.toSubgroup
+  isOpen' := U.toOpenSubgroup.isOpen.preimage ofQ2F.continuous_toFun
+  isNormal' := U.isNormal'.comap _
+
+/-- **`N_R` at `n = 1` is the pullback of Roe's `N_R`.**  Both are intersections over the
+admissible family, and §3 matches the families letter for letter. -/
+theorem NR_eq_comap : NR 1 2 (lSqW 0) = Subgroup.comap toQ2F.toMonoidHom GQ2.NR := by
+  refine le_antisymm (fun x hx => ?_) (fun x hx => ?_)
+  · rw [Subgroup.mem_comap, GQ2.NR, Subgroup.mem_iInf]
+    rintro ⟨V, hV⟩
+    exact NR_le_of_isAdmissibleU
+      ((isAdmissibleU_iff_isAdmissibleUR (comapON V) V fun _ => Iff.rfl).mpr hV) hx
+  · rw [Subgroup.mem_comap] at hx
+    rw [NR, Subgroup.mem_iInf]
+    rintro ⟨U, hU⟩
+    have hV : GQ2.IsAdmissibleUR (comapON' U) :=
+      (isAdmissibleU_iff_isAdmissibleUR U (comapON' U) fun w => by
+        show _ ↔ ofQ2F.toMonoidHom (toQ2F w) ∈ U.toSubgroup
+        simp).mp hU
+    have h := (GQ2.isAdmissibleUR_iff_NR_le _).mp hV hx
+    rw [show (comapON' U).toSubgroup = Subgroup.comap ofQ2F.toMonoidHom U.toSubgroup from rfl,
+      Subgroup.mem_comap] at h
+    simpa using h
+
+/-- **The `n = 1` candidate group maps to Roe's `Γ_R`.** -/
+noncomputable def toRoe :
+    ContinuousMonoidHom ((GammaR 1 2 (lSqW 0)) : Type) ((GQ2.GammaR) : Type) :=
+  quotientLift (NR 1 2 (lSqW 0)) ((quotientMk GQ2.NR).comp toQ2F) fun x hx => by
+    rw [MonoidHom.mem_ker]
+    show quotientMk GQ2.NR (toQ2F x) = 1
+    rw [quotientMk_eq_one_iff]
+    rw [NR_eq_comap, Subgroup.mem_comap] at hx
+    exact hx
+
+/-- …and back. -/
+noncomputable def fromRoe :
+    ContinuousMonoidHom ((GQ2.GammaR) : Type) ((GammaR 1 2 (lSqW 0)) : Type) :=
+  quotientLift GQ2.NR ((quotientMk (NR 1 2 (lSqW 0))).comp ofQ2F) fun y hy => by
+    rw [MonoidHom.mem_ker]
+    show quotientMk (NR 1 2 (lSqW 0)) (ofQ2F y) = 1
+    rw [quotientMk_eq_one_iff, NR_eq_comap, Subgroup.mem_comap]
+    simpa using hy
+
+@[simp] theorem toRoe_gammaMk (w : ((FreeProfiniteGroup (Generator 1)) : Type)) :
+    toRoe (gammaMk 1 2 (lSqW 0) w) = quotientMk GQ2.NR (toQ2F w) := rfl
+
+@[simp] theorem fromRoe_quotientMk (w : ((FreeProfiniteGroup (Fin 4)) : Type)) :
+    fromRoe (quotientMk GQ2.NR w) = gammaMk 1 2 (lSqW 0) (ofQ2F w) := rfl
+
+theorem fromRoe_toRoe (g : ((GammaR 1 2 (lSqW 0)) : Type)) : fromRoe (toRoe g) = g := by
+  obtain ⟨w, rfl⟩ := gammaMk_surjective 1 2 (lSqW 0) g
+  rw [toRoe_gammaMk, fromRoe_quotientMk, ofQ2F_toQ2F]
+
+theorem toRoe_fromRoe (g : ((GQ2.GammaR) : Type)) : toRoe (fromRoe g) = g := by
+  obtain ⟨w, rfl⟩ := quotientMk_surjective GQ2.NR g
+  rw [fromRoe_quotientMk, toRoe_gammaMk, toQ2F_ofQ2F]
+
+/-- **AS4's core identification: at `n = 1` the L-word candidate group *is* Roe's `Γ_R`.**
+
+`candidateGroup 1 2 (L_sq) = ⟨σ, τ, x₀, x₁ ∣ τ^σ = τ², R^{sq}_{L,1} = 1, ⟪x₀,x₁⟫ pro-2⟩_prof`
+(F3's `GammaR` at `n = 1`, `q = q_{ℚ₂} = 2`, `R = lSqW 0`) is `GQ2.GammaR`, the note's
+Definition 1.1 object, as topological groups.
+
+Nothing here is a re-derivation: the whole content is §3's admissibility match, whose only
+non-formal input is WL-a's `eval_lSqW_zero` (the frozen `L_sq` tree denotes
+`Marking.wildRelatorR`). -/
+noncomputable def gammaR_lSq_equiv_roe :
+    ContinuousMulEquiv ((GammaR 1 2 (lSqW 0)) : Type) ((GQ2.GammaR) : Type) where
+  toFun := toRoe
+  invFun := fromRoe
+  left_inv := fromRoe_toRoe
+  right_inv := toRoe_fromRoe
+  map_mul' := map_mul toRoe
+  continuous_toFun := toRoe.continuous_toFun
+  continuous_invFun := fromRoe.continuous_toFun
 
 end GQ2.Dyadic.QTwo
