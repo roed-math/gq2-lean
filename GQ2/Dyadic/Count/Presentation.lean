@@ -29,7 +29,7 @@ images of the wild letters is a `2`-group.  That property is CB-1's with (iii) w
 
 ## What this file lands
 
-* **§1** `wildLetters n = {x₀, …, x_n} ⊆ Generator n`, the distinguished subset `J` that
+* **§1** `wildAlphabet n = {x₀, …, x_n} ⊆ Generator n`, the distinguished subset `J` that
   instantiates the restricted class, and its two image lemmas (one of which identifies
   `AdmissibleR.wildFree n` as its image upstairs).
 * **§2** `freeToProf`, the canonical `FreeGroup X →* F(X)`, and `comp_freeToProf` — the *word*
@@ -94,23 +94,27 @@ variable {n : ℕ}
 
 /-- The **wild letters** `{x₀, …, x_n}` of `Generator n`, as a subset — the value of the
 `IsAdmissibleMarkedPresentation` parameter `J` for every branch of the campaign. -/
-def wildLetters (n : ℕ) : Set (Generator n) := Set.range (Generator.wild (n := n))
+/- ORCHESTRATOR RENAME 2026-08-01: this was `wildLetters`, which collides with
+`Count/Wild.lean`'s `wildLetters (n q R) : Set (GammaR n q R)` — a genuinely different
+object (group elements, not alphabet letters).  Renamed here because this file's notion is
+the distinguished ALPHABET subset `J`; CB-W's keeps the old name. -/
+def wildAlphabet (n : ℕ) : Set (Generator n) := Set.range (Generator.wild (n := n))
 
-theorem wild_mem_wildLetters (i : Fin (n + 1)) : Generator.wild i ∈ wildLetters n := ⟨i, rfl⟩
+theorem wild_mem_wildAlphabet (i : Fin (n + 1)) : Generator.wild i ∈ wildAlphabet n := ⟨i, rfl⟩
 
 /-- The image of the wild block under any marking is the range of its wild values.  This is the
 shape every `IsPGroup` statement about `J` is really about. -/
-theorem image_wildLetters {G : Type*} (f : Generator n → G) :
-    f '' wildLetters n = Set.range fun i : Fin (n + 1) => f (Generator.wild i) := by
-  rw [wildLetters, ← Set.range_comp]
+theorem image_wildAlphabet {G : Type*} (f : Generator n → G) :
+    f '' wildAlphabet n = Set.range fun i : Fin (n + 1) => f (Generator.wild i) := by
+  rw [wildAlphabet, ← Set.range_comp]
   rfl
 
 /-- `AdmissibleR.wildFree n` — the wild letters upstairs in `F`, which is what
-`IsAdmissibleU`'s pro-`2` clause is stated about — is the image of `wildLetters n` under the
+`IsAdmissibleU`'s pro-`2` clause is stated about — is the image of `wildAlphabet n` under the
 tautological marking. -/
-theorem image_wildLetters_of :
-    (FreeProfiniteGroup.of (X := Generator n)) '' wildLetters n = wildFree n :=
-  image_wildLetters _
+theorem image_wildAlphabet_of :
+    (FreeProfiniteGroup.of (X := Generator n)) '' wildAlphabet n = wildFree n :=
+  image_wildAlphabet _
 
 end WildLetters
 
@@ -238,7 +242,7 @@ markings clause (iii) would have to extend and cannot. -/
 theorem isAdmissibleMarkedPresentation_gammaR (n q : ℕ) (R : PWord (Generator n))
     {w : κ → FreeGroup (Generator n)} (hres : ResolvesGammaRelators n q R w) :
     IsAdmissibleMarkedPresentation ((GammaR n q R) : Type) (gammaGen n q R) w
-      (wildLetters n) where
+      (wildAlphabet n) where
   gen_top := gammaGen_topGen n q R
   rel k := lift_gammaGen_eq_one (hres.fam_mem k)
   extend := by
@@ -266,12 +270,12 @@ theorem isAdmissibleMarkedPresentation_gammaR (n q : ℕ) (R : PWord (Generator 
     have hrel : ∀ r ∈ gammaRelators n q R, φ r = 1 := fun r hr =>
       MonoidHom.mem_ker.mp (hker (hres.rel_mem r hr))
     -- the wild-`2` clause of `gammaLift`, from the restricted clause's own hypothesis
-    have himg : ⇑φ.toMonoidHom '' wildFree n = f '' wildLetters n := by
-      rw [← image_wildLetters_of, ← Set.image_comp,
+    have himg : ⇑φ.toMonoidHom '' wildFree n = f '' wildAlphabet n := by
+      rw [← image_wildAlphabet_of, ← Set.image_comp,
         show ⇑φ.toMonoidHom ∘ (FreeProfiniteGroup.of (X := Generator n)) = f from hφfun]
-    have hw2' : IsPGroup 2 (Subgroup.normalClosure (f '' wildLetters n)) := hw2
+    have hw2' : IsPGroup 2 (Subgroup.normalClosure (f '' wildAlphabet n)) := hw2
     have hle : (Subgroup.normalClosure (wildFree n)).map φ.toMonoidHom
-        ≤ Subgroup.normalClosure (f '' wildLetters n) :=
+        ≤ Subgroup.normalClosure (f '' wildAlphabet n) :=
       (Subgroup.map_normalClosure_le _ _).trans (le_of_eq (congrArg Subgroup.normalClosure himg))
     have hcore : ∀ V : OpenNormalSubgroup Q, IsPGroup 2 ((Subgroup.normalClosure (wildFree n)).map
         ((QuotientGroup.mk' V.toSubgroup).comp φ.toMonoidHom)) := by
@@ -299,7 +303,7 @@ variable {n q : ℕ} {R : PWord (Generator n)} {Q : Type} [Group Q] [Topological
 the `hwild2` argument of `z1Equiv`, `tcocycle_cardN` and `hZcardN`. -/
 theorem isWildTwo_gammaGen_of_surjective (rho : ContinuousMonoidHom ((GammaR n q R) : Type) Q)
     (hsurj : Function.Surjective rho) :
-    IsWildTwo (wildLetters n) fun g => rho (gammaGen n q R g) := by
+    IsWildTwo (wildAlphabet n) fun g => rho (gammaGen n q R g) := by
   -- `ker ρ`, as an open normal subgroup of `Γ_R`
   have hopen : IsOpen ((rho.toMonoidHom.ker : Subgroup _) : Set ((GammaR n q R) : Type)) :=
     (isOpen_discrete ({1} : Set Q)).preimage rho.continuous_toFun
@@ -316,11 +320,11 @@ theorem isWildTwo_gammaGen_of_surjective (rho : ContinuousMonoidHom ((GammaR n q
       (Set.range fun i : Fin (n + 1) => gammaGen n q R (.wild i))).map rho.toMonoidHom) :=
     isPGroup_map_of_ker_le (QuotientGroup.mk' W.toSubgroup) rho.toMonoidHom
       (le_of_eq (QuotientGroup.ker_mk' _)) hquot
-  have hset : (fun g => rho (gammaGen n q R g)) '' wildLetters n
+  have hset : (fun g => rho (gammaGen n q R g)) '' wildAlphabet n
       = ⇑rho.toMonoidHom '' (Set.range fun i : Fin (n + 1) => gammaGen n q R (.wild i)) := by
-    rw [image_wildLetters, ← Set.range_comp]
+    rw [image_wildAlphabet, ← Set.range_comp]
     rfl
-  show IsPGroup 2 (Subgroup.normalClosure ((fun g => rho (gammaGen n q R g)) '' wildLetters n))
+  show IsPGroup 2 (Subgroup.normalClosure ((fun g => rho (gammaGen n q R g)) '' wildAlphabet n))
   rw [hset, ← Subgroup.map_normalClosure _ _ hsurj]
   exact hmap
 
@@ -328,7 +332,7 @@ theorem isWildTwo_gammaGen_of_surjective (rho : ContinuousMonoidHom ((GammaR n q
 their own `hc` hypothesis. -/
 theorem isWildTwo_of_gammaGen {c : Generator n → Q}
     (rho : ContinuousMonoidHom ((GammaR n q R) : Type) Q) (hsurj : Function.Surjective rho)
-    (hc : ∀ g, rho (gammaGen n q R g) = c g) : IsWildTwo (wildLetters n) c := by
+    (hc : ∀ g, rho (gammaGen n q R g) = c g) : IsWildTwo (wildAlphabet n) c := by
   rw [← funext hc]
   exact isWildTwo_gammaGen_of_surjective rho hsurj
 
@@ -372,9 +376,9 @@ theorem not_isPGroup_two_of_mem_zmodThree {H : Subgroup ZmodThree} (hp : IsPGrou
 is admissible — so no such marking is required to extend over `Γ_R`, and CB-W's are all of this
 shape.  Contrast `Count.testHom`, which extends them over `GammaBare`. -/
 theorem not_isWildTwo_zmodThree (f : Generator n → ZmodThree) {i : Fin (n + 1)}
-    (hne : f (Generator.wild i) ≠ 1) : ¬ IsWildTwo (wildLetters n) f := fun hw2 =>
+    (hne : f (Generator.wild i) ≠ 1) : ¬ IsWildTwo (wildAlphabet n) f := fun hw2 =>
   not_isPGroup_two_of_mem_zmodThree hw2
-    (Subgroup.subset_normalClosure ⟨Generator.wild i, wild_mem_wildLetters i, rfl⟩) hne
+    (Subgroup.subset_normalClosure ⟨Generator.wild i, wild_mem_wildAlphabet i, rfl⟩) hne
 
 end NotVacuous
 

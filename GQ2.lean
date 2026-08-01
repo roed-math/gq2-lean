@@ -280,6 +280,7 @@ import GQ2.Dyadic.Count.ProTwo
 import GQ2.Dyadic.Count.Wild
 import GQ2.Dyadic.Count.WildDischarge
 import GQ2.Dyadic.Count.Compare
+import GQ2.Dyadic.Count.Presentation
 import GQ2.Dyadic.TameQuotientK
 import GQ2.Dyadic.TameBoundary
 import GQ2.Dyadic.MarkedCore.Cores
