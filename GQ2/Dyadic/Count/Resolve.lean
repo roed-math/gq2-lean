@@ -252,52 +252,23 @@ theorem resolves_lSqFam (h q e : ℕ) :
   ResolvesGammaRelators.of_two (freeToProf_heisToFree_tameRelWord _ q _ _)
     (freeToProf_heisToFree_resolveWord _ _ _)
 
-/-! ### The payoff: CB-MP's instance with no hypotheses left
+/-! ### The payoff block is RETIRED (orchestrator, 2026-08-01, ticket CB-TR)
 
-`Count.isAdmissibleMarkedPresentation_gammaR` had exactly one hypothesis.  At the resolved
-relator it has none — these five are what a branch quotes in place of the `hres` argument of
-`sqrtNegTwo_tcocycle_card_gammaR` and `sqrtNegTwo_hZcard_gammaR`. -/
+Five corollaries stood here — `isAdmissible_gammaR_{nCompact, npc, mCompact, mpc, lSq}` at the
+**resolved** relator, i.e. `CB-MP`'s instance discharged for `Γ_{resolveWord e R}`.
 
-/-- **Compact `N`.** -/
-theorem isAdmissible_gammaR_nCompact (α h q e : ℕ) :
-    IsAdmissibleMarkedPresentation
-      ((GammaR (2 + 2 * h) q (resolvedRelator e (Words.nCompactW α h))) : Type)
-      (gammaGen (2 + 2 * h) q (resolvedRelator e (Words.nCompactW α h)))
-      (Certificates.nCompactFam α h q e) (wildAlphabet (2 + 2 * h)) :=
-  isAdmissibleMarkedPresentation_gammaR _ _ _ (resolves_nCompactFam α h q e)
+They have been deleted, and that is the correct outcome rather than a loss: they asserted a
+presentation property of `Γ_{resolveWord e R}`, which **§7/§8 of this very file prove is not
+`Γ_R`**.  CB-TR reformulated the presentation interface so that clause (ii)/(iii) read the
+intrinsic `PWord` relators *at each finite discrete target*, choosing the resolver per target —
+which is what `ω₂` actually is.  The replacements live at the **intrinsic** branch words in
+`GQ2/Dyadic/Count/Frozen.lean` §1, and are hypothesis-free.
 
-/-- **Procyclic `N`.** -/
-theorem isAdmissible_gammaR_npc (α r h q e : ℕ) (d : EtaData) :
-    IsAdmissibleMarkedPresentation
-      ((GammaR (2 + 2 * h) q (resolvedRelator e (Words.Npc.npcW α r h d))) : Type)
-      (gammaGen (2 + 2 * h) q (resolvedRelator e (Words.Npc.npcW α r h d)))
-      (Certificates.Npc.npcFam α r h q e d) (wildAlphabet (2 + 2 * h)) :=
-  isAdmissibleMarkedPresentation_gammaR _ _ _ (resolves_npcFam α r h q e d)
-
-/-- **Compact `M`.** -/
-theorem isAdmissible_gammaR_mCompact (α h q e : ℕ) :
-    IsAdmissibleMarkedPresentation
-      ((GammaR (2 + 2 * h) q (resolvedRelator e (Words.MCompact.mCompactW α h))) : Type)
-      (gammaGen (2 + 2 * h) q (resolvedRelator e (Words.MCompact.mCompactW α h)))
-      (Certificates.MCompact.mCompactFam α h q e) (wildAlphabet (2 + 2 * h)) :=
-  isAdmissibleMarkedPresentation_gammaR _ _ _ (resolves_mCompactFam α h q e)
-
-/-- **Procyclic `M`.** -/
-theorem isAdmissible_gammaR_mpc (α r pp h q e : ℕ) (η : Words.Mpc.EtaDisplay) :
-    IsAdmissibleMarkedPresentation
-      ((GammaR (2 + 2 * h) q (resolvedRelator e (Words.Mpc.mpcW α r pp η h))) : Type)
-      (gammaGen (2 + 2 * h) q (resolvedRelator e (Words.Mpc.mpcW α r pp η h)))
-      (Certificates.MProcyclic.mpcFam α r pp h q e η) (wildAlphabet (2 + 2 * h)) :=
-  isAdmissibleMarkedPresentation_gammaR _ _ _ (resolves_mpcFam α r pp h q e η)
-
-/-- **`L_sq`.** -/
-theorem isAdmissible_gammaR_lSq (h q e : ℕ) :
-    IsAdmissibleMarkedPresentation
-      ((GammaR (2 * h + 1) q (resolvedRelator e (Words.LSq.lSqW h))) : Type)
-      (gammaGen (2 * h + 1) q (resolvedRelator e (Words.LSq.lSqW h)))
-      (Certificates.LSqStokes.lSqFam h q e) (wildAlphabet (2 * h + 1)) :=
-  isAdmissibleMarkedPresentation_gammaR _ _ _ (resolves_lSqFam h q e)
-
+Everything else in this file stands and is load-bearing.  §5's `zpowHat_omega2_ne_zpow` — no
+integer resolves `ω₂` in a free profinite group — is *why* the interface must quantify over
+targets; §7's frozen refutations and §8's `lift_gammaGen_nCompactFam_ne_one` are now the
+**sharpness statement** for `Count.resolvesAt_nCompactFam_three`, exhibiting targets (`ℤ/8`,
+`ℤ/4`, `ℤ/3`) outside "exponent divides 6" where the frozen `e = 3` provably fails. -/
 end FrozenResolved
 
 /-! ## §4 Cyclic characters of the free profinite group
