@@ -728,4 +728,56 @@ theorem sqrtNegTwo_tcocycle_card {gen : Generator 2 → Γ} {t : Marking 2 (Bg �
 
 end N0
 
+/-! ### The `V`-side twin at N0
+
+Same branch, same degree bookkeeping, the other field.  Stated over the abstract acting group `E`
+(at the recursion `E = RF.YC`), so it composes with §7 exactly as the `T`-side does with §5. -/
+
+section N0V
+
+open GQ2.Dyadic.Certificates
+
+variable {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {D : RadicalCoverData Bg} {DD : DescData D}
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  {E : Type} [Group E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod]
+  [DistribMulAction E DD.Vmod] [DistribMulAction Γ DD.Vmod]
+  [TopologicalSpace (WordLift DD.Vmod E)] [DiscreteTopology (WordLift DD.Vmod E)]
+
+/-- **The `V`-cocycle count at branch N0**: `#Z¹(V) = #V · SN.h1Mult #V` for
+`SN = standardNumerics (2h + 2)`. -/
+theorem nCompact_hZcard {α h q e : ℕ} {gen : Generator (2 + 2 * h) → Γ}
+    {t : Marking (2 + 2 * h) E} {rho : ContinuousMonoidHom Γ (Bg ⧸ D.M)}
+    (theta : ContinuousMonoidHom Γ E)
+    (hround : ∀ (γ : Γ) (v : DD.Vmod), rho0 DD rho γ • v = theta γ • v)
+    (hact : ∀ (γ : Γ) (v : DD.Vmod), γ • v = theta γ • v)
+    (hc : ∀ i, theta (gen i) = t i)
+    (hpres : IsMarkedPresentation Γ gen (nCompactFam α h q e))
+    (hsurj : Function.Surjective theta)
+    (hd : StokesDuality (⇑t) (nCompactFam α h q e) DD.Vmod)
+    (hend : IsStokesEndpoint (nCompactFam α h q e))
+    (hsimple : IsSimpleModTwo E DD.Vmod) (hnt : ∃ (g : E) (v : DD.Vmod), g • v ≠ v) :
+    Nat.card (VCocycle DD rho)
+      = Nat.card DD.Vmod * (standardNumerics (2 * h + 2)).h1Mult (Nat.card DD.Vmod) :=
+  hZcardN theta hround hact hc hpres hsurj (nCompact_degree h) hd hend hsimple hnt
+
+/-- **The `√−2` pilot, `V`-side**: the `SourceDataN.hZcard` field value for AS2's branch at
+`n = 2`, so `h1Mult V = V²` and the count is `#V³` — the degree-`2` replacement for the frozen
+`ℚ₂` `#V · #V`. -/
+theorem sqrtNegTwo_hZcard {gen : Generator 2 → Γ} {t : Marking 2 E}
+    {rho : ContinuousMonoidHom Γ (Bg ⧸ D.M)} (theta : ContinuousMonoidHom Γ E)
+    (hround : ∀ (γ : Γ) (v : DD.Vmod), rho0 DD rho γ • v = theta γ • v)
+    (hact : ∀ (γ : Γ) (v : DD.Vmod), γ • v = theta γ • v)
+    (hc : ∀ i, theta (gen i) = t i)
+    (hpres : IsMarkedPresentation Γ gen (nCompactFam 2 0 2 3))
+    (hsurj : Function.Surjective theta)
+    (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 3) DD.Vmod)
+    (hsimple : IsSimpleModTwo E DD.Vmod) (hnt : ∃ (g : E) (v : DD.Vmod), g • v ≠ v) :
+    Nat.card (VCocycle DD rho)
+      = Nat.card DD.Vmod * (standardNumerics 2).h1Mult (Nat.card DD.Vmod) :=
+  nCompact_hZcard theta hround hact hc hpres hsurj hd sqrtNegTwo_isStokesEndpoint hsimple hnt
+
+end N0V
+
 end GQ2.Dyadic.Count
