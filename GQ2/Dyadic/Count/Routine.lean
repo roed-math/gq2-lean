@@ -24,7 +24,7 @@ routine group, generically where it is generic:
 | `tfg` | **CLOSED generically** (§3) |
 | `smulZmod2`, `contSMulZmod2`, `htriv` | **CLOSED generically** (§4) |
 | `htame` | **CLOSED generically** (§5) — it is F3's `tameOfSpec_surjective`, free |
-| `hwild` | **OPEN, and NOT routine** — refuted as a generic statement (§6) |
+| `hwild` | **CLOSED generically since ticket GR1** — see the ⚠ note on §6 |
 
 That is **6 of the 17 fields closed** (`tameSpecialization`, `tfg`, `smulZmod2`, `contSMulZmod2`,
 `htriv`, `htame`).  §8 instantiates all of them at the compact-`N`/`√−2` pilot and checks, by
@@ -52,10 +52,15 @@ load-bearing lemma of this file: every branch's `tameSpecialization` factors thr
    therefore built on that hook, not on the value form; the value form is offered as a
    convenience route (`tameSpecializes_of_eval_eq_tau_omega2`) for the three branches that have
    it.  **`Mpc` additionally needs `1 ≤ α`** — no other branch does.
-2. **`hwild` is not routine** (§6).  It is *false* for general `R` satisfying
-   `TameSpecializes`, so no generic proof can exist; `wildPartR_not_isProP_two_of_trivialWord`
-   refutes it outright at `R = 1`.  §6 reduces it to `IsProP 2 (wildPartR n q R)` and hands that
-   to AS2–AS5 as a genuine per-branch obligation.
+2. **`hwild` is not routine** (§6) — *as this file's §6 was originally stated*.  The `R = 1`
+   counterexample below is correct, and CB-W later generalized it to every `R`
+   (`Count/Wild.lean` §4).  ⚠ **Ticket GR1 identified the cause as a defect in the definition of
+   `GammaR`, not in the words**: the campaign's `Γ_R` carries a pro-`2` clause on the wild part
+   as *part of its definition*, and F3's `profinitePresentation (gammaRelators n q R)` omitted
+   it.  With the corrected `GammaR` (`GQ2/Dyadic/AdmissibleR.lean`), `hwild` is a **theorem**
+   (`Count/WildDischarge.lean`), generic in `n`, `q` and `R`, and no branch owes anything.  §6
+   survives verbatim, retargeted to `GammaBare` — the bare two-relator presentation — where it
+   remains true and is the record of why the definition changed.
 
 ## Axiom posture
 
@@ -261,31 +266,35 @@ theorem htame_of_tameSpecializes (hspec : TameSpecializes n q R) :
 
 end Htame
 
-/-! ## §6 `WordCertificate` field 17 — `hwild` is **NOT routine**
+/-! ## §6 The `R = 1` refutation — **at the bare presentation**
 
-⚠ **The finding.**  `hwild : IsProP 2 (tameOfSpec n q R _).toMonoidHom.ker` is *false* for general
-`R` satisfying `TameSpecializes`, so **no generic proof can exist** and CB1's sizing for it (if it
-was ever grouped with the routine four) is wrong.  §6 proves the refutation rather than asserting
-it, so that AS2–AS5 do not spend a lane looking for the generic lemma.
+⚠ **Read this note before reusing §6.**  As originally written, §6 refuted
+`hwild : IsProP 2 (tameOfSpec n q R _).toMonoidHom.ker` at `R = 1`.  The refutation is correct,
+and CB-W generalized it to every `R` (`Count/Wild.lean` §4).  What both were really detecting is
+that the Lean `GammaR` was the **bare** two-relator presentation, while the campaign's `Γ_R`
+carries a pro-`2` clause on the wild part *inside its definition* (plan §1; simplification
+campaign §3: *"a bare two-relator profinite quotient is not interchangeable with this
+definition"*).  Ticket **GR1** corrected the definition, and `hwild` is now a generic theorem
+(`Count/WildDischarge.lean`) — no branch owes anything.
+
+So §6 is retargeted, unchanged in content, to `GammaBare n q R`: the object F3 actually built,
+now named for what it is (`GQ2/Dyadic/AdmissibleR.lean` §6).  It stays because it proves the
+correction was *necessary* — the bare presentation genuinely admits the `ℤ/3` quotient below, so
+no amount of per-branch work could ever have discharged `hwild` over it.
 
 **The witness is the trivial word `R = 1`.**  `TameSpecializes n q 1` holds on the nose, but
-`Γ_1 = ⟨σ, τ, x₀, …, x_n ∣ τ^σ = τ^q⟩` admits the continuous surjection onto `ℤ/3` sending every
-wild letter to a generator and `σ, τ ↦ 1`; the wild letters lie in `ker(tame)`, whose image is
-therefore not a `2`-group.
+`Γ_1^bare = ⟨σ, τ, x₀, …, x_n ∣ τ^σ = τ^q⟩_prof` admits the continuous surjection onto `ℤ/3`
+sending every wild letter to a generator and `σ, τ ↦ 1`; the wild letters lie in `ker(tame)`,
+whose image is therefore not a `2`-group.
 
-**What is actually owed, per branch.**  The `ℚ₂` precedents are all substantial or axiomatic:
-at `G_ℚ₂` pro-`2`-ness of wild inertia is the **census axiom** (`TameQuotientData.isProP`, through
-the B10 bundle); at `G_K` it is a *structure field* of `OrientedTameQuotientK` (AX4); and for the
-`ℚ₂` candidates `Γ_A`/`Γ_R` it is `GQ2.isProP_wildCore` / `GQ2.isProP_wildCoreR`
-(`GQ2/AdmissibleLimit.lean:375`, `GQ2/Roe/AdmissibleLimit.lean:231`) — ~80-line admissible-limit
-compactness arguments keyed to the specific relator families `N_A`/`N_R` and their
-`Marking.Pro2Core` clause.  Generalizing that argument to `gammaRelators n q R` is the honest
-shape of the obligation, and it is per-relator-family, not generic.
-
-**The missing reduction.**  `IsProP 2 (ker tameOfSpec) ↔ IsProP 2 (wildPartR n q R)` needs
-`ker_tameOfSpec`, i.e. F3's `ker_tameR` (`TameBoundary.lean:534`) re-done at `TameSpecializes`.
-That is left to **F3b**, which is rebuilding the Gate-B interface in `TameBoundary.lean` anyway;
-duplicating it here would collide with that landing. -/
+**The `ℚ₂` precedents, for the record.**  At `G_ℚ₂` pro-`2`-ness of wild inertia is the **census
+axiom** (`TameQuotientData.isProP`, through the B10 bundle); at `G_K` it is a *structure field*
+of `OrientedTameQuotientK` (AX4); and for the `ℚ₂` candidates `Γ_A`/`Γ_R` it is
+`GQ2.isProP_wildCore` / `GQ2.isProP_wildCoreR` (`GQ2/AdmissibleLimit.lean:375`,
+`GQ2/Roe/AdmissibleLimit.lean:231`) — admissible-limit compactness arguments over groups whose
+*definition* includes the `Marking.Pro2Core` clause.  That is exactly what GR1 transcribed for
+`Γ_R`, which is why the obligation turned out to be definitional and generic rather than
+per-relator-family. -/
 
 section Hwild
 
@@ -321,10 +330,13 @@ theorem oddBase_tameRelatorGen (n q : ℕ) :
   group
   exact one_zpow _
 
-/-- **The odd quotient of `Γ_1`.**  `σ, τ ↦ 1` and `x_i ↦ 1 ∈ ℤ/3`: the tame relator dies because
-`τ ↦ 1`, and the wild relator is the empty word. -/
+/-- **The odd quotient of `Γ_1^bare`.**  `σ, τ ↦ 1` and `x_i ↦ 1 ∈ ℤ/3`: the tame relator dies
+because `τ ↦ 1`, and the wild relator is the empty word.
+
+⚠ It exists over `GammaBare` and **not** over the corrected `GammaR`: `gammaLift` would demand
+the wild-`2` clause, which this marking violates by construction. -/
 noncomputable def oddHom (n q : ℕ) :
-    ContinuousMonoidHom ((GammaR n q .one) : Type) ZmodThree :=
+    ContinuousMonoidHom ((GammaBare n q .one) : Type) ZmodThree :=
   presentationLift (gammaRelators n q .one) (oddBase n).hom <| by
     rintro r (rfl | rfl)
     · exact oddBase_tameRelatorGen n q
@@ -339,25 +351,27 @@ theorem orderOf_ofAdd_one_zmodThree : orderOf (Multiplicative.ofAdd (1 : ZMod 3)
   · exact absurd (orderOf_eq_one_iff.mp h) h1
   · exact h
 
-@[simp] theorem oddHom_gammaGen (n q : ℕ) (g : Generator n) :
-    oddHom n q (gammaGen n q .one g) = oddMarking n g :=
+@[simp] theorem oddHom_bareGen (n q : ℕ) (g : Generator n) :
+    oddHom n q (bareGen n q .one g) = oddMarking n g :=
   (presentationLift_mk _ _ _ (FreeProfiniteGroup.of g)).trans (oddBase_of n g)
 
-/-- **`hwild` is not generic.**  At the trivial word the tame kernel maps onto `ℤ/3`, so it is
-not pro-`2` — even though `TameSpecializes` holds.  Hence there is no proof of
-`WordCertificate.hwild` uniform in `R`, and each branch owes its own. -/
-theorem not_isProP_two_ker_tameOfSpec_one (n q : ℕ) :
-    ¬ IsProP 2 (tameOfSpec n q .one (tameSpecializes_one n q)).toMonoidHom.ker := by
+/-- **The bare presentation fails `hwild`.**  At the trivial word the tame kernel of
+`Γ_1^bare` maps onto `ℤ/3`, so it is not pro-`2` — even though `TameSpecializes` holds.  This is
+the concrete witness that the pro-`2` clause is *not* a consequence of the two relators, hence
+must be part of the definition (ticket GR1); CB-W's `Count/Wild.lean` §4 generalizes it from
+`R = 1` to every `R`. -/
+theorem not_isProP_two_ker_tameOfSpecBare_one (n q : ℕ) :
+    ¬ IsProP 2 (tameOfSpecBare n q .one (tameSpecializes_one n q)).toMonoidHom.ker := by
   intro hpro
-  set K := (tameOfSpec n q (.one : PWord (Generator n)) (tameSpecializes_one n q)).toMonoidHom.ker
-    with hK
+  set K := (tameOfSpecBare n q (.one : PWord (Generator n))
+    (tameSpecializes_one n q)).toMonoidHom.ker with hK
   -- the wild letter `x₀` lies in the tame kernel, because the tame marking kills it
-  have hmem : gammaGen n q .one (.wild 0) ∈ K := by
+  have hmem : bareGen n q .one (.wild 0) ∈ K := by
     rw [hK, MonoidHom.mem_ker]
-    exact tameOfSpec_gammaGen (tameSpecializes_one n q) (.wild 0)
+    exact tameOfSpecBare_bareGen (tameSpecializes_one n q) (.wild 0)
   -- ... and its image under `oddHom` generates `ℤ/3`
   have himg : Multiplicative.ofAdd (1 : ZMod 3) ∈ K.map (oddHom n q).toMonoidHom :=
-    ⟨_, hmem, oddHom_gammaGen n q (.wild 0)⟩
+    ⟨_, hmem, oddHom_bareGen n q (.wild 0)⟩
   have hp : IsPGroup 2 ↥(K.map (oddHom n q).toMonoidHom) :=
     Aux.isPGroup_map_of_isProP hpro (oddHom n q).toMonoidHom (oddHom n q).continuous_toFun
   obtain ⟨k, hk⟩ := hp ⟨_, himg⟩

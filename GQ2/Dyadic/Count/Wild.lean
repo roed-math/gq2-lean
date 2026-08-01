@@ -19,18 +19,34 @@ CB-0 refuted `hwild` as a *generic* statement by exhibiting a counterexample at 
 obligation to AS2–AS5.  This file was chartered to land those five discharges, shaped on the
 `ℚ₂` precedents `GQ2.isProP_wildCore` / `GQ2.isProP_wildCoreR`.
 
-**It does not, because they are not provable.**  `hwild` is false for *every* branch, and this
-file proves that.
+**It does not, because they are not provable — of the group `GammaR` then denoted.**  This file
+proves that, and ticket **GR1** acted on it: the obstruction is a defect in the *definition*, and
+the definition has been corrected.
+
+## Reading this file after GR1
+
+Everything below is a theorem about **`GammaBare n q R`** — the bare two-relator profinite
+presentation `profinitePresentation (gammaRelators n q R)`, which is what `GammaR` used to be
+(`GQ2/Dyadic/AdmissibleR.lean` §6).  The campaign's `Γ_R` carries a pro-`2` clause on the wild
+part *as part of its definition* (plan §1; simplification campaign §3: *"a bare two-relator
+profinite quotient is not interchangeable with this definition"*), and `GammaR` now denotes that
+admissible limit.  Over it `hwild` is a **theorem**, generic in `n`, `q`, `R`
+(`Count/WildDischarge.lean`), proved through §7's criterion — which was built here precisely for
+that purpose and is unchanged.
+
+So this file is now the *record of why the definition changed*: it shows that the pro-`2` clause
+is not a consequence of the two relators, so it has to be imposed.
 
 ## The finding
 
 `R = 1` is not special.  For **any** relator word `R` over an alphabet with at least two wild
-letters, `Γ_R` admits a continuous hom onto `ℤ/3` under which some wild letter hits a generator —
-so `ker(tameOfSpec) = W_R` is never pro-`2`.  All five frozen branch families have at least two
+letters, `Γ_R^bare` admits a continuous hom onto `ℤ/3` under which some wild letter hits a
+generator — so `W_R^bare` is never pro-`2`.  All five frozen branch families have at least two
 wild letters (`N`, `Npc`, `M`, `Mpc` live on `Generator (2 + 2h)`, `L` on `Generator (2h + 1)`,
-and `Generator m` carries `m + 1` wild letters), so `hwild` fails for all five — §5.
+and `Generator m` carries `m + 1` wild letters), so `hwild` fails over the bare presentation for
+all five — §5.
 
-The reason is a **counting** one, and it is visible in the definition of `GammaR`:
+The reason is a **counting** one, and it is visible in the relator set alone:
 
   `gammaRelators n q R = {tameRelatorGen n q, (freeMarking n).eval R}`
 
@@ -55,24 +71,26 @@ from relators, they are the compactness work needed to pass the clause from the 
 quotients up to the limit (Steps A–F: trap an open `V ≤ wildCore` under `W ∩ wildCore`, pull `W`
 back to an admissible `Ŵ ≥ N_A`, read off its `Pro2Core` clause, transfer the `2`-power bound).
 
-`GQ2.Dyadic.GammaR` has no such clause — it is `profinitePresentation` of two relator words.  So
-the `ℚ₂` argument has no hypothesis to consume here, and §3 shows there is nothing to consume:
-the property genuinely fails.  **The gap is definitional, in `GammaR`, not per-branch.**
+`GammaBare` has no such clause — it is `profinitePresentation` of two relator words.  So the `ℚ₂`
+argument has no hypothesis to consume there, and §3 shows there is nothing to consume: the
+property genuinely fails.  **The gap was definitional, in `GammaR`, not per-branch** — and GR1
+closed it by giving `GammaR` the clause, on this very pattern.
 
 ## What this file lands
 
 * **§1–§3** the refutation machinery: the rank-`2` test group `(ℤ/3)²`, the test marking and the
-  hom out of `Γ_R` it induces, and the `𝔽₃`-linear choice of exponents that kills `R`.
-* **§4** `not_isProP_two_wildPartR` — for every `n ≥ 1`, every `q` and **every** `R` — and
-  `not_hwild`, the certificate field itself, via F3b's `TameSpec.ker_tameOfSpec`.
+  hom out of `Γ_R^bare` it induces, and the `𝔽₃`-linear choice of exponents that kills `R`.
+* **§4** `not_isProP_two_wildPartBare` — for every `n ≥ 1`, every `q` and **every** `R` — and
+  `not_hwild_bare`, the certificate field itself, over the bare presentation's tame
+  specialization `TameSpec.tameOfSpecBare`.
 * **§5** the five branch corollaries; **§6** the `√−2` pilot.
 * **§7 the generic core** — the compactness reduction transferred from `isProP_wildCore` to the
   presented setting: `IsProP 2 (wildPartR n q R)` **iff** every finite continuous quotient of
   `Γ_R` has `2`-group wild normal closure (`isProP_wildPartR_iff_pro2Core`).  This is the
-  `Pro2Core`-style criterion the ticket anticipated.  It is stated and proved unconditionally, and
-  it is exactly the clause that would have to be **added to the definition of `GammaR`** to make
-  `hwild` provable — so it survives whatever the owner decides, and §7 is the constructive half
-  of this file's report.
+  `Pro2Core`-style criterion the ticket anticipated.  It is stated and proved unconditionally,
+  over the **corrected** `GammaR`, and it is exactly the clause GR1 added to that definition —
+  so it is now the *discharging* lemma rather than a conditional one, and `Count/WildDischarge`
+  feeds it `AdmissibleR.isPGroup_two_wildNormalClosure`.
 
 ## Axiom posture
 
@@ -80,8 +98,9 @@ Every declaration is `sorry`-free and introduces **no axiom**; per-headline `#pr
 the standard three.  The `decide`s are kernel `decide`s in the three-element group.
 
 ⚠ `hwild` *is* an axiom on the arithmetic side (B10's `TameQuotientData.isProP`; AX4's structure
-field).  It is **not** made one here, and must not be: §4 proves it false for the candidate, so
-axiomatizing it would make the candidate layer inconsistent, not merely unproved.
+field).  It is **not** made one here, and must not be: §4 proves it false for the *bare*
+candidate, so axiomatizing it would have made the candidate layer inconsistent, not merely
+unproved.  Over the corrected `GammaR` it is an honest theorem.
 
 ## Sources
 
@@ -269,19 +288,23 @@ theorem testBaseHom_eval_R (c d : ℕ) (R : PWord (Generator n)) :
     testBaseHom n c d ((freeMarking n).eval R) = (testMarking n c d).eval R := by
   rw [Marking.map_eval (testBaseHom n c d) (freeMarking n) R, freeMarking_map_testBaseHom]
 
-/-- **The odd quotient of `Γ_R`.**  Whenever the exponents `(c, d)` kill `R`, the test marking
-descends to a continuous hom `Γ_R → ℤ/3`. -/
+/-- **The odd quotient of `Γ_R^bare`.**  Whenever the exponents `(c, d)` kill `R`, the test
+marking descends to a continuous hom `Γ_R^bare → ℤ/3`.
+
+⚠ It descends over the **bare** presentation only.  Over the corrected `GammaR` the analogous
+construction is `gammaLift`, whose wild-`2` clause this marking violates by design — which is
+exactly the content of the whole file. -/
 noncomputable def testHom (n q c d : ℕ) (R : PWord (Generator n))
     (hR : (testMarking n c d).eval R = 1) :
-    ContinuousMonoidHom ((GammaR n q R) : Type) ZmodThree :=
+    ContinuousMonoidHom ((GammaBare n q R) : Type) ZmodThree :=
   presentationLift (gammaRelators n q R) (testBaseHom n c d) <| by
     rintro r (rfl | rfl)
     · exact testBaseHom_tameRelatorGen q c d
     · rw [testBaseHom_eval_R]; exact hR
 
-@[simp] theorem testHom_gammaGen (q c d : ℕ) (R : PWord (Generator n))
+@[simp] theorem testHom_bareGen (q c d : ℕ) (R : PWord (Generator n))
     (hR : (testMarking n c d).eval R = 1) (g : Generator n) :
-    testHom n q c d R hR (gammaGen n q R g) = testMarking n c d g :=
+    testHom n q c d R hR (bareGen n q R g) = testMarking n c d g :=
   (presentationLift_mk _ _ _ (FreeProfiniteGroup.of g)).trans (testBaseHom_of c d g)
 
 end TestMarking
@@ -332,46 +355,58 @@ end Exponents
 
 /-! ## §4 The refutation
 
-`wildPartR` is never pro-`2` once there are two wild letters — for **every** `q` and **every**
-`R`.  CB-0's `not_isProP_two_ker_tameOfSpec_one` is the special case `R = 1`. -/
+`wildPartBare` is never pro-`2` once there are two wild letters — for **every** `q` and **every**
+`R`.  CB-0's `not_isProP_two_ker_tameOfSpecBare_one` is the special case `R = 1`.
+
+The refutation only ever needs *membership* of two wild letters, so it is stated once for an
+arbitrary subgroup and then specialized twice; `ker_tameOfSpec`-style reductions are not
+required. -/
 
 section Refutation
 
 variable {n : ℕ}
 
-/-- **`W_R` is never pro-`2`.**  For every `n ≥ 1`, every `q` and every relator word `R`, the
-wild part of `Γ_R` surjects onto a subgroup of `ℤ/3` containing an element of order `3`.
+/-- **The core obstruction.**  No subgroup of `Γ_R^bare` containing the wild letters `x₀` and
+`x₁` is pro-`2`: it surjects onto a subgroup of `ℤ/3` containing an element of order `3`.
 
-This is the general form of CB-0's `R = 1` counterexample, and it is what makes the five branch
-discharges of `hwild` impossible rather than merely unwritten. -/
-theorem not_isProP_two_wildPartR (hn : 1 ≤ n) (q : ℕ) (R : PWord (Generator n)) :
-    ¬ IsProP 2 (wildPartR n q R) := by
+This is the general form of CB-0's `R = 1` counterexample, and it is what made the five branch
+discharges of `hwild` impossible over the bare presentation rather than merely unwritten. -/
+theorem not_isProP_two_of_wild_mem (hn : 1 ≤ n) {q : ℕ} {R : PWord (Generator n)}
+    (K : Subgroup ((GammaBare n q R) : Type)) (h0 : bareGen n q R (.wild 0) ∈ K)
+    (h1 : bareGen n q R (.wild 1) ∈ K) : ¬ IsProP 2 K := by
   intro hpro
   obtain ⟨c, d, hR, hne⟩ := exists_test_exponents hn R
   set f := testHom n q c d R hR with hf
-  have hp : IsPGroup 2 ↥((wildPartR n q R).map f.toMonoidHom) :=
+  have hp : IsPGroup 2 ↥(K.map f.toMonoidHom) :=
     Aux.isPGroup_map_of_isProP hpro f.toMonoidHom f.continuous_toFun
-  rcases hne with h0 | h1
-  · exact not_isPGroup_two_of_mem hp
-      ⟨_, gammaGen_wild_mem_wildPartR 0, testHom_gammaGen q c d R hR (.wild 0)⟩ h0
-  · exact not_isPGroup_two_of_mem hp
-      ⟨_, gammaGen_wild_mem_wildPartR 1, testHom_gammaGen q c d R hR (.wild 1)⟩ h1
+  rcases hne with hx0 | hx1
+  · exact not_isPGroup_two_of_mem hp ⟨_, h0, testHom_bareGen q c d R hR (.wild 0)⟩ hx0
+  · exact not_isPGroup_two_of_mem hp ⟨_, h1, testHom_bareGen q c d R hR (.wild 1)⟩ hx1
 
-/-- **`WordCertificate.hwild` is false**, for every `n ≥ 1`, every `q`, every `R` and *every*
-tame-specialization witness.  Uses F3b's `TameSpec.ker_tameOfSpec` (`ker(tameOfSpec) = W_R`)
-rather than re-deriving the reduction. -/
-theorem not_hwild (hn : 1 ≤ n) {q : ℕ} {R : PWord (Generator n)}
+/-- **`W_R^bare` is never pro-`2`.**  For every `n ≥ 1`, every `q` and every relator word `R`. -/
+theorem not_isProP_two_wildPartBare (hn : 1 ≤ n) (q : ℕ) (R : PWord (Generator n)) :
+    ¬ IsProP 2 (wildPartBare n q R) :=
+  not_isProP_two_of_wild_mem hn _ (bareGen_wild_mem_wildPartBare 0)
+    (bareGen_wild_mem_wildPartBare 1)
+
+/-- **`WordCertificate.hwild` fails over the bare presentation**, for every `n ≥ 1`, every `q`,
+every `R` and *every* tame-specialization witness.
+
+⚠ This is the statement that forced ticket GR1.  Over the corrected `GammaR` the same field is a
+theorem (`Count/WildDischarge.hwild_of_tameSpecializes`); what fails here is the property of the
+group `GammaBare`, which is the object the campaign never intended. -/
+theorem not_hwild_bare (hn : 1 ≤ n) {q : ℕ} {R : PWord (Generator n)}
     (hspec : TameSpec.TameSpecializes n q R) :
-    ¬ IsProP 2 (TameSpec.tameOfSpec n q R hspec).toMonoidHom.ker := by
-  rw [TameSpec.ker_tameOfSpec hspec]
-  exact not_isProP_two_wildPartR hn q R
+    ¬ IsProP 2 (TameSpec.tameOfSpecBare n q R hspec).toMonoidHom.ker :=
+  not_isProP_two_of_wild_mem hn _
+    (TameSpec.bareGen_wild_mem_ker_tameOfSpecBare hspec 0)
+    (TameSpec.bareGen_wild_mem_ker_tameOfSpecBare hspec 1)
 
-/-- **No `WordCertificate` exists over any of these words.**  `hwild` is one of the seventeen
-fields, so the refutation propagates to the record: for `n ≥ 1` the type is empty. -/
-theorem isEmpty_wordCertificate (hn : 1 ≤ n) {q : ℕ} {R : PWord (Generator n)} {P : ProfiniteGrp}
-    {hP : IsProP 2 P} {nuP : ContinuousMonoidHom P Ztwo} {SN : SourceNumerics n} :
-    IsEmpty (WordCertificate n q R P hP nuP SN) :=
-  ⟨fun W => not_hwild hn W.tameSpecialization W.hwild⟩
+/-! ⚠ **Deleted at GR1**: `isEmpty_wordCertificate` and `pilot_isEmpty_wordCertificate`.  They
+read `IsEmpty (WordCertificate n q R …)` and were derived from `not_hwild` at the *old* `GammaR`.
+`WordCertificate` is typed at `GammaR`, which now carries the pro-`2` clause, so those statements
+are **false** and could not be retargeted: there is no `WordCertificate` over `GammaBare` to speak
+about.  The positive replacement is `Count/WildDischarge.hwild_of_tameSpecializes`. -/
 
 end Refutation
 
@@ -385,37 +420,37 @@ per-family content, because the obstruction does not see the word. -/
 section Branches
 
 /-- **Compact `N`** (the `√−2` branch). -/
-theorem not_hwild_nCompact {q α h : ℕ}
+theorem not_hwild_bare_nCompact {q α h : ℕ}
     (hspec : TameSpec.TameSpecializes (2 + 2 * h) q (nCompactW α h)) :
-    ¬ IsProP 2 (TameSpec.tameOfSpec (2 + 2 * h) q (nCompactW α h) hspec).toMonoidHom.ker :=
-  not_hwild (by omega) hspec
+    ¬ IsProP 2 (TameSpec.tameOfSpecBare (2 + 2 * h) q (nCompactW α h) hspec).toMonoidHom.ker :=
+  not_hwild_bare (by omega) hspec
 
 /-- **`L`** (the square branch) — the tightest alphabet, and still two wild letters at `h = 0`. -/
-theorem not_hwild_lSq {q h : ℕ}
+theorem not_hwild_bare_lSq {q h : ℕ}
     (hspec : TameSpec.TameSpecializes (2 * h + 1) q (LSq.lSqW h)) :
-    ¬ IsProP 2 (TameSpec.tameOfSpec (2 * h + 1) q (LSq.lSqW h) hspec).toMonoidHom.ker :=
-  not_hwild (by omega) hspec
+    ¬ IsProP 2 (TameSpec.tameOfSpecBare (2 * h + 1) q (LSq.lSqW h) hspec).toMonoidHom.ker :=
+  not_hwild_bare (by omega) hspec
 
 /-- **Non-compact `N`**. -/
-theorem not_hwild_npcW {q α r h : ℕ} {e : EtaData}
+theorem not_hwild_bare_npcW {q α r h : ℕ} {e : EtaData}
     (hspec : TameSpec.TameSpecializes (2 + 2 * h) q (Npc.npcW α r h e)) :
-    ¬ IsProP 2 (TameSpec.tameOfSpec (2 + 2 * h) q (Npc.npcW α r h e) hspec).toMonoidHom.ker :=
-  not_hwild (by omega) hspec
+    ¬ IsProP 2 (TameSpec.tameOfSpecBare (2 + 2 * h) q (Npc.npcW α r h e) hspec).toMonoidHom.ker :=
+  not_hwild_bare (by omega) hspec
 
 /-- **Compact `M`**. -/
-theorem not_hwild_mCompact {q α h : ℕ}
+theorem not_hwild_bare_mCompact {q α h : ℕ}
     (hspec : TameSpec.TameSpecializes (2 + 2 * h) q (MCompact.mCompactW α h)) :
     ¬ IsProP 2
-      (TameSpec.tameOfSpec (2 + 2 * h) q (MCompact.mCompactW α h) hspec).toMonoidHom.ker :=
-  not_hwild (by omega) hspec
+      (TameSpec.tameOfSpecBare (2 + 2 * h) q (MCompact.mCompactW α h) hspec).toMonoidHom.ker :=
+  not_hwild_bare (by omega) hspec
 
 /-- **Non-compact `M`**.  Note that no `1 ≤ α` hypothesis is needed: unlike `tameSpecialization`,
 the obstruction is insensitive to the word's parameters. -/
-theorem not_hwild_mpcW {q α r p h : ℕ} {η : Mpc.EtaDisplay}
+theorem not_hwild_bare_mpcW {q α r p h : ℕ} {η : Mpc.EtaDisplay}
     (hspec : TameSpec.TameSpecializes (2 + 2 * h) q (Mpc.mpcW α r p η h)) :
     ¬ IsProP 2
-      (TameSpec.tameOfSpec (2 + 2 * h) q (Mpc.mpcW α r p η h) hspec).toMonoidHom.ker :=
-  not_hwild (by omega) hspec
+      (TameSpec.tameOfSpecBare (2 + 2 * h) q (Mpc.mpcW α r p η h) hspec).toMonoidHom.ker :=
+  not_hwild_bare (by omega) hspec
 
 end Branches
 
@@ -423,31 +458,21 @@ end Branches
 
 `K = ℚ₂(√−2)`, `α = 2`, `h = 0`, `q_K = 2` — the frozen row of `Words/N0.lean`.
 
-CB-0's `pilot_tameSpecialization` **is** reused: this file imports `Count/Routine.lean`.
-(Historical note: on CB-W's branch that file did not compile — the branch predated the
-orchestrator's `open TameSpec` merge fix — so CB-W rebuilt the witness locally from F3b's
-`tameSpecializes_of_tau_pow`, the same one-liner CB-0's §7 used.  At head the original is
-available and the local copy has been removed.) -/
+The pilot witness is CB-0's: this file imports `Count/Routine.lean`, whose `pilotW` and
+`pilot_tameSpecialization` (its §8, untouched by GR1) are exactly the terms CB-W would have
+used.  (Historical note: on CB-W's branch `Routine.lean` did not compile — that branch
+predated the orchestrator's `open TameSpec` merge fix — so CB-W declared local copies; at
+head the originals are available and the copies are gone.) -/
 
 section Pilot
 
-/- `pilotW` and `pilot_tameSpecialization` are NOT redeclared here.  CB-W built local copies
-because `Count/Routine.lean` did not compile on its branch (that branch predated the
-orchestrator's `open TameSpec` merge fix); at head it does, so this file imports CB-0's
-originals instead — they are the same terms (`nCompactW 2 0`, and CB-0's field-1 discharge). -/
-/-- **`hwild` fails at the pilot**, end-to-end: the tame kernel of the `√−2` candidate is not
-pro-`2`. -/
-theorem pilot_not_hwild :
+/-- **`hwild` fails at the pilot over the bare presentation**, end-to-end: the tame kernel of the
+bare `√−2` candidate is not pro-`2`.  Over the corrected `GammaR` it holds — see
+`Count/WildDischarge.pilot_hwild`. -/
+theorem pilot_not_hwild_bare :
     ¬ IsProP 2
-      (TameSpec.tameOfSpec (2 + 2 * 0) 2 pilotW pilot_tameSpecialization).toMonoidHom.ker :=
-  not_hwild_nCompact pilot_tameSpecialization
-
-/-- **No word certificate exists at the pilot.**  The `√−2` row cannot be completed as
-`CertificateMain` currently states it. -/
-theorem pilot_isEmpty_wordCertificate {P : ProfiniteGrp} {hP : IsProP 2 P}
-    {nuP : ContinuousMonoidHom P Ztwo} {SN : SourceNumerics (2 + 2 * 0)} :
-    IsEmpty (WordCertificate (2 + 2 * 0) 2 pilotW P hP nuP SN) :=
-  isEmpty_wordCertificate (by omega)
+      (TameSpec.tameOfSpecBare (2 + 2 * 0) 2 pilotW pilot_tameSpecialization).toMonoidHom.ker :=
+  not_hwild_bare_nCompact pilot_tameSpecialization
 
 end Pilot
 
@@ -464,10 +489,14 @@ available) is what `Γ_A`/`Γ_R` get from being defined as admissible limits and
 being a two-relator presentation, does not have.
 
 So the criterion below is exactly the missing clause: `hwild` holds **iff** every finite
-continuous quotient of `Γ_R` has `2`-group wild normal closure.  §4 shows no branch satisfies it.
-Adding it to the definition of `GammaR` — i.e. redefining `GammaR` as the largest quotient all of
-whose finite quotients are wild-`2`, the way `GQ2/GammaA.lean:211` defines `N_A` — is what would
-make `hwild` provable, and this theorem is the bridge that would then discharge it. -/
+continuous quotient of `Γ_R` has `2`-group wild normal closure.  Over the bare presentation §4
+shows no branch satisfies it.  Adding it to the definition of `GammaR` — i.e. defining `GammaR`
+as the largest quotient all of whose finite quotients are wild-`2`, the way `GQ2/GammaA.lean:211`
+defines `N_A` — is what makes `hwild` provable, and this theorem is the bridge that discharges it.
+
+**Ticket GR1 did exactly that** (`GQ2/Dyadic/AdmissibleR.lean`), so §7 now reads at the corrected
+`GammaR`, and its right-hand side is a landed theorem there
+(`isPGroup_two_wildNormalClosure`).  `Count/WildDischarge.lean` is the two-line composition. -/
 
 section GenericCore
 
@@ -511,7 +540,8 @@ theorem map_wildPartR (W : OpenNormalSubgroup ((GammaR n q R) : Type)) :
 
 `←` is `isProP_wildCore`'s compactness argument with its admissible-limit input replaced by the
 hypothesis; `→` is the image bound.  Combined with F3b's `ker_tameOfSpec` this says exactly when
-`WordCertificate.hwild` holds, and §4 says: for no branch. -/
+`WordCertificate.hwild` holds; over the bare presentation §4 says "for no branch", and over the
+corrected `GammaR` the hypothesis is `AdmissibleR.isPGroup_two_wildNormalClosure`. -/
 theorem isProP_wildPartR_iff_pro2Core :
     IsProP 2 (wildPartR n q R) ↔
       ∀ W : OpenNormalSubgroup ((GammaR n q R) : Type),
@@ -565,15 +595,12 @@ theorem hwild_iff_pro2Core (hspec : TameSpec.TameSpecializes n q R) :
   rw [TameSpec.ker_tameOfSpec hspec]
   exact isProP_wildPartR_iff_pro2Core
 
-/-- **The criterion fails, concretely.**  Combining §4 with the core: for `n ≥ 1` there is always
-a finite continuous quotient of `Γ_R` whose wild normal closure is not a `2`-group. -/
-theorem exists_openNormal_not_isPGroup_two (hn : 1 ≤ n) (q : ℕ) (R : PWord (Generator n)) :
-    ∃ W : OpenNormalSubgroup ((GammaR n q R) : Type),
-      ¬ IsPGroup 2 (Subgroup.normalClosure
-        ((QuotientGroup.mk' W.toSubgroup) '' wildLetters n q R)) := by
-  by_contra hcon
-  exact not_isProP_two_wildPartR hn q R
-    (isProP_wildPartR_iff_pro2Core.mpr fun W => not_not.mp fun h => hcon ⟨W, h⟩)
+/-! ⚠ **Deleted at GR1**: `exists_openNormal_not_isPGroup_two`.  It read *"for `n ≥ 1` there is
+always a finite continuous quotient of `Γ_R` whose wild normal closure is not a `2`-group"*, and
+was §4 fed through the criterion above.  At the corrected `GammaR` it is **false** — its exact
+negation is `AdmissibleR.isPGroup_two_wildNormalClosure`, which is now a theorem, and that is the
+whole content of the correction.  The surviving true form is §4's
+`not_isProP_two_wildPartBare`, at `GammaBare`. -/
 
 end GenericCore
 

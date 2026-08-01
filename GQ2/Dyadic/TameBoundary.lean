@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2.Dyadic.TameQuotientK
 import GQ2.Dyadic.Word.Eval
+import GQ2.Dyadic.AdmissibleR
 import GQ2.BoundaryMapsWitness
 
 /-!
@@ -19,6 +20,19 @@ layer down, in the leaf `GQ2/Dyadic/TameQuotientK.lean`, because `GQ2/Foundation
 must be able to import them (AX4 memo Q4).  This file may — and does — import the `ℚ₂` proof
 stack, so the pure-algebra fibred-product kit (`GQ2.SectionThree.fiberProductExists`,
 `proPKernel_image_ge`) is reused rather than restated.  **No `ℚ₂` file is edited** (plan A6).
+
+⚠ **`GammaR` itself is no longer defined here** (ticket **GR1**).  The campaign's `Γ_R` carries a
+pro-`2` clause on the wild part *as part of its definition* — plan §1, and the simplification
+campaign's §3: *"a bare two-relator profinite quotient is not interchangeable with this
+definition"* — and F3's original `profinitePresentation (gammaRelators n q R)` did not.  CB-W
+proved that the bare object's wild part is never pro-`2` (`Count/Wild.lean` §4), so `hwild` was
+unprovable and `WordCertificate` empty.  `GammaR`, `gammaMk`, `gammaGen`, `gammaMarking`,
+`freeMarking`, `tameRelatorGen`, `gammaRelators` and the bare object `GammaBare` now live in the
+leaf `GQ2/Dyadic/AdmissibleR.lean`, which builds `Γ_R = F ⧸ N_R` as the admissible limit on the
+`GQ2/GammaA.lean:211` pattern.  Everything below is unchanged except that the two hom-out-of-`Γ_R`
+constructions (`TameSpec.tameOfSpec`, `prop_3_4_two`) go through `gammaLift` — the **restricted**
+universal property — instead of `presentationLift`, each discharging the wild-`2` clause from a
+one-line lemma of that leaf.
 
 ## Contents
 
@@ -36,7 +50,7 @@ stack, so the pure-algebra fibred-product kit (`GQ2.SectionThree.fiberProductExi
   the fibre product `∂ = T_q ×_{ℤ₂} D` is surjective.  The statement is generic in the source, so
   it covers both halves of the packet's theorem — the `Γ_R` side and the `G_K` side ("*the field
   case is identical, using the wild inertia and maximal pro-2 quotient of `G_K`*").
-* **§4 — packet Proposition 3.4** (`GammaR`, `TameSpec.TameSpecializes`, `TameSpec.tameOfSpec`,
+* **§4 — packet Proposition 3.4** (`TameSpec.TameSpecializes`, `TameSpec.tameOfSpec`,
   `TameSpec.gammaR_tame_equiv_of_spec`, `TameSpec.prop_3_4_one_of_spec`, `prop_3_4_two`,
   `TameSpec.prop_3_4_three_of_spec`): the two specializations of an admissible `Γ_R`, driven by
   F2's substitution operators `killWild` / `pro2` and their soundness theorems
@@ -311,50 +325,21 @@ section PropThreeFour
 
 variable {n q : ℕ} {R : PWord (Generator n)}
 
-/-- The tautological marking of the free profinite group on the general alphabet. -/
-noncomputable def freeMarking (n : ℕ) : Marking n ((FreeProfiniteGroup (Generator n)) : Type) :=
-  ⟨FreeProfiniteGroup.of⟩
+/-! ### The candidate group
 
-@[simp] theorem freeMarking_apply (n : ℕ) (g : Generator n) :
-    freeMarking n g = FreeProfiniteGroup.of g := rfl
-
-/-- The tame relator `τ^σ · (τ^q)⁻¹` on the alphabet `{σ, τ, x₀, …, x_n}`. -/
-noncomputable def tameRelatorGen (n q : ℕ) : FreeProfiniteGroup (Generator n) :=
-  conjP (FreeProfiniteGroup.of (Generator.tau (n := n)))
-      (FreeProfiniteGroup.of (Generator.sigma (n := n)))
-    * ((FreeProfiniteGroup.of (Generator.tau (n := n))) ^ q)⁻¹
-
-/-- The relator set of `Γ_R`: the tame relation at `q` and the wild word `R`. -/
-noncomputable def gammaRelators (n q : ℕ) (R : PWord (Generator n)) :
-    Set (FreeProfiniteGroup (Generator n)) :=
-  {tameRelatorGen n q, (freeMarking n).eval R}
-
-/-- **`Γ_R = ⟨σ, τ, x₀, …, x_n ∣ τ^σ = τ^{q_K}, R = 1⟩_prof`** (draft eq. 1.1, plan §1). -/
-noncomputable def GammaR (n q : ℕ) (R : PWord (Generator n)) : ProfiniteGrp :=
-  profinitePresentation (gammaRelators n q R)
-
-/-- The presentation projection `F(σ, τ, x₀, …, x_n) ↠ Γ_R`, typed at the bundled carrier. -/
-noncomputable def gammaMk (n q : ℕ) (R : PWord (Generator n)) :
-    ContinuousMonoidHom ((FreeProfiniteGroup (Generator n)) : Type) ((GammaR n q R) : Type) :=
-  quotientMk (relatorSubgroup (gammaRelators n q R))
-
-/-- The image of a generator letter in `Γ_R`. -/
-noncomputable def gammaGen (n q : ℕ) (R : PWord (Generator n)) (g : Generator n) : GammaR n q R :=
-  gammaMk n q R (FreeProfiniteGroup.of g)
-
-/-- `Γ_R` marked by its own generators. -/
-noncomputable def gammaMarking (n q : ℕ) (R : PWord (Generator n)) :
-    Marking n ((GammaR n q R) : Type) := ⟨gammaGen n q R⟩
-
-@[simp] theorem gammaMarking_apply (g : Generator n) :
-    gammaMarking n q R g = gammaGen n q R g := rfl
-
-theorem gammaMarking_eq_map : gammaMarking n q R = (freeMarking n).map ⇑(gammaMk n q R) := rfl
+`freeMarking`, `tameRelatorGen`, `gammaRelators`, `GammaR`, `gammaMk`, `gammaGen` and
+`gammaMarking` are **`GQ2/Dyadic/AdmissibleR.lean`'s** (ticket GR1), where `Γ_R = F ⧸ N_R` is
+built as the admissible limit — the intersection of the open normal subgroups whose finite
+quotient kills both relators *and* has `2`-group wild normal closure.  The two facts §4 uses
+about that construction are the ones the bare presentation also had: the relators die
+(`relator_gammaMk_eq_one`) and the projection is surjective (`gammaMk_surjective`).  The third,
+new one — every finite quotient of `Γ_R` satisfies the pro-`2` clause
+(`isPGroup_two_wildNormalClosure`) — is what discharges `hwild`, downstream. -/
 
 /-- The tame relation holds in `Γ_R`. -/
 theorem gammaR_tame_relation :
     conjP (gammaGen n q R .tau) (gammaGen n q R .sigma) = gammaGen n q R .tau ^ q := by
-  have h := relator_quotientMk_eq_one (gammaRelators n q R)
+  have h := relator_gammaMk_eq_one (n := n) (q := q) (R := R)
     (Set.mem_insert (tameRelatorGen n q) _)
   simp only [tameRelatorGen, conjP, map_mul, map_inv, map_pow] at h ⊢
   exact mul_inv_eq_one.mp h
@@ -362,7 +347,7 @@ theorem gammaR_tame_relation :
 /-- The wild word is a relator of `Γ_R`. -/
 theorem gammaMarking_eval_R : (gammaMarking n q R).eval R = 1 := by
   rw [gammaMarking_eq_map, ← Marking.map_eval (gammaMk n q R) (freeMarking n) R]
-  exact relator_quotientMk_eq_one (gammaRelators n q R) (Set.mem_insert_of_mem _ rfl)
+  exact relator_gammaMk_eq_one (Set.mem_insert_of_mem _ rfl)
 
 /-- **`W_R`**: the closed normal subgroup of `Γ_R` generated by the wild letters `x₀, …, x_n`. -/
 noncomputable def wildPartR (n q : ℕ) (R : PWord (Generator n)) :
@@ -577,18 +562,29 @@ theorem tameBase_eval_R (hspec : TameSpecializes n q R) :
   rw [h, hmark]
   exact hspec
 
+/-- The tame base map kills every relator of `Γ_R` — the first half of GR1's admissibility
+obligation for `tameOfSpec`. -/
+theorem tameBase_gammaRelators (hspec : TameSpecializes n q R) :
+    ∀ r ∈ gammaRelators n q R, (tameBase n q).hom r = 1 := by
+  rintro r (rfl | rfl)
+  · exact tameBase_tameRelatorGen
+  · exact tameBase_eval_R hspec
+
 /-- **The tame specialization** `Γ_R ↠ T_q` (`σ ↦ σ`, `τ ↦ τ`, `x_i ↦ 1`), well defined by the
-primary Gate-B hypothesis. -/
+primary Gate-B hypothesis.
+
+Since ticket GR1 this goes through `gammaLift`, the **restricted** universal property of the
+admissible limit, rather than `presentationLift`.  Its extra obligation — the wild-`2` clause —
+is free here for the strongest possible reason: the tame marking sends every `x_i` to `1`, so the
+normal closure of their images is trivial in every quotient (`wildMap_of_wild_eq_one`). -/
 noncomputable def tameOfSpec (n q : ℕ) (R : PWord (Generator n))
     (hspec : TameSpecializes n q R) : ContinuousMonoidHom (GammaR n q R) (Tq q) :=
-  presentationLift (gammaRelators n q R) (tameBase n q).hom <| by
-    rintro r (rfl | rfl)
-    · exact tameBase_tameRelatorGen
-    · exact tameBase_eval_R hspec
+  gammaLift n q R (tameBase n q).hom (tameBase_gammaRelators hspec)
+    (wildMap_of_wild_eq_one _ fun i => tameBase_of n q (.wild i))
 
 @[simp] theorem tameOfSpec_gammaGen (hspec : TameSpecializes n q R) (g : Generator n) :
     tameOfSpec n q R hspec (gammaGen n q R g) = tameMarking n q g :=
-  (presentationLift_mk _ _ _ (FreeProfiniteGroup.of g)).trans (tameBase_of n q g)
+  (gammaLift_gammaMk _ _ _ _ _ _ (FreeProfiniteGroup.of g)).trans (tameBase_of n q g)
 
 theorem tameOfSpec_surjective (hspec : TameSpecializes n q R) :
     Function.Surjective (tameOfSpec n q R hspec) := by
@@ -617,6 +613,28 @@ theorem wildPartR_le_ker_tameOfSpec (hspec : TameSpecializes n q R) :
   refine Subgroup.normalClosure_le_normal ?_
   rintro z ⟨i, rfl⟩
   exact MonoidHom.mem_ker.mpr (tameOfSpec_gammaGen hspec (.wild i))
+
+/-! #### The bare presentation's tame specialization
+
+`GammaBare` (`AdmissibleR.lean` §6) is the pre-GR1 object: the same two relators, **without** the
+pro-`2` clause.  It has the *plain* presentation property, so the tame marking descends over it
+with no side condition — and that is exactly why it is the wrong group: `Count/Wild.lean` §4
+descends the `ℤ/3` markings over it too, and concludes that the kernel below is never pro-`2`.
+These two declarations exist only to carry CB-W's and CB-0's refutations, which remain theorems
+about `GammaBare`. -/
+
+/-- The tame specialization of the **bare** presentation, `Γ_R^bare ↠ T_q`. -/
+noncomputable def tameOfSpecBare (n q : ℕ) (R : PWord (Generator n))
+    (hspec : TameSpecializes n q R) : ContinuousMonoidHom (GammaBare n q R) (Tq q) :=
+  presentationLift (gammaRelators n q R) (tameBase n q).hom (tameBase_gammaRelators hspec)
+
+@[simp] theorem tameOfSpecBare_bareGen (hspec : TameSpecializes n q R) (g : Generator n) :
+    tameOfSpecBare n q R hspec (bareGen n q R g) = tameMarking n q g :=
+  (presentationLift_mk _ _ _ (FreeProfiniteGroup.of g)).trans (tameBase_of n q g)
+
+theorem bareGen_wild_mem_ker_tameOfSpecBare (hspec : TameSpecializes n q R) (i : Fin (n + 1)) :
+    bareGen n q R (.wild i) ∈ (tameOfSpecBare n q R hspec).toMonoidHom.ker :=
+  MonoidHom.mem_ker.mpr (tameOfSpecBare_bareGen hspec (.wild i))
 
 end TameSpec
 
@@ -939,8 +957,9 @@ theorem prop_3_4_two (hq0 : q ≠ 0) (hqe : Even q) (Q : ProfiniteGrp.{0}) (hQ :
         have hmark : (freeMarking n).map ⇑base.hom = t := by ext g; exact hbase_of g
         show base.hom ((freeMarking n).eval R) = 1
         rw [h, hmark, hR]
-    exact ⟨presentationLift (gammaRelators n q R) base.hom hkill,
-      fun g => (presentationLift_mk _ _ _ (FreeProfiniteGroup.of g)).trans (hbase_of g)⟩
+    -- GR1: the wild-`2` clause of `gammaLift` is automatic in a pro-`2` target
+    exact ⟨gammaLift n q R base.hom hkill fun V => wildMap_of_isProP hQ base.hom.toMonoidHom V,
+      fun g => (gammaLift_gammaMk _ _ _ _ _ _ (FreeProfiniteGroup.of g)).trans (hbase_of g)⟩
 
 /-! ### Part (3): the induced unramified character -/
 
