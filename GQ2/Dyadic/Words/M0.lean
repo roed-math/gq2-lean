@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 import GQ2.Dyadic.Word.Export
 import GQ2.Dyadic.TameBoundary
 import GQ2.Dyadic.MarkedCore.Cores
+import GQ2.Dyadic.Words.Alphabet
 
 /-!
 # Dyadic campaign, ticket WM0-a: the compact `M_α` branch word
@@ -427,13 +428,6 @@ The compact-`M` word uses no `ℤ₂`-power and no profinite exponent other than
 `ℕ`-exponent calculus of packet Lem. 2.2 applies with a single global exponent.  This is what
 lets the numerical pins below evaluate the *genuine* `ω₂`. -/
 
-theorem isOmega2Only_prodList {Gen : Type*} :
-    ∀ {l : List (PWord Gen)}, (∀ w ∈ l, w.IsOmega2Only) → (PWord.prodList l).IsOmega2Only
-  | [], _ => trivial
-  | w :: _ws, hw =>
-      ⟨hw w (List.mem_cons_self ..),
-       isOmega2Only_prodList fun u hu => hw u (List.mem_cons_of_mem _ hu)⟩
-
 @[simp] theorem isOmega2Only_handlesW (h : ℕ) : (handlesW h).IsOmega2Only := by
   unfold handlesW
   refine isOmega2Only_prodList ?_
@@ -464,12 +458,6 @@ section Eval
 
 variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
   [TotallyDisconnectedSpace G] {α h : ℕ}
-
-theorem eval_prodList_append {X : Type*} (μ : X → G) (l₁ l₂ : List (PWord X)) :
-    PWord.eval μ (PWord.prodList (l₁ ++ l₂)) =
-      PWord.eval μ (PWord.prodList l₁) * PWord.eval μ (PWord.prodList l₂) := by
-  rw [PWord.eval_prodList, List.map_append, List.prod_append, PWord.eval_prodList,
-    PWord.eval_prodList]
 
 /-- Evaluating the handle block is MC2's `handleWord` on the handle letters — the same
 `List.finRange h` order on both sides, so this is a rewrite and not a reindexing. -/
@@ -705,13 +693,6 @@ section Pro2
 variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
   [TotallyDisconnectedSpace G] {α h : ℕ}
 
-theorem pro2_prodList :
-    ∀ l : List (PWord (Generator (2 + 2 * h))),
-      pro2 (PWord.prodList l) = PWord.prodList (l.map pro2)
-  | [] => rfl
-  | w :: ws => by
-      rw [PWord.prodList_cons, pro2_mul, pro2_prodList ws, List.map_cons, PWord.prodList_cons]
-
 @[simp] theorem pro2_handlesW (h : ℕ) : pro2 (handlesW h) = handlesW h := by
   rw [handlesW, pro2_prodList, List.map_map]
   rfl
@@ -746,13 +727,6 @@ theorem pro2_mCompact (α h : ℕ) :
   rw [eRevW, pro2_prodList, Marking.eval_def, PWord.eval_prodList]
   simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, pro2_conj,
     PWord.eval_conj, ← Marking.eval_def, h0, h1, one_conjR, mul_one]
-
-omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
-/-- The one group-theoretic move of this file: `x^{-g} · x = [g, x]`.  Everything else in the
-pro-`2` comparison is associativity and the `ℤ`-to-`ℕ` exponent realignment. -/
-theorem invConj_mul_self (x g : G) : (conjR x g)⁻¹ * x = commP g x := by
-  simp only [conjR, commP, mul_inv_rev, inv_inv]
-  group
 
 /-- **The pro-`2` boundary value of the compact-`M` word is MC2's compact-`M` core.**
 

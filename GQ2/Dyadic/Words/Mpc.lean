@@ -7,6 +7,7 @@ import GQ2.Dyadic.Word.Export
 import GQ2.Dyadic.TameBoundary
 import GQ2.Dyadic.MarkedCore.Cores
 import GQ2.Dyadic.Words.Npc
+import GQ2.Dyadic.Words.Alphabet
 
 /-!
 # Dyadic campaign, ticket WMP-a: the procyclic `M_α` branch word
@@ -1107,13 +1108,6 @@ evaluations go through the resolvers instead. -/
 
 section Omega2Only
 
-theorem isOmega2Only_prodList {Gen : Type*} :
-    ∀ {l : List (PWord Gen)}, (∀ w ∈ l, w.IsOmega2Only) → (PWord.prodList l).IsOmega2Only
-  | [], _ => trivial
-  | w :: _ws, hw =>
-      ⟨hw w (List.mem_cons_self ..),
-       isOmega2Only_prodList fun u hu => hw u (List.mem_cons_of_mem _ hu)⟩
-
 variable {h : ℕ}
 
 theorem isOmega2Only_uW (i : Fin 3) : (uW h i).IsOmega2Only := by
@@ -1327,13 +1321,6 @@ section Pro2
 
 variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
   [TotallyDisconnectedSpace G] {h : ℕ}
-
-theorem pro2_prodList :
-    ∀ l : List (PWord (Generator (2 + 2 * h))),
-      pro2 (PWord.prodList l) = PWord.prodList (l.map pro2)
-  | [] => rfl
-  | w :: ws => by
-      rw [PWord.prodList_cons, pro2_mul, pro2_prodList ws, List.map_cons, PWord.prodList_cons]
 
 /-- The pro-2 value of the three `η̂` displays is uniformly the honest `σ ^ᶻ η̂` — the `.hat`
 case is where Gate C's `η̂`-contract keeps the profinite power (`η̂ ≠ ω₂`, WNP-a's

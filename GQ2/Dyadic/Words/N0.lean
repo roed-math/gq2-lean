@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 import GQ2.Dyadic.Word.Export
 import GQ2.Dyadic.TameBoundary
 import GQ2.Dyadic.MarkedCore.Cores
+import GQ2.Dyadic.Words.Alphabet
 
 /-!
 # Dyadic campaign, ticket WN0-a: the compact `N_α` branch word
@@ -293,13 +294,6 @@ The compact-`N` word uses no `ℤ₂`-power and no profinite exponent other than
 what lets the numerical pins below evaluate the *genuine* `ω₂`, and what WN0-b will need to
 transport the word into `FreeGroup`, where `ω₂` cannot be applied at all. -/
 
-theorem isOmega2Only_prodList {Gen : Type*} :
-    ∀ {l : List (PWord Gen)}, (∀ w ∈ l, w.IsOmega2Only) → (PWord.prodList l).IsOmega2Only
-  | [], _ => trivial
-  | w :: _ws, hw =>
-      ⟨hw w (List.mem_cons_self ..),
-       isOmega2Only_prodList fun u hu => hw u (List.mem_cons_of_mem _ hu)⟩
-
 @[simp] theorem isOmega2Only_handlesW (h : ℕ) : (handlesW h).IsOmega2Only := by
   unfold handlesW
   refine isOmega2Only_prodList ?_
@@ -461,13 +455,6 @@ section Pro2
 variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
   [TotallyDisconnectedSpace G] {α h : ℕ}
 
-theorem pro2_prodList :
-    ∀ l : List (PWord (Generator (2 + 2 * h))),
-      pro2 (PWord.prodList l) = PWord.prodList (l.map pro2)
-  | [] => rfl
-  | w :: ws => by
-      rw [PWord.prodList_cons, pro2_mul, pro2_prodList ws, List.map_cons, PWord.prodList_cons]
-
 @[simp] theorem pro2_handlesW (h : ℕ) : pro2 (handlesW h) = handlesW h := by
   rw [handlesW, pro2_prodList, List.map_map]
   rfl
@@ -485,13 +472,6 @@ theorem pro2_nCompact (α h : ℕ) :
   simp only [List.map_cons, List.map_nil, pro2_omega2Pow, pro2_handlesW, pro2_prodList,
     pro2_zpow, pro2_comm, pro2_inv, pro2_conj, pro2_gen_wild, pro2_gen_sigma, pro2_gen_tau,
     coreLetter]
-
-omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
-/-- The one group-theoretic move of this file: `x^{-g} · x = [g, x]`.  Everything else in the
-pro-`2` comparison is associativity. -/
-theorem invConj_mul_self (x g : G) : (conjR x g)⁻¹ * x = commP g x := by
-  simp only [conjR, commP, mul_inv_rev, inv_inv]
-  group
 
 /-- **The pro-`2` boundary value of the compact-`N` word is MC2's compact-`N` core.**
 

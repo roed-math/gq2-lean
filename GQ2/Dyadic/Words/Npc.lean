@@ -7,6 +7,7 @@ import GQ2.Dyadic.Word.Export
 import GQ2.Dyadic.TameBoundary
 import GQ2.Dyadic.MarkedCore.Cores
 import GQ2.Dyadic.NpcJet.Defs
+import GQ2.Dyadic.Words.Alphabet
 
 /-!
 # Dyadic campaign, ticket WNP-a: the corrected noncompact (procyclic-`N`) branch word
@@ -715,13 +716,6 @@ section Pro2
 variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
   [TotallyDisconnectedSpace G] {α r h : ℕ}
 
-theorem pro2_prodList :
-    ∀ l : List (PWord (Generator (2 + 2 * h))),
-      pro2 (PWord.prodList l) = PWord.prodList (l.map pro2)
-  | [] => rfl
-  | w :: ws => by
-      rw [PWord.prodList_cons, pro2_mul, pro2_prodList ws, List.map_cons, PWord.prodList_cons]
-
 @[simp] theorem pro2_handlesW (h : ℕ) : pro2 (handlesW h) = handlesW h := by
   rw [handlesW, pro2_prodList, List.map_map]
   rfl
@@ -772,12 +766,6 @@ theorem pro2_npcW (α r h : ℕ) (e : EtaData) :
   simp only [List.map_cons, List.map_nil, pro2_omega2Pow, pro2_handlesW, pro2_prodList,
     pro2_zpow, pro2_comm, pro2_inv, pro2_conj, pro2_gen_wild, pro2_gen_tau, pro2_aW, pro2_bW,
     coreLetter]
-
-omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
-/-- The one group-theoretic move of this file: `x^{-g} · x = [g, x]`. -/
-theorem invConj_mul_self (x g : G) : (conjR x g)⁻¹ * x = commP g x := by
-  simp only [conjR, commP, mul_inv_rev, inv_inv]
-  group
 
 /-- **The pro-`2` boundary value of the corrected noncompact-`N` word is MC2's `N`-core at the
 twisted Labute letters `(x₀, σ^{η̂}, x₁σ^{2^r}, x₂)`.**
