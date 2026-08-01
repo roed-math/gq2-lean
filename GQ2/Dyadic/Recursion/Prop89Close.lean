@@ -96,6 +96,8 @@ noncomputable def muZeroN {RF : RecursionFrame T Blk} (tMult : ℕ → ℕ) (En 
     * Nat.card (fixedPts (RF.YB ⧸ (En.radData l₀ h₀).M)
         (ElemDual (Additive ↥(En.radData l₀ h₀).T)))
 
+omit [TopologicalSpace H] [DiscreteTopology H] [Finite H] [TopologicalSpace E]
+  [DiscreteTopology E] [Finite E] [TopologicalSpace Y] [DiscreteTopology Y] in
 /-- **The `n = 1` bridge for `μ₀`** — `rfl`: `(standardNumerics 1).tMult T = T ^ 2`
 definitionally (`Numerics.lean:101`), so the parameterized `μ₀` **is** the model's. -/
 theorem muZeroN_standard {RF : RecursionFrame T Blk} (En : RF.Enrichment)
@@ -261,6 +263,7 @@ theorem closedRecursionK_of_source (RF : RecursionFrame T Blk) (En : RF.Enrichme
     exact h140
 
 open scoped Classical in
+omit [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)] in
 /-- **The degenerate branch**: no nonzero scalar character exists, so (137)–(140) are vacuous and
 only the (136) stage is live.  Generic half of the second branch of
 `GQ2.SectionEight.prop_8_9_of_source` (`GQ2/Prop89Close.lean:361-367`), one-sided.
