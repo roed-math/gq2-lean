@@ -225,9 +225,12 @@ tame level, and it is the letter the `q_K = 4` pin below discriminates. -/
 noncomputable def lSqW (h : ℕ) : PWord (Generator (2 * h + 1)) :=
   PWord.prodList (lSqCore h ++ handleTail h)
 
-/-- The degree of the `h`-handle instance, `n = 2h + 1`, and the freeze's length `L = 11 + n`. -/
-theorem degree_eq (h : ℕ) : 2 * h + 1 = 2 * h + 1 ∧ 11 + (2 * h + 1) = 12 + 2 * h :=
-  ⟨rfl, by omega⟩
+/-- The alphabet and the core rank line up: at degree `n = 2h + 1` the word has `n + 1` wild
+letters and one `σ`, and SqCore's rank is `sqRank h = 3 + 2h = n + 2` — the freeze's "rank-3 core
+⊕ handles" count.  (The freeze's word *length* `L = 11 + n` is a complexity number, not a Lean
+statement, and lives in the docstring.) -/
+theorem sqRank_eq_degree_add_two (h : ℕ) : SqCore.sqRank h = 2 * h + 1 + 2 := by
+  simp only [SqCore.sqRank]; omega
 
 /-! ## The certificate tree and the WW5 hash pins -/
 
@@ -636,9 +639,19 @@ theorem eval_pro2_lSqW_zero (t : Marking 1 G) :
     mul_one]
   rfl
 
-/-- The core index of a wild letter: `σ` sits at `0` and `x_i` at `i + 1`, which is simultaneously
-SqCore's core ordering (`σ, x₀, x₁`) and its handle ordering (`x_{2+2j}, x_{3+2j}` at
-`sqHandleIdxU/V j = 3 + 2j, 4 + 2j`). -/
+end Pro2
+
+/-! ### The letter correspondence
+
+`σ ↦ 0`, `x_i ↦ i + 1` — simultaneously SqCore's core ordering (`σ, x₀, x₁` at `0, 1, 2`) and its
+handle ordering (`x_{2+2j}, x_{3+2j}` at `sqHandleIdxU/V j = 3 + 2j, 4 + 2j`).  A marking carries
+no algebraic structure, so this whole block is instance-free. -/
+
+section SqIndex
+
+variable {G : Type*}
+
+/-- The core index of a wild letter: `σ` sits at `0` and `x_i` at `i + 1`. -/
 def sqIdxMark (t : Marking (2 * h + 1) G) : Fin (SqCore.sqRank h) → G := fun i =>
   if (i : ℕ) = 0 then t.σ
   else t.x ⟨(i : ℕ) - 1, by have := i.isLt; simp only [SqCore.sqRank] at this; omega⟩
@@ -663,13 +676,20 @@ def sqIdxMark (t : Marking (2 * h + 1) G) : Fin (SqCore.sqRank h) → G := fun i
     sqIdxMark t (SqCore.sqHandleIdxU j) = t (handleU j) := by
   rw [sqIdxMark, if_neg (by rw [SqCore.sqHandleIdxU_val]; omega)]
   exact congrArg t (congrArg Generator.wild
-    (Fin.ext (by simp only [SqCore.sqHandleIdxU_val, handleU]; omega)))
+    (Fin.ext (by simp only [SqCore.sqHandleIdxU_val]; omega)))
 
 @[simp] theorem sqIdxMark_handleV (t : Marking (2 * h + 1) G) (j : Fin h) :
     sqIdxMark t (SqCore.sqHandleIdxV j) = t (handleV j) := by
   rw [sqIdxMark, if_neg (by rw [SqCore.sqHandleIdxV_val]; omega)]
   exact congrArg t (congrArg Generator.wild
-    (Fin.ext (by simp only [SqCore.sqHandleIdxV_val, handleV]; omega)))
+    (Fin.ext (by simp only [SqCore.sqHandleIdxV_val]; omega)))
+
+end SqIndex
+
+section Pro2Core
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+  [TotallyDisconnectedSpace G]
 
 /-- **The headline of Gate C**: the pro-`2` specialization of the frozen `L_sq` word *is*
 `SqCore.sqRelWord`, the rank-3 square-commutator relator shape at rank `sqRank h = 3 + 2h`, read
@@ -679,7 +699,7 @@ theorem eval_pro2_lSqW_eq_sqRelWord (h : ℕ) (t : Marking (2 * h + 1) G) :
   rw [eval_pro2_lSqW, SqCore.sqRelWord, sqIdxMark_zero, sqIdxMark_one, sqIdxMark_two]
   simp only [sqIdxMark_handleU, sqIdxMark_handleV]
 
-end Pro2
+end Pro2Core
 
 /-! ### The pro-`2` specialization is a relator of `D_sq`
 
@@ -895,11 +915,17 @@ theorem qFour_tau_odd : Odd (orderOf qFourMarking.τ) := by
   exact absurd ((Nat.dvd_of_mod_eq_zero (by omega : orderOf qFourMarking.τ % 2 = 0)).trans h5)
     (by norm_num)
 
-/-- **`σ₂ ≠ σ`**: `σ` has order `6`, so `ω₂` projects it onto its order-`2` part `(sr 0, 1)`.  This
-is the fact no `2`-group can witness. -/
-theorem qFour_sigma2_ne_sigma : qFourMarking.σ ^ᶻ omega2 ≠ qFourMarking.σ := by
+/-- **`σ₂` is the `2`-part of `σ`**: `σ = (sr 0, r 1)` has order `6`, and `ω₂` projects it onto
+`(sr 0, 1)`.  Pinned as a value so the claim is checked rather than asserted. -/
+theorem qFour_sigma2 :
+    qFourMarking.σ ^ᶻ omega2 = ((DihedralGroup.sr 0, 1) : QFour) := by
   rw [PWord.zpowHat_omega2_zpow (by norm_num) (qFour_orderOf_dvd _), omega2Exp_thirty]
   decide
+
+/-- **`σ₂ ≠ σ`** — the fact no `2`-group can witness, since `ω₂` is the identity on a group of
+`2`-power exponent. -/
+theorem qFour_sigma2_ne_sigma : qFourMarking.σ ^ᶻ omega2 ≠ qFourMarking.σ := by
+  rw [qFour_sigma2]; decide
 
 /-- **The frozen word dies at the `q_K = 4` marking.** -/
 theorem eval_qFour_lSq : qFourMarking.eval (lSqW 0) = 1 := by
@@ -931,21 +957,26 @@ noncomputable def lSqSigmaSlipW (h : ℕ) : PWord (Generator (2 * h + 1)) :=
         simp only [handleTail, List.mem_cons, List.not_mem_nil, or_false] at hw
         rw [hw]; exact isOmega2Only_handlesW (k + 1)
 
-/-- **…and the mutant does not.**  `[x₁, x₁^σ] = (1, r 1) ≠ 1`, so a slip from `σ₂` to `σ` is
-detected at this `q_K = 4` target — and, by `qFour_sigma2_ne_sigma`, only at a target whose `σ` has
-a nontrivial odd part. -/
-theorem eval_qFour_lSqSigmaSlip : qFourMarking.eval (lSqSigmaSlipW 0) ≠ 1 := by
+/-- **…and the mutant does not.**  Its value is the `D₃`-rotation `[x₁, x₁^σ] = (1, r 1)`, so a
+slip from `σ₂` to `σ` is detected at this `q_K = 4` target — and, by `qFour_sigma2_ne_sigma`, only
+at a target whose `σ` has a nontrivial odd part. -/
+theorem eval_qFour_lSqSigmaSlip :
+    qFourMarking.eval (lSqSigmaSlipW 0) = ((1, DihedralGroup.r 1) : QFour) := by
   rw [Marking.eval_def, PWord.eval_eq_evalNat_of_dvd (by norm_num) qFour_orderOf_dvd,
     omega2Exp_thirty]
   · decide
   · exact isOmega2Only_lSqSigmaSlip 0
+
+/-- The mutant is not a relator here. -/
+theorem eval_qFour_lSqSigmaSlip_ne_one : qFourMarking.eval (lSqSigmaSlipW 0) ≠ 1 := by
+  rw [eval_qFour_lSqSigmaSlip]; decide
 
 /-- The pin, in one line: at a `q_K = 4` marking the frozen word and its `σ₂ → σ` mutant have
 *different* values. -/
 theorem lSq_ne_lSqSigmaSlip_at_qFour :
     qFourMarking.eval (lSqW 0) ≠ qFourMarking.eval (lSqSigmaSlipW 0) := by
   rw [eval_qFour_lSq]
-  exact fun hc => eval_qFour_lSqSigmaSlip hc.symm
+  exact fun hc => eval_qFour_lSqSigmaSlip_ne_one hc.symm
 
 end QFour
 
