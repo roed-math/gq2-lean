@@ -1478,7 +1478,7 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| WM0-a | word + boundary + sanity (mutant rejection re-scoped to WM0-c per the 2026-07-31 correction) | opus | `GQ2/Dyadic/Words/M0.lean` | G2 ✓ | **dispatched 2026-07-31** (wn0 worktree, `dyadic-wm0a`) |
+| WM0-a | word + boundary + sanity (mutant rejection re-scoped to WM0-c) | opus | `GQ2/Dyadic/Words/M0.lean` | G2 ✓ | **done 2026-07-31** (8916946…2b48059 → merged, import registered; 1106 ln, 103 decls, 0 sorries, all std-3-or-smaller; **five candidates = FOUR trees** — the q2/q4 shared hash stated as the theorem `astHash_q2_eq_q4` (q_K lives in the tame relation, not the word), all five manifest digests reproduced in-build + the freeze-row cross-pin; pro-2 = MC2's `mWord` at `A₀ = x₀⁻¹σ^{−m}` — the certificate's `gate_C_core_displayed` string VERBATIM; tame VALUE = `τ^{ω₂}·𝓔(σ₂^m,σ₂^m;τ^{ω₂},τ^{ω₂})` with `eval_eRevW_eq_eBlock` riding S1.9's Blocks API; √2/√5 pins; mutant handling HONEST per the correction (two blindness theorems proved, rejection of record = S4.1 §9.4, Lean rejection = WM0-c); ⚠ deviations for other lanes: **NO handle node at h=0 on this row** (five children; opposite of N's trailing-.one gotcha), `deltaC ≠ deltaW` as trees (bridge provided), 1 ≤ α is a real pro-2 hypothesis, nested namespace = the alphabet-dup workaround → WAH; WM0-b scaffolding landed (`mWordWith` block-slot abstraction + congr lemmas)) |
 | WM0-b | Fox certificate (reversed correction order) | opus | `GQ2/Dyadic/Certificates/M0Fox.lean` | WM0-a | pending |
 | WM0-c | Stokes/scalar/Hessian/phase: **both projector normal forms** | fable | `GQ2/Dyadic/Certificates/M0.lean` | WM0-b | pending |
 
@@ -1562,7 +1562,7 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| WL-a | word + boundary + sanity (L_sq per the re-point; n=1 = Γ_R cross-identification; q_K>2 pin) | opus | `GQ2/Dyadic/Words/L.lean` | G2 ✓ | **dispatched 2026-07-31** (lg worktree, `dyadic-wla`) |
+| WL-a | word + boundary + sanity (L_sq; Γ_R cross-identification; q_K>2 pin) | opus | `GQ2/Dyadic/Words/L.lean` | G2 ✓ | **done 2026-07-31** (1cf0acf+b011204 → merged, import registered; 1054 ln, 90 decls, 0 sorries, 90/90 exactly std-3 — **zero B3c/B8** (SqCore/Certificate imported but the rank-3 discharge never applied); 4/4 hash pins + WW5 kernel-pin inheritance by rfl; **`eval_lSqW_zero` = Roe's `wildRelatorR` LITERALLY** — gap = the zpow realignment (TWO forms needed: ℕ-exponent for sqWord, ℤ-exponent for WW1's tree — the one surprise) + prodList associativity; pro-2 = `SqCore.sqRelWord` at every odd degree, h=0 carried onto D_R via SQ4's `sqEquivDRMarked`, letter map uniform (no reindexing); **q_K=4 pin on D₅×D₃**: genuine τ^σ=τ⁴-not-τ² pair, frozen word dies, the σ₂→σ slip mutant does NOT (invisible on all 2-groups — ω₂ = id there); tame VALUE = τ^{ω₂}; `not_killsWild` reproduces — **the KillsWild finding is LANE-WIDE, not a compact-N accident**; ⚠ emitter drops the handle node entirely at n=1 (four children — third handle-shape variant across rows!); collector = docstring-only safety net, no tree needed) |
 | WL-b | Fox certificate (`n=1` base + handle stability) | opus | `GQ2/Dyadic/Certificates/LFox.lean` | WL-a | pending |
 | WL-c | Stokes/scalar/Hessian/phase (`n=1` core + hyperbolic handles) | fable | `GQ2/Dyadic/Certificates/L.lean` | WL-b | pending |
 
