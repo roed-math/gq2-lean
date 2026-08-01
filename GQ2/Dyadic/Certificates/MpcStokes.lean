@@ -501,6 +501,65 @@ theorem geomS_succ (c : ℤ) (k : ℕ) (v : V) :
   rw [geomS, geomS, Finset.sum_range_succ]
 
 omit [Finite C] [Finite V] in
+/-- Splitting a geometric operator: `𝒢_c^{k+l} = 𝒢_c^k + S₂^{ck}·𝒢_c^l`. -/
+theorem geomS_add (c : ℤ) (k l : ℕ) (v : V) :
+    geomS t c (k + l) v = geomS t c k v + ((powOmega2 t.σ) ^ (c * k)) • geomS t c l v := by
+  rw [geomS, geomS, geomS, Finset.sum_range_add, Finset.smul_sum]
+  refine congrArg _ (Finset.sum_congr rfl fun i _ => ?_)
+  rw [← mul_smul, ← zpow_add]
+  congr 1
+  push_cast
+  ring
+
+omit [Finite C] [Finite V] in
+/-- Geometric operators are additive in the vector. -/
+theorem geomS_add_vec (c : ℤ) (k : ℕ) (v w : V) :
+    geomS t c k (v + w) = geomS t c k v + geomS t c k w := by
+  rw [geomS, geomS, geomS, ← Finset.sum_add_distrib]
+  exact Finset.sum_congr rfl fun i _ => smul_add _ _ _
+
+omit [Finite C] [Finite V] in
+/-- Geometric operators commute with `S₂`-powers. -/
+theorem geomS_smul (c : ℤ) (k : ℕ) (d : ℤ) (v : V) :
+    geomS t c k (((powOmega2 t.σ) ^ d) • v) = ((powOmega2 t.σ) ^ d) • geomS t c k v := by
+  rw [geomS, geomS, Finset.smul_sum]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [← mul_smul, ← mul_smul, ← zpow_add, ← zpow_add, add_comm (c * (i : ℤ)) d]
+
+omit [Finite C] [Finite V] in
+/-- **The geometric reflection.**  Reading the same `k` powers of `S₂^c` from the other end
+turns `𝒢_c^k` into `𝒢_{−c}^k` and shifts the weight by `c(k−1)`.  This one identity is the whole
+reason the procyclic row collapses: the `C₀^{2^α}`-block's forward geometric sum and the
+orbit-norm's backward one are *the same operator*, so they cancel over `𝔽₂`. -/
+theorem smul_geomS_reflect (c : ℤ) (k : ℕ) (d : ℤ) (v : V) :
+    ((powOmega2 t.σ) ^ d) • geomS t c k v
+      = ((powOmega2 t.σ) ^ (d + c * ((k : ℤ) - 1))) • geomS t (-c) k v := by
+  rw [geomS, geomS, Finset.smul_sum, Finset.smul_sum,
+    ← Finset.sum_range_reflect
+      (fun i => ((powOmega2 t.σ) ^ d) • (((powOmega2 t.σ) ^ (c * i)) • v)) k]
+  refine Finset.sum_congr rfl fun i hi => ?_
+  rw [Finset.mem_range] at hi
+  rw [← mul_smul, ← mul_smul, ← zpow_add, ← zpow_add]
+  congr 1
+  have hcast : ((k - 1 - i : ℕ) : ℤ) = (k : ℤ) - 1 - (i : ℤ) := by omega
+  rw [hcast]
+  ring
+
+omit [Finite C] [Finite V] in
+/-- `2^α = 2·m` for `α ≥ 1` — the exponent identity that lets the `C₀^{2^α}` block split into
+two copies of `𝒢_s^m`. -/
+theorem two_pow_eq_two_mul_m {α : ℕ} (hα : 1 ≤ α) : (2 : ℕ) ^ α = 2 * m α := by
+  rw [m, ← pow_succ']
+  congr 1
+  omega
+
+omit [Finite C] [Finite V] in
+/-- The `S₂`-inverse-power action in `zpow` normal form. -/
+theorem inv_pow_smul (k : ℕ) (v : V) :
+    (((powOmega2 t.σ) ^ k)⁻¹) • v = ((powOmega2 t.σ) ^ (-(k : ℤ))) • v := by
+  rw [← zpow_natCast, ← zpow_neg]
+
+omit [Finite C] [Finite V] in
 /-- The `List.range` form of a `Finset.range` sum — the bridge the orbit-norm expansion needs,
 since `Export.orbitNormFactors` is a `List.range` map. -/
 theorem sum_map_list_range {M : Type*} [AddCommMonoid M] (f : ℕ → M) : ∀ k : ℕ,
@@ -813,6 +872,82 @@ theorem foxD_mpcLinW_ram {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDispl
     PWord.evalFin_one, smul_zero, add_zero, mul_one]
   rw [mem_trivAct.mp hAB, mem_trivAct.mp hCD, mem_trivAct.mp h01, key]
   abel
+
+/-! ### The collapse
+
+Substituting the six factor rows into `foxD_mpcLinW_ram` and reading the result column by column
+gives **nineteen terms in ten weights, and nine of the ten weights occur an even number of
+times.**  Three cancellations do the work, and each is a structural statement:
+
+* the `x₀`- and `x₁`-columns of the head block `A²[A,B]` are reproduced *exactly* by `E₀₁^pc` —
+  the freeze's "`E₀₁^pc` is first-order redundant", now visible as a column-level identity rather
+  than as the shadow-reproduction statement of WMP-b's `foxD_e01_reproduced_by_shadow`;
+* the `C₀^{2^α}` block splits as `𝒢_s^m + S₂^{sm}𝒢_s^m` (because `2^α = 2m`), which absorbs the
+  head block's remaining `x₂`-content;
+* what is left of `C₀^{2^α}` is the **reflection** of the orbit norm — the same `m` powers of
+  `S₂^s` read from the other end — so `E₂^pc` cancels it, and its head `S₂^{−s}a(x₂)` cancels
+  the `[C₀,D]` block's first term.
+
+What survives is one entry, in the `x₂`-column, and it comes from the `η̂` commutator. -/
+
+/-- **The linear copy's Fox row is a single entry.**
+
+```
+D(R_lin^pc)(a) = S₂^{−s}·σ^{−n}·a(x₂)
+```
+
+at σ-free offsets, at the ramified reading, in characteristic two, at **every** `(α ≥ 1, r, p, η,
+h)`.  This is WMP-c's residual (i) discharged, and it is sharper than the transport shape needed
+it to be: the row has no `σ`-, `τ`-, `x₀`- or `x₁`-entry at all.
+
+⚠ Consistency check against the siblings: `MCompact.mCompactWildRow` read at the **ramified**
+interpretation (`P ↦ 0`) is `(0, 0, 0, 0, S⁻¹)` — also supported on `x₂` alone, also a single
+`σ`-power.  The procyclic row is the same shape with `S⁻¹` replaced by `S₂^{−s}σ^{−n}`, which is
+exactly the two data the procyclic display adds (`C₀`'s `σ₂^s` tail and `D = σ^{η̂}`). -/
+theorem foxD_mpcLinW_x2 {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay} {nη : ℤ}
+    (hη : ActsAsPow t.σ nη (PWord.evalFin ⇑t E E₂ (η.toPWord (n := 2 + 2 * h))) V)
+    (hV₂ : ∀ w : V, w + w = 0) :
+    foxD ⇑t a E E₂ (mpcLinW α r pp η h)
+      = ((powOmega2 t.σ) ^ (-(s r : ℤ))) • ((t.σ ^ (-nη)) • a (coreLetter h 2)) := by
+  rw [foxD_mpcLinW_ram t E E₂ a hσ hwild hτfpf hTodd hα r pp hη, smul_add,
+    foxD_aW_sq t E E₂ a hσ hwild hτfpf hTodd,
+    foxD_aW t E E₂ a hσ hwild hτfpf hTodd hV₂,
+    foxD_commAB t E E₂ a hσ hwild hτfpf hTodd hV₂,
+    foxD_aW t E E₂ a hσ hwild hτfpf hTodd hV₂,
+    foxD_c0W_zpow t E E₂ a hσ hwild hτfpf hTodd,
+    foxD_commC0D t E E₂ a hσ hwild hτfpf hTodd hV₂ hη,
+    foxD_e01W_ram t E E₂ a hσ hwild hτfpf hTodd,
+    foxD_e2W t E E₂ a hσ hwild hτfpf hTodd hV₂,
+    two_pow_eq_two_mul_m hα, show 2 * m α = m α + m α from by ring, geomS_add,
+    geomS_add_vec, geomS_smul]
+  simp only [smul_add, mul_smul, inv_pow_smul, Certificates.neg_eq_self hV₂, sub_eq_add_neg]
+  simp only [← mul_smul, ← zpow_add]
+  push_cast
+  ring_nf
+  -- the two reflections: what is left of `C₀^{2^α}` *is* the orbit norm, read backwards
+  have href1 : ((powOmega2 t.σ) ^ (-((s r : ℤ) * (m α : ℤ) * 2)))
+        • geomS t (s r : ℤ) (m α) (a (coreLetter h 2))
+      = ((powOmega2 t.σ) ^ (-(s r : ℤ) - (s r : ℤ) * (m α : ℤ)))
+          • geomS t (-(s r : ℤ)) (m α) (a (coreLetter h 2)) := by
+    rw [smul_geomS_reflect]
+    congr 2
+    ring
+  have href2 : ((powOmega2 t.σ) ^ (-((s r : ℤ) * (m α : ℤ) * 2) - (pp : ℤ)))
+        • geomS t (s r : ℤ) (m α) (a (coreLetter h 2))
+      = ((powOmega2 t.σ) ^ (-(s r : ℤ) - (s r : ℤ) * (m α : ℤ) - (pp : ℤ)))
+          • geomS t (-(s r : ℤ)) (m α) (a (coreLetter h 2)) := by
+    rw [smul_geomS_reflect]
+    congr 2
+    ring
+  have hev2 : ∀ x : V, (2 : ℕ) • x = 0 := fun x => by rw [two_nsmul, hV₂]
+  have hev4 : ∀ x : V, (4 : ℕ) • x = 0 := fun x => by
+    rw [show (4 : ℕ) = 2 * 2 from rfl, mul_nsmul, hev2]
+  have hevz2 : ∀ x : V, (2 : ℤ) • x = 0 := fun x => by rw [two_zsmul, hV₂]
+  have hevz4 : ∀ x : V, (4 : ℤ) • x = 0 := fun x => by
+    rw [show (4 : ℤ) = 2 * 2 from rfl, mul_zsmul, hevz2]
+  rw [href1, href2]
+  abel_nf
+  simp [hev2, hev4, hevz2, hevz4]
 
 end Factors
 
