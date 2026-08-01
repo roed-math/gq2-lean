@@ -480,4 +480,195 @@ noncomputable def ofPresentedBy {X : Type} {W : WordCoh.NatWord X} {μ : X → (
 
 end CorePresentation
 
+/-! ## §7 The pilot: compact `N` at rank `4 + 2h`
+
+AS2's branch.  Everything below is the per-branch cost of the bridge, and it is exactly one
+`CoreReindex` plus one restatement of a landed theorem.
+
+The dictionary: the compact-`N` core `D_N` has rank `coreRank h = 4 + 2h` with letters
+`(x₀, x₁, σ, x₂)` at indices `0, 1, 2, 3` (note `σ` sits at **index 2**, not 0) and the handle pair
+`(u_j, v_j)` at `4 + 2j, 5 + 2j`; the alphabet at `n = 2 + 2h` is `(σ, τ, x₀, …, x_{2+2h})` with the
+handle letters at `x_{3+2j}, x_{4+2j}`.  So the table is "delete `τ`, and move `σ` into slot 2",
+i.e. wild letter `x_j` sits at core index `j` for `j ≤ 1` and at `j + 1` for `j ≥ 2`. -/
+
+namespace PilotN
+
+open GQ2.Dyadic.Words GQ2.Dyadic.MarkedCore
+
+/-- Core generator index ↦ alphabet letter: `0 ↦ x₀`, `1 ↦ x₁`, `2 ↦ σ`, `3 ↦ x₂`,
+`4 + 2j ↦ x_{3+2j}`, `5 + 2j ↦ x_{4+2j}`. -/
+def nIdx (h : ℕ) (i : Fin (coreRank h)) : Generator (2 + 2 * h) :=
+  if (i : ℕ) = 2 then .sigma
+  else .wild ⟨if (i : ℕ) ≤ 1 then (i : ℕ) else (i : ℕ) - 1, by
+    have := i.isLt; simp only [coreRank] at this; split <;> omega⟩
+
+/-- Wild-letter index ↦ core generator index (the inverse table off `σ`). -/
+def nWildIdx (h : ℕ) (j : Fin (2 + 2 * h + 1)) : Fin (coreRank h) :=
+  ⟨if (j : ℕ) ≤ 1 then (j : ℕ) else (j : ℕ) + 1, by
+    have := j.isLt; simp only [coreRank]; split <;> omega⟩
+
+/-- The core index carrying `σ`. -/
+def nSigmaIdx (h : ℕ) : Fin (coreRank h) := ⟨2, by simp only [coreRank]; omega⟩
+
+@[simp] theorem nIdx_nSigmaIdx (h : ℕ) : nIdx h (nSigmaIdx h) = .sigma := rfl
+
+@[simp] theorem nIdx_nWildIdx (h : ℕ) (j : Fin (2 + 2 * h + 1)) :
+    nIdx h (nWildIdx h j) = .wild j := by
+  have hj := j.isLt
+  simp only [nIdx, nWildIdx]
+  rw [if_neg (by split <;> omega)]
+  congr 1
+  exact Fin.ext (by simp only; split_ifs <;> omega)
+
+/-- **The compact-`N` dictionary.** -/
+noncomputable def nReindex (h : ℕ) : CoreReindex (2 + 2 * h) (Fin (coreRank h)) where
+  toCore := fun t i => t (nIdx h i)
+  ofCore := fun m => Marking.ofLetters (m (nSigmaIdx h)) 1 (fun j => m (nWildIdx h j))
+  ofCore_tau := fun _ => rfl
+  toCore_ofCore := fun m => by
+    funext i
+    have hi := i.isLt
+    simp only [coreRank] at hi
+    by_cases h2 : (i : ℕ) = 2
+    · have : nIdx h i = .sigma := by simp only [nIdx, if_pos h2]
+      rw [this]
+      exact congrArg m (Fin.ext (by simp only [nSigmaIdx]; omega))
+    · have hne : nIdx h i
+          = .wild ⟨if (i : ℕ) ≤ 1 then (i : ℕ) else (i : ℕ) - 1, by split <;> omega⟩ := by
+        simp only [nIdx, if_neg h2]
+      rw [hne]
+      exact congrArg m (Fin.ext (by simp only [nWildIdx]; split_ifs <;> omega))
+  ofCore_toCore := fun t ht => by
+    ext g
+    cases g with
+    | sigma => rfl
+    | tau => exact ht.symm
+    | wild j => exact congrArg t (nIdx_nWildIdx h j)
+  toCore_nat := fun _ _ _ => rfl
+  ofCore_nat := fun f m g => by cases g with
+    | sigma => rfl
+    | tau => exact map_one f
+    | wild _ => rfl
+
+/-- Off the `σ` slot, `nIdx` is a wild letter — in the form that identifies the letter *without*
+rewriting under the `Fin.mk` proof term (which is motive-unsound: the inner `if` occurs in both
+the value and its bound proof). -/
+theorem nIdx_eq_wild (h : ℕ) (i : Fin (coreRank h)) (h2 : (i : ℕ) ≠ 2)
+    (j : Fin (2 + 2 * h + 1)) (hj : (j : ℕ) = if (i : ℕ) ≤ 1 then (i : ℕ) else (i : ℕ) - 1) :
+    nIdx h i = .wild j := by
+  simp only [nIdx, if_neg h2]
+  exact congrArg Generator.wild (Fin.ext hj.symm)
+
+@[simp] theorem nIdx_zero (h : ℕ) : nIdx h 0 = coreLetter h 0 :=
+  nIdx_eq_wild h 0 (by rw [coreVal_zero]; omega) _ (by rw [coreVal_zero]; rfl)
+
+@[simp] theorem nIdx_one (h : ℕ) : nIdx h 1 = coreLetter h 1 :=
+  nIdx_eq_wild h 1 (by rw [coreVal_one]; omega) _ (by rw [coreVal_one]; rfl)
+
+@[simp] theorem nIdx_two (h : ℕ) : nIdx h 2 = .sigma := by
+  simp only [nIdx, coreVal_two, if_pos]
+
+@[simp] theorem nIdx_three (h : ℕ) : nIdx h 3 = coreLetter h 2 :=
+  nIdx_eq_wild h 3 (by rw [coreVal_three]; omega) _ (by rw [coreVal_three]; rfl)
+
+@[simp] theorem nIdx_handleIdxU (h : ℕ) (j : Fin h) :
+    nIdx h (handleIdxU j) = handleU j :=
+  nIdx_eq_wild h (handleIdxU j) (by rw [handleIdxU_val]; omega) _ (by
+    show 3 + 2 * (j : ℕ) = _
+    rw [handleIdxU_val, if_neg (by omega)]
+    omega)
+
+@[simp] theorem nIdx_handleIdxV (h : ℕ) (j : Fin h) :
+    nIdx h (handleIdxV j) = handleV j :=
+  nIdx_eq_wild h (handleIdxV j) (by rw [handleIdxV_val]; omega) _ (by
+    show 4 + 2 * (j : ℕ) = _
+    rw [handleIdxV_val, if_neg (by omega)]
+    omega)
+
+/-- **The landed word-level input, in the shape the bridge consumes.**  This is
+`GQ2.Dyadic.Words.eval_pro2_nCompact` (`GQ2/Dyadic/Words/N0.lean:378`) read through the
+dictionary: the RHS `nWord α (t x₀) (t x₁) t.σ (t x₂) * handleWord …` **is** `nRelWord α` at the
+reindexed marking, at every handle count `h` — not only at `h = 0`, where `Words/N0.lean` states
+its `_eq_nRelWord` corollary. -/
+theorem eval_pro2_nCompact_reindex (α h : ℕ) {G : Type} [Group G] [TopologicalSpace G]
+    [IsTopologicalGroup G] [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G]
+    (t : Marking (2 + 2 * h) G) :
+    t.eval (pro2 (nCompactW α h)) = (nNatWord α h).ev ((nReindex h).toCore t) := by
+  rw [eval_pro2_nCompact α h t]
+  show _ = nRelWord α (fun i => t (nIdx h i))
+  simp only [nRelWord, nIdx_zero, nIdx_one, nIdx_two, nIdx_three, nIdx_handleIdxU,
+    nIdx_handleIdxV, Marking.apply_sigma]
+
+/-- **The pilot core presentation**: `D_N` at rank `4 + 2h`, in alphabet coordinates.
+
+Inputs, all landed: `isProP_DN`, `presentedBy_DN` (`MarkedCore/Certificate.lean:285`),
+`dn_relation`, and WN0's `eval_pro2_nCompact`.  **No `NLabHypothesis`** — note in particular that
+`presentedBy_DN` and `dn_relation` are used, not `markedRelator_DN`, so not even the `1 ≤ α`
+side condition is inherited. -/
+noncomputable def nCorePresentation (α h : ℕ) :
+    CorePresentation (2 + 2 * h) (nCompactW α h) (DN α h) :=
+  CorePresentation.ofPresentedBy (isProP_DN α h) (presentedBy_DN α h) (dn_relation α h)
+    (nReindex h) (fun t => eval_pro2_nCompact_reindex α h t)
+
+@[simp] theorem nCorePresentation_mark_sigma (α h : ℕ) :
+    (nCorePresentation α h).mark .sigma = dnSigma α h :=
+  congrArg (dnGen α h) (Fin.ext (by rw [coreVal_two]; rfl))
+
+@[simp] theorem nCorePresentation_mark_wild (α h : ℕ) (j : Fin (2 + 2 * h + 1)) :
+    (nCorePresentation α h).mark (.wild j) = dnGen α h (nWildIdx h j) := rfl
+
+/-- **The pilot bridge**: the maximal pro-2 quotient of the compact-`N` candidate group is the
+presented core `D_N`, at every handle count.  The `ℚ₂` shadow of this statement is
+`GQ2.maxPro2Bridge`; that one is `n = 1`, `q = 2`, rank 3, and this one is rank `4 + 2h`. -/
+noncomputable def nMaxProTwoBridge (α h q : ℕ) (hq0 : q ≠ 0) (hqe : Even q) :
+    ContinuousMulEquiv
+      ((maxProPQuotient 2 ((GammaR (2 + 2 * h) q (nCompactW α h)) : Type)) : Type)
+      ((DN α h) : Type) :=
+  CorePresentation.maxProTwoBridge (nCorePresentation α h) hq0 hqe
+
+/-- **The pilot's four `WordCertificate` pro-2 fields.**  Compare `GQ2.Roe.exists_pro2R`: same
+shape, no `BLabHypothesis`, and at rank `4 + 2h` rather than 3. -/
+theorem n_exists_proTwo (α h q : ℕ) (hq0 : q ≠ 0) (hqe : Even q)
+    (hspec : TameSpecializes (2 + 2 * h) q (nCompactW α h))
+    (nuP : ContinuousMonoidHom ((DN α h) : Type) Ztwo)
+    (hnuSigma : nuP (dnSigma α h) = ztwoOne)
+    (hnuWild : ∀ j : Fin (2 + 2 * h + 1), nuP (dnGen α h (nWildIdx h j)) = 1) :
+    ∃ pro2G : ContinuousMonoidHom (((GammaR (2 + 2 * h) q (nCompactW α h))) : Type)
+        ((DN α h) : Type),
+      Function.Surjective pro2G ∧
+      pro2G.toMonoidHom.ker = proPKernel 2 ((GammaR (2 + 2 * h) q (nCompactW α h)) : Type) ∧
+      (∀ g, nuTq q (tameOfSpec (2 + 2 * h) q (nCompactW α h) hspec g) = nuP (pro2G g)) ∧
+      pro2G (gammaGen (2 + 2 * h) q (nCompactW α h) .tau) = 1 :=
+  CorePresentation.exists_proTwo (nCorePresentation α h) hq0 hqe hspec nuP
+    (by rw [nCorePresentation_mark_sigma]; exact hnuSigma)
+    (fun j => by rw [nCorePresentation_mark_wild]; exact hnuWild j)
+
+/-! ### Stress checks (plan rule 9) -/
+
+/-- **Stress test.**  The bridge's word-level input really is the landed `eval_pro2_nCompact`:
+the two sides of the dictionary agree on the nose at every `h`. -/
+example (α h : ℕ) {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] (t : Marking (2 + 2 * h) G) :
+    nRelWord α ((nReindex h).toCore t)
+      = nWord α (t (coreLetter h 0)) (t (coreLetter h 1)) t.σ (t (coreLetter h 2)) *
+        handleWord (fun j => t (handleU j)) (fun j => t (handleV j)) :=
+  (eval_pro2_nCompact_reindex α h t).symm.trans (eval_pro2_nCompact α h t)
+
+/-- **Stress test (`h = 0`).**  At no handles the pilot core is `D_N` at rank 4 and the dictionary
+reproduces `Words/N0.lean`'s own `coreMark` normalization (`eval_pro2_nCompact_eq_nRelWord`). -/
+example (α : ℕ) {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] (t : Marking 2 G) :
+    nRelWord α ((nReindex 0).toCore t)
+      = nRelWord (h := 0) α (coreMark (t.x 0) (t.x 1) t.σ (t.x 2)) :=
+  (eval_pro2_nCompact_reindex α 0 t).symm.trans (eval_pro2_nCompact_eq_nRelWord α t)
+
+/-- **Stress test (`τ` death).**  The pilot bridge carries the class of `τ` to `1 ∈ D_N`. -/
+example (α h q : ℕ) (hq0 : q ≠ 0) (hqe : Even q) :
+    nMaxProTwoBridge α h q hq0 hqe
+        (CorePresentation.maxMarking (2 + 2 * h) q (nCompactW α h) .tau) = 1 :=
+  (CorePresentation.PhiMax_maxMarking (nCorePresentation α h) hq0 hqe .tau).trans
+    (nCorePresentation α h).mark_tau
+
+end PilotN
+
 end GQ2.Dyadic.Count
