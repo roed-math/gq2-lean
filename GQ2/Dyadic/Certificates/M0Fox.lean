@@ -153,12 +153,20 @@ stronger.
 ## Axiom state (recorded per WM0-b instructions; `#print axioms` run in a scratch file, not
 committed)
 
-**Audited 2026-08-01, all 92 named declarations of this file**: every one depends on a subset
-of the standard axioms `[propext, Classical.choice, Quot.sound]` — 71 print exactly std-3, 16
+**Audited 2026-08-01, all 96 named declarations of this file**: every one depends on a subset
+of the standard axioms `[propext, Classical.choice, Quot.sound]` — 75 print exactly std-3, 16
 print `[propext, Quot.sound]`, 4 print `[propext]`, and `tameRow_two_ne_four` (a kernel
 `decide`) depends on **no axiom at all**.  Zero `sorryAx`, zero `Lean.ofReduceBool` (no
 `native_decide`), and no `B`-axiom of the dyadic census leaks through the
 `Words.M0 → TameBoundary → MarkedCore` import chain.  The census stays at **eleven**.
+
+All 28 headlines print exactly std-3: `foxD_mWordWith_core`, `foxD_mCompact_core`,
+`foxD_mCompact_unram`, `foxD_mCompact_unram_simple`, `foxD_mCompact_ram`,
+`foxD_mCompact_split`, `foxD_mCompact_eq_nCompact_unram_simple`, `foxD_eRevW`,
+`foxD_eRevW_unram`, `foxD_eRevW_ram`, `foxD_eFwdW_eq_eRevW`, `foxD_mFwdW_eq_mCompact`,
+`foxDHom_mFwdW_eq_mCompact`, `foxDHom_mCompact_handleU_column`,
+`foxDHom_mCompact_handleV_column`, `mCompactWildRow_toHom_apply`, the four published-row
+certificates, the two Jacobian certificates and all six instance certificates.
 
 ## Implementation notes
 
