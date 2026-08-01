@@ -247,6 +247,165 @@ theorem isSymplectic_restrict {b : W → W → ZMod 2} (hb : IsSymplecticFp2 b) 
       exact hval
     exact Subtype.ext hu0
 
+/-- The plane-splitting Gram identity: `b` is the hyperbolic plane on `(v,w)` **plus** the
+restricted form on the complement, read through the projection.  This is the whole content of
+the induction step; everything else is bookkeeping. -/
+theorem hypSplit_gram {b : W → W → ZMod 2} (hb : IsSymplecticFp2 b) {v w : W}
+    (hvw : b v w = 1) (x y : W) :
+    b x y = (b w x * b v y + b v x * b w y)
+      + b (x + (b w x) • v + (b v x) • w) (y + (b w y) • v + (b v y) • w) := by
+  have hwv : b w v = 1 := by rw [← hb.symm]; exact hvw
+  have hxv : b x v = b v x := hb.symm x v
+  have hxw : b x w = b w x := hb.symm x w
+  rw [hb.add_left, hb.add_left, hb.add_right, hb.add_right, hb.add_right, hb.add_right,
+    hb.add_right, hb.add_right]
+  simp only [hb.smul_left, hb.smul_right, hb.alt, hvw, hwv, hxv, hxw, mul_zero, mul_one,
+    add_zero, zero_add]
+  ring_nf
+  simp [show (4 : ZMod 2) = 0 from by decide]
+
 end Symplectic
+
+/-! ### §1.2 The recursion
+
+`Nat.card`-decreasing induction on the plane splitting.  The bound variable `N` carries the
+recursion so that the statement can stay universe-polymorphic in `W` (the complement is a
+submodule of `W`, hence in the same universe). -/
+
+section SymplecticNormalForm
+
+universe u
+
+/-- `M × (Fin m → M) ≃ₗ Fin (m+1) → M`, the `Fin.cons`/`Fin.tail` pair as a linear equivalence.
+Stated for `ZMod 2` only, which is all the recursion needs. -/
+def consLinearEquiv (m : ℕ) (M : Type*) [AddCommGroup M] [Module (ZMod 2) M] :
+    (M × (Fin m → M)) ≃ₗ[ZMod 2] (Fin (m + 1) → M) where
+  toFun p := Fin.cons p.1 p.2
+  map_add' p q := by
+    funext i
+    refine Fin.cases ?_ (fun j => ?_) i <;> simp
+  map_smul' c p := by
+    funext i
+    refine Fin.cases ?_ (fun j => ?_) i <;> simp
+  invFun z := (z 0, Fin.tail z)
+  left_inv p := by simp [Fin.tail_cons]
+  right_inv z := by simp [Fin.cons_self_tail]
+
+@[simp] theorem consLinearEquiv_apply {m : ℕ} {M : Type*} [AddCommGroup M] [Module (ZMod 2) M]
+    (p : M × (Fin m → M)) : consLinearEquiv m M p = Fin.cons p.1 p.2 := rfl
+
+variable {W : Type u} [AddCommGroup W] [Module (ZMod 2) W]
+
+/-- The plane-splitting equivalence `W ≃ₗ (𝔽₂ × 𝔽₂) × (v,w)^⊥`. -/
+noncomputable def hypSplitEquiv {b : W → W → ZMod 2} (hb : IsSymplecticFp2 b) {v w : W}
+    (hvw : b v w = 1) : W ≃ₗ[ZMod 2] (ZMod 2 × ZMod 2) × hypPerp b hb v w where
+  toFun u := ((b w u, b v u), ⟨u + (b w u) • v + (b v u) • w, hypProj_mem hb hvw u⟩)
+  map_add' u u' := by
+    refine Prod.ext (Prod.ext (hb.add_right _ _ _) (hb.add_right _ _ _)) (Subtype.ext ?_)
+    show u + u' + (b w (u + u')) • v + (b v (u + u')) • w
+      = (u + (b w u) • v + (b v u) • w) + (u' + (b w u') • v + (b v u') • w)
+    rw [hb.add_right, hb.add_right, add_smul, add_smul]
+    abel
+  map_smul' c u := by
+    refine Prod.ext (Prod.ext (hb.smul_right _ _ _) (hb.smul_right _ _ _)) (Subtype.ext ?_)
+    show c • u + (b w (c • u)) • v + (b v (c • u)) • w
+      = c • (u + (b w u) • v + (b v u) • w)
+    rw [hb.smul_right, hb.smul_right, smul_add, smul_add, mul_smul, mul_smul]
+  invFun p := p.1.1 • v + p.1.2 • w + (p.2 : W)
+  left_inv u := by
+    have h2 : ∀ x : W, x + x = 0 := GQ2.Dyadic.Certificates.module_zmod2_two_torsion
+    show (b w u) • v + (b v u) • w + (u + (b w u) • v + (b v u) • w) = u
+    calc (b w u) • v + (b v u) • w + (u + (b w u) • v + (b v u) • w)
+        = u + ((b w u) • v + (b w u) • v) + ((b v u) • w + (b v u) • w) := by abel
+      _ = u := by rw [h2, h2, add_zero, add_zero]
+  right_inv p := by
+    have h2 : ∀ x : W, x + x = 0 := GQ2.Dyadic.Certificates.module_zmod2_two_torsion
+    have hwv : b w v = 1 := by rw [← hb.symm]; exact hvw
+    have hbw : b w (p.1.1 • v + p.1.2 • w + (p.2 : W)) = p.1.1 := by
+      rw [hb.add_right, hb.add_right, hb.smul_right, hb.smul_right, hwv, hb.alt w,
+        mul_one, mul_zero, add_zero, p.2.2.2, add_zero]
+    have hbv : b v (p.1.1 • v + p.1.2 • w + (p.2 : W)) = p.1.2 := by
+      rw [hb.add_right, hb.add_right, hb.smul_right, hb.smul_right, hvw, hb.alt v,
+        mul_zero, mul_one, zero_add, p.2.2.1, add_zero]
+    refine Prod.ext (Prod.ext hbw hbv) (Subtype.ext ?_)
+    show p.1.1 • v + p.1.2 • w + (p.2 : W)
+        + (b w (p.1.1 • v + p.1.2 • w + (p.2 : W))) • v
+        + (b v (p.1.1 • v + p.1.2 • w + (p.2 : W))) • w = (p.2 : W)
+    rw [hbw, hbv]
+    calc p.1.1 • v + p.1.2 • w + (p.2 : W) + p.1.1 • v + p.1.2 • w
+        = (p.2 : W) + (p.1.1 • v + p.1.1 • v) + (p.1.2 • w + p.1.2 • w) := by abel
+      _ = (p.2 : W) := by rw [h2, h2, add_zero, add_zero]
+
+/-- The recursion carrier.  `N` bounds `Nat.card W`, so the statement stays in one universe. -/
+theorem exists_symplectic_equiv_aux :
+    ∀ (N : ℕ) {W : Type u} [AddCommGroup W] [Module (ZMod 2) W] [Finite W]
+      (b : W → W → ZMod 2), IsSymplecticFp2 b → Nat.card W ≤ N →
+      ∃ (m : ℕ) (φ : W ≃ₗ[ZMod 2] (Fin m → ZMod 2 × ZMod 2)),
+        ∀ x y, b x y = hypGram (φ x) (φ y) := by
+  intro N
+  induction N with
+  | zero =>
+    intro W _ _ _ b _ hcard
+    exact absurd hcard (by simpa using Nat.card_pos (α := W).ne')
+  | succ N ih =>
+    intro W _ _ _ b hb hcard
+    by_cases hzero : ∀ x : W, x = 0
+    · refine ⟨0, ?_, ?_⟩
+      · exact
+          { toFun := fun _ => 0
+            map_add' := fun _ _ => by simp
+            map_smul' := fun _ _ => by simp
+            invFun := fun _ => 0
+            left_inv := fun x => (hzero x).symm
+            right_inv := fun y => funext fun i => i.elim0 }
+      · intro x y
+        rw [hzero x, hb.zero_left]
+        simp [hypGram]
+    · push_neg at hzero
+      obtain ⟨v, hv⟩ := hzero
+      have hex : ∃ w, b v w ≠ 0 := by
+        by_contra hcon
+        push_neg at hcon
+        exact hv (hb.nondeg v hcon)
+      obtain ⟨w, hw⟩ := hex
+      have hvw : b v w = 1 := by
+        rcases ZMod.eq_zero_or_eq_one (b v w) with h | h
+        · exact absurd h hw
+        · exact h
+      have hwv : b w v = 1 := by rw [← hb.symm]; exact hvw
+      have hvnot : v ∉ hypPerp b hb v w := by
+        intro hmem
+        exact one_ne_zero (hwv ▸ hmem.2)
+      have hlt : Nat.card (hypPerp b hb v w) < Nat.card W := by
+        have hsub : ((hypPerp b hb v w : Submodule (ZMod 2) W) : Set W) ⊂ Set.univ :=
+          ⟨Set.subset_univ _, fun hle => hvnot (hle (Set.mem_univ v))⟩
+        have hne := Set.ncard_lt_ncard hsub Set.finite_univ
+        rw [Set.ncard_univ] at hne
+        exact hne
+      obtain ⟨m, φ', hφ'⟩ :=
+        ih (fun x y : hypPerp b hb v w => b (x : W) (y : W))
+          (isSymplectic_restrict hb hvw) (by omega)
+      refine ⟨m + 1, (hypSplitEquiv hb hvw).trans
+        (((LinearEquiv.refl (ZMod 2) (ZMod 2 × ZMod 2)).prodCongr φ').trans
+          (consLinearEquiv m (ZMod 2 × ZMod 2))), fun x y => ?_⟩
+      show b x y = hypGram (Fin.cons (b w x, b v x) (φ' _))
+        (Fin.cons (b w y, b v y) (φ' _))
+      rw [hypGram_cons, ← hφ']
+      exact hypSplit_gram hb hvw x y
+
+/-- **The symplectic normal form over `𝔽₂`** — a nondegenerate alternating biadditive form on a
+finite `𝔽₂`-space is an orthogonal sum of hyperbolic planes, in an explicit linear equivalence
+with the inverse witness built in.
+
+Neither this repo nor the pinned mathlib had any `𝔽₂` form classification: mathlib's
+diagonalization chain (`equivalent_weightedSumSquares`) is gated on `Invertible (2 : K)`, and
+there is no hyperbolic plane, no Witt decomposition and no Witt cancellation anywhere in
+`Mathlib/LinearAlgebra/QuadraticForm/`.  This is the piece S2.4 §5.5 called for. -/
+theorem exists_symplectic_equiv [Finite W] (b : W → W → ZMod 2) (hb : IsSymplecticFp2 b) :
+    ∃ (m : ℕ) (φ : W ≃ₗ[ZMod 2] (Fin m → ZMod 2 × ZMod 2)),
+      ∀ x y, b x y = hypGram (φ x) (φ y) :=
+  exists_symplectic_equiv_aux (Nat.card W) b hb le_rfl
+
+end SymplecticNormalForm
 
 end GQ2.Dyadic.Certificates.LSqStokes
