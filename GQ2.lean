@@ -257,8 +257,10 @@ import GQ2.Dyadic.Words.N0
 import GQ2.Dyadic.Words.Npc
 import GQ2.Dyadic.Words.M0
 import GQ2.Dyadic.Words.L
+import GQ2.Dyadic.Words.Mpc
 import GQ2.Dyadic.Certificates.N0Fox
 import GQ2.Dyadic.Certificates.N0
+import GQ2.Dyadic.Certificates.LFox
 import GQ2.Dyadic.TameQuotientK
 import GQ2.Dyadic.TameBoundary
 import GQ2.Dyadic.MarkedCore.Cores
