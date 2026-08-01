@@ -143,6 +143,113 @@ theorem heisJetZero_sq_z {p : HeisLift A C} (hp : p ∈ heisJetZero A C) : (p * 
 
 end ZeroJet
 
+/-! ## Powers, commutators and conjugates of trivial-base lifts
+
+Three closed forms for `HeisLift`-values whose base acts trivially on the coefficient module —
+the per-factor engine of every second-order row, one degree up from the Fox-level `trivAct`
+toolkit of `GQ2/Dyadic/Word/Fox.lean`.  The commutator form needs **no** 2-torsion (the offsets
+cancel exactly); only the power form's simplifications do. -/
+
+section TrivialBase
+
+variable {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+
+/-- A trivially-acting base acts trivially on the elementary dual as well
+(the contragredient of the identity). -/
+theorem smul_elemDual_of_trivial {g : C} (hg : ∀ a : A, g • a = a) (lam : ElemDual A) :
+    g • lam = lam := by
+  refine ElemDual.ext fun a => ?_
+  rw [ElemDual.smul_apply]
+  exact congrArg lam (inv_smul_eq_iff.mpr (hg a).symm)
+
+private theorem elemDual_nsmul_apply (k : ℕ) (f : ElemDual A) (a : A) :
+    (k • f) a = k • f a := by
+  induction k with
+  | zero => rfl
+  | succ k ih => rw [succ_nsmul, succ_nsmul, ElemDual.add_apply, ih]
+
+/-- **The power law for a trivial-base Heisenberg lift**:
+`p^n = (n·a, n·λ, n·z + C(n,2)·λ(a); gⁿ)`.  The binomial coefficient is the whole
+second-order content of a power — the `q(c₀)`-production mechanism of a leading even
+wild power. -/
+theorem heisPow_of_trivial (p : HeisLift A C) (hp : ∀ a : A, p.g • a = a) (n : ℕ) :
+    p ^ n = ⟨n • p.a, n • p.l, n • p.z + (n.choose 2) • p.l p.a, p.g ^ n⟩ := by
+  have hgpow : ∀ (m : ℕ) (a : A), (p.g ^ m) • a = a := by
+    intro m
+    induction m with
+    | zero => intro a; rw [pow_zero, one_smul]
+    | succ m ih => intro a; rw [pow_succ, mul_smul, hp, ih]
+  induction n with
+  | zero =>
+      refine HeisLift.ext ?_ ?_ ?_ ?_ <;> simp
+  | succ n ih =>
+      have hgn : ∀ a : A, (p.g ^ n) • a = a := hgpow n
+      rw [pow_succ, ih]
+      refine HeisLift.ext ?_ ?_ ?_ ?_
+      · show n • p.a + (p.g ^ n) • p.a = (n + 1) • p.a
+        rw [hgn, succ_nsmul]
+      · show n • p.l + (p.g ^ n) • p.l = (n + 1) • p.l
+        rw [smul_elemDual_of_trivial hgn, succ_nsmul]
+      · show n • p.z + (n.choose 2) • p.l p.a + p.z + (n • p.l) ((p.g ^ n) • p.a)
+          = (n + 1) • p.z + ((n + 1).choose 2) • p.l p.a
+        rw [hgn, elemDual_nsmul_apply, Nat.choose_succ_succ n 1, Nat.choose_one_right]
+        simp only [add_nsmul, succ_nsmul]
+        abel
+      · show p.g ^ n * p.g = p.g ^ (n + 1)
+        rw [pow_succ]
+
+/-- **The commutator of two trivial-base Heisenberg lifts is jet-zero central** with
+value the mixed pairing `λ_p(a_q) + λ_q(a_p)` — an identity-operator hyperbolic plane.
+No 2-torsion hypothesis: the offsets cancel exactly, only the `ZMod 2` centre folds
+signs.  This is each handle pair's entire second-order content. -/
+theorem heisCommR_of_trivial (p r : HeisLift A C) (hp : ∀ a : A, p.g • a = a)
+    (hr : ∀ a : A, r.g • a = a) :
+    commR p r = ⟨0, 0, p.l r.a + r.l p.a, commR p.g r.g⟩ := by
+  have hpi : ∀ a : A, p.g⁻¹ • a = a := fun a => inv_smul_eq_iff.mpr (hp a).symm
+  have hri : ∀ a : A, r.g⁻¹ • a = a := fun a => inv_smul_eq_iff.mpr (hr a).symm
+  rw [commR]
+  refine HeisLift.ext ?_ ?_ ?_ ?_
+  · simp only [HeisLift.mul_a, HeisLift.inv_a, HeisLift.mul_g, HeisLift.inv_g, mul_smul,
+      hp, hpi, hri]
+    abel
+  · simp only [HeisLift.mul_l, HeisLift.inv_l, HeisLift.mul_g, HeisLift.inv_g, mul_smul,
+      smul_elemDual_of_trivial hp, smul_elemDual_of_trivial hpi, smul_elemDual_of_trivial hri]
+    abel
+  · simp only [HeisLift.mul_z, HeisLift.mul_l, HeisLift.inv_z,
+      HeisLift.inv_a, HeisLift.inv_l, HeisLift.mul_g, HeisLift.inv_g, mul_smul,
+      hp, hpi, hri, smul_elemDual_of_trivial hpi, smul_elemDual_of_trivial hri]
+    simp only [ElemDual.add_apply, ElemDual.neg_apply, map_neg]
+    ring_nf
+    simp only [CharTwo.two_eq_zero, mul_zero, zero_add, add_zero]
+    rw [sub_eq_add_neg, CharTwo.neg_eq]
+  · simp only [HeisLift.mul_g, HeisLift.inv_g]
+    rfl
+
+/-- **The conjugate of a trivial-base lift by an arbitrary lift**:
+`p^s = (s⁻¹·a_p, s⁻¹·λ_p, z_p + λ_s(a_p) + λ_p(a_s); p.g^{s.g})`.  Both `s`-offsets
+survive only through the symmetric mixed pairing; the base operator `s.g⁻¹` twists the
+jet — the second-order source of the `S`-operators in a boundary block. -/
+theorem heisConjR_of_trivial (p s : HeisLift A C) (hp : ∀ a : A, p.g • a = a) :
+    conjR p s = ⟨s.g⁻¹ • p.a, s.g⁻¹ • p.l, p.z + s.l p.a + p.l s.a, conjR p.g s.g⟩ := by
+  rw [conjR]
+  refine HeisLift.ext ?_ ?_ ?_ ?_
+  · simp only [HeisLift.mul_a, HeisLift.inv_a, HeisLift.mul_g, HeisLift.inv_g, mul_smul, hp]
+    abel
+  · simp only [HeisLift.mul_l, HeisLift.inv_l, HeisLift.mul_g, HeisLift.inv_g, mul_smul,
+      smul_elemDual_of_trivial hp]
+    abel
+  · simp only [HeisLift.mul_z, HeisLift.mul_l, HeisLift.inv_z,
+      HeisLift.inv_l, HeisLift.mul_g, HeisLift.inv_g, mul_smul, hp]
+    simp only [ElemDual.add_apply, ElemDual.neg_apply, ElemDual.smul_apply,
+      inv_inv, smul_inv_smul]
+    ring_nf
+    simp only [CharTwo.two_eq_zero, mul_zero, zero_add]
+    rw [sub_eq_add_neg, CharTwo.neg_eq]
+  · simp only [HeisLift.mul_g, HeisLift.inv_g]
+    rfl
+
+end TrivialBase
+
 /-! ## The second-order denotation of a reflected word -/
 
 section Denotation
@@ -178,6 +285,48 @@ variable (μ : X → C) (x : X → A) (y : X → ElemDual A) (E : Zhat → ℤ) 
 
 @[simp] theorem heisEvalZ_inv (u : PWord X) :
     heisEvalZ μ x y E E₂ (.inv u) = (heisEvalZ μ x y E E₂ u)⁻¹ := rfl
+
+/-! ### The remaining constructor rules
+
+The same definitional facts as `heisEvalZ_gen`/`_mul`/`_inv`, one per remaining `PWord`
+constructor, so that factor-by-factor computations of a branch word's second-order row stay
+`rw`-driven. -/
+
+theorem heisEvalZ_one : heisEvalZ μ x y E E₂ .one = 1 := rfl
+
+theorem heisEvalZ_conj (u g : PWord X) :
+    heisEvalZ μ x y E E₂ (.conj u g)
+      = conjR (heisEvalZ μ x y E E₂ u) (heisEvalZ μ x y E E₂ g) := rfl
+
+theorem heisEvalZ_comm (u v : PWord X) :
+    heisEvalZ μ x y E E₂ (.comm u v)
+      = commR (heisEvalZ μ x y E E₂ u) (heisEvalZ μ x y E E₂ v) := rfl
+
+theorem heisEvalZ_zpow (u : PWord X) (k : ℤ) :
+    heisEvalZ μ x y E E₂ (.zpow u k) = heisEvalZ μ x y E E₂ u ^ k := rfl
+
+theorem heisEvalZ_profPow (u : PWord X) (γ : Zhat) :
+    heisEvalZ μ x y E E₂ (.profPow u γ) = heisEvalZ μ x y E E₂ u ^ E γ := rfl
+
+theorem heisEvalZ_prodList (l : List (PWord X)) :
+    heisEvalZ μ x y E E₂ (PWord.prodList l) = (l.map (heisEvalZ μ x y E E₂)).prod :=
+  PWord.evalZ_prodList _ _ _ l
+
+/-- Products of jet-zero denotations are jet-zero with **additive** central coordinate —
+the "⊕" of the second-order block structure, at the list level. -/
+theorem heisEvalZ_prodList_jetZero {l : List (PWord X)}
+    (hl : ∀ w ∈ l, heisEvalZ μ x y E E₂ w ∈ heisJetZero A C) :
+    heisEvalZ μ x y E E₂ (PWord.prodList l) ∈ heisJetZero A C ∧
+      (heisEvalZ μ x y E E₂ (PWord.prodList l)).z
+        = (l.map fun w => (heisEvalZ μ x y E E₂ w).z).sum := by
+  induction l with
+  | nil => exact ⟨one_mem _, rfl⟩
+  | cons w ws ih =>
+      have hw := hl w List.mem_cons_self
+      have ihs := ih fun u hu => hl u (List.mem_cons_of_mem _ hu)
+      rw [PWord.prodList_cons]
+      refine ⟨mul_mem hw ihs.1, ?_⟩
+      rw [heisEvalZ_mul, heisJetZero_mul_z hw, ihs.2, List.map_cons, List.sum_cons]
 
 /-- **The second-order product rule** (packet §5, display `β(uv) = β(u) + β(v) + D^∨(u)(ū·D(v))`):
 the central coordinate of a product denotation is the sum of the central coordinates plus the
