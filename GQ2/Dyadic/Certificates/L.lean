@@ -997,6 +997,140 @@ theorem heisZ_lSq_scalar (hA₂ : ∀ a : A, a + a = 0)
     show (x (coreLetter h 0) + x .tau) + (x (coreLetter h 0) + x .tau) = 0 from hA₂ _,
     add_zero, CharTwo.add_self_eq_zero, add_zero]
 
+/-- The `L_sq` denotation splits off its handle tail, uniformly in `h` and generically in the
+target — the `PWord.evalZ` form of `heisEvalZ_lSqHandleTail`, with the same `cases h` split. -/
+theorem evalZ_lSqW {G : Type*} [Group G] (μ : Generator (2 * h + 1) → G)
+    (E' : Zhat → ℤ) (E₂' : ℤ_[2] → ℤ) :
+    PWord.evalZ μ E' E₂' (lSqW h)
+      = ((lSqCore h).map (PWord.evalZ μ E' E₂')).prod * PWord.evalZ μ E' E₂' (handlesW h) := by
+  rw [lSqW, PWord.evalZ_prodList, List.map_append, List.prod_append]
+  congr 1
+  cases h with
+  | zero => rw [handleTail, List.map_nil, List.prod_nil, handlesW_zero, PWord.evalZ_one]
+  | succ k =>
+    rw [handleTail, List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one]
+
 end StokesRows
+
+/-! ## §4 The resolved relator family, the endpoint condition and the duality payload
+
+The two-relator family of `⟨σ, τ, x₀, …, x_{2h+1} ∣ τ^σ(τ^{q_K})⁻¹, R^{sq}_{L,n}⟩`, resolved at
+the constant integer representative `e` of `ω₂`, in WW2's Jacobian row order (tame first, wild
+second — WL-b's convention).
+
+`lSq_isStokesEndpoint` proves display (40)'s endpoint condition for **all** `h`, every even `q`
+and every odd `e`: the traced per-letter exponents are `1 − q + e` on `τ`, `−1 − 3e` on `x₀` and
+`2` on `x₁`, all even; `σ` and the handle letters carry `0`.  As in WN0-c this is a general
+theorem, not a per-instance `decide`. -/
+
+section Family
+
+variable {h q e : ℕ}
+
+/-- **The resolved `L_sq` relator family**. -/
+noncomputable def lSqFam (h q e : ℕ) : Fin 2 → FreeGroup (Generator (2 * h + 1)) :=
+  ![heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (tameRelW (2 * h + 1) q),
+    heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (lSqW h)]
+
+@[simp] theorem lSqFam_zero :
+    lSqFam h q e 0
+      = heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (tameRelW (2 * h + 1) q) := rfl
+
+@[simp] theorem lSqFam_one :
+    lSqFam h q e 1 = heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (lSqW h) := rfl
+
+/-- The handle block's resolved word has trivial mod-2 exponent vector (commutators). -/
+theorem heisEps_lSqHandles (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (i : Generator (2 * h + 1)) :
+    heisEps i (PWord.evalZ FreeGroup.of E E₂ (handlesW h)) = 1 := by
+  rw [handlesW, PWord.evalZ_prodList, map_list_prod]
+  refine List.prod_eq_one ?_
+  intro m hm
+  simp only [List.map_map, List.mem_map] at hm
+  obtain ⟨j, -, rfl⟩ := hm
+  show heisEps i (PWord.evalZ FreeGroup.of _ _
+    (.comm (.gen (handleU j)) (.gen (handleV j)))) = 1
+  rw [PWord.evalZ_comm]
+  exact monoidHom_commR_eq_one _ _ _
+
+/-- **The endpoint condition holds at every `L_sq` instance** (any `h`, `q` even, `e` odd). -/
+theorem lSq_isStokesEndpoint (hq : Even q) (he : Odd e) : IsStokesEndpoint (lSqFam h q e) := by
+  intro i
+  rw [Fin.sum_univ_two, lSqFam_zero, lSqFam_one]
+  have htame : heisEps i (heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ))
+      (tameRelW (2 * h + 1) q))
+      = heisEps i (FreeGroup.of Generator.tau)
+        * (heisEps i (FreeGroup.of Generator.tau) ^ (q : ℤ))⁻¹ := by
+    rw [tameRelW, heisToFree, PWord.evalZ_mul, PWord.evalZ_conj, PWord.evalZ_inv,
+      PWord.evalZ_zpow, PWord.evalZ_gen, PWord.evalZ_gen, map_mul, map_conjR,
+      conjR_eq_self_of_comm, map_inv, map_zpow]
+  have hwild : heisEps i (heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (lSqW h))
+      = (heisEps i (FreeGroup.of (coreLetter h 0)))⁻¹
+        * ((heisEps i (FreeGroup.of (coreLetter h 0)) ^ (-3 : ℤ)
+            * heisEps i (FreeGroup.of Generator.tau)) ^ (e : ℤ))
+        * (heisEps i (FreeGroup.of (coreLetter h 1)) ^ (2 : ℤ)) := by
+    rw [heisToFree, evalZ_lSqW]
+    simp only [lSqCore, List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one]
+    rw [map_mul, heisEps_lSqHandles, mul_one, map_mul, map_mul, map_mul,
+      PWord.evalZ_inv, PWord.evalZ_conj, PWord.evalZ_gen, PWord.evalZ_gen, map_inv,
+      map_conjR, conjR_eq_self_of_comm, PWord.omega2Pow, PWord.evalZ_profPow, map_zpow,
+      PWord.prodList_cons, PWord.prodList_cons, PWord.prodList_nil, PWord.evalZ_mul,
+      PWord.evalZ_mul, PWord.evalZ_zpow, PWord.evalZ_gen, PWord.evalZ_gen, PWord.evalZ_one,
+      mul_one, map_mul, map_zpow, PWord.evalZ_zpow, PWord.evalZ_gen, map_zpow,
+      PWord.evalZ_comm, monoidHom_commR_eq_one, mul_one]
+    rw [mul_assoc]
+  rw [htame, hwild]
+  simp only [heisEps_of, toAdd_mul, toAdd_inv, toAdd_zpow, toAdd_ofAdd, zsmul_eq_mul]
+  have hqz : ((q : ℤ) : ZMod 2) = 0 := by
+    rw [Int.cast_natCast]; exact natCast_zmod2_even hq
+  have hez : ((e : ℤ) : ZMod 2) = 1 := by
+    rw [Int.cast_natCast]; exact natCast_zmod2_odd he
+  rw [hqz, hez]
+  push_cast
+  ring_nf
+  simp [show (2 : ZMod 2) = 0 from by decide, show (4 : ZMod 2) = 0 from by decide]
+
+end Family
+
+/-! ### The Stokes duality payload -/
+
+section Duality
+
+universe u
+
+variable {C : Type*} [Group C]
+
+/-- **Packet Lem 5.1 at the `L_sq` family**: WW3's `stokesDuality_of_simple` engine instantiated,
+with the relator hypotheses converted through `lift_heisToFree_eq_one_iff` and the endpoint
+condition discharged by `lSq_isStokesEndpoint`.  Per-simple-module duality stays the hypothesis
+slot it is in the frozen `ℚ₂` chain (gate-F / AS-lane discharge). -/
+theorem lSq_stokesDuality {h q e : ℕ} [Finite C] (t : Marking (2 * h + 1) C)
+    (hq : Even q) (he : Odd e)
+    (hrt : PWord.evalZ ⇑t (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (tameRelW (2 * h + 1) q) = 1)
+    (hrw : PWord.evalZ ⇑t (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (lSqW h) = 1)
+    (hsimp : ∀ (V : Type u) [AddCommGroup V] [DistribMulAction C V] [Finite V],
+      (∀ v : V, v + v = 0) → IsSimpleModTwo C V → StokesDuality ⇑t (lSqFam h q e) V)
+    (A : Type u) [AddCommGroup A] [DistribMulAction C A] [Finite A]
+    (hA₂ : ∀ a : A, a + a = 0) : StokesDuality ⇑t (lSqFam h q e) A := by
+  refine stokesDuality_of_simple ⇑t (lSqFam h q e) ?_ (lSq_isStokesEndpoint hq he) hsimp A hA₂
+  intro k
+  fin_cases k
+  · exact (lift_heisToFree_eq_one_iff ⇑t _ _ _).mpr hrt
+  · exact (lift_heisToFree_eq_one_iff ⇑t _ _ _).mpr hrw
+
+/-- **The traced Stokes pairing of the family** is the sum of the two second-order values — the
+bridge between `stokesGram` entries and the closed forms `heisZ_tameRelW_unram` (WN0-c's row,
+cited: it is word-independent, and it is where `q_K` enters at second order) and
+`heisZ_lSq_unram`. -/
+theorem heisEta1_lSqFam_apply {h q e : ℕ} {A : Type*} [AddCommGroup A]
+    [DistribMulAction C A] (t : Marking (2 * h + 1) C) (x : Generator (2 * h + 1) → A)
+    (y : Generator (2 * h + 1) → ElemDual A) :
+    heisEta1 ⇑t (lSqFam h q e) x y
+      = (heisEvalZ ⇑t x y (fun _ => (e : ℤ)) (fun _ => (e : ℤ))
+          (tameRelW (2 * h + 1) q)).z
+        + (heisEvalZ ⇑t x y (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (lSqW h)).z := by
+  rw [heisEta1_apply, Fin.sum_univ_two, lSqFam_zero, lSqFam_one,
+    ← heisEvalZ_eq_lift, ← heisEvalZ_eq_lift]
+
+end Duality
 
 end GQ2.Dyadic.Certificates.LSqStokes
