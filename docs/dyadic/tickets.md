@@ -1562,7 +1562,7 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| WL-a | word + boundary + sanity (L_sq per the re-point; n=1 = Γ_R cross-identification; q_K>2 pin) | opus | `GQ2/Dyadic/Words/L.lean` | G2 ✓ | **dispatched 2026-07-31** (lg worktree, `dyadic-wla`) |
+| WL-a | word + boundary + sanity (L_sq; Γ_R cross-identification; q_K>2 pin) | opus | `GQ2/Dyadic/Words/L.lean` | G2 ✓ | **done 2026-07-31** (1cf0acf+b011204 → merged, import registered; 1054 ln, 90 decls, 0 sorries, 90/90 exactly std-3 — **zero B3c/B8** (SqCore/Certificate imported but the rank-3 discharge never applied); 4/4 hash pins + WW5 kernel-pin inheritance by rfl; **`eval_lSqW_zero` = Roe's `wildRelatorR` LITERALLY** — gap = the zpow realignment (TWO forms needed: ℕ-exponent for sqWord, ℤ-exponent for WW1's tree — the one surprise) + prodList associativity; pro-2 = `SqCore.sqRelWord` at every odd degree, h=0 carried onto D_R via SQ4's `sqEquivDRMarked`, letter map uniform (no reindexing); **q_K=4 pin on D₅×D₃**: genuine τ^σ=τ⁴-not-τ² pair, frozen word dies, the σ₂→σ slip mutant does NOT (invisible on all 2-groups — ω₂ = id there); tame VALUE = τ^{ω₂}; `not_killsWild` reproduces — **the KillsWild finding is LANE-WIDE, not a compact-N accident**; ⚠ emitter drops the handle node entirely at n=1 (four children — third handle-shape variant across rows!); collector = docstring-only safety net, no tree needed) |
 | WL-b | Fox certificate (`n=1` base + handle stability) | opus | `GQ2/Dyadic/Certificates/LFox.lean` | WL-a | pending |
 | WL-c | Stokes/scalar/Hessian/phase (`n=1` core + hyperbolic handles) | fable | `GQ2/Dyadic/Certificates/L.lean` | WL-b | pending |
 
