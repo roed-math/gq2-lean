@@ -48,11 +48,12 @@ and no axiom beyond the standard three is used.
   graph marking `GQ2.Dyadic.Certificates.hessMark` at `(c₀, c₁, 0)`.  So the two lanes were
   evaluating at literally the same marking all along, one carrier apart.
 * **§6 the centrepiece transported** — `npc_cross_operators_word`,
-  `npc_cross_operators_handles_std_word` and the `hessRelZ` form `hessRelZ_npcWord`: the NC
-  identity in `Word/` vocabulary (`WordCoh.CentExt`, `hessSlice`, `hessLine`, `hessRelZ`), with
-  no `WordCoh2` name in the statement.  `hVu_of_simple` needs no transport — it is a statement
-  about the `C`-module `V` alone and was already carrier-free; `hVu_of_simple_restated` records
-  that.
+  `npc_cross_operators_handles_std_word`, the hash-pinned form
+  `npc_cross_operators_npcW_word` (the shape `Certificates/Npc.lean` actually cites) and the
+  `hessRelZ` forms `hessRelZ_npcWord`/`npcW_hessRelZTarget`: the NC identity in `Word/`
+  vocabulary (`WordCoh.CentExt`, `hessSlice`, `hessLine`, `hessRelZ`), with no `WordCoh2` name
+  anywhere in the statement.  `hVu_of_simple` needs no transport — it is a statement about the
+  `C`-module `V` alone and was already carrier-free; `hVu_of_simple_restated` records that.
 * **§7 `HessRelZTarget`** — WW4 gap item 5.  `npc_hessRelZTarget` **discharges** the target on
   the procyclic-`N` row, which is the proof that the target's shape is right; and
   `mpcHessRelZTarget` states it, fully instantiated, on the procyclic-`M` row.  See the caveat
@@ -79,10 +80,57 @@ So the honest statement of the residue is: item 5 was blocked on *two* things, t
 `M`-row jet computation; the bridge is now landed and the jet computation is what remains.  What
 the successor gains concretely is listed at `mpcHessRelZTarget`.
 
+## The de-duplication WWH recorded: costed, not performed
+
+WWH's finding was that after its hoist the NC lane's slice kit is *the second copy* of the
+`hessSlice`/`hessLine` calculus, and that "de-duplicating them is not a `module`-file job".  With
+the bridge landed, here is the costing.  **The retirement is possible** — and this file
+deliberately does not do it: `NpcJet/*` is closed and heavily consumed.
+
+*No module-rule obstruction.*  `NpcJet/Defs.lean` is plain and already imports the `module` file
+`GQ2.Dyadic.Word.Eval`, so it may equally import `GQ2.Dyadic.Word.Hessian`; and `Word/Hessian`'s
+own imports (`Phase`, `Stokes`, `WordCoh`, `SectionSix`, `OrbitData`) are all `module` and none
+reaches `NpcJet`, so there is no cycle.  WWH's "unmergeable while `NpcJet` is plain-import"
+reading is one direction too strong: what the module rule forbids is `Word/Hessian` importing
+`NpcJet`, not the converse.
+
+*The internal cost is the whole lane.*  The kit is used at **111 occurrences of `sliceElt` and
+41 of `cLine`** inside `NpcJet/`, plus `elt` and NC2 §3's power law; retiring it means retyping
+all of `NpcJet/{Defs,Omega,Seams,Main,Handles}` onto `WordCoh.CentExt (kappa0Cocycle dat hdat)`.
+Six statements would first have to be added to the `Word/` kit — `hessLine_inv`,
+`hessSlice_mul_hessLine`, `hessLine_mul_hessSlice`, `hessSlice_conj_hessLine`,
+`hessSlice_sq_of_npc`, `hessElt_pow`/`_eq_hessSlice`/`orderOf_hessElt_dvd_two_mul` — because the
+`Word/` copy is strictly *smaller* than the NC one.  §4 below already supplies exactly those,
+so that part of the cost is now paid.
+
+*The external cost is five lines.*  The certificate layer never touches the NC carrier: `CentExt`
+and `kappa0Cocycle` occur **zero** times in `Certificates/NpcFox.lean` and
+`Certificates/Npc.lean`.  The entire external surface is the five `npcMarking …|>.eval …|>.fib`
+spellings at `NpcFox.lean:1752` and `Npc.lean:1101, 1116, 1132, 1254` — and §5–§6 below give the
+`Word/`-carrier replacement for each.
+
+*Recommendation.*  Not now, and not as a lane-wide retype.  The bridge makes the second copy
+cheap to live with (every law is one `rw` from the other lane's), whereas the retype touches a
+closed, audited lane for no new mathematics.  The moment to do it is if `NpcJet` is reopened for
+other reasons.
+
+## A resolver gap, noted in passing
+
+`hessRelZ_npcWord` carries a `PWord.ResolvedAt` hypothesis and the compact rows do not.  That is
+not a weakness of the bridge: `npcWord` has an `η̂`-exponent node (`PWord.etaPow` is a `profPow`
+at `etaHatZ η`, not at `ω₂`), so it is not `ω₂`-only and F2's hypothesis-free bridges
+(`eval_eq_evalFin`, `eval_eq_evalNat_exponent`) do not apply.  What *would* remove the hypothesis
+is a general `Zhat`-resolver lemma — the non-`ω₂` analogue of `PWord.zpowHat_omega2_zpow`,
+i.e. "in a finite group, every `γ : Zhat` acts as a single integer power valid at all elements
+simultaneously".  The repo has the per-element formula (`zpowHat_etaHatZ`) but no such uniform
+statement and no `Zhat → ZMod N` reduction.  The profinite form `npc_cross_operators_word` is
+unconditional, so nothing is blocked; and the procyclic-`M` row is `ω₂`-only at an `ω₂`-only
+`η`-display (`mpc_eval_eq_hessRelZ`), so its target will not need one.
+
 ## Axiom prints (recorded at commit time)
 
 `#print axioms` gives **the standard three** (`propext`, `Classical.choice`, `Quot.sound`) or a
-strict subset of them, for every one of the 65 declarations — measured, not asserted, on the
+strict subset of them, for every one of the 67 declarations — measured, not asserted, on the
 built module.  Headlines checked: `sdEquiv`, `finiteSemiProd`, `ofWordCoh2`,
 `kappa0Cocycle_κ_sdEquiv`, `ofWordCoh2_kappa0Cocycle`, `centExtEquiv`, `centExtEquiv_fib`,
 `centExtHom`, `hessElt`, `centExtEquiv_sliceElt`, `centExtEquiv_cLine`, `hessSlice_mul_of_npc`,
@@ -90,8 +138,9 @@ built module.  Headlines checked: `sdEquiv`, `finiteSemiProd`, `ofWordCoh2`,
 `hessSlice_mul_hessLine`, `hessLine_mul_hessSlice`, `hessSlice_conj_hessLine`,
 `hessSlice_sq_of_npc`, `hessElt_pow`, `hessElt_pow_eq_hessSlice`, `orderOf_hessElt_dvd_two_mul`,
 `map_npcMarking`, `map_npcMarkingH`, `npcMarkingW_eq_lift`, `npcMarkingHW_zero`,
-`npc_cross_operators_word`, `npc_cross_operators_handles_std_word`, `hVu_of_simple_restated`,
-`hessRelZ_npcWord`, `npc_hessRelZTarget`, `mpcHessRelZTarget`, `mpcHessRelZTarget_iff`,
+`npc_cross_operators_word`, `npc_cross_operators_handles_std_word`,
+`npc_cross_operators_npcW_word`, `hVu_of_simple_restated`, `hessRelZ_npcWord`,
+`npc_hessRelZTarget`, `npcW_hessRelZTarget`, `mpcHessRelZTarget`, `mpcHessRelZTarget_iff`,
 `mpc_eval_eq_hessRelZ`.  Two print a proper subset: `sdEquiv` is `[propext]` and
 `hVu_of_simple_restated` is `[propext, Quot.sound]`.
 
@@ -623,6 +672,22 @@ theorem npc_cross_operators_handles_std_word (hV2 : ∀ v : V, v + v = 0)
   rw [← hm]
   exact NpcJet.npc_cross_operators_handles_std dat hdat hV2 s u hu hVu α hα r η h e he2
 
+/-- **The identity at the hash-pinned certificate word, in `Word/` vocabulary.**
+
+`Certificates/Npc.lean` does not cite `npc_cross_operators` directly — it cites WNP-b's
+`npc_cross_operators_npcW`, the same identity at the *frozen* tree `Words.Npc.npcW` whose digest
+the freeze pins, reached through WNP-a's value bridge `eval_npcW_eq_eval_npcWord`.  That bridge
+is generic over profinite targets, so it applies to the `Word/` carrier unchanged; this is
+therefore the form a `Word/`-layer consumer will actually want. -/
+theorem npc_cross_operators_npcW_word (hV2 : ∀ v : V, v + v = 0)
+    (s u : C) (hu : Odd (orderOf u)) (hVu : ∀ v : V, u • v = v → v = 0)
+    (α : ℕ) (hα : 2 ≤ α) (r : ℕ) (e : EtaData) (c₀ c₁ : V) :
+    WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
+        ((npcMarkingW dat hdat s u c₀ c₁).eval (Words.Npc.npcW α r 0 e))
+      = NpcJet.npcQ0 dat s e.toPadic c₀ + polar q c₁ (NpcJet.lcOp s e.toPadic r c₀) := by
+  rw [Words.Npc.eval_npcW_eq_eval_npcWord]
+  exact npc_cross_operators_word dat hdat hV2 s u hu hVu α hα r e.toPadic c₀ c₁
+
 end Headline
 
 section Companion
@@ -696,6 +761,23 @@ theorem npc_hessRelZTarget (hV2 : ∀ v : V, v + v = 0)
       (Certificates.hessMark (h := 0) s u ![c₀, c₁, 0]) E E₂ (NpcJet.npcWord α r η)
       (fun p ↦ NpcJet.npcQ0 dat s η p.1 + polar q p.2 (NpcJet.lcOp s η r p.1)) c₀ c₁ :=
   hessRelZ_npcWord dat hdat hV2 s u hu hVu α hα r η c₀ c₁ E E₂ hres
+
+/-- **The same, at the hash-pinned certificate word** — the form matching WNP-b's
+`npc_cross_operators_npcW`, and the one a `Word/`-layer certificate would consume. -/
+theorem npcW_hessRelZTarget (hV2 : ∀ v : V, v + v = 0)
+    (s u : C) (hu : Odd (orderOf u)) (hVu : ∀ v : V, u • v = v → v = 0)
+    (α : ℕ) (hα : 2 ≤ α) (r : ℕ) (e : EtaData) (c₀ c₁ : V) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+    (hres : PWord.ResolvedAt
+      (WordCoh.lift (Certificates.hessMark (h := 0) s u ![c₀, c₁, 0]) (kappa0Cocycle dat hdat))
+      E E₂ (Words.Npc.npcW α r 0 e)) :
+    Certificates.MProcyclic.HessRelZTarget dat hdat
+      (Certificates.hessMark (h := 0) s u ![c₀, c₁, 0]) E E₂ (Words.Npc.npcW α r 0 e)
+      (fun p ↦ NpcJet.npcQ0 dat s e.toPadic p.1
+        + polar q p.2 (NpcJet.lcOp s e.toPadic r p.1)) c₀ c₁ := by
+  show hessRelZ _ _ E E₂ _ = _
+  rw [hessRelZ, hessEvalZ, ← PWord.eval_eq_evalZ _ E E₂ _ hres,
+    ← npcMarkingW_eq_lift dat hdat s u c₀ c₁]
+  exact npc_cross_operators_npcW_word dat hdat hV2 s u hu hVu α hα r e c₀ c₁
 
 end HessRelZ
 
