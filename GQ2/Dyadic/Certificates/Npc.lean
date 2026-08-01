@@ -1089,4 +1089,386 @@ theorem pin_npc_word_gaussSum (η : ℤ_[2]) :
 
 end Battery
 
+/-! ## §5. The endpoint condition and the Stokes duality payload
+
+The two-relator family of `⟨σ, τ, x₀, …, x_{2h+2} ∣ τ^σ(τ^q)⁻¹, R_{N,α,r,η}⟩` resolved at the
+constant integer representative `e` of every profinite exponent — WW2's Jacobian row order (tame
+first, wild second).  The endpoint condition holds for **all** `α ≥ 1`, all `r, h`, all `η` and
+every even `q`, odd `e`: the per-letter traced exponents are `1−q+e` on `τ`, `2+2^α` on `x₀` and
+`e−1` on `x₂`, all even, and **every** η̂-flavored factor is a commutator, hence invisible in the
+abelianization.  So the corrected word's endpoint data is the compact row's, unchanged by the
+correction — the abelian-level member of the blindness family. -/
+
+section Family
+
+variable {α r h q e : ℕ}
+
+/-- **The resolved corrected-noncompact-`N` relator family** — the `ρ = Fin 2` family the WW3
+machinery consumes, in WNP-b's `foxJacobian` row order. -/
+noncomputable def npcFam (α r h q e : ℕ) (d : EtaData) :
+    Fin 2 → FreeGroup (Generator (2 + 2 * h)) :=
+  ![heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (tameRelW (2 + 2 * h) q),
+    heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (npcW α r h d)]
+
+@[simp] theorem npcFam_zero (d : EtaData) :
+    npcFam α r h q e d 0
+      = heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (tameRelW (2 + 2 * h) q) := rfl
+
+@[simp] theorem npcFam_one (d : EtaData) :
+    npcFam α r h q e d 1
+      = heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (npcW α r h d) := rfl
+
+/-- `heisEps` on a letter is the indicator (lane-local copy). -/
+theorem heisEps_of {ι : Type*} [DecidableEq ι] (i j : ι) :
+    heisEps i (FreeGroup.of j) = Multiplicative.ofAdd (if j = i then (1 : ZMod 2) else 0) := by
+  rw [heisEps]
+  exact FreeGroup.lift_apply_of
+
+/-- The handle block's resolved word has trivial mod-2 exponent vector (commutators). -/
+theorem heisEps_handlesW (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (i : Generator (2 + 2 * h)) :
+    heisEps i (PWord.evalZ FreeGroup.of E E₂ (handlesW h)) = 1 := by
+  rw [handlesW, PWord.evalZ_prodList, map_list_prod]
+  refine List.prod_eq_one ?_
+  intro m hm
+  simp only [List.map_map, List.mem_map] at hm
+  obtain ⟨j, -, rfl⟩ := hm
+  show heisEps i (PWord.evalZ FreeGroup.of _ _
+    (.comm (.gen (handleU j)) (.gen (handleV j)))) = 1
+  rw [PWord.evalZ_comm]
+  exact monoidHom_commR_eq_one _ _ _
+
+/-- **The endpoint condition holds at every corrected noncompact-`N` instance** (`α ≥ 1`, any
+`r, h`, any `η`, `q` even, `e` odd).  Both η̂-flavored factors — the front block `[x₀, A]` and the
+correction block `E_{r,η} = [D_{r,η}, x₁]` — are commutators, so they contribute nothing to the
+traced exponent vector at all: the abelianized data is **identical** to the compact row's, which
+is the abelian-level shard of WNP-a's "abelian targets are blind to `η`, `r` and the correction".
+-/
+theorem npc_isStokesEndpoint (hα : 1 ≤ α) (hq : Even q) (he : Odd e) (d : EtaData) :
+    IsStokesEndpoint (npcFam α r h q e d) := by
+  intro i
+  rw [Fin.sum_univ_two, npcFam_zero, npcFam_one]
+  have htame : heisEps i (heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ))
+      (tameRelW (2 + 2 * h) q))
+      = heisEps i (FreeGroup.of Generator.tau)
+        * (heisEps i (FreeGroup.of Generator.tau) ^ (q : ℤ))⁻¹ := by
+    rw [tameRelW, heisToFree, PWord.evalZ_mul, PWord.evalZ_conj, PWord.evalZ_inv,
+      PWord.evalZ_zpow, PWord.evalZ_gen, PWord.evalZ_gen, map_mul, map_conjR,
+      conjR_eq_self_of_comm, map_inv, map_zpow]
+  have hwild : heisEps i (heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (npcW α r h d))
+      = heisEps i (FreeGroup.of (coreLetter h 0)) ^ ((2 : ℤ) + 2 ^ α)
+        * ((heisEps i (FreeGroup.of (coreLetter h 2)))⁻¹
+            * (heisEps i (FreeGroup.of (coreLetter h 2))
+                * heisEps i (FreeGroup.of Generator.tau)) ^ (e : ℤ)) := by
+    rw [npcW, heisToFree, PWord.evalZ_prodList]
+    simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one]
+    rw [map_mul, map_mul, map_mul, map_mul, map_mul, PWord.evalZ_zpow, PWord.evalZ_gen, map_zpow,
+      PWord.evalZ_comm, monoidHom_commR_eq_one, PWord.evalZ_inv, PWord.evalZ_conj,
+      PWord.evalZ_gen, PWord.evalZ_prodList, map_inv, map_conjR, conjR_eq_self_of_comm,
+      PWord.omega2Pow, PWord.evalZ_profPow, map_zpow, PWord.prodList_cons,
+      PWord.prodList_cons, PWord.prodList_nil, PWord.evalZ_mul, PWord.evalZ_mul,
+      PWord.evalZ_gen, PWord.evalZ_gen, PWord.evalZ_one, mul_one, map_mul, one_mul,
+      eBlockW, PWord.evalZ_comm, monoidHom_commR_eq_one, heisEps_handlesW]
+    simp only [mul_one]
+  rw [htame, hwild]
+  simp only [heisEps_of, toAdd_mul, toAdd_inv, toAdd_zpow, toAdd_ofAdd]
+  rw [zsmul_natCast_zmod2_even hq, zsmul_natCast_zmod2_odd he,
+    show ((2 : ℤ) + 2 ^ α) • (if coreLetter h 0 = i then (1 : ZMod 2) else 0) = 0 by
+      rw [show ((2 : ℤ) + 2 ^ α) = ((2 + 2 ^ α : ℕ) : ℤ) by push_cast; ring]
+      exact zsmul_natCast_zmod2_even (even_two_add_two_pow hα) _]
+  rw [CharTwo.neg_eq, CharTwo.neg_eq]
+  abel_nf
+  simp [CharTwo.two_eq_zero]
+
+/-- The `(α, r, η) = (2, 1, 1)` harness pin at `q_K = 2` and the odd representative `e = 3`. -/
+theorem npcPin_isStokesEndpoint : IsStokesEndpoint (npcFam 2 1 0 2 3 ⟨1, 1⟩) :=
+  npc_isStokesEndpoint (by norm_num) (by decide) (by decide) ⟨1, 1⟩
+
+end Family
+
+/-! ### The Stokes duality payload -/
+
+section Duality
+
+universe u
+
+variable {C : Type*} [Group C]
+
+/-- **Packet Lem 5.1 at the corrected noncompact row**: WW3's `stokesDuality_of_simple` engine
+instantiated at `npcFam`, with the relator hypotheses converted through
+`lift_heisToFree_eq_one_iff` and the endpoint condition discharged by `npc_isStokesEndpoint`.
+Per-simple-module duality stays the hypothesis slot it is in the frozen `ℚ₂` chain (gate-F /
+AS-lane discharge) — no word ticket owns it. -/
+theorem npc_stokesDuality {α r h q e : ℕ} [Finite C] (t : Marking (2 + 2 * h) C) (d : EtaData)
+    (hα : 1 ≤ α) (hq : Even q) (he : Odd e)
+    (hrt : PWord.evalZ ⇑t (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (tameRelW (2 + 2 * h) q) = 1)
+    (hrw : PWord.evalZ ⇑t (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (npcW α r h d) = 1)
+    (hsimp : ∀ (V : Type u) [AddCommGroup V] [DistribMulAction C V] [Finite V],
+      (∀ v : V, v + v = 0) → IsSimpleModTwo C V →
+        StokesDuality ⇑t (npcFam α r h q e d) V)
+    (A : Type u) [AddCommGroup A] [DistribMulAction C A] [Finite A]
+    (hA₂ : ∀ a : A, a + a = 0) : StokesDuality ⇑t (npcFam α r h q e d) A := by
+  refine stokesDuality_of_simple ⇑t (npcFam α r h q e d) ?_
+    (npc_isStokesEndpoint hα hq he d) hsimp A hA₂
+  intro k
+  fin_cases k
+  · exact (lift_heisToFree_eq_one_iff ⇑t _ _ _).mpr hrt
+  · exact (lift_heisToFree_eq_one_iff ⇑t _ _ _).mpr hrw
+
+end Duality
+
+/-! ## §6. The S₃ separating gate, and exactly what it licenses
+
+S3.2 established that the two-dimensional twisted `S₃`-module is the **only** separating gate for
+this row, and that on the twisted path *REJECT is sound while PASS is never evidence*.  Two Lean
+facts here, and the epistemic labelling is part of the statement, not decoration.
+
+**The provable half (soundness of REJECT).**  The corrected word is the uncorrected one with the
+jet-zero factor `E_{r,η}` inserted, so their second-order values differ by exactly `β(E_{r,η})`
+(`heisZ_npcW_eq_uncorrected_add_eBlock`).  On the two-dimensional twisted module that difference
+is **nonzero** (`stress_s3_correction_visible`), while their first-order rows are *equal* at every
+marking, resolver and offset (WNP-b's `foxD_npcW_eq_uncorrected`).  So a gate that separates the
+two words has genuinely detected the correction: a **REJECT is sound**.
+
+**What is deliberately not claimed.**  Nothing below says, or can say, that agreement of the two
+words on this or any module implies anything.  The twisted gate-E is diagnostic by construction
+(one-way soundness, freeze row 3); a **PASS is never evidence** — not for the corrected word's
+exactness, not for the uncorrected word's, and not for their equality.  The exactness content of
+this row lives in `npc_cross_operators` and in §3's certificate, and nowhere else.  In particular
+`stress_s3_correction_visible` must not be cited as a verification of the corrected word; it is a
+non-vacuity witness for the separation. -/
+
+section S3Gate
+
+variable {h α r : ℕ} {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+
+/-- **Inserting a jet-zero, trivially-acting factor shifts only the central value.** -/
+theorem heisMul_jetZero_insert (X P Y : HeisLift A C) (hP : P ∈ heisJetZero A C)
+    (hPg : ∀ v : A, P.g • v = v) :
+    (X * (P * Y)).a = (X * Y).a ∧ (X * (P * Y)).l = (X * Y).l ∧
+      (X * (P * Y)).z = (X * Y).z + P.z := by
+  have ha : (P * Y).a = Y.a := by rw [HeisLift.mul_a, hP.1, hPg, zero_add]
+  have hl : (P * Y).l = Y.l := by
+    rw [HeisLift.mul_l, hP.2, smul_elemDual_of_trivial hPg, zero_add]
+  have hz : (P * Y).z = Y.z + P.z := by
+    rw [heisJetZero_mul_z hP, add_comm]
+  refine ⟨?_, ?_, ?_⟩
+  · show X.a + X.g • (P * Y).a = X.a + X.g • Y.a
+    rw [ha]
+  · show X.l + X.g • (P * Y).l = X.l + X.g • Y.l
+    rw [hl]
+  · show X.z + (P * Y).z + X.l (X.g • (P * Y).a) = X.z + Y.z + X.l (X.g • Y.a) + P.z
+    rw [ha, hz]
+    abel
+
+/-- The propagation step: a central shift inside a right factor survives one more product. -/
+theorem heisMul_shift (W U₁ U₂ : HeisLift A C) (c : ZMod 2) (ha : U₁.a = U₂.a)
+    (hl : U₁.l = U₂.l) (hz : U₁.z = U₂.z + c) :
+    (W * U₁).a = (W * U₂).a ∧ (W * U₁).l = (W * U₂).l ∧ (W * U₁).z = (W * U₂).z + c := by
+  refine ⟨?_, ?_, ?_⟩
+  · show W.a + W.g • U₁.a = W.a + W.g • U₂.a
+    rw [ha]
+  · show W.l + W.g • U₁.l = W.l + W.g • U₂.l
+    rw [hl]
+  · show W.z + U₁.z + W.l (W.g • U₁.a) = W.z + U₂.z + W.l (W.g • U₂.a) + c
+    rw [ha, hz]
+    abel
+
+/-- The four-layer form the six-factor word needs: inserting the jet-zero correction block three
+levels down shifts only the total central value. -/
+theorem heisMul_jetZero_insert_depth3 (W₁ W₂ W₃ X P Y : HeisLift A C)
+    (hP : P ∈ heisJetZero A C) (hPg : ∀ v : A, P.g • v = v) :
+    (W₁ * (W₂ * (W₃ * (X * (P * Y))))).z = (W₁ * (W₂ * (W₃ * (X * Y)))).z + P.z := by
+  have h1 := heisMul_jetZero_insert X P Y hP hPg
+  have h2 := heisMul_shift W₃ _ _ P.z h1.1 h1.2.1 h1.2.2
+  have h3 := heisMul_shift W₂ _ _ P.z h2.1 h2.2.1 h2.2.2
+  exact (heisMul_shift W₁ _ _ P.z h3.1 h3.2.1 h3.2.2).2.2
+
+variable (t : Marking (2 + 2 * h) C) (x : Generator (2 + 2 * h) → A)
+  (y : Generator (2 + 2 * h) → ElemDual A) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- **The corrected and uncorrected words differ at second order by exactly `β(E_{r,η})`** — and
+by nothing else: the correction block is jet-zero and trivially-acting, so its insertion into the
+six-factor product shifts only the central coordinate.  Paired with WNP-b's
+`foxD_npcW_eq_uncorrected` (the first-order rows are *equal*), this locates the whole separating
+power of the correction in one central value. -/
+theorem heisZ_npcW_eq_uncorrected_add_eBlock
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v) (hτ : ∀ v : A, t.τ • v = v)
+    (hxσ : x .sigma = 0) (hyσ : y .sigma = 0) {e : ℕ} (hE : E omega2 = (e : ℤ)) (d : EtaData) :
+    (heisEvalZ ⇑t x y E E₂ (npcW α r h d)).z
+      = (heisEvalZ ⇑t x y E E₂ (npcUncorrectedW α r h d)).z
+        + (heisEvalZ ⇑t x y E E₂ (eBlockW h r d)).z := by
+  have e5 := heisF_eBlockW t x y E E₂ hwild hτ hxσ hyσ hE d (r := r)
+  have h5jz : heisEvalZ ⇑t x y E E₂ (eBlockW h r d) ∈ heisJetZero A C := by
+    rw [e5]; exact ⟨rfl, rfl⟩
+  obtain ⟨ha, hl, hg⟩ := heisJet_dBlockW t x y E E₂ hwild hτ hxσ hyσ hE d (r := r)
+  have h5g : ∀ v : A, (heisEvalZ ⇑t x y E E₂ (eBlockW h r d)).g • v = v := by
+    rw [e5]
+    intro v
+    exact mem_trivAct.mp (trivAct_commR_left (mem_trivAct.mpr hg) (t (coreLetter h 1))) v
+  rw [npcW, npcUncorrectedW, heisEvalZ_prodList, heisEvalZ_prodList]
+  simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one]
+  exact heisMul_jetZero_insert_depth3 _ _ _ _ _ _ h5jz h5g
+
+end S3Gate
+
+section S3Witness
+
+open NpcJet
+
+/-- The twisted marking of the five-letter alphabet on NC6's carrier: `σ ↦ g` (order 3, the
+`A₃`-restriction of the two-dimensional `S₃`-module), everything else trivial. -/
+def s3Mark : Marking (2 + 2 * 0) PinC := Marking.ofLetters pinG 1 ![1, 1, 1]
+
+/-- The primal offsets of the witness: only the `τ`-letter carries one. -/
+def s3X : Generator (2 + 2 * 0) → PinV
+  | .tau => ((1 : ZMod 2), (0 : ZMod 2))
+  | _ => 0
+
+/-- The dual offsets of the witness: only the `x₁`-letter carries one, the second coordinate. -/
+noncomputable def s3Y : Generator (2 + 2 * 0) → ElemDual PinV
+  | .wild ⟨1, _⟩ => AddMonoidHom.mk' (fun p : PinV => p.2) (fun _ _ => rfl)
+  | _ => 0
+
+/-- **The correction block is visible on the two-dimensional twisted module** — its second-order
+value is `1`, computed by kernel `decide` after the closed form `heisF_eBlockW` and the odd-`e`
+collapse of the `δ₀`-jet.  With `heisZ_npcW_eq_uncorrected_add_eBlock` this separates the
+corrected word from the uncorrected one at second order, where WNP-b's `foxD_npcW_eq_uncorrected`
+shows first order cannot.
+
+**Epistemic status (S3.2, freeze row 3).**  This witnesses that the twisted gate *can* reject;
+it is a soundness witness for REJECT and nothing more.  It is **not** evidence for the corrected
+word — a PASS on this or any module never is.  The exactness content is `npc_cross_operators`. -/
+theorem stress_s3_correction_visible (d : EtaData) :
+    (heisEvalZ ⇑s3Mark s3X s3Y (fun _ => (1 : ℤ)) (fun _ => (1 : ℤ)) (eBlockW 0 1 d)).z = 1 := by
+  have hwild : ∀ (i : Fin (2 + 2 * 0 + 1)) (v : PinV), s3Mark.x i • v = v := by decide
+  have hτ : ∀ v : PinV, s3Mark.τ • v = v := by decide
+  have hE : (fun _ : Zhat => (1 : ℤ)) omega2 = ((1 : ℕ) : ℤ) := by norm_num
+  rw [heisF_eBlockW (h := 0) (r := 1) s3Mark s3X s3Y (fun _ => (1 : ℤ)) (fun _ => (1 : ℤ))
+      hwild hτ rfl rfl hE d,
+    heisJetA_deltaZeroW_odd (h := 0) s3Mark s3X s3Y (fun _ => (1 : ℤ)) (fun _ => (1 : ℤ))
+      (by decide) hwild hτ hE odd_one,
+    heisJetL_deltaZeroW_odd (h := 0) s3Mark s3X s3Y (fun _ => (1 : ℤ)) (fun _ => (1 : ℤ))
+      hwild hτ hE odd_one]
+  show lcSmul s3Mark.σ 1 1 (s3Y .tau) (s3X (coreLetter 0 1))
+      + s3Y (coreLetter 0 1) (lcSmul s3Mark.σ 1 1 (s3X .tau)) = 1
+  rw [show s3Y (Generator.tau : Generator (2 + 2 * 0)) = 0 from rfl, lcSmul_zero,
+    show s3X (coreLetter 0 1) = 0 from rfl, ElemDual.zero_apply, zero_add, lcSmul,
+    zpow_one]
+  decide
+
+end S3Witness
+
+/-! ## §7. The phase consumables
+
+WW4's `affinePhase` on this row is `plusFormDPhaseCover` at the **twisted** diagonal
+`Q₀ ∘ L_c⁻¹` — not `q` — and `baseSign = 1` all the same, because the `c₁`-Lagrangian
+computation `gaussSum_plusFormD` is blind to which quadratic form sits in the `c₀`-slot.  That is
+the row-3 form of "the `c₁`-Lagrangian ⇒ Gauss `2^{nd/2}`" clause. -/
+
+section Phase
+
+open GQ2.QuadraticFp2 NpcJet
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  [Module (ZMod 2) V] [Fintype V] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+  (hq : IsQuadraticFp2 q) (hns : Nonsingular q) (s : C) (η : ℤ_[2]) (r : ℕ)
+  (hQ₀ : IsQuadraticFp2 (npcQ0 dat s η)) (Mc : V →+ V)
+  (hML : ∀ v, Mc (lcOpHom s η r v) = v) (hLM : ∀ v, lcOpHom s η r (Mc v) = v)
+  {d : ℕ} (hcard : Fintype.card V = 2 ^ d)
+
+/-- The row's Gauss residue slot: `G0 = ε·2^m = 2^d` — the sign is `+1` even though the diagonal
+is twisted. -/
+theorem npc_G0 :
+    (npcHessianCertificate dat hdat hq hns s η r hQ₀ Mc hML hLM hcard).affinePhase.G0 = 2 ^ d :=
+  one_mul _
+
+include dat hdat hq hns hQ₀ hML hLM hcard in
+/-- **The degree-`n` Gauss magnitude in `SN`-shape**: `2^{n·d}` — with `dim_{𝔽₂}(V × V) = 2d`
+this is `2^{n·dim/2}`, i.e. `standardNumerics n |>.gaussRam d` with positive sign (the
+`c₁`-Lagrangian).  Note the `c₀`-slot form is the **twisted** diagonal `Q₀ ∘ M_c`. -/
+theorem npc_gauss_pow (n : ℕ) :
+    gaussSum (fun w : Fin n → V × V =>
+        ∑ i, plusFormD (fun v ↦ npcQ0 dat s η (Mc v)) q (w i)) = 2 ^ (n * d) :=
+  (npcHessianCertificate dat hdat hq hns s η r hQ₀ Mc hML hLM
+    hcard).affinePhase.gaussSum_pi_of_baseSign_one rfl n
+
+include dat hdat hq hns hQ₀ hML hLM hcard in
+/-- **Packet Lem 6.1's output at this row**: a raw shift vector contributes exactly its affine
+phase against `G0 = 2^d`. -/
+theorem npc_gauss_translate (w : V × V) :
+    gaussSum (fun z => plusFormD (fun v ↦ npcQ0 dat s η (Mc v)) q z
+        + polar (plusFormD (fun v ↦ npcQ0 dat s η (Mc v)) q) z w)
+      = sign (plusFormD (fun v ↦ npcQ0 dat s η (Mc v)) q w) * 2 ^ d := by
+  have hgt := (npcHessianCertificate dat hdat hq hns s η r hQ₀ Mc hML hLM
+    hcard).affinePhase.gauss_translate w
+  rwa [npc_G0 dat hdat hq hns s η r hQ₀ Mc hML hLM hcard] at hgt
+
+end Phase
+
+/-! ## §8. The scalar certificate: the traced Stokes Gram, by kernel `decide`
+
+The cup–Bockstein comparison matrix (`stokesGram`) of the `(α, r, η) = (2, 1, 1)` family on the
+scalar module `A = 𝔽₂` (trivial action — the split class of WNP-b's rows), at the standard letter
+basis in the four-letter order `τ, x₀, x₁, x₂`.
+
+**`σ` is deliberately absent from the basis**, and that is the row's own finding rather than a
+convenience: this word's `σ` occurs only inside the powers `A = σ^{η̂}` and `B = σ^{2^r}`, whose
+jets are geometric sums, so a `σ`-offset cannot be carried without expanding the η̂-atom (§2).
+The four letters that remain are exactly the ones the certificate rows describe.
+
+Two pins, differing **only** in the resolver class of `ω₂`:
+
+* `e = 1` — the honest class.  Diagonal (Bockstein) entry at `x₀` (`C(6,2) = 15` odd); the
+  `(τ,τ)` tame Bockstein `C(2,2)` is the only diagonal the tame relator brings, and it survives;
+  cup blocks `(x₁,x₂)` and — **new on this row** — `(τ, x₁)`, contributed by the *correction
+  block*: at odd `e` the `δ₀`-jet is the `τ`-letter's, so `E_{r,η}` pairs `τ` with `x₁`.  That
+  pairing is the scalar-module shadow of `b_q(c₁, L_c c₀)`, with `L_c` degenerate to the
+  identity (`heisZ_npc_scalar`).
+* `e = 3` — the other odd class: exactly the `{τ, x₂}²`-block switches on, and it *also* flips
+  the `(τ,τ)` entry to `0` by cancelling the tame Bockstein.  The pair is ticket S1.T's "the lift
+  level is 4, not 2" as a kernel-checked matrix statement, on this row as on the compact one.
+
+Both matrices agree entry for entry with the closed forms `heisZ_npc_unram` /
+`heisZ_npc_scalar`: the `decide` recomputes what the theorems prove. -/
+
+section ScalarGram
+
+/-- The trivial action for the scalar pins (WW3's non-exporting `local instance` idiom). -/
+local instance : DistribMulAction (Multiplicative (ZMod 2)) (ZMod 2) where
+  smul _ a := a
+  one_smul _ := rfl
+  mul_smul _ _ _ := rfl
+  smul_zero _ := rfl
+  smul_add _ _ _ := rfl
+
+/-- The all-trivial (scalar/split) marking of the noncompact-`N` alphabet. -/
+def scalarMark : Marking (2 + 2 * 0) (Multiplicative (ZMod 2)) := Marking.ofLetters 1 1 ![1, 1, 1]
+
+/-- The four-letter basis order `τ, x₀, x₁, x₂` (no `σ` — see the section docstring). -/
+def scalarLetter : Fin 4 → Generator (2 + 2 * 0) := ![.tau, .wild 0, .wild 1, .wild 2]
+
+/-- The standard primal basis: a unit offset on one letter. -/
+def scalarX (p : Fin 4) : Generator (2 + 2 * 0) → ZMod 2 :=
+  fun g => if g = scalarLetter p then 1 else 0
+
+/-- The standard dual basis: the identity functional on one letter. -/
+noncomputable def scalarY (p : Fin 4) : Generator (2 + 2 * 0) → ElemDual (ZMod 2) :=
+  fun g => if g = scalarLetter p then (AddMonoidHom.id (ZMod 2) : ElemDual (ZMod 2)) else 0
+
+/-- **The `(2,1,1)` scalar Gram at the honest resolver class** (`e = 1`). -/
+theorem npcPin_scalarGram :
+    stokesGram ⇑scalarMark (npcFam 2 1 0 2 1 ⟨1, 1⟩) scalarX scalarY
+      = !![1,0,1,0; 0,1,0,0; 1,0,0,1; 0,0,1,0] := by
+  decide +kernel
+
+/-- **The `e = 3` twin**: the `{τ, x₂}²`-block moves with the resolver class — the mod-4
+(ℤ/4-lift-level) sensitivity, kernel-checked. -/
+theorem npcPin_scalarGram_three :
+    stokesGram ⇑scalarMark (npcFam 2 1 0 2 3 ⟨1, 1⟩) scalarX scalarY
+      = !![0,0,1,1; 0,1,0,0; 1,0,0,1; 1,0,1,1] := by
+  decide +kernel
+
+end ScalarGram
+
 end GQ2.Dyadic.Certificates.Npc
