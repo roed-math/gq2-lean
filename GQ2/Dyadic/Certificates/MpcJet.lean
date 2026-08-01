@@ -473,4 +473,134 @@ theorem evalFin_mpcHatW_eq_mpcLinW (hV2 : ∀ v : V, v + v = 0) (hu : Odd (order
 
 end Copies
 
+
+/-! ## §7. The jet theorem, and WW4 gap item 5 on the procyclic-`M` row -/
+
+section Factored
+
+variable {G : Type*} [Group G] {h : ℕ} (μ : Generator (2 + 2 * h) → G) (E : Zhat → ℤ)
+  (E₂ : ℤ_[2] → ℤ)
+
+/-- `evalFin` of a `prodList` (the `evalFin` twin of `Words.Mpc.eval_prodListM`). -/
+theorem evalFin_prodListM :
+    ∀ ws : List (PWord (Generator (2 + 2 * h))),
+      PWord.evalFin μ E E₂ (PWord.prodList ws) = (ws.map (PWord.evalFin μ E E₂ ·)).prod
+  | [] => rfl
+  | w :: ws => by
+      rw [PWord.prodList_cons, PWord.evalFin_mul, evalFin_prodListM ws, List.map_cons,
+        List.prod_cons]
+
+/-- The displayed factorization at the `evalFin` denotation — the twin of
+`Words.Mpc.eval_mpcW_factored`, which is stated for `Marking.eval` only. -/
+theorem evalFin_mpcW_factored (α r pp : ℕ) (η : EtaDisplay) :
+    PWord.evalFin μ E E₂ (mpcW α r pp η h)
+      = PWord.evalFin μ E E₂ (mpcLinW α r pp η h) * PWord.evalFin μ E E₂ (mpcHatW α r pp η h)
+        * PWord.evalFin μ E E₂ (plusW h) * PWord.evalFin μ E E₂ (handlesW h) := by
+  have htail : ((handleTailW h).map (PWord.evalFin μ E E₂ ·)).prod
+      = PWord.evalFin μ E E₂ (handlesW h) := by
+    match h with
+    | 0 => simp [handleTailW, handlesW]
+    | h + 1 => simp [handleTailW]
+  rw [mpcW, mpcLinW, mpcHatW, plusW, evalFin_prodListM, evalFin_prodListM, evalFin_prodListM,
+    evalFin_prodListM, List.map_append, List.map_append, List.map_append, List.prod_append,
+    List.prod_append, List.prod_append, htail]
+
+end Factored
+
+section Jet
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+  [Finite C] [Finite V]
+
+variable {h : ℕ} (s u : C) (vv : Fin (2 + 2 * h + 1) → V) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- The base coordinate of a κ⁰-evaluation is the plain evaluation (one `map_evalFin` line). -/
+theorem base_evalFin_hessLift (w : PWord (Generator (2 + 2 * h))) :
+    WordCoh.CentExt.base (PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ w)
+      = PWord.evalFin (Certificates.hessMark s u vv) E E₂ w :=
+  PWord.map_evalFin (WordCoh.CentExt.proj (kappa0Cocycle dat hdat))
+    (hessLift dat hdat (h := h) s u vv) E E₂ w
+
+/-- **The linear copy carries no primal offset at the gate-E marking.**
+
+This is WMP-d's row collapse `D(R_lin^pc)(a) = S₂^{−s}σ^{−n}a(x₂)` consumed through §1's
+register bridge: the row is supported on the `x₂`-column alone, and the gate-E marking gives
+`x₂` no primal letter.  Nothing about the row is re-derived here. -/
+theorem base_fst_mpcLinW (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (hv2 : vv (coreIdx h 2) = 0)
+    {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay} {nη : ℤ}
+    (hη : ActsAsPow (coreMark (h := h) s u).σ nη
+      (PWord.evalFin ⇑(coreMark (h := h) s u) E E₂ (η.toPWord (n := 2 + 2 * h))) V) :
+    (PWord.evalFin (Certificates.hessMark s u vv) E E₂ (mpcLinW α r pp η h)).1 = 0 := by
+  rw [evalFin_hessMark_fst s u vv E E₂,
+    foxD_mpcLinW_x2 (coreMark (h := h) s u) E E₂ (hessOffsets vv) rfl
+      (fun i w => by rw [coreMark_x]; exact one_smul _ _) hVu
+      (fun w => by rw [coreMark_tau, powOmega2_eq_one_of_odd hu]; exact one_smul _ _)
+      hα r pp hη hV2,
+    show hessOffsets vv (coreLetter h 2) = 0 from hv2, smul_zero, smul_zero]
+
+/-- **The two copies contribute nothing to the Hessian.**
+
+`val(R̂^pc) = val(R_lin^pc)` (§6), so the pair is a *square*; and the square of an element whose
+primal offset vanishes is central with fibre `κ` at a zero offset, which is `0`.  No
+`CentralReplication` hypothesis is needed — the κ⁰-register replacement for P4's central clause
+is §6's literal equality. -/
+theorem fib_mpcLinW_mul_mpcHatW (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (hv2 : vv (coreIdx h 2) = 0)
+    {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay} {nη : ℤ}
+    (hη : ActsAsPow (coreMark (h := h) s u).σ nη
+      (PWord.evalFin ⇑(coreMark (h := h) s u) E E₂ (η.toPWord (n := 2 + 2 * h))) V) :
+    WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
+        (PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (mpcLinW α r pp η h)
+          * PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (mpcHatW α r pp η h))
+      = 0 := by
+  have hb : (WordCoh.CentExt.base
+      (PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (mpcLinW α r pp η h))).1 = 0 := by
+    rw [base_evalFin_hessLift dat hdat s u vv E E₂]
+    exact base_fst_mpcLinW s u vv E E₂ hV2 hu hVu hv2 hα r pp hη
+  rw [evalFin_mpcHatW_eq_mpcLinW dat hdat s u vv E E₂ hV2 hu hVu hv2 α r pp η,
+    WordCoh.CentExt.mul_fib, CharTwo.add_self_eq_zero, zero_add, kappa0Cocycle_κ, hb,
+    smul_zero, hdat.f_zero_left, factorSet_m_zero dat hdat, add_zero]
+
+/-- **The `mpcW` jet theorem** — the `npc_cross_operators` analogue for the frozen procyclic-`M`
+word, at general `(α ≥ 1, r, p, η, h)`.
+
+The evaluated Hessian of `R_lin^pc·R̂^pc·D₀²[D₀,D₁]` at the graph-type κ⁰-marking is the plus
+form `Q₊(c₀,c₁) = q(c₀) + b_q(c₀,c₁)`: the two copies cancel (§6 + WMP-d's row collapse) and the
+plus block survives (§5). -/
+theorem mpc_cross_operators (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (hv2 : vv (coreIdx h 2) = 0)
+    {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay} {nη : ℤ}
+    (hη : ActsAsPow (coreMark (h := h) s u).σ nη
+      (PWord.evalFin ⇑(coreMark (h := h) s u) E E₂ (η.toPWord (n := 2 + 2 * h))) V) :
+    WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
+        (PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (mpcLinW α r pp η h)
+            * PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (mpcHatW α r pp η h)
+          * PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (plusW h))
+      = q (vv (coreIdx h 0)) + polar q (vv (coreIdx h 0)) (vv (coreIdx h 1)) := by
+  rw [WordCoh.CentExt.mul_fib,
+    fib_mpcLinW_mul_mpcHatW dat hdat s u vv E E₂ hV2 hu hVu hv2 hα r pp hη, zero_add,
+    evalFin_plusW dat hdat hV2 s u hu hVu vv E E₂, WordCoh.CentExt.incl_fib,
+    WordCoh.CentExt.incl_base, (kappa0Cocycle dat hdat).κ_one_right, add_zero]
+  rfl
+
+/-- **The jet theorem at the frozen word**, `h = 0`: the evaluated Hessian of `mpcW` itself is
+`plusFormD q q (c₀, c₁)` — the endpoint polynomial of `mpcHessianCertificate` with the diagonal
+`d₀` **pinned to `q`**. -/
+theorem evalFin_fib_mpcW (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (c₀ c₁ : V)
+    {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay} {nη : ℤ}
+    (hη : ActsAsPow (coreMark (h := 0) s u).σ nη
+      (PWord.evalFin ⇑(coreMark (h := 0) s u) E E₂ (η.toPWord (n := 2 + 2 * 0))) V) :
+    WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
+        (PWord.evalFin (hessLift dat hdat (h := 0) s u ![c₀, c₁, 0]) E E₂ (mpcW α r pp η 0))
+      = plusFormD q q (c₀, c₁) := by
+  rw [evalFin_mpcW_factored, handlesW_zero, PWord.evalFin_one, mul_one,
+    mpc_cross_operators dat hdat s u ![c₀, c₁, 0] E E₂ hV2 hu hVu rfl hα r pp hη,
+    plusFormD_apply]
+  rfl
+
+end Jet
+
 end GQ2.Dyadic.Certificates.MpcJet
