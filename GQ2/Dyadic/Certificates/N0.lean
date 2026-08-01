@@ -35,13 +35,13 @@ rows), at an arbitrary resolver value `E ω₂ = e`.  The value decomposes as
   second-order shadow of WN0-b's invertible `1 − S⁻¹` unramified Fox block
   (`isUnit_onePlusSEnd_iff` ties `1 + S` to `isUnit_oneSubSInvEnd_iff` by composition);
 * the **`h` identity-operator hyperbolic planes**
-  `Σ_j (y_{u_j}(a_{v_j}) + y_{v_j}(a_{u_j}))` (`heisZ_handlesW`) — no `S`/`T` operator
+  `Σ_j (y_{u_j}(a_{v_j}) + y_{v_j}(a_{u_j}))` (`heisF_handlesW_z`) — no `S`/`T` operator
   touches the handle block, at any handle count.
 
 This is the S2.1/S2.6 Sage-side block structure ("rank-3 core atoms ⊕ `h` hyperbolic
 planes", certificates `N-compact-alpha{2,3,4}-h{0,1}-v001`, battery `regressed-F-G`) in
-Lean: the three core atoms are the `(x₀,x₁)`-plane (unimodular over every module,
-`coreBlockEquiv`), the `x₀`-diagonal, and the `(1+S)`-atom on `x₂`
+Lean: the three core atoms are the `(x₀,x₁)`-plane (unimodular over every module), the
+`x₀`-diagonal, and the `(1+S)`-atom on `x₂`
 (`heisZ_nCompact_wild_block`), invertible exactly on `V^S = 0` — WN0-b's dichotomy.
 
 The **resolver dependence is exact**: the general form carries `e•` and `C(e,2)•`
@@ -146,8 +146,20 @@ WN0-a ruling that `Words/` and `Certificates/` are plain-import layers); the
 axioms; kernel `decide` only (the Gram pins and stress pins); no `Marking.eval` outside
 the finite-discrete instances WW5/WN0-a already use.
 
-Axiom prints are recorded in the section docstrings the way WN0-b did; every headline
-prints a subset of the standard three (`propext`, `Classical.choice`, `Quot.sound`).
+## Axiom state (audited 2026-07-31; `#print axioms` run in a scratch file, not committed)
+
+All 94 named declarations of this file print a **subset of the standard three**: 81
+exactly `[propext, Classical.choice, Quot.sound]`, 9 `[propext, Quot.sound]`, 4
+`[propext]`.  Zero `sorryAx`, zero `native_decide`, and **no `GQ2.AbsGalQ2` B-axiom
+leaks** (`markedRecipAt`/`orientedTameQuotientAt` appear in no print) through either
+import chain — the plain-import `Words.N0 → N0Fox` side or the `module`-style
+`Stokes`/`Hessian` side.  In particular the headlines `heisZ_nCompact_unram`,
+`heisZ_nCompact_res_one`, `heisZ_nCompact_wild_block`, `isUnit_onePlusSEnd_iff`,
+`heisZ_tameRelW_unram`, `nCompact_isStokesEndpoint`, `nCompact_stokesDuality`,
+`sqrtNegTwo_scalarGram`, `sqrtNegTwo_scalarGram_three`, `hessRelZ_nCompact`,
+`hessRelZ_nCompact_plusForm`, `nCompact_word_gaussSum`, `sqrtNegTwo_hess_eval`,
+`nCompact_G0`, `nCompact_gauss_pow`, `nCompact_handle_form_gaussSum` and
+`stress_handle_visible` all print exactly std-3.  The census stays at eleven.
 -/
 
 namespace GQ2.Dyadic.Certificates
