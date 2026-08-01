@@ -461,4 +461,246 @@ theorem scalarGram_eps_difference :
 
 end ScalarGram
 
+/-! ## §6 The linear copy's Fox row — WMP-c's residual (i)
+
+`mpcProductRowCert` takes the linear copy's row at σ-free offsets (`hlinrow`) as an **input**,
+and WMP-c named its closed form as the one `-b`-shaped computation nobody owned: *"the Fox row
+of the orbit-norm block `E₂^pc`"*.  This section computes it.
+
+Two structural facts make the assembly finite.  First, **every prefix weight of `R_lin^pc` is a
+power of the single procyclic letter `S₂ = σ^{ω₂}`** — that is WMP-c's `ActsAsPow` calculus read
+at first order — so the six-factor product rule collapses to four terms, the two commutators and
+the two `𝓔`-blocks having trivially-acting values.  Second, the two genuinely `α`- and
+`m`-dependent pieces are **geometric**: `D(C₀^k)` and `D(A)` are `𝒢_c^k`-sums of `S₂`-powers
+applied to `a(x₂)`, and so is the orbit norm, whose `m` conjugated copies of `z = δ₂δ₂^{σ₂^p}`
+contribute `S₂^{−s}·𝒢_{−s}^m` applied to `D(z)`.
+
+Everything is stated in **characteristic two** (`hV₂`), which is the only regime the row is
+consumed in — WMP-b's `foxD_mpcHatW_ram` sets the same precedent — and that is what removes every
+sign.  The one datum the row cannot name for itself is `η̂`: the value of `D = σ^{η̂}` is a power
+of `σ` whose exponent is a *marking-dependent* integer, so it enters as the hypothesis `hη`,
+and at the `√−10` instance (`η = 1`) it is `rfl`. -/
+
+section LinRow
+
+variable {h : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+  (a : Generator (2 + 2 * h) → V)
+
+/-- **The `S₂`-geometric operator** `𝒢_c^k = 1 + S₂^c + ⋯ + S₂^{c(k−1)}`, the shape every
+`α`- and `m`-dependent entry of this row takes. -/
+noncomputable def geomS (c : ℤ) (k : ℕ) (v : V) : V :=
+  ∑ i ∈ Finset.range k, ((powOmega2 t.σ) ^ (c * i)) • v
+
+omit [Finite C] [Finite V] in
+@[simp] theorem geomS_zero (c : ℤ) (v : V) : geomS t c 0 v = 0 := by rw [geomS]; simp
+
+omit [Finite C] [Finite V] in
+theorem geomS_succ (c : ℤ) (k : ℕ) (v : V) :
+    geomS t c (k + 1) v = geomS t c k v + ((powOmega2 t.σ) ^ (c * k)) • v := by
+  rw [geomS, geomS, Finset.sum_range_succ]
+
+omit [Finite C] [Finite V] in
+/-- The `List.range` form of a `Finset.range` sum — the bridge the orbit-norm expansion needs,
+since `Export.orbitNormFactors` is a `List.range` map. -/
+theorem sum_map_list_range {M : Type*} [AddCommMonoid M] (f : ℕ → M) : ∀ k : ℕ,
+    (((List.range k).map f).sum) = ∑ i ∈ Finset.range k, f i
+  | 0 => rfl
+  | k + 1 => by
+      rw [List.range_succ, List.map_append, List.sum_append, sum_map_list_range f k,
+        Finset.sum_range_succ]
+      simp
+
+omit [Finite C] [Finite V] in
+/-- **The orbit-norm expansion in `List.range` normal form.**  `Export.orbitNormFactors`
+elaborates its `(j + 1 : ℤ)` binder through a coercion that Lean spells as a monadic bind over
+`List.range` — WMP-a's documented friction, one level down — so every consumer that wants to
+reindex the product has to normalize first.  This is that normalization. -/
+theorem orbitNormFactors_map {Gen : Type*} (z u : PWord Gen) (k : ℕ) :
+    Export.orbitNormFactors z u k
+      = (List.range k).map (fun j : ℕ => PWord.conj z (PWord.zpow u ((j : ℤ) + 1))) := by
+  simp [Export.orbitNormFactors, ← List.map_eq_flatMap, List.map_map, Function.comp_def]
+
+section Factors
+
+variable (hσ : a Generator.sigma = 0)
+  (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+  (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w)
+
+include hσ hwild hτfpf hTodd
+
+/-- `D(C₀) = a(x₂)`: the `σ₂^s` tail is σ-only, so `C₀ = x₂σ₂^s` has the boundary letter's row
+outright.  (Contrast the hat copy, where `Ĉ₀ = σ₂^s` has **no** first-order content at all —
+WMP-b's `foxD_c0HatW_of_sigma_free`.) -/
+theorem foxD_c0W (s' : ℕ) : foxD ⇑t a E E₂ (c0W h s') = a (coreLetter h 2) := by
+  rw [c0W, MCompact.foxD_prodList_pair,
+    show foxD ⇑t a E E₂ (PWord.gen (coreLetter h 2)) = a (coreLetter h 2) from rfl,
+    foxD_sigma2Pow_of_sigma_free t E E₂ a hσ, smul_zero, add_zero]
+
+/-- `D(C₀^k) = 𝒢_s^k·a(x₂)` — the geometric sum with ratio `S₂^s`, because `C₀` acts as `S₂^s`.
+This is the `C₀^{2^α}` factor's whole content, and the only place `α` enters the row. -/
+theorem foxD_c0W_zpow (s' k : ℕ) :
+    foxD ⇑t a E E₂ (.zpow (c0W h s') (k : ℤ)) = geomS t (s' : ℤ) k (a (coreLetter h 2)) := by
+  rw [foxD_zpow_natCast, geomS]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [foxD_c0W t E E₂ a hσ hwild hτfpf hTodd s', ← zpow_natCast _ i,
+    (actsAsPow_c0W t E E₂ hwild s').zpow (i : ℤ) (a (coreLetter h 2)),
+    show (i : ℤ) * (s' : ℤ) = (s' : ℤ) * (i : ℤ) by ring]
+
+/-- `D(A) = a(x₀) + S₂^{−sm}·𝒢_s^m·a(x₂)` in characteristic two: the `x₀⁻¹` head plus the
+`C₀^{−m}` tail read through the geometric sum. -/
+theorem foxD_aW (hV₂ : ∀ w : V, w + w = 0) (s' mm : ℕ) :
+    foxD ⇑t a E E₂ (aW h s' mm)
+      = a (coreLetter h 0)
+        + ((powOmega2 t.σ) ^ (-(s' * mm : ℕ) : ℤ)) • geomS t (s' : ℤ) mm (a (coreLetter h 2)) := by
+  have hx0 : ⇑t (coreLetter h 0) ∈ trivAct C V := trivAct_coreLetterM t hwild 0
+  have htail : foxD ⇑t a E E₂ (.zpow (c0W h s') (-(mm : ℤ)))
+      = ((powOmega2 t.σ) ^ (-(s' * mm : ℕ) : ℤ))
+          • geomS t (s' : ℤ) mm (a (coreLetter h 2)) := by
+    rw [foxD_zpow_neg', foxEval_g, foxD_c0W_zpow t E E₂ a hσ hwild hτfpf hTodd s' mm,
+      ← zpow_natCast (PWord.evalFin ⇑t E E₂ (c0W h s')) mm,
+      ((actsAsPow_c0W t E E₂ hwild s').zpow (mm : ℤ)).inv
+        (geomS t (s' : ℤ) mm (a (coreLetter h 2))),
+      Certificates.neg_eq_self hV₂,
+      show -((mm : ℤ) * (s' : ℤ)) = (-(s' * mm : ℕ) : ℤ) by push_cast; ring]
+  rw [aW, MCompact.foxD_prodList_pair, htail, foxD_inv, PWord.evalFin_inv, PWord.evalFin_gen,
+    show foxD ⇑t a E E₂ (PWord.gen (coreLetter h 0)) = a (coreLetter h 0) from rfl]
+  simp only [mem_trivAct.mp (inv_mem hx0), Certificates.neg_eq_self hV₂]
+
+/-- `D(B) = a(x₁)`: the `σ₂^p` tail is σ-only, in both emitted spellings. -/
+theorem foxD_bW : ∀ pp : ℕ, foxD ⇑t a E E₂ (bW h pp) = a (coreLetter h 1)
+  | 0 => rfl
+  | q + 1 => by
+      rw [show bW h (q + 1) = PWord.prodList [.gen (coreLetter h 1), sig2PowW h (q + 1)] from rfl,
+        MCompact.foxD_prodList_pair,
+        show foxD ⇑t a E E₂ (PWord.gen (coreLetter h 1)) = a (coreLetter h 1) from rfl]
+      have hs : foxD ⇑t a E E₂ (sig2PowW h (q + 1)) = 0 := by
+        match q with
+        | 0 => exact foxD_sigma2W_of_sigma_free t E E₂ a hσ
+        | j + 1 =>
+            rw [show sig2PowW h (j + 2) = .zpow sigma2W ((j + 2 : ℕ) : ℤ) from rfl]
+            exact foxD_sigma2Pow_of_sigma_free t E E₂ a hσ _
+      rw [hs, smul_zero, add_zero]
+
+/-- **The orbit-norm base's row**: `D(z) = a(x₂) + S₂^{−p}·a(x₂)` in characteristic two, in both
+emitted spellings — the `p = 0` display `δ₂²` (where the two summands coincide) included. -/
+theorem foxD_zW (hV₂ : ∀ w : V, w + w = 0) : ∀ pp : ℕ,
+    foxD ⇑t a E E₂ (zW h pp)
+      = a (coreLetter h 2) + ((powOmega2 t.σ) ^ (-(pp : ℤ))) • a (coreLetter h 2)
+  | 0 => by
+      have hsum : ∀ i ∈ Finset.range 2,
+          PWord.evalFin ⇑t E E₂ (dW h 2) ^ i • foxD ⇑t a E E₂ (dW h 2)
+            = -a (coreLetter h 2) := fun i _ => by
+        rw [foxD_dW_ram t E E₂ a hwild hτfpf hTodd 2,
+          mem_trivAct.mp (pow_mem (trivAct_dW_ram t E E₂ hwild hTodd 2) i)]
+      rw [show zW h 0 = .zpow (dW h 2) ((2 : ℕ) : ℤ) from rfl, foxD_zpow_natCast,
+        Finset.sum_congr rfl hsum, Finset.sum_const, Finset.card_range, two_nsmul, ← neg_add,
+        hV₂, neg_zero, Nat.cast_zero, neg_zero, zpow_zero, one_smul, hV₂]
+  | q + 1 => by
+      rw [show zW h (q + 1) = PWord.prodList [dW h 2, .conj (dW h 2) (sig2PowW h (q + 1))] from rfl,
+        MCompact.foxD_prodList_pair, foxD_dW_ram t E E₂ a hwild hτfpf hTodd 2,
+        mem_trivAct.mp (trivAct_dW_ram t E E₂ hwild hTodd 2), foxD_conj,
+        foxD_dW_ram t E E₂ a hwild hτfpf hTodd 2]
+      have hs : foxD ⇑t a E E₂ (sig2PowW h (q + 1)) = 0 := by
+        match q with
+        | 0 => exact foxD_sigma2W_of_sigma_free t E E₂ a hσ
+        | j + 1 =>
+            rw [show sig2PowW h (j + 2) = .zpow sigma2W ((j + 2 : ℕ) : ℤ) from rfl]
+            exact foxD_sigma2Pow_of_sigma_free t E E₂ a hσ _
+      rw [hs, smul_zero, add_zero, sub_zero,
+        ((actsAsPow_sig2PowW t E E₂ (q + 1)).inv) (-a (coreLetter h 2))]
+      simp only [Certificates.neg_eq_self hV₂]
+
+omit hσ hwild hτfpf hTodd in
+/-- Powers of a first-order-silent word are first-order silent, at every integer exponent. -/
+theorem foxD_zpow_eq_zero {u : PWord (Generator (2 + 2 * h))} (hu : foxD ⇑t a E E₂ u = 0) :
+    ∀ k : ℤ, foxD ⇑t a E E₂ (.zpow u k) = 0
+  | .ofNat j => by
+      rw [show (Int.ofNat j) = ((j : ℕ) : ℤ) from rfl, foxD_zpow_natCast]
+      exact Finset.sum_eq_zero fun i _ => by rw [hu, smul_zero]
+  | .negSucc j => by
+      rw [Int.negSucc_eq, show -((j : ℤ) + 1) = -((j + 1 : ℕ) : ℤ) by push_cast; ring,
+        foxD_zpow_neg', foxD_zpow_natCast,
+        Finset.sum_eq_zero fun i _ => by rw [hu, smul_zero], smul_zero, neg_zero]
+
+omit [Finite C] [Finite V] hσ hwild hτfpf hTodd in
+/-- The `σ₂`-tower's value, in closed form. -/
+theorem evalFin_sigma2Pow (k : ℤ) :
+    PWord.evalFin ⇑t E E₂ (.zpow (sigma2W : PWord (Generator (2 + 2 * h))) k)
+      = (powOmega2 t.σ) ^ k := by
+  rw [PWord.evalFin_zpow, MCompact.evalFin_sigma2W]
+
+omit [Finite C] [Finite V] hσ hwild hτfpf hTodd in
+/-- **The orbit-norm shift**: the `m` conjugated copies `z^{U}, …, z^{U^m}` sum to
+`S₂^c·𝒢_c^m` applied to `D(z)`.  This is what turns the orbit norm — the block WMP-c flagged as
+the hard piece — into one geometric operator. -/
+theorem sum_orbit_geomS (c : ℤ) (k : ℕ) (v : V) :
+    ∑ j ∈ Finset.range k, ((powOmega2 t.σ) ^ (c * ((j : ℤ) + 1))) • v
+      = ((powOmega2 t.σ) ^ c) • geomS t c k v := by
+  rw [geomS, Finset.smul_sum]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [← mul_smul, ← zpow_add, show c + c * (i : ℤ) = c * ((i : ℤ) + 1) by ring]
+
+/-- **The `E₂^pc` row — the orbit-norm block in closed form.**
+
+WMP-c named exactly this as the residual: *"the Fox row of the orbit-norm block `E₂^pc`"*.  It
+is the head conjugate `δ₂^{σ₂^s}` plus the norm, and the norm is one geometric operator applied
+to the base's row:
+
+```
+D(E₂^pc) = S₂^{−s}·a(x₂) + S₂^{−sm}·S₂^{−s}·𝒢_{−s}^m·(a(x₂) + S₂^{−p}·a(x₂))
+```
+
+in characteristic two.  Note where `ε` lives: the *only* appearance of `p` is the `S₂^{−p}` of
+`D(z)`, so at `ε = 0` the base's two summands coincide and the whole block doubles away — the
+first-order face of the `ε`-visibility §5 measured at second order. -/
+theorem foxD_e2W (hV₂ : ∀ w : V, w + w = 0) (s' mm pp : ℕ) :
+    foxD ⇑t a E E₂ (e2W h s' mm pp)
+      = ((powOmega2 t.σ) ^ (-(s' : ℤ))) • a (coreLetter h 2)
+        + ((powOmega2 t.σ) ^ (-(s' * mm : ℕ) : ℤ)) • (((powOmega2 t.σ) ^ (-(s' : ℤ)))
+            • geomS t (-(s' : ℤ)) mm
+              (a (coreLetter h 2)
+                + ((powOmega2 t.σ) ^ (-(pp : ℤ))) • a (coreLetter h 2))) := by
+  have hd2 := foxD_dW_ram t E E₂ a hwild hτfpf hTodd 2
+  have ht2 := trivAct_dW_ram t E E₂ hwild hTodd 2
+  have hsig : ∀ k : ℤ,
+      foxD ⇑t a E E₂ (.zpow (sigma2W : PWord (Generator (2 + 2 * h))) k) = 0 := fun k =>
+    foxD_zpow_eq_zero t E E₂ a (foxD_sigma2W_of_sigma_free t E E₂ a hσ) k
+  -- the head conjugate
+  have hhead : foxD ⇑t a E E₂ (.conj (dW h 2) (.zpow sigma2W (s' : ℤ)))
+      = ((powOmega2 t.σ) ^ (-(s' : ℤ))) • a (coreLetter h 2) := by
+    rw [foxD_conj, hd2, hsig, smul_zero, add_zero, sub_zero, evalFin_sigma2Pow, ← zpow_neg,
+      smul_neg, Certificates.neg_eq_self hV₂]
+  -- every orbit-norm factor
+  have hfac : ∀ j : ℕ,
+      foxD ⇑t a E E₂ (.conj (zW h pp) (.zpow (.zpow sigma2W (s' : ℤ)) ((j : ℤ) + 1)))
+        = ((powOmega2 t.σ) ^ (-(s' : ℤ) * ((j : ℤ) + 1)))
+            • (a (coreLetter h 2) + ((powOmega2 t.σ) ^ (-(pp : ℤ))) • a (coreLetter h 2)) := by
+    intro j
+    rw [foxD_conj, foxD_zW t E E₂ a hσ hwild hτfpf hTodd hV₂ pp,
+      foxD_zpow_eq_zero t E E₂ a (hsig (s' : ℤ)), smul_zero, add_zero, sub_zero,
+      PWord.evalFin_zpow, evalFin_sigma2Pow, ← zpow_mul, ← zpow_neg,
+      show -((s' : ℤ) * ((j : ℤ) + 1)) = -(s' : ℤ) * ((j : ℤ) + 1) by ring]
+  -- the norm block
+  have hnorm : foxD ⇑t a E E₂
+      (PWord.prodList (Export.orbitNormFactors (zW h pp) (.zpow sigma2W (s' : ℤ)) mm))
+      = ((powOmega2 t.σ) ^ (-(s' : ℤ))) • geomS t (-(s' : ℤ)) mm
+          (a (coreLetter h 2) + ((powOmega2 t.σ) ^ (-(pp : ℤ))) • a (coreLetter h 2)) := by
+    rw [foxD_prodList_of_trivial _ _ _ _ _ (fun w hw => by
+      rw [orbitNormFactors_map, List.mem_map] at hw
+      obtain ⟨j, -, rfl⟩ := hw
+      rw [PWord.evalFin_conj]
+      exact trivAct_conjR (trivAct_zW t E E₂ hwild hTodd pp) _)]
+    rw [orbitNormFactors_map, List.map_map, sum_map_list_range]
+    simp only [Function.comp_apply]
+    rw [Finset.sum_congr rfl fun j (_ : j ∈ Finset.range mm) => hfac j, sum_orbit_geomS]
+  rw [e2W, MCompact.foxD_prodList_pair, hhead, PWord.evalFin_conj,
+    mem_trivAct.mp (trivAct_conjR ht2 _), foxD_conj, hnorm, hsig, smul_zero, add_zero, sub_zero,
+    evalFin_sigma2Pow, ← zpow_neg,
+    show -((s' * mm : ℕ) : ℤ) = (-(s' * mm : ℕ) : ℤ) from rfl]
+
+end Factors
+
+end LinRow
+
 end GQ2.Dyadic.Certificates.MProcyclic
