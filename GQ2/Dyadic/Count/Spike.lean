@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 import GQ2.Dyadic.Word.StokesDual
 import GQ2.Dyadic.Recursion.Numerics
 import GQ2.Dyadic.Certificates.N0
+import GQ2.DualityAssembly
 
 /-!
 # Dyadic campaign, ticket CB-S: the degree-generic count clause (spike)
@@ -43,9 +44,12 @@ marking convention `|ι| = |ρ| + n + 1` (deficiency `n`) this reads
   It costs 20 lines, not a ticket.
 * **§5** `IsSelfDualN` + `isSelfDualN_of_stokesDuality` — the degree-generic `IsSelfDual`
   package (all three clauses) from one `StokesDuality` payload: **the "one theorem".**
-* **§6** the factoring demonstration: `tcocycle_card_shape` and `hZcard_shape`, two
+* **§6** the factoring demonstration: `tcocycle_card_shape` and `hZcard_shape_of_simple`, two
   *different* `SourceDataN` clause shapes read off the *same* `IsSelfDualN`, valued in
-  `standardNumerics n`'s moving leaves.
+  `standardNumerics n`'s moving leaves.  Derivation 2's side condition (the dual has no
+  invariants) is discharged from `hZcard`'s own `hsimple`/`hnt` binders by the already-generic
+  `card_fixedPts_elemDual_eq_one_of_nontrivial`, so **neither derivation needs any input the
+  record does not already carry.**
 * **§7** the N0 instantiation: `ι = Generator (2 + 2h)`, `ρ = Fin 2`, so the deficiency is
   `2h + 2` and the `standardNumerics` value bridge closes; at `h = 0` (the `√−2` pilot)
   `n = 2 = [ℚ₂(√−2) : ℚ₂]`.
@@ -53,8 +57,12 @@ marking convention `|ι| = |ρ| + n + 1` (deficiency `n`) this reads
 ## Import discipline
 
 Plain-import: `GQ2.Dyadic.Recursion.Numerics` and `GQ2.Dyadic.Certificates.N0` are plain, so
-this file cannot be `module`-style; `GQ2.Dyadic.Word.StokesDual` is `module`-style and is
-imported by a plain file, which is the permitted direction.
+this file cannot be `module`-style; `GQ2.Dyadic.Word.StokesDual` and `GQ2.DualityAssembly` are
+`module`-style and are imported by a plain file, which is the permitted direction.
+
+The `GQ2.DualityAssembly` import is for **one** already-generic, word-free leaf
+(`card_fixedPts_elemDual_eq_one_of_nontrivial`).  A production CB file should hoist that leaf
+rather than depend on the `ℚ₂` assembly stack; noted for CB-4.
 
 Axioms: no new axioms, no `sorry`, no `decide`.  Every headline prints exactly the standard
 three (`propext`, `Classical.choice`, `Quot.sound`) — recorded in the report.
@@ -304,6 +312,21 @@ theorem hZcard_shape (S : IsSelfDualN n c w A)
   show Nat.card A ^ (n + 1) = Nat.card A * Nat.card A ^ n
   rw [pow_succ]
   ring
+
+omit [Fintype ι] [DecidableEq ι] in
+/-- **Derivation 2, with its side condition discharged.**  `hZcard`'s own binders — simplicity
+of the module and nontriviality of the action — are exactly what forces the dual to have no
+invariants, by the *already generic, word-free* `card_fixedPts_elemDual_eq_one_of_nontrivial`
+(`GQ2/DualityAssembly.lean:112`).  So the `hZcard` shape needs no input beyond what
+`SourceDataN` already carries plus generation. -/
+theorem hZcard_shape_of_simple (S : IsSelfDualN n c w A)
+    (hgen : Subgroup.closure (Set.range c) = ⊤) (hsimple : IsSimpleModTwo C A)
+    (hnt : ∃ (g : C) (a : A), g • a ≠ a) :
+    Nat.card ↥(heisD1 (A := A) c w).ker
+      = Nat.card A * (standardNumerics n).h1Mult (Nat.card A) :=
+  hZcard_shape S (by
+    rw [card_ker_heisD0_eq_card_fixedPts hgen,
+      card_fixedPts_elemDual_eq_one_of_nontrivial hsimple hnt])
 
 omit [Fintype ι] [DecidableEq ι] in
 /-- Sanity pin at `n = 1`: the two derivations reproduce the frozen `ℚ₂` literals
