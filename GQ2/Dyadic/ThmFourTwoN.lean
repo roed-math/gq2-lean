@@ -66,7 +66,24 @@ Plain-import (memo §5).
 
 Axioms: **no new axioms; none of the nine obligations as axioms.**  SD-n *is* one of the nine,
 and `thm_4_2_of_sourcesN` is its discharge at the generic level — so the headline theorem is
-sorry-free and axiom-clean.  Print check performed per declaration; see the section notes.
+sorry-free and axiom-clean.  Print check performed per declaration (measured, not budgeted):
+
+* **all 23 generic declarations** — the Gauss obtain, `prop_8_9_of_sourcesN`, the four lanes,
+  `thm_4_2_of_sourcesN`, the whole §10-K block, `contSurj_card_eq_of_sourcesN`,
+  `nonempty_continuousMulEquiv_of_sourcesN`, `boundaryFrameK` — print **exactly std-3**
+  `[propext, Classical.choice, Quot.sound]`.  Not one B-axiom in the generic layer: measured
+  confirmation of SD-R3's structural claim, now at capstone level.  The model
+  `GQ2.thm_4_2_of_sources` needs `{B1, B6, B7, B9, B11a}` for the same mathematics.
+* `thm_4_2_via_N` — std-3 ∪ {B1 `absGalQ2_isTopologicallyFinitelyGenerated`, B6 `tateDualityAt`,
+  B7 `absGalQ2_localEulerCharacteristic`, B9 `relativeStiefelWhitney_dyadic`,
+  B11a `hilbertSymbol_normCriterion_finiteDyadic`}: **byte-identical to the frozen
+  `GQ2.thm_4_2`'s own print**.  Re-deriving the capstone through the clone costs zero axioms.
+* `thm_4_2_gammaR_via_N` — that set ∪ {B3c `dyadicOrientation`, B5 `localReciprocity`,
+  B8 `peripheralCyclotomicAction`}, i.e. exactly `thm_4_2`'s ∪ `sourceR`'s, as SD2 measured for
+  `sourceR_N`.  B-Lab stays the `hBLab` binder, never an axiom.
+
+No frozen file is touched, so the audited capstone prints cannot move: `scripts/check_axioms.sh`
+check 5 green (5 capstones at the census set, 3 twin pairs identical), census still 11.
 -/
 
 namespace GQ2.Dyadic
@@ -715,5 +732,67 @@ theorem nonempty_continuousMulEquiv_of_sourcesN (S₁ S₂ : SourceDataN n q P h
     Nonempty (ContinuousMulEquiv S₁.Γ S₂.Γ) :=
   reconstruction S₁.tfg S₂.tfg fun G _ _ _ _ =>
     contSurj_card_eq_of_sourcesN S₁ S₂ hq0 hqe hnuP htame₁ hwild₁ htame₂ hwild₂ G
+
+/-! ## The `n = 1` regression  (memo §8 acceptance (1))
+
+`thm_4_2`'s **statement**, re-derived through the clone at `n = 1` from SD2's adapters.  The
+frozen `GQ2.thm_4_2` (`GQ2/ThmFourTwo.lean:443`) is untouched: this is a second, independent
+derivation of the same proposition, and the point of it is that it typechecks *at the old
+boundary with no transport* — probes P1/P1b (`boundarySubgroupQ 2 nuTwo = boundarySubgroup` and
+`exactImageCountK … = exactImageCount …`, both `rfl`) plus SD2's `sourceA_N_b`/`sourceF_N_b`
+(also `rfl`) make the whole chain definitional. -/
+
+section Regression
+
+/-- The inverse of `BoundaryFrameK.toBoundaryFrame` (`Recursion/Frame.lean:132`): a `ℚ₂`
+boundary frame **is** a `K`-frame at `q = 2`, `P := PiBd`, because `Tq 2 = Ttame` is `rfl` — the
+four fields are literally the same terms.  Declared prefix-style (not as `BoundaryFrame.…`) to
+keep the frozen `GQ2.BoundaryFrame` namespace untouched. -/
+def boundaryFrameK (F : BoundaryFrame H E) : BoundaryFrameK 2 PiBd H E where
+  alpha := F.alpha
+  alpha_surjective := F.alpha_surjective
+  exponent_two := F.exponent_two
+  psiBar := F.psiBar
+
+/-- The two frame coercions are mutually inverse — `rfl` both ways (structure eta). -/
+@[simp] theorem boundaryFrameK_toBoundaryFrame (F : BoundaryFrame H E) :
+    (boundaryFrameK F).toBoundaryFrame = F := rfl
+
+/-- **REGRESSION (memo §8 acceptance (1)): `thm_4_2`'s statement, through the degree-`n` clone.**
+
+Byte-for-byte the frozen `GQ2.thm_4_2`'s statement (`GQ2/ThmFourTwo.lean:443-449`) — same
+binders, same conclusion `exactImageCount B.bA F T = exactImageCount B.bF F T` at the *old*
+boundary and the *old* frame type — proved by instantiating the two-sided degree-`n` theorem at
+SD2's `sourceA_N B` and `sourceF_N B R horient`.
+
+The instantiation is **rfl-level: no transport, no `rw`, no cast.**  Every bridge fires
+definitionally: `boundarySubgroupQ 2 nuTwo = boundarySubgroup`, `(sourceA_N B).b = B.bA`,
+`(sourceF_N B R horient).b = B.bF`, `(boundaryFrameK F).frameMap = F.frameMap`,
+`exactImageCountK = exactImageCount`.  The three slot conditions are discharged by
+`two_ne_zero`, `even_two` and `SectionThree.nuTwo_surjective`.
+
+Note where the `ℚ₂`-specific binders sit: `B`, `(R, horient)` and the two `AbsGalQ2` instance
+binders appear **only** as arguments to `sourceF_N` — memo §3.1's migration, executed. -/
+theorem thm_4_2_via_N (B : BoundaryMaps) (F : BoundaryFrame H E)
+    (R : LocalReciprocity) (horient : TameUnitOrientation R B.tameF)
+    [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    (T : MarkedTarget H E Y) (hE2 : ∀ e : E, e ^ 2 = 1) :
+    exactImageCount B.bA F T = exactImageCount B.bF F T :=
+  thm_4_2_of_sourcesN (sourceA_N B) (sourceF_N B R horient) (boundaryFrameK F)
+    two_ne_zero even_two SectionThree.nuTwo_surjective T hE2
+
+/-- The same regression with the **candidate** source `Γ_R` on the left (R32's consumption
+shape): `sourceR_N` against `sourceF_N`, under the B-Lab binder.  Also rfl-level. -/
+theorem thm_4_2_gammaR_via_N [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+    (hBLab : BLabHypothesis) (B : BoundaryMaps) (F : BoundaryFrame H E)
+    (R : LocalReciprocity) (horient : TameUnitOrientation R B.tameF)
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    (T : MarkedTarget H E Y) (hE2 : ∀ e : E, e ^ 2 = 1) :
+    exactImageCount (GQ2.sourceR hBLab).b F T = exactImageCount B.bF F T :=
+  thm_4_2_of_sourcesN (sourceR_N hBLab) (sourceF_N B R horient) (boundaryFrameK F)
+    two_ne_zero even_two SectionThree.nuTwo_surjective T hE2
+
+end Regression
 
 end GQ2.Dyadic
