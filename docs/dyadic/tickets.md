@@ -348,6 +348,22 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- **2026-08-01 (owner + orchestrator): THIRD INTERRUPTION → MODEL POLICY CHANGED — FABLE IS
+  EXHAUSTED FOR THE WEEK; ALL TICKETS RUN ON OPUS.** A session-limit hit killed the three
+  in-flight fable tickets (WM0-c, WNP-b, WMP-b); the owner then reported the weekly fable
+  quota gone and switched orchestration to opus. **The board's `fable` model column is
+  hereby aspirational for the rest of the week — read it as "hard seam", dispatch on
+  opus** (this is the same rider the campaign adopted during the 2026-07-29 and 07-30
+  credit incidents; it has not cost a ticket yet). Salvage at the kill: **WNP-b's six
+  commits AND its 59 uncommitted lines survived and built green** (the continuation
+  worker banked them first); WM0-c and WMP-b had written nothing (killed in their reading
+  passes) and were restarted clean. Re-dispatched on opus, all four in parallel: **WNP-b**
+  (continuation, mc), **WMP-b** (restart, ob), **WM0-c** (restart, wn0), **WL-c** (new,
+  lg, branch `dyadic-wlc`, c2-before-c1 per WL-recon Q3). WL-c's brief carries a
+  **stale-warning correction**: WL-b told it that the Words-namespace collision blocked
+  importing `Certificates/N0Fox.lean`/`N0.lean` — that break is FIXED (see the previous
+  entry), the root build is green with every Words/* and Certificates/* file co-imported,
+  so WL-c reuses WN0-c's toolkit instead of re-deriving ~350 lines.
 - **2026-08-01 (orchestrator, INTEGRATION FIX + AUDIT-PROCEDURE CORRECTION — the root build
   was broken for one merge window):** WL-b found that `lake build GQ2` failed at head:
   WL-a's `Words/L.lean` declared its 20-name alphabet toolkit in the bare
