@@ -59,7 +59,8 @@ no `σ₂`-letter at all; this row carries four.
 
 ## Where each entry comes from (the frozen derivation, mechanised)
 
-The word is a **six-factor `prodList`** whose factors do *not* all act trivially — `A₀²` acts as
+The word is a `prodList` of **five factors plus the handle tail**, and those factors do *not*
+all act trivially — `A₀²` acts as
 `S₂^{−2m}` and `σ₂^{2m}` as `S₂^{2m}` — so the compact-`N` shortcut
 `foxD_prodList_of_trivial` is unavailable and each factor enters weighted by the **lower value
 of its prefix** (`D(uv) = D(u) + ū·D(v)`, iterated).  That weighting is the whole story:
@@ -72,15 +73,16 @@ of its prefix** (`D(uv) = D(u) + ū·D(v)`, iterated).  That weighting is the wh
   (`foxD_comm_of_trivial_right`), weighted to `S₂^{−2m}·a(x₁) − S₂^{−m}·a(x₁)`.  No `x₀`, no
   `σ`: the two `D(A₀)` copies of the commutator cancel.
 * **`σ₂^{2m}`** (prefix `S₂^{−2m}`): `S₂^{−2m}·𝒢_{2m}`.  **This is the `σ`-column cancellation**
-  (`foxD_mCompact_sigma_column`): `𝒢_{2m} = 𝒢_m + S₂^m·𝒢_m` (`sigmaGeom_two_mul`), so the
+  (inside `foxD_mWordWith_core`): `𝒢_{2m} = 𝒢_m + S₂^m·𝒢_m` (`sigmaGeom_two_mul`), so the
   weighted contribution is `(S₂^{−2m} + S₂^{−m})·𝒢_m`, *identical* to the `A₀²` contribution —
   and it cancels **over `ℤ`**, without any characteristic-`2` hypothesis.  Mathematically this
   is the packet's power balance `−2·2^{α−1} + 2^α = 0` differentiated once.
 * **`J₂`** (prefix `S₂^{−2m}·S₂^{2m} = 1`): `−S⁻¹·a(x₂) + P·(a(x₂) + a(τ))` — *the compact-`N`
-  factors verbatim* (`foxD_j2W_unram`/`_ram` are proved by `exact`-ing WN0-b's own lemmas).
+  factors verbatim*: `foxD_j2W_unram`/`_ram` are proved by rewriting with WN0-b's own
+  `foxD_invConjX2` and `foxD_deltaBlock_unram`/`_ram`, across the `coreLetter_eq` bridge.
 * **`E_m^rev`** (prefix `1`): all four conjugated `δ`-letters act trivially, so
   `D(E_m^rev) = (S₂^{−2m}+S₂^{−m})·D(δ₁) + (S₂^{−m}+1)·D(δ₀)` with
-  `D(δ_i) = (P+1)·a(x_i) + P·a(τ)` (`foxD_deltaC`).
+  `D(δ_i) = (P+1)·a(x_i) + P·a(τ)` (`foxD_deltaC_unram`, `foxD_deltaC_ram`).
 * **`H_h`** (prefix `1`): `0`, at every `h` — commutators of trivially-acting letters
   (`foxD_comm_of_trivial`, hoisted by WWH).  ⚠ At `h = 0` there is **no handle factor at all**
   (WM0-a deviation 1), so `foxD_handleTailW` is proved by cases and the `h ≥ 1` branch is the
@@ -105,8 +107,8 @@ Stated honestly, because three different things are easy to conflate.
    certificate's note "the delta offsets carry the factor `(1 + P)` … invisible at first order
    in BOTH projector cases", made precise.
 3. **The block *order* is first-order invisible** — `foxD_eFwdW_eq_eRevW`, hence
-   `foxD_mFwdW_eq_mCompact` and equality of the whole evaluated Jacobian
-   (`foxJacobian_mFwdW_eq_mCompact`): the four factors all act trivially, so the product rule
+   `foxD_mFwdW_eq_mCompact` and equality of the evaluated row as a homomorphism
+   (`foxDHom_mFwdW_eq_mCompact`): the four factors all act trivially, so the product rule
    degenerates to a plain sum and reordering is `add_comm`.  This is a **theorem**, not a
    docstring claim, and it is the Lean shard of S4.1's order-invisibility.  Per the dated
    2026-07-31 correction to the WM0 spec: the rejection of the forward order is **second
@@ -151,10 +153,12 @@ stronger.
 ## Axiom state (recorded per WM0-b instructions; `#print axioms` run in a scratch file, not
 committed)
 
-**Audited 2026-07-31, all named declarations of this file**: every one depends on a subset of
-the standard axioms `[propext, Classical.choice, Quot.sound]`; no `sorryAx`, no
-`Lean.ofReduceBool` (no `native_decide`), and no `B`-axiom of the dyadic census leaks through
-the `Words.M0 → TameBoundary → MarkedCore` import chain.  The census stays at **eleven**.
+**Audited 2026-08-01, all 92 named declarations of this file**: every one depends on a subset
+of the standard axioms `[propext, Classical.choice, Quot.sound]` — 71 print exactly std-3, 16
+print `[propext, Quot.sound]`, 4 print `[propext]`, and `tameRow_two_ne_four` (a kernel
+`decide`) depends on **no axiom at all**.  Zero `sorryAx`, zero `Lean.ofReduceBool` (no
+`native_decide`), and no `B`-axiom of the dyadic census leaks through the
+`Words.M0 → TameBoundary → MarkedCore` import chain.  The census stays at **eleven**.
 
 ## Implementation notes
 
@@ -170,9 +174,10 @@ hoist; nesting is the minimal fix inside this ticket's one owned file.
 
 **Hoist candidates for the cleanup queue** (lane-generic, introduced here, wanted by
 WNP-b/WMP-b/WL-b which all have non-trivially-acting prefixes):
-`foxD_comm_of_trivial_right`, `foxD_conj_of_trivial`, `foxD_prodList_weighted`,
-`geom_pow_smul_two_mul`, and the four-support alphabet sum `sum_generator_quad`.  All four
-belong beside WWH's `foxD_prodList_of_trivial` in `GQ2/Dyadic/Word/Fox.lean`.
+`foxD_comm_of_trivial_right`, `foxD_conj_of_trivial`, `foxD_prodList_pair`,
+`evalFin_prodList_pair`, `trivAct_commR_right`, `geom_pow_smul_two_mul`, and the four-support
+alphabet sum `sum_generator_quad`.  All of them belong beside WWH's
+`foxD_prodList_of_trivial` in `GQ2/Dyadic/Word/Fox.lean`.
 -/
 
 namespace GQ2.Dyadic.Certificates.MCompact
@@ -564,6 +569,31 @@ theorem foxD_deltaC_ram (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i �
   rw [deltaCert, foxD_prodList_pair, hω, mem_trivAct.mp hδtriv, foxD_inv, PWord.evalFin_gen,
     foxD_gen, mem_trivAct.mp (inv_mem (trivAct_coreLetter t hwild i)), zero_add]
 
+omit [Finite C] [Finite V] in
+/-- The `ω₂`-block `(x_iτ)^{ω₂}` acts trivially on an unramified module — the hypothesis every
+`δ`-letter statement below consumes. -/
+theorem trivAct_deltaBlock_unram (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hτ : ∀ v : V, t.τ • v = v) (i : Fin 3) :
+    PWord.evalFin ⇑t E E₂
+      (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h i), .gen .tau])) ∈ trivAct C V := by
+  rw [PWord.evalFin_omega2Pow]
+  refine trivAct_powOmega2 (mem_trivAct.mpr fun v => ?_)
+  rw [evalFin_prodList_pair, PWord.evalFin_gen, PWord.evalFin_gen, mul_smul, Marking.apply_tau,
+    hτ, mem_trivAct.mp (trivAct_coreLetter t hwild i)]
+
+omit [Finite V] in
+/-- The same on a ramified module, for the *other* reason: `τ`'s `2`-primary part is trivial
+(`hTodd`), so the `ω₂`-power of `x_iτ` is.  (`Finite C` is real here: `powOmega2` computes a
+`2`-primary part, which needs a finite ambient group.) -/
+theorem trivAct_deltaBlock_ram (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (i : Fin 3) :
+    PWord.evalFin ⇑t E E₂
+      (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h i), .gen .tau])) ∈ trivAct C V := by
+  rw [PWord.evalFin_omega2Pow, evalFin_prodList_pair, PWord.evalFin_gen, PWord.evalFin_gen,
+    Marking.apply_tau]
+  exact mem_trivAct.mpr fun v => WordLift.powOmega2_smul_of_trivial_mul _ _
+    (mem_trivAct.mp (trivAct_coreLetter t hwild i)) hTodd v
+
 /-- **The correction block differentiates as a plain weighted sum of its four `δ`-letters**:
 
 ```
@@ -603,6 +633,50 @@ theorem foxD_eRevW (hd0 : PWord.evalFin ⇑t E E₂ (deltaCert h 0) ∈ trivAct 
   simp only [List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero]
   rw [show (2 * (mOf α : ℤ)) = ((2 * mOf α : ℕ) : ℤ) by push_cast; ring,
     hconj 1 _ hd1, hconj 1 _ hd1, hconj 0 _ hd0]
+  abel
+
+/-- **The correction block's own Fox row at `P = 1`**: `(S₂^{−2m} + 1)·a(τ)`.
+
+⚠ **Not zero.**  The block's *primal* offsets carry the factor `P + 1` and do die here
+(`foxD_deltaC_unram` is `a(τ)`, with no `x_i` at all), but its `τ`-contribution survives — it is
+what turns `J₂`'s bare `P` into the assembled row's `P·S₂^{−2m}`.  It vanishes only after the
+additional *simple*-module collapse `S₂ = 1`.  Stating this is the honest form of the frozen
+certificate's "the correction block is invisible at first order in BOTH projector cases". -/
+theorem foxD_eRevW_unram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (eRevW α h)
+      = ((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a .tau + a .tau := by
+  rw [foxD_eRevW t E E₂
+      (trivAct_deltaC t E E₂ hwild 0 (trivAct_deltaBlock_unram t E E₂ hwild hτ 0))
+      (trivAct_deltaC t E E₂ hwild 1 (trivAct_deltaBlock_unram t E E₂ hwild hτ 1)),
+    foxD_deltaC_unram t E E₂ hV₂ hwild hτ, foxD_deltaC_unram t E E₂ hV₂ hwild hτ,
+    show ((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a .tau
+        + ((powOmega2 t.σ) ^ mOf α)⁻¹ • a .tau
+        + (((powOmega2 t.σ) ^ mOf α)⁻¹ • a .tau + a .tau)
+      = (((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a .tau + a .tau)
+        + (((powOmega2 t.σ) ^ mOf α)⁻¹ • a .tau + ((powOmega2 t.σ) ^ mOf α)⁻¹ • a .tau) from
+      by abel, hV₂, add_zero]
+
+/-- **The correction block's own Fox row at `P = 0`**:
+`−((S₂^{−2m}+S₂^{−m})·a(x₁) + (S₂^{−m}+1)·a(x₀))`.
+
+⚠ Also **not zero** — here the *primal* offsets are what survive (`foxD_deltaC_ram` is
+`−a(x_i)`), and they leave the assembled row only by cancelling the `A₀²[A₀,x₁]` contribution
+over `𝔽₂`.  So the block is invisible in both published specializations, but by two genuinely
+different mechanisms. -/
+theorem foxD_eRevW_ram (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hτfpf : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v)
+    (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (eRevW α h)
+      = -(((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a (coreLetter h 1)
+          + ((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 1)
+          + (((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 0) + a (coreLetter h 0))) := by
+  rw [foxD_eRevW t E E₂
+      (trivAct_deltaC t E E₂ hwild 0 (trivAct_deltaBlock_ram t E E₂ hwild hTodd 0))
+      (trivAct_deltaC t E E₂ hwild 1 (trivAct_deltaBlock_ram t E E₂ hwild hTodd 1)),
+    foxD_deltaC_ram t E E₂ hwild hτfpf hTodd, foxD_deltaC_ram t E E₂ hwild hτfpf hTodd]
+  simp only [smul_neg]
   abel
 
 /-! ### The handle block
@@ -705,13 +779,7 @@ theorem foxD_mCompact_unram (hV₂ : ∀ v : V, v + v = 0)
             + ((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a (coreLetter h 1))
         + (a (coreLetter h 2) - t.σ⁻¹ • a (coreLetter h 2)) := by
   have hneg : ∀ v : V, -v = v := Certificates.neg_eq_self hV₂
-  have hδ : ∀ i : Fin 3, PWord.evalFin ⇑t E E₂
-      (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h i), .gen .tau])) ∈ trivAct C V := by
-    intro i
-    rw [PWord.evalFin_omega2Pow]
-    refine trivAct_powOmega2 (mem_trivAct.mpr fun v => ?_)
-    rw [evalFin_prodList_pair, PWord.evalFin_gen, PWord.evalFin_gen, mul_smul, Marking.apply_tau,
-      hτ, mem_trivAct.mp (trivAct_coreLetter t hwild i)]
+  have hδ := trivAct_deltaBlock_unram t E E₂ hwild hτ
   rw [foxD_mCompact_core t E E₂ hwild (evalFin_j2W_smul t E E₂ hwild (hδ 2)),
     foxD_j2W_unram t E E₂ hV₂ hwild hτ,
     foxD_eRevW t E E₂ (trivAct_deltaC t E E₂ hwild 0 (hδ 0))
@@ -792,13 +860,7 @@ theorem foxD_mCompact_ram (hV₂ : ∀ v : V, v + v = 0)
     (a : Generator (2 + 2 * h) → V) :
     foxD ⇑t a E E₂ (mCompactW α h) = -(t.σ⁻¹ • a (coreLetter h 2)) := by
   have hneg : ∀ v : V, -v = v := Certificates.neg_eq_self hV₂
-  have hδ : ∀ i : Fin 3, PWord.evalFin ⇑t E E₂
-      (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h i), .gen .tau])) ∈ trivAct C V := by
-    intro i
-    rw [PWord.evalFin_omega2Pow, evalFin_prodList_pair, PWord.evalFin_gen, PWord.evalFin_gen,
-      Marking.apply_tau]
-    exact mem_trivAct.mpr fun v => WordLift.powOmega2_smul_of_trivial_mul _ _
-      (mem_trivAct.mp (trivAct_coreLetter t hwild i)) hTodd v
+  have hδ := trivAct_deltaBlock_ram t E E₂ hwild hTodd
   rw [foxD_mCompact_core t E E₂ hwild (evalFin_j2W_smul t E E₂ hwild (hδ 2)),
     foxD_j2W_ram t E E₂ hwild hτfpf hTodd,
     foxD_eRevW t E E₂ (trivAct_deltaC t E E₂ hwild 0 (hδ 0))
