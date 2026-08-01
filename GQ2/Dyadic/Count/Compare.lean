@@ -6,6 +6,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 import GQ2.Dyadic.Count.Spike
 import GQ2.CentralObstruction
 import GQ2.VCocycle
+import GQ2.RadicalEdge.GammaA
 
 /-!
 # Dyadic campaign, ticket CB-1: the comparison isomorphism
@@ -41,7 +42,9 @@ VCocycle DD ρ ≃  Z¹(Γ, DD.Vmod)     ≃+  ↥(heisD1 c w).ker
   `AbsGalQ2`-specific: `Phase140/{GammaA,GammaR}/Foundation.lean`, `Phase140/Local.lean:195`).
 * **§5/§7** the payoff: `tcocycle_cardN` and `hZcardN`, the two `SourceDataN` field values over
   the abstract carrier, each **one rewrite** off CB-S's `IsSelfDualN`.
-* **§8** the N0 / `√−2` instantiation, composed with CB-S's `sqrtNegTwo_cardZ1`.
+* **§8** the N0 / `√−2` instantiation, at CB-S's degree bookkeeping (`nCompact_degree`, deficiency
+  `2h + 2`) and N0's own `sqrtNegTwo_isStokesEndpoint` — the recursion-vocabulary counterpart of
+  CB-S's `sqrtNegTwo_cardZ1`, which is the same value read on the word side.
 
 ## What is *not* re-proved here
 
@@ -54,16 +57,26 @@ redone — per the ticket's instruction that the transport, not the arithmetic, 
 `WordCohBridge.z1Equiv` (492 ln) builds an explicit inverse: `liftMarking`, `NA_le_ker_classify`,
 `liftHom`, and two round-trip lemmas.  That is unnecessary.  The forward map is additive and its
 injectivity and surjectivity are *both* one application of the presentation interface, so
-`AddEquiv.ofBijective` does the rest.  This is why §3 is ~100 lines rather than ~400, and why the
-inverse is noncomputable here and constructive there — the counts do not care.
+`AddEquiv.ofBijective` does the rest.  This is why §3 (including `h1Equiv`) is 240 lines rather
+than 492, and why the inverse is noncomputable here and constructive there — the counts do not
+care.
 
 ## Import discipline
 
 Plain-import: `GQ2.Dyadic.Count.Spike` is plain (it imports the plain `Recursion.Numerics` and
-`Certificates.N0`), so this file is plain too.  `GQ2.CentralObstruction` and `GQ2.VCocycle` supply
-`TCocycle`/`VCocycle`; both are already in the `ℚ₂` stack the spike reaches through
-`GQ2.DualityAssembly`, so **the `DualityAssembly` leaf CB-S flagged costs this file nothing extra**
-— see the report.
+`Certificates.N0`), so this file is plain too.
+
+`GQ2.DualityAssembly` — the leaf CB-S flagged for a hoist — **costs this file nothing**: it is
+already in the spike's closure.  Measured import delta over the spike: 128 → 146 `GQ2` modules,
+of which the driver is `GQ2.RadicalEdge.GammaA` (with `Prop23`, `SectionSeven.*`,
+`LocalLiftingDuality`, `WordCohBridge` behind it).  That import is not decorative: it carries
+`cActT`, the campaign's **canonical** conjugation action of `Bg ⧸ D.M` on `Additive ↥D.T`, which
+is the very instance `SourceDataN.tcocycle_card` is stated against.  Re-declaring it here would
+have produced an instance diamond at CB-4, so the import is the correct trade.  Note that
+`LocalLiftingDuality` (which *consumes* B6/B7) arrives in the closure without any print moving:
+every headline below is still std-3.
+
+`GQ2.CentralObstruction` and `GQ2.VCocycle` supply `TCocycle`/`VCocycle`.
 
 Axioms: no new axioms, no `sorry`, no `decide`.  Every headline prints exactly the standard three
 (`propext`, `Classical.choice`, `Quot.sound`).
@@ -72,7 +85,8 @@ Axioms: no new axioms, no `sorry`, no `decide`.  Every headline prints exactly t
 namespace GQ2.Dyadic.Count
 
 open GQ2.FoxH GQ2.Dyadic ContCoh
-open GQ2.SectionEight.CentralObstruction GQ2.SectionEight.AffineTLift
+open GQ2.SectionEight GQ2.SectionEight.CentralObstruction GQ2.SectionEight.AffineTLift
+open GQ2.SectionEight.RadicalEdgeGammaA
 
 /-! ## §1. The `WordLift` model of the word complex
 
@@ -289,6 +303,29 @@ theorem lower_rel (hpres : IsMarkedPresentation Γ gen w) (k : ρ) :
     FreeGroup.lift c (w k) = 1 := by
   rw [lift_lower rho hc, hpres.rel k, map_one]
 
+omit [Finite C] in
+include hc in
+/-- **Generation transports to the lower marking.**  If the letters topologically generate `Γ` and
+`ρ` is onto the finite discrete `C`, then the pushed marking generates `C` *algebraically* — the
+`hgen` input of CB-S's `fixedPts` bridge (`card_ker_heisD0_eq_card_fixedPts`), which is otherwise
+an extra obligation on every branch.  Discreteness of `C` is what upgrades "topologically
+generates" to "generates". -/
+theorem closure_range_lower_eq_top (hpres : IsMarkedPresentation Γ gen w)
+    (hsurj : Function.Surjective rho) : Subgroup.closure (Set.range c) = ⊤ := by
+  set H := Subgroup.closure (Set.range c) with hH
+  have hle : Subgroup.closure (Set.range gen) ≤ H.comap rho.toMonoidHom := by
+    refine (Subgroup.closure_le _).mpr ?_
+    rintro _ ⟨i, rfl⟩
+    exact Subgroup.subset_closure ⟨i, (hc i).symm⟩
+  have hcl : IsClosed ((H.comap rho.toMonoidHom : Subgroup Γ) : Set Γ) := by
+    show IsClosed (⇑rho ⁻¹' (H : Set C))
+    exact IsClosed.preimage rho.continuous_toFun (isClosed_discrete _)
+  have hall := Subgroup.topologicalClosure_minimal _ hle hcl
+  rw [hpres.gen_top] at hall
+  refine eq_top_iff.mpr fun x _ => ?_
+  obtain ⟨γ, rfl⟩ := hsurj x
+  exact hall (Subgroup.mem_top γ)
+
 omit [Finite C] [Finite A] [ContinuousSMul Γ A] [DiscreteTopology (WordLift A C)] in
 include hcompat hc in
 /-- **Forward: the evaluation lands in `Z¹w`.**  Each relator dies in `Γ`, so its lifted word value
@@ -406,5 +443,260 @@ noncomputable def h1Equiv (hpres : IsMarkedPresentation Γ gen w) :
   QuotientAddGroup.congr _ _ (z1Equiv rho hcompat hc hpres) (map_B1 rho hcompat hc hpres)
 
 end Comparison
+
+/-! ## §4. The `TCocycle` bridge
+
+The recursion's `T`-cocycles are continuous crossed cocycles valued in `Additive ↥D.T`, for the
+conjugation action `cActT` of `Bg ⧸ D.M` — the campaign's canonical instance
+(`GQ2/RadicalEdge/GammaA.lean:100`), which is also the one `SourceDataN.tcocycle_card` is stated
+against.  `TCocycle` stores continuity *into `Bg`*, so the bridge is a repackaging with no torsor
+detour; the only work is that the crossed law is stated at an arbitrary representative `b` of
+`ρ γ` while the action uses `Quotient.out`, which `cactFun_eq` reconciles.
+
+At `ℚ₂` this equivalence is written **three times**: twice anonymously inside proofs
+(`Phase140/{GammaA,GammaR}/Foundation.lean`) and once as a `private` `AbsGalQ2`-specific def
+(`Phase140/Local.lean:195`).  It is generic in `Γ`; here it is written once. -/
+
+section TCocycleBridge
+
+variable {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {D : RadicalCoverData Bg}
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [TopologicalSpace (Additive ↥D.T)] [DiscreteTopology (Additive ↥D.T)]
+  [DistribMulAction Γ (Additive ↥D.T)] [ContinuousSMul Γ (Additive ↥D.T)]
+  (rho : ContinuousMonoidHom Γ (Bg ⧸ D.M))
+  (hcomp : ∀ (γ : Γ) (a : Additive ↥D.T), γ • a = rho γ • a)
+
+omit [DiscreteTopology Bg] [IsTopologicalGroup Γ] [TopologicalSpace (Additive ↥D.T)]
+  [DiscreteTopology (Additive ↥D.T)] [ContinuousSMul Γ (Additive ↥D.T)] in
+include hcomp in
+/-- The `Γ`-action on `Additive ↥D.T`, read at an arbitrary representative of `ρ γ`. -/
+theorem smul_eq_conj (γ : Γ) (bb : Bg) (a : Additive ↥D.T)
+    (hbb : QuotientGroup.mk bb = rho γ) :
+    γ • a = Additive.ofMul (⟨bb * (Additive.toMul a).1 * bb⁻¹,
+      D.hT.conj_mem _ (Additive.toMul a).2 _⟩ : ↥D.T) := by
+  rw [hcomp γ a]
+  apply Additive.toMul.injective
+  rw [cActT_toMul]
+  exact Subtype.ext (cactFun_eq D (rho γ) hbb (Additive.toMul a))
+
+include hcomp in
+/-- **`TCocycle D ρ ≃ Z¹(Γ, Additive T)`**, generic in `Γ`. -/
+noncomputable def tcocycleEquivZ1 : TCocycle D rho ≃ ↥(Z1 Γ (Additive ↥D.T)) where
+  toFun u :=
+    ⟨fun γ => Additive.ofMul ⟨u.u γ, u.mem γ⟩, by
+      refine mem_Z1_iff.mpr ⟨?_, fun γ δ => ?_⟩
+      · exact (IsLocallyConstant.desc (α := Additive ↥D.T)
+          (fun γ => Additive.ofMul (⟨u.u γ, u.mem γ⟩ : ↥D.T))
+          (fun a : Additive ↥D.T => ((Additive.toMul a : ↥D.T) : Bg))
+          ((IsLocallyConstant.iff_continuous _).mpr u.cont)
+          fun a a' haa' => Additive.toMul.injective (Subtype.ext haa')).continuous
+      · rw [smul_eq_conj rho hcomp γ (Quotient.out (rho γ))
+          (Additive.ofMul ⟨u.u δ, u.mem δ⟩) (QuotientGroup.out_eq' _)]
+        apply Additive.toMul.injective
+        apply Subtype.ext
+        show u.u (γ * δ) = u.u γ * (Quotient.out (rho γ) * u.u δ * (Quotient.out (rho γ))⁻¹)
+        exact u.crossed γ δ (Quotient.out (rho γ)) (QuotientGroup.out_eq' _)⟩
+  invFun z :=
+    { u := fun γ => ((Additive.toMul (z.1 γ) : ↥D.T) : Bg)
+      mem := fun γ => (Additive.toMul (z.1 γ)).2
+      cont := (((IsLocallyConstant.iff_continuous _).mpr (mem_Z1_iff.mp z.2).1).comp
+        fun a : Additive ↥D.T => ((Additive.toMul a : ↥D.T) : Bg)).continuous
+      crossed := by
+        intro γ δ bb hbb
+        have hz := (mem_Z1_iff.mp z.2).2 γ δ
+        rw [smul_eq_conj rho hcomp γ bb (z.1 δ) hbb] at hz
+        exact congrArg (fun a : Additive ↥D.T => ((Additive.toMul a : ↥D.T) : Bg)) hz }
+  left_inv u := by cases u; rfl
+  right_inv z := Subtype.ext (funext fun _ => rfl)
+
+end TCocycleBridge
+
+/-! ## §5. `SourceDataN.tcocycle_card`, over the abstract carrier
+
+The first of the two field values.  The proof is three rewrites and **no cohomology**: §4 moves
+into `Z¹`, §3 moves into the word complex, and CB-S's `tcocycle_card_shape_fixedPts` reads off the
+value.  The `hgen` input CB-S's `fixedPts` bridge needs is supplied by §3's
+`closure_range_lower_eq_top`, so a branch never sees it. -/
+
+section TCocycleCount
+
+variable {ι κ : Type*} [Fintype ι] [Fintype κ] [DecidableEq ι]
+  {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {D : RadicalCoverData Bg}
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [TopologicalSpace (Additive ↥D.T)] [DiscreteTopology (Additive ↥D.T)]
+  [DistribMulAction Γ (Additive ↥D.T)] [ContinuousSMul Γ (Additive ↥D.T)]
+  [TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+  [DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+  {gen : ι → Γ} {w : κ → FreeGroup ι} {c : ι → Bg ⧸ D.M}
+  (rho : ContinuousMonoidHom Γ (Bg ⧸ D.M))
+  (hcomp : ∀ (γ : Γ) (a : Additive ↥D.T), γ • a = rho γ • a)
+  (hc : ∀ i, rho (gen i) = c i)
+
+omit [ContinuousSMul Γ (Additive ↥D.T)] in
+include hcomp hc in
+/-- **The `SourceDataN.tcocycle_card` value, degree-generically.**
+
+`#Z¹_{Γ,ρ}(T) = SN.tMult #T · #(T^∨)^{Bg/M}` for `SN = standardNumerics n`, from one
+`StokesDuality` payload at a degree-`n` marked presentation.  This is the shape
+`GQ2/Dyadic/SourceDataN.lean:229` asks for, with `Bg := RF.YB`, `D := En.radData l h` and
+`ρ := rhoPrimeK RF b F …`; at `n = 1` it is the frozen `#T² · #(T^∨)^{Y_B/M}` of
+`Phase140/GammaA/Foundation.lean:113`, whose `²` was `|ι| − |ρ|`. -/
+theorem tcocycle_cardN {n : ℕ} (hpres : IsMarkedPresentation Γ gen w)
+    (hsurj : Function.Surjective rho) (hdeg : Nat.card ι = Nat.card κ + (n + 1))
+    (hd : StokesDuality c w (Additive ↥D.T)) (hend : IsStokesEndpoint w) :
+    Nat.card (TCocycle D rho)
+      = (standardNumerics n).tMult (Nat.card (Additive ↥D.T))
+        * Nat.card (fixedPts (Bg ⧸ D.M) (ElemDual (Additive ↥D.T))) := by
+  rw [Nat.card_congr (tcocycleEquivZ1 rho hcomp),
+    card_Z1_eq_card_wordZ1 rho hcomp hc hpres,
+    tcocycle_card_shape_fixedPts
+      (isSelfDualN_of_stokesDuality hdeg hd (lower_rel rho hc hpres) hend)
+      (closure_range_lower_eq_top rho hc hpres hsurj)]
+
+end TCocycleCount
+
+/-! ## §6. The `VCocycle` bridge
+
+The `V`-side mirror of §4.  `VCocycle` carries no topology on `V`, storing continuity through the
+injection `iV ∘ ofAdd` into the discrete `Bg ⧸ D.T`; the bridge therefore transports local
+constancy across that injection in one direction and composes with it in the other.  The acting
+group `E` is kept abstract (at `ℚ₂` it is `RF.YC`), linked to the recursion's own `rho0` by the
+`hround` hypothesis — the generic form of `rho0_descData_rhoPrime`. -/
+
+section VCocycleBridge
+
+variable {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {D : RadicalCoverData Bg} {DD : DescData D}
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  {E : Type} [Group E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod]
+  [DistribMulAction E DD.Vmod] [DistribMulAction Γ DD.Vmod] [ContinuousSMul Γ DD.Vmod]
+  {rho : ContinuousMonoidHom Γ (Bg ⧸ D.M)} (theta : ContinuousMonoidHom Γ E)
+  (hround : ∀ (γ : Γ) (v : DD.Vmod), rho0 DD rho γ • v = theta γ • v)
+  (hact : ∀ (γ : Γ) (v : DD.Vmod), γ • v = theta γ • v)
+
+include hround hact in
+/-- **`VCocycle DD ρ ≃ Z¹(Γ, V)`**, generic in `Γ` and in the acting group. -/
+def vcocycleEquivZ1 : VCocycle DD rho ≃ ↥(Z1 Γ DD.Vmod) where
+  toFun u :=
+    ⟨fun γ => u.c γ, by
+      refine mem_Z1_iff.mpr ⟨?_, fun γ δ => ?_⟩
+      · exact (IsLocallyConstant.desc (α := DD.Vmod) (fun γ => u.c γ)
+          (fun v : DD.Vmod => iV DD (Multiplicative.ofAdd v))
+          ((IsLocallyConstant.iff_continuous _).mpr u.cont)
+          fun a a' haa' => iV_ofAdd_inj DD haa').continuous
+      · rw [hact γ (u.c δ), ← hround γ (u.c δ)]
+        exact u.crossed γ δ⟩
+  invFun z :=
+    { c := fun γ => z.1 γ
+      cont := (continuous_of_discreteTopology
+        (f := fun v : DD.Vmod => iV DD (Multiplicative.ofAdd v))).comp (mem_Z1_iff.mp z.2).1
+      crossed := fun γ δ => by
+        rw [hround γ (z.1 δ), ← hact γ (z.1 δ)]
+        exact (mem_Z1_iff.mp z.2).2 γ δ }
+  left_inv _ := rfl
+  right_inv _ := rfl
+
+end VCocycleBridge
+
+/-! ## §7. `SourceDataN.hZcard`, over the abstract carrier
+
+The second field value, from the **same** `IsSelfDualN` — memo §1.5's design instruction in
+miniature, now with the vocabulary attached.  The outer `#V` stays literal and the inner factor
+`SN.h1Mult #V` is the one that moves (SD-R3's shape rule); CB-S proved the side condition
+"the dual has no invariants" from the record's own `hsimple`/`hnt`, so nothing extra is needed. -/
+
+section VCocycleCount
+
+variable {ι κ : Type*} [Fintype ι] [Fintype κ] [DecidableEq ι]
+  {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {D : RadicalCoverData Bg} {DD : DescData D}
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  {E : Type} [Group E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod]
+  [DistribMulAction E DD.Vmod] [DistribMulAction Γ DD.Vmod] [ContinuousSMul Γ DD.Vmod]
+  [TopologicalSpace (WordLift DD.Vmod E)] [DiscreteTopology (WordLift DD.Vmod E)]
+  {gen : ι → Γ} {w : κ → FreeGroup ι} {c : ι → E}
+  {rho : ContinuousMonoidHom Γ (Bg ⧸ D.M)} (theta : ContinuousMonoidHom Γ E)
+  (hround : ∀ (γ : Γ) (v : DD.Vmod), rho0 DD rho γ • v = theta γ • v)
+  (hact : ∀ (γ : Γ) (v : DD.Vmod), γ • v = theta γ • v)
+  (hc : ∀ i, theta (gen i) = c i)
+
+omit [ContinuousSMul Γ DD.Vmod] in
+include hround hact hc in
+/-- **The `SourceDataN.hZcard` value, degree-generically**: `#Z¹(V) = #V · SN.h1Mult #V`.
+
+The shape `GQ2/Dyadic/SourceDataN.lean:274` asks for.  `hsimple`/`hnt` are the record's own
+binders; at `n = 1` this is the frozen `#V · #V` of `Phase140/GammaA/Foundation.lean:48`. -/
+theorem hZcardN {n : ℕ} (hpres : IsMarkedPresentation Γ gen w)
+    (hsurj : Function.Surjective theta) (hdeg : Nat.card ι = Nat.card κ + (n + 1))
+    (hd : StokesDuality c w DD.Vmod) (hend : IsStokesEndpoint w)
+    (hsimple : IsSimpleModTwo E DD.Vmod) (hnt : ∃ (g : E) (v : DD.Vmod), g • v ≠ v) :
+    Nat.card (VCocycle DD rho)
+      = Nat.card DD.Vmod * (standardNumerics n).h1Mult (Nat.card DD.Vmod) := by
+  rw [Nat.card_congr (vcocycleEquivZ1 theta hround hact),
+    card_Z1_eq_card_wordZ1 theta hact hc hpres,
+    hZcard_shape_of_simple
+      (isSelfDualN_of_stokesDuality hdeg hd (lower_rel theta hc hpres) hend)
+      (closure_range_lower_eq_top theta hc hpres hsurj) hsimple hnt]
+
+end VCocycleCount
+
+/-! ## §8. The N0 / `√−2` instantiation
+
+CB-S's §7 closed the *value* bridge at N0 (`sqrtNegTwo_cardZ1`: deficiency `2h + 2`, so `n = 2`
+at `h = 0`, and `standardNumerics 2`'s `tMult T = T³` on the nose).  §5 now carries that value
+into the recursion's vocabulary: at the `√−2` pilot the `T`-cocycle count is a `SourceDataN`
+field value, not a word-complex statement. -/
+
+section N0
+
+open GQ2.Dyadic.Certificates
+
+variable {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {D : RadicalCoverData Bg}
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [TopologicalSpace (Additive ↥D.T)] [DiscreteTopology (Additive ↥D.T)]
+  [DistribMulAction Γ (Additive ↥D.T)] [ContinuousSMul Γ (Additive ↥D.T)]
+  [TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+  [DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+
+omit [ContinuousSMul Γ (Additive ↥D.T)] in
+/-- **The `T`-cocycle count at branch N0**, in the recursion's vocabulary: at the compact-`N`
+family `nCompactFam α h q e` the deficiency is `2h + 2`, so the count is
+`SN.tMult #T · #(T^∨)^{Bg/M}` for `SN = standardNumerics (2h + 2)`. -/
+theorem nCompact_tcocycle_card {α h q e : ℕ} {gen : Generator (2 + 2 * h) → Γ}
+    {t : Marking (2 + 2 * h) (Bg ⧸ D.M)} (rho : ContinuousMonoidHom Γ (Bg ⧸ D.M))
+    (hcomp : ∀ (γ : Γ) (a : Additive ↥D.T), γ • a = rho γ • a)
+    (hc : ∀ i, rho (gen i) = t i)
+    (hpres : IsMarkedPresentation Γ gen (nCompactFam α h q e))
+    (hsurj : Function.Surjective rho)
+    (hd : StokesDuality (⇑t) (nCompactFam α h q e) (Additive ↥D.T))
+    (hend : IsStokesEndpoint (nCompactFam α h q e)) :
+    Nat.card (TCocycle D rho)
+      = (standardNumerics (2 * h + 2)).tMult (Nat.card (Additive ↥D.T))
+        * Nat.card (fixedPts (Bg ⧸ D.M) (ElemDual (Additive ↥D.T))) :=
+  tcocycle_cardN rho hcomp hc hpres hsurj (nCompact_degree h) hd hend
+
+omit [ContinuousSMul Γ (Additive ↥D.T)] in
+/-- **The `√−2` pilot** (`(α, h, q, e) = (2, 0, 2, 3)`, `n = 2 = [ℚ₂(√−2) : ℚ₂]`): the
+`SourceDataN.tcocycle_card` field value for AS2's branch, with N0's own endpoint certificate and
+CB-S's value bridge composed in.  Nothing here is fudged: `standardNumerics 2`'s `tMult T = T³`
+**is** the deficiency `2h + 2 + 1 = 3` of the two-relator compact-`N` presentation. -/
+theorem sqrtNegTwo_tcocycle_card {gen : Generator 2 → Γ} {t : Marking 2 (Bg ⧸ D.M)}
+    (rho : ContinuousMonoidHom Γ (Bg ⧸ D.M))
+    (hcomp : ∀ (γ : Γ) (a : Additive ↥D.T), γ • a = rho γ • a)
+    (hc : ∀ i, rho (gen i) = t i)
+    (hpres : IsMarkedPresentation Γ gen (nCompactFam 2 0 2 3))
+    (hsurj : Function.Surjective rho)
+    (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 3) (Additive ↥D.T)) :
+    Nat.card (TCocycle D rho)
+      = (standardNumerics 2).tMult (Nat.card (Additive ↥D.T))
+        * Nat.card (fixedPts (Bg ⧸ D.M) (ElemDual (Additive ↥D.T))) :=
+  nCompact_tcocycle_card rho hcomp hc hpres hsurj hd sqrtNegTwo_isStokesEndpoint
+
+end N0
 
 end GQ2.Dyadic.Count
