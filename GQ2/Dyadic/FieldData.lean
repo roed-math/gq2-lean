@@ -11,7 +11,87 @@ import GQ2.HilbertLedger
 /-!
 # Dyadic campaign, ticket FD1: the field-side data of `H¹(G_K, 𝔽₂)`
 
-Scaffolding probe (§1 draft).
+The field-side residual of WL-c's `hHilb` result (`GQ2/Dyadic/Certificates/L.lean` §1).  WL-c
+discharged the *form-theoretic* half of packet Def. 9.1 item (5) as an unconditional theorem —
+`exists_cupForm_normalForm : b ≅ ⟨1⟩ ⊥ H^{⊥m}` — by observing that the cup–Bockstein datum is a
+symmetric **bilinear** form, not a quadratic one, so that no `𝔽₂` Witt cancellation is on the
+path.  What that theorem still needs is a `W` satisfying its three hypotheses; WL-c's report
+reduced the identification of `(H¹(G_K,𝔽₂), ⌣)` with such a `W` to three named field facts.
+Those three are this file, at an arbitrary finite `K/ℚ₂` — no word, no relator, no certificate.
+
+## The three facts
+
+1. **`dim_{𝔽₂} H¹(G_K,𝔽₂) = n + 2`**, `n = [K:ℚ₂]` (§1).  From B7 at `K`
+   (`absGalK_localEulerCharacteristic`, itself a *theorem* via Shapiro — `EulerShapiro.lean`)
+   with the two Euler factors supplied here: `#H⁰ = 2` (trivial action) and `#H² = 2` (B6's
+   invariant map transported to `𝔽₂`-coefficients — `invGalK`).  Delivered in all three of the
+   repo's vocabularies: `card_H1_zmodTwo` (`Nat.card = 2^(n+2)`, MC1 §(ix)'s convention),
+   `finrank_H1_zmodTwo` (`Module.finrank`) and `demushkinRank_galK`.
+2. **Perfectness of the cup pairing** (§2), in the `NondegFp2` shape the consumer takes.  The
+   form is `cupFormK K x y = inv_K(x ⌣ y)`; `isCupFormFp2_cupFormK` gives symmetry (char-2
+   graded commutativity, `trivialCupPairing_comm`) and biadditivity, `nondegFp2_cupFormK` is
+   B6's `(1,1)`-perfectness clause at `G_K`.  The bridge to B6's `MuDual`-slot — LG2's
+   `pairingK` shape — is `cup11_muDual_eq_cup_mul`, a naturality statement that is `rfl` on
+   representatives.
+3. **`(−1,−1)_K = −1`, i.e. the `e`-datum** (§§3–4).  `kappaK = [−1]`, and the Labute identity
+   `z ⌣ z = z ⌣ κ` is `HilbertLedger.cup_self_eq_neg_one` (B11a at `−a = 0² − a·1²`) quantified
+   over all of `H¹` by Kummer surjectivity.  The anisotropy `b κ κ = 1` is **not** a fourth
+   arithmetic input: §3 shows `b e e = 1 ⟺ dim W odd` for *any* nondegenerate cup form, so with
+   fact (i) it is exactly `n` odd — which the type-`L` row (`n = 2h + 1`) carries.
+
+## Two findings
+
+* **Fact (iii) is a corollary of facts (i) and (ii)**, by parity.  The mechanism (§3) is the
+  *alternating correction* `b' = b + d ⊗ d`, `d w = b w w`: over `𝔽₂` it is alternating for
+  free, and `b'`-degeneracy is the equation `d(v) = d(v)²·b(e,e)`.  Under `b e e = 0` that
+  forces `v = 0`, so `b'` is symplectic and `dim W` is even; under `b e e = 1` the `⟨1⟩ ⊥ ker d`
+  splitting already in `Certificates/L.lean` makes `dim W` odd.  No plane-by-plane argument and
+  no new arithmetic is needed — only `exists_symplectic_equiv`, which WL-c already proved.
+* ⚠ **`b e e = 1` is `n` odd, not `q_K = 2`.**  `Certificates/L.lean` §1 states "`q_K = 2` is
+  exactly `b e e = 1`"; the reading that the type-`L` row uses is sound (`n` odd forces
+  `i ∉ K`, hence `q_K = 2`), but the stated *equivalence* fails: `K = ℚ₂(√2)` has `i ∉ K` and
+  so `q_K = 2`, while `n = 2` is even and `(−1,−1)_K = +1`.  `cupFormK_kappa_self_iff` records
+  the correct characterization.  Errata item for the L docstring; no consumer is affected.
+
+## Statement shapes for AS4 / AS1
+
+The capstone `exists_cupFormK_normalForm K h (hn : Module.finrank ℚ_[2] K = 2*h+1)` gives the
+isometry with the hyperbolic count **pinned**: `⟨1⟩ ⊥ H^{⊥(h+1)}` at rank `n + 2`, which is
+S2.4 §5.5's statement and is the same normal form WL-c's relator side (`sqRelWord_centLift_fib`)
+lands on.  Assemblers wanting the pieces separately take `cupFormK`, `isCupFormFp2_cupFormK`,
+`nondegFp2_cupFormK`, `kappaK`, `cupFormK_kappa`, `cupFormK_kappa_self`.
+
+## Implementation notes
+
+Not `module`-style (it imports the plain-import `Certificates.L`); the `module`-style imports
+`LocalGauss.{EulerShapiro, PairingK}` and `HilbertLedger` are fine in this direction.  One new
+global instance, `instModuleH1 : Module (ZMod 2) (H1 Γ (ZMod 2))` — the `H¹` twin of the
+existing `GQ2.RStage.instModuleH2`, needed because `exists_cupForm_normalForm` produces a
+`≃ₗ[ZMod 2]`.  No `native_decide`; the only `decide`s are two three-element `𝔽₂` checks inside
+proofs.
+
+## Axiom state
+
+Audited by `#print axioms` on all 29 named declarations, run in a scratch file, not committed.
+**No new axioms**; every declaration prints a subset of std-3 ∪ {B6, B7, B11a}, and the census
+stays at eleven.  Zero `sorryAx`, zero `native_decide`.  Per headline:
+
+* exactly `[propext, Classical.choice, Quot.sound]` — `finiteIndex_fixingSubgroup`,
+  `galK_isLocalDualizingGroup`, `smul_muN_two_galK`, `muNTwoEquiv_symm_equivariant`,
+  `h0_zmodTwo_eq_top`, `card_H0_zmodTwo`, `instModuleH1`, `smul_zmodTwo_galK`,
+  `cup11_muDual_eq_cup_mul`, `altCorrection`, `isSymplecticFp2_altCorrection`,
+  `exists_card_eq_four_pow_of_diag_isotropic`,
+  `exists_card_eq_two_mul_four_pow_of_diag_anisotropic`, `diag_eq_one_iff_odd`, `kappaK`;
+* std-3 + **B6** `tateDualityAt` — `tateDualityGalK`, `invGalK`, `card_H2_zmodTwo`, `cupFormK`,
+  `isCupFormFp2_cupFormK`, `nondegFp2_cupFormK`;
+* std-3 + **B7** `absGalQ2_localEulerCharacteristic` — `finite_H1_zmodTwo`;
+* std-3 + **B6** + **B7** — `card_H1_zmodTwo`, `finrank_H1_zmodTwo`, `demushkinRank_galK`;
+* std-3 + **B6** + **B11a** `hilbertSymbol_normCriterion_finiteDyadic` — `cupFormK_kappa`;
+* std-3 + **B6** + **B7** + **B11a** — `cupFormK_kappa_self_iff`, `cupFormK_kappa_self`,
+  **`exists_cupFormK_normalForm`** (the capstone).
+
+Note what does *not* appear: `kummerClassK_surjective` is a theorem (ex-B12) and contributes no
+axiom, and no B3c/B5-K/B8/B9/B10-K enters through any import chain.
 -/
 
 namespace GQ2.Dyadic.FieldData
@@ -24,6 +104,7 @@ variable (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
 
 section Probes
 
+-- `ℚ̄₂/ℚ₂` is Galois (char 0), which is what makes `index = degree` available below
 example : IsGalois ℚ_[2] ℚ̄₂ := inferInstance
 example : Module.finrank ℚ_[2] K = K.fixingSubgroup.index :=
   IntermediateField.finrank_eq_fixingSubgroup_index K
@@ -51,10 +132,12 @@ theorem galK_isLocalDualizingGroup (n : ℕ) [NeZero n] :
 noncomputable def tateDualityGalK : TateDualityG ↥(K.fixingSubgroup) 2 :=
   tateDualityAt ↥(K.fixingSubgroup) 2 (galK_isLocalDualizingGroup K 2)
 
+omit [FiniteDimensional ℚ_[2] K] in
 /-- `G_K` acts trivially on `μ₂ ⊂ ℚ₂`. -/
 theorem smul_muN_two_galK (g : ↥(K.fixingSubgroup)) (x : MuN 2) : g • x = x :=
   LocalLiftingDuality.smul_muN_two_trivial g.1 x
 
+omit [FiniteDimensional ℚ_[2] K] in
 /-- The coefficient transport `𝔽₂ ≃+ μ₂` is `G_K`-equivariant (both actions are trivial). -/
 theorem muNTwoEquiv_symm_equivariant (g : ↥(K.fixingSubgroup)) (a : ZMod 2) :
     LocalLiftingDuality.muNTwoEquiv.symm (g • a)
@@ -147,6 +230,7 @@ end FinrankK
 
 section CupForm
 
+omit [FiniteDimensional ℚ_[2] K] in
 /-- The `G_K`-action on `𝔽₂` is trivial (definitionally). -/
 theorem smul_zmodTwo_galK : ∀ (g : ↥(K.fixingSubgroup)) (m : ZMod 2), g • m = m :=
   fun _ _ => rfl
@@ -168,6 +252,7 @@ theorem isCupFormFp2_cupFormK :
     rw [map_add]
     exact map_add (invGalK K) _ _
 
+omit [FiniteDimensional ℚ_[2] K] in
 /-- **Naturality of the `(1,1)` cup in the coefficient pairing.**  Transporting the left slot
 along the bridge `𝔽₂ ≃+ Hom(𝔽₂, μ₂)` and pairing by evaluation gives the same `H²`-class as
 cupping by multiplication and transporting the *value* along `𝔽₂ ≃+ μ₂`.  Both sides are the
