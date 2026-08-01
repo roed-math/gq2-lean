@@ -38,47 +38,39 @@ marking**.  `PWord.eval_eq_evalZ` reduces that to F2's `PWord.ResolvedAt`.
 * the **wild** equation is `ResolvedAt ⇑(freeMarking n) (const e) (const e) R`, i.e. it asks for
   `Y ^ᶻ ω₂ = Y ^ e` **in the free profinite group** at the bases `Y` of the word's `ω₂`-nodes.
 
-## The verdict (§4–§6): the wild equation is false at every one of the five
+## The verdict (§4–§7): the wild equation is false at every one of the five
 
-§4 builds the finite cyclic characters `degHom n m g₀ : F →  ℤ/m` (letter `g₀ ↦ 1`, every other
-letter `↦ 0`) and computes both denotations through them.  §5 is the obstruction:
+§4 builds the finite cyclic characters `degHom n m g₀ : F → ℤ/m` (letter `g₀ ↦ 1`, every other
+letter `↦ 0`) and computes both denotations through them: `GQ2.map_zpowHat` moves `^ᶻ` across,
+and `PWord.zpowHat_omega2_zpow` turns it into an ordinary power downstairs.  §5 is the
+obstruction:
 
 > `zpowHat_omega2_ne_zpow`: for `Y ∈ F` of degree `1` in some letter, `Y ^ᶻ ω₂ ≠ Y ^ k` for
 > **every** integer `k`.
 
-The proof is two congruences on `omega2Exp` and no case analysis: `omega2Exp (2 ^ a) = 1` forces
-`k ≡ 1 mod 2 ^ a` for every `a`, hence `k = 1`; `omega2Exp 3 = 0` then forces `3 ∣ 1`.  Both are
-kernel computations from the definition of `omega2Exp`.
+Two congruences and no case analysis: `omega2Exp (2 ^ a) ≡ 1 mod 2 ^ a` forces `k ≡ 1` modulo
+every power of `2`, hence `k = 1`; `3 ∣ omega2Exp 3` then forces `3 ∣ 1`.
 
-Each of the five frozen words has such a node — `(x₂τ)^{ω₂}` for the two `N` rows,
-`σ₂ = σ^{ω₂}` for `L_sq` and the two `M` rows — so §6 refutes `ResolvedAt` at all five, for
-**every** resolver `e`, not just the frozen `e = 3`.  §7 upgrades this from "the sufficient
-condition fails" to "the equation itself fails", and indeed to the failure of
-`ResolvesGammaRelators.fam_mem`, at the compact-`N` pilot: the character into `ℤ/4` kills both
-relators and does not kill `freeToProf (nCompactFam α h q e 1)` whenever `e ≢ 1 mod 4`.
+§6 is the refutation template — a character killing **both** relators but not the resolved family
+member witnesses the failure of `ResolvesGammaRelators.fam_mem` itself, not merely of the
+`of_two` route — together with the generic consequence of §5 for the two `N` rows
+(`not_resolvedAt_nCompactW`, `not_resolvedAt_npcW`: no resolver pair resolves those words, at any
+`α`, `r`, `h`, `d`).  §7 runs the template at all six frozen pins.
 
-⚠ The refuting character lands in a **`2`-group**.  Unlike CB-W's `ℤ/3` counterexamples to the
-plain clause (iii), this obstruction is *not* removed by CB-MP's admissibility restriction.
-
-## What is provable instead (§3)
-
-`GammaR n q R` is parametric in `R`, and the count lane gets to choose it.  `resolveWord E E₂ R`
-is `R` with every profinite exponent replaced by its integer resolver, and
-
-```
-freeToProf (heisToFree E E₂ w) = (freeMarking n).eval (resolveWord E E₂ w)
-```
-
-holds unconditionally (`freeToProf_heisToFree_resolveWord`).  So all five families **do** resolve
-the relators of `Γ_{resolveWord e R}` — §3's five theorems — the group presented by the *resolved*
-relator, which is the object the Fox/Stokes certificate lane has been computing with throughout.
-Whether that group is the intended `Γ_R` is a mathematical question about the presentation, not a
-Lean one, and it is the count lane's remaining open item.
+⚠ The refuting characters land in `ℤ/8` and `ℤ/4` — **`2`-groups**.  Unlike CB-W's `ℤ/3`
+counterexamples to the plain clause (iii), this obstruction is *not* removed by CB-MP's
+admissibility restriction.  The one pin whose resolver is `e = 1` (`lSqFam 0 4 1`) needs the odd
+character `ℤ/3` instead, and that is the sharpest form of the point: at `e = 1` the resolver is
+exact on the whole `2`-part, and what still fails is the odd part of `ω₂` — precisely the
+direction the pro-`2` admissibility clause leaves free.
 
 ## Axiom posture
 
 `sorry`-free, **no new axiom**; every headline `#print axioms` is the standard three.  The
-`decide`s are kernel `decide`s on `omega2Exp` at the literal moduli `3` and `4` and in `ℤ/4`.
+`decide`s are kernel `decide`s: letter disequalities in `Generator n`, and the traced values of
+the frozen words in `ℤ/8` and `ℤ/4` (`ℤ/3` for the `e = 1` pin).  `omega2Exp` at the literal
+moduli `3`, `4`, `8` is `norm_num`/`simp` on its definition, not `decide`.
+
 -/
 
 namespace GQ2.Dyadic
@@ -253,6 +245,52 @@ theorem resolves_lSqFam (h q e : ℕ) :
       (Certificates.LSqStokes.lSqFam h q e) :=
   ResolvesGammaRelators.of_two (freeToProf_heisToFree_tameRelWord _ q _ _)
     (freeToProf_heisToFree_resolveWord _ _ _)
+
+/-! ### The payoff: CB-MP's instance with no hypotheses left
+
+`Count.isAdmissibleMarkedPresentation_gammaR` had exactly one hypothesis.  At the resolved
+relator it has none — these five are what a branch quotes in place of the `hres` argument of
+`sqrtNegTwo_tcocycle_card_gammaR` and `sqrtNegTwo_hZcard_gammaR`. -/
+
+/-- **Compact `N`.** -/
+theorem isAdmissible_gammaR_nCompact (α h q e : ℕ) :
+    IsAdmissibleMarkedPresentation
+      ((GammaR (2 + 2 * h) q (resolvedRelator e (Words.nCompactW α h))) : Type)
+      (gammaGen (2 + 2 * h) q (resolvedRelator e (Words.nCompactW α h)))
+      (Certificates.nCompactFam α h q e) (wildAlphabet (2 + 2 * h)) :=
+  isAdmissibleMarkedPresentation_gammaR _ _ _ (resolves_nCompactFam α h q e)
+
+/-- **Procyclic `N`.** -/
+theorem isAdmissible_gammaR_npc (α r h q e : ℕ) (d : EtaData) :
+    IsAdmissibleMarkedPresentation
+      ((GammaR (2 + 2 * h) q (resolvedRelator e (Words.Npc.npcW α r h d))) : Type)
+      (gammaGen (2 + 2 * h) q (resolvedRelator e (Words.Npc.npcW α r h d)))
+      (Certificates.Npc.npcFam α r h q e d) (wildAlphabet (2 + 2 * h)) :=
+  isAdmissibleMarkedPresentation_gammaR _ _ _ (resolves_npcFam α r h q e d)
+
+/-- **Compact `M`.** -/
+theorem isAdmissible_gammaR_mCompact (α h q e : ℕ) :
+    IsAdmissibleMarkedPresentation
+      ((GammaR (2 + 2 * h) q (resolvedRelator e (Words.MCompact.mCompactW α h))) : Type)
+      (gammaGen (2 + 2 * h) q (resolvedRelator e (Words.MCompact.mCompactW α h)))
+      (Certificates.MCompact.mCompactFam α h q e) (wildAlphabet (2 + 2 * h)) :=
+  isAdmissibleMarkedPresentation_gammaR _ _ _ (resolves_mCompactFam α h q e)
+
+/-- **Procyclic `M`.** -/
+theorem isAdmissible_gammaR_mpc (α r pp h q e : ℕ) (η : Words.Mpc.EtaDisplay) :
+    IsAdmissibleMarkedPresentation
+      ((GammaR (2 + 2 * h) q (resolvedRelator e (Words.Mpc.mpcW α r pp η h))) : Type)
+      (gammaGen (2 + 2 * h) q (resolvedRelator e (Words.Mpc.mpcW α r pp η h)))
+      (Certificates.MProcyclic.mpcFam α r pp h q e η) (wildAlphabet (2 + 2 * h)) :=
+  isAdmissibleMarkedPresentation_gammaR _ _ _ (resolves_mpcFam α r pp h q e η)
+
+/-- **`L_sq`.** -/
+theorem isAdmissible_gammaR_lSq (h q e : ℕ) :
+    IsAdmissibleMarkedPresentation
+      ((GammaR (2 * h + 1) q (resolvedRelator e (Words.LSq.lSqW h))) : Type)
+      (gammaGen (2 * h + 1) q (resolvedRelator e (Words.LSq.lSqW h)))
+      (Certificates.LSqStokes.lSqFam h q e) (wildAlphabet (2 * h + 1)) :=
+  isAdmissibleMarkedPresentation_gammaR _ _ _ (resolves_lSqFam h q e)
 
 end FrozenResolved
 
@@ -454,6 +492,15 @@ theorem degHom_tameRelatorGen (m : ℕ) [NeZero m] {g₀ : Generator n}
   simp only [tameRelatorGen, conjP, map_mul, map_inv, map_pow, degHom_of, degMark_of_ne hg]
   group
 
+/-- At the letter `τ` the tame relator dies exactly when `q`-th powering fixes the generator —
+the route the `e = 1` pin needs, where no `2`-power character can separate the denotations. -/
+theorem degHom_tameRelatorGen_tau (m : ℕ) [NeZero m] (q : ℕ)
+    (hq : (CycTest.gen m) ^ q = CycTest.gen m) :
+    degHom n m Generator.tau (tameRelatorGen n q) = 1 := by
+  have hσ : degMark n m Generator.tau Generator.sigma = 1 := degMark_of_ne (by simp)
+  simp only [tameRelatorGen, conjP, map_mul, map_inv, map_pow, degHom_of, degMark_self, hσ, hq]
+  group
+
 /-- The degree character of the **intrinsic** wild relator, on the `ω₂`-only fragment: packet
 Lem. 2.2 turns `^ᶻ ω₂` into the `ℕ`-power at `omega2Exp m`. -/
 theorem degHom_freeMarking_eval (m : ℕ) [NeZero m] (g₀ : Generator n) {w : PWord (Generator n)}
@@ -478,8 +525,8 @@ theorem degHom_freeToProf_heisToFree (m : ℕ) [NeZero m] (g₀ : Generator n)
 
 /-- **The refutation template.**  Both relators die at the character and the resolved family
 member does not, so it is outside the closed normal closure of the relators. -/
-theorem not_resolvesGammaRelators {m : ℕ} [NeZero m] {g₀ : Generator n}
-    (hg : Generator.tau ≠ g₀) (q : ℕ) {R : PWord (Generator n)}
+theorem not_resolvesGammaRelators {m : ℕ} [NeZero m] {g₀ : Generator n} (q : ℕ)
+    (htame : degHom n m g₀ (tameRelatorGen n q) = 1) {R : PWord (Generator n)}
     {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ} {v : Fin 2 → FreeGroup (Generator n)}
     (hv : v 1 = heisToFree E E₂ R)
     (hkill : degHom n m g₀ ((freeMarking n).eval R) = 1)
@@ -492,7 +539,7 @@ theorem not_resolvesGammaRelators {m : ℕ} [NeZero m] {g₀ : Generator n}
     intro r hr
     simp only [gammaRelators, Set.mem_insert_iff, Set.mem_singleton_iff] at hr
     rcases hr with rfl | rfl
-    · exact MonoidHom.mem_ker.mpr (degHom_tameRelatorGen m hg q)
+    · exact MonoidHom.mem_ker.mpr htame
     · exact MonoidHom.mem_ker.mpr hkill
   have h1 := hker (hres.fam_mem 1)
   rw [hv] at h1
@@ -501,17 +548,55 @@ theorem not_resolvesGammaRelators {m : ℕ} [NeZero m] {g₀ : Generator n}
   exact MonoidHom.mem_ker.mp h1
 
 /-- The `ω₂`-only form: `hkill` becomes a computation at the resolver `omega2Exp m`. -/
-theorem not_resolvesGammaRelators_of_isOmega2Only {m : ℕ} [NeZero m] {g₀ : Generator n}
-    (hg : Generator.tau ≠ g₀) (q : ℕ) {R : PWord (Generator n)} (hR : R.IsOmega2Only)
+theorem not_resolvesGammaRelators_of_isOmega2Only {m : ℕ} [NeZero m] {g₀ : Generator n} (q : ℕ)
+    (htame : degHom n m g₀ (tameRelatorGen n q) = 1)
+    {R : PWord (Generator n)} (hR : R.IsOmega2Only)
     {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ} {v : Fin 2 → FreeGroup (Generator n)}
     (hv : v 1 = heisToFree E E₂ R)
     (hkill : PWord.evalNat (degMark n m g₀) (omega2Exp m) R = 1)
     (hlive : PWord.evalZ (degMark n m g₀) E E₂ R ≠ 1) :
     ¬ ResolvesGammaRelators n q R v :=
-  not_resolvesGammaRelators hg q hv
+  not_resolvesGammaRelators q htame hv
     ((degHom_freeMarking_eval m g₀ hR).trans hkill) hlive
 
 end Refute
+
+/-! ### The generic form: `ResolvedAt` fails at every degree and every resolver
+
+§7's refutations are sharp but instance-bound (they are kernel computations at the frozen
+parameters).  The obstruction of §5 also gives the *generic* statement, for the two `N` rows,
+where the `ω₂`-node is `(x₂τ)^{ω₂}` at a fixed position of the factor list: **no** resolver pair
+resolves the word, at **any** `α`, `r`, `h`, `d`.  That is the precise answer to "which step of
+CB-MP's `of_two` fails": the hypothesis of `PWord.eval_eq_evalZ`, at the `ω₂`-node. -/
+
+section GenericResolvedAt
+
+variable {n : ℕ}
+
+/-- The value of an `(x τ)^{ω₂}` node base has degree one in `x`. -/
+theorem isDegOne_gen_mul_tau {g₀ : Generator n} (hg : Generator.tau ≠ g₀) :
+    IsDegOne g₀
+      (PWord.eval (⇑(freeMarking n)) (PWord.prodList [.gen g₀, .gen Generator.tau])) := by
+  intro m _
+  show degHom n m g₀
+      (FreeProfiniteGroup.of g₀ * (FreeProfiniteGroup.of Generator.tau * 1)) = _
+  rw [map_mul, map_mul, map_one, degHom_of, degHom_of, degMark_self, degMark_of_ne hg,
+    mul_one, mul_one]
+
+/-- **No resolver pair resolves the compact-`N` word**, at any `α`, any degree — hence CB-MP's
+`of_two` route to the wild equation is unavailable there, generically. -/
+theorem not_resolvedAt_nCompactW (α h : ℕ) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    ¬ PWord.ResolvedAt (⇑(freeMarking (2 + 2 * h))) E E₂ (Words.nCompactW α h) := fun hres =>
+  zpowHat_omega2_ne_zpow (isDegOne_gen_mul_tau (by simp [Words.coreLetter])) (E omega2)
+    hres.2.2.2.1.2
+
+/-- **No resolver pair resolves the procyclic-`N` word**, at any `α`, `r`, `d`, any degree. -/
+theorem not_resolvedAt_npcW (α r h : ℕ) (d : EtaData) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    ¬ PWord.ResolvedAt (⇑(freeMarking (2 + 2 * h))) E E₂ (Words.Npc.npcW α r h d) := fun hres =>
+  zpowHat_omega2_ne_zpow (isDegOne_gen_mul_tau (by simp [Words.coreLetter])) (E omega2)
+    hres.2.2.2.1.2
+
+end GenericResolvedAt
 
 /-! ## §7 The five frozen families, refuted at the intrinsic branch word
 
@@ -526,6 +611,14 @@ intrinsic relator's traced exponent is `ω₂ − 1 ↦ 0`, the resolved one's i
 
 section Frozen
 
+/-- `omega2Exp 3 = 0`: at an **odd** modulus the `ω₂`-representative vanishes.  This is the half
+of `ω₂` that no `2`-group character sees — and that CB-MP's admissibility clause does not
+constrain. -/
+theorem omega2Exp_three : omega2Exp 3 = 0 := by
+  have hfac : (3 : ℕ).factorization 2 = 0 :=
+    Nat.factorization_eq_zero_of_not_dvd (by norm_num)
+  simp [omega2Exp, hfac]
+
 /-- `omega2Exp 4 = 1`, the `L_sq` modulus (companion of `omega2Exp_eight`). -/
 theorem omega2Exp_four : omega2Exp 4 = 1 := by
   have hfac : (4 : ℕ).factorization 2 = 2 := by
@@ -539,7 +632,7 @@ theorem not_resolves_nCompactFam (q : ℕ) :
     ¬ ResolvesGammaRelators (2 + 2 * 0) q (Words.nCompactW 2 0)
       (Certificates.nCompactFam 2 0 q 3) :=
   not_resolvesGammaRelators_of_isOmega2Only (m := 8) (g₀ := Words.coreLetter 0 2)
-    (by decide) q (Words.isOmega2Only_nCompact 2 0) rfl
+    q (degHom_tameRelatorGen 8 (by decide) q) (Words.isOmega2Only_nCompact 2 0) rfl
     (by rw [omega2Exp_eight]; decide) (by decide)
 
 /-- **Compact `M` (the `√2` pilot).** -/
@@ -547,7 +640,8 @@ theorem not_resolves_mCompactFam (q : ℕ) :
     ¬ ResolvesGammaRelators (2 + 2 * 0) q (Words.MCompact.mCompactW 3 0)
       (Certificates.MCompact.mCompactFam 3 0 q 3) :=
   not_resolvesGammaRelators_of_isOmega2Only (m := 8) (g₀ := Words.coreLetter 0 2)
-    (by decide) q (Words.MCompact.isOmega2Only_mCompact 3 0) rfl
+    q (degHom_tameRelatorGen 8 (by decide) q)
+    (Words.MCompact.isOmega2Only_mCompact 3 0) rfl
     (by rw [omega2Exp_eight]; decide) (by decide)
 
 /-- **Compact `M` (the `√5` pilot).** -/
@@ -555,7 +649,8 @@ theorem not_resolves_mCompactFam_five (q : ℕ) :
     ¬ ResolvesGammaRelators (2 + 2 * 0) q (Words.MCompact.mCompactW 2 0)
       (Certificates.MCompact.mCompactFam 2 0 q 3) :=
   not_resolvesGammaRelators_of_isOmega2Only (m := 8) (g₀ := Words.coreLetter 0 2)
-    (by decide) q (Words.MCompact.isOmega2Only_mCompact 2 0) rfl
+    q (degHom_tameRelatorGen 8 (by decide) q)
+    (Words.MCompact.isOmega2Only_mCompact 2 0) rfl
     (by rw [omega2Exp_eight]; decide) (by decide)
 
 /-- **Procyclic `M` (the `√−10` pilot).**  `η̂ = .one` is an `ω₂`-only display, so the packet
@@ -564,7 +659,8 @@ theorem not_resolves_mpcFam (q : ℕ) :
     ¬ ResolvesGammaRelators (2 + 2 * 0) q (Words.Mpc.mpcW 2 1 1 .one 0)
       (Certificates.MProcyclic.mpcFam 2 1 1 0 q 3 .one) :=
   not_resolvesGammaRelators_of_isOmega2Only (m := 8) (g₀ := Words.coreLetter 0 2)
-    (by decide) q (Words.Mpc.isOmega2Only_mpcW 2 1 1 (η := .one) trivial 0) rfl
+    q (degHom_tameRelatorGen 8 (by decide) q)
+    (Words.Mpc.isOmega2Only_mpcW 2 1 1 (η := .one) trivial 0) rfl
     (by rw [omega2Exp_eight]; decide) (by decide)
 
 /-- **Procyclic `M` (the `√10` pilot).** -/
@@ -572,7 +668,8 @@ theorem not_resolves_mpcFam_ten (q : ℕ) :
     ¬ ResolvesGammaRelators (2 + 2 * 0) q (Words.Mpc.mpcW 2 1 0 .one 0)
       (Certificates.MProcyclic.mpcFam 2 1 0 0 q 3 .one) :=
   not_resolvesGammaRelators_of_isOmega2Only (m := 8) (g₀ := Words.coreLetter 0 2)
-    (by decide) q (Words.Mpc.isOmega2Only_mpcW 2 1 0 (η := .one) trivial 0) rfl
+    q (degHom_tameRelatorGen 8 (by decide) q)
+    (Words.Mpc.isOmega2Only_mpcW 2 1 0 (η := .one) trivial 0) rfl
     (by rw [omega2Exp_eight]; decide) (by decide)
 
 /-- **`L_sq` (the `q = 2` pilot).**  The `L_sq` character is in `x₀` and lands in `ℤ/4`: the
@@ -581,7 +678,7 @@ theorem not_resolves_lSqFam (q : ℕ) :
     ¬ ResolvesGammaRelators (2 * 0 + 1) q (Words.LSq.lSqW 0)
       (Certificates.LSqStokes.lSqFam 0 q 3) :=
   not_resolvesGammaRelators_of_isOmega2Only (m := 4) (g₀ := Words.LSq.coreLetter 0 0)
-    (by decide) q (Words.LSq.isOmega2Only_lSq 0) rfl
+    q (degHom_tameRelatorGen 4 (by decide) q) (Words.LSq.isOmega2Only_lSq 0) rfl
     (by rw [omega2Exp_four]; decide) (by decide)
 
 /-- **Procyclic `N` (the `npcPin` instance).**  This word is *not* `ω₂`-only (WNP-a's
@@ -591,8 +688,8 @@ handles are all invisible, and what survives is exactly the compact row's `x₂�
 theorem not_resolves_npcFam (q : ℕ) :
     ¬ ResolvesGammaRelators (2 + 2 * 0) q (Words.Npc.npcW 2 1 0 ⟨1, 1⟩)
       (Certificates.Npc.npcFam 2 1 0 q 3 ⟨1, 1⟩) := by
-  refine not_resolvesGammaRelators (m := 8) (g₀ := Words.coreLetter 0 2) (by decide) q rfl ?_
-    (by decide)
+  refine not_resolvesGammaRelators (m := 8) (g₀ := Words.coreLetter 0 2) q
+    (degHom_tameRelatorGen 8 (by decide) q) rfl ?_ (by decide)
   rw [Marking.map_eval (degHom (2 + 2 * 0) 8 (Words.coreLetter 0 2)) (freeMarking _) _,
     freeMarking_map_degHom, Words.Npc.eval_npcW_of_comm]
   show (degMark (2 + 2 * 0) 8 (Words.coreLetter 0 2) (Words.coreLetter 0 0)) ^ ((2 : ℤ) + 2 ^ 2) *
@@ -603,6 +700,23 @@ theorem not_resolves_npcFam (q : ℕ) :
     mul_one]
   rw [PWord.zpowHat_omega2_zpow (N := 8) (by norm_num) (CycTest.orderOf_dvd 8 _),
     omega2Exp_eight, Nat.cast_one, zpow_one, inv_mul_cancel]
+
+/-- **`L_sq` at the `q = 4`, `e = 1` pin** — the one frozen instance whose resolver is `1`.
+
+Here *no* `2`-power character separates the two denotations: at `e = 1` the resolved word and the
+intrinsic one agree on the whole `2`-part of `ω₂`.  The obstruction is purely the **odd** part,
+`omega2Exp 3 = 0` against the resolver `1`, seen by the `τ`-degree character into `ℤ/3`; the tame
+relator still dies because `q = 4` fixes the generator of `ℤ/3`.
+
+So the failure is not an artefact of the frozen `e = 3`: it survives the resolver that makes the
+`2`-part exact, and it lives in exactly the direction the pro-`2` admissibility clause leaves
+free. -/
+theorem not_resolves_lSqFam_qFour :
+    ¬ ResolvesGammaRelators (2 * 0 + 1) 4 (Words.LSq.lSqW 0)
+      (Certificates.LSqStokes.lSqFam 0 4 1) :=
+  not_resolvesGammaRelators_of_isOmega2Only (m := 3) (g₀ := Generator.tau) 4
+    (degHom_tameRelatorGen_tau 3 4 (by decide)) (Words.LSq.isOmega2Only_lSq 0) rfl
+    (by rw [omega2Exp_three]; decide) (by decide)
 
 end Frozen
 
