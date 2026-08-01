@@ -69,20 +69,34 @@ The three lifting strata (MC1 §5):
   a family-shaped M5 row is wanted, see the §7 pins).
 
 Net binder inventory for the N-core: `NScalingHypothesis` **alone**.  For the M-core:
-`MMixHypothesis` (which subsumes the M-side S2/S3 residual `⟨M4,M6,M7⟩` +
-`MLabHypothesis`-adjacent content in transport shape) **plus** the pivot-unit datum below.
+`MMixHypothesis` **alone** as well (it subsumes the M-side S2/S3 residual `⟨M4,M6,M7⟩` +
+`MLabHypothesis`-adjacent content in transport shape); the pivot-unit row below is *marked
+data*, the exact analogue of the N-side pair clause, and on the compact row it is a theorem.
 
-## The compact-`M` change-of-variables gap (errata item 3 — explicit datum)
+## The compact-`M` change of variables (errata item 3 — DERIVED, ticket MC-CoV)
 
 Where Prop. 7.2 transports `ν_K` to the `M`-core, the correction machinery needs
-`ν'(C̄₀) ∈ ℤ₂ˣ` (HM memo §6.4 residue 2, HM6g's "one-line F4/MC5 data check").  Whether the
-transported marking satisfies it is decided by the **compact-`M` marked change of variables,
-which is MISSING from the vendored sources** (MC1 §7.2, owner Q4, errata item 3): the draft
-displays only the procyclic substitution, which degenerates at `r = 0`.  Per the standing
-rule this file does **not** invent the substitution: the unit row is threaded as the explicit
-hypothesis `hpivot : IsUnit (toAdd (nu' (dmC α h)))` everywhere the M-side reduction needs
-it, the standard marking discharges it (`isUnit_nuM_dmC` — the non-vacuity pin), and the
-`K`-side discharge is F4/packet-author territory.
+`ν'(C̄₀) ∈ ℤ₂ˣ` (HM memo §6.4 residue 2, HM6g's "one-line F4/MC5 data check").  The vendored
+draft displays only the procyclic substitution, which degenerates at `r = 0` (MC1 §7.2, owner
+Q4, errata item 3), so the statements below thread the unit row as the explicit hypothesis
+`hpivot : IsUnit (toAdd (nu' (dmC α h)))`, with the standard marking as the non-vacuity pin
+(`isUnit_nuM_dmC`).
+
+`GQ2/Dyadic/MarkedCore/CompactCoV.lean` has since **derived** the compact substitution —
+`A = x₀⁻¹σ^{−m}`, `B = x₁`, `C₀ = σ`, `D = x₂` with `m = 2^{α−1}`, whose `Ā`-row is forced by
+the abelianized relation at *every* marking (`nu_dmA_eq`), not by an `r`-exponent — and
+settled the datum's status: it is **not** dischargeable from nothing (unit-ness of `ν'(C̄₀)`
+is an `St_M`-invariant, `isUnit_nu_stab_iff`), but at rank four it is **equivalent** to the
+intrinsic clause "`ν'` is unimodular somewhere on `ker χ_M`" (`MChiKerUnimodular`,
+`isUnit_nu_dmC_iff_chiKer`), which is literally the packet's own branch condition `r = 0`
+selecting the compact row.  So on the compact row the datum is a **theorem**, and `CompactCoV`
+§6 restates the three M-side entry points with `hpivot` replaced by that clause
+(`mMarkedMatching_of_chiKer`, `marked_matching_certificate_M_of_chiKer`, and over `M.lean`
+`prop_MC_M_correction_of_chiKer`) — **that trio is the compact-`M` consumer API**.
+
+The statements *here* deliberately keep `hpivot` and stay uniform in `h`: the discharge is
+rank-four (`h = 0`) only, so folding it in would cost the general-`h` statements.  `CompactCoV`
+imports this file, so the swap is a pointer upward — it can never be an import downward.
 
 On the N-side the packet's marked-data clause (`I = C`) pins the *pair*
 `(ν'(σ̄), ν'(x̄₂))` unimodular (MC1 §5.3), not the pivot itself; §2's plane solve
@@ -561,11 +575,14 @@ theorem nMarkedMatching (hScal : NScalingHypothesis α h)
   rw [hΨ₀chi, huchi]
 
 /-- **The marked-matching reduction at the `M`-core**: under the transport binder
-`MMixHypothesis` and the compact-`M` pivot datum `IsUnit (ν'(C̄₀))` — threaded explicitly
-because the compact-`M` marked change of variables is missing from the vendored sources
-(errata item 3) — every transported marking admits a χ-preserving correction with
-`ν' ∘ u = ν_M` **on all of `D_M`** (MC3's generator-wise conclusion upgraded through
-`dm_hom_ext`). -/
+`MMixHypothesis` and the compact-`M` pivot datum `IsUnit (ν'(C̄₀))` — threaded explicitly so
+that the statement stays uniform in `h` — every transported marking admits a χ-preserving
+correction with `ν' ∘ u = ν_M` **on all of `D_M`** (MC3's generator-wise conclusion upgraded
+through `dm_hom_ext`).
+
+On the compact row (`h = 0`) the datum is a *theorem*, not an assumption:
+`CompactCoV.mMarkedMatching_of_chiKer` is this statement with `hpivot` replaced by the
+χ-kernel clause `MChiKerUnimodular` (errata item 3, derived by MC-CoV). -/
 theorem mMarkedMatching {α h : ℕ} (hα : 1 ≤ α) (hMix : MMixHypothesis α h hα)
     (nu' : ContinuousMonoidHom (DM α h : Type) (Multiplicative ℤ_[2]))
     (hpivot : IsUnit (toAdd (nu' (dmC α h)))) :
@@ -674,7 +691,9 @@ theorem marked_matching_certificate_N (α h : ℕ)
   exact ⟨⟨f, horient, u, huchi, fun x => hunu x⟩⟩
 
 /-- **Certificate production, `M`-side**: as for `N`, with the `MMixHypothesis` binder and
-the compact-`M` pivot datum (errata item 3) in place of the pair clause. -/
+the compact-`M` pivot datum (errata item 3) in place of the pair clause.  The compact-row
+entry point is `CompactCoV.marked_matching_certificate_M_of_chiKer`, which takes the χ-kernel
+clause instead — the packet's own `r = 0` branch condition — and so needs no pivot datum. -/
 theorem marked_matching_certificate_M (α h : ℕ) (hα : 1 ≤ α)
     (chiG : G →* ℤ_[2]ˣ) (nuG : G →* Multiplicative ℤ_[2])
     (f : ContinuousMulEquiv (DM α h : Type) G)
@@ -808,8 +827,10 @@ theorem marked_matching_certificate_KN (B : MarkedRecip R K) (α h : ℕ)
     (B.continuous_nu_ur.comp (hπ.comp f.continuous_toFun)) hScal hpair
 
 /-- **The `K`-side production, `M`-family**, with the compact-`M` pivot datum threaded
-explicitly (errata item 3: the vendored sources do not determine `ν_ur^K(f(C₀))`'s
-unit-ness at `r = 0` — the packet author's change of variables is the missing input). -/
+explicitly (errata item 3).  MC-CoV's derivation identifies that datum, at rank four, with
+the compact row's own branch condition `r = 0` — equivalently, with the statement that some
+Frobenius lift acts trivially on `μ_{2^∞}`, which holds because `K(μ_{2^∞})/K` is totally
+ramified.  It is therefore `K`-side arithmetic to supply, not a gap in the sources. -/
 theorem marked_matching_certificate_KM (B : MarkedRecip R K) (α h : ℕ) (hα : 1 ≤ α)
     (π : G →* GalKab K) (hπ : Continuous π)
     (f : ContinuousMulEquiv (DM α h : Type) G)
