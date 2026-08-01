@@ -1020,4 +1020,138 @@ theorem hessDeltaCert_P0 (hV2 : ∀ v : V, v + v = 0) (s u : C)
 
 end Hessian
 
+/-! ## The order-rejection certificate (S4.1 §9.4)
+
+The lane's headline.  WM0-a built the forward-order mutant `mFwdW`; WM0-b proved that the two
+orders agree at first order, at both boundaries and on every finite 2-group target, and left
+the rejection here — correctly, because the phenomenon is **second-order**.
+
+What is proved: the frozen and forward words differ, in the class-two algebra, by exactly
+
+```
+Q(fwd) + Q(rev) = b_q(W d₀, d₀) + b_q(W d₁, d₁) + b_q((1 + W²) d₁, d₀)
+```
+
+with `W` = the `σ₂^m`-action and `d_i = (1 + P) c_i`.  Everything is 2-torsion, so the `+` on
+the left *is* the difference — there are no signs in the identity.
+
+**Bilinearity of the factor set** is assumed (`hbil`, additivity of `f` in the first slot;
+second-slot additivity is then derived through `f_cocycle`).  This is not a restriction of
+substance: the repo's own `f_cocycle` docstring records that *all* of the paper's concrete
+factor sets — eqs. (75), (76), (73), (95) — are bilinear in the coordinates, and the archive's
+own `swap_difference_form` computes with the polar **matrix**, i.e. bilinearly.  It is stated
+rather than assumed silently because the identity genuinely uses it. -/
+
+section OrderRejection
+
+open GQ2.QuadraticFp2
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+  (hbil : ∀ v w x : V, dat.f (v + w) x = dat.f v x + dat.f w x)
+
+include hdat hbil in
+/-- Second-slot additivity, from first-slot additivity and the cocycle identity. -/
+theorem factorSet_f_add_right (v w x : V) :
+    dat.f v (w + x) = dat.f v w + dat.f v x := by
+  have hc := hdat.f_cocycle v w x
+  rw [hbil v w x] at hc
+  linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero])) hc
+
+include hdat hbil in
+/-- **Reversal adds the full polarization.**  For four Heisenberg-slice factors,
+
+```
+fib(p₁p₂p₃p₄) + fib(p₄p₃p₂p₁) = Σ_{i<j} b_q(bᵢ, bⱼ),
+```
+
+and the right-hand side is **charge-independent** — the four `z`'s and the four self-terms
+cancel in pairs, so only the `κ`-symmetrization survives.  That is why the *difference* between
+the two orders is proof-grade where neither individual value is: it never sees the bilinear
+refinement, the class-two lift, or the choice of `κ_q⁰`. -/
+theorem hessSlice_rev4_fib (b₁ b₂ b₃ b₄ : V) (z₁ z₂ z₃ z₄ : ZMod 2) :
+    WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
+        (hessSlice dat hdat b₁ z₁ * (hessSlice dat hdat b₂ z₂ *
+          (hessSlice dat hdat b₃ z₃ * hessSlice dat hdat b₄ z₄)))
+      + WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
+        (hessSlice dat hdat b₄ z₄ * (hessSlice dat hdat b₃ z₃ *
+          (hessSlice dat hdat b₂ z₂ * hessSlice dat hdat b₁ z₁)))
+      = polar q b₁ b₂ + polar q b₁ b₃ + polar q b₁ b₄
+        + polar q b₂ b₃ + polar q b₂ b₄ + polar q b₃ b₄ := by
+  simp only [hessSlice_mul dat hdat, hessSlice_fib]
+  rw [factorSet_f_add_right dat hdat hbil, factorSet_f_add_right dat hdat hbil,
+    factorSet_f_add_right dat hdat hbil, factorSet_f_add_right dat hdat hbil,
+    factorSet_f_add_right dat hdat hbil, factorSet_f_add_right dat hdat hbil]
+  have p12 := hdat.f_polar b₁ b₂
+  have p13 := hdat.f_polar b₁ b₃
+  have p14 := hdat.f_polar b₁ b₄
+  have p23 := hdat.f_polar b₂ b₃
+  have p24 := hdat.f_polar b₂ b₄
+  have p34 := hdat.f_polar b₃ b₄
+  linear_combination (norm := (ring_nf; simp [CharTwo.two_eq_zero]))
+    p12 + p13 + p14 + p23 + p24 + p34
+
+include hdat hbil in
+/-- **THE DIFFERENCE FORMULA** (packet S4.1 §9.4, freeze row 4's rejection of record), in the
+class-two algebra:
+
+```
+Q(fwd) + Q(rev) = b_q(W d₀, d₀) + b_q(W d₁, d₁) + b_q((1 + W²) d₁, d₀).
+```
+
+The six pairs of `hessSlice_rev4_fib` collapse to three: `W`-invariance of `b_q` makes the
+`(1,3)` and `(2,4)` pairs equal — they cancel in characteristic 2 — and merges `(2,3)` with the
+surviving `(1,4)` into `b_q((1+W²)d₁, d₀)`, leaving `(1,2)` and `(3,4)` as the two diagonal
+terms.  Charges are irrelevant throughout, which is the whole reason this is proof-grade. -/
+theorem swapDifference_formula (hq : IsQuadraticFp2 q) (W : V → V)
+    (hW : ∀ v w : V, polar q (W v) (W w) = polar q v w) (d₀ d₁ : V)
+    (z₁ z₂ z₃ z₄ : ZMod 2) :
+    WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
+        (hessSlice dat hdat (W (W d₁)) z₁ * (hessSlice dat hdat (W d₁) z₂ *
+          (hessSlice dat hdat (W d₀) z₃ * hessSlice dat hdat d₀ z₄)))
+      + WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
+        (hessSlice dat hdat d₀ z₄ * (hessSlice dat hdat (W d₀) z₃ *
+          (hessSlice dat hdat (W d₁) z₂ * hessSlice dat hdat (W (W d₁)) z₁)))
+      = polar q (W d₀) d₀ + polar q (W d₁) d₁ + polar q (d₁ + W (W d₁)) d₀ := by
+  rw [hessSlice_rev4_fib dat hdat hbil, hW (W d₁) d₁, hW (W d₁) d₀, hW d₁ d₀,
+    hq.polar_add_left]
+  ring_nf
+  simp [CharTwo.two_eq_zero]
+
+include hdat hbil in
+/-- **Corollary — `P = 1` is order-blind at second order.**  Every `d_i = (1 + P) c_i` is zero,
+so the difference vanishes identically: the second-order continuation of WM0-b's
+order-invisibility theorem chain, and the first half of the freeze's visibility criterion. -/
+theorem swapDifference_zero_of_P1 (hq : IsQuadraticFp2 q) (W : V → V) (hW0 : W 0 = 0)
+    (hW : ∀ v w : V, polar q (W v) (W w) = polar q v w) (z₁ z₂ z₃ z₄ : ZMod 2) :
+    WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
+        (hessSlice dat hdat (W (W 0)) z₁ * (hessSlice dat hdat (W 0) z₂ *
+          (hessSlice dat hdat (W 0) z₃ * hessSlice dat hdat 0 z₄)))
+      + WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
+        (hessSlice dat hdat 0 z₄ * (hessSlice dat hdat (W 0) z₃ *
+          (hessSlice dat hdat (W 0) z₂ * hessSlice dat hdat (W (W 0)) z₁)))
+      = 0 := by
+  rw [swapDifference_formula dat hdat hbil hq W hW 0 0, hW0, hW0, add_zero]
+  simp [polar_zero_left q hq]
+
+include hdat hbil in
+/-- **Corollary — `W = 1` is order-blind too.**  The two diagonal terms die because `b_q` is
+alternating, and the third dies because `1 + W² = 0`.  This is the second half of the freeze's
+visibility criterion `(1 + P) ≠ 0 ∧ σ₂^m ≠ 1`, and it is why the `hS₂` class — where `σ₂` acts
+trivially — can never separate the orders.  It is also why the fifth-root orbit is blind at
+`α ≥ 3`: there `ord(σ₂) ∣ m`, so `W = 1`. -/
+theorem swapDifference_zero_of_trivial_W (hq : IsQuadraticFp2 q)
+    (hV2 : ∀ v : V, v + v = 0) (d₀ d₁ : V) (z₁ z₂ z₃ z₄ : ZMod 2) :
+    WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
+        (hessSlice dat hdat d₁ z₁ * (hessSlice dat hdat d₁ z₂ *
+          (hessSlice dat hdat d₀ z₃ * hessSlice dat hdat d₀ z₄)))
+      + WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
+        (hessSlice dat hdat d₀ z₄ * (hessSlice dat hdat d₀ z₃ *
+          (hessSlice dat hdat d₁ z₂ * hessSlice dat hdat d₁ z₁)))
+      = 0 := by
+  rw [hessSlice_rev4_fib dat hdat hbil, polar_self q hq hV2, polar_self q hq hV2]
+  simp [CharTwo.add_self_eq_zero]
+
+end OrderRejection
+
 end GQ2.Dyadic.Certificates.MCompact
