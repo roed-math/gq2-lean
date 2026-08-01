@@ -364,6 +364,41 @@ to `master` only at owner gate G3.
   importing `Certificates/N0Fox.lean`/`N0.lean` — that break is FIXED (see the previous
   entry), the root build is green with every Words/* and Certificates/* file co-imported,
   so WL-c reuses WN0-c's toolkit instead of re-deriving ~350 lines.
+- **2026-08-01 (orchestrator, AS1 — THE ASSEMBLY WORKS, AND IT EXPOSED TWO STRUCTURAL
+  BLOCKERS):** merged, import registered. The good news is decisive: packet Thm 1.1 is a
+  **three-line assembly** over SD3, and AS1's own file is **std-3 with zero B-axioms**. The
+  two blockers reshape what remains, and both were found by shaping the record to the
+  *recursion's* clauses rather than to the lanes' outputs — which is the honest choice, and
+  is why the theorem stayed an assembly:
+  1. ⚠ **`KillsWild` is REFUTED, not mis-shaped.** F3's Gate-B predicate quantifies over
+     every profinite group with no τ condition, but any word with an `(x_iτ)^{ω₂}` letter
+     kills to `τ^{ω₂}` — nontrivial in `Multiplicative (ZMod 8)`. All five `Words/*` files
+     carry landed `not_killsWild` theorems (AS1 verified all five by grep, not from the
+     survey). AS1 could not call F3's `tameR` and re-did the construction over the
+     satisfiable `TameSpecializes` (= the ledger's `specializeTame R = 1`).
+     **F3b dispatched** to make the satisfiable predicate primary, keep the refutations,
+     and let AS1's §2b duplication be deleted.
+  2. ⚠ **THE CERTIFICATE⇒COUNT BRIDGE HAS NO OWNER — a whole missing lane.** The five
+     branch lanes closed at Fox rows, Stokes endpoints, scalar Grams and Hessian
+     certificates; `SourceDataN` consumes **counts**. At ℚ₂ that bridge is the entire
+     `GQ2/Roe/` stack, and the campaign has five words. **AS2 is blocked behind it.**
+     Related, AS1's finding 3: word-level `pro2 R = coreRel` (which all five lanes have)
+     does NOT give group-level `Γ_R(2) ≅ D_P`, and the generic bridge is unbuilt (the ℚ₂
+     ancestor `Roe.exists_pro2R` is Γ_R-specific and consumes `BLabHypothesis`).
+     **CB1 dispatched as a DESIGN MEMO** (the SD1/MC1/NC1 pattern — this is the campaign's
+     fourth restructuring-on-measured-evidence, and it gets a memo before any
+     implementation): its core question is whether the bridge is one generic theorem over
+     the WW evaluators plus five thin instantiations, genuinely per-branch, or mixed — the
+     answer sizes the rest of the campaign. It also owns the pro-2 gap's disposition
+     (including whether it lands on the G-Lab docket) and the shortest path to unblocking
+     the √−2 pilot.
+  **AS2–AS5 are NOT dispatched**; they wait on CB1's verdict. Standing residuals no lane
+  owns, now consolidated in AS1's record docstrings: `hsimp` (per-simple-module Stokes
+  duality — carried by all five closers, discharged by none), WW4 items 3 and 5, the
+  gate-F witness, P4's central clause per module, `Mpc.hlinrow` at general (α,r,p,η)
+  (closed only at √−10), L having no `HessianCertificate` (its endpoint is `qDouble`, not
+  `plusFormD`), and the α-threshold mismatch across layers (Fox 1 ≤ α, Stokes/Hessian
+  2 ≤ α, compact-M none).
 - **2026-08-01 (orchestrator, WAH — the collision's CAUSE is removed):** merged (14 files,
   +409/−564), `Words/Alphabet.lean` registered. **26 shared declarations replacing 94 copies
   — 68 duplicates deleted — with ZERO statement changes and ZERO renames** (the WWH
@@ -1657,8 +1692,10 @@ are `PWord` trees exported through WW5 (one-tree gate). Endpoint targets: plan �
 
 | id | title | model | files owned | depends on | status |
 |---|---|---|---|---|---|
-| AS1 | `WordCertificate` + `DyadicLocalInput` records + certificate-main theorem | fable | `GQ2/Dyadic/CertificateMain.lean` | SD3, MC5, LG5, WW1–WW4 | pending |
-| AS2 | **pilot instance `ℚ₂(√-2)`** (compact `N₂`) end-to-end | opus | `GQ2/Dyadic/Instances/SqrtNeg2.lean` | AS1, WN0-c | pending |
+| AS1 | `WordCertificate` + `DyadicLocalInput` records + certificate-main theorem | fable→**opus** (quota) | `GQ2/Dyadic/CertificateMain.lean` | SD3 ✓, MC5 ✓, LG5 ✓, WW1–WW4 ✓ | **done 2026-08-01** (b902f9f+489ea5e+a103283 → merged, import registered; 706 ln, 16 decls, 0 sorries, **all 8 headlines exactly std-3 — ZERO B-axioms, nothing for G3 to adjudicate on this file** (the B-set enters only through AS2–AS5's instantiations); **`candidate_equiv_absoluteGalois` proves packet Thm 1.1 in THREE assembly lines** (`W.toSource`, pair over the shared slot, one call to SD3's `nonempty_continuousMulEquiv_of_sourcesN`), hypothesis surface beyond the two records = `2 ≤ q`, `Even q`, `Surjective nuP`, all automatic at q_K = 2^f; records landed at 17 and 13 fields (no `eulerChar` — LG1's ruling honored); the one line of mathematics is FD2's assigned `kappaK_ne_zero_of_ramified`, stated through `¬HasEqualNormValueGroups`/`ki_unramified` and **never through `qK`**; **SIX ledger-vs-reality divergences reported, two of them STRUCTURAL BLOCKERS → CB1 and F3b opened** (below); the other four: `MarkedCoreCertificate` is three records not one, the ledger's §5.3 signature is one argument too wide (once SD-n went two-sided the core certificate stopped being an assembly input — it produces the arithmetic side's `pro2`, ASK's level), and the two sides are asymmetric because **ASK is queued, not done**) |
+| CB1 | **design memo: the certificate⇒count bridge** (AS1's structural finding — the five lanes closed at certificates, `SourceDataN` consumes counts, the ℚ₂ ancestor is the whole `GQ2/Roe/` stack; also owns AS1's finding 3, the word-level⇒group-level pro-2 gap) | opus | `docs/dyadic/cb-design.md` | AS1 ✓ | **dispatched 2026-08-01** (ww worktree, `dyadic-cb1`) — **AS2–AS5 wait on its verdict** |
+| F3b | Gate-B interface repair: make the satisfiable `TameSpecializes` primary, keep `KillsWild` + its five refutations with a warning docstring, verify every consumer compiles UNEDITED, and make AS1's §2b duplication deletable | opus | `GQ2/Dyadic/TameBoundary.lean` (in-place, approved) ± a new `TameSpec.lean` leaf | AS1 ✓ | **dispatched 2026-08-01** (lg worktree, `dyadic-f3b`) |
+| AS2 | **pilot instance `ℚ₂(√-2)`** (compact `N₂`) end-to-end | opus | `GQ2/Dyadic/Instances/SqrtNeg2.lean` | AS1 ✓, WN0-c ✓, **CB1** | **BLOCKED on CB1** (the count bridge) |
 | AS3 | instances √2, √5 (M0) · √10, √-10 (Mpc, procyclic gate) | opus | `GQ2/Dyadic/Instances/{Sqrt2,Sqrt5,Sqrt10,SqrtNeg10}.lean` | AS1, WM0-c, WMP-c | pending |
 | AS4 | `n = 1` wrapper: L-word machinery recovers the ℚ₂ theorem | opus | `GQ2/Dyadic/Instances/QTwo.lean` | AS1, WL-c | pending |
 | AS5 | final ramified-i theorem + axiom report + acceptance appendix + trust-boundary doc | fable | `GQ2/Dyadic/Main.lean`, `docs/dyadic/literature-axioms-dyadic.md` | AS2–AS4, all WC lanes, F4 | pending |

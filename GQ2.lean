@@ -273,6 +273,7 @@ import GQ2.Dyadic.Certificates.Mpc
 import GQ2.Dyadic.Certificates.MpcStokes
 import GQ2.Dyadic.FieldData
 import GQ2.Dyadic.FieldDataEven
+import GQ2.Dyadic.CertificateMain
 import GQ2.Dyadic.TameQuotientK
 import GQ2.Dyadic.TameBoundary
 import GQ2.Dyadic.MarkedCore.Cores
