@@ -102,6 +102,22 @@ toolkit (`coreLetter`, `handleU`, `handleV`, `wildGen`, `genOfName`, `denoteCtx`
 independently-owned lane files.  ⚠ That toolkit is now duplicated twice and will be duplicated
 five times — a `Words/Alphabet.lean` hoist is the obvious cleanup, exactly parallel to WN0-c's
 `~350`-line certificate-toolkit finding that produced the WWH ticket.  Recorded, not acted on.
+
+## Audited axiom state
+
+All **84** declarations were checked with `#print axioms`, and every one of them depends on a
+**subset of the standard three** `[propext, Classical.choice, Quot.sound]` — 55 on all three, 12
+on `[propext, Quot.sound]`, 4 on `[propext]`, and 9 on nothing at all.  In particular the twelve
+headlines
+
+`wf_rawNpc`, `denote_rawNpc_a2_r1_eta1_1_h0` (and its six siblings),
+`eval_npcW_eq_eval_npcWord`, `eval_killWildLetters_npcW`, `not_killsWild`,
+`etaHatZ_ne_omega2`, `not_isOmega2Only_npcW`, `eval_pro2_npcW`, `eval_npcW_of_comm`,
+`eval_zmod8_npcW`, `dBlockG_ne_one_perm`, `eBlockG_ne_one_perm`
+
+each print exactly `[propext, Classical.choice, Quot.sound]`.  No campaign axiom is reachable from
+this file, and **no `Lean.ofReduceBool`**: every decision procedure used here is kernel `decide`,
+never `native_decide`, so the census stays at eleven.
 -/
 
 namespace GQ2.Dyadic.Words
