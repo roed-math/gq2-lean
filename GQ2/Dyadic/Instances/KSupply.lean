@@ -231,8 +231,9 @@ theorem tfg_galK : ∃ s : Finset (GalK K),
 /-- **The `lem86` reduction at `G_K`** (CB-2's `Count.lem86N`, instantiated).  Not a clause value:
 it converts the record's half-torsor field into the single per-source residue `hvar` — the
 existence of a nonzero variation class.  At `G_ℚ₂` that residue is
-`RadicalEdgeLocal.exists_good_twist`; at `K` it is unowned, which is why `ExactLiftingSemantics`
-is carried whole in §4 rather than split.  Recorded here so the owed piece is exactly one
+`RadicalEdgeLocal.exists_good_twist` (`GQ2/RadicalEdge/Local.lean:475`, `private` — its public
+entry point is `half_torsor_local`, which is what `lemma_8_6_local` actually calls); at `K` it is
+unowned, which is why `ExactLiftingSemantics` is carried whole in §4 rather than split.  Recorded here so the owed piece is exactly one
 existential and not a counting theorem. -/
 theorem lem86_galK {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
     (D : RadicalCoverData Bg) (ρ : ContinuousMonoidHom (GalK K) (Bg ⧸ D.M))
