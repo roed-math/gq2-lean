@@ -418,6 +418,124 @@ theorem resolvedAt_npcW (α r : ℕ) : PWord.ResolvedAt μ E E₂ (npcW α r h d
 
 end Walk
 
+/-! ### §5.2 The frozen family, and the constraint the constant resolver imposes
+
+`Certificates.Npc.npcFam α r h q e d` resolves **both** profinite exponents by the *same* constant
+`e`.  So where §3's rows needed one arithmetic identity (`omega2Exp N = e`), this row needs two,
+and they are identities about different things: `e` has to be simultaneously the `ω₂`-level and
+the `η̂`-level of the target. -/
+
+variable {Q : Type} [Group Q] [TopologicalSpace Q] [DiscreteTopology Q] [Finite Q]
+
+/-- The frozen procyclic-`N` family **is** the `heisToFree` image of the intrinsic family. -/
+theorem npcFam_eq_gammaFam (α r h q e : ℕ) (d : EtaData) :
+    Npc.npcFam α r h q e d
+      = fun k => heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ))
+        (gammaFam (2 + 2 * h) q (Words.Npc.npcW α r h d) k) := by
+  funext k
+  match k with
+  | 0 => rfl
+  | 1 => rfl
+
+/-- **`ResolvedAt` at every marking gives `ResolvesAt`** — the general bridge behind
+`Count.resolvesAt_heisToFree`, with the `ω₂`-only hypothesis replaced by the resolution itself.
+This is what lets a row outside the `ω₂`-only fragment still reach `ResolvesAt`. -/
+theorem resolvesAt_of_resolvedAt {ι ρ : Type*} {W : ρ → PWord ι} {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ}
+    (hres : ∀ (f : ι → Q) (k : ρ), PWord.ResolvedAt f E E₂ (W k)) :
+    ResolvesAt W (fun k => heisToFree E E₂ (W k)) Q := by
+  intro f k
+  rw [← evalZ_eq_lift_heisToFree f E E₂ (W k)]
+  exact (PWord.eval_eq_evalZ f E E₂ (W k) (hres f k)).symm
+
+/-- **The procyclic-`N` family resolves the relators of `Γ_R` at the intrinsic branch word**, at
+any target killed by `N`, provided the frozen constant `e` is *both* resolver levels of that
+target: the `ω₂`-level `omega2Exp N` and the `η̂`-level `1 + padicOmega2Exp (η − 1) N`.
+
+The second hypothesis is the whole difference from `Count.resolvesAt_nCompactFam`, and it is not
+vacuous: §5.3 exhibits targets where the two levels provably disagree. -/
+theorem resolvesAt_npcFam {N : ℕ} (hN : N ≠ 0) (hord : ∀ x : Q, orderOf x ∣ N)
+    (α r h q : ℕ) (d : EtaData) {e : ℕ} (hω : omega2Exp N = e)
+    (hη : 1 + padicOmega2Exp (d.toPadic - 1) N = e) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.Npc.npcW α r h d))
+      (Npc.npcFam α r h q e d) Q := by
+  rw [npcFam_eq_gammaFam]
+  refine resolvesAt_of_resolvedAt ?_
+  have hωx : ∀ x : Q, x ^ᶻ omega2 = x ^ ((e : ℤ)) := by
+    intro x
+    rw [PWord.zpowHat_omega2_zpow hN (hord x), hω]
+  have hηx : ∀ x : Q, x ^ᶻ d.toZhat = x ^ ((e : ℤ)) := by
+    intro x
+    rw [EtaData.toZhat, zpowHat_etaHatZ_zpow hN (hord x), hη, zpow_natCast]
+  intro f k
+  match k with
+  | 0 => exact PWord.resolvedAt_of_isOmega2Only f _ _ hωx _ (isOmega2Only_tameRelW _ q)
+  | 1 => exact resolvedAt_npcW f hωx hηx α r
+
+/-- **The procyclic-`N` row at the `e = 1` pin, on a `2`-group target.**
+
+`omega2Exp (2 ^ a) = 1` supplies the `ω₂` level; the `η̂` level is `1` exactly when
+`padicOmega2Exp (η − 1) (2 ^ a) = 0`, i.e. when `η ≡ 1 (mod 2^a)`.  That congruence is a genuine
+condition on the branch datum at `a ≥ 2` — see `resolvesAt_npcFam_one_of_exponent_two` for the
+case where it is automatic. -/
+theorem resolvesAt_npcFam_one {a : ℕ} (ha : a ≠ 0) (hord : ∀ x : Q, orderOf x ∣ 2 ^ a)
+    (α r h q : ℕ) (d : EtaData) (hd : padicOmega2Exp (d.toPadic - 1) (2 ^ a) = 0) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.Npc.npcW α r h d))
+      (Npc.npcFam α r h q 1 d) Q :=
+  resolvesAt_npcFam (Nat.two_pow_pos a).ne' hord α r h q d (omega2Exp_two_pow ha) (by rw [hd])
+
+/-- **At an exponent-`2` target the `e = 1` pin is unconditional**, for every `2`-adic unit `η`
+that is a `1`-unit: `v₂(2) = 1`, so `Fox`'s `padicOmega2Exp_eta_eq_zero` kills the `η̂` level
+whatever `η` is.  This is the elementary-abelian case, i.e. the `A`-coordinate of the count
+lane's split target read on its own. -/
+theorem resolvesAt_npcFam_one_of_exponent_two (hord : ∀ x : Q, orderOf x ∣ 2)
+    (α r h q : ℕ) (d : EtaData) (z : ℤ_[2]) (hz : d.toPadic = 1 + 2 * z) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.Npc.npcW α r h d))
+      (Npc.npcFam α r h q 1 d) Q := by
+  have hfac : (2 : ℕ).factorization 2 = 1 := Nat.Prime.factorization_self Nat.prime_two
+  refine resolvesAt_npcFam (N := 2) two_ne_zero hord α r h q d ?_ ?_
+  · simp [omega2Exp, hfac]
+  · rw [padicOmega2Exp_eta_eq_zero z hz (le_of_eq hfac)]
+
+/-! ### §5.3 The sharp negative: no constant resolver survives odd torsion
+
+CB-RES's impossibility is global — no integer resolves `ω₂` in the *free profinite group*.  The
+procyclic-`N` row has a second, strictly local obstruction of the same flavour, and it is what
+makes this row genuinely different from the other four rather than merely longer:
+
+`ω₂` **kills** pro-odd elements (Gate B rule T1) while `η̂` **fixes** them (rule T2).  So at any
+target carrying a nontrivial element of odd order the two exponents are separated — this is
+`Words.Npc.etaHatZ_ne_omega2`'s argument, read as a statement about resolvers — and a family that
+spends a *single* constant on both cannot be honest there, at any value of the constant. -/
+
+/-- **No constant resolves both `ω₂` and `η̂` at an element of odd order `> 1`.**
+
+Hence `Certificates.Npc.npcFam α r h q e d` — which resolves both nodes at the same `e` — cannot
+resolve `Words.Npc.npcW` at any target with nontrivial odd torsion, for **any** `e`.  Contrast
+the other four rows, where every target admits the honest constant `omega2Exp N`. -/
+theorem not_constant_resolver_of_odd {x : P} (hodd : Odd (orderOf x)) (hx : x ≠ 1) (η : ℤ_[2])
+    (k : ℤ) : ¬ (x ^ᶻ omega2 = x ^ k ∧ x ^ᶻ etaHatZ η = x ^ k) := by
+  rintro ⟨h1, h2⟩
+  rw [← zpowHat_padicOmega2_one, zpowHat_padicOmega2_eq_one_of_odd hodd] at h1
+  rw [zpowHat_etaHatZ_of_odd hodd] at h2
+  exact hx (h2.trans h1.symm)
+
+/-- **The `e = 3` pin is unavailable to the procyclic-`N` row.**  At exponent level `6` the `ω₂`
+level is `3` (`Count.omega2Exp_six`) while the `η̂` level is `1` for every `1`-unit `η`, because
+`v₂(6) = 1`.  So `resolvesAt_npcFam`'s two hypotheses are contradictory at `N = 6`: the row that
+the campaign froze at `e = 3` alongside the other four has no `e` at all there.
+
+This is the precise sense in which the procyclic-`N` row's resolver pin is *not* a free choice
+between `3` and `1`: on a target of exponent `6` it is neither. -/
+theorem npc_levels_ne_at_six {η : ℤ_[2]} (z : ℤ_[2]) (hη : η = 1 + 2 * z) :
+    omega2Exp 6 ≠ 1 + padicOmega2Exp (η - 1) 6 := by
+  have hfac : (6 : ℕ).factorization 2 = 1 := by
+    rw [show (6 : ℕ) = 2 ^ 1 * 3 by norm_num,
+      Nat.factorization_mul (by norm_num) (by norm_num), Finsupp.add_apply,
+      Nat.Prime.factorization_pow Nat.prime_two, Finsupp.single_eq_same,
+      Nat.factorization_eq_zero_of_not_dvd (by norm_num)]
+  rw [omega2Exp_six, padicOmega2Exp_eta_eq_zero z hη (le_of_eq hfac)]
+  norm_num
+
 end Procyclic
 
 end Count
