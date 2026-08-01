@@ -38,11 +38,12 @@ That is the whole design: the two sides meet at `D_P`, and everything else is bo
 ## The candidate group
 
 `candidateGroup K R` is F3's `GammaR n q R = ⟨σ, τ, x₀ … x_n ∣ τ^σ = τ^q, R = 1⟩_prof`
-(`GQ2/Dyadic/TameBoundary.lean:286`), so the ledger's `candidateGroup` needs no new
-construction — §1's abbreviation only renames it.  F3 also supplies, unconditionally, four of
-the six *structural* `SourceDataN` fields on that group (`tame`, its surjectivity, the
-ν-compatibility, and eq. (27) joint surjectivity), which is why the candidate side of the
-assembly is genuinely assembled here rather than carried.
+(`GQ2/Dyadic/TameBoundary.lean:333`), so the ledger's `candidateGroup` needs no new
+construction — §1's abbreviation only renames it.  F3's `TameSpec` layer then supplies the
+`tame` field and its surjectivity outright (`TameSpec.tameOfSpec`, `…_surjective`), and its
+assembled Thm. 3.5 supplies eq. (27) at the **canonical** pro-`2` quotient; at this record's
+*abstract* slot `(P, νP)` eq. (27) is re-instantiated from F3's §3 theorem (see `toSource`).
+That is why the candidate side of the assembly is genuinely assembled here rather than carried.
 
 ## ⚠ The asymmetry, and what it means for G3
 
@@ -68,18 +69,17 @@ Recorded here because AS2–AS5 and the G3 census sign-off read this docstring:
    *consequences* of a core certificate (a marked identification of `P` with the arithmetic
    pro-2 quotient) rather than the record itself, so that one main theorem serves all five
    branch rows; the three K-layer producers each discharge those consequences.
-2. **F3's Gate-B predicate `KillsWild` is REFUTED by all five frozen branch words**, so the
-   word certificate cannot take it and `tameR` cannot be called.  `Words/L.lean`'s
+2. **F3's Gate-B predicate `KillsWild` is REFUTED by all five frozen branch words**, so neither
+   the word certificate nor `SourceDataN` can be stated against it.  `Words/L.lean`'s
    `not_killsWild`, and its four siblings (`Words/{N0, Npc, M0, Mpc}.lean`), are landed
    theorems: `KillsWild` quantifies over *every* profinite group, and the tame-killed value of
    any word carrying an `(x_i τ)^{ω₂}`-shaped letter is `τ^{ω₂}`, nontrivial already in
    `Multiplicative (ZMod 8)`.  The packet's hypothesis lives where `τ` is pro-odd — i.e. in
-   `T_q` — and there the words *are* admissible.  The WL lane recorded this as micro-row
-   **F3b**.  §2b therefore re-does F3's tame construction (`tameOfSpec`,
-   `tameOfSpec_surjective`, both F3's terms with one proof argument swapped) at
-   `TameSpecializes n q R := (tameMarking n q).eval R = 1`, which is satisfiable *and* is
-   literally the ledger's `specializeTame R = 1`.  **Owed by:** F3 (relativize `KillsWild` to
-   pro-odd-`τ` targets); when that lands, delete §2b.
+   `T_q` — and there the words *are* admissible.  Ticket **F3b** landed the repair in
+   `TameBoundary.lean`: `TameSpec.TameSpecializes n q R := (tameMarking n q).eval R = 1` is
+   satisfiable, is literally the ledger's `specializeTame R = 1`, and carries the whole of
+   Prop. 3.4 and Thm. 3.5 (`TameSpec.tameOfSpec`, `…_surjective`, `…_of_spec`).  This file
+   takes that interface — `open TameSpec`, below — and never names `KillsWild` or `tameR`.
 3. **`WordCertificate.proTwoSpecialization` cannot be the ledger's `specializeProTwo R =
    P.word`.**  That equation is a statement about *words*; what the recursion needs is a
    statement about *groups* (`pro2 : Γ_R → P` with `ker = proPKernel 2 Γ_R`).  The bridge —
@@ -123,6 +123,11 @@ namespace GQ2.Dyadic
 
 open GQ2 GQ2.SectionEight
 open SectionSeven AffineTLift CentralObstruction ContCoh FoxH
+
+/-! F3b's Gate-B layer (`TameBoundary.lean` §4): `TameSpecializes`, `tameOfSpec` and the
+assembled Prop. 3.4 / Thm. 3.5 live in `GQ2.Dyadic.TameSpec`.  Everything this file says about
+the tame specialization is that namespace's, unqualified. -/
+open TameSpec
 
 /-- The algebraic closure, in the repo's per-file `local notation` idiom
 (`GQ2/UnitFiltration.lean:42` and siblings). -/
@@ -329,90 +334,7 @@ def AffineDeterminantCertificate (tame : ContinuousMonoidHom Γ (Tq q))
 
 end Clauses
 
-/-! ## §2b The tame specialization at a **satisfiable** hypothesis
-
-⚠ **Divergence 6, and the sharpest one in this file.**  F3's Gate-B predicate `KillsWild R`
-(`TameBoundary.lean:341`) quantifies over *every* profinite group.  Every one of the five frozen
-branch words **refutes it**: `GQ2.Dyadic.Words.LSq.not_killsWild`,
-`Words.not_killsWild` (compact `N`), `Words.Npc.not_killsWild`,
-`Words.MCompact.not_killsWild`, `Words.Mpc.not_killsWild` are all landed theorems.  The reason
-is uniform and is *not* a defect in the words: the tame-killed value of a word carrying an
-`(x_i τ)^{ω₂}`-shaped letter is `τ^{ω₂}`, which is `1` only where `τ` is pro-odd — which is
-exactly where the packet's hypothesis lives (Lem. 3.1), and exactly what `T_q` is.  The WL lane
-recorded this as micro-row **F3b** and correctly declined to act (`TameBoundary.lean` is not its
-file; it is not mine either).
-
-So `WordCertificate` **cannot** take `KillsWild R`, and `tameR` — whose only use of `hadm` is at
-`G := T_q`, `t := tameMarking n q` (`tameBase_eval_R`) — cannot be called.  §2b therefore
-re-does F3's three-step tame construction at the hypothesis that is both satisfiable and
-*literally the ledger's* `specializeTame R = 1`.  Nothing here is new mathematics: `tameOfSpec`
-is `tameR`'s term with one proof argument replaced, and `tameOfSpec_surjective` is
-`tameR_surjective`'s proof verbatim.  **When F3b lands, all of §2b should be deleted and the F3
-originals used instead.** -/
-
-section TameSpec
-
-variable {n q : ℕ} {R : PWord (Generator n)}
-
-/-- **Ledger §5.2 field `tameSpecialization`**, on the nose: `specializeTame R = 1`, i.e. the
-wild word dies under the tame marking `σ ↦ σ, τ ↦ τ, x_i ↦ 1` of `T_q`.
-
-Satisfiable, and satisfied by all five branches: each `Words/*.lean` proves
-`eval_killWildLetters_* = τ^{ω₂}` (or `= 1` outright, for `Mpc`) together with
-`*_eq_one_of_odd`, and `τ^{ω₂} = 1` holds in `T_q` by Lem. 3.1 (`TameBoundary.lean` §1). -/
-def TameSpecializes (n q : ℕ) (R : PWord (Generator n)) : Prop :=
-  (tameMarking n q).eval R = 1
-
-/-- F3's Gate B implies the ledger's equation — the compatibility direction, so that anything
-stated against `KillsWild` still applies.  (The converse is what F3b would need, and is false
-in F3's unrelativized `∀`-form.) -/
-theorem tameSpecializes_of_killsWild (hadm : KillsWild R) : TameSpecializes n q R := by
-  have h := hadm ((Tq q) : Type) (tameMarking n q)
-  rwa [killWildLetters_tameMarking] at h
-
-/-- The `R`-relator dies in `T_q`.  `tameBase_eval_R`'s proof with `KillsWild` replaced by the
-ledger's equation. -/
-theorem tameBase_eval_R_of_spec (hspec : TameSpecializes n q R) :
-    (tameBase n q).hom.toMonoidHom ((freeMarking n).eval R) = 1 := by
-  have h := Marking.map_eval (tameBase n q).hom (freeMarking n) R
-  have hmark : (freeMarking n).map ⇑(tameBase n q).hom = tameMarking n q := by
-    ext g; exact tameBase_of n q g
-  rw [show (tameBase n q).hom.toMonoidHom ((freeMarking n).eval R)
-      = (tameBase n q).hom ((freeMarking n).eval R) from rfl, h, hmark]
-  exact hspec
-
-/-- **The tame specialization** `Γ_R ↠ T_q`, at the satisfiable hypothesis.  `tameR`'s term. -/
-noncomputable def tameOfSpec (n q : ℕ) (R : PWord (Generator n))
-    (hspec : TameSpecializes n q R) : ContinuousMonoidHom (GammaR n q R) (Tq q) :=
-  presentationLift (gammaRelators n q R) (tameBase n q).hom <| by
-    rintro r (rfl | rfl)
-    · exact tameBase_tameRelatorGen
-    · exact tameBase_eval_R_of_spec hspec
-
-@[simp] theorem tameOfSpec_gammaGen (hspec : TameSpecializes n q R) (g : Generator n) :
-    tameOfSpec n q R hspec (gammaGen n q R g) = tameMarking n q g :=
-  (presentationLift_mk _ _ _ (FreeProfiniteGroup.of g)).trans (tameBase_of n q g)
-
-/-- `tameR_surjective`'s proof, verbatim. -/
-theorem tameOfSpec_surjective (hspec : TameSpecializes n q R) :
-    Function.Surjective (tameOfSpec n q R hspec) := by
-  have hle : Subgroup.closure {tqSigma q, tqTau q}
-      ≤ (tameOfSpec n q R hspec).toMonoidHom.range := by
-    rw [Subgroup.closure_le]
-    rintro z (rfl | rfl)
-    · exact ⟨gammaGen n q R .sigma, tameOfSpec_gammaGen hspec .sigma⟩
-    · exact ⟨gammaGen n q R .tau, tameOfSpec_gammaGen hspec .tau⟩
-  have hclosed : IsClosed (((tameOfSpec n q R hspec).toMonoidHom.range) : Set ((Tq q) : Type)) := by
-    rw [MonoidHom.coe_range]
-    exact (isCompact_range (tameOfSpec n q R hspec).continuous_toFun).isClosed
-  have htop : (tameOfSpec n q R hspec).toMonoidHom.range = ⊤ := by
-    rw [eq_top_iff, ← topGen_tq q]
-    exact Subgroup.topologicalClosure_minimal _ hle hclosed
-  exact MonoidHom.range_eq_top.mp htop
-
-end TameSpec
-
-/-! ## §2c The word certificate  (ledger §5.2) -/
+/-! ## §2b The word certificate record  (ledger §5.2) -/
 
 set_option linter.unusedVariables false in
 /-- **The word certificate** (ledger §5.2, packet Def. 9.1).
@@ -429,7 +351,7 @@ Per branch, the instantiating ticket must produce:
 
 | field | what exists today | what is owed |
 |---|---|---|
-| `tameSpecialization` | `Words/*.eval_killWildLetters_*` + `*_eq_one_of_odd` | evaluate at `T_q` (Lem. 3.1 gives `τ^{ω₂} = 1`) — small |
+| `tameSpecialization` | `Words/*.eval_killWildLetters_*` + `*_eq_one_of_odd` | one line: `TameSpec.tameSpecializes_of_tau_pow` (`N`, `Npc`, `L_sq`) or `_of_tau` (`M`, `Mpc`) |
 | `proTwoWord` | `Words/*.eval_pro2_*_eq_{n,m,sq}RelWord` | nothing — landed for all five |
 | `pro2`, `ker_pro2`, `compat` | `GQ2.Roe.exists_pro2R` at `ℚ₂` only | the generic `Γ_R(2) ≅ D_P` bridge (divergence 3) |
 | `tfg`, `smulZmod2`, `contSMulZmod2`, `htriv` | — | routine, but nobody has written them for `GammaR` |
@@ -449,7 +371,9 @@ and **`Mpc.hlinrow`** at general `(α, r, p, η)` (closed only at the `√−10`
 at all. -/
 structure WordCertificate (n q : ℕ) (R : PWord (Generator n)) (P : ProfiniteGrp)
     (hP : IsProP 2 P) (nuP : ContinuousMonoidHom P Ztwo) (SN : SourceNumerics n) where
-  /-- **Ledger field 1.**  `specializeTame R = 1` (see §2b for why this, and not `KillsWild`). -/
+  /-- **Ledger field 1.**  `specializeTame R = 1`, i.e. F3b's primary Gate-B predicate
+  `TameSpec.TameSpecializes` — never `KillsWild`, which is refuted by every frozen branch word
+  (divergence 2). -/
   tameSpecialization : TameSpecializes n q R
   /-- **Ledger field 2, word level.**  The ledger's `specializeProTwo R = P.word`, in the
   semantic form the five `Words/*.lean` files actually prove: the pro-2 specialization of `R`
@@ -468,7 +392,7 @@ structure WordCertificate (n q : ℕ) (R : PWord (Generator n)) (P : ProfiniteGr
   /-- `pro2` is onto the core.  (`SourceDataN.pro2_surjective` derives this *from* eq. (27)
   joint surjectivity, so it cannot be reused here — eq. (27) is what we are building.) -/
   hpro2 : Function.Surjective pro2
-  /-- ν-compatibility against §2b's tame map. -/
+  /-- ν-compatibility against the tame specialization `TameSpec.tameOfSpec`. -/
   compat : ∀ g : ((GammaR n q R) : Type),
     nuTq q (tameOfSpec n q R tameSpecialization g) = nuP (pro2 g)
   /-- Topological finite generation of `Γ_R`. -/
@@ -497,9 +421,20 @@ namespace WordCertificate
 variable {n q : ℕ} {R : PWord (Generator n)} {P : ProfiniteGrp} {hP : IsProP 2 P}
   {nuP : ContinuousMonoidHom P Ztwo} {SN : SourceNumerics n}
 
-/-- **The candidate source.**  Pure projection: every field is either a certificate field, an
-F3 theorem (`gammaR_boundary_surjective`'s §2b twin), or `tameOfSpec`.  This is the assembly the
-ticket asks for on the candidate side. -/
+/-- **The candidate source.**  Pure projection: every field is either a certificate field or one
+of F3b's `TameSpec` declarations (`tameOfSpec` for `tame`), plus a single application of F3's §3
+boundary theorem for `surj`.  This is the assembly the ticket asks for on the candidate side.
+
+⚠ **`surj` cannot be `TameSpec.gammaR_boundary_surjective_of_spec`, and that is a finding.**
+F3b's assembled Theorem 3.5 is stated at the **canonical** pro-`2` quotient — `pro2` is
+`maxProPMk 2 _` into `maxProPQuotient 2 Γ_R` and `ν` is `TameSpec.nuTwoOfSpec` — whereas
+`SourceDataN.surj` lives at the record's **abstract** slot `(P, νP)` with `pro2 := W.pro2`.  The
+two `Function.Surjective` goals are therefore not the same type and the assembled form does not
+apply.  What stands in its place is *not* a hand proof: it is F3's §3 theorem
+`boundary_jointly_surjective_of_maxProP` — the very theorem `gammaR_boundary_surjective_of_spec`
+itself calls — instantiated at the abstract slot, which is legitimate precisely because
+`W.ker_pro2` pins `W.pro2` as *the* maximal pro-`2` quotient map.  **Owed by:** nobody; F3 could
+add an abstract-slot twin of the assembled theorem, but it would only re-wrap this one line. -/
 noncomputable def toSource (W : WordCertificate n q R P hP nuP SN)
     (hq2 : 2 ≤ q) (hqe : Even q) : SourceDataN n q P hP nuP SN where
   Γ := GammaR n q R
