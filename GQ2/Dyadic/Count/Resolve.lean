@@ -57,6 +57,12 @@ member witnesses the failure of `ResolvesGammaRelators.fam_mem` itself, not mere
 (`not_resolvedAt_nCompactW`, `not_resolvedAt_npcW`: no resolver pair resolves those words, at any
 `α`, `r`, `h`, `d`).  §7 runs the template at all six frozen pins.
 
+§8 sharpens this once more.  Because the refuting characters land in `2`-groups, their kernels
+are themselves `R`-**admissible** open normal subgroups, so `N_R` lies inside them and the
+resolved family member is nontrivial **in `Γ_R` itself** (`lift_gammaGen_nCompactFam_ne_one`).
+So the `rel` clause of `IsAdmissibleMarkedPresentation` is *false* at the intrinsic branch word:
+there is no instance to be had, by this route or any other.
+
 ⚠ The refuting characters land in `ℤ/8` and `ℤ/4` — **`2`-groups**.  Unlike CB-W's `ℤ/3`
 counterexamples to the plain clause (iii), this obstruction is *not* removed by CB-MP's
 admissibility restriction.  The one pin whose resolver is `e = 1` (`lSqFam 0 4 1`) needs the odd
@@ -719,6 +725,80 @@ theorem not_resolves_lSqFam_qFour :
     (by rw [omega2Exp_three]; decide) (by decide)
 
 end Frozen
+
+/-! ## §8 The sharpest form: the word-lane relator does not die in `Γ_R`
+
+`fam_mem` is a statement about the closed normal closure of the relators.  But the refuting
+character lands in a `2`-group, so **its kernel is itself `R`-admissible** — the pro-`2` clause of
+`IsAdmissibleU` is free — and therefore `N_R` is contained in it.  Consequently the resolved
+family member is nontrivial in `Γ_R` itself: the `rel` clause of
+`IsAdmissibleMarkedPresentation` is **false** at the intrinsic branch word, not merely unproved
+by this route.
+
+This is the precise sense in which CB-MP's admissibility restriction cannot help: the restriction
+excludes odd markings, and this obstruction is entirely `2`-adic. -/
+
+section NotDying
+
+variable {n : ℕ}
+
+/-- A group of exponent `2 ^ a` has only `2`-subgroups. -/
+theorem CycTest.isPGroup_two {m : ℕ} (a : ℕ) (hm : ∀ x : CycTest m, x ^ (2 ^ a) = 1)
+    (H : Subgroup (CycTest m)) : IsPGroup 2 H :=
+  fun x => ⟨a, Subtype.ext (hm (x : CycTest m))⟩
+
+/-- **The kernel of a `2`-group degree character that kills both relators is `R`-admissible**, so
+`N_R` lies inside it. -/
+theorem NR_le_ker_degHom {m : ℕ} [NeZero m] (a : ℕ) (hm : ∀ x : CycTest m, x ^ (2 ^ a) = 1)
+    (g₀ : Generator n) (q : ℕ) {R : PWord (Generator n)}
+    (htame : degHom n m g₀ (tameRelatorGen n q) = 1)
+    (hkill : degHom n m g₀ ((freeMarking n).eval R) = 1) :
+    NR n q R ≤ (degHom n m g₀).toMonoidHom.ker := by
+  have hopen : IsOpen (((degHom n m g₀).toMonoidHom.ker : Subgroup _) :
+      Set ((FreeProfiniteGroup (Generator n)) : Type)) :=
+    (isOpen_discrete ({1} : Set (CycTest m))).preimage (degHom n m g₀).continuous_toFun
+  let U : OpenNormalSubgroup ((FreeProfiniteGroup (Generator n)) : Type) :=
+    { toSubgroup := (degHom n m g₀).toMonoidHom.ker, isOpen' := hopen }
+  refine NR_le_of_isAdmissibleU (U := U) ⟨?_, ?_⟩
+  · intro r hr
+    simp only [gammaRelators, Set.mem_insert_iff, Set.mem_singleton_iff] at hr
+    rcases hr with rfl | rfl
+    · exact MonoidHom.mem_ker.mpr htame
+    · exact MonoidHom.mem_ker.mpr hkill
+  · exact isPGroup_map_of_ker_le (degHom n m g₀).toMonoidHom (QuotientGroup.mk' U.toSubgroup)
+      (le_of_eq (QuotientGroup.ker_mk' U.toSubgroup).symm) (CycTest.isPGroup_two a hm _)
+
+/-- **The `rel` clause fails.**  A `2`-group character killing both relators but not the resolved
+family member shows that member is nontrivial in `Γ_R`. -/
+theorem lift_gammaGen_ne_one {m : ℕ} [NeZero m] (a : ℕ) (hm : ∀ x : CycTest m, x ^ (2 ^ a) = 1)
+    {g₀ : Generator n} (q : ℕ) {R : PWord (Generator n)}
+    (htame : degHom n m g₀ (tameRelatorGen n q) = 1)
+    (hkill : degHom n m g₀ ((freeMarking n).eval R) = 1)
+    {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ}
+    (hlive : PWord.evalZ (degMark n m g₀) E E₂ R ≠ 1) :
+    FreeGroup.lift (gammaGen n q R) (heisToFree E E₂ R) ≠ 1 := by
+  intro hz
+  have h : gammaMk n q R (freeToProf (Generator n) (heisToFree E E₂ R)) = 1 :=
+    (comp_freeToProf (gammaMk n q R).toMonoidHom (heisToFree E E₂ R)).trans hz
+  have hmem := NR_le_ker_degHom a hm g₀ q htame hkill (gammaMk_eq_one_iff.mp h)
+  refine hlive ?_
+  rw [← degHom_freeToProf_heisToFree m g₀ E E₂ R]
+  exact MonoidHom.mem_ker.mp hmem
+
+/-- **At the compact-`N` pilot the word-lane wild relator is a nontrivial element of `Γ_R`.**
+So `Count.isAdmissibleMarkedPresentation_gammaR` has *no* instance at the intrinsic branch word:
+its `rel` clause is refuted, not merely unproved. -/
+theorem lift_gammaGen_nCompactFam_ne_one (q : ℕ) :
+    FreeGroup.lift (gammaGen (2 + 2 * 0) q (Words.nCompactW 2 0))
+      (Certificates.nCompactFam 2 0 q 3 1) ≠ 1 :=
+  lift_gammaGen_ne_one (m := 8) (g₀ := Words.coreLetter 0 2) 3
+    (fun x => CycTest.pow_self 8 x) q
+    (degHom_tameRelatorGen 8 (by decide) q)
+    ((degHom_freeMarking_eval 8 (Words.coreLetter 0 2)
+        (Words.isOmega2Only_nCompact 2 0)).trans (by rw [omega2Exp_eight]; decide))
+    (by decide)
+
+end NotDying
 
 end Count
 
