@@ -874,4 +874,70 @@ theorem heisEta1_nCompactFam_apply {α h q e : ℕ} {A : Type*} [AddCommGroup A]
 
 end Duality
 
+/-! ## The scalar certificate: the `√−2` Gram matrices, by kernel `decide`
+
+The cup–Bockstein comparison matrix (`stokesGram`) of the `√−2` family on the scalar
+module `A = 𝔽₂` (trivial action — the split class of WN0-b's rows), at the standard
+letter basis in the packet column order `σ, τ, x₀, x₁, x₂`; rows index the primal basis
+vector, columns the dual one.  This is the `GQ2/Roe/TrivialSelfDual.lean` `scalarGramR`
+comparison shape; the field-side (Hilbert-symbol) column of the comparison is AS2's.
+
+Two pins, differing **only** in the resolver class of `ω₂`:
+
+* `e = 1` — the honest class for a 2-group target (`GQ2.omega2Exp` of a 2-power is `1`,
+  and the evaluation target here is the 16-element Heisenberg group of exponent 4, so
+  honest `ω₂`-evaluation is `evalNat` at an exponent `≡ 1 (mod 4)`).  Diagonal (Bockstein)
+  entries at `τ` (tame, `C(2,2)` odd) and `x₀` (wild, `C(6,2) = 15` odd); cup blocks
+  `(x₀,x₁)`, `(σ,τ)`, `(σ,x₂)`.  The matrix is symmetric of rank 5 over `𝔽₂`.
+* `e = 3` — the other odd class: exactly the `{τ,x₂}²`-block moves (the `C(e,2)`-block of
+  `heisZ_nCompact_unram` switches on).  The pair makes ticket S1.T's "the lift level is
+  4, not 2" a kernel-checked matrix statement, and is why the certificate form
+  `heisZ_nCompact_res_one` pins the class `e ≡ 1 (mod 4)` — `class2.py`'s "the
+  polarization alone cannot see the Bockstein diagonal", Gram-side.
+
+Every entry agrees with the closed forms `heisZ_tameRelW_unram` +
+`heisZ_nCompact_scalar`/`heisZ_nCompact_unram` (the `decide` recomputes what the
+theorems prove; the matrices were derived from the theorems, not vice versa). -/
+
+section ScalarGram
+
+/-- The trivial action for the scalar pins (WW3's `local instance` idiom — not
+exported). -/
+local instance : DistribMulAction (Multiplicative (ZMod 2)) (ZMod 2) where
+  smul _ a := a
+  one_smul _ := rfl
+  mul_smul _ _ _ := rfl
+  smul_zero _ := rfl
+  smul_add _ _ _ := rfl
+
+/-- The all-trivial (scalar/split) marking of the `√−2` alphabet. -/
+def scalarMark : Marking 2 (Multiplicative (ZMod 2)) := Marking.ofLetters 1 1 ![1, 1, 1]
+
+/-- The packet column order `σ, τ, x₀, x₁, x₂`. -/
+def scalarLetter : Fin 5 → Generator 2 := ![.sigma, .tau, .wild 0, .wild 1, .wild 2]
+
+/-- The standard primal basis: a unit offset on one letter. -/
+def scalarX (p : Fin 5) : Generator 2 → ZMod 2 :=
+  fun g => if g = scalarLetter p then 1 else 0
+
+/-- The standard dual basis: the identity functional on one letter. -/
+noncomputable def scalarY (p : Fin 5) : Generator 2 → ElemDual (ZMod 2) :=
+  fun g => if g = scalarLetter p then (AddMonoidHom.id (ZMod 2) : ElemDual (ZMod 2)) else 0
+
+/-- **The `√−2` scalar Gram at the honest resolver class** (`e = 1`): Bockstein
+diagonals at `τ` and `x₀`, cup blocks `(σ,τ)`, `(σ,x₂)`, `(x₀,x₁)`. -/
+theorem sqrtNegTwo_scalarGram :
+    stokesGram ⇑scalarMark (nCompactFam 2 0 2 1) scalarX scalarY
+      = !![0,1,0,0,1; 1,1,0,0,0; 0,0,1,1,0; 0,0,1,0,0; 1,0,0,0,0] := by
+  decide +kernel
+
+/-- **The `e = 3` twin**: the `{τ,x₂}²`-block moves with the resolver class — the
+mod-4 (ℤ/4-lift-level) sensitivity, kernel-checked. -/
+theorem sqrtNegTwo_scalarGram_three :
+    stokesGram ⇑scalarMark (nCompactFam 2 0 2 3) scalarX scalarY
+      = !![0,1,0,0,1; 1,0,0,0,1; 0,0,1,1,0; 0,0,1,0,0; 1,1,0,0,1] := by
+  decide +kernel
+
+end ScalarGram
+
 end GQ2.Dyadic.Certificates
