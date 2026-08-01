@@ -1353,4 +1353,108 @@ noncomputable def npcJacobianCertRam (hV₂ : ∀ v : V, v + v = 0)
 
 end Certificates
 
+/-! ## §8. The cross-operator consistency pin: first order meets the NC lane's second order
+
+Two bridges, one per half of the task's item (3).
+
+* **Operator half** (`foxD_dBlockW_lcOp`): the first-order coefficient of the `D`-block *is*
+  NC2's `lcOp` — the corrected `L_c = A⁻¹ + B + B·A⁻¹` — applied to `D(δ₀)`, once the resolver
+  is honest at the η̂-atom (`hA`).  So the operator datum `npc_cross_operators`'s statement
+  carries (`lcOp s η r c₀` inside the pairing) and the operator this file's rows and
+  certificates carry (the η̂-alphabet interpreted at the resolver value) are **the same
+  operator**, not two lookalikes: my first-order rows compose with NC4's second-order seams
+  through one shared `lcOp`.
+* **Word half** (`npc_cross_operators_npcW`): NC5's headline restated for **the certificate's
+  word** `npcW` — WNP-a's value bridge `eval_npcW_eq_eval_npcWord` transports
+  `npc_cross_operators` from the NC lane's `npcWord` onto the hash-pinned tree's denotation.
+  This is the exact citation WNP-c consumes for Def. 9.1 item (6); the `h`-general form routes
+  through NC6's `npc_cross_operators_handles_std` (which fixes `n = 2 + 2h` and the standard
+  handle letters) together with `eval_handlesW`, never through a cast on `npcWordH` — and at
+  first order the handle columns are zero at every `h` (`foxDHom_npc_handleU_column` /
+  `foxDHom_npc_handleV_column`), so the two lanes' `h`-dependences are consistent by
+  construction.
+
+The resolver hypothesis `hA` is the lift-level discipline in base-group form: WW2's
+`foxD_resolver_congr` makes any two resolvers agreeing mod `2N` interchangeable, and the
+honest anchor at an odd-order `σ` is Gate B's rule T2 (`zpowHat_etaHatZ_of_odd`,
+`hA_of_odd_orderOf` below): there `σ ^ᶻ η̂ = σ`, so `hA` says `E(η̂) ≡ 1 mod ord(σ)` — the
+η̂-residue really is `1` on the pro-odd part. -/
+
+section NcSeam
+
+open NpcJet
+
+variable {h r : ℕ} {C V : Type} [Group C] [Finite C] [AddCommGroup V] [Finite V]
+  [DistribMulAction C V]
+
+/-- **The honest-resolver anchor at a pro-odd `σ`** (Gate B rule T2, resolver form): if `t.σ`
+has odd order and the resolver value `E(η̂)` is `≡ 1` mod that order, the resolved η̂-atom
+`t.σ ^ E(η̂)` *is* the honest profinite `t.σ ^ᶻ η̂` — both are `t.σ` itself. -/
+theorem hA_of_odd_orderOf [TopologicalSpace C] [DiscreteTopology C] {t : Marking (2 + 2 * h) C}
+    (e : EtaData) {E : Zhat → ℤ} (hodd : Odd (orderOf t.σ))
+    (hE : E e.toZhat ≡ 1 [ZMOD (orderOf t.σ)]) :
+    t.σ ^ E e.toZhat = t.σ ^ᶻ e.toZhat := by
+  have h1 : t.σ ^ E e.toZhat = t.σ ^ (1 : ℤ) :=
+    zpow_eq_zpow_iff_modEq.mpr (hE.of_dvd (Int.natCast_dvd_natCast.mpr dvd_rfl))
+  rw [h1, zpow_one]
+  exact (zpowHat_etaHatZ_of_odd hodd).symm
+
+/-- **The first-order/second-order operator identification**: under an honest resolver, the
+`D`-block's Fox row is literally NC2's corrected cross operator,
+
+```
+D(D_{r,η}) = lcOp σ η r (D(δ₀)),        lcOp = A⁻¹ + B + B·A⁻¹.
+```
+
+`foxD_dBlockW`'s three summands and `lcOp`'s three summands are the same three conjugators of
+the compressed spelling, read at first and at second order respectively — the seam table's
+`npcDBlock_eval` (`V`-part `L_c c₀`) is the second-order shadow of this row.  This is the
+consistency pin: the certificates of §7 and the theorem `npc_cross_operators` speak about one
+operator. -/
+theorem foxD_dBlockW_lcOp [TopologicalSpace C] [DiscreteTopology C]
+    (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (e : EtaData)
+    (hA : t.σ ^ E e.toZhat = t.σ ^ᶻ e.toZhat) (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (dBlockW h r e)
+      = lcOp t.σ e.toPadic r (foxD ⇑t a E E₂ (deltaZeroW h)) := by
+  rw [foxD_dBlockW t E E₂ hwild hTodd e a, hA, lcOp,
+    show ((2 : ℤ) ^ r) = ((2 ^ r : ℕ) : ℤ) by push_cast; ring, zpow_natCast, mul_smul]
+  show (t.σ ^ᶻ etaHatZ e.toPadic)⁻¹ • foxD ⇑t a E E₂ (deltaZeroW h)
+      + (t.σ ^ 2 ^ r • foxD ⇑t a E E₂ (deltaZeroW h)
+        + t.σ ^ 2 ^ r • (t.σ ^ᶻ etaHatZ e.toPadic)⁻¹ • foxD ⇑t a E E₂ (deltaZeroW h)) = _
+  abel
+
+end NcSeam
+
+section NcSeamWord
+
+open NpcJet WordCoh2 SectionEight.AffineTLift QuadraticFp2
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+  [Finite C] [Finite V] [TopologicalSpace C] [DiscreteTopology C]
+
+/-- **The corrected cross-operator identity, for the certificate's word** — NC5's
+`npc_cross_operators` transported onto the hash-pinned `npcW` through WNP-a's value bridge
+`eval_npcW_eq_eval_npcWord`:
+
+```
+fib (eval R_{N,α,r,η}) = Q₀(c₀) + b_q(c₁, L_c c₀),      L_c = A⁻¹ + B + B·A⁻¹
+```
+
+at the Gate-E marking, for all `α ≥ 2`, **all** `r` and **all** `η` (through `e`; `η` enters
+as `e.toPadic`, and `EtaData.toZhat e` *is* `etaHatZ e.toPadic` definitionally — WNP-a's
+non-divergence D5).  This is the form WNP-c cites for packet Def. 9.1 item (6): the exactness
+content about the frozen word, not about a lookalike. -/
+theorem npc_cross_operators_npcW (hV2 : ∀ v : V, v + v = 0) (s u : C)
+    (hu : Odd (orderOf u)) (hVu : ∀ v : V, u • v = v → v = 0)
+    (α : ℕ) (hα : 2 ≤ α) (r : ℕ) (e : EtaData) (c₀ c₁ : V) :
+    ((npcMarking dat hdat s u c₀ c₁).eval (npcW α r 0 e)).fib
+      = npcQ0 dat s e.toPadic c₀ + polar q c₁ (lcOp s e.toPadic r c₀) := by
+  rw [eval_npcW_eq_eval_npcWord]
+  exact npc_cross_operators dat hdat hV2 s u hu hVu α hα r e.toPadic c₀ c₁
+
+end NcSeamWord
+
 end GQ2.Dyadic.Certificates.Npc
