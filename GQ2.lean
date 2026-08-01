@@ -253,6 +253,7 @@ import GQ2.Dyadic.Word.Hessian
 import GQ2.Dyadic.Word.Phase
 import GQ2.Dyadic.Word.Export
 import GQ2.Dyadic.Branches
+import GQ2.Dyadic.Words.Alphabet
 import GQ2.Dyadic.Words.N0
 import GQ2.Dyadic.Words.Npc
 import GQ2.Dyadic.Words.M0
