@@ -742,6 +742,65 @@ theorem resolvesAt_npcFamOf {N : ℕ} (hN : N ≠ 0) (hord : ∀ x : Q, orderOf 
   | 0 => exact PWord.resolvedAt_of_isOmega2Only f _ _ hωx _ (isOmega2Only_tameRelW _ q)
   | 1 => exact resolvedAt_npcW f hωx hηx α r
 
+/-! ### §7.3 The Stokes payload at the two-valued resolver
+
+A branch's `hres`, `hd` and `hend` must be read at *one* family (§4's audit item), so moving the
+row to `npcFamOf` obliges us to carry the Stokes endpoint across.  It carries for free, and the
+reason is the one §4 already identified for the `e = 1` twins: the endpoint condition sees only
+the mod-`2` **abelianized** exponent vector, and `npcW`'s two `η̂`-flavoured factors — the front
+block `[x₀, A]` and the correction `E_{r,η} = [D_{r,η}, x₁]` — are commutators.  So `E`'s value at
+`η̂` is invisible to it, and `E₂` is never consulted at all because `npcW` has no `z2pow` node.
+
+Only `E ω₂` survives, through the single visible `ω₂`-node `(x₂τ)^{ω₂}`, and all it has to be is
+odd.  `npc_isStokesEndpoint` is therefore the constant instance of `npcOf_isStokesEndpoint`, not
+the other way round. -/
+
+/-- An odd **integer** scalar is the identity on `ZMod 2` values — the `ℤ`-native twin of
+`zsmul_natCast_zmod2_odd`, needed because a general resolver's `ω₂`-value is an integer and not
+the cast of a natural. -/
+theorem zsmul_zmod2_odd {k : ℤ} (hk : Odd k) (z : ZMod 2) : k • z = z := by
+  obtain ⟨m, rfl⟩ := hk
+  have h : ((2 * m + 1 : ℤ) : ZMod 2) = 1 := by push_cast [CharTwo.two_eq_zero]; ring
+  rw [zsmul_eq_mul, h, one_mul]
+
+/-- **The endpoint condition at an arbitrary resolver.**  Only `Odd (E ω₂)` is used; the resolver
+is unconstrained at `η̂` and `E₂` is unconstrained everywhere. -/
+theorem npcOf_isStokesEndpoint {α r h q : ℕ} {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ} (hα : 1 ≤ α)
+    (hq : Even q) (he : Odd (E omega2)) (d : EtaData) :
+    IsStokesEndpoint (npcFamOf α r h q d E E₂) := by
+  intro i
+  rw [Fin.sum_univ_two, npcFamOf_zero, npcFamOf_one]
+  have htame : heisEps i (heisToFree E E₂ (tameRelW (2 + 2 * h) q))
+      = heisEps i (FreeGroup.of Generator.tau)
+        * (heisEps i (FreeGroup.of Generator.tau) ^ (q : ℤ))⁻¹ := by
+    rw [tameRelW, heisToFree, PWord.evalZ_mul, PWord.evalZ_conj, PWord.evalZ_inv,
+      PWord.evalZ_zpow, PWord.evalZ_gen, PWord.evalZ_gen, map_mul, map_conjR,
+      conjR_eq_self_of_comm, map_inv, map_zpow]
+  have hwild : heisEps i (heisToFree E E₂ (npcW α r h d))
+      = heisEps i (FreeGroup.of (Words.coreLetter h 0)) ^ ((2 : ℤ) + 2 ^ α)
+        * ((heisEps i (FreeGroup.of (Words.coreLetter h 2)))⁻¹
+            * (heisEps i (FreeGroup.of (Words.coreLetter h 2))
+                * heisEps i (FreeGroup.of Generator.tau)) ^ E omega2) := by
+    rw [npcW, heisToFree, PWord.evalZ_prodList]
+    simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one]
+    rw [map_mul, map_mul, map_mul, map_mul, map_mul, PWord.evalZ_zpow, PWord.evalZ_gen, map_zpow,
+      PWord.evalZ_comm, monoidHom_commR_eq_one, PWord.evalZ_inv, PWord.evalZ_conj,
+      PWord.evalZ_gen, PWord.evalZ_prodList, map_inv, map_conjR, conjR_eq_self_of_comm,
+      PWord.omega2Pow, PWord.evalZ_profPow, map_zpow, PWord.prodList_cons,
+      PWord.prodList_cons, PWord.prodList_nil, PWord.evalZ_mul, PWord.evalZ_mul,
+      PWord.evalZ_gen, PWord.evalZ_gen, PWord.evalZ_one, mul_one, map_mul, one_mul,
+      eBlockW, PWord.evalZ_comm, monoidHom_commR_eq_one, Npc.heisEps_handlesW]
+    simp only [mul_one]
+  rw [htame, hwild]
+  simp only [Npc.heisEps_of, toAdd_mul, toAdd_inv, toAdd_zpow, toAdd_ofAdd]
+  rw [zsmul_natCast_zmod2_even hq, zsmul_zmod2_odd he,
+    show ((2 : ℤ) + 2 ^ α) • (if Words.coreLetter h 0 = i then (1 : ZMod 2) else 0) = 0 by
+      rw [show ((2 : ℤ) + 2 ^ α) = ((2 + 2 ^ α : ℕ) : ℤ) by push_cast; ring]
+      exact zsmul_natCast_zmod2_even (Npc.even_two_add_two_pow hα) _]
+  rw [CharTwo.neg_eq, CharTwo.neg_eq]
+  abel_nf
+  simp [CharTwo.two_eq_zero]
+
 end TwoValued
 
 end Count
