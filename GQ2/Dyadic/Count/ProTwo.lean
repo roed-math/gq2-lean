@@ -140,8 +140,12 @@ structure CorePresentation (n : ℕ) (R : PWord (Generator n)) (P : ProfiniteGrp
     [CompactSpace Q] [T2Space Q] [TotallyDisconnectedSpace Q] (hQ : IsProP 2 Q)
     (t : Marking n Q) (hτ : t.τ = 1) (hrel : t.eval (pro2 R) = 1) (g : Generator n),
     liftHom hQ t hτ hrel (mark g) = t g
-  /-- **Universal property, uniqueness.**  Continuous homs out of `P` are pinned on `mark`. -/
-  hom_ext : ∀ {A : Type} [Group A] [TopologicalSpace A] [IsTopologicalGroup A] [T2Space A]
+  /-- **Universal property, uniqueness.**  Continuous homs out of `P` are pinned on `mark`.
+
+  Stated at *profinite* targets only — weaker than `WordCoh.PresentedBy.hom_ext`, which asks for
+  merely-`T2` targets, and therefore easier to supply.  The bridge uses it once, at `A = P`. -/
+  hom_ext : ∀ {A : Type} [Group A] [TopologicalSpace A] [IsTopologicalGroup A] [CompactSpace A]
+    [T2Space A] [TotallyDisconnectedSpace A]
     (φ ψ : ContinuousMonoidHom (P : Type) A), (∀ g, φ (mark g) = ψ (mark g)) → φ = ψ
 
 namespace CorePresentation
@@ -298,7 +302,181 @@ theorem maxProTwoBridge_spec (CP : CorePresentation n R P) (hq0 : q ≠ 0) (hqe 
       ∀ g : Generator n, e (maxMarking n q R g) = CP.mark g :=
   ⟨maxProTwoBridge CP hq0 hqe, fun g => PhiMax_maxMarking CP hq0 hqe g⟩
 
+/-! ## §5 The four `WordCertificate` pro-2 fields
+
+`GQ2/Dyadic/CertificateMain.lean:465-473` asks for `pro2`, `ker_pro2`, `hpro2` and `compat`.
+`coreHom` is the first; the other three follow from the bridge.  The `ℚ₂` analogue of the bundle
+is `GQ2.Roe.exists_pro2R` (`GQ2/Roe/Main.lean:226`) — **which takes `hBLab` and this does not**. -/
+
+/-- **`ker_pro2`.**  `coreHom` *is* the maximal pro-2 quotient map: `P` is pro-2 so the pro-2
+kernel dies (`proPKernel_le_ker`), and nothing more does, because the induced map on `Γ_R(2)` is
+the bridge, an isomorphism. -/
+theorem ker_coreHom :
+    (coreHom CP hq0 hqe).toMonoidHom.ker = proPKernel 2 ((GammaR n q R) : Type) := by
+  refine le_antisymm (fun g hg => ?_) (proPKernel_le_ker CP.isProP _)
+  have hg' : coreHom CP hq0 hqe g = 1 := MonoidHom.mem_ker.mp hg
+  refine (quotientMk_eq_one_iff (proPKernel 2 ((GammaR n q R) : Type))).mp ?_
+  have h := PsiMax_PhiMax CP hq0 hqe (maxProPMk 2 ((GammaR n q R) : Type) g)
+  rw [PhiMax_maxProPMk, hg', map_one] at h
+  exact h.symm
+
+/-- **`hpro2`.**  Surjective: the bridge is bijective and `Γ_R ↠ Γ_R(2)` is onto. -/
+theorem coreHom_surjective : Function.Surjective (coreHom CP hq0 hqe) := fun y => by
+  obtain ⟨g, hg⟩ :=
+    quotientMk_surjective (proPKernel 2 ((GammaR n q R) : Type)) (PsiMax CP hq0 hqe y)
+  refine ⟨g, ?_⟩
+  rw [← PhiMax_maxProPMk CP hq0 hqe g,
+    show maxProPMk 2 ((GammaR n q R) : Type) g = PsiMax CP hq0 hqe y from hg, PhiMax_PsiMax]
+
+/-- `τ` dies under `pro2`, the marked shape `exists_pro2R`'s last conjunct records. -/
+@[simp] theorem coreHom_tau : coreHom CP hq0 hqe (gammaGen n q R .tau) = 1 :=
+  (coreHom_gammaGen CP hq0 hqe .tau).trans CP.mark_tau
+
+/-- **`compat`.**  ν-compatibility of the tame and pro-2 legs, checked on the alphabet (§2's
+`topGen_gammaR`) against the core's own ν-normalization.  The two hypotheses are exactly F3's
+`prop_3_4_three` on the core side: `ν_P(σ) = 1`, `ν_P(x_i) = 0`. -/
+theorem nu_compat_coreHom (hspec : TameSpecializes n q R)
+    (nuP : ContinuousMonoidHom (P : Type) Ztwo)
+    (hnuSigma : nuP (CP.mark .sigma) = ztwoOne)
+    (hnuWild : ∀ i : Fin (n + 1), nuP (CP.mark (.wild i)) = 1) (g : ((GammaR n q R) : Type)) :
+    nuTq q (tameOfSpec n q R hspec g) = nuP (coreHom CP hq0 hqe g) := by
+  refine SectionThree.monoidHom_eq_of_topGen
+    (f := (nuTq q).toMonoidHom.comp (tameOfSpec n q R hspec).toMonoidHom)
+    (g := nuP.toMonoidHom.comp (coreHom CP hq0 hqe).toMonoidHom)
+    (by rw [MonoidHom.coe_comp]
+        exact (nuTq q).continuous_toFun.comp (tameOfSpec n q R hspec).continuous_toFun)
+    (by rw [MonoidHom.coe_comp]
+        exact nuP.continuous_toFun.comp (coreHom CP hq0 hqe).continuous_toFun)
+    (topGen_gammaR n q R) ?_ g
+  rintro z ⟨x, rfl⟩
+  show nuTq q (tameOfSpec n q R hspec (gammaGen n q R x))
+    = nuP (coreHom CP hq0 hqe (gammaGen n q R x))
+  rw [tameOfSpec_gammaGen, coreHom_gammaGen]
+  cases x with
+  | sigma => rw [show tameMarking n q Generator.sigma = tqSigma q from rfl, nuTq_tqSigma]
+             exact hnuSigma.symm
+  | tau => rw [show tameMarking n q Generator.tau = tqTau q from rfl, nuTq_tqTau,
+             show CP.mark Generator.tau = 1 from CP.mark_tau, map_one]
+  | wild i => rw [show tameMarking n q (Generator.wild i) = 1 from rfl, map_one,
+                (hnuWild i)]
+
+/-- **The pro-2 bundle**, in the existence shape of `GQ2.Roe.exists_pro2R`
+(`GQ2/Roe/Main.lean:226`) — *without* its `BLabHypothesis` binder, and at any rank.
+
+Read against the ℚ₂ statement: `exists_pro2R (hBLab : BLabHypothesis) : ∃ pro2R, … ` lands in
+`PiBd`, the pro-2 boundary object of the one-sided record, and so had to route through
+`G_{ℚ₂}(2)`; here the target is the presented core itself, which is what the two-sided
+`SourceDataN` slot asks for, and the arithmetic legs — with the Labute content — are gone. -/
+theorem exists_proTwo (CP : CorePresentation n R P) (hq0 : q ≠ 0) (hqe : Even q)
+    (hspec : TameSpecializes n q R) (nuP : ContinuousMonoidHom (P : Type) Ztwo)
+    (hnuSigma : nuP (CP.mark .sigma) = ztwoOne)
+    (hnuWild : ∀ i : Fin (n + 1), nuP (CP.mark (.wild i)) = 1) :
+    ∃ pro2G : ContinuousMonoidHom ((GammaR n q R) : Type) (P : Type),
+      Function.Surjective pro2G ∧
+      pro2G.toMonoidHom.ker = proPKernel 2 ((GammaR n q R) : Type) ∧
+      (∀ g, nuTq q (tameOfSpec n q R hspec g) = nuP (pro2G g)) ∧
+      pro2G (gammaGen n q R .tau) = 1 :=
+  ⟨coreHom CP hq0 hqe, coreHom_surjective CP hq0 hqe, ker_coreHom CP hq0 hqe,
+    nu_compat_coreHom CP hq0 hqe hspec nuP hnuSigma hnuWild, coreHom_tau CP hq0 hqe⟩
+
 end Bridge
+
+end CorePresentation
+
+/-! ## §6 Building a `CorePresentation` from the campaign's landed inputs
+
+CB1's memo lists what the generic bridge needs and what already exists:
+
+| input | status |
+|---|---|
+| word-level `t.eval (pro2 R) = coreRel G t` | landed, all five (`eval_pro2_*`) |
+| `PresentedBy` for the core `D_P` | landed (`presentedBy_DM`/`_DN`, `MarkedCore/Certificate.lean:278,285`) |
+| the core relation `W.ev μ = 1` | landed (`dm_relation`/`dn_relation`/`dsq_relation`) |
+| `R`-admissibility at finite 2-group levels | **not needed** — F3's `prop_3_4_two` already did it generically |
+| `τ` dies pro-2 | **not needed** — F3's `map_gammaGen_tau_eq_one_of_isProP` |
+
+The one thing not on that list, and the only per-branch work left, is the **dictionary** between
+the alphabet `{σ, τ, x₀, …, x_n}` and the core's index type `X = Fin (4 + 2h)` (or
+`Fin (3 + 2h)`).  It is genuinely branch data: N0 and L read core generators straight off letters,
+while M0/Npc/Mpc read *twisted* combinations (`(x₀)⁻¹ σ^{-m}`, `σ^{η̂}`, `x₁ σ^{2^r}`, …).  A
+`CoreReindex` is that dictionary together with its inverse — which exists for all five, since each
+branch's twist is a triangular change of generators.
+
+Note the memo's estimate of "`~80–150` lines per branch" is exactly the cost of a `CoreReindex`. -/
+
+/-- **The alphabet ↔ core-index dictionary.**  `mk` reads a core marking off an alphabet marking
+(this is the map appearing on the right of every branch's `eval_pro2_*`), `un` reads an alphabet
+marking off a core marking, sending `τ ↦ 1`; the two are mutually inverse on `τ`-trivial markings
+and natural in continuous homomorphisms.
+
+For the untwisted branches `toCore t = t ∘ ι` for a letter table `ι : X → Generator n`, and
+`ofCore` is its inverse table with `τ ↦ 1`; the twisted branches use genuine words in the letters,
+which is why both are stated over profinite `G` (`Npc`'s dictionary uses a `Ẑ`-power `σ^{η̂}`). -/
+structure CoreReindex (n : ℕ) (X : Type) where
+  /-- Alphabet marking ↦ core marking. -/
+  toCore : ∀ {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    [T2Space G] [TotallyDisconnectedSpace G], Marking n G → (X → G)
+  /-- Core marking ↦ alphabet marking, with `τ ↦ 1`. -/
+  ofCore : ∀ {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    [T2Space G] [TotallyDisconnectedSpace G], (X → G) → Marking n G
+  /-- `ofCore` never uses `τ`. -/
+  ofCore_tau : ∀ {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+    [T2Space G] [TotallyDisconnectedSpace G] (m : X → G), (ofCore m).τ = 1
+  /-- Round trip on core markings. -/
+  toCore_ofCore : ∀ {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] (m : X → G),
+    toCore (ofCore m) = m
+  /-- Round trip on `τ`-trivial alphabet markings. -/
+  ofCore_toCore : ∀ {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] (t : Marking n G),
+    t.τ = 1 → ofCore (toCore t) = t
+  /-- `toCore` is natural. -/
+  toCore_nat : ∀ {G H : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] [Group H] [TopologicalSpace H]
+    [IsTopologicalGroup H] [CompactSpace H] [T2Space H] [TotallyDisconnectedSpace H]
+    (f : ContinuousMonoidHom G H) (t : Marking n G) (k : X), f (toCore t k) = toCore (t.map ⇑f) k
+  /-- `ofCore` is natural. -/
+  ofCore_nat : ∀ {G H : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+    [CompactSpace G] [T2Space G] [TotallyDisconnectedSpace G] [Group H] [TopologicalSpace H]
+    [IsTopologicalGroup H] [CompactSpace H] [T2Space H] [TotallyDisconnectedSpace H]
+    (f : ContinuousMonoidHom G H) (m : X → G) (g : Generator n),
+    f (ofCore m g) = ofCore (fun k => f (m k)) g
+
+namespace CorePresentation
+
+variable {n : ℕ} {R : PWord (Generator n)} {P : ProfiniteGrp.{0}}
+
+/-- **The constructor.**  A landed `WordCoh.PresentedBy` for the core, its relation, a
+`CoreReindex`, and the branch's landed word-level pro-2 specialization assemble into the
+alphabet-coordinate presentation the bridge consumes.
+
+`hword` is `WordCertificate.proTwoWord` with `coreRel G t` unfolded to `W.ev (rx.toCore t)` — the
+five `Words/*.lean` files prove exactly this shape.  Nothing here is Labute-shaped: the only
+core-side inputs are a presentation and a relation. -/
+noncomputable def ofPresentedBy {X : Type} {W : WordCoh.NatWord X} {μ : X → (P : Type)}
+    (hP : IsProP 2 (P : Type)) (pres : WordCoh.PresentedBy (P : Type) W μ) (hrel : W.ev μ = 1)
+    (rx : CoreReindex n X)
+    (hword : ∀ {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+      [T2Space G] [TotallyDisconnectedSpace G] (t : Marking n G),
+      t.eval (pro2 R) = W.ev (rx.toCore t)) :
+    CorePresentation n R P where
+  isProP := hP
+  mark := rx.ofCore μ
+  mark_tau := rx.ofCore_tau μ
+  rel := by rw [hword, rx.toCore_ofCore]; exact hrel
+  liftHom := fun hQ t _ hrelt => pres.liftHom hQ (rx.toCore t) (by rw [← hword]; exact hrelt)
+  liftHom_mark := fun hQ t hτ hrelt g => by
+    rw [rx.ofCore_nat]
+    have hpt : (fun k => pres.liftHom hQ (rx.toCore t) (by rw [← hword]; exact hrelt) (μ k))
+        = rx.toCore t := funext fun k => pres.liftHom_mark hQ (rx.toCore t) _ k
+    rw [hpt, rx.ofCore_toCore t hτ]
+  hom_ext := fun φ ψ h => pres.hom_ext φ ψ fun k => by
+    have hmap : (rx.ofCore μ).map ⇑φ = (rx.ofCore μ).map ⇑ψ := Marking.ext fun g => h g
+    calc φ (μ k) = φ (rx.toCore (rx.ofCore μ) k) := by rw [rx.toCore_ofCore]
+      _ = rx.toCore ((rx.ofCore μ).map ⇑φ) k := rx.toCore_nat φ _ k
+      _ = rx.toCore ((rx.ofCore μ).map ⇑ψ) k := by rw [hmap]
+      _ = ψ (rx.toCore (rx.ofCore μ) k) := (rx.toCore_nat ψ _ k).symm
+      _ = ψ (μ k) := by rw [rx.toCore_ofCore]
 
 end CorePresentation
 
