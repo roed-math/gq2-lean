@@ -1216,6 +1216,79 @@ theorem hessRelZ_nCompact {h α : ℕ} (hV2 : ∀ v : V, v + v = 0) (hα : 2 ≤
       (kappa0Cocycle dat hdat).κ_one_right _,
     zero_add, add_zero, add_assoc]
 
+/-! ### The endpoint connection: `compactN_certificate` consumed at the word -/
+
+/-- Elementary 2-torsion of a `ZMod 2`-module (the `affine_gauss_translate` derivation,
+extracted). -/
+theorem module_zmod2_two_torsion {W : Type*} [AddCommGroup W] [Module (ZMod 2) W]
+    (w : W) : w + w = 0 := by
+  calc w + w = (1 : ZMod 2) • w + (1 : ZMod 2) • w := by rw [one_smul]
+    _ = ((1 : ZMod 2) + 1) • w := (add_smul 1 1 w).symm
+    _ = (0 : ZMod 2) • w := by rw [show (1 : ZMod 2) + 1 = 0 by decide]
+    _ = 0 := zero_smul _ _
+
+/-- **The `h = 0` word-side equation lands on the certificate's endpoint polynomial**:
+the evaluated class-two value of the frozen word *is* `plusFormD q q (c₀, c₁)` — the
+`Q`-parameter of WW4's `compactN_certificate` (identity CoV), on the nose. -/
+theorem hessRelZ_nCompact_plusForm {α : ℕ} (hV2 : ∀ v : V, v + v = 0) (hα : 2 ≤ α)
+    (s u : C) (c₀ c₁ : V) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    hessRelZ (hessMark s u ![c₀, c₁, 0]) (kappa0Cocycle dat hdat) E E₂ (nCompactW α 0)
+      = plusFormD q q (c₀, c₁) := by
+  rw [hessRelZ_nCompact (h := 0) dat hdat hV2 hα s u ![c₀, c₁, 0] rfl E E₂,
+    Fin.sum_univ_zero, add_zero, plusFormD_apply]
+  rfl
+
+/-- The word's evaluated Hessian, as a function of the offsets, **is** the endpoint
+polynomial of `compactN_certificate` — the identity-CoV connection, functionally. -/
+theorem nCompact_word_eq_certQ {α : ℕ} (hV2 : ∀ v : V, v + v = 0) (hα : 2 ≤ α) (s u : C)
+    (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    (fun p : V × V => hessRelZ (hessMark s u ![p.1, p.2, 0]) (kappa0Cocycle dat hdat) E E₂
+        (nCompactW α 0))
+      = plusFormD q q :=
+  funext fun p => hessRelZ_nCompact_plusForm dat hdat hV2 hα s u p.1 p.2 E E₂
+
+/-- **The Gauss sum of the word's evaluated Hessian is the certificate's `G0`** — WW4's
+`compactN_certificate` consumed at the word: the word-side function's Gauss residue is
+`affinePhase.G0` via `HessianCertificate.endpoint_gaussSum`. -/
+theorem nCompact_word_gaussSum {α : ℕ} [Module (ZMod 2) V] [Fintype V]
+    (hq : IsQuadraticFp2 q) (hns : Nonsingular q) {d : ℕ}
+    (hcard : Fintype.card V = 2 ^ d) (hα : 2 ≤ α) (s u : C) (E : Zhat → ℤ)
+    (E₂ : ℤ_[2] → ℤ) :
+    gaussSum (fun p : V × V => hessRelZ (hessMark s u ![p.1, p.2, 0])
+        (kappa0Cocycle dat hdat) E E₂ (nCompactW α 0))
+      = (compactN_certificate dat hdat hq hns hcard).affinePhase.G0 := by
+  rw [nCompact_word_eq_certQ dat hdat module_zmod2_two_torsion hα s u E E₂]
+  exact (compactN_certificate dat hdat hq hns hcard).endpoint_gaussSum
+
+/-! ### The honest profinite evaluation at the `√−2` instance -/
+
+/-- Finiteness of the κ⁰-extension's base, for the honest evaluation (local — the WW3
+non-exporting idiom). -/
+local instance [Finite V] [Finite C] : Finite (SemiProd C V) :=
+  inferInstanceAs (Finite (V × C))
+
+/-- **The `√−2` graph-type marking**, as an honest F2 `Marking` into the κ⁰-extension:
+the `WordCoh.lift` of `hessMark` at `(c₀, c₁, 0)`. -/
+noncomputable def sqrtNegTwoHessMarking (s u : C) (c₀ c₁ : V) :
+    Marking 2 (WordCoh.CentExt (kappa0Cocycle dat hdat)) :=
+  ⟨WordCoh.lift (hessMark (h := 0) s u ![c₀, c₁, 0]) (kappa0Cocycle dat hdat)⟩
+
+/-- **The honest `ω₂`-evaluation of the `√−2` word hits the frozen endpoint** — genuine
+profinite `Marking.eval` (no resolver), through F2's `eval_eq_evalNat_exponent` bridge
+and the resolver-immunity of `hessRelZ_nCompact`.  **No hypothesis on `s` or `u`**: the
+boundary block dies on the `C`-line at every exponent, so not even `τ`-pro-oddness is
+consumed here (inside `Γ_R` it is supplied, per WN0-a's Gate-B story). -/
+theorem sqrtNegTwo_hess_eval [Finite V] [Finite C] (hV2 : ∀ v : V, v + v = 0) (s u : C)
+    (c₀ c₁ : V) :
+    WordCoh.CentExt.fib (c := kappa0Cocycle dat hdat)
+        ((sqrtNegTwoHessMarking dat hdat s u c₀ c₁).eval (nCompactW 2 0))
+      = plusFormD q q (c₀, c₁) := by
+  rw [Marking.eval_def,
+    show ⇑(sqrtNegTwoHessMarking dat hdat s u c₀ c₁)
+      = WordCoh.lift (hessMark (h := 0) s u ![c₀, c₁, 0]) (kappa0Cocycle dat hdat) from rfl,
+    PWord.eval_eq_evalNat_exponent _ (isOmega2Only_nCompact 2 0)]
+  exact hessRelZ_nCompact_plusForm dat hdat hV2 (by norm_num) s u c₀ c₁ _ _
+
 end Hessian
 
 end GQ2.Dyadic.Certificates
