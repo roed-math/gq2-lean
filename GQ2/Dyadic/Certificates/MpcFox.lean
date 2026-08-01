@@ -1414,6 +1414,204 @@ theorem foxD_e01W_ram (aa bb : ℕ) :
   simp only [smul_add, smul_neg, mul_smul]
   abel
 
+/-! ### The assembled hat row — the headline
+
+Every prefix weight on this row is a `ℤ`-power of `σ`, so the assembly is arithmetic in one
+procyclic letter.  Two things happen, and they are worth separating:
+
+* the **`x₀` column cancels over `ℤ`** — no characteristic hypothesis;
+* the **`x₁` column needs `hV₂`** — it collapses to `2·S₂^{−2sm−p}·a(x₁)`.
+
+That is the memo's self-replication clause seen concretely: the `x_i`- and `δ_i`-occurrences
+carry the same prefix sum, and "once the substitution merges them they cancel over `F₂`". -/
+
+omit hσ hwild hτfpf hTodd in
+theorem evalFin_c0HatW_eq (s' : ℕ) :
+    PWord.evalFin ⇑t E E₂ (c0HatW h s') = (powOmega2 t.σ) ^ (s' : ℤ) := by
+  rw [c0HatW, PWord.evalFin_zpow, MCompact.evalFin_sigma2W]
+
+omit hσ hτfpf in
+theorem evalFin_aHatW_act (s' mm : ℕ) (w : V) :
+    PWord.evalFin ⇑t E E₂ (aHatW h s' mm) • w
+      = ((powOmega2 t.σ) ^ (-(s' * mm : ℕ) : ℤ)) • w := by
+  rw [aHatW, MCompact.evalFin_prodList_pair, mul_smul, PWord.evalFin_zpow, evalFin_c0HatW_eq,
+    ← zpow_mul, PWord.evalFin_inv,
+    mem_trivAct.mp (inv_mem (trivAct_dW_ram t E E₂ hwild hTodd 0))]
+  congr 2
+  push_cast
+  ring
+
+omit hσ hτfpf in
+theorem evalFin_bHatW_act : ∀ (pp : ℕ) (w : V),
+    PWord.evalFin ⇑t E E₂ (bHatW h pp) • w = ((powOmega2 t.σ) ^ (pp : ℤ)) • w
+  | 0, w => by
+      rw [show bHatW h 0 = dW h 1 from rfl,
+        mem_trivAct.mp (trivAct_dW_ram t E E₂ hwild hTodd 1)]
+      simp
+  | q + 1, w => by
+      rw [show bHatW h (q + 1) = PWord.prodList [dW h 1, sig2PowW h (q + 1)] from rfl,
+        MCompact.evalFin_prodList_pair, mul_smul,
+        mem_trivAct.mp (trivAct_dW_ram t E E₂ hwild hTodd 1)]
+      congr 1
+      match q with
+      | 0 => rw [show sig2PowW h 1 = sigma2W from rfl, MCompact.evalFin_sigma2W]; simp
+      | j + 1 =>
+          rw [show sig2PowW h (j + 2) = .zpow sigma2W ((j + 2 : ℕ) : ℤ) from rfl,
+            PWord.evalFin_zpow, MCompact.evalFin_sigma2W]
+
+omit hσ hwild hτfpf hTodd in
+/-- Every display of `D = σ^{η̂}` evaluates, through the resolvers, to a `ℤ`-power of `σ` — the
+bare generator, a literal power, the `ω₂`-collapse and the honest `ZhatPower` alike.  This is
+what makes `[Ĉ₀,D]` centrally silent at every display without any hypothesis on `η`, and it is
+the Lean form of the shadow memo's "trivial mathematically and merely absent from the operator
+normalizer". -/
+theorem exists_zpow_evalFin_etaDisplay (η : EtaDisplay) :
+    ∃ n : ℤ, PWord.evalFin ⇑t E E₂ (η.toPWord (n := 2 + 2 * h)) = t.σ ^ n := by
+  cases η with
+  | one => exact ⟨1, by simp [EtaDisplay.toPWord]⟩
+  | lit j => exact ⟨j, by simp [EtaDisplay.toPWord]⟩
+  | hat num den =>
+      have hshape : (EtaDisplay.hat num den).toPWord (n := 2 + 2 * h)
+          = .profPow (.gen Generator.sigma) (Export.RawSpec.toZhat (.etahat num den)) := rfl
+      rcases eq_or_ne (Export.RawSpec.toZhat (.etahat num den)) omega2 with hω | hω
+      · refine ⟨(omega2Exp (orderOf t.σ) : ℤ), ?_⟩
+        rw [hshape, hω, PWord.evalFin_profPow_omega2]
+        simp [powOmega2, zpow_natCast]
+      · refine ⟨E (Export.RawSpec.toZhat (.etahat num den)), ?_⟩
+        rw [hshape, PWord.evalFin_profPow_of_ne _ _ _ _ hω]
+        simp
+
+/-- **Draft Rem. 5.4, the first-order half: the hat copy has zero first Fox derivative.**
+
+On a ramified simple module, at offsets vanishing on the `σ`-column,
+`D(R̂^pc) = 0` — at every `(α, r, p)` with `α ≥ 1` and **every `η̂` display**.
+
+The σ-column is the one entry not covered here, deliberately: the memo's own vanishing
+criterion is a conjunction of two separately-checked conditions, and the σ-entry is `bal(w)`,
+which the freeze re-points at §4's coincidence lemma.  Together, §4 and this theorem say the
+hat copy contributes nothing to the pair's Fox row — "the replay of the second copy contributes
+nothing to the Fox row and the certificate's `d¹` is the raw word's" (shadow memo §4, item 4).
+
+`α ≥ 1` enters in exactly one place and it is the packet's own balance: the prefix weight
+standing in front of `E₀₁^pc` is `S₂^{−2sm}·S₂^{s·2^α} = 1` precisely because
+`−2m·2^r + 2^α·2^r = 0` (WMP-a's `s_mul_two_pow`).  Nothing else on the row uses it. -/
+theorem foxD_mpcHatW_ram {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDisplay)
+    (hV₂ : ∀ w : V, w + w = 0) :
+    foxD ⇑t a E E₂ (mpcHatW α r pp η h) = 0 := by
+  set U := powOmega2 t.σ with hUdef
+  set k : ℕ := s r * m α with hkdef
+  set X₀ := a (coreLetter h 0) with hX0def
+  set X₁ := a (coreLetter h 1) with hX1def
+  have hmerge : ∀ (i j : ℤ) (w : V), (U ^ i) • ((U ^ j) • w) = (U ^ (i + j)) • w := by
+    intro i j w; rw [← mul_smul, ← zpow_add]
+  have hA : foxD ⇑t a E E₂ (aHatW h (s r) (m α)) = X₀ :=
+    foxD_aHatW t E E₂ a hσ hwild hτfpf hTodd _ _
+  have hB : foxD ⇑t a E E₂ (bHatW h pp) = -X₁ :=
+    foxD_bHatW t E E₂ a hσ hwild hτfpf hTodd pp
+  have hAact : ∀ w : V,
+      PWord.evalFin ⇑t E E₂ (aHatW h (s r) (m α)) • w = (U ^ (-(k : ℕ) : ℤ)) • w :=
+    evalFin_aHatW_act t E E₂ hwild hTodd _ _
+  have hBact : ∀ w : V, PWord.evalFin ⇑t E E₂ (bHatW h pp) • w = (U ^ ((pp : ℕ) : ℤ)) • w :=
+    evalFin_bHatW_act t E E₂ hwild hTodd pp
+  have hAinv : ∀ w : V,
+      (PWord.evalFin ⇑t E E₂ (aHatW h (s r) (m α)))⁻¹ • w = (U ^ ((k : ℕ) : ℤ)) • w := by
+    intro w; rw [inv_smul_eq_iff, hAact, hmerge]; simp
+  have hBinv : ∀ w : V,
+      (PWord.evalFin ⇑t E E₂ (bHatW h pp))⁻¹ • w = (U ^ (-(pp : ℕ) : ℤ)) • w := by
+    intro w; rw [inv_smul_eq_iff, hBact, hmerge]; simp
+  -- factor 1: `Â²`
+  have hf1 : foxD ⇑t a E E₂ (.zpow (aHatW h (s r) (m α)) ((2 : ℕ) : ℤ))
+      = X₀ + (U ^ (-(k : ℕ) : ℤ)) • X₀ := by
+    rw [foxD_zpow_natCast, Finset.sum_range_succ, Finset.sum_range_succ, Finset.sum_range_zero,
+      pow_zero, pow_one, one_smul, zero_add, hA, hAact]
+  -- factor 2: `[Â,B̂]` — neither entry acts trivially, so the general commutator row is needed
+  have hf2 : foxD ⇑t a E E₂ (.comm (aHatW h (s r) (m α)) (bHatW h pp))
+      = -((U ^ ((k : ℕ) : ℤ)) • X₀) - (U ^ (((k : ℕ) : ℤ) + (-(pp : ℕ) : ℤ))) • (-X₁)
+        + (U ^ (((k : ℕ) : ℤ) + (-(pp : ℕ) : ℤ))) • X₀
+        + (U ^ (-(pp : ℕ) : ℤ)) • (-X₁) := by
+    rw [foxD_comm_general, hA, hB]
+    simp only [mul_smul, hAinv, hBinv, hAact, hmerge]
+    rw [show ((k : ℕ) : ℤ) + ((-(pp : ℕ) : ℤ) + (-(k : ℕ) : ℤ)) = (-(pp : ℕ) : ℤ) by ring]
+  -- factors 3 and 4 are silent off the σ-column
+  have hf3 : foxD ⇑t a E E₂ (.zpow (c0HatW h (s r)) ((2 ^ α : ℕ) : ℤ)) = 0 := by
+    rw [foxD_zpow_natCast]
+    exact Finset.sum_eq_zero fun i _ => by
+      rw [foxD_c0HatW_of_sigma_free t E E₂ a hσ, smul_zero]
+  have hf4 : foxD ⇑t a E E₂ (.comm (c0HatW h (s r)) (η.toPWord (n := 2 + 2 * h))) = 0 := by
+    rw [foxD_comm_general, foxD_c0HatW_of_sigma_free t E E₂ a hσ,
+      foxD_etaDisplay_of_sigma_free t E E₂ a hσ]
+    simp
+  -- factor 5: `E₀₁^pc`
+  have hpowinv : ∀ (j : ℕ) (w : V), ((U ^ j)⁻¹ : C) • w = (U ^ (-(j : ℕ) : ℤ)) • w := by
+    intro j w; rw [zpow_neg, zpow_natCast]
+  have hf5 : foxD ⇑t a E E₂ (e01W h (pp + k) k)
+      = -((U ^ ((-(pp + k : ℕ) : ℤ) + (-(k : ℕ) : ℤ))) • X₁)
+        - (U ^ (-(pp + k : ℕ) : ℤ)) • X₁ - (U ^ (-(pp + k : ℕ) : ℤ)) • X₀ - X₀ := by
+    rw [foxD_e01W_ram t E E₂ a hσ hwild hτfpf hTodd]
+    simp only [← hUdef, ← hX0def, ← hX1def, mul_smul, hpowinv, hmerge]
+  -- prefix weights
+  have hw1 : ∀ w : V,
+      PWord.evalFin ⇑t E E₂ (.zpow (aHatW h (s r) (m α)) ((2 : ℕ) : ℤ)) • w
+        = (U ^ ((-(k : ℕ) : ℤ) + (-(k : ℕ) : ℤ))) • w := by
+    intro w
+    rw [PWord.evalFin_zpow, zpow_natCast, pow_two, mul_smul, hAact, hAact, hmerge]
+  have hcommTriv : ∀ (u v : PWord (Generator (2 + 2 * h))) (i j : ℤ),
+      (∀ w : V, PWord.evalFin ⇑t E E₂ u • w = (U ^ i) • w) →
+      (∀ w : V, PWord.evalFin ⇑t E E₂ v • w = (U ^ j) • w) →
+      ∀ w : V, PWord.evalFin ⇑t E E₂ (.comm u v) • w = w := by
+    intro u v i j hu hv w
+    have hiu : ∀ w : V, (PWord.evalFin ⇑t E E₂ u)⁻¹ • w = (U ^ (-i)) • w := by
+      intro w; rw [inv_smul_eq_iff, hu, hmerge]; simp
+    have hiv : ∀ w : V, (PWord.evalFin ⇑t E E₂ v)⁻¹ • w = (U ^ (-j)) • w := by
+      intro w; rw [inv_smul_eq_iff, hv, hmerge]; simp
+    rw [PWord.evalFin_comm, commR]
+    simp only [mul_smul, hv, hu, hiv, hiu, hmerge]
+    rw [show -i + (-j + (i + j)) = (0 : ℤ) by ring, zpow_zero, one_smul]
+  have hw2 : ∀ w : V,
+      PWord.evalFin ⇑t E E₂ (.comm (aHatW h (s r) (m α)) (bHatW h pp)) • w = w :=
+    hcommTriv _ _ _ _ hAact hBact
+  have hknat : s r * 2 ^ α = k + k := by
+    have := s_mul_two_pow (α := α) hα r
+    rw [hkdef]; omega
+  have hw3 : ∀ w : V,
+      PWord.evalFin ⇑t E E₂ (.zpow (c0HatW h (s r)) ((2 ^ α : ℕ) : ℤ)) • w
+        = (U ^ (((k : ℕ) : ℤ) + ((k : ℕ) : ℤ))) • w := by
+    intro w
+    rw [PWord.evalFin_zpow, evalFin_c0HatW_eq, ← zpow_mul]
+    congr 2
+    rw [← Nat.cast_mul, hknat]
+    push_cast
+    ring
+  -- `[Ĉ₀,D]` is trivial because both entries are `ℤ`-powers of `σ`
+  have hw4 : ∀ w : V,
+      PWord.evalFin ⇑t E E₂ (.comm (c0HatW h (s r)) (η.toPWord (n := 2 + 2 * h))) • w = w := by
+    obtain ⟨n, hn⟩ := exists_zpow_evalFin_etaDisplay t E E₂ η
+    have hc0 : PWord.evalFin ⇑t E E₂ (c0HatW h (s r))
+        = t.σ ^ ((omega2Exp (orderOf t.σ) * s r : ℕ) : ℤ) := by
+      rw [evalFin_c0HatW_eq, powOmega2, ← zpow_natCast t.σ, ← zpow_mul]
+      push_cast
+      ring_nf
+    intro w
+    rw [PWord.evalFin_comm, hn, hc0,
+      commR_eq_one_iff.mpr ((Commute.refl t.σ).zpow_zpow _ _), one_smul]
+  -- assemble
+  rw [mpcHatW, hatFactors]
+  simp only [PWord.prodList_cons, PWord.prodList_nil, foxD_mul, foxD_one, smul_zero, add_zero]
+  rw [hf1, hf2, hf3, hf4, hf5, hw1, hw2, hw3, hw4]
+  simp only [smul_add, smul_sub, smul_neg, hmerge, zero_add]
+  rw [show ((-(k : ℕ) : ℤ) + (-(k : ℕ) : ℤ)) + ((k : ℕ) : ℤ) = (-(k : ℕ) : ℤ) by ring,
+    show ((-(k : ℕ) : ℤ) + (-(k : ℕ) : ℤ)) + (((k : ℕ) : ℤ) + (-(pp : ℕ) : ℤ))
+      = (-(pp + k : ℕ) : ℤ) by push_cast; ring,
+    show ((-(k : ℕ) : ℤ) + (-(k : ℕ) : ℤ)) + (-(pp : ℕ) : ℤ)
+      = (-(pp + k : ℕ) : ℤ) + (-(k : ℕ) : ℤ) by push_cast; ring,
+    show ((-(k : ℕ) : ℤ) + (-(k : ℕ) : ℤ)) + (((k : ℕ) : ℤ) + ((k : ℕ) : ℤ)) = (0 : ℤ) by ring,
+    zpow_zero, one_smul]
+  -- the `x₀` column cancels over `ℤ`; the `x₁` column is a doubled term, killed by `hV₂`
+  have h2z : ∀ w : V, (-2 : ℤ) • w = 0 := fun w => by
+    rw [show (-2 : ℤ) = -(2 : ℤ) by norm_num, neg_zsmul, two_zsmul, hV₂, neg_zero]
+  abel_nf
+  exact h2z _
+
 end Factors
 
 end HatRow
