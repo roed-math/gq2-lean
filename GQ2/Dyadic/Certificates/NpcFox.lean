@@ -12,8 +12,10 @@ import GQ2.Dyadic.NpcJet.Handles
 
 Certificate layer of the procyclic-`N` lane, sitting on WNP-a's word
 (`GQ2/Dyadic/Words/Npc.lean`), WW1's Fox evaluator (`GQ2/Dyadic/Word/Fox.lean`) and WW2's
-atom-generic certificate grammar (`GQ2/Dyadic/Word/FoxCert.lean`).  Carries packet Def. 9.1
-items (3)–(4) for row 3 of the R5 selection freeze — the corrected word
+atom-generic certificate grammar (`GQ2/Dyadic/Word/FoxCert.lean`).  It carries packet Def. 9.1
+item **(3)** — *"for every simple tame module, explicit invertible row and column operations
+reduce the evaluated two-relator Jacobian to the prescribed normal form"* — for row 3 of the R5
+selection freeze, the corrected word
 
 ```
 R_{N,α,r,η} = x₀^{2+2^α} [x₀,A] · x₂^{-g} (x₂τ)^{ω₂} · E_{r,η} · H_h,
@@ -21,10 +23,287 @@ A = σ^{η̂},  B = σ^{2^r},  g = x₁σ^{2^r},  E_{r,η} = [D_{r,η}, x₁],
 D_{r,η} = δ₀^A (δ₀ δ₀^A)^{B⁻¹}
 ```
 
-symbolically in **all** `r` and `η` (the operator data is a function of `r`; `η` lives in the
-interpretation), plus the `(α,r,η) = (2,1,1)` and `(2,1,−1/5)` instances.
+together with the tame relator `τ^σ (τ^q)⁻¹` of `T_q`, as the **evaluated two-relator Jacobian**
+`d¹_{R,ρ} : (Generator (2+2h) → V) →+ V × V` in the packet's column order `σ, τ, x₀, x₁, x₂, …`;
+and, as the board's own item (4) for this ticket, the frozen instances and the handle clause.
 
-(Module docstring finalized at the end of the ticket — see the axiom-state section there.)
+*Numbering caution.* Def. 9.1 item **(4)** proper — the Stokes chain map — is **WNP-c's**, as are
+items (5)–(6) and the per-module invertibility of `L_c`.  The pilot's `N0Fox.lean` says
+"items (3)–(4)" in its own docstring using a local board-item numbering; this file states the
+Def. 9.1 boundary explicitly instead, so the two lanes cannot be read as claiming the same
+thing.
+
+Everything below is symbolic in **all** `r ≥ 0` and **all** `η ∈ ℤ₂ˣ`: the `r`-dependence lives
+in the certificate *data* (a `ℤ`-exponent on a standard atom), the `η`-dependence lives in the
+*interpretation* (the `A`-element).  No row, criterion or certificate is instance-only.
+
+## The η̂-operator alphabet (the piece WNP-c consumes)
+
+WW2's certificate grammar is atom-generic and its design note names this lane as the intended
+first consumer.  `NpcSym n` is the instantiating alphabet:
+
+```
+inductive NpcSym (n : ℕ) | std (s : TameSym n) | etaA (k : ℤ)
+```
+
+— WW2's standard atoms embedded whole through `.std`, plus one new family `etaA k` for the
+integer powers `A^k` of the η̂-conjugator `A = σ^{η̂}`.  Three design decisions, all of which
+WNP-c inherits:
+
+* **`B = σ^{2^r}` gets no atom.**  It is the standard atom `.std (.gen .sigma (2^r))`, so the
+  whole `r`-dependence is a `ℤ`-exponent inside the data — one formal row covers every `r`.
+* **`η` never enters the data.**  `NpcSym.toEnd t A π` takes the `A`-element as a *parameter*,
+  exactly as `TameSym.toEnd` takes the projector `π`.  One piece of formal data therefore serves
+  every `η` and every resolver; the certificates instantiate `A := t.σ ^ E η̂`, and the NC seam
+  (§8) identifies that with the honest profinite `t.σ ^ᶻ η̂`.
+* **`.etaA` is opaque.**  `A` is never expanded into a geometric sum; the only lemma that looks
+  inside is the class-collapse `NpcSym.toEnd_etaA_of_trivial` (a trivially-acting `A` evaluates
+  to `1` at every power), which is what makes the scalar module degenerate correctly.
+
+Two `A`-slots are used in the whole file — `.etaA (-1)` in the `x₀`-block and, via
+`toEnd_etaA_of_trivial`, the collapse at the split module.  `.etaA k` for general `k` is carried
+because WNP-c's second-order rows need `M_c = adj(L_c)`, where positive powers appear.
+
+## The rows
+
+In the notation `S = σ`, `T = τ`, `P` = the `ω₂`-norm projector (WW2's opaque atom
+`TameSym.proj`), `A = S^{η̂}`, `B = S^{2^r}`, `N_q(T) = 1 + T + ⋯ + T^{q−1}` (`normCoeff`):
+
+| relator | `σ` | `τ` | `x₀` | `x₁` | `x₂` | handles |
+|---|---|---|---|---|---|---|
+| tame `τ^σ(τ^q)⁻¹` | `S⁻¹(T−1)` | `S⁻¹ − N_q(T)` | `0` | `0` | `0` | `0` |
+| wild `R_{N,α,r,η}` | `0` | `P` | `A⁻¹ + 1` | `0` | `S^{−2^r} + P` | `0` |
+
+(`tameRow` / `foxD_tameRelW_of_tameRel`, and `npcWildRow` / `foxD_npc_unram` resp. `_ram`).  The
+wild row is the Lean twin of the Sage reference row `fox_reference_row_noncompact`, entry for
+entry, and it **differs from the compact row** `(0, P, 0, 0, S⁻¹ + P, 0, …)` in exactly the two
+predicted places:
+
+* the `x₀`-column gained the block `A⁻¹ − 1`, because the front commutator `[x₀, A]` now pairs
+  `x₀` with a *conjugator that acts*, where the compact `[x₀,x₁]` had two inert arguments;
+* the boundary operator is `S^{−2^r}`, not `S⁻¹`, because the conjugator is `g = x₁σ^{2^r}`.
+
+That is why the noncompact word needs — and here gets — its own reference row.
+
+The three module classes come from *assigning* `P`, never computing it (WW2's binding
+`ω₂`-discipline):
+
+| class | `P` | tame row | wild row |
+|---|---|---|---|
+| unramified (`T = 1`, `S` free) | `1` | `(0, S⁻¹, 0, 0, 0)` | `(0, 1, A⁻¹+1, 0, 1 + S^{−2^r})` |
+| split/scalar (`T = 1`, `S = 1`) | `1` | the `S = 1` reading | `(0, 1, 0, 0, 0)` |
+| ramified (`V^T = 0`) | `0` | `(S⁻¹(T−1), S⁻¹ − N_q(T), 0, 0, 0)` | `(0, 0, A⁻¹+1, 0, S^{−2^r})` |
+
+Over the char-`2` modules of the campaign `−x = x`, which is how the frozen certificates print
+`A⁻¹ − 1` as `A⁻¹ + 1` and `1 − B⁻¹` as `1 + S^{−2^r}`.  On the scalar module **both**
+`σ`-power blocks die simultaneously — `A` *is* a power of `σ` — so the row degenerates to the
+`τ`-pivot and "the scalar module separates nothing" survives the correction
+(`foxD_npc_split`).
+
+## The certificates
+
+The freeze's normal-form inventory for this row is **asymmetric**, and the certificates
+reproduce the asymmetry exactly rather than smoothing it:
+
+* **ramified — two operations (`C_Fox = 2`)**, `npcJacobianCertRam`.  `ScaleCol(x₂, S^{2^r})`
+  carrying its formal inverse `S^{−2^r}` as the invertibility witness (`sigmaAtom_mul`,
+  symbolic in `r`), then `AddCol(x₀, x₂, A⁻¹+1)` clearing the leftover `x₀`-entry against the
+  now-unit `x₂`-entry.  The transvection needs **no** invertibility of the `x₀`-block at all —
+  which is precisely why the scaling must come first.  Endpoint: the standard `x₂`-pivot with
+  the universal tame row.
+* **unramified — one operation, then an honest stop**, `npcJacobianCertUnram`.  The row
+  operation `row_wild += S·row_tame` (Sage `AddRow(1,0,S)`) clears the `τ`-entry, landing on
+  the two-entry **block row** `(0, 0, A⁻¹+1, 0, 1+S^{−2^r})` — and there the symbolic reduction
+  **stops**.  Neither entry is a unit of the operator algebra uniformly in `(r, η)`, so no
+  further elementary operation exists.  This is a genuine finding about the operator algebra,
+  inherited from the Sage reference `unramified_normal_form_noncompact` and mechanised here:
+  **the compact lane's diagonal endpoint does not exist for this row.**
+
+What replaces the missing operation is a per-module dichotomy, proved as two iff-criteria off
+one generic block lemma (`isUnit_oneSubInvEnd_iff`: on a finite module `1 − c⁻¹` is invertible
+exactly when `c` has no nonzero fixed vector):
+
+* `isUnit_x0Block_iff` — the `x₀`-block is invertible iff `V^A = 0`, i.e. `σ^{η̂}` acts
+  nontrivially on the simple summand;
+* `isUnit_x2Block_iff` — the boundary block is invertible iff `V^{σ^{2^r}} = 0`, the compact
+  lane's WC-N0 criterion with `S` replaced by `S^{2^r}`.
+
+Alongside these, the **published-row certificates** (empty ops) pin the rows themselves:
+`npcWildRow` is *one* piece of formal data certified at *both* projector interpretations
+(`npcWildRowCertUnram`, `npcWildRowCertRam`) and at every `η`, plus `npcWildRowCertSplit` and
+`npcTameRowCertUnram`.
+
+## Where each entry comes from
+
+* `D(x₀^{2+2^α}) = 0` — **`p_α` is even**, the whole first-order content of the leading power
+  (`foxD_leadingPow`), with the parity read off WNP-a's spelling-discipline lemma
+  `two_add_two_pow`.  Only `α ≥ 1` is used: `α ≥ 2` is a **Hessian** condition, invisible here —
+  matching S3.1's Sage measurement and the compact lane's identical finding.
+* `D([x₀, A]) = (A⁻¹ − 1)·a(x₀)` (`foxD_commX0A`).  **The new `x₀`-block.**  The two
+  `A`-contributions cancel because `x₀` dies, so `D(A)` never enters
+  (`commR_u_of_left_trivial`), and the conjugator survives as the operator `A⁻¹ − 1`.
+* `D(x₂^{-g}) = −B⁻¹·a(x₂)` (`foxD_invConjX2G`).  **The changed boundary operator.**  Note what
+  does *not* happen: `g`'s `x₁`-factor contributes nothing to the `x₁`-column, because the two
+  conjugation contributions of any conjugator cancel once the conjugated letter is inert.
+* `D((x₂τ)^{ω₂}) = P·(a(x₂) + a(τ))` — the lift-level `ω₂` rule.  `P` is never computed: the two
+  class collapses are WW1's engine lemmas `WordLift.powOmega2_u_of_trivial` (`P = 1`) and
+  `WordLift.powOmega2_u_of_oddFixedPointFree` (`P = 0`), and `powOmega2` is **never unfolded**
+  in an offset computation anywhere below.
+* `D(E_{r,η}) = 0` — **the headline, see next section.**
+* `D(H_h) = 0` (`foxD_handlesW`), so all `2h` handle columns vanish, at every `h`, on **both**
+  module classes (`foxDHom_npc_handleU_column`/`_handleV_column` and their ramified twins
+  `foxDHom_npc_ram_handleU_column`/`_handleV_column`).  No freshness of the handle letters is
+  used — only that they act trivially.
+
+## HEADLINE: `E_{r,η}` is invisible at first order
+
+`foxD_eBlockW` — the correction block's Fox row is **zero**, at every marking whose wild letters
+act trivially and whose `τ`-letter has trivially-acting `2`-primary part, i.e. **uniformly
+across the module classes** (split, unramified and ramified alike), for all `α, r, h`, all `η`,
+all resolvers and all offset vectors.
+
+The mechanism is worth stating, because it is *not* that `D_{r,η}` is inert: by `foxD_dBlockW`
+the `D`-block has a genuinely nonzero first-order row, namely `L_c·D(δ₀)` with
+
+```
+L_c = A⁻¹ + B + B·A⁻¹
+```
+
+— the corrected S3.2 operator, appearing verbatim at first order, its three summands being the
+three conjugators of the compressed spelling `δ₀^A (δ₀ δ₀^A)^{B⁻¹}`.  What kills the row is the
+commutator with `x₁`: *both* arguments evaluate trivially, and the Fox row of such a commutator
+dies whatever the offsets are.  So `L_c` is fully present at first order and then annihilated.
+
+The immediate corollary is `foxD_npcW_eq_uncorrected`: **gate D is blind to `E_{r,η}`** — the
+corrected and the uncorrected words have literally the same Fox row, at every marking of both
+classes, every resolver, every `(α, r, η, h)` and every offset.  That is the Sage reference-row
+docstring's *"the reference row is the same for the raw and the corrected word"* banked as a
+theorem, and the first-order member of the blindness family `EPI_BLIND_TO_E`.  Only the second
+jet separates, and that separation is NC5's `npc_cross_operators`, not this file's.
+
+## The NC seam: first order meets the NC lane's second order
+
+Two bridges, so that the certificates here and the second-order theorems of `GQ2/Dyadic/NpcJet/`
+provably speak about **one** operator rather than two lookalikes:
+
+* `foxD_dBlockW_lcOp` — under an honest resolver (`hA`, anchored at a pro-odd `σ` by
+  `hA_of_odd_orderOf`, Gate B rule T2), the `D`-block's Fox row *is* NC2's `lcOp` applied to
+  `D(δ₀)`.  The seam table's `npcDBlock_eval` (whose `V`-part is `L_c c₀`) is the second-order
+  shadow of this first-order row.
+* `npc_cross_operators_npcW` — NC5's headline restated for **the certificate's word** `npcW`,
+  transported through WNP-a's value bridge `eval_npcW_eq_eval_npcWord`.  This is the exact
+  citation WNP-c consumes; the `h`-general route goes through NC6's
+  `npc_cross_operators_handles_std` together with `eval_handlesW`, never through a cast on
+  `npcWordH`, and at first order the handle columns are zero at every `h`, so the two lanes'
+  `h`-dependences are consistent by construction.
+
+## The instances
+
+`(α, r, η) = (2, 1, 1)`, `h = 0`: the five-letter alphabet `Generator 2`, the word
+`npcW 2 1 0 ⟨1,1⟩` whose tree is the frozen `N-noncompact-alpha2-r1-eta1_1-h0-v001`
+(digest `08b7742caf3a34f8…`, hash-pinned by WNP-a), and the tame relator `τ^σ(τ²)⁻¹`; the row
+`F5` measures at `6/1568/120` over `(S₃, D₈, A₄)`.  Both branch certificates are instantiated
+(`npcPinJacobianCertUnram`, `npcPinJacobianCertRam`), as are the three rows.
+
+`η = −1/5` (`N-noncompact-alpha2-r1-etam1_5-h0-v001`, digest `552fd470fd82b3e6…`), where the
+η̂-denominator is a nontrivial `2`-adic unit: `npcEtaM15WildRowCertUnram`,
+`npcEtaM15JacobianCertRam`.  The formal data is the **same** universal row as the `η = 1`
+instance's — which is the whole point of putting `η` in the interpretation, and is the
+mechanised form of "the certificate covers all `η ∈ ℤ₂ˣ`".
+
+Every instance here is a pure specialization of a symbolic-`(r, η)` certificate; the only
+instance content is the arithmetic side conditions (`α ≥ 1`, `q = 2` even) and the concrete
+alphabet.  **No certificate in this file is instance-only** — there is no place where the
+operator algebra forced a retreat to a single `(r, η)`.
+
+## §11's operator witness, and what is deliberately *not* here
+
+The lane's sanity gate is the 2-dimensional `S₃`-module radical detection for the uncorrected
+word (the mutant row).  That is a **second-order** test and belongs to WNP-c; a REJECT there is
+sound, a PASS is never evidence.  What first order can pin, and §11 does pin by kernel `decide`,
+is the operator-algebra half: on the 2-dimensional `𝔽₂`-module where the η̂-conjugator has
+order 3, the new `x₀`-block `A⁻¹ + 1` is **nonzero** and in fact a **unit** (by the `x²+x+1`
+minimal polynomial it equals `A` itself).  So the formal difference between the noncompact and
+the compact reference rows is not decoration, and `isUnit_x0Block_iff`'s criterion is
+non-vacuous.
+
+## Axiom state (recorded per WNP-b instructions; `#print axioms` run in a scratch file, not
+committed)
+
+**Audited 2026-08-01, all 120 named declarations of this file.**  Every one depends on a subset
+of the standard axioms `[propext, Classical.choice, Quot.sound]`: **82 print exactly std-3**, 23
+print `[propext, Quot.sound]`, 9 print `[propext]`, and 6 (`NpcSym`, `x0BlockCoeff`, `normCoeff`,
+`tameUnramRow`, `tameRow`, `npcUnramOps` — the pure formal data) depend on **no axiom at all**.
+Zero `sorryAx`, zero `Lean.ofReduceBool` (no `native_decide`; §11's pins are kernel `decide`).
+No axiom of the dyadic census appears in **any** declaration of this file — not merely no leak
+through the `Words.Npc → TameBoundary → MarkedCore` import chain, but no campaign axiom at all.
+The census stays at **eleven**.
+
+In particular the headlines `foxD_leadingPow`, `foxD_commX0A`, `foxD_invConjX2G`,
+`foxD_omega2Block_unram`, `foxD_omega2Block_ram`, `foxD_dBlockW`, `foxD_eBlockW`,
+`foxD_handlesW`, `foxD_npc_unram`, `foxD_npc_ram`, `foxD_npc_split`,
+`foxD_npcW_eq_uncorrected`, `foxDHom_npc_unram_column_eq_zero`,
+`foxDHom_npc_ram_column_eq_zero`, `foxDHom_npc_handleU_column`, `foxDHom_npc_handleV_column`,
+`foxDHom_npc_ram_handleU_column`, `foxDHom_npc_ram_handleV_column`,
+`freeMarking_eval_tameRelW`, `foxD_tameRelW_of_tameRel`, `foxD_tameRelW_unram`,
+`isUnit_oneSubInvEnd_iff`, `isUnit_x0Block_iff`, `isUnit_x2Block_iff`,
+`npcWildRow_toHom_apply`, `npcBlockRow_toHom_apply`, `tameUnramRow_toHom_apply`,
+`tameRow_toHom_apply`, `npcWildRowCertUnram`, `npcWildRowCertRam`, `npcWildRowCertSplit`,
+`npcTameRowCertUnram`, `npcJacobianCertUnram`, `npcJacobianCertRam`, `hA_of_odd_orderOf`,
+`foxD_dBlockW_lcOp`, `npc_cross_operators_npcW`, `zpow_u_of_trivial_odd`, `foxD_aW_split`,
+`foxD_npcPin_unram`, `foxD_npcPin_ram`, `foxD_npcPin_split`, `npcPinJacobianCertUnram`,
+`npcPinJacobianCertRam`, `npcEtaM15WildRowCertUnram`, `npcEtaM15JacobianCertRam`,
+`NpcSym.toEnd_etaA_of_trivial`, `uEnd_pow_three`, `uInvEnd_add_one`,
+`uInvEnd_add_one_ne_zero`, `isUnit_uInvEnd_add_one` and `eval_x0BlockCoeff_s3` all print
+exactly std-3.
+
+## Implementation notes
+
+**Not `module`-style, and forced**: `GQ2.Dyadic.Words.Npc` is not `module`-style (it imports
+F3's `TameBoundary`), and a `module` file may not import a non-`module` one — the WN0-a ruling
+that `Words/` and `Certificates/` are plain-import layers.  The other imports,
+`GQ2.Dyadic.Word.FoxCert` and `GQ2.Dyadic.NpcJet.Handles`, are fine in this direction.
+
+**Nested namespace `…Certificates.Npc`**: this file lives one level below the compact lane's
+`GQ2.Dyadic.Certificates`, because the two lanes carry same-named toolkits (`even_nsmul_eq_zero`,
+`tameRelW`, `normCoeff`, …) and are deliberately not imported into each other.  Same device as
+WM0-b's `Certificates.MCompact`.
+
+**Dedup ledger.**  Used from one layer down, not redefined here: WWH's hoists in
+`GQ2/Dyadic/Word/Fox.lean` — `trivAct` + `mem_trivAct` + `trivAct_conjR`/`trivAct_commR`/
+`trivAct_powOmega2`, `trivAct_evalFin_prodList`, `foxD_prodList_of_trivial`,
+`foxD_comm_of_trivial`, and the `sum_generator_*` support lemmas — plus WW1's `WordLift` engine
+lemmas and WW2's whole certificate grammar.
+
+Duplicated deliberately, per the WNP-a lane-decoupling convention (certificate lanes do not
+import each other; WM0-b's `Certificates/M0Fox.lean` is not in this branch at all, so citing it
+was not available):
+
+* §0's four mathlib-shaped micro-lemmas `even_nsmul_eq_zero`, `even_two_add_two_pow`,
+  `neg_eq_self`, `injective_of_isUnit` (`even_two_add_two_pow` reads off the plain-import
+  `Words.Npc.two_add_two_pow`, so the group cannot move into a `module` file wholesale);
+* §4's tame toolkit `tameRelW`, `eval_tameRelW`, `freeMarking_eval_tameRelW`,
+  `foxD_tameRelW_of_tameRel`, `foxD_tameRelW_unram` — the *same* relator as the compact lane's;
+  only the alphabet of the formal rows changes;
+* `normCoeff` over the η̂-alphabet.
+
+**Hoist candidates for the cleanup queue** (lane-generic, introduced here):
+`trivAct_commR_left` (the one-sided normality strengthening this word forces — both η̂-flavored
+commutators pair an inert argument with an arbitrary one), `commR_u_of_left_trivial`,
+`oneSubInvEnd` + `oneSubInvEnd_eq_zero_iff` + `isUnit_oneSubInvEnd_iff` (the generic block
+criterion; the compact lane's `isUnit_oneSubSInvEnd_iff` is its `c = σ` case),
+`zpow_u_of_trivial_odd`, and `sum_generator_tau_wild_pair`/`sum_generator_wild_pair` (three- and
+two-column supports, next to WW2's `sum_generator_one`).  The `NpcSym` alphabet itself is the
+fifth variant of the 20-name toolkit and is WAH's business, not this file's.
+
+**Gotchas met and recorded** (for WNP-c and WMP-b): the word is **not** `IsOmega2Only` — the
+η̂-power breaks it, so the numeric-pin route is unavailable and every row here is stated exactly
+for *every* resolver, with the resolved element appearing as an operator (`evalFin_aW` is the
+single place `E η̂` is evaluated).  Naming anything `deltaC` collides silently with the frozen
+peripheral `GQ2.deltaC` (a "function expected" error at the *use* site, not the definition) —
+avoided here by `deltaZeroW`/`dBlockW`.  `2 + 2*h` and `2*h + 2` are not interchangeable in
+`Fin` index arithmetic without a rewrite.  `abel_nf` over `abel` when the goal carries `smul`s,
+and push the `smul`s in before calling it.
 -/
 
 namespace GQ2.Dyadic.Certificates.Npc
