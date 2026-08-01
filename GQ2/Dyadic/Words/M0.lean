@@ -412,4 +412,389 @@ theorem denote_rawMCompact_three_zero :
 theorem denote_rawMCompact_four_zero :
     Export.denote (denoteCtx 0) (rawMCompact 4 0) = some (mCompactW 4 0) := by rfl
 
+/-! ## The `ω₂`-only fragment
+
+The compact-`M` word uses no `ℤ₂`-power and no profinite exponent other than `ω₂` — the
+`σ₂`-powers are `ℤ`-powers *of* `σ^{ω₂}`, not new profinite exponents — so the whole
+`ℕ`-exponent calculus of packet Lem. 2.2 applies with a single global exponent.  This is what
+lets the numerical pins below evaluate the *genuine* `ω₂`. -/
+
+theorem isOmega2Only_prodList {Gen : Type*} :
+    ∀ {l : List (PWord Gen)}, (∀ w ∈ l, w.IsOmega2Only) → (PWord.prodList l).IsOmega2Only
+  | [], _ => trivial
+  | w :: _ws, hw =>
+      ⟨hw w (List.mem_cons_self ..),
+       isOmega2Only_prodList fun u hu => hw u (List.mem_cons_of_mem _ hu)⟩
+
+@[simp] theorem isOmega2Only_handlesW (h : ℕ) : (handlesW h).IsOmega2Only := by
+  unfold handlesW
+  refine isOmega2Only_prodList ?_
+  intro w hw
+  obtain ⟨j, -, rfl⟩ := List.mem_map.mp hw
+  exact ⟨trivial, trivial⟩
+
+@[simp] theorem isOmega2Only_deltaC (h : ℕ) (i : Fin 3) : (deltaC h i).IsOmega2Only := by
+  simp [deltaC]
+
+@[simp] theorem isOmega2Only_a0W (α h : ℕ) : (a0W α h).IsOmega2Only := by simp [a0W]
+
+@[simp] theorem isOmega2Only_j2W (h : ℕ) : (j2W h).IsOmega2Only := by simp [j2W]
+
+@[simp] theorem isOmega2Only_eRevW (α h : ℕ) : (eRevW α h).IsOmega2Only := by simp [eRevW]
+
+@[simp] theorem isOmega2Only_mCompact (α h : ℕ) : (mCompactW α h).IsOmega2Only := by
+  cases h <;> simp [mCompactW, mFactors, handleTailW, a0W, j2W, eRevW, deltaC]
+
+/-! ## Evaluation scaffolding
+
+The word is `prodList (five factors ++ handle tail)`, so every evaluation below splits once and
+then computes.  `eval_mCompact_factors` is the split; it is stated at general `h` and it is
+where the `h = 0` handle-node absence stops mattering — `handleTailW 0 = []` and
+`handlesW 0 = .one` both evaluate to `1`. -/
+
+section Eval
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+  [TotallyDisconnectedSpace G] {α h : ℕ}
+
+theorem eval_prodList_append {X : Type*} (μ : X → G) (l₁ l₂ : List (PWord X)) :
+    PWord.eval μ (PWord.prodList (l₁ ++ l₂)) =
+      PWord.eval μ (PWord.prodList l₁) * PWord.eval μ (PWord.prodList l₂) := by
+  rw [PWord.eval_prodList, List.map_append, List.prod_append, PWord.eval_prodList,
+    PWord.eval_prodList]
+
+/-- Evaluating the handle block is MC2's `handleWord` on the handle letters — the same
+`List.finRange h` order on both sides, so this is a rewrite and not a reindexing. -/
+theorem eval_handlesW (t : Marking (2 + 2 * h) G) :
+    t.eval (handlesW h) =
+      MarkedCore.handleWord (fun j => t (handleU j)) (fun j => t (handleV j)) := by
+  rw [Marking.eval_def, handlesW, PWord.eval_prodList, List.map_map]
+  rfl
+
+/-- The handle *tail* evaluates to the handle *block*, uniformly in `h`: the empty tail of the
+`h = 0` certificate and the singleton tail of the `h ≥ 1` certificates both land on
+`handlesW h`. -/
+theorem eval_handleTailW (t : Marking (2 + 2 * h) G) :
+    PWord.eval ⇑t (PWord.prodList (handleTailW h)) = t.eval (handlesW h) := by
+  cases h with
+  | zero => rfl
+  | succ k => rw [handleTailW]; simp [Marking.eval_def]
+
+/-- **The split**: the compact-`M` word is its five certificate factors times its handle block,
+at every marking and every `h`. -/
+theorem eval_mCompact_factors (t : Marking (2 + 2 * h) G) :
+    t.eval (mCompactW α h) =
+      t.eval (PWord.prodList (mFactors α h)) * t.eval (handlesW h) := by
+  rw [Marking.eval_def, mCompactW, eval_prodList_append, eval_handleTailW]
+  rfl
+
+@[simp] theorem eval_sigma2W (t : Marking (2 + 2 * h) G) :
+    t.eval (sigma2W : PWord (Generator (2 + 2 * h))) = t.σ ^ᶻ omega2 := rfl
+
+/-- The value of a certificate `δ`-letter: `δ_i = (x_iτ)^{ω₂}x_i⁻¹`. -/
+theorem eval_deltaC (t : Marking (2 + 2 * h) G) (i : Fin 3) :
+    t.eval (deltaC h i) = (t (coreLetter h i) * t.τ) ^ᶻ omega2 * (t (coreLetter h i))⁻¹ := by
+  rw [Marking.eval_def, deltaC, PWord.eval_prodList]
+  simp
+
+/-- **The certificate's `δ`-letter is F2's `δ`-letter.**  They are different *trees* — the
+certificate's is two nested `Multiply` nodes, hence two `prodList`s with trailing `PWord.one`s,
+while `GQ2.Dyadic.deltaW` uses binary `.mul` — and only the certificate's spelling hashes.  They
+are nevertheless the same group element at every marking, which is what lets WM0-b/c use the
+existing `deltaW` API on this word. -/
+theorem eval_deltaC_eq_deltaW (t : Marking (2 + 2 * h) G) (i : Fin 3) :
+    t.eval (deltaC h i) =
+      t.eval (deltaW (n := 2 + 2 * h) ⟨(i : ℕ), by have := i.isLt; omega⟩) := by
+  rw [eval_deltaC, Marking.eval_def, deltaW]
+  simp [coreLetter]
+
+/-- **The correction block *is* S1.9's `𝓔`-block.**
+
+`E_m^rev = δ₁^{σ₂^{2m}} δ₁^{σ₂^{m}} δ₀^{σ₂^{m}} δ₀` is the expansion of
+`𝓔(σ₂^m, σ₂^m; δ₀, δ₁)` — `eBlock_eq` with `g = h = σ₂^m`, where the leading conjugator
+`σ₂^{2m}` is `σ₂^m · σ₂^m`.  Proved at every marking, so the group-level `eBlock`/`map_eBlock`
+API of `GQ2/Dyadic/Word/Blocks.lean` applies to this word's correction block verbatim; this is
+the identity the ticket's "the `𝓔`-block group identity your word's correction block satisfies"
+names, and it is what makes the block a *constant-size* object for WM0-b/c. -/
+theorem eval_eRevW_eq_eBlock (t : Marking (2 + 2 * h) G) :
+    t.eval (eRevW α h) =
+      eBlock (t.eval sigma2W ^ (mOf α : ℤ)) (t.eval sigma2W ^ (mOf α : ℤ))
+        (t.eval (deltaC h 0)) (t.eval (deltaC h 1)) := by
+  rw [eBlock_eq, Marking.eval_def, eRevW, PWord.eval_prodList]
+  simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, PWord.eval_conj,
+    PWord.eval_zpow, mul_one, ← Marking.eval_def, eval_sigma2W]
+  rw [show (2 * (mOf α : ℤ)) = (mOf α : ℤ) + (mOf α : ℤ) by ring, zpow_add]
+  simp only [mul_assoc]
+
+end Eval
+
+/-! ## Gate B: the tame boundary
+
+Packet Prop. 9.2's proof shape, in the compact-`M` spelling.  Killing the wild letters leaves
+
+```
+A₀ ↦ σ₂^{−m},   [A₀,x₁] ↦ 1,   J₂ ↦ τ^{ω₂},   δ₀, δ₁ ↦ τ^{ω₂},   H_h ↦ 1
+```
+
+so the first and third factors are `σ₂^{−2m}·σ₂^{2m} = 1` — **the balanced `σ₂`-powers cancel**,
+which is the whole point of the `σ₂^{2m}` factor being there — and what survives is the
+`δ`-letter story: one `τ^{ω₂}` from `J₂` and the `𝓔`-block on two copies of `τ^{ω₂}`.  Stating
+the **value** rather than "` = 1`" is deliberate (WN0-a's rule): the death of this word at the
+tame boundary is a fact about `τ`, supplied by Gate B rule T1, and not a syntactic
+cancellation. -/
+
+section Tame
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+  [TotallyDisconnectedSpace G] {α h : ℕ}
+
+omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+@[simp] theorem killWildLetters_coreLetter (t : Marking (2 + 2 * h) G) (i : Fin 3) :
+    Marking.killWildLetters t (coreLetter h i) = 1 := rfl
+
+omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+@[simp] theorem killWildLetters_handleU (t : Marking (2 + 2 * h) G) (j : Fin h) :
+    Marking.killWildLetters t (handleU j) = 1 := rfl
+
+omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+@[simp] theorem killWildLetters_handleV (t : Marking (2 + 2 * h) G) (j : Fin h) :
+    Marking.killWildLetters t (handleV j) = 1 := rfl
+
+/-- Every `δ`-letter dies down to `τ^{ω₂}` at the tame boundary. -/
+theorem eval_killWildLetters_deltaC (t : Marking (2 + 2 * h) G) (i : Fin 3) :
+    (Marking.killWildLetters t).eval (deltaC h i) = t.τ ^ᶻ omega2 := by
+  rw [eval_deltaC]
+  simp
+
+/-- **The tame boundary value of the compact-`M` word**: `τ^{ω₂} · 𝓔(σ₂^m, σ₂^m; τ^{ω₂}, τ^{ω₂})`.
+
+The `A₀²` and `σ₂^{2m}` factors have cancelled (`σ₂^{−2m}·σ₂^{2m} = 1`), the commutator and the
+handles have died with the wild letters, and everything left is built from `τ^{ω₂}`. -/
+theorem eval_killWildLetters_mCompact (α h : ℕ) (t : Marking (2 + 2 * h) G) :
+    (Marking.killWildLetters t).eval (mCompactW α h) =
+      t.τ ^ᶻ omega2 *
+        eBlock ((t.σ ^ᶻ omega2) ^ (mOf α : ℤ)) ((t.σ ^ᶻ omega2) ^ (mOf α : ℤ))
+          (t.τ ^ᶻ omega2) (t.τ ^ᶻ omega2) := by
+  have hH : (Marking.killWildLetters t).eval (handlesW h) = 1 := by
+    rw [eval_handlesW]
+    exact MarkedCore.handleWord_of_one _ _ (fun _ => rfl) (fun _ => rfl)
+  have hE := eval_eRevW_eq_eBlock (α := α) (Marking.killWildLetters t)
+  rw [eval_killWildLetters_deltaC, eval_killWildLetters_deltaC] at hE
+  rw [eval_mCompact_factors, hH, mul_one, Marking.eval_def, mFactors, PWord.eval_prodList]
+  simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, PWord.eval_zpow,
+    PWord.eval_comm, PWord.eval_inv, PWord.eval_conj, PWord.eval_gen, PWord.eval_prodList,
+    PWord.eval_omega2PowHat, ← Marking.eval_def, eval_sigma2W, hE, a0W, j2W,
+    killWildLetters_coreLetter, Marking.apply_tau, Marking.killWildLetters_σ,
+    Marking.killWildLetters_τ, one_conjR, commR_one_right, inv_one, one_mul, mul_one]
+  -- the balanced `σ₂`-powers: `σ₂^{−2m} · σ₂^{2m} = 1`
+  rw [← zpow_mul, ← mul_assoc, ← zpow_add,
+    show (-(mOf α : ℤ) * 2 + 2 * (mOf α : ℤ)) = 0 by ring, zpow_zero, one_mul]
+
+/-- The same statement through F2's **substitution operator**: the syntactic kill-wild rewrite
+`killWild` evaluated at `t` (`Marking.eval_killWild`). -/
+theorem eval_killWild_mCompact (α h : ℕ) (t : Marking (2 + 2 * h) G) :
+    t.eval (killWild (mCompactW α h)) =
+      t.τ ^ᶻ omega2 *
+        eBlock ((t.σ ^ᶻ omega2) ^ (mOf α : ℤ)) ((t.σ ^ᶻ omega2) ^ (mOf α : ℤ))
+          (t.τ ^ᶻ omega2) (t.τ ^ᶻ omega2) := by
+  rw [Marking.eval_killWild, eval_killWildLetters_mCompact]
+
+/-- The tame boundary value is trivial as soon as `τ^{ω₂} = 1`: the `𝓔`-block on two trivial
+`δ`-letters is trivial, whatever its conjugators are. -/
+theorem eval_killWildLetters_mCompact_of_tau (α h : ℕ) (t : Marking (2 + 2 * h) G)
+    (hτ : t.τ ^ᶻ omega2 = 1) :
+    (Marking.killWildLetters t).eval (mCompactW α h) = 1 := by
+  rw [eval_killWildLetters_mCompact, hτ]
+  simp [eBlock]
+
+/-- **Gate B rule T1, at a finite marking**: if the `τ`-letter has odd order, the tame boundary
+value is trivial.  This is the form the finite-target harnesses (F5) test. -/
+theorem eval_killWildLetters_mCompact_eq_one_of_odd {P : Type} [Group P] [TopologicalSpace P]
+    [DiscreteTopology P] [Finite P] (α h : ℕ) (t : Marking (2 + 2 * h) P)
+    (hτ : Odd (orderOf t.τ)) : (Marking.killWildLetters t).eval (mCompactW α h) = 1 :=
+  eval_killWildLetters_mCompact_of_tau α h t
+    (by simpa using PWord.eval_omega2Pow_eq_one_of_odd (⇑t) (.gen .tau) hτ)
+
+end Tame
+
+/-- **Gate-B admissibility, relativized to a tame `τ`** — packet Prop. 9.2.
+
+The compact-`M` word dies at the tame boundary of every marking whose `τ`-letter is killed by
+`ω₂`.  Inside `Γ_R` that hypothesis is *supplied*, by packet Lem. 3.1: the tame relation
+`τ^σ = τ^{q}` with `q` even forces `τ` to be pro-odd (`GQ2.Dyadic.odd_order`), and `ω₂` kills
+pro-odd elements.
+
+⚠ The **bare** `KillsWild` is the wrong interface here, exactly as WN0-a found for compact `N`
+— see `not_killsWild` below.  Branch lanes use this form or `killsWild_of_odd`, never the bare
+one. -/
+theorem killsWild_of_tau {α h : ℕ}
+    (hτ : ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+      [CompactSpace G] [TotallyDisconnectedSpace G] (t : Marking (2 + 2 * h) G),
+      t.τ ^ᶻ omega2 = 1) :
+    KillsWild (mCompactW α h) := by
+  intro G _ _ _ _ _ t
+  exact eval_killWildLetters_mCompact_of_tau α h t (hτ G t)
+
+/-! ### ⚠ F3's `KillsWild` is *not* satisfiable by this word either
+
+WN0-a's ruling, confirmed on the second wave-2 word and for the same reason.
+`GQ2.Dyadic.KillsWild R` quantifies over **every** profinite group and **every** marking with no
+relation imposed on the `τ`-letter, and the tame boundary value of any `δ`-letter word is built
+from `τ^{ω₂}`; here it is `τ^{ω₂} · 𝓔(…; τ^{ω₂}, τ^{ω₂})`, which at `σ = 1` is just
+`(τ^{ω₂})^4` — false in `Multiplicative (ZMod 8)` at `τ = ofAdd 1`, where `τ^{ω₂} = τ`
+(`omega2Exp 8 = 1`) and `4 ≠ 0`.
+
+This is not a defect in the *word*: the packet's hypothesis is about the tame quotient, where
+`τ` is pro-odd by Lem. 3.1, and there the word is admissible (`killsWild_of_tau`,
+`eval_killWildLetters_mCompact_eq_one_of_odd`).  Recorded rather than acted on:
+`TameBoundary.lean` is not this ticket's file, and micro-row F3b already owns the amendment. -/
+
+section Refutation
+
+local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
+local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
+
+private theorem zmod8_orderOf_dvd (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
+  orderOf_dvd_of_pow_eq_one (by revert x; decide)
+
+/-- The refuting marking: `τ` a generator of `ZMod 8` (so `τ^{ω₂} = τ ≠ 1`), `σ` trivial so that
+the `𝓔`-block's conjugators drop out, everything else trivial.  The wild letters are irrelevant
+— `killWildLetters` overwrites them. -/
+def refuteMarking (h : ℕ) : Marking (2 + 2 * h) (Multiplicative (ZMod 8)) :=
+  Marking.ofLetters 1 (Multiplicative.ofAdd 1) (fun _ => 1)
+
+/-- **The frozen compact-`M` word is not Gate-B admissible in F3's unrelativized sense.** -/
+theorem not_killsWild (α h : ℕ) : ¬ KillsWild (mCompactW α h) := by
+  intro hR
+  have hval := hR (Multiplicative (ZMod 8)) (refuteMarking h)
+  rw [eval_killWildLetters_mCompact,
+    PWord.zpowHat_omega2_zpow (by norm_num) (zmod8_orderOf_dvd _),
+    PWord.zpowHat_omega2_zpow (by norm_num) (zmod8_orderOf_dvd _), omega2Exp_eight,
+    show (refuteMarking h).τ = Multiplicative.ofAdd (1 : ZMod 8) from rfl,
+    show (refuteMarking h).σ = (1 : Multiplicative (ZMod 8)) from rfl] at hval
+  rw [eBlock] at hval
+  simp only [conjR, one_zpow, Nat.cast_one, zpow_one, inv_one, one_mul, mul_one] at hval
+  exact absurd hval (by decide)
+
+end Refutation
+
+/-! ## Gate C: the marked pro-`2` boundary
+
+The headline of the ticket.  `pro2` sends `τ ↦ 1` and collapses every `ω₂`-power (so
+`σ₂ ↦ σ`), which does three things at once:
+
+* `A₀ = x₀⁻¹σ₂^{−m} ↦ x₀⁻¹σ^{−m}` — the compact-`M` Labute letter `A`;
+* `J₂ = x₂^{-σ}(x₂τ)^{ω₂} ↦ (x₂^σ)⁻¹x₂ = [σ, x₂]` — the same one certified move as compact `N`,
+  and the same payoff for choosing `σ` rather than `σ₂` as the conjugator;
+* every `δ`-letter `↦ x_i x_i⁻¹ = 1`, so the whole correction block `E_m^rev` disappears.
+
+What is left is `A₀²[A₀,x₁]σ^{2m}[σ,x₂]·H_h` with `2m = 2^α`, which is **MC2's `mWord` on the
+Labute letters `(A₀, x₁, σ, x₂)`** times MC2's `handleWord` — the certificate's own
+`gate_C_core_displayed` string, verbatim. -/
+
+section Pro2
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+  [TotallyDisconnectedSpace G] {α h : ℕ}
+
+theorem pro2_prodList :
+    ∀ l : List (PWord (Generator (2 + 2 * h))),
+      pro2 (PWord.prodList l) = PWord.prodList (l.map pro2)
+  | [] => rfl
+  | w :: ws => by
+      rw [PWord.prodList_cons, pro2_mul, pro2_prodList ws, List.map_cons, PWord.prodList_cons]
+
+@[simp] theorem pro2_handlesW (h : ℕ) : pro2 (handlesW h) = handlesW h := by
+  rw [handlesW, pro2_prodList, List.map_map]
+  rfl
+
+@[simp] theorem pro2_handleTailW (h : ℕ) : (handleTailW h).map pro2 = handleTailW h := by
+  cases h <;> simp [handleTailW]
+
+/-- The core letters are wild, so `pro2` fixes them.  Stated against `coreLetter` rather than
+against `Generator.wild` so that it fires without unfolding the alphabet — unfolding
+`coreLetter` inside a `simp` set desynchronises the goal from `invConj_mul_self`'s argument. -/
+@[simp] theorem pro2_gen_coreLetter (h : ℕ) (i : Fin 3) :
+    pro2 (.gen (coreLetter h i)) = (.gen (coreLetter h i) : PWord (Generator (2 + 2 * h))) := rfl
+
+/-- **Gate C, syntactically**: the five certificate factors are rewritten one by one and the
+handle tail is untouched. -/
+theorem pro2_mCompact (α h : ℕ) :
+    pro2 (mCompactW α h) =
+      PWord.prodList ((mFactors α h).map pro2 ++ handleTailW h) := by
+  rw [mCompactW, pro2_prodList, List.map_append, pro2_handleTailW]
+
+/-- Every `δ`-letter dies at the pro-`2` boundary: `δ_i ↦ x_i·x_i⁻¹ = 1`. -/
+@[simp] theorem eval_pro2_deltaC (t : Marking (2 + 2 * h) G) (i : Fin 3) :
+    t.eval (pro2 (deltaC h i)) = 1 := by
+  rw [deltaC, pro2_prodList, Marking.eval_def, PWord.eval_prodList]
+  simp
+
+/-- …hence so does the whole correction block. -/
+@[simp] theorem eval_pro2_eRevW (t : Marking (2 + 2 * h) G) :
+    t.eval (pro2 (eRevW α h)) = 1 := by
+  have h0 := eval_pro2_deltaC (h := h) t 0
+  have h1 := eval_pro2_deltaC (h := h) t 1
+  rw [eRevW, pro2_prodList, Marking.eval_def, PWord.eval_prodList]
+  simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, pro2_conj,
+    PWord.eval_conj, ← Marking.eval_def, h0, h1, one_conjR, mul_one]
+
+omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+/-- The one group-theoretic move of this file: `x^{-g} · x = [g, x]`.  Everything else in the
+pro-`2` comparison is associativity and the `ℤ`-to-`ℕ` exponent realignment. -/
+theorem invConj_mul_self (x g : G) : (conjR x g)⁻¹ * x = commP g x := by
+  simp only [conjR, commP, mul_inv_rev, inv_inv]
+  group
+
+/-- **The pro-`2` boundary value of the compact-`M` word is MC2's compact-`M` core.**
+
+`pro2 R_{M,0}` evaluates, at *every* marking, to `mWord α A₀ x₁ σ x₂ · handleWord` with
+`A₀ = x₀⁻¹σ^{−m}`.  No hypothesis on the marking is needed — `pro2` has already removed `τ` and
+every `ω₂` — but `1 ≤ α` is needed on the *exponent*: the word's third factor is the `ℤ`-power
+`σ^{2m}` and MC2's core word's third factor is the `ℕ`-power `σ^{2^α}`, and `2m = 2^α` fails at
+`α = 0` (`two_mul_mOf`).  `BranchData.Valid (.M0 α)` supplies `2 ≤ α`. -/
+theorem eval_pro2_mCompact (hα : 1 ≤ α) (t : Marking (2 + 2 * h) G) :
+    t.eval (pro2 (mCompactW α h)) =
+      MarkedCore.mWord α ((t (coreLetter h 0))⁻¹ * t.σ ^ (-(mOf α : ℤ)))
+          (t (coreLetter h 1)) t.σ (t (coreLetter h 2)) *
+        MarkedCore.handleWord (fun j => t (handleU j)) (fun j => t (handleV j)) := by
+  have hH : PWord.eval ⇑t (PWord.prodList (handleTailW h))
+      = MarkedCore.handleWord (fun j => t (handleU j)) (fun j => t (handleV j)) := by
+    rw [eval_handleTailW, eval_handlesW]
+  have hE := eval_pro2_eRevW (α := α) (h := h) t
+  have hsq : ∀ x : G, x ^ (2 : ℤ) = x ^ (2 : ℕ) := fun x => by
+    rw [show ((2 : ℤ)) = ((2 : ℕ) : ℤ) by norm_num, zpow_natCast]
+  have hexp : t.σ ^ (2 * (mOf α : ℤ)) = t.σ ^ (2 ^ α : ℕ) := by
+    rw [show (2 * (mOf α : ℤ)) = ((2 * mOf α : ℕ) : ℤ) by push_cast; ring, zpow_natCast,
+      two_mul_mOf hα]
+  rw [pro2_mCompact, Marking.eval_def, eval_prodList_append, hH, PWord.eval_prodList, mFactors]
+  simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, pro2_zpow, pro2_comm,
+    pro2_prodList, pro2_inv, pro2_conj, pro2_gen_sigma, pro2_gen_tau,
+    pro2_omega2Pow, pro2_sigma2W, pro2_gen_coreLetter, PWord.eval_zpow, PWord.eval_comm,
+    PWord.eval_inv, PWord.eval_conj, PWord.eval_gen, PWord.eval_one, PWord.eval_prodList,
+    ← Marking.eval_def, hE, a0W, j2W, Marking.apply_sigma, mul_one]
+  -- Realign the two `ℤ`-powers with MC2's `ℕ`-powers, then normalise both bracketings.
+  rw [hsq, hexp, MarkedCore.mWord, ← invConj_mul_self (t (coreLetter h 2)) t.σ]
+  simp only [commR, commP, conjR, mul_assoc]
+
+/-- At `h = 0` the handle tail is empty and the pro-`2` value is MC2's core word on the nose —
+the statement the ticket asks for, and the one MC2's rank-four theory consumes. -/
+theorem eval_pro2_mCompact_zero (hα : 1 ≤ α) (t : Marking 2 G) :
+    t.eval (pro2 (mCompactW α 0)) =
+      MarkedCore.mWord α ((t.x 0)⁻¹ * t.σ ^ (-(mOf α : ℤ))) (t.x 1) t.σ (t.x 2) := by
+  rw [eval_pro2_mCompact (α := α) (h := 0) hα t,
+    show MarkedCore.handleWord (fun j : Fin 0 => t (handleU j)) (fun j : Fin 0 => t (handleV j))
+      = 1 from rfl, mul_one]
+  rfl
+
+/-- The same value read as MC2's **full relator shape** `mRelWord` at the standard marking
+(`coreMark`: the four Labute letters, `1` on every handle letter). -/
+theorem eval_pro2_mCompact_eq_mRelWord (hα : 1 ≤ α) (t : Marking 2 G) :
+    t.eval (pro2 (mCompactW α 0)) =
+      MarkedCore.mRelWord (h := 0) α
+        (MarkedCore.coreMark ((t.x 0)⁻¹ * t.σ ^ (-(mOf α : ℤ))) (t.x 1) t.σ (t.x 2)) := by
+  rw [eval_pro2_mCompact_zero hα, MarkedCore.mRelWord_coreMark]
+
+end Pro2
+
 end GQ2.Dyadic.Words.MCompact
