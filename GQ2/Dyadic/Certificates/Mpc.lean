@@ -55,41 +55,56 @@ here as
 foxDHom (R_lin^pc · R̂^pc)  =  foxDHom (R_lin^pc) ∘ (kill the σ-coordinate)
 ```
 
-(`foxDHom_mpcProductW_eq_sigmaKill`), from exactly two WMP-b inputs and nothing else: §5's
-`foxD_mpcHatW_ram` (the hat's wild/tame columns vanish) and §4's `foxColumn_sigma_mul_eq_zero`
-(the pair's σ-column vanishes, by the coincidence, without either factor vanishing).
+(`foxD_mpcProductW_eq_lin`, and `foxDHom_mpcProductW_eq` for the carrier), from exactly two
+WMP-b inputs and nothing else: MpcFox §5's `foxD_mpcHatW_ram` (the hat's wild and tame columns
+vanish) and MpcFox §4's `foxColumn_sigma_mul_eq_zero` (the pair's σ-column vanishes, by the
+coincidence, without either factor vanishing).  Both of those are **unconditional here**, since
+`hlin` is discharged in §1.
 
-⚠ **The certificate is stated as a transport, and that is deliberate.**  A `FoxRowCertificate`
-for the pair is produced from one for the linear copy whose target has a zero σ-entry
-(`productRowCertOfLin`), because the linear copy's own closed-form row at general `(α, r, p)` is
-a `-b` computation that WMP-b did not do and this ticket does not own.  What *is* proved here is
-that the transport is sound and that its hypothesis is exactly the shape both sibling lanes'
-frozen rows already have (`mCompactWildRow` and `npcWildRow` both carry `.sigma => .zero`) —
-so the pair's row is the linear row **in the register the freeze uses**, and the σ-entry that
-would otherwise be unavailable is the one entry the pair kills.  The `√−10` instance
-(`sqrtNeg10ProductRowCertOfLin`) is the `(α,r,p,η,h) = (2,1,1,.one,0)` specialization, pinned
-against merge gate 9's digest by `mpcW`-identity.
+⚠ **The certificate itself is a transport, and that is deliberate.**  `mpcProductRowCert`
+produces a `FoxRowCertificate` for the pair from the linear copy's row **at σ-free offsets**
+(`hlinrow`) together with a target whose σ-entry is `.zero`.  The linear copy's closed-form row
+at general `(α, r, p)` — in particular the Fox row of the orbit-norm block `E₂^pc` — is a
+`-b`-shaped computation that WMP-b did not do and this ticket does not own.  What *is* proved is
+that the transport is sound and that its two hypotheses are exactly the shape the freeze already
+uses: **both sibling lanes' frozen rows carry `.sigma => .zero`** (`MCompact.mCompactWildRow`,
+`Npc.npcWildRow`), and neither copy of this row has an available σ-entry — which is precisely
+the entry the pair kills.  The `√−10` instance `sqrtNeg10ProductRowCert` is the
+`(α,r,p,η,h) = (2,1,1,.one,0)` specialization; the tree pin is `sqrtNeg10_gate9_hash` and the
+tie to the frozen word is `eval_sqrtNeg10_factored`.
 
 ## §3 Self-replication cancellation, including every `T`-dependent central term (item 2)
 
 Draft Rem. 5.4's second-order half.  Three things had to meet:
 
 1. the **cross term** — `heisEvalZ_pair_z_of_hat_jetZero`, WMP-b's ready killer, consuming the
-   *primal* half `p.a = 0`;
-2. the **dual jet** `p.l = 0` for the hat copy — WMP-b delivered only the primal half, and
-   WW3's `heisJetZero_mul_z` consumes only `.l`, so neither half alone gives the membership.
-   Proved here as `heisEvalZ_mpcHatW_l_eq_zero` by the *same* structural route as the primal
-   one, over the dual module `ElemDual V`: the dual first jet of a `HeisLift` value is a Fox
-   derivative of the dual marking, so §5's theorem applies verbatim once the ramified
-   hypotheses are read in `ElemDual V`.  The membership is `heisJetZero_mpcHatW`.
+   *primal* half `p.a = 0`.  Wired to this word as `heisEvalZ_mpcProductW_z`; note that `T`
+   enters only through `val(R_lin^pc)`, which in the cross term multiplies zero, so **no
+   `T`-dependent central term can survive** and none has to be computed.
+2. the **dual jet** `p.l = 0` for the hat copy — WMP-b delivered only the primal half, and WW3's
+   `heisJetZero_mul_z` consumes only `.l`, so neither half alone gives the membership.  Proved
+   here as `foxD_mpcHatW_ram_dual`, and it is **not a re-derivation**: `foxD_mpcHatW_ram` is
+   module-generic, so the dual jet is that same theorem at `A := ElemDual V`.  What that costs
+   is transferring the four ramified hypotheses to the dual module, three of which are immediate
+   and one of which has content — `elemDual_fpf`: over a finite `V` an injective `τ − 1` is
+   surjective, so a `τ`-invariant functional is killed by everything.  The membership is
+   `heisJetZero_mpcHatW`.
+   The two registers are joined by `heisEvalZ_a_eq_foxD`/`heisEvalZ_l_eq_foxD` under
+   `ResolverLifts` — WW3's denotation is `evalZ` (resolver-driven) while WW1's is `evalFin`
+   (which reads `ω₂` intrinsically), and `ResolverLifts` names the standing "resolvers correct
+   at the lift level" discipline that makes them agree.  It is a **hypothesis**, and it is the
+   only thing separating the two registers.
 3. **P4's central clause**, which is a *module hypothesis*, not something to re-measure.  The
    shadow memo is explicit ("P4's hypothesis is a module condition, checked exactly per module
    here"), and its own table shows the clause **failing** on three of the four ramified simples
-   while the conclusion still holds — because the parity escape fires.  Discharged here for
-   ramified simples in the memo's own form: `centralReplication` is carried as the hypothesis
-   `hcentral`, and `mpcCopiesCancel_of_replication` is the char-2 conclusion.  The escape route
-   is recorded too (`shadowOccurrenceParity_even`, the `A²[A,B]` shape's two even parities), so
-   a consumer that cannot check the central clause can use the parity clause instead.
+   while the conclusion still holds, because the memo's parity escape fires instead.  So the
+   honest Lean shape is a named hypothesis with the memo's own two independent sufficient
+   conditions, not a claim: `CentralReplication` is the clause and `mpcCopiesCancel` is the
+   char-2 conclusion from it.  ⚠ The parity escape (`shadow_occurrence_parity`: a square
+   contributes 2, a commutator 2+2, a conjugator 2, so the `A²[A,B]` shape both `M` rows are
+   built from has both parities `0`) is **recorded as memo prose only** — it is not built here,
+   because a Lean occurrence count needs an abelianized letter-multiset the `PWord` layer does
+   not carry.
 
 ## §4 `affinePhase` (item 3) and the S4.5 block-order rider
 
@@ -102,16 +117,21 @@ WC-Mpc analysis.  What this ticket adds against WW4's six-item gap list:
 * item 3's shadow half — **`mpcShadow_no_affine_shift`**, the corollary WW4 named but left
   unwritten, in WW4's own stated form (against `heisJetZero`, via `heisJetZero_mul_right_jet`),
   now applied to *this* word's hat copy rather than to an abstract jet-zero factor;
-* items 1, 2, 6 — the endpoint polynomial and its CoV, **constructible**: the plus block
-  `D₀²[D₀,D₁]` is what survives the cancellation, its word value is `Q₊(c₀,c₁) = q(c₀) +
-  b_q(c₀,c₁)` (WMP-a's word identity, §5 here), and that is a `plusFormD` endpoint — so
-  `mpcPhaseCover` and `mpcHessianCertificate` are built from WW4's `plusFormDPhaseCover` with
-  the twisted κ⁰ diagonal, honouring item 6's `TwistedClass2Domain` normalization by taking
-  `diag` from `dat` rather than from `q`;
-* item 5 (the word-side `hessRelZ` equation at the graph marking) — **remains an input.**  It
-  is the `npc_cross_operators` analogue and needs the NpcJet↔WordCoh bridge, which is wave-2
-  scope that no ticket owns; the file states what it would have to say
-  (`HessRelZTarget`) and does not pretend to it.
+* items 1, 2, 6 — the endpoint polynomial and its CoV, **constructed**: the plus block
+  `D₀²[D₀,D₁]` is what survives the cancellation and its word value is
+  `Q₊(c₀,c₁) = q(c₀) + b_q(c₀,c₁)` (a word identity, not finite-order interpolation), which *is*
+  a `plusFormD` endpoint — so `mpcPhaseCover` and `mpcHessianCertificate` are built from WW4's
+  `plusFormDPhaseCover` with `LinearEquiv.refl` as the CoV (its inverse witness built into the
+  structure).  Item 6 is honoured by **shape**: the diagonal is the abstract κ⁰ datum `d₀`, not
+  the compact rows' `fun v ↦ dat.f v v`, because on the four refinement-free `P = 0` modules the
+  datum is `TwistedClass2Domain`-normalized; `nonsingular_plusFormD` does not see `d₀`, so the
+  twist cannot break nonsingularity (`mpcHessianCertificate_gaussSum`);
+* item 3's shift vectors themselves — **remain an input** (they are per-χ field data, AS1's);
+  only the shadow half is discharged;
+* item 5 (the word-side `hessRelZ` equation at the graph marking) — **remains an input.**  It is
+  the `npc_cross_operators` analogue and needs the NpcJet↔WordCoh bridge, which is wave-2 scope
+  that no ticket owns.  `HessRelZTarget` names what it would have to say, and the file does not
+  pretend to it.
 
 **S4.5 rider (i)** — the block-order statement is a **gate-D statement, not a Hessian one**,
 because `E₂^pc`'s second-order content is empty on the gate-E marking.  Formalized as
@@ -129,9 +149,9 @@ Three statements, three different epistemic statuses, and this file keeps them a
 
 | status | what | where |
 |---|---|---|
-| **theorem, here** | at first order the shadow reproduces `E₀₁^pc`'s entire contribution, so **gate D cannot see it** — dropping it changes no Fox row | `foxD_mpcProductW_e01_invisible` |
+| **theorem, here** | the block and its shadow copy contribute **zero** to the pair's Fox row, so gate D is silent about `E₀₁^pc` | `foxD_e01_pair_eq_zero` |
 | **theorem, here** | the block-order difference vanishes on the gate-E marking (S4.5) | `swapDifference_zero_of_no_primal_x2` |
-| **NOT proved here; cited** | the *positive* justification — gate F fails on the fifth-root module without `E₀₁^pc` | S4.4 measurement, `docs/dyadic/tickets.md` freeze row 5 |
+| **NOT proved here; cited** | the *positive* justification — gate F fails on the fifth-root module without `E₀₁^pc` | S4.4 measurement, freeze row 5; shape named by `E01SecondOrderWitness` |
 
 ⚠ The third row is a **measurement, not a Lean theorem**, and this file does not overclaim it.
 S4.4's finding is that dropping the block passes gates A–E-scalar and dies at gate F; gate F is
@@ -154,13 +174,24 @@ layers.
 `hessSlice` calculus, `plusFormD` engine and `HessianCertificate`/`PhaseCoverCertificate`
 records, and WM0-c's `swapDifference_formula`/`hessSlice_rev4_fib`.
 
-**Hoist candidates** (beside WMP-b's seven): `ActsAsPow` and its five closure lemmas,
-`sigmaKill`, and `foxD_of_sigma_free_eq` — all lane-generic, none mentions this word.
+**Hoist candidates** (beside WMP-b's seven): `ActsAsPow` with its seven closure lemmas,
+`sigmaKill`/`pi_single_add_sigmaKill`/`foxRowNormalForm_toHom_sigmaKill`, `ResolverLifts` with
+`evalZ_eq_evalFin_of_resolverLifts`, `heisPrimal`/`heisDual` with the two bridge lemmas (this is
+the WW1↔WW3 bridge WW3's log promised as "one `map_evalZ` line" — it is that line, plus the
+resolver hypothesis the promise omitted), `elemDual_smul_eq_self`/`elemDual_fpf`, and
+`swapDifference_two_formula`.  None of them mentions this word.
 
-**Audited axiom state**: every named declaration of this file depends on a subset of
+**Axiom state.**  Every named declaration of this file depends on a subset of
 `[propext, Classical.choice, Quot.sound]` (scratch audit over the full declaration list; not
-committed).  Zero `sorryAx`, zero `native_decide` — kernel `decide` only — so the census is
-untouched at eleven.
+committed).  Zero `sorryAx`, zero `native_decide`, and **no `decide` at all** — this row needed
+no orbit pin, so the kernel-`decide` budget was never drawn on.  The census is untouched at
+eleven.
+
+**Headlines** (the audit surface): `trivAct_mpcLinW`, `foxD_mpcProductW_eq_lin`,
+`foxDHom_mpcProductW_eq`, `mpcProductRowCert`, `sqrtNeg10ProductRowCert`,
+`eval_sqrtNeg10_factored`, `foxD_mpcHatW_ram_dual`, `heisJetZero_mpcHatW`,
+`heisEvalZ_mpcProductW_z`, `mpcCopiesCancel`, `mpcShadow_no_affine_shift`, `mpcPhaseCover`,
+`mpcHessianCertificate`, `swapDifference_zero_of_no_primal_x2`, `foxD_e01_pair_eq_zero`.
 -/
 
 namespace GQ2.Dyadic.Certificates.MProcyclic
@@ -654,6 +685,26 @@ theorem eval_sqrtNeg10_factored {G : Type} [Group G] [TopologicalSpace G] [IsTop
   rw [show sqrtNeg10ProductW = .mul (mpcLinW 2 1 1 .one 0) (mpcHatW 2 1 1 .one 0) from rfl,
     Marking.eval_mul, eval_mpcW_factored]
 
+variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking 2 C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- **AS3's entry point for merge gate 9**: the `√−10` pair's WW2 row certificate, at
+`(α, r, p, η, h) = (2, 1, 1, .one, 0)` — `s = 2`, `m = 2`, `p = 1`, `2^α = 4`.
+
+Everything except `hlinrow` is discharged: `1 ≤ α` by `norm_num`, the σ-column by the
+coincidence, the hat's wild and tame columns by Rem. 5.4.  `hlinrow` is the linear copy's row at
+σ-free offsets — the one `-b`-shaped input that remains, and the item the report names. -/
+noncomputable def sqrtNeg10ProductRowCert {S : Type*} (ρ : S → AddMonoid.End V)
+    (hV₂ : ∀ w : V, w + w = 0) (hwild : ∀ (i : Fin 3) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w)
+    (target : FoxRowNormalForm (Generator 2) S)
+    (hσzero : target.row Generator.sigma = .zero)
+    (hlinrow : ∀ a : Generator 2 → V, a Generator.sigma = 0 →
+      foxD ⇑t a E E₂ (mpcLinW 2 1 1 .one 0) = target.toHom ρ a) :
+    FoxRowCertificate ρ (foxDHom (A := V) ⇑t E E₂ sqrtNeg10ProductW) :=
+  mpcProductRowCert (h := 0) t E E₂ ρ (α := 2) (by norm_num) 1 1 .one hV₂ hwild hτfpf hTodd
+    target hσzero hlinrow
+
 end SqrtNeg10
 
 /-! ## §3 Self-replication cancellation, including every `T`-dependent central term
@@ -974,6 +1025,19 @@ theorem mpcHessianCertificate_gaussSum {d₀ : V → ZMod 2} (hd : IsQuadraticFp
       gaussSum (plusFormD d₀ q) = Fintype.card V :=
   ⟨(mpcHessianCertificate dat hdat hd hq hns hcard).endpoint_gaussSum,
     gaussSum_plusFormD hd hq hns⟩
+
+/-- **WW4 gap item 5, named and left open.**
+
+The word-side equation "evaluated Hessian `=` `Q`" — `hessRelZ` at the graph marking of
+`kappa0Cocycle`, i.e. the `npc_cross_operators` analogue for the Mpc word, together with the
+NpcJet↔WordCoh bridge.  It is wave-2 scope that no ticket owns; this definition states what it
+would have to say so that a future ticket has a target, and so that no consumer mistakes the
+constructed `affinePhase` for a discharged word-side equation.
+
+⚠ **Epistemic status: an input, not a theorem of this file.** -/
+def HessRelZTarget {X : Type*} (μ : X → SemiProd C V) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+    (w : PWord X) (Q : V × V → ZMod 2) (c₀ c₁ : V) : Prop :=
+  hessRelZ μ (kappa0Cocycle dat hdat) E E₂ w = Q (c₀, c₁)
 
 end Hessian
 
