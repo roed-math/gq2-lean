@@ -749,4 +749,178 @@ theorem inlineM_mpcHatM (α r p : ℕ) : inlineM h η (mpcHatM α r p) = mpcHatW
 
 end Bridges
 
+/-! ### The certificate shrink: `hatFactors` IS the `Sh_M`-image of `linFactors`
+
+The S4.2 statement WMP-b owes.  First the cases that are **exactly syntactic** — they are the
+informative ones — then the headline at the `foxEval` layer, where the substitution's own
+created units are invisible. -/
+
+section Shrink
+
+open MLetter in
+/-! The frozen table, letter by letter, as `rfl`-lemmas (the `Fin 3` patterns do not reduce
+under `simp` on their own). -/
+
+@[simp] theorem shLetter_sigma : MLetter.shLetter .sigma = .gen .sigma := rfl
+@[simp] theorem shLetter_sigma2 : MLetter.shLetter .sigma2 = .gen .sigma2 := rfl
+@[simp] theorem shLetter_dee : MLetter.shLetter .dee = .gen .dee := rfl
+@[simp] theorem shLetter_tau : MLetter.shLetter .tau = .one := rfl
+@[simp] theorem shLetter_x_zero : MLetter.shLetter (.x 0) = .gen (.delta 0) := rfl
+@[simp] theorem shLetter_x_one : MLetter.shLetter (.x 1) = .gen (.delta 1) := rfl
+@[simp] theorem shLetter_x_two : MLetter.shLetter (.x 2) = .one := rfl
+@[simp] theorem shLetter_delta_zero : MLetter.shLetter (.delta 0) = .gen (.delta 0) := rfl
+@[simp] theorem shLetter_delta_one : MLetter.shLetter (.delta 1) = .gen (.delta 1) := rfl
+@[simp] theorem shLetter_delta_two : MLetter.shLetter (.delta 2) = .one := rfl
+
+/-- `Ê₀₁ = E₀₁` **verbatim**: the block is a word in `δ₀, δ₁, σ₂` alone, every one of them
+`Sh_M`-fixed.  This is why the emitted hat display repeats the *same* subtree (`E01` occurs
+twice in the tree, shared) rather than a hatted copy. -/
+@[simp] theorem shM_e01M (a b : ℕ) : shM (e01M a b) = e01M a b := rfl
+
+/-- `σ₂^k ↦ σ₂^k`. -/
+@[simp] theorem shM_sig2PowM : ∀ k : ℕ, shM (sig2PowM k) = sig2PowM k
+  | 0 => rfl
+  | 1 => rfl
+  | _ + 2 => rfl
+
+/-- `B ↦ B̂` on the nose (`x₁ ↦ δ₁`, `σ₂` fixed). -/
+@[simp] theorem shM_bM : ∀ p : ℕ, shM (bM p) = bHatM p
+  | 0 => rfl
+  | 1 => rfl
+  | _ + 2 => rfl
+
+/-- `D ↦ D`: the Tietze display is `Sh_M`-fixed, which is why the two copies' `[C₀,D]` and
+`[Ĉ₀,D]` commutators share a conjugand at every `η̂` display. -/
+@[simp] theorem shM_dee : shM (.gen .dee) = .gen .dee := rfl
+
+/-- **The plus block is its own shadow** — shadow memo §1: `D₀²[D₀,D₁]` is shadow-stable, so
+"the tail of eq. `Mpc-word` is shadow-stable" is a theorem, not a convention. -/
+@[simp] theorem shM_plusM : shM plusM = plusM := rfl
+
+/-- **The substitution's single created unit.**  The `x₂ ↦ 1` clause fires *inside*
+`C₀ = x₂σ₂^s`, so `Sh_M(C₀) = 1·Ĉ₀` where the emitted hat display writes the bare `Ĉ₀ = σ₂^s`.
+This is the memo's "the substitution can create cancellations (`x₂σ ↦ σ`) but never destroy
+one", and on this row it is the *only* place a final normalization is needed. -/
+theorem shM_c0M (s' : ℕ) : shM (c0M s') = PWord.prodList [.one, c0HatM s'] := rfl
+
+/-- The same unit, transported through `A = x₀⁻¹C₀⁻ᵐ`. -/
+theorem shM_aM (s' mm : ℕ) :
+    shM (aM s' mm)
+      = PWord.prodList [.inv (.gen (.delta 0)),
+          .zpow (PWord.prodList [.one, c0HatM s']) (-(mm : ℤ))] := rfl
+
+/-- **The shrink, syntactically**: applying `Sh_M` to the six displayed factors of the linear
+copy returns, factor for factor, the five displayed hat factors — up to the created unit in the
+two `C₀`-derived slots — with the sixth, `E₂^pc`, collapsing (every letter is a `δ₂`).  That
+collapse is exactly why the emitted hat display carries **five** factors and no `Ê₂`. -/
+theorem shM_linFactorsM (α r p : ℕ) :
+    (linFactorsM α r p).map shM
+      = [.zpow (shM (aM (s r) (m α))) ((2 : ℕ) : ℤ),
+         .comm (shM (aM (s r) (m α))) (bHatM p),
+         .zpow (shM (c0M (s r))) ((2 ^ α : ℕ) : ℤ),
+         .comm (shM (c0M (s r))) (.gen .dee),
+         e01M (p + s r * m α) (s r * m α),
+         shM (e2M (s r) (m α) p)] := by
+  simp only [linFactorsM, List.map_cons, List.map_nil, shM_zpow, shM_comm, shM_bM, shM_e01M,
+    shM_dee]
+
+variable {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+  {h : ℕ} (t : Generator (2 + 2 * h) → C) (a : Generator (2 + 2 * h) → A) (E : Zhat → ℤ)
+  (E₂ : ℤ_[2] → ℤ) (η : EtaDisplay)
+
+theorem foxEval_prodListF (l : List (PWord (Generator (2 + 2 * h)))) :
+    foxEval t a E E₂ (PWord.prodList l) = (l.map (foxEval t a E E₂)).prod :=
+  evalFin_prodList (foxLift t a) E E₂ l
+
+/-- The created unit is invisible to the Fox evaluation. -/
+theorem foxEval_inlineM_oneCons (y : PWord MLetter) :
+    foxEval t a E E₂ (inlineM h η (PWord.prodList [.one, y]))
+      = foxEval t a E E₂ (inlineM h η y) := by
+  rw [inlineM_prodList]
+  simp only [List.map_cons, List.map_nil, inlineM_one, foxEval_prodListF]
+  simp
+
+theorem foxEval_inlineM_shM_c0M (s' : ℕ) :
+    foxEval t a E E₂ (inlineM h η (shM (c0M s'))) = foxEval t a E E₂ (c0HatW h s') := by
+  rw [shM_c0M, foxEval_inlineM_oneCons, inlineM_c0HatM]
+
+theorem foxEval_inlineM_shM_aM (s' mm : ℕ) :
+    foxEval t a E E₂ (inlineM h η (shM (aM s' mm))) = foxEval t a E E₂ (aHatW h s' mm) := by
+  rw [shM_aM, aHatW, inlineM_prodList, foxEval_prodListF, foxEval_prodListF]
+  simp only [List.map_cons, List.map_nil, inlineM_inv, inlineM_zpow, foxEval_inv,
+    foxEval_zpow, foxEval_inlineM_oneCons, inlineM_c0HatM]
+  rfl
+
+theorem foxEval_inlineM_shM_zM (pp : ℕ) :
+    foxEval t a E E₂ (inlineM h η (shM (zM pp))) = 1 := by
+  match pp with
+  | 0 =>
+      show foxEval t a E E₂ (inlineM h η (shM (.zpow (.gen (.delta 2)) ((2 : ℕ) : ℤ)))) = 1
+      simp
+  | q + 1 =>
+      rw [show zM (q + 1)
+            = PWord.prodList [.gen (.delta 2), .conj (.gen (.delta 2)) (sig2PowM (q + 1))]
+          from rfl, shM_prodList, inlineM_prodList, foxEval_prodListF]
+      simp
+
+/-- **`Ê₂ = 1`.**  Every letter of `E₂^pc` is a `δ₂`, and `Sh_M` kills `δ₂`; the tree shape
+survives the substitution (so this is a *value* statement, not a syntactic one), but the value
+is the identity — the honest form of "`Ê₂` is dropped from the display". -/
+theorem foxEval_inlineM_shM_e2M (s' mm pp : ℕ) :
+    foxEval t a E E₂ (inlineM h η (shM (e2M s' mm pp))) = 1 := by
+  have horb : foxEval t a E E₂
+      (inlineM h η (shM (PWord.prodList
+        (Export.orbitNormFactors (zM pp) (PWord.zpow (.gen .sigma2) (s' : ℤ)) mm)))) = 1 := by
+    rw [shM_prodList, inlineM_prodList, foxEval_prodListF, List.map_map, List.map_map]
+    refine List.prod_eq_one fun y hy => ?_
+    obtain ⟨w, hw, rfl⟩ := List.mem_map.mp hy
+    obtain ⟨j, -, rfl⟩ := List.mem_map.mp hw
+    simp only [Function.comp_apply, shM_conj, inlineM_conj, foxEval_conj,
+      foxEval_inlineM_shM_zM t a E E₂ η pp, one_conjR]
+  rw [e2M, shM_prodList, inlineM_prodList, foxEval_prodListF]
+  simp only [List.map_cons, List.map_nil, shM_conj, shM_gen, shM_zpow, inlineM_conj,
+    foxEval_conj, List.prod_cons, List.prod_nil, mul_one, shLetter_delta_two, inlineM_one,
+    foxEval_one, one_conjR, horb]
+
+/-- **The certificate shrink (S4.2), at the `foxEval` layer** — the theorem WMP-b owes.
+
+`R̂^pc` **is** `Sh_M(R_lin^pc)`: the hat copy is not a second word to certify, it is the image of
+the first under one frozen substitution.  Because `foxEval` carries the base value in `.g` and
+the Fox derivative in `.u`, this single equality delivers both halves at once — the hat copy's
+gate-B and gate-C values are WMP-a's balance pair (`foxEval_shM_mpcLinM_g`) and its `d¹` is the
+raw word's under transport (`foxD_shM_mpcLinM`).
+
+Hypothesis-free: no module condition, no ramification, no `α ≥ 1`.  The three obstructions to a
+*syntactic* statement — `Sh_M(C₀) = 1·Ĉ₀`, `Ê₂`'s surviving tree shape, and `prodList`'s
+trailing units — are precisely the memo's "commutes with normalization up to a final
+`normalize`", and none of them is visible here. -/
+theorem foxEval_inlineM_shM_mpcLinM (α r p : ℕ) :
+    foxEval t a E E₂ (inlineM h η (shM (mpcLinM α r p)))
+      = foxEval t a E E₂ (mpcHatW α r p η h) := by
+  rw [mpcLinM, shM_prodList, shM_linFactorsM, inlineM_prodList, foxEval_prodListF, mpcHatW,
+    hatFactors, foxEval_prodListF]
+  simp only [List.map_cons, List.map_nil, inlineM_zpow, inlineM_comm, foxEval_zpow,
+    foxEval_comm, foxEval_inlineM_shM_aM, foxEval_inlineM_shM_c0M, foxEval_inlineM_shM_e2M,
+    List.prod_cons, List.prod_nil, mul_one, inlineM_bHatM, inlineM_e01M]
+  rfl
+
+include a in
+/-- **Gate B and gate C for the hat copy are WMP-a's balance pair** (`.g` of the shrink): the
+shadow's boundary values are the raw word's, transported — not a second ledger.  (The offsets
+`a` are inert here — the statement is about base values only — but they pin the coefficient
+module the shrink is read in; pass `0`.) -/
+theorem foxEval_shM_mpcLinM_g [Finite A] [Finite C] (α r p : ℕ) :
+    PWord.evalFin t E E₂ (inlineM h η (shM (mpcLinM α r p)))
+      = PWord.evalFin t E E₂ (mpcHatW α r p η h) := by
+  have hh := congrArg WordLift.g (foxEval_inlineM_shM_mpcLinM t a E E₂ η α r p)
+  rwa [foxEval_g, foxEval_g] at hh
+
+/-- **The hat copy's `d¹` is the raw word's under transport** (`.u` of the shrink). -/
+theorem foxD_shM_mpcLinM (α r p : ℕ) :
+    foxD t a E E₂ (inlineM h η (shM (mpcLinM α r p)))
+      = foxD t a E E₂ (mpcHatW α r p η h) :=
+  congrArg WordLift.u (foxEval_inlineM_shM_mpcLinM t a E E₂ η α r p)
+
+end Shrink
+
 end GQ2.Dyadic.Certificates.MProcyclic
