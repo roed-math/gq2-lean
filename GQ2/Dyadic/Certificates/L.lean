@@ -664,4 +664,233 @@ theorem sqRelWord_centLift_fib {h : ℕ} (m : Fin (sqRank h) → L) :
 
 end RelatorGram
 
+/-! # Part c1 — Stokes, duality, Hessian, determinant, phase
+
+## §3 The second-order (Stokes) forms of `L_sq`
+
+The four core factors of `R^{sq}_{L,n}` plus the handle tail, evaluated in the Heisenberg lift
+at a simple-tame-module marking (`hwild` on every wild letter, `hτ` for the unramified class;
+`σ` and `σ₂` are never restricted), one degree above WL-b's Fox rows.
+
+Three things WL-b measured as **invisible at first order** are visible here, and this is the
+whole reason the `L_sq` lane needs a second-order layer of its own:
+
+* the **`x₁`-column** — `x₁²` has an odd `C(2,2)`, so it produces the diagonal `y₁(a₁)`;
+* the **`σ₂`-slot** — `[x₁, x₁^{σ₂}]` contributes `y₁((S₂ + S₂⁻¹)a₁)` with `S₂ = S^{E ω₂}`,
+  the operator that at first order could not be seen at all;
+* **`q_K`** — through `C(q_K,2)`, odd exactly at `q_K ≡ 2 (mod 4)`, i.e. at `q_K = 2`
+  (`heisZ_tameRelW_unram`, WN0-c's row, cited: it is word-independent).
+
+The `x₀`-block is the mirror image of the compact-`N` boundary block on a different column
+(WL-b's finding one degree up): `(x₀^σ)⁻¹` supplies the `S⁻¹`-twisted jet and the `(σ,x₀)` cross,
+`x₀^{-3}` behaves as a *single* letter with zero central charge (`heisF_lSqNegCube` — the
+second-order face of the odd-cube augmentation-1 mechanism), and the `ω₂`-block carries the
+`e`/`C(e,2)` resolver sensitivity. -/
+
+section StokesRows
+
+variable {h : ℕ} {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+  (t : Marking (2 * h + 1) C) (x : Generator (2 * h + 1) → A)
+  (y : Generator (2 * h + 1) → ElemDual A) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- An odd multiple of a `2`-torsion element is itself. -/
+theorem odd_nsmul_eq_self {M : Type*} [AddCommGroup M] (hM : ∀ v : M, v + v = 0) {k : ℕ}
+    (hk : Odd k) (v : M) : k • v = v := by
+  obtain ⟨m, rfl⟩ := hk
+  rw [add_nsmul, one_nsmul, mul_nsmul, two_nsmul, hM, smul_zero, zero_add]
+
+/-- **Factor 1** — `(x₀^σ)⁻¹` carries the `S⁻¹`-twisted jet `(−S⁻¹a₀, −S⁻¹y₀)` and central value
+`y_σ(a₀) + y₀(a_σ) + y₀(a₀)`; the diagonal `y₀(a₀)` is the `β(u⁻¹)`-rule's Bockstein term.  The
+compact-`N` boundary block on the `x₀` column — WL-b's "same formal row, different column"
+finding, one degree up. -/
+theorem heisF_lSqInvConj (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : A), t.x i • v = v) :
+    heisEvalZ ⇑t x y E E₂ (.inv (.conj (.gen (coreLetter h 0)) (.gen .sigma)))
+      = ⟨-(t.σ⁻¹ • x (coreLetter h 0)), -(t.σ⁻¹ • y (coreLetter h 0)),
+          y .sigma (x (coreLetter h 0)) + y (coreLetter h 0) (x .sigma)
+            + y (coreLetter h 0) (x (coreLetter h 0)),
+          (conjR (t (coreLetter h 0)) t.σ)⁻¹⟩ := by
+  have h0 := mem_trivAct.mp (LSq.trivAct_coreLetter t hwild 0)
+  rw [heisEvalZ_inv, heisEvalZ_conj, heisEvalZ_gen, heisEvalZ_gen,
+    heisConjR_of_trivial _ _ h0]
+  refine HeisLift.ext ?_ ?_ ?_ ?_
+  · show -((conjR (t (coreLetter h 0)) t.σ)⁻¹ • t.σ⁻¹ • x (coreLetter h 0)) = _
+    rw [mem_trivAct.mp (inv_mem (trivAct_conjR (LSq.trivAct_coreLetter t hwild 0) t.σ))]
+  · show -((conjR (t (coreLetter h 0)) t.σ)⁻¹ • t.σ⁻¹ • y (coreLetter h 0)) = _
+    rw [smul_elemDual_of_trivial
+      (mem_trivAct.mp (inv_mem (trivAct_conjR (LSq.trivAct_coreLetter t hwild 0) t.σ)))]
+  · show (0 : ZMod 2) + y .sigma (x (coreLetter h 0)) + y (coreLetter h 0) (x .sigma)
+        + (t.σ⁻¹ • y (coreLetter h 0)) (t.σ⁻¹ • x (coreLetter h 0)) = _
+    rw [ElemDual.smul_apply, inv_inv, smul_inv_smul, zero_add]
+  · rfl
+
+/-- **Factor 2a, the odd cube** — `x₀^{-3}` denotes as a *single letter* with **zero** central
+charge: the two `C(3,2)`-carries cancel across the inversion.  This is the second-order face of
+the augmentation-1 mechanism WL-b found at first order (the geometric sum over a trivially-acting
+base has odd length), and it is why the `x₀`-diagonal of the whole row is the one that
+`(x₀^σ)⁻¹` alone contributes. -/
+theorem heisF_lSqNegCube (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : A), t.x i • v = v) :
+    heisEvalZ ⇑t x y E E₂ (.zpow (.gen (coreLetter h 0)) (-3))
+      = ⟨x (coreLetter h 0), y (coreLetter h 0), 0,
+          (t (coreLetter h 0) ^ (3 : ℕ))⁻¹⟩ := by
+  have h0 := mem_trivAct.mp (LSq.trivAct_coreLetter t hwild 0)
+  have h0p : ∀ a : A, (t (coreLetter h 0) ^ (3 : ℕ)) • a = a := by
+    intro a; rw [pow_succ, pow_succ, pow_one, mul_smul, mul_smul, h0, h0, h0]
+  rw [heisEvalZ_zpow, heisEvalZ_gen, Words.LSq.zpow_neg_three, heisPow_of_trivial _ h0]
+  refine HeisLift.ext ?_ ?_ ?_ ?_
+  · show -((t (coreLetter h 0) ^ (3 : ℕ))⁻¹ • (3 : ℕ) • x (coreLetter h 0)) = _
+    rw [mem_trivAct.mp (inv_mem (mem_trivAct.mpr h0p)),
+      odd_nsmul_eq_self hA₂ (by decide), neg_eq_self hA₂]
+  · show -((t (coreLetter h 0) ^ (3 : ℕ))⁻¹ • (3 : ℕ) • y (coreLetter h 0)) = _
+    rw [smul_elemDual_of_trivial (mem_trivAct.mp (inv_mem (mem_trivAct.mpr h0p))),
+      odd_nsmul_eq_self ElemDual.add_self_eq_zero (by decide),
+      neg_eq_self ElemDual.add_self_eq_zero]
+  · show (3 : ℕ) • (0 : ZMod 2) + ((3 : ℕ).choose 2) • y (coreLetter h 0) (x (coreLetter h 0))
+        + ((3 : ℕ) • y (coreLetter h 0)) ((3 : ℕ) • x (coreLetter h 0)) = 0
+    rw [smul_zero, zero_add, odd_nsmul_eq_self hA₂ (by decide),
+      odd_nsmul_eq_self ElemDual.add_self_eq_zero (by decide),
+      nsmul_zmod2_odd (by decide : Odd ((3 : ℕ).choose 2)), CharTwo.add_self_eq_zero]
+  · rfl
+
+/-- **Factor 2b** — the `ω₂`-block's inner word `x₀^{-3}τ` (in the certificate's `prodList`
+spelling): jet `(a₀ + a_τ, y₀ + y_τ)`, central value `y₀(a_τ)`. -/
+theorem heisF_lSqInner (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : A), t.x i • v = v) :
+    heisEvalZ ⇑t x y E E₂
+        (PWord.prodList [.zpow (.gen (coreLetter h 0)) (-3), .gen .tau])
+      = ⟨x (coreLetter h 0) + x .tau, y (coreLetter h 0) + y .tau,
+          y (coreLetter h 0) (x .tau),
+          (t (coreLetter h 0) ^ (3 : ℕ))⁻¹ * t.τ⟩ := by
+  have h0 := mem_trivAct.mp (LSq.trivAct_coreLetter t hwild 0)
+  have h0p : ∀ a : A, (t (coreLetter h 0) ^ (3 : ℕ)) • a = a := by
+    intro a; rw [pow_succ, pow_succ, pow_one, mul_smul, mul_smul, h0, h0, h0]
+  have h0i : ∀ a : A, (t (coreLetter h 0) ^ (3 : ℕ))⁻¹ • a = a :=
+    mem_trivAct.mp (inv_mem (mem_trivAct.mpr h0p))
+  rw [PWord.prodList_cons, PWord.prodList_cons, PWord.prodList_nil, heisEvalZ_mul,
+    heisEvalZ_mul, heisF_lSqNegCube t x y E E₂ hA₂ hwild, heisEvalZ_gen, heisEvalZ_one,
+    mul_one]
+  refine HeisLift.ext ?_ ?_ ?_ ?_
+  · show x (coreLetter h 0) + (t (coreLetter h 0) ^ (3 : ℕ))⁻¹ • x .tau = _
+    rw [h0i]
+  · show y (coreLetter h 0) + (t (coreLetter h 0) ^ (3 : ℕ))⁻¹ • y .tau = _
+    rw [smul_elemDual_of_trivial h0i]
+  · show (0 : ZMod 2) + 0 + y (coreLetter h 0) ((t (coreLetter h 0) ^ (3 : ℕ))⁻¹ • x .tau) = _
+    rw [h0i, zero_add, zero_add]
+  · rfl
+
+/-- **Factor 2c** — `(x₀⁻³τ)^{ω₂}` at a resolver value `E ω₂ = e`: the `e`-th power of the inner
+word by the trivial-base power law.  The `C(e,2)`-term dies exactly on `e ≡ 0, 1 (mod 4)` —
+ticket S1.T's "the lift level is 4, not 2" on the type-`L` row. -/
+theorem heisF_lSqOmegaBlock (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : A), t.x i • v = v) (hτ : ∀ v : A, t.τ • v = v)
+    {e : ℕ} (hE : E omega2 = (e : ℤ)) :
+    heisEvalZ ⇑t x y E E₂
+        (PWord.omega2Pow (PWord.prodList [.zpow (.gen (coreLetter h 0)) (-3), .gen .tau]))
+      = ⟨e • (x (coreLetter h 0) + x .tau), e • (y (coreLetter h 0) + y .tau),
+          e • y (coreLetter h 0) (x .tau)
+            + (e.choose 2) • ((y (coreLetter h 0) + y .tau)
+                (x (coreLetter h 0) + x .tau)),
+          ((t (coreLetter h 0) ^ (3 : ℕ))⁻¹ * t.τ) ^ e⟩ := by
+  have h0 := mem_trivAct.mp (LSq.trivAct_coreLetter t hwild 0)
+  have h0p : ∀ a : A, (t (coreLetter h 0) ^ (3 : ℕ)) • a = a := by
+    intro a; rw [pow_succ, pow_succ, pow_one, mul_smul, mul_smul, h0, h0, h0]
+  have h0i : ∀ a : A, (t (coreLetter h 0) ^ (3 : ℕ))⁻¹ • a = a :=
+    mem_trivAct.mp (inv_mem (mem_trivAct.mpr h0p))
+  have hbase : ∀ v : A, ((t (coreLetter h 0) ^ (3 : ℕ))⁻¹ * t.τ) • v = v := fun v => by
+    rw [mul_smul, hτ, h0i]
+  rw [PWord.omega2Pow, heisEvalZ_profPow, heisF_lSqInner t x y E E₂ hA₂ hwild, hE,
+    zpow_natCast, heisPow_of_trivial _ hbase]
+
+/-- **Factor 3** — `x₁²` is jet-zero central with value the **diagonal** `y₁(a₁)`: `C(2,2) = 1`.
+This is the `⟨1⟩` of `⟨1⟩ ⊥ H^{⊥(h+1)}`, and the column WL-b's first-order row could not see. -/
+theorem heisF_lSqSquare (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : A), t.x i • v = v) :
+    heisEvalZ ⇑t x y E E₂ (.zpow (.gen (coreLetter h 1)) 2)
+      = ⟨0, 0, y (coreLetter h 1) (x (coreLetter h 1)), t (coreLetter h 1) ^ (2 : ℕ)⟩ := by
+  have h1 := mem_trivAct.mp (LSq.trivAct_coreLetter t hwild 1)
+  rw [heisEvalZ_zpow, heisEvalZ_gen, Words.LSq.zpow_two, heisPow_of_trivial _ h1]
+  refine HeisLift.ext ?_ ?_ ?_ ?_
+  · exact even_nsmul_eq_zero hA₂ (by decide) _
+  · exact even_nsmul_eq_zero ElemDual.add_self_eq_zero (by decide) _
+  · show (2 : ℕ) • (0 : ZMod 2) + ((2 : ℕ).choose 2) • _ = _
+    rw [smul_zero, zero_add, nsmul_zmod2_odd (by decide : Odd ((2 : ℕ).choose 2))]
+  · rfl
+
+/-- **Factor 4, the square-commutator block** — `[x₁, x₁^{σ₂}]` is jet-zero central with value
+`y₁(S₂⁻¹a₁) + y₁(S₂a₁) = y₁((S₂ + S₂⁻¹)a₁)`, where `S₂ = S^{E ω₂}` is the `σ₂`-operator.
+
+**This is where `σ₂` finally does work.**  WL-b proved the block invisible at first order with no
+hypothesis on `σ₂` anywhere; at second order the block *is* the `σ₂`-operator, and it is the
+Wall-doubling `1 + U + U⁻¹` operator of the frozen `Γ_R` pairing seen at the letter level.  The
+`σ₂` *offsets* `a_{σ₂}, y_{σ₂}` still do not appear — only the operator. -/
+theorem heisF_lSqComm (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : A), t.x i • v = v) :
+    heisEvalZ ⇑t x y E E₂
+        (.comm (.gen (coreLetter h 1)) (.conj (.gen (coreLetter h 1)) sigma2W))
+      = ⟨0, 0, y (coreLetter h 1) ((t.σ ^ E omega2)⁻¹ • x (coreLetter h 1))
+            + y (coreLetter h 1) ((t.σ ^ E omega2) • x (coreLetter h 1)),
+          commR (t (coreLetter h 1))
+            (conjR (t (coreLetter h 1)) (heisEvalZ ⇑t x y E E₂ sigma2W).g)⟩ := by
+  have h1 := mem_trivAct.mp (LSq.trivAct_coreLetter t hwild 1)
+  have hg : (heisEvalZ ⇑t x y E E₂ sigma2W).g = t.σ ^ E omega2 := by
+    rw [sigma2W, PWord.omega2Pow, heisEvalZ_profPow]
+    show (heisEvalZ ⇑t x y E E₂ (.gen Generator.sigma) ^ E omega2).g = _
+    rw [show ∀ (p : HeisLift A C) (k : ℤ), (p ^ k).g = p.g ^ k from fun p k =>
+      map_zpow HeisLift.gHom p k]
+    rfl
+  rw [heisEvalZ_comm, heisEvalZ_conj, heisEvalZ_gen,
+    heisConjR_of_trivial _ _ h1,
+    heisCommR_of_trivial _ _ h1
+      (by show ∀ a : A, (conjR (t (coreLetter h 1)) _) • a = a
+          exact mem_trivAct.mp (trivAct_conjR (LSq.trivAct_coreLetter t hwild 1) _))]
+  refine HeisLift.ext rfl rfl ?_ rfl
+  show y (coreLetter h 1) ((heisEvalZ ⇑t x y E E₂ sigma2W).g⁻¹ • x (coreLetter h 1))
+      + ((heisEvalZ ⇑t x y E E₂ sigma2W).g⁻¹ • y (coreLetter h 1)) (x (coreLetter h 1)) = _
+  rw [hg, ElemDual.smul_apply, inv_inv]
+
+/-- **Factor 5, membership** — the handle block is jet-zero at every handle count. -/
+theorem heisF_lSqHandles_mem (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : A), t.x i • v = v) :
+    heisEvalZ ⇑t x y E E₂ (handlesW h) ∈ heisJetZero A C := by
+  rw [handlesW]
+  refine (heisEvalZ_prodList_jetZero ⇑t x y E E₂ ?_).1
+  intro w hw
+  obtain ⟨j, -, rfl⟩ := List.mem_map.mp hw
+  rw [heisEvalZ_comm, heisEvalZ_gen, heisEvalZ_gen,
+    heisCommR_of_trivial _ _ (mem_trivAct.mp (LSq.trivAct_handleU t hwild j))
+      (mem_trivAct.mp (LSq.trivAct_handleV t hwild j))]
+  exact ⟨rfl, rfl⟩
+
+/-- **Factor 5, value** — `H_h` contributes exactly the `h` identity-operator hyperbolic planes,
+at any handle count.  `S`, `T` and `σ₂` all stay out of the handle block. -/
+theorem heisF_lSqHandles_z (hwild : ∀ (i : Fin (2 * h + 1 + 1)) (v : A), t.x i • v = v) :
+    (heisEvalZ ⇑t x y E E₂ (handlesW h)).z
+      = ∑ j, (y (handleU j) (x (handleV j)) + y (handleV j) (x (handleU j))) := by
+  rw [handlesW]
+  have hmem : ∀ w ∈ (List.finRange h).map fun j =>
+      (PWord.comm (.gen (handleU j)) (.gen (handleV j)) : PWord (Generator (2 * h + 1))),
+      heisEvalZ ⇑t x y E E₂ w ∈ heisJetZero A C := by
+    intro w hw
+    obtain ⟨j, -, rfl⟩ := List.mem_map.mp hw
+    rw [heisEvalZ_comm, heisEvalZ_gen, heisEvalZ_gen,
+      heisCommR_of_trivial _ _ (mem_trivAct.mp (LSq.trivAct_handleU t hwild j))
+        (mem_trivAct.mp (LSq.trivAct_handleV t hwild j))]
+    exact ⟨rfl, rfl⟩
+  rw [(heisEvalZ_prodList_jetZero ⇑t x y E E₂ hmem).2, List.map_map, Fin.sum_univ_def]
+  congr 1
+  refine List.map_congr_left fun j _ => ?_
+  show (heisEvalZ ⇑t x y E E₂ (.comm (.gen (handleU j)) (.gen (handleV j)))).z = _
+  rw [heisEvalZ_comm, heisEvalZ_gen, heisEvalZ_gen,
+    heisCommR_of_trivial _ _ (mem_trivAct.mp (LSq.trivAct_handleU t hwild j))
+      (mem_trivAct.mp (LSq.trivAct_handleV t hwild j))]
+
+/-- The handle tail's denotation, uniformly in `h`.  ⚠ `handleTail 0 = []` — the `n = 1` tree has
+no handle node at all (WL-a authoring rule 2), so every induction on `h` needs this `cases`
+split; `handlesW 0 = .one` makes the two branches agree. -/
+theorem heisEvalZ_lSqHandleTail :
+    ((handleTail h).map (heisEvalZ ⇑t x y E E₂)).prod = heisEvalZ ⇑t x y E E₂ (handlesW h) := by
+  cases h with
+  | zero => rw [handleTail, List.map_nil, List.prod_nil, handlesW_zero, heisEvalZ_one]
+  | succ k => rw [handleTail, List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one]
+
+end StokesRows
+
 end GQ2.Dyadic.Certificates.LSqStokes
