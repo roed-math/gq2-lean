@@ -53,9 +53,12 @@ stack, so the pure-algebra fibred-product kit (`GQ2.SectionThree.fiberProductExi
   Satisfiable, satisfied by all five frozen branch words, and the hypothesis of every
   construction in §4 (`tameOfSpec`, `psiOfSpec`, `gammaR_tame_equiv_of_spec`, `ker_tameOfSpec`,
   `prop_3_4_one_of_spec`, `prop_3_4_three_of_spec`, `nuTwoOfSpec`,
-  `gammaR_boundary_surjective_of_spec`).  Discharge it with `tameSpecializes_of_tau_pow`, fed
-  the lane's own `eval_killWildLetters_*` value theorem: `τ^{ω₂} = 1` in `T_q` by Lemma 3.1
-  (`zpowHat_omega2_tqTau`, §1).
+  `gammaR_boundary_surjective_of_spec`).  A branch lane discharges it in one line, from its own
+  landed tame-boundary theorem, by whichever of the two routes matches that theorem's shape —
+  `tameSpecializes_of_tau_pow` when the kill-wild value is bare `τ^{ω₂}` (compact `N`, `Npc`,
+  `L_sq`), `tameSpecializes_of_tau` when the lane states death as an implication from
+  `τ^{ω₂} = 1` (compact `M`, `Mpc`, whose values carry an `𝓔`-block and an orbit norm).  Both
+  bottom out in Lemma 3.1: `τ^{ω₂} = 1` in `T_q` (`zpowHat_omega2_tqTau`, §1).
 * **`KillsWild R`** — F3's original, quantified over *every* profinite group and *every*
   marking.  It is **refuted** by all five frozen branch words (`Words/{N0,Npc,M0,Mpc,L}.lean`
   each carry a landed `not_killsWild`), because the tame-killed value of a `δ`-letter word is
@@ -453,6 +456,16 @@ noncomputable def tameMarking (n q : ℕ) : Marking n ((Tq q) : Type) :=
 
 @[simp] theorem tameMarking_x (i : Fin (n + 1)) : (tameMarking n q).x i = 1 := rfl
 
+/-- **`ω₂` kills the tame marking's `τ`-letter** — `zpowHat_omega2_tqTau` (Lemma 3.1, §1) read
+at `tameMarking`.  This is precisely the hypothesis the `_of_tau`-shaped branch-lane theorems
+take (compact `M`'s `eval_killWildLetters_mCompact_of_tau`, `Mpc`'s
+`eval_killWildLetters_mpcW_eq_one`), which is why Gate B is a one-liner for every lane: see
+`TameSpec.tameSpecializes_of_tau`. -/
+theorem tameMarking_tau_zpowHat_omega2 (hq0 : q ≠ 0) (hqe : Even q) :
+    (tameMarking n q).τ ^ᶻ omega2 = 1 := by
+  rw [tameMarking_τ]
+  exact zpowHat_omega2_tqTau hq0 hqe
+
 theorem killWildLetters_tameMarking :
     Marking.killWildLetters (tameMarking n q) = tameMarking n q := by
   ext g; cases g <;> rfl
@@ -516,18 +529,35 @@ theorem tameSpecializes_of_killsWild (hadm : KillsWild R) : TameSpecializes n q 
   have h := hadm ((Tq q) : Type) (tameMarking n q)
   rwa [killWildLetters_tameMarking] at h
 
-/-- **The branch lanes' route.**  Each `Words/*.lean` proves its word's tame boundary *value*
-is `τ^{ω₂}` (`eval_killWildLetters_nCompact`, `…_mCompact`, `…_npc`, `…_mpc`, `…_lSq`), for an
-arbitrary marking.  Fed that theorem at `t := tameMarking n q`, this discharges Gate B in one
-step, because `τ^{ω₂} = 1` in `T_q` (Lemma 3.1, `zpowHat_omega2_tqTau`). -/
+/-- **The branch lanes' route, form 1 — the bare value.**  Three of the five lanes prove their
+word's tame boundary value is exactly `τ^{ω₂}` for an arbitrary marking:
+`Words.eval_killWildLetters_nCompact`, `Words.Npc.eval_killWildLetters_npcW`,
+`Words.LSq.eval_killWildLetters_lSq`.  Fed that theorem at `t := tameMarking n q`, this
+discharges Gate B in one step, because `τ^{ω₂} = 1` in `T_q` (Lemma 3.1,
+`zpowHat_omega2_tqTau`).
+
+The other two lanes (compact `M`, `Mpc`) carry an `𝓔`-block and an orbit norm alongside the
+`τ^{ω₂}`, so their bare value is *not* `τ^{ω₂}` — they take form 2 below. -/
 theorem tameSpecializes_of_tau_pow (hq0 : q ≠ 0) (hqe : Even q)
     (h : (Marking.killWildLetters (tameMarking n q)).eval R = (tameMarking n q).τ ^ᶻ omega2) :
     TameSpecializes n q R := by
   rw [killWildLetters_tameMarking, tameMarking_τ, zpowHat_omega2_tqTau hq0 hqe] at h
   exact h
 
-/-- The route for a lane whose tame boundary value is `1` outright (compact `M`'s `Mpc`
-spelling), stated at the kill-wild marking the lanes use. -/
+/-- **The branch lanes' route, form 2 — the `τ`-conditioned form**, and the one that covers
+every word shape.  Compact `M` and `Mpc` state their tame boundary death as an *implication*
+from `τ^{ω₂} = 1` (`Words.MCompact.eval_killWildLetters_mCompact_of_tau`,
+`Words.Mpc.eval_killWildLetters_mpcW_eq_one`), because their kill-wild value carries an
+`𝓔`-block (and, for `Mpc`, an orbit norm) that only collapses once `τ^{ω₂}` is trivial.  Hand
+that implication here and Gate B is discharged: `T_q` supplies its antecedent by Lemma 3.1. -/
+theorem tameSpecializes_of_tau (hq0 : q ≠ 0) (hqe : Even q)
+    (h : (tameMarking n q).τ ^ᶻ omega2 = 1 →
+      (Marking.killWildLetters (tameMarking n q)).eval R = 1) :
+    TameSpecializes n q R :=
+  tameSpecializes_iff_killWildLetters.mpr (h (tameMarking_tau_zpowHat_omega2 hq0 hqe))
+
+/-- The route for a lane whose tame boundary value is already `1` with no side condition,
+stated at the kill-wild marking the lanes use. -/
 theorem tameSpecializes_of_killWildLetters
     (h : (Marking.killWildLetters (tameMarking n q)).eval R = 1) : TameSpecializes n q R :=
   tameSpecializes_iff_killWildLetters.mpr h
