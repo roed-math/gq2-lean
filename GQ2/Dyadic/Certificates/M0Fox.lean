@@ -646,7 +646,32 @@ behind the prefix `S₂^{−2m}` of `A₀²[A₀,x₁]`, so its contribution `S�
 packet Prop. 9.2's power balance `−2·2^{α−1} + 2^α = 0`, one derivative up, and it is why the
 opaque atom `D(σ₂)` never reaches a certificate.
 
-No hypothesis on `α`, none on `S`, none on the characteristic. -/
+No hypothesis on `α`, none on `S`, none on the characteristic — and **none on the correction
+block**, which is why this is stated for WM0-a's block-slot scaffolding `mWordWith B`: the block
+sits last among the five factors, so its own evaluation only ever multiplies the handle tail's
+derivative, and that is `0`. -/
+theorem foxD_mWordWith_core
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hj2 : ∀ v : V, PWord.evalFin ⇑t E E₂ (j2W h) • v = v)
+    (B : PWord (Generator (2 + 2 * h))) (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (mWordWith α h B)
+      = (-a (coreLetter h 0) - ((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 0))
+        + (((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a (coreLetter h 1)
+            - ((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 1))
+        + (foxD ⇑t a E E₂ (j2W h) + foxD ⇑t a E E₂ B) := by
+  have hsplit : (powOmega2 t.σ) ^ (2 * mOf α)
+      = (powOmega2 t.σ) ^ mOf α * (powOmega2 t.σ) ^ mOf α := by
+    rw [← pow_add]; congr 1; omega
+  rw [mWordWith]
+  simp only [List.cons_append, List.nil_append, PWord.prodList_cons]
+  rw [foxD_mul, foxD_mul, foxD_mul, foxD_mul, foxD_mul, foxD_handleTailW t E E₂ hwild,
+    smul_zero, add_zero, hj2, evalFin_sigma2Block_smul, evalFin_leadingComm_smul t E E₂ hwild,
+    evalFin_leadingSquare_smul t E E₂ hwild, foxD_leadingSquare t E E₂ hwild,
+    foxD_leadingComm t E E₂ hwild, foxD_sigma2Block, sigmaGeom_two_mul]
+  simp only [smul_add, smul_sub, smul_neg, hsplit, mul_inv_rev, mul_smul, inv_smul_smul]
+  abel
+
+@[inherit_doc foxD_mWordWith_core]
 theorem foxD_mCompact_core
     (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
     (hj2 : ∀ v : V, PWord.evalFin ⇑t E E₂ (j2W h) • v = v)
@@ -655,18 +680,8 @@ theorem foxD_mCompact_core
       = (-a (coreLetter h 0) - ((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 0))
         + (((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a (coreLetter h 1)
             - ((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 1))
-        + (foxD ⇑t a E E₂ (j2W h) + foxD ⇑t a E E₂ (eRevW α h)) := by
-  have hsplit : (powOmega2 t.σ) ^ (2 * mOf α)
-      = (powOmega2 t.σ) ^ mOf α * (powOmega2 t.σ) ^ mOf α := by
-    rw [← pow_add]; congr 1; omega
-  rw [mCompactW, mFactors]
-  simp only [List.cons_append, List.nil_append, PWord.prodList_cons]
-  rw [foxD_mul, foxD_mul, foxD_mul, foxD_mul, foxD_mul, foxD_handleTailW t E E₂ hwild,
-    smul_zero, add_zero, hj2, evalFin_sigma2Block_smul, evalFin_leadingComm_smul t E E₂ hwild,
-    evalFin_leadingSquare_smul t E E₂ hwild, foxD_leadingSquare t E E₂ hwild,
-    foxD_leadingComm t E E₂ hwild, foxD_sigma2Block, sigmaGeom_two_mul]
-  simp only [smul_add, smul_sub, smul_neg, hsplit, mul_inv_rev, mul_smul, inv_smul_smul]
-  abel
+        + (foxD ⇑t a E E₂ (j2W h) + foxD ⇑t a E E₂ (eRevW α h)) :=
+  foxD_mWordWith_core t E E₂ hwild hj2 _ a
 
 /-! ### The four published rows -/
 
@@ -824,6 +839,132 @@ theorem foxD_mCompact_split (hV₂ : ∀ v : V, v + v = 0)
   rw [foxD_mCompact_unram_simple t E E₂ hV₂ hwild hτ
       (fun v => mem_trivAct.mp (trivAct_powOmega2 (mem_trivAct.mpr hσ)) v),
     hσinv, sub_self, add_zero]
+
+/-! ### The zero columns, and the `2h` handle columns in particular
+
+A *column* of the evaluated row is its value on a single-slot offset vector `Pi.single g v`.
+The compact-`M` wild row has at most **four** nonzero columns at every handle count (against
+the compact-`N` row's two), so all `2h` handle columns — the whole `h`-dependence of the first
+jet — vanish identically: hyperbolic stabilization is first-order invisible. -/
+
+/-- The handle letters `x₃, …, x_{2h+2}` are distinct from the core letters `x₀, x₁, x₂` and
+from `τ` — the four column-distinctness facts every handle-column vanishing needs.  Shared with
+WN0-b letter for letter (the alphabets are the same). -/
+theorem handleU_ne_coreLetter (j : Fin h) (i : Fin 3) : handleU j ≠ coreLetter h i :=
+  Certificates.handleU_ne_coreLetter j i
+
+@[inherit_doc handleU_ne_coreLetter]
+theorem handleV_ne_coreLetter (j : Fin h) (i : Fin 3) : handleV j ≠ coreLetter h i :=
+  Certificates.handleV_ne_coreLetter j i
+
+@[inherit_doc handleU_ne_coreLetter]
+theorem handleU_ne_tau (j : Fin h) : handleU j ≠ (Generator.tau : Generator (2 + 2 * h)) :=
+  Certificates.handleU_ne_tau j
+
+@[inherit_doc handleU_ne_coreLetter]
+theorem handleV_ne_tau (j : Fin h) : handleV j ≠ (Generator.tau : Generator (2 + 2 * h)) :=
+  Certificates.handleV_ne_tau j
+
+/-- **Every column of the wild row other than `τ, x₀, x₁, x₂` is zero** (unramified class). -/
+theorem foxDHom_mCompact_unram_column_eq_zero (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    {g : Generator (2 + 2 * h)} (hgτ : g ≠ .tau) (hg0 : g ≠ coreLetter h 0)
+    (hg1 : g ≠ coreLetter h 1) (hg2 : g ≠ coreLetter h 2) (v : V) :
+    foxDHom ⇑t E E₂ (mCompactW α h) (Pi.single g v) = 0 := by
+  rw [foxDHom_apply, foxD_mCompact_unram t E E₂ hV₂ hwild hτ,
+    Pi.single_eq_of_ne (Ne.symm hgτ), Pi.single_eq_of_ne (Ne.symm hg0),
+    Pi.single_eq_of_ne (Ne.symm hg1), Pi.single_eq_of_ne (Ne.symm hg2)]
+  simp
+
+/-- The `2h` handle columns of the wild row are zero — the `u`-half, at every `h`. -/
+theorem foxDHom_mCompact_handleU_column (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (j : Fin h) (v : V) :
+    foxDHom ⇑t E E₂ (mCompactW α h) (Pi.single (handleU j) v) = 0 :=
+  foxDHom_mCompact_unram_column_eq_zero t E E₂ hV₂ hwild hτ (handleU_ne_tau j)
+    (handleU_ne_coreLetter j 0) (handleU_ne_coreLetter j 1) (handleU_ne_coreLetter j 2) v
+
+/-- The `2h` handle columns of the wild row are zero — the `v`-half, at every `h`. -/
+theorem foxDHom_mCompact_handleV_column (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (j : Fin h) (v : V) :
+    foxDHom ⇑t E E₂ (mCompactW α h) (Pi.single (handleV j) v) = 0 :=
+  foxDHom_mCompact_unram_column_eq_zero t E E₂ hV₂ hwild hτ (handleV_ne_tau j)
+    (handleV_ne_coreLetter j 0) (handleV_ne_coreLetter j 1) (handleV_ne_coreLetter j 2) v
+
+/-- The same, ramified class: there the row has a *single* nonzero column, so every column but
+`x₂` — handles included — dies. -/
+theorem foxDHom_mCompact_ram_column_eq_zero (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hτfpf : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v)
+    {g : Generator (2 + 2 * h)} (hg2 : g ≠ coreLetter h 2) (v : V) :
+    foxDHom ⇑t E E₂ (mCompactW α h) (Pi.single g v) = 0 := by
+  rw [foxDHom_apply, foxD_mCompact_ram t E E₂ hV₂ hwild hτfpf hTodd,
+    Pi.single_eq_of_ne (Ne.symm hg2)]
+  simp
+
+/-! ### The forward-order mutant at first order
+
+WM0-a proved that neither boundary gate can see the block order.  Here is the *first Fox order*
+statement, which is the one S4.1 says is invisible: the four `δ`-conjugates all act trivially,
+so their derivatives add as a plain sum and reordering them is `add_comm`.
+
+⚠ This is **not** a claim that the two words are equal, nor a rejection of either order.  Per
+the dated 2026-07-31 correction to the WM0 spec, the rejection of record is S4.1 §9.4's
+second-order difference formula in `(q, b_q, P, W)`; the Lean-side rejection is WM0-c's. -/
+
+/-- **The two `𝓔`-block orders have the same Fox row.** -/
+theorem foxD_eFwdW_eq_eRevW (hd0 : PWord.evalFin ⇑t E E₂ (deltaCert h 0) ∈ trivAct C V)
+    (hd1 : PWord.evalFin ⇑t E E₂ (deltaCert h 1) ∈ trivAct C V)
+    (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (eFwdW α h) = foxD ⇑t a E E₂ (eRevW α h) := by
+  have hconjmem : ∀ (i : Fin 3) (k : ℤ),
+      PWord.evalFin ⇑t E E₂ (deltaCert h i) ∈ trivAct C V →
+        PWord.evalFin ⇑t E E₂ (.conj (deltaCert h i) (.zpow sigma2W k)) ∈ trivAct C V := by
+    intro i k hi
+    rw [PWord.evalFin_conj]
+    exact trivAct_conjR hi _
+  have hconj : ∀ (i : Fin 3) (k : ℕ),
+      PWord.evalFin ⇑t E E₂ (deltaCert h i) ∈ trivAct C V →
+        foxD ⇑t a E E₂ (.conj (deltaCert h i) (.zpow sigma2W (k : ℤ)))
+          = ((powOmega2 t.σ) ^ k)⁻¹ • foxD ⇑t a E E₂ (deltaCert h i) := by
+    intro i k hi
+    rw [foxD_conj_of_trivial _ _ _ _ hi, PWord.evalFin_zpow, evalFin_sigma2W, zpow_natCast]
+  rw [eFwdW, foxD_prodList_of_trivial _ _ _ _ _ (by
+    intro w hw
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at hw
+    rcases hw with rfl | rfl | rfl | rfl
+    · exact hd0
+    · exact hconjmem 0 _ hd0
+    · exact hconjmem 1 _ hd1
+    · exact hconjmem 1 _ hd1)]
+  simp only [List.map_cons, List.map_nil, List.sum_cons, List.sum_nil, add_zero]
+  rw [show (2 * (mOf α : ℤ)) = ((2 * mOf α : ℕ) : ℤ) by push_cast; ring,
+    hconj 0 _ hd0, hconj 1 _ hd1, hconj 1 _ hd1,
+    foxD_eRevW t E E₂ hd0 hd1]
+  abel
+
+/-- **The block order is invisible at first Fox order**: the frozen word and its forward-order
+mutant have the *same* evaluated Fox row, at every marking of every class in which the
+`δ`-letters act trivially — i.e. at every module the certificates speak about. -/
+theorem foxD_mFwdW_eq_mCompact
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hj2 : ∀ v : V, PWord.evalFin ⇑t E E₂ (j2W h) • v = v)
+    (hd0 : PWord.evalFin ⇑t E E₂ (deltaCert h 0) ∈ trivAct C V)
+    (hd1 : PWord.evalFin ⇑t E E₂ (deltaCert h 1) ∈ trivAct C V)
+    (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (mFwdW α h) = foxD ⇑t a E E₂ (mCompactW α h) := by
+  rw [mFwdW, foxD_mWordWith_core t E E₂ hwild hj2, foxD_mCompact_core t E E₂ hwild hj2,
+    foxD_eFwdW_eq_eRevW t E E₂ hd0 hd1]
+
+/-- …hence the two evaluated **Jacobians** agree as homomorphisms. -/
+theorem foxDHom_mFwdW_eq_mCompact
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hj2 : ∀ v : V, PWord.evalFin ⇑t E E₂ (j2W h) • v = v)
+    (hd0 : PWord.evalFin ⇑t E E₂ (deltaCert h 0) ∈ trivAct C V)
+    (hd1 : PWord.evalFin ⇑t E E₂ (deltaCert h 1) ∈ trivAct C V) :
+    foxDHom ⇑t E E₂ (mFwdW α h) = foxDHom ⇑t E E₂ (mCompactW α h) (A := V) :=
+  AddMonoidHom.ext fun a => foxD_mFwdW_eq_mCompact t E E₂ hwild hj2 hd0 hd1 a
 
 end Rows
 
