@@ -714,7 +714,7 @@ theorem h2Word_injective (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
 
 omit [TopologicalSpace C] [DiscreteTopology C] [Fintype ι] [DecidableEq ι] in
 /-- `H²(Γ, 𝔽₂)` is finite, being embedded in the finite `WordH²`. -/
-theorem finite_H2 (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+theorem finite_H2_of_presented (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
     (hwildLevel : ∀ V : OpenNormalSubgroup Γ,
       IsWildTwo J (fun i => QuotientGroup.mk' V.toSubgroup (gen i)))
     (hres : ResolvesAt W w (WordLift (ZMod 2) C)) (c : ι → C) : Finite (H2 Γ (ZMod 2)) :=
@@ -778,12 +778,13 @@ theorem cardH2_comp (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
     (hnt : Nontrivial (H2 Γ (ZMod 2))) (hd : StokesDuality c w (ZMod 2))
     (hr : ∀ k, FreeGroup.lift c (w k) = 1) (hend : IsStokesEndpoint w) :
     Nat.card (H2 Γ (ZMod 2)) = Nat.card (WordH2 c w (ZMod 2)) := by
-  haveI := finite_H2 (w := w) hpres hwildLevel hres c
+  haveI := finite_H2_of_presented (w := w) hpres hwildLevel hres c
   have hw2 : Nat.card (WordH2 c w (ZMod 2)) = 2 := card_wordH2_zmod2 hd hr hend
   have hle : Nat.card (H2 Γ (ZMod 2)) ≤ 2 :=
     le_of_le_of_eq (card_H2_le_card_wordH2 hpres hwildLevel hres c) hw2
   exact (cardH2_of_le_two hle hnt).trans hw2.symm
 
+omit [TopologicalSpace C] [DiscreteTopology C] in
 /-- **`SourceDataN.cardH2`, over the abstract carrier, with no open argument.**  CB-2's `cardH2N`
 with its `hcomp` supplied. -/
 theorem cardH2N_closed (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
