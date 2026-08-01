@@ -1070,4 +1070,207 @@ theorem mCompactWildRow_toHom_apply (a : Generator (2 + 2 * h) → V) :
 
 end RowData
 
+/-! ## The certificates
+
+WW2 shape throughout: ops list + target + `verifies`, with every listed op carrying its
+invertibility witness.  The tame relator is the compact-`N` lane's `Certificates.tameRelW`
+unchanged (same relation `τ^σ = τ^{q_K}`), so its two rows `Certificates.tameRow` /
+`Certificates.tameUnramRow` and its published-row certificate `Certificates.tameRowCertUnram`
+are used here verbatim — this row contributes nothing new to the tame line.
+
+The **operations are the frozen certificate's two**, and they are the pilot lane's:
+`add_row(source 0, target 1, factor S)` in the unramified branch (`Certificates.nCompactUnramOps`
+= Sage `AddRow(1,0,S)`) and `scale_col(x2, unit S)` in the ramified one
+(`Certificates.nCompactRamOps`, whose carried formal inverse `S⁻¹` *is* the witness). -/
+
+section Certificates
+
+variable {h α q : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-! ### The published-row certificates (empty ops)
+
+One formal row, `mCompactWildRow`, certified at *both* interpretations — the Lean form of the
+frozen certificate's "one universal row + per-branch specializations". -/
+
+/-- **The published compact-`M` wild row at every unramified simple tame module**: empty ops,
+target the universal row read with `P ↦ 1`.  No hypothesis on `S` or `S₂`. -/
+noncomputable def mCompactWildRowCertUnram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v) :
+    FoxRowCertificate (TameSym.splitEnd (A := V) t) (foxDHom ⇑t E E₂ (mCompactW α h)) where
+  colOps := []
+  target := mCompactWildRow α h
+  colOps_invertible := by simp
+  verifies := by
+    refine AddMonoidHom.ext fun a => ?_
+    rw [foxRowApplyOps_nil, foxDHom_apply, foxD_mCompact_unram t E E₂ hV₂ hwild hτ,
+      TameSym.splitEnd, mCompactWildRow_toHom_apply]
+    show _ = ((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a .tau
+        + (((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 0) + a (coreLetter h 0))
+        + (((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 1)
+          + ((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a (coreLetter h 1))
+        + (t.σ⁻¹ • a (coreLetter h 2) + a (coreLetter h 2))
+    rw [sub_eq_add_neg, Certificates.neg_eq_self hV₂]
+    abel
+
+/-- **The published compact-`M` wild row at every ramified simple tame module**: the *same*
+formal row read with `P ↦ 0`, i.e. `(0, 0, 0, 0, S⁻¹)` — a single unit entry.  Every `α`-carrying
+entry of the universal row is a `P`-multiple, so the whole correction block and both `σ₂`-powers
+leave the row here without any hypothesis on `S₂`. -/
+noncomputable def mCompactWildRowCertRam (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hτfpf : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v) :
+    FoxRowCertificate (TameSym.ramifiedEnd (A := V) t) (foxDHom ⇑t E E₂ (mCompactW α h)) where
+  colOps := []
+  target := mCompactWildRow α h
+  colOps_invertible := by simp
+  verifies := by
+    refine AddMonoidHom.ext fun a => ?_
+    rw [foxRowApplyOps_nil, foxDHom_apply, foxD_mCompact_ram t E E₂ hV₂ hwild hτfpf hTodd,
+      TameSym.ramifiedEnd, mCompactWildRow_toHom_apply]
+    show -(t.σ⁻¹ • a (coreLetter h 2))
+        = (0 : V) + ((0 : V) + (0 : V)) + ((0 : V) + (0 : V))
+          + (t.σ⁻¹ • a (coreLetter h 2) + (0 : V))
+    rw [Certificates.neg_eq_self hV₂]
+    abel
+
+/-- **The published row at a *simple* unramified module is the compact-`N` row.**
+
+Target `Certificates.nCompactWildRow h` — WN0-b's universal row, unchanged — under the
+simple-module hypothesis `S₂ = 1`.  This is the frozen note *"its `1 − S^{-1}` term and its two
+one-operation normal forms are shared with packet row WC-N0"* at its strongest: the two rows
+coincide, not merely their normal forms. -/
+noncomputable def mCompactWildRowCertUnramSimple (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hS₂ : ∀ v : V, powOmega2 t.σ • v = v) :
+    FoxRowCertificate (TameSym.splitEnd (A := V) t) (foxDHom ⇑t E E₂ (mCompactW α h)) where
+  colOps := []
+  target := Certificates.nCompactWildRow h
+  colOps_invertible := by simp
+  verifies := by
+    refine AddMonoidHom.ext fun a => ?_
+    rw [foxRowApplyOps_nil, foxDHom_apply, foxD_mCompact_unram_simple t E E₂ hV₂ hwild hτ hS₂,
+      TameSym.splitEnd, Certificates.nCompactWildRow_toHom_apply]
+    show a .tau + (a (coreLetter h 2) - t.σ⁻¹ • a (coreLetter h 2))
+        = a .tau + (t.σ⁻¹ • a (Words.coreLetter h 2) + a (Words.coreLetter h 2))
+    simp only [← coreLetter_eq]
+    rw [sub_eq_add_neg, Certificates.neg_eq_self hV₂]
+    abel
+
+/-- **The split (scalar) module certificate**: with `S = 1` the `1 − S⁻¹` block vanishes, the
+`σ₂`-powers collapse with it, and the row *is already* the standard `τ`-pivot. -/
+noncomputable def mCompactWildRowCertSplit (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hσ : ∀ v : V, t.σ • v = v) :
+    FoxRowCertificate (TameSym.splitEnd (A := V) t) (foxDHom ⇑t E E₂ (mCompactW α h)) where
+  colOps := []
+  target := .single .tau
+  colOps_invertible := by simp
+  verifies := by
+    refine AddMonoidHom.ext fun a => ?_
+    rw [foxRowApplyOps_nil, foxDHom_apply, foxD_mCompact_split t E E₂ hV₂ hwild hτ hσ,
+      FoxRowNormalForm.single_toHom_apply]
+
+/-! ### The one-op normal forms
+
+Both are the pilot lane's, on the nose: `Certificates.nCompactUnramNormalForm` (the diagonal
+`(τ ↦ S⁻¹ ; x₂ ↦ 1 − S⁻¹)`) and `Certificates.nCompactRamNormalForm` (`x₂ ↦ 1`, tame row
+untouched). -/
+
+/-- **The unramified branch's one-op normal form** — the headline of the ticket.
+
+A single row operation `row_wild += S · row_tame` (Sage `AddRow(1, 0, S)`) carries the evaluated
+Jacobian of `⟨σ, τ, x₀, x₁, x₂, … ∣ τ^σ = τ^{q_K}, R_{M,0} = 1⟩` to the **diagonal**
+`(τ ↦ S⁻¹ ; x₂ ↦ 1 − S⁻¹)`, both entries units on a nontrivial simple unramified module
+(`Certificates.isUnit_oneSubSInvEnd_iff` for the second: invertible **iff** `V^S = 0`).
+
+The simple-module hypothesis `hS₂` is where the `α`-dependence goes: without it the row still
+carries `P·(1+S₂^{−m})` on `x₀` and `P·(S₂^{−m}+S₂^{−2m})` on `x₁`, and the *diagonal* normal
+form is not reached (this is `specialize_unramified(simple=False)` on the Sage side). -/
+noncomputable def mCompactJacobianCertUnram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hS₂ : ∀ v : V, powOmega2 t.σ • v = v) (hq : Even q) :
+    FoxCertificate (TameSym.splitEnd (A := V) t)
+      (foxJacobian ⇑t E E₂ (Certificates.tameRelW (2 + 2 * h) q) (mCompactW α h)) where
+  rowOps := Certificates.nCompactUnramOps _
+  colOps := []
+  target := Certificates.nCompactUnramNormalForm h
+  rowOps_invertible := by
+    intro r hr
+    rw [Certificates.nCompactUnramOps, List.mem_singleton] at hr
+    subst hr
+    trivial
+  colOps_invertible := by simp
+  verifies := by
+    refine AddMonoidHom.ext fun a => ?_
+    rw [foxApplyOps_apply, FoxColOp.listHom_nil, AddMonoidHom.id_apply,
+      Certificates.nCompactUnramOps, FoxRowOp.listHom_cons, FoxRowOp.listHom_nil,
+      AddMonoidHom.comp_apply, AddMonoidHom.id_apply, foxJacobian_apply,
+      FoxRowOp.toHom_addSnd_apply, FoxNormalForm.toHom_apply]
+    refine Prod.ext ?_ ?_
+    · show foxD ⇑t a E E₂ (Certificates.tameRelW (2 + 2 * h) q) = _
+      rw [Certificates.foxD_tameRelW_unram t E E₂ hV₂ hτ hq,
+        Certificates.nCompactUnramNormalForm, TameSym.splitEnd,
+        Certificates.tameUnramRow_toHom_apply]
+    · show foxD ⇑t a E E₂ (mCompactW α h)
+          + (FoxCoeff.atom (TameSym.gen Generator.sigma 1)).eval _
+            (foxD ⇑t a E E₂ (Certificates.tameRelW (2 + 2 * h) q)) = _
+      rw [foxD_mCompact_unram_simple t E E₂ hV₂ hwild hτ hS₂,
+        Certificates.foxD_tameRelW_unram t E E₂ hV₂ hτ hq, FoxCoeff.eval_atom_apply,
+        TameSym.toEnd_gen_apply, Marking.apply_sigma, zpow_one, smul_inv_smul,
+        Certificates.nCompactUnramNormalForm, TameSym.splitEnd,
+        Certificates.nCompactBlockRow_toHom_apply]
+      simp only [← coreLetter_eq]
+      rw [show a .tau + (a (coreLetter h 2) - t.σ⁻¹ • a (coreLetter h 2)) + a .tau
+          = (a .tau + a .tau) + (a (coreLetter h 2) - t.σ⁻¹ • a (coreLetter h 2)) from by abel,
+        hV₂, zero_add]
+
+/-- **The ramified branch's one-op normal form.**
+
+A single column operation `col_{x₂} *= S` (Sage `ScaleCol(x2, S)`), whose carried formal inverse
+`S⁻¹` *is* its invertibility witness, turns the wild row's single unit entry `−S⁻¹` into `1`.
+No simple-module hypothesis is needed here: `P ↦ 0` has already erased every other entry. -/
+noncomputable def mCompactJacobianCertRam (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : V), t.x i • v = v)
+    (hτfpf : ∀ v : V, t.τ • v = v → v = 0) (hTodd : ∀ v : V, powOmega2 t.τ • v = v)
+    (hrel : conjR t.τ t.σ = t.τ ^ q) :
+    FoxCertificate (TameSym.ramifiedEnd (A := V) t)
+      (foxJacobian ⇑t E E₂ (Certificates.tameRelW (2 + 2 * h) q) (mCompactW α h)) where
+  rowOps := []
+  colOps := Certificates.nCompactRamOps h
+  target := Certificates.nCompactRamNormalForm h q
+  rowOps_invertible := by simp
+  colOps_invertible := by
+    intro c hc
+    rw [Certificates.nCompactRamOps, List.mem_singleton] at hc
+    subst hc
+    exact ⟨Certificates.sigmaAtom_mul t 0 (by ring), Certificates.sigmaAtom_mul t 0 (by ring)⟩
+  verifies := by
+    refine AddMonoidHom.ext fun a => ?_
+    rw [foxApplyOps_apply, FoxRowOp.listHom_nil, AddMonoidHom.id_apply,
+      Certificates.nCompactRamOps, FoxColOp.listHom_cons, FoxColOp.listHom_nil,
+      AddMonoidHom.comp_apply, AddMonoidHom.id_apply, foxJacobian_apply,
+      FoxNormalForm.toHom_apply]
+    set b := FoxColOp.toHom (TameSym.ramifiedEnd (A := V) t)
+      (.scale (Words.coreLetter h 2) (.atom (.gen .sigma 1)) (.atom (.gen .sigma (-1)))) a with hb
+    have hbτ : b .tau = a .tau := by
+      rw [hb, FoxColOp.toHom_scale_apply, if_neg (Certificates.tau_ne_coreLetter_two h)]
+    have hbσ : b .sigma = a .sigma := by
+      rw [hb, FoxColOp.toHom_scale_apply, if_neg (Certificates.sigma_ne_coreLetter_two h)]
+    have hbx : b (coreLetter h 2) = t.σ • a (coreLetter h 2) := by
+      rw [hb, coreLetter_eq, FoxColOp.toHom_scale_apply, if_pos rfl, FoxCoeff.eval_atom_apply,
+        TameSym.toEnd_gen_apply, Marking.apply_sigma, zpow_one]
+    refine Prod.ext ?_ ?_
+    · show foxD ⇑t b E E₂ (Certificates.tameRelW (2 + 2 * h) q) = _
+      rw [Certificates.foxD_tameRelW_of_tameRel t E E₂ hrel, hbτ, hbσ,
+        Certificates.nCompactRamNormalForm, TameSym.ramifiedEnd, Certificates.tameRow_toHom_apply]
+      simp only [smul_add, smul_sub]
+      abel
+    · show foxD ⇑t b E E₂ (mCompactW α h)
+          = (FoxRowNormalForm.single (Words.coreLetter h 2)).toHom (TameSym.ramifiedEnd t) a
+      rw [foxD_mCompact_ram t E E₂ hV₂ hwild hτfpf hTodd, hbx, inv_smul_smul,
+        FoxRowNormalForm.single_toHom_apply, Certificates.neg_eq_self hV₂, coreLetter_eq]
+
+end Certificates
+
 end GQ2.Dyadic.Certificates.MCompact
