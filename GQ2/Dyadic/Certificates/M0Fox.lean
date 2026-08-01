@@ -1273,4 +1273,199 @@ noncomputable def mCompactJacobianCertRam (hV₂ : ∀ v : V, v + v = 0)
 
 end Certificates
 
+/-! ## The instances
+
+Three `h = 0` rows over the five-letter alphabet `Generator 2 = {σ, τ, x₀, x₁, x₂}`:
+
+| instance | `(α, h, q_K)` | `m = 2^{α−1}` | `candidate_id` | digest |
+|---|---|---|---|---|
+| engine / canonical | `(2, 0, 2)` | `2` | `M-compact-alpha2-h0-q2-v001` | `7c9005f50f9e1d5d…` |
+| `ℚ₂(√2)` | `(3, 0, 2)` | `4` | `M-compact-alpha3-h0-q2-v001` | `0209b708538277e0…` |
+| `ℚ₂(√5)` | `(2, 0, 4)` | `2` | `M-compact-alpha2-h0-q4-v001` | `7c9005f50f9e1d5d…` |
+
+WM0-a pinned all three trees (`Words.MCompact.denote_rawMCompact_*`,
+`rawMCompact_alpha{2,3}_h0_*_astHash`), so the words below are the frozen certificates' words.
+
+⚠ **The canonical and `√5` rows share a *word*** — `q_K` sits in the tame relation, not in the
+word, which is WM0-a's `astHash_q2_eq_q4` — so their **wild** rows are literally the same object
+(`sqrtFive_wildRow_eq_canonical`) and only the **tame** row separates them
+(`foxD_sqrtFive_tame_ram` against `foxD_canonical_tame_ram`).  That is the arithmetic visibility
+of `q_K` which the shared word hash cannot express. -/
+
+section Instances
+
+variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking 2 C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-! ### The engine instance `(α, h, q_K) = (2, 0, 2)` — freeze row 4's quoted digest -/
+
+/-- **The canonical wild row on a general unramified module** (`m = 2`), with the `σ₂`-powers
+still present: `(0, S₂^{−4}, 1+S₂^{−2}, S₂^{−2}+S₂^{−4}, 1−S⁻¹)`. -/
+theorem foxD_canonical_unram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (mCompactW 2 0)
+      = ((powOmega2 t.σ) ^ 4)⁻¹ • a .tau
+        + (a (.wild 0) + ((powOmega2 t.σ) ^ 2)⁻¹ • a (.wild 0))
+        + (((powOmega2 t.σ) ^ 2)⁻¹ • a (.wild 1) + ((powOmega2 t.σ) ^ 4)⁻¹ • a (.wild 1))
+        + (a (.wild 2) - t.σ⁻¹ • a (.wild 2)) :=
+  foxD_mCompact_unram (h := 0) (α := 2) t E E₂ hV₂ hwild hτ a
+
+/-- **The canonical wild row on a *simple* unramified module**: `(0, 1, 0, 0, 1 − S⁻¹)` — the
+frozen certificate's printed unramified specialization. -/
+theorem foxD_canonical_unram_simple (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hS₂ : ∀ v : V, powOmega2 t.σ • v = v) (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (mCompactW 2 0) = a .tau + (a (.wild 2) - t.σ⁻¹ • a (.wild 2)) :=
+  foxD_mCompact_unram_simple (h := 0) (α := 2) t E E₂ hV₂ hwild hτ hS₂ a
+
+/-- **The canonical wild row on a ramified simple module**: `(0, 0, 0, 0, −S⁻¹)`. -/
+theorem foxD_canonical_ram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτfpf : ∀ v : V, t.τ • v = v → v = 0)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (mCompactW 2 0) = -(t.σ⁻¹ • a (.wild 2)) :=
+  foxD_mCompact_ram (h := 0) (α := 2) t E E₂ hV₂ hwild hτfpf hTodd a
+
+/-- **The canonical wild row on the scalar module**: `(0, 1, 0, 0, 0)`. -/
+theorem foxD_canonical_split (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hσ : ∀ v : V, t.σ • v = v) (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (mCompactW 2 0) = a .tau :=
+  foxD_mCompact_split (h := 0) (α := 2) t E E₂ hV₂ hwild hτ hσ a
+
+/-- **The canonical ramified tame row** at `q_K = 2`: `(S⁻¹(T−1), S⁻¹ − 1 − T, 0, 0, 0)` — the
+compact-`N` lane's tame row at the same `q`, reused. -/
+theorem foxD_canonical_tame_ram (hrel : conjR t.τ t.σ = t.τ ^ 2) (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (Certificates.tameRelW 2 2)
+      = t.σ⁻¹ • (t.τ • a .sigma - a .sigma)
+        + (t.σ⁻¹ • a .tau - (a .tau + t.τ • a .tau)) :=
+  Certificates.foxD_sqrtNegTwo_tame_ram t E E₂ hrel a
+
+/-- The canonical instance's two Jacobian certificates: unramified branch (one row op). -/
+noncomputable def canonicalJacobianCertUnram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hS₂ : ∀ v : V, powOmega2 t.σ • v = v) :
+    FoxCertificate (TameSym.splitEnd (A := V) t)
+      (foxJacobian ⇑t E E₂ (Certificates.tameRelW 2 2) (mCompactW 2 0)) :=
+  mCompactJacobianCertUnram (h := 0) (α := 2) t E E₂ hV₂ hwild hτ hS₂ (by decide)
+
+@[inherit_doc canonicalJacobianCertUnram]
+noncomputable def canonicalJacobianCertRam (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτfpf : ∀ v : V, t.τ • v = v → v = 0)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (hrel : conjR t.τ t.σ = t.τ ^ 2) :
+    FoxCertificate (TameSym.ramifiedEnd (A := V) t)
+      (foxJacobian ⇑t E E₂ (Certificates.tameRelW 2 2) (mCompactW 2 0)) :=
+  mCompactJacobianCertRam (h := 0) (α := 2) t E E₂ hV₂ hwild hτfpf hTodd hrel
+
+/-! ### `ℚ₂(√2)`: `(α, q_K) = (3, 2)`, `m = 4`, `2m = 8` -/
+
+/-- **The `√2` wild row on a general unramified module**: `(0, S₂^{−8}, 1+S₂^{−4},
+S₂^{−4}+S₂^{−8}, 1−S⁻¹)`.  The `α`-dependence of this row is *exactly* the two `σ₂`-exponents —
+compare the canonical row's `4`/`2` with this row's `8`/`4`. -/
+theorem foxD_sqrtTwo_unram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (mCompactW 3 0)
+      = ((powOmega2 t.σ) ^ 8)⁻¹ • a .tau
+        + (a (.wild 0) + ((powOmega2 t.σ) ^ 4)⁻¹ • a (.wild 0))
+        + (((powOmega2 t.σ) ^ 4)⁻¹ • a (.wild 1) + ((powOmega2 t.σ) ^ 8)⁻¹ • a (.wild 1))
+        + (a (.wild 2) - t.σ⁻¹ • a (.wild 2)) :=
+  foxD_mCompact_unram (h := 0) (α := 3) t E E₂ hV₂ hwild hτ a
+
+/-- **The `√2` wild row on a simple unramified module**: `(0, 1, 0, 0, 1 − S⁻¹)` — identical to
+the canonical instance's, `α` having left with `S₂`. -/
+theorem foxD_sqrtTwo_unram_simple (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hS₂ : ∀ v : V, powOmega2 t.σ • v = v) (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (mCompactW 3 0) = a .tau + (a (.wild 2) - t.σ⁻¹ • a (.wild 2)) :=
+  foxD_mCompact_unram_simple (h := 0) (α := 3) t E E₂ hV₂ hwild hτ hS₂ a
+
+/-- **The `√2` wild row on a ramified simple module**: `(0, 0, 0, 0, −S⁻¹)`. -/
+theorem foxD_sqrtTwo_ram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτfpf : ∀ v : V, t.τ • v = v → v = 0)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (mCompactW 3 0) = -(t.σ⁻¹ • a (.wild 2)) :=
+  foxD_mCompact_ram (h := 0) (α := 3) t E E₂ hV₂ hwild hτfpf hTodd a
+
+/-- **The `ℚ₂(√2)` Jacobian certificate, unramified branch** (`q_K = 2`). -/
+noncomputable def sqrtTwoJacobianCertUnram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hS₂ : ∀ v : V, powOmega2 t.σ • v = v) :
+    FoxCertificate (TameSym.splitEnd (A := V) t)
+      (foxJacobian ⇑t E E₂ (Certificates.tameRelW 2 2) (mCompactW 3 0)) :=
+  mCompactJacobianCertUnram (h := 0) (α := 3) t E E₂ hV₂ hwild hτ hS₂ (by decide)
+
+/-- **The `ℚ₂(√2)` Jacobian certificate, ramified branch**: one column scaling `col_{x₂} *= S`. -/
+noncomputable def sqrtTwoJacobianCertRam (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτfpf : ∀ v : V, t.τ • v = v → v = 0)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (hrel : conjR t.τ t.σ = t.τ ^ 2) :
+    FoxCertificate (TameSym.ramifiedEnd (A := V) t)
+      (foxJacobian ⇑t E E₂ (Certificates.tameRelW 2 2) (mCompactW 3 0)) :=
+  mCompactJacobianCertRam (h := 0) (α := 3) t E E₂ hV₂ hwild hτfpf hTodd hrel
+
+/-! ### `ℚ₂(√5)`: `(α, q_K) = (2, 4)`, `m = 2` — the same word, a different tame relation -/
+
+/-- **`q_K` is invisible to the wild row, and it is exactly the tame row that sees it.**
+
+The `ℚ₂(√5)` candidate and the engine instance are the *same tree* (WM0-a's
+`astHash_q2_eq_q4`), so `mCompactW 2 0` carries no `q`-argument at all and every wild-row
+statement above serves both candidates verbatim.  The separation is here: the two tame rows
+differ **as formal certificate data**, by a kernel `decide` on the norm coefficient
+`N_q(T) = 1 + T + ⋯ + T^{q−1}`.  This is the certificate-level shadow of WM0-a's finding that a
+word hash is not a key for the frozen family — the `candidate_id` is. -/
+theorem tameRow_two_ne_four :
+    (Certificates.tameRow 2 2).row .tau ≠ (Certificates.tameRow 2 4).row .tau := by decide
+
+/-- **The `√5` wild row on a simple unramified module**: `(0, 1, 0, 0, 1 − S⁻¹)`. -/
+theorem foxD_sqrtFive_unram_simple (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hS₂ : ∀ v : V, powOmega2 t.σ • v = v) (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (mCompactW 2 0) = a .tau + (a (.wild 2) - t.σ⁻¹ • a (.wild 2)) :=
+  foxD_mCompact_unram_simple (h := 0) (α := 2) t E E₂ hV₂ hwild hτ hS₂ a
+
+/-- **The `√5` wild row on a ramified simple module**: `(0, 0, 0, 0, −S⁻¹)`. -/
+theorem foxD_sqrtFive_ram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτfpf : ∀ v : V, t.τ • v = v → v = 0)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (mCompactW 2 0) = -(t.σ⁻¹ • a (.wild 2)) :=
+  foxD_mCompact_ram (h := 0) (α := 2) t E E₂ hV₂ hwild hτfpf hTodd a
+
+/-- **The `√5` ramified tame row**, spelled out at `q_K = 4`:
+
+```
+(S⁻¹(T−1),  S⁻¹ − 1 − T − T² − T³,  0, 0, 0)
+```
+
+— *this* is where `q_K = 4` becomes visible, and it is the whole difference between the `√5`
+candidate and the engine instance at the certificate level. -/
+theorem foxD_sqrtFive_tame_ram (hrel : conjR t.τ t.σ = t.τ ^ 4) (a : Generator 2 → V) :
+    foxD ⇑t a E E₂ (Certificates.tameRelW 2 4)
+      = t.σ⁻¹ • (t.τ • a .sigma - a .sigma)
+        + (t.σ⁻¹ • a .tau
+          - (a .tau + t.τ • a .tau + t.τ ^ 2 • a .tau + t.τ ^ 3 • a .tau)) := by
+  rw [Certificates.foxD_tameRelW_of_tameRel t E E₂ hrel a, Finset.sum_range_succ,
+    Finset.sum_range_succ, Finset.sum_range_succ, Finset.sum_range_one, pow_zero, pow_one,
+    one_smul]
+  simp only [smul_add, smul_sub]
+  abel
+
+/-- **The `ℚ₂(√5)` Jacobian certificate, unramified branch** (`q_K = 4`, still even). -/
+noncomputable def sqrtFiveJacobianCertUnram (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτ : ∀ v : V, t.τ • v = v)
+    (hS₂ : ∀ v : V, powOmega2 t.σ • v = v) :
+    FoxCertificate (TameSym.splitEnd (A := V) t)
+      (foxJacobian ⇑t E E₂ (Certificates.tameRelW 2 4) (mCompactW 2 0)) :=
+  mCompactJacobianCertUnram (h := 0) (α := 2) t E E₂ hV₂ hwild hτ hS₂ (by decide)
+
+/-- **The `ℚ₂(√5)` Jacobian certificate, ramified branch**: the tame row here is the `q = 4`
+one, which is where the two `α = 2` candidates finally differ. -/
+noncomputable def sqrtFiveJacobianCertRam (hV₂ : ∀ v : V, v + v = 0)
+    (hwild : ∀ (i : Fin 3) (v : V), t.x i • v = v) (hτfpf : ∀ v : V, t.τ • v = v → v = 0)
+    (hTodd : ∀ v : V, powOmega2 t.τ • v = v) (hrel : conjR t.τ t.σ = t.τ ^ 4) :
+    FoxCertificate (TameSym.ramifiedEnd (A := V) t)
+      (foxJacobian ⇑t E E₂ (Certificates.tameRelW 2 4) (mCompactW 2 0)) :=
+  mCompactJacobianCertRam (h := 0) (α := 2) t E E₂ hV₂ hwild hτfpf hTodd hrel
+
+end Instances
+
 end GQ2.Dyadic.Certificates.MCompact
