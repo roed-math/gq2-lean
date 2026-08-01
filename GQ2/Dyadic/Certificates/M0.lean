@@ -1154,4 +1154,139 @@ theorem swapDifference_zero_of_trivial_W (hq : IsQuadraticFp2 q)
 
 end OrderRejection
 
+/-! ## The negative pin: the `F16` fifth-root orbit
+
+The archive's `F16-fifth-root` orbit — the `(α, q_K) = (2, 2)` separating orbit of the S4.1
+battery — carried into Lean and checked by kernel `decide`.
+
+`V = 𝔽₁₆ = 𝔽₂[g]/(g⁴+g+1)` in the basis `(1, g, g², g³)`, so `(a,b,c,d) ↦ a + bg + cg² + dg³`:
+
+* `T` = multiplication by the primitive fifth root `g³` — order 5, and
+  `P = N_T = 1 + T + T² + T³ + T⁴ = 0`, so `d_i = (1+P) c_i = c_i` (the ramified reading);
+* `W = σ₂^m` = the **squared Frobenius** `x ↦ x⁴` (`m = 2^{α−1} = 2`, `ord σ₂ = 4`), of order 2
+  — so `1 + W² = 0` and the difference has the archive's *linear* shape;
+* `q x = Tr_{𝔽₁₆/𝔽₂}(g · x⁵)`, the nonsingular `T`-invariant form; its zero set is `{0} ∪ μ₅`.
+
+Everything a genuine instance owes is checked: `q` is quadratic and nonsingular, `q` is `T`- and
+`W`-invariant, `T` has order 5, `P = 0`, and the factor set is a bilinear equivariant datum for
+`q`.  `fifthRoot_orders_differ` is the **Lean-side rejection of the forward order**.
+
+⚠ **The size wall, stated honestly.**  This orbit does **not** cover the two *displayed*
+instances.  Per errata item 6 the fifth-root orbit separates only at `(α, q_K) = (2,2)`, while
+√2 is `(3,2)` and √5 is `(2,4)`; at `α = 3` one has `ord(σ₂) = 4 ∣ m = 4`, so `W = 1` and
+`swapDifference_zero_of_trivial_W` applies — the orbit is *provably* blind there, not merely
+unchecked.  Both displayed instances need the `F256-seventeenth-root` orbit,
+`dim_{𝔽₂} V = 8`.  The obstruction is **not** the difference evaluation (one vector) nor the
+invariance checks (256 each), but `IsEquivariantFactorSet.f_cocycle` and
+`IsQuadraticFp2.polar_add_*`, which are three-variable identities: `256³ ≈ 1.7 × 10⁷` kernel
+evaluations apiece, against the `16³ = 4096` that makes this 4-dimensional pin affordable.  The
+route is to replace those `decide`s with a **structural** lemma — every
+`f v w = Σ_{i ≤ j} U_ij v_i w_j` is a bilinear equivariant factor set for its own diagonal, and
+every such diagonal is quadratic — after which the dim-8 pin costs what this one costs.  That
+lemma is a `GQ2/QuadraticFp2.lean` API item, not a word-lane item; it is recorded, not built,
+here.  The proved general bound (a separating orbit needs `dim ≥ 2^α`) is why no cheaper orbit
+exists. -/
+
+section FifthRoot
+
+open GQ2.QuadraticFp2
+
+/-- `𝔽₁₆` as an `𝔽₂`-module, in the basis `(1, g, g², g³)`. -/
+abbrev V16 : Type := ZMod 2 × ZMod 2 × ZMod 2 × ZMod 2
+
+/-- `q x = Tr_{𝔽₁₆/𝔽₂}(g·x⁵)`, in coordinates.  Zero set `{0} ∪ μ₅`. -/
+def q16 : V16 → ZMod 2 :=
+  fun v => v.2.1 + v.2.2.1 + v.1 * v.2.2.2 + v.2.1 * v.2.2.1 + v.2.1 * v.2.2.2
+    + v.2.2.1 * v.2.2.2
+
+/-- `W = σ₂^m`: the squared Frobenius `x ↦ x⁴`, of order 2. -/
+def W16 : V16 → V16 :=
+  fun v => (v.1 + v.2.1 + v.2.2.1 + v.2.2.2, v.2.1 + v.2.2.2, v.2.2.1 + v.2.2.2, v.2.2.2)
+
+/-- `T`: multiplication by the primitive fifth root of unity `g³`. -/
+def T16 : V16 → V16 :=
+  fun v => (v.2.1, v.2.1 + v.2.2.1, v.2.2.1 + v.2.2.2, v.1 + v.2.2.2)
+
+/-- The upper-triangular bilinear refinement of `q16` (`f v v = q16 v` over `𝔽₂`). -/
+def f16 : V16 → V16 → ZMod 2 :=
+  fun v w => v.2.1 * w.2.1 + v.2.2.1 * w.2.2.1 + v.1 * w.2.2.2 + v.2.1 * w.2.2.1
+    + v.2.1 * w.2.2.2 + v.2.2.1 * w.2.2.2
+
+/-- The trivial `C`-action carrying the pin: `W` and `T` enter as plain operators (the
+difference formula never touches the action), so the factor set may be taken untwisted. -/
+local instance : DistribMulAction (Multiplicative (ZMod 2)) V16 where
+  smul _ a := a
+  one_smul _ := rfl
+  mul_smul _ _ _ := rfl
+  smul_zero _ := rfl
+  smul_add _ _ _ := rfl
+
+/-- The equivariant factor-set datum of the pin: `f16` with no central correction. -/
+def dat16 : FactorSet (Multiplicative (ZMod 2)) V16 where
+  f := f16
+  m _ _ := 0
+
+theorem hdat16 : IsEquivariantFactorSet q16 dat16 := by
+  constructor <;> decide
+
+theorem hbil16 : ∀ v w x : V16, dat16.f (v + w) x = dat16.f v x + dat16.f w x := by decide
+
+theorem hq16 : IsQuadraticFp2 q16 := by constructor <;> decide
+
+theorem hns16 : Nonsingular q16 := by
+  show ∀ v : V16, v ≠ 0 → ∃ w : V16, polar q16 v w ≠ 0
+  decide
+
+theorem hV2_16 : ∀ v : V16, v + v = 0 := by decide
+
+/-- `q` is `W`-invariant, so `b_q` is — the hypothesis the difference formula consumes. -/
+theorem hW16_invariant : ∀ v w : V16, polar q16 (W16 v) (W16 w) = polar q16 v w := by decide
+
+/-- `W` has order 2: `1 + W² = 0`, which is why the archive records this orbit's difference as
+a **linear** form. -/
+theorem hW16_sq : ∀ v : V16, W16 (W16 v) = v := by decide
+
+/-- `T` has order 5 — the primitive fifth root. -/
+theorem hT16_order_five : ∀ v : V16, T16 (T16 (T16 (T16 (T16 v)))) = v := by decide
+
+/-- `q` is `T`-invariant: a legal invariant form for the orbit. -/
+theorem hT16_invariant : ∀ v : V16, q16 (T16 v) = q16 v := by decide
+
+/-- **`P = N_T = 0`** on the whole orbit, so `d_i = (1 + P) c_i = c_i` — the projector half of
+the freeze's visibility criterion, discharged. -/
+theorem hP16_zero : ∀ v : V16, v + T16 v + T16 (T16 v) + T16 (T16 (T16 v))
+    + T16 (T16 (T16 (T16 v))) = 0 := by decide
+
+/-- The separating vector `c₀ = g³`. -/
+def c16 : V16 := (0, 0, 0, 1)
+
+/-- **The difference formula's right-hand side is nonzero on this orbit** — the negative pin,
+at `d₀ = g³`, `d₁ = 0`.  Since `1 + W² = 0` here only the first diagonal term survives, and it
+is `b_q(W g³, g³) = q(g¹⁰) = 1`. -/
+theorem fifthRoot_separates :
+    polar q16 (W16 c16) c16 + polar q16 (W16 0) 0 + polar q16 (0 + W16 (W16 0)) c16 = 1 := by
+  decide
+
+/-- **THE LEAN-SIDE REJECTION OF THE FORWARD ORDER.**  On the `F16` fifth-root orbit the two
+orders of the `𝓔`-block give **different** class-two values, at every choice of the four
+charges.
+
+This is what WM0-a could not promise and WM0-b correctly deferred: gates A–E and G are blind to
+the order, structurally, and so is the first Fox order — but the second order is not, and here
+is the witness. -/
+theorem fifthRoot_orders_differ (z₁ z₂ z₃ z₄ : ZMod 2) :
+    WordCoh.CentExt.fib (c := kappa0Cocycle dat16 hdat16)
+        (hessSlice dat16 hdat16 (W16 (W16 0)) z₁ * (hessSlice dat16 hdat16 (W16 0) z₂ *
+          (hessSlice dat16 hdat16 (W16 c16) z₃ * hessSlice dat16 hdat16 c16 z₄)))
+      ≠ WordCoh.CentExt.fib (c := kappa0Cocycle dat16 hdat16)
+        (hessSlice dat16 hdat16 c16 z₄ * (hessSlice dat16 hdat16 (W16 c16) z₃ *
+          (hessSlice dat16 hdat16 (W16 0) z₂ * hessSlice dat16 hdat16 (W16 (W16 0)) z₁))) := by
+  intro hcon
+  have hdiff := swapDifference_formula dat16 hdat16 hbil16 hq16 W16 hW16_invariant c16 0
+    z₁ z₂ z₃ z₄
+  rw [hcon, CharTwo.add_self_eq_zero, fifthRoot_separates] at hdiff
+  exact absurd hdiff (by decide)
+
+end FifthRoot
+
 end GQ2.Dyadic.Certificates.MCompact
