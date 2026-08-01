@@ -12,6 +12,7 @@ import GQ2.Dyadic.Certificates.M0
 import GQ2.Dyadic.Certificates.L
 import GQ2.Dyadic.Certificates.MpcStokes
 import GQ2.Dyadic.Certificates.Npc
+import GQ2.CardH2GammaA
 
 /-!
 # The five frozen branch families, presented and resolved at their intrinsic words
@@ -866,6 +867,85 @@ theorem resolvesAt_npcFamOf_exponent (α r h q : ℕ) (d : EtaData) (E₂ : ℤ_
     (fun x => Monoid.order_dvd_exponent x) α r h q d E₂
 
 end TwoValued
+
+/-! ## §8 The standing exponent hypothesis: `∣ 3` is not available, and is not needed
+
+§6 reduces `Count/Presentation.lean`'s standing `orderOf x ∣ 6` at the split target to
+`∀ g : Bg ⧸ D.M, orderOf g ∣ 3` at the lower group, and names the tame head's `τ`-order as the
+input.  That reduction is arithmetically correct but the residue is **not a theorem**, and §7
+makes it unnecessary.  Both halves are recorded below, because the pair is what actually settles
+the count lane's level question.
+
+**§8.1 (negative).**  `GQ2.Dyadic.TameQ.odd_order` concludes `Odd (orderOf t)` — not `orderOf t ∣ 3`
+— and only for the `τ`-image, so the `3` never had a formal source.  Worse, at the generality of
+§6's `orderOf_wordLift_radT_dvd_six`, which quantifies over every finite `Bg` and every
+`RadicalCoverData Bg`, the residue is **false**: the campaign's own witness datum
+`GQ2.CardH2GammaA.datum` (the `𝔽₂ → D₈ → 𝔽₂²` cover) has `Bg ⧸ D.M` of order `2`, and `2 ∤ 3`.
+So `orderOf_wordLift_radT_dvd_six`'s `hbase` cannot be discharged from `D` alone, at all.
+
+**§8.2 (positive).**  It does not need to be.  The `6` was never a fact about the target — it was
+the arithmetic needed to make a *constant* resolver honest (`omega2Exp 6 = 3`).  Once the resolver
+is chosen at the target, as CB-TR's redesign intends and as §7 completes for the last row, the
+level is `Monoid.exponent Q`, which every finite target supplies for free.  So the honest lift-level
+statement is hypothesis-free, and so is the resolution that consumes it.
+
+⚠ What does *not* become free is the Stokes endpoint: it needs the `ω₂`-value odd, i.e. `2 ∣ N`
+(`odd_omega2Exp`).  On the split target that is the statement that the `2`-torsion coefficient
+module `Additive ↥D.T` is nontrivial, which is a condition on the branch data — a real one, but a
+much weaker and much more clearly-sourced one than `∣ 3`. -/
+
+section ExponentHypothesis
+
+open GQ2.FoxH GQ2.SectionEight GQ2.SectionEight.AffineTLift
+
+/-! ### §8.1 The `∣ 3` residue is refuted by the campaign's own witness -/
+
+/-- The witness datum's lower group `Bg ⧸ D.M` has an element of order `2`: the class of the
+rotation `r 1`, which is outside `M = ker φ₀ = {r 0, sr 0}`. -/
+theorem cardH2GammaA_sq_eq_one :
+    (QuotientGroup.mk (DihedralGroup.r 1) : CardH2GammaA.Base ⧸ CardH2GammaA.datum.M) ^ 2 = 1 := by
+  rw [← QuotientGroup.mk'_apply, ← map_pow, show (DihedralGroup.r 1 : CardH2GammaA.Base) ^ 2 = 1 by
+    decide, map_one]
+
+theorem cardH2GammaA_ne_one :
+    (QuotientGroup.mk (DihedralGroup.r 1) : CardH2GammaA.Base ⧸ CardH2GammaA.datum.M) ≠ 1 := by
+  rw [Ne, QuotientGroup.eq_one_iff]
+  show (DihedralGroup.r 1 : CardH2GammaA.Base) ∉ CardH2GammaA.Mlayer
+  rw [CardH2GammaA.Mlayer, MonoidHom.mem_ker]
+  decide
+
+/-- **§6's residue is not a theorem.**  `∀ g : Bg ⧸ D.M, orderOf g ∣ 3` fails at the campaign's own
+`RadicalCoverData` witness, so no proof of it from `(D : RadicalCoverData Bg)` alone can exist —
+and `orderOf_wordLift_radT_dvd_six` is stated at exactly that generality.
+
+The reason is visible in the statement of the input: `GQ2.Dyadic.TameQ.odd_order` gives `Odd`, and
+`Odd` does not give `∣ 3`.  Nothing is wrong with §6's arithmetic — `6 = 2 · 3` is right — but the
+`3` is a branch-data assumption, not a consequence of the tame boundary. -/
+theorem not_forall_orderOf_dvd_three_datum :
+    ¬ ∀ g : CardH2GammaA.Base ⧸ CardH2GammaA.datum.M, orderOf g ∣ 3 := by
+  intro h
+  refine cardH2GammaA_ne_one (orderOf_eq_one_iff.mp (Nat.dvd_one.mp ?_))
+  simpa using Nat.dvd_gcd (h _) (orderOf_dvd_of_pow_eq_one cardH2GammaA_sq_eq_one)
+
+/-! ### §8.2 The hypothesis-free replacement -/
+
+variable {Bg : Type} [Group Bg] [Finite Bg]
+
+/-- **The lift-level bound with no hypothesis at all** — §6's `orderOf_wordLift_radT_dvd` at the
+lower group's own exponent, which always exists.  This is the honest form of the `6`: not a
+number, a function of the target. -/
+theorem orderOf_wordLift_radT_dvd_exponent (D : RadicalCoverData Bg)
+    (x : WordLift (Additive ↥D.T) (Bg ⧸ D.M)) :
+    orderOf x ∣ 2 * Monoid.exponent (Bg ⧸ D.M) :=
+  orderOf_wordLift_radT_dvd D (fun g => Monoid.order_dvd_exponent g) x
+
+/-- The `V`-side twin. -/
+theorem orderOf_wordLift_vmod_dvd_exponent {D : RadicalCoverData Bg} (DD : DescData D)
+    {E : Type} [Group E] [DistribMulAction E DD.Vmod] (x : WordLift DD.Vmod E) :
+    orderOf x ∣ 2 * Monoid.exponent E :=
+  orderOf_wordLift_vmod_dvd DD (fun g => Monoid.order_dvd_exponent g) x
+
+end ExponentHypothesis
 
 end Count
 
