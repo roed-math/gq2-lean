@@ -402,6 +402,228 @@ theorem denote_rawNpc_a3_r1_eta1_1_h0 :
 theorem denote_rawNpc_a3_r1_etam1_9_h0 :
     Export.denote (denoteCtx 0) (rawNpc 3 1 0 (-1) 9) = some (npcW 3 1 0 ⟨-1, 9⟩) := by rfl
 
+/-! ## §4. Pre-agreement with the NC lane's `npcWord`
+
+The ticket's cross-lane obligation: this file's word must **pre-agree** with
+`GQ2.Dyadic.NpcJet.npcWord`, the word the corrected-cross-operator lane (`NpcJet/`) proves
+`npc_cross_operators` about.  The two are built from the same mathematics and are *not* the same
+`PWord`, and the honest report of that is the point of this section.
+
+### The four divergences, and the one non-divergence
+
+**(D5) — not a divergence.**  `η` routing agrees *definitionally*.  The certificate carries the
+syntactic pair `⟨num, den⟩`, whose `Zhat` value is `EtaData.toZhat ⟨num,den⟩`; the NC lane writes
+`PWord.etaPow _ η = .profPow _ (etaHatZ η)`.  Since `EtaData.toZhat e` **is** `etaHatZ e.toPadic`
+by definition, taking `η := e.toPadic` makes the two conjugators the same term
+(`aW_eq_etaPow`, `rfl`).  No `η̂`-bridge lemma is owed to anybody.
+
+**(D1) `prodList` vs binary `.mul`.**  The certificate's `Multiply` is `n`-ary and `Export.denote`
+folds it with `PWord.prodList`, which is right-nested *onto `PWord.one`*, so a two-element
+`Multiply` denotes to `u · (v · 1)` and not to `.mul u v` (`prodList_pair`).  The NC lane writes
+binary `.mul` throughout.  This hits `δ₀`, the `(x₂τ)` subword, the `D`-block, and the
+conjugator `g`.
+
+**(D2) `x₂^{-g}` association.**  The certificate emits `Inverse ∘ Conjugate`, i.e. `(x₂^g)⁻¹`;
+the NC lane uses F2's sugar `PWord.invConj = Conjugate ∘ Inverse`, i.e. `(x₂⁻¹)^g`.  Different
+constructors (`invConj_ne_inv_conj`), same group element (`conjR_inv`).  This is WN0-a's rule (iii)
+recurring verbatim, and it is a genuine *ratified* choice: the certificate chose, so the hashed
+word has the `Inverse` outermost.
+
+**(D3) `B⁻¹` spelling.**  The certificate emits `Inverse ∘ IntegerPower`, `(σ^{2^r})⁻¹`; the NC
+lane writes the negative power `σ^{−2^r}`.  Different constructors (`zpow_neg_ne_inv_zpow`), same
+group element (`zpow_neg`).
+
+**(D4) the handle slot.**  The certificate tree always carries a sixth `HyperbolicHandles` child;
+`npcWord` is the `h = 0` core only, and NC6 appends handles separately as `npcWordH` over
+`Generator (m+2)`.  At `h = 0` the sixth factor denotes to `1`, so the arities coincide.
+
+### The outcome
+
+A **literal** cross-identification is therefore *not* available — the two words differ as syntax
+trees at (D1)–(D4), and no rewriting of this file can change that without breaking the hash.  What
+*is* available, and is what the downstream lanes actually need, is the **value-level** identity
+below: at `h = 0` the hash-pinned word and `NpcJet.npcWord` evaluate to the same group element at
+every marking of every profinite group.  That is exactly the transport that lets WNP-b/c cite
+`npc_cross_operators` about the *certificate's* word rather than about a lookalike.
+
+⚠ **The `h`-general form is not stated**, and the obstruction is arity spelling, not mathematics:
+this file's alphabet is `Generator (2 + 2h)` (WN0-a's ratified convention, matching `Export`'s and
+MC2's handle indexing) while `npcWordH` lives over `Generator (m + 2)` at `m = 2h`, and
+`2 + 2*h` is not definitionally `2*h + 2` for a variable `h`.  On top of that `npcHandles` is
+*left*-nested with free index functions where `handlesW` is a `prodList` over `List.finRange h`.
+WNP-b/c should route the handled statement through NC6's `npc_cross_operators_handles_std`
+(which already fixes `n = 2 + 2h` and the letters `x_{3+2j}, x_{4+2j}`) together with the handle
+value-bridge `eval_handlesW` below, not through a cast on `npcWordH`. -/
+
+/-- **(D5)** The `η̂`-conjugator of the certificate *is* the NC lane's `etaPow`, on the nose. -/
+theorem aW_eq_etaPow (h : ℕ) (e : EtaData) :
+    aW h e = (PWord.gen (Generator.sigma (n := 2 + 2 * h))).etaPow e.toPadic := rfl
+
+/-- **(D1)** A two-element `Multiply` denotes to a product *onto `PWord.one`*.  Stated so the
+divergence is a checked fact rather than a docstring claim. -/
+theorem prodList_pair {Gen : Type*} (u v : PWord Gen) :
+    PWord.prodList [u, v] = .mul u (.mul v .one) := rfl
+
+/-- **(D2)** The certificate's association and F2's sugar are different constructors. -/
+theorem invConj_ne_inv_conj {n : ℕ} (u g : PWord (Generator n)) :
+    PWord.invConj u g ≠ .inv (.conj u g) := by
+  simp [PWord.invConj]
+
+/-- **(D3)** The negative power and the inverted power are different constructors. -/
+theorem zpow_neg_ne_inv_zpow {n : ℕ} (u : PWord (Generator n)) (k : ℤ) :
+    (PWord.zpow u (-k)) ≠ .inv (.zpow u k) := by
+  simp
+
+section PreAgreement
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+  [TotallyDisconnectedSpace G]
+
+/-- **The pre-agreement identity.**  At `h = 0`, the hash-pinned certificate word and the NC
+lane's `npcWord` are the same group element at every marking of every profinite group, with
+`η := e.toPadic`.
+
+This is the bridge WNP-b/c consume: it transports `NpcJet.npc_cross_operators` — the corrected
+`L_c = A⁻¹ + B + B·A⁻¹` identity — onto the word whose digest this file pins.  The proof is
+exactly the four divergences being value-preserving: `mul_one` for (D1), `conjR_inv` for (D2),
+`zpow_neg` for (D3), and `handlesW_zero` for (D4). -/
+theorem eval_npcW_eq_eval_npcWord (α r : ℕ) (e : EtaData) (t : Marking 2 G) :
+    t.eval (npcW α r 0 e) = t.eval (NpcJet.npcWord α r e.toPadic) := by
+  rw [Marking.eval_def, Marking.eval_def, npcW, NpcJet.npcWord, NpcJet.npcEBlock,
+    NpcJet.npcDBlock, eBlockW, dBlockW, deltaZeroW, deltaW, aW, bW]
+  simp only [PWord.eval_prodList, List.map_cons, List.map_nil, List.prod_cons, List.prod_nil,
+    PWord.eval_mul, PWord.eval_zpow, PWord.eval_comm, PWord.eval_inv, PWord.eval_conj,
+    PWord.eval_gen, PWord.eval_profPow, PWord.eval_invConj, PWord.omega2Pow, PWord.etaPow,
+    handlesW_zero, PWord.eval_one, mul_one, conjR_inv, zpow_neg, coreLetter]
+  rfl
+
+end PreAgreement
+
+/-! ## §5. Gate B: the tame boundary
+
+Packet Prop. 9.2's proof shape.  Killing the wild letters annihilates the leading power, the
+`[x₀,A]` commutator, the `x₂^{-g}` factor, **the whole correction block**, and every handle; what
+survives is the `ω₂`-tail of the `δ₂`-letter, `δ₂ = (x₂τ)^{ω₂}x₂⁻¹ ↦ τ^{ω₂}`.  That tail then
+dies by **Gate B rule T1** — `ω₂` kills pro-odd elements — and *only* by T1.
+
+⚠ Note *why* `E_{r,η}` dies, because it is not the reason one first guesses.  `D_{r,η}` does
+**not** die: `δ₀ = (x₀τ)^{ω₂}x₀⁻¹ ↦ τ^{ω₂}`, so the killed `D`-block is a nonempty product of
+conjugates of `τ^{ω₂}`.  What kills `E_{r,η} = [D_{r,η}, x₁]` is the *other* argument — `x₁ ↦ 1`
+and `[·, 1] = 1`.  So the tame invisibility of the correction is a fact about the commutator
+bracket, not about the `δ`-letters, and the proof below never unfolds `dBlockW` at all. -/
+
+section Tame
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+  [TotallyDisconnectedSpace G] {α r h : ℕ}
+
+omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+@[simp] theorem killWildLetters_coreLetter (t : Marking (2 + 2 * h) G) (i : Fin 3) :
+    Marking.killWildLetters t (coreLetter h i) = 1 := rfl
+
+omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+@[simp] theorem killWildLetters_handleU (t : Marking (2 + 2 * h) G) (j : Fin h) :
+    Marking.killWildLetters t (handleU j) = 1 := rfl
+
+omit [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G] [TotallyDisconnectedSpace G] in
+@[simp] theorem killWildLetters_handleV (t : Marking (2 + 2 * h) G) (j : Fin h) :
+    Marking.killWildLetters t (handleV j) = 1 := rfl
+
+/-- Evaluating the handle block is MC2's `handleWord` on the handle letters — the same
+`List.finRange h` order on both sides, so this is a rewrite and not a reindexing.  Also the
+handle-side half of what WNP-b/c need to reach NC6's `npc_cross_operators_handles_std` (§4). -/
+theorem eval_handlesW (t : Marking (2 + 2 * h) G) :
+    t.eval (handlesW h) =
+      MarkedCore.handleWord (fun j => t (handleU j)) (fun j => t (handleV j)) := by
+  rw [Marking.eval_def, handlesW, PWord.eval_prodList, List.map_map]
+  rfl
+
+/-- **The tame boundary value of the corrected noncompact-`N` word.**
+
+Killing the wild letters leaves exactly `τ^{ω₂}` — the same value as the compact row, and in
+particular the correction block contributes nothing.  Stating the *value* rather than "` = 1`" is
+deliberate: it is what makes the T1 step visible, and what shows that the death of this word at
+the tame boundary is a fact about `τ`, not about the word's shape. -/
+theorem eval_killWildLetters_npcW (α r h : ℕ) (e : EtaData) (t : Marking (2 + 2 * h) G) :
+    (Marking.killWildLetters t).eval (npcW α r h e) = t.τ ^ᶻ omega2 := by
+  have hH : PWord.eval ⇑(Marking.killWildLetters t) (handlesW h) = 1 := by
+    rw [show PWord.eval ⇑(Marking.killWildLetters t) (handlesW h)
+          = (Marking.killWildLetters t).eval (handlesW h) from rfl, eval_handlesW]
+    exact MarkedCore.handleWord_of_one _ _ (fun _ => rfl) (fun _ => rfl)
+  rw [Marking.eval_def, npcW, PWord.eval_prodList]
+  simp only [List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, PWord.eval_zpow,
+    PWord.eval_comm, PWord.eval_inv, PWord.eval_conj, PWord.eval_gen, PWord.eval_prodList,
+    PWord.eval_omega2PowHat, eBlockW, killWildLetters_coreLetter, one_zpow, commR_one_left,
+    commR_one_right, one_conjR, inv_one, one_mul, mul_one, hH]
+  rfl
+
+/-- The same statement through F2's **substitution operator**: the syntactic kill-wild rewrite
+`killWild` evaluated at `t` (`Marking.eval_killWild`). -/
+theorem eval_killWild_npcW (α r h : ℕ) (e : EtaData) (t : Marking (2 + 2 * h) G) :
+    t.eval (killWild (npcW α r h e)) = t.τ ^ᶻ omega2 := by
+  rw [Marking.eval_killWild, eval_killWildLetters_npcW]
+
+/-- **Gate-B admissibility, relativized to a tame `τ`** — packet Prop. 9.2.
+
+The corrected noncompact-`N` word dies at the tame boundary of every marking whose `τ`-letter is
+killed by `ω₂`.  Inside `Γ_R` that hypothesis is *supplied*, by packet Lem. 3.1: the tame relation
+`τ^σ = τ^{q}` with `q` even forces `τ` to be pro-odd (`GQ2.Dyadic.odd_order`), and `ω₂` kills
+pro-odd elements.  Per WN0-a's binding `KillsWild` ruling, this — and never the bare `KillsWild`
+— is the admissibility route for a branch word carrying a `δ`-letter. -/
+theorem killsWild_of_tau {α r h : ℕ} (e : EtaData)
+    (hτ : ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+      [CompactSpace G] [TotallyDisconnectedSpace G] (t : Marking (2 + 2 * h) G),
+      t.τ ^ᶻ omega2 = 1) :
+    KillsWild (npcW α r h e) := by
+  intro G _ _ _ _ _ t
+  rw [eval_killWildLetters_npcW]
+  exact hτ G t
+
+/-- **Gate B rule T1, at a finite marking**: if the `τ`-letter has odd order, the tame boundary
+value is trivial.  This is the form the finite-target harnesses (F5) test. -/
+theorem eval_killWildLetters_npcW_eq_one_of_odd {P : Type} [Group P] [TopologicalSpace P]
+    [DiscreteTopology P] [Finite P] (α r h : ℕ) (e : EtaData) (t : Marking (2 + 2 * h) P)
+    (hτ : Odd (orderOf t.τ)) : (Marking.killWildLetters t).eval (npcW α r h e) = 1 := by
+  rw [eval_killWildLetters_npcW]
+  simpa using PWord.eval_omega2Pow_eq_one_of_odd (⇑t) (.gen .tau) hτ
+
+end Tame
+
+/-! ### ⚠ F3's `KillsWild` is *not* satisfiable by this word either
+
+WN0-a's finding, inherited verbatim.  `GQ2.Dyadic.KillsWild R` quantifies over **every** profinite
+group and **every** marking with no relation imposed on `τ`; by `eval_killWildLetters_npcW` the
+tame boundary value here is again `τ^{ω₂}`, so `KillsWild` would force `τ^{ω₂} = 1` universally —
+false already in `Multiplicative (ZMod 8)`.  The admissibility routes are `killsWild_of_tau` and
+`eval_killWildLetters_npcW_eq_one_of_odd`.  Recorded here as a *second* lane confirming the F3b
+micro-ticket's premise: every wave-2 branch word with a `δ`-letter hits this. -/
+
+section Refutation
+
+local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
+local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
+
+private theorem zmod8_orderOf_dvd (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
+  orderOf_dvd_of_pow_eq_one (by revert x; decide)
+
+/-- The refuting marking: `τ` a generator of `ZMod 8` (so `τ^{ω₂} = τ ≠ 1`), everything else
+trivial.  The wild letters are irrelevant — `killWildLetters` overwrites them. -/
+def refuteMarking (h : ℕ) : Marking (2 + 2 * h) (Multiplicative (ZMod 8)) :=
+  Marking.ofLetters 1 (Multiplicative.ofAdd 1) (fun _ => 1)
+
+/-- **The frozen corrected noncompact-`N` word is not Gate-B admissible in F3's unrelativized
+sense.** -/
+theorem not_killsWild (α r h : ℕ) (e : EtaData) : ¬ KillsWild (npcW α r h e) := by
+  intro hR
+  have hval := hR (Multiplicative (ZMod 8)) (refuteMarking h)
+  rw [eval_killWildLetters_npcW,
+    PWord.zpowHat_omega2_zpow (by norm_num) (zmod8_orderOf_dvd _), omega2Exp_eight,
+    show (refuteMarking h).τ = Multiplicative.ofAdd (1 : ZMod 8) from rfl, Nat.cast_one,
+    zpow_one] at hval
+  exact absurd hval (by decide)
+
+end Refutation
+
 end Npc
 
 end GQ2.Dyadic.Words
