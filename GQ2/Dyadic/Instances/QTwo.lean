@@ -30,12 +30,16 @@ their own statements alongside it.
 3. **§4 the groups are the same group.**  `NR_eq_comap` (the two intersections correspond) and
    `gammaR_lSq_equiv_roe : ContinuousMulEquiv (GammaR 1 2 (lSqW 0)) GQ2.GammaR`, **marked**:
    `toRoe` sends the four dyadic letters to `gammaSigmaR`, `gammaTauR`, `gammaX0R`, `gammaX1R`.
-4. **§5 the recovery theorem.**  `candidateGroup_lSq_equiv_absGalQ2`:
-   `Nonempty (ContinuousMulEquiv (candidateGroup 1 2 (lSqW 0)) AbsGalQ2)`, **unconditional** —
-   no hypothesis binder, no `sorry`.  Composing §4 with Roe's terminal
-   `GQ2.main_presentation_literal_roe_unconditional` (whose `BLabHypothesis` the L-campaign
-   discharged as `GQ2.Roe.Labute.bLab`).  `q2_capstones_agree` is the merge-gate-8 regression:
-   `Γ_A ≅ G_ℚ₂`, `Γ_R ≅ G_ℚ₂` and `Γ_{L_sq,1} ≅ G_ℚ₂` side by side.
+4. **§5 the recovery theorem, twice.**  `candidateGroup_lSq_equiv_absGalQ2` and
+   `candidateGroup_lSq_equiv_absGalQ2_via_sourcesN`, both
+   `Nonempty (ContinuousMulEquiv (candidateGroup 1 2 (lSqW 0)) AbsGalQ2)` and both
+   **unconditional** — no hypothesis binder, no instance binder, no `sorry`.  The first composes
+   §4 with Roe's terminal `GQ2.main_presentation_literal_roe_unconditional` (whose
+   `BLabHypothesis` the L-campaign discharged as `GQ2.Roe.Labute.bLab`).  The second composes §4
+   with **SD3's own degree-`n` reconstruction corollary** at `n = 1`
+   (`nonempty_continuousMulEquiv_of_sourcesN` on SD-R1's `sourceR_N`/`sourceF_N`), so the
+   *dyadic* pipeline closes the loop and not merely the frozen `ℚ₂` one.  `q2_capstones_agree` is
+   the merge-gate-8 regression: `Γ_A ≅ G_ℚ₂`, `Γ_R ≅ G_ℚ₂` and `Γ_{L_sq,1} ≅ G_ℚ₂` side by side.
 5. **§6 AS1's `WordCertificate` fields, at `(n, q, R) = (1, 2, L_sq)`,** for the ones the landed
    stack proves — see the inventory below.
 
@@ -91,16 +95,18 @@ the wild relator given by two *different trees* — the certificate's `x₀^{-3}
   recovery theorem deliberately does not go through `candidate_equiv_absoluteGalois`.**
 
   ⚠ The consequence is worth stating plainly for AS5 and the G3 sign-off: at `n = 1` the dyadic
-  recursion *does* reach `Γ_R ≅ G_ℚ₂` — `nonempty_continuousMulEquiv_of_sourcesN` applied to
-  `sourceR_N` and `sourceF_N` would give it — but it reaches it with `Γ` spelled `GQ2.GammaR`,
-  not `GammaR 1 2 (lSqW 0)`.  §4 is exactly the bridge between those two spellings, so the
-  dyadic route and the word route agree; what is missing is only the record-level plumbing.
+  recursion *does* reach `Γ_R ≅ G_ℚ₂` without a `WordCertificate` — that is
+  `candidateGroup_lSq_equiv_absGalQ2_via_sourcesN` — but it reaches it with the record's `Γ`
+  spelled `GQ2.GammaR`, because `sourceR_N` is built from the frozen `ℚ₂` supply lemmas rather
+  than from a word certificate.  §4 is exactly the bridge between the two spellings.  So what
+  the missing `WordCertificate` costs at `n = 1` is *only* the record-level plumbing, not the
+  theorem; at general `K` it costs the theorem, and that is divergence 4's real content.
 
 ## Axiom posture
 
 `sorry`-free; **no new axiom, and no `decide` outside the two four-element alphabet tables**.
-Every declaration prints the standard three or a strict subset, with exactly three exceptions —
-`candidateGroup_lSq_equiv_absGalQ2`, its `hBLab` twin, and `q2_capstones_agree` — which print
+Every declaration prints the standard three or a strict subset, with exactly four exceptions —
+the two recovery theorems, the `hBLab` twin of the first, and `q2_capstones_agree` — which print
 **exactly** the axiom list of `GQ2.main_presentation_literal_roe_unconditional`, i.e. the frozen
 `ℚ₂` literature census of `GQ2/Foundations/Axioms.lean`.  Nothing is added, and in particular the
 dyadic census axioms `B5-K`/`B10-K` (`markedRecipAt`, `orientedTameQuotientAt`) are **not**
@@ -434,6 +440,55 @@ theorem candidateGroup_lSq_equiv_absGalQ2 :
 theorem candidateGroup_lSq_equiv_absGalQ2_of_bLab (hBLab : GQ2.BLabHypothesis) :
     Nonempty (ContinuousMulEquiv ((candidateGroup 1 2 (lSqW 0)) : Type) AbsGalQ2) :=
   ⟨gammaR_lSq_equiv_roe.trans (GQ2.main_presentation_literal_roe hBLab).some⟩
+
+/-! ### The same conclusion, through the *dyadic* recursion
+
+The theorem above composes §4 with the frozen `ℚ₂` capstone.  The one below reaches the same
+conclusion through SD3's degree-`n` reconstruction corollary
+(`nonempty_continuousMulEquiv_of_sourcesN`, packet Thm 11.1 clause 3) applied to SD-R1's two
+`n = 1` records — so the *dyadic* pipeline, not the `ℚ₂` one, closes the loop, and §4 is what
+lets it land on the L-word candidate group rather than on `GQ2.GammaR`.
+
+The `AbsGalQ2` topology instances are file-local, as in `GQ2/Roe/Main.lean` and
+`GQ2/PresentationLiteral.lean`, so the statement carries no instance binders. -/
+
+section DyadicRoute
+
+noncomputable local instance absGalQ2_compactSpace_qtwo : CompactSpace AbsGalQ2 := by
+  change CompactSpace (AlgebraicClosure ℚ_[2] ≃ₐ[ℚ_[2]] AlgebraicClosure ℚ_[2])
+  infer_instance
+
+noncomputable local instance absGalQ2_totallyDisconnectedSpace_qtwo :
+    TotallyDisconnectedSpace AbsGalQ2 := by
+  change TotallyDisconnectedSpace (AlgebraicClosure ℚ_[2] ≃ₐ[ℚ_[2]] AlgebraicClosure ℚ_[2])
+  infer_instance
+
+/-- **The recovery theorem through SD3.**  `candidateGroup 1 2 (L_sq) ≅ G_ℚ₂`, obtained from the
+dyadic degree-`n` reconstruction corollary at `n = 1` rather than from the frozen `ℚ₂` capstone:
+SD-R1's `sourceR_N` (carrier `GQ2.GammaR`) against `sourceF_N` (carrier `G_ℚ₂`), over the shared
+slot `(1, 2, Π, ν₂, standardNumerics 1)`, then §4's identification.
+
+Also **unconditional**: the `B-Lab` binder is `GQ2.Roe.Labute.bLab`, the `BoundaryMaps` witness
+is `SectionThree.boundaryMapsWitness`, and the orientation clause is
+`GQ2.tameUnitOrientation_witness`.  The four §10 instantiation-side conditions are the frozen
+`ℚ₂` facts (`phiR_surjective`, `ker_phiR` + `isProP_wildCoreR`, and two `BoundaryMaps` fields). -/
+theorem candidateGroup_lSq_equiv_absGalQ2_via_sourcesN :
+    Nonempty (ContinuousMulEquiv ((candidateGroup 1 2 (lSqW 0)) : Type) AbsGalQ2) := by
+  set SR := sourceR_N GQ2.Roe.Labute.bLab with hSR
+  set SF := sourceF_N SectionThree.boundaryMapsWitness GQ2.localReciprocity
+    GQ2.tameUnitOrientation_witness with hSF
+  have htame₁ : Function.Surjective SR.tame := phiR_surjective
+  have hwild₁ : IsProP 2 SR.tame.toMonoidHom.ker := by
+    have h : IsProP 2 phiR.toMonoidHom.ker := by rw [ker_phiR]; exact isProP_wildCoreR
+    exact h
+  have htame₂ : Function.Surjective SF.tame :=
+    SectionThree.boundaryMapsWitness.tameF_surjective
+  have hwild₂ : IsProP 2 SF.tame.toMonoidHom.ker := SectionThree.boundaryMapsWitness.wild_isProP
+  obtain ⟨e⟩ := nonempty_continuousMulEquiv_of_sourcesN SR SF two_ne_zero even_two
+    SectionThree.nuTwo_surjective htame₁ hwild₁ htame₂ hwild₂
+  exact ⟨gammaR_lSq_equiv_roe.trans e⟩
+
+end DyadicRoute
 
 /-- **Merge gate 8, regression half.**  The two frozen `ℚ₂` capstones still typecheck at their
 own statements, side by side with the `n = 1` route: `Γ_A ≅ G_ℚ₂` (the paper's Theorem 1.2,
