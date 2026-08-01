@@ -28,10 +28,17 @@ Two tiers, and the boundary between them is the alphabet:
 1. **Alphabet-generic** (`§1`): `isOmega2Only_prodList`, `pro2_prodList`,
    `eval_prodList_append`, `invConj_mul_self`.  These never mention `Generator n` at a fixed `n`
    (or mention it at a *variable* `n`), so all five lanes share them, `LSq` included.
-2. **The `Generator (2 + 2h)` alphabet** (`§2`–`§4`): `coreLetter`, `handleU`, `handleV`,
-   `wildGen`, `genOfName`, `denoteCtx`, `handlesW`, `handleTailW`, their kill-wild/`pro2`
-   companions, and the `ZMod 8` refutation kit.  Four lanes share these — `N0`, `MCompact`,
-   `Npc`, `Mpc`.
+2. **The `Generator (2 + 2h)` alphabet** (`§2`–`§4`, `§6`–`§7`): `coreLetter`, `handleU`,
+   `handleV`, `wildGen`, `genOfName`, `denoteCtx`, `handlesW`, `handleTailW`, their
+   kill-wild/`pro2` companions, the `ZMod 8` refutation kit and the certificate's `σ₂` node.
+   Four lanes share these — `N0`, `MCompact`, `Npc`, `Mpc`.
+
+`§5` sits between the tiers: `two_add_two_pow` and `odd_one_add_two_pow` are pure `ℕ`
+arithmetic about the leading exponent `p_α = 2 + 2^α`, shared by `N0` and `Npc` and cited by
+four certificate files.
+
+`orderOf_dvd_eight` (`§6`) is shared by all five lanes, `LSq` included, since it is a fact about
+`Multiplicative (ZMod 8)` and not about any alphabet.
 
 **`LSq` is on a different alphabet and keeps its own copies.**  At degree `n = 2h + 1` the word
 has two core letters, not three; the alphabet is `Generator (2 * h + 1)`, not
@@ -320,5 +327,19 @@ def refuteMarking (h : ℕ) : Marking (2 + 2 * h) (Multiplicative (ZMod 8)) :=
 def zmod8Marking : Marking (2 + 2 * 0) (Multiplicative (ZMod 8)) :=
   Marking.ofLetters (Multiplicative.ofAdd 5) (Multiplicative.ofAdd 1)
     ![Multiplicative.ofAdd 1, Multiplicative.ofAdd 1, Multiplicative.ofAdd 1]
+
+/-! ## §7. Certificate-side letters
+
+`genOfName` above is the certificate → `Generator` direction; this is the one letter that the
+certificate *trees* themselves spell identically in two rows.  `σ₂` is emitted as an `Auxiliary`
+display node wrapping `Omega2Power`, and `MCompact` and `Mpc` wrote the same node.
+
+Nothing else at the `RawWord` layer is shared: the two handle tails differ in their `.int`
+spelling (module docstring), and every other node carries row-specific exponents.
+-/
+
+/-- The certificate's `σ₂ = σ^{ω₂}`: an `Auxiliary "sigma2"` display node over `Omega2Power`,
+in the spelling both the compact-`M` and the procyclic-`M` emitters produce. -/
+def rawSigma2 : RawWord := .auxiliary "sigma2" (.omega2Power (.generator "sigma"))
 
 end GQ2.Dyadic.Words

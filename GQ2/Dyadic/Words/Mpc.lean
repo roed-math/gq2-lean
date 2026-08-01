@@ -428,9 +428,6 @@ shared-subtree.  `sigma2` is one displayed definition (charged once, §9.3 rule 
 copy's `Ahat`/`Bhat`/`C0hat` are genuinely new `Auxiliary` definitions; `E01` occurs twice as
 the *same* subtree. -/
 
-/-- The shared auxiliary `σ₂ = σ^{ω₂}`. -/
-def rawSigma2 : RawWord := .auxiliary "sigma2" (.omega2Power (.generator "sigma"))
-
 /-- `σ₂^k` as displayed (bare at `k = 1`). -/
 def rawSig2Pow : ℕ → RawWord
   | 1 => rawSigma2

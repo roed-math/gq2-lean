@@ -224,10 +224,6 @@ noncomputable def mCompactW (α h : ℕ) : PWord (Generator (2 + 2 * h)) :=
 
 /-! ## The certificate tree and the WW5 hash pins -/
 
-/-- `σ₂ = σ^{ω₂}` as the certificate spells it: an `auxiliary` wrapper on an `Omega2Power`.
-The wrapper is hashed, so it cannot be dropped. -/
-def rawSigma2 : RawWord := .auxiliary "sigma2" (.omega2Power (.generator "sigma"))
-
 /-- `σ₂^k`, the certificate's `IntegerPower` on `rawSigma2`. -/
 def rawSigma2Pow (k : ℤ) : RawWord := .integerPower rawSigma2 (.int k)
 
