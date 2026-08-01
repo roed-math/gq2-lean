@@ -49,8 +49,8 @@ identity, not a finite-order interpolation, exactly as WMP-c recorded.
 ## Two findings about the API
 
 **(i) The registers do not meet, and `mpcCopiesCancel` is not consumable here.**  WMP-c's
-cancellation lives in the **Heisenberg** register (`heisEvalZ : PWord X → HeisLift A C`, fields
-`.a/.l/.z`); `hessRelZ` lives in the **κ⁰ central extension**
+cancellation sits in the **Heisenberg** register (`heisEvalZ : PWord X → HeisLift A C`, fields
+`.a/.l/.z`); `hessRelZ` sits in the **κ⁰ central extension**
 (`WordCoh.CentExt (kappa0Cocycle dat hdat)`, field `.fib`).  A repo-wide survey finds **no
 lemma anywhere connecting them**, and none can be produced by a carrier identification: the two
 central rules are `(p*q).z = p.z + q.z + p.l (p.g • q.a)` and
@@ -439,7 +439,7 @@ boundary δ-letter does.  §4's three laws then say the squares and commutators 
 from cannot see the difference — so the hat copy's value **equals** the linear copy's.
 
 ⚠ This is the κ⁰-register analogue of WMP-c's `mpcCopiesCancel`, not a transport of it: that
-theorem lives in the Heisenberg register (`heisEvalZ`, fields `.a/.l/.z`) against a cocycle of
+statement sits in the Heisenberg register (`heisEvalZ`, fields `.a/.l/.z`) against a cocycle of
 Heisenberg shape, and **no bridge to the κ⁰ extension exists**, nor can one be built by a carrier
 identification — the two cocycles are of different shapes.  The compensation is that on this
 carrier P4's central clause is not needed: WMP-c's `CentralReplication` hypothesis is here a
