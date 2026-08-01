@@ -251,6 +251,7 @@ import GQ2.Dyadic.Word.Stokes
 import GQ2.Dyadic.Word.StokesDual
 import GQ2.Dyadic.Word.Hessian
 import GQ2.Dyadic.Word.Phase
+import GQ2.Dyadic.Word.NpcBridge
 import GQ2.Dyadic.Word.Export
 import GQ2.Dyadic.Branches
 import GQ2.Dyadic.Words.Alphabet
