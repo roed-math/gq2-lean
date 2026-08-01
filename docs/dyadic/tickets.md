@@ -348,6 +348,11 @@ to `master` only at owner gate G3.
   worktree branch dyadic-ax3b) → orchestrator atomic AX3 flip commit (census 9 → 10, B5-K
   row) → AX4-b (structure file) → orchestrator AX4 flip (census 10 → 11, B10-K row); check-5
   byte-identical ℚ₂ capstone prints is a gate at each flip.**
+- 2026-07-31 (orchestrator): **second session-limit interruption** (reset 9:30pm ET) killed
+  SD-R3 (on its FINAL file — seven per-file commits already banked; `Prop89Close.lean`
+  untracked on disk) and WN0-c (reading pass, nothing lost). Both RESUMED on their original
+  tiers with salvage-first orders; WN0-c's NpcJet question answered in the resume (plain
+  can import anything; NpcJet likely not needed on the compact row).
 - **2026-07-31 (orchestrator, SQ4 outcomes — THE L_sq CERTIFICATE + THE PIVOT THEOREM):**
   merged, imports registered, audit green. Adopted: (i) **the SqMixPivot datum is now an
   UNCONDITIONAL THEOREM** — `exists_isUnit_zpowZtwo_eq` (surjectivity companion to
