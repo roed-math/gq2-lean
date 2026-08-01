@@ -69,32 +69,55 @@ family on the scalar module at the packet column order `σ, τ, x₀, x₁, x₂
 — the `e = 1` / `e = 3` twins that make S1.T's mod-4 sensitivity a matrix pair, exactly as
 `sqrtNegTwo_scalarGram{,_three}` does for the pilot.
 
-## 3. The Hessian certificate: **both projector normal forms**
+## 3. The Hessian layer: both projector normal forms
 
-The lane's two-branch obligation, connected word-side to WW4's two endpoints.  At the graph-type
-κ⁰-marking (`hessMarkM`: `σ`, `τ` on the κ-free `C`-line, wild letters on the Heisenberg slice,
-`x₂` carrying no primal letter) the δ-letter's jet is the freeze's `d_i = (1 + P) c_i`, and the
-two branches are exactly the two values of the `ω₂`-norm projector `P = N_T`:
+WW4's `compactM_P1_certificate` and `compactM_P0_certificate` already certify the two frozen
+**endpoints** (`q(c₀)+b_q(c₀,c₁)` with the identity CoV; `q(c₁)+b_q(c₀,c₁)` with the `(c₀,c₁)`
+block-swap CoV).  What this file adds on the word side is the κ⁰ **slice calculus for this row**
+and the projector mechanism itself:
 
-* **`P = 1`** (`hessRelZ_mCompact_P1`, hypothesis `hP1`: the `ω₂`-block `(x_iτ)^{ω₂}` is the
-  slice element `x_i` again — the unramified reading, where `τ` sits on the trivial line): every
-  `d_i = 0`, the correction block is **trivial**, and the word-side value is
-  `q(c₀) + b_q(c₀,c₁) + Σ_j b_q(d_j,e_j)`.  At `h = 0` this is `plusFormD q q` on the nose —
-  the endpoint of WW4's `compactM_P1_certificate`, with the **identity** CoV.  WM0-b proved the
-  `P = 1` case *is* the compact-`N` construction at first order; `hessRelZ_mCompact_P1_eq_nCompact`
-  makes that a second-order theorem too (the two words have equal evaluated Hessians).
-* **`P = 0`** (`hessRelZ_mCompact_P0`, hypothesis `hP0`: the `ω₂`-block is trivial — the ramified
-  reading, WM0-b's `hTodd`/`hτfpf` class): `d_i = c_i`, the correction block contributes exactly
-  `q(c₀) + q(c₁)`, and the word-side value becomes `q(c₁) + b_q(c₀,c₁) + Σ_j b_q(d_j,e_j)` —
-  the endpoint of WW4's `compactM_P0_certificate`, reached by the **`(c₀,c₁)` block-swap** CoV
-  (`LinearEquiv.prodComm`).  The block's `q(c₀) + q(c₁)` is *not* an interpolation: it is the
-  six-pair κ-sum of the four δ-factors, `q(c₁) + q(c₀) + 4·f(c₁,c₀)`, with the four self-charges
-  cancelling in pairs.
+* `hessSlice_sq`, `hessSlice_odd_pow`, `hessSlice_mul_incl` — the extension arithmetic the
+  compact-`M` letters need (the pilot needed none of it: its boundary block sat entirely on the
+  `C`-line);
+* `factorSet_m_zpow_even` — **no `m`-charge survives**, and for a structural reason.  Commuting
+  a slice past `σ₂^k` costs the correction `m_{σ₂^k}`; under `hS₂` eq. (60) gives
+  `m_{g·g}(w) = m_g(g·w) + m_g(w) = 2·m_g(w) = 0`, so every **even** σ₂-power is `m`-free — and
+  every σ₂-power in `R_{M,0}` is even, because `m = 2^{α−1}` with `α ≥ 2`.  No untwisted-
+  refinement hypothesis is needed: the same evenness that kills the σ₂-jets at Stokes level
+  kills the σ₂-charges here;
+* `hessLine_slice_comm` / `hessM_line_comm` — the resulting gate-E commutation, which is what
+  lets the C-line factors cancel by the power balance `−2·2^{α−1} + 2^α = 0` without disturbing
+  the slice letters;
+* **the two projector branches of the `δ`-letter**, which is where `d_i = (1 + P) c_i` actually
+  lives.  `P` is the `ω₂`-norm projector `N_T`, and the branches are stated exactly where WM0-b
+  states them — as a hypothesis on the evaluated `ω₂`-block.  `hessDeltaCert_P1`: the block
+  returns the slice letter, so `δ_i = x_i x_i⁻¹ = 1` and `d_i = 0` — S4.1's finding (i), "the
+  correction is invisible exactly when the projector is 1", and the reason
+  `compactM_P1_certificate` *is* `compactN_certificate`.  `hessDeltaCert_P0`: the block is
+  trivial, so `δ_i = x_i⁻¹` and `d_i = c_i` — the ramified reading (WM0-b's `hTodd`/`hτfpf`
+  class).  `hessDeltaBlock_P1` **discharges** the `P = 1` hypothesis at `u = 1` and the honest
+  class `e ≡ 1 (mod 4)`, so the branch is not vacuous.
 
-Both branches are proved at **general `h` and every resolver**; the projector branch is the only
-hypothesis that separates them.  (Freeze row 4's ⚠ open input — the compact-`M` *marked* change
-of variables, errata item 3 — is untouched here: these are the gate-E CoVs, which the freeze
-does display.)
+⚠ **Residual, stated plainly.**  The final *assembly* — a single `hessRelZ_mCompact_P{0,1}`
+equating the whole word's evaluated fibre to `q(c₀)+b_q(c₀,c₁)+Σ_j b_q(dⱼ,eⱼ)` resp.
+`q(c₁)+b_q(c₀,c₁)+Σ_j b_q(dⱼ,eⱼ)` — is **not** in this file.  Every ingredient is (factor by
+factor: `A₀² = ι(q c₀)·σ₂^{−2m}` from `hessSlice_sq`; `[A₀,x₁] = ι(b_q(c₀,c₁))` from
+`hessSlice_commR` once the central `σ₂`-half is transported out; `σ₂^{2m}` cancelling the
+former's C-line by the balance; `J₂` dying on the `C`-line at `v(x₂) = 0` exactly as in the
+pilot; the `𝓔`-block trivial at `P = 1` and `ι(q c₀ + q c₁)` at `P = 0` by two applications of
+`hessSlice_sq`; the handle tail via the pilot's `hess_handlesW_eval`), and the arithmetic is
+checked on paper — at `P = 0` the block contributes `q(c₀)+q(c₁)`, which turns the core's
+`q(c₀)+b_q(c₀,c₁)` into `q(c₁)+b_q(c₀,c₁)`, i.e. **the block swap is what the correction block
+performs**.  What is missing is one transport lemma, `commR (a·L) b = commR a b` for `L`
+commuting with `a` and `b`, and the bookkeeping that chains the six factors.  It is a
+half-day's work on top of what is here, and it is the first thing a follow-on should do.
+
+Note also that this whole layer is stated at the `hS₂` class (`W = 1` on `V`).  At general `W`
+the endpoint needs the compact-`M` **marked** change of variables, which freeze row 4 flags as
+an open input (errata item 3, "missing from the packet/drafts") — so it stays an explicit-datum
+binder here, exactly as the lane spec mandates.  The order-rejection of §4 below is
+deliberately *not* subject to that restriction: it is proved at general `W`, and must be, since
+`W = 1` is precisely the blind case.
 
 ## 4. The order-rejection certificate (the lane's headline)
 
@@ -164,6 +187,29 @@ Taken from WW4's certificates at **both** projector branches: `mCompact_P1_G0` /
 Not `module`-style, and forced: `GQ2.Dyadic.Certificates.M0Fox` is plain-import.  No new
 axioms; kernel `decide` only.  The `deltaC` → `deltaCert` rename is WM0-b's (the peripheral
 `GQ2.deltaC` wins the resolution race); it is repeated here for the same reason.
+
+**Reused from the pilot, not re-derived** (the file imports `GQ2.Dyadic.Certificates.N0`
+deliberately, as WM0-b imports `N0Fox`): the boundary block's two factors
+(`Certificates.heisF_invConjX2`, `Certificates.heisF_deltaBlock`), the handle rows
+(`heisF_handlesW_mem/_z`), `heisEps_handlesW`, `heisEps_of`, the `(1+S)`-atom dichotomy
+`isUnit_onePlusSEnd_iff`, the graph-type marking `hessMark`, and the WWH toolkit in
+`Word/Stokes.lean`.  ⚠ **One WW API finding**: the pilot's `heisF_deltaInner`/`heisF_deltaBlock`
+are hardwired at `coreLetter h 2` — compact `N` has a single `δ`-letter — so the compact-`M`
+correction block, which carries `δ₀` and `δ₁`, forced index-generic restatements
+(`heisF_deltaInnerAt`, `heisF_deltaBlockAt`).  Those two belong in the WW toolkit; every later
+`-c` lane with more than one `δ`-letter (WNP-c, WMP-c) will need them.
+
+## Axiom state (audited; `#print axioms` run in a scratch file, not committed)
+
+Zero `sorryAx`, zero `native_decide`, and **no `GQ2.AbsGalQ2` B-axiom leaks** through either
+import chain.  All twenty headlines — `heisZ_mCompact_res_one`, `heisZ_mCompact_wild_block`,
+`mCompact_isStokesEndpoint`, `mCompact_stokesDuality`, `sqrtTwo_scalarGram`,
+`sqrtTwo_scalarGram_three`, `sqrtFive_scalarGram`, `heisF_eRevW_trivial`, `hessDeltaBlock_P1`,
+`hessDeltaCert_P1`, `hessDeltaCert_P0`, `factorSet_m_zpow_even`, `hessSlice_rev4_fib`,
+`swapDifference_formula`, `swapDifference_zero_of_P1`, `swapDifference_zero_of_trivial_W`,
+`fifthRoot_separates`, `fifthRoot_orders_differ`, `mCompact_gauss_pow` and
+`mCompact_P0_endpoint_gaussSum` — print exactly the standard three
+`[propext, Classical.choice, Quot.sound]`.  The census stays at eleven.
 -/
 
 namespace GQ2.Dyadic.Certificates.MCompact
@@ -1361,5 +1407,55 @@ theorem mCompact_P0_endpoint_gaussSum :
   exact h
 
 end Phase
+
+/-! ## The word-side Hessian equations: landing on WW4's two endpoints -/
+
+section HessianWord
+
+open GQ2.SectionSix GQ2.QuadraticFp2
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+  {h α : ℕ} (s u : C) (vv : Fin (2 + 2 * h + 1) → V) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- Abbreviation for the evaluated marking. -/
+private noncomputable abbrev mk :=
+  WordCoh.lift (Certificates.hessMark s u vv) (kappa0Cocycle dat hdat)
+
+/-- `σ₂` evaluates onto the `C`-line at the resolved 2-primary part of `σ`. -/
+theorem hessM_sigma2W :
+    PWord.evalZ (mk dat hdat s u vv) E E₂ sigma2W = hessLine dat hdat (s ^ E omega2) := by
+  rw [sigma2W, PWord.omega2Pow, PWord.evalZ_profPow, PWord.evalZ_gen,
+    show mk dat hdat s u vv Generator.sigma = hessLineHom dat hdat s from rfl, ← map_zpow]
+  rfl
+
+@[inherit_doc hessM_sigma2W]
+theorem hessM_sigma2Pow (k : ℤ) :
+    PWord.evalZ (mk dat hdat s u vv) E E₂ (.zpow sigma2W k)
+      = hessLine dat hdat ((s ^ E omega2) ^ k) := by
+  rw [PWord.evalZ_zpow, hessM_sigma2W,
+    show hessLine dat hdat (s ^ E omega2) = hessLineHom dat hdat (s ^ E omega2) from rfl,
+    ← map_zpow]
+  rfl
+
+variable (hS₂ : ∀ w : V, (s ^ E omega2) • w = w)
+
+include hdat hS₂ in
+/-- **The `σ₂`-line commutes with every slice, at every even power.**  Two facts meet here: the
+`hS₂`-action is trivial, and `factorSet_m_zpow_even` kills the factor-set correction because the
+power is even.  Every `σ₂`-power occurring in `R_{M,0}` — `σ₂^{−m}` inside `A₀` and `σ₂^{2m}` —
+is even, since `m = 2^{α−1}` with `α ≥ 2`.
+
+This is the gate-E commutation the compact-`M` word needs and the compact-`N` word never did,
+and it is the step that lets the C-line factors cancel by the packet's power balance
+`−2·2^{α−1} + 2^α = 0` without disturbing the slice letters. -/
+theorem hessM_line_comm {k : ℤ} (hk : Even k) (w : V) (z : ZMod 2) :
+    hessLine dat hdat ((s ^ E omega2) ^ k) * hessSlice dat hdat w z
+      = hessSlice dat hdat w z * hessLine dat hdat ((s ^ E omega2) ^ k) :=
+  hessLine_slice_comm dat hdat
+    (fun v => mem_trivAct.mp (zpow_mem (mem_trivAct.mpr hS₂) k) v)
+    (fun v => factorSet_m_zpow_even dat hdat hS₂ hk v) w z
+
+end HessianWord
 
 end GQ2.Dyadic.Certificates.MCompact
