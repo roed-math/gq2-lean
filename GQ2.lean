@@ -292,6 +292,7 @@ import GQ2.Dyadic.MarkedCore.CoreMixM
 import GQ2.Dyadic.MarkedCore.M
 import GQ2.Dyadic.MarkedCore.N
 import GQ2.Dyadic.MarkedCore.Certificate
+import GQ2.Dyadic.MarkedCore.CompactCoV
 import GQ2.Dyadic.MarkedRecipBundle
 import GQ2.Dyadic.OrientedTameBundle
 import GQ2.Dyadic.Recursion.Frame
