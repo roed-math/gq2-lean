@@ -63,11 +63,12 @@ rather than re-derived — see the report's inventory).  WL-b's names come throu
 `open … Certificates.LSq`; where a name exists in both (`trivAct_coreLetter`, `trivAct_handleU`,
 `trivAct_handleV`) it is qualified `LSq.…`.
 
-## Axiom state (audited; `#print axioms` on all 100 named declarations, run in a scratch file,
-not committed)
+## Axiom state (audited; `#print axioms` on all 96 named declarations, run in a scratch file,
+not committed; the three unprinted declarations are the anonymous `local instance`s)
 
 Every declaration depends on a **subset of the standard three** `[propext, Classical.choice,
-Quot.sound]` — 81 print exactly std-3, the rest `[propext, Quot.sound]` or `[propext]`.  Zero
+Quot.sound]` — 84 print exactly std-3, the remaining 12 print `[propext, Quot.sound]` or
+`[propext]`.  Zero
 `sorryAx`, zero `native_decide`, and **zero `B3c`/`B8`** (no rank-3-discharge consumer is needed
 anywhere in this file; `SqCore.marked_square_core_rank3` and its two certificate consumers are
 cited in prose only, as in WL-a and WL-b).  No `GQ2.AbsGalQ2` B-axiom appears in any print
