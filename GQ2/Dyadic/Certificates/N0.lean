@@ -166,31 +166,16 @@ namespace GQ2.Dyadic.Certificates
 
 open GQ2.FoxH GQ2.Dyadic.Words
 
-/-! ## `𝔽₂` parity helpers
+/-! ## The row's binomial parity
 
-The two cast lemmas that make every parity step below uniform, plus the two binomial
-parities of the row: `C(2+2^α, 2)` is odd for `α ≥ 2` (the Hessian condition of freeze
-row 2, at the Stokes level), and `C(e, 2)` is even on the honest resolver class
-`e ≡ 1 (mod 4)` (ticket S1.T's modulus). -/
+The generic `𝔽₂` parity kit (`natCast_zmod2_even`/`_odd`, `nsmul_zmod2_even`/`_odd`,
+`zsmul_natCast_zmod2_even`/`_odd`, `choose_two_even_of_mod_four`, `odd_of_mod_four_eq_one`)
+lives in `GQ2/Dyadic/Word/Stokes.lean` since ticket WWH.  What stays here is the one parity
+that is about *this* row and cannot follow: it reads off the plain-import spelling-discipline
+lemmas `Words.two_add_two_pow`/`Words.odd_one_add_two_pow`, which a `module` file may not
+import. -/
 
 section Parity
-
-theorem natCast_zmod2_even {n : ℕ} (hn : Even n) : (n : ZMod 2) = 0 := by
-  obtain ⟨m, rfl⟩ := hn
-  push_cast
-  ring_nf
-  simp [CharTwo.two_eq_zero]
-
-theorem natCast_zmod2_odd {n : ℕ} (hn : Odd n) : (n : ZMod 2) = 1 := by
-  obtain ⟨m, rfl⟩ := hn
-  push_cast
-  simp [CharTwo.two_eq_zero]
-
-theorem nsmul_zmod2_even {n : ℕ} (hn : Even n) (z : ZMod 2) : n • z = 0 := by
-  rw [nsmul_eq_mul, natCast_zmod2_even hn, zero_mul]
-
-theorem nsmul_zmod2_odd {n : ℕ} (hn : Odd n) (z : ZMod 2) : n • z = z := by
-  rw [nsmul_eq_mul, natCast_zmod2_odd hn, one_mul]
 
 /-- `C(2+2^α, 2)` is odd exactly on the branch condition `α ≥ 2`: with
 `2 + 2^α = 2m`, `C(2m, 2) = m(2m−1)` and `m = 1 + 2^{α−1}` is odd iff `α ≥ 2`
@@ -205,21 +190,6 @@ theorem choose_two_add_two_pow_odd {α : ℕ} (hα : 2 ≤ α) : Odd ((2 + 2 ^ �
   rw [hm, hchoose]
   have hm1 : 1 ≤ m := Nat.le_add_right 1 _
   exact (Words.odd_one_add_two_pow hα).mul ⟨m - 1, by omega⟩
-
-/-- `C(e, 2)` is even on the resolver class `e ≡ 1 (mod 4)` — the class the honest `ω₂`
-representative for a `2`-group target lives in (`omega2Exp` of a `2`-power is `1`).
-On `e ≡ 3 (mod 4)` it is odd; the pair of scalar Gram pins below keeps the difference
-visible (ticket S1.T: the lift level is `4`, not `2`). -/
-theorem choose_two_even_of_mod_four {e : ℕ} (he : e % 4 = 1) : Even (e.choose 2) := by
-  obtain ⟨k, rfl⟩ : ∃ k, e = 4 * k + 1 := ⟨e / 4, by omega⟩
-  rw [Nat.choose_two_right, show 4 * k + 1 - 1 = 4 * k by omega,
-    show (4 * k + 1) * (4 * k) = (4 * k + 1) * k * 2 * 2 by ring,
-    Nat.mul_div_cancel _ (by norm_num)]
-  exact ⟨(4 * k + 1) * k, by ring⟩
-
-theorem odd_of_mod_four_eq_one {e : ℕ} (he : e % 4 = 1) : Odd e := by
-  obtain ⟨k, rfl⟩ : ∃ k, e = 4 * k + 1 := ⟨e / 4, by omega⟩
-  exact ⟨2 * k, by ring⟩
 
 end Parity
 
@@ -584,21 +554,6 @@ vector vanishes because every per-letter coefficient — `1−q+e` on `τ`, `2+2
 
 section Family
 
-/-- Collapse of `conjR` in a commutative group. -/
-theorem conjR_eq_self_of_comm {H : Type*} [CommGroup H] (x g : H) : conjR x g = x := by
-  rw [conjR, mul_comm g⁻¹ x, mul_assoc, inv_mul_cancel, mul_one]
-
-/-- `commR` maps to `commR` under any group hom. -/
-theorem map_commR' {G H : Type*} [Group G] [Group H] (f : G →* H) (a b : G) :
-    f (commR a b) = commR (f a) (f b) := by
-  rw [commR, commR, map_mul, map_mul, map_mul, map_inv, map_inv]
-
-/-- Commutators die under any hom into a commutative group. -/
-theorem monoidHom_commR_eq_one {G H : Type*} [Group G] [CommGroup H] (f : G →* H)
-    (a b : G) : f (commR a b) = 1 := by
-  rw [map_commR', commR_eq_one_iff]
-  exact Commute.all _ _
-
 variable {α h q e : ℕ}
 
 /-- **The resolved compact-`N` relator family**: the tame relator and the frozen branch
@@ -621,14 +576,6 @@ theorem heisEps_of {ι : Type*} [DecidableEq ι] (i j : ι) :
     heisEps i (FreeGroup.of j) = Multiplicative.ofAdd (if j = i then (1 : ZMod 2) else 0) := by
   rw [heisEps]
   exact FreeGroup.lift_apply_of
-
-/-- An even natural `ℤ`-scalar kills every `ZMod 2` value. -/
-theorem zsmul_natCast_zmod2_even {n : ℕ} (hn : Even n) (z : ZMod 2) : (n : ℤ) • z = 0 := by
-  rw [zsmul_eq_mul, Int.cast_natCast, natCast_zmod2_even hn, zero_mul]
-
-/-- An odd natural `ℤ`-scalar is the identity on `ZMod 2` values. -/
-theorem zsmul_natCast_zmod2_odd {n : ℕ} (hn : Odd n) (z : ZMod 2) : (n : ℤ) • z = z := by
-  rw [zsmul_eq_mul, Int.cast_natCast, natCast_zmod2_odd hn, one_mul]
 
 /-- The handle block's resolved word has trivial mod-2 exponent vector (commutators). -/
 theorem heisEps_handlesW (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (i : Generator (2 + 2 * h)) :
