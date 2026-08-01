@@ -1320,7 +1320,7 @@ to `master` only at owner gate G3.
   LG4c's adapter note + the cup11Fun bridges; regressions n=1 (both signs, rfl where
   possible), n=2 unramified +1, ramified +1 at every n.
 
-**Owner decision sheet (2026-07-30):** `~/claude/handoffs/gq2-dyadic-owner-decisions-2026-07-30.md`.
+**Owner decision sheet (2026-08-01, CURRENT):** `~/claude/handoffs/gq2-dyadic-owner-decisions-2026-08-01.md` — A: the two items actually waiting (ASK lane assignment, errata send); B: five riding decisions flagged for override; C: four open-no-deadline items; D: the gate calendar. Supersedes the 07-30 sheet (all of whose items are resolved).
 **Session handoff (2026-07-30, Fable-credit interruption):** `~/claude/handoffs/gq2-dyadic-campaigns-2026-07-30.md`.
 
 ## Obligation tracker
