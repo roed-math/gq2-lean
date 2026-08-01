@@ -565,7 +565,69 @@ performs, made explicit. -/
 theorem not_isOmega2Only_hatDisplay (num den : ℤ) :
     ¬ (Words.Mpc.EtaDisplay.hat num den).IsOmega2Only := id
 
+/-- **The procyclic-`N` row has no constant pin at exponent level `6`** — the two hypotheses of
+`resolvesAt_npcFam` are jointly unsatisfiable there, at every `e`.
+
+This is the actionable form of §5.3 for the count lane, because `6` is the level the count lane
+has actually committed to (`Count/Presentation.lean`'s two standing `orderOf x ∣ 6` hypotheses).
+At that level the other four rows take `e = omega2Exp 6 = 3`; this row takes nothing.  Its
+options are exactly two: move the row to a `2`-group target and use `resolvesAt_npcFam_one`, or
+give `Certificates.Npc.npcFam` a *two-valued* resolver — `resolvesAt_of_resolvedAt` together with
+`resolvedAt_npcW` already supports the latter, at the honest pair
+`(omega2Exp N, 1 + padicOmega2Exp (η − 1) N)`. -/
+theorem no_constant_pin_npcFam_at_six {η : ℤ_[2]} (z : ℤ_[2]) (hη : η = 1 + 2 * z) (e : ℕ) :
+    ¬ (omega2Exp 6 = e ∧ 1 + padicOmega2Exp (η - 1) 6 = e) := by
+  rintro ⟨h1, h2⟩
+  exact npc_levels_ne_at_six z hη (h1.trans h2.symm)
+
 end Procyclic
+
+/-! ## §6 Discharging the count lane's standing exponent hypothesis
+
+`Count/Presentation.lean`'s `sqrtNegTwo_*_gammaR_nCompact` carry `orderOf x ∣ 6` at the split
+target as an **undischarged hypothesis**, and every `resolvesAt_*` above consumes exactly that
+shape.  The lift-level lemma discharges it from a statement about the *lower* group alone:
+`Additive ↥D.T` is `2`-torsion (`Count.radT_add_self`), so
+`GQ2.Dyadic.WordLift.orderOf_dvd_two_mul` gives `orderOf x ∣ 2 · N` for any `N` killing
+`Bg ⧸ D.M`.
+
+⚠ The `6` is therefore **`2 · 3`, not a `2`-power**: the factor `2` is the lift level and the
+factor `3` is the lower group's.  `Bg ⧸ D.M` is not a `2`-group in the campaign's frame — it
+surjects onto the finite tame head, whose `τ`-image has odd order
+(`GQ2.Dyadic.TameQ.odd_order`) — so CB-TR's alternative "if `C` is a `2`-group the target is one
+too" is *not* the case the count lane is in, and `e = 3` is the honest pin for the four
+`ω₂`-only rows.  Which is precisely why §5.3 bites: at that same target the procyclic-`N` row has
+no constant pin at all. -/
+
+section LiftLevel
+
+open GQ2.FoxH GQ2.SectionEight GQ2.SectionEight.AffineTLift
+
+variable {Bg : Type} [Group Bg] [Finite Bg]
+
+/-- **The count lane's `hord`, from the lower group.**  Over the `2`-torsion coefficient module
+`Additive ↥D.T`, every element of the split target is killed by `2 · N` as soon as the lower
+group is killed by `N`. -/
+theorem orderOf_wordLift_radT_dvd (D : RadicalCoverData Bg) {N : ℕ}
+    (hbase : ∀ g : Bg ⧸ D.M, orderOf g ∣ N) (x : WordLift (Additive ↥D.T) (Bg ⧸ D.M)) :
+    orderOf x ∣ 2 * N :=
+  WordLift.orderOf_dvd_two_mul (radT_add_self D) hbase x
+
+/-- **`orderOf x ∣ 6` at the split target, from `orderOf g ∣ 3` at the lower group** — the exact
+hypothesis `Count/Presentation.lean`'s pilot theorems leave open, reduced to the tame head's
+`τ`-order.  This is the `e = 3` regime of `resolvesAt_nCompactFam_three`. -/
+theorem orderOf_wordLift_radT_dvd_six (D : RadicalCoverData Bg)
+    (hbase : ∀ g : Bg ⧸ D.M, orderOf g ∣ 3) (x : WordLift (Additive ↥D.T) (Bg ⧸ D.M)) :
+    orderOf x ∣ 6 := by simpa using orderOf_wordLift_radT_dvd D hbase x
+
+/-- The `V`-side twin, over `DD.Vmod = M/T`. -/
+theorem orderOf_wordLift_vmod_dvd {D : RadicalCoverData Bg} (DD : DescData D)
+    {E : Type} [Group E] [DistribMulAction E DD.Vmod] {N : ℕ}
+    (hbase : ∀ g : E, orderOf g ∣ N) (x : WordLift DD.Vmod E) :
+    orderOf x ∣ 2 * N :=
+  WordLift.orderOf_dvd_two_mul (vmod_add_self DD) hbase x
+
+end LiftLevel
 
 end Count
 
