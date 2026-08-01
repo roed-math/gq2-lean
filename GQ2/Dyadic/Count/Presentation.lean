@@ -500,7 +500,16 @@ per branch is to name an `N`.
 `omega2Exp 6 = 3` is the arithmetic behind the frozen resolver: **`e = 3` is the correct resolver
 at every target of exponent dividing `6`, and at no other**.  That is precisely CB-RES's point
 read positively — the refuting characters land in `ℤ/8` and `ℤ/4` (exponent ∤ 6) and in `ℤ/3` for
-the `e = 1` pin, i.e. outside the range where the pinned resolver is honest. -/
+the `e = 1` pin, i.e. outside the range where the pinned resolver is honest.
+
+⚠ **The two pins are no longer how anything downstream is stated** (ticket CB-LV).  `∣ 6` reduces
+to `∀ g : Bg ⧸ D.M, orderOf g ∣ 3` on the lower group and that is *false* at the campaign's own
+witness datum (`Count/Frozen.lean` §8.1), while `∣ 2 ^ a` asks the counting target to be a
+`2`-group, which it is not (it surjects onto the tame head).  `resolvesAt_nCompactFam` — generic
+in `N` — is the honest statement, and it is what §8 and `Count/Frozen.lean` §10 both consume.
+`resolvesAt_nCompactFam_three` and `resolvesAt_nCompactFam_one` are kept: both are true, both are
+the sharpness statements `Count/Resolve.lean` argues against, and `Count/Scalar.lean` still names
+the first. -/
 
 section TargetResolution
 
