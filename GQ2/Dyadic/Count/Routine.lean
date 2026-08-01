@@ -77,7 +77,11 @@ namespace GQ2.Dyadic
 
 namespace Count
 
-open GQ2 GQ2.Dyadic.Words
+-- ORCHESTRATOR MERGE FIX 2026-08-01: this file was written against AS1's §2b top-level
+-- `TameSpecializes`/`tameOfSpec`, which AS1-b deleted in favour of F3b's `TameSpec`
+-- namespace (the branch predated that landing). `open TameSpec` re-resolves the bare
+-- identifiers — the same one-line adaptation AS1-b applied to `CertificateMain.lean`.
+open GQ2 GQ2.Dyadic.Words TameSpec
 
 /-! ## §1 Packet Lemma 3.1, profinite form: `τ^{ω₂} = 1` in `T_q`
 
