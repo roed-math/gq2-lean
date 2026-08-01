@@ -1291,4 +1291,154 @@ theorem sqrtNegTwo_hess_eval [Finite V] [Finite C] (hV2 : ∀ v : V, v + v = 0) 
 
 end Hessian
 
+/-! ## The phase consumables: `c₁`-Lagrangian ⇒ Gauss `2^{nd/2}`
+
+WW4's `affinePhase` on this row is `plusFormPhaseCover` (`baseSign = 1` by the
+`c₁`-Lagrangian computation `gaussSum_plusFormD`, `baseDim = d`).  The four consumables
+below are what the record leaves and the phase machinery take from the row, in the
+`SN`-valued shapes of SD1 §1: `G0 = 2^d`; the per-χ translated sum at raw shift
+vectors (packet Lem 6.1's output form); and the degree-`n` magnitude
+`2^{n·d} = 2^{n·dim(V×V)/2}` — `standardNumerics n |>.gaussRam d`, positive sign, which
+is the "`c₁`-Lagrangian ⇒ Gauss `2^{nd/2}`" clause of the WN0 lane spec.  `n = 2` is the
+`ℚ₂(√−2)` degree. -/
+
+section Phase
+
+open GQ2.QuadraticFp2
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  [Module (ZMod 2) V] [Fintype V]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+  (hq : IsQuadraticFp2 q) (hns : Nonsingular q) {d : ℕ}
+  (hcard : Fintype.card V = 2 ^ d)
+
+/-- The row's Gauss residue slot: `G0 = ε·2^m = 2^d` (`ε = +1`, the ramified-head
+shape). -/
+theorem nCompact_G0 :
+    (compactN_certificate dat hdat hq hns hcard).affinePhase.G0 = 2 ^ d :=
+  one_mul _
+
+include dat hdat hq hns hcard in
+/-- **Packet Lem 6.1's output at this row** (`gauss_translate` instantiated): a raw
+shift vector `y` contributes exactly its affine phase against `G0 = 2^d`. -/
+theorem nCompact_gauss_translate (y : V × V) :
+    gaussSum (fun x => plusFormD q q x + polar (plusFormD q q) x y)
+      = sign (plusFormD q q y) * 2 ^ d := by
+  have h := (compactN_certificate dat hdat hq hns hcard).affinePhase.gauss_translate y
+  rw [nCompact_G0 dat hdat hq hns hcard] at h
+  exact h
+
+include dat hdat hq hns hcard in
+/-- **The degree-`n` Gauss magnitude in `SN`-shape**: `2^{n·d}` — with
+`dim_{𝔽₂}(V × V) = 2d` this is `2^{n·dim/2}`, i.e. `standardNumerics n |>.gaussRam d`
+(positive sign: the `c₁`-Lagrangian). -/
+theorem nCompact_gauss_pow (n : ℕ) :
+    gaussSum (fun x : Fin n → V × V => ∑ i, plusFormD q q (x i)) = 2 ^ (n * d) :=
+  (compactN_certificate dat hdat hq hns hcard).affinePhase.gaussSum_pi_of_baseSign_one rfl n
+
+include dat hdat hq hns hcard in
+/-- The `ℚ₂(√−2)` instance of the magnitude: `n = 2`. -/
+theorem sqrtNegTwo_gauss_degree_two :
+    gaussSum (fun x : Fin 2 → V × V => ∑ i, plusFormD q q (x i)) = 2 ^ (2 * d) :=
+  nCompact_gauss_pow dat hdat hq hns hcard 2
+
+/-! ### The handle story at the Gauss level -/
+
+omit [Module (ZMod 2) V] [Fintype V] in
+/-- The zero form is quadratic. -/
+theorem isQuadraticFp2_zero : IsQuadraticFp2 (fun _ : V => (0 : ZMod 2)) := by
+  refine ⟨rfl, fun u v w => ?_, fun u v w => ?_⟩ <;>
+    · show (0 : ZMod 2) + 0 + 0 = (0 + 0 + 0) + (0 + 0 + 0)
+      decide
+
+omit [Module (ZMod 2) V] in
+include hq hns hcard in
+/-- **The `h`-handle endpoint keeps `ε = +1`**: the Gauss sum of
+`plusFormD q q ⊕ (h hyperbolic planes)` is `2^{d(h+1)}` — the full-form version of the
+`c₁`-Lagrangian, at every handle count.  Combined with `hessRelZ_nCompact` this is the
+Gauss residue of the `h`-handle *word*. -/
+theorem nCompact_handle_form_gaussSum (h : ℕ) :
+    gaussSum (fun p : (V × V) × (Fin h → V × V) =>
+        plusFormD q q p.1 + ∑ j, polar q (p.2 j).1 (p.2 j).2)
+      = 2 ^ (d * (h + 1)) := by
+  have hsplit : (fun p : (V × V) × (Fin h → V × V) =>
+      plusFormD q q p.1 + ∑ j, polar q (p.2 j).1 (p.2 j).2)
+      = fun p => plusFormD q q p.1 + ∑ j, plusFormD (fun _ => 0) q (p.2 j) := by
+    funext p
+    refine congrArg (HAdd.hAdd (plusFormD q q p.1)) (Finset.sum_congr rfl fun j _ => ?_)
+    show polar q (p.2 j).1 (p.2 j).2 = 0 + polar q (p.2 j).1 (p.2 j).2
+    rw [zero_add]
+  rw [hsplit, gaussSum_prod_add (plusFormD q q)
+      (fun w : Fin h → V × V => ∑ j, plusFormD (fun _ => 0) q (w j)),
+    gaussSum_plusFormD hq hq hns, gaussSum_pi_sum,
+    gaussSum_plusFormD (isQuadraticFp2_zero (V := V)) hq hns, hcard]
+  push_cast
+  ring
+
+/-- On a rank-one (`𝔽₂`) coefficient module every polar form vanishes — the handle
+planes are **invisible** there.  The Lean shard of F5's measurement that
+permutation-module gates cannot see `h`; the separating witness is extraspecial
+(`stress_handle_visible`). -/
+theorem polar_zmod2_eq_zero (Q : ZMod 2 → ZMod 2) (hQ : IsQuadraticFp2 Q)
+    (v w : ZMod 2) : polar Q v w = 0 := by
+  rcases ZMod.eq_zero_or_eq_one v with rfl | rfl
+  · exact polar_zero_left Q hQ w
+  rcases ZMod.eq_zero_or_eq_one w with rfl | rfl
+  · exact polar_zero_right Q hQ 1
+  · show Q (1 + 1) + Q 1 + Q 1 = 0
+    rw [show (1 + 1 : ZMod 2) = 0 by decide, hQ.map_zero, zero_add,
+      CharTwo.add_self_eq_zero]
+
+/-- The whole handle tail dies on a rank-one module, at every `h`. -/
+theorem scalar_handle_term_zero {h : ℕ} (Q : ZMod 2 → ZMod 2) (hQ : IsQuadraticFp2 Q)
+    (dvec evec : Fin h → ZMod 2) : ∑ j, polar Q (dvec j) (evec j) = 0 :=
+  Finset.sum_eq_zero fun _ _ => polar_zmod2_eq_zero Q hQ _ _
+
+end Phase
+
+/-! ## The extraspecial handle witness
+
+The `C₄`-centre extraspecial evaluation **sees** the handles: at the hyperbolic-plane
+datum (WW4's `stressQh` with its bilinear refinement) the `h = 1` word evaluates to
+fibre `1` with *all core offsets zero* — the handle pair alone carries the value.  The
+matching Sage measurement (the C₄-extraspecial finite-target counts separating `h`,
+where the `(S₃, D₈, A₄)` permutation-gate vector does not) lives in the certificate
+battery `regressed-F-G` and is cited here only. -/
+
+section HandleWitness
+
+open GQ2.QuadraticFp2
+
+/-- The trivial action for the witness (local, non-exporting). -/
+local instance : DistribMulAction (Multiplicative (ZMod 2)) (ZMod 2 × ZMod 2) where
+  smul _ a := a
+  one_smul _ := rfl
+  mul_smul _ _ _ := rfl
+  smul_zero _ := rfl
+  smul_add _ _ _ := rfl
+
+/-- The bilinear refinement `f((a,b),(c,d)) = a·d` of the hyperbolic plane `stressQh`. -/
+def handleDat : FactorSet (Multiplicative (ZMod 2)) (ZMod 2 × ZMod 2) where
+  f v w := v.1 * w.2
+  m _ _ := 0
+
+theorem handleDat_equivariant : IsEquivariantFactorSet stressQh handleDat := by
+  constructor <;> decide
+
+/-- **The handle plane is visible to the extraspecial evaluation**: the `h = 1` word at
+zero core offsets and the hyperbolic handle pair `((1,0), (0,1))` has evaluated Hessian
+`b_{q_h}((1,0),(0,1)) = 1 ≠ 0` — while the same tail is invisible at first order
+(WN0-b's zero handle Fox columns) and on rank-one modules
+(`scalar_handle_term_zero`). -/
+theorem stress_handle_visible :
+    hessRelZ (hessMark (h := 1) 1 1 ![0, 0, 0, (1, 0), (0, 1)])
+        (kappa0Cocycle handleDat handleDat_equivariant) (fun _ => 1) (fun _ => 1)
+        (nCompactW 2 1)
+      = 1 := by
+  rw [hessRelZ_nCompact (h := 1) handleDat handleDat_equivariant (by decide) (by norm_num)
+    1 1 ![0, 0, 0, (1, 0), (0, 1)] rfl (fun _ => 1) (fun _ => 1)]
+  decide
+
+end HandleWitness
+
 end GQ2.Dyadic.Certificates
