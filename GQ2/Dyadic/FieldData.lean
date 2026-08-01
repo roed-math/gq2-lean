@@ -5,7 +5,8 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-5
 -/
 import GQ2.Dyadic.Certificates.L
 import GQ2.Dyadic.LocalGauss.EulerShapiro
-import GQ2.Dyadic.LocalGauss.Q0
+import GQ2.Dyadic.LocalGauss.PairingK
+import GQ2.HilbertLedger
 
 /-!
 # Dyadic campaign, ticket FD1: the field-side data of `H¹(G_K, 𝔽₂)`
@@ -141,5 +142,73 @@ theorem demushkinRank_galK :
   demushkinRank_eq_of_card (card_H1_zmodTwo K)
 
 end FinrankK
+
+/-! ## §2 The cup form on `H¹(G_K, 𝔽₂)` and its nondegeneracy -/
+
+section CupForm
+
+/-- The `G_K`-action on `𝔽₂` is trivial (definitionally). -/
+theorem smul_zmodTwo_galK : ∀ (g : ↥(K.fixingSubgroup)) (m : ZMod 2), g • m = m :=
+  fun _ _ => rfl
+
+/-- **The cup form** `b_K(x, y) = inv_K(x ⌣ y)` on `H¹(G_K, 𝔽₂)`: the mod-2 cup product read
+through the invariant map `H²(G_K,𝔽₂) ≃+ 𝔽₂`.  Under Kummer theory this is the Hilbert symbol
+(census axiom **B11a**, `hilbertSymbol_normCriterion_finiteDyadic`, is the identification). -/
+noncomputable def cupFormK (x y : H1 ↥(K.fixingSubgroup) (ZMod 2)) : ZMod 2 :=
+  invGalK K (x ⌣[smul_zmodTwo_galK K] y)
+
+/-- **The cup form is a cup–Bockstein form** in `Certificates/L.lean`'s sense: symmetric
+(graded-commutativity in characteristic two, `trivialCupPairing_comm`) and additive
+in the first slot (the cup product is an `AddMonoidHom`). -/
+theorem isCupFormFp2_cupFormK :
+    Certificates.LSqStokes.IsCupFormFp2 (cupFormK K) where
+  symm v w := congrArg (invGalK K) (trivialCupPairing_comm _ v w)
+  add_left u v w := by
+    show invGalK K (trivialCupPairing 2 _ _ (u + v) w) = _
+    rw [map_add]
+    exact map_add (invGalK K) _ _
+
+/-- **Naturality of the `(1,1)` cup in the coefficient pairing.**  Transporting the left slot
+along the bridge `𝔽₂ ≃+ Hom(𝔽₂, μ₂)` and pairing by evaluation gives the same `H²`-class as
+cupping by multiplication and transporting the *value* along `𝔽₂ ≃+ μ₂`.  Both sides are the
+cochain `p ↦ μ₂-lift of a(p₁)·(p₁ · b(p₂))`, so the identity is definitional on representatives.
+
+This is what connects the `⌣[·]`-valued cup form to B6's `perfect11` clause, whose left slot
+lives in the `MuDual`-coefficients (`Dyadic.pairingK`'s shape). -/
+theorem cup11_muDual_eq_cup_mul (x y : H1 ↥(K.fixingSubgroup) (ZMod 2)) :
+    cup11 (muDualPairing 2 (ZMod 2)) (muDualPairing_equivariant 2 (ZMod 2))
+        (H1congr GQ2.Dyadic.zmodMuDualEquiv GQ2.Dyadic.zmodMuDualEquiv_equivariant x) y
+      = H2congr LocalLiftingDuality.muNTwoEquiv.symm (muNTwoEquiv_symm_equivariant K)
+          (x ⌣[smul_zmodTwo_galK K] y) := by
+  obtain ⟨a, rfl⟩ := H1mk_surjective (G := ↥(K.fixingSubgroup)) (M := ZMod 2) x
+  obtain ⟨b, rfl⟩ := H1mk_surjective (G := ↥(K.fixingSubgroup)) (M := ZMod 2) y
+  rfl
+
+/-- **Fact (ii): the cup form on `H¹(G_K, 𝔽₂)` is nondegenerate** — the `(1,1)`-perfectness
+clause of local Tate duality (census axiom **B6**, `tateDualityAt`, at `G_K`), in the
+`NondegFp2` shape `Certificates/L.lean`'s normal-form theorem consumes.
+
+The proof is `Dyadic.pairingK_nondeg`'s, re-run at `G_K` against the `⌣[·]`-valued form: the
+naturality lemma above identifies `b_K(x, ·)` with the functional `inv ∘ (x′ ∪ ·)` that
+`perfect11` declares injective in `x′`. -/
+theorem nondegFp2_cupFormK :
+    Certificates.LSqStokes.NondegFp2 (cupFormK K) := by
+  intro x hx
+  have hperf := (tateDualityGalK K).perfect11 (ZMod 2) (by decide)
+  set e := H1congr (G := ↥(K.fixingSubgroup)) GQ2.Dyadic.zmodMuDualEquiv
+    GQ2.Dyadic.zmodMuDualEquiv_equivariant with he
+  have h0 : (tateDualityGalK K).inv.toAddMonoidHom.comp
+      ((cup11 (muDualPairing 2 (ZMod 2)) (muDualPairing_equivariant 2 (ZMod 2))) (e x))
+      = (tateDualityGalK K).inv.toAddMonoidHom.comp
+        ((cup11 (muDualPairing 2 (ZMod 2)) (muDualPairing_equivariant 2 (ZMod 2)))
+          (0 : H1 ↥(K.fixingSubgroup) (MuDual 2 (ZMod 2)))) := by
+    ext y
+    rw [map_zero, AddMonoidHom.comp_zero]
+    show (tateDualityGalK K).inv _ = _
+    rw [he, cup11_muDual_eq_cup_mul K x y]
+    exact hx y
+  rw [← AddEquiv.symm_apply_apply e x, hperf.1 h0, map_zero]
+
+end CupForm
 
 end GQ2.Dyadic.FieldData
