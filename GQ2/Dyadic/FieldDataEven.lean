@@ -78,17 +78,18 @@ A leaf: nothing imports this file, and `GQ2/Dyadic/FieldData.lean` is untouched.
 
 ## Axiom state
 
-Audited by `#print axioms` on all 28 named declarations, run in a scratch file, not committed.
+Audited by `#print axioms` on all 29 named declarations, run in a scratch file, not committed.
 **No new axioms**: every declaration prints a subset of std-3 ∪ {B6, B7, B11a} — exactly the set
 FD1 used, and no more — so the census stays at eleven.  Zero `sorryAx`, zero `native_decide`,
-zero `Lean.ofReduceBool`.  The split is 24 / 4:
+zero `Lean.ofReduceBool`.  The split is 25 / 4:
 
 * exactly `[propext, Classical.choice, Quot.sound]` — **all** of §§1–3, i.e. the entire general
   linear-algebra layer (`headGram` and its five pins, `headDiagEquiv`, `headGram_eq_diag`,
   `exists_diag_eq_one`, `headPerp`, `headProj_mem`, `isSymplectic_headPerp`, `headSplitEquiv`,
-  `headSplit_gram`, **`exists_cupForm_normalForm_even`**, `isSymplecticFp2_of_labute_eq_zero`,
-  `exists_cupForm_normalForm_alternating`) together with `kappaK_eq_zero_iff` — the Kummer
-  kernel `exists_sq_of_kummerClassK_eq_zero` and its converse are theorems, not axioms;
+  `headSplit_gram`, **`exists_cupForm_normalForm_even`**, `exists_headGram_normalForm`,
+  `isSymplecticFp2_of_labute_eq_zero`, `exists_cupForm_normalForm_alternating`) together with
+  `kappaK_eq_zero_iff` — the Kummer kernel `exists_sq_of_kummerClassK_eq_zero` and its converse
+  are theorems, not axioms;
 * std-3 + **B6** `tateDualityAt` + **B7** `absGalQ2_localEulerCharacteristic` + **B11a**
   `hilbertSymbol_normCriterion_finiteDyadic` — the four `H¹` declarations of §4 that consume
   FD1's facts: `cupFormK_kappa_self_zero`, **`exists_cupFormK_normalForm_even`**,
@@ -377,6 +378,17 @@ theorem exists_cupForm_normalForm_even [Finite W] (hb : IsCupFormFp2 b) (hnd : N
         ((φ₀ y).1.1 • f + (φ₀ y).1.2 • e + ((φ₀ y).2 : W)) := by rw [hx, hy]
     _ = headGram (φ₀ x).1 (φ₀ y).1 + b ((φ₀ x).2 : W) ((φ₀ y).2 : W) :=
         headSplit_gram hb he he0 hf _ _ _ _
+
+/-- **Non-vacuity.**  The head is its own smallest instance: `headGram` on `𝔽₂ × 𝔽₂` satisfies
+every hypothesis of `exists_cupForm_normalForm_even`, with Labute vector `(0,1)` — nonzero and
+isotropic.  So the even branch is inhabited, and (by counting, `#W = 4 = 4 · 4⁰`) its normal form
+is the bare head with no hyperbolic part.  A decidable end-to-end check that the hypothesis
+shapes compose; the `H¹` capstones of §4 are the same application over a field. -/
+theorem exists_headGram_normalForm :
+    ∃ (m : ℕ) (φ : (ZMod 2 × ZMod 2) ≃ₗ[ZMod 2] (ZMod 2 × ZMod 2) × (Fin m → ZMod 2 × ZMod 2)),
+      ∀ x y, headGram x y = headGram (φ x).1 (φ y).1 + hypGram (φ x).2 (φ y).2 :=
+  exists_cupForm_normalForm_even isCupFormFp2_headGram nondegFp2_headGram headGram_labute
+    (by decide) (by decide)
 
 /-! ### §2.1 The degenerate branch: a vanishing Labute vector
 
