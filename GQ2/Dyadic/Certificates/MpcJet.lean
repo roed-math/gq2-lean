@@ -18,6 +18,15 @@ open GQ2.FoxH GQ2.SectionSix GQ2.QuadraticFp2
 open GQ2.Dyadic.Words GQ2.Dyadic.Words.Mpc
 open GQ2.Dyadic.Certificates.MProcyclic
 
+/-- The wild-letter slot of a core letter, in the sibling lanes' `xIdx` spelling. -/
+def coreIdx (h : ℕ) (i : Fin 3) : Fin (2 + 2 * h + 1) := ⟨(i : ℕ), by omega⟩
+
+theorem coreIdx_zero (h : ℕ) : coreIdx h 0 = Certificates.x0Idx h := rfl
+
+theorem coreIdx_one (h : ℕ) : coreIdx h 1 = Certificates.x1Idx h := rfl
+
+theorem coreIdx_two (h : ℕ) : coreIdx h 2 = Certificates.x2Idx h := rfl
+
 /-! ## §1. The register bridge `WordLift V C ≃* SemiProd C V` -/
 
 section Register
@@ -131,7 +140,7 @@ omit [Finite C] [Finite V] in
 omit [Finite C] [Finite V] in
 theorem hessLift_coreLetter {h : ℕ} (s u : C) (vv : Fin (2 + 2 * h + 1) → V) (i : Fin 3) :
     hessLift dat hdat (h := h) s u vv (coreLetter h i)
-      = hessSlice dat hdat (vv ⟨(i : ℕ), by omega⟩) 0 := rfl
+      = hessSlice dat hdat (vv (coreIdx h i)) 0 := rfl
 
 omit [Finite C] [Finite V] in
 /-- The value of `x_i τ`: a `hessElt` over the mixed base `(c_i, u)`. -/
@@ -139,7 +148,7 @@ theorem evalFin_coreLetter_mul_tau {h : ℕ} (s u : C) (vv : Fin (2 + 2 * h + 1)
     (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (i : Fin 3) :
     PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂
         (PWord.prodList [.gen (coreLetter h i), .gen .tau])
-      = NpcBridge.hessElt dat hdat (vv ⟨(i : ℕ), by omega⟩) u 0 := by
+      = NpcBridge.hessElt dat hdat (vv (coreIdx h i)) u 0 := by
   rw [PWord.prodList_cons, PWord.prodList_cons, PWord.prodList_nil, PWord.evalFin_mul,
     PWord.evalFin_mul, PWord.evalFin_gen, PWord.evalFin_gen, PWord.evalFin_one, mul_one,
     hessLift_coreLetter, hessLift_tau, NpcBridge.hessSlice_mul_hessLine]
@@ -155,8 +164,8 @@ theorem evalFin_uW {h : ℕ} (s u : C) (hu : Odd (orderOf u))
     (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (i : Fin 3) :
     PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (uW h i)
       = WordCoh.CentExt.incl (kappa0Cocycle dat hdat)
-          (NpcJet.powCharge dat u (vv ⟨(i : ℕ), by omega⟩) (orderOf u)) := by
-  have hN : ∑ j ∈ Finset.range (orderOf u), u ^ j • vv ⟨(i : ℕ), by omega⟩ = 0 :=
+          (NpcJet.powCharge dat u (vv (coreIdx h i)) (orderOf u)) := by
+  have hN : ∑ j ∈ Finset.range (orderOf u), u ^ j • vv (coreIdx h i) = 0 :=
     sum_pow_smul_orderOf_eq_zero hVu _
   have hm : u ^ orderOf u = 1 := pow_orderOf_eq_one u
   rw [uW, PWord.omega2Pow, PWord.evalFin_profPow_omega2,
@@ -172,16 +181,16 @@ theorem evalFin_dW {h : ℕ} (hV2 : ∀ v : V, v + v = 0) (s u : C) (hu : Odd (o
     (hVu : ∀ v : V, u • v = v → v = 0) (vv : Fin (2 + 2 * h + 1) → V)
     (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) (i : Fin 3) :
     PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (dW h i)
-      = hessSlice dat hdat (vv ⟨(i : ℕ), by omega⟩)
-          (NpcJet.powCharge dat u (vv ⟨(i : ℕ), by omega⟩) (orderOf u)
-            + q (vv ⟨(i : ℕ), by omega⟩)) := by
+      = hessSlice dat hdat (vv (coreIdx h i))
+          (NpcJet.powCharge dat u (vv (coreIdx h i)) (orderOf u)
+            + q (vv (coreIdx h i))) := by
   rw [dW, PWord.prodList_cons, PWord.prodList_cons, PWord.prodList_nil, PWord.evalFin_mul,
     PWord.evalFin_mul, PWord.evalFin_one, mul_one, PWord.evalFin_inv, PWord.evalFin_gen,
     evalFin_uW dat hdat s u hu hVu vv E E₂ i, hessLift_coreLetter,
     hessSlice_inv dat hdat hV2,
     show WordCoh.CentExt.incl (kappa0Cocycle dat hdat)
-        (NpcJet.powCharge dat u (vv ⟨(i : ℕ), by omega⟩) (orderOf u))
-      = hessSlice dat hdat 0 (NpcJet.powCharge dat u (vv ⟨(i : ℕ), by omega⟩) (orderOf u)) from
+        (NpcJet.powCharge dat u (vv (coreIdx h i)) (orderOf u))
+      = hessSlice dat hdat 0 (NpcJet.powCharge dat u (vv (coreIdx h i)) (orderOf u)) from
       rfl,
     hessSlice_mul dat hdat, hdat.f_zero_left, add_zero, zero_add, zero_add]
 
@@ -286,7 +295,7 @@ theorem evalFin_dW_two {h : ℕ} (hV2 : ∀ v : V, v + v = 0) (s u : C) (hu : Od
     (hv2 : vv (Certificates.x2Idx h) = 0) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
     PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (dW h 2) = 1 := by
   rw [evalFin_dW dat hdat hV2 s u hu hVu vv E E₂ 2,
-    show vv (⟨(2 : Fin 3), by omega⟩ : Fin (2 + 2 * h + 1)) = 0 from hv2,
+    show vv (coreIdx h 2) = 0 from hv2,
     powCharge_zero_vec dat hdat, q_zero dat hdat, add_zero]
   rfl
 
@@ -308,5 +317,160 @@ theorem evalFin_plusW {h : ℕ} (hV2 : ∀ v : V, v + v = 0) (s u : C) (hu : Odd
   rfl
 
 end PlusBlock
+
+
+/-! ## §6. The two copies coincide on the κ⁰ carrier
+
+`Sh_M`'s shrink replaces `x₀ ↦ δ₀`, `x₁ ↦ δ₁`, `x₂ ↦ 1` and kills `E₂^pc`.  At the graph-type
+κ⁰-marking each replacement changes the value by a **central** factor only (§3: a δ-letter is the
+corresponding slice element with a different charge), and `E₂^pc` dies outright because the
+boundary δ-letter does.  §4's three laws then say the squares and commutators the row is built
+from cannot see the difference — so the hat copy's value **equals** the linear copy's.
+
+⚠ This is the κ⁰-register analogue of WMP-c's `mpcCopiesCancel`, not a transport of it: that
+theorem lives in the Heisenberg register (`heisEvalZ`, fields `.a/.l/.z`) against a cocycle of
+Heisenberg shape, and **no bridge to the κ⁰ extension exists**, nor can one be built by a carrier
+identification — the two cocycles are of different shapes.  The compensation is that on this
+carrier P4's central clause is not needed: WMP-c's `CentralReplication` hypothesis is here a
+theorem, because the two values are literally equal rather than merely centrally equal. -/
+
+section Copies
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+  [Finite C] [Finite V]
+
+omit [Finite C] [Finite V] in
+/-- Splitting a slice charge off as a central factor. -/
+theorem hessSlice_add_charge (v : V) (z w : ZMod 2) :
+    hessSlice dat hdat v (z + w)
+      = hessSlice dat hdat v z * WordCoh.CentExt.incl (kappa0Cocycle dat hdat) w := by
+  rw [show WordCoh.CentExt.incl (kappa0Cocycle dat hdat) w = hessSlice dat hdat 0 w from rfl,
+    hessSlice_mul dat hdat, hdat.f_zero_right, add_zero, add_zero]
+
+omit [Finite C] [Finite V] in
+/-- A slice element is its zero-charge twin times a central factor. -/
+theorem hessSlice_eq_zero_mul_incl (v : V) (z : ZMod 2) :
+    hessSlice dat hdat v z
+      = hessSlice dat hdat v 0 * WordCoh.CentExt.incl (kappa0Cocycle dat hdat) z := by
+  rw [← hessSlice_add_charge dat hdat, zero_add]
+
+omit [Finite C] [Finite V] in
+/-- A central factor slides to the right through any product. -/
+theorem mul_incl_mul (x y : WordCoh.CentExt (kappa0Cocycle dat hdat)) (z : ZMod 2) :
+    x * WordCoh.CentExt.incl (kappa0Cocycle dat hdat) z * y
+      = x * y * WordCoh.CentExt.incl (kappa0Cocycle dat hdat) z := by
+  rw [mul_assoc, (incl_commute z y).eq, ← mul_assoc]
+
+variable {h : ℕ} (s u : C) (vv : Fin (2 + 2 * h + 1) → V) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+omit [Finite C] [Finite V] in
+/-- `Ĉ₀ = σ₂^s` and `C₀ = x₂σ₂^s` have the **same** value: the boundary letter is trivial. -/
+theorem evalFin_c0HatW_eq (hv2 : vv (coreIdx h 2) = 0) (s' : ℕ) :
+    PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (c0HatW h s')
+      = PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (c0W h s') := by
+  rw [c0W, MCompact.evalFin_prodList_pair, PWord.evalFin_gen, hessLift_coreLetter, hv2,
+    hessSlice_zero_zero, one_mul]
+  rfl
+
+/-- `Â = δ₀⁻¹Ĉ₀⁻ᵐ` differs from `A = x₀⁻¹C₀⁻ᵐ` by a central factor. -/
+theorem evalFin_aHatW_eq (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (hv2 : vv (coreIdx h 2) = 0) (s' mm : ℕ) :
+    PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (aHatW h s' mm)
+      = PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (aW h s' mm)
+        * WordCoh.CentExt.incl (kappa0Cocycle dat hdat)
+            (NpcJet.powCharge dat u (vv (coreIdx h 0)) (orderOf u)
+              + q (vv (coreIdx h 0))) := by
+  rw [aHatW, aW, MCompact.evalFin_prodList_pair, MCompact.evalFin_prodList_pair,
+    PWord.evalFin_inv, PWord.evalFin_inv, PWord.evalFin_zpow, PWord.evalFin_zpow,
+    PWord.evalFin_gen, hessLift_coreLetter,
+    evalFin_dW dat hdat hV2 s u hu hVu vv E E₂ 0,
+    evalFin_c0HatW_eq dat hdat s u vv E E₂ hv2 s',
+    hessSlice_inv dat hdat hV2, hessSlice_inv dat hdat hV2, zero_add,
+    show NpcJet.powCharge dat u (vv (coreIdx h 0)) (orderOf u)
+        + q (vv (coreIdx h 0)) + q (vv (coreIdx h 0))
+      = q (vv (coreIdx h 0))
+        + (NpcJet.powCharge dat u (vv (coreIdx h 0)) (orderOf u)
+          + q (vv (coreIdx h 0))) from by abel,
+    hessSlice_add_charge dat hdat, mul_incl_mul dat hdat]
+
+/-- `B̂ = δ₁σ₂^p` differs from `B = x₁σ₂^p` by a central factor, in both emitted displays. -/
+theorem evalFin_bHatW_eq (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) : ∀ pp : ℕ,
+    PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (bHatW h pp)
+      = PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (bW h pp)
+        * WordCoh.CentExt.incl (kappa0Cocycle dat hdat)
+            (NpcJet.powCharge dat u (vv (coreIdx h 1)) (orderOf u) + q (vv (coreIdx h 1)))
+  | 0 => by
+      rw [show bHatW h 0 = dW h 1 from rfl, show bW h 0 = .gen (coreLetter h 1) from rfl,
+        PWord.evalFin_gen, hessLift_coreLetter,
+        evalFin_dW dat hdat hV2 s u hu hVu vv E E₂ 1,
+        hessSlice_eq_zero_mul_incl dat hdat]
+  | pp + 1 => by
+      rw [show bHatW h (pp + 1) = PWord.prodList [dW h 1, sig2PowW h (pp + 1)] from rfl,
+        show bW h (pp + 1)
+          = PWord.prodList [.gen (coreLetter h 1), sig2PowW h (pp + 1)] from rfl,
+        MCompact.evalFin_prodList_pair, MCompact.evalFin_prodList_pair, PWord.evalFin_gen,
+        hessLift_coreLetter, evalFin_dW dat hdat hV2 s u hu hVu vv E E₂ 1,
+        hessSlice_eq_zero_mul_incl dat hdat, mul_incl_mul dat hdat]
+
+/-- The orbit-norm base `z = δ₂δ₂^{σ₂^p}` dies, in both emitted displays. -/
+theorem evalFin_zW_one (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (hv2 : vv (coreIdx h 2) = 0) : ∀ pp : ℕ,
+    PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (zW h pp) = 1
+  | 0 => by
+      rw [show zW h 0 = .zpow (dW h 2) ((2 : ℕ) : ℤ) from rfl, PWord.evalFin_zpow,
+        evalFin_dW_two dat hdat hV2 s u hu hVu vv hv2 E E₂, one_zpow]
+  | pp + 1 => by
+      rw [show zW h (pp + 1)
+          = PWord.prodList [dW h 2, .conj (dW h 2) (sig2PowW h (pp + 1))] from rfl,
+        MCompact.evalFin_prodList_pair, PWord.evalFin_conj,
+        evalFin_dW_two dat hdat hV2 s u hu hVu vv hv2 E E₂, one_conjR, mul_one]
+
+/-- **`E₂^pc` is invisible at the gate-E marking** — every letter in it is a `δ₂`, and `δ₂ = 1`
+because `x₂` carries no primal letter.  The orbit-norm node needs no `orbitNorm_eq`: it is a
+product of conjugates of the identity. -/
+theorem evalFin_e2W_one (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (hv2 : vv (coreIdx h 2) = 0) (s' mm pp : ℕ) :
+    PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (e2W h s' mm pp) = 1 := by
+  have hz : ∀ w ∈ Export.orbitNormFactors (zW h pp) (.zpow sigma2W (s' : ℤ)) mm,
+      PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ w = 1 := by
+    intro w hw
+    rw [Export.orbitNormFactors, List.mem_map] at hw
+    obtain ⟨j, -, rfl⟩ := hw
+    rw [PWord.evalFin_conj, evalFin_zW_one dat hdat s u vv E E₂ hV2 hu hVu hv2 pp, one_conjR]
+  have hprod : ∀ l : List (PWord (Generator (2 + 2 * h))),
+      (∀ w ∈ l, PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ w = 1) →
+      PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (PWord.prodList l) = 1 := by
+    intro l
+    induction l with
+    | nil => intro _; rfl
+    | cons a l ih =>
+        intro hl
+        rw [PWord.prodList_cons, PWord.evalFin_mul, hl a (by simp),
+          ih (fun w hw => hl w (by simp [hw])), one_mul]
+  rw [e2W, MCompact.evalFin_prodList_pair, PWord.evalFin_conj, PWord.evalFin_conj,
+    evalFin_dW_two dat hdat hV2 s u hu hVu vv hv2 E E₂, one_conjR, one_mul, hprod _ hz,
+    one_conjR]
+
+/-- **The hat copy's value is the linear copy's**, at every `(α, r, p, η, h)` and every
+graph-type marking with `x₂`-slot zero.  This is the κ⁰-register self-replication statement. -/
+theorem evalFin_mpcHatW_eq_mpcLinW (hV2 : ∀ v : V, v + v = 0) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (hv2 : vv (coreIdx h 2) = 0)
+    (α r pp : ℕ) (η : EtaDisplay) :
+    PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (mpcHatW α r pp η h)
+      = PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (mpcLinW α r pp η h) := by
+  rw [mpcHatW, mpcLinW, hatFactors, linFactors]
+  simp only [PWord.prodList_cons, PWord.prodList_nil, PWord.evalFin_mul, PWord.evalFin_one,
+    PWord.evalFin_zpow, PWord.evalFin_comm, mul_one]
+  rw [evalFin_e2W_one dat hdat s u vv E E₂ hV2 hu hVu hv2, mul_one,
+    evalFin_aHatW_eq dat hdat s u vv E E₂ hV2 hu hVu hv2,
+    evalFin_bHatW_eq dat hdat s u vv E E₂ hV2 hu hVu,
+    evalFin_c0HatW_eq dat hdat s u vv E E₂ hv2,
+    zpow_natCast, zpow_natCast, sq_mul_incl, ← zpow_natCast, ← zpow_natCast,
+    commR_mul_central_left _ _ _ (fun z => incl_commute _ z),
+    commR_mul_central_right _ _ _ (fun z => incl_commute _ z)]
+
+end Copies
 
 end GQ2.Dyadic.Certificates.MpcJet
