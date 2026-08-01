@@ -1070,5 +1070,451 @@ theorem eval_killWildLetters_mpcW_eq_one {α : ℕ} (hα : 1 ≤ α) (r p : ℕ)
 
 end Tame
 
+/-! ## The `ω₂`-only fragment
+
+Five of the six frozen instances are `ω₂`-only — their `D`-letter displays are the bare `σ` or
+a literal power — so the `ℕ`-exponent route of packet Lem. 2.2 is available for their numeric
+pins.  **The `η̂`-displayed instance is not** (`.hat` is a genuine profinite power with
+`γ ≠ ω₂`): every branch word carrying an `η̂`-node inherits WNP-a's finding, and its honest
+evaluations go through the resolvers instead. -/
+
+section Omega2Only
+
+theorem isOmega2Only_prodList {Gen : Type*} :
+    ∀ {l : List (PWord Gen)}, (∀ w ∈ l, w.IsOmega2Only) → (PWord.prodList l).IsOmega2Only
+  | [], _ => trivial
+  | w :: _ws, hw =>
+      ⟨hw w (List.mem_cons_self ..),
+       isOmega2Only_prodList fun u hu => hw u (List.mem_cons_of_mem _ hu)⟩
+
+variable {h : ℕ}
+
+theorem isOmega2Only_uW (i : Fin 3) : (uW h i).IsOmega2Only := by
+  simp [uW]
+
+theorem isOmega2Only_dW (i : Fin 3) : (dW h i).IsOmega2Only := by
+  simp [dW, isOmega2Only_uW]
+
+theorem isOmega2Only_sig2PowW (k : ℕ) : (sig2PowW h k).IsOmega2Only := by
+  match k with
+  | 0 => simp [sig2PowW]
+  | 1 => simp [sig2PowW]
+  | k + 2 => simp [sig2PowW]
+
+theorem isOmega2Only_c0W (s' : ℕ) : (c0W h s').IsOmega2Only := by
+  simp [c0W]
+
+theorem isOmega2Only_aW (s' m' : ℕ) : (aW h s' m').IsOmega2Only := by
+  simp [aW, isOmega2Only_c0W]
+
+theorem isOmega2Only_bW (p : ℕ) : (bW h p).IsOmega2Only := by
+  match p with
+  | 0 => simp [bW]
+  | p + 1 =>
+      rw [show bW h (p + 1)
+          = PWord.prodList [.gen (coreLetter h 1), sig2PowW h (p + 1)] from rfl]
+      simp [isOmega2Only_sig2PowW]
+
+theorem isOmega2Only_e01W (a b : ℕ) : (e01W h a b).IsOmega2Only := by
+  simp [e01W, isOmega2Only_dW]
+
+theorem isOmega2Only_zW (p : ℕ) : (zW h p).IsOmega2Only := by
+  match p with
+  | 0 => simp [zW, isOmega2Only_dW]
+  | p + 1 =>
+      rw [show zW h (p + 1)
+          = PWord.prodList [dW h 2, .conj (dW h 2) (sig2PowW h (p + 1))] from rfl]
+      simp [isOmega2Only_dW, isOmega2Only_sig2PowW]
+
+theorem isOmega2Only_orbitNormFactors {z u : PWord (Generator (2 + 2 * h))}
+    (hz : z.IsOmega2Only) (hu : u.IsOmega2Only) (k : ℕ) :
+    (PWord.prodList (Export.orbitNormFactors z u k)).IsOmega2Only := by
+  refine isOmega2Only_prodList fun w hw => ?_
+  rw [Export.orbitNormFactors] at hw
+  obtain ⟨j, -, rfl⟩ := List.mem_map.mp hw
+  exact ⟨hz, hu⟩
+
+theorem isOmega2Only_e2W (s' m' p : ℕ) : (e2W h s' m' p).IsOmega2Only := by
+  refine isOmega2Only_prodList fun w hw => ?_
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at hw
+  rcases hw with rfl | rfl
+  · exact ⟨isOmega2Only_dW 2, by simp⟩
+  · exact ⟨isOmega2Only_orbitNormFactors (isOmega2Only_zW p) (by simp) m', by simp⟩
+
+theorem isOmega2Only_c0HatW (s' : ℕ) : (c0HatW h s').IsOmega2Only := by
+  simp [c0HatW]
+
+theorem isOmega2Only_aHatW (s' m' : ℕ) : (aHatW h s' m').IsOmega2Only := by
+  simp [aHatW, isOmega2Only_dW, isOmega2Only_c0HatW]
+
+theorem isOmega2Only_bHatW (p : ℕ) : (bHatW h p).IsOmega2Only := by
+  match p with
+  | 0 => simp [bHatW, isOmega2Only_dW]
+  | p + 1 =>
+      rw [show bHatW h (p + 1) = PWord.prodList [dW h 1, sig2PowW h (p + 1)] from rfl]
+      simp [isOmega2Only_dW, isOmega2Only_sig2PowW]
+
+theorem isOmega2Only_handlesW : (handlesW h).IsOmega2Only := by
+  refine isOmega2Only_prodList fun w hw => ?_
+  obtain ⟨j, -, rfl⟩ := List.mem_map.mp hw
+  exact ⟨trivial, trivial⟩
+
+theorem isOmega2Only_prodList_handleTail :
+    (PWord.prodList (handleTailW h)).IsOmega2Only := by
+  match h with
+  | 0 => trivial
+  | h + 1 => exact ⟨isOmega2Only_handlesW, trivial⟩
+
+/-- The handle tail contains at most the handle block: its sole member (when `h ≥ 1`) is
+`handlesW h`. -/
+theorem eq_handlesW_of_mem_handleTail :
+    ∀ {h : ℕ} {w : PWord (Generator (2 + 2 * h))}, w ∈ handleTailW h → w = handlesW h
+  | 0, w, hw => absurd hw (by simp [handleTailW])
+  | h + 1, w, hw => by simpa [handleTailW] using hw
+
+theorem isOmega2Only_etaDisplay {η : EtaDisplay} (hη : η.IsOmega2Only) :
+    (η.toPWord (n := 2 + 2 * h)).IsOmega2Only := by
+  cases η with
+  | one => trivial
+  | lit k => trivial
+  | hat num den => exact hη.elim
+
+/-- **Five of the six frozen instances are `ω₂`-only**: whenever the `D`-display is not the
+genuine `η̂` node, the whole word is in the `ω₂`-only fragment and packet Lem. 2.2's
+`ℕ`-exponent route applies with a single global exponent. -/
+theorem isOmega2Only_mpcW (α r p : ℕ) {η : EtaDisplay} (hη : η.IsOmega2Only) (h : ℕ) :
+    (mpcW α r p η h).IsOmega2Only := by
+  refine isOmega2Only_prodList fun w hw => ?_
+  simp only [linFactors, hatFactors, List.mem_append, List.mem_cons,
+    List.not_mem_nil, or_false] at hw
+  rcases hw with (((rfl | rfl | rfl | rfl | rfl | rfl) | (rfl | rfl | rfl | rfl | rfl)) |
+    (rfl | rfl)) | htail
+  · exact isOmega2Only_aW (s r) (m α)
+  · exact ⟨isOmega2Only_aW (s r) (m α), isOmega2Only_bW p⟩
+  · exact isOmega2Only_c0W (s r)
+  · exact ⟨isOmega2Only_c0W (s r), isOmega2Only_etaDisplay hη⟩
+  · exact isOmega2Only_e01W (p + s r * m α) (s r * m α)
+  · exact isOmega2Only_e2W (s r) (m α) p
+  · exact isOmega2Only_aHatW (s r) (m α)
+  · exact ⟨isOmega2Only_aHatW (s r) (m α), isOmega2Only_bHatW p⟩
+  · exact isOmega2Only_c0HatW (s r)
+  · exact ⟨isOmega2Only_c0HatW (s r), isOmega2Only_etaDisplay hη⟩
+  · exact isOmega2Only_e01W (p + s r * m α) (s r * m α)
+  · exact isOmega2Only_dW 0
+  · exact ⟨isOmega2Only_dW 0, isOmega2Only_dW 1⟩
+  · obtain rfl := eq_handlesW_of_mem_handleTail htail
+    exact isOmega2Only_handlesW
+
+/-- ⚠ **The `η̂`-displayed instance is *not* `ω₂`-only** (WNP-a's finding, inherited): the
+`D`-letter is a profinite power with `γ = η̂ ≠ ω₂`, so `PWord.eval_eq_evalNat_of_dvd` is
+unavailable on that row and its honest evaluations go through the resolvers. -/
+theorem not_isOmega2Only_mpcW_hat (α r p : ℕ) (num den : ℤ) (h : ℕ) :
+    ¬ (mpcW α r p (.hat num den) h).IsOmega2Only :=
+  fun hw => Npc.toZhat_ne_omega2 ⟨num, den⟩ hw.2.2.2.1.2.1
+
+end Omega2Only
+
+/-! ### Gate-B admissibility: the relativized routes, and the refutation of the bare form
+
+The WN0-a ruling binds: F3's bare `KillsWild` quantifies over every marking with no `τ`
+condition, and the tame value of any δ-letter word is a `τ^{ω₂}`-word — so the bare form is
+**unsatisfiable** for this word too (`not_killsWild` below), and the admissibility routes are
+the `τ`-relativized ones.  Inside `Γ_R` the hypothesis is supplied by packet Lem. 3.1: the
+tame relation forces `τ` pro-odd, and `ω₂` kills pro-odd elements. -/
+
+section Admissibility
+
+variable {h : ℕ}
+
+/-- **Gate-B admissibility, relativized to a tame `τ`** — packet Prop. 9.2 as an
+admissibility statement: the word dies at the tame boundary of every marking whose `τ`-letter
+is killed by `ω₂`. -/
+theorem killsWild_of_tau {α : ℕ} (hα : 1 ≤ α) (r p : ℕ) (η : EtaDisplay)
+    (hτ : ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+      [TotallyDisconnectedSpace G] (t : Marking (2 + 2 * h) G), t.τ ^ᶻ omega2 = 1) :
+    KillsWild (mpcW α r p η h) := by
+  intro G _ _ _ _ _ t
+  exact eval_killWildLetters_mpcW_eq_one hα r p η t (hτ G t)
+
+/-- **Gate B rule T1, at a finite marking**: if the `τ`-letter has odd order, the tame
+boundary value is trivial — the form the finite-target harnesses (F5) test. -/
+theorem eval_killWildLetters_mpcW_eq_one_of_odd {P : Type} [Group P] [TopologicalSpace P]
+    [DiscreteTopology P] [Finite P] {α : ℕ} (hα : 1 ≤ α) (r p : ℕ) (η : EtaDisplay)
+    (t : Marking (2 + 2 * h) P) (hτ : Odd (orderOf t.τ)) :
+    (Marking.killWildLetters t).eval (mpcW α r p η h) = 1 :=
+  eval_killWildLetters_mpcW_eq_one hα r p η t
+    (by simpa using PWord.eval_omega2Pow_eq_one_of_odd (⇑t) (.gen .tau) hτ)
+
+end Admissibility
+
+section Refutation
+
+local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
+local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
+
+private theorem zmod8_orderOf_dvd (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
+  orderOf_dvd_of_pow_eq_one (by revert x; decide)
+
+/-- The refuting marking: `τ` a generator of `ZMod 8` (so `τ^{ω₂} = τ ≠ 1`), everything else
+trivial.  With `σ = 1` both σ-skeletons die and the tame value is the pure `w`-count
+`w^{2m+9}` — at `α = 2` that is `w^{13} = w^5 ≠ 1`. -/
+def refuteMarking (h : ℕ) : Marking (2 + 2 * h) (Multiplicative (ZMod 8)) :=
+  Marking.ofLetters 1 (Multiplicative.ofAdd 1) (fun _ => 1)
+
+/-- **The frozen procyclic-`M` word is not Gate-B admissible in F3's unrelativized sense**
+(demonstrated at the `√−10` row; the same `w`-count refutes every parameter row).  This is
+the KillsWild ruling biting exactly as it must for a δ-letter word: the tame value is a
+`τ^{ω₂}`-word, and nothing kills it on a group of even exponent. -/
+theorem not_killsWild : ¬ KillsWild (mpcW 2 1 1 .one 0) := by
+  intro hR
+  have hval := hR (Multiplicative (ZMod 8)) (refuteMarking 0)
+  rw [show Marking.killWildLetters (refuteMarking 0) = refuteMarking 0 from
+      by ext g; cases g <;> rfl] at hval
+  rw [Marking.eval_def,
+    PWord.eval_eq_evalNat_of_dvd (by norm_num) zmod8_orderOf_dvd _
+      (isOmega2Only_mpcW 2 1 1 (show EtaDisplay.IsOmega2Only .one from trivial) 0),
+    omega2Exp_eight] at hval
+  exact absurd hval (by decide)
+
+end Refutation
+
+/-! ## Gate C: the marked pro-`2` boundary
+
+The headline of the ticket: `pro2` sends `τ ↦ 1` and collapses every `ω₂`-power, so **every
+δ-letter dies** — `δᵢ ↦ (xᵢ·1)·xᵢ⁻¹`, one certified move each — and with them **both
+correction blocks** (`E₀₁^pc`, `E₂^pc`: every letter is a δ) **and the hat copy's
+δ-content**.  What survives of the hat copy is its σ-skeleton `σ^{−2sm}·σ^{s·2^α}`, killed by
+the *same* Prop. 9.2 balance that killed it at Gate B; the plus block dies with its δ's; and
+the linear copy becomes **exactly eq. `Mpc-core`**, `mWord α A B C₀ D` on the pro-2 letter
+values
+
+```
+A = x₀⁻¹C₀⁻ᵐ,  B = x₁σ^p,  C₀ = x₂σ^s,  D = σ^{η̂}
+```
+
+(with `σ₂ ↦ σ`, and `σ^{η̂}` the honest `ℤ̂`-power — the `η̂`-contract keeps the letter, by
+`Npc.toZhat_ne_omega2`), times MC2's `handleWord`.  No hypothesis on the marking is needed
+beyond `1 ≤ α` for the balance. -/
+
+section Pro2
+
+variable {G : Type} [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
+  [TotallyDisconnectedSpace G] {h : ℕ}
+
+theorem pro2_prodList :
+    ∀ l : List (PWord (Generator (2 + 2 * h))),
+      pro2 (PWord.prodList l) = PWord.prodList (l.map pro2)
+  | [] => rfl
+  | w :: ws => by
+      rw [PWord.prodList_cons, pro2_mul, pro2_prodList ws, List.map_cons, PWord.prodList_cons]
+
+/-- The pro-2 value of the three `η̂` displays is uniformly the honest `σ ^ᶻ η̂` — the `.hat`
+case is where Gate C's `η̂`-contract keeps the profinite power (`η̂ ≠ ω₂`, WNP-a's
+`toZhat_ne_omega2`, reused; the orchestrator's D5 note: `EtaData.toZhat` *is*
+`etaHatZ ∘ toPadic` definitionally, so no bridge is owed). -/
+theorem eval_pro2_etaDisplay (t : Marking (2 + 2 * h) G) (η : EtaDisplay) :
+    t.eval (pro2 η.toPWord) = t.σ ^ᶻ η.zhat := by
+  cases η with
+  | one => simp [EtaDisplay.toPWord, EtaDisplay.zhat]
+  | lit k => simp [EtaDisplay.toPWord, EtaDisplay.zhat]
+  | hat num den =>
+      rw [show (EtaDisplay.hat num den).toPWord (n := 2 + 2 * h)
+          = .profPow (.gen .sigma) (Export.RawSpec.toZhat (.etahat num den)) from rfl,
+        pro2_profPow_of_ne _
+          (show Export.RawSpec.toZhat (.etahat num den) ≠ omega2 from
+            Npc.toZhat_ne_omega2 ⟨num, den⟩)]
+      rfl
+
+/-- **Every δ-letter dies at the pro-2 boundary**: `δᵢ ↦ (xᵢ·1)·xᵢ⁻¹ = 1` — the certified
+move behind "the hat copy and both correction blocks die at pro-2". -/
+theorem eval_pro2_dW (t : Marking (2 + 2 * h) G) (i : Fin 3) :
+    t.eval (pro2 (dW h i)) = 1 := by
+  simp [dW, uW]
+
+theorem eval_pro2_sig2PowW (t : Marking (2 + 2 * h) G) (k : ℕ) :
+    t.eval (pro2 (sig2PowW h k)) = t.σ ^ k := by
+  match k with
+  | 0 => simp [sig2PowW]
+  | 1 => simp [sig2PowW]
+  | k + 2 => simp only [sig2PowW, pro2_zpow, pro2_sigma2W, meval_zpow, Marking.eval_gen,
+      Marking.apply_sigma, zpow_natCast]
+
+theorem eval_pro2_c0W (t : Marking (2 + 2 * h) G) (s' : ℕ) :
+    t.eval (pro2 (c0W h s')) = t (coreLetter h 2) * t.σ ^ s' := by
+  simp [c0W, zpow_natCast, coreLetter]
+
+theorem eval_pro2_aW (t : Marking (2 + 2 * h) G) (s' m' : ℕ) :
+    t.eval (pro2 (aW h s' m'))
+      = (t (coreLetter h 0))⁻¹ * ((t (coreLetter h 2) * t.σ ^ s') ^ m')⁻¹ := by
+  rw [aW, pro2_prodList]
+  simp only [List.map_cons, List.map_nil, pro2_inv, pro2_zpow, coreLetter, pro2_gen_wild,
+    PWord.prodList_cons, PWord.prodList_nil, Marking.eval_mul, Marking.eval_inv,
+    Marking.eval_gen, Marking.eval_one, meval_zpow, mul_one]
+  rw [show Marking.eval t (pro2 (c0W h s')) = t (coreLetter h 2) * t.σ ^ s' from
+      eval_pro2_c0W t s', zpow_neg, zpow_natCast]
+  rfl
+
+theorem eval_pro2_bW (t : Marking (2 + 2 * h) G) (p : ℕ) :
+    t.eval (pro2 (bW h p)) = t (coreLetter h 1) * t.σ ^ p := by
+  match p with
+  | 0 => simp [bW, coreLetter]
+  | p + 1 =>
+      rw [show bW h (p + 1)
+          = PWord.prodList [.gen (coreLetter h 1), sig2PowW h (p + 1)] from rfl,
+        pro2_prodList]
+      simp only [List.map_cons, List.map_nil, coreLetter, pro2_gen_wild,
+        PWord.prodList_cons, PWord.prodList_nil, Marking.eval_mul, Marking.eval_gen,
+        Marking.eval_one, mul_one, eval_pro2_sig2PowW]
+
+/-- `E₀₁^pc` dies whole at the pro-2 boundary: both δ-letters die and conjugates of `1`
+are `1`. -/
+theorem eval_pro2_e01W (t : Marking (2 + 2 * h) G) (a b : ℕ) :
+    t.eval (pro2 (e01W h a b)) = 1 := by
+  simp [e01W, eval_pro2_dW]
+
+theorem eval_pro2_zW (t : Marking (2 + 2 * h) G) (p : ℕ) :
+    t.eval (pro2 (zW h p)) = 1 := by
+  match p with
+  | 0 => simp [zW, eval_pro2_dW]
+  | p + 1 =>
+      rw [show zW h (p + 1)
+          = PWord.prodList [dW h 2, .conj (dW h 2) (sig2PowW h (p + 1))] from rfl,
+        pro2_prodList]
+      simp [eval_pro2_dW]
+
+theorem pro2_orbitNormFactors (z u : PWord (Generator (2 + 2 * h))) (k : ℕ) :
+    (Export.orbitNormFactors z u k).map pro2
+      = Export.orbitNormFactors (pro2 z) (pro2 u) k := by
+  simp [Export.orbitNormFactors, List.map_map]
+
+/-- `E₂^pc` dies whole at the pro-2 boundary: `δ₂` dies, so the orbit-norm base dies, so the
+orbit norm dies (`orbitNorm_eq` at base `1`). -/
+theorem eval_pro2_e2W (t : Marking (2 + 2 * h) G) (s' m' p : ℕ) :
+    t.eval (pro2 (e2W h s' m' p)) = 1 := by
+  rw [e2W, pro2_prodList]
+  simp only [List.map_cons, List.map_nil, pro2_conj, pro2_zpow, pro2_sigma2W,
+    PWord.prodList_cons, PWord.prodList_nil, Marking.eval_mul, Marking.eval_one, meval_conj,
+    meval_zpow, mul_one, eval_pro2_dW, one_conjR, one_mul, pro2_prodList,
+    pro2_orbitNormFactors, eval_orbitNormFactors, eval_pro2_zW]
+  rw [orbitNorm_eq]
+  simp
+
+theorem eval_pro2_c0HatW (t : Marking (2 + 2 * h) G) (s' : ℕ) :
+    t.eval (pro2 (c0HatW h s')) = t.σ ^ s' := by
+  simp [c0HatW, zpow_natCast]
+
+theorem eval_pro2_aHatW (t : Marking (2 + 2 * h) G) (s' m' : ℕ) :
+    t.eval (pro2 (aHatW h s' m')) = (t.σ ^ (s' * m'))⁻¹ := by
+  rw [aHatW, pro2_prodList]
+  simp only [List.map_cons, List.map_nil, pro2_inv, pro2_zpow, PWord.prodList_cons,
+    PWord.prodList_nil, Marking.eval_mul, Marking.eval_inv, Marking.eval_one, meval_zpow,
+    mul_one, eval_pro2_dW, inv_one, one_mul]
+  rw [show Marking.eval t (pro2 (c0HatW h s')) = t.σ ^ s' from eval_pro2_c0HatW t s',
+    zpow_neg, zpow_natCast, ← pow_mul]
+
+theorem eval_pro2_bHatW (t : Marking (2 + 2 * h) G) (p : ℕ) :
+    t.eval (pro2 (bHatW h p)) = t.σ ^ p := by
+  match p with
+  | 0 => simp [bHatW, eval_pro2_dW]
+  | p + 1 =>
+      rw [show bHatW h (p + 1) = PWord.prodList [dW h 1, sig2PowW h (p + 1)] from rfl,
+        pro2_prodList]
+      simp [eval_pro2_dW, eval_pro2_sig2PowW]
+
+@[simp] theorem pro2_handlesW : pro2 (handlesW h) = handlesW h := by
+  rw [handlesW, pro2_prodList, List.map_map]
+  rfl
+
+/-- **The hat copy dies at the pro-2 boundary** — its δ-letters vanish and its σ-skeleton is
+killed by the *same* Prop. 9.2 balance as at Gate B.  The `[Ĉ₀,D]`-commutator dies at every
+`η̂` display through the `ℤ̂`-commutation. -/
+theorem eval_pro2_mpcHatW {α : ℕ} (hα : 1 ≤ α) (r p : ℕ) (η : EtaDisplay)
+    (t : Marking (2 + 2 * h) G) :
+    t.eval (pro2 (mpcHatW α r p η h)) = 1 := by
+  rw [mpcHatW, hatFactors, pro2_prodList, eval_prodListM]
+  simp only [List.map_cons, List.map_nil, pro2_zpow, pro2_comm, List.prod_cons, List.prod_nil,
+    meval_zpow, meval_comm, mul_one, eval_pro2_aHatW, eval_pro2_bHatW, eval_pro2_c0HatW,
+    eval_pro2_e01W, eval_pro2_etaDisplay]
+  rw [commR_eq_one_iff.mpr (((Commute.refl t.σ).pow_pow (s r * m α) p).inv_left),
+    commR_eq_one_iff.mpr (commute_pow_zpowHat t.σ (s r) η.zhat)]
+  simp only [zpow_natCast, one_mul]
+  rw [← pow_mul, s_mul_two_pow hα r, mul_comm 2 (s r * m α), pow_mul]
+  group
+
+/-- The plus block dies at the pro-2 boundary with its δ-letters. -/
+theorem eval_pro2_plusW (t : Marking (2 + 2 * h) G) :
+    t.eval (pro2 (plusW h)) = 1 := by
+  rw [plusW, pro2_prodList, eval_prodListM]
+  simp [eval_pro2_dW]
+
+/-- **Gate C: the pro-2 boundary value of the frozen procyclic-`M` word is eq. `Mpc-core`.**
+
+`pro2 R_{M,pc}` evaluates, at every marking, to `mWord α A B C₀ D · handleWord` on the pro-2
+letter values `A = x₀⁻¹C₀⁻ᵐ`, `B = x₁σ^p`, `C₀ = x₂σ^s`, `D = σ^{η̂}`.  The hat copy and both
+correction blocks are gone — their δ/δ₂-letters vanish, and the hat σ-skeleton dies by the
+Prop. 9.2 balance (`1 ≤ α` is exactly that hypothesis).  This is the statement MC-M's rank-4
+theory consumes, and the σ-versus-σ₂ collapse (`σ₂ ↦ σ`) is what makes the letters land on
+the marked core's. -/
+theorem eval_pro2_mpcW {α : ℕ} (hα : 1 ≤ α) (r p : ℕ) (η : EtaDisplay)
+    (t : Marking (2 + 2 * h) G) :
+    t.eval (pro2 (mpcW α r p η h))
+      = MarkedCore.mWord α
+          ((t (coreLetter h 0))⁻¹ * ((t (coreLetter h 2) * t.σ ^ s r) ^ m α)⁻¹)
+          (t (coreLetter h 1) * t.σ ^ p)
+          (t (coreLetter h 2) * t.σ ^ s r)
+          (t.σ ^ᶻ η.zhat)
+        * MarkedCore.handleWord (fun j => t (handleU j)) (fun j => t (handleV j)) := by
+  have hfact : t.eval (pro2 (mpcW α r p η h))
+      = t.eval (pro2 (mpcLinW α r p η h)) * t.eval (pro2 (mpcHatW α r p η h)) *
+          t.eval (pro2 (plusW h)) * t.eval (pro2 (handlesW h)) := by
+    have htail : (((handleTailW h).map pro2).map (t.eval ·)).prod
+        = t.eval (pro2 (handlesW h)) := by
+      match h with
+      | 0 => simp [handleTailW, handlesW]
+      | h + 1 => simp [handleTailW]
+    rw [mpcW, mpcLinW, mpcHatW, plusW, pro2_prodList, pro2_prodList, pro2_prodList,
+      pro2_prodList, eval_prodListM, eval_prodListM, eval_prodListM, eval_prodListM,
+      List.map_append, List.map_append, List.map_append, List.map_append, List.map_append,
+      List.map_append, List.prod_append, List.prod_append, List.prod_append, htail]
+  rw [hfact, eval_pro2_mpcHatW hα, eval_pro2_plusW, pro2_handlesW, eval_handlesW, mul_one,
+    mul_one]
+  -- the linear copy is the core word
+  rw [mpcLinW, linFactors, pro2_prodList, eval_prodListM]
+  simp only [List.map_cons, List.map_nil, pro2_zpow, pro2_comm, List.prod_cons, List.prod_nil,
+    meval_zpow, meval_comm, mul_one, eval_pro2_aW, eval_pro2_bW, eval_pro2_c0W,
+    eval_pro2_e01W, eval_pro2_e2W, eval_pro2_etaDisplay]
+  simp only [zpow_natCast]
+  rw [MarkedCore.mWord]
+  simp only [commR, GQ2.commP, mul_assoc]
+
+/-- At `h = 0` the handle factor is empty and the pro-2 value is eq. `Mpc-core` on the nose,
+in the `t.x`-spelling. -/
+theorem eval_pro2_mpcW_zero {α : ℕ} (hα : 1 ≤ α) (r p : ℕ) (η : EtaDisplay)
+    (t : Marking 2 G) :
+    t.eval (pro2 (mpcW α r p η 0))
+      = MarkedCore.mWord α
+          ((t.x 0)⁻¹ * ((t.x 2 * t.σ ^ s r) ^ m α)⁻¹)
+          (t.x 1 * t.σ ^ p)
+          (t.x 2 * t.σ ^ s r)
+          (t.σ ^ᶻ η.zhat) := by
+  rw [eval_pro2_mpcW hα (h := 0),
+    show MarkedCore.handleWord (fun j : Fin 0 => t (handleU j))
+        (fun j : Fin 0 => t (handleV j)) = 1 from rfl, mul_one]
+  rfl
+
+/-- The same value read as MC-M's **full relator shape** `mRelWord` at the standard marking
+(`coreMark` on the four Labute letters `A, B, C₀, D`). -/
+theorem eval_pro2_mpcW_eq_mRelWord {α : ℕ} (hα : 1 ≤ α) (r p : ℕ) (η : EtaDisplay)
+    (t : Marking 2 G) :
+    t.eval (pro2 (mpcW α r p η 0))
+      = MarkedCore.mRelWord (h := 0) α
+          (MarkedCore.coreMark
+            ((t.x 0)⁻¹ * ((t.x 2 * t.σ ^ s r) ^ m α)⁻¹)
+            (t.x 1 * t.σ ^ p)
+            (t.x 2 * t.σ ^ s r)
+            (t.σ ^ᶻ η.zhat)) := by
+  rw [eval_pro2_mpcW_zero hα, MarkedCore.mRelWord_coreMark]
+
+end Pro2
 
 end GQ2.Dyadic.Words.Mpc
