@@ -536,6 +536,35 @@ theorem npc_levels_ne_at_six {η : ℤ_[2]} (z : ℤ_[2]) (hη : η = 1 + 2 * z)
   rw [omega2Exp_six, padicOmega2Exp_eta_eq_zero z hη (le_of_eq hfac)]
   norm_num
 
+/-! ### §5.4 ⚠ The `η̂`-obstruction is not confined to the procyclic-`N` row
+
+`Words.Mpc.EtaDisplay` has three constructors and `IsOmega2Only` is `False` on exactly one of
+them, `.hat num den` — whose denoted exponent is, on the nose, the *same* `η̂` node as
+`Words.Npc.aW`'s.  So §3's `resolvesAt_mpcFam` excludes the `.hat` display for the same reason
+§3 excludes the procyclic-`N` row, and §5's two-level treatment is what that display needs.
+
+**This does not block the count lane today**: the campaign's frozen procyclic-`M` Stokes pins
+(`Certificates.MProcyclic.sqrtNeg10_isStokesEndpoint`, `sqrt10_isStokesEndpoint`) both use the
+`.one` display, on which `IsOmega2Only` is `trivial`, so `resolvesAt_mpcFam` covers them.  But the
+`.hat` display is a certified word of the row (`Words/Mpc.lean`'s `etahat display` ast-hash pin),
+and for it the row is **not** covered — closing that is a `ResolvedAt` walk over `mpcW`, the
+mpc-side twin of §5.1's walk over `npcW`. -/
+
+/-- The `.hat` display denotes the very same `η̂` exponent as the procyclic-`N` conjugator. -/
+theorem mpc_hatDisplay_zhat (num den : ℤ) :
+    (Words.Mpc.EtaDisplay.hat num den).zhat = EtaData.toZhat ⟨num, den⟩ := rfl
+
+/-- Hence it is never `ω₂`, at any `num`, `den` — so `§3`'s route is unavailable there, and
+`not_constant_resolver_of_odd` applies to it verbatim. -/
+theorem mpc_hatDisplay_ne_omega2 (num den : ℤ) :
+    (Words.Mpc.EtaDisplay.hat num den).zhat ≠ omega2 :=
+  Words.Npc.toZhat_ne_omega2 _
+
+/-- And `IsOmega2Only` is definitionally `False` there — the exclusion `resolvesAt_mpcFam`'s `hη`
+performs, made explicit. -/
+theorem not_isOmega2Only_hatDisplay (num den : ℤ) :
+    ¬ (Words.Mpc.EtaDisplay.hat num den).IsOmega2Only := id
+
 end Procyclic
 
 end Count
