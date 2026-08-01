@@ -268,6 +268,7 @@ import GQ2.Dyadic.Certificates.M0
 import GQ2.Dyadic.Certificates.L
 import GQ2.Dyadic.Certificates.Npc
 import GQ2.Dyadic.Certificates.M0Assembly
+import GQ2.Dyadic.Certificates.Mpc
 import GQ2.Dyadic.FieldData
 import GQ2.Dyadic.TameQuotientK
 import GQ2.Dyadic.TameBoundary
