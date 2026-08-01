@@ -158,7 +158,9 @@ at `α = 3`; the hash is of the *unexpanded* tree either way).
 ## Implementation notes
 
 Non-`module` (forced: `GQ2.Dyadic.TameBoundary` is non-`module`; the `Words/` lane convention
-was ratified at WN0-a).  Everything lives in the namespace `GQ2.Dyadic.Words.Mpc`, so nothing
+was ratified at WN0-a).  **Audited axiom state**: 160 declarations, every one std-3-or-less
+(`propext`/`Classical.choice`/`Quot.sound` or fewer; scratch audit over the full declaration
+list), no `native_decide` anywhere — kernel `decide` only — so the census is untouched.  Everything lives in the namespace `GQ2.Dyadic.Words.Mpc`, so nothing
 clashes with the pilot's `GQ2.Dyadic.Words.*` alphabet declarations when both are imported.
 The `Zhat` commutation helpers (`zhat_mul_comm`, `Commute` of two `^ᶻ`-powers of one base) are
 generic and sit here only until a WW hoist claims them; they are what discharges
@@ -670,6 +672,33 @@ theorem frozenRowHashes_mpc :
 #eval Export.assertAstHash "WMP M-procyclic-alpha3-r1-eps1-eta3-h0-q2-v001 (alpha = 3)"
   rawMpcAlphaThree rawMpcAlphaThree_astHash
 
+set_option maxRecDepth 4000
+
+/-! ### Layer pins for the two novel constructors
+
+WW5's two-tier discipline pins tree → bytes in the kernel and bytes → digest by `#eval`.  The
+kernel tier cannot be inherited here the way WN0-a inherited it (`Export` carries no frozen
+Mpc tree to `rfl`-equate against — this row's trees arrive with this ticket), and a whole-tree
+byte pin would be an 11-kB string literal (the `√−10` canonical serialization is 10 849
+bytes), so the six `#eval` digest gates above carry the tree → digest check end-to-end, and
+the kernel tier is supplied for exactly the two constructors WW5's own literal rows never
+exercised: the `OrbitNorm` node and the `ZhatPower … (.etahat …)` node.  A serialization
+regression in either fails here, in the kernel, on a minimal input. -/
+
+/-- The `OrbitNorm` node serializes with sorted keys `length/op/step/word` — pinned in the
+kernel; no WW5 literal row contains one. -/
+example : Export.canonicalJson (.orbitNorm (.generator "u") (.int 2) (.generator "z"))
+    = "{\"length\":{\"type\":\"Int\",\"value\":2},\"op\":\"OrbitNorm\",\"step\":\
+      {\"name\":\"u\",\"op\":\"Generator\"},\"word\":{\"name\":\"z\",\"op\":\"\
+      Generator\"}}" := rfl
+
+/-- The `ZhatPower`/`etahat` node serializes with sorted keys, the spec with
+`den/num/type` — pinned in the kernel at the frozen `η = −1/3` display; no WW5 literal row
+contains one. -/
+example : Export.canonicalJson (.zhatPower (.generator "sigma") (.etahat (-1) 3))
+    = "{\"exponent_spec\":{\"den\":3,\"num\":-1,\"type\":\"EtaHat\"},\"op\":\"Zha\
+      tPower\",\"word\":{\"name\":\"sigma\",\"op\":\"Generator\"}}" := rfl
+
 /-! ### The `denote` bridges
 
 What makes the hash pins bite on the semantic word: `Export.denote` inlines the `Auxiliary`
@@ -679,8 +708,6 @@ parameters.  One per pinned instance and **never generic** (wave-2 rule 2: `Orbi
 at a concrete length only — `m = 2` on the four `α = 2` instances, `m = 4` at `α = 3`; the
 handle block likewise at `h = 0` and `h = 1`).  The hash never moves under any of this: it is
 taken of the unexpanded tree. -/
-
-set_option maxRecDepth 4000
 
 theorem denote_rawMpc_sqrtNeg10 :
     Export.denote (denoteCtx 0) rawMpcSqrtNeg10 = some (mpcW 2 1 1 .one 0) := by rfl
