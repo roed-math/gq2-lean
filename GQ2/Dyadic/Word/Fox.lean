@@ -468,6 +468,114 @@ theorem foxD_conj (u g : PWord X) :
 
 end FoxBase
 
+/-! ## The trivially-acting subgroup, and the Fox rules it makes free
+
+Every "simple tame module" hypothesis says that some marked letter acts trivially on the
+coefficient module, and every step of a row computation needs that property to *propagate*
+through the word constructors.  Packaging "acts trivially" as membership in the kernel of the
+permutation representation makes the propagation free: products, inverses, powers and
+conjugates are subgroup operations.
+
+Over such letters the two Fox rules that every branch-word row assembly runs on — the
+`prodList` product rule and the vanishing of commutator rows — hold with no freshness
+hypothesis and with `powOmega2` never unfolded. -/
+
+section TrivAct
+
+variable (C : Type*) [Group C] (V : Type*) [AddCommGroup V] [DistribMulAction C V]
+
+/-- **The elements of `C` acting trivially on `V`**: the kernel of the permutation
+representation, so a genuine subgroup (and normal). -/
+def trivAct : Subgroup C := MonoidHom.ker (MulAction.toPermHom C V)
+
+variable {C V}
+
+theorem mem_trivAct {g : C} : g ∈ trivAct C V ↔ ∀ v : V, g • v = v := by
+  constructor
+  · intro hg v
+    have h := MonoidHom.mem_ker.mp hg
+    simpa using congrArg (fun e : Equiv.Perm V => e v) h
+  · intro hg
+    exact MonoidHom.mem_ker.mpr (Equiv.ext fun v => by simpa using hg v)
+
+/-- A conjugate of a trivially-acting element acts trivially, **for any conjugator** — the
+normality of the kernel, in the `conjR` spelling the word syntax uses. -/
+theorem trivAct_conjR {x : C} (hx : x ∈ trivAct C V) (g : C) : conjR x g ∈ trivAct C V := by
+  rw [mem_trivAct] at hx ⊢
+  intro v
+  rw [conjR, mul_smul, mul_smul, hx, inv_smul_smul]
+
+/-- A commutator of two trivially-acting elements acts trivially. -/
+theorem trivAct_commR {x y : C} (hx : x ∈ trivAct C V) (hy : y ∈ trivAct C V) :
+    commR x y ∈ trivAct C V := by
+  rw [commR]
+  exact mul_mem (mul_mem (mul_mem (inv_mem hx) (inv_mem hy)) hx) hy
+
+/-- The `2`-primary part of a trivially-acting element acts trivially: `powOmega2` is a natural
+number power (`GQ2.powOmega2`), so this is `Subgroup.pow_mem`.
+
+This is the *base-group* twin of the engine lemma `WordLift.powOmega2_g_smul_of_trivial`, whose
+proof is the same one line.  It touches only the `.g`-coordinate: **no offset (`.u`) computation
+unfolds `powOmega2`** — those all route through the engine lemmas above, per the binding
+`ω₂`-discipline. -/
+theorem trivAct_powOmega2 {x : C} (hx : x ∈ trivAct C V) : powOmega2 x ∈ trivAct C V := by
+  rw [powOmega2]
+  exact pow_mem hx _
+
+end TrivAct
+
+section TrivFox
+
+variable {X : Type*} {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+
+/-- `evalFin` of an `n`-ary product is the product of the `evalFin`s — the `evalFin` twin of
+`PWord.eval_prodList`. -/
+theorem evalFin_prodList (μ : X → C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    ∀ l : List (PWord X),
+      PWord.evalFin μ E E₂ (PWord.prodList l) = (l.map (PWord.evalFin μ E E₂)).prod
+  | [] => rfl
+  | w :: ws => by
+      rw [PWord.prodList_cons, PWord.evalFin_mul, evalFin_prodList μ E E₂ ws, List.map_cons,
+        List.prod_cons]
+
+/-- An `n`-ary product of trivially-evaluating words evaluates trivially. -/
+theorem trivAct_evalFin_prodList {μ : X → C} {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ}
+    {l : List (PWord X)} (hl : ∀ w ∈ l, PWord.evalFin μ E E₂ w ∈ trivAct C A) :
+    PWord.evalFin μ E E₂ (PWord.prodList l) ∈ trivAct C A := by
+  rw [evalFin_prodList]
+  refine Subgroup.list_prod_mem _ fun x hx => ?_
+  obtain ⟨w, hw, rfl⟩ := List.mem_map.mp hx
+  exact hl w hw
+
+variable [Finite A] [Finite C] (t : X → C) (a : X → A) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- **The Fox derivative of an `n`-ary product of trivially-evaluating factors is the plain sum
+of the factors' derivatives**: each prefix acts trivially, so every `ū·` in the Fox product rule
+`D(uv) = D(u) + ū·D(v)` disappears.  The workhorse of every branch-word row computation. -/
+theorem foxD_prodList_of_trivial : ∀ (l : List (PWord X)),
+    (∀ w ∈ l, PWord.evalFin t E E₂ w ∈ trivAct C A) →
+      foxD t a E E₂ (PWord.prodList l) = (l.map (foxD t a E E₂)).sum
+  | [], _ => rfl
+  | w :: ws, hl => by
+      rw [PWord.prodList_cons, foxD_mul,
+        foxD_prodList_of_trivial ws fun u hu => hl u (List.mem_cons_of_mem _ hu),
+        mem_trivAct.mp (hl w List.mem_cons_self), List.map_cons, List.sum_cons]
+
+/-- **The Fox derivative of a commutator of two trivially-evaluating words vanishes.**
+
+`D([u,v]) = ū⁻¹(v̄⁻¹−1)D(u) + ū⁻¹v̄⁻¹(ū−1)D(v)`, and both operator factors die when the two
+bases act trivially — *whatever* the offsets are.  This is the general form of "handle letters
+appear only in commutators, whose Fox rows cancel": no freshness of the letters is used, only
+the triviality of their action. -/
+theorem foxD_comm_of_trivial {u v : PWord X} (hu : PWord.evalFin t E E₂ u ∈ trivAct C A)
+    (hv : PWord.evalFin t E E₂ v ∈ trivAct C A) : foxD t a E E₂ (.comm u v) = 0 := by
+  rw [foxD_def, foxEval_comm]
+  exact WordLift.commP_u_of_trivial _ _
+    (fun w => by rw [foxEval_g]; exact mem_trivAct.mp hu w)
+    (fun w => by rw [foxEval_g]; exact mem_trivAct.mp hv w)
+
+end TrivFox
+
 /-! ## Additivity in the offsets and the two-relator Jacobian -/
 
 section Jacobian
