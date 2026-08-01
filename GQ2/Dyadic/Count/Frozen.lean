@@ -801,6 +801,70 @@ theorem npcOf_isStokesEndpoint {α r h q : ℕ} {E : Zhat → ℤ} {E₂ : ℤ_[
   abel_nf
   simp [CharTwo.two_eq_zero]
 
+/-! ### §7.4 The matched pair
+
+§4's audit item asks for `hres` and `hend` at **one** family.  For the procyclic-`N` row that
+family is `npcFamOf α r h q d (npcResolver N d) E₂`, and the pair is available at every level `N`
+that kills the target and has a nontrivial `2`-part — the second condition only because
+`IsStokesEndpoint` needs the `ω₂`-value odd, which `omega2Exp` delivers exactly when `2 ∣ N`.
+
+The count lane's own level `6` satisfies both, and so does every `2 ^ a` with `a ≥ 1`; note that
+this is the row's *first* pin of any kind at level `6`, since §5.3 shows the constant-resolver
+family has none there. -/
+
+/-- `omega2Exp N` is odd whenever `N` has a nontrivial `2`-part — it is `≡ 1` modulo `2^{v₂ N}`
+(`GQ2.omega2Exp_modEq_one`), hence modulo `2`. -/
+theorem odd_omega2Exp {N : ℕ} (hN : N ≠ 0) (hv : N.factorization 2 ≠ 0) : Odd (omega2Exp N) :=
+  Nat.odd_iff.mpr ((omega2Exp_modEq_one hN hv).of_dvd (dvd_pow_self 2 hv))
+
+/-- The two-valued resolver's `ω₂`-value is odd, as an integer. -/
+theorem odd_npcResolver_omega2 {N : ℕ} (hN : N ≠ 0) (hv : N.factorization 2 ≠ 0) (d : EtaData) :
+    Odd (npcResolver N d omega2) := by
+  obtain ⟨m, hm⟩ := odd_omega2Exp hN hv
+  exact ⟨m, by rw [npcResolver_omega2, hm]; push_cast; ring⟩
+
+/-- **The endpoint condition at the two-valued resolver**, at every even level. -/
+theorem npcResolver_isStokesEndpoint {α r h q N : ℕ} (hα : 1 ≤ α) (hq : Even q) (hN : N ≠ 0)
+    (hv : N.factorization 2 ≠ 0) (d : EtaData) (E₂ : ℤ_[2] → ℤ) :
+    IsStokesEndpoint (npcFamOf α r h q d (npcResolver N d) E₂) :=
+  npcOf_isStokesEndpoint hα hq (odd_npcResolver_omega2 hN hv d) d
+
+/-- **The procyclic-`N` row's matched `(hres, hend)` pair at one family** — the object CB-2…CB-6
+consume.  No `2`-group restriction, no congruence on `η`, no constraint relating the branch datum
+to the target: the only hypotheses are that the level kills the target and is even. -/
+theorem resolvesAt_and_endpoint_npcFamOf {N : ℕ} (hN : N ≠ 0) (hv : N.factorization 2 ≠ 0)
+    (hord : ∀ x : Q, orderOf x ∣ N) {α r h q : ℕ} (hα : 1 ≤ α) (hq : Even q) (d : EtaData)
+    (E₂ : ℤ_[2] → ℤ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (npcW α r h d))
+        (npcFamOf α r h q d (npcResolver N d) E₂) Q
+      ∧ IsStokesEndpoint (npcFamOf α r h q d (npcResolver N d) E₂) :=
+  ⟨resolvesAt_npcFamOf hN hord α r h q d E₂, npcResolver_isStokesEndpoint hα hq hN hv d E₂⟩
+
+/-- **The pair at the count lane's own level `6`.**  Contrast `no_constant_pin_npcFam_at_six`:
+the constant-resolver family has no `e` at all here. -/
+theorem resolvesAt_and_endpoint_npcFamOf_six (hord : ∀ x : Q, orderOf x ∣ 6) {α r h q : ℕ}
+    (hα : 1 ≤ α) (hq : Even q) (d : EtaData) (E₂ : ℤ_[2] → ℤ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (npcW α r h d))
+        (npcFamOf α r h q d (npcResolver 6 d) E₂) Q
+      ∧ IsStokesEndpoint (npcFamOf α r h q d (npcResolver 6 d) E₂) := by
+  refine resolvesAt_and_endpoint_npcFamOf (by norm_num) ?_ hord hα hq d E₂
+  rw [show (6 : ℕ) = 2 ^ 1 * 3 by norm_num, Nat.factorization_mul (by norm_num) (by norm_num),
+    Finsupp.add_apply, Nat.Prime.factorization_pow Nat.prime_two, Finsupp.single_eq_same,
+    Nat.factorization_eq_zero_of_not_dvd (by norm_num)]
+  norm_num
+
+/-- **The resolution at the target's own exponent: no hypotheses at all.**
+
+This is CB-TR's target-dependence principle taken to its conclusion for this row, and it is the
+`ω₂`+`η̂` twin of `Count.resolvesAt_heisToFree_exponent`.  Every finite discrete target has a
+nonzero exponent that kills it, so the level is never something the count lane has to *assume* —
+see §8 for what that does to the standing `orderOf x ∣ 6`. -/
+theorem resolvesAt_npcFamOf_exponent (α r h q : ℕ) (d : EtaData) (E₂ : ℤ_[2] → ℤ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (npcW α r h d))
+      (npcFamOf α r h q d (npcResolver (Monoid.exponent Q) d) E₂) Q :=
+  resolvesAt_npcFamOf Monoid.exponent_ne_zero_of_finite
+    (fun x => Monoid.order_dvd_exponent x) α r h q d E₂
+
 end TwoValued
 
 end Count
