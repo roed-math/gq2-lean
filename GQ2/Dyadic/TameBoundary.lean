@@ -88,6 +88,28 @@ theorem maxProPMk_tqTau (hq0 : q ≠ 0) (hqe : Even q) :
   exact (QuotientGroup.eq_one_iff _).mp
     (map_tqTau_eq_one_of_isPGroup hq0 hqe hU (QuotientGroup.mk' U.toSubgroup))
 
+/-- **`ω₂` kills the tame generator**: `τ^{ω₂} = 1` in `T_q`.  This is the operative,
+element-level face of Lemma 3.1 — *"tame inertia is pro-odd, and `ω₂` is the `2`-primary
+projection, so it annihilates it"* — and it is the fact the branch lanes need at the tame
+boundary: every frozen wild word evaluates, after killing the wild letters, to a word in
+`τ^{ω₂}` (`Words/*.eval_killWildLetters_*`), so *this* lemma is what turns those values into
+`1` over `T_q`.  See `TameSpec.tameSpecializes_of_tau_pow`, which packages exactly that step.
+
+The proof is §1's finite-image statement pushed through every open normal subgroup: in each
+finite quotient the image of `τ` has odd order (`tqTau_odd_order_map`), and `ω₂` acts on a
+finite group as `powOmega2` (`zpowHat_omega2`), which kills odd-order elements
+(`GQ2.powOmega2_eq_one_of_odd`). -/
+theorem zpowHat_omega2_tqTau (hq0 : q ≠ 0) (hqe : Even q) :
+    (tqTau q) ^ᶻ omega2 = 1 := by
+  refine eq_one_of_forall_mem_openNormalSubgroup fun U => ?_
+  haveI : Finite (((Tq q) : Type) ⧸ U.toSubgroup) := inferInstance
+  set mk : ContinuousMonoidHom ((Tq q) : Type) (((Tq q) : Type) ⧸ U.toSubgroup) :=
+    ⟨QuotientGroup.mk' U.toSubgroup, QuotientGroup.continuous_mk⟩ with hmk
+  have hone : mk ((tqTau q) ^ᶻ omega2) = 1 := by
+    rw [map_zpowHat_omega2]
+    exact powOmega2_eq_one_of_odd (tqTau_odd_order_map hq0 hqe mk.toMonoidHom)
+  exact (QuotientGroup.eq_one_iff _).mp hone
+
 end LemmaThreeOne
 
 /-! ## §2. Packet Lemma 3.2: `ker ν₂` is pro-odd
@@ -332,12 +354,58 @@ theorem gammaGen_wild_mem_wildPartR (i : Fin (n + 1)) :
     gammaGen n q R (.wild i) ∈ wildPartR n q R :=
   Subgroup.le_topologicalClosure _ (Subgroup.subset_normalClosure ⟨i, rfl⟩)
 
-/-! ### Gate B: admissibility -/
+/-! ### Gate B: admissibility
 
-/-- **Gate B admissibility** (the first hypothesis of packet Prop. 3.4): *killing all `x_i`
-makes the wild word `R` trivial*.  Stated semantically — the value of `R` at any marking whose
-wild letters are trivial is `1` — which by F2's `Marking.eval_killWild` is equivalent to the
-syntactic statement that `killWild R` evaluates to `1` everywhere (`killsWild_iff_killWild`). -/
+Two predicates live here, and **the primary one is `TameSpec.TameSpecializes`**, further down
+(it needs `tameMarking`, so it cannot be stated before Part (1) opens).
+
+* `TameSpecializes n q R` — *"`R` dies under the tame marking of `T_q`"*, i.e. the ledger's
+  `specializeTame R = 1`.  **Satisfiable**, satisfied by all five frozen branch words, and the
+  hypothesis every construction below actually consumes.
+* `KillsWild R` — the original, universally-quantified reading of the packet's prose.
+  **Refuted** by all five frozen branch words; kept because the refutations are landed theorems
+  and because it does imply the primary predicate (`TameSpec.tameSpecializes_of_killsWild`).
+
+See the ⚠ warning on `KillsWild` itself before writing anything against it. -/
+
+/-- **Gate B admissibility, universally quantified** (a literal reading of the first hypothesis
+of packet Prop. 3.4): *killing all `x_i` makes the wild word `R` trivial*.  Stated semantically
+— the value of `R` at any marking whose wild letters are trivial is `1` — which by F2's
+`Marking.eval_killWild` is equivalent to the syntactic statement that `killWild R` evaluates to
+`1` everywhere (`killsWild_iff_killWild`).
+
+⚠ **Do not use this as a hypothesis.  It is refuted by every frozen branch word.**
+
+`KillsWild` quantifies over *every* profinite group and *every* marking, with **no condition on
+the `τ`-letter**.  But the tame-killed value of any word carrying an `(x_i τ)^{ω₂}`-shaped
+`δ`-letter is `τ^{ω₂}` — see `Words/N0.lean`'s `eval_killWildLetters_nCompact` and its four
+siblings — and `τ^{ω₂} ≠ 1` already in `Multiplicative (ZMod 8)`.  So `KillsWild` is not
+merely mis-shaped; it is **false** for the words the campaign froze.  All five refutations are
+landed theorems, and they must stay true:
+
+* `GQ2.Dyadic.Words.not_killsWild` (compact `N`, `Words/N0.lean`),
+* `GQ2.Dyadic.Words.Npc.not_killsWild` (`Words/Npc.lean`),
+* `GQ2.Dyadic.Words.MCompact.not_killsWild` (compact `M`, `Words/M0.lean`),
+* `GQ2.Dyadic.Words.Mpc.not_killsWild` (`Words/Mpc.lean`),
+* `GQ2.Dyadic.Words.LSq.not_killsWild` (`Words/L.lean`).
+
+This is **not** a defect in the words.  The packet's hypothesis lives where `τ` is pro-odd —
+that is, in `T_q`, by Lemma 3.1 (§1) — and there the words *are* admissible.  The routes to use
+instead, in decreasing order of preference:
+
+1. `TameSpec.TameSpecializes n q R` (below) — the primary Gate-B predicate, and literally the
+   ledger's `specializeTame R = 1`.  Every construction that used to take `KillsWild` has a
+   `TameSpec` twin taking this instead, and the `KillsWild` versions are now thin wrappers
+   around those twins.  A branch lane discharges it with
+   `TameSpec.tameSpecializes_of_tau_pow`, fed its own `eval_killWildLetters_*` value theorem.
+2. `Words/*.killsWild_of_tau` — the per-word `τ`-relativized statement.  ⚠ Note that *its*
+   hypothesis is itself universally quantified over markings, so it is no more satisfiable than
+   `KillsWild`; it records the shape of the argument, not a usable route.
+3. `Words/*.eval_killWildLetters_*_eq_one_of_odd` — the finite-target form the F5 harnesses
+   test (`Odd (orderOf t.τ)` at a finite discrete marking).
+
+Recorded by ticket **F3b**; the original ruling is the WN0-a outcomes entry in
+`docs/dyadic/tickets.md`. -/
 def KillsWild {n : ℕ} (R : PWord (Generator n)) : Prop :=
   ∀ (G : Type) [Group G] [TopologicalSpace G] [IsTopologicalGroup G] [CompactSpace G]
     [TotallyDisconnectedSpace G] (t : Marking n G), (Marking.killWildLetters t).eval R = 1
@@ -356,6 +424,12 @@ theorem killsWild_iff_killWild (R : PWord (Generator n)) :
 /-- The tame marking of `T_q`: `σ ↦ σ`, `τ ↦ τ`, `x_i ↦ 1`. -/
 noncomputable def tameMarking (n q : ℕ) : Marking n ((Tq q) : Type) :=
   Marking.ofLetters (tqSigma q) (tqTau q) (fun _ => 1)
+
+@[simp] theorem tameMarking_σ : (tameMarking n q).σ = tqSigma q := rfl
+
+@[simp] theorem tameMarking_τ : (tameMarking n q).τ = tqTau q := rfl
+
+@[simp] theorem tameMarking_x (i : Fin (n + 1)) : (tameMarking n q).x i = 1 := rfl
 
 theorem killWildLetters_tameMarking :
     Marking.killWildLetters (tameMarking n q) = tameMarking n q := by
@@ -376,53 +450,156 @@ theorem tameBase_tameRelatorGen : (tameBase n q).hom.toMonoidHom (tameRelatorGen
   show (tqSigma q)⁻¹ * tqTau q * tqSigma q * ((tqTau q) ^ q)⁻¹ = 1
   rw [h, mul_inv_cancel]
 
-theorem tameBase_eval_R (hadm : KillsWild R) :
+/-! #### The primary Gate-B predicate and the construction over it
+
+Everything the packet's Prop. 3.4(1) and Thm. 3.5 need is built here, over the **satisfiable**
+hypothesis `TameSpecializes`.  The `KillsWild`-shaped declarations that follow each block are
+one-line wrappers around these, so no statement stated against `KillsWild` is lost and no proof
+is duplicated. -/
+
+namespace TameSpec
+
+/-- **Gate B, the primary predicate**: the wild word `R` dies under the tame marking of `T_q`
+(`σ ↦ σ`, `τ ↦ τ`, `x_i ↦ 1`).  This is the ledger's `specializeTame R = 1` on the nose, and
+the packet's Prop. 3.4 hypothesis read *where the packet reads it* — inside the tame quotient,
+where Lemma 3.1 makes `τ` pro-odd.
+
+Contrast `KillsWild`, which asks the same thing of **every** profinite group and **every**
+marking and is therefore refuted by all five frozen branch words (see the ⚠ warning there).
+`KillsWild R → TameSpecializes n q R` (`tameSpecializes_of_killsWild`); the converse is false.
+
+Satisfied by all five branches: each `Words/*.lean` computes the tame boundary value as
+`τ^{ω₂}` (`eval_killWildLetters_*`), and `τ^{ω₂} = 1` over `T_q` by `zpowHat_omega2_tqTau`.
+`tameSpecializes_of_tau_pow` is that one-step route. -/
+def TameSpecializes (n q : ℕ) (R : PWord (Generator n)) : Prop :=
+  (tameMarking n q).eval R = 1
+
+theorem tameSpecializes_iff : TameSpecializes n q R ↔ (tameMarking n q).eval R = 1 := Iff.rfl
+
+/-- The kill-wild reading: over `T_q` the wild letters are already trivial, so `TameSpecializes`
+is the value of `R` at the *kill-wild* tame marking — the shape the `Words/*` lanes state. -/
+theorem tameSpecializes_iff_killWildLetters :
+    TameSpecializes n q R ↔ (Marking.killWildLetters (tameMarking n q)).eval R = 1 := by
+  rw [killWildLetters_tameMarking]
+  exact tameSpecializes_iff
+
+/-- **The implication that does hold.**  F3's universally-quantified Gate B implies the
+primary predicate, by instantiating it at `G := T_q`, `t := tameMarking n q`.  So anything
+stated against `KillsWild` still applies — which is why the `KillsWild` versions below are
+wrappers rather than deletions.
+
+⚠ The converse is **false**: `KillsWild` is refuted by all five frozen branch words while
+`TameSpecializes` holds for them. -/
+theorem tameSpecializes_of_killsWild (hadm : KillsWild R) : TameSpecializes n q R := by
+  have h := hadm ((Tq q) : Type) (tameMarking n q)
+  rwa [killWildLetters_tameMarking] at h
+
+/-- **The branch lanes' route.**  Each `Words/*.lean` proves its word's tame boundary *value*
+is `τ^{ω₂}` (`eval_killWildLetters_nCompact`, `…_mCompact`, `…_npc`, `…_mpc`, `…_lSq`), for an
+arbitrary marking.  Fed that theorem at `t := tameMarking n q`, this discharges Gate B in one
+step, because `τ^{ω₂} = 1` in `T_q` (Lemma 3.1, `zpowHat_omega2_tqTau`). -/
+theorem tameSpecializes_of_tau_pow (hq0 : q ≠ 0) (hqe : Even q)
+    (h : (Marking.killWildLetters (tameMarking n q)).eval R = (tameMarking n q).τ ^ᶻ omega2) :
+    TameSpecializes n q R := by
+  rw [killWildLetters_tameMarking, tameMarking_τ, zpowHat_omega2_tqTau hq0 hqe] at h
+  exact h
+
+/-- The route for a lane whose tame boundary value is `1` outright (compact `M`'s `Mpc`
+spelling), stated at the kill-wild marking the lanes use. -/
+theorem tameSpecializes_of_killWildLetters
+    (h : (Marking.killWildLetters (tameMarking n q)).eval R = 1) : TameSpecializes n q R :=
+  tameSpecializes_iff_killWildLetters.mpr h
+
+/-- The route through F2's *syntactic* substitution operator, via `Marking.eval_killWild`. -/
+theorem tameSpecializes_of_evalKillWild (h : (tameMarking n q).eval (killWild R) = 1) :
+    TameSpecializes n q R :=
+  tameSpecializes_of_killWildLetters (by rwa [Marking.eval_killWild] at h)
+
+/-- `tameBase_eval_R` at the primary hypothesis: the `R`-relator dies in `T_q`. -/
+theorem tameBase_eval_R (hspec : TameSpecializes n q R) :
     (tameBase n q).hom.toMonoidHom ((freeMarking n).eval R) = 1 := by
   have h := Marking.map_eval (tameBase n q).hom (freeMarking n) R
   have hmark : (freeMarking n).map ⇑(tameBase n q).hom = tameMarking n q := by
     ext g; exact tameBase_of n q g
-  have h1 : (tameBase n q).hom ((freeMarking n).eval R) = (tameMarking n q).eval R := by
-    rw [h, hmark]
   show (tameBase n q).hom ((freeMarking n).eval R) = 1
-  rw [h1, ← killWildLetters_tameMarking]
-  exact hadm _ (tameMarking n q)
+  rw [h, hmark]
+  exact hspec
 
-/-- **The tame specialization** `Γ_R ↠ T_q` (`σ ↦ σ`, `τ ↦ τ`, `x_i ↦ 1`), well defined by
-admissibility. -/
-noncomputable def tameR (n q : ℕ) (R : PWord (Generator n)) (hadm : KillsWild R) :
-    ContinuousMonoidHom (GammaR n q R) (Tq q) :=
+/-- **The tame specialization** `Γ_R ↠ T_q` (`σ ↦ σ`, `τ ↦ τ`, `x_i ↦ 1`), well defined by the
+primary Gate-B hypothesis. -/
+noncomputable def tameOfSpec (n q : ℕ) (R : PWord (Generator n))
+    (hspec : TameSpecializes n q R) : ContinuousMonoidHom (GammaR n q R) (Tq q) :=
   presentationLift (gammaRelators n q R) (tameBase n q).hom <| by
     rintro r (rfl | rfl)
     · exact tameBase_tameRelatorGen
-    · exact tameBase_eval_R hadm
+    · exact tameBase_eval_R hspec
 
-@[simp] theorem tameR_gammaGen (hadm : KillsWild R) (g : Generator n) :
-    tameR n q R hadm (gammaGen n q R g) = tameMarking n q g :=
+@[simp] theorem tameOfSpec_gammaGen (hspec : TameSpecializes n q R) (g : Generator n) :
+    tameOfSpec n q R hspec (gammaGen n q R g) = tameMarking n q g :=
   (presentationLift_mk _ _ _ (FreeProfiniteGroup.of g)).trans (tameBase_of n q g)
 
-theorem tameR_surjective (hadm : KillsWild R) : Function.Surjective (tameR n q R hadm) := by
-  have hle : Subgroup.closure {tqSigma q, tqTau q} ≤ (tameR n q R hadm).toMonoidHom.range := by
+theorem tameOfSpec_surjective (hspec : TameSpecializes n q R) :
+    Function.Surjective (tameOfSpec n q R hspec) := by
+  have hle : Subgroup.closure {tqSigma q, tqTau q}
+      ≤ (tameOfSpec n q R hspec).toMonoidHom.range := by
     rw [Subgroup.closure_le]
     rintro z (rfl | rfl)
-    · exact ⟨gammaGen n q R .sigma, tameR_gammaGen hadm .sigma⟩
-    · exact ⟨gammaGen n q R .tau, tameR_gammaGen hadm .tau⟩
-  have hclosed : IsClosed (((tameR n q R hadm).toMonoidHom.range) : Set ((Tq q) : Type)) := by
+    · exact ⟨gammaGen n q R .sigma, tameOfSpec_gammaGen hspec .sigma⟩
+    · exact ⟨gammaGen n q R .tau, tameOfSpec_gammaGen hspec .tau⟩
+  have hclosed :
+      IsClosed (((tameOfSpec n q R hspec).toMonoidHom.range) : Set ((Tq q) : Type)) := by
     rw [MonoidHom.coe_range]
-    exact (isCompact_range (tameR n q R hadm).continuous_toFun).isClosed
-  have htop : (tameR n q R hadm).toMonoidHom.range = ⊤ := by
+    exact (isCompact_range (tameOfSpec n q R hspec).continuous_toFun).isClosed
+  have htop : (tameOfSpec n q R hspec).toMonoidHom.range = ⊤ := by
     rw [eq_top_iff, ← topGen_tq q]
     exact Subgroup.topologicalClosure_minimal _ hle hclosed
   exact MonoidHom.range_eq_top.mp htop
 
-theorem wildPartR_le_ker_tameR (hadm : KillsWild R) :
-    wildPartR n q R ≤ (tameR n q R hadm).toMonoidHom.ker := by
-  have hker_closed : IsClosed (((tameR n q R hadm).toMonoidHom.ker) : Set (GammaR n q R)) := by
+theorem wildPartR_le_ker_tameOfSpec (hspec : TameSpecializes n q R) :
+    wildPartR n q R ≤ (tameOfSpec n q R hspec).toMonoidHom.ker := by
+  have hker_closed :
+      IsClosed (((tameOfSpec n q R hspec).toMonoidHom.ker) : Set (GammaR n q R)) := by
     rw [MonoidHom.coe_ker]
-    exact IsClosed.preimage (tameR n q R hadm).continuous_toFun isClosed_singleton
+    exact IsClosed.preimage (tameOfSpec n q R hspec).continuous_toFun isClosed_singleton
   refine Subgroup.topologicalClosure_minimal _ ?_ hker_closed
   refine Subgroup.normalClosure_le_normal ?_
   rintro z ⟨i, rfl⟩
-  exact MonoidHom.mem_ker.mpr (tameR_gammaGen hadm (.wild i))
+  exact MonoidHom.mem_ker.mpr (tameOfSpec_gammaGen hspec (.wild i))
+
+end TameSpec
+
+/-! #### The `KillsWild`-shaped wrappers
+
+Statement-for-statement the F3 originals; each is now the corresponding `TameSpec` declaration
+composed with `TameSpec.tameSpecializes_of_killsWild`.  They are definitionally the old terms
+(the hypothesis is a `Prop`), so every downstream `simp` set and `rfl` still fires.  ⚠ They are
+**unusable at the frozen branch words** — see the warning on `KillsWild`. -/
+
+theorem tameBase_eval_R (hadm : KillsWild R) :
+    (tameBase n q).hom.toMonoidHom ((freeMarking n).eval R) = 1 :=
+  TameSpec.tameBase_eval_R (TameSpec.tameSpecializes_of_killsWild hadm)
+
+/-- **The tame specialization** `Γ_R ↠ T_q` (`σ ↦ σ`, `τ ↦ τ`, `x_i ↦ 1`), well defined by
+admissibility.  ⚠ Prefer `TameSpec.tameOfSpec`: `KillsWild` is refuted by every frozen branch
+word, so this form cannot be called at any of them. -/
+noncomputable def tameR (n q : ℕ) (R : PWord (Generator n)) (hadm : KillsWild R) :
+    ContinuousMonoidHom (GammaR n q R) (Tq q) :=
+  TameSpec.tameOfSpec n q R (TameSpec.tameSpecializes_of_killsWild hadm)
+
+theorem tameR_eq_tameOfSpec (hadm : KillsWild R) :
+    tameR n q R hadm = TameSpec.tameOfSpec n q R (TameSpec.tameSpecializes_of_killsWild hadm) :=
+  rfl
+
+@[simp] theorem tameR_gammaGen (hadm : KillsWild R) (g : Generator n) :
+    tameR n q R hadm (gammaGen n q R g) = tameMarking n q g :=
+  TameSpec.tameOfSpec_gammaGen _ g
+
+theorem tameR_surjective (hadm : KillsWild R) : Function.Surjective (tameR n q R hadm) :=
+  TameSpec.tameOfSpec_surjective _
+
+theorem wildPartR_le_ker_tameR (hadm : KillsWild R) :
+    wildPartR n q R ≤ (tameR n q R hadm).toMonoidHom.ker :=
+  TameSpec.wildPartR_le_ker_tameOfSpec _
 
 /-- `Γ_R/W_R` as a profinite group. -/
 noncomputable def TameGammaR (n q : ℕ) (R : PWord (Generator n)) : ProfiniteGrp :=
