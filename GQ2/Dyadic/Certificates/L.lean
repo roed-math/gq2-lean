@@ -108,11 +108,22 @@ normal form, which is proved here from scratch:
 2. `κ` is a vector: nondegeneracy turns the functional `d` into a vector `e` with
    `b e w = b w w`.  Then `e` is automatically in the radical of the alternating part
    `b' = b + d⊗d`, and `d e = b e e`.
-3. **`q_K = 2` is exactly `b e e = 1`** — the anisotropy of that radical.  For type `L`,
-   `n` odd forces `i ∉ K`, hence `q_K = 2`; and this single `𝔽₂` equation is the *whole*
-   arithmetic content beyond nondegeneracy.  With it, `W = ⟨e⟩ ⊥ ker d` orthogonally, `b`
-   restricted to `ker d` is alternating and nondegenerate, and the symplectic normal form
-   finishes.
+3. **`b e e = 1`** — the anisotropy of that radical — is the single `𝔽₂` equation carrying
+   the *whole* arithmetic content beyond nondegeneracy.  With it, `W = ⟨e⟩ ⊥ ker d`
+   orthogonally, `b` restricted to `ker d` is alternating and nondegenerate, and the
+   symplectic normal form finishes.  For type `L` it holds because `n` is odd.
+
+   ⚠ ORCHESTRATOR CORRECTION 2026-08-01 (FD1's finding; the type-`L` reasoning above is
+   unaffected).  An earlier revision of this paragraph read "`q_K = 2` is exactly
+   `b e e = 1`".  That equivalence is **false**, and FD1's committed
+   `GQ2.Dyadic.cupFormK_kappa_self_iff` proves the true statement: `b e e = 1` characterizes
+   **`[K : ℚ₂]` odd**, not `q_K = 2`.  Counterexample in the campaign's own instance list:
+   `K = ℚ₂(√2)` has `i ∉ K`, so `q_K = 2`, yet `n = 2` is even and `(−1,−1)_K = +1`.
+   Consequence for the other rows: the even-`n` lanes (`n = 2+2h` — every `M`/`N` row) fall
+   on the other side of that iff, get `b e e = 0`, and therefore need a rank-2
+   non-alternating head instead of `⟨1⟩` — a separate splitting theorem (ticket **FD2**).
+   FD1's facts (i) and (ii) are degree-general and serve those lanes unchanged; only its
+   fact (iii) is type-`L`-specific.
 
 So `exists_cupForm_normalForm` below is unconditional given `IsCupFormFp2 b`, `NondegFp2 b` and
 the `e`-datum.  **Nothing in part c2 is a hypothesis binder and nothing is an axiom**, and no
