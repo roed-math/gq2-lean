@@ -471,4 +471,104 @@ theorem trivAct_mpcLinW {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDispla
 
 end Hlin
 
+/-! ## §2 The product row and its WW2 certificate
+
+WMP-b deferred the WW2 records for a structural reason: the hat copy's honest first-order
+statement is split by column, so no single `FoxRowNormalForm` describes it.  The **pair** does
+have one, and this section assembles it from exactly two inputs — §5's `foxD_mpcHatW_ram` and
+§4's `foxColumn_sigma_mul_eq_zero`. -/
+
+section Product
+
+variable {h : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- **Killing the σ-coordinate of an offset vector.**  Lane-generic: a Fox row splits as its
+σ-column plus its restriction to σ-free offsets, and on this row the two halves are proved by
+two different engines, so the split has to be nameable. -/
+def sigmaKill {n : ℕ} {A : Type*} [AddCommGroup A] (a : Generator n → A) : Generator n → A :=
+  fun g => if g = Generator.sigma then 0 else a g
+
+@[simp] theorem sigmaKill_sigma {n : ℕ} {A : Type*} [AddCommGroup A] (a : Generator n → A) :
+    sigmaKill a Generator.sigma = 0 := by rw [sigmaKill, if_pos rfl]
+
+theorem sigmaKill_of_ne {n : ℕ} {A : Type*} [AddCommGroup A] (a : Generator n → A)
+    {g : Generator n} (hg : g ≠ Generator.sigma) : sigmaKill a g = a g := by
+  rw [sigmaKill, if_neg hg]
+
+/-- The offset vector is its σ-column plus its σ-free part. -/
+theorem pi_single_add_sigmaKill {n : ℕ} {A : Type*} [AddCommGroup A] (a : Generator n → A) :
+    Pi.single Generator.sigma (a Generator.sigma) + sigmaKill a = a := by
+  funext g
+  rcases eq_or_ne g Generator.sigma with rfl | hg
+  · rw [Pi.add_apply, Pi.single_eq_same, sigmaKill_sigma, add_zero]
+  · rw [Pi.add_apply, Pi.single_eq_of_ne hg, sigmaKill_of_ne a hg, zero_add]
+
+/-- `σ`-column offsets are invisible to the `δ`-row: `δ_i` carries no `σ`. -/
+theorem foxD_dW_sigma_single (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w)
+    (v : V) (i : Fin 3) :
+    foxD ⇑t (Pi.single Generator.sigma v) E E₂ (dW h i) = 0 := by
+  rw [foxD_dW_ram t E E₂ _ hwild hτfpf hTodd i,
+    Pi.single_eq_of_ne (coreLetter_ne_sigma h i), neg_zero]
+
+/-- **The pair's σ-column vanishes** — WMP-b's coincidence lemma, now unconditional: `hlin` is
+`trivAct_mpcLinW` and the two `δ`-side hypotheses are the ramified reading. -/
+theorem foxColumn_sigma_mpcProductW_eq_zero {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDisplay)
+    (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w) :
+    foxColumn (A := V) ⇑t E E₂ (.mul (mpcLinW α r pp η h) (mpcHatW α r pp η h))
+        Generator.sigma = 0 :=
+  foxColumn_sigma_mul_eq_zero t E E₂ α r pp η hV₂
+    (trivAct_mpcLinW t E E₂ hα r pp η hwild hTodd) hwild
+    (fun i => trivAct_dW_ram t E E₂ hwild hTodd i)
+    (fun v i => foxD_dW_sigma_single t E E₂ hwild hτfpf hTodd v i)
+
+/-- **The product row IS the linear row, read at σ-free offsets.**
+
+The whole content of handoff item 1, in one equation and from exactly two WMP-b inputs:
+
+* the σ-column dies by the **coincidence** (`foxColumn_sigma_mul_eq_zero`) — a statement about
+  the *pair*, true although neither factor's σ-column vanishes;
+* the wild and tame columns of the hat copy die by **Rem. 5.4** (`foxD_mpcHatW_ram`), so the
+  σ-free part of the pair's row is the linear copy's outright — the hat contributes nothing,
+  and the prefix weight `val(R_lin^pc)` never has to be computed because it multiplies zero.
+
+⚠ The two halves are proved by different engines and the statement keeps them visible: the
+right-hand side is the linear row at the **σ-killed** offset, not at `a`. -/
+theorem foxD_mpcProductW_eq_lin {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDisplay)
+    (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w)
+    (a : Generator (2 + 2 * h) → V) :
+    foxD ⇑t a E E₂ (.mul (mpcLinW α r pp η h) (mpcHatW α r pp η h))
+      = foxD ⇑t (sigmaKill a) E E₂ (mpcLinW α r pp η h) := by
+  have hcol := congrArg (fun f : V →+ V => f (a Generator.sigma))
+    (foxColumn_sigma_mpcProductW_eq_zero t E E₂ hα r pp η hV₂ hwild hτfpf hTodd)
+  simp only [foxColumn_apply, AddMonoidHom.zero_apply] at hcol
+  conv_lhs => rw [← pi_single_add_sigmaKill a]
+  rw [foxD_add, hcol, zero_add, foxD_mul,
+    foxD_mpcHatW_ram t E E₂ (sigmaKill a) (sigmaKill_sigma a) hwild hτfpf hTodd hα r pp η hV₂,
+    smul_zero, add_zero]
+
+/-- The `AddMonoidHom` form: the pair's Fox carrier factors through the σ-killing projection. -/
+theorem foxDHom_mpcProductW_eq {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDisplay)
+    (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w) :
+    foxDHom (A := V) ⇑t E E₂ (.mul (mpcLinW α r pp η h) (mpcHatW α r pp η h))
+      = AddMonoidHom.mk' (fun a => foxD ⇑t (sigmaKill a) E E₂ (mpcLinW α r pp η h))
+          (fun a b => by
+            rw [show sigmaKill (a + b) = sigmaKill a + sigmaKill b by
+              funext g; rcases eq_or_ne g Generator.sigma with rfl | hg
+              · simp [sigmaKill]
+              · simp [sigmaKill_of_ne _ hg]]
+            exact foxD_add ⇑t E E₂ _ _ _) := by
+  refine AddMonoidHom.ext fun a => ?_
+  rw [foxDHom_apply, AddMonoidHom.mk'_apply]
+  exact foxD_mpcProductW_eq_lin t E E₂ hα r pp η hV₂ hwild hτfpf hTodd a
+
+end Product
+
 end GQ2.Dyadic.Certificates.MProcyclic
