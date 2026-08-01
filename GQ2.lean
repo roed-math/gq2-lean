@@ -262,6 +262,7 @@ import GQ2.Dyadic.Certificates.N0Fox
 import GQ2.Dyadic.Certificates.N0
 import GQ2.Dyadic.Certificates.LFox
 import GQ2.Dyadic.Certificates.M0Fox
+import GQ2.Dyadic.Certificates.NpcFox
 import GQ2.Dyadic.TameQuotientK
 import GQ2.Dyadic.TameBoundary
 import GQ2.Dyadic.MarkedCore.Cores
