@@ -1289,4 +1289,77 @@ theorem fifthRoot_orders_differ (z₁ z₂ z₃ z₄ : ZMod 2) :
 
 end FifthRoot
 
+/-! ## The phase consumables, at **both** projector branches
+
+WW4's `affinePhase` is `plusFormPhaseCover` on both compact-`M` rows — the two certificates
+differ in their endpoint `Q` and in the change of variables, never in the phase cover, because
+the `(c₀,c₁)` block swap is an isometry.  So the record leaves are the same four `SN`-valued
+shapes on each branch: `G0 = 2^d`, packet Lem 6.1's translated sum, and the degree-`n`
+magnitude `2^{n·d} = 2^{n·dim(V×V)/2}` — `standardNumerics n |>.gaussRam d`, positive sign,
+which is the Lagrangian clause of the lane spec.  `n = 2` is the degree of both `ℚ₂(√2)` and
+`ℚ₂(√5)`. -/
+
+section Phase
+
+open GQ2.SectionSix GQ2.QuadraticFp2
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  [Module (ZMod 2) V] [Fintype V]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+  (hq : IsQuadraticFp2 q) (hns : Nonsingular q) {d : ℕ}
+  (hcard : Fintype.card V = 2 ^ d)
+
+/-- The `P = 1` branch's Gauss residue slot: `G0 = ε·2^m = 2^d` (`ε = +1`). -/
+theorem mCompact_P1_G0 :
+    (compactM_P1_certificate dat hdat hq hns hcard).affinePhase.G0 = 2 ^ d :=
+  one_mul _
+
+/-- The `P = 0` branch's Gauss residue slot — the **same** `G0`, because the block swap is an
+isometry and the phase cover is shared. -/
+theorem mCompact_P0_G0 :
+    (compactM_P0_certificate dat hdat hq hns hcard).affinePhase.G0 = 2 ^ d :=
+  one_mul _
+
+include dat hdat hq hns hcard in
+/-- **Packet Lem 6.1's output at the `P = 1` row**: a raw shift vector contributes exactly its
+affine phase against `G0 = 2^d`. -/
+theorem mCompact_P1_gauss_translate (y : V × V) :
+    gaussSum (fun x => plusFormD q q x + polar (plusFormD q q) x y)
+      = sign (plusFormD q q y) * 2 ^ d := by
+  have h := (compactM_P1_certificate dat hdat hq hns hcard).affinePhase.gauss_translate y
+  rw [mCompact_P1_G0 dat hdat hq hns hcard] at h
+  exact h
+
+include dat hdat hq hns hcard in
+/-- **The degree-`n` Gauss magnitude in `SN`-shape**, `2^{n·d}` — with `dim_{𝔽₂}(V × V) = 2d`
+this is `2^{n·dim/2}`, i.e. `standardNumerics n |>.gaussRam d` with positive sign. -/
+theorem mCompact_gauss_pow (n : ℕ) :
+    gaussSum (fun x : Fin n → V × V => ∑ i, plusFormD q q (x i)) = 2 ^ (n * d) :=
+  (compactM_P1_certificate dat hdat hq hns hcard).affinePhase.gaussSum_pi_of_baseSign_one rfl n
+
+include dat hdat hq hns hcard in
+/-- The `ℚ₂(√2)` instance of the magnitude (`α = 3`, `m = 4`): `n = 2`. -/
+theorem sqrtTwo_gauss_degree_two :
+    gaussSum (fun x : Fin 2 → V × V => ∑ i, plusFormD q q (x i)) = 2 ^ (2 * d) :=
+  mCompact_gauss_pow dat hdat hq hns hcard 2
+
+include dat hdat hq hns hcard in
+/-- The `ℚ₂(√5)` instance (`α = 2`, `m = 2`, `q_K = 4`): the same magnitude — the `q_K`
+sensitivity of this row lives in the tame relator, not in the phase. -/
+theorem sqrtFive_gauss_degree_two :
+    gaussSum (fun x : Fin 2 → V × V => ∑ i, plusFormD q q (x i)) = 2 ^ (2 * d) :=
+  mCompact_gauss_pow dat hdat hq hns hcard 2
+
+include dat hdat hq hns hcard in
+/-- **The `P = 0` endpoint has the same Gauss residue as the `P = 1` endpoint** — the block-swap
+change of variables made numerical.  Freeze row 4's "the two rows are one plus form in two
+coordinate systems", at the Gauss level. -/
+theorem mCompact_P0_endpoint_gaussSum :
+    gaussSum (fun p : V × V => q p.2 + polar q p.1 p.2) = 2 ^ d := by
+  have h := (compactM_P0_certificate dat hdat hq hns hcard).endpoint_gaussSum
+  rw [mCompact_P0_G0 dat hdat hq hns hcard] at h
+  exact h
+
+end Phase
+
 end GQ2.Dyadic.Certificates.MCompact
