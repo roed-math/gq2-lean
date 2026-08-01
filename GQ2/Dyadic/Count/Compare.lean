@@ -37,6 +37,9 @@ VCocycle DD ρ ≃  Z¹(Γ, DD.Vmod)     ≃+  ↥(heisD1 c w).ker
   by the marking modulo the relator family, witnessed at finite discrete targets.  Three fields,
   all of them things a branch supplies about its own `Γ_R`; §2 also proves the rigidity lemma
   (`eq_of_eqOn_gen`) that makes the presented hom unique.
+* **§2.1** `ResolvesAt` — the bridge from the `PWord` relators of §2 to the `FreeGroup` family the
+  word complex is built on, **at one target**, and `resolvesAt_heisToFree`, which proves it for the
+  family resolved at that target's own exponent level.
 * **§3** `z1Equiv : Z¹(Γ, A) ≃+ ↥(heisD1 c w).ker`, and `h1Equiv` descending it to `H¹`.
 * **§4/§6** the two recursion-vocabulary bridges, generic in `Γ` (the `ℚ₂` copies are inline and
   `AbsGalQ2`-specific: `Phase140/{GammaA,GammaR}/Foundation.lean`, `Phase140/Local.lean:195`).
@@ -45,6 +48,23 @@ VCocycle DD ρ ≃  Z¹(Γ, DD.Vmod)     ≃+  ↥(heisD1 c w).ker
 * **§8** the N0 / `√−2` instantiation, at CB-S's degree bookkeeping (`nCompact_degree`, deficiency
   `2h + 2`) and N0's own `sqrtNegTwo_isStokesEndpoint` — the recursion-vocabulary counterpart of
   CB-S's `sqrtNegTwo_cardZ1`, which is the same value read on the word side.
+
+## The relators are read at the target (ticket CB-TR)
+
+The presentation class was originally stated against a `FreeGroup ι`-family — the same family the
+word complex uses.  That is **wrong**, and CB-RES proved it wrong: `ω₂` is a profinite exponent,
+it acts as a different integer in each finite quotient, and `Count.zpowHat_omega2_ne_zpow` shows
+no integer represents it in the free profinite group.  A `FreeGroup`-stated clause therefore talks
+about elements that are not the relators of `Γ_R`, and its relator clause is *false* at the
+intrinsic branch words (`Count.lift_gammaGen_nCompactFam_ne_one`).
+
+So clauses (ii) and (iii) now carry the intrinsic family `W : ρ → PWord ι` and evaluate it with
+`PWord.eval` **inside each finite discrete target**, where `PWord.eval_eq_evalNat_of_dvd` resolves
+`ω₂` at `omega2Exp N` for that target's own level `N`.  The word lane's `FreeGroup` family enters
+through exactly one extra hypothesis, `ResolvesAt W w Q` at the single target `Q` the count is
+taken in, and that hypothesis is a **theorem** for the family resolved there
+(`resolvesAt_heisToFree`).  Nothing else in the file changes: the `hA₂`/`hwild2` analysis of
+clause (iii) survives verbatim, and so does every count.
 
 ## What is *not* re-proved here
 
@@ -93,7 +113,8 @@ recursion's own vocabulary (`RF.YB`, `En.radData l h`, `En.descData l h`, `rhoPr
   exact tcocycle_cardN (rhoPrimeK RF b F (En.radData l h) rfl ρ) (fun _ _ => rfl) hc …
   ```
   The `hcomp` argument is `rfl` — the `cActT` instance imported here **is** the one the field is
-  stated against, so no transport is needed.
+  stated against, so no transport is needed.  ⚠ CB-TR inserted one argument, `hres`, immediately
+  after `hpres`; the recipe is otherwise unchanged.
 * `hZcard` ← `hZcardN` at `E := RF.YC`, `theta := ρ.1.1`, with `hround` discharged for free by the
   already-landed `rho0_descData_rhoPrimeK` (`GQ2/Dyadic/Recursion/Phase140Assembly.lean:77`):
   ```
@@ -180,12 +201,29 @@ end WordLiftModel
 
 /-! ## §2. The marked-presentation interface
 
-The one hypothesis this file adds.  It says exactly what "`Γ = ⟨ι ∣ w⟩` as a profinite group"
+The one hypothesis this file adds.  It says exactly what "`Γ = ⟨ι ∣ W⟩` as a profinite group"
 means *for the purposes of degree-≤1 cohomology*, and no more: the letters generate topologically,
-the relators die, and relator-killing markings of finite discrete groups extend.  Nothing about
-free profinite groups, normal closures or `PWord` resolution appears — a branch discharges the
-interface however it likes (`GQ2.presentationLift` is the intended route for
+the relators die at every finite discrete quotient, and relator-killing markings of finite
+discrete groups extend.  Nothing about free profinite groups or normal closures appears — a branch
+discharges the interface however it likes (`GQ2.Dyadic.gammaLift` is the intended route for
 `GQ2.Dyadic.GammaR n q R`).
+
+## ⚠ The relators are `PWord`s, and they are read *at each target*
+
+The family is a family of **reflected words** `W : ρ → PWord ι`, and clauses (ii)/(iii) evaluate
+it with `PWord.eval`, the profinite denotation, *in the target*.  This is not a stylistic choice:
+`ω₂` is a profinite exponent, so it acts as a **different integer in each finite quotient**, and
+no global integer represents it (CB-RES's `Count.zpowHat_omega2_ne_zpow`: in the free profinite
+group `Y ^ᶻ ω₂ ≠ Y ^ k` for *every* `k`).  A class stated against one `FreeGroup`-resolved family
+`w : ρ → FreeGroup ι` therefore asks about relators that are **not the relators of `Γ_R`**, and
+its clause (ii) is outright false at the intrinsic branch words
+(`Count.lift_gammaGen_nCompactFam_ne_one`).
+
+`PWord.eval f (W k) = 1` at a finite discrete `Q` *is* "the family resolved at `Q` dies at `f`":
+by `PWord.eval_eq_evalNat_of_dvd` the profinite denotation at `Q` equals the integer denotation at
+`omega2Exp N`, for any `N` killing `Q` — the target-dependent resolver.  §2.1 packages that as
+`ResolvesAt`, the bridge to the word complex, and proves it holds for the family resolved at the
+target (`resolvesAt_heisToFree`).
 
 Compare the `ℚ₂` ancestor, which hard-codes the presentation *by using the carrier*:
 `WordCohBridge` is built over the literal `FreeProfiniteGroup (Fin 4) ⧸ NA`, so `NA_le_ker_classify`
@@ -196,22 +234,26 @@ section Presentation
 
 variable {ι ρ : Type*}
 
-/-- **`Γ` is presented by the marking `gen` modulo the relator family `w`**, witnessed at finite
+/-- **`Γ` is presented by the marking `gen` modulo the relator family `W`**, witnessed at finite
 discrete targets.
 
-The `Finite`/`DiscreteTopology` binders on `Q` make the field as *weak* as possible — the only
-target this file ever instantiates it at is the split group `A ⋊ C` of a finite discrete module
-over a finite discrete lower group — so a branch has the least to prove. -/
+The `Finite`/`DiscreteTopology` binders on `Q` make the fields as *weak* as possible — the only
+targets this file ever instantiates them at are the split group `A ⋊ C` of a finite discrete
+module over a finite discrete lower group, and `C` itself — so a branch has the least to prove.
+In particular `Γ` itself carries no compactness hypothesis: clause (ii) is asked of the finite
+discrete *quotients* of `Γ`, never of `Γ`, which is exactly how it is consumed. -/
 structure IsMarkedPresentation (Γ : Type) [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
-    (gen : ι → Γ) (w : ρ → FreeGroup ι) : Prop where
+    (gen : ι → Γ) (W : ρ → PWord ι) : Prop where
   /-- The marked letters topologically generate `Γ`. -/
   gen_top : (Subgroup.closure (Set.range gen)).topologicalClosure = ⊤
-  /-- Every relator of the family dies at the marking. -/
-  rel : ∀ k, FreeGroup.lift gen (w k) = 1
+  /-- Every relator of the family dies in every finite discrete quotient of `Γ`, read there with
+  that quotient's own resolution of the profinite exponents. -/
+  rel : ∀ {Q : Type} [Group Q] [TopologicalSpace Q] [DiscreteTopology Q] [Finite Q]
+    (φ : ContinuousMonoidHom Γ Q) (k : ρ), PWord.eval (fun i => φ (gen i)) (W k) = 1
   /-- Every relator-killing marking of a finite discrete group is the restriction along `gen` of a
   continuous hom out of `Γ` (necessarily unique, by `gen_top` and `eq_of_eqOn_gen`). -/
   extend : ∀ {Q : Type} [Group Q] [TopologicalSpace Q] [DiscreteTopology Q] [Finite Q]
-    (f : ι → Q), (∀ k, FreeGroup.lift f (w k) = 1) →
+    (f : ι → Q), (∀ k, PWord.eval f (W k) = 1) →
       ∃ φ : ContinuousMonoidHom Γ Q, ∀ i, φ (gen i) = f i
 
 /-- The **admissibility side condition** on a marking `f : ι → Q`: the normal closure of the
@@ -239,17 +281,19 @@ two-relator presentation `GammaBare`, and over that group the wild part is never
 over `Γ_R`; `IsWildTwo` is exactly what excludes them
 (`Count/Presentation.lean`, `testMarking_not_isWildTwo`). -/
 structure IsAdmissibleMarkedPresentation (Γ : Type) [Group Γ] [TopologicalSpace Γ]
-    [IsTopologicalGroup Γ] (gen : ι → Γ) (w : ρ → FreeGroup ι) (J : Set ι) : Prop where
+    [IsTopologicalGroup Γ] (gen : ι → Γ) (W : ρ → PWord ι) (J : Set ι) : Prop where
   /-- The marked letters topologically generate `Γ`. -/
   gen_top : (Subgroup.closure (Set.range gen)).topologicalClosure = ⊤
-  /-- Every relator of the family dies at the marking. -/
-  rel : ∀ k, FreeGroup.lift gen (w k) = 1
+  /-- Every relator of the family dies in every finite discrete quotient of `Γ`, read there with
+  that quotient's own resolution of the profinite exponents. -/
+  rel : ∀ {Q : Type} [Group Q] [TopologicalSpace Q] [DiscreteTopology Q] [Finite Q]
+    (φ : ContinuousMonoidHom Γ Q) (k : ρ), PWord.eval (fun i => φ (gen i)) (W k) = 1
   /-- Every relator-killing **admissible** marking of a finite discrete group is the restriction
   along `gen` of a continuous hom out of `Γ` (necessarily unique, by `gen_top` and
   `eq_of_eqOn_gen`).  The `IsWildTwo J` hypothesis is the whole difference from
   `IsMarkedPresentation.extend`. -/
   extend : ∀ {Q : Type} [Group Q] [TopologicalSpace Q] [DiscreteTopology Q] [Finite Q]
-    (f : ι → Q), (∀ k, FreeGroup.lift f (w k) = 1) → IsWildTwo J f →
+    (f : ι → Q), (∀ k, PWord.eval f (W k) = 1) → IsWildTwo J f →
       ∃ φ : ContinuousMonoidHom Γ Q, ∀ i, φ (gen i) = f i
 
 /-- **The plain class implies the restricted one**, for every choice of distinguished letters:
@@ -258,10 +302,10 @@ classes are the same statement with clause (iii) restricted — and the reason n
 `IsAdmissibleMarkedPresentation` is closed to a branch that can supply the plain form (e.g. any
 branch working over `GammaBare`). -/
 theorem IsMarkedPresentation.toAdmissible {Γ : Type} [Group Γ] [TopologicalSpace Γ]
-    [IsTopologicalGroup Γ] {gen : ι → Γ} {w : ρ → FreeGroup ι}
-    (h : IsMarkedPresentation Γ gen w) (J : Set ι) :
-    IsAdmissibleMarkedPresentation Γ gen w J :=
-  ⟨h.gen_top, h.rel, fun f hf _ => h.extend f hf⟩
+    [IsTopologicalGroup Γ] {gen : ι → Γ} {W : ρ → PWord ι}
+    (h : IsMarkedPresentation Γ gen W) (J : Set ι) :
+    IsAdmissibleMarkedPresentation Γ gen W J :=
+  ⟨h.gen_top, fun φ k => h.rel φ k, fun f hf _ => h.extend f hf⟩
 
 /-- **Rigidity**: a continuous hom out of `Γ` into a Hausdorff group is determined by its values on
 the marked letters.  This is the uniqueness half of the presentation, and it is what makes both
@@ -281,6 +325,99 @@ theorem eq_of_eqOn_gen {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologic
   exact DFunLike.ext _ _ fun γ => hall (Subgroup.mem_top γ)
 
 end Presentation
+
+/-! ## §2.1. The word lane's family, resolved *at a target*
+
+The word complex `heisD1 c w` of §1 is built from a `FreeGroup ι`-family, because `FreeGroup` is
+where Fox calculus lives and `^ᶻ` is meaningless there.  The presentation of §2 is built from the
+`PWord`-family, because that is where the relators of `Γ` actually live.  `ResolvesAt` is the
+one-line predicate connecting them **at a single finite discrete target**, which is the only place
+the connection is either needed or true.
+
+The pair of theorems below is the whole content of the redesign:
+
+* `ResolvesAt.pushforward` — the predicate transports along any continuous hom of targets, so a
+  resolution at the split group `A ⋊ C` gives one at `C` for free.  This is why §3 needs *one*
+  resolution hypothesis and not two.
+* `resolvesAt_heisToFree` — the resolution **holds** for the family resolved at the target's own
+  exponent level, on `ω₂`-only words.  There is no global choice to make and nothing to assume:
+  `omega2Exp N` is a function of the target.
+
+Contrast the seam this replaces (`Count/Presentation.lean`'s `ResolvesGammaRelators`), which asked
+for *one* `FreeGroup`-family to agree with the intrinsic relators in `F` itself.  CB-RES proved
+that impossible. -/
+
+section Resolution
+
+variable {ι ρ : Type*}
+
+/-- **Naturality of `FreeGroup.lift`**: pushing a word evaluation forward along a homomorphism is
+evaluating at the pushed marking.  (The `PWord` twin is `PWord.map_eval`.) -/
+theorem map_freeGroup_lift {G H : Type*} [Group G] [Group H] (π : G →* H) (f : ι → G)
+    (v : FreeGroup ι) : π (FreeGroup.lift f v) = FreeGroup.lift (fun i => π (f i)) v := by
+  have h : π.comp (FreeGroup.lift f) = FreeGroup.lift fun i => π (f i) := by
+    apply FreeGroup.ext_hom
+    intro i
+    rw [MonoidHom.comp_apply, FreeGroup.lift_apply_of, FreeGroup.lift_apply_of]
+  exact congrArg (fun ψ : FreeGroup ι →* H => ψ v) h
+
+/-- **`w` resolves `W` at the finite discrete target `Q`**: at every marking of `Q` the word
+lane's `FreeGroup`-denotation of `w` is the profinite denotation of `W`.
+
+This is a statement *about one target*.  It is the honest replacement for a global "the two
+families are the same element of `F`", which is false for every `w` as soon as `W` carries a
+genuine `ω₂` (CB-RES §5). -/
+def ResolvesAt (W : ρ → PWord ι) (w : ρ → FreeGroup ι) (Q : Type) [Group Q] [TopologicalSpace Q]
+    [DiscreteTopology Q] [Finite Q] : Prop :=
+  ∀ (f : ι → Q) (k : ρ), FreeGroup.lift f (w k) = PWord.eval f (W k)
+
+variable {W : ρ → PWord ι} {w : ρ → FreeGroup ι}
+
+/-- **Resolutions push forward.**  Both denotations are natural, so a resolution at `Q` gives the
+resolving identity at any marking of `Q` that is the pushforward of a marking of `Q`.
+
+Used once, at `π = baseProjC` and `f = foxLift c x`: the resolution `z1Equiv` assumes at the split
+group `A ⋊ C` yields the one `lower_rel` needs at `C`. -/
+theorem ResolvesAt.pushforward {Q : Type} [Group Q] [TopologicalSpace Q] [DiscreteTopology Q]
+    [Finite Q] {Q' : Type} [Group Q'] [TopologicalSpace Q'] [DiscreteTopology Q'] [Finite Q']
+    (h : ResolvesAt W w Q) (π : ContinuousMonoidHom Q Q') {f : ι → Q} {f' : ι → Q'}
+    (hf : ∀ i, π (f i) = f' i) (k : ρ) : FreeGroup.lift f' (w k) = PWord.eval f' (W k) := by
+  have hfe : (fun i => π (f i)) = f' := funext hf
+  have hlift : FreeGroup.lift f' (w k) = π (FreeGroup.lift f (w k)) := by
+    have hcomp : π.toMonoidHom.comp (FreeGroup.lift f) = FreeGroup.lift f' := by
+      apply FreeGroup.ext_hom
+      intro i
+      rw [MonoidHom.comp_apply, FreeGroup.lift_apply_of, FreeGroup.lift_apply_of]
+      exact hf i
+    exact (congrArg (fun ψ : FreeGroup ι →* Q' => ψ (w k)) hcomp).symm
+  rw [hlift, h f k, PWord.map_eval π f (W k), hfe]
+
+/-- **The target-chosen resolver is correct.**  On `ω₂`-only words, the `heisToFree` family
+resolved at `omega2Exp N` — for *any* `N` killing the target — resolves the intrinsic family
+there.  This is `PWord.eval_eq_evalNat_of_dvd`, which is exactly the tool the seam always needed
+and never had, because it can only be applied once a target is in hand.
+
+Take `N = Monoid.exponent Q` for the canonical choice (`resolvesAt_heisToFree_exponent`); the
+frozen branch resolver `e = 3` is `omega2Exp 6`, hence correct at every target of exponent
+dividing `6`. -/
+theorem resolvesAt_heisToFree {Q : Type} [Group Q] [TopologicalSpace Q] [DiscreteTopology Q]
+    [Finite Q] {N : ℕ} (hN : N ≠ 0) (hord : ∀ x : Q, orderOf x ∣ N)
+    (hW : ∀ k, (W k).IsOmega2Only) :
+    ResolvesAt W (fun k => heisToFree (fun _ => (omega2Exp N : ℤ))
+      (fun _ => (omega2Exp N : ℤ)) (W k)) Q := by
+  intro f k
+  rw [← evalZ_eq_lift_heisToFree f _ _ (W k)]
+  exact (PWord.eval_eq_evalNat_of_dvd hN hord f (hW k)).symm
+
+/-- The canonical choice of level: the target's own exponent. -/
+theorem resolvesAt_heisToFree_exponent {Q : Type} [Group Q] [TopologicalSpace Q]
+    [DiscreteTopology Q] [Finite Q] (hW : ∀ k, (W k).IsOmega2Only) :
+    ResolvesAt W (fun k => heisToFree (fun _ => (omega2Exp (Monoid.exponent Q) : ℤ))
+      (fun _ => (omega2Exp (Monoid.exponent Q) : ℤ)) (W k)) Q :=
+  resolvesAt_heisToFree Monoid.exponent_ne_zero_of_finite
+    (fun x => Monoid.order_dvd_exponent x) hW
+
+end Resolution
 
 /-! ### Admissibility of the Fox lifted marking
 
@@ -358,7 +495,7 @@ variable {ι ρ : Type*} {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopolog
   {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
   [DistribMulAction C A] [DistribMulAction Γ A] [ContinuousSMul Γ A]
   [TopologicalSpace (WordLift A C)] [DiscreteTopology (WordLift A C)]
-  {gen : ι → Γ} {w : ρ → FreeGroup ι} {c : ι → C} {J : Set ι}
+  {gen : ι → Γ} {W : ρ → PWord ι} {w : ρ → FreeGroup ι} {c : ι → C} {J : Set ι}
   (rho : ContinuousMonoidHom Γ C) (hcompat : ∀ (γ : Γ) (a : A), γ • a = rho γ • a)
   (hc : ∀ i, rho (gen i) = c i)
 
@@ -407,7 +544,11 @@ theorem foxLift_evalGen (z : Z1 Γ A) :
 omit [IsTopologicalGroup Γ] [Finite C] [Finite A] [ContinuousSMul Γ A]
   [DiscreteTopology (WordLift A C)] in
 include hc in
-/-- The split word evaluation at `evalGen z` is `wordHom z` of the word's value in `Γ`. -/
+/-- The split word evaluation at `evalGen z` is `wordHom z` of the word's value in `Γ`.
+
+⚠ No longer consumed: `evalGen_mem_ker` used to route through the word's value *in `Γ`*, which is
+meaningless once the relators are `PWord`s (`Γ` is not finite, so it has no resolved relators).
+Kept as API — it is the honest statement about the `FreeGroup` family. -/
 theorem lift_foxLift_evalGen (z : Z1 Γ A) (r : FreeGroup ι) :
     FreeGroup.lift (foxLift c (evalGen gen z)) r
       = wordHom rho hcompat z (FreeGroup.lift gen r) := by
@@ -421,7 +562,10 @@ theorem lift_foxLift_evalGen (z : Z1 Γ A) (r : FreeGroup ι) :
 
 omit [IsTopologicalGroup Γ] [DiscreteTopology C] [Finite C] in
 include hc in
-/-- The lower marking is the pushforward of the presented marking along `ρ`. -/
+/-- The lower marking is the pushforward of the presented marking along `ρ`.
+
+⚠ No longer consumed, for the same reason as `lift_foxLift_evalGen`: `lower_rel` now goes through
+clause (ii) at the target and `ResolvesAt.pushforward`, not through a relator value in `Γ`. -/
 theorem lift_lower (r : FreeGroup ι) : FreeGroup.lift c r = rho (FreeGroup.lift gen r) := by
   have h : FreeGroup.lift c = rho.toMonoidHom.comp (FreeGroup.lift gen) := by
     apply FreeGroup.ext_hom
@@ -430,14 +574,22 @@ theorem lift_lower (r : FreeGroup ι) : FreeGroup.lift c r = rho (FreeGroup.lift
     exact (hc i).symm
   exact congrArg (fun φ : FreeGroup ι →* C => φ r) h
 
-omit [DiscreteTopology C] [Finite C] in
+omit [TopologicalSpace A] [DiscreteTopology A] [DistribMulAction Γ A] [ContinuousSMul Γ A] in
 include hc in
 /-- **The relator hypothesis of the whole word lane, for free.**  `hr` is the input every CB-S
 theorem takes; a presented `Γ` supplies it, so no branch has to re-verify relator death downstream
-of the marking. -/
-theorem lower_rel (hpres : IsAdmissibleMarkedPresentation Γ gen w J) (k : ρ) :
-    FreeGroup.lift c (w k) = 1 := by
-  rw [lift_lower rho hc, hpres.rel k, map_one]
+of the marking.
+
+Two ingredients, and this is where the redesign pays: clause (ii) at the target `C` says the
+*intrinsic* relators die there, and `hres` — the resolution at the split group, pushed down to `C`
+along `baseProjC` — identifies that with the word lane's family.  Neither step needs a global
+integer representative of `ω₂`, and neither is available without a target in hand. -/
+theorem lower_rel (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W w (WordLift A C)) (k : ρ) : FreeGroup.lift c (w k) = 1 := by
+  have hpush := hres.pushforward (baseProjC (A := A) (C := C))
+    (f := foxLift c (0 : ι → A)) (f' := c) (fun _ => rfl) k
+  rw [hpush, show c = fun i => rho (gen i) from (funext hc).symm]
+  exact hpres.rel rho k
 
 omit [Finite C] in
 include hc in
@@ -446,7 +598,7 @@ include hc in
 `hgen` input of CB-S's `fixedPts` bridge (`card_ker_heisD0_eq_card_fixedPts`), which is otherwise
 an extra obligation on every branch.  Discreteness of `C` is what upgrades "topologically
 generates" to "generates". -/
-theorem closure_range_lower_eq_top (hpres : IsAdmissibleMarkedPresentation Γ gen w J)
+theorem closure_range_lower_eq_top (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
     (hsurj : Function.Surjective rho) : Subgroup.closure (Set.range c) = ⊤ := by
   set H := Subgroup.closure (Set.range c) with hH
   have hle : Subgroup.closure (Set.range gen) ≤ H.comap rho.toMonoidHom := by
@@ -462,33 +614,43 @@ theorem closure_range_lower_eq_top (hpres : IsAdmissibleMarkedPresentation Γ ge
   obtain ⟨γ, rfl⟩ := hsurj x
   exact hall (Subgroup.mem_top γ)
 
-omit [Finite C] [Finite A] [ContinuousSMul Γ A] [DiscreteTopology (WordLift A C)] in
+omit [ContinuousSMul Γ A] in
 include hcompat hc in
-/-- **Forward: the evaluation lands in `Z¹w`.**  Each relator dies in `Γ`, so its lifted word value
-is `wordHom z 1 = 1`, whose offset is `0`. -/
-theorem evalGen_mem_ker (hpres : IsAdmissibleMarkedPresentation Γ gen w J) (z : Z1 Γ A) :
+/-- **Forward: the evaluation lands in `Z¹w`.**  The Fox lifted marking at `evalGen z` *is* the
+restriction of the split hom `wordHom z` to the letters, so the relators die there by clause (ii)
+read at the target `A ⋊ C` — and `hres` carries that to the word lane's family.
+
+The `ℚ₂` ancestor argues in `Γ` ("the relator is `1` in `Γ`, so its lifted value is `wordHom 1`").
+That step is unavailable, and *should* be: `Γ` is not finite, so its relators have no
+integer-resolved form.  Reading clause (ii) at the finite target instead is the whole redesign in
+one line. -/
+theorem evalGen_mem_ker (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W w (WordLift A C)) (z : Z1 Γ A) :
     evalGen gen z ∈ (heisD1 (A := A) c w).ker := by
-  refine (mem_ker_heisD1_iff (lower_rel rho hc hpres) _).mpr fun k => ?_
-  rw [lift_foxLift_evalGen rho hcompat hc z, hpres.rel k, map_one]
+  refine (mem_ker_heisD1_iff (lower_rel rho hc hpres hres) _).mpr fun k => ?_
+  rw [hres _ k, foxLift_evalGen rho hcompat hc z]
+  exact hpres.rel (wordHom rho hcompat z) k
 
 include hcompat hc in
 /-- The forward map, bundled additively. -/
-noncomputable def toZ1w (hpres : IsAdmissibleMarkedPresentation Γ gen w J) :
-    Z1 Γ A →+ ↥(heisD1 (A := A) c w).ker :=
+noncomputable def toZ1w (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W w (WordLift A C)) : Z1 Γ A →+ ↥(heisD1 (A := A) c w).ker :=
   AddMonoidHom.mk'
-    (fun z => ⟨evalGen gen z, evalGen_mem_ker rho hcompat hc hpres z⟩)
+    (fun z => ⟨evalGen gen z, evalGen_mem_ker rho hcompat hc hpres hres z⟩)
     (fun _ _ => Subtype.ext (funext fun _ => rfl))
 
-omit [Finite C] [Finite A] [ContinuousSMul Γ A] [DiscreteTopology (WordLift A C)] in
-@[simp] theorem toZ1w_coe (hpres : IsAdmissibleMarkedPresentation Γ gen w J) (z : Z1 Γ A) :
-    (toZ1w rho hcompat hc hpres z : ι → A) = fun i => z.1 (gen i) := rfl
+omit [ContinuousSMul Γ A] in
+@[simp] theorem toZ1w_coe (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W w (WordLift A C)) (z : Z1 Γ A) :
+    (toZ1w rho hcompat hc hpres hres z : ι → A) = fun i => z.1 (gen i) := rfl
 
 omit [ContinuousSMul Γ A] in
 include hcompat hc in
 /-- **Injective**, by §2's rigidity: two cocycles agreeing on the marked letters have `wordHom`s
 agreeing on the marked letters, hence equal `wordHom`s, hence are equal. -/
-theorem toZ1w_injective (hpres : IsAdmissibleMarkedPresentation Γ gen w J) :
-    Function.Injective (toZ1w rho hcompat hc hpres) := by
+theorem toZ1w_injective (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W w (WordLift A C)) :
+    Function.Injective (toZ1w rho hcompat hc hpres hres) := by
   intro z z' hzz
   have hgen : ∀ i, wordHom rho hcompat z (gen i) = wordHom rho hcompat z' (gen i) := fun i =>
     WordLift.ext (congrFun (congrArg Subtype.val hzz) i) rfl
@@ -505,13 +667,16 @@ exactly what makes its offset coordinate a crossed cocycle.
 ⚠ This is the **only** consumer of clause (iii), so it is the only place the restriction bites:
 the marking handed to `extend` is `foxLift c x`, and its admissibility has to be *proved*.
 `isWildTwo_foxLift` does that from the two side conditions `hA₂`/`hwild2`, which are therefore
-exactly the price of the weakening — nothing else in §3 changes. -/
-theorem toZ1w_surjective (hpres : IsAdmissibleMarkedPresentation Γ gen w J)
-    (hA₂ : ∀ a : A, a + a = 0) (hwild2 : IsWildTwo J c) :
-    Function.Surjective (toZ1w rho hcompat hc hpres) := by
+exactly the price of the weakening — nothing else in §3 changes.  The redesign does not touch this
+analysis: `hA₂`/`hwild2` survive verbatim, and the only new step is `hres`, converting the word
+lane's kernel condition into clause (iii)'s intrinsic one at the *same* marking. -/
+theorem toZ1w_surjective (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W w (WordLift A C)) (hA₂ : ∀ a : A, a + a = 0) (hwild2 : IsWildTwo J c) :
+    Function.Surjective (toZ1w rho hcompat hc hpres hres) := by
   rintro ⟨x, hx⟩
   obtain ⟨φ, hφ⟩ := hpres.extend (foxLift c x)
-    ((mem_ker_heisD1_iff (lower_rel rho hc hpres) x).mp hx)
+    (fun k => (hres (foxLift c x) k).symm.trans
+      ((mem_ker_heisD1_iff (lower_rel rho hc hpres hres) x).mp hx k))
     (isWildTwo_foxLift hA₂ hwild2 x)
   have hbase : (baseProjC (A := A) (C := C)).comp φ = rho := by
     refine eq_of_eqOn_gen hpres.gen_top fun i => ?_
@@ -537,27 +702,32 @@ marking or the number of relators; the `ℚ₂` `4` and `2` are `Nat.card ι` an
 ⚠ The presentation hypothesis is the **restricted** one, and the two side conditions are the
 exact price: `hA₂` says the coefficient module is `2`-torsion, `hwild2` that the *lower* marking
 `c` is admissible.  Both are consumed in one place, `toZ1w_surjective`; the injectivity half is
-untouched, since rigidity never invokes clause (iii). -/
-noncomputable def z1Equiv (hpres : IsAdmissibleMarkedPresentation Γ gen w J)
-    (hA₂ : ∀ a : A, a + a = 0) (hwild2 : IsWildTwo J c) :
+untouched, since rigidity never invokes clause (iii).
+
+⚠ `hres` is the **target-local** resolution: it says the word lane's family computes the intrinsic
+relators *in `A ⋊ C`*, which `resolvesAt_heisToFree` supplies for the family resolved at the
+target.  It is not, and cannot be, a global identification of the two families. -/
+noncomputable def z1Equiv (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W w (WordLift A C)) (hA₂ : ∀ a : A, a + a = 0) (hwild2 : IsWildTwo J c) :
     Z1 Γ A ≃+ ↥(heisD1 (A := A) c w).ker :=
-  AddEquiv.ofBijective (toZ1w rho hcompat hc hpres)
-    ⟨toZ1w_injective rho hcompat hc hpres,
-      toZ1w_surjective rho hcompat hc hpres hA₂ hwild2⟩
+  AddEquiv.ofBijective (toZ1w rho hcompat hc hpres hres)
+    ⟨toZ1w_injective rho hcompat hc hpres hres,
+      toZ1w_surjective rho hcompat hc hpres hres hA₂ hwild2⟩
 
 omit [ContinuousSMul Γ A] in
-@[simp] theorem z1Equiv_coe (hpres : IsAdmissibleMarkedPresentation Γ gen w J)
-    (hA₂ : ∀ a : A, a + a = 0) (hwild2 : IsWildTwo J c) (z : Z1 Γ A) :
-    ((z1Equiv rho hcompat hc hpres hA₂ hwild2 z : ↥(heisD1 (A := A) c w).ker) : ι → A)
+@[simp] theorem z1Equiv_coe (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W w (WordLift A C)) (hA₂ : ∀ a : A, a + a = 0) (hwild2 : IsWildTwo J c)
+    (z : Z1 Γ A) :
+    ((z1Equiv rho hcompat hc hpres hres hA₂ hwild2 z : ↥(heisD1 (A := A) c w).ker) : ι → A)
       = fun i => z.1 (gen i) := rfl
 
 omit [ContinuousSMul Γ A] in
 include hcompat hc in
 /-- The cardinality form: **this is the equation the whole count lane transports along.** -/
-theorem card_Z1_eq_card_wordZ1 (hpres : IsAdmissibleMarkedPresentation Γ gen w J)
-    (hA₂ : ∀ a : A, a + a = 0) (hwild2 : IsWildTwo J c) :
+theorem card_Z1_eq_card_wordZ1 (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W w (WordLift A C)) (hA₂ : ∀ a : A, a + a = 0) (hwild2 : IsWildTwo J c) :
     Nat.card (Z1 Γ A) = Nat.card ↥(heisD1 (A := A) c w).ker :=
-  Nat.card_congr (z1Equiv rho hcompat hc hpres hA₂ hwild2).toEquiv
+  Nat.card_congr (z1Equiv rho hcompat hc hpres hres hA₂ hwild2).toEquiv
 
 /-! ### The `H¹` descent
 
@@ -567,10 +737,10 @@ marked letter `gen i` is `gen i • m − m = cᵢ • m − m = (d⁰m)ᵢ` —
 
 include hcompat hc in
 /-- The comparison carries `B¹(Γ, A)` exactly onto `im d⁰`. -/
-theorem map_B1 (hpres : IsAdmissibleMarkedPresentation Γ gen w J)
-    (hA₂ : ∀ a : A, a + a = 0) (hwild2 : IsWildTwo J c) :
+theorem map_B1 (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W w (WordLift A C)) (hA₂ : ∀ a : A, a + a = 0) (hwild2 : IsWildTwo J c) :
     ((B1 Γ A).addSubgroupOf (Z1 Γ A)).map
-        (z1Equiv rho hcompat hc hpres hA₂ hwild2).toAddMonoidHom
+        (z1Equiv rho hcompat hc hpres hres hA₂ hwild2).toAddMonoidHom
       = (heisD0 (A := A) c).range.addSubgroupOf (heisD1 (A := A) c w).ker := by
   have hcob : ∀ (m : A) (z : Z1 Γ A), dZero Γ A m = z.1 → evalGen gen z = heisD0 (A := A) c m := by
     intro m z hm
@@ -592,11 +762,11 @@ theorem map_B1 (hpres : IsAdmissibleMarkedPresentation Γ gen w J)
 include hcompat hc in
 /-- **`H¹` of a presented `Γ` is the word complex's `H¹`** — the degree-generic `h1Equiv`
 (CB1 memo §3.4's second half). -/
-noncomputable def h1Equiv (hpres : IsAdmissibleMarkedPresentation Γ gen w J)
-    (hA₂ : ∀ a : A, a + a = 0) (hwild2 : IsWildTwo J c) :
+noncomputable def h1Equiv (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W w (WordLift A C)) (hA₂ : ∀ a : A, a + a = 0) (hwild2 : IsWildTwo J c) :
     H1 Γ A ≃+ StokesH1 (heisD0 (A := A) c) (heisD1 (A := A) c w) :=
-  QuotientAddGroup.congr _ _ (z1Equiv rho hcompat hc hpres hA₂ hwild2)
-    (map_B1 rho hcompat hc hpres hA₂ hwild2)
+  QuotientAddGroup.congr _ _ (z1Equiv rho hcompat hc hpres hres hA₂ hwild2)
+    (map_B1 rho hcompat hc hpres hres hA₂ hwild2)
 
 end Comparison
 
@@ -685,7 +855,7 @@ variable {ι κ : Type*} [Fintype ι] [Fintype κ] [DecidableEq ι]
   [DistribMulAction Γ (Additive ↥D.T)] [ContinuousSMul Γ (Additive ↥D.T)]
   [TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
   [DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
-  {gen : ι → Γ} {w : κ → FreeGroup ι} {c : ι → Bg ⧸ D.M} {J : Set ι}
+  {gen : ι → Γ} {W : κ → PWord ι} {w : κ → FreeGroup ι} {c : ι → Bg ⧸ D.M} {J : Set ι}
   (rho : ContinuousMonoidHom Γ (Bg ⧸ D.M))
   (hcomp : ∀ (γ : Γ) (a : Additive ↥D.T), γ • a = rho γ • a)
   (hc : ∀ i, rho (gen i) = c i)
@@ -699,7 +869,8 @@ include hcomp hc in
 `GQ2/Dyadic/SourceDataN.lean:229` asks for, with `Bg := RF.YB`, `D := En.radData l h` and
 `ρ := rhoPrimeK RF b F …`; at `n = 1` it is the frozen `#T² · #(T^∨)^{Y_B/M}` of
 `Phase140/GammaA/Foundation.lean:113`, whose `²` was `|ι| − |ρ|`. -/
-theorem tcocycle_cardN {n : ℕ} (hpres : IsAdmissibleMarkedPresentation Γ gen w J)
+theorem tcocycle_cardN {n : ℕ} (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W w (WordLift (Additive ↥D.T) (Bg ⧸ D.M)))
     (hT₂ : ∀ a : Additive ↥D.T, a + a = 0) (hwild2 : IsWildTwo J c)
     (hsurj : Function.Surjective rho) (hdeg : Nat.card ι = Nat.card κ + (n + 1))
     (hd : StokesDuality c w (Additive ↥D.T)) (hend : IsStokesEndpoint w) :
@@ -707,9 +878,9 @@ theorem tcocycle_cardN {n : ℕ} (hpres : IsAdmissibleMarkedPresentation Γ gen 
       = (standardNumerics n).tMult (Nat.card (Additive ↥D.T))
         * Nat.card (fixedPts (Bg ⧸ D.M) (ElemDual (Additive ↥D.T))) := by
   rw [Nat.card_congr (tcocycleEquivZ1 rho hcomp),
-    card_Z1_eq_card_wordZ1 rho hcomp hc hpres hT₂ hwild2,
+    card_Z1_eq_card_wordZ1 rho hcomp hc hpres hres hT₂ hwild2,
     tcocycle_card_shape_fixedPts
-      (isSelfDualN_of_stokesDuality hdeg hd (lower_rel rho hc hpres) hend)
+      (isSelfDualN_of_stokesDuality hdeg hd (lower_rel rho hc hpres hres) hend)
       (closure_range_lower_eq_top rho hc hpres hsurj)]
 
 end TCocycleCount
@@ -775,7 +946,7 @@ variable {ι κ : Type*} [Fintype ι] [Fintype κ] [DecidableEq ι]
   [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod]
   [DistribMulAction E DD.Vmod] [DistribMulAction Γ DD.Vmod] [ContinuousSMul Γ DD.Vmod]
   [TopologicalSpace (WordLift DD.Vmod E)] [DiscreteTopology (WordLift DD.Vmod E)]
-  {gen : ι → Γ} {w : κ → FreeGroup ι} {c : ι → E} {J : Set ι}
+  {gen : ι → Γ} {W : κ → PWord ι} {w : κ → FreeGroup ι} {c : ι → E} {J : Set ι}
   {rho : ContinuousMonoidHom Γ (Bg ⧸ D.M)} (theta : ContinuousMonoidHom Γ E)
   (hround : ∀ (γ : Γ) (v : DD.Vmod), rho0 DD rho γ • v = theta γ • v)
   (hact : ∀ (γ : Γ) (v : DD.Vmod), γ • v = theta γ • v)
@@ -787,7 +958,8 @@ include hround hact hc in
 
 The shape `GQ2/Dyadic/SourceDataN.lean:274` asks for.  `hsimple`/`hnt` are the record's own
 binders; at `n = 1` this is the frozen `#V · #V` of `Phase140/GammaA/Foundation.lean:48`. -/
-theorem hZcardN {n : ℕ} (hpres : IsAdmissibleMarkedPresentation Γ gen w J)
+theorem hZcardN {n : ℕ} (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W w (WordLift DD.Vmod E))
     (hV₂ : ∀ v : DD.Vmod, v + v = 0) (hwild2 : IsWildTwo J c)
     (hsurj : Function.Surjective theta) (hdeg : Nat.card ι = Nat.card κ + (n + 1))
     (hd : StokesDuality c w DD.Vmod) (hend : IsStokesEndpoint w)
@@ -795,9 +967,9 @@ theorem hZcardN {n : ℕ} (hpres : IsAdmissibleMarkedPresentation Γ gen w J)
     Nat.card (VCocycle DD rho)
       = Nat.card DD.Vmod * (standardNumerics n).h1Mult (Nat.card DD.Vmod) := by
   rw [Nat.card_congr (vcocycleEquivZ1 theta hround hact),
-    card_Z1_eq_card_wordZ1 theta hact hc hpres hV₂ hwild2,
+    card_Z1_eq_card_wordZ1 theta hact hc hpres hres hV₂ hwild2,
     hZcard_shape_of_simple
-      (isSelfDualN_of_stokesDuality hdeg hd (lower_rel theta hc hpres) hend)
+      (isSelfDualN_of_stokesDuality hdeg hd (lower_rel theta hc hpres hres) hend)
       (closure_range_lower_eq_top theta hc hpres hsurj) hsimple hnt]
 
 end VCocycleCount
@@ -826,11 +998,12 @@ omit [ContinuousSMul Γ (Additive ↥D.T)] in
 family `nCompactFam α h q e` the deficiency is `2h + 2`, so the count is
 `SN.tMult #T · #(T^∨)^{Bg/M}` for `SN = standardNumerics (2h + 2)`. -/
 theorem nCompact_tcocycle_card {α h q e : ℕ} {gen : Generator (2 + 2 * h) → Γ}
-    {J : Set (Generator (2 + 2 * h))}
+    {W : Fin 2 → PWord (Generator (2 + 2 * h))} {J : Set (Generator (2 + 2 * h))}
     {t : Marking (2 + 2 * h) (Bg ⧸ D.M)} (rho : ContinuousMonoidHom Γ (Bg ⧸ D.M))
     (hcomp : ∀ (γ : Γ) (a : Additive ↥D.T), γ • a = rho γ • a)
     (hc : ∀ i, rho (gen i) = t i)
-    (hpres : IsAdmissibleMarkedPresentation Γ gen (nCompactFam α h q e) J)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W (nCompactFam α h q e) (WordLift (Additive ↥D.T) (Bg ⧸ D.M)))
     (hT₂ : ∀ a : Additive ↥D.T, a + a = 0) (hwild2 : IsWildTwo J (⇑t))
     (hsurj : Function.Surjective rho)
     (hd : StokesDuality (⇑t) (nCompactFam α h q e) (Additive ↥D.T))
@@ -838,26 +1011,28 @@ theorem nCompact_tcocycle_card {α h q e : ℕ} {gen : Generator (2 + 2 * h) →
     Nat.card (TCocycle D rho)
       = (standardNumerics (2 * h + 2)).tMult (Nat.card (Additive ↥D.T))
         * Nat.card (fixedPts (Bg ⧸ D.M) (ElemDual (Additive ↥D.T))) :=
-  tcocycle_cardN rho hcomp hc hpres hT₂ hwild2 hsurj (nCompact_degree h) hd hend
+  tcocycle_cardN rho hcomp hc hpres hres hT₂ hwild2 hsurj (nCompact_degree h) hd hend
 
 omit [ContinuousSMul Γ (Additive ↥D.T)] in
 /-- **The `√−2` pilot** (`(α, h, q, e) = (2, 0, 2, 3)`, `n = 2 = [ℚ₂(√−2) : ℚ₂]`): the
 `SourceDataN.tcocycle_card` field value for AS2's branch, with N0's own endpoint certificate and
 CB-S's value bridge composed in.  Nothing here is fudged: `standardNumerics 2`'s `tMult T = T³`
 **is** the deficiency `2h + 2 + 1 = 3` of the two-relator compact-`N` presentation. -/
-theorem sqrtNegTwo_tcocycle_card {gen : Generator 2 → Γ} {J : Set (Generator 2)}
+theorem sqrtNegTwo_tcocycle_card {gen : Generator 2 → Γ} {W : Fin 2 → PWord (Generator 2)}
+    {J : Set (Generator 2)}
     {t : Marking 2 (Bg ⧸ D.M)}
     (rho : ContinuousMonoidHom Γ (Bg ⧸ D.M))
     (hcomp : ∀ (γ : Γ) (a : Additive ↥D.T), γ • a = rho γ • a)
     (hc : ∀ i, rho (gen i) = t i)
-    (hpres : IsAdmissibleMarkedPresentation Γ gen (nCompactFam 2 0 2 3) J)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W (nCompactFam 2 0 2 3) (WordLift (Additive ↥D.T) (Bg ⧸ D.M)))
     (hT₂ : ∀ a : Additive ↥D.T, a + a = 0) (hwild2 : IsWildTwo J (⇑t))
     (hsurj : Function.Surjective rho)
     (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 3) (Additive ↥D.T)) :
     Nat.card (TCocycle D rho)
       = (standardNumerics 2).tMult (Nat.card (Additive ↥D.T))
         * Nat.card (fixedPts (Bg ⧸ D.M) (ElemDual (Additive ↥D.T))) :=
-  nCompact_tcocycle_card (h := 0) rho hcomp hc hpres hT₂ hwild2 hsurj hd
+  nCompact_tcocycle_card (h := 0) rho hcomp hc hpres hres hT₂ hwild2 hsurj hd
     sqrtNegTwo_isStokesEndpoint
 
 end N0
@@ -882,13 +1057,14 @@ variable {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Fin
 /-- **The `V`-cocycle count at branch N0**: `#Z¹(V) = #V · SN.h1Mult #V` for
 `SN = standardNumerics (2h + 2)`. -/
 theorem nCompact_hZcard {α h q e : ℕ} {gen : Generator (2 + 2 * h) → Γ}
-    {J : Set (Generator (2 + 2 * h))}
+    {W : Fin 2 → PWord (Generator (2 + 2 * h))} {J : Set (Generator (2 + 2 * h))}
     {t : Marking (2 + 2 * h) E} {rho : ContinuousMonoidHom Γ (Bg ⧸ D.M)}
     (theta : ContinuousMonoidHom Γ E)
     (hround : ∀ (γ : Γ) (v : DD.Vmod), rho0 DD rho γ • v = theta γ • v)
     (hact : ∀ (γ : Γ) (v : DD.Vmod), γ • v = theta γ • v)
     (hc : ∀ i, theta (gen i) = t i)
-    (hpres : IsAdmissibleMarkedPresentation Γ gen (nCompactFam α h q e) J)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W (nCompactFam α h q e) (WordLift DD.Vmod E))
     (hV₂ : ∀ v : DD.Vmod, v + v = 0) (hwild2 : IsWildTwo J (⇑t))
     (hsurj : Function.Surjective theta)
     (hd : StokesDuality (⇑t) (nCompactFam α h q e) DD.Vmod)
@@ -896,24 +1072,26 @@ theorem nCompact_hZcard {α h q e : ℕ} {gen : Generator (2 + 2 * h) → Γ}
     (hsimple : IsSimpleModTwo E DD.Vmod) (hnt : ∃ (g : E) (v : DD.Vmod), g • v ≠ v) :
     Nat.card (VCocycle DD rho)
       = Nat.card DD.Vmod * (standardNumerics (2 * h + 2)).h1Mult (Nat.card DD.Vmod) :=
-  hZcardN theta hround hact hc hpres hV₂ hwild2 hsurj (nCompact_degree h) hd hend hsimple hnt
+  hZcardN theta hround hact hc hpres hres hV₂ hwild2 hsurj (nCompact_degree h) hd hend hsimple hnt
 
 /-- **The `√−2` pilot, `V`-side**: the `SourceDataN.hZcard` field value for AS2's branch at
 `n = 2`, so `h1Mult V = V²` and the count is `#V³` — the degree-`2` replacement for the frozen
 `ℚ₂` `#V · #V`. -/
-theorem sqrtNegTwo_hZcard {gen : Generator 2 → Γ} {J : Set (Generator 2)} {t : Marking 2 E}
+theorem sqrtNegTwo_hZcard {gen : Generator 2 → Γ} {W : Fin 2 → PWord (Generator 2)}
+    {J : Set (Generator 2)} {t : Marking 2 E}
     {rho : ContinuousMonoidHom Γ (Bg ⧸ D.M)} (theta : ContinuousMonoidHom Γ E)
     (hround : ∀ (γ : Γ) (v : DD.Vmod), rho0 DD rho γ • v = theta γ • v)
     (hact : ∀ (γ : Γ) (v : DD.Vmod), γ • v = theta γ • v)
     (hc : ∀ i, theta (gen i) = t i)
-    (hpres : IsAdmissibleMarkedPresentation Γ gen (nCompactFam 2 0 2 3) J)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W (nCompactFam 2 0 2 3) (WordLift DD.Vmod E))
     (hV₂ : ∀ v : DD.Vmod, v + v = 0) (hwild2 : IsWildTwo J (⇑t))
     (hsurj : Function.Surjective theta)
     (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 3) DD.Vmod)
     (hsimple : IsSimpleModTwo E DD.Vmod) (hnt : ∃ (g : E) (v : DD.Vmod), g • v ≠ v) :
     Nat.card (VCocycle DD rho)
       = Nat.card DD.Vmod * (standardNumerics 2).h1Mult (Nat.card DD.Vmod) :=
-  nCompact_hZcard (h := 0) theta hround hact hc hpres hV₂ hwild2 hsurj hd
+  nCompact_hZcard (h := 0) theta hround hact hc hpres hres hV₂ hwild2 hsurj hd
     sqrtNegTwo_isStokesEndpoint hsimple hnt
 
 end N0V

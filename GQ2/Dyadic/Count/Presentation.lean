@@ -7,7 +7,7 @@ import GQ2.Dyadic.Count.Compare
 import GQ2.Dyadic.AdmissibleR
 
 /-!
-# `Γ_R` is an admissibly marked presentation (dyadic campaign, ticket CB-MP)
+# `Γ_R` is an admissibly marked presentation (dyadic campaign, tickets CB-MP, CB-TR)
 
 CB-1 proved the count lane's comparison isomorphism `z1Equiv` degree-generically over an abstract
 carrier, against a hypothesis class `IsMarkedPresentation` whose clause (iii) reads *every*
@@ -27,47 +27,59 @@ clause (iii) asks only for markings satisfying `Count.IsWildTwo` — the normal 
 images of the wild letters is a `2`-group.  That property is CB-1's with (iii) weakened, and
 `Count.IsMarkedPresentation.toAdmissible` records that the plain class implies it.
 
+## ⚠ The seam is gone (ticket CB-TR)
+
+CB-MP shipped this file with one undischarged hypothesis, `ResolvesGammaRelators n q R w`: the
+word lane's `heisToFree`-resolved family `w` and the profinite relator set `gammaRelators n q R`
+cut out the same closed normal subgroup of `F`.  CB-RES then **refuted** it: `ω₂` is a profinite
+exponent, `Count.zpowHat_omega2_ne_zpow` shows no integer represents it in `F`, and
+`Count.lift_gammaGen_nCompactFam_ne_one` shows the resolved relator is a nontrivial element of
+`Γ_R` itself — so the hypothesis is not merely unproved but false at the intrinsic branch words,
+and the refuting characters are `2`-groups, so the admissibility restriction does not rescue it.
+
+The resolution is that the resolver is **target-dependent** and must be chosen per target, which
+clause (iii) already quantifies over.  `Count.IsAdmissibleMarkedPresentation` now carries the
+intrinsic family `W : ρ → PWord ι` and reads it with `PWord.eval` *inside each finite discrete
+target*; `PWord.eval_eq_evalNat_of_dvd` resolves `ω₂` there at `omega2Exp N`.  Consequently:
+
+* **the instance below has no hypotheses** — the relators of `Γ_R` are `gammaFam n q R` on the
+  nose, and both clauses are one application of `Marking.map_eval`;
+* the word lane's family enters only through `Count.ResolvesAt`, at the single target the count is
+  taken in, and that is a *theorem* (`Count.resolvesAt_heisToFree`), §7.5;
+* `ResolvesGammaRelators` survives in §3 as a **retired** definition, kept because
+  `Count/Resolve.lean` states its refutations against it.
+
 ## What this file lands
 
 * **§1** `wildAlphabet n = {x₀, …, x_n} ⊆ Generator n`, the distinguished subset `J` that
   instantiates the restricted class, and its two image lemmas (one of which identifies
   `AdmissibleR.wildFree n` as its image upstairs).
-* **§2** `freeToProf`, the canonical `FreeGroup X →* F(X)`, and `comp_freeToProf` — the *word*
-  side of CB-1's seam: a continuous hom out of the free profinite group restricts along it to the
-  `FreeGroup.lift` of its marking.
-* **§3** `ResolvesGammaRelators`, the seam itself, as an explicitly named hypothesis: the
-  word-lane family `w : κ → FreeGroup (Generator n)` and the profinite relator set
-  `gammaRelators n q R` cut out the same closed normal subgroup of `F`.  `of_range_eq` is the
-  sufficient condition a branch actually checks.  ⚠ This is **not** discharged here; see
-  "The seam" below.
-* **§4** the instance, `isAdmissibleMarkedPresentation_gammaR`, built on GR1's machine:
-  `gammaLift` for the lift, with `hrel` from the seam and `hcore` from `IsWildTwo` transported
-  through `Subgroup.map_normalClosure_le`.
-* **§5** the discharge of `z1Equiv`'s new side condition `hwild2` at `Γ_R`:
+* **§2** `freeToProf`, the canonical `FreeGroup X →* F(X)`, and `comp_freeToProf`.  Retired with
+  §3, and kept for the same reason.
+* **§3** `ResolvesGammaRelators` — **retired**, see above.
+* **§4** `gammaFam n q R = ![tameRelW n q, R]`, the intrinsic relator family, and the instance
+  `isAdmissibleMarkedPresentation_gammaR`, **hypothesis-free**, built on GR1's machine:
+  `gammaLift` for the lift, with `hrel` from `Marking.map_eval` and `hcore` from `IsWildTwo`
+  transported through `Subgroup.map_normalClosure_le`.
+* **§5** the discharge of `z1Equiv`'s side condition `hwild2` at `Γ_R`:
   `isWildTwo_gammaGen_of_surjective`, from GR1's `isPGroup_two_wildNormalClosure`.  Surjectivity
   of `ρ` — already a hypothesis of `tcocycle_cardN`/`hZcardN` — is exactly what is needed.
+  **Unchanged by CB-TR.**
 * **§6** the sanity check that the restriction is **not vacuous**: `not_isWildTwo_zmodThree`, no
   marking into `ℤ/3` with a surviving wild letter is admissible.  CB-W's `testMarking n c d` is
   of that shape for the exponents `exists_test_exponents` produces, so the restricted clause
   excludes precisely the counterexamples, and nothing else.
-* **§7** the discharges of `z1Equiv`'s other new side condition `hA₂` at the two recursion
-  modules: `D.T` and `DD.Vmod` are `2`-torsion, from `RadicalCoverData.helem`.
-
-## The seam (what §3 does *not* prove)
-
-The word lane's relators live in `FreeGroup (Generator n)`; the presentation's live in
-`FreeProfiniteGroup (Generator n)`.  The two are related by `freeToProf`, but the branch families
-are `heisToFree`-**resolved**: profinite `ω₂`-exponents are replaced by an integer representative
-`e` (`nCompactFam α h q e = ![heisToFree … (tameRelW …), heisToFree … (nCompactW α h)]`).  The
-resolved word and `(freeMarking n).eval R` are therefore *different elements of `F`* in general —
-`PWord.eval` evaluates `ω₂` intrinsically, and no integer represents it there.  They agree at any
-particular target where the resolver is correct, which is what `Word/Eval.lean`'s `ResolvedAt` /
-`eval_eq_evalZ` and `Word/Stokes.lean`'s `evalZ_eq_lift_heisToFree` express.
-
-`ResolvesGammaRelators` is that agreement, promoted to a hypothesis at the level of closed normal
-subgroups.  It is the honest form of the seam CB-1 flagged, and discharging it per branch is the
-count lane's remaining word-side obligation — not something `Γ_R`'s universal property can
-supply.
+* **§7** the discharges of `z1Equiv`'s other side condition `hA₂` at the two recursion
+  modules: `D.T` and `DD.Vmod` are `2`-torsion, from `RadicalCoverData.helem`.  **Unchanged by
+  CB-TR.**
+* **§7.5** the target-resolution lemmas: `resolvesAt_gammaFam`, `nCompactFam_eq_gammaFam`,
+  `resolvesAt_nCompactFam`, and the two arithmetic pins — `omega2Exp_six` (`e = 3` is `omega2Exp
+  6`, hence correct at exactly the targets of exponent dividing `6`) and `omega2Exp_two_pow`
+  (`e = 1` is the resolver at **every** `2`-group target, which is the case the count lane is in).
+* **§8** the pilot compositions at `Γ_R`, in two forms: with the target resolution as a hypothesis
+  (generic `R`), and with it discharged at the **intrinsic** compact-`N` word.
+* the five frozen branch families are `Count/Frozen.lean`, a leaf: each is a specialization of
+  §4's instance at its own intrinsic word, with no hypothesis.
 
 ## Axiom posture
 
@@ -149,12 +161,21 @@ theorem comp_freeToProf {X : Type} {Q : Type*} [Group Q]
 
 end FreeToProf
 
-/-! ## §3 The seam, named
+/-! ## §3 The retired seam
 
-The word lane hands the presentation a family `w : κ → FreeGroup (Generator n)`; `Γ_R` is
-defined by a set `gammaRelators n q R ⊆ F`.  Everything below needs exactly two implications
-between them, and both are stated as fields rather than proved, because the branch families are
-`ω₂`-resolved and the two objects are genuinely different elements of `F` (module docstring). -/
+⚠ **Nothing below this heading is used any more.**  `ResolvesGammaRelators` was CB-MP's name for
+the seam: *one* `FreeGroup`-family agreeing with the intrinsic relators inside `F`.  CB-RES
+proved that unachievable — `Count.zpowHat_omega2_ne_zpow` shows `Y ^ᶻ ω₂ ≠ Y ^ k` for every
+integer `k`, so the `ω₂`-carrying branch words have no integer-resolved twin in `F` at all — and
+`Count.lift_gammaGen_nCompactFam_ne_one` sharpens that to: the word-lane relator is a *nontrivial
+element of `Γ_R`*.
+
+The structure is kept because `Count/Resolve.lean` states its refutations against it.  The
+presentation of §4 does not mention it: clause (ii)/(iii) of
+`Count.IsAdmissibleMarkedPresentation` now read the intrinsic `PWord` relators **at each finite
+discrete target**, where `PWord.eval` resolves `ω₂` correctly on its own, and the word lane's
+family enters only through `Count.ResolvesAt`, a per-target statement that is a *theorem*
+(`Count.resolvesAt_heisToFree`) rather than a hypothesis. -/
 
 section Resolves
 
@@ -162,9 +183,11 @@ variable {n q : ℕ} {R : PWord (Generator n)} {κ : Type*}
 
 /-- **The word-lane family and the profinite relators cut out the same closed normal subgroup.**
 
-`fam_mem` says the family dies wherever the relators do (this gives the `rel` clause of the
-presentation); `rel_mem` says the relators die wherever the family does (this gives the `extend`
-clause).  Together they are "same normal closure", split into the two usable halves. -/
+`fam_mem` says the family dies wherever the relators do; `rel_mem` says the relators die wherever
+the family does.
+
+⚠ **Retired** (see the section heading): this is the global identification CB-RES refuted, and no
+declaration in the count lane consumes it any more. -/
 structure ResolvesGammaRelators (n q : ℕ) (R : PWord (Generator n))
     (w : κ → FreeGroup (Generator n)) : Prop where
   /-- Each word-lane relator lies in the closed normal closure of the profinite relator set. -/
@@ -199,15 +222,24 @@ theorem ResolvesGammaRelators.of_two {v : Fin 2 → FreeGroup (Generator n)}
 
 end Resolves
 
-/-! ## §4 The instance
+/-! ## §4 The intrinsic relator family, and the instance
 
-The three clauses, on GR1's machine.  `gen_top` is `TopGen.map` applied to `gammaMk`; `rel` is
-§2's restriction lemma plus `relatorSubgroup_le_NR`; `extend` is `gammaLift`, whose two arguments
-are the seam (`hrel`) and the admissibility hypothesis of the restricted clause (`hcore`).
+`Γ_R` is cut out by the *set* `gammaRelators n q R = {tameRelatorGen n q, (freeMarking n).eval R}`;
+the presentation interface wants a *family of `PWord`s*.  `gammaFam n q R = ![tameRelW n q, R]` is
+that family, and `freeMarking_eval_gammaFam` says its profinite denotations at the tautological
+marking are exactly the two relators.  From there both clauses are one application of `PWord`
+naturality (`Marking.map_eval`, F2):
 
-⚠ `hcore` is *why* the clause had to be restricted: it is `gammaLift`'s third argument, GR1 flags
-it in the `AdmissibleR` interface note, and there is nothing in a bare relator-killing marking
-that supplies it. -/
+* `rel` at a finite discrete quotient `φ` — evaluate `gammaFam` at `φ ∘ gammaGen`, which is the
+  free marking pushed along `φ ∘ gammaMk`, so it is `φ (gammaMk (relator)) = φ 1 = 1`;
+* `extend` at a relator-killing marking `f` — evaluate at the classifying map of `f`, which turns
+  `hf` into `hrel`, and then `gammaLift`.
+
+⚠ **No hypothesis.**  CB-MP's `hres : ResolvesGammaRelators n q R w` is gone, and not because it
+was assumed away: with the relators read *at the target* there is no integer resolver to choose,
+so there is nothing left to reconcile.  `hcore` is still `gammaLift`'s third argument and still
+comes from the restricted clause's own `IsWildTwo` hypothesis — the admissibility restriction is
+untouched by this change. -/
 
 section Instance
 
@@ -221,7 +253,8 @@ theorem gammaGen_topGen (n q : ℕ) (R : PWord (Generator n)) :
     (gammaMk_surjective n q R) (TopGen.freeProfiniteGroup (Generator n))
   rwa [← Set.range_comp] at h
 
-/-- A word-lane relator dies in `Γ_R` as soon as it lies in the relator subgroup. -/
+/-- A word-lane relator dies in `Γ_R` as soon as it lies in the relator subgroup.  (Retired with
+§3: no clause of the presentation is stated in `FreeGroup` any more.) -/
 theorem lift_gammaGen_eq_one {v : FreeGroup (Generator n)}
     (hv : freeToProf (Generator n) v ∈ relatorSubgroup (gammaRelators n q R)) :
     FreeGroup.lift (gammaGen n q R) v = 1 := by
@@ -230,21 +263,70 @@ theorem lift_gammaGen_eq_one {v : FreeGroup (Generator n)}
   rw [h]
   exact gammaMk_eq_one_iff.mpr (relatorSubgroup_le_NR hv)
 
-/-- **`Γ_R` is an admissibly marked presentation.**
+/-- **The intrinsic relator family of `Γ_R`**: the tame word `τ^σ (τ^q)⁻¹` and the branch word
+`R`, as reflected `PWord`s.  This — not any `heisToFree`-resolution of it — is what the
+presentation is a presentation *by*. -/
+def gammaFam (n q : ℕ) (R : PWord (Generator n)) : Fin 2 → PWord (Generator n) :=
+  ![Certificates.tameRelW n q, R]
 
-The restricted class, at the corrected `GammaR`: `Γ_R` is presented by its own generators modulo
-any word-lane family that resolves the relator set, with the wild block as the distinguished
-letters.  This is the instance CB-1's `z1Equiv` consumes.
+@[simp] theorem gammaFam_zero (n q : ℕ) (R : PWord (Generator n)) :
+    gammaFam n q R 0 = Certificates.tameRelW n q := rfl
+
+@[simp] theorem gammaFam_one (n q : ℕ) (R : PWord (Generator n)) : gammaFam n q R 1 = R := rfl
+
+/-- The tame word carries no profinite exponent at all. -/
+@[simp] theorem isOmega2Only_tameRelW (n q : ℕ) :
+    (Certificates.tameRelW n q).IsOmega2Only := ⟨⟨trivial, trivial⟩, trivial⟩
+
+/-- The intrinsic family is `ω₂`-only as soon as the branch word is. -/
+theorem isOmega2Only_gammaFam (n q : ℕ) {R : PWord (Generator n)} (hR : R.IsOmega2Only) :
+    ∀ k, (gammaFam n q R k).IsOmega2Only := by
+  intro k
+  match k with
+  | 0 => exact isOmega2Only_tameRelW n q
+  | 1 => exact hR
+
+/-- **The family's profinite denotations are the relators of `Γ_R`.** -/
+theorem freeMarking_eval_gammaFam (n q : ℕ) (R : PWord (Generator n)) (k : Fin 2) :
+    (freeMarking n).eval (gammaFam n q R k) ∈ gammaRelators n q R := by
+  match k with
+  | 0 =>
+      rw [gammaFam_zero, Certificates.freeMarking_eval_tameRelW]
+      exact Set.mem_insert _ _
+  | 1 => exact Set.mem_insert_of_mem _ rfl
+
+/-- **Naturality, in the shape both clauses use**: pushing the free-marking denotation of a word
+along a continuous hom out of `F` is evaluating the word at the hom's own marking.  This is
+`Marking.map_eval` with the two `Marking` wrappers unfolded. -/
+theorem map_freeMarking_eval {Q : Type} [Group Q] [TopologicalSpace Q] [DiscreteTopology Q]
+    [Finite Q] (ψ : ContinuousMonoidHom ((FreeProfiniteGroup (Generator n)) : Type) Q)
+    (v : PWord (Generator n)) :
+    ψ ((freeMarking n).eval v) = PWord.eval (fun g => ψ (FreeProfiniteGroup.of g)) v :=
+  Marking.map_eval ψ (freeMarking n) v
+
+/-- **`Γ_R` is an admissibly marked presentation, unconditionally.**
+
+`Γ_R` is presented by its own generators modulo its own relator family, with the wild block as
+the distinguished letters.  This is the instance `z1Equiv` consumes, and it has **no
+hypotheses** — the seam CB-1 flagged and CB-MP named was an artefact of stating the relators in
+`FreeGroup`, where `ω₂` cannot be written.
 
 ⚠ The **plain** class `IsMarkedPresentation` is *not* available here, and the failure is not an
 artefact of this proof: `Count.not_isWildTwo_zmodThree` (§6) exhibits, for every `n ≥ 1`, the
 markings clause (iii) would have to extend and cannot. -/
-theorem isAdmissibleMarkedPresentation_gammaR (n q : ℕ) (R : PWord (Generator n))
-    {w : κ → FreeGroup (Generator n)} (hres : ResolvesGammaRelators n q R w) :
-    IsAdmissibleMarkedPresentation ((GammaR n q R) : Type) (gammaGen n q R) w
+theorem isAdmissibleMarkedPresentation_gammaR (n q : ℕ) (R : PWord (Generator n)) :
+    IsAdmissibleMarkedPresentation ((GammaR n q R) : Type) (gammaGen n q R) (gammaFam n q R)
       (wildAlphabet n) where
   gen_top := gammaGen_topGen n q R
-  rel k := lift_gammaGen_eq_one (hres.fam_mem k)
+  rel := by
+    intro Q _ _ _ _ φ k
+    have hcomp : ∀ g : Generator n,
+        (φ.comp (gammaMk n q R)) (FreeProfiniteGroup.of g) = φ (gammaGen n q R g) := fun _ => rfl
+    rw [show (fun i => φ (gammaGen n q R i))
+        = fun g => (φ.comp (gammaMk n q R)) (FreeProfiniteGroup.of g) from (funext hcomp).symm,
+      ← map_freeMarking_eval (φ.comp (gammaMk n q R))]
+    show φ (gammaMk n q R ((freeMarking n).eval (gammaFam n q R k))) = 1
+    rw [relator_gammaMk_eq_one (freeMarking_eval_gammaFam n q R k), map_one]
   extend := by
     intro Q _ _ _ _ f hf hw2
     -- the classifying map of `f` out of the free profinite group, at the plain carrier instances
@@ -254,21 +336,18 @@ theorem isAdmissibleMarkedPresentation_gammaR (n q : ℕ) (R : PWord (Generator 
     have hφ_of : ∀ g : Generator n, φ.toMonoidHom (FreeProfiniteGroup.of g) = f g := fun g =>
       FreeProfiniteGroup.homEquiv_symm_of _ _ _
     have hφfun : (fun g => φ.toMonoidHom (FreeProfiniteGroup.of g)) = f := funext hφ_of
-    -- the relators die: the family does, and the seam moves that to the relators
-    have hfam : ∀ k, φ.toMonoidHom (freeToProf (Generator n) (w k)) = 1 := by
+    -- the relators die: the family does, and naturality moves that to the relators
+    have hfam : ∀ k, φ ((freeMarking n).eval (gammaFam n q R k)) = 1 := by
       intro k
-      rw [comp_freeToProf φ.toMonoidHom (w k), hφfun]
+      rw [map_freeMarking_eval φ, show (fun g => φ (FreeProfiniteGroup.of g)) = f from hφfun]
       exact hf k
-    have hker : (Subgroup.normalClosure
-        (Set.range fun k => freeToProf (Generator n) (w k))).topologicalClosure
-          ≤ φ.toMonoidHom.ker :=
-      Subgroup.topologicalClosure_minimal _
-        (Subgroup.normalClosure_le_normal (by
-          rintro _ ⟨k, rfl⟩
-          exact MonoidHom.mem_ker.mpr (hfam k)))
-        (IsClosed.preimage φ.continuous_toFun isClosed_singleton)
-    have hrel : ∀ r ∈ gammaRelators n q R, φ r = 1 := fun r hr =>
-      MonoidHom.mem_ker.mp (hker (hres.rel_mem r hr))
+    have hrel : ∀ r ∈ gammaRelators n q R, φ r = 1 := by
+      intro r hr
+      simp only [gammaRelators, Set.mem_insert_iff, Set.mem_singleton_iff] at hr
+      rcases hr with rfl | rfl
+      · have h := hfam 0
+        rwa [gammaFam_zero, Certificates.freeMarking_eval_tameRelW] at h
+      · exact hfam 1
     -- the wild-`2` clause of `gammaLift`, from the restricted clause's own hypothesis
     have himg : ⇑φ.toMonoidHom '' wildFree n = f '' wildAlphabet n := by
       rw [← image_wildAlphabet_of, ← Set.image_comp,
@@ -407,6 +486,104 @@ theorem vmod_add_self {D : RadicalCoverData Bg} (DD : DescData D) (v : DD.Vmod) 
 
 end TwoTorsion
 
+/-! ## §7.5 The word lane's family, resolved at a target
+
+The one thing `z1Equiv` still wants from the word lane, and the *whole* of what the seam has
+become: `Count.ResolvesAt (gammaFam n q R) w Q`, at the single target `Q` the count is taken in.
+`Count.resolvesAt_heisToFree` discharges it for the family resolved at `omega2Exp N`, `N` any
+exponent level of `Q`; the frozen branch families are exactly of that shape, so all that is left
+per branch is to name an `N`.
+
+`omega2Exp 6 = 3` is the arithmetic behind the frozen resolver: **`e = 3` is the correct resolver
+at every target of exponent dividing `6`, and at no other**.  That is precisely CB-RES's point
+read positively — the refuting characters land in `ℤ/8` and `ℤ/4` (exponent ∤ 6) and in `ℤ/3` for
+the `e = 1` pin, i.e. outside the range where the pinned resolver is honest. -/
+
+section TargetResolution
+
+variable {Q : Type} [Group Q] [TopologicalSpace Q] [DiscreteTopology Q] [Finite Q]
+
+/-- **The intrinsic family is resolved by its own `heisToFree` image at the target's level.** -/
+theorem resolvesAt_gammaFam {N : ℕ} (hN : N ≠ 0) (hord : ∀ x : Q, orderOf x ∣ N)
+    (n q : ℕ) {R : PWord (Generator n)} (hR : R.IsOmega2Only) :
+    ResolvesAt (gammaFam n q R)
+      (fun k => heisToFree (fun _ => (omega2Exp N : ℤ)) (fun _ => (omega2Exp N : ℤ))
+        (gammaFam n q R k)) Q :=
+  resolvesAt_heisToFree hN hord (isOmega2Only_gammaFam n q hR)
+
+/-- The frozen compact-`N` family **is** the `heisToFree` image of the intrinsic family: both
+entries agree on the nose, the tame one because `Certificates.tameRelW` is `gammaFam`'s first
+entry by definition. -/
+theorem nCompactFam_eq_gammaFam (α h q e : ℕ) :
+    Certificates.nCompactFam α h q e
+      = fun k => heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ))
+        (gammaFam (2 + 2 * h) q (Words.nCompactW α h) k) := by
+  funext k
+  match k with
+  | 0 => rfl
+  | 1 => rfl
+
+/-- **The compact-`N` family resolves the relators of `Γ_R` at the intrinsic branch word**, at
+every target whose elements are killed by `N`, when the resolver is chosen to be `omega2Exp N`.
+
+Contrast `Count.not_resolves_nCompactFam`, which is CB-RES's refutation of the *global* statement
+at the pinned `e = 3`.  Both are true; they are about different things. -/
+theorem resolvesAt_nCompactFam {N : ℕ} (hN : N ≠ 0) (hord : ∀ x : Q, orderOf x ∣ N)
+    (α h q : ℕ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.nCompactW α h))
+      (Certificates.nCompactFam α h q (omega2Exp N)) Q := by
+  rw [nCompactFam_eq_gammaFam]
+  exact resolvesAt_gammaFam hN hord _ _ (Words.isOmega2Only_nCompact α h)
+
+/-- `omega2Exp 6 = 3`: the frozen resolver, identified.  `v₂(6) = 1` and `6 / 2 = 3`, so the
+representative is `3 ^ (2 ^ 0) % 6 = 3` — the unique `e < 6` with `e ≡ 1 (2)` and `e ≡ 0 (3)`. -/
+theorem omega2Exp_six : omega2Exp 6 = 3 := by
+  have hfac : (6 : ℕ).factorization 2 = 1 := by
+    rw [show (6 : ℕ) = 2 ^ 1 * 3 by norm_num,
+      Nat.factorization_mul (by norm_num) (by norm_num), Finsupp.add_apply,
+      Nat.Prime.factorization_pow Nat.prime_two, Finsupp.single_eq_same,
+      Nat.factorization_eq_zero_of_not_dvd (by norm_num)]
+  norm_num [omega2Exp, hfac]
+
+/-- **The frozen resolver `e = 3` is correct exactly where it should be**: at any target of
+exponent dividing `6`.  This is the hypothesis-free form of the seam at the compact-`N` row. -/
+theorem resolvesAt_nCompactFam_three (hord : ∀ x : Q, orderOf x ∣ 6) (α h q : ℕ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.nCompactW α h))
+      (Certificates.nCompactFam α h q 3) Q := by
+  have h := resolvesAt_nCompactFam (N := 6) (by norm_num) hord α h q
+  rwa [omega2Exp_six] at h
+
+/-- `omega2Exp (2 ^ a) = 1` for `a ≠ 0`: on a `2`-group, `ω₂` acts as the identity — it is the
+idempotent that is `1` on the `2`-part, and there is nothing else for it to kill. -/
+theorem omega2Exp_two_pow {a : ℕ} (ha : a ≠ 0) : omega2Exp (2 ^ a) = 1 := by
+  have hfac : (2 ^ a).factorization 2 = a := by
+    rw [Nat.Prime.factorization_pow Nat.prime_two, Finsupp.single_eq_same]
+  have hpos : 0 < (2 : ℕ) ^ a := Nat.two_pow_pos a
+  have hlt : (1 : ℕ) < 2 ^ a := Nat.one_lt_two_pow_iff.mpr ha
+  rw [omega2Exp]
+  simp only [hfac, if_neg ha, Nat.div_self hpos, one_pow, Nat.mod_eq_of_lt hlt]
+
+/-- **At a `2`-group target the resolver is `1`.**
+
+⚠ This, not `resolvesAt_nCompactFam_three`, is very likely the case the count lane is actually
+in: the comparison is taken at the split group `A ⋊ C` with `A = Additive ↥D.T` elementary
+abelian, so as soon as `C` is a `2`-group the target is one too — and there `e = 3` is correct
+only if the exponent is `≤ 2`, while `e = 1` is correct always.  The frozen `e = 3` families are
+honest at exponent dividing `6`; the `e = 1` pins (`Certificates.LSqStokes.lSqFam 0 4 1` is one)
+are honest at every `2`-group.
+
+This is CB-RES's refutation read positively: its witnesses land in `ℤ/8` and `ℤ/4`, which is
+exactly where `omega2Exp = 1 ≠ 3`. -/
+theorem resolvesAt_nCompactFam_one {a : ℕ} (ha : a ≠ 0) (hord : ∀ x : Q, orderOf x ∣ 2 ^ a)
+    (α h q : ℕ) :
+    ResolvesAt (gammaFam (2 + 2 * h) q (Words.nCompactW α h))
+      (Certificates.nCompactFam α h q 1) Q := by
+  have h := resolvesAt_nCompactFam (N := 2 ^ a) (Nat.two_pow_pos a).ne'
+    hord α h q
+  rwa [omega2Exp_two_pow ha] at h
+
+end TargetResolution
+
 /-! ## §8 The pilot composition, end to end
 
 The point of the file, assembled: at the `√−2` pilot both `SourceDataN` field values hold **over
@@ -439,13 +616,14 @@ theorem sqrtNegTwo_tcocycle_card_gammaR
     (rho : ContinuousMonoidHom ((GammaR 2 q R) : Type) (Bg ⧸ D.M))
     (hcomp : ∀ (γ : ((GammaR 2 q R) : Type)) (a : Additive ↥D.T), γ • a = rho γ • a)
     (hc : ∀ g, rho (gammaGen 2 q R g) = t g)
-    (hres : ResolvesGammaRelators 2 q R (nCompactFam 2 0 2 3))
+    (hres : ResolvesAt (gammaFam 2 q R) (nCompactFam 2 0 2 3)
+      (WordLift (Additive ↥D.T) (Bg ⧸ D.M)))
     (hsurj : Function.Surjective rho)
     (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 3) (Additive ↥D.T)) :
     Nat.card (TCocycle D rho)
       = (standardNumerics 2).tMult (Nat.card (Additive ↥D.T))
         * Nat.card (fixedPts (Bg ⧸ D.M) (ElemDual (Additive ↥D.T))) :=
-  sqrtNegTwo_tcocycle_card rho hcomp hc (isAdmissibleMarkedPresentation_gammaR 2 q R hres)
+  sqrtNegTwo_tcocycle_card rho hcomp hc (isAdmissibleMarkedPresentation_gammaR 2 q R) hres
     (radT_add_self D) (isWildTwo_of_gammaGen rho hsurj hc) hsurj hd
 
 /-- **The `√−2` pilot's `hZcard` field value, over `Γ_R`** — the `V`-side twin. -/
@@ -459,14 +637,68 @@ theorem sqrtNegTwo_hZcard_gammaR {DD : DescData D}
     (hround : ∀ (γ : ((GammaR 2 q R) : Type)) (v : DD.Vmod), rho0 DD rho γ • v = theta γ • v)
     (hact : ∀ (γ : ((GammaR 2 q R) : Type)) (v : DD.Vmod), γ • v = theta γ • v)
     (hc : ∀ g, theta (gammaGen 2 q R g) = t g)
-    (hres : ResolvesGammaRelators 2 q R (nCompactFam 2 0 2 3))
+    (hres : ResolvesAt (gammaFam 2 q R) (nCompactFam 2 0 2 3) (WordLift DD.Vmod E))
     (hsurj : Function.Surjective theta)
     (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 3) DD.Vmod)
     (hsimple : IsSimpleModTwo E DD.Vmod) (hnt : ∃ (g : E) (v : DD.Vmod), g • v ≠ v) :
     Nat.card (VCocycle DD rho)
       = Nat.card DD.Vmod * (standardNumerics 2).h1Mult (Nat.card DD.Vmod) :=
-  sqrtNegTwo_hZcard theta hround hact hc (isAdmissibleMarkedPresentation_gammaR 2 q R hres)
+  sqrtNegTwo_hZcard theta hround hact hc (isAdmissibleMarkedPresentation_gammaR 2 q R) hres
     (vmod_add_self DD) (isWildTwo_of_gammaGen theta hsurj hc) hsurj hd hsimple hnt
+
+/-! ### The pilot, with the resolution discharged
+
+At the *intrinsic* compact-`N` branch word — `R = Words.nCompactW 2 0`, so the group really is the
+`Γ_R` of the `√−2` branch and not a lookalike — the resolution hypothesis is a theorem, given only
+that the counting target has exponent dividing `6`.  That is the one condition the frozen resolver
+`e = 3` encodes, and it is now visible in the statement instead of hidden in a family. -/
+
+/-- **The `√−2` pilot's `tcocycle_card` field value at the intrinsic branch word**, with no
+resolution hypothesis: `e = 3` is `omega2Exp 6`, so a target of exponent dividing `6` resolves
+itself. -/
+theorem sqrtNegTwo_tcocycle_card_gammaR_nCompact
+    [TopologicalSpace (Additive ↥D.T)] [DiscreteTopology (Additive ↥D.T)]
+    [DistribMulAction ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) (Additive ↥D.T)]
+    [ContinuousSMul ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) (Additive ↥D.T)]
+    [TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    [DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+    {t : Marking 2 (Bg ⧸ D.M)}
+    (rho : ContinuousMonoidHom ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) (Bg ⧸ D.M))
+    (hcomp : ∀ (γ : ((GammaR 2 2 (Words.nCompactW 2 0)) : Type)) (a : Additive ↥D.T),
+      γ • a = rho γ • a)
+    (hc : ∀ g, rho (gammaGen 2 2 (Words.nCompactW 2 0) g) = t g)
+    (hord : ∀ x : WordLift (Additive ↥D.T) (Bg ⧸ D.M), orderOf x ∣ 6)
+    (hsurj : Function.Surjective rho)
+    (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 3) (Additive ↥D.T)) :
+    Nat.card (TCocycle D rho)
+      = (standardNumerics 2).tMult (Nat.card (Additive ↥D.T))
+        * Nat.card (fixedPts (Bg ⧸ D.M) (ElemDual (Additive ↥D.T))) :=
+  sqrtNegTwo_tcocycle_card_gammaR rho hcomp hc (resolvesAt_nCompactFam_three hord 2 0 2) hsurj hd
+
+/-- **The `√−2` pilot's `hZcard` field value at the intrinsic branch word**, with no resolution
+hypothesis — the `V`-side twin. -/
+theorem sqrtNegTwo_hZcard_gammaR_nCompact {DD : DescData D}
+    {E : Type} [Group E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod]
+    [DistribMulAction E DD.Vmod]
+    [DistribMulAction ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) DD.Vmod]
+    [TopologicalSpace (WordLift DD.Vmod E)] [DiscreteTopology (WordLift DD.Vmod E)]
+    {t : Marking 2 E}
+    {rho : ContinuousMonoidHom ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) (Bg ⧸ D.M)}
+    (theta : ContinuousMonoidHom ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) E)
+    (hround : ∀ (γ : ((GammaR 2 2 (Words.nCompactW 2 0)) : Type)) (v : DD.Vmod),
+      rho0 DD rho γ • v = theta γ • v)
+    (hact : ∀ (γ : ((GammaR 2 2 (Words.nCompactW 2 0)) : Type)) (v : DD.Vmod),
+      γ • v = theta γ • v)
+    (hc : ∀ g, theta (gammaGen 2 2 (Words.nCompactW 2 0) g) = t g)
+    (hord : ∀ x : WordLift DD.Vmod E, orderOf x ∣ 6)
+    (hsurj : Function.Surjective theta)
+    (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 3) DD.Vmod)
+    (hsimple : IsSimpleModTwo E DD.Vmod) (hnt : ∃ (g : E) (v : DD.Vmod), g • v ≠ v) :
+    Nat.card (VCocycle DD rho)
+      = Nat.card DD.Vmod * (standardNumerics 2).h1Mult (Nat.card DD.Vmod) :=
+  sqrtNegTwo_hZcard_gammaR theta hround hact hc (resolvesAt_nCompactFam_three hord 2 0 2)
+    hsurj hd hsimple hnt
 
 end PilotComposition
 
