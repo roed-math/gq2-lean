@@ -187,4 +187,126 @@ theorem evalFin_dW {h : ℕ} (hV2 : ∀ v : V, v + v = 0) (s u : C) (hu : Odd (o
 
 end Letters
 
+
+/-! ## §4. Central elements are invisible to squares and commutators
+
+Three laws the `Word/` kit lacks (WW6 supplied six; these are three more of the same kind).
+They are what makes the two copies of the procyclic-`M` word *literally equal* on the κ⁰
+carrier — the κ⁰-register face of P4's central clause, which here is a theorem rather than
+the module hypothesis `CentralReplication` that the Heisenberg register needs. -/
+
+section Central
+
+variable {G : Type*} [Group G]
+
+/-- Conjugation is blind to a central right factor. -/
+theorem conjR_mul_central (x y c : G) (hc : ∀ z : G, Commute c z) :
+    conjR x (y * c) = conjR x y := by
+  calc conjR x (y * c)
+      = c⁻¹ * ((y⁻¹ * x * y) * c) := by show (y * c)⁻¹ * x * (y * c) = _; group
+    _ = c⁻¹ * (c * (y⁻¹ * x * y)) := by rw [(hc (y⁻¹ * x * y)).eq]
+    _ = conjR x y := by rw [← mul_assoc, inv_mul_cancel, one_mul]; rfl
+
+/-- The commutator is blind to a central factor in its left slot. -/
+theorem commR_mul_central_left (x y c : G) (hc : ∀ z : G, Commute c z) :
+    commR (x * c) y = commR x y := by
+  calc commR (x * c) y
+      = c⁻¹ * (x⁻¹ * y⁻¹ * x * (c * y)) := by show (x * c)⁻¹ * y⁻¹ * (x * c) * y = _; group
+    _ = c⁻¹ * (x⁻¹ * y⁻¹ * x * (y * c)) := by rw [(hc y).eq]
+    _ = c⁻¹ * ((x⁻¹ * y⁻¹ * x * y) * c) := by group
+    _ = c⁻¹ * (c * (x⁻¹ * y⁻¹ * x * y)) := by rw [← (hc (x⁻¹ * y⁻¹ * x * y)).eq]
+    _ = commR x y := by rw [← mul_assoc, inv_mul_cancel, one_mul]; rfl
+
+/-- The commutator is blind to a central factor in its right slot. -/
+theorem commR_mul_central_right (x y d : G) (hd : ∀ z : G, Commute d z) :
+    commR x (y * d) = commR x y := by
+  have hswap : x⁻¹ * (d⁻¹ * y⁻¹) = d⁻¹ * (x⁻¹ * y⁻¹) := by
+    rw [← mul_assoc, ← mul_assoc, ((hd x).inv_left.inv_right).eq]
+  calc commR x (y * d)
+      = d⁻¹ * ((x⁻¹ * y⁻¹ * x * y) * d) := by
+        show x⁻¹ * (y * d)⁻¹ * x * (y * d) = _
+        rw [mul_inv_rev, show x⁻¹ * (d⁻¹ * y⁻¹) * x * (y * d)
+          = x⁻¹ * (d⁻¹ * y⁻¹) * (x * (y * d)) from by group, hswap]
+        group
+    _ = d⁻¹ * (d * (x⁻¹ * y⁻¹ * x * y)) := by rw [(hd (x⁻¹ * y⁻¹ * x * y)).eq]
+    _ = commR x y := by rw [← mul_assoc, inv_mul_cancel, one_mul]; rfl
+
+end Central
+
+section CentralIncl
+
+variable {L : Type} [Group L] {c : WordCoh.TwoCocycle L}
+
+/-- The central inclusion really is central. -/
+theorem incl_commute (z : ZMod 2) (p : WordCoh.CentExt c) :
+    Commute (WordCoh.CentExt.incl c z) p := by
+  refine WordCoh.CentExt.ext ?_ ?_
+  · show (1 : L) * WordCoh.CentExt.base p = WordCoh.CentExt.base p * 1
+    rw [one_mul, mul_one]
+  · show z + WordCoh.CentExt.fib p + c.κ 1 (WordCoh.CentExt.base p)
+      = WordCoh.CentExt.fib p + z + c.κ (WordCoh.CentExt.base p) 1
+    rw [c.κ_one_left, c.κ_one_right, add_comm z (WordCoh.CentExt.fib p)]
+
+/-- Squares are blind to a central `𝔽₂`-factor (characteristic two). -/
+theorem sq_mul_incl (p : WordCoh.CentExt c) (z : ZMod 2) :
+    (p * WordCoh.CentExt.incl c z) ^ 2 = p ^ 2 := by
+  rw [sq, mul_assoc, ← mul_assoc (WordCoh.CentExt.incl c z) p, (incl_commute z p).eq,
+    mul_assoc, ← mul_assoc, centExt_incl_mul_self, mul_one, sq]
+
+end CentralIncl
+
+/-! ## §5. The plus block, and the vanishing boundary δ-letter -/
+
+section PlusBlock
+
+variable {C V : Type} [Group C] [AddCommGroup V] [DistribMulAction C V]
+  {q : V → ZMod 2} (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+  [Finite C] [Finite V]
+
+omit [Finite C] [Finite V] in
+include hdat in
+/-- `q` vanishes at the origin — `f_diag` read against `f_zero_left`. -/
+theorem q_zero : q (0 : V) = 0 := by
+  rw [← hdat.f_diag, hdat.f_zero_left]
+
+omit [Finite C] [Finite V] in
+include hdat in
+/-- NC2's accumulated charge vanishes at a zero offset. -/
+theorem powCharge_zero_vec (cc : C) (k : ℕ) : NpcJet.powCharge dat cc (0 : V) k = 0 := by
+  refine Finset.sum_eq_zero fun j _ => ?_
+  rw [show NpcJet.normSum cc j (0 : V) = 0 from
+      Finset.sum_eq_zero fun i _ => smul_zero _,
+    smul_zero, hdat.f_zero_left, factorSet_m_zero dat hdat, add_zero]
+
+/-- **The boundary δ-letter dies exactly.**  `x₂` carries no primal letter at the gate-E
+marking, so `δ₂` is the identity — which is why the whole `E₂^pc` block is invisible here
+(the value-level face of S4.5's rider (ii)). -/
+theorem evalFin_dW_two {h : ℕ} (hV2 : ∀ v : V, v + v = 0) (s u : C) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (vv : Fin (2 + 2 * h + 1) → V)
+    (hv2 : vv (Certificates.x2Idx h) = 0) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (dW h 2) = 1 := by
+  rw [evalFin_dW dat hdat hV2 s u hu hVu vv E E₂ 2,
+    show vv (⟨(2 : Fin 3), by omega⟩ : Fin (2 + 2 * h + 1)) = 0 from hv2,
+    powCharge_zero_vec dat hdat, q_zero dat hdat, add_zero]
+  rfl
+
+/-- **The plus block's value**: `D₀²[D₀,D₁]` is the central inclusion of the plus form
+`Q₊(c₀,c₁) = q(c₀) + b_q(c₀,c₁)` — a word identity, charge-free in both slots (the square law
+and the commutator law of the slice calculus are both independent of the δ-letters' charges). -/
+theorem evalFin_plusW {h : ℕ} (hV2 : ∀ v : V, v + v = 0) (s u : C) (hu : Odd (orderOf u))
+    (hVu : ∀ v : V, u • v = v → v = 0) (vv : Fin (2 + 2 * h + 1) → V)
+    (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    PWord.evalFin (hessLift dat hdat (h := h) s u vv) E E₂ (plusW h)
+      = WordCoh.CentExt.incl (kappa0Cocycle dat hdat)
+          (q (vv (Certificates.x0Idx h))
+            + polar q (vv (Certificates.x0Idx h)) (vv (Certificates.x1Idx h))) := by
+  rw [plusW, MCompact.evalFin_prodList_pair, PWord.evalFin_zpow, PWord.evalFin_comm,
+    evalFin_dW dat hdat hV2 s u hu hVu vv E E₂ 0,
+    evalFin_dW dat hdat hV2 s u hu hVu vv E E₂ 1,
+    zpow_natCast, NpcBridge.hessSlice_sq_of_npc dat hdat hV2,
+    hessSlice_commR dat hdat hV2, NpcBridge.hessSlice_zero_eq_incl, centExt_incl_mul]
+  rfl
+
+end PlusBlock
+
 end GQ2.Dyadic.Certificates.MpcJet
