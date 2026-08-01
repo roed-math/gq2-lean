@@ -699,6 +699,121 @@ theorem foxD_e2W (hV₂ : ∀ w : V, w + w = 0) (s' mm pp : ℕ) :
     evalFin_sigma2Pow, ← zpow_neg,
     show -((s' * mm : ℕ) : ℤ) = (-(s' * mm : ℕ) : ℤ) from rfl]
 
+/-- `D(A²) = (1 + S₂^{−sm})·D(A)`, the leading square's row. -/
+theorem foxD_aW_sq (s' mm : ℕ) :
+    foxD ⇑t a E E₂ (.zpow (aW h s' mm) ((2 : ℕ) : ℤ))
+      = foxD ⇑t a E E₂ (aW h s' mm)
+        + ((powOmega2 t.σ) ^ (-(s' * mm : ℕ) : ℤ)) • foxD ⇑t a E E₂ (aW h s' mm) := by
+  rw [foxD_zpow_natCast, Finset.sum_range_succ, Finset.sum_range_succ, Finset.sum_range_zero,
+    pow_zero, one_smul, pow_one, zero_add,
+    (actsAsPow_aW t E E₂ hwild s' mm) (foxD ⇑t a E E₂ (aW h s' mm))]
+
+/-- **`D([A,B])`** — the one commutator on this row whose *both* entries act nontrivially
+(`A` as `S₂^{−sm}`, `B` as `S₂^{p}`; WMP-b's §4 contrast with the compact row's bare `x₁`).
+In characteristic two the four terms of `foxD_comm_general` become a plain sum. -/
+theorem foxD_commAB (hV₂ : ∀ w : V, w + w = 0) (s' mm pp : ℕ) :
+    foxD ⇑t a E E₂ (.comm (aW h s' mm) (bW h pp))
+      = ((powOmega2 t.σ) ^ ((s' * mm : ℕ) : ℤ)) • foxD ⇑t a E E₂ (aW h s' mm)
+        + ((powOmega2 t.σ) ^ (((s' * mm : ℕ) : ℤ) - (pp : ℤ)))
+            • foxD ⇑t a E E₂ (aW h s' mm)
+        + ((powOmega2 t.σ) ^ (((s' * mm : ℕ) : ℤ) - (pp : ℤ))) • a (coreLetter h 1)
+        + ((powOmega2 t.σ) ^ (-(pp : ℤ))) • a (coreLetter h 1) := by
+  have hA := actsAsPow_aW t E E₂ hwild s' mm
+  have hB := actsAsPow_bW t E E₂ hwild pp
+  have h1 : ActsAsPow (powOmega2 t.σ) ((s' * mm : ℕ) : ℤ)
+      (PWord.evalFin ⇑t E E₂ (aW h s' mm))⁻¹ V :=
+    ActsAsPow.congr_exp (by ring) hA.inv
+  have h2 : ActsAsPow (powOmega2 t.σ) (((s' * mm : ℕ) : ℤ) - (pp : ℤ))
+      ((PWord.evalFin ⇑t E E₂ (aW h s' mm))⁻¹ * (PWord.evalFin ⇑t E E₂ (bW h pp))⁻¹) V :=
+    ActsAsPow.congr_exp (by ring) (h1.mul hB.inv)
+  have h3 : ActsAsPow (powOmega2 t.σ) (-(pp : ℤ))
+      ((PWord.evalFin ⇑t E E₂ (aW h s' mm))⁻¹ * (PWord.evalFin ⇑t E E₂ (bW h pp))⁻¹
+        * PWord.evalFin ⇑t E E₂ (aW h s' mm)) V :=
+    ActsAsPow.congr_exp (by push_cast; ring) (h2.mul hA)
+  rw [foxD_comm_general, foxD_bW t E E₂ a hσ hwild hτfpf hTodd pp, h1 _, h2 _, h2 _, h3 _]
+  simp only [sub_eq_add_neg, Certificates.neg_eq_self hV₂]
+  abel
+
+/-- **`D([C₀,D])`** — the `η̂` commutator.  `D = σ^{η̂}` has no first-order content of its own
+(WMP-b's `foxD_etaDisplay_of_sigma_free`), so only the `C₀`-entry survives, weighted once by
+`S₂^{−s}` and once by `S₂^{−s}σ^{−n}`.  The exponent `n` is the marking-level integer power that
+`D` acts by; it cannot be read off the display, which is why it enters as `hη`. -/
+theorem foxD_commC0D (hV₂ : ∀ w : V, w + w = 0) {η : EtaDisplay} {nη : ℤ}
+    (hη : ActsAsPow t.σ nη
+      (PWord.evalFin ⇑t E E₂ (η.toPWord (n := 2 + 2 * h))) V) (s' : ℕ) :
+    foxD ⇑t a E E₂ (.comm (c0W h s') (η.toPWord (n := 2 + 2 * h)))
+      = ((powOmega2 t.σ) ^ (-(s' : ℤ))) • a (coreLetter h 2)
+        + ((powOmega2 t.σ) ^ (-(s' : ℤ))) • ((t.σ ^ (-nη)) • a (coreLetter h 2)) := by
+  have hC : ActsAsPow (powOmega2 t.σ) (-(s' : ℤ))
+      (PWord.evalFin ⇑t E E₂ (c0W h s'))⁻¹ V :=
+    ActsAsPow.congr_exp rfl (actsAsPow_c0W t E E₂ hwild s').inv
+  rw [foxD_comm_general, foxD_c0W t E E₂ a hσ hwild hτfpf hTodd s',
+    foxD_etaDisplay_of_sigma_free t E E₂ a hσ η, smul_zero, smul_zero, hC _, mul_smul, hC _,
+    hη.inv (a (coreLetter h 2))]
+  simp only [sub_eq_add_neg, Certificates.neg_eq_self hV₂, neg_zero, add_zero, zero_add]
+
+/-! ### The assembled row — the headline
+
+**Every prefix weight of `R_lin^pc` is a power of the single procyclic letter `S₂`.**  Four of
+the six factors have trivially-acting values — the two commutators by WMP-c's `ActsAsPow`
+commutator clause, the two `𝓔`-blocks outright — so only `A²` and `C₀^{2^α}` weight anything at
+all, and packet Prop. 9.2's balance `s·2^α = 2·sm` makes *their product* the identity.  The
+six-factor product rule therefore collapses to five terms with exactly one surviving weight. -/
+
+/-- **The linear copy's Fox row at σ-free offsets, at general `(α, r, p, η, h)`** — WMP-c's
+residual (i), assembled.
+
+The five summands are this section's factor rows (`foxD_aW_sq`, `foxD_commAB`, `foxD_c0W_zpow`,
+`foxD_commC0D`, `foxD_e2W`) together with WMP-b's `foxD_e01W_ram`, and the single surviving
+prefix `S₂^{−2sm}` is what Prop. 9.2's balance leaves behind: it weights the `[A,B]`-and-
+`C₀^{2^α}` middle block and nothing else, because `S₂^{−2sm}·S₂^{s·2^α} = 1`. -/
+theorem foxD_mpcLinW_ram {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDisplay} {nη : ℤ}
+    (hη : ActsAsPow t.σ nη (PWord.evalFin ⇑t E E₂ (η.toPWord (n := 2 + 2 * h))) V) :
+    foxD ⇑t a E E₂ (mpcLinW α r pp η h)
+      = foxD ⇑t a E E₂ (.zpow (aW h (s r) (m α)) ((2 : ℕ) : ℤ))
+        + ((powOmega2 t.σ) ^ (-(2 * (s r * m α) : ℕ) : ℤ))
+            • (foxD ⇑t a E E₂ (.comm (aW h (s r) (m α)) (bW h pp))
+                + foxD ⇑t a E E₂ (.zpow (c0W h (s r)) ((2 ^ α : ℕ) : ℤ)))
+        + foxD ⇑t a E E₂ (.comm (c0W h (s r)) (η.toPWord (n := 2 + 2 * h)))
+        + foxD ⇑t a E E₂ (e01W h (pp + s r * m α) (s r * m α))
+        + foxD ⇑t a E E₂ (e2W h (s r) (m α) pp) := by
+  have hU : powOmega2 t.σ = t.σ ^ ((omega2Exp (orderOf t.σ) : ℕ) : ℤ) := powOmega2_sigma_eq_zpow t
+  have hAB : PWord.evalFin ⇑t E E₂ (.comm (aW h (s r) (m α)) (bW h pp)) ∈ trivAct C V :=
+    (actsAsPow_aW t E E₂ hwild (s r) (m α)).trivAct_commR (actsAsPow_bW t E E₂ hwild pp)
+  have hCD : PWord.evalFin ⇑t E E₂ (.comm (c0W h (s r)) (η.toPWord (n := 2 + 2 * h)))
+      ∈ trivAct C V :=
+    ActsAsPow.trivAct_commR (U := t.σ)
+      ((actsAsPow_c0W t E E₂ hwild (s r)).base_zpow hU) hη
+  have h01 := trivAct_e01W t E E₂ hwild hTodd (pp + s r * m α) (s r * m α)
+  have hsq : ActsAsPow (powOmega2 t.σ) (-(2 * (s r * m α) : ℕ) : ℤ)
+      (PWord.evalFin ⇑t E E₂ (.zpow (aW h (s r) (m α)) ((2 : ℕ) : ℤ))) V := by
+    rw [PWord.evalFin_zpow]
+    exact ActsAsPow.congr_exp (by push_cast; ring)
+      ((actsAsPow_aW t E E₂ hwild (s r) (m α)).zpow ((2 : ℕ) : ℤ))
+  have hc0 : ActsAsPow (powOmega2 t.σ) (((2 ^ α : ℕ) : ℤ) * (s r : ℤ))
+      (PWord.evalFin ⇑t E E₂ (.zpow (c0W h (s r)) ((2 ^ α : ℕ) : ℤ))) V := by
+    rw [PWord.evalFin_zpow]
+    exact (actsAsPow_c0W t E E₂ hwild (s r)).zpow ((2 ^ α : ℕ) : ℤ)
+  have hbal : PWord.evalFin ⇑t E E₂ (.zpow (aW h (s r) (m α)) ((2 : ℕ) : ℤ))
+      * PWord.evalFin ⇑t E E₂ (.zpow (c0W h (s r)) ((2 ^ α : ℕ) : ℤ)) ∈ trivAct C V := by
+    refine ActsAsPow.trivial_of_zero (U := powOmega2 t.σ) (ActsAsPow.congr_exp ?_ (hsq.mul hc0))
+    have hb := congrArg (fun k : ℕ => (k : ℤ)) (s_mul_two_pow hα r)
+    push_cast at hb ⊢
+    linarith
+  have key : ∀ X₂ X₃ X₄ X₅ X₆ : V,
+      PWord.evalFin ⇑t E E₂ (.zpow (aW h (s r) (m α)) ((2 : ℕ) : ℤ))
+          • (X₂ + (X₃ + PWord.evalFin ⇑t E E₂ (.zpow (c0W h (s r)) ((2 ^ α : ℕ) : ℤ))
+              • (X₄ + (X₅ + X₆))))
+        = ((powOmega2 t.σ) ^ (-(2 * (s r * m α) : ℕ) : ℤ)) • (X₂ + X₃) + X₄ + X₅ + X₆ := by
+    intro X₂ X₃ X₄ X₅ X₆
+    rw [smul_add, smul_add, ← mul_smul, mem_trivAct.mp hbal, hsq _, hsq _, smul_add]
+    abel
+  rw [mpcLinW, linFactors]
+  simp only [PWord.prodList_cons, PWord.prodList_nil, foxD_mul, foxD_one, PWord.evalFin_mul,
+    PWord.evalFin_one, smul_zero, add_zero, mul_one]
+  rw [mem_trivAct.mp hAB, mem_trivAct.mp hCD, mem_trivAct.mp h01, key]
+  abel
+
 end Factors
 
 end LinRow
