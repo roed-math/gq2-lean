@@ -279,4 +279,46 @@ theorem odd_one_add_two_pow {α : ℕ} (hα : 2 ≤ α) : Odd (1 + 2 ^ (α - 1))
     rw [show β + 2 - 1 = β + 1 by omega, pow_succ]; ring
   exact ⟨2 ^ β, by rw [h]; ring⟩
 
+/-! ## §6. The `ZMod 8` refutation and stress kit
+
+Every lane refutes F3's unrelativized `KillsWild` at the same witness — `τ` a generator of
+`Multiplicative (ZMod 8)`, everything else trivial — and every lane pins its numerical stress
+values at the same `h = 0` marking.  Both markings and the order bound were written out five
+times each; the order bound was written out **ten** times, because each file declared it twice,
+once per section, under two different names.
+
+⚠ Two accessibility notes.  (i) The order bound was `private` in all ten copies; `private` is
+file-scoped, so hoisting necessarily makes it public — that is a visibility change, not a
+statement change, and nothing outside `Words/` refers to it.  (ii) `zmod8_orderOf_dvd` is kept
+as an alias of `orderOf_dvd_eight` rather than renamed away, so that every call site in the five
+lanes stays untouched.  New code should use `orderOf_dvd_eight`.
+
+The `local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥` and its
+`DiscreteTopology` companion are **not** hoisted: they stay `local` in the lanes that state
+`eval` facts, because `Marking` itself carries no typeclass arguments and nothing here needs
+them.  Making them global instances would give `Multiplicative (ZMod 8)` a topology repo-wide,
+which is a much larger claim than this file should make.
+-/
+
+/-- Every element of `Multiplicative (ZMod 8)` has order dividing `8` — the side condition of
+`PWord.zpowHat_omega2_zpow` and of `PWord.eval_eq_evalNat_of_dvd` at every lane's witness. -/
+theorem orderOf_dvd_eight (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
+  orderOf_dvd_of_pow_eq_one (by revert x; decide)
+
+/-- The `Refutation`-section spelling of `orderOf_dvd_eight`, kept so that the five lanes'
+refutation proofs need no edit.  Prefer `orderOf_dvd_eight`. -/
+theorem zmod8_orderOf_dvd (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
+  orderOf_dvd_eight x
+
+/-- The refuting marking: `τ` a generator of `ZMod 8` (so `τ^{ω₂} = τ ≠ 1`), everything else
+trivial.  The wild letters are irrelevant — `killWildLetters` overwrites them. -/
+def refuteMarking (h : ℕ) : Marking (2 + 2 * h) (Multiplicative (ZMod 8)) :=
+  Marking.ofLetters 1 (Multiplicative.ofAdd 1) (fun _ => 1)
+
+/-- A concrete marking of the `Generator (2 + 2h)` alphabet at `h = 0`, written additively:
+`(σ, τ, x₀, x₁, x₂) = (5, 1, 1, 1, 1)` in `Multiplicative (ZMod 8)`. -/
+def zmod8Marking : Marking (2 + 2 * 0) (Multiplicative (ZMod 8)) :=
+  Marking.ofLetters (Multiplicative.ofAdd 5) (Multiplicative.ofAdd 1)
+    ![Multiplicative.ofAdd 1, Multiplicative.ofAdd 1, Multiplicative.ofAdd 1]
+
 end GQ2.Dyadic.Words

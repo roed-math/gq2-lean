@@ -534,9 +534,6 @@ section Refutation
 local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
 local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
 
-private theorem zmod8_orderOf_dvd (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
-  orderOf_dvd_of_pow_eq_one (by revert x; decide)
-
 /-- The refuting marking: `τ` a generator of `ZMod 8` (so `τ^{ω₂} = τ ≠ 1`), everything else
 trivial.  The wild letters are irrelevant — `killWildLetters` overwrites them. -/
 def refuteMarking (h : ℕ) : Marking (2 * h + 1) (Multiplicative (ZMod 8)) :=
@@ -978,9 +975,6 @@ section StressZMod8
 
 local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
 local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
-
-private theorem orderOf_dvd_eight (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
-  orderOf_dvd_of_pow_eq_one (by revert x; decide)
 
 /-- A concrete marking of the `L_sq` alphabet at `h = 0`, written additively:
 `(σ, τ, x₀, x₁) = (5, 1, 1, 1)` in `Multiplicative (ZMod 8)`. -/

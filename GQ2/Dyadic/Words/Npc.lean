@@ -542,14 +542,6 @@ section Refutation
 local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
 local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
 
-private theorem zmod8_orderOf_dvd (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
-  orderOf_dvd_of_pow_eq_one (by revert x; decide)
-
-/-- The refuting marking: `τ` a generator of `ZMod 8` (so `τ^{ω₂} = τ ≠ 1`), everything else
-trivial.  The wild letters are irrelevant — `killWildLetters` overwrites them. -/
-def refuteMarking (h : ℕ) : Marking (2 + 2 * h) (Multiplicative (ZMod 8)) :=
-  Marking.ofLetters 1 (Multiplicative.ofAdd 1) (fun _ => 1)
-
 /-- **The frozen corrected noncompact-`N` word is not Gate-B admissible in F3's unrelativized
 sense.** -/
 theorem not_killsWild (α r h : ℕ) (e : EtaData) : ¬ KillsWild (npcW α r h e) := by
@@ -834,16 +826,6 @@ section StressZMod8
 
 local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
 local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
-
-private theorem orderOf_dvd_eight (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
-  orderOf_dvd_of_pow_eq_one (by revert x; decide)
-
-/-- A concrete marking of the noncompact-`N` alphabet at `h = 0`, written additively:
-`(σ, τ, x₀, x₁, x₂) = (5, 1, 1, 1, 1)` in `Multiplicative (ZMod 8)` — the *same* marking WN0-a
-uses, so the two rows' values are directly comparable. -/
-def zmod8Marking : Marking (2 + 2 * 0) (Multiplicative (ZMod 8)) :=
-  Marking.ofLetters (Multiplicative.ofAdd 5) (Multiplicative.ofAdd 1)
-    ![Multiplicative.ofAdd 1, Multiplicative.ofAdd 1, Multiplicative.ofAdd 1]
 
 /-- **Stress (genuine `ω₂`, and the compact/procyclic rows agree here)**: the profinite denotation
 of the `(2,1,1)` word at the `ZMod 8` marking is `ofAdd 7` — *the same value WN0-a computes for

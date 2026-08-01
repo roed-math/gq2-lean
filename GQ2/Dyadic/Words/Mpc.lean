@@ -1205,15 +1205,6 @@ section Refutation
 local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
 local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
 
-private theorem zmod8_orderOf_dvd (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
-  orderOf_dvd_of_pow_eq_one (by revert x; decide)
-
-/-- The refuting marking: `τ` a generator of `ZMod 8` (so `τ^{ω₂} = τ ≠ 1`), everything else
-trivial.  With `σ = 1` both σ-skeletons die and the tame value is the pure `w`-count
-`w^{2m+9}` — at `α = 2` that is `w^{13} = w^5 ≠ 1`. -/
-def refuteMarking (h : ℕ) : Marking (2 + 2 * h) (Multiplicative (ZMod 8)) :=
-  Marking.ofLetters 1 (Multiplicative.ofAdd 1) (fun _ => 1)
-
 /-- **The frozen procyclic-`M` word is not Gate-B admissible in F3's unrelativized sense**
 (demonstrated at the `√−10` row; the same `w`-count refutes every parameter row).  This is
 the KillsWild ruling biting exactly as it must for a δ-letter word: the tame value is a
@@ -1565,15 +1556,6 @@ section StressZMod8
 
 local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
 local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
-
-private theorem orderOf_dvd_eight (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
-  orderOf_dvd_of_pow_eq_one (by revert x; decide)
-
-/-- A concrete marking of the `h = 0` alphabet, written additively:
-`(σ, τ, x₀, x₁, x₂) = (5, 1, 1, 1, 1)` in `Multiplicative (ZMod 8)`. -/
-def zmod8Marking : Marking 2 (Multiplicative (ZMod 8)) :=
-  Marking.ofLetters (Multiplicative.ofAdd 5) (Multiplicative.ofAdd 1)
-    ![Multiplicative.ofAdd 1, Multiplicative.ofAdd 1, Multiplicative.ofAdd 1]
 
 /-- **Stress (genuine `ω₂`)**: the *profinite* denotation of the `√−10` word — real
 `x ^ᶻ ω₂` powers — is `ofAdd 3`.

@@ -577,15 +577,6 @@ section Refutation
 local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
 local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
 
-private theorem zmod8_orderOf_dvd (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
-  orderOf_dvd_of_pow_eq_one (by revert x; decide)
-
-/-- The refuting marking: `τ` a generator of `ZMod 8` (so `τ^{ω₂} = τ ≠ 1`), `σ` trivial so that
-the `𝓔`-block's conjugators drop out, everything else trivial.  The wild letters are irrelevant
-— `killWildLetters` overwrites them. -/
-def refuteMarking (h : ℕ) : Marking (2 + 2 * h) (Multiplicative (ZMod 8)) :=
-  Marking.ofLetters 1 (Multiplicative.ofAdd 1) (fun _ => 1)
-
 /-- **The frozen compact-`M` word is not Gate-B admissible in F3's unrelativized sense.** -/
 theorem not_killsWild (α h : ℕ) : ¬ KillsWild (mCompactW α h) := by
   intro hR
@@ -788,15 +779,6 @@ section StressZMod8
 
 local instance : TopologicalSpace (Multiplicative (ZMod 8)) := ⊥
 local instance : DiscreteTopology (Multiplicative (ZMod 8)) := ⟨rfl⟩
-
-private theorem orderOf_dvd_eight (x : Multiplicative (ZMod 8)) : orderOf x ∣ 8 :=
-  orderOf_dvd_of_pow_eq_one (by revert x; decide)
-
-/-- A concrete marking of the compact-`M` alphabet at `h = 0`, written additively:
-`(σ, τ, x₀, x₁, x₂) = (5, 1, 1, 1, 1)` in `Multiplicative (ZMod 8)`. -/
-def zmod8Marking : Marking (2 + 2 * 0) (Multiplicative (ZMod 8)) :=
-  Marking.ofLetters (Multiplicative.ofAdd 5) (Multiplicative.ofAdd 1)
-    ![Multiplicative.ofAdd 1, Multiplicative.ofAdd 1, Multiplicative.ofAdd 1]
 
 /-- **Stress (genuine `ω₂`)**: the *profinite* denotation of the `ℚ₂(√5)` word — real `x ^ᶻ ω₂`
 powers, not a hand-chosen integer exponent — is `ofAdd 3`.
