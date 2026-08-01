@@ -1169,4 +1169,150 @@ theorem heisEvalZ_pair_z_of_hat_jetZero (lin hat : PWord X)
 
 end HeisForm
 
+/-! ## §5 The hat copy's first Fox derivative
+
+Draft Rem. 5.4: on ramified simples `R̂^pc` has **zero first Fox derivative**.
+
+The shadow memo's P3 vanishing criterion has two clauses, and they are discharged by two
+different routes — that is not an artefact, it is the structure of the statement:
+
+1. **the free `δ₀`/`δ₁` row of the core vanishes** (the *self-replication* clause: the raw
+   word's `x_i` occurrences and its `δ_i` occurrences carry the same prefix sum, so once the
+   substitution merges them they cancel over `F₂`).  That is this section, and it is where
+   `hV₂` is spent;
+2. **`bal(w) = 0`** — the σ-column.  The memo closes it with S1.3's procyclic collector, *not*
+   with the Fox engine; the freeze re-points the Lean side at §4's coincidence lemma.  So §5
+   states its row at **σ-free offsets** and §4 supplies the σ-entry.  Splitting the statement
+   this way is the honest reading of the freeze, not a weakening: the memo's own criterion is a
+   conjunction of two separately-checked conditions ("both are exactly checkable, by different
+   engines").
+
+Everything below is quantified over the honest resolvers `E`, `E₂` — the word is **not**
+`IsOmega2Only` (WMP-a's `not_isOmega2Only_mpcW_hat`), so no numeric ω₂-exponent route exists on
+the `η̂` row and none is used. -/
+
+section HatRow
+
+variable {h : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+  (a : Generator (2 + 2 * h) → V)
+
+/-- **The general commutator Fox row** — the one engine lemma the hat copy needs that WWH's
+`foxD_comm_of_trivial` (both entries trivial) and WM0-b's `foxD_comm_of_trivial_right` (right
+entry trivial) do not cover: on this row `B̂ = δ₁σ₂^p` acts by `S₂^p`, so *neither* entry of
+`[Â,B̂]` acts trivially.  Hoist candidate. -/
+theorem foxD_comm_general (u v : PWord (Generator (2 + 2 * h))) :
+    foxD ⇑t a E E₂ (.comm u v)
+      = -((PWord.evalFin ⇑t E E₂ u)⁻¹ • foxD ⇑t a E E₂ u)
+        - ((PWord.evalFin ⇑t E E₂ u)⁻¹ * (PWord.evalFin ⇑t E E₂ v)⁻¹) • foxD ⇑t a E E₂ v
+        + ((PWord.evalFin ⇑t E E₂ u)⁻¹ * (PWord.evalFin ⇑t E E₂ v)⁻¹) • foxD ⇑t a E E₂ u
+        + ((PWord.evalFin ⇑t E E₂ u)⁻¹ * (PWord.evalFin ⇑t E E₂ v)⁻¹ * PWord.evalFin ⇑t E E₂ u)
+            • foxD ⇑t a E E₂ v := by
+  show (commR (foxEval ⇑t a E E₂ u) (foxEval ⇑t a E E₂ v)).u = _
+  simp only [commR, WordLift.mul_u, WordLift.mul_g, WordLift.inv_u, WordLift.inv_g, smul_add,
+    smul_neg, mul_smul, foxEval_g]
+  rw [show foxD ⇑t a E E₂ u = (foxEval ⇑t a E E₂ u).u from rfl,
+    show foxD ⇑t a E E₂ v = (foxEval ⇑t a E E₂ v).u from rfl]
+  abel
+
+/-! ### `σ`-free offsets kill every `σ₂`-carrying entry
+
+`D(σ₂)` is the Sage engine's opaque atom `G[S;ω₂]`; on the σ-free part of the offset space it is
+`0` because it is a multiple of `a(σ)`, and the whole `σ₂`-tower goes with it. -/
+
+/-- `D(σ₂) = 0` at `σ`-free offsets. -/
+theorem foxD_sigma2W_of_sigma_free (hσ : a Generator.sigma = 0) :
+    foxD ⇑t a E E₂ (sigma2W : PWord (Generator (2 + 2 * h))) = 0 := by
+  rw [sigma2W, PWord.omega2Pow, foxD_profPow_omega2']
+  refine Finset.sum_eq_zero fun i _ => ?_
+  rw [show foxD ⇑t a E E₂ (PWord.gen (Generator.sigma : Generator (2 + 2 * h)))
+      = a Generator.sigma from rfl, hσ, smul_zero]
+
+/-- The whole `σ₂`-tower dies with it: `D(σ₂^k) = 0` at every integer exponent. -/
+theorem foxD_sigma2Pow_of_sigma_free (hσ : a Generator.sigma = 0) (k : ℤ) :
+    foxD ⇑t a E E₂ (.zpow (sigma2W : PWord (Generator (2 + 2 * h))) k) = 0 := by
+  have hnat : ∀ j : ℕ,
+      foxD ⇑t a E E₂ (.zpow (sigma2W : PWord (Generator (2 + 2 * h))) (j : ℤ)) = 0 := by
+    intro j
+    rw [foxD_zpow_natCast]
+    exact Finset.sum_eq_zero fun i _ => by
+      rw [foxD_sigma2W_of_sigma_free t E E₂ a hσ, smul_zero]
+  rcases k with j | j
+  · simpa using hnat j
+  · rw [Int.negSucc_eq, show -((j : ℤ) + 1) = -((j + 1 : ℕ) : ℤ) by push_cast; ring,
+      foxD_zpow_neg', hnat (j + 1), smul_zero, neg_zero]
+
+/-- `Ĉ₀ = σ₂^s` has no first-order content off the σ-column. -/
+theorem foxD_c0HatW_of_sigma_free (hσ : a Generator.sigma = 0) (s' : ℕ) :
+    foxD ⇑t a E E₂ (c0HatW h s') = 0 :=
+  foxD_sigma2Pow_of_sigma_free t E E₂ a hσ _
+
+/-- …and so does `D = σ^{η̂}`, at **every** `η̂` display — the bare `σ`, a literal power, and the
+genuine `ZhatPower` node alike.  This is what keeps the `[Ĉ₀,D]` factor silent at first order
+without any hypothesis on `η`. -/
+theorem foxD_etaDisplay_of_sigma_free (hσ : a Generator.sigma = 0) (η : EtaDisplay) :
+    foxD ⇑t a E E₂ (η.toPWord (n := 2 + 2 * h)) = 0 := by
+  have hgen : foxD ⇑t a E E₂ (PWord.gen (Generator.sigma : Generator (2 + 2 * h))) = 0 := hσ
+  cases η with
+  | one => exact hgen
+  | lit k =>
+      rw [show (EtaDisplay.lit k).toPWord (n := 2 + 2 * h)
+          = .zpow (.gen Generator.sigma) k from rfl]
+      rcases k with j | j
+      · rw [show (Int.ofNat j) = ((j : ℕ) : ℤ) from rfl, foxD_zpow_natCast]
+        exact Finset.sum_eq_zero fun i _ => by rw [hgen, smul_zero]
+      · rw [Int.negSucc_eq, show -((j : ℤ) + 1) = -((j + 1 : ℕ) : ℤ) by push_cast; ring,
+          foxD_zpow_neg', foxD_zpow_natCast,
+          Finset.sum_eq_zero fun i _ => by rw [hgen, smul_zero], smul_zero, neg_zero]
+  | hat num den =>
+      rw [show (EtaDisplay.hat num den).toPWord (n := 2 + 2 * h)
+          = .profPow (.gen Generator.sigma) (Export.RawSpec.toZhat (.etahat num den)) from rfl]
+      rcases eq_or_ne (Export.RawSpec.toZhat (.etahat num den)) omega2 with hω | hω
+      · rw [hω, foxD_profPow_omega2']
+        exact Finset.sum_eq_zero fun i _ => by rw [hgen, smul_zero]
+      · rw [show foxD ⇑t a E E₂
+              (PWord.profPow (.gen (Generator.sigma : Generator (2 + 2 * h)))
+                (Export.RawSpec.toZhat (.etahat num den)))
+            = (foxEval ⇑t a E E₂ (.gen (Generator.sigma : Generator (2 + 2 * h)))
+                ^ E (Export.RawSpec.toZhat (.etahat num den))).u by
+            rw [show foxD ⇑t a E E₂ _ = (foxEval ⇑t a E E₂ _).u from rfl,
+              foxEval_profPow_of_ne _ _ _ _ _ hω]]
+        have hzero : foxEval ⇑t a E E₂ (PWord.gen (Generator.sigma : Generator (2 + 2 * h)))
+            = ⟨0, t.σ⟩ := by
+          rw [foxEval_gen]
+          exact congrArg (WordLift.mk · _) hσ
+        rw [hzero]
+        rcases E (Export.RawSpec.toZhat (.etahat num den)) with j | j
+        · rw [show (Int.ofNat j) = ((j : ℕ) : ℤ) from rfl, zpow_natCast]
+          induction j with
+          | zero => rfl
+          | succ j ih => rw [pow_succ, WordLift.mul_u, ih, smul_zero, add_zero]
+        · rw [Int.negSucc_eq, zpow_neg, show ((j : ℤ) + 1) = ((j + 1 : ℕ) : ℤ) by push_cast; ring,
+            zpow_natCast, WordLift.inv_u]
+          have : ∀ k : ℕ, ((⟨0, t.σ⟩ : WordLift V C) ^ k).u = 0 := by
+            intro k
+            induction k with
+            | zero => rfl
+            | succ k ih => rw [pow_succ, WordLift.mul_u, ih, smul_zero, add_zero]
+          rw [this (j + 1), smul_zero, neg_zero]
+
+/-! ### The δ-letter rows, at the ramified reading
+
+`P = 0`: `D(δ_i) = −a(x_i)`.  **Cited from WM0-b, not re-derived** — `dW h i` and
+`Words.MCompact.deltaC h i` are the same `PWord` (`dW_eq_deltaCert`). -/
+
+/-- The ramified δ-row, transported to this lane's spelling. -/
+theorem foxD_dW_ram (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w) (i : Fin 3) :
+    foxD ⇑t a E E₂ (dW h i) = -a (coreLetter h i) :=
+  MCompact.foxD_deltaC_ram t E E₂ hwild hτfpf hTodd i a
+
+/-- The δ-letters act trivially at the ramified reading. -/
+theorem trivAct_dW_ram (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hTodd : ∀ w : V, powOmega2 t.τ • w = w) (i : Fin 3) :
+    PWord.evalFin ⇑t E E₂ (dW h i) ∈ trivAct C V :=
+  MCompact.trivAct_deltaC t E E₂ hwild i (MCompact.trivAct_deltaBlock_ram t E E₂ hwild hTodd i)
+
+end HatRow
+
 end GQ2.Dyadic.Certificates.MProcyclic
