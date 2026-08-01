@@ -968,4 +968,106 @@ theorem foxDHom_mFwdW_eq_mCompact
 
 end Rows
 
+/-! ## The formal row
+
+Pure `FoxCoeff` data — the same at every module of a class, with the projector `P` an opaque
+atom and the `σ₂`-powers WW2's `TameSym.sigma2` atoms.  This is the Lean twin of the frozen
+certificates' `fox_certificate.rows.wild.entries`. -/
+
+/-- The `x_i`-slot of the compact-`M` alphabet. -/
+def xIdx (h : ℕ) (i : Fin 3) : Fin (2 + 2 * h + 1) := ⟨(i : ℕ), by have := i.isLt; omega⟩
+
+theorem coreLetter_wild (h : ℕ) (i : Fin 3) : coreLetter h i = Generator.wild (xIdx h i) := rfl
+
+/-- **The universal compact-`M` wild row**
+
+```
+(σ, τ, x₀, x₁, x₂) = (0,  P·S₂^{−2m},  P·S₂^{−m} + P,  P·S₂^{−m} + P·S₂^{−2m},  S⁻¹ + P)
+```
+
+— the frozen certificates' `WILD_ROW` entry for entry, in their print order, with all `2h`
+handle columns zero.  One piece of formal data, certified below at *both* interpretations
+(`P ↦ 1` split/unramified, `P ↦ 0` ramified). -/
+def mCompactWildRow (α h : ℕ) :
+    FoxRowNormalForm (Generator (2 + 2 * h)) (TameSym (2 + 2 * h)) :=
+  ⟨fun g => match g with
+    | .sigma => .zero
+    | .tau => .comp (.atom .proj) (.atom (.sigma2 (-(2 * (mOf α : ℤ)))))
+    | .wild i =>
+        if (i : ℕ) = 0 then
+          .add (.comp (.atom .proj) (.atom (.sigma2 (-(mOf α : ℤ))))) (.atom .proj)
+        else if (i : ℕ) = 1 then
+          .add (.comp (.atom .proj) (.atom (.sigma2 (-(mOf α : ℤ)))))
+            (.comp (.atom .proj) (.atom (.sigma2 (-(2 * (mOf α : ℤ))))))
+        else if (i : ℕ) = 2 then .add (.atom (.gen .sigma (-1))) (.atom .proj)
+        else .zero⟩
+
+section RowData
+
+variable {h α : ℕ}
+
+@[simp] theorem mCompactWildRow_sigma : (mCompactWildRow α h).row .sigma = .zero := rfl
+
+@[simp] theorem mCompactWildRow_tau :
+    (mCompactWildRow α h).row .tau
+      = .comp (.atom .proj) (.atom (.sigma2 (-(2 * (mOf α : ℤ))))) := rfl
+
+@[simp] theorem mCompactWildRow_x0 :
+    (mCompactWildRow α h).row (.wild (xIdx h 0))
+      = .add (.comp (.atom .proj) (.atom (.sigma2 (-(mOf α : ℤ))))) (.atom .proj) := rfl
+
+@[simp] theorem mCompactWildRow_x1 :
+    (mCompactWildRow α h).row (.wild (xIdx h 1))
+      = .add (.comp (.atom .proj) (.atom (.sigma2 (-(mOf α : ℤ)))))
+          (.comp (.atom .proj) (.atom (.sigma2 (-(2 * (mOf α : ℤ)))))) := rfl
+
+@[simp] theorem mCompactWildRow_x2 :
+    (mCompactWildRow α h).row (.wild (xIdx h 2))
+      = .add (.atom (.gen .sigma (-1))) (.atom .proj) := rfl
+
+/-- **The `x₂`-entry is the compact-`N` word's `x₂`-entry**, on the nose — the frozen note
+*"the `x_2` block is the compact-N boundary factor `J_2`"*, as an equation between certificate
+data rather than a remark. -/
+theorem mCompactWildRow_x2_eq_nCompactWildRow_x2 :
+    (mCompactWildRow α h).row (.wild (xIdx h 2))
+      = (Certificates.nCompactWildRow h).row (.wild (Certificates.x2Idx h)) := rfl
+
+theorem mCompactWildRow_wild_ne {j : Fin (2 + 2 * h + 1)} (hj0 : (j : ℕ) ≠ 0)
+    (hj1 : (j : ℕ) ≠ 1) (hj2 : (j : ℕ) ≠ 2) :
+    (mCompactWildRow α h).row (.wild j) = .zero := by
+  show (if (j : ℕ) = 0 then _ else if (j : ℕ) = 1 then _ else if (j : ℕ) = 2 then _ else _) = _
+  rw [if_neg hj0, if_neg hj1, if_neg hj2]
+
+theorem xIdx_zero_ne_one : (xIdx h 0) ≠ (xIdx h 1) := by simp [xIdx]
+theorem xIdx_zero_ne_two : (xIdx h 0) ≠ (xIdx h 2) := by simp [xIdx]
+theorem xIdx_one_ne_two : (xIdx h 1) ≠ (xIdx h 2) := by simp [xIdx]
+
+variable {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [DistribMulAction C V]
+  (t : Marking (2 + 2 * h) C) (π : AddMonoid.End V)
+
+/-- **The universal row's denotation** at any projector assignment `π`. -/
+theorem mCompactWildRow_toHom_apply (a : Generator (2 + 2 * h) → V) :
+    (mCompactWildRow α h).toHom (TameSym.toEnd t π) a
+      = π (((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a .tau)
+        + (π (((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 0)) + π (a (coreLetter h 0)))
+        + (π (((powOmega2 t.σ) ^ mOf α)⁻¹ • a (coreLetter h 1))
+            + π (((powOmega2 t.σ) ^ (2 * mOf α))⁻¹ • a (coreLetter h 1)))
+        + (t.σ⁻¹ • a (coreLetter h 2) + π (a (coreLetter h 2))) := by
+  have hz : ∀ k : ℕ, ((powOmega2 t.σ) ^ (-(k : ℤ))) = ((powOmega2 t.σ) ^ k)⁻¹ := fun k => by
+    rw [zpow_neg, zpow_natCast]
+  rw [FoxRowNormalForm.toHom_apply,
+    sum_generator_quad _ (xIdx h 0) (xIdx h 1) (xIdx h 2) xIdx_zero_ne_one xIdx_zero_ne_two
+      xIdx_one_ne_two rfl fun j hj0 hj1 hj2 => by
+        rw [mCompactWildRow_wild_ne (α := α) (fun hv => hj0 (Fin.ext hv))
+          (fun hv => hj1 (Fin.ext hv)) (fun hv => hj2 (Fin.ext hv))]
+        rfl]
+  simp only [mCompactWildRow_tau, mCompactWildRow_x0, mCompactWildRow_x1, mCompactWildRow_x2,
+    FoxCoeff.eval_add_apply, FoxCoeff.eval_comp_apply, FoxCoeff.eval_atom_apply,
+    TameSym.toEnd_proj, TameSym.toEnd_sigma2_apply, TameSym.toEnd_gen_apply, Marking.apply_sigma]
+  simp only [← coreLetter_wild]
+  rw [show (-(2 * (mOf α : ℤ))) = -((2 * mOf α : ℕ) : ℤ) by push_cast; ring, hz, hz, zpow_neg,
+    zpow_one]
+
+end RowData
+
 end GQ2.Dyadic.Certificates.MCompact
