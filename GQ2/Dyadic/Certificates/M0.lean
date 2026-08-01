@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Fable-5
 -/
 import GQ2.Dyadic.Certificates.M0Fox
+import GQ2.Dyadic.Certificates.N0
 import GQ2.Dyadic.Word.Stokes
 import GQ2.Dyadic.Word.Hessian
 
@@ -186,6 +187,45 @@ variable {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C 
 theorem heisZpow_g (p : HeisLift A C) (k : ℤ) : (p ^ k).g = p.g ^ k :=
   map_zpow HeisLift.gHom p k
 
+/-- `n • a = a` for odd `n` on a 2-torsion module — the companion of `even_nsmul_eq_zero`, and
+the rule by which an odd resolver value collapses an `ω₂`-block's jet onto its base offset. -/
+theorem nsmul_self_of_odd {M : Type*} [AddCommGroup M] (h2 : ∀ a : M, a + a = 0) {n : ℕ}
+    (hn : Odd n) (a : M) : n • a = a := by
+  obtain ⟨k, rfl⟩ := hn
+  rw [add_nsmul, one_nsmul, even_nsmul_eq_zero h2 ⟨k, by ring⟩, zero_add]
+
+/-- **The second-order trivial lifts**: jet-zero *and* zero central charge.  Strictly stronger
+than `heisJetZero` membership, and exactly what the compact-`M` correction block satisfies at
+the `P = 1` class — which is why the block can be dismissed rather than merely commuted past. -/
+def heisTrivial (A C : Type*) [Group C] [AddCommGroup A] [DistribMulAction C A] :
+    Subgroup (HeisLift A C) where
+  carrier := {p | p.a = 0 ∧ p.l = 0 ∧ p.z = 0}
+  one_mem' := ⟨rfl, rfl, rfl⟩
+  mul_mem' := fun {p r} hp hr =>
+    ⟨by rw [HeisLift.mul_a, hp.1, hr.1, smul_zero, add_zero],
+     by rw [HeisLift.mul_l, hp.2.1, hr.2.1, smul_zero, add_zero],
+     by rw [HeisLift.mul_z, hp.2.2, hr.2.2, hp.2.1, hr.1, smul_zero, ElemDual.zero_apply,
+       add_zero, add_zero]⟩
+  inv_mem' := fun {p} hp =>
+    ⟨by rw [HeisLift.inv_a, hp.1, smul_zero, neg_zero],
+     by rw [HeisLift.inv_l, hp.2.1, smul_zero, neg_zero],
+     by rw [HeisLift.inv_z, hp.2.2, hp.2.1, ElemDual.zero_apply, add_zero]⟩
+
+theorem mem_heisTrivial {p : HeisLift A C} :
+    p ∈ heisTrivial A C ↔ p.a = 0 ∧ p.l = 0 ∧ p.z = 0 := Iff.rfl
+
+/-- Second-order triviality survives conjugation by an **arbitrary** lift, provided the
+conjugand's base acts trivially: both `s`-offsets enter `heisConjR_of_trivial` only through the
+mixed pairing, and that pairing has a zero slot on each side. -/
+theorem heisConjR_mem_heisTrivial {p s : HeisLift A C} (hp : ∀ a : A, p.g • a = a)
+    (hmem : p ∈ heisTrivial A C) : conjR p s ∈ heisTrivial A C := by
+  obtain ⟨ha, hl, hz⟩ := hmem
+  rw [heisConjR_of_trivial p s hp]
+  exact ⟨by show s.g⁻¹ • p.a = 0; rw [ha, smul_zero],
+    by show s.g⁻¹ • p.l = 0; rw [hl, smul_zero],
+    by show p.z + s.l p.a + p.l s.a = 0; rw [ha, hl, hz, map_zero, ElemDual.zero_apply,
+      add_zero, add_zero]⟩
+
 /-- **A trivial-base lift raised to an even natural power is jet-zero** on a 2-torsion module.
 The mechanism by which every `σ₂`-power in the word loses its first jet. -/
 theorem heisPow_jetZero_of_even (p : HeisLift A C) (hp : ∀ a : A, p.g • a = a)
@@ -340,6 +380,205 @@ theorem heisF_leadingComm (hA₂ : ∀ a : A, a + a = 0)
   show (heisEvalZ ⇑t x y E E₂ (a0W α h)).l (x (coreLetter h 1))
       + y (coreLetter h 1) (heisEvalZ ⇑t x y E E₂ (a0W α h)).a = _
   rw [ha, hl, ElemDual.neg_apply, map_neg, CharTwo.neg_eq, CharTwo.neg_eq]
+
+/-! ### Factors 4–6: the boundary block, the correction block, the handles
+
+`J₂` and `H_h` are the pilot's own factors, so they are **used, not re-derived**: the two
+compact-`N` rows `heisF_invConjX2`/`heisF_deltaBlock` and `heisF_handlesW_z` transport across
+`coreLetter_eq`/`handleU_eq`/`handleV_eq`, which are all `rfl`.  This is the second-order
+continuation of WM0-b's "the `x₂`-block **is** the compact-`N` block". -/
+
+/-- `MCompact`'s handle block is WN0-a's, on the nose. -/
+theorem handlesW_eq (h : ℕ) : handlesW h = Words.handlesW h := rfl
+
+/-- The handle **tail** (empty at `h = 0`, per WM0-a deviation 1) has the handle block's
+value at every `h`. -/
+theorem heisEvalZ_handleTailW (t : Marking (2 + 2 * h) C) (x : Generator (2 + 2 * h) → A)
+    (y : Generator (2 + 2 * h) → ElemDual A) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ) :
+    (((handleTailW h).map (heisEvalZ ⇑t x y E E₂)).prod) = heisEvalZ ⇑t x y E E₂ (handlesW h) := by
+  cases h with
+  | zero => rw [handleTailW, handlesW_eq]; rfl
+  | succ n => rw [handleTailW]; simp only [List.map_cons, List.map_nil, List.prod_cons,
+      List.prod_nil, mul_one]
+
+/-- **Factor 4 — the boundary block `J₂ = x₂^{-σ}(x₂τ)^{ω₂}`**, exact in the resolver: the
+product of the pilot's third and fourth factors, transported verbatim. -/
+theorem heisF_j2W (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v)
+    (hτ : ∀ v : A, t.τ • v = v) {e : ℕ} (hE : E omega2 = (e : ℤ)) :
+    (heisEvalZ ⇑t x y E E₂ (j2W h)).z
+      = (y .sigma (x (coreLetter h 2)) + y (coreLetter h 2) (x .sigma)
+          + y (coreLetter h 2) (x (coreLetter h 2)))
+        + (e • y (coreLetter h 2) (x .tau)
+            + (e.choose 2) • ((y (coreLetter h 2) + y .tau) (x (coreLetter h 2) + x .tau)))
+        + e • y (coreLetter h 2) (t.σ • (x (coreLetter h 2) + x .tau)) := by
+  have e3 := Certificates.heisF_invConjX2 t x y E E₂ hwild
+  have e4 := Certificates.heisF_deltaBlock t x y E E₂ hwild hτ hE
+  simp only [coreLetter_eq]
+  rw [show j2W h = PWord.mul (.inv (.conj (.gen (coreLetter h 2)) (.gen .sigma)))
+      (PWord.mul (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h 2), .gen .tau]))
+        PWord.one) from rfl,
+    heisEvalZ_mul, heisEvalZ_mul, heisEvalZ_one, mul_one]
+  simp only [coreLetter_eq] at e3 e4 ⊢
+  rw [HeisLift.mul_z, e3, e4]
+  dsimp only
+  rw [mem_trivAct.mp
+      (inv_mem (trivAct_conjR (Certificates.trivAct_coreLetter t hwild 2) t.σ)),
+    map_nsmul, ElemDual.neg_apply, ElemDual.smul_apply, inv_inv, CharTwo.neg_eq, map_add,
+    smul_add]
+
+/-- **Factor 6, membership** — the handle block is jet-zero at every handle count. -/
+theorem heisF_handlesW_mem (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v) :
+    heisEvalZ ⇑t x y E E₂ (handlesW h) ∈ heisJetZero A C := by
+  rw [handlesW_eq]
+  exact Certificates.heisF_handlesW_mem t x y E E₂ hwild
+
+/-- **Factor 6, value** — the `h` identity-operator hyperbolic planes. -/
+theorem heisF_handlesW_z (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v) :
+    (heisEvalZ ⇑t x y E E₂ (handlesW h)).z
+      = ∑ j, (y (handleU j) (x (handleV j)) + y (handleV j) (x (handleU j))) := by
+  rw [handlesW_eq]
+  exact Certificates.heisF_handlesW_z t x y E E₂ hwild
+
+/-! ### The correction block at the `P = 1` (unramified) class
+
+On the **wild block** — the boundary convention `x τ = 0`, `y τ = 0`, matching the pilot's
+`heisZ_nCompact_wild_block` and the Hessian marking's "`τ` carries no primal letter" — the
+`δ`-letter is *trivial* at second order, not merely jet-zero: its jet is `a_i − a_i = 0` and its
+two central charges `y_i(a_i)` cancel.  Hence the whole `𝓔`-block is trivial, and the
+compact-`M` row **is** the compact-`N` row.  This is S4.1's module finding (i), "the correction
+is invisible exactly when the projector is 1", at second order. -/
+
+/-- The inner word `x_iτ` of the `δ`-letter, at an **arbitrary** wild index.
+
+⚠ Re-derived, not reused: the pilot's `heisF_deltaInner`/`heisF_deltaBlock` are hardwired at
+`coreLetter h 2` (compact-`N` has exactly one `δ`-letter), while the compact-`M` correction
+block carries `δ₀` and `δ₁`.  An index-generic restatement belongs in the WW toolkit — see the
+report's API findings. -/
+theorem heisF_deltaInnerAt (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v)
+    (i : Fin 3) :
+    heisEvalZ ⇑t x y E E₂ (PWord.prodList [.gen (coreLetter h i), .gen .tau])
+      = ⟨x (coreLetter h i) + x .tau, y (coreLetter h i) + y .tau,
+          y (coreLetter h i) (x .tau), t (coreLetter h i) * t.τ⟩ := by
+  have hi := mem_trivAct.mp (trivAct_coreLetter t hwild i)
+  rw [PWord.prodList_cons, PWord.prodList_cons, PWord.prodList_nil, heisEvalZ_mul,
+    heisEvalZ_mul, heisEvalZ_gen, heisEvalZ_gen, heisEvalZ_one, mul_one]
+  refine HeisLift.ext ?_ ?_ ?_ ?_
+  · show x (coreLetter h i) + t (coreLetter h i) • x .tau = _
+    rw [hi]
+  · show y (coreLetter h i) + t (coreLetter h i) • y .tau = _
+    rw [smul_elemDual_of_trivial hi]
+  · show (0 : ZMod 2) + 0 + y (coreLetter h i) (t (coreLetter h i) • x .tau) = _
+    rw [hi, zero_add, zero_add]
+  · rfl
+
+@[inherit_doc heisF_deltaInnerAt]
+theorem heisF_deltaBlockAt (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v)
+    (hτ : ∀ v : A, t.τ • v = v) {e : ℕ} (hE : E omega2 = (e : ℤ)) (i : Fin 3) :
+    heisEvalZ ⇑t x y E E₂
+        (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h i), .gen .tau]))
+      = ⟨e • (x (coreLetter h i) + x .tau), e • (y (coreLetter h i) + y .tau),
+          e • y (coreLetter h i) (x .tau)
+            + (e.choose 2) • ((y (coreLetter h i) + y .tau)
+                (x (coreLetter h i) + x .tau)),
+          (t (coreLetter h i) * t.τ) ^ e⟩ := by
+  have hi := mem_trivAct.mp (trivAct_coreLetter t hwild i)
+  have hbase : ∀ v : A, (t (coreLetter h i) * t.τ) • v = v := fun v => by
+    rw [mul_smul, hτ, hi]
+  rw [PWord.omega2Pow, heisEvalZ_profPow, heisF_deltaInnerAt t x y E E₂ hwild i, hE,
+    zpow_natCast, heisPow_of_trivial _ hbase]
+
+/-- **The `δ`-letter is trivial at second order** on the wild block at the honest resolver
+class.  `e ≡ 1 (mod 4)` is consumed exactly twice: `e` odd collapses the `ω₂`-block's jet onto
+`a_i`, and `C(e,2)` even kills its own charge; the two surviving `y_i(a_i)` charges then cancel
+in the `ZMod 2` centre.  Jet **and** value vanish — the block is not merely jet-zero. -/
+theorem heisF_deltaCert_trivial (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v) (hτ : ∀ v : A, t.τ • v = v)
+    (hxτ : x .tau = 0) (hyτ : y .tau = 0) {e : ℕ} (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1)
+    (i : Fin 3) : heisEvalZ ⇑t x y E E₂ (deltaCert h i) ∈ heisTrivial A C := by
+  have hi := mem_trivAct.mp (trivAct_coreLetter t hwild i)
+  have hodd := odd_of_mod_four_eq_one he
+  have hbase : ∀ v : A, ((t (coreLetter h i) * t.τ) ^ e) • v = v := fun v =>
+    mem_trivAct.mp (pow_mem (mem_trivAct.mpr (fun w => by rw [mul_smul, hτ, hi])) e) v
+  have hblk : heisEvalZ ⇑t x y E E₂
+      (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h i), .gen .tau]))
+      = ⟨x (coreLetter h i), y (coreLetter h i), 0, (t (coreLetter h i) * t.τ) ^ e⟩ := by
+    rw [heisF_deltaBlockAt t x y E E₂ hwild hτ hE i]
+    refine HeisLift.ext ?_ ?_ ?_ rfl
+    · show e • (x (coreLetter h i) + x .tau) = _
+      rw [hxτ, add_zero]
+      exact nsmul_self_of_odd hA₂ hodd _
+    · show e • (y (coreLetter h i) + y .tau) = _
+      rw [hyτ, add_zero]
+      exact nsmul_self_of_odd ElemDual.add_self_eq_zero hodd _
+    · show e • y (coreLetter h i) (x .tau)
+          + (e.choose 2) • ((y (coreLetter h i) + y .tau)
+              (x (coreLetter h i) + x .tau)) = _
+      rw [hxτ, hyτ, map_zero, smul_zero, zero_add,
+        nsmul_zmod2_even (choose_two_even_of_mod_four he)]
+  have hinv : heisEvalZ ⇑t x y E E₂ (.inv (.gen (coreLetter h i)))
+      = ⟨-x (coreLetter h i), -y (coreLetter h i),
+          y (coreLetter h i) (x (coreLetter h i)), (t (coreLetter h i))⁻¹⟩ := by
+    rw [heisEvalZ_inv, heisEvalZ_gen]
+    refine HeisLift.ext ?_ ?_ ?_ rfl
+    · show -((t (coreLetter h i))⁻¹ • x (coreLetter h i)) = _
+      rw [mem_trivAct.mp (inv_mem (trivAct_coreLetter t hwild i))]
+    · show -((t (coreLetter h i))⁻¹ • y (coreLetter h i)) = _
+      rw [smul_elemDual_of_trivial (mem_trivAct.mp (inv_mem (trivAct_coreLetter t hwild i)))]
+    · show (0 : ZMod 2) + y (coreLetter h i) (x (coreLetter h i)) = _
+      rw [zero_add]
+  rw [show deltaCert h i
+      = PWord.mul (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h i), .gen .tau]))
+          (PWord.mul (.inv (.gen (coreLetter h i))) PWord.one) from rfl,
+    heisEvalZ_mul, heisEvalZ_mul, heisEvalZ_one, mul_one, hblk, hinv]
+  refine ⟨?_, ?_, ?_⟩
+  · show x (coreLetter h i) + ((t (coreLetter h i) * t.τ) ^ e) • (-x (coreLetter h i)) = 0
+    rw [hbase, add_neg_cancel]
+  · show y (coreLetter h i) + ((t (coreLetter h i) * t.τ) ^ e) • (-y (coreLetter h i)) = 0
+    rw [smul_elemDual_of_trivial hbase, add_neg_cancel]
+  · show (0 : ZMod 2) + y (coreLetter h i) (x (coreLetter h i))
+        + y (coreLetter h i) (((t (coreLetter h i) * t.τ) ^ e) • (-x (coreLetter h i))) = 0
+    rw [hbase, map_neg, CharTwo.neg_eq, zero_add, CharTwo.add_self_eq_zero]
+
+/-- The `δ`-letter's base acts trivially, at every class — the hypothesis
+`heisConjR_mem_heisTrivial` needs to dismiss the *conjugated* factors. -/
+theorem heisF_deltaCert_trivAct (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v)
+    (hτ : ∀ v : A, t.τ • v = v) (i : Fin 3) (v : A) :
+    (heisEvalZ ⇑t x y E E₂ (deltaCert h i)).g • v = v := by
+  have hi := mem_trivAct.mp (trivAct_coreLetter t hwild i)
+  rw [show deltaCert h i
+      = PWord.mul (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h i), .gen .tau]))
+          (PWord.mul (.inv (.gen (coreLetter h i))) PWord.one) from rfl,
+    heisEvalZ_mul, heisEvalZ_mul, heisEvalZ_one, mul_one, HeisLift.mul_g]
+  refine mem_trivAct.mp (mul_mem ?_ ?_) v
+  · rw [PWord.omega2Pow, heisEvalZ_profPow, heisF_deltaInnerAt t x y E E₂ hwild i, heisZpow_g]
+    refine zpow_mem (mem_trivAct.mpr fun w => ?_) _
+    show (t (coreLetter h i) * t.τ) • w = w
+    rw [mul_smul, hτ, hi]
+  · rw [heisEvalZ_inv, HeisLift.inv_g, heisEvalZ_gen]
+    exact inv_mem (trivAct_coreLetter t hwild i)
+
+/-- **The `𝓔`-correction block is trivial at second order on the wild block** — every one of
+its four conjugated `δ`-factors is (`heisConjR_mem_heisTrivial`).  S4.1's finding (i) in Lean:
+at `P = 1` the correction is invisible, so the compact-`M` Stokes row *is* the compact-`N`
+row. -/
+theorem heisF_eRevW_trivial (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v) (hτ : ∀ v : A, t.τ • v = v)
+    (hxτ : x .tau = 0) (hyτ : y .tau = 0) {e : ℕ} (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1) :
+    heisEvalZ ⇑t x y E E₂ (eRevW α h) ∈ heisTrivial A C := by
+  have hδ : ∀ i : Fin 3, heisEvalZ ⇑t x y E E₂ (deltaCert h i) ∈ heisTrivial A C :=
+    heisF_deltaCert_trivial t x y E E₂ hA₂ hwild hτ hxτ hyτ hE he
+  have hfac : ∀ (i : Fin 3) (k : ℤ),
+      heisEvalZ ⇑t x y E E₂ (.conj (deltaCert h i) (.zpow sigma2W k)) ∈ heisTrivial A C := by
+    intro i k
+    rw [heisEvalZ_conj]
+    exact heisConjR_mem_heisTrivial (heisF_deltaCert_trivAct t x y E E₂ hwild hτ i) (hδ i)
+  rw [show eRevW α h
+      = PWord.mul (.conj (deltaCert h 1) (.zpow sigma2W (2 * (mOf α : ℤ))))
+          (PWord.mul (.conj (deltaCert h 1) (.zpow sigma2W (mOf α : ℤ)))
+            (PWord.mul (.conj (deltaCert h 0) (.zpow sigma2W (mOf α : ℤ)))
+              (PWord.mul (deltaCert h 0) PWord.one))) from rfl,
+    heisEvalZ_mul, heisEvalZ_mul, heisEvalZ_mul, heisEvalZ_mul, heisEvalZ_one, mul_one]
+  exact mul_mem (hfac 1 _) (mul_mem (hfac 1 _) (mul_mem (hfac 0 _) (hδ 0)))
 
 end StokesRows
 
