@@ -376,7 +376,7 @@ theorem pObsAt_eq_comap (W : ρ → PWord ι) (gen : ι → Γ) {κ : Γ × Γ �
   funext i
   rw [← MonoidHom.comp_apply, hproj]
 
-omit [DistribMulAction Γ (ZMod 2)] in
+omit [TotallyDisconnectedSpace Γ] [DistribMulAction Γ (ZMod 2)] in
 /-- **Well-definedness**: the obstruction depends only on the cochain, not on the factorization.
 Port of `LevelFactor.obs_congr`, compared at the meet of the two levels. -/
 theorem pObsAt_congr (W : ρ → PWord ι) (gen : ι → Γ) {κ : Γ × Γ → ZMod 2}
@@ -439,5 +439,113 @@ noncomputable def pObsFam (W : ρ → PWord ι) (gen : ι → Γ) : Z2 Γ (ZMod 
 
 end Obstruction
 
+
+
+/-! ## §5. The shift law, the admissible central lift, and the splitting
+
+The three ingredients of injectivity.  All three are degree-`2` twins of things CB-1 did at degree
+`1`: the shift law is `mem_ker_heisD1_iff` ("a word cocycle *is* a relator-killing marking of the
+split group") read in the *twisted* group instead of the split one; `isWildTwo_centLift` is
+`isWildTwo_foxLift` with the offset slot replaced by the central fibre; and the splitting is
+`toZ1w_surjective`'s use of clause (iii), at the same marking. -/
+
+section Splitting
+
+variable {ι ρ : Type*}
+
+/-- **An element of the central fibre squares to `1`** — the `2`-torsion input of the admissibility
+argument, and the twisted-group analogue of CB-1's `sq_eq_one_of_g_eq_one`. -/
+theorem centExt_sq_eq_one {L : Type} [Group L] {c : WordCoh.TwoCocycle L}
+    {p : WordCoh.CentExt c} (hp : p.base = 1) : p ^ 2 = 1 := by
+  rw [pow_two, (WordCoh.CentExt.base_eq_one_iff p).mp hp]
+  refine WordCoh.CentExt.ext (one_mul 1) ?_
+  show p.fib + p.fib + c.κ 1 1 = 0
+  rw [c.κ_one_left, add_zero]
+  exact (by decide : ∀ z : ZMod 2, z + z = 0) p.fib
+
+/-- **The central lift of an admissible marking is admissible.**
+
+The degree-`2` twin of CB-1's `isWildTwo_foxLift`, and — this is the point — the *replacement for
+MC-OB's `IsProP 2 G`*.  MC-OB certifies `CentExt c` as a legitimate target for its `PresentedBy`
+by proving the whole group pro-`2` (`isProP_CentExt`), which forces `G` itself to be pro-`2`.
+CB-1's `extend` asks far less: only that the **wild part** of the marking generate a `2`-group.
+That survives the central extension by the same two-step argument as at degree `1` — kill the base
+coordinate by the lower marking's `2`-power, then kill the leftover fibre element by squaring. -/
+theorem isWildTwo_centLift {L : Type} [Group L] {J : Set ι} {μ : ι → L}
+    (hwild : IsWildTwo J μ) (c : WordCoh.TwoCocycle L) (a : ι → ZMod 2) :
+    IsWildTwo J (fun i => WordCoh.CentExt.incl c (a i) * WordCoh.lift μ c i) := by
+  rintro ⟨p, hp⟩
+  have hle : Subgroup.normalClosure
+      ((fun i => WordCoh.CentExt.incl c (a i) * WordCoh.lift μ c i) '' J)
+      ≤ (Subgroup.normalClosure (μ '' J)).comap (WordCoh.CentExt.proj c) :=
+    Subgroup.normalClosure_le_normal <| by
+      rintro _ ⟨i, hi, rfl⟩
+      show WordCoh.CentExt.proj c _ ∈ Subgroup.normalClosure (μ '' J)
+      rw [map_mul]
+      show (1 : L) * μ i ∈ Subgroup.normalClosure (μ '' J)
+      rw [one_mul]
+      exact Subgroup.subset_normalClosure ⟨i, hi, rfl⟩
+  obtain ⟨k, hk⟩ := hwild ⟨_, hle hp⟩
+  have hk' : (p ^ 2 ^ k).base = 1 := by
+    have h := congrArg Subtype.val hk
+    rw [SubgroupClass.coe_pow, OneMemClass.coe_one] at h
+    rw [show (p ^ 2 ^ k).base = WordCoh.CentExt.proj c (p ^ 2 ^ k) from rfl, map_pow]
+    exact h
+  refine ⟨k + 1, Subtype.ext ?_⟩
+  rw [SubgroupClass.coe_pow, OneMemClass.coe_one, pow_succ, pow_mul]
+  exact centExt_sq_eq_one hk'
+
+/-- The **central shift** `(p, z) ↦ incl z · p`.  A homomorphism precisely because the fibre is
+central, which is why the direct product — and not a semidirect one — is the right domain. -/
+def shiftMul {L : Type} [Group L] (c : WordCoh.TwoCocycle L) :
+    WordCoh.CentExt c × Multiplicative (ZMod 2) →* WordCoh.CentExt c where
+  toFun q := WordCoh.CentExt.incl c (Multiplicative.toAdd q.2) * q.1
+  map_one' := by
+    show WordCoh.CentExt.incl c 0 * 1 = 1
+    rw [WordCoh.CentExt.incl_zero, one_mul]
+  map_mul' q r := by
+    refine WordCoh.CentExt.ext ?_ ?_
+    · simp only [Prod.fst_mul, WordCoh.CentExt.mul_base, WordCoh.CentExt.incl_base, one_mul]
+    · simp only [Prod.fst_mul, Prod.snd_mul, toAdd_mul, WordCoh.CentExt.mul_fib,
+        WordCoh.CentExt.mul_base, WordCoh.CentExt.incl_base, WordCoh.CentExt.incl_fib, one_mul,
+        c.κ_one_left]
+      abel
+
+/-- **The shift law.**  Moving every lift by the central `a i` moves the relator value by the
+central `pEps a` — and §2 says `pEps` is `d¹`.  So the obstruction vector is well defined exactly
+modulo `im d¹`, which is the definition of `WordH²`.
+
+The proof is three applications of `PWord.map_eval` at the finite discrete direct product
+`CentExt c × Multiplicative 𝔽₂`: the two projections read off the unshifted value and the exponent
+sum, and `shiftMul` puts them back together. -/
+theorem pWord_eval_shift {L : Type} [Group L] [TopologicalSpace L] [DiscreteTopology L] [Finite L]
+    (Wk : PWord ι) (μ : ι → L) (c : WordCoh.TwoCocycle L) (a : ι → ZMod 2) :
+    PWord.eval (fun i => WordCoh.CentExt.incl c (a i) * WordCoh.lift μ c i) Wk
+      = WordCoh.CentExt.incl c (pEps Wk a) * PWord.eval (WordCoh.lift μ c) Wk := by
+  set n : ι → WordCoh.CentExt c × Multiplicative (ZMod 2) :=
+    fun i => (WordCoh.lift μ c i, Multiplicative.ofAdd (a i)) with hn
+  have h1 := PWord.map_eval
+    (discreteCMH (MonoidHom.fst (WordCoh.CentExt c) (Multiplicative (ZMod 2)))) n Wk
+  have h2 := PWord.map_eval
+    (discreteCMH (MonoidHom.snd (WordCoh.CentExt c) (Multiplicative (ZMod 2)))) n Wk
+  have hs := PWord.map_eval (discreteCMH (shiftMul c)) n Wk
+  have e1 : (fun i => discreteCMH
+      (MonoidHom.fst (WordCoh.CentExt c) (Multiplicative (ZMod 2))) (n i))
+      = WordCoh.lift μ c := rfl
+  have e2 : (fun i => discreteCMH
+      (MonoidHom.snd (WordCoh.CentExt c) (Multiplicative (ZMod 2))) (n i))
+      = fun i => Multiplicative.ofAdd (a i) := rfl
+  have es : (fun i => discreteCMH (shiftMul c) (n i))
+      = fun i => WordCoh.CentExt.incl c (a i) * WordCoh.lift μ c i := rfl
+  rw [e1] at h1
+  rw [e2] at h2
+  rw [es] at hs
+  rw [← hs]
+  show WordCoh.CentExt.incl c (Multiplicative.toAdd (PWord.eval n Wk).2) * (PWord.eval n Wk).1 = _
+  rw [show (PWord.eval n Wk).1 = PWord.eval (WordCoh.lift μ c) Wk from h1,
+    show (PWord.eval n Wk).2 = PWord.eval (fun i => Multiplicative.ofAdd (a i)) Wk from h2]
+  rfl
+
+end Splitting
 
 end GQ2.Dyadic.Count
