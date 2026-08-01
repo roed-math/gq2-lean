@@ -58,16 +58,25 @@ normal form, which is proved here from scratch:
    restricted to `ker d` is alternating and nondegenerate, and the symplectic normal form
    finishes.
 
-So `hilbertNormalForm` below is unconditional given `IsCupFormFp2 b`, `Nondegenerate b`, and the
-`e`-datum, and `exists_cupForm_dual_vector` produces the `e`-datum from nondegeneracy alone on a
-finite space.  Nothing in this part is a hypothesis binder and nothing is an axiom.
+So `exists_cupForm_normalForm` below is unconditional given `IsCupFormFp2 b`, `NondegFp2 b` and
+the `e`-datum.  **Nothing in part c2 is a hypothesis binder and nothing is an axiom**, and no
+`𝔽₂` quadratic-form classification is used — the missing mathlib theory wl-recon priced is not
+on the path.
 
-What genuinely stays outside a *word* ticket is the identification of `(H¹(G_K,𝔽₂), ∪)` with a
-`W` satisfying those hypotheses: `dim = n + 2` (local Euler characteristic), perfectness of the
-cup pairing (local duality), and `q_K = 2`.  Those are field-side inputs with no Lean
-representation at the word-certificate layer — see `docs`-level note in the report; they are
-AS4/AS1's, and each is a *named standard theorem* rather than an unformalised classification.
--/
+What stays outside a *word* ticket is only the identification of `(H¹(G_K,𝔽₂), ⌣)` with a `W`
+satisfying those hypotheses.  The vocabulary for it already exists in the repo for a general
+dyadic `K` — `H1 k.fixingSubgroup (ZMod 2)`, `kummerClassK` (`GQ2/EvensKahn.lean:437`) with
+`kummerClassK_surjective`, the trivial cup pairing `⌣[·]` (`GQ2/Demushkin.lean:95`) and the
+Hilbert-symbol identification (census axiom **B11a**,
+`hilbertSymbol_normCriterion_finiteDyadic`, `GQ2/Foundations/Axioms.lean:433`) — so the residue
+is three *named* field-side facts, none of them a form classification:
+
+* `dim_{𝔽₂} H¹(G_K,𝔽₂) = n + 2` — derivable from `absGalK_localEulerCharacteristic`
+  (`GQ2/Dyadic/LocalGauss/EulerShapiro.lean:782`), not currently stated anywhere;
+* perfectness of the cup pairing (local duality) — supplying `NondegFp2`;
+* `q_K = 2`, i.e. `(−1,−1)_K = −1` — supplying `e` and `b e e = 1`.
+
+Those are AS1/AS4's, not WL's: no word ticket owns a field. -/
 
 section CupForm
 
@@ -523,5 +532,136 @@ theorem exists_cupForm_normalForm [Finite W] {b : W → W → ZMod 2} (hb : IsCu
         cupSplit_gram hb he he1 _ _ _ _
 
 end SymplecticNormalForm
+
+/-! ## §2 The relator side: the degree-`n` cup Gram of `L_sq`
+
+S2.4 §5.5's *relator* half, in MC2's own vocabulary (`GQ2/Dyadic/MarkedCore/Cores.lean`):
+the fibre of the `L_sq` relator shape at a central lift into a cup cocycle.  This is the
+type-`L` analogue of `mRelWord_centLift_fib`/`nRelWord_centLift_fib` — the assembly wl-recon
+§2.4 names `lRelWord_centLift_fib` and calls "the same proof with a different factor list".
+
+The value read off `sqRelWord_centLift_fib` is, in the letter basis `σ, x₀, x₁, u₁, v₁, …`,
+
+```
+⟨1⟩ on x₁      ⊥   H on (σ, x₀)   ⊥   H^{⊥h} on the handle pairs
+```
+
+on a space of rank `sqRank h = 3 + 2h = n + 2` — i.e. **`⟨1⟩ ⊥ H^{⊥(h+1)}`**, matching
+`exists_cupForm_normalForm`'s target exactly, and reproducing `SqCore.sqCore_cupGram`
+(`[[0,1,0],[1,0,0],[0,0,1]]` on `(σ*, x₀*, x₁*)`) at `h = 0`.  The two sides of packet item (5)
+therefore meet in the *same* normal form, which is what the clause asserts.
+
+Mechanism, factor by factor (all three of WL-b's "invisible at first order" items are visible
+here, and two of them cancel):
+
+* `(x₀^σ)⁻¹` contributes the `(σ,x₀)` **hyperbolic pair** plus a `κ(x₀,x₀)` Bockstein charge
+  from the inversion seam;
+* `x₀⁻³` contributes a second `κ(x₀,x₀)` (`diagCoeff 3 = 1`, the odd-cube augmentation-1
+  mechanism WL-b measured at first order) — the two cancel, which is `diagCoeff 4 = 0`
+  read on `x₀`'s total exponent `−4`;
+* `x₁²` contributes the **anisotropic diagonal** `κ(x₁,x₁)` (`diagCoeff 2 = 1`);
+* `[x₁, x₁^{σ₂}]` contributes **nothing**: on an elementary abelian base `x₁^{σ₂}` and `x₁`
+  have the same image, so the block is a commutator of two lifts of one element
+  (`commP_eq_one_of_base_eq`).  The `σ₂`-slot is invisible *here* — but not at second order
+  (§4 below), which is the precise sense in which the square-commutator block does its work
+  one degree up. -/
+
+section RelatorGram
+
+open GQ2 GQ2.Dyadic.MarkedCore GQ2.Dyadic.SqCore
+
+variable {L : Type*} [Group L] {c : GQ2.DRCoh.TwoCocycle L} (hc : IsCupCocycle c)
+
+include hc
+
+/-- Two elements of the central extension over the **same** base commute: their `commP` is
+trivial.  This is what kills the square-commutator block at the Gram level. -/
+theorem commP_eq_one_of_base_eq {p q : GQ2.DRCoh.CentExt c} (hb : p.base = q.base) :
+    commP p q = 1 := by
+  have hinv : ∀ z : L, z⁻¹ = z := hc.inv_eq
+  refine GQ2.DRCoh.CentExt.ext ?_ ?_
+  · show p.base⁻¹ * q.base⁻¹ * p.base * q.base = 1
+    rw [← hb, hinv, mul_assoc, mul_assoc, hc.expTwo, mul_one, hc.expTwo]
+  · show p.fib + c.κ p.base p.base⁻¹ + (q.fib + c.κ q.base q.base⁻¹)
+        + c.κ p.base⁻¹ q.base⁻¹ + p.fib + c.κ (p.base⁻¹ * q.base⁻¹) p.base + q.fib
+        + c.κ (p.base⁻¹ * q.base⁻¹ * p.base) q.base = 0
+    rw [← hb, hinv, hc.expTwo, one_mul, c.κ_one_left]
+    ring_nf
+    simp [show (4 : ZMod 2) = 0 from by decide, show (2 : ZMod 2) = 0 from by decide]
+
+/-- The `σ`-conjugate of a central lift has the same base (the base group is abelian). -/
+@[simp] theorem conjP_centLift_base (x s : L) :
+    (conjP (centLift c x) (centLift c s)).base = x := by
+  show s⁻¹ * x * s = x
+  rw [hc.inv_eq, hc.comm s x, mul_assoc, hc.expTwo, mul_one]
+
+/-- …and fibre the `(σ,x)` off-diagonal pair — the hyperbolic entry. -/
+theorem conjP_centLift_fib (x s : L) :
+    (conjP (centLift c x) (centLift c s)).fib = c.κ s x + c.κ x s := by
+  show (centLift c s).fib + c.κ s s⁻¹ + (centLift c x).fib + c.κ s⁻¹ x
+      + (centLift c s).fib + c.κ (s⁻¹ * x) s = _
+  simp only [MarkedCore.centLift_fib, hc.inv_eq, hc.addLeft, zero_add, add_zero]
+  ring_nf
+  simp [show (2 : ZMod 2) = 0 from by decide]
+
+/-- The core word has trivial base: on the abelianization `L_sq`'s core is `x₀⁻⁴ x₁²`. -/
+@[simp] theorem sqWord_centLift_base (s x y : L) :
+    (sqWord (centLift c s) (centLift c x) (centLift c y)).base = 1 := by
+  have hcomm : commP (centLift c y) (conjP (centLift c y) (centLift c s)) = 1 :=
+    commP_eq_one_of_base_eq hc (by rw [MarkedCore.centLift_base, conjP_centLift_base hc])
+  have hx3 : x ^ 3 = x := by rw [pow_succ, hc.pow_two_eq_one, one_mul]
+  have hA1b : (conjP (centLift c x) (centLift c s))⁻¹.base = x := by
+    rw [MarkedCore.centExt_inv_base, conjP_centLift_base hc, hc.inv_eq]
+  have hA2b : ((centLift c x) ^ 3)⁻¹.base = x := by
+    rw [MarkedCore.centExt_inv_base, MarkedCore.centExt_pow_base, MarkedCore.centLift_base,
+      hx3, hc.inv_eq]
+  have hA3b : ((centLift c y) ^ 2).base = 1 := by
+    rw [MarkedCore.centExt_pow_base, MarkedCore.centLift_base, hc.pow_two_eq_one]
+  rw [sqWord, hcomm, mul_one, GQ2.DRCoh.CentExt.mul_base, GQ2.DRCoh.CentExt.mul_base,
+    hA1b, hA2b, hA3b, hc.expTwo, mul_one]
+
+/-- **The `L_sq` rank-3 core Gram value** — `⟨1⟩` on `x₁` and one hyperbolic plane on
+`(σ, x₀)`.  This is `SqCore.sqCore_cupGram`'s matrix `[[0,1,0],[1,0,0],[0,0,1]]`, computed as a
+relator fibre rather than as nine separate cup values, and generic in the cocycle. -/
+theorem sqWord_centLift_fib (s x y : L) :
+    (sqWord (centLift c s) (centLift c x) (centLift c y)).fib
+      = c.κ y y + (c.κ s x + c.κ x s) := by
+  have hcomm : commP (centLift c y) (conjP (centLift c y) (centLift c s)) = 1 :=
+    commP_eq_one_of_base_eq hc (by rw [MarkedCore.centLift_base, conjP_centLift_base hc])
+  have hx3 : x ^ 3 = x := by rw [pow_succ, hc.pow_two_eq_one, one_mul]
+  have hA1b : (conjP (centLift c x) (centLift c s))⁻¹.base = x := by
+    rw [MarkedCore.centExt_inv_base, conjP_centLift_base hc, hc.inv_eq]
+  have hA1f : (conjP (centLift c x) (centLift c s))⁻¹.fib
+      = c.κ s x + c.κ x s + c.κ x x := by
+    rw [MarkedCore.centExt_inv_fib, conjP_centLift_fib hc, conjP_centLift_base hc, hc.inv_eq]
+  have hA2b : ((centLift c x) ^ 3)⁻¹.base = x := by
+    rw [MarkedCore.centExt_inv_base, MarkedCore.centExt_pow_base, MarkedCore.centLift_base,
+      hx3, hc.inv_eq]
+  have hA2f : ((centLift c x) ^ 3)⁻¹.fib = 0 := by
+    rw [MarkedCore.centExt_inv_fib, MarkedCore.centLift_pow_fib (hc.kappa_pow_left x),
+      MarkedCore.centExt_pow_base, MarkedCore.centLift_base, hx3, hc.inv_eq,
+      show MarkedCore.diagCoeff 3 = 1 from by decide, one_mul, CharTwo.add_self_eq_zero]
+  have hA3b : ((centLift c y) ^ 2).base = 1 := by
+    rw [MarkedCore.centExt_pow_base, MarkedCore.centLift_base, hc.pow_two_eq_one]
+  have hA3f : ((centLift c y) ^ 2).fib = c.κ y y := by
+    rw [MarkedCore.centLift_pow_fib (hc.kappa_pow_left y),
+      show MarkedCore.diagCoeff 2 = 1 from by decide, one_mul]
+  rw [sqWord, hcomm, mul_one, GQ2.DRCoh.CentExt.mul_fib, GQ2.DRCoh.CentExt.mul_fib,
+    GQ2.DRCoh.CentExt.mul_base, hA1b, hA1f, hA2b, hA2f, hA3b, hA3f, c.κ_one_right]
+  ring_nf
+  simp [show (2 : ZMod 2) = 0 from by decide]
+
+/-- **The full degree-`n` `L_sq` relator Gram value**, handles included — the `⟨1⟩ ⊥ H^{⊥(h+1)}`
+of S2.4 §5.5 at rank `sqRank h = n + 2`, in the letter basis.  The `h`-generic handle block is
+MC2's `handleWord_centLift_fib`, cited; nothing about the type-`L` word enters it. -/
+theorem sqRelWord_centLift_fib {h : ℕ} (m : Fin (sqRank h) → L) :
+    (sqRelWord (fun i => centLift c (m i))).fib
+      = c.κ (m 2) (m 2) + (c.κ (m 0) (m 1) + c.κ (m 1) (m 0))
+        + ∑ j, (c.κ (m (sqHandleIdxU j)) (m (sqHandleIdxV j))
+            + c.κ (m (sqHandleIdxV j)) (m (sqHandleIdxU j))) := by
+  rw [sqRelWord, MarkedCore.fib_mul_of_base_one (sqWord_centLift_base hc _ _ _),
+    sqWord_centLift_fib hc, hc.handleWord_centLift_fib]
+
+end RelatorGram
 
 end GQ2.Dyadic.Certificates.LSqStokes
