@@ -254,4 +254,109 @@ theorem card_wordZ1_zmod2_of_selfDual {n : ℕ} (S : IsSelfDualN n c w (ZMod 2))
 
 end ScalarCount
 
+/-! ## §6. The scalar comparison bridge `Hom_c(Γ, 𝔽₂) ≃ Z¹(Γ, 𝔽₂)`
+
+The scalar analogue of CB-1's `tcocycleEquivZ1`/`vcocycleEquivZ1`, and the piece that lets the
+`homCard` clause reach the word lane at all.  With no action a continuous crossed homomorphism
+*is* a continuous homomorphism into `Multiplicative 𝔽₂`: the cocycle law
+`z(γδ) = z γ + γ • z δ` loses its twist by §1, and `Multiplicative`'s multiplication is `𝔽₂`'s
+addition, so the two sides are the same function under `toAdd`/`ofAdd`.
+
+The `ℚ₂` ancestors never meet `Z¹`: `lemma_8_2_gammaA`/`lemma_8_2_R`/`lemma_8_2_local`
+(`GQ2/SectionEight/ScalarCount.lean:245,339`, `GQ2/Roe/Supply.lean:202`) count characters by hand
+against a `FreeProfiniteGroup (Fin 4)` presentation and a hand-built `vecEquiv`.  That route is
+not degree-generic — the `Fin 4` and the `8` are both hard-coded — which is why this bridge is
+new rather than transported. -/
+
+section HomBridge
+
+variable {Γ : Type*} [Group Γ] [TopologicalSpace Γ] [DistribMulAction Γ (ZMod 2)]
+
+/-- **`Hom_c(Γ, 𝔽₂) ≃ Z¹(Γ, 𝔽₂)`** — continuous characters are continuous `1`-cocycles, for the
+(unique, §1) action of `Γ` on the scalars.  Both directions are the identity on underlying
+functions, so both round trips are `rfl`. -/
+def homEquivZ1 : ContinuousMonoidHom Γ (Multiplicative (ZMod 2)) ≃ ↥(Z1 Γ (ZMod 2)) where
+  toFun f :=
+    ⟨fun γ => Multiplicative.toAdd (f γ), (mem_Z1_iff_of_trivial smul_zmod2).mpr
+      ⟨f.continuous_toFun, fun g h => congrArg Multiplicative.toAdd (map_mul f g h)⟩⟩
+  invFun z :=
+    { toFun := fun γ => Multiplicative.ofAdd (z.1 γ)
+      map_one' := congrArg Multiplicative.ofAdd (Z1_apply_one z)
+      map_mul' := fun g h =>
+        congrArg Multiplicative.ofAdd (((mem_Z1_iff_of_trivial smul_zmod2).mp z.2).2 g h)
+      continuous_toFun := ((mem_Z1_iff_of_trivial smul_zmod2).mp z.2).1 }
+  left_inv _ := rfl
+  right_inv _ := Subtype.ext rfl
+
+@[simp] theorem homEquivZ1_coe (f : ContinuousMonoidHom Γ (Multiplicative (ZMod 2))) (γ : Γ) :
+    (homEquivZ1 f).1 γ = Multiplicative.toAdd (f γ) := rfl
+
+/-- The cardinality form — the equation `homCard` transports along. -/
+theorem card_hom_eq_card_Z1 :
+    Nat.card (ContinuousMonoidHom Γ (Multiplicative (ZMod 2))) = Nat.card ↥(Z1 Γ (ZMod 2)) :=
+  Nat.card_congr homEquivZ1
+
+end HomBridge
+
+/-! ## §7. `SourceDataN.homCard`, over the abstract carrier
+
+The first field value.  Three rewrites and no cohomology: §6 moves into `Z¹`, CB-1's
+`card_Z1_eq_card_wordZ1` moves into the word complex, §5 reads off the value, and
+`(standardNumerics n).homScalar = 2^{n+2}` is `rfl`.
+
+⚠ The `DistribMulAction Γ (ZMod 2)` the comparison needs is supplied **internally** by
+`scalarAction` and never appears in the statement, so the clause composes with `SourceDataN`
+without a `letI` at the call site — unlike `tcocycle_card`/`hZcard`, whose field goals mention
+their actions.  By §1 this is not a choice: any action a branch might supply agrees with it on
+values. -/
+
+section HomCard
+
+variable {ι κ : Type*} [Fintype ι] [Fintype κ] [DecidableEq ι]
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+  [DistribMulAction C (ZMod 2)]
+  [TopologicalSpace (WordLift (ZMod 2) C)] [DiscreteTopology (WordLift (ZMod 2) C)]
+  {gen : ι → Γ} {W : κ → PWord ι} {w : κ → FreeGroup ι} {c : ι → C} {J : Set ι}
+  (rho : ContinuousMonoidHom Γ C) (hc : ∀ i, rho (gen i) = c i)
+
+omit [DecidableEq ι] in
+include hc in
+/-- **The `SourceDataN.homCard` value, degree-generically, duality-free.**
+
+`#Hom_c(Γ, 𝔽₂) = SN.homScalar` for `SN = standardNumerics n`, at a degree-`n` marked
+presentation, from the single scalar input `#H²w(𝔽₂) = 2`.  This is the shape
+`GQ2/Dyadic/SourceDataN.lean:181` asks for; at `n = 1` it is the frozen `8`
+(`GQ2/SourceData.lean:131`), and the `8` is `2^{|ι| − |ρ| + 1}`. -/
+theorem homCardN {n : ℕ} (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W w (WordLift (ZMod 2) C)) (hwild2 : IsWildTwo J c)
+    (hdeg : Nat.card ι = Nat.card κ + (n + 1))
+    (hH2 : Nat.card (WordH2 c w (ZMod 2)) = 2) :
+    Nat.card (ContinuousMonoidHom Γ (Multiplicative (ZMod 2)))
+      = (standardNumerics n).homScalar := by
+  letI := scalarAction Γ
+  haveI := scalarAction_continuousSMul Γ
+  rw [card_hom_eq_card_Z1,
+    card_Z1_eq_card_wordZ1 rho (fun γ a => (smul_zmod2 (rho γ) a).symm) hc hpres hres
+      zmod2_add_self hwild2,
+    card_wordZ1_zmod2_of_cardH2 hdeg hH2]
+  rfl
+
+include hc in
+/-- **The same through CB-S's "one theorem"**: the scalar input comes from the branch's
+`StokesDuality` payload at the scalars, and the relator hypothesis `hr` is supplied by the
+presentation (CB-1's `lower_rel`) rather than re-verified. -/
+theorem homCardN_of_stokes {n : ℕ} (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hres : ResolvesAt W w (WordLift (ZMod 2) C)) (hwild2 : IsWildTwo J c)
+    (hdeg : Nat.card ι = Nat.card κ + (n + 1)) (hd : StokesDuality c w (ZMod 2))
+    (hend : IsStokesEndpoint w) :
+    Nat.card (ContinuousMonoidHom Γ (Multiplicative (ZMod 2)))
+      = (standardNumerics n).homScalar := by
+  letI := scalarAction Γ
+  haveI := scalarAction_continuousSMul Γ
+  exact homCardN rho hc hpres hres hwild2 hdeg
+    (card_wordH2_zmod2 hd (lower_rel (A := ZMod 2) rho hc hpres hres) hend)
+
+end HomCard
+
 end GQ2.Dyadic.Count
