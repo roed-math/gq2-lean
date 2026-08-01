@@ -8,11 +8,109 @@ import GQ2.Dyadic.Certificates.Mpc
 /-!
 # Dyadic campaign, ticket WMP-d: the procyclic `M_α` closer's standard items
 
-WMP-c (`GQ2/Dyadic/Certificates/Mpc.lean`) discharged WMP-b's five-item handoff; this leaf
-carries the *standard* `-c` closer items every sibling lane already has — the Stokes family, the
-endpoint condition, the duality instantiation and a scalar Gram — plus WMP-c's one named
-computational residual, the linear copy's Fox row.
+WMP-c (`GQ2/Dyadic/Certificates/Mpc.lean`) delivered WMP-b's five-item handoff; this leaf carries
+the *standard* `-c` closer items every sibling lane already has — the Stokes family, the endpoint
+condition, the `stokesDuality_of_simple` instantiation and a scalar Gram — plus WMP-c's one named
+computational residual, the linear copy's Fox row.  `Certificates/Mpc.lean` is closed and
+untouched.
 
+## §1–§2 The traced exponent, and the `E₂^pc` count
+
+`epsZ` is `heisEps i ∘ heisToFree E E₂` with a one-line rule per `PWord` constructor.  The
+siblings unfolded each word by hand; the traced target is commutative of exponent two, so the
+whole endpoint computation becomes arithmetic.  Lane-generic — a hoist candidate.
+
+⚠ **WMP-c's odd-count intelligence HELD, and is now machine-checked** (`epsZ_e2W`,
+`epsZ_mpcW`).  `E₂^pc` carries `δ₂` exactly `1 + 2m` times — one from the head conjugate, two per
+orbit-norm factor, in *both* emitted `z`-spellings including the `p = 0` display `δ₂²` — so the
+count is odd at every `p`, the `2m` occurrences cancel in pairs, and the head survives.  The
+whole word's traced vector is therefore one `δ₂` and nothing else.
+
+## §3–§4 The family, the endpoint condition, duality
+
+Consequently the endpoint condition needs the **tame row**, pilot-style (WN0-c's route), not
+WM0-c's: on the compact-`M` row every branch factor dies syntactically, here one does not.
+`mpc_isStokesEndpoint` holds for all `α ≥ 1`, all `r, p, h`, every `η̂` display, every even `q`
+and odd `e` — the per-letter coefficients being the pilot's `1 − q + e` on `τ` and `e − 1` on
+`x₂`.  `mpc_stokesDuality` instantiates WW3's packet-Lem-5.1 engine; **`hsimp` stays AS1's**, as
+in every sibling lane.
+
+## §5 The scalar Gram
+
+Three kernel-`decide` pins on the scalar module: `√−10` at `e = 1` and its `e = 3` twin (S1.T's
+mod-4 sensitivity, as a matrix pair), and the `√10` (`ε = 0`) twin.
+
+⚠ **Finding: this row is *not* the pilot's, and `ε` is why.**  WM0-c recorded that the compact-`M`
+Gram reproduces the pilot's entry for entry, because every `σ₂`-power there is even and carries no
+jet.  Here `p = ε·2^{r−1}` is odd at the packet's `√−10` instance, so `B = x₁σ₂` and the `E₀₁^pc`
+outer conjugator are odd `σ₂`-powers and do carry one.  `scalarGram_eps_difference` isolates the
+effect: turning `ε` on moves exactly the σ-row's `{τ, x₀}` entries.  This is a *second*-order
+statement and does not conflict with WMP-c's first-order `foxColumn_sigma_mpcProductW_eq_zero`.
+
+## §6 The linear copy's Fox row — WMP-c's residual (i)
+
+WMP-c named the closed form of `hlinrow` — "in particular the Fox row of the orbit-norm block
+`E₂^pc`" — as the one `-b`-shaped computation nobody owned.  It is computed here, and the answer
+is sharper than the transport needed:
+
+```
+D(R_lin^pc)(a) = S₂^{−s}·σ^{−n}·a(x₂)          (foxD_mpcLinW_x2)
+```
+
+at σ-free offsets, at the ramified reading, in characteristic two, at every `(α ≥ 1, r, p, η, h)`
+— **one entry, in the `x₂`-column**.  Three facts do it: every prefix weight is a power of the
+one procyclic letter `S₂` and Prop. 9.2's balance kills the surviving product
+(`foxD_mpcLinW_ram`); the `x₀`/`x₁`-columns of the head block `A²[A,B]` are reproduced *exactly*
+by `E₀₁^pc`; and what is left of `C₀^{2^α}` is the **reflection** of the orbit norm — the same
+`m` powers of `S₂^s` read from the other end (`smul_geomS_reflect`) — so `E₂^pc` cancels it.
+
+⚠ Consistency check: `MCompact.mCompactWildRow` at the **ramified** interpretation (`P ↦ 0`) is
+`(0, 0, 0, 0, S⁻¹)` — also one `x₂`-entry, also one `σ`-power.  The procyclic row is that shape
+with `S⁻¹` replaced by `S₂^{−s}σ^{−n}`, i.e. by exactly the two data the procyclic display adds.
+
+The one datum the row cannot name for itself is `η̂`: `D = σ^{η̂}` acts by a *marking-dependent*
+integer power of `σ`, so that exponent enters as the hypothesis `hη` and the formal row is
+parametrized by it — as the compact rows are parametrized by the projector assignment.  At the
+`√−10` instance (`η = 1`) it is definitional.
+
+## §7 Merge gate 9
+
+**Closed.**  `sqrtNeg10ProductCert` is a term: WMP-c's `sqrtNeg10ProductRowCert` with `hlinrow`
+discharged by §6 and `hσzero` by `rfl`.  Its target is `mpcLinRow 1 1 0`, whose only entry is
+`S₂^{−2}σ^{−1}` in the `x₂`-column.  What remains are the ramified class conditions `hwild`,
+`hτfpf`, `hTodd`, `hV₂`, which every sibling row carries and which AS1 supplies per module;
+nothing about the row itself is open.
+
+## Implementation notes
+
+**Not `module`-style, and forced**: `GQ2.Dyadic.Certificates.Mpc` is plain-import (through
+`Words/Mpc.lean` and F3's `TameBoundary`), and a `module` file may not import a non-`module`
+one — the WN0-a ruling.
+
+**Reused, not re-derived**: WMP-c's `ActsAsPow` calculus (`mul`, `inv`, `zpow`, `congr_exp`,
+`base_zpow`, `trivAct_commR`, `trivial_of_zero`) and its `actsAsPow_*`/`trivAct_*` letter facts;
+WMP-b's `foxD_comm_general`, `foxD_sigma2W_of_sigma_free`, `foxD_sigma2Pow_of_sigma_free`,
+`foxD_etaDisplay_of_sigma_free`, `foxD_dW_ram`, `trivAct_dW_ram`, `foxD_e01W_ram`; WM0-b's
+`MCompact.foxD_prodList_pair` and `MCompact.evalFin_sigma2W`; `Certificates.neg_eq_self`,
+`Certificates.heisEps_of`, `sum_generator_wild`; WW3's
+`heisToFree`/`heisEps`/`IsStokesEndpoint`/`stokesDuality_of_simple`/`stokesGram`.
+
+**Hoist candidates**: the whole `epsZ` API (§1, twelve lemmas, lane-generic), `geomS` with its
+five lemmas (`geomS_add`, `geomS_add_vec`, `geomS_smul`, `smul_geomS_reflect`, `geomS_succ`),
+`sum_map_list_range`, `orbitNormFactors_map` (the `List.range` coercion normal form — WMP-a's
+documented monadic friction, one level down), `foxD_zpow_eq_zero`, `inv_pow_smul`.
+
+**Axiom state.**  Every one of the file's eighty named declarations depends on a subset of
+`[propext, Classical.choice, Quot.sound]` (scratch audit over the full list; not committed).
+Zero `sorryAx`, zero `native_decide`.  Kernel `decide` is used four times: three `+kernel` Gram
+pins on a **one-dimensional** module over a two-element group, and one on a `5 × 5` `ZMod 2`
+matrix difference.  The census is untouched at eleven.
+
+**Headlines** (the audit surface): `epsZ_e2W`, `epsZ_mpcW`, `mpcFam`, `mpc_isStokesEndpoint`,
+`sqrtNeg10_isStokesEndpoint`, `mpc_stokesDuality`, `heisEta1_mpcFam_apply`,
+`sqrtNeg10_scalarGram`, `sqrtNeg10_scalarGram_three`, `sqrt10_scalarGram`,
+`scalarGram_eps_difference`, `foxD_e2W`, `smul_geomS_reflect`, `foxD_mpcLinW_ram`,
+`foxD_mpcLinW_x2`, `mpcLinRow`, `mpcLinRow_toHom`, `sqrtNeg10_hlinrow`, `sqrtNeg10ProductCert`.
 -/
 
 namespace GQ2.Dyadic.Certificates.MProcyclic
@@ -509,7 +607,7 @@ theorem geomS_add (c : ℤ) (k l : ℕ) (v : V) :
   rw [← mul_smul, ← zpow_add]
   congr 1
   push_cast
-  ring
+  ring_nf
 
 omit [Finite C] [Finite V] in
 /-- Geometric operators are additive in the vector. -/
@@ -543,7 +641,7 @@ theorem smul_geomS_reflect (c : ℤ) (k : ℕ) (d : ℤ) (v : V) :
   congr 1
   have hcast : ((k - 1 - i : ℕ) : ℤ) = (k : ℤ) - 1 - (i : ℤ) := by omega
   rw [hcast]
-  ring
+  ring_nf
 
 omit [Finite C] [Finite V] in
 /-- `2^α = 2·m` for `α ≥ 1` — the exponent identity that lets the `C₀^{2^α}` block split into
@@ -809,7 +907,7 @@ theorem foxD_commC0D (hV₂ : ∀ w : V, w + w = 0) {η : EtaDisplay} {nη : ℤ
   rw [foxD_comm_general, foxD_c0W t E E₂ a hσ hwild hτfpf hTodd s',
     foxD_etaDisplay_of_sigma_free t E E₂ a hσ η, smul_zero, smul_zero, hC _, mul_smul, hC _,
     hη.inv (a (coreLetter h 2))]
-  simp only [sub_eq_add_neg, Certificates.neg_eq_self hV₂, neg_zero, add_zero, zero_add]
+  simp only [sub_eq_add_neg, Certificates.neg_eq_self hV₂, add_zero]
 
 /-! ### The assembled row — the headline
 
@@ -868,8 +966,7 @@ theorem foxD_mpcLinW_ram {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDispl
     rw [smul_add, smul_add, ← mul_smul, mem_trivAct.mp hbal, hsq _, hsq _, smul_add]
     abel
   rw [mpcLinW, linFactors]
-  simp only [PWord.prodList_cons, PWord.prodList_nil, foxD_mul, foxD_one, PWord.evalFin_mul,
-    PWord.evalFin_one, smul_zero, add_zero, mul_one]
+  simp only [PWord.prodList_cons, PWord.prodList_nil, foxD_mul, foxD_one, smul_zero, add_zero]
   rw [mem_trivAct.mp hAB, mem_trivAct.mp hCD, mem_trivAct.mp h01, key]
   abel
 
@@ -939,15 +1036,12 @@ theorem foxD_mpcLinW_x2 {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) {η : EtaDispla
     rw [smul_geomS_reflect]
     congr 2
     ring
-  have hev2 : ∀ x : V, (2 : ℕ) • x = 0 := fun x => by rw [two_nsmul, hV₂]
-  have hev4 : ∀ x : V, (4 : ℕ) • x = 0 := fun x => by
-    rw [show (4 : ℕ) = 2 * 2 from rfl, mul_nsmul, hev2]
   have hevz2 : ∀ x : V, (2 : ℤ) • x = 0 := fun x => by rw [two_zsmul, hV₂]
   have hevz4 : ∀ x : V, (4 : ℤ) • x = 0 := fun x => by
     rw [show (4 : ℤ) = 2 * 2 from rfl, mul_zsmul, hevz2]
   rw [href1, href2]
   abel_nf
-  simp [hev2, hev4, hevz2, hevz4]
+  simp [hevz2, hevz4]
 
 end Factors
 
@@ -1021,6 +1115,7 @@ section Gate9
 variable {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
   [DistribMulAction C V] (t : Marking 2 C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
 
+omit [Finite C] [Finite V] in
 /-- The `η = 1` display acts as the first power of `σ` — the `hη` datum at the packet's
 `√−10` instance, where it is definitional rather than a hypothesis. -/
 theorem actsAsPow_etaOne :
