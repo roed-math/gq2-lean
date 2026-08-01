@@ -86,6 +86,13 @@ noncomputable def heisPureBase : C →* HeisLift A C where
 
 @[simp] theorem heisPureBase_g (g : C) : (heisPureBase (A := A) g).g = g := rfl
 
+/-- `(k • λ)(a) = k • λ(a)` on the elementary dual (lane-local copy of WW3's private
+`elemDual_nsmul_apply`; hoist candidate). -/
+theorem elemDual_nsmul_apply (k : ℕ) (f : ElemDual A) (a : A) : (k • f) a = k • f a := by
+  induction k with
+  | zero => rfl
+  | succ k ih => rw [succ_nsmul, succ_nsmul, ElemDual.add_apply, ih]
+
 /-- A lift with zero first jet **and** zero central value is the pure-base lift of its base —
 the recognition lemma that turns an offset-free letter into an opaque operator. -/
 theorem heisPureBase_of_eq (p : HeisLift A C) (ha : p.a = 0) (hl : p.l = 0) (hz : p.z = 0) :
@@ -130,6 +137,75 @@ theorem heisCommR_of_left_trivial (p r : HeisLift A C) (hp : ∀ a : A, p.g • 
     group
 
 end HeisToolkit
+
+/-! ### The corrected cross operator in resolver form
+
+`lcSmul S k r` is `L_c = A⁻¹ + B + B·A⁻¹` with `A = S^k`, `B = S^{2^r}`, acting on an
+**arbitrary** `C`-module.  Two consumers, and that is the point of the generality: the primal
+module `V` (where it is NC2's `lcOp`, by `lcSmul_eq_lcOp`) and the elementary dual
+`ElemDual V` (where it is the operator the correction block applies to the *dual* jet).  The
+`k`-slot carries the resolved η̂-value `E(η̂)` — the η̂-atom stays opaque, exactly as in
+WNP-b's `.etaA` design. -/
+
+section LcSmul
+
+variable {C : Type*} [Group C] {M : Type*} [AddCommGroup M] [DistribMulAction C M]
+
+/-- **The corrected cross operator** `L_c = A⁻¹ + B + B·A⁻¹` (`A = S^k`, `B = S^{2^r}`) as a
+module map, on any `C`-module.  Draft eq:Ncross's `L_c = A⁻¹` is the first summand alone
+(S3.2, errata item 5). -/
+noncomputable def lcSmul (S : C) (k : ℤ) (r : ℕ) (v : M) : M :=
+  (S ^ k)⁻¹ • v + S ^ ((2 : ℤ) ^ r) • v + (S ^ ((2 : ℤ) ^ r) * (S ^ k)⁻¹) • v
+
+theorem lcSmul_def (S : C) (k : ℤ) (r : ℕ) (v : M) :
+    lcSmul S k r v
+      = (S ^ k)⁻¹ • v + S ^ ((2 : ℤ) ^ r) • v + (S ^ ((2 : ℤ) ^ r) * (S ^ k)⁻¹) • v := rfl
+
+/-- `L_c` is additive — it is a sum of three module actions. -/
+theorem lcSmul_add (S : C) (k : ℤ) (r : ℕ) (v w : M) :
+    lcSmul S k r (v + w) = lcSmul S k r v + lcSmul S k r w := by
+  simp only [lcSmul, smul_add]
+  abel
+
+@[simp] theorem lcSmul_zero (S : C) (k : ℤ) (r : ℕ) : lcSmul S k r (0 : M) = 0 := by
+  simp only [lcSmul, smul_zero, add_zero]
+
+/-- **`L_c` as an additive map** — the `V →+ V` datum the Hessian certificate's change of
+variables consumes. -/
+noncomputable def lcHom (S : C) (k : ℤ) (r : ℕ) : M →+ M where
+  toFun := lcSmul S k r
+  map_zero' := lcSmul_zero S k r
+  map_add' := lcSmul_add S k r
+
+@[simp] theorem lcHom_apply (S : C) (k : ℤ) (r : ℕ) (v : M) :
+    lcHom S k r v = lcSmul S k r v := rfl
+
+/-- **`L_c = 1 + (1 + A⁻¹)(1 + B)`** — the freeze's factored display, over a `2`-torsion
+module.  The factorization is what makes the two degenerations below one-liners, and it is the
+shape the per-module invertibility question is asked in. -/
+theorem lcSmul_eq_one_add_factored (hM₂ : ∀ v : M, v + v = 0) (S : C) (k : ℤ) (r : ℕ) (v : M) :
+    lcSmul S k r v
+      = v + ((v + (S ^ k)⁻¹ • v) + S ^ ((2 : ℤ) ^ r) • (v + (S ^ k)⁻¹ • v)) := by
+  have hneg : ∀ w : M, -w = w := fun w => neg_eq_of_add_eq_zero_left (hM₂ w)
+  rw [lcSmul, smul_add, ← mul_smul]
+  rw [show v + ((v + (S ^ k)⁻¹ • v) + (S ^ ((2 : ℤ) ^ r) • v
+      + (S ^ ((2 : ℤ) ^ r) * (S ^ k)⁻¹) • v))
+    = (v + v) + ((S ^ k)⁻¹ • v + (S ^ ((2 : ℤ) ^ r) • v
+      + (S ^ ((2 : ℤ) ^ r) * (S ^ k)⁻¹) • v)) by abel, hM₂, zero_add]
+  abel
+
+/-- **`L_c` degenerates to the identity when `S` acts trivially** — the scalar/split module:
+`A = B = 1`, so `L_c = 1 + 1 + 1 = 1`.  "The scalar module separates nothing" survives the
+correction at second order, exactly as it does at first (`foxD_npc_split`). -/
+theorem lcSmul_of_trivial (hM₂ : ∀ v : M, v + v = 0) {S : C} (hS : ∀ v : M, S • v = v)
+    (k : ℤ) (r : ℕ) (v : M) : lcSmul S k r v = v := by
+  have hz : ∀ (m : ℤ) (w : M), (S ^ m) • w = w := fun m w =>
+    MulAction.mem_stabilizer_iff.mp (zpow_mem (MulAction.mem_stabilizer_iff.mpr (hS w)) m)
+  have hinv : ∀ (m : ℤ) (w : M), (S ^ m)⁻¹ • w = w := fun m w =>
+    inv_smul_eq_iff.mpr (hz m w).symm
+  rw [lcSmul, mul_smul, hinv, hz, hM₂, zero_add]
+
+end LcSmul
 
 /-! ## §2. The second-order rows of the six factors
 
@@ -313,6 +389,184 @@ theorem heisF_omega2Block (i : Fin 3)
     rw [mul_smul, hτ, hi]
   rw [PWord.omega2Pow, heisEvalZ_profPow, heisF_deltaInner t x y E E₂ i hwild, hE,
     zpow_natCast, heisPow_of_trivial _ hbase]
+
+/-- **The `δ₀`-letter at second order**: `δ₀ = (x₀τ)^{ω₂}x₀⁻¹` has jet
+`(e·(a₀+a_τ) − a₀, e·(y₀+y_τ) − y₀)` at the resolver value `E ω₂ = e`, and its base acts
+trivially.  At every **odd** `e` — every honest resolver — the jet collapses to the τ-letter's
+alone (`heisJetA_deltaZeroW_odd`), which is what makes the correction block's row readable. -/
+theorem heisF_deltaZeroW (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v)
+    (hτ : ∀ v : A, t.τ • v = v) {e : ℕ} (hE : E omega2 = (e : ℤ)) :
+    heisEvalZ ⇑t x y E E₂ (deltaZeroW h)
+      = ⟨e • (x (coreLetter h 0) + x .tau) - x (coreLetter h 0),
+          e • (y (coreLetter h 0) + y .tau) - y (coreLetter h 0),
+          e • y (coreLetter h 0) (x .tau)
+            + (e.choose 2) • ((y (coreLetter h 0) + y .tau)
+                (x (coreLetter h 0) + x .tau))
+            + y (coreLetter h 0) (x (coreLetter h 0))
+            + e • ((y (coreLetter h 0) + y .tau) (x (coreLetter h 0))),
+          (t (coreLetter h 0) * t.τ) ^ e * (t (coreLetter h 0))⁻¹⟩ := by
+  have h0 := mem_trivAct.mp (trivAct_coreLetter t hwild 0)
+  have hbase : ∀ v : A, ((t (coreLetter h 0) * t.τ) ^ e) • v = v := by
+    intro v
+    have hm : ∀ v : A, (t (coreLetter h 0) * t.τ) • v = v := fun v => by rw [mul_smul, hτ, h0]
+    exact MulAction.mem_stabilizer_iff.mp
+      (pow_mem (MulAction.mem_stabilizer_iff.mpr (hm v)) e)
+  have h0i : ∀ v : A, (t (coreLetter h 0))⁻¹ • v = v := fun v =>
+    inv_smul_eq_iff.mpr (h0 v).symm
+  rw [deltaZeroW, prodList_pair, heisEvalZ_mul, heisEvalZ_mul, heisEvalZ_one, mul_one,
+    heisF_omega2Block t x y E E₂ 0 hwild hτ hE, heisEvalZ_inv, heisEvalZ_gen]
+  refine HeisLift.ext ?_ ?_ ?_ rfl
+  · show e • (x (coreLetter h 0) + x .tau)
+        + ((t (coreLetter h 0) * t.τ) ^ e) • (-((t (coreLetter h 0))⁻¹ • x (coreLetter h 0)))
+      = _
+    rw [smul_neg, hbase, h0i, sub_eq_add_neg]
+  · show e • (y (coreLetter h 0) + y .tau)
+        + ((t (coreLetter h 0) * t.τ) ^ e) • (-((t (coreLetter h 0))⁻¹ • y (coreLetter h 0)))
+      = e • (y (coreLetter h 0) + y .tau) - y (coreLetter h 0)
+    rw [smul_neg, smul_elemDual_of_trivial hbase, smul_elemDual_of_trivial h0i,
+      sub_eq_add_neg]
+  · show e • y (coreLetter h 0) (x .tau)
+          + (e.choose 2) • ((y (coreLetter h 0) + y .tau) (x (coreLetter h 0) + x .tau))
+        + (0 + y (coreLetter h 0) (x (coreLetter h 0)))
+        + (e • (y (coreLetter h 0) + y .tau))
+            (((t (coreLetter h 0) * t.τ) ^ e) • (-((t (coreLetter h 0))⁻¹ •
+              x (coreLetter h 0))))
+      = e • y (coreLetter h 0) (x .tau)
+            + (e.choose 2) • ((y (coreLetter h 0) + y .tau)
+                (x (coreLetter h 0) + x .tau))
+            + y (coreLetter h 0) (x (coreLetter h 0))
+            + e • ((y (coreLetter h 0) + y .tau) (x (coreLetter h 0)))
+    rw [smul_neg, hbase, h0i, elemDual_nsmul_apply, map_neg, CharTwo.neg_eq, zero_add]
+
+/-- **The `δ₀`-jet at an odd resolver value** — the τ-letter's offset alone.  In characteristic
+`2` an odd `e` acts as the identity, so `e·(a₀+a_τ) − a₀ = a_τ`: the `x₀`-offset cancels between
+the `ω₂`-power and the trailing `x₀⁻¹`, which is the second-order form of the freeze's
+"`δ₀` is a `τ`-letter in disguise". -/
+theorem heisJetA_deltaZeroW_odd (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v) (hτ : ∀ v : A, t.τ • v = v)
+    {e : ℕ} (hE : E omega2 = (e : ℤ)) (he : Odd e) :
+    (heisEvalZ ⇑t x y E E₂ (deltaZeroW h)).a = x .tau := by
+  have hneg : ∀ w : A, -w = w := fun w => neg_eq_of_add_eq_zero_left (hA₂ w)
+  rw [heisF_deltaZeroW t x y E E₂ hwild hτ hE]
+  show e • (x (coreLetter h 0) + x .tau) - x (coreLetter h 0) = _
+  obtain ⟨m, rfl⟩ := he
+  rw [add_nsmul, mul_nsmul', two_nsmul, hA₂, zero_add, one_nsmul, sub_eq_add_neg, hneg,
+    show x (coreLetter h 0) + x .tau + x (coreLetter h 0)
+      = (x (coreLetter h 0) + x (coreLetter h 0)) + x .tau by abel, hA₂, zero_add]
+
+@[inherit_doc heisJetA_deltaZeroW_odd]
+theorem heisJetL_deltaZeroW_odd
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v) (hτ : ∀ v : A, t.τ • v = v)
+    {e : ℕ} (hE : E omega2 = (e : ℤ)) (he : Odd e) :
+    (heisEvalZ ⇑t x y E E₂ (deltaZeroW h)).l = y .tau := by
+  have hL₂ : ∀ f : ElemDual A, f + f = 0 := ElemDual.add_self_eq_zero
+  have hneg : ∀ f : ElemDual A, -f = f := fun f => neg_eq_of_add_eq_zero_left (hL₂ f)
+  rw [heisF_deltaZeroW t x y E E₂ hwild hτ hE]
+  show e • (y (coreLetter h 0) + y .tau) - y (coreLetter h 0) = _
+  obtain ⟨m, rfl⟩ := he
+  rw [add_nsmul, mul_nsmul', two_nsmul, hL₂, zero_add, one_nsmul, sub_eq_add_neg, hneg,
+    show y (coreLetter h 0) + y .tau + y (coreLetter h 0)
+      = (y (coreLetter h 0) + y (coreLetter h 0)) + y .tau by abel, hL₂, zero_add]
+
+/-- **The `D`-block's second-order jet is the corrected cross operator applied to `δ₀`'s**:
+
+```
+a(D_{r,η}) = L_c · a(δ₀),   λ(D_{r,η}) = L_c · λ(δ₀),   L_c = A⁻¹ + B + B·A⁻¹.
+```
+
+The same three conjugators of the compressed spelling `δ₀^A (δ₀ δ₀^A)^{B⁻¹}` that WNP-b sees at
+first order (`foxD_dBlockW`), now on **both** jet coordinates — right conjugation applies the
+inverse conjugator, so `A` contributes `A⁻¹` and `B⁻¹` contributes `B`, once for each `δ₀`-copy
+of the second factor.  Nothing below `δ₀` is unfolded and `A`, `B` are never expanded. -/
+theorem heisJet_dBlockW (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v)
+    (hτ : ∀ v : A, t.τ • v = v) (hxσ : x .sigma = 0) (hyσ : y .sigma = 0)
+    {e : ℕ} (hE : E omega2 = (e : ℤ)) (d : EtaData) :
+    (heisEvalZ ⇑t x y E E₂ (dBlockW h r d)).a
+        = lcSmul t.σ (E d.toZhat) r (heisEvalZ ⇑t x y E E₂ (deltaZeroW h)).a ∧
+      (heisEvalZ ⇑t x y E E₂ (dBlockW h r d)).l
+        = lcSmul t.σ (E d.toZhat) r (heisEvalZ ⇑t x y E E₂ (deltaZeroW h)).l ∧
+      ∀ v : A, (heisEvalZ ⇑t x y E E₂ (dBlockW h r d)).g • v = v := by
+  set δ := heisEvalZ ⇑t x y E E₂ (deltaZeroW h) with hδ
+  -- the `δ₀`-denotation and its base
+  have hδg : ∀ v : A, δ.g • v = v := by
+    rw [hδ, heisF_deltaZeroW t x y E E₂ hwild hτ hE]
+    intro v
+    have h0 := mem_trivAct.mp (trivAct_coreLetter t hwild 0)
+    have hm : ∀ v : A, (t (coreLetter h 0) * t.τ) • v = v := fun v => by rw [mul_smul, hτ, h0]
+    show ((t (coreLetter h 0) * t.τ) ^ e * (t (coreLetter h 0))⁻¹) • v = v
+    rw [mul_smul, inv_smul_eq_iff.mpr (h0 v).symm]
+    exact MulAction.mem_stabilizer_iff.mp
+      (pow_mem (MulAction.mem_stabilizer_iff.mpr (hm v)) e)
+  set A' := t.σ ^ E d.toZhat with hA'
+  set B' := t.σ ^ ((2 : ℤ) ^ r) with hB'
+  -- the first factor `δ₀^A`
+  have hfst : heisEvalZ ⇑t x y E E₂ (.conj (deltaZeroW h) (aW h d))
+      = ⟨A'⁻¹ • δ.a, A'⁻¹ • δ.l, δ.z, conjR δ.g A'⟩ := by
+    rw [heisEvalZ_conj, heisF_aW t x y E E₂ hxσ hyσ d, ← hδ,
+      heisConjR_of_trivial _ _ hδg]
+    refine HeisLift.ext rfl rfl ?_ rfl
+    show δ.z + (0 : ElemDual A) δ.a + δ.l 0 = δ.z
+    rw [ElemDual.zero_apply, map_zero, add_zero, add_zero]
+  have hfstg : ∀ v : A, (conjR δ.g A') • v = v := fun v =>
+    mem_trivAct.mp (trivAct_conjR (mem_trivAct.mpr hδg) A') v
+  -- the inner product `δ₀ · δ₀^A`
+  have hinn : heisEvalZ ⇑t x y E E₂
+      (PWord.prodList [deltaZeroW h, .conj (deltaZeroW h) (aW h d)])
+      = δ * ⟨A'⁻¹ • δ.a, A'⁻¹ • δ.l, δ.z, conjR δ.g A'⟩ := by
+    rw [prodList_pair, heisEvalZ_mul, heisEvalZ_mul, heisEvalZ_one, mul_one, hfst, ← hδ]
+  -- the second factor `(δ₀ δ₀^A)^{B⁻¹}`
+  have hsndc : heisEvalZ ⇑t x y E E₂ (.inv (bW h r)) = heisPureBase B'⁻¹ := by
+    rw [heisEvalZ_inv, heisF_bW t x y E E₂ hxσ hyσ, ← map_inv]
+  rw [dBlockW, prodList_pair, heisEvalZ_mul, heisEvalZ_mul, heisEvalZ_one, mul_one, hfst,
+    heisEvalZ_conj, hinn, hsndc,
+    heisConjR_of_trivial _ _ (by
+      intro v
+      show (δ.g * conjR δ.g A') • v = v
+      rw [mul_smul, hfstg, hδg])]
+  refine ⟨?_, ?_, ?_⟩
+  · show A'⁻¹ • δ.a + conjR δ.g A' • ((heisPureBase (A := A) B'⁻¹).g⁻¹ • (δ.a + δ.g • (A'⁻¹ • δ.a)))
+      = _
+    rw [heisPureBase_g, inv_inv, hfstg, hδg, lcSmul, smul_add, ← mul_smul]
+    abel
+  · show A'⁻¹ • δ.l + conjR δ.g A' • ((heisPureBase (A := A) B'⁻¹).g⁻¹ • (δ.l + δ.g • (A'⁻¹ • δ.l)))
+      = _
+    rw [heisPureBase_g, inv_inv, smul_elemDual_of_trivial hfstg,
+      smul_elemDual_of_trivial hδg, lcSmul, smul_add, ← mul_smul]
+    abel
+  · intro v
+    show (conjR δ.g A' * conjR (δ * ⟨A'⁻¹ • δ.a, A'⁻¹ • δ.l, δ.z, conjR δ.g A'⟩).g B'⁻¹) • v = v
+    rw [mul_smul, hfstg]
+    refine mem_trivAct.mp (trivAct_conjR (mem_trivAct.mpr ?_) B'⁻¹) v
+    intro w
+    show (δ.g * conjR δ.g A') • w = w
+    rw [mul_smul, hfstg, hδg]
+
+/-- **Factor 5, the lane's headline row: the correction block `E_{r,η}` is jet-zero central with
+value the `L_c`-twisted pairing**
+
+```
+β(E_{r,η}) = (L_c·λ(δ₀))(a₁) + y₁(L_c·a(δ₀)),        L_c = A⁻¹ + B + B·A⁻¹.
+```
+
+This is the exact point at which the two lanes' findings meet.  At **first** order this block is
+identically zero (WNP-b's `foxD_eBlockW`: `L_c` is fully present in `D_{r,η}` and then annihilated
+by the commutator with `x₁`); at **second** order the commutator no longer annihilates — it
+*pairs* — and what it pairs is precisely `L_c` applied to the `δ₀`-jet.  Gate D is blind to the
+S3.2 correction and the Stokes level is not: this row is where the blindness stops.  It is the
+cup-level shadow of NC5's `b_q(c₁, L_c c₀)`. -/
+theorem heisF_eBlockW (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v)
+    (hτ : ∀ v : A, t.τ • v = v) (hxσ : x .sigma = 0) (hyσ : y .sigma = 0)
+    {e : ℕ} (hE : E omega2 = (e : ℤ)) (d : EtaData) :
+    heisEvalZ ⇑t x y E E₂ (eBlockW h r d)
+      = ⟨0, 0,
+          lcSmul t.σ (E d.toZhat) r (heisEvalZ ⇑t x y E E₂ (deltaZeroW h)).l
+              (x (coreLetter h 1))
+            + y (coreLetter h 1)
+                (lcSmul t.σ (E d.toZhat) r (heisEvalZ ⇑t x y E E₂ (deltaZeroW h)).a),
+          commR (heisEvalZ ⇑t x y E E₂ (dBlockW h r d)).g (t (coreLetter h 1))⟩ := by
+  obtain ⟨ha, hl, hg⟩ := heisJet_dBlockW t x y E E₂ hwild hτ hxσ hyσ hE d (r := r)
+  rw [eBlockW, heisEvalZ_comm, heisEvalZ_gen,
+    heisCommR_of_trivial _ _ hg (mem_trivAct.mp (trivAct_coreLetter t hwild 1)), ha, hl]
 
 /-- **Factor 6, membership** — the handle block is jet-zero at every handle count. -/
 theorem heisF_handlesW_mem (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v) :
