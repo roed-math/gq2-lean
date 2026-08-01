@@ -77,7 +77,10 @@ target*; `PWord.eval_eq_evalNat_of_dvd` resolves `ω₂` there at `omega2Exp N`.
   6`, hence correct at exactly the targets of exponent dividing `6`) and `omega2Exp_two_pow`
   (`e = 1` is the resolver at **every** `2`-group target, which is the case the count lane is in).
 * **§8** the pilot compositions at `Γ_R`, in two forms: with the target resolution as a hypothesis
-  (generic `R`), and with it discharged at the **intrinsic** compact-`N` word.
+  (generic `R`), and with it discharged at the **intrinsic** compact-`N` word.  Both forms are
+  **level-generic** (ticket CB-LV): the resolver is a parameter `e` with `Odd e`, and the
+  discharged form reads it off a nonzero even level `N` as `omega2Exp N`.  The literal pins
+  `e = 3` / `orderOf x ∣ 6` are gone — CB-FR2 refuted their source.
 * the five frozen branch families are `Count/Frozen.lean`, a leaf: each is a specialization of
   §4's instance at its own intrinsic word, with no hypothesis.
 
@@ -593,7 +596,34 @@ compatibilities, surjectivity, the `StokesDuality` payload — plus the one genu
 relator-resolution seam `hres`.
 
 Read against `Count/Compare.lean` §8: the `hpres` argument is now `IsAdmissibleMarkedPresentation`
-and comes from §4, `hA₂` from §7, `hwild2` from §5.  Nothing is left for CB-4 to invent. -/
+and comes from §4, `hA₂` from §7, `hwild2` from §5.  Nothing is left for CB-4 to invent.
+
+⚠ **The resolver level is a parameter, not the literal `3`** (ticket CB-LV, following CB-FR2).
+The pins `e = 3` and `orderOf x ∣ 6` this section used to carry were never facts about the
+counting target: `omega2Exp_six` is the arithmetic a *constant* resolver needs in order to be
+honest, and the residue `∀ g : Bg ⧸ D.M, orderOf g ∣ 3` that `6 = 2 · 3` reduces to is **false**
+at the campaign's own witness datum — `Count/Frozen.lean` §8.1 refutes it with
+`GQ2.CardH2GammaA.datum`, whose `Bg ⧸ D.M` has order `2`.  So the four theorems below are stated
+at an arbitrary level instead:
+
+* the two `_gammaR` wrappers take the resolver `e` together with `Odd e`, which is all the
+  endpoint condition (`Certificates.nCompact_isStokesEndpoint`) ever wanted of it; they therefore
+  compose `nCompact_tcocycle_card` / `nCompact_hZcard` directly, rather than
+  `Count/Compare.lean`'s `sqrtNegTwo_*` specializations, which pin `e = 3` in their statements;
+* the two `_nCompact` theorems take a **level** `N`, nonzero with a nontrivial `2`-part, and read
+  the resolver off it as `omega2Exp N`; `Odd (omega2Exp N)` is `GQ2.omega2Exp_modEq_one` read
+  modulo `2`.
+
+**Nothing is weakened.**  The old statements are the `e = 3` and `N = 6` instances: `Odd 3` and
+`(6).factorization 2 ≠ 0` are immediate, and `omega2Exp_six` turns the level-`6` family back into
+the frozen `nCompactFam 2 0 2 3`.
+
+The level the count lane actually runs at is the **split level** `2 · exp(Bg ⧸ D.M)`, which is
+nonzero and even for free — the `2` is the lift level, i.e. the `2`-torsion of `Additive ↥D.T`
+(§7's `radT_add_self`) showing up as a factor.  Both facts about it are stated downstream in
+`Count/Frozen.lean` §8.2 (`Count.orderOf_wordLift_radT_dvd_exponent`,
+`Count.splitLevel_ne_zero_and_even`), which is where they can be shared with the other four branch
+rows; this file is *upstream* of `Count/Frozen.lean`, so the instantiation is taken there. -/
 
 section PilotComposition
 
@@ -603,10 +633,14 @@ variable {q : ℕ} {R : PWord (Generator 2)}
   {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
   {D : RadicalCoverData Bg}
 
-/-- **The `√−2` pilot's `tcocycle_card` field value, over `Γ_R`.**  CB-1's
-`sqrtNegTwo_tcocycle_card` with the restricted presentation, the `2`-torsion of `T` and the
-admissibility of the lower marking all supplied here. -/
-theorem sqrtNegTwo_tcocycle_card_gammaR
+/-- **The `√−2` pilot's `tcocycle_card` field value, over `Γ_R`, at an arbitrary odd resolver.**
+CB-1's `nCompact_tcocycle_card` with the restricted presentation, the `2`-torsion of `T` and the
+admissibility of the lower marking all supplied here, and the endpoint condition supplied from
+`Odd e` alone (`Certificates.nCompact_isStokesEndpoint`).
+
+The frozen `e = 3` is the instance at `he := ⟨1, rfl⟩`; see the section heading for why it is no
+longer the statement. -/
+theorem sqrtNegTwo_tcocycle_card_gammaR {e : ℕ}
     [TopologicalSpace (Additive ↥D.T)] [DiscreteTopology (Additive ↥D.T)]
     [DistribMulAction ((GammaR 2 q R) : Type) (Additive ↥D.T)]
     [ContinuousSMul ((GammaR 2 q R) : Type) (Additive ↥D.T)]
@@ -616,18 +650,21 @@ theorem sqrtNegTwo_tcocycle_card_gammaR
     (rho : ContinuousMonoidHom ((GammaR 2 q R) : Type) (Bg ⧸ D.M))
     (hcomp : ∀ (γ : ((GammaR 2 q R) : Type)) (a : Additive ↥D.T), γ • a = rho γ • a)
     (hc : ∀ g, rho (gammaGen 2 q R g) = t g)
-    (hres : ResolvesAt (gammaFam 2 q R) (nCompactFam 2 0 2 3)
+    (hres : ResolvesAt (gammaFam 2 q R) (nCompactFam 2 0 2 e)
       (WordLift (Additive ↥D.T) (Bg ⧸ D.M)))
+    (he : Odd e)
     (hsurj : Function.Surjective rho)
-    (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 3) (Additive ↥D.T)) :
+    (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 e) (Additive ↥D.T)) :
     Nat.card (TCocycle D rho)
       = (standardNumerics 2).tMult (Nat.card (Additive ↥D.T))
         * Nat.card (fixedPts (Bg ⧸ D.M) (ElemDual (Additive ↥D.T))) :=
-  sqrtNegTwo_tcocycle_card rho hcomp hc (isAdmissibleMarkedPresentation_gammaR 2 q R) hres
+  nCompact_tcocycle_card (h := 0) rho hcomp hc (isAdmissibleMarkedPresentation_gammaR 2 q R) hres
     (radT_add_self D) (isWildTwo_of_gammaGen rho hsurj hc) hsurj hd
+    (nCompact_isStokesEndpoint one_le_two even_two he)
 
-/-- **The `√−2` pilot's `hZcard` field value, over `Γ_R`** — the `V`-side twin. -/
-theorem sqrtNegTwo_hZcard_gammaR {DD : DescData D}
+/-- **The `√−2` pilot's `hZcard` field value, over `Γ_R`** — the `V`-side twin, likewise at an
+arbitrary odd resolver. -/
+theorem sqrtNegTwo_hZcard_gammaR {e : ℕ} {DD : DescData D}
     {E : Type} [Group E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
     [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod]
     [DistribMulAction E DD.Vmod] [DistribMulAction ((GammaR 2 q R) : Type) DD.Vmod]
@@ -637,26 +674,38 @@ theorem sqrtNegTwo_hZcard_gammaR {DD : DescData D}
     (hround : ∀ (γ : ((GammaR 2 q R) : Type)) (v : DD.Vmod), rho0 DD rho γ • v = theta γ • v)
     (hact : ∀ (γ : ((GammaR 2 q R) : Type)) (v : DD.Vmod), γ • v = theta γ • v)
     (hc : ∀ g, theta (gammaGen 2 q R g) = t g)
-    (hres : ResolvesAt (gammaFam 2 q R) (nCompactFam 2 0 2 3) (WordLift DD.Vmod E))
+    (hres : ResolvesAt (gammaFam 2 q R) (nCompactFam 2 0 2 e) (WordLift DD.Vmod E))
+    (he : Odd e)
     (hsurj : Function.Surjective theta)
-    (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 3) DD.Vmod)
+    (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 e) DD.Vmod)
     (hsimple : IsSimpleModTwo E DD.Vmod) (hnt : ∃ (g : E) (v : DD.Vmod), g • v ≠ v) :
     Nat.card (VCocycle DD rho)
       = Nat.card DD.Vmod * (standardNumerics 2).h1Mult (Nat.card DD.Vmod) :=
-  sqrtNegTwo_hZcard theta hround hact hc (isAdmissibleMarkedPresentation_gammaR 2 q R) hres
-    (vmod_add_self DD) (isWildTwo_of_gammaGen theta hsurj hc) hsurj hd hsimple hnt
+  nCompact_hZcard (h := 0) theta hround hact hc (isAdmissibleMarkedPresentation_gammaR 2 q R) hres
+    (vmod_add_self DD) (isWildTwo_of_gammaGen theta hsurj hc) hsurj hd
+    (nCompact_isStokesEndpoint one_le_two even_two he) hsimple hnt
 
 /-! ### The pilot, with the resolution discharged
 
 At the *intrinsic* compact-`N` branch word — `R = Words.nCompactW 2 0`, so the group really is the
 `Γ_R` of the `√−2` branch and not a lookalike — the resolution hypothesis is a theorem, given only
-that the counting target has exponent dividing `6`.  That is the one condition the frozen resolver
-`e = 3` encodes, and it is now visible in the statement instead of hidden in a family. -/
+a **level** for the counting target: a nonzero `N` killing it, with a nontrivial `2`-part.  The
+resolver is then not a number but a function of that level, `omega2Exp N`, and the two conditions
+are exactly what the two halves need: `hN` and `hord` for the resolution
+(`resolvesAt_nCompactFam`), `hN` and `hv` for the endpoint (`Odd (omega2Exp N)`).
+
+At the count lane's own split target this pair costs nothing — the level is
+`2 · exp(Bg ⧸ D.M)`, `hord` is the lift-level bound over the `2`-torsion module `Additive ↥D.T`
+and `hv` is the lift level's own factor `2`.  Both are `Count/Frozen.lean` §8.2, downstream. -/
 
 /-- **The `√−2` pilot's `tcocycle_card` field value at the intrinsic branch word**, with no
-resolution hypothesis: `e = 3` is `omega2Exp 6`, so a target of exponent dividing `6` resolves
-itself. -/
-theorem sqrtNegTwo_tcocycle_card_gammaR_nCompact
+resolution hypothesis: at any level `N` killing the target, `omega2Exp N` resolves it, and `N`
+having a nontrivial `2`-part makes that resolver odd, which is the endpoint condition.
+
+The old `orderOf x ∣ 6` form is the `N = 6` instance (`omega2Exp_six` rewrites the family back to
+the frozen `nCompactFam 2 0 2 3`); it is no longer the statement because its reduction
+`∀ g : Bg ⧸ D.M, orderOf g ∣ 3` is refuted at the campaign's own witness datum. -/
+theorem sqrtNegTwo_tcocycle_card_gammaR_nCompact {N : ℕ}
     [TopologicalSpace (Additive ↥D.T)] [DiscreteTopology (Additive ↥D.T)]
     [DistribMulAction ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) (Additive ↥D.T)]
     [ContinuousSMul ((GammaR 2 2 (Words.nCompactW 2 0)) : Type) (Additive ↥D.T)]
@@ -667,17 +716,19 @@ theorem sqrtNegTwo_tcocycle_card_gammaR_nCompact
     (hcomp : ∀ (γ : ((GammaR 2 2 (Words.nCompactW 2 0)) : Type)) (a : Additive ↥D.T),
       γ • a = rho γ • a)
     (hc : ∀ g, rho (gammaGen 2 2 (Words.nCompactW 2 0) g) = t g)
-    (hord : ∀ x : WordLift (Additive ↥D.T) (Bg ⧸ D.M), orderOf x ∣ 6)
+    (hN : N ≠ 0) (hv : N.factorization 2 ≠ 0)
+    (hord : ∀ x : WordLift (Additive ↥D.T) (Bg ⧸ D.M), orderOf x ∣ N)
     (hsurj : Function.Surjective rho)
-    (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 3) (Additive ↥D.T)) :
+    (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 (omega2Exp N)) (Additive ↥D.T)) :
     Nat.card (TCocycle D rho)
       = (standardNumerics 2).tMult (Nat.card (Additive ↥D.T))
         * Nat.card (fixedPts (Bg ⧸ D.M) (ElemDual (Additive ↥D.T))) :=
-  sqrtNegTwo_tcocycle_card_gammaR rho hcomp hc (resolvesAt_nCompactFam_three hord 2 0 2) hsurj hd
+  sqrtNegTwo_tcocycle_card_gammaR rho hcomp hc (resolvesAt_nCompactFam hN hord 2 0 2)
+    (Nat.odd_iff.mpr ((omega2Exp_modEq_one hN hv).of_dvd (dvd_pow_self 2 hv))) hsurj hd
 
 /-- **The `√−2` pilot's `hZcard` field value at the intrinsic branch word**, with no resolution
-hypothesis — the `V`-side twin. -/
-theorem sqrtNegTwo_hZcard_gammaR_nCompact {DD : DescData D}
+hypothesis — the `V`-side twin, at the same level pair. -/
+theorem sqrtNegTwo_hZcard_gammaR_nCompact {N : ℕ} {DD : DescData D}
     {E : Type} [Group E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
     [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod]
     [DistribMulAction E DD.Vmod]
@@ -691,14 +742,16 @@ theorem sqrtNegTwo_hZcard_gammaR_nCompact {DD : DescData D}
     (hact : ∀ (γ : ((GammaR 2 2 (Words.nCompactW 2 0)) : Type)) (v : DD.Vmod),
       γ • v = theta γ • v)
     (hc : ∀ g, theta (gammaGen 2 2 (Words.nCompactW 2 0) g) = t g)
-    (hord : ∀ x : WordLift DD.Vmod E, orderOf x ∣ 6)
+    (hN : N ≠ 0) (hv : N.factorization 2 ≠ 0)
+    (hord : ∀ x : WordLift DD.Vmod E, orderOf x ∣ N)
     (hsurj : Function.Surjective theta)
-    (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 3) DD.Vmod)
+    (hd : StokesDuality (⇑t) (nCompactFam 2 0 2 (omega2Exp N)) DD.Vmod)
     (hsimple : IsSimpleModTwo E DD.Vmod) (hnt : ∃ (g : E) (v : DD.Vmod), g • v ≠ v) :
     Nat.card (VCocycle DD rho)
       = Nat.card DD.Vmod * (standardNumerics 2).h1Mult (Nat.card DD.Vmod) :=
-  sqrtNegTwo_hZcard_gammaR theta hround hact hc (resolvesAt_nCompactFam_three hord 2 0 2)
-    hsurj hd hsimple hnt
+  sqrtNegTwo_hZcard_gammaR theta hround hact hc (resolvesAt_nCompactFam hN hord 2 0 2)
+    (Nat.odd_iff.mpr ((omega2Exp_modEq_one hN hv).of_dvd (dvd_pow_self 2 hv))) hsurj hd
+    hsimple hnt
 
 end PilotComposition
 
