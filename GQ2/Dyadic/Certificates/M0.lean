@@ -580,6 +580,259 @@ theorem heisF_eRevW_trivial (hA₂ : ∀ a : A, a + a = 0)
     heisEvalZ_mul, heisEvalZ_mul, heisEvalZ_mul, heisEvalZ_mul, heisEvalZ_one, mul_one]
   exact mul_mem (hfac 1 _) (mul_mem (hfac 1 _) (mul_mem (hfac 0 _) (hδ 0)))
 
+/-! ### The assembled compact-`M` second-order row -/
+
+/-- **The compact-`M` second-order (Stokes) row at the honest resolver class.**
+
+```
+y₀(a₀) ⊕ (y₀(a₁) + y₁(a₀)) ⊕ (y_σ(a₂) + y₂(a_σ) + y₂((1+S)a₂)) ⊕ Σ_j planes
+```
+
+Reading, block by block: the `x₀`-diagonal from `A₀²`, the `(A₀,x₁)` cross, the boundary block
+`J₂` — the pilot's, verbatim, with the same `(1+S)`-atom — and the `h` identity-operator
+hyperbolic planes.  `σ₂^{2m}` and `E_m^rev` are both **absent**, for two different reasons: the
+first is killed by the doubled power balance (`heisZ_sigma2Pow_two_mul`), the second by the
+`P = 1` projector (`heisF_eRevW_trivial`).
+
+⚠ Deviation from the pilot: the assembled row is stated at `e ≡ 1 (mod 4)`, not exact in `e`.
+Exactness in the resolver survives one level down, in `heisF_j2W`; it cannot survive assembly,
+because the correction block is only trivial at the honest class (at a general odd `e` it
+carries the charge `C(e,2)•y_i(a_i)` per `δ`-letter).  The compact-`N` row had no correction
+block and so stayed exact after assembly. -/
+theorem heisZ_mCompact_res_one (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v) (hτ : ∀ v : A, t.τ • v = v)
+    (hS₂ : ∀ v : A, (sigma2Z t x y E E₂).g • v = v) (hα : 2 ≤ α)
+    (hxτ : x .tau = 0) (hyτ : y .tau = 0) {e : ℕ} (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1) :
+    (heisEvalZ ⇑t x y E E₂ (mCompactW α h)).z
+      = y (coreLetter h 0) (x (coreLetter h 0))
+        + (y (coreLetter h 0) (x (coreLetter h 1)) + y (coreLetter h 1) (x (coreLetter h 0)))
+        + (y .sigma (x (coreLetter h 2)) + y (coreLetter h 2) (x .sigma)
+            + y (coreLetter h 2) (x (coreLetter h 2) + t.σ • x (coreLetter h 2)))
+        + ∑ j, (y (handleU j) (x (handleV j)) + y (handleV j) (x (handleU j))) := by
+  have e1 := heisF_leadingSquare t x y E E₂ hA₂ hwild hS₂ hα
+  have e2 := heisF_leadingComm t x y E E₂ hA₂ hwild hS₂ hα
+  have e3 := heisZ_sigma2Pow_two_mul t x y E E₂ hA₂ hS₂ hα
+  have e4 := heisF_j2W t x y E E₂ hwild hτ hE
+  have e5 := heisF_eRevW_trivial (α := α) t x y E E₂ hA₂ hwild hτ hxτ hyτ hE he
+  have e6mem := heisF_handlesW_mem t x y E E₂ hwild
+  have e6z := heisF_handlesW_z t x y E E₂ hwild
+  have h1jz : heisEvalZ ⇑t x y E E₂ (.zpow (a0W α h) 2) ∈ heisJetZero A C := by
+    rw [e1]; exact ⟨rfl, rfl⟩
+  have h2jz : heisEvalZ ⇑t x y E E₂ (.comm (a0W α h) (.gen (coreLetter h 1)))
+      ∈ heisJetZero A C := by rw [e2]; exact ⟨rfl, rfl⟩
+  have h3jz : heisEvalZ ⇑t x y E E₂ (.zpow sigma2W (2 * (mOf α : ℤ))) ∈ heisJetZero A C := by
+    rw [e3]; exact ⟨rfl, rfl⟩
+  rw [mCompactW, heisEvalZ_prodList, List.map_append, List.prod_append,
+    heisEvalZ_handleTailW t x y E E₂]
+  simp only [mFactors, List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one]
+  rw [heisMul_z_of_a_eq_zero _ _ e6mem.1, heisJetZero_mul_z h1jz, heisJetZero_mul_z h2jz,
+    heisJetZero_mul_z h3jz, heisMul_z_of_a_eq_zero _ _ e5.1, e5.2.2, add_zero, e1, e2, e3, e4,
+    e6z]
+  dsimp only
+  simp only [hxτ, hyτ, add_zero, map_zero, zero_add,
+    nsmul_zmod2_even (choose_two_even_of_mod_four he),
+    nsmul_zmod2_odd (odd_of_mod_four_eq_one he), map_add]
+  abel
+
+/-- **The rank-3 wild core** of the compact-`M` row: on offsets supported in the wild letters,
+the `(x₀,x₁)` unimodular plane plus the `x₂`-atom `y₂((1+S)a₂)` — the *same* three core atoms as
+the pilot's, with the third invertible exactly on `V^S = 0` (`isUnit_onePlusSEnd_iff`, which the
+compact-`M` lane inherits rather than restates). -/
+theorem heisZ_mCompact_wild_block (hA₂ : ∀ a : A, a + a = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (v : A), t.x i • v = v) (hτ : ∀ v : A, t.τ • v = v)
+    (hS₂ : ∀ v : A, (sigma2Z t x y E E₂).g • v = v) (hα : 2 ≤ α)
+    (hxσ : x .sigma = 0) (hxτ : x .tau = 0) (hyσ : y .sigma = 0) (hyτ : y .tau = 0)
+    {e : ℕ} (hE : E omega2 = (e : ℤ)) (he : e % 4 = 1) :
+    (heisEvalZ ⇑t x y E E₂ (mCompactW α h)).z
+      = y (coreLetter h 0) (x (coreLetter h 0))
+        + (y (coreLetter h 0) (x (coreLetter h 1)) + y (coreLetter h 1) (x (coreLetter h 0)))
+        + y (coreLetter h 2) (x (coreLetter h 2) + t.σ • x (coreLetter h 2))
+        + ∑ j, (y (handleU j) (x (handleV j)) + y (handleV j) (x (handleU j))) := by
+  rw [heisZ_mCompact_res_one t x y E E₂ hA₂ hwild hτ hS₂ hα hxτ hyτ hE he, hxσ, hyσ]
+  simp only [ElemDual.zero_apply, map_zero, add_zero, zero_add]
+
 end StokesRows
+
+/-! ## The resolved relator family and the endpoint condition
+
+The two-relator family `⟨σ, τ, x₀, …, x_{2h+2} ∣ τ^σ(τ^q)⁻¹, R_{M,0}⟩` resolved at the constant
+representative `e`, in WM0-b's Jacobian row order.
+
+The endpoint proof is **cheaper than the pilot's**, and structurally so: on the abelianized
+mod-2 exponent vector every compact-`M` factor except `J₂` dies for a *syntactic* reason —
+`A₀²` is a square, `[A₀,x₁]` a commutator, `σ₂^{2m}` an even power, `H_h` a product of
+commutators, and `E_m^rev` carries each `δ`-letter exactly **twice** (conjugation is invisible
+in an abelian target).  So the traced vector of the compact-`M` word *is* the traced vector of
+the compact-`N` word's boundary block, and the endpoint condition reduces to the pilot's
+`τ`/`x₂` bookkeeping with no `α`- or `m`-dependence at all. -/
+
+section Family
+
+variable {α h q e : ℕ}
+
+/-- **The resolved compact-`M` relator family** — tame relator first, branch word second. -/
+noncomputable def mCompactFam (α h q e : ℕ) : Fin 2 → FreeGroup (Generator (2 + 2 * h)) :=
+  ![heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (tameRelW (2 + 2 * h) q),
+    heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (mCompactW α h)]
+
+@[simp] theorem mCompactFam_zero :
+    mCompactFam α h q e 0
+      = heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (tameRelW (2 + 2 * h) q) := rfl
+
+@[simp] theorem mCompactFam_one :
+    mCompactFam α h q e 1
+      = heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (mCompactW α h) := rfl
+
+/-- Every element of the traced target `Multiplicative (ZMod 2)` is an involution. -/
+theorem mult_zmod2_sq (u : Multiplicative (ZMod 2)) : u * u = 1 := by
+  revert u; decide
+
+/-- Squares are invisible to the traced mod-2 exponent vector. -/
+theorem heisEps_sq {ι : Type*} [DecidableEq ι] (i : ι) (g : FreeGroup ι) :
+    heisEps i (g ^ (2 : ℤ)) = 1 := by
+  rw [map_zpow, zpow_two, mult_zmod2_sq]
+
+/-- So are even powers. -/
+theorem heisEps_even_zpow {ι : Type*} [DecidableEq ι] (i : ι) (g : FreeGroup ι) (k : ℤ) :
+    heisEps i (g ^ (2 * k)) = 1 := by
+  rw [mul_comm, zpow_mul, heisEps_sq]
+
+/-- The `𝓔`-block is invisible to the traced vector: each `δ`-letter occurs **twice**, and
+conjugation is invisible in an abelian target. -/
+theorem heisEps_eRevW (E' : Zhat → ℤ) (E₂' : ℤ_[2] → ℤ) (i : Generator (2 + 2 * h)) :
+    heisEps i (PWord.evalZ FreeGroup.of E' E₂' (eRevW α h)) = 1 := by
+  have hconj : ∀ (j : Fin 3) (k : ℤ),
+      heisEps i (PWord.evalZ FreeGroup.of E' E₂' (.conj (deltaCert h j) (.zpow sigma2W k)))
+        = heisEps i (PWord.evalZ FreeGroup.of E' E₂' (deltaCert h j)) := by
+    intro j k
+    rw [PWord.evalZ_conj, map_conjR, conjR_eq_self_of_comm]
+  rw [show eRevW α h
+      = PWord.mul (.conj (deltaCert h 1) (.zpow sigma2W (2 * (mOf α : ℤ))))
+          (PWord.mul (.conj (deltaCert h 1) (.zpow sigma2W (mOf α : ℤ)))
+            (PWord.mul (.conj (deltaCert h 0) (.zpow sigma2W (mOf α : ℤ)))
+              (PWord.mul (deltaCert h 0) PWord.one))) from rfl]
+  simp only [PWord.evalZ_mul, PWord.evalZ_one, map_mul, mul_one, hconj]
+  rw [show ∀ u v : Multiplicative (ZMod 2), u * (u * (v * v)) = (u * u) * (v * v) from
+      fun u v => by rw [mul_assoc], mult_zmod2_sq, mult_zmod2_sq, one_mul]
+
+/-- **The endpoint condition holds at every compact-`M` instance** (`α ≥ 1`, any `h`, `q` even,
+`e` odd).  Only `J₂` and the tame relator reach the traced vector; the per-letter coefficients
+are the pilot's `1−q+e` on `τ` and `e−1` on `x₂`, both even. -/
+theorem mCompact_isStokesEndpoint (hq : Even q) (he : Odd e) :
+    IsStokesEndpoint (mCompactFam α h q e) := by
+  intro i
+  rw [Fin.sum_univ_two, mCompactFam_zero, mCompactFam_one]
+  have htame : heisEps i (heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ))
+      (tameRelW (2 + 2 * h) q))
+      = heisEps i (FreeGroup.of Generator.tau)
+        * (heisEps i (FreeGroup.of Generator.tau) ^ (q : ℤ))⁻¹ := by
+    rw [tameRelW, heisToFree, PWord.evalZ_mul, PWord.evalZ_conj, PWord.evalZ_inv,
+      PWord.evalZ_zpow, PWord.evalZ_gen, PWord.evalZ_gen, map_mul, map_conjR,
+      conjR_eq_self_of_comm, map_inv, map_zpow]
+  have hwild : heisEps i (heisToFree (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (mCompactW α h))
+      = (heisEps i (FreeGroup.of (coreLetter h 2)))⁻¹
+        * (heisEps i (FreeGroup.of (coreLetter h 2))
+            * heisEps i (FreeGroup.of Generator.tau)) ^ (e : ℤ) := by
+    rw [mCompactW, heisToFree, PWord.evalZ_prodList, List.map_append, List.prod_append]
+    simp only [mFactors, List.map_cons, List.map_nil, List.prod_cons, List.prod_nil, mul_one,
+      map_mul]
+    rw [PWord.evalZ_zpow, heisEps_sq, PWord.evalZ_comm, monoidHom_commR_eq_one,
+      PWord.evalZ_zpow, heisEps_even_zpow, heisEps_eRevW,
+      show ((handleTailW h).map (PWord.evalZ FreeGroup.of
+          (fun _ => (e : ℤ)) (fun _ => (e : ℤ)))).prod
+        = PWord.evalZ FreeGroup.of (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (handlesW h) by
+        cases h with
+        | zero => rfl
+        | succ n => simp only [handleTailW, List.map_cons, List.map_nil, List.prod_cons,
+            List.prod_nil, mul_one],
+      handlesW_eq, Certificates.heisEps_handlesW]
+    simp only [one_mul, mul_one]
+    rw [show j2W h = PWord.mul (.inv (.conj (.gen (coreLetter h 2)) (.gen .sigma)))
+        (PWord.mul (PWord.omega2Pow (PWord.prodList [.gen (coreLetter h 2), .gen .tau]))
+          PWord.one) from rfl]
+    rw [PWord.evalZ_mul, PWord.evalZ_mul, PWord.evalZ_one, mul_one, map_mul,
+      PWord.evalZ_inv, PWord.evalZ_conj, PWord.evalZ_gen, PWord.evalZ_gen, map_inv,
+      map_conjR, conjR_eq_self_of_comm, PWord.omega2Pow, PWord.evalZ_profPow, map_zpow,
+      PWord.prodList_cons, PWord.prodList_cons, PWord.prodList_nil, PWord.evalZ_mul,
+      PWord.evalZ_mul, PWord.evalZ_gen, PWord.evalZ_gen, PWord.evalZ_one, mul_one, map_mul]
+  rw [htame, hwild]
+  simp only [Certificates.heisEps_of, toAdd_mul, toAdd_inv, toAdd_zpow, toAdd_ofAdd]
+  rw [zsmul_natCast_zmod2_even hq, zsmul_natCast_zmod2_odd he, CharTwo.neg_eq, CharTwo.neg_eq]
+  abel_nf
+  simp [CharTwo.two_eq_zero]
+
+/-- The `√2` instance pin: `(α, h, q, e) = (3, 0, 2, 3)`. -/
+theorem sqrtTwo_isStokesEndpoint : IsStokesEndpoint (mCompactFam 3 0 2 3) :=
+  mCompact_isStokesEndpoint (by decide) (by decide)
+
+/-- The `√5` instance pin: `(α, h, q, e) = (2, 0, 4, 3)` — the unramified quadratic extension,
+so `q_K = 4`. -/
+theorem sqrtFive_isStokesEndpoint : IsStokesEndpoint (mCompactFam 2 0 4 3) :=
+  mCompact_isStokesEndpoint (by decide) (by decide)
+
+end Family
+
+/-! ## The Stokes duality payload -/
+
+section Duality
+
+universe u
+
+variable {C : Type*} [Group C]
+
+/-- WW3's packet-Lem-5.1 engine at the compact-`M` family; per-simple-module duality stays the
+hypothesis slot it is in the frozen `ℚ₂` chain. -/
+theorem mCompact_stokesDuality {α h q e : ℕ} [Finite C] (t : Marking (2 + 2 * h) C)
+    (hq : Even q) (he : Odd e)
+    (hrt : PWord.evalZ ⇑t (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (tameRelW (2 + 2 * h) q) = 1)
+    (hrw : PWord.evalZ ⇑t (fun _ => (e : ℤ)) (fun _ => (e : ℤ)) (mCompactW α h) = 1)
+    (hsimp : ∀ (V : Type u) [AddCommGroup V] [DistribMulAction C V] [Finite V],
+      (∀ v : V, v + v = 0) → IsSimpleModTwo C V →
+        StokesDuality ⇑t (mCompactFam α h q e) V)
+    (A : Type u) [AddCommGroup A] [DistribMulAction C A] [Finite A]
+    (hA₂ : ∀ a : A, a + a = 0) : StokesDuality ⇑t (mCompactFam α h q e) A := by
+  refine stokesDuality_of_simple ⇑t (mCompactFam α h q e) ?_
+    (mCompact_isStokesEndpoint hq he) hsimp A hA₂
+  intro k
+  fin_cases k
+  · exact (lift_heisToFree_eq_one_iff ⇑t _ _ _).mpr hrt
+  · exact (lift_heisToFree_eq_one_iff ⇑t _ _ _).mpr hrw
+
+end Duality
+
+/-! ## The scalar certificate: the `√2` Gram matrices, by kernel `decide`
+
+The cup–Bockstein comparison matrix (`stokesGram`) of the `√2` family (`α = 3`, `m = 4`,
+`q_K = 2`) on the scalar module, at the packet column order `σ, τ, x₀, x₁, x₂`.  Two pins
+differing **only** in the resolver class, as in the pilot: `e = 1` (the honest class for a
+2-group target) and its `e = 3` twin, which makes ticket S1.T's mod-4 sensitivity a
+kernel-checked matrix pair.  The `√5` twin (`α = 2`, `q_K = 4`) is pinned alongside — the two
+displayed instances of freeze row 4. -/
+
+section ScalarGram
+
+/-- The trivial action for the scalar pins (WW3's `local instance` idiom — not exported). -/
+local instance : DistribMulAction (Multiplicative (ZMod 2)) (ZMod 2) where
+  smul _ a := a
+  one_smul _ := rfl
+  mul_smul _ _ _ := rfl
+  smul_zero _ := rfl
+  smul_add _ _ _ := rfl
+
+/-- The all-trivial (scalar/split) marking of the compact-`M` alphabet at `h = 0`. -/
+def scalarMarkM : Marking 2 (Multiplicative (ZMod 2)) := Marking.ofLetters 1 1 ![1, 1, 1]
+
+/-- The packet column order `σ, τ, x₀, x₁, x₂`. -/
+def scalarLetterM : Fin 5 → Generator 2 := ![.sigma, .tau, .wild 0, .wild 1, .wild 2]
+
+/-- The standard primal basis: a unit offset on one letter. -/
+def scalarXM (p : Fin 5) : Generator 2 → ZMod 2 :=
+  fun g => if g = scalarLetterM p then 1 else 0
+
+/-- The standard dual basis: the identity functional on one letter. -/
+noncomputable def scalarYM (p : Fin 5) : Generator 2 → ElemDual (ZMod 2) :=
+  fun g => if g = scalarLetterM p then (AddMonoidHom.id (ZMod 2) : ElemDual (ZMod 2)) else 0
+
+end ScalarGram
 
 end GQ2.Dyadic.Certificates.MCompact
