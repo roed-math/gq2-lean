@@ -454,6 +454,132 @@ theorem pilot_isEmpty_wordCertificate {P : ProfiniteGrp} {hP : IsProP 2 P}
 
 end Pilot
 
+/-! ## §7 The generic core — `isProP_wildCore`'s compactness argument, transferred
+
+This is the constructive half of the ticket, and the answer to "does the `ℚ₂` argument
+transfer?": **the argument does, its hypothesis does not.**
+
+`isProP_wildCore` has two separable halves.  The *compactness* half — trap an open `V ≤ W_R`
+under `W ∩ W_R` for an open normal `W ≤ Γ`, read the wild bound off the finite quotient `Γ ⧸ W`,
+transfer the `2`-power back (Steps A, C, D, F) — is generic and is proved below.  The *input*
+half (Steps B, E: the dominating open is **admissible**, so its `Marking.Pro2Core` clause is
+available) is what `Γ_A`/`Γ_R` get from being defined as admissible limits and what `GammaR`,
+being a two-relator presentation, does not have.
+
+So the criterion below is exactly the missing clause: `hwild` holds **iff** every finite
+continuous quotient of `Γ_R` has `2`-group wild normal closure.  §4 shows no branch satisfies it.
+Adding it to the definition of `GammaR` — i.e. redefining `GammaR` as the largest quotient all of
+whose finite quotients are wild-`2`, the way `GQ2/GammaA.lean:211` defines `N_A` — is what would
+make `hwild` provable, and this theorem is the bridge that would then discharge it. -/
+
+section GenericCore
+
+variable {n q : ℕ} {R : PWord (Generator n)}
+
+/-- The wild letters of `Γ_R`, as a set. -/
+def wildLetters (n q : ℕ) (R : PWord (Generator n)) : Set ((GammaR n q R) : Type) :=
+  Set.range fun i : Fin (n + 1) => gammaGen n q R (.wild i)
+
+/-- **Steps C and D of `isProP_wildCore`, in the presented setting.**  In a finite *discrete*
+quotient the image of the closed normal closure `W_R` is the plain normal closure of the images
+of the wild letters: the topological closure contributes nothing (every set is closed), and
+`Subgroup.map_normalClosure` handles the algebraic half. -/
+theorem map_wildPartR (W : OpenNormalSubgroup ((GammaR n q R) : Type)) :
+    (wildPartR n q R).map (QuotientGroup.mk' W.toSubgroup)
+      = Subgroup.normalClosure ((QuotientGroup.mk' W.toSubgroup) '' wildLetters n q R) := by
+  have hmapNC : (Subgroup.normalClosure (wildLetters n q R)).map (QuotientGroup.mk' W.toSubgroup)
+      = Subgroup.normalClosure ((QuotientGroup.mk' W.toSubgroup) '' wildLetters n q R) :=
+    Subgroup.map_normalClosure _ _ (QuotientGroup.mk'_surjective _)
+  refine le_antisymm (fun y hy => ?_) ?_
+  · obtain ⟨x, hx, rfl⟩ := hy
+    have hxcl : x ∈ closure
+        ((Subgroup.normalClosure (wildLetters n q R) : Subgroup ((GammaR n q R) : Type)) :
+          Set ((GammaR n q R) : Type)) := by
+      rw [← Subgroup.topologicalClosure_coe]
+      exact hx
+    have himg : (QuotientGroup.mk' W.toSubgroup) x ∈ closure
+        ((QuotientGroup.mk' W.toSubgroup) ''
+          ((Subgroup.normalClosure (wildLetters n q R) : Subgroup ((GammaR n q R) : Type)) :
+            Set ((GammaR n q R) : Type))) :=
+      image_closure_subset_closure_image continuous_quotient_mk' ⟨x, hxcl, rfl⟩
+    rw [closure_discrete] at himg
+    obtain ⟨z, hz, hzx⟩ := himg
+    rw [← hmapNC, ← hzx]
+    exact ⟨z, hz, rfl⟩
+  · rw [← hmapNC]
+    exact Subgroup.map_mono (Subgroup.le_topologicalClosure _)
+
+/-- **The generic core.**  `W_R` is pro-`2` **iff** every finite continuous quotient of `Γ_R` has
+`2`-group wild normal closure — the `Marking.Pro2Core`-style criterion, at the presented group.
+
+`←` is `isProP_wildCore`'s compactness argument with its admissible-limit input replaced by the
+hypothesis; `→` is the image bound.  Combined with F3b's `ker_tameOfSpec` this says exactly when
+`WordCertificate.hwild` holds, and §4 says: for no branch. -/
+theorem isProP_wildPartR_iff_pro2Core :
+    IsProP 2 (wildPartR n q R) ↔
+      ∀ W : OpenNormalSubgroup ((GammaR n q R) : Type),
+        IsPGroup 2 (Subgroup.normalClosure
+          ((QuotientGroup.mk' W.toSubgroup) '' wildLetters n q R)) := by
+  constructor
+  · -- `→`: the image of a pro-`2` subgroup in a discrete quotient is a `2`-group
+    intro hpro W
+    rw [← map_wildPartR W]
+    exact Aux.isPGroup_map_of_isProP hpro (QuotientGroup.mk' W.toSubgroup) continuous_quotient_mk'
+  · -- `←`: the compactness argument
+    intro hcore V x
+    obtain ⟨m, rfl⟩ := QuotientGroup.mk_surjective x
+    -- Step A: an open normal `W ≤ Γ_R` with `W ∩ W_R ≤ V`
+    obtain ⟨O, hOopen, hOV⟩ := isOpen_induced_iff.mp V.toOpenSubgroup.isOpen
+    have h1O : (1 : ((GammaR n q R) : Type)) ∈ O := by
+      have h1V : (1 : ↥(wildPartR n q R)) ∈ Subtype.val ⁻¹' O := by
+        rw [hOV]
+        exact one_mem V.toOpenSubgroup
+      exact h1V
+    obtain ⟨W, hWO⟩ := ProfiniteGrp.exist_openNormalSubgroup_sub_open_nhds_of_one hOopen h1O
+    -- Steps C/D: `m`'s image lands in the wild normal closure of `Γ_R ⧸ W`
+    have hmem : (QuotientGroup.mk' W.toSubgroup) (m : ((GammaR n q R) : Type))
+        ∈ Subgroup.normalClosure
+            ((QuotientGroup.mk' W.toSubgroup) '' wildLetters n q R) := by
+      rw [← map_wildPartR W]
+      exact ⟨m, m.2, rfl⟩
+    -- Step E: the hypothesis bounds it
+    obtain ⟨k, hk⟩ := hcore W ⟨_, hmem⟩
+    refine ⟨k, ?_⟩
+    -- Step F: transfer the `2`-power bound back through `W` and `V`
+    have hmW : (m : ((GammaR n q R) : Type)) ^ 2 ^ k ∈ W.toSubgroup := by
+      have h := congrArg Subtype.val hk
+      rw [SubgroupClass.coe_pow, OneMemClass.coe_one, ← map_pow] at h
+      exact (QuotientGroup.eq_one_iff _).mp h
+    have hmV : m ^ 2 ^ k ∈ V.toSubgroup := by
+      have hpre : (m ^ 2 ^ k : ↥(wildPartR n q R)) ∈ Subtype.val ⁻¹' O :=
+        hWO (by rw [SubgroupClass.coe_pow]; exact hmW)
+      rwa [hOV] at hpre
+    have h1 : (QuotientGroup.mk' V.toSubgroup) (m ^ 2 ^ k) = 1 :=
+      (QuotientGroup.eq_one_iff _).mpr hmV
+    rw [map_pow] at h1
+    exact h1
+
+/-- **`hwild`, characterized.**  The certificate field holds exactly when the criterion does. -/
+theorem hwild_iff_pro2Core (hspec : TameSpec.TameSpecializes n q R) :
+    IsProP 2 (TameSpec.tameOfSpec n q R hspec).toMonoidHom.ker ↔
+      ∀ W : OpenNormalSubgroup ((GammaR n q R) : Type),
+        IsPGroup 2 (Subgroup.normalClosure
+          ((QuotientGroup.mk' W.toSubgroup) '' wildLetters n q R)) := by
+  rw [TameSpec.ker_tameOfSpec hspec]
+  exact isProP_wildPartR_iff_pro2Core
+
+/-- **The criterion fails, concretely.**  Combining §4 with the core: for `n ≥ 1` there is always
+a finite continuous quotient of `Γ_R` whose wild normal closure is not a `2`-group. -/
+theorem exists_openNormal_not_isPGroup_two (hn : 1 ≤ n) (q : ℕ) (R : PWord (Generator n)) :
+    ∃ W : OpenNormalSubgroup ((GammaR n q R) : Type),
+      ¬ IsPGroup 2 (Subgroup.normalClosure
+        ((QuotientGroup.mk' W.toSubgroup) '' wildLetters n q R)) := by
+  by_contra hcon
+  exact not_isProP_two_wildPartR hn q R
+    (isProP_wildPartR_iff_pro2Core.mpr fun W => not_not.mp fun h => hcon ⟨W, h⟩)
+
+end GenericCore
+
 end Count
 
 end GQ2.Dyadic
