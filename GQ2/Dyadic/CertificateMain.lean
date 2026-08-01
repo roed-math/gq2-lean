@@ -68,11 +68,18 @@ Recorded here because AS2–AS5 and the G3 census sign-off read this docstring:
    *consequences* of a core certificate (a marked identification of `P` with the arithmetic
    pro-2 quotient) rather than the record itself, so that one main theorem serves all five
    branch rows; the three K-layer producers each discharge those consequences.
-2. **`WordCertificate.tameSpecialization` is not an equation.**  The ledger writes
-   `specializeTame R = 1`.  F3's landed gate is the *semantic* `KillsWild R`
-   (`TameBoundary.lean:341`), equivalent to the syntactic form by
-   `killsWild_iff_killWild` — and it is the semantic form that `tameR` consumes.  §2 uses
-   `KillsWild`.
+2. **F3's Gate-B predicate `KillsWild` is REFUTED by all five frozen branch words**, so the
+   word certificate cannot take it and `tameR` cannot be called.  `Words/L.lean`'s
+   `not_killsWild`, and its four siblings (`Words/{N0, Npc, M0, Mpc}.lean`), are landed
+   theorems: `KillsWild` quantifies over *every* profinite group, and the tame-killed value of
+   any word carrying an `(x_i τ)^{ω₂}`-shaped letter is `τ^{ω₂}`, nontrivial already in
+   `Multiplicative (ZMod 8)`.  The packet's hypothesis lives where `τ` is pro-odd — i.e. in
+   `T_q` — and there the words *are* admissible.  The WL lane recorded this as micro-row
+   **F3b**.  §2b therefore re-does F3's tame construction (`tameOfSpec`,
+   `tameOfSpec_surjective`, both F3's terms with one proof argument swapped) at
+   `TameSpecializes n q R := (tameMarking n q).eval R = 1`, which is satisfiable *and* is
+   literally the ledger's `specializeTame R = 1`.  **Owed by:** F3 (relativize `KillsWild` to
+   pro-odd-`τ` targets); when that lands, delete §2b.
 3. **`WordCertificate.proTwoSpecialization` cannot be the ledger's `specializeProTwo R =
    P.word`.**  That equation is a statement about *words*; what the recursion needs is a
    statement about *groups* (`pro2 : Γ_R → P` with `ker = proPKernel 2 Γ_R`).  The bridge —
@@ -116,6 +123,10 @@ namespace GQ2.Dyadic
 
 open GQ2 GQ2.SectionEight
 open SectionSeven AffineTLift CentralObstruction ContCoh FoxH
+
+/-- The algebraic closure, in the repo's per-file `local notation` idiom
+(`GQ2/UnitFiltration.lean:42` and siblings). -/
+local notation "ℚ̄₂" => AlgebraicClosure ℚ_[2]
 
 /-! ## §1 The candidate group
 
@@ -515,5 +526,180 @@ noncomputable def toSource (W : WordCertificate n q R P hP nuP SN)
   gaussZ_ramified := W.determinant.2
 
 end WordCertificate
+
+/-! ## §3 The standard local inputs  (packet §12) -/
+
+section LocalInput
+
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+
+/-- **The standard local inputs at `K`** (packet §12's bundle, ledger §5.3's `DyadicLocalInput`).
+
+Row by row against packet §12's table:
+
+| packet §12 row | field here |
+|---|---|
+| Local Euler characteristic | **absent, deliberately** — LG1's ruling: derived by `card_H1_eq_of_markingK` inside LG5, never supplied.  The packet's `DyadicLocalData.eulerChar` slot is dead. |
+| Tate duality | `duality : TateDualityG (GalK K) 2` |
+| Local reciprocity | `recip : MarkedRecip R K` (AX3's bundle — the *axiom* `markedRecipAt` is never named) |
+| Square-class filtration | `filtration : DyadicUnitFiltration K` |
+| Projectivity | consumed inside LG5; not a field (`GQ2/Dyadic/Projectivity.lean` proves the tame-pair instance) |
+| Shapiro–Evens | consumed inside LG5's `Shapiro/Deepness` producers; LG1 confirmed it is already base-general, so not a field |
+| Deep Evens norm | existing deep-part theorem, consumed inside LG5 |
+| Demuškin classification | the per-core hypothesis `def`s (`MLabHypothesis`/`NLabHypothesis`/`BLabHypothesis`), consumed by the marked-core certificate upstream of this record — see the note on `source` |
+| Profinite reconstruction | SD3's corollary, called by §5 |
+
+`AX1` (topological finite generation of `G_K`) is *also* absent as a field: it is a theorem,
+`GQ2.Dyadic.absGalK_isTopologicallyFinitelyGenerated`, so it enters through `source.tfg`.
+
+⚠ **`source` is ticket ASK's output, not this file's.**  The `G_K`-side supply package
+(`GQ2/Dyadic/Instances/KSupply.lean` on the board) is **queued**, so the arithmetic
+`SourceDataN` is carried here rather than built.  When ASK lands, `source`/`source_carrier`
+should be replaced by an ASK constructor taking the other fields.  This is also where the
+**marked-core certificate** is consumed: `source.pro2 : G_K → P` is exactly the composite of the
+maximal pro-2 projection with `MarkedCoreCertificateK{M,N,Sq}.abstractEquiv⁻¹`.  That is a real
+finding about the ledger — see §5's docstring. -/
+structure DyadicLocalInput (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+    (Rec : LocalReciprocity) (n q : ℕ) (P : ProfiniteGrp) (hP : IsProP 2 P)
+    (nuP : ContinuousMonoidHom P Ztwo) (SN : SourceNumerics n) where
+  /-- F1's `(n, f, q_K)` package for `K`. -/
+  params : FieldParameters
+  /-- The slot's degree is `[K : ℚ₂]`. -/
+  params_n : params.n = n
+  /-- The slot's tame modulus is the residue cardinality `q_K = 2^f`. -/
+  params_qK : params.qK = q
+  /-- **Local reciprocity** (AX3): the full `ℤ₂`-valued `ν_ur^K` and the marked cyclotomic
+  quotient.  Merge gate 6 is met by construction — `MarkedRecip.nu_ur` is `ℤ₂`-valued, not
+  mod-2. -/
+  recip : MarkedRecip Rec K
+  /-- **Square-class filtration.** -/
+  filtration : DyadicUnitFiltration K
+  /-- **Oriented tame quotient** (AX4) at `q_K`. -/
+  tameQuot : OrientedTameQuotientK recip filtration
+  /-- **Tate duality** at `G_K`. -/
+  duality : TateDualityG (GalK K) 2
+  /-- **The ramified-`i` branch condition** — the campaign's standing hypothesis, in the
+  field language Q4 ruled (`¬ HasEqualNormValueGroups`, `MarkedRecip.ki_unramified`'s
+  conclusion negated).  ⚠ **Never spelled through `qK`**: `FieldParameters.qK` is the residue
+  cardinality `2^f`, and the μ-sense "`i ∈ K`" is a different statement — `ℚ₂(√5)` has
+  `qK = 4` yet `i ∉ K`, so reading the branch condition off `qK` gets it backwards. -/
+  ramified : ∀ δi : ℚ̄₂, δi ^ 2 = -1 → ¬ HasEqualNormValueGroups K δi
+  /-- **The ramified-marking arithmetic input**, in the shape `local_gauss_K`'s `hcert` binder
+  consumes.  The intended constructor is LG5's `ramifiedCertificateOfSubtype`, **whose binder
+  list is the actual arithmetic content**: the ramification witness `hram`, the residue-trivial
+  tame lift `(g₀, hg₀, hg₀rt)`, and the field data `(k₀, htriv, hker₀)` with the AX3 involution
+  package `hpkg`.  Everything else in a `RamifiedCertificate` is discharged by LG5's three
+  campaign-anchor lemmas. -/
+  ramifiedData : ∀ {D : Type} [Group D] [TopologicalSpace D] [DiscreteTopology D] [Finite D]
+    (V : Type) [AddCommGroup V] [DistribMulAction D V]
+    (c : ContinuousMonoidHom (Tq params.qK) D)
+    (rho : ContinuousMonoidHom ↥(GalKsub K) D),
+    (∃ v : V, c (tqTau params.qK) • v ≠ v) →
+      Nonempty (RamifiedCertificate params (GalKsub K) V c rho)
+  /-- ⚠ **Ticket ASK's output** (queued): the `G_K`-side source over the shared slot. -/
+  source : SourceDataN n q P hP nuP SN
+  /-- ASK's source *is* `G_K`. -/
+  source_carrier : ContinuousMulEquiv ((source.Γ : Type)) (GalK K)
+  /-- §10 instantiation-side condition 1 (SD3: *not* a `SourceDataN` field). -/
+  htame : Function.Surjective source.tame
+  /-- §10 instantiation-side condition 2. -/
+  hwild : IsProP 2 source.tame.toMonoidHom.ker
+
+end LocalInput
+
+/-! ## §4 The ramified-`i` branch condition ⇒ `κ_K ≠ 0`
+
+FD2's assignment to this ticket, and the only mathematics in the file.  FD2 closed the even-`n`
+cup-form normal form and left `M`/`N` item (5) owing exactly two things, one of them "`κ_K ≠ 0`
+from the ramified-`i` binder (reduced to the one-line `kappaK_eq_zero_iff` — AS1's, cheap)".
+Here it is.
+
+The content is one step: if `i ∈ K` then `K(i) = K`, so the norm value groups are trivially
+equal and the marking is *unramified* — contrapositive of the branch condition. -/
+
+section KappaBranch
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+
+omit [FiniteDimensional ℚ_[2] ↥K] in
+/-- If `K` contains a square root of `−1`, then `K(δi) = K` for every `δi` with `δi² = −1`, so
+the norm value groups agree. -/
+theorem hasEqualNormValueGroups_of_exists_sqrt {δi : ℚ̄₂} (hδ : δi ^ 2 = -1)
+    (hw : ∃ w : ↥K, w ^ 2 = -1) : HasEqualNormValueGroups K δi := by
+  obtain ⟨w, hw⟩ := hw
+  have hwc : ((w : ↥K) : ℚ̄₂) ^ 2 = -1 := by
+    have := congrArg (fun z : ↥K => ((z : ℚ̄₂))) hw
+    simpa using this
+  -- `δi = ±w`, because `(δi - w)(δi + w) = δi² - w² = 0` in a domain.
+  have hfac : (δi - ((w : ↥K) : ℚ̄₂)) * (δi + ((w : ↥K) : ℚ̄₂)) = 0 := by
+    have : (δi - ((w : ↥K) : ℚ̄₂)) * (δi + ((w : ↥K) : ℚ̄₂))
+        = δi ^ 2 - ((w : ↥K) : ℚ̄₂) ^ 2 := by ring
+    rw [this, hδ, hwc, sub_self]
+  have hpm : δi = ((w : ↥K) : ℚ̄₂) ∨ δi = -((w : ↥K) : ℚ̄₂) := by
+    rcases mul_eq_zero.mp hfac with h | h
+    · exact Or.inl (by linear_combination h)
+    · exact Or.inr (by linear_combination h)
+  intro z hz hzmem
+  obtain ⟨x, y, hxy⟩ := hzmem
+  -- Any element of `K` that *is* `z` witnesses the value-group equality.
+  have key : ∀ u : ↥K, ((u : ℚ̄₂)) = z → ∃ v : ↥K, v ≠ 0 ∧ ‖z‖ = ‖((v : ℚ̄₂))‖ := by
+    intro u hu
+    refine ⟨u, fun h0 => hz ?_, by rw [hu]⟩
+    rw [← hu, h0]
+    simp
+  rcases hpm with h | h
+  · exact key (x + y * w) (by rw [hxy, h]; push_cast; ring)
+  · exact key (x - y * w) (by rw [hxy, h]; push_cast; ring)
+
+/-- **The ramified-`i` branch condition gives `κ_K ≠ 0`** (FD2's remaining one-liner).
+
+`κ_K = 0` iff `K` contains a square root of `−1` (`kappaK_eq_zero_iff`); and if it does, `K(i)/K`
+is trivial, hence *unramified* in the repo's `HasEqualNormValueGroups` convention.  So the
+campaign's standing ramified-`i` hypothesis forces `κ_K ≠ 0`, which is what the even-`n` `M`/`N`
+head (FD2's `[[1,1],[1,0]]` Gram) needs. -/
+theorem kappaK_ne_zero_of_ramified {δi : ℚ̄₂} (hδ : δi ^ 2 = -1)
+    (hram : ¬ HasEqualNormValueGroups K δi) : FieldData.kappaK K ≠ 0 := fun h =>
+  hram (hasEqualNormValueGroups_of_exists_sqrt hδ ((FieldDataEven.kappaK_eq_zero_iff K).mp h))
+
+end KappaBranch
+
+/-! ## §5 The certificate-main theorem  (packet Thm. 1.1, ledger §5.3) -/
+
+section Main
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K] {Rec : LocalReciprocity}
+  {n q : ℕ} {R : PWord (Generator n)} {P : ProfiniteGrp} {hP : IsProP 2 P}
+  {nuP : ContinuousMonoidHom P Ztwo} {SN : SourceNumerics n}
+
+/-- **Packet Theorem 1.1 — the certificate-main theorem.**
+
+Word certificate + standard local inputs ⇒ `Γ_{R_K} ≅ G_K` as topological groups.
+
+**The proof is assembly**, three lines: build the candidate source out of the word certificate
+(`WordCertificate.toSource` — itself pure projection plus F3), pair it with the arithmetic
+source over the same slot, hand both to SD3's reconstruction corollary
+`nonempty_continuousMulEquiv_of_sourcesN`, and transport along `source_carrier`.
+
+⚠ **The ledger's §5.3 signature is one argument too wide, and this is a finding.**  Ledger §5.3
+writes `candidate_equiv_absoluteGalois (core) (word) (local)`.  Once SD-n went **two-sided**
+(architecture decision A2), the marked-core certificate stopped being an input to the *assembly*:
+its job is to produce the arithmetic side's `pro2 : G_K → D_P`, which now lives inside the
+`G_K` record — i.e. it is consumed by ticket **ASK**, one level down.  Taking a `core` argument
+here and not using it would be misleading, so the theorem does not take one.  AS2–AS5 discharge
+the core certificates where they belong: inside the construction of `DyadicLocalInput.source`,
+via `marked_matching_certificate_KM` / `_KN` / `_KSq`.
+
+The `q`-side hypotheses `2 ≤ q` and `Even q` are F3's and the recursion's standing conditions;
+both are automatic at `q = q_K = 2^f` with `f ≥ 1` (`FieldParameters.one_le_f`). -/
+theorem candidate_equiv_absoluteGalois
+    (W : WordCertificate n q R P hP nuP SN)
+    (L : DyadicLocalInput K Rec n q P hP nuP SN)
+    (hq2 : 2 ≤ q) (hqe : Even q) (hnuP : Function.Surjective nuP) :
+    Nonempty (ContinuousMulEquiv ((candidateGroup n q R : Type)) (GalK K)) := by
+  obtain ⟨e⟩ := nonempty_continuousMulEquiv_of_sourcesN (W.toSource hq2 hqe) L.source
+    (by omega) hqe hnuP W.htame W.hwild L.htame L.hwild
+  exact ⟨e.trans L.source_carrier⟩
+
+end Main
 
 end GQ2.Dyadic
