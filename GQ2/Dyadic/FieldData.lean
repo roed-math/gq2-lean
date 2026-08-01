@@ -211,4 +211,213 @@ theorem nondegFp2_cupFormK :
 
 end CupForm
 
+/-! ## §3 Anisotropy of the Labute vector, by parity
+
+The one place where the `e`-datum's second clause `b e e = 1` could have been another arithmetic
+input.  It is not: given facts (i) and (ii) it is **forced by the parity of `dim H¹`**, and the
+mechanism is elementary linear algebra over `𝔽₂`.
+
+Write `d w = b w w` for the (linear, `IsCupFormFp2.diag_add`) diagonal and `b' = b + d ⊗ d`.
+Then `b'` is always alternating, and its radical is computed by nondegeneracy of `b`:
+`b'(v, ·) = 0` forces `v = d(v)·e`, whence `d(v) = d(v)²·b(e,e)`.  So
+
+* if `b e e = 0` then `d(v) = 0` and `v = 0`: `b'` is **symplectic**, and `dim W` is even;
+* if `b e e = 1` then `ker d` is symplectic (`isSymplectic_cupKer`) and `W = ⟨e⟩ ⊥ ker d`, so
+  `dim W` is odd.
+
+Hence `b e e = 1 ⟺ dim W odd`, and for `W = H¹(G_K,𝔽₂)` of dimension `n + 2` this is exactly
+`n` odd — the hypothesis the type-`L` row carries (`n = 2h + 1`). -/
+
+section Parity
+
+open Certificates.LSqStokes
+
+variable {W : Type*} [AddCommGroup W] [Module (ZMod 2) W]
+
+/-- **The alternating correction** `b' = b + d ⊗ d` of a cup–Bockstein form (`d w = b w w`).
+Over `𝔽₂` it is alternating for free, since `c + c² = 0` for every `c : 𝔽₂`. -/
+def altCorrection (b : W → W → ZMod 2) (x y : W) : ZMod 2 := b x y + b x x * b y y
+
+/-- **The alternating correction is symplectic when the Labute vector is isotropic.**  This is
+the whole content of the parity dichotomy: `b'`-degeneracy is the equation `d(v) = d(v)²·b(e,e)`,
+which under `b e e = 0` has only `d(v) = 0`, hence only `v = 0`. -/
+theorem isSymplecticFp2_altCorrection {b : W → W → ZMod 2} (hb : IsCupFormFp2 b)
+    (hnd : NondegFp2 b) {e : W} (he : ∀ w, b e w = b w w) (he0 : b e e = 0) :
+    IsSymplecticFp2 (altCorrection b) where
+  add_left u v w := by
+    show b (u + v) w + b (u + v) (u + v) * b w w
+      = (b u w + b u u * b w w) + (b v w + b v v * b w w)
+    rw [hb.add_left, hb.diag_add, add_mul]
+    ring
+  add_right u v w := by
+    show b u (v + w) + b u u * b (v + w) (v + w)
+      = (b u v + b u u * b v v) + (b u w + b u u * b w w)
+    rw [hb.add_right, hb.diag_add, mul_add]
+    ring
+  alt v := by
+    show b v v + b v v * b v v = 0
+    revert v
+    have h : ∀ c : ZMod 2, c + c * c = 0 := by decide
+    exact fun v => h (b v v)
+  nondeg := by
+    intro v hv
+    have h2 : ∀ x : W, x + x = 0 := Certificates.module_zmod2_two_torsion
+    have hkey : ∀ w, b (v + (b v v) • e) w = 0 := by
+      intro w
+      have h : b v w + b v v * b w w = 0 := hv w
+      rw [hb.add_left, hb.smul_left, he w]
+      exact h
+    have hv0 : v + (b v v) • e = 0 := hnd _ hkey
+    have hveq : v = (b v v) • e := by
+      calc v = v + ((b v v) • e + (b v v) • e) := by rw [h2, add_zero]
+        _ = (v + (b v v) • e) + (b v v) • e := by abel
+        _ = (b v v) • e := by rw [hv0, zero_add]
+    have hc0 : b v v = 0 := by
+      conv_lhs => rw [hveq]
+      rw [hb.smul_left, hb.smul_right, he0, mul_zero, mul_zero]
+    rw [hveq, hc0, zero_smul]
+
+/-- **The isotropic branch: `b e e = 0` forces `#W` to be a square** (`dim W` even), because the
+alternating correction is then a symplectic form and `exists_symplectic_equiv` applies to it. -/
+theorem exists_card_eq_four_pow_of_diag_isotropic [Finite W] {b : W → W → ZMod 2}
+    (hb : IsCupFormFp2 b) (hnd : NondegFp2 b) {e : W} (he : ∀ w, b e w = b w w)
+    (he0 : b e e = 0) : ∃ m : ℕ, Nat.card W = 4 ^ m := by
+  obtain ⟨m, φ, -⟩ :=
+    exists_symplectic_equiv (altCorrection b) (isSymplecticFp2_altCorrection hb hnd he he0)
+  refine ⟨m, ?_⟩
+  rw [Nat.card_congr φ.toEquiv]
+  simp
+
+/-- **The anisotropic branch: `b e e = 1` forces `#W = 2·4^m`** (`dim W` odd) — the mirror of the
+previous lemma, read off `Certificates/L.lean`'s own `⟨1⟩ ⊥ (symplectic)` splitting. -/
+theorem exists_card_eq_two_mul_four_pow_of_diag_anisotropic [Finite W] {b : W → W → ZMod 2}
+    (hb : IsCupFormFp2 b) (hnd : NondegFp2 b) {e : W} (he : ∀ w, b e w = b w w)
+    (he1 : b e e = 1) : ∃ m : ℕ, Nat.card W = 2 * 4 ^ m := by
+  obtain ⟨m, ψ, -⟩ :=
+    exists_symplectic_equiv (fun x y : cupKer hb => b (x : W) (y : W))
+      (isSymplectic_cupKer hb hnd he he1)
+  refine ⟨m, ?_⟩
+  rw [Nat.card_congr (cupSplitEquiv hb he he1).toEquiv, Nat.card_prod,
+    Nat.card_congr ψ.toEquiv]
+  simp
+
+/-- **`b e e = 1` ⟺ `dim_{𝔽₂} W` is odd.**  The single `𝔽₂` equation that `hHilb`'s splitting
+needs is therefore *not* an independent arithmetic input once the dimension is known. -/
+theorem diag_eq_one_iff_odd [Finite W] {b : W → W → ZMod 2}
+    (hb : IsCupFormFp2 b) (hnd : NondegFp2 b) {e : W} (he : ∀ w, b e w = b w w)
+    {k : ℕ} (hcard : Nat.card W = 2 ^ k) : b e e = 1 ↔ Odd k := by
+  constructor
+  · intro h1
+    obtain ⟨m, hm⟩ := exists_card_eq_two_mul_four_pow_of_diag_anisotropic hb hnd he h1
+    rw [hcard, show (4 : ℕ) = 2 ^ 2 from rfl, ← pow_mul, ← pow_succ'] at hm
+    have hkm : k = 2 * m + 1 := Nat.pow_right_injective le_rfl hm
+    exact ⟨m, by omega⟩
+  · intro hk
+    rcases ZMod.eq_zero_or_eq_one (b e e) with h0 | h1
+    · exfalso
+      obtain ⟨m, hm⟩ := exists_card_eq_four_pow_of_diag_isotropic hb hnd he h0
+      rw [hcard, show (4 : ℕ) = 2 ^ 2 from rfl, ← pow_mul] at hm
+      have hkm : k = 2 * m := Nat.pow_right_injective le_rfl hm
+      obtain ⟨j, hj⟩ := hk
+      omega
+    · exact h1
+
+end Parity
+
+/-! ## §4 The `e`-datum at `K`, and the normal form -/
+
+section EDatum
+
+open Certificates.LSqStokes
+
+/-- **The Labute vector** `κ_K = [−1] ∈ H¹(G_K, 𝔽₂)` — the class of `−1` in `K^×/(K^×)²`. -/
+noncomputable def kappaK : H1 ↥(K.fixingSubgroup) (ZMod 2) := kummerClassK K (-1)
+
+/-- **The Labute identity `z ⌣ z = z ⌣ κ`** (draft `eq` at `draft.tex:372–375`), at the field:
+`κ = [−1]` represents the Bockstein diagonal of the cup form.
+
+Two inputs, neither new: `HilbertLedger.cup_self_eq_neg_one` — the Hilbert-symbol identity
+`(a,a) = (a,−1)`, whose proof is census axiom **B11a** at the norm representation
+`−a = 0² − a·1²` — and Kummer surjectivity `kummerClassK_surjective` (a theorem, ex-B12), which
+is what lets the identity be quantified over *all* of `H¹` and not just Kummer classes. -/
+theorem cupFormK_kappa (w : H1 ↥(K.fixingSubgroup) (ZMod 2)) :
+    cupFormK K (kappaK K) w = cupFormK K w w := by
+  obtain ⟨a, rfl⟩ := kummerClassK_surjective K w
+  show invGalK K _ = invGalK K _
+  refine congrArg _ ?_
+  rw [trivialCupPairing_comm]
+  exact (cup_self_eq_neg_one K (smul_zmodTwo_galK K) a).symm
+
+/-- **Fact (iii): `(−1,−1)_K = −1`, i.e. the anisotropy `b_K(κ,κ) = 1`, exactly when
+`n = [K:ℚ₂]` is odd.**
+
+The `⟸` direction is what `hHilb`'s splitting consumes, and the type-`L` row supplies its
+hypothesis on the nose (`n = 2h + 1`).  It is *not* a fourth arithmetic input: given facts (i)
+and (ii) it is forced by the parity of `dim H¹ = n + 2` (§3).
+
+⚠ Note the exact shape.  What is proved — and what is true — is `(−1,−1)_K = −1 ↔ n odd`, which
+is **strictly stronger than, and not equivalent to, `q_K = 2`** in the sense of the order of
+`μ_{2^∞}(K)`: for `K = ℚ₂(√2)` one has `i ∉ K`, so `q_K = 2`, while `n = 2` is even and the
+symbol is `+1`.  `n` odd does imply `q_K = 2` (it forces `i ∉ K`, since `ℚ₂(i)/ℚ₂` is quadratic),
+so the type-`L` reading in `Certificates/L.lean` §1 is sound; the *converse* half of the
+identification stated there ("`q_K = 2` is exactly `b e e = 1`") does not hold in general. -/
+theorem cupFormK_kappa_self_iff :
+    cupFormK K (kappaK K) (kappaK K) = 1 ↔ Odd (Module.finrank ℚ_[2] K) := by
+  haveI := finite_H1_zmodTwo K
+  rw [diag_eq_one_iff_odd (isCupFormFp2_cupFormK K) (nondegFp2_cupFormK K)
+    (cupFormK_kappa K) (card_H1_zmodTwo K)]
+  constructor
+  · rintro ⟨j, hj⟩; exact ⟨j - 1, by omega⟩
+  · rintro ⟨j, hj⟩; exact ⟨j + 1, by omega⟩
+
+/-- **Fact (iii)**, in the direction the consumer uses. -/
+theorem cupFormK_kappa_self (hodd : Odd (Module.finrank ℚ_[2] K)) :
+    cupFormK K (kappaK K) (kappaK K) = 1 :=
+  (cupFormK_kappa_self_iff K).mpr hodd
+
+end EDatum
+
+/-! ## §5 The three facts, delivered: `hHilb` at the field
+
+`Certificates/L.lean`'s `exists_cupForm_normalForm` is unconditional given `IsCupFormFp2`,
+`NondegFp2` and the `e`-datum; §§1–4 supply all three at `(H¹(G_K,𝔽₂), ⌣)`.  The capstone below
+is the composite, with the hyperbolic count `m` **pinned** by fact (i): at `n = 2h + 1` the form
+is `⟨1⟩ ⊥ H^{⊥(h+1)}`, which is S2.4 §5.5's statement and is literally the normal form WL-c's
+relator side (`sqRelWord_centLift_fib`) lands on. -/
+
+section NormalForm
+
+open Certificates.LSqStokes
+
+/-- **`hHilb` at the field `K`.**  For `K/ℚ₂` of odd degree `n = 2h + 1`, the mod-2 cup form of
+`H¹(G_K, 𝔽₂)` is isometric to `⟨1⟩ ⊥ H^{⊥(h+1)}`.
+
+Axioms: the standard three, plus **B6** (`tateDualityAt`, through nondegeneracy and `#H² = 2`),
+**B7** (`absGalQ2_localEulerCharacteristic`, through the dimension) and **B11a**
+(`hilbertSymbol_normCriterion_finiteDyadic`, through the Labute identity).  No new axiom, and no
+`𝔽₂` quadratic-form classification. -/
+theorem exists_cupFormK_normalForm (h : ℕ) (hn : Module.finrank ℚ_[2] K = 2 * h + 1) :
+    ∃ φ : H1 ↥(K.fixingSubgroup) (ZMod 2)
+        ≃ₗ[ZMod 2] ZMod 2 × (Fin (h + 1) → ZMod 2 × ZMod 2),
+      ∀ x y, cupFormK K x y = (φ x).1 * (φ y).1 + hypGram (φ x).2 (φ y).2 := by
+  haveI := finite_H1_zmodTwo K
+  obtain ⟨m, φ, hφ⟩ :=
+    exists_cupForm_normalForm (isCupFormFp2_cupFormK K) (nondegFp2_cupFormK K)
+      (cupFormK_kappa K) (cupFormK_kappa_self K ⟨h, hn⟩)
+  -- pin `m = h + 1` by counting: `2·4^m = #H¹ = 2^(n+2) = 2^(2h+3)`
+  have hm : m = h + 1 := by
+    have h1 : Nat.card (H1 ↥(K.fixingSubgroup) (ZMod 2)) = 2 * 4 ^ m := by
+      rw [Nat.card_congr φ.toEquiv, Nat.card_prod]
+      simp
+    have h2 : Nat.card (H1 ↥(K.fixingSubgroup) (ZMod 2)) = 2 ^ (2 * m + 1) := by
+      rw [h1, show (4 : ℕ) = 2 ^ 2 from rfl, ← pow_mul, ← pow_succ']
+    have h3 : (2 : ℕ) ^ (2 * m + 1) = 2 ^ (Module.finrank ℚ_[2] K + 2) := by
+      rw [← h2, card_H1_zmodTwo K]
+    have h4 := Nat.pow_right_injective (le_refl 2) h3
+    omega
+  subst hm
+  exact ⟨φ, hφ⟩
+
+end NormalForm
+
 end GQ2.Dyadic.FieldData
