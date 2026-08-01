@@ -576,6 +576,8 @@ certificate is the linear copy's σ-free row verbatim.  **Both sibling lanes' fr
 have that shape** (`MCompact.mCompactWildRow` and `Npc.npcWildRow` both match `.sigma => .zero`),
 which is what makes this the right transport rather than a convenience. -/
 
+omit [Finite V] in
+/-- A normal form with a zero σ-entry cannot see the σ-killing projection. -/
 theorem foxRowNormalForm_toHom_sigmaKill {S : Type*} (ρ : S → AddMonoid.End V)
     (nf : FoxRowNormalForm (Generator (2 + 2 * h)) S)
     (hσ : nf.row Generator.sigma = .zero) (a : Generator (2 + 2 * h) → V) :
@@ -653,5 +655,235 @@ theorem eval_sqrtNeg10_factored {G : Type} [Group G] [TopologicalSpace G] [IsTop
     Marking.eval_mul, eval_mpcW_factored]
 
 end SqrtNeg10
+
+/-! ## §3 Self-replication cancellation, including every `T`-dependent central term
+
+Draft Rem. 5.4's second-order half, and handoff item 2.  Three things had to meet: WMP-b's
+cross-term killer, the **dual** half of the jet, and P4's central clause. -/
+
+/-! ### The WW1↔WW3 bridge
+
+`heisEvalZ` is `PWord.evalZ` (resolver-driven at every profinite node) while `foxEval` is
+`PWord.evalFin` (which reads `ω₂` *intrinsically*, at the order of the lifted element).  They
+agree exactly when the resolver is correct at the lift level — the standing discipline
+`foxEval`'s own docstring states ("the resolvers `E`/`E₂` … must therefore be correct at the
+lift level; orders may double").  `ResolverLifts` names that condition; it is a hypothesis,
+not a theorem, and it is the *only* thing separating the two registers. -/
+
+section Bridge
+
+variable {X : Type*} {C : Type*} [Group C] {A : Type*} [AddCommGroup A] [DistribMulAction C A]
+
+/-- **Resolver correctness at a lift level**: the resolver's `ω₂`-value acts on `G` as `ω₂`
+itself does.  Satisfiable for any finite `G` by choosing `E omega2` in the right residue class;
+`WordLift.orderOf_dvd_two_mul_orderOf_base` is the reason it has to be asked for separately at
+each level rather than inherited from the base. -/
+def ResolverLifts (E : Zhat → ℤ) (G : Type*) [Group G] : Prop :=
+  ∀ p : G, p ^ E omega2 = powOmega2 p
+
+/-- Under resolver correctness the two denotations coincide. -/
+theorem evalZ_eq_evalFin_of_resolverLifts {G : Type*} [Group G] {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ}
+    (hres : ResolverLifts E G) (μ : X → G) :
+    ∀ w : PWord X, PWord.evalZ μ E E₂ w = PWord.evalFin μ E E₂ w
+  | .one => rfl
+  | .gen _ => rfl
+  | .mul u v => by
+      rw [PWord.evalZ_mul, PWord.evalFin_mul, evalZ_eq_evalFin_of_resolverLifts hres μ u,
+        evalZ_eq_evalFin_of_resolverLifts hres μ v]
+  | .inv u => by
+      rw [PWord.evalZ_inv, PWord.evalFin_inv, evalZ_eq_evalFin_of_resolverLifts hres μ u]
+  | .conj u g => by
+      rw [PWord.evalZ_conj, PWord.evalFin_conj, evalZ_eq_evalFin_of_resolverLifts hres μ u,
+        evalZ_eq_evalFin_of_resolverLifts hres μ g]
+  | .comm u v => by
+      rw [PWord.evalZ_comm, PWord.evalFin_comm, evalZ_eq_evalFin_of_resolverLifts hres μ u,
+        evalZ_eq_evalFin_of_resolverLifts hres μ v]
+  | .zpow u k => by
+      rw [PWord.evalZ_zpow, PWord.evalFin_zpow, evalZ_eq_evalFin_of_resolverLifts hres μ u]
+  | .z2pow u z => by
+      rw [PWord.evalZ_z2pow, PWord.evalFin_z2pow, evalZ_eq_evalFin_of_resolverLifts hres μ u]
+  | .profPow u γ => by
+      rw [PWord.evalZ_profPow, evalZ_eq_evalFin_of_resolverLifts hres μ u]
+      rcases eq_or_ne γ omega2 with rfl | hγ
+      · rw [PWord.evalFin_profPow_omega2, hres]
+      · rw [PWord.evalFin_profPow_of_ne _ _ _ _ hγ]
+
+/-- The **primal** projection `H(A) ⋊ C → WordLift A C`: it is a monoid hom because `mul_a`
+and `mul_u` are the same rule. -/
+def heisPrimal : HeisLift A C →* WordLift A C where
+  toFun p := ⟨p.a, p.g⟩
+  map_one' := rfl
+  map_mul' _ _ := rfl
+
+/-- The **dual** projection `H(A) ⋊ C → WordLift (ElemDual A) C`: likewise, because `mul_l` is
+the same rule read on the contragredient module.  This is the observation that makes the dual
+half of the jet a *corollary* of WMP-b's §5 rather than a re-derivation. -/
+def heisDual : HeisLift A C →* WordLift (ElemDual A) C where
+  toFun p := ⟨p.l, p.g⟩
+  map_one' := rfl
+  map_mul' _ _ := rfl
+
+/-- The primal first jet **is** the Fox derivative at the primal offsets. -/
+theorem heisEvalZ_a_eq_foxD {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ}
+    (hW : ResolverLifts E (WordLift A C)) (μ : X → C) (x : X → A) (y : X → ElemDual A)
+    (w : PWord X) : (heisEvalZ μ x y E E₂ w).a = foxD μ x E E₂ w := by
+  have h := PWord.map_evalZ (heisPrimal (A := A) (C := C)) (heisGen μ x y) E E₂ w
+  have hu := congrArg WordLift.u h
+  rw [foxD_def, foxEval_def, ← evalZ_eq_evalFin_of_resolverLifts hW]
+  exact hu
+
+/-- The **dual** first jet is the Fox derivative at the dual offsets — WMP-b delivered `.a = 0`,
+and WW3's `heisJetZero_mul_z` consumes only `.l`, so this is the half that was missing. -/
+theorem heisEvalZ_l_eq_foxD {E : Zhat → ℤ} {E₂ : ℤ_[2] → ℤ}
+    (hW : ResolverLifts E (WordLift (ElemDual A) C)) (μ : X → C) (x : X → A)
+    (y : X → ElemDual A) (w : PWord X) :
+    (heisEvalZ μ x y E E₂ w).l = foxD μ y E E₂ w := by
+  have h := PWord.map_evalZ (heisDual (A := A) (C := C)) (heisGen μ x y) E E₂ w
+  have hu := congrArg WordLift.u h
+  rw [foxD_def, foxEval_def, ← evalZ_eq_evalFin_of_resolverLifts hW]
+  exact hu
+
+end Bridge
+
+/-! ### The ramified hypotheses, transferred to the dual module
+
+`foxD_mpcHatW_ram` is stated for an arbitrary finite coefficient module, so the dual jet is the
+*same theorem* at `A := ElemDual V` — provided the four ramified hypotheses transfer.  Three are
+immediate; the fourth, fixed-point-freeness of `τ`, is the one with content: over a finite `V`
+an injective `τ − 1` is surjective, and a functional killed by every `τ`-difference is killed by
+everything. -/
+
+section DualTransfer
+
+variable {C : Type*} [Group C] {V : Type*} [AddCommGroup V] [Finite V] [DistribMulAction C V]
+
+omit [Finite V] in
+/-- Trivially-acting elements act trivially on the dual. -/
+theorem elemDual_smul_eq_self {g : C} (hg : ∀ v : V, g • v = v) (lam : ElemDual V) :
+    g • lam = lam := by
+  refine ElemDual.ext fun v => ?_
+  rw [ElemDual.smul_apply]
+  have : g⁻¹ • v = v := by
+    conv_lhs => rw [← hg v]
+    rw [inv_smul_smul]
+  rw [this]
+
+/-- **Fixed-point-freeness transfers to the dual.**  If `g` fixes no nonzero vector then it
+fixes no nonzero functional: `v ↦ g • v − v` is injective, hence surjective on a finite module,
+and a `g`-invariant functional kills its whole image. -/
+theorem elemDual_fpf {g : C} (hfpf : ∀ v : V, g • v = v → v = 0) (lam : ElemDual V)
+    (hlam : g • lam = lam) : lam = 0 := by
+  set f : V →+ V := (DistribSMul.toAddMonoidHom V g) - AddMonoidHom.id V with hf
+  have hfapp : ∀ v : V, f v = g • v - v := fun v => rfl
+  have hinj : Function.Injective f := by
+    rw [injective_iff_map_eq_zero]
+    intro v hv
+    rw [hfapp, sub_eq_zero] at hv
+    exact hfpf v hv
+  have hsurj : Function.Surjective f := Finite.injective_iff_surjective.mp hinj
+  refine ElemDual.ext fun v => ?_
+  obtain ⟨u, rfl⟩ := hsurj v
+  have h1 : lam (g⁻¹ • (g • u)) = lam (g • u) := by
+    rw [← ElemDual.smul_apply g lam (g • u), hlam]
+  rw [inv_smul_smul] at h1
+  rw [hfapp, map_sub, ← h1, ElemDual.zero_apply, sub_self]
+
+end DualTransfer
+
+/-! ### The hat copy's full jet, and the cancellation -/
+
+section Replication
+
+variable {h : ℕ} {C : Type*} [Group C] [Finite C] {V : Type*} [AddCommGroup V] [Finite V]
+  [DistribMulAction C V] (t : Marking (2 + 2 * h) C) (E : Zhat → ℤ) (E₂ : ℤ_[2] → ℤ)
+
+/-- **The dual first Fox derivative of the hat copy vanishes.**  Not a re-derivation:
+`foxD_mpcHatW_ram` is module-generic, so this is that theorem at `A := ElemDual V`, with the
+four ramified hypotheses transferred by §3's two dual lemmas (`hV₂` is free — every `𝔽₂`-dual
+functional kills itself). -/
+theorem foxD_mpcHatW_ram_dual {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDisplay)
+    (y : Generator (2 + 2 * h) → ElemDual V) (hσ : y Generator.sigma = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w) :
+    foxD ⇑t y E E₂ (mpcHatW α r pp η h) = 0 :=
+  foxD_mpcHatW_ram (V := ElemDual V) t E E₂ y hσ
+    (fun i lam => elemDual_smul_eq_self (hwild i) lam)
+    (fun lam hlam => elemDual_fpf hτfpf lam hlam)
+    (fun lam => elemDual_smul_eq_self hTodd lam)
+    hα r pp η (fun lam => ElemDual.add_self_eq_zero lam)
+
+/-- **The hat copy is jet-zero** — both halves, hence WW3's membership.
+
+WMP-b proved the primal half and noted that `heisJetZero_mul_z` consumes only the dual one;
+neither alone gives the membership, and the membership is what every second-order consumer
+(`heisJetZero_mul_right_jet`, `heisJetZero_sq_z`, `heisEvalZ_prodList_jetZero`) needs. -/
+theorem heisJetZero_mpcHatW {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDisplay)
+    (x : Generator (2 + 2 * h) → V) (y : Generator (2 + 2 * h) → ElemDual V)
+    (hσx : x Generator.sigma = 0) (hσy : y Generator.sigma = 0)
+    (hWp : ResolverLifts E (WordLift V C)) (hWd : ResolverLifts E (WordLift (ElemDual V) C))
+    (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w) :
+    heisEvalZ ⇑t x y E E₂ (mpcHatW α r pp η h) ∈ heisJetZero V C := by
+  refine ⟨?_, ?_⟩
+  · rw [heisEvalZ_a_eq_foxD hWp]
+    exact foxD_mpcHatW_ram t E E₂ x hσx hwild hτfpf hTodd hα r pp η hV₂
+  · rw [heisEvalZ_l_eq_foxD hWd]
+    exact foxD_mpcHatW_ram_dual t E E₂ hα r pp η y hσy hwild hτfpf hTodd
+
+/-- **The two copies' central values add — no cross term, `T`-dependent or otherwise.**
+
+The cross term of the second-order product rule is `D^∨(R_lin)(val(R_lin)·D(R̂))`, and it dies on
+the *primal* half of the hat's jet alone (WMP-b's `heisEvalZ_pair_z_of_hat_jetZero`, S1.5's
+banked lemma (iii)(a)) — no module, no lift, no characteristic hypothesis, and in particular
+nothing that could hide a `T`-dependent term: `T` enters only through `val(R_lin)`, which
+multiplies zero. -/
+theorem heisEvalZ_mpcProductW_z {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDisplay)
+    (x : Generator (2 + 2 * h) → V) (y : Generator (2 + 2 * h) → ElemDual V)
+    (hσx : x Generator.sigma = 0) (hσy : y Generator.sigma = 0)
+    (hWp : ResolverLifts E (WordLift V C)) (hWd : ResolverLifts E (WordLift (ElemDual V) C))
+    (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w) :
+    (heisEvalZ ⇑t x y E E₂ (.mul (mpcLinW α r pp η h) (mpcHatW α r pp η h))).z
+      = (heisEvalZ ⇑t x y E E₂ (mpcLinW α r pp η h)).z
+        + (heisEvalZ ⇑t x y E E₂ (mpcHatW α r pp η h)).z :=
+  heisEvalZ_pair_z_of_hat_jetZero ⇑t x y E E₂ _ _
+    (heisJetZero_mpcHatW t E E₂ hα r pp η x y hσx hσy hWp hWd hV₂ hwild hτfpf hTodd)
+
+/-- **P4's central clause, as a module hypothesis** — the shadow memo's own formulation.
+
+The memo is explicit that this is "a module condition, checked exactly per module", *not*
+something to re-measure: `value(δ_i)` and `value(x_i)` agree in lower, primal and dual (the
+ramified clause, which is `P = 0`), and whether they also agree centrally is a property of the
+module.  Its own table shows the clause **failing** on three of the four ramified simples while
+the conclusion still holds, because the parity escape fires — so the honest Lean shape is a
+hypothesis with two independent sufficient conditions, not a claim. -/
+def CentralReplication {α : ℕ} (r pp : ℕ) (η : EtaDisplay)
+    (x : Generator (2 + 2 * h) → V) (y : Generator (2 + 2 * h) → ElemDual V) : Prop :=
+  (heisEvalZ ⇑t x y E E₂ (mpcHatW α r pp η h)).z
+    = (heisEvalZ ⇑t x y E E₂ (mpcLinW α r pp η h)).z
+
+/-- **The copies cancel in characteristic 2** — packet Rem. 5.4 / memo P5, assembled.
+
+`central(uv) = central(u) + central(v) + λ(m_u, ū·m_v)`; P3 (the vanishing first jet, §3's
+`heisJetZero_mpcHatW`) kills the cross term and P4 (the central clause) makes the two central
+values equal, so the pair contributes `c + c = 0`.  What survives is the plus block — the word
+identity `Q₊(c₀,c₁) = q(c₀) + b_q(c₀,c₁)`, not a finite-order interpolation. -/
+theorem mpcCopiesCancel {α : ℕ} (hα : 1 ≤ α) (r pp : ℕ) (η : EtaDisplay)
+    (x : Generator (2 + 2 * h) → V) (y : Generator (2 + 2 * h) → ElemDual V)
+    (hσx : x Generator.sigma = 0) (hσy : y Generator.sigma = 0)
+    (hWp : ResolverLifts E (WordLift V C)) (hWd : ResolverLifts E (WordLift (ElemDual V) C))
+    (hV₂ : ∀ w : V, w + w = 0)
+    (hwild : ∀ (i : Fin (2 + 2 * h + 1)) (w : V), t.x i • w = w)
+    (hτfpf : ∀ w : V, t.τ • w = w → w = 0) (hTodd : ∀ w : V, powOmega2 t.τ • w = w)
+    (hcentral : CentralReplication (α := α) t E E₂ r pp η x y) :
+    (heisEvalZ ⇑t x y E E₂ (.mul (mpcLinW α r pp η h) (mpcHatW α r pp η h))).z = 0 := by
+  rw [heisEvalZ_mpcProductW_z t E E₂ hα r pp η x y hσx hσy hWp hWd hV₂ hwild hτfpf hTodd,
+    show (heisEvalZ ⇑t x y E E₂ (mpcHatW α r pp η h)).z
+      = (heisEvalZ ⇑t x y E E₂ (mpcLinW α r pp η h)).z from hcentral,
+    CharTwo.add_self_eq_zero]
+
+end Replication
 
 end GQ2.Dyadic.Certificates.MProcyclic
