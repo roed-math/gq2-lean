@@ -181,4 +181,104 @@ theorem finite_vcocycleG
 
 end ZCount
 
+/-! ## §3 The form compatibility and the reindexing transport, at a general `Γ`
+
+The two genuinely `G_ℚ₂`-typed declarations of the `ℚ₂` chain, retyped:
+`GQ2/GaussZ/Local.lean:172`'s `QZeroBar_eq_Q0loc` (the descended base determinant form **is**
+`Q⁰_loc` through the transport `Φ`) and `GQ2/GaussZ/FinalD.lean:60`'s `Q0loc_reindexHom_hom`
+(the `MonoidHom`-level `Q⁰` reindexing used to push the head datum down).  Both proofs are the
+models' verbatim; only §1's bridge replaces `iotaB_eq_iotaF`. -/
+
+section FormCompatG
+
+variable {Bg : Type} [Group Bg] [Finite Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
+  {D : RadicalCoverData Bg} {DD : DescData D}
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+  [DistribMulAction Γ (MuN 2)] [ContinuousSMul Γ (MuN 2)]
+variable {ρM : ContinuousMonoidHom Γ (Bg ⧸ D.M)}
+variable [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod]
+  [DistribMulAction Γ DD.Vmod] [ContinuousSMul Γ DD.Vmod]
+variable [TopologicalSpace DD.C0] [DiscreteTopology DD.C0]
+
+omit [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+  [DistribMulAction Γ (MuN 2)] [ContinuousSMul Γ (MuN 2)] [ContinuousSMul Γ DD.Vmod]
+  [TopologicalSpace DD.C0] [DiscreteTopology DD.C0] in
+/-- `h1OfVQuot` on a class (the `ℚ₂` `h1OfVQuot_mk` is `private`; restated here rather than
+editing `GQ2/GaussZ/Local.lean`). -/
+private theorem h1OfVQuot_mk' (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho0 DD ρM γ • v)
+    (c : VCocycle DD ρM) :
+    h1OfVQuot hcomp (QuotientAddGroup.mk c) = H1mk Γ DD.Vmod (toZ1 hcomp c) := rfl
+
+omit [ContinuousSMul Γ DD.Vmod] [DiscreteTopology DD.C0] in
+/-- **The form compatibility at a general `Γ`** — the `Γ`-generic
+`GQ2.SectionEight.AffineTLift.QZeroBar_eq_Q0loc`: under the transport `Φ = h1OfVQuot`, the
+descended base determinant form `Q̄⁰` is LG2's `Q⁰_loc` at the bundle `D`.  §1's
+`iotaB_eq_iotaFG` replaces the `ℚ₂` `iotaB_eq_iotaF`, and the `Quotient.out` representative on
+the `H¹` side differs from the transported cocycle by a `B¹`-shift, absorbed mod `B²` by the
+(already `Γ`-generic) `graphPullback_shift_mem_B2`. -/
+theorem QZeroBar_eq_Q0locG (D6 : TateDualityG Γ 2)
+    (hcomp : ∀ (γ : Γ) (v : DD.Vmod), γ • v = rho0 DD ρM γ • v)
+    (ρc : ContinuousMonoidHom Γ DD.C0) (hρc : ∀ γ, ρc γ = rho0 DD ρM γ)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (x : VCocycle DD ρM ⧸ vCobRange DD ρM) :
+    QZeroBar DD ρM htriv x = Q0loc D6 DD.dat ρc (h1OfVQuot hcomp x) := by
+  induction x using QuotientAddGroup.induction_on with
+  | H c =>
+    rw [QZeroBar_mk, h1OfVQuot_mk']
+    -- the `out` representative differs from `toZ1 c` by a `B¹`-element
+    have hout : H1mk Γ DD.Vmod (Quotient.out (H1mk Γ DD.Vmod (toZ1 hcomp c)))
+        = H1mk Γ DD.Vmod (toZ1 hcomp c) := by
+      show Quotient.mk'' (Quotient.out (H1mk Γ DD.Vmod (toZ1 hcomp c)))
+        = H1mk Γ DD.Vmod (toZ1 hcomp c)
+      exact Quotient.out_eq' _
+    rw [H1mk_eq_iff, AddSubgroup.mem_addSubgroupOf] at hout
+    obtain ⟨w, hw⟩ := AddMonoidHom.mem_range.mp hout
+    have hz₀c : ((Quotient.out (H1mk Γ DD.Vmod (toZ1 hcomp c))
+        : ↥(Z1 Γ DD.Vmod)) : Γ → DD.Vmod) = (c + vCob DD ρM w).c := by
+      funext γ
+      have hγ' : γ • w - w = (Quotient.out (H1mk Γ DD.Vmod (toZ1 hcomp c))
+          : ↥(Z1 Γ DD.Vmod)).1 γ - c.c γ := congrFun hw γ
+      show (Quotient.out (H1mk Γ DD.Vmod (toZ1 hcomp c))
+          : ↥(Z1 Γ DD.Vmod)).1 γ = c.c γ + (rho0 DD ρM γ • w - w)
+      rw [← hcomp γ w, hγ']
+      abel
+    show QZero DD ρM c = iotaF D6 (H2ofFun Γ (graphPullback DD.dat (⇑ρc)
+      ((Quotient.out (H1mk Γ DD.Vmod (toZ1 hcomp c)) : ↥(Z1 Γ DD.Vmod)) : _)))
+    have hρfun : (⇑ρc : Γ → DD.C0) = fun γ => rho0 DD ρM γ := funext hρc
+    rw [hρfun, hz₀c,
+      ShapiroLedger.H2ofFun_eq_of_sub_mem_B2 (graphPullback_shift_mem_B2 htriv c w),
+      ← iotaB_eq_iotaFG D6 (graphPullback_mem_Z2_of_cocycle htriv c)]
+    rfl
+
+end FormCompatG
+
+section ReindexG
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+  [DistribMulAction Γ (MuN 2)] [ContinuousSMul Γ (MuN 2)]
+variable {C C' : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+  [Group C'] [TopologicalSpace C'] [DiscreteTopology C'] [Finite C']
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [DistribMulAction Γ V] [ContinuousSMul Γ V]
+  [DistribMulAction C V] [DistribMulAction C' V]
+
+omit [DiscreteTopology C] [Finite C] [DiscreteTopology C'] [Finite C'] [Finite V]
+  [ContinuousSMul Γ V] in
+/-- **`Q⁰` reindexing along a `MonoidHom`-composite at a general `Γ`** — the `Γ`-generic
+`GQ2.SectionNine.Q0loc_reindexHom_hom` (`GQ2/GaussZ/FinalD.lean:60`).  Verbatim: the underlying
+identity `ShapiroDeepness.graphPullback_reindexHom` is ambient-free. -/
+theorem Q0loc_reindexHom_homG (D : TateDualityG Γ 2) (dat : FactorSet C V) (φ : C' →* C)
+    (hφ : ∀ (c' : C') (v : V), c' • v = φ c' • v)
+    (ρ' : ContinuousMonoidHom Γ C') (ρc : ContinuousMonoidHom Γ C)
+    (hρc : ∀ g : Γ, ρc g = φ (ρ' g)) (x : H1 Γ V) :
+    Q0loc D (dat.reindexHom ⇑φ) ρ' x = Q0loc D dat ρc x := by
+  show iotaF D (H2ofFun Γ (graphPullback (dat.reindexHom ⇑φ) ⇑ρ' (Quotient.out x).1))
+    = iotaF D (H2ofFun Γ (graphPullback dat ⇑ρc (Quotient.out x).1))
+  rw [ShapiroDeepness.graphPullback_reindexHom dat ⇑φ hφ ⇑ρ' (Quotient.out x).1,
+    show (⇑φ ∘ ⇑ρ') = ⇑ρc from funext fun g => (hρc g).symm]
+
+end ReindexG
+
 end GQ2.Dyadic
