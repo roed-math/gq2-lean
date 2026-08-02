@@ -13,8 +13,13 @@ import GQ2.Half139Local
 
 The two `SourceDataN` clauses that are **not** counts:
 
-* `hpartial : ∀ χ ≠ 0, ∃ c, β_χ(c) ≠ β_χ(0)`  (`GQ2/Dyadic/SourceDataN.lean:243`) — §3;
-* `hsep     : (∀ χ, β_χ(c) = 0) → TLiftable c` (`GQ2/Dyadic/SourceDataN.lean:229`).
+* `hpartial : ∀ χ ≠ 0, ∃ c, β_χ(c) ≠ β_χ(0)`  (`GQ2/Dyadic/SourceDataN.lean:243`) — §3/§4;
+* `hsep     : (∀ χ, β_χ(c) = 0) → TLiftable c` (`GQ2/Dyadic/SourceDataN.lean:229`) — §6/§7.
+
+Both are proved over the abstract carrier `(D : RadicalCoverData Bg, DD : DescData D)` at a
+variable source group `Γ`, so **one theorem each serves both sides of the two-sided comparison
+and all five frozen branch families**: neither clause mentions the branch word, the marking, or
+any numeric leaf, so there is nothing per-family to specialize.
 
 ## The degree check, done before any porting  (the CB-SG discipline)
 
@@ -80,9 +85,32 @@ leaves do).  Nothing was assumed and nothing was axiomatized.
 | § | content | status |
 |---|---|---|
 | 1 | the `(t,v)`-coordinatization of `M` over the abstract carrier | new, 12 ln |
-| 2 | `IsRightSeparating` — the fork, named; and its arithmetic supplier, **degree-free** | closed |
+| 2 | `IsRightSeparating` — `hpartial`'s fork, named; arithmetic supplier, **degree-free** | closed |
 | 3 | **`hpartialN`** — the clause over the abstract carrier | **CLOSED** (3 binders) |
 | 4 | the verbatim `SourceDataN.hpartial` field goal at a frame | closed |
+| 5 | `IsTwoSeparating` — `hsep`'s fork, named; arithmetic supplier | closed |
+| 6 | **`hsepN`** — the clause over the abstract carrier | **CLOSED** (3 binders) |
+| 7 | the verbatim `SourceDataN.hsep` field goal at a frame | closed |
+
+## The sizing prediction was inverted
+
+CB-2 sized `hpartial` at ≈700 generic lines and `hsep` at ≈1500+, and named `hsep` as where the
+count lane's real risk sits — on the ground that `hsep` has *two disjoint* `ℚ₂` proofs "with no
+common generic core".  Measured here, the opposite holds, and for a reason worth recording:
+once the fork is spelled **cup-free**, `hsep`'s body loses its entire `cup20`/`H2mk` layer —
+stage 4 collapses to the observation that the invariant-dual pushforward of `tDef` *is* `chiDef`
+at the induced character, definitionally.  `hsepN` therefore carries **three** binders and
+**none** of `#H²(Γ,𝔽₂) = 2`, `htriv`, `hpair`, or module simplicity, where `hpartialN` needs
+the first two.  `hsep` is the lighter clause.
+
+CB-2's "no common generic core" reading is still correct about the *`ℚ₂` proofs*: the marking
+route and the `cup20` route share nothing. What it missed is that they share a **statement** —
+and the statement, not the proof, is what a generic clause needs to factor through.  The
+`ℚ₂` audit corroborates the second half of this: `sep_word` (the marking route's engine)
+consumes **only** `IsSelfDual`'s clause 1, `#H²w(A) = #H⁰w(A^∨)` — `wTrace_surjective`
+destructures the payload as `⟨hsd_card, -, -⟩` and discards clauses 2 and 3.  Clause 1 is
+exactly `IsSelfDualN.cardH2`, which is *not* the clause carrying the degree.  So the count
+clause's `#A^{n+1}` trap is provably off `hsep`'s path.
 
 ## Import discipline
 
@@ -92,7 +120,7 @@ stated in, together with `GQ2/Phase140/Assembly.lean`'s `descSections`/`descSigm
 `GQ2.Half139Local` carries the frame-level `(M^∨)^C = 0`.  `GQ2.Dyadic.LiftingDualityG` (CB-SG)
 is a `module` file, and a plain file may import a module file — the module rule is one-way.
 
-Axioms: **no new axioms, no `sorry`**.  Every declaration prints exactly the standard three
+Axioms: **no new axioms, no `sorry`**.  All fourteen declarations print exactly the standard three
 (`propext`, `Classical.choice`, `Quot.sound`) — measured, not budgeted.  `decide` occurs only
 at kernel-decidable `ZMod 2` character identities (the `hchar`/`hfin` steps), as in the `ℚ₂`
 proof.
@@ -671,12 +699,21 @@ variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
   [TopologicalSpace (ElemDual A)] [DiscreteTopology (ElemDual A)]
   [ContinuousSMul Γ (ElemDual A)]
 
+omit [TopologicalSpace Γ] [IsTopologicalGroup Γ] [DistribMulAction Γ (MuN 2)]
+  [ContinuousSMul Γ (MuN 2)] [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+  [TopologicalSpace A] [DiscreteTopology A] [Finite A] [ContinuousSMul Γ A]
+  [TopologicalSpace (ElemDual A)] [DiscreteTopology (ElemDual A)]
+  [ContinuousSMul Γ (ElemDual A)] in
 /-- An invariant elementary dual is `Γ`-equivariant for the trivial target action. -/
 theorem elemDual_apply_smul {n : ElemDual A} (hn : ∀ γ : Γ, γ • n = n) (g : Γ) (a : A) :
     n (g • a) = n a := by
   conv_lhs => rw [← hn g]
   rw [ElemDual.smul_apply, inv_smul_smul]
 
+omit [IsTopologicalGroup Γ] [DistribMulAction Γ (MuN 2)] [ContinuousSMul Γ (MuN 2)]
+  [ContinuousSMul Γ (ZMod 2)] [Finite A] [ContinuousSMul Γ A]
+  [TopologicalSpace (ElemDual A)] [DiscreteTopology (ElemDual A)]
+  [ContinuousSMul Γ (ElemDual A)] in
 /-- The pushforward of a continuous `2`-cocycle along an invariant elementary dual is a
 continuous `𝔽₂`-valued `2`-cocycle. -/
 theorem pushforward_mem_Z2 (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m) (φ : ↥(Z2 Γ A))
@@ -689,6 +726,7 @@ theorem pushforward_mem_Z2 (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m) (�
   rw [htriv]
   exact hφ
 
+omit [ContinuousSMul Γ (ZMod 2)] in
 /-- **The arithmetic supplier of the `hsep` fork.**  Injectivity of the `(2,0)` evaluation cup
 (`prop_5_16` clause (vi), `Γ`-generically CB-SG's `bijective_cup20_dualEvalG`) is exactly
 `IsTwoSeparating`: the cup value at an invariant `n` is the class of the pushforward `n ∘ φ`,
@@ -741,9 +779,9 @@ variable {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Fin
   {rho : ContinuousMonoidHom Γ (Bg ⧸ D.M)}
   (hcompT : ∀ (γ : Γ) (a : Additive ↥D.T), γ • a = rho γ • a)
 
-omit [ContinuousSMul Γ (ZMod 2)] [TopologicalSpace (Additive ↥D.T)]
-  [DiscreteTopology (Additive ↥D.T)] [DistribMulAction Γ (Additive ↥D.T)]
-  [ContinuousSMul Γ (Additive ↥D.T)] in
+omit [DiscreteTopology Bg] [IsTopologicalGroup Γ] [DistribMulAction Γ (ZMod 2)]
+  [TopologicalSpace (Additive ↥D.T)] [DiscreteTopology (Additive ↥D.T)]
+  [DistribMulAction Γ (Additive ↥D.T)] [ContinuousSMul Γ (Additive ↥D.T)] in
 include hσ in
 /-- **`mk_M (fLift γ) = ρ γ`**: the pointwise lift of a `V`-cocycle reduces mod `M` to the lower
 map (`mV (c γ) ∈ M` kills its coset, `uσ` is a `piC0`-section, `liftC0` is injective).
@@ -767,6 +805,8 @@ theorem fLift_mk_MN (c : VCocycle DD rho) (γ : Γ) :
       rw [DD.hkerC0]; exact (S.mV (c.c γ)).2),
     one_mul, ← piQbar_mk DD, S.piT_uσ, hσ]
 
+omit [ContinuousSMul Γ (ZMod 2)] [DistribMulAction Γ (ZMod 2)]
+  [ContinuousSMul Γ (Additive ↥D.T)] in
 include hσ hcompT in
 /-- **The `T`-valued defect is a `Z²`-cocycle**: pushing `tDef` into `Additive ↥D.T` gives a
 continuous inhomogeneous `2`-cocycle for the conjugation action (`M` abelian collapses the
@@ -799,6 +839,7 @@ theorem tDef_mem_Z2N (c : VCocycle DD rho) :
     rw [← hraw]
     exact D.hcomm _ (D.hTM (tDef S hσ c (γ, δ)).2) _ (D.hTM (tDef S hσ c (γ * δ, ε)).2)
 
+omit [ContinuousSMul Γ (ZMod 2)] [ContinuousSMul Γ (Additive ↥D.T)] in
 include hσ hcompT in
 /-- **`SourceDataN.hsep` over the abstract carrier** — the `(T^∨)^C`-separation: a `V`-cocycle
 whose `χ`-obstructions all vanish is `T`-liftable.
@@ -916,5 +957,56 @@ theorem hsepN (hrhosurj : Function.Surjective rho)
       fLift_mk S hσ c γ]
 
 end HSep
+
+/-! ## §7. The verbatim `SourceDataN.hsep` field goal
+
+Same shape as §4: the record's field (`GQ2/Dyadic/SourceDataN.lean:229`) is the statement below
+`∀`-generalized over the frame data, and fixing that data lets `hsepN` close it with no
+transport.  The three `letI`s are the recursion's standing conventions for the `T`-layer module
+(`⊥`-topology on `Additive ↥T`, and the `Γ`-action pulled back from the campaign's canonical
+`cActT` along `rhoPrimeK`), so `hcompT` is `rfl`; `hrhosurj` is SD-R3's `rhoPrimeK_surjective`;
+and the record's own `smulZmod2` supplies the `𝔽₂`-action.  **`h2sep` is the only new input.** -/
+section HSepFieldGoal
+
+open GQ2.Dyadic
+
+variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+  [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  {Y : Type} [Group Y] [Finite Y] {T : MarkedTarget H E Y}
+  {Blk : SectionSeven.MinimalBlock T.LY} {RF : RecursionFrame T Blk}
+  {q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+
+/-- **`SourceDataN.hsep`, verbatim at one frame** (`GQ2/Dyadic/SourceDataN.lean:229`), including
+the record's own `letI := smulZmod2`.  Closed, with one binder beyond the record's own data. -/
+theorem hsep_field_goal
+    (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
+    (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR)
+    (Dsc : Descent (En.radData l h)) (ρ : BoundaryLiftsK b F RF.TC)
+    (smulZmod2 : DistribMulAction Γ (ZMod 2))
+    (h2sep :
+      letI := smulZmod2
+      letI : TopologicalSpace (Additive ↥(En.radData l h).T) := ⊥
+      haveI : DiscreteTopology (Additive ↥(En.radData l h).T) := ⟨rfl⟩
+      letI : DistribMulAction Γ (Additive ↥(En.radData l h).T) :=
+        DistribMulAction.compHom (Additive ↥(En.radData l h).T)
+          (rhoPrimeK RF b F (En.radData l h) rfl ρ).toMonoidHom
+      IsTwoSeparating Γ (Additive ↥(En.radData l h).T))
+    (c : VCocycle (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ))
+    (hc : letI := smulZmod2
+      ∀ χ : ↥(TCharC (En.radData l h)),
+        betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c = 0) :
+    letI := smulZmod2
+    TLiftable (descSigma_spec En l h Dsc) c := by
+  letI := smulZmod2
+  letI : TopologicalSpace (Additive ↥(En.radData l h).T) := ⊥
+  haveI : DiscreteTopology (Additive ↥(En.radData l h).T) := ⟨rfl⟩
+  letI : DistribMulAction Γ (Additive ↥(En.radData l h).T) :=
+    DistribMulAction.compHom (Additive ↥(En.radData l h).T)
+      (rhoPrimeK RF b F (En.radData l h) rfl ρ).toMonoidHom
+  exact hsepN (descSections En l h Dsc) (descSigma_spec En l h Dsc) (fun _ _ => rfl)
+    (rhoPrimeK_surjective RF b F (En.radData l h) rfl ρ) h2sep c hc
+
+end HSepFieldGoal
 
 end GQ2.Dyadic.Count
