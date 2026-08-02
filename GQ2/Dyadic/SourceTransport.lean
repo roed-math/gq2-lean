@@ -81,9 +81,12 @@ The action itself is *not* transported: `Γ'` carries its own, exactly as every 
 The dyadic census axioms **`B5-K`/`B10-K` (`markedRecipAt`, `orientedTameQuotientAt`) are
 consumed nowhere**: the `n = 1` route never enters the `K`-layer.
 
-Nothing here reads a count: no declaration in this file mentions `standardNumerics` or any
-numeric constant, and the `SourceNumerics` slot is carried opaquely throughout — §§1–7 never
-inspect it, and §8 only passes SD-R1's.
+Nothing here **reads** a count.  §§1–7 carry the `SourceNumerics` slot opaquely: they never
+project out of `SN`, never mention `standardNumerics`, and no transport statement contains a
+numeric constant — the counts are matched by `Nat.card_congr`, not recomputed.  §8 names
+`standardNumerics 1` only as SD-R1's *slot index*, exactly as `sourceR_N` and AS4 do, so the
+memo §1.4 value bridges (`standardNumerics_one_h1Mult` and the two Gauss ones) are consumed
+inside `sourceR_N` and are not re-derived here.
 
 ## Sources
 
