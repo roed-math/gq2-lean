@@ -281,4 +281,186 @@ theorem Q0loc_reindexHom_homG (D : TateDualityG Γ 2) (dat : FactorSet C V) (φ 
 
 end ReindexG
 
+/-! ## §4 The pinned Gauss value on `H¹(G_K, V)` — LG5, in signed form
+
+`GQ2/GaussZ/Local.lean` §(D)/(E) turns `prop_6_18`'s zero count into the signed sum
+`∑ᶠ sign(Q⁰_loc) = ∓2^m`.  Here the same conversion runs off LG5's
+`local_gauss_K_zeroCount_{add,sub}`, giving the packet eq. (115) values
+
+  `∑ᶠ_{H¹(G_K,V)} sign(Q⁰) = (−1)^n · 2^{nm}` (unramified marking),  `= +2^{nm}` (ramified),
+
+`n = [K : ℚ₂]`.  **Degree-shift audit, row 3**: the `ℚ₂` constants `∓2^m` are the `n = 1` case of
+these, and the `(−1)^n` in the unramified head is *not* a sign convention — it is the parity
+split inside `local_gauss_K` (`arf = n mod 2` when unramified), which is why the unramified
+theorem below case-splits on `Even P.n` while the ramified one does not. -/
+
+section PinnedK
+
+variable {C : Type} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+
+section SignedSum
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+  [DistribMulAction Γ (MuN 2)] [ContinuousSMul Γ (MuN 2)]
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+  [DistribMulAction Γ V] [ContinuousSMul Γ V] [DistribMulAction C V]
+
+omit [DiscreteTopology C] [Finite C] [Finite V] [ContinuousSMul Γ V] in
+/-- **The signed-sum extraction at a general `Γ`** — the `Γ`-generic
+`GQ2.SectionEight.AffineTLift.finsum_sign_eq`: with the zero count of `Q⁰` and
+`#H¹(Γ, V) = 2^{2M}` known, `∑ᶠ sign(Q⁰) = 2·zc − 2^{2M}`.  The `ℚ₂` version got its `Finite H¹`
+from `Foundations.finite_H1`; here it comes from the count itself. -/
+theorem finsum_sign_eqG (D : TateDualityG Γ 2) (dat : FactorSet C V)
+    (ρ : ContinuousMonoidHom Γ C)
+    (zc : ℕ) (hzc : QuadraticFp2.zeroCount (Q0loc D dat ρ (V := V)) = zc)
+    {M : ℕ} (hH1 : Nat.card (H1 Γ V) = 2 ^ (2 * M)) :
+    ∑ᶠ y : H1 Γ V, sign (Q0loc D dat ρ y) = 2 * (zc : ℤ) - 2 ^ (2 * M) := by
+  classical
+  haveI : Finite (H1 Γ V) := (Nat.card_ne_zero.mp (by rw [hH1]; positivity)).2
+  haveI : Fintype (H1 Γ V) := Fintype.ofFinite _
+  rw [finsum_eq_sum_of_fintype]
+  -- bridge the two `sign`s (`SectionEight.sign` in the residue, `QuadraticFp2.sign` in
+  -- `gaussSum`), then evaluate through `gaussSum_eq`
+  have hsign : ∀ s : ZMod 2, sign s = QuadraticFp2.sign s := by decide
+  calc (∑ y : H1 Γ V, sign (Q0loc D dat ρ y))
+      = ∑ y : H1 Γ V, QuadraticFp2.sign (Q0loc D dat ρ y) :=
+        Finset.sum_congr rfl fun y _ => hsign _
+    _ = 2 * (zc : ℤ) - 2 ^ (2 * M) := by
+        have hge := QuadraticFp2.gaussSum_eq (V := H1 Γ V) (Q0loc D dat ρ)
+        unfold QuadraticFp2.gaussSum at hge
+        rw [hge, hzc, ← Nat.card_eq_fintype_card, hH1]
+        push_cast
+        ring
+
+end SignedSum
+
+section AtK
+
+variable (P : FieldParameters) (U : Subgroup AbsGalQ2)
+variable {V : Type} [AddCommGroup V] [TopologicalSpace V] [DiscreteTopology V] [Finite V]
+
+/-- **Packet eq. (115), unramified head, signed** — `∑ᶠ sign(Q⁰_{K,V}) = (−1)^n · 2^{nm}`.
+
+LG5's dichotomy in one line: in *odd* degree the marking's Arf invariant is `1`
+(`local_gauss_K_zeroCount_sub`) and the sum is `−2^{nm}`; in *even* degree it is `0`
+(`local_gauss_K_zeroCount_add`, whose `hplus` is satisfied by the parity alone) and the sum is
+`+2^{nm}`.  Together: `(−1)^n 2^{nm}`, which is `SourceNumerics.gaussUnram` at
+`standardNumerics n` on the nose (`gaussUnram_standard`). -/
+theorem sum_sign_Q0loc_K_unramified
+    (hU : IsOpen (U : Set AbsGalQ2)) [Finite (AbsGalQ2 ⧸ U)] (hn : U.index = P.n)
+    [DistribMulAction ↥U (ZMod 2)] [ContinuousSMul ↥U (ZMod 2)]
+    [DistribMulAction ↥U (MuN 2)] [ContinuousSMul ↥U (MuN 2)]
+    [DistribMulAction ↥U V] [ContinuousSMul ↥U V] [DistribMulAction C V]
+    (D : TateDualityG ↥U 2)
+    (tameFK : ContinuousMonoidHom ↥U (Tq P.qK)) (htameFK : Function.Surjective ⇑tameFK)
+    (c : ContinuousMonoidHom (Tq P.qK) C) (hc : Function.Surjective ⇑c)
+    (ρ : ContinuousMonoidHom ↥U C) (hfac : ∀ g, ρ g = c (tameFK g))
+    (hρ : ∀ (g : ↥U) (v : V), g • v = ρ g • v)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (q : V → ZMod 2) (hq : QuadraticFp2.IsQuadraticFp2 q) (hns : QuadraticFp2.Nonsingular q)
+    (hinv : QuadraticFp2.IsInvariant C q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m))
+    (hunram : ∀ v : V, c (tqTau P.qK) • v = v) :
+    ∑ᶠ y : H1 ↥U V, sign (Q0loc D dat ρ y) = (-1 : ℤ) ^ P.n * 2 ^ (P.n * m) := by
+  classical
+  have hnr : ¬∃ v : V, c (tqTau P.qK) • v ≠ v := fun h => h.elim fun v hv => hv (hunram v)
+  have hH1 : Nat.card (H1 ↥U V) = 2 ^ (2 * (m * P.n)) :=
+    card_H1_eq_of_markingK P U hU hn D tameFK htameFK c hc ρ hfac hρ hsimple q hq hns hinv
+      m hm hcard
+  have hM : 1 ≤ m * P.n :=
+    Nat.one_le_iff_ne_zero.mpr (Nat.mul_ne_zero (by omega) (by have := P.one_le_n; omega))
+  have hle : (2 : ℕ) ^ (m * P.n - 1) ≤ 2 ^ (2 * (m * P.n) - 1) :=
+    Nat.pow_le_pow_right (by norm_num) (by omega)
+  have e1 : (2 : ℤ) ^ (2 * (m * P.n)) = 2 * 2 ^ (2 * (m * P.n) - 1) := by
+    rw [← pow_succ']; congr 1; omega
+  have e2 : (2 : ℤ) ^ (m * P.n) = 2 * 2 ^ (m * P.n - 1) := by rw [← pow_succ']; congr 1; omega
+  have hmn : (2 : ℤ) ^ (P.n * m) = 2 ^ (m * P.n) := by rw [mul_comm]
+  rcases Nat.even_or_odd P.n with hev | hodd
+  · -- even degree: the Arf invariant vanishes, the sum is `+2^{nm}`
+    have hzc : QuadraticFp2.zeroCount (Q0loc D dat ρ (V := V))
+        = 2 ^ (2 * m * P.n - 1) + 2 ^ (m * P.n - 1) :=
+      local_gauss_K_zeroCount_add P U hU hn D tameFK htameFK c hc ρ hfac hρ hfaith hsimple
+        q hq hns hinv dat hdat m hm hcard (fun h => absurd h hnr) (Or.inr hev)
+    rw [finsum_sign_eqG D dat ρ _ (by rw [hzc, mul_assoc]) hH1, hev.neg_one_pow, one_mul, hmn]
+    push_cast
+    linarith [e1, e2]
+  · -- odd degree: the Arf invariant is `1`, the sum is `−2^{nm}`
+    have hzc : QuadraticFp2.zeroCount (Q0loc D dat ρ (V := V))
+        = 2 ^ (2 * m * P.n - 1) - 2 ^ (m * P.n - 1) :=
+      local_gauss_K_zeroCount_sub P U hU hn D tameFK htameFK c hc ρ hfac hρ hfaith hsimple
+        q hq hns hinv dat hdat m hm hcard hunram hodd
+    rw [finsum_sign_eqG D dat ρ _ (by rw [hzc, mul_assoc]) hH1, hodd.neg_one_pow, hmn]
+    push_cast [Nat.cast_sub hle]
+    linarith [e1, e2]
+
+/-- **Packet eq. (115), ramified head, signed** — `∑ᶠ sign(Q⁰_{K,V}) = +2^{nm}` at *every*
+degree (`local_gauss_K`'s ramified branch has no parity condition).  This is
+`SourceNumerics.gaussRam` at `standardNumerics n` (`gaussRam_standard`). -/
+theorem sum_sign_Q0loc_K_ramified
+    (hU : IsOpen (U : Set AbsGalQ2)) [Finite (AbsGalQ2 ⧸ U)] (hn : U.index = P.n)
+    [DistribMulAction ↥U (ZMod 2)] [ContinuousSMul ↥U (ZMod 2)]
+    [DistribMulAction ↥U (MuN 2)] [ContinuousSMul ↥U (MuN 2)]
+    [DistribMulAction ↥U V] [ContinuousSMul ↥U V] [DistribMulAction C V]
+    (D : TateDualityG ↥U 2)
+    (tameFK : ContinuousMonoidHom ↥U (Tq P.qK)) (htameFK : Function.Surjective ⇑tameFK)
+    (c : ContinuousMonoidHom (Tq P.qK) C) (hc : Function.Surjective ⇑c)
+    (ρ : ContinuousMonoidHom ↥U C) (hfac : ∀ g, ρ g = c (tameFK g))
+    (hρ : ∀ (g : ↥U) (v : V), g • v = ρ g • v)
+    (hfaith : ∀ h : C, (∀ v : V, h • v = v) → h = 1)
+    (hsimple : ∀ W : AddSubgroup V, (∀ (h : C), ∀ w ∈ W, h • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (q : V → ZMod 2) (hq : QuadraticFp2.IsQuadraticFp2 q) (hns : QuadraticFp2.Nonsingular q)
+    (hinv : QuadraticFp2.IsInvariant C q)
+    (dat : FactorSet C V) (hdat : IsEquivariantFactorSet q dat)
+    (m : ℕ) (hm : 1 ≤ m) (hcard : Nat.card V = 2 ^ (2 * m))
+    (hram : ∃ v : V, c (tqTau P.qK) • v ≠ v)
+    (hcert : Nonempty (RamifiedCertificate P U V c ρ)) :
+    ∑ᶠ y : H1 ↥U V, sign (Q0loc D dat ρ y) = (2 : ℤ) ^ (P.n * m) := by
+  classical
+  have hH1 : Nat.card (H1 ↥U V) = 2 ^ (2 * (m * P.n)) :=
+    card_H1_eq_of_markingK P U hU hn D tameFK htameFK c hc ρ hfac hρ hsimple q hq hns hinv
+      m hm hcard
+  have hzc : QuadraticFp2.zeroCount (Q0loc D dat ρ (V := V))
+      = 2 ^ (2 * m * P.n - 1) + 2 ^ (m * P.n - 1) :=
+    local_gauss_K_zeroCount_add P U hU hn D tameFK htameFK c hc ρ hfac hρ hfaith hsimple
+      q hq hns hinv dat hdat m hm hcard (fun _ => hcert) (Or.inl hram)
+  have hM : 1 ≤ m * P.n :=
+    Nat.one_le_iff_ne_zero.mpr (Nat.mul_ne_zero (by omega) (by have := P.one_le_n; omega))
+  have e1 : (2 : ℤ) ^ (2 * (m * P.n)) = 2 * 2 ^ (2 * (m * P.n) - 1) := by
+    rw [← pow_succ']; congr 1; omega
+  have e2 : (2 : ℤ) ^ (m * P.n) = 2 * 2 ^ (m * P.n - 1) := by rw [← pow_succ']; congr 1; omega
+  rw [finsum_sign_eqG D dat ρ _ (by rw [hzc, mul_assoc]) hH1,
+    show P.n * m = m * P.n from mul_comm _ _]
+  push_cast
+  linarith [e1, e2]
+
+end AtK
+
+end PinnedK
+
+/-! ## §5 The `standardNumerics` pins
+
+The two Gauss values of `standardNumerics n` are exactly §4's, and `h1Mult` is exactly §2's.
+Recorded so that the degree-shift audit is checkable by `#check`, not by reading prose. -/
+
+/-- `standardNumerics n`'s unramified Gauss value **is** `(−1)^n 2^{nm}` — `rfl`. -/
+theorem gaussUnram_standard (n m : ℕ) :
+    (standardNumerics n).gaussUnram m = (-1 : ℤ) ^ n * 2 ^ (n * m) := rfl
+
+/-- `standardNumerics n`'s ramified Gauss value **is** `2^{nm}` — `rfl`. -/
+theorem gaussRam_standard (n m : ℕ) : (standardNumerics n).gaussRam m = (2 : ℤ) ^ (n * m) := rfl
+
+/-- `standardNumerics n`'s `h1Mult` **is** `#H¹(G_K, V)` as a function of `#V` at the modules the
+Gauss lane sees: `#V = 2^{2m}` and `#H¹ = 2^{2mn} = (#V)^n` (LG5's Euler clause).  This is the
+numerical form of §2's finding, and the reason `h1Mult V = V^n` — not `V^2` — is the correct
+`SourceNumerics` leaf. -/
+theorem h1Mult_standard_of_card (n m : ℕ) :
+    (standardNumerics n).h1Mult (2 ^ (2 * m)) = 2 ^ (2 * (m * n)) := by
+  show (2 ^ (2 * m)) ^ n = 2 ^ (2 * (m * n))
+  rw [← pow_mul]
+  congr 1
+  ring
+
 end GQ2.Dyadic
