@@ -781,4 +781,126 @@ end PhiVar
 
 end Ledger
 
+/-! ## §7. The nonzero variation class, `Γ`-generic
+
+The five steps assembled.  The output is exactly `Count/Scalar.lean` §9's `hvar` slot, and by
+CB-H2 §7 the same witness is `cardH2`'s missing nontriviality — so **one theorem unblocks three
+clauses**.
+
+What it consumes, and from whom:
+
+| input | owner |
+|---|---|
+| `hpres`, `hwild2` | CB-MP/CB-TR (`isAdmissibleMarkedPresentation_gammaR`, `isWildTwo_of_gammaGen`) |
+| `hresS/hresP/hresD/hresH` | the word lane, all four at the **one** level of §2 |
+| `hd`, `hr`, `hend` | the branch's Stokes payload — the *only* duality input |
+| `hedge`, `hρ` | the radical-cover datum (source-free: `CardH2GammaA.datum` is reused verbatim) |
+
+⚠ Note what is **not** here: no `hcomp`, no `#H²w = 2`, no `IsSelfDual` count clause.  §5a detects
+nonvanishing by the traced sum alone, so the *count* half of the duality package is never used —
+only clause 3, the pairing. -/
+
+section NonzeroVariation
+
+variable {ι ρ : Type*} [Fintype ι] [Fintype ρ] [DecidableEq ι]
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [DistribMulAction Γ (ZMod 2)]
+  {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {D : RadicalCoverData Bg} [DistribMulAction (Bg ⧸ D.M) (ZMod 2)]
+  [TopologicalSpace (Additive ↥D.T)] [DiscreteTopology (Additive ↥D.T)]
+  [TopologicalSpace (ElemDual (Additive ↥D.T))] [DiscreteTopology (ElemDual (Additive ↥D.T))]
+  [DistribMulAction Γ (Additive ↥D.T)] [ContinuousSMul Γ (Additive ↥D.T)]
+  [DistribMulAction Γ (ElemDual (Additive ↥D.T))] [ContinuousSMul Γ (ElemDual (Additive ↥D.T))]
+  [TopologicalSpace (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+  [DiscreteTopology (WordLift (Additive ↥D.T) (Bg ⧸ D.M))]
+  [TopologicalSpace (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M))]
+  [DiscreteTopology (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M))]
+  [TopologicalSpace (WordLift (ZMod 2) (Bg ⧸ D.M))]
+  [DiscreteTopology (WordLift (ZMod 2) (Bg ⧸ D.M))]
+  [TopologicalSpace (WordLift (Additive ↥D.T × ElemDual (Additive ↥D.T)) (Bg ⧸ D.M))]
+  [DiscreteTopology (WordLift (Additive ↥D.T × ElemDual (Additive ↥D.T)) (Bg ⧸ D.M))]
+  {gen : ι → Γ} {W : ρ → PWord ι} {w : ρ → FreeGroup ι} {c : ι → (Bg ⧸ D.M)} {J : Set ι}
+  (S : TComplement D) (rho : ContinuousMonoidHom Γ (Bg ⧸ D.M))
+  (hcompat : ∀ (γ : Γ) (a : Additive ↥D.T), γ • a = rho γ • a)
+  (hcompatD : ∀ (γ : Γ) (l : ElemDual (Additive ↥D.T)), γ • l = rho γ • l)
+  (hc : ∀ i, rho (gen i) = c i)
+
+omit [ContinuousSMul Γ (Additive ↥D.T)] in
+include hcompat hcompatD hc in
+/-- **The nonzero variation class** — the dyadic campaign's `exists_nonzero_varCoc_gamma{A,R}`,
+over an abstract presented carrier and an arbitrary branch word.
+
+Given a radical cover that does not descend and a surjection `ρ : Γ ↠ Bg ⧸ M`, there is a crossed
+`T`-cocycle `u` whose variation class is a nonzero element of `H²(Γ, 𝔽₂)`. -/
+theorem exists_nonzero_varCoc
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J) (hwild2 : IsWildTwo J c)
+    (hresS : ResolvesAt W w (WordLift (ZMod 2) (Bg ⧸ D.M)))
+    (hresP : ResolvesAt W w (WordLift (Additive ↥D.T) (Bg ⧸ D.M)))
+    (hresD : ResolvesAt W w (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M)))
+    (hresH : ResolvesAt W w (HeisLift (Additive ↥D.T) (Bg ⧸ D.M)))
+    (hd : StokesDuality c w (Additive ↥D.T)) (hr : ∀ k, FreeGroup.lift c (w k) = 1)
+    (hend : IsStokesEndpoint w)
+    (hedge : D.NoDescent) (hρ : Function.Surjective rho) :
+    ∃ u : TCocycle D rho,
+      H2mk Γ (ZMod 2) ⟨varCoc D rho S u, varCoc_mem_Z2 D rho S smul_zmod2 u⟩ ≠ 0 := by
+  classical
+  haveI := discreteTopology_quotient D
+  have hT₂ : ∀ a : Additive ↥D.T, a + a = 0 := radT_add_self D
+  have hD₂ : ∀ l : ElemDual (Additive ↥D.T), l + l = 0 := fun l => l.add_self_eq_zero
+  -- 1. the shifted-edge dual cocycle, nonzero in `H¹`
+  set φ : Z1 Γ (ElemDual (Additive ↥D.T)) :=
+    ⟨phiVar S rho, phiVar_mem_Z1 S rho hcompat hcompatD⟩ with hφdef
+  have hφne : H1mk Γ (ElemDual (Additive ↥D.T)) φ ≠ 0 :=
+    phiVar_ne_zero S rho hcompat hcompatD hρ hedge
+  -- 2. transport into the word complex
+  set y : WordH1 c w (ElemDual (Additive ↥D.T)) :=
+    h1Equiv rho hcompatD hc hpres hresD hD₂ hwild2 (H1mk Γ (ElemDual (Additive ↥D.T)) φ) with hydef
+  have hyne : y ≠ 0 := fun h =>
+    hφne ((h1Equiv rho hcompatD hc hpres hresD hD₂ hwild2).injective (by rw [map_zero]; exact h))
+  -- 3. the perfect pairing produces a primal partner
+  obtain ⟨P, hPval, _hleft, hright⟩ := pairing_clause hd hr hend
+  obtain ⟨h, hPne⟩ := hright y hyne
+  obtain ⟨x, rfl⟩ := stokesH1Mk_surjective (heisD0 (A := Additive ↥D.T) c) (heisD1 c w) h
+  -- 4. pull the primal class back to a continuous crossed cocycle, then to a `T`-cocycle
+  set z : Z1 Γ (Additive ↥D.T) :=
+    (z1Equiv rho hcompat hc hpres hresP hT₂ hwild2).symm x with hzdef
+  have hzx : (fun i => z.1 (gen i)) = (x : ι → Additive ↥D.T) := by
+    have := (z1Equiv rho hcompat hc hpres hresP hT₂ hwild2).apply_symm_apply x
+    exact congrArg Subtype.val this
+  refine ⟨(tcocycleEquivZ1 rho hcompat).symm z, ?_⟩
+  set u : TCocycle D rho := (tcocycleEquivZ1 rho hcompat).symm z with hudef
+  have hu : ∀ γ, u.u γ = ((Additive.toMul (z.1 γ) : ↥D.T) : Bg) := fun _ => rfl
+  -- 5. the ledger: the traced obstruction is the pairing value, which is nonzero
+  have hyv : (y : WordH1 c w (ElemDual (Additive ↥D.T)))
+      = stokesH1Mk _ _ ⟨fun i => φ.1 (gen i),
+          evalGen_mem_ker rho hcompatD hc hpres hresD φ⟩ := rfl
+  have hpair : heisEta1 c w (fun i => z.1 (gen i)) (fun i => φ.1 (gen i)) ≠ 0 := by
+    rw [hzx]
+    rw [hyv, hPval] at hPne
+    exact hPne
+  have hobs : pObsFam W gen ⟨varCoc D rho S u, varCoc_mem_Z2 D rho S smul_zmod2 u⟩
+      = fun k => (FreeGroup.lift (heisGen c (fun i => z.1 (gen i))
+          (fun i => φ.1 (gen i))) (w k)).z := by
+    rw [pObsFam_varCoc S rho hcompat hcompatD W gen u z φ (fun _ _ => rfl) hu]
+    funext k
+    rw [hresH _ k]
+    exact congrArg (fun t : ι → (Bg ⧸ D.M) =>
+      (PWord.eval (heisGen t (fun i => z.1 (gen i)) (fun i => φ.1 (gen i))) (W k)).z)
+      (funext hc)
+  have hsum : ∑ k, pObsFam W gen
+      ⟨varCoc D rho S u, varCoc_mem_Z2 D rho S smul_zmod2 u⟩ k ≠ 0 := by
+    rw [hobs]
+    exact hpair
+  -- 6. a coboundary would put the obstruction in `im d¹`, whose traced sum is zero
+  intro h0
+  refine hsum ?_
+  have hB2 : (⟨varCoc D rho S u, varCoc_mem_Z2 D rho S smul_zmod2 u⟩ : Z2 Γ (ZMod 2)).1
+      ∈ B2 Γ (ZMod 2) :=
+    AddSubgroup.mem_addSubgroupOf.mp ((QuotientAddGroup.eq_zero_iff _).mp h0)
+  obtain ⟨v, hv⟩ := pObsFam_B2_mem_range (w := w) hpres hresS c hB2
+  rw [← hv]
+  exact sum_heisD1_zmod2 hr hend v
+
+end NonzeroVariation
+
 end GQ2.Dyadic.Count
