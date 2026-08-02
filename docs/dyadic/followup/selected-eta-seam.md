@@ -22,7 +22,7 @@ The comparison strength is branch- and display-dependent:
 | case | proved comparison |
 |---|---|
 | compatible `Npc` rational display | literal `PWord` equality |
-| compatible `Mpc` display (`one`, `lit`, or `hat`) | equality after every profinite marking/evaluation |
+| compatible `Mpc` display (`one`, `lit`, or `hat`) | equality after every profinite marking/evaluation; equality of the free relator, relator set, closed normal subgroup, `NR`, `GammaBare`, and `GammaR` |
 | compatible `Mpc` genuine `.hat` display | literal `PWord` equality |
 | arbitrary unit with no finite display | semantic word exists; no selected displayed word is manufactured |
 
@@ -35,12 +35,21 @@ claims separate:
 2. two displayed words have equal evaluations under every marking;
 3. two words are literally equal as `PWord` syntax.
 
-No theorem in this layer upgrades (2) to equivalence of pro-2 presentations.  That would require a
-separate invariance theorem saying that replacing a relator by a universally equal evaluation
-preserves the relevant closed normal subgroup/presentation.  Likewise, the inverse step suggested
-by the informal paper is not yet formalized: the current `Zhat` API exposes the additive profinite
-exponent group, but not enough multiplicative/composition structure to prove that powering by the
-exponent attached to an arbitrary 2-adic unit is an automorphism with the expected inverse.
+The presentation upgrade is now formalized.  `gammaRelators_eq_of_freeMarking_eval_eq` isolates
+the exact invariant: equality at the tautological marking of the free profinite group.  Universal
+evaluation equality implies that single equality immediately.  The successive theorems identify
+the relator set, its closed normal closure, the class of admissible finite quotients, the
+intersection `NR`, and both presentation objects.  In particular,
+`SelectedPresentation.GammaR_word_ofBranch_Mpc` says that a selected compatible `Mpc` display
+presents the same corrected admissible-limit group as the arbitrary-unit semantic word.
+
+This does **not** identify the syntax trees, nor does it manufacture a finite display for every
+unit.  Likewise, the inverse-power step suggested by the informal paper is not yet formalized: the
+current `Zhat` API exposes the additive profinite exponent group, but not enough
+multiplicative/composition structure to prove that powering by the exponent attached to an
+arbitrary 2-adic unit is an automorphism with the expected inverse.
 
 Consequently this seam is total at the semantic-word level and honest at the selected-display
-level, but it is not yet a proof of the paper's full arbitrary-unit presentation conjecture.
+level.  It now completely discharges presentation invariance **conditional on a compatible
+display**; the display-existence and arithmetic/classification steps of the paper's full
+arbitrary-unit presentation conjecture remain open.

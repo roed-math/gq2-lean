@@ -19,7 +19,10 @@ interface explicit and separates three notions:
 For `Npc`, every display word already uses a genuine `profPow`, so compatible exponents give
 literal equality with the semantic word.  For `Mpc`, `.one` and `.lit` are deliberately different
 syntax from a `profPow`; compatible displays therefore give evaluation equality, not literal
-word equality.  No presentation-equivalence theorem is claimed here.
+word equality.  Instantiating that equality at the tautological marking of the free profinite
+group nevertheless identifies the actual relator elements.  The final section proves that this
+preserves the relator set, its closed normal closure, the admissible-limit kernel `NR`, and hence
+both `GammaBare` and the campaign's corrected `GammaR`.
 
 The packages `NpcDisplayFor` and `MpcDisplayFor` also carry the certificate well-formedness
 condition.  They need not exist for every `2`-adic unit: `EtaData` is a rational display, while a
@@ -225,6 +228,101 @@ theorem mpcWUnit_eq_hatDisplay (alpha r p h : ℕ) {eta : ℤ_[2]ˣ}
 
 end Words.Mpc
 
+/-! ## Invariance of the presented group under free-relator equality
+
+The presentation API consumes the value of a `PWord` in the tautologically marked free profinite
+group, not the syntax tree itself.  Therefore universal equality after profinite evaluation is
+strictly more than is needed: its single `freeMarking` instance identifies the relator elements.
+The following lemmas record the resulting invariant once, independently of the `Mpc` formulas.
+-/
+
+/-- Equal `PWord` values at the tautological marking give the same two-element relator set. -/
+theorem gammaRelators_eq_of_freeMarking_eval_eq {n q : ℕ} {R S : PWord (Generator n)}
+    (h : (freeMarking n).eval R = (freeMarking n).eval S) :
+    gammaRelators n q R = gammaRelators n q S := by
+  unfold gammaRelators
+  rw [h]
+
+/-- Free-relator equality preserves the closed normal subgroup defining the bare presentation. -/
+theorem relatorSubgroup_gammaRelators_eq_of_freeMarking_eval_eq {n q : ℕ}
+    {R S : PWord (Generator n)}
+    (h : (freeMarking n).eval R = (freeMarking n).eval S) :
+    relatorSubgroup (gammaRelators n q R) = relatorSubgroup (gammaRelators n q S) :=
+  congrArg relatorSubgroup (gammaRelators_eq_of_freeMarking_eval_eq h)
+
+/-- Free-relator equality gives the same class of admissible finite quotients. -/
+theorem isAdmissibleU_iff_of_freeMarking_eval_eq {n q : ℕ}
+    {R S : PWord (Generator n)}
+    (h : (freeMarking n).eval R = (freeMarking n).eval S)
+    (U : OpenNormalSubgroup (FreeProfiniteGroup (Generator n))) :
+    IsAdmissibleU n q R U ↔ IsAdmissibleU n q S U := by
+  unfold IsAdmissibleU
+  rw [gammaRelators_eq_of_freeMarking_eval_eq h]
+
+/-- Free-relator equality preserves the intersection of all admissible open normal subgroups. -/
+theorem NR_eq_of_freeMarking_eval_eq {n q : ℕ} {R S : PWord (Generator n)}
+    (h : (freeMarking n).eval R = (freeMarking n).eval S) :
+    NR n q R = NR n q S := by
+  unfold NR IsAdmissibleU
+  rw [gammaRelators_eq_of_freeMarking_eval_eq h]
+
+/-- Free-relator equality preserves the campaign's corrected, admissible-limit presentation. -/
+theorem GammaR_eq_of_freeMarking_eval_eq {n q : ℕ} {R S : PWord (Generator n)}
+    (h : (freeMarking n).eval R = (freeMarking n).eval S) :
+    GammaR n q R = GammaR n q S := by
+  unfold GammaR
+  congr 1
+  exact NR_eq_of_freeMarking_eval_eq h
+
+/-- Free-relator equality also preserves the bare two-relator profinite presentation. -/
+theorem GammaBare_eq_of_freeMarking_eval_eq {n q : ℕ} {R S : PWord (Generator n)}
+    (h : (freeMarking n).eval R = (freeMarking n).eval S) :
+    GammaBare n q R = GammaBare n q S := by
+  unfold GammaBare
+  rw [gammaRelators_eq_of_freeMarking_eval_eq h]
+
+namespace Words.Mpc
+
+/-- A compatible displayed `Mpc` word and its arbitrary-unit semantic word are the same relator
+element of the free profinite group. -/
+theorem freeMarking_eval_mpcWUnit_eq_display (alpha r p h : ℕ) {eta : ℤ_[2]ˣ}
+    (d : MpcDisplayFor eta) :
+    (freeMarking (2 + 2 * h)).eval (mpcWUnit alpha r p eta h) =
+      (freeMarking (2 + 2 * h)).eval (mpcW alpha r p d.display h) :=
+  eval_mpcWUnit_eq_display (freeMarking (2 + 2 * h)) alpha r p d
+
+/-- A compatible `Mpc` display gives exactly the semantic arbitrary-unit relator set. -/
+theorem gammaRelators_mpcWUnit_eq_display (alpha r p h q : ℕ) {eta : ℤ_[2]ˣ}
+    (d : MpcDisplayFor eta) :
+    gammaRelators (2 + 2 * h) q (mpcWUnit alpha r p eta h) =
+      gammaRelators (2 + 2 * h) q (mpcW alpha r p d.display h) :=
+  gammaRelators_eq_of_freeMarking_eval_eq
+    (freeMarking_eval_mpcWUnit_eq_display alpha r p h d)
+
+/-- The closed normal subgroup of the displayed `Mpc` presentation is the semantic one. -/
+theorem relatorSubgroup_mpcWUnit_eq_display (alpha r p h q : ℕ) {eta : ℤ_[2]ˣ}
+    (d : MpcDisplayFor eta) :
+    relatorSubgroup (gammaRelators (2 + 2 * h) q (mpcWUnit alpha r p eta h)) =
+      relatorSubgroup (gammaRelators (2 + 2 * h) q (mpcW alpha r p d.display h)) :=
+  relatorSubgroup_gammaRelators_eq_of_freeMarking_eval_eq
+    (freeMarking_eval_mpcWUnit_eq_display alpha r p h d)
+
+/-- The corrected admissible-limit kernels for semantic and displayed `Mpc` words agree. -/
+theorem NR_mpcWUnit_eq_display (alpha r p h q : ℕ) {eta : ℤ_[2]ˣ}
+    (d : MpcDisplayFor eta) :
+    NR (2 + 2 * h) q (mpcWUnit alpha r p eta h) =
+      NR (2 + 2 * h) q (mpcW alpha r p d.display h) :=
+  NR_eq_of_freeMarking_eval_eq (freeMarking_eval_mpcWUnit_eq_display alpha r p h d)
+
+/-- A compatible displayed `Mpc` word presents exactly the semantic arbitrary-unit `GammaR`. -/
+theorem GammaR_mpcWUnit_eq_display (alpha r p h q : ℕ) {eta : ℤ_[2]ˣ}
+    (d : MpcDisplayFor eta) :
+    GammaR (2 + 2 * h) q (mpcWUnit alpha r p eta h) =
+      GammaR (2 + 2 * h) q (mpcW alpha r p d.display h) :=
+  GammaR_eq_of_freeMarking_eval_eq (freeMarking_eval_mpcWUnit_eq_display alpha r p h d)
+
+end Words.Mpc
+
 /-! ## Display packages consumed by `SelectedPresentation` -/
 
 /-- The certificate display data required to select an exact frozen word for a branch.  Compact
@@ -277,6 +375,25 @@ theorem eval_word_ofBranch_Mpc {G : Type} [Group G] [TopologicalSpace G]
   change t.eval (Words.Mpc.mpcW alpha r (p epsilon r) d.display h) =
     t.eval (Words.Mpc.mpcWUnit alpha r (p epsilon r) eta h)
   exact (Words.Mpc.eval_mpcWUnit_eq_display t alpha r (p epsilon r) d).symm
+
+/-- The selector's displayed `Mpc` row and its branch-unit semantic word define the same relator
+set in the free profinite group. -/
+theorem gammaRelators_word_ofBranch_Mpc (alpha r h q : ℕ) (epsilon : Bool)
+    (eta : ℤ_[2]ˣ) (d : MpcDisplayFor eta) :
+    gammaRelators (2 + 2 * h) q ((ofBranch h (.Mpc alpha r epsilon eta) d).word) =
+      gammaRelators (2 + 2 * h) q
+        (Words.Mpc.mpcWUnit alpha r (p epsilon r) eta h) :=
+  gammaRelators_eq_of_freeMarking_eval_eq
+    (eval_word_ofBranch_Mpc alpha r h epsilon eta (freeMarking (2 + 2 * h)) d)
+
+/-- Consequently the selected displayed `Mpc` row presents exactly the branch-unit semantic
+admissible-limit group. -/
+theorem GammaR_word_ofBranch_Mpc (alpha r h q : ℕ) (epsilon : Bool)
+    (eta : ℤ_[2]ˣ) (d : MpcDisplayFor eta) :
+    GammaR (2 + 2 * h) q ((ofBranch h (.Mpc alpha r epsilon eta) d).word) =
+      GammaR (2 + 2 * h) q (Words.Mpc.mpcWUnit alpha r (p epsilon r) eta h) :=
+  GammaR_eq_of_freeMarking_eval_eq
+    (eval_word_ofBranch_Mpc alpha r h epsilon eta (freeMarking (2 + 2 * h)) d)
 
 end SelectedPresentation
 
