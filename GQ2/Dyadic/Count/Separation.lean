@@ -726,4 +726,195 @@ theorem isTwoSeparating_of_tateDualityG (Dl : TateDualityG Γ 2) {d : ℕ}
 
 end TwoSeparation
 
+/-! ## §6. `SourceDataN.hsep`, over the abstract carrier -/
+
+section HSep
+
+variable {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {D : RadicalCoverData Bg} {DD : DescData D}
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)] [ContinuousSMul Γ (ZMod 2)]
+  [TopologicalSpace (Additive ↥D.T)] [DiscreteTopology (Additive ↥D.T)]
+  [DistribMulAction Γ (Additive ↥D.T)] [ContinuousSMul Γ (Additive ↥D.T)]
+  {σ : DD.C0 →* Bg ⧸ D.T} (S : CountSections DD σ)
+  (hσ : ∀ cc : DD.C0, piQbar DD (σ cc) = cc)
+  {rho : ContinuousMonoidHom Γ (Bg ⧸ D.M)}
+  (hcompT : ∀ (γ : Γ) (a : Additive ↥D.T), γ • a = rho γ • a)
+
+omit [ContinuousSMul Γ (ZMod 2)] [TopologicalSpace (Additive ↥D.T)]
+  [DiscreteTopology (Additive ↥D.T)] [DistribMulAction Γ (Additive ↥D.T)]
+  [ContinuousSMul Γ (Additive ↥D.T)] in
+include hσ in
+/-- **`mk_M (fLift γ) = ρ γ`**: the pointwise lift of a `V`-cocycle reduces mod `M` to the lower
+map (`mV (c γ) ∈ M` kills its coset, `uσ` is a `piC0`-section, `liftC0` is injective).
+Abstract-carrier form of `Phase140.Local`'s `private fLift_mk_M`. -/
+theorem fLift_mk_MN (c : VCocycle DD rho) (γ : Γ) :
+    (QuotientGroup.mk (fLift S c γ) : Bg ⧸ D.M) = rho γ := by
+  have hinj : Function.Injective (liftC0 DD) := by
+    intro x y hxy
+    induction x using QuotientGroup.induction_on with
+    | H bx =>
+      induction y using QuotientGroup.induction_on with
+      | H by' =>
+        rw [liftC0_mk, liftC0_mk] at hxy
+        apply (QuotientGroup.eq (s := D.M)).mpr
+        rw [← DD.hkerC0, MonoidHom.mem_ker, map_mul, map_inv, hxy, inv_mul_cancel]
+  apply hinj
+  rw [liftC0_mk]
+  show DD.piC0 ((S.mV (c.c γ) : Bg) * S.uσ (rho0 DD rho γ)) = rho0 DD rho γ
+  rw [map_mul,
+    MonoidHom.mem_ker.mp (show ((S.mV (c.c γ) : Bg)) ∈ DD.piC0.ker by
+      rw [DD.hkerC0]; exact (S.mV (c.c γ)).2),
+    one_mul, ← piQbar_mk DD, S.piT_uσ, hσ]
+
+include hσ hcompT in
+/-- **The `T`-valued defect is a `Z²`-cocycle**: pushing `tDef` into `Additive ↥D.T` gives a
+continuous inhomogeneous `2`-cocycle for the conjugation action (`M` abelian collapses the
+sign).  Abstract-carrier form of `Phase140.Local`'s `private tDef_mem_Z2`; the action is the
+campaign's canonical `cActT`, reconciled with an arbitrary representative by CB-1's
+`smul_eq_conj`. -/
+theorem tDef_mem_Z2N (c : VCocycle DD rho) :
+    (fun p : Γ × Γ => Additive.ofMul (tDef S hσ c p)) ∈ Z2 Γ (Additive ↥D.T) := by
+  have hfLmk := fLift_mk_MN S hσ c
+  refine mem_Z2_iff.mpr ⟨?_, ?_⟩
+  · exact (continuous_of_discreteTopology (f := Additive.ofMul)).comp
+      (tDef_continuous S hσ c)
+  · intro γ δ ε
+    rw [smul_eq_conj rho hcompT γ (fLift S c γ) (Additive.ofMul (tDef S hσ c (δ, ε)))
+        (hfLmk γ)]
+    apply Additive.toMul.injective
+    apply Subtype.ext
+    show fLift S c γ * (tDef S hσ c (δ, ε) : Bg) * (fLift S c γ)⁻¹
+          * (tDef S hσ c (γ, δ * ε) : Bg)
+        = (tDef S hσ c (γ * δ, ε) : Bg) * (tDef S hσ c (γ, δ) : Bg)
+    have hraw : (tDef S hσ c (γ, δ) : Bg) * (tDef S hσ c (γ * δ, ε) : Bg)
+        = fLift S c γ * (tDef S hσ c (δ, ε) : Bg) * (fLift S c γ)⁻¹
+            * (tDef S hσ c (γ, δ * ε) : Bg) := by
+      show fLift S c γ * fLift S c δ * (fLift S c (γ * δ))⁻¹
+            * (fLift S c (γ * δ) * fLift S c ε * (fLift S c (γ * δ * ε))⁻¹)
+          = fLift S c γ * (fLift S c δ * fLift S c ε * (fLift S c (δ * ε))⁻¹)
+              * (fLift S c γ)⁻¹ * (fLift S c γ * fLift S c (δ * ε) * (fLift S c (γ * (δ * ε)))⁻¹)
+      rw [show γ * δ * ε = γ * (δ * ε) from mul_assoc γ δ ε]
+      group
+    rw [← hraw]
+    exact D.hcomm _ (D.hTM (tDef S hσ c (γ, δ)).2) _ (D.hTM (tDef S hσ c (γ * δ, ε)).2)
+
+include hσ hcompT in
+/-- **`SourceDataN.hsep` over the abstract carrier** — the `(T^∨)^C`-separation: a `V`-cocycle
+whose `χ`-obstructions all vanish is `T`-liftable.
+
+`Phase140.Local.hsep_local`'s seven stages with `AbsGalQ2` replaced by a variable `Γ`, the
+frame data replaced by `(D, DD, S, hσ, rho)`, and the **one** divergent input promoted to the
+binder `h2sep`.  Note what is *not* here: no `#H²(Γ,𝔽₂) = 2`, no `htriv`, no `hpair`, no
+simplicity — the cup-free spelling of the fork removes the entire `cup20`/`H2mk` layer from
+the body, so stage 4 becomes the observation that the invariant-dual pushforward of `tDef`
+**is** `chiDef` at the induced character, definitionally.
+
+Stage 7 (the direct `M`-lift `f γ = ψγ · fLift γ`) is the genuinely bespoke part at `ℚ₂` and
+stays bespoke here; everything it uses (`T` abelian, `T` of exponent `2`, the split relation)
+is `RadicalCoverData`-level. -/
+theorem hsepN (hrhosurj : Function.Surjective rho)
+    (h2sep : IsTwoSeparating Γ (Additive ↥D.T))
+    (c : VCocycle DD rho)
+    (hc : ∀ χ : ↥(TCharC D), betaChi S hσ χ c = 0) :
+    TLiftable hσ c := by
+  classical
+  have hfLmk := fLift_mk_MN S hσ c
+  have tDefZ2 := tDef_mem_Z2N S hσ hcompT c
+  -- STAGE 4: every invariant-dual pushforward of `tDef` is a coboundary
+  have hcup : ∀ n : ElemDual (Additive ↥D.T), (∀ γ : Γ, γ • n = n) →
+      (fun p : Γ × Γ => n (Additive.ofMul (tDef S hσ c p))) ∈ B2 Γ (ZMod 2) := by
+    intro n hn
+    have hconjinv : ∀ (bb : Bg) (t : ↥D.T),
+        n (Additive.ofMul (⟨bb * (t : Bg) * bb⁻¹, D.hT.conj_mem t.1 t.2 bb⟩ : ↥D.T))
+          = n (Additive.ofMul t) := by
+      intro bb t
+      obtain ⟨γ, hγ⟩ := hrhosurj (QuotientGroup.mk bb)
+      have hmk : (QuotientGroup.mk bb⁻¹ : Bg ⧸ D.M) = rho γ⁻¹ := by
+        rw [QuotientGroup.mk_inv, map_inv, hγ]
+      have h3 : γ⁻¹ • Additive.ofMul (⟨bb * (t : Bg) * bb⁻¹,
+            D.hT.conj_mem t.1 t.2 bb⟩ : ↥D.T) = Additive.ofMul t := by
+        rw [smul_eq_conj rho hcompT γ⁻¹ bb⁻¹ _ hmk]
+        apply Additive.toMul.injective
+        apply Subtype.ext
+        show bb⁻¹ * (bb * (t : Bg) * bb⁻¹) * bb⁻¹⁻¹ = (t : Bg)
+        group
+      conv_lhs => rw [← hn γ]
+      rw [ElemDual.smul_apply, h3]
+    let χn : ↥(TCharC D) :=
+      ⟨fun t => n (Additive.ofMul t),
+        ⟨fun t t' => by
+          show n (Additive.ofMul (t * t')) = n (Additive.ofMul t) + n (Additive.ofMul t')
+          exact map_add n (Additive.ofMul t) (Additive.ofMul t'), hconjinv⟩⟩
+    show (fun p : Γ × Γ => χn.1 (tDef S hσ c p)) ∈ B2 Γ (ZMod 2)
+    exact iotaB_eq_zero_iff.mp (hc χn)
+  -- STAGE 5+6: the defect class vanishes, and `B²`-extraction produces `ψ`
+  obtain ⟨ψ, hψC1, hψeq⟩ := h2sep ⟨_, tDefZ2⟩ hcup
+  -- STAGE 7: `f γ := ψγ · fLift γ` is a genuine `M`-lift with `redTLift f = qOfCocycle c`
+  have hψT : ∀ γ : Γ, ((Additive.toMul (ψ γ) : ↥D.T) : Bg) ∈ D.T :=
+    fun γ => (Additive.toMul (ψ γ)).2
+  have hsplitT : ∀ γ δ : Γ,
+      ((Additive.toMul (γ • ψ δ) : ↥D.T) : Bg)
+        * ((Additive.toMul (ψ (γ * δ)) : ↥D.T) : Bg)⁻¹
+        * ((Additive.toMul (ψ γ) : ↥D.T) : Bg) = (tDef S hσ c (γ, δ) : Bg) := by
+    intro γ δ
+    have hdo := congrFun hψeq (γ, δ)
+    have h := congrArg (fun a : Additive ↥D.T => ((Additive.toMul a : ↥D.T) : Bg)) hdo
+    simpa only [dOne, AddMonoidHom.coe_mk, ZeroHom.coe_mk, toMul_add, toMul_sub, toMul_ofMul,
+      Subgroup.coe_mul, Subgroup.coe_div, div_eq_mul_inv, Subgroup.coe_inv, mul_assoc] using h
+  have hconjT : ∀ γ δ : Γ,
+      ((Additive.toMul (γ • ψ δ) : ↥D.T) : Bg)
+        = fLift S c γ * ((Additive.toMul (ψ δ) : ↥D.T) : Bg) * (fLift S c γ)⁻¹ := by
+    intro γ δ
+    rw [smul_eq_conj rho hcompT γ (fLift S c γ) (ψ δ) (hfLmk γ)]
+    rfl
+  have hsplit : ∀ γ δ : Γ,
+      fLift S c γ * ((Additive.toMul (ψ δ) : ↥D.T) : Bg) * (fLift S c γ)⁻¹
+        = (tDef S hσ c (γ, δ) : Bg) * ((Additive.toMul (ψ γ) : ↥D.T) : Bg)⁻¹
+            * ((Additive.toMul (ψ (γ * δ)) : ↥D.T) : Bg) := by
+    intro γ δ
+    have hs := hsplitT γ δ
+    rw [hconjT γ δ] at hs
+    rw [← hs]; group
+  have hcomm2 : ∀ x y : Bg, x ∈ D.T → y ∈ D.T → x * y = y * x :=
+    fun x y hx hy => D.hcomm x (D.hTM hx) y (D.hTM hy)
+  have hsq : ∀ x : Bg, x ∈ D.T → x * x = 1 := fun x hx => D.helem x (D.hTM hx)
+  refine ⟨⟨⟨MonoidHom.mk'
+      (fun γ => ((Additive.toMul (ψ γ) : ↥D.T) : Bg) * fLift S c γ) ?_, ?_⟩, ?_⟩, ?_⟩
+  · intro γ δ
+    have htd : fLift S c γ * fLift S c δ = (tDef S hσ c (γ, δ) : Bg) * fLift S c (γ * δ) := by
+      show _ = (fLift S c γ * fLift S c δ * (fLift S c (γ * δ))⁻¹) * fLift S c (γ * δ)
+      group
+    set pγ := ((Additive.toMul (ψ γ) : ↥D.T) : Bg) with hpγ
+    set pδ := ((Additive.toMul (ψ δ) : ↥D.T) : Bg) with hpδ
+    set pe := ((Additive.toMul (ψ (γ * δ)) : ↥D.T) : Bg) with hpe
+    set td := (tDef S hσ c (γ, δ) : Bg) with htdd
+    have htdT : td ∈ D.T := (tDef S hσ c (γ, δ)).2
+    have hTarith : pγ * td * pγ⁻¹ * pe * td = pe := by
+      rw [hcomm2 pγ td (hψT γ) htdT, mul_inv_cancel_right,
+        hcomm2 td pe htdT (hψT (γ * δ)), mul_assoc, hsq td htdT, mul_one]
+    symm
+    calc (pγ * fLift S c γ) * (pδ * fLift S c δ)
+        = pγ * (fLift S c γ * pδ * (fLift S c γ)⁻¹) * (fLift S c γ * fLift S c δ) := by group
+      _ = pγ * (td * pγ⁻¹ * pe) * (td * fLift S c (γ * δ)) := by rw [hsplit γ δ, htd]
+      _ = (pγ * td * pγ⁻¹ * pe * td) * fLift S c (γ * δ) := by group
+      _ = pe * fLift S c (γ * δ) := by rw [hTarith]
+  · exact (continuous_subtype_val.comp (continuous_of_discreteTopology.comp hψC1)).mul
+      (fLift_continuous S c)
+  · intro γ
+    show (QuotientGroup.mk (((Additive.toMul (ψ γ) : ↥D.T) : Bg) * fLift S c γ) : Bg ⧸ D.M)
+      = rho γ
+    rw [QuotientGroup.mk_mul, (QuotientGroup.eq_one_iff _).mpr (D.hTM (hψT γ)), one_mul,
+      hfLmk γ]
+  · apply Subtype.ext
+    apply ContinuousMonoidHom.ext
+    intro γ
+    show (QuotientGroup.mk (((Additive.toMul (ψ γ) : ↥D.T) : Bg) * fLift S c γ) : Bg ⧸ D.T)
+      = (qOfCocycle DD rho σ hσ c).1 γ
+    rw [QuotientGroup.mk_mul, (QuotientGroup.eq_one_iff _).mpr (hψT γ), one_mul,
+      show (QuotientGroup.mk (fLift S c γ) : Bg ⧸ D.T) = piT (D := D) (fLift S c γ) from rfl,
+      fLift_mk S hσ c γ]
+
+end HSep
+
 end GQ2.Dyadic.Count
