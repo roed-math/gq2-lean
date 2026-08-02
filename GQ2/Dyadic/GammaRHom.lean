@@ -80,6 +80,31 @@ consumers of a `ν`-compatibility or boundary-square identity land in `Tq q`, in
 subgroups of products of those — and the Hausdorff form applies to all of them without an
 instance search, which is why the statement is fixed here at the weakest hypothesis that works.
 
+## What this unlocks at `n = 1`, verified
+
+AS4's blocked row is `WordCertificate.pro2` / `.ker_pro2` / `.hpro2` / `.compat` at
+`(n, q, R) = (1, 2, L_sq)` (AS1's divergence 3).  With §1 and §2 **all four discharge**, and this
+was checked end to end rather than argued: composing Roe's `pro2R GQ2.Roe.Labute.bLab` with AS4's
+`gammaR_lSq_equiv_roe` gives `pro2`; `hpro2` is `pro2R_surjective ∘ e.surjective`; `ker_pro2` is
+literally `ker_comp_continuousMulEquiv gammaR_lSq_equiv_roe _ (ker_pro2R _)`; and `compat` is
+`gammaR_hom_ext` against `Ztwo` followed by the four letter values
+`nuTq_tqSigma`/`nuTq_tqTau` on the left and `phiR_gammaSigma`/`…Tau`/`…X0`/`…X1` +
+`nuT_tameSigma`/`nuT_tameTau` on the right — since `nuTq 2 = nuT` by `rfl`
+(`TameQuotientK.lean`).  The check prints the frozen `ℚ₂` census
+(`localReciprocity`, `dyadicOrientation`, `peripheralCyclotomicAction`, plus the standard three)
+and **no `sorryAx`**, i.e. nothing beyond what `pro2R` already carries.
+
+The discharge itself is *not* landed here: it belongs in AS4's file, which has another owner, and
+it would cost this leaf an import of `GQ2.Roe.Main`.  Two frictions the transcriber should expect,
+both spelling and neither mathematics: Roe's `pro2R`/`phiR` are stated at the raw quotient
+`FreeProfiniteGroup (Fin 4) ⧸ NR` while `toRoe` lands at the bundled carrier `↑GQ2.GammaR` (so
+they need retyping wrappers — the two are defeq, but not at `instances` transparency, which makes
+`rw` fail with a confusing "not type-correct" note); and the `Fin` literals in a
+`match x with | .wild ⟨0, _⟩` need a `show … (Generator.wild 0) …` to normalise.
+
+⚠ This says nothing about `exactLifting`/`stokes`/`scalar`/`determinant` — AS1's divergence 4,
+which needs a `SourceDataN` transport lemma (ticket CB-TRN) and is untouched by anything here.
+
 ## ⚠ Finding: `topGen_gammaR` now exists four times
 
 `Γ_R`'s topological generation is proved, by the same three lines, in
@@ -90,10 +115,10 @@ the other three are unreachable from here (their files import `GQ2.Dyadic.Certif
 
 ## Axiom posture
 
-Every declaration is `sorry`-free and introduces **no** axiom.  All ten headline declarations
-print exactly the standard three `[propext, Classical.choice, Quot.sound]` or a strict subset —
-as they must: nothing in this file touches the arithmetic layers, so neither the frozen `ℚ₂`
-literature census nor the dyadic census axioms `B5-K`/`B10-K` can enter.
+Every declaration is `sorry`-free and introduces **no** axiom.  All fourteen declarations print
+exactly the standard three `[propext, Classical.choice, Quot.sound]` — as they must: nothing in
+this file touches the arithmetic layers, so neither the frozen `ℚ₂` literature census nor the
+dyadic census axioms `B5-K`/`B10-K` can enter.
 
 ## Sources
 
