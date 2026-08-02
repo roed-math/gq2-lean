@@ -562,6 +562,295 @@ theorem sqrtNegTwo_exactLifting (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Ev
         (sqrtNegTwo_cardH2 hsimp hq0 hqe) g hg)
       (fun f₀ => hZcount T Blk hE2 b F f₀)
 
+/-! ### The Stokes bundle
+
+The four analytic conjuncts, standalone (one theorem each: the packed form re-elaborates the
+recursion's `radData`/`descData` projections at four frames at once and diverges — see the
+report's trap note; and ⚠ every `nCompact`-indexed call below pins `(α := 2) (h := 0)`
+explicitly, because an unpinned `{h}` under `2 + 2 * h` sends the unifier through `GammaR`'s
+admissible-limit definition, unfolding `FreeGroup`/arithmetic ~320k times). -/
+
+/-- The `C₀`-valued lower map of a boundary lift, as a continuous hom. -/
+noncomputable def rho0CMH {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
+    [Finite Bg] {D : RadicalCoverData Bg} (DD : DescData D)
+    [TopologicalSpace DD.C0] [DiscreteTopology DD.C0] {Γ : Type} [Group Γ]
+    [TopologicalSpace Γ] (rho : ContinuousMonoidHom Γ (Bg ⧸ D.M)) :
+    ContinuousMonoidHom Γ DD.C0 :=
+  ⟨rho0 DD rho,
+    (continuous_of_discreteTopology (f := fun x : Bg ⧸ D.M => liftC0 DD x)).comp
+      rho.continuous_toFun⟩
+
+theorem rho0CMH_surjective {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg]
+    [Finite Bg] {D : RadicalCoverData Bg} (DD : DescData D)
+    [TopologicalSpace DD.C0] [DiscreteTopology DD.C0] {Γ : Type} [Group Γ]
+    [TopologicalSpace Γ] (rho : ContinuousMonoidHom Γ (Bg ⧸ D.M))
+    (hrho : Function.Surjective rho) : Function.Surjective (rho0CMH DD rho) := by
+  intro c0
+  obtain ⟨bb, hb⟩ := DD.hpiC0 c0
+  obtain ⟨γ, hγ⟩ := hrho (QuotientGroup.mk bb)
+  exact ⟨γ, (rho0_apply_of_rep DD rho γ bb hγ.symm).trans hb⟩
+
+set_option maxHeartbeats 800000 in
+/-- **`SourceDataN.tcocycle_card` at the pilot** (stokes conjunct 1) — CB-1's comparison at
+the `T`-module, `T` payload from the one `hsimp`. -/
+theorem sqrtNegTwo_tcocycle (hsimp : PilotHsimp q) (hqe : Even q)
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+    [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} {RF : RecursionFrame T Blk}
+    (b : ContinuousMonoidHom ((pilotGamma q : Type)) ↥(boundarySubgroupQ q pilotNuP))
+    (F : BoundaryFrameK q pilotP H E)
+    (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR)
+    (ρ : BoundaryLiftsK b F RF.TC) :
+    Nat.card (TCocycle (En.radData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ))
+      = (standardNumerics 2).tMult (Nat.card (Additive ↥(En.radData l h).T))
+        * Nat.card (fixedPts (RF.YB ⧸ (En.radData l h).M)
+            (ElemDual (Additive ↥(En.radData l h).T))) := by
+  letI : TopologicalSpace (Additive ↥(En.radData l h).T) := ⊥
+  haveI : DiscreteTopology (Additive ↥(En.radData l h).T) := ⟨rfl⟩
+  letI : DistribMulAction ((pilotGamma q : Type)) (Additive ↥(En.radData l h).T) :=
+    DistribMulAction.compHom _ (rhoPrimeK RF b F (En.radData l h) rfl ρ).toMonoidHom
+  letI := trivialSMulZmodTwo (RF.YB ⧸ (En.radData l h).M)
+  have hsurj : Function.Surjective (rhoPrimeK RF b F (En.radData l h) rfl ρ) :=
+    rhoPrimeK_surjective RF b F (En.radData l h) rfl ρ
+  have hb := resolvesAt_and_endpoint_nCompactFam
+    (Q := WordLift (Additive ↥(En.radData l h).T) (RF.YB ⧸ (En.radData l h).M))
+    (heisLevel_ne_zero (D := En.radData l h)) (heisLevel_even (D := En.radData l h))
+    (orderOf_dvd_heisLevel_prim (D := En.radData l h))
+    (α := 2) (h := 0) (q := q) one_le_two hqe
+  have hres : ResolvesAt (gammaFam 2 q pilotW)
+      (nCompactFam 2 0 q (omega2Exp (heisLevel (En.radData l h))))
+      (WordLift (Additive ↥(En.radData l h).T) (RF.YB ⧸ (En.radData l h).M)) := hb.1
+  have hresS : ResolvesAt (gammaFam 2 q pilotW)
+      (nCompactFam 2 0 q (omega2Exp (heisLevel (En.radData l h))))
+      (WordLift (ZMod 2) (RF.YB ⧸ (En.radData l h).M)) :=
+    (resolvesAt_and_endpoint_nCompactFam
+      (heisLevel_ne_zero (D := En.radData l h)) (heisLevel_even (D := En.radData l h))
+      (orderOf_dvd_heisLevel_scal (D := En.radData l h))
+      (α := 2) (h := 0) (q := q) one_le_two hqe).1
+  exact nCompact_tcocycle_card (α := 2) (h := 0) (q := q) (Bg := RF.YB)
+    (D := En.radData l h) (e := omega2Exp (heisLevel (En.radData l h)))
+    (t := ⟨fun i => rhoPrimeK RF b F (En.radData l h) rfl ρ (gammaGen 2 q pilotW i)⟩)
+    (rhoPrimeK RF b F (En.radData l h) rfl ρ) (fun _ _ => rfl) (fun _ => rfl)
+    (isAdmissibleMarkedPresentation_gammaR 2 q pilotW) hres
+    (radT_add_self (En.radData l h))
+    (isWildTwo_of_gammaGen (rhoPrimeK RF b F (En.radData l h) rfl ρ) hsurj (fun _ => rfl))
+    hsurj
+    (sqrtNegTwo_stokesDuality_T hsimp hqe (rhoPrimeK RF b F (En.radData l h) rfl ρ)) hb.2
+
+set_option maxHeartbeats 800000 in
+/-- **`SourceDataN.hsep` at the pilot** (stokes conjunct 2) — CB-6's marking route,
+consuming the `T` payload (fold-in deliverable B's consumer shape). -/
+theorem sqrtNegTwo_hsep (hsimp : PilotHsimp q) (hqe : Even q)
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+    [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} {RF : RecursionFrame T Blk}
+    (b : ContinuousMonoidHom ((pilotGamma q : Type)) ↥(boundarySubgroupQ q pilotNuP))
+    (F : BoundaryFrameK q pilotP H E)
+    (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR)
+    (Dsc : Descent (En.radData l h)) (ρ : BoundaryLiftsK b F RF.TC)
+    (c : VCocycle (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ))
+    (hvan : letI := trivialSMulZmodTwo ((pilotGamma q : Type))
+      ∀ χ : ↥(TCharC (En.radData l h)),
+        betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c = 0) :
+    TLiftable (descSigma_spec En l h Dsc) c := by
+  letI := trivialSMulZmodTwo ((pilotGamma q : Type))
+  letI := trivialSMulZmodTwo (RF.YB ⧸ (En.radData l h).M)
+  have hres2 : ResolvesAt (gammaFam 2 q pilotW)
+      (nCompactFam 2 0 q (omega2Exp (heisLevel (En.radData l h))))
+      (WordLift (ZMod 2) (RF.YB ⧸ (En.radData l h).M)) :=
+    (resolvesAt_and_endpoint_nCompactFam
+      (heisLevel_ne_zero (D := En.radData l h)) (heisLevel_even (D := En.radData l h))
+      (orderOf_dvd_heisLevel_scal (D := En.radData l h))
+      (α := 2) (h := 0) (q := q) one_le_two hqe).1
+  have hb := resolvesAt_and_endpoint_nCompactFam
+    (Q := WordLift (Additive ↥(En.radData l h).T) (RF.YB ⧸ (En.radData l h).M))
+    (heisLevel_ne_zero (D := En.radData l h)) (heisLevel_even (D := En.radData l h))
+    (orderOf_dvd_heisLevel_prim (D := En.radData l h))
+    (α := 2) (h := 0) (q := q) one_le_two hqe
+  have hresT : ResolvesAt (gammaFam 2 q pilotW)
+      (nCompactFam 2 0 q (omega2Exp (heisLevel (En.radData l h))))
+      (WordLift (Additive ↥(En.radData l h).T) (RF.YB ⧸ (En.radData l h).M)) := hb.1
+  exact hsep_field_goal_marking b F En l h Dsc ρ (trivialSMulZmodTwo _)
+    (trivialHtrivZmodTwo _) (trivialSMulZmodTwo _) (trivialHtrivZmodTwo _)
+    (isAdmissibleMarkedPresentation_gammaR 2 q pilotW) (fun _ => rfl)
+    (isWildTwo_of_gammaGen (rhoPrimeK RF b F (En.radData l h) rfl ρ)
+      (rhoPrimeK_surjective RF b F (En.radData l h) rfl ρ) (fun _ => rfl))
+    hres2 hresT
+    (sqrtNegTwo_stokesDuality_T hsimp hqe (rhoPrimeK RF b F (En.radData l h) rfl ρ))
+    hb.2 c hvan
+
+set_option maxHeartbeats 800000 in
+/-- The `hpartial` fork's right-separation input, in the verbatim shape of
+`hpartial_field_goal`'s `hrsep` binder. -/
+theorem sqrtNegTwo_hrsep (hsimp : PilotHsimp q) (hqe : Even q)
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+    [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} {RF : RecursionFrame T Blk}
+    (b : ContinuousMonoidHom ((pilotGamma q : Type)) ↥(boundarySubgroupQ q pilotNuP))
+    (F : BoundaryFrameK q pilotP H E)
+    (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR)
+    (ρ : BoundaryLiftsK b F RF.TC) :
+    letI := trivialSMulZmodTwo ((pilotGamma q : Type))
+    letI : TopologicalSpace (En.descData l h).Vmod := ⊥
+    haveI : DiscreteTopology (En.descData l h).Vmod := ⟨rfl⟩
+    letI : DistribMulAction ((pilotGamma q : Type)) (En.descData l h).Vmod :=
+      DistribMulAction.compHom (En.descData l h).Vmod
+        (rho0 (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ))
+    letI : TopologicalSpace (ElemDual (En.descData l h).Vmod) := ⊥
+    haveI : DiscreteTopology (ElemDual (En.descData l h).Vmod) := ⟨rfl⟩
+    IsRightSeparating ((pilotGamma q : Type)) (En.descData l h).Vmod := by
+  letI := trivialSMulZmodTwo ((pilotGamma q : Type))
+  haveI := trivialContSMulZmodTwo ((pilotGamma q : Type))
+  letI : TopologicalSpace (En.descData l h).Vmod := ⊥
+  haveI : DiscreteTopology (En.descData l h).Vmod := ⟨rfl⟩
+  letI : DistribMulAction ((pilotGamma q : Type)) (En.descData l h).Vmod :=
+    DistribMulAction.compHom (En.descData l h).Vmod
+      (rho0 (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ))
+  letI : TopologicalSpace (ElemDual (En.descData l h).Vmod) := ⊥
+  haveI : DiscreteTopology (ElemDual (En.descData l h).Vmod) := ⟨rfl⟩
+  letI : TopologicalSpace (En.descData l h).C0 := ⊥
+  haveI : DiscreteTopology (En.descData l h).C0 := ⟨rfl⟩
+  letI := trivialSMulZmodTwo (En.descData l h).C0
+  have hcompat : ∀ (γ : ((pilotGamma q : Type))) (a : (En.descData l h).Vmod),
+      γ • a = rho0CMH (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ) γ • a :=
+    fun _ _ => rfl
+  haveI : ContinuousSMul ((pilotGamma q : Type)) (ElemDual (En.descData l h).Vmod) := by
+    constructor
+    have hfac : (fun p : ((pilotGamma q : Type)) × ElemDual (En.descData l h).Vmod =>
+          p.1 • p.2)
+        = (fun z : (En.descData l h).C0 × ElemDual (En.descData l h).Vmod => z.1 • z.2)
+          ∘ (fun p : ((pilotGamma q : Type)) × ElemDual (En.descData l h).Vmod =>
+              (rho0CMH (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ) p.1,
+                p.2)) := by
+      funext p
+      exact elemDual_compat
+        (rho0CMH (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ)) hcompat p.1 p.2
+    rw [hfac]
+    exact (continuous_of_discreteTopology
+      (f := fun z : (En.descData l h).C0 × ElemDual (En.descData l h).Vmod =>
+        z.1 • z.2)).comp
+      (((rho0CMH (En.descData l h)
+          (rhoPrimeK RF b F (En.radData l h) rfl ρ)).continuous_toFun.comp
+        continuous_fst).prodMk continuous_snd)
+  have step1 := sqrtNegTwo_selfDualN_vmod (DD := En.descData l h) hsimp hqe
+    (rho0CMH (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ))
+  have step2 := isRightSeparating_vmod_nCompactFam (DD := En.descData l h)
+    (n := 2) (α := 2) (h := 0) (q := q)
+    (rho0CMH (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ)) hcompat
+    one_le_two hqe (fun _ => rfl)
+    (isAdmissibleMarkedPresentation_gammaR 2 q pilotW)
+    (isWildTwo_of_gammaGen
+      (rho0CMH (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ))
+      (rho0CMH_surjective (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ)
+        (rhoPrimeK_surjective RF b F (En.radData l h) rfl ρ)) (fun _ => rfl))
+    step1
+  exact step2
+
+set_option maxHeartbeats 800000 in
+/-- **`SourceDataN.hpartial` at the pilot** (stokes conjunct 3) — CB-4's field goal over the
+fork supplied by `sqrtNegTwo_hrsep`. -/
+theorem sqrtNegTwo_hpartial (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Even q)
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+    [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} {RF : RecursionFrame T Blk}
+    (b : ContinuousMonoidHom ((pilotGamma q : Type)) ↥(boundarySubgroupQ q pilotNuP))
+    (F : BoundaryFrameK q pilotP H E)
+    (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR)
+    (Dsc : Descent (En.radData l h)) (ρ : BoundaryLiftsK b F RF.TC)
+    (χ : ↥(TCharC (En.radData l h))) (hχ : χ ≠ 0) :
+    letI := trivialSMulZmodTwo ((pilotGamma q : Type))
+    ∃ cc : VCocycle (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ),
+      betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ cc
+        ≠ betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ
+            (0 : VCocycle (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ)) :=
+  hpartial_field_goal b F En l h Dsc ρ (trivialSMulZmodTwo _)
+    (trivialHtrivZmodTwo _) (sqrtNegTwo_cardH2 hsimp hq0 hqe)
+    (sqrtNegTwo_hrsep hsimp hqe b F En l h ρ) χ hχ
+
+set_option maxHeartbeats 800000 in
+/-- **`SourceDataN.hZcard` at the pilot** (stokes conjunct 4) — CB-1's `V`-side comparison,
+`Vmod` payload from the one `hsimp`. -/
+theorem sqrtNegTwo_hZcard (hsimp : PilotHsimp q) (hqe : Even q)
+    {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+    [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [Finite Y] {T : MarkedTarget H E Y}
+    {Blk : SectionSeven.MinimalBlock T.LY} {RF : RecursionFrame T Blk}
+    (b : ContinuousMonoidHom ((pilotGamma q : Type)) ↥(boundarySubgroupQ q pilotNuP))
+    (F : BoundaryFrameK q pilotP H E)
+    (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR)
+    (hsimple : ∀ W : AddSubgroup En.Vmod, (∀ g : RF.YC, ∀ w ∈ W, g • w ∈ W) → W = ⊥ ∨ W = ⊤)
+    (hVne : ∃ v : En.Vmod, v ≠ 0)
+    (hnt : ∃ (g : RF.YC) (v : En.Vmod), g • v ≠ v)
+    (ρ : BoundaryLiftsK b F RF.TC) :
+    Nat.card (VCocycle (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ))
+      = Nat.card En.Vmod * (standardNumerics 2).h1Mult (Nat.card En.Vmod) := by
+  letI : TopologicalSpace (En.descData l h).Vmod := ⊥
+  haveI : DiscreteTopology (En.descData l h).Vmod := ⟨rfl⟩
+  letI : DistribMulAction RF.YC (En.descData l h).Vmod :=
+    (inferInstance : DistribMulAction RF.YC En.Vmod)
+  letI : DistribMulAction ((pilotGamma q : Type)) (En.descData l h).Vmod :=
+    DistribMulAction.compHom _ ρ.1.1.toMonoidHom
+  haveI : ContinuousSMul ((pilotGamma q : Type)) (En.descData l h).Vmod := by
+    constructor
+    have hfac : (fun p : ((pilotGamma q : Type)) × (En.descData l h).Vmod => p.1 • p.2)
+        = (fun z : RF.YC × (En.descData l h).Vmod => z.1 • z.2)
+          ∘ (fun p : ((pilotGamma q : Type)) × (En.descData l h).Vmod =>
+              (ρ.1.1 p.1, p.2)) := by
+      funext p; rfl
+    rw [hfac]
+    exact (continuous_of_discreteTopology
+      (f := fun z : RF.YC × (En.descData l h).Vmod => z.1 • z.2)).comp
+      ((ρ.1.1.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  letI := trivialSMulZmodTwo RF.YC
+  have hb := resolvesAt_and_endpoint_nCompactFam
+    (Q := WordLift (En.descData l h).Vmod RF.YC)
+    (N := Monoid.exponent (HeisLift (En.descData l h).Vmod RF.YC))
+    heisLevel_ne_zero_and_even.1 heisLevel_ne_zero_and_even.2
+    orderOf_wordLift_dvd_heisExponent (α := 2) (h := 0) (q := q) one_le_two hqe
+  have hres : ResolvesAt (gammaFam 2 q pilotW)
+      (nCompactFam 2 0 q
+        (omega2Exp (Monoid.exponent (HeisLift (En.descData l h).Vmod RF.YC))))
+      (WordLift (En.descData l h).Vmod RF.YC) := hb.1
+  have hresS : ResolvesAt (gammaFam 2 q pilotW)
+      (nCompactFam 2 0 q
+        (omega2Exp (Monoid.exponent (HeisLift (En.descData l h).Vmod RF.YC))))
+      (WordLift (ZMod 2) RF.YC) :=
+    (resolvesAt_and_endpoint_nCompactFam
+      (heisLevel_ne_zero_and_even (A := (En.descData l h).Vmod) (C := RF.YC)).1
+      (heisLevel_ne_zero_and_even (A := (En.descData l h).Vmod) (C := RF.YC)).2
+      (orderOf_wordLiftScal_dvd_heisExponent (A := (En.descData l h).Vmod))
+      (α := 2) (h := 0) (q := q) one_le_two hqe).1
+  have hsimple' : IsSimpleModTwo RF.YC (En.descData l h).Vmod := by
+    obtain ⟨v, hv⟩ := hVne
+    exact ⟨nontrivial_of_ne v 0 hv, hsimple⟩
+  exact nCompact_hZcard (α := 2) (h := 0) (q := q) (Bg := RF.YB) (D := En.radData l h)
+    (DD := En.descData l h) (E := RF.YC)
+    (e := omega2Exp (Monoid.exponent (HeisLift (En.descData l h).Vmod RF.YC)))
+    (t := ⟨fun i => ρ.1.1 (gammaGen 2 q pilotW i)⟩) ρ.1.1
+    (fun γ v => congrArg (fun g : RF.YC => g • v) (rho0_descData_rhoPrimeK b F En l h ρ γ))
+    (fun _ _ => rfl) (fun _ => rfl)
+    (isAdmissibleMarkedPresentation_gammaR 2 q pilotW) hres
+    (Vmod_exp2 (DD := En.descData l h))
+    (isWildTwo_of_gammaGen ρ.1.1 ρ.1.2 (fun _ => rfl)) ρ.1.2
+    (sqrtNegTwo_stokesDuality hsimp hqe ρ.1.1
+      (odd_omega2Exp heisLevel_ne_zero_and_even.1 heisLevel_ne_zero_and_even.2) hresS
+      ((En.descData l h).Vmod) (Vmod_exp2 (DD := En.descData l h)))
+    hb.2 hsimple' hnt
+
+set_option maxHeartbeats 800000 in
+/-- **Ledger field 4 at the pilot** — `StokesDualityCertificate`, assembled. -/
+theorem sqrtNegTwo_stokes (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Even q) :
+    StokesDualityCertificate (pilotGamma q) 2 q pilotP pilotNuP (standardNumerics 2)
+      (trivialSMulZmodTwo ((pilotGamma q : Type))) :=
+  ⟨fun b F En l h ρ => sqrtNegTwo_tcocycle hsimp hqe b F En l h ρ,
+   fun b F En l h Dsc ρ c hvan => sqrtNegTwo_hsep hsimp hqe b F En l h Dsc ρ c hvan,
+   fun b F En l h Dsc ρ χ hχ => sqrtNegTwo_hpartial hsimp hq0 hqe b F En l h Dsc ρ χ hχ,
+   fun b F En l h hsimple hVne hnt ρ => sqrtNegTwo_hZcard hsimp hqe b F En l h hsimple hVne hnt ρ⟩
+
 end Clauses
 
 end SqrtNeg2
