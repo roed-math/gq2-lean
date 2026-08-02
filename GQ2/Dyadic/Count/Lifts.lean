@@ -113,7 +113,7 @@ is what supplies `LiftsOverK`/`BoundaryLiftsK`/`BoundaryFrameK` — the recursio
 clause is stated in.  `RecursionFrame` itself arrives with it.
 
 Axioms: no new axioms, no `sorry`, no `hsimp`-style residual.  Every headline prints exactly the
-standard three (`propext`, `Classical.choice`, `Quot.sound`); `collapse` and `baseMap` print the
+standard three (`propext`, `Classical.choice`, `Quot.sound`); `wordLiftCollapse` and `baseMap` print the
 strict subset `[propext]` — measured, recorded in the report.
 -/
 
@@ -261,7 +261,7 @@ would be a Fox calculus for `PWord`s — profinite exponents included — and a 
 The route here does not compute any derivative.  Everything happens inside **one** evaluation, in
 the split group `A ⋊ G` over the *upper* group `G` (below: `Y_B`), which admits two homomorphisms:
 
-* `collapse : (u, g) ↦ j(u) · g` into `G` itself — a homomorphism precisely because the `G`-action
+* `wordLiftCollapse : (u, g) ↦ j(u) · g` into `G` itself — a homomorphism precisely because the `G`-action
   on `A` is conjugation by `j`;
 * `baseMap : (u, g) ↦ (u, π g)` into `A ⋊ C` — a homomorphism precisely because that action only
   sees the `π`-image, and it is the **identity on the `A`-coordinate**.
@@ -290,9 +290,9 @@ theorem j_zero : j 0 = 1 := by
   exact (mul_left_cancel h2).symm
 
 include hjmul hjconj in
-/-- **The collapse homomorphism** `A ⋊ G →* G`, `(u, g) ↦ j(u) · g`.  It is a homomorphism
+/-- **The wordLiftCollapse homomorphism** `A ⋊ G →* G`, `(u, g) ↦ j(u) · g`.  It is a homomorphism
 because the semidirect product's twist is conjugation *inside `G`*. -/
-def collapse : WordLift A G →* G where
+def wordLiftCollapse : WordLift A G →* G where
   toFun p := j p.u * p.g
   map_one' := by
     show j (0 : A) * (1 : G) = 1
@@ -341,10 +341,10 @@ theorem eval_corrected [TopologicalSpace G] [DiscreteTopology G] [Finite G]
     PWord.eval (fun i => j (x i) * f₀ i) Wk
       = j ((PWord.eval (foxLift c x) Wk).u) * PWord.eval f₀ Wk := by
   set P := PWord.eval (foxLift f₀ x) Wk with hP
-  -- (a) the collapse reads the corrected marking's relator value
+  -- (a) the wordLiftCollapse reads the corrected marking's relator value
   have ha : PWord.eval (fun i => j (x i) * f₀ i) Wk = j P.u * P.g := by
     have h := PWord.map_eval
-      (⟨collapse j hjmul hjconj, continuous_of_discreteTopology⟩ :
+      (⟨wordLiftCollapse j hjmul hjconj, continuous_of_discreteTopology⟩ :
         ContinuousMonoidHom (WordLift A G) G) (foxLift f₀ x) Wk
     exact h.symm
   -- (b) the base projection reads the uncorrected relator value
