@@ -1,0 +1,273 @@
+{
+  "ast_schema_version": 1,
+  "branch": "Npc",
+  "interchange_version": 1,
+  "lean": {
+    "declaration": "rawNpc_a2_r1_eta1_1_h0",
+    "module": "GQ2.Dyadic.Words.Npc"
+  },
+  "name": "rawNpc_a2_r1_eta1_1_h0",
+  "source": "selection-freeze row 3 (procyclic N, corrected E_{r,eta}, (alpha,r,eta) = (2,1,1), h = 0); certificate N-noncompact-alpha2-r1-eta1_1-h0-v001 (gate status: experimental \u2014 the exactness content is the Lean theorem npc_cross_operators) (general_2adic, vendored 2026-08-02, ticket AS5)",
+  "word_ast": {
+    "children": [
+      {
+        "exponent": {
+          "type": "Int",
+          "value": 6
+        },
+        "op": "IntegerPower",
+        "word": {
+          "name": "x0",
+          "op": "Generator"
+        }
+      },
+      {
+        "left": {
+          "name": "x0",
+          "op": "Generator"
+        },
+        "op": "Commutator",
+        "right": {
+          "exponent_spec": {
+            "den": 1,
+            "num": 1,
+            "type": "EtaHat"
+          },
+          "op": "ZhatPower",
+          "word": {
+            "name": "sigma",
+            "op": "Generator"
+          }
+        }
+      },
+      {
+        "op": "Inverse",
+        "word": {
+          "conjugator": {
+            "children": [
+              {
+                "name": "x1",
+                "op": "Generator"
+              },
+              {
+                "exponent": {
+                  "type": "Int",
+                  "value": 2
+                },
+                "op": "IntegerPower",
+                "word": {
+                  "name": "sigma",
+                  "op": "Generator"
+                }
+              }
+            ],
+            "op": "Multiply"
+          },
+          "op": "Conjugate",
+          "word": {
+            "name": "x2",
+            "op": "Generator"
+          }
+        }
+      },
+      {
+        "op": "Omega2Power",
+        "word": {
+          "children": [
+            {
+              "name": "x2",
+              "op": "Generator"
+            },
+            {
+              "name": "tau",
+              "op": "Generator"
+            }
+          ],
+          "op": "Multiply"
+        }
+      },
+      {
+        "left": {
+          "children": [
+            {
+              "conjugator": {
+                "exponent_spec": {
+                  "den": 1,
+                  "num": 1,
+                  "type": "EtaHat"
+                },
+                "op": "ZhatPower",
+                "word": {
+                  "name": "sigma",
+                  "op": "Generator"
+                }
+              },
+              "op": "Conjugate",
+              "word": {
+                "definition": {
+                  "children": [
+                    {
+                      "definition": {
+                        "op": "Omega2Power",
+                        "word": {
+                          "children": [
+                            {
+                              "name": "x0",
+                              "op": "Generator"
+                            },
+                            {
+                              "name": "tau",
+                              "op": "Generator"
+                            }
+                          ],
+                          "op": "Multiply"
+                        }
+                      },
+                      "name": "u0",
+                      "op": "Auxiliary"
+                    },
+                    {
+                      "op": "Inverse",
+                      "word": {
+                        "name": "x0",
+                        "op": "Generator"
+                      }
+                    }
+                  ],
+                  "op": "Multiply"
+                },
+                "name": "d0",
+                "op": "Auxiliary"
+              }
+            },
+            {
+              "conjugator": {
+                "op": "Inverse",
+                "word": {
+                  "exponent": {
+                    "type": "Int",
+                    "value": 2
+                  },
+                  "op": "IntegerPower",
+                  "word": {
+                    "name": "sigma",
+                    "op": "Generator"
+                  }
+                }
+              },
+              "op": "Conjugate",
+              "word": {
+                "children": [
+                  {
+                    "definition": {
+                      "children": [
+                        {
+                          "definition": {
+                            "op": "Omega2Power",
+                            "word": {
+                              "children": [
+                                {
+                                  "name": "x0",
+                                  "op": "Generator"
+                                },
+                                {
+                                  "name": "tau",
+                                  "op": "Generator"
+                                }
+                              ],
+                              "op": "Multiply"
+                            }
+                          },
+                          "name": "u0",
+                          "op": "Auxiliary"
+                        },
+                        {
+                          "op": "Inverse",
+                          "word": {
+                            "name": "x0",
+                            "op": "Generator"
+                          }
+                        }
+                      ],
+                      "op": "Multiply"
+                    },
+                    "name": "d0",
+                    "op": "Auxiliary"
+                  },
+                  {
+                    "conjugator": {
+                      "exponent_spec": {
+                        "den": 1,
+                        "num": 1,
+                        "type": "EtaHat"
+                      },
+                      "op": "ZhatPower",
+                      "word": {
+                        "name": "sigma",
+                        "op": "Generator"
+                      }
+                    },
+                    "op": "Conjugate",
+                    "word": {
+                      "definition": {
+                        "children": [
+                          {
+                            "definition": {
+                              "op": "Omega2Power",
+                              "word": {
+                                "children": [
+                                  {
+                                    "name": "x0",
+                                    "op": "Generator"
+                                  },
+                                  {
+                                    "name": "tau",
+                                    "op": "Generator"
+                                  }
+                                ],
+                                "op": "Multiply"
+                              }
+                            },
+                            "name": "u0",
+                            "op": "Auxiliary"
+                          },
+                          {
+                            "op": "Inverse",
+                            "word": {
+                              "name": "x0",
+                              "op": "Generator"
+                            }
+                          }
+                        ],
+                        "op": "Multiply"
+                      },
+                      "name": "d0",
+                      "op": "Auxiliary"
+                    }
+                  }
+                ],
+                "op": "Multiply"
+              }
+            }
+          ],
+          "op": "Multiply"
+        },
+        "op": "Commutator",
+        "right": {
+          "name": "x1",
+          "op": "Generator"
+        }
+      },
+      {
+        "count": {
+          "type": "Int",
+          "value": 0
+        },
+        "op": "HyperbolicHandles",
+        "start_index": 3
+      }
+    ],
+    "op": "Multiply"
+  },
+  "word_hash": "08b7742caf3a34f8152833b1849acd5e1e7df17be50dd68d9c511d966f4fd205"
+}

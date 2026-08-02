@@ -69,6 +69,42 @@ AUDIT_PAIRS="GQ2.main_presentation_literal GQ2.main_presentation_literal_roe
 GQ2.SectionTen.eq_154 GQ2.eq_154_R
 GQ2.SectionTen.main_surjection_count' GQ2.main_surjection_count_R"
 
+# -- check 5b configuration: the dyadic capstones (ticket AS5) ----------------
+# Unlike the frozen Q2 block above — which is UNTOUCHED and byte-identical — the dyadic
+# capstones print PER-DECLARATION sets, so each row carries its own frozen expected list
+# ("name :: axioms", space-separated, order-irrelevant; comparison is exact set equality, so
+# both growth AND shrinkage fail — an intentional shrink must edit the row in the same
+# commit).  Sets measured 2026-08-02 (AS5) at the tree with all AS-wave landings; the
+# rationale per row is docs/dyadic/literature-axioms-dyadic.md §A.  Invariants encoded here:
+# the final ramified-i theorem prints exactly the UNION of the instance headlines' sets; the
+# M-row headlines sit at std-3 + {B1, B6, B7}, strictly below the pilot's + {B9, B11a}; the
+# three n = 1 routes and the lRow re-export print the frozen Q2 capstone census (their
+# byte-identity to the Q2 capstone is additionally pinned in AUDIT_DYADIC_PAIRS); the two
+# WordCertificate stocks sit at std-3 (pilot) and std-3 + {B3c, B5, B8} (n = 1); and the
+# K-side census axioms B5-K (GQ2.markedRecipAt) / B10-K (GQ2.orientedTameQuotientAt) appear
+# in NO row — they enter only through bundle binders, so their names occurring in any actual
+# print is a growth failure by exactness.
+AUDIT_DYADIC='GQ2.Dyadic.ramifiedI_candidate_equiv_galK :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.tateDualityAt GQ2.relativeStiefelWhitney_dyadic GQ2.hilbertSymbol_normCriterion_finiteDyadic
+GQ2.Dyadic.SqrtNeg2.sqrtNegTwo_candidate_equiv_galK :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.tateDualityAt GQ2.relativeStiefelWhitney_dyadic GQ2.hilbertSymbol_normCriterion_finiteDyadic
+GQ2.Dyadic.Instances.candidate_equiv_galK_sqrtTwo :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.tateDualityAt
+GQ2.Dyadic.Instances.candidate_equiv_galK_sqrtFive :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.tateDualityAt
+GQ2.Dyadic.Instances.candidate_equiv_galK_sqrtTen :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.tateDualityAt
+GQ2.Dyadic.Instances.candidate_equiv_galK_sqrtNegTen :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.tateDualityAt
+GQ2.Dyadic.candidate_equiv_galK_of_frozenRow_certificates :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.tateDualityAt
+GQ2.Dyadic.QTwo.candidateGroup_lSq_equiv_absGalQ2 :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.dyadicOrientation GQ2.localReciprocity GQ2.tateDualityAt GQ2.peripheralCyclotomicAction GQ2.relativeStiefelWhitney_dyadic GQ2.tameQuotient GQ2.hilbertSymbol_normCriterion_finiteDyadic
+GQ2.Dyadic.QTwo.candidateGroup_lSq_equiv_absGalQ2_via_sourcesN :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.dyadicOrientation GQ2.localReciprocity GQ2.tateDualityAt GQ2.peripheralCyclotomicAction GQ2.relativeStiefelWhitney_dyadic GQ2.tameQuotient GQ2.hilbertSymbol_normCriterion_finiteDyadic
+GQ2.Dyadic.candidateGroup_lSq_equiv_absGalQ2_via_wordCertificate :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.dyadicOrientation GQ2.localReciprocity GQ2.tateDualityAt GQ2.peripheralCyclotomicAction GQ2.relativeStiefelWhitney_dyadic GQ2.tameQuotient GQ2.hilbertSymbol_normCriterion_finiteDyadic
+GQ2.Dyadic.lRow_candidate_equiv_absGalQ2 :: propext Classical.choice Quot.sound GQ2.Foundations.absGalQ2_isTopologicallyFinitelyGenerated GQ2.Foundations.absGalQ2_localEulerCharacteristic GQ2.dyadicOrientation GQ2.localReciprocity GQ2.tateDualityAt GQ2.peripheralCyclotomicAction GQ2.relativeStiefelWhitney_dyadic GQ2.tameQuotient GQ2.hilbertSymbol_normCriterion_finiteDyadic
+GQ2.Dyadic.SqrtNeg2.sqrtNegTwoWordCertificate :: propext Classical.choice Quot.sound
+GQ2.Dyadic.wordCertificateLSq :: propext Classical.choice Quot.sound GQ2.dyadicOrientation GQ2.localReciprocity GQ2.peripheralCyclotomicAction'
+
+# Dyadic twin pairs: the n = 1 routes (and the lRow re-export) must print byte-identically to
+# the frozen Q2 capstone — the "recovers the Q2 theorem at the same trust base" claim, pinned.
+AUDIT_DYADIC_PAIRS='GQ2.main_presentation_literal_roe_unconditional GQ2.Dyadic.QTwo.candidateGroup_lSq_equiv_absGalQ2
+GQ2.main_presentation_literal_roe_unconditional GQ2.Dyadic.QTwo.candidateGroup_lSq_equiv_absGalQ2_via_sourcesN
+GQ2.main_presentation_literal_roe_unconditional GQ2.Dyadic.candidateGroup_lSq_equiv_absGalQ2_via_wordCertificate
+GQ2.main_presentation_literal_roe_unconditional GQ2.Dyadic.lRow_candidate_equiv_absGalQ2'
+
 # Strip Lean comments: nested block comments `/- … -/` (incl. docstrings `/-- … -/`) and
 # line comments `-- …`.  Emits one output line per input line (line numbers preserved).
 # Used by check 3; checks 1/2/4 inline the same scan into their single-pass sweep below.
@@ -290,6 +326,89 @@ EOF
     echo "      (std-3 + the frozen Q2 capstone census, no sorryAx), ${paired} twin pair(s) identical"
   else
     fail=1
+  fi
+
+  # -- 5b. dyadic-capstone axiom audit (ticket AS5) ----------------------------
+  # Same environment walk, second probe: the dyadic capstones (AUDIT_DYADIC, per-declaration
+  # frozen sets) and the n=1 twin pairs (AUDIT_DYADIC_PAIRS).  Needs GQ2.Dyadic.Main built;
+  # until the orchestrator registers that module in GQ2.lean, a plain `lake build` does not
+  # produce its olean, so this block self-skips with a notice rather than failing a cold or
+  # pre-registration tree (mirroring check 5's own skip).
+  if [ ! -f .lake/build/lib/lean/GQ2/Dyadic/Main.olean ]; then
+    echo "SKIP: dyadic-capstone axiom audit — GQ2.Dyadic.Main not built (run 'lake build GQ2.Dyadic.Main')"
+  else
+    dyadic_ok=1
+    dyadic_names=$(
+      { printf '%s\n' "$AUDIT_DYADIC" | awk -F' :: ' '/ :: /{print $1}'
+        printf '%s\n' "$AUDIT_DYADIC_PAIRS" | tr ' ' '\n'; } |
+        sed '/^$/d' | LC_ALL=C sort -u | sed 's/^/"/; s/$/"/' | paste -sd, -
+    )
+    cat > "$probe_dir/AxiomProbeDyadic.lean" <<LEAN
+import GQ2.Dyadic.Main
+
+open Lean in
+run_cmd do
+  let env ← getEnv
+  for s in [$dyadic_names] do
+    let n := s.toName
+    unless env.contains n do
+      throwError "axiom audit: unknown declaration {n} (renamed, removed, or not imported here?)"
+    let axs := (← collectAxioms n).qsort (·.toString < ·.toString)
+    IO.println s!"AXIOMS {n} :: {String.intercalate " " (axs.toList.map toString)}"
+LEAN
+    if ! dyadic_out=$(lake env lean "$probe_dir/AxiomProbeDyadic.lean" 2>&1); then
+      echo "FAIL: dyadic-capstone axiom audit could not run ('lake env lean' failed):"
+      printf '%s\n' "$dyadic_out" | sed 's/^/          /'
+      dyadic_ok=0
+      dyadic_out=''
+    fi
+    dyadic_axioms_of() { printf '%s\n' "$dyadic_out" | awk -v d="$1" -F' :: ' '$1 == "AXIOMS " d {print $2}'; }
+
+    dyadic_n=0
+    while IFS= read -r row; do
+      case "$row" in *" :: "*) ;; *) continue ;; esac
+      d=${row%% :: *}
+      want=$(printf '%s' "${row#* :: }" | norm_axioms)
+      got=$(dyadic_axioms_of "$d" | norm_axioms)
+      dyadic_n=$((dyadic_n + 1))
+      if [ -z "$got" ]; then
+        echo "FAIL: dyadic axiom audit: no axiom print for ${d}"
+        dyadic_ok=0
+      elif [ "$got" != "$want" ]; then
+        echo "FAIL: dyadic axiom audit: ${d} does not print its frozen per-declaration set:"
+        echo "          expected: ${want}"
+        echo "          actual:   ${got}"
+        dyadic_ok=0
+      fi
+    done <<EOF
+$AUDIT_DYADIC
+EOF
+
+    dyadic_paired=0
+    while IFS=' ' read -r a b; do
+      [ -z "$a" ] && continue
+      ga=$(dyadic_axioms_of "$a" | norm_axioms)
+      gb=$(dyadic_axioms_of "$b" | norm_axioms)
+      dyadic_paired=$((dyadic_paired + 1))
+      if [ -z "$ga" ] || [ -z "$gb" ]; then
+        echo "FAIL: dyadic axiom audit: missing axiom print for the pair ${a} / ${b}"
+        dyadic_ok=0
+      elif [ "$ga" != "$gb" ]; then
+        echo "FAIL: dyadic axiom audit: ${b} does not print identically to its twin ${a}:"
+        echo "          ${a}: ${ga}"
+        echo "          ${b}: ${gb}"
+        dyadic_ok=0
+      fi
+    done <<EOF
+$AUDIT_DYADIC_PAIRS
+EOF
+
+    if [ "$dyadic_ok" -eq 1 ]; then
+      echo "OK:   dyadic-capstone axiom audit: ${dyadic_n} capstone(s) at their frozen per-declaration"
+      echo "      sets (B5-K/B10-K in none), ${dyadic_paired} n=1 twin pair(s) identical to the Q2 capstone"
+    else
+      fail=1
+    fi
   fi
 fi
 

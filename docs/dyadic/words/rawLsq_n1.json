@@ -1,0 +1,102 @@
+{
+  "ast_schema_version": 1,
+  "branch": "L",
+  "interchange_version": 1,
+  "lean": {
+    "declaration": "rawLsq_n1",
+    "module": "GQ2.Dyadic.Words.L"
+  },
+  "name": "rawLsq_n1",
+  "source": "selection-freeze row 1 (type L, PRIMARY L_sq at n = 1); certificate L-sq-n1-v001 (general_2adic, vendored 2026-08-02, ticket AS5)",
+  "word_ast": {
+    "children": [
+      {
+        "op": "Inverse",
+        "word": {
+          "conjugator": {
+            "name": "sigma",
+            "op": "Generator"
+          },
+          "op": "Conjugate",
+          "word": {
+            "name": "x0",
+            "op": "Generator"
+          }
+        }
+      },
+      {
+        "definition": {
+          "op": "Omega2Power",
+          "word": {
+            "children": [
+              {
+                "exponent": {
+                  "type": "Int",
+                  "value": -3
+                },
+                "op": "IntegerPower",
+                "word": {
+                  "name": "x0",
+                  "op": "Generator"
+                }
+              },
+              {
+                "name": "tau",
+                "op": "Generator"
+              }
+            ],
+            "op": "Multiply"
+          }
+        },
+        "name": "a",
+        "op": "Auxiliary"
+      },
+      {
+        "exponent": {
+          "type": "Int",
+          "value": 2
+        },
+        "op": "IntegerPower",
+        "word": {
+          "name": "x1",
+          "op": "Generator"
+        }
+      },
+      {
+        "definition": {
+          "left": {
+            "name": "x1",
+            "op": "Generator"
+          },
+          "op": "Commutator",
+          "right": {
+            "definition": {
+              "conjugator": {
+                "definition": {
+                  "op": "Omega2Power",
+                  "word": {
+                    "name": "sigma",
+                    "op": "Generator"
+                  }
+                },
+                "name": "sigma2",
+                "op": "Auxiliary"
+              },
+              "op": "Conjugate",
+              "word": {
+                "name": "x1",
+                "op": "Generator"
+              }
+            },
+            "name": "y1",
+            "op": "Auxiliary"
+          }
+        },
+        "name": "c",
+        "op": "Auxiliary"
+      }
+    ],
+    "op": "Multiply"
+  },
+  "word_hash": "d129037ce96177524c5798cbe0c13d7844ab513d136360d1270dbd89e81051cb"
+}

@@ -1,0 +1,78 @@
+{
+  "ast_schema_version": 1,
+  "entries": [
+    {
+      "appendix": "generated/appendix/rawLsq_n1.tex",
+      "branch": "L",
+      "interchange": "docs/dyadic/words/rawLsq_n1.json",
+      "latex": "generated/latex/rawLsq_n1.tex",
+      "lean": {
+        "declaration": "rawLsq_n1",
+        "hash_constant": "rawLsq_n1_astHash",
+        "module": "GQ2.Dyadic.Words.L"
+      },
+      "name": "rawLsq_n1",
+      "source": "selection-freeze row 1 (type L, PRIMARY L_sq at n = 1); certificate L-sq-n1-v001 (general_2adic, vendored 2026-08-02, ticket AS5)",
+      "word_hash": "d129037ce96177524c5798cbe0c13d7844ab513d136360d1270dbd89e81051cb"
+    },
+    {
+      "appendix": "generated/appendix/rawMCompact_alpha2_h0_q2.tex",
+      "branch": "M0",
+      "interchange": "docs/dyadic/words/rawMCompact_alpha2_h0_q2.json",
+      "latex": "generated/latex/rawMCompact_alpha2_h0_q2.tex",
+      "lean": {
+        "declaration": "rawMCompact_alpha2_h0_q2",
+        "hash_constant": "rawMCompact_alpha2_h0_q2_astHash",
+        "module": "GQ2.Dyadic.Words.M0"
+      },
+      "name": "rawMCompact_alpha2_h0_q2",
+      "source": "selection-freeze row 4 (compact M, reversed E-correction, alpha = 2, h = 0, q = 2); certificate M-compact-alpha2-h0-q2-v001 (general_2adic, vendored 2026-08-02, ticket AS5)",
+      "word_hash": "7c9005f50f9e1d5ddfa8880a3a3168d1a47661efdaae81339ab968055bbf036a"
+    },
+    {
+      "appendix": "generated/appendix/rawMpcSqrtNeg10.tex",
+      "branch": "Mpc",
+      "interchange": "docs/dyadic/words/rawMpcSqrtNeg10.json",
+      "latex": "generated/latex/rawMpcSqrtNeg10.tex",
+      "lean": {
+        "declaration": "rawMpcSqrtNeg10",
+        "hash_constant": "rawMpcSqrtNeg10_astHash",
+        "module": "GQ2.Dyadic.Words.Mpc"
+      },
+      "name": "rawMpcSqrtNeg10",
+      "source": "selection-freeze row 5 (procyclic M, E-block + orbit-norm + shadow, (alpha,r,eps,eta) = (2,1,1,1), h = 0 \u2014 packet Cor. 8.2's sqrt(-10) parameters); certificate M-procyclic-alpha2-r1-eps1-eta1-h0-q2-v001 (general_2adic, vendored 2026-08-02, ticket AS5)",
+      "word_hash": "55b24a4b141274bc30d09468096f4fa021184c5dc22c17823e423457928a26cf"
+    },
+    {
+      "appendix": "generated/appendix/rawNCompact_alpha2_h0.tex",
+      "branch": "N0",
+      "interchange": "docs/dyadic/words/rawNCompact_alpha2_h0.json",
+      "latex": "generated/latex/rawNCompact_alpha2_h0.tex",
+      "lean": {
+        "declaration": "rawNCompact_alpha2_h0",
+        "hash_constant": "rawNCompact_alpha2_h0_astHash",
+        "module": "GQ2.Dyadic.Words.N0"
+      },
+      "name": "rawNCompact_alpha2_h0",
+      "source": "selection-freeze row 2 (compact N, alpha = 2, h = 0); certificate N-compact-alpha2-h0-v001 (general_2adic, vendored 2026-08-02, ticket AS5)",
+      "word_hash": "a940b6ad06d9728a6b0b5d20f27c76994d83103e65accc6b844fe6174755fc10"
+    },
+    {
+      "appendix": "generated/appendix/rawNpc_a2_r1_eta1_1_h0.tex",
+      "branch": "Npc",
+      "interchange": "docs/dyadic/words/rawNpc_a2_r1_eta1_1_h0.json",
+      "latex": "generated/latex/rawNpc_a2_r1_eta1_1_h0.tex",
+      "lean": {
+        "declaration": "rawNpc_a2_r1_eta1_1_h0",
+        "hash_constant": "rawNpc_a2_r1_eta1_1_h0_astHash",
+        "module": "GQ2.Dyadic.Words.Npc"
+      },
+      "name": "rawNpc_a2_r1_eta1_1_h0",
+      "source": "selection-freeze row 3 (procyclic N, corrected E_{r,eta}, (alpha,r,eta) = (2,1,1), h = 0); certificate N-noncompact-alpha2-r1-eta1_1-h0-v001 (gate status: experimental \u2014 the exactness content is the Lean theorem npc_cross_operators) (general_2adic, vendored 2026-08-02, ticket AS5)",
+      "word_hash": "08b7742caf3a34f8152833b1849acd5e1e7df17be50dd68d9c511d966f4fd205"
+    }
+  ],
+  "generator": "scripts/dyadic_word_tex.py (dyadic ticket WW5)",
+  "hash_rule": "sha256 of dyadic_search.words.ast.canonical_json (ticket S1.1)",
+  "manifest_version": 1
+}
