@@ -120,7 +120,7 @@ stated in, together with `GQ2/Phase140/Assembly.lean`'s `descSections`/`descSigm
 `GQ2.Half139Local` carries the frame-level `(M^∨)^C = 0`.  `GQ2.Dyadic.LiftingDualityG` (CB-SG)
 is a `module` file, and a plain file may import a module file — the module rule is one-way.
 
-Axioms: **no new axioms, no `sorry`**.  All fourteen declarations print exactly the standard three
+Axioms: **no new axioms, no `sorry`**.  All fifteen declarations print exactly the standard three
 (`propext`, `Classical.choice`, `Quot.sound`) — measured, not budgeted.  `decide` occurs only
 at kernel-decidable `ZMod 2` character identities (the `hchar`/`hfin` steps), as in the `ℚ₂`
 proof.
@@ -1008,5 +1008,6 @@ theorem hsep_field_goal
     (rhoPrimeK_surjective RF b F (En.radData l h) rfl ρ) h2sep c hc
 
 end HSepFieldGoal
+
 
 end GQ2.Dyadic.Count
