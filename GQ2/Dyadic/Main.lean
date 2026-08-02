@@ -11,6 +11,7 @@ import GQ2.Dyadic.Instances.Sqrt10
 import GQ2.Dyadic.Instances.SqrtNeg10
 import GQ2.Dyadic.Instances.QTwo
 import GQ2.Dyadic.SelectedWords
+import GQ2.Dyadic.SemanticSelected
 import GQ2.Dyadic.SourceTransport
 
 /-!
@@ -166,6 +167,40 @@ returns definitionally the exact word already used by its proved instance theore
 not the collector retained in the source paper as a safety net. -/
 @[simp] theorem selectedPresentation_L_zero_word :
     (SelectedPresentation.L 0).word = Words.LSq.lSqW 0 := rfl
+
+/-- The frozen row routed through the total semantic constructor table.  Unlike
+`selectedPresentation`, this construction does not store rational display syntax. -/
+noncomputable def semanticPresentation (r : FrozenQuadRow) : SemanticPresentation :=
+  SemanticPresentation.ofBranch 0 r.branch
+
+/-- Every frozen semantic presentation has the same degree two as its displayed counterpart. -/
+@[simp] theorem semanticPresentation_degree (r : FrozenQuadRow) :
+    r.semanticPresentation.degree = 2 := by
+  cases r <;> rfl
+
+/-- **Semantic constructor-table regression.**  On every frozen quadratic row, the total
+arbitrary-unit selector defines exactly the already-frozen corrected presentation.  The
+comparison is at `GammaR`: on the procyclic `M` rows the semantic word deliberately uses
+`profPow`, whereas the frozen display word uses its finite syntax. -/
+@[simp] theorem semanticPresentation_GammaR_eq (r : FrozenQuadRow) (q : ℕ) :
+    GammaR 2 q (r.semanticPresentation.wordAt 2 (semanticPresentation_degree r)) =
+      GammaR 2 q r.word := by
+  cases r with
+  | sqrtNegTwo => rfl
+  | sqrtTwo => rfl
+  | sqrtFive => rfl
+  | sqrtTen =>
+      change GammaR 2 q (Words.Mpc.mpcWUnit 2 1 0 1 0) =
+        GammaR 2 q (Words.Mpc.mpcW 2 1 0 .one 0)
+      exact Words.Mpc.GammaR_mpcWUnit_eq_display 2 1 0 0 q MpcDisplayFor.one
+  | sqrtNegTen =>
+      change GammaR 2 q (Words.Mpc.mpcWUnit 2 1 1 1 0) =
+        GammaR 2 q (Words.Mpc.mpcW 2 1 1 .one 0)
+      exact Words.Mpc.GammaR_mpcWUnit_eq_display 2 1 1 0 q MpcDisplayFor.one
+
+/-- The odd-degree base regression for the total table. -/
+@[simp] theorem semanticPresentation_L_zero_word :
+    (SemanticPresentation.ofBranch 0 .L).word = Words.LSq.lSqW 0 := rfl
 
 /-- The presented pro-2 core of a row (MC2's `DN`/`DM` at the row's `(α, h)`). -/
 noncomputable def core : FrozenQuadRow → ProfiniteGrp

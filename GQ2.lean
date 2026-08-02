@@ -264,6 +264,7 @@ import GQ2.Dyadic.Words.L
 import GQ2.Dyadic.Words.Mpc
 import GQ2.Dyadic.SelectedWords
 import GQ2.Dyadic.SelectedEta
+import GQ2.Dyadic.SemanticSelected
 import GQ2.Dyadic.Certificates.N0Fox
 import GQ2.Dyadic.Certificates.N0
 import GQ2.Dyadic.Certificates.LFox
