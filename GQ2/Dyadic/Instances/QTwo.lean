@@ -118,7 +118,10 @@ any follow-on module.  The rows are listed as done because the follow-ons landed
   through `candidate_equiv_absoluteGalois` on a genuine `WordCertificate`.  **AS4's own
   conclusion stands as written for general `K`**: what the certificate route costs at `n = 1` was
   only record-level plumbing, and CB-TRN paid it; at general `K` it costs the theorem, and that
-  is divergence 4's real content — unchanged, and still open.
+  is divergence 4's real content.  ⚠ Also recorded as status, and likewise not checked here: AS2
+  has since landed the first complete `WordCertificate` at a *branch* row,
+  `GQ2.Dyadic.SqrtNeg2.sqrtNegTwoWordCertificate` (`Instances/SqrtNeg2.lean`), printing exactly
+  the standard three — so divergence 4 is no longer uniformly open across the frozen rows.
 
 ## Axiom posture
 

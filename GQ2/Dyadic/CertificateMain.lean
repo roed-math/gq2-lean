@@ -383,8 +383,17 @@ exactly `sourceR_N`'s own axiom list, the packaging itself costing zero — and
 of the `n = 1` theorem whose print is byte-identical to
 `GQ2.main_presentation_literal_roe_unconditional`.
 
-This does **not** shrink the general-`K` obligation: the transport needs a `SourceDataN` on
-*some* carrier to start from, and outside `n = 1` there is none.  The four bridges stay owed.
+This does **not** close the general-`K` obligation: the *transport route* needs a `SourceDataN`
+on some carrier to start from, and outside `n = 1` there is none — so the four bridges above stay
+owed as **generic** constructions.
+
+⚠ They are no longer the only way to a certificate, though.  Recorded as status (this file
+imports neither module, and neither claim is checked here): AS2's
+`GQ2.Dyadic.SqrtNeg2.sqrtNegTwoWordCertificate` (`Instances/SqrtNeg2.lean`) is the first complete
+`WordCertificate` at a *branch* row and prints exactly the standard three; AS3's four
+compact-`M`/procyclic-`M` producers (`Instances/Cores.lean` §6, §11) fill thirteen of seventeen
+fields and take the four analytic clauses as explicit arguments, which is the posture this table
+describes.
 -/
 structure WordCertificate (n q : ℕ) (R : PWord (Generator n)) (P : ProfiniteGrp)
     (hP : IsProP 2 P) (nuP : ContinuousMonoidHom P Ztwo) (SN : SourceNumerics n) where
