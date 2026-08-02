@@ -5,6 +5,7 @@ Authors: David Roe, roed@mit.edu, using Claude Opus-4.8 and Fable-5
 -/
 import GQ2.Dyadic.Count.Frozen
 import GQ2.Dyadic.Count.HTwo
+import GQ2.Dyadic.Recursion.BlockRStage
 
 /-!
 # Dyadic campaign, ticket CB-VAR: the nonzero variation class
@@ -60,7 +61,7 @@ this ticket's instantiation three lines a row rather than a re-derivation.
 | § | content |
 |---|---------|
 | 1 | `hwildLevel` for `Γ_R`, from `AdmissibleR` §3 — CB-H2's first owed input, discharged |
-| 2 | the Heisenberg level: two subgroup embeddings, one exponent, evenness for free |
+| 2 | the Heisenberg level: three subgroup embeddings, one exponent, evenness for free |
 | 3 | the Heisenberg `2`-cocycle `kappaHeisN` and `CentExt ≅ H(A) ⋊ C` |
 | 4 | `pObsFam` of an **inflated** cocycle (the degree-generic `MixedBObs.obs_inflation`) |
 | 5 | the **ledger identity**: the traced obstruction of `varCoc` is `heisEta1` |
@@ -71,13 +72,15 @@ this ticket's instantiation three lines a row rather than a re-derivation.
 
 ## Import discipline
 
-Plain-import.  Two imports, both plain and both already in the campaign's `Count` closure:
-`Count.Frozen` (the five frozen families and their level-generic matched pairs) and `Count.HTwo`
-(the rung).  `Frozen` already imports `Presentation`, which imports `Compare`, which carries
+Plain-import, all three imports plain.  `Count.Frozen` (the five frozen families and their
+level-generic matched pairs) and `Count.HTwo` (the rung) are already in the campaign's `Count`
+closure — `Frozen` imports `Presentation`, which imports `Compare`, which carries
 `CentralObstruction`/`RadicalEdge.GammaA`, so the radical-cover vocabulary (`RadicalCoverData`,
-`TCocycle`, `varCoc`, `edge`, `edgeQ`) arrives with no new module.
+`TCocycle`, `varCoc`, `edge`, `edgeQ`) arrives with no new module.  The third,
+`Recursion.BlockRStage`, is §8's `stageR136` consumer and costs **+6** `GQ2` modules
+(measured: `153 → 159`).
 
-Axioms: no new axioms, no `sorry`.
+Axioms: no new axioms, no `sorry`, no `decide` outside kernel-decidable `ZMod 2` statements.
 -/
 
 namespace GQ2.Dyadic.Count
@@ -1028,6 +1031,49 @@ theorem lem86_of_variation
     (cardH2_of_variation S rho hcompat hcompatD hc hpres hwildLevel hwild2 hresS hresP hresD
       hresH hdT hdS hend hedge hρ)
     D rho S u hu
+
+omit [ContinuousSMul Γ (ZMod 2)] [ContinuousSMul Γ (Additive ↥D.T)] in
+include hcompat hcompatD hc S in
+/-- **`SourceDataN.stageR136`, with its only cohomological input supplied.**
+
+SD-R3's `blockStageR136K` takes exactly one input from this lane — `hcard : #H²(Γ, 𝔽₂) = 2` — and
+that is now a theorem.  What remains are the two *recursion*-side inputs, and they are named with
+their owners: `hsep_hom` is the `(T^∨)^C`-separation (CB-4's `hsep`; CB-2 §9 established it does
+**not** factor through the scalar block) and `hZcount` is the `R`-cocycle count.
+
+`hsep_hom` is quantified over the `hcard` proof rather than stated at this one — the two are
+interchangeable by proof irrelevance, and the ∀-form lets a consumer supply the clause without
+first naming which proof of `#H² = 2` the count lane happened to produce. -/
+theorem stageR136_of_variation {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+    [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    {qq : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY) (hE2 : ∀ e : E, e ^ 2 = 1)
+    (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ qq nuP)) (F : BoundaryFrameK qq P H E)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hwildLevel : ∀ V : OpenNormalSubgroup Γ,
+      IsWildTwo J (fun i => QuotientGroup.mk' V.toSubgroup (gen i)))
+    (hwild2 : IsWildTwo J c)
+    (hresS : ResolvesAt W w (WordLift (ZMod 2) (Bg ⧸ D.M)))
+    (hresP : ResolvesAt W w (WordLift (Additive ↥D.T) (Bg ⧸ D.M)))
+    (hresD : ResolvesAt W w (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M)))
+    (hresH : ResolvesAt W w (HeisLift (Additive ↥D.T) (Bg ⧸ D.M)))
+    (hdT : StokesDuality c w (Additive ↥D.T)) (hdS : StokesDuality c w (ZMod 2))
+    (hend : IsStokesEndpoint w) (hedge : D.NoDescent) (hρ : Function.Surjective rho)
+    (hsep_hom : ∀ (hcard : Nat.card (H2 Γ (ZMod 2)) = 2)
+      (g : BoundaryLiftsK b F (blockFrameImpl T Blk hE2).TB),
+      obs (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2) smul_zmod2 hcard g.1.1 = 0 →
+        ∃ φ : ContinuousMonoidHom Γ Y, ∀ γ, (blockFrameImpl T Blk hE2).piB (φ γ) = g.1.1 γ)
+    (hZcount : ∀ f₀ : BoundaryLiftsK b F T,
+      Nat.card (RCocycle (blockFrameImpl T Blk hE2) f₀.1.1) = (blockFrameImpl T Blk hE2).zR) :
+    (Nat.card (blockFrameImpl T Blk hE2).DR : ℤ) * exactImageCountK b F T
+      = (blockFrameImpl T Blk hE2).zR * ∑ᶠ l : (blockFrameImpl T Blk hE2).DR,
+          (2 * (mBK (blockFrameImpl T Blk hE2) b F l : ℤ)
+            - exactImageCountK b F (blockFrameImpl T Blk hE2).TB) :=
+  blockStageR136K T Blk hE2 smul_zmod2
+    (cardH2_of_variation S rho hcompat hcompatD hc hpres hwildLevel hwild2 hresS hresP hresD
+      hresH hdT hdS hend hedge hρ)
+    (tfg_of_isAdmissibleMarkedPresentation hpres) b F (hsep_hom _) hZcount
 
 end Clauses
 
