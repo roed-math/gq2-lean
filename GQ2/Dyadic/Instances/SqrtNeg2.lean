@@ -347,11 +347,11 @@ variable {q : ℕ}
 /-- **`SourceDataN.cardH2` at the pilot** — `#H²(Γ_R, 𝔽₂) = 2`, from the one `hsimp` through
 CB-VAR's `cardH2_of_variation` at the §3 datum. -/
 theorem sqrtNegTwo_cardH2 (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Even q) :
-    letI := trivialSMulZmodTwo ((pilotGamma q : Type))
+    letI := scalarActionZmodTwo ((pilotGamma q : Type))
     Nat.card (H2 ((pilotGamma q : Type)) (ZMod 2)) = 2 := by
-  letI := trivialSMulZmodTwo ((pilotGamma q : Type))
+  letI := scalarActionZmodTwo ((pilotGamma q : Type))
   haveI : DiscreteTopology (Base ⧸ datum.M) := CentralObstruction.discreteTopology_quotient datum
-  letI := trivialSMulZmodTwo (Base ⧸ datum.M)
+  letI := scalarActionZmodTwo (Base ⧸ datum.M)
   set rho := datumRho hq0 hqe with hrho
   letI : TopologicalSpace (ElemDual (Additive ↥datum.T)) := ⊥
   haveI : DiscreteTopology (ElemDual (Additive ↥datum.T)) := ⟨rfl⟩
@@ -408,7 +408,7 @@ theorem sqrtNegTwo_homCard (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Even q)
     Nat.card (ContinuousMonoidHom (pilotGamma q) (Multiplicative (ZMod 2)))
       = (standardNumerics 2).homScalar := by
   haveI : DiscreteTopology (Base ⧸ datum.M) := CentralObstruction.discreteTopology_quotient datum
-  letI := trivialSMulZmodTwo (Base ⧸ datum.M)
+  letI := scalarActionZmodTwo (Base ⧸ datum.M)
   set rho := datumRho hq0 hqe with hrho
   have hb := resolvesAt_and_endpoint_nCompactFam (Q := WordLift (ZMod 2) (Base ⧸ datum.M))
     heisLevel_ne_zero heisLevel_even orderOf_dvd_heisLevel_scal (α := 2) (h := 0) (q := q)
@@ -428,7 +428,7 @@ theorem sqrtNegTwo_homCard (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Even q)
 /-- **Ledger field 5 at the pilot** — the scalar block, assembled. -/
 theorem sqrtNegTwo_scalar (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Even q) :
     ScalarHilbertCertificate (pilotGamma q) 2 (standardNumerics 2)
-      (trivialSMulZmodTwo ((pilotGamma q : Type))) :=
+      (scalarActionZmodTwo ((pilotGamma q : Type))) :=
   ⟨sqrtNegTwo_homCard hsimp hq0 hqe, sqrtNegTwo_cardH2 hsimp hq0 hqe⟩
 
 /-! ### The `stageR136` residuals
@@ -443,7 +443,7 @@ per-carrier `RStage` computations (`GQ2/Block/RStage.lean:372`,
 /-- **`stageR136` residual 1** — the obstruction-vanishing homomorphism-lift clause
 (`blockStageR136K`'s `hsep_hom`) at `Γ_R`, per frame. -/
 def PilotStageSep (q : ℕ) : Prop :=
-  letI := trivialSMulZmodTwo ((pilotGamma q : Type))
+  letI := scalarActionZmodTwo ((pilotGamma q : Type))
   ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
     [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
     {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
@@ -479,7 +479,7 @@ theorem sqrtNegTwo_exactLifting (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Ev
     intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk RF b F ρ
     letI := mbCommGroup RF
     letI := mbConjActC RF
-    letI := trivialSMulZmodTwo RF.YC
+    letI := scalarActionZmodTwo RF.YC
     have hb := resolvesAt_and_endpoint_nCompactFam
       (Q := WordLift (Additive ↥RF.MB) RF.YC)
       (N := Monoid.exponent (HeisLift (Additive ↥RF.MB) RF.YC))
@@ -503,8 +503,8 @@ theorem sqrtNegTwo_exactLifting (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Ev
       hb.2
   · -- `lem86` (CB-VAR, at the given radical-cover datum)
     intro Bg _ _ _ _ D hedge ρ hρ
-    letI := trivialSMulZmodTwo ((pilotGamma q : Type))
-    letI := trivialSMulZmodTwo (Bg ⧸ D.M)
+    letI := scalarActionZmodTwo ((pilotGamma q : Type))
+    letI := scalarActionZmodTwo (Bg ⧸ D.M)
     letI : TopologicalSpace (ElemDual (Additive ↥D.T)) := ⊥
     haveI : DiscreteTopology (ElemDual (Additive ↥D.T)) := ⟨rfl⟩
     letI : DistribMulAction ((pilotGamma q : Type)) (Additive ↥D.T) :=
@@ -553,12 +553,12 @@ theorem sqrtNegTwo_exactLifting (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Ev
       hb.2 hedge hρ
   · -- `stageR136` (SD-R3's `blockStageR136K` over the two named residuals)
     intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk hE2 hRK hR2 b F
-    letI := trivialSMulZmodTwo ((pilotGamma q : Type))
-    haveI := trivialContSMulZmodTwo ((pilotGamma q : Type))
-    exact blockStageR136K T Blk hE2 (trivialHtrivZmodTwo _)
+    letI := scalarActionZmodTwo ((pilotGamma q : Type))
+    haveI := scalarActionZmodTwo_continuousSMul ((pilotGamma q : Type))
+    exact blockStageR136K T Blk hE2 (scalarActionZmodTwo_triv _)
       (sqrtNegTwo_cardH2 hsimp hq0 hqe)
       (GQ2.Dyadic.Count.gammaR_topologicallyFinitelyGenerated 2 q pilotW) b F
-      (fun g hg => hsplit T Blk hE2 b F (trivialHtrivZmodTwo _)
+      (fun g hg => hsplit T Blk hE2 b F (scalarActionZmodTwo_triv _)
         (sqrtNegTwo_cardH2 hsimp hq0 hqe) g hg)
       (fun f₀ => hZcount T Blk hE2 b F f₀)
 
@@ -610,7 +610,7 @@ theorem sqrtNegTwo_tcocycle (hsimp : PilotHsimp q) (hqe : Even q)
   haveI : DiscreteTopology (Additive ↥(En.radData l h).T) := ⟨rfl⟩
   letI : DistribMulAction ((pilotGamma q : Type)) (Additive ↥(En.radData l h).T) :=
     DistribMulAction.compHom _ (rhoPrimeK RF b F (En.radData l h) rfl ρ).toMonoidHom
-  letI := trivialSMulZmodTwo (RF.YB ⧸ (En.radData l h).M)
+  letI := scalarActionZmodTwo (RF.YB ⧸ (En.radData l h).M)
   have hsurj : Function.Surjective (rhoPrimeK RF b F (En.radData l h) rfl ρ) :=
     rhoPrimeK_surjective RF b F (En.radData l h) rfl ρ
   have hb := resolvesAt_and_endpoint_nCompactFam
@@ -651,12 +651,12 @@ theorem sqrtNegTwo_hsep (hsimp : PilotHsimp q) (hqe : Even q)
     (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR)
     (Dsc : Descent (En.radData l h)) (ρ : BoundaryLiftsK b F RF.TC)
     (c : VCocycle (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ))
-    (hvan : letI := trivialSMulZmodTwo ((pilotGamma q : Type))
+    (hvan : letI := scalarActionZmodTwo ((pilotGamma q : Type))
       ∀ χ : ↥(TCharC (En.radData l h)),
         betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ c = 0) :
     TLiftable (descSigma_spec En l h Dsc) c := by
-  letI := trivialSMulZmodTwo ((pilotGamma q : Type))
-  letI := trivialSMulZmodTwo (RF.YB ⧸ (En.radData l h).M)
+  letI := scalarActionZmodTwo ((pilotGamma q : Type))
+  letI := scalarActionZmodTwo (RF.YB ⧸ (En.radData l h).M)
   have hres2 : ResolvesAt (gammaFam 2 q pilotW)
       (nCompactFam 2 0 q (omega2Exp (heisLevel (En.radData l h))))
       (WordLift (ZMod 2) (RF.YB ⧸ (En.radData l h).M)) :=
@@ -672,8 +672,8 @@ theorem sqrtNegTwo_hsep (hsimp : PilotHsimp q) (hqe : Even q)
   have hresT : ResolvesAt (gammaFam 2 q pilotW)
       (nCompactFam 2 0 q (omega2Exp (heisLevel (En.radData l h))))
       (WordLift (Additive ↥(En.radData l h).T) (RF.YB ⧸ (En.radData l h).M)) := hb.1
-  exact hsep_field_goal_marking b F En l h Dsc ρ (trivialSMulZmodTwo _)
-    (trivialHtrivZmodTwo _) (trivialSMulZmodTwo _) (trivialHtrivZmodTwo _)
+  exact hsep_field_goal_marking b F En l h Dsc ρ (scalarActionZmodTwo _)
+    (scalarActionZmodTwo_triv _) (scalarActionZmodTwo _) (scalarActionZmodTwo_triv _)
     (isAdmissibleMarkedPresentation_gammaR 2 q pilotW) (fun _ => rfl)
     (isWildTwo_of_gammaGen (rhoPrimeK RF b F (En.radData l h) rfl ρ)
       (rhoPrimeK_surjective RF b F (En.radData l h) rfl ρ) (fun _ => rfl))
@@ -693,7 +693,7 @@ theorem sqrtNegTwo_hrsep (hsimp : PilotHsimp q) (hqe : Even q)
     (F : BoundaryFrameK q pilotP H E)
     (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR)
     (ρ : BoundaryLiftsK b F RF.TC) :
-    letI := trivialSMulZmodTwo ((pilotGamma q : Type))
+    letI := scalarActionZmodTwo ((pilotGamma q : Type))
     letI : TopologicalSpace (En.descData l h).Vmod := ⊥
     haveI : DiscreteTopology (En.descData l h).Vmod := ⟨rfl⟩
     letI : DistribMulAction ((pilotGamma q : Type)) (En.descData l h).Vmod :=
@@ -702,8 +702,8 @@ theorem sqrtNegTwo_hrsep (hsimp : PilotHsimp q) (hqe : Even q)
     letI : TopologicalSpace (ElemDual (En.descData l h).Vmod) := ⊥
     haveI : DiscreteTopology (ElemDual (En.descData l h).Vmod) := ⟨rfl⟩
     IsRightSeparating ((pilotGamma q : Type)) (En.descData l h).Vmod := by
-  letI := trivialSMulZmodTwo ((pilotGamma q : Type))
-  haveI := trivialContSMulZmodTwo ((pilotGamma q : Type))
+  letI := scalarActionZmodTwo ((pilotGamma q : Type))
+  haveI := scalarActionZmodTwo_continuousSMul ((pilotGamma q : Type))
   letI : TopologicalSpace (En.descData l h).Vmod := ⊥
   haveI : DiscreteTopology (En.descData l h).Vmod := ⟨rfl⟩
   letI : DistribMulAction ((pilotGamma q : Type)) (En.descData l h).Vmod :=
@@ -713,7 +713,7 @@ theorem sqrtNegTwo_hrsep (hsimp : PilotHsimp q) (hqe : Even q)
   haveI : DiscreteTopology (ElemDual (En.descData l h).Vmod) := ⟨rfl⟩
   letI : TopologicalSpace (En.descData l h).C0 := ⊥
   haveI : DiscreteTopology (En.descData l h).C0 := ⟨rfl⟩
-  letI := trivialSMulZmodTwo (En.descData l h).C0
+  letI := scalarActionZmodTwo (En.descData l h).C0
   have hcompat : ∀ (γ : ((pilotGamma q : Type))) (a : (En.descData l h).Vmod),
       γ • a = rho0CMH (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ) γ • a :=
     fun _ _ => rfl
@@ -762,13 +762,13 @@ theorem sqrtNegTwo_hpartial (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Even q
     (En : RF.Enrichment) (l : RF.DR) (h : l ≠ RF.zeroDR)
     (Dsc : Descent (En.radData l h)) (ρ : BoundaryLiftsK b F RF.TC)
     (χ : ↥(TCharC (En.radData l h))) (hχ : χ ≠ 0) :
-    letI := trivialSMulZmodTwo ((pilotGamma q : Type))
+    letI := scalarActionZmodTwo ((pilotGamma q : Type))
     ∃ cc : VCocycle (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ),
       betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ cc
         ≠ betaChi (descSections En l h Dsc) (descSigma_spec En l h Dsc) χ
             (0 : VCocycle (En.descData l h) (rhoPrimeK RF b F (En.radData l h) rfl ρ)) :=
-  hpartial_field_goal b F En l h Dsc ρ (trivialSMulZmodTwo _)
-    (trivialHtrivZmodTwo _) (sqrtNegTwo_cardH2 hsimp hq0 hqe)
+  hpartial_field_goal b F En l h Dsc ρ (scalarActionZmodTwo _)
+    (scalarActionZmodTwo_triv _) (sqrtNegTwo_cardH2 hsimp hq0 hqe)
     (sqrtNegTwo_hrsep hsimp hqe b F En l h ρ) χ hχ
 
 set_option maxHeartbeats 800000 in
@@ -805,7 +805,7 @@ theorem sqrtNegTwo_hZcard (hsimp : PilotHsimp q) (hqe : Even q)
     exact (continuous_of_discreteTopology
       (f := fun z : RF.YC × (En.descData l h).Vmod => z.1 • z.2)).comp
       ((ρ.1.1.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
-  letI := trivialSMulZmodTwo RF.YC
+  letI := scalarActionZmodTwo RF.YC
   have hb := resolvesAt_and_endpoint_nCompactFam
     (Q := WordLift (En.descData l h).Vmod RF.YC)
     (N := Monoid.exponent (HeisLift (En.descData l h).Vmod RF.YC))
@@ -845,7 +845,7 @@ set_option maxHeartbeats 800000 in
 /-- **Ledger field 4 at the pilot** — `StokesDualityCertificate`, assembled. -/
 theorem sqrtNegTwo_stokes (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Even q) :
     StokesDualityCertificate (pilotGamma q) 2 q pilotP pilotNuP (standardNumerics 2)
-      (trivialSMulZmodTwo ((pilotGamma q : Type))) :=
+      (scalarActionZmodTwo ((pilotGamma q : Type))) :=
   ⟨fun b F En l h ρ => sqrtNegTwo_tcocycle hsimp hqe b F En l h ρ,
    fun b F En l h Dsc ρ c hvan => sqrtNegTwo_hsep hsimp hqe b F En l h Dsc ρ c hvan,
    fun b F En l h Dsc ρ χ hχ => sqrtNegTwo_hpartial hsimp hq0 hqe b F En l h Dsc ρ χ hχ,
@@ -886,7 +886,7 @@ memo's "gauss 1900" candidate-side ticket, unopened. -/
 def PilotDet (q : ℕ) (hq0 : q ≠ 0) (hqe : Even q) : Prop :=
   AffineDeterminantCertificate (pilotGamma q) 2 q pilotP pilotNuP (standardNumerics 2)
     (tameOfSpec 2 q pilotW (pilotTameSpec hq0 hqe)) (pilotPro2 hq0 hqe)
-    (pilotCompat hq0 hqe) (trivialSMulZmodTwo ((pilotGamma q : Type)))
+    (pilotCompat hq0 hqe) (scalarActionZmodTwo ((pilotGamma q : Type)))
 
 /-- **The pilot word certificate** — packet Def. 9.1 / ledger §5.2 at the frozen `√−2` row,
 `q`-generic (instantiated at `q = q_K` by §7).  Every field is landed except the four named
@@ -906,9 +906,9 @@ noncomputable def sqrtNegTwoWordCertificate (hq0 : q ≠ 0) (hqe : Even q)
   hpro2 := CorePresentation.coreHom_surjective (nCorePresentation 2 0) hq0 hqe
   compat := pilotCompat hq0 hqe
   tfg := GQ2.Dyadic.Count.gammaR_topologicallyFinitelyGenerated 2 q pilotW
-  smulZmod2 := trivialSMulZmodTwo ((pilotGamma q : Type))
-  contSMulZmod2 := trivialContSMulZmodTwo ((pilotGamma q : Type))
-  htriv := trivialHtrivZmodTwo ((pilotGamma q : Type))
+  smulZmod2 := scalarActionZmodTwo ((pilotGamma q : Type))
+  contSMulZmod2 := scalarActionZmodTwo_continuousSMul ((pilotGamma q : Type))
+  htriv := scalarActionZmodTwo_triv ((pilotGamma q : Type))
   exactLifting := sqrtNegTwo_exactLifting hsimp hq0 hqe hsplit hZcount
   stokes := sqrtNegTwo_stokes hsimp hq0 hqe
   scalar := sqrtNegTwo_scalar hsimp hq0 hqe
