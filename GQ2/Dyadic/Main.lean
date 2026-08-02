@@ -10,6 +10,7 @@ import GQ2.Dyadic.Instances.Sqrt5
 import GQ2.Dyadic.Instances.Sqrt10
 import GQ2.Dyadic.Instances.SqrtNeg10
 import GQ2.Dyadic.Instances.QTwo
+import GQ2.Dyadic.SelectedWords
 import GQ2.Dyadic.SourceTransport
 
 /-!
@@ -140,6 +141,31 @@ noncomputable def word : FrozenQuadRow → PWord (Generator 2)
   | .sqrtFive => Instances.Sqrt5.word
   | .sqrtTen => Instances.Sqrt10.word
   | .sqrtNegTen => Instances.SqrtNeg10.word
+
+/-- The same frozen row, routed through the R5 constructor table.  In particular the two
+procyclic rows use `Mpc.mpcW`, never the retired sign/relative-norm presentations. -/
+noncomputable def selectedPresentation : FrozenQuadRow → SelectedPresentation
+  | .sqrtNegTwo => .N0 2 0
+  | .sqrtTwo => .M0 3 0
+  | .sqrtFive => .M0 2 0
+  | .sqrtTen => .Mpc 2 1 false .one 0
+  | .sqrtNegTen => .Mpc 2 1 true .one 0
+
+/-- Every frozen quadratic presentation has degree two when read through the constructor table. -/
+@[simp] theorem selectedPresentation_degree (r : FrozenQuadRow) :
+    r.selectedPresentation.degree = 2 := by
+  cases r <;> rfl
+
+/-- **Constructor-table regression.**  Selecting a frozen row through the general R5 table
+returns definitionally the exact word already used by its proved instance theorem. -/
+@[simp] theorem selectedPresentation_word_eq (r : FrozenQuadRow) :
+    r.selectedPresentation.wordAt 2 (selectedPresentation_degree r) = r.word := by
+  cases r <;> rfl
+
+/-- The odd-degree base regression: the table selects the stabilized square-commutator word,
+not the collector retained in the source paper as a safety net. -/
+@[simp] theorem selectedPresentation_L_zero_word :
+    (SelectedPresentation.L 0).word = Words.LSq.lSqW 0 := rfl
 
 /-- The presented pro-2 core of a row (MC2's `DN`/`DM` at the row's `(α, h)`). -/
 noncomputable def core : FrozenQuadRow → ProfiniteGrp
