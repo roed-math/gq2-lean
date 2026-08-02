@@ -315,4 +315,137 @@ theorem invariant_dual_relatorSum_eq_zeroN
 
 end InvariantDual
 
+/-! ## §3. `SourceDataN.hsep` by the marking route
+
+`Phase140GammaA.hsep_gammaA` (`GQ2/Phase140/GammaA/Hsep.lean:469`) over the abstract carrier, at
+an arbitrary alphabet and relator family — and therefore serving all five frozen branch families
+in one theorem.
+
+⚠ **This is a *second* supplier of the `hsep` clause, not a supplier of CB-4's `IsTwoSeparating`
+binder**, and that is what route (i) means.  `IsTwoSeparating Γ A` quantifies over *every*
+continuous `A`-valued `2`-cocycle of `Γ`; the marking route never forms such a class — it works
+with the extension `1 → T → B → B/T → 1`, whose total space is **finite**, which is exactly what
+lets the presentation's `extend` clause fire.  Reaching `IsTwoSeparating` from here would need a
+cocycle-to-extension construction at module coefficients (see the file header's report note).
+
+The route, unchanged from `ℚ₂` but with `Marking`/`Fin 4` deleted everywhere:
+
+1. `g_Q := qOfCocycle c` is a continuous hom `Γ → B/T`; set-lift its marking to `f₀ : ι → B`;
+2. the relator values `PWord.eval f₀ (W k)` land in `T`, because they die in `B/T`
+   (clause (ii) at the hom `g_Q`);
+3. §2: every `d⁰`-invariant `λ` kills their traced sum;
+4. `sepWordN` (CB-5 §1) converts that into a word-level correction `x` with `d¹x = v`;
+5. CB-3's correction law (`eval_corrected_heisD1`) makes the corrected marking kill the whole
+   family on the nose — `T` is `2`-torsion, so the two copies of each relator value cancel — and
+   `isWildTwo_corrected` keeps it admissible;
+6. clause (iii) descends it to `Φ : Γ →ₜ* B`, and rigidity pins `Φ` over both `ρ` and `g_Q`. -/
+
+section HSepMarking
+
+variable {ι ρ : Type*} [Fintype ι] [Fintype ρ] [DecidableEq ι]
+  {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {D : RadicalCoverData Bg} {DD : DescData D} {σ : DD.C0 →* Bg ⧸ D.T}
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [DistribMulAction Γ (ZMod 2)]
+  [DistribMulAction (Bg ⧸ D.M) (ZMod 2)]
+  {rho : ContinuousMonoidHom Γ (Bg ⧸ D.M)}
+  {gen : ι → Γ} {W : ρ → PWord ι} {w : ρ → FreeGroup ι} {cM : ι → Bg ⧸ D.M} {J : Set ι}
+
+open Phase140GammaA RadicalEdgeGammaA
+
+/-- **`SourceDataN.hsep`, by the marking route** — a `V`-coordinate whose `χ`-obstructions all
+vanish is `T`-liftable.
+
+The candidate-side twin of `Count/Separation.lean`'s `hsepN`: same conclusion, same abstract
+carrier, but the `IsTwoSeparating` binder is replaced by word-side data every branch already
+supplies for the other clauses — the presentation interface, two resolutions, a `StokesDuality`
+payload at `Additive ↥D.T` and the Stokes endpoint.  Nothing here is a count. -/
+theorem hsepN_marking
+    (S : CountSections DD σ) (hσ : ∀ cc : DD.C0, piQbar DD (σ cc) = cc)
+    (htriv : ∀ (γ : Γ) (m : ZMod 2), γ • m = m)
+    (htrivC : ∀ (g : Bg ⧸ D.M) (m : ZMod 2), g • m = m)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hcc : ∀ i, rho (gen i) = cM i) (hwild2 : IsWildTwo J cM)
+    (hrhosurj : Function.Surjective rho)
+    (hres2 : ResolvesAt W w (WordLift (ZMod 2) (Bg ⧸ D.M)))
+    (hresT : ResolvesAt W w (WordLift (Additive ↥D.T) (Bg ⧸ D.M)))
+    (hd : StokesDuality cM w (Additive ↥D.T)) (hend : IsStokesEndpoint w)
+    (u : VCocycle DD rho) (hvan : ∀ χ : ↥(TCharC D), betaChi S hσ χ u = 0) :
+    TLiftable hσ u := by
+  classical
+  haveI : DiscreteTopology (Bg ⧸ D.M) := CentralObstruction.discreteTopology_quotient D
+  letI : DistribMulAction Bg (Additive ↥D.T) :=
+    DistribMulAction.compHom (Additive ↥D.T) (QuotientGroup.mk' D.M)
+  set gq0 := qOfCocycle DD rho σ hσ u with hgq0
+  -- (1) a set-lift marking of `g_Q` through `π_T`
+  choose f₀ hf₀T using fun i => QuotientGroup.mk_surjective (s := D.T) (gq0.1 (gen i))
+  -- (2) the relator values live in `T`
+  have hvmem : ∀ k, PWord.eval f₀ (W k) ∈ D.T := by
+    intro k
+    refine (QuotientGroup.eq_one_iff _).mp ?_
+    have h := PWord.map_eval (discreteCMH (QuotientGroup.mk' D.T)) f₀ (W k)
+    rw [show (fun i => discreteCMH (QuotientGroup.mk' D.T) (f₀ i)) = fun i => gq0.1 (gen i) from
+      funext hf₀T] at h
+    exact h.trans (hpres.rel gq0.1 k)
+  -- (3) §2: every `d⁰`-invariant dual kills the traced sum of the relator values
+  have hgen : Subgroup.closure (Set.range cM) = ⊤ :=
+    closure_range_lower_eq_top rho hcc hpres hrhosurj
+  have hv : ∀ lam : ElemDual (Additive ↥D.T),
+      heisD0 (A := ElemDual (Additive ↥D.T)) cM lam = 0 →
+      lam (∑ k, Additive.ofMul (⟨PWord.eval f₀ (W k), hvmem k⟩ : ↥D.T)) = 0 := by
+    intro lam hlam
+    refine invariant_dual_relatorSum_eq_zeroN S hσ htriv htrivC hpres hres2 hcc hend u hvan f₀
+      (fun i => hf₀T i) hvmem lam ?_
+    have hmem : lam ∈ ((heisD0 (A := ElemDual (Additive ↥D.T)) cM).ker : Set _) :=
+      AddMonoidHom.mem_ker.mpr hlam
+    rwa [ker_heisD0_eq_fixedPts hgen] at hmem
+  -- (4) `sepWordN` produces the word-level correction
+  obtain ⟨x, hx⟩ := AddMonoidHom.mem_range.mp
+    (sepWordN hd (fun k => Additive.ofMul (⟨PWord.eval f₀ (W k), hvmem k⟩ : ↥D.T)) hv)
+  -- (5) the correction calculus of CB-3 §2, at `π_M : B ↠ B/M` and `j = T ↪ B`
+  set j : Additive ↥D.T → Bg := fun a => ((Additive.toMul a : ↥D.T) : Bg) with hj
+  have hact : ∀ (g : Bg) (a : Additive ↥D.T), g • a = QuotientGroup.mk' D.M g • a :=
+    fun _ _ => rfl
+  have hjmul : ∀ a b : Additive ↥D.T, j (a + b) = j a * j b := fun _ _ => rfl
+  have hjconj : ∀ (g : Bg) (a : Additive ↥D.T), j (g • a) = g * j a * g⁻¹ := by
+    intro g a
+    show ((Additive.toMul (QuotientGroup.mk' D.M g • a) : ↥D.T) : Bg) = _
+    rw [cActT_toMul]
+    exact cactFun_eq D _ rfl (Additive.toMul a)
+  have hjker : ∀ a : Additive ↥D.T, QuotientGroup.mk' D.M (j a) = 1 := fun a =>
+    (QuotientGroup.eq_one_iff _).mpr (D.hTM (Additive.toMul a).2)
+  have hjkerT : ∀ a : Additive ↥D.T, QuotientGroup.mk' D.T (j a) = 1 := fun a =>
+    (QuotientGroup.eq_one_iff _).mpr (Additive.toMul a).2
+  have hker₂ : ∀ g : Bg, QuotientGroup.mk' D.M g = 1 → g * g = 1 := fun g hg =>
+    D.helem g ((QuotientGroup.eq_one_iff _).mp hg)
+  have hf₀M : ∀ i, QuotientGroup.mk' D.M (f₀ i) = cM i := by
+    intro i
+    rw [show QuotientGroup.mk' D.M (f₀ i) = piTM D (QuotientGroup.mk (f₀ i)) from
+      (piTM_mk (D := D) (f₀ i)).symm, hf₀T i, piTM_qLiftsOver, hcc i]
+  have hkill : ∀ k, PWord.eval (fun i => j (x i) * f₀ i) (W k) = 1 := by
+    intro k
+    rw [eval_corrected_heisD1 (QuotientGroup.mk' D.M) j hact hjmul hjconj hf₀M hresT x k,
+      show heisD1 (A := Additive ↥D.T) cM w x k
+        = Additive.ofMul (⟨PWord.eval f₀ (W k), hvmem k⟩ : ↥D.T) from congrFun hx k]
+    exact D.helem _ (D.hTM (hvmem k))
+  -- (6) clause (iii) descends, and rigidity pins the descent
+  obtain ⟨Phi, hPhi⟩ := hpres.extend (fun i => j (x i) * f₀ i) hkill
+    (isWildTwo_corrected (QuotientGroup.mk' D.M) j hjker hf₀M hwild2 hker₂ x)
+  have hPhiM : ∀ γ : Γ, (QuotientGroup.mk (Phi γ) : Bg ⧸ D.M) = rho γ := by
+    have hpin : ContinuousMonoidHom.comp (discreteCMH (QuotientGroup.mk' D.M)) Phi = rho :=
+      eq_of_eqOn_gen hpres.gen_top fun i => by
+        show QuotientGroup.mk' D.M (Phi (gen i)) = rho (gen i)
+        rw [hPhi i, pi_corrected (QuotientGroup.mk' D.M) j hjker hf₀M x i, hcc i]
+    exact fun γ => congrArg (fun ψ : ContinuousMonoidHom Γ (Bg ⧸ D.M) => ψ γ) hpin
+  have hPhiT : ∀ γ : Γ, (QuotientGroup.mk (Phi γ) : Bg ⧸ D.T) = gq0.1 γ := by
+    have hpin : ContinuousMonoidHom.comp (discreteCMH (QuotientGroup.mk' D.T)) Phi = gq0.1 :=
+      eq_of_eqOn_gen hpres.gen_top fun i => by
+        show QuotientGroup.mk' D.T (Phi (gen i)) = gq0.1 (gen i)
+        rw [hPhi i, map_mul, hjkerT (x i), one_mul, QuotientGroup.mk'_apply]
+        exact hf₀T i
+    exact fun γ => congrArg (fun ψ : ContinuousMonoidHom Γ (Bg ⧸ D.T) => ψ γ) hpin
+  exact ⟨⟨Phi, hPhiM⟩, Subtype.ext (ContinuousMonoidHom.ext fun γ => hPhiT γ)⟩
+
+end HSepMarking
+
 end GQ2.Dyadic.Count
