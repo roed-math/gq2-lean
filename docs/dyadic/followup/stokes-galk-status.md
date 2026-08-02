@@ -15,9 +15,9 @@ Date: 2026-08-02
 weak interface `TateDualityG Gam 2` plus `LocalEulerChar Gam d`, with the scalar action,
 continuity, and triviality passed explicitly.
 
-## Remaining `G_K` wrapper
+## Landed `G_K` wrapper
 
-The intended leaf is:
+`GQ2/Dyadic/Instances/KAnalytic.lean` now provides the intended leaf:
 
 ```lean
 theorem stokesDualityCertificate_galK
@@ -30,14 +30,15 @@ theorem stokesDualityCertificate_galK
       (standardNumerics n) (smulZmod2GalK K)
 ```
 
-Its proof is mathematically immediate: rewrite `localEulerChar_galK K` using
-`IntermediateField.finrank_eq_fixingSubgroup_index` and `hdeg`, then apply
-`stokesDualityCertificate_of_localDualityG` to `tateDualityGalK K`,
-`smulZmod2GalK K`, `contSMulZmod2GalK K`, and `htriv_galK K`.
+Its proof is mathematically immediate: `localEulerChar_galK_of_finrank` rewrites
+`localEulerChar_galK K` using `IntermediateField.finrank_eq_fixingSubgroup_index` and `hdeg`,
+then the wrapper applies `stokesDualityCertificate_of_localDualityG` to
+`FieldData.tateDualityGalK K`, `smulZmod2GalK K`, `contSMulZmod2GalK K`, and
+`htriv_galK K`.
 
-The direct declaration deterministically timed out in `whnf` at 800,000 heartbeats; pinning the
-`GalK K` actions on `MuN 2` did not change that result, and 4,000,000 heartbeats also timed out.
-This is the existing `galKProfinite`/`GalKsub` instance-path elaboration problem, not an open
-proof field.  The wrapper is deliberately omitted rather than landed with a large heartbeat
-override.  A follow-up should introduce the same small carrier/instance firewall pattern used in
-`GQ2/Dyadic/GaussZ/FinalDK.lean`, then add this assembly-only theorem.
+The elaboration firewall follows `GQ2/Dyadic/GaussZ/FinalDK.lean`: pin the `MuN 2` action and
+continuity instances at the subtype spelling `GalK K`, bind the duality bundle and Euler
+characteristic there, and invoke the generic theorem with its carrier and instance arguments
+explicit.  The resulting certificate is first typed at `ProfiniteGrp.of (GalK K)`; a final
+`exact` crosses the definitional equality to `galKProfinite K`.  This avoids the previous
+deterministic `whnf` timeout without any heartbeat override or duplicated mathematical proof.
