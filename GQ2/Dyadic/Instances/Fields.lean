@@ -57,6 +57,20 @@ This file supplies the field objects and the binders that literal arithmetic dis
   `params`, `params_qK` and `ramified` all supplied.  What survives in the binder list is
   exactly the non-arithmetic residue: the AX3/AX4 bundles, the G-Lab pack and the analytic
   clauses.
+* `GQ2.Dyadic.Fields.candidate_equiv_galK_sqrtTwo_literal`, `…_sqrtTen_literal`,
+  `…_sqrtNegTen_literal` — **the same at the three remaining ramified rows** (§9, ticket AS-F2),
+  specializing AS3-b's `ν`-free corollaries `Instances.candidate_equiv_galK_sqrt*_nonvacuous`.
+  Because those parents pin `q` through `hqK`, the *conclusion* is literal too:
+  `candidateGroup 2 2 R`, with no `qOf` left in it.
+
+## Axioms
+
+Everything in §1–§7 — the whole arithmetic layer — is `sorry`-free at **exactly std-3**.  The
+specializations inherit their parents' sets **byte-identically**: §8 prints std-3 ∪
+{B1, B6, B7, B9, B11a} (the pilot headline's set, B9/B11a via CB-DET's determinant bridge) and
+§9's three print std-3 ∪ {B1, B6, B7} (the `M`-row headlines' set).  **No B5-K, no B10-K in any
+of them** — specializing to a literal field costs no axiom.  Measured, not budgeted; the table
+is in `docs/dyadic/literature-axioms-dyadic.md` §C.7.
 
 ## What this file does *not* do
 
@@ -66,7 +80,7 @@ worth recording in place: the `√5` row needs `#(U⁰/U¹) = 3`, i.e. the resid
 whose bridge to `DyadicUnitFiltration.f` runs through `GQ2.UnitFiltrationCounts.card_gradeZero`
 and `card_gradeI` — both `private`, hence unusable outside that file.
 
-No `sorry`, no new axiom; everything here is std-3.
+No `sorry`, and no new axiom.
 -/
 
 namespace GQ2.Dyadic.Fields
@@ -851,6 +865,56 @@ theorem candidate_equiv_galK_sqrtTen_literal
     (fun δi hδ => not_hasEqualNormValueGroups_KSqrtTen δi hδ) ramifiedData
 
 end SqrtTenRow
+
+section SqrtNegTenRow
+
+variable {B : MarkedRecip Rec KSqrtNegTen} {FF : DyadicUnitFiltration KSqrtNegTen}
+  {T : OrientedTameQuotientK B FF}
+
+set_option maxHeartbeats 800000 in
+/-- **Packet Thm. 1.1 at the literal field `ℚ₂(√−10)`** — the merge-gate-9 field.
+
+`⟨σ, τ, x₀, x₁, x₂ ∣ τ^σ = τ², R_{M,pc}(α=2, r=1, ε=1) = 1, ⟪x₀,x₁,x₂⟫ pro-2⟩_prof ≅ G_K` for
+`K = ℚ₂(√−10)`.  Specializes `Instances.candidate_equiv_galK_sqrtNegTen_nonvacuous`. -/
+theorem candidate_equiv_galK_sqrtNegTen_literal
+    (exactLifting : ExactLiftingSemantics (GammaR (2 + 2 * 0) 2 Instances.SqrtNeg10.word)
+      (2 + 2 * 0) 2 Instances.SqrtNeg10.core Instances.SqrtNeg10.nu
+      (standardNumerics (2 + 2 * 0)))
+    (stokes : StokesDualityCertificate (GammaR (2 + 2 * 0) 2 Instances.SqrtNeg10.word)
+      (2 + 2 * 0) 2 Instances.SqrtNeg10.core Instances.SqrtNeg10.nu
+      (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
+    (scalar : ScalarHilbertCertificate (GammaR (2 + 2 * 0) 2 Instances.SqrtNeg10.word)
+      (2 + 2 * 0) (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
+    (determinant : AffineDeterminantCertificate (GammaR (2 + 2 * 0) 2 Instances.SqrtNeg10.word)
+      (2 + 2 * 0) 2 Instances.SqrtNeg10.core Instances.SqrtNeg10.nu
+      (standardNumerics (2 + 2 * 0))
+      (tameOfSpec (2 + 2 * 0) 2 Instances.SqrtNeg10.word
+        (Instances.MProcyclicCore.mpcTameSpecializes 2 1 1 2 Instances.SqrtNeg10.alpha_valid
+          two_ne_zero even_two))
+      (Instances.MProcyclicCore.mpcPro2 2 1 1 2 Instances.SqrtNeg10.alpha_valid two_ne_zero
+        even_two)
+      (Instances.MProcyclicCore.mpcCompat 2 1 1 2 Instances.SqrtNeg10.alpha_valid two_ne_zero
+        even_two
+        (Instances.MProcyclicCore.mpcTameSpecializes 2 1 1 2 Instances.SqrtNeg10.alpha_valid
+          two_ne_zero even_two) Instances.SqrtNeg10.nu
+        (Instances.MProcyclicCore.mpcNu_sigma 2 1 1 Instances.SqrtNeg10.alpha_valid)
+        (Instances.MProcyclicCore.mpcNu_wild 2 1 1 Instances.SqrtNeg10.alpha_valid))
+      (scalarActionZmodTwo _))
+    (KS : KSupply T (2 + 2 * 0) Instances.SqrtNeg10.core (isProP_DM 2 0)
+      Instances.SqrtNeg10.nu (standardNumerics (2 + 2 * 0)))
+    (ramifiedData : ∀ {D : Type} [Group D] [TopologicalSpace D] [DiscreteTopology D] [Finite D]
+      (V : Type) [AddCommGroup V] [DistribMulAction D V]
+      (c : ContinuousMonoidHom (Tq pilotParams.qK) D)
+      (rho : ContinuousMonoidHom ↥(GalKsub KSqrtNegTen) D),
+      (∃ v : V, c (tqTau pilotParams.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate pilotParams (GalKsub KSqrtNegTen) V c rho)) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup (2 + 2 * 0) 2 Instances.SqrtNeg10.word : Type)) (GalK KSqrtNegTen)) :=
+  Instances.candidate_equiv_galK_sqrtNegTen_nonvacuous (qOf_KSqrtNegTen FF) exactLifting stokes
+    scalar determinant KS pilotParams rfl rfl
+    (fun δi hδ => not_hasEqualNormValueGroups_KSqrtNegTen δi hδ) ramifiedData
+
+end SqrtNegTenRow
 
 end LiteralRows
 
