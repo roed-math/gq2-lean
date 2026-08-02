@@ -43,21 +43,19 @@ This file supplies the field objects and the binders that literal arithmetic dis
   odd) collapses the unit filtration at depth `1`, and `DyadicUnitFiltration.card_gr_zero`
   then reads `2^f − 1 = 1`.
 
-* `GQ2.Dyadic.Fields.not_hasEqualNormValueGroups_KSqrtNegTwo` — **the ramified-`i` binder at
-  the pilot row**, with the explicit witness `(−1 − √−2) + i` (a scaled `ζ₈ − 1`).
+* `GQ2.Dyadic.Fields.not_hasEqualNormValueGroups_quadField` — **the ramified-`i` binder**, with
+  the single uniform witness `z = 1 + √a + i` and the four named instances
+  `not_hasEqualNormValueGroups_KSqrtNegTwo`, `…_KSqrtTwo`, `…_KSqrtTen`, `…_KSqrtNegTen`.
+  `‖z‖⁴ = ‖2‖³` is an odd power of `‖2‖`, while `exists_norm_sq_eq` shows the value group of
+  `ℚ₂(√a)` only supplies even ones — so `ℚ₂(√a)(i)/ℚ₂(√a)` is ramified.
 
 ## What this file does *not* do
 
-`ramifiedData` (LG5's `RamifiedCertificate`), `q_K = 4` at the unramified `√5` row, and the
-ramified-`i` witness at the other three ramified rows are **not** here; see the AS-F report for
-the precise obstruction in each case.  Two of them are worth recording in place:
-
-* the `√5` row needs `#(U⁰/U¹) = 3`, i.e. the residue field itself, whose bridge to
-  `DyadicUnitFiltration.f` runs through `GQ2.UnitFiltrationCounts.card_gradeZero` and
-  `card_gradeI` — both `private`, hence unusable outside that file;
-* ⚠ the pilot's ramified-`i` witness does **not** generalise: it uses that `ζ₈ ∈ K(i)`, which
-  needs `√2 ∈ K(i)` and therefore holds only at `a = ±2` (mod squares).  `√±10` need a
-  different witness (e.g. `1 + √10 + i` at `√10`), each with its own norm computation.
+`ramifiedData` (LG5's `RamifiedCertificate`) and `q_K = 4` at the unramified `√5` row are
+**not** here; see the AS-F report for the precise obstruction in each case.  One of them is
+worth recording in place: the `√5` row needs `#(U⁰/U¹) = 3`, i.e. the residue field itself,
+whose bridge to `DyadicUnitFiltration.f` runs through `GQ2.UnitFiltrationCounts.card_gradeZero`
+and `card_gradeI` — both `private`, hence unusable outside that file.
 
 No `sorry`, no new axiom; everything here is std-3.
 -/
@@ -490,71 +488,85 @@ theorem exists_norm_sq_eq (hodd : Odd a.valuation) (ha : ¬ IsSquare a)
     · exact ⟨x ^ 2, pow_ne_zero 2 hx, by rw [he]; exact hx2 x hx⟩
     · exact ⟨y ^ 2 * a, mul_ne_zero (pow_ne_zero 2 hy) ha0, by rw [he]; exact hy2 y⟩
 
-/-- **The ramified-`i` binder at the pilot row, discharged.**  `ℚ₂(√−2)(i)/ℚ₂(√−2)` is
-ramified: the element `(−1 − √−2) + i` has norm outside the value group of `ℚ₂(√−2)`. -/
-theorem not_hasEqualNormValueGroups_KSqrtNegTwo (δi : AlgebraicClosure ℚ_[2]) (hδ : δi ^ 2 = -1) :
-    ¬ GQ2.HasEqualNormValueGroups KSqrtNegTwo δi := by
-  set s : AlgebraicClosure ℚ_[2] := sqrtIn (-2) with hs
-  have hs2 : s ^ 2 = algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) (-2) := sqrtIn_sq _
+/-- **The ramified-`i` binder**, discharged uniformly at every row with `‖a‖ = ‖2‖` and
+`‖a² − 4‖ < ‖2‖³`.  The witness is `z = 1 + √a + i`.  Squaring,
+
+`z² = (a + 2i) + 2√a(1 + i) =: A + B`,   `‖A‖² = ‖4a‖ = ‖2‖³`,   `‖B‖² = ‖2‖⁴`,
+
+so `A` dominates and `‖z‖⁴ = ‖A‖² = ‖2‖³` — an **odd** power of `‖2‖`.  But `exists_norm_sq_eq`
+says `‖v‖² ∈ ‖ℚ₂ˣ‖` for every `v ∈ ℚ₂(√a)ˣ`, so `‖v‖⁴` is always an even power.  Hence `z`'s
+norm is outside the value group, i.e. `ℚ₂(√a)(i)/ℚ₂(√a)` is ramified.
+
+The hypothesis `‖a² − 4‖ < ‖2‖³` is what makes `‖A‖² = ‖(a² − 4) + 4ai‖` collapse onto its
+second summand; it holds at `a = ±2` (where `a² − 4 = 0`) and at `a = ±10` (where
+`a² − 4 = 96`, of valuation `5`). -/
+theorem not_hasEqualNormValueGroups_quadField (hodd : Odd a.valuation) (ha : ¬ IsSquare a)
+    (hna : ‖a‖ = ‖(2 : ℚ_[2])‖) (hsmall : ‖a ^ 2 - 4‖ < ‖(2 : ℚ_[2])‖ ^ 3)
+    (δi : AlgebraicClosure ℚ_[2]) (hδ : δi ^ 2 = -1) :
+    ¬ GQ2.HasEqualNormValueGroups (quadField a) δi := by
+  set α : AlgebraicClosure ℚ_[2] := algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) a with hα
+  set s : AlgebraicClosure ℚ_[2] := sqrtIn a with hs
+  have hs2 : s ^ 2 = α := sqrtIn_sq a
   have hnorm2 : ‖(2 : AlgebraicClosure ℚ_[2])‖ = ‖(2 : ℚ_[2])‖ := by
     rw [← norm_algebraMap (2 : ℚ_[2]), map_ofNat]
   have h2pos : (0 : ℝ) < ‖(2 : AlgebraicClosure ℚ_[2])‖ := norm_pos_iff.mpr two_ne_zero
-  -- `‖s‖² = ‖2‖`
+  have h2lt1 : ‖(2 : AlgebraicClosure ℚ_[2])‖ < 1 := GQ2.norm_two_lt_one
+  have hnα : ‖α‖ = ‖(2 : AlgebraicClosure ℚ_[2])‖ := by rw [hα, norm_algebraMap, hna, hnorm2]
   have hsn : ‖s‖ ^ 2 = ‖(2 : AlgebraicClosure ℚ_[2])‖ := by
-    rw [hs, norm_sqrtIn_sq, hnorm2, ← norm_neg (-2 : ℚ_[2])]; norm_num
-  have hs0 : s ≠ 0 := by
-    intro h; rw [h, norm_zero] at hsn; simp at hsn; exact absurd hsn.symm (ne_of_gt h2pos)
-  -- `w = (−1 + i)/s` is a primitive 8th root of unity
-  set w : AlgebraicClosure ℚ_[2] := (-1 + δi) / s with hw
-  have hs2' : s ^ 2 = -2 := by rw [hs2, map_neg, map_ofNat]
-  have hw2 : w ^ 2 = δi := by
-    rw [hw, div_pow, hs2', div_eq_iff (by norm_num : (-2 : AlgebraicClosure ℚ_[2]) ≠ 0)]
-    linear_combination hδ
+    rw [hs, norm_sqrtIn_sq, ← hnα, hα, norm_algebraMap]
   have hδn : ‖δi‖ = 1 := by
     refine eq_one_of_sq_eq_one (norm_nonneg _) ?_
     rw [← norm_pow, hδ, norm_neg, norm_one]
-  have hwn : ‖w‖ = 1 := by
-    refine eq_one_of_sq_eq_one (norm_nonneg _) ?_
-    rw [← norm_pow, hw2, hδn]
-  -- `‖1 + i‖² = ‖2‖`, and `‖2‖ < ‖1 + i‖`
   have h1δ : ‖1 + δi‖ ^ 2 = ‖(2 : AlgebraicClosure ℚ_[2])‖ := by
     rw [← norm_pow, show (1 + δi) ^ 2 = 2 * δi by linear_combination hδ, norm_mul, hδn, mul_one]
-  have h2lt : ‖(2 : AlgebraicClosure ℚ_[2])‖ < ‖1 + δi‖ := by
-    nlinarith [h1δ, norm_nonneg (1 + δi), GQ2.norm_two_lt_one, h2pos]
-  -- `‖1 − w‖⁴ = ‖2‖`
-  have hsub : (1 - w) ^ 2 = (1 + δi) + -(2 * w) := by linear_combination hw2
-  have hnw2 : ‖-(2 * w)‖ = ‖(2 : AlgebraicClosure ℚ_[2])‖ := by
-    rw [norm_neg, norm_mul, hwn, mul_one]
-  have hmax : ‖(1 - w) ^ 2‖ = ‖1 + δi‖ := by
-    rw [hsub,
-      IsUltrametricDist.norm_add_eq_max_of_norm_ne_norm (by rw [hnw2]; exact ne_of_gt h2lt), hnw2]
-    exact max_eq_left (le_of_lt h2lt)
-  have h1w4 : ‖1 - w‖ ^ 4 = ‖(2 : AlgebraicClosure ℚ_[2])‖ := by
-    rw [show (4 : ℕ) = 2 * 2 from rfl, pow_mul, ← norm_pow, hmax, h1δ]
-  -- the witness
-  set z : AlgebraicClosure ℚ_[2] := s * (w - 1) with hz
-  have hzn : ‖z‖ ^ 4 = ‖(2 : AlgebraicClosure ℚ_[2])‖ ^ 3 := by
-    rw [hz, norm_mul, mul_pow, ← norm_sub_rev, h1w4,
-      show (4 : ℕ) = 2 * 2 from rfl, pow_mul, hsn]
+  -- `A = a + 2i` has `‖A‖² = ‖4a‖ = ‖2‖³`
+  have hA2 : (α + 2 * δi) ^ 2 = (α ^ 2 - 4) + 4 * α * δi := by linear_combination 4 * hδ
+  have hsmall' : ‖α ^ 2 - 4‖ < ‖(2 : AlgebraicClosure ℚ_[2])‖ ^ 3 := by
+    rw [show α ^ 2 - 4 = algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) (a ^ 2 - 4) by
+      rw [map_sub, map_pow, map_ofNat, hα], norm_algebraMap, hnorm2]
+    exact hsmall
+  have hbig : ‖4 * α * δi‖ = ‖(2 : AlgebraicClosure ℚ_[2])‖ ^ 3 := by
+    rw [norm_mul, norm_mul, hδn, mul_one, hnα,
+      show (4 : AlgebraicClosure ℚ_[2]) = 2 ^ 2 by norm_num, norm_pow]
     ring
+  have hnA2 : ‖α + 2 * δi‖ ^ 2 = ‖(2 : AlgebraicClosure ℚ_[2])‖ ^ 3 := by
+    rw [← norm_pow, hA2, IsUltrametricDist.norm_add_eq_max_of_norm_ne_norm (by
+      rw [hbig]; exact ne_of_lt hsmall'), hbig]
+    exact max_eq_right (le_of_lt (hbig ▸ hsmall'))
+  -- `B = 2√a(1 + i)` has `‖B‖² = ‖2‖⁴`, so `B` is dominated by `A`
+  have hnB2 : ‖2 * s * (1 + δi)‖ ^ 2 = ‖(2 : AlgebraicClosure ℚ_[2])‖ ^ 4 := by
+    rw [norm_mul, norm_mul, mul_pow, mul_pow, hsn, h1δ]; ring
+  have ht43 : ‖(2 : AlgebraicClosure ℚ_[2])‖ ^ 4 < ‖(2 : AlgebraicClosure ℚ_[2])‖ ^ 3 := by
+    nlinarith [h2pos, h2lt1, pow_pos h2pos 3]
+  have hBA : ‖2 * s * (1 + δi)‖ < ‖α + 2 * δi‖ := by
+    have hlt : ‖2 * s * (1 + δi)‖ ^ 2 < ‖α + 2 * δi‖ ^ 2 := by rw [hnA2, hnB2]; exact ht43
+    nlinarith [hlt, norm_nonneg (α + 2 * δi), norm_nonneg (2 * s * (1 + δi))]
+  -- the witness `z = 1 + √a + i`
+  set z : AlgebraicClosure ℚ_[2] := 1 + s + δi with hz
+  have hz2 : z ^ 2 = (α + 2 * δi) + 2 * s * (1 + δi) := by rw [hz]; linear_combination hs2 + hδ
+  have hzn : ‖z‖ ^ 4 = ‖(2 : AlgebraicClosure ℚ_[2])‖ ^ 3 := by
+    have h : ‖z‖ ^ 2 = ‖α + 2 * δi‖ := by
+      rw [← norm_pow, hz2,
+        IsUltrametricDist.norm_add_eq_max_of_norm_ne_norm (ne_of_gt hBA),
+        max_eq_left (le_of_lt hBA)]
+    calc ‖z‖ ^ 4 = (‖z‖ ^ 2) ^ 2 := by ring
+      _ = ‖α + 2 * δi‖ ^ 2 := by rw [h]
+      _ = ‖(2 : AlgebraicClosure ℚ_[2])‖ ^ 3 := hnA2
   have hz0 : z ≠ 0 := by
     intro h
     rw [h, norm_zero] at hzn
     have hpos : (0 : ℝ) < ‖(2 : AlgebraicClosure ℚ_[2])‖ ^ 3 := by positivity
     rw [← hzn] at hpos
     norm_num at hpos
-  have hzrep : z = (-1 - s) + 1 * δi := by
-    rw [hz, hw]; field_simp; ring
-  -- refute
+  -- refute: `‖z‖⁴` is an odd power of `‖2‖`, the value group only supplies even ones
   intro H
   obtain ⟨v, hv0, hvn⟩ := H z hz0
-    ⟨⟨-1 - s, (KSqrtNegTwo).sub_mem (neg_mem (one_mem _)) (sqrtIn_mem_quadField _)⟩, 1,
-      by simpa using hzrep⟩
-  have hv0' : ((v : ↥KSqrtNegTwo) : AlgebraicClosure ℚ_[2]) ≠ 0 := fun h => hv0 (Subtype.ext h)
-  obtain ⟨c, hc0, hc⟩ := exists_norm_sq_eq
-    (by rw [valuation_neg, valuation_two]; exact ⟨0, by ring⟩) not_isSquare_neg_two v.2 hv0'
+    ⟨⟨1 + s, (quadField a).add_mem (one_mem _) (sqrtIn_mem_quadField a)⟩, 1, by
+      rw [hz]; push_cast; ring⟩
+  have hv0' : ((v : ↥(quadField a)) : AlgebraicClosure ℚ_[2]) ≠ 0 := fun h => hv0 (Subtype.ext h)
+  obtain ⟨c, hc0, hc⟩ := exists_norm_sq_eq hodd ha v.2 hv0'
   have hc4 : ‖c‖ ^ 2 = ‖(2 : ℚ_[2])‖ ^ 3 := by
-    have hv4 : ‖c‖ ^ 2 = ‖((v : ↥KSqrtNegTwo) : AlgebraicClosure ℚ_[2])‖ ^ 4 := by
+    have hv4 : ‖c‖ ^ 2 = ‖((v : ↥(quadField a)) : AlgebraicClosure ℚ_[2])‖ ^ 4 := by
       rw [← hc]; ring
     rw [hv4, ← hvn, hzn, hnorm2]
   have hkey : ‖c ^ 2‖ = ‖(8 : ℚ_[2])‖ := by
@@ -565,5 +577,69 @@ theorem not_hasEqualNormValueGroups_KSqrtNegTwo (δi : AlgebraicClosure ℚ_[2])
   omega
 
 end RamifiedI
+
+/-! ## §7 The ramified-`i` witness at the four ramified rows -/
+
+section RowsRamified
+
+theorem valuation_three : (3 : ℚ_[2]).valuation = 0 := by
+  rw [Padic.valuation_ofNat, padicValNat.eq_zero_of_not_dvd (by norm_num), Nat.cast_zero]
+
+theorem norm_eq_of_valuation_eq {x y : ℚ_[2]} (hx : x ≠ 0) (hy : y ≠ 0)
+    (h : x.valuation = y.valuation) : ‖x‖ = ‖y‖ := by
+  rw [Padic.norm_eq_zpow_neg_valuation hx, Padic.norm_eq_zpow_neg_valuation hy, h]
+
+theorem norm_three : ‖(3 : ℚ_[2])‖ = 1 := by
+  rw [Padic.norm_eq_zpow_neg_valuation (by norm_num), valuation_three]; norm_num
+
+theorem norm_two_alg : ‖(2 : AlgebraicClosure ℚ_[2])‖ = ‖(2 : ℚ_[2])‖ := by
+  rw [← norm_algebraMap (2 : ℚ_[2]), map_ofNat]
+
+theorem norm_two_lt_one' : ‖(2 : ℚ_[2])‖ < 1 := norm_two_alg ▸ GQ2.norm_two_lt_one
+
+theorem norm_two_pow_five_lt : ‖(2 : ℚ_[2])‖ ^ 5 < ‖(2 : ℚ_[2])‖ ^ 3 := by
+  have hp : (0 : ℝ) < ‖(2 : ℚ_[2])‖ := norm_pos_iff.mpr two_ne_zero
+  nlinarith [hp, norm_two_lt_one', pow_pos hp 3, pow_pos hp 4]
+
+/-- The `a² − 4` side condition at `a = ±2`, where it is vacuous (`a² − 4 = 0`). -/
+private theorem small_two {a : ℚ_[2]} (h : a ^ 2 - 4 = 0) : ‖a ^ 2 - 4‖ < ‖(2 : ℚ_[2])‖ ^ 3 := by
+  rw [h, norm_zero]
+  have hp : (0 : ℝ) < ‖(2 : ℚ_[2])‖ := norm_pos_iff.mpr two_ne_zero
+  positivity
+
+/-- The `a² − 4` side condition at `a = ±10`, where `a² − 4 = 96 = 2⁵·3`. -/
+private theorem small_ten {a : ℚ_[2]} (h : a ^ 2 - 4 = 2 ^ 5 * 3) :
+    ‖a ^ 2 - 4‖ < ‖(2 : ℚ_[2])‖ ^ 3 := by
+  rw [h, norm_mul, norm_pow, norm_three, mul_one]
+  exact norm_two_pow_five_lt
+
+theorem not_hasEqualNormValueGroups_KSqrtNegTwo (δi : AlgebraicClosure ℚ_[2])
+    (hδ : δi ^ 2 = -1) : ¬ GQ2.HasEqualNormValueGroups KSqrtNegTwo δi :=
+  not_hasEqualNormValueGroups_quadField
+    (by rw [valuation_neg, valuation_two]; exact ⟨0, by ring⟩) not_isSquare_neg_two
+    (by rw [show (-2 : ℚ_[2]) = -(2 : ℚ_[2]) by norm_num, norm_neg]) (small_two (by ring)) δi hδ
+
+theorem not_hasEqualNormValueGroups_KSqrtTwo (δi : AlgebraicClosure ℚ_[2])
+    (hδ : δi ^ 2 = -1) : ¬ GQ2.HasEqualNormValueGroups KSqrtTwo δi :=
+  not_hasEqualNormValueGroups_quadField
+    (by rw [valuation_two]; exact ⟨0, by ring⟩) not_isSquare_two rfl (small_two (by ring)) δi hδ
+
+theorem not_hasEqualNormValueGroups_KSqrtTen (δi : AlgebraicClosure ℚ_[2])
+    (hδ : δi ^ 2 = -1) : ¬ GQ2.HasEqualNormValueGroups KSqrtTen δi :=
+  not_hasEqualNormValueGroups_quadField
+    (by rw [valuation_ten]; exact ⟨0, by ring⟩) not_isSquare_ten
+    (norm_eq_of_valuation_eq (by norm_num) (by norm_num) (by rw [valuation_ten, valuation_two]))
+    (small_ten (by norm_num)) δi hδ
+
+theorem not_hasEqualNormValueGroups_KSqrtNegTen (δi : AlgebraicClosure ℚ_[2])
+    (hδ : δi ^ 2 = -1) : ¬ GQ2.HasEqualNormValueGroups KSqrtNegTen δi :=
+  not_hasEqualNormValueGroups_quadField
+    (by rw [valuation_neg, valuation_ten]; exact ⟨0, by ring⟩) not_isSquare_neg_ten
+    (by rw [show (-10 : ℚ_[2]) = -(10 : ℚ_[2]) by norm_num, norm_neg]
+        exact norm_eq_of_valuation_eq (by norm_num) (by norm_num)
+          (by rw [valuation_ten, valuation_two]))
+    (small_ten (by norm_num)) δi hδ
+
+end RowsRamified
 
 end GQ2.Dyadic.Fields
