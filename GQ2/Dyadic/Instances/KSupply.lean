@@ -47,10 +47,12 @@ fourth clause bundle, `ScalarHilbertCertificate`, is **not** a field — §3 pro
 
 SD-R3's headline finding was that `closedRecursionK_of_source` prints std-3 where its `ℚ₂` model
 needs B6 + B7: the two-sided refactor removed those axioms from the *spine*, structurally, and
-they were predicted to re-enter through the supply package.  They do, here, and at exactly two
-declarations plus their consumers:
+they were predicted to re-enter through the supply package.  They do, here, at the following
+instance-pinned declarations plus their consumers:
 
 * `card_H2_zmodTwo_galK` — B6 alone (FD1's invariant map `H²(G_K, 𝔽₂) ≃+ 𝔽₂`);
+* `exists_trivialCupPairing_ne_zero_galK` — B6 alone (FD1's nondegenerate cup form), stated on
+  the pinned `GalK` side of the instance firewall;
 * `card_hom_zmodTwo_galK` — B6 **and** B7 (`#H¹ = #H⁰ · #H² · 2^{n·v₂(#V)}` at `V = 𝔽₂`, with
   B7 arriving through LG2a's *derived* `absGalK_localEulerCharacteristic`, not as an axiom of
   its own — AX2 is closed).
@@ -186,6 +188,28 @@ would force every consumer to re-synthesize the scalar action through the `Profi
 projection. -/
 theorem card_H2_zmodTwo_galK : Nat.card (H2 (GalK K) (ZMod 2)) = 2 :=
   FieldData.card_H2_zmodTwo K
+
+omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
+/-- **The field-side mod-2 cup product is nondegenerate, in the pinned `GalK` spelling.**
+
+This is the cup-product companion to `card_H2_zmodTwo_galK`.  Keeping the use of
+`FieldData.invGalK` on this side of the `GalKsub` instance firewall prevents later imports from
+re-synthesizing the definitionally equal `ZMod 2` and subgroup structures along a different
+instance path. -/
+theorem exists_trivialCupPairing_ne_zero_galK
+    (x : H1 (GalK K) (ZMod 2)) (hx : x ≠ 0) :
+    ∃ y : H1 (GalK K) (ZMod 2),
+      trivialCupPairing 2 (GalK K) (htriv_galK K) x y ≠ 0 := by
+  have hnondeg := FieldData.nondegFp2_cupFormK K
+  by_contra hnone
+  push Not at hnone
+  apply hx
+  apply hnondeg x
+  intro y
+  show FieldData.invGalK K
+      (trivialCupPairing 2 (GalK K) (htriv_galK K) x y) = 0
+  rw [hnone y]
+  exact map_zero (FieldData.invGalK K)
 
 omit [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] in
 /-- **`#Hom_c(G_K, 𝔽₂) = 2^{n+2}`** — the `SourceDataN.homCard` value at the arithmetic source.

@@ -127,9 +127,9 @@ theorem h2InflationGalK_injective :
     Function.Injective (h2InflationGalK (K := K))
 ```
 
-## 4. Next consequences and the current elaboration blocker
+## 4. Field-specific consequences have landed
 
-The next declarations should be field-specific:
+The field-specific declarations are now proved:
 
 ```lean
 noncomputable def h2MaxProTwoEquivGalK :
@@ -150,7 +150,7 @@ theorem demushkinRank_maxProTwoGalK :
       Module.finrank ℚ_[2] K + 2
 ```
 
-The mathematical proof dependencies are now present:
+Their proof uses:
 
 - `isProP_maxProPQuotient` supplies the pro-2 clause;
 - `card_H1_zmodTwo_maxProTwoGalK` supplies finite `H¹` and the rank;
@@ -159,24 +159,33 @@ The mathematical proof dependencies are now present:
 - `h1MaxProTwoEquivGalK` lifts both cup inputs;
 - `inf2_trivialCupPairing_maxProPMk_galK` transfers the cup value.
 
-The H² injection bounds source `H²` by two elements, and a nonzero lifted cup class shows it has
-at least two.  This yields the field-specific H² equivalence and all Demushkin clauses.
+The proof order avoids assuming the desired surjectivity.  The `H¹` equivalence and field-side
+nondegeneracy first produce a nonzero cup product on `G_K(2)`.  Thus its `H²` has at least two
+elements.  Injectivity into the two-element field-side `H²` gives the reverse bound, hence
+cardinality two and bijectivity of inflation.  The two nondegeneracy clauses then transfer by cup
+naturality.
 
-The immediate formal blocker is an instance-path mismatch, not a missing theorem.  Under the
-richer import closure of `MaxProTwoCohomology`, the field-side theorems elaborate over the literal
-subtype `↥K.fixingSubgroup`, while the transfer API is stated for the abbreviation `GalK K`.
-Lean does not currently identify the resulting `H2` types because their inferred coefficient and
-cohomology instance paths differ.  A clean next ticket is therefore either:
+### The instance firewall
+
+The richer import closure did expose an instance-path mismatch.  `FieldData.invGalK` was compiled
+over the literal subtype `↥K.fixingSubgroup`, the `ZMod.instField` additive structure, and their
+restricted action.  The maximal-pro-2 file inferred the definitionally equal `GalK K`,
+`ZMod.commRing`, and `GalKsub` paths.  Terms crossed this boundary at semireducible transparency,
+but tactics could not rewrite `invGalK 0` at instance transparency.
+
+Rather than duplicate cohomology or introduce a large transport API, `KSupply.lean` now contains
+the small opaque firewall theorem
 
 ```lean
-noncomputable def h2GalKFieldDataEquiv :
-    H2 (GalK K) (ZMod 2) ≃+ H2 ↥K.fixingSubgroup (ZMod 2)
+theorem exists_trivialCupPairing_ne_zero_galK
+    (x : H1 (GalK K) (ZMod 2)) (hx : x ≠ 0) :
+    ∃ y : H1 (GalK K) (ZMod 2),
+      trivialCupPairing 2 (GalK K) (htriv_galK K) x y ≠ 0
 ```
 
-with computation lemmas sufficient to transport cup products, or a small instance firewall /
-refactor that makes the two types definitionally equal.  Once that bridge is available,
-`FieldData.card_H2_zmodTwo`, `FieldData.nondegFp2_cupFormK`, cup naturality, and the injectivity
-proved here give the declarations listed above without further cohomological infrastructure.
+All use of `FieldData.invGalK` stays on the pinned side of the boundary.  The downstream theorem
+is stated in the public `GalK` spelling and remains usable after importing maximal-pro-2
+cohomology.  The existing `card_H2_zmodTwo_galK` is the cardinality twin of this firewall.
 
 ## 5. What still remains for the conjectural presentation
 
@@ -194,7 +203,6 @@ The remaining independent tracks are:
 4. use the descended unramified mark `nuUrKTwo` and the marked-core correction theorems to
    obtain the presentation with the required marking.
 
-Thus there is a reasonable route from the current formalization.  The immediate cohomological
-mountain has been reduced to one honest theorem, H²-inflation injectivity; after it, the main
-mathematics shifts to the general Labute classification and the arithmetic identification of
-`q` and the orientation image.
+Thus the maximal-pro-2 cohomological transfer is complete.  The remaining mathematics lies in
+the general Labute classification and the arithmetic identification of `q` and the orientation
+image, followed by the marked-core correction.
