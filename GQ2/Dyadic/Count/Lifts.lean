@@ -38,7 +38,7 @@ coefficients is needed anywhere** — which matters, because CB-H2's degree-2 ru
 with an action.  Had the local route been taken, this clause would have been blocked behind a
 rung nobody owns.
 
-## §3 is the new mathematics: the correction law without Fox calculus
+## §2 is the new mathematics: the correction law without Fox calculus
 
 The one step the `ℚ₂` files do per relator (`corrected_tameValue`/`corrected_wildValue`, two
 hand-computed markings of arity `4`) has to be done once, for an arbitrary `PWord` family.  Doing
@@ -62,15 +62,15 @@ derivative of a `PWord` is ever computed.
 | § | content | status |
 |---|---------|--------|
 | 1 | the `M_B` module pack (`mbCommGroup`, `mbSec`, the two conjugation actions) | re-derived, see below |
-| 2 | `#(M_B^∨)^{Y_C} = 1` — the `lemma_7_1_dual` bridge | re-derived, see below |
-| 3 | **the correction law**: `eval (j x · f₀) W k = j (d¹x k) · eval f₀ W k` | **new** |
+| 2 | **the correction law**: `eval (j x · f₀) W k = j (d¹x k) · eval f₀ W k` | **new** |
+| 3 | `#(M_B^∨)^{Y_C} = 1` — the `lemma_7_1_dual` bridge | re-derived, see below |
 | 4 | nonemptiness of the fibre, over the abstract carrier | **new (generic)** |
-| 5 | the `Z¹`-torsor bridge `LiftsOverK ≃ Z¹(Γ, M_B)` | ported, generic in `Γ` |
+| 5 | the `Z¹`-torsor bridge `#LiftsOverK = #Z¹(Γ, M_B)` | ported, generic in `Γ` |
 | 6 | **`liftsOver_cardN`** — the `SourceDataN` value | **CLOSED** |
 | 7 | the N0 / `√−2` instantiation | closed |
 | 8 | the verbatim `SourceDataN.liftsOver_card` field goal | **closed** |
 
-## What is re-derived and why (§1, §2)
+## What is re-derived and why (§1, §3)
 
 `RecursionFrame.mbCommGroup`, `mbSec`, `mbConjActC` and `card_fixedPts_MB_dual` are **`private`
 in all three `ℚ₂` files** — `GQ2/MStageCount.lean:351`, `GQ2/MStageCountGammaA.lean:261`,
@@ -91,8 +91,9 @@ Plain-import: `GQ2.Dyadic.Count.HTwo` (the CB-2/CB-H2 chain, itself plain over C
 is what supplies `LiftsOverK`/`BoundaryLiftsK`/`BoundaryFrameK` — the recursion vocabulary the
 clause is stated in.  `RecursionFrame` itself arrives with it.
 
-Axioms: no new axioms, no `sorry`.  Every headline prints exactly the standard three
-(`propext`, `Classical.choice`, `Quot.sound`) — recorded in the report.
+Axioms: no new axioms, no `sorry`, no `hsimp`-style residual.  Every headline prints exactly the
+standard three (`propext`, `Classical.choice`, `Quot.sound`); `collapse` and `baseMap` print the
+strict subset `[propext]` — measured, recorded in the report.
 -/
 
 namespace GQ2.Dyadic.Count
@@ -807,4 +808,116 @@ theorem liftsOver_cardN {n : ℕ} (RF : RecursionFrame T Blk)
 
 end Count
 
+/-! ## §7. The N0 / `√−2` instantiation
+
+Same degree bookkeeping as CB-S §7 and CB-1 §8, at the third module: the compact-`N` family
+`nCompactFam α h q e` is a two-relator family on `Generator (2 + 2h)`, so the deficiency is
+`2h + 2` and `SN = standardNumerics (2h + 2)`.  At the `√−2` pilot `(α, h, q, e) = (2, 0, 2, 3)`
+that is `n = 2`, and `mMult M = M³`. -/
+
+section N0
+
+open GQ2.Dyadic.Certificates
+
+variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+  [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+  {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+  {q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ] [CompactSpace Γ]
+  [TotallyDisconnectedSpace Γ]
+
+omit [TopologicalSpace Y] [DiscreteTopology Y] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] in
+/-- **The `M`-stage multiplicity at branch N0**, in the recursion's vocabulary. -/
+theorem nCompact_liftsOver_card {α hN qN eN : ℕ} (RF : RecursionFrame T Blk)
+    (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
+    (ρ : BoundaryLiftsK b F RF.TC)
+    {gen : Generator (2 + 2 * hN) → Γ} {W : Fin 2 → PWord (Generator (2 + 2 * hN))}
+    {J : Set (Generator (2 + 2 * hN))} {c : Generator (2 + 2 * hN) → RF.YC}
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hc : ∀ i, ρ.1.1 (gen i) = c i) (hwild2 : IsWildTwo J c) :
+    letI := mbCommGroup RF
+    letI := mbConjActC RF
+    ResolvesAt W (nCompactFam α hN qN eN) (WordLift (Additive ↥RF.MB) RF.YC) →
+      StokesDuality c (nCompactFam α hN qN eN) (Additive ↥RF.MB) →
+      IsStokesEndpoint (nCompactFam α hN qN eN) →
+      Nat.card (LiftsOverK RF b F ρ)
+        = (standardNumerics (2 * hN + 2)).mMult (Nat.card ↥RF.MB) :=
+  fun hres hd hend =>
+    liftsOver_cardN RF b F ρ hpres hc hwild2 (nCompact_degree hN) hres hd hend
+
+omit [TopologicalSpace Y] [DiscreteTopology Y] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] in
+/-- **The `√−2` pilot** (`(α, h, q, e) = (2, 0, 2, 3)`, `n = 2 = [ℚ₂(√−2) : ℚ₂]`): the
+`SourceDataN.liftsOver_card` field value for AS2's branch, with N0's own endpoint certificate
+composed in.  `standardNumerics 2`'s `mMult M = M³` **is** the deficiency `2h + 2 + 1 = 3` of the
+two-relator compact-`N` presentation — the degree-`2` replacement for the frozen `ℚ₂` `#M_B²`. -/
+theorem sqrtNegTwo_liftsOver_card (RF : RecursionFrame T Blk)
+    (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
+    (ρ : BoundaryLiftsK b F RF.TC)
+    {gen : Generator 2 → Γ} {W : Fin 2 → PWord (Generator 2)} {J : Set (Generator 2)}
+    {c : Generator 2 → RF.YC}
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hc : ∀ i, ρ.1.1 (gen i) = c i) (hwild2 : IsWildTwo J c) :
+    letI := mbCommGroup RF
+    letI := mbConjActC RF
+    ResolvesAt W (nCompactFam 2 0 2 3) (WordLift (Additive ↥RF.MB) RF.YC) →
+      StokesDuality c (nCompactFam 2 0 2 3) (Additive ↥RF.MB) →
+      Nat.card (LiftsOverK RF b F ρ)
+        = (standardNumerics 2).mMult (Nat.card ↥RF.MB) :=
+  fun hres hd =>
+    nCompact_liftsOver_card (hN := 0) RF b F ρ hpres hc hwild2 hres hd
+      sqrtNegTwo_isStokesEndpoint
+
+end N0
+
+/-! ## §8. The verbatim `SourceDataN` field goal
+
+The clause is stated at `GQ2/Dyadic/SourceDataN.lean:191` with a binder list this file cannot
+import (`SourceDataN` sits above the count lane), so — exactly as CB-2 §12 and CB-H2 §7 do — the
+field type is restated here verbatim, over an abstract `Gam : ProfiniteGrp`, and closed.  The
+record's deliberate `[TopologicalSpace Y] [DiscreteTopology Y]` binder widening is kept.
+
+The one per-frame input, `hsupply`, is the honest statement of what a branch owes: at *every*
+recursion frame and *every* lower boundary lift, a `StokesDuality` payload at the module `M_B`
+with the marking `ρ ∘ gen`.  It is the same obligation the `ℚ₂` sources discharge with
+`prop_5_15 (markC θ)` at an arbitrary `θ` (`MStageCountGammaA.lean:396`) — not a new one. -/
+
+section FieldGoal
+
+/-- **`SourceDataN.liftsOver_card`, verbatim** (`GQ2/Dyadic/SourceDataN.lean:191`) at
+`SN = standardNumerics n` — **closed**. -/
+theorem liftsOver_card_field_goal {Gam : ProfiniteGrp} {ι κ : Type*} [Fintype ι] [Fintype κ]
+    [DecidableEq ι] {n q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+    {gen : ι → (Gam : Type)} {W : κ → PWord ι} {w : κ → FreeGroup ι} {J : Set ι}
+    (hpres : IsAdmissibleMarkedPresentation (Gam : Type) gen W J)
+    (hdeg : Nat.card ι = Nat.card κ + (n + 1)) (hend : IsStokesEndpoint w)
+    (hsupply : ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+      [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+      {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+      {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+      (RF : RecursionFrame T Blk)
+      (b : ContinuousMonoidHom (Gam : Type) ↥(boundarySubgroupQ q nuP))
+      (F : BoundaryFrameK q P H E) (ρ : BoundaryLiftsK b F RF.TC),
+      letI := mbCommGroup RF
+      letI := mbConjActC RF
+      IsWildTwo J (fun i => ρ.1.1 (gen i))
+        ∧ ResolvesAt W w (WordLift (Additive ↥RF.MB) RF.YC)
+        ∧ StokesDuality (fun i => ρ.1.1 (gen i)) w (Additive ↥RF.MB)) :
+    ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H]
+      [Finite H] [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+      {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+      {T : MarkedTarget H E Y}
+      {Blk : SectionSeven.MinimalBlock T.LY} (RF : RecursionFrame T Blk)
+      (b : ContinuousMonoidHom (Gam : Type) ↥(boundarySubgroupQ q nuP))
+      (F : BoundaryFrameK q P H E)
+      (ρ : BoundaryLiftsK b F RF.TC),
+      Nat.card (LiftsOverK RF b F ρ) = (standardNumerics n).mMult (Nat.card ↥RF.MB) := by
+  intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk RF b F ρ
+  obtain ⟨hwild2, hres, hd⟩ := hsupply RF b F ρ
+  exact liftsOver_cardN RF b F ρ hpres (fun _ => rfl) hwild2 hdeg hres hd hend
+
+end FieldGoal
+
 end GQ2.Dyadic.Count
+
+
