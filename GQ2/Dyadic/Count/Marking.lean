@@ -28,14 +28,38 @@ with it.
 | 2 | the invariant-dual relator sum, over the abstract carrier | closed |
 | 3 | **`hsepN_marking`** — the `hsep` clause by the marking route | closed |
 | 4 | the verbatim `SourceDataN.hsep` field goal, marking-route form | closed |
-| 5 | branch instantiation of `Count/Separating.lean` §5 at `Vmod` | closed |
+| 5 | branch instantiation of `Count/Separating.lean` §5 at `Vmod` | closed (6 displays) |
+
+## ⚠ What this file supplies, and what it does *not*
+
+It supplies the `hsep` **clause**, not CB-4's `IsTwoSeparating` **binder**.  The two are not
+interchangeable and the difference is structural, not a missing lemma:
+
+* `IsTwoSeparating Γ A` quantifies over *every* continuous `A`-valued `2`-cocycle of `Γ`;
+* the marking route never forms such a class.  It works inside the extension
+  `1 → T → B → B ⧸ T → 1`, whose total space `B` is **finite** — which is exactly what lets
+  clause (iii) `extend` (a statement about finite discrete targets) fire.
+
+To reach `IsTwoSeparating` from here one would have to turn an arbitrary `φ ∈ Z²(Γ, A)` into a
+finite extension: level-factor `φ` through some `Γ ⧸ V` (the repository's `LevelFactor` is
+`ZMod 2`- and `Fin 4`-pinned, so this is new), build the twisted product `A ×_φ (Γ ⧸ V)` as a
+group (`Group` instance from the cocycle identity, plus normalization), and read `φ ∈ B²` off a
+splitting.  That construction is the honest price of the binder and is **not** attempted here.
+
+Consequently `hsep_field_goal_marking` (§4) is a *second* closer of the record field, alongside
+`Count/Separation.lean`'s `hsep_field_goal`; the arithmetic side keeps CB-4's `IsTwoSeparating`
+route (`isTwoSeparating_of_tateDualityG`), the candidate side takes this one.
 
 ## Numeric leaves
 
-**Nothing in this file reads a count.**  No `Nat.card`, no `SourceNumerics`, no degree `n` occurs
-in any statement below; `IsSelfDualN` is never mentioned and `StokesDuality` is consumed through
+**Nothing in §1–§4 reads a count.**  No `Nat.card`, no `SourceNumerics`, no degree `n` occurs in
+any statement there; `IsSelfDualN` is never mentioned and `StokesDuality` is consumed through
 `sepWordN` only, i.e. through its `h2_inj` clause.  CB-SG's exponent warning therefore has no
-purchase here: there is no exponent to check against `standardNumerics`.
+purchase on the deliverable: there is no exponent to check against `standardNumerics`.
+
+§5's rows do carry a degree, but only as the `n` of the `IsSelfDualN` binder they take —
+CB-5's `isRightSeparating_of_selfDualN` has it in its signature and never reads it.  No exponent
+constant is written down anywhere in this file.
 -/
 
 namespace GQ2.Dyadic.Count
@@ -502,5 +526,213 @@ theorem hsep_field_goal_marking
     hcc hwild2 (rhoPrimeK_surjective RF b F (En.radData l h) rfl ρ) hres2 hresT hd hend c hvan
 
 end HSepFieldGoal
+
+/-! ## §5. Branch instantiation of `Count/Separating.lean` §5, at `Vmod`
+
+CB-5's `isRightSeparating_of_selfDualN` is the candidate-side supplier of the *other* fork,
+`hpartialN`'s.  That fork is `IsRightSeparating Γ DD.Vmod` — the **`V`-module over `C = DD.C0`**,
+not the `T`-module CB-VAR's §9 instantiates — so this section's level is
+`exp(H(V) ⋊ C₀)`, not `exp(H(T) ⋊ (B ⧸ M))`, and what each row owes is a `StokesDuality`
+payload at `Vmod`.  Everything else is CB-VAR §2's argument verbatim: the three `WordLift`
+targets are subgroups of the Heisenberg lift, so **one** level resolves all four, and it is
+chosen at the target.
+
+Two things are *not* asked for, exactly as in CB-VAR §9: `hr` (`lower_rel` derives it from the
+presentation) and any hypothesis about the level (`heisLevel_ne_zero_and_even` is a theorem at
+every `(A, C)`).
+
+⚠ **`hsd` is a count clause.**  `IsSelfDualN n c w Vmod` carries the degree `n`; a branch that
+prefers to hand over a `StokesDuality` payload instead reaches it through
+`isSelfDualN_of_stokesDuality`, whose `hdeg : #ι = #ρ + (n + 1)` is the only place a cardinality
+enters this file at all.  Nothing here reads `standardNumerics`, and no exponent constant is
+ported. -/
+
+section VmodBranches
+
+open GQ2.Dyadic.Certificates GQ2.FoxH GQ2.SectionEight.AffineTLift GQ2.Dyadic
+
+attribute [local instance] GQ2.Dyadic.Count.heisTopologicalSpace
+  GQ2.Dyadic.Count.heisDiscreteTopology
+
+variable {Bg : Type} [Group Bg] [Finite Bg] {D : RadicalCoverData Bg}
+
+/-- **The `V`-stage level.**  CB-VAR §9's `heisLevel` at the module the `hpartial` fork lives
+at: `exp(H(V) ⋊ C₀)`. -/
+noncomputable def vmodLevel (DD : DescData D) : ℕ := Monoid.exponent (HeisLift DD.Vmod DD.C0)
+
+theorem vmodLevel_ne_zero {DD : DescData D} : vmodLevel DD ≠ 0 :=
+  heisLevel_ne_zero_and_even.1
+
+theorem vmodLevel_even {DD : DescData D} : (vmodLevel DD).factorization 2 ≠ 0 :=
+  heisLevel_ne_zero_and_even.2
+
+section Rows
+
+variable {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [DistribMulAction Γ (ZMod 2)]
+  [ContinuousSMul Γ (ZMod 2)]
+  {DD : DescData D}
+  [TopologicalSpace DD.C0] [DiscreteTopology DD.C0] [DistribMulAction DD.C0 (ZMod 2)]
+  [TopologicalSpace DD.Vmod] [DiscreteTopology DD.Vmod]
+  [DistribMulAction Γ DD.Vmod]
+  [TopologicalSpace (ElemDual DD.Vmod)] [DiscreteTopology (ElemDual DD.Vmod)]
+  [ContinuousSMul Γ (ElemDual DD.Vmod)]
+  (rhoC : ContinuousMonoidHom Γ DD.C0)
+  (hcompat : ∀ (γ : Γ) (a : DD.Vmod), γ • a = rhoC γ • a)
+
+include hcompat
+
+/-- **Row 1 — compact `N`** (selection-freeze row 2), at `Vmod`. -/
+theorem isRightSeparating_vmod_nCompactFam {n α h q : ℕ} (hα : 1 ≤ α) (hq : Even q)
+    {gen : Generator (2 + 2 * h) → Γ} {J : Set (Generator (2 + 2 * h))}
+    {c : Generator (2 + 2 * h) → DD.C0} (hc : ∀ i, rhoC (gen i) = c i)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen
+      (gammaFam (2 + 2 * h) q (Words.nCompactW α h)) J)
+    (hwild2 : IsWildTwo J c)
+    (hsd : IsSelfDualN n c (nCompactFam α h q (omega2Exp (vmodLevel DD))) DD.Vmod) :
+    IsRightSeparating Γ DD.Vmod :=
+  isRightSeparating_of_selfDualN rhoC hcompat hc hpres hwild2
+    (resolvesAt_and_endpoint_nCompactFam vmodLevel_ne_zero vmodLevel_even
+      (orderOf_wordLiftScal_dvd_heisExponent (A := DD.Vmod)) hα hq).1
+    (resolvesAt_and_endpoint_nCompactFam vmodLevel_ne_zero vmodLevel_even
+      (orderOf_wordLift_dvd_heisExponent (A := DD.Vmod)) hα hq).1
+    (resolvesAt_and_endpoint_nCompactFam vmodLevel_ne_zero vmodLevel_even
+      (orderOf_wordLiftDual_dvd_heisExponent (A := DD.Vmod)) hα hq).1
+    (resolvesAt_and_endpoint_nCompactFam vmodLevel_ne_zero vmodLevel_even
+      (orderOf_heisLift_dvd (A := DD.Vmod)) hα hq).1
+    hsd
+    (resolvesAt_and_endpoint_nCompactFam (Q := HeisLift DD.Vmod DD.C0)
+      vmodLevel_ne_zero vmodLevel_even (orderOf_heisLift_dvd (A := DD.Vmod)) hα hq).2
+    (Vmod_exp2 DD)
+
+/-- **Row 2 — compact `M`** (selection-freeze row 4), at `Vmod`. -/
+theorem isRightSeparating_vmod_mCompactFam {n α h q : ℕ} (hq : Even q)
+    {gen : Generator (2 + 2 * h) → Γ} {J : Set (Generator (2 + 2 * h))}
+    {c : Generator (2 + 2 * h) → DD.C0} (hc : ∀ i, rhoC (gen i) = c i)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen
+      (gammaFam (2 + 2 * h) q (Words.MCompact.mCompactW α h)) J)
+    (hwild2 : IsWildTwo J c)
+    (hsd : IsSelfDualN n c (MCompact.mCompactFam α h q (omega2Exp (vmodLevel DD))) DD.Vmod) :
+    IsRightSeparating Γ DD.Vmod :=
+  isRightSeparating_of_selfDualN rhoC hcompat hc hpres hwild2
+    (resolvesAt_and_endpoint_mCompactFam vmodLevel_ne_zero vmodLevel_even
+      (orderOf_wordLiftScal_dvd_heisExponent (A := DD.Vmod)) (α := α) hq).1
+    (resolvesAt_and_endpoint_mCompactFam vmodLevel_ne_zero vmodLevel_even
+      (orderOf_wordLift_dvd_heisExponent (A := DD.Vmod)) (α := α) hq).1
+    (resolvesAt_and_endpoint_mCompactFam vmodLevel_ne_zero vmodLevel_even
+      (orderOf_wordLiftDual_dvd_heisExponent (A := DD.Vmod)) (α := α) hq).1
+    (resolvesAt_and_endpoint_mCompactFam vmodLevel_ne_zero vmodLevel_even
+      (orderOf_heisLift_dvd (A := DD.Vmod)) (α := α) hq).1
+    hsd
+    (resolvesAt_and_endpoint_mCompactFam (Q := HeisLift DD.Vmod DD.C0)
+      vmodLevel_ne_zero vmodLevel_even (orderOf_heisLift_dvd (A := DD.Vmod)) (α := α) hq).2
+    (Vmod_exp2 DD)
+
+/-- **Row 3 — `L_sq`**, the R2-signed primary type-`L` word (selection-freeze row 1), at
+`Vmod`. -/
+theorem isRightSeparating_vmod_lSqFam {n h q : ℕ} (hq : Even q)
+    {gen : Generator (2 * h + 1) → Γ} {J : Set (Generator (2 * h + 1))}
+    {c : Generator (2 * h + 1) → DD.C0} (hc : ∀ i, rhoC (gen i) = c i)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen
+      (gammaFam (2 * h + 1) q (Words.LSq.lSqW h)) J)
+    (hwild2 : IsWildTwo J c)
+    (hsd : IsSelfDualN n c (LSqStokes.lSqFam h q (omega2Exp (vmodLevel DD))) DD.Vmod) :
+    IsRightSeparating Γ DD.Vmod :=
+  isRightSeparating_of_selfDualN rhoC hcompat hc hpres hwild2
+    (resolvesAt_and_endpoint_lSqFam vmodLevel_ne_zero vmodLevel_even
+      (orderOf_wordLiftScal_dvd_heisExponent (A := DD.Vmod)) hq).1
+    (resolvesAt_and_endpoint_lSqFam vmodLevel_ne_zero vmodLevel_even
+      (orderOf_wordLift_dvd_heisExponent (A := DD.Vmod)) hq).1
+    (resolvesAt_and_endpoint_lSqFam vmodLevel_ne_zero vmodLevel_even
+      (orderOf_wordLiftDual_dvd_heisExponent (A := DD.Vmod)) hq).1
+    (resolvesAt_and_endpoint_lSqFam vmodLevel_ne_zero vmodLevel_even
+      (orderOf_heisLift_dvd (A := DD.Vmod)) hq).1
+    hsd
+    (resolvesAt_and_endpoint_lSqFam (Q := HeisLift DD.Vmod DD.C0)
+      vmodLevel_ne_zero vmodLevel_even (orderOf_heisLift_dvd (A := DD.Vmod)) hq).2
+    (Vmod_exp2 DD)
+
+/-- **Row 4 — procyclic `M`**, at an `ω₂`-only `η`-display (selection-freeze row 5), at
+`Vmod`. -/
+theorem isRightSeparating_vmod_mpcFam {n α r pp h q : ℕ} (hα : 1 ≤ α) (hq : Even q)
+    {η : Words.Mpc.EtaDisplay} (hη : η.IsOmega2Only)
+    {gen : Generator (2 + 2 * h) → Γ} {J : Set (Generator (2 + 2 * h))}
+    {c : Generator (2 + 2 * h) → DD.C0} (hc : ∀ i, rhoC (gen i) = c i)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen
+      (gammaFam (2 + 2 * h) q (Words.Mpc.mpcW α r pp η h)) J)
+    (hwild2 : IsWildTwo J c)
+    (hsd : IsSelfDualN n c (MProcyclic.mpcFam α r pp h q (omega2Exp (vmodLevel DD)) η)
+      DD.Vmod) :
+    IsRightSeparating Γ DD.Vmod :=
+  isRightSeparating_of_selfDualN rhoC hcompat hc hpres hwild2
+    (resolvesAt_and_endpoint_mpcFam vmodLevel_ne_zero vmodLevel_even
+      (orderOf_wordLiftScal_dvd_heisExponent (A := DD.Vmod)) hα hq hη).1
+    (resolvesAt_and_endpoint_mpcFam vmodLevel_ne_zero vmodLevel_even
+      (orderOf_wordLift_dvd_heisExponent (A := DD.Vmod)) hα hq hη).1
+    (resolvesAt_and_endpoint_mpcFam vmodLevel_ne_zero vmodLevel_even
+      (orderOf_wordLiftDual_dvd_heisExponent (A := DD.Vmod)) hα hq hη).1
+    (resolvesAt_and_endpoint_mpcFam vmodLevel_ne_zero vmodLevel_even
+      (orderOf_heisLift_dvd (A := DD.Vmod)) hα hq hη).1
+    hsd
+    (resolvesAt_and_endpoint_mpcFam (Q := HeisLift DD.Vmod DD.C0)
+      vmodLevel_ne_zero vmodLevel_even (orderOf_heisLift_dvd (A := DD.Vmod)) hα hq hη).2
+    (Vmod_exp2 DD)
+
+/-- **Row 5 — noncompact/procyclic `N`**, at CB-FR2's two-valued resolver (selection-freeze
+row 3, the corrected `L_c` row), at `Vmod`.  As in CB-VAR §9 the row costs nothing extra: the
+level is chosen at the target, so CB-FR's "no honest constant resolver at level `6`" does not
+bite. -/
+theorem isRightSeparating_vmod_npcFamOf {n α r h q : ℕ} (hα : 1 ≤ α) (hq : Even q)
+    (d : GQ2.Dyadic.EtaData) (E₂ : ℤ_[2] → ℤ)
+    {gen : Generator (2 + 2 * h) → Γ} {J : Set (Generator (2 + 2 * h))}
+    {c : Generator (2 + 2 * h) → DD.C0} (hc : ∀ i, rhoC (gen i) = c i)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen
+      (gammaFam (2 + 2 * h) q (Words.Npc.npcW α r h d)) J)
+    (hwild2 : IsWildTwo J c)
+    (hsd : IsSelfDualN n c (npcFamOf α r h q d (npcResolver (vmodLevel DD) d) E₂) DD.Vmod) :
+    IsRightSeparating Γ DD.Vmod :=
+  isRightSeparating_of_selfDualN rhoC hcompat hc hpres hwild2
+    (resolvesAt_and_endpoint_npcFamOf vmodLevel_ne_zero vmodLevel_even
+      (orderOf_wordLiftScal_dvd_heisExponent (A := DD.Vmod)) hα hq d E₂).1
+    (resolvesAt_and_endpoint_npcFamOf vmodLevel_ne_zero vmodLevel_even
+      (orderOf_wordLift_dvd_heisExponent (A := DD.Vmod)) hα hq d E₂).1
+    (resolvesAt_and_endpoint_npcFamOf vmodLevel_ne_zero vmodLevel_even
+      (orderOf_wordLiftDual_dvd_heisExponent (A := DD.Vmod)) hα hq d E₂).1
+    (resolvesAt_and_endpoint_npcFamOf vmodLevel_ne_zero vmodLevel_even
+      (orderOf_heisLift_dvd (A := DD.Vmod)) hα hq d E₂).1
+    hsd
+    (resolvesAt_and_endpoint_npcFamOf (Q := HeisLift DD.Vmod DD.C0)
+      vmodLevel_ne_zero vmodLevel_even (orderOf_heisLift_dvd (A := DD.Vmod)) hα hq d E₂).2
+    (Vmod_exp2 DD)
+
+/-- **Row 4', the procyclic-`M` `.hat` display** — outside the `ω₂`-only fragment, sharing row
+5's resolver — at `Vmod`. -/
+theorem isRightSeparating_vmod_mpcFamOf_hat {n α r pp h q : ℕ} (hα : 1 ≤ α) (hq : Even q)
+    (num den : ℤ) (E₂ : ℤ_[2] → ℤ)
+    {gen : Generator (2 + 2 * h) → Γ} {J : Set (Generator (2 + 2 * h))}
+    {c : Generator (2 + 2 * h) → DD.C0} (hc : ∀ i, rhoC (gen i) = c i)
+    (hpres : IsAdmissibleMarkedPresentation Γ gen
+      (gammaFam (2 + 2 * h) q (Words.Mpc.mpcW α r pp (.hat num den) h)) J)
+    (hwild2 : IsWildTwo J c)
+    (hsd : IsSelfDualN n c (mpcFamOf α r pp h q (.hat num den)
+      (npcResolver (vmodLevel DD) ⟨num, den⟩) E₂) DD.Vmod) :
+    IsRightSeparating Γ DD.Vmod :=
+  isRightSeparating_of_selfDualN rhoC hcompat hc hpres hwild2
+    (resolvesAt_and_endpoint_mpcFamOf_hat vmodLevel_ne_zero vmodLevel_even
+      (orderOf_wordLiftScal_dvd_heisExponent (A := DD.Vmod)) hα hq num den E₂).1
+    (resolvesAt_and_endpoint_mpcFamOf_hat vmodLevel_ne_zero vmodLevel_even
+      (orderOf_wordLift_dvd_heisExponent (A := DD.Vmod)) hα hq num den E₂).1
+    (resolvesAt_and_endpoint_mpcFamOf_hat vmodLevel_ne_zero vmodLevel_even
+      (orderOf_wordLiftDual_dvd_heisExponent (A := DD.Vmod)) hα hq num den E₂).1
+    (resolvesAt_and_endpoint_mpcFamOf_hat vmodLevel_ne_zero vmodLevel_even
+      (orderOf_heisLift_dvd (A := DD.Vmod)) hα hq num den E₂).1
+    hsd
+    (resolvesAt_and_endpoint_mpcFamOf_hat (Q := HeisLift DD.Vmod DD.C0)
+      vmodLevel_ne_zero vmodLevel_even (orderOf_heisLift_dvd (A := DD.Vmod)) hα hq num den E₂).2
+    (Vmod_exp2 DD)
+
+end Rows
+
+end VmodBranches
 
 end GQ2.Dyadic.Count
