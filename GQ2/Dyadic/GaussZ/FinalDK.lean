@@ -525,7 +525,7 @@ the dichotomy is the head-level `F.alpha (τ_q)`-triviality, uniform in `ρ`. -/
 theorem gaussZResidueDK_unramified
     (hU : IsOpen (U : Set AbsGalQ2)) [Finite (AbsGalQ2 ⧸ U)] (hn : U.index = FP.n)
     [DistribMulAction ↥U (ZMod 2)] [ContinuousSMul ↥U (ZMod 2)]
-    [DistribMulAction ↥U (MuN 2)] [ContinuousSMul ↥U (MuN 2)]
+    [instDMAmu : DistribMulAction ↥U (MuN 2)] [instCSmu : ContinuousSMul ↥U (MuN 2)]
     [CompactSpace ↥U] [TotallyDisconnectedSpace ↥U]
     (D : TateDualityG ↥U 2)
     (hE2 : ∀ e : E, e ^ 2 = 1) (hq0 : FP.qK ≠ 0) (hqe : Even FP.qK)
@@ -682,7 +682,7 @@ LG5's `RamifiedCertificate`, which arrives through the `ramifiedData` binder —
 theorem gaussZResidueDK_ramified
     (hU : IsOpen (U : Set AbsGalQ2)) [Finite (AbsGalQ2 ⧸ U)] (hn : U.index = FP.n)
     [DistribMulAction ↥U (ZMod 2)] [ContinuousSMul ↥U (ZMod 2)]
-    [DistribMulAction ↥U (MuN 2)] [ContinuousSMul ↥U (MuN 2)]
+    [instDMAmu : DistribMulAction ↥U (MuN 2)] [instCSmu : ContinuousSMul ↥U (MuN 2)]
     [CompactSpace ↥U] [TotallyDisconnectedSpace ↥U]
     (D : TateDualityG ↥U 2)
     (hE2 : ∀ e : E, e ^ 2 = 1) (hq0 : FP.qK ≠ 0) (hqe : Even FP.qK)
@@ -824,5 +824,114 @@ theorem gaussZResidueDK_ramified
 end Twins
 
 end HeadInflated
+
+/-! ## §7 ASK's `determinant` binder, discharged
+
+`KSupply.determinant` (`GQ2/Dyadic/Instances/KSupply.lean:293`) is
+`AffineDeterminantCertificate (galKProfinite K) n (q_K) P νP SN tameF_K pro2 compat smul`.
+§6's twins are exactly its two clauses at `Γ = G_K`, so the field is now a **theorem** over the
+inputs AS1's `DyadicLocalInput` already carries:
+
+* `params` with the two pins `params.n = n`, `params.qK = q` — ASK §5's threaded `FieldParameters`
+  (its `f_dvd_n` clause is the reason `params` is threaded rather than built);
+* `hdeg : [K : ℚ₂] = n` — `KSupply.hdeg`, verbatim;
+* the numerics pins `hgu`/`hgr` — `rfl` at `SN = standardNumerics n`;
+* `ramifiedData` — **literally** `DyadicLocalInput.ramifiedData`, the AX3 field-side interface,
+  which AS1 already takes as a constructor argument.
+
+Nothing else is owed: the duality bundle is B6 at `K` (`FieldData.tateDualityGalK`), the index
+identity is `IntermediateField.finrank_eq_fixingSubgroup_index`, and the arithmetic is LG5's. -/
+
+section Determinant
+
+variable (K : IntermediateField ℚ_[2] ℚ̄₂) [FiniteDimensional ℚ_[2] K]
+  [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+
+/-- **`sourceBoundaryMapK` at the `Subgroup AbsGalQ2` spelling** — the same term, typed at
+`↥(GalKsub K)` rather than at `↥(galKProfinite K)`.
+
+This is the instance-path firewall (ASK's R6 trap, and CB-SG's "take the inputs at the
+`GalKsub` pins" route).  `sourceBoundaryMapK` takes its source as a bundled `ProfiniteGrp`, so
+any statement mentioning it drags `ProfiniteGrp.of (GalK K)`'s *bundled* topology into
+elaboration; instance search then runs at that topology and `Subgroup.continuousSMul` no longer
+fires (the two topologies are defeq, but not **reducibly** so, and synthesis is reducible).
+Naming the same construction at the subtype spelling keeps §6's twins on the subtype path; the
+final `exact` bridges the two by ordinary defeq. -/
+noncomputable def boundaryMapSub {q : ℕ} {PG : ProfiniteGrp} {nuP : ContinuousMonoidHom PG Ztwo}
+    (tame : ContinuousMonoidHom (GalK K) (Tq q)) (pro2 : ContinuousMonoidHom (GalK K) PG)
+    (compat : ∀ g : GalK K, nuTq q (tame g) = nuP (pro2 g)) :
+    ContinuousMonoidHom (↥(GalKsub K)) ↥(boundarySubgroupQ q nuP) :=
+  ⟨(tame.toMonoidHom.prod pro2.toMonoidHom).codRestrict (boundarySubgroupQ q nuP)
+      fun g => compat g,
+    (tame.continuous_toFun.prodMk pro2.continuous_toFun).subtype_mk _⟩
+
+/-- **The `AffineDeterminantCertificate` at `G_K`** — ASK's `determinant` binder, discharged.
+
+The two clauses are §6's twins at `U = G_K`, `b = sourceBoundaryMapK tame pro2 compat` (whose
+tame coordinate is `tame` by `rfl`).  The `q`-pin is a *variable* equation so that the record's
+slot and `FieldParameters` can be identified by substitution; at ASK's instantiation
+`q = qOf K FF` and the pin is `toLocalInput`'s own `params_qK` argument. -/
+theorem affineDeterminant_galK (params : FieldParameters) {n q : ℕ} {PG : ProfiniteGrp}
+    {nuP : ContinuousMonoidHom PG Ztwo} {SN : SourceNumerics n}
+    (params_n : params.n = n) (params_qK : params.qK = q)
+    (hdeg : Module.finrank ℚ_[2] K = n)
+    (hgu : ∀ m : ℕ, SN.gaussUnram m = (-1 : ℤ) ^ n * 2 ^ (n * m))
+    (hgr : ∀ m : ℕ, SN.gaussRam m = (2 : ℤ) ^ (n * m))
+    (tame : ContinuousMonoidHom (GalK K) (Tq q)) (htame : Function.Surjective ⇑tame)
+    (pro2 : ContinuousMonoidHom (GalK K) PG)
+    (compat : ∀ g : GalK K, nuTq q (tame g) = nuP (pro2 g))
+    (ramifiedData : ∀ {Dg : Type} [Group Dg] [TopologicalSpace Dg] [DiscreteTopology Dg]
+      [Finite Dg] (W : Type) [AddCommGroup W] [DistribMulAction Dg W]
+      (cc : ContinuousMonoidHom (Tq params.qK) Dg) (rho : ContinuousMonoidHom (GalK K) Dg),
+      (∃ v : W, cc (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) W cc rho)) :
+    AffineDeterminantCertificate (galKProfinite K) n q PG nuP SN tame pro2 compat
+      (smulZmod2GalK K) := by
+  subst params_qK
+  subst params_n
+  haveI : Finite (AbsGalQ2 ⧸ GalKsub K) :=
+    finite_quotient_of_isOpen (GalKsub K) (isOpen_fixingSubgroup K)
+  -- **Instance-path fix, `MuN` flavour** (ASK's R6 trap).  `ContinuousSMul ↥U (MuN 2)`'s `SMul`
+  -- argument is pinned by the preceding `DistribMulAction ↥U (MuN 2)` binder, while mathlib's
+  -- `Subgroup.continuousSMul` concludes at the `SMulMemClass` path: the two are defeq but not
+  -- *reducibly* so, and instance search runs at reducible transparency.  Pinning the pair as
+  -- local instances — the second proved directly from the ambient action — makes the twins'
+  -- binders resolve consistently.  (For `ZMod 2` the two paths already agree, so no fix is
+  -- needed there; this is exactly the `smul`-trap shape LG2/LG4c met.)
+  letI dmMu : DistribMulAction (↥(GalKsub K)) (MuN 2) := inferInstance
+  haveI csMu : ContinuousSMul (↥(GalKsub K)) (MuN 2) :=
+    ⟨Continuous.comp (continuous_smul (M := AbsGalQ2) (X := MuN 2))
+      ((continuous_subtype_val.comp continuous_fst).prodMk continuous_snd)⟩
+  have hidx : (GalKsub K).index = params.n :=
+    (IntermediateField.finrank_eq_fixingSubgroup_index K).symm.trans hdeg
+  constructor
+  · intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk _ _ _ hE2 hq0 hqe F hsimple hVne hnt m hm hcard
+      l h hunram
+    -- the instance-path trap (ASK's R6): synthesising `gaussZResidueDK_unramified`'s instance
+    -- arguments *against* the goal would look for them at `↥(galKProfinite K)`'s bundled
+    -- topology, where `Subgroup.continuousSMul` does not fire.  Elaborating the twin at the
+    -- `Subgroup AbsGalQ2` spelling first, then `exact`-ing, keeps synthesis on the subtype path.
+    have key : GaussZResidueK (boundaryMapSub K tame pro2 compat) F
+        (blockEnrichmentDK T Blk hE2 hq0 hqe F) l h
+        ((-1 : ℤ) ^ params.n * 2 ^ (params.n * m)) :=
+      gaussZResidueDK_unramified (instDMAmu := dmMu) (instCSmu := csMu)
+        T Blk params (GalKsub K) (isOpen_fixingSubgroup K) hidx
+        (FieldData.tateDualityGalK K) hE2 hq0 hqe F tame htame
+        (boundaryMapSub K tame pro2 compat) (fun _ => rfl) hsimple hVne hnt m hm hcard l h hunram
+    rw [hgu m]
+    exact key
+  · intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk _ _ _ hE2 hq0 hqe F hsimple hVne hnt m hm hcard
+      l h hram
+    have key : GaussZResidueK (boundaryMapSub K tame pro2 compat) F
+        (blockEnrichmentDK T Blk hE2 hq0 hqe F) l h ((2 : ℤ) ^ (params.n * m)) :=
+      gaussZResidueDK_ramified (instDMAmu := dmMu) (instCSmu := csMu)
+        T Blk params (GalKsub K) (isOpen_fixingSubgroup K) hidx
+        (FieldData.tateDualityGalK K) hE2 hq0 hqe F tame htame
+        (boundaryMapSub K tame pro2 compat) (fun _ => rfl) ramifiedData hsimple hVne hnt m hm
+        hcard l h hram
+    rw [hgr m]
+    exact key
+
+end Determinant
 
 end GQ2.Dyadic
