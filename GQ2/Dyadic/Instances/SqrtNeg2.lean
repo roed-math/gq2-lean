@@ -431,6 +431,137 @@ theorem sqrtNegTwo_scalar (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Even q) 
       (trivialSMulZmodTwo ((pilotGamma q : Type))) :=
   ⟨sqrtNegTwo_homCard hsimp hq0 hqe, sqrtNegTwo_cardH2 hsimp hq0 hqe⟩
 
+/-! ### The `stageR136` residuals
+
+The two per-frame recursion-side inputs SD-R3's `blockStageR136K` leaves open, at this
+carrier — the exact shapes of its `hsep_hom` and `hZcount` binders, with the `htriv`/`hcard`
+proofs quantified (proof irrelevance makes any pair usable).  Their `ℚ₂` ancestors are the
+per-carrier `RStage` computations (`GQ2/Block/RStage.lean:372`,
+`GQ2.CardH2GammaA.stageR136_gammaA`); no candidate-side general-`K` supplier exists.
+**Owner:** a follow-on candidate-side R-stage ticket (CB1 memo's "stokes 1800" block). -/
+
+/-- **`stageR136` residual 1** — the obstruction-vanishing homomorphism-lift clause
+(`blockStageR136K`'s `hsep_hom`) at `Γ_R`, per frame. -/
+def PilotStageSep (q : ℕ) : Prop :=
+  letI := trivialSMulZmodTwo ((pilotGamma q : Type))
+  ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+    [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY) (hE2 : ∀ e : E, e ^ 2 = 1)
+    (b : ContinuousMonoidHom ((pilotGamma q : Type)) ↥(boundarySubgroupQ q pilotNuP))
+    (F : BoundaryFrameK q pilotP H E)
+    (htriv : ∀ (γ : ((pilotGamma q : Type))) (m : ZMod 2), γ • m = m)
+    (hcard : Nat.card (H2 ((pilotGamma q : Type)) (ZMod 2)) = 2)
+    (g : BoundaryLiftsK b F (blockFrameImpl T Blk hE2).TB),
+    obs (blockFrameImpl T Blk hE2) (blockRObstructionData T Blk hE2) htriv hcard g.1.1 = 0 →
+      ∃ φ : ContinuousMonoidHom ((pilotGamma q : Type)) Y,
+        ∀ γ, (blockFrameImpl T Blk hE2).piB (φ γ) = g.1.1 γ
+
+/-- **`stageR136` residual 2** — the `R`-cocycle torsor count (`blockStageR136K`'s `hZcount`)
+at `Γ_R`, per frame. -/
+def PilotStageZ (q : ℕ) : Prop :=
+  ∀ {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+    [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+    {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+    (T : MarkedTarget H E Y) (Blk : SectionSeven.MinimalBlock T.LY) (hE2 : ∀ e : E, e ^ 2 = 1)
+    (b : ContinuousMonoidHom ((pilotGamma q : Type)) ↥(boundarySubgroupQ q pilotNuP))
+    (F : BoundaryFrameK q pilotP H E) (f₀ : BoundaryLiftsK b F T),
+    Nat.card (RCocycle (blockFrameImpl T Blk hE2) f₀.1.1) = (blockFrameImpl T Blk hE2).zR
+
+/-- **Ledger field 3 at the pilot** — `ExactLiftingSemantics`, its three conjuncts closed by
+CB-3 (`liftsOver_card`), CB-VAR (`lem86`) and SD-R3's `blockStageR136K` over the two named
+residuals. -/
+theorem sqrtNegTwo_exactLifting (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Even q)
+    (hsplit : PilotStageSep q) (hZcount : PilotStageZ q) :
+    ExactLiftingSemantics (pilotGamma q) 2 q pilotP pilotNuP (standardNumerics 2) := by
+  refine ⟨?_, ?_, ?_⟩
+  · -- `liftsOver_card` (CB-3, at the branch's own degree bookkeeping)
+    intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk RF b F ρ
+    letI := mbCommGroup RF
+    letI := mbConjActC RF
+    letI := trivialSMulZmodTwo RF.YC
+    have hb := resolvesAt_and_endpoint_nCompactFam
+      (Q := WordLift (Additive ↥RF.MB) RF.YC)
+      (N := Monoid.exponent (HeisLift (Additive ↥RF.MB) RF.YC))
+      heisLevel_ne_zero_and_even.1 heisLevel_ne_zero_and_even.2
+      orderOf_wordLift_dvd_heisExponent (α := 2) (h := 0) (q := q) one_le_two hqe
+    have hres : ResolvesAt (gammaFam 2 q pilotW)
+        (nCompactFam 2 0 q (omega2Exp (Monoid.exponent (HeisLift (Additive ↥RF.MB) RF.YC))))
+        (WordLift (Additive ↥RF.MB) RF.YC) := hb.1
+    have hresS : ResolvesAt (gammaFam 2 q pilotW)
+        (nCompactFam 2 0 q (omega2Exp (Monoid.exponent (HeisLift (Additive ↥RF.MB) RF.YC))))
+        (WordLift (ZMod 2) RF.YC) :=
+      (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero_and_even.1
+        heisLevel_ne_zero_and_even.2 orderOf_wordLiftScal_dvd_heisExponent
+        (α := 2) (h := 0) (q := q) one_le_two hqe).1
+    exact nCompact_liftsOver_card (hN := 0) RF b F ρ
+      (isAdmissibleMarkedPresentation_gammaR 2 q pilotW) (fun _ => rfl)
+      (isWildTwo_of_gammaGen ρ.1.1 ρ.1.2 (fun _ => rfl)) hres
+      (sqrtNegTwo_stokesDuality hsimp hqe ρ.1.1
+        (odd_omega2Exp heisLevel_ne_zero_and_even.1 heisLevel_ne_zero_and_even.2) hresS
+        (Additive ↥RF.MB) (mb_add_self RF))
+      hb.2
+  · -- `lem86` (CB-VAR, at the given radical-cover datum)
+    intro Bg _ _ _ _ D hedge ρ hρ
+    letI := trivialSMulZmodTwo ((pilotGamma q : Type))
+    letI := trivialSMulZmodTwo (Bg ⧸ D.M)
+    letI : TopologicalSpace (ElemDual (Additive ↥D.T)) := ⊥
+    haveI : DiscreteTopology (ElemDual (Additive ↥D.T)) := ⟨rfl⟩
+    letI : DistribMulAction ((pilotGamma q : Type)) (Additive ↥D.T) :=
+      DistribMulAction.compHom _ ρ.toMonoidHom
+    letI : DistribMulAction ((pilotGamma q : Type)) (ElemDual (Additive ↥D.T)) :=
+      DistribMulAction.compHom _ ρ.toMonoidHom
+    haveI : ContinuousSMul ((pilotGamma q : Type)) (ElemDual (Additive ↥D.T)) := by
+      constructor
+      have hfac : (fun p : ((pilotGamma q : Type)) × ElemDual (Additive ↥D.T) => p.1 • p.2)
+          = (fun z : (Bg ⧸ D.M) × ElemDual (Additive ↥D.T) => z.1 • z.2)
+            ∘ (fun p : ((pilotGamma q : Type)) × ElemDual (Additive ↥D.T) =>
+                (ρ p.1, p.2)) := by
+        funext p; rfl
+      rw [hfac]
+      exact (continuous_of_discreteTopology
+        (f := fun z : (Bg ⧸ D.M) × ElemDual (Additive ↥D.T) => z.1 • z.2)).comp
+        ((ρ.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+    have hb := resolvesAt_and_endpoint_nCompactFam (Q := WordLift (ZMod 2) (Bg ⧸ D.M))
+      heisLevel_ne_zero heisLevel_even orderOf_dvd_heisLevel_scal (α := 2) (h := 0) (q := q)
+      one_le_two hqe
+    have hresS : ResolvesAt (gammaFam 2 q pilotW)
+        (nCompactFam 2 0 q (omega2Exp (heisLevel D))) (WordLift (ZMod 2) (Bg ⧸ D.M)) := hb.1
+    have hresP : ResolvesAt (gammaFam 2 q pilotW)
+        (nCompactFam 2 0 q (omega2Exp (heisLevel D)))
+        (WordLift (Additive ↥D.T) (Bg ⧸ D.M)) :=
+      (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+        orderOf_dvd_heisLevel_prim (α := 2) (h := 0) (q := q) one_le_two hqe).1
+    have hresD : ResolvesAt (gammaFam 2 q pilotW)
+        (nCompactFam 2 0 q (omega2Exp (heisLevel D)))
+        (WordLift (ElemDual (Additive ↥D.T)) (Bg ⧸ D.M)) :=
+      (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+        orderOf_dvd_heisLevel_dual (α := 2) (h := 0) (q := q) one_le_two hqe).1
+    have hresH : ResolvesAt (gammaFam 2 q pilotW)
+        (nCompactFam 2 0 q (omega2Exp (heisLevel D)))
+        (HeisLift (Additive ↥D.T) (Bg ⧸ D.M)) :=
+      (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+        orderOf_dvd_heisLevel_heis (α := 2) (h := 0) (q := q) one_le_two hqe).1
+    exact lem86_of_variation (tComplement_nonempty D).some ρ (fun _ _ => rfl)
+      (fun _ _ => rfl) (fun _ => rfl) (isAdmissibleMarkedPresentation_gammaR 2 q pilotW)
+      (fun V => hwildLevel_gammaR V)
+      (isWildTwo_of_gammaGen ρ hρ (fun _ => rfl)) hresS hresP hresD hresH
+      (sqrtNegTwo_stokesDuality_T hsimp hqe ρ)
+      (sqrtNegTwo_stokesDuality hsimp hqe ρ
+        (odd_omega2Exp heisLevel_ne_zero heisLevel_even) hresS (ZMod 2)
+        (by decide : ∀ a : ZMod 2, a + a = 0))
+      hb.2 hedge hρ
+  · -- `stageR136` (SD-R3's `blockStageR136K` over the two named residuals)
+    intro H E _ _ _ _ _ _ _ _ Y _ _ _ _ T Blk hE2 hRK hR2 b F
+    letI := trivialSMulZmodTwo ((pilotGamma q : Type))
+    haveI := trivialContSMulZmodTwo ((pilotGamma q : Type))
+    exact blockStageR136K T Blk hE2 (trivialHtrivZmodTwo _)
+      (sqrtNegTwo_cardH2 hsimp hq0 hqe)
+      (GQ2.Dyadic.Count.gammaR_topologicallyFinitelyGenerated 2 q pilotW) b F
+      (fun g hg => hsplit T Blk hE2 b F (trivialHtrivZmodTwo _)
+        (sqrtNegTwo_cardH2 hsimp hq0 hqe) g hg)
+      (fun f₀ => hZcount T Blk hE2 b F f₀)
+
 end Clauses
 
 end SqrtNeg2
