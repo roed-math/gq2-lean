@@ -731,4 +731,80 @@ theorem card_liftsOverK_eq_card_Z1 (RF : RecursionFrame T Blk)
 
 end Torsor
 
+/-! ## §6. `SourceDataN.liftsOver_card`, over the abstract carrier
+
+The clause.  Four rewrites and no cohomology: §4 supplies the base lift, §5 moves into `Z¹`, CB-1's
+`card_Z1_eq_card_wordZ1` moves into the word complex, and CB-S's clause 2 reads off the value —
+with §3 collapsing the `fixedPts` factor to `1`.
+
+The `SN`-leaf that absorbs the degree is `mMult`, and at `standardNumerics n` it is
+`M ↦ M^{n+1}` — *definitionally the same function as* `tMult`, which is why the last step is the
+`tcocycle_card` shape theorem read at a different module and closed by `rfl`.  At `n = 1` the value
+is the frozen `#M_B²` of `GQ2/MStageCount.lean:586`, whose `²` was `|ι| − |ρ|`. -/
+
+section Count
+
+variable {H E : Type} [Group H] [TopologicalSpace H] [DiscreteTopology H] [Finite H]
+  [CommGroup E] [TopologicalSpace E] [DiscreteTopology E] [Finite E]
+  {Y : Type} [Group Y] [TopologicalSpace Y] [DiscreteTopology Y] [Finite Y]
+  {T : MarkedTarget H E Y} {Blk : SectionSeven.MinimalBlock T.LY}
+  {q : ℕ} {P : ProfiniteGrp} {nuP : ContinuousMonoidHom P Ztwo}
+  {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ] [CompactSpace Γ]
+  [TotallyDisconnectedSpace Γ]
+  {ι κ : Type*} [Fintype ι] [Fintype κ] [DecidableEq ι]
+
+omit [TopologicalSpace Y] [DiscreteTopology Y] [CompactSpace Γ] [TotallyDisconnectedSpace Γ] in
+/-- **The `SourceDataN.liftsOver_card` value, degree-generically**:
+`#LiftsOverK(ρ) = SN.mMult #M_B` for `SN = standardNumerics n`, from one `StokesDuality` payload
+at the module `M_B` and a degree-`n` marked presentation.
+
+This is the shape `GQ2/Dyadic/SourceDataN.lean:198` asks for.  Every hypothesis is one a branch
+already supplies for `tcocycle_card`/`hZcard` — there is no input private to this clause. -/
+theorem liftsOver_cardN {n : ℕ} (RF : RecursionFrame T Blk)
+    (b : ContinuousMonoidHom Γ ↥(boundarySubgroupQ q nuP)) (F : BoundaryFrameK q P H E)
+    (ρ : BoundaryLiftsK b F RF.TC)
+    {gen : ι → Γ} {W : κ → PWord ι} {w : κ → FreeGroup ι} {c : ι → RF.YC} {J : Set ι}
+    (hpres : IsAdmissibleMarkedPresentation Γ gen W J)
+    (hc : ∀ i, ρ.1.1 (gen i) = c i) (hwild2 : IsWildTwo J c)
+    (hdeg : Nat.card ι = Nat.card κ + (n + 1)) :
+    letI := mbCommGroup RF
+    letI := mbConjActC RF
+    ResolvesAt W w (WordLift (Additive ↥RF.MB) RF.YC) →
+      StokesDuality c w (Additive ↥RF.MB) → IsStokesEndpoint w →
+      Nat.card (LiftsOverK RF b F ρ) = (standardNumerics n).mMult (Nat.card ↥RF.MB) := by
+  classical
+  letI := mbCommGroup RF
+  letI := mbConjActC RF
+  intro hres hd hend
+  letI : TopologicalSpace (Additive ↥RF.MB) := (inferInstance : TopologicalSpace ↥RF.MB)
+  haveI : DiscreteTopology (Additive ↥RF.MB) :=
+    ⟨(inferInstance : DiscreteTopology ↥RF.MB).eq_bot⟩
+  haveI : Finite (Additive ↥RF.MB) := (inferInstance : Finite ↥RF.MB)
+  letI actG : DistribMulAction Γ (Additive ↥RF.MB) :=
+    DistribMulAction.compHom _ ρ.1.1.toMonoidHom
+  have hcomp : ∀ (γ : Γ) (a : Additive ↥RF.MB), γ • a = ρ.1.1 γ • a := fun _ _ => rfl
+  haveI : ContinuousSMul Γ (Additive ↥RF.MB) := by
+    constructor
+    have hfac : (fun p : Γ × Additive ↥RF.MB => p.1 • p.2)
+        = (fun cq : RF.YC × ↥RF.MB =>
+            Additive.ofMul (⟨mbSec RF cq.1 * cq.2.1 * (mbSec RF cq.1)⁻¹,
+              RF.MB_normal.conj_mem _ cq.2.2 _⟩ : ↥RF.MB))
+          ∘ (fun p : Γ × Additive ↥RF.MB => (ρ.1.1 p.1, Additive.toMul p.2)) := by
+      funext p; rfl
+    rw [hfac]
+    exact continuous_of_discreteTopology.comp
+      ((ρ.1.1.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  have hA₂ : ∀ a : Additive ↥RF.MB, a + a = 0 := mb_add_self RF
+  have hgen : Subgroup.closure (Set.range c) = ⊤ :=
+    closure_range_lower_eq_top ρ.1.1 hc hpres ρ.1.2
+  have hS : IsSelfDualN n c w (Additive ↥RF.MB) :=
+    isSelfDualN_of_stokesDuality hdeg hd (lower_rel ρ.1.1 hc hpres hres) hend
+  have htorsor := card_liftsOverK_eq_card_Z1 RF b F ρ
+    (nonempty_liftsOverK RF b F ρ hpres hc hwild2 hdeg hres hd hend)
+  rw [htorsor, card_Z1_eq_card_wordZ1 ρ.1.1 hcomp hc hpres hres hA₂ hwild2,
+    tcocycle_card_shape_fixedPts hS hgen, card_fixedPts_MB_dual RF, mul_one]
+  rfl
+
+end Count
+
 end GQ2.Dyadic.Count
