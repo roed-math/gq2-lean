@@ -3,6 +3,7 @@ Copyright (c) 2026 David Roe. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Fable-5
 -/
+import GQ2.Dyadic.Instances.SqrtNeg2
 import GQ2.Dyadic.OrientedTameBundle
 import GQ2.UnitFiltrationCounts
 import Mathlib.Algebra.Polynomial.SpecificDegree
@@ -48,6 +49,11 @@ This file supplies the field objects and the binders that literal arithmetic dis
   `not_hasEqualNormValueGroups_KSqrtNegTwo`, `…_KSqrtTwo`, `…_KSqrtTen`, `…_KSqrtNegTen`.
   `‖z‖⁴ = ‖2‖³` is an odd power of `‖2‖`, while `exists_norm_sq_eq` shows the value group of
   `ℚ₂(√a)` only supplies even ones — so `ℚ₂(√a)(i)/ℚ₂(√a)` is ramified.
+* `GQ2.Dyadic.Fields.sqrtNegTwo_candidate_equiv_galK_literal` — **packet Thm. 1.1 at the
+  literal `ℚ₂(√−2)`** (§8), i.e. `SqrtNeg2.sqrtNegTwo_candidate_equiv_galK` with `K`, `hdeg`,
+  `params`, `params_qK` and `ramified` all supplied.  What survives in the binder list is
+  exactly the non-arithmetic residue: the AX3/AX4 bundles, the G-Lab pack and the analytic
+  clauses.
 
 ## What this file does *not* do
 
@@ -641,5 +647,83 @@ theorem not_hasEqualNormValueGroups_KSqrtNegTen (δi : AlgebraicClosure ℚ_[2])
     (small_ten (by norm_num)) δi hδ
 
 end RowsRamified
+
+/-! ## §8 Packet Thm. 1.1 at the *literal* `ℚ₂(√−2)`
+
+The payoff.  `SqrtNeg2.sqrtNegTwo_candidate_equiv_galK` is stated over a supplied quadratic `K`
+with `hdeg`, `params`/`params_qK` and `ramified` as binders.  Here every one of those is
+**discharged by the arithmetic of the literal field**: `K := KSqrtNegTwo`, `hdeg` is
+`finrank_KSqrtNegTwo`, the field parameters are the literal `pilotParams = (n, f, q_K) =
+(2, 1, 2)` with `params_qK` supplied by `qOf_KSqrtNegTwo`, and `ramified` by
+`not_hasEqualNormValueGroups_KSqrtNegTwo`.
+
+What remains in the binder list is therefore exactly the **non-arithmetic** residue: the AX3/AX4
+bundles `(B, FF, T)` (i.e. the census axioms B5-K/B10-K, which is where local class field theory
+would enter and where Mathlib has nothing), the G-Lab pack, and the four analytic clauses.  No
+`hdeg`, no `q_K`, no ramification hypothesis survives. -/
+
+section Literal
+
+open GQ2.Dyadic.MarkedCore GQ2.Dyadic.Count
+
+/-- `(n, f, q_K) = (2, 1, 2)` — the numerical parameters of every ramified quadratic row,
+as a literal `FieldParameters`. -/
+def pilotParams : FieldParameters where
+  n := 2
+  f := 1
+  qK := 2
+  qK_eq := by norm_num
+  one_le_n := by norm_num
+  one_le_f := le_refl 1
+  f_dvd_n := one_dvd 2
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  {Rec : LocalReciprocity} {B : MarkedRecip Rec KSqrtNegTwo}
+  {FF : DyadicUnitFiltration KSqrtNegTwo}
+
+set_option maxHeartbeats 800000 in
+/-- **Packet Thm. 1.1 at the literal field `ℚ₂(√−2)`.**
+
+`Γ_{R_{N,2,0}} = ⟨σ, τ, x₀, x₁, x₂ ∣ τ^σ = τ², x₀⁶[x₀,x₁]·x₂^{-σ}(x₂τ)^{ω₂} = 1⟩ ≅ G_K`
+for `K = ℚ₂(√−2)`, the actual field of the pilot row — not merely for "some supplied quadratic
+`K` with the right arithmetic".
+
+Every arithmetic binder of `SqrtNeg2.sqrtNegTwo_candidate_equiv_galK` is discharged here; the
+surviving hypotheses are the AX3/AX4 bundles and the analytic clauses, none of which mention
+the field's arithmetic. -/
+theorem sqrtNegTwo_candidate_equiv_galK_literal (T : OrientedTameQuotientK B FF)
+    (fLab : ContinuousMulEquiv ((DN 2 0) : Type)
+      ((maxProPQuotient 2 (GalK KSqrtNegTwo)) : Type))
+    (piAb : ((maxProPQuotient 2 (GalK KSqrtNegTwo)) : Type) →* GalKab KSqrtNegTwo)
+    (hpiAb : Continuous piAb)
+    (hpiNu : ∀ g : GalK KSqrtNegTwo,
+      B.nu_ur (piAb (maxProPMk 2 (GalK KSqrtNegTwo) g)) = B.nu_ur (toAbK KSqrtNegTwo g))
+    (horient : ∀ x, chiCycKAb KSqrtNegTwo (piAb (fLab x)) = chiN 2 0 x)
+    (hScal : NScalingHypothesis 2 0)
+    (hpair : IsUnit (Multiplicative.toAdd (B.nu_ur (piAb (fLab (dnSigma 2 0)))))
+      ∨ IsUnit (Multiplicative.toAdd (B.nu_ur (piAb (fLab (dnX2 2 0))))))
+    (hexact : ExactLiftingSemantics (galKProfinite KSqrtNegTwo) 2 (qOf KSqrtNegTwo FF)
+      SqrtNeg2.pilotP SqrtNeg2.pilotNuP (standardNumerics 2))
+    (hstokes : StokesDualityCertificate (galKProfinite KSqrtNegTwo) 2 (qOf KSqrtNegTwo FF)
+      SqrtNeg2.pilotP SqrtNeg2.pilotNuP (standardNumerics 2) (smulZmod2GalK KSqrtNegTwo))
+    (hsimp : SqrtNeg2.PilotHsimp (qOf KSqrtNegTwo FF))
+    (hsplit : SqrtNeg2.PilotStageSep (qOf KSqrtNegTwo FF))
+    (hZcount : SqrtNeg2.PilotStageZ (qOf KSqrtNegTwo FF))
+    (hdet : SqrtNeg2.PilotDet (qOf KSqrtNegTwo FF) (qOf_ne_zero KSqrtNegTwo FF)
+      (even_qOf KSqrtNegTwo FF))
+    (ramifiedData : ∀ {D : Type} [Group D] [TopologicalSpace D] [DiscreteTopology D] [Finite D]
+      (V : Type) [AddCommGroup V] [DistribMulAction D V]
+      (c : ContinuousMonoidHom (Tq pilotParams.qK) D)
+      (rho : ContinuousMonoidHom ↥(GalKsub KSqrtNegTwo) D),
+      (∃ v : V, c (tqTau pilotParams.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate pilotParams (GalKsub KSqrtNegTwo) V c rho)) :
+    Nonempty (ContinuousMulEquiv ((candidateGroup 2 (qOf KSqrtNegTwo FF) Count.pilotW : Type))
+      (GalK KSqrtNegTwo)) :=
+  SqrtNeg2.sqrtNegTwo_candidate_equiv_galK T finrank_KSqrtNegTwo fLab piAb hpiAb hpiNu horient
+    hScal hpair hexact hstokes hsimp hsplit hZcount hdet pilotParams rfl
+    (qOf_KSqrtNegTwo FF).symm
+    (fun δi hδ => not_hasEqualNormValueGroups_KSqrtNegTwo δi hδ) ramifiedData
+
+end Literal
 
 end GQ2.Dyadic.Fields
