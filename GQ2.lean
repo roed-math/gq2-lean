@@ -377,6 +377,7 @@ import GQ2.Dyadic.SqCore.Rank3
 import GQ2.Dyadic.SqCore.PivotLemma
 import GQ2.Dyadic.SqCore.Certificate
 import GQ2.Dyadic.LabuteInterface
+import GQ2.Dyadic.OrientationCorrection
 import GQ2.Dyadic.NpcJet.Defs
 import GQ2.Dyadic.NpcJet.Omega
 import GQ2.Dyadic.NpcJet.Seams
