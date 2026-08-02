@@ -281,21 +281,23 @@ open GQ2.CardH2GammaA DihedralGroup
 local instance : TopologicalSpace Base := ⊥
 local instance : DiscreteTopology Base := ⟨rfl⟩
 
-local instance : DiscreteTopology (Base ⧸ Mlayer) :=
-  (CentralObstruction.discreteTopology_quotient datum : DiscreteTopology (Base ⧸ datum.M))
+local instance : DiscreteTopology (Base ⧸ datum.M) :=
+  CentralObstruction.discreteTopology_quotient datum
 
-/-- `𝔽₂²/⟨s̄⟩` is elementary abelian of exponent `2`. -/
-theorem datumQuot_sq (y : Base ⧸ Mlayer) : y * y = 1 := by
+/-- `𝔽₂²/⟨s̄⟩` is elementary abelian of exponent `2`.  (Stated at the `datum.M` spelling
+throughout this section: the count lane's canonical instances — `cActT` and friends — are keyed
+at `Bg ⧸ D.M`, and `Mlayer` does not match that key.) -/
+theorem datumQuot_sq (y : Base ⧸ datum.M) : y * y = 1 := by
   obtain ⟨b, rfl⟩ := QuotientGroup.mk_surjective y
   rw [← QuotientGroup.mk_mul, show b * b = 1 from by revert b; decide, QuotientGroup.mk_one]
 
 /-- The datum's quotient is a `2`-group, hence pro-`2` as a finite discrete group. -/
-theorem isProP_datumQuot : IsProP 2 (Base ⧸ Mlayer) :=
+theorem isProP_datumQuot : IsProP 2 (Base ⧸ datum.M) :=
   isProP_of_isPGroup fun y => ⟨1, by rw [pow_one, pow_two]; exact datumQuot_sq y⟩
 
 /-- **The core marking of the datum quotient**: `σ ↦ [r̄]`, everything else `↦ 1`.  The relator
 dies because the `N`-relator at a marking with trivial `x`-slots is a bare commutator. -/
-noncomputable def datumCoreHom : ContinuousMonoidHom ((DN 2 0) : Type) (Base ⧸ Mlayer) :=
+noncomputable def datumCoreHom : ContinuousMonoidHom ((DN 2 0) : Type) (Base ⧸ datum.M) :=
   nLiftHom 2 0 isProP_datumQuot (coreMark 1 1 (QuotientGroup.mk (r 1)) 1)
     (by simp [nRelWord, nWord, commP])
 
@@ -307,14 +309,16 @@ variable {q : ℕ}
 
 /-- **The surjection `Γ_R ↠ 𝔽₂²/⟨s̄⟩`**, through the pro-2 core. -/
 noncomputable def datumRho (hq0 : q ≠ 0) (hqe : Even q) :
-    ContinuousMonoidHom ((pilotGamma q : Type)) (Base ⧸ Mlayer) :=
+    ContinuousMonoidHom ((pilotGamma q : Type)) (Base ⧸ datum.M) :=
   datumCoreHom.comp (CorePresentation.coreHom (nCorePresentation 2 0) hq0 hqe)
 
 theorem datumRho_surjective (hq0 : q ≠ 0) (hqe : Even q) :
     Function.Surjective (datumRho hq0 hqe) := by
   intro y
   obtain ⟨b, rfl⟩ := QuotientGroup.mk_surjective y
-  rcases quotient_cases b with h | h
+  have hcases : (QuotientGroup.mk b : Base ⧸ datum.M) = 1
+      ∨ (QuotientGroup.mk b : Base ⧸ datum.M) = QuotientGroup.mk (r 1) := quotient_cases b
+  rcases hcases with h | h
   · exact ⟨1, by rw [map_one, h]⟩
   · obtain ⟨γ, hγ⟩ := CorePresentation.coreHom_surjective (nCorePresentation 2 0)
       (hq0 := hq0) (hqe := hqe) (dnSigma 2 0)
@@ -324,6 +328,110 @@ theorem datumRho_surjective (hq0 : q ≠ 0) (hqe : Even q) :
     simp
 
 end Datum
+
+/-! ## §4 The count-lane clauses at the pilot
+
+Each of the nine closed `SourceDataN` clauses, stated in the certificate's own vocabulary and
+discharged from the CB lane plus the §2 payloads.  The scalar pair first (`homCard` outright,
+`cardH2` through CB-VAR's variation class at the §3 datum). -/
+
+section Clauses
+
+open GQ2.CardH2GammaA
+
+local instance : TopologicalSpace Base := ⊥
+local instance : DiscreteTopology Base := ⟨rfl⟩
+
+variable {q : ℕ}
+
+/-- **`SourceDataN.cardH2` at the pilot** — `#H²(Γ_R, 𝔽₂) = 2`, from the one `hsimp` through
+CB-VAR's `cardH2_of_variation` at the §3 datum. -/
+theorem sqrtNegTwo_cardH2 (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Even q) :
+    letI := trivialSMulZmodTwo ((pilotGamma q : Type))
+    Nat.card (H2 ((pilotGamma q : Type)) (ZMod 2)) = 2 := by
+  letI := trivialSMulZmodTwo ((pilotGamma q : Type))
+  haveI : DiscreteTopology (Base ⧸ datum.M) := CentralObstruction.discreteTopology_quotient datum
+  letI := trivialSMulZmodTwo (Base ⧸ datum.M)
+  set rho := datumRho hq0 hqe with hrho
+  letI : TopologicalSpace (ElemDual (Additive ↥datum.T)) := ⊥
+  haveI : DiscreteTopology (ElemDual (Additive ↥datum.T)) := ⟨rfl⟩
+  letI : DistribMulAction ((pilotGamma q : Type)) (Additive ↥datum.T) :=
+    DistribMulAction.compHom _ rho.toMonoidHom
+  letI : DistribMulAction ((pilotGamma q : Type)) (ElemDual (Additive ↥datum.T)) :=
+    DistribMulAction.compHom _ rho.toMonoidHom
+  haveI : ContinuousSMul ((pilotGamma q : Type)) (ElemDual (Additive ↥datum.T)) := by
+    constructor
+    have hfac : (fun p : ((pilotGamma q : Type)) × ElemDual (Additive ↥datum.T) => p.1 • p.2)
+        = (fun z : (Base ⧸ datum.M) × ElemDual (Additive ↥datum.T) => z.1 • z.2)
+          ∘ (fun p : ((pilotGamma q : Type)) × ElemDual (Additive ↥datum.T) =>
+              (rho p.1, p.2)) := by
+      funext p; rfl
+    rw [hfac]
+    exact (continuous_of_discreteTopology
+      (f := fun z : (Base ⧸ datum.M) × ElemDual (Additive ↥datum.T) => z.1 • z.2)).comp
+      ((rho.continuous_toFun.comp continuous_fst).prodMk continuous_snd)
+  have hb := resolvesAt_and_endpoint_nCompactFam (Q := WordLift (ZMod 2) (Base ⧸ datum.M))
+    heisLevel_ne_zero heisLevel_even orderOf_dvd_heisLevel_scal (α := 2) (h := 0) (q := q)
+    one_le_two hqe
+  have hresS : ResolvesAt (gammaFam 2 q pilotW)
+      (nCompactFam 2 0 q (omega2Exp (heisLevel datum))) (WordLift (ZMod 2) (Base ⧸ datum.M)) :=
+    hb.1
+  have hresP : ResolvesAt (gammaFam 2 q pilotW)
+      (nCompactFam 2 0 q (omega2Exp (heisLevel datum)))
+      (WordLift (Additive ↥datum.T) (Base ⧸ datum.M)) :=
+    (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_prim (α := 2) (h := 0) (q := q) one_le_two hqe).1
+  have hresD : ResolvesAt (gammaFam 2 q pilotW)
+      (nCompactFam 2 0 q (omega2Exp (heisLevel datum)))
+      (WordLift (ElemDual (Additive ↥datum.T)) (Base ⧸ datum.M)) :=
+    (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_dual (α := 2) (h := 0) (q := q) one_le_two hqe).1
+  have hresH : ResolvesAt (gammaFam 2 q pilotW)
+      (nCompactFam 2 0 q (omega2Exp (heisLevel datum)))
+      (HeisLift (Additive ↥datum.T) (Base ⧸ datum.M)) :=
+    (resolvesAt_and_endpoint_nCompactFam heisLevel_ne_zero heisLevel_even
+      orderOf_dvd_heisLevel_heis (α := 2) (h := 0) (q := q) one_le_two hqe).1
+  exact cardH2_of_variation (tComplement_nonempty datum).some rho (fun _ _ => rfl)
+    (fun _ _ => rfl) (fun _ => rfl) (isAdmissibleMarkedPresentation_gammaR 2 q pilotW)
+    (fun V => hwildLevel_gammaR V) (isWildTwo_of_gammaGen rho (datumRho_surjective hq0 hqe)
+      (fun _ => rfl))
+    hresS hresP hresD hresH
+    (sqrtNegTwo_stokesDuality_T hsimp hqe rho)
+    (sqrtNegTwo_stokesDuality hsimp hqe rho
+      (odd_omega2Exp heisLevel_ne_zero heisLevel_even) hresS (ZMod 2)
+      (by decide : ∀ a : ZMod 2, a + a = 0))
+    hb.2 datum_noDescent (datumRho_surjective hq0 hqe)
+
+/-- **`SourceDataN.homCard` at the pilot** — `#Hom_c(Γ_R, 𝔽₂) = 2^{2+2}`, CB-2's field goal at
+the same datum marking. -/
+theorem sqrtNegTwo_homCard (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Even q) :
+    Nat.card (ContinuousMonoidHom (pilotGamma q) (Multiplicative (ZMod 2)))
+      = (standardNumerics 2).homScalar := by
+  haveI : DiscreteTopology (Base ⧸ datum.M) := CentralObstruction.discreteTopology_quotient datum
+  letI := trivialSMulZmodTwo (Base ⧸ datum.M)
+  set rho := datumRho hq0 hqe with hrho
+  have hb := resolvesAt_and_endpoint_nCompactFam (Q := WordLift (ZMod 2) (Base ⧸ datum.M))
+    heisLevel_ne_zero heisLevel_even orderOf_dvd_heisLevel_scal (α := 2) (h := 0) (q := q)
+    one_le_two hqe
+  have hresS : ResolvesAt (gammaFam 2 q pilotW)
+      (nCompactFam 2 0 q (omega2Exp (heisLevel datum))) (WordLift (ZMod 2) (Base ⧸ datum.M)) :=
+    hb.1
+  exact homCard_field_goal rho (fun _ => rfl)
+    (isAdmissibleMarkedPresentation_gammaR 2 q pilotW) hresS
+    (isWildTwo_of_gammaGen rho (datumRho_surjective hq0 hqe) (fun _ => rfl))
+    (nCompact_degree 0)
+    (sqrtNegTwo_stokesDuality hsimp hqe rho
+      (odd_omega2Exp heisLevel_ne_zero heisLevel_even) hresS (ZMod 2)
+      (by decide : ∀ a : ZMod 2, a + a = 0))
+    hb.2
+
+/-- **Ledger field 5 at the pilot** — the scalar block, assembled. -/
+theorem sqrtNegTwo_scalar (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Even q) :
+    ScalarHilbertCertificate (pilotGamma q) 2 (standardNumerics 2)
+      (trivialSMulZmodTwo ((pilotGamma q : Type))) :=
+  ⟨sqrtNegTwo_homCard hsimp hq0 hqe, sqrtNegTwo_cardH2 hsimp hq0 hqe⟩
+
+end Clauses
 
 end SqrtNeg2
 
