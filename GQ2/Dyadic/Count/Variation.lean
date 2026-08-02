@@ -171,6 +171,26 @@ noncomputable def heisDual : WordLift (ElemDual A) C →* HeisLift A C where
     · show (0 : ZMod 2) = 0 + 0 + p.u (p.g • (0 : A))
       rw [smul_zero, map_zero, add_zero, add_zero]
 
+/-- **The scalar slice** `𝔽₂ ⋊ C ↪ H(A) ⋊ C`, `(m, g) ↦ (0, 0, m, g)` — the *centre* times the
+base, not a coefficient slice.  At the scalars the source is a direct product (CB-2 §1), and the
+Heisenberg centre is central, so the two multiplications agree. -/
+noncomputable def heisScal [DistribMulAction C (ZMod 2)] :
+    WordLift (ZMod 2) C →* HeisLift A C where
+  toFun p := ⟨0, 0, p.u, p.g⟩
+  map_one' := rfl
+  map_mul' p q := by
+    refine HeisLift.ext ?_ ?_ ?_ rfl
+    · show (0 : A) = 0 + p.g • (0 : A)
+      rw [smul_zero, add_zero]
+    · show (0 : ElemDual A) = 0 + p.g • (0 : ElemDual A)
+      rw [smul_zero, add_zero]
+    · show p.u + p.g • q.u = p.u + q.u + (0 : ElemDual A) (p.g • (0 : A))
+      rw [ElemDual.zero_apply, add_zero, smul_zmod2]
+
+theorem heisScal_injective [DistribMulAction C (ZMod 2)] :
+    Function.Injective (heisScal (A := A) (C := C)) :=
+  fun _ _ h => WordLift.ext (congrArg HeisLift.z h) (congrArg HeisLift.g h)
+
 theorem heisPrim_injective : Function.Injective (heisPrim (A := A) (C := C)) :=
   fun _ _ h => WordLift.ext (congrArg HeisLift.a h) (congrArg HeisLift.g h)
 
@@ -213,6 +233,13 @@ theorem orderOf_wordLift_dvd_heisExponent (x : WordLift A C) :
 theorem orderOf_wordLiftDual_dvd_heisExponent (x : WordLift (ElemDual A) C) :
     orderOf x ∣ Monoid.exponent (HeisLift A C) := by
   rw [← orderOf_injective (heisDual (A := A) (C := C)) heisDual_injective x]
+  exact Monoid.order_dvd_exponent _
+
+/-- **The scalar split group is killed by the same level** — CB-2's coefficient module, which is
+where CB-1's `z1Equiv` and CB-H2's rung are both read. -/
+theorem orderOf_wordLiftScal_dvd_heisExponent [DistribMulAction C (ZMod 2)]
+    (x : WordLift (ZMod 2) C) : orderOf x ∣ Monoid.exponent (HeisLift A C) := by
+  rw [← orderOf_injective (heisScal (A := A) (C := C)) heisScal_injective x]
   exact Monoid.order_dvd_exponent _
 
 variable [Finite A] [Finite C]
@@ -365,5 +392,160 @@ theorem pObsFam_inflation (W : ρ → PWord ι) (gen : ι → Γ) (H : Continuou
   exact congrArg (fun μ : ι → L => pRelZ (W k) μ κ) (funext fun i => hHbarmk (gen i))
 
 end Inflation
+
+/-! ## §5. The ledger identity
+
+The `ℚ₂` half-torsor proof's fifth step (`LedgerGamma{A,R}.obs_varCoc_eq_mixedB`), degree-generic
+and word-generic.  Two components:
+
+* §5a, the **detection functional**: at the scalars `∑_k` kills `im d¹`, so it descends to
+  `WordH²(𝔽₂) →+ 𝔽₂`.  This is the degree-generic replacement for `ℚ₂`'s `obsH2`, and it is
+  cheaper for CB-2's reason — at trivial action `d⁰ = 0` on the dual side, so the second chain
+  condition `heisEta2 ∘ d¹ = heisEta1 ∘ d⁰` has a *zero* right-hand side.
+* §5b, the **identity**: `varCoc u` is pointwise the Heisenberg cocycle pulled back along the graph
+  of the pair `(z, φ)`, so §4 computes its obstruction vector as the relator `z`-coordinates, and
+  §3 identifies those with the traced Stokes pairing `heisEta1`.
+
+Together: a nonzero pairing value forces the variation class to be nonzero. -/
+
+section Ledger
+
+open GQ2.Dyadic.WordCoh
+
+/-! ### §5a. The detection functional -/
+
+section Detect
+
+variable {ι ρ : Type*} [Fintype ι] [Fintype ρ] [DecidableEq ι] {C : Type*} [Group C]
+  [DistribMulAction C (ZMod 2)] {c : ι → C} {w : ρ → FreeGroup ι}
+
+/-- The identity functional, as an element of `ElemDual (ZMod 2)`.  It exists only because the
+coefficient module *is* the scalars — this is what makes §5a a two-line argument. -/
+def idDual : ElemDual (ZMod 2) := AddMonoidHom.id (ZMod 2)
+
+@[simp] theorem idDual_apply (m : ZMod 2) : idDual m = m := rfl
+
+omit [Fintype ι] [Fintype ρ] [DecidableEq ι] in
+/-- **At the scalars the dual `d⁰` vanishes** — `Aut(𝔽₂) = 1`, so the contragredient action on
+`ElemDual (ZMod 2)` is trivial too.  CB-2 §1's observation, one degree up on the dual side. -/
+theorem heisD0_idDual (c : ι → C) : heisD0 (A := ElemDual (ZMod 2)) c idDual = 0 := by
+  funext i
+  show heisD0 (A := ElemDual (ZMod 2)) c idDual i = 0
+  refine ElemDual.ext fun m => ?_
+  rw [heisD0_apply, ElemDual.sub_apply, ElemDual.smul_apply, idDual_apply, idDual_apply,
+    smul_zmod2, sub_self, ElemDual.zero_apply]
+
+/-- **At the scalars the traced sum kills `im d¹`.**
+
+`heisEta2 (d¹x) λ = heisEta1 x (d⁰λ)` (the second Stokes chain condition) has both sides
+computable here: the right one because `Aut(𝔽₂) = 1` makes the contragredient action on
+`ElemDual (ZMod 2)` trivial, so `d⁰λ = 0`, and `heisEta1 x 0 = 0` because a Heisenberg word with
+zero dual offsets has zero central coordinate (`heisWord_zero_dual`).  The left one is
+`λ(∑_k (d¹x)_k)`, and taking `λ = id` — available because the module *is* `𝔽₂` — reads off the
+sum. -/
+theorem sum_heisD1_zmod2 (hr : ∀ k, FreeGroup.lift c (w k) = 1) (hend : IsStokesEndpoint w)
+    (x : ι → ZMod 2) : ∑ k, heisD1 (A := ZMod 2) c w x k = 0 := by
+  have hchain := heisEta2_comp_d1 c w hr hend x idDual
+  rw [heisD0_idDual] at hchain
+  have hzero : heisEta1 c w x (0 : ι → ElemDual (ZMod 2)) = 0 := by
+    show (∑ k, (FreeGroup.lift (heisGen c x (0 : ι → ElemDual (ZMod 2))) (w k)).z) = 0
+    exact Finset.sum_eq_zero fun k _ => (heisWord_zero_dual c x (w k)).2
+  rw [hzero] at hchain
+  exact hchain
+
+/-- **The detection criterion**: a vector with nonzero traced sum is nonzero in `WordH²(𝔽₂)`. -/
+theorem wordH2Mk_ne_zero_of_sum (hr : ∀ k, FreeGroup.lift c (w k) = 1)
+    (hend : IsStokesEndpoint w) {v : ρ → ZMod 2} (hv : ∑ k, v k ≠ 0) :
+    (QuotientAddGroup.mk' (heisD1 (A := ZMod 2) c w).range v : WordH2 c w (ZMod 2)) ≠ 0 := by
+  intro h0
+  obtain ⟨x, rfl⟩ := (QuotientAddGroup.eq_zero_iff v).mp h0
+  exact hv (sum_heisD1_zmod2 hr hend x)
+
+end Detect
+
+/-! ### §5b. The identity -/
+
+section Identity
+
+variable {ι ρ : Type*} {Γ : Type} [Group Γ] [TopologicalSpace Γ] [IsTopologicalGroup Γ]
+  [CompactSpace Γ] [TotallyDisconnectedSpace Γ] [DistribMulAction Γ (ZMod 2)]
+  {Bg : Type} [Group Bg] [TopologicalSpace Bg] [DiscreteTopology Bg] [Finite Bg]
+  {D : RadicalCoverData Bg}
+  [TopologicalSpace (Additive ↥D.T)] [DiscreteTopology (Additive ↥D.T)]
+  [TopologicalSpace (ElemDual (Additive ↥D.T))] [DiscreteTopology (ElemDual (Additive ↥D.T))]
+  [DistribMulAction Γ (Additive ↥D.T)] [DistribMulAction Γ (ElemDual (Additive ↥D.T))]
+  [TopologicalSpace (WordLift (Additive ↥D.T × ElemDual (Additive ↥D.T)) (Bg ⧸ D.M))]
+  [DiscreteTopology (WordLift (Additive ↥D.T × ElemDual (Additive ↥D.T)) (Bg ⧸ D.M))]
+  (S : TComplement D) (rho : ContinuousMonoidHom Γ (Bg ⧸ D.M))
+  (hcompat : ∀ (γ : Γ) (a : Additive ↥D.T), γ • a = rho γ • a)
+  (hcompatD : ∀ (γ : Γ) (l : ElemDual (Additive ↥D.T)), γ • l = rho γ • l)
+
+include hcompat hcompatD in
+/-- **The graph hom** of a primal/dual pair of cocycles into the Heisenberg base
+`(T × T^∨) ⋊ (Bg ⧸ M)`.  `LedgerGammaA.pairHom`, `Γ`-generic and built directly (CB-1's `wordHom`
+would need the product module's own instance block). -/
+noncomputable def pairHomN (z : Z1 Γ (Additive ↥D.T)) (φ : Z1 Γ (ElemDual (Additive ↥D.T))) :
+    ContinuousMonoidHom Γ (WordLift (Additive ↥D.T × ElemDual (Additive ↥D.T)) (Bg ⧸ D.M)) where
+  toFun γ := ⟨(z.1 γ, φ.1 γ), rho γ⟩
+  map_one' :=
+    WordLift.ext (Prod.ext (Z1_apply_one z) (Z1_apply_one φ)) (map_one rho)
+  map_mul' γ δ := by
+    refine WordLift.ext (Prod.ext ?_ ?_) (map_mul rho γ δ)
+    · show z.1 (γ * δ) = z.1 γ + rho γ • z.1 δ
+      rw [(mem_Z1_iff.mp z.2).2 γ δ, hcompat]
+    · show φ.1 (γ * δ) = φ.1 γ + rho γ • φ.1 δ
+      rw [(mem_Z1_iff.mp φ.2).2 γ δ, hcompatD]
+  continuous_toFun := by
+    haveI := discreteTopology_quotient D
+    have hg : Continuous fun γ : Γ => (((z.1 γ, φ.1 γ), rho γ) :
+        (Additive ↥D.T × ElemDual (Additive ↥D.T)) × (Bg ⧸ D.M)) :=
+      (((mem_Z1_iff.mp z.2).1).prodMk ((mem_Z1_iff.mp φ.2).1)).prodMk rho.continuous_toFun
+    exact (continuous_of_discreteTopology (f := (WordLift.equivProd
+      (A := Additive ↥D.T × ElemDual (Additive ↥D.T)) (C := Bg ⧸ D.M)).symm)).comp hg
+
+omit [IsTopologicalGroup Γ] [CompactSpace Γ] [TotallyDisconnectedSpace Γ]
+  [DistribMulAction Γ (ZMod 2)]
+  [DiscreteTopology (WordLift (Additive ↥D.T × ElemDual (Additive ↥D.T)) (Bg ⧸ D.M))] in
+include hcompat hcompatD in
+/-- **The variation cochain is the Heisenberg cocycle, inflated.**  The `ℚ₂` proof's `hunfold`,
+verbatim once `GA` is a variable: `varCoc u (a, b) = φ(a)(ρa · z(b)) = κ(H a, H b)`. -/
+theorem varCoc_eq_kappaHeisN (u : TCocycle D rho) (z : Z1 Γ (Additive ↥D.T))
+    (φ : Z1 Γ (ElemDual (Additive ↥D.T)))
+    (hφ : ∀ (γ : Γ) (s : Additive ↥D.T),
+      (φ.1 γ) s = edgeQ D S (rho γ) (Additive.toMul ((γ⁻¹ : Γ) • s)))
+    (hu : ∀ γ, u.u γ = ((Additive.toMul (z.1 γ) : ↥D.T) : Bg)) (a b : Γ) :
+    varCoc D rho S u (a, b)
+      = kappaHeisN.κ (pairHomN rho hcompat hcompatD z φ a)
+          (pairHomN rho hcompat hcompatD z φ b) := by
+  show edgeQ D S (rho a) ⟨u.u b, u.mem b⟩ = (φ.1 a) (rho a • z.1 b)
+  rw [hφ, ← hcompat, inv_smul_smul]
+  exact congrArg (edgeQ D S (rho a)) (Subtype.ext (hu b))
+
+include hcompat hcompatD in
+/-- **The ledger identity, intrinsic form.**  The family obstruction of the variation cocycle is
+the vector of relator central coordinates of the Heisenberg-lifted marking.
+
+`Γ`-generic, alphabet-generic, and stated over the *intrinsic* `PWord` relators — no resolution
+is used yet, which is what lets the resolution be chosen once, at §7, and at a level §2 supplies
+for free. -/
+theorem pObsFam_varCoc (W : ρ → PWord ι) (gen : ι → Γ) (u : TCocycle D rho)
+    (z : Z1 Γ (Additive ↥D.T)) (φ : Z1 Γ (ElemDual (Additive ↥D.T)))
+    (hφ : ∀ (γ : Γ) (s : Additive ↥D.T),
+      (φ.1 γ) s = edgeQ D S (rho γ) (Additive.toMul ((γ⁻¹ : Γ) • s)))
+    (hu : ∀ γ, u.u γ = ((Additive.toMul (z.1 γ) : ↥D.T) : Bg)) :
+    pObsFam W gen ⟨varCoc D rho S u, varCoc_mem_Z2 D rho S smulTrivZmod2 u⟩
+      = fun k => (PWord.eval (heisGen (fun i => rho (gen i))
+          (fun i => z.1 (gen i)) (fun i => φ.1 (gen i))) (W k)).z := by
+  haveI := discreteTopology_quotient D
+  rw [pObsFam_inflation W gen (pairHomN rho hcompat hcompatD z φ) kappaHeisN
+    ⟨varCoc D rho S u, varCoc_mem_Z2 D rho S smulTrivZmod2 u⟩
+    (fun a b => varCoc_eq_kappaHeisN S rho hcompat hcompatD u z φ hφ hu a b)]
+  funext k
+  exact pRelZ_kappaHeisN (W k) (fun i => rho (gen i)) (fun i => z.1 (gen i))
+    (fun i => φ.1 (gen i))
+
+end Identity
+
+end Ledger
 
 end GQ2.Dyadic.Count
