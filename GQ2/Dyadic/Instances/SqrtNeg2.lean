@@ -853,6 +853,71 @@ theorem sqrtNegTwo_stokes (hsimp : PilotHsimp q) (hq0 : q ≠ 0) (hqe : Even q) 
 
 end Clauses
 
+/-! ## §5 The pilot word certificate  (packet Def. 9.1 at the frozen `√−2` row) -/
+
+section TheCertificate
+
+variable {q : ℕ}
+
+/-- **Ledger field 1** at the pilot (`q`-generic): the compact-`N` word tame-specializes. -/
+theorem pilotTameSpec (hq0 : q ≠ 0) (hqe : Even q) : TameSpecializes 2 q pilotW :=
+  tameSpecializes_nCompact hq0 hqe 2 0
+
+/-- **The pro-2 leg**: CB-P's bridge `Γ_R ↠ Γ_R(2) ≅ D_N` at the pilot core presentation. -/
+noncomputable def pilotPro2 (hq0 : q ≠ 0) (hqe : Even q) :
+    ContinuousMonoidHom ((pilotGamma q : Type)) (pilotP : Type) :=
+  CorePresentation.coreHom (nCorePresentation 2 0) hq0 hqe
+
+/-- **ν-compatibility** of the tame and pro-2 legs, from `ν_N`'s normalization (§0). -/
+theorem pilotCompat (hq0 : q ≠ 0) (hqe : Even q) (g : ((pilotGamma q : Type))) :
+    nuTq q (tameOfSpec 2 q pilotW (pilotTameSpec hq0 hqe) g)
+      = pilotNuP (pilotPro2 hq0 hqe g) :=
+  CorePresentation.nu_compat_coreHom (nCorePresentation 2 0) hq0 hqe
+    (pilotTameSpec hq0 hqe) pilotNuP
+    (by rw [nCorePresentation_mark_sigma]; exact pilotNuP_dnSigma)
+    (fun i => by rw [nCorePresentation_mark_wild]; exact pilotNuP_wild i) g
+
+/-- **The candidate-side determinant residual, named** — the whole
+`AffineDeterminantCertificate` at `Γ_R`.  ⚠ The count lane closed 9 of the 11 `SourceDataN`
+clauses on the candidate side; the two Gauss-`Z` clauses have **no candidate-side supplier in
+the repository** (CB-DET's `GaussZ/FinalDK.lean` is the `K`-side bridge; WN0-c's word-side
+Hessian layer exists but the Hessian ⇒ `GaussZResidueK` bridge does not).  **Owner:** CB1
+memo's "gauss 1900" candidate-side ticket, unopened. -/
+def PilotDet (q : ℕ) (hq0 : q ≠ 0) (hqe : Even q) : Prop :=
+  AffineDeterminantCertificate (pilotGamma q) 2 q pilotP pilotNuP (standardNumerics 2)
+    (tameOfSpec 2 q pilotW (pilotTameSpec hq0 hqe)) (pilotPro2 hq0 hqe)
+    (pilotCompat hq0 hqe) (trivialSMulZmodTwo ((pilotGamma q : Type)))
+
+/-- **The pilot word certificate** — packet Def. 9.1 / ledger §5.2 at the frozen `√−2` row,
+`q`-generic (instantiated at `q = q_K` by §7).  Every field is landed except the four named
+residuals, threaded as binders: `hsimp` (the row's per-simple-module Stokes duality, feeding
+every count-lane payload), `hsplit`/`hZcount` (`stageR136`'s recursion-side residues) and
+`hdet` (the candidate-side Gauss clauses). -/
+noncomputable def sqrtNegTwoWordCertificate (hq0 : q ≠ 0) (hqe : Even q)
+    (hsimp : PilotHsimp q) (hsplit : PilotStageSep q) (hZcount : PilotStageZ q)
+    (hdet : PilotDet q hq0 hqe) :
+    WordCertificate 2 q pilotW pilotP (isProP_DN 2 0) pilotNuP (standardNumerics 2) where
+  tameSpecialization := pilotTameSpec hq0 hqe
+  coreRel := fun _ _ _ _ _ _ t =>
+    MarkedCore.nRelWord (h := 0) 2 (MarkedCore.coreMark (t.x 0) (t.x 1) t.σ (t.x 2))
+  proTwoWord := fun _ _ _ _ _ _ t => eval_pro2_nCompact_eq_nRelWord 2 t
+  pro2 := pilotPro2 hq0 hqe
+  ker_pro2 := CorePresentation.ker_coreHom (nCorePresentation 2 0) hq0 hqe
+  hpro2 := CorePresentation.coreHom_surjective (nCorePresentation 2 0) hq0 hqe
+  compat := pilotCompat hq0 hqe
+  tfg := GQ2.Dyadic.Count.gammaR_topologicallyFinitelyGenerated 2 q pilotW
+  smulZmod2 := trivialSMulZmodTwo ((pilotGamma q : Type))
+  contSMulZmod2 := trivialContSMulZmodTwo ((pilotGamma q : Type))
+  htriv := trivialHtrivZmodTwo ((pilotGamma q : Type))
+  exactLifting := sqrtNegTwo_exactLifting hsimp hq0 hqe hsplit hZcount
+  stokes := sqrtNegTwo_stokes hsimp hq0 hqe
+  scalar := sqrtNegTwo_scalar hsimp hq0 hqe
+  determinant := hdet
+  htame := htame_of_tameSpecializes (pilotTameSpec hq0 hqe)
+  hwild := hwild_nCompact (q := q) (α := 2) (h := 0) (pilotTameSpec hq0 hqe)
+
+end TheCertificate
+
 end SqrtNeg2
 
 end GQ2.Dyadic
