@@ -488,4 +488,152 @@ theorem prop_5_16_gen {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopolo
 
 end Generic
 
+/-! ## §9 Faithfulness: the generic statement re-derives the `ℚ₂` original
+
+A generalization is only worth the retype if it is not weaker.  `LocalEulerChar AbsGalQ2 1` **is**
+B7 (after `one_mul`), and `prop_5_16_gen` at `(Γ, d) = (G_ℚ₂, 1)` gives back `GQ2.FoxH.prop_5_16`'s
+six clauses on the nose — including `#Z¹ = #A²`, since `d + 1 = 2` there.  So the degree parameter
+is a genuine generalization of the `ℚ₂` clause, not a divergence from it. -/
+
+section Faithfulness
+
+/-- **B7 is `LocalEulerChar` at degree `1`.** -/
+theorem localEulerChar_absGalQ2 : LocalEulerChar AbsGalQ2 1 := by
+  intro M _ _ _ _ _ _
+  obtain ⟨h0, h1, h2, hc⟩ := Foundations.absGalQ2_localEulerCharacteristic M
+  exact ⟨h0, h1, h2, by rw [hc, one_mul]⟩
+
+/-- **The `ℚ₂` `prop_5_16`, re-derived from the generic one** — literally
+`GQ2.FoxH.prop_5_16`'s conclusion, obtained from `prop_5_16_gen` at `Γ = G_ℚ₂`, `d = 1`.
+Parametrized over the bundle, so it consumes B7 but not B6. -/
+theorem prop_5_16_of_gen {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+    (D : TateDuality 2) (ρ : ContinuousMonoidHom AbsGalQ2 C) (hρ : Function.Surjective ρ)
+    {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
+    [DistribMulAction C A]
+    [DistribMulAction AbsGalQ2 A] [ContinuousSMul AbsGalQ2 A]
+    (hcomp : ∀ (γ : AbsGalQ2) (a : A), γ • a = ρ γ • a)
+    (hA₂ : ∀ a : A, a + a = 0)
+    [TopologicalSpace (ElemDual A)] [DiscreteTopology (ElemDual A)]
+    [DistribMulAction AbsGalQ2 (ElemDual A)] [ContinuousSMul AbsGalQ2 (ElemDual A)]
+    (hcompD : ∀ (γ : AbsGalQ2) (lam : ElemDual A), γ • lam = ρ γ • lam)
+    [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
+    [DistribMulAction AbsGalQ2 (ZMod 2)] [ContinuousSMul AbsGalQ2 (ZMod 2)]
+    (htriv : ∀ (γ : AbsGalQ2) (m : ZMod 2), γ • m = m)
+    (hpair : ∀ (γ : AbsGalQ2) (a : A) (lam : ElemDual A),
+      dualEval A (γ • a) (γ • lam) = γ • dualEval A a lam) :
+    (Nat.card (H2 AbsGalQ2 A) = Nat.card (fixedPts C (ElemDual A))) ∧
+    (Nat.card (Z1 AbsGalQ2 A) = Nat.card A ^ 2 * Nat.card (fixedPts C (ElemDual A))) ∧
+    (Nat.card (H2 AbsGalQ2 (ZMod 2)) = 2) ∧
+    Function.Bijective (fun c : H1 AbsGalQ2 A => cup11 (dualEval A) hpair c) ∧
+    Function.Bijective (fun c : ↥(H0 AbsGalQ2 A) => cup02 (dualEval A) hpair c) ∧
+    Function.Bijective (fun c : H2 AbsGalQ2 A => cup20 (dualEval A) hpair c) :=
+  prop_5_16_gen D localEulerChar_absGalQ2 ρ hρ hcomp hA₂ hcompD htriv hpair
+
+end Faithfulness
+
+/-! ## §10 The instantiation at `G_K`
+
+The two `ℚ₂` inputs of `prop_5_16` are both available at `G_K` for `K/ℚ₂` finite, which is what
+made the generic route cheaper than a clone:
+
+* **B6** — `tateDualityAt` applies because `G_K` is an open finite-index subgroup of `G_ℚ₂`
+  (LG2's `subgroup_isLocalDualizingGroup`);
+* **B7** — LG2a's `absGalK_localEulerCharacteristic`, a *theorem* (Shapiro at the coinduced
+  module), so `AX2` stays closed and the census is unchanged.
+
+Everything is spelled at `GalK K = ↥(GalKsub K)`, the `MarkedRecipBundle` R6 instance pin that
+`KSupply`'s carrier `galKProfinite K` unfolds to by `rfl`.  Consumers holding an
+`AS1 DyadicLocalInput` should use `prop_5_16_galK_of` with the record's own `duality` field, so
+that the bundle is the record's; `prop_5_16_galK` builds one from B6 when there is no record. -/
+
+section GalKInstance
+
+variable (K : IntermediateField ℚ_[2] (AlgebraicClosure ℚ_[2])) [FiniteDimensional ℚ_[2] K]
+
+/-- **The Euler-characteristic hypothesis holds at `G_K`, at degree `[G_ℚ₂ : G_K]`** — LG2a's
+Shapiro-derived Euler characteristic, read as a `LocalEulerChar`.  B7 (derived), no new axiom.
+
+Routed through `localEulerCharacteristic_open` at the subgroup `GalKsub K` rather than through
+`absGalK_localEulerCharacteristic`: the latter is spelled at `↥K.fixingSubgroup`, which is the
+*same type* as `GalK K` through a different instance path (`MarkedRecipBundle`'s R6 trap), so its
+`DistribMulAction` argument does not synthesize here.  The open-subgroup form is already at the
+`Subgroup AbsGalQ2` spelling `GalKsub` pins, and applies directly. -/
+theorem localEulerChar_galK : LocalEulerChar (GalK K) (GalKsub K).index := by
+  intro M _ _ _ _ _ _
+  haveI := finite_quotient_of_isOpen (GalKsub K) (isOpen_fixingSubgroup K)
+  exact localEulerCharacteristic_open (GalKsub K) (isOpen_fixingSubgroup K) M
+
+/-- **The B6 bundle at `G_K`**, at the `GalK` spelling.  Same axiom application as
+`GQ2.Dyadic.FieldData.tateDualityGalK`; restated here only because that file is plain-import and
+this one is `module`-style. -/
+noncomputable def tateDualityGalK : TateDualityG (GalK K) 2 :=
+  haveI : (GalKsub K).FiniteIndex :=
+    @Subgroup.finiteIndex_of_finite_quotient _ _ _
+      (finite_quotient_of_isOpen _ (isOpen_fixingSubgroup K))
+  tateDualityAt (GalK K) 2 (subgroup_isLocalDualizingGroup 2 (GalKsub K) (isOpen_fixingSubgroup K))
+
+/-- **Prop 5.16 at `G_K`, over a supplied duality bundle** — the form a consumer holding AS1's
+`DyadicLocalInput` uses (pass the record's `duality` field).  Consumes **B7** only.
+
+Clause (ii) reads `#Z¹(A) = #A^{n+1} · #fixedPts C (A′)` with `n = [K : ℚ₂]`: this is the `#V`
+(outer) times `SN.h1Mult #V = #V^n` (inner) shape of `SourceDataN.hZcard`, and it is where a
+verbatim `ℚ₂`-clone would have been wrong. -/
+theorem prop_5_16_galK_of {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C]
+    [Finite C] (D : TateDualityG (GalK K) 2)
+    (ρ : ContinuousMonoidHom (GalK K) C) (hρ : Function.Surjective ρ)
+    {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
+    [DistribMulAction C A]
+    [DistribMulAction (GalK K) A] [ContinuousSMul (GalK K) A]
+    (hcomp : ∀ (γ : GalK K) (a : A), γ • a = ρ γ • a)
+    (hA₂ : ∀ a : A, a + a = 0)
+    [TopologicalSpace (ElemDual A)] [DiscreteTopology (ElemDual A)]
+    [DistribMulAction (GalK K) (ElemDual A)] [ContinuousSMul (GalK K) (ElemDual A)]
+    (hcompD : ∀ (γ : GalK K) (lam : ElemDual A), γ • lam = ρ γ • lam)
+    [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
+    [DistribMulAction (GalK K) (ZMod 2)] [ContinuousSMul (GalK K) (ZMod 2)]
+    (htriv : ∀ (γ : GalK K) (m : ZMod 2), γ • m = m)
+    (hpair : ∀ (γ : GalK K) (a : A) (lam : ElemDual A),
+      dualEval A (γ • a) (γ • lam) = γ • dualEval A a lam) :
+    (Nat.card (H2 (GalK K) A) = Nat.card (fixedPts C (ElemDual A))) ∧
+    (Nat.card (Z1 (GalK K) A)
+      = Nat.card A ^ (Module.finrank ℚ_[2] K + 1) * Nat.card (fixedPts C (ElemDual A))) ∧
+    (Nat.card (H2 (GalK K) (ZMod 2)) = 2) ∧
+    Function.Bijective (fun c : H1 (GalK K) A => cup11 (dualEval A) hpair c) ∧
+    Function.Bijective (fun c : ↥(H0 (GalK K) A) => cup02 (dualEval A) hpair c) ∧
+    Function.Bijective (fun c : H2 (GalK K) A => cup20 (dualEval A) hpair c) := by
+  have h := prop_5_16_gen D (localEulerChar_galK K) ρ hρ hcomp hA₂ hcompD htriv hpair
+  -- `GalKsub K` and `K.fixingSubgroup` are the same subgroup through two instance paths, so the
+  -- degree identity is `exact`-elaborated into the `GalKsub` spelling before being rewritten.
+  have hidx : (GalKsub K).index = Module.finrank ℚ_[2] K :=
+    (IntermediateField.finrank_eq_fixingSubgroup_index K).symm
+  rwa [hidx] at h
+
+/-- **Prop 5.16 at `G_K`** — the full instantiation, building the duality bundle from **B6**.
+Consumes B6 + B7; this is ASK's `stokes`-side substrate at the arithmetic carrier. -/
+theorem prop_5_16_galK {C : Type*} [Group C] [TopologicalSpace C] [DiscreteTopology C] [Finite C]
+    (ρ : ContinuousMonoidHom (GalK K) C) (hρ : Function.Surjective ρ)
+    {A : Type} [AddCommGroup A] [TopologicalSpace A] [DiscreteTopology A] [Finite A]
+    [DistribMulAction C A]
+    [DistribMulAction (GalK K) A] [ContinuousSMul (GalK K) A]
+    (hcomp : ∀ (γ : GalK K) (a : A), γ • a = ρ γ • a)
+    (hA₂ : ∀ a : A, a + a = 0)
+    [TopologicalSpace (ElemDual A)] [DiscreteTopology (ElemDual A)]
+    [DistribMulAction (GalK K) (ElemDual A)] [ContinuousSMul (GalK K) (ElemDual A)]
+    (hcompD : ∀ (γ : GalK K) (lam : ElemDual A), γ • lam = ρ γ • lam)
+    [TopologicalSpace (ZMod 2)] [DiscreteTopology (ZMod 2)]
+    [DistribMulAction (GalK K) (ZMod 2)] [ContinuousSMul (GalK K) (ZMod 2)]
+    (htriv : ∀ (γ : GalK K) (m : ZMod 2), γ • m = m)
+    (hpair : ∀ (γ : GalK K) (a : A) (lam : ElemDual A),
+      dualEval A (γ • a) (γ • lam) = γ • dualEval A a lam) :
+    (Nat.card (H2 (GalK K) A) = Nat.card (fixedPts C (ElemDual A))) ∧
+    (Nat.card (Z1 (GalK K) A)
+      = Nat.card A ^ (Module.finrank ℚ_[2] K + 1) * Nat.card (fixedPts C (ElemDual A))) ∧
+    (Nat.card (H2 (GalK K) (ZMod 2)) = 2) ∧
+    Function.Bijective (fun c : H1 (GalK K) A => cup11 (dualEval A) hpair c) ∧
+    Function.Bijective (fun c : ↥(H0 (GalK K) A) => cup02 (dualEval A) hpair c) ∧
+    Function.Bijective (fun c : H2 (GalK K) A => cup20 (dualEval A) hpair c) :=
+  prop_5_16_galK_of K (tateDualityGalK K) ρ hρ hcomp hA₂ hcompD htriv hpair
+
+end GalKInstance
+
 end GQ2.Dyadic.LiftingDualityG
