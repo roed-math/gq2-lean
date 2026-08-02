@@ -103,15 +103,15 @@ noncomputable abbrev wordCertificate
     {SN : SourceNumerics (2 + 2 * 0)}
     (exactLifting : ExactLiftingSemantics (GammaR (2 + 2 * 0) 4 word) (2 + 2 * 0) 4 core nuP SN)
     (stokes : StokesDualityCertificate (GammaR (2 + 2 * 0) 4 word) (2 + 2 * 0) 4 core nuP SN
-      (Count.trivialSMulZmodTwo _))
+      (scalarActionZmodTwo _))
     (scalar : ScalarHilbertCertificate (GammaR (2 + 2 * 0) 4 word) (2 + 2 * 0) SN
-      (Count.trivialSMulZmodTwo _))
+      (scalarActionZmodTwo _))
     (determinant : AffineDeterminantCertificate (GammaR (2 + 2 * 0) 4 word) (2 + 2 * 0) 4 core
       nuP SN (tameOfSpec (2 + 2 * 0) 4 word (mTameSpecializes 2 0 4 qK_hyps.1 qK_hyps.2))
       (mPro2 2 0 4 alpha_valid qK_hyps.1 qK_hyps.2)
       (mCompat 2 0 4 alpha_valid qK_hyps.1 qK_hyps.2
         (mTameSpecializes 2 0 4 qK_hyps.1 qK_hyps.2) nuP hnuSigma hnuWild)
-      (Count.trivialSMulZmodTwo _)) :
+      (scalarActionZmodTwo _)) :
     WordCertificate (2 + 2 * 0) 4 word core (isProP_DM 2 0) nuP SN :=
   mWordCertificate 2 0 4 alpha_valid qK_hyps.1 qK_hyps.2 nuP hnuSigma hnuWild exactLifting
     stokes scalar determinant
@@ -147,9 +147,9 @@ theorem candidate_equiv_galK_sqrtFive {q : ℕ} (hqK : qOf K FF = q)
     (exactLifting : ExactLiftingSemantics (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core nuP
       (standardNumerics (2 + 2 * 0)))
     (stokes : StokesDualityCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core nuP
-      (standardNumerics (2 + 2 * 0)) (Count.trivialSMulZmodTwo _))
+      (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
     (scalar : ScalarHilbertCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0)
-      (standardNumerics (2 + 2 * 0)) (Count.trivialSMulZmodTwo _))
+      (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
     (determinant : AffineDeterminantCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core
       nuP (standardNumerics (2 + 2 * 0))
       (tameOfSpec (2 + 2 * 0) q word
@@ -158,7 +158,7 @@ theorem candidate_equiv_galK_sqrtFive {q : ℕ} (hqK : qOf K FF = q)
       (mCompat 2 0 q alpha_valid (hqK ▸ qOf_ne_zero K FF) (hqK ▸ even_qOf K FF)
         (mTameSpecializes 2 0 q (hqK ▸ qOf_ne_zero K FF) (hqK ▸ even_qOf K FF)) nuP hnuSigma
         hnuWild)
-      (Count.trivialSMulZmodTwo _))
+      (scalarActionZmodTwo _))
     (KS : KSupply T (2 + 2 * 0) core (isProP_DM 2 0) nuP (standardNumerics (2 + 2 * 0)))
     (params : FieldParameters) (params_n : params.n = 2 + 2 * 0) (params_qK : params.qK = q)
     (ramified : ∀ δi : ℚ̄₂, δi ^ 2 = -1 → ¬ HasEqualNormValueGroups K δi)

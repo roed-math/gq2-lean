@@ -124,9 +124,9 @@ noncomputable abbrev wordCertificate
     {SN : SourceNumerics (2 + 2 * 0)}
     (exactLifting : ExactLiftingSemantics (GammaR (2 + 2 * 0) 2 word) (2 + 2 * 0) 2 core nuP SN)
     (stokes : StokesDualityCertificate (GammaR (2 + 2 * 0) 2 word) (2 + 2 * 0) 2 core nuP SN
-      (Count.trivialSMulZmodTwo _))
+      (scalarActionZmodTwo _))
     (scalar : ScalarHilbertCertificate (GammaR (2 + 2 * 0) 2 word) (2 + 2 * 0) SN
-      (Count.trivialSMulZmodTwo _))
+      (scalarActionZmodTwo _))
     (determinant : AffineDeterminantCertificate (GammaR (2 + 2 * 0) 2 word) (2 + 2 * 0) 2 core
       nuP SN
       (tameOfSpec (2 + 2 * 0) 2 word
@@ -134,7 +134,7 @@ noncomputable abbrev wordCertificate
       (mpcPro2 2 1 1 2 alpha_valid qK_hyps.1 qK_hyps.2)
       (mpcCompat 2 1 1 2 alpha_valid qK_hyps.1 qK_hyps.2
         (mpcTameSpecializes 2 1 1 2 alpha_valid qK_hyps.1 qK_hyps.2) nuP hnuSigma hnuWild)
-      (Count.trivialSMulZmodTwo _)) :
+      (scalarActionZmodTwo _)) :
     WordCertificate (2 + 2 * 0) 2 word core (isProP_DM 2 0) nuP SN :=
   mpcWordCertificate 2 1 1 2 alpha_valid qK_hyps.1 qK_hyps.2 nuP hnuSigma hnuWild exactLifting
     stokes scalar determinant
@@ -169,9 +169,9 @@ theorem candidate_equiv_galK_sqrtNegTen {q : ℕ} (hqK : qOf K FF = q)
     (exactLifting : ExactLiftingSemantics (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core nuP
       (standardNumerics (2 + 2 * 0)))
     (stokes : StokesDualityCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core nuP
-      (standardNumerics (2 + 2 * 0)) (Count.trivialSMulZmodTwo _))
+      (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
     (scalar : ScalarHilbertCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0)
-      (standardNumerics (2 + 2 * 0)) (Count.trivialSMulZmodTwo _))
+      (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
     (determinant : AffineDeterminantCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core
       nuP (standardNumerics (2 + 2 * 0))
       (tameOfSpec (2 + 2 * 0) q word
@@ -181,7 +181,7 @@ theorem candidate_equiv_galK_sqrtNegTen {q : ℕ} (hqK : qOf K FF = q)
       (mpcCompat 2 1 1 q alpha_valid (hqK ▸ qOf_ne_zero K FF) (hqK ▸ even_qOf K FF)
         (mpcTameSpecializes 2 1 1 q alpha_valid (hqK ▸ qOf_ne_zero K FF)
           (hqK ▸ even_qOf K FF)) nuP hnuSigma hnuWild)
-      (Count.trivialSMulZmodTwo _))
+      (scalarActionZmodTwo _))
     (KS : KSupply T (2 + 2 * 0) core (isProP_DM 2 0) nuP (standardNumerics (2 + 2 * 0)))
     (params : FieldParameters) (params_n : params.n = 2 + 2 * 0) (params_qK : params.qK = q)
     (ramified : ∀ δi : ℚ̄₂, δi ^ 2 = -1 → ¬ HasEqualNormValueGroups K δi)

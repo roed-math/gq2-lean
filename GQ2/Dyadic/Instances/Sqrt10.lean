@@ -345,16 +345,16 @@ noncomputable def mpcWordCertificate (α r pp q : ℕ) (hα : 1 ≤ α) (hq0 : q
     (exactLifting : ExactLiftingSemantics (GammaR (2 + 2 * 0) q (mpcW α r pp .one 0))
       (2 + 2 * 0) q (DM α 0) nuP SN)
     (stokes : StokesDualityCertificate (GammaR (2 + 2 * 0) q (mpcW α r pp .one 0)) (2 + 2 * 0) q
-      (DM α 0) nuP SN (Count.trivialSMulZmodTwo _))
+      (DM α 0) nuP SN (scalarActionZmodTwo _))
     (scalar : ScalarHilbertCertificate (GammaR (2 + 2 * 0) q (mpcW α r pp .one 0)) (2 + 2 * 0) SN
-      (Count.trivialSMulZmodTwo _))
+      (scalarActionZmodTwo _))
     (determinant : AffineDeterminantCertificate (GammaR (2 + 2 * 0) q (mpcW α r pp .one 0))
       (2 + 2 * 0) q (DM α 0) nuP SN
       (tameOfSpec (2 + 2 * 0) q (mpcW α r pp .one 0) (mpcTameSpecializes α r pp q hα hq0 hqe))
       (mpcPro2 α r pp q hα hq0 hqe)
       (mpcCompat α r pp q hα hq0 hqe (mpcTameSpecializes α r pp q hα hq0 hqe) nuP hnuSigma
         hnuWild)
-      (Count.trivialSMulZmodTwo _)) :
+      (scalarActionZmodTwo _)) :
     WordCertificate (2 + 2 * 0) q (mpcW α r pp .one 0) (DM α 0) (isProP_DM α 0) nuP SN where
   tameSpecialization := mpcTameSpecializes α r pp q hα hq0 hqe
   coreRel := mpcCoreRel α r pp
@@ -365,9 +365,9 @@ noncomputable def mpcWordCertificate (α r pp q : ℕ) (hα : 1 ≤ α) (hq0 : q
   compat := mpcCompat α r pp q hα hq0 hqe (mpcTameSpecializes α r pp q hα hq0 hqe) nuP
     hnuSigma hnuWild
   tfg := Count.gammaR_topologicallyFinitelyGenerated _ _ _
-  smulZmod2 := Count.trivialSMulZmodTwo _
-  contSMulZmod2 := Count.trivialContSMulZmodTwo _
-  htriv := Count.trivialHtrivZmodTwo _
+  smulZmod2 := scalarActionZmodTwo _
+  contSMulZmod2 := scalarActionZmodTwo_continuousSMul _
+  htriv := scalarActionZmodTwo_triv _
   exactLifting := exactLifting
   stokes := stokes
   scalar := scalar
@@ -483,9 +483,9 @@ theorem candidate_equiv_galK_sqrtTen {q : ℕ} (hqK : qOf K FF = q)
     (exactLifting : ExactLiftingSemantics (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core nuP
       (standardNumerics (2 + 2 * 0)))
     (stokes : StokesDualityCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core nuP
-      (standardNumerics (2 + 2 * 0)) (Count.trivialSMulZmodTwo _))
+      (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
     (scalar : ScalarHilbertCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0)
-      (standardNumerics (2 + 2 * 0)) (Count.trivialSMulZmodTwo _))
+      (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
     (determinant : AffineDeterminantCertificate (GammaR (2 + 2 * 0) q word) (2 + 2 * 0) q core
       nuP (standardNumerics (2 + 2 * 0))
       (tameOfSpec (2 + 2 * 0) q word
@@ -495,7 +495,7 @@ theorem candidate_equiv_galK_sqrtTen {q : ℕ} (hqK : qOf K FF = q)
       (mpcCompat 2 1 0 q alpha_valid (hqK ▸ qOf_ne_zero K FF) (hqK ▸ even_qOf K FF)
         (mpcTameSpecializes 2 1 0 q alpha_valid (hqK ▸ qOf_ne_zero K FF)
           (hqK ▸ even_qOf K FF)) nuP hnuSigma hnuWild)
-      (Count.trivialSMulZmodTwo _))
+      (scalarActionZmodTwo _))
     (KS : KSupply T (2 + 2 * 0) core (isProP_DM 2 0) nuP (standardNumerics (2 + 2 * 0)))
     (params : FieldParameters) (params_n : params.n = 2 + 2 * 0) (params_qK : params.qK = q)
     (ramified : ∀ δi : ℚ̄₂, δi ^ 2 = -1 → ¬ HasEqualNormValueGroups K δi)

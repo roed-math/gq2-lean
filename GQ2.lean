@@ -289,6 +289,10 @@ import GQ2.Dyadic.Count.Scalar
 import GQ2.Dyadic.Count.HTwo
 import GQ2.Dyadic.Instances.KSupply
 import GQ2.Dyadic.Instances.QTwo
+import GQ2.Dyadic.Instances.Sqrt2
+import GQ2.Dyadic.Instances.Sqrt5
+import GQ2.Dyadic.Instances.Sqrt10
+import GQ2.Dyadic.Instances.SqrtNeg10
 import GQ2.Dyadic.LiftingDualityG
 import GQ2.Dyadic.GammaRHom
 import GQ2.Dyadic.Count.Lifts
