@@ -26,6 +26,7 @@ import GQ2.Foundations.Axioms
 import GQ2.Foundations.Interfaces
 import GQ2.EulerCharacteristic
 import GQ2.MaxProP
+import GQ2.MaxProPCohomology
 import GQ2.Demushkin
 import GQ2.HilbertSymbol
 import GQ2.DyadicSquares
@@ -326,6 +327,7 @@ import GQ2.Dyadic.MarkedCore.CoVDischarge
 import GQ2.Dyadic.MarkedCore.Certificate
 import GQ2.Dyadic.MarkedCore.CompactCoV
 import GQ2.Dyadic.MarkedMaxProTwo
+import GQ2.Dyadic.MaxProTwoCohomology
 import GQ2.Dyadic.MarkedRecipBundle
 import GQ2.Dyadic.OrientedTameBundle
 import GQ2.Dyadic.Recursion.Frame
