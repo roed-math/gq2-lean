@@ -168,6 +168,14 @@ noncomputable def padicOmega2 (z : ℤ_[2]) : Zhat :=
       ((padicOmega2Exp_modEq (Subgroup.index_dvd_of_le π.le)
         Subgroup.FiniteIndex.index_ne_zero z).dvd)⟩
 
+/-- The zero `2`-adic exponent embeds as the zero exponent in `Zhat` (whose multiplicative
+identity represents additive zero). -/
+@[simp] theorem padicOmega2_zero : padicOmega2 (0 : ℤ_[2]) = 1 := by
+  apply Subtype.ext
+  funext H
+  simp [padicOmega2, padicOmega2Exp]
+  rfl
+
 section Eval
 
 variable {P : Type} [Group P] [TopologicalSpace P] [DiscreteTopology P] [Finite P]
@@ -221,6 +229,10 @@ equal to `1` (draft §5.2/§5.3; Python `EtaHat`).  Written additively, `η̂ = 
 on the `2`-part `ω₂ ≡ 1` so the value is `η`, on every odd part `ω₂ ≡ 0` so the value is `1`. -/
 noncomputable def etaHatZ (η : ℤ_[2]) : Zhat := Zhat.ofInt 1 * padicOmega2 (η - 1)
 
+/-- The profinite lift of the `2`-adic unit `1` is the ordinary exponent `1`. -/
+@[simp] theorem etaHatZ_one : etaHatZ (1 : ℤ_[2]) = Zhat.ofInt 1 := by
+  rw [etaHatZ, sub_self, padicOmega2_zero, mul_one]
+
 section EtaEval
 
 variable {P : Type} [Group P] [TopologicalSpace P] [DiscreteTopology P] [Finite P]
@@ -268,8 +280,19 @@ def reduce (a b : ℤ) : EtaData := ⟨a / (Int.gcd a b : ℤ), b / (Int.gcd a b
 /-- The `2`-adic unit denoted by an `EtaData` pair, `η = num · den⁻¹`. -/
 noncomputable def toPadic (e : EtaData) : ℤ_[2] := (e.num : ℤ_[2]) * PadicInt.inv (e.den : ℤ_[2])
 
+/-- The canonical syntactic pair `<1,1>` denotes the `2`-adic unit `1`. -/
+@[simp] theorem one_toPadic : (EtaData.mk 1 1).toPadic = 1 := by
+  rw [toPadic]
+  have hinv : PadicInt.inv (1 : ℤ_[2]) = 1 := by
+    simpa using PadicInt.mul_inv (z := (1 : ℤ_[2])) (norm_one : ‖(1 : ℤ_[2])‖ = 1)
+  simp only [Int.cast_one, hinv, mul_one]
+
 /-- The `ℤ̂`-exponent denoted by an `EtaData` pair. -/
 noncomputable def toZhat (e : EtaData) : Zhat := etaHatZ e.toPadic
+
+/-- The canonical syntactic pair `<1,1>` denotes the ordinary profinite exponent `1`. -/
+@[simp] theorem one_toZhat : (EtaData.mk 1 1).toZhat = Zhat.ofInt 1 := by
+  rw [toZhat, one_toPadic, etaHatZ_one]
 
 end EtaData
 

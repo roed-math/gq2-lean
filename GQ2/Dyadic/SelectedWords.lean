@@ -27,9 +27,11 @@ they should not re-author a relator from the earlier paper displays.
 
 The `Npc` and `Mpc` constructors retain their certificate display data.  This is deliberate:
 `BranchData` carries an arbitrary 2-adic unit, while the hash-pinned trees carry a concrete
-`EtaData`/`EtaDisplay`.  The future field-to-word selector must therefore supply a compatible
-display (or first land a semantic arbitrary-unit constructor and prove it presentation-equivalent
-to these selected display words).  The table does not hide that remaining interface.
+`EtaData`/`EtaDisplay`.  `GQ2.Dyadic.SelectedEta` supplies typed compatibility packages and
+semantic arbitrary-unit words.  It proves literal equality for the `Npc` display, evaluation
+equality for every compatible `Mpc` display, and literal equality for the genuine profinite
+`.hat` display.  It deliberately does not identify evaluation equality with presentation
+equivalence.
 -/
 
 namespace GQ2.Dyadic
