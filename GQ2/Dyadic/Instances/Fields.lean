@@ -4,6 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Roe, roed@mit.edu, using Claude Fable-5
 -/
 import GQ2.Dyadic.Instances.SqrtNeg2
+import GQ2.Dyadic.Instances.Sqrt2
+import GQ2.Dyadic.Instances.Sqrt10
+import GQ2.Dyadic.Instances.SqrtNeg10
 import GQ2.Dyadic.OrientedTameBundle
 import GQ2.UnitFiltrationCounts
 import Mathlib.Algebra.Polynomial.SpecificDegree
@@ -720,5 +723,88 @@ theorem sqrtNegTwo_candidate_equiv_galK_literal (T : OrientedTameQuotientK B FF)
     (fun δi hδ => not_hasEqualNormValueGroups_KSqrtNegTwo δi hδ) ramifiedData
 
 end Literal
+
+/-! ## §9 Packet Thm. 1.1 at the three remaining *literal* ramified rows
+
+§8 for `ℚ₂(√−2)`, repeated at `ℚ₂(√2)`, `ℚ₂(√10)` and `ℚ₂(√−10)`.  The parents are AS3-b's
+`ν`-free corollaries `Instances.candidate_equiv_galK_sqrtTwo_nonvacuous`, `…_sqrtTen_nonvacuous`
+and `…_sqrtNegTen_nonvacuous` — chosen over the plain `candidate_equiv_galK_sqrt*` headlines
+because they already have the four `ν`-binders (`nuP`, `hnuSigma`, `hnuWild`, `hnuP`) discharged
+at the row's concrete `ν_P`, so specializing them gives the shorter literal statement for free
+and at the same axiom cost.
+
+What the literal field supplies at each row is exactly three things:
+
+* `hqK : qOf K FF = 2` — §5's `qOf_KSqrtTwo` / `qOf_KSqrtTen` / `qOf_KSqrtNegTen`.  Because `q` is
+  substituted, the *conclusion* becomes literal too: `candidateGroup 2 2 word`, no `qOf` left;
+* `params := pilotParams` with `params_n`, `params_qK` by `rfl` — `(n, f, q_K) = (2, 1, 2)` is the
+  same tuple at all four ramified rows, which is why §8's `pilotParams` is reused verbatim;
+* `ramified` — §7's `not_hasEqualNormValueGroups_K…`.
+
+⚠ Unlike §8, **no `hdeg` is consumed here**.  The pilot headline builds its own `KSupply`
+(`SqrtNeg2.sqrtNegTwoKSupply hdeg …`) and therefore carries `hdeg : finrank ℚ_[2] K = 2` as a
+binder; the three `M`-row headlines take `KSupply` itself as a binder, so the degree enters only
+inside a package nobody has built yet.  `finrank_KSqrtTwo`, `finrank_KSqrtTen` and
+`finrank_KSqrtNegTen` (§3) are therefore *ready* rather than *used*: whoever builds an `M`-row
+`KSupply` consumes them at that moment, with no change to the statements below.  What survives
+in every binder list is again the AX3/AX4 bundles, the `KSupply`, and AS1's four analytic
+clauses — nothing field-arithmetic. -/
+
+section LiteralRows
+
+open GQ2.Dyadic.Instances GQ2.Dyadic.MarkedCore GQ2.Dyadic.Count GQ2.SectionEight
+open GQ2.Dyadic.Count.PilotN TameSpec
+open SectionSeven AffineTLift CentralObstruction ContCoh FoxH
+open GQ2.Dyadic.Certificates
+
+variable [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2] {Rec : LocalReciprocity}
+
+section SqrtTwoRow
+
+variable {B : MarkedRecip Rec KSqrtTwo} {FF : DyadicUnitFiltration KSqrtTwo}
+  {T : OrientedTameQuotientK B FF}
+
+set_option maxHeartbeats 800000 in
+/-- **Packet Thm. 1.1 at the literal field `ℚ₂(√2)`.**
+
+`⟨σ, τ, x₀, x₁, x₂ ∣ τ^σ = τ², R_{M,0}(α=3) = 1, ⟪x₀,x₁,x₂⟫ pro-2⟩_prof ≅ G_K` for
+`K = ℚ₂(√2)` — the actual selection-freeze row 4 field, not a supplied quadratic `K` with the
+right arithmetic.  Specializes `Instances.candidate_equiv_galK_sqrtTwo_nonvacuous`; every
+arithmetic binder (`hqK`, `params`, `ramified`) is discharged by §5 and §7. -/
+theorem candidate_equiv_galK_sqrtTwo_literal
+    (exactLifting : ExactLiftingSemantics (GammaR (2 + 2 * 0) 2 Instances.Sqrt2.word) (2 + 2 * 0)
+      2 Instances.Sqrt2.core Instances.Sqrt2.nu (standardNumerics (2 + 2 * 0)))
+    (stokes : StokesDualityCertificate (GammaR (2 + 2 * 0) 2 Instances.Sqrt2.word) (2 + 2 * 0)
+      2 Instances.Sqrt2.core Instances.Sqrt2.nu (standardNumerics (2 + 2 * 0))
+      (scalarActionZmodTwo _))
+    (scalar : ScalarHilbertCertificate (GammaR (2 + 2 * 0) 2 Instances.Sqrt2.word) (2 + 2 * 0)
+      (standardNumerics (2 + 2 * 0)) (scalarActionZmodTwo _))
+    (determinant : AffineDeterminantCertificate (GammaR (2 + 2 * 0) 2 Instances.Sqrt2.word)
+      (2 + 2 * 0) 2 Instances.Sqrt2.core Instances.Sqrt2.nu (standardNumerics (2 + 2 * 0))
+      (tameOfSpec (2 + 2 * 0) 2 Instances.Sqrt2.word
+        (Instances.MCompactCore.mTameSpecializes 3 0 2 two_ne_zero even_two))
+      (Instances.MCompactCore.mPro2 3 0 2 Instances.Sqrt2.alpha_valid two_ne_zero even_two)
+      (Instances.MCompactCore.mCompat 3 0 2 Instances.Sqrt2.alpha_valid two_ne_zero even_two
+        (Instances.MCompactCore.mTameSpecializes 3 0 2 two_ne_zero even_two) Instances.Sqrt2.nu
+        (Instances.MCompactCore.mNu_sigma 3 0 Instances.Sqrt2.alpha_valid)
+        (Instances.MCompactCore.mNu_wild 3 0 Instances.Sqrt2.alpha_valid))
+      (scalarActionZmodTwo _))
+    (KS : KSupply T (2 + 2 * 0) Instances.Sqrt2.core (isProP_DM 3 0)
+      Instances.Sqrt2.nu (standardNumerics (2 + 2 * 0)))
+    (ramifiedData : ∀ {D : Type} [Group D] [TopologicalSpace D] [DiscreteTopology D] [Finite D]
+      (V : Type) [AddCommGroup V] [DistribMulAction D V]
+      (c : ContinuousMonoidHom (Tq pilotParams.qK) D)
+      (rho : ContinuousMonoidHom ↥(GalKsub KSqrtTwo) D),
+      (∃ v : V, c (tqTau pilotParams.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate pilotParams (GalKsub KSqrtTwo) V c rho)) :
+    Nonempty (ContinuousMulEquiv
+      ((candidateGroup (2 + 2 * 0) 2 Instances.Sqrt2.word : Type)) (GalK KSqrtTwo)) :=
+  Instances.candidate_equiv_galK_sqrtTwo_nonvacuous (qOf_KSqrtTwo FF) exactLifting stokes scalar
+    determinant KS pilotParams rfl rfl
+    (fun δi hδ => not_hasEqualNormValueGroups_KSqrtTwo δi hδ) ramifiedData
+
+end SqrtTwoRow
+
+end LiteralRows
 
 end GQ2.Dyadic.Fields
