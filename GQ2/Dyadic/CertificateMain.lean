@@ -354,7 +354,7 @@ Per branch, the instantiating ticket must produce:
 | `tameSpecialization` | `Words/*.eval_killWildLetters_*` + `*_eq_one_of_odd` | one line: `TameSpec.tameSpecializes_of_tau_pow` (`N`, `Npc`, `L_sq`) or `_of_tau` (`M`, `Mpc`) |
 | `proTwoWord` | `Words/*.eval_pro2_*_eq_{n,m,sq}RelWord` | nothing — landed for all five |
 | `pro2`, `ker_pro2`, `compat` | `GQ2.Roe.exists_pro2R` at `ℚ₂` only | the generic `Γ_R(2) ≅ D_P` bridge (divergence 3) |
-| `tfg`, `smulZmod2`, `contSMulZmod2`, `htriv` | — | routine, but nobody has written them for `GammaR` |
+| `tfg`, `smulZmod2`, `contSMulZmod2`, `htriv` | `Count.gammaR_topologicallyFinitelyGenerated` (`Count/Routine.lean` §3), and the scalar trio `gammaRSMulZmod2`/`gammaRContSMulZmod2`/`gammaR_htriv` (`GammaRHom.lean` §3, over any monoid) | nothing — closed generically for every `(n, q, R)` |
 | `exactLifting` | `FoxCertificate`/`FoxRowCertificate` per branch | the Fox ⇒ `#LiftsOver` bridge |
 | `stokes` | `IsStokesEndpoint` (all five, unconditional); `StokesDuality` **only modulo `hsimp`** | `hsimp` per simple module, then the duality ⇒ count bridge |
 | `scalar` | `stokesGram` kernel-`decide` pins | the Gram ⇒ `#Hom` bridge |

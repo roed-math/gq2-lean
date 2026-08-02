@@ -38,24 +38,42 @@ so they live in one leaf just above `AdmissibleR.lean` rather than inside the fi
 ## ⚠ Finding: §3 was *not* unwritten
 
 AS4's inventory row reads "`smulZmod2`, `contSMulZmod2`, `htriv` — ⚠ not built (routine;
-unwritten for `GammaR`)", and `CertificateMain.lean`'s obligation table says "routine, but nobody
-has written them for `GammaR`".  Both are stale: **CB-0 closed this row generically**, in
-`GQ2/Dyadic/Count/Routine.lean` §4 (`Count.trivialSMulZmodTwo` / `.trivialContSMulZmodTwo` /
-`.trivialHtrivZmodTwo`, over an arbitrary monoid), and instantiated it at the compact-`N` pilot
-(`Count.pilot_smulZmod2` and siblings).  What was genuinely missing is only the `(n, q, R)`-generic
-*naming* at `Γ_R`, which is §3 — three one-line definitions.
+unwritten for `GammaR`)", and `CertificateMain.lean`'s obligation table used to say "routine, but
+nobody has written them for `GammaR`".  Both were stale: **CB-0 closed this row generically**, in
+`GQ2/Dyadic/Count/Routine.lean` §4, over an arbitrary monoid, and instantiated it at the
+compact-`N` pilot (`Count.pilot_smulZmod2` and siblings).  What was genuinely missing is only
+the `(n, q, R)`-generic *naming* at `Γ_R`, §3 — three one-line definitions.  (CB-DD has since
+corrected `CertificateMain.lean`'s row, and moved CB-0's generic trio into §3 below; the pilot
+instantiations in `Count/Routine.lean` §5 are unchanged and now consume §3 directly.)
 
-## ⚠ Finding: this is the fifth copy of a five-line definition
+## This file is the canonical home for both shared pieces (ticket CB-DD)
 
-The trivial `ZMod 2`-action now exists as `Count.trivialSMulZmodTwo` (`Count/Routine.lean` §4),
-`Count.scalarAction` (`Count/Scalar.lean` §1), an inline copy in `GQ2/HalfTorsorGammaA.lean`, a
-second in `GQ2/HalfTorsorGammaR.lean`, and `scalarActionZmodTwo` here.  `Count/Scalar.lean`'s
-docstring records the duplication deliberately and rules that "the merge belongs to whichever
-ticket first has both in scope"; **this file is the first place that could be that home**, because
-it sits directly above `AdmissibleR.lean` and is therefore importable by every one of the five —
-`Count/Routine.lean`, `Count/Scalar.lean` and both `HalfTorsor*` files are all plain-import files
-downstream of `GQ2.Dyadic.AdmissibleR`.  The redirect is not performed here only because those
-files have other owners; it is a clean follow-on ticket.
+AS4-b recorded two duplications and reserved the merge for a follow-on ticket; **CB-DD performed
+it, and this file is the home.**  `Count/Scalar.lean`'s §1 docstring ruled that "the merge belongs
+to whichever ticket first has both in scope", and this file is the first place that could be that
+home: it sits directly above `AdmissibleR.lean`, so every duplicate site can import it, and none
+of them is in its own import closure (verified with Lake, not argued).
+
+* **The trivial `ZMod 2`-action** had five copies.  `scalarActionZmodTwo` /
+  `_continuousSMul` / `_triv` (§3) are the survivors.  Deleted: `Count.trivialSMulZmodTwo` and its
+  two siblings (`Count/Routine.lean` §4, statements verbatim identical), and `Count.scalarAction`
+  / `.scalarAction_continuousSMul` (`Count/Scalar.lean` §1, the same action one typeclass
+  narrower).  **Two copies are deliberately kept** — the inline `letI actZ : DistribMulAction …`
+  blocks in `GQ2/HalfTorsorGammaA.lean` and `GQ2/HalfTorsorGammaR.lean` — for two reasons: they
+  are anonymous structure instances inside proof bodies rather than declarations (there is nothing
+  to re-point), and both files belong to the **frozen `ℚ₂` development** (plan A6).  Redirecting
+  them is technically possible — a Lake probe confirms both compile with this file imported, so
+  there is no cycle and no module-rule obstruction — but it would create the tree's only
+  `ℚ₂ → Dyadic` import edge to save ten lines inside two `letI`s.  Not taken.
+
+* **`topGen_gammaR`** had four copies; §2's is the survivor.  Deleted: `Count.topGen_gammaR`
+  (`Count/Routine.lean` §3), `Count.CorePresentation.topGen_gammaR` (`Count/ProTwo.lean` §2), and
+  `Count.gammaGen_topGen` (`Count/Presentation.lean`) — the fourth, which carried a *different
+  name* for the identical statement and proof, which is why AS4-b's grep did not name it.
+
+⚠ `GQ2.Roe.topGen_gammaR` (`GQ2/Roe/Main.lean`) is **not** a further copy and was not touched: it
+is the `ℚ₂` statement about the four-element set `{gammaSigmaR, gammaTauR, gammaX0R, gammaX1R}`,
+not about `Set.range (gammaGen n q R)`.  Same name, different theorem.
 
 ## Design note: why `T2Space` is the right hypothesis in §2
 
@@ -104,14 +122,6 @@ they need retyping wrappers — the two are defeq, but not at `instances` transp
 
 ⚠ This says nothing about `exactLifting`/`stokes`/`scalar`/`determinant` — AS1's divergence 4,
 which needs a `SourceDataN` transport lemma (ticket CB-TRN) and is untouched by anything here.
-
-## ⚠ Finding: `topGen_gammaR` now exists four times
-
-`Γ_R`'s topological generation is proved, by the same three lines, in
-`Count/Routine.lean` §3 (`Count.topGen_gammaR`), `Count/ProTwo.lean` §2
-(`Count.CorePresentation.topGen_gammaR`), `Count/Presentation.lean`, and §2 below.  §2's copy is
-the only one upstream of the certificate layer, so it is the one a deduplication pass should keep;
-the other three are unreachable from here (their files import `GQ2.Dyadic.CertificateMain`).
 
 ## Axiom posture
 
@@ -225,9 +235,9 @@ variable {n q : ℕ} {R : PWord (Generator n)}
 /-- **The marked letters topologically generate `Γ_R`** — `TopGen.map` along the quotient
 surjection `F(σ, τ, x₀ … x_n) ↠ Γ_R`, applied to F3's `TopGen.freeProfiniteGroup`.
 
-⚠ Three further copies of this statement exist downstream (`Count.topGen_gammaR`,
-`Count.CorePresentation.topGen_gammaR`, and one in `Count/Presentation.lean`); this is the only
-one upstream of `GQ2.Dyadic.CertificateMain`, hence the only one usable here. -/
+**The canonical copy** (ticket CB-DD).  Three downstream duplicates — `Count.topGen_gammaR`,
+`Count.CorePresentation.topGen_gammaR` and `Count.gammaGen_topGen` — were deleted in favour of
+this one, which is the only one upstream of `GQ2.Dyadic.CertificateMain`. -/
 theorem topGen_gammaR (n q : ℕ) (R : PWord (Generator n)) :
     (Subgroup.closure (Set.range (gammaGen n q R))).topologicalClosure = ⊤ := by
   have h := TopGen.map (gammaMk n q R).toMonoidHom (gammaMk n q R).continuous_toFun
@@ -277,7 +287,7 @@ end HomExt
 
 `Aut(𝔽₂) = 1`, so a group has exactly one action on `ZMod 2` and it is trivial.  The three
 `WordCertificate` fields `smulZmod2` / `contSMulZmod2` / `htriv` are therefore data-plus-two-`rfl`s.
-See the module docstring for the (stale) inventory row this closes and for the five-copy note. -/
+See the module docstring for the inventory row this closes and for the de-duplication note. -/
 
 section Scalar
 
@@ -285,9 +295,10 @@ section Scalar
 certificate records carry the action as *data*, and a global instance on every monoid would shadow
 the genuine `ZMod 2`-module structures the `(140)` layer builds.
 
-This is the fifth copy in the repo (`Count.trivialSMulZmodTwo`, `Count.scalarAction`, and inline
-copies in `GQ2/HalfTorsorGammaA.lean` and `GQ2/HalfTorsorGammaR.lean`) and the first one that is
-upstream of all the others; see the module docstring. -/
+**The canonical copy** (ticket CB-DD).  `Count.trivialSMulZmodTwo` and `Count.scalarAction` were
+deleted in favour of this one; the two inline copies inside the frozen `ℚ₂` proofs
+(`GQ2/HalfTorsorGammaA.lean`, `GQ2/HalfTorsorGammaR.lean`) are deliberately kept.  See the module
+docstring. -/
 @[reducible] def scalarActionZmodTwo (M : Type*) [Monoid M] : DistribMulAction M (ZMod 2) where
   smul _ m := m
   one_smul _ := rfl
