@@ -918,6 +918,159 @@ noncomputable def sqrtNegTwoWordCertificate (hq0 : q ≠ 0) (hqe : Even q)
 
 end TheCertificate
 
+/-! ## §6 The `K`-side supply: the marked-core composite, written down
+
+ASK left four `KSupply` fields carried "per branch, via `marked_matching_certificate_KN` —
+not new mathematics: AS1 identified the composite; nobody has written it down".  This section
+writes it down, and the writing-down surfaces one datum the prose composite missed: the
+**abelianization slot** `piAb : G_K(2) →* G_K^{ab}` with its `ν`-compatibility `hpiNu` against
+`toAbK`.  The `K`-layer certificate reads both marked characters through `piAb`
+(`MarkedCoreCertificateKN B α h π`), and the record's `nu_compat` is stated at `toAbK`; since
+`toAbK` itself does **not** factor through the pro-2 quotient (the abelianization is not
+pro-2), the composite needs the slot and the compatibility as data — mathematically, the
+inclusion of the pro-2 direct factor of the abelianized local Galois group.  Recorded as two
+binders of the G-Lab pack. -/
+
+section KSide
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  {Rec : LocalReciprocity} {B : MarkedRecip Rec K} {FF : DyadicUnitFiltration K}
+  {T : OrientedTameQuotientK B FF}
+
+/-- **The `K`-side supply at the pilot** — `KSupply` with the pro-2 block built from the
+marked-core certificate (MC-N's `marked_matching_certificate_KN`, its G-Lab binder state kept
+as binders), the determinant discharged by CB-DET's `affineDeterminant_galK`, and ASK's two
+remaining carried leaves (`hexact`/`hstokes`) threaded.
+
+The G-Lab pack, with owners: `fLab` (the Labute/Demushkin classification of `G_K(2)` at the
+compact-`N` core — N-Lab, gate G-Lab), `piAb`/`hpiAb`/`hpiNu` (the abelianization slot, see
+the section docstring), `horient` (packet §7's orientation datum), `hScal` (MC-N's
+`NScalingHypothesis`), `hpair` (marked-data pair-unimodularity). -/
+noncomputable def sqrtNegTwoKSupply
+    (hdeg : Module.finrank ℚ_[2] K = 2)
+    (fLab : ContinuousMulEquiv ((DN 2 0) : Type) ((maxProPQuotient 2 (GalK K)) : Type))
+    (piAb : ((maxProPQuotient 2 (GalK K)) : Type) →* GalKab K) (hpiAb : Continuous piAb)
+    (hpiNu : ∀ g : GalK K, B.nu_ur (piAb (maxProPMk 2 (GalK K) g)) = B.nu_ur (toAbK K g))
+    (horient : ∀ x, chiCycKAb K (piAb (fLab x)) = chiN 2 0 x)
+    (hScal : NScalingHypothesis 2 0)
+    (hpair : IsUnit (Multiplicative.toAdd (B.nu_ur (piAb (fLab (dnSigma 2 0)))))
+      ∨ IsUnit (Multiplicative.toAdd (B.nu_ur (piAb (fLab (dnX2 2 0))))))
+    (hexact : ExactLiftingSemantics (galKProfinite K) 2 (qOf K FF) pilotP pilotNuP
+      (standardNumerics 2))
+    (hstokes : StokesDualityCertificate (galKProfinite K) 2 (qOf K FF) pilotP pilotNuP
+      (standardNumerics 2) (smulZmod2GalK K))
+    (params : FieldParameters) (params_n : params.n = 2) (params_qK : params.qK = qOf K FF)
+    (ramifiedData : ∀ {D : Type} [Group D] [TopologicalSpace D] [DiscreteTopology D] [Finite D]
+      (V : Type) [AddCommGroup V] [DistribMulAction D V]
+      (c : ContinuousMonoidHom (Tq params.qK) D)
+      (rho : ContinuousMonoidHom ↥(GalKsub K) D),
+      (∃ v : V, c (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) V c rho)) :
+    KSupply T 2 pilotP (isProP_DN 2 0) pilotNuP (standardNumerics 2) :=
+  -- the marked-core certificate, and the ν-corrected identification `E : D_N ≅ G_K(2)`
+  letI C := (marked_matching_certificate_KN B 2 0 piAb hpiAb fLab horient hScal hpair).some
+  letI E : ContinuousMulEquiv ((DN 2 0) : Type) ((maxProPQuotient 2 (GalK K)) : Type) :=
+    C.correction.trans C.abstractEquiv
+  letI pro2K : ContinuousMonoidHom (GalK K) ((DN 2 0) : Type) :=
+    ⟨E.symm.toMulEquiv.toMonoidHom.comp (maxProPMk 2 (GalK K)).toMonoidHom,
+      E.symm.continuous_toFun.comp (maxProPMk 2 (GalK K)).continuous_toFun⟩
+  have hnu : ∀ g : GalK K, ztwoIota (pilotNuP (pro2K g)) = B.nu_ur (toAbK K g) := by
+    intro g
+    have h2 := C.correction_nu (E.symm (maxProPMk 2 (GalK K) g))
+    have h3 : E (E.symm (maxProPMk 2 (GalK K) g)) = maxProPMk 2 (GalK K) g :=
+      E.apply_symm_apply _
+    calc ztwoIota (pilotNuP (pro2K g))
+        = nuN 2 0 (E.symm (maxProPMk 2 (GalK K) g)) := ztwoIota_pilotNuP _
+      _ = B.nu_ur (piAb (E (E.symm (maxProPMk 2 (GalK K) g)))) := h2.symm
+      _ = B.nu_ur (piAb (maxProPMk 2 (GalK K) g)) := by rw [h3]
+      _ = B.nu_ur (toAbK K g) := hpiNu g
+  { hdeg := hdeg
+    hhom := rfl
+    pro2 := pro2K
+    hpro2 := fun y => by
+      obtain ⟨g, hg⟩ := quotientMk_surjective _ (E y)
+      exact ⟨g, by
+        show E.symm (maxProPMk 2 (GalK K) g) = y
+        rw [show maxProPMk 2 (GalK K) g = E y from hg]
+        exact E.symm_apply_apply y⟩
+    ker_pro2 := by
+      ext g
+      rw [MonoidHom.mem_ker]
+      constructor
+      · intro hg
+        have hg' : E.symm (maxProPMk 2 (GalK K) g) = 1 := hg
+        have h1 : maxProPMk 2 (GalK K) g = 1 := by
+          have h0 := congrArg E hg'
+          rwa [E.apply_symm_apply, map_one] at h0
+        exact (ker_maxProPMk (GalK K)).le (MonoidHom.mem_ker.mpr h1)
+      · intro hg
+        show E.symm (maxProPMk 2 (GalK K) g) = 1
+        have h1 : maxProPMk 2 (GalK K) g = 1 :=
+          MonoidHom.mem_ker.mp ((ker_maxProPMk (GalK K)).ge hg)
+        rw [h1, map_one]
+    nu_compat := hnu
+    exactLifting := hexact
+    stokes := hstokes
+    determinant := affineDeterminant_galK K params params_n params_qK hdeg
+      (fun _ => rfl) (fun _ => rfl) T.tameFK T.tameFK_surjective pro2K
+      (fun g => T.compatF_K pro2K pilotNuP hnu g) ramifiedData }
+
+end KSide
+
+/-! ## §7 The headline: packet Thm. 1.1 at the pilot -/
+
+section Headline
+
+variable {K : IntermediateField ℚ_[2] ℚ̄₂} [FiniteDimensional ℚ_[2] K]
+  [CompactSpace AbsGalQ2] [TotallyDisconnectedSpace AbsGalQ2]
+  {Rec : LocalReciprocity} {B : MarkedRecip Rec K} {FF : DyadicUnitFiltration K}
+
+/-- **Packet Theorem 1.1 at the frozen pilot row** — the campaign's first complete general-`K`
+instance:
+
+`Γ_{R_{N,2,0}} = ⟨σ, τ, x₀, x₁, x₂ ∣ τ^σ = τ^{q_K}, x₀⁶[x₀,x₁]·x₂^{-σ}(x₂τ)^{ω₂} = 1⟩ ≅ G_K`
+
+for a supplied quadratic `K` on the ramified-`i` branch (the intended `K` is `ℚ₂(√−2)`).
+
+The hypothesis surface is exactly the file's named-residuals list (module docstring): the
+arithmetic bundles `(B, FF, T)` per the ASK posture, the G-Lab pack, the two `K`-side carried
+leaves, the four candidate-side residuals, and packet §12's field-side inputs.  Everything
+else — the word certificate, the marked-core composite, the determinant bridge and the final
+assembly — is landed mathematics, cited. -/
+theorem sqrtNegTwo_candidate_equiv_galK (T : OrientedTameQuotientK B FF)
+    (hdeg : Module.finrank ℚ_[2] K = 2)
+    (fLab : ContinuousMulEquiv ((DN 2 0) : Type) ((maxProPQuotient 2 (GalK K)) : Type))
+    (piAb : ((maxProPQuotient 2 (GalK K)) : Type) →* GalKab K) (hpiAb : Continuous piAb)
+    (hpiNu : ∀ g : GalK K, B.nu_ur (piAb (maxProPMk 2 (GalK K) g)) = B.nu_ur (toAbK K g))
+    (horient : ∀ x, chiCycKAb K (piAb (fLab x)) = chiN 2 0 x)
+    (hScal : NScalingHypothesis 2 0)
+    (hpair : IsUnit (Multiplicative.toAdd (B.nu_ur (piAb (fLab (dnSigma 2 0)))))
+      ∨ IsUnit (Multiplicative.toAdd (B.nu_ur (piAb (fLab (dnX2 2 0))))))
+    (hexact : ExactLiftingSemantics (galKProfinite K) 2 (qOf K FF) pilotP pilotNuP
+      (standardNumerics 2))
+    (hstokes : StokesDualityCertificate (galKProfinite K) 2 (qOf K FF) pilotP pilotNuP
+      (standardNumerics 2) (smulZmod2GalK K))
+    (hsimp : PilotHsimp (qOf K FF)) (hsplit : PilotStageSep (qOf K FF))
+    (hZcount : PilotStageZ (qOf K FF))
+    (hdet : PilotDet (qOf K FF) (qOf_ne_zero K FF) (even_qOf K FF))
+    (params : FieldParameters) (params_n : params.n = 2) (params_qK : params.qK = qOf K FF)
+    (ramified : ∀ δi : ℚ̄₂, δi ^ 2 = -1 → ¬ HasEqualNormValueGroups K δi)
+    (ramifiedData : ∀ {D : Type} [Group D] [TopologicalSpace D] [DiscreteTopology D] [Finite D]
+      (V : Type) [AddCommGroup V] [DistribMulAction D V]
+      (c : ContinuousMonoidHom (Tq params.qK) D)
+      (rho : ContinuousMonoidHom ↥(GalKsub K) D),
+      (∃ v : V, c (tqTau params.qK) • v ≠ v) →
+        Nonempty (RamifiedCertificate params (GalKsub K) V c rho)) :
+    Nonempty (ContinuousMulEquiv ((candidateGroup 2 (qOf K FF) pilotW : Type)) (GalK K)) :=
+  candidate_equiv_galK_of_supply (T := T)
+    (sqrtNegTwoWordCertificate (qOf_ne_zero K FF) (even_qOf K FF) hsimp hsplit hZcount hdet)
+    (sqrtNegTwoKSupply hdeg fLab piAb hpiAb hpiNu horient hScal hpair hexact hstokes
+      params params_n params_qK ramifiedData)
+    params params_n params_qK ramified ramifiedData pilotNuP_surjective
+
+end Headline
+
 end SqrtNeg2
 
 end GQ2.Dyadic
