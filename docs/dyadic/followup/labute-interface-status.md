@@ -53,25 +53,30 @@ alone must not be used as a substitute for orientation canonicity.
 
 ## Exact missing mathematical signatures
 
-The first block is the still-incomplete transfer of the field-side Demushkin data to `G_K(2)`:
+The cohomological transfer of the field-side Demushkin data to `G_K(2)` is now complete:
 
 ```lean
-theorem isDemushkin_maxProTwo_galK :
+theorem isDemushkin_maxProTwoGalK :
   IsDemushkin 2 (maxProPQuotient 2 (GalK K))
 
-theorem demushkinRank_maxProTwo_galK :
+theorem demushkinRank_maxProTwoGalK :
   demushkinRank 2 (maxProPQuotient 2 (GalK K))
     = Module.finrank Q2 K + 2
+```
 
-theorem demushkinQ_maxProTwo_galK
-    (ramified_i : ...) :
+Both are proved in `GQ2/Dyadic/MaxProTwoCohomology.lean`.  The remaining invariant is the
+separate local-reciprocity/abelianization computation:
+
+```lean
+theorem demushkinQ_maxProTwoGalK_of_ramifiedI
+    {deltaI : AlgebraicClosure Q2} (hdeltaI : deltaI ^ 2 = -1)
+    (hram : not (HasEqualNormValueGroups K deltaI)) :
   demushkinQ (maxProPQuotient 2 (GalK K)) = 2
 ```
 
-At the current head, degree-one inflation is an equivalence, degree-two inflation is injective,
-and cup naturality is proved.  Degree-two surjectivity/cardinality on the quotient is still
-needed before the first two headlines can be assembled.  The `q` theorem is separate
-local-reciprocity/abelianization mathematics and cannot be inferred from the mod-2 cup form.
+The exact checked status, proved ramified-`i` consequences, and missing theorem DAG are in
+`docs/dyadic/followup/demushkin-q-status.md`.  In particular, the `q` theorem cannot be inferred
+from the mod-2 cup form or from the residue cardinality `qOf K FF`.
 
 The family selector must supply exact closed-subgroup equalities, not only parity or an abstract
 isomorphism:

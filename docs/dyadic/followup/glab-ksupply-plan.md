@@ -174,7 +174,7 @@ The first two equivalences must respect cup products. This is not optional plumb
 `MLabHypothesis` and `NLabHypothesis` require `IsDemushkin`, rank, and `q`
 on the actual group supplied to them, namely `G_K(2)`.
 
-Proposed API:
+Landed API (the general cohomology maps have field-specialized names where needed):
 
 ```lean
 noncomputable def H1MaxProTwoEquiv
@@ -189,30 +189,31 @@ theorem H2MaxProTwoEquiv_cup11 (x y : H1 (maxProPQuotient 2 G) (ZMod 2)) :
     H2MaxProTwoEquiv G (x ⌣ y)
       = H1MaxProTwoEquiv G x ⌣ H1MaxProTwoEquiv G y
 
-theorem isDemushkin_maxProTwo_galK :
+theorem isDemushkin_maxProTwoGalK :
     IsDemushkin 2 (maxProPQuotient 2 (GalK K))
 
-theorem demushkinRank_maxProTwo_galK :
+theorem demushkinRank_maxProTwoGalK :
     demushkinRank 2 (maxProPQuotient 2 (GalK K))
       = Module.finrank ℚ_[2] K + 2
 ```
 
-Implementation should first search for a general inflation theorem for maximal pro-`p`
-quotients in Mathlib. If absent, prove the degree-1 statement from the universal property of
-`maxProPQuotient` and prove degree 2/cup compatibility through extensions or cocycle
-inflation. The degree-2 surjectivity is the hard part and deserves its own design review.
+This block is now proved in `GQ2/Dyadic/MaxProTwoCohomology.lean`: degree-one inflation is an
+equivalence, degree-two inflation is an equivalence, cup compatibility is proved, and the two
+displayed headlines follow.
 
 The `q = 2` fact is separate. It should be obtained from the 2-primary torsion in local
 reciprocity/abelianization, not inferred merely from `H¹` and `H²`:
 
 ```lean
-theorem demushkinQ_maxProTwo_galK
-    (hram : ∀ δi, δi ^ 2 = -1 → ¬ HasEqualNormValueGroups K δi) :
+theorem demushkinQ_maxProTwoGalK_of_ramifiedI
+    {δi : AlgebraicClosure ℚ_[2]} (hδi : δi ^ 2 = -1)
+    (hram : ¬ HasEqualNormValueGroups K δi) :
     demushkinQ (maxProPQuotient 2 (GalK K)) = 2
 ```
 
-The precise hypothesis may be weaker or different; it must be established from local
-reciprocity before freezing this signature.
+The checked single-witness hypothesis, the strongest presently proved consequences, and the
+remaining local-reciprocity/completion DAG are recorded in
+`docs/dyadic/followup/demushkin-q-status.md`.
 
 ## 5. Abstract classification and branch selection
 
