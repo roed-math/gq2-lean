@@ -34,14 +34,22 @@ This file supplies the field objects and the binders that literal arithmetic dis
   square, and the five named instances `finrank_KSqrtNegTwo` … `finrank_KSqrtNegTen`.
   **This discharges the `hdeg` binder of all five instance headlines.**
 * `GQ2.Dyadic.Fields.not_isSquare_of_odd_valuation` — the odd-valuation non-square criterion,
-  and `not_isSquare_five` (the mod-`8` criterion, through `GQ2.DyadicSquares`).
+  and `not_isSquare_five` (the mod-`8` criterion, through `PadicInt.toZModPow`).
+* `GQ2.Dyadic.Fields.qOf_quadField` — for `v(a)` **odd**, `q_K = 2` at *every*
+  `DyadicUnitFiltration` on `ℚ₂(√a)`, with the four named instances `qOf_KSqrtNegTwo`,
+  `qOf_KSqrtTwo`, `qOf_KSqrtTen`, `qOf_KSqrtNegTen`.  **This discharges the `hqK`/`params_qK`
+  binder at the four ramified rows.**  The proof does not go through the residue field at all:
+  §4's separation lemma (`‖x‖ = ‖y√a‖` forces `2v(x) = 2v(y) + v(a)`, impossible for `v(a)`
+  odd) collapses the unit filtration at depth `1`, and `DyadicUnitFiltration.card_gr_zero`
+  then reads `2^f − 1 = 1`.
 
 ## What this file does *not* do
 
-`qOf K FF = q`, the ramified-`i` witness and `ramifiedData` are **not** here; see the AS-F
-report for the precise obstruction in each case.  In particular `qOf` is pinned only through
-`DyadicUnitFiltration.f`, whose bridge to `Nat.card (ResidueField K)` runs through
-`GQ2.UnitFiltrationCounts.card_gradeZero` / `card_gradeI`, both `private`.
+The ramified-`i` witness (`¬ HasEqualNormValueGroups K δi`), `ramifiedData`, and `q_K = 4` at
+the unramified `√5` row are **not** here; see the AS-F report for the precise obstruction in
+each case.  In particular the `√5` row needs `#(U⁰/U¹) = 3`, i.e. the residue field itself,
+whose bridge to `DyadicUnitFiltration.f` runs through `GQ2.UnitFiltrationCounts.card_gradeZero`
+and `card_gradeI` — both `private`, hence unusable outside that file.
 
 No `sorry`, no new axiom; everything here is std-3.
 -/
@@ -227,5 +235,201 @@ theorem finrank_KSqrtNegTen : Module.finrank ℚ_[2] KSqrtNegTen = 2 :=
   finrank_quadField not_isSquare_neg_ten
 
 end Rows
+
+/-! ## §4 The value group of `ℚ₂(√a)`, and `q_K = 2` at the ramified rows
+
+Everything in this section assumes `v(a)` is **odd** — true at `−2`, `2`, `10`, `−10` and false
+at `5`.  The point of the hypothesis is the separation lemma below: `‖x‖` and `‖y√a‖` can never
+agree for nonzero `x, y ∈ ℚ₂`, because agreement would force `2 v(x) = 2 v(y) + v(a)`.
+Everything else — the exact norm of a sum, the shape of the unit group, and finally `f = 1` —
+follows from that one parity statement. -/
+
+section Ramified
+
+open IsUltrametricDist
+
+/-- The spectral norm on `ℚ̄₂` extends the `2`-adic norm on `ℚ₂`. -/
+theorem norm_algebraMap (x : ℚ_[2]) :
+    ‖(algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) x)‖ = ‖x‖ := by
+  rw [NormedAlgebra.norm_eq_spectralNorm ℚ_[2], spectralNorm_extends]
+
+/-- Equal `2`-adic norms means equal valuations. -/
+theorem valuation_eq_of_norm_eq {x y : ℚ_[2]} (hx : x ≠ 0) (hy : y ≠ 0) (h : ‖x‖ = ‖y‖) :
+    x.valuation = y.valuation := by
+  rw [Padic.norm_eq_zpow_neg_valuation hx, Padic.norm_eq_zpow_neg_valuation hy] at h
+  have := (zpow_right_inj₀ (a := (2 : ℝ)) (by norm_num) (by norm_num)).mp h
+  omega
+
+variable {a : ℚ_[2]}
+
+theorem norm_sqrtIn_sq (a : ℚ_[2]) : ‖sqrtIn a‖ ^ 2 = ‖a‖ := by
+  rw [← norm_pow, sqrtIn_sq, norm_algebraMap]
+
+theorem ne_zero_of_odd_valuation (hodd : Odd a.valuation) : a ≠ 0 := by
+  rintro rfl
+  rw [Padic.valuation_zero] at hodd
+  exact (Int.not_odd_iff_even.mpr ⟨0, rfl⟩) hodd
+
+/-- **The separation lemma.**  When `v(a)` is odd, `‖x‖ = ‖y·√a‖` is impossible for nonzero
+`x, y ∈ ℚ₂`: squaring turns it into `2 v(x) = 2 v(y) + v(a)`. -/
+theorem norm_ne_norm_mul_sqrtIn (hodd : Odd a.valuation) {x y : ℚ_[2]} (hx : x ≠ 0) (hy : y ≠ 0) :
+    ‖(algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) x)‖
+      ≠ ‖(algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) y) * sqrtIn a‖ := by
+  have ha := ne_zero_of_odd_valuation hodd
+  intro h
+  rw [norm_algebraMap, norm_mul, norm_algebraMap] at h
+  have hsq : ‖x ^ 2‖ = ‖y ^ 2 * a‖ := by
+    rw [norm_pow, norm_mul, norm_pow, h, mul_pow, norm_sqrtIn_sq]
+  have hv := valuation_eq_of_norm_eq (pow_ne_zero 2 hx) (mul_ne_zero (pow_ne_zero 2 hy) ha) hsq
+  rw [Padic.valuation_pow, Padic.valuation_mul (pow_ne_zero 2 hy) ha, Padic.valuation_pow] at hv
+  obtain ⟨k, hk⟩ := hodd
+  omega
+
+/-- **The exact norm of `x + y√a`.**  A consequence of the separation lemma and the ultrametric
+"all triangles are isosceles" identity. -/
+theorem norm_add_mul_sqrtIn (hodd : Odd a.valuation) {x y : ℚ_[2]} (hx : x ≠ 0) (hy : y ≠ 0) :
+    ‖(algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) x)
+        + (algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) y) * sqrtIn a‖
+      = max ‖(algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) x)‖
+          ‖(algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) y) * sqrtIn a‖ :=
+  norm_add_eq_max_of_norm_ne_norm (norm_ne_norm_mul_sqrtIn hodd hx hy)
+
+/-- **`{1, √a}` spans.**  Every element of `ℚ₂(√a)` is `x + y√a` with `x, y ∈ ℚ₂` — read off the
+power basis of `ℚ_[2]⟮√a⟯`, whose dimension is `deg (minpoly) = 2`. -/
+theorem exists_repr (ha : ¬ IsSquare a) {z : AlgebraicClosure ℚ_[2]} (hz : z ∈ quadField a) :
+    ∃ x y : ℚ_[2], z = algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) x
+      + algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) y * sqrtIn a := by
+  have hz' : z ∈ ℚ_[2]⟮sqrtIn a⟯ := hz
+  obtain ⟨f, hfdeg, hfeq⟩ :=
+    (IntermediateField.adjoin.powerBasis (sqrtIn_isIntegral a)).exists_eq_aeval ⟨z, hz'⟩
+  rw [IntermediateField.adjoin.powerBasis_dim, minpoly_sqrtIn ha, quadPoly_natDegree] at hfdeg
+  obtain ⟨c₁, c₀, rfl⟩ :=
+    Polynomial.exists_eq_X_add_C_of_natDegree_le_one (by omega : f.natDegree ≤ 1)
+  refine ⟨c₀, c₁, ?_⟩
+  have := congrArg (Subtype.val : ℚ_[2]⟮sqrtIn a⟯ → AlgebraicClosure ℚ_[2]) hfeq
+  rw [← IntermediateField.coe_val, ← Polynomial.aeval_algHom_apply] at this
+  rw [IntermediateField.adjoin.powerBasis_gen, IntermediateField.coe_val,
+    IntermediateField.AdjoinSimple.coe_gen] at this
+  simpa [add_comm] using this
+
+/-- **`ℤ₂ˣ ⊆ 1 + 2ℤ₂`.**  A `2`-adic number of norm `1` is `≡ 1 (mod 2)`, since `ZMod 2` has a
+single unit.  This is what makes the residue field of a *ramified* quadratic extension `𝔽₂`. -/
+theorem norm_sub_one_le_norm_two {x : ℚ_[2]} (hx : ‖x‖ = 1) : ‖x - 1‖ ≤ ‖(2 : ℚ_[2])‖ := by
+  set xz : ℤ_[2] := ⟨x, le_of_eq hx⟩ with hxz
+  have hxzu : IsUnit xz := PadicInt.isUnit_iff.mpr hx
+  have h1 : PadicInt.toZModPow (p := 2) 1 xz = 1 :=
+    (by decide : ∀ z : ZMod (2 ^ 1), IsUnit z → z = 1) _ (hxzu.map _)
+  have hker : xz - 1 ∈ Ideal.span {((2 : ℕ) : ℤ_[2]) ^ 1} := by
+    rw [← PadicInt.ker_toZModPow, RingHom.mem_ker, map_sub, map_one, h1, sub_self]
+  have hnorm := (PadicInt.norm_le_pow_iff_mem_span_pow (p := 2) (xz - 1) 1).mpr hker
+  rw [PadicInt.norm_def] at hnorm
+  have hcoe : ((xz - 1 : ℤ_[2]) : ℚ_[2]) = x - 1 := by rw [PadicInt.coe_sub, PadicInt.coe_one]
+  rw [hcoe] at hnorm
+  refine hnorm.trans (le_of_eq ?_)
+  rw [show (2 : ℚ_[2]) = ((2 : ℕ) : ℚ_[2]) by push_cast; ring, Padic.norm_p]
+  norm_num
+
+/-- **The unit filtration of a ramified quadratic field collapses at depth `1`.**  Every
+norm-one unit of `ℚ₂(√a)` already lies in `U^{(1)}`: writing `u = x + y√a`, the parity
+separation forces `‖x‖ = 1` and `‖y√a‖ < 1`, and then `u − 1 = (x − 1) + y√a` has both summands
+of norm at most `‖π‖`. -/
+theorem normUnits_le_depthUnits (hodd : Odd a.valuation) (ha : ¬ IsSquare a)
+    (FF : DyadicUnitFiltration (quadField a)) :
+    normUnits (quadField a) ≤ depthUnits (quadField a) FF.π 1 := by
+  have hπ2 : ‖(2 : AlgebraicClosure ℚ_[2])‖ ≤ ‖FF.π‖ := by
+    refine FF.hπ_max 2 ?_ norm_two_lt_one
+    simp
+  intro u hu
+  have hu1 : ‖((u : ↥(quadField a)) : AlgebraicClosure ℚ_[2])‖ = 1 := hu
+  refine ⟨hu1, ?_⟩
+  rw [pow_one]
+  obtain ⟨x, y, hxy⟩ := exists_repr ha (u : ↥(quadField a)).2
+  -- the `y ≠ 0, ‖y√a‖ = 1` configuration is forbidden by the parity of `v(a)`
+  have hbad : ∀ y : ℚ_[2], y ≠ 0 →
+      ‖(algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) y) * sqrtIn a‖ ≠ 1 := by
+    intro y hy hcon
+    have ha0 := ne_zero_of_odd_valuation hodd
+    rw [norm_mul, norm_algebraMap] at hcon
+    have hsq : ‖y ^ 2 * a‖ = ‖(1 : ℚ_[2])‖ := by
+      rw [norm_mul, norm_pow, ← norm_sqrtIn_sq a, ← mul_pow, hcon, one_pow, norm_one]
+    have hv := valuation_eq_of_norm_eq (mul_ne_zero (pow_ne_zero 2 hy) ha0) one_ne_zero hsq
+    rw [Padic.valuation_mul (pow_ne_zero 2 hy) ha0, Padic.valuation_pow,
+      Padic.valuation_one] at hv
+    obtain ⟨k, hk⟩ := hodd
+    omega
+  -- in every case `‖x‖ = 1` and `‖y√a‖ ≤ ‖π‖`
+  have hmain : ‖(algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) x)‖ = 1 ∧
+      ‖(algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) y) * sqrtIn a‖ ≤ ‖FF.π‖ := by
+    rcases eq_or_ne y 0 with rfl | hy
+    · refine ⟨by rw [← hu1, hxy]; simp, ?_⟩
+      simp only [map_zero, zero_mul, norm_zero]
+      exact le_trans (norm_nonneg _) hπ2
+    rcases eq_or_ne x 0 with rfl | hx
+    · exact absurd (by rw [← hu1, hxy]; simp) (hbad y hy)
+    · have hmax : max ‖(algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) x)‖
+          ‖(algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) y) * sqrtIn a‖ = 1 := by
+        rw [← norm_add_mul_sqrtIn hodd hx hy, ← hxy]; exact hu1
+      have hne := norm_ne_norm_mul_sqrtIn hodd hx hy
+      have hyx : ‖(algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) y) * sqrtIn a‖ ≠ 1 := hbad y hy
+      have hx1 : ‖(algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) x)‖ = 1 := by
+        rcases max_cases ‖(algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) x)‖
+          ‖(algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) y) * sqrtIn a‖ with ⟨he, -⟩ | ⟨he, -⟩
+        · rw [he] at hmax; exact hmax
+        · rw [he] at hmax; exact absurd hmax hyx
+      refine ⟨hx1, FF.hπ_max _ ?_ ?_⟩
+      · exact (quadField a).mul_mem ((quadField a).algebraMap_mem y) (sqrtIn_mem_quadField a)
+      · rcases lt_or_eq_of_le (le_max_right ‖(algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) x)‖
+          ‖(algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) y) * sqrtIn a‖ |>.trans_eq hmax) with h | h
+        · exact h
+        · exact absurd h hyx
+  obtain ⟨hx1, hyπ⟩ := hmain
+  have hsub : ((u : ↥(quadField a)) : AlgebraicClosure ℚ_[2]) - 1
+      = algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) (x - 1)
+        + (algebraMap ℚ_[2] (AlgebraicClosure ℚ_[2]) y) * sqrtIn a := by
+    rw [hxy, map_sub, map_one]; ring
+  rw [hsub]
+  refine (IsUltrametricDist.norm_add_le_max _ _).trans (max_le ?_ hyπ)
+  rw [norm_algebraMap]
+  refine (norm_sub_one_le_norm_two (by rwa [norm_algebraMap] at hx1)).trans ?_
+  rw [← norm_algebraMap (2 : ℚ_[2]), map_ofNat]
+  exact hπ2
+
+/-- **The `hqK` binder at the four ramified rows, discharged.**  For `v(a)` odd the residue
+degree of `ℚ₂(√a)` is `1`, so `q_K = 2` — for *every* `DyadicUnitFiltration` on the field, since
+the graded count `#(U⁰/U¹) = 2^f − 1` pins `f`. -/
+theorem qOf_quadField (hodd : Odd a.valuation) (ha : ¬ IsSquare a)
+    (FF : DyadicUnitFiltration (quadField a)) : qOf (quadField a) FF = 2 := by
+  have htop : (depthUnits (quadField a) FF.π 1).subgroupOf (normUnits (quadField a)) = ⊤ :=
+    Subgroup.subgroupOf_eq_top.mpr (normUnits_le_depthUnits hodd ha FF)
+  have hcard := FF.card_gr_zero
+  rw [htop] at hcard
+  have hone : Nat.card (↥(normUnits (quadField a)) ⧸ (⊤ : Subgroup ↥(normUnits (quadField a))))
+      = 1 := Nat.card_eq_one_iff_unique.mpr ⟨QuotientGroup.subsingleton_quotient_top, ⟨1⟩⟩
+  rw [hone] at hcard
+  have h2le : 2 ≤ 2 ^ FF.f := by
+    calc (2 : ℕ) = 2 ^ 1 := (pow_one 2).symm
+      _ ≤ 2 ^ FF.f := Nat.pow_le_pow_right (by norm_num) FF.hf_pos
+  have hf : (2 : ℕ) ^ FF.f = 2 ^ 1 := by rw [pow_one]; omega
+  rw [qOf_eq, Nat.pow_right_injective (le_refl 2) hf, pow_one]
+
+end Ramified
+
+/-! ## §5 `q_K = 2` at the four ramified rows -/
+
+section RowsQ
+
+theorem qOf_KSqrtNegTwo (FF : DyadicUnitFiltration KSqrtNegTwo) : qOf KSqrtNegTwo FF = 2 :=
+  qOf_quadField (by rw [valuation_neg, valuation_two]; exact ⟨0, by ring⟩) not_isSquare_neg_two FF
+
+theorem qOf_KSqrtTwo (FF : DyadicUnitFiltration KSqrtTwo) : qOf KSqrtTwo FF = 2 :=
+  qOf_quadField (by rw [valuation_two]; exact ⟨0, by ring⟩) not_isSquare_two FF
+
+theorem qOf_KSqrtTen (FF : DyadicUnitFiltration KSqrtTen) : qOf KSqrtTen FF = 2 :=
+  qOf_quadField (by rw [valuation_ten]; exact ⟨0, by ring⟩) not_isSquare_ten FF
+
+theorem qOf_KSqrtNegTen (FF : DyadicUnitFiltration KSqrtNegTen) : qOf KSqrtNegTen FF = 2 :=
+  qOf_quadField (by rw [valuation_neg, valuation_ten]; exact ⟨0, by ring⟩) not_isSquare_neg_ten FF
+
+end RowsQ
 
 end GQ2.Dyadic.Fields
